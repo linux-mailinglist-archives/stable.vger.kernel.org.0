@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B7E415E498
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:37:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 107FD15E495
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:36:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393738AbgBNQgw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 11:36:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60692 "EHLO mail.kernel.org"
+        id S2390392AbgBNQgs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 11:36:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60830 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405809AbgBNQYG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:24:06 -0500
+        id S2405481AbgBNQYJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:24:09 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2BF562477F;
-        Fri, 14 Feb 2020 16:24:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6CDCD24793;
+        Fri, 14 Feb 2020 16:24:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581697446;
-        bh=BdlkV4m/ydm7xhD5IRtDvesmAsLhifXiarptBB8b99Y=;
+        s=default; t=1581697449;
+        bh=ZuyCav726QAW4wkyACC8DfsuCQ/gIOxRELipMzd9PM8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fk2T9VxLMoYU71g9xMGZA2qdh3cU6srIeCWmEgewKW9ZgzSv0pWnz6M1EQQBXlj28
-         YJAvWlVyEiJuIF1U0R5eu73+Bzsc4F/9PcXExDLMByKilj/Ob4XtGrIhnL33Oxca5M
-         qX3nfQhr+sdGfZVCCrFuu3JB3m5pNV7kvZTwJE/4=
+        b=vNqlZqRjE4bO7KvUM+Uh6uvk80I/WhveHQDmubRN/xJke2OVKM9iLqRzaUCJGNHry
+         h/XvHDPDLpZKpr7azmB+coqjTmMGb+eeyhtsAV8/5vYDUbj1VeM2bxowkf4VkOR2oL
+         ulQ4Hg67G6zgjUP7tt2hT2ycXorRKcB/1fnxwfU8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        =?UTF-8?q?Michel=20D=C3=A4nzer?= <michel.daenzer@amd.com>,
-        Daniel Vetter <daniel.vetter@intel.com>,
-        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 4.9 131/141] radeon: insert 10ms sleep in dce5_crtc_load_lut
-Date:   Fri, 14 Feb 2020 11:21:11 -0500
-Message-Id: <20200214162122.19794-131-sashal@kernel.org>
+Cc:     Nathan Chancellor <natechancellor@gmail.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>,
+        clang-built-linux@googlegroups.com
+Subject: [PATCH AUTOSEL 4.9 133/141] lib/scatterlist.c: adjust indentation in __sg_alloc_table
+Date:   Fri, 14 Feb 2020 11:21:13 -0500
+Message-Id: <20200214162122.19794-133-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214162122.19794-1-sashal@kernel.org>
 References: <20200214162122.19794-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -47,48 +45,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Vetter <daniel.vetter@ffwll.ch>
+From: Nathan Chancellor <natechancellor@gmail.com>
 
-[ Upstream commit ec3d65082d7dabad6fa8f66a8ef166f2d522d6b2 ]
+[ Upstream commit 4e456fee215677584cafa7f67298a76917e89c64 ]
 
-Per at least one tester this is enough magic to recover the regression
-introduced for some people (but not all) in
+Clang warns:
 
-commit b8e2b0199cc377617dc238f5106352c06dcd3fa2
-Author: Peter Rosin <peda@axentia.se>
-Date:   Tue Jul 4 12:36:57 2017 +0200
+  ../lib/scatterlist.c:314:5: warning: misleading indentation; statement
+  is not part of the previous 'if' [-Wmisleading-indentation]
+                          return -ENOMEM;
+                          ^
+  ../lib/scatterlist.c:311:4: note: previous statement is here
+                          if (prv)
+                          ^
+  1 warning generated.
 
-    drm/fb-helper: factor out pseudo-palette
+This warning occurs because there is a space before the tab on this
+line.  Remove it so that the indentation is consistent with the Linux
+kernel coding style and clang no longer warns.
 
-which for radeon had the side-effect of refactoring out a seemingly
-redudant writing of the color palette.
-
-10ms in a fairly slow modeset path feels like an acceptable form of
-duct-tape, so maybe worth a shot and see what sticks.
-
-Cc: Alex Deucher <alexander.deucher@amd.com>
-Cc: Michel Dänzer <michel.daenzer@amd.com>
-References: https://bugzilla.kernel.org/show_bug.cgi?id=198123
-Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Link: http://lkml.kernel.org/r/20191218033606.11942-1-natechancellor@gmail.com
+Link: https://github.com/ClangBuiltLinux/linux/issues/830
+Fixes: edce6820a9fd ("scatterlist: prevent invalid free when alloc fails")
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/radeon/radeon_display.c | 2 ++
- 1 file changed, 2 insertions(+)
+ lib/scatterlist.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/radeon/radeon_display.c b/drivers/gpu/drm/radeon/radeon_display.c
-index 59d62275a659d..c8820cd893d49 100644
---- a/drivers/gpu/drm/radeon/radeon_display.c
-+++ b/drivers/gpu/drm/radeon/radeon_display.c
-@@ -110,6 +110,8 @@ static void dce5_crtc_load_lut(struct drm_crtc *crtc)
+diff --git a/lib/scatterlist.c b/lib/scatterlist.c
+index a854cc39f084f..ef8c14a56d0a7 100644
+--- a/lib/scatterlist.c
++++ b/lib/scatterlist.c
+@@ -317,7 +317,7 @@ int __sg_alloc_table(struct sg_table *table, unsigned int nents,
+ 			if (prv)
+ 				table->nents = ++table->orig_nents;
  
- 	DRM_DEBUG_KMS("%d\n", radeon_crtc->crtc_id);
+- 			return -ENOMEM;
++			return -ENOMEM;
+ 		}
  
-+	msleep(10);
-+
- 	WREG32(NI_INPUT_CSC_CONTROL + radeon_crtc->crtc_offset,
- 	       (NI_INPUT_CSC_GRPH_MODE(NI_INPUT_CSC_BYPASS) |
- 		NI_INPUT_CSC_OVL_MODE(NI_INPUT_CSC_BYPASS)));
+ 		sg_init_table(sg, alloc_size);
 -- 
 2.20.1
 
