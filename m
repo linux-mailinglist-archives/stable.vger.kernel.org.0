@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D9D5115E971
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:08:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6746D15E976
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:08:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404022AbgBNQOZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 11:14:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43960 "EHLO mail.kernel.org"
+        id S2392319AbgBNQO2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 11:14:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43990 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404016AbgBNQOZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:14:25 -0500
+        id S2392317AbgBNQO2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:14:28 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B6D93246C9;
-        Fri, 14 Feb 2020 16:14:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 43529246C7;
+        Fri, 14 Feb 2020 16:14:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581696864;
-        bh=0WYT4szMb7DP/YdPdxU6t2Y/fi4579HGwYwbNDVFFZ4=;
+        s=default; t=1581696867;
+        bh=xQM0uPjZsooTMpC1WG3wcbR5D1vL5bOUNcfjkmPiN3k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g/IQ+rQfV+dOYvMBuWbvUnQCPngVROmbfmoPmFI796XhZx8k4zhW9k432Va1zv6+L
-         GHquBqgWCmbacP/Oe30Cz1DpkUcq6Gu39IzTS/kytjPN27H5tspBRz6WKixrjIqCUa
-         +mc2OAXBul8obSD6o/+lXI7phvDCoOgJe4xfOoZ4=
+        b=LvCA5AYkLZ57y9iL7WDAaZ1BT8rfbr3Ly7vmf4GNBBfByMN+DqR2IKvSuGGwWGWYT
+         viAa3vEoNd0rHlkHDH65O1E6Yi+yyvK70SEjx411nRS3VzR3wzCRJNt1dQBhRF/s0G
+         pfrpPzLylZ7bzJijG0zy+bw8VEGyxKQhVI3aE10E=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Geert Uytterhoeven <geert+renesas@glider.be>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-renesas-soc@vger.kernel.org, linux-gpio@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 123/252] pinctrl: sh-pfc: r8a7778: Fix duplicate SDSELF_B and SD1_CLK_B
-Date:   Fri, 14 Feb 2020 11:09:38 -0500
-Message-Id: <20200214161147.15842-123-sashal@kernel.org>
+Cc:     Jiewei Ke <kejiewei.cn@gmail.com>,
+        Jason Gunthorpe <jgg@mellanox.com>,
+        Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 126/252] RDMA/rxe: Fix error type of mmap_offset
+Date:   Fri, 14 Feb 2020 11:09:41 -0500
+Message-Id: <20200214161147.15842-126-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214161147.15842-1-sashal@kernel.org>
 References: <20200214161147.15842-1-sashal@kernel.org>
@@ -43,43 +43,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+From: Jiewei Ke <kejiewei.cn@gmail.com>
 
-[ Upstream commit 805f635703b2562b5ddd822c62fc9124087e5dd5 ]
+[ Upstream commit 6ca18d8927d468c763571f78c9a7387a69ffa020 ]
 
-The FN_SDSELF_B and FN_SD1_CLK_B enum IDs are used twice, which means
-one set of users must be wrong.  Replace them by the correct enum IDs.
+The type of mmap_offset should be u64 instead of int to match the type of
+mminfo.offset. If otherwise, after we create several thousands of CQs, it
+will run into overflow issues.
 
-Fixes: 87f8c988636db0d4 ("sh-pfc: Add r8a7778 pinmux support")
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Link: https://lore.kernel.org/r/20191218194812.12741-2-geert+renesas@glider.be
+Link: https://lore.kernel.org/r/20191227113613.5020-1-kejiewei.cn@gmail.com
+Signed-off-by: Jiewei Ke <kejiewei.cn@gmail.com>
+Reviewed-by: Jason Gunthorpe <jgg@mellanox.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/sh-pfc/pfc-r8a7778.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/infiniband/sw/rxe/rxe_verbs.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/pinctrl/sh-pfc/pfc-r8a7778.c b/drivers/pinctrl/sh-pfc/pfc-r8a7778.c
-index 00d61d1752496..c60fce1225b02 100644
---- a/drivers/pinctrl/sh-pfc/pfc-r8a7778.c
-+++ b/drivers/pinctrl/sh-pfc/pfc-r8a7778.c
-@@ -2325,7 +2325,7 @@ static const struct pinmux_cfg_reg pinmux_config_regs[] = {
- 		FN_ATAG0_A,	0,		FN_REMOCON_B,	0,
- 		/* IP0_11_8 [4] */
- 		FN_SD1_DAT2_A,	FN_MMC_D2,	0,		FN_BS,
--		FN_ATADIR0_A,	0,		FN_SDSELF_B,	0,
-+		FN_ATADIR0_A,	0,		FN_SDSELF_A,	0,
- 		FN_PWM4_B,	0,		0,		0,
- 		0,		0,		0,		0,
- 		/* IP0_7_5 [3] */
-@@ -2367,7 +2367,7 @@ static const struct pinmux_cfg_reg pinmux_config_regs[] = {
- 		FN_TS_SDAT0_A,	0,		0,		0,
- 		0,		0,		0,		0,
- 		/* IP1_10_8 [3] */
--		FN_SD1_CLK_B,	FN_MMC_D6,	0,		FN_A24,
-+		FN_SD1_CD_A,	FN_MMC_D6,	0,		FN_A24,
- 		FN_DREQ1_A,	0,		FN_HRX0_B,	FN_TS_SPSYNC0_A,
- 		/* IP1_7_5 [3] */
- 		FN_A23,		FN_HTX0_B,	FN_TX2_B,	FN_DACK2_A,
+diff --git a/drivers/infiniband/sw/rxe/rxe_verbs.h b/drivers/infiniband/sw/rxe/rxe_verbs.h
+index 6a75f96b90962..b4e24362edbb0 100644
+--- a/drivers/infiniband/sw/rxe/rxe_verbs.h
++++ b/drivers/infiniband/sw/rxe/rxe_verbs.h
+@@ -407,7 +407,7 @@ struct rxe_dev {
+ 	struct list_head	pending_mmaps;
+ 
+ 	spinlock_t		mmap_offset_lock; /* guard mmap_offset */
+-	int			mmap_offset;
++	u64			mmap_offset;
+ 
+ 	atomic64_t		stats_counters[RXE_NUM_OF_COUNTERS];
+ 
 -- 
 2.20.1
 
