@@ -2,43 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 45ECA15DF37
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:08:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5047815DF3E
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:08:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388353AbgBNQHY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 11:07:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58696 "EHLO mail.kernel.org"
+        id S2390724AbgBNQHi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 11:07:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59120 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390658AbgBNQHX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:07:23 -0500
+        id S2390723AbgBNQHi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:07:38 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1E9DE24684;
-        Fri, 14 Feb 2020 16:07:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F2F3224654;
+        Fri, 14 Feb 2020 16:07:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581696443;
-        bh=dvE44OfBTrD5yaVr32CYxZ9E+07kwMmWlVXEWMen15s=;
+        s=default; t=1581696457;
+        bh=veonelLyHYVdZEaWEmcvfnbE3w0QTXWIx3ruw3NtQm4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FVi2wnq5lGMJnLMHWmcHHeWd/MTMYYFehQHYuv2HkylExjU4NYHtu9d3TXfUabMW9
-         +QU+h0idUAtBw8/wEk/QjC5Hw0tUxbiUKZ9qRzSiylHeVCiL5OZJPtS69m/4PLg0fI
-         /QaHTA8VsCTEvCB9g3iArjYC/bfNOgoDY9b9eSSU=
+        b=OO289xAiajvRJbb28W2ZNR5SQEZTUCidRJgPvaqW4OrUtSiTgMTP+9LxlT02t6OS1
+         maCFEc/g7dpoLd7gyidBhjbdALUbp7478zl0xgRvFfTQuwtA+8F5P0j04xf3vuP9dU
+         B0dPMWlmWvrSn8kvbfVnQIykNO0dRt7FMm5qwKt4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dingchen Zhang <dingchen.zhang@amd.com>,
-        Leo Li <sunpeng.li@amd.com>,
-        Harry Wentland <Harry.Wentland@amd.com>,
-        Sam Ravnborg <sam@ravnborg.org>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.4 258/459] drm: remove the newline for CRC source name.
-Date:   Fri, 14 Feb 2020 10:58:28 -0500
-Message-Id: <20200214160149.11681-258-sashal@kernel.org>
+Cc:     Jan Kara <jack@suse.cz>,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali.rohar@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 269/459] udf: Fix free space reporting for metadata and virtual partitions
+Date:   Fri, 14 Feb 2020 10:58:39 -0500
+Message-Id: <20200214160149.11681-269-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214160149.11681-1-sashal@kernel.org>
 References: <20200214160149.11681-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -47,46 +44,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dingchen Zhang <dingchen.zhang@amd.com>
+From: Jan Kara <jack@suse.cz>
 
-[ Upstream commit 72a848f5c46bab4c921edc9cbffd1ab273b2be17 ]
+[ Upstream commit a4a8b99ec819ca60b49dc582a4287ef03411f117 ]
 
-userspace may transfer a newline, and this terminating newline
-is replaced by a '\0' to avoid followup issues.
+Free space on filesystems with metadata or virtual partition maps
+currently gets misreported. This is because these partitions are just
+remapped onto underlying real partitions from which keep track of free
+blocks. Take this remapping into account when counting free blocks as
+well.
 
-'len-1' is the index to replace the newline of CRC source name.
-
-v3: typo fix (Sam)
-
-v2: update patch subject, body and format. (Sam)
-
-Cc: Leo Li <sunpeng.li@amd.com>
-Cc: Harry Wentland <Harry.Wentland@amd.com>
-Cc: Sam Ravnborg <sam@ravnborg.org>
-Signed-off-by: Dingchen Zhang <dingchen.zhang@amd.com>
-Reviewed-by: Sam Ravnborg <sam@ravnborg.org>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20190610134751.14356-1-dingchen.zhang@amd.com
+Reviewed-by: Pali Rohár <pali.rohar@gmail.com>
+Reported-by: Pali Rohár <pali.rohar@gmail.com>
+Signed-off-by: Jan Kara <jack@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/drm_debugfs_crc.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ fs/udf/super.c | 22 +++++++++++++++++-----
+ 1 file changed, 17 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/gpu/drm/drm_debugfs_crc.c b/drivers/gpu/drm/drm_debugfs_crc.c
-index be1b7ba92ffe1..6a626c82e264b 100644
---- a/drivers/gpu/drm/drm_debugfs_crc.c
-+++ b/drivers/gpu/drm/drm_debugfs_crc.c
-@@ -140,8 +140,8 @@ static ssize_t crc_control_write(struct file *file, const char __user *ubuf,
- 	if (IS_ERR(source))
- 		return PTR_ERR(source);
+diff --git a/fs/udf/super.c b/fs/udf/super.c
+index 008bf96b1732d..4baa1ca91e9be 100644
+--- a/fs/udf/super.c
++++ b/fs/udf/super.c
+@@ -2491,17 +2491,29 @@ static unsigned int udf_count_free_table(struct super_block *sb,
+ static unsigned int udf_count_free(struct super_block *sb)
+ {
+ 	unsigned int accum = 0;
+-	struct udf_sb_info *sbi;
++	struct udf_sb_info *sbi = UDF_SB(sb);
+ 	struct udf_part_map *map;
++	unsigned int part = sbi->s_partition;
++	int ptype = sbi->s_partmaps[part].s_partition_type;
++
++	if (ptype == UDF_METADATA_MAP25) {
++		part = sbi->s_partmaps[part].s_type_specific.s_metadata.
++							s_phys_partition_ref;
++	} else if (ptype == UDF_VIRTUAL_MAP15 || ptype == UDF_VIRTUAL_MAP20) {
++		/*
++		 * Filesystems with VAT are append-only and we cannot write to
++ 		 * them. Let's just report 0 here.
++		 */
++		return 0;
++	}
  
--	if (source[len] == '\n')
--		source[len] = '\0';
-+	if (source[len - 1] == '\n')
-+		source[len - 1] = '\0';
+-	sbi = UDF_SB(sb);
+ 	if (sbi->s_lvid_bh) {
+ 		struct logicalVolIntegrityDesc *lvid =
+ 			(struct logicalVolIntegrityDesc *)
+ 			sbi->s_lvid_bh->b_data;
+-		if (le32_to_cpu(lvid->numOfPartitions) > sbi->s_partition) {
++		if (le32_to_cpu(lvid->numOfPartitions) > part) {
+ 			accum = le32_to_cpu(
+-					lvid->freeSpaceTable[sbi->s_partition]);
++					lvid->freeSpaceTable[part]);
+ 			if (accum == 0xFFFFFFFF)
+ 				accum = 0;
+ 		}
+@@ -2510,7 +2522,7 @@ static unsigned int udf_count_free(struct super_block *sb)
+ 	if (accum)
+ 		return accum;
  
- 	ret = crtc->funcs->verify_crc_source(crtc, source, &values_cnt);
- 	if (ret)
+-	map = &sbi->s_partmaps[sbi->s_partition];
++	map = &sbi->s_partmaps[part];
+ 	if (map->s_partition_flags & UDF_PART_FLAG_UNALLOC_BITMAP) {
+ 		accum += udf_count_free_bitmap(sb,
+ 					       map->s_uspace.s_bitmap);
 -- 
 2.20.1
 
