@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2AE2515EFCC
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:50:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B99E315EFB5
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:50:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388351AbgBNRu2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 12:50:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43568 "EHLO mail.kernel.org"
+        id S1728239AbgBNP7H (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 10:59:07 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43594 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388797AbgBNP7F (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 10:59:05 -0500
+        id S2388709AbgBNP7G (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 10:59:06 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 02DF424654;
-        Fri, 14 Feb 2020 15:59:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 46BC924680;
+        Fri, 14 Feb 2020 15:59:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581695944;
-        bh=Gb6zO3vrz52MEdvW1LhATnJkf+J9deNEM1D6WGHxNqI=;
+        s=default; t=1581695946;
+        bh=dfkQTTlWdh9yeBtr6FQzHpZfrJDgKsq5R03253NZN1g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=StSik9lnetLltfR2zvgtHNmFWuv+4O793LYQ2nifO9/0fgtYSOr0jF6oEBCDDJMP4
-         7K7HzVqhRzy9POcuzhX91gvSYxG4HOVWP+Uo4nS0lLaKaD8A8V2aHqdr6iADEPiYK5
-         PrxEwB8hU3krkYXVDuge4jXuf9ct5fWYE/Ld7bUY=
+        b=sPH6KNkUG2S1lLCHSWvva7deZQb4BDtgIXbJKksgrK8O+watKtKzuLO8b4/FPNNJH
+         lKJ7hVi+MdnOIssU943PTpEYvOvuwkkHxWEQaKwF1AGcpOPinh/kOWrU8bXO9LhpP/
+         SeqfMs3CsiwwVJaaI7h9N/hAQx+oX+MOgHeF812M=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Colin Ian King <colin.king@canonical.com>,
-        Stanislaw Gruszka <stf_xl@wp.pl>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.5 477/542] iwlegacy: ensure loop counter addr does not wrap and cause an infinite loop
-Date:   Fri, 14 Feb 2020 10:47:49 -0500
-Message-Id: <20200214154854.6746-477-sashal@kernel.org>
+Cc:     Steve French <stfrench@microsoft.com>,
+        Colin Ian King <colin.king@canonical.com>,
+        Paulo Alcantara <pc@cjr.nz>, Sasha Levin <sashal@kernel.org>,
+        linux-cifs@vger.kernel.org, samba-technical@lists.samba.org
+Subject: [PATCH AUTOSEL 5.5 478/542] cifs: fix unitialized variable poential problem with network I/O cache lock patch
+Date:   Fri, 14 Feb 2020 10:47:50 -0500
+Message-Id: <20200214154854.6746-478-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214154854.6746-1-sashal@kernel.org>
 References: <20200214154854.6746-1-sashal@kernel.org>
@@ -45,39 +44,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Steve French <stfrench@microsoft.com>
 
-[ Upstream commit c2f9a4e4a5abfc84c01b738496b3fd2d471e0b18 ]
+[ Upstream commit 463a7b457c02250a84faa1d23c52da9e3364aed2 ]
 
-The loop counter addr is a u16 where as the upper limit of the loop
-is an int. In the unlikely event that the il->cfg->eeprom_size is
-greater than 64K then we end up with an infinite loop since addr will
-wrap around an never reach upper loop limit. Fix this by making addr
-an int.
+static analysis with Coverity detected an issue with the following
+commit:
 
-Addresses-Coverity: ("Infinite loop")
-Fixes: be663ab67077 ("iwlwifi: split the drivers for agn and legacy devices 3945/4965")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Acked-by: Stanislaw Gruszka <stf_xl@wp.pl>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+ Author: Paulo Alcantara (SUSE) <pc@cjr.nz>
+ Date:   Wed Dec 4 17:38:03 2019 -0300
+
+    cifs: Avoid doing network I/O while holding cache lock
+
+Addresses-Coverity: ("Uninitialized pointer read")
+Reported-by: Colin Ian King <colin.king@canonical.com>
+Signed-off-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/intel/iwlegacy/common.c | 2 +-
+ fs/cifs/dfs_cache.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/intel/iwlegacy/common.c b/drivers/net/wireless/intel/iwlegacy/common.c
-index d966b29b45ee7..348c17ce72f5c 100644
---- a/drivers/net/wireless/intel/iwlegacy/common.c
-+++ b/drivers/net/wireless/intel/iwlegacy/common.c
-@@ -699,7 +699,7 @@ il_eeprom_init(struct il_priv *il)
- 	u32 gp = _il_rd(il, CSR_EEPROM_GP);
- 	int sz;
- 	int ret;
--	u16 addr;
-+	int addr;
+diff --git a/fs/cifs/dfs_cache.c b/fs/cifs/dfs_cache.c
+index 2faa05860a483..cf6cec59696c2 100644
+--- a/fs/cifs/dfs_cache.c
++++ b/fs/cifs/dfs_cache.c
+@@ -1319,7 +1319,7 @@ static struct cifs_ses *find_root_ses(struct dfs_cache_vol_info *vi,
+ 	char *mdata = NULL, *devname = NULL;
+ 	struct TCP_Server_Info *server;
+ 	struct cifs_ses *ses;
+-	struct smb_vol vol;
++	struct smb_vol vol = {NULL};
  
- 	/* allocate eeprom */
- 	sz = il->cfg->eeprom_size;
+ 	rpath = get_dfs_root(path);
+ 	if (IS_ERR(rpath))
 -- 
 2.20.1
 
