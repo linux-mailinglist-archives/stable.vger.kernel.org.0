@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 247E315E3D9
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:32:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6BFD115E3C4
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:32:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2406201AbgBNQcp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 11:32:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35650 "EHLO mail.kernel.org"
+        id S2406206AbgBNQZq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 11:25:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35674 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2406190AbgBNQZo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:25:44 -0500
+        id S2406197AbgBNQZp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:25:45 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 25632247C8;
-        Fri, 14 Feb 2020 16:25:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 423AB247D0;
+        Fri, 14 Feb 2020 16:25:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581697543;
-        bh=6qBaMBa9O1quroqDXcJ/6oezinCncWm5hTqLJKbdXv8=;
+        s=default; t=1581697545;
+        bh=T1ZKD43Hoi0VlEAm4qsLbLuTAyNG1fwLV0FTSp5WMTQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fA1JGeI8c/kl1NbDpRuSLp/nKl111ACIXgkKHncTcpoW6N0AWj5skl/yb690DFcYR
-         WYCEI6yUHLTbHBeoImnY5xmo2HIqxSAsLFZICj0mCkzLkF+90c1pX4VHQ4PqB6E5ll
-         w9zVv4lXGbnI2oID8s5iIcmu15TLCSQuL8OpU1J4=
+        b=zFhJTgmuketWb8/eBZ+nELYOaPL7ct6LZqdv3nRPFMtGtB+iTaUJLnyDbGTxv4aTU
+         Hm9NT1dqBlCO9ir3KbSqxi0w0Kf8qGB55oYoPB63tLkFhzfbPcM/Urys1EGFMdObY8
+         YVZzssrNq+JCExmaTit6N0IW5ooTyo8VGLL9dcgg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "Paul E. McKenney" <paulmck@kernel.org>,
-        Eric Dumazet <edumazet@google.com>,
-        Sasha Levin <sashal@kernel.org>, rcu@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 063/100] rcu: Use WRITE_ONCE() for assignments to ->pprev for hlist_nulls
-Date:   Fri, 14 Feb 2020 11:23:47 -0500
-Message-Id: <20200214162425.21071-63-sashal@kernel.org>
+Cc:     Philipp Zabel <p.zabel@pengutronix.de>,
+        Marco Felsch <m.felsch@pengutronix.de>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 064/100] Input: edt-ft5x06 - work around first register access error
+Date:   Fri, 14 Feb 2020 11:23:48 -0500
+Message-Id: <20200214162425.21071-64-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214162425.21071-1-sashal@kernel.org>
 References: <20200214162425.21071-1-sashal@kernel.org>
@@ -43,167 +45,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Paul E. McKenney" <paulmck@kernel.org>
+From: Philipp Zabel <p.zabel@pengutronix.de>
 
-[ Upstream commit 860c8802ace14c646864795e057349c9fb2d60ad ]
+[ Upstream commit e112324cc0422c046f1cf54c56f333d34fa20885 ]
 
-Eric Dumazet supplied a KCSAN report of a bug that forces use
-of hlist_unhashed_lockless() from sk_unhashed():
+The EP0700MLP1 returns bogus data on the first register read access
+(reading the threshold parameter from register 0x00):
 
-------------------------------------------------------------------------
+    edt_ft5x06 2-0038: crc error: 0xfc expected, got 0x40
 
-BUG: KCSAN: data-race in inet_unhash / inet_unhash
+It ignores writes until then. This patch adds a dummy read after which
+the number of sensors and parameter read/writes work correctly.
 
-write to 0xffff8880a69a0170 of 8 bytes by interrupt on cpu 1:
- __hlist_nulls_del include/linux/list_nulls.h:88 [inline]
- hlist_nulls_del_init_rcu include/linux/rculist_nulls.h:36 [inline]
- __sk_nulls_del_node_init_rcu include/net/sock.h:676 [inline]
- inet_unhash+0x38f/0x4a0 net/ipv4/inet_hashtables.c:612
- tcp_set_state+0xfa/0x3e0 net/ipv4/tcp.c:2249
- tcp_done+0x93/0x1e0 net/ipv4/tcp.c:3854
- tcp_write_err+0x7e/0xc0 net/ipv4/tcp_timer.c:56
- tcp_retransmit_timer+0x9b8/0x16d0 net/ipv4/tcp_timer.c:479
- tcp_write_timer_handler+0x42d/0x510 net/ipv4/tcp_timer.c:599
- tcp_write_timer+0xd1/0xf0 net/ipv4/tcp_timer.c:619
- call_timer_fn+0x5f/0x2f0 kernel/time/timer.c:1404
- expire_timers kernel/time/timer.c:1449 [inline]
- __run_timers kernel/time/timer.c:1773 [inline]
- __run_timers kernel/time/timer.c:1740 [inline]
- run_timer_softirq+0xc0c/0xcd0 kernel/time/timer.c:1786
- __do_softirq+0x115/0x33f kernel/softirq.c:292
- invoke_softirq kernel/softirq.c:373 [inline]
- irq_exit+0xbb/0xe0 kernel/softirq.c:413
- exiting_irq arch/x86/include/asm/apic.h:536 [inline]
- smp_apic_timer_interrupt+0xe6/0x280 arch/x86/kernel/apic/apic.c:1137
- apic_timer_interrupt+0xf/0x20 arch/x86/entry/entry_64.S:830
- native_safe_halt+0xe/0x10 arch/x86/kernel/paravirt.c:71
- arch_cpu_idle+0x1f/0x30 arch/x86/kernel/process.c:571
- default_idle_call+0x1e/0x40 kernel/sched/idle.c:94
- cpuidle_idle_call kernel/sched/idle.c:154 [inline]
- do_idle+0x1af/0x280 kernel/sched/idle.c:263
- cpu_startup_entry+0x1b/0x20 kernel/sched/idle.c:355
- start_secondary+0x208/0x260 arch/x86/kernel/smpboot.c:264
- secondary_startup_64+0xa4/0xb0 arch/x86/kernel/head_64.S:241
-
-read to 0xffff8880a69a0170 of 8 bytes by interrupt on cpu 0:
- sk_unhashed include/net/sock.h:607 [inline]
- inet_unhash+0x3d/0x4a0 net/ipv4/inet_hashtables.c:592
- tcp_set_state+0xfa/0x3e0 net/ipv4/tcp.c:2249
- tcp_done+0x93/0x1e0 net/ipv4/tcp.c:3854
- tcp_write_err+0x7e/0xc0 net/ipv4/tcp_timer.c:56
- tcp_retransmit_timer+0x9b8/0x16d0 net/ipv4/tcp_timer.c:479
- tcp_write_timer_handler+0x42d/0x510 net/ipv4/tcp_timer.c:599
- tcp_write_timer+0xd1/0xf0 net/ipv4/tcp_timer.c:619
- call_timer_fn+0x5f/0x2f0 kernel/time/timer.c:1404
- expire_timers kernel/time/timer.c:1449 [inline]
- __run_timers kernel/time/timer.c:1773 [inline]
- __run_timers kernel/time/timer.c:1740 [inline]
- run_timer_softirq+0xc0c/0xcd0 kernel/time/timer.c:1786
- __do_softirq+0x115/0x33f kernel/softirq.c:292
- invoke_softirq kernel/softirq.c:373 [inline]
- irq_exit+0xbb/0xe0 kernel/softirq.c:413
- exiting_irq arch/x86/include/asm/apic.h:536 [inline]
- smp_apic_timer_interrupt+0xe6/0x280 arch/x86/kernel/apic/apic.c:1137
- apic_timer_interrupt+0xf/0x20 arch/x86/entry/entry_64.S:830
- native_safe_halt+0xe/0x10 arch/x86/kernel/paravirt.c:71
- arch_cpu_idle+0x1f/0x30 arch/x86/kernel/process.c:571
- default_idle_call+0x1e/0x40 kernel/sched/idle.c:94
- cpuidle_idle_call kernel/sched/idle.c:154 [inline]
- do_idle+0x1af/0x280 kernel/sched/idle.c:263
- cpu_startup_entry+0x1b/0x20 kernel/sched/idle.c:355
- rest_init+0xec/0xf6 init/main.c:452
- arch_call_rest_init+0x17/0x37
- start_kernel+0x838/0x85e init/main.c:786
- x86_64_start_reservations+0x29/0x2b arch/x86/kernel/head64.c:490
- x86_64_start_kernel+0x72/0x76 arch/x86/kernel/head64.c:471
- secondary_startup_64+0xa4/0xb0 arch/x86/kernel/head_64.S:241
-
-Reported by Kernel Concurrency Sanitizer on:
-CPU: 0 PID: 0 Comm: swapper/0 Not tainted 5.4.0-rc6+ #0
-Hardware name: Google Google Compute Engine/Google Compute Engine,
-BIOS Google 01/01/2011
-
-------------------------------------------------------------------------
-
-This commit therefore replaces C-language assignments with WRITE_ONCE()
-in include/linux/list_nulls.h and include/linux/rculist_nulls.h.
-
-Reported-by: Eric Dumazet <edumazet@google.com> # For KCSAN
-Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
+Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
+Signed-off-by: Marco Felsch <m.felsch@pengutronix.de>
+Tested-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/list_nulls.h    | 8 ++++----
- include/linux/rculist_nulls.h | 8 ++++----
- 2 files changed, 8 insertions(+), 8 deletions(-)
+ drivers/input/touchscreen/edt-ft5x06.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/include/linux/list_nulls.h b/include/linux/list_nulls.h
-index 444d2b1313bda..703928e4fd42d 100644
---- a/include/linux/list_nulls.h
-+++ b/include/linux/list_nulls.h
-@@ -66,10 +66,10 @@ static inline void hlist_nulls_add_head(struct hlist_nulls_node *n,
- 	struct hlist_nulls_node *first = h->first;
- 
- 	n->next = first;
--	n->pprev = &h->first;
-+	WRITE_ONCE(n->pprev, &h->first);
- 	h->first = n;
- 	if (!is_a_nulls(first))
--		first->pprev = &n->next;
-+		WRITE_ONCE(first->pprev, &n->next);
- }
- 
- static inline void __hlist_nulls_del(struct hlist_nulls_node *n)
-@@ -79,13 +79,13 @@ static inline void __hlist_nulls_del(struct hlist_nulls_node *n)
- 
- 	WRITE_ONCE(*pprev, next);
- 	if (!is_a_nulls(next))
--		next->pprev = pprev;
-+		WRITE_ONCE(next->pprev, pprev);
- }
- 
- static inline void hlist_nulls_del(struct hlist_nulls_node *n)
+diff --git a/drivers/input/touchscreen/edt-ft5x06.c b/drivers/input/touchscreen/edt-ft5x06.c
+index 0b0f8c17f3f7e..a9d97d577a7e9 100644
+--- a/drivers/input/touchscreen/edt-ft5x06.c
++++ b/drivers/input/touchscreen/edt-ft5x06.c
+@@ -880,6 +880,7 @@ static int edt_ft5x06_ts_probe(struct i2c_client *client,
  {
- 	__hlist_nulls_del(n);
--	n->pprev = LIST_POISON2;
-+	WRITE_ONCE(n->pprev, LIST_POISON2);
- }
- 
- /**
-diff --git a/include/linux/rculist_nulls.h b/include/linux/rculist_nulls.h
-index 1c33dd7da4a7d..f35dc0a1d6ebc 100644
---- a/include/linux/rculist_nulls.h
-+++ b/include/linux/rculist_nulls.h
-@@ -33,7 +33,7 @@ static inline void hlist_nulls_del_init_rcu(struct hlist_nulls_node *n)
- {
- 	if (!hlist_nulls_unhashed(n)) {
- 		__hlist_nulls_del(n);
--		n->pprev = NULL;
-+		WRITE_ONCE(n->pprev, NULL);
+ 	const struct edt_i2c_chip_data *chip_data;
+ 	struct edt_ft5x06_ts_data *tsdata;
++	u8 buf[2] = { 0xfc, 0x00 };
+ 	struct input_dev *input;
+ 	unsigned long irq_flags;
+ 	int error;
+@@ -949,6 +950,12 @@ static int edt_ft5x06_ts_probe(struct i2c_client *client,
+ 		return error;
  	}
- }
  
-@@ -65,7 +65,7 @@ static inline void hlist_nulls_del_init_rcu(struct hlist_nulls_node *n)
- static inline void hlist_nulls_del_rcu(struct hlist_nulls_node *n)
- {
- 	__hlist_nulls_del(n);
--	n->pprev = LIST_POISON2;
-+	WRITE_ONCE(n->pprev, LIST_POISON2);
- }
- 
- /**
-@@ -93,10 +93,10 @@ static inline void hlist_nulls_add_head_rcu(struct hlist_nulls_node *n,
- 	struct hlist_nulls_node *first = h->first;
- 
- 	n->next = first;
--	n->pprev = &h->first;
-+	WRITE_ONCE(n->pprev, &h->first);
- 	rcu_assign_pointer(hlist_nulls_first_rcu(h), n);
- 	if (!is_a_nulls(first))
--		first->pprev = &n->next;
-+		WRITE_ONCE(first->pprev, &n->next);
- }
- /**
-  * hlist_nulls_for_each_entry_rcu - iterate over rcu list of given type
++	/*
++	 * Dummy read access. EP0700MLP1 returns bogus data on the first
++	 * register read access and ignores writes.
++	 */
++	edt_ft5x06_ts_readwrite(tsdata->client, 2, buf, 2, buf);
++
+ 	edt_ft5x06_ts_set_regs(tsdata);
+ 	edt_ft5x06_ts_get_defaults(&client->dev, tsdata);
+ 	edt_ft5x06_ts_get_parameters(tsdata);
 -- 
 2.20.1
 
