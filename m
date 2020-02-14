@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 95E4515E178
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:18:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7718A15E17A
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:19:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404863AbgBNQSw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 11:18:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51724 "EHLO mail.kernel.org"
+        id S2404878AbgBNQS4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 11:18:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51864 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404858AbgBNQSv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:18:51 -0500
+        id S2404875AbgBNQSz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:18:55 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F40D424716;
-        Fri, 14 Feb 2020 16:18:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 386232470C;
+        Fri, 14 Feb 2020 16:18:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581697131;
-        bh=C/wdEos4wA2xfQpgeNBE4p1Xv5QaOA7GnM1ypr2cjgE=;
+        s=default; t=1581697135;
+        bh=iFifDO9yFOO8W3uNJ+g5vMNyouKEULQX4BnOrjZCmQ0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wne1ABSGr33XRYsEnAcXaVft7v6sUyIISIdHaYDVQTVeWti7JegGf7L0a3xl1HKtU
-         geSu/2l6Jgz3Nkt/SM4Gkbj0R7D6fgG8IxmkDsBblmczlRPcUIkheUSh6QVJVx5soE
-         GuJSON147tzVdALAsN0mBoUKsRHG+WNEi9xksg+s=
+        b=qz0CKQlOrfmBSNFVD8dq6C4BAer4x6dYxv/9qRglpT5VtpujnUfkaOpMg+mYPuQPe
+         5I+kjNGyRUwlOi1Hnpjb8gcwnKzW8JNl162Iixfy6nOrc43yQbDuYopr7V4rolZx3G
+         W7JJcH5QjzK6761bVcr6FRFTTaXjfq6zVL/ZYll0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Aditya Pakki <pakki001@umn.edu>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-atm-general@lists.sourceforge.net, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 074/186] fore200e: Fix incorrect checks of NULL pointer dereference
-Date:   Fri, 14 Feb 2020 11:15:23 -0500
-Message-Id: <20200214161715.18113-74-sashal@kernel.org>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Stephen Rothwell <sfr@canb.auug.org.au>,
+        David Engraf <david.engraf@sysgo.com>,
+        Sasha Levin <sashal@kernel.org>, linux-serial@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.14 077/186] Revert "tty/serial: atmel: fix out of range clock divider handling"
+Date:   Fri, 14 Feb 2020 11:15:26 -0500
+Message-Id: <20200214161715.18113-77-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214161715.18113-1-sashal@kernel.org>
 References: <20200214161715.18113-1-sashal@kernel.org>
@@ -44,78 +45,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aditya Pakki <pakki001@umn.edu>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-[ Upstream commit bbd20c939c8aa3f27fa30e86691af250bf92973a ]
+[ Upstream commit 6dbd54e4154dfe386b3333687de15be239576617 ]
 
-In fore200e_send and fore200e_close, the pointers from the arguments
-are dereferenced in the variable declaration block and then checked
-for NULL. The patch fixes these issues by avoiding NULL pointer
-dereferences.
+This reverts commit 751d0017334db9c4d68a8909c59f662a6ecbcec6.
 
-Signed-off-by: Aditya Pakki <pakki001@umn.edu>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+The wrong commit got added to the tty-next tree, the correct one is in
+the tty-linus branch.
+
+Reported-by: Stephen Rothwell <sfr@canb.auug.org.au>
+Cc: David Engraf <david.engraf@sysgo.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/atm/fore200e.c | 25 ++++++++++++++++++-------
- 1 file changed, 18 insertions(+), 7 deletions(-)
+ drivers/tty/serial/atmel_serial.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/atm/fore200e.c b/drivers/atm/fore200e.c
-index f8b7e86907cc2..0a1ad1a1d34fb 100644
---- a/drivers/atm/fore200e.c
-+++ b/drivers/atm/fore200e.c
-@@ -1496,12 +1496,14 @@ fore200e_open(struct atm_vcc *vcc)
- static void
- fore200e_close(struct atm_vcc* vcc)
- {
--    struct fore200e*        fore200e = FORE200E_DEV(vcc->dev);
-     struct fore200e_vcc*    fore200e_vcc;
-+    struct fore200e*        fore200e;
-     struct fore200e_vc_map* vc_map;
-     unsigned long           flags;
+diff --git a/drivers/tty/serial/atmel_serial.c b/drivers/tty/serial/atmel_serial.c
+index 367ce812743e2..b9ec2b3d561e5 100644
+--- a/drivers/tty/serial/atmel_serial.c
++++ b/drivers/tty/serial/atmel_serial.c
+@@ -2183,6 +2183,9 @@ static void atmel_set_termios(struct uart_port *port, struct ktermios *termios,
+ 		mode |= ATMEL_US_USMODE_NORMAL;
+ 	}
  
-     ASSERT(vcc);
-+    fore200e = FORE200E_DEV(vcc->dev);
++	/* set the mode, clock divisor, parity, stop bits and data size */
++	atmel_uart_writel(port, ATMEL_US_MR, mode);
 +
-     ASSERT((vcc->vpi >= 0) && (vcc->vpi < 1<<FORE200E_VPI_BITS));
-     ASSERT((vcc->vci >= 0) && (vcc->vci < 1<<FORE200E_VCI_BITS));
- 
-@@ -1546,10 +1548,10 @@ fore200e_close(struct atm_vcc* vcc)
- static int
- fore200e_send(struct atm_vcc *vcc, struct sk_buff *skb)
- {
--    struct fore200e*        fore200e     = FORE200E_DEV(vcc->dev);
--    struct fore200e_vcc*    fore200e_vcc = FORE200E_VCC(vcc);
-+    struct fore200e*        fore200e;
-+    struct fore200e_vcc*    fore200e_vcc;
-     struct fore200e_vc_map* vc_map;
--    struct host_txq*        txq          = &fore200e->host_txq;
-+    struct host_txq*        txq;
-     struct host_txq_entry*  entry;
-     struct tpd*             tpd;
-     struct tpd_haddr        tpd_haddr;
-@@ -1562,9 +1564,18 @@ fore200e_send(struct atm_vcc *vcc, struct sk_buff *skb)
-     unsigned char*          data;
-     unsigned long           flags;
- 
--    ASSERT(vcc);
--    ASSERT(fore200e);
--    ASSERT(fore200e_vcc);
-+    if (!vcc)
-+        return -EINVAL;
-+
-+    fore200e = FORE200E_DEV(vcc->dev);
-+    fore200e_vcc = FORE200E_VCC(vcc);
-+
-+    if (!fore200e)
-+        return -EINVAL;
-+
-+    txq = &fore200e->host_txq;
-+    if (!fore200e_vcc)
-+        return -EINVAL;
- 
-     if (!test_bit(ATM_VF_READY, &vcc->flags)) {
- 	DPRINTK(1, "VC %d.%d.%d not ready for tx\n", vcc->itf, vcc->vpi, vcc->vpi);
+ 	/*
+ 	 * Set the baud rate:
+ 	 * Fractional baudrate allows to setup output frequency more
 -- 
 2.20.1
 
