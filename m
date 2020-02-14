@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B5B9F15DFA2
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:10:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 74E4515DFA6
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:10:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390923AbgBNQJn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 11:09:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34468 "EHLO mail.kernel.org"
+        id S2390975AbgBNQJv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 11:09:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34798 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391332AbgBNQJm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:09:42 -0500
+        id S2391360AbgBNQJu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:09:50 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F00B624682;
-        Fri, 14 Feb 2020 16:09:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 84CD822314;
+        Fri, 14 Feb 2020 16:09:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581696581;
-        bh=xR3TCnZhgPJN93bqdEvo5BwP1dB3RHfGLzJ+ceAVSPg=;
+        s=default; t=1581696590;
+        bh=vhv9ahD5jt/VGshNDEu0h4s5rHcm99nOExO90XMU3HQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l26keGsyNqKqD9wdM2cu89IdGjPNiVlaJcpUsTjy2BSqyxTAqoC6qmXsfoqgQHijQ
-         94wnEN/JMfh9SqeNbv007E8JYWeVXbhclhaVwd2JJJkLTuB1fRcP4O3R7xfuanyjKy
-         WQlG5HZUThwd7z1lInV+LcrDVv5CQrSX1chro27E=
+        b=Icvgyuw723MmrF57mpBdYT10h3gnnre4iQk5GC/IjFMZcFohEgZaHcpmuiHEhpq3h
+         9dDwhLjHLXI8tfJwO1+xP9XGxPzgqAEx6FbQ1HovU8U4Zwbu+rC/OQNlDcP01sBle8
+         5jJdJX0rLpFAEXy64ilMMjbaV5JSJf7PDxF1yARg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Shile Zhang <shile.zhang@linux.alibaba.com>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        Ingo Molnar <mingo@kernel.org>,
-        Kamalesh Babulal <kamalesh@linux.vnet.ibm.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.4 370/459] objtool: Fix ARCH=x86_64 build error
-Date:   Fri, 14 Feb 2020 11:00:20 -0500
-Message-Id: <20200214160149.11681-370-sashal@kernel.org>
+Cc:     =?UTF-8?q?Peter=20Gro=C3=9Fe?= <pegro@friiks.de>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>,
+        alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 5.4 377/459] ALSA: hda - Add docking station support for Lenovo Thinkpad T420s
+Date:   Fri, 14 Feb 2020 11:00:27 -0500
+Message-Id: <20200214160149.11681-377-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214160149.11681-1-sashal@kernel.org>
 References: <20200214160149.11681-1-sashal@kernel.org>
@@ -46,61 +44,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shile Zhang <shile.zhang@linux.alibaba.com>
+From: Peter Große <pegro@friiks.de>
 
-[ Upstream commit 8580bed7e751e6d4f17881e059daf3cb37ba4717 ]
+[ Upstream commit ef7d84caa5928b40b1c93a26dbe5a3f12737c6ab ]
 
-Building objtool with ARCH=x86_64 fails with:
+Lenovo Thinkpad T420s uses the same codec as T420, so apply the
+same quirk to enable audio output on a docking station.
 
-   $make ARCH=x86_64 -C tools/objtool
-   ...
-     CC       arch/x86/decode.o
-   arch/x86/decode.c:10:22: fatal error: asm/insn.h: No such file or directory
-    #include <asm/insn.h>
-                         ^
-   compilation terminated.
-   mv: cannot stat ‘arch/x86/.decode.o.tmp’: No such file or directory
-   make[2]: *** [arch/x86/decode.o] Error 1
-   ...
-
-The root cause is that the command-line variable 'ARCH' cannot be
-overridden.  It can be replaced by 'SRCARCH', which is defined in
-'tools/scripts/Makefile.arch'.
-
-Signed-off-by: Shile Zhang <shile.zhang@linux.alibaba.com>
-Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Reviewed-by: Kamalesh Babulal <kamalesh@linux.vnet.ibm.com>
-Link: https://lore.kernel.org/r/d5d11370ae116df6c653493acd300ec3d7f5e925.1579543924.git.jpoimboe@redhat.com
+Signed-off-by: Peter Große <pegro@friiks.de>
+Link: https://lore.kernel.org/r/20200122180106.9351-1-pegro@friiks.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/objtool/Makefile | 6 +-----
- 1 file changed, 1 insertion(+), 5 deletions(-)
+ sound/pci/hda/patch_conexant.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/tools/objtool/Makefile b/tools/objtool/Makefile
-index d2a19b0bc05aa..ee08aeff30a19 100644
---- a/tools/objtool/Makefile
-+++ b/tools/objtool/Makefile
-@@ -2,10 +2,6 @@
- include ../scripts/Makefile.include
- include ../scripts/Makefile.arch
- 
--ifeq ($(ARCH),x86_64)
--ARCH := x86
--endif
--
- # always use the host compiler
- HOSTAR	?= ar
- HOSTCC	?= gcc
-@@ -33,7 +29,7 @@ all: $(OBJTOOL)
- 
- INCLUDES := -I$(srctree)/tools/include \
- 	    -I$(srctree)/tools/arch/$(HOSTARCH)/include/uapi \
--	    -I$(srctree)/tools/arch/$(ARCH)/include
-+	    -I$(srctree)/tools/arch/$(SRCARCH)/include
- WARNINGS := $(EXTRA_WARNINGS) -Wno-switch-default -Wno-switch-enum -Wno-packed
- CFLAGS   := -Werror $(WARNINGS) $(KBUILD_HOSTCFLAGS) -g $(INCLUDES) $(LIBELF_FLAGS)
- LDFLAGS  += $(LIBELF_LIBS) $(LIBSUBCMD) $(KBUILD_HOSTLDFLAGS)
+diff --git a/sound/pci/hda/patch_conexant.c b/sound/pci/hda/patch_conexant.c
+index 90aa0f400a57d..1e20e85e9b466 100644
+--- a/sound/pci/hda/patch_conexant.c
++++ b/sound/pci/hda/patch_conexant.c
+@@ -922,6 +922,7 @@ static const struct snd_pci_quirk cxt5066_fixups[] = {
+ 	SND_PCI_QUIRK(0x17aa, 0x215f, "Lenovo T510", CXT_PINCFG_LENOVO_TP410),
+ 	SND_PCI_QUIRK(0x17aa, 0x21ce, "Lenovo T420", CXT_PINCFG_LENOVO_TP410),
+ 	SND_PCI_QUIRK(0x17aa, 0x21cf, "Lenovo T520", CXT_PINCFG_LENOVO_TP410),
++	SND_PCI_QUIRK(0x17aa, 0x21d2, "Lenovo T420s", CXT_PINCFG_LENOVO_TP410),
+ 	SND_PCI_QUIRK(0x17aa, 0x21da, "Lenovo X220", CXT_PINCFG_LENOVO_TP410),
+ 	SND_PCI_QUIRK(0x17aa, 0x21db, "Lenovo X220-tablet", CXT_PINCFG_LENOVO_TP410),
+ 	SND_PCI_QUIRK(0x17aa, 0x38af, "Lenovo IdeaPad Z560", CXT_FIXUP_MUTE_LED_EAPD),
 -- 
 2.20.1
 
