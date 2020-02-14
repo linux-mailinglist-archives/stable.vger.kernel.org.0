@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D32DE15E8C4
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:02:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CEA0915E8CE
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:03:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392070AbgBNQQA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 11:16:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46564 "EHLO mail.kernel.org"
+        id S2389471AbgBNRCs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 12:02:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46578 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404192AbgBNQQA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:16:00 -0500
+        id S2392526AbgBNQQB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:16:01 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BECF1246EA;
-        Fri, 14 Feb 2020 16:15:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 07016246F5;
+        Fri, 14 Feb 2020 16:15:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581696959;
-        bh=gSIXnvYSzb1E5aXmOOPxu2e/NXExAykLWXKDEtJ6b8o=;
+        s=default; t=1581696960;
+        bh=zCSN13PuFpNnQ8k862eulbO3JS6sVcwQ5D/rjbdsX/8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zrMz+6P9PEL0/3f8sJMvPnfcpF/QIGRigAw/Udjf0U3wsDoz58zgHOUNpiO2Uz+O2
-         NG5T75CCPt51r3pbGMxfetN9dmJZqSg1AGMkdSglci/28b0y+1K7Z4pIonSKgmOpJI
-         3K6WZTjox1Fb3q5a6IJOlpVfLit94gQ296YEnqxc=
+        b=DVviZVr4MI8XA3hA925LV5jjaxWnYSYVI5B9ey0CLAGPoWHTA6y/NJE5XD0GLN1mK
+         V0AHen7dX9YJOiiFSMi5SV/mMT8dvCNB6xzHiexd9NL6HL7b1u3z28CtnJ3CdnxkDt
+         sFUNM+OFAaTTKhAljt92GpWwLOQtzJdGezYONRNI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     John Garry <john.garry@huawei.com>, Marc Zyngier <maz@kernel.org>,
-        Hanjun Guo <guohanjun@huawei.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 199/252] irqchip/mbigen: Set driver .suppress_bind_attrs to avoid remove problems
-Date:   Fri, 14 Feb 2020 11:10:54 -0500
-Message-Id: <20200214161147.15842-199-sashal@kernel.org>
+Cc:     Kai Vehmanen <kai.vehmanen@linux.intel.com>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>,
+        alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 4.19 200/252] ALSA: hda/hdmi - add retry logic to parse_intel_hdmi()
+Date:   Fri, 14 Feb 2020 11:10:55 -0500
+Message-Id: <20200214161147.15842-200-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214161147.15842-1-sashal@kernel.org>
 References: <20200214161147.15842-1-sashal@kernel.org>
@@ -43,124 +43,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Garry <john.garry@huawei.com>
+From: Kai Vehmanen <kai.vehmanen@linux.intel.com>
 
-[ Upstream commit d6152e6ec9e2171280436f7b31a571509b9287e1 ]
+[ Upstream commit 2928fa0a97ebb9549cb877fdc99aed9b95438c3a ]
 
-The following crash can be seen for setting
-CONFIG_DEBUG_TEST_DRIVER_REMOVE=y for DT FW (which some people still use):
+The initial snd_hda_get_sub_node() can fail on certain
+devices (e.g. some Chromebook models using Intel GLK).
+The failure rate is very low, but as this is is part of
+the probe process, end-user impact is high.
 
-Hisilicon MBIGEN-V2 60080000.interrupt-controller: Failed to create mbi-gen irqdomain
-Hisilicon MBIGEN-V2: probe of 60080000.interrupt-controller failed with error -12
+In observed cases, related hardware status registers have
+expected values, but the node query still fails. Retrying
+the node query does seem to help, so fix the problem by
+adding retry logic to the query. This does not impact
+non-Intel platforms.
 
-[...]
-
-Unable to handle kernel paging request at virtual address 0000000000005008
- Mem abort info:
-   ESR = 0x96000004
-   EC = 0x25: DABT (current EL), IL = 32 bits
-   SET = 0, FnV = 0
-   EA = 0, S1PTW = 0
- Data abort info:
-   ISV = 0, ISS = 0x00000004
-   CM = 0, WnR = 0
- user pgtable: 4k pages, 48-bit VAs, pgdp=0000041fb9990000
- [0000000000005008] pgd=0000000000000000
- Internal error: Oops: 96000004 [#1] PREEMPT SMP
- Modules linked in:
- CPU: 7 PID: 1 Comm: swapper/0 Not tainted 5.5.0-rc6-00002-g3fc42638a506-dirty #1622
- Hardware name: Huawei Taishan 2280 /D05, BIOS Hisilicon D05 IT21 Nemo 2.0 RC0 04/18/2018
- pstate: 40000085 (nZcv daIf -PAN -UAO)
- pc : mbigen_set_type+0x38/0x60
- lr : __irq_set_trigger+0x6c/0x188
- sp : ffff800014b4b400
- x29: ffff800014b4b400 x28: 0000000000000007
- x27: 0000000000000000 x26: 0000000000000000
- x25: ffff041fd83bd0d4 x24: ffff041fd83bd188
- x23: 0000000000000000 x22: ffff80001193ce00
- x21: 0000000000000004 x20: 0000000000000000
- x19: ffff041fd83bd000 x18: ffffffffffffffff
- x17: 0000000000000000 x16: 0000000000000000
- x15: ffff8000119098c8 x14: ffff041fb94ec91c
- x13: ffff041fb94ec1a1 x12: 0000000000000030
- x11: 0101010101010101 x10: 0000000000000040
- x9 : 0000000000000000 x8 : ffff041fb98c6680
- x7 : ffff800014b4b380 x6 : ffff041fd81636c8
- x5 : 0000000000000000 x4 : 000000000000025f
- x3 : 0000000000005000 x2 : 0000000000005008
- x1 : 0000000000000004 x0 : 0000000080000000
- Call trace:
-  mbigen_set_type+0x38/0x60
-  __setup_irq+0x744/0x900
-  request_threaded_irq+0xe0/0x198
-  pcie_pme_probe+0x98/0x118
-  pcie_port_probe_service+0x38/0x78
-  really_probe+0xa0/0x3e0
-  driver_probe_device+0x58/0x100
-  __device_attach_driver+0x90/0xb0
-  bus_for_each_drv+0x64/0xc8
-  __device_attach+0xd8/0x138
-  device_initial_probe+0x10/0x18
-  bus_probe_device+0x90/0x98
-  device_add+0x4c4/0x770
-  device_register+0x1c/0x28
-  pcie_port_device_register+0x1e4/0x4f0
-  pcie_portdrv_probe+0x34/0xd8
-  local_pci_probe+0x3c/0xa0
-  pci_device_probe+0x128/0x1c0
-  really_probe+0xa0/0x3e0
-  driver_probe_device+0x58/0x100
-  __device_attach_driver+0x90/0xb0
-  bus_for_each_drv+0x64/0xc8
-  __device_attach+0xd8/0x138
-  device_attach+0x10/0x18
-  pci_bus_add_device+0x4c/0xb8
-  pci_bus_add_devices+0x38/0x88
-  pci_host_probe+0x3c/0xc0
-  pci_host_common_probe+0xf0/0x208
-  hisi_pcie_almost_ecam_probe+0x24/0x30
-  platform_drv_probe+0x50/0xa0
-  really_probe+0xa0/0x3e0
-  driver_probe_device+0x58/0x100
-  device_driver_attach+0x6c/0x90
-  __driver_attach+0x84/0xc8
-  bus_for_each_dev+0x74/0xc8
-  driver_attach+0x20/0x28
-  bus_add_driver+0x148/0x1f0
-  driver_register+0x60/0x110
-  __platform_driver_register+0x40/0x48
-  hisi_pcie_almost_ecam_driver_init+0x1c/0x24
-
-The specific problem here is that the mbigen driver real probe has failed
-as the mbigen_of_create_domain()->of_platform_device_create() call fails,
-the reason for that being that we never destroyed the platform device
-created during the remove test dry run and there is some conflict.
-
-Since we generally would never want to unbind this driver, and to save
-adding a driver tear down path for that, just set the driver
-.suppress_bind_attrs member to avoid this possibility.
-
-Signed-off-by: John Garry <john.garry@huawei.com>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Reviewed-by: Hanjun Guo <guohanjun@huawei.com>
-Link: https://lore.kernel.org/r/1579196323-180137-1-git-send-email-john.garry@huawei.com
+BugLink: https://github.com/thesofproject/linux/issues/1642
+Signed-off-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
+Reviewed-by: Takashi Iwai <tiwai@suse.de>
+Link: https://lore.kernel.org/r/20200120160117.29130-4-kai.vehmanen@linux.intel.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/irqchip/irq-mbigen.c | 1 +
- 1 file changed, 1 insertion(+)
+ sound/pci/hda/patch_hdmi.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/irqchip/irq-mbigen.c b/drivers/irqchip/irq-mbigen.c
-index 98b6e1d4b1a68..f7fdbf5d183b9 100644
---- a/drivers/irqchip/irq-mbigen.c
-+++ b/drivers/irqchip/irq-mbigen.c
-@@ -381,6 +381,7 @@ static struct platform_driver mbigen_platform_driver = {
- 		.name		= "Hisilicon MBIGEN-V2",
- 		.of_match_table	= mbigen_of_match,
- 		.acpi_match_table = ACPI_PTR(mbigen_acpi_match),
-+		.suppress_bind_attrs = true,
- 	},
- 	.probe			= mbigen_device_probe,
- };
+diff --git a/sound/pci/hda/patch_hdmi.c b/sound/pci/hda/patch_hdmi.c
+index c827a2a89cc3d..c67fadd5aae53 100644
+--- a/sound/pci/hda/patch_hdmi.c
++++ b/sound/pci/hda/patch_hdmi.c
+@@ -2604,9 +2604,12 @@ static int alloc_intel_hdmi(struct hda_codec *codec)
+ /* parse and post-process for Intel codecs */
+ static int parse_intel_hdmi(struct hda_codec *codec)
+ {
+-	int err;
++	int err, retries = 3;
++
++	do {
++		err = hdmi_parse_codec(codec);
++	} while (err < 0 && retries--);
+ 
+-	err = hdmi_parse_codec(codec);
+ 	if (err < 0) {
+ 		generic_spec_free(codec);
+ 		return err;
 -- 
 2.20.1
 
