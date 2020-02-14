@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6948015F081
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:55:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 936EE15F086
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:55:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388369AbgBNP5r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 10:57:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41166 "EHLO mail.kernel.org"
+        id S2388481AbgBNRzR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 12:55:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41204 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387958AbgBNP5r (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S2387682AbgBNP5r (ORCPT <rfc822;stable@vger.kernel.org>);
         Fri, 14 Feb 2020 10:57:47 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 49A39206D7;
-        Fri, 14 Feb 2020 15:57:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7962E222C4;
+        Fri, 14 Feb 2020 15:57:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581695866;
-        bh=HYuxXEHOswdXA1U7g6qCOuKe8dawVBoP8iksu7Ddq5c=;
+        s=default; t=1581695867;
+        bh=/U5JltyEb1Fb0bMb6W9s0AGoY9F2uBjpcwC4EVYcpWA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1bXVbvPgKBt1OC8zOM73hjYq1TGqxT7vczE2jj15eWaMSwP3Af6P/Y1GyJEFm9JDz
-         9Ubq29VrDpFzYSTlT8i/bFlCGsrFSk8nVV5+m0EZtOZf8qCJG1Ldy/5+hafzmEEDvv
-         dV0grPdKtMm3ben96ddpErsxb0Z0VLMEPzgroxEI=
+        b=VqYGJINIMn8sdP/huQWHL52zSlRGi5vraVa9rv7dukFdLTRcZNdVhMG845qGTL6pY
+         3R743ku17C84tC7Zv/8HePFiS8wn8805TJwBWSFLa687M/xbwMU7VX56Ls0RcB3CEb
+         suzep7KeW45DE8dapj9VgN5gyBOs4mIMne83wemM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ard Biesheuvel <ardb@kernel.org>, Ingo Molnar <mingo@kernel.org>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Sasha Levin <sashal@kernel.org>,
-        clang-built-linux@googlegroups.com
-Subject: [PATCH AUTOSEL 5.5 412/542] x86/boot/compressed: Relax sed symbol type regex for LLVM ld.lld
-Date:   Fri, 14 Feb 2020 10:46:44 -0500
-Message-Id: <20200214154854.6746-412-sashal@kernel.org>
+Cc:     =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>,
+        Thierry Reding <thierry.reding@gmail.com>,
+        Sasha Levin <sashal@kernel.org>, linux-pwm@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.5 413/542] pwm: omap-dmtimer: Remove PWM chip in .remove before making it unfunctional
+Date:   Fri, 14 Feb 2020 10:46:45 -0500
+Message-Id: <20200214154854.6746-413-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214154854.6746-1-sashal@kernel.org>
 References: <20200214154854.6746-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -44,66 +45,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ard Biesheuvel <ardb@kernel.org>
+From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 
-[ Upstream commit bc310baf2ba381c648983c7f4748327f17324562 ]
+[ Upstream commit 43efdc8f0e6d7088ec61bd55a73bf853f002d043 ]
 
-The final build stage of the x86 kernel captures some symbol
-addresses from the decompressor binary and copies them into zoffset.h.
-It uses sed with a regular expression that matches the address, symbol
-type and symbol name, and mangles the captured addresses and the names
-of symbols of interest into #define directives that are added to
-zoffset.h
+In the old code (e.g.) mutex_destroy() was called before
+pwmchip_remove(). Between these two calls it is possible that a PWM
+callback is used which tries to grab the mutex.
 
-The symbol type is indicated by a single letter, which we match
-strictly: only letters in the set 'ABCDGRSTVW' are matched, even
-though the actual symbol type is relevant and therefore ignored.
-
-Commit bc7c9d620 ("efi/libstub/x86: Force 'hidden' visibility for
-extern declarations") made a change to the way external symbol
-references are classified, resulting in 'startup_32' now being
-emitted as a hidden symbol. This prevents the use of GOT entries to
-refer to this symbol via its absolute address, which recent toolchains
-(including Clang based ones) already avoid by default, making this
-change a no-op in the majority of cases.
-
-However, as it turns out, the LLVM linker classifies such hidden
-symbols as symbols with static linkage in fully linked ELF binaries,
-causing tools such as NM to output a lowercase 't' rather than an upper
-case 'T' for the type of such symbols. Since our sed expression only
-matches upper case letters for the symbol type, the line describing
-startup_32 is disregarded, resulting in a build error like the following
-
-  arch/x86/boot/header.S:568:18: error: symbol 'ZO_startup_32' can not be
-                                        undefined in a subtraction expression
-  init_size: .long (0x00000000008fd000 - ZO_startup_32 +
-                    (((0x0000000001f6361c + ((0x0000000001f6361c >> 8) + 65536)
-                     - 0x00000000008c32e5) + 4095) & ~4095)) # kernel initialization size
-
-Given that we are only interested in the value of the symbol, let's match
-any character in the set 'a-zA-Z' instead.
-
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Tested-by: Nathan Chancellor <natechancellor@gmail.com>
+Fixes: 6604c6556db9 ("pwm: Add PWM driver for OMAP using dual-mode timers")
+Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/boot/Makefile | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/pwm/pwm-omap-dmtimer.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/arch/x86/boot/Makefile b/arch/x86/boot/Makefile
-index 95410d6ee2ff8..748b6d28a91de 100644
---- a/arch/x86/boot/Makefile
-+++ b/arch/x86/boot/Makefile
-@@ -88,7 +88,7 @@ $(obj)/vmlinux.bin: $(obj)/compressed/vmlinux FORCE
+diff --git a/drivers/pwm/pwm-omap-dmtimer.c b/drivers/pwm/pwm-omap-dmtimer.c
+index 6cfeb0e1cc679..e36fcad668a68 100644
+--- a/drivers/pwm/pwm-omap-dmtimer.c
++++ b/drivers/pwm/pwm-omap-dmtimer.c
+@@ -361,6 +361,11 @@ static int pwm_omap_dmtimer_probe(struct platform_device *pdev)
+ static int pwm_omap_dmtimer_remove(struct platform_device *pdev)
+ {
+ 	struct pwm_omap_dmtimer_chip *omap = platform_get_drvdata(pdev);
++	int ret;
++
++	ret = pwmchip_remove(&omap->chip);
++	if (ret)
++		return ret;
  
- SETUP_OBJS = $(addprefix $(obj)/,$(setup-y))
+ 	if (pm_runtime_active(&omap->dm_timer_pdev->dev))
+ 		omap->pdata->stop(omap->dm_timer);
+@@ -369,7 +374,7 @@ static int pwm_omap_dmtimer_remove(struct platform_device *pdev)
  
--sed-zoffset := -e 's/^\([0-9a-fA-F]*\) [ABCDGRSTVW] \(startup_32\|startup_64\|efi32_stub_entry\|efi64_stub_entry\|efi_pe_entry\|input_data\|kernel_info\|_end\|_ehead\|_text\|z_.*\)$$/\#define ZO_\2 0x\1/p'
-+sed-zoffset := -e 's/^\([0-9a-fA-F]*\) [a-zA-Z] \(startup_32\|startup_64\|efi32_stub_entry\|efi64_stub_entry\|efi_pe_entry\|input_data\|kernel_info\|_end\|_ehead\|_text\|z_.*\)$$/\#define ZO_\2 0x\1/p'
+ 	mutex_destroy(&omap->mutex);
  
- quiet_cmd_zoffset = ZOFFSET $@
-       cmd_zoffset = $(NM) $< | sed -n $(sed-zoffset) > $@
+-	return pwmchip_remove(&omap->chip);
++	return 0;
+ }
+ 
+ static const struct of_device_id pwm_omap_dmtimer_of_match[] = {
 -- 
 2.20.1
 
