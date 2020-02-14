@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E49D15E9CA
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:09:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D9CBE15E9BE
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:09:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2394489AbgBNRJW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 12:09:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43058 "EHLO mail.kernel.org"
+        id S2403961AbgBNQNz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 11:13:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43072 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392230AbgBNQNx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:13:53 -0500
+        id S2403957AbgBNQNz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:13:55 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3AE2C246CE;
-        Fri, 14 Feb 2020 16:13:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 67E9F246CF;
+        Fri, 14 Feb 2020 16:13:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581696833;
-        bh=37Tl3sdRVJVadsU+L3wETW4srSquGpwjxB81nM98w+Q=;
+        s=default; t=1581696834;
+        bh=UHTF/KQOikrcVa58Jc+AI++DU1+I2cfHGw4+SZ/+l5w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jCxEmFam5pfQw4og8DT0logeA36eMH3gMEkp47Gon1S7rvmw6Kizxueh0NIeCphbD
-         AqhIJf2KLvLsAw44oaxFa7MVgrK6mUkQ2M2u+QFHH59IjF6t016ysQK0+Jjl+ghB5W
-         1t1NxMcF974STTvL09IcPVYgNgqmHKfhk5ahibg0=
+        b=jVrlZtebWonY5SiOvGHCUyKRGPu50xGzzv5F7fqcuyYzzKrR0sxAeHPJj/GocJ9Zw
+         3JBCQ/7RMhV+n3CWeRQeGFRD/t1sttukVm91BMoRoJMjwIaec5jcjs188t3I3QHemb
+         +BcuhGiaHZB8PmM7aCCuoB4D0PH8Ap4OnYXnykLk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Aditya Pakki <pakki001@umn.edu>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-atm-general@lists.sourceforge.net, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 098/252] fore200e: Fix incorrect checks of NULL pointer dereference
-Date:   Fri, 14 Feb 2020 11:09:13 -0500
-Message-Id: <20200214161147.15842-98-sashal@kernel.org>
+Cc:     Arnd Bergmann <arnd@arndb.de>, kbuild test robot <lkp@intel.com>,
+        "kernelci . org bot" <bot@kernelci.org>,
+        Olof's autobuilder <build@lixom.net>,
+        Stephen Rothwell <sfr@canb.auug.org.au>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 099/252] isdn: don't mark kcapi_proc_exit as __exit
+Date:   Fri, 14 Feb 2020 11:09:14 -0500
+Message-Id: <20200214161147.15842-99-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214161147.15842-1-sashal@kernel.org>
 References: <20200214161147.15842-1-sashal@kernel.org>
@@ -44,78 +46,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aditya Pakki <pakki001@umn.edu>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit bbd20c939c8aa3f27fa30e86691af250bf92973a ]
+[ Upstream commit b33bdf8020c94438269becc6dace9ed49257c4ba ]
 
-In fore200e_send and fore200e_close, the pointers from the arguments
-are dereferenced in the variable declaration block and then checked
-for NULL. The patch fixes these issues by avoiding NULL pointer
-dereferences.
+As everybody pointed out by now, my patch to clean up CAPI introduced
+a link time warning, as the two parts of the capi driver are now in
+one module and the exit function may need to be called in the error
+path of the init function:
 
-Signed-off-by: Aditya Pakki <pakki001@umn.edu>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+>> WARNING: drivers/isdn/capi/kernelcapi.o(.text+0xea4): Section mismatch in reference from the function kcapi_exit() to the function .exit.text:kcapi_proc_exit()
+   The function kcapi_exit() references a function in an exit section.
+   Often the function kcapi_proc_exit() has valid usage outside the exit section
+   and the fix is to remove the __exit annotation of kcapi_proc_exit.
+
+Remove the incorrect __exit annotation.
+
+Reported-by: kbuild test robot <lkp@intel.com>
+Reported-by: kernelci.org bot <bot@kernelci.org>
+Reported-by: Olof's autobuilder <build@lixom.net>
+Reported-by: Stephen Rothwell <sfr@canb.auug.org.au>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Link: https://lore.kernel.org/r/20191216194909.1983639-1-arnd@arndb.de
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/atm/fore200e.c | 25 ++++++++++++++++++-------
- 1 file changed, 18 insertions(+), 7 deletions(-)
+ drivers/isdn/capi/kcapi_proc.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/atm/fore200e.c b/drivers/atm/fore200e.c
-index 99a38115b0a8f..86aab14872fd0 100644
---- a/drivers/atm/fore200e.c
-+++ b/drivers/atm/fore200e.c
-@@ -1504,12 +1504,14 @@ fore200e_open(struct atm_vcc *vcc)
- static void
- fore200e_close(struct atm_vcc* vcc)
+diff --git a/drivers/isdn/capi/kcapi_proc.c b/drivers/isdn/capi/kcapi_proc.c
+index c94bd12c0f7c6..28cd051f1dfd9 100644
+--- a/drivers/isdn/capi/kcapi_proc.c
++++ b/drivers/isdn/capi/kcapi_proc.c
+@@ -239,7 +239,7 @@ kcapi_proc_init(void)
+ 	proc_create_seq("capi/driver",       0, NULL, &seq_capi_driver_ops);
+ }
+ 
+-void __exit
++void
+ kcapi_proc_exit(void)
  {
--    struct fore200e*        fore200e = FORE200E_DEV(vcc->dev);
-     struct fore200e_vcc*    fore200e_vcc;
-+    struct fore200e*        fore200e;
-     struct fore200e_vc_map* vc_map;
-     unsigned long           flags;
- 
-     ASSERT(vcc);
-+    fore200e = FORE200E_DEV(vcc->dev);
-+
-     ASSERT((vcc->vpi >= 0) && (vcc->vpi < 1<<FORE200E_VPI_BITS));
-     ASSERT((vcc->vci >= 0) && (vcc->vci < 1<<FORE200E_VCI_BITS));
- 
-@@ -1554,10 +1556,10 @@ fore200e_close(struct atm_vcc* vcc)
- static int
- fore200e_send(struct atm_vcc *vcc, struct sk_buff *skb)
- {
--    struct fore200e*        fore200e     = FORE200E_DEV(vcc->dev);
--    struct fore200e_vcc*    fore200e_vcc = FORE200E_VCC(vcc);
-+    struct fore200e*        fore200e;
-+    struct fore200e_vcc*    fore200e_vcc;
-     struct fore200e_vc_map* vc_map;
--    struct host_txq*        txq          = &fore200e->host_txq;
-+    struct host_txq*        txq;
-     struct host_txq_entry*  entry;
-     struct tpd*             tpd;
-     struct tpd_haddr        tpd_haddr;
-@@ -1570,9 +1572,18 @@ fore200e_send(struct atm_vcc *vcc, struct sk_buff *skb)
-     unsigned char*          data;
-     unsigned long           flags;
- 
--    ASSERT(vcc);
--    ASSERT(fore200e);
--    ASSERT(fore200e_vcc);
-+    if (!vcc)
-+        return -EINVAL;
-+
-+    fore200e = FORE200E_DEV(vcc->dev);
-+    fore200e_vcc = FORE200E_VCC(vcc);
-+
-+    if (!fore200e)
-+        return -EINVAL;
-+
-+    txq = &fore200e->host_txq;
-+    if (!fore200e_vcc)
-+        return -EINVAL;
- 
-     if (!test_bit(ATM_VF_READY, &vcc->flags)) {
- 	DPRINTK(1, "VC %d.%d.%d not ready for tx\n", vcc->itf, vcc->vpi, vcc->vpi);
+ 	remove_proc_entry("capi/driver",       NULL);
 -- 
 2.20.1
 
