@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C598F15E195
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:19:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1AAD115E198
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:19:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404994AbgBNQTa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 11:19:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52564 "EHLO mail.kernel.org"
+        id S2405019AbgBNQTg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 11:19:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52752 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404993AbgBNQT3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:19:29 -0500
+        id S2405016AbgBNQTg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:19:36 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1B8372470B;
-        Fri, 14 Feb 2020 16:19:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C966B24725;
+        Fri, 14 Feb 2020 16:19:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581697168;
-        bh=IBGB+xDX7Tk9f82+ViaLQcfskmpjmicN/oxDPAoTq6I=;
+        s=default; t=1581697175;
+        bh=6KFPRYNs9j7SGj61oncc2JMQtP4aYc1E5EHXmwPPavc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B3YW+iOn1bt7w0FlbjjQihtN3ne6dWQPCCF/ftYvS9gfQJP6tgICqe6i70+FYwp5q
-         6DYqLUtsVnnQzL24yZz9FkghiTfgJwP/YupEV+UxqQh/2U11rGYwO9hEsYuQbEmeKF
-         qRq0NS1dEyzMh5qfcNu5Yca8pNZYazEpGS9V7TpQ=
+        b=XtiQm5ZL5Bxd3fneJVTRhM0tHK7jwF/1Q2lS3K5Vpk1wGZN398HYgxgIvCZ3Ubhpx
+         0f7YaHv11DwCWRMZpSk72ndJmQSsP0EXvuepsTdIpLfBWqRESrNI28y72WBtWZ9GCA
+         ftcvqqF+MT+4utQuFIyoOn+9cb4yHn39obVTED+w=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Chen Zhou <chenzhou10@huawei.com>, Hulk Robot <hulkci@huawei.com>,
-        Patrik Jakobsson <patrik.r.jakobsson@gmail.com>,
-        Sasha Levin <sashal@kernel.org>,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 4.14 103/186] drm/gma500: remove set but not used variables 'hist_reg'
-Date:   Fri, 14 Feb 2020 11:15:52 -0500
-Message-Id: <20200214161715.18113-103-sashal@kernel.org>
+Cc:     Jan Kara <jack@suse.cz>,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali.rohar@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 108/186] udf: Fix free space reporting for metadata and virtual partitions
+Date:   Fri, 14 Feb 2020 11:15:57 -0500
+Message-Id: <20200214161715.18113-108-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214161715.18113-1-sashal@kernel.org>
 References: <20200214161715.18113-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -44,43 +44,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen Zhou <chenzhou10@huawei.com>
+From: Jan Kara <jack@suse.cz>
 
-[ Upstream commit 72f775611daf3ce20358388facbaf11f22899fa2 ]
+[ Upstream commit a4a8b99ec819ca60b49dc582a4287ef03411f117 ]
 
-Fixes gcc '-Wunused-but-set-variable' warning:
+Free space on filesystems with metadata or virtual partition maps
+currently gets misreported. This is because these partitions are just
+remapped onto underlying real partitions from which keep track of free
+blocks. Take this remapping into account when counting free blocks as
+well.
 
-drivers/gpu/drm/gma500/psb_irq.c: In function psb_irq_turn_off_dpst:
-drivers/gpu/drm/gma500/psb_irq.c:473:6:
-	warning: variable hist_reg set but not used [-Wunused-but-set-variable]
-
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Chen Zhou <chenzhou10@huawei.com>
-Signed-off-by: Patrik Jakobsson <patrik.r.jakobsson@gmail.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20191227114811.14907-1-chenzhou10@huawei.com
+Reviewed-by: Pali Rohár <pali.rohar@gmail.com>
+Reported-by: Pali Rohár <pali.rohar@gmail.com>
+Signed-off-by: Jan Kara <jack@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/gma500/psb_irq.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ fs/udf/super.c | 22 +++++++++++++++++-----
+ 1 file changed, 17 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/gpu/drm/gma500/psb_irq.c b/drivers/gpu/drm/gma500/psb_irq.c
-index f75f199c84311..518d7b4456bf1 100644
---- a/drivers/gpu/drm/gma500/psb_irq.c
-+++ b/drivers/gpu/drm/gma500/psb_irq.c
-@@ -471,12 +471,11 @@ void psb_irq_turn_off_dpst(struct drm_device *dev)
+diff --git a/fs/udf/super.c b/fs/udf/super.c
+index 242d960df9a17..51de27685e185 100644
+--- a/fs/udf/super.c
++++ b/fs/udf/super.c
+@@ -2467,17 +2467,29 @@ static unsigned int udf_count_free_table(struct super_block *sb,
+ static unsigned int udf_count_free(struct super_block *sb)
  {
- 	struct drm_psb_private *dev_priv =
- 	    (struct drm_psb_private *) dev->dev_private;
--	u32 hist_reg;
- 	u32 pwm_reg;
+ 	unsigned int accum = 0;
+-	struct udf_sb_info *sbi;
++	struct udf_sb_info *sbi = UDF_SB(sb);
+ 	struct udf_part_map *map;
++	unsigned int part = sbi->s_partition;
++	int ptype = sbi->s_partmaps[part].s_partition_type;
++
++	if (ptype == UDF_METADATA_MAP25) {
++		part = sbi->s_partmaps[part].s_type_specific.s_metadata.
++							s_phys_partition_ref;
++	} else if (ptype == UDF_VIRTUAL_MAP15 || ptype == UDF_VIRTUAL_MAP20) {
++		/*
++		 * Filesystems with VAT are append-only and we cannot write to
++ 		 * them. Let's just report 0 here.
++		 */
++		return 0;
++	}
  
- 	if (gma_power_begin(dev, false)) {
- 		PSB_WVDC32(0x00000000, HISTOGRAM_INT_CONTROL);
--		hist_reg = PSB_RVDC32(HISTOGRAM_INT_CONTROL);
-+		PSB_RVDC32(HISTOGRAM_INT_CONTROL);
+-	sbi = UDF_SB(sb);
+ 	if (sbi->s_lvid_bh) {
+ 		struct logicalVolIntegrityDesc *lvid =
+ 			(struct logicalVolIntegrityDesc *)
+ 			sbi->s_lvid_bh->b_data;
+-		if (le32_to_cpu(lvid->numOfPartitions) > sbi->s_partition) {
++		if (le32_to_cpu(lvid->numOfPartitions) > part) {
+ 			accum = le32_to_cpu(
+-					lvid->freeSpaceTable[sbi->s_partition]);
++					lvid->freeSpaceTable[part]);
+ 			if (accum == 0xFFFFFFFF)
+ 				accum = 0;
+ 		}
+@@ -2486,7 +2498,7 @@ static unsigned int udf_count_free(struct super_block *sb)
+ 	if (accum)
+ 		return accum;
  
- 		psb_disable_pipestat(dev_priv, 0, PIPE_DPST_EVENT_ENABLE);
- 
+-	map = &sbi->s_partmaps[sbi->s_partition];
++	map = &sbi->s_partmaps[part];
+ 	if (map->s_partition_flags & UDF_PART_FLAG_UNALLOC_BITMAP) {
+ 		accum += udf_count_free_bitmap(sb,
+ 					       map->s_uspace.s_bitmap);
 -- 
 2.20.1
 
