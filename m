@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D8F8015E48F
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:36:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CEDB515E46D
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:36:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405828AbgBNQYN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 11:24:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60916 "EHLO mail.kernel.org"
+        id S2405836AbgBNQYO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 11:24:14 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60934 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405599AbgBNQYM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:24:12 -0500
+        id S2405449AbgBNQYN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:24:13 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 237E82476A;
-        Fri, 14 Feb 2020 16:24:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5A8B72478D;
+        Fri, 14 Feb 2020 16:24:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581697452;
-        bh=RQoQ8frxlbI1QjilHnH3/LmzPQ60HcJMzxc+C18UY60=;
+        s=default; t=1581697453;
+        bh=L0qBFLCFG7F+X1YVyHV7rV+F3j/WY/ygzye+NRM0wI0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sIMm4P02YtTpDd08G3z4cXkkvmTvG10Msji6l/Fm7koiVTTB6qJi35mjMUbdPRGoc
-         oPjFACIpR2cBdZx669ZAnaV454WsrL65gJla7uocv47dMQqepczPaWiD8hE4PjYY9i
-         UA8saW8uKe9rv77Dby89O/73uuE3/ta6dQAtpPak=
+        b=niNcFd+ikwXKqMWB1q4Enx5AHk97UcPrww+tFP6oJP+elOVXNezcb7lddypAvvPuB
+         Sa/TUl1/YoWP8TbK3Z8HPlP0yRZe6aa5UlwOHtAWvw7Xz37OvLua44XN4Zae7+kdlS
+         baY3gjY9UQQItfbbk5SZWoMy+OztYSWWL2F+w/Bg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Coly Li <colyli@suse.de>, kbuild test robot <lkp@intel.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
-        linux-bcache@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 135/141] bcache: explicity type cast in bset_bkey_last()
-Date:   Fri, 14 Feb 2020 11:21:15 -0500
-Message-Id: <20200214162122.19794-135-sashal@kernel.org>
+Cc:     Zenghui Yu <yuzenghui@huawei.com>, Marc Zyngier <maz@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 136/141] irqchip/gic-v3-its: Reference to its_invall_cmd descriptor when building INVALL
+Date:   Fri, 14 Feb 2020 11:21:16 -0500
+Message-Id: <20200214162122.19794-136-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214162122.19794-1-sashal@kernel.org>
 References: <20200214162122.19794-1-sashal@kernel.org>
@@ -43,50 +42,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Coly Li <colyli@suse.de>
+From: Zenghui Yu <yuzenghui@huawei.com>
 
-[ Upstream commit 7c02b0055f774ed9afb6e1c7724f33bf148ffdc0 ]
+[ Upstream commit 107945227ac5d4c37911c7841b27c64b489ce9a9 ]
 
-In bset.h, macro bset_bkey_last() is defined as,
-    bkey_idx((struct bkey *) (i)->d, (i)->keys)
+It looks like an obvious mistake to use its_mapc_cmd descriptor when
+building the INVALL command block. It so far worked by luck because
+both its_mapc_cmd.col and its_invall_cmd.col sit at the same offset of
+the ITS command descriptor, but we should not rely on it.
 
-Parameter i can be variable type of data structure, the macro always
-works once the type of struct i has member 'd' and 'keys'.
-
-bset_bkey_last() is also used in macro csum_set() to calculate the
-checksum of a on-disk data structure. When csum_set() is used to
-calculate checksum of on-disk bcache super block, the parameter 'i'
-data type is struct cache_sb_disk. Inside struct cache_sb_disk (also in
-struct cache_sb) the member keys is __u16 type. But bkey_idx() expects
-unsigned int (a 32bit width), so there is problem when sending
-parameters via stack to call bkey_idx().
-
-Sparse tool from Intel 0day kbuild system reports this incompatible
-problem. bkey_idx() is part of user space API, so the simplest fix is
-to cast the (i)->keys to unsigned int type in macro bset_bkey_last().
-
-Reported-by: kbuild test robot <lkp@intel.com>
-Signed-off-by: Coly Li <colyli@suse.de>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: cc2d3216f53c ("irqchip: GICv3: ITS command queue")
+Signed-off-by: Zenghui Yu <yuzenghui@huawei.com>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20191202071021.1251-1-yuzenghui@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/bcache/bset.h | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/irqchip/irq-gic-v3-its.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/md/bcache/bset.h b/drivers/md/bcache/bset.h
-index b935839ab79c6..f483041eed986 100644
---- a/drivers/md/bcache/bset.h
-+++ b/drivers/md/bcache/bset.h
-@@ -380,7 +380,8 @@ void bch_btree_keys_stats(struct btree_keys *, struct bset_stats *);
- 
- /* Bkey utility code */
- 
--#define bset_bkey_last(i)	bkey_idx((struct bkey *) (i)->d, (i)->keys)
-+#define bset_bkey_last(i)	bkey_idx((struct bkey *) (i)->d, \
-+					 (unsigned int)(i)->keys)
- 
- static inline struct bkey *bset_bkey_idx(struct bset *i, unsigned idx)
+diff --git a/drivers/irqchip/irq-gic-v3-its.c b/drivers/irqchip/irq-gic-v3-its.c
+index 0c0cd2768d6e9..d1efbb8dadc53 100644
+--- a/drivers/irqchip/irq-gic-v3-its.c
++++ b/drivers/irqchip/irq-gic-v3-its.c
+@@ -365,7 +365,7 @@ static struct its_collection *its_build_invall_cmd(struct its_cmd_block *cmd,
+ 						   struct its_cmd_desc *desc)
  {
+ 	its_encode_cmd(cmd, GITS_CMD_INVALL);
+-	its_encode_collection(cmd, desc->its_mapc_cmd.col->col_id);
++	its_encode_collection(cmd, desc->its_invall_cmd.col->col_id);
+ 
+ 	its_fixup_cmd(cmd);
+ 
 -- 
 2.20.1
 
