@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C032415F0EE
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:59:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BEFDB15F0D8
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:59:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387936AbgBNR6Z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 12:58:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39688 "EHLO mail.kernel.org"
+        id S1730759AbgBNP5O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 10:57:14 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39760 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388146AbgBNP5K (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 10:57:10 -0500
+        id S1729885AbgBNP5N (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 10:57:13 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3CEFB24688;
-        Fri, 14 Feb 2020 15:57:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E3F4124676;
+        Fri, 14 Feb 2020 15:57:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581695830;
-        bh=aubW97k/Xs3s9/rVKeTyIj14taE5kacqXBl/gi0ji2Q=;
+        s=default; t=1581695832;
+        bh=KsMoq13yFF3jKXmzWDfs5ZlxQI1DDIftiFOworhaawU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YU6dYAJcfbcYDWQrS+IPtnMnzHsq1DPeF3jrAUD6jhb0P6g5ZIv8kUiC01MAw5+ht
-         z0W1NgswLw3GYETIboUL16jbnRY7qt1+gRiD9Gaoc9A7fHMlq6ywhrhSvwUcZR+R5b
-         JFdzZF3aGXILrS0W8sOv/9/N5ivI2VtcjpOHtrBY=
+        b=iGmu833+D9tV5stmO/f3a4LQtxCxnpcH7fckKAEkqInIRYVFm19EQ/zVmRxXN/abX
+         b8MurFpj6EZok/cq4C9gQL4LGZX1jusMR3B2Am+Jdbn+sVsgPxt2O21+EbejkA73jo
+         vo47K3eltiVUMRHumoZcDrC8zxmtdy6eRIMQkGKQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Kevin Hao <haokexin@gmail.com>, kbuild test robot <lkp@intel.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Sasha Levin <sashal@kernel.org>, linux-gpio@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.5 383/542] gpio: Fix the no return statement warning
-Date:   Fri, 14 Feb 2020 10:46:15 -0500
-Message-Id: <20200214154854.6746-383-sashal@kernel.org>
+Cc:     Leon Romanovsky <leonro@mellanox.com>,
+        Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.5 385/542] RDMA/mlx5: Don't fake udata for kernel path
+Date:   Fri, 14 Feb 2020 10:46:17 -0500
+Message-Id: <20200214154854.6746-385-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214154854.6746-1-sashal@kernel.org>
 References: <20200214154854.6746-1-sashal@kernel.org>
@@ -43,45 +42,167 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kevin Hao <haokexin@gmail.com>
+From: Leon Romanovsky <leonro@mellanox.com>
 
-[ Upstream commit 9c6722d85e92233082da2b3623685bba54d6093e ]
+[ Upstream commit 4835709176e8ccf6561abc9f5c405293e008095f ]
 
-In commit 242587616710 ("gpiolib: Add support for the irqdomain which
-doesn't use irq_fwspec as arg") we have changed the return type of
-gpiochip_populate_parent_fwspec_twocell/fourcell() from void to void *,
-but forgot to add a return statement for these two dummy functions.
-Add "return NULL" to fix the build warnings.
+Kernel paths must not set udata and provide NULL pointer,
+instead of faking zeroed udata struct.
 
-Reported-by: kbuild test robot <lkp@intel.com>
-Signed-off-by: Kevin Hao <haokexin@gmail.com>
-Link: https://lore.kernel.org/r/20200116095003.30324-1-haokexin@gmail.com
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/gpio/driver.h | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/infiniband/hw/mlx5/main.c | 34 +++++++++++++++----------------
+ 1 file changed, 16 insertions(+), 18 deletions(-)
 
-diff --git a/include/linux/gpio/driver.h b/include/linux/gpio/driver.h
-index e2480ef94c559..5dce9c67a961e 100644
---- a/include/linux/gpio/driver.h
-+++ b/include/linux/gpio/driver.h
-@@ -553,6 +553,7 @@ static inline void gpiochip_populate_parent_fwspec_twocell(struct gpio_chip *chi
- 						    unsigned int parent_hwirq,
- 						    unsigned int parent_type)
+diff --git a/drivers/infiniband/hw/mlx5/main.c b/drivers/infiniband/hw/mlx5/main.c
+index 997cbfe4b90ce..760630c7aae71 100644
+--- a/drivers/infiniband/hw/mlx5/main.c
++++ b/drivers/infiniband/hw/mlx5/main.c
+@@ -815,6 +815,7 @@ static int mlx5_ib_query_device(struct ib_device *ibdev,
+ 				struct ib_device_attr *props,
+ 				struct ib_udata *uhw)
  {
-+	return NULL;
- }
++	size_t uhw_outlen = (uhw) ? uhw->outlen : 0;
+ 	struct mlx5_ib_dev *dev = to_mdev(ibdev);
+ 	struct mlx5_core_dev *mdev = dev->mdev;
+ 	int err = -ENOMEM;
+@@ -828,12 +829,12 @@ static int mlx5_ib_query_device(struct ib_device *ibdev,
+ 	u64 max_tso;
  
- static inline void gpiochip_populate_parent_fwspec_fourcell(struct gpio_chip *chip,
-@@ -560,6 +561,7 @@ static inline void gpiochip_populate_parent_fwspec_fourcell(struct gpio_chip *ch
- 						     unsigned int parent_hwirq,
- 						     unsigned int parent_type)
- {
-+	return NULL;
- }
+ 	resp_len = sizeof(resp.comp_mask) + sizeof(resp.response_length);
+-	if (uhw->outlen && uhw->outlen < resp_len)
++	if (uhw_outlen && uhw_outlen < resp_len)
+ 		return -EINVAL;
  
- #endif /* CONFIG_IRQ_DOMAIN_HIERARCHY */
+ 	resp.response_length = resp_len;
+ 
+-	if (uhw->inlen && !ib_is_udata_cleared(uhw, 0, uhw->inlen))
++	if (uhw && uhw->inlen && !ib_is_udata_cleared(uhw, 0, uhw->inlen))
+ 		return -EINVAL;
+ 
+ 	memset(props, 0, sizeof(*props));
+@@ -897,7 +898,7 @@ static int mlx5_ib_query_device(struct ib_device *ibdev,
+ 			props->raw_packet_caps |=
+ 				IB_RAW_PACKET_CAP_CVLAN_STRIPPING;
+ 
+-		if (field_avail(typeof(resp), tso_caps, uhw->outlen)) {
++		if (field_avail(typeof(resp), tso_caps, uhw_outlen)) {
+ 			max_tso = MLX5_CAP_ETH(mdev, max_lso_cap);
+ 			if (max_tso) {
+ 				resp.tso_caps.max_tso = 1 << max_tso;
+@@ -907,7 +908,7 @@ static int mlx5_ib_query_device(struct ib_device *ibdev,
+ 			}
+ 		}
+ 
+-		if (field_avail(typeof(resp), rss_caps, uhw->outlen)) {
++		if (field_avail(typeof(resp), rss_caps, uhw_outlen)) {
+ 			resp.rss_caps.rx_hash_function =
+ 						MLX5_RX_HASH_FUNC_TOEPLITZ;
+ 			resp.rss_caps.rx_hash_fields_mask =
+@@ -927,9 +928,9 @@ static int mlx5_ib_query_device(struct ib_device *ibdev,
+ 			resp.response_length += sizeof(resp.rss_caps);
+ 		}
+ 	} else {
+-		if (field_avail(typeof(resp), tso_caps, uhw->outlen))
++		if (field_avail(typeof(resp), tso_caps, uhw_outlen))
+ 			resp.response_length += sizeof(resp.tso_caps);
+-		if (field_avail(typeof(resp), rss_caps, uhw->outlen))
++		if (field_avail(typeof(resp), rss_caps, uhw_outlen))
+ 			resp.response_length += sizeof(resp.rss_caps);
+ 	}
+ 
+@@ -1054,7 +1055,7 @@ static int mlx5_ib_query_device(struct ib_device *ibdev,
+ 						MLX5_MAX_CQ_PERIOD;
+ 	}
+ 
+-	if (field_avail(typeof(resp), cqe_comp_caps, uhw->outlen)) {
++	if (field_avail(typeof(resp), cqe_comp_caps, uhw_outlen)) {
+ 		resp.response_length += sizeof(resp.cqe_comp_caps);
+ 
+ 		if (MLX5_CAP_GEN(dev->mdev, cqe_compression)) {
+@@ -1072,7 +1073,7 @@ static int mlx5_ib_query_device(struct ib_device *ibdev,
+ 		}
+ 	}
+ 
+-	if (field_avail(typeof(resp), packet_pacing_caps, uhw->outlen) &&
++	if (field_avail(typeof(resp), packet_pacing_caps, uhw_outlen) &&
+ 	    raw_support) {
+ 		if (MLX5_CAP_QOS(mdev, packet_pacing) &&
+ 		    MLX5_CAP_GEN(mdev, qos)) {
+@@ -1091,7 +1092,7 @@ static int mlx5_ib_query_device(struct ib_device *ibdev,
+ 	}
+ 
+ 	if (field_avail(typeof(resp), mlx5_ib_support_multi_pkt_send_wqes,
+-			uhw->outlen)) {
++			uhw_outlen)) {
+ 		if (MLX5_CAP_ETH(mdev, multi_pkt_send_wqe))
+ 			resp.mlx5_ib_support_multi_pkt_send_wqes =
+ 				MLX5_IB_ALLOW_MPW;
+@@ -1104,7 +1105,7 @@ static int mlx5_ib_query_device(struct ib_device *ibdev,
+ 			sizeof(resp.mlx5_ib_support_multi_pkt_send_wqes);
+ 	}
+ 
+-	if (field_avail(typeof(resp), flags, uhw->outlen)) {
++	if (field_avail(typeof(resp), flags, uhw_outlen)) {
+ 		resp.response_length += sizeof(resp.flags);
+ 
+ 		if (MLX5_CAP_GEN(mdev, cqe_compression_128))
+@@ -1120,8 +1121,7 @@ static int mlx5_ib_query_device(struct ib_device *ibdev,
+ 		resp.flags |= MLX5_IB_QUERY_DEV_RESP_FLAGS_SCAT2CQE_DCT;
+ 	}
+ 
+-	if (field_avail(typeof(resp), sw_parsing_caps,
+-			uhw->outlen)) {
++	if (field_avail(typeof(resp), sw_parsing_caps, uhw_outlen)) {
+ 		resp.response_length += sizeof(resp.sw_parsing_caps);
+ 		if (MLX5_CAP_ETH(mdev, swp)) {
+ 			resp.sw_parsing_caps.sw_parsing_offloads |=
+@@ -1141,7 +1141,7 @@ static int mlx5_ib_query_device(struct ib_device *ibdev,
+ 		}
+ 	}
+ 
+-	if (field_avail(typeof(resp), striding_rq_caps, uhw->outlen) &&
++	if (field_avail(typeof(resp), striding_rq_caps, uhw_outlen) &&
+ 	    raw_support) {
+ 		resp.response_length += sizeof(resp.striding_rq_caps);
+ 		if (MLX5_CAP_GEN(mdev, striding_rq)) {
+@@ -1164,8 +1164,7 @@ static int mlx5_ib_query_device(struct ib_device *ibdev,
+ 		}
+ 	}
+ 
+-	if (field_avail(typeof(resp), tunnel_offloads_caps,
+-			uhw->outlen)) {
++	if (field_avail(typeof(resp), tunnel_offloads_caps, uhw_outlen)) {
+ 		resp.response_length += sizeof(resp.tunnel_offloads_caps);
+ 		if (MLX5_CAP_ETH(mdev, tunnel_stateless_vxlan))
+ 			resp.tunnel_offloads_caps |=
+@@ -1186,7 +1185,7 @@ static int mlx5_ib_query_device(struct ib_device *ibdev,
+ 				MLX5_IB_TUNNELED_OFFLOADS_MPLS_UDP;
+ 	}
+ 
+-	if (uhw->outlen) {
++	if (uhw_outlen) {
+ 		err = ib_copy_to_udata(uhw, &resp, resp.response_length);
+ 
+ 		if (err)
+@@ -4771,7 +4770,6 @@ static int __get_port_caps(struct mlx5_ib_dev *dev, u8 port)
+ 	struct ib_device_attr *dprops = NULL;
+ 	struct ib_port_attr *pprops = NULL;
+ 	int err = -ENOMEM;
+-	struct ib_udata uhw = {.inlen = 0, .outlen = 0};
+ 
+ 	pprops = kzalloc(sizeof(*pprops), GFP_KERNEL);
+ 	if (!pprops)
+@@ -4781,7 +4779,7 @@ static int __get_port_caps(struct mlx5_ib_dev *dev, u8 port)
+ 	if (!dprops)
+ 		goto out;
+ 
+-	err = mlx5_ib_query_device(&dev->ib_dev, dprops, &uhw);
++	err = mlx5_ib_query_device(&dev->ib_dev, dprops, NULL);
+ 	if (err) {
+ 		mlx5_ib_warn(dev, "query_device failed %d\n", err);
+ 		goto out;
 -- 
 2.20.1
 
