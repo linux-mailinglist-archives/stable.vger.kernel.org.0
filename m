@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5FDFB15ED34
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:32:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 14D9E15ED28
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:32:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389924AbgBNRcg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 12:32:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57372 "EHLO mail.kernel.org"
+        id S2390287AbgBNRcX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 12:32:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57414 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390497AbgBNQGp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:06:45 -0500
+        id S2390095AbgBNQGr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:06:47 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C7C5B2467D;
-        Fri, 14 Feb 2020 16:06:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1352D2187F;
+        Fri, 14 Feb 2020 16:06:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581696404;
-        bh=QiFOD+/nSAFN6ygp/s8ZWgKvY9OZQGoD661PrTs2uLQ=;
+        s=default; t=1581696405;
+        bh=w8l2u3DsDpEHt9S27ap6vMdI80qogU2aYfovpE+ynkk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=spSSFsPq3mDK+SB+SzZR0xe50zhv3FcWJqDG8uVaOcvNPYiw0nE3PJEkkLgM0f+1Q
-         gOt3eHY8JmujyNOEq+yzaph0N403D4gpkaGJrfSZV+4QW1/Gwz2a2gJBgEzg0tpRLy
-         zdYg6w6Z8sSz5HnegPSrGUeOnj/D8OM6OiYfgCMU=
+        b=tqEuNvbMzBannCJ3f2QbMx8ji0NEQ0LJqyyaw8P6T574aXpdVUwoKYe4p7POEPu0m
+         +LU7tJy2EMzZb+TzX2UQomPQpTcDgtFIIjPBO50ET6/44OydV1x4zOg4pBJ+a0mdQ5
+         KfcWaFxUp32Gsy2/IL0OXwNB1vk05BmySOlL8HQE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 228/459] net: phy: realtek: add logging for the RGMII TX delay configuration
-Date:   Fri, 14 Feb 2020 10:57:58 -0500
-Message-Id: <20200214160149.11681-228-sashal@kernel.org>
+Cc:     Vinay Kumar Yadav <vinay.yadav@chelsio.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Sasha Levin <sashal@kernel.org>, linux-crypto@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 229/459] crypto: chtls - Fixed memory leak
+Date:   Fri, 14 Feb 2020 10:57:59 -0500
+Message-Id: <20200214160149.11681-229-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214160149.11681-1-sashal@kernel.org>
 References: <20200214160149.11681-1-sashal@kernel.org>
@@ -44,72 +43,143 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+From: Vinay Kumar Yadav <vinay.yadav@chelsio.com>
 
-[ Upstream commit 3aec743d69822d22d4a5b60deb9518ed8be6fa67 ]
+[ Upstream commit 93e23eb2ed6c11b4f483c8111ac155ec2b1f3042 ]
 
-RGMII requires a delay of 2ns between the data and the clock signal.
-There are at least three ways this can happen. One possibility is by
-having the PHY generate this delay.
-This is a common source for problems (for example with slow TX speeds or
-packet loss when sending data). The TX delay configuration of the
-RTL8211F PHY can be set either by pin-strappping the RXD1 pin (HIGH
-means enabled, LOW means disabled) or through configuring a paged
-register. The setting from the RXD1 pin is also reflected in the
-register.
+Freed work request skbs when connection terminates.
+enqueue_wr()/ dequeue_wr() is shared between softirq
+and application contexts, should be protected by socket
+lock. Moved dequeue_wr() to appropriate file.
 
-Add debug logging to the TX delay configuration on RTL8211F so it's
-easier to spot these issues (for example if the TX delay is enabled for
-both, the RTL8211F PHY and the MAC).
-This is especially helpful because there is no public datasheet for the
-RTL8211F PHY available with all the RX/TX delay specifics.
-
-Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Vinay Kumar Yadav <vinay.yadav@chelsio.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/phy/realtek.c | 19 ++++++++++++++++++-
- 1 file changed, 18 insertions(+), 1 deletion(-)
+ drivers/crypto/chelsio/chtls/chtls_cm.c | 27 +++++++++++++------------
+ drivers/crypto/chelsio/chtls/chtls_cm.h | 21 +++++++++++++++++++
+ drivers/crypto/chelsio/chtls/chtls_hw.c |  3 +++
+ 3 files changed, 38 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/net/phy/realtek.c b/drivers/net/phy/realtek.c
-index 677c45985338a..c76df51dd3c51 100644
---- a/drivers/net/phy/realtek.c
-+++ b/drivers/net/phy/realtek.c
-@@ -171,7 +171,9 @@ static int rtl8211c_config_init(struct phy_device *phydev)
- 
- static int rtl8211f_config_init(struct phy_device *phydev)
- {
-+	struct device *dev = &phydev->mdio.dev;
- 	u16 val;
-+	int ret;
- 
- 	/* enable TX-delay for rgmii-{id,txid}, and disable it for rgmii and
- 	 * rgmii-rxid. The RX-delay can be enabled by the external RXDLY pin.
-@@ -189,7 +191,22 @@ static int rtl8211f_config_init(struct phy_device *phydev)
- 		return 0;
- 	}
- 
--	return phy_modify_paged(phydev, 0xd08, 0x11, RTL8211F_TX_DELAY, val);
-+	ret = phy_modify_paged_changed(phydev, 0xd08, 0x11, RTL8211F_TX_DELAY,
-+				       val);
-+	if (ret < 0) {
-+		dev_err(dev, "Failed to update the TX delay register\n");
-+		return ret;
-+	} else if (ret) {
-+		dev_dbg(dev,
-+			"%s 2ns TX delay (and changing the value from pin-strapping RXD1 or the bootloader)\n",
-+			val ? "Enabling" : "Disabling");
-+	} else {
-+		dev_dbg(dev,
-+			"2ns TX delay was already %s (by pin-strapping RXD1 or bootloader configuration)\n",
-+			val ? "enabled" : "disabled");
-+	}
-+
-+	return 0;
+diff --git a/drivers/crypto/chelsio/chtls/chtls_cm.c b/drivers/crypto/chelsio/chtls/chtls_cm.c
+index aca75237bbcf8..dffa2aa855fdd 100644
+--- a/drivers/crypto/chelsio/chtls/chtls_cm.c
++++ b/drivers/crypto/chelsio/chtls/chtls_cm.c
+@@ -727,6 +727,14 @@ static int chtls_close_listsrv_rpl(struct chtls_dev *cdev, struct sk_buff *skb)
+ 	return 0;
  }
  
- static int rtl8211e_config_init(struct phy_device *phydev)
++static void chtls_purge_wr_queue(struct sock *sk)
++{
++	struct sk_buff *skb;
++
++	while ((skb = dequeue_wr(sk)) != NULL)
++		kfree_skb(skb);
++}
++
+ static void chtls_release_resources(struct sock *sk)
+ {
+ 	struct chtls_sock *csk = rcu_dereference_sk_user_data(sk);
+@@ -741,6 +749,11 @@ static void chtls_release_resources(struct sock *sk)
+ 	kfree_skb(csk->txdata_skb_cache);
+ 	csk->txdata_skb_cache = NULL;
+ 
++	if (csk->wr_credits != csk->wr_max_credits) {
++		chtls_purge_wr_queue(sk);
++		chtls_reset_wr_list(csk);
++	}
++
+ 	if (csk->l2t_entry) {
+ 		cxgb4_l2t_release(csk->l2t_entry);
+ 		csk->l2t_entry = NULL;
+@@ -1735,6 +1748,7 @@ static void chtls_peer_close(struct sock *sk, struct sk_buff *skb)
+ 		else
+ 			sk_wake_async(sk, SOCK_WAKE_WAITD, POLL_IN);
+ 	}
++	kfree_skb(skb);
+ }
+ 
+ static void chtls_close_con_rpl(struct sock *sk, struct sk_buff *skb)
+@@ -2062,19 +2076,6 @@ static int chtls_conn_cpl(struct chtls_dev *cdev, struct sk_buff *skb)
+ 	return 0;
+ }
+ 
+-static struct sk_buff *dequeue_wr(struct sock *sk)
+-{
+-	struct chtls_sock *csk = rcu_dereference_sk_user_data(sk);
+-	struct sk_buff *skb = csk->wr_skb_head;
+-
+-	if (likely(skb)) {
+-	/* Don't bother clearing the tail */
+-		csk->wr_skb_head = WR_SKB_CB(skb)->next_wr;
+-		WR_SKB_CB(skb)->next_wr = NULL;
+-	}
+-	return skb;
+-}
+-
+ static void chtls_rx_ack(struct sock *sk, struct sk_buff *skb)
+ {
+ 	struct cpl_fw4_ack *hdr = cplhdr(skb) + RSS_HDR;
+diff --git a/drivers/crypto/chelsio/chtls/chtls_cm.h b/drivers/crypto/chelsio/chtls/chtls_cm.h
+index 129d7ac649a93..3fac0c74a41fa 100644
+--- a/drivers/crypto/chelsio/chtls/chtls_cm.h
++++ b/drivers/crypto/chelsio/chtls/chtls_cm.h
+@@ -185,6 +185,12 @@ static inline void chtls_kfree_skb(struct sock *sk, struct sk_buff *skb)
+ 	kfree_skb(skb);
+ }
+ 
++static inline void chtls_reset_wr_list(struct chtls_sock *csk)
++{
++	csk->wr_skb_head = NULL;
++	csk->wr_skb_tail = NULL;
++}
++
+ static inline void enqueue_wr(struct chtls_sock *csk, struct sk_buff *skb)
+ {
+ 	WR_SKB_CB(skb)->next_wr = NULL;
+@@ -197,4 +203,19 @@ static inline void enqueue_wr(struct chtls_sock *csk, struct sk_buff *skb)
+ 		WR_SKB_CB(csk->wr_skb_tail)->next_wr = skb;
+ 	csk->wr_skb_tail = skb;
+ }
++
++static inline struct sk_buff *dequeue_wr(struct sock *sk)
++{
++	struct chtls_sock *csk = rcu_dereference_sk_user_data(sk);
++	struct sk_buff *skb = NULL;
++
++	skb = csk->wr_skb_head;
++
++	if (likely(skb)) {
++	 /* Don't bother clearing the tail */
++		csk->wr_skb_head = WR_SKB_CB(skb)->next_wr;
++		WR_SKB_CB(skb)->next_wr = NULL;
++	}
++	return skb;
++}
+ #endif
+diff --git a/drivers/crypto/chelsio/chtls/chtls_hw.c b/drivers/crypto/chelsio/chtls/chtls_hw.c
+index 2a34035d3cfbc..a217fe72602d4 100644
+--- a/drivers/crypto/chelsio/chtls/chtls_hw.c
++++ b/drivers/crypto/chelsio/chtls/chtls_hw.c
+@@ -350,6 +350,7 @@ int chtls_setkey(struct chtls_sock *csk, u32 keylen, u32 optname)
+ 	kwr->sc_imm.cmd_more = cpu_to_be32(ULPTX_CMD_V(ULP_TX_SC_IMM));
+ 	kwr->sc_imm.len = cpu_to_be32(klen);
+ 
++	lock_sock(sk);
+ 	/* key info */
+ 	kctx = (struct _key_ctx *)(kwr + 1);
+ 	ret = chtls_key_info(csk, kctx, keylen, optname);
+@@ -388,8 +389,10 @@ int chtls_setkey(struct chtls_sock *csk, u32 keylen, u32 optname)
+ 		csk->tlshws.txkey = keyid;
+ 	}
+ 
++	release_sock(sk);
+ 	return ret;
+ out_notcb:
++	release_sock(sk);
+ 	free_tls_keyid(sk);
+ out_nokey:
+ 	kfree_skb(skb);
 -- 
 2.20.1
 
