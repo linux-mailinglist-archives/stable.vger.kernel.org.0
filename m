@@ -2,65 +2,141 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5168A15CFFA
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 03:35:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CA63015D16F
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 06:22:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728053AbgBNCex (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 21:34:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60940 "EHLO mail.kernel.org"
+        id S1726049AbgBNFWb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 00:22:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48760 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727988AbgBNCex (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 21:34:53 -0500
-Received: from dragon (80.251.214.228.16clouds.com [80.251.214.228])
+        id S1725775AbgBNFWb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 00:22:31 -0500
+Received: from localhost.localdomain (c-73-231-172-41.hsd1.ca.comcast.net [73.231.172.41])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7F1C22168B;
-        Fri, 14 Feb 2020 02:34:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C3891222C4;
+        Fri, 14 Feb 2020 05:22:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581647692;
-        bh=NlFy+G7BwmwZJMBQsFrSrIwD/y9XhSxODCQxDfIySuU=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=tvDhV6jnoCeie0Kwf0B+4/6TxT/wSlWvZLZsiX8vs8ajAKJ0yfALbjrvcK2l0+bkS
-         AvwKa6FDFPJOQ8yH6dfj/kBs/lYzCaF5ONijXXAs6mBCE0fhaOQaFDnljR+nhutpuW
-         tQsMQxacnQ9HAQBNuIv/cDEos3n2wO0wy5wBdwRA=
-Date:   Fri, 14 Feb 2020 10:34:46 +0800
-From:   Shawn Guo <shawnguo@kernel.org>
-To:     Vladimir Oltean <olteanv@gmail.com>
-Cc:     devicetree@vger.kernel.org, leoyang.li@nxp.com,
-        claudiu.manoil@nxp.com, robh+dt@kernel.org, pavel@denx.de,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        netdev@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH] ARM: dts: ls1021a: Restore MDIO compatible to gianfar
-Message-ID: <20200214023446.GF22842@dragon>
-References: <20200126194950.31699-1-olteanv@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200126194950.31699-1-olteanv@gmail.com>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+        s=default; t=1581657748;
+        bh=/vtfwswc40NS8lK08a1AAwRS9rZHgQOcV3kwcVVlDU8=;
+        h=Date:From:To:Subject:In-Reply-To:From;
+        b=teMMnk774MwcOJ4ZljfstVfOXcw2sVh6MwWW1IWqr5m9LSwVvDqfYiVX78g5rTi2H
+         eGXiHUrpTfcBA+2lNwOvFK4o9bqzcG6Hr3evzcanV69KQSHjwimJIq9sudo0V5jZpS
+         gk/exmwkl08Az2/Rdgvy7D2piqNnbyafQYaniutk=
+Date:   Thu, 13 Feb 2020 21:22:28 -0800
+From:   Andrew Morton <akpm@linux-foundation.org>
+To:     gshan@redhat.com, guro@fb.com, mm-commits@vger.kernel.org,
+        stable@vger.kernel.org
+Subject:  +
+ mm-vmscan-dont-round-up-scan-size-for-online-memory-cgroup.patch added to
+ -mm tree
+Message-ID: <20200214052228.qry-CKsYL%akpm@linux-foundation.org>
+In-Reply-To: <20200203173311.6269a8be06a05e5a4aa08a93@linux-foundation.org>
+User-Agent: s-nail v14.8.16
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Jan 26, 2020 at 09:49:50PM +0200, Vladimir Oltean wrote:
-> The difference between "fsl,etsec2-mdio" and "gianfar" has to do with
-> the .get_tbipa function, which calculates the address of the TBIPA
-> register automatically, if not explicitly specified. [ see
-> drivers/net/ethernet/freescale/fsl_pq_mdio.c ]. On LS1021A, the TBIPA
-> register is at offset 0x30 within the port register block, which is what
-> the "gianfar" method of calculating addresses actually does.
-> 
-> Luckily, the bad "compatible" is inconsequential for ls1021a.dtsi,
-> because the TBIPA register is explicitly specified via the second "reg"
-> (<0x0 0x2d10030 0x0 0x4>), so the "get_tbipa" function is dead code.
-> Nonetheless it's good to restore it to its correct value.
-> 
-> Background discussion:
-> https://www.spinics.net/lists/stable/msg361156.html
-> 
-> Fixes: c7861adbe37f ("ARM: dts: ls1021: Fix SGMII PCS link remaining down after PHY disconnect")
-> Reported-by: Pavel Machek <pavel@denx.de>
-> Signed-off-by: Vladimir Oltean <olteanv@gmail.com>
 
-Applied, thanks.
+The patch titled
+     Subject: mm/vmscan.c: don't round up scan size for online memory cgroup
+has been added to the -mm tree.  Its filename is
+     mm-vmscan-dont-round-up-scan-size-for-online-memory-cgroup.patch
+
+This patch should soon appear at
+    http://ozlabs.org/~akpm/mmots/broken-out/mm-vmscan-dont-round-up-scan-size-for-online-memory-cgroup.patch
+and later at
+    http://ozlabs.org/~akpm/mmotm/broken-out/mm-vmscan-dont-round-up-scan-size-for-online-memory-cgroup.patch
+
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
+
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+
+The -mm tree is included into linux-next and is updated
+there every 3-4 working days
+
+------------------------------------------------------
+From: Gavin Shan <gshan@redhat.com>
+Subject: mm/vmscan.c: don't round up scan size for online memory cgroup
+
+commit 68600f623d69 ("mm: don't miss the last page because of round-off
+error") makes the scan size round up to @denominator regardless of the
+memory cgroup's state, online or offline.  This affects the overall
+reclaiming behavior: The corresponding LRU list is eligible for reclaiming
+only when its size logically right shifted by @sc->priority is bigger than
+zero in the former formula.  For example, the inactive anonymous LRU list
+should have at least 0x4000 pages to be eligible for reclaiming when we
+have 60/12 for swappiness/priority and without taking scan/rotation ratio
+into account.  After the roundup is applied, the inactive anonymous LRU
+list becomes eligible for reclaiming when its size is bigger than or equal
+to 0x1000 in the same condition.
+
+    (0x4000 >> 12) * 60 / (60 + 140 + 1) = 1
+    ((0x1000 >> 12) * 60) + 200) / (60 + 140 + 1) = 1
+
+aarch64 has 512MB huge page size when the base page size is 64KB.  The
+memory cgroup that has a huge page is always eligible for reclaiming in
+that case.  The reclaiming is likely to stop after the huge page is
+reclaimed, meaing the further iteration on @sc->priority and the silbing
+and child memory cgroups will be skipped.  The overall behaviour has been
+changed.  This fixes the issue by applying the roundup to offlined memory
+cgroups only, to give more preference to reclaim memory from offlined
+memory cgroup.  It sounds reasonable as those memory is unlikedly to be
+used by anyone.
+
+The issue was found by starting up 8 VMs on a Ampere Mustang machine,
+which has 8 CPUs and 16 GB memory.  Each VM is given with 2 vCPUs and 2GB
+memory.  It took 264 seconds for all VMs to be completely up and 784MB
+swap is consumed after that.  With this patch applied, it took 236 seconds
+and 60MB swap to do same thing.  So there is 10% performance improvement
+for my case.  Note that KSM is disable while THP is enabled in the
+testing.
+
+         total     used    free   shared  buff/cache   available
+   Mem:  16196    10065    2049       16        4081        3749
+   Swap:  8175      784    7391
+         total     used    free   shared  buff/cache   available
+   Mem:  16196    11324    3656       24        1215        2936
+   Swap:  8175       60    8115
+
+Link: http://lkml.kernel.org/r/20200211024514.8730-1-gshan@redhat.com
+Fixes: 68600f623d69 ("mm: don't miss the last page because of round-off error")
+Signed-off-by: Gavin Shan <gshan@redhat.com>
+Acked-by: Roman Gushchin <guro@fb.com>
+Cc: <stable@vger.kernel.org>	[4.20+]
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
+
+ mm/vmscan.c |    9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
+
+--- a/mm/vmscan.c~mm-vmscan-dont-round-up-scan-size-for-online-memory-cgroup
++++ a/mm/vmscan.c
+@@ -2415,10 +2415,13 @@ out:
+ 			/*
+ 			 * Scan types proportional to swappiness and
+ 			 * their relative recent reclaim efficiency.
+-			 * Make sure we don't miss the last page
+-			 * because of a round-off error.
++			 * Make sure we don't miss the last page on
++			 * the offlined memory cgroups because of a
++			 * round-off error.
+ 			 */
+-			scan = DIV64_U64_ROUND_UP(scan * fraction[file],
++			scan = mem_cgroup_online(memcg) ?
++			       div64_u64(scan * fraction[file], denominator) :
++			       DIV64_U64_ROUND_UP(scan * fraction[file],
+ 						  denominator);
+ 			break;
+ 		case SCAN_FILE:
+_
+
+Patches currently in -mm which might be from gshan@redhat.com are
+
+mm-vmscan-dont-round-up-scan-size-for-online-memory-cgroup.patch
+
