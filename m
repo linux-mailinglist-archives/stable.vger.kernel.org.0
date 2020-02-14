@@ -2,45 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A632A15E6CF
+	by mail.lfdr.de (Postfix) with ESMTP id 30C8915E6CE
 	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:50:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405155AbgBNQUN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 11:20:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53760 "EHLO mail.kernel.org"
+        id S2405172AbgBNQUQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 11:20:16 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53840 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405149AbgBNQUM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:20:12 -0500
+        id S2404796AbgBNQUP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:20:15 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1AE1124720;
-        Fri, 14 Feb 2020 16:20:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DFB282473A;
+        Fri, 14 Feb 2020 16:20:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581697211;
-        bh=Vzdriidfqv4KpQkrRrtKv79yLdEO0q/tKHiRFvK6/kQ=;
+        s=default; t=1581697214;
+        bh=OjlB9AVcPer6GvN/IsZeDID4gRoeRc0i8+HUSWT00wc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j7tM64pgTeybFFqarS5TZc80gN4hWhBRO+JjgL/JQmhEJ/vV9eyt1KqzWEvZ9QgPp
-         FOUU3aZsbiaB0UGz8sjuS87TDdSmFmrE0YMpq17BI9VKlMFYX2bblfka1ZiaWk4J1u
-         OyQjsdpXTdNQZXsHi/2BZYXV9fYoLgHSF3ixs4GA=
+        b=zwKKq5qeAXoMKrX2OlDi/7/7ZA9VXmbP6GpFNgdUc3DjpRUVUHSpjWOSWiGOwM7P1
+         Jsbc07QsxkrtQM0SvHwidiB9UfW1883hukIPgeZ8VQHyvcPS19LDQtiaIgMguXhCc6
+         RFsQXEBwqkyLYnt3F3EGmG2b6jzzWzS9jx1QpeDE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hanjun Guo <guohanjun@huawei.com>,
-        Pankaj Bansal <pankaj.bansal@nxp.com>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Sudeep Holla <sudeep.holla@arm.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Sasha Levin <sashal@kernel.org>, linux-acpi@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.14 136/186] ACPI/IORT: Fix 'Number of IDs' handling in iort_id_map()
-Date:   Fri, 14 Feb 2020 11:16:25 -0500
-Message-Id: <20200214161715.18113-136-sashal@kernel.org>
+Cc:     =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>,
+        Thierry Reding <thierry.reding@gmail.com>,
+        Sasha Levin <sashal@kernel.org>, linux-pwm@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 139/186] pwm: omap-dmtimer: Remove PWM chip in .remove before making it unfunctional
+Date:   Fri, 14 Feb 2020 11:16:28 -0500
+Message-Id: <20200214161715.18113-139-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214161715.18113-1-sashal@kernel.org>
 References: <20200214161715.18113-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -49,154 +45,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hanjun Guo <guohanjun@huawei.com>
+From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 
-[ Upstream commit 3c23b83a88d00383e1d498cfa515249aa2fe0238 ]
+[ Upstream commit 43efdc8f0e6d7088ec61bd55a73bf853f002d043 ]
 
-The IORT specification [0] (Section 3, table 4, page 9) defines the
-'Number of IDs' as 'The number of IDs in the range minus one'.
+In the old code (e.g.) mutex_destroy() was called before
+pwmchip_remove(). Between these two calls it is possible that a PWM
+callback is used which tries to grab the mutex.
 
-However, the IORT ID mapping function iort_id_map() treats the 'Number
-of IDs' field as if it were the full IDs mapping count, with the
-following check in place to detect out of boundary input IDs:
-
-InputID >= Input base + Number of IDs
-
-This check is flawed in that it considers the 'Number of IDs' field as
-the full number of IDs mapping and disregards the 'minus one' from
-the IDs count.
-
-The correct check in iort_id_map() should be implemented as:
-
-InputID > Input base + Number of IDs
-
-this implements the specification correctly but unfortunately it breaks
-existing firmwares that erroneously set the 'Number of IDs' as the full
-IDs mapping count rather than IDs mapping count minus one.
-
-e.g.
-
-PCI hostbridge mapping entry 1:
-Input base:  0x1000
-ID Count:    0x100
-Output base: 0x1000
-Output reference: 0xC4  //ITS reference
-
-PCI hostbridge mapping entry 2:
-Input base:  0x1100
-ID Count:    0x100
-Output base: 0x2000
-Output reference: 0xD4  //ITS reference
-
-Two mapping entries which the second entry's Input base = the first
-entry's Input base + ID count, so for InputID 0x1100 and with the
-correct InputID check in place in iort_id_map() the kernel would map
-the InputID to ITS 0xC4 not 0xD4 as it would be expected.
-
-Therefore, to keep supporting existing flawed firmwares, introduce a
-workaround that instructs the kernel to use the old InputID range check
-logic in iort_id_map(), so that we can support both firmwares written
-with the flawed 'Number of IDs' logic and the correct one as defined in
-the specifications.
-
-[0]: http://infocenter.arm.com/help/topic/com.arm.doc.den0049d/DEN0049D_IO_Remapping_Table.pdf
-
-Reported-by: Pankaj Bansal <pankaj.bansal@nxp.com>
-Link: https://lore.kernel.org/linux-acpi/20191215203303.29811-1-pankaj.bansal@nxp.com/
-Signed-off-by: Hanjun Guo <guohanjun@huawei.com>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Cc: Pankaj Bansal <pankaj.bansal@nxp.com>
-Cc: Will Deacon <will@kernel.org>
-Cc: Sudeep Holla <sudeep.holla@arm.com>
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Robin Murphy <robin.murphy@arm.com>
-Signed-off-by: Will Deacon <will@kernel.org>
+Fixes: 6604c6556db9 ("pwm: Add PWM driver for OMAP using dual-mode timers")
+Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/arm64/iort.c | 57 +++++++++++++++++++++++++++++++++++++--
- 1 file changed, 55 insertions(+), 2 deletions(-)
+ drivers/pwm/pwm-omap-dmtimer.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/acpi/arm64/iort.c b/drivers/acpi/arm64/iort.c
-index b0a7afd4e7d35..f45bb681b3db5 100644
---- a/drivers/acpi/arm64/iort.c
-+++ b/drivers/acpi/arm64/iort.c
-@@ -282,6 +282,59 @@ static acpi_status iort_match_node_callback(struct acpi_iort_node *node,
- 	return status;
- }
- 
-+struct iort_workaround_oem_info {
-+	char oem_id[ACPI_OEM_ID_SIZE + 1];
-+	char oem_table_id[ACPI_OEM_TABLE_ID_SIZE + 1];
-+	u32 oem_revision;
-+};
-+
-+static bool apply_id_count_workaround;
-+
-+static struct iort_workaround_oem_info wa_info[] __initdata = {
-+	{
-+		.oem_id		= "HISI  ",
-+		.oem_table_id	= "HIP07   ",
-+		.oem_revision	= 0,
-+	}, {
-+		.oem_id		= "HISI  ",
-+		.oem_table_id	= "HIP08   ",
-+		.oem_revision	= 0,
-+	}
-+};
-+
-+static void __init
-+iort_check_id_count_workaround(struct acpi_table_header *tbl)
-+{
-+	int i;
-+
-+	for (i = 0; i < ARRAY_SIZE(wa_info); i++) {
-+		if (!memcmp(wa_info[i].oem_id, tbl->oem_id, ACPI_OEM_ID_SIZE) &&
-+		    !memcmp(wa_info[i].oem_table_id, tbl->oem_table_id, ACPI_OEM_TABLE_ID_SIZE) &&
-+		    wa_info[i].oem_revision == tbl->oem_revision) {
-+			apply_id_count_workaround = true;
-+			pr_warn(FW_BUG "ID count for ID mapping entry is wrong, applying workaround\n");
-+			break;
-+		}
-+	}
-+}
-+
-+static inline u32 iort_get_map_max(struct acpi_iort_id_mapping *map)
-+{
-+	u32 map_max = map->input_base + map->id_count;
-+
-+	/*
-+	 * The IORT specification revision D (Section 3, table 4, page 9) says
-+	 * Number of IDs = The number of IDs in the range minus one, but the
-+	 * IORT code ignored the "minus one", and some firmware did that too,
-+	 * so apply a workaround here to keep compatible with both the spec
-+	 * compliant and non-spec compliant firmwares.
-+	 */
-+	if (apply_id_count_workaround)
-+		map_max--;
-+
-+	return map_max;
-+}
-+
- static int iort_id_map(struct acpi_iort_id_mapping *map, u8 type, u32 rid_in,
- 		       u32 *rid_out)
+diff --git a/drivers/pwm/pwm-omap-dmtimer.c b/drivers/pwm/pwm-omap-dmtimer.c
+index 5ad42f33e70c1..2e15acf13893d 100644
+--- a/drivers/pwm/pwm-omap-dmtimer.c
++++ b/drivers/pwm/pwm-omap-dmtimer.c
+@@ -337,6 +337,11 @@ static int pwm_omap_dmtimer_probe(struct platform_device *pdev)
+ static int pwm_omap_dmtimer_remove(struct platform_device *pdev)
  {
-@@ -298,8 +351,7 @@ static int iort_id_map(struct acpi_iort_id_mapping *map, u8 type, u32 rid_in,
- 		return -ENXIO;
- 	}
+ 	struct pwm_omap_dmtimer_chip *omap = platform_get_drvdata(pdev);
++	int ret;
++
++	ret = pwmchip_remove(&omap->chip);
++	if (ret)
++		return ret;
  
--	if (rid_in < map->input_base ||
--	    (rid_in >= map->input_base + map->id_count))
-+	if (rid_in < map->input_base || rid_in > iort_get_map_max(map))
- 		return -ENXIO;
+ 	if (pm_runtime_active(&omap->dm_timer_pdev->dev))
+ 		omap->pdata->stop(omap->dm_timer);
+@@ -345,7 +350,7 @@ static int pwm_omap_dmtimer_remove(struct platform_device *pdev)
  
- 	*rid_out = map->output_base + (rid_in - map->input_base);
-@@ -1275,5 +1327,6 @@ void __init acpi_iort_init(void)
- 		return;
- 	}
+ 	mutex_destroy(&omap->mutex);
  
-+	iort_check_id_count_workaround(iort_table);
- 	iort_init_platform_devices();
+-	return pwmchip_remove(&omap->chip);
++	return 0;
  }
+ 
+ static const struct of_device_id pwm_omap_dmtimer_of_match[] = {
 -- 
 2.20.1
 
