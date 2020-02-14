@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 261EE15E23B
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:23:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 77EE115E240
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:23:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405394AbgBNQWK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 11:22:10 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57256 "EHLO mail.kernel.org"
+        id S2405453AbgBNQW2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 11:22:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57970 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387788AbgBNQWK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:22:10 -0500
+        id S2405449AbgBNQW1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:22:27 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ACA83246DF;
-        Fri, 14 Feb 2020 16:22:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5AC8B24747;
+        Fri, 14 Feb 2020 16:22:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581697329;
-        bh=jn4K9rDlecWTJSRHUz03JEu4YRkIIjvf91FBDrRDW14=;
+        s=default; t=1581697347;
+        bh=Y3rmB0n2Bwds4vY+xXhnHcjSIlguK30yVGX2AiFZnUc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PepKEXcFte97Cc2hl/ii68rXDcQtRKm9SBUzaFpxSdkRIXYupe0weqkSFF3++H7oq
-         fNTDn5iv9Gb7jJKyAGwSS9nPmQGwriGL9a3C01xDmHXQp7G56vUj8FCcGY6kidpM/Q
-         NqT+RiZtEe4ofHR1WVwteVzSS7N7a46gBSpQ378Q=
+        b=H/2GqUGHOnXfQTO5GIXDVgBXNoIcnNnvKFr/rA3pDUwIp9vOqYOEEWwD0TOlcaTHw
+         vg8kYJJbsLsjoRnYT+rK5mmQp4kqiJ4fkeW48MYw1qockq1fvHN0webu8XjND0/NR8
+         qgKHU0x/AlhPllVT2j/bPhtRua3BmZkOsqKOBo8g=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     yu kuai <yukuai3@huawei.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 4.9 037/141] drm/amdgpu: remove set but not used variable 'amdgpu_connector'
-Date:   Fri, 14 Feb 2020 11:19:37 -0500
-Message-Id: <20200214162122.19794-37-sashal@kernel.org>
+Cc:     Mao Wenan <maowenan@huawei.com>, Hulk Robot <hulkci@huawei.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 051/141] NFC: port100: Convert cpu_to_le16(le16_to_cpu(E1) + E2) to use le16_add_cpu().
+Date:   Fri, 14 Feb 2020 11:19:51 -0500
+Message-Id: <20200214162122.19794-51-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214162122.19794-1-sashal@kernel.org>
 References: <20200214162122.19794-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -45,45 +43,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: yu kuai <yukuai3@huawei.com>
+From: Mao Wenan <maowenan@huawei.com>
 
-[ Upstream commit 4f2922d12d6c63d0f4aa4e859ad95aee6d0d4ea0 ]
+[ Upstream commit 718eae277e62a26e5862eb72a830b5e0fe37b04a ]
 
-Fixes gcc '-Wunused-but-set-variable' warning:
+Convert cpu_to_le16(le16_to_cpu(frame->datalen) + len) to
+use le16_add_cpu(), which is more concise and does the same thing.
 
-drivers/gpu/drm/amd/amdgpu/amdgpu_display.c: In function
-‘amdgpu_display_crtc_scaling_mode_fixup’:
-drivers/gpu/drm/amd/amdgpu/amdgpu_display.c:693:27: warning: variable
-‘amdgpu_connector’ set but not used [-Wunused-but-set-variable]
-
-Fixes: d38ceaf99ed0 ("drm/amdgpu: add core driver (v4)")
-Signed-off-by: yu kuai <yukuai3@huawei.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Mao Wenan <maowenan@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_display.c | 2 --
- 1 file changed, 2 deletions(-)
+ drivers/nfc/port100.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_display.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_display.c
-index 15a2d8f3725d5..f29f025202d03 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_display.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_display.c
-@@ -666,7 +666,6 @@ bool amdgpu_crtc_scaling_mode_fixup(struct drm_crtc *crtc,
- 	struct amdgpu_crtc *amdgpu_crtc = to_amdgpu_crtc(crtc);
- 	struct amdgpu_encoder *amdgpu_encoder;
- 	struct drm_connector *connector;
--	struct amdgpu_connector *amdgpu_connector;
- 	u32 src_v = 1, dst_v = 1;
- 	u32 src_h = 1, dst_h = 1;
+diff --git a/drivers/nfc/port100.c b/drivers/nfc/port100.c
+index 3cd995de1bbb5..151b220381f95 100644
+--- a/drivers/nfc/port100.c
++++ b/drivers/nfc/port100.c
+@@ -573,7 +573,7 @@ static void port100_tx_update_payload_len(void *_frame, int len)
+ {
+ 	struct port100_frame *frame = _frame;
  
-@@ -678,7 +677,6 @@ bool amdgpu_crtc_scaling_mode_fixup(struct drm_crtc *crtc,
- 			continue;
- 		amdgpu_encoder = to_amdgpu_encoder(encoder);
- 		connector = amdgpu_get_connector_for_encoder(encoder);
--		amdgpu_connector = to_amdgpu_connector(connector);
+-	frame->datalen = cpu_to_le16(le16_to_cpu(frame->datalen) + len);
++	le16_add_cpu(&frame->datalen, len);
+ }
  
- 		/* set scaling */
- 		if (amdgpu_encoder->rmx_type == RMX_OFF)
+ static bool port100_rx_frame_is_valid(void *_frame)
 -- 
 2.20.1
 
