@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3DCA115EF3F
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:46:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4FC7F15EF47
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:47:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389273AbgBNQCM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 11:02:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48322 "EHLO mail.kernel.org"
+        id S2388158AbgBNRqo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 12:46:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48384 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389265AbgBNQCL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:02:11 -0500
+        id S2389270AbgBNQCM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:02:12 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9C4B024676;
-        Fri, 14 Feb 2020 16:02:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 47E2E24654;
+        Fri, 14 Feb 2020 16:02:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581696130;
-        bh=HDNfsmOpb9MK1yv2aN+/E97lXV9iDVXQh3D1EFAviJE=;
+        s=default; t=1581696132;
+        bh=ml9s32sxFxF2khA9u9Gzm/r5nsPwJ65bZbYiix3UbLY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nCeP60jhUGVvFg+8vLNWolMx7SIrbn2HxbQKN5BzRWlP/8Kw/Uts61Tcsm/XVi3iO
-         pPFhJSsLqPnpW2WD/ozY94wtFflbVGLsfkmpq224GOocSGdZxtN6F73tbG5L/1rdCs
-         weoyd/ubyLDYNWSWN3MzPqXIyn+mpuvgkTR204MU=
+        b=ogfAG4Q2/ulyttPT9laYVPuYkjmgcm9jBn3GQg19dbCDTkaqvaPDe0xDf64noPH/A
+         6tF4ajsveknKCpkbi+0E1h0vBYPZy3rTSR5zMI2j7X73HXIEXdEKChaan9B3Ege4D9
+         OzzikMlcqSMhGfPRSZ+9Z2/1Ly5wNOkbSiWS2OWM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Colin Ian King <colin.king@canonical.com>,
+Cc:     Jerome Brunet <jbrunet@baylibre.com>,
+        Dmitry Shmidt <dimitrysh@google.com>,
+        Neil Armstrong <narmstrong@baylibre.com>,
         Kevin Hilman <khilman@baylibre.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org,
-        linux-amlogic@lists.infradead.org, devel@driverdev.osuosl.org,
+        Sasha Levin <sashal@kernel.org>,
+        linux-amlogic@lists.infradead.org, linux-clk@vger.kernel.org,
         linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.4 015/459] media: meson: add missing allocation failure check on new_buf
-Date:   Fri, 14 Feb 2020 10:54:25 -0500
-Message-Id: <20200214160149.11681-15-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 016/459] clk: meson: g12a: fix missing uart2 in regmap table
+Date:   Fri, 14 Feb 2020 10:54:26 -0500
+Message-Id: <20200214160149.11681-16-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214160149.11681-1-sashal@kernel.org>
 References: <20200214160149.11681-1-sashal@kernel.org>
@@ -47,40 +47,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Jerome Brunet <jbrunet@baylibre.com>
 
-[ Upstream commit 11e0e167d071a28288a7a0a211d48c571d19b56f ]
+[ Upstream commit b1b3f0622a9d52ac19a63619911823c89a4d85a4 ]
 
-Currently if the allocation of new_buf fails then a null pointer
-dereference occurs when assiging new_buf->vb. Avoid this by returning
-early on a memory allocation failure as there is not much more can
-be done at this point.
+UART2 peripheral is missing from the regmap fixup table of the g12a family
+clock controller. As it is, any access to this clock would Oops, which is
+not great.
 
-Addresses-Coverity: ("Dereference null return")
+Add the clock to the table to fix the problem.
 
-Fixes: 3e7f51bd9607 ("media: meson: add v4l2 m2m video decoder driver")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Reviewed-by: Kevin Hilman <khilman@baylibre.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Fixes: 085a4ea93d54 ("clk: meson: g12a: add peripheral clock controller")
+Reported-by: Dmitry Shmidt <dimitrysh@google.com>
+Tested-by: Dmitry Shmidt <dimitrysh@google.com>
+Acked-by: Neil Armstrong <narmstrong@baylibre.com>
+Tested-by: Kevin Hilman <khilman@baylibre.com>
+Signed-off-by: Jerome Brunet <jbrunet@baylibre.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/media/meson/vdec/vdec.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/clk/meson/g12a.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/staging/media/meson/vdec/vdec.c b/drivers/staging/media/meson/vdec/vdec.c
-index 0a1a04fd5d13d..8dd1396909d7e 100644
---- a/drivers/staging/media/meson/vdec/vdec.c
-+++ b/drivers/staging/media/meson/vdec/vdec.c
-@@ -133,6 +133,8 @@ vdec_queue_recycle(struct amvdec_session *sess, struct vb2_buffer *vb)
- 	struct amvdec_buffer *new_buf;
- 
- 	new_buf = kmalloc(sizeof(*new_buf), GFP_KERNEL);
-+	if (!new_buf)
-+		return;
- 	new_buf->vb = vb;
- 
- 	mutex_lock(&sess->bufs_recycle_lock);
+diff --git a/drivers/clk/meson/g12a.c b/drivers/clk/meson/g12a.c
+index b3af61cc6fb94..d2760a021301d 100644
+--- a/drivers/clk/meson/g12a.c
++++ b/drivers/clk/meson/g12a.c
+@@ -4692,6 +4692,7 @@ static struct clk_regmap *const g12a_clk_regmaps[] = {
+ 	&g12a_bt656,
+ 	&g12a_usb1_to_ddr,
+ 	&g12a_mmc_pclk,
++	&g12a_uart2,
+ 	&g12a_vpu_intr,
+ 	&g12a_gic,
+ 	&g12a_sd_emmc_a_clk0,
 -- 
 2.20.1
 
