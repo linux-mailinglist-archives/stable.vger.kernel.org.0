@@ -2,122 +2,189 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CD66415F548
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 19:39:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BE9DA15F556
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 19:39:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388695AbgBNS2v (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 13:28:51 -0500
-Received: from userp2120.oracle.com ([156.151.31.85]:51334 "EHLO
-        userp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2387718AbgBNS2v (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 14 Feb 2020 13:28:51 -0500
-Received: from pps.filterd (userp2120.oracle.com [127.0.0.1])
-        by userp2120.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 01EINruc167222;
-        Fri, 14 Feb 2020 18:28:33 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=from : to : cc :
- subject : date : message-id : mime-version : content-transfer-encoding;
- s=corp-2020-01-29; bh=QGPSHfePG9y20E4OZXeMQypsFtYM/sre+7FquWnrs2w=;
- b=H0nzw+KLXeLE+5ztK5ogzivadOTbtV8GQ8X3km41dHPJ4yNggp0nuSCoU4EmIyJbimuz
- FrXFimbSg/1JVOkrVobuD3FRYLe6SH+EwqxvE2zr8Fsvl5HF7KRZAmTkVqiAsSEJf0DM
- 7nIjxJ+ryEcTWWIWk7Q7M/FfCIYYo6tJu4cqid/1YHtWo229rvnPls85R0qtZhVRdzzm
- yHjS5kccsabmi0Rn9MD9Corom6xAXXJjHcFrisyLx9ImAcTbPYVI22K5yWyoIUUG6t5q
- 4QlNFUKD7VaHinwc4tYp+EwU4/SnMQ/FO5ULBvj47vDn+zmPgopFy+5nUZgJlmyq77II QA== 
-Received: from userp3030.oracle.com (userp3030.oracle.com [156.151.31.80])
-        by userp2120.oracle.com with ESMTP id 2y2p3t2x6a-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 14 Feb 2020 18:28:33 +0000
-Received: from pps.filterd (userp3030.oracle.com [127.0.0.1])
-        by userp3030.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 01EIRhe7110676;
-        Fri, 14 Feb 2020 18:28:33 GMT
-Received: from userv0122.oracle.com (userv0122.oracle.com [156.151.31.75])
-        by userp3030.oracle.com with ESMTP id 2y5dthh82k-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 14 Feb 2020 18:28:33 +0000
-Received: from abhmp0004.oracle.com (abhmp0004.oracle.com [141.146.116.10])
-        by userv0122.oracle.com (8.14.4/8.14.4) with ESMTP id 01EISU5N003303;
-        Fri, 14 Feb 2020 18:28:30 GMT
-Received: from localhost.localdomain (/98.229.125.203)
-        by default (Oracle Beehive Gateway v4.0)
-        with ESMTP ; Fri, 14 Feb 2020 10:28:30 -0800
-From:   Daniel Jordan <daniel.m.jordan@oracle.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Cc:     Daniel Jordan <daniel.m.jordan@oracle.com>,
-        Yang Yingliang <yangyingliang@huawei.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Steffen Klassert <steffen.klassert@secunet.com>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: [PATCH for 4.19-stable] padata: fix null pointer deref of pd->pinst
-Date:   Fri, 14 Feb 2020 13:28:21 -0500
-Message-Id: <20200214182821.337706-1-daniel.m.jordan@oracle.com>
-X-Mailer: git-send-email 2.25.0
+        id S1729969AbgBNScW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 13:32:22 -0500
+Received: from lelv0142.ext.ti.com ([198.47.23.249]:41104 "EHLO
+        lelv0142.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729448AbgBNScW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 14 Feb 2020 13:32:22 -0500
+Received: from fllv0035.itg.ti.com ([10.64.41.0])
+        by lelv0142.ext.ti.com (8.15.2/8.15.2) with ESMTP id 01EIW6FW049974;
+        Fri, 14 Feb 2020 12:32:06 -0600
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ti.com;
+        s=ti-com-17Q1; t=1581705126;
+        bh=9JYMizinH2hk8xrhecX9Qq9awqbrX0eH4eIWvAG/GAQ=;
+        h=Subject:To:CC:References:From:Date:In-Reply-To;
+        b=ts3RHCv3EO/ATymwAd98uW5uyntuDog7SsYKx5uEPyNs1b0fnEkKBYfXQ2CZn9TlK
+         ClylWeKcMm2NfzE5/p//Vr+kpqnKeCxFT9ti3a1aoGrXBlSCqiMGnl7EZPPpvrAWl3
+         oJ1o08keCcpZ4J05tMlILDN/GSPkR8XXORNZL+Mc=
+Received: from DLEE109.ent.ti.com (dlee109.ent.ti.com [157.170.170.41])
+        by fllv0035.itg.ti.com (8.15.2/8.15.2) with ESMTP id 01EIW6jl001763;
+        Fri, 14 Feb 2020 12:32:06 -0600
+Received: from DLEE103.ent.ti.com (157.170.170.33) by DLEE109.ent.ti.com
+ (157.170.170.41) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.1847.3; Fri, 14
+ Feb 2020 12:32:05 -0600
+Received: from fllv0040.itg.ti.com (10.64.41.20) by DLEE103.ent.ti.com
+ (157.170.170.33) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.1847.3 via
+ Frontend Transport; Fri, 14 Feb 2020 12:32:06 -0600
+Received: from [128.247.58.153] (ileax41-snat.itg.ti.com [10.172.224.153])
+        by fllv0040.itg.ti.com (8.15.2/8.15.2) with ESMTP id 01EIW50q000848;
+        Fri, 14 Feb 2020 12:32:05 -0600
+Subject: Re: [PATCH AUTOSEL 5.4 191/459] ARM: OMAP2+: Add workaround for DRA7
+ DSP MStandby errata i879
+To:     Sasha Levin <sashal@kernel.org>, <linux-kernel@vger.kernel.org>,
+        <stable@vger.kernel.org>
+CC:     Tony Lindgren <tony@atomide.com>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-omap@vger.kernel.org>
+References: <20200214160149.11681-1-sashal@kernel.org>
+ <20200214160149.11681-191-sashal@kernel.org>
+From:   Suman Anna <s-anna@ti.com>
+Message-ID: <eccdc72d-759f-d3d8-0801-38e8d8cfd371@ti.com>
+Date:   Fri, 14 Feb 2020 12:32:05 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.6.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9531 signatures=668685
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=0 phishscore=0 mlxscore=0
- adultscore=0 malwarescore=0 spamscore=0 mlxlogscore=999 bulkscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2001150001
- definitions=main-2002140137
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9531 signatures=668685
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 spamscore=0 mlxscore=0 malwarescore=0
- suspectscore=0 mlxlogscore=999 priorityscore=1501 clxscore=1015
- impostorscore=0 lowpriorityscore=0 phishscore=0 adultscore=0 bulkscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2001150001
- definitions=main-2002140137
+In-Reply-To: <20200214160149.11681-191-sashal@kernel.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-EXCLAIMER-MD-CONFIG: e1e8a2fd-e40a-4ac6-ac9b-f7e9cc9ee180
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The 4.19 backport dc34710a7aba ("padata: Remove broken queue flushing")
-removed padata_alloc_pd()'s assignment to pd->pinst, resulting in:
+Hi Sasha,
 
-    Unable to handle kernel NULL pointer dereference ...
-    ...
-    pc : padata_reorder+0x144/0x2e0
-    ...
-    Call trace:
-     padata_reorder+0x144/0x2e0
-     padata_do_serial+0xc8/0x128
-     pcrypt_aead_enc+0x60/0x70 [pcrypt]
-     padata_parallel_worker+0xd8/0x138
-     process_one_work+0x1bc/0x4b8
-     worker_thread+0x164/0x580
-     kthread+0x134/0x138
-     ret_from_fork+0x10/0x18
+On 2/14/20 9:57 AM, Sasha Levin wrote:
+> From: Suman Anna <s-anna@ti.com>
+> 
+> [ Upstream commit 2f14101a1d760db72393910d481fbf7768c44530 ]
+> 
+> Errata Title:
+> i879: DSP MStandby requires CD_EMU in SW_WKUP
+> 
+> Description:
+> The DSP requires the internal emulation clock to be actively toggling
+> in order to successfully enter a low power mode via execution of the
+> IDLE instruction and PRCM MStandby/Idle handshake. This assumes that
+> other prerequisites and software sequence are followed.
+> 
+> Workaround:
+> The emulation clock to the DSP is free-running anytime CCS is connected
+> via JTAG debugger to the DSP subsystem or when the CD_EMU clock domain
+> is set in SW_WKUP mode. The CD_EMU domain can be set in SW_WKUP mode
+> via the CM_EMU_CLKSTCTRL [1:0]CLKTRCTRL field.
+> 
+> Implementation:
+> This patch implements this workaround by denying the HW_AUTO mode
+> for the EMU clockdomain during the power-up of any DSP processor
+> and re-enabling the HW_AUTO mode during the shutdown of the last
+> DSP processor (actually done during the enabling and disabling of
+> the respective DSP MDMA MMUs). Reference counting has to be used to
+> manage the independent sequencing between the multiple DSP processors.
+> 
+> This switching is done at runtime rather than a static clockdomain
+> flags value to meet the target power domain state for the EMU power
+> domain during suspend.
+> 
+> Note that the DSP MStandby behavior is not consistent across all
+> boards prior to this fix. Please see commit 45f871eec6c0 ("ARM:
+> OMAP2+: Extend DRA7 IPU1 MMU pdata quirks to DSP MDMA MMUs") for
+> details.
+> 
+> Signed-off-by: Suman Anna <s-anna@ti.com>
+> Signed-off-by: Tony Lindgren <tony@atomide.com>
+> Signed-off-by: Sasha Levin <sashal@kernel.org>
 
-This happened because the backport was based on an enhancement that
-moved this assignment but isn't in 4.19:
+You can drop this from the 5.4-stable queue. Mainline doesn't yet boot
+the processors, so this is not needed for stable queue.
 
-  bfde23ce200e ("padata: unbind parallel jobs from specific CPUs")
+regards
+Suman
 
-Simply restore the assignment to fix the crash.
-
-Fixes: dc34710a7aba ("padata: Remove broken queue flushing")
-Reported-by: Yang Yingliang <yangyingliang@huawei.com>
-Signed-off-by: Daniel Jordan <daniel.m.jordan@oracle.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: Sasha Levin <sashal@kernel.org>
-Cc: Steffen Klassert <steffen.klassert@secunet.com>
-Cc: linux-kernel@vger.kernel.org
-Cc: stable@vger.kernel.org
----
- kernel/padata.c | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/kernel/padata.c b/kernel/padata.c
-index 11c5f9c8779e..cfab62923c45 100644
---- a/kernel/padata.c
-+++ b/kernel/padata.c
-@@ -510,6 +510,7 @@ static struct parallel_data *padata_alloc_pd(struct padata_instance *pinst,
- 	atomic_set(&pd->seq_nr, -1);
- 	atomic_set(&pd->reorder_objects, 0);
- 	atomic_set(&pd->refcnt, 1);
-+	pd->pinst = pinst;
- 	spin_lock_init(&pd->lock);
- 
- 	return pd;
--- 
-2.25.0
+> ---
+>  arch/arm/mach-omap2/omap-iommu.c | 43 +++++++++++++++++++++++++++++---
+>  1 file changed, 40 insertions(+), 3 deletions(-)
+> 
+> diff --git a/arch/arm/mach-omap2/omap-iommu.c b/arch/arm/mach-omap2/omap-iommu.c
+> index f1a6ece8108e4..78247e6f4a720 100644
+> --- a/arch/arm/mach-omap2/omap-iommu.c
+> +++ b/arch/arm/mach-omap2/omap-iommu.c
+> @@ -11,14 +11,43 @@
+>  
+>  #include "omap_hwmod.h"
+>  #include "omap_device.h"
+> +#include "clockdomain.h"
+>  #include "powerdomain.h"
+>  
+> +static void omap_iommu_dra7_emu_swsup_config(struct platform_device *pdev,
+> +					     bool enable)
+> +{
+> +	static struct clockdomain *emu_clkdm;
+> +	static DEFINE_SPINLOCK(emu_lock);
+> +	static atomic_t count;
+> +	struct device_node *np = pdev->dev.of_node;
+> +
+> +	if (!of_device_is_compatible(np, "ti,dra7-dsp-iommu"))
+> +		return;
+> +
+> +	if (!emu_clkdm) {
+> +		emu_clkdm = clkdm_lookup("emu_clkdm");
+> +		if (WARN_ON_ONCE(!emu_clkdm))
+> +			return;
+> +	}
+> +
+> +	spin_lock(&emu_lock);
+> +
+> +	if (enable && (atomic_inc_return(&count) == 1))
+> +		clkdm_deny_idle(emu_clkdm);
+> +	else if (!enable && (atomic_dec_return(&count) == 0))
+> +		clkdm_allow_idle(emu_clkdm);
+> +
+> +	spin_unlock(&emu_lock);
+> +}
+> +
+>  int omap_iommu_set_pwrdm_constraint(struct platform_device *pdev, bool request,
+>  				    u8 *pwrst)
+>  {
+>  	struct powerdomain *pwrdm;
+>  	struct omap_device *od;
+>  	u8 next_pwrst;
+> +	int ret = 0;
+>  
+>  	od = to_omap_device(pdev);
+>  	if (!od)
+> @@ -31,13 +60,21 @@ int omap_iommu_set_pwrdm_constraint(struct platform_device *pdev, bool request,
+>  	if (!pwrdm)
+>  		return -EINVAL;
+>  
+> -	if (request)
+> +	if (request) {
+>  		*pwrst = pwrdm_read_next_pwrst(pwrdm);
+> +		omap_iommu_dra7_emu_swsup_config(pdev, true);
+> +	}
+>  
+>  	if (*pwrst > PWRDM_POWER_RET)
+> -		return 0;
+> +		goto out;
+>  
+>  	next_pwrst = request ? PWRDM_POWER_ON : *pwrst;
+>  
+> -	return pwrdm_set_next_pwrst(pwrdm, next_pwrst);
+> +	ret = pwrdm_set_next_pwrst(pwrdm, next_pwrst);
+> +
+> +out:
+> +	if (!request)
+> +		omap_iommu_dra7_emu_swsup_config(pdev, false);
+> +
+> +	return ret;
+>  }
+> 
 
