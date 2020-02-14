@@ -2,35 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E43615EB17
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:19:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F2A5015EB21
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:19:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391676AbgBNQK7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 11:10:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37240 "EHLO mail.kernel.org"
+        id S2389263AbgBNRSr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 12:18:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37306 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391672AbgBNQK6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:10:58 -0500
+        id S2391677AbgBNQLA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:11:00 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6747124684;
-        Fri, 14 Feb 2020 16:10:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1887224680;
+        Fri, 14 Feb 2020 16:10:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581696657;
-        bh=pUXMMxs3K3BuMqt1nQpPRhmt5mebmzuAGH2Y8vUubbs=;
+        s=default; t=1581696659;
+        bh=L/7k3m7ujjUJpg6AZQAv5OmhaIa7hFweHAdzA6ZUDXQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PCbVNyVxsC5Qg1DMw5LmYpQqiKGKwbdsX1gWrPw56Iv+nuNQT7HWz8SVB6+97qmtG
-         t7q1bEV6kUEOqKo0j6aXnJSV5m+I/dYK1UQeidMLLGE3RJ2Yx3fuJldb2xn1kT8bWx
-         LZD6g3PI4ItCImPUm6wxJk2Lz3+Uafs2Xsj9nYa4=
+        b=Kqkjl45sfD42jLMhYY2VHLUzwC4jI3CfoANyUNZ2XPHmvWFHOUydVNetVWrjO73OK
+         QC9iwExVNa86Af/6n//smkPT4Ejj6VI5miXnRK9SmhNwEPyCpFoLJHLCY1Po1IkYA6
+         H573Vg6BMqr33h9WXKvM3qApt8xDSkBKdm6rdOHE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Josef Bacik <josef@toxicpanda.com>,
-        David Sterba <dsterba@suse.com>,
-        Sasha Levin <sashal@kernel.org>, linux-btrfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 431/459] btrfs: do not do delalloc reservation under page lock
-Date:   Fri, 14 Feb 2020 11:01:21 -0500
-Message-Id: <20200214160149.11681-431-sashal@kernel.org>
+Cc:     Masahiro Yamada <masahiroy@kernel.org>, Gang He <ghe@suse.com>,
+        Mark Fasheh <mark@fasheh.com>,
+        Joel Becker <jlbec@evilplan.org>,
+        Junxiao Bi <junxiao.bi@oracle.com>,
+        Joseph Qi <jiangqi903@gmail.com>,
+        Changwei Ge <gechangwei@live.cn>,
+        Jun Piao <piaojun@huawei.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>, ocfs2-devel@oss.oracle.com
+Subject: [PATCH AUTOSEL 5.4 432/459] ocfs2: make local header paths relative to C files
+Date:   Fri, 14 Feb 2020 11:01:22 -0500
+Message-Id: <20200214160149.11681-432-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214160149.11681-1-sashal@kernel.org>
 References: <20200214160149.11681-1-sashal@kernel.org>
@@ -43,218 +50,338 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josef Bacik <josef@toxicpanda.com>
+From: Masahiro Yamada <masahiroy@kernel.org>
 
-[ Upstream commit f4b1363cae43fef7c86c993b7ca7fe7d546b3c68 ]
+[ Upstream commit ca322fb6030956c2337fbf1c1beeb08c5dd5c943 ]
 
-We ran into a deadlock in production with the fixup worker.  The stack
-traces were as follows:
+Gang He reports the failure of building fs/ocfs2/ as an external module
+of the kernel installed on the system:
 
-Thread responsible for the writeout, waiting on the page lock
+ $ cd fs/ocfs2
+ $ make -C /lib/modules/`uname -r`/build M=`pwd` modules
 
-  [<0>] io_schedule+0x12/0x40
-  [<0>] __lock_page+0x109/0x1e0
-  [<0>] extent_write_cache_pages+0x206/0x360
-  [<0>] extent_writepages+0x40/0x60
-  [<0>] do_writepages+0x31/0xb0
-  [<0>] __writeback_single_inode+0x3d/0x350
-  [<0>] writeback_sb_inodes+0x19d/0x3c0
-  [<0>] __writeback_inodes_wb+0x5d/0xb0
-  [<0>] wb_writeback+0x231/0x2c0
-  [<0>] wb_workfn+0x308/0x3c0
-  [<0>] process_one_work+0x1e0/0x390
-  [<0>] worker_thread+0x2b/0x3c0
-  [<0>] kthread+0x113/0x130
-  [<0>] ret_from_fork+0x35/0x40
-  [<0>] 0xffffffffffffffff
+If you want to make it work reliably, I'd recommend to remove ccflags-y
+from the Makefiles, and to make header paths relative to the C files.  I
+think this is the correct usage of the #include "..." directive.
 
-Thread of the fixup worker who is holding the page lock
-
-  [<0>] start_delalloc_inodes+0x241/0x2d0
-  [<0>] btrfs_start_delalloc_roots+0x179/0x230
-  [<0>] btrfs_alloc_data_chunk_ondemand+0x11b/0x2e0
-  [<0>] btrfs_check_data_free_space+0x53/0xa0
-  [<0>] btrfs_delalloc_reserve_space+0x20/0x70
-  [<0>] btrfs_writepage_fixup_worker+0x1fc/0x2a0
-  [<0>] normal_work_helper+0x11c/0x360
-  [<0>] process_one_work+0x1e0/0x390
-  [<0>] worker_thread+0x2b/0x3c0
-  [<0>] kthread+0x113/0x130
-  [<0>] ret_from_fork+0x35/0x40
-  [<0>] 0xffffffffffffffff
-
-Thankfully the stars have to align just right to hit this.  First you
-have to end up in the fixup worker, which is tricky by itself (my
-reproducer does DIO reads into a MMAP'ed region, so not a common
-operation).  Then you have to have less than a page size of free data
-space and 0 unallocated space so you go down the "commit the transaction
-to free up pinned space" path.  This was accomplished by a random
-balance that was running on the host.  Then you get this deadlock.
-
-I'm still in the process of trying to force the deadlock to happen on
-demand, but I've hit other issues.  I can still trigger the fixup worker
-path itself so this patch has been tested in that regard, so the normal
-case is fine.
-
-Fixes: 87826df0ec36 ("btrfs: delalloc for page dirtied out-of-band in fixup worker")
-Signed-off-by: Josef Bacik <josef@toxicpanda.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Link: http://lkml.kernel.org/r/20191227022950.14804-1-ghe@suse.com
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+Signed-off-by: Gang He <ghe@suse.com>
+Reported-by: Gang He <ghe@suse.com>
+Reviewed-by: Gang He <ghe@suse.com>
+Cc: Mark Fasheh <mark@fasheh.com>
+Cc: Joel Becker <jlbec@evilplan.org>
+Cc: Junxiao Bi <junxiao.bi@oracle.com>
+Cc: Joseph Qi <jiangqi903@gmail.com>
+Cc: Changwei Ge <gechangwei@live.cn>
+Cc: Jun Piao <piaojun@huawei.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/inode.c | 76 ++++++++++++++++++++++++++++++++++++++----------
- 1 file changed, 60 insertions(+), 16 deletions(-)
+ fs/ocfs2/dlm/Makefile      | 2 --
+ fs/ocfs2/dlm/dlmast.c      | 8 ++++----
+ fs/ocfs2/dlm/dlmconvert.c  | 8 ++++----
+ fs/ocfs2/dlm/dlmdebug.c    | 8 ++++----
+ fs/ocfs2/dlm/dlmdomain.c   | 8 ++++----
+ fs/ocfs2/dlm/dlmlock.c     | 8 ++++----
+ fs/ocfs2/dlm/dlmmaster.c   | 8 ++++----
+ fs/ocfs2/dlm/dlmrecovery.c | 8 ++++----
+ fs/ocfs2/dlm/dlmthread.c   | 8 ++++----
+ fs/ocfs2/dlm/dlmunlock.c   | 8 ++++----
+ fs/ocfs2/dlmfs/Makefile    | 2 --
+ fs/ocfs2/dlmfs/dlmfs.c     | 4 ++--
+ fs/ocfs2/dlmfs/userdlm.c   | 6 +++---
+ 13 files changed, 41 insertions(+), 45 deletions(-)
 
-diff --git a/fs/btrfs/inode.c b/fs/btrfs/inode.c
-index 1b4ab02be9243..b83eef445db33 100644
---- a/fs/btrfs/inode.c
-+++ b/fs/btrfs/inode.c
-@@ -2168,6 +2168,7 @@ int btrfs_set_extent_delalloc(struct inode *inode, u64 start, u64 end,
- /* see btrfs_writepage_start_hook for details on why this is required */
- struct btrfs_writepage_fixup {
- 	struct page *page;
-+	struct inode *inode;
- 	struct btrfs_work work;
- };
- 
-@@ -2182,9 +2183,20 @@ static void btrfs_writepage_fixup_worker(struct btrfs_work *work)
- 	u64 page_start;
- 	u64 page_end;
- 	int ret = 0;
-+	bool free_delalloc_space = true;
- 
- 	fixup = container_of(work, struct btrfs_writepage_fixup, work);
- 	page = fixup->page;
-+	inode = fixup->inode;
-+	page_start = page_offset(page);
-+	page_end = page_offset(page) + PAGE_SIZE - 1;
-+
-+	/*
-+	 * This is similar to page_mkwrite, we need to reserve the space before
-+	 * we take the page lock.
-+	 */
-+	ret = btrfs_delalloc_reserve_space(inode, &data_reserved, page_start,
-+					   PAGE_SIZE);
- again:
- 	lock_page(page);
- 
-@@ -2193,25 +2205,48 @@ static void btrfs_writepage_fixup_worker(struct btrfs_work *work)
- 	 * page->mapping may go NULL, but it shouldn't be moved to a different
- 	 * address space.
- 	 */
--	if (!page->mapping || !PageDirty(page) || !PageChecked(page))
-+	if (!page->mapping || !PageDirty(page) || !PageChecked(page)) {
-+		/*
-+		 * Unfortunately this is a little tricky, either
-+		 *
-+		 * 1) We got here and our page had already been dealt with and
-+		 *    we reserved our space, thus ret == 0, so we need to just
-+		 *    drop our space reservation and bail.  This can happen the
-+		 *    first time we come into the fixup worker, or could happen
-+		 *    while waiting for the ordered extent.
-+		 * 2) Our page was already dealt with, but we happened to get an
-+		 *    ENOSPC above from the btrfs_delalloc_reserve_space.  In
-+		 *    this case we obviously don't have anything to release, but
-+		 *    because the page was already dealt with we don't want to
-+		 *    mark the page with an error, so make sure we're resetting
-+		 *    ret to 0.  This is why we have this check _before_ the ret
-+		 *    check, because we do not want to have a surprise ENOSPC
-+		 *    when the page was already properly dealt with.
-+		 */
-+		if (!ret) {
-+			btrfs_delalloc_release_extents(BTRFS_I(inode),
-+						       PAGE_SIZE);
-+			btrfs_delalloc_release_space(inode, data_reserved,
-+						     page_start, PAGE_SIZE,
-+						     true);
-+		}
-+		ret = 0;
- 		goto out_page;
-+	}
- 
- 	/*
--	 * We keep the PageChecked() bit set until we're done with the
--	 * btrfs_start_ordered_extent() dance that we do below.  That drops and
--	 * retakes the page lock, so we don't want new fixup workers queued for
--	 * this page during the churn.
-+	 * We can't mess with the page state unless it is locked, so now that
-+	 * it is locked bail if we failed to make our space reservation.
- 	 */
--	inode = page->mapping->host;
--	page_start = page_offset(page);
--	page_end = page_offset(page) + PAGE_SIZE - 1;
-+	if (ret)
-+		goto out_page;
- 
- 	lock_extent_bits(&BTRFS_I(inode)->io_tree, page_start, page_end,
- 			 &cached_state);
- 
- 	/* already ordered? We're done */
- 	if (PagePrivate2(page))
--		goto out;
-+		goto out_reserved;
- 
- 	ordered = btrfs_lookup_ordered_range(BTRFS_I(inode), page_start,
- 					PAGE_SIZE);
-@@ -2224,11 +2259,6 @@ static void btrfs_writepage_fixup_worker(struct btrfs_work *work)
- 		goto again;
- 	}
- 
--	ret = btrfs_delalloc_reserve_space(inode, &data_reserved, page_start,
--					   PAGE_SIZE);
--	if (ret)
--		goto out;
+diff --git a/fs/ocfs2/dlm/Makefile b/fs/ocfs2/dlm/Makefile
+index 38b2243727763..5e700b45d32d2 100644
+--- a/fs/ocfs2/dlm/Makefile
++++ b/fs/ocfs2/dlm/Makefile
+@@ -1,6 +1,4 @@
+ # SPDX-License-Identifier: GPL-2.0-only
+-ccflags-y := -I $(srctree)/$(src)/..
 -
- 	ret = btrfs_set_extent_delalloc(inode, page_start, page_end, 0,
- 					&cached_state);
- 	if (ret)
-@@ -2242,12 +2272,12 @@ static void btrfs_writepage_fixup_worker(struct btrfs_work *work)
- 	 * The page was dirty when we started, nothing should have cleaned it.
- 	 */
- 	BUG_ON(!PageDirty(page));
-+	free_delalloc_space = false;
- out_reserved:
- 	btrfs_delalloc_release_extents(BTRFS_I(inode), PAGE_SIZE);
--	if (ret)
-+	if (free_delalloc_space)
- 		btrfs_delalloc_release_space(inode, data_reserved, page_start,
- 					     PAGE_SIZE, true);
--out:
- 	unlock_extent_cached(&BTRFS_I(inode)->io_tree, page_start, page_end,
- 			     &cached_state);
- out_page:
-@@ -2266,6 +2296,12 @@ static void btrfs_writepage_fixup_worker(struct btrfs_work *work)
- 	put_page(page);
- 	kfree(fixup);
- 	extent_changeset_free(data_reserved);
-+	/*
-+	 * As a precaution, do a delayed iput in case it would be the last iput
-+	 * that could need flushing space. Recursing back to fixup worker would
-+	 * deadlock.
-+	 */
-+	btrfs_add_delayed_iput(inode);
- }
+ obj-$(CONFIG_OCFS2_FS_O2CB) += ocfs2_dlm.o
+ 
+ ocfs2_dlm-objs := dlmdomain.o dlmdebug.o dlmthread.o dlmrecovery.o \
+diff --git a/fs/ocfs2/dlm/dlmast.c b/fs/ocfs2/dlm/dlmast.c
+index 4de89af96abf0..6abaded3ff6bd 100644
+--- a/fs/ocfs2/dlm/dlmast.c
++++ b/fs/ocfs2/dlm/dlmast.c
+@@ -23,15 +23,15 @@
+ #include <linux/spinlock.h>
+ 
+ 
+-#include "cluster/heartbeat.h"
+-#include "cluster/nodemanager.h"
+-#include "cluster/tcp.h"
++#include "../cluster/heartbeat.h"
++#include "../cluster/nodemanager.h"
++#include "../cluster/tcp.h"
+ 
+ #include "dlmapi.h"
+ #include "dlmcommon.h"
+ 
+ #define MLOG_MASK_PREFIX ML_DLM
+-#include "cluster/masklog.h"
++#include "../cluster/masklog.h"
+ 
+ static void dlm_update_lvb(struct dlm_ctxt *dlm, struct dlm_lock_resource *res,
+ 			   struct dlm_lock *lock);
+diff --git a/fs/ocfs2/dlm/dlmconvert.c b/fs/ocfs2/dlm/dlmconvert.c
+index 965f45dbe17bf..6051edc33aefa 100644
+--- a/fs/ocfs2/dlm/dlmconvert.c
++++ b/fs/ocfs2/dlm/dlmconvert.c
+@@ -23,9 +23,9 @@
+ #include <linux/spinlock.h>
+ 
+ 
+-#include "cluster/heartbeat.h"
+-#include "cluster/nodemanager.h"
+-#include "cluster/tcp.h"
++#include "../cluster/heartbeat.h"
++#include "../cluster/nodemanager.h"
++#include "../cluster/tcp.h"
+ 
+ #include "dlmapi.h"
+ #include "dlmcommon.h"
+@@ -33,7 +33,7 @@
+ #include "dlmconvert.h"
+ 
+ #define MLOG_MASK_PREFIX ML_DLM
+-#include "cluster/masklog.h"
++#include "../cluster/masklog.h"
+ 
+ /* NOTE: __dlmconvert_master is the only function in here that
+  * needs a spinlock held on entry (res->spinlock) and it is the
+diff --git a/fs/ocfs2/dlm/dlmdebug.c b/fs/ocfs2/dlm/dlmdebug.c
+index 4d0b452012b25..c5c6efba7b5e2 100644
+--- a/fs/ocfs2/dlm/dlmdebug.c
++++ b/fs/ocfs2/dlm/dlmdebug.c
+@@ -17,9 +17,9 @@
+ #include <linux/debugfs.h>
+ #include <linux/export.h>
+ 
+-#include "cluster/heartbeat.h"
+-#include "cluster/nodemanager.h"
+-#include "cluster/tcp.h"
++#include "../cluster/heartbeat.h"
++#include "../cluster/nodemanager.h"
++#include "../cluster/tcp.h"
+ 
+ #include "dlmapi.h"
+ #include "dlmcommon.h"
+@@ -27,7 +27,7 @@
+ #include "dlmdebug.h"
+ 
+ #define MLOG_MASK_PREFIX ML_DLM
+-#include "cluster/masklog.h"
++#include "../cluster/masklog.h"
+ 
+ static int stringify_lockname(const char *lockname, int locklen, char *buf,
+ 			      int len);
+diff --git a/fs/ocfs2/dlm/dlmdomain.c b/fs/ocfs2/dlm/dlmdomain.c
+index ee6f459f97706..357cfc702ce36 100644
+--- a/fs/ocfs2/dlm/dlmdomain.c
++++ b/fs/ocfs2/dlm/dlmdomain.c
+@@ -20,9 +20,9 @@
+ #include <linux/debugfs.h>
+ #include <linux/sched/signal.h>
+ 
+-#include "cluster/heartbeat.h"
+-#include "cluster/nodemanager.h"
+-#include "cluster/tcp.h"
++#include "../cluster/heartbeat.h"
++#include "../cluster/nodemanager.h"
++#include "../cluster/tcp.h"
+ 
+ #include "dlmapi.h"
+ #include "dlmcommon.h"
+@@ -30,7 +30,7 @@
+ #include "dlmdebug.h"
+ 
+ #define MLOG_MASK_PREFIX (ML_DLM|ML_DLM_DOMAIN)
+-#include "cluster/masklog.h"
++#include "../cluster/masklog.h"
  
  /*
-@@ -2303,10 +2339,18 @@ int btrfs_writepage_cow_fixup(struct page *page, u64 start, u64 end)
- 	if (!fixup)
- 		return -EAGAIN;
+  * ocfs2 node maps are array of long int, which limits to send them freely
+diff --git a/fs/ocfs2/dlm/dlmlock.c b/fs/ocfs2/dlm/dlmlock.c
+index baff087f38632..83f0760e4fbaa 100644
+--- a/fs/ocfs2/dlm/dlmlock.c
++++ b/fs/ocfs2/dlm/dlmlock.c
+@@ -25,9 +25,9 @@
+ #include <linux/delay.h>
  
-+	/*
-+	 * We are already holding a reference to this inode from
-+	 * write_cache_pages.  We need to hold it because the space reservation
-+	 * takes place outside of the page lock, and we can't trust
-+	 * page->mapping outside of the page lock.
-+	 */
-+	ihold(inode);
- 	SetPageChecked(page);
- 	get_page(page);
- 	btrfs_init_work(&fixup->work, btrfs_writepage_fixup_worker, NULL, NULL);
- 	fixup->page = page;
-+	fixup->inode = inode;
- 	btrfs_queue_work(fs_info->fixup_workers, &fixup->work);
  
- 	return -EAGAIN;
+-#include "cluster/heartbeat.h"
+-#include "cluster/nodemanager.h"
+-#include "cluster/tcp.h"
++#include "../cluster/heartbeat.h"
++#include "../cluster/nodemanager.h"
++#include "../cluster/tcp.h"
+ 
+ #include "dlmapi.h"
+ #include "dlmcommon.h"
+@@ -35,7 +35,7 @@
+ #include "dlmconvert.h"
+ 
+ #define MLOG_MASK_PREFIX ML_DLM
+-#include "cluster/masklog.h"
++#include "../cluster/masklog.h"
+ 
+ static struct kmem_cache *dlm_lock_cache;
+ 
+diff --git a/fs/ocfs2/dlm/dlmmaster.c b/fs/ocfs2/dlm/dlmmaster.c
+index 74b768ca1cd88..c9d7037b6793c 100644
+--- a/fs/ocfs2/dlm/dlmmaster.c
++++ b/fs/ocfs2/dlm/dlmmaster.c
+@@ -25,9 +25,9 @@
+ #include <linux/delay.h>
+ 
+ 
+-#include "cluster/heartbeat.h"
+-#include "cluster/nodemanager.h"
+-#include "cluster/tcp.h"
++#include "../cluster/heartbeat.h"
++#include "../cluster/nodemanager.h"
++#include "../cluster/tcp.h"
+ 
+ #include "dlmapi.h"
+ #include "dlmcommon.h"
+@@ -35,7 +35,7 @@
+ #include "dlmdebug.h"
+ 
+ #define MLOG_MASK_PREFIX (ML_DLM|ML_DLM_MASTER)
+-#include "cluster/masklog.h"
++#include "../cluster/masklog.h"
+ 
+ static void dlm_mle_node_down(struct dlm_ctxt *dlm,
+ 			      struct dlm_master_list_entry *mle,
+diff --git a/fs/ocfs2/dlm/dlmrecovery.c b/fs/ocfs2/dlm/dlmrecovery.c
+index 064ce5bbc3f6c..bcaaca5112d6e 100644
+--- a/fs/ocfs2/dlm/dlmrecovery.c
++++ b/fs/ocfs2/dlm/dlmrecovery.c
+@@ -26,16 +26,16 @@
+ #include <linux/delay.h>
+ 
+ 
+-#include "cluster/heartbeat.h"
+-#include "cluster/nodemanager.h"
+-#include "cluster/tcp.h"
++#include "../cluster/heartbeat.h"
++#include "../cluster/nodemanager.h"
++#include "../cluster/tcp.h"
+ 
+ #include "dlmapi.h"
+ #include "dlmcommon.h"
+ #include "dlmdomain.h"
+ 
+ #define MLOG_MASK_PREFIX (ML_DLM|ML_DLM_RECOVERY)
+-#include "cluster/masklog.h"
++#include "../cluster/masklog.h"
+ 
+ static void dlm_do_local_recovery_cleanup(struct dlm_ctxt *dlm, u8 dead_node);
+ 
+diff --git a/fs/ocfs2/dlm/dlmthread.c b/fs/ocfs2/dlm/dlmthread.c
+index 61c51c268460a..fd40c17cd0225 100644
+--- a/fs/ocfs2/dlm/dlmthread.c
++++ b/fs/ocfs2/dlm/dlmthread.c
+@@ -25,16 +25,16 @@
+ #include <linux/delay.h>
+ 
+ 
+-#include "cluster/heartbeat.h"
+-#include "cluster/nodemanager.h"
+-#include "cluster/tcp.h"
++#include "../cluster/heartbeat.h"
++#include "../cluster/nodemanager.h"
++#include "../cluster/tcp.h"
+ 
+ #include "dlmapi.h"
+ #include "dlmcommon.h"
+ #include "dlmdomain.h"
+ 
+ #define MLOG_MASK_PREFIX (ML_DLM|ML_DLM_THREAD)
+-#include "cluster/masklog.h"
++#include "../cluster/masklog.h"
+ 
+ static int dlm_thread(void *data);
+ static void dlm_flush_asts(struct dlm_ctxt *dlm);
+diff --git a/fs/ocfs2/dlm/dlmunlock.c b/fs/ocfs2/dlm/dlmunlock.c
+index 3883633e82eb9..dcb17ca8ae74d 100644
+--- a/fs/ocfs2/dlm/dlmunlock.c
++++ b/fs/ocfs2/dlm/dlmunlock.c
+@@ -23,15 +23,15 @@
+ #include <linux/spinlock.h>
+ #include <linux/delay.h>
+ 
+-#include "cluster/heartbeat.h"
+-#include "cluster/nodemanager.h"
+-#include "cluster/tcp.h"
++#include "../cluster/heartbeat.h"
++#include "../cluster/nodemanager.h"
++#include "../cluster/tcp.h"
+ 
+ #include "dlmapi.h"
+ #include "dlmcommon.h"
+ 
+ #define MLOG_MASK_PREFIX ML_DLM
+-#include "cluster/masklog.h"
++#include "../cluster/masklog.h"
+ 
+ #define DLM_UNLOCK_FREE_LOCK           0x00000001
+ #define DLM_UNLOCK_CALL_AST            0x00000002
+diff --git a/fs/ocfs2/dlmfs/Makefile b/fs/ocfs2/dlmfs/Makefile
+index a9874e441bd4a..c7895f65be0ea 100644
+--- a/fs/ocfs2/dlmfs/Makefile
++++ b/fs/ocfs2/dlmfs/Makefile
+@@ -1,6 +1,4 @@
+ # SPDX-License-Identifier: GPL-2.0-only
+-ccflags-y := -I $(srctree)/$(src)/..
+-
+ obj-$(CONFIG_OCFS2_FS) += ocfs2_dlmfs.o
+ 
+ ocfs2_dlmfs-objs := userdlm.o dlmfs.o
+diff --git a/fs/ocfs2/dlmfs/dlmfs.c b/fs/ocfs2/dlmfs/dlmfs.c
+index 4f1668c81e1f1..8e4f1ace467c1 100644
+--- a/fs/ocfs2/dlmfs/dlmfs.c
++++ b/fs/ocfs2/dlmfs/dlmfs.c
+@@ -33,11 +33,11 @@
+ 
+ #include <linux/uaccess.h>
+ 
+-#include "stackglue.h"
++#include "../stackglue.h"
+ #include "userdlm.h"
+ 
+ #define MLOG_MASK_PREFIX ML_DLMFS
+-#include "cluster/masklog.h"
++#include "../cluster/masklog.h"
+ 
+ 
+ static const struct super_operations dlmfs_ops;
+diff --git a/fs/ocfs2/dlmfs/userdlm.c b/fs/ocfs2/dlmfs/userdlm.c
+index 525b14ddfba50..3df5be25bfb1f 100644
+--- a/fs/ocfs2/dlmfs/userdlm.c
++++ b/fs/ocfs2/dlmfs/userdlm.c
+@@ -21,12 +21,12 @@
+ #include <linux/types.h>
+ #include <linux/crc32.h>
+ 
+-#include "ocfs2_lockingver.h"
+-#include "stackglue.h"
++#include "../ocfs2_lockingver.h"
++#include "../stackglue.h"
+ #include "userdlm.h"
+ 
+ #define MLOG_MASK_PREFIX ML_DLMFS
+-#include "cluster/masklog.h"
++#include "../cluster/masklog.h"
+ 
+ 
+ static inline struct user_lock_res *user_lksb_to_lock_res(struct ocfs2_dlm_lksb *lksb)
 -- 
 2.20.1
 
