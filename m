@@ -2,112 +2,123 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 155A615D33C
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 08:56:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D62615D3CC
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 09:28:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728239AbgBNH4A convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Fri, 14 Feb 2020 02:56:00 -0500
-Received: from mail-ot1-f67.google.com ([209.85.210.67]:46912 "EHLO
-        mail-ot1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726080AbgBNH4A (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 14 Feb 2020 02:56:00 -0500
-Received: by mail-ot1-f67.google.com with SMTP id g64so8278372otb.13;
-        Thu, 13 Feb 2020 23:56:00 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=7oQONjLNlEZepD8Y2r5t+j56WISZpm8LS3SWu/bbMS8=;
-        b=LoWNVwZvw6Cxhw9xOidUFGWhRw7qFg/2ErZzhsi7hkw3Loqj1xPPN/hw5Cp6gvBach
-         51Vrl1CkZlH5lZQfcRyI8fk2N7pjsp1NiEcNlJys1x4vI+3rzxN6UNEopj30SYEWPDD1
-         63ZCyxD5M8a1w2mRy0WVacYr4NfmCNB54t6iYTOOg699BOAuKwh1B368+a2Mpb2TtyXD
-         iDMVhzbh8OwECqqVR1cNbUhHWsuIU8N2fJULko1VUNac6BJOIppl5cxbm2w4RyVBiILa
-         9QLUzR3cxHvY/jPvfgiaf4qmUk1gOSUv0epMKhvkdHYRZiyJUjjDxtPndk4xNPtxCp6/
-         X8Hw==
-X-Gm-Message-State: APjAAAWM8sJLFnuoClL3vVJZeWnNJN0i+rqdgNdqbsmn/b63DIEPcRTc
-        6u9FpKkbh1/KIrqYu9SFKCGk/5kRMv6FTzw0oLQ=
-X-Google-Smtp-Source: APXvYqxDeWmOc69NHWSa6PwqqMjpTxI+i2WBomfCoxkfPUQbLE6azVsZ1oV9DuLc2U8uR66fSJB33go/01gP97cCVJ4=
-X-Received: by 2002:a05:6830:1d55:: with SMTP id p21mr1223936oth.145.1581666959566;
- Thu, 13 Feb 2020 23:55:59 -0800 (PST)
+        id S1725938AbgBNI2Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 03:28:16 -0500
+Received: from mail.skyhub.de ([5.9.137.197]:58704 "EHLO mail.skyhub.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726004AbgBNI2Q (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 03:28:16 -0500
+Received: from zn.tnic (p200300EC2F0D5A00F0C2F03C7F1C4548.dip0.t-ipconnect.de [IPv6:2003:ec:2f0d:5a00:f0c2:f03c:7f1c:4548])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.skyhub.de (SuperMail on ZX Spectrum 128k) with ESMTPSA id C77D31EC0CED;
+        Fri, 14 Feb 2020 09:28:13 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alien8.de; s=dkim;
+        t=1581668894;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:
+         content-transfer-encoding:content-transfer-encoding:in-reply-to:
+         references; bh=MNckfJpwVyGfFYyqhihTbOIjDv4FZFHc+akefT9PVNg=;
+        b=rQKoRIcuFNvqymE3FxVdj2FuNqWZPJvqFhMxDMtyCkcJk5o6LtdCqtqqA1XyXuckSO8Wu2
+        9LANngFOnaqFNLa5kYKyBKuvt7ynjvYPdkH6sxoDhsQfeDKHSURCI9t2eAyePaklF0mGV3
+        0rj3rIZnfIjaIZagPl8Pny+CWWVESGw=
+From:   Borislav Petkov <bp@alien8.de>
+To:     X86 ML <x86@kernel.org>
+Cc:     Yazen Ghannam <Yazen.Ghannam@amd.com>,
+        LKML <linux-kernel@vger.kernel.org>, stable@vger.kernel.org
+Subject: [PATCH] x86/mce/amd: Fix kobject lifetime
+Date:   Fri, 14 Feb 2020 09:28:01 +0100
+Message-Id: <20200214082801.13836-1-bp@alien8.de>
+X-Mailer: git-send-email 2.21.0
 MIME-Version: 1.0
-References: <20200213151839.156309910@linuxfoundation.org> <20200213222732.GA20637@roeck-us.net>
-In-Reply-To: <20200213222732.GA20637@roeck-us.net>
-From:   Geert Uytterhoeven <geert@linux-m68k.org>
-Date:   Fri, 14 Feb 2020 08:55:48 +0100
-Message-ID: <CAMuHMdV0nRPVjRpvVuZBMpaTfQGeMQN-2xrSehDwXOoG=4iATw@mail.gmail.com>
-Subject: Re: [PATCH 5.4 00/96] 5.4.20-stable review
-To:     Guenter Roeck <linux@roeck-us.net>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        "torvalds@linux-foundation.org" <torvalds@linux-foundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>,
-        lkft-triage@lists.linaro.org, stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8BIT
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Günter,
+From: Thomas Gleixner <tglx@linutronix.de>
 
-On Thu, Feb 13, 2020 at 11:28 PM Guenter Roeck <linux@roeck-us.net> wrote:
-> On Thu, Feb 13, 2020 at 07:20:07AM -0800, Greg Kroah-Hartman wrote:
-> > This is the start of the stable review cycle for the 5.4.20 release.
-> > There are 96 patches in this series, all will be posted as a response
-> > to this one.  If anyone has any issues with these being applied, please
-> > let me know.
-> >
-> > Responses should be made by Sat, 15 Feb 2020 15:16:40 +0000.
-> > Anything received after that time might be too late.
-> >
->
-> Build reference: v5.4.19-98-gdfae536f94c2
-> gcc version: powerpc64-linux-gcc (GCC) 9.2.0
->
-> Building powerpc:defconfig ... failed
-> --------------
-> Error log:
-> drivers/rtc/rtc-ds1307.c:1570:21: error: variable 'regmap_config' has initializer but incomplete type
->  1570 | static const struct regmap_config regmap_config = {
->
-> Bisect log below. Looks like the the definition of "not needed"
-> needs an update.
+Accessing the MCA thresholding controls in sysfs concurrently with CPU
+hotplug can lead to a couple of KASAN-reported issues:
 
-"not needed" goes together with (or after) "when necessary":
-578c2b661e2b1b47 ("rtc: Kconfig: select REGMAP_I2C when necessary")
+  BUG: KASAN: use-after-free in sysfs_file_ops+0x155/0x180
+  Read of size 8 at addr ffff888367578940 by task grep/4019
 
-> v5.5.y has the same problem.
->
-> Guenter
->
-> ---
-> # bad: [dfae536f94c22d5fd109d5db73cd5ed7245a764c] Linux 5.4.20-rc1
-> # good: [d6591ea2dd1a44b1c72c5a3e3b6555d7585acdae] Linux 5.4.19
-> git bisect start 'HEAD' 'v5.4.19'
-> # bad: [f52a8d450b1431b775d993cd8586f0cfd5fe25e1] ARM: dts: at91: sama5d3: fix maximum peripheral clock rates
-> git bisect bad f52a8d450b1431b775d993cd8586f0cfd5fe25e1
-> # good: [99323d91be3464a8ff87c7b16c72e7134b7b5075] selftests/bpf: Test freeing sockmap/sockhash with a socket in it
-> git bisect good 99323d91be3464a8ff87c7b16c72e7134b7b5075
-> # bad: [4ece240000532dbe0628f28f3f5466ed4091613b] rtc: i2c/spi: Avoid inclusion of REGMAP support when not needed
-> git bisect bad 4ece240000532dbe0628f28f3f5466ed4091613b
-> # good: [3a0805bedf5a29ff659d82b34ccf8f393820a5f1] NFS: Fix fix of show_nfs_errors
-> git bisect good 3a0805bedf5a29ff659d82b34ccf8f393820a5f1
-> # good: [bd35cae202fa94fe8349ea63ea082f190b31692c] NFSv4.0: nfs4_do_fsinfo() should not do implicit lease renewals
-> git bisect good bd35cae202fa94fe8349ea63ea082f190b31692c
-> # good: [d052da5a3c584de39b4b74176b37925d58ab4239] rtc: hym8563: Return -EINVAL if the time is known to be invalid
-> git bisect good d052da5a3c584de39b4b74176b37925d58ab4239
-> # first bad commit: [4ece240000532dbe0628f28f3f5466ed4091613b] rtc: i2c/spi: Avoid inclusion of REGMAP support when not needed
+and
 
-Gr{oetje,eeting}s,
+  BUG: KASAN: use-after-free in show_error_count+0x15c/0x180
+  Read of size 2 at addr ffff888368a05514 by task grep/4454
 
-                        Geert
+for example. Both result from the fact that the threshold block
+creation/teardown code frees the descriptor memory itself instead of
+defining proper ->release function and leaving it to the driver core to
+take care of that, after all sysfs accesses have completed.
 
+Do that and get rid of the custom freeing code, fixing the above UAFs in
+the process.
+
+  [ bp: write commit message. ]
+
+Fixes: 95268664390b ("[PATCH] x86_64: mce_amd support for family 0x10 processors")
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Cc: <stable@vger.kernel.org>
+---
+ arch/x86/kernel/cpu/mce/amd.c | 17 +++++++++++------
+ 1 file changed, 11 insertions(+), 6 deletions(-)
+
+diff --git a/arch/x86/kernel/cpu/mce/amd.c b/arch/x86/kernel/cpu/mce/amd.c
+index e7313e5c497c..52de616a8065 100644
+--- a/arch/x86/kernel/cpu/mce/amd.c
++++ b/arch/x86/kernel/cpu/mce/amd.c
+@@ -1163,9 +1163,12 @@ static const struct sysfs_ops threshold_ops = {
+ 	.store			= store,
+ };
+ 
++static void threshold_block_release(struct kobject *kobj);
++
+ static struct kobj_type threshold_ktype = {
+ 	.sysfs_ops		= &threshold_ops,
+ 	.default_attrs		= default_attrs,
++	.release		= threshold_block_release,
+ };
+ 
+ static const char *get_name(unsigned int bank, struct threshold_block *b)
+@@ -1367,8 +1370,12 @@ static int threshold_create_bank(unsigned int cpu, unsigned int bank)
+ 	return err;
+ }
+ 
+-static void deallocate_threshold_block(unsigned int cpu,
+-						 unsigned int bank)
++static void threshold_block_release(struct kobject *kobj)
++{
++	kfree(to_block(kobj));
++}
++
++static void deallocate_threshold_block(unsigned int cpu, unsigned int bank)
+ {
+ 	struct threshold_block *pos = NULL;
+ 	struct threshold_block *tmp = NULL;
+@@ -1378,13 +1385,11 @@ static void deallocate_threshold_block(unsigned int cpu,
+ 		return;
+ 
+ 	list_for_each_entry_safe(pos, tmp, &head->blocks->miscj, miscj) {
+-		kobject_put(&pos->kobj);
+ 		list_del(&pos->miscj);
+-		kfree(pos);
++		kobject_put(&pos->kobj);
+ 	}
+ 
+-	kfree(per_cpu(threshold_banks, cpu)[bank]->blocks);
+-	per_cpu(threshold_banks, cpu)[bank]->blocks = NULL;
++	kobject_put(&head->blocks->kobj);
+ }
+ 
+ static void __threshold_remove_blocks(struct threshold_bank *b)
 -- 
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+2.21.0
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
