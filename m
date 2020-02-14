@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7AD0415F38E
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 19:22:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BEAE915F321
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 19:21:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389702AbgBNSMx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 13:12:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60256 "EHLO mail.kernel.org"
+        id S1731140AbgBNPxE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 10:53:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60348 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731004AbgBNPxB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 10:53:01 -0500
+        id S1729635AbgBNPxE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 10:53:04 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EE56C24649;
-        Fri, 14 Feb 2020 15:52:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 608F82465D;
+        Fri, 14 Feb 2020 15:53:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581695580;
-        bh=ekYjyNCK8N49Zy3Z98Cf9hLx+id4hjIpCRRgjkWzGX4=;
+        s=default; t=1581695583;
+        bh=7hru8cnJAo9ESKhHTHc5KphNWfsXPPMxbfD+k7yN1a8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pN1IfJ+IDglbjMo9V6xRYl6Y1dXUtkHEGGPRxV3Z5KfF8LQVHxzWvihfNYGey3uOv
-         6oJga1K2xDUYg0/zQ/AcY0+FYYh6YDX5F33cNhGEj9hNdex9TOHuZ8D6XIwOG1LeN3
-         Fk7pKunesyjJjtcYQJKEcC/465t916jpB+LSAfnU=
+        b=znHL2xIP0dcpjR0jazJm2FMzOFuRxafH2aycSBPM5uh4U2u0ItpSUqfM2AdMGHaBV
+         OsRwDPcwmKOQNyw3OMskHW8byi6j4bhL7d00T+Fv3vIkJCjToFY0jKYJqxRfwKMwhm
+         44IAgENeLDRqZPH7J9z3ZzM2ItEaL8C1QDPgJxE4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Paul Moore <paul@paul-moore.com>, rsiddoji@codeaurora.org,
-        Stephen Smalley <sds@tycho.nsa.gov>,
-        Sasha Levin <sashal@kernel.org>, selinux@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.5 190/542] selinux: ensure we cleanup the internal AVC counters on error in avc_insert()
-Date:   Fri, 14 Feb 2020 10:43:02 -0500
-Message-Id: <20200214154854.6746-190-sashal@kernel.org>
+Cc:     Manu Gautam <mgautam@codeaurora.org>,
+        Paolo Pisati <p.pisati@gmail.com>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Sasha Levin <sashal@kernel.org>, linux-arm-msm@vger.kernel.org,
+        devicetree@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.5 192/542] arm64: dts: qcom: msm8996: Disable USB2 PHY suspend by core
+Date:   Fri, 14 Feb 2020 10:43:04 -0500
+Message-Id: <20200214154854.6746-192-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214154854.6746-1-sashal@kernel.org>
 References: <20200214154854.6746-1-sashal@kernel.org>
@@ -43,91 +45,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Moore <paul@paul-moore.com>
+From: Manu Gautam <mgautam@codeaurora.org>
 
-[ Upstream commit d8db60cb23e49a92cf8cada3297395c7fa50fdf8 ]
+[ Upstream commit d026c96b25b7ce5df89526aad2df988d553edb4d ]
 
-Fix avc_insert() to call avc_node_kill() if we've already allocated
-an AVC node and the code fails to insert the node in the cache.
+QUSB2 PHY on msm8996 doesn't work well when autosuspend by
+dwc3 core using USB2PHYCFG register is enabled. One of the
+issue seen is that PHY driver reports PLL lock failure and
+fails phy_init() if dwc3 core has USB2 PHY suspend enabled.
+Fix this by using quirks to disable USB2 PHY LPM/suspend and
+dwc3 core already takes care of explicitly suspending PHY
+during suspend if quirks are specified.
 
-Fixes: fa1aa143ac4a ("selinux: extended permissions for ioctls")
-Reported-by: rsiddoji@codeaurora.org
-Suggested-by: Stephen Smalley <sds@tycho.nsa.gov>
-Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
-Signed-off-by: Paul Moore <paul@paul-moore.com>
+Signed-off-by: Manu Gautam <mgautam@codeaurora.org>
+Signed-off-by: Paolo Pisati <p.pisati@gmail.com>
+Link: https://lore.kernel.org/r/20191209151501.26993-1-p.pisati@gmail.com
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/selinux/avc.c | 51 ++++++++++++++++++++----------------------
- 1 file changed, 24 insertions(+), 27 deletions(-)
+ arch/arm64/boot/dts/qcom/msm8996.dtsi | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/security/selinux/avc.c b/security/selinux/avc.c
-index 23dc888ae3056..6646300f7ccb2 100644
---- a/security/selinux/avc.c
-+++ b/security/selinux/avc.c
-@@ -617,40 +617,37 @@ static struct avc_node *avc_insert(struct selinux_avc *avc,
- 	struct avc_node *pos, *node = NULL;
- 	int hvalue;
- 	unsigned long flag;
-+	spinlock_t *lock;
-+	struct hlist_head *head;
+diff --git a/arch/arm64/boot/dts/qcom/msm8996.dtsi b/arch/arm64/boot/dts/qcom/msm8996.dtsi
+index 4ca2e7b44559c..1eed3c41521ab 100644
+--- a/arch/arm64/boot/dts/qcom/msm8996.dtsi
++++ b/arch/arm64/boot/dts/qcom/msm8996.dtsi
+@@ -1602,6 +1602,8 @@
+ 				interrupts = <0 138 IRQ_TYPE_LEVEL_HIGH>;
+ 				phys = <&hsusb_phy2>;
+ 				phy-names = "usb2-phy";
++				snps,dis_u2_susphy_quirk;
++				snps,dis_enblslpm_quirk;
+ 			};
+ 		};
  
- 	if (avc_latest_notif_update(avc, avd->seqno, 1))
--		goto out;
-+		return NULL;
- 
- 	node = avc_alloc_node(avc);
--	if (node) {
--		struct hlist_head *head;
--		spinlock_t *lock;
--		int rc = 0;
--
--		hvalue = avc_hash(ssid, tsid, tclass);
--		avc_node_populate(node, ssid, tsid, tclass, avd);
--		rc = avc_xperms_populate(node, xp_node);
--		if (rc) {
--			kmem_cache_free(avc_node_cachep, node);
--			return NULL;
--		}
--		head = &avc->avc_cache.slots[hvalue];
--		lock = &avc->avc_cache.slots_lock[hvalue];
-+	if (!node)
-+		return NULL;
- 
--		spin_lock_irqsave(lock, flag);
--		hlist_for_each_entry(pos, head, list) {
--			if (pos->ae.ssid == ssid &&
--			    pos->ae.tsid == tsid &&
--			    pos->ae.tclass == tclass) {
--				avc_node_replace(avc, node, pos);
--				goto found;
--			}
-+	avc_node_populate(node, ssid, tsid, tclass, avd);
-+	if (avc_xperms_populate(node, xp_node)) {
-+		avc_node_kill(avc, node);
-+		return NULL;
-+	}
-+
-+	hvalue = avc_hash(ssid, tsid, tclass);
-+	head = &avc->avc_cache.slots[hvalue];
-+	lock = &avc->avc_cache.slots_lock[hvalue];
-+	spin_lock_irqsave(lock, flag);
-+	hlist_for_each_entry(pos, head, list) {
-+		if (pos->ae.ssid == ssid &&
-+			pos->ae.tsid == tsid &&
-+			pos->ae.tclass == tclass) {
-+			avc_node_replace(avc, node, pos);
-+			goto found;
- 		}
--		hlist_add_head_rcu(&node->list, head);
--found:
--		spin_unlock_irqrestore(lock, flag);
- 	}
--out:
-+	hlist_add_head_rcu(&node->list, head);
-+found:
-+	spin_unlock_irqrestore(lock, flag);
- 	return node;
- }
+@@ -1632,6 +1634,8 @@
+ 				interrupts = <0 131 IRQ_TYPE_LEVEL_HIGH>;
+ 				phys = <&hsusb_phy1>, <&ssusb_phy_0>;
+ 				phy-names = "usb2-phy", "usb3-phy";
++				snps,dis_u2_susphy_quirk;
++				snps,dis_enblslpm_quirk;
+ 			};
+ 		};
  
 -- 
 2.20.1
