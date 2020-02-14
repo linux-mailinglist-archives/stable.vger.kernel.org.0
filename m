@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C940E15EB45
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:20:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E3FA615EB2C
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:19:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404102AbgBNRTX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 12:19:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36800 "EHLO mail.kernel.org"
+        id S2391657AbgBNQKy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 11:10:54 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36432 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391633AbgBNQKw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:10:52 -0500
+        id S2390473AbgBNQKx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:10:53 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CC82424680;
-        Fri, 14 Feb 2020 16:10:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E248E246A5;
+        Fri, 14 Feb 2020 16:10:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581696648;
-        bh=J82JkTofHDDCykmw5UKeVbFfNcfQzl+TMlBOTvHz5nY=;
+        s=default; t=1581696649;
+        bh=b0YSzZRWUKq9mg7LdPdfWvKl3hH+WkP5p+RyeBalyWM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TmN7Vr7fyn96HXBojKa01moiqeWJVUyTtsAacJPj2Xa7kn56Zr5vUcQDb68QZH9cG
-         4N5O3B2GW2x9E1tWPrCZ4T63wdOGW1sixx7WXT3/FVtlw/QPZrZKwkX6Mj4k7K5Wrx
-         /t5ujHEqdbor49oJa/hCAFoql+KbLNhwS3fYscHg=
+        b=GlvsutHR6HiDpeDBI4WgsmZqmFIKF5eUlFMinlC/3NycuXt+5X0iJ/r7qqLAZygnP
+         TNjjV8uoaFt8XmrKRvrwNtbXVnGxAL61xqVvi9qFphKPuxx1hNm1pWsyeBR03+ASR3
+         fVqr309uQarQOpRX5+3Q2sjL0pfvJLrvXYmZtt4k=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ben Skeggs <bskeggs@redhat.com>, Sasha Levin <sashal@kernel.org>,
-        dri-devel@lists.freedesktop.org, nouveau@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.4 424/459] drm/nouveau/disp/nv50-: prevent oops when no channel method map provided
-Date:   Fri, 14 Feb 2020 11:01:14 -0500
-Message-Id: <20200214160149.11681-424-sashal@kernel.org>
+Cc:     Luca Ceresoli <luca@lucaceresoli.net>,
+        Jean Delvare <jdelvare@suse.de>,
+        Wolfram Sang <wsa@the-dreams.de>,
+        Sasha Levin <sashal@kernel.org>, linux-i2c@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 425/459] docs: i2c: writing-clients: properly name the stop condition
+Date:   Fri, 14 Feb 2020 11:01:15 -0500
+Message-Id: <20200214160149.11681-425-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214160149.11681-1-sashal@kernel.org>
 References: <20200214160149.11681-1-sashal@kernel.org>
@@ -42,38 +44,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ben Skeggs <bskeggs@redhat.com>
+From: Luca Ceresoli <luca@lucaceresoli.net>
 
-[ Upstream commit 0e6176c6d286316e9431b4f695940cfac4ffe6c2 ]
+[ Upstream commit 4fcb445ec688a62da9c864ab05a4bd39b0307cdc ]
 
-The implementations for most channel types contains a map of methods to
-priv registers in order to provide debugging info when a disp exception
-has been raised.
+In I2C there is no such thing as a "stop bit". Use the proper naming: "stop
+condition".
 
-This info is missing from the implementation of PIO channels as they're
-rather simplistic already, however, if an exception is raised by one of
-them, we'd end up triggering a NULL-pointer deref.  Not ideal...
-
-Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=206299
-Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
+Signed-off-by: Luca Ceresoli <luca@lucaceresoli.net>
+Reported-by: Jean Delvare <jdelvare@suse.de>
+Reviewed-by: Jean Delvare <jdelvare@suse.de>
+Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/nouveau/nvkm/engine/disp/channv50.c | 2 ++
- 1 file changed, 2 insertions(+)
+ Documentation/i2c/writing-clients.rst | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/nouveau/nvkm/engine/disp/channv50.c b/drivers/gpu/drm/nouveau/nvkm/engine/disp/channv50.c
-index bcf32d92ee5a9..50e3539f33d22 100644
---- a/drivers/gpu/drm/nouveau/nvkm/engine/disp/channv50.c
-+++ b/drivers/gpu/drm/nouveau/nvkm/engine/disp/channv50.c
-@@ -74,6 +74,8 @@ nv50_disp_chan_mthd(struct nv50_disp_chan *chan, int debug)
+diff --git a/Documentation/i2c/writing-clients.rst b/Documentation/i2c/writing-clients.rst
+index dddf0a14ab7cb..6e8d4737fc190 100644
+--- a/Documentation/i2c/writing-clients.rst
++++ b/Documentation/i2c/writing-clients.rst
+@@ -357,9 +357,9 @@ read/written.
  
- 	if (debug > subdev->debug)
- 		return;
-+	if (!mthd)
-+		return;
+ This sends a series of messages. Each message can be a read or write,
+ and they can be mixed in any way. The transactions are combined: no
+-stop bit is sent between transaction. The i2c_msg structure contains
+-for each message the client address, the number of bytes of the message
+-and the message data itself.
++stop condition is issued between transaction. The i2c_msg structure
++contains for each message the client address, the number of bytes of the
++message and the message data itself.
  
- 	for (i = 0; (list = mthd->data[i].mthd) != NULL; i++) {
- 		u32 base = chan->head * mthd->addr;
+ You can read the file ``i2c-protocol`` for more information about the
+ actual I2C protocol.
 -- 
 2.20.1
 
