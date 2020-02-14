@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A47215F0E8
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:59:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D4E9115F0E5
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:59:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388440AbgBNR6G (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 12:58:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39788 "EHLO mail.kernel.org"
+        id S2388193AbgBNR6B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 12:58:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39860 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730621AbgBNP5O (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 10:57:14 -0500
+        id S2388175AbgBNP5Q (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 10:57:16 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ED396222C4;
-        Fri, 14 Feb 2020 15:57:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3792C24680;
+        Fri, 14 Feb 2020 15:57:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581695833;
-        bh=XdazMGhwIbJBiuiXlZkpj9HZX5NWsSPBy8ztckTuicA=;
+        s=default; t=1581695835;
+        bh=D9HbhU+UcBqY4TECvMjvT7jGgCD4EUBgLOFoAnWmjsE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UDdl9zWh9mhlZnghccYlO/ED6eS5TRgVuXuVYgYV8WAmrEjEPmW5hCcXNTn98httE
-         woBDVmQ862mP3HJ2BlgyrvTNMl9LchEZHl4j8Dw3yKoL8tE7KIp6ZjP85VdNCf3+EQ
-         Y9oRUgVWY67XZ6Mc9JCCghtvDWyer6MV9vy8uS9o=
+        b=HY6i/X4MIciG9hHLY8hiynBZ1s0TJXd9chz1CpaALtFk0K+6t1c5vMKpRfdLGubJw
+         GjcNb0V+nsIuAIPa/1TqOt25FRhND5yOatdrBUwTjQTOha3DHEgNgzsDB6132RTgpV
+         0wybYAeVEhvWf6wMwKGKZOCX6oqX3RaWDtGHVwM4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Pablo Neira Ayuso <pablo@netfilter.org>,
-        Sasha Levin <sashal@kernel.org>,
-        netfilter-devel@vger.kernel.org, coreteam@netfilter.org,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.5 386/542] netfilter: flowtable: restrict flow dissector match on meta ingress device
-Date:   Fri, 14 Feb 2020 10:46:18 -0500
-Message-Id: <20200214154854.6746-386-sashal@kernel.org>
+Cc:     Sami Tolvanen <samitolvanen@google.com>,
+        Andrew Murray <andrew.murray@arm.com>,
+        Kees Cook <keescook@chromium.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        linux-arm-kernel@lists.infradead.org,
+        clang-built-linux@googlegroups.com
+Subject: [PATCH AUTOSEL 5.5 387/542] arm64: lse: fix LSE atomics with LLVM's integrated assembler
+Date:   Fri, 14 Feb 2020 10:46:19 -0500
+Message-Id: <20200214154854.6746-387-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214154854.6746-1-sashal@kernel.org>
 References: <20200214154854.6746-1-sashal@kernel.org>
@@ -44,59 +47,219 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Neira Ayuso <pablo@netfilter.org>
+From: Sami Tolvanen <samitolvanen@google.com>
 
-[ Upstream commit a7521a60a5f3e1f58a015fedb6e69aed40455feb ]
+[ Upstream commit e0d5896bd356cd577f9710a02d7a474cdf58426b ]
 
-Set on FLOW_DISSECTOR_KEY_META meta key using flow tuple ingress interface.
+Unlike gcc, clang considers each inline assembly block to be independent
+and therefore, when using the integrated assembler for inline assembly,
+any preambles that enable features must be repeated in each block.
 
-Fixes: c29f74e0df7a ("netfilter: nf_flow_table: hardware offload support")
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+This change defines __LSE_PREAMBLE and adds it to each inline assembly
+block that has LSE instructions, which allows them to be compiled also
+with clang's assembler.
+
+Link: https://github.com/ClangBuiltLinux/linux/issues/671
+Signed-off-by: Sami Tolvanen <samitolvanen@google.com>
+Tested-by: Andrew Murray <andrew.murray@arm.com>
+Tested-by: Kees Cook <keescook@chromium.org>
+Reviewed-by: Andrew Murray <andrew.murray@arm.com>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nf_flow_table_offload.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ arch/arm64/include/asm/atomic_lse.h | 19 +++++++++++++++++++
+ arch/arm64/include/asm/lse.h        |  6 +++---
+ 2 files changed, 22 insertions(+), 3 deletions(-)
 
-diff --git a/net/netfilter/nf_flow_table_offload.c b/net/netfilter/nf_flow_table_offload.c
-index d06969af1085e..9e01074dc34cb 100644
---- a/net/netfilter/nf_flow_table_offload.c
-+++ b/net/netfilter/nf_flow_table_offload.c
-@@ -24,6 +24,7 @@ struct flow_offload_work {
- };
+diff --git a/arch/arm64/include/asm/atomic_lse.h b/arch/arm64/include/asm/atomic_lse.h
+index 574808b9df4c8..da3280f639cd7 100644
+--- a/arch/arm64/include/asm/atomic_lse.h
++++ b/arch/arm64/include/asm/atomic_lse.h
+@@ -14,6 +14,7 @@
+ static inline void __lse_atomic_##op(int i, atomic_t *v)			\
+ {									\
+ 	asm volatile(							\
++	__LSE_PREAMBLE							\
+ "	" #asm_op "	%w[i], %[v]\n"					\
+ 	: [i] "+r" (i), [v] "+Q" (v->counter)				\
+ 	: "r" (v));							\
+@@ -30,6 +31,7 @@ ATOMIC_OP(add, stadd)
+ static inline int __lse_atomic_fetch_##op##name(int i, atomic_t *v)	\
+ {									\
+ 	asm volatile(							\
++	__LSE_PREAMBLE							\
+ "	" #asm_op #mb "	%w[i], %w[i], %[v]"				\
+ 	: [i] "+r" (i), [v] "+Q" (v->counter)				\
+ 	: "r" (v)							\
+@@ -58,6 +60,7 @@ static inline int __lse_atomic_add_return##name(int i, atomic_t *v)	\
+ 	u32 tmp;							\
+ 									\
+ 	asm volatile(							\
++	__LSE_PREAMBLE							\
+ 	"	ldadd" #mb "	%w[i], %w[tmp], %[v]\n"			\
+ 	"	add	%w[i], %w[i], %w[tmp]"				\
+ 	: [i] "+r" (i), [v] "+Q" (v->counter), [tmp] "=&r" (tmp)	\
+@@ -77,6 +80,7 @@ ATOMIC_OP_ADD_RETURN(        , al, "memory")
+ static inline void __lse_atomic_and(int i, atomic_t *v)
+ {
+ 	asm volatile(
++	__LSE_PREAMBLE
+ 	"	mvn	%w[i], %w[i]\n"
+ 	"	stclr	%w[i], %[v]"
+ 	: [i] "+&r" (i), [v] "+Q" (v->counter)
+@@ -87,6 +91,7 @@ static inline void __lse_atomic_and(int i, atomic_t *v)
+ static inline int __lse_atomic_fetch_and##name(int i, atomic_t *v)	\
+ {									\
+ 	asm volatile(							\
++	__LSE_PREAMBLE							\
+ 	"	mvn	%w[i], %w[i]\n"					\
+ 	"	ldclr" #mb "	%w[i], %w[i], %[v]"			\
+ 	: [i] "+&r" (i), [v] "+Q" (v->counter)				\
+@@ -106,6 +111,7 @@ ATOMIC_FETCH_OP_AND(        , al, "memory")
+ static inline void __lse_atomic_sub(int i, atomic_t *v)
+ {
+ 	asm volatile(
++	__LSE_PREAMBLE
+ 	"	neg	%w[i], %w[i]\n"
+ 	"	stadd	%w[i], %[v]"
+ 	: [i] "+&r" (i), [v] "+Q" (v->counter)
+@@ -118,6 +124,7 @@ static inline int __lse_atomic_sub_return##name(int i, atomic_t *v)	\
+ 	u32 tmp;							\
+ 									\
+ 	asm volatile(							\
++	__LSE_PREAMBLE							\
+ 	"	neg	%w[i], %w[i]\n"					\
+ 	"	ldadd" #mb "	%w[i], %w[tmp], %[v]\n"			\
+ 	"	add	%w[i], %w[i], %w[tmp]"				\
+@@ -139,6 +146,7 @@ ATOMIC_OP_SUB_RETURN(        , al, "memory")
+ static inline int __lse_atomic_fetch_sub##name(int i, atomic_t *v)	\
+ {									\
+ 	asm volatile(							\
++	__LSE_PREAMBLE							\
+ 	"	neg	%w[i], %w[i]\n"					\
+ 	"	ldadd" #mb "	%w[i], %w[i], %[v]"			\
+ 	: [i] "+&r" (i), [v] "+Q" (v->counter)				\
+@@ -159,6 +167,7 @@ ATOMIC_FETCH_OP_SUB(        , al, "memory")
+ static inline void __lse_atomic64_##op(s64 i, atomic64_t *v)		\
+ {									\
+ 	asm volatile(							\
++	__LSE_PREAMBLE							\
+ "	" #asm_op "	%[i], %[v]\n"					\
+ 	: [i] "+r" (i), [v] "+Q" (v->counter)				\
+ 	: "r" (v));							\
+@@ -175,6 +184,7 @@ ATOMIC64_OP(add, stadd)
+ static inline long __lse_atomic64_fetch_##op##name(s64 i, atomic64_t *v)\
+ {									\
+ 	asm volatile(							\
++	__LSE_PREAMBLE							\
+ "	" #asm_op #mb "	%[i], %[i], %[v]"				\
+ 	: [i] "+r" (i), [v] "+Q" (v->counter)				\
+ 	: "r" (v)							\
+@@ -203,6 +213,7 @@ static inline long __lse_atomic64_add_return##name(s64 i, atomic64_t *v)\
+ 	unsigned long tmp;						\
+ 									\
+ 	asm volatile(							\
++	__LSE_PREAMBLE							\
+ 	"	ldadd" #mb "	%[i], %x[tmp], %[v]\n"			\
+ 	"	add	%[i], %[i], %x[tmp]"				\
+ 	: [i] "+r" (i), [v] "+Q" (v->counter), [tmp] "=&r" (tmp)	\
+@@ -222,6 +233,7 @@ ATOMIC64_OP_ADD_RETURN(        , al, "memory")
+ static inline void __lse_atomic64_and(s64 i, atomic64_t *v)
+ {
+ 	asm volatile(
++	__LSE_PREAMBLE
+ 	"	mvn	%[i], %[i]\n"
+ 	"	stclr	%[i], %[v]"
+ 	: [i] "+&r" (i), [v] "+Q" (v->counter)
+@@ -232,6 +244,7 @@ static inline void __lse_atomic64_and(s64 i, atomic64_t *v)
+ static inline long __lse_atomic64_fetch_and##name(s64 i, atomic64_t *v)	\
+ {									\
+ 	asm volatile(							\
++	__LSE_PREAMBLE							\
+ 	"	mvn	%[i], %[i]\n"					\
+ 	"	ldclr" #mb "	%[i], %[i], %[v]"			\
+ 	: [i] "+&r" (i), [v] "+Q" (v->counter)				\
+@@ -251,6 +264,7 @@ ATOMIC64_FETCH_OP_AND(        , al, "memory")
+ static inline void __lse_atomic64_sub(s64 i, atomic64_t *v)
+ {
+ 	asm volatile(
++	__LSE_PREAMBLE
+ 	"	neg	%[i], %[i]\n"
+ 	"	stadd	%[i], %[v]"
+ 	: [i] "+&r" (i), [v] "+Q" (v->counter)
+@@ -263,6 +277,7 @@ static inline long __lse_atomic64_sub_return##name(s64 i, atomic64_t *v)	\
+ 	unsigned long tmp;						\
+ 									\
+ 	asm volatile(							\
++	__LSE_PREAMBLE							\
+ 	"	neg	%[i], %[i]\n"					\
+ 	"	ldadd" #mb "	%[i], %x[tmp], %[v]\n"			\
+ 	"	add	%[i], %[i], %x[tmp]"				\
+@@ -284,6 +299,7 @@ ATOMIC64_OP_SUB_RETURN(        , al, "memory")
+ static inline long __lse_atomic64_fetch_sub##name(s64 i, atomic64_t *v)	\
+ {									\
+ 	asm volatile(							\
++	__LSE_PREAMBLE							\
+ 	"	neg	%[i], %[i]\n"					\
+ 	"	ldadd" #mb "	%[i], %[i], %[v]"			\
+ 	: [i] "+&r" (i), [v] "+Q" (v->counter)				\
+@@ -305,6 +321,7 @@ static inline s64 __lse_atomic64_dec_if_positive(atomic64_t *v)
+ 	unsigned long tmp;
  
- struct nf_flow_key {
-+	struct flow_dissector_key_meta			meta;
- 	struct flow_dissector_key_control		control;
- 	struct flow_dissector_key_basic			basic;
- 	union {
-@@ -55,6 +56,7 @@ static int nf_flow_rule_match(struct nf_flow_match *match,
- 	struct nf_flow_key *mask = &match->mask;
- 	struct nf_flow_key *key = &match->key;
+ 	asm volatile(
++	__LSE_PREAMBLE
+ 	"1:	ldr	%x[tmp], %[v]\n"
+ 	"	subs	%[ret], %x[tmp], #1\n"
+ 	"	b.lt	2f\n"
+@@ -332,6 +349,7 @@ __lse__cmpxchg_case_##name##sz(volatile void *ptr,			\
+ 	unsigned long tmp;						\
+ 									\
+ 	asm volatile(							\
++	__LSE_PREAMBLE							\
+ 	"	mov	%" #w "[tmp], %" #w "[old]\n"			\
+ 	"	cas" #mb #sfx "\t%" #w "[tmp], %" #w "[new], %[v]\n"	\
+ 	"	mov	%" #w "[ret], %" #w "[tmp]"			\
+@@ -379,6 +397,7 @@ __lse__cmpxchg_double##name(unsigned long old1,				\
+ 	register unsigned long x4 asm ("x4") = (unsigned long)ptr;	\
+ 									\
+ 	asm volatile(							\
++	__LSE_PREAMBLE							\
+ 	"	casp" #mb "\t%[old1], %[old2], %[new1], %[new2], %[v]\n"\
+ 	"	eor	%[old1], %[old1], %[oldval1]\n"			\
+ 	"	eor	%[old2], %[old2], %[oldval2]\n"			\
+diff --git a/arch/arm64/include/asm/lse.h b/arch/arm64/include/asm/lse.h
+index 80b3882781496..73834996c4b6d 100644
+--- a/arch/arm64/include/asm/lse.h
++++ b/arch/arm64/include/asm/lse.h
+@@ -6,6 +6,8 @@
  
-+	NF_FLOW_DISSECTOR(match, FLOW_DISSECTOR_KEY_META, meta);
- 	NF_FLOW_DISSECTOR(match, FLOW_DISSECTOR_KEY_CONTROL, control);
- 	NF_FLOW_DISSECTOR(match, FLOW_DISSECTOR_KEY_BASIC, basic);
- 	NF_FLOW_DISSECTOR(match, FLOW_DISSECTOR_KEY_IPV4_ADDRS, ipv4);
-@@ -62,6 +64,9 @@ static int nf_flow_rule_match(struct nf_flow_match *match,
- 	NF_FLOW_DISSECTOR(match, FLOW_DISSECTOR_KEY_TCP, tcp);
- 	NF_FLOW_DISSECTOR(match, FLOW_DISSECTOR_KEY_PORTS, tp);
+ #if defined(CONFIG_AS_LSE) && defined(CONFIG_ARM64_LSE_ATOMICS)
  
-+	key->meta.ingress_ifindex = tuple->iifidx;
-+	mask->meta.ingress_ifindex = 0xffffffff;
++#define __LSE_PREAMBLE	".arch armv8-a+lse\n"
 +
- 	switch (tuple->l3proto) {
- 	case AF_INET:
- 		key->control.addr_type = FLOW_DISSECTOR_KEY_IPV4_ADDRS;
-@@ -105,7 +110,8 @@ static int nf_flow_rule_match(struct nf_flow_match *match,
- 	key->tp.dst = tuple->dst_port;
- 	mask->tp.dst = 0xffff;
+ #include <linux/compiler_types.h>
+ #include <linux/export.h>
+ #include <linux/jump_label.h>
+@@ -14,8 +16,6 @@
+ #include <asm/atomic_lse.h>
+ #include <asm/cpucaps.h>
  
--	match->dissector.used_keys |= BIT(FLOW_DISSECTOR_KEY_CONTROL) |
-+	match->dissector.used_keys |= BIT(FLOW_DISSECTOR_KEY_META) |
-+				      BIT(FLOW_DISSECTOR_KEY_CONTROL) |
- 				      BIT(FLOW_DISSECTOR_KEY_BASIC) |
- 				      BIT(FLOW_DISSECTOR_KEY_PORTS);
- 	return 0;
+-__asm__(".arch_extension	lse");
+-
+ extern struct static_key_false cpu_hwcap_keys[ARM64_NCAPS];
+ extern struct static_key_false arm64_const_caps_ready;
+ 
+@@ -34,7 +34,7 @@ static inline bool system_uses_lse_atomics(void)
+ 
+ /* In-line patching at runtime */
+ #define ARM64_LSE_ATOMIC_INSN(llsc, lse)				\
+-	ALTERNATIVE(llsc, lse, ARM64_HAS_LSE_ATOMICS)
++	ALTERNATIVE(llsc, __LSE_PREAMBLE lse, ARM64_HAS_LSE_ATOMICS)
+ 
+ #else	/* CONFIG_AS_LSE && CONFIG_ARM64_LSE_ATOMICS */
+ 
 -- 
 2.20.1
 
