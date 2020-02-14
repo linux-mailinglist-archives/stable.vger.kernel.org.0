@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5047815DF3E
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:08:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3189B15DF40
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:08:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390724AbgBNQHi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 11:07:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59120 "EHLO mail.kernel.org"
+        id S2390573AbgBNQHr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 11:07:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59422 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390723AbgBNQHi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:07:38 -0500
+        id S2390762AbgBNQHq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:07:46 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F2F3224654;
-        Fri, 14 Feb 2020 16:07:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A10A624687;
+        Fri, 14 Feb 2020 16:07:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581696457;
-        bh=veonelLyHYVdZEaWEmcvfnbE3w0QTXWIx3ruw3NtQm4=;
+        s=default; t=1581696466;
+        bh=iW0pG2/jtj3T1OIrSI9apWm9rnCO1tmNfqWZdpAN9to=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OO289xAiajvRJbb28W2ZNR5SQEZTUCidRJgPvaqW4OrUtSiTgMTP+9LxlT02t6OS1
-         maCFEc/g7dpoLd7gyidBhjbdALUbp7478zl0xgRvFfTQuwtA+8F5P0j04xf3vuP9dU
-         B0dPMWlmWvrSn8kvbfVnQIykNO0dRt7FMm5qwKt4=
+        b=RusiVCsoh8ThyAOVYKPceutVXZYxuNAq5EzNTfMBMdqmZZZmz+nnIIqy8y6s2U+Hz
+         srvTiXrcOEw3gSr87J6LtyR1BwJQn/6UoEKKCYvDikmQG87qVcxHgu72H3Ks4uz475
+         oWPMa6IhVlfPb6MsK+mHJEi0wtszJLBtGZ7azgMg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jan Kara <jack@suse.cz>,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali.rohar@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.4 269/459] udf: Fix free space reporting for metadata and virtual partitions
-Date:   Fri, 14 Feb 2020 10:58:39 -0500
-Message-Id: <20200214160149.11681-269-sashal@kernel.org>
+Cc:     Dmitry Osipenko <digetx@gmail.com>,
+        Thierry Reding <treding@nvidia.com>,
+        Sasha Levin <sashal@kernel.org>, linux-tegra@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 276/459] soc/tegra: fuse: Correct straps' address for older Tegra124 device trees
+Date:   Fri, 14 Feb 2020 10:58:46 -0500
+Message-Id: <20200214160149.11681-276-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214160149.11681-1-sashal@kernel.org>
 References: <20200214160149.11681-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -44,71 +43,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Dmitry Osipenko <digetx@gmail.com>
 
-[ Upstream commit a4a8b99ec819ca60b49dc582a4287ef03411f117 ]
+[ Upstream commit 2d9ea1934f8ef0dfb862d103389562cc28b4fc03 ]
 
-Free space on filesystems with metadata or virtual partition maps
-currently gets misreported. This is because these partitions are just
-remapped onto underlying real partitions from which keep track of free
-blocks. Take this remapping into account when counting free blocks as
-well.
+Trying to read out Chip ID before APBMISC registers are mapped won't
+succeed, in a result Tegra124 gets a wrong address for the HW straps
+register if machine uses an old outdated device tree.
 
-Reviewed-by: Pali Rohár <pali.rohar@gmail.com>
-Reported-by: Pali Rohár <pali.rohar@gmail.com>
-Signed-off-by: Jan Kara <jack@suse.cz>
+Fixes: 297c4f3dcbff ("soc/tegra: fuse: Restrict legacy code to 32-bit ARM")
+Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
+Signed-off-by: Thierry Reding <treding@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/udf/super.c | 22 +++++++++++++++++-----
- 1 file changed, 17 insertions(+), 5 deletions(-)
+ drivers/soc/tegra/fuse/tegra-apbmisc.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/udf/super.c b/fs/udf/super.c
-index 008bf96b1732d..4baa1ca91e9be 100644
---- a/fs/udf/super.c
-+++ b/fs/udf/super.c
-@@ -2491,17 +2491,29 @@ static unsigned int udf_count_free_table(struct super_block *sb,
- static unsigned int udf_count_free(struct super_block *sb)
- {
- 	unsigned int accum = 0;
--	struct udf_sb_info *sbi;
-+	struct udf_sb_info *sbi = UDF_SB(sb);
- 	struct udf_part_map *map;
-+	unsigned int part = sbi->s_partition;
-+	int ptype = sbi->s_partmaps[part].s_partition_type;
-+
-+	if (ptype == UDF_METADATA_MAP25) {
-+		part = sbi->s_partmaps[part].s_type_specific.s_metadata.
-+							s_phys_partition_ref;
-+	} else if (ptype == UDF_VIRTUAL_MAP15 || ptype == UDF_VIRTUAL_MAP20) {
-+		/*
-+		 * Filesystems with VAT are append-only and we cannot write to
-+ 		 * them. Let's just report 0 here.
-+		 */
-+		return 0;
-+	}
+diff --git a/drivers/soc/tegra/fuse/tegra-apbmisc.c b/drivers/soc/tegra/fuse/tegra-apbmisc.c
+index df76778af601e..f8b9c4058926b 100644
+--- a/drivers/soc/tegra/fuse/tegra-apbmisc.c
++++ b/drivers/soc/tegra/fuse/tegra-apbmisc.c
+@@ -123,7 +123,7 @@ void __init tegra_init_apbmisc(void)
+ 			apbmisc.flags = IORESOURCE_MEM;
  
--	sbi = UDF_SB(sb);
- 	if (sbi->s_lvid_bh) {
- 		struct logicalVolIntegrityDesc *lvid =
- 			(struct logicalVolIntegrityDesc *)
- 			sbi->s_lvid_bh->b_data;
--		if (le32_to_cpu(lvid->numOfPartitions) > sbi->s_partition) {
-+		if (le32_to_cpu(lvid->numOfPartitions) > part) {
- 			accum = le32_to_cpu(
--					lvid->freeSpaceTable[sbi->s_partition]);
-+					lvid->freeSpaceTable[part]);
- 			if (accum == 0xFFFFFFFF)
- 				accum = 0;
- 		}
-@@ -2510,7 +2522,7 @@ static unsigned int udf_count_free(struct super_block *sb)
- 	if (accum)
- 		return accum;
- 
--	map = &sbi->s_partmaps[sbi->s_partition];
-+	map = &sbi->s_partmaps[part];
- 	if (map->s_partition_flags & UDF_PART_FLAG_UNALLOC_BITMAP) {
- 		accum += udf_count_free_bitmap(sb,
- 					       map->s_uspace.s_bitmap);
+ 			/* strapping options */
+-			if (tegra_get_chip_id() == TEGRA124) {
++			if (of_machine_is_compatible("nvidia,tegra124")) {
+ 				straps.start = 0x7000e864;
+ 				straps.end = 0x7000e867;
+ 			} else {
 -- 
 2.20.1
 
