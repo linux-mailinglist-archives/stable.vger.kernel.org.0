@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 520EE15EBC4
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:23:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BA4E815EBC7
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:23:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391296AbgBNQJc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 11:09:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34004 "EHLO mail.kernel.org"
+        id S2391307AbgBNQJe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 11:09:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34106 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391291AbgBNQJb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:09:31 -0500
+        id S2391302AbgBNQJd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:09:33 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0F5062468D;
-        Fri, 14 Feb 2020 16:09:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 86F9424682;
+        Fri, 14 Feb 2020 16:09:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581696570;
-        bh=bKdze+iTRjZ+6yDQsmCbsOAAgJXbF6/hex2eF8Vicfc=;
+        s=default; t=1581696573;
+        bh=FGprxRun26IH1icAQXs7d2ZLvfCNFwA9W5z0AhAUZhE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=inuNYD8URlA57gUjyN97JkZL7glWJcmk7hOljJnGJG73CHob4UiZDpAtFTCknQjnO
-         kwbyFTXkYB40ScaItPDGZoR6b3wK2QWY6+ZZ2g0avw5Wn4Z8hvxjQDXzbqR4xCkRjy
-         v30O6yLP+qvadTgRwyLwn/hfF1JBBLvtIkVRhlnU=
+        b=HOT4Uz9SW2/sDUYe2I9eDa5pZTr62Zs+lTKVyYfdOXLIlNePdHZIciOgOCw5KYGNv
+         RLI96INBGbWVd8QZ4tXFBVdx+L4RC0SGeqWk18BrlPnn3T23wDPoTnnsd0dAq8A3tf
+         hzFIHwlFQOh4qxm1iT1DWs3uQQYWaVCVQVbN1Oh0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     David Sterba <dsterba@suse.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Josef Bacik <josef@toxicpanda.com>,
-        Sasha Levin <sashal@kernel.org>, linux-btrfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 360/459] btrfs: safely advance counter when looking up bio csums
-Date:   Fri, 14 Feb 2020 11:00:10 -0500
-Message-Id: <20200214160149.11681-360-sashal@kernel.org>
+Cc:     Jessica Yu <jeyu@kernel.org>, Miroslav Benes <mbenes@suse.cz>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 362/459] module: avoid setting info->name early in case we can fall back to info->mod->name
+Date:   Fri, 14 Feb 2020 11:00:12 -0500
+Message-Id: <20200214160149.11681-362-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214160149.11681-1-sashal@kernel.org>
 References: <20200214160149.11681-1-sashal@kernel.org>
@@ -44,51 +42,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Sterba <dsterba@suse.com>
+From: Jessica Yu <jeyu@kernel.org>
 
-[ Upstream commit 4babad10198fa73fe73239d02c2e99e3333f5f5c ]
+[ Upstream commit 708e0ada1916be765b7faa58854062f2bc620bbf ]
 
-Dan's smatch tool reports
+In setup_load_info(), info->name (which contains the name of the module,
+mostly used for early logging purposes before the module gets set up)
+gets unconditionally assigned if .modinfo is missing despite the fact
+that there is an if (!info->name) check near the end of the function.
+Avoid assigning a placeholder string to info->name if .modinfo doesn't
+exist, so that we can fall back to info->mod->name later on.
 
-  fs/btrfs/file-item.c:295 btrfs_lookup_bio_sums()
-  warn: should this be 'count == -1'
-
-which points to the while (count--) loop. With count == 0 the check
-itself could decrement it to -1. There's a WARN_ON a few lines below
-that has never been seen in practice though.
-
-It turns out that the value of page_bytes_left matches the count (by
-sectorsize multiples). The loop never reaches the state where count
-would go to -1, because page_bytes_left == 0 is found first and this
-breaks out.
-
-For clarity, use only plain check on count (and only for positive
-value), decrement safely inside the loop. Any other discrepancy after
-the whole bio list processing should be reported by the exising
-WARN_ON_ONCE as well.
-
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Reviewed-by: Josef Bacik <josef@toxicpanda.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Fixes: 5fdc7db6448a ("module: setup load info before module_sig_check()")
+Reviewed-by: Miroslav Benes <mbenes@suse.cz>
+Signed-off-by: Jessica Yu <jeyu@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/file-item.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ kernel/module.c | 9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
 
-diff --git a/fs/btrfs/file-item.c b/fs/btrfs/file-item.c
-index c878bc25d0460..f62a179f85bb6 100644
---- a/fs/btrfs/file-item.c
-+++ b/fs/btrfs/file-item.c
-@@ -274,7 +274,8 @@ static blk_status_t __btrfs_lookup_bio_sums(struct inode *inode, struct bio *bio
- 		csum += count * csum_size;
- 		nblocks -= count;
- next:
--		while (count--) {
-+		while (count > 0) {
-+			count--;
- 			disk_bytenr += fs_info->sectorsize;
- 			offset += fs_info->sectorsize;
- 			page_bytes_left -= fs_info->sectorsize;
+diff --git a/kernel/module.c b/kernel/module.c
+index 135861c2ac782..a2a47f4a33a78 100644
+--- a/kernel/module.c
++++ b/kernel/module.c
+@@ -3059,9 +3059,7 @@ static int setup_load_info(struct load_info *info, int flags)
+ 
+ 	/* Try to find a name early so we can log errors with a module name */
+ 	info->index.info = find_sec(info, ".modinfo");
+-	if (!info->index.info)
+-		info->name = "(missing .modinfo section)";
+-	else
++	if (info->index.info)
+ 		info->name = get_modinfo(info, "name");
+ 
+ 	/* Find internal symbols and strings. */
+@@ -3076,14 +3074,15 @@ static int setup_load_info(struct load_info *info, int flags)
+ 	}
+ 
+ 	if (info->index.sym == 0) {
+-		pr_warn("%s: module has no symbols (stripped?)\n", info->name);
++		pr_warn("%s: module has no symbols (stripped?)\n",
++			info->name ?: "(missing .modinfo section or name field)");
+ 		return -ENOEXEC;
+ 	}
+ 
+ 	info->index.mod = find_sec(info, ".gnu.linkonce.this_module");
+ 	if (!info->index.mod) {
+ 		pr_warn("%s: No module found in object\n",
+-			info->name ?: "(missing .modinfo name field)");
++			info->name ?: "(missing .modinfo section or name field)");
+ 		return -ENOEXEC;
+ 	}
+ 	/* This is temporary: point mod into copy of data. */
 -- 
 2.20.1
 
