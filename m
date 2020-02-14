@@ -2,41 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B4F2915E37C
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:30:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6AB8315E378
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:30:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2406409AbgBNQaY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 11:30:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36922 "EHLO mail.kernel.org"
+        id S2406627AbgBNQaP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 11:30:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36970 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2406406AbgBNQ0X (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:26:23 -0500
+        id S2406409AbgBNQ0Y (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:26:24 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AB0F9246FA;
-        Fri, 14 Feb 2020 16:26:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B006A246FB;
+        Fri, 14 Feb 2020 16:26:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581697582;
-        bh=SQwdO+jfBvu42N9g8goU7BJjGbSHqNAI1Ma+uIeASAc=;
+        s=default; t=1581697583;
+        bh=UcX1KRWMAwqV7+3ramiGds4rqxADxTFIV7lKuDR3NbY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JLxXTgnSFBuYZW9OPxXmWmlzu8dhWn+KjL+xa7l7k59Qoz4S5PkFVN3Kcwk81CJ/K
-         +ZtnnU/jwA6+Kwyy2mycslQ9jH4J5h1VNlcUikf0JzGKGy0asDHO7Hy/hKB4dHcu9A
-         yhMT4RRToJL2tGvD3Be0ocp9kwDMPv6cs+iqdOVE=
+        b=mTRT9hz/3Fht8RgHvRD8Cd1OvZJXPOhRc8JdUzk/pe24FtzyxTKKCiroEwqjg1/71
+         ITwoxAO2GYffA9sNM88sk2/SVbp3KYnmbbYNYOVwGZxdlzkf5wE/IyCCK1Cl5Fel1Q
+         z4I9/VGhs66mMYjzx6zTnmnxRt2DdzqXq/0JK1pg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     wangyan <wangyan122@huawei.com>, Jun Piao <piaojun@huawei.com>,
-        Mark Fasheh <mark@fasheh.com>,
-        Joel Becker <jlbec@evilplan.org>,
-        Junxiao Bi <junxiao.bi@oracle.com>,
-        Joseph Qi <jiangqi903@gmail.com>,
-        Changwei Ge <gechangwei@live.cn>, Gang He <ghe@suse.com>,
+Cc:     Nathan Chancellor <natechancellor@gmail.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>, ocfs2-devel@oss.oracle.com
-Subject: [PATCH AUTOSEL 4.4 094/100] ocfs2: fix a NULL pointer dereference when call ocfs2_update_inode_fsync_trans()
-Date:   Fri, 14 Feb 2020 11:24:18 -0500
-Message-Id: <20200214162425.21071-94-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>,
+        clang-built-linux@googlegroups.com
+Subject: [PATCH AUTOSEL 4.4 095/100] lib/scatterlist.c: adjust indentation in __sg_alloc_table
+Date:   Fri, 14 Feb 2020 11:24:19 -0500
+Message-Id: <20200214162425.21071-95-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214162425.21071-1-sashal@kernel.org>
 References: <20200214162425.21071-1-sashal@kernel.org>
@@ -49,137 +45,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: wangyan <wangyan122@huawei.com>
+From: Nathan Chancellor <natechancellor@gmail.com>
 
-[ Upstream commit 9f16ca48fc818a17de8be1f75d08e7f4addc4497 ]
+[ Upstream commit 4e456fee215677584cafa7f67298a76917e89c64 ]
 
-I found a NULL pointer dereference in ocfs2_update_inode_fsync_trans(),
-handle->h_transaction may be NULL in this situation:
+Clang warns:
 
-ocfs2_file_write_iter
-  ->__generic_file_write_iter
-      ->generic_perform_write
-        ->ocfs2_write_begin
-          ->ocfs2_write_begin_nolock
-            ->ocfs2_write_cluster_by_desc
-              ->ocfs2_write_cluster
-                ->ocfs2_mark_extent_written
-                  ->ocfs2_change_extent_flag
-                    ->ocfs2_split_extent
-                      ->ocfs2_try_to_merge_extent
-                        ->ocfs2_extend_rotate_transaction
-                          ->ocfs2_extend_trans
-                            ->jbd2_journal_restart
-                              ->jbd2__journal_restart
-                                // handle->h_transaction is NULL here
-                                ->handle->h_transaction = NULL;
-                                ->start_this_handle
-                                  /* journal aborted due to storage
-                                     network disconnection, return error */
-                                  ->return -EROFS;
-                         /* line 3806 in ocfs2_try_to_merge_extent (),
-                            it will ignore ret error. */
-                        ->ret = 0;
-        ->...
-        ->ocfs2_write_end
-          ->ocfs2_write_end_nolock
-            ->ocfs2_update_inode_fsync_trans
-              // NULL pointer dereference
-              ->oi->i_sync_tid = handle->h_transaction->t_tid;
+  ../lib/scatterlist.c:314:5: warning: misleading indentation; statement
+  is not part of the previous 'if' [-Wmisleading-indentation]
+                          return -ENOMEM;
+                          ^
+  ../lib/scatterlist.c:311:4: note: previous statement is here
+                          if (prv)
+                          ^
+  1 warning generated.
 
-The information of NULL pointer dereference as follows:
-    JBD2: Detected IO errors while flushing file data on dm-11-45
-    Aborting journal on device dm-11-45.
-    JBD2: Error -5 detected when updating journal superblock for dm-11-45.
-    (dd,22081,3):ocfs2_extend_trans:474 ERROR: status = -30
-    (dd,22081,3):ocfs2_try_to_merge_extent:3877 ERROR: status = -30
-    Unable to handle kernel NULL pointer dereference at
-    virtual address 0000000000000008
-    Mem abort info:
-      ESR = 0x96000004
-      Exception class = DABT (current EL), IL = 32 bits
-      SET = 0, FnV = 0
-      EA = 0, S1PTW = 0
-    Data abort info:
-      ISV = 0, ISS = 0x00000004
-      CM = 0, WnR = 0
-    user pgtable: 4k pages, 48-bit VAs, pgdp = 00000000e74e1338
-    [0000000000000008] pgd=0000000000000000
-    Internal error: Oops: 96000004 [#1] SMP
-    Process dd (pid: 22081, stack limit = 0x00000000584f35a9)
-    CPU: 3 PID: 22081 Comm: dd Kdump: loaded
-    Hardware name: Huawei TaiShan 2280 V2/BC82AMDD, BIOS 0.98 08/25/2019
-    pstate: 60400009 (nZCv daif +PAN -UAO)
-    pc : ocfs2_write_end_nolock+0x2b8/0x550 [ocfs2]
-    lr : ocfs2_write_end_nolock+0x2a0/0x550 [ocfs2]
-    sp : ffff0000459fba70
-    x29: ffff0000459fba70 x28: 0000000000000000
-    x27: ffff807ccf7f1000 x26: 0000000000000001
-    x25: ffff807bdff57970 x24: ffff807caf1d4000
-    x23: ffff807cc79e9000 x22: 0000000000001000
-    x21: 000000006c6cd000 x20: ffff0000091d9000
-    x19: ffff807ccb239db0 x18: ffffffffffffffff
-    x17: 000000000000000e x16: 0000000000000007
-    x15: ffff807c5e15bd78 x14: 0000000000000000
-    x13: 0000000000000000 x12: 0000000000000000
-    x11: 0000000000000000 x10: 0000000000000001
-    x9 : 0000000000000228 x8 : 000000000000000c
-    x7 : 0000000000000fff x6 : ffff807a308ed6b0
-    x5 : ffff7e01f10967c0 x4 : 0000000000000018
-    x3 : d0bc661572445600 x2 : 0000000000000000
-    x1 : 000000001b2e0200 x0 : 0000000000000000
-    Call trace:
-     ocfs2_write_end_nolock+0x2b8/0x550 [ocfs2]
-     ocfs2_write_end+0x4c/0x80 [ocfs2]
-     generic_perform_write+0x108/0x1a8
-     __generic_file_write_iter+0x158/0x1c8
-     ocfs2_file_write_iter+0x668/0x950 [ocfs2]
-     __vfs_write+0x11c/0x190
-     vfs_write+0xac/0x1c0
-     ksys_write+0x6c/0xd8
-     __arm64_sys_write+0x24/0x30
-     el0_svc_common+0x78/0x130
-     el0_svc_handler+0x38/0x78
-     el0_svc+0x8/0xc
+This warning occurs because there is a space before the tab on this
+line.  Remove it so that the indentation is consistent with the Linux
+kernel coding style and clang no longer warns.
 
-To prevent NULL pointer dereference in this situation, we use
-is_handle_aborted() before using handle->h_transaction->t_tid.
-
-Link: http://lkml.kernel.org/r/03e750ab-9ade-83aa-b000-b9e81e34e539@huawei.com
-Signed-off-by: Yan Wang <wangyan122@huawei.com>
-Reviewed-by: Jun Piao <piaojun@huawei.com>
-Cc: Mark Fasheh <mark@fasheh.com>
-Cc: Joel Becker <jlbec@evilplan.org>
-Cc: Junxiao Bi <junxiao.bi@oracle.com>
-Cc: Joseph Qi <jiangqi903@gmail.com>
-Cc: Changwei Ge <gechangwei@live.cn>
-Cc: Gang He <ghe@suse.com>
+Link: http://lkml.kernel.org/r/20191218033606.11942-1-natechancellor@gmail.com
+Link: https://github.com/ClangBuiltLinux/linux/issues/830
+Fixes: edce6820a9fd ("scatterlist: prevent invalid free when alloc fails")
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ocfs2/journal.h | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ lib/scatterlist.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/ocfs2/journal.h b/fs/ocfs2/journal.h
-index f4cd3c3e9fb70..0a4d2cbf512f8 100644
---- a/fs/ocfs2/journal.h
-+++ b/fs/ocfs2/journal.h
-@@ -637,9 +637,11 @@ static inline void ocfs2_update_inode_fsync_trans(handle_t *handle,
- {
- 	struct ocfs2_inode_info *oi = OCFS2_I(inode);
+diff --git a/lib/scatterlist.c b/lib/scatterlist.c
+index 0b86b7992f931..1875c09eede91 100644
+--- a/lib/scatterlist.c
++++ b/lib/scatterlist.c
+@@ -317,7 +317,7 @@ int __sg_alloc_table(struct sg_table *table, unsigned int nents,
+ 			if (prv)
+ 				table->nents = ++table->orig_nents;
  
--	oi->i_sync_tid = handle->h_transaction->t_tid;
--	if (datasync)
--		oi->i_datasync_tid = handle->h_transaction->t_tid;
-+	if (!is_handle_aborted(handle)) {
-+		oi->i_sync_tid = handle->h_transaction->t_tid;
-+		if (datasync)
-+			oi->i_datasync_tid = handle->h_transaction->t_tid;
-+	}
- }
+- 			return -ENOMEM;
++			return -ENOMEM;
+ 		}
  
- #endif /* OCFS2_JOURNAL_H */
+ 		sg_init_table(sg, alloc_size);
 -- 
 2.20.1
 
