@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E58E15F51F
+	by mail.lfdr.de (Postfix) with ESMTP id 98B3615F520
 	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 19:39:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729523AbgBNPs5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 10:48:57 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51190 "EHLO mail.kernel.org"
+        id S1729580AbgBNPs6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 10:48:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51212 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729051AbgBNPs5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 10:48:57 -0500
+        id S1729051AbgBNPs6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 10:48:58 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A77902086A;
-        Fri, 14 Feb 2020 15:48:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DD33722314;
+        Fri, 14 Feb 2020 15:48:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581695336;
-        bh=IKYMgjBeoDBAoEF+iuAVlhvvQpsP6YlXHDORnZotvPI=;
-        h=From:To:Cc:Subject:Date:From;
-        b=SQ5zNQEUxazzdQcq0owq2r5aj3xyXWFPjvnY+gv6zbQKesIjcqnwymn8BOk4HYNlZ
-         nbpc1dGtK6l+AOh+OpoK1MWBgc1kO2QX+cv+6/ZpWYHW19QpGGGhjirbEhn/szgdr/
-         OJm3rrBWugBIJJJWm451farGEEX2lMkhHtlQVGhU=
+        s=default; t=1581695337;
+        bh=FQqG5CuWZNvAahuC516eH5urLJCxfYr2WeJpFtvzYYE=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=Ai8rSxP4V+xWBj85yF/utlRL3M0kGV1+jc3hbeHWBWyat7Gh5/cvVO0sPAgo32k6z
+         2bNJLmRkcCnjxTvADNv+KsUkTws2905actxGiCrMw0wCXeLTI5osR9D1WyzLwCEZ11
+         XS8Bxs2KOfT+8/yoBuPP8KM1zc4HHo/tr6xi44bg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     yu kuai <yukuai3@huawei.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
+Cc:     Paul Kocialkowski <paul.kocialkowski@bootlin.com>,
+        Patrik Jakobsson <patrik.r.jakobsson@gmail.com>,
+        Sasha Levin <sashal@kernel.org>,
         dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.5 001/542] drm/amdgpu: remove set but not used variable 'mc_shared_chmap' from 'gfx_v6_0.c' and 'gfx_v7_0.c'
-Date:   Fri, 14 Feb 2020 10:39:53 -0500
-Message-Id: <20200214154854.6746-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.5 002/542] drm/gma500: Fixup fbdev stolen size usage evaluation
+Date:   Fri, 14 Feb 2020 10:39:54 -0500
+Message-Id: <20200214154854.6746-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20200214154854.6746-1-sashal@kernel.org>
+References: <20200214154854.6746-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -43,74 +44,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: yu kuai <yukuai3@huawei.com>
+From: Paul Kocialkowski <paul.kocialkowski@bootlin.com>
 
-[ Upstream commit 747a397d394fac0001e4b3c03d7dce3a118af567 ]
+[ Upstream commit fd1a5e521c3c083bb43ea731aae0f8b95f12b9bd ]
 
-Fixes gcc '-Wunused-but-set-variable' warning:
+psbfb_probe performs an evaluation of the required size from the stolen
+GTT memory, but gets it wrong in two distinct ways:
+- The resulting size must be page-size-aligned;
+- The size to allocate is derived from the surface dimensions, not the fb
+  dimensions.
 
-drivers/gpu/drm/amd/amdgpu/gfx_v6_0.c: In function
-‘gfx_v6_0_constants_init’:
-drivers/gpu/drm/amd/amdgpu/gfx_v6_0.c:1579:6: warning: variable
-‘mc_shared_chmap’ set but not used [-Wunused-but-set-variable]
+When two connectors are connected with different modes, the smallest will
+be stored in the fb dimensions, but the size that needs to be allocated must
+match the largest (surface) dimensions. This is what is used in the actual
+allocation code.
 
-drivers/gpu/drm/amd/amdgpu/gfx_v7_0.c: In function
-‘gfx_v7_0_gpu_early_init’:
-drivers/gpu/drm/amd/amdgpu/gfx_v7_0.c:4262:6: warning: variable
-‘mc_shared_chmap’ set but not used [-Wunused-but-set-variable]
+Fix this by correcting the evaluation to conform to the two points above.
+It allows correctly switching to 16bpp when one connector is e.g. 1920x1080
+and the other is 1024x768.
 
-Fixes: 2cd46ad22383 ("drm/amdgpu: add graphic pipeline implementation for si v8")
-Fixes: d93f3ca706b8 ("drm/amdgpu/gfx7: rework gpu_init()")
-Signed-off-by: yu kuai <yukuai3@huawei.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Paul Kocialkowski <paul.kocialkowski@bootlin.com>
+Signed-off-by: Patrik Jakobsson <patrik.r.jakobsson@gmail.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20191107153048.843881-1-paul.kocialkowski@bootlin.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/gfx_v6_0.c | 3 +--
- drivers/gpu/drm/amd/amdgpu/gfx_v7_0.c | 3 +--
- 2 files changed, 2 insertions(+), 4 deletions(-)
+ drivers/gpu/drm/gma500/framebuffer.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/gfx_v6_0.c b/drivers/gpu/drm/amd/amdgpu/gfx_v6_0.c
-index 7f0a63628c43a..31f44d05e606d 100644
---- a/drivers/gpu/drm/amd/amdgpu/gfx_v6_0.c
-+++ b/drivers/gpu/drm/amd/amdgpu/gfx_v6_0.c
-@@ -1576,7 +1576,7 @@ static void gfx_v6_0_config_init(struct amdgpu_device *adev)
- static void gfx_v6_0_constants_init(struct amdgpu_device *adev)
- {
- 	u32 gb_addr_config = 0;
--	u32 mc_shared_chmap, mc_arb_ramcfg;
-+	u32 mc_arb_ramcfg;
- 	u32 sx_debug_1;
- 	u32 hdp_host_path_cntl;
- 	u32 tmp;
-@@ -1678,7 +1678,6 @@ static void gfx_v6_0_constants_init(struct amdgpu_device *adev)
+diff --git a/drivers/gpu/drm/gma500/framebuffer.c b/drivers/gpu/drm/gma500/framebuffer.c
+index 218f3bb15276e..90237abee0885 100644
+--- a/drivers/gpu/drm/gma500/framebuffer.c
++++ b/drivers/gpu/drm/gma500/framebuffer.c
+@@ -462,6 +462,7 @@ static int psbfb_probe(struct drm_fb_helper *helper,
+ 		container_of(helper, struct psb_fbdev, psb_fb_helper);
+ 	struct drm_device *dev = psb_fbdev->psb_fb_helper.dev;
+ 	struct drm_psb_private *dev_priv = dev->dev_private;
++	unsigned int fb_size;
+ 	int bytespp;
  
- 	WREG32(mmBIF_FB_EN, BIF_FB_EN__FB_READ_EN_MASK | BIF_FB_EN__FB_WRITE_EN_MASK);
- 
--	mc_shared_chmap = RREG32(mmMC_SHARED_CHMAP);
- 	adev->gfx.config.mc_arb_ramcfg = RREG32(mmMC_ARB_RAMCFG);
- 	mc_arb_ramcfg = adev->gfx.config.mc_arb_ramcfg;
- 
-diff --git a/drivers/gpu/drm/amd/amdgpu/gfx_v7_0.c b/drivers/gpu/drm/amd/amdgpu/gfx_v7_0.c
-index d92e92e5d50b7..8f20a5dd44fe7 100644
---- a/drivers/gpu/drm/amd/amdgpu/gfx_v7_0.c
-+++ b/drivers/gpu/drm/amd/amdgpu/gfx_v7_0.c
-@@ -4258,7 +4258,7 @@ static int gfx_v7_0_late_init(void *handle)
- static void gfx_v7_0_gpu_early_init(struct amdgpu_device *adev)
- {
- 	u32 gb_addr_config;
--	u32 mc_shared_chmap, mc_arb_ramcfg;
-+	u32 mc_arb_ramcfg;
- 	u32 dimm00_addr_map, dimm01_addr_map, dimm10_addr_map, dimm11_addr_map;
- 	u32 tmp;
- 
-@@ -4335,7 +4335,6 @@ static void gfx_v7_0_gpu_early_init(struct amdgpu_device *adev)
- 		break;
- 	}
- 
--	mc_shared_chmap = RREG32(mmMC_SHARED_CHMAP);
- 	adev->gfx.config.mc_arb_ramcfg = RREG32(mmMC_ARB_RAMCFG);
- 	mc_arb_ramcfg = adev->gfx.config.mc_arb_ramcfg;
- 
+ 	bytespp = sizes->surface_bpp / 8;
+@@ -471,8 +472,11 @@ static int psbfb_probe(struct drm_fb_helper *helper,
+ 	/* If the mode will not fit in 32bit then switch to 16bit to get
+ 	   a console on full resolution. The X mode setting server will
+ 	   allocate its own 32bit GEM framebuffer */
+-	if (ALIGN(sizes->fb_width * bytespp, 64) * sizes->fb_height >
+-	                dev_priv->vram_stolen_size) {
++	fb_size = ALIGN(sizes->surface_width * bytespp, 64) *
++		  sizes->surface_height;
++	fb_size = ALIGN(fb_size, PAGE_SIZE);
++
++	if (fb_size > dev_priv->vram_stolen_size) {
+                 sizes->surface_bpp = 16;
+                 sizes->surface_depth = 16;
+         }
 -- 
 2.20.1
 
