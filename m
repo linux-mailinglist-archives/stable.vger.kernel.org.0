@@ -2,43 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C3C0015F0CB
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:59:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8342A15F0CF
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:59:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388093AbgBNP5D (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 10:57:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39348 "EHLO mail.kernel.org"
+        id S2388114AbgBNP5F (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 10:57:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39460 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388082AbgBNP5C (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 10:57:02 -0500
+        id S2388103AbgBNP5E (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 10:57:04 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CF79A2467B;
-        Fri, 14 Feb 2020 15:56:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7E89B222C4;
+        Fri, 14 Feb 2020 15:57:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581695821;
-        bh=5tGjCaR0U/4Sbp7vkRaZfh3f9+5qvqqeBO9WpmTPe1E=;
+        s=default; t=1581695824;
+        bh=6vAb/3AnW2cySkICFJWn4lWI0wr0JfuL5Ldafl3W6AE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=w382Nb2CUFypLogObseDTlAjvN0pGYzb6eGIuRfvtTe0is6iGVaBPNtRnjkBvfIa/
-         L7uTSmLpswgLNuxcydAQqaTrUd3UtpMeogAsGo56k+jLwWTtpGgT8gFnNMcCis3q9o
-         iourcNuhA6qk0H68RbU32zOVgcnYZJaWE1dioXno=
+        b=DReua4Uwr5YWFNUVQALTnwoISAtJ+VoqxTyv7eOlPfaI6+h7ftCaPEP9CKRDcKY3L
+         fMJxsetzFjDLoUsBnomeMtUAGYXa93+5lFWofsL/PDkPlJsD7s5PkRMajZrGOhaO+l
+         RxiBsI558Yc954Whv6LpzCZGnGXD2qCOytYn4PO8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Stanley Chu <stanley.chu@mediatek.com>,
-        Alim Akhtar <alim.akhtar@samsung.com>,
-        Asutosh Das <asutoshd@codeaurora.org>,
-        Avri Altman <avri.altman@wdc.com>,
-        Bart Van Assche <bvanassche@acm.org>,
-        Bean Huo <beanhuo@micron.com>, Can Guo <cang@codeaurora.org>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org,
-        linux-mediatek@lists.infradead.org,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.5 376/542] scsi: ufs-mediatek: add apply_dev_quirks variant operation
-Date:   Fri, 14 Feb 2020 10:46:08 -0500
-Message-Id: <20200214154854.6746-376-sashal@kernel.org>
+Cc:     Zaibo Xu <xuzaibo@huawei.com>, Arnd Bergmann <arnd@arndb.de>,
+        Marco Elver <elver@google.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Sasha Levin <sashal@kernel.org>, linux-crypto@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.5 378/542] crypto: hisilicon - Update debugfs usage of SEC V2
+Date:   Fri, 14 Feb 2020 10:46:10 -0500
+Message-Id: <20200214154854.6746-378-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214154854.6746-1-sashal@kernel.org>
 References: <20200214154854.6746-1-sashal@kernel.org>
@@ -51,66 +44,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stanley Chu <stanley.chu@mediatek.com>
+From: Zaibo Xu <xuzaibo@huawei.com>
 
-[ Upstream commit ea92c32bd336efba89c5b09cf609e6e26e963796 ]
+[ Upstream commit ca0d158dc9e5dc0902c1d507d82178d97f6f5709 ]
 
-Add vendor-specific variant callback "apply_dev_quirks" to MediaTek UFS
-driver.
+Applied some advices of Marco Elver on atomic usage of Debugfs,
+which is carried out by basing on Arnd Bergmann's fixing patch.
 
-Cc: Alim Akhtar <alim.akhtar@samsung.com>
-Cc: Asutosh Das <asutoshd@codeaurora.org>
-Cc: Avri Altman <avri.altman@wdc.com>
-Cc: Bart Van Assche <bvanassche@acm.org>
-Cc: Bean Huo <beanhuo@micron.com>
-Cc: Can Guo <cang@codeaurora.org>
-Cc: Matthias Brugger <matthias.bgg@gmail.com>
-Link: https://lore.kernel.org/r/1578726707-6596-3-git-send-email-stanley.chu@mediatek.com
-Reviewed-by: Avri Altman <avri.altman@wdc.com>
-Reviewed-by: Bean Huo <beanhuo@micron.com>
-Signed-off-by: Stanley Chu <stanley.chu@mediatek.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Reported-by: Arnd Bergmann <arnd@arndb.de>
+Reported-by: Marco Elver <elver@google.com>
+Signed-off-by: Zaibo Xu <xuzaibo@huawei.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/ufs/ufs-mediatek.c | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+ drivers/crypto/hisilicon/sec2/sec.h        |  2 +-
+ drivers/crypto/hisilicon/sec2/sec_crypto.c |  8 ++++----
+ drivers/crypto/hisilicon/sec2/sec_main.c   | 18 +++++++++---------
+ 3 files changed, 14 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/scsi/ufs/ufs-mediatek.c b/drivers/scsi/ufs/ufs-mediatek.c
-index 83e28edc3ac5b..8a21f49caf0d9 100644
---- a/drivers/scsi/ufs/ufs-mediatek.c
-+++ b/drivers/scsi/ufs/ufs-mediatek.c
-@@ -13,6 +13,7 @@
+diff --git a/drivers/crypto/hisilicon/sec2/sec.h b/drivers/crypto/hisilicon/sec2/sec.h
+index b846d73d9a855..841f4c56ca73c 100644
+--- a/drivers/crypto/hisilicon/sec2/sec.h
++++ b/drivers/crypto/hisilicon/sec2/sec.h
+@@ -40,7 +40,7 @@ struct sec_req {
+ 	int req_id;
  
- #include "ufshcd.h"
- #include "ufshcd-pltfrm.h"
-+#include "ufs_quirks.h"
- #include "unipro.h"
- #include "ufs-mediatek.h"
+ 	/* Status of the SEC request */
+-	atomic_t fake_busy;
++	bool fake_busy;
+ };
  
-@@ -289,6 +290,15 @@ static int ufs_mtk_resume(struct ufs_hba *hba, enum ufs_pm_op pm_op)
+ /**
+diff --git a/drivers/crypto/hisilicon/sec2/sec_crypto.c b/drivers/crypto/hisilicon/sec2/sec_crypto.c
+index 0a5391fff485c..2475aaf0d59b9 100644
+--- a/drivers/crypto/hisilicon/sec2/sec_crypto.c
++++ b/drivers/crypto/hisilicon/sec2/sec_crypto.c
+@@ -141,7 +141,7 @@ static int sec_bd_send(struct sec_ctx *ctx, struct sec_req *req)
+ 		return -ENOBUFS;
+ 
+ 	if (!ret) {
+-		if (atomic_read(&req->fake_busy))
++		if (req->fake_busy)
+ 			ret = -EBUSY;
+ 		else
+ 			ret = -EINPROGRESS;
+@@ -641,7 +641,7 @@ static void sec_skcipher_callback(struct sec_ctx *ctx, struct sec_req *req)
+ 	if (ctx->c_ctx.c_mode == SEC_CMODE_CBC && req->c_req.encrypt)
+ 		sec_update_iv(req);
+ 
+-	if (atomic_cmpxchg(&req->fake_busy, 1, 0) != 1)
++	if (req->fake_busy)
+ 		sk_req->base.complete(&sk_req->base, -EINPROGRESS);
+ 
+ 	sk_req->base.complete(&sk_req->base, req->err_type);
+@@ -672,9 +672,9 @@ static int sec_request_init(struct sec_ctx *ctx, struct sec_req *req)
+ 	}
+ 
+ 	if (ctx->fake_req_limit <= atomic_inc_return(&qp_ctx->pending_reqs))
+-		atomic_set(&req->fake_busy, 1);
++		req->fake_busy = true;
+ 	else
+-		atomic_set(&req->fake_busy, 0);
++		req->fake_busy = false;
+ 
+ 	ret = ctx->req_op->get_res(ctx, req);
+ 	if (ret) {
+diff --git a/drivers/crypto/hisilicon/sec2/sec_main.c b/drivers/crypto/hisilicon/sec2/sec_main.c
+index ab742dfbab997..d40e2da3b05da 100644
+--- a/drivers/crypto/hisilicon/sec2/sec_main.c
++++ b/drivers/crypto/hisilicon/sec2/sec_main.c
+@@ -608,13 +608,13 @@ static const struct file_operations sec_dbg_fops = {
+ 	.write = sec_debug_write,
+ };
+ 
+-static int debugfs_atomic64_t_get(void *data, u64 *val)
++static int sec_debugfs_atomic64_get(void *data, u64 *val)
+ {
+-        *val = atomic64_read((atomic64_t *)data);
+-        return 0;
++	*val = atomic64_read((atomic64_t *)data);
++	return 0;
+ }
+-DEFINE_DEBUGFS_ATTRIBUTE(fops_atomic64_t_ro, debugfs_atomic64_t_get, NULL,
+-                        "%lld\n");
++DEFINE_DEBUGFS_ATTRIBUTE(sec_atomic64_ops, sec_debugfs_atomic64_get,
++			 NULL, "%lld\n");
+ 
+ static int sec_core_debug_init(struct sec_dev *sec)
+ {
+@@ -636,11 +636,11 @@ static int sec_core_debug_init(struct sec_dev *sec)
+ 
+ 	debugfs_create_regset32("regs", 0444, tmp_d, regset);
+ 
+-	debugfs_create_file("send_cnt", 0444, tmp_d, &dfx->send_cnt,
+-			    &fops_atomic64_t_ro);
++	debugfs_create_file("send_cnt", 0444, tmp_d,
++			    &dfx->send_cnt, &sec_atomic64_ops);
+ 
+-	debugfs_create_file("recv_cnt", 0444, tmp_d, &dfx->recv_cnt,
+-			    &fops_atomic64_t_ro);
++	debugfs_create_file("recv_cnt", 0444, tmp_d,
++			    &dfx->recv_cnt, &sec_atomic64_ops);
+ 
  	return 0;
  }
- 
-+static int ufs_mtk_apply_dev_quirks(struct ufs_hba *hba,
-+				    struct ufs_dev_desc *card)
-+{
-+	if (card->wmanufacturerid == UFS_VENDOR_SAMSUNG)
-+		ufshcd_dme_set(hba, UIC_ARG_MIB(PA_TACTIVATE), 6);
-+
-+	return 0;
-+}
-+
- /**
-  * struct ufs_hba_mtk_vops - UFS MTK specific variant operations
-  *
-@@ -301,6 +311,7 @@ static struct ufs_hba_variant_ops ufs_hba_mtk_vops = {
- 	.setup_clocks        = ufs_mtk_setup_clocks,
- 	.link_startup_notify = ufs_mtk_link_startup_notify,
- 	.pwr_change_notify   = ufs_mtk_pwr_change_notify,
-+	.apply_dev_quirks    = ufs_mtk_apply_dev_quirks,
- 	.suspend             = ufs_mtk_suspend,
- 	.resume              = ufs_mtk_resume,
- };
 -- 
 2.20.1
 
