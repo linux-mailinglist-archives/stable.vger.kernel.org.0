@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5757715E7A8
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:55:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0DC3615E7A5
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:55:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404751AbgBNQzY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 11:55:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50364 "EHLO mail.kernel.org"
+        id S2404712AbgBNQSW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 11:18:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50414 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404680AbgBNQSU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:18:20 -0500
+        id S2404708AbgBNQSV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:18:21 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6FE7424688;
-        Fri, 14 Feb 2020 16:18:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B0FBC2470B;
+        Fri, 14 Feb 2020 16:18:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581697100;
-        bh=UCPkVsg1Wh+eYd1npQcsJePrOX58JECIZXQdAyf4FFY=;
+        s=default; t=1581697101;
+        bh=VS1IlKmjEj530cytSHVJtkVhdCL57ecRZMh43v14f4Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VS+HTwxB17narbp76FlPHE1SZcxSfFQfrJ7DrJD/yiLYJfhJT1MDIWUEP+xOMbsmi
-         eIT0MdZRNm/sHh31Uvis/FkxwjudO+v7vH8s2SUqFPGfwcmgzkZuCXnoBOckwpeW1b
-         4T9TENehidw9oc2mu6YpLblxPjsiV6keyMRD1zsM=
+        b=1RNhIHCYXi4kU9J7TnnaJn7hE2kasRnXbxV3P7xkLgpNajUapzR/cyPXI6kBzQeSp
+         NhwN11DEH2kOGW6z9WfzWDTtl7w55fTo6hHw8bC6ez7cwoi4+fb6+ZfF8bM4zXEhdy
+         tJhZ/5Lege5t1wzGHykcT4dhNjfoU2MlVtg6nzRI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     yu kuai <yukuai3@huawei.com>,
         Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
         dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 4.14 050/186] drm/amdgpu: remove set but not used variable 'mc_shared_chmap'
-Date:   Fri, 14 Feb 2020 11:14:59 -0500
-Message-Id: <20200214161715.18113-50-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 051/186] drm/amdgpu: remove set but not used variable 'amdgpu_connector'
+Date:   Fri, 14 Feb 2020 11:15:00 -0500
+Message-Id: <20200214161715.18113-51-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214161715.18113-1-sashal@kernel.org>
 References: <20200214161715.18113-1-sashal@kernel.org>
@@ -47,44 +47,43 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: yu kuai <yukuai3@huawei.com>
 
-[ Upstream commit e98042db2cb8d0b728cd76e05b9c2e1c84b7f72b ]
+[ Upstream commit 4f2922d12d6c63d0f4aa4e859ad95aee6d0d4ea0 ]
 
 Fixes gcc '-Wunused-but-set-variable' warning:
 
-drivers/gpu/drm/amd/amdgpu/gfx_v8_0.c: In function
-‘gfx_v8_0_gpu_early_init’:
-drivers/gpu/drm/amd/amdgpu/gfx_v8_0.c:1713:6: warning: variable
-‘mc_shared_chmap’ set but not used [-Wunused-but-set-variable]
+drivers/gpu/drm/amd/amdgpu/amdgpu_display.c: In function
+‘amdgpu_display_crtc_scaling_mode_fixup’:
+drivers/gpu/drm/amd/amdgpu/amdgpu_display.c:693:27: warning: variable
+‘amdgpu_connector’ set but not used [-Wunused-but-set-variable]
 
-Fixes: 0bde3a95eaa9 ("drm/amdgpu: split gfx8 gpu init into sw and hw parts")
+Fixes: d38ceaf99ed0 ("drm/amdgpu: add core driver (v4)")
 Signed-off-by: yu kuai <yukuai3@huawei.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/gfx_v8_0.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_display.c | 2 --
+ 1 file changed, 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/gfx_v8_0.c b/drivers/gpu/drm/amd/amdgpu/gfx_v8_0.c
-index 85bcd236890ec..d61de169a06fc 100644
---- a/drivers/gpu/drm/amd/amdgpu/gfx_v8_0.c
-+++ b/drivers/gpu/drm/amd/amdgpu/gfx_v8_0.c
-@@ -1653,7 +1653,7 @@ static int gfx_v8_0_do_edc_gpr_workarounds(struct amdgpu_device *adev)
- static int gfx_v8_0_gpu_early_init(struct amdgpu_device *adev)
- {
- 	u32 gb_addr_config;
--	u32 mc_shared_chmap, mc_arb_ramcfg;
-+	u32 mc_arb_ramcfg;
- 	u32 dimm00_addr_map, dimm01_addr_map, dimm10_addr_map, dimm11_addr_map;
- 	u32 tmp;
- 	int ret;
-@@ -1792,7 +1792,6 @@ static int gfx_v8_0_gpu_early_init(struct amdgpu_device *adev)
- 		break;
- 	}
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_display.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_display.c
+index 6ad243293a78b..af2fd75e4cc14 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_display.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_display.c
+@@ -665,7 +665,6 @@ bool amdgpu_crtc_scaling_mode_fixup(struct drm_crtc *crtc,
+ 	struct amdgpu_crtc *amdgpu_crtc = to_amdgpu_crtc(crtc);
+ 	struct amdgpu_encoder *amdgpu_encoder;
+ 	struct drm_connector *connector;
+-	struct amdgpu_connector *amdgpu_connector;
+ 	u32 src_v = 1, dst_v = 1;
+ 	u32 src_h = 1, dst_h = 1;
  
--	mc_shared_chmap = RREG32(mmMC_SHARED_CHMAP);
- 	adev->gfx.config.mc_arb_ramcfg = RREG32(mmMC_ARB_RAMCFG);
- 	mc_arb_ramcfg = adev->gfx.config.mc_arb_ramcfg;
+@@ -677,7 +676,6 @@ bool amdgpu_crtc_scaling_mode_fixup(struct drm_crtc *crtc,
+ 			continue;
+ 		amdgpu_encoder = to_amdgpu_encoder(encoder);
+ 		connector = amdgpu_get_connector_for_encoder(encoder);
+-		amdgpu_connector = to_amdgpu_connector(connector);
  
+ 		/* set scaling */
+ 		if (amdgpu_encoder->rmx_type == RMX_OFF)
 -- 
 2.20.1
 
