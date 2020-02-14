@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 32F4415F4BC
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 19:24:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7230215F4B8
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 19:24:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2394834AbgBNSXd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 13:23:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51988 "EHLO mail.kernel.org"
+        id S1729868AbgBNPtT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 10:49:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52014 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729847AbgBNPtR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 10:49:17 -0500
+        id S1729864AbgBNPtS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 10:49:18 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B4B5B24684;
-        Fri, 14 Feb 2020 15:49:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1E45824650;
+        Fri, 14 Feb 2020 15:49:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581695356;
-        bh=J1j4OCreJQkS7zD0uwA8aoWiIOqAgpvxOtjmXUV0ThQ=;
+        s=default; t=1581695358;
+        bh=SQblWGVK85RDtDCmFxEN7dIQuhlIWlI9a6GM+Gje28U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s1FOrJSFHK1fcrKCAqWyONa1z7M/tWLqmODPCdEwKKw39JFV5WyjS5bwI87zVXqaj
-         kiJYXwKB/h0IbVaMu25Cm9t4KRsEBU4gEWU7c5jZ/ODfVe2aMvBuE7yMzUhkC7KiHZ
-         XLVN7emu2Qra+z8EIavcCDYrtvDYkIib1uT9/RU8=
+        b=OOI/+e1OyOa6tD/1Yk5ZAhmAgKcdpGF0zDc9jf/bIH+QkxhKbvoQuM7ruhd4Dy93H
+         kFMNhQtExBf0JdSn7CoXN8PA+CebiEDNXgWMEBPDlWJKVxxenvu/CIqV5WdY8J0TRh
+         H7HohKbEwv4NWgHvO0S5LMS6DIck+uaRkKE2E3YE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Eric Biggers <ebiggers@google.com>,
-        Pascal Van Leeuwen <pvanleeuwen@verimatrix.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Sasha Levin <sashal@kernel.org>, linux-crypto@vger.kernel.org,
-        linux-stm32@st-md-mailman.stormreply.com,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.5 017/542] crypto: testmgr - don't try to decrypt uninitialized buffers
-Date:   Fri, 14 Feb 2020 10:40:09 -0500
-Message-Id: <20200214154854.6746-17-sashal@kernel.org>
+Cc:     "Gustavo A. R. Silva" <gustavo@embeddedor.com>,
+        Dmitry Vyukov <dvyukov@google.com>,
+        Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org,
+        clang-built-linux@googlegroups.com
+Subject: [PATCH AUTOSEL 5.5 018/542] media: i2c: adv748x: Fix unsafe macros
+Date:   Fri, 14 Feb 2020 10:40:10 -0500
+Message-Id: <20200214154854.6746-18-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214154854.6746-1-sashal@kernel.org>
 References: <20200214154854.6746-1-sashal@kernel.org>
@@ -46,78 +47,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+From: "Gustavo A. R. Silva" <gustavo@embeddedor.com>
 
-[ Upstream commit eb455dbd02cb1074b37872ffca30a81cb2a18eaa ]
+[ Upstream commit 0d962e061abcf1b9105f88fb850158b5887fbca3 ]
 
-Currently if the comparison fuzz tests encounter an encryption error
-when generating an skcipher or AEAD test vector, they will still test
-the decryption side (passing it the uninitialized ciphertext buffer)
-and expect it to fail with the same error.
+Enclose multiple macro parameters in parentheses in order to
+make such macros safer and fix the Clang warning below:
 
-This is sort of broken because it's not well-defined usage of the API to
-pass an uninitialized buffer, and furthermore in the AEAD case it's
-acceptable for the decryption error to be EBADMSG (meaning "inauthentic
-input") even if the encryption error was something else like EINVAL.
+drivers/media/i2c/adv748x/adv748x-afe.c:452:12: warning: operator '?:'
+has lower precedence than '|'; '|' will be evaluated first
+[-Wbitwise-conditional-parentheses]
 
-Fix this for skcipher by explicitly initializing the ciphertext buffer
-on error, and for AEAD by skipping the decryption test on error.
+ret = sdp_clrset(state, ADV748X_SDP_FRP, ADV748X_SDP_FRP_MASK, enable
+? ctrl->val - 1 : 0);
 
-Reported-by: Pascal Van Leeuwen <pvanleeuwen@verimatrix.com>
-Fixes: d435e10e67be ("crypto: testmgr - fuzz skciphers against their generic implementation")
-Fixes: 40153b10d91c ("crypto: testmgr - fuzz AEADs against their generic implementation")
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Fixes: 3e89586a64df ("media: i2c: adv748x: add adv748x driver")
+Reported-by: Dmitry Vyukov <dvyukov@google.com>
+Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
+Reviewed-by: Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- crypto/testmgr.c | 20 ++++++++++++++++----
- 1 file changed, 16 insertions(+), 4 deletions(-)
+ drivers/media/i2c/adv748x/adv748x.h | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/crypto/testmgr.c b/crypto/testmgr.c
-index 82513b6b0abd0..2c96963b2e51e 100644
---- a/crypto/testmgr.c
-+++ b/crypto/testmgr.c
-@@ -2102,6 +2102,7 @@ static void generate_random_aead_testvec(struct aead_request *req,
- 	 * If the key or authentication tag size couldn't be set, no need to
- 	 * continue to encrypt.
- 	 */
-+	vec->crypt_error = 0;
- 	if (vec->setkey_error || vec->setauthsize_error)
- 		goto done;
+diff --git a/drivers/media/i2c/adv748x/adv748x.h b/drivers/media/i2c/adv748x/adv748x.h
+index 5042f9e94aee2..fccb388ce179f 100644
+--- a/drivers/media/i2c/adv748x/adv748x.h
++++ b/drivers/media/i2c/adv748x/adv748x.h
+@@ -394,10 +394,10 @@ int adv748x_write_block(struct adv748x_state *state, int client_page,
  
-@@ -2245,10 +2246,12 @@ static int test_aead_vs_generic_impl(const char *driver,
- 					req, tsgls);
- 		if (err)
- 			goto out;
--		err = test_aead_vec_cfg(driver, DECRYPT, &vec, vec_name, cfg,
--					req, tsgls);
--		if (err)
--			goto out;
-+		if (vec.crypt_error == 0) {
-+			err = test_aead_vec_cfg(driver, DECRYPT, &vec, vec_name,
-+						cfg, req, tsgls);
-+			if (err)
-+				goto out;
-+		}
- 		cond_resched();
- 	}
- 	err = 0;
-@@ -2678,6 +2681,15 @@ static void generate_random_cipher_testvec(struct skcipher_request *req,
- 	skcipher_request_set_callback(req, 0, crypto_req_done, &wait);
- 	skcipher_request_set_crypt(req, &src, &dst, vec->len, iv);
- 	vec->crypt_error = crypto_wait_req(crypto_skcipher_encrypt(req), &wait);
-+	if (vec->crypt_error != 0) {
-+		/*
-+		 * The only acceptable error here is for an invalid length, so
-+		 * skcipher decryption should fail with the same error too.
-+		 * We'll test for this.  But to keep the API usage well-defined,
-+		 * explicitly initialize the ciphertext buffer too.
-+		 */
-+		memset((u8 *)vec->ctext, 0, vec->len);
-+	}
- done:
- 	snprintf(name, max_namelen, "\"random: len=%u klen=%u\"",
- 		 vec->len, vec->klen);
+ #define io_read(s, r) adv748x_read(s, ADV748X_PAGE_IO, r)
+ #define io_write(s, r, v) adv748x_write(s, ADV748X_PAGE_IO, r, v)
+-#define io_clrset(s, r, m, v) io_write(s, r, (io_read(s, r) & ~m) | v)
++#define io_clrset(s, r, m, v) io_write(s, r, (io_read(s, r) & ~(m)) | (v))
+ 
+ #define hdmi_read(s, r) adv748x_read(s, ADV748X_PAGE_HDMI, r)
+-#define hdmi_read16(s, r, m) (((hdmi_read(s, r) << 8) | hdmi_read(s, r+1)) & m)
++#define hdmi_read16(s, r, m) (((hdmi_read(s, r) << 8) | hdmi_read(s, (r)+1)) & (m))
+ #define hdmi_write(s, r, v) adv748x_write(s, ADV748X_PAGE_HDMI, r, v)
+ 
+ #define repeater_read(s, r) adv748x_read(s, ADV748X_PAGE_REPEATER, r)
+@@ -405,11 +405,11 @@ int adv748x_write_block(struct adv748x_state *state, int client_page,
+ 
+ #define sdp_read(s, r) adv748x_read(s, ADV748X_PAGE_SDP, r)
+ #define sdp_write(s, r, v) adv748x_write(s, ADV748X_PAGE_SDP, r, v)
+-#define sdp_clrset(s, r, m, v) sdp_write(s, r, (sdp_read(s, r) & ~m) | v)
++#define sdp_clrset(s, r, m, v) sdp_write(s, r, (sdp_read(s, r) & ~(m)) | (v))
+ 
+ #define cp_read(s, r) adv748x_read(s, ADV748X_PAGE_CP, r)
+ #define cp_write(s, r, v) adv748x_write(s, ADV748X_PAGE_CP, r, v)
+-#define cp_clrset(s, r, m, v) cp_write(s, r, (cp_read(s, r) & ~m) | v)
++#define cp_clrset(s, r, m, v) cp_write(s, r, (cp_read(s, r) & ~(m)) | (v))
+ 
+ #define tx_read(t, r) adv748x_read(t->state, t->page, r)
+ #define tx_write(t, r, v) adv748x_write(t->state, t->page, r, v)
 -- 
 2.20.1
 
