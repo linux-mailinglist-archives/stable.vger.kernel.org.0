@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EAE2D15F2D5
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 19:20:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EE09915F2D7
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 19:20:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730033AbgBNPvJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 10:51:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55902 "EHLO mail.kernel.org"
+        id S1730688AbgBNPvL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 10:51:11 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55960 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730670AbgBNPvI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 10:51:08 -0500
+        id S1730686AbgBNPvL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 10:51:11 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5E79924681;
-        Fri, 14 Feb 2020 15:51:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 01CC824682;
+        Fri, 14 Feb 2020 15:51:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581695468;
-        bh=QJtTy7MFyHcChWSVPxgWsBwRynjwmpJPstPRMkqQB5s=;
+        s=default; t=1581695470;
+        bh=YHz7O6G/jmkaVCvMuEpPsNeQD/iCyedN0ScyPG8tI5s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cd2zLyMQFeWgUVfi7Va4M1M/TI0m5qJyUbw+nGnajO87oTPT2ZKgDxjVah8azQVaT
-         xymm+Z/07JkvrQJzBup/IOlkOaH14DGz/BZbBR6zZRlD5wFvOIlpJc1wNn3UAf2QW9
-         hxzo5JEIBSfoOuXWjgDDk5GVeUZiQg1M6IUvjhqQ=
+        b=Ml+pGZkWvBexceUZ2azyw9+5UOmMu6+rhY8Y/EkqY1sDwokk5HHQBK+OnBW2rm91F
+         +cbkKknvKWYr4munvYRmO7B7tusDlTfSzy2/I3KUTs3fThcAZ3o6SUVNc2bpSMXkij
+         3AZQl45fq9CU4VTeVYLW5cLpnBJwl0zi2Ki7ctnM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Vaibhav Jain <vaibhav@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 5.5 103/542] powerpc/papr_scm: Fix leaking 'bus_desc.provider_name' in some paths
-Date:   Fri, 14 Feb 2020 10:41:35 -0500
-Message-Id: <20200214154854.6746-103-sashal@kernel.org>
+Cc:     Vincenzo Frascino <vincenzo.frascino@arm.com>,
+        Russell King <rmk+kernel@armlinux.org.uk>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.5 105/542] ARM: 8952/1: Disable kmemleak on XIP kernels
+Date:   Fri, 14 Feb 2020 10:41:37 -0500
+Message-Id: <20200214154854.6746-105-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214154854.6746-1-sashal@kernel.org>
 References: <20200214154854.6746-1-sashal@kernel.org>
@@ -43,46 +44,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vaibhav Jain <vaibhav@linux.ibm.com>
+From: Vincenzo Frascino <vincenzo.frascino@arm.com>
 
-[ Upstream commit 5649607a8d0b0e019a4db14aab3de1e16c3a2b4f ]
+[ Upstream commit bc420c6ceefbb86cbbc8c00061bd779c17fa6997 ]
 
-String 'bus_desc.provider_name' allocated inside
-papr_scm_nvdimm_init() will leaks in case call to
-nvdimm_bus_register() fails or when papr_scm_remove() is called.
+Kmemleak relies on specific symbols to register the read only data
+during init (e.g. __start_ro_after_init).
+Trying to build an XIP kernel on arm results in the linking error
+reported below because when this option is selected read only data
+after init are not allowed since .data is read only (.rodata).
 
-This minor patch ensures that 'bus_desc.provider_name' is freed in
-error path for nvdimm_bus_register() as well as in papr_scm_remove().
+  arm-linux-gnueabihf-ld: mm/kmemleak.o: in function `kmemleak_init':
+  kmemleak.c:(.init.text+0x148): undefined reference to `__end_ro_after_init'
+  arm-linux-gnueabihf-ld: kmemleak.c:(.init.text+0x14c):
+     undefined reference to `__end_ro_after_init'
+  arm-linux-gnueabihf-ld: kmemleak.c:(.init.text+0x150):
+     undefined reference to `__start_ro_after_init'
+  arm-linux-gnueabihf-ld: kmemleak.c:(.init.text+0x156):
+     undefined reference to `__start_ro_after_init'
+  arm-linux-gnueabihf-ld: kmemleak.c:(.init.text+0x162):
+     undefined reference to `__start_ro_after_init'
+  arm-linux-gnueabihf-ld: kmemleak.c:(.init.text+0x16a):
+     undefined reference to `__start_ro_after_init'
+  linux/Makefile:1078: recipe for target 'vmlinux' failed
 
-Fixes: b5beae5e224f ("powerpc/pseries: Add driver for PAPR SCM regions")
-Signed-off-by: Vaibhav Jain <vaibhav@linux.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20200122155140.120429-1-vaibhav@linux.ibm.com
+Fix the issue enabling kmemleak only on non XIP kernels.
+
+Signed-off-by: Vincenzo Frascino <vincenzo.frascino@arm.com>
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/platforms/pseries/papr_scm.c | 2 ++
- 1 file changed, 2 insertions(+)
+ arch/arm/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/platforms/pseries/papr_scm.c b/arch/powerpc/platforms/pseries/papr_scm.c
-index c2ef320ba1bf2..eb420655ed0b9 100644
---- a/arch/powerpc/platforms/pseries/papr_scm.c
-+++ b/arch/powerpc/platforms/pseries/papr_scm.c
-@@ -322,6 +322,7 @@ static int papr_scm_nvdimm_init(struct papr_scm_priv *p)
- 	p->bus = nvdimm_bus_register(NULL, &p->bus_desc);
- 	if (!p->bus) {
- 		dev_err(dev, "Error creating nvdimm bus %pOF\n", p->dn);
-+		kfree(p->bus_desc.provider_name);
- 		return -ENXIO;
- 	}
- 
-@@ -477,6 +478,7 @@ static int papr_scm_remove(struct platform_device *pdev)
- 
- 	nvdimm_bus_unregister(p->bus);
- 	drc_pmem_unbind(p);
-+	kfree(p->bus_desc.provider_name);
- 	kfree(p);
- 
- 	return 0;
+diff --git a/arch/arm/Kconfig b/arch/arm/Kconfig
+index 96dab76da3b39..2c3a9fd05f571 100644
+--- a/arch/arm/Kconfig
++++ b/arch/arm/Kconfig
+@@ -74,7 +74,7 @@ config ARM
+ 	select HAVE_CONTEXT_TRACKING
+ 	select HAVE_COPY_THREAD_TLS
+ 	select HAVE_C_RECORDMCOUNT
+-	select HAVE_DEBUG_KMEMLEAK
++	select HAVE_DEBUG_KMEMLEAK if !XIP_KERNEL
+ 	select HAVE_DMA_CONTIGUOUS if MMU
+ 	select HAVE_DYNAMIC_FTRACE if !XIP_KERNEL && !CPU_ENDIAN_BE32 && MMU
+ 	select HAVE_DYNAMIC_FTRACE_WITH_REGS if HAVE_DYNAMIC_FTRACE
 -- 
 2.20.1
 
