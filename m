@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A409D15EC6A
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:28:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 199F715EC6B
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:28:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390893AbgBNQIP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 11:08:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60074 "EHLO mail.kernel.org"
+        id S2389600AbgBNQIR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 11:08:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60100 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390887AbgBNQIP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:08:15 -0500
+        id S2390267AbgBNQIR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:08:17 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A3F712067D;
-        Fri, 14 Feb 2020 16:08:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1FC092187F;
+        Fri, 14 Feb 2020 16:08:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581696494;
-        bh=tRYepbfaD7Zd5Bn6ptVzfWced5IDJEWaxH48PkLZIew=;
+        s=default; t=1581696496;
+        bh=VE72fj0GrvsmScHPaEP/ZnlRnMn2L0iaATmIuBbj9ic=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y2fKV6h4UNlT6IYgssJGz697jNmxKJwmlw4Znuv1paPsm4VIVEHAl1FiZntqkp8pp
-         /3Df1+kjz2iWpx8WbjlCi0pQ3x1o0lv5PYB0NxR22cGUrBQLSw3Coo7g2AQfEr45r5
-         wVMcUg2fFoKoRHmnGkJzMpQPoDSDlnK8vdUQDeQM=
+        b=OSxk74FNcGKx8bt/3oLWEoUZWjvfW2TVA+54cDfHCPj2yPlrJWxyeFJlhGuRNM9/K
+         INo3VOJUBunmF2zPOofVX/J+MifkNxqxcvBxA3s/gICQoNsK2LbpQfVOaNjD06jvo9
+         q1BH3G+ZVQlNs1DjAyB/WP5yy2DM7AiJEBEe+ieM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Luc Van Oostenryck <luc.vanoostenryck@gmail.com>,
-        Derek Kiernan <derek.kiernan@xilinx.com>,
-        Dragan Cvetic <dragan.cvetic@xilinx.com>,
+Cc:     Simon Schwartz <kern.simon@theschwartz.xyz>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.4 299/459] misc: xilinx_sdfec: fix xsdfec_poll()'s return type
-Date:   Fri, 14 Feb 2020 10:59:09 -0500
-Message-Id: <20200214160149.11681-299-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 301/459] driver core: platform: Prevent resouce overflow from causing infinite loops
+Date:   Fri, 14 Feb 2020 10:59:11 -0500
+Message-Id: <20200214160149.11681-301-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214160149.11681-1-sashal@kernel.org>
 References: <20200214160149.11681-1-sashal@kernel.org>
@@ -46,62 +43,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luc Van Oostenryck <luc.vanoostenryck@gmail.com>
+From: Simon Schwartz <kern.simon@theschwartz.xyz>
 
-[ Upstream commit fa4e7fc1386078edcfddd8848cb0374f4af74fe7 ]
+[ Upstream commit 39cc539f90d035a293240c9443af50be55ee81b8 ]
 
-xsdfec_poll() is defined as returning 'unsigned int' but the
-.poll method is declared as returning '__poll_t', a bitwise type.
+num_resources in the platform_device struct is declared as a u32.  The
+for loops that iterate over num_resources use an int as the counter,
+which can cause infinite loops on architectures with smaller ints.
+Change the loop counters to u32.
 
-Fix this by using the proper return type and using the EPOLL
-constants instead of the POLL ones, as required for __poll_t.
-
-CC: Derek Kiernan <derek.kiernan@xilinx.com>
-CC: Dragan Cvetic <dragan.cvetic@xilinx.com>
-Signed-off-by: Luc Van Oostenryck <luc.vanoostenryck@gmail.com>
-Acked-by: Dragan Cvetic <dragan.cvetic@xilinx.com>
-Link: https://lore.kernel.org/r/20191209213655.57985-1-luc.vanoostenryck@gmail.com
+Signed-off-by: Simon Schwartz <kern.simon@theschwartz.xyz>
+Link: https://lore.kernel.org/r/2201ce63a2a171ffd2ed14e867875316efcf71db.camel@theschwartz.xyz
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/xilinx_sdfec.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ drivers/base/platform.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/misc/xilinx_sdfec.c b/drivers/misc/xilinx_sdfec.c
-index 11835969e9828..48ba7e02bed72 100644
---- a/drivers/misc/xilinx_sdfec.c
-+++ b/drivers/misc/xilinx_sdfec.c
-@@ -1025,25 +1025,25 @@ static long xsdfec_dev_compat_ioctl(struct file *file, unsigned int cmd,
- }
- #endif
+diff --git a/drivers/base/platform.c b/drivers/base/platform.c
+index 3c0cd20925b71..ee99b15581290 100644
+--- a/drivers/base/platform.c
++++ b/drivers/base/platform.c
+@@ -27,6 +27,7 @@
+ #include <linux/limits.h>
+ #include <linux/property.h>
+ #include <linux/kmemleak.h>
++#include <linux/types.h>
  
--static unsigned int xsdfec_poll(struct file *file, poll_table *wait)
-+static __poll_t xsdfec_poll(struct file *file, poll_table *wait)
+ #include "base.h"
+ #include "power/power.h"
+@@ -48,7 +49,7 @@ EXPORT_SYMBOL_GPL(platform_bus);
+ struct resource *platform_get_resource(struct platform_device *dev,
+ 				       unsigned int type, unsigned int num)
  {
--	unsigned int mask = 0;
-+	__poll_t mask = 0;
- 	struct xsdfec_dev *xsdfec;
+-	int i;
++	u32 i;
  
- 	xsdfec = container_of(file->private_data, struct xsdfec_dev, miscdev);
+ 	for (i = 0; i < dev->num_resources; i++) {
+ 		struct resource *r = &dev->resource[i];
+@@ -226,7 +227,7 @@ struct resource *platform_get_resource_byname(struct platform_device *dev,
+ 					      unsigned int type,
+ 					      const char *name)
+ {
+-	int i;
++	u32 i;
  
- 	if (!xsdfec)
--		return POLLNVAL | POLLHUP;
-+		return EPOLLNVAL | EPOLLHUP;
+ 	for (i = 0; i < dev->num_resources; i++) {
+ 		struct resource *r = &dev->resource[i];
+@@ -473,7 +474,8 @@ EXPORT_SYMBOL_GPL(platform_device_add_properties);
+  */
+ int platform_device_add(struct platform_device *pdev)
+ {
+-	int i, ret;
++	u32 i;
++	int ret;
  
- 	poll_wait(file, &xsdfec->waitq, wait);
+ 	if (!pdev)
+ 		return -EINVAL;
+@@ -562,7 +564,7 @@ EXPORT_SYMBOL_GPL(platform_device_add);
+  */
+ void platform_device_del(struct platform_device *pdev)
+ {
+-	int i;
++	u32 i;
  
- 	/* XSDFEC ISR detected an error */
- 	spin_lock_irqsave(&xsdfec->error_data_lock, xsdfec->flags);
- 	if (xsdfec->state_updated)
--		mask |= POLLIN | POLLPRI;
-+		mask |= EPOLLIN | EPOLLPRI;
- 
- 	if (xsdfec->stats_updated)
--		mask |= POLLIN | POLLRDNORM;
-+		mask |= EPOLLIN | EPOLLRDNORM;
- 	spin_unlock_irqrestore(&xsdfec->error_data_lock, xsdfec->flags);
- 
- 	return mask;
+ 	if (!IS_ERR_OR_NULL(pdev)) {
+ 		device_del(&pdev->dev);
 -- 
 2.20.1
 
