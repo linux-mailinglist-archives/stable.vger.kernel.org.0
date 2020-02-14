@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id ED68515E7B5
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:56:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2292315E7D9
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:57:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404613AbgBNQR6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 11:17:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49628 "EHLO mail.kernel.org"
+        id S2394296AbgBNQ42 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 11:56:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49648 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404607AbgBNQR5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:17:57 -0500
+        id S2404615AbgBNQR6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:17:58 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 98FC2246E1;
-        Fri, 14 Feb 2020 16:17:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E5E0324694;
+        Fri, 14 Feb 2020 16:17:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581697076;
-        bh=lAkB0FGYBEcU1ex+SWbExJA6tcMV4n0xw9kTIpdIvV8=;
+        s=default; t=1581697077;
+        bh=HSfHtUdMFWc6CS5XaUONf1lMrkLQkHO5y1TvGHsvi9A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dHjQrqi1fyi4TItM82NwindJ/fhK07qXK5wzohQV8lOgN7ym+fQa/FaFoH8HkZJLM
-         zthgeTeux/Z2YBZYe/8Dx10fB8iHn63bBOE1aaC02jsJ+DFLjTN2ZPRGgMbq+pygD1
-         1eSuuE15MhYUm2qFtcf3a3IPGCjAC0U3Xqf6FlN8=
+        b=tHfisUWvlh9+4YalNGAXWbu8AAIdGthz/2wEsFz7OyqeAGCByWCXXW+VqyqoeZjM9
+         +8qcx7Sw9pwTnIkWMkvyjg3H8gcGdXiDOo5xT9f8Gd88PWaczdC/LRV0/LpeC4AS4W
+         +fm3Au4pO1GuRfFjwNCa5CABesumzWHhFjBLOXWc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Colin Ian King <colin.king@canonical.com>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
+Cc:     Siddhesh Poyarekar <siddhesh@gotplt.org>,
+        Masami Hiramatsu <masami.hiramatsu@linaro.org>,
+        Tim Bird <tim.bird@sony.com>,
+        Shuah Khan <skhan@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>,
-        bcm-kernel-feedback-list@broadcom.com,
-        linux-rpi-kernel@lists.infradead.org,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.14 031/186] clocksource/drivers/bcm2835_timer: Fix memory leak of timer
-Date:   Fri, 14 Feb 2020 11:14:40 -0500
-Message-Id: <20200214161715.18113-31-sashal@kernel.org>
+        linux-kselftest@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 032/186] kselftest: Minimise dependency of get_size on C library interfaces
+Date:   Fri, 14 Feb 2020 11:14:41 -0500
+Message-Id: <20200214161715.18113-32-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214161715.18113-1-sashal@kernel.org>
 References: <20200214161715.18113-1-sashal@kernel.org>
@@ -46,49 +46,111 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Siddhesh Poyarekar <siddhesh@gotplt.org>
 
-[ Upstream commit 2052d032c06761330bca4944bb7858b00960e868 ]
+[ Upstream commit 6b64a650f0b2ae3940698f401732988699eecf7a ]
 
-Currently when setup_irq fails the error exit path will leak the
-recently allocated timer structure.  Originally the code would
-throw a panic but a later commit changed the behaviour to return
-via the err_iounmap path and hence we now have a memory leak. Fix
-this by adding a err_timer_free error path that kfree's timer.
+It was observed[1] on arm64 that __builtin_strlen led to an infinite
+loop in the get_size selftest.  This is because __builtin_strlen (and
+other builtins) may sometimes result in a call to the C library
+function.  The C library implementation of strlen uses an IFUNC
+resolver to load the most efficient strlen implementation for the
+underlying machine and hence has a PLT indirection even for static
+binaries.  Because this binary avoids the C library startup routines,
+the PLT initialization never happens and hence the program gets stuck
+in an infinite loop.
 
-Addresses-Coverity: ("Resource Leak")
-Fixes: 524a7f08983d ("clocksource/drivers/bcm2835_timer: Convert init function to return error")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
-Link: https://lore.kernel.org/r/20191219213246.34437-1-colin.king@canonical.com
+On x86_64 the __builtin_strlen just happens to expand inline and avoid
+the call but that is not always guaranteed.
+
+Further, while testing on x86_64 (Fedora 31), it was observed that the
+test also failed with a segfault inside write() because the generated
+code for the write function in glibc seems to access TLS before the
+syscall (probably due to the cancellation point check) and fails
+because TLS is not initialised.
+
+To mitigate these problems, this patch reduces the interface with the
+C library to just the syscall function.  The syscall function still
+sets errno on failure, which is undesirable but for now it only
+affects cases where syscalls fail.
+
+[1] https://bugs.linaro.org/show_bug.cgi?id=5479
+
+Signed-off-by: Siddhesh Poyarekar <siddhesh@gotplt.org>
+Reported-by: Masami Hiramatsu <masami.hiramatsu@linaro.org>
+Tested-by: Masami Hiramatsu <masami.hiramatsu@linaro.org>
+Reviewed-by: Tim Bird <tim.bird@sony.com>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clocksource/bcm2835_timer.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ tools/testing/selftests/size/get_size.c | 24 ++++++++++++++++++------
+ 1 file changed, 18 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/clocksource/bcm2835_timer.c b/drivers/clocksource/bcm2835_timer.c
-index 39e489a96ad74..8894cfc32be06 100644
---- a/drivers/clocksource/bcm2835_timer.c
-+++ b/drivers/clocksource/bcm2835_timer.c
-@@ -134,7 +134,7 @@ static int __init bcm2835_timer_init(struct device_node *node)
- 	ret = setup_irq(irq, &timer->act);
- 	if (ret) {
- 		pr_err("Can't set up timer IRQ\n");
--		goto err_iounmap;
-+		goto err_timer_free;
- 	}
+diff --git a/tools/testing/selftests/size/get_size.c b/tools/testing/selftests/size/get_size.c
+index d4b59ab979a09..f55943b6d1e2a 100644
+--- a/tools/testing/selftests/size/get_size.c
++++ b/tools/testing/selftests/size/get_size.c
+@@ -12,23 +12,35 @@
+  * own execution.  It also attempts to have as few dependencies
+  * on kernel features as possible.
+  *
+- * It should be statically linked, with startup libs avoided.
+- * It uses no library calls, and only the following 3 syscalls:
++ * It should be statically linked, with startup libs avoided.  It uses
++ * no library calls except the syscall() function for the following 3
++ * syscalls:
+  *   sysinfo(), write(), and _exit()
+  *
+  * For output, it avoids printf (which in some C libraries
+  * has large external dependencies) by  implementing it's own
+  * number output and print routines, and using __builtin_strlen()
++ *
++ * The test may crash if any of the above syscalls fails because in some
++ * libc implementations (e.g. the GNU C Library) errno is saved in
++ * thread-local storage, which does not get initialized due to avoiding
++ * startup libs.
+  */
  
- 	clockevents_config_and_register(&timer->evt, freq, 0xf, 0xffffffff);
-@@ -143,6 +143,9 @@ static int __init bcm2835_timer_init(struct device_node *node)
+ #include <sys/sysinfo.h>
+ #include <unistd.h>
++#include <sys/syscall.h>
  
- 	return 0;
+ #define STDOUT_FILENO 1
  
-+err_timer_free:
-+	kfree(timer);
+ static int print(const char *s)
+ {
+-	return write(STDOUT_FILENO, s, __builtin_strlen(s));
++	size_t len = 0;
 +
- err_iounmap:
- 	iounmap(base);
- 	return ret;
++	while (s[len] != '\0')
++		len++;
++
++	return syscall(SYS_write, STDOUT_FILENO, s, len);
+ }
+ 
+ static inline char *num_to_str(unsigned long num, char *buf, int len)
+@@ -80,12 +92,12 @@ void _start(void)
+ 	print("TAP version 13\n");
+ 	print("# Testing system size.\n");
+ 
+-	ccode = sysinfo(&info);
++	ccode = syscall(SYS_sysinfo, &info);
+ 	if (ccode < 0) {
+ 		print("not ok 1");
+ 		print(test_name);
+ 		print(" ---\n reason: \"could not get sysinfo\"\n ...\n");
+-		_exit(ccode);
++		syscall(SYS_exit, ccode);
+ 	}
+ 	print("ok 1");
+ 	print(test_name);
+@@ -101,5 +113,5 @@ void _start(void)
+ 	print(" ...\n");
+ 	print("1..1\n");
+ 
+-	_exit(0);
++	syscall(SYS_exit, 0);
+ }
 -- 
 2.20.1
 
