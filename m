@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CFD8A15E6E0
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:51:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B48F15E6E1
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:51:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392737AbgBNQT4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 11:19:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53164 "EHLO mail.kernel.org"
+        id S2405089AbgBNQT5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 11:19:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53228 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404888AbgBNQTy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:19:54 -0500
+        id S2392271AbgBNQT4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:19:56 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 79B002470C;
-        Fri, 14 Feb 2020 16:19:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BC3BE2471E;
+        Fri, 14 Feb 2020 16:19:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581697194;
-        bh=J+cD7ae9Q47vSdnutjU4ymEVk+kSRaBnycI4ag1zGXM=;
+        s=default; t=1581697195;
+        bh=IanB/lM2ZpQpeoxyeB6ocDTSzPJwvsxqB0XyUjcUZus=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=quTDitaODj0PksUQ4AcmsF8v4eLeuZCKDHfBQLkUoJzFzf1NaZQrt8IcIYnvDDkHN
-         DEZYHokdWGPqFgYp+toMowLlqa9uLf2gaJgmzyNq5S76o6yN0p3VxNO5iJlozrtV7X
-         AfLK7NScQFpdK0vHxdZ5KQpseyvWVdcF0E3cMWyw=
+        b=EWi48oFOjwQYky84TFwVfx/F1aORMeZtuKihQaGFabsjNeZ5+MKggY8HsHGAeyhqu
+         RCqWalZJE3t+DaQ3pT5VC1uwejoZ/7+DScZhBIKPhxrQwhjhN0v3KNhxaEPkUTA335
+         j+KGlwZgS/2RpbJ7KadBZI352RwCfu1vyYtKp6EQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jose Abreu <Jose.Abreu@synopsys.com>,
-        Alexey Brodkin <abrodkin@synopsys.com>,
-        Vineet Gupta <vgupta@synopsys.com>,
-        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org,
-        linux-snps-arc@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.14 123/186] ARC: [plat-axs10x]: Add missing multicast filter number to GMAC node
-Date:   Fri, 14 Feb 2020 11:16:12 -0500
-Message-Id: <20200214161715.18113-123-sashal@kernel.org>
+Cc:     Arnd Bergmann <arnd@arndb.de>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, devel@driverdev.osuosl.org
+Subject: [PATCH AUTOSEL 4.14 124/186] vme: bridges: reduce stack usage
+Date:   Fri, 14 Feb 2020 11:16:13 -0500
+Message-Id: <20200214161715.18113-124-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214161715.18113-1-sashal@kernel.org>
 References: <20200214161715.18113-1-sashal@kernel.org>
@@ -45,34 +43,108 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jose Abreu <Jose.Abreu@synopsys.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit 7980dff398f86a618f502378fa27cf7e77449afa ]
+[ Upstream commit 7483e7a939c074d887450ef1c4d9ccc5909405f8 ]
 
-Add a missing property to GMAC node so that multicast filtering works
-correctly.
+With CONFIG_CC_OPTIMIZE_FOR_PERFORMANCE_O3, the stack usage in vme_fake
+grows above the warning limit:
 
-Fixes: 556cc1c5f528 ("ARC: [axs101] Add support for AXS101 SDP (software development platform)")
-Acked-by: Alexey Brodkin <abrodkin@synopsys.com>
-Signed-off-by: Jose Abreu <Jose.Abreu@synopsys.com>
-Signed-off-by: Vineet Gupta <vgupta@synopsys.com>
+drivers/vme/bridges/vme_fake.c: In function 'fake_master_read':
+drivers/vme/bridges/vme_fake.c:610:1: error: the frame size of 1160 bytes is larger than 1024 bytes [-Werror=frame-larger-than=]
+drivers/vme/bridges/vme_fake.c: In function 'fake_master_write':
+drivers/vme/bridges/vme_fake.c:797:1: error: the frame size of 1160 bytes is larger than 1024 bytes [-Werror=frame-larger-than=]
+
+The problem is that in some configurations, each call to
+fake_vmereadX() puts another variable on the stack.
+
+Reduce the amount of inlining to get back to the previous state,
+with no function using more than 200 bytes each.
+
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Link: https://lore.kernel.org/r/20200107200610.3482901-1-arnd@arndb.de
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arc/boot/dts/axs10x_mb.dtsi | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/vme/bridges/vme_fake.c | 30 ++++++++++++++++++------------
+ 1 file changed, 18 insertions(+), 12 deletions(-)
 
-diff --git a/arch/arc/boot/dts/axs10x_mb.dtsi b/arch/arc/boot/dts/axs10x_mb.dtsi
-index e114000a84f56..d825b9dbae5de 100644
---- a/arch/arc/boot/dts/axs10x_mb.dtsi
-+++ b/arch/arc/boot/dts/axs10x_mb.dtsi
-@@ -70,6 +70,7 @@
- 			interrupt-names = "macirq";
- 			phy-mode = "rgmii";
- 			snps,pbl = < 32 >;
-+			snps,multicast-filter-bins = <256>;
- 			clocks = <&apbclk>;
- 			clock-names = "stmmaceth";
- 			max-speed = <100>;
+diff --git a/drivers/vme/bridges/vme_fake.c b/drivers/vme/bridges/vme_fake.c
+index 30b3acc938330..e81ec763b5555 100644
+--- a/drivers/vme/bridges/vme_fake.c
++++ b/drivers/vme/bridges/vme_fake.c
+@@ -418,8 +418,9 @@ static void fake_lm_check(struct fake_driver *bridge, unsigned long long addr,
+ 	}
+ }
+ 
+-static u8 fake_vmeread8(struct fake_driver *bridge, unsigned long long addr,
+-		u32 aspace, u32 cycle)
++static noinline_for_stack u8 fake_vmeread8(struct fake_driver *bridge,
++					   unsigned long long addr,
++					   u32 aspace, u32 cycle)
+ {
+ 	u8 retval = 0xff;
+ 	int i;
+@@ -450,8 +451,9 @@ static u8 fake_vmeread8(struct fake_driver *bridge, unsigned long long addr,
+ 	return retval;
+ }
+ 
+-static u16 fake_vmeread16(struct fake_driver *bridge, unsigned long long addr,
+-		u32 aspace, u32 cycle)
++static noinline_for_stack u16 fake_vmeread16(struct fake_driver *bridge,
++					     unsigned long long addr,
++					     u32 aspace, u32 cycle)
+ {
+ 	u16 retval = 0xffff;
+ 	int i;
+@@ -482,8 +484,9 @@ static u16 fake_vmeread16(struct fake_driver *bridge, unsigned long long addr,
+ 	return retval;
+ }
+ 
+-static u32 fake_vmeread32(struct fake_driver *bridge, unsigned long long addr,
+-		u32 aspace, u32 cycle)
++static noinline_for_stack u32 fake_vmeread32(struct fake_driver *bridge,
++					     unsigned long long addr,
++					     u32 aspace, u32 cycle)
+ {
+ 	u32 retval = 0xffffffff;
+ 	int i;
+@@ -613,8 +616,9 @@ static ssize_t fake_master_read(struct vme_master_resource *image, void *buf,
+ 	return retval;
+ }
+ 
+-static void fake_vmewrite8(struct fake_driver *bridge, u8 *buf,
+-			   unsigned long long addr, u32 aspace, u32 cycle)
++static noinline_for_stack void fake_vmewrite8(struct fake_driver *bridge,
++					      u8 *buf, unsigned long long addr,
++					      u32 aspace, u32 cycle)
+ {
+ 	int i;
+ 	unsigned long long start, end, offset;
+@@ -643,8 +647,9 @@ static void fake_vmewrite8(struct fake_driver *bridge, u8 *buf,
+ 
+ }
+ 
+-static void fake_vmewrite16(struct fake_driver *bridge, u16 *buf,
+-			    unsigned long long addr, u32 aspace, u32 cycle)
++static noinline_for_stack void fake_vmewrite16(struct fake_driver *bridge,
++					       u16 *buf, unsigned long long addr,
++					       u32 aspace, u32 cycle)
+ {
+ 	int i;
+ 	unsigned long long start, end, offset;
+@@ -673,8 +678,9 @@ static void fake_vmewrite16(struct fake_driver *bridge, u16 *buf,
+ 
+ }
+ 
+-static void fake_vmewrite32(struct fake_driver *bridge, u32 *buf,
+-			    unsigned long long addr, u32 aspace, u32 cycle)
++static noinline_for_stack void fake_vmewrite32(struct fake_driver *bridge,
++					       u32 *buf, unsigned long long addr,
++					       u32 aspace, u32 cycle)
+ {
+ 	int i;
+ 	unsigned long long start, end, offset;
 -- 
 2.20.1
 
