@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E253A15ED75
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:34:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EE27415ED73
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:34:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389620AbgBNReB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 12:34:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56578 "EHLO mail.kernel.org"
+        id S2390369AbgBNQGP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 11:06:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56612 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390349AbgBNQGN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:06:13 -0500
+        id S2390362AbgBNQGO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:06:14 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 686D0206D7;
-        Fri, 14 Feb 2020 16:06:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8779C24689;
+        Fri, 14 Feb 2020 16:06:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581696373;
-        bh=3gwgFUqvJ8N/VlvUVeaLWqEWpiO5LJUZARXPEDPwzPU=;
+        s=default; t=1581696374;
+        bh=rdGmPaki1ElFzGaOnd9b88/M3GCEzkQ+yBkwLLBl2mc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Au94Gvp/99kComdz1wDTto/2QUYOB1VX9439vRvMDJDWl2Jvxcplk1dCSsxl/0MRi
-         zJk0sbydqC92lw8rnZCEOjW3X9QadvdwrJiIfOlM/Zpa1oPyeC0cV69mZGvCeP9qE0
-         ml48EfoT3nINsah1wIH+LhoakEZzTAeemknbf2wI=
+        b=t3UQOeABEWLuwR18oPhS4vDygAvGLh+OHA9A0ulYpdnxO5VMIYm9pVT9TLAgY2gGd
+         7TXFRTG/f9k26ANRMctHLG0QTWxhUvD6mKRaGiGPoOlClrhWBiFga8goNkIeFhMiYJ
+         L3939o0BIJVmGWrSdJ0IbwvflE8ekbDgPkT0ebgI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     yu kuai <yukuai3@huawei.com>, Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>, linux-wireless@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 202/459] bcma: remove set but not used variable 'sizel'
-Date:   Fri, 14 Feb 2020 10:57:32 -0500
-Message-Id: <20200214160149.11681-202-sashal@kernel.org>
+Cc:     Aditya Pakki <pakki001@umn.edu>, Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 203/459] orinoco: avoid assertion in case of NULL pointer
+Date:   Fri, 14 Feb 2020 10:57:33 -0500
+Message-Id: <20200214160149.11681-203-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214160149.11681-1-sashal@kernel.org>
 References: <20200214160149.11681-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -43,54 +43,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: yu kuai <yukuai3@huawei.com>
+From: Aditya Pakki <pakki001@umn.edu>
 
-[ Upstream commit f427939391f290cbeabe0231eb8a116429d823f0 ]
+[ Upstream commit c705f9fc6a1736dcf6ec01f8206707c108dca824 ]
 
-Fixes gcc '-Wunused-but-set-variable' warning:
+In ezusb_init, if upriv is NULL, the code crashes. However, the caller
+in ezusb_probe can handle the error and print the failure message.
+The patch replaces the BUG_ON call to error return.
 
-drivers/bcma/scan.c: In function ‘bcma_erom_get_addr_desc’:
-
-drivers/bcma/scan.c:222:20: warning: variable ‘sizel’ set but
-not used [-Wunused-but-set-variable]
-
-It is never used, and so can be removed.
-
-Fixes: 8369ae33b705 ("bcma: add Broadcom specific AMBA bus driver")
-Signed-off-by: yu kuai <yukuai3@huawei.com>
+Signed-off-by: Aditya Pakki <pakki001@umn.edu>
 Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/bcma/scan.c | 7 ++-----
- 1 file changed, 2 insertions(+), 5 deletions(-)
+ drivers/net/wireless/intersil/orinoco/orinoco_usb.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/bcma/scan.c b/drivers/bcma/scan.c
-index 4a2d1b235fb5a..1f2de714b4017 100644
---- a/drivers/bcma/scan.c
-+++ b/drivers/bcma/scan.c
-@@ -219,7 +219,7 @@ static s32 bcma_erom_get_mst_port(struct bcma_bus *bus, u32 __iomem **eromptr)
- static u32 bcma_erom_get_addr_desc(struct bcma_bus *bus, u32 __iomem **eromptr,
- 				  u32 type, u8 port)
- {
--	u32 addrl, addrh, sizel, sizeh = 0;
-+	u32 addrl, addrh, sizeh = 0;
- 	u32 size;
+diff --git a/drivers/net/wireless/intersil/orinoco/orinoco_usb.c b/drivers/net/wireless/intersil/orinoco/orinoco_usb.c
+index 8c79b963bcffb..e753f43e0162f 100644
+--- a/drivers/net/wireless/intersil/orinoco/orinoco_usb.c
++++ b/drivers/net/wireless/intersil/orinoco/orinoco_usb.c
+@@ -1361,7 +1361,8 @@ static int ezusb_init(struct hermes *hw)
+ 	int retval;
  
- 	u32 ent = bcma_erom_get_ent(bus, eromptr);
-@@ -239,12 +239,9 @@ static u32 bcma_erom_get_addr_desc(struct bcma_bus *bus, u32 __iomem **eromptr,
+ 	BUG_ON(in_interrupt());
+-	BUG_ON(!upriv);
++	if (!upriv)
++		return -EINVAL;
  
- 	if ((ent & SCAN_ADDR_SZ) == SCAN_ADDR_SZ_SZD) {
- 		size = bcma_erom_get_ent(bus, eromptr);
--		sizel = size & SCAN_SIZE_SZ;
- 		if (size & SCAN_SIZE_SG32)
- 			sizeh = bcma_erom_get_ent(bus, eromptr);
--	} else
--		sizel = SCAN_ADDR_SZ_BASE <<
--				((ent & SCAN_ADDR_SZ) >> SCAN_ADDR_SZ_SHIFT);
-+	}
- 
- 	return addrl;
- }
+ 	upriv->reply_count = 0;
+ 	/* Write the MAGIC number on the simulated registers to keep
 -- 
 2.20.1
 
