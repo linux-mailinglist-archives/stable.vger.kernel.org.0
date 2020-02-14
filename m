@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E516B15E588
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:42:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 834AD15E55B
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:42:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393687AbgBNQmO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 11:42:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57720 "EHLO mail.kernel.org"
+        id S2393196AbgBNQWW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 11:22:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57752 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2393185AbgBNQWU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:22:20 -0500
+        id S2393192AbgBNQWV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:22:21 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D897424746;
-        Fri, 14 Feb 2020 16:22:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 24D7724748;
+        Fri, 14 Feb 2020 16:22:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581697339;
-        bh=6dD2KXOc0Xmxs4S5JjvOxNo7mg3BfFEJegbzPuFt1bU=;
+        s=default; t=1581697341;
+        bh=fFAY4u15hVnQZTtLDHb/0vJN8XTyQ+k5F3zCX4jEDm4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DVYbYxeWQ84FT4quiUApuIl98PAkRKKX/0s/1bF+mq97sNnI26Ahu6Jo7QFekuu9x
-         C4N6nf0o0YuGQhKEKKW9yflQp1envMRWykddy9FHUSFGoDQ9ZU9/NRKsZLBwIw2JBZ
-         ixawxHheFvBmKAEkftg6oWcEwlt+bh4daj9dpF4U=
+        b=bYv/fjGh7bmm/4V+4DpN9qhL8fD8cy0iJ2EwAzSdP9hPFBkLYNFBPCmN48UtJT4fS
+         /c2g7CQyzT6M1lDuPdY72W3JylrkVXWqYZAfpeAW+WFdpOiPcB8S9cel+xExGi0Ezw
+         GaaA52ZEewSh4avamOGbymT7hv3awwLqJ9u4MssA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     zhengbin <zhengbin13@huawei.com>, Hulk Robot <hulkci@huawei.com>,
         Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
         dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 4.9 045/141] drm/radeon: remove set but not used variable 'radeon_connector'
-Date:   Fri, 14 Feb 2020 11:19:45 -0500
-Message-Id: <20200214162122.19794-45-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 046/141] drm/radeon: remove set but not used variable 'blocks'
+Date:   Fri, 14 Feb 2020 11:19:46 -0500
+Message-Id: <20200214162122.19794-46-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214162122.19794-1-sashal@kernel.org>
 References: <20200214162122.19794-1-sashal@kernel.org>
@@ -46,44 +46,46 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: zhengbin <zhengbin13@huawei.com>
 
-[ Upstream commit 5952c48993375a9da2de39be30df475cf590b0ce ]
+[ Upstream commit 77441f77949807fda4a0aec0bdf3e86ae863fd56 ]
 
 Fixes gcc '-Wunused-but-set-variable' warning:
 
-drivers/gpu/drm/radeon/radeon_display.c: In function radeon_crtc_scaling_mode_fixup:
-drivers/gpu/drm/radeon/radeon_display.c:1685:27: warning: variable radeon_connector set but not used [-Wunused-but-set-variable]
+drivers/gpu/drm/radeon/radeon_combios.c: In function radeon_combios_get_power_modes:
+drivers/gpu/drm/radeon/radeon_combios.c:2638:10: warning: variable blocks set but not used [-Wunused-but-set-variable]
 
-It is not used since commit 377bd8a98d7d ("drm/radeon:
-use a fetch function to get the edid")
+It is introduced by commit 56278a8edace ("drm/radeon/kms:
+pull power mode info from bios tables (v3)"), but never used,
+so remove it.
 
 Reported-by: Hulk Robot <hulkci@huawei.com>
 Signed-off-by: zhengbin <zhengbin13@huawei.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/radeon/radeon_display.c | 2 --
- 1 file changed, 2 deletions(-)
+ drivers/gpu/drm/radeon/radeon_combios.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/radeon/radeon_display.c b/drivers/gpu/drm/radeon/radeon_display.c
-index 8b6f8aa238063..59d62275a659d 100644
---- a/drivers/gpu/drm/radeon/radeon_display.c
-+++ b/drivers/gpu/drm/radeon/radeon_display.c
-@@ -1719,7 +1719,6 @@ bool radeon_crtc_scaling_mode_fixup(struct drm_crtc *crtc,
- 	struct radeon_crtc *radeon_crtc = to_radeon_crtc(crtc);
- 	struct radeon_encoder *radeon_encoder;
- 	struct drm_connector *connector;
--	struct radeon_connector *radeon_connector;
- 	bool first = true;
- 	u32 src_v = 1, dst_v = 1;
- 	u32 src_h = 1, dst_h = 1;
-@@ -1732,7 +1731,6 @@ bool radeon_crtc_scaling_mode_fixup(struct drm_crtc *crtc,
- 			continue;
- 		radeon_encoder = to_radeon_encoder(encoder);
- 		connector = radeon_get_connector_for_encoder(encoder);
--		radeon_connector = to_radeon_connector(connector);
+diff --git a/drivers/gpu/drm/radeon/radeon_combios.c b/drivers/gpu/drm/radeon/radeon_combios.c
+index 3178ba0c537c1..a01e52445ad11 100644
+--- a/drivers/gpu/drm/radeon/radeon_combios.c
++++ b/drivers/gpu/drm/radeon/radeon_combios.c
+@@ -2635,7 +2635,7 @@ void radeon_combios_get_power_modes(struct radeon_device *rdev)
+ {
+ 	struct drm_device *dev = rdev->ddev;
+ 	u16 offset, misc, misc2 = 0;
+-	u8 rev, blocks, tmp;
++	u8 rev, tmp;
+ 	int state_index = 0;
+ 	struct radeon_i2c_bus_rec i2c_bus;
  
- 		if (first) {
- 			/* set scaling */
+@@ -2725,7 +2725,6 @@ void radeon_combios_get_power_modes(struct radeon_device *rdev)
+ 		offset = combios_get_table_offset(dev, COMBIOS_POWERPLAY_INFO_TABLE);
+ 		if (offset) {
+ 			rev = RBIOS8(offset);
+-			blocks = RBIOS8(offset + 0x2);
+ 			/* power mode 0 tends to be the only valid one */
+ 			rdev->pm.power_state[state_index].num_clock_modes = 1;
+ 			rdev->pm.power_state[state_index].clock_info[0].mclk = RBIOS32(offset + 0x5 + 0x2);
 -- 
 2.20.1
 
