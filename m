@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 46C6715E873
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:00:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 670F815E871
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:00:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404312AbgBNQQi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 11:16:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47492 "EHLO mail.kernel.org"
+        id S2389522AbgBNRAN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 12:00:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47540 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404308AbgBNQQh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:16:37 -0500
+        id S2404323AbgBNQQj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:16:39 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7818324698;
-        Fri, 14 Feb 2020 16:16:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B3055206D7;
+        Fri, 14 Feb 2020 16:16:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581696997;
-        bh=alg3hx0ZsAVDxehLFVHesumGzR/P6vdWyx9Oo5Cvnrc=;
+        s=default; t=1581696999;
+        bh=J82JkTofHDDCykmw5UKeVbFfNcfQzl+TMlBOTvHz5nY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WNK5il/V09FrjRUBslZBhYAAMXBmM3UuKD7Zyh//RkSDKp8UGJ0oRnDL4x5rNwKaU
-         QOJW3W14pkcnapsXEXCkXLBktD1ulOLbxf9ecHTGslC4Zi3JM/8u2nv/9yuPVTGfle
-         Pd80mOLy9/b7E5GOS/FtXhg/txhFh1hPnFmIYN74=
+        b=jTDpOAvgO05Ia/swvGSyuV+abbpS5yFqpeLlNYtJ1qB4NU2rWPGk3+0wEj0iH9afa
+         EpBBYjCN1BeBm0WKt88cjr8TipTFpeE60DF4VDfzvu+9F+aNZyqLJiOIczAuOIXyH8
+         zi/nIGCN4mblHdCW/jf+f85K3wosIxplZX9pJWto=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Arnd Bergmann <arnd@arndb.de>, Ilya Dryomov <idryomov@gmail.com>,
-        Sasha Levin <sashal@kernel.org>, ceph-devel@vger.kernel.org,
-        linux-block@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 230/252] rbd: work around -Wuninitialized warning
-Date:   Fri, 14 Feb 2020 11:11:25 -0500
-Message-Id: <20200214161147.15842-230-sashal@kernel.org>
+Cc:     Ben Skeggs <bskeggs@redhat.com>, Sasha Levin <sashal@kernel.org>,
+        dri-devel@lists.freedesktop.org, nouveau@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 4.19 232/252] drm/nouveau/disp/nv50-: prevent oops when no channel method map provided
+Date:   Fri, 14 Feb 2020 11:11:27 -0500
+Message-Id: <20200214161147.15842-232-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214161147.15842-1-sashal@kernel.org>
 References: <20200214161147.15842-1-sashal@kernel.org>
@@ -43,42 +42,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Ben Skeggs <bskeggs@redhat.com>
 
-[ Upstream commit a55e601b2f02df5db7070e9a37bd655c9c576a52 ]
+[ Upstream commit 0e6176c6d286316e9431b4f695940cfac4ffe6c2 ]
 
-gcc -O3 warns about a dummy variable that is passed
-down into rbd_img_fill_nodata without being initialized:
+The implementations for most channel types contains a map of methods to
+priv registers in order to provide debugging info when a disp exception
+has been raised.
 
-drivers/block/rbd.c: In function 'rbd_img_fill_nodata':
-drivers/block/rbd.c:2573:13: error: 'dummy' is used uninitialized in this function [-Werror=uninitialized]
-  fctx->iter = *fctx->pos;
+This info is missing from the implementation of PIO channels as they're
+rather simplistic already, however, if an exception is raised by one of
+them, we'd end up triggering a NULL-pointer deref.  Not ideal...
 
-Since this is a dummy, I assume the warning is harmless, but
-it's better to initialize it anyway and avoid the warning.
-
-Fixes: mmtom ("init/Kconfig: enable -O3 for all arches")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Reviewed-by: Ilya Dryomov <idryomov@gmail.com>
-Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
+Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=206299
+Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/rbd.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/nouveau/nvkm/engine/disp/channv50.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/block/rbd.c b/drivers/block/rbd.c
-index b942f4c8cea8c..d3ad1b8c133e6 100644
---- a/drivers/block/rbd.c
-+++ b/drivers/block/rbd.c
-@@ -2097,7 +2097,7 @@ static int rbd_img_fill_nodata(struct rbd_img_request *img_req,
- 			       u64 off, u64 len)
- {
- 	struct ceph_file_extent ex = { off, len };
--	union rbd_img_fill_iter dummy;
-+	union rbd_img_fill_iter dummy = {};
- 	struct rbd_img_fill_ctx fctx = {
- 		.pos_type = OBJ_REQUEST_NODATA,
- 		.pos = &dummy,
+diff --git a/drivers/gpu/drm/nouveau/nvkm/engine/disp/channv50.c b/drivers/gpu/drm/nouveau/nvkm/engine/disp/channv50.c
+index bcf32d92ee5a9..50e3539f33d22 100644
+--- a/drivers/gpu/drm/nouveau/nvkm/engine/disp/channv50.c
++++ b/drivers/gpu/drm/nouveau/nvkm/engine/disp/channv50.c
+@@ -74,6 +74,8 @@ nv50_disp_chan_mthd(struct nv50_disp_chan *chan, int debug)
+ 
+ 	if (debug > subdev->debug)
+ 		return;
++	if (!mthd)
++		return;
+ 
+ 	for (i = 0; (list = mthd->data[i].mthd) != NULL; i++) {
+ 		u32 base = chan->head * mthd->addr;
 -- 
 2.20.1
 
