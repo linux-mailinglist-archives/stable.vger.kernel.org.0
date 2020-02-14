@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B44715F36D
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 19:21:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 14C4015F36B
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 19:21:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388647AbgBNSLc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 13:11:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60958 "EHLO mail.kernel.org"
+        id S2404235AbgBNSLT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 13:11:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:32780 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731259AbgBNPx3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 10:53:29 -0500
+        id S1731267AbgBNPxa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 10:53:30 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 16F4C2468D;
-        Fri, 14 Feb 2020 15:53:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1852F24676;
+        Fri, 14 Feb 2020 15:53:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581695608;
-        bh=+y4TUkxDaRyUqP3FAdHw8MSgA1dwvEyfRjGmLs+5+nQ=;
+        s=default; t=1581695610;
+        bh=AM/cxaMLSs+1tt+XbdmWhg83uD3mrehTan0F9wpp1Xs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=09cutlUelTHQWMuGHMjFxvlwP4HnTd+kfdDrrBAb4RGz4b49GToCwdo9vh1GODPGh
-         pfsxfZheg0gM8dm2oJXLCGoOQtjwaVwJVgtM10V7rQjKJy3kB98TeZD5Okxa4WOcAw
-         dI1AzSkN3wyWtVKb/hByacKtPTIMuWt00Uh7jiCc=
+        b=nonzCETK6MpkL+LcSar/aVLQUg3zYVmesDa9mpX9cPeCIyO8PCAo7anf4PTT0gS9g
+         VZxgm7D+y23LLpgzDWBU/z1+wLz71Z4jSiWEBWJaRBRx4W9dZBaZfnRCNaCBtFA/so
+         Nk9vmVWDeZPyq0i0n41ONx8l6V7sH0W+O4wGDTbk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jan Kara <jack@suse.cz>, Sasha Levin <sashal@kernel.org>,
-        reiserfs-devel@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.5 211/542] reiserfs: Fix spurious unlock in reiserfs_fill_super() error handling
-Date:   Fri, 14 Feb 2020 10:43:23 -0500
-Message-Id: <20200214154854.6746-211-sashal@kernel.org>
+Cc:     =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@redhat.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
+        bpf@vger.kernel.org, clang-built-linux@googlegroups.com
+Subject: [PATCH AUTOSEL 5.5 212/542] samples/bpf: Set -fno-stack-protector when building BPF programs
+Date:   Fri, 14 Feb 2020 10:43:24 -0500
+Message-Id: <20200214154854.6746-212-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214154854.6746-1-sashal@kernel.org>
 References: <20200214154854.6746-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -42,34 +45,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Toke Høiland-Jørgensen <toke@redhat.com>
 
-[ Upstream commit 4d5c1adaf893b8aa52525d2b81995e949bcb3239 ]
+[ Upstream commit 450278977acbf494a20367c22fbb38729772d1fc ]
 
-When we fail to allocate string for journal device name we jump to
-'error' label which tries to unlock reiserfs write lock which is not
-held. Jump to 'error_unlocked' instead.
+It seems Clang can in some cases turn on stack protection by default, which
+doesn't work with BPF. This was reported once before[0], but it seems the
+flag to explicitly turn off the stack protector wasn't added to the
+Makefile, so do that now.
 
-Fixes: f32485be8397 ("reiserfs: delay reiserfs lock until journal initialization")
-Signed-off-by: Jan Kara <jack@suse.cz>
+The symptom of this is compile errors like the following:
+
+error: <unknown>:0:0: in function bpf_prog1 i32 (%struct.__sk_buff*): A call to built-in function '__stack_chk_fail' is not supported.
+
+[0] https://www.spinics.net/lists/netdev/msg556400.html
+
+Signed-off-by: Toke Høiland-Jørgensen <toke@redhat.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Link: https://lore.kernel.org/bpf/20191216103819.359535-1-toke@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/reiserfs/super.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ samples/bpf/Makefile | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/fs/reiserfs/super.c b/fs/reiserfs/super.c
-index d127af64283e3..a6bce5b1fb1dc 100644
---- a/fs/reiserfs/super.c
-+++ b/fs/reiserfs/super.c
-@@ -1948,7 +1948,7 @@ static int reiserfs_fill_super(struct super_block *s, void *data, int silent)
- 		if (!sbi->s_jdev) {
- 			SWARN(silent, s, "", "Cannot allocate memory for "
- 				"journal device name");
--			goto error;
-+			goto error_unlocked;
- 		}
- 	}
- #ifdef CONFIG_QUOTA
+diff --git a/samples/bpf/Makefile b/samples/bpf/Makefile
+index c0147a8cf1882..06ebe3104cc03 100644
+--- a/samples/bpf/Makefile
++++ b/samples/bpf/Makefile
+@@ -236,6 +236,7 @@ BTF_LLVM_PROBE := $(shell echo "int main() { return 0; }" | \
+ 			  readelf -S ./llvm_btf_verify.o | grep BTF; \
+ 			  /bin/rm -f ./llvm_btf_verify.o)
+ 
++BPF_EXTRA_CFLAGS += -fno-stack-protector
+ ifneq ($(BTF_LLVM_PROBE),)
+ 	BPF_EXTRA_CFLAGS += -g
+ else
 -- 
 2.20.1
 
