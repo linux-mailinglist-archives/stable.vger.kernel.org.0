@@ -2,34 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F6F315E982
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:08:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D31F115E979
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:08:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392331AbgBNRHV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 12:07:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44066 "EHLO mail.kernel.org"
+        id S2392335AbgBNQOd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 11:14:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44086 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392324AbgBNQOb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:14:31 -0500
+        id S2392329AbgBNQOc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:14:32 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CB3CC246D0;
-        Fri, 14 Feb 2020 16:14:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C7520246C3;
+        Fri, 14 Feb 2020 16:14:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581696870;
-        bh=09CLZHhNHNyqqmnT9B63fYO3RiBBKa0IUbToH8AhA4g=;
+        s=default; t=1581696871;
+        bh=Ag7cfjgAZDTtorJGvLhjabkF2VDVmnJ8PY2cP1WcwfE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TuVMW6DNusx4wcTRieqx/1aaJlGpuXF9WkHk+yZvhOY6iuQXECU9Vs07wWwMMPvGr
-         sxDCfBCvAFhpcLlZdIpparJfQhQD6GxRWkfhBvR8W1XxVgQt0Ixg8Wyp3Ewbk2j0V1
-         qctBqZFUiARry81EHLfbnMzf0KxKn6gufecnXqMI=
+        b=xY6Q47yeeXz5lr26XpoykRzf8NJPNe3TrjFSVu8grCiybgGuRpn7xp6gG5v9rhAXq
+         ZHxbrczpCqABdyB7ACchkkoKB74LKWIGBnNRsVRoxwEDSbEVQpIabWDMZ6QUI7/Xph
+         opN8zs8SbORvU0Cacd5A64AE8Usg/ZdAQhqjf32o=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>,
-        alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 4.19 128/252] ALSA: sh: Fix unused variable warnings
-Date:   Fri, 14 Feb 2020 11:09:43 -0500
-Message-Id: <20200214161147.15842-128-sashal@kernel.org>
+Cc:     Kunihiko Hayashi <hayashi.kunihiko@socionext.com>,
+        Masahiro Yamada <yamada.masahiro@socionext.com>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-clk@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.19 129/252] clk: uniphier: Add SCSSI clock gate for each channel
+Date:   Fri, 14 Feb 2020 11:09:44 -0500
+Message-Id: <20200214161147.15842-129-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214161147.15842-1-sashal@kernel.org>
 References: <20200214161147.15842-1-sashal@kernel.org>
@@ -42,52 +45,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Kunihiko Hayashi <hayashi.kunihiko@socionext.com>
 
-[ Upstream commit 5da116f164ce265e397b8f59af5c39e4a61d61a5 ]
+[ Upstream commit 1ec09a2ec67a0baa46a3ccac041dbcdbc6db2cb9 ]
 
-Remove unused variables that are left over after the conversion of new
-PCM ops:
-  sound/sh/sh_dac_audio.c:166:26: warning: unused variable 'runtime'
-  sound/sh/sh_dac_audio.c:186:26: warning: unused variable 'runtime'
-  sound/sh/sh_dac_audio.c:205:26: warning: unused variable 'runtime'
+SCSSI has clock gates for each channel in the SoCs newer than Pro4,
+so this adds missing clock gates for channel 1, 2 and 3. And more, this
+moves MCSSI clock ID after SCSSI.
 
-Fixes: 1cc2f8ba0b3e ("ALSA: sh: Convert to the new PCM ops")
-Link: https://lore.kernel.org/r/20200104110057.13875-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fixes: ff388ee36516 ("clk: uniphier: add clock frequency support for SPI")
+Signed-off-by: Kunihiko Hayashi <hayashi.kunihiko@socionext.com>
+Acked-by: Masahiro Yamada <yamada.masahiro@socionext.com>
+Link: https://lkml.kernel.org/r/1577410925-22021-1-git-send-email-hayashi.kunihiko@socionext.com
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/sh/sh_dac_audio.c | 3 ---
- 1 file changed, 3 deletions(-)
+ drivers/clk/uniphier/clk-uniphier-peri.c | 13 ++++++++-----
+ 1 file changed, 8 insertions(+), 5 deletions(-)
 
-diff --git a/sound/sh/sh_dac_audio.c b/sound/sh/sh_dac_audio.c
-index 834b2574786f5..6251b5e1b64a2 100644
---- a/sound/sh/sh_dac_audio.c
-+++ b/sound/sh/sh_dac_audio.c
-@@ -190,7 +190,6 @@ static int snd_sh_dac_pcm_copy(struct snd_pcm_substream *substream,
- {
- 	/* channel is not used (interleaved data) */
- 	struct snd_sh_dac *chip = snd_pcm_substream_chip(substream);
--	struct snd_pcm_runtime *runtime = substream->runtime;
+diff --git a/drivers/clk/uniphier/clk-uniphier-peri.c b/drivers/clk/uniphier/clk-uniphier-peri.c
+index 89b3ac378b3f9..8b75dc116a98c 100644
+--- a/drivers/clk/uniphier/clk-uniphier-peri.c
++++ b/drivers/clk/uniphier/clk-uniphier-peri.c
+@@ -27,8 +27,8 @@
+ #define UNIPHIER_PERI_CLK_FI2C(idx, ch)					\
+ 	UNIPHIER_CLK_GATE("i2c" #ch, (idx), "i2c", 0x24, 24 + (ch))
  
- 	if (copy_from_user_toio(chip->data_buffer + pos, src, count))
- 		return -EFAULT;
-@@ -210,7 +209,6 @@ static int snd_sh_dac_pcm_copy_kernel(struct snd_pcm_substream *substream,
- {
- 	/* channel is not used (interleaved data) */
- 	struct snd_sh_dac *chip = snd_pcm_substream_chip(substream);
--	struct snd_pcm_runtime *runtime = substream->runtime;
+-#define UNIPHIER_PERI_CLK_SCSSI(idx)					\
+-	UNIPHIER_CLK_GATE("scssi", (idx), "spi", 0x20, 17)
++#define UNIPHIER_PERI_CLK_SCSSI(idx, ch)				\
++	UNIPHIER_CLK_GATE("scssi" #ch, (idx), "spi", 0x20, 17 + (ch))
  
- 	memcpy_toio(chip->data_buffer + pos, src, count);
- 	chip->buffer_end = chip->data_buffer + pos + count;
-@@ -229,7 +227,6 @@ static int snd_sh_dac_pcm_silence(struct snd_pcm_substream *substream,
- {
- 	/* channel is not used (interleaved data) */
- 	struct snd_sh_dac *chip = snd_pcm_substream_chip(substream);
--	struct snd_pcm_runtime *runtime = substream->runtime;
+ #define UNIPHIER_PERI_CLK_MCSSI(idx)					\
+ 	UNIPHIER_CLK_GATE("mcssi", (idx), "spi", 0x24, 14)
+@@ -44,7 +44,7 @@ const struct uniphier_clk_data uniphier_ld4_peri_clk_data[] = {
+ 	UNIPHIER_PERI_CLK_I2C(6, 2),
+ 	UNIPHIER_PERI_CLK_I2C(7, 3),
+ 	UNIPHIER_PERI_CLK_I2C(8, 4),
+-	UNIPHIER_PERI_CLK_SCSSI(11),
++	UNIPHIER_PERI_CLK_SCSSI(11, 0),
+ 	{ /* sentinel */ }
+ };
  
- 	memset_io(chip->data_buffer + pos, 0, count);
- 	chip->buffer_end = chip->data_buffer + pos + count;
+@@ -60,7 +60,10 @@ const struct uniphier_clk_data uniphier_pro4_peri_clk_data[] = {
+ 	UNIPHIER_PERI_CLK_FI2C(8, 4),
+ 	UNIPHIER_PERI_CLK_FI2C(9, 5),
+ 	UNIPHIER_PERI_CLK_FI2C(10, 6),
+-	UNIPHIER_PERI_CLK_SCSSI(11),
+-	UNIPHIER_PERI_CLK_MCSSI(12),
++	UNIPHIER_PERI_CLK_SCSSI(11, 0),
++	UNIPHIER_PERI_CLK_SCSSI(12, 1),
++	UNIPHIER_PERI_CLK_SCSSI(13, 2),
++	UNIPHIER_PERI_CLK_SCSSI(14, 3),
++	UNIPHIER_PERI_CLK_MCSSI(15),
+ 	{ /* sentinel */ }
+ };
 -- 
 2.20.1
 
