@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 19C9D15EF72
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:48:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 39CFD15EF70
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:48:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387606AbgBNRsF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 12:48:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44968 "EHLO mail.kernel.org"
+        id S2389807AbgBNRr5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 12:47:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45016 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389018AbgBNP7z (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 10:59:55 -0500
+        id S2388991AbgBNP74 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 10:59:56 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3D81D206D7;
-        Fri, 14 Feb 2020 15:59:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A114024654;
+        Fri, 14 Feb 2020 15:59:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581695994;
-        bh=AQyN84R5YGMyWpb9NCPcHNHXXRYjZNMbDO4ty2yJ4Is=;
+        s=default; t=1581695995;
+        bh=9Ctd1fmVcttbjX+dX5w5TzwYoyTQbQ9VFRC0ZOZZ1FI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1myXzaQCBquvr4kSfPOZIT8AXZop47nK/smy0zbm9Lw6xEL3tg0sToZmMmqto3rxF
-         4zgL9xsTA4ehPAIzRpoYB5GGg61hQhpiyRwwLgXWeSCB6vIS++7OdlSQ5Adf/H/xr/
-         FCbXitb73nr9LBv8YH1FkZdwNJsUjujYvajPWJh0=
+        b=F+xLyT3YmmqNaFNt0PMyTiwKfpxI2FV8VMfbqiDCrAYgVk6WVFjguYqW2NSiaqZIC
+         +vAVKwaACAucY3bk9Tkb2Vn/LanSfsaA8XHM7PNfuI6Z7i0ilAsqLbpnR27WDJvxzP
+         9WCIN9GEg94ggBV79sdfZAhE6g38nFTKb5w28FRI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sagi Grimberg <sagi@grimberg.me>,
-        Dakshaja Uppalapati <dakshaja@chelsio.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Max Gurtovoy <maxg@mellanox.com>,
+Cc:     Christoph Hellwig <hch@lst.de>,
+        Edmund Nadolski <edmund.nadolski@intel.com>,
         Keith Busch <kbusch@kernel.org>,
         Sasha Levin <sashal@kernel.org>, linux-nvme@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.5 514/542] nvmet: fix dsm failure when payload does not match sgl descriptor
-Date:   Fri, 14 Feb 2020 10:48:26 -0500
-Message-Id: <20200214154854.6746-514-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.5 515/542] nvme-pci: remove nvmeq->tags
+Date:   Fri, 14 Feb 2020 10:48:27 -0500
+Message-Id: <20200214154854.6746-515-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214154854.6746-1-sashal@kernel.org>
 References: <20200214154854.6746-1-sashal@kernel.org>
@@ -46,87 +44,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sagi Grimberg <sagi@grimberg.me>
+From: Christoph Hellwig <hch@lst.de>
 
-[ Upstream commit b716e6889c95f64ba32af492461f6cc9341f3f05 ]
+[ Upstream commit cfa27356f835dc7755192e7b941d4f4851acbcc7 ]
 
-The host is allowed to pass the controller an sgl describing a buffer
-that is larger than the dsm payload itself, allow it when executing
-dsm.
+There is no real need to have a pointer to the tagset in
+struct nvme_queue, as we only need it in a single place, and that place
+can derive the used tagset from the device and qid trivially.  This
+fixes a problem with stale pointer exposure when tagsets are reset,
+and also shrinks the nvme_queue structure.  It also matches what most
+other transports have done since day 1.
 
-Reported-by: Dakshaja Uppalapati <dakshaja@chelsio.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>,
-Reviewed-by: Max Gurtovoy <maxg@mellanox.com>
-Signed-off-by: Sagi Grimberg <sagi@grimberg.me>
+Reported-by: Edmund Nadolski <edmund.nadolski@intel.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Keith Busch <kbusch@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/target/core.c        | 11 +++++++++++
- drivers/nvme/target/io-cmd-bdev.c |  2 +-
- drivers/nvme/target/io-cmd-file.c |  2 +-
- drivers/nvme/target/nvmet.h       |  1 +
- 4 files changed, 14 insertions(+), 2 deletions(-)
+ drivers/nvme/host/pci.c | 23 ++++++++---------------
+ 1 file changed, 8 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/nvme/target/core.c b/drivers/nvme/target/core.c
-index 35810a0a8d212..461987f669c50 100644
---- a/drivers/nvme/target/core.c
-+++ b/drivers/nvme/target/core.c
-@@ -939,6 +939,17 @@ bool nvmet_check_data_len(struct nvmet_req *req, size_t data_len)
- }
- EXPORT_SYMBOL_GPL(nvmet_check_data_len);
+diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
+index 365a2ddbeaa76..da392b50f73e7 100644
+--- a/drivers/nvme/host/pci.c
++++ b/drivers/nvme/host/pci.c
+@@ -167,7 +167,6 @@ struct nvme_queue {
+ 	 /* only used for poll queues: */
+ 	spinlock_t cq_poll_lock ____cacheline_aligned_in_smp;
+ 	volatile struct nvme_completion *cqes;
+-	struct blk_mq_tags **tags;
+ 	dma_addr_t sq_dma_addr;
+ 	dma_addr_t cq_dma_addr;
+ 	u32 __iomem *q_db;
+@@ -376,29 +375,17 @@ static int nvme_admin_init_hctx(struct blk_mq_hw_ctx *hctx, void *data,
  
-+bool nvmet_check_data_len_lte(struct nvmet_req *req, size_t data_len)
+ 	WARN_ON(hctx_idx != 0);
+ 	WARN_ON(dev->admin_tagset.tags[0] != hctx->tags);
+-	WARN_ON(nvmeq->tags);
+ 
+ 	hctx->driver_data = nvmeq;
+-	nvmeq->tags = &dev->admin_tagset.tags[0];
+ 	return 0;
+ }
+ 
+-static void nvme_admin_exit_hctx(struct blk_mq_hw_ctx *hctx, unsigned int hctx_idx)
+-{
+-	struct nvme_queue *nvmeq = hctx->driver_data;
+-
+-	nvmeq->tags = NULL;
+-}
+-
+ static int nvme_init_hctx(struct blk_mq_hw_ctx *hctx, void *data,
+ 			  unsigned int hctx_idx)
+ {
+ 	struct nvme_dev *dev = data;
+ 	struct nvme_queue *nvmeq = &dev->queues[hctx_idx + 1];
+ 
+-	if (!nvmeq->tags)
+-		nvmeq->tags = &dev->tagset.tags[hctx_idx];
+-
+ 	WARN_ON(dev->tagset.tags[hctx_idx] != hctx->tags);
+ 	hctx->driver_data = nvmeq;
+ 	return 0;
+@@ -948,6 +935,13 @@ static inline void nvme_ring_cq_doorbell(struct nvme_queue *nvmeq)
+ 		writel(head, nvmeq->q_db + nvmeq->dev->db_stride);
+ }
+ 
++static inline struct blk_mq_tags *nvme_queue_tagset(struct nvme_queue *nvmeq)
 +{
-+	if (unlikely(data_len > req->transfer_len)) {
-+		req->error_loc = offsetof(struct nvme_common_command, dptr);
-+		nvmet_req_complete(req, NVME_SC_SGL_INVALID_DATA | NVME_SC_DNR);
-+		return false;
-+	}
-+
-+	return true;
++	if (!nvmeq->qid)
++		return nvmeq->dev->admin_tagset.tags[0];
++	return nvmeq->dev->tagset.tags[nvmeq->qid - 1];
 +}
 +
- int nvmet_req_alloc_sgl(struct nvmet_req *req)
+ static inline void nvme_handle_cqe(struct nvme_queue *nvmeq, u16 idx)
  {
- 	struct pci_dev *p2p_dev = NULL;
-diff --git a/drivers/nvme/target/io-cmd-bdev.c b/drivers/nvme/target/io-cmd-bdev.c
-index b6fca0e421ef1..ea0e596be15dc 100644
---- a/drivers/nvme/target/io-cmd-bdev.c
-+++ b/drivers/nvme/target/io-cmd-bdev.c
-@@ -280,7 +280,7 @@ static void nvmet_bdev_execute_discard(struct nvmet_req *req)
- 
- static void nvmet_bdev_execute_dsm(struct nvmet_req *req)
- {
--	if (!nvmet_check_data_len(req, nvmet_dsm_len(req)))
-+	if (!nvmet_check_data_len_lte(req, nvmet_dsm_len(req)))
+ 	volatile struct nvme_completion *cqe = &nvmeq->cqes[idx];
+@@ -972,7 +966,7 @@ static inline void nvme_handle_cqe(struct nvme_queue *nvmeq, u16 idx)
  		return;
+ 	}
  
- 	switch (le32_to_cpu(req->cmd->dsm.attributes)) {
-diff --git a/drivers/nvme/target/io-cmd-file.c b/drivers/nvme/target/io-cmd-file.c
-index caebfce066056..cd5670b83118f 100644
---- a/drivers/nvme/target/io-cmd-file.c
-+++ b/drivers/nvme/target/io-cmd-file.c
-@@ -336,7 +336,7 @@ static void nvmet_file_dsm_work(struct work_struct *w)
- 
- static void nvmet_file_execute_dsm(struct nvmet_req *req)
- {
--	if (!nvmet_check_data_len(req, nvmet_dsm_len(req)))
-+	if (!nvmet_check_data_len_lte(req, nvmet_dsm_len(req)))
- 		return;
- 	INIT_WORK(&req->f.work, nvmet_file_dsm_work);
- 	schedule_work(&req->f.work);
-diff --git a/drivers/nvme/target/nvmet.h b/drivers/nvme/target/nvmet.h
-index 46df45e837c95..eda28b22a2c87 100644
---- a/drivers/nvme/target/nvmet.h
-+++ b/drivers/nvme/target/nvmet.h
-@@ -374,6 +374,7 @@ bool nvmet_req_init(struct nvmet_req *req, struct nvmet_cq *cq,
- 		struct nvmet_sq *sq, const struct nvmet_fabrics_ops *ops);
- void nvmet_req_uninit(struct nvmet_req *req);
- bool nvmet_check_data_len(struct nvmet_req *req, size_t data_len);
-+bool nvmet_check_data_len_lte(struct nvmet_req *req, size_t data_len);
- void nvmet_req_complete(struct nvmet_req *req, u16 status);
- int nvmet_req_alloc_sgl(struct nvmet_req *req);
- void nvmet_req_free_sgl(struct nvmet_req *req);
+-	req = blk_mq_tag_to_rq(*nvmeq->tags, cqe->command_id);
++	req = blk_mq_tag_to_rq(nvme_queue_tagset(nvmeq), cqe->command_id);
+ 	trace_nvme_sq(req, cqe->sq_head, nvmeq->sq_tail);
+ 	nvme_end_request(req, cqe->status, cqe->result);
+ }
+@@ -1572,7 +1566,6 @@ static const struct blk_mq_ops nvme_mq_admin_ops = {
+ 	.queue_rq	= nvme_queue_rq,
+ 	.complete	= nvme_pci_complete_rq,
+ 	.init_hctx	= nvme_admin_init_hctx,
+-	.exit_hctx      = nvme_admin_exit_hctx,
+ 	.init_request	= nvme_init_request,
+ 	.timeout	= nvme_timeout,
+ };
 -- 
 2.20.1
 
