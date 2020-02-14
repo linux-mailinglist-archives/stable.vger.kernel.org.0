@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7216915E77E
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:55:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5CFAA15E780
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:55:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404816AbgBNQSk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 11:18:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51210 "EHLO mail.kernel.org"
+        id S2404829AbgBNQSl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 11:18:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51278 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404812AbgBNQSj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:18:39 -0500
+        id S2404820AbgBNQSl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:18:41 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 968CE246FB;
-        Fri, 14 Feb 2020 16:18:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D435A24706;
+        Fri, 14 Feb 2020 16:18:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581697119;
-        bh=kLNQ+FLQ6O06uqz36zDPUY32MmO6SWt5w1ST1XEDnSM=;
+        s=default; t=1581697120;
+        bh=TRkgGmvkR5mwWBIQp1TX/waypqJc1bxA44k8shh26sI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZeunXaKazjf13pbQhnqbTFZkkn3YHQXOyWdOe9/zspr5SBHd2znMt4DhmJR1/uY5x
-         /EtKfKX4Hxt4wMy09RoAgGoISikrqTuepBqmjBxBlnSKRUbV+dOaZDLsaUwwNHBSag
-         p0TvRUaZVVWY176dAVrd/VWwMJc37FrLvuIPaicM=
+        b=sVN6jEtOTvRHv5Of9dPHfe8RxgGtX8DNeKqV8PkpNc1Zn564f1Us4WKL/T0Vb9Vzk
+         srQHbbpeuaIhUWDSjW9JAGxDf0zWRQ17D0UOECAG0bPRFoj+ReFWjIgKE2NJMbEM0i
+         QPryqGmGC1skwz99thQ1kN1Jnb72A8SuCLf9dUto=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mao Wenan <maowenan@huawei.com>, Hulk Robot <hulkci@huawei.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 065/186] NFC: port100: Convert cpu_to_le16(le16_to_cpu(E1) + E2) to use le16_add_cpu().
-Date:   Fri, 14 Feb 2020 11:15:14 -0500
-Message-Id: <20200214161715.18113-65-sashal@kernel.org>
+Cc:     Andre Przywara <andre.przywara@arm.com>,
+        Maxime Ripard <maxime@cerno.tech>,
+        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.14 066/186] arm: dts: allwinner: H3: Add PMU node
+Date:   Fri, 14 Feb 2020 11:15:15 -0500
+Message-Id: <20200214161715.18113-66-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214161715.18113-1-sashal@kernel.org>
 References: <20200214161715.18113-1-sashal@kernel.org>
@@ -43,34 +44,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mao Wenan <maowenan@huawei.com>
+From: Andre Przywara <andre.przywara@arm.com>
 
-[ Upstream commit 718eae277e62a26e5862eb72a830b5e0fe37b04a ]
+[ Upstream commit 0388a110747bec0c9d9de995842bb2a03a26aae1 ]
 
-Convert cpu_to_le16(le16_to_cpu(frame->datalen) + len) to
-use le16_add_cpu(), which is more concise and does the same thing.
+Add the Performance Monitoring Unit (PMU) device tree node to the H3
+.dtsi, which tells DT users which interrupts are triggered by PMU
+overflow events on each core. The numbers come from the manual and have
+been checked in U-Boot and with perf in Linux.
 
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Mao Wenan <maowenan@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Tested with perf record and taskset on an OrangePi Zero.
+
+Signed-off-by: Andre Przywara <andre.przywara@arm.com>
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nfc/port100.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm/boot/dts/sun8i-h3.dtsi | 15 ++++++++++++---
+ 1 file changed, 12 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/nfc/port100.c b/drivers/nfc/port100.c
-index 60ae382f50da9..06bb226c62ef4 100644
---- a/drivers/nfc/port100.c
-+++ b/drivers/nfc/port100.c
-@@ -574,7 +574,7 @@ static void port100_tx_update_payload_len(void *_frame, int len)
- {
- 	struct port100_frame *frame = _frame;
+diff --git a/arch/arm/boot/dts/sun8i-h3.dtsi b/arch/arm/boot/dts/sun8i-h3.dtsi
+index b36f9f423c39d..d685beb49659c 100644
+--- a/arch/arm/boot/dts/sun8i-h3.dtsi
++++ b/arch/arm/boot/dts/sun8i-h3.dtsi
+@@ -53,25 +53,34 @@
+ 			reg = <0>;
+ 		};
  
--	frame->datalen = cpu_to_le16(le16_to_cpu(frame->datalen) + len);
-+	le16_add_cpu(&frame->datalen, len);
- }
+-		cpu@1 {
++		cpu1: cpu@1 {
+ 			compatible = "arm,cortex-a7";
+ 			device_type = "cpu";
+ 			reg = <1>;
+ 		};
  
- static bool port100_rx_frame_is_valid(void *_frame)
+-		cpu@2 {
++		cpu2: cpu@2 {
+ 			compatible = "arm,cortex-a7";
+ 			device_type = "cpu";
+ 			reg = <2>;
+ 		};
+ 
+-		cpu@3 {
++		cpu3: cpu@3 {
+ 			compatible = "arm,cortex-a7";
+ 			device_type = "cpu";
+ 			reg = <3>;
+ 		};
+ 	};
+ 
++	pmu {
++		compatible = "arm,cortex-a7-pmu";
++		interrupts = <GIC_SPI 120 IRQ_TYPE_LEVEL_HIGH>,
++			     <GIC_SPI 121 IRQ_TYPE_LEVEL_HIGH>,
++			     <GIC_SPI 122 IRQ_TYPE_LEVEL_HIGH>,
++			     <GIC_SPI 123 IRQ_TYPE_LEVEL_HIGH>;
++		interrupt-affinity = <&cpu0>, <&cpu1>, <&cpu2>, <&cpu3>;
++	};
++
+ 	timer {
+ 		compatible = "arm,armv7-timer";
+ 		interrupts = <GIC_PPI 13 (GIC_CPU_MASK_SIMPLE(4) | IRQ_TYPE_LEVEL_LOW)>,
 -- 
 2.20.1
 
