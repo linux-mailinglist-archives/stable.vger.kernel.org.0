@@ -2,63 +2,164 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 372AA15D542
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 11:12:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D159215D54A
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 11:13:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728522AbgBNKML (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 05:12:11 -0500
-Received: from mail-wm1-f67.google.com ([209.85.128.67]:34492 "EHLO
-        mail-wm1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728807AbgBNKML (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 14 Feb 2020 05:12:11 -0500
-Received: by mail-wm1-f67.google.com with SMTP id s144so1700871wme.1
-        for <stable@vger.kernel.org>; Fri, 14 Feb 2020 02:12:09 -0800 (PST)
+        id S1729020AbgBNKN5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 05:13:57 -0500
+Received: from mail-lj1-f196.google.com ([209.85.208.196]:45955 "EHLO
+        mail-lj1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728807AbgBNKN5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 14 Feb 2020 05:13:57 -0500
+Received: by mail-lj1-f196.google.com with SMTP id e18so10039629ljn.12
+        for <stable@vger.kernel.org>; Fri, 14 Feb 2020 02:13:56 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=QIeoSMfRqCmHyuRLr9sc8lcZtTyLzkstuHwdGegUoV8=;
-        b=Gja6UghxZhU0Qg/6P1TTt0Vvkebn4AkSJsMoemkAPB+KTxvWNgkBQ+xRb+jLgJsSu3
-         RYpAgYoRRcBbhSFwDSvPDNPDolxI8vz65Xu/9tEqLxw2ozayWpWXxs2LUXhHFbz9CIrA
-         sVK+Fl+BPMFsxyeT6T5Jv4l4Mjsv9Qj8nFSU05P45ulyEVMypm3t+nXeCGn0P5pxvmVe
-         NbIcQQX/G7u5QwQ/p1pfVCfbm2d6jloc13oCgDICThCKopLBL1//vQrByAnmymsF/r4X
-         FDmNMyNH1fpjndpgvXJN9eLMoAn+tDNcJexgcj7PVVV31h1RxXFsKA114CqDzKAvUl07
-         TVyw==
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=q/PRLLLbZNApV1FTobRRQX4PjY/FxmqgOssNyFIuRGA=;
+        b=CR4lo8YJvnok/HExDeZSFUuc6ollkEusCBzQli4K46QkpYVwhka7RNJdaD/sYalqYc
+         06uwHNFDVB4foEWxeBtdjS40p9NeRbnfw4Iz5X1+m+HvMKvz7vRqyecrl2dtZHjYoDfz
+         NvRNEsTPslEzkOix/Hhkq24JdA73ExmL8XNDUt+SQAU7tx+ytS+0Tt/TTrOId+5EJ+Ci
+         0QTclkOkbt+EgDV/o2EWIFc0/w9+RAt4dTTxusZpmqlnNpTxnUchPXhAC7DqgJkLPiWv
+         c4WHJ3QdhQwCS0hta/7dLKBA54yp7YgGj2UFr6driEzbOakMqSIQlZE1cN7tg21KijK9
+         gXqg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=QIeoSMfRqCmHyuRLr9sc8lcZtTyLzkstuHwdGegUoV8=;
-        b=lIe+l3FH/ZWxGZTVUzhM9Kgl+kKBMgO06hhzuy/OnC4UlgpoKqyWaLQ6HggmkIGXHH
-         rUErV77x+3EWHbRE3J3bzCiwDBjl1wb9NW9P9bYJpUxhESz6i4eLe27t4K0xuY3vu1gn
-         9DPxzQbFnXvzfAvNjYQjaP8sat2TYfwtDCG1Xch3sJyq83MKnpgpbUr7KU/n9TvZyI2m
-         9k2Rx38nFQlsMY1NAPvuQle/tLSMuwEWkJxF6vjaCKmzl6bAWpFIEJocu3nu0rUYbMNg
-         CV202uvXHbvonQay3ZtN2FQs8K2uuGj/Y/aO9rGnvIbW3SrZEIO7cFn8B+ieNun7UFg9
-         dQtA==
-X-Gm-Message-State: APjAAAW97Sz/yWYSjBl3rG3fYvg9fDrD5gd9E95pe5xWkjgqP5KRGZKu
-        UDJATkcO7++QZJDyJMk+4jhfI3e4D9ZgLfDQpxQ=
-X-Google-Smtp-Source: APXvYqwzu4vKqEctZfqufUYavfM++6okdRgLoU3/sVBikJUhOnNvpBS6+bWnKupb8j8TXLY6JhRO1h8BB37C5PP1NG4=
-X-Received: by 2002:a05:600c:20c6:: with SMTP id y6mr3897707wmm.95.1581675128771;
- Fri, 14 Feb 2020 02:12:08 -0800 (PST)
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=q/PRLLLbZNApV1FTobRRQX4PjY/FxmqgOssNyFIuRGA=;
+        b=Dw1mBJslP7NOmur2yo/LMB4byeYmrXSSJoJ9ZdIVZwRE3QzZfnjPDtcZTuGRRuSeMh
+         +X1xOfMLsA+1r4/N6WjItxHs5++KqfvIgr3QVtYtr5GIJR9/w2zi/0EaGdI9MJ0LpsN7
+         3mxlIvgKijsVm2Axl+cqGeYx/lBOag2nV6/8qA1tSfz9Tyc7gYMA0gKi+own9pGzCz5f
+         IaZYWNePwb/7l8VkbAUXBDV474jyC/4vH43V9u3zCliJnU9yM5eIThHVgCQ0KFFf8OIt
+         y5uofeXt8R+n+HBxRVMyTUDlbRVAZdvWLOvyAABDTtAaMNkJL1Hxf0mUl8mGSZ13DRS/
+         qFIQ==
+X-Gm-Message-State: APjAAAVdk7ILSTWUEtRSHzjdgcfZu8nTTmZan9daDkzhKwClVAZn97E2
+        xyRoQNpgQH92evQqQqHf1Ppt0gtxkDcp/z3cDlqbvA==
+X-Google-Smtp-Source: APXvYqxFs8/6R6Bb54n9WZMZG2GlDZcOGmxNsqjsmVmjuMoTQ50ZDkJ7B203kUIWpdjwxIZFBAGzVtHYGsICl7mquEU=
+X-Received: by 2002:a2e:8e70:: with SMTP id t16mr1641690ljk.73.1581675235089;
+ Fri, 14 Feb 2020 02:13:55 -0800 (PST)
 MIME-Version: 1.0
-Received: by 2002:adf:ed10:0:0:0:0:0 with HTTP; Fri, 14 Feb 2020 02:12:08
- -0800 (PST)
-Reply-To: bankderictormrsired@aol.com
-From:   BANK DERICTOR <adamhana1907@gmail.com>
-Date:   Fri, 14 Feb 2020 10:12:08 +0000
-Message-ID: <CAOGreO=c_U9jzzafk5=WYKSWU1k60Bo4U8tV_cpYsJLypDMGEA@mail.gmail.com>
-Subject: I need your urgently response.
-To:     undisclosed-recipients:;
+References: <20200213151842.259660170@linuxfoundation.org>
+In-Reply-To: <20200213151842.259660170@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Fri, 14 Feb 2020 15:43:43 +0530
+Message-ID: <CA+G9fYt8_fzpBo0LZq4pU6f1MOP1T9qkP0dD=sZiyZFZDXpp9A@mail.gmail.com>
+Subject: Re: [PATCH 4.9 000/116] 4.9.214-stable review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        lkft-triage@lists.linaro.org,
+        linux- stable <stable@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-I am contacting you to assist retrieve a huge deposit of Ten Million
-Five Hundred Thousand Dollars left in the bank by my client(Late)
-Eng.Robert Wilson,before its get confiscated by the bank. Due to the
-confidentiality of this information,I would want you to send me your
-private email where I can send you a comprehensive information of
-(Late) Eng.Robert Wilson,and every other information you may need to
-retrieve the fund in the bank.Here is my contact email.
-bankderictormrsired@aol.com)
+On Thu, 13 Feb 2020 at 20:53, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 4.9.214 release.
+> There are 116 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Sat, 15 Feb 2020 15:16:40 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
+4.9.214-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-4.9.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
+
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
+
+Summary
+------------------------------------------------------------------------
+
+kernel: 4.9.214-rc1
+git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
+le-rc.git
+git branch: linux-4.9.y
+git commit: 41f2460abb3e46bd15371fb219a2145f02251b08
+git describe: v4.9.213-117-g41f2460abb3e
+Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-4.9-oe/bui=
+ld/v4.9.213-117-g41f2460abb3e
+
+No regressions (compared to build v4.9.213)
+
+No fixes (compared to build v4.9.213)
+
+Ran 23521 total tests in the following environments and test suites.
+
+Environments
+--------------
+- dragonboard-410c - arm64
+- hi6220-hikey - arm64
+- i386
+- juno-r2 - arm64
+- qemu_arm
+- qemu_arm64
+- qemu_i386
+- qemu_x86_64
+- x15 - arm
+- x86_64
+
+Test Suites
+-----------
+* build
+* install-android-platform-tools-r2600
+* libhugetlbfs
+* linux-log-parser
+* ltp-cap_bounds-tests
+* ltp-commands-tests
+* ltp-containers-tests
+* ltp-cpuhotplug-tests
+* ltp-cve-tests
+* ltp-dio-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-hugetlb-tests
+* ltp-io-tests
+* ltp-ipc-tests
+* ltp-math-tests
+* ltp-mm-tests
+* ltp-sched-tests
+* ltp-syscalls-tests
+* perf
+* spectre-meltdown-checker-test
+* v4l2-compliance
+* kselftest
+* ltp-fs-tests
+* ltp-nptl-tests
+* ltp-pty-tests
+* ltp-securebits-tests
+* network-basic-tests
+* ltp-open-posix-tests
+* prep-tmp-disk
+* kvm-unit-tests
+* kselftest-vsyscall-mode-native
+* kselftest-vsyscall-mode-none
+* ssuite
+
+--=20
+Linaro LKFT
+https://lkft.linaro.org
