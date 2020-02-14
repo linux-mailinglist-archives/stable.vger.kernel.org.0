@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E69A815EA70
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:14:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 31B4A15EA6C
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:14:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392048AbgBNQMn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 11:12:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40400 "EHLO mail.kernel.org"
+        id S2392056AbgBNQMp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 11:12:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40422 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391674AbgBNQMm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:12:42 -0500
+        id S2392049AbgBNQMo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:12:44 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 566292469F;
-        Fri, 14 Feb 2020 16:12:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 695E42469B;
+        Fri, 14 Feb 2020 16:12:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581696762;
-        bh=BU4zdI+Om8I7i8HgMQTLxfaZ1cBg4dQ+Il+MUW2HDJU=;
+        s=default; t=1581696763;
+        bh=pbVzIndI7U2QKW7IP8oF3dBRt7hGnqAhaZiECsdUCfk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gJbjqAJOG+qrteCBXln7G347hoHx2MPEpFRSXY0KWqyN8lAoRxd30oKe0t3u8mBbE
-         F29YUbolRaN9xPLsAXyZ9bBss5x6yP9hLDFShGRn7L3TWTsF+kTyCTjXHxUdQKUCrr
-         T9C+w/gEvc+hxRbBTSSR84hYc0bFcareaBJbAxtM=
+        b=BmpIe9OTvkn7BR6owNLTk0RHtrWH00RFSL3QEf4l4+kcVHO2fMEOJBzSJb4/u7xGO
+         w2EO366ulVDoCSMChVHwaMzpM+SrT1dYzc7kOHJU0Zhv/SyhwDLeUmatVedXraY63r
+         MCnXXFTDyKIOIrDbtcaGLuwhLxI+5yWMUH9lAVtQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
-        Luis Henriques <luis.henriques@canonical.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 042/252] tracing: Fix very unlikely race of registering two stat tracers
-Date:   Fri, 14 Feb 2020 11:08:17 -0500
-Message-Id: <20200214161147.15842-42-sashal@kernel.org>
+Cc:     Tyrel Datwyler <tyreld@linux.vnet.ibm.com>,
+        Tyrel Datwyler <tyreld@linux.ibm.com>,
+        Alexey Kardashevskiy <aik@ozlabs.ru>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 4.19 043/252] powerpc/pseries/vio: Fix iommu_table use-after-free refcount warning
+Date:   Fri, 14 Feb 2020 11:08:18 -0500
+Message-Id: <20200214161147.15842-43-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214161147.15842-1-sashal@kernel.org>
 References: <20200214161147.15842-1-sashal@kernel.org>
@@ -43,85 +45,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+From: Tyrel Datwyler <tyreld@linux.vnet.ibm.com>
 
-[ Upstream commit dfb6cd1e654315168e36d947471bd2a0ccd834ae ]
+[ Upstream commit aff8c8242bc638ba57247ae1ec5f272ac3ed3b92 ]
 
-Looking through old emails in my INBOX, I came across a patch from Luis
-Henriques that attempted to fix a race of two stat tracers registering the
-same stat trace (extremely unlikely, as this is done in the kernel, and
-probably doesn't even exist). The submitted patch wasn't quite right as it
-needed to deal with clean up a bit better (if two stat tracers were the
-same, it would have the same files).
+Commit e5afdf9dd515 ("powerpc/vfio_spapr_tce: Add reference counting to
+iommu_table") missed an iommu_table allocation in the pseries vio code.
+The iommu_table is allocated with kzalloc and as a result the associated
+kref gets a value of zero. This has the side effect that during a DLPAR
+remove of the associated virtual IOA the iommu_tce_table_put() triggers
+a use-after-free underflow warning.
 
-But to make the code cleaner, all we needed to do is to keep the
-all_stat_sessions_mutex held for most of the registering function.
+Call Trace:
+[c0000002879e39f0] [c00000000071ecb4] refcount_warn_saturate+0x184/0x190
+(unreliable)
+[c0000002879e3a50] [c0000000000500ac] iommu_tce_table_put+0x9c/0xb0
+[c0000002879e3a70] [c0000000000f54e4] vio_dev_release+0x34/0x70
+[c0000002879e3aa0] [c00000000087cfa4] device_release+0x54/0xf0
+[c0000002879e3b10] [c000000000d64c84] kobject_cleanup+0xa4/0x240
+[c0000002879e3b90] [c00000000087d358] put_device+0x28/0x40
+[c0000002879e3bb0] [c0000000007a328c] dlpar_remove_slot+0x15c/0x250
+[c0000002879e3c50] [c0000000007a348c] remove_slot_store+0xac/0xf0
+[c0000002879e3cd0] [c000000000d64220] kobj_attr_store+0x30/0x60
+[c0000002879e3cf0] [c0000000004ff13c] sysfs_kf_write+0x6c/0xa0
+[c0000002879e3d10] [c0000000004fde4c] kernfs_fop_write+0x18c/0x260
+[c0000002879e3d60] [c000000000410f3c] __vfs_write+0x3c/0x70
+[c0000002879e3d80] [c000000000415408] vfs_write+0xc8/0x250
+[c0000002879e3dd0] [c0000000004157dc] ksys_write+0x7c/0x120
+[c0000002879e3e20] [c00000000000b278] system_call+0x5c/0x68
 
-Link: http://lkml.kernel.org/r/1410299375-20068-1-git-send-email-luis.henriques@canonical.com
+Further, since the refcount was always zero the iommu_tce_table_put()
+fails to call the iommu_table release function resulting in a leak.
 
-Fixes: 002bb86d8d42f ("tracing/ftrace: separate events tracing and stats tracing engine")
-Reported-by: Luis Henriques <luis.henriques@canonical.com>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Fix this issue be initilizing the iommu_table kref immediately after
+allocation.
+
+Fixes: e5afdf9dd515 ("powerpc/vfio_spapr_tce: Add reference counting to iommu_table")
+Signed-off-by: Tyrel Datwyler <tyreld@linux.ibm.com>
+Reviewed-by: Alexey Kardashevskiy <aik@ozlabs.ru>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/1579558202-26052-1-git-send-email-tyreld@linux.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/trace/trace_stat.c | 19 +++++++++----------
- 1 file changed, 9 insertions(+), 10 deletions(-)
+ arch/powerpc/platforms/pseries/vio.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/kernel/trace/trace_stat.c b/kernel/trace/trace_stat.c
-index bf68af63538b4..92b76f9e25edd 100644
---- a/kernel/trace/trace_stat.c
-+++ b/kernel/trace/trace_stat.c
-@@ -306,7 +306,7 @@ static int init_stat_file(struct stat_session *session)
- int register_stat_tracer(struct tracer_stat *trace)
- {
- 	struct stat_session *session, *node;
--	int ret;
-+	int ret = -EINVAL;
+diff --git a/arch/powerpc/platforms/pseries/vio.c b/arch/powerpc/platforms/pseries/vio.c
+index 49e04ec19238a..0e7778be4c490 100644
+--- a/arch/powerpc/platforms/pseries/vio.c
++++ b/arch/powerpc/platforms/pseries/vio.c
+@@ -1195,6 +1195,8 @@ static struct iommu_table *vio_build_iommu_table(struct vio_dev *dev)
+ 	if (tbl == NULL)
+ 		return NULL;
  
- 	if (!trace)
- 		return -EINVAL;
-@@ -317,17 +317,15 @@ int register_stat_tracer(struct tracer_stat *trace)
- 	/* Already registered? */
- 	mutex_lock(&all_stat_sessions_mutex);
- 	list_for_each_entry(node, &all_stat_sessions, session_list) {
--		if (node->ts == trace) {
--			mutex_unlock(&all_stat_sessions_mutex);
--			return -EINVAL;
--		}
-+		if (node->ts == trace)
-+			goto out;
- 	}
--	mutex_unlock(&all_stat_sessions_mutex);
++	kref_init(&tbl->it_kref);
++
+ 	of_parse_dma_window(dev->dev.of_node, dma_window,
+ 			    &tbl->it_index, &offset, &size);
  
-+	ret = -ENOMEM;
- 	/* Init the session */
- 	session = kzalloc(sizeof(*session), GFP_KERNEL);
- 	if (!session)
--		return -ENOMEM;
-+		goto out;
- 
- 	session->ts = trace;
- 	INIT_LIST_HEAD(&session->session_list);
-@@ -336,15 +334,16 @@ int register_stat_tracer(struct tracer_stat *trace)
- 	ret = init_stat_file(session);
- 	if (ret) {
- 		destroy_session(session);
--		return ret;
-+		goto out;
- 	}
- 
-+	ret = 0;
- 	/* Register */
--	mutex_lock(&all_stat_sessions_mutex);
- 	list_add_tail(&session->session_list, &all_stat_sessions);
-+ out:
- 	mutex_unlock(&all_stat_sessions_mutex);
- 
--	return 0;
-+	return ret;
- }
- 
- void unregister_stat_tracer(struct tracer_stat *trace)
 -- 
 2.20.1
 
