@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DB2FB15DCC9
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 16:56:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9DA4815DCCD
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 16:56:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731660AbgBNPyz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 10:54:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35342 "EHLO mail.kernel.org"
+        id S1731679AbgBNPzC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 10:55:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35682 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731654AbgBNPyw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 10:54:52 -0500
+        id S1731274AbgBNPzB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 10:55:01 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EB60E24649;
-        Fri, 14 Feb 2020 15:54:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D105D24686;
+        Fri, 14 Feb 2020 15:54:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581695691;
-        bh=TKNR1RggkVSKFIYabLZR0PfqLGHp4WwX0Rzzf+yWMoQ=;
+        s=default; t=1581695700;
+        bh=VR/tYj5donPID9f9La1GAChsuMa4kOjV/ethBBqSGqk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rWwya4HotxnZ1nOhQn+2FAtCct9ZmyHDC0TX0GTbfigQwAPpGjdOa6BNcTibbvre1
-         c6ZOCRSdsSXeQNOT4f3bmwZz9rC18WLu9Q0dxobOMcEbQejsGQ8GwPnxvMl1HslVLM
-         pkHl/I8SjhM4Sg00PnHBV9W2f38AsLFtMMQ8c6Ps=
+        b=vNfdHl+zv+D0ZItSon68bSG/N4awyNnXUinALs9X+QMiHK9a20ND2ozB7Xey9lYS8
+         z6KwM9db4eqhcIStf7ATtaeVRd4wVuIgPv2GotnFybJkwbRz3XUu9Au8Lb72N5oCjD
+         jpKTRb97PABLgAnXd4RPbHWtABJEtD02+nlKBvLg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.5 275/542] ASoC: soc-topology: fix endianness issues
-Date:   Fri, 14 Feb 2020 10:44:27 -0500
-Message-Id: <20200214154854.6746-275-sashal@kernel.org>
+Cc:     Kunihiko Hayashi <hayashi.kunihiko@socionext.com>,
+        Masahiro Yamada <yamada.masahiro@socionext.com>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-clk@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.5 282/542] clk: uniphier: Add SCSSI clock gate for each channel
+Date:   Fri, 14 Feb 2020 10:44:34 -0500
+Message-Id: <20200214154854.6746-282-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214154854.6746-1-sashal@kernel.org>
 References: <20200214154854.6746-1-sashal@kernel.org>
@@ -43,142 +45,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+From: Kunihiko Hayashi <hayashi.kunihiko@socionext.com>
 
-[ Upstream commit 72bbeda0222bcd382ee33b3aff71346074410c21 ]
+[ Upstream commit 1ec09a2ec67a0baa46a3ccac041dbcdbc6db2cb9 ]
 
-Sparse complains about a series of easy warnings, fix.
+SCSSI has clock gates for each channel in the SoCs newer than Pro4,
+so this adds missing clock gates for channel 1, 2 and 3. And more, this
+moves MCSSI clock ID after SCSSI.
 
-Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Link: https://lore.kernel.org/r/20200102195952.9465-3-pierre-louis.bossart@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: ff388ee36516 ("clk: uniphier: add clock frequency support for SPI")
+Signed-off-by: Kunihiko Hayashi <hayashi.kunihiko@socionext.com>
+Acked-by: Masahiro Yamada <yamada.masahiro@socionext.com>
+Link: https://lkml.kernel.org/r/1577410925-22021-1-git-send-email-hayashi.kunihiko@socionext.com
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/soc-topology.c | 42 +++++++++++++++++++++-------------------
- 1 file changed, 22 insertions(+), 20 deletions(-)
+ drivers/clk/uniphier/clk-uniphier-peri.c | 13 ++++++++-----
+ 1 file changed, 8 insertions(+), 5 deletions(-)
 
-diff --git a/sound/soc/soc-topology.c b/sound/soc/soc-topology.c
-index 4e1fe623c3908..0119f07cece6f 100644
---- a/sound/soc/soc-topology.c
-+++ b/sound/soc/soc-topology.c
-@@ -604,9 +604,11 @@ static int soc_tplg_kcontrol_bind_io(struct snd_soc_tplg_ctl_hdr *hdr,
- 		ext_ops = tplg->bytes_ext_ops;
- 		num_ops = tplg->bytes_ext_ops_count;
- 		for (i = 0; i < num_ops; i++) {
--			if (!sbe->put && ext_ops[i].id == be->ext_ops.put)
-+			if (!sbe->put &&
-+			    ext_ops[i].id == le32_to_cpu(be->ext_ops.put))
- 				sbe->put = ext_ops[i].put;
--			if (!sbe->get && ext_ops[i].id == be->ext_ops.get)
-+			if (!sbe->get &&
-+			    ext_ops[i].id == le32_to_cpu(be->ext_ops.get))
- 				sbe->get = ext_ops[i].get;
- 		}
+diff --git a/drivers/clk/uniphier/clk-uniphier-peri.c b/drivers/clk/uniphier/clk-uniphier-peri.c
+index 9caa52944b1c5..3e32db9dad815 100644
+--- a/drivers/clk/uniphier/clk-uniphier-peri.c
++++ b/drivers/clk/uniphier/clk-uniphier-peri.c
+@@ -18,8 +18,8 @@
+ #define UNIPHIER_PERI_CLK_FI2C(idx, ch)					\
+ 	UNIPHIER_CLK_GATE("i2c" #ch, (idx), "i2c", 0x24, 24 + (ch))
  
-@@ -621,11 +623,11 @@ static int soc_tplg_kcontrol_bind_io(struct snd_soc_tplg_ctl_hdr *hdr,
- 	num_ops = tplg->io_ops_count;
- 	for (i = 0; i < num_ops; i++) {
+-#define UNIPHIER_PERI_CLK_SCSSI(idx)					\
+-	UNIPHIER_CLK_GATE("scssi", (idx), "spi", 0x20, 17)
++#define UNIPHIER_PERI_CLK_SCSSI(idx, ch)				\
++	UNIPHIER_CLK_GATE("scssi" #ch, (idx), "spi", 0x20, 17 + (ch))
  
--		if (k->put == NULL && ops[i].id == hdr->ops.put)
-+		if (k->put == NULL && ops[i].id == le32_to_cpu(hdr->ops.put))
- 			k->put = ops[i].put;
--		if (k->get == NULL && ops[i].id == hdr->ops.get)
-+		if (k->get == NULL && ops[i].id == le32_to_cpu(hdr->ops.get))
- 			k->get = ops[i].get;
--		if (k->info == NULL && ops[i].id == hdr->ops.info)
-+		if (k->info == NULL && ops[i].id == le32_to_cpu(hdr->ops.info))
- 			k->info = ops[i].info;
- 	}
+ #define UNIPHIER_PERI_CLK_MCSSI(idx)					\
+ 	UNIPHIER_CLK_GATE("mcssi", (idx), "spi", 0x24, 14)
+@@ -35,7 +35,7 @@ const struct uniphier_clk_data uniphier_ld4_peri_clk_data[] = {
+ 	UNIPHIER_PERI_CLK_I2C(6, 2),
+ 	UNIPHIER_PERI_CLK_I2C(7, 3),
+ 	UNIPHIER_PERI_CLK_I2C(8, 4),
+-	UNIPHIER_PERI_CLK_SCSSI(11),
++	UNIPHIER_PERI_CLK_SCSSI(11, 0),
+ 	{ /* sentinel */ }
+ };
  
-@@ -638,11 +640,11 @@ static int soc_tplg_kcontrol_bind_io(struct snd_soc_tplg_ctl_hdr *hdr,
- 	num_ops = ARRAY_SIZE(io_ops);
- 	for (i = 0; i < num_ops; i++) {
- 
--		if (k->put == NULL && ops[i].id == hdr->ops.put)
-+		if (k->put == NULL && ops[i].id == le32_to_cpu(hdr->ops.put))
- 			k->put = ops[i].put;
--		if (k->get == NULL && ops[i].id == hdr->ops.get)
-+		if (k->get == NULL && ops[i].id == le32_to_cpu(hdr->ops.get))
- 			k->get = ops[i].get;
--		if (k->info == NULL && ops[i].id == hdr->ops.info)
-+		if (k->info == NULL && ops[i].id == le32_to_cpu(hdr->ops.info))
- 			k->info = ops[i].info;
- 	}
- 
-@@ -931,7 +933,7 @@ static int soc_tplg_denum_create_texts(struct soc_enum *se,
- 	if (se->dobj.control.dtexts == NULL)
- 		return -ENOMEM;
- 
--	for (i = 0; i < ec->items; i++) {
-+	for (i = 0; i < le32_to_cpu(ec->items); i++) {
- 
- 		if (strnlen(ec->texts[i], SNDRV_CTL_ELEM_ID_NAME_MAXLEN) ==
- 			SNDRV_CTL_ELEM_ID_NAME_MAXLEN) {
-@@ -1325,7 +1327,7 @@ static struct snd_kcontrol_new *soc_tplg_dapm_widget_dmixer_create(
- 		if (kc[i].name == NULL)
- 			goto err_sm;
- 		kc[i].iface = SNDRV_CTL_ELEM_IFACE_MIXER;
--		kc[i].access = mc->hdr.access;
-+		kc[i].access = le32_to_cpu(mc->hdr.access);
- 
- 		/* we only support FL/FR channel mapping atm */
- 		sm->reg = tplc_chan_get_reg(tplg, mc->channel,
-@@ -1337,10 +1339,10 @@ static struct snd_kcontrol_new *soc_tplg_dapm_widget_dmixer_create(
- 		sm->rshift = tplc_chan_get_shift(tplg, mc->channel,
- 			SNDRV_CHMAP_FR);
- 
--		sm->max = mc->max;
--		sm->min = mc->min;
--		sm->invert = mc->invert;
--		sm->platform_max = mc->platform_max;
-+		sm->max = le32_to_cpu(mc->max);
-+		sm->min = le32_to_cpu(mc->min);
-+		sm->invert = le32_to_cpu(mc->invert);
-+		sm->platform_max = le32_to_cpu(mc->platform_max);
- 		sm->dobj.index = tplg->index;
- 		INIT_LIST_HEAD(&sm->dobj.list);
- 
-@@ -1401,7 +1403,7 @@ static struct snd_kcontrol_new *soc_tplg_dapm_widget_denum_create(
- 			goto err_se;
- 
- 		tplg->pos += (sizeof(struct snd_soc_tplg_enum_control) +
--				ec->priv.size);
-+			      le32_to_cpu(ec->priv.size));
- 
- 		dev_dbg(tplg->dev, " adding DAPM widget enum control %s\n",
- 			ec->hdr.name);
-@@ -1411,7 +1413,7 @@ static struct snd_kcontrol_new *soc_tplg_dapm_widget_denum_create(
- 		if (kc[i].name == NULL)
- 			goto err_se;
- 		kc[i].iface = SNDRV_CTL_ELEM_IFACE_MIXER;
--		kc[i].access = ec->hdr.access;
-+		kc[i].access = le32_to_cpu(ec->hdr.access);
- 
- 		/* we only support FL/FR channel mapping atm */
- 		se->reg = tplc_chan_get_reg(tplg, ec->channel, SNDRV_CHMAP_FL);
-@@ -1420,8 +1422,8 @@ static struct snd_kcontrol_new *soc_tplg_dapm_widget_denum_create(
- 		se->shift_r = tplc_chan_get_shift(tplg, ec->channel,
- 						  SNDRV_CHMAP_FR);
- 
--		se->items = ec->items;
--		se->mask = ec->mask;
-+		se->items = le32_to_cpu(ec->items);
-+		se->mask = le32_to_cpu(ec->mask);
- 		se->dobj.index = tplg->index;
- 
- 		switch (le32_to_cpu(ec->hdr.ops.info)) {
-@@ -1523,9 +1525,9 @@ static struct snd_kcontrol_new *soc_tplg_dapm_widget_dbytes_create(
- 		if (kc[i].name == NULL)
- 			goto err_sbe;
- 		kc[i].iface = SNDRV_CTL_ELEM_IFACE_MIXER;
--		kc[i].access = be->hdr.access;
-+		kc[i].access = le32_to_cpu(be->hdr.access);
- 
--		sbe->max = be->max;
-+		sbe->max = le32_to_cpu(be->max);
- 		INIT_LIST_HEAD(&sbe->dobj.list);
- 
- 		/* map standard io handlers and check for external handlers */
+@@ -51,7 +51,10 @@ const struct uniphier_clk_data uniphier_pro4_peri_clk_data[] = {
+ 	UNIPHIER_PERI_CLK_FI2C(8, 4),
+ 	UNIPHIER_PERI_CLK_FI2C(9, 5),
+ 	UNIPHIER_PERI_CLK_FI2C(10, 6),
+-	UNIPHIER_PERI_CLK_SCSSI(11),
+-	UNIPHIER_PERI_CLK_MCSSI(12),
++	UNIPHIER_PERI_CLK_SCSSI(11, 0),
++	UNIPHIER_PERI_CLK_SCSSI(12, 1),
++	UNIPHIER_PERI_CLK_SCSSI(13, 2),
++	UNIPHIER_PERI_CLK_SCSSI(14, 3),
++	UNIPHIER_PERI_CLK_MCSSI(15),
+ 	{ /* sentinel */ }
+ };
 -- 
 2.20.1
 
