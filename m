@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E31DF15E9FB
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:11:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 99A6F15E9F8
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:11:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387852AbgBNRKk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 12:10:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42312 "EHLO mail.kernel.org"
+        id S2389908AbgBNRKe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 12:10:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42382 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391840AbgBNQNg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:13:36 -0500
+        id S2389118AbgBNQNi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:13:38 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BC51A246C1;
-        Fri, 14 Feb 2020 16:13:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1D87C246AA;
+        Fri, 14 Feb 2020 16:13:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581696815;
-        bh=TAJQ3d5LQOTkR0u/zgFlmI/5rfKu3+mGs9qTStlSToU=;
+        s=default; t=1581696818;
+        bh=ZJorePCda0YcuQNvCo5Rl+Qv7CjHpuqxHxskctmSdTY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jAPn1FrHr87eZ67gYRaykgPGvp50GCr7Z3dkJ7W7zZZG5QIx97HEzF+zYNiUzLh6r
-         FtSEz59hxjovYdHzPKvK0k+j5Kb4r5KWSjClSInoZpAroliMEPdSMVs8tZxkD0gFmC
-         95llIZ80bsBv5JrYCtX+Y66apfzs2jE0hTH2s5DA=
+        b=sgdaz1VRbTMn79ZnK4IAvVzJG2ep+Ggqu9nMuc//DTmpK0aVlOTjIs9O6eMSgRgWh
+         wd0tKTrn1kBgr0bWaY/JbJGQ6zNV6kh/bgHZZmWsmvKi8MEs7vUhVir5QGsWwIDUEH
+         qPr3mMSyblssu8kNz/GbN/pjJNC8FGjwxad2W66c=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Xiongfeng Wang <wangxiongfeng2@huawei.com>,
-        Hulk Robot <hulkci@huawei.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, linux-serial@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 084/252] tty: omap-serial: remove set but unused variable
-Date:   Fri, 14 Feb 2020 11:08:59 -0500
-Message-Id: <20200214161147.15842-84-sashal@kernel.org>
+Cc:     Manu Gautam <mgautam@codeaurora.org>,
+        Paolo Pisati <p.pisati@gmail.com>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Sasha Levin <sashal@kernel.org>, linux-arm-msm@vger.kernel.org,
+        devicetree@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 086/252] arm64: dts: qcom: msm8996: Disable USB2 PHY suspend by core
+Date:   Fri, 14 Feb 2020 11:09:01 -0500
+Message-Id: <20200214161147.15842-86-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214161147.15842-1-sashal@kernel.org>
 References: <20200214161147.15842-1-sashal@kernel.org>
@@ -44,46 +45,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiongfeng Wang <wangxiongfeng2@huawei.com>
+From: Manu Gautam <mgautam@codeaurora.org>
 
-[ Upstream commit e83c6587c47caa2278aa3bd603b5a85eddc4cec9 ]
+[ Upstream commit d026c96b25b7ce5df89526aad2df988d553edb4d ]
 
-Fix the following warning:
-drivers/tty/serial/omap-serial.c: In function serial_omap_rlsi:
-drivers/tty/serial/omap-serial.c:496:16: warning: variable ch set but not used [-Wunused-but-set-variable]
+QUSB2 PHY on msm8996 doesn't work well when autosuspend by
+dwc3 core using USB2PHYCFG register is enabled. One of the
+issue seen is that PHY driver reports PLL lock failure and
+fails phy_init() if dwc3 core has USB2 PHY suspend enabled.
+Fix this by using quirks to disable USB2 PHY LPM/suspend and
+dwc3 core already takes care of explicitly suspending PHY
+during suspend if quirks are specified.
 
-The character read is useless according to the table 23-246 of the omap4
-TRM. So we can drop it.
-
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Xiongfeng Wang <wangxiongfeng2@huawei.com>
-Link: https://lore.kernel.org/r/1575617863-32484-1-git-send-email-wangxiongfeng2@huawei.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Manu Gautam <mgautam@codeaurora.org>
+Signed-off-by: Paolo Pisati <p.pisati@gmail.com>
+Link: https://lore.kernel.org/r/20191209151501.26993-1-p.pisati@gmail.com
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/omap-serial.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ arch/arm64/boot/dts/qcom/msm8996.dtsi | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/tty/serial/omap-serial.c b/drivers/tty/serial/omap-serial.c
-index 6420ae581a802..5f808d8dfcd5c 100644
---- a/drivers/tty/serial/omap-serial.c
-+++ b/drivers/tty/serial/omap-serial.c
-@@ -493,10 +493,13 @@ static unsigned int check_modem_status(struct uart_omap_port *up)
- static void serial_omap_rlsi(struct uart_omap_port *up, unsigned int lsr)
- {
- 	unsigned int flag;
--	unsigned char ch = 0;
+diff --git a/arch/arm64/boot/dts/qcom/msm8996.dtsi b/arch/arm64/boot/dts/qcom/msm8996.dtsi
+index 8c86c41a0d25f..3e7baabf64507 100644
+--- a/arch/arm64/boot/dts/qcom/msm8996.dtsi
++++ b/arch/arm64/boot/dts/qcom/msm8996.dtsi
+@@ -918,6 +918,8 @@
+ 				interrupts = <0 138 IRQ_TYPE_LEVEL_HIGH>;
+ 				phys = <&hsusb_phy2>;
+ 				phy-names = "usb2-phy";
++				snps,dis_u2_susphy_quirk;
++				snps,dis_enblslpm_quirk;
+ 			};
+ 		};
  
-+	/*
-+	 * Read one data character out to avoid stalling the receiver according
-+	 * to the table 23-246 of the omap4 TRM.
-+	 */
- 	if (likely(lsr & UART_LSR_DR))
--		ch = serial_in(up, UART_RX);
-+		serial_in(up, UART_RX);
+@@ -947,6 +949,8 @@
+ 				interrupts = <0 131 IRQ_TYPE_LEVEL_HIGH>;
+ 				phys = <&hsusb_phy1>, <&ssusb_phy_0>;
+ 				phy-names = "usb2-phy", "usb3-phy";
++				snps,dis_u2_susphy_quirk;
++				snps,dis_enblslpm_quirk;
+ 			};
+ 		};
  
- 	up->port.icount.rx++;
- 	flag = TTY_NORMAL;
 -- 
 2.20.1
 
