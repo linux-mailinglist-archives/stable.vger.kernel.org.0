@@ -2,37 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D5B9115DEBA
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:05:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B563315DEBC
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:05:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390072AbgBNQFG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 11:05:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54256 "EHLO mail.kernel.org"
+        id S2390076AbgBNQFH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 11:05:07 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54276 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390010AbgBNQFF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:05:05 -0500
+        id S2389705AbgBNQFG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:05:06 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A638724695;
-        Fri, 14 Feb 2020 16:05:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E37D42467D;
+        Fri, 14 Feb 2020 16:05:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581696304;
-        bh=j27L0uvNh+GXvHJve/VVwZnTA0Mp4pOfRumbA87sMpU=;
+        s=default; t=1581696305;
+        bh=sdSNb2htOzeYzNbBS5Qvk1X4kOUPO9Y+4HeFNEpsvL0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tj2kdl1EJt9h7her1FvKgZVcdJUH/Akz0bnCE7s7T+inkHrtJPJsBnBDpJD8eZfY9
-         YZ4ITHc3pO6g6Fh3JH3F+HJX7rQocUXLtR73/VwLv4P+a8mU6zozyZT/RnA48Bp5fd
-         z7JsedqKRYoRL2OVLxHMnfax22zHuihu8+xgnFLM=
+        b=rWNrp8tLUs7XuJHCjwX7duZbXDDe3dtjmUJqPnqMJEg4vi2ID+VqwCuW49/q8mroo
+         Eu9ZaqgC2Rvke8J9tXig4U9znklVbL3hYxNO61RGhIYCEwPxT9qALe3QGvpsxZXDBt
+         yUt81G+W9woMQAa4X7F8PuGJY2B/TzWKoUw3d1Mc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Robin Murphy <robin.murphy@arm.com>,
-        Heiko Stuebner <heiko@sntech.de>,
-        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-rockchip@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.4 148/459] arm64: dts: rockchip: Fix NanoPC-T4 cooling maps
-Date:   Fri, 14 Feb 2020 10:56:38 -0500
-Message-Id: <20200214160149.11681-148-sashal@kernel.org>
+Cc:     Masami Hiramatsu <mhiramat@kernel.org>,
+        Jessica Yu <jeyu@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 149/459] modules: lockdep: Suppress suspicious RCU usage warning
+Date:   Fri, 14 Feb 2020 10:56:39 -0500
+Message-Id: <20200214160149.11681-149-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214160149.11681-1-sashal@kernel.org>
 References: <20200214160149.11681-1-sashal@kernel.org>
@@ -45,64 +42,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robin Murphy <robin.murphy@arm.com>
+From: Masami Hiramatsu <mhiramat@kernel.org>
 
-[ Upstream commit a793e19c15f25a126138ac4ae9facf9204754af3 ]
+[ Upstream commit bf08949cc8b98b7d1e20cfbba169a5938d42dae8 ]
 
-Although it appeared to follow logically from the bindings, apparently
-the thermal framework can't properly cope with a single cooling device
-being shared between multiple maps. The CPU zone is probably easier to
-overheat, so remove the references to the (optional) fan from the GPU
-cooling zone to avoid things getting confused. Hopefully GPU-intensive
-tasks will leak enough heat across to the CPU zone to still hit the
-fan trips before reaching critical GPU temperatures.
+While running kprobe module test, find_module_all() caused
+a suspicious RCU usage warning.
 
-Signed-off-by: Robin Murphy <robin.murphy@arm.com>
-Link: https://lore.kernel.org/r/5bb39f3115df1a487d717d3ae87e523b03749379.1573908197.git.robin.murphy@arm.com
-Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+-----
+ =============================
+ WARNING: suspicious RCU usage
+ 5.4.0-next-20191202+ #63 Not tainted
+ -----------------------------
+ kernel/module.c:619 RCU-list traversed in non-reader section!!
+
+ other info that might help us debug this:
+
+ rcu_scheduler_active = 2, debug_locks = 1
+ 1 lock held by rmmod/642:
+  #0: ffffffff8227da80 (module_mutex){+.+.}, at: __x64_sys_delete_module+0x9a/0x230
+
+ stack backtrace:
+ CPU: 0 PID: 642 Comm: rmmod Not tainted 5.4.0-next-20191202+ #63
+ Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.12.1-0-ga5cab58e9a3f-prebuilt.qemu.org 04/01/2014
+ Call Trace:
+  dump_stack+0x71/0xa0
+  find_module_all+0xc1/0xd0
+  __x64_sys_delete_module+0xac/0x230
+  ? do_syscall_64+0x12/0x1f0
+  do_syscall_64+0x50/0x1f0
+  entry_SYSCALL_64_after_hwframe+0x49/0xbe
+ RIP: 0033:0x4b6d49
+-----
+
+This is because list_for_each_entry_rcu(modules) is called
+without rcu_read_lock(). This is safe because the module_mutex
+is locked.
+
+Pass lockdep_is_held(&module_mutex) to the list_for_each_entry_rcu()
+to suppress this warning, This also fixes similar issue in
+mod_find() and each_symbol_section().
+
+Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
+Signed-off-by: Jessica Yu <jeyu@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../boot/dts/rockchip/rk3399-nanopc-t4.dts    | 27 -------------------
- 1 file changed, 27 deletions(-)
+ kernel/module.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/rockchip/rk3399-nanopc-t4.dts b/arch/arm64/boot/dts/rockchip/rk3399-nanopc-t4.dts
-index 2a127985ab171..d3ed8e5e770f1 100644
---- a/arch/arm64/boot/dts/rockchip/rk3399-nanopc-t4.dts
-+++ b/arch/arm64/boot/dts/rockchip/rk3399-nanopc-t4.dts
-@@ -94,33 +94,6 @@
- 	};
- };
+diff --git a/kernel/module.c b/kernel/module.c
+index 9fb8fa22e16b3..135861c2ac782 100644
+--- a/kernel/module.c
++++ b/kernel/module.c
+@@ -214,7 +214,8 @@ static struct module *mod_find(unsigned long addr)
+ {
+ 	struct module *mod;
  
--&gpu_thermal {
--	trips {
--		gpu_warm: gpu_warm {
--			temperature = <55000>;
--			hysteresis = <2000>;
--			type = "active";
--		};
--
--		gpu_hot: gpu_hot {
--			temperature = <65000>;
--			hysteresis = <2000>;
--			type = "active";
--		};
--	};
--	cooling-maps {
--		map1 {
--			trip = <&gpu_warm>;
--			cooling-device = <&fan THERMAL_NO_LIMIT 1>;
--		};
--
--		map2 {
--			trip = <&gpu_hot>;
--			cooling-device = <&fan 2 THERMAL_NO_LIMIT>;
--		};
--	};
--};
--
- &pinctrl {
- 	ir {
- 		ir_rx: ir-rx {
+-	list_for_each_entry_rcu(mod, &modules, list) {
++	list_for_each_entry_rcu(mod, &modules, list,
++				lockdep_is_held(&module_mutex)) {
+ 		if (within_module(addr, mod))
+ 			return mod;
+ 	}
+@@ -448,7 +449,8 @@ bool each_symbol_section(bool (*fn)(const struct symsearch *arr,
+ 	if (each_symbol_in_section(arr, ARRAY_SIZE(arr), NULL, fn, data))
+ 		return true;
+ 
+-	list_for_each_entry_rcu(mod, &modules, list) {
++	list_for_each_entry_rcu(mod, &modules, list,
++				lockdep_is_held(&module_mutex)) {
+ 		struct symsearch arr[] = {
+ 			{ mod->syms, mod->syms + mod->num_syms, mod->crcs,
+ 			  NOT_GPL_ONLY, false },
+@@ -616,7 +618,8 @@ static struct module *find_module_all(const char *name, size_t len,
+ 
+ 	module_assert_mutex_or_preempt();
+ 
+-	list_for_each_entry_rcu(mod, &modules, list) {
++	list_for_each_entry_rcu(mod, &modules, list,
++				lockdep_is_held(&module_mutex)) {
+ 		if (!even_unformed && mod->state == MODULE_STATE_UNFORMED)
+ 			continue;
+ 		if (strlen(mod->name) == len && !memcmp(mod->name, name, len))
 -- 
 2.20.1
 
