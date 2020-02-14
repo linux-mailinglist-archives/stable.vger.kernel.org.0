@@ -2,101 +2,131 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 93D3615CF4E
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 01:59:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8914D15CF63
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 02:13:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728144AbgBNA7j (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 19:59:39 -0500
-Received: from mail-pg1-f194.google.com ([209.85.215.194]:39732 "EHLO
-        mail-pg1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727707AbgBNA7i (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 Feb 2020 19:59:38 -0500
-Received: by mail-pg1-f194.google.com with SMTP id j15so4048716pgm.6;
-        Thu, 13 Feb 2020 16:59:38 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=KGAkAQN7UKD5cp5rcXQafG6Fvog7EeESwkHMX9lCD3o=;
-        b=eOrZP//+hYGOHpRTmEPOl8lB7epeRUlIhwq1ycrWLnyaXspPa/9EkJkU19Ly11yz/f
-         0qJGPxL/ZtF6MCOfqjdKumFef/5lkzsbiqhO3gQDjEGIGNHp2ZMNfHarP9lnhN9asiIY
-         h52ln5EG3Z012upEl0QHRPoLL+i+QAricEuc0Ntc71Sya4Udpn52KAOL+E3bpt2mFFSm
-         FrqoZpjZNak60/75Cxb5SsoNPCMelbZtbhW+XVERfCNIjK9Go+qm9ItBExtFzT0JZ2KG
-         KUeQXjJVw9keQgN1KHUb07mo+p7Cgy5ptf3R0TYKxOZVrzPGzqUIWohHa0w5qVm3QIBN
-         rhig==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=KGAkAQN7UKD5cp5rcXQafG6Fvog7EeESwkHMX9lCD3o=;
-        b=ZITn4oLpLS+reO26WHg1MZNrDk7vhDbolaC8X5y188UdBd1lLGn3PBwRWuYVp9EQvN
-         5RdCqiWgsqBjClpwQ0N7xx5WzdZzgL+Yo6vJSts3YXvqJmovhMILanaY34r4ZOJ1Gh2A
-         YgFXMvXxRztlrxdkcIdQm3Nd0pHm70IMn396Jw5C1SYm3rh0gHKxL20zpzCBnIa6TDkU
-         F2gj1/3Fd/p/cFtjl3b6+j5oRhKiyF8kf1npGvCRJD5vIssw7/RYB8Kxs1CwQ4ikcId8
-         9CaopwRIXdTEis1tGum1vOwYZNtFSzbz/j0Jy9aIjoFJZRFaIoULfj6fomkG8OOLOqCR
-         ru0A==
-X-Gm-Message-State: APjAAAVtj+up6ziy3qpAkW7XaZa3NDVQP+Re3oNXo2wNF4xHPwx/WMok
-        Q68E6zzfZRIqiDfb2bki7Z0=
-X-Google-Smtp-Source: APXvYqz3rzlEXrJDf7CQded5MdtkRlN2emOaI6bqFSOZS/alxtCarlY/O4U9KrjccY/Vhpg0/vBS3w==
-X-Received: by 2002:a63:fc51:: with SMTP id r17mr696678pgk.292.1581641978078;
-        Thu, 13 Feb 2020 16:59:38 -0800 (PST)
-Received: from dtor-ws ([2620:15c:202:201:3adc:b08c:7acc:b325])
-        by smtp.gmail.com with ESMTPSA id z5sm4431022pfq.3.2020.02.13.16.59.37
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 13 Feb 2020 16:59:37 -0800 (PST)
-Date:   Thu, 13 Feb 2020 16:59:35 -0800
-From:   Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To:     Lyude Paul <lyude@redhat.com>
-Cc:     linux-input@vger.kernel.org, stable@vger.kernel.org,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        Alexander Mikhaylenko <exalm7659@gmail.com>,
-        Enrico Weigelt <info@metux.net>, Joe Perches <joe@perches.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Nick Black <dankamongmen@gmail.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Input: synaptics - switch T470s to RMI4 by default
-Message-ID: <20200214005935.GC183709@dtor-ws>
-References: <20200204194322.112638-1-lyude@redhat.com>
+        id S1727609AbgBNBNm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 20:13:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45054 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727604AbgBNBNm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 20:13:42 -0500
+Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 49D2520848;
+        Fri, 14 Feb 2020 01:13:41 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1581642821;
+        bh=1I5Av8GRv6y5/2c2uoawZIwNDflYotcNf7jvh+xAvMQ=;
+        h=Date:From:To:Subject:References:In-Reply-To:From;
+        b=v2abwC2WVOaYOIj2aei7KvR6/8EzZiRm8Elb0H6S2EYUbykAaSgfDJ7aVt0hjwMeM
+         KB6aTrHtl2imXOEESVoA8NgrBEJHIW2qE5lOleX4ehqpFX3OsJzqETvqaXnWBvEOh/
+         fGvDcHnoLsTwKAWGD4ehninq9w75Ue+nLlJf5N7c=
+Date:   Thu, 13 Feb 2020 20:13:39 -0500
+From:   Sasha Levin <sashal@kernel.org>
+To:     dsterba@suse.cz, Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Josef Bacik <josef@toxicpanda.com>,
+        David Sterba <dsterba@suse.com>
+Subject: Re: [PATCH 4.9 083/116] btrfs: free block groups after freeing fs
+ trees
+Message-ID: <20200214011339.GB1734@sasha-vm>
+References: <20200213151842.259660170@linuxfoundation.org>
+ <20200213151915.106400155@linuxfoundation.org>
+ <20200213205533.GR2902@suse.cz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
-In-Reply-To: <20200204194322.112638-1-lyude@redhat.com>
+In-Reply-To: <20200213205533.GR2902@suse.cz>
 User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Feb 04, 2020 at 02:43:21PM -0500, Lyude Paul wrote:
-> This supports RMI4 and everything seems to work, including the touchpad
-> buttons. So, let's enable this by default.
-> 
-> Signed-off-by: Lyude Paul <lyude@redhat.com>
-> Cc: stable@vger.kernel.org
+On Thu, Feb 13, 2020 at 09:55:33PM +0100, David Sterba wrote:
+>On Thu, Feb 13, 2020 at 07:20:27AM -0800, Greg Kroah-Hartman wrote:
+>> From: Josef Bacik <josef@toxicpanda.com>
+>>
+>> [ Upstream commit 4e19443da1941050b346f8fc4c368aa68413bc88 ]
+>>
+>> Sometimes when running generic/475 we would trip the
+>> WARN_ON(cache->reserved) check when free'ing the block groups on umount.
+>> This is because sometimes we don't commit the transaction because of IO
+>> errors and thus do not cleanup the tree logs until at umount time.
+>>
+>> These blocks are still reserved until they are cleaned up, but they
+>> aren't cleaned up until _after_ we do the free block groups work.  Fix
+>> this by moving the free after free'ing the fs roots, that way all of the
+>> tree logs are cleaned up and we have a properly cleaned fs.  A bunch of
+>> loops of generic/475 confirmed this fixes the problem.
+>>
+>> CC: stable@vger.kernel.org # 4.9+
+>> Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+>> Reviewed-by: David Sterba <dsterba@suse.com>
+>> Signed-off-by: David Sterba <dsterba@suse.com>
+>> Signed-off-by: Sasha Levin <sashal@kernel.org>
+>> ---
+>>  fs/btrfs/disk-io.c | 9 +++++++++
+>>  1 file changed, 9 insertions(+)
+>>
+>> diff --git a/fs/btrfs/disk-io.c b/fs/btrfs/disk-io.c
+>> index eab5a9065f093..439b5f5dc3274 100644
+>> --- a/fs/btrfs/disk-io.c
+>> +++ b/fs/btrfs/disk-io.c
+>> @@ -3864,6 +3864,15 @@ void close_ctree(struct btrfs_root *root)
+>>  	clear_bit(BTRFS_FS_OPEN, &fs_info->flags);
+>>  	free_root_pointers(fs_info, true);
+>>
+>> +	/*
+>> +	 * We must free the block groups after dropping the fs_roots as we could
+>> +	 * have had an IO error and have left over tree log blocks that aren't
+>> +	 * cleaned up until the fs roots are freed.  This makes the block group
+>> +	 * accounting appear to be wrong because there's pending reserved bytes,
+>> +	 * so make sure we do the block group cleanup afterwards.
+>> +	 */
+>> +	btrfs_free_block_groups(fs_info);
+>
+>Something's wrong here.  The patch 4e19443da1 moves the
+>btrfs_free_block_groups() call and the stable backport lacks the "-"
+>line. However the patch applies cleanly on 4.9.213.
+>
+>3855         btrfs_free_block_groups(fs_info);
+>^^^^
+>
+>3856
+>3857         /*
+>3858          * we must make sure there is not any read request to
+>3859          * submit after we stopping all workers.
+>3860          */
+>3861         invalidate_inode_pages2(fs_info->btree_inode->i_mapping);
+>3862         btrfs_stop_all_workers(fs_info);
+>3863
+>3864         clear_bit(BTRFS_FS_OPEN, &fs_info->flags);
+>3865         free_root_pointers(fs_info, 1);
+>3866
+>3867         /*
+>3868          * We must free the block groups after dropping the fs_roots as we could
+>3869          * have had an IO error and have left over tree log blocks that aren't
+>3870          * cleaned up until the fs roots are freed.  This makes the block group
+>3871          * accounting appear to be wrong because there's pending reserved bytes,
+>3872          * so make sure we do the block group cleanup afterwards.
+>3873          */
+>3874         btrfs_free_block_groups(fs_info);
+>
+>The first one should not be there.
 
-Applied, thank you.
+Sigh, sorry about that. The story behind this is that for this patch to
+apply, we first must have 5cdd7db6c5c9 ("Btrfs: fix assertion failure
+when freeing block groups at close_ctree()") which moves the
+btrfs_free_block_groups() call to line 3863 in your code above.
 
-> ---
->  drivers/input/mouse/synaptics.c | 1 +
->  1 file changed, 1 insertion(+)
-> 
-> diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-> index 1ae6f8bba9ae..8cb8475657ca 100644
-> --- a/drivers/input/mouse/synaptics.c
-> +++ b/drivers/input/mouse/synaptics.c
-> @@ -169,6 +169,7 @@ static const char * const smbus_pnp_ids[] = {
->  	"LEN004a", /* W541 */
->  	"LEN005b", /* P50 */
->  	"LEN005e", /* T560 */
-> +	"LEN006c", /* T470s */
->  	"LEN0071", /* T480 */
->  	"LEN0072", /* X1 Carbon Gen 5 (2017) - Elan/ALPS trackpoint */
->  	"LEN0073", /* X1 Carbon G5 (Elantech) */
-> -- 
-> 2.24.1
-> 
+I somehow goofed up picking it up and (probably) messed up the rebase
+when it went missing, sorry again.
+
+I'll fix it up for the next release.
 
 -- 
-Dmitry
+Thanks,
+Sasha
