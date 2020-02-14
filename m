@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3956315EDB1
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:36:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EDCF415EDB5
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:36:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390231AbgBNQFq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 11:05:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55854 "EHLO mail.kernel.org"
+        id S1730722AbgBNRft (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 12:35:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55872 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390228AbgBNQFq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:05:46 -0500
+        id S2390067AbgBNQFr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:05:47 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C958A2187F;
-        Fri, 14 Feb 2020 16:05:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 053082467D;
+        Fri, 14 Feb 2020 16:05:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581696345;
-        bh=hbhqy1VIf4rqPgX/t0HvXSAoqhLM+FaG+qBst9hGctM=;
+        s=default; t=1581696346;
+        bh=8uG1pKmllG6vODb9BHuyO83kQ55D5RpViPviNkzTLOs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X03ZaHHphrqSUavTETI/yNP06fTOg9HWNlkH7LRsBgxzTiRFov/GnKKOK9ckJ9qsk
-         4lCT1kyMbW8jhXAph0Tpr+0fpSQcKRbMa2gyJIUi5HUppUaxKYhb9gZ4PQJ0eo4ptJ
-         8ici13tQzLQqIVvqybhq5W3tsB94Ario1khwJUdc=
+        b=v6kotx0uYbjCkpuHvjOmxE5NBX6x7bCnAeZYPqUgpWE2V/cHPj/wZf5hORjBM9lGW
+         z2lvuOFS3kLGye/OWSU1oDY0HSE1j8ioppyOiFmtDJkvxt5WYBCmY5bcHsbs+01YAw
+         DX+Dvnal7Yvq2iWJIIwanrrYUYiIN2dX/3HP4yL8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Daniel Drake <drake@endlessm.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Sasha Levin <sashal@kernel.org>, linux-pci@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 180/459] PCI: Increase D3 delay for AMD Ryzen5/7 XHCI controllers
-Date:   Fri, 14 Feb 2020 10:57:10 -0500
-Message-Id: <20200214160149.11681-180-sashal@kernel.org>
+Cc:     Jakub Kicinski <jakub.kicinski@netronome.com>,
+        John Hurley <john.hurley@netronome.com>,
+        Sasha Levin <sashal@kernel.org>, oss-drivers@netronome.com,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 181/459] Revert "nfp: abm: fix memory leak in nfp_abm_u32_knode_replace"
+Date:   Fri, 14 Feb 2020 10:57:11 -0500
+Message-Id: <20200214160149.11681-181-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214160149.11681-1-sashal@kernel.org>
 References: <20200214160149.11681-1-sashal@kernel.org>
@@ -44,67 +44,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Drake <drake@endlessm.com>
+From: Jakub Kicinski <jakub.kicinski@netronome.com>
 
-[ Upstream commit 3030df209aa8cf831b9963829bd9f94900ee8032 ]
+[ Upstream commit 1d1997db870f4058676439ef7014390ba9e24eb2 ]
 
-On Asus UX434DA (AMD Ryzen7 3700U) and Asus X512DK (AMD Ryzen5 3500U), the
-XHCI controller fails to resume from runtime suspend or s2idle, and USB
-becomes unusable from that point.
+This reverts commit 78beef629fd9 ("nfp: abm: fix memory leak in
+nfp_abm_u32_knode_replace").
 
-  xhci_hcd 0000:03:00.4: Refused to change power state, currently in D3
-  xhci_hcd 0000:03:00.4: enabling device (0000 -> 0002)
-  xhci_hcd 0000:03:00.4: WARN: xHC restore state timeout
-  xhci_hcd 0000:03:00.4: PCI post-resume error -110!
-  xhci_hcd 0000:03:00.4: HC died; cleaning up
+The quoted commit does not fix anything and resulted in a bogus
+CVE-2019-19076.
 
-During suspend, a transition to D3cold is attempted, however the affected
-platforms do not seem to cut the power to the PCI device when in this
-state, so the device stays in D3hot.
+If match is NULL then it is known there is no matching entry in
+list, hence, calling nfp_abm_u32_knode_delete() is pointless.
 
-Upon resume, the D3hot-to-D0 transition is successful only if the D3 delay
-is increased to 20ms. The transition failure does not appear to be
-detectable as a CRS condition. Add a PCI quirk to increase the delay on the
-affected hardware.
-
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=205587
-Link: http://lkml.kernel.org/r/CAD8Lp47Vh69gQjROYG69=waJgL7hs1PwnLonL9+27S_TcRhixA@mail.gmail.com
-Link: https://lore.kernel.org/r/20191127053836.31624-2-drake@endlessm.com
-Signed-off-by: Daniel Drake <drake@endlessm.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
+Reviewed-by: John Hurley <john.hurley@netronome.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/quirks.c | 16 ++++++++++++++++
- 1 file changed, 16 insertions(+)
+ drivers/net/ethernet/netronome/nfp/abm/cls.c | 14 ++++----------
+ 1 file changed, 4 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/pci/quirks.c b/drivers/pci/quirks.c
-index 5c863af9452ec..7b6df2d8d6cde 100644
---- a/drivers/pci/quirks.c
-+++ b/drivers/pci/quirks.c
-@@ -1889,6 +1889,22 @@ static void quirk_radeon_pm(struct pci_dev *dev)
- }
- DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_ATI, 0x6741, quirk_radeon_pm);
+diff --git a/drivers/net/ethernet/netronome/nfp/abm/cls.c b/drivers/net/ethernet/netronome/nfp/abm/cls.c
+index 9f8a1f69c0c4c..23ebddfb95325 100644
+--- a/drivers/net/ethernet/netronome/nfp/abm/cls.c
++++ b/drivers/net/ethernet/netronome/nfp/abm/cls.c
+@@ -176,10 +176,8 @@ nfp_abm_u32_knode_replace(struct nfp_abm_link *alink,
+ 	u8 mask, val;
+ 	int err;
  
-+/*
-+ * Ryzen5/7 XHCI controllers fail upon resume from runtime suspend or s2idle.
-+ * https://bugzilla.kernel.org/show_bug.cgi?id=205587
-+ *
-+ * The kernel attempts to transition these devices to D3cold, but that seems
-+ * to be ineffective on the platforms in question; the PCI device appears to
-+ * remain on in D3hot state. The D3hot-to-D0 transition then requires an
-+ * extended delay in order to succeed.
-+ */
-+static void quirk_ryzen_xhci_d3hot(struct pci_dev *dev)
-+{
-+	quirk_d3hot_delay(dev, 20);
-+}
-+DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_AMD, 0x15e0, quirk_ryzen_xhci_d3hot);
-+DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_AMD, 0x15e1, quirk_ryzen_xhci_d3hot);
-+
- #ifdef CONFIG_X86_IO_APIC
- static int dmi_disable_ioapicreroute(const struct dmi_system_id *d)
- {
+-	if (!nfp_abm_u32_check_knode(alink->abm, knode, proto, extack)) {
+-		err = -EOPNOTSUPP;
++	if (!nfp_abm_u32_check_knode(alink->abm, knode, proto, extack))
+ 		goto err_delete;
+-	}
+ 
+ 	tos_off = proto == htons(ETH_P_IP) ? 16 : 20;
+ 
+@@ -200,18 +198,14 @@ nfp_abm_u32_knode_replace(struct nfp_abm_link *alink,
+ 		if ((iter->val & cmask) == (val & cmask) &&
+ 		    iter->band != knode->res->classid) {
+ 			NL_SET_ERR_MSG_MOD(extack, "conflict with already offloaded filter");
+-			err = -EOPNOTSUPP;
+ 			goto err_delete;
+ 		}
+ 	}
+ 
+ 	if (!match) {
+ 		match = kzalloc(sizeof(*match), GFP_KERNEL);
+-		if (!match) {
+-			err = -ENOMEM;
+-			goto err_delete;
+-		}
+-
++		if (!match)
++			return -ENOMEM;
+ 		list_add(&match->list, &alink->dscp_map);
+ 	}
+ 	match->handle = knode->handle;
+@@ -227,7 +221,7 @@ nfp_abm_u32_knode_replace(struct nfp_abm_link *alink,
+ 
+ err_delete:
+ 	nfp_abm_u32_knode_delete(alink, knode);
+-	return err;
++	return -EOPNOTSUPP;
+ }
+ 
+ static int nfp_abm_setup_tc_block_cb(enum tc_setup_type type,
 -- 
 2.20.1
 
