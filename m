@@ -2,36 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7EAD415EB9B
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:22:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 008B315EB86
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:21:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391082AbgBNRVz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 12:21:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35642 "EHLO mail.kernel.org"
+        id S2391442AbgBNQKQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 11:10:16 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35706 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391434AbgBNQKO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:10:14 -0500
+        id S2391433AbgBNQKQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:10:16 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9AC2F222C2;
-        Fri, 14 Feb 2020 16:10:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B30B82467E;
+        Fri, 14 Feb 2020 16:10:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581696613;
-        bh=1cIvgbQumL/bZuCtORG9WNL/02NREKUgNOvzr9i7L+c=;
+        s=default; t=1581696615;
+        bh=j5+g+RQG+8iUqfhHmGbPWGjRcRjG8CzYFVOGHpcaMTw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ePwXe+Aqo+rGoLg5vMIyNDk6RS9LHORs255TIJRksS0fxvnfDximFTDFSGXDzF6r6
-         bmK3KyKpp7mu9Hg4ssEWEoiVdOoDGlSMxqukBngSqGqv0PaJdkxntOQr6zs/FMgJ3v
-         TBBZhO6LPZ+Qse4abRNkPPj+HErt2vIDUxgJvXrA=
+        b=iJ9TmJByxRIXIVSdQs2zxoEv6wd3qlkEG4X+scMuV4lEAznyuo4xUxNYqslPKh7GN
+         7b2J9DIreXxVIRIGWV81AIIIELNLDHkPygzPJlTKVtvCJUrnirAjfM73B72VO40hXH
+         X8yatePeub2IpF4Wi0qCKtfwkyHyzlxLkSbW2Vcg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Stephen Boyd <swboyd@chromium.org>,
-        Douglas Anderson <dianders@chromium.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.4 396/459] alarmtimer: Make alarmtimer platform device child of RTC device
-Date:   Fri, 14 Feb 2020 11:00:46 -0500
-Message-Id: <20200214160149.11681-396-sashal@kernel.org>
+Cc:     Lorenz Bauer <lmb@cloudflare.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Jakub Sitnicki <jakub@cloudflare.com>,
+        Martin KaFai Lau <kafai@fb.com>,
+        John Fastabend <john.fastabend@gmail.com>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-kselftest@vger.kernel.org, netdev@vger.kernel.org,
+        bpf@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 397/459] selftests: bpf: Reset global state between reuseport test runs
+Date:   Fri, 14 Feb 2020 11:00:47 -0500
+Message-Id: <20200214160149.11681-397-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214160149.11681-1-sashal@kernel.org>
 References: <20200214160149.11681-1-sashal@kernel.org>
@@ -44,100 +48,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephen Boyd <swboyd@chromium.org>
+From: Lorenz Bauer <lmb@cloudflare.com>
 
-[ Upstream commit c79108bd19a8490315847e0c95ac6526fcd8e770 ]
+[ Upstream commit 51bad0f05616c43d6d34b0a19bcc9bdab8e8fb39 ]
 
-The alarmtimer_suspend() function will fail if an RTC device is on a bus
-such as SPI or i2c and that RTC device registers and probes after
-alarmtimer_init() registers and probes the 'alarmtimer' platform device.
+Currently, there is a lot of false positives if a single reuseport test
+fails. This is because expected_results and the result map are not cleared.
 
-This is because system wide suspend suspends devices in the reverse order
-of their probe. When alarmtimer_suspend() attempts to program the RTC for a
-wakeup it will try to program an RTC device on a bus that has already been
-suspended.
+Zero both after individual test runs, which fixes the mentioned false
+positives.
 
-Move the alarmtimer device registration to happen when the RTC which is
-used for wakeup is registered. Register the 'alarmtimer' platform device as
-a child of the RTC device too, so that it can be guaranteed that the RTC
-device won't be suspended when alarmtimer_suspend() is called.
-
-Reported-by: Douglas Anderson <dianders@chromium.org>
-Signed-off-by: Stephen Boyd <swboyd@chromium.org>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Reviewed-by: Douglas Anderson <dianders@chromium.org>
-Link: https://lore.kernel.org/r/20200124055849.154411-2-swboyd@chromium.org
+Fixes: 91134d849a0e ("bpf: Test BPF_PROG_TYPE_SK_REUSEPORT")
+Signed-off-by: Lorenz Bauer <lmb@cloudflare.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Reviewed-by: Jakub Sitnicki <jakub@cloudflare.com>
+Acked-by: Martin KaFai Lau <kafai@fb.com>
+Acked-by: John Fastabend <john.fastabend@gmail.com>
+Link: https://lore.kernel.org/bpf/20200124112754.19664-5-lmb@cloudflare.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/time/alarmtimer.c | 20 +++++++++-----------
- 1 file changed, 9 insertions(+), 11 deletions(-)
+ .../selftests/bpf/test_select_reuseport.c        | 16 ++++++++++++++--
+ 1 file changed, 14 insertions(+), 2 deletions(-)
 
-diff --git a/kernel/time/alarmtimer.c b/kernel/time/alarmtimer.c
-index 4b11f0309eee4..b97401f6bc232 100644
---- a/kernel/time/alarmtimer.c
-+++ b/kernel/time/alarmtimer.c
-@@ -88,6 +88,7 @@ static int alarmtimer_rtc_add_device(struct device *dev,
- 	unsigned long flags;
- 	struct rtc_device *rtc = to_rtc_device(dev);
- 	struct wakeup_source *__ws;
-+	struct platform_device *pdev;
- 	int ret = 0;
+diff --git a/tools/testing/selftests/bpf/test_select_reuseport.c b/tools/testing/selftests/bpf/test_select_reuseport.c
+index 7566c13eb51a7..079d0f5a29091 100644
+--- a/tools/testing/selftests/bpf/test_select_reuseport.c
++++ b/tools/testing/selftests/bpf/test_select_reuseport.c
+@@ -30,7 +30,7 @@
+ #define REUSEPORT_ARRAY_SIZE 32
  
- 	if (rtcdev)
-@@ -99,9 +100,11 @@ static int alarmtimer_rtc_add_device(struct device *dev,
- 		return -1;
+ static int result_map, tmp_index_ovr_map, linum_map, data_check_map;
+-static enum result expected_results[NR_RESULTS];
++static __u32 expected_results[NR_RESULTS];
+ static int sk_fds[REUSEPORT_ARRAY_SIZE];
+ static int reuseport_array, outer_map;
+ static int select_by_skb_data_prog;
+@@ -662,7 +662,19 @@ static void setup_per_test(int type, unsigned short family, bool inany)
  
- 	__ws = wakeup_source_register(dev, "alarmtimer");
-+	pdev = platform_device_register_data(dev, "alarmtimer",
-+					     PLATFORM_DEVID_AUTO, NULL, 0);
- 
- 	spin_lock_irqsave(&rtcdev_lock, flags);
--	if (!rtcdev) {
-+	if (__ws && !IS_ERR(pdev) && !rtcdev) {
- 		if (!try_module_get(rtc->owner)) {
- 			ret = -1;
- 			goto unlock;
-@@ -112,10 +115,14 @@ static int alarmtimer_rtc_add_device(struct device *dev,
- 		get_device(dev);
- 		ws = __ws;
- 		__ws = NULL;
-+		pdev = NULL;
-+	} else {
-+		ret = -1;
- 	}
- unlock:
- 	spin_unlock_irqrestore(&rtcdev_lock, flags);
- 
-+	platform_device_unregister(pdev);
- 	wakeup_source_unregister(__ws);
- 
- 	return ret;
-@@ -876,8 +883,7 @@ static struct platform_driver alarmtimer_driver = {
-  */
- static int __init alarmtimer_init(void)
+ static void cleanup_per_test(void)
  {
--	struct platform_device *pdev;
--	int error = 0;
-+	int error;
- 	int i;
+-	int i, err;
++	int i, err, zero = 0;
++
++	memset(expected_results, 0, sizeof(expected_results));
++
++	for (i = 0; i < NR_RESULTS; i++) {
++		err = bpf_map_update_elem(result_map, &i, &zero, BPF_ANY);
++		RET_IF(err, "reset elem in result_map",
++		       "i:%u err:%d errno:%d\n", i, err, errno);
++	}
++
++	err = bpf_map_update_elem(linum_map, &zero, &zero, BPF_ANY);
++	RET_IF(err, "reset line number in linum_map", "err:%d errno:%d\n",
++	       err, errno);
  
- 	alarmtimer_rtc_timer_init();
-@@ -900,15 +906,7 @@ static int __init alarmtimer_init(void)
- 	if (error)
- 		goto out_if;
- 
--	pdev = platform_device_register_simple("alarmtimer", -1, NULL, 0);
--	if (IS_ERR(pdev)) {
--		error = PTR_ERR(pdev);
--		goto out_drv;
--	}
- 	return 0;
--
--out_drv:
--	platform_driver_unregister(&alarmtimer_driver);
- out_if:
- 	alarmtimer_rtc_interface_remove();
- 	return error;
+ 	for (i = 0; i < REUSEPORT_ARRAY_SIZE; i++)
+ 		close(sk_fds[i]);
 -- 
 2.20.1
 
