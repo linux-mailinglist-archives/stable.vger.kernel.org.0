@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A30415EB8B
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:21:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3482115EB8D
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:21:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391460AbgBNQKT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 11:10:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35798 "EHLO mail.kernel.org"
+        id S2388027AbgBNQKV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 11:10:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35846 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390622AbgBNQKT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:10:19 -0500
+        id S2391461AbgBNQKU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:10:20 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 03ADB2468F;
-        Fri, 14 Feb 2020 16:10:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1D7092468C;
+        Fri, 14 Feb 2020 16:10:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581696618;
-        bh=VxGyWnEba5VNmYC+QZbrZ1DU0OE8ldnVhLLrAP06RRA=;
+        s=default; t=1581696620;
+        bh=PNI4J4LnI5EeNudriscWBtbKyV+GK1O1DWXIYeyYIG4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dUp1confT9OiNuyhsL/IHtuZH1zvIMv/MEUqT/t2fGV8WDDAW9KwQO+OFdA9u2R4Y
-         5Bmx+Z4wOLoIdxMMHMlXzDbN3eA/qoS/4qKbONQMQwjf7RZdytNwd5sqCOOs2d6snD
-         II/c5eJxFsOZjDSPTvcV3mOV71DujtwObc6whJe4=
+        b=d3RsoiO1odi/4ciPuWPSQjJdTlvjAhcfPcepIKrUrdG7DtKIEZDKjCLsc2+W0YtYr
+         Wnp3SH6PC5fHI5mY81beOfmAiFRm0iGCHAV3omk9gFbB2nOBs5IB0daAuvO1ZX3WNn
+         bbjD55PivlvG7sneDl0KOUEEdUECpLhVgRpNlTYo=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Michael Bringmann <mwb@linux.ibm.com>,
+Cc:     Oliver O'Halloran <oohall@gmail.com>,
+        Steve Best <sbest@redhat.com>,
+        Douglas Miller <dougmill@us.ibm.com>,
         Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 5.4 400/459] powerpc/pseries/lparcfg: Fix display of Maximum Memory
-Date:   Fri, 14 Feb 2020 11:00:50 -0500
-Message-Id: <20200214160149.11681-400-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org,
+        linux-kselftest@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 401/459] selftests/eeh: Bump EEH wait time to 60s
+Date:   Fri, 14 Feb 2020 11:00:51 -0500
+Message-Id: <20200214160149.11681-401-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214160149.11681-1-sashal@kernel.org>
 References: <20200214160149.11681-1-sashal@kernel.org>
@@ -43,39 +46,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Bringmann <mwb@linux.ibm.com>
+From: Oliver O'Halloran <oohall@gmail.com>
 
-[ Upstream commit f1dbc1c5c70d0d4c60b5d467ba941fba167c12f6 ]
+[ Upstream commit 414f50434aa2463202a5b35e844f4125dd1a7101 ]
 
-Correct overflow problem in calculation and display of Maximum Memory
-value to syscfg.
+Some newer cards supported by aacraid can take up to 40s to recover
+after an EEH event. This causes spurious failures in the basic EEH
+self-test since the current maximim timeout is only 30s.
 
-Signed-off-by: Michael Bringmann <mwb@linux.ibm.com>
-[mpe: Only n_lmbs needs casting to unsigned long]
+Fix the immediate issue by bumping the timeout to a default of 60s,
+and allow the wait time to be specified via an environmental variable
+(EEH_MAX_WAIT).
+
+Reported-by: Steve Best <sbest@redhat.com>
+Suggested-by: Douglas Miller <dougmill@us.ibm.com>
+Signed-off-by: Oliver O'Halloran <oohall@gmail.com>
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/5577aef8-1d5a-ca95-ff0a-9c7b5977e5bf@linux.ibm.com
+Link: https://lore.kernel.org/r/20200122031125.25991-1-oohall@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/platforms/pseries/lparcfg.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ tools/testing/selftests/powerpc/eeh/eeh-functions.sh | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
-diff --git a/arch/powerpc/platforms/pseries/lparcfg.c b/arch/powerpc/platforms/pseries/lparcfg.c
-index e33e8bc4b69bd..38c306551f76b 100644
---- a/arch/powerpc/platforms/pseries/lparcfg.c
-+++ b/arch/powerpc/platforms/pseries/lparcfg.c
-@@ -435,10 +435,10 @@ static void maxmem_data(struct seq_file *m)
- {
- 	unsigned long maxmem = 0;
+diff --git a/tools/testing/selftests/powerpc/eeh/eeh-functions.sh b/tools/testing/selftests/powerpc/eeh/eeh-functions.sh
+index 26112ab5cdf42..f52ed92b53e74 100755
+--- a/tools/testing/selftests/powerpc/eeh/eeh-functions.sh
++++ b/tools/testing/selftests/powerpc/eeh/eeh-functions.sh
+@@ -53,9 +53,13 @@ eeh_one_dev() {
+ 	# is a no-op.
+ 	echo $dev >/sys/kernel/debug/powerpc/eeh_dev_check
  
--	maxmem += drmem_info->n_lmbs * drmem_info->lmb_size;
-+	maxmem += (unsigned long)drmem_info->n_lmbs * drmem_info->lmb_size;
- 	maxmem += hugetlb_total_pages() * PAGE_SIZE;
+-	# Enforce a 30s timeout for recovery. Even the IPR, which is infamously
+-	# slow to reset, should recover within 30s.
+-	max_wait=30
++	# Default to a 60s timeout when waiting for a device to recover. This
++	# is an arbitrary default which can be overridden by setting the
++	# EEH_MAX_WAIT environmental variable when required.
++
++	# The current record holder for longest recovery time is:
++	#  "Adaptec Series 8 12G SAS/PCIe 3" at 39 seconds
++	max_wait=${EEH_MAX_WAIT:=60}
  
--	seq_printf(m, "MaxMem=%ld\n", maxmem);
-+	seq_printf(m, "MaxMem=%lu\n", maxmem);
- }
- 
- static int pseries_lparcfg_data(struct seq_file *m, void *v)
+ 	for i in `seq 0 ${max_wait}` ; do
+ 		if pe_ok $dev ; then
 -- 
 2.20.1
 
