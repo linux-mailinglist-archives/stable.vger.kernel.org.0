@@ -2,109 +2,99 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B565415E56C
-	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:42:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8BAA615E473
+	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 17:36:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405498AbgBNQWk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 11:22:40 -0500
-Received: from mail-wr1-f68.google.com ([209.85.221.68]:45343 "EHLO
-        mail-wr1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2393233AbgBNQWj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 14 Feb 2020 11:22:39 -0500
-Received: by mail-wr1-f68.google.com with SMTP id g3so11537230wrs.12;
-        Fri, 14 Feb 2020 08:22:38 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=F8W0MotfQnPEa/KdyFQF0W7kLEtQWwDAo9vyrtiU5Gk=;
-        b=GUMYpxGiCyf3qvAsvG9GusvIKRkK0vVL0zi86+QpCsvqgQqnwyviEn/Oa968Apl0lw
-         TDkrkAfVE8rjwJJGnmolzZR0Bu7nzRD7qAtBsTqSb4umtQk+CALu8EeDwnA+qSBCAy1v
-         HvfKlm67BY2KYScY/BL/cA9d9/9gn7XEKLfG5gpqW9ETdmOCv1yRTzIp/+GSKvywAsD6
-         Af3fZFvf6OLSy3vA7ITY9h1qKtmccPUjr1I3Th/WdCPcKhGPGvA4d5UPj61gicYg9BPF
-         XgJDA+4BuTs2iru68xpoVLqoyhfLDOzDb9rfQK2fdpjdzqNMcsHE3XCMZLQCKjpBweIq
-         TE0A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=F8W0MotfQnPEa/KdyFQF0W7kLEtQWwDAo9vyrtiU5Gk=;
-        b=kodLSjBKZEB7StIKjxEKA7pPvvhlVuuJms4VYuuDkbK3TSuOFrvtpw73BkFTHKGGNb
-         uyGD2I95fZbOSFC7eiHghTu8E036TP0dtO/4r557kMS5mB5C6DS5FRMKRJoZjI3NrbTr
-         QsSA6DKEn4XaoU8rjmgnxAxZsoNwwLcY7whpwoaZv0wItwfHP29yxW7uVchnUGXAElB3
-         kTOKv4a4PeoVC9Z3ibXpgMVDMcBk3M75U9moDLj2MUvnpkHtbSGsTO+LZ7jeo+m03pIb
-         wGr/d4ts/XEJ6Aj/tm2m787+zK84+wP6og8JcVaaZRvS4Gud06LK5Wvmv0Z38YPoDPuM
-         9EUQ==
-X-Gm-Message-State: APjAAAUJioK5Z5LbV6MywgMetpl8NG3YPgz4A6IVaiDMCq91kKj7a7lJ
-        7iUDFEmgFuSeArseudWSt36bmUeYUDrDwZUlgBk=
-X-Google-Smtp-Source: APXvYqwr8VK9pA0btz3BZPR8gMaxqgRSDNoIunzZqG4iZhOozas0m6WDC9tRV0qGzH0B/KyocD/tTa393fURFpVYEd0=
-X-Received: by 2002:adf:ec4c:: with SMTP id w12mr5088220wrn.124.1581697358169;
- Fri, 14 Feb 2020 08:22:38 -0800 (PST)
+        id S2405543AbgBNQY2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 11:24:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33020 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2393148AbgBNQY1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:24:27 -0500
+Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6A27524787;
+        Fri, 14 Feb 2020 16:24:26 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1581697467;
+        bh=ic5XZ/UIf6CG8K2KkoDyIq/iKKAzInXFBfZ/v8K1LU8=;
+        h=From:To:Cc:Subject:Date:From;
+        b=AeHlXbkbad8+3HMTQCMF/Fyg74QgzxHbQ0YzMhpwoRLBb2zXOBN99LQuVQguJQ7HM
+         8vv49+HhpfwWVigoTU0WKRgb5mcBMKnHnODCpTzQl2sT7C9qAy8w1sZgKpt8WKhW5u
+         Rnsw5CXhnAPV0p6NQ7+s29XGZpCvwAs6sDM/Ymjs=
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Paul Kocialkowski <paul.kocialkowski@bootlin.com>,
+        Patrik Jakobsson <patrik.r.jakobsson@gmail.com>,
+        Sasha Levin <sashal@kernel.org>,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 4.4 001/100] drm/gma500: Fixup fbdev stolen size usage evaluation
+Date:   Fri, 14 Feb 2020 11:22:45 -0500
+Message-Id: <20200214162425.21071-1-sashal@kernel.org>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
-References: <20200214154854.6746-1-sashal@kernel.org> <20200214154854.6746-408-sashal@kernel.org>
-In-Reply-To: <20200214154854.6746-408-sashal@kernel.org>
-From:   Alex Deucher <alexdeucher@gmail.com>
-Date:   Fri, 14 Feb 2020 11:22:27 -0500
-Message-ID: <CADnq5_MMLNtb=3LLHsYnXtONQf4NWNgV226w2=OFk3JpCRj3sA@mail.gmail.com>
-Subject: Re: [PATCH AUTOSEL 5.5 408/542] drm/amdgpu: add the lost mutex_init back
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     LKML <linux-kernel@vger.kernel.org>,
-        "for 3.8" <stable@vger.kernel.org>, Feifei Xu <Feifei.Xu@amd.com>,
-        xinhui pan <xinhui.pan@amd.com>,
-        amd-gfx list <amd-gfx@lists.freedesktop.org>,
-        Maling list - DRI developers 
-        <dri-devel@lists.freedesktop.org>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        =?UTF-8?Q?Christian_K=C3=B6nig?= <christian.koenig@amd.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+X-stable: review
+X-Patchwork-Hint: Ignore
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Feb 14, 2020 at 10:57 AM Sasha Levin <sashal@kernel.org> wrote:
->
-> From: "Pan, Xinhui" <Xinhui.Pan@amd.com>
->
-> [ Upstream commit bd0522112332663e386df1b8642052463ea9b3b9 ]
->
-> Initialize notifier_lock.
->
-> Bug: https://gitlab.freedesktop.org/drm/amd/issues/1016
-> Reviewed-by: Feifei Xu <Feifei.Xu@amd.com>
-> Reviewed-by: Christian K=C3=B6nig <christian.koenig@amd.com>
-> Signed-off-by: xinhui pan <xinhui.pan@amd.com>
-> Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
-> ---
->  drivers/gpu/drm/amd/amdgpu/amdgpu_device.c | 1 +
->  1 file changed, 1 insertion(+)
->
-> diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c b/drivers/gpu/drm=
-/amd/amdgpu/amdgpu_device.c
-> index 332b9c24a2cd0..a2f788ad7e1c6 100644
-> --- a/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
-> +++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
-> @@ -2797,6 +2797,7 @@ int amdgpu_device_init(struct amdgpu_device *adev,
->         mutex_init(&adev->notifier_lock);
->         mutex_init(&adev->virt.dpm_mutex);
->         mutex_init(&adev->psp.mutex);
-> +       mutex_init(&adev->notifier_lock);
->
+From: Paul Kocialkowski <paul.kocialkowski@bootlin.com>
 
-This patch is not relevant here.  The same mutex is already
-initialized 3 lines above.
+[ Upstream commit fd1a5e521c3c083bb43ea731aae0f8b95f12b9bd ]
 
-Alex
+psbfb_probe performs an evaluation of the required size from the stolen
+GTT memory, but gets it wrong in two distinct ways:
+- The resulting size must be page-size-aligned;
+- The size to allocate is derived from the surface dimensions, not the fb
+  dimensions.
 
+When two connectors are connected with different modes, the smallest will
+be stored in the fb dimensions, but the size that needs to be allocated must
+match the largest (surface) dimensions. This is what is used in the actual
+allocation code.
 
->         r =3D amdgpu_device_check_arguments(adev);
->         if (r)
-> --
-> 2.20.1
->
-> _______________________________________________
-> amd-gfx mailing list
-> amd-gfx@lists.freedesktop.org
-> https://lists.freedesktop.org/mailman/listinfo/amd-gfx
+Fix this by correcting the evaluation to conform to the two points above.
+It allows correctly switching to 16bpp when one connector is e.g. 1920x1080
+and the other is 1024x768.
+
+Signed-off-by: Paul Kocialkowski <paul.kocialkowski@bootlin.com>
+Signed-off-by: Patrik Jakobsson <patrik.r.jakobsson@gmail.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20191107153048.843881-1-paul.kocialkowski@bootlin.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/gpu/drm/gma500/framebuffer.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/gpu/drm/gma500/framebuffer.c b/drivers/gpu/drm/gma500/framebuffer.c
+index 2eaf1b31c7bd8..ef60bb1971951 100644
+--- a/drivers/gpu/drm/gma500/framebuffer.c
++++ b/drivers/gpu/drm/gma500/framebuffer.c
+@@ -533,6 +533,7 @@ static int psbfb_probe(struct drm_fb_helper *helper,
+ 		container_of(helper, struct psb_fbdev, psb_fb_helper);
+ 	struct drm_device *dev = psb_fbdev->psb_fb_helper.dev;
+ 	struct drm_psb_private *dev_priv = dev->dev_private;
++	unsigned int fb_size;
+ 	int bytespp;
+ 
+ 	bytespp = sizes->surface_bpp / 8;
+@@ -542,8 +543,11 @@ static int psbfb_probe(struct drm_fb_helper *helper,
+ 	/* If the mode will not fit in 32bit then switch to 16bit to get
+ 	   a console on full resolution. The X mode setting server will
+ 	   allocate its own 32bit GEM framebuffer */
+-	if (ALIGN(sizes->fb_width * bytespp, 64) * sizes->fb_height >
+-	                dev_priv->vram_stolen_size) {
++	fb_size = ALIGN(sizes->surface_width * bytespp, 64) *
++		  sizes->surface_height;
++	fb_size = ALIGN(fb_size, PAGE_SIZE);
++
++	if (fb_size > dev_priv->vram_stolen_size) {
+                 sizes->surface_bpp = 16;
+                 sizes->surface_depth = 16;
+         }
+-- 
+2.20.1
+
