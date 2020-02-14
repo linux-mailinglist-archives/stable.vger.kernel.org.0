@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C33715F4AC
+	by mail.lfdr.de (Postfix) with ESMTP id A631315F4AD
 	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 19:24:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729909AbgBNPtZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1729638AbgBNPtZ (ORCPT <rfc822;lists+stable@lfdr.de>);
         Fri, 14 Feb 2020 10:49:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52214 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:52266 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729896AbgBNPtX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 10:49:23 -0500
+        id S1729881AbgBNPtY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 10:49:24 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 96B7A2468D;
-        Fri, 14 Feb 2020 15:49:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 09AAB2467E;
+        Fri, 14 Feb 2020 15:49:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581695362;
-        bh=dxyccyigJhbpHPCQ2eWhVt7tV6C/oCPf9Cj4BDUW/vo=;
+        s=default; t=1581695363;
+        bh=2zzEizZPgz3jQw2F25+EGzqeylL8hud7mBY/PTOc2w4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rKy42ZJogbJiVIB0vxRQpET6l3+9EMQzeXR3cbqqH8r+dLG4Yki40Q9/vXKPyLlrc
-         7yarKQN48r11rAJTbgoegpieXLNbyRaunXVlD11md8ai+gnUkGIwD5JzMZ/z3I1qRu
-         wUUzEpM4edvipZ9eOVQlKEwgxeAw88EDe0+iSd1A=
+        b=vRm0TM8Oz+otXwoxMj0biWcCNrZ78wI//grU706soTyfWJrFfIeIXSBI4jBKxGEts
+         xRKQpMGn4jc1FSfwcBzgP/SQqH3OdhbDgKv2pKjcJT6TQOyjHLt9gn5k1kdRevSwsd
+         5oeLYM1bKkyiS2qnvPIywrPK7DNk18kyjcQECcck=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Remi Pommarel <repk@triplefau.lt>,
-        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
-        Jerome Brunet <jbrunet@baylibre.com>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-amlogic@lists.infradead.org, linux-clk@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.5 021/542] clk: meson: pll: Fix by 0 division in __pll_params_to_rate()
-Date:   Fri, 14 Feb 2020 10:40:13 -0500
-Message-Id: <20200214154854.6746-21-sashal@kernel.org>
+Cc:     Peter Zijlstra <peterz@infradead.org>,
+        "Paul E. McKenney" <paulmck@kernel.org>, Tejun Heo <tj@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.5 022/542] cpu/hotplug, stop_machine: Fix stop_machine vs hotplug order
+Date:   Fri, 14 Feb 2020 10:40:14 -0500
+Message-Id: <20200214154854.6746-22-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214154854.6746-1-sashal@kernel.org>
 References: <20200214154854.6746-1-sashal@kernel.org>
@@ -46,75 +43,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Remi Pommarel <repk@triplefau.lt>
+From: Peter Zijlstra <peterz@infradead.org>
 
-[ Upstream commit d8488a41800d9f5c80bc0d17b9cc2c91b4841464 ]
+[ Upstream commit 45178ac0cea853fe0e405bf11e101bdebea57b15 ]
 
-Some meson pll registers can be initialized with 0 as N value, introducing
-the following division by 0 when computing rate :
+Paul reported a very sporadic, rcutorture induced, workqueue failure.
+When the planets align, the workqueue rescuer's self-migrate fails and
+then triggers a WARN for running a work on the wrong CPU.
 
-  UBSAN: Undefined behaviour in drivers/clk/meson/clk-pll.c:75:9
-  division by zero
-  CPU: 0 PID: 1 Comm: swapper/0 Not tainted 5.4.0-rc3-608075-g86c9af8630e1-dirty #400
-  Call trace:
-   dump_backtrace+0x0/0x1c0
-   show_stack+0x14/0x20
-   dump_stack+0xc4/0x100
-   ubsan_epilogue+0x14/0x68
-   __ubsan_handle_divrem_overflow+0x98/0xb8
-   __pll_params_to_rate+0xdc/0x140
-   meson_clk_pll_recalc_rate+0x278/0x3a0
-   __clk_register+0x7c8/0xbb0
-   devm_clk_hw_register+0x54/0xc0
-   meson_eeclkc_probe+0xf4/0x1a0
-   platform_drv_probe+0x54/0xd8
-   really_probe+0x16c/0x438
-   driver_probe_device+0xb0/0xf0
-   device_driver_attach+0x94/0xa0
-   __driver_attach+0x70/0x108
-   bus_for_each_dev+0xd8/0x128
-   driver_attach+0x30/0x40
-   bus_add_driver+0x1b0/0x2d8
-   driver_register+0xbc/0x1d0
-   __platform_driver_register+0x78/0x88
-   axg_driver_init+0x18/0x20
-   do_one_initcall+0xc8/0x24c
-   kernel_init_freeable+0x2b0/0x344
-   kernel_init+0x10/0x128
-   ret_from_fork+0x10/0x18
+Tejun then figured that set_cpus_allowed_ptr()'s stop_one_cpu() call
+could be ignored! When stopper->enabled is false, stop_machine will
+insta complete the work, without actually doing the work. Worse, it
+will not WARN about this (we really should fix this).
 
-This checks if N is null before doing the division.
+It turns out there is a small window where a freshly online'ed CPU is
+marked 'online' but doesn't yet have the stopper task running:
 
-Fixes: 7a29a869434e ("clk: meson: Add support for Meson clock controller")
-Reviewed-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-Signed-off-by: Remi Pommarel <repk@triplefau.lt>
-[jbrunet@baylibre.com: update the comment in above the fix]
-Signed-off-by: Jerome Brunet <jbrunet@baylibre.com>
+	BP				AP
+
+	bringup_cpu()
+	  __cpu_up(cpu, idle)	 -->	start_secondary()
+					...
+					cpu_startup_entry()
+	  bringup_wait_for_ap()
+	    wait_for_ap_thread() <--	  cpuhp_online_idle()
+					  while (1)
+					    do_idle()
+
+					... available to run kthreads ...
+
+	    stop_machine_unpark()
+	      stopper->enable = true;
+
+Close this by moving the stop_machine_unpark() into
+cpuhp_online_idle(), such that the stopper thread is ready before we
+start the idle loop and schedule.
+
+Reported-by: "Paul E. McKenney" <paulmck@kernel.org>
+Debugged-by: Tejun Heo <tj@kernel.org>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Tested-by: "Paul E. McKenney" <paulmck@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/meson/clk-pll.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ kernel/cpu.c | 13 +++++++++----
+ 1 file changed, 9 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/clk/meson/clk-pll.c b/drivers/clk/meson/clk-pll.c
-index ddb1e56347395..3a5853ca98c6c 100644
---- a/drivers/clk/meson/clk-pll.c
-+++ b/drivers/clk/meson/clk-pll.c
-@@ -77,6 +77,15 @@ static unsigned long meson_clk_pll_recalc_rate(struct clk_hw *hw,
- 	unsigned int m, n, frac;
+diff --git a/kernel/cpu.c b/kernel/cpu.c
+index 4dc279ed3b2d7..9c706af713fbc 100644
+--- a/kernel/cpu.c
++++ b/kernel/cpu.c
+@@ -525,8 +525,7 @@ static int bringup_wait_for_ap(unsigned int cpu)
+ 	if (WARN_ON_ONCE((!cpu_online(cpu))))
+ 		return -ECANCELED;
  
- 	n = meson_parm_read(clk->map, &pll->n);
-+
+-	/* Unpark the stopper thread and the hotplug thread of the target cpu */
+-	stop_machine_unpark(cpu);
++	/* Unpark the hotplug thread of the target cpu */
+ 	kthread_unpark(st->thread);
+ 
+ 	/*
+@@ -1089,8 +1088,8 @@ void notify_cpu_starting(unsigned int cpu)
+ 
+ /*
+  * Called from the idle task. Wake up the controlling task which brings the
+- * stopper and the hotplug thread of the upcoming CPU up and then delegates
+- * the rest of the online bringup to the hotplug thread.
++ * hotplug thread of the upcoming CPU up and then delegates the rest of the
++ * online bringup to the hotplug thread.
+  */
+ void cpuhp_online_idle(enum cpuhp_state state)
+ {
+@@ -1100,6 +1099,12 @@ void cpuhp_online_idle(enum cpuhp_state state)
+ 	if (state != CPUHP_AP_ONLINE_IDLE)
+ 		return;
+ 
 +	/*
-+	 * On some HW, N is set to zero on init. This value is invalid as
-+	 * it would result in a division by zero. The rate can't be
-+	 * calculated in this case
++	 * Unpart the stopper thread before we start the idle loop (and start
++	 * scheduling); this ensures the stopper task is always available.
 +	 */
-+	if (n == 0)
-+		return 0;
++	stop_machine_unpark(smp_processor_id());
 +
- 	m = meson_parm_read(clk->map, &pll->m);
- 
- 	frac = MESON_PARM_APPLICABLE(&pll->frac) ?
+ 	st->state = CPUHP_AP_ONLINE_IDLE;
+ 	complete_ap_thread(st, true);
+ }
 -- 
 2.20.1
 
