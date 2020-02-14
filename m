@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D3D715F043
+	by mail.lfdr.de (Postfix) with ESMTP id 7796715F044
 	for <lists+stable@lfdr.de>; Fri, 14 Feb 2020 18:54:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390852AbgBNRxP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S2389626AbgBNRxP (ORCPT <rfc822;lists+stable@lfdr.de>);
         Fri, 14 Feb 2020 12:53:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42122 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:42156 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388077AbgBNP6V (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Feb 2020 10:58:21 -0500
+        id S2388564AbgBNP6W (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Feb 2020 10:58:22 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 17BDD2067D;
-        Fri, 14 Feb 2020 15:58:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7C50F24654;
+        Fri, 14 Feb 2020 15:58:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581695901;
-        bh=ps/Ytm66ViZbio9cASrGrz8rEcZC/M/vTrgGiL1IpXA=;
+        s=default; t=1581695902;
+        bh=A3r53Ti4W7H0MZfUrZJ9EtnHYp8kTdo1d+21a3Ib3lc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MWEtXBTrXwj8t2PEyDS3ltY62vNM/C5a9gyMy3X4Ccr1WkdHjTSfly0uKVWyZtD9H
-         KQVP+hkLfaRwZ0DL9te5DP9MPp1Ckj2CbJE6FiyWhUyb7H+YK9KdmhpOXZlRY2hHdr
-         +B7m15/AY6ObrBQFdj6pJjeMMcJw4GXwlu0fQ6tI=
+        b=HNFIVg4Q5AogweM0gaVK/J+nhd8P3hdMIcF44FZXXyVzJryFMz+7uxd1ibC9SUIF0
+         BaezzsPvxqAmK4YbrRnWbc+Lgq+CmiRNk/6/O5RJVYC+JokCYTIxcq0vX/JfU2C6L9
+         z6gl6Bz4mmzhMGw4ahnSLegIyZN+gM+O5ZdoXDOo=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     YueHaibing <yuehaibing@huawei.com>, Hulk Robot <hulkci@huawei.com>,
-        Lyude Paul <lyude@redhat.com>, Ben Skeggs <bskeggs@redhat.com>,
-        Sasha Levin <sashal@kernel.org>,
-        dri-devel@lists.freedesktop.org, nouveau@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.5 442/542] drm/nouveau/kms/nv50: remove set but not unused variable 'nv_connector'
-Date:   Fri, 14 Feb 2020 10:47:14 -0500
-Message-Id: <20200214154854.6746-442-sashal@kernel.org>
+Cc:     Olof Johansson <olof@lixom.net>,
+        Saeed Mahameed <saeedm@mellanox.com>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
+        linux-rdma@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.5 443/542] net/mlx5e: Fix printk format warning
+Date:   Fri, 14 Feb 2020 10:47:15 -0500
+Message-Id: <20200214154854.6746-443-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214154854.6746-1-sashal@kernel.org>
 References: <20200214154854.6746-1-sashal@kernel.org>
@@ -44,46 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YueHaibing <yuehaibing@huawei.com>
+From: Olof Johansson <olof@lixom.net>
 
-[ Upstream commit 39496368ba96b40b1dca07315418e473998eef15 ]
+[ Upstream commit ca9c74ae9be5e78541c2058db9a754947a7d4a9b ]
 
-drivers/gpu/drm/nouveau/dispnv50/disp.c: In function nv50_pior_enable:
-drivers/gpu/drm/nouveau/dispnv50/disp.c:1672:28: warning:
- variable nv_connector set but not used [-Wunused-but-set-variable]
+Use "%zu" for size_t. Seen on ARM allmodconfig:
 
-commit ac2d9275f371 ("drm/nouveau/kms/nv50-: Store the
-bpc we're using in nv50_head_atom") left behind this.
+drivers/net/ethernet/mellanox/mlx5/core/wq.c: In function 'mlx5_wq_cyc_wqe_dump':
+include/linux/kern_levels.h:5:18: warning: format '%ld' expects argument of type 'long int', but argument 5 has type 'size_t' {aka 'unsigned int'} [-Wformat=]
 
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Reviewed-by: Lyude Paul <lyude@redhat.com>
-Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
+Fixes: 130c7b46c93d ("net/mlx5e: TX, Dump WQs wqe descriptors on CQE with error events")
+Signed-off-by: Olof Johansson <olof@lixom.net>
+Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/nouveau/dispnv50/disp.c | 2 --
- 1 file changed, 2 deletions(-)
+ drivers/net/ethernet/mellanox/mlx5/core/wq.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/nouveau/dispnv50/disp.c b/drivers/gpu/drm/nouveau/dispnv50/disp.c
-index 63425e2460189..5b3b0db51d596 100644
---- a/drivers/gpu/drm/nouveau/dispnv50/disp.c
-+++ b/drivers/gpu/drm/nouveau/dispnv50/disp.c
-@@ -1673,7 +1673,6 @@ nv50_pior_enable(struct drm_encoder *encoder)
- {
- 	struct nouveau_encoder *nv_encoder = nouveau_encoder(encoder);
- 	struct nouveau_crtc *nv_crtc = nouveau_crtc(encoder->crtc);
--	struct nouveau_connector *nv_connector;
- 	struct nv50_head_atom *asyh = nv50_head_atom(nv_crtc->base.state);
- 	struct nv50_core *core = nv50_disp(encoder->dev)->core;
- 	u8 owner = 1 << nv_crtc->index;
-@@ -1681,7 +1680,6 @@ nv50_pior_enable(struct drm_encoder *encoder)
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/wq.c b/drivers/net/ethernet/mellanox/mlx5/core/wq.c
+index f2a0e72285bac..02f7e4a39578a 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/wq.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/wq.c
+@@ -89,7 +89,7 @@ void mlx5_wq_cyc_wqe_dump(struct mlx5_wq_cyc *wq, u16 ix, u8 nstrides)
+ 	len = nstrides << wq->fbc.log_stride;
+ 	wqe = mlx5_wq_cyc_get_wqe(wq, ix);
  
- 	nv50_outp_acquire(nv_encoder);
- 
--	nv_connector = nouveau_encoder_connector_get(nv_encoder);
- 	switch (asyh->or.bpc) {
- 	case 10: asyh->or.depth = 0x6; break;
- 	case  8: asyh->or.depth = 0x5; break;
+-	pr_info("WQE DUMP: WQ size %d WQ cur size %d, WQE index 0x%x, len: %ld\n",
++	pr_info("WQE DUMP: WQ size %d WQ cur size %d, WQE index 0x%x, len: %zu\n",
+ 		mlx5_wq_cyc_get_size(wq), wq->cur_sz, ix, len);
+ 	print_hex_dump(KERN_WARNING, "", DUMP_PREFIX_OFFSET, 16, 1, wqe, len, false);
+ }
 -- 
 2.20.1
 
