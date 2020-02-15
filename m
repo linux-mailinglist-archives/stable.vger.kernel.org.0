@@ -2,211 +2,209 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8280F15FC0A
-	for <lists+stable@lfdr.de>; Sat, 15 Feb 2020 02:30:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 89A1A15FC51
+	for <lists+stable@lfdr.de>; Sat, 15 Feb 2020 03:25:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727641AbgBOBa0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Feb 2020 20:30:26 -0500
-Received: from userp2120.oracle.com ([156.151.31.85]:45228 "EHLO
-        userp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727572AbgBOBa0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 14 Feb 2020 20:30:26 -0500
-Received: from pps.filterd (userp2120.oracle.com [127.0.0.1])
-        by userp2120.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 01F1PvL3051691;
-        Sat, 15 Feb 2020 01:30:12 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=from : to : cc :
- subject : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=corp-2020-01-29;
- bh=W4WBnCPJdshCN1zK9DcIDCHmcoScNhw42HD6f1pSjl4=;
- b=ha24+qV2PVvVm93+t3rJ2QVyg6UWP4NiCFZ/3wvXzHa1rsyjqPa9qAVpGs5HKhIlXZAe
- 9/iEnbd3oJDFgve0ke/XBPNDkJT2STYctWeoFLd/BwQNijoXiK/Rd6AVAAvnHTGPio+P
- Lcz4nT1TdxCF/Nl0/wJcSD37dItHy69WCtg+d7MHfkSKw6QTMr1kV+liEKsalOGdUyOw
- cJJVEIKgI4H97p+Dzw2epdeFH/AjuTnWasdKDre87NtdbrbyX9Iw5R0Jrgn6GLesIX7U
- pSak1MD5ACUbuRU4Lkd6f6FsLN+pKuUPBvDA5b9GyDLrcL/hMUdyIx/NalcLylhBKVo0 OQ== 
-Received: from aserp3020.oracle.com (aserp3020.oracle.com [141.146.126.70])
-        by userp2120.oracle.com with ESMTP id 2y2p3t4ab6-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Sat, 15 Feb 2020 01:30:12 +0000
-Received: from pps.filterd (aserp3020.oracle.com [127.0.0.1])
-        by aserp3020.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 01F1RjaO007150;
-        Sat, 15 Feb 2020 01:30:12 GMT
-Received: from userv0121.oracle.com (userv0121.oracle.com [156.151.31.72])
-        by aserp3020.oracle.com with ESMTP id 2y4k3fmn3v-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Sat, 15 Feb 2020 01:30:11 +0000
-Received: from abhmp0002.oracle.com (abhmp0002.oracle.com [141.146.116.8])
-        by userv0121.oracle.com (8.14.4/8.13.8) with ESMTP id 01F1U94I010653;
-        Sat, 15 Feb 2020 01:30:09 GMT
-Received: from localhost.localdomain (/98.229.125.203)
-        by default (Oracle Beehive Gateway v4.0)
-        with ESMTP ; Fri, 14 Feb 2020 17:30:09 -0800
-From:   Daniel Jordan <daniel.m.jordan@oracle.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Cc:     Steffen Klassert <steffen.klassert@secunet.com>,
-        linux-kernel@vger.kernel.org,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        stable@vger.kernel.org, Daniel Jordan <daniel.m.jordan@oracle.com>
-Subject: [PATCH v2 4.4] padata: Remove broken queue flushing
-Date:   Fri, 14 Feb 2020 20:30:01 -0500
-Message-Id: <20200215013001.892060-1-daniel.m.jordan@oracle.com>
-X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200213151832.123934030@linuxfoundation.org>
-References: <20200213151832.123934030@linuxfoundation.org>
+        id S1727705AbgBOCY4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Feb 2020 21:24:56 -0500
+Received: from wout1-smtp.messagingengine.com ([64.147.123.24]:47757 "EHLO
+        wout1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727642AbgBOCY4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 14 Feb 2020 21:24:56 -0500
+Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
+        by mailout.west.internal (Postfix) with ESMTP id B334550C;
+        Fri, 14 Feb 2020 21:24:54 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute5.internal (MEProxy); Fri, 14 Feb 2020 21:24:55 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=sholland.org; h=
+        subject:to:cc:references:from:message-id:date:mime-version
+        :in-reply-to:content-type:content-transfer-encoding; s=fm1; bh=v
+        vqKA3w0ogTD2zKTC9vD3A2cJ7V/uBUbB/mhzaoqt58=; b=f4bhfGD2gvxmUUu1M
+        gsRPNjVrQhELJyhLkhwUzEr0gG1cbGVbmRkI7Tzycjm0IT3q5IgNpsF2Fh1nc4Ch
+        ET0Pp5CLOFWtgkQXl34OMd5RAN+Onjh6VN3RdE1oHbtj4YgF2jnQxwKMhlL1ZCTt
+        xuo4UeeIKJZUnyjV+kI01SSmvtk9dCk3X6QpliUxpOR0k5Lrzg+e6PmcoX0QEpCk
+        BgnQprdKnr41TWZ6dmc1Ah9g+1RWgUmJECORDkqrFaK4K4KIvbA2w/hq//dhuJ9h
+        ClgvjjczBK7wJejBKgbfgN1uIs7gWg1nC2lEXuycpmv34wIGsgpJe63YuaKe7mDk
+        JFQbw==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:in-reply-to:message-id:mime-version:references
+        :subject:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
+        :x-sasl-enc; s=fm2; bh=vvqKA3w0ogTD2zKTC9vD3A2cJ7V/uBUbB/mhzaoqt
+        58=; b=m2MxJop3TAOfFCE6o+ezxjzlm0u9J9nReM7lfPTUB2OdV7W4AFP8r3ze6
+        sYuSujM2R4nRn755JK/7vOUA5qSaStWBOhrrReIE5+MIZCP8u3VVHBhyTvBjQvLX
+        2HG4o2oUv2dkD+gE+r7O48IvtBjzIi9FHkP0Ewb6JB7qSlAtd2C+HQRE7cwjgECV
+        6fNCBuNXy496wg8Zfmq+0sA8jj6yYi8SPg+uGkJS62HMLTV65Zqffz0beVs97UGE
+        adNV99T2JUX9MS+d5a5fg0qSpZC5O9hOsYkuvLVXDl9PntUZ2EtvB3922ZYRI7yL
+        OKC+TZLvsIBS9sCg47B3eBAkxHuGw==
+X-ME-Sender: <xms:c1ZHXliDOZBDNxLpYgr2XHrmyJwO8tDJsZCvgyW4c1OLFz13GNG3GA>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedugedrjedugdeghecutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecundfkohfvucdliedtmdenucfjughrpefuvfhfhffkff
+    gfgggjtgfgsehtjeertddtfeejnecuhfhrohhmpefurghmuhgvlhcujfholhhlrghnugcu
+    oehsrghmuhgvlhesshhhohhllhgrnhgurdhorhhgqeenucfkphepjedtrddufeehrdduge
+    ekrdduhedunecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhho
+    mhepshgrmhhuvghlsehshhholhhlrghnugdrohhrgh
+X-ME-Proxy: <xmx:c1ZHXob8Q8Kq8w6ZB-0dRiGY1oMEUWlQ_9dYDij9VwF-mbleUurrCw>
+    <xmx:c1ZHXngP_Z21VUp2gamWXSSFtu_ldS3oV77EMVp_yzumfEAu3XZv0g>
+    <xmx:c1ZHXnfEJigNoa7USvm4OkgkpbYTRToNJtVfi7glxmgqTdvcuW5OcKyEHA>
+    <xmx:dlZHXrkvWj8J0XPgqaaeYSoliVuehlhBZt9CGk6lv_PaLtBotAY1Aw>
+Received: from [192.168.50.169] (70-135-148-151.lightspeed.stlsmo.sbcglobal.net [70.135.148.151])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 1D90A3060C28;
+        Fri, 14 Feb 2020 21:24:51 -0500 (EST)
+Subject: Re: [PATCH 3/4] drm/sun4i: dsi: Allow binding the host without a
+ panel
+To:     Maxime Ripard <mripard@kernel.org>, Chen-Yu Tsai <wens@csie.org>,
+        David Airlie <airlied@linux.ie>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        dri-devel@lists.freedesktop.org
+Cc:     linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+References: <20200211072858.30784-1-samuel@sholland.org>
+ <20200211072858.30784-3-samuel@sholland.org>
+From:   Samuel Holland <samuel@sholland.org>
+Message-ID: <11bf69b6-9081-7d29-148a-ebc14eef549d@sholland.org>
+Date:   Fri, 14 Feb 2020 20:24:50 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.2.2
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9531 signatures=668685
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 mlxscore=0 mlxlogscore=999 adultscore=0
- bulkscore=0 malwarescore=0 phishscore=0 suspectscore=2 spamscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2001150001
- definitions=main-2002150008
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9531 signatures=668685
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 spamscore=0 mlxscore=0 malwarescore=0
- suspectscore=2 mlxlogscore=999 priorityscore=1501 clxscore=1015
- impostorscore=0 lowpriorityscore=0 phishscore=0 adultscore=0 bulkscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2001150001
- definitions=main-2002150008
+In-Reply-To: <20200211072858.30784-3-samuel@sholland.org>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Herbert Xu <herbert@gondor.apana.org.au>
+Maxime,
 
-[ Upstream commit 07928d9bfc81640bab36f5190e8725894d93b659 ]
+On 2/11/20 1:28 AM, Samuel Holland wrote:
+> Currently, the DSI host blocks binding the display pipeline until the
+> panel is available. This unnecessarily prevents other display outpus
+> from working, and adds logspam to dmesg when the panel driver is built
+> as a module (the component master is unsuccessfully brought up several
+> times during boot).
+> 
+> Flip the dependency, instead requiring the host to be bound before the
+> panel is attached. The panel driver provides no functionality outside of
+> the display pipeline anyway.
+> 
+> Since the panel is now probed after the DRM connector, we need a hotplug
+> event to turn on the connector after the panel is attached.
+> 
+> This has the added benefit of fixing panel module removal/insertion.
+> Previously, the panel would be turned off when its module was removed.
+> But because the connector state was hardcoded, nothing knew to turn the
+> panel back on when it was re-attached. Now, with hotplug events
+> available, the connector state will follow the panel module state, and
+> the panel will be re-enabled properly.
+> 
+> Fixes: 133add5b5ad4 ("drm/sun4i: Add Allwinner A31 MIPI-DSI controller support")
+> Signed-off-by: Samuel Holland <samuel@sholland.org>
+> ---
+>  drivers/gpu/drm/sun4i/sun6i_mipi_dsi.c | 22 ++++++++++++++++------
+>  drivers/gpu/drm/sun4i/sun6i_mipi_dsi.h |  1 +
+>  2 files changed, 17 insertions(+), 6 deletions(-)
+> 
+> diff --git a/drivers/gpu/drm/sun4i/sun6i_mipi_dsi.c b/drivers/gpu/drm/sun4i/sun6i_mipi_dsi.c
+> index 019fdf4ec274..ef35ce5a9bb0 100644
+> --- a/drivers/gpu/drm/sun4i/sun6i_mipi_dsi.c
+> +++ b/drivers/gpu/drm/sun4i/sun6i_mipi_dsi.c
+> @@ -804,7 +804,10 @@ static struct drm_connector_helper_funcs sun6i_dsi_connector_helper_funcs = {
+>  static enum drm_connector_status
+>  sun6i_dsi_connector_detect(struct drm_connector *connector, bool force)
+>  {
+> -	return connector_status_connected;
+> +	struct sun6i_dsi *dsi = connector_to_sun6i_dsi(connector);
+> +
+> +	return dsi->panel ? connector_status_connected :
+> +			    connector_status_disconnected;
+>  }
+>  
+>  static const struct drm_connector_funcs sun6i_dsi_connector_funcs = {
+> @@ -945,10 +948,15 @@ static int sun6i_dsi_attach(struct mipi_dsi_host *host,
+>  
+>  	if (IS_ERR(panel))
+>  		return PTR_ERR(panel);
+> +	if (!dsi->drm)
+> +		return -EPROBE_DEFER;
 
-The function padata_flush_queues is fundamentally broken because
-it cannot force padata users to complete the request that is
-underway.  IOW padata has to passively wait for the completion
-of any outstanding work.
+There's actually a bug here. If the panel and DSI drivers are loaded in
+parallel, sun6i_dsi_attach() can be called after sun6i_dsi_bind() but before
+sun4i_framebuffer_init() initializes drm->mode_config.funcs, causing the hotplug
+call to crash. This check also needs to consider dsi->drm->registered before
+allowing the panel to be added.
 
-As it stands flushing is used in two places.  Its use in padata_stop
-is simply unnecessary because nothing depends on the queues to
-be flushed afterwards.
+I can send a v2 or a follow-up, whichever you prefer.
 
-The other use in padata_replace is more substantial as we depend
-on it to free the old pd structure.  This patch instead uses the
-pd->refcnt to dynamically free the pd structure once all requests
-are complete.
+Thanks,
+Samuel
 
-Fixes: 2b73b07ab8a4 ("padata: Flush the padata queues actively")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-Reviewed-by: Daniel Jordan <daniel.m.jordan@oracle.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-[dj: leave "pd->pinst = pinst" assignment in padata_alloc_pd()]
-Signed-off-by: Daniel Jordan <daniel.m.jordan@oracle.com>
----
- kernel/padata.c | 45 ++++++++++++---------------------------------
- 1 file changed, 12 insertions(+), 33 deletions(-)
-
-diff --git a/kernel/padata.c b/kernel/padata.c
-index 282b489a286d..0d7ec5fd520b 100644
---- a/kernel/padata.c
-+++ b/kernel/padata.c
-@@ -33,6 +33,8 @@
- 
- #define MAX_OBJ_NUM 1000
- 
-+static void padata_free_pd(struct parallel_data *pd);
-+
- static int padata_index_to_cpu(struct parallel_data *pd, int cpu_index)
- {
- 	int cpu, target_cpu;
-@@ -300,6 +302,7 @@ static void padata_serial_worker(struct work_struct *serial_work)
- 	struct padata_serial_queue *squeue;
- 	struct parallel_data *pd;
- 	LIST_HEAD(local_list);
-+	int cnt;
- 
- 	local_bh_disable();
- 	squeue = container_of(serial_work, struct padata_serial_queue, work);
-@@ -309,6 +312,8 @@ static void padata_serial_worker(struct work_struct *serial_work)
- 	list_replace_init(&squeue->serial.list, &local_list);
- 	spin_unlock(&squeue->serial.lock);
- 
-+	cnt = 0;
-+
- 	while (!list_empty(&local_list)) {
- 		struct padata_priv *padata;
- 
-@@ -318,9 +323,12 @@ static void padata_serial_worker(struct work_struct *serial_work)
- 		list_del_init(&padata->list);
- 
- 		padata->serial(padata);
--		atomic_dec(&pd->refcnt);
-+		cnt++;
- 	}
- 	local_bh_enable();
-+
-+	if (atomic_sub_and_test(cnt, &pd->refcnt))
-+		padata_free_pd(pd);
- }
- 
- /**
-@@ -443,7 +451,7 @@ static struct parallel_data *padata_alloc_pd(struct padata_instance *pinst,
- 	setup_timer(&pd->timer, padata_reorder_timer, (unsigned long)pd);
- 	atomic_set(&pd->seq_nr, -1);
- 	atomic_set(&pd->reorder_objects, 0);
--	atomic_set(&pd->refcnt, 0);
-+	atomic_set(&pd->refcnt, 1);
- 	pd->pinst = pinst;
- 	spin_lock_init(&pd->lock);
- 
-@@ -468,31 +476,6 @@ static void padata_free_pd(struct parallel_data *pd)
- 	kfree(pd);
- }
- 
--/* Flush all objects out of the padata queues. */
--static void padata_flush_queues(struct parallel_data *pd)
--{
--	int cpu;
--	struct padata_parallel_queue *pqueue;
--	struct padata_serial_queue *squeue;
--
--	for_each_cpu(cpu, pd->cpumask.pcpu) {
--		pqueue = per_cpu_ptr(pd->pqueue, cpu);
--		flush_work(&pqueue->work);
--	}
--
--	del_timer_sync(&pd->timer);
--
--	if (atomic_read(&pd->reorder_objects))
--		padata_reorder(pd);
--
--	for_each_cpu(cpu, pd->cpumask.cbcpu) {
--		squeue = per_cpu_ptr(pd->squeue, cpu);
--		flush_work(&squeue->work);
--	}
--
--	BUG_ON(atomic_read(&pd->refcnt) != 0);
--}
--
- static void __padata_start(struct padata_instance *pinst)
- {
- 	pinst->flags |= PADATA_INIT;
-@@ -506,10 +489,6 @@ static void __padata_stop(struct padata_instance *pinst)
- 	pinst->flags &= ~PADATA_INIT;
- 
- 	synchronize_rcu();
--
--	get_online_cpus();
--	padata_flush_queues(pinst->pd);
--	put_online_cpus();
- }
- 
- /* Replace the internal control structure with a new one. */
-@@ -530,8 +509,8 @@ static void padata_replace(struct padata_instance *pinst,
- 	if (!cpumask_equal(pd_old->cpumask.cbcpu, pd_new->cpumask.cbcpu))
- 		notification_mask |= PADATA_CPU_SERIAL;
- 
--	padata_flush_queues(pd_old);
--	padata_free_pd(pd_old);
-+	if (atomic_dec_and_test(&pd_old->refcnt))
-+		padata_free_pd(pd_old);
- 
- 	if (notification_mask)
- 		blocking_notifier_call_chain(&pinst->cpumask_change_notifier,
--- 
-2.25.0
+>  	dsi->panel = panel;
+>  	dsi->device = device;
+>  
+> +	drm_panel_attach(dsi->panel, &dsi->connector);
+> +	drm_kms_helper_hotplug_event(dsi->drm);
+> +
+>  	dev_info(host->dev, "Attached device %s\n", device->name);
+>  
+>  	return 0;
+> @@ -958,10 +966,14 @@ static int sun6i_dsi_detach(struct mipi_dsi_host *host,
+>  			    struct mipi_dsi_device *device)
+>  {
+>  	struct sun6i_dsi *dsi = host_to_sun6i_dsi(host);
+> +	struct drm_panel *panel = dsi->panel;
+>  
+>  	dsi->panel = NULL;
+>  	dsi->device = NULL;
+>  
+> +	drm_panel_detach(panel);
+> +	drm_kms_helper_hotplug_event(dsi->drm);
+> +
+>  	return 0;
+>  }
+>  
+> @@ -1026,9 +1038,6 @@ static int sun6i_dsi_bind(struct device *dev, struct device *master,
+>  	struct sun6i_dsi *dsi = dev_get_drvdata(dev);
+>  	int ret;
+>  
+> -	if (!dsi->panel)
+> -		return -EPROBE_DEFER;
+> -
+>  	drm_encoder_helper_add(&dsi->encoder,
+>  			       &sun6i_dsi_enc_helper_funcs);
+>  	ret = drm_encoder_init(drm,
+> @@ -1054,7 +1063,8 @@ static int sun6i_dsi_bind(struct device *dev, struct device *master,
+>  	}
+>  
+>  	drm_connector_attach_encoder(&dsi->connector, &dsi->encoder);
+> -	drm_panel_attach(dsi->panel, &dsi->connector);
+> +
+> +	dsi->drm = drm;
+>  
+>  	return 0;
+>  
+> @@ -1068,7 +1078,7 @@ static void sun6i_dsi_unbind(struct device *dev, struct device *master,
+>  {
+>  	struct sun6i_dsi *dsi = dev_get_drvdata(dev);
+>  
+> -	drm_panel_detach(dsi->panel);
+> +	dsi->drm = NULL;
+>  }
+>  
+>  static const struct component_ops sun6i_dsi_ops = {
+> diff --git a/drivers/gpu/drm/sun4i/sun6i_mipi_dsi.h b/drivers/gpu/drm/sun4i/sun6i_mipi_dsi.h
+> index 61e88ea6044d..c863900ae3b4 100644
+> --- a/drivers/gpu/drm/sun4i/sun6i_mipi_dsi.h
+> +++ b/drivers/gpu/drm/sun4i/sun6i_mipi_dsi.h
+> @@ -29,6 +29,7 @@ struct sun6i_dsi {
+>  
+>  	struct device		*dev;
+>  	struct mipi_dsi_device	*device;
+> +	struct drm_device	*drm;
+>  	struct drm_panel	*panel;
+>  };
+>  
+> 
 
