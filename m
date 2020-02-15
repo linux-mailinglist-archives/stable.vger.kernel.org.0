@@ -2,172 +2,207 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7497B16007A
-	for <lists+stable@lfdr.de>; Sat, 15 Feb 2020 21:52:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D06371600E5
+	for <lists+stable@lfdr.de>; Sat, 15 Feb 2020 23:09:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726957AbgBOUwE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 15 Feb 2020 15:52:04 -0500
-Received: from mail-eopbgr760078.outbound.protection.outlook.com ([40.107.76.78]:22158
-        "EHLO NAM02-CY1-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726254AbgBOUwE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 15 Feb 2020 15:52:04 -0500
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=aBMHCHHFoAVtW1Fsxg5lgKBnmUpbROjFPlsRm73Pee+cwvw1f80Wd1UHev7DQ5rTOT8C0Hv2xD3v3jQsJYl6sQ+CewsP+U90+uyQiC+sYFBCdqUlBYCxzCbBP7XqXV7L3pONZ60eiPTOfZTebFT56AJ92ZfZNuv95JwLFVWjCG1bEBerqWpWWpJ800g5MW5o/4usLZTmGS/kFRp/uYe3VSQnpBKPfEs8tQB/QX58v+Ay8qvygyAVwp37coPrWVS0YSrWGQL/Fff5MPk8rASO9IF8qy2caZUZDAbULwZNAgxzyYO4exD4/GCwV6BouP3tGzjpztIoQhsVuXIIZy2VBw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=HOBcsRHBuzI/ktdH5s1Q4+QOfZm1ltGLHf+UVoH6/RM=;
- b=hscJa/xtwKAiAxcXvsAG2YV6Pg0fZTzgJvnIvsxXRByqmy0lHhK/nf+nFQlmS/xWrk4Flnosi5po7zcZ5+E5Ld95vK3rMvWUhtMZ2IBXeQ1SreXqPNByf00qZWzrxJ2Kr7+tKIgZFYEOgg51cp7Ay2O8Yh9nzRX410YOkwOe7EWqcCIGbKrmyajxEPx+E/bAJp8SpvxbLbKn8zViUvbeSrnUHESi8ii2JW2bOxolRS0llJ6rT995CNn++7JY3rEa/9Eww57ep8Wz6k7g7pTDDCnPAskhWOTxpvtDT75B2MpFLw7FthUJ8YF9f8YmAsCuGE/M/Qh244tE4oXZfANYQw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=xilinx.com; dmarc=pass action=none header.from=xilinx.com;
- dkim=pass header.d=xilinx.com; arc=none
+        id S1726734AbgBOWJq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 15 Feb 2020 17:09:46 -0500
+Received: from mail-wm1-f66.google.com ([209.85.128.66]:40444 "EHLO
+        mail-wm1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726254AbgBOWJq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 15 Feb 2020 17:09:46 -0500
+Received: by mail-wm1-f66.google.com with SMTP id t14so14573427wmi.5;
+        Sat, 15 Feb 2020 14:09:44 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=xilinx.onmicrosoft.com; s=selector2-xilinx-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=HOBcsRHBuzI/ktdH5s1Q4+QOfZm1ltGLHf+UVoH6/RM=;
- b=Z4zt3qfjXlsAYqUEvTMC2FCjPFzIkqiYPrttoft0NoFtdEge3pLFw6/t3zFZ+s6NORKn2YS3Mzc/8P0SpN9Me+jvgq58L3sR/w6JS9Et4+eohtQeiq0axcFEC80k9c/sI+lHoLkvDn/TYuI9osTwn3oE/aW0CcWo6gjCB8n8LW4=
-Received: from CH2PR02MB6359.namprd02.prod.outlook.com (52.132.230.25) by
- CH2SPR01MB0020.namprd02.prod.outlook.com (20.180.11.140) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.2729.22; Sat, 15 Feb 2020 20:52:01 +0000
-Received: from CH2PR02MB6359.namprd02.prod.outlook.com
- ([fe80::c9bd:b19d:704a:14df]) by CH2PR02MB6359.namprd02.prod.outlook.com
- ([fe80::c9bd:b19d:704a:14df%7]) with mapi id 15.20.2729.028; Sat, 15 Feb 2020
- 20:52:01 +0000
-From:   Dragan Cvetic <draganc@xilinx.com>
-To:     Sasha Levin <sashal@kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-CC:     Luc Van Oostenryck <luc.vanoostenryck@gmail.com>,
-        Derek Kiernan <dkiernan@xilinx.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "linux-arm-kernel@lists.infradead.org" 
-        <linux-arm-kernel@lists.infradead.org>
-Subject: RE: [PATCH AUTOSEL 5.4 299/459] misc: xilinx_sdfec: fix
- xsdfec_poll()'s return type
-Thread-Topic: [PATCH AUTOSEL 5.4 299/459] misc: xilinx_sdfec: fix
- xsdfec_poll()'s return type
-Thread-Index: AQHV41D3T+CdT+Q7T0isFJicpaRRO6gcvNTA
-Date:   Sat, 15 Feb 2020 20:52:01 +0000
-Message-ID: <CH2PR02MB635957528FFF97FBF8121E24CB140@CH2PR02MB6359.namprd02.prod.outlook.com>
-References: <20200214160149.11681-1-sashal@kernel.org>
- <20200214160149.11681-299-sashal@kernel.org>
-In-Reply-To: <20200214160149.11681-299-sashal@kernel.org>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-Auto-Response-Suppress: DR, RN, NRN, OOF, AutoReply
-X-MS-TNEF-Correlator: 
-authentication-results: spf=none (sender IP is )
- smtp.mailfrom=draganc@xilinx.com; 
-x-originating-ip: [149.199.80.133]
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-ht: Tenant
-x-ms-office365-filtering-correlation-id: afe31b3b-54a5-42ad-39d4-08d7b258e7f0
-x-ms-traffictypediagnostic: CH2SPR01MB0020:|CH2SPR01MB0020:
-x-ms-exchange-transport-forked: True
-x-microsoft-antispam-prvs: <CH2SPR01MB00204D8191A8344996AFC9ECCB140@CH2SPR01MB0020.namprd02.prod.outlook.com>
-x-ms-oob-tlc-oobclassifiers: OLM:773;
-x-forefront-prvs: 03142412E2
-x-forefront-antispam-report: SFV:NSPM;SFS:(10009020)(4636009)(346002)(136003)(396003)(39860400002)(366004)(376002)(199004)(189003)(6506007)(8936002)(52536014)(81166006)(8676002)(53546011)(81156014)(71200400001)(66556008)(7696005)(66946007)(66476007)(110136005)(54906003)(76116006)(66446008)(64756008)(26005)(316002)(55016002)(9686003)(966005)(2906002)(86362001)(478600001)(4326008)(5660300002)(33656002)(186003);DIR:OUT;SFP:1101;SCL:1;SRVR:CH2SPR01MB0020;H:CH2PR02MB6359.namprd02.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;A:1;MX:1;
-received-spf: None (protection.outlook.com: xilinx.com does not designate
- permitted sender hosts)
-x-ms-exchange-senderadcheck: 1
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: 8HhTso0O2WqtxikDa2ILkZQ8W9TkvAMrCfvGYkl5yBGF1mSzWOBRYtQUdv+t4x/fWnBmX+qHetf1M5hoUxARGfsc3m2rMfbvH30JQfH1bPhjFQtwBgdKWdszU5VEH/jiY3TrQMYWaWiF8Q55KNeY09Njad38Kur8NL+7+7f3CBQSZUoy+DWE3QFwBCKLugSeI2VQUq9YAvXVMDhUV5LXnYAFbbIHrgQGhS8vI+wxXKAID4IGoH6BoKoZaAxI294L35NzBbHca3OjbwVyafzu106nyx/uiMFZcDIFawL/54f9/Ufq0ldzWPpw7UaILf2tIi6hCWALJDv03sSIhtQkjQRaeO1YVJzee0rGTifKXHm3CKHQwJVwfNHUodTgHBcZN7ms70Z35VhV4hCXe62VmV49KB19sKOMSfSG9nlekF809/AP4d8xo7oqmQt1xLj+ylhW9mdZ7UikdDFb86EHjH/arpMpsYPNTkpWf6qxDQOlFPFsUT+7Tt7RV201WYv+iX7w2tqjFlwagwxxQG8OaA==
-x-ms-exchange-antispam-messagedata: 4rB5986mljYUuvuLxZ2iEgYq0vY7xjWWZ1q0ce46ud1IYFwr4QOYk5iLYRc3ll+9Yut51zlEC0WGgyVpivcWWVvwQ5F4hiI4bsuV5wIvHg/fOlRzXx8pw96W7aJhMmhsF5WYWqYxoKWFTDWNoq5RYQ==
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+        d=gmail.com; s=20161025;
+        h=sender:subject:to:cc:references:from:autocrypt:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=pV5h97MNxHxkkK0UrPHKNsf49IPoLGjEnz9UH7Yxj7k=;
+        b=OBXEsoSz04atlVd2M/vfeUWlKK0oHCmL8ZEHWd48BoTu/chH9N0uT9YjA3p5dzRvjw
+         gcLWXA5tyAuSvDnQK+kJqkjSZlxjNS43KMwBaWIHCObwBADkIH4hyji3JDjAOh72jxwg
+         nY5nh2IDkjYV0Tn4qgTwBI3E+FszZsl00F3XBJpOygmZ3ZMn0MU/GAmN46E1vnCmEkkB
+         zMlrIk0jxONOQDWfaCRZf69aBPa1E2mGaBBEz4JOtfE0+67z34EYOtsWVbl1AoHkGNcW
+         l//jE2JSuND4pJha6Sxz4MxRhqxzT/L+9udvT2kcRvoQGcKjl6LdvcLqjz3WVzqXg1am
+         D1sA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:sender:subject:to:cc:references:from:autocrypt
+         :message-id:date:user-agent:mime-version:in-reply-to
+         :content-language:content-transfer-encoding;
+        bh=pV5h97MNxHxkkK0UrPHKNsf49IPoLGjEnz9UH7Yxj7k=;
+        b=C6DfZnWL5L2AZH79L1Rb777EIhnbWhGU63I8I1srMcZVeoTDho4+zHg8zgwAMbXmTa
+         gmRj823AMAKxgi0OGO6/tsNwAKRN71T0aFTUW/AlKaMSWe7UIQUKCx6IqG9UvOHzTy8B
+         IPds/VuSh+kbJvWLU26h7ArCsX5SDOdUhX8cmCNhhrGGAuKSBR90d2m2KTSr07ePfEKh
+         ySgHczDzRNiweyCnj+7kHIj0lnhT3SpioTG2j9bZpTGTzT9Q/PlBf/aV+OV/v2aRlDjF
+         j3Y1DcqEV8HQSU5IA60oni0y9hVj1ZWPagB5tZCmhlIPdlndvjLsoNl7fQMW3eZYRonE
+         qjHg==
+X-Gm-Message-State: APjAAAXk0lBa0Iw9c97tZc0LCGNDAhNISG/BBH8GFQMuc8CkA9pEIM+E
+        5xKhM3Iqwj1jaymiDBAApBnvAoTckIM=
+X-Google-Smtp-Source: APXvYqygAbdQOBLLH87uesPw+e5BZ5CbqhCXhsRyodruomeLucivLeCTM1fPCC+dLDVFb6WhGz7vwg==
+X-Received: by 2002:a1c:4c13:: with SMTP id z19mr12175419wmf.75.1581804583113;
+        Sat, 15 Feb 2020 14:09:43 -0800 (PST)
+Received: from [192.168.1.35] (78.red-88-21-202.staticip.rima-tde.net. [88.21.202.78])
+        by smtp.gmail.com with ESMTPSA id j15sm9109610wrp.9.2020.02.15.14.09.40
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sat, 15 Feb 2020 14:09:42 -0800 (PST)
+Subject: Re: [PATCH] MIPS: ingenic: DTS: Fix watchdog nodes
+To:     Paul Cercueil <paul@crapouillou.net>,
+        Ralf Baechle <ralf@linux-mips.org>,
+        Paul Burton <paulburton@kernel.org>,
+        Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>
+Cc:     Zhou Yanjie <zhouyanjie@wanyeetech.com>, od@zcrc.me,
+        linux-mips@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+References: <20200211145337.16311-1-paul@crapouillou.net>
+From:   =?UTF-8?Q?Philippe_Mathieu-Daud=c3=a9?= <f4bug@amsat.org>
+Autocrypt: addr=f4bug@amsat.org; keydata=
+ mQINBDU8rLoBEADb5b5dyglKgWF9uDbIjFXU4gDtcwiga9wJ/wX6xdhBqU8tlQ4BroH7AeRl
+ u4zXP0QnBDAG7EetxlQzcfYbPmxFISWjckDBFvDbFsojrZmwF2/LkFSzlvKiN5KLghzzJhLO
+ HhjGlF8deEZz/d/G8qzO9mIw8GIBS8uuWh6SIcG/qq7+y+2+aifaj92EdwU79apZepT/U3vN
+ YrfcAuo1Ycy7/u0hJ7rlaFUn2Fu5KIgV2O++hHYtCCQfdPBg/+ujTL+U+sCDawCyq+9M5+LJ
+ ojCzP9rViLZDd/gS6jX8T48hhidtbtsFRj/e9QpdZgDZfowRMVsRx+TB9yzjFdMO0YaYybXp
+ dg/wCUepX5xmDBrle6cZ8VEe00+UQCAU1TY5Hs7QFfBbjgR3k9pgJzVXNUKcJ9DYQP0OBH9P
+ ZbZvM0Ut2Bk6bLBO5iCVDOco0alrPkX7iJul2QWBy3Iy9j02GnA5jZ1Xtjr9kpCqQT+sRXso
+ Vpm5TPGWaWljIeLWy/qL8drX1eyJzwTB3A36Ck4r3YmjMjfmvltSZB1uAdo1elHTlFEULpU/
+ HiwvvqXQ9koB15U154VCuguvx/Qnboz8GFb9Uw8VyawzVxYVNME7xw7CQF8FYxzj6eI7rBf2
+ Dj/II6wxWPgDEy3oUzuNOxTB7sT3b/Ym76yOJzWX5BylXQIJ5wARAQABtDFQaGlsaXBwZSBN
+ YXRoaWV1LURhdWTDqSAoRjRCVUcpIDxmNGJ1Z0BhbXNhdC5vcmc+iQJVBBMBCAA/AhsPBgsJ
+ CAcDAgYVCAIJCgsEFgIDAQIeAQIXgBYhBPqr514SkXIh3P1rsuPjLCzercDeBQJd660aBQks
+ klzgAAoJEOPjLCzercDe2iMP+gMG2dUf+qHz2uG8nTBGMjgK0aEJrKVPodFA+iedQ5Kp3BMo
+ jrTg3/DG1HMYdcvQu/NFLYwamUfUasyor1k+3dB23hY09O4xOsYJBWdilkBGsJTKErUmkUO2
+ 3J/kawosvYtJJSHUpw3N6mwz/iWnjkT8BPp7fFXSujV63aZWZINueTbK7Y8skFHI0zpype9s
+ loU8xc4JBrieGccy3n4E/kogGrTG5jcMTNHZ106DsQkhFnjhWETp6g9xOKrzZQbETeRBOe4P
+ sRsY9YSG2Sj+ZqmZePvO8LyzGRjYU7T6Z80S1xV0lH6KTMvq7vvz5rd92f3pL4YrXq+e//HZ
+ JsiLen8LH/FRhTsWRgBtNYkOsd5F9NvfJtSM0qbX32cSXMAStDVnS4U+H2vCVCWnfNug2TdY
+ 7v4NtdpaCi4CBBa3ZtqYVOU05IoLnlx0miKTBMqmI05kpgX98pi2QUPJBYi/+yNu3fjjcuS9
+ K5WmpNFTNi6yiBbNjJA5E2qUKbIT/RwQFQvhrxBUcRCuK4x/5uOZrysjFvhtR8YGm08h+8vS
+ n0JCnJD5aBhiVdkohEFAz7e5YNrAg6kOA5IVRHB44lTBOatLqz7ntwdGD0rteKuHaUuXpTYy
+ CRqCVAKqFJtxhvJvaX0vLS1Z2dwtDwhjfIdgPiKEGOgCNGH7R8l+aaM4OPOd
+Message-ID: <09a1d877-aee7-3f2d-8f82-6f7ba00e9cf6@amsat.org>
+Date:   Sat, 15 Feb 2020 23:09:39 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.4.1
 MIME-Version: 1.0
-X-OriginatorOrg: xilinx.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: afe31b3b-54a5-42ad-39d4-08d7b258e7f0
-X-MS-Exchange-CrossTenant-originalarrivaltime: 15 Feb 2020 20:52:01.2851
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 657af505-d5df-48d0-8300-c31994686c5c
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: TdChtI/Qpu8Bl/HPzYl4VO5x12sNBkwwJe9FzAIlOwbXTMrVR+L4JfXghMz+xY1NhbV4Kr3Tn7z6hnF7yQm6Pg==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: CH2SPR01MB0020
+In-Reply-To: <20200211145337.16311-1-paul@crapouillou.net>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
-
-> -----Original Message-----
-> From: Sasha Levin <sashal@kernel.org>
-> Sent: Friday 14 February 2020 15:59
-> To: linux-kernel@vger.kernel.org; stable@vger.kernel.org
-> Cc: Luc Van Oostenryck <luc.vanoostenryck@gmail.com>; Derek Kiernan <dkie=
-rnan@xilinx.com>; Dragan Cvetic
-> <draganc@xilinx.com>; Greg Kroah-Hartman <gregkh@linuxfoundation.org>; Sa=
-sha Levin <sashal@kernel.org>; linux-arm-
-> kernel@lists.infradead.org
-> Subject: [PATCH AUTOSEL 5.4 299/459] misc: xilinx_sdfec: fix xsdfec_poll(=
-)'s return type
->=20
-> From: Luc Van Oostenryck <luc.vanoostenryck@gmail.com>
->=20
-> [ Upstream commit fa4e7fc1386078edcfddd8848cb0374f4af74fe7 ]
->=20
-> xsdfec_poll() is defined as returning 'unsigned int' but the
-> .poll method is declared as returning '__poll_t', a bitwise type.
->=20
-> Fix this by using the proper return type and using the EPOLL
-> constants instead of the POLL ones, as required for __poll_t.
->=20
-> CC: Derek Kiernan <derek.kiernan@xilinx.com>
-> CC: Dragan Cvetic <dragan.cvetic@xilinx.com>
-> Signed-off-by: Luc Van Oostenryck <luc.vanoostenryck@gmail.com>
-> Acked-by: Dragan Cvetic <dragan.cvetic@xilinx.com>
-> Link: https://lore.kernel.org/r/20191209213655.57985-1-luc.vanoostenryck@=
-gmail.com
-> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
+On 2/11/20 3:53 PM, Paul Cercueil wrote:
+> The devicetree ABI was broken on purpose by commit 6d532143c915
+> ("watchdog: jz4740: Use regmap provided by TCU driver"), and
+> commit 1d9c30745455 ("watchdog: jz4740: Use WDT clock provided
+> by TCU driver"). The commit message of the latter explains why the ABI
+> was broken.
+> 
+> However, the current devicetree files were not updated to the new ABI
+> described in Documentation/devicetree/bindings/timer/ingenic,tcu.txt,
+> so the watchdog driver would not probe.
+> 
+> Fix this problem by updating the watchdog nodes to comply with the new
+> ABI.
+> 
+> Fixes: 6d532143c915 ("watchdog: jz4740: Use regmap provided by TCU
+> driver")
+> 
+> Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+> Cc: stable@vger.kernel.org
 > ---
->  drivers/misc/xilinx_sdfec.c | 10 +++++-----
->  1 file changed, 5 insertions(+), 5 deletions(-)
->=20
-> diff --git a/drivers/misc/xilinx_sdfec.c b/drivers/misc/xilinx_sdfec.c
-> index 11835969e9828..48ba7e02bed72 100644
-> --- a/drivers/misc/xilinx_sdfec.c
-> +++ b/drivers/misc/xilinx_sdfec.c
-> @@ -1025,25 +1025,25 @@ static long xsdfec_dev_compat_ioctl(struct file *=
-file, unsigned int cmd,
->  }
->  #endif
->=20
-> -static unsigned int xsdfec_poll(struct file *file, poll_table *wait)
-> +static __poll_t xsdfec_poll(struct file *file, poll_table *wait)
->  {
-> -	unsigned int mask =3D 0;
-> +	__poll_t mask =3D 0;
->  	struct xsdfec_dev *xsdfec;
->=20
->  	xsdfec =3D container_of(file->private_data, struct xsdfec_dev, miscdev)=
-;
->=20
->  	if (!xsdfec)
-> -		return POLLNVAL | POLLHUP;
-> +		return EPOLLNVAL | EPOLLHUP;
->=20
->  	poll_wait(file, &xsdfec->waitq, wait);
->=20
->  	/* XSDFEC ISR detected an error */
->  	spin_lock_irqsave(&xsdfec->error_data_lock, xsdfec->flags);
->  	if (xsdfec->state_updated)
-> -		mask |=3D POLLIN | POLLPRI;
-> +		mask |=3D EPOLLIN | EPOLLPRI;
->=20
->  	if (xsdfec->stats_updated)
-> -		mask |=3D POLLIN | POLLRDNORM;
-> +		mask |=3D EPOLLIN | EPOLLRDNORM;
->  	spin_unlock_irqrestore(&xsdfec->error_data_lock, xsdfec->flags);
->=20
->  	return mask;
-> --
-> 2.20.1
+>  arch/mips/boot/dts/ingenic/jz4740.dtsi | 17 +++++++++--------
+>  arch/mips/boot/dts/ingenic/jz4780.dtsi | 17 +++++++++--------
+>  2 files changed, 18 insertions(+), 16 deletions(-)
+> 
+> diff --git a/arch/mips/boot/dts/ingenic/jz4740.dtsi b/arch/mips/boot/dts/ingenic/jz4740.dtsi
+> index 5accda2767be..a3301bab9231 100644
+> --- a/arch/mips/boot/dts/ingenic/jz4740.dtsi
+> +++ b/arch/mips/boot/dts/ingenic/jz4740.dtsi
+> @@ -1,5 +1,6 @@
+>  // SPDX-License-Identifier: GPL-2.0
+>  #include <dt-bindings/clock/jz4740-cgu.h>
+> +#include <dt-bindings/clock/ingenic,tcu.h>
+>  
+>  / {
+>  	#address-cells = <1>;
+> @@ -45,14 +46,6 @@ cgu: jz4740-cgu@10000000 {
+>  		#clock-cells = <1>;
+>  	};
+>  
+> -	watchdog: watchdog@10002000 {
+> -		compatible = "ingenic,jz4740-watchdog";
+> -		reg = <0x10002000 0x10>;
+> -
+> -		clocks = <&cgu JZ4740_CLK_RTC>;
+> -		clock-names = "rtc";
+> -	};
+> -
+>  	tcu: timer@10002000 {
+>  		compatible = "ingenic,jz4740-tcu", "simple-mfd";
+>  		reg = <0x10002000 0x1000>;
+> @@ -73,6 +66,14 @@ &cgu JZ4740_CLK_PCLK
+>  
+>  		interrupt-parent = <&intc>;
+>  		interrupts = <23 22 21>;
+> +
+> +		watchdog: watchdog@0 {
+> +			compatible = "ingenic,jz4740-watchdog";
+> +			reg = <0x0 0xc>;
 
-Acked-by: Dragan Cvetic <dragan.cvetic@xilinx.com>
+Now the WDT_TCSR register is directly managed by the CPU, OK.
+
+Reviewed-by: Philippe Mathieu-Daudé <f4bug@amsat.org>
+
+> +
+> +			clocks = <&tcu TCU_CLK_WDT>;
+> +			clock-names = "wdt";
+> +		};
+>  	};
+>  
+>  	rtc_dev: rtc@10003000 {
+> diff --git a/arch/mips/boot/dts/ingenic/jz4780.dtsi b/arch/mips/boot/dts/ingenic/jz4780.dtsi
+> index f928329b034b..bb89653d16a3 100644
+> --- a/arch/mips/boot/dts/ingenic/jz4780.dtsi
+> +++ b/arch/mips/boot/dts/ingenic/jz4780.dtsi
+> @@ -1,5 +1,6 @@
+>  // SPDX-License-Identifier: GPL-2.0
+>  #include <dt-bindings/clock/jz4780-cgu.h>
+> +#include <dt-bindings/clock/ingenic,tcu.h>
+>  #include <dt-bindings/dma/jz4780-dma.h>
+>  
+>  / {
+> @@ -67,6 +68,14 @@ &cgu JZ4780_CLK_EXCLK
+>  
+>  		interrupt-parent = <&intc>;
+>  		interrupts = <27 26 25>;
+> +
+> +		watchdog: watchdog@0 {
+> +			compatible = "ingenic,jz4780-watchdog";
+> +			reg = <0x0 0xc>;
+> +
+> +			clocks = <&tcu TCU_CLK_WDT>;
+> +			clock-names = "wdt";
+> +		};
+>  	};
+>  
+>  	rtc_dev: rtc@10003000 {
+> @@ -348,14 +357,6 @@ i2c4: i2c@10054000 {
+>  		status = "disabled";
+>  	};
+>  
+> -	watchdog: watchdog@10002000 {
+> -		compatible = "ingenic,jz4780-watchdog";
+> -		reg = <0x10002000 0x10>;
+> -
+> -		clocks = <&cgu JZ4780_CLK_RTCLK>;
+> -		clock-names = "rtc";
+> -	};
+> -
+>  	nemc: nemc@13410000 {
+>  		compatible = "ingenic,jz4780-nemc";
+>  		reg = <0x13410000 0x10000>;
+> 
