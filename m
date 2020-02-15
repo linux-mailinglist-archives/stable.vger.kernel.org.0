@@ -2,80 +2,134 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F1FE715FD0A
-	for <lists+stable@lfdr.de>; Sat, 15 Feb 2020 07:14:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 43A9215FE9C
+	for <lists+stable@lfdr.de>; Sat, 15 Feb 2020 14:35:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725825AbgBOGOG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 15 Feb 2020 01:14:06 -0500
-Received: from mx2.suse.de ([195.135.220.15]:46250 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725795AbgBOGOG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 15 Feb 2020 01:14:06 -0500
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.220.254])
-        by mx2.suse.de (Postfix) with ESMTP id 06BA1AC8F;
-        Sat, 15 Feb 2020 06:14:03 +0000 (UTC)
-Date:   Sat, 15 Feb 2020 07:14:02 +0100
-From:   Jean Delvare <jdelvare@suse.de>
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Luca Ceresoli <luca@lucaceresoli.net>,
-        Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
-Subject: Re: [PATCH AUTOSEL 5.5 495/542] docs: i2c: writing-clients:
- properly name the stop condition
-Message-ID: <20200215071402.027c9120@endymion>
-In-Reply-To: <20200214154854.6746-495-sashal@kernel.org>
-References: <20200214154854.6746-1-sashal@kernel.org>
-        <20200214154854.6746-495-sashal@kernel.org>
-Organization: SUSE Linux
-X-Mailer: Claws Mail 3.17.4 (GTK+ 2.24.32; x86_64-suse-linux-gnu)
+        id S1726129AbgBONfG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 15 Feb 2020 08:35:06 -0500
+Received: from Galois.linutronix.de ([193.142.43.55]:57224 "EHLO
+        Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725971AbgBONfG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 15 Feb 2020 08:35:06 -0500
+Received: from [5.158.153.53] (helo=tip-bot2.lab.linutronix.de)
+        by Galois.linutronix.de with esmtpsa (TLS1.2:DHE_RSA_AES_256_CBC_SHA256:256)
+        (Exim 4.80)
+        (envelope-from <tip-bot2@linutronix.de>)
+        id 1j2xb2-00084w-MP; Sat, 15 Feb 2020 14:35:00 +0100
+Received: from [127.0.1.1] (localhost [IPv6:::1])
+        by tip-bot2.lab.linutronix.de (Postfix) with ESMTP id 091391C205F;
+        Sat, 15 Feb 2020 14:35:00 +0100 (CET)
+Date:   Sat, 15 Feb 2020 13:34:59 -0000
+From:   "tip-bot2 for Thomas Gleixner" <tip-bot2@linutronix.de>
+Reply-to: linux-kernel@vger.kernel.org
+To:     linux-tip-commits@vger.kernel.org
+Subject: [tip: ras/urgent] x86/mce/amd: Fix kobject lifetime
+Cc:     Thomas Gleixner <tglx@linutronix.de>, Borislav Petkov <bp@suse.de>,
+        <stable@vger.kernel.org>, x86 <x86@kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20200214082801.13836-1-bp@alien8.de>
+References: <20200214082801.13836-1-bp@alien8.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Message-ID: <158177369962.13786.16098407006257585201.tip-bot2@tip-bot2>
+X-Mailer: tip-git-log-daemon
+Robot-ID: <tip-bot2.linutronix.de>
+Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
+X-Linutronix-Spam-Score: -1.0
+X-Linutronix-Spam-Level: -
+X-Linutronix-Spam-Status: No , -1.0 points, 5.0 required,  ALL_TRUSTED=-1,SHORTCIRCUIT=-0.0001
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, 14 Feb 2020 10:48:07 -0500, Sasha Levin wrote:
-> From: Luca Ceresoli <luca@lucaceresoli.net>
-> 
-> [ Upstream commit 4fcb445ec688a62da9c864ab05a4bd39b0307cdc ]
-> 
-> In I2C there is no such thing as a "stop bit". Use the proper naming: "stop
-> condition".
-> 
-> Signed-off-by: Luca Ceresoli <luca@lucaceresoli.net>
-> Reported-by: Jean Delvare <jdelvare@suse.de>
-> Reviewed-by: Jean Delvare <jdelvare@suse.de>
-> Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
-> ---
->  Documentation/i2c/writing-clients.rst | 6 +++---
->  1 file changed, 3 insertions(+), 3 deletions(-)
-> 
-> diff --git a/Documentation/i2c/writing-clients.rst b/Documentation/i2c/writing-clients.rst
-> index ced309b5e0cc8..3869efdf84cae 100644
-> --- a/Documentation/i2c/writing-clients.rst
-> +++ b/Documentation/i2c/writing-clients.rst
-> @@ -357,9 +357,9 @@ read/written.
->  
->  This sends a series of messages. Each message can be a read or write,
->  and they can be mixed in any way. The transactions are combined: no
-> -stop bit is sent between transaction. The i2c_msg structure contains
-> -for each message the client address, the number of bytes of the message
-> -and the message data itself.
-> +stop condition is issued between transaction. The i2c_msg structure
-> +contains for each message the client address, the number of bytes of the
-> +message and the message data itself.
->  
->  You can read the file ``i2c-protocol`` for more information about the
->  actual I2C protocol.
+The following commit has been merged into the ras/urgent branch of tip:
 
-I wouldn't bother backporting this documentation patch to stable and
-longterm trees. That's a minor vocabulary thing really, it does not
-qualify.
+Commit-ID:     51dede9c05df2b78acd6dcf6a17d21f0877d2d7b
+Gitweb:        https://git.kernel.org/tip/51dede9c05df2b78acd6dcf6a17d21f0877d2d7b
+Author:        Thomas Gleixner <tglx@linutronix.de>
+AuthorDate:    Thu, 13 Feb 2020 19:01:34 +01:00
+Committer:     Borislav Petkov <bp@suse.de>
+CommitterDate: Fri, 14 Feb 2020 09:28:31 +01:00
 
--- 
-Jean Delvare
-SUSE L3 Support
+x86/mce/amd: Fix kobject lifetime
+
+Accessing the MCA thresholding controls in sysfs concurrently with CPU
+hotplug can lead to a couple of KASAN-reported issues:
+
+  BUG: KASAN: use-after-free in sysfs_file_ops+0x155/0x180
+  Read of size 8 at addr ffff888367578940 by task grep/4019
+
+and
+
+  BUG: KASAN: use-after-free in show_error_count+0x15c/0x180
+  Read of size 2 at addr ffff888368a05514 by task grep/4454
+
+for example. Both result from the fact that the threshold block
+creation/teardown code frees the descriptor memory itself instead of
+defining proper ->release function and leaving it to the driver core to
+take care of that, after all sysfs accesses have completed.
+
+Do that and get rid of the custom freeing code, fixing the above UAFs in
+the process.
+
+  [ bp: write commit message. ]
+
+Fixes: 95268664390b ("[PATCH] x86_64: mce_amd support for family 0x10 processors")
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Cc: <stable@vger.kernel.org>
+Link: https://lkml.kernel.org/r/20200214082801.13836-1-bp@alien8.de
+---
+ arch/x86/kernel/cpu/mce/amd.c | 17 +++++++++++------
+ 1 file changed, 11 insertions(+), 6 deletions(-)
+
+diff --git a/arch/x86/kernel/cpu/mce/amd.c b/arch/x86/kernel/cpu/mce/amd.c
+index e7313e5..52de616 100644
+--- a/arch/x86/kernel/cpu/mce/amd.c
++++ b/arch/x86/kernel/cpu/mce/amd.c
+@@ -1163,9 +1163,12 @@ static const struct sysfs_ops threshold_ops = {
+ 	.store			= store,
+ };
+ 
++static void threshold_block_release(struct kobject *kobj);
++
+ static struct kobj_type threshold_ktype = {
+ 	.sysfs_ops		= &threshold_ops,
+ 	.default_attrs		= default_attrs,
++	.release		= threshold_block_release,
+ };
+ 
+ static const char *get_name(unsigned int bank, struct threshold_block *b)
+@@ -1367,8 +1370,12 @@ static int threshold_create_bank(unsigned int cpu, unsigned int bank)
+ 	return err;
+ }
+ 
+-static void deallocate_threshold_block(unsigned int cpu,
+-						 unsigned int bank)
++static void threshold_block_release(struct kobject *kobj)
++{
++	kfree(to_block(kobj));
++}
++
++static void deallocate_threshold_block(unsigned int cpu, unsigned int bank)
+ {
+ 	struct threshold_block *pos = NULL;
+ 	struct threshold_block *tmp = NULL;
+@@ -1378,13 +1385,11 @@ static void deallocate_threshold_block(unsigned int cpu,
+ 		return;
+ 
+ 	list_for_each_entry_safe(pos, tmp, &head->blocks->miscj, miscj) {
+-		kobject_put(&pos->kobj);
+ 		list_del(&pos->miscj);
+-		kfree(pos);
++		kobject_put(&pos->kobj);
+ 	}
+ 
+-	kfree(per_cpu(threshold_banks, cpu)[bank]->blocks);
+-	per_cpu(threshold_banks, cpu)[bank]->blocks = NULL;
++	kobject_put(&head->blocks->kobj);
+ }
+ 
+ static void __threshold_remove_blocks(struct threshold_bank *b)
