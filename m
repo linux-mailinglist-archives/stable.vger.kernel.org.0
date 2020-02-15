@@ -2,66 +2,71 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BF69A160070
-	for <lists+stable@lfdr.de>; Sat, 15 Feb 2020 21:23:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D077160071
+	for <lists+stable@lfdr.de>; Sat, 15 Feb 2020 21:24:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726275AbgBOUXU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 15 Feb 2020 15:23:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51730 "EHLO mail.kernel.org"
+        id S1726340AbgBOUYA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 15 Feb 2020 15:24:00 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51790 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726254AbgBOUXU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 15 Feb 2020 15:23:20 -0500
+        id S1726254AbgBOUX7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 15 Feb 2020 15:23:59 -0500
 Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E866A207FF;
-        Sat, 15 Feb 2020 20:23:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4FEEF207FF;
+        Sat, 15 Feb 2020 20:23:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581798200;
-        bh=txuUHI+IT6WcSY5jyP7bxO+zuwppHijiFgpJ4ENkcQo=;
+        s=default; t=1581798239;
+        bh=+aNvcajYzDF5wcHUt5BosByL9Fp5GkGYQkD9lOG69vA=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=kZWVwZjRx13QuHR3csJgV+++ntoagspa2unxY/Y+23/qu323Em+NXO0731BSDMgVT
-         4yvknOq/8FulEz6APNKAxbf/glOsfRxTUri1kL3zA5+rQ2o/G84Bz/I43I0LQlnoLA
-         riQc7IIoMUEu+8sqj41AX+nmLrm0I/xMIRsy8nSQ=
-Date:   Sat, 15 Feb 2020 15:23:19 -0500
+        b=sDr8jYSCZzXS/+2KU0PQ2IyOZAsWzGZL+pqA3A2lRjPLn1yiJenngGF6HEtZdFnOu
+         bLQBoFjXW+jt3BebT98QJ61xcVQT2vWZVjwnAfRegCWPB77FEPKpVvqt0XaWCnX19S
+         fIGPH0ihjGzTcCelX7O6PrQJxnr7jgxQumobPLJM=
+Date:   Sat, 15 Feb 2020 15:23:58 -0500
 From:   Sasha Levin <sashal@kernel.org>
-To:     Suzuki K Poulose <suzuki.poulose@arm.com>
-Cc:     stable@vger.kernel.org, gregkh@linuxfoundation.org,
-        ard.biesheuvel@linaro.org, catalin.marinas@arm.com,
-        mark.rutland@arm.com, maz@kernel.org,
-        Will Deacon <will@kernel.org>, Ard Biesheuvel <ardb@kernel.org>
-Subject: Re: [stable 4.14 PATCH 1/3] arm64: cpufeature: Set the FP/SIMD
- compat HWCAP bits properly
-Message-ID: <20200215202319.GI1734@sasha-vm>
-References: <20200214151937.1950083-1-suzuki.poulose@arm.com>
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     Nick Desaulniers <ndesaulniers@google.com>,
+        "# 3.4.x" <stable@vger.kernel.org>,
+        Robin Murphy <robin.murphy@arm.com>, nico@linaro.org,
+        Russell King <rmk+kernel@armlinux.org.uk>,
+        Miles Chen =?utf-8?B?KOmZs+awkeaouik=?= 
+        <Miles.Chen@mediatek.com>
+Subject: Re: please cherry pick 75fea300d73a to 4.14.y
+Message-ID: <20200215202358.GJ1734@sasha-vm>
+References: <CAKwvOdnYPvov5ULB_BHodeLde4V1Zg+UF0X=V=i1yH77XvhXZg@mail.gmail.com>
+ <20200213192322.GA3778561@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
-In-Reply-To: <20200214151937.1950083-1-suzuki.poulose@arm.com>
+In-Reply-To: <20200213192322.GA3778561@kroah.com>
 User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Feb 14, 2020 at 03:19:35PM +0000, Suzuki K Poulose wrote:
->commit 7ef1ab8792c50797c6c5c7c5150a02460 upstream
+On Thu, Feb 13, 2020 at 11:23:22AM -0800, Greg KH wrote:
+>On Thu, Feb 13, 2020 at 11:19:16AM -0800, Nick Desaulniers wrote:
+>> Hi Greg, Sasha,
+>> Would you please cherry pick
+>> commit 75fea300d73a ("ARM: 8723/2: always assume the "unified" syntax
+>> for assembly code")
+>> which first landed in v4.16-rc1 into 4.14.y?
+>>
+>> In my experience, it cherry-picks cleanly.  It fixes a stream of
+>> warnings we see when building 32b ARM kernels with Clang, like:
+>>
+>> /tmp/signal-1ac549.s: Assembler messages:
+>> /tmp/signal-1ac549.s:76: conditional infixes are deprecated in unified syntax
+>>
+>> We'll make immediate use of it in Android; if anyone objects to
+>> landing in stable let us know and we can carry it out of tree.
 >
->We set the compat_elf_hwcap bits unconditionally on arm64 to
->include the VFP and NEON support. However, the FP/SIMD unit
->is optional on Arm v8 and thus could be missing. We already
->handle this properly in the kernel, but still advertise to
->the COMPAT applications that the VFP is available. Fix this
->to make sure we only advertise when we really have them.
->
->Cc: stable@vger.kernel.org # v4.14
->Cc: Will Deacon <will@kernel.org>
->Cc: Mark Rutland <mark.rutland@arm.com>
->Reviewed-by: Ard Biesheuvel <ardb@kernel.org>
->Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
->Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
+>Seems sane, I'll queue it up after this latest round of stable kernels
+>are released in a few days.
 
-Queued for 4.14, thank you.
+I've queued this one on 4.14.
 
 -- 
 Thanks,
