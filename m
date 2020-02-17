@@ -2,53 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DF208161168
-	for <lists+stable@lfdr.de>; Mon, 17 Feb 2020 12:50:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AB0E8161169
+	for <lists+stable@lfdr.de>; Mon, 17 Feb 2020 12:50:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728781AbgBQLuX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Feb 2020 06:50:23 -0500
-Received: from out1-smtp.messagingengine.com ([66.111.4.25]:37443 "EHLO
+        id S1728789AbgBQLu2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Feb 2020 06:50:28 -0500
+Received: from out1-smtp.messagingengine.com ([66.111.4.25]:59785 "EHLO
         out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728682AbgBQLuX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Feb 2020 06:50:23 -0500
+        by vger.kernel.org with ESMTP id S1728682AbgBQLu2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Feb 2020 06:50:28 -0500
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id B00A022008;
-        Mon, 17 Feb 2020 06:50:21 -0500 (EST)
+        by mailout.nyi.internal (Postfix) with ESMTP id C63E822008;
+        Mon, 17 Feb 2020 06:50:27 -0500 (EST)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Mon, 17 Feb 2020 06:50:21 -0500
+  by compute6.internal (MEProxy); Mon, 17 Feb 2020 06:50:27 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=52WfXY
-        v3zWPtwF/jsyeP2Eb3yDSH9chAdZ8mjvKk8PI=; b=nEIL2kAvVuvUiUm4BI354+
-        /OD5c2KtNogxZJfY9rglXbyawOmZhJJhVItYKc+u9znJ0KQs0P3PrDQ4pvbMFZro
-        KXnqNojZcYM2ltQ/V3V79qID6w0HSpJvoTD9Fkb/TCcGoIKqACZbYVPzVAP64BXm
-        /ObShDtl6pxu86ukvO8S+15w+fxS0WPSbKt6YuSroJvcb6qwS/6BZbHf1AglPFdP
-        aDBzebjV/sfkx7Re9rv92QuSsnnXQxwmNIgkXrapaj60t7LqRf/Y0olBmesoXsu2
-        G+p3Wiv78XXHSVmWHElx6b/QlayOLpAtBFFWr8wAHIHbzAb/GI20lDrNrWsGgwwA
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=b/4se5
+        FiJgKIw81oqw4xLZps48muzQZa8IjM/TEfJZY=; b=NmefhHjU5+vHMh2s9WwBBb
+        T7bRBgh8DlAz+vL3DZttVTkon6lxuVSf1gX72WovykEHfzAZjNG1CskhAf/W3sPP
+        TJc1ohHHr1JcJVpbiZI4kMBdMmsGfmMXiCUEX22+iTYA9yPAMkqIBl48xMSgTB/1
+        iyNmRaCVmVS+xrzGlrApXf6DkDmQ1HM6EJncBA2g49Jj/bt0PN/4RVNu9BsEQE1x
+        h3z4EoWsElFYTPue+uuY5JMRU8rCpvZEqAjck6NZJ4Peetu72JzJEs61e+Rd7lIa
+        +o40+eLahx+IdB/Id8+TOc8NTNi0lxR7DvNVW1X7onGz1VOJ54PFZ+3Onx++hZYQ
         ==
-X-ME-Sender: <xms:_X1KXiptnGCSvzz3tFN__Z28FITQ1mQ6ZREgyXFBXse8p_GyN0wUTg>
+X-ME-Sender: <xms:A35KXinL2WHX129sVopg9HtZLFaep7elrM4_2hNj_DFxURYC6XkmLw>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedugedrjeeigdefvdcutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
     qeenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeekfedrkeeirdekledrud
-    dtjeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehg
+    dtjeenucevlhhushhtvghrufhiiigvpedunecurfgrrhgrmhepmhgrihhlfhhrohhmpehg
     rhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:_X1KXlHbWwPmRC63uRHKOI2jwl6JB23UrP66jlRj_MSprWwXqqvoCg>
-    <xmx:_X1KXj9ftSfi8Iw1n5I7kPu9kEA0uAt1acTML57hrQ418eN0wUfYvw>
-    <xmx:_X1KXj37o9t76QBaCCZR0oL626nuHBDeTNz2SWLryYZkl6Mg3TathQ>
-    <xmx:_X1KXoWWc28JxaILPTYNqRD8l9jdkjNi4zW4B_psm3LecwNL8rYLuQ>
+X-ME-Proxy: <xmx:A35KXlreX0Lu1OeHb6s6BPV-2PEhbiCc6U0IVs9XxeROBPR3QHhD3w>
+    <xmx:A35KXmLGFEsa5xABsjDdMI7gTBuY-WYJSFzdref-IyJMbrlc_GMZPA>
+    <xmx:A35KXpCfaPYYKGNhFX8sjTxdGJtGVjqYE2NKYDgw96ykLgOA3E60sg>
+    <xmx:A35KXuGT0cheGFWoUUONM470htZ-y18TzXsQstZet1XW0fVqP6H5ag>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id D9883328005E;
-        Mon, 17 Feb 2020 06:50:20 -0500 (EST)
-Subject: FAILED: patch "[PATCH] ALSA: usb-audio: Add clock validity quirk for Denon" failed to apply to 5.4-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 772D03280062;
+        Mon, 17 Feb 2020 06:50:27 -0500 (EST)
+Subject: FAILED: patch "[PATCH] ALSA: usb-audio: Add clock validity quirk for Denon" failed to apply to 4.19-stable tree
 To:     alexander@tsoy.me, stable@vger.kernel.org, tiwai@suse.de,
         toszlanyi@yahoo.de
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Mon, 17 Feb 2020 12:50:17 +0100
-Message-ID: <158194021723626@kroah.com>
+Message-ID: <1581940217141140@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -58,7 +58,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
