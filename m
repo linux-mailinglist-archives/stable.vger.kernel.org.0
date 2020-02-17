@@ -2,54 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C28CC161B5F
-	for <lists+stable@lfdr.de>; Mon, 17 Feb 2020 20:16:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D864B161B63
+	for <lists+stable@lfdr.de>; Mon, 17 Feb 2020 20:16:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729403AbgBQTQ3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Feb 2020 14:16:29 -0500
-Received: from out5-smtp.messagingengine.com ([66.111.4.29]:56349 "EHLO
+        id S1729612AbgBQTQh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Feb 2020 14:16:37 -0500
+Received: from out5-smtp.messagingengine.com ([66.111.4.29]:44623 "EHLO
         out5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729129AbgBQTQ3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Feb 2020 14:16:29 -0500
+        by vger.kernel.org with ESMTP id S1729477AbgBQTQh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Feb 2020 14:16:37 -0500
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 6B35A21B62;
-        Mon, 17 Feb 2020 14:16:28 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Mon, 17 Feb 2020 14:16:28 -0500
+        by mailout.nyi.internal (Postfix) with ESMTP id A8AF021F55;
+        Mon, 17 Feb 2020 14:16:36 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute6.internal (MEProxy); Mon, 17 Feb 2020 14:16:36 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=lwlzix
-        gbp/C8DU3Ddz3SUCL+WG2SiKcXWN/npuoOdss=; b=e1u3u1GAmDhg2tHe86B82J
-        5EmhL3MPMd4gJpbWNnTQfcA1XnBrhgivlee5p+lO9aHrfIAE5dNa5I3xSgBYvhdf
-        MT2WKPVjEi/pDNHq280Y4lv1o3/Y6OdBatlXjvwpkbGwbc1Uuql0x+XeuFx6de8h
-        PXXQAH7aWyMVuO+ZpeOMpve3XSF5PiaTt5pfO5t/Aa0PrFVoA9OV0HYe3W9EFS65
-        R0CnmQt9lVQZiQQQ+zVL8BwY1Y/DhY0fpCR1lGrNzXrzuIa3dLqtsB3aBbKPpROe
-        QX14w8Z1dZfXTjT1+LubvJtZrdyUMn5kkgi4zASvCNj7qsFYuVZjQOEm1o1POPAg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=k2Mj6R
+        Kx24aHgXm9KfVcL7n0QUth0cCeFiTC5aD33TI=; b=Hz3kwZ+wZFvIjEI2lXuf18
+        Pkb14tPv8ac5G/rhC9afxXA26ALCavcGmswhHUirhcHqfElCtF9L8X4aUKFT75Hi
+        mIj++KtM04vMcUrjcC/rNhYwA5ns+Dcfp6u1vpnCTwT5EB8nB9bc1DgEmb0aRntG
+        EjnixVoAQbHM4q32FEC6oJVvjU9/LyurwE5StwgGwLPHIwzhEB+1MWDq5RfOsyGu
+        uOrR6I/DeXRsRNnVWHLKlr566cnK6vH6P8fT3noFxckcyXSa0lsuax3uo8y05m8n
+        CklrQQfqboNge6CZ4Jg7Dww2ZEMvethwDnTAq1en25GNZoeMp1tK4H0PTc+THhlQ
         ==
-X-ME-Sender: <xms:i-ZKXlDavVRPghJyNWa7XdqvCBwJGgdF44RM7AYzzZv5AAEowVWKoA>
+X-ME-Sender: <xms:lOZKXrriXfZhAVSU5oB2m1kBUbaihbdH5UOKiaQ6KLAka3ejm4z5pA>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedugedrjeeigdduvdegucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtjeenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuffhomhgrihhnpehfrhgvvgguvghskhhtohhprdhorhhgnecukfhppeekfedrke
-    eirdekledruddtjeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhl
+    eirdekledruddtjeenucevlhhushhtvghrufhiiigvpedunecurfgrrhgrmhepmhgrihhl
     fhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:i-ZKXobHCkuoFJggU2N9Ee52yk4dxwtx0Euts4U2n67Yx0A0z8qrkA>
-    <xmx:i-ZKXuJojR6GG7mi1I6NAgQ32MgurJS8mYUZBsBXt-kqVDXrTUR3wQ>
-    <xmx:i-ZKXh2Ea8fM_JAz5BOmdSJQdJZe1MhMhS9QuqiFYX9jEzLU7Fs8zw>
-    <xmx:jOZKXpyBqaq6vZyYU1nOoqbab77YTzN96iaJvZ2F_NK8sV1QBriqnA>
+X-ME-Proxy: <xmx:lOZKXjezRGicm8CGapcg1EzK6Q8SwWbSlhzNIFNtyAopaKcMPUIq1Q>
+    <xmx:lOZKXiruOLQauZKdRFnLhBtx6TO05MLsv0Iz-nkxsBIOvGWTIKZW4w>
+    <xmx:lOZKXsFxhSsvUUOn2C_28zi0n7NKDaVnu2Yki0hBBwBr9O53HN0yyA>
+    <xmx:lOZKXsskdfiZ-hCRDXDqE0YWygWINfh-rH_vWFzkQwyvnDtwwOIUtA>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 5CFEF3060EF2;
-        Mon, 17 Feb 2020 14:16:27 -0500 (EST)
-Subject: FAILED: patch "[PATCH] drm/i915/gem: Detect overflow in calculating dumb buffer size" failed to apply to 5.5-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 46B213280063;
+        Mon, 17 Feb 2020 14:16:36 -0500 (EST)
+Subject: FAILED: patch "[PATCH] drm/i915/gem: Detect overflow in calculating dumb buffer size" failed to apply to 5.4-stable tree
 To:     chris@chris-wilson.co.uk, jani.nikula@intel.com,
         joonas.lahtinen@linux.intel.com, ramalingam.c@intel.com,
         ville.syrjala@linux.intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 17 Feb 2020 20:16:23 +0100
-Message-ID: <1581966983116241@kroah.com>
+Date:   Mon, 17 Feb 2020 20:16:27 +0100
+Message-ID: <158196698735204@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -59,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.5-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
