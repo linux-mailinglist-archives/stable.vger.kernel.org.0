@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2FD5E161B54
-	for <lists+stable@lfdr.de>; Mon, 17 Feb 2020 20:13:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DBEEA161B53
+	for <lists+stable@lfdr.de>; Mon, 17 Feb 2020 20:13:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728935AbgBQTNP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Feb 2020 14:13:15 -0500
-Received: from out5-smtp.messagingengine.com ([66.111.4.29]:49969 "EHLO
+        id S1728543AbgBQTNO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Feb 2020 14:13:14 -0500
+Received: from out5-smtp.messagingengine.com ([66.111.4.29]:41915 "EHLO
         out5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728467AbgBQTNP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Feb 2020 14:13:15 -0500
+        by vger.kernel.org with ESMTP id S1728467AbgBQTNN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Feb 2020 14:13:13 -0500
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id E249221F82;
-        Mon, 17 Feb 2020 14:13:14 -0500 (EST)
+        by mailout.nyi.internal (Postfix) with ESMTP id DA62A21FC3;
+        Mon, 17 Feb 2020 14:13:12 -0500 (EST)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Mon, 17 Feb 2020 14:13:14 -0500
+  by compute6.internal (MEProxy); Mon, 17 Feb 2020 14:13:12 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=CgnQIh
-        20ieQOkkyd7ZAEOi2dJ0nGBQnJGqJNd/f54BY=; b=L39nM3xzJWD7QlcFjJKeD9
-        TsUJnFSobe3VoVjoYOX7UgE4vayzBrV3KUAEX9FLGzEyf/VI75yXecvpbBPYfgfK
-        nfFIcUFMUEnblCRpCZB5eslLopsbHfbOG/0pASBvU8ofJMPaDc58KDwpMDt8iMxe
-        7Qhjobm69PyeKJ8YzAsVoyMliMsEHt8fSjkwERB9AC6uwrppMUOVoeT1WFdrIHjW
-        QZq1c4LEm7yBcE7iLbmjttBNeL0fMwNIhf2dPGGjc38I1Up9TsXmpOT2T4QolFd9
-        XC0VvA4FtPQkjKvAdozQfb+/qBITDpQBoRcVEw9AmcY7INwueySyOCLNoCrBMF8w
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=Q1vqXA
+        QhBHkhpwBJNcngzm+w5jt+i7U2nk8PXe92HYA=; b=UzV0xqtwkvrfqv3tvCWUUb
+        9iCxtOO1mAMsjYl75S1x+22MVz6i7B7ech987Zptsz1X+xUtFXJwaTEvATCOmwHW
+        +Qqekm3r28H5WF5iOdHRNRExe+uO3IoIx5BnTlrlNb7zfLCddnRAfFqy0Rt6CXsE
+        TVH2PyLcMk4qEf5KyjV3gaf6q3rJ/GX+co/JEth6Uzsc3lPOW8wadNP7LMDocuQI
+        8hRalqHUz/rKYMcGuIly2QrAKD4FsZeyyGiUjON/VNRt2NuIw9HaVL5IK/9+6CTp
+        DD2ywJveLsOkBZWhBEB1xWjAS0q9AH68MM47gFWnBrS3LoRmMkDcNg91bDJM8IUw
         ==
-X-ME-Sender: <xms:yuVKXgf3yvoozm7GVhCG1A0vVT9MDTdBBWd9P6Y3FK3R3li81htsRA>
+X-ME-Sender: <xms:yOVKXhx2lvqsbEuXUVRzrv7ITRGvshbO50UT_CpjQUmQgiS57m9mcw>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedugedrjeeigdduvdefucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
@@ -35,19 +35,19 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedugedrjeeigdduvdefucetufdoteggod
     gheqnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphepkeefrdekiedrkeelrd
     dutdejnecuvehluhhsthgvrhfuihiivgepudenucfrrghrrghmpehmrghilhhfrhhomhep
     ghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:yuVKXqaIQbG1w4jEl1t-Ec3GqcpXdXKHuKXH03Tk65SP0jxQT22rOg>
-    <xmx:yuVKXtEUL9AOB0_Qr3ZYDYpHDn5kPaUCEJRH_PdUiRKxUpmv9mJoSg>
-    <xmx:yuVKXgkp5MFCoHU7cP3hp9FXpZ5T0mty0BXEVdfu0D1grst0Q-brVQ>
-    <xmx:yuVKXhw8J0O91PC2iGruSj0kFBBoTyyTxcYuJBpFTsWe78uvmTX97w>
+X-ME-Proxy: <xmx:yOVKXoUIWcrkmxtTkKwj1O892ycc_5sncc2FpIl1ky0Ym6h6lDN49Q>
+    <xmx:yOVKXjBA9l-xM6vKcCS6aj5X3rva0sMxMfGp7eR28RPSADvgvoepNw>
+    <xmx:yOVKXp4o069zgepbGnATlEitv803wUt_MAMe2vNbfoXzum-uB17p2A>
+    <xmx:yOVKXq6UkmUIswlR-J9ZTFy4-zCy5G2O8InX3taIZlZGG1M6vgle7g>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 848D1328005E;
-        Mon, 17 Feb 2020 14:13:14 -0500 (EST)
-Subject: FAILED: patch "[PATCH] jbd2: do not clear the BH_Mapped flag when forgetting a" failed to apply to 4.19-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 7A230328005E;
+        Mon, 17 Feb 2020 14:13:12 -0500 (EST)
+Subject: FAILED: patch "[PATCH] jbd2: do not clear the BH_Mapped flag when forgetting a" failed to apply to 5.4-stable tree
 To:     yi.zhang@huawei.com, jack@suse.cz, tytso@mit.edu
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Mon, 17 Feb 2020 20:13:11 +0100
-Message-ID: <158196679112640@kroah.com>
+Message-ID: <158196679125313@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -57,7 +57,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
