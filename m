@@ -2,113 +2,125 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EE75C160E99
-	for <lists+stable@lfdr.de>; Mon, 17 Feb 2020 10:32:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 67495160F0D
+	for <lists+stable@lfdr.de>; Mon, 17 Feb 2020 10:45:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728916AbgBQJcE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Feb 2020 04:32:04 -0500
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:26660 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1728773AbgBQJcE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Feb 2020 04:32:04 -0500
-Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 01H9V5Ah132822
-        for <stable@vger.kernel.org>; Mon, 17 Feb 2020 04:32:03 -0500
-Received: from e06smtp03.uk.ibm.com (e06smtp03.uk.ibm.com [195.75.94.99])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 2y6dnscrja-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <stable@vger.kernel.org>; Mon, 17 Feb 2020 04:32:02 -0500
-Received: from localhost
-        by e06smtp03.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <stable@vger.kernel.org> from <schnelle@linux.ibm.com>;
-        Mon, 17 Feb 2020 09:32:01 -0000
-Received: from b06avi18626390.portsmouth.uk.ibm.com (9.149.26.192)
-        by e06smtp03.uk.ibm.com (192.168.101.133) with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted;
-        (version=TLSv1/SSLv3 cipher=AES256-GCM-SHA384 bits=256/256)
-        Mon, 17 Feb 2020 09:31:58 -0000
-Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
-        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 01H9V2Rl45351242
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 17 Feb 2020 09:31:02 GMT
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 506C311C058;
-        Mon, 17 Feb 2020 09:31:57 +0000 (GMT)
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 1707411C052;
-        Mon, 17 Feb 2020 09:31:57 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
-        Mon, 17 Feb 2020 09:31:57 +0000 (GMT)
-Date:   Mon, 17 Feb 2020 10:31:56 +0100
-From:   Niklas Schnelle <schnelle@linux.ibm.com>
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org
-Subject: Re: [PATCH AUTOSEL 5.5 094/542] s390/pci: Fix possible deadlock in
- recover_store()
-References: <20200214154854.6746-1-sashal@kernel.org>
- <20200214154854.6746-94-sashal@kernel.org>
+        id S1728964AbgBQJpE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Feb 2020 04:45:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43132 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728849AbgBQJpE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Feb 2020 04:45:04 -0500
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2EB4C206F4;
+        Mon, 17 Feb 2020 09:45:03 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1581932703;
+        bh=opxYnsQaJxCkk0dECb7SaJdc34doq8pMzec1HPOYVzw=;
+        h=Subject:To:From:Date:From;
+        b=vIiOtEquLwlP0N33dXXeGVi3aZPx0xkyWBorNq/BxyyotRKvlageYts0oJ3C+ZlQY
+         2hUpZhtzCU8X3j0zCv7NIlfxQWykfNGzIvLLbn6ER8FjZIgSDDlc/KOwAhDz878Mha
+         +j6Dc6B+IGfwmnaB8dRhhlmcMjxJNAQW4bnYENcw=
+Subject: patch "USB: misc: iowarrior: add support for the 100 device" added to usb-linus
+To:     gregkh@linuxfoundation.org, jung@codemercs.com,
+        stable@vger.kernel.org
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 17 Feb 2020 10:45:01 +0100
+Message-ID: <1581932701897@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200214154854.6746-94-sashal@kernel.org>
-User-Agent: Mutt/1.9.4 (2018-02-28)
-X-TM-AS-GCONF: 00
-x-cbid: 20021709-0012-0000-0000-000003878BE7
-X-IBM-AV-DETECTION: SAVI=unused REMOTE=unused XFE=unused
-x-cbparentid: 20021709-0013-0000-0000-000021C41864
-Message-Id: <20200217093156.GB42010@tuxmaker.boeblingen.de.ibm.com>
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.138,18.0.572
- definitions=2020-02-17_05:2020-02-14,2020-02-17 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=999 clxscore=1031
- malwarescore=0 impostorscore=0 lowpriorityscore=0 bulkscore=0 spamscore=0
- adultscore=0 suspectscore=0 mlxscore=0 phishscore=0 priorityscore=1501
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2001150001
- definitions=main-2002170083
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Feb 14, 2020 at 10:41:26AM -0500, Sasha Levin wrote:
-> From: Niklas Schnelle <schnelle@linux.ibm.com>
-> 
-> [ Upstream commit 576c75e36c689bec6a940e807bae27291ab0c0de ]
-> 
-> With zpci_disable() working, lockdep detected a potential deadlock
-> (lockdep output at the end).
-> 
-> The deadlock is between recovering a PCI function via the
-> 
-> /sys/bus/pci/devices/<dev>/recover
-> 
-> attribute vs powering it off via
-> 
-> /sys/bus/pci/slots/<slot>/power.
-> 
-> The fix is analogous to the changes in commit 0ee223b2e1f6 ("scsi: core:
-> Avoid that SCSI device removal through sysfs triggers a deadlock")
-> that fixed a potential deadlock on removing a SCSI device via sysfs.
-[ ... snip ... ]
 
-While technically useful on its own this commit really should go together with
-the following upstream commit:
+This is a note to let you know that I've just added the patch titled
 
-17cdec960cf776b20b1fb08c622221babe591d51
-("s390/pci: Recover handle in clp_set_pci_fn()")
+    USB: misc: iowarrior: add support for the 100 device
 
-While the problem fixed here is independent,  writing to the power/recover
-attributes will often fail due to an inconsistent function handle without the
-second commit.
-In particular without it a PCI function in the error state can not be
-recovered or powered off.
+to my usb git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
+in the usb-linus branch.
 
-I would recommend adding the second commit to the backports as well.
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
 
-Thanks,
-Niklas Schnelle
+The patch will hopefully also be merged in Linus's tree for the
+next -rc kernel release.
+
+If you have any questions about this process, please let me know.
+
+
+From bab5417f5f0118ce914bc5b2f8381e959e891155 Mon Sep 17 00:00:00 2001
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Date: Fri, 14 Feb 2020 08:11:48 -0800
+Subject: USB: misc: iowarrior: add support for the 100 device
+
+Add a new device id for the 100 devie.  It has 4 interfaces like the 28
+and 28L devices but a larger endpoint so more I/O pins.
+
+Cc: Christoph Jung <jung@codemercs.com>
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/r/20200214161148.GA3963518@kroah.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/usb/misc/iowarrior.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/usb/misc/iowarrior.c b/drivers/usb/misc/iowarrior.c
+index d20b60acfe8a..dce20301e367 100644
+--- a/drivers/usb/misc/iowarrior.c
++++ b/drivers/usb/misc/iowarrior.c
+@@ -36,6 +36,7 @@
+ /* fuller speed iowarrior */
+ #define USB_DEVICE_ID_CODEMERCS_IOW28	0x1504
+ #define USB_DEVICE_ID_CODEMERCS_IOW28L	0x1505
++#define USB_DEVICE_ID_CODEMERCS_IOW100	0x1506
+ 
+ /* OEMed devices */
+ #define USB_DEVICE_ID_CODEMERCS_IOW24SAG	0x158a
+@@ -144,6 +145,7 @@ static const struct usb_device_id iowarrior_ids[] = {
+ 	{USB_DEVICE(USB_VENDOR_ID_CODEMERCS, USB_DEVICE_ID_CODEMERCS_IOW56AM)},
+ 	{USB_DEVICE(USB_VENDOR_ID_CODEMERCS, USB_DEVICE_ID_CODEMERCS_IOW28)},
+ 	{USB_DEVICE(USB_VENDOR_ID_CODEMERCS, USB_DEVICE_ID_CODEMERCS_IOW28L)},
++	{USB_DEVICE(USB_VENDOR_ID_CODEMERCS, USB_DEVICE_ID_CODEMERCS_IOW100)},
+ 	{}			/* Terminating entry */
+ };
+ MODULE_DEVICE_TABLE(usb, iowarrior_ids);
+@@ -386,6 +388,7 @@ static ssize_t iowarrior_write(struct file *file,
+ 	case USB_DEVICE_ID_CODEMERCS_IOW56AM:
+ 	case USB_DEVICE_ID_CODEMERCS_IOW28:
+ 	case USB_DEVICE_ID_CODEMERCS_IOW28L:
++	case USB_DEVICE_ID_CODEMERCS_IOW100:
+ 		/* The IOW56 uses asynchronous IO and more urbs */
+ 		if (atomic_read(&dev->write_busy) == MAX_WRITES_IN_FLIGHT) {
+ 			/* Wait until we are below the limit for submitted urbs */
+@@ -786,7 +789,8 @@ static int iowarrior_probe(struct usb_interface *interface,
+ 	if ((dev->product_id == USB_DEVICE_ID_CODEMERCS_IOW56) ||
+ 	    (dev->product_id == USB_DEVICE_ID_CODEMERCS_IOW56AM) ||
+ 	    (dev->product_id == USB_DEVICE_ID_CODEMERCS_IOW28) ||
+-	    (dev->product_id == USB_DEVICE_ID_CODEMERCS_IOW28L)) {
++	    (dev->product_id == USB_DEVICE_ID_CODEMERCS_IOW28L) ||
++	    (dev->product_id == USB_DEVICE_ID_CODEMERCS_IOW100)) {
+ 		res = usb_find_last_int_out_endpoint(iface_desc,
+ 				&dev->int_out_endpoint);
+ 		if (res) {
+@@ -802,7 +806,8 @@ static int iowarrior_probe(struct usb_interface *interface,
+ 	    ((dev->product_id == USB_DEVICE_ID_CODEMERCS_IOW56) ||
+ 	     (dev->product_id == USB_DEVICE_ID_CODEMERCS_IOW56AM) ||
+ 	     (dev->product_id == USB_DEVICE_ID_CODEMERCS_IOW28) ||
+-	     (dev->product_id == USB_DEVICE_ID_CODEMERCS_IOW28L)))
++	     (dev->product_id == USB_DEVICE_ID_CODEMERCS_IOW28L) ||
++	     (dev->product_id == USB_DEVICE_ID_CODEMERCS_IOW100)))
+ 		/* IOWarrior56 has wMaxPacketSize different from report size */
+ 		dev->report_size = 7;
+ 
 -- 
-Niklas Schnelle
-Linux on Z Development
+2.25.0
+
 
