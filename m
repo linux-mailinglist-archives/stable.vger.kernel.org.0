@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E496161161
-	for <lists+stable@lfdr.de>; Mon, 17 Feb 2020 12:48:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A5C116115F
+	for <lists+stable@lfdr.de>; Mon, 17 Feb 2020 12:48:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728799AbgBQLsd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Feb 2020 06:48:33 -0500
-Received: from out1-smtp.messagingengine.com ([66.111.4.25]:52961 "EHLO
+        id S1728798AbgBQLs2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Feb 2020 06:48:28 -0500
+Received: from out1-smtp.messagingengine.com ([66.111.4.25]:46127 "EHLO
         out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728779AbgBQLsd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Feb 2020 06:48:33 -0500
+        by vger.kernel.org with ESMTP id S1728779AbgBQLs1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Feb 2020 06:48:27 -0500
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 2DBCE2201F;
-        Mon, 17 Feb 2020 06:48:33 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Mon, 17 Feb 2020 06:48:33 -0500
+        by mailout.nyi.internal (Postfix) with ESMTP id ABA9921FFC;
+        Mon, 17 Feb 2020 06:48:26 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute6.internal (MEProxy); Mon, 17 Feb 2020 06:48:26 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=74AyOt
-        JjuXVPEAZGTO+mhQL//o14u9SLbIHwd2HzeO0=; b=xt3DpzmXw2XOpPeILbZeDI
-        wvdLxC4+5jkcJOW6yl7Nd2pIRJBWPgTSEJGz+E1sBCK6aws2IE+aFHgbVEB9nQpb
-        0+eO2tWgWoaFoOJPKEyU8cVh9Ebi/d0hGYdRQjL84/jo5J9RrvY02I4KmT+e37UD
-        ZSoPJ49SPueVIp+1Xb1u4c4PeAuh4LVMLfyD/qjfk9NNTNe9CWCnYSxfVZSbQbyQ
-        RoocgLfjNdIIXPQmlojeJKzR1eSYpFoZEpK92KIS19B16zZk7Tc8A1MYElfImzoG
-        8+Mp2DVtyAlqSa8APIx01u2HSgKJ4L4oquBQayg6WvQ5d+yZJ0wYFIUkgrkD7gJw
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=DGQj7x
+        lZ8j3zsQ3SAFG408MasdswMK4pDh1Ji0H8o34=; b=pqtuqJ6UYy6UoHwl6JjE21
+        jzR0qATmqDHhiSik6ph/R7n3kkygg7w1IEEDjRNfeklT6IoKgij5fxd14s5fB9Qn
+        APZEHqoGMShgtJ0iecPaSH2gv9sqQ8XW+IHrtHOlBURB+CGRXVO2qVvHYKcdnajC
+        WqV+++9A5f4c8x2DW1h2tFckmb3ZQCLs/vkCabEilZAsGUrcJSmclwXBc7rY8O73
+        +VJxfdNHHf7dWQy87Xo8c+WrP4H5Lz2uaX/IIEsuFTSB/9fOrXWhQh+nrb7FcKd4
+        PkMSzrxBRTd/WAk3St5yEdFO4A/MJlb5nPN7KKUNvEexnEexqaZ2edkCL4u05u5A
         ==
-X-ME-Sender: <xms:kX1KXrTrZCOrRaXNmdx6Dwl9EtHQe88lSD4MNjD3H6yghfWD9ZBftg>
+X-ME-Sender: <xms:in1KXm2cPO-9IpEWr9QuTd7PH1hJlcF8NcQT0_LwvUglz-w7fiLWxw>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedugedrjeeigdefvdcutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
-    qeenucfkphepkeefrdekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivgepvdenuc
+    qeenucfkphepkeefrdekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivgepudenuc
     frrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:kX1KXn4Ek5bkwoDLrMoLt-pxcrxoixPeNM7fxxEBYgUbdMvM6ArY3A>
-    <xmx:kX1KXrJNPnLMgTii-20OTQuz9k1CW76YeE-Qc2qvr6hBKtyYN5GaKA>
-    <xmx:kX1KXnn4NTmgPDvqn6advf3JFs9PIEB58ixgMuZLblTI1BrTPmwOtw>
-    <xmx:kX1KXlQvhxhI3TiHUMMLMfv3MtM9zA_0PpUg89gyd49dPVmUIIMqDA>
+X-ME-Proxy: <xmx:in1KXoCN_58N1Q6mcOYpLVvP6iZq-jFjsG89ZXypN4AsxOGzZtTfQw>
+    <xmx:in1KXq-yml6Eq3_lfI7VRQ2G-dY9mLRKBU0OwA7noHzk-8VdMMBUiw>
+    <xmx:in1KXrW-niALzY5RhtkBhNhF-vFIQk5-yRlENiLkK4JHqV2SEQ0HiQ>
+    <xmx:in1KXqpn_4ZI1yDXHFt2cyt1otMYgG8WinXTNnz0HgrK-gf4HFnhJA>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id C42DD3060C28;
-        Mon, 17 Feb 2020 06:48:32 -0500 (EST)
-Subject: FAILED: patch "[PATCH] io_uring: grab ->fs as part of async preparation" failed to apply to 5.4-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 4CF40328005D;
+        Mon, 17 Feb 2020 06:48:26 -0500 (EST)
+Subject: FAILED: patch "[PATCH] io_uring: grab ->fs as part of async preparation" failed to apply to 5.5-stable tree
 To:     axboe@kernel.dk
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Mon, 17 Feb 2020 12:48:23 +0100
-Message-ID: <1581940103465@kroah.com>
+Message-ID: <158194010352105@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -56,7 +56,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 5.5-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
