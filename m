@@ -2,115 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D8091616B6
-	for <lists+stable@lfdr.de>; Mon, 17 Feb 2020 16:54:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F1C8D161700
+	for <lists+stable@lfdr.de>; Mon, 17 Feb 2020 17:09:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729618AbgBQPyP convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Mon, 17 Feb 2020 10:54:15 -0500
-Received: from skedge03.snt-world.com ([91.208.41.68]:38736 "EHLO
-        skedge03.snt-world.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729612AbgBQPyP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Feb 2020 10:54:15 -0500
-Received: from sntmail11s.snt-is.com (unknown [10.203.32.181])
+        id S1729579AbgBQQJO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Feb 2020 11:09:14 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56238 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727553AbgBQQJO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Feb 2020 11:09:14 -0500
+Received: from mail-wr1-f53.google.com (mail-wr1-f53.google.com [209.85.221.53])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by skedge03.snt-world.com (Postfix) with ESMTPS id EABA767AB40;
-        Mon, 17 Feb 2020 16:54:12 +0100 (CET)
-Received: from sntmail12r.snt-is.com (10.203.32.182) by sntmail11s.snt-is.com
- (10.203.32.181) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.1913.5; Mon, 17 Feb
- 2020 16:54:12 +0100
-Received: from sntmail12r.snt-is.com ([fe80::e551:8750:7bba:3305]) by
- sntmail12r.snt-is.com ([fe80::e551:8750:7bba:3305%3]) with mapi id
- 15.01.1913.005; Mon, 17 Feb 2020 16:54:12 +0100
-From:   Schrempf Frieder <frieder.schrempf@kontron.de>
-To:     Boris Brezillon <bbrezillon@kernel.org>,
-        Schrempf Frieder <frieder.schrempf@kontron.de>,
-        Jeff Kletsky <git-commits@allycomm.com>,
-        liaoweixiong <liaoweixiong@allwinnertech.com>,
-        Miquel Raynal <miquel.raynal@bootlin.com>
-CC:     "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "linux-mtd@lists.infradead.org" <linux-mtd@lists.infradead.org>,
-        "Richard Weinberger" <richard@nod.at>
-Subject: [PATCH v2 3/3] mtd: spinand: Don not erase the block before writing a
- bad block marker
-Thread-Topic: [PATCH v2 3/3] mtd: spinand: Don not erase the block before
- writing a bad block marker
-Thread-Index: AQHV5ap/saRAn1//VEmaJshNaD42IA==
-Date:   Mon, 17 Feb 2020 15:54:12 +0000
-Message-ID: <20200217155213.5594-4-frieder.schrempf@kontron.de>
-References: <20200217155213.5594-1-frieder.schrempf@kontron.de>
-In-Reply-To: <20200217155213.5594-1-frieder.schrempf@kontron.de>
-Accept-Language: de-DE, en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-mailer: git-send-email 2.17.1
-x-originating-ip: [172.25.9.193]
-x-c2processedorg: 51b406b7-48a2-4d03-b652-521f56ac89f3
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+        by mail.kernel.org (Postfix) with ESMTPSA id 3602620718
+        for <stable@vger.kernel.org>; Mon, 17 Feb 2020 16:09:13 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1581955753;
+        bh=129E5dpmonhuuGEqnPt7lC4zi2JhO3hBLFhawtF68g8=;
+        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+        b=D7vrYwkxOHuGMGxpy8vxqUAzzyFdky71rujHi2ETx2aWgfObizKm4McHDc+XBkQFf
+         wH1ZBgS7Q5puIj+WPFpIrWKqAGjObq9gRrnaeKGFsjdkPSAy3ED+jNdKi8laHvMHI5
+         RPSdwjK20D23cT18FAAze5dTkfX4Ehwf3jbEe7mY=
+Received: by mail-wr1-f53.google.com with SMTP id t3so20398670wru.7
+        for <stable@vger.kernel.org>; Mon, 17 Feb 2020 08:09:13 -0800 (PST)
+X-Gm-Message-State: APjAAAVnYZ1LwLls5T5simUZV3LavyRm1OqNBFK+H2arjjSwSIZPupIY
+        oZ8Z4vdAVwX8Oo3b3zW7z/SU5X+i2L95OBs+o4WQTA==
+X-Google-Smtp-Source: APXvYqw5V6wRzlQYZ+HZnck9ioKlAk3ziBoyHmTxXATFE0s6yyi28HtHtkIKgIeickLp1e3NsQkfzzX5U8CDh+7OhxY=
+X-Received: by 2002:adf:fd8d:: with SMTP id d13mr23175166wrr.208.1581955751662;
+ Mon, 17 Feb 2020 08:09:11 -0800 (PST)
 MIME-Version: 1.0
-X-SnT-MailScanner-Information: Please contact the ISP for more information
-X-SnT-MailScanner-ID: EABA767AB40.A1FAB
-X-SnT-MailScanner: Not scanned: please contact your Internet E-Mail Service Provider for details
-X-SnT-MailScanner-SpamCheck: 
-X-SnT-MailScanner-From: frieder.schrempf@kontron.de
-X-SnT-MailScanner-To: bbrezillon@kernel.org, git-commits@allycomm.com,
-        liaoweixiong@allwinnertech.com, linux-kernel@vger.kernel.org,
-        linux-mtd@lists.infradead.org, miquel.raynal@bootlin.com,
-        richard@nod.at, stable@vger.kernel.org
-X-Spam-Status: No
+References: <20200217123354.21140-1-Jason@zx2c4.com> <CAKv+Gu83dOKGbYU1t3_KZevB_rn-ktoropFrjASjsv3DozrV1A@mail.gmail.com>
+ <20200217155402.GB1461852@kroah.com>
+In-Reply-To: <20200217155402.GB1461852@kroah.com>
+From:   Ard Biesheuvel <ardb@kernel.org>
+Date:   Mon, 17 Feb 2020 17:09:00 +0100
+X-Gmail-Original-Message-ID: <CAKv+Gu_uQvONH=vAcckPEn+HWOOsiQdt_Dsscw2Y3KEUObafxA@mail.gmail.com>
+Message-ID: <CAKv+Gu_uQvONH=vAcckPEn+HWOOsiQdt_Dsscw2Y3KEUObafxA@mail.gmail.com>
+Subject: Re: [PATCH] efi: READ_ONCE rng seed size before munmap
+To:     Greg KH <greg@kroah.com>
+Cc:     "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        linux-efi <linux-efi@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Frieder Schrempf <frieder.schrempf@kontron.de>
+On Mon, 17 Feb 2020 at 16:54, Greg KH <greg@kroah.com> wrote:
+>
+> On Mon, Feb 17, 2020 at 04:23:03PM +0100, Ard Biesheuvel wrote:
+> > On Mon, 17 Feb 2020 at 13:34, Jason A. Donenfeld <Jason@zx2c4.com> wrote:
+> > >
+> > > This function is consistent with using size instead of seed->size
+> > > (except for one place that this patch fixes), but it reads seed->size
+> > > without using READ_ONCE, which means the compiler might still do
+> > > something unwanted. So, this commit simply adds the READ_ONCE
+> > > wrapper.
+> > >
+> > > Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+> > > Cc: Ard Biesheuvel <ardb@kernel.org>
+> > > Cc: stable@vger.kernel.org
+> >
+> > Thanks Jason
+> >
+> > I've queued this in efi/urgent with a fixes: tag rather than a cc:
+> > stable, since it only applies clean to v5.4 and later.
+>
+> Why do that?  That just makes it harder for me to know to pick it up for
+> 5.4 and newer.
+>
+> > We'll need a
+> > backport to 4.14 and 4.19 as well, which has a trivial conflict
+> > (s/add_bootloader_randomness/add_device_randomness/) but we'll need to
+> > wait for this patch to hit Linus's tree first.
+>
+> Ok, if you are going to send it on to me for stable, that's fine, but
+> usually you can just wait for the rejection notices for older kernels
+> before having to worry about this.  In other words, you are doing more
+> work than you have to here :)
+>
 
-Currently when marking a block, we use spinand_erase_op() to erase
-the block before writing the marker to the OOB area. Doing so without
-waiting for the operation to finish can lead to the marking failing
-silently and no bad block marker being written to the flash.
+So just
 
-In fact we don't need to do an erase at all before writing the BBM.
-The ECC is disabled for the raw access to the OOB data and we don't
-need to work around any issues with chips reporting ECC errors as it
-is known to be the case for raw NAND.
+Cc: <stable@vger.kernel.org>
 
-Fixes: 7529df465248 ("mtd: nand: Add core infrastructure to support SPI NANDs")
-Cc: stable@vger.kernel.org
-Signed-off-by: Frieder Schrempf <frieder.schrempf@kontron.de>
----
-Changes in v2:
- * Instead of waiting for the erase operation to finish, just don't
-   do an erase at all, as it is not needed.
- * Update the commit message
----
- drivers/mtd/nand/spi/core.c | 3 ---
- 1 file changed, 3 deletions(-)
-
-diff --git a/drivers/mtd/nand/spi/core.c b/drivers/mtd/nand/spi/core.c
-index a94287884453..8dda51bbdd11 100644
---- a/drivers/mtd/nand/spi/core.c
-+++ b/drivers/mtd/nand/spi/core.c
-@@ -613,7 +613,6 @@ static int spinand_markbad(struct nand_device *nand, const struct nand_pos *pos)
- 	};
- 	int ret;
- 
--	/* Erase block before marking it bad. */
- 	ret = spinand_select_target(spinand, pos->target);
- 	if (ret)
- 		return ret;
-@@ -622,8 +621,6 @@ static int spinand_markbad(struct nand_device *nand, const struct nand_pos *pos)
- 	if (ret)
- 		return ret;
- 
--	spinand_erase_op(spinand, pos);
--
- 	return spinand_write_page(spinand, &req);
- }
- 
--- 
-2.17.1
+without any context is your preferred method?
