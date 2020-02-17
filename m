@@ -2,101 +2,180 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 82F92160A3F
-	for <lists+stable@lfdr.de>; Mon, 17 Feb 2020 07:09:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9D5A0160DC5
+	for <lists+stable@lfdr.de>; Mon, 17 Feb 2020 09:49:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725985AbgBQGJN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Feb 2020 01:09:13 -0500
-Received: from wout5-smtp.messagingengine.com ([64.147.123.21]:37913 "EHLO
-        wout5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725972AbgBQGJN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Feb 2020 01:09:13 -0500
-Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
-        by mailout.west.internal (Postfix) with ESMTP id 005A950C;
-        Mon, 17 Feb 2020 01:09:11 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute5.internal (MEProxy); Mon, 17 Feb 2020 01:09:12 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=sholland.org; h=
-        from:to:cc:subject:date:message-id:mime-version
-        :content-transfer-encoding; s=fm2; bh=lzWvnnSAvszDDjSboHP99evSnh
-        TQIWH2Dw0zyXVLRx8=; b=kQNDEUGjcAUwdSTl2keQT54cQ1ODJzIGlHSxA/34Cp
-        sKNpP+FB/E54+FnwfGuLHKupUyRRcXc7QcSww6/sNbnhBnodgrbuWXbWOaqtoxcx
-        IHQCkqQ0mOK25xpc912arh+bcrNMCYsr2Uzp78kUv0OfasrGtWJRDrQvAmMEJq/O
-        zAme+b3HAUgoTs4fP3Azlk6kN8GJjxSJ0NzKR5FGBHITdNY7xnHJEvybwY8lppd7
-        9JHsGbdAYHCx9GxFCdEL4oLz6plI/fkqQZazSNZVHBWLxIKEls4TO5DwuhCd47F8
-        elsEtld9/L936yvL+GqFj2RMSrVGz6kE1z2j0SmxzzUQ==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:date:from
-        :message-id:mime-version:subject:to:x-me-proxy:x-me-proxy
-        :x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=lzWvnnSAvszDDjSbo
-        HP99evSnhTQIWH2Dw0zyXVLRx8=; b=b+basvKj3oT1MeXlur2bpnXvouWW/abcf
-        SfUGqCZQTgsxHZnGOxE7k9V01rxyp0Dx/1ZG+rBuZ87aHiWg7lsFPwY6qA36aW7C
-        jaWsXPOqtLE2Ja75WEcZqDyNnea0rIko8TTt3+s2aiIH0L1lwIs1hRAw6gEFpcd/
-        aE1Tez5qYX4/0p3e5skv46zo3/yY9hO9suG7cESNNfexTnygsirQN2IO5e+1kqDk
-        h9XNKIA9ICfd0fR8M7xamNh6vt2it3cSdRxw2UNt0zHQBXV5Z9fv5cb7JH550kUb
-        HiEJBojfemjbI5hAckeyC6vztn/tjGuFmrObLxP1/h8WrFB7ZPrlg==
-X-ME-Sender: <xms:BC5KXn5mVWAhFXWLE0c7lv3dRb13JkS2bnHb7Y6XwmRcFz0qsMvINQ>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedugedrjeehgdeludcutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
-    fjughrpefhvffufffkofgggfestdekredtredttdenucfhrhhomhepufgrmhhuvghlucfj
-    ohhllhgrnhguuceoshgrmhhuvghlsehshhholhhlrghnugdrohhrgheqnecukfhppeejtd
-    drudefhedrudegkedrudehudenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhep
-    mhgrihhlfhhrohhmpehsrghmuhgvlhesshhhohhllhgrnhgurdhorhhg
-X-ME-Proxy: <xmx:BC5KXkdfzAuz8-iTRIAC09RnaB260csLavkkCDQIdAEekDX1umrgBw>
-    <xmx:BC5KXrazGnIiNzrEgXp4rpeIoBSJupk5SGk7Z3QmU5z4YsvHnDRYcA>
-    <xmx:BC5KXmHf6K2lzpjyf47M3qMbAqZad8UDrq84XFyQwbCM0qhZs0z8Ww>
-    <xmx:By5KXkyTWgMMHDbZ3vAHUR-XdyhYduHZEtZQ30qCKR_3p7ot3NbbLQ>
-Received: from titanium.stl.sholland.net (70-135-148-151.lightspeed.stlsmo.sbcglobal.net [70.135.148.151])
-        by mail.messagingengine.com (Postfix) with ESMTPA id B48E8328005A;
-        Mon, 17 Feb 2020 01:09:07 -0500 (EST)
-From:   Samuel Holland <samuel@sholland.org>
-To:     Maxime Ripard <mripard@kernel.org>, Chen-Yu Tsai <wens@csie.org>,
-        David Airlie <airlied@linux.ie>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        dri-devel@lists.freedesktop.org
-Cc:     linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, Samuel Holland <samuel@sholland.org>
-Subject: [PATCH] drm/sun4i: dsi: Avoid hotplug race with DRM driver bind
-Date:   Mon, 17 Feb 2020 00:09:06 -0600
-Message-Id: <20200217060906.15152-1-samuel@sholland.org>
-X-Mailer: git-send-email 2.24.1
+        id S1728404AbgBQItt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Feb 2020 03:49:49 -0500
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:39688 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1728160AbgBQItt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Feb 2020 03:49:49 -0500
+Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 01H8nLJR083593
+        for <stable@vger.kernel.org>; Mon, 17 Feb 2020 03:49:48 -0500
+Received: from e06smtp04.uk.ibm.com (e06smtp04.uk.ibm.com [195.75.94.100])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 2y6af2r9vt-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <stable@vger.kernel.org>; Mon, 17 Feb 2020 03:49:48 -0500
+Received: from localhost
+        by e06smtp04.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <stable@vger.kernel.org> from <fbarrat@linux.ibm.com>;
+        Mon, 17 Feb 2020 08:49:46 -0000
+Received: from b06avi18626390.portsmouth.uk.ibm.com (9.149.26.192)
+        by e06smtp04.uk.ibm.com (192.168.101.134) with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted;
+        (version=TLSv1/SSLv3 cipher=AES256-GCM-SHA384 bits=256/256)
+        Mon, 17 Feb 2020 08:49:42 -0000
+Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
+        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 01H8mk9O48431508
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 17 Feb 2020 08:48:46 GMT
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id E48D6AE045;
+        Mon, 17 Feb 2020 08:49:41 +0000 (GMT)
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id A8A6FAE051;
+        Mon, 17 Feb 2020 08:49:41 +0000 (GMT)
+Received: from pic2.home (unknown [9.145.20.186])
+        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Mon, 17 Feb 2020 08:49:41 +0000 (GMT)
+Subject: Re: [PATCH AUTOSEL 5.5 096/542] powerpc/powernv/ioda: Fix ref count
+ for devices with their own PE
+To:     Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Cc:     Andrew Donnellan <ajd@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        linuxppc-dev@lists.ozlabs.org
+References: <20200214154854.6746-1-sashal@kernel.org>
+ <20200214154854.6746-96-sashal@kernel.org>
+From:   Frederic Barrat <fbarrat@linux.ibm.com>
+Date:   Mon, 17 Feb 2020 09:49:41 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.4.1
 MIME-Version: 1.0
+In-Reply-To: <20200214154854.6746-96-sashal@kernel.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
 Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+x-cbid: 20021708-0016-0000-0000-000002E78497
+X-IBM-AV-DETECTION: SAVI=unused REMOTE=unused XFE=unused
+x-cbparentid: 20021708-0017-0000-0000-0000334A92CE
+Message-Id: <0867167a-73b8-0735-78ce-0d984f7a80b5@linux.ibm.com>
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.138,18.0.572
+ definitions=2020-02-17_04:2020-02-14,2020-02-17 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0
+ mlxlogscore=732 spamscore=0 clxscore=1031 impostorscore=0
+ priorityscore=1501 phishscore=0 lowpriorityscore=0 suspectscore=0
+ bulkscore=0 adultscore=0 mlxscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2001150001 definitions=main-2002170079
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-We need to make sure that the DRM driver is fully registered before
-allowing the panel to be attached. Otherwise, we may trigger a hotplug
-event before sun4i_framebuffer_init() sets up drm->mode_config.funcs,
-causing a NULL pointer dereference.
 
-Fixes: 1a2703bd7356 ("drm/sun4i: dsi: Allow binding the host without a panel")
-Signed-off-by: Samuel Holland <samuel@sholland.org>
----
 
-This fixes a bug in my previous patch series, that I didn't catch until
-it was already merged.
+Le 14/02/2020 à 16:41, Sasha Levin a écrit :
+> From: Frederic Barrat <fbarrat@linux.ibm.com>
+> 
+> [ Upstream commit 05dd7da76986937fb288b4213b1fa10dbe0d1b33 ]
 
----
- drivers/gpu/drm/sun4i/sun6i_mipi_dsi.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/sun4i/sun6i_mipi_dsi.c b/drivers/gpu/drm/sun4i/sun6i_mipi_dsi.c
-index 9aa78c73873c..9cc1bb69fcda 100644
---- a/drivers/gpu/drm/sun4i/sun6i_mipi_dsi.c
-+++ b/drivers/gpu/drm/sun4i/sun6i_mipi_dsi.c
-@@ -970,7 +970,7 @@ static int sun6i_dsi_attach(struct mipi_dsi_host *host,
- 
- 	if (IS_ERR(panel))
- 		return PTR_ERR(panel);
--	if (!dsi->drm)
-+	if (!dsi->drm || !dsi->drm->registered)
- 		return -EPROBE_DEFER;
- 
- 	dsi->panel = panel;
--- 
-2.24.1
+Hi,
+
+Upstream commit 05dd7da76986937fb288b4213b1fa10dbe0d1b33 doesn't really 
+need to go to stable (any of 4.19, 5.4 and 5.5). While it's probably 
+safe, the patch replaces a refcount leak by another one, which makes 
+sense as part of the full series merged in 5.6-rc1, but isn't terribly 
+useful standalone on the current stable branches.
+
+   Fred
+
+
+
+> The pci_dn structure used to store a pointer to the struct pci_dev, so
+> taking a reference on the device was required. However, the pci_dev
+> pointer was later removed from the pci_dn structure, but the reference
+> was kept for the npu device.
+> See commit 902bdc57451c ("powerpc/powernv/idoa: Remove unnecessary
+> pcidev from pci_dn").
+> 
+> We don't need to take a reference on the device when assigning the PE
+> as the struct pnv_ioda_pe is cleaned up at the same time as
+> the (physical) device is released. Doing so prevents the device from
+> being released, which is a problem for opencapi devices, since we want
+> to be able to remove them through PCI hotplug.
+> 
+> Now the ugly part: nvlink npu devices are not meant to be
+> released. Because of the above, we've always leaked a reference and
+> simply removing it now is dangerous and would likely require more
+> work. There's currently no release device callback for nvlink devices
+> for example. So to be safe, this patch leaks a reference on the npu
+> device, but only for nvlink and not opencapi.
+> 
+> Signed-off-by: Frederic Barrat <fbarrat@linux.ibm.com>
+> Reviewed-by: Andrew Donnellan <ajd@linux.ibm.com>
+> Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+> Link: https://lore.kernel.org/r/20191121134918.7155-2-fbarrat@linux.ibm.com
+> Signed-off-by: Sasha Levin <sashal@kernel.org>
+> ---
+>   arch/powerpc/platforms/powernv/pci-ioda.c | 19 ++++++++++++-------
+>   1 file changed, 12 insertions(+), 7 deletions(-)
+> 
+> diff --git a/arch/powerpc/platforms/powernv/pci-ioda.c b/arch/powerpc/platforms/powernv/pci-ioda.c
+> index 4374836b033b4..67b836f102402 100644
+> --- a/arch/powerpc/platforms/powernv/pci-ioda.c
+> +++ b/arch/powerpc/platforms/powernv/pci-ioda.c
+> @@ -1062,14 +1062,13 @@ static struct pnv_ioda_pe *pnv_ioda_setup_dev_PE(struct pci_dev *dev)
+>   		return NULL;
+>   	}
+>   
+> -	/* NOTE: We get only one ref to the pci_dev for the pdn, not for the
+> -	 * pointer in the PE data structure, both should be destroyed at the
+> -	 * same time. However, this needs to be looked at more closely again
+> -	 * once we actually start removing things (Hotplug, SR-IOV, ...)
+> +	/* NOTE: We don't get a reference for the pointer in the PE
+> +	 * data structure, both the device and PE structures should be
+> +	 * destroyed at the same time. However, removing nvlink
+> +	 * devices will need some work.
+>   	 *
+>   	 * At some point we want to remove the PDN completely anyways
+>   	 */
+> -	pci_dev_get(dev);
+>   	pdn->pe_number = pe->pe_number;
+>   	pe->flags = PNV_IODA_PE_DEV;
+>   	pe->pdev = dev;
+> @@ -1084,7 +1083,6 @@ static struct pnv_ioda_pe *pnv_ioda_setup_dev_PE(struct pci_dev *dev)
+>   		pnv_ioda_free_pe(pe);
+>   		pdn->pe_number = IODA_INVALID_PE;
+>   		pe->pdev = NULL;
+> -		pci_dev_put(dev);
+>   		return NULL;
+>   	}
+>   
+> @@ -1205,6 +1203,14 @@ static struct pnv_ioda_pe *pnv_ioda_setup_npu_PE(struct pci_dev *npu_pdev)
+>   	struct pci_controller *hose = pci_bus_to_host(npu_pdev->bus);
+>   	struct pnv_phb *phb = hose->private_data;
+>   
+> +	/*
+> +	 * Intentionally leak a reference on the npu device (for
+> +	 * nvlink only; this is not an opencapi path) to make sure it
+> +	 * never goes away, as it's been the case all along and some
+> +	 * work is needed otherwise.
+> +	 */
+> +	pci_dev_get(npu_pdev);
+> +
+>   	/*
+>   	 * Due to a hardware errata PE#0 on the NPU is reserved for
+>   	 * error handling. This means we only have three PEs remaining
+> @@ -1228,7 +1234,6 @@ static struct pnv_ioda_pe *pnv_ioda_setup_npu_PE(struct pci_dev *npu_pdev)
+>   			 */
+>   			dev_info(&npu_pdev->dev,
+>   				"Associating to existing PE %x\n", pe_num);
+> -			pci_dev_get(npu_pdev);
+>   			npu_pdn = pci_get_pdn(npu_pdev);
+>   			rid = npu_pdev->bus->number << 8 | npu_pdn->devfn;
+>   			npu_pdn->pe_number = pe_num;
+> 
 
