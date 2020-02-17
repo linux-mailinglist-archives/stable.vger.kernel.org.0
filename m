@@ -2,45 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AE5FA160774
-	for <lists+stable@lfdr.de>; Mon, 17 Feb 2020 01:13:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F3FAB16076C
+	for <lists+stable@lfdr.de>; Mon, 17 Feb 2020 01:06:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726128AbgBQANa convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Sun, 16 Feb 2020 19:13:30 -0500
-Received: from mail.gruposolid.com ([190.115.0.187]:52662 "EHLO
-        mail.gruposolid.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726099AbgBQANa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 16 Feb 2020 19:13:30 -0500
-X-Greylist: delayed 4947 seconds by postgrey-1.27 at vger.kernel.org; Sun, 16 Feb 2020 19:13:29 EST
-Received: from localhost (localhost [127.0.0.1])
-        by mail.gruposolid.com (Postfix) with ESMTP id 99BBD682422;
-        Sun, 16 Feb 2020 21:23:41 +0000 (UTC)
-Received: from mail.gruposolid.com ([127.0.0.1])
-        by localhost (mail.gruposolid.com [127.0.0.1]) (amavisd-new, port 10032)
-        with ESMTP id b5tXcAobSN4c; Sun, 16 Feb 2020 21:23:21 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
-        by mail.gruposolid.com (Postfix) with ESMTP id 718A96842D1;
-        Sun, 16 Feb 2020 18:47:49 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at gruposolid.com
-Received: from mail.gruposolid.com ([127.0.0.1])
-        by localhost (mail.gruposolid.com [127.0.0.1]) (amavisd-new, port 10026)
-        with ESMTP id 9WEHBRyehQN1; Sun, 16 Feb 2020 18:47:49 +0000 (UTC)
-Received: from [10.48.184.145] (unknown [105.4.5.98])
-        by mail.gruposolid.com (Postfix) with ESMTPSA id E1E0B6688AC;
-        Sun, 16 Feb 2020 17:41:03 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+        id S1726261AbgBQAGc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 16 Feb 2020 19:06:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53426 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726177AbgBQAGc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 16 Feb 2020 19:06:32 -0500
+Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id A47E9208C3;
+        Mon, 17 Feb 2020 00:06:31 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1581897991;
+        bh=gVWmyfqTnw1WJsietsaBjsko8jXoww3QXkt4qXMXUyA=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=BU6rH900fpic038GMNAWg32Tdbcib6vdKfVFjIIyWwrY/6/tu7JAlCfT7CQuTA6ld
+         zyeAKH+AyOoMXo9XEidNtKxrtQ2SxMAEv0x+ZiHxLJPj5w5teB2pnXXqPeXViiyCsz
+         VGbmHR7E1xWBchQJwtBr7mLGKKujabUJnfRCHDbM=
+Date:   Sun, 16 Feb 2020 19:06:30 -0500
+From:   Sasha Levin <sashal@kernel.org>
+To:     Luca Ceresoli <luca@lucaceresoli.net>
+Cc:     Jean Delvare <jdelvare@suse.de>, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>,
+        linux-i2c@vger.kernel.org
+Subject: Re: [PATCH AUTOSEL 5.5 495/542] docs: i2c: writing-clients: properly
+ name the stop condition
+Message-ID: <20200217000630.GK1734@sasha-vm>
+References: <20200214154854.6746-1-sashal@kernel.org>
+ <20200214154854.6746-495-sashal@kernel.org>
+ <20200215071402.027c9120@endymion>
+ <dfb3d313-ad9e-8f53-a7f6-d3bfe655d493@lucaceresoli.net>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Content-Description: Mail message body
-Subject: =?utf-8?q?Re=3A_Zur_Armut_beitragen_=E2=82=AC_2=2C000=2C000=2E00_Euro?=
-To:     Recipients <eliseo.rojas@gruposolid.com>
-From:   "Jeff Lindsay" <eliseo.rojas@gruposolid.com>
-Date:   Sun, 16 Feb 2020 09:40:54 -0800
-Reply-To: janfourie376@gmail.com
-Message-Id: <20200216174103.E1E0B6688AC@mail.gruposolid.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <dfb3d313-ad9e-8f53-a7f6-d3bfe655d493@lucaceresoli.net>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Ich bin Jeff Lindsay, ein älterer Bürger aus Kalifornien, USA. Ich habe einen Jackpot von 447,8 Millionen Dollar gewonnen, der größte Lotterie-Jackpot. Im Namen meiner Familie und aus gutem Willen spenden wir Ihnen und Ihrer Familie einen Betrag von (€ 2.000.000,00 EUR), was ($ 2.474.962,85 USD) entspricht. Ich versuche, die öffentlichen Waisenhäuser zu erreichen. Beitrag zur Armutsbekämpfung und Gewährleistung einer angemessenen Gesundheitsversorgung für den Einzelnen. Ich möchte auch, dass Sie einen Teil dieser Spende in die öffentliche Infrastruktur investieren, um Arbeitslosen in Ihrem Land Arbeitsplätze zu bieten. Ich habe dich gewählt, weil ich an dich glaube. Ich brauche Ihre uneingeschränkte Mitarbeit in Bezug auf diese Spende. Bitte kontaktieren Sie mich hier zurück unter meiner privaten E-Mail: jefflindsaydonations@workmail.com
+On Sun, Feb 16, 2020 at 10:49:39PM +0100, Luca Ceresoli wrote:
+>Hi,
+>
+>On 15/02/20 07:14, Jean Delvare wrote:
+>> On Fri, 14 Feb 2020 10:48:07 -0500, Sasha Levin wrote:
+>>> From: Luca Ceresoli <luca@lucaceresoli.net>
+>>>
+>>> [ Upstream commit 4fcb445ec688a62da9c864ab05a4bd39b0307cdc ]
+>>>
+>>> In I2C there is no such thing as a "stop bit". Use the proper naming: "stop
+>>> condition".
+>>>
+>>> Signed-off-by: Luca Ceresoli <luca@lucaceresoli.net>
+>>> Reported-by: Jean Delvare <jdelvare@suse.de>
+>>> Reviewed-by: Jean Delvare <jdelvare@suse.de>
+>>> Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+>>> Signed-off-by: Sasha Levin <sashal@kernel.org>
+>>> ---
+>>>  Documentation/i2c/writing-clients.rst | 6 +++---
+>>>  1 file changed, 3 insertions(+), 3 deletions(-)
+>>>
+>>> diff --git a/Documentation/i2c/writing-clients.rst b/Documentation/i2c/writing-clients.rst
+>>> index ced309b5e0cc8..3869efdf84cae 100644
+>>> --- a/Documentation/i2c/writing-clients.rst
+>>> +++ b/Documentation/i2c/writing-clients.rst
+>>> @@ -357,9 +357,9 @@ read/written.
+>>>
+>>>  This sends a series of messages. Each message can be a read or write,
+>>>  and they can be mixed in any way. The transactions are combined: no
+>>> -stop bit is sent between transaction. The i2c_msg structure contains
+>>> -for each message the client address, the number of bytes of the message
+>>> -and the message data itself.
+>>> +stop condition is issued between transaction. The i2c_msg structure
+>>> +contains for each message the client address, the number of bytes of the
+>>> +message and the message data itself.
+>>>
+>>>  You can read the file ``i2c-protocol`` for more information about the
+>>>  actual I2C protocol.
+>>
+>> I wouldn't bother backporting this documentation patch to stable and
+>> longterm trees. That's a minor vocabulary thing really, it does not
+>> qualify.
+>
+>I also feel no need to have it in stable branches. Hovever it would not
+>hurt, so whatever is fine for who's maintaining that branch will be fine
+>for me as well.
+
+No, you're right, this isn't stable material - I've missed it during
+review and I'll drop it now. Thanks for pointing it out.
+
+-- 
+Thanks,
+Sasha
