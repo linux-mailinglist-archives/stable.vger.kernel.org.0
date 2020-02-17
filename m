@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B30AB161B4D
-	for <lists+stable@lfdr.de>; Mon, 17 Feb 2020 20:12:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 60403161B4B
+	for <lists+stable@lfdr.de>; Mon, 17 Feb 2020 20:12:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728444AbgBQTMT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Feb 2020 14:12:19 -0500
-Received: from out5-smtp.messagingengine.com ([66.111.4.29]:36923 "EHLO
+        id S1728463AbgBQTMJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Feb 2020 14:12:09 -0500
+Received: from out5-smtp.messagingengine.com ([66.111.4.29]:50917 "EHLO
         out5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728467AbgBQTMT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Feb 2020 14:12:19 -0500
+        by vger.kernel.org with ESMTP id S1728444AbgBQTMJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Feb 2020 14:12:09 -0500
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 8F94E21910;
-        Mon, 17 Feb 2020 14:12:18 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Mon, 17 Feb 2020 14:12:18 -0500
+        by mailout.nyi.internal (Postfix) with ESMTP id 6943E210DB;
+        Mon, 17 Feb 2020 14:12:08 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute6.internal (MEProxy); Mon, 17 Feb 2020 14:12:08 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=Aawp7U
-        OTxkOYTt77zSk45sSWsVI3Nqt8K8eYNM6kGHg=; b=J7s+VZ90UegqZHnZYVTcyY
-        L1uu5leu0+Z2SQ+qn+6lOiXtii2S4IKztuYkBGKwYwUSfsIp/JznYUL8W4CMJA5W
-        g8hwfgTu5s8cywxTWrSzeoCL0rtKYaafW5C2mr3xPu18w0y8TuczhTg89eUvZKIi
-        JSNXnFOuxNmEfmBSM+H3soO3M0O8P78F+ZGHZa2aSC3BIUzAEQsudMUTU2yCIe9h
-        VJdF8oceHKbUtHUYsqK4c0BOWnmrYEmXcDVhMd0Ehj1CW548sWkCsQP2fnhnWp+j
-        wxc1HmYgprZgT8tqVcEwYracOuo9kHfemNsGMcNJBEF7QEUwGdOB2yRvKqV9GEzQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=fS7pJU
+        1qDes0cdoh5ADB76lQpae7xDGzsM92VoahHBU=; b=nGjiEFpmCGe3WSkzOorHwG
+        0Tyyt81nMTJvJ13m8PgvqrdQgRGm2wZXBRmbJx7E9BuTxMuqcVzszbO0FKo/pz8+
+        jzkcihpYfhwZ4mlFumQibizelEKqFQnpoUmmr6m1NVMujbUGUZQRJRrhXzXnqB7q
+        1aifzdMb+Kff/YnirWwM4USknjo1Qsi0bMBOxAOgC1gsEM4gswtytN39JKdpf5IU
+        hLrNlqfAmHd7fncRVdlfVQl0G/QAdTJoST3/lFnBo7BVRiL1aaKJlfnHbRb5WLQW
+        n9yBSzQEH5wp3lK28VBaA4JkZeO8vwsns7r8qcBxZIYd8pcZncgYzfYU/7TLpyYQ
         ==
-X-ME-Sender: <xms:kuVKXpLvwSPXoNL0YkoF4YS78Ok4_25dwyVvw3kWm2FuOJwu6u9VeA>
+X-ME-Sender: <xms:h-VKXm9fvUl6zuuHu-mpC7x_J28qroz54JiXPdYFfAlxej0ppL2MsA>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedugedrjeeigdduvdefucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecukfhppeekfedrkeeirdekledruddtjeenucevlhhushhtvghrufhiiigvpedune
+    gheqnecukfhppeekfedrkeeirdekledruddtjeenucevlhhushhtvghrufhiiigvpedtne
     curfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:kuVKXkvr_7rV1wOx1NMC20ByNBZmlxm-snniBdSH77V2RnhcFL2h9g>
-    <xmx:kuVKXlwyNN2lb0-7AwSO1lIgJLTG8mQqzMASNX0Y1XWJ8rh1GVycEA>
-    <xmx:kuVKXqKouvyvE_H4yobbPqUB-e2wLujwCIxZipKprM1GkmRT3Q-WGQ>
-    <xmx:kuVKXuoUzRJPBJqlRVT96nrN7VX1D0r2UzlQXXRnlVS-RFBrdS-ewQ>
+X-ME-Proxy: <xmx:h-VKXhdt3x1ipPRYhuSATNXUhtCtIeQG29F-UojAgPsW6g2MHsUUHA>
+    <xmx:h-VKXq7s-gP0jPi5rmIWNrx8dtadOVtpGfJtS50dzbsg6fNMkx5QGA>
+    <xmx:h-VKXlNzK9OMGLbSchOHW-kmvvCdyWvQZ5oNnqkBzRcWm6ehNvobYQ>
+    <xmx:iOVKXoI2tfApDIrL2iYEdmMGH0KzykHrlw6jeuQgSVTIhMCoFRFpew>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 304A4328005A;
-        Mon, 17 Feb 2020 14:12:18 -0500 (EST)
-Subject: FAILED: patch "[PATCH] io-wq: add support for inheriting ->fs" failed to apply to 5.4-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id A84E93060EE4;
+        Mon, 17 Feb 2020 14:12:07 -0500 (EST)
+Subject: FAILED: patch "[PATCH] io-wq: add support for inheriting ->fs" failed to apply to 5.5-stable tree
 To:     axboe@kernel.dk
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Mon, 17 Feb 2020 20:12:06 +0100
-Message-ID: <15819667262307@kroah.com>
+Message-ID: <1581966726127197@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -56,7 +56,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 5.5-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
