@@ -2,52 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 96014161B46
-	for <lists+stable@lfdr.de>; Mon, 17 Feb 2020 20:10:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F7C6161B47
+	for <lists+stable@lfdr.de>; Mon, 17 Feb 2020 20:10:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728605AbgBQTKV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Feb 2020 14:10:21 -0500
-Received: from out5-smtp.messagingengine.com ([66.111.4.29]:56639 "EHLO
+        id S1728609AbgBQTK3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Feb 2020 14:10:29 -0500
+Received: from out5-smtp.messagingengine.com ([66.111.4.29]:57077 "EHLO
         out5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727749AbgBQTKV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Feb 2020 14:10:21 -0500
+        by vger.kernel.org with ESMTP id S1727749AbgBQTK3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Feb 2020 14:10:29 -0500
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 1A68B21FEB;
-        Mon, 17 Feb 2020 14:10:20 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Mon, 17 Feb 2020 14:10:20 -0500
+        by mailout.nyi.internal (Postfix) with ESMTP id B002F20D7C;
+        Mon, 17 Feb 2020 14:10:28 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute6.internal (MEProxy); Mon, 17 Feb 2020 14:10:28 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=qwG9Pn
-        T3eTkxcy63WBRsNhX64JODPjPt00MJeKKzd+Q=; b=WFAYS/JyDbATWAlsgqgKc0
-        hp46BDxV6+ui5+aK70u5sNIBqfTrRoHbpYYcSJZy5bRiCh7ITq7NIJHpVFCKtGx5
-        LfvftJ7DZaAiNBs1EYcdvmKmuzf+90rrQnmtjw9XGAJ3rcgqTn5f5bLpYcFnGMM5
-        7Ah8hObn3koQcX+cmGBD9mp/VUz9t1lQjk/v17PeJgn9rVRw6ynl85MZjp1zJzWp
-        z8TKjJ3mSF8Zn961j54LRkioEFAzdcXgyp7P7npC1ndRRssCNDwCJgI2H47PMp41
-        IKK1fas7OSqDXVeSWdHdZtdsKCgCMKUySuVJfvdZxJdVuP2bZvJsSjNk4Oo94CUQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=pnZpta
+        xLUFC5P33gdUBFNsXQ7AgC/kcjEPJq1jKTSWE=; b=PB6Vh+R0BvOLfG6j0Vcx3i
+        2aXFSbF1yB+r+h5U/i8F9q/d7OGBY1KuYgg+luLXyA38InebmrHaQH4CDBAtsoT9
+        C0fvxGRwz29fE89SqESzOj3RhtdS1i33gHmP8CgZ9SU55OUbwHbu7a5MZNr0+VhE
+        FDZ/32xXJiNKC8oO+3oqMP0sIonSBYYCKMu28uD5thVmj98dkumk+FW+9OTpjCVr
+        1SHcCAFy3v1ZgMyQw5ehMPHPqBn+AKv09vSxWu/TxTZqoGmIQ2NTbHf68KzOOnCY
+        MGLRhd8SZDhq0TVNjjlUlBoGnwrcSnAEVrWNDB4iAjQ3uKJ7jVXQj3RKd18YHKxw
         ==
-X-ME-Sender: <xms:G-VKXhIqFcEMpEovO0E-m0JVXqYi1te4bTG5bu8aUUGqGKZFH0HMRA>
+X-ME-Sender: <xms:JOVKXl7N2eMs4SS42o4f9wTi9HRGRHCRURCiJhGAt-NY-rVk8r162Q>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedugedrjeeigdduvddvucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphepkeefrdekiedrkeelrd
-    dutdejnecuvehluhhsthgvrhfuihiivgepvdenucfrrghrrghmpehmrghilhhfrhhomhep
+    dutdejnecuvehluhhsthgvrhfuihiivgepfeenucfrrghrrghmpehmrghilhhfrhhomhep
     ghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:G-VKXu8AEKTj3zTKt3zKVik1jk5DLy2NNNpP2dVecNG79DoJzyobSw>
-    <xmx:G-VKXrdJYPjO2FacBdNYK4f4NZTwNlU93Uz0JpXu7k4kcBGl0xxpbg>
-    <xmx:G-VKXjmXD7Kd76dKbGKefEEIeGk9cOEl3XVFtINGaaA9z3eTsvMFQQ>
-    <xmx:HOVKXnoLr_DryebCak6a_0ZhmlEvDO7X9Cc8tx03_WirPyJXtKjPUA>
+X-ME-Proxy: <xmx:JOVKXvVldmzqobxIxjUUkfcV0iwztjJs_M3aP3Y7iqyNNObQJEHh9g>
+    <xmx:JOVKXjvSvQxVkyt5DOMHa9D2UIGkdJnfFHBvPn0GY_TumNBS51ZgWA>
+    <xmx:JOVKXkqhbK22I-l5lAjUyZoIAKWvkdypWG8PgQ1onKT7G5A1FMDhIA>
+    <xmx:JOVKXtyal3xfPl_hTfn-2Otv2k_HL0sRpfkBEWOiujqWoQWNdJkSpQ>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 971753060BD1;
-        Mon, 17 Feb 2020 14:10:19 -0500 (EST)
-Subject: FAILED: patch "[PATCH] ARM: npcm: Bring back GPIOLIB support" failed to apply to 4.14-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 544063280059;
+        Mon, 17 Feb 2020 14:10:28 -0500 (EST)
+Subject: FAILED: patch "[PATCH] ARM: npcm: Bring back GPIOLIB support" failed to apply to 4.9-stable tree
 To:     krzk@kernel.org, olof@lixom.net, stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Mon, 17 Feb 2020 20:10:18 +0100
-Message-ID: <158196661868212@kroah.com>
+Message-ID: <158196661895169@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -57,7 +57,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
