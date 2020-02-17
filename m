@@ -2,108 +2,218 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D864B161B63
-	for <lists+stable@lfdr.de>; Mon, 17 Feb 2020 20:16:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 76E9C161B88
+	for <lists+stable@lfdr.de>; Mon, 17 Feb 2020 20:21:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729612AbgBQTQh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Feb 2020 14:16:37 -0500
-Received: from out5-smtp.messagingengine.com ([66.111.4.29]:44623 "EHLO
-        out5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729477AbgBQTQh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Feb 2020 14:16:37 -0500
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id A8AF021F55;
-        Mon, 17 Feb 2020 14:16:36 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Mon, 17 Feb 2020 14:16:36 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=k2Mj6R
-        Kx24aHgXm9KfVcL7n0QUth0cCeFiTC5aD33TI=; b=Hz3kwZ+wZFvIjEI2lXuf18
-        Pkb14tPv8ac5G/rhC9afxXA26ALCavcGmswhHUirhcHqfElCtF9L8X4aUKFT75Hi
-        mIj++KtM04vMcUrjcC/rNhYwA5ns+Dcfp6u1vpnCTwT5EB8nB9bc1DgEmb0aRntG
-        EjnixVoAQbHM4q32FEC6oJVvjU9/LyurwE5StwgGwLPHIwzhEB+1MWDq5RfOsyGu
-        uOrR6I/DeXRsRNnVWHLKlr566cnK6vH6P8fT3noFxckcyXSa0lsuax3uo8y05m8n
-        CklrQQfqboNge6CZ4Jg7Dww2ZEMvethwDnTAq1en25GNZoeMp1tK4H0PTc+THhlQ
-        ==
-X-ME-Sender: <xms:lOZKXrriXfZhAVSU5oB2m1kBUbaihbdH5UOKiaQ6KLAka3ejm4z5pA>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedugedrjeeigdduvdegucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
-    dtjeenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuffhomhgrihhnpehfrhgvvgguvghskhhtohhprdhorhhgnecukfhppeekfedrke
-    eirdekledruddtjeenucevlhhushhtvghrufhiiigvpedunecurfgrrhgrmhepmhgrihhl
-    fhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:lOZKXjezRGicm8CGapcg1EzK6Q8SwWbSlhzNIFNtyAopaKcMPUIq1Q>
-    <xmx:lOZKXiruOLQauZKdRFnLhBtx6TO05MLsv0Iz-nkxsBIOvGWTIKZW4w>
-    <xmx:lOZKXsFxhSsvUUOn2C_28zi0n7NKDaVnu2Yki0hBBwBr9O53HN0yyA>
-    <xmx:lOZKXsskdfiZ-hCRDXDqE0YWygWINfh-rH_vWFzkQwyvnDtwwOIUtA>
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 46B213280063;
-        Mon, 17 Feb 2020 14:16:36 -0500 (EST)
-Subject: FAILED: patch "[PATCH] drm/i915/gem: Detect overflow in calculating dumb buffer size" failed to apply to 5.4-stable tree
-To:     chris@chris-wilson.co.uk, jani.nikula@intel.com,
-        joonas.lahtinen@linux.intel.com, ramalingam.c@intel.com,
-        ville.syrjala@linux.intel.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 17 Feb 2020 20:16:27 +0100
-Message-ID: <158196698735204@kroah.com>
+        id S1727300AbgBQTVj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Feb 2020 14:21:39 -0500
+Received: from mail-wr1-f43.google.com ([209.85.221.43]:39091 "EHLO
+        mail-wr1-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726945AbgBQTVj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Feb 2020 14:21:39 -0500
+Received: by mail-wr1-f43.google.com with SMTP id y11so21091496wrt.6
+        for <stable@vger.kernel.org>; Mon, 17 Feb 2020 11:21:37 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=YFbLSf+1muDGqbWOH9O0Xck0wQTU+1QODFuPi17l39M=;
+        b=Aa5Vhffke8MvvzaFMN5T90sI0z32ABP34rFRsbOc/qYx3wjTNtTlCftG7uhFnxv0pe
+         munB+rIkTzO/k6DvixZuH15uaY6ctb+d6zDXoXjRHg5IPatDqoquXNG3KReXpwqR7/bF
+         LPzFyCvx7yg/S/HFyYQdciXXlzKqo7yTFPppvKcNcK5E21kf0R9naMUg5wnlGkL+/mB4
+         kL5TzrKtJCcdR83WHJbWz122c5tXeUdU2l12qfJKGN5MGC2oKHYB4Lph7Ux1Td2XO7aI
+         XsVYiS6Qo8Ip+E2x3FKaJrG51HawouBi8k0YRwDH7yOCGM54H7WkBZW4HDCbF5CMb/wC
+         AsYQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=YFbLSf+1muDGqbWOH9O0Xck0wQTU+1QODFuPi17l39M=;
+        b=LGwom6P6DmEtimp1ZJ+N76QpVesdBIzJKkhOZbqcS3yfzf8fqArLlCKymHbXeAT0vE
+         quOqjlC9Y4/aFeBeN5w/caufNSRUmKL3yGt0NHoBGyZl17f5BXKaL/OvlkxDzF5KLpK+
+         aDSeI6MCAgyJ7OTgXvxsQI4nD/KETE5P3hO4kGvMuGnHUaitY3oFZPmHtCHPHpInIniX
+         i1kXcsZTCRiNqsBHXrgwHPJI7mgRKS101L1a69PEYgl7x1J7BH3n4d6QKZerkvHUAZUq
+         AXkDAw07EsXcbcS1uQfeMSjJaRRushzwYIsyOr5yR4BYEK7lqKq9DfzBfqNULKPW3OdB
+         T7yQ==
+X-Gm-Message-State: APjAAAWllnZmP27Zm4FuV+FjWJwATrsKDXyLWgh/b58qf+q2+f48I6QQ
+        /RHadX6GQto4glQgFfBMN8Mrp+Ee6PUg8Q==
+X-Google-Smtp-Source: APXvYqyBo/KzhaOIc+b5d6/EyQ2obYbapUiFE8RwuWBn43ZCdntLLI1SugWaVZCjBbvO1aDyMRG3Ig==
+X-Received: by 2002:a5d:4ed0:: with SMTP id s16mr24111574wrv.144.1581967297183;
+        Mon, 17 Feb 2020 11:21:37 -0800 (PST)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id a9sm2405565wrn.3.2020.02.17.11.21.36
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 17 Feb 2020 11:21:36 -0800 (PST)
+Message-ID: <5e4ae7c0.1c69fb81.6814f.c333@mx.google.com>
+Date:   Mon, 17 Feb 2020 11:21:36 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: build
+X-Kernelci-Branch: linux-4.14.y
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v4.14.171
+Subject: stable-rc/linux-4.14.y build: 16 builds: 0 failed, 16 passed,
+ 7 warnings (v4.14.171)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable-rc/linux-4.14.y build: 16 builds: 0 failed, 16 passed, 7 warnings (v=
+4.14.171)
 
-The patch below does not apply to the 5.4-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.14.=
+y/kernel/v4.14.171/
 
-thanks,
+Tree: stable-rc
+Branch: linux-4.14.y
+Git Describe: v4.14.171
+Git Commit: 98db2bf27b9ed2d5ed0b6c9c8a4bfcb127a19796
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Built: 4 unique architectures
 
-greg k-h
+Warnings Detected:
 
------------------- original commit in Linus's tree ------------------
+arc:
 
-From 051c89cf4ac487e795d87e6f3b9e0ff788da8fb4 Mon Sep 17 00:00:00 2001
-From: Chris Wilson <chris@chris-wilson.co.uk>
-Date: Thu, 23 Jan 2020 12:59:34 +0000
-Subject: [PATCH] drm/i915/gem: Detect overflow in calculating dumb buffer size
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+arm64:
 
-To multiply 2 u32 numbers to generate a u64 in C requires a bit of
-forewarning for the compiler.
+arm:
+    colibri_pxa270_defconfig (gcc-8): 1 warning
+    magician_defconfig (gcc-8): 1 warning
+    mainstone_defconfig (gcc-8): 1 warning
+    netwinder_defconfig (gcc-8): 1 warning
+    prima2_defconfig (gcc-8): 1 warning
+    versatile_defconfig (gcc-8): 1 warning
+    vexpress_defconfig (gcc-8): 1 warning
 
-Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Cc: Ramalingam C <ramalingam.c@intel.com>
-Cc: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
-Cc: stable@vger.kernel.org
-Reviewed-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200123125934.1401755-1-chris@chris-wilson.co.uk
-(cherry picked from commit 0f8f8a64300092852b9361cd835395ee71e6a7d6)
-Signed-off-by: Jani Nikula <jani.nikula@intel.com>
+mips:
 
-diff --git a/drivers/gpu/drm/i915/i915_gem.c b/drivers/gpu/drm/i915/i915_gem.c
-index 94f993e4c12f..c2de2f45b459 100644
---- a/drivers/gpu/drm/i915/i915_gem.c
-+++ b/drivers/gpu/drm/i915/i915_gem.c
-@@ -265,7 +265,10 @@ i915_gem_dumb_create(struct drm_file *file,
- 						    DRM_FORMAT_MOD_LINEAR))
- 		args->pitch = ALIGN(args->pitch, 4096);
- 
--	args->size = args->pitch * args->height;
-+	if (args->pitch < args->width)
-+		return -EINVAL;
-+
-+	args->size = mul_u32_u32(args->pitch, args->height);
- 
- 	mem_type = INTEL_MEMORY_SYSTEM;
- 	if (HAS_LMEM(to_i915(dev)))
 
+Warnings summary:
+
+    7    fs/proc/task_mmu.c:761:7: warning: =E2=80=98last_vma=E2=80=99 may =
+be used uninitialized in this function [-Wmaybe-uninitialized]
+
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D
+
+Detailed per-defconfig build reports:
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (arm64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
+mismatches
+
+---------------------------------------------------------------------------=
+-----
+bcm47xx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+colibri_pxa270_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, =
+0 section mismatches
+
+Warnings:
+    fs/proc/task_mmu.c:761:7: warning: =E2=80=98last_vma=E2=80=99 may be us=
+ed uninitialized in this function [-Wmaybe-uninitialized]
+
+---------------------------------------------------------------------------=
+-----
+haps_hs_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+ip32_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+lemote2f_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+magician_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    fs/proc/task_mmu.c:761:7: warning: =E2=80=98last_vma=E2=80=99 may be us=
+ed uninitialized in this function [-Wmaybe-uninitialized]
+
+---------------------------------------------------------------------------=
+-----
+mainstone_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
+tion mismatches
+
+Warnings:
+    fs/proc/task_mmu.c:761:7: warning: =E2=80=98last_vma=E2=80=99 may be us=
+ed uninitialized in this function [-Wmaybe-uninitialized]
+
+---------------------------------------------------------------------------=
+-----
+markeins_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+netwinder_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
+tion mismatches
+
+Warnings:
+    fs/proc/task_mmu.c:761:7: warning: =E2=80=98last_vma=E2=80=99 may be us=
+ed uninitialized in this function [-Wmaybe-uninitialized]
+
+---------------------------------------------------------------------------=
+-----
+nlm_xlr_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+nsim_hs_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+prima2_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
+
+Warnings:
+    fs/proc/task_mmu.c:761:7: warning: =E2=80=98last_vma=E2=80=99 may be us=
+ed uninitialized in this function [-Wmaybe-uninitialized]
+
+---------------------------------------------------------------------------=
+-----
+tb0287_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+versatile_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
+tion mismatches
+
+Warnings:
+    fs/proc/task_mmu.c:761:7: warning: =E2=80=98last_vma=E2=80=99 may be us=
+ed uninitialized in this function [-Wmaybe-uninitialized]
+
+---------------------------------------------------------------------------=
+-----
+vexpress_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    fs/proc/task_mmu.c:761:7: warning: =E2=80=98last_vma=E2=80=99 may be us=
+ed uninitialized in this function [-Wmaybe-uninitialized]
+
+---
+For more info write to <info@kernelci.org>
