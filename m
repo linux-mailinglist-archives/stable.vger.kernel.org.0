@@ -2,53 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F1806161162
-	for <lists+stable@lfdr.de>; Mon, 17 Feb 2020 12:48:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DF208161168
+	for <lists+stable@lfdr.de>; Mon, 17 Feb 2020 12:50:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728779AbgBQLsg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Feb 2020 06:48:36 -0500
-Received: from out1-smtp.messagingengine.com ([66.111.4.25]:41587 "EHLO
+        id S1728781AbgBQLuX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Feb 2020 06:50:23 -0500
+Received: from out1-smtp.messagingengine.com ([66.111.4.25]:37443 "EHLO
         out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728754AbgBQLsg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Feb 2020 06:48:36 -0500
+        by vger.kernel.org with ESMTP id S1728682AbgBQLuX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Feb 2020 06:50:23 -0500
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 46CE221FFC;
-        Mon, 17 Feb 2020 06:48:35 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Mon, 17 Feb 2020 06:48:35 -0500
+        by mailout.nyi.internal (Postfix) with ESMTP id B00A022008;
+        Mon, 17 Feb 2020 06:50:21 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute6.internal (MEProxy); Mon, 17 Feb 2020 06:50:21 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=O0bLG+
-        csCnH5zhgrpdA7mFglviUBJfw6bAL44YVLsX4=; b=oEPm5TQOs5aq3LexDUGFY0
-        cjy6KT+KcNus97zKsrdEuBuYGbjo3vV3f+Fb7aG4A41pr6+HRfrVlS5Dg9VkJPtR
-        hS8u0K6z0dxwUwRijiNOmG9RFIU4fJ6vkmh50CSXLpA3QLphH0fnUKcoAUQQlRpZ
-        0DEH83UXhMdxgVenAnLC05rx88SUw/PW6G3HUIvunERJx2Aj7sfQvmavylZ4twR5
-        9JST7uSQoK0Hv9pmab8a4o4BEPD9RqzfNc5M8sdC7fyLz9RVVq0Y3vVTvJF4wi4y
-        +72vIzm9FWeIEBVyhb6+Dte4lHCzvja8VS34ZQy+8ngVYVelwZivEc5CckzNAB4A
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=52WfXY
+        v3zWPtwF/jsyeP2Eb3yDSH9chAdZ8mjvKk8PI=; b=nEIL2kAvVuvUiUm4BI354+
+        /OD5c2KtNogxZJfY9rglXbyawOmZhJJhVItYKc+u9znJ0KQs0P3PrDQ4pvbMFZro
+        KXnqNojZcYM2ltQ/V3V79qID6w0HSpJvoTD9Fkb/TCcGoIKqACZbYVPzVAP64BXm
+        /ObShDtl6pxu86ukvO8S+15w+fxS0WPSbKt6YuSroJvcb6qwS/6BZbHf1AglPFdP
+        aDBzebjV/sfkx7Re9rv92QuSsnnXQxwmNIgkXrapaj60t7LqRf/Y0olBmesoXsu2
+        G+p3Wiv78XXHSVmWHElx6b/QlayOLpAtBFFWr8wAHIHbzAb/GI20lDrNrWsGgwwA
         ==
-X-ME-Sender: <xms:kn1KXmL9xnXjdta3DIVZBBUmvx1QerGCEiK9Sr6ws4IU_0kyz0rxbw>
+X-ME-Sender: <xms:_X1KXiptnGCSvzz3tFN__Z28FITQ1mQ6ZREgyXFBXse8p_GyN0wUTg>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedugedrjeeigdefvdcutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
-    ejnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
-    qeenucfkphepkeefrdekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivgeptdenuc
-    frrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:kn1KXmztiSKPUy5jmoPooTS7g8cfeVHGgT0-yCBUMxtJ5R2f7FqDjg>
-    <xmx:kn1KXrL02kFWMjWvThNq_QlBS2-pnvGIaC3RjLrzgsAG3FwxwvmsEQ>
-    <xmx:kn1KXu5G-UbAjSvmU9WsGbMDsZ8gKo-BGNw4NLsO3Jzu9aZWUOMXRA>
-    <xmx:k31KXk1wF8exkdPaRwVBBMImBDkP2kMbl1b5JUuqq1yHET5zn63DwQ>
+    flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
+    qeenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeekfedrkeeirdekledrud
+    dtjeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehg
+    rhgvgheskhhrohgrhhdrtghomh
+X-ME-Proxy: <xmx:_X1KXlHbWwPmRC63uRHKOI2jwl6JB23UrP66jlRj_MSprWwXqqvoCg>
+    <xmx:_X1KXj9ftSfi8Iw1n5I7kPu9kEA0uAt1acTML57hrQ418eN0wUfYvw>
+    <xmx:_X1KXj37o9t76QBaCCZR0oL626nuHBDeTNz2SWLryYZkl6Mg3TathQ>
+    <xmx:_X1KXoWWc28JxaILPTYNqRD8l9jdkjNi4zW4B_psm3LecwNL8rYLuQ>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 376783060BE4;
-        Mon, 17 Feb 2020 06:48:34 -0500 (EST)
-Subject: FAILED: patch "[PATCH] io_uring: prune request from overflow list on flush" failed to apply to 5.5-stable tree
-To:     axboe@kernel.dk, carter.li@eoitek.com
+        by mail.messagingengine.com (Postfix) with ESMTPA id D9883328005E;
+        Mon, 17 Feb 2020 06:50:20 -0500 (EST)
+Subject: FAILED: patch "[PATCH] ALSA: usb-audio: Add clock validity quirk for Denon" failed to apply to 5.4-stable tree
+To:     alexander@tsoy.me, stable@vger.kernel.org, tiwai@suse.de,
+        toszlanyi@yahoo.de
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 17 Feb 2020 12:48:31 +0100
-Message-ID: <1581940111189240@kroah.com>
+Date:   Mon, 17 Feb 2020 12:50:17 +0100
+Message-ID: <158194021723626@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
@@ -56,7 +58,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.5-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -67,100 +69,267 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 2ca10259b4189a433c309054496dd6af1415f992 Mon Sep 17 00:00:00 2001
-From: Jens Axboe <axboe@kernel.dk>
-Date: Thu, 13 Feb 2020 17:17:35 -0700
-Subject: [PATCH] io_uring: prune request from overflow list on flush
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+From 9f35a31283775e6f6af73fb2c95c686a4c0acac7 Mon Sep 17 00:00:00 2001
+From: Alexander Tsoy <alexander@tsoy.me>
+Date: Thu, 13 Feb 2020 02:54:50 +0300
+Subject: [PATCH] ALSA: usb-audio: Add clock validity quirk for Denon
+ MC7000/MCX8000
 
-Carter reported an issue where he could produce a stall on ring exit,
-when we're cleaning up requests that match the given file table. For
-this particular test case, a combination of a few things caused the
-issue:
+It should be safe to ignore clock validity check result if the following
+conditions are met:
+ - only one single sample rate is supported;
+ - the terminal is directly connected to the clock source;
+ - the clock type is internal.
 
-- The cq ring was overflown
-- The request being canceled was in the overflow list
+This is to deal with some Denon DJ controllers that always reports that
+clock is invalid.
 
-The combination of the above means that the cq overflow list holds a
-reference to the request. The request is canceled correctly, but since
-the overflow list holds a reference to it, the final put won't happen.
-Since the final put doesn't happen, the request remains in the inflight.
-Hence we never finish the cancelation flush.
+Tested-by: Tobias Oszlanyi <toszlanyi@yahoo.de>
+Signed-off-by: Alexander Tsoy <alexander@tsoy.me>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200212235450.697348-1-alexander@tsoy.me
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 
-Fix this by removing requests from the overflow list if we're canceling
-them.
-
-Cc: stable@vger.kernel.org # 5.5
-Reported-by: Carter Li 李通洲 <carter.li@eoitek.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 6d4e20d59729..5a826017ebb8 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -481,6 +481,7 @@ enum {
- 	REQ_F_TIMEOUT_NOSEQ_BIT,
- 	REQ_F_COMP_LOCKED_BIT,
- 	REQ_F_NEED_CLEANUP_BIT,
-+	REQ_F_OVERFLOW_BIT,
- };
+diff --git a/sound/usb/clock.c b/sound/usb/clock.c
+index 018b1ecb5404..a48313dfa967 100644
+--- a/sound/usb/clock.c
++++ b/sound/usb/clock.c
+@@ -151,8 +151,34 @@ static int uac_clock_selector_set_val(struct snd_usb_audio *chip, int selector_i
+ 	return ret;
+ }
  
- enum {
-@@ -521,6 +522,8 @@ enum {
- 	REQ_F_COMP_LOCKED	= BIT(REQ_F_COMP_LOCKED_BIT),
- 	/* needs cleanup */
- 	REQ_F_NEED_CLEANUP	= BIT(REQ_F_NEED_CLEANUP_BIT),
-+	/* in overflow list */
-+	REQ_F_OVERFLOW		= BIT(REQ_F_OVERFLOW_BIT),
- };
++/*
++ * Assume the clock is valid if clock source supports only one single sample
++ * rate, the terminal is connected directly to it (there is no clock selector)
++ * and clock type is internal. This is to deal with some Denon DJ controllers
++ * that always reports that clock is invalid.
++ */
++static bool uac_clock_source_is_valid_quirk(struct snd_usb_audio *chip,
++					    struct audioformat *fmt,
++					    int source_id)
++{
++	if (fmt->protocol == UAC_VERSION_2) {
++		struct uac_clock_source_descriptor *cs_desc =
++			snd_usb_find_clock_source(chip->ctrl_intf, source_id);
++
++		if (!cs_desc)
++			return false;
++
++		return (fmt->nr_rates == 1 &&
++			(fmt->clock & 0xff) == cs_desc->bClockID &&
++			(cs_desc->bmAttributes & 0x3) !=
++				UAC_CLOCK_SOURCE_TYPE_EXT);
++	}
++
++	return false;
++}
++
+ static bool uac_clock_source_is_valid(struct snd_usb_audio *chip,
+-				      int protocol,
++				      struct audioformat *fmt,
+ 				      int source_id)
+ {
+ 	int err;
+@@ -160,7 +186,7 @@ static bool uac_clock_source_is_valid(struct snd_usb_audio *chip,
+ 	struct usb_device *dev = chip->dev;
+ 	u32 bmControls;
  
- /*
-@@ -1103,6 +1106,7 @@ static bool io_cqring_overflow_flush(struct io_ring_ctx *ctx, bool force)
- 		req = list_first_entry(&ctx->cq_overflow_list, struct io_kiocb,
- 						list);
- 		list_move(&req->list, &list);
-+		req->flags &= ~REQ_F_OVERFLOW;
- 		if (cqe) {
- 			WRITE_ONCE(cqe->user_data, req->user_data);
- 			WRITE_ONCE(cqe->res, req->result);
-@@ -1155,6 +1159,7 @@ static void io_cqring_fill_event(struct io_kiocb *req, long res)
- 			set_bit(0, &ctx->sq_check_overflow);
- 			set_bit(0, &ctx->cq_check_overflow);
+-	if (protocol == UAC_VERSION_3) {
++	if (fmt->protocol == UAC_VERSION_3) {
+ 		struct uac3_clock_source_descriptor *cs_desc =
+ 			snd_usb_find_clock_source_v3(chip->ctrl_intf, source_id);
+ 
+@@ -194,10 +220,14 @@ static bool uac_clock_source_is_valid(struct snd_usb_audio *chip,
+ 		return false;
+ 	}
+ 
+-	return data ? true :  false;
++	if (data)
++		return true;
++	else
++		return uac_clock_source_is_valid_quirk(chip, fmt, source_id);
+ }
+ 
+-static int __uac_clock_find_source(struct snd_usb_audio *chip, int entity_id,
++static int __uac_clock_find_source(struct snd_usb_audio *chip,
++				   struct audioformat *fmt, int entity_id,
+ 				   unsigned long *visited, bool validate)
+ {
+ 	struct uac_clock_source_descriptor *source;
+@@ -217,7 +247,7 @@ static int __uac_clock_find_source(struct snd_usb_audio *chip, int entity_id,
+ 	source = snd_usb_find_clock_source(chip->ctrl_intf, entity_id);
+ 	if (source) {
+ 		entity_id = source->bClockID;
+-		if (validate && !uac_clock_source_is_valid(chip, UAC_VERSION_2,
++		if (validate && !uac_clock_source_is_valid(chip, fmt,
+ 								entity_id)) {
+ 			usb_audio_err(chip,
+ 				"clock source %d is not valid, cannot use\n",
+@@ -248,8 +278,9 @@ static int __uac_clock_find_source(struct snd_usb_audio *chip, int entity_id,
  		}
-+		req->flags |= REQ_F_OVERFLOW;
- 		refcount_inc(&req->refs);
- 		req->result = res;
- 		list_add_tail(&req->list, &ctx->cq_overflow_list);
-@@ -6463,6 +6468,29 @@ static void io_uring_cancel_files(struct io_ring_ctx *ctx,
- 		if (!cancel_req)
- 			break;
  
-+		if (cancel_req->flags & REQ_F_OVERFLOW) {
-+			spin_lock_irq(&ctx->completion_lock);
-+			list_del(&cancel_req->list);
-+			cancel_req->flags &= ~REQ_F_OVERFLOW;
-+			if (list_empty(&ctx->cq_overflow_list)) {
-+				clear_bit(0, &ctx->sq_check_overflow);
-+				clear_bit(0, &ctx->cq_check_overflow);
-+			}
-+			spin_unlock_irq(&ctx->completion_lock);
-+
-+			WRITE_ONCE(ctx->rings->cq_overflow,
-+				atomic_inc_return(&ctx->cached_cq_overflow));
-+
-+			/*
-+			 * Put inflight ref and overflow ref. If that's
-+			 * all we had, then we're done with this request.
-+			 */
-+			if (refcount_sub_and_test(2, &cancel_req->refs)) {
-+				io_put_req(cancel_req);
-+				continue;
-+			}
-+		}
-+
- 		io_wq_cancel_work(ctx->io_wq, &cancel_req->work);
- 		io_put_req(cancel_req);
- 		schedule();
+ 		cur = ret;
+-		ret = __uac_clock_find_source(chip, selector->baCSourceID[ret - 1],
+-					       visited, validate);
++		ret = __uac_clock_find_source(chip, fmt,
++					      selector->baCSourceID[ret - 1],
++					      visited, validate);
+ 		if (!validate || ret > 0 || !chip->autoclock)
+ 			return ret;
+ 
+@@ -260,8 +291,9 @@ static int __uac_clock_find_source(struct snd_usb_audio *chip, int entity_id,
+ 			if (i == cur)
+ 				continue;
+ 
+-			ret = __uac_clock_find_source(chip, selector->baCSourceID[i - 1],
+-				visited, true);
++			ret = __uac_clock_find_source(chip, fmt,
++						      selector->baCSourceID[i - 1],
++						      visited, true);
+ 			if (ret < 0)
+ 				continue;
+ 
+@@ -281,14 +313,16 @@ static int __uac_clock_find_source(struct snd_usb_audio *chip, int entity_id,
+ 	/* FIXME: multipliers only act as pass-thru element for now */
+ 	multiplier = snd_usb_find_clock_multiplier(chip->ctrl_intf, entity_id);
+ 	if (multiplier)
+-		return __uac_clock_find_source(chip, multiplier->bCSourceID,
+-						visited, validate);
++		return __uac_clock_find_source(chip, fmt,
++					       multiplier->bCSourceID,
++					       visited, validate);
+ 
+ 	return -EINVAL;
+ }
+ 
+-static int __uac3_clock_find_source(struct snd_usb_audio *chip, int entity_id,
+-				   unsigned long *visited, bool validate)
++static int __uac3_clock_find_source(struct snd_usb_audio *chip,
++				    struct audioformat *fmt, int entity_id,
++				    unsigned long *visited, bool validate)
+ {
+ 	struct uac3_clock_source_descriptor *source;
+ 	struct uac3_clock_selector_descriptor *selector;
+@@ -307,7 +341,7 @@ static int __uac3_clock_find_source(struct snd_usb_audio *chip, int entity_id,
+ 	source = snd_usb_find_clock_source_v3(chip->ctrl_intf, entity_id);
+ 	if (source) {
+ 		entity_id = source->bClockID;
+-		if (validate && !uac_clock_source_is_valid(chip, UAC_VERSION_3,
++		if (validate && !uac_clock_source_is_valid(chip, fmt,
+ 								entity_id)) {
+ 			usb_audio_err(chip,
+ 				"clock source %d is not valid, cannot use\n",
+@@ -338,7 +372,8 @@ static int __uac3_clock_find_source(struct snd_usb_audio *chip, int entity_id,
+ 		}
+ 
+ 		cur = ret;
+-		ret = __uac3_clock_find_source(chip, selector->baCSourceID[ret - 1],
++		ret = __uac3_clock_find_source(chip, fmt,
++					       selector->baCSourceID[ret - 1],
+ 					       visited, validate);
+ 		if (!validate || ret > 0 || !chip->autoclock)
+ 			return ret;
+@@ -350,8 +385,9 @@ static int __uac3_clock_find_source(struct snd_usb_audio *chip, int entity_id,
+ 			if (i == cur)
+ 				continue;
+ 
+-			ret = __uac3_clock_find_source(chip, selector->baCSourceID[i - 1],
+-				visited, true);
++			ret = __uac3_clock_find_source(chip, fmt,
++						       selector->baCSourceID[i - 1],
++						       visited, true);
+ 			if (ret < 0)
+ 				continue;
+ 
+@@ -372,7 +408,8 @@ static int __uac3_clock_find_source(struct snd_usb_audio *chip, int entity_id,
+ 	multiplier = snd_usb_find_clock_multiplier_v3(chip->ctrl_intf,
+ 						      entity_id);
+ 	if (multiplier)
+-		return __uac3_clock_find_source(chip, multiplier->bCSourceID,
++		return __uac3_clock_find_source(chip, fmt,
++						multiplier->bCSourceID,
+ 						visited, validate);
+ 
+ 	return -EINVAL;
+@@ -389,18 +426,18 @@ static int __uac3_clock_find_source(struct snd_usb_audio *chip, int entity_id,
+  *
+  * Returns the clock source UnitID (>=0) on success, or an error.
+  */
+-int snd_usb_clock_find_source(struct snd_usb_audio *chip, int protocol,
+-			      int entity_id, bool validate)
++int snd_usb_clock_find_source(struct snd_usb_audio *chip,
++			      struct audioformat *fmt, bool validate)
+ {
+ 	DECLARE_BITMAP(visited, 256);
+ 	memset(visited, 0, sizeof(visited));
+ 
+-	switch (protocol) {
++	switch (fmt->protocol) {
+ 	case UAC_VERSION_2:
+-		return __uac_clock_find_source(chip, entity_id, visited,
++		return __uac_clock_find_source(chip, fmt, fmt->clock, visited,
+ 					       validate);
+ 	case UAC_VERSION_3:
+-		return __uac3_clock_find_source(chip, entity_id, visited,
++		return __uac3_clock_find_source(chip, fmt, fmt->clock, visited,
+ 					       validate);
+ 	default:
+ 		return -EINVAL;
+@@ -501,8 +538,7 @@ static int set_sample_rate_v2v3(struct snd_usb_audio *chip, int iface,
+ 	 * automatic clock selection if the current clock is not
+ 	 * valid.
+ 	 */
+-	clock = snd_usb_clock_find_source(chip, fmt->protocol,
+-					  fmt->clock, true);
++	clock = snd_usb_clock_find_source(chip, fmt, true);
+ 	if (clock < 0) {
+ 		/* We did not find a valid clock, but that might be
+ 		 * because the current sample rate does not match an
+@@ -510,8 +546,7 @@ static int set_sample_rate_v2v3(struct snd_usb_audio *chip, int iface,
+ 		 * and we will do another validation after setting the
+ 		 * rate.
+ 		 */
+-		clock = snd_usb_clock_find_source(chip, fmt->protocol,
+-						  fmt->clock, false);
++		clock = snd_usb_clock_find_source(chip, fmt, false);
+ 		if (clock < 0)
+ 			return clock;
+ 	}
+@@ -577,7 +612,7 @@ static int set_sample_rate_v2v3(struct snd_usb_audio *chip, int iface,
+ 
+ validation:
+ 	/* validate clock after rate change */
+-	if (!uac_clock_source_is_valid(chip, fmt->protocol, clock))
++	if (!uac_clock_source_is_valid(chip, fmt, clock))
+ 		return -ENXIO;
+ 	return 0;
+ }
+diff --git a/sound/usb/clock.h b/sound/usb/clock.h
+index 076e31b79ee0..68df0fbe09d0 100644
+--- a/sound/usb/clock.h
++++ b/sound/usb/clock.h
+@@ -6,7 +6,7 @@ int snd_usb_init_sample_rate(struct snd_usb_audio *chip, int iface,
+ 			     struct usb_host_interface *alts,
+ 			     struct audioformat *fmt, int rate);
+ 
+-int snd_usb_clock_find_source(struct snd_usb_audio *chip, int protocol,
+-			     int entity_id, bool validate);
++int snd_usb_clock_find_source(struct snd_usb_audio *chip,
++			      struct audioformat *fmt, bool validate);
+ 
+ #endif /* __USBAUDIO_CLOCK_H */
+diff --git a/sound/usb/format.c b/sound/usb/format.c
+index 50cb183958bf..9f5cb4ed3a0c 100644
+--- a/sound/usb/format.c
++++ b/sound/usb/format.c
+@@ -336,8 +336,7 @@ static int parse_audio_format_rates_v2v3(struct snd_usb_audio *chip,
+ 	struct usb_device *dev = chip->dev;
+ 	unsigned char tmp[2], *data;
+ 	int nr_triplets, data_size, ret = 0, ret_l6;
+-	int clock = snd_usb_clock_find_source(chip, fp->protocol,
+-					      fp->clock, false);
++	int clock = snd_usb_clock_find_source(chip, fp, false);
+ 
+ 	if (clock < 0) {
+ 		dev_err(&dev->dev,
 
