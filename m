@@ -2,38 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A6471631C7
-	for <lists+stable@lfdr.de>; Tue, 18 Feb 2020 21:06:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F7F616315E
+	for <lists+stable@lfdr.de>; Tue, 18 Feb 2020 21:01:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728544AbgBRUCk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Feb 2020 15:02:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43206 "EHLO mail.kernel.org"
+        id S1727668AbgBRT7v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Feb 2020 14:59:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38722 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728598AbgBRUCj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 18 Feb 2020 15:02:39 -0500
+        id S1728483AbgBRT7u (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 18 Feb 2020 14:59:50 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 48BE624125;
-        Tue, 18 Feb 2020 20:02:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EB1072464E;
+        Tue, 18 Feb 2020 19:59:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582056158;
-        bh=lutRwWS5W6gYIXHi+dRkJ/tOgWhUnRLe5E0U6N0S5Ls=;
+        s=default; t=1582055989;
+        bh=KDjerKczOZHWwPnuBGNxgXOG0D9QiJQCmyfpxvInpYo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v0byONEeCs5ZPjVEzYvrCUZJnYWlegsa4EF9W2c07xq4O9PClkrQq7thNKNeSotuc
-         T6J6VzjnHzfzEOe019gqV3sNRAHgxIVfznuL8e/LPjeSXRGtLXYPGnNs9vU4WDU6xQ
-         3ZH2cp2e5SzpJMjTbLDc5xo9kqO4YbmxeGoMznmo=
+        b=tOtbGxPjdKhJeRJh5hreSYAfyyVGSpXTYcffSic8TIGxPoJjrqJeVEslpUoKfl9/b
+         W8TnXGLwUjLTpVaRvHNMKmwuyQNB0GoLdvzhZpfrvyGa6zJkk+8LXItK0tgKpCNJuA
+         owOVZaW3/Xtukmd+wPRb4Pl47mmXByT4/tiyBiq4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maor Gottlieb <maorg@mellanox.com>,
-        Leon Romanovsky <leonro@mellanox.com>
-Subject: [PATCH 5.5 57/80] RDMA/core: Fix protection fault in get_pkey_idx_qp_list
+        stable@vger.kernel.org, Douglas Anderson <dianders@chromium.org>,
+        Brian Masney <masneyb@onstation.org>,
+        Lina Iyer <ilina@codeaurora.org>,
+        Maulik Shah <mkshah@codeaurora.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Stephen Boyd <swboyd@chromium.org>,
+        Linus Walleij <linus.walleij@linaro.org>
+Subject: [PATCH 5.4 51/66] spmi: pmic-arb: Set lockdep class for hierarchical irq domains
 Date:   Tue, 18 Feb 2020 20:55:18 +0100
-Message-Id: <20200218190437.575579949@linuxfoundation.org>
+Message-Id: <20200218190432.763926947@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200218190432.043414522@linuxfoundation.org>
-References: <20200218190432.043414522@linuxfoundation.org>
+In-Reply-To: <20200218190428.035153861@linuxfoundation.org>
+References: <20200218190428.035153861@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,94 +48,114 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Leon Romanovsky <leonro@mellanox.com>
+From: Stephen Boyd <swboyd@chromium.org>
 
-commit 1dd017882e01d2fcd9c5dbbf1eb376211111c393 upstream.
+commit 2d5a2f913b658a7ae984773a63318ed4daadf4af upstream.
 
-We don't need to set pkey as valid in case that user set only one of pkey
-index or port number, otherwise it will be resulted in NULL pointer
-dereference while accessing to uninitialized pkey list.  The following
-crash from Syzkaller revealed it.
+I see the following lockdep splat in the qcom pinctrl driver when
+attempting to suspend the device.
 
-  kasan: CONFIG_KASAN_INLINE enabled
-  kasan: GPF could be caused by NULL-ptr deref or user memory access
-  general protection fault: 0000 [#1] SMP KASAN PTI
-  CPU: 1 PID: 14753 Comm: syz-executor.2 Not tainted 5.5.0-rc5 #2
-  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS
-  rel-1.12.1-0-ga5cab58e9a3f-prebuilt.qemu.org 04/01/2014
-  RIP: 0010:get_pkey_idx_qp_list+0x161/0x2d0
-  Code: 01 00 00 49 8b 5e 20 4c 39 e3 0f 84 b9 00 00 00 e8 e4 42 6e fe 48
-  8d 7b 10 48 b8 00 00 00 00 00 fc ff df 48 89 fa 48 c1 ea 03 <0f> b6 04
-  02 84 c0 74 08 3c 01 0f 8e d0 00 00 00 48 8d 7d 04 48 b8
-  RSP: 0018:ffffc9000bc6f950 EFLAGS: 00010202
-  RAX: dffffc0000000000 RBX: 0000000000000000 RCX: ffffffff82c8bdec
-  RDX: 0000000000000002 RSI: ffffc900030a8000 RDI: 0000000000000010
-  RBP: ffff888112c8ce80 R08: 0000000000000004 R09: fffff5200178df1f
-  R10: 0000000000000001 R11: fffff5200178df1f R12: ffff888115dc4430
-  R13: ffff888115da8498 R14: ffff888115dc4410 R15: ffff888115da8000
-  FS:  00007f20777de700(0000) GS:ffff88811b100000(0000)
-  knlGS:0000000000000000
-  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  CR2: 0000001b2f721000 CR3: 00000001173ca002 CR4: 0000000000360ee0
-  DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-  DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-  Call Trace:
-   port_pkey_list_insert+0xd7/0x7c0
-   ib_security_modify_qp+0x6fa/0xfc0
-   _ib_modify_qp+0x8c4/0xbf0
-   modify_qp+0x10da/0x16d0
-   ib_uverbs_modify_qp+0x9a/0x100
-   ib_uverbs_write+0xaa5/0xdf0
-   __vfs_write+0x7c/0x100
-   vfs_write+0x168/0x4a0
-   ksys_write+0xc8/0x200
-   do_syscall_64+0x9c/0x390
-   entry_SYSCALL_64_after_hwframe+0x44/0xa9
+ WARNING: possible recursive locking detected
+ 5.4.11 #3 Tainted: G        W
+ --------------------------------------------
+ cat/3074 is trying to acquire lock:
+ ffffff81f49804c0 (&irq_desc_lock_class){-.-.}, at: __irq_get_desc_lock+0x64/0x94
 
-Fixes: d291f1a65232 ("IB/core: Enforce PKey security on QPs")
-Link: https://lore.kernel.org/r/20200212080651.GB679970@unreal
-Signed-off-by: Maor Gottlieb <maorg@mellanox.com>
-Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
-Message-Id: <20200212080651.GB679970@unreal>
+ but task is already holding lock:
+ ffffff81f1cc10c0 (&irq_desc_lock_class){-.-.}, at: __irq_get_desc_lock+0x64/0x94
+
+ other info that might help us debug this:
+  Possible unsafe locking scenario:
+
+        CPU0
+        ----
+   lock(&irq_desc_lock_class);
+   lock(&irq_desc_lock_class);
+
+  *** DEADLOCK ***
+
+  May be due to missing lock nesting notation
+
+ 6 locks held by cat/3074:
+  #0: ffffff81f01d9420 (sb_writers#7){.+.+}, at: vfs_write+0xd0/0x1a4
+  #1: ffffff81bd7d2080 (&of->mutex){+.+.}, at: kernfs_fop_write+0x12c/0x1fc
+  #2: ffffff81f4c322f0 (kn->count#337){.+.+}, at: kernfs_fop_write+0x134/0x1fc
+  #3: ffffffe411a41d60 (system_transition_mutex){+.+.}, at: pm_suspend+0x108/0x348
+  #4: ffffff81f1c5e970 (&dev->mutex){....}, at: __device_suspend+0x168/0x41c
+  #5: ffffff81f1cc10c0 (&irq_desc_lock_class){-.-.}, at: __irq_get_desc_lock+0x64/0x94
+
+ stack backtrace:
+ CPU: 5 PID: 3074 Comm: cat Tainted: G        W         5.4.11 #3
+ Hardware name: Google Cheza (rev3+) (DT)
+ Call trace:
+  dump_backtrace+0x0/0x174
+  show_stack+0x20/0x2c
+  dump_stack+0xc8/0x124
+  __lock_acquire+0x460/0x2388
+  lock_acquire+0x1cc/0x210
+  _raw_spin_lock_irqsave+0x64/0x80
+  __irq_get_desc_lock+0x64/0x94
+  irq_set_irq_wake+0x40/0x144
+  qpnpint_irq_set_wake+0x28/0x34
+  set_irq_wake_real+0x40/0x5c
+  irq_set_irq_wake+0x70/0x144
+  pm8941_pwrkey_suspend+0x34/0x44
+  platform_pm_suspend+0x34/0x60
+  dpm_run_callback+0x64/0xcc
+  __device_suspend+0x310/0x41c
+  dpm_suspend+0xf8/0x298
+  dpm_suspend_start+0x84/0xb4
+  suspend_devices_and_enter+0xbc/0x620
+  pm_suspend+0x210/0x348
+  state_store+0xb0/0x108
+  kobj_attr_store+0x14/0x24
+  sysfs_kf_write+0x4c/0x64
+  kernfs_fop_write+0x15c/0x1fc
+  __vfs_write+0x54/0x18c
+  vfs_write+0xe4/0x1a4
+  ksys_write+0x7c/0xe4
+  __arm64_sys_write+0x20/0x2c
+  el0_svc_common+0xa8/0x160
+  el0_svc_handler+0x7c/0x98
+  el0_svc+0x8/0xc
+
+Set a lockdep class when we map the irq so that irq_set_wake() doesn't
+warn about a lockdep bug that doesn't exist.
+
+Fixes: 12a9eeaebba3 ("spmi: pmic-arb: convert to v2 irq interfaces to support hierarchical IRQ chips")
+Cc: Douglas Anderson <dianders@chromium.org>
+Cc: Brian Masney <masneyb@onstation.org>
+Cc: Lina Iyer <ilina@codeaurora.org>
+Cc: Maulik Shah <mkshah@codeaurora.org>
+Cc: Bjorn Andersson <bjorn.andersson@linaro.org>
+Signed-off-by: Stephen Boyd <swboyd@chromium.org>
+Link: https://lore.kernel.org/r/20200121183748.68662-1-swboyd@chromium.org
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/infiniband/core/security.c |   24 +++++++++---------------
- 1 file changed, 9 insertions(+), 15 deletions(-)
+ drivers/spmi/spmi-pmic-arb.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/infiniband/core/security.c
-+++ b/drivers/infiniband/core/security.c
-@@ -339,22 +339,16 @@ static struct ib_ports_pkeys *get_new_pp
- 	if (!new_pps)
- 		return NULL;
+--- a/drivers/spmi/spmi-pmic-arb.c
++++ b/drivers/spmi/spmi-pmic-arb.c
+@@ -731,6 +731,7 @@ static int qpnpint_irq_domain_translate(
+ 	return 0;
+ }
  
--	if (qp_attr_mask & (IB_QP_PKEY_INDEX | IB_QP_PORT)) {
--		if (!qp_pps) {
--			new_pps->main.port_num = qp_attr->port_num;
--			new_pps->main.pkey_index = qp_attr->pkey_index;
--		} else {
--			new_pps->main.port_num = (qp_attr_mask & IB_QP_PORT) ?
--						  qp_attr->port_num :
--						  qp_pps->main.port_num;
--
--			new_pps->main.pkey_index =
--					(qp_attr_mask & IB_QP_PKEY_INDEX) ?
--					 qp_attr->pkey_index :
--					 qp_pps->main.pkey_index;
--		}
-+	if (qp_attr_mask & IB_QP_PORT)
-+		new_pps->main.port_num =
-+			(qp_pps) ? qp_pps->main.port_num : qp_attr->port_num;
-+	if (qp_attr_mask & IB_QP_PKEY_INDEX)
-+		new_pps->main.pkey_index = (qp_pps) ? qp_pps->main.pkey_index :
-+						      qp_attr->pkey_index;
-+	if ((qp_attr_mask & IB_QP_PKEY_INDEX) && (qp_attr_mask & IB_QP_PORT))
- 		new_pps->main.state = IB_PORT_PKEY_VALID;
--	} else if (qp_pps) {
++static struct lock_class_key qpnpint_irq_lock_class, qpnpint_irq_request_class;
+ 
+ static void qpnpint_irq_domain_map(struct spmi_pmic_arb *pmic_arb,
+ 				   struct irq_domain *domain, unsigned int virq,
+@@ -746,6 +747,9 @@ static void qpnpint_irq_domain_map(struc
+ 	else
+ 		handler = handle_level_irq;
+ 
 +
-+	if (!(qp_attr_mask & (IB_QP_PKEY_INDEX || IB_QP_PORT)) && qp_pps) {
- 		new_pps->main.port_num = qp_pps->main.port_num;
- 		new_pps->main.pkey_index = qp_pps->main.pkey_index;
- 		if (qp_pps->main.state != IB_PORT_PKEY_NOT_VALID)
++	irq_set_lockdep_class(virq, &qpnpint_irq_lock_class,
++			      &qpnpint_irq_request_class);
+ 	irq_domain_set_info(domain, virq, hwirq, &pmic_arb_irqchip, pmic_arb,
+ 			    handler, NULL, NULL);
+ }
 
 
