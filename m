@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D7480163237
-	for <lists+stable@lfdr.de>; Tue, 18 Feb 2020 21:06:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D3C7D1631D9
+	for <lists+stable@lfdr.de>; Tue, 18 Feb 2020 21:06:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726571AbgBRT7z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Feb 2020 14:59:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38800 "EHLO mail.kernel.org"
+        id S1729064AbgBRUDI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Feb 2020 15:03:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44220 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726557AbgBRT7w (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 18 Feb 2020 14:59:52 -0500
+        id S1728097AbgBRUDI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 18 Feb 2020 15:03:08 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6ED3920659;
-        Tue, 18 Feb 2020 19:59:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1DA3A24672;
+        Tue, 18 Feb 2020 20:03:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582055991;
-        bh=DtG1klsFYIJX4cADiDULKjR/ydcpU3huW4ineSvRNjg=;
+        s=default; t=1582056187;
+        bh=cBSZwUoeZg2M9ZZiJYr7n9YyDhNS7A7CyrgCYxfwhys=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pgBhDxdAoNJ7x7B2YJEvD/cXQp7D+PoRV23dl/4mjAq5JJDeM6t2t8CxxUhkZqjx6
-         dDJVzUL8x4cbUVzDvV9wRJt/ZyoITGRA9sSZ9DybY7gZYRRHlR+o3T1rVKO/G3AYGO
-         uyPBH6ryLw6NNAvKKEQnlVy1umvqsqbgq+KK8oZw=
+        b=qsVVOF+Mi0/qc4HR9sQNlgMM+kPetOVNBtoyS6dDUg4cJIzsEwrG+YWD4FjxYpusw
+         9wh2epJjc8sfg+xvQRqrkoFguoQEDqdwLLj+htpJ8S1XWY+EiL+J01y1tJ0/+LIpxj
+         fSVK/J/fjFN2stWyTlonu4dmNicJ7xTvKa0yT4BM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jernej Skrabec <jernej.skrabec@siol.net>,
-        Paul Kocialkowski <paul.kocialkowski@bootlin.com>,
-        Maxime Ripard <maxime@cerno.tech>
-Subject: [PATCH 5.4 60/66] Revert "drm/sun4i: drv: Allow framebuffer modifiers in mode config"
-Date:   Tue, 18 Feb 2020 20:55:27 +0100
-Message-Id: <20200218190433.633379307@linuxfoundation.org>
+        stable@vger.kernel.org, Xiubo Li <xiubli@redhat.com>,
+        Ilya Dryomov <idryomov@gmail.com>
+Subject: [PATCH 5.5 67/80] ceph: noacl mount option is effectively ignored
+Date:   Tue, 18 Feb 2020 20:55:28 +0100
+Message-Id: <20200218190438.385837347@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200218190428.035153861@linuxfoundation.org>
-References: <20200218190428.035153861@linuxfoundation.org>
+In-Reply-To: <20200218190432.043414522@linuxfoundation.org>
+References: <20200218190432.043414522@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,39 +43,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jernej Skrabec <jernej.skrabec@siol.net>
+From: Xiubo Li <xiubli@redhat.com>
 
-commit cf913e9683273f2640501094fa63a67e29f437b3 upstream.
+commit 3b20bc2fe4c0cfd82d35838965dc7ff0b93415c6 upstream.
 
-This reverts commit 9db9c0cf5895e4ddde2814360cae7bea9282edd2.
+For the old mount API, the module parameters parseing function will
+be called in ceph_mount() and also just after the default posix acl
+flag set, so we can control to enable/disable it via the mount option.
 
-Setting mode_config.allow_fb_modifiers manually is completely
-unnecessary. It is set automatically by drm_universal_plane_init() based
-on the fact if modifier list is provided or not. Even more, it breaks
-DE2 and DE3 as they don't support any modifiers beside linear. Modifiers
-aware applications can be confused by provided empty modifier list - at
-least linear modifier should be included, but it's not for DE2 and DE3.
+But for the new mount API, it will call the module parameters
+parseing function before ceph_get_tree(), so the posix acl will always
+be enabled.
 
-Fixes: 9db9c0cf5895 ("drm/sun4i: drv: Allow framebuffer modifiers in mode config")
-Signed-off-by: Jernej Skrabec <jernej.skrabec@siol.net>
-Reviewed-by: Paul Kocialkowski <paul.kocialkowski@bootlin.com>
-Signed-off-by: Maxime Ripard <maxime@cerno.tech>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200126065937.9564-1-jernej.skrabec@siol.net
+Fixes: 82995cc6c5ae ("libceph, rbd, ceph: convert to use the new mount API")
+Signed-off-by: Xiubo Li <xiubli@redhat.com>
+Reviewed-by: Ilya Dryomov <idryomov@gmail.com>
+Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/sun4i/sun4i_drv.c |    1 -
- 1 file changed, 1 deletion(-)
+ fs/ceph/super.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/drivers/gpu/drm/sun4i/sun4i_drv.c
-+++ b/drivers/gpu/drm/sun4i/sun4i_drv.c
-@@ -85,7 +85,6 @@ static int sun4i_drv_bind(struct device
- 	}
+--- a/fs/ceph/super.c
++++ b/fs/ceph/super.c
+@@ -1020,10 +1020,6 @@ static int ceph_get_tree(struct fs_conte
+ 	if (!fc->source)
+ 		return invalf(fc, "ceph: No source");
  
- 	drm_mode_config_init(drm);
--	drm->mode_config.allow_fb_modifiers = true;
+-#ifdef CONFIG_CEPH_FS_POSIX_ACL
+-	fc->sb_flags |= SB_POSIXACL;
+-#endif
+-
+ 	/* create client (which we may/may not use) */
+ 	fsc = create_fs_client(pctx->opts, pctx->copts);
+ 	pctx->opts = NULL;
+@@ -1141,6 +1137,10 @@ static int ceph_init_fs_context(struct f
+ 	fsopt->max_readdir_bytes = CEPH_MAX_READDIR_BYTES_DEFAULT;
+ 	fsopt->congestion_kb = default_congestion_kb();
  
- 	ret = component_bind_all(drm->dev, drm);
- 	if (ret) {
++#ifdef CONFIG_CEPH_FS_POSIX_ACL
++	fc->sb_flags |= SB_POSIXACL;
++#endif
++
+ 	fc->fs_private = pctx;
+ 	fc->ops = &ceph_context_ops;
+ 	return 0;
 
 
