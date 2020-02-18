@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B72F8163202
-	for <lists+stable@lfdr.de>; Tue, 18 Feb 2020 21:06:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 71EAC1631EF
+	for <lists+stable@lfdr.de>; Tue, 18 Feb 2020 21:06:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727962AbgBRUEU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Feb 2020 15:04:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45014 "EHLO mail.kernel.org"
+        id S1729142AbgBRUDn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Feb 2020 15:03:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45056 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729128AbgBRUDj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 18 Feb 2020 15:03:39 -0500
+        id S1729140AbgBRUDn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 18 Feb 2020 15:03:43 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CA9F124125;
-        Tue, 18 Feb 2020 20:03:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DCF5D21D56;
+        Tue, 18 Feb 2020 20:03:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582056219;
-        bh=oM3IV5POdbjJh4hmqvmev7NnW2IKj0WapaGYhE37NXw=;
+        s=default; t=1582056222;
+        bh=DtG1klsFYIJX4cADiDULKjR/ydcpU3huW4ineSvRNjg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I44bABFxPW1nHxB42MkNi28bcrHulEeB1KcL2645bci7H/e+l8u67OOYyNWBdoB9r
-         A/y5TrkSz6QowNq89ElHQ2Cu5kw8Yf91n+ci9Jn5YmCSgKyk0A/8fgORbmCCQ4QTBH
-         p9g+NPWB8z5CLO7U+O6S3Q3DIddy/d/NoKiS7gSE=
+        b=MJZh2lvmCUq9xxdLMDtceqcwnMb0ZHLjFnmF8n7D+7AH+XHeQs2iC9gITuRdVw98Z
+         OeIdy7ouNFeIEA31gb5VOFPhBocr2cAwYb5932HUqqCoR4ByJDEodjrg74RMjvStX2
+         EGI/lvFJl4MTm/QL3+t/f5tC1KB/5a3AaUkSh54Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>
-Subject: [PATCH 5.5 73/80] NFSv4: Ensure the delegation cred is pinned when we call delegreturn
-Date:   Tue, 18 Feb 2020 20:55:34 +0100
-Message-Id: <20200218190438.811033255@linuxfoundation.org>
+        stable@vger.kernel.org, Jernej Skrabec <jernej.skrabec@siol.net>,
+        Paul Kocialkowski <paul.kocialkowski@bootlin.com>,
+        Maxime Ripard <maxime@cerno.tech>
+Subject: [PATCH 5.5 74/80] Revert "drm/sun4i: drv: Allow framebuffer modifiers in mode config"
+Date:   Tue, 18 Feb 2020 20:55:35 +0100
+Message-Id: <20200218190438.880718592@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200218190432.043414522@linuxfoundation.org>
 References: <20200218190432.043414522@linuxfoundation.org>
@@ -44,45 +44,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trondmy@gmail.com>
+From: Jernej Skrabec <jernej.skrabec@siol.net>
 
-commit 5d63944f8206a80636ae8cb4b9107d3b49f43d37 upstream.
+commit cf913e9683273f2640501094fa63a67e29f437b3 upstream.
 
-Ensure we don't release the delegation cred during the call to
-nfs4_proc_delegreturn().
+This reverts commit 9db9c0cf5895e4ddde2814360cae7bea9282edd2.
 
-Fixes: ee05f456772d ("NFSv4: Fix races between open and delegreturn")
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+Setting mode_config.allow_fb_modifiers manually is completely
+unnecessary. It is set automatically by drm_universal_plane_init() based
+on the fact if modifier list is provided or not. Even more, it breaks
+DE2 and DE3 as they don't support any modifiers beside linear. Modifiers
+aware applications can be confused by provided empty modifier list - at
+least linear modifier should be included, but it's not for DE2 and DE3.
+
+Fixes: 9db9c0cf5895 ("drm/sun4i: drv: Allow framebuffer modifiers in mode config")
+Signed-off-by: Jernej Skrabec <jernej.skrabec@siol.net>
+Reviewed-by: Paul Kocialkowski <paul.kocialkowski@bootlin.com>
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200126065937.9564-1-jernej.skrabec@siol.net
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/nfs/delegation.c |   11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/sun4i/sun4i_drv.c |    1 -
+ 1 file changed, 1 deletion(-)
 
---- a/fs/nfs/delegation.c
-+++ b/fs/nfs/delegation.c
-@@ -222,13 +222,18 @@ void nfs_inode_reclaim_delegation(struct
+--- a/drivers/gpu/drm/sun4i/sun4i_drv.c
++++ b/drivers/gpu/drm/sun4i/sun4i_drv.c
+@@ -85,7 +85,6 @@ static int sun4i_drv_bind(struct device
+ 	}
  
- static int nfs_do_return_delegation(struct inode *inode, struct nfs_delegation *delegation, int issync)
- {
-+	const struct cred *cred;
- 	int res = 0;
+ 	drm_mode_config_init(drm);
+-	drm->mode_config.allow_fb_modifiers = true;
  
--	if (!test_bit(NFS_DELEGATION_REVOKED, &delegation->flags))
--		res = nfs4_proc_delegreturn(inode,
--				delegation->cred,
-+	if (!test_bit(NFS_DELEGATION_REVOKED, &delegation->flags)) {
-+		spin_lock(&delegation->lock);
-+		cred = get_cred(delegation->cred);
-+		spin_unlock(&delegation->lock);
-+		res = nfs4_proc_delegreturn(inode, cred,
- 				&delegation->stateid,
- 				issync);
-+		put_cred(cred);
-+	}
- 	return res;
- }
- 
+ 	ret = component_bind_all(drm->dev, drm);
+ 	if (ret) {
 
 
