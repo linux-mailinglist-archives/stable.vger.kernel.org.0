@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C40E0163209
-	for <lists+stable@lfdr.de>; Tue, 18 Feb 2020 21:06:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F3E4B1631D7
+	for <lists+stable@lfdr.de>; Tue, 18 Feb 2020 21:06:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728205AbgBRUEm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Feb 2020 15:04:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43950 "EHLO mail.kernel.org"
+        id S1729032AbgBRUDE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Feb 2020 15:03:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44022 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729044AbgBRUC7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 18 Feb 2020 15:02:59 -0500
+        id S1728097AbgBRUDC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 18 Feb 2020 15:03:02 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DF07021D56;
-        Tue, 18 Feb 2020 20:02:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7793A24673;
+        Tue, 18 Feb 2020 20:03:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582056179;
-        bh=us2hgAvUzqAPptOOCH7doagG3AK8HtWXYp9L9PEzMC8=;
+        s=default; t=1582056181;
+        bh=yaJiDeQSI2EMCSVNMIN7LeAM+k+7UbmGAwh6/ahZFPk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xw4ztxXImCygasJii6jBuNGtrMzAFMoEFjRWu6Rs67eiaaWtZIvIg82iF2Wm7pmUH
-         jEZkEaerLVilF8H7ZgertAUV8sn4M0Ljh329oqHOr6eDcWKUaFkbA4EZdqkwdhQdqL
-         mIcRD5Or3FCZh6HGM4MM3EDSN3huPt5u0o+GElMI=
+        b=RR9vODsdb7AK+qXlZ1t4UCySeshwoO/8a0BZKxGi3PoZdXsLRMqlRHclLFDdjNUkN
+         CIMeMNWbS/opxDeevc9qEIlELSqTpnf5jXBmI/C53zS8kf+TwYIyoAQG34DHhYvn2h
+         M3Jq7ypeyS3ZgWPfwm8fQSZuBLv86q00rxMyeN7w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mike Jones <michael-a1.jones@analog.com>,
-        Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 5.5 64/80] hwmon: (pmbus/ltc2978) Fix PMBus polling of MFR_COMMON definitions.
-Date:   Tue, 18 Feb 2020 20:55:25 +0100
-Message-Id: <20200218190438.150862023@linuxfoundation.org>
+        stable@vger.kernel.org, Sara Sharon <sara.sharon@intel.com>,
+        Luca Coelho <luciano.coelho@intel.com>,
+        Johannes Berg <johannes.berg@intel.com>
+Subject: [PATCH 5.5 65/80] mac80211: fix quiet mode activation in action frames
+Date:   Tue, 18 Feb 2020 20:55:26 +0100
+Message-Id: <20200218190438.225493571@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200218190432.043414522@linuxfoundation.org>
 References: <20200218190432.043414522@linuxfoundation.org>
@@ -43,40 +44,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Jones <michael-a1.jones@analog.com>
+From: Sara Sharon <sara.sharon@intel.com>
 
-commit cf2b012c90e74e85d8aea7d67e48868069cfee0c upstream.
+commit 2bf973ff9b9aeceb8acda629ae65341820d4b35b upstream.
 
-Change 21537dc driver PMBus polling of MFR_COMMON from bits 5/4 to
-bits 6/5. This fixs a LTC297X family bug where polling always returns
-not busy even when the part is busy. This fixes a LTC388X and
-LTM467X bug where polling used PEND and NOT_IN_TRANS, and BUSY was
-not polled, which can lead to NACKing of commands. LTC388X and
-LTM467X modules now poll BUSY and PEND, increasing reliability by
-eliminating NACKing of commands.
+Previously I intended to ignore quiet mode in probe response, however
+I ended up ignoring it instead for action frames. As a matter of fact,
+this path isn't invoked for probe responses to start with. Just revert
+this patch.
 
-Signed-off-by: Mike Jones <michael-a1.jones@analog.com>
-Link: https://lore.kernel.org/r/1580234400-2829-2-git-send-email-michael-a1.jones@analog.com
-Fixes: e04d1ce9bbb49 ("hwmon: (ltc2978) Add polling for chips requiring it")
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Sara Sharon <sara.sharon@intel.com>
+Fixes: 7976b1e9e3bf ("mac80211: ignore quiet mode in probe")
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Link: https://lore.kernel.org/r/20200131111300.891737-15-luca@coelho.fi
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/hwmon/pmbus/ltc2978.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/mac80211/mlme.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/drivers/hwmon/pmbus/ltc2978.c
-+++ b/drivers/hwmon/pmbus/ltc2978.c
-@@ -82,8 +82,8 @@ enum chips { ltc2974, ltc2975, ltc2977,
+--- a/net/mac80211/mlme.c
++++ b/net/mac80211/mlme.c
+@@ -8,7 +8,7 @@
+  * Copyright 2007, Michael Wu <flamingice@sourmilk.net>
+  * Copyright 2013-2014  Intel Mobile Communications GmbH
+  * Copyright (C) 2015 - 2017 Intel Deutschland GmbH
+- * Copyright (C) 2018 - 2019 Intel Corporation
++ * Copyright (C) 2018 - 2020 Intel Corporation
+  */
  
- #define LTC_POLL_TIMEOUT		100	/* in milli-seconds */
+ #include <linux/delay.h>
+@@ -1311,7 +1311,7 @@ ieee80211_sta_process_chanswitch(struct
+ 	if (!res) {
+ 		ch_switch.timestamp = timestamp;
+ 		ch_switch.device_timestamp = device_timestamp;
+-		ch_switch.block_tx =  beacon ? csa_ie.mode : 0;
++		ch_switch.block_tx = csa_ie.mode;
+ 		ch_switch.chandef = csa_ie.chandef;
+ 		ch_switch.count = csa_ie.count;
+ 		ch_switch.delay = csa_ie.max_switch_time;
+@@ -1404,7 +1404,7 @@ ieee80211_sta_process_chanswitch(struct
  
--#define LTC_NOT_BUSY			BIT(5)
--#define LTC_NOT_PENDING			BIT(4)
-+#define LTC_NOT_BUSY			BIT(6)
-+#define LTC_NOT_PENDING			BIT(5)
+ 	sdata->vif.csa_active = true;
+ 	sdata->csa_chandef = csa_ie.chandef;
+-	sdata->csa_block_tx = ch_switch.block_tx;
++	sdata->csa_block_tx = csa_ie.mode;
+ 	ifmgd->csa_ignored_same_chan = false;
  
- /*
-  * LTC2978 clears peak data whenever the CLEAR_FAULTS command is executed, which
+ 	if (sdata->csa_block_tx)
+@@ -1438,7 +1438,7 @@ ieee80211_sta_process_chanswitch(struct
+ 	 * reset when the disconnection worker runs.
+ 	 */
+ 	sdata->vif.csa_active = true;
+-	sdata->csa_block_tx = ch_switch.block_tx;
++	sdata->csa_block_tx = csa_ie.mode;
+ 
+ 	ieee80211_queue_work(&local->hw, &ifmgd->csa_connection_drop_work);
+ 	mutex_unlock(&local->chanctx_mtx);
 
 
