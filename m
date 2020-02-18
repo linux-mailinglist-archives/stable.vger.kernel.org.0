@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6750C16329D
-	for <lists+stable@lfdr.de>; Tue, 18 Feb 2020 21:10:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AC9B3163232
+	for <lists+stable@lfdr.de>; Tue, 18 Feb 2020 21:06:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726948AbgBRUJB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Feb 2020 15:09:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34844 "EHLO mail.kernel.org"
+        id S1728569AbgBRUAV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Feb 2020 15:00:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39502 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727934AbgBRT53 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 18 Feb 2020 14:57:29 -0500
+        id S1728563AbgBRUAU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 18 Feb 2020 15:00:20 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D89EA2465A;
-        Tue, 18 Feb 2020 19:57:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7D2122465A;
+        Tue, 18 Feb 2020 20:00:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582055848;
-        bh=YsUAoqFLDYdV+2dulnURG+0+0deDRpiA7VAIMBWwO9g=;
+        s=default; t=1582056020;
+        bh=vnKENgL2erzlXMxnhaMBf4SD/3+ntQcfdelWp6Lmqck=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CChIMgbNQex/DU+R2KYDWUrKaugaXZ20LkBkzzkOlWVLtLXUdTddPMUm22YaFyxbm
-         tf4iujF8dwxeVgnaY6epbdgGBI0HK7y9L7ktyvdN/My6ezDvF0OqkT1hj4mAoJ14JC
-         kYTLSOS19tlJVoM3HeXKeSSpTCYykpBH9zTRgRa4=
+        b=MtI5q0mvUOIAEKaQA2Bwn4e2+CXTlfjHUeuifQezfYWCxWR0r9dwkGt9DHuKkZtyD
+         JD/vXGvyR4/o2iGfwNUnePrMy1gHifgY843B8NVBmyWI2plk11ORWihlGB/lMUJjcf
+         0noESdoTjEEEo/q0sdgSz+VpvQed/ESLyFXdGo3Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jan Kara <jack@suse.cz>,
-        "zhangyi (F)" <yi.zhang@huawei.com>, Theodore Tso <tytso@mit.edu>,
-        stable@kernel.org, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 36/38] jbd2: move the clearing of b_modified flag to the journal_unmap_buffer()
-Date:   Tue, 18 Feb 2020 20:55:22 +0100
-Message-Id: <20200218190422.713559950@linuxfoundation.org>
+        stable@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
+        Sudeep Holla <sudeep.holla@arm.com>
+Subject: [PATCH 5.4 56/66] arm64: dts: fast models: Fix FVP PCI interrupt-map property
+Date:   Tue, 18 Feb 2020 20:55:23 +0100
+Message-Id: <20200218190433.259761685@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200218190418.536430858@linuxfoundation.org>
-References: <20200218190418.536430858@linuxfoundation.org>
+In-Reply-To: <20200218190428.035153861@linuxfoundation.org>
+References: <20200218190428.035153861@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,106 +43,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: zhangyi (F) <yi.zhang@huawei.com>
+From: Marc Zyngier <maz@kernel.org>
 
-[ Upstream commit 6a66a7ded12baa6ebbb2e3e82f8cb91382814839 ]
+commit 3543d7ddd55fe12c37e8a9db846216c51846015b upstream.
 
-There is no need to delay the clearing of b_modified flag to the
-transaction committing time when unmapping the journalled buffer, so
-just move it to the journal_unmap_buffer().
+The interrupt map for the FVP's PCI node is missing the
+parent-unit-address cells for each of the INTx entries, leading to the
+kernel code failing to parse the entries correctly.
 
-Link: https://lore.kernel.org/r/20200213063821.30455-2-yi.zhang@huawei.com
-Reviewed-by: Jan Kara <jack@suse.cz>
-Signed-off-by: zhangyi (F) <yi.zhang@huawei.com>
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Cc: stable@kernel.org
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Add the missing zero cells, which are pretty useless as far as the GIC
+is concerned, but that the spec requires. This allows INTx to be usable
+on the model, and VFIO to work correctly.
+
+Fixes: fa083b99eb28 ("arm64: dts: fast models: Add DTS fo Base RevC FVP")
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- fs/jbd2/commit.c      | 43 +++++++++++++++----------------------------
- fs/jbd2/transaction.c | 10 ++++++----
- 2 files changed, 21 insertions(+), 32 deletions(-)
+ arch/arm64/boot/dts/arm/fvp-base-revc.dts |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/fs/jbd2/commit.c b/fs/jbd2/commit.c
-index 020bd7a0d8e03..3fe9b7c27ce82 100644
---- a/fs/jbd2/commit.c
-+++ b/fs/jbd2/commit.c
-@@ -971,34 +971,21 @@ void jbd2_journal_commit_transaction(journal_t *journal)
- 		 * it. */
- 
- 		/*
--		* A buffer which has been freed while still being journaled by
--		* a previous transaction.
--		*/
--		if (buffer_freed(bh)) {
--			/*
--			 * If the running transaction is the one containing
--			 * "add to orphan" operation (b_next_transaction !=
--			 * NULL), we have to wait for that transaction to
--			 * commit before we can really get rid of the buffer.
--			 * So just clear b_modified to not confuse transaction
--			 * credit accounting and refile the buffer to
--			 * BJ_Forget of the running transaction. If the just
--			 * committed transaction contains "add to orphan"
--			 * operation, we can completely invalidate the buffer
--			 * now. We are rather through in that since the
--			 * buffer may be still accessible when blocksize <
--			 * pagesize and it is attached to the last partial
--			 * page.
--			 */
--			jh->b_modified = 0;
--			if (!jh->b_next_transaction) {
--				clear_buffer_freed(bh);
--				clear_buffer_jbddirty(bh);
--				clear_buffer_mapped(bh);
--				clear_buffer_new(bh);
--				clear_buffer_req(bh);
--				bh->b_bdev = NULL;
--			}
-+		 * A buffer which has been freed while still being journaled
-+		 * by a previous transaction, refile the buffer to BJ_Forget of
-+		 * the running transaction. If the just committed transaction
-+		 * contains "add to orphan" operation, we can completely
-+		 * invalidate the buffer now. We are rather through in that
-+		 * since the buffer may be still accessible when blocksize <
-+		 * pagesize and it is attached to the last partial page.
-+		 */
-+		if (buffer_freed(bh) && !jh->b_next_transaction) {
-+			clear_buffer_freed(bh);
-+			clear_buffer_jbddirty(bh);
-+			clear_buffer_mapped(bh);
-+			clear_buffer_new(bh);
-+			clear_buffer_req(bh);
-+			bh->b_bdev = NULL;
- 		}
- 
- 		if (buffer_jbddirty(bh)) {
-diff --git a/fs/jbd2/transaction.c b/fs/jbd2/transaction.c
-index 911ff18249b75..97ffe12a22624 100644
---- a/fs/jbd2/transaction.c
-+++ b/fs/jbd2/transaction.c
-@@ -2228,14 +2228,16 @@ static int journal_unmap_buffer(journal_t *journal, struct buffer_head *bh,
- 			return -EBUSY;
- 		}
- 		/*
--		 * OK, buffer won't be reachable after truncate. We just set
--		 * j_next_transaction to the running transaction (if there is
--		 * one) and mark buffer as freed so that commit code knows it
--		 * should clear dirty bits when it is done with the buffer.
-+		 * OK, buffer won't be reachable after truncate. We just clear
-+		 * b_modified to not confuse transaction credit accounting, and
-+		 * set j_next_transaction to the running transaction (if there
-+		 * is one) and mark buffer as freed so that commit code knows
-+		 * it should clear dirty bits when it is done with the buffer.
- 		 */
- 		set_buffer_freed(bh);
- 		if (journal->j_running_transaction && buffer_jbddirty(bh))
- 			jh->b_next_transaction = journal->j_running_transaction;
-+		jh->b_modified = 0;
- 		jbd2_journal_put_journal_head(jh);
- 		spin_unlock(&journal->j_list_lock);
- 		jbd_unlock_bh_state(bh);
--- 
-2.20.1
-
+--- a/arch/arm64/boot/dts/arm/fvp-base-revc.dts
++++ b/arch/arm64/boot/dts/arm/fvp-base-revc.dts
+@@ -161,10 +161,10 @@
+ 		bus-range = <0x0 0x1>;
+ 		reg = <0x0 0x40000000 0x0 0x10000000>;
+ 		ranges = <0x2000000 0x0 0x50000000 0x0 0x50000000 0x0 0x10000000>;
+-		interrupt-map = <0 0 0 1 &gic GIC_SPI 168 IRQ_TYPE_LEVEL_HIGH>,
+-				<0 0 0 2 &gic GIC_SPI 169 IRQ_TYPE_LEVEL_HIGH>,
+-				<0 0 0 3 &gic GIC_SPI 170 IRQ_TYPE_LEVEL_HIGH>,
+-				<0 0 0 4 &gic GIC_SPI 171 IRQ_TYPE_LEVEL_HIGH>;
++		interrupt-map = <0 0 0 1 &gic 0 0 GIC_SPI 168 IRQ_TYPE_LEVEL_HIGH>,
++				<0 0 0 2 &gic 0 0 GIC_SPI 169 IRQ_TYPE_LEVEL_HIGH>,
++				<0 0 0 3 &gic 0 0 GIC_SPI 170 IRQ_TYPE_LEVEL_HIGH>,
++				<0 0 0 4 &gic 0 0 GIC_SPI 171 IRQ_TYPE_LEVEL_HIGH>;
+ 		interrupt-map-mask = <0x0 0x0 0x0 0x7>;
+ 		msi-map = <0x0 &its 0x0 0x10000>;
+ 		iommu-map = <0x0 &smmu 0x0 0x10000>;
 
 
