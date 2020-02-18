@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B4C5A1630E5
-	for <lists+stable@lfdr.de>; Tue, 18 Feb 2020 20:58:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A9151630E6
+	for <lists+stable@lfdr.de>; Tue, 18 Feb 2020 20:58:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727872AbgBRT5T (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Feb 2020 14:57:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34628 "EHLO mail.kernel.org"
+        id S1727890AbgBRT5V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Feb 2020 14:57:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34660 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727883AbgBRT5S (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 18 Feb 2020 14:57:18 -0500
+        id S1726383AbgBRT5V (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 18 Feb 2020 14:57:21 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 658092465A;
-        Tue, 18 Feb 2020 19:57:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E011B2464E;
+        Tue, 18 Feb 2020 19:57:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582055837;
-        bh=AQXNCwSq4Z50V5yHlLV51EKDB3lSCNe9jOBAJff5fh4=;
+        s=default; t=1582055840;
+        bh=B6gvl9MgaO8Xiy2VFy08Io6Y81aERgOcQJ22bPvMxnQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pAslD6dJqRUSmwACKK0lrxtbjlPOo2Dc/ldo5W5SleHCtO645FSxH5QuWCFmgvO9+
-         k15ax/fGLJYFFnzichxHQOvREAfyzCCQTiYlIu+HX34P3Wkpywnh9nfdH46X6oCZjF
-         ZMWMUGhoiqRAkBQUdYYOxJr7wJEF3kqcWdGgxpvs=
+        b=R8cwnp81QOFKvZmLevrkZ5v2r2eDmGutC/A8ia1eF3Ncop903DO3W3IMFTcgIFHHl
+         +qeionNa+2cWEVCj13rbZ9HqIwDBFV+w51lp1lHbkbHH4uvZW1hXpkxVy8ZAB2n640
+         YaMkcuNxgJ8UpkEVwtq9HWIpGJJxgYttSEuYsAs0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nick Desaulniers <ndesaulniers@google.com>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Vasily Gorbik <gor@linux.ibm.com>
-Subject: [PATCH 4.19 32/38] s390/time: Fix clk type in get_tod_clock
-Date:   Tue, 18 Feb 2020 20:55:18 +0100
-Message-Id: <20200218190422.309601321@linuxfoundation.org>
+        stable@vger.kernel.org, Kan Liang <kan.liang@linux.intel.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Ingo Molnar <mingo@kernel.org>
+Subject: [PATCH 4.19 33/38] perf/x86/intel: Fix inaccurate period in context switch for auto-reload
+Date:   Tue, 18 Feb 2020 20:55:19 +0100
+Message-Id: <20200218190422.406670481@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200218190418.536430858@linuxfoundation.org>
 References: <20200218190418.536430858@linuxfoundation.org>
@@ -44,54 +44,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <natechancellor@gmail.com>
+From: Kan Liang <kan.liang@linux.intel.com>
 
-commit 0f8a206df7c920150d2aa45574fba0ab7ff6be4f upstream.
+commit f861854e1b435b27197417f6f90d87188003cb24 upstream.
 
-Clang warns:
+Perf doesn't take the left period into account when auto-reload is
+enabled with fixed period sampling mode in context switch.
 
-In file included from ../arch/s390/boot/startup.c:3:
-In file included from ../include/linux/elf.h:5:
-In file included from ../arch/s390/include/asm/elf.h:132:
-In file included from ../include/linux/compat.h:10:
-In file included from ../include/linux/time.h:74:
-In file included from ../include/linux/time32.h:13:
-In file included from ../include/linux/timex.h:65:
-../arch/s390/include/asm/timex.h:160:20: warning: passing 'unsigned char
-[16]' to parameter of type 'char *' converts between pointers to integer
-types with different sign [-Wpointer-sign]
-        get_tod_clock_ext(clk);
-                          ^~~
-../arch/s390/include/asm/timex.h:149:44: note: passing argument to
-parameter 'clk' here
-static inline void get_tod_clock_ext(char *clk)
-                                           ^
+Here is the MSR trace of the perf command as below.
+(The MSR trace is simplified from a ftrace log.)
 
-Change clk's type to just be char so that it matches what happens in
-get_tod_clock_ext.
+    #perf record -e cycles:p -c 2000000 -- ./triad_loop
 
-Fixes: 57b28f66316d ("[S390] s390_hypfs: Add new attributes")
-Link: https://github.com/ClangBuiltLinux/linux/issues/861
-Link: http://lkml.kernel.org/r/20200208140858.47970-1-natechancellor@gmail.com
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+      //The MSR trace of task schedule out
+      //perf disable all counters, disable PEBS, disable GP counter 0,
+      //read GP counter 0, and re-enable all counters.
+      //The counter 0 stops at 0xfffffff82840
+      write_msr: MSR_CORE_PERF_GLOBAL_CTRL(38f), value 0
+      write_msr: MSR_IA32_PEBS_ENABLE(3f1), value 0
+      write_msr: MSR_P6_EVNTSEL0(186), value 40003003c
+      rdpmc: 0, value fffffff82840
+      write_msr: MSR_CORE_PERF_GLOBAL_CTRL(38f), value f000000ff
+
+      //The MSR trace of the same task schedule in again
+      //perf disable all counters, enable and set GP counter 0,
+      //enable PEBS, and re-enable all counters.
+      //0xffffffe17b80 (-2000000) is written to GP counter 0.
+      write_msr: MSR_CORE_PERF_GLOBAL_CTRL(38f), value 0
+      write_msr: MSR_IA32_PMC0(4c1), value ffffffe17b80
+      write_msr: MSR_P6_EVNTSEL0(186), value 40043003c
+      write_msr: MSR_IA32_PEBS_ENABLE(3f1), value 1
+      write_msr: MSR_CORE_PERF_GLOBAL_CTRL(38f), value f000000ff
+
+When the same task schedule in again, the counter should starts from
+previous left. However, it starts from the fixed period -2000000 again.
+
+A special variant of intel_pmu_save_and_restart() is used for
+auto-reload, which doesn't update the hwc->period_left.
+When the monitored task schedules in again, perf doesn't know the left
+period. The fixed period is used, which is inaccurate.
+
+With auto-reload, the counter always has a negative counter value. So
+the left period is -value. Update the period_left in
+intel_pmu_save_and_restart_reload().
+
+With the patch:
+
+      //The MSR trace of task schedule out
+      write_msr: MSR_CORE_PERF_GLOBAL_CTRL(38f), value 0
+      write_msr: MSR_IA32_PEBS_ENABLE(3f1), value 0
+      write_msr: MSR_P6_EVNTSEL0(186), value 40003003c
+      rdpmc: 0, value ffffffe25cbc
+      write_msr: MSR_CORE_PERF_GLOBAL_CTRL(38f), value f000000ff
+
+      //The MSR trace of the same task schedule in again
+      write_msr: MSR_CORE_PERF_GLOBAL_CTRL(38f), value 0
+      write_msr: MSR_IA32_PMC0(4c1), value ffffffe25cbc
+      write_msr: MSR_P6_EVNTSEL0(186), value 40043003c
+      write_msr: MSR_IA32_PEBS_ENABLE(3f1), value 1
+      write_msr: MSR_CORE_PERF_GLOBAL_CTRL(38f), value f000000ff
+
+Fixes: d31fc13fdcb2 ("perf/x86/intel: Fix event update for auto-reload")
+Signed-off-by: Kan Liang <kan.liang@linux.intel.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Link: https://lkml.kernel.org/r/20200121190125.3389-1-kan.liang@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/s390/include/asm/timex.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/events/intel/ds.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/arch/s390/include/asm/timex.h
-+++ b/arch/s390/include/asm/timex.h
-@@ -155,7 +155,7 @@ static inline void get_tod_clock_ext(cha
+--- a/arch/x86/events/intel/ds.c
++++ b/arch/x86/events/intel/ds.c
+@@ -1402,6 +1402,8 @@ intel_pmu_save_and_restart_reload(struct
+ 	old = ((s64)(prev_raw_count << shift) >> shift);
+ 	local64_add(new - old + count * period, &event->count);
  
- static inline unsigned long long get_tod_clock(void)
- {
--	unsigned char clk[STORE_CLOCK_EXT_SIZE];
-+	char clk[STORE_CLOCK_EXT_SIZE];
++	local64_set(&hwc->period_left, -new);
++
+ 	perf_event_update_userpage(event);
  
- 	get_tod_clock_ext(clk);
- 	return *((unsigned long long *)&clk[1]);
+ 	return 0;
 
 
