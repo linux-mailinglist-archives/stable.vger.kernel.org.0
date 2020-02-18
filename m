@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D4AEA16317E
-	for <lists+stable@lfdr.de>; Tue, 18 Feb 2020 21:01:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0F2FB16319F
+	for <lists+stable@lfdr.de>; Tue, 18 Feb 2020 21:05:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726723AbgBRUBC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Feb 2020 15:01:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40456 "EHLO mail.kernel.org"
+        id S1728202AbgBRUBa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Feb 2020 15:01:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41144 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728712AbgBRUBB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 18 Feb 2020 15:01:01 -0500
+        id S1728761AbgBRUB3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 18 Feb 2020 15:01:29 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4C30B24670;
-        Tue, 18 Feb 2020 20:01:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9DA292465D;
+        Tue, 18 Feb 2020 20:01:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582056060;
-        bh=OgNurUw7ZIV9uIg954/9ZZV6/+R5DLqLOsAcVlC0myo=;
+        s=default; t=1582056089;
+        bh=FTkTj5MSQJ93p85m2u0gptLel5AoLasvSC6c9NVykF8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eZXJ2bBtXUlMfoydKSn5cQoMKuhRl8mI/v3cdLEGhcw83h4g3Vq7QyjFzbdjHazPh
-         NFtlYY078sFILxjExFSBMeUFaBKGTJ6tIyGlVLVwEksQdYGVlmHDt52P06TluX3yEn
-         +Tf0xTIDUQdgHKnorGMmwoF1LNNMpzLo1QYb43fA=
+        b=LdaSw6Wh0TNtAiXB+oxxl2koAzKuTH3MRfnod9ompDusHvMCk/zesIr8Dbq62Zupz
+         JDELYc82yUwO7U0gUIaO3DO/h0nLwJc7RNdGMzdq1cOTxDNbDdlCrfPWU/JcKlSMts
+         TtN38vP9gaoW+4D9ISbb+H3KEyZFBsOxAAbi43OY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.5 02/80] io_uring: retry raw bdev writes if we hit -EOPNOTSUPP
-Date:   Tue, 18 Feb 2020 20:54:23 +0100
-Message-Id: <20200218190432.275656418@linuxfoundation.org>
+        stable@vger.kernel.org, Lyude Paul <lyude@redhat.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH 5.5 03/80] Input: synaptics - switch T470s to RMI4 by default
+Date:   Tue, 18 Feb 2020 20:54:24 +0100
+Message-Id: <20200218190432.375143466@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200218190432.043414522@linuxfoundation.org>
 References: <20200218190432.043414522@linuxfoundation.org>
@@ -42,37 +43,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Axboe <axboe@kernel.dk>
+From: Lyude Paul <lyude@redhat.com>
 
-commit faac996ccd5da95bc56b91aa80f2643c2d0a1c56 upstream.
+commit bf502391353b928e63096127e5fd8482080203f5 upstream.
 
-For non-blocking issue, we set IOCB_NOWAIT in the kiocb. However, on a
-raw block device, this yields an -EOPNOTSUPP return, as non-blocking
-writes aren't supported. Turn this -EOPNOTSUPP into -EAGAIN, so we retry
-from blocking context with IOCB_NOWAIT cleared.
+This supports RMI4 and everything seems to work, including the touchpad
+buttons. So, let's enable this by default.
 
-Cc: stable@vger.kernel.org # 5.5
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Lyude Paul <lyude@redhat.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20200204194322.112638-1-lyude@redhat.com
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/io_uring.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/input/mouse/synaptics.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -1978,6 +1978,12 @@ static int io_write(struct io_kiocb *req
- 			ret2 = call_write_iter(req->file, kiocb, &iter);
- 		else
- 			ret2 = loop_rw_iter(WRITE, req->file, kiocb, &iter);
-+		/*
-+		 * Raw bdev writes will -EOPNOTSUPP for IOCB_NOWAIT. Just
-+		 * retry them without IOCB_NOWAIT.
-+		 */
-+		if (ret2 == -EOPNOTSUPP && (kiocb->ki_flags & IOCB_NOWAIT))
-+			ret2 = -EAGAIN;
- 		if (!force_nonblock || ret2 != -EAGAIN) {
- 			kiocb_done(kiocb, ret2, nxt, req->in_async);
- 		} else {
+--- a/drivers/input/mouse/synaptics.c
++++ b/drivers/input/mouse/synaptics.c
+@@ -169,6 +169,7 @@ static const char * const smbus_pnp_ids[
+ 	"LEN004a", /* W541 */
+ 	"LEN005b", /* P50 */
+ 	"LEN005e", /* T560 */
++	"LEN006c", /* T470s */
+ 	"LEN0071", /* T480 */
+ 	"LEN0072", /* X1 Carbon Gen 5 (2017) - Elan/ALPS trackpoint */
+ 	"LEN0073", /* X1 Carbon G5 (Elantech) */
 
 
