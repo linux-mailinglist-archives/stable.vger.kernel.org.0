@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1184616323C
-	for <lists+stable@lfdr.de>; Tue, 18 Feb 2020 21:06:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F7FB16321B
+	for <lists+stable@lfdr.de>; Tue, 18 Feb 2020 21:06:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728451AbgBRT7k (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Feb 2020 14:59:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38450 "EHLO mail.kernel.org"
+        id S1728186AbgBRUBN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Feb 2020 15:01:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40694 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726632AbgBRT7j (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 18 Feb 2020 14:59:39 -0500
+        id S1727656AbgBRUBL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 18 Feb 2020 15:01:11 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8C26020659;
-        Tue, 18 Feb 2020 19:59:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D445F24676;
+        Tue, 18 Feb 2020 20:01:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582055979;
-        bh=ctiJ5QklUUUiqbxfDM/aAC6O/xND98Ys7P27q8+cOqc=;
+        s=default; t=1582056071;
+        bh=ZNoFQhqDJF5StAaTMZ9SrcEr4X4SKy8i2lcFlXd0zBc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BG+WAOCv4OPHH5ji/qhBLAOyVVUoNJol26aLaQ9k6VpBryoXHpG31lURKiEygD+NX
-         6AxdhQK0HRI16vk5rrlcwj6gdZXHEeJURuZOcrqsWWqpqiGdYVLGE5C+Q9bk3Ya0yw
-         2drj2BYlzHrG/VyB6Jy1RUPb47nhuiR86y0GndPs=
+        b=c0WgyTH8AuMdnBWHVwG9ClB771v0ZY2NuwenjHtW/J/0IErrSYgRLtsaidLWID/JI
+         1pn0lF4JFU/elFpbCT4PJfaTzMk18Re4+MzxogCYrbOY6J3PdBCMbrvRqEBdDeFV2j
+         YdgnL86AKG4FubWRekgzonT3QZag2c129qBEPt6c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jan Kara <jack@suse.cz>,
-        Shijie Luo <luoshijie1@huawei.com>,
-        Theodore Tso <tytso@mit.edu>, stable@kernel.org
-Subject: [PATCH 5.4 17/66] ext4: add cond_resched() to ext4_protect_reserved_inode
+        stable@vger.kernel.org, Chris Murphy <lists@colorremedies.com>,
+        Anand Jain <anand.jain@oracle.com>,
+        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.5 23/80] btrfs: print message when tree-log replay starts
 Date:   Tue, 18 Feb 2020 20:54:44 +0100
-Message-Id: <20200218190429.681173507@linuxfoundation.org>
+Message-Id: <20200218190434.586993436@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200218190428.035153861@linuxfoundation.org>
-References: <20200218190428.035153861@linuxfoundation.org>
+In-Reply-To: <20200218190432.043414522@linuxfoundation.org>
+References: <20200218190432.043414522@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,64 +45,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shijie Luo <luoshijie1@huawei.com>
+From: David Sterba <dsterba@suse.com>
 
-commit af133ade9a40794a37104ecbcc2827c0ea373a3c upstream.
+commit e8294f2f6aa6208ed0923aa6d70cea3be178309a upstream.
 
-When journal size is set too big by "mkfs.ext4 -J size=", or when
-we mount a crafted image to make journal inode->i_size too big,
-the loop, "while (i < num)", holds cpu too long. This could cause
-soft lockup.
+There's no logged information about tree-log replay although this is
+something that points to previous unclean unmount. Other filesystems
+report that as well.
 
-[  529.357541] Call trace:
-[  529.357551]  dump_backtrace+0x0/0x198
-[  529.357555]  show_stack+0x24/0x30
-[  529.357562]  dump_stack+0xa4/0xcc
-[  529.357568]  watchdog_timer_fn+0x300/0x3e8
-[  529.357574]  __hrtimer_run_queues+0x114/0x358
-[  529.357576]  hrtimer_interrupt+0x104/0x2d8
-[  529.357580]  arch_timer_handler_virt+0x38/0x58
-[  529.357584]  handle_percpu_devid_irq+0x90/0x248
-[  529.357588]  generic_handle_irq+0x34/0x50
-[  529.357590]  __handle_domain_irq+0x68/0xc0
-[  529.357593]  gic_handle_irq+0x6c/0x150
-[  529.357595]  el1_irq+0xb8/0x140
-[  529.357599]  __ll_sc_atomic_add_return_acquire+0x14/0x20
-[  529.357668]  ext4_map_blocks+0x64/0x5c0 [ext4]
-[  529.357693]  ext4_setup_system_zone+0x330/0x458 [ext4]
-[  529.357717]  ext4_fill_super+0x2170/0x2ba8 [ext4]
-[  529.357722]  mount_bdev+0x1a8/0x1e8
-[  529.357746]  ext4_mount+0x44/0x58 [ext4]
-[  529.357748]  mount_fs+0x50/0x170
-[  529.357752]  vfs_kern_mount.part.9+0x54/0x188
-[  529.357755]  do_mount+0x5ac/0xd78
-[  529.357758]  ksys_mount+0x9c/0x118
-[  529.357760]  __arm64_sys_mount+0x28/0x38
-[  529.357764]  el0_svc_common+0x78/0x130
-[  529.357766]  el0_svc_handler+0x38/0x78
-[  529.357769]  el0_svc+0x8/0xc
-[  541.356516] watchdog: BUG: soft lockup - CPU#0 stuck for 23s! [mount:18674]
-
-Link: https://lore.kernel.org/r/20200211011752.29242-1-luoshijie1@huawei.com
-Reviewed-by: Jan Kara <jack@suse.cz>
-Signed-off-by: Shijie Luo <luoshijie1@huawei.com>
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Cc: stable@kernel.org
+Suggested-by: Chris Murphy <lists@colorremedies.com>
+CC: stable@vger.kernel.org # 4.4+
+Reviewed-by: Anand Jain <anand.jain@oracle.com>
+Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/ext4/block_validity.c |    1 +
+ fs/btrfs/disk-io.c |    1 +
  1 file changed, 1 insertion(+)
 
---- a/fs/ext4/block_validity.c
-+++ b/fs/ext4/block_validity.c
-@@ -203,6 +203,7 @@ static int ext4_protect_reserved_inode(s
- 		return PTR_ERR(inode);
- 	num = (inode->i_size + sb->s_blocksize - 1) >> sb->s_blocksize_bits;
- 	while (i < num) {
-+		cond_resched();
- 		map.m_lblk = i;
- 		map.m_len = num - i;
- 		n = ext4_map_blocks(NULL, inode, &map, 0);
+--- a/fs/btrfs/disk-io.c
++++ b/fs/btrfs/disk-io.c
+@@ -3164,6 +3164,7 @@ int __cold open_ctree(struct super_block
+ 	/* do not make disk changes in broken FS or nologreplay is given */
+ 	if (btrfs_super_log_root(disk_super) != 0 &&
+ 	    !btrfs_test_opt(fs_info, NOLOGREPLAY)) {
++		btrfs_info(fs_info, "start tree-log replay");
+ 		ret = btrfs_replay_log(fs_info, fs_devices);
+ 		if (ret) {
+ 			err = ret;
 
 
