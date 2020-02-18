@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DB27E1630D3
-	for <lists+stable@lfdr.de>; Tue, 18 Feb 2020 20:58:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 31DEB1630FF
+	for <lists+stable@lfdr.de>; Tue, 18 Feb 2020 20:58:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727601AbgBRT4s (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Feb 2020 14:56:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33948 "EHLO mail.kernel.org"
+        id S1727503AbgBRT6R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Feb 2020 14:58:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35838 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727578AbgBRT4r (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 18 Feb 2020 14:56:47 -0500
+        id S1726557AbgBRT6R (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 18 Feb 2020 14:58:17 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B30872465D;
-        Tue, 18 Feb 2020 19:56:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 95E5120659;
+        Tue, 18 Feb 2020 19:58:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582055807;
-        bh=9ywhAYA701m1EHwH2msV5Pz/2sBLkQudXHocBsn18Ew=;
+        s=default; t=1582055897;
+        bh=H+16V16wnbDW8zmH8rcsA0BqL7v9Yl6dcr/5UjFg3Lo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QLc2h4mgvhKTQdSBa7n/r4+TGTb9zs2dlK0A6Ph1jEh4l9Kjvxnx6TB9gVwdIfGu1
-         FOvDgZMz/feZ3DjBKA+SaKmf7A3XS4wGsFcjq31q2KmXGpet5q/MVy/eI5l2cu20A2
-         GF7Qe4EvILEVWZ5g12vt24XLhPmACiyytgk82tKw=
+        b=YdgTQ3ZBwScOVtJztE0X2dbQJeDgmOB7AoCVmw8XL8QmshWpE+in1uiEBi3MXaxcP
+         disaFRD28+GhuqiyKUQC/BceeCzDAKkToBingA+g4iYFyP7rT4GljScBQLKmY3DdJ4
+         zCRguthQfgnljs3INktzFC4mch1gDDpSpnGcuzMg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 4.19 03/38] Input: synaptics - remove the LEN0049 dmi id from topbuttonpad list
-Date:   Tue, 18 Feb 2020 20:54:49 +0100
-Message-Id: <20200218190418.929869076@linuxfoundation.org>
+        stable@vger.kernel.org, Krzysztof Kozlowski <krzk@kernel.org>,
+        Olof Johansson <olof@lixom.net>
+Subject: [PATCH 5.4 23/66] ARM: npcm: Bring back GPIOLIB support
+Date:   Tue, 18 Feb 2020 20:54:50 +0100
+Message-Id: <20200218190430.231827471@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200218190418.536430858@linuxfoundation.org>
-References: <20200218190418.536430858@linuxfoundation.org>
+In-Reply-To: <20200218190428.035153861@linuxfoundation.org>
+References: <20200218190428.035153861@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,44 +43,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+From: Krzysztof Kozlowski <krzk@kernel.org>
 
-commit 5179a9dfa9440c1781816e2c9a183d1d2512dc61 upstream.
+commit e383e871ab54f073c2a798a9e0bde7f1d0528de8 upstream.
 
-The Yoga 11e is using LEN0049, but it doesn't have a trackstick.
+The CONFIG_ARCH_REQUIRE_GPIOLIB is gone since commit 65053e1a7743
+("gpio: delete ARCH_[WANTS_OPTIONAL|REQUIRE]_GPIOLIB") and all platforms
+should explicitly select GPIOLIB to have it.
 
-Thus, there is no need to create a software top buttons row.
-
-However, it seems that the device works under SMBus, so keep it as part
-of the smbus_pnp_ids.
-
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20200115013023.9710-1-benjamin.tissoires@redhat.com
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Link: https://lore.kernel.org/r/20200130195525.4525-1-krzk@kernel.org
+Cc: <stable@vger.kernel.org>
+Fixes: 65053e1a7743 ("gpio: delete ARCH_[WANTS_OPTIONAL|REQUIRE]_GPIOLIB")
+Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+Signed-off-by: Olof Johansson <olof@lixom.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/input/mouse/synaptics.c |    2 +-
+ arch/arm/mach-npcm/Kconfig |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/input/mouse/synaptics.c
-+++ b/drivers/input/mouse/synaptics.c
-@@ -149,7 +149,6 @@ static const char * const topbuttonpad_p
- 	"LEN0042", /* Yoga */
- 	"LEN0045",
- 	"LEN0047",
--	"LEN0049",
- 	"LEN2000", /* S540 */
- 	"LEN2001", /* Edge E431 */
- 	"LEN2002", /* Edge E531 */
-@@ -169,6 +168,7 @@ static const char * const smbus_pnp_ids[
- 	/* all of the topbuttonpad_pnp_ids are valid, we just add some extras */
- 	"LEN0048", /* X1 Carbon 3 */
- 	"LEN0046", /* X250 */
-+	"LEN0049", /* Yoga 11e */
- 	"LEN004a", /* W541 */
- 	"LEN005b", /* P50 */
- 	"LEN005e", /* T560 */
+--- a/arch/arm/mach-npcm/Kconfig
++++ b/arch/arm/mach-npcm/Kconfig
+@@ -11,7 +11,7 @@ config ARCH_NPCM7XX
+ 	depends on ARCH_MULTI_V7
+ 	select PINCTRL_NPCM7XX
+ 	select NPCM7XX_TIMER
+-	select ARCH_REQUIRE_GPIOLIB
++	select GPIOLIB
+ 	select CACHE_L2X0
+ 	select ARM_GIC
+ 	select HAVE_ARM_TWD if SMP
 
 
