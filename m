@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C67941631A9
-	for <lists+stable@lfdr.de>; Tue, 18 Feb 2020 21:05:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D0471631AC
+	for <lists+stable@lfdr.de>; Tue, 18 Feb 2020 21:05:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728187AbgBRUB7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Feb 2020 15:01:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41824 "EHLO mail.kernel.org"
+        id S1728847AbgBRUCE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Feb 2020 15:02:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42020 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728847AbgBRUB6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 18 Feb 2020 15:01:58 -0500
+        id S1728852AbgBRUCB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 18 Feb 2020 15:02:01 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9B1862465D;
-        Tue, 18 Feb 2020 20:01:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2013B24672;
+        Tue, 18 Feb 2020 20:01:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582056118;
-        bh=MsuaI/HgEQAFlCw8QnXlY0IG7Q+77tzdvi9ttefGTN0=;
+        s=default; t=1582056120;
+        bh=yZYak2tDGAyXioyAn/oqvdhOUDgNJyA3joLyhTJ0PQo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jkOXhjIsraZ1/h03HU5PL9/hLZar3OAG87/+9XeC8Rmr0eH3Cdxdls7tGNp7Gdm+X
-         WpmOVIhTkaGZal3fTvxdRELGveTcEIKsmxtMAE50F3ZN0eLdgDU44CALHThfkSBJJj
-         wbhVwAEX9rGylRdKurMcJzTmBT/r3av7a7FsV8rA=
+        b=CS1G+i3PevSLGtcgKamBwVFbNvtqIdG3GIgnTJHndoS8LPCbq6c2DIvJDEAMuF25m
+         4sHGtGXOziYvVBe5NcxrfvQejVAJUr5NiF7Ycc3WQYHQtl4eBkCb7mwFNeBIma+Uig
+         L9uq5NXCUP/FMkq6S5ZZgf+PBRZP8l12lnduC67I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Boris Brezillon <boris.brezillon@collabora.com>,
-        Steven Price <steven.price@arm.com>,
-        Rob Herring <robh@kernel.org>
-Subject: [PATCH 5.5 42/80] drm/panfrost: Make sure the shrinker does not reclaim referenced BOs
-Date:   Tue, 18 Feb 2020 20:55:03 +0100
-Message-Id: <20200218190436.393793164@linuxfoundation.org>
+        stable@vger.kernel.org, Evan Quan <evan.quan@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 5.5 43/80] drm/amdgpu: update smu_v11_0_pptable.h
+Date:   Tue, 18 Feb 2020 20:55:04 +0100
+Message-Id: <20200218190436.481284122@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200218190432.043414522@linuxfoundation.org>
 References: <20200218190432.043414522@linuxfoundation.org>
@@ -45,82 +43,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Boris Brezillon <boris.brezillon@collabora.com>
+From: Alex Deucher <alexander.deucher@amd.com>
 
-commit 7e0cf7e9936c4358b0863357b90aa12afe6489da upstream.
+commit c1d66bc2e531b4ed3a9464b8e87144cc6b2fd63f upstream.
 
-Userspace might tag a BO purgeable while it's still referenced by GPU
-jobs. We need to make sure the shrinker does not purge such BOs until
-all jobs referencing it are finished.
+Update to the latest changes.
 
-Fixes: 013b65101315 ("drm/panfrost: Add madvise and shrinker support")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Boris Brezillon <boris.brezillon@collabora.com>
-Reviewed-by: Steven Price <steven.price@arm.com>
-Signed-off-by: Rob Herring <robh@kernel.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20191129135908.2439529-9-boris.brezillon@collabora.com
+Reviewed-by: Evan Quan <evan.quan@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org # 5.5.x
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/panfrost/panfrost_drv.c          |    1 +
- drivers/gpu/drm/panfrost/panfrost_gem.h          |    6 ++++++
- drivers/gpu/drm/panfrost/panfrost_gem_shrinker.c |    3 +++
- drivers/gpu/drm/panfrost/panfrost_job.c          |    7 ++++++-
- 4 files changed, 16 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/amd/powerplay/inc/smu_v11_0_pptable.h |   46 ++++++++++++------
+ 1 file changed, 32 insertions(+), 14 deletions(-)
 
---- a/drivers/gpu/drm/panfrost/panfrost_drv.c
-+++ b/drivers/gpu/drm/panfrost/panfrost_drv.c
-@@ -166,6 +166,7 @@ panfrost_lookup_bos(struct drm_device *d
- 			break;
- 		}
+--- a/drivers/gpu/drm/amd/powerplay/inc/smu_v11_0_pptable.h
++++ b/drivers/gpu/drm/amd/powerplay/inc/smu_v11_0_pptable.h
+@@ -39,21 +39,39 @@
+ #define SMU_11_0_PP_OVERDRIVE_VERSION                   0x0800
+ #define SMU_11_0_PP_POWERSAVINGCLOCK_VERSION            0x0100
  
-+		atomic_inc(&bo->gpu_usecount);
- 		job->mappings[i] = mapping;
- 	}
- 
---- a/drivers/gpu/drm/panfrost/panfrost_gem.h
-+++ b/drivers/gpu/drm/panfrost/panfrost_gem.h
-@@ -30,6 +30,12 @@ struct panfrost_gem_object {
- 		struct mutex lock;
- 	} mappings;
- 
-+	/*
-+	 * Count the number of jobs referencing this BO so we don't let the
-+	 * shrinker reclaim this object prematurely.
-+	 */
-+	atomic_t gpu_usecount;
++enum SMU_11_0_ODFEATURE_CAP {
++    SMU_11_0_ODCAP_GFXCLK_LIMITS = 0,
++    SMU_11_0_ODCAP_GFXCLK_CURVE,
++    SMU_11_0_ODCAP_UCLK_MAX,
++    SMU_11_0_ODCAP_POWER_LIMIT,
++    SMU_11_0_ODCAP_FAN_ACOUSTIC_LIMIT,
++    SMU_11_0_ODCAP_FAN_SPEED_MIN,
++    SMU_11_0_ODCAP_TEMPERATURE_FAN,
++    SMU_11_0_ODCAP_TEMPERATURE_SYSTEM,
++    SMU_11_0_ODCAP_MEMORY_TIMING_TUNE,
++    SMU_11_0_ODCAP_FAN_ZERO_RPM_CONTROL,
++    SMU_11_0_ODCAP_AUTO_UV_ENGINE,
++    SMU_11_0_ODCAP_AUTO_OC_ENGINE,
++    SMU_11_0_ODCAP_AUTO_OC_MEMORY,
++    SMU_11_0_ODCAP_FAN_CURVE,
++    SMU_11_0_ODCAP_COUNT,
++};
 +
- 	bool noexec		:1;
- 	bool is_heap		:1;
+ enum SMU_11_0_ODFEATURE_ID {
+-    SMU_11_0_ODFEATURE_GFXCLK_LIMITS        = 1 << 0,         //GFXCLK Limit feature
+-    SMU_11_0_ODFEATURE_GFXCLK_CURVE         = 1 << 1,         //GFXCLK Curve feature
+-    SMU_11_0_ODFEATURE_UCLK_MAX             = 1 << 2,         //UCLK Limit feature
+-    SMU_11_0_ODFEATURE_POWER_LIMIT          = 1 << 3,         //Power Limit feature
+-    SMU_11_0_ODFEATURE_FAN_ACOUSTIC_LIMIT   = 1 << 4,         //Fan Acoustic RPM feature
+-    SMU_11_0_ODFEATURE_FAN_SPEED_MIN        = 1 << 5,         //Minimum Fan Speed feature
+-    SMU_11_0_ODFEATURE_TEMPERATURE_FAN      = 1 << 6,         //Fan Target Temperature Limit feature
+-    SMU_11_0_ODFEATURE_TEMPERATURE_SYSTEM   = 1 << 7,         //Operating Temperature Limit feature
+-    SMU_11_0_ODFEATURE_MEMORY_TIMING_TUNE   = 1 << 8,         //AC Timing Tuning feature
+-    SMU_11_0_ODFEATURE_FAN_ZERO_RPM_CONTROL = 1 << 9,         //Zero RPM feature
+-    SMU_11_0_ODFEATURE_AUTO_UV_ENGINE       = 1 << 10,        //Auto Under Volt GFXCLK feature
+-    SMU_11_0_ODFEATURE_AUTO_OC_ENGINE       = 1 << 11,        //Auto Over Clock GFXCLK feature
+-    SMU_11_0_ODFEATURE_AUTO_OC_MEMORY       = 1 << 12,        //Auto Over Clock MCLK feature
+-    SMU_11_0_ODFEATURE_FAN_CURVE            = 1 << 13,        //VICTOR TODO
++    SMU_11_0_ODFEATURE_GFXCLK_LIMITS        = 1 << SMU_11_0_ODCAP_GFXCLK_LIMITS,            //GFXCLK Limit feature
++    SMU_11_0_ODFEATURE_GFXCLK_CURVE         = 1 << SMU_11_0_ODCAP_GFXCLK_CURVE,             //GFXCLK Curve feature
++    SMU_11_0_ODFEATURE_UCLK_MAX             = 1 << SMU_11_0_ODCAP_UCLK_MAX,                 //UCLK Limit feature
++    SMU_11_0_ODFEATURE_POWER_LIMIT          = 1 << SMU_11_0_ODCAP_POWER_LIMIT,              //Power Limit feature
++    SMU_11_0_ODFEATURE_FAN_ACOUSTIC_LIMIT   = 1 << SMU_11_0_ODCAP_FAN_ACOUSTIC_LIMIT,       //Fan Acoustic RPM feature
++    SMU_11_0_ODFEATURE_FAN_SPEED_MIN        = 1 << SMU_11_0_ODCAP_FAN_SPEED_MIN,            //Minimum Fan Speed feature
++    SMU_11_0_ODFEATURE_TEMPERATURE_FAN      = 1 << SMU_11_0_ODCAP_TEMPERATURE_FAN,          //Fan Target Temperature Limit feature
++    SMU_11_0_ODFEATURE_TEMPERATURE_SYSTEM   = 1 << SMU_11_0_ODCAP_TEMPERATURE_SYSTEM,       //Operating Temperature Limit feature
++    SMU_11_0_ODFEATURE_MEMORY_TIMING_TUNE   = 1 << SMU_11_0_ODCAP_MEMORY_TIMING_TUNE,       //AC Timing Tuning feature
++    SMU_11_0_ODFEATURE_FAN_ZERO_RPM_CONTROL = 1 << SMU_11_0_ODCAP_FAN_ZERO_RPM_CONTROL,     //Zero RPM feature
++    SMU_11_0_ODFEATURE_AUTO_UV_ENGINE       = 1 << SMU_11_0_ODCAP_AUTO_UV_ENGINE,           //Auto Under Volt GFXCLK feature
++    SMU_11_0_ODFEATURE_AUTO_OC_ENGINE       = 1 << SMU_11_0_ODCAP_AUTO_OC_ENGINE,           //Auto Over Clock GFXCLK feature
++    SMU_11_0_ODFEATURE_AUTO_OC_MEMORY       = 1 << SMU_11_0_ODCAP_AUTO_OC_MEMORY,           //Auto Over Clock MCLK feature
++    SMU_11_0_ODFEATURE_FAN_CURVE            = 1 << SMU_11_0_ODCAP_FAN_CURVE,                //Fan Curve feature
+     SMU_11_0_ODFEATURE_COUNT                = 14,
  };
---- a/drivers/gpu/drm/panfrost/panfrost_gem_shrinker.c
-+++ b/drivers/gpu/drm/panfrost/panfrost_gem_shrinker.c
-@@ -41,6 +41,9 @@ static bool panfrost_gem_purge(struct dr
- 	struct drm_gem_shmem_object *shmem = to_drm_gem_shmem_obj(obj);
- 	struct panfrost_gem_object *bo = to_panfrost_bo(obj);
- 
-+	if (atomic_read(&bo->gpu_usecount))
-+		return false;
-+
- 	if (!mutex_trylock(&shmem->pages_lock))
- 		return false;
- 
---- a/drivers/gpu/drm/panfrost/panfrost_job.c
-+++ b/drivers/gpu/drm/panfrost/panfrost_job.c
-@@ -269,8 +269,13 @@ static void panfrost_job_cleanup(struct
- 	dma_fence_put(job->render_done_fence);
- 
- 	if (job->mappings) {
--		for (i = 0; i < job->bo_count; i++)
-+		for (i = 0; i < job->bo_count; i++) {
-+			if (!job->mappings[i])
-+				break;
-+
-+			atomic_dec(&job->mappings[i]->obj->gpu_usecount);
- 			panfrost_gem_mapping_put(job->mappings[i]);
-+		}
- 		kvfree(job->mappings);
- 	}
- 
+ #define SMU_11_0_MAX_ODFEATURE    32          //Maximum Number of OD Features
 
 
