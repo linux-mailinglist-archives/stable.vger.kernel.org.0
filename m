@@ -2,40 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C45F3163166
-	for <lists+stable@lfdr.de>; Tue, 18 Feb 2020 21:01:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A07C91631E4
+	for <lists+stable@lfdr.de>; Tue, 18 Feb 2020 21:06:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727227AbgBRUAG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Feb 2020 15:00:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39176 "EHLO mail.kernel.org"
+        id S1728123AbgBRUDX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Feb 2020 15:03:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44470 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728506AbgBRUAF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 18 Feb 2020 15:00:05 -0500
+        id S1729107AbgBRUDT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 18 Feb 2020 15:03:19 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2421B24673;
-        Tue, 18 Feb 2020 20:00:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 579302467D;
+        Tue, 18 Feb 2020 20:03:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582056004;
-        bh=5Jf8cI4nOoxx6xZKEeoBi7W0xsvsAYOX+Lc69C/Hte8=;
+        s=default; t=1582056197;
+        bh=BzMa2qGO8g16s/WmhDUrJw7bWLJLX8rlwouMNxuw3rc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y+F57eAKINOvVqmdN2PQALTddwKwjDEfu+8T4pSOQ538uM97fSqjsUOSXVMuPyfPe
-         p4uc7l9iY4P9huWwFsuJizrT97UbgwDQPq9x2zp7RquxIdCvEGOUKLAdDlUpT25jpQ
-         TmwoyhtIepJGANrrC9LGg6VvL/Ln+z/58yKYlFSY=
+        b=IXZwhNrBaLLbGUlDNl63ynhNT0G8pBHA5aFec211gPqs8t+VdV+OLls9hZYaRNPSl
+         tvuiHHjQOywcF+v7HW454RZji0W12aaTnoXcyuY7dAJzCSvwCbN+OX0YRwLvnXQNbc
+         krhaUHdylKYldDxmD4TlqDrfw2HUrmUWnho1Weaw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>,
-        =?UTF-8?q?Micha=C5=82=20Miros=C5=82aw?= <mirq-linux@rere.qmqm.pl>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 65/66] gpio: add gpiod_toggle_active_low()
+        stable@vger.kernel.org, Kim Phillips <kim.phillips@amd.com>,
+        Andi Kleen <ak@linux.intel.com>, Jiri Olsa <jolsa@redhat.com>,
+        Song Liu <songliubraving@fb.com>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Cong Wang <xiyou.wangcong@gmail.com>,
+        Davidlohr Bueso <dave@stgolabs.net>,
+        Jin Yao <yao.jin@linux.intel.com>,
+        Kan Liang <kan.liang@linux.intel.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>
+Subject: [PATCH 5.5 71/80] perf stat: Dont report a null stalled cycles per insn metric
 Date:   Tue, 18 Feb 2020 20:55:32 +0100
-Message-Id: <20200218190434.273604722@linuxfoundation.org>
+Message-Id: <20200218190438.671405230@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200218190428.035153861@linuxfoundation.org>
-References: <20200218190428.035153861@linuxfoundation.org>
+In-Reply-To: <20200218190432.043414522@linuxfoundation.org>
+References: <20200218190432.043414522@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,73 +53,124 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michał Mirosław <mirq-linux@rere.qmqm.pl>
+From: Kim Phillips <kim.phillips@amd.com>
 
-[ Upstream commit d3a5bcb4a17f1ad072484bb92c42519ff3aba6e1 ]
+commit 80cc7bb6c104d733bff60ddda09f19139c61507c upstream.
 
-Add possibility to toggle active-low flag of a gpio descriptor. This is
-useful for compatibility code, where defaults are inverted vs DT gpio
-flags or the active-low flag is taken from elsewhere.
+For data collected on machines with front end stalled cycles supported,
+such as found on modern AMD CPU families, commit 146540fb545b ("perf
+stat: Always separate stalled cycles per insn") introduces a new line in
+CSV output with a leading comma that upsets some automated scripts.
+Scripts have to use "-e ex_ret_instr" to work around this issue, after
+upgrading to a version of perf with that commit.
 
-Acked-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Michał Mirosław <mirq-linux@rere.qmqm.pl>
-Link: https://lore.kernel.org/r/7ce0338e01ad17fa5a227176813941b41a7c35c1.1576031637.git.mirq-linux@rere.qmqm.pl
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+We could add "if (have_frontend_stalled && !config->csv_sep)" to the not
+(total && avg) else clause, to emphasize that CSV users are usually
+scripts, and are written to do only what is needed, i.e., they wouldn't
+typically invoke "perf stat" without specifying an explicit event list.
+
+But - let alone CSV output - why should users now tolerate a constant
+0-reporting extra line in regular terminal output?:
+
+BEFORE:
+
+$ sudo perf stat --all-cpus -einstructions,cycles -- sleep 1
+
+ Performance counter stats for 'system wide':
+
+       181,110,981      instructions              #    0.58  insn per cycle
+                                                  #    0.00  stalled cycles per insn
+       309,876,469      cycles
+
+       1.002202582 seconds time elapsed
+
+The user would not like to see the now permanent:
+
+  "0.00  stalled cycles per insn"
+
+line fixture, as it gives no useful information.
+
+So this patch removes the printing of the zeroed stalled cycles line
+altogether, almost reverting the very original commit fb4605ba47e7
+("perf stat: Check for frontend stalled for metrics"), which seems like
+it was written to normalize --metric-only column output of common Intel
+machines at the time: modern Intel machines have ceased to support the
+genericised frontend stalled metrics AFAICT.
+
+AFTER:
+
+$ sudo perf stat --all-cpus -einstructions,cycles -- sleep 1
+
+ Performance counter stats for 'system wide':
+
+       244,071,432      instructions              #    0.69  insn per cycle
+       355,353,490      cycles
+
+       1.001862516 seconds time elapsed
+
+Output behaviour when stalled cycles is indeed measured is not affected
+(BEFORE == AFTER):
+
+$ sudo perf stat --all-cpus -einstructions,cycles,stalled-cycles-frontend -- sleep 1
+
+ Performance counter stats for 'system wide':
+
+       247,227,799      instructions              #    0.63  insn per cycle
+                                                  #    0.26  stalled cycles per insn
+       394,745,636      cycles
+        63,194,485      stalled-cycles-frontend   #   16.01% frontend cycles idle
+
+       1.002079770 seconds time elapsed
+
+Fixes: 146540fb545b ("perf stat: Always separate stalled cycles per insn")
+Signed-off-by: Kim Phillips <kim.phillips@amd.com>
+Acked-by: Andi Kleen <ak@linux.intel.com>
+Acked-by: Jiri Olsa <jolsa@redhat.com>
+Acked-by: Song Liu <songliubraving@fb.com>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Cong Wang <xiyou.wangcong@gmail.com>
+Cc: Davidlohr Bueso <dave@stgolabs.net>
+Cc: Jin Yao <yao.jin@linux.intel.com>
+Cc: Kan Liang <kan.liang@linux.intel.com>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Link: http://lore.kernel.org/lkml/20200207230613.26709-1-kim.phillips@amd.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/gpio/gpiolib.c        | 11 +++++++++++
- include/linux/gpio/consumer.h |  7 +++++++
- 2 files changed, 18 insertions(+)
+ tools/perf/util/stat-shadow.c |    6 ------
+ 1 file changed, 6 deletions(-)
 
-diff --git a/drivers/gpio/gpiolib.c b/drivers/gpio/gpiolib.c
-index 2476306e7030e..22506e4614b3f 100644
---- a/drivers/gpio/gpiolib.c
-+++ b/drivers/gpio/gpiolib.c
-@@ -3220,6 +3220,17 @@ int gpiod_is_active_low(const struct gpio_desc *desc)
- }
- EXPORT_SYMBOL_GPL(gpiod_is_active_low);
+--- a/tools/perf/util/stat-shadow.c
++++ b/tools/perf/util/stat-shadow.c
+@@ -18,7 +18,6 @@
+  * AGGR_NONE: Use matching CPU
+  * AGGR_THREAD: Not supported?
+  */
+-static bool have_frontend_stalled;
  
-+/**
-+ * gpiod_toggle_active_low - toggle whether a GPIO is active-low or not
-+ * @desc: the gpio descriptor to change
-+ */
-+void gpiod_toggle_active_low(struct gpio_desc *desc)
-+{
-+	VALIDATE_DESC_VOID(desc);
-+	change_bit(FLAG_ACTIVE_LOW, &desc->flags);
-+}
-+EXPORT_SYMBOL_GPL(gpiod_toggle_active_low);
-+
- /* I/O calls are only valid after configuration completed; the relevant
-  * "is this a valid GPIO" error checks should already have been done.
-  *
-diff --git a/include/linux/gpio/consumer.h b/include/linux/gpio/consumer.h
-index b70af921c6145..803bb63dd5ffb 100644
---- a/include/linux/gpio/consumer.h
-+++ b/include/linux/gpio/consumer.h
-@@ -158,6 +158,7 @@ int gpiod_set_raw_array_value_cansleep(unsigned int array_size,
+ struct runtime_stat rt_stat;
+ struct stats walltime_nsecs_stats;
+@@ -144,7 +143,6 @@ void runtime_stat__exit(struct runtime_s
  
- int gpiod_set_debounce(struct gpio_desc *desc, unsigned debounce);
- int gpiod_set_transitory(struct gpio_desc *desc, bool transitory);
-+void gpiod_toggle_active_low(struct gpio_desc *desc);
- 
- int gpiod_is_active_low(const struct gpio_desc *desc);
- int gpiod_cansleep(const struct gpio_desc *desc);
-@@ -479,6 +480,12 @@ static inline int gpiod_set_transitory(struct gpio_desc *desc, bool transitory)
- 	return -ENOSYS;
- }
- 
-+static inline void gpiod_toggle_active_low(struct gpio_desc *desc)
-+{
-+	/* GPIO can never have been requested */
-+	WARN_ON(desc);
-+}
-+
- static inline int gpiod_is_active_low(const struct gpio_desc *desc)
+ void perf_stat__init_shadow_stats(void)
  {
- 	/* GPIO can never have been requested */
--- 
-2.20.1
-
+-	have_frontend_stalled = pmu_have_event("cpu", "stalled-cycles-frontend");
+ 	runtime_stat__init(&rt_stat);
+ }
+ 
+@@ -853,10 +851,6 @@ void perf_stat__print_shadow_stats(struc
+ 			print_metric(config, ctxp, NULL, "%7.2f ",
+ 					"stalled cycles per insn",
+ 					ratio);
+-		} else if (have_frontend_stalled) {
+-			out->new_line(config, ctxp);
+-			print_metric(config, ctxp, NULL, "%7.2f ",
+-				     "stalled cycles per insn", 0);
+ 		}
+ 	} else if (perf_evsel__match(evsel, HARDWARE, HW_BRANCH_MISSES)) {
+ 		if (runtime_stat_n(st, STAT_BRANCHES, ctx, cpu) != 0)
 
 
