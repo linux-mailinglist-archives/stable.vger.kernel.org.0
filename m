@@ -2,41 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6463F16320F
-	for <lists+stable@lfdr.de>; Tue, 18 Feb 2020 21:06:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9ECD616325A
+	for <lists+stable@lfdr.de>; Tue, 18 Feb 2020 21:10:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727931AbgBRUF0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Feb 2020 15:05:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41432 "EHLO mail.kernel.org"
+        id S1727078AbgBRT6B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Feb 2020 14:58:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35460 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726548AbgBRUBn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 18 Feb 2020 15:01:43 -0500
+        id S1728096AbgBRT6B (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 18 Feb 2020 14:58:01 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4BA0B24125;
-        Tue, 18 Feb 2020 20:01:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2F0BA24655;
+        Tue, 18 Feb 2020 19:57:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582056102;
-        bh=l5lJEZkz51E19LU9MHHTVA8iChaAYWOmUBGzBZnmP/c=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aI1Mp0Wkk/T8eJDUT8q5li5HrCGReX4Rjn/3ZJ+NglpifbCFqRrrIeVYTXqQkLTYQ
-         b5IQxEd7ZokQTi7YLl8aBbNiznO6hi+67E4Wa53ocJYxF/eQBrAcbM2R6ql3QTjvHk
-         a20+8qZmyNpiz+SZaQ4z3P3MA5nmImTWEiRhTONk=
+        s=default; t=1582055879;
+        bh=fXDl+dkyD/KG3eQcqm6gsy4KLwBE/pquu7AkIRMC9OA=;
+        h=From:To:Cc:Subject:Date:From;
+        b=sLg6xxgZew0b8F8CXpKe0xA+XqhcmWeCvCgZWcAkXZymAO0pdHQK35BTQ5HurhkSU
+         mI/7620IW/+ZfXJaFbrKnAoW0WLhxJEwZiw/gv3glTvVgYhNGd89Shtr5ccabxJeUz
+         lfrLpdofw4SqC0Mp3ERrUeo95kz11AZ1VFBnNL1U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tobias Oszlanyi <toszlanyi@yahoo.de>,
-        Alexander Tsoy <alexander@tsoy.me>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.5 06/80] ALSA: usb-audio: Add clock validity quirk for Denon MC7000/MCX8000
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org
+Subject: [PATCH 5.4 00/66] 5.4.21-stable review
 Date:   Tue, 18 Feb 2020 20:54:27 +0100
-Message-Id: <20200218190432.665660777@linuxfoundation.org>
+Message-Id: <20200218190428.035153861@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200218190432.043414522@linuxfoundation.org>
-References: <20200218190432.043414522@linuxfoundation.org>
-User-Agent: quilt/0.66
 MIME-Version: 1.0
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-5.4.21-rc1.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-5.4.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 5.4.21-rc1
+X-KernelTest-Deadline: 2020-02-20T19:04+00:00
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
@@ -44,267 +51,314 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Tsoy <alexander@tsoy.me>
+This is the start of the stable review cycle for the 5.4.21 release.
+There are 66 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-commit 9f35a31283775e6f6af73fb2c95c686a4c0acac7 upstream.
+Responses should be made by Thu, 20 Feb 2020 19:03:19 +0000.
+Anything received after that time might be too late.
 
-It should be safe to ignore clock validity check result if the following
-conditions are met:
- - only one single sample rate is supported;
- - the terminal is directly connected to the clock source;
- - the clock type is internal.
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.21-rc1.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
+and the diffstat can be found below.
 
-This is to deal with some Denon DJ controllers that always reports that
-clock is invalid.
+thanks,
 
-Tested-by: Tobias Oszlanyi <toszlanyi@yahoo.de>
-Signed-off-by: Alexander Tsoy <alexander@tsoy.me>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200212235450.697348-1-alexander@tsoy.me
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+greg k-h
 
----
- sound/usb/clock.c  |   91 ++++++++++++++++++++++++++++++++++++-----------------
- sound/usb/clock.h  |    4 +-
- sound/usb/format.c |    3 -
- 3 files changed, 66 insertions(+), 32 deletions(-)
+-------------
+Pseudo-Shortlog of commits:
 
---- a/sound/usb/clock.c
-+++ b/sound/usb/clock.c
-@@ -151,8 +151,34 @@ static int uac_clock_selector_set_val(st
- 	return ret;
- }
- 
-+/*
-+ * Assume the clock is valid if clock source supports only one single sample
-+ * rate, the terminal is connected directly to it (there is no clock selector)
-+ * and clock type is internal. This is to deal with some Denon DJ controllers
-+ * that always reports that clock is invalid.
-+ */
-+static bool uac_clock_source_is_valid_quirk(struct snd_usb_audio *chip,
-+					    struct audioformat *fmt,
-+					    int source_id)
-+{
-+	if (fmt->protocol == UAC_VERSION_2) {
-+		struct uac_clock_source_descriptor *cs_desc =
-+			snd_usb_find_clock_source(chip->ctrl_intf, source_id);
-+
-+		if (!cs_desc)
-+			return false;
-+
-+		return (fmt->nr_rates == 1 &&
-+			(fmt->clock & 0xff) == cs_desc->bClockID &&
-+			(cs_desc->bmAttributes & 0x3) !=
-+				UAC_CLOCK_SOURCE_TYPE_EXT);
-+	}
-+
-+	return false;
-+}
-+
- static bool uac_clock_source_is_valid(struct snd_usb_audio *chip,
--				      int protocol,
-+				      struct audioformat *fmt,
- 				      int source_id)
- {
- 	int err;
-@@ -160,7 +186,7 @@ static bool uac_clock_source_is_valid(st
- 	struct usb_device *dev = chip->dev;
- 	u32 bmControls;
- 
--	if (protocol == UAC_VERSION_3) {
-+	if (fmt->protocol == UAC_VERSION_3) {
- 		struct uac3_clock_source_descriptor *cs_desc =
- 			snd_usb_find_clock_source_v3(chip->ctrl_intf, source_id);
- 
-@@ -194,10 +220,14 @@ static bool uac_clock_source_is_valid(st
- 		return false;
- 	}
- 
--	return data ? true :  false;
-+	if (data)
-+		return true;
-+	else
-+		return uac_clock_source_is_valid_quirk(chip, fmt, source_id);
- }
- 
--static int __uac_clock_find_source(struct snd_usb_audio *chip, int entity_id,
-+static int __uac_clock_find_source(struct snd_usb_audio *chip,
-+				   struct audioformat *fmt, int entity_id,
- 				   unsigned long *visited, bool validate)
- {
- 	struct uac_clock_source_descriptor *source;
-@@ -217,7 +247,7 @@ static int __uac_clock_find_source(struc
- 	source = snd_usb_find_clock_source(chip->ctrl_intf, entity_id);
- 	if (source) {
- 		entity_id = source->bClockID;
--		if (validate && !uac_clock_source_is_valid(chip, UAC_VERSION_2,
-+		if (validate && !uac_clock_source_is_valid(chip, fmt,
- 								entity_id)) {
- 			usb_audio_err(chip,
- 				"clock source %d is not valid, cannot use\n",
-@@ -248,8 +278,9 @@ static int __uac_clock_find_source(struc
- 		}
- 
- 		cur = ret;
--		ret = __uac_clock_find_source(chip, selector->baCSourceID[ret - 1],
--					       visited, validate);
-+		ret = __uac_clock_find_source(chip, fmt,
-+					      selector->baCSourceID[ret - 1],
-+					      visited, validate);
- 		if (!validate || ret > 0 || !chip->autoclock)
- 			return ret;
- 
-@@ -260,8 +291,9 @@ static int __uac_clock_find_source(struc
- 			if (i == cur)
- 				continue;
- 
--			ret = __uac_clock_find_source(chip, selector->baCSourceID[i - 1],
--				visited, true);
-+			ret = __uac_clock_find_source(chip, fmt,
-+						      selector->baCSourceID[i - 1],
-+						      visited, true);
- 			if (ret < 0)
- 				continue;
- 
-@@ -281,14 +313,16 @@ static int __uac_clock_find_source(struc
- 	/* FIXME: multipliers only act as pass-thru element for now */
- 	multiplier = snd_usb_find_clock_multiplier(chip->ctrl_intf, entity_id);
- 	if (multiplier)
--		return __uac_clock_find_source(chip, multiplier->bCSourceID,
--						visited, validate);
-+		return __uac_clock_find_source(chip, fmt,
-+					       multiplier->bCSourceID,
-+					       visited, validate);
- 
- 	return -EINVAL;
- }
- 
--static int __uac3_clock_find_source(struct snd_usb_audio *chip, int entity_id,
--				   unsigned long *visited, bool validate)
-+static int __uac3_clock_find_source(struct snd_usb_audio *chip,
-+				    struct audioformat *fmt, int entity_id,
-+				    unsigned long *visited, bool validate)
- {
- 	struct uac3_clock_source_descriptor *source;
- 	struct uac3_clock_selector_descriptor *selector;
-@@ -307,7 +341,7 @@ static int __uac3_clock_find_source(stru
- 	source = snd_usb_find_clock_source_v3(chip->ctrl_intf, entity_id);
- 	if (source) {
- 		entity_id = source->bClockID;
--		if (validate && !uac_clock_source_is_valid(chip, UAC_VERSION_3,
-+		if (validate && !uac_clock_source_is_valid(chip, fmt,
- 								entity_id)) {
- 			usb_audio_err(chip,
- 				"clock source %d is not valid, cannot use\n",
-@@ -338,7 +372,8 @@ static int __uac3_clock_find_source(stru
- 		}
- 
- 		cur = ret;
--		ret = __uac3_clock_find_source(chip, selector->baCSourceID[ret - 1],
-+		ret = __uac3_clock_find_source(chip, fmt,
-+					       selector->baCSourceID[ret - 1],
- 					       visited, validate);
- 		if (!validate || ret > 0 || !chip->autoclock)
- 			return ret;
-@@ -350,8 +385,9 @@ static int __uac3_clock_find_source(stru
- 			if (i == cur)
- 				continue;
- 
--			ret = __uac3_clock_find_source(chip, selector->baCSourceID[i - 1],
--				visited, true);
-+			ret = __uac3_clock_find_source(chip, fmt,
-+						       selector->baCSourceID[i - 1],
-+						       visited, true);
- 			if (ret < 0)
- 				continue;
- 
-@@ -372,7 +408,8 @@ static int __uac3_clock_find_source(stru
- 	multiplier = snd_usb_find_clock_multiplier_v3(chip->ctrl_intf,
- 						      entity_id);
- 	if (multiplier)
--		return __uac3_clock_find_source(chip, multiplier->bCSourceID,
-+		return __uac3_clock_find_source(chip, fmt,
-+						multiplier->bCSourceID,
- 						visited, validate);
- 
- 	return -EINVAL;
-@@ -389,18 +426,18 @@ static int __uac3_clock_find_source(stru
-  *
-  * Returns the clock source UnitID (>=0) on success, or an error.
-  */
--int snd_usb_clock_find_source(struct snd_usb_audio *chip, int protocol,
--			      int entity_id, bool validate)
-+int snd_usb_clock_find_source(struct snd_usb_audio *chip,
-+			      struct audioformat *fmt, bool validate)
- {
- 	DECLARE_BITMAP(visited, 256);
- 	memset(visited, 0, sizeof(visited));
- 
--	switch (protocol) {
-+	switch (fmt->protocol) {
- 	case UAC_VERSION_2:
--		return __uac_clock_find_source(chip, entity_id, visited,
-+		return __uac_clock_find_source(chip, fmt, fmt->clock, visited,
- 					       validate);
- 	case UAC_VERSION_3:
--		return __uac3_clock_find_source(chip, entity_id, visited,
-+		return __uac3_clock_find_source(chip, fmt, fmt->clock, visited,
- 					       validate);
- 	default:
- 		return -EINVAL;
-@@ -501,8 +538,7 @@ static int set_sample_rate_v2v3(struct s
- 	 * automatic clock selection if the current clock is not
- 	 * valid.
- 	 */
--	clock = snd_usb_clock_find_source(chip, fmt->protocol,
--					  fmt->clock, true);
-+	clock = snd_usb_clock_find_source(chip, fmt, true);
- 	if (clock < 0) {
- 		/* We did not find a valid clock, but that might be
- 		 * because the current sample rate does not match an
-@@ -510,8 +546,7 @@ static int set_sample_rate_v2v3(struct s
- 		 * and we will do another validation after setting the
- 		 * rate.
- 		 */
--		clock = snd_usb_clock_find_source(chip, fmt->protocol,
--						  fmt->clock, false);
-+		clock = snd_usb_clock_find_source(chip, fmt, false);
- 		if (clock < 0)
- 			return clock;
- 	}
-@@ -577,7 +612,7 @@ static int set_sample_rate_v2v3(struct s
- 
- validation:
- 	/* validate clock after rate change */
--	if (!uac_clock_source_is_valid(chip, fmt->protocol, clock))
-+	if (!uac_clock_source_is_valid(chip, fmt, clock))
- 		return -ENXIO;
- 	return 0;
- }
---- a/sound/usb/clock.h
-+++ b/sound/usb/clock.h
-@@ -6,7 +6,7 @@ int snd_usb_init_sample_rate(struct snd_
- 			     struct usb_host_interface *alts,
- 			     struct audioformat *fmt, int rate);
- 
--int snd_usb_clock_find_source(struct snd_usb_audio *chip, int protocol,
--			     int entity_id, bool validate);
-+int snd_usb_clock_find_source(struct snd_usb_audio *chip,
-+			      struct audioformat *fmt, bool validate);
- 
- #endif /* __USBAUDIO_CLOCK_H */
---- a/sound/usb/format.c
-+++ b/sound/usb/format.c
-@@ -322,8 +322,7 @@ static int parse_audio_format_rates_v2v3
- 	struct usb_device *dev = chip->dev;
- 	unsigned char tmp[2], *data;
- 	int nr_triplets, data_size, ret = 0, ret_l6;
--	int clock = snd_usb_clock_find_source(chip, fp->protocol,
--					      fp->clock, false);
-+	int clock = snd_usb_clock_find_source(chip, fp, false);
- 
- 	if (clock < 0) {
- 		dev_err(&dev->dev,
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 5.4.21-rc1
+
+Michał Mirosław <mirq-linux@rere.qmqm.pl>
+    mmc: core: Rework wp-gpio handling
+
+Michał Mirosław <mirq-linux@rere.qmqm.pl>
+    gpio: add gpiod_toggle_active_low()
+
+Sean Christopherson <sean.j.christopherson@intel.com>
+    KVM: x86/mmu: Fix struct guest_walker arrays for 5-level paging
+
+Chengguang Xu <cgxu519@mykernel.net>
+    ext4: choose hardlimit when softlimit is larger than hardlimit in ext4_statfs_project()
+
+zhangyi (F) <yi.zhang@huawei.com>
+    jbd2: do not clear the BH_Mapped flag when forgetting a metadata buffer
+
+zhangyi (F) <yi.zhang@huawei.com>
+    jbd2: move the clearing of b_modified flag to the journal_unmap_buffer()
+
+Jernej Skrabec <jernej.skrabec@siol.net>
+    Revert "drm/sun4i: drv: Allow framebuffer modifiers in mode config"
+
+Olga Kornievskaia <kolga@netapp.com>
+    NFSv4.1 make cachethis=no for writes
+
+Kim Phillips <kim.phillips@amd.com>
+    perf stat: Don't report a null stalled cycles per insn metric
+
+Oliver Upton <oupton@google.com>
+    KVM: x86: Mask off reserved bit from #DB exception payload
+
+Marc Zyngier <maz@kernel.org>
+    arm64: dts: fast models: Fix FVP PCI interrupt-map property
+
+Petr Pavlu <petr.pavlu@suse.com>
+    cifs: fix mount option display for sec=krb5i
+
+Sara Sharon <sara.sharon@intel.com>
+    mac80211: fix quiet mode activation in action frames
+
+Mike Jones <michael-a1.jones@analog.com>
+    hwmon: (pmbus/ltc2978) Fix PMBus polling of MFR_COMMON definitions.
+
+Kan Liang <kan.liang@linux.intel.com>
+    perf/x86/intel: Fix inaccurate period in context switch for auto-reload
+
+Stephen Boyd <swboyd@chromium.org>
+    spmi: pmic-arb: Set lockdep class for hierarchical irq domains
+
+Qais Yousef <qais.yousef@arm.com>
+    sched/uclamp: Reject negative values in cpu_uclamp_write()
+
+Nathan Chancellor <natechancellor@gmail.com>
+    s390/time: Fix clk type in get_tod_clock
+
+Leon Romanovsky <leon@kernel.org>
+    RDMA/core: Fix protection fault in get_pkey_idx_qp_list
+
+Zhu Yanjun <yanjunz@mellanox.com>
+    RDMA/rxe: Fix soft lockup problem due to using tasklets in softirq
+
+Kamal Heib <kamalheib1@gmail.com>
+    RDMA/hfi1: Fix memory leak in _dev_comp_vect_mappings_create
+
+Krishnamraju Eraparaju <krishna2@chelsio.com>
+    RDMA/iw_cxgb4: initiate CLOSE when entering TERM
+
+Avihai Horon <avihaih@mellanox.com>
+    RDMA/core: Fix invalid memory access in spec_filter_size
+
+Yonatan Cohen <yonatanc@mellanox.com>
+    IB/umad: Fix kernel crash while unloading ib_umad
+
+Kaike Wan <kaike.wan@intel.com>
+    IB/rdmavt: Reset all QPs when the device is shut down
+
+Mike Marciniszyn <mike.marciniszyn@intel.com>
+    IB/hfi1: Close window for pq and request coliding
+
+Kaike Wan <kaike.wan@intel.com>
+    IB/hfi1: Acquire lock to release TID entries when user file is closed
+
+Mark Zhang <markz@mellanox.com>
+    IB/mlx5: Return failure when rts2rts_qp_counters_set_id is not supported
+
+Colin Ian King <colin.king@canonical.com>
+    drivers: ipmi: fix off-by-one bounds check that leads to a out-of-bounds write
+
+Yi Zhang <yi.zhang@redhat.com>
+    nvme: fix the parameter order for nvme_get_log in nvme_get_fw_slot_info
+
+Marek Behún <marek.behun@nic.cz>
+    bus: moxtet: fix potential stack buffer overflow
+
+Boris Brezillon <boris.brezillon@collabora.com>
+    drm/panfrost: Make sure the shrinker does not reclaim referenced BOs
+
+Daniel Vetter <daniel.vetter@ffwll.ch>
+    drm/vgem: Close use-after-free race in vgem_gem_create
+
+Christian Borntraeger <borntraeger@de.ibm.com>
+    s390/uv: Fix handling of length extensions
+
+Harald Freudenberger <freude@linux.ibm.com>
+    s390/pkey: fix missing length of protected key on return
+
+Kim Phillips <kim.phillips@amd.com>
+    perf/x86/amd: Add missing L2 misses event spec to AMD Family 17h's event map
+
+Sean Christopherson <sean.j.christopherson@intel.com>
+    KVM: nVMX: Use correct root level for nested EPT shadow page tables
+
+Robert Richter <rrichter@marvell.com>
+    EDAC/mc: Fix use-after-free and memleaks during device removal
+
+Robert Richter <rrichter@marvell.com>
+    EDAC/sysfs: Remove csrow objects on errors
+
+Ronnie Sahlberg <lsahlber@redhat.com>
+    cifs: make sure we do not overflow the max EA buffer size
+
+Chuck Lever <chuck.lever@oracle.com>
+    xprtrdma: Fix DMA scatter-gather list mapping imbalance
+
+Will Deacon <will@kernel.org>
+    arm64: ssbs: Fix context-switch when SSBS is present on all CPUs
+
+Paul Thomas <pthomas8589@gmail.com>
+    gpio: xilinx: Fix bug where the wrong GPIO register is written to
+
+Krzysztof Kozlowski <krzk@kernel.org>
+    ARM: npcm: Bring back GPIOLIB support
+
+David Sterba <dsterba@suse.com>
+    btrfs: log message when rw remount is attempted with unclean tree-log
+
+David Sterba <dsterba@suse.com>
+    btrfs: print message when tree-log replay starts
+
+Wenwen Wang <wenwen@cs.uga.edu>
+    btrfs: ref-verify: fix memory leaks
+
+Filipe Manana <fdmanana@suse.com>
+    Btrfs: fix race between using extent maps and merging them
+
+Theodore Ts'o <tytso@mit.edu>
+    ext4: improve explanation of a mount failure caused by a misconfigured kernel
+
+Shijie Luo <luoshijie1@huawei.com>
+    ext4: add cond_resched() to ext4_protect_reserved_inode
+
+Jan Kara <jack@suse.cz>
+    ext4: fix checksum errors with indexed dirs
+
+Theodore Ts'o <tytso@mit.edu>
+    ext4: fix support for inode sizes > 1024 bytes
+
+Andreas Dilger <adilger@dilger.ca>
+    ext4: don't assume that mmp_nodename/bdevname have NUL
+
+Alexander Tsoy <alexander@tsoy.me>
+    ALSA: usb-audio: Add clock validity quirk for Denon MC7000/MCX8000
+
+Saurav Girepunje <saurav.girepunje@gmail.com>
+    ALSA: usb-audio: sound: usb: usb true/false for bool return type
+
+Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+    ACPI: PM: s2idle: Prevent spurious SCIs from waking up the system
+
+Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+    ACPICA: Introduce acpi_any_gpe_status_set()
+
+Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+    ACPI: PM: s2idle: Avoid possible race related to the EC GPE
+
+Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+    ACPI: EC: Fix flushing of pending work
+
+Arvind Sankar <nivedita@alum.mit.edu>
+    ALSA: usb-audio: Apply sample rate quirk for Audioengine D1
+
+Takashi Iwai <tiwai@suse.de>
+    ALSA: hda/realtek - Fix silent output on MSI-GL73
+
+Kailang Yang <kailang@realtek.com>
+    ALSA: hda/realtek - Add more codec supported Headset Button
+
+Takashi Iwai <tiwai@suse.de>
+    ALSA: usb-audio: Fix UAC2/3 effect unit parsing
+
+Benjamin Tissoires <benjamin.tissoires@redhat.com>
+    Input: synaptics - remove the LEN0049 dmi id from topbuttonpad list
+
+Gaurav Agrawal <agrawalgaurav@gnome.org>
+    Input: synaptics - enable SMBus on ThinkPad L470
+
+Lyude Paul <lyude@redhat.com>
+    Input: synaptics - switch T470s to RMI4 by default
+
+
+-------------
+
+Diffstat:
+
+ Makefile                                         |  4 +-
+ arch/arm/mach-npcm/Kconfig                       |  2 +-
+ arch/arm64/boot/dts/arm/fvp-base-revc.dts        |  8 +-
+ arch/arm64/kernel/process.c                      |  7 ++
+ arch/s390/boot/uv.c                              |  3 +-
+ arch/s390/include/asm/timex.h                    |  2 +-
+ arch/x86/events/amd/core.c                       |  1 +
+ arch/x86/events/intel/ds.c                       |  2 +
+ arch/x86/kvm/paging_tmpl.h                       |  2 +-
+ arch/x86/kvm/vmx/vmx.c                           |  3 +
+ arch/x86/kvm/x86.c                               |  8 ++
+ drivers/acpi/acpica/achware.h                    |  2 +
+ drivers/acpi/acpica/evxfgpe.c                    | 32 ++++++++
+ drivers/acpi/acpica/hwgpe.c                      | 71 +++++++++++++++++
+ drivers/acpi/ec.c                                | 44 ++++++-----
+ drivers/acpi/sleep.c                             | 50 ++++++++----
+ drivers/bus/moxtet.c                             |  2 +-
+ drivers/char/ipmi/ipmb_dev_int.c                 |  2 +-
+ drivers/edac/edac_mc.c                           | 12 +--
+ drivers/edac/edac_mc_sysfs.c                     | 18 +----
+ drivers/gpio/gpio-xilinx.c                       |  5 +-
+ drivers/gpio/gpiolib-of.c                        |  4 -
+ drivers/gpio/gpiolib.c                           | 11 +++
+ drivers/gpu/drm/panfrost/panfrost_drv.c          |  1 +
+ drivers/gpu/drm/panfrost/panfrost_gem.h          |  6 ++
+ drivers/gpu/drm/panfrost/panfrost_gem_shrinker.c |  3 +
+ drivers/gpu/drm/panfrost/panfrost_job.c          |  7 +-
+ drivers/gpu/drm/sun4i/sun4i_drv.c                |  1 -
+ drivers/gpu/drm/vgem/vgem_drv.c                  |  9 ++-
+ drivers/hwmon/pmbus/ltc2978.c                    |  4 +-
+ drivers/infiniband/core/security.c               | 24 +++---
+ drivers/infiniband/core/user_mad.c               |  5 +-
+ drivers/infiniband/core/uverbs_cmd.c             | 15 ++--
+ drivers/infiniband/hw/cxgb4/cm.c                 |  4 +
+ drivers/infiniband/hw/cxgb4/qp.c                 |  4 +-
+ drivers/infiniband/hw/hfi1/affinity.c            |  2 +
+ drivers/infiniband/hw/hfi1/file_ops.c            | 52 ++++++++-----
+ drivers/infiniband/hw/hfi1/hfi.h                 |  5 +-
+ drivers/infiniband/hw/hfi1/user_exp_rcv.c        |  5 +-
+ drivers/infiniband/hw/hfi1/user_sdma.c           | 17 ++--
+ drivers/infiniband/hw/mlx5/qp.c                  |  9 ++-
+ drivers/infiniband/sw/rdmavt/qp.c                | 84 ++++++++++++--------
+ drivers/infiniband/sw/rxe/rxe_comp.c             |  8 +-
+ drivers/input/mouse/synaptics.c                  |  4 +-
+ drivers/mmc/core/host.c                          | 11 +--
+ drivers/mmc/core/slot-gpio.c                     |  3 +
+ drivers/mmc/host/pxamci.c                        |  8 +-
+ drivers/mmc/host/sdhci-esdhc-imx.c               |  3 +-
+ drivers/nvme/host/core.c                         |  2 +-
+ drivers/s390/crypto/pkey_api.c                   |  2 +-
+ drivers/spmi/spmi-pmic-arb.c                     |  4 +
+ fs/btrfs/disk-io.c                               |  1 +
+ fs/btrfs/extent_map.c                            | 11 +++
+ fs/btrfs/ref-verify.c                            |  5 ++
+ fs/btrfs/super.c                                 |  2 +
+ fs/cifs/cifsfs.c                                 |  6 +-
+ fs/cifs/smb2ops.c                                | 35 ++++++++-
+ fs/ext4/block_validity.c                         |  1 +
+ fs/ext4/dir.c                                    | 14 ++--
+ fs/ext4/ext4.h                                   |  5 +-
+ fs/ext4/inode.c                                  | 12 +++
+ fs/ext4/mmp.c                                    | 12 +--
+ fs/ext4/namei.c                                  |  7 ++
+ fs/ext4/super.c                                  | 55 +++++++------
+ fs/jbd2/commit.c                                 | 46 ++++++-----
+ fs/jbd2/transaction.c                            | 10 ++-
+ fs/nfs/nfs4proc.c                                |  2 +-
+ include/acpi/acpixf.h                            |  1 +
+ include/linux/gpio/consumer.h                    |  7 ++
+ include/linux/suspend.h                          |  2 +-
+ kernel/power/suspend.c                           |  9 ++-
+ kernel/sched/core.c                              |  2 +-
+ net/mac80211/mlme.c                              |  8 +-
+ net/sunrpc/xprtrdma/frwr_ops.c                   | 13 ++--
+ sound/pci/hda/patch_realtek.c                    |  4 +
+ sound/usb/clock.c                                | 99 ++++++++++++++++--------
+ sound/usb/clock.h                                |  4 +-
+ sound/usb/format.c                               |  3 +-
+ sound/usb/mixer.c                                | 12 ++-
+ sound/usb/quirks.c                               |  1 +
+ tools/perf/util/stat-shadow.c                    |  6 --
+ 81 files changed, 678 insertions(+), 314 deletions(-)
 
 
