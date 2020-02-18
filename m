@@ -2,205 +2,134 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 18A771629C0
-	for <lists+stable@lfdr.de>; Tue, 18 Feb 2020 16:47:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 11642162A08
+	for <lists+stable@lfdr.de>; Tue, 18 Feb 2020 17:05:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726403AbgBRPrT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Feb 2020 10:47:19 -0500
-Received: from mx2.suse.de ([195.135.220.15]:50102 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726475AbgBRPrT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 18 Feb 2020 10:47:19 -0500
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.220.254])
-        by mx2.suse.de (Postfix) with ESMTP id C13E1AE2A;
-        Tue, 18 Feb 2020 15:47:15 +0000 (UTC)
-From:   Juergen Gross <jgross@suse.com>
-To:     xen-devel@lists.xenproject.org, x86@kernel.org,
-        linux-kernel@vger.kernel.org,
-        virtualization@lists.linux-foundation.org
-Cc:     Juergen Gross <jgross@suse.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        Thomas Hellstrom <thellstrom@vmware.com>,
-        "VMware, Inc." <pv-drivers@vmware.com>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-        Stefano Stabellini <sstabellini@kernel.org>,
-        stable@vger.kernel.org
-Subject: [PATCH] x86/ioperm: add new paravirt function update_io_bitmap
-Date:   Tue, 18 Feb 2020 16:47:12 +0100
-Message-Id: <20200218154712.25490-1-jgross@suse.com>
-X-Mailer: git-send-email 2.16.4
+        id S1726403AbgBRQFe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Feb 2020 11:05:34 -0500
+Received: from mail-lj1-f195.google.com ([209.85.208.195]:40973 "EHLO
+        mail-lj1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726360AbgBRQFe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Feb 2020 11:05:34 -0500
+Received: by mail-lj1-f195.google.com with SMTP id h23so23601961ljc.8
+        for <stable@vger.kernel.org>; Tue, 18 Feb 2020 08:05:32 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:from:date:message-id:subject:to:cc
+         :content-transfer-encoding;
+        bh=MhoDrY1xksyweUpmgeFnGHrfMEpuPB+Te9aFe6JEUlE=;
+        b=dBcao0ELwlJ062yEpsyZc9dBWFXDP3FAWLSM4oz1jwwZ0BYqNNN0YnGITrhAdcztsQ
+         u1H98ZYGo0lg5t54k00dplymhRD7X3Phz7ZWw4HGEImIyEbUqyHiPWovwHAb/zASL+At
+         hqvlAf+0kyEhkVEC7BmjzM02LltgQ4ZJxK12VWRywN881Cj+abTx4IHnERGsjMhs8hsD
+         z9Lx9aYYEtT3e+U5e9yd6VvyT4gm8dxZG8V4StsUywaFqMIlGhoB1KY3ksuoG8MZ7fEX
+         eC1Vaf9JmJ1fZNwMCKI9oH4Rcaf8TqVGwJkzRVOZv/nlO3p3j6tXCusymaQvr/tpgnXq
+         sktg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:from:date:message-id:subject:to:cc
+         :content-transfer-encoding;
+        bh=MhoDrY1xksyweUpmgeFnGHrfMEpuPB+Te9aFe6JEUlE=;
+        b=KbRQfm3vn/A/cZbmpsu1v8xQGCsFn3Em61uvgZ7x2mOvm1xrq778SdFB/VinKuV6nI
+         V39YeookVDSiTMgovDxPrzlsIUkWDZr6S57Zkzi8rq11mU5bvoVtevhet3OpLkoAenmG
+         XTDEfyGl009xvzFuOCM7Vm7bJUtbcoicDApzh1BBTzqHxJWKIDrik2s9quJpBIrsD50J
+         oti/8kPhlUrKLo04b+q0DkXURI2Ico+N2fokbtVKr0L+LNMDP66MbELH6wrEQ5D6h7FP
+         xDGesU1AxYRYH8m8V8sVUtldF9ixesX9LuA2pIY8APp6oh6GDtOQqc8q7ge8FoWwr945
+         p2aw==
+X-Gm-Message-State: APjAAAWHNx8gX7WfkSvxPA9Q/cbLrGA9B8cW/Xa9NfG2O56LeFb0ybw6
+        sdA/yWdBSvULG4rYONUmanI2bUyGrsYAdpjasji6yg==
+X-Google-Smtp-Source: APXvYqwqKt1Be6NvzbWd/Riorqxg8GAiv6vKILX6E9+gGentcGI/XkfwCZp3U2ujA07O5n6LtNNz1sd35Z3LukUPz2I=
+X-Received: by 2002:a2e:9e55:: with SMTP id g21mr13632769ljk.245.1582041931334;
+ Tue, 18 Feb 2020 08:05:31 -0800 (PST)
+MIME-Version: 1.0
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Tue, 18 Feb 2020 21:35:20 +0530
+Message-ID: <CA+G9fYsqZQ_Ag0NgwLfw4dGoj5EURSOWG8W1NBC65ZjyzM75Jg@mail.gmail.com>
+Subject: stable-rc 4.9.215-rc1/3abbf084b7bf: no regressions found in project
+ stable v4.9.y
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Cc:     linux- stable <stable@vger.kernel.org>,
+        lkft-triage@lists.linaro.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Commit 111e7b15cf10f6 ("x86/ioperm: Extend IOPL config to control
-ioperm() as well") reworked the iopl syscall to use I/O bitmaps.
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-Unfortunately this broke Xen PV domains using that syscall as there
-is currently no I/O bitmap support in PV domains.
+Summary
+------------------------------------------------------------------------
 
-Add I/O bitmap support via a new paravirt function update_io_bitmap
-which Xen PV domains can use to update their I/O bitmaps via a
-hypercall.
+kernel: 4.9.215-rc1
+git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
+le-rc.git
+git branch: linux-4.9.y
+git commit: 3abbf084b7bf6c692bf1bf152bc18e0f0e54da4b
+git describe: v4.9.214-12-g3abbf084b7bf
+Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-4.9-oe/bui=
+ld/v4.9.214-12-g3abbf084b7bf
 
-Fixes: 111e7b15cf10f6 ("x86/ioperm: Extend IOPL config to control ioperm() as well")
-Reported-by: Jan Beulich <jbeulich@suse.com>
-Cc: <stable@vger.kernel.org> # 5.5
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Reviewed-by: Jan Beulich <jbeulich@suse.com>
-Tested-by: Jan Beulich <jbeulich@suse.com>
----
- arch/x86/include/asm/io_bitmap.h      |  9 ++++++++-
- arch/x86/include/asm/paravirt.h       |  7 +++++++
- arch/x86/include/asm/paravirt_types.h |  4 ++++
- arch/x86/kernel/paravirt.c            |  5 +++++
- arch/x86/kernel/process.c             |  2 +-
- arch/x86/xen/enlighten_pv.c           | 25 +++++++++++++++++++++++++
- 6 files changed, 50 insertions(+), 2 deletions(-)
+No regressions (compared to build v4.9.214)
 
-diff --git a/arch/x86/include/asm/io_bitmap.h b/arch/x86/include/asm/io_bitmap.h
-index 02c6ef8f7667..07344d82e88e 100644
---- a/arch/x86/include/asm/io_bitmap.h
-+++ b/arch/x86/include/asm/io_bitmap.h
-@@ -19,7 +19,14 @@ struct task_struct;
- void io_bitmap_share(struct task_struct *tsk);
- void io_bitmap_exit(void);
- 
--void tss_update_io_bitmap(void);
-+void native_tss_update_io_bitmap(void);
-+
-+#ifdef CONFIG_PARAVIRT_XXL
-+#include <asm/paravirt.h>
-+#else
-+#define tss_update_io_bitmap native_tss_update_io_bitmap
-+#endif
-+
- #else
- static inline void io_bitmap_share(struct task_struct *tsk) { }
- static inline void io_bitmap_exit(void) { }
-diff --git a/arch/x86/include/asm/paravirt.h b/arch/x86/include/asm/paravirt.h
-index 86e7317eb31f..694d8daf4983 100644
---- a/arch/x86/include/asm/paravirt.h
-+++ b/arch/x86/include/asm/paravirt.h
-@@ -295,6 +295,13 @@ static inline void write_idt_entry(gate_desc *dt, int entry, const gate_desc *g)
- 	PVOP_VCALL3(cpu.write_idt_entry, dt, entry, g);
- }
- 
-+#ifdef CONFIG_X86_IOPL_IOPERM
-+static inline void tss_update_io_bitmap(void)
-+{
-+	PVOP_VCALL0(cpu.update_io_bitmap);
-+}
-+#endif
-+
- static inline void paravirt_activate_mm(struct mm_struct *prev,
- 					struct mm_struct *next)
- {
-diff --git a/arch/x86/include/asm/paravirt_types.h b/arch/x86/include/asm/paravirt_types.h
-index 84812964d3dd..732f62e04ddb 100644
---- a/arch/x86/include/asm/paravirt_types.h
-+++ b/arch/x86/include/asm/paravirt_types.h
-@@ -140,6 +140,10 @@ struct pv_cpu_ops {
- 
- 	void (*load_sp0)(unsigned long sp0);
- 
-+#ifdef CONFIG_X86_IOPL_IOPERM
-+	void (*update_io_bitmap)(void);
-+#endif
-+
- 	void (*wbinvd)(void);
- 
- 	/* cpuid emulation, mostly so that caps bits can be disabled */
-diff --git a/arch/x86/kernel/paravirt.c b/arch/x86/kernel/paravirt.c
-index 789f5e4f89de..c131ba4e70ef 100644
---- a/arch/x86/kernel/paravirt.c
-+++ b/arch/x86/kernel/paravirt.c
-@@ -30,6 +30,7 @@
- #include <asm/timer.h>
- #include <asm/special_insns.h>
- #include <asm/tlb.h>
-+#include <asm/io_bitmap.h>
- 
- /*
-  * nop stub, which must not clobber anything *including the stack* to
-@@ -341,6 +342,10 @@ struct paravirt_patch_template pv_ops = {
- 	.cpu.iret		= native_iret,
- 	.cpu.swapgs		= native_swapgs,
- 
-+#ifdef CONFIG_X86_IOPL_IOPERM
-+	.cpu.update_io_bitmap	= native_tss_update_io_bitmap,
-+#endif
-+
- 	.cpu.start_context_switch	= paravirt_nop,
- 	.cpu.end_context_switch		= paravirt_nop,
- 
-diff --git a/arch/x86/kernel/process.c b/arch/x86/kernel/process.c
-index 839b5244e3b7..3053c85e0e42 100644
---- a/arch/x86/kernel/process.c
-+++ b/arch/x86/kernel/process.c
-@@ -374,7 +374,7 @@ static void tss_copy_io_bitmap(struct tss_struct *tss, struct io_bitmap *iobm)
- /**
-  * tss_update_io_bitmap - Update I/O bitmap before exiting to usermode
-  */
--void tss_update_io_bitmap(void)
-+void native_tss_update_io_bitmap(void)
- {
- 	struct tss_struct *tss = this_cpu_ptr(&cpu_tss_rw);
- 	struct thread_struct *t = &current->thread;
-diff --git a/arch/x86/xen/enlighten_pv.c b/arch/x86/xen/enlighten_pv.c
-index 1f756ffffe8b..feaf2e68ee5c 100644
---- a/arch/x86/xen/enlighten_pv.c
-+++ b/arch/x86/xen/enlighten_pv.c
-@@ -72,6 +72,9 @@
- #include <asm/mwait.h>
- #include <asm/pci_x86.h>
- #include <asm/cpu.h>
-+#ifdef CONFIG_X86_IOPL_IOPERM
-+#include <asm/io_bitmap.h>
-+#endif
- 
- #ifdef CONFIG_ACPI
- #include <linux/acpi.h>
-@@ -837,6 +840,25 @@ static void xen_load_sp0(unsigned long sp0)
- 	this_cpu_write(cpu_tss_rw.x86_tss.sp0, sp0);
- }
- 
-+#ifdef CONFIG_X86_IOPL_IOPERM
-+static void xen_update_io_bitmap(void)
-+{
-+	struct physdev_set_iobitmap iobitmap;
-+	struct tss_struct *tss = this_cpu_ptr(&cpu_tss_rw);
-+
-+	native_tss_update_io_bitmap();
-+
-+	iobitmap.bitmap = (uint8_t *)(&tss->x86_tss) +
-+			  tss->x86_tss.io_bitmap_base;
-+	if (tss->x86_tss.io_bitmap_base == IO_BITMAP_OFFSET_INVALID)
-+		iobitmap.nr_ports = 0;
-+	else
-+		iobitmap.nr_ports = IO_BITMAP_BITS;
-+
-+	HYPERVISOR_physdev_op(PHYSDEVOP_set_iobitmap, &iobitmap);
-+}
-+#endif
-+
- static void xen_io_delay(void)
- {
- }
-@@ -1046,6 +1068,9 @@ static const struct pv_cpu_ops xen_cpu_ops __initconst = {
- 	.write_idt_entry = xen_write_idt_entry,
- 	.load_sp0 = xen_load_sp0,
- 
-+#ifdef CONFIG_X86_IOPL_IOPERM
-+	.update_io_bitmap = xen_update_io_bitmap,
-+#endif
- 	.io_delay = xen_io_delay,
- 
- 	/* Xen takes care of %gs when switching to usermode for us */
--- 
-2.16.4
+No fixes (compared to build v4.9.214)
 
+Ran 23289 total tests in the following environments and test suites.
+
+Environments
+--------------
+- dragonboard-410c - arm64
+- hi6220-hikey - arm64
+- i386
+- juno-r2 - arm64
+- qemu_arm
+- qemu_arm64
+- qemu_i386
+- qemu_x86_64
+- x15 - arm
+- x86_64
+
+Test Suites
+-----------
+* build
+* install-android-platform-tools-r2600
+* kselftest
+* libhugetlbfs
+* linux-log-parser
+* ltp-cap_bounds-tests
+* ltp-commands-tests
+* ltp-cpuhotplug-tests
+* ltp-dio-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-hugetlb-tests
+* ltp-io-tests
+* ltp-ipc-tests
+* ltp-math-tests
+* ltp-mm-tests
+* ltp-nptl-tests
+* ltp-pty-tests
+* ltp-sched-tests
+* ltp-securebits-tests
+* ltp-syscalls-tests
+* perf
+* v4l2-compliance
+* ltp-containers-tests
+* network-basic-tests
+* ltp-cve-tests
+* ltp-open-posix-tests
+* spectre-meltdown-checker-test
+* kvm-unit-tests
+* kselftest-vsyscall-mode-native
+* prep-tmp-disk
+* ssuite
+
+--=20
+Linaro LKFT
+https://lkft.linaro.org
