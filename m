@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E640A1631B7
-	for <lists+stable@lfdr.de>; Tue, 18 Feb 2020 21:05:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D1FE9163273
+	for <lists+stable@lfdr.de>; Tue, 18 Feb 2020 21:10:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728901AbgBRUCT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Feb 2020 15:02:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42530 "EHLO mail.kernel.org"
+        id S1728139AbgBRT7R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Feb 2020 14:59:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37712 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728230AbgBRUCT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 18 Feb 2020 15:02:19 -0500
+        id S1727184AbgBRT7Q (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 18 Feb 2020 14:59:16 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CB0912464E;
-        Tue, 18 Feb 2020 20:02:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 89E852465D;
+        Tue, 18 Feb 2020 19:59:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582056138;
-        bh=u8RqY5kaV2BSefgRS62VhFYrZADpu6omMsPC4mBoKr4=;
+        s=default; t=1582055956;
+        bh=MgqphdRf6ThRbqF++Fl6m3INLYeMB7AuJmvMCqboJNY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gbu0I8ukzlTopuhMHYF9aKXnCr68M917neVT3t3fIdRowTIME2/zG4WBIy6ph+kTx
-         DTGnoqtdGnFNlO6KM6jriiYI2IAJH6VuBnpmtEPEKta9yvT0EjyZ8e/Wczk9k3LhKl
-         ThJZg5ylddaDeFtbIjoBU6ng3BC/2yN3eAIv/PjI=
+        b=Kiqk8RkEGc/zx5rkgLf1sq+Ro0c7IgmhZFG4UC3Fp9dbRQGNrOQqOyL929v4LSSiH
+         1CcMKaM4AoMlwi3fHD4Cuvb+nHw0UGO2xeYxVwJmDSouHxp8gog0WM5B4YTPlCLP3h
+         DSTqudQlUNOypl5K8EC8MjXrIM72q/EpHP3P3oF8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kaike Wan <kaike.wan@intel.com>,
-        Mike Marciniszyn <mike.marciniszyn@intel.com>,
-        Dennis Dalessandro <dennis.dalessandro@intel.com>,
+        stable@vger.kernel.org, Avihai Horon <avihaih@mellanox.com>,
+        Maor Gottlieb <maorg@mellanox.com>,
+        Leon Romanovsky <leonro@mellanox.com>,
         Jason Gunthorpe <jgg@mellanox.com>
-Subject: [PATCH 5.5 50/80] IB/hfi1: Close window for pq and request coliding
+Subject: [PATCH 5.4 44/66] RDMA/core: Fix invalid memory access in spec_filter_size
 Date:   Tue, 18 Feb 2020 20:55:11 +0100
-Message-Id: <20200218190437.015736484@linuxfoundation.org>
+Message-Id: <20200218190432.081398356@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200218190432.043414522@linuxfoundation.org>
-References: <20200218190432.043414522@linuxfoundation.org>
+In-Reply-To: <20200218190428.035153861@linuxfoundation.org>
+References: <20200218190428.035153861@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,270 +45,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Marciniszyn <mike.marciniszyn@intel.com>
+From: Avihai Horon <avihaih@mellanox.com>
 
-commit be8638344c70bf492963ace206a9896606b6922d upstream.
+commit a72f4ac1d778f7bde93dfee69bfc23377ec3d74f upstream.
 
-Cleaning up a pq can result in the following warning and panic:
+Add a check that the size specified in the flow spec header doesn't cause
+an overflow when calculating the filter size, and thus prevent access to
+invalid memory.  The following crash from syzkaller revealed it.
 
-  WARNING: CPU: 52 PID: 77418 at lib/list_debug.c:53 __list_del_entry+0x63/0xd0
-  list_del corruption, ffff88cb2c6ac068->next is LIST_POISON1 (dead000000000100)
-  Modules linked in: mmfs26(OE) mmfslinux(OE) tracedev(OE) 8021q garp mrp ib_isert iscsi_target_mod target_core_mod crc_t10dif crct10dif_generic opa_vnic rpcrdma ib_iser libiscsi scsi_transport_iscsi ib_ipoib(OE) bridge stp llc iTCO_wdt iTCO_vendor_support intel_powerclamp coretemp intel_rapl iosf_mbi kvm_intel kvm irqbypass crct10dif_pclmul crct10dif_common crc32_pclmul ghash_clmulni_intel ast aesni_intel ttm lrw gf128mul glue_helper ablk_helper drm_kms_helper cryptd syscopyarea sysfillrect sysimgblt fb_sys_fops drm pcspkr joydev lpc_ich mei_me drm_panel_orientation_quirks i2c_i801 mei wmi ipmi_si ipmi_devintf ipmi_msghandler nfit libnvdimm acpi_power_meter acpi_pad hfi1(OE) rdmavt(OE) rdma_ucm ib_ucm ib_uverbs ib_umad rdma_cm ib_cm iw_cm ib_core binfmt_misc numatools(OE) xpmem(OE) ip_tables
-   nfsv3 nfs_acl nfs lockd grace sunrpc fscache igb ahci i2c_algo_bit libahci dca ptp libata pps_core crc32c_intel [last unloaded: i2c_algo_bit]
-  CPU: 52 PID: 77418 Comm: pvbatch Kdump: loaded Tainted: G           OE  ------------   3.10.0-957.38.3.el7.x86_64 #1
-  Hardware name: HPE.COM HPE SGI 8600-XA730i Gen10/X11DPT-SB-SG007, BIOS SBED1229 01/22/2019
-  Call Trace:
-   [<ffffffff90365ac0>] dump_stack+0x19/0x1b
-   [<ffffffff8fc98b78>] __warn+0xd8/0x100
-   [<ffffffff8fc98bff>] warn_slowpath_fmt+0x5f/0x80
-   [<ffffffff8ff970c3>] __list_del_entry+0x63/0xd0
-   [<ffffffff8ff9713d>] list_del+0xd/0x30
-   [<ffffffff8fddda70>] kmem_cache_destroy+0x50/0x110
-   [<ffffffffc0328130>] hfi1_user_sdma_free_queues+0xf0/0x200 [hfi1]
-   [<ffffffffc02e2350>] hfi1_file_close+0x70/0x1e0 [hfi1]
-   [<ffffffff8fe4519c>] __fput+0xec/0x260
-   [<ffffffff8fe453fe>] ____fput+0xe/0x10
-   [<ffffffff8fcbfd1b>] task_work_run+0xbb/0xe0
-   [<ffffffff8fc2bc65>] do_notify_resume+0xa5/0xc0
-   [<ffffffff90379134>] int_signal+0x12/0x17
-  BUG: unable to handle kernel NULL pointer dereference at 0000000000000010
-  IP: [<ffffffff8fe1f93e>] kmem_cache_close+0x7e/0x300
-  PGD 2cdab19067 PUD 2f7bfdb067 PMD 0
-  Oops: 0000 [#1] SMP
-  Modules linked in: mmfs26(OE) mmfslinux(OE) tracedev(OE) 8021q garp mrp ib_isert iscsi_target_mod target_core_mod crc_t10dif crct10dif_generic opa_vnic rpcrdma ib_iser libiscsi scsi_transport_iscsi ib_ipoib(OE) bridge stp llc iTCO_wdt iTCO_vendor_support intel_powerclamp coretemp intel_rapl iosf_mbi kvm_intel kvm irqbypass crct10dif_pclmul crct10dif_common crc32_pclmul ghash_clmulni_intel ast aesni_intel ttm lrw gf128mul glue_helper ablk_helper drm_kms_helper cryptd syscopyarea sysfillrect sysimgblt fb_sys_fops drm pcspkr joydev lpc_ich mei_me drm_panel_orientation_quirks i2c_i801 mei wmi ipmi_si ipmi_devintf ipmi_msghandler nfit libnvdimm acpi_power_meter acpi_pad hfi1(OE) rdmavt(OE) rdma_ucm ib_ucm ib_uverbs ib_umad rdma_cm ib_cm iw_cm ib_core binfmt_misc numatools(OE) xpmem(OE) ip_tables
-   nfsv3 nfs_acl nfs lockd grace sunrpc fscache igb ahci i2c_algo_bit libahci dca ptp libata pps_core crc32c_intel [last unloaded: i2c_algo_bit]
-  CPU: 52 PID: 77418 Comm: pvbatch Kdump: loaded Tainted: G        W  OE  ------------   3.10.0-957.38.3.el7.x86_64 #1
-  Hardware name: HPE.COM HPE SGI 8600-XA730i Gen10/X11DPT-SB-SG007, BIOS SBED1229 01/22/2019
-  task: ffff88cc26db9040 ti: ffff88b5393a8000 task.ti: ffff88b5393a8000
-  RIP: 0010:[<ffffffff8fe1f93e>]  [<ffffffff8fe1f93e>] kmem_cache_close+0x7e/0x300
-  RSP: 0018:ffff88b5393abd60  EFLAGS: 00010287
-  RAX: 0000000000000000 RBX: ffff88cb2c6ac000 RCX: 0000000000000003
-  RDX: 0000000000000400 RSI: 0000000000000400 RDI: ffffffff9095b800
-  RBP: ffff88b5393abdb0 R08: ffffffff9095b808 R09: ffffffff8ff77c19
-  R10: ffff88b73ce1f160 R11: ffffddecddde9800 R12: ffff88cb2c6ac000
-  R13: 000000000000000c R14: ffff88cf3fdca780 R15: 0000000000000000
-  FS:  00002aaaaab52500(0000) GS:ffff88b73ce00000(0000) knlGS:0000000000000000
+  kasan: CONFIG_KASAN_INLINE enabled
+  kasan: GPF could be caused by NULL-ptr deref or user memory access
+  general protection fault: 0000 [#1] SMP KASAN PTI
+  CPU: 1 PID: 17834 Comm: syz-executor.3 Not tainted 5.5.0-rc5 #2
+  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS
+  rel-1.12.1-0-ga5cab58e9a3f-prebuilt.qemu.org 04/01/2014
+  RIP: 0010:memchr_inv+0xd3/0x330
+  Code: 89 f9 89 f5 83 e1 07 0f 85 f9 00 00 00 49 89 d5 49 c1 ed 03 45 85
+  ed 74 6f 48 89 d9 48 b8 00 00 00 00 00 fc ff df 48 c1 e9 03 <80> 3c 01
+  00 0f 85 0d 02 00 00 44 0f b6 e5 48 b8 01 01 01 01 01 01
+  RSP: 0018:ffffc9000a13fa50 EFLAGS: 00010202
+  RAX: dffffc0000000000 RBX: 7fff88810de9d820 RCX: 0ffff11021bd3b04
+  RDX: 000000000000fff8 RSI: 0000000000000000 RDI: 7fff88810de9d820
+  RBP: 0000000000000000 R08: ffff888110d69018 R09: 0000000000000009
+  R10: 0000000000000001 R11: ffffed10236267cc R12: 0000000000000004
+  R13: 0000000000001fff R14: ffff88810de9d820 R15: 0000000000000040
+  FS:  00007f9ee0e51700(0000) GS:ffff88811b100000(0000)
+  knlGS:0000000000000000
   CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  CR2: 0000000000000010 CR3: 0000002d27664000 CR4: 00000000007607e0
+  CR2: 0000000000000000 CR3: 0000000115ea0006 CR4: 0000000000360ee0
   DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
   DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-  PKRU: 55555554
   Call Trace:
-   [<ffffffff8fe20d44>] __kmem_cache_shutdown+0x14/0x80
-   [<ffffffff8fddda78>] kmem_cache_destroy+0x58/0x110
-   [<ffffffffc0328130>] hfi1_user_sdma_free_queues+0xf0/0x200 [hfi1]
-   [<ffffffffc02e2350>] hfi1_file_close+0x70/0x1e0 [hfi1]
-   [<ffffffff8fe4519c>] __fput+0xec/0x260
-   [<ffffffff8fe453fe>] ____fput+0xe/0x10
-   [<ffffffff8fcbfd1b>] task_work_run+0xbb/0xe0
-   [<ffffffff8fc2bc65>] do_notify_resume+0xa5/0xc0
-   [<ffffffff90379134>] int_signal+0x12/0x17
-  Code: 00 00 ba 00 04 00 00 0f 4f c2 3d 00 04 00 00 89 45 bc 0f 84 e7 01 00 00 48 63 45 bc 49 8d 04 c4 48 89 45 b0 48 8b 80 c8 00 00 00 <48> 8b 78 10 48 89 45 c0 48 83 c0 10 48 89 45 d0 48 8b 17 48 39
-  RIP  [<ffffffff8fe1f93e>] kmem_cache_close+0x7e/0x300
-   RSP <ffff88b5393abd60>
-  CR2: 0000000000000010
+   spec_filter_size.part.16+0x34/0x50
+   ib_uverbs_kern_spec_to_ib_spec_filter+0x691/0x770
+   ib_uverbs_ex_create_flow+0x9ea/0x1b40
+   ib_uverbs_write+0xaa5/0xdf0
+   __vfs_write+0x7c/0x100
+   vfs_write+0x168/0x4a0
+   ksys_write+0xc8/0x200
+   do_syscall_64+0x9c/0x390
+   entry_SYSCALL_64_after_hwframe+0x44/0xa9
+  RIP: 0033:0x465b49
+  Code: f7 d8 64 89 02 b8 ff ff ff ff c3 66 0f 1f 44 00 00 48 89 f8 48 89
+  f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01
+  f0 ff ff 73 01 c3 48 c7 c1 bc ff ff ff f7 d8 64 89 01 48
+  RSP: 002b:00007f9ee0e50c58 EFLAGS: 00000246 ORIG_RAX: 0000000000000001
+  RAX: ffffffffffffffda RBX: 000000000073bf00 RCX: 0000000000465b49
+  RDX: 00000000000003a0 RSI: 00000000200007c0 RDI: 0000000000000004
+  RBP: 0000000000000003 R08: 0000000000000000 R09: 0000000000000000
+  R10: 0000000000000000 R11: 0000000000000246 R12: 00007f9ee0e516bc
+  R13: 00000000004ca2da R14: 000000000070deb8 R15: 00000000ffffffff
+  Modules linked in:
+  Dumping ftrace buffer:
+     (ftrace buffer empty)
 
-The panic is the result of slab entries being freed during the destruction
-of the pq slab.
-
-The code attempts to quiesce the pq, but looking for n_req == 0 doesn't
-account for new requests.
-
-Fix the issue by using SRCU to get a pq pointer and adjust the pq free
-logic to NULL the fd pq pointer prior to the quiesce.
-
-Fixes: e87473bc1b6c ("IB/hfi1: Only set fd pointer when base context is completely initialized")
-Link: https://lore.kernel.org/r/20200210131033.87408.81174.stgit@awfm-01.aw.intel.com
-Reviewed-by: Kaike Wan <kaike.wan@intel.com>
-Signed-off-by: Mike Marciniszyn <mike.marciniszyn@intel.com>
-Signed-off-by: Dennis Dalessandro <dennis.dalessandro@intel.com>
+Fixes: 94e03f11ad1f ("IB/uverbs: Add support for flow tag")
+Link: https://lore.kernel.org/r/20200126171500.4623-1-leon@kernel.org
+Signed-off-by: Avihai Horon <avihaih@mellanox.com>
+Reviewed-by: Maor Gottlieb <maorg@mellanox.com>
+Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
 Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/infiniband/hw/hfi1/file_ops.c     |   52 ++++++++++++++++++------------
- drivers/infiniband/hw/hfi1/hfi.h          |    5 ++
- drivers/infiniband/hw/hfi1/user_exp_rcv.c |    3 -
- drivers/infiniband/hw/hfi1/user_sdma.c    |   17 ++++++---
- 4 files changed, 48 insertions(+), 29 deletions(-)
+ drivers/infiniband/core/uverbs_cmd.c |   15 +++++++--------
+ 1 file changed, 7 insertions(+), 8 deletions(-)
 
---- a/drivers/infiniband/hw/hfi1/file_ops.c
-+++ b/drivers/infiniband/hw/hfi1/file_ops.c
-@@ -200,23 +200,24 @@ static int hfi1_file_open(struct inode *
- 
- 	fd = kzalloc(sizeof(*fd), GFP_KERNEL);
- 
--	if (fd) {
--		fd->rec_cpu_num = -1; /* no cpu affinity by default */
--		fd->mm = current->mm;
--		mmgrab(fd->mm);
--		fd->dd = dd;
--		kobject_get(&fd->dd->kobj);
--		fp->private_data = fd;
--	} else {
--		fp->private_data = NULL;
--
--		if (atomic_dec_and_test(&dd->user_refcount))
--			complete(&dd->user_comp);
--
--		return -ENOMEM;
--	}
--
-+	if (!fd || init_srcu_struct(&fd->pq_srcu))
-+		goto nomem;
-+	spin_lock_init(&fd->pq_rcu_lock);
-+	spin_lock_init(&fd->tid_lock);
-+	spin_lock_init(&fd->invalid_lock);
-+	fd->rec_cpu_num = -1; /* no cpu affinity by default */
-+	fd->mm = current->mm;
-+	mmgrab(fd->mm);
-+	fd->dd = dd;
-+	kobject_get(&fd->dd->kobj);
-+	fp->private_data = fd;
- 	return 0;
-+nomem:
-+	kfree(fd);
-+	fp->private_data = NULL;
-+	if (atomic_dec_and_test(&dd->user_refcount))
-+		complete(&dd->user_comp);
-+	return -ENOMEM;
- }
- 
- static long hfi1_file_ioctl(struct file *fp, unsigned int cmd,
-@@ -301,21 +302,30 @@ static long hfi1_file_ioctl(struct file
- static ssize_t hfi1_write_iter(struct kiocb *kiocb, struct iov_iter *from)
- {
- 	struct hfi1_filedata *fd = kiocb->ki_filp->private_data;
--	struct hfi1_user_sdma_pkt_q *pq = fd->pq;
-+	struct hfi1_user_sdma_pkt_q *pq;
- 	struct hfi1_user_sdma_comp_q *cq = fd->cq;
- 	int done = 0, reqs = 0;
- 	unsigned long dim = from->nr_segs;
-+	int idx;
- 
--	if (!cq || !pq)
-+	idx = srcu_read_lock(&fd->pq_srcu);
-+	pq = srcu_dereference(fd->pq, &fd->pq_srcu);
-+	if (!cq || !pq) {
-+		srcu_read_unlock(&fd->pq_srcu, idx);
- 		return -EIO;
-+	}
- 
--	if (!iter_is_iovec(from) || !dim)
-+	if (!iter_is_iovec(from) || !dim) {
-+		srcu_read_unlock(&fd->pq_srcu, idx);
- 		return -EINVAL;
-+	}
- 
- 	trace_hfi1_sdma_request(fd->dd, fd->uctxt->ctxt, fd->subctxt, dim);
- 
--	if (atomic_read(&pq->n_reqs) == pq->n_max_reqs)
-+	if (atomic_read(&pq->n_reqs) == pq->n_max_reqs) {
-+		srcu_read_unlock(&fd->pq_srcu, idx);
- 		return -ENOSPC;
-+	}
- 
- 	while (dim) {
- 		int ret;
-@@ -333,6 +343,7 @@ static ssize_t hfi1_write_iter(struct ki
- 		reqs++;
- 	}
- 
-+	srcu_read_unlock(&fd->pq_srcu, idx);
- 	return reqs;
- }
- 
-@@ -707,6 +718,7 @@ done:
- 	if (atomic_dec_and_test(&dd->user_refcount))
- 		complete(&dd->user_comp);
- 
-+	cleanup_srcu_struct(&fdata->pq_srcu);
- 	kfree(fdata);
+--- a/drivers/infiniband/core/uverbs_cmd.c
++++ b/drivers/infiniband/core/uverbs_cmd.c
+@@ -2718,12 +2718,6 @@ static int kern_spec_to_ib_spec_action(s
  	return 0;
  }
---- a/drivers/infiniband/hw/hfi1/hfi.h
-+++ b/drivers/infiniband/hw/hfi1/hfi.h
-@@ -1436,10 +1436,13 @@ struct mmu_rb_handler;
  
- /* Private data for file operations */
- struct hfi1_filedata {
-+	struct srcu_struct pq_srcu;
- 	struct hfi1_devdata *dd;
- 	struct hfi1_ctxtdata *uctxt;
- 	struct hfi1_user_sdma_comp_q *cq;
--	struct hfi1_user_sdma_pkt_q *pq;
-+	/* update side lock for SRCU */
-+	spinlock_t pq_rcu_lock;
-+	struct hfi1_user_sdma_pkt_q __rcu *pq;
- 	u16 subctxt;
- 	/* for cpu affinity; -1 if none */
- 	int rec_cpu_num;
---- a/drivers/infiniband/hw/hfi1/user_exp_rcv.c
-+++ b/drivers/infiniband/hw/hfi1/user_exp_rcv.c
-@@ -87,9 +87,6 @@ int hfi1_user_exp_rcv_init(struct hfi1_f
- {
- 	int ret = 0;
- 
--	spin_lock_init(&fd->tid_lock);
--	spin_lock_init(&fd->invalid_lock);
+-static size_t kern_spec_filter_sz(const struct ib_uverbs_flow_spec_hdr *spec)
+-{
+-	/* Returns user space filter size, includes padding */
+-	return (spec->size - sizeof(struct ib_uverbs_flow_spec_hdr)) / 2;
+-}
 -
- 	fd->entry_to_rb = kcalloc(uctxt->expected_count,
- 				  sizeof(struct rb_node *),
- 				  GFP_KERNEL);
---- a/drivers/infiniband/hw/hfi1/user_sdma.c
-+++ b/drivers/infiniband/hw/hfi1/user_sdma.c
-@@ -179,7 +179,6 @@ int hfi1_user_sdma_alloc_queues(struct h
- 	pq = kzalloc(sizeof(*pq), GFP_KERNEL);
- 	if (!pq)
- 		return -ENOMEM;
--
- 	pq->dd = dd;
- 	pq->ctxt = uctxt->ctxt;
- 	pq->subctxt = fd->subctxt;
-@@ -236,7 +235,7 @@ int hfi1_user_sdma_alloc_queues(struct h
- 		goto pq_mmu_fail;
- 	}
- 
--	fd->pq = pq;
-+	rcu_assign_pointer(fd->pq, pq);
- 	fd->cq = cq;
- 
- 	return 0;
-@@ -264,8 +263,14 @@ int hfi1_user_sdma_free_queues(struct hf
- 
- 	trace_hfi1_sdma_user_free_queues(uctxt->dd, uctxt->ctxt, fd->subctxt);
- 
--	pq = fd->pq;
-+	spin_lock(&fd->pq_rcu_lock);
-+	pq = srcu_dereference_check(fd->pq, &fd->pq_srcu,
-+				    lockdep_is_held(&fd->pq_rcu_lock));
- 	if (pq) {
-+		rcu_assign_pointer(fd->pq, NULL);
-+		spin_unlock(&fd->pq_rcu_lock);
-+		synchronize_srcu(&fd->pq_srcu);
-+		/* at this point there can be no more new requests */
- 		if (pq->handler)
- 			hfi1_mmu_rb_unregister(pq->handler);
- 		iowait_sdma_drain(&pq->busy);
-@@ -277,7 +282,8 @@ int hfi1_user_sdma_free_queues(struct hf
- 		kfree(pq->req_in_use);
- 		kmem_cache_destroy(pq->txreq_cache);
- 		kfree(pq);
--		fd->pq = NULL;
-+	} else {
-+		spin_unlock(&fd->pq_rcu_lock);
- 	}
- 	if (fd->cq) {
- 		vfree(fd->cq->comps);
-@@ -321,7 +327,8 @@ int hfi1_user_sdma_process_request(struc
+ static ssize_t spec_filter_size(const void *kern_spec_filter, u16 kern_filter_size,
+ 				u16 ib_real_filter_sz)
  {
- 	int ret = 0, i;
- 	struct hfi1_ctxtdata *uctxt = fd->uctxt;
--	struct hfi1_user_sdma_pkt_q *pq = fd->pq;
-+	struct hfi1_user_sdma_pkt_q *pq =
-+		srcu_dereference(fd->pq, &fd->pq_srcu);
- 	struct hfi1_user_sdma_comp_q *cq = fd->cq;
- 	struct hfi1_devdata *dd = pq->dd;
- 	unsigned long idx = 0;
+@@ -2867,11 +2861,16 @@ int ib_uverbs_kern_spec_to_ib_spec_filte
+ static int kern_spec_to_ib_spec_filter(struct ib_uverbs_flow_spec *kern_spec,
+ 				       union ib_flow_spec *ib_spec)
+ {
+-	ssize_t kern_filter_sz;
++	size_t kern_filter_sz;
+ 	void *kern_spec_mask;
+ 	void *kern_spec_val;
+ 
+-	kern_filter_sz = kern_spec_filter_sz(&kern_spec->hdr);
++	if (check_sub_overflow((size_t)kern_spec->hdr.size,
++			       sizeof(struct ib_uverbs_flow_spec_hdr),
++			       &kern_filter_sz))
++		return -EINVAL;
++
++	kern_filter_sz /= 2;
+ 
+ 	kern_spec_val = (void *)kern_spec +
+ 		sizeof(struct ib_uverbs_flow_spec_hdr);
 
 
