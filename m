@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7EABF1631CF
-	for <lists+stable@lfdr.de>; Tue, 18 Feb 2020 21:06:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6750C16329D
+	for <lists+stable@lfdr.de>; Tue, 18 Feb 2020 21:10:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729013AbgBRUCx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Feb 2020 15:02:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43614 "EHLO mail.kernel.org"
+        id S1726948AbgBRUJB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Feb 2020 15:09:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34844 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728273AbgBRUCu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 18 Feb 2020 15:02:50 -0500
+        id S1727934AbgBRT53 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 18 Feb 2020 14:57:29 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0C2A421D56;
-        Tue, 18 Feb 2020 20:02:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D89EA2465A;
+        Tue, 18 Feb 2020 19:57:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582056169;
-        bh=6M0+NYh2dsJFvJERXW7FFln+BxQTlcXI9TLiM82kJmU=;
+        s=default; t=1582055848;
+        bh=YsUAoqFLDYdV+2dulnURG+0+0deDRpiA7VAIMBWwO9g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SSUEIdEsK53W0v5WVGIWU2T7VF3BwOajNcqD6cno4SIUKUYwXhqNacIjBTDTXApET
-         9ATqs50yTd1/RGCLcN53x+4Dfsr+jQoyTa72UQHOhPQFpyaqxAgt8F89S5NaEh19W8
-         YJZs0h+szVHobZ/d0yJx/G2iTuft1hvGgBHEzk0E=
+        b=CChIMgbNQex/DU+R2KYDWUrKaugaXZ20LkBkzzkOlWVLtLXUdTddPMUm22YaFyxbm
+         tf4iujF8dwxeVgnaY6epbdgGBI0HK7y9L7ktyvdN/My6ezDvF0OqkT1hj4mAoJ14JC
+         kYTLSOS19tlJVoM3HeXKeSSpTCYykpBH9zTRgRa4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
-        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@redhat.com>
-Subject: [PATCH 5.5 61/80] mac80211: use more bits for ack_frame_id
+        stable@vger.kernel.org, Jan Kara <jack@suse.cz>,
+        "zhangyi (F)" <yi.zhang@huawei.com>, Theodore Tso <tytso@mit.edu>,
+        stable@kernel.org, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 36/38] jbd2: move the clearing of b_modified flag to the journal_unmap_buffer()
 Date:   Tue, 18 Feb 2020 20:55:22 +0100
-Message-Id: <20200218190437.913785931@linuxfoundation.org>
+Message-Id: <20200218190422.713559950@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200218190432.043414522@linuxfoundation.org>
-References: <20200218190432.043414522@linuxfoundation.org>
+In-Reply-To: <20200218190418.536430858@linuxfoundation.org>
+References: <20200218190418.536430858@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,80 +44,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: zhangyi (F) <yi.zhang@huawei.com>
 
-commit f2b18baca9539c6a3116d48b70972c7a2ba5d766 upstream.
+[ Upstream commit 6a66a7ded12baa6ebbb2e3e82f8cb91382814839 ]
 
-It turns out that this wasn't a good idea, I hit a test failure in
-hwsim due to this. That particular failure was easily worked around,
-but it raised questions: if an AP needs to, for example, send action
-frames to each connected station, the current limit is nowhere near
-enough (especially if those stations are sleeping and the frames are
-queued for a while.)
+There is no need to delay the clearing of b_modified flag to the
+transaction committing time when unmapping the journalled buffer, so
+just move it to the journal_unmap_buffer().
 
-Shuffle around some bits to make more room for ack_frame_id to allow
-up to 8192 queued up frames, that's enough for queueing 4 frames to
-each connected station, even at the maximum of 2007 stations on a
-single AP.
-
-We take the bits from band (which currently only 2 but I leave 3 in
-case we add another band) and from the hw_queue, which can only need
-4 since it has a limit of 16 queues.
-
-Fixes: 6912daed05e1 ("mac80211: Shrink the size of ack_frame_id to make room for tx_time_est")
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Acked-by: Toke Høiland-Jørgensen <toke@redhat.com>
-Link: https://lore.kernel.org/r/20200115122549.b9a4ef9f4980.Ied52ed90150220b83a280009c590b65d125d087c@changeid
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Link: https://lore.kernel.org/r/20200213063821.30455-2-yi.zhang@huawei.com
+Reviewed-by: Jan Kara <jack@suse.cz>
+Signed-off-by: zhangyi (F) <yi.zhang@huawei.com>
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Cc: stable@kernel.org
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/mac80211.h |   11 +++++------
- net/mac80211/cfg.c     |    2 +-
- net/mac80211/tx.c      |    2 +-
- 3 files changed, 7 insertions(+), 8 deletions(-)
+ fs/jbd2/commit.c      | 43 +++++++++++++++----------------------------
+ fs/jbd2/transaction.c | 10 ++++++----
+ 2 files changed, 21 insertions(+), 32 deletions(-)
 
---- a/include/net/mac80211.h
-+++ b/include/net/mac80211.h
-@@ -1004,12 +1004,11 @@ ieee80211_rate_get_vht_nss(const struct
- struct ieee80211_tx_info {
- 	/* common information */
- 	u32 flags;
--	u8 band;
--
--	u8 hw_queue;
--
--	u16 ack_frame_id:6;
--	u16 tx_time_est:10;
-+	u32 band:3,
-+	    ack_frame_id:13,
-+	    hw_queue:4,
-+	    tx_time_est:10;
-+	/* 2 free bits */
+diff --git a/fs/jbd2/commit.c b/fs/jbd2/commit.c
+index 020bd7a0d8e03..3fe9b7c27ce82 100644
+--- a/fs/jbd2/commit.c
++++ b/fs/jbd2/commit.c
+@@ -971,34 +971,21 @@ void jbd2_journal_commit_transaction(journal_t *journal)
+ 		 * it. */
  
- 	union {
- 		struct {
---- a/net/mac80211/cfg.c
-+++ b/net/mac80211/cfg.c
-@@ -3450,7 +3450,7 @@ int ieee80211_attach_ack_skb(struct ieee
+ 		/*
+-		* A buffer which has been freed while still being journaled by
+-		* a previous transaction.
+-		*/
+-		if (buffer_freed(bh)) {
+-			/*
+-			 * If the running transaction is the one containing
+-			 * "add to orphan" operation (b_next_transaction !=
+-			 * NULL), we have to wait for that transaction to
+-			 * commit before we can really get rid of the buffer.
+-			 * So just clear b_modified to not confuse transaction
+-			 * credit accounting and refile the buffer to
+-			 * BJ_Forget of the running transaction. If the just
+-			 * committed transaction contains "add to orphan"
+-			 * operation, we can completely invalidate the buffer
+-			 * now. We are rather through in that since the
+-			 * buffer may be still accessible when blocksize <
+-			 * pagesize and it is attached to the last partial
+-			 * page.
+-			 */
+-			jh->b_modified = 0;
+-			if (!jh->b_next_transaction) {
+-				clear_buffer_freed(bh);
+-				clear_buffer_jbddirty(bh);
+-				clear_buffer_mapped(bh);
+-				clear_buffer_new(bh);
+-				clear_buffer_req(bh);
+-				bh->b_bdev = NULL;
+-			}
++		 * A buffer which has been freed while still being journaled
++		 * by a previous transaction, refile the buffer to BJ_Forget of
++		 * the running transaction. If the just committed transaction
++		 * contains "add to orphan" operation, we can completely
++		 * invalidate the buffer now. We are rather through in that
++		 * since the buffer may be still accessible when blocksize <
++		 * pagesize and it is attached to the last partial page.
++		 */
++		if (buffer_freed(bh) && !jh->b_next_transaction) {
++			clear_buffer_freed(bh);
++			clear_buffer_jbddirty(bh);
++			clear_buffer_mapped(bh);
++			clear_buffer_new(bh);
++			clear_buffer_req(bh);
++			bh->b_bdev = NULL;
+ 		}
  
- 	spin_lock_irqsave(&local->ack_status_lock, spin_flags);
- 	id = idr_alloc(&local->ack_status_frames, ack_skb,
--		       1, 0x40, GFP_ATOMIC);
-+		       1, 0x2000, GFP_ATOMIC);
- 	spin_unlock_irqrestore(&local->ack_status_lock, spin_flags);
- 
- 	if (id < 0) {
---- a/net/mac80211/tx.c
-+++ b/net/mac80211/tx.c
-@@ -2442,7 +2442,7 @@ static int ieee80211_store_ack_skb(struc
- 
- 		spin_lock_irqsave(&local->ack_status_lock, flags);
- 		id = idr_alloc(&local->ack_status_frames, ack_skb,
--			       1, 0x40, GFP_ATOMIC);
-+			       1, 0x2000, GFP_ATOMIC);
- 		spin_unlock_irqrestore(&local->ack_status_lock, flags);
- 
- 		if (id >= 0) {
+ 		if (buffer_jbddirty(bh)) {
+diff --git a/fs/jbd2/transaction.c b/fs/jbd2/transaction.c
+index 911ff18249b75..97ffe12a22624 100644
+--- a/fs/jbd2/transaction.c
++++ b/fs/jbd2/transaction.c
+@@ -2228,14 +2228,16 @@ static int journal_unmap_buffer(journal_t *journal, struct buffer_head *bh,
+ 			return -EBUSY;
+ 		}
+ 		/*
+-		 * OK, buffer won't be reachable after truncate. We just set
+-		 * j_next_transaction to the running transaction (if there is
+-		 * one) and mark buffer as freed so that commit code knows it
+-		 * should clear dirty bits when it is done with the buffer.
++		 * OK, buffer won't be reachable after truncate. We just clear
++		 * b_modified to not confuse transaction credit accounting, and
++		 * set j_next_transaction to the running transaction (if there
++		 * is one) and mark buffer as freed so that commit code knows
++		 * it should clear dirty bits when it is done with the buffer.
+ 		 */
+ 		set_buffer_freed(bh);
+ 		if (journal->j_running_transaction && buffer_jbddirty(bh))
+ 			jh->b_next_transaction = journal->j_running_transaction;
++		jh->b_modified = 0;
+ 		jbd2_journal_put_journal_head(jh);
+ 		spin_unlock(&journal->j_list_lock);
+ 		jbd_unlock_bh_state(bh);
+-- 
+2.20.1
+
 
 
