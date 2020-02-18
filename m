@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1DBCA163247
-	for <lists+stable@lfdr.de>; Tue, 18 Feb 2020 21:09:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C67941631A9
+	for <lists+stable@lfdr.de>; Tue, 18 Feb 2020 21:05:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726865AbgBRT4R (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Feb 2020 14:56:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33270 "EHLO mail.kernel.org"
+        id S1728187AbgBRUB7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Feb 2020 15:01:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41824 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726856AbgBRT4Q (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 18 Feb 2020 14:56:16 -0500
+        id S1728847AbgBRUB6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 18 Feb 2020 15:01:58 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 69A5724654;
-        Tue, 18 Feb 2020 19:56:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9B1862465D;
+        Tue, 18 Feb 2020 20:01:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582055775;
-        bh=1EFulnPCHgMnVTH9lfMBF8UDwfE32KxlB9KmML0iR7I=;
+        s=default; t=1582056118;
+        bh=MsuaI/HgEQAFlCw8QnXlY0IG7Q+77tzdvi9ttefGTN0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nlm9hlNxX0kvEg/KRt0MH3/XJuHxMIv4qYVXGYzBCJlGXpP9Ep+LwBDFyMtXC67rT
-         p1+v3IyCtQmkDXH3YIBxwIj68fgufAive2Q2b182x2h88hvBrcNb+puwBuUFks2GxU
-         R0o4Xm4dRVLK3PMyqeCSCOY+p8Zza4/v6EQSXcLA=
+        b=jkOXhjIsraZ1/h03HU5PL9/hLZar3OAG87/+9XeC8Rmr0eH3Cdxdls7tGNp7Gdm+X
+         WpmOVIhTkaGZal3fTvxdRELGveTcEIKsmxtMAE50F3ZN0eLdgDU44CALHThfkSBJJj
+         wbhVwAEX9rGylRdKurMcJzTmBT/r3av7a7FsV8rA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wenwen Wang <wenwen@cs.uga.edu>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 4.19 17/38] btrfs: ref-verify: fix memory leaks
+        stable@vger.kernel.org,
+        Boris Brezillon <boris.brezillon@collabora.com>,
+        Steven Price <steven.price@arm.com>,
+        Rob Herring <robh@kernel.org>
+Subject: [PATCH 5.5 42/80] drm/panfrost: Make sure the shrinker does not reclaim referenced BOs
 Date:   Tue, 18 Feb 2020 20:55:03 +0100
-Message-Id: <20200218190420.636463914@linuxfoundation.org>
+Message-Id: <20200218190436.393793164@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200218190418.536430858@linuxfoundation.org>
-References: <20200218190418.536430858@linuxfoundation.org>
+In-Reply-To: <20200218190432.043414522@linuxfoundation.org>
+References: <20200218190432.043414522@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,66 +45,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wenwen Wang <wenwen@cs.uga.edu>
+From: Boris Brezillon <boris.brezillon@collabora.com>
 
-commit f311ade3a7adf31658ed882aaab9f9879fdccef7 upstream.
+commit 7e0cf7e9936c4358b0863357b90aa12afe6489da upstream.
 
-In btrfs_ref_tree_mod(), 'ref' and 'ra' are allocated through kzalloc() and
-kmalloc(), respectively. In the following code, if an error occurs, the
-execution will be redirected to 'out' or 'out_unlock' and the function will
-be exited. However, on some of the paths, 'ref' and 'ra' are not
-deallocated, leading to memory leaks. For example, if 'action' is
-BTRFS_ADD_DELAYED_EXTENT, add_block_entry() will be invoked. If the return
-value indicates an error, the execution will be redirected to 'out'. But,
-'ref' is not deallocated on this path, causing a memory leak.
+Userspace might tag a BO purgeable while it's still referenced by GPU
+jobs. We need to make sure the shrinker does not purge such BOs until
+all jobs referencing it are finished.
 
-To fix the above issues, deallocate both 'ref' and 'ra' before exiting from
-the function when an error is encountered.
-
-CC: stable@vger.kernel.org # 4.15+
-Signed-off-by: Wenwen Wang <wenwen@cs.uga.edu>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Fixes: 013b65101315 ("drm/panfrost: Add madvise and shrinker support")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Boris Brezillon <boris.brezillon@collabora.com>
+Reviewed-by: Steven Price <steven.price@arm.com>
+Signed-off-by: Rob Herring <robh@kernel.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20191129135908.2439529-9-boris.brezillon@collabora.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/btrfs/ref-verify.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/gpu/drm/panfrost/panfrost_drv.c          |    1 +
+ drivers/gpu/drm/panfrost/panfrost_gem.h          |    6 ++++++
+ drivers/gpu/drm/panfrost/panfrost_gem_shrinker.c |    3 +++
+ drivers/gpu/drm/panfrost/panfrost_job.c          |    7 ++++++-
+ 4 files changed, 16 insertions(+), 1 deletion(-)
 
---- a/fs/btrfs/ref-verify.c
-+++ b/fs/btrfs/ref-verify.c
-@@ -747,6 +747,7 @@ int btrfs_ref_tree_mod(struct btrfs_root
- 		 */
- 		be = add_block_entry(root->fs_info, bytenr, num_bytes, ref_root);
- 		if (IS_ERR(be)) {
-+			kfree(ref);
- 			kfree(ra);
- 			ret = PTR_ERR(be);
- 			goto out;
-@@ -760,6 +761,8 @@ int btrfs_ref_tree_mod(struct btrfs_root
- 			"re-allocated a block that still has references to it!");
- 			dump_block_entry(fs_info, be);
- 			dump_ref_action(fs_info, ra);
-+			kfree(ref);
-+			kfree(ra);
- 			goto out_unlock;
+--- a/drivers/gpu/drm/panfrost/panfrost_drv.c
++++ b/drivers/gpu/drm/panfrost/panfrost_drv.c
+@@ -166,6 +166,7 @@ panfrost_lookup_bos(struct drm_device *d
+ 			break;
  		}
  
-@@ -822,6 +825,7 @@ int btrfs_ref_tree_mod(struct btrfs_root
- "dropping a ref for a existing root that doesn't have a ref on the block");
- 				dump_block_entry(fs_info, be);
- 				dump_ref_action(fs_info, ra);
-+				kfree(ref);
- 				kfree(ra);
- 				goto out_unlock;
- 			}
-@@ -837,6 +841,7 @@ int btrfs_ref_tree_mod(struct btrfs_root
- "attempting to add another ref for an existing ref on a tree block");
- 			dump_block_entry(fs_info, be);
- 			dump_ref_action(fs_info, ra);
-+			kfree(ref);
- 			kfree(ra);
- 			goto out_unlock;
- 		}
++		atomic_inc(&bo->gpu_usecount);
+ 		job->mappings[i] = mapping;
+ 	}
+ 
+--- a/drivers/gpu/drm/panfrost/panfrost_gem.h
++++ b/drivers/gpu/drm/panfrost/panfrost_gem.h
+@@ -30,6 +30,12 @@ struct panfrost_gem_object {
+ 		struct mutex lock;
+ 	} mappings;
+ 
++	/*
++	 * Count the number of jobs referencing this BO so we don't let the
++	 * shrinker reclaim this object prematurely.
++	 */
++	atomic_t gpu_usecount;
++
+ 	bool noexec		:1;
+ 	bool is_heap		:1;
+ };
+--- a/drivers/gpu/drm/panfrost/panfrost_gem_shrinker.c
++++ b/drivers/gpu/drm/panfrost/panfrost_gem_shrinker.c
+@@ -41,6 +41,9 @@ static bool panfrost_gem_purge(struct dr
+ 	struct drm_gem_shmem_object *shmem = to_drm_gem_shmem_obj(obj);
+ 	struct panfrost_gem_object *bo = to_panfrost_bo(obj);
+ 
++	if (atomic_read(&bo->gpu_usecount))
++		return false;
++
+ 	if (!mutex_trylock(&shmem->pages_lock))
+ 		return false;
+ 
+--- a/drivers/gpu/drm/panfrost/panfrost_job.c
++++ b/drivers/gpu/drm/panfrost/panfrost_job.c
+@@ -269,8 +269,13 @@ static void panfrost_job_cleanup(struct
+ 	dma_fence_put(job->render_done_fence);
+ 
+ 	if (job->mappings) {
+-		for (i = 0; i < job->bo_count; i++)
++		for (i = 0; i < job->bo_count; i++) {
++			if (!job->mappings[i])
++				break;
++
++			atomic_dec(&job->mappings[i]->obj->gpu_usecount);
+ 			panfrost_gem_mapping_put(job->mappings[i]);
++		}
+ 		kvfree(job->mappings);
+ 	}
+ 
 
 
