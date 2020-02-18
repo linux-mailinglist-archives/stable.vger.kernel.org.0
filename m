@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 27F18163276
-	for <lists+stable@lfdr.de>; Tue, 18 Feb 2020 21:10:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 49F5A1631C3
+	for <lists+stable@lfdr.de>; Tue, 18 Feb 2020 21:06:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728429AbgBRT73 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Feb 2020 14:59:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38146 "EHLO mail.kernel.org"
+        id S1728965AbgBRUCf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Feb 2020 15:02:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43022 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728426AbgBRT73 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 18 Feb 2020 14:59:29 -0500
+        id S1728954AbgBRUCe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 18 Feb 2020 15:02:34 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 41F542465A;
-        Tue, 18 Feb 2020 19:59:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4293424125;
+        Tue, 18 Feb 2020 20:02:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582055968;
-        bh=AQXNCwSq4Z50V5yHlLV51EKDB3lSCNe9jOBAJff5fh4=;
+        s=default; t=1582056153;
+        bh=6DlsMtUAQvpGL98hwpqKAjqCQIqpEYmenz0309Qh9LE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ajPgpnQt/Gmkd5PUiUhHexmQc5m12GuBH4UwRhurzlSF6TupROZba/H7WeWuVsMyM
-         Ro+r3aho14tAMjgWZrzsssfij0OeVatJNQBTuAKzSAJENu+3ZbUIiNsPoyqxgATRXa
-         wWzvYrWoLB/CO7sD+yNbe6CGwdBH5trjpNms0QMY=
+        b=QcGFK9n4OFmlYA/btKPled7A7fbPEQGlIUVNJ6wQKIygwxlp70qQSsFkXda95Qo9y
+         P2rQxzwseGomkE6/YYsy/O7rT5HGfhxxaIFX2DH1wA7WSmTecZOhxV3lk39yRTyTPj
+         4f7msSsATG1lQc30beSx0cK+2zMmmUXvA4CHNwoA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nick Desaulniers <ndesaulniers@google.com>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Vasily Gorbik <gor@linux.ibm.com>
-Subject: [PATCH 5.4 49/66] s390/time: Fix clk type in get_tod_clock
+        stable@vger.kernel.org, Kamal Heib <kamalheib1@gmail.com>,
+        Dennis Dalessandro <dennis.dalessandro@intel.com>,
+        Jason Gunthorpe <jgg@mellanox.com>
+Subject: [PATCH 5.5 55/80] RDMA/hfi1: Fix memory leak in _dev_comp_vect_mappings_create
 Date:   Tue, 18 Feb 2020 20:55:16 +0100
-Message-Id: <20200218190432.572394728@linuxfoundation.org>
+Message-Id: <20200218190437.410910235@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200218190428.035153861@linuxfoundation.org>
-References: <20200218190428.035153861@linuxfoundation.org>
+In-Reply-To: <20200218190432.043414522@linuxfoundation.org>
+References: <20200218190432.043414522@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,54 +44,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <natechancellor@gmail.com>
+From: Kamal Heib <kamalheib1@gmail.com>
 
-commit 0f8a206df7c920150d2aa45574fba0ab7ff6be4f upstream.
+commit 8a4f300b978edbbaa73ef9eca660e45eb9f13873 upstream.
 
-Clang warns:
+Make sure to free the allocated cpumask_var_t's to avoid the following
+reported memory leak by kmemleak:
 
-In file included from ../arch/s390/boot/startup.c:3:
-In file included from ../include/linux/elf.h:5:
-In file included from ../arch/s390/include/asm/elf.h:132:
-In file included from ../include/linux/compat.h:10:
-In file included from ../include/linux/time.h:74:
-In file included from ../include/linux/time32.h:13:
-In file included from ../include/linux/timex.h:65:
-../arch/s390/include/asm/timex.h:160:20: warning: passing 'unsigned char
-[16]' to parameter of type 'char *' converts between pointers to integer
-types with different sign [-Wpointer-sign]
-        get_tod_clock_ext(clk);
-                          ^~~
-../arch/s390/include/asm/timex.h:149:44: note: passing argument to
-parameter 'clk' here
-static inline void get_tod_clock_ext(char *clk)
-                                           ^
+$ cat /sys/kernel/debug/kmemleak
+unreferenced object 0xffff8897f812d6a8 (size 8):
+  comm "kworker/1:1", pid 347, jiffies 4294751400 (age 101.703s)
+  hex dump (first 8 bytes):
+    00 00 00 00 00 00 00 00                          ........
+  backtrace:
+    [<00000000bff49664>] alloc_cpumask_var_node+0x4c/0xb0
+    [<0000000075d3ca81>] hfi1_comp_vectors_set_up+0x20f/0x800 [hfi1]
+    [<0000000098d420df>] hfi1_init_dd+0x3311/0x4960 [hfi1]
+    [<0000000071be7e52>] init_one+0x25e/0xf10 [hfi1]
+    [<000000005483d4c2>] local_pci_probe+0xd4/0x180
+    [<000000007c3cbc6e>] work_for_cpu_fn+0x51/0xa0
+    [<000000001d626905>] process_one_work+0x8f0/0x17b0
+    [<000000007e569e7e>] worker_thread+0x536/0xb50
+    [<00000000fd39a4a5>] kthread+0x30c/0x3d0
+    [<0000000056f2edb3>] ret_from_fork+0x3a/0x50
 
-Change clk's type to just be char so that it matches what happens in
-get_tod_clock_ext.
-
-Fixes: 57b28f66316d ("[S390] s390_hypfs: Add new attributes")
-Link: https://github.com/ClangBuiltLinux/linux/issues/861
-Link: http://lkml.kernel.org/r/20200208140858.47970-1-natechancellor@gmail.com
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Fixes: 5d18ee67d4c1 ("IB/{hfi1, rdmavt, qib}: Implement CQ completion vector support")
+Link: https://lore.kernel.org/r/20200205110530.12129-1-kamalheib1@gmail.com
+Signed-off-by: Kamal Heib <kamalheib1@gmail.com>
+Reviewed-by: Dennis Dalessandro <dennis.dalessandro@intel.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/s390/include/asm/timex.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/infiniband/hw/hfi1/affinity.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/arch/s390/include/asm/timex.h
-+++ b/arch/s390/include/asm/timex.h
-@@ -155,7 +155,7 @@ static inline void get_tod_clock_ext(cha
+--- a/drivers/infiniband/hw/hfi1/affinity.c
++++ b/drivers/infiniband/hw/hfi1/affinity.c
+@@ -479,6 +479,8 @@ static int _dev_comp_vect_mappings_creat
+ 			  rvt_get_ibdev_name(&(dd)->verbs_dev.rdi), i, cpu);
+ 	}
  
- static inline unsigned long long get_tod_clock(void)
- {
--	unsigned char clk[STORE_CLOCK_EXT_SIZE];
-+	char clk[STORE_CLOCK_EXT_SIZE];
++	free_cpumask_var(available_cpus);
++	free_cpumask_var(non_intr_cpus);
+ 	return 0;
  
- 	get_tod_clock_ext(clk);
- 	return *((unsigned long long *)&clk[1]);
+ fail:
 
 
