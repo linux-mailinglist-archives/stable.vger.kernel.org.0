@@ -2,40 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F7F616315E
-	for <lists+stable@lfdr.de>; Tue, 18 Feb 2020 21:01:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A444D163168
+	for <lists+stable@lfdr.de>; Tue, 18 Feb 2020 21:01:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727668AbgBRT7v (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Feb 2020 14:59:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38722 "EHLO mail.kernel.org"
+        id S1728299AbgBRUAL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Feb 2020 15:00:11 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39276 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728483AbgBRT7u (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 18 Feb 2020 14:59:50 -0500
+        id S1728286AbgBRUAK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 18 Feb 2020 15:00:10 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EB1072464E;
-        Tue, 18 Feb 2020 19:59:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9AE8424125;
+        Tue, 18 Feb 2020 20:00:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582055989;
-        bh=KDjerKczOZHWwPnuBGNxgXOG0D9QiJQCmyfpxvInpYo=;
+        s=default; t=1582056010;
+        bh=wAdqqFi0pp9/8Gp8KwrMsD1sYSgVs/A5mAIDtyCLqwg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tOtbGxPjdKhJeRJh5hreSYAfyyVGSpXTYcffSic8TIGxPoJjrqJeVEslpUoKfl9/b
-         W8TnXGLwUjLTpVaRvHNMKmwuyQNB0GoLdvzhZpfrvyGa6zJkk+8LXItK0tgKpCNJuA
-         owOVZaW3/Xtukmd+wPRb4Pl47mmXByT4/tiyBiq4=
+        b=C8C2+HZLQU+ku5DKTjUe/SZ82C9+dNg5ZpxctsK1qTylvHwW/umCaSNhUxytnrNdg
+         c0oTvrmGH6TuVeXoedQDiaTcJJEj+q6RQjX9f2v9PN7a23syqZecGsLUlzJ38L0F92
+         zpzLklOaL3jh+MX8Z58/wOWmPskyn/gZ1tIP87W8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Douglas Anderson <dianders@chromium.org>,
-        Brian Masney <masneyb@onstation.org>,
-        Lina Iyer <ilina@codeaurora.org>,
-        Maulik Shah <mkshah@codeaurora.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Stephen Boyd <swboyd@chromium.org>,
-        Linus Walleij <linus.walleij@linaro.org>
-Subject: [PATCH 5.4 51/66] spmi: pmic-arb: Set lockdep class for hierarchical irq domains
-Date:   Tue, 18 Feb 2020 20:55:18 +0100
-Message-Id: <20200218190432.763926947@linuxfoundation.org>
+        stable@vger.kernel.org, Kan Liang <kan.liang@linux.intel.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Ingo Molnar <mingo@kernel.org>
+Subject: [PATCH 5.4 52/66] perf/x86/intel: Fix inaccurate period in context switch for auto-reload
+Date:   Tue, 18 Feb 2020 20:55:19 +0100
+Message-Id: <20200218190432.866086714@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200218190428.035153861@linuxfoundation.org>
 References: <20200218190428.035153861@linuxfoundation.org>
@@ -48,114 +44,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephen Boyd <swboyd@chromium.org>
+From: Kan Liang <kan.liang@linux.intel.com>
 
-commit 2d5a2f913b658a7ae984773a63318ed4daadf4af upstream.
+commit f861854e1b435b27197417f6f90d87188003cb24 upstream.
 
-I see the following lockdep splat in the qcom pinctrl driver when
-attempting to suspend the device.
+Perf doesn't take the left period into account when auto-reload is
+enabled with fixed period sampling mode in context switch.
 
- WARNING: possible recursive locking detected
- 5.4.11 #3 Tainted: G        W
- --------------------------------------------
- cat/3074 is trying to acquire lock:
- ffffff81f49804c0 (&irq_desc_lock_class){-.-.}, at: __irq_get_desc_lock+0x64/0x94
+Here is the MSR trace of the perf command as below.
+(The MSR trace is simplified from a ftrace log.)
 
- but task is already holding lock:
- ffffff81f1cc10c0 (&irq_desc_lock_class){-.-.}, at: __irq_get_desc_lock+0x64/0x94
+    #perf record -e cycles:p -c 2000000 -- ./triad_loop
 
- other info that might help us debug this:
-  Possible unsafe locking scenario:
+      //The MSR trace of task schedule out
+      //perf disable all counters, disable PEBS, disable GP counter 0,
+      //read GP counter 0, and re-enable all counters.
+      //The counter 0 stops at 0xfffffff82840
+      write_msr: MSR_CORE_PERF_GLOBAL_CTRL(38f), value 0
+      write_msr: MSR_IA32_PEBS_ENABLE(3f1), value 0
+      write_msr: MSR_P6_EVNTSEL0(186), value 40003003c
+      rdpmc: 0, value fffffff82840
+      write_msr: MSR_CORE_PERF_GLOBAL_CTRL(38f), value f000000ff
 
-        CPU0
-        ----
-   lock(&irq_desc_lock_class);
-   lock(&irq_desc_lock_class);
+      //The MSR trace of the same task schedule in again
+      //perf disable all counters, enable and set GP counter 0,
+      //enable PEBS, and re-enable all counters.
+      //0xffffffe17b80 (-2000000) is written to GP counter 0.
+      write_msr: MSR_CORE_PERF_GLOBAL_CTRL(38f), value 0
+      write_msr: MSR_IA32_PMC0(4c1), value ffffffe17b80
+      write_msr: MSR_P6_EVNTSEL0(186), value 40043003c
+      write_msr: MSR_IA32_PEBS_ENABLE(3f1), value 1
+      write_msr: MSR_CORE_PERF_GLOBAL_CTRL(38f), value f000000ff
 
-  *** DEADLOCK ***
+When the same task schedule in again, the counter should starts from
+previous left. However, it starts from the fixed period -2000000 again.
 
-  May be due to missing lock nesting notation
+A special variant of intel_pmu_save_and_restart() is used for
+auto-reload, which doesn't update the hwc->period_left.
+When the monitored task schedules in again, perf doesn't know the left
+period. The fixed period is used, which is inaccurate.
 
- 6 locks held by cat/3074:
-  #0: ffffff81f01d9420 (sb_writers#7){.+.+}, at: vfs_write+0xd0/0x1a4
-  #1: ffffff81bd7d2080 (&of->mutex){+.+.}, at: kernfs_fop_write+0x12c/0x1fc
-  #2: ffffff81f4c322f0 (kn->count#337){.+.+}, at: kernfs_fop_write+0x134/0x1fc
-  #3: ffffffe411a41d60 (system_transition_mutex){+.+.}, at: pm_suspend+0x108/0x348
-  #4: ffffff81f1c5e970 (&dev->mutex){....}, at: __device_suspend+0x168/0x41c
-  #5: ffffff81f1cc10c0 (&irq_desc_lock_class){-.-.}, at: __irq_get_desc_lock+0x64/0x94
+With auto-reload, the counter always has a negative counter value. So
+the left period is -value. Update the period_left in
+intel_pmu_save_and_restart_reload().
 
- stack backtrace:
- CPU: 5 PID: 3074 Comm: cat Tainted: G        W         5.4.11 #3
- Hardware name: Google Cheza (rev3+) (DT)
- Call trace:
-  dump_backtrace+0x0/0x174
-  show_stack+0x20/0x2c
-  dump_stack+0xc8/0x124
-  __lock_acquire+0x460/0x2388
-  lock_acquire+0x1cc/0x210
-  _raw_spin_lock_irqsave+0x64/0x80
-  __irq_get_desc_lock+0x64/0x94
-  irq_set_irq_wake+0x40/0x144
-  qpnpint_irq_set_wake+0x28/0x34
-  set_irq_wake_real+0x40/0x5c
-  irq_set_irq_wake+0x70/0x144
-  pm8941_pwrkey_suspend+0x34/0x44
-  platform_pm_suspend+0x34/0x60
-  dpm_run_callback+0x64/0xcc
-  __device_suspend+0x310/0x41c
-  dpm_suspend+0xf8/0x298
-  dpm_suspend_start+0x84/0xb4
-  suspend_devices_and_enter+0xbc/0x620
-  pm_suspend+0x210/0x348
-  state_store+0xb0/0x108
-  kobj_attr_store+0x14/0x24
-  sysfs_kf_write+0x4c/0x64
-  kernfs_fop_write+0x15c/0x1fc
-  __vfs_write+0x54/0x18c
-  vfs_write+0xe4/0x1a4
-  ksys_write+0x7c/0xe4
-  __arm64_sys_write+0x20/0x2c
-  el0_svc_common+0xa8/0x160
-  el0_svc_handler+0x7c/0x98
-  el0_svc+0x8/0xc
+With the patch:
 
-Set a lockdep class when we map the irq so that irq_set_wake() doesn't
-warn about a lockdep bug that doesn't exist.
+      //The MSR trace of task schedule out
+      write_msr: MSR_CORE_PERF_GLOBAL_CTRL(38f), value 0
+      write_msr: MSR_IA32_PEBS_ENABLE(3f1), value 0
+      write_msr: MSR_P6_EVNTSEL0(186), value 40003003c
+      rdpmc: 0, value ffffffe25cbc
+      write_msr: MSR_CORE_PERF_GLOBAL_CTRL(38f), value f000000ff
 
-Fixes: 12a9eeaebba3 ("spmi: pmic-arb: convert to v2 irq interfaces to support hierarchical IRQ chips")
-Cc: Douglas Anderson <dianders@chromium.org>
-Cc: Brian Masney <masneyb@onstation.org>
-Cc: Lina Iyer <ilina@codeaurora.org>
-Cc: Maulik Shah <mkshah@codeaurora.org>
-Cc: Bjorn Andersson <bjorn.andersson@linaro.org>
-Signed-off-by: Stephen Boyd <swboyd@chromium.org>
-Link: https://lore.kernel.org/r/20200121183748.68662-1-swboyd@chromium.org
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+      //The MSR trace of the same task schedule in again
+      write_msr: MSR_CORE_PERF_GLOBAL_CTRL(38f), value 0
+      write_msr: MSR_IA32_PMC0(4c1), value ffffffe25cbc
+      write_msr: MSR_P6_EVNTSEL0(186), value 40043003c
+      write_msr: MSR_IA32_PEBS_ENABLE(3f1), value 1
+      write_msr: MSR_CORE_PERF_GLOBAL_CTRL(38f), value f000000ff
+
+Fixes: d31fc13fdcb2 ("perf/x86/intel: Fix event update for auto-reload")
+Signed-off-by: Kan Liang <kan.liang@linux.intel.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Link: https://lkml.kernel.org/r/20200121190125.3389-1-kan.liang@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/spmi/spmi-pmic-arb.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ arch/x86/events/intel/ds.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/spmi/spmi-pmic-arb.c
-+++ b/drivers/spmi/spmi-pmic-arb.c
-@@ -731,6 +731,7 @@ static int qpnpint_irq_domain_translate(
- 	return 0;
- }
+--- a/arch/x86/events/intel/ds.c
++++ b/arch/x86/events/intel/ds.c
+@@ -1713,6 +1713,8 @@ intel_pmu_save_and_restart_reload(struct
+ 	old = ((s64)(prev_raw_count << shift) >> shift);
+ 	local64_add(new - old + count * period, &event->count);
  
-+static struct lock_class_key qpnpint_irq_lock_class, qpnpint_irq_request_class;
- 
- static void qpnpint_irq_domain_map(struct spmi_pmic_arb *pmic_arb,
- 				   struct irq_domain *domain, unsigned int virq,
-@@ -746,6 +747,9 @@ static void qpnpint_irq_domain_map(struc
- 	else
- 		handler = handle_level_irq;
- 
++	local64_set(&hwc->period_left, -new);
 +
-+	irq_set_lockdep_class(virq, &qpnpint_irq_lock_class,
-+			      &qpnpint_irq_request_class);
- 	irq_domain_set_info(domain, virq, hwirq, &pmic_arb_irqchip, pmic_arb,
- 			    handler, NULL, NULL);
- }
+ 	perf_event_update_userpage(event);
+ 
+ 	return 0;
 
 
