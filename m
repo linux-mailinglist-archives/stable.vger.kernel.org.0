@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 820D716325E
-	for <lists+stable@lfdr.de>; Tue, 18 Feb 2020 21:10:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 07A0A1631A1
+	for <lists+stable@lfdr.de>; Tue, 18 Feb 2020 21:05:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726444AbgBRT6W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Feb 2020 14:58:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35950 "EHLO mail.kernel.org"
+        id S1728752AbgBRUBg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Feb 2020 15:01:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41256 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727637AbgBRT6T (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 18 Feb 2020 14:58:19 -0500
+        id S1728792AbgBRUBf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 18 Feb 2020 15:01:35 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1E02E24686;
-        Tue, 18 Feb 2020 19:58:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4248A2464E;
+        Tue, 18 Feb 2020 20:01:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582055899;
-        bh=sxy4tI9unjHyXjtMuYgOqv37W4y7fCByf7CdtlFP7pI=;
+        s=default; t=1582056094;
+        bh=e1dBmmMww1C+qKOs6uo1vHTZzaE6xVBRPGYe8JnNguo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=19DAutQqNRs3kFdRzGHEw631WIBIq5nbSuyUhj8Hk57Q7iaBR2pg3KYmmP/6Xxwoi
-         psBdWNqjuwhNhEtgn4uSZHkfpL5lf1V3RpDMughlDUOdRcCdoNpezVlKi4o1DnHxLZ
-         UtQ/zNVpbIeqC+H8wfaLgWEBEZ281HamfXusGASE=
+        b=CVfP6DzAGaGL4WFJk1NqYGLkFbRjVtSd28GX8bhKzpWK1V1+8MT23gHOspoSEv56y
+         fhHMDRTfA0nKc1YE+R6jRNdOPC2bdiv+bbelnzy2newhzNhv8+b69i3i+4sNcy8co3
+         4FlJ841QToMlisz5VqQ0YIJFMGVEH0aZB7c2ff/8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paul Thomas <pthomas8589@gmail.com>,
-        Linus Walleij <linus.walleij@linaro.org>
-Subject: [PATCH 5.4 24/66] gpio: xilinx: Fix bug where the wrong GPIO register is written to
-Date:   Tue, 18 Feb 2020 20:54:51 +0100
-Message-Id: <20200218190430.318532041@linuxfoundation.org>
+        stable@vger.kernel.org, Jan Kara <jack@suse.cz>,
+        "zhangyi (F)" <yi.zhang@huawei.com>, Theodore Tso <tytso@mit.edu>,
+        stable@kernel.org
+Subject: [PATCH 5.5 31/80] jbd2: move the clearing of b_modified flag to the journal_unmap_buffer()
+Date:   Tue, 18 Feb 2020 20:54:52 +0100
+Message-Id: <20200218190435.434210658@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200218190428.035153861@linuxfoundation.org>
-References: <20200218190428.035153861@linuxfoundation.org>
+In-Reply-To: <20200218190432.043414522@linuxfoundation.org>
+References: <20200218190432.043414522@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,48 +44,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Thomas <pthomas8589@gmail.com>
+From: zhangyi (F) <yi.zhang@huawei.com>
 
-commit c3afa804c58e5c30ac63858b527fffadc88bce82 upstream.
+commit 6a66a7ded12baa6ebbb2e3e82f8cb91382814839 upstream.
 
-Care is taken with "index", however with the current version
-the actual xgpio_writereg is using index for data but
-xgpio_regoffset(chip, i) for the offset. And since i is already
-incremented it is incorrect. This patch fixes it so that index
-is used for the offset too.
+There is no need to delay the clearing of b_modified flag to the
+transaction committing time when unmapping the journalled buffer, so
+just move it to the journal_unmap_buffer().
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Paul Thomas <pthomas8589@gmail.com>
-Link: https://lore.kernel.org/r/20200125221410.8022-1-pthomas8589@gmail.com
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Link: https://lore.kernel.org/r/20200213063821.30455-2-yi.zhang@huawei.com
+Reviewed-by: Jan Kara <jack@suse.cz>
+Signed-off-by: zhangyi (F) <yi.zhang@huawei.com>
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Cc: stable@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpio/gpio-xilinx.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ fs/jbd2/commit.c      |   43 +++++++++++++++----------------------------
+ fs/jbd2/transaction.c |   10 ++++++----
+ 2 files changed, 21 insertions(+), 32 deletions(-)
 
---- a/drivers/gpio/gpio-xilinx.c
-+++ b/drivers/gpio/gpio-xilinx.c
-@@ -147,9 +147,10 @@ static void xgpio_set_multiple(struct gp
- 	for (i = 0; i < gc->ngpio; i++) {
- 		if (*mask == 0)
- 			break;
-+		/* Once finished with an index write it out to the register */
- 		if (index !=  xgpio_index(chip, i)) {
- 			xgpio_writereg(chip->regs + XGPIO_DATA_OFFSET +
--				       xgpio_regoffset(chip, i),
-+				       index * XGPIO_CHANNEL_OFFSET,
- 				       chip->gpio_state[index]);
- 			spin_unlock_irqrestore(&chip->gpio_lock[index], flags);
- 			index =  xgpio_index(chip, i);
-@@ -165,7 +166,7 @@ static void xgpio_set_multiple(struct gp
- 	}
+--- a/fs/jbd2/commit.c
++++ b/fs/jbd2/commit.c
+@@ -976,34 +976,21 @@ restart_loop:
+ 		 * it. */
  
- 	xgpio_writereg(chip->regs + XGPIO_DATA_OFFSET +
--		       xgpio_regoffset(chip, i), chip->gpio_state[index]);
-+		       index * XGPIO_CHANNEL_OFFSET, chip->gpio_state[index]);
+ 		/*
+-		* A buffer which has been freed while still being journaled by
+-		* a previous transaction.
+-		*/
+-		if (buffer_freed(bh)) {
+-			/*
+-			 * If the running transaction is the one containing
+-			 * "add to orphan" operation (b_next_transaction !=
+-			 * NULL), we have to wait for that transaction to
+-			 * commit before we can really get rid of the buffer.
+-			 * So just clear b_modified to not confuse transaction
+-			 * credit accounting and refile the buffer to
+-			 * BJ_Forget of the running transaction. If the just
+-			 * committed transaction contains "add to orphan"
+-			 * operation, we can completely invalidate the buffer
+-			 * now. We are rather through in that since the
+-			 * buffer may be still accessible when blocksize <
+-			 * pagesize and it is attached to the last partial
+-			 * page.
+-			 */
+-			jh->b_modified = 0;
+-			if (!jh->b_next_transaction) {
+-				clear_buffer_freed(bh);
+-				clear_buffer_jbddirty(bh);
+-				clear_buffer_mapped(bh);
+-				clear_buffer_new(bh);
+-				clear_buffer_req(bh);
+-				bh->b_bdev = NULL;
+-			}
++		 * A buffer which has been freed while still being journaled
++		 * by a previous transaction, refile the buffer to BJ_Forget of
++		 * the running transaction. If the just committed transaction
++		 * contains "add to orphan" operation, we can completely
++		 * invalidate the buffer now. We are rather through in that
++		 * since the buffer may be still accessible when blocksize <
++		 * pagesize and it is attached to the last partial page.
++		 */
++		if (buffer_freed(bh) && !jh->b_next_transaction) {
++			clear_buffer_freed(bh);
++			clear_buffer_jbddirty(bh);
++			clear_buffer_mapped(bh);
++			clear_buffer_new(bh);
++			clear_buffer_req(bh);
++			bh->b_bdev = NULL;
+ 		}
  
- 	spin_unlock_irqrestore(&chip->gpio_lock[index], flags);
- }
+ 		if (buffer_jbddirty(bh)) {
+--- a/fs/jbd2/transaction.c
++++ b/fs/jbd2/transaction.c
+@@ -2329,14 +2329,16 @@ static int journal_unmap_buffer(journal_
+ 			return -EBUSY;
+ 		}
+ 		/*
+-		 * OK, buffer won't be reachable after truncate. We just set
+-		 * j_next_transaction to the running transaction (if there is
+-		 * one) and mark buffer as freed so that commit code knows it
+-		 * should clear dirty bits when it is done with the buffer.
++		 * OK, buffer won't be reachable after truncate. We just clear
++		 * b_modified to not confuse transaction credit accounting, and
++		 * set j_next_transaction to the running transaction (if there
++		 * is one) and mark buffer as freed so that commit code knows
++		 * it should clear dirty bits when it is done with the buffer.
+ 		 */
+ 		set_buffer_freed(bh);
+ 		if (journal->j_running_transaction && buffer_jbddirty(bh))
+ 			jh->b_next_transaction = journal->j_running_transaction;
++		jh->b_modified = 0;
+ 		spin_unlock(&journal->j_list_lock);
+ 		spin_unlock(&jh->b_state_lock);
+ 		write_unlock(&journal->j_state_lock);
 
 
