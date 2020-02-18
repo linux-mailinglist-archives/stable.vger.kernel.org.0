@@ -2,38 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BCD0F163244
-	for <lists+stable@lfdr.de>; Tue, 18 Feb 2020 21:09:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 42F9C16313E
+	for <lists+stable@lfdr.de>; Tue, 18 Feb 2020 21:01:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726821AbgBRT4M (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Feb 2020 14:56:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33160 "EHLO mail.kernel.org"
+        id S1727906AbgBRT6s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Feb 2020 14:58:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36646 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726802AbgBRT4L (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 18 Feb 2020 14:56:11 -0500
+        id S1728288AbgBRT6s (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 18 Feb 2020 14:58:48 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 82A3524125;
-        Tue, 18 Feb 2020 19:56:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EEED420659;
+        Tue, 18 Feb 2020 19:58:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582055771;
-        bh=yOwiycd7ylRaOIRs/IgLdtGK/wjVgYmX6uf+AiFqhkM=;
+        s=default; t=1582055927;
+        bh=lUIPdkq7OTx62a3ygJyQLftVTpwgspHMoLu7DyEpkQc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=naDbOLUxyq6w/njUVJeinyufkR7XQ47AL1MSlxrNwN1SONs2r4qK2S0y4orx1g2wc
-         e4a2ZOmgyWsRuVusDIPJ9x3FUbPiyVZUoX4zZgggRt8RCA68CXFndys21gx60XOFSy
-         KrX7LyristcXQUVGSLBE6PUCw6ikpz4ecgja4IMM=
+        b=wz44PmpY9iMbWkLduWBuJT3Yf+0zDWXPDpvKLgIzIawnp8zw+h1YlwcVc9avLUY5O
+         V5P76uepln9sINVeYtnK0oGUmR+RsxgOLobGjYmeF4EyNd9R3CR4S+wj/FDvU1qvMI
+         05ACJKVy9l9JxfARDyCk06ILzRUt7JsauAFwlLn4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Theodore Tso <tytso@mit.edu>,
-        stable@kernel.org
-Subject: [PATCH 4.19 15/38] ext4: improve explanation of a mount failure caused by a misconfigured kernel
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Hillf Danton <hdanton@sina.com>,
+        syzbot+0dc4444774d419e916c8@syzkaller.appspotmail.com,
+        Emil Velikov <emil.velikov@collabora.com>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        Sean Paul <seanpaul@chromium.org>,
+        Chris Wilson <chris@chris-wilson.co.uk>,
+        Eric Anholt <eric@anholt.net>, Sam Ravnborg <sam@ravnborg.org>,
+        Rob Clark <robdclark@chromium.org>,
+        Daniel Vetter <daniel.vetter@intel.com>
+Subject: [PATCH 5.4 34/66] drm/vgem: Close use-after-free race in vgem_gem_create
 Date:   Tue, 18 Feb 2020 20:55:01 +0100
-Message-Id: <20200218190420.356793345@linuxfoundation.org>
+Message-Id: <20200218190431.217621623@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200218190418.536430858@linuxfoundation.org>
-References: <20200218190418.536430858@linuxfoundation.org>
+In-Reply-To: <20200218190428.035153861@linuxfoundation.org>
+References: <20200218190428.035153861@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,55 +51,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Theodore Ts'o <tytso@mit.edu>
+From: Daniel Vetter <daniel.vetter@ffwll.ch>
 
-commit d65d87a07476aa17df2dcb3ad18c22c154315bec upstream.
+commit 4b848f20eda5974020f043ca14bacf7a7e634fc8 upstream.
 
-If CONFIG_QFMT_V2 is not enabled, but CONFIG_QUOTA is enabled, when a
-user tries to mount a file system with the quota or project quota
-enabled, the kernel will emit a very confusing messsage:
+There's two references floating around here (for the object reference,
+not the handle_count reference, that's a different thing):
 
-    EXT4-fs warning (device vdc): ext4_enable_quotas:5914: Failed to enable quota tracking (type=0, err=-3). Please run e2fsck to fix.
-    EXT4-fs (vdc): mount failed
+- The temporary reference held by vgem_gem_create, acquired by
+  creating the object and released by calling
+  drm_gem_object_put_unlocked.
 
-We will now report an explanatory message indicating which kernel
-configuration options have to be enabled, to avoid customer/sysadmin
-confusion.
+- The reference held by the object handle, created by
+  drm_gem_handle_create. This one generally outlives the function,
+  except if a 2nd thread races with a GEM_CLOSE ioctl call.
 
-Link: https://lore.kernel.org/r/20200215012738.565735-1-tytso@mit.edu
-Google-Bug-Id: 149093531
-Fixes: 7c319d328505b778 ("ext4: make quota as first class supported feature")
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Cc: stable@kernel.org
+So usually everything is correct, except in that race case, where the
+access to gem_object->size could be looking at freed data already.
+Which again isn't a real problem (userspace shot its feet off already
+with the race, we could return garbage), but maybe someone can exploit
+this as an information leak.
+
+Cc: Dan Carpenter <dan.carpenter@oracle.com>
+Cc: Hillf Danton <hdanton@sina.com>
+Reported-by: syzbot+0dc4444774d419e916c8@syzkaller.appspotmail.com
+Cc: stable@vger.kernel.org
+Cc: Emil Velikov <emil.velikov@collabora.com>
+Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
+Cc: Sean Paul <seanpaul@chromium.org>
+Cc: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: Eric Anholt <eric@anholt.net>
+Cc: Sam Ravnborg <sam@ravnborg.org>
+Cc: Rob Clark <robdclark@chromium.org>
+Reviewed-by: Chris Wilson <chris@chris-wilson.co.uk>
+Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200202132133.1891846-1-daniel.vetter@ffwll.ch
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/ext4/super.c |   14 ++++----------
- 1 file changed, 4 insertions(+), 10 deletions(-)
+ drivers/gpu/drm/vgem/vgem_drv.c |    9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
---- a/fs/ext4/super.c
-+++ b/fs/ext4/super.c
-@@ -2923,17 +2923,11 @@ static int ext4_feature_set_ok(struct su
- 		return 0;
- 	}
+--- a/drivers/gpu/drm/vgem/vgem_drv.c
++++ b/drivers/gpu/drm/vgem/vgem_drv.c
+@@ -196,9 +196,10 @@ static struct drm_gem_object *vgem_gem_c
+ 		return ERR_CAST(obj);
  
--#ifndef CONFIG_QUOTA
--	if (ext4_has_feature_quota(sb) && !readonly) {
-+#if !defined(CONFIG_QUOTA) || !defined(CONFIG_QFMT_V2)
-+	if (!readonly && (ext4_has_feature_quota(sb) ||
-+			  ext4_has_feature_project(sb))) {
- 		ext4_msg(sb, KERN_ERR,
--			 "Filesystem with quota feature cannot be mounted RDWR "
--			 "without CONFIG_QUOTA");
--		return 0;
--	}
--	if (ext4_has_feature_project(sb) && !readonly) {
--		ext4_msg(sb, KERN_ERR,
--			 "Filesystem with project quota feature cannot be mounted RDWR "
--			 "without CONFIG_QUOTA");
-+			 "The kernel was not built with CONFIG_QUOTA and CONFIG_QFMT_V2");
- 		return 0;
- 	}
- #endif  /* CONFIG_QUOTA */
+ 	ret = drm_gem_handle_create(file, &obj->base, handle);
+-	drm_gem_object_put_unlocked(&obj->base);
+-	if (ret)
++	if (ret) {
++		drm_gem_object_put_unlocked(&obj->base);
+ 		return ERR_PTR(ret);
++	}
+ 
+ 	return &obj->base;
+ }
+@@ -221,7 +222,9 @@ static int vgem_gem_dumb_create(struct d
+ 	args->size = gem_object->size;
+ 	args->pitch = pitch;
+ 
+-	DRM_DEBUG("Created object of size %lld\n", size);
++	drm_gem_object_put_unlocked(gem_object);
++
++	DRM_DEBUG("Created object of size %llu\n", args->size);
+ 
+ 	return 0;
+ }
 
 
