@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A7F416326E
-	for <lists+stable@lfdr.de>; Tue, 18 Feb 2020 21:10:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 07C06163249
+	for <lists+stable@lfdr.de>; Tue, 18 Feb 2020 21:10:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727905AbgBRT67 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Feb 2020 14:58:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36992 "EHLO mail.kernel.org"
+        id S1726927AbgBRT4V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Feb 2020 14:56:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33378 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728338AbgBRT66 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 18 Feb 2020 14:58:58 -0500
+        id S1727046AbgBRT4V (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 18 Feb 2020 14:56:21 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C281C2465A;
-        Tue, 18 Feb 2020 19:58:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B58B124654;
+        Tue, 18 Feb 2020 19:56:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582055938;
-        bh=6Q7UhUc1xzaaYT1fnjAKTkB/6wFgVIW/ZTQsvvAYn3k=;
+        s=default; t=1582055781;
+        bh=18mLaI5oH1cn24V355OtSxSgMyY35q/E06ZDv5eECW4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i1rUlh1q5Jw4sWqS74CfkAwjGbJMSzn7998rr8VnP+A0Vee61TyQUTOThynlrJxwl
-         eddb7NgsxgdVMDmjy8IVBaSXyjWFMQdmWz25Oyk1IBDHDUeA2hENowa0INLPUJQqTx
-         mzLF9cV7u7cGztji8CQf+KTv0UvEsoL+iYdijuhw=
+        b=0G4VSJAXKR/RZIbnpEwbwXZN4iaYCxrEil1uKse1YxVQDYSr8imNy4/mUNfas1CCR
+         IJ5oZFtdoxr7JFzchHUCGuaOw/TtbMZrXnPUPMXCnKQuV2vnFlY6ZrdjHU2+DodmvJ
+         zTliYzJjEU7Nd2K6ohpuL1lVqQoaXWJZsbuIXdTE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
-        Asmaa Mnebhi <asmaa@mellanox.com>,
-        Corey Minyard <cminyard@mvista.com>
-Subject: [PATCH 5.4 38/66] drivers: ipmi: fix off-by-one bounds check that leads to a out-of-bounds write
+        stable@vger.kernel.org, Anand Jain <anand.jain@oracle.com>,
+        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 4.19 19/38] btrfs: log message when rw remount is attempted with unclean tree-log
 Date:   Tue, 18 Feb 2020 20:55:05 +0100
-Message-Id: <20200218190431.553464416@linuxfoundation.org>
+Message-Id: <20200218190420.954317732@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200218190428.035153861@linuxfoundation.org>
-References: <20200218190428.035153861@linuxfoundation.org>
+In-Reply-To: <20200218190418.536430858@linuxfoundation.org>
+References: <20200218190418.536430858@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,36 +44,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: David Sterba <dsterba@suse.com>
 
-commit e0354d147e5889b5faa12e64fa38187aed39aad4 upstream.
+commit 10a3a3edc5b89a8cd095bc63495fb1e0f42047d9 upstream.
 
-The end of buffer check is off-by-one since the check is against
-an index that is pre-incremented before a store to buf[]. Fix this
-adjusting the bounds check appropriately.
+A remount to a read-write filesystem is not safe when there's tree-log
+to be replayed. Files that could be opened until now might be affected
+by the changes in the tree-log.
 
-Addresses-Coverity: ("Out-of-bounds write")
-Fixes: 51bd6f291583 ("Add support for IPMB driver")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Message-Id: <20200114144031.358003-1-colin.king@canonical.com>
-Reviewed-by: Asmaa Mnebhi <asmaa@mellanox.com>
-Signed-off-by: Corey Minyard <cminyard@mvista.com>
+A regular mount is needed to replay the log so the filesystem presents
+the consistent view with the pending changes included.
+
+CC: stable@vger.kernel.org # 4.4+
+Reviewed-by: Anand Jain <anand.jain@oracle.com>
+Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/char/ipmi/ipmb_dev_int.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/btrfs/super.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/char/ipmi/ipmb_dev_int.c
-+++ b/drivers/char/ipmi/ipmb_dev_int.c
-@@ -265,7 +265,7 @@ static int ipmb_slave_cb(struct i2c_clie
- 		break;
+--- a/fs/btrfs/super.c
++++ b/fs/btrfs/super.c
+@@ -1857,6 +1857,8 @@ static int btrfs_remount(struct super_bl
+ 		}
  
- 	case I2C_SLAVE_WRITE_RECEIVED:
--		if (ipmb_dev->msg_idx >= sizeof(struct ipmb_msg))
-+		if (ipmb_dev->msg_idx >= sizeof(struct ipmb_msg) - 1)
- 			break;
- 
- 		buf[++ipmb_dev->msg_idx] = *val;
+ 		if (btrfs_super_log_root(fs_info->super_copy) != 0) {
++			btrfs_warn(fs_info,
++		"mount required to replay tree-log, cannot remount read-write");
+ 			ret = -EINVAL;
+ 			goto restore;
+ 		}
 
 
