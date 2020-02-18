@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AA4B51631BD
-	for <lists+stable@lfdr.de>; Tue, 18 Feb 2020 21:06:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9FE58163280
+	for <lists+stable@lfdr.de>; Tue, 18 Feb 2020 21:10:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726847AbgBRUC1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Feb 2020 15:02:27 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42774 "EHLO mail.kernel.org"
+        id S1727184AbgBRUHK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Feb 2020 15:07:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37880 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728930AbgBRUC1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 18 Feb 2020 15:02:27 -0500
+        id S1727815AbgBRT7V (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 18 Feb 2020 14:59:21 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DC4FF21D56;
-        Tue, 18 Feb 2020 20:02:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E2C3E24655;
+        Tue, 18 Feb 2020 19:59:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582056146;
-        bh=O9r5i8nqHSQAto/Wve6Tojb8JBvbpPLEf6XmOAKP9Mk=;
+        s=default; t=1582055961;
+        bh=6DlsMtUAQvpGL98hwpqKAjqCQIqpEYmenz0309Qh9LE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DND2p6CQpLmF6GqI4suZmO95U1UOBZp1USzH2ZQKDi8udZmnYW7+6b4hjhBwnXZG0
-         JdHRJB1DMxqUByO/l1a9YygJ//EFWe7dHQ6DUzVGEFxYqajxrtH/K+x6e44wEfyo2v
-         BwmmQzVejnjhyan0TNzQ4iCLyc+lrQOHPL+Qr2Qc=
+        b=XcTBMtq4vx2CwZ5/Rwe20tSIwbyNnR4CSneyINUhh2Xjyg+9mzgX5KXZHI6+24Nps
+         eXeokfxO3SwiOUCKxJRuv5EtImQ8KiBqDlSPoZ0CLQzIOBYuJywpFOuiVgiTRpeLbn
+         y13+uf4XZFp6fcvfOP2YrzAXF+YcKH5zTE1r6gWk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yonatan Cohen <yonatanc@mellanox.com>,
-        Leon Romanovsky <leonro@mellanox.com>,
+        stable@vger.kernel.org, Kamal Heib <kamalheib1@gmail.com>,
+        Dennis Dalessandro <dennis.dalessandro@intel.com>,
         Jason Gunthorpe <jgg@mellanox.com>
-Subject: [PATCH 5.5 52/80] IB/umad: Fix kernel crash while unloading ib_umad
+Subject: [PATCH 5.4 46/66] RDMA/hfi1: Fix memory leak in _dev_comp_vect_mappings_create
 Date:   Tue, 18 Feb 2020 20:55:13 +0100
-Message-Id: <20200218190437.172007798@linuxfoundation.org>
+Message-Id: <20200218190432.267767795@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200218190432.043414522@linuxfoundation.org>
-References: <20200218190432.043414522@linuxfoundation.org>
+In-Reply-To: <20200218190428.035153861@linuxfoundation.org>
+References: <20200218190428.035153861@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,78 +44,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yonatan Cohen <yonatanc@mellanox.com>
+From: Kamal Heib <kamalheib1@gmail.com>
 
-commit 9ea04d0df6e6541c6736b43bff45f1e54875a1db upstream.
+commit 8a4f300b978edbbaa73ef9eca660e45eb9f13873 upstream.
 
-When disassociating a device from umad we must ensure that the sysfs
-access is prevented before blocking the fops, otherwise assumptions in
-syfs don't hold:
+Make sure to free the allocated cpumask_var_t's to avoid the following
+reported memory leak by kmemleak:
 
-	    CPU0            	        CPU1
-	 ib_umad_kill_port()        ibdev_show()
-	    port->ib_dev = NULL
-                                      dev_name(port->ib_dev)
+$ cat /sys/kernel/debug/kmemleak
+unreferenced object 0xffff8897f812d6a8 (size 8):
+  comm "kworker/1:1", pid 347, jiffies 4294751400 (age 101.703s)
+  hex dump (first 8 bytes):
+    00 00 00 00 00 00 00 00                          ........
+  backtrace:
+    [<00000000bff49664>] alloc_cpumask_var_node+0x4c/0xb0
+    [<0000000075d3ca81>] hfi1_comp_vectors_set_up+0x20f/0x800 [hfi1]
+    [<0000000098d420df>] hfi1_init_dd+0x3311/0x4960 [hfi1]
+    [<0000000071be7e52>] init_one+0x25e/0xf10 [hfi1]
+    [<000000005483d4c2>] local_pci_probe+0xd4/0x180
+    [<000000007c3cbc6e>] work_for_cpu_fn+0x51/0xa0
+    [<000000001d626905>] process_one_work+0x8f0/0x17b0
+    [<000000007e569e7e>] worker_thread+0x536/0xb50
+    [<00000000fd39a4a5>] kthread+0x30c/0x3d0
+    [<0000000056f2edb3>] ret_from_fork+0x3a/0x50
 
-The prior patch made an error in moving the device_destroy(), it should
-have been split into device_del() (above) and put_device() (below). At
-this point we already have the split, so move the device_del() back to its
-original place.
-
-  kernel stack
-  PF: error_code(0x0000) - not-present page
-  Oops: 0000 [#1] SMP DEBUG_PAGEALLOC PTI
-  RIP: 0010:ibdev_show+0x18/0x50 [ib_umad]
-  RSP: 0018:ffffc9000097fe40 EFLAGS: 00010282
-  RAX: 0000000000000000 RBX: ffffffffa0441120 RCX: ffff8881df514000
-  RDX: ffff8881df514000 RSI: ffffffffa0441120 RDI: ffff8881df1e8870
-  RBP: ffffffff81caf000 R08: ffff8881df1e8870 R09: 0000000000000000
-  R10: 0000000000001000 R11: 0000000000000003 R12: ffff88822f550b40
-  R13: 0000000000000001 R14: ffffc9000097ff08 R15: ffff8882238bad58
-  FS:  00007f1437ff3740(0000) GS:ffff888236940000(0000) knlGS:0000000000000000
-  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  CR2: 00000000000004e8 CR3: 00000001e0dfc001 CR4: 00000000001606e0
-  Call Trace:
-   dev_attr_show+0x15/0x50
-   sysfs_kf_seq_show+0xb8/0x1a0
-   seq_read+0x12d/0x350
-   vfs_read+0x89/0x140
-   ksys_read+0x55/0xd0
-   do_syscall_64+0x55/0x1b0
-   entry_SYSCALL_64_after_hwframe+0x44/0xa9:
-
-Fixes: cf7ad3030271 ("IB/umad: Avoid destroying device while it is accessed")
-Link: https://lore.kernel.org/r/20200212072635.682689-9-leon@kernel.org
-Signed-off-by: Yonatan Cohen <yonatanc@mellanox.com>
-Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
-Reviewed-by: Jason Gunthorpe <jgg@mellanox.com>
+Fixes: 5d18ee67d4c1 ("IB/{hfi1, rdmavt, qib}: Implement CQ completion vector support")
+Link: https://lore.kernel.org/r/20200205110530.12129-1-kamalheib1@gmail.com
+Signed-off-by: Kamal Heib <kamalheib1@gmail.com>
+Reviewed-by: Dennis Dalessandro <dennis.dalessandro@intel.com>
 Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/infiniband/core/user_mad.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/infiniband/hw/hfi1/affinity.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/infiniband/core/user_mad.c
-+++ b/drivers/infiniband/core/user_mad.c
-@@ -1312,6 +1312,9 @@ static void ib_umad_kill_port(struct ib_
- 	struct ib_umad_file *file;
- 	int id;
+--- a/drivers/infiniband/hw/hfi1/affinity.c
++++ b/drivers/infiniband/hw/hfi1/affinity.c
+@@ -479,6 +479,8 @@ static int _dev_comp_vect_mappings_creat
+ 			  rvt_get_ibdev_name(&(dd)->verbs_dev.rdi), i, cpu);
+ 	}
  
-+	cdev_device_del(&port->sm_cdev, &port->sm_dev);
-+	cdev_device_del(&port->cdev, &port->dev);
-+
- 	mutex_lock(&port->file_mutex);
++	free_cpumask_var(available_cpus);
++	free_cpumask_var(non_intr_cpus);
+ 	return 0;
  
- 	/* Mark ib_dev NULL and block ioctl or other file ops to progress
-@@ -1331,8 +1334,6 @@ static void ib_umad_kill_port(struct ib_
- 
- 	mutex_unlock(&port->file_mutex);
- 
--	cdev_device_del(&port->sm_cdev, &port->sm_dev);
--	cdev_device_del(&port->cdev, &port->dev);
- 	ida_free(&umad_ida, port->dev_num);
- 
- 	/* balances device_initialize() */
+ fail:
 
 
