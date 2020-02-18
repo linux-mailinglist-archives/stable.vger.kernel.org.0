@@ -2,73 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 27FEA1633C0
-	for <lists+stable@lfdr.de>; Tue, 18 Feb 2020 22:03:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B0DFA1633C3
+	for <lists+stable@lfdr.de>; Tue, 18 Feb 2020 22:03:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726383AbgBRVDZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Feb 2020 16:03:25 -0500
-Received: from Galois.linutronix.de ([193.142.43.55]:36933 "EHLO
-        Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726339AbgBRVDY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Feb 2020 16:03:24 -0500
-Received: from p5de0bf0b.dip0.t-ipconnect.de ([93.224.191.11] helo=nanos.tec.linutronix.de)
-        by Galois.linutronix.de with esmtpsa (TLS1.2:DHE_RSA_AES_256_CBC_SHA256:256)
-        (Exim 4.80)
-        (envelope-from <tglx@linutronix.de>)
-        id 1j4A1O-0006ER-Ar; Tue, 18 Feb 2020 22:03:10 +0100
-Received: by nanos.tec.linutronix.de (Postfix, from userid 1000)
-        id B684E100617; Tue, 18 Feb 2020 22:03:09 +0100 (CET)
-From:   Thomas Gleixner <tglx@linutronix.de>
-To:     Juergen Gross <jgross@suse.com>, xen-devel@lists.xenproject.org,
-        x86@kernel.org, linux-kernel@vger.kernel.org,
-        virtualization@lists.linux-foundation.org
-Cc:     Juergen Gross <jgross@suse.com>, Ingo Molnar <mingo@redhat.com>,
-        Borislav Petkov <bp@alien8.de>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        Thomas Hellstrom <thellstrom@vmware.com>,
-        "VMware\, Inc." <pv-drivers@vmware.com>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-        Stefano Stabellini <sstabellini@kernel.org>,
+        id S1726438AbgBRVD2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Feb 2020 16:03:28 -0500
+Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:43374 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1726339AbgBRVD1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Feb 2020 16:03:27 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1582059806;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=Vvczn1/7WH5ejB4qaPLsHmvxrtLN/Bp15yKQpp7R6F0=;
+        b=QwCDv0hboCAaLDWChj6XXRgGq1Ws57vi5oy4DLC48OSFtcFUeTSsFFInbXTx0cvbSIWrsb
+        66Ir0d8xHurl+eq5hwn5KDfUDXIPrhqz1aClQ64KnxaD8qPhnPjjsWOcKYEBXAGZIhSqRs
+        w1W01A+fHBhGlv8Zwq+v209cY5PbbnQ=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-418-c49ZyBenPCSX0r2KfBpWTg-1; Tue, 18 Feb 2020 16:03:15 -0500
+X-MC-Unique: c49ZyBenPCSX0r2KfBpWTg-1
+Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id EC5FE107ACC4;
+        Tue, 18 Feb 2020 21:03:13 +0000 (UTC)
+Received: from segfault.boston.devel.redhat.com (segfault.boston.devel.redhat.com [10.19.60.26])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 4C5C819E9C;
+        Tue, 18 Feb 2020 21:03:13 +0000 (UTC)
+From:   Jeff Moyer <jmoyer@redhat.com>
+To:     Vaibhav Jain <vaibhav@linux.ibm.com>
+Cc:     linuxppc-dev@lists.ozlabs.org, linux-nvdimm@lists.01.org,
+        "Aneesh Kumar K . V" <aneesh.kumar@linux.ibm.com>,
         stable@vger.kernel.org
-Subject: Re: [PATCH] x86/ioperm: add new paravirt function update_io_bitmap
-In-Reply-To: <20200218154712.25490-1-jgross@suse.com>
-References: <20200218154712.25490-1-jgross@suse.com>
-Date:   Tue, 18 Feb 2020 22:03:09 +0100
-Message-ID: <87mu9fr4ky.fsf@nanos.tec.linutronix.de>
+Subject: Re: [PATCH] libnvdimm/of_pmem: Fix leaking bus_desc.provider_name in some paths
+References: <20200123031847.149325-1-vaibhav@linux.ibm.com>
+X-PGP-KeyID: 1F78E1B4
+X-PGP-CertKey: F6FE 280D 8293 F72C 65FD  5A58 1FF8 A7CA 1F78 E1B4
+Date:   Tue, 18 Feb 2020 16:03:12 -0500
+In-Reply-To: <20200123031847.149325-1-vaibhav@linux.ibm.com> (Vaibhav Jain's
+        message of "Thu, 23 Jan 2020 08:48:47 +0530")
+Message-ID: <x49mu9fbobz.fsf@segfault.boston.devel.redhat.com>
+User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/26.1 (gnu/linux)
 MIME-Version: 1.0
 Content-Type: text/plain
-X-Linutronix-Spam-Score: -1.0
-X-Linutronix-Spam-Level: -
-X-Linutronix-Spam-Status: No , -1.0 points, 5.0 required,  ALL_TRUSTED=-1,SHORTCIRCUIT=-0.0001
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Juergen Gross <jgross@suse.com> writes:
-> Commit 111e7b15cf10f6 ("x86/ioperm: Extend IOPL config to control
-> ioperm() as well") reworked the iopl syscall to use I/O bitmaps.
+Vaibhav Jain <vaibhav@linux.ibm.com> writes:
+
+> String 'bus_desc.provider_name' allocated inside
+> of_pmem_region_probe() will leak in case call to nvdimm_bus_register()
+> fails or when of_pmem_region_remove() is called.
 >
-> Unfortunately this broke Xen PV domains using that syscall as there
-> is currently no I/O bitmap support in PV domains.
+> This minor patch ensures that 'bus_desc.provider_name' is freed in
+> error path for of_pmem_region_probe() as well as in
+> of_pmem_region_remove().
 >
-> Add I/O bitmap support via a new paravirt function update_io_bitmap
-> which Xen PV domains can use to update their I/O bitmaps via a
-> hypercall.
+> Cc: stable@vger.kernel.org
+> Fixes:49bddc73d15c2("libnvdimm/of_pmem: Provide a unique name for bus provider")
+> Signed-off-by: Vaibhav Jain <vaibhav@linux.ibm.com>
+> ---
+>  drivers/nvdimm/of_pmem.c | 2 ++
+>  1 file changed, 2 insertions(+)
 >
-> Fixes: 111e7b15cf10f6 ("x86/ioperm: Extend IOPL config to control ioperm() as well")
-> Reported-by: Jan Beulich <jbeulich@suse.com>
-> Cc: <stable@vger.kernel.org> # 5.5
-> Signed-off-by: Juergen Gross <jgross@suse.com>
-> Reviewed-by: Jan Beulich <jbeulich@suse.com>
-> Tested-by: Jan Beulich <jbeulich@suse.com>
+> diff --git a/drivers/nvdimm/of_pmem.c b/drivers/nvdimm/of_pmem.c
+> index 8224d1431ea9..9cb76f9837ad 100644
+> --- a/drivers/nvdimm/of_pmem.c
+> +++ b/drivers/nvdimm/of_pmem.c
+> @@ -36,6 +36,7 @@ static int of_pmem_region_probe(struct platform_device *pdev)
+>  
+>  	priv->bus = bus = nvdimm_bus_register(&pdev->dev, &priv->bus_desc);
+>  	if (!bus) {
+> +		kfree(priv->bus_desc.provider_name);
+>  		kfree(priv);
+>  		return -ENODEV;
+>  	}
+> @@ -81,6 +82,7 @@ static int of_pmem_region_remove(struct platform_device *pdev)
+>  	struct of_pmem_private *priv = platform_get_drvdata(pdev);
+>  
+>  	nvdimm_bus_unregister(priv->bus);
+> +	kfree(priv->bus_desc.provider_name);
+>  	kfree(priv);
+>  
+>  	return 0;
 
-Duh, sorry about that and thanks for fixing it.
+Reviewed-by: Jeff Moyer <jmoyer@redhat.com>
 
-BTW, why isn't stuff like this not catched during next or at least
-before the final release? Is nothing running CI on upstream with all
-that XEN muck active?
-
-Thanks,
-
-        tglx
