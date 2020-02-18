@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F9761630DF
-	for <lists+stable@lfdr.de>; Tue, 18 Feb 2020 20:58:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 008171630E1
+	for <lists+stable@lfdr.de>; Tue, 18 Feb 2020 20:58:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727815AbgBRT5J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Feb 2020 14:57:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34392 "EHLO mail.kernel.org"
+        id S1727840AbgBRT5O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Feb 2020 14:57:14 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34530 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727840AbgBRT5I (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 18 Feb 2020 14:57:08 -0500
+        id S1727872AbgBRT5N (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 18 Feb 2020 14:57:13 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 73F002465A;
-        Tue, 18 Feb 2020 19:57:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7B0692465A;
+        Tue, 18 Feb 2020 19:57:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582055827;
-        bh=iC3lT/4ZHrRboHatWIWqlizWX2RB8Pc5NEUiWfzYgKc=;
+        s=default; t=1582055832;
+        bh=8cgJ0eC9I9oJOJtzGi2IU9KZnNnO/RkDPC9obJ116RE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CPNO1bC49jfUWCzbr27aPzKXs/PXYgJjrvkh+X6T7FdLthm8WdviAZudYN3umtcP0
-         hvtje/KUk9pV1pRznW8XAgX0LsgUXkeQIuizdtJyeewl3dubPFI65eXRX9U0gb5Py5
-         LT5pDHCE+ByFpV3GL4HztQajRsCJISNB3TryozZk=
+        b=Go72Veu40/B192ACKH/E8pu6lqtAkor5FtqnTHHAuDwK9+iHDVmwW28HJVIijHUNz
+         ZbliMqh0Q+O7t0PfFvJW0ulM2r5s4Mx8Vu+jxMV3NGqDMNyFMZwl233/g0QHPGk/rP
+         Leo27c1/4A7zNvbCAmMa/r8oZO9ueFPwW2nuVN44=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kamal Heib <kamalheib1@gmail.com>,
-        Dennis Dalessandro <dennis.dalessandro@intel.com>,
+        stable@vger.kernel.org, Zhu Yanjun <yanjunz@mellanox.com>,
+        Leon Romanovsky <leonro@mellanox.com>,
         Jason Gunthorpe <jgg@mellanox.com>
-Subject: [PATCH 4.19 29/38] RDMA/hfi1: Fix memory leak in _dev_comp_vect_mappings_create
-Date:   Tue, 18 Feb 2020 20:55:15 +0100
-Message-Id: <20200218190422.008080160@linuxfoundation.org>
+Subject: [PATCH 4.19 30/38] RDMA/rxe: Fix soft lockup problem due to using tasklets in softirq
+Date:   Tue, 18 Feb 2020 20:55:16 +0100
+Message-Id: <20200218190422.105374079@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200218190418.536430858@linuxfoundation.org>
 References: <20200218190418.536430858@linuxfoundation.org>
@@ -44,51 +44,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kamal Heib <kamalheib1@gmail.com>
+From: Zhu Yanjun <yanjunz@mellanox.com>
 
-commit 8a4f300b978edbbaa73ef9eca660e45eb9f13873 upstream.
+commit 8ac0e6641c7ca14833a2a8c6f13d8e0a435e535c upstream.
 
-Make sure to free the allocated cpumask_var_t's to avoid the following
-reported memory leak by kmemleak:
+When run stress tests with RXE, the following Call Traces often occur
 
-$ cat /sys/kernel/debug/kmemleak
-unreferenced object 0xffff8897f812d6a8 (size 8):
-  comm "kworker/1:1", pid 347, jiffies 4294751400 (age 101.703s)
-  hex dump (first 8 bytes):
-    00 00 00 00 00 00 00 00                          ........
-  backtrace:
-    [<00000000bff49664>] alloc_cpumask_var_node+0x4c/0xb0
-    [<0000000075d3ca81>] hfi1_comp_vectors_set_up+0x20f/0x800 [hfi1]
-    [<0000000098d420df>] hfi1_init_dd+0x3311/0x4960 [hfi1]
-    [<0000000071be7e52>] init_one+0x25e/0xf10 [hfi1]
-    [<000000005483d4c2>] local_pci_probe+0xd4/0x180
-    [<000000007c3cbc6e>] work_for_cpu_fn+0x51/0xa0
-    [<000000001d626905>] process_one_work+0x8f0/0x17b0
-    [<000000007e569e7e>] worker_thread+0x536/0xb50
-    [<00000000fd39a4a5>] kthread+0x30c/0x3d0
-    [<0000000056f2edb3>] ret_from_fork+0x3a/0x50
+  watchdog: BUG: soft lockup - CPU#2 stuck for 22s! [swapper/2:0]
+  ...
+  Call Trace:
+  <IRQ>
+  create_object+0x3f/0x3b0
+  kmem_cache_alloc_node_trace+0x129/0x2d0
+  __kmalloc_reserve.isra.52+0x2e/0x80
+  __alloc_skb+0x83/0x270
+  rxe_init_packet+0x99/0x150 [rdma_rxe]
+  rxe_requester+0x34e/0x11a0 [rdma_rxe]
+  rxe_do_task+0x85/0xf0 [rdma_rxe]
+  tasklet_action_common.isra.21+0xeb/0x100
+  __do_softirq+0xd0/0x298
+  irq_exit+0xc5/0xd0
+  smp_apic_timer_interrupt+0x68/0x120
+  apic_timer_interrupt+0xf/0x20
+  </IRQ>
+  ...
 
-Fixes: 5d18ee67d4c1 ("IB/{hfi1, rdmavt, qib}: Implement CQ completion vector support")
-Link: https://lore.kernel.org/r/20200205110530.12129-1-kamalheib1@gmail.com
-Signed-off-by: Kamal Heib <kamalheib1@gmail.com>
-Reviewed-by: Dennis Dalessandro <dennis.dalessandro@intel.com>
+The root cause is that tasklet is actually a softirq. In a tasklet
+handler, another softirq handler is triggered. Usually these softirq
+handlers run on the same cpu core. So this will cause "soft lockup Bug".
+
+Fixes: 8700e3e7c485 ("Soft RoCE driver")
+Link: https://lore.kernel.org/r/20200212072635.682689-8-leon@kernel.org
+Signed-off-by: Zhu Yanjun <yanjunz@mellanox.com>
+Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
 Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/infiniband/hw/hfi1/affinity.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/infiniband/sw/rxe/rxe_comp.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/drivers/infiniband/hw/hfi1/affinity.c
-+++ b/drivers/infiniband/hw/hfi1/affinity.c
-@@ -478,6 +478,8 @@ static int _dev_comp_vect_mappings_creat
- 			  rvt_get_ibdev_name(&(dd)->verbs_dev.rdi), i, cpu);
+--- a/drivers/infiniband/sw/rxe/rxe_comp.c
++++ b/drivers/infiniband/sw/rxe/rxe_comp.c
+@@ -329,7 +329,7 @@ static inline enum comp_state check_ack(
+ 					qp->comp.psn = pkt->psn;
+ 					if (qp->req.wait_psn) {
+ 						qp->req.wait_psn = 0;
+-						rxe_run_task(&qp->req.task, 1);
++						rxe_run_task(&qp->req.task, 0);
+ 					}
+ 				}
+ 				return COMPST_ERROR_RETRY;
+@@ -457,7 +457,7 @@ static void do_complete(struct rxe_qp *q
+ 	 */
+ 	if (qp->req.wait_fence) {
+ 		qp->req.wait_fence = 0;
+-		rxe_run_task(&qp->req.task, 1);
++		rxe_run_task(&qp->req.task, 0);
+ 	}
+ }
+ 
+@@ -473,7 +473,7 @@ static inline enum comp_state complete_a
+ 		if (qp->req.need_rd_atomic) {
+ 			qp->comp.timeout_retry = 0;
+ 			qp->req.need_rd_atomic = 0;
+-			rxe_run_task(&qp->req.task, 1);
++			rxe_run_task(&qp->req.task, 0);
+ 		}
  	}
  
-+	free_cpumask_var(available_cpus);
-+	free_cpumask_var(non_intr_cpus);
- 	return 0;
+@@ -719,7 +719,7 @@ int rxe_completer(void *arg)
+ 							RXE_CNT_COMP_RETRY);
+ 					qp->req.need_retry = 1;
+ 					qp->comp.started_retry = 1;
+-					rxe_run_task(&qp->req.task, 1);
++					rxe_run_task(&qp->req.task, 0);
+ 				}
  
- fail:
+ 				if (pkt) {
 
 
