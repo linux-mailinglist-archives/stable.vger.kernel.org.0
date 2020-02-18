@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DCB7616327A
-	for <lists+stable@lfdr.de>; Tue, 18 Feb 2020 21:10:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1184616323C
+	for <lists+stable@lfdr.de>; Tue, 18 Feb 2020 21:06:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727313AbgBRT7j (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Feb 2020 14:59:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38388 "EHLO mail.kernel.org"
+        id S1728451AbgBRT7k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Feb 2020 14:59:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38450 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728069AbgBRT7g (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 18 Feb 2020 14:59:36 -0500
+        id S1726632AbgBRT7j (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 18 Feb 2020 14:59:39 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AB0F820659;
-        Tue, 18 Feb 2020 19:59:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8C26020659;
+        Tue, 18 Feb 2020 19:59:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582055976;
-        bh=whexkQU7G08k/GzfraOa3Wa/oXtPc+ny3/A8osupSgA=;
+        s=default; t=1582055979;
+        bh=ctiJ5QklUUUiqbxfDM/aAC6O/xND98Ys7P27q8+cOqc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kVeX2UiDUbYxys+8CDFSskJX+yeEPtwpZLFFqDMs3IbMoOLTmAvMd+QG8yXGzUyvA
-         FcIHI/bhUU9CsU3+1Y8Eefxf835P9salB4oCDftxlDf5esLkAifyWyB2SnBEuulkdR
-         F49dgosDrVz0lGc+S6Z+gGNd3NIDvxDreP2xVlOI=
+        b=BG+WAOCv4OPHH5ji/qhBLAOyVVUoNJol26aLaQ9k6VpBryoXHpG31lURKiEygD+NX
+         6AxdhQK0HRI16vk5rrlcwj6gdZXHEeJURuZOcrqsWWqpqiGdYVLGE5C+Q9bk3Ya0yw
+         2drj2BYlzHrG/VyB6Jy1RUPb47nhuiR86y0GndPs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andreas Dilger <adilger@dilger.ca>,
-        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>,
-        stable@kernel.org
-Subject: [PATCH 5.4 16/66] ext4: fix checksum errors with indexed dirs
-Date:   Tue, 18 Feb 2020 20:54:43 +0100
-Message-Id: <20200218190429.586626139@linuxfoundation.org>
+        stable@vger.kernel.org, Jan Kara <jack@suse.cz>,
+        Shijie Luo <luoshijie1@huawei.com>,
+        Theodore Tso <tytso@mit.edu>, stable@kernel.org
+Subject: [PATCH 5.4 17/66] ext4: add cond_resched() to ext4_protect_reserved_inode
+Date:   Tue, 18 Feb 2020 20:54:44 +0100
+Message-Id: <20200218190429.681173507@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200218190428.035153861@linuxfoundation.org>
 References: <20200218190428.035153861@linuxfoundation.org>
@@ -44,125 +44,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Shijie Luo <luoshijie1@huawei.com>
 
-commit 48a34311953d921235f4d7bbd2111690d2e469cf upstream.
+commit af133ade9a40794a37104ecbcc2827c0ea373a3c upstream.
 
-DIR_INDEX has been introduced as a compat ext4 feature. That means that
-even kernels / tools that don't understand the feature may modify the
-filesystem. This works because for kernels not understanding indexed dir
-format, internal htree nodes appear just as empty directory entries.
-Index dir aware kernels then check the htree structure is still
-consistent before using the data. This all worked reasonably well until
-metadata checksums were introduced. The problem is that these
-effectively made DIR_INDEX only ro-compatible because internal htree
-nodes store checksums in a different place than normal directory blocks.
-Thus any modification ignorant to DIR_INDEX (or just clearing
-EXT4_INDEX_FL from the inode) will effectively cause checksum mismatch
-and trigger kernel errors. So we have to be more careful when dealing
-with indexed directories on filesystems with checksumming enabled.
+When journal size is set too big by "mkfs.ext4 -J size=", or when
+we mount a crafted image to make journal inode->i_size too big,
+the loop, "while (i < num)", holds cpu too long. This could cause
+soft lockup.
 
-1) We just disallow loading any directory inodes with EXT4_INDEX_FL when
-DIR_INDEX is not enabled. This is harsh but it should be very rare (it
-means someone disabled DIR_INDEX on existing filesystem and didn't run
-e2fsck), e2fsck can fix the problem, and we don't want to answer the
-difficult question: "Should we rather corrupt the directory more or
-should we ignore that DIR_INDEX feature is not set?"
+[  529.357541] Call trace:
+[  529.357551]  dump_backtrace+0x0/0x198
+[  529.357555]  show_stack+0x24/0x30
+[  529.357562]  dump_stack+0xa4/0xcc
+[  529.357568]  watchdog_timer_fn+0x300/0x3e8
+[  529.357574]  __hrtimer_run_queues+0x114/0x358
+[  529.357576]  hrtimer_interrupt+0x104/0x2d8
+[  529.357580]  arch_timer_handler_virt+0x38/0x58
+[  529.357584]  handle_percpu_devid_irq+0x90/0x248
+[  529.357588]  generic_handle_irq+0x34/0x50
+[  529.357590]  __handle_domain_irq+0x68/0xc0
+[  529.357593]  gic_handle_irq+0x6c/0x150
+[  529.357595]  el1_irq+0xb8/0x140
+[  529.357599]  __ll_sc_atomic_add_return_acquire+0x14/0x20
+[  529.357668]  ext4_map_blocks+0x64/0x5c0 [ext4]
+[  529.357693]  ext4_setup_system_zone+0x330/0x458 [ext4]
+[  529.357717]  ext4_fill_super+0x2170/0x2ba8 [ext4]
+[  529.357722]  mount_bdev+0x1a8/0x1e8
+[  529.357746]  ext4_mount+0x44/0x58 [ext4]
+[  529.357748]  mount_fs+0x50/0x170
+[  529.357752]  vfs_kern_mount.part.9+0x54/0x188
+[  529.357755]  do_mount+0x5ac/0xd78
+[  529.357758]  ksys_mount+0x9c/0x118
+[  529.357760]  __arm64_sys_mount+0x28/0x38
+[  529.357764]  el0_svc_common+0x78/0x130
+[  529.357766]  el0_svc_handler+0x38/0x78
+[  529.357769]  el0_svc+0x8/0xc
+[  541.356516] watchdog: BUG: soft lockup - CPU#0 stuck for 23s! [mount:18674]
 
-2) When we find out htree structure is corrupted (but the filesystem and
-the directory should in support htrees), we continue just ignoring htree
-information for reading but we refuse to add new entries to the
-directory to avoid corrupting it more.
-
-Link: https://lore.kernel.org/r/20200210144316.22081-1-jack@suse.cz
-Fixes: dbe89444042a ("ext4: Calculate and verify checksums for htree nodes")
-Reviewed-by: Andreas Dilger <adilger@dilger.ca>
-Signed-off-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/20200211011752.29242-1-luoshijie1@huawei.com
+Reviewed-by: Jan Kara <jack@suse.cz>
+Signed-off-by: Shijie Luo <luoshijie1@huawei.com>
 Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Cc: stable@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/ext4/dir.c   |   14 ++++++++------
- fs/ext4/ext4.h  |    5 ++++-
- fs/ext4/inode.c |   12 ++++++++++++
- fs/ext4/namei.c |    7 +++++++
- 4 files changed, 31 insertions(+), 7 deletions(-)
+ fs/ext4/block_validity.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/fs/ext4/dir.c
-+++ b/fs/ext4/dir.c
-@@ -130,12 +130,14 @@ static int ext4_readdir(struct file *fil
- 		if (err != ERR_BAD_DX_DIR) {
- 			return err;
- 		}
--		/*
--		 * We don't set the inode dirty flag since it's not
--		 * critical that it get flushed back to the disk.
--		 */
--		ext4_clear_inode_flag(file_inode(file),
--				      EXT4_INODE_INDEX);
-+		/* Can we just clear INDEX flag to ignore htree information? */
-+		if (!ext4_has_metadata_csum(sb)) {
-+			/*
-+			 * We don't set the inode dirty flag since it's not
-+			 * critical that it gets flushed back to the disk.
-+			 */
-+			ext4_clear_inode_flag(inode, EXT4_INODE_INDEX);
-+		}
- 	}
- 
- 	if (ext4_has_inline_data(inode)) {
---- a/fs/ext4/ext4.h
-+++ b/fs/ext4/ext4.h
-@@ -2476,8 +2476,11 @@ void ext4_insert_dentry(struct inode *in
- 			struct ext4_filename *fname);
- static inline void ext4_update_dx_flag(struct inode *inode)
- {
--	if (!ext4_has_feature_dir_index(inode->i_sb))
-+	if (!ext4_has_feature_dir_index(inode->i_sb)) {
-+		/* ext4_iget() should have caught this... */
-+		WARN_ON_ONCE(ext4_has_feature_metadata_csum(inode->i_sb));
- 		ext4_clear_inode_flag(inode, EXT4_INODE_INDEX);
-+	}
- }
- static const unsigned char ext4_filetype_table[] = {
- 	DT_UNKNOWN, DT_REG, DT_DIR, DT_CHR, DT_BLK, DT_FIFO, DT_SOCK, DT_LNK
---- a/fs/ext4/inode.c
-+++ b/fs/ext4/inode.c
-@@ -4972,6 +4972,18 @@ struct inode *__ext4_iget(struct super_b
- 		ret = -EFSCORRUPTED;
- 		goto bad_inode;
- 	}
-+	/*
-+	 * If dir_index is not enabled but there's dir with INDEX flag set,
-+	 * we'd normally treat htree data as empty space. But with metadata
-+	 * checksumming that corrupts checksums so forbid that.
-+	 */
-+	if (!ext4_has_feature_dir_index(sb) && ext4_has_metadata_csum(sb) &&
-+	    ext4_test_inode_flag(inode, EXT4_INODE_INDEX)) {
-+		ext4_error_inode(inode, function, line, 0,
-+			 "iget: Dir with htree data on filesystem without dir_index feature.");
-+		ret = -EFSCORRUPTED;
-+		goto bad_inode;
-+	}
- 	ei->i_disksize = inode->i_size;
- #ifdef CONFIG_QUOTA
- 	ei->i_reserved_quota = 0;
---- a/fs/ext4/namei.c
-+++ b/fs/ext4/namei.c
-@@ -2205,6 +2205,13 @@ static int ext4_add_entry(handle_t *hand
- 		retval = ext4_dx_add_entry(handle, &fname, dir, inode);
- 		if (!retval || (retval != ERR_BAD_DX_DIR))
- 			goto out;
-+		/* Can we just ignore htree data? */
-+		if (ext4_has_metadata_csum(sb)) {
-+			EXT4_ERROR_INODE(dir,
-+				"Directory has corrupted htree index.");
-+			retval = -EFSCORRUPTED;
-+			goto out;
-+		}
- 		ext4_clear_inode_flag(dir, EXT4_INODE_INDEX);
- 		dx_fallback++;
- 		ext4_mark_inode_dirty(handle, dir);
+--- a/fs/ext4/block_validity.c
++++ b/fs/ext4/block_validity.c
+@@ -203,6 +203,7 @@ static int ext4_protect_reserved_inode(s
+ 		return PTR_ERR(inode);
+ 	num = (inode->i_size + sb->s_blocksize - 1) >> sb->s_blocksize_bits;
+ 	while (i < num) {
++		cond_resched();
+ 		map.m_lblk = i;
+ 		map.m_len = num - i;
+ 		n = ext4_map_blocks(NULL, inode, &map, 0);
 
 
