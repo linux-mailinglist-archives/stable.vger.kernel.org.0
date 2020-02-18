@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CC7BD163230
-	for <lists+stable@lfdr.de>; Tue, 18 Feb 2020 21:06:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 498861631DA
+	for <lists+stable@lfdr.de>; Tue, 18 Feb 2020 21:06:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728593AbgBRUA2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Feb 2020 15:00:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39720 "EHLO mail.kernel.org"
+        id S1728426AbgBRUDI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Feb 2020 15:03:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44100 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728590AbgBRUA2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 18 Feb 2020 15:00:28 -0500
+        id S1728841AbgBRUDE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 18 Feb 2020 15:03:04 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 155F82464E;
-        Tue, 18 Feb 2020 20:00:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DF7A024673;
+        Tue, 18 Feb 2020 20:03:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582056027;
-        bh=mgL7HSGN6Ip5HwbugGrUQYfFeYcitgxBsLwi6J77rxo=;
+        s=default; t=1582056184;
+        bh=MKwR1Ey5s9/JR9K6iEYpEMGtlvVkD6LC+UA956/m7G8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oi+6oVhCyf1n74NhQBJyAfuV08sgL68hji/1NjAbGUStfg5dEMv/QVSVN3RXkKtQd
-         4I5tVBDI45Y+x9l7ai8OZTJlAYYGwahIUu70h2wsezC0yVWLizpX7FUEWmurAiEoZM
-         stJ+ESXitc3wXVw4ZGN77pbEjzPkP6bYjzRo7qAY=
+        b=nz9f8kCX89rx4dpmnw27D4f4yxSaJReZ7dMoSXh2s3pyhvNUoa8w9GDRS2DVSaAi0
+         spscffHOzRAdUFfIYYvJoEYTpS4Rm00Zq8eYpSwiadtNyARkcsRidZi6f6ph208qOZ
+         Cp9V6x3cnWy5McDGpdWTeXmLJfj7BcOVrIixqwfU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Olga Kornievskaia <kolga@netapp.com>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>
-Subject: [PATCH 5.4 59/66] NFSv4.1 make cachethis=no for writes
-Date:   Tue, 18 Feb 2020 20:55:26 +0100
-Message-Id: <20200218190433.535496148@linuxfoundation.org>
+        stable@vger.kernel.org, Petr Pavlu <petr.pavlu@suse.com>,
+        Steve French <stfrench@microsoft.com>
+Subject: [PATCH 5.5 66/80] cifs: fix mount option display for sec=krb5i
+Date:   Tue, 18 Feb 2020 20:55:27 +0100
+Message-Id: <20200218190438.315043569@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200218190428.035153861@linuxfoundation.org>
-References: <20200218190428.035153861@linuxfoundation.org>
+In-Reply-To: <20200218190432.043414522@linuxfoundation.org>
+References: <20200218190432.043414522@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,32 +43,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Olga Kornievskaia <kolga@netapp.com>
+From: Petr Pavlu <petr.pavlu@suse.com>
 
-commit cd1b659d8ce7697ee9799b64f887528315b9097b upstream.
+commit 3f6166aaf19902f2f3124b5426405e292e8974dd upstream.
 
-Turning caching off for writes on the server should improve performance.
+Fix display for sec=krb5i which was wrongly interleaved by cruid,
+resulting in string "sec=krb5,cruid=<...>i" instead of
+"sec=krb5i,cruid=<...>".
 
-Fixes: fba83f34119a ("NFS: Pass "privileged" value to nfs4_init_sequence()")
-Signed-off-by: Olga Kornievskaia <kolga@netapp.com>
-Reviewed-by: Trond Myklebust <trond.myklebust@hammerspace.com>
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+Fixes: 96281b9e46eb ("smb3: for kerberos mounts display the credential uid used")
+Signed-off-by: Petr Pavlu <petr.pavlu@suse.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/nfs/nfs4proc.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/cifs/cifsfs.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/fs/nfs/nfs4proc.c
-+++ b/fs/nfs/nfs4proc.c
-@@ -5293,7 +5293,7 @@ static void nfs4_proc_write_setup(struct
- 	hdr->timestamp   = jiffies;
+--- a/fs/cifs/cifsfs.c
++++ b/fs/cifs/cifsfs.c
+@@ -414,7 +414,7 @@ cifs_show_security(struct seq_file *s, s
+ 		seq_puts(s, "ntlm");
+ 		break;
+ 	case Kerberos:
+-		seq_printf(s, "krb5,cruid=%u", from_kuid_munged(&init_user_ns,ses->cred_uid));
++		seq_puts(s, "krb5");
+ 		break;
+ 	case RawNTLMSSP:
+ 		seq_puts(s, "ntlmssp");
+@@ -427,6 +427,10 @@ cifs_show_security(struct seq_file *s, s
  
- 	msg->rpc_proc = &nfs4_procedures[NFSPROC4_CLNT_WRITE];
--	nfs4_init_sequence(&hdr->args.seq_args, &hdr->res.seq_res, 1, 0);
-+	nfs4_init_sequence(&hdr->args.seq_args, &hdr->res.seq_res, 0, 0);
- 	nfs4_state_protect_write(server->nfs_client, clnt, msg, hdr);
+ 	if (ses->sign)
+ 		seq_puts(s, "i");
++
++	if (ses->sectype == Kerberos)
++		seq_printf(s, ",cruid=%u",
++			   from_kuid_munged(&init_user_ns, ses->cred_uid));
  }
  
+ static void
 
 
