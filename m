@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 311C516323A
-	for <lists+stable@lfdr.de>; Tue, 18 Feb 2020 21:06:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 70BCE163216
+	for <lists+stable@lfdr.de>; Tue, 18 Feb 2020 21:06:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727935AbgBRT7q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Feb 2020 14:59:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38596 "EHLO mail.kernel.org"
+        id S1728135AbgBRUBR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Feb 2020 15:01:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40794 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726680AbgBRT7p (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 18 Feb 2020 14:59:45 -0500
+        id S1728348AbgBRUBQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 18 Feb 2020 15:01:16 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 04FA424655;
-        Tue, 18 Feb 2020 19:59:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BF70624672;
+        Tue, 18 Feb 2020 20:01:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582055984;
-        bh=RrjwY8iUS2uLbXYQfD3W83BApgHzmS8EhIQvGuq9OQg=;
+        s=default; t=1582056076;
+        bh=H+16V16wnbDW8zmH8rcsA0BqL7v9Yl6dcr/5UjFg3Lo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kwN8qoER9LXBTKVaZr5JtgP+LPxvAk/a4glzRnAO6qPbdzzGf6eRpuWd4DNIRlDue
-         T3OT5RnQH26CXxvQonnz3ifWaw301CbZ5CkTw01cPV+C9lqgrtj+MpOJA2dC4W482V
-         ixZ8E3VZGHlzhvE34iJV8rTlF9pODhyYmAQOePFQ=
+        b=xiesbsVsvha7o5P/WLJL5w3ycO9JkgPmj9nWzrT66xHQl4Wqn7Q51q/ikDPhfCuk3
+         SRm6lMox+MSO8ZxtC56cqRxsSlOBZdG/vNl3c4QUclGaxz1PWviTbbJYamklm03vv+
+         a/rxSgTXaADxqZE6iWY0G0hwIIBnlVMlIJBiG0q8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, ryusuke1925 <st13s20@gm.ibaraki-ct.ac.jp>,
-        Koki Mitani <koki.mitani.xg@hco.ntt.co.jp>,
-        Josef Bacik <josef@toxicpanda.com>,
-        Filipe Manana <fdmanana@suse.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.4 19/66] Btrfs: fix race between using extent maps and merging them
+        stable@vger.kernel.org, Krzysztof Kozlowski <krzk@kernel.org>,
+        Olof Johansson <olof@lixom.net>
+Subject: [PATCH 5.5 25/80] ARM: npcm: Bring back GPIOLIB support
 Date:   Tue, 18 Feb 2020 20:54:46 +0100
-Message-Id: <20200218190429.869894993@linuxfoundation.org>
+Message-Id: <20200218190434.804962662@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200218190428.035153861@linuxfoundation.org>
-References: <20200218190428.035153861@linuxfoundation.org>
+In-Reply-To: <20200218190432.043414522@linuxfoundation.org>
+References: <20200218190432.043414522@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,128 +43,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Filipe Manana <fdmanana@suse.com>
+From: Krzysztof Kozlowski <krzk@kernel.org>
 
-commit ac05ca913e9f3871126d61da275bfe8516ff01ca upstream.
+commit e383e871ab54f073c2a798a9e0bde7f1d0528de8 upstream.
 
-We have a few cases where we allow an extent map that is in an extent map
-tree to be merged with other extents in the tree. Such cases include the
-unpinning of an extent after the respective ordered extent completed or
-after logging an extent during a fast fsync. This can lead to subtle and
-dangerous problems because when doing the merge some other task might be
-using the same extent map and as consequence see an inconsistent state of
-the extent map - for example sees the new length but has seen the old start
-offset.
+The CONFIG_ARCH_REQUIRE_GPIOLIB is gone since commit 65053e1a7743
+("gpio: delete ARCH_[WANTS_OPTIONAL|REQUIRE]_GPIOLIB") and all platforms
+should explicitly select GPIOLIB to have it.
 
-With luck this triggers a BUG_ON(), and not some silent bug, such as the
-following one in __do_readpage():
-
-  $ cat -n fs/btrfs/extent_io.c
-  3061  static int __do_readpage(struct extent_io_tree *tree,
-  3062                           struct page *page,
-  (...)
-  3127                  em = __get_extent_map(inode, page, pg_offset, cur,
-  3128                                        end - cur + 1, get_extent, em_cached);
-  3129                  if (IS_ERR_OR_NULL(em)) {
-  3130                          SetPageError(page);
-  3131                          unlock_extent(tree, cur, end);
-  3132                          break;
-  3133                  }
-  3134                  extent_offset = cur - em->start;
-  3135                  BUG_ON(extent_map_end(em) <= cur);
-  (...)
-
-Consider the following example scenario, where we end up hitting the
-BUG_ON() in __do_readpage().
-
-We have an inode with a size of 8KiB and 2 extent maps:
-
-  extent A: file offset 0, length 4KiB, disk_bytenr = X, persisted on disk by
-            a previous transaction
-
-  extent B: file offset 4KiB, length 4KiB, disk_bytenr = X + 4KiB, not yet
-            persisted but writeback started for it already. The extent map
-	    is pinned since there's writeback and an ordered extent in
-	    progress, so it can not be merged with extent map A yet
-
-The following sequence of steps leads to the BUG_ON():
-
-1) The ordered extent for extent B completes, the respective page gets its
-   writeback bit cleared and the extent map is unpinned, at that point it
-   is not yet merged with extent map A because it's in the list of modified
-   extents;
-
-2) Due to memory pressure, or some other reason, the MM subsystem releases
-   the page corresponding to extent B - btrfs_releasepage() is called and
-   returns 1, meaning the page can be released as it's not dirty, not under
-   writeback anymore and the extent range is not locked in the inode's
-   iotree. However the extent map is not released, either because we are
-   not in a context that allows memory allocations to block or because the
-   inode's size is smaller than 16MiB - in this case our inode has a size
-   of 8KiB;
-
-3) Task B needs to read extent B and ends up __do_readpage() through the
-   btrfs_readpage() callback. At __do_readpage() it gets a reference to
-   extent map B;
-
-4) Task A, doing a fast fsync, calls clear_em_loggin() against extent map B
-   while holding the write lock on the inode's extent map tree - this
-   results in try_merge_map() being called and since it's possible to merge
-   extent map B with extent map A now (the extent map B was removed from
-   the list of modified extents), the merging begins - it sets extent map
-   B's start offset to 0 (was 4KiB), but before it increments the map's
-   length to 8KiB (4kb + 4KiB), task A is at:
-
-   BUG_ON(extent_map_end(em) <= cur);
-
-   The call to extent_map_end() sees the extent map has a start of 0
-   and a length still at 4KiB, so it returns 4KiB and 'cur' is 4KiB, so
-   the BUG_ON() is triggered.
-
-So it's dangerous to modify an extent map that is in the tree, because some
-other task might have got a reference to it before and still using it, and
-needs to see a consistent map while using it. Generally this is very rare
-since most paths that lookup and use extent maps also have the file range
-locked in the inode's iotree. The fsync path is pretty much the only
-exception where we don't do it to avoid serialization with concurrent
-reads.
-
-Fix this by not allowing an extent map do be merged if if it's being used
-by tasks other then the one attempting to merge the extent map (when the
-reference count of the extent map is greater than 2).
-
-Reported-by: ryusuke1925 <st13s20@gm.ibaraki-ct.ac.jp>
-Reported-by: Koki Mitani <koki.mitani.xg@hco.ntt.co.jp>
-Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=206211
-CC: stable@vger.kernel.org # 4.4+
-Reviewed-by: Josef Bacik <josef@toxicpanda.com>
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Link: https://lore.kernel.org/r/20200130195525.4525-1-krzk@kernel.org
+Cc: <stable@vger.kernel.org>
+Fixes: 65053e1a7743 ("gpio: delete ARCH_[WANTS_OPTIONAL|REQUIRE]_GPIOLIB")
+Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+Signed-off-by: Olof Johansson <olof@lixom.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/btrfs/extent_map.c |   11 +++++++++++
- 1 file changed, 11 insertions(+)
+ arch/arm/mach-npcm/Kconfig |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/btrfs/extent_map.c
-+++ b/fs/btrfs/extent_map.c
-@@ -233,6 +233,17 @@ static void try_merge_map(struct extent_
- 	struct extent_map *merge = NULL;
- 	struct rb_node *rb;
- 
-+	/*
-+	 * We can't modify an extent map that is in the tree and that is being
-+	 * used by another task, as it can cause that other task to see it in
-+	 * inconsistent state during the merging. We always have 1 reference for
-+	 * the tree and 1 for this task (which is unpinning the extent map or
-+	 * clearing the logging flag), so anything > 2 means it's being used by
-+	 * other tasks too.
-+	 */
-+	if (refcount_read(&em->refs) > 2)
-+		return;
-+
- 	if (em->start != 0) {
- 		rb = rb_prev(&em->rb_node);
- 		if (rb)
+--- a/arch/arm/mach-npcm/Kconfig
++++ b/arch/arm/mach-npcm/Kconfig
+@@ -11,7 +11,7 @@ config ARCH_NPCM7XX
+ 	depends on ARCH_MULTI_V7
+ 	select PINCTRL_NPCM7XX
+ 	select NPCM7XX_TIMER
+-	select ARCH_REQUIRE_GPIOLIB
++	select GPIOLIB
+ 	select CACHE_L2X0
+ 	select ARM_GIC
+ 	select HAVE_ARM_TWD if SMP
 
 
