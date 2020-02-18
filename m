@@ -2,38 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AC9B3163232
-	for <lists+stable@lfdr.de>; Tue, 18 Feb 2020 21:06:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C89E21631D2
+	for <lists+stable@lfdr.de>; Tue, 18 Feb 2020 21:06:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728569AbgBRUAV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Feb 2020 15:00:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39502 "EHLO mail.kernel.org"
+        id S1728273AbgBRUCz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Feb 2020 15:02:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43790 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728563AbgBRUAU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 18 Feb 2020 15:00:20 -0500
+        id S1729022AbgBRUCz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 18 Feb 2020 15:02:55 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7D2122465A;
-        Tue, 18 Feb 2020 20:00:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 064622465D;
+        Tue, 18 Feb 2020 20:02:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582056020;
-        bh=vnKENgL2erzlXMxnhaMBf4SD/3+ntQcfdelWp6Lmqck=;
+        s=default; t=1582056174;
+        bh=KDjerKczOZHWwPnuBGNxgXOG0D9QiJQCmyfpxvInpYo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MtI5q0mvUOIAEKaQA2Bwn4e2+CXTlfjHUeuifQezfYWCxWR0r9dwkGt9DHuKkZtyD
-         JD/vXGvyR4/o2iGfwNUnePrMy1gHifgY843B8NVBmyWI2plk11ORWihlGB/lMUJjcf
-         0noESdoTjEEEo/q0sdgSz+VpvQed/ESLyFXdGo3Y=
+        b=slZ3ZMw9v1Jk6xiSWLtxnif7JIaplbfYjavSBqyegC0ENRNBDq77lRDQO/Yw54b86
+         cBvRe5Mw1Jv3jaTDDUlT64BHL9kEvECeFwlVrZ9+YEi2u1bak5Pn9gIPBaJaij1Ig6
+         FjmccVlSWsOsPPyAwd2Y8FF+yGCJczr2Jt4w42/s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
-        Sudeep Holla <sudeep.holla@arm.com>
-Subject: [PATCH 5.4 56/66] arm64: dts: fast models: Fix FVP PCI interrupt-map property
+        stable@vger.kernel.org, Douglas Anderson <dianders@chromium.org>,
+        Brian Masney <masneyb@onstation.org>,
+        Lina Iyer <ilina@codeaurora.org>,
+        Maulik Shah <mkshah@codeaurora.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Stephen Boyd <swboyd@chromium.org>,
+        Linus Walleij <linus.walleij@linaro.org>
+Subject: [PATCH 5.5 62/80] spmi: pmic-arb: Set lockdep class for hierarchical irq domains
 Date:   Tue, 18 Feb 2020 20:55:23 +0100
-Message-Id: <20200218190433.259761685@linuxfoundation.org>
+Message-Id: <20200218190437.999815919@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200218190428.035153861@linuxfoundation.org>
-References: <20200218190428.035153861@linuxfoundation.org>
+In-Reply-To: <20200218190432.043414522@linuxfoundation.org>
+References: <20200218190432.043414522@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,43 +48,114 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Zyngier <maz@kernel.org>
+From: Stephen Boyd <swboyd@chromium.org>
 
-commit 3543d7ddd55fe12c37e8a9db846216c51846015b upstream.
+commit 2d5a2f913b658a7ae984773a63318ed4daadf4af upstream.
 
-The interrupt map for the FVP's PCI node is missing the
-parent-unit-address cells for each of the INTx entries, leading to the
-kernel code failing to parse the entries correctly.
+I see the following lockdep splat in the qcom pinctrl driver when
+attempting to suspend the device.
 
-Add the missing zero cells, which are pretty useless as far as the GIC
-is concerned, but that the spec requires. This allows INTx to be usable
-on the model, and VFIO to work correctly.
+ WARNING: possible recursive locking detected
+ 5.4.11 #3 Tainted: G        W
+ --------------------------------------------
+ cat/3074 is trying to acquire lock:
+ ffffff81f49804c0 (&irq_desc_lock_class){-.-.}, at: __irq_get_desc_lock+0x64/0x94
 
-Fixes: fa083b99eb28 ("arm64: dts: fast models: Add DTS fo Base RevC FVP")
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
+ but task is already holding lock:
+ ffffff81f1cc10c0 (&irq_desc_lock_class){-.-.}, at: __irq_get_desc_lock+0x64/0x94
+
+ other info that might help us debug this:
+  Possible unsafe locking scenario:
+
+        CPU0
+        ----
+   lock(&irq_desc_lock_class);
+   lock(&irq_desc_lock_class);
+
+  *** DEADLOCK ***
+
+  May be due to missing lock nesting notation
+
+ 6 locks held by cat/3074:
+  #0: ffffff81f01d9420 (sb_writers#7){.+.+}, at: vfs_write+0xd0/0x1a4
+  #1: ffffff81bd7d2080 (&of->mutex){+.+.}, at: kernfs_fop_write+0x12c/0x1fc
+  #2: ffffff81f4c322f0 (kn->count#337){.+.+}, at: kernfs_fop_write+0x134/0x1fc
+  #3: ffffffe411a41d60 (system_transition_mutex){+.+.}, at: pm_suspend+0x108/0x348
+  #4: ffffff81f1c5e970 (&dev->mutex){....}, at: __device_suspend+0x168/0x41c
+  #5: ffffff81f1cc10c0 (&irq_desc_lock_class){-.-.}, at: __irq_get_desc_lock+0x64/0x94
+
+ stack backtrace:
+ CPU: 5 PID: 3074 Comm: cat Tainted: G        W         5.4.11 #3
+ Hardware name: Google Cheza (rev3+) (DT)
+ Call trace:
+  dump_backtrace+0x0/0x174
+  show_stack+0x20/0x2c
+  dump_stack+0xc8/0x124
+  __lock_acquire+0x460/0x2388
+  lock_acquire+0x1cc/0x210
+  _raw_spin_lock_irqsave+0x64/0x80
+  __irq_get_desc_lock+0x64/0x94
+  irq_set_irq_wake+0x40/0x144
+  qpnpint_irq_set_wake+0x28/0x34
+  set_irq_wake_real+0x40/0x5c
+  irq_set_irq_wake+0x70/0x144
+  pm8941_pwrkey_suspend+0x34/0x44
+  platform_pm_suspend+0x34/0x60
+  dpm_run_callback+0x64/0xcc
+  __device_suspend+0x310/0x41c
+  dpm_suspend+0xf8/0x298
+  dpm_suspend_start+0x84/0xb4
+  suspend_devices_and_enter+0xbc/0x620
+  pm_suspend+0x210/0x348
+  state_store+0xb0/0x108
+  kobj_attr_store+0x14/0x24
+  sysfs_kf_write+0x4c/0x64
+  kernfs_fop_write+0x15c/0x1fc
+  __vfs_write+0x54/0x18c
+  vfs_write+0xe4/0x1a4
+  ksys_write+0x7c/0xe4
+  __arm64_sys_write+0x20/0x2c
+  el0_svc_common+0xa8/0x160
+  el0_svc_handler+0x7c/0x98
+  el0_svc+0x8/0xc
+
+Set a lockdep class when we map the irq so that irq_set_wake() doesn't
+warn about a lockdep bug that doesn't exist.
+
+Fixes: 12a9eeaebba3 ("spmi: pmic-arb: convert to v2 irq interfaces to support hierarchical IRQ chips")
+Cc: Douglas Anderson <dianders@chromium.org>
+Cc: Brian Masney <masneyb@onstation.org>
+Cc: Lina Iyer <ilina@codeaurora.org>
+Cc: Maulik Shah <mkshah@codeaurora.org>
+Cc: Bjorn Andersson <bjorn.andersson@linaro.org>
+Signed-off-by: Stephen Boyd <swboyd@chromium.org>
+Link: https://lore.kernel.org/r/20200121183748.68662-1-swboyd@chromium.org
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm64/boot/dts/arm/fvp-base-revc.dts |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/spmi/spmi-pmic-arb.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/arch/arm64/boot/dts/arm/fvp-base-revc.dts
-+++ b/arch/arm64/boot/dts/arm/fvp-base-revc.dts
-@@ -161,10 +161,10 @@
- 		bus-range = <0x0 0x1>;
- 		reg = <0x0 0x40000000 0x0 0x10000000>;
- 		ranges = <0x2000000 0x0 0x50000000 0x0 0x50000000 0x0 0x10000000>;
--		interrupt-map = <0 0 0 1 &gic GIC_SPI 168 IRQ_TYPE_LEVEL_HIGH>,
--				<0 0 0 2 &gic GIC_SPI 169 IRQ_TYPE_LEVEL_HIGH>,
--				<0 0 0 3 &gic GIC_SPI 170 IRQ_TYPE_LEVEL_HIGH>,
--				<0 0 0 4 &gic GIC_SPI 171 IRQ_TYPE_LEVEL_HIGH>;
-+		interrupt-map = <0 0 0 1 &gic 0 0 GIC_SPI 168 IRQ_TYPE_LEVEL_HIGH>,
-+				<0 0 0 2 &gic 0 0 GIC_SPI 169 IRQ_TYPE_LEVEL_HIGH>,
-+				<0 0 0 3 &gic 0 0 GIC_SPI 170 IRQ_TYPE_LEVEL_HIGH>,
-+				<0 0 0 4 &gic 0 0 GIC_SPI 171 IRQ_TYPE_LEVEL_HIGH>;
- 		interrupt-map-mask = <0x0 0x0 0x0 0x7>;
- 		msi-map = <0x0 &its 0x0 0x10000>;
- 		iommu-map = <0x0 &smmu 0x0 0x10000>;
+--- a/drivers/spmi/spmi-pmic-arb.c
++++ b/drivers/spmi/spmi-pmic-arb.c
+@@ -731,6 +731,7 @@ static int qpnpint_irq_domain_translate(
+ 	return 0;
+ }
+ 
++static struct lock_class_key qpnpint_irq_lock_class, qpnpint_irq_request_class;
+ 
+ static void qpnpint_irq_domain_map(struct spmi_pmic_arb *pmic_arb,
+ 				   struct irq_domain *domain, unsigned int virq,
+@@ -746,6 +747,9 @@ static void qpnpint_irq_domain_map(struc
+ 	else
+ 		handler = handle_level_irq;
+ 
++
++	irq_set_lockdep_class(virq, &qpnpint_irq_lock_class,
++			      &qpnpint_irq_request_class);
+ 	irq_domain_set_info(domain, virq, hwirq, &pmic_arb_irqchip, pmic_arb,
+ 			    handler, NULL, NULL);
+ }
 
 
