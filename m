@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 158F316321C
-	for <lists+stable@lfdr.de>; Tue, 18 Feb 2020 21:06:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4423A163157
+	for <lists+stable@lfdr.de>; Tue, 18 Feb 2020 21:01:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728121AbgBRUBH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Feb 2020 15:01:07 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40550 "EHLO mail.kernel.org"
+        id S1727928AbgBRT7g (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Feb 2020 14:59:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38308 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727695AbgBRUBG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 18 Feb 2020 15:01:06 -0500
+        id S1727976AbgBRT7e (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 18 Feb 2020 14:59:34 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7D00A2465A;
-        Tue, 18 Feb 2020 20:01:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3BB9420659;
+        Tue, 18 Feb 2020 19:59:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582056065;
-        bh=vC5s8skuuT4Pw1HgDuMfLLZwagwGHzh3DvvGguPCFxI=;
+        s=default; t=1582055973;
+        bh=TQmI2Xi+jSe1xvgDZog4lmUKoHRkgibmTGpmbV6sHn4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wtEJUwwYDZgk2bUqLUAFqMfL++6Q++gFwzQlo3BB0v2IH4z9OX0oP8H5Ja/r04KI1
-         xAaMUfrhDhy8CVib3iWpcCfXeOm+JV9gTYNHU4OFJRpVvzf/VW+Fjms1ku4tp+c61J
-         Hrl92gJ1Q+MV9q6dNRu/9PekOGqHEGdljy/JE1q4=
+        b=UjC2lSJELTUhYUDXbL8s1Xy6eUJsH1BINZPznLm7dQnPH2fQoo9u+tiZvfuhuGG81
+         gRgfydxDyxRL6lGm2h6lA998lkr7trugYaYEg4i/45/clDvDOg5O6E7aKSQbByOu9R
+         cSS2P1ftQNE8cjQSqPfSAPxvdNe3+qv6H06jdANY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, ryusuke1925 <st13s20@gm.ibaraki-ct.ac.jp>,
-        Koki Mitani <koki.mitani.xg@hco.ntt.co.jp>,
-        Josef Bacik <josef@toxicpanda.com>,
-        Filipe Manana <fdmanana@suse.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.5 21/80] Btrfs: fix race between using extent maps and merging them
+        stable@vger.kernel.org, Herbert Poetzl <herbert@13thfloor.at>,
+        Theodore Tso <tytso@mit.edu>, stable@kernel.org
+Subject: [PATCH 5.4 15/66] ext4: fix support for inode sizes > 1024 bytes
 Date:   Tue, 18 Feb 2020 20:54:42 +0100
-Message-Id: <20200218190434.273780806@linuxfoundation.org>
+Message-Id: <20200218190429.495896795@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200218190432.043414522@linuxfoundation.org>
-References: <20200218190432.043414522@linuxfoundation.org>
+In-Reply-To: <20200218190428.035153861@linuxfoundation.org>
+References: <20200218190428.035153861@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,128 +43,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Filipe Manana <fdmanana@suse.com>
+From: Theodore Ts'o <tytso@mit.edu>
 
-commit ac05ca913e9f3871126d61da275bfe8516ff01ca upstream.
+commit 4f97a68192bd33b9963b400759cef0ca5963af00 upstream.
 
-We have a few cases where we allow an extent map that is in an extent map
-tree to be merged with other extents in the tree. Such cases include the
-unpinning of an extent after the respective ordered extent completed or
-after logging an extent during a fast fsync. This can lead to subtle and
-dangerous problems because when doing the merge some other task might be
-using the same extent map and as consequence see an inconsistent state of
-the extent map - for example sees the new length but has seen the old start
-offset.
+A recent commit, 9803387c55f7 ("ext4: validate the
+debug_want_extra_isize mount option at parse time"), moved mount-time
+checks around.  One of those changes moved the inode size check before
+the blocksize variable was set to the blocksize of the file system.
+After 9803387c55f7 was set to the minimum allowable blocksize, which
+in practice on most systems would be 1024 bytes.  This cuased file
+systems with inode sizes larger than 1024 bytes to be rejected with a
+message:
 
-With luck this triggers a BUG_ON(), and not some silent bug, such as the
-following one in __do_readpage():
+EXT4-fs (sdXX): unsupported inode size: 4096
 
-  $ cat -n fs/btrfs/extent_io.c
-  3061  static int __do_readpage(struct extent_io_tree *tree,
-  3062                           struct page *page,
-  (...)
-  3127                  em = __get_extent_map(inode, page, pg_offset, cur,
-  3128                                        end - cur + 1, get_extent, em_cached);
-  3129                  if (IS_ERR_OR_NULL(em)) {
-  3130                          SetPageError(page);
-  3131                          unlock_extent(tree, cur, end);
-  3132                          break;
-  3133                  }
-  3134                  extent_offset = cur - em->start;
-  3135                  BUG_ON(extent_map_end(em) <= cur);
-  (...)
-
-Consider the following example scenario, where we end up hitting the
-BUG_ON() in __do_readpage().
-
-We have an inode with a size of 8KiB and 2 extent maps:
-
-  extent A: file offset 0, length 4KiB, disk_bytenr = X, persisted on disk by
-            a previous transaction
-
-  extent B: file offset 4KiB, length 4KiB, disk_bytenr = X + 4KiB, not yet
-            persisted but writeback started for it already. The extent map
-	    is pinned since there's writeback and an ordered extent in
-	    progress, so it can not be merged with extent map A yet
-
-The following sequence of steps leads to the BUG_ON():
-
-1) The ordered extent for extent B completes, the respective page gets its
-   writeback bit cleared and the extent map is unpinned, at that point it
-   is not yet merged with extent map A because it's in the list of modified
-   extents;
-
-2) Due to memory pressure, or some other reason, the MM subsystem releases
-   the page corresponding to extent B - btrfs_releasepage() is called and
-   returns 1, meaning the page can be released as it's not dirty, not under
-   writeback anymore and the extent range is not locked in the inode's
-   iotree. However the extent map is not released, either because we are
-   not in a context that allows memory allocations to block or because the
-   inode's size is smaller than 16MiB - in this case our inode has a size
-   of 8KiB;
-
-3) Task B needs to read extent B and ends up __do_readpage() through the
-   btrfs_readpage() callback. At __do_readpage() it gets a reference to
-   extent map B;
-
-4) Task A, doing a fast fsync, calls clear_em_loggin() against extent map B
-   while holding the write lock on the inode's extent map tree - this
-   results in try_merge_map() being called and since it's possible to merge
-   extent map B with extent map A now (the extent map B was removed from
-   the list of modified extents), the merging begins - it sets extent map
-   B's start offset to 0 (was 4KiB), but before it increments the map's
-   length to 8KiB (4kb + 4KiB), task A is at:
-
-   BUG_ON(extent_map_end(em) <= cur);
-
-   The call to extent_map_end() sees the extent map has a start of 0
-   and a length still at 4KiB, so it returns 4KiB and 'cur' is 4KiB, so
-   the BUG_ON() is triggered.
-
-So it's dangerous to modify an extent map that is in the tree, because some
-other task might have got a reference to it before and still using it, and
-needs to see a consistent map while using it. Generally this is very rare
-since most paths that lookup and use extent maps also have the file range
-locked in the inode's iotree. The fsync path is pretty much the only
-exception where we don't do it to avoid serialization with concurrent
-reads.
-
-Fix this by not allowing an extent map do be merged if if it's being used
-by tasks other then the one attempting to merge the extent map (when the
-reference count of the extent map is greater than 2).
-
-Reported-by: ryusuke1925 <st13s20@gm.ibaraki-ct.ac.jp>
-Reported-by: Koki Mitani <koki.mitani.xg@hco.ntt.co.jp>
-Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=206211
-CC: stable@vger.kernel.org # 4.4+
-Reviewed-by: Josef Bacik <josef@toxicpanda.com>
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Fixes: 9803387c55f7 ("ext4: validate the debug_want_extra_isize mount option at parse time")
+Link: https://lore.kernel.org/r/20200206225252.GA3673@mit.edu
+Reported-by: Herbert Poetzl <herbert@13thfloor.at>
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Cc: stable@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/btrfs/extent_map.c |   11 +++++++++++
- 1 file changed, 11 insertions(+)
+ fs/ext4/super.c |   18 ++++++++++--------
+ 1 file changed, 10 insertions(+), 8 deletions(-)
 
---- a/fs/btrfs/extent_map.c
-+++ b/fs/btrfs/extent_map.c
-@@ -237,6 +237,17 @@ static void try_merge_map(struct extent_
- 	struct extent_map *merge = NULL;
- 	struct rb_node *rb;
+--- a/fs/ext4/super.c
++++ b/fs/ext4/super.c
+@@ -3765,6 +3765,15 @@ static int ext4_fill_super(struct super_
+ 	 */
+ 	sbi->s_li_wait_mult = EXT4_DEF_LI_WAIT_MULT;
  
-+	/*
-+	 * We can't modify an extent map that is in the tree and that is being
-+	 * used by another task, as it can cause that other task to see it in
-+	 * inconsistent state during the merging. We always have 1 reference for
-+	 * the tree and 1 for this task (which is unpinning the extent map or
-+	 * clearing the logging flag), so anything > 2 means it's being used by
-+	 * other tasks too.
-+	 */
-+	if (refcount_read(&em->refs) > 2)
-+		return;
++	blocksize = BLOCK_SIZE << le32_to_cpu(es->s_log_block_size);
++	if (blocksize < EXT4_MIN_BLOCK_SIZE ||
++	    blocksize > EXT4_MAX_BLOCK_SIZE) {
++		ext4_msg(sb, KERN_ERR,
++		       "Unsupported filesystem blocksize %d (%d log_block_size)",
++			 blocksize, le32_to_cpu(es->s_log_block_size));
++		goto failed_mount;
++	}
 +
- 	if (em->start != 0) {
- 		rb = rb_prev(&em->rb_node);
- 		if (rb)
+ 	if (le32_to_cpu(es->s_rev_level) == EXT4_GOOD_OLD_REV) {
+ 		sbi->s_inode_size = EXT4_GOOD_OLD_INODE_SIZE;
+ 		sbi->s_first_ino = EXT4_GOOD_OLD_FIRST_INO;
+@@ -3782,6 +3791,7 @@ static int ext4_fill_super(struct super_
+ 			ext4_msg(sb, KERN_ERR,
+ 			       "unsupported inode size: %d",
+ 			       sbi->s_inode_size);
++			ext4_msg(sb, KERN_ERR, "blocksize: %d", blocksize);
+ 			goto failed_mount;
+ 		}
+ 		/*
+@@ -3985,14 +3995,6 @@ static int ext4_fill_super(struct super_
+ 	if (!ext4_feature_set_ok(sb, (sb_rdonly(sb))))
+ 		goto failed_mount;
+ 
+-	blocksize = BLOCK_SIZE << le32_to_cpu(es->s_log_block_size);
+-	if (blocksize < EXT4_MIN_BLOCK_SIZE ||
+-	    blocksize > EXT4_MAX_BLOCK_SIZE) {
+-		ext4_msg(sb, KERN_ERR,
+-		       "Unsupported filesystem blocksize %d (%d log_block_size)",
+-			 blocksize, le32_to_cpu(es->s_log_block_size));
+-		goto failed_mount;
+-	}
+ 	if (le32_to_cpu(es->s_log_block_size) >
+ 	    (EXT4_MAX_BLOCK_LOG_SIZE - EXT4_MIN_BLOCK_LOG_SIZE)) {
+ 		ext4_msg(sb, KERN_ERR,
 
 
