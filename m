@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 30E6C163291
-	for <lists+stable@lfdr.de>; Tue, 18 Feb 2020 21:10:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CADF9163285
+	for <lists+stable@lfdr.de>; Tue, 18 Feb 2020 21:10:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726663AbgBRUIC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Feb 2020 15:08:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36384 "EHLO mail.kernel.org"
+        id S1726623AbgBRUHV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Feb 2020 15:07:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37206 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728226AbgBRT6f (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 18 Feb 2020 14:58:35 -0500
+        id S1728357AbgBRT7E (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 18 Feb 2020 14:59:04 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B0FEC2464E;
-        Tue, 18 Feb 2020 19:58:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C15B824125;
+        Tue, 18 Feb 2020 19:59:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582055915;
-        bh=S7Ztsxekh19xf5KRg0jXLvZMQ3oj0ync9f2TGpT6rxA=;
+        s=default; t=1582055943;
+        bh=l5lJEZkz51E19LU9MHHTVA8iChaAYWOmUBGzBZnmP/c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p9WofKwK/cna7q1mmyb7kZ2T/RyjOj+m2NEn0WTnkUemnvC9ATfalmfJNQxM3u0wE
-         kSNuo7YRn5UrJFeSePeMwS/NOnnSpKY80FeW18ies5luuMKBwmt+8Sq9kIRgeVskIV
-         HNeohwWHiJHaWKrtq1JnUcz5RsnCEIhk7H65myUU=
+        b=kZJkaTzN51sx/xH2vQ+l+UsdUUtRHL7FLv75K+uUbSzxjkebTdydGdkMwQL7+Scye
+         GkW7zUxv6er/RpbqsibawxlsBoeYVnsyAtIs/5jcFFwq7q2TC6/PHtrmoldqPgeP12
+         1Ccplq7HdHXgh+hP8Yh/FqjVjuArpvr5I7+pGPeo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Saurav Girepunje <saurav.girepunje@gmail.com>,
+        stable@vger.kernel.org, Tobias Oszlanyi <toszlanyi@yahoo.de>,
+        Alexander Tsoy <alexander@tsoy.me>,
         Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.4 12/66] ALSA: usb-audio: sound: usb: usb true/false for bool return type
-Date:   Tue, 18 Feb 2020 20:54:39 +0100
-Message-Id: <20200218190429.246014666@linuxfoundation.org>
+Subject: [PATCH 5.4 13/66] ALSA: usb-audio: Add clock validity quirk for Denon MC7000/MCX8000
+Date:   Tue, 18 Feb 2020 20:54:40 +0100
+Message-Id: <20200218190429.330836789@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200218190428.035153861@linuxfoundation.org>
 References: <20200218190428.035153861@linuxfoundation.org>
@@ -44,60 +44,267 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Saurav Girepunje <saurav.girepunje@gmail.com>
+From: Alexander Tsoy <alexander@tsoy.me>
 
-commit 1d4961d9eb1aaa498dfb44779b7e4b95d79112d0 upstream.
+commit 9f35a31283775e6f6af73fb2c95c686a4c0acac7 upstream.
 
-Use true/false for bool type return in uac_clock_source_is_valid().
+It should be safe to ignore clock validity check result if the following
+conditions are met:
+ - only one single sample rate is supported;
+ - the terminal is directly connected to the clock source;
+ - the clock type is internal.
 
-Signed-off-by: Saurav Girepunje <saurav.girepunje@gmail.com>
-Link: https://lore.kernel.org/r/20191029175200.GA7320@saurav
+This is to deal with some Denon DJ controllers that always reports that
+clock is invalid.
+
+Tested-by: Tobias Oszlanyi <toszlanyi@yahoo.de>
+Signed-off-by: Alexander Tsoy <alexander@tsoy.me>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200212235450.697348-1-alexander@tsoy.me
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/usb/clock.c |   10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ sound/usb/clock.c  |   91 ++++++++++++++++++++++++++++++++++++-----------------
+ sound/usb/clock.h  |    4 +-
+ sound/usb/format.c |    3 -
+ 3 files changed, 66 insertions(+), 32 deletions(-)
 
 --- a/sound/usb/clock.c
 +++ b/sound/usb/clock.c
-@@ -165,21 +165,21 @@ static bool uac_clock_source_is_valid(st
- 			snd_usb_find_clock_source_v3(chip->ctrl_intf, source_id);
- 
- 		if (!cs_desc)
--			return 0;
-+			return false;
- 		bmControls = le32_to_cpu(cs_desc->bmControls);
- 	} else { /* UAC_VERSION_1/2 */
- 		struct uac_clock_source_descriptor *cs_desc =
- 			snd_usb_find_clock_source(chip->ctrl_intf, source_id);
- 
- 		if (!cs_desc)
--			return 0;
-+			return false;
- 		bmControls = cs_desc->bmControls;
- 	}
- 
- 	/* If a clock source can't tell us whether it's valid, we assume it is */
- 	if (!uac_v2v3_control_is_readable(bmControls,
- 				      UAC2_CS_CONTROL_CLOCK_VALID))
--		return 1;
-+		return true;
- 
- 	err = snd_usb_ctl_msg(dev, usb_rcvctrlpipe(dev, 0), UAC2_CS_CUR,
- 			      USB_TYPE_CLASS | USB_RECIP_INTERFACE | USB_DIR_IN,
-@@ -191,10 +191,10 @@ static bool uac_clock_source_is_valid(st
- 		dev_warn(&dev->dev,
- 			 "%s(): cannot get clock validity for id %d\n",
- 			   __func__, source_id);
--		return 0;
-+		return false;
- 	}
- 
--	return !!data;
-+	return data ? true :  false;
+@@ -151,8 +151,34 @@ static int uac_clock_selector_set_val(st
+ 	return ret;
  }
  
- static int __uac_clock_find_source(struct snd_usb_audio *chip, int entity_id,
++/*
++ * Assume the clock is valid if clock source supports only one single sample
++ * rate, the terminal is connected directly to it (there is no clock selector)
++ * and clock type is internal. This is to deal with some Denon DJ controllers
++ * that always reports that clock is invalid.
++ */
++static bool uac_clock_source_is_valid_quirk(struct snd_usb_audio *chip,
++					    struct audioformat *fmt,
++					    int source_id)
++{
++	if (fmt->protocol == UAC_VERSION_2) {
++		struct uac_clock_source_descriptor *cs_desc =
++			snd_usb_find_clock_source(chip->ctrl_intf, source_id);
++
++		if (!cs_desc)
++			return false;
++
++		return (fmt->nr_rates == 1 &&
++			(fmt->clock & 0xff) == cs_desc->bClockID &&
++			(cs_desc->bmAttributes & 0x3) !=
++				UAC_CLOCK_SOURCE_TYPE_EXT);
++	}
++
++	return false;
++}
++
+ static bool uac_clock_source_is_valid(struct snd_usb_audio *chip,
+-				      int protocol,
++				      struct audioformat *fmt,
+ 				      int source_id)
+ {
+ 	int err;
+@@ -160,7 +186,7 @@ static bool uac_clock_source_is_valid(st
+ 	struct usb_device *dev = chip->dev;
+ 	u32 bmControls;
+ 
+-	if (protocol == UAC_VERSION_3) {
++	if (fmt->protocol == UAC_VERSION_3) {
+ 		struct uac3_clock_source_descriptor *cs_desc =
+ 			snd_usb_find_clock_source_v3(chip->ctrl_intf, source_id);
+ 
+@@ -194,10 +220,14 @@ static bool uac_clock_source_is_valid(st
+ 		return false;
+ 	}
+ 
+-	return data ? true :  false;
++	if (data)
++		return true;
++	else
++		return uac_clock_source_is_valid_quirk(chip, fmt, source_id);
+ }
+ 
+-static int __uac_clock_find_source(struct snd_usb_audio *chip, int entity_id,
++static int __uac_clock_find_source(struct snd_usb_audio *chip,
++				   struct audioformat *fmt, int entity_id,
+ 				   unsigned long *visited, bool validate)
+ {
+ 	struct uac_clock_source_descriptor *source;
+@@ -217,7 +247,7 @@ static int __uac_clock_find_source(struc
+ 	source = snd_usb_find_clock_source(chip->ctrl_intf, entity_id);
+ 	if (source) {
+ 		entity_id = source->bClockID;
+-		if (validate && !uac_clock_source_is_valid(chip, UAC_VERSION_2,
++		if (validate && !uac_clock_source_is_valid(chip, fmt,
+ 								entity_id)) {
+ 			usb_audio_err(chip,
+ 				"clock source %d is not valid, cannot use\n",
+@@ -248,8 +278,9 @@ static int __uac_clock_find_source(struc
+ 		}
+ 
+ 		cur = ret;
+-		ret = __uac_clock_find_source(chip, selector->baCSourceID[ret - 1],
+-					       visited, validate);
++		ret = __uac_clock_find_source(chip, fmt,
++					      selector->baCSourceID[ret - 1],
++					      visited, validate);
+ 		if (!validate || ret > 0 || !chip->autoclock)
+ 			return ret;
+ 
+@@ -260,8 +291,9 @@ static int __uac_clock_find_source(struc
+ 			if (i == cur)
+ 				continue;
+ 
+-			ret = __uac_clock_find_source(chip, selector->baCSourceID[i - 1],
+-				visited, true);
++			ret = __uac_clock_find_source(chip, fmt,
++						      selector->baCSourceID[i - 1],
++						      visited, true);
+ 			if (ret < 0)
+ 				continue;
+ 
+@@ -281,14 +313,16 @@ static int __uac_clock_find_source(struc
+ 	/* FIXME: multipliers only act as pass-thru element for now */
+ 	multiplier = snd_usb_find_clock_multiplier(chip->ctrl_intf, entity_id);
+ 	if (multiplier)
+-		return __uac_clock_find_source(chip, multiplier->bCSourceID,
+-						visited, validate);
++		return __uac_clock_find_source(chip, fmt,
++					       multiplier->bCSourceID,
++					       visited, validate);
+ 
+ 	return -EINVAL;
+ }
+ 
+-static int __uac3_clock_find_source(struct snd_usb_audio *chip, int entity_id,
+-				   unsigned long *visited, bool validate)
++static int __uac3_clock_find_source(struct snd_usb_audio *chip,
++				    struct audioformat *fmt, int entity_id,
++				    unsigned long *visited, bool validate)
+ {
+ 	struct uac3_clock_source_descriptor *source;
+ 	struct uac3_clock_selector_descriptor *selector;
+@@ -307,7 +341,7 @@ static int __uac3_clock_find_source(stru
+ 	source = snd_usb_find_clock_source_v3(chip->ctrl_intf, entity_id);
+ 	if (source) {
+ 		entity_id = source->bClockID;
+-		if (validate && !uac_clock_source_is_valid(chip, UAC_VERSION_3,
++		if (validate && !uac_clock_source_is_valid(chip, fmt,
+ 								entity_id)) {
+ 			usb_audio_err(chip,
+ 				"clock source %d is not valid, cannot use\n",
+@@ -338,7 +372,8 @@ static int __uac3_clock_find_source(stru
+ 		}
+ 
+ 		cur = ret;
+-		ret = __uac3_clock_find_source(chip, selector->baCSourceID[ret - 1],
++		ret = __uac3_clock_find_source(chip, fmt,
++					       selector->baCSourceID[ret - 1],
+ 					       visited, validate);
+ 		if (!validate || ret > 0 || !chip->autoclock)
+ 			return ret;
+@@ -350,8 +385,9 @@ static int __uac3_clock_find_source(stru
+ 			if (i == cur)
+ 				continue;
+ 
+-			ret = __uac3_clock_find_source(chip, selector->baCSourceID[i - 1],
+-				visited, true);
++			ret = __uac3_clock_find_source(chip, fmt,
++						       selector->baCSourceID[i - 1],
++						       visited, true);
+ 			if (ret < 0)
+ 				continue;
+ 
+@@ -372,7 +408,8 @@ static int __uac3_clock_find_source(stru
+ 	multiplier = snd_usb_find_clock_multiplier_v3(chip->ctrl_intf,
+ 						      entity_id);
+ 	if (multiplier)
+-		return __uac3_clock_find_source(chip, multiplier->bCSourceID,
++		return __uac3_clock_find_source(chip, fmt,
++						multiplier->bCSourceID,
+ 						visited, validate);
+ 
+ 	return -EINVAL;
+@@ -389,18 +426,18 @@ static int __uac3_clock_find_source(stru
+  *
+  * Returns the clock source UnitID (>=0) on success, or an error.
+  */
+-int snd_usb_clock_find_source(struct snd_usb_audio *chip, int protocol,
+-			      int entity_id, bool validate)
++int snd_usb_clock_find_source(struct snd_usb_audio *chip,
++			      struct audioformat *fmt, bool validate)
+ {
+ 	DECLARE_BITMAP(visited, 256);
+ 	memset(visited, 0, sizeof(visited));
+ 
+-	switch (protocol) {
++	switch (fmt->protocol) {
+ 	case UAC_VERSION_2:
+-		return __uac_clock_find_source(chip, entity_id, visited,
++		return __uac_clock_find_source(chip, fmt, fmt->clock, visited,
+ 					       validate);
+ 	case UAC_VERSION_3:
+-		return __uac3_clock_find_source(chip, entity_id, visited,
++		return __uac3_clock_find_source(chip, fmt, fmt->clock, visited,
+ 					       validate);
+ 	default:
+ 		return -EINVAL;
+@@ -501,8 +538,7 @@ static int set_sample_rate_v2v3(struct s
+ 	 * automatic clock selection if the current clock is not
+ 	 * valid.
+ 	 */
+-	clock = snd_usb_clock_find_source(chip, fmt->protocol,
+-					  fmt->clock, true);
++	clock = snd_usb_clock_find_source(chip, fmt, true);
+ 	if (clock < 0) {
+ 		/* We did not find a valid clock, but that might be
+ 		 * because the current sample rate does not match an
+@@ -510,8 +546,7 @@ static int set_sample_rate_v2v3(struct s
+ 		 * and we will do another validation after setting the
+ 		 * rate.
+ 		 */
+-		clock = snd_usb_clock_find_source(chip, fmt->protocol,
+-						  fmt->clock, false);
++		clock = snd_usb_clock_find_source(chip, fmt, false);
+ 		if (clock < 0)
+ 			return clock;
+ 	}
+@@ -577,7 +612,7 @@ static int set_sample_rate_v2v3(struct s
+ 
+ validation:
+ 	/* validate clock after rate change */
+-	if (!uac_clock_source_is_valid(chip, fmt->protocol, clock))
++	if (!uac_clock_source_is_valid(chip, fmt, clock))
+ 		return -ENXIO;
+ 	return 0;
+ }
+--- a/sound/usb/clock.h
++++ b/sound/usb/clock.h
+@@ -6,7 +6,7 @@ int snd_usb_init_sample_rate(struct snd_
+ 			     struct usb_host_interface *alts,
+ 			     struct audioformat *fmt, int rate);
+ 
+-int snd_usb_clock_find_source(struct snd_usb_audio *chip, int protocol,
+-			     int entity_id, bool validate);
++int snd_usb_clock_find_source(struct snd_usb_audio *chip,
++			      struct audioformat *fmt, bool validate);
+ 
+ #endif /* __USBAUDIO_CLOCK_H */
+--- a/sound/usb/format.c
++++ b/sound/usb/format.c
+@@ -322,8 +322,7 @@ static int parse_audio_format_rates_v2v3
+ 	struct usb_device *dev = chip->dev;
+ 	unsigned char tmp[2], *data;
+ 	int nr_triplets, data_size, ret = 0, ret_l6;
+-	int clock = snd_usb_clock_find_source(chip, fp->protocol,
+-					      fp->clock, false);
++	int clock = snd_usb_clock_find_source(chip, fp, false);
+ 
+ 	if (clock < 0) {
+ 		dev_err(&dev->dev,
 
 
