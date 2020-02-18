@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4288A16318F
-	for <lists+stable@lfdr.de>; Tue, 18 Feb 2020 21:01:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C2A7163298
+	for <lists+stable@lfdr.de>; Tue, 18 Feb 2020 21:10:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727755AbgBRUBq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Feb 2020 15:01:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41508 "EHLO mail.kernel.org"
+        id S1726620AbgBRUIm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Feb 2020 15:08:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35044 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728610AbgBRUBq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 18 Feb 2020 15:01:46 -0500
+        id S1727987AbgBRT5j (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 18 Feb 2020 14:57:39 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B5C832465D;
-        Tue, 18 Feb 2020 20:01:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 726EA24670;
+        Tue, 18 Feb 2020 19:57:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582056105;
-        bh=oj6uAmJiAijYz3tJYNyBhtgI/KSxiSGRZ0l2McquZKo=;
+        s=default; t=1582055858;
+        bh=5BanddPanjla8ZTGWbfTE9JVb11UW/XRK0aZm0tPR+A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ttjLta7YS1lFuOttNX5Ibbn2CfmooAFeqAX7Js7zGuiQxx9E3BuM1OSxRyPkmK++w
-         itmvWYIJEhfOBuy8pZC3QGHHZAhvtQFzDg6e+fmhybRx+YPhn8Bfoe2Ux5OPN/fmfG
-         MRGC1M3Nt2PkWgRUNPxCQajpJdxBRvm6goC1n0Y4=
+        b=0joDewAIV3Qy/VVyN1o3iAKPjNjt3XXr/YGXcPkx5Q7CpkA3OIfSdXAkQgu+M5tcy
+         MIiwMO7DLy1G8/Firtf9wYE7Qv/ovTaQCab92jZAHfZoAfa1eK7f9+ebEYM8CqTt3W
+         7km0dsRL45tuvuZ0tg+qAmUxpwH6rMNWNneJolGc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.5 07/80] ALSA: usb-audio: Fix UAC2/3 effect unit parsing
-Date:   Tue, 18 Feb 2020 20:54:28 +0100
-Message-Id: <20200218190432.771010418@linuxfoundation.org>
+        stable@vger.kernel.org, Gaurav Agrawal <agrawalgaurav@gnome.org>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH 5.4 02/66] Input: synaptics - enable SMBus on ThinkPad L470
+Date:   Tue, 18 Feb 2020 20:54:29 +0100
+Message-Id: <20200218190428.289430191@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200218190432.043414522@linuxfoundation.org>
-References: <20200218190432.043414522@linuxfoundation.org>
+In-Reply-To: <20200218190428.035153861@linuxfoundation.org>
+References: <20200218190428.035153861@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,84 +43,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Gaurav Agrawal <agrawalgaurav@gnome.org>
 
-commit d75a170fd848f037a1e28893ad10be7a4c51f8a6 upstream.
+commit b8a3d819f872e0a3a0a6db0dbbcd48071042fb98 upstream.
 
-We've got a regression report about M-Audio Fast Track C400 device,
-and the git bisection resulted in the commit e0ccdef92653 ("ALSA:
-usb-audio: Clean up check_input_term()").  This commit was about the
-rewrite of the input terminal parser, and it's not too obvious from
-the change what really broke.  The answer is: it's the interpretation
-of UAC2/3 effect units.
+Add touchpad LEN2044 to the list, as it is capable of working with
+psmouse.synaptics_intertouch=1
 
-In the original code, UAC2 effect unit is as if through UAC1
-processing unit because both UAC1 PU and UAC2/3 EU share the same
-number (0x07).  The old code went through a complex switch-case
-fallthrough, finally bailing out in the middle:
-
-  if (protocol == UAC_VERSION_2 &&
-      hdr[2] == UAC2_EFFECT_UNIT) {
-         /* UAC2/UAC1 unit IDs overlap here in an
-          * uncompatible way. Ignore this unit for now.
-          */
-         return 0;
-   }
-
-... and this special handling was missing in the new code; the new
-code treats UAC2/3 effect unit as if it were equivalent with the
-processing unit.
-
-Actually, the old code was too confusing.  The effect unit has an
-incompatible unit description with the processing unit, so we
-shouldn't have dealt with EU in the same way.
-
-This patch addresses the regression by changing the effect unit
-handling to the own parser function.  The own parser function makes
-the clear distinct with PU, so it improves the readability, too.
-
-The EU parser just sets the type and the id like the old kernels.
-Once when the proper effect unit support is added, we can revisit this
-parser function, but for now, let's keep this simple setup as is.
-
-Fixes: e0ccdef92653 ("ALSA: usb-audio: Clean up check_input_term()")
-Cc: <stable@vger.kernel.org>
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=206147
-Link: https://lore.kernel.org/r/20200211160521.31990-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Gaurav Agrawal <agrawalgaurav@gnome.org>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/CADdtggVzVJq5gGNmFhKSz2MBwjTpdN5YVOdr4D3Hkkv=KZRc9g@mail.gmail.com
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/usb/mixer.c |   12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ drivers/input/mouse/synaptics.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/sound/usb/mixer.c
-+++ b/sound/usb/mixer.c
-@@ -897,6 +897,15 @@ static int parse_term_proc_unit(struct m
- 	return 0;
- }
- 
-+static int parse_term_effect_unit(struct mixer_build *state,
-+				  struct usb_audio_term *term,
-+				  void *p1, int id)
-+{
-+	term->type = UAC3_EFFECT_UNIT << 16; /* virtual type */
-+	term->id = id;
-+	return 0;
-+}
-+
- static int parse_term_uac2_clock_source(struct mixer_build *state,
- 					struct usb_audio_term *term,
- 					void *p1, int id)
-@@ -981,8 +990,7 @@ static int __check_input_term(struct mix
- 						    UAC3_PROCESSING_UNIT);
- 		case PTYPE(UAC_VERSION_2, UAC2_EFFECT_UNIT):
- 		case PTYPE(UAC_VERSION_3, UAC3_EFFECT_UNIT):
--			return parse_term_proc_unit(state, term, p1, id,
--						    UAC3_EFFECT_UNIT);
-+			return parse_term_effect_unit(state, term, p1, id);
- 		case PTYPE(UAC_VERSION_1, UAC1_EXTENSION_UNIT):
- 		case PTYPE(UAC_VERSION_2, UAC2_EXTENSION_UNIT_V2):
- 		case PTYPE(UAC_VERSION_3, UAC3_EXTENSION_UNIT):
+--- a/drivers/input/mouse/synaptics.c
++++ b/drivers/input/mouse/synaptics.c
+@@ -180,6 +180,7 @@ static const char * const smbus_pnp_ids[
+ 	"LEN0097", /* X280 -> ALPS trackpoint */
+ 	"LEN009b", /* T580 */
+ 	"LEN200f", /* T450s */
++	"LEN2044", /* L470  */
+ 	"LEN2054", /* E480 */
+ 	"LEN2055", /* E580 */
+ 	"SYN3052", /* HP EliteBook 840 G4 */
 
 
