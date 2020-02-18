@@ -2,88 +2,240 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AD60C1630F5
-	for <lists+stable@lfdr.de>; Tue, 18 Feb 2020 20:58:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3EE8E1630DD
+	for <lists+stable@lfdr.de>; Tue, 18 Feb 2020 20:58:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728055AbgBRT5x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Feb 2020 14:57:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35314 "EHLO mail.kernel.org"
+        id S1727781AbgBRT5G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Feb 2020 14:57:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34310 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728051AbgBRT5w (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 18 Feb 2020 14:57:52 -0500
+        id S1727815AbgBRT5F (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 18 Feb 2020 14:57:05 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2FFF220659;
-        Tue, 18 Feb 2020 19:57:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7610724125;
+        Tue, 18 Feb 2020 19:57:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582055871;
-        bh=889FUsw8ToFo6ZuKe4T1rsGGm3hUcVkaCHLutHExmao=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UpccIs2f0uS4UrTYRhY5+3hYhTvou+H6w5zXCTJhOQ1BKPRpN5dP7ePu/ozgBvbJi
-         uLZyEIpTmHumsg8m5wFR/Dxs+08Xv9vk3ygNhWRd0e9/AV0GpBkzsbN76rJvlxvUze
-         OnS0Y+7qhqYS+dMJ59eCnX2FlNeYoI3jOXagGiPA=
+        s=default; t=1582055824;
+        bh=0NMSIlgeucUhav4NZuD/7fuGpHzVSMpOsAVbdoEeNw0=;
+        h=From:To:Cc:Subject:Date:From;
+        b=GMRjLNdQaUAMMQQARjuVqrT+GnO61yR8dv6dUOSoiFaaUgF+lb7KcckCt74S/OGcx
+         RQ7msRNNpnViMUYgw0xZ9Mg83YZETxdeaqFzocy2wim5/AyKJeFnpZMxoMCluyGL0x
+         6iG8+1tk1Ciufr7z/hPZ7FLYZrHrW25jPbrQBIbo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arvind Sankar <nivedita@alum.mit.edu>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.4 07/66] ALSA: usb-audio: Apply sample rate quirk for Audioengine D1
-Date:   Tue, 18 Feb 2020 20:54:34 +0100
-Message-Id: <20200218190428.788565639@linuxfoundation.org>
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org
+Subject: [PATCH 4.19 00/38] 4.19.105-stable review
+Date:   Tue, 18 Feb 2020 20:54:46 +0100
+Message-Id: <20200218190418.536430858@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200218190428.035153861@linuxfoundation.org>
-References: <20200218190428.035153861@linuxfoundation.org>
-User-Agent: quilt/0.66
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.105-rc1.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-4.19.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 4.19.105-rc1
+X-KernelTest-Deadline: 2020-02-20T19:04+00:00
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arvind Sankar <nivedita@alum.mit.edu>
+This is the start of the stable review cycle for the 4.19.105 release.
+There are 38 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-commit 93f9d1a4ac5930654c17412e3911b46ece73755a upstream.
+Responses should be made by Thu, 20 Feb 2020 19:03:19 +0000.
+Anything received after that time might be too late.
 
-The Audioengine D1 (0x2912:0x30c8) does support reading the sample rate,
-but it returns the rate in byte-reversed order.
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.105-rc1.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.19.y
+and the diffstat can be found below.
 
-When setting sampling rate, the driver produces these warning messages:
-[168840.944226] usb 3-2.2: current rate 4500480 is different from the runtime rate 44100
-[168854.930414] usb 3-2.2: current rate 8436480 is different from the runtime rate 48000
-[168905.185825] usb 3-2.1.2: current rate 30465 is different from the runtime rate 96000
+thanks,
 
-As can be seen from the hexadecimal conversion, the current rate read
-back is byte-reversed from the rate that was set.
+greg k-h
 
-44100 == 0x00ac44, 4500480 == 0x44ac00
-48000 == 0x00bb80, 8436480 == 0x80bb00
-96000 == 0x017700,   30465 == 0x007701
+-------------
+Pseudo-Shortlog of commits:
 
-Rather than implementing a new quirk to reverse the order, just skip
-checking the rate to avoid spamming the log.
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 4.19.105-rc1
 
-Signed-off-by: Arvind Sankar <nivedita@alum.mit.edu>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200211162235.1639889-1-nivedita@alum.mit.edu
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Sean Christopherson <sean.j.christopherson@intel.com>
+    KVM: x86/mmu: Fix struct guest_walker arrays for 5-level paging
 
----
- sound/usb/quirks.c |    1 +
- 1 file changed, 1 insertion(+)
+zhangyi (F) <yi.zhang@huawei.com>
+    jbd2: do not clear the BH_Mapped flag when forgetting a metadata buffer
 
---- a/sound/usb/quirks.c
-+++ b/sound/usb/quirks.c
-@@ -1402,6 +1402,7 @@ bool snd_usb_get_sample_rate_quirk(struc
- 	case USB_ID(0x1395, 0x740a): /* Sennheiser DECT */
- 	case USB_ID(0x1901, 0x0191): /* GE B850V3 CP2114 audio interface */
- 	case USB_ID(0x21B4, 0x0081): /* AudioQuest DragonFly */
-+	case USB_ID(0x2912, 0x30c8): /* Audioengine D1 */
- 		return true;
- 	}
- 
+zhangyi (F) <yi.zhang@huawei.com>
+    jbd2: move the clearing of b_modified flag to the journal_unmap_buffer()
+
+Olga Kornievskaia <kolga@netapp.com>
+    NFSv4.1 make cachethis=no for writes
+
+Mike Jones <michael-a1.jones@analog.com>
+    hwmon: (pmbus/ltc2978) Fix PMBus polling of MFR_COMMON definitions.
+
+Kan Liang <kan.liang@linux.intel.com>
+    perf/x86/intel: Fix inaccurate period in context switch for auto-reload
+
+Nathan Chancellor <natechancellor@gmail.com>
+    s390/time: Fix clk type in get_tod_clock
+
+Leon Romanovsky <leon@kernel.org>
+    RDMA/core: Fix protection fault in get_pkey_idx_qp_list
+
+Zhu Yanjun <yanjunz@mellanox.com>
+    RDMA/rxe: Fix soft lockup problem due to using tasklets in softirq
+
+Kamal Heib <kamalheib1@gmail.com>
+    RDMA/hfi1: Fix memory leak in _dev_comp_vect_mappings_create
+
+Avihai Horon <avihaih@mellanox.com>
+    RDMA/core: Fix invalid memory access in spec_filter_size
+
+Kaike Wan <kaike.wan@intel.com>
+    IB/rdmavt: Reset all QPs when the device is shut down
+
+Mike Marciniszyn <mike.marciniszyn@intel.com>
+    IB/hfi1: Close window for pq and request coliding
+
+Kaike Wan <kaike.wan@intel.com>
+    IB/hfi1: Acquire lock to release TID entries when user file is closed
+
+Yi Zhang <yi.zhang@redhat.com>
+    nvme: fix the parameter order for nvme_get_log in nvme_get_fw_slot_info
+
+Kim Phillips <kim.phillips@amd.com>
+    perf/x86/amd: Add missing L2 misses event spec to AMD Family 17h's event map
+
+Sean Christopherson <sean.j.christopherson@intel.com>
+    KVM: nVMX: Use correct root level for nested EPT shadow page tables
+
+Will Deacon <will@kernel.org>
+    arm64: ssbs: Fix context-switch when SSBS is present on all CPUs
+
+Krzysztof Kozlowski <krzk@kernel.org>
+    ARM: npcm: Bring back GPIOLIB support
+
+David Sterba <dsterba@suse.com>
+    btrfs: log message when rw remount is attempted with unclean tree-log
+
+David Sterba <dsterba@suse.com>
+    btrfs: print message when tree-log replay starts
+
+Wenwen Wang <wenwen@cs.uga.edu>
+    btrfs: ref-verify: fix memory leaks
+
+Filipe Manana <fdmanana@suse.com>
+    Btrfs: fix race between using extent maps and merging them
+
+Theodore Ts'o <tytso@mit.edu>
+    ext4: improve explanation of a mount failure caused by a misconfigured kernel
+
+Shijie Luo <luoshijie1@huawei.com>
+    ext4: add cond_resched() to ext4_protect_reserved_inode
+
+Jan Kara <jack@suse.cz>
+    ext4: fix checksum errors with indexed dirs
+
+Theodore Ts'o <tytso@mit.edu>
+    ext4: fix support for inode sizes > 1024 bytes
+
+Andreas Dilger <adilger@dilger.ca>
+    ext4: don't assume that mmp_nodename/bdevname have NUL
+
+Alexander Tsoy <alexander@tsoy.me>
+    ALSA: usb-audio: Add clock validity quirk for Denon MC7000/MCX8000
+
+Saurav Girepunje <saurav.girepunje@gmail.com>
+    ALSA: usb-audio: sound: usb: usb true/false for bool return type
+
+Suzuki K Poulose <suzuki.poulose@arm.com>
+    arm64: nofpsmid: Handle TIF_FOREIGN_FPSTATE flag cleanly
+
+Suzuki K Poulose <suzuki.poulose@arm.com>
+    arm64: cpufeature: Set the FP/SIMD compat HWCAP bits properly
+
+Arvind Sankar <nivedita@alum.mit.edu>
+    ALSA: usb-audio: Apply sample rate quirk for Audioengine D1
+
+Takashi Iwai <tiwai@suse.de>
+    ALSA: hda/realtek - Fix silent output on MSI-GL73
+
+Takashi Iwai <tiwai@suse.de>
+    ALSA: usb-audio: Fix UAC2/3 effect unit parsing
+
+Benjamin Tissoires <benjamin.tissoires@redhat.com>
+    Input: synaptics - remove the LEN0049 dmi id from topbuttonpad list
+
+Gaurav Agrawal <agrawalgaurav@gnome.org>
+    Input: synaptics - enable SMBus on ThinkPad L470
+
+Lyude Paul <lyude@redhat.com>
+    Input: synaptics - switch T470s to RMI4 by default
+
+
+-------------
+
+Diffstat:
+
+ Makefile                                  |  4 +-
+ arch/arm/mach-npcm/Kconfig                |  2 +-
+ arch/arm64/kernel/cpufeature.c            | 52 +++++++++++++---
+ arch/arm64/kernel/fpsimd.c                | 20 ++++++-
+ arch/arm64/kernel/process.c               |  7 +++
+ arch/arm64/kvm/hyp/switch.c               | 10 +++-
+ arch/s390/include/asm/timex.h             |  2 +-
+ arch/x86/events/amd/core.c                |  1 +
+ arch/x86/events/intel/ds.c                |  2 +
+ arch/x86/kvm/paging_tmpl.h                |  2 +-
+ arch/x86/kvm/vmx/vmx.c                    |  3 +
+ drivers/hwmon/pmbus/ltc2978.c             |  4 +-
+ drivers/infiniband/core/security.c        | 24 +++-----
+ drivers/infiniband/core/uverbs_cmd.c      | 15 +++--
+ drivers/infiniband/hw/hfi1/affinity.c     |  2 +
+ drivers/infiniband/hw/hfi1/file_ops.c     | 52 +++++++++-------
+ drivers/infiniband/hw/hfi1/hfi.h          |  5 +-
+ drivers/infiniband/hw/hfi1/user_exp_rcv.c |  5 +-
+ drivers/infiniband/hw/hfi1/user_sdma.c    | 17 ++++--
+ drivers/infiniband/sw/rdmavt/qp.c         | 84 +++++++++++++++-----------
+ drivers/infiniband/sw/rxe/rxe_comp.c      |  8 +--
+ drivers/input/mouse/synaptics.c           |  4 +-
+ drivers/nvme/host/core.c                  |  2 +-
+ fs/btrfs/disk-io.c                        |  1 +
+ fs/btrfs/extent_map.c                     | 11 ++++
+ fs/btrfs/ref-verify.c                     |  5 ++
+ fs/btrfs/super.c                          |  2 +
+ fs/ext4/block_validity.c                  |  1 +
+ fs/ext4/dir.c                             | 14 +++--
+ fs/ext4/ext4.h                            |  5 +-
+ fs/ext4/inode.c                           | 12 ++++
+ fs/ext4/mmp.c                             | 12 ++--
+ fs/ext4/namei.c                           |  7 +++
+ fs/ext4/super.c                           | 32 +++++-----
+ fs/jbd2/commit.c                          | 46 +++++++-------
+ fs/jbd2/transaction.c                     | 10 ++--
+ fs/nfs/nfs4proc.c                         |  2 +-
+ sound/pci/hda/patch_realtek.c             |  1 +
+ sound/usb/clock.c                         | 99 +++++++++++++++++++++----------
+ sound/usb/clock.h                         |  4 +-
+ sound/usb/format.c                        |  3 +-
+ sound/usb/mixer.c                         | 12 +++-
+ sound/usb/quirks.c                        |  1 +
+ 43 files changed, 405 insertions(+), 202 deletions(-)
 
 
