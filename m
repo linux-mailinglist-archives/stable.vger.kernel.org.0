@@ -2,182 +2,73 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C81E61631F9
-	for <lists+stable@lfdr.de>; Tue, 18 Feb 2020 21:06:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 27FEA1633C0
+	for <lists+stable@lfdr.de>; Tue, 18 Feb 2020 22:03:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729027AbgBRUD7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Feb 2020 15:03:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45416 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729166AbgBRUD6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 18 Feb 2020 15:03:58 -0500
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 40FFD21D56;
-        Tue, 18 Feb 2020 20:03:57 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582056237;
-        bh=MjbAwarxr7IV5yIMjnOz7+XarybWEmEx3aToUhDogsE=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=e/mP9+KL14wo15c04RKPZv6suZAZpcSsCvEuWs2zFYwfl0SEEZfcAHe/bVu7k9AMF
-         zLvcezocHQymCm7AMIcl0hYG8Gt3EO5pcNzUdnBRtcCZFnkrjpnlZRxt3ANI3lr9py
-         NzInA/7iECqMCvNcLKFMDoA+/yPe3emcqJwMnsUk=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Micha=C5=82=20Miros=C5=82aw?= <mirq-linux@rere.qmqm.pl>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 80/80] mmc: core: Rework wp-gpio handling
-Date:   Tue, 18 Feb 2020 20:55:41 +0100
-Message-Id: <20200218190439.428756287@linuxfoundation.org>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200218190432.043414522@linuxfoundation.org>
-References: <20200218190432.043414522@linuxfoundation.org>
-User-Agent: quilt/0.66
+        id S1726383AbgBRVDZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Feb 2020 16:03:25 -0500
+Received: from Galois.linutronix.de ([193.142.43.55]:36933 "EHLO
+        Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726339AbgBRVDY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Feb 2020 16:03:24 -0500
+Received: from p5de0bf0b.dip0.t-ipconnect.de ([93.224.191.11] helo=nanos.tec.linutronix.de)
+        by Galois.linutronix.de with esmtpsa (TLS1.2:DHE_RSA_AES_256_CBC_SHA256:256)
+        (Exim 4.80)
+        (envelope-from <tglx@linutronix.de>)
+        id 1j4A1O-0006ER-Ar; Tue, 18 Feb 2020 22:03:10 +0100
+Received: by nanos.tec.linutronix.de (Postfix, from userid 1000)
+        id B684E100617; Tue, 18 Feb 2020 22:03:09 +0100 (CET)
+From:   Thomas Gleixner <tglx@linutronix.de>
+To:     Juergen Gross <jgross@suse.com>, xen-devel@lists.xenproject.org,
+        x86@kernel.org, linux-kernel@vger.kernel.org,
+        virtualization@lists.linux-foundation.org
+Cc:     Juergen Gross <jgross@suse.com>, Ingo Molnar <mingo@redhat.com>,
+        Borislav Petkov <bp@alien8.de>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        Thomas Hellstrom <thellstrom@vmware.com>,
+        "VMware\, Inc." <pv-drivers@vmware.com>,
+        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+        Stefano Stabellini <sstabellini@kernel.org>,
+        stable@vger.kernel.org
+Subject: Re: [PATCH] x86/ioperm: add new paravirt function update_io_bitmap
+In-Reply-To: <20200218154712.25490-1-jgross@suse.com>
+References: <20200218154712.25490-1-jgross@suse.com>
+Date:   Tue, 18 Feb 2020 22:03:09 +0100
+Message-ID: <87mu9fr4ky.fsf@nanos.tec.linutronix.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-Linutronix-Spam-Score: -1.0
+X-Linutronix-Spam-Level: -
+X-Linutronix-Spam-Status: No , -1.0 points, 5.0 required,  ALL_TRUSTED=-1,SHORTCIRCUIT=-0.0001
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michał Mirosław <mirq-linux@rere.qmqm.pl>
+Juergen Gross <jgross@suse.com> writes:
+> Commit 111e7b15cf10f6 ("x86/ioperm: Extend IOPL config to control
+> ioperm() as well") reworked the iopl syscall to use I/O bitmaps.
+>
+> Unfortunately this broke Xen PV domains using that syscall as there
+> is currently no I/O bitmap support in PV domains.
+>
+> Add I/O bitmap support via a new paravirt function update_io_bitmap
+> which Xen PV domains can use to update their I/O bitmaps via a
+> hypercall.
+>
+> Fixes: 111e7b15cf10f6 ("x86/ioperm: Extend IOPL config to control ioperm() as well")
+> Reported-by: Jan Beulich <jbeulich@suse.com>
+> Cc: <stable@vger.kernel.org> # 5.5
+> Signed-off-by: Juergen Gross <jgross@suse.com>
+> Reviewed-by: Jan Beulich <jbeulich@suse.com>
+> Tested-by: Jan Beulich <jbeulich@suse.com>
 
-[ Upstream commit 9073d10b098973519044f5fcdc25586810b435da ]
+Duh, sorry about that and thanks for fixing it.
 
-Use MMC_CAP2_RO_ACTIVE_HIGH flag as indicator if GPIO line is to be
-inverted compared to DT/platform-specified polarity. The flag is not used
-after init in GPIO mode anyway. No functional changes intended.
+BTW, why isn't stuff like this not catched during next or at least
+before the final release? Is nothing running CI on upstream with all
+that XEN muck active?
 
-Signed-off-by: Michał Mirosław <mirq-linux@rere.qmqm.pl>
-Link: https://lore.kernel.org/r/a60f563f11bbff821da2fa2949ca82922b144860.1576031637.git.mirq-linux@rere.qmqm.pl
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/gpio/gpiolib-of.c          |  4 ----
- drivers/mmc/core/host.c            | 11 ++++-------
- drivers/mmc/core/slot-gpio.c       |  3 +++
- drivers/mmc/host/pxamci.c          |  8 ++++----
- drivers/mmc/host/sdhci-esdhc-imx.c |  3 ++-
- 5 files changed, 13 insertions(+), 16 deletions(-)
+Thanks,
 
-diff --git a/drivers/gpio/gpiolib-of.c b/drivers/gpio/gpiolib-of.c
-index b696e4598a240..b0e79bed59520 100644
---- a/drivers/gpio/gpiolib-of.c
-+++ b/drivers/gpio/gpiolib-of.c
-@@ -147,10 +147,6 @@ static void of_gpio_flags_quirks(struct device_node *np,
- 			if (of_property_read_bool(np, "cd-inverted"))
- 				*flags ^= OF_GPIO_ACTIVE_LOW;
- 		}
--		if (!strcmp(propname, "wp-gpios")) {
--			if (of_property_read_bool(np, "wp-inverted"))
--				*flags ^= OF_GPIO_ACTIVE_LOW;
--		}
- 	}
- 	/*
- 	 * Some GPIO fixed regulator quirks.
-diff --git a/drivers/mmc/core/host.c b/drivers/mmc/core/host.c
-index 105b7a7c02513..b3484def0a8b0 100644
---- a/drivers/mmc/core/host.c
-+++ b/drivers/mmc/core/host.c
-@@ -176,7 +176,6 @@ int mmc_of_parse(struct mmc_host *host)
- 	u32 bus_width, drv_type, cd_debounce_delay_ms;
- 	int ret;
- 	bool cd_cap_invert, cd_gpio_invert = false;
--	bool ro_cap_invert, ro_gpio_invert = false;
- 
- 	if (!dev || !dev_fwnode(dev))
- 		return 0;
-@@ -255,9 +254,11 @@ int mmc_of_parse(struct mmc_host *host)
- 	}
- 
- 	/* Parse Write Protection */
--	ro_cap_invert = device_property_read_bool(dev, "wp-inverted");
- 
--	ret = mmc_gpiod_request_ro(host, "wp", 0, 0, &ro_gpio_invert);
-+	if (device_property_read_bool(dev, "wp-inverted"))
-+		host->caps2 |= MMC_CAP2_RO_ACTIVE_HIGH;
-+
-+	ret = mmc_gpiod_request_ro(host, "wp", 0, 0, NULL);
- 	if (!ret)
- 		dev_info(host->parent, "Got WP GPIO\n");
- 	else if (ret != -ENOENT && ret != -ENOSYS)
-@@ -266,10 +267,6 @@ int mmc_of_parse(struct mmc_host *host)
- 	if (device_property_read_bool(dev, "disable-wp"))
- 		host->caps2 |= MMC_CAP2_NO_WRITE_PROTECT;
- 
--	/* See the comment on CD inversion above */
--	if (ro_cap_invert ^ ro_gpio_invert)
--		host->caps2 |= MMC_CAP2_RO_ACTIVE_HIGH;
--
- 	if (device_property_read_bool(dev, "cap-sd-highspeed"))
- 		host->caps |= MMC_CAP_SD_HIGHSPEED;
- 	if (device_property_read_bool(dev, "cap-mmc-highspeed"))
-diff --git a/drivers/mmc/core/slot-gpio.c b/drivers/mmc/core/slot-gpio.c
-index da2596c5fa28d..582ec3d720f64 100644
---- a/drivers/mmc/core/slot-gpio.c
-+++ b/drivers/mmc/core/slot-gpio.c
-@@ -241,6 +241,9 @@ int mmc_gpiod_request_ro(struct mmc_host *host, const char *con_id,
- 			return ret;
- 	}
- 
-+	if (host->caps2 & MMC_CAP2_RO_ACTIVE_HIGH)
-+		gpiod_toggle_active_low(desc);
-+
- 	if (gpio_invert)
- 		*gpio_invert = !gpiod_is_active_low(desc);
- 
-diff --git a/drivers/mmc/host/pxamci.c b/drivers/mmc/host/pxamci.c
-index 024acc1b0a2ea..b2bbcb09a49e6 100644
---- a/drivers/mmc/host/pxamci.c
-+++ b/drivers/mmc/host/pxamci.c
-@@ -740,16 +740,16 @@ static int pxamci_probe(struct platform_device *pdev)
- 			goto out;
- 		}
- 
-+		if (!host->pdata->gpio_card_ro_invert)
-+			mmc->caps2 |= MMC_CAP2_RO_ACTIVE_HIGH;
-+
- 		ret = mmc_gpiod_request_ro(mmc, "wp", 0, 0, NULL);
- 		if (ret && ret != -ENOENT) {
- 			dev_err(dev, "Failed requesting gpio_ro\n");
- 			goto out;
- 		}
--		if (!ret) {
-+		if (!ret)
- 			host->use_ro_gpio = true;
--			mmc->caps2 |= host->pdata->gpio_card_ro_invert ?
--				0 : MMC_CAP2_RO_ACTIVE_HIGH;
--		}
- 
- 		if (host->pdata->init)
- 			host->pdata->init(dev, pxamci_detect_irq, mmc);
-diff --git a/drivers/mmc/host/sdhci-esdhc-imx.c b/drivers/mmc/host/sdhci-esdhc-imx.c
-index 1c988d6a24330..dccb4df465126 100644
---- a/drivers/mmc/host/sdhci-esdhc-imx.c
-+++ b/drivers/mmc/host/sdhci-esdhc-imx.c
-@@ -1381,13 +1381,14 @@ static int sdhci_esdhc_imx_probe_nondt(struct platform_device *pdev,
- 				host->mmc->parent->platform_data);
- 	/* write_protect */
- 	if (boarddata->wp_type == ESDHC_WP_GPIO) {
-+		host->mmc->caps2 |= MMC_CAP2_RO_ACTIVE_HIGH;
-+
- 		err = mmc_gpiod_request_ro(host->mmc, "wp", 0, 0, NULL);
- 		if (err) {
- 			dev_err(mmc_dev(host->mmc),
- 				"failed to request write-protect gpio!\n");
- 			return err;
- 		}
--		host->mmc->caps2 |= MMC_CAP2_RO_ACTIVE_HIGH;
- 	}
- 
- 	/* card_detect */
--- 
-2.20.1
-
-
-
+        tglx
