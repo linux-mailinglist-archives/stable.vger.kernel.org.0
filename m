@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C171163102
-	for <lists+stable@lfdr.de>; Tue, 18 Feb 2020 20:58:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E7D01630DB
+	for <lists+stable@lfdr.de>; Tue, 18 Feb 2020 20:58:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728180AbgBRT6Z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Feb 2020 14:58:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36074 "EHLO mail.kernel.org"
+        id S1727720AbgBRT5B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Feb 2020 14:57:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34198 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728179AbgBRT6Y (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 18 Feb 2020 14:58:24 -0500
+        id S1727761AbgBRT5B (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 18 Feb 2020 14:57:01 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0F7C024125;
-        Tue, 18 Feb 2020 19:58:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6A7C124670;
+        Tue, 18 Feb 2020 19:56:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582055904;
-        bh=E/CjsNhoRB3Jo/2R9C3EkvwCVeD17nzH6g1tRVZtoyY=;
+        s=default; t=1582055819;
+        bh=mi1fa9tjV0BUcFYBmkbrq5si7+ROUjp6B9kLMqc2Fkg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VUVqdbHM/1fc9XeLnf0eySF/CKT/t6nSLZFK2i4ATIZW+Lt+HX7j37oE2ubGvq1bF
-         XQE2vYoXMTWofKTMD9uPfgIABHow4pyLINHHQBdzp8Syut05F26/NfNq21Dmy0o6WW
-         bKgtgyxV5c6PTuvaW6B9M0i2rPQZTPnzFW8WLnuw=
+        b=OlE93QL8HCTLTCrVxk+YobygV38gC/i0Rylq80NmgBaKSed3RCNRZ6bwp66cFejXi
+         8bWLauJToTnDrwjDPFkiREk2aC5zyXHJQ6P1AfdXU8mcDU8+l9KfC0s9tZ9Zrul2F0
+         +AyoK9sjpCyMYPn1/SzF2sNcB8jPDtle5m2pqyvE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andre Tomt <andre@tomt.net>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Chuck Lever <chuck.lever@oracle.com>,
-        Jason Gunthorpe <jgg@mellanox.com>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>
-Subject: [PATCH 5.4 26/66] xprtrdma: Fix DMA scatter-gather list mapping imbalance
-Date:   Tue, 18 Feb 2020 20:54:53 +0100
-Message-Id: <20200218190430.488655256@linuxfoundation.org>
+        stable@vger.kernel.org, Will Deacon <will@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Marc Zyngier <maz@kernel.org>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 08/38] arm64: nofpsmid: Handle TIF_FOREIGN_FPSTATE flag cleanly
+Date:   Tue, 18 Feb 2020 20:54:54 +0100
+Message-Id: <20200218190419.519633378@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200218190428.035153861@linuxfoundation.org>
-References: <20200218190428.035153861@linuxfoundation.org>
+In-Reply-To: <20200218190418.536430858@linuxfoundation.org>
+References: <20200218190418.536430858@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,67 +48,166 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chuck Lever <chuck.lever@oracle.com>
+From: Suzuki K Poulose <suzuki.poulose@arm.com>
 
-commit ca1c671302825182629d3c1a60363cee6f5455bb upstream.
+commit 52f73c383b2418f2d31b798e765ae7d596c35021 upstream
 
-The @nents value that was passed to ib_dma_map_sg() has to be passed
-to the matching ib_dma_unmap_sg() call. If ib_dma_map_sg() choses to
-concatenate sg entries, it will return a different nents value than
-it was passed.
+We detect the absence of FP/SIMD after an incapable CPU is brought up,
+and by then we have kernel threads running already with TIF_FOREIGN_FPSTATE set
+which could be set for early userspace applications (e.g, modprobe triggered
+from initramfs) and init. This could cause the applications to loop forever in
+do_nofity_resume() as we never clear the TIF flag, once we now know that
+we don't support FP.
 
-The bug was exposed by recent changes to the AMD IOMMU driver, which
-enabled sg entry concatenation.
+Fix this by making sure that we clear the TIF_FOREIGN_FPSTATE flag
+for tasks which may have them set, as we would have done in the normal
+case, but avoiding touching the hardware state (since we don't support any).
 
-Looking all the way back to commit 4143f34e01e9 ("xprtrdma: Port to
-new memory registration API") and reviewing other kernel ULPs, it's
-not clear that the frwr_map() logic was ever correct for this case.
+Also to make sure we handle the cases seemlessly we categorise the
+helper functions to two :
+ 1) Helpers for common core code, which calls into take appropriate
+    actions without knowing the current FPSIMD state of the CPU/task.
 
-Reported-by: Andre Tomt <andre@tomt.net>
-Suggested-by: Robin Murphy <robin.murphy@arm.com>
-Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
-Cc: stable@vger.kernel.org
-Reviewed-by: Jason Gunthorpe <jgg@mellanox.com>
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    e.g fpsimd_restore_current_state(), fpsimd_flush_task_state(),
+        fpsimd_save_and_flush_cpu_state().
 
+    We bail out early for these functions, taking any appropriate actions
+    (e.g, clearing the TIF flag) where necessary to hide the handling
+    from core code.
+
+ 2) Helpers used when the presence of FP/SIMD is apparent.
+    i.e, save/restore the FP/SIMD register state, modify the CPU/task
+    FP/SIMD state.
+    e.g,
+
+    fpsimd_save(), task_fpsimd_load() - save/restore task FP/SIMD registers
+
+    fpsimd_bind_task_to_cpu()  \
+                                - Update the "state" metadata for CPU/task.
+    fpsimd_bind_state_to_cpu() /
+
+    fpsimd_update_current_state() - Update the fp/simd state for the current
+                                    task from memory.
+
+    These must not be called in the absence of FP/SIMD. Put in a WARNING
+    to make sure they are not invoked in the absence of FP/SIMD.
+
+KVM also uses the TIF_FOREIGN_FPSTATE flag to manage the FP/SIMD state
+on the CPU. However, without FP/SIMD support we trap all accesses and
+inject undefined instruction. Thus we should never "load" guest state.
+Add a sanity check to make sure this is valid.
+
+Cc: stable@vger.kernel.org # v4.19
+Cc: Will Deacon <will@kernel.org>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Reviewed-by: Ard Biesheuvel <ardb@kernel.org>
+Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
+Acked-by: Marc Zyngier <maz@kernel.org>
+Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
+Signed-off-by: Will Deacon <will@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sunrpc/xprtrdma/frwr_ops.c |   13 +++++++------
- 1 file changed, 7 insertions(+), 6 deletions(-)
+ arch/arm64/kernel/fpsimd.c  | 20 ++++++++++++++++++--
+ arch/arm64/kvm/hyp/switch.c | 10 +++++++++-
+ 2 files changed, 27 insertions(+), 3 deletions(-)
 
---- a/net/sunrpc/xprtrdma/frwr_ops.c
-+++ b/net/sunrpc/xprtrdma/frwr_ops.c
-@@ -326,8 +326,8 @@ struct rpcrdma_mr_seg *frwr_map(struct r
+diff --git a/arch/arm64/kernel/fpsimd.c b/arch/arm64/kernel/fpsimd.c
+index 58c53bc969289..14fdbaa6ee3ab 100644
+--- a/arch/arm64/kernel/fpsimd.c
++++ b/arch/arm64/kernel/fpsimd.c
+@@ -218,6 +218,7 @@ static void sve_free(struct task_struct *task)
+ static void task_fpsimd_load(void)
  {
- 	struct rpcrdma_ia *ia = &r_xprt->rx_ia;
- 	struct ib_reg_wr *reg_wr;
-+	int i, n, dma_nents;
- 	struct ib_mr *ibmr;
--	int i, n;
- 	u8 key;
+ 	WARN_ON(!in_softirq() && !irqs_disabled());
++	WARN_ON(!system_supports_fpsimd());
  
- 	if (nsegs > ia->ri_max_frwr_depth)
-@@ -351,15 +351,16 @@ struct rpcrdma_mr_seg *frwr_map(struct r
- 			break;
- 	}
- 	mr->mr_dir = rpcrdma_data_dir(writing);
-+	mr->mr_nents = i;
+ 	if (system_supports_sve() && test_thread_flag(TIF_SVE))
+ 		sve_load_state(sve_pffr(&current->thread),
+@@ -238,6 +239,7 @@ void fpsimd_save(void)
+ 	struct user_fpsimd_state *st = __this_cpu_read(fpsimd_last_state.st);
+ 	/* set by fpsimd_bind_task_to_cpu() or fpsimd_bind_state_to_cpu() */
  
--	mr->mr_nents =
--		ib_dma_map_sg(ia->ri_id->device, mr->mr_sg, i, mr->mr_dir);
--	if (!mr->mr_nents)
-+	dma_nents = ib_dma_map_sg(ia->ri_id->device, mr->mr_sg, mr->mr_nents,
-+				  mr->mr_dir);
-+	if (!dma_nents)
- 		goto out_dmamap_err;
++	WARN_ON(!system_supports_fpsimd());
+ 	WARN_ON(!in_softirq() && !irqs_disabled());
  
- 	ibmr = mr->frwr.fr_mr;
--	n = ib_map_mr_sg(ibmr, mr->mr_sg, mr->mr_nents, NULL, PAGE_SIZE);
--	if (unlikely(n != mr->mr_nents))
-+	n = ib_map_mr_sg(ibmr, mr->mr_sg, dma_nents, NULL, PAGE_SIZE);
-+	if (n != dma_nents)
- 		goto out_mapmr_err;
+ 	if (!test_thread_flag(TIF_FOREIGN_FPSTATE)) {
+@@ -977,6 +979,7 @@ void fpsimd_bind_task_to_cpu(void)
+ 	struct fpsimd_last_state_struct *last =
+ 		this_cpu_ptr(&fpsimd_last_state);
  
- 	ibmr->iova &= 0x00000000ffffffff;
++	WARN_ON(!system_supports_fpsimd());
+ 	last->st = &current->thread.uw.fpsimd_state;
+ 	current->thread.fpsimd_cpu = smp_processor_id();
+ 
+@@ -996,6 +999,7 @@ void fpsimd_bind_state_to_cpu(struct user_fpsimd_state *st)
+ 	struct fpsimd_last_state_struct *last =
+ 		this_cpu_ptr(&fpsimd_last_state);
+ 
++	WARN_ON(!system_supports_fpsimd());
+ 	WARN_ON(!in_softirq() && !irqs_disabled());
+ 
+ 	last->st = st;
+@@ -1008,8 +1012,19 @@ void fpsimd_bind_state_to_cpu(struct user_fpsimd_state *st)
+  */
+ void fpsimd_restore_current_state(void)
+ {
+-	if (!system_supports_fpsimd())
++	/*
++	 * For the tasks that were created before we detected the absence of
++	 * FP/SIMD, the TIF_FOREIGN_FPSTATE could be set via fpsimd_thread_switch(),
++	 * e.g, init. This could be then inherited by the children processes.
++	 * If we later detect that the system doesn't support FP/SIMD,
++	 * we must clear the flag for  all the tasks to indicate that the
++	 * FPSTATE is clean (as we can't have one) to avoid looping for ever in
++	 * do_notify_resume().
++	 */
++	if (!system_supports_fpsimd()) {
++		clear_thread_flag(TIF_FOREIGN_FPSTATE);
+ 		return;
++	}
+ 
+ 	local_bh_disable();
+ 
+@@ -1028,7 +1043,7 @@ void fpsimd_restore_current_state(void)
+  */
+ void fpsimd_update_current_state(struct user_fpsimd_state const *state)
+ {
+-	if (!system_supports_fpsimd())
++	if (WARN_ON(!system_supports_fpsimd()))
+ 		return;
+ 
+ 	local_bh_disable();
+@@ -1055,6 +1070,7 @@ void fpsimd_flush_task_state(struct task_struct *t)
+ 
+ void fpsimd_flush_cpu_state(void)
+ {
++	WARN_ON(!system_supports_fpsimd());
+ 	__this_cpu_write(fpsimd_last_state.st, NULL);
+ 	set_thread_flag(TIF_FOREIGN_FPSTATE);
+ }
+diff --git a/arch/arm64/kvm/hyp/switch.c b/arch/arm64/kvm/hyp/switch.c
+index 6290a4e81d57a..f3978931aaf40 100644
+--- a/arch/arm64/kvm/hyp/switch.c
++++ b/arch/arm64/kvm/hyp/switch.c
+@@ -37,7 +37,15 @@
+ /* Check whether the FP regs were dirtied while in the host-side run loop: */
+ static bool __hyp_text update_fp_enabled(struct kvm_vcpu *vcpu)
+ {
+-	if (vcpu->arch.host_thread_info->flags & _TIF_FOREIGN_FPSTATE)
++	/*
++	 * When the system doesn't support FP/SIMD, we cannot rely on
++	 * the _TIF_FOREIGN_FPSTATE flag. However, we always inject an
++	 * abort on the very first access to FP and thus we should never
++	 * see KVM_ARM64_FP_ENABLED. For added safety, make sure we always
++	 * trap the accesses.
++	 */
++	if (!system_supports_fpsimd() ||
++	    vcpu->arch.host_thread_info->flags & _TIF_FOREIGN_FPSTATE)
+ 		vcpu->arch.flags &= ~(KVM_ARM64_FP_ENABLED |
+ 				      KVM_ARM64_FP_HOST);
+ 
+-- 
+2.20.1
+
 
 
