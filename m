@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A201A16325C
-	for <lists+stable@lfdr.de>; Tue, 18 Feb 2020 21:10:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C0B5B163187
+	for <lists+stable@lfdr.de>; Tue, 18 Feb 2020 21:01:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728133AbgBRT6K (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Feb 2020 14:58:10 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35672 "EHLO mail.kernel.org"
+        id S1728763AbgBRUB1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Feb 2020 15:01:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41022 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728128AbgBRT6J (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 18 Feb 2020 14:58:09 -0500
+        id S1728761AbgBRUBY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 18 Feb 2020 15:01:24 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1E05520659;
-        Tue, 18 Feb 2020 19:58:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3C7302464E;
+        Tue, 18 Feb 2020 20:01:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582055889;
-        bh=KpYOPciSmTWjaph1IG5iXug5PcvcPFkmcNBP0aZpfJI=;
+        s=default; t=1582056083;
+        bh=Tn/SrJ/oXq7x45pUrAWtvbL//v+33hRQW4wAMEPfRO0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S5cSV8CucBJTs/ZHKVWKF2218QqpXEbK/iGDuy4FjPX5SU+ulO8iMU230gFviN8zQ
-         5aTWDELlW0hX6nzc2eJBueHvOxxgLlB9S9CrgePpIW9H+NMN10DH8IsWPS4L3EpD2C
-         4QKlisyOnh03QQe8oahTlBdJH3iP74i3tB4RDPEM=
+        b=rf5EiqX91Tol+al3gQiToxUXQqtDX/eTvQjTr0GfEEQJkZFoQpc8NpZCN8nlTqcVo
+         cDNWIB/Ei/uO3HRRxVJnhD6tinN0PNhSGIqqkScz/BJPQ0l1OSmQWOzJ758eW1sbYy
+         RxUVSwd//T9z9Tw453jKDcbr6jYkxlU1496tuqxQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Anand Jain <anand.jain@oracle.com>,
-        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.4 22/66] btrfs: log message when rw remount is attempted with unclean tree-log
+        stable@vger.kernel.org, Tejun Heo <tj@kernel.org>
+Subject: [PATCH 5.5 28/80] cgroup: init_tasks shouldnt be linked to the root cgroup
 Date:   Tue, 18 Feb 2020 20:54:49 +0100
-Message-Id: <20200218190430.142378570@linuxfoundation.org>
+Message-Id: <20200218190435.137599128@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200218190428.035153861@linuxfoundation.org>
-References: <20200218190428.035153861@linuxfoundation.org>
+In-Reply-To: <20200218190432.043414522@linuxfoundation.org>
+References: <20200218190432.043414522@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,37 +42,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Sterba <dsterba@suse.com>
+From: Tejun Heo <tj@kernel.org>
 
-commit 10a3a3edc5b89a8cd095bc63495fb1e0f42047d9 upstream.
+commit 0cd9d33ace336bc424fc30944aa3defd6786e4fe upstream.
 
-A remount to a read-write filesystem is not safe when there's tree-log
-to be replayed. Files that could be opened until now might be affected
-by the changes in the tree-log.
+5153faac18d2 ("cgroup: remove cgroup_enable_task_cg_lists()
+optimization") removed lazy initialization of css_sets so that new
+tasks are always lniked to its css_set. In the process, it incorrectly
+ended up adding init_tasks to root css_set. They show up as PID 0's in
+root's cgroup.procs triggering warnings in systemd and generally
+confusing people.
 
-A regular mount is needed to replay the log so the filesystem presents
-the consistent view with the pending changes included.
+Fix it by skip css_set linking for init_tasks.
 
-CC: stable@vger.kernel.org # 4.4+
-Reviewed-by: Anand Jain <anand.jain@oracle.com>
-Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Tejun Heo <tj@kernel.org>
+Reported-by: https://github.com/joanbm
+Link: https://github.com/systemd/systemd/issues/14682
+Fixes: 5153faac18d2 ("cgroup: remove cgroup_enable_task_cg_lists() optimization")
+Cc: stable@vger.kernel.org # v5.5+
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/btrfs/super.c |    2 ++
- 1 file changed, 2 insertions(+)
+ kernel/cgroup/cgroup.c |   13 ++++++++-----
+ 1 file changed, 8 insertions(+), 5 deletions(-)
 
---- a/fs/btrfs/super.c
-+++ b/fs/btrfs/super.c
-@@ -1804,6 +1804,8 @@ static int btrfs_remount(struct super_bl
- 		}
+--- a/kernel/cgroup/cgroup.c
++++ b/kernel/cgroup/cgroup.c
+@@ -5932,11 +5932,14 @@ void cgroup_post_fork(struct task_struct
  
- 		if (btrfs_super_log_root(fs_info->super_copy) != 0) {
-+			btrfs_warn(fs_info,
-+		"mount required to replay tree-log, cannot remount read-write");
- 			ret = -EINVAL;
- 			goto restore;
- 		}
+ 	spin_lock_irq(&css_set_lock);
+ 
+-	WARN_ON_ONCE(!list_empty(&child->cg_list));
+-	cset = task_css_set(current); /* current is @child's parent */
+-	get_css_set(cset);
+-	cset->nr_tasks++;
+-	css_set_move_task(child, NULL, cset, false);
++	/* init tasks are special, only link regular threads */
++	if (likely(child->pid)) {
++		WARN_ON_ONCE(!list_empty(&child->cg_list));
++		cset = task_css_set(current); /* current is @child's parent */
++		get_css_set(cset);
++		cset->nr_tasks++;
++		css_set_move_task(child, NULL, cset, false);
++	}
+ 
+ 	/*
+ 	 * If the cgroup has to be frozen, the new task has too.  Let's set
 
 
