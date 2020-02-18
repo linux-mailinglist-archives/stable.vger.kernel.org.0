@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5276616327B
-	for <lists+stable@lfdr.de>; Tue, 18 Feb 2020 21:10:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6992A1631C1
+	for <lists+stable@lfdr.de>; Tue, 18 Feb 2020 21:06:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726401AbgBRUHE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Feb 2020 15:07:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38032 "EHLO mail.kernel.org"
+        id S1728749AbgBRUCc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Feb 2020 15:02:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42940 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727662AbgBRT71 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 18 Feb 2020 14:59:27 -0500
+        id S1728954AbgBRUCb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 18 Feb 2020 15:02:31 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C353124655;
-        Tue, 18 Feb 2020 19:59:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C402A21D56;
+        Tue, 18 Feb 2020 20:02:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582055966;
-        bh=lutRwWS5W6gYIXHi+dRkJ/tOgWhUnRLe5E0U6N0S5Ls=;
+        s=default; t=1582056151;
+        bh=iJHNKSYGnxMSCtFIX5d8ZQWPZczsyXHD2fcIXpGlXXM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=e0qzvQ5ZiMHGUA0addeCAJ48aoikomkfkMzX6qnoj5tWH+tOd69bcygNq+W9M54B5
-         E4dOcs3KAGHNpePEv6K5V+A95d+BQPXcYuMNfomQSXiglcs12HWbKPYF55D9PvvX8U
-         nrYDjtDb6FxzB/RBZMzIfU/YLOw2jsYBoNclBh6c=
+        b=ULBXP6/iygu48UaJES3jybOAR5+Bzo8PIq67PqkiqSAFlJMEieTDVl8fpHCzvMEV9
+         wqfbqUnQjn7B3pDUybI3tk/ZLqN2fQuIr8l74WgNZkKWgyI13UyFmKynTfmZBZ5L5Y
+         GkfH/ESpN3vebXpaQgD3V5HZcXdqDrnLQmG2UYzI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maor Gottlieb <maorg@mellanox.com>,
-        Leon Romanovsky <leonro@mellanox.com>
-Subject: [PATCH 5.4 48/66] RDMA/core: Fix protection fault in get_pkey_idx_qp_list
+        stable@vger.kernel.org,
+        Krishnamraju Eraparaju <krishna2@chelsio.com>,
+        Jason Gunthorpe <jgg@mellanox.com>
+Subject: [PATCH 5.5 54/80] RDMA/iw_cxgb4: initiate CLOSE when entering TERM
 Date:   Tue, 18 Feb 2020 20:55:15 +0100
-Message-Id: <20200218190432.467397153@linuxfoundation.org>
+Message-Id: <20200218190437.331531433@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200218190428.035153861@linuxfoundation.org>
-References: <20200218190428.035153861@linuxfoundation.org>
+In-Reply-To: <20200218190432.043414522@linuxfoundation.org>
+References: <20200218190432.043414522@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,94 +44,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Leon Romanovsky <leonro@mellanox.com>
+From: Krishnamraju Eraparaju <krishna2@chelsio.com>
 
-commit 1dd017882e01d2fcd9c5dbbf1eb376211111c393 upstream.
+commit d219face9059f38ad187bde133451a2a308fdb7c upstream.
 
-We don't need to set pkey as valid in case that user set only one of pkey
-index or port number, otherwise it will be resulted in NULL pointer
-dereference while accessing to uninitialized pkey list.  The following
-crash from Syzkaller revealed it.
+As per draft-hilland-iwarp-verbs-v1.0, sec 6.2.3, always initiate a CLOSE
+when entering into TERM state.
 
-  kasan: CONFIG_KASAN_INLINE enabled
-  kasan: GPF could be caused by NULL-ptr deref or user memory access
-  general protection fault: 0000 [#1] SMP KASAN PTI
-  CPU: 1 PID: 14753 Comm: syz-executor.2 Not tainted 5.5.0-rc5 #2
-  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS
-  rel-1.12.1-0-ga5cab58e9a3f-prebuilt.qemu.org 04/01/2014
-  RIP: 0010:get_pkey_idx_qp_list+0x161/0x2d0
-  Code: 01 00 00 49 8b 5e 20 4c 39 e3 0f 84 b9 00 00 00 e8 e4 42 6e fe 48
-  8d 7b 10 48 b8 00 00 00 00 00 fc ff df 48 89 fa 48 c1 ea 03 <0f> b6 04
-  02 84 c0 74 08 3c 01 0f 8e d0 00 00 00 48 8d 7d 04 48 b8
-  RSP: 0018:ffffc9000bc6f950 EFLAGS: 00010202
-  RAX: dffffc0000000000 RBX: 0000000000000000 RCX: ffffffff82c8bdec
-  RDX: 0000000000000002 RSI: ffffc900030a8000 RDI: 0000000000000010
-  RBP: ffff888112c8ce80 R08: 0000000000000004 R09: fffff5200178df1f
-  R10: 0000000000000001 R11: fffff5200178df1f R12: ffff888115dc4430
-  R13: ffff888115da8498 R14: ffff888115dc4410 R15: ffff888115da8000
-  FS:  00007f20777de700(0000) GS:ffff88811b100000(0000)
-  knlGS:0000000000000000
-  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  CR2: 0000001b2f721000 CR3: 00000001173ca002 CR4: 0000000000360ee0
-  DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-  DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-  Call Trace:
-   port_pkey_list_insert+0xd7/0x7c0
-   ib_security_modify_qp+0x6fa/0xfc0
-   _ib_modify_qp+0x8c4/0xbf0
-   modify_qp+0x10da/0x16d0
-   ib_uverbs_modify_qp+0x9a/0x100
-   ib_uverbs_write+0xaa5/0xdf0
-   __vfs_write+0x7c/0x100
-   vfs_write+0x168/0x4a0
-   ksys_write+0xc8/0x200
-   do_syscall_64+0x9c/0x390
-   entry_SYSCALL_64_after_hwframe+0x44/0xa9
+In c4iw_modify_qp(), disconnect operation should only be performed when
+the modify_qp call is invoked from ib_core. And all other internal
+modify_qp calls(invoked within iw_cxgb4) that needs 'disconnect' should
+call c4iw_ep_disconnect() explicitly after modify_qp. Otherwise, deadlocks
+like below can occur:
 
-Fixes: d291f1a65232 ("IB/core: Enforce PKey security on QPs")
-Link: https://lore.kernel.org/r/20200212080651.GB679970@unreal
-Signed-off-by: Maor Gottlieb <maorg@mellanox.com>
-Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
-Message-Id: <20200212080651.GB679970@unreal>
+ Call Trace:
+  schedule+0x2f/0xa0
+  schedule_preempt_disabled+0xa/0x10
+  __mutex_lock.isra.5+0x2d0/0x4a0
+  c4iw_ep_disconnect+0x39/0x430    => tries to reacquire ep lock again
+  c4iw_modify_qp+0x468/0x10d0
+  rx_data+0x218/0x570              => acquires ep lock
+  process_work+0x5f/0x70
+  process_one_work+0x1a7/0x3b0
+  worker_thread+0x30/0x390
+  kthread+0x112/0x130
+  ret_from_fork+0x35/0x40
+
+Fixes: d2c33370ae73 ("RDMA/iw_cxgb4: Always disconnect when QP is transitioning to TERMINATE state")
+Link: https://lore.kernel.org/r/20200204091230.7210-1-krishna2@chelsio.com
+Signed-off-by: Krishnamraju Eraparaju <krishna2@chelsio.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/infiniband/core/security.c |   24 +++++++++---------------
- 1 file changed, 9 insertions(+), 15 deletions(-)
+ drivers/infiniband/hw/cxgb4/cm.c |    4 ++++
+ drivers/infiniband/hw/cxgb4/qp.c |    4 ++--
+ 2 files changed, 6 insertions(+), 2 deletions(-)
 
---- a/drivers/infiniband/core/security.c
-+++ b/drivers/infiniband/core/security.c
-@@ -339,22 +339,16 @@ static struct ib_ports_pkeys *get_new_pp
- 	if (!new_pps)
- 		return NULL;
+--- a/drivers/infiniband/hw/cxgb4/cm.c
++++ b/drivers/infiniband/hw/cxgb4/cm.c
+@@ -3036,6 +3036,10 @@ static int terminate(struct c4iw_dev *de
+ 				       C4IW_QP_ATTR_NEXT_STATE, &attrs, 1);
+ 		}
  
--	if (qp_attr_mask & (IB_QP_PKEY_INDEX | IB_QP_PORT)) {
--		if (!qp_pps) {
--			new_pps->main.port_num = qp_attr->port_num;
--			new_pps->main.pkey_index = qp_attr->pkey_index;
--		} else {
--			new_pps->main.port_num = (qp_attr_mask & IB_QP_PORT) ?
--						  qp_attr->port_num :
--						  qp_pps->main.port_num;
--
--			new_pps->main.pkey_index =
--					(qp_attr_mask & IB_QP_PKEY_INDEX) ?
--					 qp_attr->pkey_index :
--					 qp_pps->main.pkey_index;
--		}
-+	if (qp_attr_mask & IB_QP_PORT)
-+		new_pps->main.port_num =
-+			(qp_pps) ? qp_pps->main.port_num : qp_attr->port_num;
-+	if (qp_attr_mask & IB_QP_PKEY_INDEX)
-+		new_pps->main.pkey_index = (qp_pps) ? qp_pps->main.pkey_index :
-+						      qp_attr->pkey_index;
-+	if ((qp_attr_mask & IB_QP_PKEY_INDEX) && (qp_attr_mask & IB_QP_PORT))
- 		new_pps->main.state = IB_PORT_PKEY_VALID;
--	} else if (qp_pps) {
-+
-+	if (!(qp_attr_mask & (IB_QP_PKEY_INDEX || IB_QP_PORT)) && qp_pps) {
- 		new_pps->main.port_num = qp_pps->main.port_num;
- 		new_pps->main.pkey_index = qp_pps->main.pkey_index;
- 		if (qp_pps->main.state != IB_PORT_PKEY_NOT_VALID)
++		/* As per draft-hilland-iwarp-verbs-v1.0, sec 6.2.3,
++		 * when entering the TERM state the RNIC MUST initiate a CLOSE.
++		 */
++		c4iw_ep_disconnect(ep, 1, GFP_KERNEL);
+ 		c4iw_put_ep(&ep->com);
+ 	} else
+ 		pr_warn("TERM received tid %u no ep/qp\n", tid);
+--- a/drivers/infiniband/hw/cxgb4/qp.c
++++ b/drivers/infiniband/hw/cxgb4/qp.c
+@@ -1948,10 +1948,10 @@ int c4iw_modify_qp(struct c4iw_dev *rhp,
+ 			qhp->attr.layer_etype = attrs->layer_etype;
+ 			qhp->attr.ecode = attrs->ecode;
+ 			ep = qhp->ep;
+-			c4iw_get_ep(&ep->com);
+-			disconnect = 1;
+ 			if (!internal) {
++				c4iw_get_ep(&ep->com);
+ 				terminate = 1;
++				disconnect = 1;
+ 			} else {
+ 				terminate = qhp->attr.send_term;
+ 				ret = rdma_fini(rhp, qhp, ep);
 
 
