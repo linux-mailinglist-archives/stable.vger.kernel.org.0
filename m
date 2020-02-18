@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6168216321F
-	for <lists+stable@lfdr.de>; Tue, 18 Feb 2020 21:06:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 30E6C163291
+	for <lists+stable@lfdr.de>; Tue, 18 Feb 2020 21:10:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728679AbgBRUA5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Feb 2020 15:00:57 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40312 "EHLO mail.kernel.org"
+        id S1726663AbgBRUIC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Feb 2020 15:08:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36384 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728685AbgBRUA4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 18 Feb 2020 15:00:56 -0500
+        id S1728226AbgBRT6f (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 18 Feb 2020 14:58:35 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4550324125;
-        Tue, 18 Feb 2020 20:00:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B0FEC2464E;
+        Tue, 18 Feb 2020 19:58:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582056055;
-        bh=iWXMXbYK0LaStEtH7nUNtYyCFaWt69JfVFpZubKdY1o=;
+        s=default; t=1582055915;
+        bh=S7Ztsxekh19xf5KRg0jXLvZMQ3oj0ync9f2TGpT6rxA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CsXQdkFV+M6yHV2f1Cpws6VbcHHC9qTkCrZIv/gMIYhfN0i2qotKqmcmO4f/Mq4ZE
-         r4dMICzfQ3wa5W+DmuEWFYr6bYgn8Jakx19PAjSkx0JnMJ89Y6+hl+SfVatU8vDL3U
-         FZv0h3GxGGjB5mbJt6032jMbKqFtzKY7/UAt78eI=
+        b=p9WofKwK/cna7q1mmyb7kZ2T/RyjOj+m2NEn0WTnkUemnvC9ATfalmfJNQxM3u0wE
+         kSNuo7YRn5UrJFeSePeMwS/NOnnSpKY80FeW18ies5luuMKBwmt+8Sq9kIRgeVskIV
+         HNeohwWHiJHaWKrtq1JnUcz5RsnCEIhk7H65myUU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andreas Dilger <adilger@dilger.ca>,
-        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>,
-        stable@kernel.org
-Subject: [PATCH 5.5 18/80] ext4: fix checksum errors with indexed dirs
+        stable@vger.kernel.org,
+        Saurav Girepunje <saurav.girepunje@gmail.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.4 12/66] ALSA: usb-audio: sound: usb: usb true/false for bool return type
 Date:   Tue, 18 Feb 2020 20:54:39 +0100
-Message-Id: <20200218190433.978913366@linuxfoundation.org>
+Message-Id: <20200218190429.246014666@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200218190432.043414522@linuxfoundation.org>
-References: <20200218190432.043414522@linuxfoundation.org>
+In-Reply-To: <20200218190428.035153861@linuxfoundation.org>
+References: <20200218190428.035153861@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,125 +44,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Saurav Girepunje <saurav.girepunje@gmail.com>
 
-commit 48a34311953d921235f4d7bbd2111690d2e469cf upstream.
+commit 1d4961d9eb1aaa498dfb44779b7e4b95d79112d0 upstream.
 
-DIR_INDEX has been introduced as a compat ext4 feature. That means that
-even kernels / tools that don't understand the feature may modify the
-filesystem. This works because for kernels not understanding indexed dir
-format, internal htree nodes appear just as empty directory entries.
-Index dir aware kernels then check the htree structure is still
-consistent before using the data. This all worked reasonably well until
-metadata checksums were introduced. The problem is that these
-effectively made DIR_INDEX only ro-compatible because internal htree
-nodes store checksums in a different place than normal directory blocks.
-Thus any modification ignorant to DIR_INDEX (or just clearing
-EXT4_INDEX_FL from the inode) will effectively cause checksum mismatch
-and trigger kernel errors. So we have to be more careful when dealing
-with indexed directories on filesystems with checksumming enabled.
+Use true/false for bool type return in uac_clock_source_is_valid().
 
-1) We just disallow loading any directory inodes with EXT4_INDEX_FL when
-DIR_INDEX is not enabled. This is harsh but it should be very rare (it
-means someone disabled DIR_INDEX on existing filesystem and didn't run
-e2fsck), e2fsck can fix the problem, and we don't want to answer the
-difficult question: "Should we rather corrupt the directory more or
-should we ignore that DIR_INDEX feature is not set?"
-
-2) When we find out htree structure is corrupted (but the filesystem and
-the directory should in support htrees), we continue just ignoring htree
-information for reading but we refuse to add new entries to the
-directory to avoid corrupting it more.
-
-Link: https://lore.kernel.org/r/20200210144316.22081-1-jack@suse.cz
-Fixes: dbe89444042a ("ext4: Calculate and verify checksums for htree nodes")
-Reviewed-by: Andreas Dilger <adilger@dilger.ca>
-Signed-off-by: Jan Kara <jack@suse.cz>
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Cc: stable@kernel.org
+Signed-off-by: Saurav Girepunje <saurav.girepunje@gmail.com>
+Link: https://lore.kernel.org/r/20191029175200.GA7320@saurav
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/ext4/dir.c   |   14 ++++++++------
- fs/ext4/ext4.h  |    5 ++++-
- fs/ext4/inode.c |   12 ++++++++++++
- fs/ext4/namei.c |    7 +++++++
- 4 files changed, 31 insertions(+), 7 deletions(-)
+ sound/usb/clock.c |   10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
---- a/fs/ext4/dir.c
-+++ b/fs/ext4/dir.c
-@@ -129,12 +129,14 @@ static int ext4_readdir(struct file *fil
- 		if (err != ERR_BAD_DX_DIR) {
- 			return err;
- 		}
--		/*
--		 * We don't set the inode dirty flag since it's not
--		 * critical that it get flushed back to the disk.
--		 */
--		ext4_clear_inode_flag(file_inode(file),
--				      EXT4_INODE_INDEX);
-+		/* Can we just clear INDEX flag to ignore htree information? */
-+		if (!ext4_has_metadata_csum(sb)) {
-+			/*
-+			 * We don't set the inode dirty flag since it's not
-+			 * critical that it gets flushed back to the disk.
-+			 */
-+			ext4_clear_inode_flag(inode, EXT4_INODE_INDEX);
-+		}
+--- a/sound/usb/clock.c
++++ b/sound/usb/clock.c
+@@ -165,21 +165,21 @@ static bool uac_clock_source_is_valid(st
+ 			snd_usb_find_clock_source_v3(chip->ctrl_intf, source_id);
+ 
+ 		if (!cs_desc)
+-			return 0;
++			return false;
+ 		bmControls = le32_to_cpu(cs_desc->bmControls);
+ 	} else { /* UAC_VERSION_1/2 */
+ 		struct uac_clock_source_descriptor *cs_desc =
+ 			snd_usb_find_clock_source(chip->ctrl_intf, source_id);
+ 
+ 		if (!cs_desc)
+-			return 0;
++			return false;
+ 		bmControls = cs_desc->bmControls;
  	}
  
- 	if (ext4_has_inline_data(inode)) {
---- a/fs/ext4/ext4.h
-+++ b/fs/ext4/ext4.h
-@@ -2482,8 +2482,11 @@ void ext4_insert_dentry(struct inode *in
- 			struct ext4_filename *fname);
- static inline void ext4_update_dx_flag(struct inode *inode)
- {
--	if (!ext4_has_feature_dir_index(inode->i_sb))
-+	if (!ext4_has_feature_dir_index(inode->i_sb)) {
-+		/* ext4_iget() should have caught this... */
-+		WARN_ON_ONCE(ext4_has_feature_metadata_csum(inode->i_sb));
- 		ext4_clear_inode_flag(inode, EXT4_INODE_INDEX);
-+	}
- }
- static const unsigned char ext4_filetype_table[] = {
- 	DT_UNKNOWN, DT_REG, DT_DIR, DT_CHR, DT_BLK, DT_FIFO, DT_SOCK, DT_LNK
---- a/fs/ext4/inode.c
-+++ b/fs/ext4/inode.c
-@@ -4615,6 +4615,18 @@ struct inode *__ext4_iget(struct super_b
- 		ret = -EFSCORRUPTED;
- 		goto bad_inode;
+ 	/* If a clock source can't tell us whether it's valid, we assume it is */
+ 	if (!uac_v2v3_control_is_readable(bmControls,
+ 				      UAC2_CS_CONTROL_CLOCK_VALID))
+-		return 1;
++		return true;
+ 
+ 	err = snd_usb_ctl_msg(dev, usb_rcvctrlpipe(dev, 0), UAC2_CS_CUR,
+ 			      USB_TYPE_CLASS | USB_RECIP_INTERFACE | USB_DIR_IN,
+@@ -191,10 +191,10 @@ static bool uac_clock_source_is_valid(st
+ 		dev_warn(&dev->dev,
+ 			 "%s(): cannot get clock validity for id %d\n",
+ 			   __func__, source_id);
+-		return 0;
++		return false;
  	}
-+	/*
-+	 * If dir_index is not enabled but there's dir with INDEX flag set,
-+	 * we'd normally treat htree data as empty space. But with metadata
-+	 * checksumming that corrupts checksums so forbid that.
-+	 */
-+	if (!ext4_has_feature_dir_index(sb) && ext4_has_metadata_csum(sb) &&
-+	    ext4_test_inode_flag(inode, EXT4_INODE_INDEX)) {
-+		ext4_error_inode(inode, function, line, 0,
-+			 "iget: Dir with htree data on filesystem without dir_index feature.");
-+		ret = -EFSCORRUPTED;
-+		goto bad_inode;
-+	}
- 	ei->i_disksize = inode->i_size;
- #ifdef CONFIG_QUOTA
- 	ei->i_reserved_quota = 0;
---- a/fs/ext4/namei.c
-+++ b/fs/ext4/namei.c
-@@ -2207,6 +2207,13 @@ static int ext4_add_entry(handle_t *hand
- 		retval = ext4_dx_add_entry(handle, &fname, dir, inode);
- 		if (!retval || (retval != ERR_BAD_DX_DIR))
- 			goto out;
-+		/* Can we just ignore htree data? */
-+		if (ext4_has_metadata_csum(sb)) {
-+			EXT4_ERROR_INODE(dir,
-+				"Directory has corrupted htree index.");
-+			retval = -EFSCORRUPTED;
-+			goto out;
-+		}
- 		ext4_clear_inode_flag(dir, EXT4_INODE_INDEX);
- 		dx_fallback++;
- 		ext4_mark_inode_dirty(handle, dir);
+ 
+-	return !!data;
++	return data ? true :  false;
+ }
+ 
+ static int __uac_clock_find_source(struct snd_usb_audio *chip, int entity_id,
 
 
