@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 364241631E3
-	for <lists+stable@lfdr.de>; Tue, 18 Feb 2020 21:06:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E10E163265
+	for <lists+stable@lfdr.de>; Tue, 18 Feb 2020 21:10:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726556AbgBRUDV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Feb 2020 15:03:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44546 "EHLO mail.kernel.org"
+        id S1728248AbgBRT6l (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Feb 2020 14:58:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36520 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726539AbgBRUDV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 18 Feb 2020 15:03:21 -0500
+        id S1728243AbgBRT6k (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 18 Feb 2020 14:58:40 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EA15B21D56;
-        Tue, 18 Feb 2020 20:03:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A14CF24125;
+        Tue, 18 Feb 2020 19:58:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582056200;
-        bh=wodGM8W2lZ3V+l7YnowsX037qcTzS6mHOEXUUECqf9Y=;
+        s=default; t=1582055920;
+        bh=nqHU8jXhun/Vp7ATeVmn5fPoMWew8sVRoYGpt1T47a4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uDicv9P0OzMcv6VLhZvnXkDkR2PyFYlbvOQUN6h0tAkZXmdBuEhjqq8LJKEwrtRrJ
-         Kk0WiRyVcR05q19yzxZzcLjK09PkZ5jMILglyXFjqZ1K5PvTufxKS0aOk/xqNi26qB
-         LvGftjOYyV5010oT9Mf7sEtc2upIafqwmc3WrNac=
+        b=QmDIRf4P+RGpeCiNM9/rSQ3TUciYEiYq8TPwzukSSCb+NPhseIl3AhCPzYFcnh2Tw
+         K/yG/Prgz2TE8MlucO8nbFu9f12rS8+6mQGZudE/XhirA8TvK9uLBz5AU/3SyJ4hBF
+         gYg7poKiC+ftPUX0H58AkBf1byelIaI6LAWPBtSw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sean Christopherson <sean.j.christopherson@intel.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.5 36/80] KVM: x86/mmu: Fix struct guest_walker arrays for 5-level paging
-Date:   Tue, 18 Feb 2020 20:54:57 +0100
-Message-Id: <20200218190435.889374913@linuxfoundation.org>
+        stable@vger.kernel.org, Babu Moger <babu.moger@amd.com>,
+        Kim Phillips <kim.phillips@amd.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Ingo Molnar <mingo@kernel.org>
+Subject: [PATCH 5.4 31/66] perf/x86/amd: Add missing L2 misses event spec to AMD Family 17hs event map
+Date:   Tue, 18 Feb 2020 20:54:58 +0100
+Message-Id: <20200218190430.947195319@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200218190432.043414522@linuxfoundation.org>
-References: <20200218190432.043414522@linuxfoundation.org>
+In-Reply-To: <20200218190428.035153861@linuxfoundation.org>
+References: <20200218190428.035153861@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,42 +45,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <sean.j.christopherson@intel.com>
+From: Kim Phillips <kim.phillips@amd.com>
 
-commit f6ab0107a4942dbf9a5cf0cca3f37e184870a360 upstream.
+commit 25d387287cf0330abf2aad761ce6eee67326a355 upstream.
 
-Define PT_MAX_FULL_LEVELS as PT64_ROOT_MAX_LEVEL, i.e. 5, to fix shadow
-paging for 5-level guest page tables.  PT_MAX_FULL_LEVELS is used to
-size the arrays that track guest pages table information, i.e. using a
-"max levels" of 4 causes KVM to access garbage beyond the end of an
-array when querying state for level 5 entries.  E.g. FNAME(gpte_changed)
-will read garbage and most likely return %true for a level 5 entry,
-soft-hanging the guest because FNAME(fetch) will restart the guest
-instead of creating SPTEs because it thinks the guest PTE has changed.
+Commit 3fe3331bb285 ("perf/x86/amd: Add event map for AMD Family 17h"),
+claimed L2 misses were unsupported, due to them not being found in its
+referenced documentation, whose link has now moved [1].
 
-Note, KVM doesn't yet support 5-level nested EPT, so PT_MAX_FULL_LEVELS
-gets to stay "4" for the PTTYPE_EPT case.
+That old documentation listed PMCx064 unit mask bit 3 as:
 
-Fixes: 855feb673640 ("KVM: MMU: Add 5 level EPT & Shadow page table support.")
+    "LsRdBlkC: LS Read Block C S L X Change to X Miss."
+
+and bit 0 as:
+
+    "IcFillMiss: IC Fill Miss"
+
+We now have new public documentation [2] with improved descriptions, that
+clearly indicate what events those unit mask bits represent:
+
+Bit 3 now clearly states:
+
+    "LsRdBlkC: Data Cache Req Miss in L2 (all types)"
+
+and bit 0 is:
+
+    "IcFillMiss: Instruction Cache Req Miss in L2."
+
+So we can now add support for L2 misses in perf's genericised events as
+PMCx064 with both the above unit masks.
+
+[1] The commit's original documentation reference, "Processor Programming
+    Reference (PPR) for AMD Family 17h Model 01h, Revision B1 Processors",
+    originally available here:
+
+        https://www.amd.com/system/files/TechDocs/54945_PPR_Family_17h_Models_00h-0Fh.pdf
+
+    is now available here:
+
+        https://developer.amd.com/wordpress/media/2017/11/54945_PPR_Family_17h_Models_00h-0Fh.pdf
+
+[2] "Processor Programming Reference (PPR) for Family 17h Model 31h,
+    Revision B0 Processors", available here:
+
+	https://developer.amd.com/wp-content/resources/55803_0.54-PUB.pdf
+
+Fixes: 3fe3331bb285 ("perf/x86/amd: Add event map for AMD Family 17h")
+Reported-by: Babu Moger <babu.moger@amd.com>
+Signed-off-by: Kim Phillips <kim.phillips@amd.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Tested-by: Babu Moger <babu.moger@amd.com>
 Cc: stable@vger.kernel.org
-Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Link: https://lkml.kernel.org/r/20200121171232.28839-1-kim.phillips@amd.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/kvm/mmu/paging_tmpl.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/events/amd/core.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/arch/x86/kvm/mmu/paging_tmpl.h
-+++ b/arch/x86/kvm/mmu/paging_tmpl.h
-@@ -33,7 +33,7 @@
- 	#define PT_GUEST_ACCESSED_SHIFT PT_ACCESSED_SHIFT
- 	#define PT_HAVE_ACCESSED_DIRTY(mmu) true
- 	#ifdef CONFIG_X86_64
--	#define PT_MAX_FULL_LEVELS 4
-+	#define PT_MAX_FULL_LEVELS PT64_ROOT_MAX_LEVEL
- 	#define CMPXCHG cmpxchg
- 	#else
- 	#define CMPXCHG cmpxchg64
+--- a/arch/x86/events/amd/core.c
++++ b/arch/x86/events/amd/core.c
+@@ -246,6 +246,7 @@ static const u64 amd_f17h_perfmon_event_
+ 	[PERF_COUNT_HW_CPU_CYCLES]		= 0x0076,
+ 	[PERF_COUNT_HW_INSTRUCTIONS]		= 0x00c0,
+ 	[PERF_COUNT_HW_CACHE_REFERENCES]	= 0xff60,
++	[PERF_COUNT_HW_CACHE_MISSES]		= 0x0964,
+ 	[PERF_COUNT_HW_BRANCH_INSTRUCTIONS]	= 0x00c2,
+ 	[PERF_COUNT_HW_BRANCH_MISSES]		= 0x00c3,
+ 	[PERF_COUNT_HW_STALLED_CYCLES_FRONTEND]	= 0x0287,
 
 
