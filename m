@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 12F261631F5
-	for <lists+stable@lfdr.de>; Tue, 18 Feb 2020 21:06:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8AED21631FD
+	for <lists+stable@lfdr.de>; Tue, 18 Feb 2020 21:06:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728950AbgBRUDz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Feb 2020 15:03:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45332 "EHLO mail.kernel.org"
+        id S1728335AbgBRUEL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Feb 2020 15:04:11 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45386 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729002AbgBRUDx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 18 Feb 2020 15:03:53 -0500
+        id S1728305AbgBRUDz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 18 Feb 2020 15:03:55 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5101D21D56;
-        Tue, 18 Feb 2020 20:03:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C8B1C2465A;
+        Tue, 18 Feb 2020 20:03:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582056232;
-        bh=q78o6HQ0yfZG7Zp7kLt0nFtwq1+DanlptBtvtQKA9rQ=;
+        s=default; t=1582056235;
+        bh=VtW4n0e7ugqK2sqHKsCySy63GQ9Z4vHok72WIyQLeSo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IprRHr+ZWnnSutS8Jws/fVJW7hdHq4Z3JO7fz9x/d/TS+YZgQTjLHArg6b/HY5QJq
-         y8jUhVnTguw8d/fK86mFyAPeBSXVwgbuc9/jFpehO8GOuZ3gqCoMA2wJEmQl+fesLq
-         9iSIP12v9UpCDCUVNDKOqD6EzUxa/dZeQFxaO1Xk=
+        b=GAjzEAMYJfViRH215JHhXHL6QkNYEx+ap8ZveNFrsBSXNSjwYKC4KK2ib1y/U3qyt
+         +JDh7eJEJSVnU/qnwEEzochLjgv2rzcauelIqtmbkaP2zoyH3ZzG9zhthrwfXb6num
+         YhM7Hlr14qBaSc2A/8L99Sx0F0WEKZGURggh8ZYI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>,
+        stable@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>,
+        =?UTF-8?q?Micha=C5=82=20Miros=C5=82aw?= <mirq-linux@rere.qmqm.pl>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 78/80] NFSv4: Add accounting for the number of active delegations held
-Date:   Tue, 18 Feb 2020 20:55:39 +0100
-Message-Id: <20200218190439.243798210@linuxfoundation.org>
+Subject: [PATCH 5.5 79/80] gpio: add gpiod_toggle_active_low()
+Date:   Tue, 18 Feb 2020 20:55:40 +0100
+Message-Id: <20200218190439.344619627@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200218190432.043414522@linuxfoundation.org>
 References: <20200218190432.043414522@linuxfoundation.org>
@@ -45,115 +45,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trondmy@gmail.com>
+From: Michał Mirosław <mirq-linux@rere.qmqm.pl>
 
-[ Upstream commit d2269ea14ebd2a73f291d6b3a7a7d320ec00270c ]
+[ Upstream commit d3a5bcb4a17f1ad072484bb92c42519ff3aba6e1 ]
 
-In order to better manage our delegation caching, add a counter
-to track the number of active delegations.
+Add possibility to toggle active-low flag of a gpio descriptor. This is
+useful for compatibility code, where defaults are inverted vs DT gpio
+flags or the active-low flag is taken from elsewhere.
 
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+Acked-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Michał Mirosław <mirq-linux@rere.qmqm.pl>
+Link: https://lore.kernel.org/r/7ce0338e01ad17fa5a227176813941b41a7c35c1.1576031637.git.mirq-linux@rere.qmqm.pl
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/delegation.c | 36 ++++++++++++++++++++++++------------
- 1 file changed, 24 insertions(+), 12 deletions(-)
+ drivers/gpio/gpiolib.c        | 11 +++++++++++
+ include/linux/gpio/consumer.h |  7 +++++++
+ 2 files changed, 18 insertions(+)
 
-diff --git a/fs/nfs/delegation.c b/fs/nfs/delegation.c
-index 5f02d922f2173..8e322bacde699 100644
---- a/fs/nfs/delegation.c
-+++ b/fs/nfs/delegation.c
-@@ -25,13 +25,29 @@
- #include "internal.h"
- #include "nfs4trace.h"
+diff --git a/drivers/gpio/gpiolib.c b/drivers/gpio/gpiolib.c
+index 78a16e42f222e..bcfbfded9ba3f 100644
+--- a/drivers/gpio/gpiolib.c
++++ b/drivers/gpio/gpiolib.c
+@@ -3371,6 +3371,17 @@ int gpiod_is_active_low(const struct gpio_desc *desc)
+ }
+ EXPORT_SYMBOL_GPL(gpiod_is_active_low);
  
--static void nfs_free_delegation(struct nfs_delegation *delegation)
-+static atomic_long_t nfs_active_delegations;
++/**
++ * gpiod_toggle_active_low - toggle whether a GPIO is active-low or not
++ * @desc: the gpio descriptor to change
++ */
++void gpiod_toggle_active_low(struct gpio_desc *desc)
++{
++	VALIDATE_DESC_VOID(desc);
++	change_bit(FLAG_ACTIVE_LOW, &desc->flags);
++}
++EXPORT_SYMBOL_GPL(gpiod_toggle_active_low);
 +
-+static void __nfs_free_delegation(struct nfs_delegation *delegation)
- {
- 	put_cred(delegation->cred);
- 	delegation->cred = NULL;
- 	kfree_rcu(delegation, rcu);
+ /* I/O calls are only valid after configuration completed; the relevant
+  * "is this a valid GPIO" error checks should already have been done.
+  *
+diff --git a/include/linux/gpio/consumer.h b/include/linux/gpio/consumer.h
+index 5215fdba6b9a6..bf2d017dd7b71 100644
+--- a/include/linux/gpio/consumer.h
++++ b/include/linux/gpio/consumer.h
+@@ -158,6 +158,7 @@ int gpiod_set_raw_array_value_cansleep(unsigned int array_size,
+ 
+ int gpiod_set_debounce(struct gpio_desc *desc, unsigned debounce);
+ int gpiod_set_transitory(struct gpio_desc *desc, bool transitory);
++void gpiod_toggle_active_low(struct gpio_desc *desc);
+ 
+ int gpiod_is_active_low(const struct gpio_desc *desc);
+ int gpiod_cansleep(const struct gpio_desc *desc);
+@@ -483,6 +484,12 @@ static inline int gpiod_set_transitory(struct gpio_desc *desc, bool transitory)
+ 	return -ENOSYS;
  }
  
-+static void nfs_mark_delegation_revoked(struct nfs_delegation *delegation)
++static inline void gpiod_toggle_active_low(struct gpio_desc *desc)
 +{
-+	if (!test_and_set_bit(NFS_DELEGATION_REVOKED, &delegation->flags)) {
-+		delegation->stateid.type = NFS4_INVALID_STATEID_TYPE;
-+		atomic_long_dec(&nfs_active_delegations);
-+	}
++	/* GPIO can never have been requested */
++	WARN_ON(desc);
 +}
 +
-+static void nfs_free_delegation(struct nfs_delegation *delegation)
-+{
-+	nfs_mark_delegation_revoked(delegation);
-+	__nfs_free_delegation(delegation);
-+}
-+
- /**
-  * nfs_mark_delegation_referenced - set delegation's REFERENCED flag
-  * @delegation: delegation to process
-@@ -348,7 +364,8 @@ nfs_update_inplace_delegation(struct nfs_delegation *delegation,
- 		delegation->stateid.seqid = update->stateid.seqid;
- 		smp_wmb();
- 		delegation->type = update->type;
--		clear_bit(NFS_DELEGATION_REVOKED, &delegation->flags);
-+		if (test_and_clear_bit(NFS_DELEGATION_REVOKED, &delegation->flags))
-+			atomic_long_inc(&nfs_active_delegations);
- 	}
- }
- 
-@@ -428,6 +445,8 @@ int nfs_inode_set_delegation(struct inode *inode, const struct cred *cred,
- 	rcu_assign_pointer(nfsi->delegation, delegation);
- 	delegation = NULL;
- 
-+	atomic_long_inc(&nfs_active_delegations);
-+
- 	trace_nfs4_set_delegation(inode, type);
- 
- 	spin_lock(&inode->i_lock);
-@@ -437,7 +456,7 @@ int nfs_inode_set_delegation(struct inode *inode, const struct cred *cred,
- out:
- 	spin_unlock(&clp->cl_lock);
- 	if (delegation != NULL)
--		nfs_free_delegation(delegation);
-+		__nfs_free_delegation(delegation);
- 	if (freeme != NULL) {
- 		nfs_do_return_delegation(inode, freeme, 0);
- 		nfs_free_delegation(freeme);
-@@ -765,13 +784,6 @@ static void nfs_client_mark_return_unused_delegation_types(struct nfs_client *cl
- 	rcu_read_unlock();
- }
- 
--static void nfs_mark_delegation_revoked(struct nfs_server *server,
--		struct nfs_delegation *delegation)
--{
--	set_bit(NFS_DELEGATION_REVOKED, &delegation->flags);
--	delegation->stateid.type = NFS4_INVALID_STATEID_TYPE;
--}
--
- static void nfs_revoke_delegation(struct inode *inode,
- 		const nfs4_stateid *stateid)
+ static inline int gpiod_is_active_low(const struct gpio_desc *desc)
  {
-@@ -799,7 +811,7 @@ static void nfs_revoke_delegation(struct inode *inode,
- 		}
- 		spin_unlock(&delegation->lock);
- 	}
--	nfs_mark_delegation_revoked(NFS_SERVER(inode), delegation);
-+	nfs_mark_delegation_revoked(delegation);
- 	ret = true;
- out:
- 	rcu_read_unlock();
-@@ -838,7 +850,7 @@ void nfs_delegation_mark_returned(struct inode *inode,
- 			delegation->stateid.seqid = stateid->seqid;
- 	}
- 
--	nfs_mark_delegation_revoked(NFS_SERVER(inode), delegation);
-+	nfs_mark_delegation_revoked(delegation);
- 
- out_clear_returning:
- 	clear_bit(NFS_DELEGATION_RETURNING, &delegation->flags);
+ 	/* GPIO can never have been requested */
 -- 
 2.20.1
 
