@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CAD781631BB
-	for <lists+stable@lfdr.de>; Tue, 18 Feb 2020 21:06:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 43CA4163262
+	for <lists+stable@lfdr.de>; Tue, 18 Feb 2020 21:10:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728923AbgBRUCZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Feb 2020 15:02:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42710 "EHLO mail.kernel.org"
+        id S1727838AbgBRT6d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Feb 2020 14:58:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36312 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728546AbgBRUCY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 18 Feb 2020 15:02:24 -0500
+        id S1728183AbgBRT6d (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 18 Feb 2020 14:58:33 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3E33E2465D;
-        Tue, 18 Feb 2020 20:02:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B716B20659;
+        Tue, 18 Feb 2020 19:58:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582056143;
-        bh=Q2XUqAWzcsKw+sVNaQcUgDBogFgpDWgMzjvKDC7PDp8=;
+        s=default; t=1582055912;
+        bh=Y+p35oZA6EvXFtibK1QrYEqzN/+CJYN7+vX9iMq7Tys=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=biQ+Ac7e8XoVctmuDQhNvN3lkO9UIEcJ157mMIsN6OU10K/lBMyUb1wtEvlQeclcL
-         OPWXBLY28OZVGvdVfTISX26hKqCj/q6IrkxsirPWmQ92luDaxmNAlVa6MJWkKajq/6
-         vl9bb1OvoalDlR+ZWKxnyod+nIRotJPMkZ1piWXc=
+        b=JkXCc2aIfH9EbQUvsYiICsXriwLBb9Lio+4K/M12/NWdpbW3l8OQgiE/QAcOBShZK
+         XUtSAbb/a6k0F4wXC1MLfI8yEgLdUq+cbYD8cnGb0bI5CoyRmvJ0orCdQEmGC/mhnB
+         kzbYceKrCbjIl8oWJ5awuw87uTuxyJVrw74xB/3U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, John Garry <john.garry@huawei.com>,
         Robert Richter <rrichter@marvell.com>,
         Borislav Petkov <bp@suse.de>
-Subject: [PATCH 5.5 34/80] EDAC/mc: Fix use-after-free and memleaks during device removal
-Date:   Tue, 18 Feb 2020 20:54:55 +0100
-Message-Id: <20200218190435.722187790@linuxfoundation.org>
+Subject: [PATCH 5.4 29/66] EDAC/mc: Fix use-after-free and memleaks during device removal
+Date:   Tue, 18 Feb 2020 20:54:56 +0100
+Message-Id: <20200218190430.757292618@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200218190432.043414522@linuxfoundation.org>
-References: <20200218190432.043414522@linuxfoundation.org>
+In-Reply-To: <20200218190428.035153861@linuxfoundation.org>
+References: <20200218190428.035153861@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -125,7 +125,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/drivers/edac/edac_mc.c
 +++ b/drivers/edac/edac_mc.c
-@@ -505,16 +505,10 @@ void edac_mc_free(struct mem_ctl_info *m
+@@ -503,16 +503,10 @@ void edac_mc_free(struct mem_ctl_info *m
  {
  	edac_dbg(1, "\n");
  
@@ -159,7 +159,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  }
  
  static const struct device_type csrow_attr_type = {
-@@ -607,10 +604,7 @@ static const struct attribute_group *dim
+@@ -619,10 +616,7 @@ static const struct attribute_group *dim
  
  static void dimm_attr_release(struct device *dev)
  {
@@ -171,7 +171,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  }
  
  static const struct device_type dimm_attr_type = {
-@@ -892,10 +886,7 @@ static const struct attribute_group *mci
+@@ -905,10 +899,7 @@ static const struct attribute_group *mci
  
  static void mci_attr_release(struct device *dev)
  {
