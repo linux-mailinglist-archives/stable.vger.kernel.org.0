@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D4B061630E3
-	for <lists+stable@lfdr.de>; Tue, 18 Feb 2020 20:58:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B4C5A1630E5
+	for <lists+stable@lfdr.de>; Tue, 18 Feb 2020 20:58:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727877AbgBRT5Q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Feb 2020 14:57:16 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34576 "EHLO mail.kernel.org"
+        id S1727872AbgBRT5T (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Feb 2020 14:57:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34628 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726680AbgBRT5P (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 18 Feb 2020 14:57:15 -0500
+        id S1727883AbgBRT5S (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 18 Feb 2020 14:57:18 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E017F24655;
-        Tue, 18 Feb 2020 19:57:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 658092465A;
+        Tue, 18 Feb 2020 19:57:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582055835;
-        bh=OQNUdeiiIH546txsURXZ8slQbFJ8FFp2PyIS12eUZe0=;
+        s=default; t=1582055837;
+        bh=AQXNCwSq4Z50V5yHlLV51EKDB3lSCNe9jOBAJff5fh4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rC6khffjtovDhMEx3is+D7JOEih55Z2rfFhH1KI4sqHzJYz4vWjNGqXV8DhUJHiMe
-         12mrfMPf1KVn2HIyl6QgH0aTxCdVOPxG3IEZk/XUMoyUYFt/+XJ4o1vFwCOn38LPj5
-         GnXizaH213mgeJB/mkwMF1ruOgWiFWGbTUmrYTbk=
+        b=pAslD6dJqRUSmwACKK0lrxtbjlPOo2Dc/ldo5W5SleHCtO645FSxH5QuWCFmgvO9+
+         k15ax/fGLJYFFnzichxHQOvREAfyzCCQTiYlIu+HX34P3Wkpywnh9nfdH46X6oCZjF
+         ZMWMUGhoiqRAkBQUdYYOxJr7wJEF3kqcWdGgxpvs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maor Gottlieb <maorg@mellanox.com>,
-        Leon Romanovsky <leonro@mellanox.com>
-Subject: [PATCH 4.19 31/38] RDMA/core: Fix protection fault in get_pkey_idx_qp_list
-Date:   Tue, 18 Feb 2020 20:55:17 +0100
-Message-Id: <20200218190422.207285867@linuxfoundation.org>
+        stable@vger.kernel.org, Nick Desaulniers <ndesaulniers@google.com>,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Vasily Gorbik <gor@linux.ibm.com>
+Subject: [PATCH 4.19 32/38] s390/time: Fix clk type in get_tod_clock
+Date:   Tue, 18 Feb 2020 20:55:18 +0100
+Message-Id: <20200218190422.309601321@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200218190418.536430858@linuxfoundation.org>
 References: <20200218190418.536430858@linuxfoundation.org>
@@ -43,94 +44,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Leon Romanovsky <leonro@mellanox.com>
+From: Nathan Chancellor <natechancellor@gmail.com>
 
-commit 1dd017882e01d2fcd9c5dbbf1eb376211111c393 upstream.
+commit 0f8a206df7c920150d2aa45574fba0ab7ff6be4f upstream.
 
-We don't need to set pkey as valid in case that user set only one of pkey
-index or port number, otherwise it will be resulted in NULL pointer
-dereference while accessing to uninitialized pkey list.  The following
-crash from Syzkaller revealed it.
+Clang warns:
 
-  kasan: CONFIG_KASAN_INLINE enabled
-  kasan: GPF could be caused by NULL-ptr deref or user memory access
-  general protection fault: 0000 [#1] SMP KASAN PTI
-  CPU: 1 PID: 14753 Comm: syz-executor.2 Not tainted 5.5.0-rc5 #2
-  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS
-  rel-1.12.1-0-ga5cab58e9a3f-prebuilt.qemu.org 04/01/2014
-  RIP: 0010:get_pkey_idx_qp_list+0x161/0x2d0
-  Code: 01 00 00 49 8b 5e 20 4c 39 e3 0f 84 b9 00 00 00 e8 e4 42 6e fe 48
-  8d 7b 10 48 b8 00 00 00 00 00 fc ff df 48 89 fa 48 c1 ea 03 <0f> b6 04
-  02 84 c0 74 08 3c 01 0f 8e d0 00 00 00 48 8d 7d 04 48 b8
-  RSP: 0018:ffffc9000bc6f950 EFLAGS: 00010202
-  RAX: dffffc0000000000 RBX: 0000000000000000 RCX: ffffffff82c8bdec
-  RDX: 0000000000000002 RSI: ffffc900030a8000 RDI: 0000000000000010
-  RBP: ffff888112c8ce80 R08: 0000000000000004 R09: fffff5200178df1f
-  R10: 0000000000000001 R11: fffff5200178df1f R12: ffff888115dc4430
-  R13: ffff888115da8498 R14: ffff888115dc4410 R15: ffff888115da8000
-  FS:  00007f20777de700(0000) GS:ffff88811b100000(0000)
-  knlGS:0000000000000000
-  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  CR2: 0000001b2f721000 CR3: 00000001173ca002 CR4: 0000000000360ee0
-  DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-  DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-  Call Trace:
-   port_pkey_list_insert+0xd7/0x7c0
-   ib_security_modify_qp+0x6fa/0xfc0
-   _ib_modify_qp+0x8c4/0xbf0
-   modify_qp+0x10da/0x16d0
-   ib_uverbs_modify_qp+0x9a/0x100
-   ib_uverbs_write+0xaa5/0xdf0
-   __vfs_write+0x7c/0x100
-   vfs_write+0x168/0x4a0
-   ksys_write+0xc8/0x200
-   do_syscall_64+0x9c/0x390
-   entry_SYSCALL_64_after_hwframe+0x44/0xa9
+In file included from ../arch/s390/boot/startup.c:3:
+In file included from ../include/linux/elf.h:5:
+In file included from ../arch/s390/include/asm/elf.h:132:
+In file included from ../include/linux/compat.h:10:
+In file included from ../include/linux/time.h:74:
+In file included from ../include/linux/time32.h:13:
+In file included from ../include/linux/timex.h:65:
+../arch/s390/include/asm/timex.h:160:20: warning: passing 'unsigned char
+[16]' to parameter of type 'char *' converts between pointers to integer
+types with different sign [-Wpointer-sign]
+        get_tod_clock_ext(clk);
+                          ^~~
+../arch/s390/include/asm/timex.h:149:44: note: passing argument to
+parameter 'clk' here
+static inline void get_tod_clock_ext(char *clk)
+                                           ^
 
-Fixes: d291f1a65232 ("IB/core: Enforce PKey security on QPs")
-Link: https://lore.kernel.org/r/20200212080651.GB679970@unreal
-Signed-off-by: Maor Gottlieb <maorg@mellanox.com>
-Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
-Message-Id: <20200212080651.GB679970@unreal>
+Change clk's type to just be char so that it matches what happens in
+get_tod_clock_ext.
+
+Fixes: 57b28f66316d ("[S390] s390_hypfs: Add new attributes")
+Link: https://github.com/ClangBuiltLinux/linux/issues/861
+Link: http://lkml.kernel.org/r/20200208140858.47970-1-natechancellor@gmail.com
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/infiniband/core/security.c |   24 +++++++++---------------
- 1 file changed, 9 insertions(+), 15 deletions(-)
+ arch/s390/include/asm/timex.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/infiniband/core/security.c
-+++ b/drivers/infiniband/core/security.c
-@@ -336,22 +336,16 @@ static struct ib_ports_pkeys *get_new_pp
- 	if (!new_pps)
- 		return NULL;
+--- a/arch/s390/include/asm/timex.h
++++ b/arch/s390/include/asm/timex.h
+@@ -155,7 +155,7 @@ static inline void get_tod_clock_ext(cha
  
--	if (qp_attr_mask & (IB_QP_PKEY_INDEX | IB_QP_PORT)) {
--		if (!qp_pps) {
--			new_pps->main.port_num = qp_attr->port_num;
--			new_pps->main.pkey_index = qp_attr->pkey_index;
--		} else {
--			new_pps->main.port_num = (qp_attr_mask & IB_QP_PORT) ?
--						  qp_attr->port_num :
--						  qp_pps->main.port_num;
--
--			new_pps->main.pkey_index =
--					(qp_attr_mask & IB_QP_PKEY_INDEX) ?
--					 qp_attr->pkey_index :
--					 qp_pps->main.pkey_index;
--		}
-+	if (qp_attr_mask & IB_QP_PORT)
-+		new_pps->main.port_num =
-+			(qp_pps) ? qp_pps->main.port_num : qp_attr->port_num;
-+	if (qp_attr_mask & IB_QP_PKEY_INDEX)
-+		new_pps->main.pkey_index = (qp_pps) ? qp_pps->main.pkey_index :
-+						      qp_attr->pkey_index;
-+	if ((qp_attr_mask & IB_QP_PKEY_INDEX) && (qp_attr_mask & IB_QP_PORT))
- 		new_pps->main.state = IB_PORT_PKEY_VALID;
--	} else if (qp_pps) {
-+
-+	if (!(qp_attr_mask & (IB_QP_PKEY_INDEX || IB_QP_PORT)) && qp_pps) {
- 		new_pps->main.port_num = qp_pps->main.port_num;
- 		new_pps->main.pkey_index = qp_pps->main.pkey_index;
- 		if (qp_pps->main.state != IB_PORT_PKEY_NOT_VALID)
+ static inline unsigned long long get_tod_clock(void)
+ {
+-	unsigned char clk[STORE_CLOCK_EXT_SIZE];
++	char clk[STORE_CLOCK_EXT_SIZE];
+ 
+ 	get_tod_clock_ext(clk);
+ 	return *((unsigned long long *)&clk[1]);
 
 
