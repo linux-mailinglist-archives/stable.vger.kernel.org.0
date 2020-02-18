@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EAE5C1631B9
-	for <lists+stable@lfdr.de>; Tue, 18 Feb 2020 21:05:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F027D16324B
+	for <lists+stable@lfdr.de>; Tue, 18 Feb 2020 21:10:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728230AbgBRUCW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Feb 2020 15:02:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42614 "EHLO mail.kernel.org"
+        id S1727488AbgBRT4o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Feb 2020 14:56:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33828 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728914AbgBRUCV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 18 Feb 2020 15:02:21 -0500
+        id S1727470AbgBRT4m (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 18 Feb 2020 14:56:42 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C843424125;
-        Tue, 18 Feb 2020 20:02:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CBBE624654;
+        Tue, 18 Feb 2020 19:56:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582056141;
-        bh=mDbcaI0GS6+deQxhKF0GGzKKQveWFWhYfGzi7xXXqQ4=;
+        s=default; t=1582055801;
+        bh=vPcEZZZzt3R3MjjbO+mBOCVnXZNtssLo+oinALCor9g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lLonYZE80CH6h0bkLX+UAVE3BR9qn+XlXQBKdH1QoVSl0bU3XH3y750OB3c+41WUz
-         PnmUmYR9AJFCJsS08GDy5ZFFfhT3lh8WfNtxaUqwoIVDaEV4Rxfkjhvge5O+rvmDxR
-         Tu1tHfosDswrhEOqeiYIpAjdfMPSPfR3ut9SWdZE=
+        b=SAxi5J2Q/4Bz9/8Sms8T42JLPdOIPiJR3NW0Tp6sgjVGK/XZ2ePAHLOUdU9ZqlK88
+         9TD/xzVhXEfzj1RYk03zzzzZg6uJDu7Py7v9ISK8Ck5CA8t+gpzDlXhhiJ4gna2/UA
+         oIb6Y3Y2zsN6UL/lYa4H5WOp9QhltVB6LZqVNKKM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
+        stable@vger.kernel.org, Kaike Wan <kaike.wan@intel.com>,
         Mike Marciniszyn <mike.marciniszyn@intel.com>,
-        Kaike Wan <kaike.wan@intel.com>,
         Dennis Dalessandro <dennis.dalessandro@intel.com>,
         Jason Gunthorpe <jgg@mellanox.com>
-Subject: [PATCH 5.5 51/80] IB/rdmavt: Reset all QPs when the device is shut down
+Subject: [PATCH 4.19 26/38] IB/hfi1: Close window for pq and request coliding
 Date:   Tue, 18 Feb 2020 20:55:12 +0100
-Message-Id: <20200218190437.097828202@linuxfoundation.org>
+Message-Id: <20200218190421.735335192@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200218190432.043414522@linuxfoundation.org>
-References: <20200218190432.043414522@linuxfoundation.org>
+In-Reply-To: <20200218190418.536430858@linuxfoundation.org>
+References: <20200218190418.536430858@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,230 +45,270 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kaike Wan <kaike.wan@intel.com>
+From: Mike Marciniszyn <mike.marciniszyn@intel.com>
 
-commit f92e48718889b3d49cee41853402aa88cac84a6b upstream.
+commit be8638344c70bf492963ace206a9896606b6922d upstream.
 
-When the hfi1 device is shut down during a system reboot, it is possible
-that some QPs might have not not freed by ULPs. More requests could be
-post sent and a lingering timer could be triggered to schedule more packet
-sends, leading to a crash:
+Cleaning up a pq can result in the following warning and panic:
 
-  BUG: unable to handle kernel NULL pointer dereference at 0000000000000102
-  IP: [ffffffff810a65f2] __queue_work+0x32/0x3c0
-  PGD 0
-  Oops: 0000 1 SMP
-  Modules linked in: nvmet_rdma(OE) nvmet(OE) nvme(OE) dm_round_robin nvme_rdma(OE) nvme_fabrics(OE) nvme_core(OE) pal_raw(POE) pal_pmt(POE) pal_cache(POE) pal_pile(POE) pal(POE) pal_compatible(OE) rpcrdma sunrpc ib_isert iscsi_target_mod target_core_mod ib_iser libiscsi scsi_transport_iscsi ib_ipoib rdma_ucm ib_ucm ib_uverbs ib_umad rdma_cm ib_cm iw_cm mlx4_ib sb_edac edac_core intel_powerclamp coretemp intel_rapl iosf_mbi kvm irqbypass crc32_pclmul ghash_clmulni_intel aesni_intel lrw gf128mul glue_helper ablk_helper cryptd iTCO_wdt iTCO_vendor_support mxm_wmi ipmi_ssif pcspkr ses enclosure joydev scsi_transport_sas i2c_i801 sg mei_me lpc_ich mei ioatdma shpchp ipmi_si ipmi_devintf ipmi_msghandler wmi acpi_power_meter acpi_pad dm_multipath hangcheck_timer ip_tables ext4 mbcache jbd2 mlx4_en
-  sd_mod crc_t10dif crct10dif_generic mgag200 drm_kms_helper syscopyarea sysfillrect sysimgblt fb_sys_fops ttm drm mlx4_core crct10dif_pclmul crct10dif_common hfi1(OE) igb crc32c_intel rdmavt(OE) ahci ib_core libahci libata ptp megaraid_sas pps_core dca i2c_algo_bit i2c_core devlink dm_mirror dm_region_hash dm_log dm_mod
-  CPU: 23 PID: 0 Comm: swapper/23 Tainted: P OE ------------ 3.10.0-693.el7.x86_64 #1
-  Hardware name: Intel Corporation S2600CWR/S2600CWR, BIOS SE5C610.86B.01.01.0028.121720182203 12/17/2018
-  task: ffff8808f4ec4f10 ti: ffff8808f4ed8000 task.ti: ffff8808f4ed8000
-  RIP: 0010:[ffffffff810a65f2] [ffffffff810a65f2] __queue_work+0x32/0x3c0
-  RSP: 0018:ffff88105df43d48 EFLAGS: 00010046
-  RAX: 0000000000000086 RBX: 0000000000000086 RCX: 0000000000000000
-  RDX: ffff880f74e758b0 RSI: 0000000000000000 RDI: 000000000000001f
-  RBP: ffff88105df43d80 R08: ffff8808f3c583c8 R09: ffff8808f3c58000
-  R10: 0000000000000002 R11: ffff88105df43da8 R12: ffff880f74e758b0
-  R13: 000000000000001f R14: 0000000000000000 R15: ffff88105a300000
-  FS: 0000000000000000(0000) GS:ffff88105df40000(0000) knlGS:0000000000000000
-  CS: 0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  CR2: 0000000000000102 CR3: 00000000019f2000 CR4: 00000000001407e0
-  DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-  DR3: 0000000000000000 DR6: 00000000ffff0ff0 DR7: 0000000000000400
-  Stack:
-  ffff88105b6dd708 0000001f00000286 0000000000000086 ffff88105a300000
-  ffff880f74e75800 0000000000000000 ffff88105a300000 ffff88105df43d98
-  ffffffff810a6b85 ffff88105a301e80 ffff88105df43dc8 ffffffffc0224cde
+  WARNING: CPU: 52 PID: 77418 at lib/list_debug.c:53 __list_del_entry+0x63/0xd0
+  list_del corruption, ffff88cb2c6ac068->next is LIST_POISON1 (dead000000000100)
+  Modules linked in: mmfs26(OE) mmfslinux(OE) tracedev(OE) 8021q garp mrp ib_isert iscsi_target_mod target_core_mod crc_t10dif crct10dif_generic opa_vnic rpcrdma ib_iser libiscsi scsi_transport_iscsi ib_ipoib(OE) bridge stp llc iTCO_wdt iTCO_vendor_support intel_powerclamp coretemp intel_rapl iosf_mbi kvm_intel kvm irqbypass crct10dif_pclmul crct10dif_common crc32_pclmul ghash_clmulni_intel ast aesni_intel ttm lrw gf128mul glue_helper ablk_helper drm_kms_helper cryptd syscopyarea sysfillrect sysimgblt fb_sys_fops drm pcspkr joydev lpc_ich mei_me drm_panel_orientation_quirks i2c_i801 mei wmi ipmi_si ipmi_devintf ipmi_msghandler nfit libnvdimm acpi_power_meter acpi_pad hfi1(OE) rdmavt(OE) rdma_ucm ib_ucm ib_uverbs ib_umad rdma_cm ib_cm iw_cm ib_core binfmt_misc numatools(OE) xpmem(OE) ip_tables
+   nfsv3 nfs_acl nfs lockd grace sunrpc fscache igb ahci i2c_algo_bit libahci dca ptp libata pps_core crc32c_intel [last unloaded: i2c_algo_bit]
+  CPU: 52 PID: 77418 Comm: pvbatch Kdump: loaded Tainted: G           OE  ------------   3.10.0-957.38.3.el7.x86_64 #1
+  Hardware name: HPE.COM HPE SGI 8600-XA730i Gen10/X11DPT-SB-SG007, BIOS SBED1229 01/22/2019
   Call Trace:
-  IRQ
+   [<ffffffff90365ac0>] dump_stack+0x19/0x1b
+   [<ffffffff8fc98b78>] __warn+0xd8/0x100
+   [<ffffffff8fc98bff>] warn_slowpath_fmt+0x5f/0x80
+   [<ffffffff8ff970c3>] __list_del_entry+0x63/0xd0
+   [<ffffffff8ff9713d>] list_del+0xd/0x30
+   [<ffffffff8fddda70>] kmem_cache_destroy+0x50/0x110
+   [<ffffffffc0328130>] hfi1_user_sdma_free_queues+0xf0/0x200 [hfi1]
+   [<ffffffffc02e2350>] hfi1_file_close+0x70/0x1e0 [hfi1]
+   [<ffffffff8fe4519c>] __fput+0xec/0x260
+   [<ffffffff8fe453fe>] ____fput+0xe/0x10
+   [<ffffffff8fcbfd1b>] task_work_run+0xbb/0xe0
+   [<ffffffff8fc2bc65>] do_notify_resume+0xa5/0xc0
+   [<ffffffff90379134>] int_signal+0x12/0x17
+  BUG: unable to handle kernel NULL pointer dereference at 0000000000000010
+  IP: [<ffffffff8fe1f93e>] kmem_cache_close+0x7e/0x300
+  PGD 2cdab19067 PUD 2f7bfdb067 PMD 0
+  Oops: 0000 [#1] SMP
+  Modules linked in: mmfs26(OE) mmfslinux(OE) tracedev(OE) 8021q garp mrp ib_isert iscsi_target_mod target_core_mod crc_t10dif crct10dif_generic opa_vnic rpcrdma ib_iser libiscsi scsi_transport_iscsi ib_ipoib(OE) bridge stp llc iTCO_wdt iTCO_vendor_support intel_powerclamp coretemp intel_rapl iosf_mbi kvm_intel kvm irqbypass crct10dif_pclmul crct10dif_common crc32_pclmul ghash_clmulni_intel ast aesni_intel ttm lrw gf128mul glue_helper ablk_helper drm_kms_helper cryptd syscopyarea sysfillrect sysimgblt fb_sys_fops drm pcspkr joydev lpc_ich mei_me drm_panel_orientation_quirks i2c_i801 mei wmi ipmi_si ipmi_devintf ipmi_msghandler nfit libnvdimm acpi_power_meter acpi_pad hfi1(OE) rdmavt(OE) rdma_ucm ib_ucm ib_uverbs ib_umad rdma_cm ib_cm iw_cm ib_core binfmt_misc numatools(OE) xpmem(OE) ip_tables
+   nfsv3 nfs_acl nfs lockd grace sunrpc fscache igb ahci i2c_algo_bit libahci dca ptp libata pps_core crc32c_intel [last unloaded: i2c_algo_bit]
+  CPU: 52 PID: 77418 Comm: pvbatch Kdump: loaded Tainted: G        W  OE  ------------   3.10.0-957.38.3.el7.x86_64 #1
+  Hardware name: HPE.COM HPE SGI 8600-XA730i Gen10/X11DPT-SB-SG007, BIOS SBED1229 01/22/2019
+  task: ffff88cc26db9040 ti: ffff88b5393a8000 task.ti: ffff88b5393a8000
+  RIP: 0010:[<ffffffff8fe1f93e>]  [<ffffffff8fe1f93e>] kmem_cache_close+0x7e/0x300
+  RSP: 0018:ffff88b5393abd60  EFLAGS: 00010287
+  RAX: 0000000000000000 RBX: ffff88cb2c6ac000 RCX: 0000000000000003
+  RDX: 0000000000000400 RSI: 0000000000000400 RDI: ffffffff9095b800
+  RBP: ffff88b5393abdb0 R08: ffffffff9095b808 R09: ffffffff8ff77c19
+  R10: ffff88b73ce1f160 R11: ffffddecddde9800 R12: ffff88cb2c6ac000
+  R13: 000000000000000c R14: ffff88cf3fdca780 R15: 0000000000000000
+  FS:  00002aaaaab52500(0000) GS:ffff88b73ce00000(0000) knlGS:0000000000000000
+  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+  CR2: 0000000000000010 CR3: 0000002d27664000 CR4: 00000000007607e0
+  DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+  DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+  PKRU: 55555554
+  Call Trace:
+   [<ffffffff8fe20d44>] __kmem_cache_shutdown+0x14/0x80
+   [<ffffffff8fddda78>] kmem_cache_destroy+0x58/0x110
+   [<ffffffffc0328130>] hfi1_user_sdma_free_queues+0xf0/0x200 [hfi1]
+   [<ffffffffc02e2350>] hfi1_file_close+0x70/0x1e0 [hfi1]
+   [<ffffffff8fe4519c>] __fput+0xec/0x260
+   [<ffffffff8fe453fe>] ____fput+0xe/0x10
+   [<ffffffff8fcbfd1b>] task_work_run+0xbb/0xe0
+   [<ffffffff8fc2bc65>] do_notify_resume+0xa5/0xc0
+   [<ffffffff90379134>] int_signal+0x12/0x17
+  Code: 00 00 ba 00 04 00 00 0f 4f c2 3d 00 04 00 00 89 45 bc 0f 84 e7 01 00 00 48 63 45 bc 49 8d 04 c4 48 89 45 b0 48 8b 80 c8 00 00 00 <48> 8b 78 10 48 89 45 c0 48 83 c0 10 48 89 45 d0 48 8b 17 48 39
+  RIP  [<ffffffff8fe1f93e>] kmem_cache_close+0x7e/0x300
+   RSP <ffff88b5393abd60>
+  CR2: 0000000000000010
 
-  [ffffffff810a6b85] queue_work_on+0x45/0x50
-  [ffffffffc0224cde] _hfi1_schedule_send+0x6e/0xc0 [hfi1]
-  [ffffffffc0170570] ? get_map_page+0x60/0x60 [rdmavt]
-  [ffffffffc0224d62] hfi1_schedule_send+0x32/0x70 [hfi1]
-  [ffffffffc0170644] rvt_rc_timeout+0xd4/0x120 [rdmavt]
-  [ffffffffc0170570] ? get_map_page+0x60/0x60 [rdmavt]
-  [ffffffff81097316] call_timer_fn+0x36/0x110
-  [ffffffffc0170570] ? get_map_page+0x60/0x60 [rdmavt]
-  [ffffffff8109982d] run_timer_softirq+0x22d/0x310
-  [ffffffff81090b3f] __do_softirq+0xef/0x280
-  [ffffffff816b6a5c] call_softirq+0x1c/0x30
-  [ffffffff8102d3c5] do_softirq+0x65/0xa0
-  [ffffffff81090ec5] irq_exit+0x105/0x110
-  [ffffffff816b76c2] smp_apic_timer_interrupt+0x42/0x50
-  [ffffffff816b5c1d] apic_timer_interrupt+0x6d/0x80
-  EOI
+The panic is the result of slab entries being freed during the destruction
+of the pq slab.
 
-  [ffffffff81527a02] ? cpuidle_enter_state+0x52/0xc0
-  [ffffffff81527b48] cpuidle_idle_call+0xd8/0x210
-  [ffffffff81034fee] arch_cpu_idle+0xe/0x30
-  [ffffffff810e7bca] cpu_startup_entry+0x14a/0x1c0
-  [ffffffff81051af6] start_secondary+0x1b6/0x230
-  Code: 89 e5 41 57 41 56 49 89 f6 41 55 41 89 fd 41 54 49 89 d4 53 48 83 ec 10 89 7d d4 9c 58 0f 1f 44 00 00 f6 c4 02 0f 85 be 02 00 00 41 f6 86 02 01 00 00 01 0f 85 58 02 00 00 49 c7 c7 28 19 01 00
-  RIP [ffffffff810a65f2] __queue_work+0x32/0x3c0
-  RSP ffff88105df43d48
-  CR2: 0000000000000102
+The code attempts to quiesce the pq, but looking for n_req == 0 doesn't
+account for new requests.
 
-The solution is to reset the QPs before the device resources are freed.
-This reset will change the QP state to prevent post sends and delete
-timers to prevent callbacks.
+Fix the issue by using SRCU to get a pq pointer and adjust the pq free
+logic to NULL the fd pq pointer prior to the quiesce.
 
-Fixes: 0acb0cc7ecc1 ("IB/rdmavt: Initialize and teardown of qpn table")
-Link: https://lore.kernel.org/r/20200210131040.87408.38161.stgit@awfm-01.aw.intel.com
-Reviewed-by: Mike Marciniszyn <mike.marciniszyn@intel.com>
-Signed-off-by: Kaike Wan <kaike.wan@intel.com>
+Fixes: e87473bc1b6c ("IB/hfi1: Only set fd pointer when base context is completely initialized")
+Link: https://lore.kernel.org/r/20200210131033.87408.81174.stgit@awfm-01.aw.intel.com
+Reviewed-by: Kaike Wan <kaike.wan@intel.com>
+Signed-off-by: Mike Marciniszyn <mike.marciniszyn@intel.com>
 Signed-off-by: Dennis Dalessandro <dennis.dalessandro@intel.com>
 Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/infiniband/sw/rdmavt/qp.c |   84 +++++++++++++++++++++++---------------
- 1 file changed, 51 insertions(+), 33 deletions(-)
+ drivers/infiniband/hw/hfi1/file_ops.c     |   52 ++++++++++++++++++------------
+ drivers/infiniband/hw/hfi1/hfi.h          |    5 ++
+ drivers/infiniband/hw/hfi1/user_exp_rcv.c |    3 -
+ drivers/infiniband/hw/hfi1/user_sdma.c    |   17 ++++++---
+ 4 files changed, 48 insertions(+), 29 deletions(-)
 
---- a/drivers/infiniband/sw/rdmavt/qp.c
-+++ b/drivers/infiniband/sw/rdmavt/qp.c
-@@ -61,6 +61,8 @@
- #define RVT_RWQ_COUNT_THRESHOLD 16
+--- a/drivers/infiniband/hw/hfi1/file_ops.c
++++ b/drivers/infiniband/hw/hfi1/file_ops.c
+@@ -200,23 +200,24 @@ static int hfi1_file_open(struct inode *
  
- static void rvt_rc_timeout(struct timer_list *t);
-+static void rvt_reset_qp(struct rvt_dev_info *rdi, struct rvt_qp *qp,
-+			 enum ib_qp_type type);
+ 	fd = kzalloc(sizeof(*fd), GFP_KERNEL);
  
- /*
-  * Convert the AETH RNR timeout code into the number of microseconds.
-@@ -452,40 +454,41 @@ no_qp_table:
- }
- 
- /**
-- * free_all_qps - check for QPs still in use
-+ * rvt_free_qp_cb - callback function to reset a qp
-+ * @qp: the qp to reset
-+ * @v: a 64-bit value
-+ *
-+ * This function resets the qp and removes it from the
-+ * qp hash table.
-+ */
-+static void rvt_free_qp_cb(struct rvt_qp *qp, u64 v)
-+{
-+	unsigned int *qp_inuse = (unsigned int *)v;
-+	struct rvt_dev_info *rdi = ib_to_rvt(qp->ibqp.device);
-+
-+	/* Reset the qp and remove it from the qp hash list */
-+	rvt_reset_qp(rdi, qp, qp->ibqp.qp_type);
-+
-+	/* Increment the qp_inuse count */
-+	(*qp_inuse)++;
-+}
-+
-+/**
-+ * rvt_free_all_qps - check for QPs still in use
-  * @rdi: rvt device info structure
-  *
-  * There should not be any QPs still in use.
-  * Free memory for table.
-+ * Return the number of QPs still in use.
-  */
- static unsigned rvt_free_all_qps(struct rvt_dev_info *rdi)
- {
--	unsigned long flags;
--	struct rvt_qp *qp;
--	unsigned n, qp_inuse = 0;
--	spinlock_t *ql; /* work around too long line below */
+-	if (fd) {
+-		fd->rec_cpu_num = -1; /* no cpu affinity by default */
+-		fd->mm = current->mm;
+-		mmgrab(fd->mm);
+-		fd->dd = dd;
+-		kobject_get(&fd->dd->kobj);
+-		fp->private_data = fd;
+-	} else {
+-		fp->private_data = NULL;
 -
--	if (rdi->driver_f.free_all_qps)
--		qp_inuse = rdi->driver_f.free_all_qps(rdi);
-+	unsigned int qp_inuse = 0;
- 
- 	qp_inuse += rvt_mcast_tree_empty(rdi);
- 
--	if (!rdi->qp_dev)
--		return qp_inuse;
-+	rvt_qp_iter(rdi, (u64)&qp_inuse, rvt_free_qp_cb);
- 
--	ql = &rdi->qp_dev->qpt_lock;
--	spin_lock_irqsave(ql, flags);
--	for (n = 0; n < rdi->qp_dev->qp_table_size; n++) {
--		qp = rcu_dereference_protected(rdi->qp_dev->qp_table[n],
--					       lockdep_is_held(ql));
--		RCU_INIT_POINTER(rdi->qp_dev->qp_table[n], NULL);
+-		if (atomic_dec_and_test(&dd->user_refcount))
+-			complete(&dd->user_comp);
 -
--		for (; qp; qp = rcu_dereference_protected(qp->next,
--							  lockdep_is_held(ql)))
--			qp_inuse++;
+-		return -ENOMEM;
 -	}
--	spin_unlock_irqrestore(ql, flags);
--	synchronize_rcu();
- 	return qp_inuse;
+-
++	if (!fd || init_srcu_struct(&fd->pq_srcu))
++		goto nomem;
++	spin_lock_init(&fd->pq_rcu_lock);
++	spin_lock_init(&fd->tid_lock);
++	spin_lock_init(&fd->invalid_lock);
++	fd->rec_cpu_num = -1; /* no cpu affinity by default */
++	fd->mm = current->mm;
++	mmgrab(fd->mm);
++	fd->dd = dd;
++	kobject_get(&fd->dd->kobj);
++	fp->private_data = fd;
+ 	return 0;
++nomem:
++	kfree(fd);
++	fp->private_data = NULL;
++	if (atomic_dec_and_test(&dd->user_refcount))
++		complete(&dd->user_comp);
++	return -ENOMEM;
  }
  
-@@ -902,14 +905,14 @@ static void rvt_init_qp(struct rvt_dev_i
+ static long hfi1_file_ioctl(struct file *fp, unsigned int cmd,
+@@ -301,21 +302,30 @@ static long hfi1_file_ioctl(struct file
+ static ssize_t hfi1_write_iter(struct kiocb *kiocb, struct iov_iter *from)
+ {
+ 	struct hfi1_filedata *fd = kiocb->ki_filp->private_data;
+-	struct hfi1_user_sdma_pkt_q *pq = fd->pq;
++	struct hfi1_user_sdma_pkt_q *pq;
+ 	struct hfi1_user_sdma_comp_q *cq = fd->cq;
+ 	int done = 0, reqs = 0;
+ 	unsigned long dim = from->nr_segs;
++	int idx;
+ 
+-	if (!cq || !pq)
++	idx = srcu_read_lock(&fd->pq_srcu);
++	pq = srcu_dereference(fd->pq, &fd->pq_srcu);
++	if (!cq || !pq) {
++		srcu_read_unlock(&fd->pq_srcu, idx);
+ 		return -EIO;
++	}
+ 
+-	if (!iter_is_iovec(from) || !dim)
++	if (!iter_is_iovec(from) || !dim) {
++		srcu_read_unlock(&fd->pq_srcu, idx);
+ 		return -EINVAL;
++	}
+ 
+ 	trace_hfi1_sdma_request(fd->dd, fd->uctxt->ctxt, fd->subctxt, dim);
+ 
+-	if (atomic_read(&pq->n_reqs) == pq->n_max_reqs)
++	if (atomic_read(&pq->n_reqs) == pq->n_max_reqs) {
++		srcu_read_unlock(&fd->pq_srcu, idx);
+ 		return -ENOSPC;
++	}
+ 
+ 	while (dim) {
+ 		int ret;
+@@ -333,6 +343,7 @@ static ssize_t hfi1_write_iter(struct ki
+ 		reqs++;
+ 	}
+ 
++	srcu_read_unlock(&fd->pq_srcu, idx);
+ 	return reqs;
  }
  
- /**
-- * rvt_reset_qp - initialize the QP state to the reset state
-+ * _rvt_reset_qp - initialize the QP state to the reset state
-  * @qp: the QP to reset
-  * @type: the QP type
-  *
-  * r_lock, s_hlock, and s_lock are required to be held by the caller
-  */
--static void rvt_reset_qp(struct rvt_dev_info *rdi, struct rvt_qp *qp,
--			 enum ib_qp_type type)
-+static void _rvt_reset_qp(struct rvt_dev_info *rdi, struct rvt_qp *qp,
-+			  enum ib_qp_type type)
- 	__must_hold(&qp->s_lock)
- 	__must_hold(&qp->s_hlock)
- 	__must_hold(&qp->r_lock)
-@@ -955,6 +958,27 @@ static void rvt_reset_qp(struct rvt_dev_
- 	lockdep_assert_held(&qp->s_lock);
+@@ -706,6 +717,7 @@ done:
+ 	if (atomic_dec_and_test(&dd->user_refcount))
+ 		complete(&dd->user_comp);
+ 
++	cleanup_srcu_struct(&fdata->pq_srcu);
+ 	kfree(fdata);
+ 	return 0;
  }
+--- a/drivers/infiniband/hw/hfi1/hfi.h
++++ b/drivers/infiniband/hw/hfi1/hfi.h
+@@ -1376,10 +1376,13 @@ struct mmu_rb_handler;
  
-+/**
-+ * rvt_reset_qp - initialize the QP state to the reset state
-+ * @rdi: the device info
-+ * @qp: the QP to reset
-+ * @type: the QP type
-+ *
-+ * This is the wrapper function to acquire the r_lock, s_hlock, and s_lock
-+ * before calling _rvt_reset_qp().
-+ */
-+static void rvt_reset_qp(struct rvt_dev_info *rdi, struct rvt_qp *qp,
-+			 enum ib_qp_type type)
-+{
-+	spin_lock_irq(&qp->r_lock);
-+	spin_lock(&qp->s_hlock);
-+	spin_lock(&qp->s_lock);
-+	_rvt_reset_qp(rdi, qp, type);
-+	spin_unlock(&qp->s_lock);
-+	spin_unlock(&qp->s_hlock);
-+	spin_unlock_irq(&qp->r_lock);
-+}
-+
- /** rvt_free_qpn - Free a qpn from the bit map
-  * @qpt: QP table
-  * @qpn: queue pair number to free
-@@ -1546,7 +1570,7 @@ int rvt_modify_qp(struct ib_qp *ibqp, st
- 	switch (new_state) {
- 	case IB_QPS_RESET:
- 		if (qp->state != IB_QPS_RESET)
--			rvt_reset_qp(rdi, qp, ibqp->qp_type);
-+			_rvt_reset_qp(rdi, qp, ibqp->qp_type);
- 		break;
+ /* Private data for file operations */
+ struct hfi1_filedata {
++	struct srcu_struct pq_srcu;
+ 	struct hfi1_devdata *dd;
+ 	struct hfi1_ctxtdata *uctxt;
+ 	struct hfi1_user_sdma_comp_q *cq;
+-	struct hfi1_user_sdma_pkt_q *pq;
++	/* update side lock for SRCU */
++	spinlock_t pq_rcu_lock;
++	struct hfi1_user_sdma_pkt_q __rcu *pq;
+ 	u16 subctxt;
+ 	/* for cpu affinity; -1 if none */
+ 	int rec_cpu_num;
+--- a/drivers/infiniband/hw/hfi1/user_exp_rcv.c
++++ b/drivers/infiniband/hw/hfi1/user_exp_rcv.c
+@@ -90,9 +90,6 @@ int hfi1_user_exp_rcv_init(struct hfi1_f
+ 	struct hfi1_devdata *dd = uctxt->dd;
+ 	int ret = 0;
  
- 	case IB_QPS_RTR:
-@@ -1695,13 +1719,7 @@ int rvt_destroy_qp(struct ib_qp *ibqp, s
- 	struct rvt_qp *qp = ibqp_to_rvtqp(ibqp);
- 	struct rvt_dev_info *rdi = ib_to_rvt(ibqp->device);
+-	spin_lock_init(&fd->tid_lock);
+-	spin_lock_init(&fd->invalid_lock);
+-
+ 	fd->entry_to_rb = kcalloc(uctxt->expected_count,
+ 				  sizeof(struct rb_node *),
+ 				  GFP_KERNEL);
+--- a/drivers/infiniband/hw/hfi1/user_sdma.c
++++ b/drivers/infiniband/hw/hfi1/user_sdma.c
+@@ -179,7 +179,6 @@ int hfi1_user_sdma_alloc_queues(struct h
+ 	pq = kzalloc(sizeof(*pq), GFP_KERNEL);
+ 	if (!pq)
+ 		return -ENOMEM;
+-
+ 	pq->dd = dd;
+ 	pq->ctxt = uctxt->ctxt;
+ 	pq->subctxt = fd->subctxt;
+@@ -236,7 +235,7 @@ int hfi1_user_sdma_alloc_queues(struct h
+ 		goto pq_mmu_fail;
+ 	}
  
--	spin_lock_irq(&qp->r_lock);
--	spin_lock(&qp->s_hlock);
--	spin_lock(&qp->s_lock);
- 	rvt_reset_qp(rdi, qp, ibqp->qp_type);
--	spin_unlock(&qp->s_lock);
--	spin_unlock(&qp->s_hlock);
--	spin_unlock_irq(&qp->r_lock);
+-	fd->pq = pq;
++	rcu_assign_pointer(fd->pq, pq);
+ 	fd->cq = cq;
  
- 	wait_event(qp->wait, !atomic_read(&qp->refcount));
- 	/* qpn is now available for use again */
+ 	return 0;
+@@ -264,8 +263,14 @@ int hfi1_user_sdma_free_queues(struct hf
+ 
+ 	trace_hfi1_sdma_user_free_queues(uctxt->dd, uctxt->ctxt, fd->subctxt);
+ 
+-	pq = fd->pq;
++	spin_lock(&fd->pq_rcu_lock);
++	pq = srcu_dereference_check(fd->pq, &fd->pq_srcu,
++				    lockdep_is_held(&fd->pq_rcu_lock));
+ 	if (pq) {
++		rcu_assign_pointer(fd->pq, NULL);
++		spin_unlock(&fd->pq_rcu_lock);
++		synchronize_srcu(&fd->pq_srcu);
++		/* at this point there can be no more new requests */
+ 		if (pq->handler)
+ 			hfi1_mmu_rb_unregister(pq->handler);
+ 		iowait_sdma_drain(&pq->busy);
+@@ -277,7 +282,8 @@ int hfi1_user_sdma_free_queues(struct hf
+ 		kfree(pq->req_in_use);
+ 		kmem_cache_destroy(pq->txreq_cache);
+ 		kfree(pq);
+-		fd->pq = NULL;
++	} else {
++		spin_unlock(&fd->pq_rcu_lock);
+ 	}
+ 	if (fd->cq) {
+ 		vfree(fd->cq->comps);
+@@ -321,7 +327,8 @@ int hfi1_user_sdma_process_request(struc
+ {
+ 	int ret = 0, i;
+ 	struct hfi1_ctxtdata *uctxt = fd->uctxt;
+-	struct hfi1_user_sdma_pkt_q *pq = fd->pq;
++	struct hfi1_user_sdma_pkt_q *pq =
++		srcu_dereference(fd->pq, &fd->pq_srcu);
+ 	struct hfi1_user_sdma_comp_q *cq = fd->cq;
+ 	struct hfi1_devdata *dd = pq->dd;
+ 	unsigned long idx = 0;
 
 
