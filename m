@@ -2,60 +2,60 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C351162A2C
-	for <lists+stable@lfdr.de>; Tue, 18 Feb 2020 17:14:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BFCCA162A70
+	for <lists+stable@lfdr.de>; Tue, 18 Feb 2020 17:27:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726422AbgBRQO2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Feb 2020 11:14:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49604 "EHLO mail.kernel.org"
+        id S1726486AbgBRQ1y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Feb 2020 11:27:54 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54814 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726411AbgBRQO2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 18 Feb 2020 11:14:28 -0500
+        id S1726422AbgBRQ1y (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 18 Feb 2020 11:27:54 -0500
 Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 89BA521D56;
-        Tue, 18 Feb 2020 16:14:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 06CA122B48;
+        Tue, 18 Feb 2020 16:27:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582042467;
-        bh=fFn1ZeoNlHUGA1TAePWSyVqbhDwIWxxXNrgF/peZKo0=;
+        s=default; t=1582043274;
+        bh=mNJcY1SbcjkvSzHthVNhrlPKPPGc3shV2dfOwIBOXqE=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=C1KDVEADesnn6pH/dPy3cs8PRg4kWoAYss2oz4rQ8l1ZgiDifwk9vKA6GOXeVxpie
-         7Qk+e6fQsQ9IeYB1E9228sbdbnITW7LpYcWGPNLpg69HAvDPSV2IaH5uR65FmBaBBJ
-         Kt7k29hdu50zQ32iIfx9jihZIq5I9OgsiyB/1EeE=
-Date:   Tue, 18 Feb 2020 11:14:26 -0500
+        b=Y5NEd63TAWgr7RSZDyAnzcKgtM01NaEjhgU85vmxUBRQh8d3tNIYSualjD0b1pDNx
+         y6Om7pEpWqLuDkjbrG638U0kiQ62KFJlLpwNUtaTOWpPyvn3PKyPcBgBM432EaBZ7R
+         /obcjjXe7Sz9huOMpcOQr5Bm71krOp8vFqbcGoEU=
+Date:   Tue, 18 Feb 2020 11:27:52 -0500
 From:   Sasha Levin <sashal@kernel.org>
-To:     Holger =?iso-8859-1?Q?Hoffst=E4tte?= 
-        <holger@applied-asynchrony.com>
-Cc:     "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: Re: 5.4-stable request: 52e29e331070cd ('btrfs: don't set
- path->leave_spinning for truncate')
-Message-ID: <20200218161426.GM1734@sasha-vm>
-References: <e56ac6c0-2bae-62a1-a22d-d7374a98ab43@applied-asynchrony.com>
+To:     "zhangyi (F)" <yi.zhang@huawei.com>
+Cc:     gregkh@linuxfoundation.org, stable@vger.kernel.org, jack@suse.cz,
+        tytso@mit.edu
+Subject: Re: [PATCH 5.4 1/2] jbd2: move the clearing of b_modified flag to
+ the journal_unmap_buffer()
+Message-ID: <20200218162752.GN1734@sasha-vm>
+References: <20200218105953.10684-1-yi.zhang@huawei.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1; format=flowed
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <e56ac6c0-2bae-62a1-a22d-d7374a98ab43@applied-asynchrony.com>
+In-Reply-To: <20200218105953.10684-1-yi.zhang@huawei.com>
 User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Feb 18, 2020 at 01:01:40PM +0100, Holger Hoffstätte wrote:
->Hi,
+On Tue, Feb 18, 2020 at 06:59:52PM +0800, zhangyi (F) wrote:
+>[ Upstream commit 6a66a7ded12baa6ebbb2e3e82f8cb91382814839 ]
 >
->I was just looking throught the current 5.4-stable queue and saw that
->28553fa992cb28 ('Btrfs: fix race between shrinking truncate and fiemap')
->is queued. Upstream has a follow-up fix for this: 52e29e331070cd aka
->'btrfs: don't set path->leave_spinning for truncate'.
+>There is no need to delay the clearing of b_modified flag to the
+>transaction committing time when unmapping the journalled buffer, so
+>just move it to the journal_unmap_buffer().
 >
->Would be nice to get those in together. I only looked at 5.4, don't
->know about other queues.
+>Link: https://lore.kernel.org/r/20200213063821.30455-2-yi.zhang@huawei.com
+>Reviewed-by: Jan Kara <jack@suse.cz>
+>Signed-off-by: zhangyi (F) <yi.zhang@huawei.com>
+>Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+>Cc: stable@kernel.org
 
-Since that fix just hit upstream, I'm going to remove 28553fa992cb28
-from the queue now and work on getting both patches in the next release.
+I've queued all backports to their respective branches, thank you!
 
 -- 
 Thanks,
