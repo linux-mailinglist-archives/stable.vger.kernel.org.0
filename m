@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C7D41631B4
-	for <lists+stable@lfdr.de>; Tue, 18 Feb 2020 21:05:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DCF8C1632A5
+	for <lists+stable@lfdr.de>; Tue, 18 Feb 2020 21:10:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728720AbgBRUCO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Feb 2020 15:02:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42402 "EHLO mail.kernel.org"
+        id S1726478AbgBRUJj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Feb 2020 15:09:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33634 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728882AbgBRUCN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 18 Feb 2020 15:02:13 -0500
+        id S1727283AbgBRT4d (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 18 Feb 2020 14:56:33 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EDEA62464E;
-        Tue, 18 Feb 2020 20:02:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E649E24654;
+        Tue, 18 Feb 2020 19:56:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582056133;
-        bh=mxKnM7pMPMd/YYHFnDhjWINAWLECBBrs3PzAEoLYjGw=;
+        s=default; t=1582055793;
+        bh=VRa34IfViZroycYjGfVtmgTTnuPf/AMVcnWpiULlePE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yGObA4RMv4+WdEnHtPynBfBeLdgz4NfVnwOE0kBVmZS/IV8IEZQJ91jG7fTgrnvNC
-         0rCou1ysA3jPwa8WC3EQ/tllcZ/F2wuhLHAUHoYVqfRBH3nIDUbva2F1acpeRgR54K
-         VV/o/hSBZD3258AUy4bS2p8kwXToFDqJoVdMaUOE=
+        b=dBJkH/pskqrTDBhtiB/olY+Jv/hsFcdTFuo7befvn4uaJ3k2HJtQyKFWyeNIz5BKZ
+         pImlvvBxayFBx5qu+2hdeFP8hPMrE3cnmT88qYafdRwZyMrSHSwYeon28bhm9yyc0O
+         jhokq+XSVTyT6Xei0Ce9WRK5VDe4TqlF1YwM0VHY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Zhang <markz@mellanox.com>,
-        Maor Gottlieb <maorg@mellanox.com>,
-        Leon Romanovsky <leonro@mellanox.com>,
-        Jason Gunthorpe <jgg@mellanox.com>
-Subject: [PATCH 5.5 48/80] IB/mlx5: Return failure when rts2rts_qp_counters_set_id is not supported
+        stable@vger.kernel.org, Babu Moger <babu.moger@amd.com>,
+        Kim Phillips <kim.phillips@amd.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Ingo Molnar <mingo@kernel.org>
+Subject: [PATCH 4.19 23/38] perf/x86/amd: Add missing L2 misses event spec to AMD Family 17hs event map
 Date:   Tue, 18 Feb 2020 20:55:09 +0100
-Message-Id: <20200218190436.869817382@linuxfoundation.org>
+Message-Id: <20200218190421.419685653@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200218190432.043414522@linuxfoundation.org>
-References: <20200218190432.043414522@linuxfoundation.org>
+In-Reply-To: <20200218190418.536430858@linuxfoundation.org>
+References: <20200218190418.536430858@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,60 +45,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Zhang <markz@mellanox.com>
+From: Kim Phillips <kim.phillips@amd.com>
 
-commit 10189e8e6fe8dcde13435f9354800429c4474fb1 upstream.
+commit 25d387287cf0330abf2aad761ce6eee67326a355 upstream.
 
-When binding a QP with a counter and the QP state is not RESET, return
-failure if the rts2rts_qp_counters_set_id is not supported by the
-device.
+Commit 3fe3331bb285 ("perf/x86/amd: Add event map for AMD Family 17h"),
+claimed L2 misses were unsupported, due to them not being found in its
+referenced documentation, whose link has now moved [1].
 
-This is to prevent cases like manual bind for Connect-IB devices from
-returning success when the feature is not supported.
+That old documentation listed PMCx064 unit mask bit 3 as:
 
-Fixes: d14133dd4161 ("IB/mlx5: Support set qp counter")
-Link: https://lore.kernel.org/r/20200126171708.5167-1-leon@kernel.org
-Signed-off-by: Mark Zhang <markz@mellanox.com>
-Reviewed-by: Maor Gottlieb <maorg@mellanox.com>
-Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+    "LsRdBlkC: LS Read Block C S L X Change to X Miss."
+
+and bit 0 as:
+
+    "IcFillMiss: IC Fill Miss"
+
+We now have new public documentation [2] with improved descriptions, that
+clearly indicate what events those unit mask bits represent:
+
+Bit 3 now clearly states:
+
+    "LsRdBlkC: Data Cache Req Miss in L2 (all types)"
+
+and bit 0 is:
+
+    "IcFillMiss: Instruction Cache Req Miss in L2."
+
+So we can now add support for L2 misses in perf's genericised events as
+PMCx064 with both the above unit masks.
+
+[1] The commit's original documentation reference, "Processor Programming
+    Reference (PPR) for AMD Family 17h Model 01h, Revision B1 Processors",
+    originally available here:
+
+        https://www.amd.com/system/files/TechDocs/54945_PPR_Family_17h_Models_00h-0Fh.pdf
+
+    is now available here:
+
+        https://developer.amd.com/wordpress/media/2017/11/54945_PPR_Family_17h_Models_00h-0Fh.pdf
+
+[2] "Processor Programming Reference (PPR) for Family 17h Model 31h,
+    Revision B0 Processors", available here:
+
+	https://developer.amd.com/wp-content/resources/55803_0.54-PUB.pdf
+
+Fixes: 3fe3331bb285 ("perf/x86/amd: Add event map for AMD Family 17h")
+Reported-by: Babu Moger <babu.moger@amd.com>
+Signed-off-by: Kim Phillips <kim.phillips@amd.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Tested-by: Babu Moger <babu.moger@amd.com>
+Cc: stable@vger.kernel.org
+Link: https://lkml.kernel.org/r/20200121171232.28839-1-kim.phillips@amd.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/infiniband/hw/mlx5/qp.c |    9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ arch/x86/events/amd/core.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/infiniband/hw/mlx5/qp.c
-+++ b/drivers/infiniband/hw/mlx5/qp.c
-@@ -3394,9 +3394,6 @@ static int __mlx5_ib_qp_set_counter(stru
- 	struct mlx5_ib_qp_base *base;
- 	u32 set_id;
- 
--	if (!MLX5_CAP_GEN(dev->mdev, rts2rts_qp_counters_set_id))
--		return 0;
--
- 	if (counter)
- 		set_id = counter->id;
- 	else
-@@ -6529,6 +6526,7 @@ void mlx5_ib_drain_rq(struct ib_qp *qp)
-  */
- int mlx5_ib_qp_set_counter(struct ib_qp *qp, struct rdma_counter *counter)
- {
-+	struct mlx5_ib_dev *dev = to_mdev(qp->device);
- 	struct mlx5_ib_qp *mqp = to_mqp(qp);
- 	int err = 0;
- 
-@@ -6538,6 +6536,11 @@ int mlx5_ib_qp_set_counter(struct ib_qp
- 		goto out;
- 	}
- 
-+	if (!MLX5_CAP_GEN(dev->mdev, rts2rts_qp_counters_set_id)) {
-+		err = -EOPNOTSUPP;
-+		goto out;
-+	}
-+
- 	if (mqp->state == IB_QPS_RTS) {
- 		err = __mlx5_ib_qp_set_counter(qp, counter);
- 		if (!err)
+--- a/arch/x86/events/amd/core.c
++++ b/arch/x86/events/amd/core.c
+@@ -245,6 +245,7 @@ static const u64 amd_f17h_perfmon_event_
+ 	[PERF_COUNT_HW_CPU_CYCLES]		= 0x0076,
+ 	[PERF_COUNT_HW_INSTRUCTIONS]		= 0x00c0,
+ 	[PERF_COUNT_HW_CACHE_REFERENCES]	= 0xff60,
++	[PERF_COUNT_HW_CACHE_MISSES]		= 0x0964,
+ 	[PERF_COUNT_HW_BRANCH_INSTRUCTIONS]	= 0x00c2,
+ 	[PERF_COUNT_HW_BRANCH_MISSES]		= 0x00c3,
+ 	[PERF_COUNT_HW_STALLED_CYCLES_FRONTEND]	= 0x0287,
 
 
