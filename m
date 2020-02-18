@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CA221163176
-	for <lists+stable@lfdr.de>; Tue, 18 Feb 2020 21:01:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BE815163258
+	for <lists+stable@lfdr.de>; Tue, 18 Feb 2020 21:10:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727506AbgBRUAr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Feb 2020 15:00:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40118 "EHLO mail.kernel.org"
+        id S1728072AbgBRT54 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Feb 2020 14:57:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35374 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728652AbgBRUAp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 18 Feb 2020 15:00:45 -0500
+        id S1727233AbgBRT5z (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 18 Feb 2020 14:57:55 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A475824125;
-        Tue, 18 Feb 2020 20:00:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 227E22465A;
+        Tue, 18 Feb 2020 19:57:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582056045;
-        bh=EFH4gtgvpIG+RRBBtYnbCp/FGDFj2E03dRtI52qRkZo=;
+        s=default; t=1582055874;
+        bh=FpIz84TeGZcaSOVcwGGUp7CVd0vgtjsxOYV2MUZX6v0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JBgpV/jRLWgn+kFk6gs3xWSWp7fPfw66uhmpuv7dnZNwTfERDzBIN1oqDvfncINQZ
-         lVd+n4FJgYDGQFlOZkZ7/YSUIu5sH742BSNHpuvssbLI8wlrqsMKN34qIIdiGWlMht
-         1K9EpLgI5RYZoVa8O4y8EQwPMgfdqMUDeFTYcVks=
+        b=msO80TW+vKBINtMGXhtZSg/QFUPXcxx6/5JM/rdJUpzoZrO7clkUQNQdZedb6rm9f
+         u2xPVksnK26KPTWkGWsTEUKR6RpFgPHddq25M/iqQ4JBCmR9hpReLsvZlN9lWmBUiU
+         zlPDYNhid1wh+XHnPiFa3few2Cws3KLB1bO6RsDw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 5.5 14/80] ACPICA: Introduce acpi_any_gpe_status_set()
+Subject: [PATCH 5.4 08/66] ACPI: EC: Fix flushing of pending work
 Date:   Tue, 18 Feb 2020 20:54:35 +0100
-Message-Id: <20200218190433.438068691@linuxfoundation.org>
+Message-Id: <20200218190428.879663812@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200218190432.043414522@linuxfoundation.org>
-References: <20200218190432.043414522@linuxfoundation.org>
+In-Reply-To: <20200218190428.035153861@linuxfoundation.org>
+References: <20200218190428.035153861@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,171 +45,150 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 
-commit ea128834dd76f9a72a35d011c651fa96658f06a7 upstream.
+commit f0ac20c3f6137910c8a927953e8a92f5b3716166 upstream.
 
-Introduce a new helper function, acpi_any_gpe_status_set(), for
-checking the status bits of all enabled GPEs in one go.
+Commit 016b87ca5c8c ("ACPI: EC: Rework flushing of pending work")
+introduced a subtle bug into the flushing of pending EC work while
+suspended to idle, which may cause the EC driver to fail to
+re-enable the EC GPE after handling a non-wakeup event (like a
+battery status change event, for example).
 
-It is needed to distinguish spurious SCIs from genuine ones when
-deciding whether or not to wake up the system from suspend-to-idle.
+The problem is that the work item flushed by flush_scheduled_work()
+in __acpi_ec_flush_work() may disable the EC GPE and schedule another
+work item expected to re-enable it, but that new work item is not
+flushed, so __acpi_ec_flush_work() returns with the EC GPE disabled
+and the CPU running it goes into an idle state subsequently.  If all
+of the other CPUs are in idle states at that point, the EC GPE won't
+be re-enabled until at least one CPU is woken up by another interrupt
+source, so system wakeup events that would normally come from the EC
+then don't work.
 
+This is reproducible on a Dell XPS13 9360 in my office which
+sometimes stops reacting to power button and lid events (triggered
+by the EC on that machine) after switching from AC power to battery
+power or vice versa while suspended to idle (each of those switches
+causes the EC GPE to trigger for several times in a row, but they
+are not system wakeup events).
+
+To avoid this problem, it is necessary to drain the workqueue
+entirely in __acpi_ec_flush_work(), but that cannot be done with
+respect to system_wq, because work items may be added to it from
+other places while __acpi_ec_flush_work() is running.  For this
+reason, make the EC driver use a dedicated workqueue for EC events
+processing (let that workqueue be ordered so that EC events are
+processed sequentially) and use drain_workqueue() on it in
+__acpi_ec_flush_work().
+
+Fixes: 016b87ca5c8c ("ACPI: EC: Rework flushing of pending work")
 Cc: 5.4+ <stable@vger.kernel.org> # 5.4+
 Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/acpi/acpica/achware.h |    2 +
- drivers/acpi/acpica/evxfgpe.c |   32 ++++++++++++++++++
- drivers/acpi/acpica/hwgpe.c   |   71 ++++++++++++++++++++++++++++++++++++++++++
- include/acpi/acpixf.h         |    1 
- 4 files changed, 106 insertions(+)
+ drivers/acpi/ec.c |   44 ++++++++++++++++++++++++++------------------
+ 1 file changed, 26 insertions(+), 18 deletions(-)
 
---- a/drivers/acpi/acpica/achware.h
-+++ b/drivers/acpi/acpica/achware.h
-@@ -101,6 +101,8 @@ acpi_status acpi_hw_enable_all_runtime_g
+--- a/drivers/acpi/ec.c
++++ b/drivers/acpi/ec.c
+@@ -179,6 +179,7 @@ EXPORT_SYMBOL(first_ec);
  
- acpi_status acpi_hw_enable_all_wakeup_gpes(void);
+ static struct acpi_ec *boot_ec;
+ static bool boot_ec_is_ecdt = false;
++static struct workqueue_struct *ec_wq;
+ static struct workqueue_struct *ec_query_wq;
  
-+u8 acpi_hw_check_all_gpes(void);
-+
- acpi_status
- acpi_hw_enable_runtime_gpe_block(struct acpi_gpe_xrupt_info *gpe_xrupt_info,
- 				 struct acpi_gpe_block_info *gpe_block,
---- a/drivers/acpi/acpica/evxfgpe.c
-+++ b/drivers/acpi/acpica/evxfgpe.c
-@@ -795,6 +795,38 @@ acpi_status acpi_enable_all_wakeup_gpes(
- 
- ACPI_EXPORT_SYMBOL(acpi_enable_all_wakeup_gpes)
- 
-+/******************************************************************************
-+ *
-+ * FUNCTION:    acpi_any_gpe_status_set
-+ *
-+ * PARAMETERS:  None
-+ *
-+ * RETURN:      Whether or not the status bit is set for any GPE
-+ *
-+ * DESCRIPTION: Check the status bits of all enabled GPEs and return TRUE if any
-+ *              of them is set or FALSE otherwise.
-+ *
-+ ******************************************************************************/
-+u32 acpi_any_gpe_status_set(void)
-+{
-+	acpi_status status;
-+	u8 ret;
-+
-+	ACPI_FUNCTION_TRACE(acpi_any_gpe_status_set);
-+
-+	status = acpi_ut_acquire_mutex(ACPI_MTX_EVENTS);
-+	if (ACPI_FAILURE(status)) {
-+		return (FALSE);
-+	}
-+
-+	ret = acpi_hw_check_all_gpes();
-+	(void)acpi_ut_release_mutex(ACPI_MTX_EVENTS);
-+
-+	return (ret);
-+}
-+
-+ACPI_EXPORT_SYMBOL(acpi_any_gpe_status_set)
-+
- /*******************************************************************************
-  *
-  * FUNCTION:    acpi_install_gpe_block
---- a/drivers/acpi/acpica/hwgpe.c
-+++ b/drivers/acpi/acpica/hwgpe.c
-@@ -446,6 +446,53 @@ acpi_hw_enable_wakeup_gpe_block(struct a
- 
- /******************************************************************************
-  *
-+ * FUNCTION:    acpi_hw_get_gpe_block_status
-+ *
-+ * PARAMETERS:  gpe_xrupt_info      - GPE Interrupt info
-+ *              gpe_block           - Gpe Block info
-+ *
-+ * RETURN:      Success
-+ *
-+ * DESCRIPTION: Produce a combined GPE status bits mask for the given block.
-+ *
-+ ******************************************************************************/
-+
-+static acpi_status
-+acpi_hw_get_gpe_block_status(struct acpi_gpe_xrupt_info *gpe_xrupt_info,
-+			     struct acpi_gpe_block_info *gpe_block,
-+			     void *ret_ptr)
-+{
-+	struct acpi_gpe_register_info *gpe_register_info;
-+	u64 in_enable, in_status;
-+	acpi_status status;
-+	u8 *ret = ret_ptr;
-+	u32 i;
-+
-+	/* Examine each GPE Register within the block */
-+
-+	for (i = 0; i < gpe_block->register_count; i++) {
-+		gpe_register_info = &gpe_block->register_info[i];
-+
-+		status = acpi_hw_read(&in_enable,
-+				      &gpe_register_info->enable_address);
-+		if (ACPI_FAILURE(status)) {
-+			continue;
-+		}
-+
-+		status = acpi_hw_read(&in_status,
-+				      &gpe_register_info->status_address);
-+		if (ACPI_FAILURE(status)) {
-+			continue;
-+		}
-+
-+		*ret |= in_enable & in_status;
-+	}
-+
-+	return (AE_OK);
-+}
-+
-+/******************************************************************************
-+ *
-  * FUNCTION:    acpi_hw_disable_all_gpes
-  *
-  * PARAMETERS:  None
-@@ -510,4 +557,28 @@ acpi_status acpi_hw_enable_all_wakeup_gp
- 	return_ACPI_STATUS(status);
+ static int EC_FLAGS_QUERY_HANDSHAKE; /* Needs QR_EC issued when SCI_EVT set */
+@@ -461,7 +462,7 @@ static void acpi_ec_submit_query(struct
+ 		ec_dbg_evt("Command(%s) submitted/blocked",
+ 			   acpi_ec_cmd_string(ACPI_EC_COMMAND_QUERY));
+ 		ec->nr_pending_queries++;
+-		schedule_work(&ec->work);
++		queue_work(ec_wq, &ec->work);
+ 	}
  }
  
-+/******************************************************************************
-+ *
-+ * FUNCTION:    acpi_hw_check_all_gpes
-+ *
-+ * PARAMETERS:  None
-+ *
-+ * RETURN:      Combined status of all GPEs
-+ *
-+ * DESCRIPTION: Check all enabled GPEs in all GPE blocks and return TRUE if the
-+ *              status bit is set for at least one of them of FALSE otherwise.
-+ *
-+ ******************************************************************************/
-+
-+u8 acpi_hw_check_all_gpes(void)
+@@ -527,7 +528,7 @@ static void acpi_ec_enable_event(struct
+ #ifdef CONFIG_PM_SLEEP
+ static void __acpi_ec_flush_work(void)
+ {
+-	flush_scheduled_work(); /* flush ec->work */
++	drain_workqueue(ec_wq); /* flush ec->work */
+ 	flush_workqueue(ec_query_wq); /* flush queries */
+ }
+ 
+@@ -548,8 +549,8 @@ static void acpi_ec_disable_event(struct
+ 
+ void acpi_ec_flush_work(void)
+ {
+-	/* Without ec_query_wq there is nothing to flush. */
+-	if (!ec_query_wq)
++	/* Without ec_wq there is nothing to flush. */
++	if (!ec_wq)
+ 		return;
+ 
+ 	__acpi_ec_flush_work();
+@@ -2032,25 +2033,33 @@ static struct acpi_driver acpi_ec_driver
+ 	.drv.pm = &acpi_ec_pm,
+ };
+ 
+-static inline int acpi_ec_query_init(void)
++static void acpi_ec_destroy_workqueues(void)
+ {
+-	if (!ec_query_wq) {
+-		ec_query_wq = alloc_workqueue("kec_query", 0,
+-					      ec_max_queries);
+-		if (!ec_query_wq)
+-			return -ENODEV;
++	if (ec_wq) {
++		destroy_workqueue(ec_wq);
++		ec_wq = NULL;
+ 	}
+-	return 0;
+-}
+-
+-static inline void acpi_ec_query_exit(void)
+-{
+ 	if (ec_query_wq) {
+ 		destroy_workqueue(ec_query_wq);
+ 		ec_query_wq = NULL;
+ 	}
+ }
+ 
++static int acpi_ec_init_workqueues(void)
 +{
-+	u8 ret = 0;
++	if (!ec_wq)
++		ec_wq = alloc_ordered_workqueue("kec", 0);
 +
-+	ACPI_FUNCTION_TRACE(acpi_hw_check_all_gpes);
++	if (!ec_query_wq)
++		ec_query_wq = alloc_workqueue("kec_query", 0, ec_max_queries);
 +
-+	(void)acpi_ev_walk_gpe_list(acpi_hw_get_gpe_block_status, &ret);
-+
-+	return (ret != 0);
++	if (!ec_wq || !ec_query_wq) {
++		acpi_ec_destroy_workqueues();
++		return -ENODEV;
++	}
++	return 0;
 +}
 +
- #endif				/* !ACPI_REDUCED_HARDWARE */
---- a/include/acpi/acpixf.h
-+++ b/include/acpi/acpixf.h
-@@ -752,6 +752,7 @@ ACPI_HW_DEPENDENT_RETURN_UINT32(u32 acpi
- ACPI_HW_DEPENDENT_RETURN_STATUS(acpi_status acpi_disable_all_gpes(void))
- ACPI_HW_DEPENDENT_RETURN_STATUS(acpi_status acpi_enable_all_runtime_gpes(void))
- ACPI_HW_DEPENDENT_RETURN_STATUS(acpi_status acpi_enable_all_wakeup_gpes(void))
-+ACPI_HW_DEPENDENT_RETURN_UINT32(u32 acpi_any_gpe_status_set(void))
+ static const struct dmi_system_id acpi_ec_no_wakeup[] = {
+ 	{
+ 		.ident = "Thinkpad X1 Carbon 6th",
+@@ -2081,8 +2090,7 @@ int __init acpi_ec_init(void)
+ 	int result;
+ 	int ecdt_fail, dsdt_fail;
  
- ACPI_HW_DEPENDENT_RETURN_STATUS(acpi_status
- 				acpi_get_gpe_device(u32 gpe_index,
+-	/* register workqueue for _Qxx evaluations */
+-	result = acpi_ec_query_init();
++	result = acpi_ec_init_workqueues();
+ 	if (result)
+ 		return result;
+ 
+@@ -2113,6 +2121,6 @@ static void __exit acpi_ec_exit(void)
+ {
+ 
+ 	acpi_bus_unregister_driver(&acpi_ec_driver);
+-	acpi_ec_query_exit();
++	acpi_ec_destroy_workqueues();
+ }
+ #endif	/* 0 */
 
 
