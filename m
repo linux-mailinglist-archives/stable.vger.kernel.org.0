@@ -2,197 +2,162 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 99D49161ED8
-	for <lists+stable@lfdr.de>; Tue, 18 Feb 2020 03:09:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E185E161EF4
+	for <lists+stable@lfdr.de>; Tue, 18 Feb 2020 03:28:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726171AbgBRCJn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Feb 2020 21:09:43 -0500
-Received: from mail-io1-f68.google.com ([209.85.166.68]:40099 "EHLO
-        mail-io1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726091AbgBRCJn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Feb 2020 21:09:43 -0500
-Received: by mail-io1-f68.google.com with SMTP id x1so9112849iop.7
-        for <stable@vger.kernel.org>; Mon, 17 Feb 2020 18:09:43 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=fM30C4hYe4O7W/0krOqJPNu1c/FGOvvSlzloCbaa9eo=;
-        b=RhyLmMMrZpAnw7Zn/q8OV364RGL/Y2BtQcSmXyY3VuyY27YSj77tKY1IiAaM6PJ4iM
-         UUlBG0gCLB8R0zxv5JYUK1TiO5veeVi9QEtrmxFvP+5rJk9Vzgz34EmFb+PHAZ4AGIj2
-         e4FPU98V8AkcV/yO2bxFAo7os/d+M1r/UNaN8ZOl97R/LqGjeF8O3diM9hItPu8iq8n2
-         KfFKtJiMc6Qvhp5xJ08NVeGL4XcMU8vZ1HsuBqWWHKWUvC1HOamPXi8adB5gRNlL2fgm
-         OyBoqCKv9zwwBtP1/cp7a7wCEQUowe33y74+pV81Ji4HpcxtVl0NsRWCXlUCZ7RWo1fs
-         xtsg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=fM30C4hYe4O7W/0krOqJPNu1c/FGOvvSlzloCbaa9eo=;
-        b=C+jhPGEB6qzQWAVvaRHZVE0d6olAHmsNvaOpEna1bJYyLlAFCQprotva/ysyXonGn/
-         q54cYcehbYbbaCh343UKop0xnecIoZgFS+MZ3C8tTYsRPwa+8ORnt0AR78/VFvcS2bns
-         JYkNOiHaRkI9hd2A43u3swTO2TWAuIlcg1W6HLVleOJVvvDg6bnsjrC2JzCSDAZWnfTW
-         A4w3cVFCpP19W3RMe1tzh50RHSZu1DKrjULk2FhRy7VrQc1lWgwP8DcmUiFnCSz3MOL1
-         rzeEWPx95qU1suGAvRr/1n4Ob5mkg+udQvH/Wy/U5t2TGPPaWCWlBL+NF3yPYWvYLxnE
-         bTFw==
-X-Gm-Message-State: APjAAAV+57fnFhs9Jb8As1TC3dj0ioxWpY7gd4WSVyjogrTaeo4gmz1X
-        MMmaCFSPjsYujDbEW3ukH37FSywx0YmSymU5rtw=
-X-Google-Smtp-Source: APXvYqyy46ljQyc48W5bmQRGK2iak1CCvCtiIBcH3RGDp7Ap3mW6t41PnBBiOPQwOhvUhsFjaDrtIhyxCnfqqp6fUfg=
-X-Received: by 2002:a6b:5503:: with SMTP id j3mr13912448iob.142.1581991782674;
- Mon, 17 Feb 2020 18:09:42 -0800 (PST)
+        id S1726231AbgBRC2L (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Feb 2020 21:28:11 -0500
+Received: from mx0b-0016f401.pphosted.com ([67.231.156.173]:40768 "EHLO
+        mx0b-0016f401.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726212AbgBRC2K (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Feb 2020 21:28:10 -0500
+Received: from pps.filterd (m0045851.ppops.net [127.0.0.1])
+        by mx0b-0016f401.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 01I2L2pR020852;
+        Mon, 17 Feb 2020 18:28:09 -0800
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=marvell.com; h=from : to : cc :
+ subject : date : message-id : mime-version : content-type; s=pfpt0818;
+ bh=9S/62iFbZXQGTKH/5cKgXdmg2Hil7VJZCacZAEe2O7o=;
+ b=feb+q9y2yoXxX3pDVfJZSY7fCV+Py2COaAiRpCD7MOruCxVehdEXx8zSRsWmsK+Q8Gvw
+ qseTBgrmSG8v66zB8YmBLfLyczQbMg4/r6nhA0WSoNELxTpzbGRlEyrx2n/8AI82SA/3
+ B2MAzhf60DblioFkW5z62aoBbDagNoP0MSRMYL8f+XNdBvIRvtkhP6UtHiGbwl/rzX0P
+ nq+oYhRQKXauOWJdJaPnWcrjBI62/FI1hmOCbfFKMV/2fbgc9fVrjdQp+p3002ScJgg4
+ Hk8NA101JaxrEtBAeOm2gR0f26R0WaGaMgtri8Yh9Qc/BHpZJX32rmC4Sx+QiCwLctZf rw== 
+Received: from sc-exch03.marvell.com ([199.233.58.183])
+        by mx0b-0016f401.pphosted.com with ESMTP id 2y6h1t185p-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-SHA384 bits=256 verify=NOT);
+        Mon, 17 Feb 2020 18:28:08 -0800
+Received: from SC-EXCH01.marvell.com (10.93.176.81) by SC-EXCH03.marvell.com
+ (10.93.176.83) with Microsoft SMTP Server (TLS) id 15.0.1497.2; Mon, 17 Feb
+ 2020 18:28:06 -0800
+Received: from maili.marvell.com (10.93.176.43) by SC-EXCH01.marvell.com
+ (10.93.176.81) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
+ Transport; Mon, 17 Feb 2020 18:28:07 -0800
+Received: from dc5-eodlnx05.marvell.com (dc5-eodlnx05.marvell.com [10.69.113.147])
+        by maili.marvell.com (Postfix) with ESMTP id EEF863F7040;
+        Mon, 17 Feb 2020 18:28:06 -0800 (PST)
+From:   Prabhakar Kushwaha <pkushwaha@marvell.com>
+To:     <stable@vger.kernel.org>, <axboe@kernel.dk>
+CC:     <gkulkarni@marvell.com>, <kamlakantp@marvell.com>,
+        <prabhakar.pkin@gmail.com>,
+        Prabhakar Kushwaha <pkushwaha@marvell.com>
+Subject: [RESEND][PATCH] ata: ahci: Add shutdown to freeze hardware resources of ahci
+Date:   Mon, 17 Feb 2020 18:28:02 -0800
+Message-ID: <1581992882-22134-1-git-send-email-pkushwaha@marvell.com>
+X-Mailer: git-send-email 1.8.3.1
 MIME-Version: 1.0
-References: <20200216145249.6900-1-laoar.shao@gmail.com> <20200217092459.GG31531@dhcp22.suse.cz>
- <CALOAHbCDVYKQ+WMD+Lke6V-FiUVfBsKCKmRHuGtUUWd1G4LctA@mail.gmail.com>
- <20200217132443.GM31531@dhcp22.suse.cz> <CALOAHbCVMnrtyxT4OzueD4mPKRRyyB-nF0w1nSX3ZGLuXTUUTQ@mail.gmail.com>
- <20200217140430.GO31531@dhcp22.suse.cz> <CALOAHbA0=QAo0KkKf-i_tSamhLQX2mmmP7h-CX2bRz9qcOSGwA@mail.gmail.com>
- <20200217143529.GQ31531@dhcp22.suse.cz> <CALOAHbA=fL4AbLFBE3riuxO7k48OnqtBwa1YNk6KBm+=CA7hPw@mail.gmail.com>
- <20200217151417.GS31531@dhcp22.suse.cz>
-In-Reply-To: <20200217151417.GS31531@dhcp22.suse.cz>
-From:   Yafang Shao <laoar.shao@gmail.com>
-Date:   Tue, 18 Feb 2020 10:09:06 +0800
-Message-ID: <CALOAHbD-K_BFjw-mLGWY-PWRe4J9BaMc0w7YmU9yp-t4iV4F_A@mail.gmail.com>
-Subject: Re: [PATCH resend] mm, memcg: reset memcg's memory.{min, low} for
- reclaiming itself
-To:     Michal Hocko <mhocko@kernel.org>
-Cc:     Roman Gushchin <guro@fb.com>, Johannes Weiner <hannes@cmpxchg.org>,
-        Vladimir Davydov <vdavydov.dev@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Chris Down <chris@chrisdown.name>,
-        Linux MM <linux-mm@kvack.org>, stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.138,18.0.572
+ definitions=2020-02-17_14:2020-02-17,2020-02-17 signatures=0
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Feb 17, 2020 at 11:14 PM Michal Hocko <mhocko@kernel.org> wrote:
->
-> On Mon 17-02-20 22:40:22, Yafang Shao wrote:
-> > On Mon, Feb 17, 2020 at 10:35 PM Michal Hocko <mhocko@kernel.org> wrote:
-> > >
-> > > On Mon 17-02-20 22:28:38, Yafang Shao wrote:
-> > > > On Mon, Feb 17, 2020 at 10:04 PM Michal Hocko <mhocko@kernel.org> wrote:
-> > > > >
-> > > > > On Mon 17-02-20 21:51:23, Yafang Shao wrote:
-> > > > > > On Mon, Feb 17, 2020 at 9:24 PM Michal Hocko <mhocko@kernel.org> wrote:
-> > > > > > >
-> > > > > > > On Mon 17-02-20 21:08:12, Yafang Shao wrote:
-> > > > > > > > On Mon, Feb 17, 2020 at 5:25 PM Michal Hocko <mhocko@kernel.org> wrote:
-> > > > > > > > >
-> > > > > > > > > On Sun 16-02-20 09:52:49, Yafang Shao wrote:
-> > > > > > > > > > memory.{emin, elow} are set in mem_cgroup_protected(), and the values of
-> > > > > > > > > > them won't be changed until next recalculation in this function. After
-> > > > > > > > > > either or both of them are set, the next reclaimer to relcaim this memcg
-> > > > > > > > > > may be a different reclaimer, e.g. this memcg is also the root memcg of
-> > > > > > > > > > the new reclaimer, and then in mem_cgroup_protection() in get_scan_count()
-> > > > > > > > > > the old values of them will be used to calculate scan count, that is not
-> > > > > > > > > > proper. We should reset them to zero in this case.
-> > > > > > > > > >
-> > > > > > > > > > Here's an example of this issue.
-> > > > > > > > > >
-> > > > > > > > > >     root_mem_cgroup
-> > > > > > > > > >          /
-> > > > > > > > > >         A   memory.max=1024M memory.min=512M memory.current=800M
-> > > > > > > > > >
-> > > > > > > > > > Once kswapd is waked up, it will try to scan all MEMCGs, including
-> > > > > > > > > > this A, and it will assign memory.emin of A with 512M.
-> > > > > > > > > > After that, A may reach its hard limit(memory.max), and then it will
-> > > > > > > > > > do memcg reclaim. Because A is the root of this reclaimer, so it will
-> > > > > > > > > > not calculate its memory.emin. So the memory.emin is the old value
-> > > > > > > > > > 512M, and then this old value will be used in
-> > > > > > > > > > mem_cgroup_protection() in get_scan_count() to get the scan count.
-> > > > > > > > > > That is not proper.
-> > > > > > > > >
-> > > > > > > > > Please document user visible effects of this patch. What does it mean
-> > > > > > > > > that this is not proper behavior?
-> > > > > > > >
-> > > > > > > > In the memcg reclaim, if the target memcg is the root of the reclaimer,
-> > > > > > > > the reclaimer should scan this memcg's all page cache pages in the LRU,
-> > > > > > > > but now as the old memcg.{emin, elow} value are still there, it will get
-> > > > > > > > a wrong protection value,
-> > > > > > > > and the reclaimer can't reclaim the page cache pages protected by this
-> > > > > > > > wrong protection.
-> > > > > > >
-> > > > > > > Could you be more specific please. Your example above says that emin is
-> > > > > > > not going to be recalculated and stays at 512M even for a potential max
-> > > > > > > limit reclaim. The min limit is still 512M so why is this value wrong?
-> > > > > > >
-> > > > > >
-> > > > > > Because the relcaimers are changed or the root the relcaimer is changed.
-> > > > > >
-> > > > > > Kswapd begins to relcaim memcg-A.
-> > > > > > kswapd
-> > > > > >   |
-> > > > > > calculate the {emin, elow} for memcg-A
-> > > > > >  |
-> > > > > > stores {emin, elow} in memory.{emin, elow} of memcg-A
-> > > > > > |
-> > > > > > This memory.{emin, elow} will protect the page cache pages in memcg-A
-> > > > > > (See get_scan_count->mem_cgroup_protection)
-> > > > > > |
-> > > > > > exit
-> > > > > > (And it won't relcaim memcg-A for a long time)
-> > > > > >
-> > > > > >
-> > > > > > Then memcg relcaimer is woke up (reached the hard limit of memcg-A),
-> > > > > > and the root of this new reclaimer is memcg-A.
-> > > > > >
-> > > > > > This memcg relcaimer begins to reclaim memcg-A.
-> > > > > > memcg relcaimer
-> > > > > >       |
-> > > > > > As the root of the relcaimer is memcg-A, it won't calculate emin, elow
-> > > > > > for memcg-A.
-> > > > > > (See if (memcg == root) in mem_cgroup_protected())
-> > > > > >      |
-> > > > > > The old memory.{emin, elow} will protect the page cache pages in memcg-A
-> > > > > > (SO WE SHOULD CLEAR THE OLD VALUE)
-> > > > >
-> > > > > I am sorry but I still do not follow. Could you focus on _why_ the old
-> > > > > value is no longer valid?
-> > > >
-> > > > Because for the new reclaimer the memory.{emin, elow} should be 0.
-> > > > The old value may be not 0, but it was thought as 0 in the if
-> > > > statement (if (memcg == root)).
-> > >
-> > > Why should it be 0 when the A.min is still 512MB?
-> >
-> > Because A's hard limit is reached and A is the root of memcg relcaimer.
->
-> Confused. But your examples suggests that memory.max > memory.min so
-> having an effective emin 0 or not doesn't make any difference.
->
+device_shutdown() called from reboot or power_shutdown expect
+all devices to be shutdown. Same is true for even ahci pci driver.
+As no ahci shutdown function is implemented, the ata subsystem
+always remains alive with DMA & interrupt support. File system
+related calls should not be honored after device_shutdown().
 
-Why is it having an effective emin 0 if memory.max > memory.min ?
-Note that effective emin is only set in function
-mem_cgroup_protected(), so if we don't set it explicitly to 0 then it
-can't be 0.
+So defining ahci pci driver shutdown to freeze hardware (mask
+interrupt, stop DMA engine and free DMA resources).
 
-Besides mem_cgroup_protected(), the effective emin also take effect in
-the function mem_cgroup_protection(), but in this function it only use
-the existed memory.emin rather than verifying memory.max > memory.min.
+Signed-off-by: Prabhakar Kushwaha <pkushwaha@marvell.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+---
 
-So the real issue is in mem_cgroup_protection(), because the value it
-is using may be an old value.
+This problem has also been seen on older kernel. So sending to stable@vger.kernel.org 
+Note: It is already applied to git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git
+with commit id: 10a663a1b151 ("ata: ahci: Add shutdown to freeze hardware resources of ahci")
 
-> > If A is the root of the memcg reclaimer, then the memcg protection
-> > should not prevent it from relcaiming the page cache pages of itself.
-> > That is why the if statement if (memcg == root) exists.
->
-> I suspect you misinterpret the code or your example is incomplete.
-> Please have a look at the patch I have referred to earlier. Johannes
-> explicitly sets effective values to their native ones
->         if (parent == root) {
->                 memcg->memory.emin = memcg->memory.min;
->                 memcg->memory.elow = memcg->memory.low;
->                 goto out;
->         }
->
-> and this matches my understanding.
+ drivers/ata/ahci.c        |  7 +++++++
+ drivers/ata/libata-core.c | 21 +++++++++++++++++++++
+ include/linux/libata.h    |  1 +
+ 3 files changed, 29 insertions(+)
 
-I haven't read Johannes's patch carefully, but take a first glance I
-don't think it can fix this issue.
-
-
+diff --git a/drivers/ata/ahci.c b/drivers/ata/ahci.c
+index 4bfd1b14b390..11ea1aff40db 100644
+--- a/drivers/ata/ahci.c
++++ b/drivers/ata/ahci.c
+@@ -81,6 +81,7 @@ enum board_ids {
+ 
+ static int ahci_init_one(struct pci_dev *pdev, const struct pci_device_id *ent);
+ static void ahci_remove_one(struct pci_dev *dev);
++static void ahci_shutdown_one(struct pci_dev *dev);
+ static int ahci_vt8251_hardreset(struct ata_link *link, unsigned int *class,
+ 				 unsigned long deadline);
+ static int ahci_avn_hardreset(struct ata_link *link, unsigned int *class,
+@@ -606,6 +607,7 @@ static struct pci_driver ahci_pci_driver = {
+ 	.id_table		= ahci_pci_tbl,
+ 	.probe			= ahci_init_one,
+ 	.remove			= ahci_remove_one,
++	.shutdown		= ahci_shutdown_one,
+ 	.driver = {
+ 		.pm		= &ahci_pci_pm_ops,
+ 	},
+@@ -1877,6 +1879,11 @@ static int ahci_init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
+ 	return 0;
+ }
+ 
++static void ahci_shutdown_one(struct pci_dev *pdev)
++{
++	ata_pci_shutdown_one(pdev);
++}
++
+ static void ahci_remove_one(struct pci_dev *pdev)
+ {
+ 	pm_runtime_get_noresume(&pdev->dev);
+diff --git a/drivers/ata/libata-core.c b/drivers/ata/libata-core.c
+index 6f4ab5c5b52d..42c8728f6117 100644
+--- a/drivers/ata/libata-core.c
++++ b/drivers/ata/libata-core.c
+@@ -6767,6 +6767,26 @@ void ata_pci_remove_one(struct pci_dev *pdev)
+ 	ata_host_detach(host);
+ }
+ 
++void ata_pci_shutdown_one(struct pci_dev *pdev)
++{
++	struct ata_host *host = pci_get_drvdata(pdev);
++	int i;
++
++	for (i = 0; i < host->n_ports; i++) {
++		struct ata_port *ap = host->ports[i];
++
++		ap->pflags |= ATA_PFLAG_FROZEN;
++
++		/* Disable port interrupts */
++		if (ap->ops->freeze)
++			ap->ops->freeze(ap);
++
++		/* Stop the port DMA engines */
++		if (ap->ops->port_stop)
++			ap->ops->port_stop(ap);
++	}
++}
++
+ /* move to PCI subsystem */
+ int pci_test_config_bits(struct pci_dev *pdev, const struct pci_bits *bits)
+ {
+@@ -7387,6 +7407,7 @@ EXPORT_SYMBOL_GPL(ata_timing_cycle2mode);
+ 
+ #ifdef CONFIG_PCI
+ EXPORT_SYMBOL_GPL(pci_test_config_bits);
++EXPORT_SYMBOL_GPL(ata_pci_shutdown_one);
+ EXPORT_SYMBOL_GPL(ata_pci_remove_one);
+ #ifdef CONFIG_PM
+ EXPORT_SYMBOL_GPL(ata_pci_device_do_suspend);
+diff --git a/include/linux/libata.h b/include/linux/libata.h
+index 2dbde119721d..bff539918d82 100644
+--- a/include/linux/libata.h
++++ b/include/linux/libata.h
+@@ -1221,6 +1221,7 @@ struct pci_bits {
+ };
+ 
+ extern int pci_test_config_bits(struct pci_dev *pdev, const struct pci_bits *bits);
++extern void ata_pci_shutdown_one(struct pci_dev *pdev);
+ extern void ata_pci_remove_one(struct pci_dev *pdev);
+ 
+ #ifdef CONFIG_PM
 -- 
-Yafang Shao
-DiDi
+2.17.1
+
