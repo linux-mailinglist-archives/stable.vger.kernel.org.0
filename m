@@ -2,63 +2,89 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D275164DFE
-	for <lists+stable@lfdr.de>; Wed, 19 Feb 2020 19:52:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4A6BA164E4A
+	for <lists+stable@lfdr.de>; Wed, 19 Feb 2020 20:02:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726681AbgBSSwk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Feb 2020 13:52:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37360 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726613AbgBSSwk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 19 Feb 2020 13:52:40 -0500
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5B36D2064C;
-        Wed, 19 Feb 2020 18:52:39 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582138359;
-        bh=owwPLCIXW01JCabPd8oJy4g6ge27ISgAiv8nVu3IKf8=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=Q0HKNPJL+9nl6VtNmfRoqfyNHJ5j44MtPiZVzaJ6c67p5IzGO7/nDEKZ5raGnObN3
-         oxkbyVOp4P4lAflAlwGFcGiY8joZRPGYXFnK+Qi7RHpf82ANCide/XSfIiisHxYbl/
-         tlZ8Xo3zbeCtOpUv95T6gAr7bR5lZPCeNHgpiZuE=
-Date:   Wed, 19 Feb 2020 19:52:37 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Guenter Roeck <linux@roeck-us.net>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        id S1726647AbgBSTCW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Feb 2020 14:02:22 -0500
+Received: from mail-pf1-f196.google.com ([209.85.210.196]:37547 "EHLO
+        mail-pf1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726643AbgBSTCV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Feb 2020 14:02:21 -0500
+Received: by mail-pf1-f196.google.com with SMTP id p14so530106pfn.4;
+        Wed, 19 Feb 2020 11:02:21 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:from:to:cc:cc:cc:subject
+         :references:in-reply-to;
+        bh=8ve6EAIa0mteEpntsUQ3aTXDFQ6XprvcJ5I+N3SPGaQ=;
+        b=gp/JWMdRuQhZq3r638Uh84x5b1u8kP3cOCU/cld5iaolDmtWtgn/7PNjuzktWfX657
+         K8r7hSYWtwQEJFyZdeSbYu+f7icosVg73HcDyqxn457TBzExZqfqm7WhtZMJmPGoXAT9
+         HBsSkbNxrGLoI0EGRPtLcIpCkcISXO//7DqDKgoQX3OiMD6oQDtie0ubh/ak0UhXl0qF
+         cCIf65r5UkPIdU9WvC12GF/7LJken8zvbcE5s/TXotLyWiGEh0LCyjxO6x92no7c27H7
+         vZT58abZz3D0yD6wq84lfOgD/w4XTYaTlkvbHO3bBpVs01iqGtOyrZdtRa0IfIrlcoIK
+         5nvg==
+X-Gm-Message-State: APjAAAUGeNn3RK1VJ0xzQsjaetoaJg7h6J1BaQcnDkIJDTQytaqijazY
+        S5IZw2u11PJulz1vSMH7Iq0=
+X-Google-Smtp-Source: APXvYqx9OcV1TGaGspwn3Rsjucan0AVm2E8MH3mexVmIn3LIMMiVSPGYNtKZFipTVy3mhbKlh2ouVQ==
+X-Received: by 2002:a63:2254:: with SMTP id t20mr29922920pgm.423.1582138940832;
+        Wed, 19 Feb 2020 11:02:20 -0800 (PST)
+Received: from localhost ([2601:646:8a00:9810:5af3:56d9:f882:39d4])
+        by smtp.gmail.com with ESMTPSA id l29sm428731pgb.86.2020.02.19.11.02.19
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 19 Feb 2020 11:02:20 -0800 (PST)
+Message-ID: <5e4d863c.1c69fb81.25df8.14d3@mx.google.com>
+Date:   Wed, 19 Feb 2020 11:02:14 -0800
+From:   Paul Burton <paulburton@kernel.org>
+To:     Paul Cercueil <paul@crapouillou.net>
+CC:     Ralf Baechle <ralf@linux-mips.org>,
+        Paul Burton <paulburton@kernel.org>,
+        Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>
+CC:     Zhou Yanjie <zhouyanjie@wanyeetech.com>, od@zcrc.me,
+        linux-mips@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, Paul Cercueil <paul@crapouillou.net>,
         stable@vger.kernel.org
-Subject: Re: [PATCH 5.5 00/80] 5.5.5-stable review
-Message-ID: <20200219185237.GD2857377@kroah.com>
-References: <20200218190432.043414522@linuxfoundation.org>
- <20200219180954.GC26169@roeck-us.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200219180954.GC26169@roeck-us.net>
+CC:     linux-mips@vger.kernel.org
+Subject: Re: [PATCH] MIPS: ingenic: DTS: Fix watchdog nodes
+References:  <20200211145337.16311-1-paul@crapouillou.net>
+In-Reply-To:  <20200211145337.16311-1-paul@crapouillou.net>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Feb 19, 2020 at 10:09:54AM -0800, Guenter Roeck wrote:
-> On Tue, Feb 18, 2020 at 08:54:21PM +0100, Greg Kroah-Hartman wrote:
-> > This is the start of the stable review cycle for the 5.5.5 release.
-> > There are 80 patches in this series, all will be posted as a response
-> > to this one.  If anyone has any issues with these being applied, please
-> > let me know.
-> > 
-> > Responses should be made by Thu, 20 Feb 2020 19:03:19 +0000.
-> > Anything received after that time might be too late.
-> > 
+Hello,
+
+Paul Cercueil wrote:
+> The devicetree ABI was broken on purpose by commit 6d532143c915
+> ("watchdog: jz4740: Use regmap provided by TCU driver"), and
+> commit 1d9c30745455 ("watchdog: jz4740: Use WDT clock provided
+> by TCU driver"). The commit message of the latter explains why the ABI
+> was broken.
 > 
-> Build results:
-> 	total: 157 pass: 157 fail: 0
-> Qemu test results:
-> 	total: 412 pass: 412 fail: 0
+> However, the current devicetree files were not updated to the new ABI
+> described in Documentation/devicetree/bindings/timer/ingenic,tcu.txt,
+> so the watchdog driver would not probe.
+> 
+> Fix this problem by updating the watchdog nodes to comply with the new
+> ABI.
+> 
+> Fixes: 6d532143c915 ("watchdog: jz4740: Use regmap provided by TCU
+> driver")
 
-Great, thanks for testing all of them and letting me know.
+Applied to mips-fixes.
 
-greg k-h
+> commit 11479e8e3cd8
+> https://git.kernel.org/mips/c/11479e8e3cd8
+> 
+> Fixes: 6d532143c915 ("watchdog: jz4740: Use regmap provided by TCU driver")
+> Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+> Reviewed-by: Philippe Mathieu-Daudé <f4bug@amsat.org>
+> Signed-off-by: Paul Burton <paulburton@kernel.org>
+
+Thanks,
+    Paul
+
+[ This message was auto-generated; if you believe anything is incorrect
+  then please email paulburton@kernel.org to report it. ]
