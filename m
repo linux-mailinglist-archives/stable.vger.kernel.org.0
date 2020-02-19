@@ -2,54 +2,77 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0BB48163C76
-	for <lists+stable@lfdr.de>; Wed, 19 Feb 2020 06:23:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BBE9E163CAF
+	for <lists+stable@lfdr.de>; Wed, 19 Feb 2020 06:35:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726001AbgBSFXZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Feb 2020 00:23:25 -0500
-Received: from youngberry.canonical.com ([91.189.89.112]:49469 "EHLO
-        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725819AbgBSFXZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Feb 2020 00:23:25 -0500
-Received: from [222.130.141.161] (helo=localhost.localdomain)
-        by youngberry.canonical.com with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        (Exim 4.86_2)
-        (envelope-from <hui.wang@canonical.com>)
-        id 1j4HpR-0005y0-Tl; Wed, 19 Feb 2020 05:23:22 +0000
-From:   Hui Wang <hui.wang@canonical.com>
-To:     alsa-devel@alsa-project.org, tiwai@suse.de, stable@vger.kernel.org
-Subject: [PATCH] ALSA: hda/realtek - Fix a regression for mute led on Lenovo Carbon X1
-Date:   Wed, 19 Feb 2020 13:23:06 +0800
-Message-Id: <20200219052306.24935-1-hui.wang@canonical.com>
-X-Mailer: git-send-email 2.17.1
+        id S1725994AbgBSFfT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Feb 2020 00:35:19 -0500
+Received: from mx2.suse.de ([195.135.220.15]:56398 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725842AbgBSFfT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 19 Feb 2020 00:35:19 -0500
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.220.254])
+        by mx2.suse.de (Postfix) with ESMTP id 4DC33AE24;
+        Wed, 19 Feb 2020 05:35:17 +0000 (UTC)
+Subject: Re: [PATCH] x86/ioperm: add new paravirt function update_io_bitmap
+To:     Thomas Gleixner <tglx@linutronix.de>,
+        xen-devel@lists.xenproject.org, x86@kernel.org,
+        linux-kernel@vger.kernel.org,
+        virtualization@lists.linux-foundation.org
+Cc:     Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        Thomas Hellstrom <thellstrom@vmware.com>,
+        "VMware, Inc." <pv-drivers@vmware.com>,
+        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+        Stefano Stabellini <sstabellini@kernel.org>,
+        stable@vger.kernel.org
+References: <20200218154712.25490-1-jgross@suse.com>
+ <87mu9fr4ky.fsf@nanos.tec.linutronix.de>
+From:   =?UTF-8?B?SsO8cmdlbiBHcm/Dnw==?= <jgross@suse.com>
+Message-ID: <b0f33786-79b1-f8ee-24ae-ce9f9f4791af@suse.com>
+Date:   Wed, 19 Feb 2020 06:35:16 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.4.1
+MIME-Version: 1.0
+In-Reply-To: <87mu9fr4ky.fsf@nanos.tec.linutronix.de>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Need to chain the THINKPAD_ACPI, otherwise the mute led will not
-work.
+On 18.02.20 22:03, Thomas Gleixner wrote:
+> Juergen Gross <jgross@suse.com> writes:
+>> Commit 111e7b15cf10f6 ("x86/ioperm: Extend IOPL config to control
+>> ioperm() as well") reworked the iopl syscall to use I/O bitmaps.
+>>
+>> Unfortunately this broke Xen PV domains using that syscall as there
+>> is currently no I/O bitmap support in PV domains.
+>>
+>> Add I/O bitmap support via a new paravirt function update_io_bitmap
+>> which Xen PV domains can use to update their I/O bitmaps via a
+>> hypercall.
+>>
+>> Fixes: 111e7b15cf10f6 ("x86/ioperm: Extend IOPL config to control ioperm() as well")
+>> Reported-by: Jan Beulich <jbeulich@suse.com>
+>> Cc: <stable@vger.kernel.org> # 5.5
+>> Signed-off-by: Juergen Gross <jgross@suse.com>
+>> Reviewed-by: Jan Beulich <jbeulich@suse.com>
+>> Tested-by: Jan Beulich <jbeulich@suse.com>
+> 
+> Duh, sorry about that and thanks for fixing it.
+> 
+> BTW, why isn't stuff like this not catched during next or at least
+> before the final release? Is nothing running CI on upstream with all
+> that XEN muck active?
 
-Fixes: d2cd795c4ece ("ALSA: hda - fixup for the bass speaker on Lenovo Carbon X1 7th gen")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Hui Wang <hui.wang@canonical.com>
----
- sound/pci/hda/patch_realtek.c | 2 ++
- 1 file changed, 2 insertions(+)
+This problem showed up by not being able to start the X server (probably
+not the freshest one) in dom0 on a moderate aged AMD system.
 
-diff --git a/sound/pci/hda/patch_realtek.c b/sound/pci/hda/patch_realtek.c
-index 477589e7ec1d..31bee0512334 100644
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -6684,6 +6684,8 @@ static const struct hda_fixup alc269_fixups[] = {
- 	[ALC285_FIXUP_SPEAKER2_TO_DAC1] = {
- 		.type = HDA_FIXUP_FUNC,
- 		.v.func = alc285_fixup_speaker2_to_dac1,
-+		.chained = true,
-+		.chain_id = ALC269_FIXUP_THINKPAD_ACPI
- 	},
- 	[ALC256_FIXUP_DELL_INSPIRON_7559_SUBWOOFER] = {
- 		.type = HDA_FIXUP_PINS,
--- 
-2.17.1
+Our CI tests tend do be more text console based for dom0.
 
+
+Juergen
