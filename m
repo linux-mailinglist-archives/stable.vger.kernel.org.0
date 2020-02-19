@@ -2,66 +2,92 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 040E9164F5E
-	for <lists+stable@lfdr.de>; Wed, 19 Feb 2020 20:58:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D107164F67
+	for <lists+stable@lfdr.de>; Wed, 19 Feb 2020 21:01:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726651AbgBST6r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Feb 2020 14:58:47 -0500
-Received: from mail-qv1-f66.google.com ([209.85.219.66]:34279 "EHLO
-        mail-qv1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726634AbgBST6r (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Feb 2020 14:58:47 -0500
-Received: by mail-qv1-f66.google.com with SMTP id o18so779713qvf.1;
-        Wed, 19 Feb 2020 11:58:47 -0800 (PST)
+        id S1726793AbgBSUAz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Feb 2020 15:00:55 -0500
+Received: from mail-ot1-f68.google.com ([209.85.210.68]:40905 "EHLO
+        mail-ot1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727125AbgBSUAz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Feb 2020 15:00:55 -0500
+Received: by mail-ot1-f68.google.com with SMTP id i6so1371172otr.7;
+        Wed, 19 Feb 2020 12:00:54 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references;
-        bh=EE2YczNla8qcSD1v8Yhtpjh81Hi8Cqph0O/BaPLbCAQ=;
-        b=G1xtQrA+Fl4T+NuvpjF24JE+In7qYLxIVbRiQPkhWMC1ygQS53vX7qgTSJMWTK1yAo
-         Fnxy/LLZlO9YMHyqOehXXfantuBgsWk1g8kgrvnXyuidsDUdQsLyt1rTnOGIQwyLGuIU
-         HGm7wU+lOgUaYtDAA5xrONZf4U02774D8cZPxqI2iptCYE32M4ji1gZOfi2bgXgdYCBm
-         49/aFU3pEkkgxZlJBuLQR2S3S5uyUNHBH6Y8l7sc8MzEiiEgATMsMsbvswFymESb6z2f
-         imR7csI3tgyJvoX49ybjwQDkDLW7BbsVmnemJTSEBOwtr8wfDCBflEPziuqtohqxBBCk
-         3EGA==
+        h=sender:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=rbzfhK/jC2Hjx/QQwW0R0PHP4IE39wXwzL8O28H7Mr0=;
+        b=XVi9HI1VtC7aXIwiJ5lk6mAXxUs+laaTiYTxGwrTWIdajFJvHEoLW+6oId1R7++FR8
+         OLvtCjYKBj3x2ZEv+WJ8/t9RxdFU9kzlugrA4Sr4fOkNCrvrgB+4ZtA27kqOkc4BdSay
+         S658CcqS4bA3UHL/wawr4VuIuySY3yUr5BjSXXeCU8Q0Yc0+pqBsnSKIAav8D+OknVG+
+         0xxaUjMAS/LSuQDLC0tRwTdDbSaR14l8UsKs6oGIUVS8IXaNNVr+TgWIIJASUXhXynmC
+         VdHhud7N879Hj1hiIvG+YMLpIF1Jl4o4Qnk1XZFws9iit0X006oTLzfV6ZSCW8QlK+JP
+         DuMQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references;
-        bh=EE2YczNla8qcSD1v8Yhtpjh81Hi8Cqph0O/BaPLbCAQ=;
-        b=AWi1weQTcuulGOJmUEAjlqdalzW6J6+KOY6EQYrB/Sfik1giHPc7SHkr94ESHbKbQ/
-         9Unz9VGCd8Z55sgWi6vz1IW8vrijNT92cP4Uoc8PRzS8ufr+aKKK3gqCkVL8ZOnh2x/b
-         iSC/mGeEz7XatLdN9jHxp18RiS//MqlburLAPpX6BN9I4P00m9EvaU5zGfNK/t1s35af
-         RSeeH/60iwTaLGSECLD/IrEc+5ln31F5KQVBPpcbUDGI7Bg5gaIg3GkLHAn1BdtWsC/6
-         fKFxqusRCnMDkNTGLj8RQFSjO/GPMoqpyC3LsY+86oEnptjlqBMHZ3Pjcbl3Xx0HROxe
-         VP8Q==
-X-Gm-Message-State: APjAAAUzhOf/29Q8Er25Dl42Vah888hbJASj//57x3MLLFJHdQU4cJeN
-        awH4cjV2eKvRqKKjMQes9ps=
-X-Google-Smtp-Source: APXvYqxzp/p/uQ5OKuQzlRYvxU23dKiBTzDJThNZdRcJUJajNV++tcWXBL5KzKBvpWKSUDJ/qbow+A==
-X-Received: by 2002:a0c:f24a:: with SMTP id z10mr22861156qvl.33.1582142326588;
-        Wed, 19 Feb 2020 11:58:46 -0800 (PST)
-Received: from andrew4.ggf2gnjfztzulbq0d1gogf4ope.bx.internal.cloudapp.net ([52.224.106.77])
-        by smtp.gmail.com with ESMTPSA id j28sm368751qki.61.2020.02.19.11.58.45
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
-        Wed, 19 Feb 2020 11:58:46 -0800 (PST)
-From:   Andrew Norrie <andrew.p.norrie@gmail.com>
-X-Google-Original-From: Andrew Norrie <andrew.norrie@cgg.com>
-To:     bvanassche@acm.org
-Cc:     axboe@kernel.dk, jaegeuk@kernel.org, linux-block@vger.kernel.org,
-        linux-f2fs-devel@lists.sourceforge.net,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [f2fs-dev] [PATCH v3] loop: avoid EAGAIN, if offset or block_size are changed
-Date:   Wed, 19 Feb 2020 19:58:45 +0000
-Message-Id: <1582142325-40880-1-git-send-email-andrew.norrie@cgg.com>
-X-Mailer: git-send-email 2.7.4
-In-Reply-To: <898950e4-3759-c78e-dd5d-422af9f8c507@acm.org>
-References: <898950e4-3759-c78e-dd5d-422af9f8c507@acm.org>
+        h=x-gm-message-state:sender:from:to:cc:subject:date:message-id
+         :mime-version:content-transfer-encoding;
+        bh=rbzfhK/jC2Hjx/QQwW0R0PHP4IE39wXwzL8O28H7Mr0=;
+        b=KbzqZm6YaOT7dOEhth+FNxNFQgdx3goP5Ms5uDxNDlD/EJksCsx4ZEk8Ukc0OSTkSP
+         DnH89ZQMI/EZwr241GFUHd84qd1gSN3MRrn31GnP18aYkaR7VuOYzvHJjKMePXKyTpNb
+         QfUnbsDHdRRaklxC4W9Cr9TX9cgZYcSuymqsw76d4DCZJqaaRtrzPcZDwr5emllTn2lu
+         PQ/sH8SbIkaS3Xl+2T1NPCIDRli2EjzOw7cQ6G+zX8Gdc0Mh4cYZhRWLFGqEcaYyr0/j
+         c71nz8WU8QTb+JQedei+x9JLRXz169cuOYIe/GyV9tOSjOZMHiJr5PIaNAt5ml564tOb
+         FmSA==
+X-Gm-Message-State: APjAAAUE4jDAGBw7AIqlE2pRdnJNGfo9r/4ryU9w5LRn/ygun3SCesvU
+        PXEAQFxL+8VUh6GjXwkCaYA=
+X-Google-Smtp-Source: APXvYqzNBukV1WVRxTaJfoM3IHZcCL/ybKeKF5Zn14V8vYauuFz5sEVdkeokCjd3wcs++SVooXr+0A==
+X-Received: by 2002:a05:6830:1353:: with SMTP id r19mr21370236otq.288.1582142453608;
+        Wed, 19 Feb 2020 12:00:53 -0800 (PST)
+Received: from localhost.localdomain (cpe-24-31-245-230.kc.res.rr.com. [24.31.245.230])
+        by smtp.gmail.com with ESMTPSA id m19sm254578otn.47.2020.02.19.12.00.52
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 19 Feb 2020 12:00:53 -0800 (PST)
+From:   Larry Finger <Larry.Finger@lwfinger.net>
+To:     kvalo@codeaurora.org
+Cc:     linux-wireless@vger.kernel.org, pkshih@realtek.com,
+        Larry Finger <Larry.Finger@lwfinger.net>,
+        Stable <stable@vger.kernel.org>,
+        Ashish <ashishkumar.yadav@students.iiserpune.ac.in>
+Subject: [PATCH] rtlwifi: rtl8188ee: Fix regression due to commit d1d1a96bdb44
+Date:   Wed, 19 Feb 2020 14:00:41 -0600
+Message-Id: <20200219200041.22279-1-Larry.Finger@lwfinger.net>
+X-Mailer: git-send-email 2.25.0
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
+For some unexplained reason, commit d1d1a96bdb44 ("rtlwifi: rtl8188ee:
+Remove local configuration variable") broke at least one system. As
+the only net effect of the change was to remove 2 bytes from the start
+of struct phy_status_rpt, this patch adds 2 bytes of padding at the
+beginning of the struct.
 
-Just checking again the status of this patch?
-It doesn't look like it's made it into the kernel yet?
+Fixes: d1d1a96bdb44 ("rtlwifi: rtl8188ee: Remove local configuration variable")
+Cc: Stable <stable@vger.kernel.org>  # V5.4+
+Reported-by: Ashish <ashishkumar.yadav@students.iiserpune.ac.in>
+Tested-by: Ashish <ashishkumar.yadav@students.iiserpune.ac.in>
+Signed-off-by: Larry Finger <Larry.Finger@lwfinger.net>
+---
+ drivers/net/wireless/realtek/rtlwifi/rtl8188ee/trx.h | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/drivers/net/wireless/realtek/rtlwifi/rtl8188ee/trx.h b/drivers/net/wireless/realtek/rtlwifi/rtl8188ee/trx.h
+index 917729807514..e17f70b4d199 100644
+--- a/drivers/net/wireless/realtek/rtlwifi/rtl8188ee/trx.h
++++ b/drivers/net/wireless/realtek/rtlwifi/rtl8188ee/trx.h
+@@ -561,6 +561,7 @@ static inline void clear_pci_tx_desc_content(__le32 *__pdesc, int _size)
+ 	 rxmcs == DESC92C_RATE11M)
+ 
+ struct phy_status_rpt {
++	u8	padding[2];
+ 	u8	ch_corr[2];
+ 	u8	cck_sig_qual_ofdm_pwdb_all;
+ 	u8	cck_agc_rpt_ofdm_cfosho_a;
+-- 
+2.25.0
 
