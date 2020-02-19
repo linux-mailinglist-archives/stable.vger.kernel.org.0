@@ -2,69 +2,68 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DC9C61640BA
-	for <lists+stable@lfdr.de>; Wed, 19 Feb 2020 10:46:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0130A164265
+	for <lists+stable@lfdr.de>; Wed, 19 Feb 2020 11:41:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726487AbgBSJqT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Feb 2020 04:46:19 -0500
-Received: from mx2.suse.de ([195.135.220.15]:58334 "EHLO mx2.suse.de"
+        id S1726632AbgBSKlg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Feb 2020 05:41:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52204 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726495AbgBSJqT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 19 Feb 2020 04:46:19 -0500
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.220.254])
-        by mx2.suse.de (Postfix) with ESMTP id 594C6AC22;
-        Wed, 19 Feb 2020 09:46:17 +0000 (UTC)
-Subject: Re: [PATCH] x86/ioperm: add new paravirt function update_io_bitmap
-To:     Thomas Gleixner <tglx@linutronix.de>,
-        xen-devel@lists.xenproject.org, x86@kernel.org,
-        linux-kernel@vger.kernel.org,
-        virtualization@lists.linux-foundation.org
-Cc:     Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        Thomas Hellstrom <thellstrom@vmware.com>,
-        "VMware, Inc." <pv-drivers@vmware.com>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-        Stefano Stabellini <sstabellini@kernel.org>,
-        stable@vger.kernel.org
-References: <20200218154712.25490-1-jgross@suse.com>
- <87mu9fr4ky.fsf@nanos.tec.linutronix.de>
- <b0f33786-79b1-f8ee-24ae-ce9f9f4791af@suse.com>
- <8736b7q6ca.fsf@nanos.tec.linutronix.de>
-From:   =?UTF-8?B?SsO8cmdlbiBHcm/Dnw==?= <jgross@suse.com>
-Message-ID: <4537af8d-e28f-1c27-53a9-e3208874037e@suse.com>
-Date:   Wed, 19 Feb 2020 10:46:15 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.4.1
+        id S1726548AbgBSKlg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 19 Feb 2020 05:41:36 -0500
+Received: from localhost.localdomain (236.31.169.217.in-addr.arpa [217.169.31.236])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3A1CE2465D;
+        Wed, 19 Feb 2020 10:41:35 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1582108896;
+        bh=U6to4otLXJGLB13o6RzYw7pCZ5asKRv2pkOtt9vkGms=;
+        h=From:To:Cc:Subject:Date:From;
+        b=xl4Cp7xBchKZx9ZkeBPRExGYG3NrRV2PCihn+lHV5zD4r84NXFh3jeHZKCrz6r2IB
+         GbtBQXOvH1G2/XsA22xsoXbh810x0EcpVZ4wvS7EWnE9NZwBWG5MKcrp5YAFMJWs5B
+         jBjWek1zesELJmvQUDOSwpAsGZAHZLBL2AUA/rQo=
+From:   Will Deacon <will@kernel.org>
+To:     linux-arm-kernel@lists.infradead.org
+Cc:     catalin.marinas@arm.com, Will Deacon <will@kernel.org>,
+        stable@vger.kernel.org,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH] arm64: memory: Add missing brackets to untagged_addr() macro
+Date:   Wed, 19 Feb 2020 10:41:31 +0000
+Message-Id: <20200219104131.18960-1-will@kernel.org>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
-In-Reply-To: <8736b7q6ca.fsf@nanos.tec.linutronix.de>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 19.02.20 10:22, Thomas Gleixner wrote:
-> Jürgen Groß <jgross@suse.com> writes:
->> On 18.02.20 22:03, Thomas Gleixner wrote:
->>> BTW, why isn't stuff like this not catched during next or at least
->>> before the final release? Is nothing running CI on upstream with all
->>> that XEN muck active?
->>
->> This problem showed up by not being able to start the X server (probably
->> not the freshest one) in dom0 on a moderate aged AMD system.
->>
->> Our CI tests tend do be more text console based for dom0.
-> 
-> tools/testing/selftests/x86/io[perm|pl] should have caught that as well,
-> right? If not, we need to fix the selftests.
+Add brackets around the evaluation of the 'addr' parameter to the
+untagged_addr() macro so that the case to 'u64' applies to the result
+of the expression.
 
-Hmm, yes. Thanks for the pointer.
+Cc: <stable@vger.kernel.org>
+Fixes: 597399d0cb91 ("arm64: tags: Preserve tags for addresses translated via TTBR1")
+Reported-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Will Deacon <will@kernel.org>
+---
+ arch/arm64/include/asm/memory.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Will ask our testing specialist what is done in this regard and how it
-can be enhanced.
+diff --git a/arch/arm64/include/asm/memory.h b/arch/arm64/include/asm/memory.h
+index a4f9ca5479b0..4d94676e5a8b 100644
+--- a/arch/arm64/include/asm/memory.h
++++ b/arch/arm64/include/asm/memory.h
+@@ -213,7 +213,7 @@ static inline unsigned long kaslr_offset(void)
+ 	((__force __typeof__(addr))sign_extend64((__force u64)(addr), 55))
+ 
+ #define untagged_addr(addr)	({					\
+-	u64 __addr = (__force u64)addr;					\
++	u64 __addr = (__force u64)(addr);					\
+ 	__addr &= __untagged_addr(__addr);				\
+ 	(__force __typeof__(addr))__addr;				\
+ })
+-- 
+2.25.0.265.gbab2e86ba0-goog
 
-
-Juergen
