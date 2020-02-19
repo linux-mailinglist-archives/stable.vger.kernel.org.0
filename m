@@ -2,75 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D624E164285
-	for <lists+stable@lfdr.de>; Wed, 19 Feb 2020 11:48:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 62F421642ED
+	for <lists+stable@lfdr.de>; Wed, 19 Feb 2020 12:06:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726548AbgBSKsH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Feb 2020 05:48:07 -0500
-Received: from sonic309-13.consmr.mail.bf2.yahoo.com ([74.6.129.123]:40915
-        "EHLO sonic309-13.consmr.mail.bf2.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726530AbgBSKsG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Feb 2020 05:48:06 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=aol.com; s=a2048; t=1582109285; bh=5nOAZyR+jaVMBirCRjMazu9Y5eDH3luxBZuwlwvAAvY=; h=Date:From:Reply-To:Subject:References:From:Subject; b=rbOADzNvjD8B+3YPnipFrzNvNFX5RBn6KqgYiEvjca6tMkg6pKOJkpxfmrLlMHOmU0PyDanhbKITReUEddQ4YDiN1OoHCAFiCGVixsJLMbXMK1CqUyHw1lqdoHcckw4Ami64G2X5HEoJ8OvCFAnCuiKciuza4XlmfdrU8q23eh6NsCGoo5kq/qh1z1VZx0LcNwny0S6CC2dbFbFNxymCtv/HPQj+6UHvltAu/aUufzyT7Iq/oxD8oQ+A14zuAPQlcrVye7kVdgTOnXramr4anm942G8MjOB5gTCbhwM1+9YSRcWyZ4cCmi/Rdh41FAZZGB33UHpPqKBOObu6ia0Oqw==
-X-YMail-OSG: P.LDtNMVM1mX__wyozbWOw1ZjbTHvhhwbFSX8bh.HwomiE0PehQzYHYtYBrVm2b
- wMBwWG..u21PDiGEeUd2OeqDqLOiJKEt4ufA75GXU_9DxFoXGiCF0lXuRXnJFsH5ZAYW2L2irkdD
- t2hexITPdGJrR7HsoO4_q10k9chn3k2O7uksxgMMew2yj62P0AJG2oGCOXV4FdnamieRfBowvA0V
- cW5ydl2EiCIhpvdR7Mi61E0Wf6T0ug8jgBY91B5bqoxKaFy6v5Rj2lLZQGl0vvFDvPiuoUcoaR7N
- E13crbECuGeOP3lYI.pY7f.hcPzVegXGshnSp8c71VYXsmq.YEhoqPiZstfvmRYPHwMbv8cjW1lH
- 4tePj.bI_2tBneLL3mbUGYmETKhxA7knDtyKeJQqOUqQusFRod6GI0__BvptC5WZB6sthdaJ0KnH
- NFp7iUHoGMKJVo2z0_AwIm.p8yKKc5NZKcona82DaLT._NyznJ.JLTwA.4fR9.3Hpz5hmnyRKgG_
- CjkajVXCFOI4ECaum8OPSG7PcFhYnr2cUtU76NL_7ziVypxRPb2mjUrhAJD35J_yipo_igXnXs1x
- Be_hAOw8awJntr8_dZtek.fHMkEsJ.uTAGzJoZCx93cvmURLUnXmz.jburd0pSv5d9iiMaXcioO9
- VFpFTjSACx9TnHS4dFgwevz8osD_AkbMtR2XkY40RJ98Xo1.KncislIwVdmwTqx1KUifAruORycx
- lf8uhfBJZrb47GOy9HTX3XYNIM_3fUvhk8rkt3TRPanCwn1U57ryE4uVYvxgrW7pz2cAvN2s8Bd7
- vdlTUBnsH1qJFwtL0GHsA3B7oaTKWtvwt.2y0n63h86IvyG8cJa281cbt.n3Hcb6pBb.hDfum6lL
- ptvLONhAUozq06D7FcSUOl9EgjQObCNlCceHICuKwkZDq8Y.vpw7qcVnnS8cBumOiZSKg7BzWXKY
- VSx4K5SqsvtePN8O72b2fXejA5d_3VYssP0o1Uz3CZlVeoseWEO4D8YO2HvzBzdDZhyhON0FlPtr
- BsQ4pwDkRfVw_6jbr4S_ACoQjF4oeoCOoPP8uaEzKRG84QoqsKoUa18gkMneen6y1BEve182hHCb
- yRithppEI5JRd6SRDyCm.t06_MrLtz1G5cCZI.1UDCUDanwWp3Sbw50TczSxlt7zqVuBO5hnM8Zq
- 7eF4dZ9geaakWSf5x2f3MbuUHhd4U.v0mDN04mDDxSQMHLUCoT40385oUgbMyOUooCO6FF_vUgla
- CI0Fqxm4pvU0TBH.k8FQTZhh1XWfQDberz68CBuHLwll03CqtGYmWBIMVWGxRE5QJuX.3NKz1vw-
- -
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic309.consmr.mail.bf2.yahoo.com with HTTP; Wed, 19 Feb 2020 10:48:05 +0000
-Date:   Wed, 19 Feb 2020 10:48:05 +0000 (UTC)
-From:   jerom Njitap <jeromenjitap10@aol.com>
-Reply-To: jeromenjitap100@gmail.com
-Message-ID: <182788186.3634579.1582109285005@mail.yahoo.com>
-Subject: SESAME SEED SUPPLY BURKINA FASO
+        id S1726708AbgBSLGF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Feb 2020 06:06:05 -0500
+Received: from hqnvemgate25.nvidia.com ([216.228.121.64]:19227 "EHLO
+        hqnvemgate25.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726668AbgBSLGF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Feb 2020 06:06:05 -0500
+Received: from hqpgpgate102.nvidia.com (Not Verified[216.228.121.13]) by hqnvemgate25.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
+        id <B5e4d167c0001>; Wed, 19 Feb 2020 03:05:32 -0800
+Received: from hqmail.nvidia.com ([172.20.161.6])
+  by hqpgpgate102.nvidia.com (PGP Universal service);
+  Wed, 19 Feb 2020 03:06:04 -0800
+X-PGP-Universal: processed;
+        by hqpgpgate102.nvidia.com on Wed, 19 Feb 2020 03:06:04 -0800
+Received: from [10.21.133.51] (10.124.1.5) by HQMAIL107.nvidia.com
+ (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Wed, 19 Feb
+ 2020 11:06:02 +0000
+Subject: Re: [PATCH 4.19 00/38] 4.19.105-stable review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        <linux-kernel@vger.kernel.org>
+CC:     <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
+        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
+        <ben.hutchings@codethink.co.uk>, <lkft-triage@lists.linaro.org>,
+        <stable@vger.kernel.org>, linux-tegra <linux-tegra@vger.kernel.org>
+References: <20200218190418.536430858@linuxfoundation.org>
+From:   Jon Hunter <jonathanh@nvidia.com>
+Message-ID: <21d5fe3f-9b2c-571c-a8a5-8d8966e18764@nvidia.com>
+Date:   Wed, 19 Feb 2020 11:06:00 +0000
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.4.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <20200218190418.536430858@linuxfoundation.org>
+X-Originating-IP: [10.124.1.5]
+X-ClientProxiedBy: HQMAIL101.nvidia.com (172.20.187.10) To
+ HQMAIL107.nvidia.com (172.20.187.13)
+Content-Type: text/plain; charset="utf-8"
+Content-Language: en-US
 Content-Transfer-Encoding: 7bit
-References: <182788186.3634579.1582109285005.ref@mail.yahoo.com>
-X-Mailer: WebService/1.1.15199 YMailNodin Mozilla/5.0 (Windows NT 6.3; Win64; x64; rv:73.0) Gecko/20100101 Firefox/73.0
-To:     unlisted-recipients:; (no To-header on input)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
+        t=1582110332; bh=veBQv0eIF+eTVEhBgYOt5fZwCdL4s1eqcxE9Ee6DHTo=;
+        h=X-PGP-Universal:Subject:To:CC:References:From:Message-ID:Date:
+         User-Agent:MIME-Version:In-Reply-To:X-Originating-IP:
+         X-ClientProxiedBy:Content-Type:Content-Language:
+         Content-Transfer-Encoding;
+        b=Sj7O0l1s/veTxVWxuCvA4GQ+fnCweXcNX5rw5+uwd6DrlVMuy5GhPcY7XXGpIiJkI
+         +dFKcvDVTkma9frrA2Y9ThDy4apcqFQQYZxUn/9+mK4Eu0mXLag9RbiZDR7eFRSBo9
+         Rj1NTZxDB4vX7nB5En0wXfet05kPOeIu6sVaGbMX0TzWigdmGNrXMSaWskPlXiErd1
+         Ykhbv9h2jOm3LbD09fbklkN3WEUewQXV6KmnJ5xnGiDHkxZOye3fZoyemDW6A1s0qv
+         XVTJDvSHY+MEuGEbBkYznxDTEB2pEjuabTZ2BpeiNFuX4IT4syKcCmpF1LejCH/h+V
+         iyAV4L8doKrzg==
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Dear Sir,
 
-This is to bring to your notice that we can supply your needs for
-quality Sesame seeds and other products listed below :
+On 18/02/2020 19:54, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.19.105 release.
+> There are 38 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Thu, 20 Feb 2020 19:03:19 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.105-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.19.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
 
+All tests are passing for Tegra ...
 
-Cashew nut
-Raw cotton
-Sesame seed
-Copper cathode
-Copper wire scraps
-Mazut 100 oil,D6
-Used rails
-HMS 1/2
+Test results for stable-v4.19:
+    11 builds:	11 pass, 0 fail
+    22 boots:	22 pass, 0 fail
+    32 tests:	32 pass, 0 fail
 
-We offer the best quality at reasonable prices both on CIF and FOB,
-depending on the nature of your offer. Our company has been in this
-line of business for over a decade so you you can expect nothing but a
-top-notch professional touch and guarantee when you deal or trade with
-us.all communication should be through this email address for
-confidencial purpose(jeromenjitap100@gmail.com)and your whatsaap number.
+Linux version:	4.19.105-rc1-g85265e81d664
+Boards tested:	tegra124-jetson-tk1, tegra186-p2771-0000,
+                tegra194-p2972-0000, tegra20-ventana,
+                tegra210-p2371-2180, tegra30-cardhu-a04
 
-Look forward to your response.
+Cheers
+Jon
 
-Regards
-Mr Jerome
+-- 
+nvpublic
