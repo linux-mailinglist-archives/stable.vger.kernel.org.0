@@ -2,76 +2,119 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D69A164FEE
-	for <lists+stable@lfdr.de>; Wed, 19 Feb 2020 21:33:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 05E9F1651BE
+	for <lists+stable@lfdr.de>; Wed, 19 Feb 2020 22:38:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727082AbgBSUdQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Feb 2020 15:33:16 -0500
-Received: from wout5-smtp.messagingengine.com ([64.147.123.21]:55949 "EHLO
-        wout5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726760AbgBSUdQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Feb 2020 15:33:16 -0500
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id 75E1872E;
-        Wed, 19 Feb 2020 15:33:15 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Wed, 19 Feb 2020 15:33:15 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm3; bh=xGi9fA6ewJYeQYIyw8XMVeTlHau
-        WC/uXzSIZBCLY2wY=; b=k0wNH+ynZgjHvRi9JvyRp1uwOHjYAXPWJENgbap0aFq
-        Fc7LezAMeTU3om5BX0xhtHOaIuDEOPsF+B4WQelcQxkQ3TgZK0GQFwGYw7cSyzeJ
-        /ktZo32ycxM7yjx48qEkRZRmakJmEc3vi+odsZ5JxPPHlzLOvyrig9SltBawY0Ek
-        QtlqPZaRgjwoxITjgPVLtAtI4znwPMEAt3be8Gp5i3QrxqrNoRaRLWpk+U0osp7k
-        et6aAOAkkwml6aV3MJGsXEWBkWBBfTGByMh9UQbJmvc1QxMkPopUMIRyzhbhit1q
-        rAHeuszSaTThUz3aOKrflaUVsNflTh4Ic6iH9cdJzZQ==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=xGi9fA
-        6ewJYeQYIyw8XMVeTlHauWC/uXzSIZBCLY2wY=; b=O3IzysPFvf9a78DqI50Bka
-        s/8jGE4Ne7g4e6ahWYadzaQ73t38+0P1AORFRx3wPg/QZnzCZU9Q8+bdxDnK2WHT
-        cFKnOt9/VF1IjqYkNTl6z8XnjHTwGCsqxNJq3u9Uwpv+yetbiircJ7Y7Wztx3cvg
-        4Wd8Nc9WDXC8C8CF2oCi2xmmGTbPCKZ5Khe4d10sZagJMABFRdcfoPJDmB9Jvz4b
-        IDXo+H807fuwQ055At6vfSgshaWZR29H+G7o6t0moNh8pCxt594sr4iRdM5QoN0A
-        OFJCZT0Rl2uRRZ8YGgSGbJZxXJDQUv+VKibhFVgKRiJXcPFbGyJ0agjZKDcrQ3UA
-        ==
-X-ME-Sender: <xms:iptNXhMrqBRm5K-4kp_gqVXpr8ONVA7oc7TRQHUnKMf4m2N8vq4CnA>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedugedrkedtgddugedtucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhepfffhvffukfhfgggtuggjsehttdertddttddvnecuhfhrohhmpefirhgvghcu
-    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucfkphepkeefrdekiedrkeelrddutd
-    ejnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhr
-    vghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:iptNXqhydyc7OldgKg4t69bdcZFQvYab-DM6KtFfR1Ti9YGWV8CGzw>
-    <xmx:iptNXh8fopZsnokLz8URY5dc2_ed6mtTZ58Su3ZHsUAhRMCQ1wwasg>
-    <xmx:iptNXnJsgA_kKLVz_2_Xw6AD06yfnsDDsOMf7mtruaT7eCIS6DcN_g>
-    <xmx:i5tNXsh5shvZIPRcTpC6qlmzXm48jxiheQrdYUeBweeGY7c2Z-9r2Q>
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 3C5123060C28;
-        Wed, 19 Feb 2020 15:33:14 -0500 (EST)
-Date:   Wed, 19 Feb 2020 21:32:59 +0100
-From:   Greg KH <greg@kroah.com>
-To:     David Miller <davem@davemloft.net>
-Cc:     stable@vger.kernel.org
-Subject: Re: [PATCHES] Networking
-Message-ID: <20200219203259.GA2887937@kroah.com>
-References: <20200218.154107.1558318594551687515.davem@davemloft.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200218.154107.1558318594551687515.davem@davemloft.net>
+        id S1727589AbgBSViC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Feb 2020 16:38:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45232 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727326AbgBSViC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 19 Feb 2020 16:38:02 -0500
+Received: from X1 (nat-ab2241.sltdut.senawave.net [162.218.216.4])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8847324670;
+        Wed, 19 Feb 2020 21:38:00 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1582148280;
+        bh=MKE+7H4fnt8NRPcQmsj+/3yqEN7xzLD7JLSw/zbdXeg=;
+        h=Date:From:To:Subject:From;
+        b=cVRmcO/5aa7BQh2mtV1TdKnjPs9T97XIz95+XnbPrJew7fNgrT2CcvwOoywICwzea
+         5lgmTuIwGVg43oLNmpczi8J+a8BacICLAqKKK7rCz+1Ce+g0NjkSeRO+wbB+6Fifd1
+         Myh8M+0y8tY55yxgX/3u4qLcXMVYvPeMLtH22vfA=
+Date:   Wed, 19 Feb 2020 13:38:00 -0800
+From:   akpm@linux-foundation.org
+To:     mm-commits@vger.kernel.org, walter-zh.wu@mediatek.com,
+        tglx@linutronix.de, stable@vger.kernel.org, matthias.bgg@gmail.com,
+        kstewart@linuxfoundation.org, jpoimboe@redhat.com,
+        gregkh@linuxfoundation.org, dvyukov@google.com, glider@google.com
+Subject:  +
+ lib-stackdepot-fix-global-out-of-bounds-in-stack_slabs.patch added to -mm
+ tree
+Message-ID: <20200219213800.8Rga_%akpm@linux-foundation.org>
+User-Agent: s-nail v14.9.10
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Feb 18, 2020 at 03:41:07PM -0800, David Miller wrote:
-> 
-> Please queue up the following networking bug fixes for v5.4 and
-> v5.5 -stable, respectively.
 
-Now queued up, thanks!
+The patch titled
+     Subject: lib/stackdepot.c: fix global out-of-bounds in stack_slabs
+has been added to the -mm tree.  Its filename is
+     lib-stackdepot-fix-global-out-of-bounds-in-stack_slabs.patch
 
-greg k-h
+This patch should soon appear at
+    http://ozlabs.org/~akpm/mmots/broken-out/lib-stackdepot-fix-global-out-of-bounds-in-stack_slabs.patch
+and later at
+    http://ozlabs.org/~akpm/mmotm/broken-out/lib-stackdepot-fix-global-out-of-bounds-in-stack_slabs.patch
+
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
+
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+
+The -mm tree is included into linux-next and is updated
+there every 3-4 working days
+
+------------------------------------------------------
+From: Alexander Potapenko <glider@google.com>
+Subject: lib/stackdepot.c: fix global out-of-bounds in stack_slabs
+
+Walter Wu has reported a potential case in which init_stack_slab() is
+called after stack_slabs[STACK_ALLOC_MAX_SLABS - 1] has already been
+initialized.  In that case init_stack_slab() will overwrite
+stack_slabs[STACK_ALLOC_MAX_SLABS], which may result in a memory
+corruption.
+
+Link: http://lkml.kernel.org/r/20200218102950.260263-1-glider@google.com
+Fixes: cd11016e5f521 ("mm, kasan: stackdepot implementation. Enable stackdepot for SLAB")
+Signed-off-by: Alexander Potapenko <glider@google.com>
+Reported-by: Walter Wu <walter-zh.wu@mediatek.com>
+Cc: Dmitry Vyukov <dvyukov@google.com>
+Cc: Matthias Brugger <matthias.bgg@gmail.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Josh Poimboeuf <jpoimboe@redhat.com>
+Cc: Kate Stewart <kstewart@linuxfoundation.org>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
+
+ lib/stackdepot.c |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
+
+--- a/lib/stackdepot.c~lib-stackdepot-fix-global-out-of-bounds-in-stack_slabs
++++ a/lib/stackdepot.c
+@@ -83,15 +83,19 @@ static bool init_stack_slab(void **preal
+ 		return true;
+ 	if (stack_slabs[depot_index] == NULL) {
+ 		stack_slabs[depot_index] = *prealloc;
++		*prealloc = NULL;
+ 	} else {
+-		stack_slabs[depot_index + 1] = *prealloc;
++		/* If this is the last depot slab, do not touch the next one. */
++		if (depot_index + 1 < STACK_ALLOC_MAX_SLABS) {
++			stack_slabs[depot_index + 1] = *prealloc;
++			*prealloc = NULL;
++		}
+ 		/*
+ 		 * This smp_store_release pairs with smp_load_acquire() from
+ 		 * |next_slab_inited| above and in stack_depot_save().
+ 		 */
+ 		smp_store_release(&next_slab_inited, 1);
+ 	}
+-	*prealloc = NULL;
+ 	return true;
+ }
+ 
+_
+
+Patches currently in -mm which might be from glider@google.com are
+
+lib-stackdepot-fix-global-out-of-bounds-in-stack_slabs.patch
+
