@@ -2,164 +2,127 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 820F2163A53
-	for <lists+stable@lfdr.de>; Wed, 19 Feb 2020 03:39:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 983AD163AD4
+	for <lists+stable@lfdr.de>; Wed, 19 Feb 2020 04:10:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728069AbgBSCjS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Feb 2020 21:39:18 -0500
-Received: from mail-lf1-f66.google.com ([209.85.167.66]:46231 "EHLO
-        mail-lf1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726799AbgBSCjS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Feb 2020 21:39:18 -0500
-Received: by mail-lf1-f66.google.com with SMTP id z26so16069618lfg.13
-        for <stable@vger.kernel.org>; Tue, 18 Feb 2020 18:39:16 -0800 (PST)
+        id S1728213AbgBSDK3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Feb 2020 22:10:29 -0500
+Received: from smtp-fw-9101.amazon.com ([207.171.184.25]:23187 "EHLO
+        smtp-fw-9101.amazon.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728203AbgBSDK2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Feb 2020 22:10:28 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=60VIe0tObFe5ZoC97rjmVnguUIDOMQa1br+X3tRbe10=;
-        b=UHca1o/SHo7SCNMRYI5uY8DaMu5GNllMTWkGXc5MS7P+s59msv88R2RviPw2CrOdtu
-         CBYu4sbldJnVT1FZ4EGw/g0beAcwJZibwEdKWreHa7YxWkDE+ddKocoIZ9UR7ShdnQVZ
-         d0rJP2X2GMfBDkIsJTqnqbDLsagB+KbZGkN4sIy6+SQyvunqj6whX/S3KiHe+CCAuSUe
-         V8V6ErHKDlLBVBklt76W8/t2SyUb3RxNGmYwe/GRHBAp/LmO2TRDnCr8tJNL5x5W3OeH
-         aN2WCvS1jho5+x6IQlq90GqSRdcEHfB7aS4FipQh2m0FegTyCBpi43myQ0pZrYyZekNQ
-         3Baw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=60VIe0tObFe5ZoC97rjmVnguUIDOMQa1br+X3tRbe10=;
-        b=sADgdM0fzVR6breRGdq8xn5DDT6/V1eLWxE92shIWDujmr8mRQOfk9HsrmkhywxqzD
-         0i9ScNLR+SgqXwINLQpOoaa5scLUq41QilUCi+zZ9UxCseLDT1/f7wr6yEH+7xNUDW4r
-         wARq0msFbYNEadH3rTitv+Iis7O3i+MN4u7fLPvjvalzvizTn4FRPtVXyvw1Q4DkpMLP
-         hZtwiuHrAMm44TSo++lApbLsr7LeZQ9A+tKf8N12cEohXwZLTbNHwahdjRvVVCMmeDRe
-         e0yqPX+skHqQc9K6vHPxPZUanGl6em5rFtpIoANQb9mrGoSvunqSPDv5ehMWT31P5BoF
-         DiNg==
-X-Gm-Message-State: APjAAAVgYRTvYRG4C03Ko8zbu74pipxCVNMxVKIfGqcXyyqPOBMO00gV
-        knYq9+yNhIGBkwgdTmCCPMQm7QxTtuWWg8RsjdnpXA==
-X-Google-Smtp-Source: APXvYqzJM6Bp8/duZfOtgIHDfdILC0e0bJjneyJsmVwnnJSvPRPpbhC+jzIEaDDX+lRvrEHkDYny86gzlmRYtk6cP2U=
-X-Received: by 2002:ac2:5467:: with SMTP id e7mr11383861lfn.74.1582079955688;
- Tue, 18 Feb 2020 18:39:15 -0800 (PST)
+  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
+  t=1582081828; x=1613617828;
+  h=from:to:cc:subject:date:message-id:in-reply-to:
+   references:mime-version;
+  bh=DhMXLWHV7d0ROSCfd/lCm0V7ffWZv48HScuqDT9+n30=;
+  b=p4EHHQoztmHOVq17tJdK3NUqmzuzr56Q1P0QSXTrWRBbaCjGghyoa5vp
+   b8dPuzZw6PKmyjpSvkEe03FYpqERdMmdAURGx8jtmHa8RrfyGs2FePR0e
+   iWl8Cl9Kb1mHrNJtY3FGKzrvUVqb3unkO1kE8cXtTNd43Rt7BBIKfgzoJ
+   E=;
+IronPort-SDR: 5+qfslswfqxx2QKJijJrc0FF/YD8iucDC3YBnqtR0poUqW5sBF5qtHaHn8MC3jPlLsFgmBMDs2
+ Y/3K5vltLOzQ==
+X-IronPort-AV: E=Sophos;i="5.70,458,1574121600"; 
+   d="scan'208";a="17534441"
+Received: from sea32-co-svc-lb4-vlan3.sea.corp.amazon.com (HELO email-inbound-relay-1a-e34f1ddc.us-east-1.amazon.com) ([10.47.23.38])
+  by smtp-border-fw-out-9101.sea19.amazon.com with ESMTP; 19 Feb 2020 03:10:25 +0000
+Received: from EX13MTAUWC001.ant.amazon.com (iad55-ws-svc-p15-lb9-vlan2.iad.amazon.com [10.40.159.162])
+        by email-inbound-relay-1a-e34f1ddc.us-east-1.amazon.com (Postfix) with ESMTPS id BA401A2B89;
+        Wed, 19 Feb 2020 03:10:23 +0000 (UTC)
+Received: from EX13D30UWC001.ant.amazon.com (10.43.162.128) by
+ EX13MTAUWC001.ant.amazon.com (10.43.162.135) with Microsoft SMTP Server (TLS)
+ id 15.0.1367.3; Wed, 19 Feb 2020 03:10:22 +0000
+Received: from u3c3f5cfe23135f.ant.amazon.com (10.43.161.235) by
+ EX13D30UWC001.ant.amazon.com (10.43.162.128) with Microsoft SMTP Server (TLS)
+ id 15.0.1367.3; Wed, 19 Feb 2020 03:10:22 +0000
+From:   Suraj Jitindar Singh <surajjs@amazon.com>
+To:     <linux-ext4@vger.kernel.org>
+CC:     <tytso@mit.edu>, <sblbir@amazon.com>, <sjitindarsingh@gmail.com>,
+        "Suraj Jitindar Singh" <surajjs@amazon.com>,
+        <stable@vger.kernel.org>
+Subject: [PATCH 2/3] ext4: fix potential race between s_group_info online resizing and access
+Date:   Tue, 18 Feb 2020 19:08:50 -0800
+Message-ID: <20200219030851.2678-3-surajjs@amazon.com>
+X-Mailer: git-send-email 2.17.1
+In-Reply-To: <20200219030851.2678-1-surajjs@amazon.com>
+References: <20200219030851.2678-1-surajjs@amazon.com>
 MIME-Version: 1.0
-References: <20200218190418.536430858@linuxfoundation.org>
-In-Reply-To: <20200218190418.536430858@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Wed, 19 Feb 2020 08:09:04 +0530
-Message-ID: <CA+G9fYsdcDkYdinGRW+0dtEz-qojZi67dsbnuiOF1=LiWKaUYw@mail.gmail.com>
-Subject: Re: [PATCH 4.19 00/38] 4.19.105-stable review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>,
-        lkft-triage@lists.linaro.org,
-        linux- stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain
+X-Originating-IP: [10.43.161.235]
+X-ClientProxiedBy: EX13D33UWB004.ant.amazon.com (10.43.161.225) To
+ EX13D30UWC001.ant.amazon.com (10.43.162.128)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 19 Feb 2020 at 01:27, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 4.19.105 release.
-> There are 38 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Thu, 20 Feb 2020 19:03:19 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
-4.19.105-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-4.19.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+During an online resize an array of pointers to s_group_info gets replaced
+so it can get enlarged. If there is a concurrent access to the array in
+ext4_get_group_info() and this memory has been reused then this can lead to
+an invalid memory access.
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=206443
+Signed-off-by: Suraj Jitindar Singh <surajjs@amazon.com>
+Cc: stable@vger.kernel.org
+---
+ fs/ext4/ext4.h    |  6 +++---
+ fs/ext4/mballoc.c | 10 ++++++----
+ 2 files changed, 9 insertions(+), 7 deletions(-)
 
-Summary
-------------------------------------------------------------------------
+diff --git a/fs/ext4/ext4.h b/fs/ext4/ext4.h
+index 236fc6500340..3f4aaaae7da6 100644
+--- a/fs/ext4/ext4.h
++++ b/fs/ext4/ext4.h
+@@ -2994,13 +2994,13 @@ static inline
+ struct ext4_group_info *ext4_get_group_info(struct super_block *sb,
+ 					    ext4_group_t group)
+ {
+-	 struct ext4_group_info ***grp_info;
++	 struct ext4_group_info **grp_info;
+ 	 long indexv, indexh;
+ 	 BUG_ON(group >= EXT4_SB(sb)->s_groups_count);
+-	 grp_info = EXT4_SB(sb)->s_group_info;
+ 	 indexv = group >> (EXT4_DESC_PER_BLOCK_BITS(sb));
+ 	 indexh = group & ((EXT4_DESC_PER_BLOCK(sb)) - 1);
+-	 return grp_info[indexv][indexh];
++	 grp_info = sbi_array_rcu_deref(EXT4_SB(sb), s_group_info, indexv);
++	 return grp_info[indexh];
+ }
+ 
+ /*
+diff --git a/fs/ext4/mballoc.c b/fs/ext4/mballoc.c
+index f64838187559..0d9b17afc85f 100644
+--- a/fs/ext4/mballoc.c
++++ b/fs/ext4/mballoc.c
+@@ -2356,7 +2356,7 @@ int ext4_mb_alloc_groupinfo(struct super_block *sb, ext4_group_t ngroups)
+ {
+ 	struct ext4_sb_info *sbi = EXT4_SB(sb);
+ 	unsigned size;
+-	struct ext4_group_info ***new_groupinfo;
++	struct ext4_group_info ***old_groupinfo, ***new_groupinfo;
+ 
+ 	size = (ngroups + EXT4_DESC_PER_BLOCK(sb) - 1) >>
+ 		EXT4_DESC_PER_BLOCK_BITS(sb);
+@@ -2369,13 +2369,15 @@ int ext4_mb_alloc_groupinfo(struct super_block *sb, ext4_group_t ngroups)
+ 		ext4_msg(sb, KERN_ERR, "can't allocate buddy meta group");
+ 		return -ENOMEM;
+ 	}
+-	if (sbi->s_group_info) {
++	old_groupinfo = sbi->s_group_info;
++	if (sbi->s_group_info)
+ 		memcpy(new_groupinfo, sbi->s_group_info,
+ 		       sbi->s_group_info_size * sizeof(*sbi->s_group_info));
+-		kvfree(sbi->s_group_info);
+-	}
+ 	sbi->s_group_info = new_groupinfo;
++	rcu_assign_pointer(sbi->s_group_info, new_groupinfo);
+ 	sbi->s_group_info_size = size / sizeof(*sbi->s_group_info);
++	if (old_groupinfo)
++		ext4_kvfree_array_rcu(old_groupinfo);
+ 	ext4_debug("allocated s_groupinfo array for %d meta_bg's\n", 
+ 		   sbi->s_group_info_size);
+ 	return 0;
+-- 
+2.17.1
 
-kernel: 4.19.105-rc1
-git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
-le-rc.git
-git branch: linux-4.19.y
-git commit: 85265e81d664e50b5da918dbdf02b5bbb926b2ea
-git describe: v4.19.104-39-g85265e81d664
-Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-4.19-oe/bu=
-ild/v4.19.104-39-g85265e81d664
-
-No regressions (compared to build v4.19.104)
-
-No fixes (compared to build v4.19.104)
-
-
-Ran 23734 total tests in the following environments and test suites.
-
-Environments
---------------
-- dragonboard-410c - arm64
-- hi6220-hikey - arm64
-- i386
-- juno-r2 - arm64
-- nxp-ls2088
-- qemu_arm
-- qemu_arm64
-- qemu_i386
-- qemu_x86_64
-- x15 - arm
-- x86_64
-
-Test Suites
------------
-* build
-* install-android-platform-tools-r2600
-* kselftest
-* libhugetlbfs
-* linux-log-parser
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-cpuhotplug-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* spectre-meltdown-checker-test
-* v4l2-compliance
-* ltp-fs-tests
-* ltp-syscalls-tests
-* network-basic-tests
-* perf
-* ltp-open-posix-tests
-* kvm-unit-tests
-* kselftest-vsyscall-mode-native
-* kselftest-vsyscall-mode-none
-
---=20
-Linaro LKFT
-https://lkft.linaro.org
