@@ -2,179 +2,140 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EE4E0165310
-	for <lists+stable@lfdr.de>; Thu, 20 Feb 2020 00:28:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9D79F165318
+	for <lists+stable@lfdr.de>; Thu, 20 Feb 2020 00:31:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726681AbgBSX23 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Feb 2020 18:28:29 -0500
-Received: from mail-bn8nam11on2077.outbound.protection.outlook.com ([40.107.236.77]:6246
-        "EHLO NAM11-BN8-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726680AbgBSX23 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 19 Feb 2020 18:28:29 -0500
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=FV+2iXAe5eINPU5ZaE8PUUd6jLIUnd9VTHMmQ93X9EpNPGJ6bCWDyPuGhZqSSJLh2thuFk/vA67B7NykKB20ALPZ3vg08o38us48XZ6HYP5vTuG2eX+9CxLcdcHuyDx2uqIQBqBl40pl69aCo+NuY2hPeqN00AQtRwuunoj8cFrl1lbyHrbBnNSQLn6/SMd+oHDYDIFSAxDIVRJVLjt7zDC2hdt5UQt9azruxwWAppXXJNpUjsa73qwm3RgWt9kDHNJ8ABiyJDKwNXzklK/ZqEQl98wbFPOJtMJmK+jo1CWHqPL6X/qKqBkabuhOANROdUxY5LL3haRK4XHWFhWhMw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=GNf/ErxMfW8RimSQCTxUYZLIolSykVIh80nTZCktsao=;
- b=cFwDBDxyXlYQMdxjTf0N+4DdB5QBDXU9wYgnAaJ6PbSMmNgvI6u3/hNDNJO5069CGsvlNJwF8LBP1T5681RgGuB2eKvNlCa22ZDvBkyck21t6NeAdlQuAkzPkPzyKXEEFpCGbZxH2KN3ySVyxIqmj9MKS0s/zpiTrUaoisqYfhplqmDENBPW7nNikoPTHbtNxigEysd1uMas27qRRctWjzrF0Ebve/JCaRtSkdU+SBkvGcqDfmuS53YTIrJS1Y+79g5uPPs5OfvO5NF8OobpPhBcCyj/P3lAhLict8y4S7BvpsEzBtku9BVm22WuLMavxqE3kvpeKRXCHKrPfVNKOQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
- header.d=amd.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=amdcloud.onmicrosoft.com; s=selector2-amdcloud-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=GNf/ErxMfW8RimSQCTxUYZLIolSykVIh80nTZCktsao=;
- b=KUyld60WiEgOKbQLIx/0TvdOb8ApYlwxrhtek0yB8V4vVkDRtOKGwiCGhPJ1f7O2xmiVoCHuA2lWpzvOeqYdx30ArPi+V+oIXb1k5YDH/5WeiRTOWKxvJVNim1WkNdJs7bcCTLz3T//62wUONcFJs2zQLK7CKzkQ/+AUyQtwXns=
-Authentication-Results: spf=none (sender IP is )
- smtp.mailfrom=kim.phillips@amd.com; 
-Received: from SN6PR12MB2845.namprd12.prod.outlook.com (52.135.106.33) by
- SN6PR12MB2766.namprd12.prod.outlook.com (52.135.107.138) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.2729.29; Wed, 19 Feb 2020 23:27:49 +0000
-Received: from SN6PR12MB2845.namprd12.prod.outlook.com
- ([fe80::dd6f:a575:af8e:4f1b]) by SN6PR12MB2845.namprd12.prod.outlook.com
- ([fe80::dd6f:a575:af8e:4f1b%7]) with mapi id 15.20.2729.032; Wed, 19 Feb 2020
- 23:27:49 +0000
-From:   Kim Phillips <kim.phillips@amd.com>
-To:     Peter Zijlstra <peterz@infradead.org>,
-        Ingo Molnar <mingo@kernel.org>, Ingo Molnar <mingo@redhat.com>
-Cc:     Kim Phillips <kim.phillips@amd.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Arnaldo Carvalho de Melo <acme@kernel.org>,
-        Borislav Petkov <bp@alien8.de>,
-        "H. Peter Anvin" <hpa@zytor.com>, Jiri Olsa <jolsa@redhat.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Michael Petlan <mpetlan@redhat.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        linux-kernel@vger.kernel.org, x86@kernel.org,
-        stable@vger.kernel.org
-Subject: [PATCH 1/3] perf/amd/uncore: Replace manual sampling check with CAP_NO_INTERRUPT flag
-Date:   Wed, 19 Feb 2020 17:27:27 -0600
-Message-Id: <20200219232729.21460-1-kim.phillips@amd.com>
-X-Mailer: git-send-email 2.25.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: DM6PR14CA0054.namprd14.prod.outlook.com
- (2603:10b6:5:18f::31) To SN6PR12MB2845.namprd12.prod.outlook.com
- (2603:10b6:805:75::33)
-MIME-Version: 1.0
-Received: from fritz.amd.com (165.204.77.1) by DM6PR14CA0054.namprd14.prod.outlook.com (2603:10b6:5:18f::31) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.2729.23 via Frontend Transport; Wed, 19 Feb 2020 23:27:47 +0000
-X-Mailer: git-send-email 2.25.0
-X-Originating-IP: [165.204.77.1]
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-HT: Tenant
-X-MS-Office365-Filtering-Correlation-Id: 2ebaeb8b-0137-48e8-9916-08d7b5935515
-X-MS-TrafficTypeDiagnostic: SN6PR12MB2766:|SN6PR12MB2766:
-X-MS-Exchange-Transport-Forked: True
-X-Microsoft-Antispam-PRVS: <SN6PR12MB276623B992BDCD234B8C4B3487100@SN6PR12MB2766.namprd12.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:6108;
-X-Forefront-PRVS: 0318501FAE
-X-Forefront-Antispam-Report: SFV:NSPM;SFS:(10009020)(4636009)(346002)(136003)(39860400002)(366004)(376002)(396003)(189003)(199004)(16526019)(956004)(2616005)(54906003)(36756003)(7416002)(6666004)(44832011)(8936002)(478600001)(110136005)(316002)(26005)(186003)(81156014)(4326008)(66556008)(6486002)(66946007)(86362001)(52116002)(7696005)(1076003)(2906002)(8676002)(66476007)(5660300002)(81166006);DIR:OUT;SFP:1101;SCL:1;SRVR:SN6PR12MB2766;H:SN6PR12MB2845.namprd12.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;MX:1;A:1;
-Received-SPF: None (protection.outlook.com: amd.com does not designate
- permitted sender hosts)
-X-MS-Exchange-SenderADCheck: 1
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: mT0wxFo/5vR0jdveeUNu1TFQg7h1pq+2pHgga0NKUoEF5++evuaXZWUDyR6Cyoy6vx6Y8tjQ7H21VosiC1yzuErcpo854o48E3hA8eBHZCRw7OVBNE/I+Q2v3YlWty06taYfDzOmlmAI7MY4ynlTe05Vd6HiUXZpOwZSFGpee7UjtWZsbmFH5WyB30V32qbIQJ1Pw2TnhsXRKw/PqKA4ncml0X1IdqrRG7CqRL8zvf0dLVQwKusp/9d3S4bZOYhxrDu+CSklhF6LhM/XlQyBuV3KB1yqJfxSBr6teOKsYooGouGtXM++/qQV7mQhmN18MQaAdqOcdJpL9UzvQyJBndNxSWWsR0P2EF84tJ09v2C+OK3KsXzHNkq1th6/7CM/KF7aTjh6tL+d91q5kTsdZINBkDBe+BXcxhBGOKwudGoH5D1e2C5x1TavNp1e5nGW
-X-MS-Exchange-AntiSpam-MessageData: 5ZQyZ7WzS2D7N9OCNzsx8/MKkUu6V1oyxEv5SgqwkPi2nqArxx4f5NfdBhE2gmtUHSbDWNmdY/1WL5TKaV5ty4eDfjy7dZz7gffZDx1skoJzxZwszx7zHBnh5U5VwtZFnTS3tObBOSLA/UdD9sjaXg==
-X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 2ebaeb8b-0137-48e8-9916-08d7b5935515
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 19 Feb 2020 23:27:49.0532
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: e9zAmHrKhaxUcn6SepsPMr5RsTwtqJzg9qGkNiIDYhPtf27UyLc70fw3rRZqJ+P+GHG7cLMVZnfNXXDDVKoiQw==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SN6PR12MB2766
+        id S1726794AbgBSXbP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Feb 2020 18:31:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44432 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726691AbgBSXbP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 19 Feb 2020 18:31:15 -0500
+Received: from X1 (nat-ab2241.sltdut.senawave.net [162.218.216.4])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id CAAC9207FD;
+        Wed, 19 Feb 2020 23:31:13 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1582155074;
+        bh=dAcCVYjMZTq1YBMJVLX5VhBwC/quKrZEALcdGGzbasg=;
+        h=Date:From:To:Subject:From;
+        b=zwSlBeZQGRypahQxwQaF/qZYEpKDgWD7TazAurrYf9HGL055rwvit9K8QXSffhA01
+         fXukno6o7GjXSwnhhGjLcv3kPtkreGwYpBCMa7v1pk2vjchHfvB8u5VxhH6urBXFjU
+         CXjCFAMD2u5uTYjvAS9QPXxAn/ZtxlDgT6ndoht4=
+Date:   Wed, 19 Feb 2020 15:31:13 -0800
+From:   akpm@linux-foundation.org
+To:     mm-commits@vger.kernel.org, stable@vger.kernel.org,
+        max@arangodb.com, kuba@kernel.org, jbaron@akamai.com,
+        dbueso@suse.de, chris.kohlhoff@clearpool.io, rpenyaev@suse.de
+Subject:  + epoll-fix-possible-lost-wakeup-on-epoll_ctl-path.patch
+ added to -mm tree
+Message-ID: <20200219233113.3ZpFQ%akpm@linux-foundation.org>
+User-Agent: s-nail v14.9.10
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This enables the sampling check in kernel/events/core.c's
-perf_event_open, which returns the more appropriate -EOPNOTSUPP.
 
-BEFORE:
+The patch titled
+     Subject: epoll: fix possible lost wakeup on epoll_ctl() path
+has been added to the -mm tree.  Its filename is
+     epoll-fix-possible-lost-wakeup-on-epoll_ctl-path.patch
 
-$ sudo perf record -a -e instructions,l3_request_g1.caching_l3_cache_accesses true
-Error:
-The sys_perf_event_open() syscall returned with 22 (Invalid argument) for event (l3_request_g1.caching_l3_cache_accesses).
-/bin/dmesg | grep -i perf may provide additional information.
+This patch should soon appear at
+    http://ozlabs.org/~akpm/mmots/broken-out/epoll-fix-possible-lost-wakeup-on-epoll_ctl-path.patch
+and later at
+    http://ozlabs.org/~akpm/mmotm/broken-out/epoll-fix-possible-lost-wakeup-on-epoll_ctl-path.patch
 
-With nothing relevant in dmesg.
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
 
-AFTER:
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
 
-$ sudo perf record -a -e instructions,l3_request_g1.caching_l3_cache_accesses true
-Error:
-l3_request_g1.caching_l3_cache_accesses: PMU Hardware doesn't support sampling/overflow-interrupts. Try 'perf stat'
+The -mm tree is included into linux-next and is updated
+there every 3-4 working days
 
-Signed-off-by: Kim Phillips <kim.phillips@amd.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Arnaldo Carvalho de Melo <acme@kernel.org>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Ingo Molnar <mingo@kernel.org>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Michael Petlan <mpetlan@redhat.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: linux-kernel@vger.kernel.org
-Cc: x86@kernel.org
-Cc: stable@vger.kernel.org
-Fixes: c43ca5091a37 ("perf/x86/amd: Add support for AMD NB and L2I "uncore" counters")
+------------------------------------------------------
+From: Roman Penyaev <rpenyaev@suse.de>
+Subject: epoll: fix possible lost wakeup on epoll_ctl() path
+
+This fixes possible lost wakeup introduced by commit a218cc491420. 
+Originally modifications to ep->wq were serialized by ep->wq.lock, but in
+the a218cc491420 new rw lock was introduced in order to relax fd event
+path, i.e.  callers of ep_poll_callback() function.
+
+After the change ep_modify and ep_insert (both are called on epoll_ctl()
+path) were switched to ep->lock, but ep_poll (epoll_wait) was using
+ep->wq.lock on wqueue list modification.
+
+The bug doesn't lead to any wqueue list corruptions, because wake up path
+and list modifications were serialized by ep->wq.lock internally, but
+actual waitqueue_active() check prior wake_up() call can be reordered with
+modifications of ep ready list, thus wake up can be lost.
+
+And yes, can be healed by explicit smp_mb():
+
+  list_add_tail(&epi->rdlink, &ep->rdllist);
+  smp_mb();
+  if (waitqueue_active(&ep->wq))
+	wake_up(&ep->wp);
+
+But let's make it simple, thus current patch replaces ep->wq.lock with the
+ep->lock for wqueue modifications, thus wake up path always observes
+activeness of the wqueue correcty.
+
+Link: http://lkml.kernel.org/r/20200214170211.561524-1-rpenyaev@suse.de
+Fixes: a218cc491420 ("epoll: use rwlock in order to reduce ep_poll_callback() contention")
+References: https://bugzilla.kernel.org/show_bug.cgi?id=205933
+Signed-off-by: Roman Penyaev <rpenyaev@suse.de>
+Reported-by: Max Neunhoeffer <max@arangodb.com>
+Bisected-by: Max Neunhoeffer <max@arangodb.com>
+Tested-by: Max Neunhoeffer <max@arangodb.com>
+Cc: Jakub Kicinski <kuba@kernel.org>
+Cc: Christopher Kohlhoff <chris.kohlhoff@clearpool.io>
+Cc: Davidlohr Bueso <dbueso@suse.de>
+Cc: Jason Baron <jbaron@akamai.com>
+Cc: <stable@vger.kernel.org>	[5.1+]
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
- arch/x86/events/amd/uncore.c | 17 +++++++----------
- 1 file changed, 7 insertions(+), 10 deletions(-)
 
-diff --git a/arch/x86/events/amd/uncore.c b/arch/x86/events/amd/uncore.c
-index a6ea07f2aa84..4d867a752f0e 100644
---- a/arch/x86/events/amd/uncore.c
-+++ b/arch/x86/events/amd/uncore.c
-@@ -190,15 +190,12 @@ static int amd_uncore_event_init(struct perf_event *event)
+ fs/eventpoll.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+--- a/fs/eventpoll.c~epoll-fix-possible-lost-wakeup-on-epoll_ctl-path
++++ a/fs/eventpoll.c
+@@ -1854,9 +1854,9 @@ fetch_events:
+ 		waiter = true;
+ 		init_waitqueue_entry(&wait, current);
  
- 	/*
- 	 * NB and Last level cache counters (MSRs) are shared across all cores
--	 * that share the same NB / Last level cache. Interrupts can be directed
--	 * to a single target core, however, event counts generated by processes
--	 * running on other cores cannot be masked out. So we do not support
--	 * sampling and per-thread events.
-+	 * that share the same NB / Last level cache.  On family 16h and below,
-+	 * Interrupts can be directed to a single target core, however, event
-+	 * counts generated by processes running on other cores cannot be masked
-+	 * out. So we do not support sampling and per-thread events via
-+	 * CAP_NO_INTERRUPT, and we do not enable counter overflow interrupts:
- 	 */
--	if (is_sampling_event(event) || event->attach_state & PERF_ATTACH_TASK)
--		return -EINVAL;
--
--	/* and we do not enable counter overflow interrupts */
- 	hwc->config = event->attr.config & AMD64_RAW_EVENT_MASK_NB;
- 	hwc->idx = -1;
+-		spin_lock_irq(&ep->wq.lock);
++		write_lock_irq(&ep->lock);
+ 		__add_wait_queue_exclusive(&ep->wq, &wait);
+-		spin_unlock_irq(&ep->wq.lock);
++		write_unlock_irq(&ep->lock);
+ 	}
  
-@@ -306,7 +303,7 @@ static struct pmu amd_nb_pmu = {
- 	.start		= amd_uncore_start,
- 	.stop		= amd_uncore_stop,
- 	.read		= amd_uncore_read,
--	.capabilities	= PERF_PMU_CAP_NO_EXCLUDE,
-+	.capabilities	= PERF_PMU_CAP_NO_EXCLUDE | PERF_PMU_CAP_NO_INTERRUPT,
- };
+ 	for (;;) {
+@@ -1904,9 +1904,9 @@ send_events:
+ 		goto fetch_events;
  
- static struct pmu amd_llc_pmu = {
-@@ -317,7 +314,7 @@ static struct pmu amd_llc_pmu = {
- 	.start		= amd_uncore_start,
- 	.stop		= amd_uncore_stop,
- 	.read		= amd_uncore_read,
--	.capabilities	= PERF_PMU_CAP_NO_EXCLUDE,
-+	.capabilities	= PERF_PMU_CAP_NO_EXCLUDE | PERF_PMU_CAP_NO_INTERRUPT,
- };
+ 	if (waiter) {
+-		spin_lock_irq(&ep->wq.lock);
++		write_lock_irq(&ep->lock);
+ 		__remove_wait_queue(&ep->wq, &wait);
+-		spin_unlock_irq(&ep->wq.lock);
++		write_unlock_irq(&ep->lock);
+ 	}
  
- static struct amd_uncore *amd_uncore_alloc(unsigned int cpu)
--- 
-2.25.0
+ 	return res;
+_
+
+Patches currently in -mm which might be from rpenyaev@suse.de are
+
+epoll-fix-possible-lost-wakeup-on-epoll_ctl-path.patch
+kselftest-introduce-new-epoll-test-case.patch
 
