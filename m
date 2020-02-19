@@ -2,306 +2,126 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D16CC163AD9
-	for <lists+stable@lfdr.de>; Wed, 19 Feb 2020 04:10:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AF3C0163AEB
+	for <lists+stable@lfdr.de>; Wed, 19 Feb 2020 04:16:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728280AbgBSDKj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Feb 2020 22:10:39 -0500
-Received: from smtp-fw-2101.amazon.com ([72.21.196.25]:16151 "EHLO
-        smtp-fw-2101.amazon.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728281AbgBSDKi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Feb 2020 22:10:38 -0500
+        id S1728256AbgBSDQe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Feb 2020 22:16:34 -0500
+Received: from smtp-fw-6002.amazon.com ([52.95.49.90]:29717 "EHLO
+        smtp-fw-6002.amazon.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728323AbgBSDQd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Feb 2020 22:16:33 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
   d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
-  t=1582081838; x=1613617838;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version;
-  bh=ilHieDRKRSEmK/Rz82SZwTDUet+plAjO93JZpdnaP84=;
-  b=YNQGLfTFHF8BUlKpEf2UkibvAArJDbTFqlfFI9TrzhoOuNAcqwE6M6/S
-   fhrXX3h2JU5xA08wwpnnjO6hyRHR4MTcJyO3DyXmhy6U1O1WPqLubUiSe
-   EMcn1ibivTnh1GnjbPNHWGvCHRSdjRL/4RovI3V/GucoUiv4C/QgRgbPq
-   A=;
-IronPort-SDR: xT0vFGxKPFg5kUA4QFdYuexrVJJSlwoEyohL8GD0vzb6zXrTxN9OJHNcLKKBc8Vff6u1UdoDTy
- hcB2z+1N/+WA==
+  t=1582082193; x=1613618193;
+  h=from:to:cc:subject:date:message-id:references:
+   in-reply-to:content-id:content-transfer-encoding:
+   mime-version;
+  bh=E5N/7o6VGZBa7BVMDB3WxPy4rXL39R8UjJoASxTcpwI=;
+  b=D4CHQbjMEvc2gloE9BViuPlyFRg+EyufVvy2YSmCf5G+XePNZy/grwGR
+   RB9qMi134VS9cjA0D5lNT9GcvNzy3twcC2RCd3EvMDmOWg5lzIrd8wa/k
+   UADalIPrS4DWof1RY6cWE/z/it3rSFExg6L5vusDWgZRgvkH3/c0qNtUH
+   U=;
+IronPort-SDR: nPGXDLSlq1mgpB0ur0SHuDd4GWdYk2MTS3/Xd9ybZfESAZUt/hp1VWZzaP4wcIpIfB8EPJ9OGb
+ GZDeqCULsGAg==
 X-IronPort-AV: E=Sophos;i="5.70,458,1574121600"; 
-   d="scan'208";a="17811614"
-Received: from iad12-co-svc-p1-lb1-vlan2.amazon.com (HELO email-inbound-relay-1e-57e1d233.us-east-1.amazon.com) ([10.43.8.2])
-  by smtp-border-fw-out-2101.iad2.amazon.com with ESMTP; 19 Feb 2020 03:10:25 +0000
-Received: from EX13MTAUWC001.ant.amazon.com (iad55-ws-svc-p15-lb9-vlan3.iad.amazon.com [10.40.159.166])
-        by email-inbound-relay-1e-57e1d233.us-east-1.amazon.com (Postfix) with ESMTPS id 06BB014285D;
-        Wed, 19 Feb 2020 03:10:23 +0000 (UTC)
+   d="scan'208";a="16987779"
+Received: from iad12-co-svc-p1-lb1-vlan3.amazon.com (HELO email-inbound-relay-1e-a70de69e.us-east-1.amazon.com) ([10.43.8.6])
+  by smtp-border-fw-out-6002.iad6.amazon.com with ESMTP; 19 Feb 2020 03:16:33 +0000
+Received: from EX13MTAUWB001.ant.amazon.com (iad55-ws-svc-p15-lb9-vlan2.iad.amazon.com [10.40.159.162])
+        by email-inbound-relay-1e-a70de69e.us-east-1.amazon.com (Postfix) with ESMTPS id CF97EA27EF;
+        Wed, 19 Feb 2020 03:16:31 +0000 (UTC)
+Received: from EX13D01UWB004.ant.amazon.com (10.43.161.157) by
+ EX13MTAUWB001.ant.amazon.com (10.43.161.207) with Microsoft SMTP Server (TLS)
+ id 15.0.1367.3; Wed, 19 Feb 2020 03:16:31 +0000
 Received: from EX13D30UWC001.ant.amazon.com (10.43.162.128) by
- EX13MTAUWC001.ant.amazon.com (10.43.162.135) with Microsoft SMTP Server (TLS)
- id 15.0.1367.3; Wed, 19 Feb 2020 03:10:23 +0000
-Received: from u3c3f5cfe23135f.ant.amazon.com (10.43.161.235) by
- EX13D30UWC001.ant.amazon.com (10.43.162.128) with Microsoft SMTP Server (TLS)
- id 15.0.1367.3; Wed, 19 Feb 2020 03:10:22 +0000
-From:   Suraj Jitindar Singh <surajjs@amazon.com>
-To:     <linux-ext4@vger.kernel.org>
-CC:     <tytso@mit.edu>, <sblbir@amazon.com>, <sjitindarsingh@gmail.com>,
-        "Suraj Jitindar Singh" <surajjs@amazon.com>,
-        <stable@vger.kernel.org>
-Subject: [PATCH 3/3] ext4: fix potential race between s_flex_groups online resizing and access
-Date:   Tue, 18 Feb 2020 19:08:51 -0800
-Message-ID: <20200219030851.2678-4-surajjs@amazon.com>
-X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20200219030851.2678-1-surajjs@amazon.com>
+ EX13d01UWB004.ant.amazon.com (10.43.161.157) with Microsoft SMTP Server (TLS)
+ id 15.0.1497.2; Wed, 19 Feb 2020 03:16:30 +0000
+Received: from EX13D30UWC001.ant.amazon.com ([10.43.162.128]) by
+ EX13D30UWC001.ant.amazon.com ([10.43.162.128]) with mapi id 15.00.1367.000;
+ Wed, 19 Feb 2020 03:16:30 +0000
+From:   "Jitindar SIngh, Suraj" <surajjs@amazon.com>
+To:     "linux-ext4@vger.kernel.org" <linux-ext4@vger.kernel.org>
+CC:     "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "tytso@mit.edu" <tytso@mit.edu>,
+        "Singh, Balbir" <sblbir@amazon.com>
+Subject: Re: [PATCH 1/3] ext4: introduce macro sbi_array_rcu_deref() to access
+ rcu protected fields
+Thread-Topic: [PATCH 1/3] ext4: introduce macro sbi_array_rcu_deref() to
+ access rcu protected fields
+Thread-Index: AQHV5tIfD/jLG261uU+fJ5kjcslyZ6gh2FEA
+Date:   Wed, 19 Feb 2020 03:16:30 +0000
+Message-ID: <6db70858fc2e9792cff585650891f5f9896cf28a.camel@amazon.com>
 References: <20200219030851.2678-1-surajjs@amazon.com>
+         <20200219030851.2678-2-surajjs@amazon.com>
+In-Reply-To: <20200219030851.2678-2-surajjs@amazon.com>
+Accept-Language: en-AU, en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-ms-exchange-messagesentrepresentingtype: 1
+x-ms-exchange-transport-fromentityheader: Hosted
+x-originating-ip: [10.43.162.53]
+Content-Type: text/plain; charset="utf-8"
+Content-ID: <A1C1F5BBF8C56C4B9BAF1FC68098AFDF@amazon.com>
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Originating-IP: [10.43.161.235]
-X-ClientProxiedBy: EX13D33UWB004.ant.amazon.com (10.43.161.225) To
- EX13D30UWC001.ant.amazon.com (10.43.162.128)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-During an online resize an array of s_flex_groups structures gets replaced
-so it can get enlarged. If there is a concurrent access to the array and
-this memory has been reused then this can lead to an invalid memory access.
-
-The s_flex_group array has been converted into an array of pointers rather
-than an array of structures. This is to ensure that the information
-contained in the structures cannot get out of sync during a resize due to
-an accessor updating the value in the old structure after it has been
-copied but before the array pointer is updated. Since the structures them-
-selves are no longer copied but only the pointers to them this case is
-mitigated.
-
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=206443
-Signed-off-by: Suraj Jitindar Singh <surajjs@amazon.com>
-Cc: stable@vger.kernel.org
----
- fs/ext4/ext4.h    |  2 +-
- fs/ext4/ialloc.c  | 21 +++++++++++-------
- fs/ext4/mballoc.c |  9 +++++---
- fs/ext4/resize.c  |  4 ++--
- fs/ext4/super.c   | 56 ++++++++++++++++++++++++++++++++---------------
- 5 files changed, 60 insertions(+), 32 deletions(-)
-
-diff --git a/fs/ext4/ext4.h b/fs/ext4/ext4.h
-index 3f4aaaae7da6..e8157ce5988b 100644
---- a/fs/ext4/ext4.h
-+++ b/fs/ext4/ext4.h
-@@ -1512,7 +1512,7 @@ struct ext4_sb_info {
- 	unsigned int s_extent_max_zeroout_kb;
- 
- 	unsigned int s_log_groups_per_flex;
--	struct flex_groups *s_flex_groups;
-+	struct flex_groups **s_flex_groups;
- 	ext4_group_t s_flex_groups_allocated;
- 
- 	/* workqueue for reserved extent conversions (buffered io) */
-diff --git a/fs/ext4/ialloc.c b/fs/ext4/ialloc.c
-index c66e8f9451a2..9324552a2ac2 100644
---- a/fs/ext4/ialloc.c
-+++ b/fs/ext4/ialloc.c
-@@ -330,9 +330,11 @@ void ext4_free_inode(handle_t *handle, struct inode *inode)
- 	if (sbi->s_log_groups_per_flex) {
- 		ext4_group_t f = ext4_flex_group(sbi, block_group);
- 
--		atomic_inc(&sbi->s_flex_groups[f].free_inodes);
-+		atomic_inc(&sbi_array_rcu_deref(sbi, s_flex_groups,
-+						f)->free_inodes);
- 		if (is_directory)
--			atomic_dec(&sbi->s_flex_groups[f].used_dirs);
-+			atomic_dec(&sbi_array_rcu_deref(sbi, s_flex_groups,
-+							f)->used_dirs);
- 	}
- 	BUFFER_TRACE(bh2, "call ext4_handle_dirty_metadata");
- 	fatal = ext4_handle_dirty_metadata(handle, NULL, bh2);
-@@ -368,12 +370,13 @@ static void get_orlov_stats(struct super_block *sb, ext4_group_t g,
- 			    int flex_size, struct orlov_stats *stats)
- {
- 	struct ext4_group_desc *desc;
--	struct flex_groups *flex_group = EXT4_SB(sb)->s_flex_groups;
-+	struct flex_groups *flex_group = sbi_array_rcu_deref(EXT4_SB(sb),
-+							     s_flex_groups, g);
- 
- 	if (flex_size > 1) {
--		stats->free_inodes = atomic_read(&flex_group[g].free_inodes);
--		stats->free_clusters = atomic64_read(&flex_group[g].free_clusters);
--		stats->used_dirs = atomic_read(&flex_group[g].used_dirs);
-+		stats->free_inodes = atomic_read(&flex_group->free_inodes);
-+		stats->free_clusters = atomic64_read(&flex_group->free_clusters);
-+		stats->used_dirs = atomic_read(&flex_group->used_dirs);
- 		return;
- 	}
- 
-@@ -1054,7 +1057,8 @@ struct inode *__ext4_new_inode(handle_t *handle, struct inode *dir,
- 		if (sbi->s_log_groups_per_flex) {
- 			ext4_group_t f = ext4_flex_group(sbi, group);
- 
--			atomic_inc(&sbi->s_flex_groups[f].used_dirs);
-+			atomic_inc(&sbi_array_rcu_deref(sbi, s_flex_groups,
-+							f)->used_dirs);
- 		}
- 	}
- 	if (ext4_has_group_desc_csum(sb)) {
-@@ -1077,7 +1081,8 @@ struct inode *__ext4_new_inode(handle_t *handle, struct inode *dir,
- 
- 	if (sbi->s_log_groups_per_flex) {
- 		flex_group = ext4_flex_group(sbi, group);
--		atomic_dec(&sbi->s_flex_groups[flex_group].free_inodes);
-+		atomic_dec(&sbi_array_rcu_deref(sbi, s_flex_groups,
-+						flex_group)->free_inodes);
- 	}
- 
- 	inode->i_ino = ino + group * EXT4_INODES_PER_GROUP(sb);
-diff --git a/fs/ext4/mballoc.c b/fs/ext4/mballoc.c
-index 0d9b17afc85f..0de1191e12a8 100644
---- a/fs/ext4/mballoc.c
-+++ b/fs/ext4/mballoc.c
-@@ -3022,7 +3022,8 @@ ext4_mb_mark_diskspace_used(struct ext4_allocation_context *ac,
- 		ext4_group_t flex_group = ext4_flex_group(sbi,
- 							  ac->ac_b_ex.fe_group);
- 		atomic64_sub(ac->ac_b_ex.fe_len,
--			     &sbi->s_flex_groups[flex_group].free_clusters);
-+			     &sbi_array_rcu_deref(sbi, s_flex_groups,
-+						  flex_group)->free_clusters);
- 	}
- 
- 	err = ext4_handle_dirty_metadata(handle, NULL, bitmap_bh);
-@@ -4920,7 +4921,8 @@ void ext4_free_blocks(handle_t *handle, struct inode *inode,
- 	if (sbi->s_log_groups_per_flex) {
- 		ext4_group_t flex_group = ext4_flex_group(sbi, block_group);
- 		atomic64_add(count_clusters,
--			     &sbi->s_flex_groups[flex_group].free_clusters);
-+			     &sbi_array_rcu_deref(sbi, s_flex_groups,
-+						  flex_group)->free_clusters);
- 	}
- 
- 	/*
-@@ -5077,7 +5079,8 @@ int ext4_group_add_blocks(handle_t *handle, struct super_block *sb,
- 	if (sbi->s_log_groups_per_flex) {
- 		ext4_group_t flex_group = ext4_flex_group(sbi, block_group);
- 		atomic64_add(clusters_freed,
--			     &sbi->s_flex_groups[flex_group].free_clusters);
-+			     &sbi_array_rcu_deref(sbi, s_flex_groups,
-+						  flex_group)->free_clusters);
- 	}
- 
- 	ext4_mb_unload_buddy(&e4b);
-diff --git a/fs/ext4/resize.c b/fs/ext4/resize.c
-index 6fbe8607095f..941941a629a3 100644
---- a/fs/ext4/resize.c
-+++ b/fs/ext4/resize.c
-@@ -1427,9 +1427,9 @@ static void ext4_update_super(struct super_block *sb,
- 		ext4_group_t flex_group;
- 		flex_group = ext4_flex_group(sbi, group_data[0].group);
- 		atomic64_add(EXT4_NUM_B2C(sbi, free_blocks),
--			     &sbi->s_flex_groups[flex_group].free_clusters);
-+			     &sbi->s_flex_groups[flex_group]->free_clusters);
- 		atomic_add(EXT4_INODES_PER_GROUP(sb) * flex_gd->count,
--			   &sbi->s_flex_groups[flex_group].free_inodes);
-+			   &sbi->s_flex_groups[flex_group]->free_inodes);
- 	}
- 
- 	/*
-diff --git a/fs/ext4/super.c b/fs/ext4/super.c
-index f464dff09774..3a401f930bca 100644
---- a/fs/ext4/super.c
-+++ b/fs/ext4/super.c
-@@ -1049,7 +1049,11 @@ static void ext4_put_super(struct super_block *sb)
- 	for (i = 0; i < sbi->s_gdb_count; i++)
- 		brelse(sbi->s_group_desc[i]);
- 	kvfree(sbi->s_group_desc);
--	kvfree(sbi->s_flex_groups);
-+	if (sbi->s_flex_groups) {
-+		for (i = 0; i < sbi->s_flex_groups_allocated; i++)
-+			kvfree(sbi->s_flex_groups[i]);
-+		kvfree(sbi->s_flex_groups);
-+	}
- 	percpu_counter_destroy(&sbi->s_freeclusters_counter);
- 	percpu_counter_destroy(&sbi->s_freeinodes_counter);
- 	percpu_counter_destroy(&sbi->s_dirs_counter);
-@@ -2380,8 +2384,8 @@ static int ext4_setup_super(struct super_block *sb, struct ext4_super_block *es,
- int ext4_alloc_flex_bg_array(struct super_block *sb, ext4_group_t ngroup)
- {
- 	struct ext4_sb_info *sbi = EXT4_SB(sb);
--	struct flex_groups *new_groups;
--	int size;
-+	struct flex_groups **old_groups, **new_groups;
-+	int size, i;
- 
- 	if (!sbi->s_log_groups_per_flex)
- 		return 0;
-@@ -2390,22 +2394,35 @@ int ext4_alloc_flex_bg_array(struct super_block *sb, ext4_group_t ngroup)
- 	if (size <= sbi->s_flex_groups_allocated)
- 		return 0;
- 
--	size = roundup_pow_of_two(size * sizeof(struct flex_groups));
--	new_groups = kvzalloc(size, GFP_KERNEL);
-+	new_groups = kvzalloc(roundup_pow_of_two(size *
-+			      sizeof(*sbi->s_flex_groups)), GFP_KERNEL);
- 	if (!new_groups) {
--		ext4_msg(sb, KERN_ERR, "not enough memory for %d flex groups",
--			 size / (int) sizeof(struct flex_groups));
-+		ext4_msg(sb, KERN_ERR,
-+			 "not enough memory for %d flex group pointers", size);
- 		return -ENOMEM;
- 	}
--
--	if (sbi->s_flex_groups) {
-+	for (i = sbi->s_flex_groups_allocated; i < size; i++) {
-+		new_groups[i] = kvzalloc(roundup_pow_of_two(
-+					 sizeof(struct flex_groups)),
-+					 GFP_KERNEL);
-+		if (!new_groups[i]) {
-+			for (i--; i >= sbi->s_flex_groups_allocated; i--)
-+				kvfree(new_groups[i]);
-+			kvfree(new_groups);
-+			ext4_msg(sb, KERN_ERR,
-+				 "not enough memory for %d flex groups", size);
-+			return -ENOMEM;
-+		}
-+	}
-+	old_groups = sbi->s_flex_groups;
-+	if (sbi->s_flex_groups)
- 		memcpy(new_groups, sbi->s_flex_groups,
- 		       (sbi->s_flex_groups_allocated *
--			sizeof(struct flex_groups)));
--		kvfree(sbi->s_flex_groups);
--	}
--	sbi->s_flex_groups = new_groups;
--	sbi->s_flex_groups_allocated = size / sizeof(struct flex_groups);
-+			sizeof(struct flex_groups *)));
-+	rcu_assign_pointer(sbi->s_flex_groups, new_groups);
-+	sbi->s_flex_groups_allocated = size;
-+	if (old_groups)
-+		ext4_kvfree_array_rcu(old_groups);
- 	return 0;
- }
- 
-@@ -2431,11 +2448,11 @@ static int ext4_fill_flex_info(struct super_block *sb)
- 
- 		flex_group = ext4_flex_group(sbi, i);
- 		atomic_add(ext4_free_inodes_count(sb, gdp),
--			   &sbi->s_flex_groups[flex_group].free_inodes);
-+			   &sbi->s_flex_groups[flex_group]->free_inodes);
- 		atomic64_add(ext4_free_group_clusters(sb, gdp),
--			     &sbi->s_flex_groups[flex_group].free_clusters);
-+			     &sbi->s_flex_groups[flex_group]->free_clusters);
- 		atomic_add(ext4_used_dirs_count(sb, gdp),
--			   &sbi->s_flex_groups[flex_group].used_dirs);
-+			   &sbi->s_flex_groups[flex_group]->used_dirs);
- 	}
- 
- 	return 1;
-@@ -4682,8 +4699,11 @@ static int ext4_fill_super(struct super_block *sb, void *data, int silent)
- 	ext4_unregister_li_request(sb);
- failed_mount6:
- 	ext4_mb_release(sb);
--	if (sbi->s_flex_groups)
-+	if (sbi->s_flex_groups) {
-+		for (i = 0; i < sbi->s_flex_groups_allocated; i++)
-+			kvfree(sbi->s_flex_groups[i]);
- 		kvfree(sbi->s_flex_groups);
-+	}
- 	percpu_counter_destroy(&sbi->s_freeclusters_counter);
- 	percpu_counter_destroy(&sbi->s_freeinodes_counter);
- 	percpu_counter_destroy(&sbi->s_dirs_counter);
--- 
-2.17.1
-
+K0NjIHN0YWJsZQ0KKGNvcnJlY3RseSB0aGlzIHRpbWUpDQoNCk9uIFR1ZSwgMjAyMC0wMi0xOCBh
+dCAxOTowOCAtMDgwMCwgU3VyYWogSml0aW5kYXIgU2luZ2ggd3JvdGU6DQo+IFRoZSBzX2dyb3Vw
+X2Rlc2MgZmllbGQgaW4gdGhlIHN1cGVyIGJsb2NrIGluZm8gKHNiaSkgaXMgcHJvdGVjdGVkIGJ5
+DQo+IHJjdSB0bw0KPiBwcmV2ZW50IGFjY2VzcyB0byBhbiBpbnZhbGlkIHBvaW50ZXIgZHVyaW5n
+IG9ubGluZSByZXNpemUgb3BlcmF0aW9ucy4NCj4gVGhlcmUgYXJlIDIgb3RoZXIgYXJyYXlzIGlu
+IHNiaSwgc19ncm91cF9pbmZvIGFuZCBzX2ZsZXhfZ3JvdXBzLA0KPiB3aGljaA0KPiByZXF1aXJl
+IHNpbWlsYXIgcmN1IHByb3RlY3Rpb24gd2hpY2ggaXMgaW50cm9kdWNlZCBpbiB0aGUgc3Vic2Vx
+dWVudA0KPiBwYXRjaGVzLiBJbnRyb2R1Y2UgYSBoZWxwZXIgbWFjcm8gc2JpX2FycmF5X3JjdV9k
+ZXJlZigpIHRvIGJlIHVzZWQgdG8NCj4gcHJvdmlkZSByY3UgcHJvdGVjdGVkIGFjY2VzcyB0byBz
+dWNoIGZpZWxkcy4NCj4gDQo+IEFsc28gdXBkYXRlIHRoZSBjdXJyZW50IHNfZ3JvdXBfZGVzYyBh
+Y2Nlc3Mgc2l0ZSB0byB1c2UgdGhlIG1hY3JvLg0KPiANCj4gU2lnbmVkLW9mZi1ieTogU3VyYWog
+Sml0aW5kYXIgU2luZ2ggPHN1cmFqanNAYW1hem9uLmNvbT4NCkNjOiBzdGFibGVAdmdlci5rZXJu
+ZWwub3JnDQo+IENjOiBzdGFibGVAdmdlci1rZXJuZWwub3JnDQo+IC0tLQ0KPiAgZnMvZXh0NC9i
+YWxsb2MuYyB8IDExICsrKysrLS0tLS0tDQo+ICBmcy9leHQ0L2V4dDQuaCAgIHwgMTcgKysrKysr
+KysrKysrKysrKysNCj4gIDIgZmlsZXMgY2hhbmdlZCwgMjIgaW5zZXJ0aW9ucygrKSwgNiBkZWxl
+dGlvbnMoLSkNCj4gDQo+IGRpZmYgLS1naXQgYS9mcy9leHQ0L2JhbGxvYy5jIGIvZnMvZXh0NC9i
+YWxsb2MuYw0KPiBpbmRleCA1MzY4YmY2NzMwMGIuLjhmZDBiM2NkYWI0YyAxMDA2NDQNCj4gLS0t
+IGEvZnMvZXh0NC9iYWxsb2MuYw0KPiArKysgYi9mcy9leHQ0L2JhbGxvYy5jDQo+IEBAIC0yODEs
+MTQgKzI4MSwxMyBAQCBzdHJ1Y3QgZXh0NF9ncm91cF9kZXNjICoNCj4gZXh0NF9nZXRfZ3JvdXBf
+ZGVzYyhzdHJ1Y3Qgc3VwZXJfYmxvY2sgKnNiLA0KPiAgDQo+ICAJZ3JvdXBfZGVzYyA9IGJsb2Nr
+X2dyb3VwID4+IEVYVDRfREVTQ19QRVJfQkxPQ0tfQklUUyhzYik7DQo+ICAJb2Zmc2V0ID0gYmxv
+Y2tfZ3JvdXAgJiAoRVhUNF9ERVNDX1BFUl9CTE9DSyhzYikgLSAxKTsNCj4gLQlyY3VfcmVhZF9s
+b2NrKCk7DQo+IC0JYmhfcCA9IHJjdV9kZXJlZmVyZW5jZShzYmktPnNfZ3JvdXBfZGVzYylbZ3Jv
+dXBfZGVzY107DQo+ICsJYmhfcCA9IHNiaV9hcnJheV9yY3VfZGVyZWYoc2JpLCBzX2dyb3VwX2Rl
+c2MsIGdyb3VwX2Rlc2MpOw0KPiAgCS8qDQo+IC0JICogV2UgY2FuIHVubG9jayBoZXJlIHNpbmNl
+IHRoZSBwb2ludGVyIGJlaW5nIGRlcmVmZXJlbmNlZA0KPiB3b24ndCBiZQ0KPiAtCSAqIGRlcmVm
+ZXJlbmNlZCBhZ2Fpbi4gQnkgbG9va2luZyBhdCB0aGUgdXNhZ2UgaW4gYWRkX25ld19nZGIoKQ0K
+PiB0aGUNCj4gLQkgKiB2YWx1ZSBpc24ndCBtb2RpZmllZCwganVzdCB0aGUgcG9pbnRlciwgYW5k
+IHNvIGl0IHJlbWFpbnMNCj4gdmFsaWQuDQo+ICsJICogc2JpX2FycmF5X3JjdV9kZXJlZiByZXR1
+cm5zIHdpdGggcmN1IHVubG9ja2VkLCB0aGlzIGlzIG9rDQo+IHNpbmNlDQo+ICsJICogdGhlIHBv
+aW50ZXIgYmVpbmcgZGVyZWZlcmVuY2VkIHdvbid0IGJlIGRlcmVmZXJlbmNlZCBhZ2Fpbi4NCj4g
+QnkNCj4gKwkgKiBsb29raW5nIGF0IHRoZSB1c2FnZSBpbiBhZGRfbmV3X2dkYigpIHRoZSB2YWx1
+ZSBpc24ndA0KPiBtb2RpZmllZCwNCj4gKwkgKiBqdXN0IHRoZSBwb2ludGVyLCBhbmQgc28gaXQg
+cmVtYWlucyB2YWxpZC4NCj4gIAkgKi8NCj4gLQlyY3VfcmVhZF91bmxvY2soKTsNCj4gIAlpZiAo
+IWJoX3ApIHsNCj4gIAkJZXh0NF9lcnJvcihzYiwgIkdyb3VwIGRlc2NyaXB0b3Igbm90IGxvYWRl
+ZCAtICINCj4gIAkJCSAgICJibG9ja19ncm91cCA9ICV1LCBncm91cF9kZXNjID0gJXUsIGRlc2Mg
+PQ0KPiAldSIsDQo+IGRpZmYgLS1naXQgYS9mcy9leHQ0L2V4dDQuaCBiL2ZzL2V4dDQvZXh0NC5o
+DQo+IGluZGV4IDE0OWVlMGFiNmQ2NC4uMjM2ZmM2NTAwMzQwIDEwMDY0NA0KPiAtLS0gYS9mcy9l
+eHQ0L2V4dDQuaA0KPiArKysgYi9mcy9leHQ0L2V4dDQuaA0KPiBAQCAtMTU3Niw2ICsxNTc2LDIz
+IEBAIHN0YXRpYyBpbmxpbmUgaW50IGV4dDRfdmFsaWRfaW51bShzdHJ1Y3QNCj4gc3VwZXJfYmxv
+Y2sgKnNiLCB1bnNpZ25lZCBsb25nIGlubykNCj4gIAkJIGlubyA8PSBsZTMyX3RvX2NwdShFWFQ0
+X1NCKHNiKS0+c19lcy0NCj4gPnNfaW5vZGVzX2NvdW50KSk7DQo+ICB9DQo+ICANCj4gKy8qDQo+
+ICsgKiBSZXR1cm5zOiBzYmktPmZpZWxkW2luZGV4XQ0KPiArICogVXNlZCB0byBhY2Nlc3MgYW4g
+YXJyYXkgZWxlbWVudCBmcm9tIHRoZSBmb2xsb3dpbmcgc2JpIGZpZWxkcw0KPiB3aGljaCByZXF1
+aXJlDQo+ICsgKiByY3UgcHJvdGVjdGlvbiB0byBhdm9pZCBkZXJlZmVyZW5jaW5nIGFuIGludmFs
+aWQgcG9pbnRlciBkdWUgdG8NCj4gcmVhc3NpZ25tZW50DQo+ICsgKiAtIHNfZ3JvdXBfZGVzYw0K
+PiArICogLSBzX2dyb3VwX2luZm8NCj4gKyAqIC0gc19mbGV4X2dyb3VwDQo+ICsgKi8NCj4gKyNk
+ZWZpbmUgc2JpX2FycmF5X3JjdV9kZXJlZihzYmksIGZpZWxkLCBpbmRleCkJCQkNCj4gCSAgIFwN
+Cj4gKyh7CQkJCQkJCQkJDQo+ICAgIFwNCj4gKwl0eXBlb2YoKigoc2JpKS0+ZmllbGQpKSBfdjsJ
+CQkJCQ0KPiAgICBcDQo+ICsJcmN1X3JlYWRfbG9jaygpOwkJCQkJCSAgIFwNCj4gKwlfdiA9ICgo
+dHlwZW9mKChzYmkpLT5maWVsZCkpcmN1X2RlcmVmZXJlbmNlKChzYmkpLQ0KPiA+ZmllbGQpKVtp
+bmRleF07IFwNCj4gKwlyY3VfcmVhZF91bmxvY2soKTsJCQkJCQkNCj4gICAgXA0KPiArCV92OwkJ
+CQkJCQkJDQo+ICAgIFwNCj4gK30pDQo+ICsNCj4gIC8qDQo+ICAgKiBTaW11bGF0ZV9mYWlsIGNv
+ZGVzDQo+ICAgKi8NCg==
