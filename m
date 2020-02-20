@@ -2,77 +2,87 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 82ABD165CE3
-	for <lists+stable@lfdr.de>; Thu, 20 Feb 2020 12:41:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BE6F7165D58
+	for <lists+stable@lfdr.de>; Thu, 20 Feb 2020 13:14:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726952AbgBTLlm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Feb 2020 06:41:42 -0500
-Received: from nbd.name ([46.4.11.11]:55068 "EHLO nbd.name"
+        id S1726893AbgBTMOQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Feb 2020 07:14:16 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36234 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726882AbgBTLlm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Feb 2020 06:41:42 -0500
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=nbd.name;
-         s=20160729; h=Content-Transfer-Encoding:MIME-Version:Message-Id:Date:Subject
-        :Cc:To:From:Sender:Reply-To:Content-Type:Content-ID:Content-Description:
-        Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
-        In-Reply-To:References:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
-        List-Post:List-Owner:List-Archive;
-        bh=QmGrF9CoFgVUhqNJ0kmrFs4wsbbx9jdjenAphQiCtk4=; b=KyTEzFR0eIZU8BJkWkVttAE/K6
-        jblo1l90aY4jYymoDG6rQ+Kse8KacbqeUj7yXiSqFtQBP7Dm1iSPaTHq/vh25rMLPV2jrYhZdPqqM
-        jnzReGZ6eMkhnWYsDGLX4cL2YkihJzd/VOhLlSEmxIlJ9Xo/2hoKdH6lbLIKWbO4o32M=;
-Received: from [80.255.7.124] (helo=maeck.local)
-        by ds12 with esmtpsa (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.89)
-        (envelope-from <nbd@nbd.name>)
-        id 1j4kD6-000544-KI; Thu, 20 Feb 2020 12:41:40 +0100
-Received: by maeck.local (Postfix, from userid 501)
-        id 9F2B87CE7105; Thu, 20 Feb 2020 12:41:39 +0100 (CET)
-From:   Felix Fietkau <nbd@nbd.name>
-To:     linux-wireless@vger.kernel.org
-Cc:     kvalo@codeaurora.org, stable@vger.kernel.org
-Subject: [PATCH 5.6] mt76: fix array overflow on receiving too many fragments for a packet
-Date:   Thu, 20 Feb 2020 12:41:39 +0100
-Message-Id: <20200220114139.46508-1-nbd@nbd.name>
-X-Mailer: git-send-email 2.24.0
+        id S1726885AbgBTMOQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Feb 2020 07:14:16 -0500
+Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 069D4207FD;
+        Thu, 20 Feb 2020 12:14:15 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1582200856;
+        bh=Zjn5vPJa1+ZSrq3LmZGwrG8jCKUGlHXl2cUKL5ftucw=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=QVbFfY9gfs2JICDrlBlzKA6/V00uQlaW/7+LdIY2z0gJoixIsY19h7G0NdLTMVk4Y
+         CSU6kf5/LbVylGEp7LjGmcrpX3yZXnWeemMLc/0FUxqkTTgNjicX94CBM7dlMbrkoM
+         wii0AoVymaZD/XB6jsFmE2Dz9J3uvPcZkeiTLytI=
+Date:   Thu, 20 Feb 2020 07:14:14 -0500
+From:   Sasha Levin <sashal@kernel.org>
+To:     Ben Hutchings <ben.hutchings@codethink.co.uk>
+Cc:     gregkh@linuxfoundation.org, sean.j.christopherson@intel.com,
+        pbonzini@redhat.com, stable@vger.kernel.org
+Subject: Re: FAILED: patch "[PATCH] KVM: VMX: Add non-canonical check on
+ writes to RTIT address" failed to apply to 4.19-stable tree
+Message-ID: <20200220121414.GA1734@sasha-vm>
+References: <15812515183712@kroah.com>
+ <20200209201223.GZ3584@sasha-vm>
+ <fc00f38ef8db90d982dad4de41e97918b565d321.camel@codethink.co.uk>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <fc00f38ef8db90d982dad4de41e97918b565d321.camel@codethink.co.uk>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-If the hardware receives an oversized packet with too many rx fragments,
-skb_shinfo(skb)->frags can overflow and corrupt memory of adjacent pages.
-This becomes especially visible if it corrupts the freelist pointer of
-a slab page.
+On Thu, Feb 20, 2020 at 09:16:51AM +0000, Ben Hutchings wrote:
+>On Sun, 2020-02-09 at 15:12 -0500, Sasha Levin wrote:
+>> On Sun, Feb 09, 2020 at 01:31:58PM +0100, gregkh@linuxfoundation.org wrote:
+>> > The patch below does not apply to the 4.19-stable tree.
+>> > If someone wants it applied there, or to any other stable or longterm
+>> > tree, then please email the backport, including the original git commit
+>> > id to <stable@vger.kernel.org>.
+>> >
+>> > thanks,
+>> >
+>> > greg k-h
+>> >
+>> > ------------------ original commit in Linus's tree ------------------
+>> >
+>> > From fe6ed369fca98e99df55c932b85782a5687526b5 Mon Sep 17 00:00:00 2001
+>> > From: Sean Christopherson <sean.j.christopherson@intel.com>
+>> > Date: Tue, 10 Dec 2019 15:24:32 -0800
+>> > Subject: [PATCH] KVM: VMX: Add non-canonical check on writes to RTIT address
+>> > MSRs
+>> >
+>> > Reject writes to RTIT address MSRs if the data being written is a
+>> > non-canonical address as the MSRs are subject to canonical checks, e.g.
+>> > KVM will trigger an unchecked #GP when loading the values to hardware
+>> > during pt_guest_enter().
+>> >
+>> > Cc: stable@vger.kernel.org
+>> > Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
+>> > Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+>>
+>> File/code movement. Cleaned up and queued for 4.19-4.4.
+>
+>I don't know what happened here, but you've ended up adding the
+>entirety of arch/x86/kvm/vmx/vmx.c on all those branches rather than
+>applying the change to the right file.
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
----
- drivers/net/wireless/mediatek/mt76/dma.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+Ugh, sorry. I think that I got confused here by 'git cherry-pick'
+creating the file when it doesn't exist and it doesn't find the right
+file renames.
 
-diff --git a/drivers/net/wireless/mediatek/mt76/dma.c b/drivers/net/wireless/mediatek/mt76/dma.c
-index 6173c80189ba..1847f55e199b 100644
---- a/drivers/net/wireless/mediatek/mt76/dma.c
-+++ b/drivers/net/wireless/mediatek/mt76/dma.c
-@@ -447,10 +447,13 @@ mt76_add_fragment(struct mt76_dev *dev, struct mt76_queue *q, void *data,
- 	struct page *page = virt_to_head_page(data);
- 	int offset = data - page_address(page);
- 	struct sk_buff *skb = q->rx_head;
-+	struct skb_shared_info *shinfo = skb_shinfo(skb);
- 
--	offset += q->buf_offset;
--	skb_add_rx_frag(skb, skb_shinfo(skb)->nr_frags, page, offset, len,
--			q->buf_size);
-+	if (shinfo->nr_frags < ARRAY_SIZE(shinfo->frags)) {
-+		offset += q->buf_offset;
-+		skb_add_rx_frag(skb, shinfo->nr_frags, page, offset, len,
-+				q->buf_size);
-+	}
- 
- 	if (more)
- 		return;
 -- 
-2.24.0
-
+Thanks,
+Sasha
