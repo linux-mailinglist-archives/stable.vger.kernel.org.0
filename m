@@ -2,86 +2,175 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C7A4C165AFA
-	for <lists+stable@lfdr.de>; Thu, 20 Feb 2020 11:01:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B2E1165C27
+	for <lists+stable@lfdr.de>; Thu, 20 Feb 2020 11:52:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727227AbgBTKBm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Feb 2020 05:01:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33604 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727103AbgBTKBm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Feb 2020 05:01:42 -0500
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2D96F24654;
-        Thu, 20 Feb 2020 10:01:40 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582192900;
-        bh=n7K3Dqw6vjjfVIdr6F49vaBk4P+O2b3FLRtRpPxlXj0=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=VInbJUFFjpWmCwZtfHLJ1WHCveiEnf439ikbY51+bZCgWl1ph/EiqMRHcBiwPylj2
-         r5RmOOYpLwFAr1MKKMhndPn8g0BqZTNviJGgtr3D0/q/m3ib9JNz0DY3/uVclHuNBa
-         JPplSn8MkStfS6cHzXWhfzYZO/LwOt2zNBOnpCkM=
-Date:   Thu, 20 Feb 2020 11:01:38 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Ben Hutchings <ben.hutchings@codethink.co.uk>
-Cc:     Sasha Levin <sashal@kernel.org>, sean.j.christopherson@intel.com,
-        pbonzini@redhat.com, stable@vger.kernel.org
-Subject: Re: FAILED: patch "[PATCH] KVM: VMX: Add non-canonical check on
- writes to RTIT address" failed to apply to 4.19-stable tree
-Message-ID: <20200220100138.GB3340412@kroah.com>
-References: <15812515183712@kroah.com>
- <20200209201223.GZ3584@sasha-vm>
- <fc00f38ef8db90d982dad4de41e97918b565d321.camel@codethink.co.uk>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <fc00f38ef8db90d982dad4de41e97918b565d321.camel@codethink.co.uk>
+        id S1726707AbgBTKwX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Feb 2020 05:52:23 -0500
+Received: from mail-qv1-f68.google.com ([209.85.219.68]:43634 "EHLO
+        mail-qv1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726700AbgBTKwX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 20 Feb 2020 05:52:23 -0500
+Received: by mail-qv1-f68.google.com with SMTP id p2so1644823qvo.10
+        for <stable@vger.kernel.org>; Thu, 20 Feb 2020 02:52:21 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id;
+        bh=oJbikfzhAeZeIr3j879hienH3oUb6eekhjWJuA1oGb0=;
+        b=VQrjwIR/LW8QTzYKHkDhvE2oHc2F+oZlNX7DIFtYsfZwT60aRCXZc2ypOic5IKew2g
+         mE7ePT8rZFNHvP6UJgl0LtL/tYumWFAzdpjkXvKiiGzp0XZYlFD50EhI+cNkQmaRl2i+
+         9fqh53aALfg5jEn+cIXR0/kggR2ckPn0SKdI7mPzkErsBulak1ir2SlpGnxvYgGAu9Ji
+         IkvXrPEc8g4MurmKyYE98CAvCT8iNieu24Ewi3fq7xM4Px1K7AYVAkYV5XGOm3dyrSao
+         buXPU/BN9Mgw8h02BgrMcpMgttjCjLeh6aK2rjjLiiuxz+7vh+H9erIrnzNvFSww4mq8
+         puwA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id;
+        bh=oJbikfzhAeZeIr3j879hienH3oUb6eekhjWJuA1oGb0=;
+        b=gOg4XuCKTI4Sshr24XjwsdEyT9qlbwdzioPha1J5DUiLBbx5lYotYWhRMi+kufBWBS
+         6J36NU3FogjtoCiyRU9ingnfTyI7l1YRM6VRqh3Csr4O5ta0BsDmpNtCn77rdRKarLet
+         V3ITdPOLS+qDKY2XkDL1c21B1v2rJiCUQV8DSa0dIRzzTaSJIoqnfuCtDliYQvEW4ssb
+         64a/xlEYo9X3uVVOGi3uxUYPvOsDZ3FiaJHFjlE7l5mkdYDvQzxrXty5o0nZtEKNw8M8
+         BpNTREgesn030J2MVEisvle7vcaJ8cJrv+iz3uId+8x8FRmigiZ/RYMgL0CfKYIg/Fg5
+         +eRw==
+X-Gm-Message-State: APjAAAVI7ZLhKenxr0+OMqWrY4WUKyoAAvaJxLmlVIs1EGluGRyhUpwt
+        eWMGjW8aJ+LV6H3ek94FhOCvozS3
+X-Google-Smtp-Source: APXvYqwzHYqe8gqfuSNkX/u/J0iXQZ0J6Fh5dRrMWFMXDdCoHzSJkchFrfoWHxZM9VMQjlpzzoosHg==
+X-Received: by 2002:ad4:46ce:: with SMTP id g14mr25049252qvw.67.1582195940031;
+        Thu, 20 Feb 2020 02:52:20 -0800 (PST)
+Received: from fabio-Latitude-E5450.nxp.com ([2804:14c:482:5bb::1])
+        by smtp.gmail.com with ESMTPSA id a198sm1396256qkg.41.2020.02.20.02.52.17
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 20 Feb 2020 02:52:19 -0800 (PST)
+From:   Fabio Estevam <festevam@gmail.com>
+To:     stable@vger.kernel.org
+Cc:     peter.chen@nxp.com, mathias.nyman@linux.intel.com,
+        gregkh@linuxfoundation.org, Fabio Estevam <festevam@gmail.com>
+Subject: usb: host: xhci: update event ring dequeue pointer on purpose
+Date:   Thu, 20 Feb 2020 07:52:09 -0300
+Message-Id: <20200220105209.27506-1-festevam@gmail.com>
+X-Mailer: git-send-email 2.17.1
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Feb 20, 2020 at 09:16:51AM +0000, Ben Hutchings wrote:
-> On Sun, 2020-02-09 at 15:12 -0500, Sasha Levin wrote:
-> > On Sun, Feb 09, 2020 at 01:31:58PM +0100, gregkh@linuxfoundation.org wrote:
-> > > The patch below does not apply to the 4.19-stable tree.
-> > > If someone wants it applied there, or to any other stable or longterm
-> > > tree, then please email the backport, including the original git commit
-> > > id to <stable@vger.kernel.org>.
-> > > 
-> > > thanks,
-> > > 
-> > > greg k-h
-> > > 
-> > > ------------------ original commit in Linus's tree ------------------
-> > > 
-> > > From fe6ed369fca98e99df55c932b85782a5687526b5 Mon Sep 17 00:00:00 2001
-> > > From: Sean Christopherson <sean.j.christopherson@intel.com>
-> > > Date: Tue, 10 Dec 2019 15:24:32 -0800
-> > > Subject: [PATCH] KVM: VMX: Add non-canonical check on writes to RTIT address
-> > > MSRs
-> > > 
-> > > Reject writes to RTIT address MSRs if the data being written is a
-> > > non-canonical address as the MSRs are subject to canonical checks, e.g.
-> > > KVM will trigger an unchecked #GP when loading the values to hardware
-> > > during pt_guest_enter().
-> > > 
-> > > Cc: stable@vger.kernel.org
-> > > Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
-> > > Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-> > 
-> > File/code movement. Cleaned up and queued for 4.19-4.4.
-> 
-> I don't know what happened here, but you've ended up adding the
-> entirety of arch/x86/kvm/vmx/vmx.c on all those branches rather than
-> applying the change to the right file.
+From: Peter Chen <peter.chen@nxp.com>
 
-Oh wow that's wrong :(
+[ Upstream commit dc0ffbea5729a3abafa577ebfce87f18b79e294b ]
 
-I'll go revert this, as it's not actually doing anything.
+On some situations, the software handles TRB events slower
+than adding TRBs, then xhci_handle_event can't return zero
+long time, the xHC will consider the event ring is full,
+and trigger "Event Ring Full" error, but in fact, the software
+has already finished lots of events, just no chance to
+update ERDP (event ring dequeue pointer).
 
-Thanks for catching this.
+In this commit, we force update ERDP if half of TRBS_PER_SEGMENT
+events have handled to avoid "Event Ring Full" error.
 
-greg k-h
+Signed-off-by: Peter Chen <peter.chen@nxp.com>
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Link: https://lore.kernel.org/r/1573836603-10871-2-git-send-email-mathias.nyman@linux.intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Fabio Estevam <festevam@gmail.com>
+---
+Hi,
+
+One of our customer running 4.14 reported that this upstream patch
+fixes USB issues, so I am sending it to the stable trees.
+
+ drivers/usb/host/xhci-ring.c | 60 +++++++++++++++++++++++++++++++-------------
+ 1 file changed, 43 insertions(+), 17 deletions(-)
+
+diff --git a/drivers/usb/host/xhci-ring.c b/drivers/usb/host/xhci-ring.c
+index e7aab31fd9a5..55084adf1faf 100644
+--- a/drivers/usb/host/xhci-ring.c
++++ b/drivers/usb/host/xhci-ring.c
+@@ -2740,6 +2740,42 @@ static int xhci_handle_event(struct xhci_hcd *xhci)
+ 	return 1;
+ }
+ 
++/*
++ * Update Event Ring Dequeue Pointer:
++ * - When all events have finished
++ * - To avoid "Event Ring Full Error" condition
++ */
++static void xhci_update_erst_dequeue(struct xhci_hcd *xhci,
++		union xhci_trb *event_ring_deq)
++{
++	u64 temp_64;
++	dma_addr_t deq;
++
++	temp_64 = xhci_read_64(xhci, &xhci->ir_set->erst_dequeue);
++	/* If necessary, update the HW's version of the event ring deq ptr. */
++	if (event_ring_deq != xhci->event_ring->dequeue) {
++		deq = xhci_trb_virt_to_dma(xhci->event_ring->deq_seg,
++				xhci->event_ring->dequeue);
++		if (deq == 0)
++			xhci_warn(xhci, "WARN something wrong with SW event ring dequeue ptr\n");
++		/*
++		 * Per 4.9.4, Software writes to the ERDP register shall
++		 * always advance the Event Ring Dequeue Pointer value.
++		 */
++		if ((temp_64 & (u64) ~ERST_PTR_MASK) ==
++				((u64) deq & (u64) ~ERST_PTR_MASK))
++			return;
++
++		/* Update HC event ring dequeue pointer */
++		temp_64 &= ERST_PTR_MASK;
++		temp_64 |= ((u64) deq & (u64) ~ERST_PTR_MASK);
++	}
++
++	/* Clear the event handler busy flag (RW1C) */
++	temp_64 |= ERST_EHB;
++	xhci_write_64(xhci, temp_64, &xhci->ir_set->erst_dequeue);
++}
++
+ /*
+  * xHCI spec says we can get an interrupt, and if the HC has an error condition,
+  * we might get bad data out of the event ring.  Section 4.10.2.7 has a list of
+@@ -2751,9 +2787,9 @@ irqreturn_t xhci_irq(struct usb_hcd *hcd)
+ 	union xhci_trb *event_ring_deq;
+ 	irqreturn_t ret = IRQ_NONE;
+ 	unsigned long flags;
+-	dma_addr_t deq;
+ 	u64 temp_64;
+ 	u32 status;
++	int event_loop = 0;
+ 
+ 	spin_lock_irqsave(&xhci->lock, flags);
+ 	/* Check if the xHC generated the interrupt, or the irq is shared */
+@@ -2807,24 +2843,14 @@ irqreturn_t xhci_irq(struct usb_hcd *hcd)
+ 	/* FIXME this should be a delayed service routine
+ 	 * that clears the EHB.
+ 	 */
+-	while (xhci_handle_event(xhci) > 0) {}
+-
+-	temp_64 = xhci_read_64(xhci, &xhci->ir_set->erst_dequeue);
+-	/* If necessary, update the HW's version of the event ring deq ptr. */
+-	if (event_ring_deq != xhci->event_ring->dequeue) {
+-		deq = xhci_trb_virt_to_dma(xhci->event_ring->deq_seg,
+-				xhci->event_ring->dequeue);
+-		if (deq == 0)
+-			xhci_warn(xhci, "WARN something wrong with SW event "
+-					"ring dequeue ptr.\n");
+-		/* Update HC event ring dequeue pointer */
+-		temp_64 &= ERST_PTR_MASK;
+-		temp_64 |= ((u64) deq & (u64) ~ERST_PTR_MASK);
++	while (xhci_handle_event(xhci) > 0) {
++		if (event_loop++ < TRBS_PER_SEGMENT / 2)
++			continue;
++		xhci_update_erst_dequeue(xhci, event_ring_deq);
++		event_loop = 0;
+ 	}
+ 
+-	/* Clear the event handler busy flag (RW1C); event ring is empty. */
+-	temp_64 |= ERST_EHB;
+-	xhci_write_64(xhci, temp_64, &xhci->ir_set->erst_dequeue);
++	xhci_update_erst_dequeue(xhci, event_ring_deq);
+ 	ret = IRQ_HANDLED;
+ 
+ out:
+-- 
+cgit 1.2-0.3.lf.el7
