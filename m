@@ -2,328 +2,106 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 60D031656F4
-	for <lists+stable@lfdr.de>; Thu, 20 Feb 2020 06:31:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B20BC1656F9
+	for <lists+stable@lfdr.de>; Thu, 20 Feb 2020 06:35:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726027AbgBTFam (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Feb 2020 00:30:42 -0500
-Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:55218 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1725988AbgBTFam (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 20 Feb 2020 00:30:42 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1582176640;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=2bipsziY4xJCqid14lXa8uWNCPd3OSajhU+HU6wI558=;
-        b=VJIuojX7BWGbXuDRIpaNkaZLMH90Gs/JA1RSyMDqT7H9wajuYyhtEvvZQ2BqmYFhOgRDr2
-        s3iNz7Ix7ircHXcIkPfXYpkdO7qjDZlT4hVe6KbPQX3+ycd8daQjHFzLBtoMv/HFvE90l/
-        7xCuhxWj4VuAoTjZmS3Cs2R+hDysKss=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-136-nfGBJskkMQ2Ocj6MiUN2JA-1; Thu, 20 Feb 2020 00:30:35 -0500
-X-MC-Unique: nfGBJskkMQ2Ocj6MiUN2JA-1
-Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 4337DDB61
-        for <stable@vger.kernel.org>; Thu, 20 Feb 2020 05:30:34 +0000 (UTC)
-Received: from [172.54.122.250] (cpt-1052.paas.prod.upshift.rdu2.redhat.com [10.0.19.69])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 42EE3790CF;
-        Thu, 20 Feb 2020 05:30:31 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
+        id S1725942AbgBTFfH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Feb 2020 00:35:07 -0500
+Received: from mail-pf1-f193.google.com ([209.85.210.193]:36318 "EHLO
+        mail-pf1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725811AbgBTFfH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 20 Feb 2020 00:35:07 -0500
+Received: by mail-pf1-f193.google.com with SMTP id 185so1336224pfv.3
+        for <stable@vger.kernel.org>; Wed, 19 Feb 2020 21:35:07 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=fossix-org.20150623.gappssmtp.com; s=20150623;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=sKm1MlIEqICiKl98BAwahnWrPOiQX0P3G2oQRircgsw=;
+        b=LiGpsSJwILX3x1TKtOk/SWkE5PqYzjYz/HztQvxKIryNvRRtPJjg/T9i0J+AYg7Tpy
+         1PmfPb037cZZVu3DojOYSZVhVWeW86Wz47YRR/RtqiWIBlpPW6qFHFpux6UB0zR1SVHz
+         S1NuwBUumoQzgs/BN39mCEogaqAdT9oBbuFI8yD5+10nq0i8m9tJURtjMBeGTASnQqPF
+         U/WI8Nw4bQ7CjEfjSnmH8Iz0VWYLM1QFXedk2lafFjh1kr1j8pEo6FoIH2I7w8mbtt4y
+         Ot/32mfDt+QGsTpgqcssXHV1YGMyj/EUTUqX/FM9K22OaxEGAn72lxNnrCX5c5OIdZFm
+         dM2g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=sKm1MlIEqICiKl98BAwahnWrPOiQX0P3G2oQRircgsw=;
+        b=f7HekrnrNNaxjf0HbmPB5ibmgXK2qyruWn/gnsBUarc9apejoNWp2A06s2p3uKWU90
+         ML2ihZ6PwYaOnTHmJs+bbKKiJTNDVk4HkwSphb3Kqedjz6LfD8bOJt0lbqjyIBon9RGq
+         ywoM2bH5wqrJiRdPKUOHCia3IQNOxNAW+Hy63AyEfxJRWdJPnc2umVte9+moOYxKDDaz
+         NfgNF3y2GCPrLjOT+G3we7zwyzUUOBuU2cFC8lqxlkIaJ5ygqY+40o7EW60O/+SzrwJJ
+         7tpMf4ta7+mPPznpd7V3cuPwpDGUZknF5ZIYK5P5drbZqkU/Ftyxko3tPdd+AEHgSFSt
+         hJnQ==
+X-Gm-Message-State: APjAAAVHzD5WOGDhe/0ek2NN9DVamHWq+NIME5PPF9/YWf1qcjzKPxKP
+        WZsNfk+aLMXFLwwZ5GFOolsEpw==
+X-Google-Smtp-Source: APXvYqwsLC75ue0/RjU/zYa6DFXsUaBkkmJb0okKfCSO8U9YZFIgVVg1vqpuT6zDnmq1RZ3r45NA5Q==
+X-Received: by 2002:a62:7a8a:: with SMTP id v132mr31783219pfc.111.1582176906864;
+        Wed, 19 Feb 2020 21:35:06 -0800 (PST)
+Received: from santosiv.in.ibm.com ([129.41.84.71])
+        by smtp.gmail.com with ESMTPSA id r11sm1664262pgi.9.2020.02.19.21.35.04
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 19 Feb 2020 21:35:06 -0800 (PST)
+From:   Santosh Sivaraj <santosh@fossix.org>
+To:     linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
+        stable@vger.kernel.org
+Cc:     peterz@infradead.org, aneesh.kumar@linux.ibm.com,
+        akshay.adiga@linux.ibm.com
+Subject: [PATCH 0/6] Memory corruption may occur due to incorrent tlb flush
+Date:   Thu, 20 Feb 2020 11:04:51 +0530
+Message-Id: <20200220053457.930231-1-santosh@fossix.org>
+X-Mailer: git-send-email 2.24.1
 MIME-Version: 1.0
-From:   CKI Project <cki-project@redhat.com>
-To:     Linux Stable maillist <stable@vger.kernel.org>
-Subject: =?utf-8?b?4pyF?= PASS: Test report for kernel 5.4.22-rc1-ba73608.cki
- (stable)
-Date:   Thu, 20 Feb 2020 05:30:31 -0000
-CC:     Guangwu Zhang <guazhang@redhat.com>
-Message-ID: <cki.EE82B8020D.43U9BML3B0@redhat.com>
-X-Gitlab-Pipeline-ID: 446815
-X-Gitlab-Url: https://xci32.lab.eng.rdu2.redhat.com
-X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/446815
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+The TLB flush optimisation (a46cc7a90f: powerpc/mm/radix: Improve TLB/PWC
+flushes) may result in random memory corruption. Any concurrent page-table walk
+could end up with a Use-after-Free. Even on UP this might give issues, since
+mmu_gather is preemptible these days. An interrupt or preempted task accessing
+user pages might stumble into the free page if the hardware caches page
+directories.
 
-Hello,
+The series is a backport of the fix sent by Peter [1].
 
-We ran automated tests on a recent commit from this kernel tree:
+The first three patches are dependencies for the last patch (avoid potential
+double flush). If the performance impact due to double flush is considered
+trivial then the first three patches and last patch may be dropped.
 
-       Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linu=
-x-stable-rc.git
-            Commit: ba7360881c6c - Linux 5.4.22-rc1
+[1] https://patchwork.kernel.org/cover/11284843/
+--
+Aneesh Kumar K.V (1):
+  powerpc/mmu_gather: enable RCU_TABLE_FREE even for !SMP case
 
-The results of these automated tests are provided below.
+Peter Zijlstra (4):
+  asm-generic/tlb: Track freeing of page-table directories in struct
+    mmu_gather
+  asm-generic/tlb, arch: Invert CONFIG_HAVE_RCU_TABLE_INVALIDATE
+  mm/mmu_gather: invalidate TLB correctly on batch allocation failure
+    and flush
+  asm-generic/tlb: avoid potential double flush
 
-    Overall result: PASSED
-             Merge: OK
-           Compile: OK
-             Tests: OK
+Will Deacon (1):
+  asm-generic/tlb: Track which levels of the page tables have been
+    cleared
 
-All kernel binaries, config files, and logs are available for download here:
+ arch/Kconfig                                 |   3 -
+ arch/powerpc/Kconfig                         |   2 +-
+ arch/powerpc/include/asm/book3s/32/pgalloc.h |   8 --
+ arch/powerpc/include/asm/book3s/64/pgalloc.h |   2 -
+ arch/powerpc/include/asm/tlb.h               |  11 ++
+ arch/powerpc/mm/pgtable-book3s64.c           |   7 --
+ arch/sparc/include/asm/tlb_64.h              |   9 ++
+ arch/x86/Kconfig                             |   1 -
+ include/asm-generic/tlb.h                    | 103 ++++++++++++++++---
+ mm/memory.c                                  |  20 ++--
+ 10 files changed, 122 insertions(+), 44 deletions(-)
 
-  https://cki-artifacts.s3.us-east-2.amazonaws.com/index.html?prefix=3Ddatawa=
-rehouse/2020/02/19/446815
-
-Please reply to this email if you have any questions about the tests that we
-ran or if you have any suggestions on how to make future tests more effective.
-
-        ,-.   ,-.
-       ( C ) ( K )  Continuous
-        `-',-.`-'   Kernel
-          ( I )     Integration
-           `-'
-______________________________________________________________________________
-
-Compile testing
----------------
-
-We compiled the kernel for 3 architectures:
-
-    aarch64:
-      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
-
-    ppc64le:
-      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
-
-    x86_64:
-      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
-
-
-Hardware testing
-----------------
-We booted each kernel and ran the following tests:
-
-  aarch64:
-    Host 1:
-       =E2=9C=85 Boot test
-       =E2=9C=85 Podman system integration test - as root
-       =E2=9C=85 Podman system integration test - as user
-       =E2=9C=85 LTP
-       =E2=9C=85 Loopdev Sanity
-       =E2=9C=85 Memory function: memfd_create
-       =E2=9C=85 AMTU (Abstract Machine Test Utility)
-       =E2=9C=85 Networking bridge: sanity
-       =E2=9C=85 Ethernet drivers sanity
-       =E2=9C=85 Networking MACsec: sanity
-       =E2=9C=85 Networking socket: fuzz
-       =E2=9C=85 Networking sctp-auth: sockopts test
-       =E2=9C=85 Networking: igmp conformance test
-       =E2=9C=85 Networking route: pmtu
-       =E2=9C=85 Networking route_func - local
-       =E2=9C=85 Networking route_func - forward
-       =E2=9C=85 Networking TCP: keepalive test
-       =E2=9C=85 Networking UDP: socket
-       =E2=9C=85 Networking tunnel: geneve basic test
-       =E2=9C=85 Networking tunnel: gre basic
-       =E2=9C=85 L2TP basic test
-       =E2=9C=85 Networking tunnel: vxlan basic
-       =E2=9C=85 Networking ipsec: basic netns - transport
-       =E2=9C=85 Networking ipsec: basic netns - tunnel
-       =E2=9C=85 audit: audit testsuite test
-       =E2=9C=85 httpd: mod_ssl smoke sanity
-       =E2=9C=85 tuned: tune-processes-through-perf
-       =E2=9C=85 ALSA PCM loopback test
-       =E2=9C=85 ALSA Control (mixer) Userspace Element test
-       =E2=9C=85 storage: SCSI VPD
-       =E2=9C=85 trace: ftrace/tracer
-       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
-       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
-       =F0=9F=9A=A7 =E2=9C=85 jvm - DaCapo Benchmark Suite
-       =F0=9F=9A=A7 =E2=9C=85 jvm - jcstress tests
-       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
-       =F0=9F=9A=A7 =E2=9C=85 LTP: openposix test suite
-       =F0=9F=9A=A7 =E2=9C=85 Networking vnic: ipvlan/basic
-       =F0=9F=9A=A7 =E2=9C=85 iotop: sanity
-       =F0=9F=9A=A7 =E2=9C=85 Usex - version 1.9-29
-       =F0=9F=9A=A7 =E2=9C=85 storage: dm/common
-
-    Host 2:
-       =E2=9C=85 Boot test
-       =E2=9C=85 xfstests - ext4
-       =E2=9C=85 xfstests - xfs
-       =E2=9C=85 selinux-policy: serge-testsuite
-       =E2=9C=85 lvm thinp sanity
-       =E2=9C=85 storage: software RAID testing
-       =E2=9C=85 stress: stress-ng
-       =F0=9F=9A=A7 =E2=9C=85 IPMI driver test
-       =F0=9F=9A=A7 =E2=9C=85 IPMItool loop stress test
-       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
-
-  ppc64le:
-    Host 1:
-
-       =E2=9A=A1 Internal infrastructure issues prevented one or more tests (=
-marked
-       with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
-       This is not the fault of the kernel that was tested.
-
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Boot test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 xfstests - ext4
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 xfstests - xfs
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 selinux-policy: serge-testsuite
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 lvm thinp sanity
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 storage: software RAID testing
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 IPMI driver test
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 IPMItool loop stress test
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage blktests
-
-    Host 2:
-       =E2=9C=85 Boot test
-       =E2=9C=85 Podman system integration test - as root
-       =E2=9C=85 Podman system integration test - as user
-       =E2=9C=85 LTP
-       =E2=9C=85 Loopdev Sanity
-       =E2=9C=85 Memory function: memfd_create
-       =E2=9C=85 AMTU (Abstract Machine Test Utility)
-       =E2=9C=85 Networking bridge: sanity
-       =E2=9C=85 Ethernet drivers sanity
-       =E2=9C=85 Networking MACsec: sanity
-       =E2=9C=85 Networking socket: fuzz
-       =E2=9C=85 Networking sctp-auth: sockopts test
-       =E2=9C=85 Networking route: pmtu
-       =E2=9C=85 Networking route_func - local
-       =E2=9C=85 Networking route_func - forward
-       =E2=9C=85 Networking TCP: keepalive test
-       =E2=9C=85 Networking UDP: socket
-       =E2=9C=85 Networking tunnel: geneve basic test
-       =E2=9C=85 Networking tunnel: gre basic
-       =E2=9C=85 L2TP basic test
-       =E2=9C=85 Networking tunnel: vxlan basic
-       =E2=9C=85 Networking ipsec: basic netns - tunnel
-       =E2=9C=85 audit: audit testsuite test
-       =E2=9C=85 httpd: mod_ssl smoke sanity
-       =E2=9C=85 tuned: tune-processes-through-perf
-       =E2=9C=85 ALSA PCM loopback test
-       =E2=9C=85 ALSA Control (mixer) Userspace Element test
-       =E2=9C=85 trace: ftrace/tracer
-       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
-       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
-       =F0=9F=9A=A7 =E2=9C=85 jvm - DaCapo Benchmark Suite
-       =F0=9F=9A=A7 =E2=9C=85 jvm - jcstress tests
-       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
-       =F0=9F=9A=A7 =E2=9C=85 LTP: openposix test suite
-       =F0=9F=9A=A7 =E2=9C=85 Networking vnic: ipvlan/basic
-       =F0=9F=9A=A7 =E2=9C=85 iotop: sanity
-       =F0=9F=9A=A7 =E2=9C=85 Usex - version 1.9-29
-       =F0=9F=9A=A7 =E2=9D=8C storage: dm/common
-
-    Host 3:
-
-       =E2=9A=A1 Internal infrastructure issues prevented one or more tests (=
-marked
-       with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
-       This is not the fault of the kernel that was tested.
-
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Boot test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 xfstests - ext4
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 xfstests - xfs
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 selinux-policy: serge-testsuite
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 lvm thinp sanity
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 storage: software RAID testing
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 IPMI driver test
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 IPMItool loop stress test
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage blktests
-
-    Host 4:
-       =E2=9C=85 Boot test
-       =E2=9C=85 xfstests - ext4
-       =E2=9C=85 xfstests - xfs
-       =E2=9C=85 selinux-policy: serge-testsuite
-       =E2=9C=85 lvm thinp sanity
-       =E2=9C=85 storage: software RAID testing
-       =F0=9F=9A=A7 =E2=9C=85 IPMI driver test
-       =F0=9F=9A=A7 =E2=9C=85 IPMItool loop stress test
-       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
-
-  x86_64:
-    Host 1:
-       =E2=9C=85 Boot test
-       =E2=9C=85 Podman system integration test - as root
-       =E2=9C=85 Podman system integration test - as user
-       =E2=9C=85 LTP
-       =E2=9C=85 Loopdev Sanity
-       =E2=9C=85 Memory function: memfd_create
-       =E2=9C=85 AMTU (Abstract Machine Test Utility)
-       =E2=9C=85 Networking bridge: sanity
-       =E2=9C=85 Ethernet drivers sanity
-       =E2=9C=85 Networking MACsec: sanity
-       =E2=9C=85 Networking socket: fuzz
-       =E2=9C=85 Networking sctp-auth: sockopts test
-       =E2=9C=85 Networking: igmp conformance test
-       =E2=9C=85 Networking route: pmtu
-       =E2=9C=85 Networking route_func - local
-       =E2=9C=85 Networking route_func - forward
-       =E2=9C=85 Networking TCP: keepalive test
-       =E2=9C=85 Networking UDP: socket
-       =E2=9C=85 Networking tunnel: geneve basic test
-       =E2=9C=85 Networking tunnel: gre basic
-       =E2=9C=85 L2TP basic test
-       =E2=9C=85 Networking tunnel: vxlan basic
-       =E2=9C=85 Networking ipsec: basic netns - transport
-       =E2=9C=85 Networking ipsec: basic netns - tunnel
-       =E2=9C=85 audit: audit testsuite test
-       =E2=9C=85 httpd: mod_ssl smoke sanity
-       =E2=9C=85 tuned: tune-processes-through-perf
-       =E2=9C=85 pciutils: sanity smoke test
-       =E2=9C=85 ALSA PCM loopback test
-       =E2=9C=85 ALSA Control (mixer) Userspace Element test
-       =E2=9C=85 storage: SCSI VPD
-       =E2=9C=85 trace: ftrace/tracer
-       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
-       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
-       =F0=9F=9A=A7 =E2=9C=85 jvm - DaCapo Benchmark Suite
-       =F0=9F=9A=A7 =E2=9C=85 jvm - jcstress tests
-       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
-       =F0=9F=9A=A7 =E2=9C=85 LTP: openposix test suite
-       =F0=9F=9A=A7 =E2=9C=85 Networking vnic: ipvlan/basic
-       =F0=9F=9A=A7 =E2=9C=85 iotop: sanity
-       =F0=9F=9A=A7 =E2=9C=85 Usex - version 1.9-29
-       =F0=9F=9A=A7 =E2=9C=85 storage: dm/common
-
-    Host 2:
-       =E2=9C=85 Boot test
-       =E2=9C=85 Storage SAN device stress - megaraid_sas
-
-    Host 3:
-       =E2=9C=85 Boot test
-       =E2=9C=85 xfstests - ext4
-       =E2=9C=85 xfstests - xfs
-       =E2=9C=85 selinux-policy: serge-testsuite
-       =E2=9C=85 lvm thinp sanity
-       =E2=9C=85 storage: software RAID testing
-       =E2=9C=85 stress: stress-ng
-       =F0=9F=9A=A7 =E2=9C=85 IOMMU boot test
-       =F0=9F=9A=A7 =E2=9C=85 IPMI driver test
-       =F0=9F=9A=A7 =E2=9C=85 IPMItool loop stress test
-       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
-
-    Host 4:
-       =E2=9C=85 Boot test
-       =E2=9C=85 Storage SAN device stress - mpt3sas driver
-
-  Test sources: https://github.com/CKI-project/tests-beaker
-    =F0=9F=92=9A Pull requests are welcome for new tests or improvements to e=
-xisting tests!
-
-Waived tests
-------------
-If the test run included waived tests, they are marked with =F0=9F=9A=A7. Suc=
-h tests are
-executed but their results are not taken into account. Tests are waived when
-their results are not reliable enough, e.g. when they're just introduced or a=
-re
-being fixed.
-
-Testing timeout
----------------
-We aim to provide a report within reasonable timeframe. Tests that haven't
-finished running yet are marked with =E2=8F=B1.
+-- 
+2.24.1
 
