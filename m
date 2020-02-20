@@ -2,86 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 28551166438
-	for <lists+stable@lfdr.de>; Thu, 20 Feb 2020 18:20:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B1211664F4
+	for <lists+stable@lfdr.de>; Thu, 20 Feb 2020 18:34:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727868AbgBTRUL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Feb 2020 12:20:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56970 "EHLO mail.kernel.org"
+        id S1728400AbgBTReK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Feb 2020 12:34:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36236 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727709AbgBTRUL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Feb 2020 12:20:11 -0500
+        id S1727709AbgBTReK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Feb 2020 12:34:10 -0500
 Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A15C9208E4;
-        Thu, 20 Feb 2020 17:20:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CC29A24672;
+        Thu, 20 Feb 2020 17:34:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582219210;
-        bh=nISuG6svIwzof7JHQmMj7ZgoZJYtf5uXKsOvPPgXBsw=;
+        s=default; t=1582220050;
+        bh=1c3CW2q7VFBSmddI0CyeRQXbfNNVbuUebZ1kdB+IYG0=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=HzXgcVxojD9fCltFKaqoYXkNdpoi4yaKM5Zv2RduL6TzvqtjeQf/FBNHxB/Aq1DBf
-         EV4WYvPyU7kHGli3k+0OKCwM1mWsB6ifYjh+es2/KnSm7R6+3Ep4W8BnQo5nydkjwC
-         MJzv1KyUBmeotowmCURgfjmzmk+9OV3eDp/zZACw=
-Date:   Thu, 20 Feb 2020 12:20:09 -0500
+        b=CydWACu04SQXPcrHxR+KvmwQ0aaAQSOBGIsqALec7Ck6fevMttxeVp1HTsMm90Ab3
+         pQwnPu2gM0fkIhbcqlmlivf37fssrEpZPQ1uXsDwicidfDm0JZ7qma57JulqmeqNpX
+         gMQhJKoXy1tju088vIzqmFkWIjqGDgsQ7P0jbFhQ=
+Date:   Thu, 20 Feb 2020 12:34:08 -0500
 From:   Sasha Levin <sashal@kernel.org>
-To:     Kevin Hao <haokexin@gmail.com>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        kbuild test robot <lkp@intel.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        linux-gpio@vger.kernel.org
-Subject: Re: [PATCH AUTOSEL 5.5 383/542] gpio: Fix the no return statement
- warning
-Message-ID: <20200220172009.GG1734@sasha-vm>
+To:     Michael Kelley <mikelley@microsoft.com>
+Cc:     "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        Boqun Feng <boqun.feng@gmail.com>,
+        "linux-hyperv@vger.kernel.org" <linux-hyperv@vger.kernel.org>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>
+Subject: Re: [PATCH AUTOSEL 5.5 389/542] clocksource/drivers/hyper-v: Reserve
+ PAGE_SIZE space for tsc page
+Message-ID: <20200220173408.GH1734@sasha-vm>
 References: <20200214154854.6746-1-sashal@kernel.org>
- <20200214154854.6746-383-sashal@kernel.org>
- <20200215004455.GA499724@pek-khao-d2.corp.ad.wrs.com>
+ <20200214154854.6746-389-sashal@kernel.org>
+ <MW2PR2101MB10526693E43DF07E03D5EB0FD7150@MW2PR2101MB1052.namprd21.prod.outlook.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
-In-Reply-To: <20200215004455.GA499724@pek-khao-d2.corp.ad.wrs.com>
+In-Reply-To: <MW2PR2101MB10526693E43DF07E03D5EB0FD7150@MW2PR2101MB1052.namprd21.prod.outlook.com>
 User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, Feb 15, 2020 at 08:44:55AM +0800, Kevin Hao wrote:
->On Fri, Feb 14, 2020 at 10:46:15AM -0500, Sasha Levin wrote:
->> From: Kevin Hao <haokexin@gmail.com>
->>
->> [ Upstream commit 9c6722d85e92233082da2b3623685bba54d6093e ]
->>
->> In commit 242587616710 ("gpiolib: Add support for the irqdomain which
->> doesn't use irq_fwspec as arg") we have changed the return type of
->> gpiochip_populate_parent_fwspec_twocell/fourcell() from void to void *,
->> but forgot to add a return statement for these two dummy functions.
->> Add "return NULL" to fix the build warnings.
->>
->> Reported-by: kbuild test robot <lkp@intel.com>
->> Signed-off-by: Kevin Hao <haokexin@gmail.com>
->> Link: https://lore.kernel.org/r/20200116095003.30324-1-haokexin@gmail.com
->> Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
->> Signed-off-by: Sasha Levin <sashal@kernel.org>
->> ---
->>  include/linux/gpio/driver.h | 2 ++
->>  1 file changed, 2 insertions(+)
->>
->> diff --git a/include/linux/gpio/driver.h b/include/linux/gpio/driver.h
->> index e2480ef94c559..5dce9c67a961e 100644
->> --- a/include/linux/gpio/driver.h
->> +++ b/include/linux/gpio/driver.h
->> @@ -553,6 +553,7 @@ static inline void gpiochip_populate_parent_fwspec_twocell(struct gpio_chip *chi
->>  						    unsigned int parent_hwirq,
->>  						    unsigned int parent_type)
->>  {
->> +	return NULL;
->
->Hi Sasha,
->
->This commit shouldn't go to the v5.5.x kernel. This is a fix for the
->commit 242587616710, but that commit doesn't exist in the v5.5.x kernel,
->then it will trigger a build warning due to the wrong returning type.
+On Fri, Feb 14, 2020 at 04:11:03PM +0000, Michael Kelley wrote:
+>This patch does not need to be backported to any stable releases.  It is prep work for guests on Hyper-V ARM64 when the guest page size is 16K or 64K, and that functionality isn't upstream yet.
 
 Now dropped, thank you.
 
