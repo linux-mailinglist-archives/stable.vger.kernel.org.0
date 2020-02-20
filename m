@@ -2,65 +2,68 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F15F5165864
-	for <lists+stable@lfdr.de>; Thu, 20 Feb 2020 08:30:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 932B116586B
+	for <lists+stable@lfdr.de>; Thu, 20 Feb 2020 08:32:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726550AbgBTH3h (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Feb 2020 02:29:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52316 "EHLO mail.kernel.org"
+        id S1726501AbgBTHb5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Feb 2020 02:31:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53400 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726149AbgBTH3h (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Feb 2020 02:29:37 -0500
+        id S1726149AbgBTHb4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Feb 2020 02:31:56 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7DC0024654;
-        Thu, 20 Feb 2020 07:29:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C56CC24654;
+        Thu, 20 Feb 2020 07:31:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582183776;
-        bh=TxnVf9P5GTfdh8uEk/jtWBk7wfQqSZEQk6MNCsGrQfE=;
+        s=default; t=1582183916;
+        bh=+ij1NUsmlyAfPgOtLIOjdSZDr9cf3FXoH36S6rZNd0k=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=wicZbk6IzHOoAhg+vtJOYEGxPaTpNGCFRUn9hqrP9CXWODywFtF4jC6fbHoF1dhIi
-         Ae8VqYDJHF4u0TEZmyQ/zh941MLVXY8E0nan29sMymtJ4U8ztnJ6JwPJCFxTuAEPCJ
-         qlkXyWcSlLOJq7CX1JOXX08o7QnFY8mI1UxS89qQ=
-Date:   Thu, 20 Feb 2020 08:29:34 +0100
+        b=UG34zOxUnVlmWZINh4RgGvTHzYaBhU8Z3O3jOQ+Hy4aXLJ5oS3l5eHRaBncezmSUG
+         OXcM9dHe3ET7VA97BAnB1SmFLNKtBKRw0OjSx/puhZDJZOoA9e6MY/eNjCLK5OpPtD
+         ZPrCbgWu7HiYIyL64hqi9z4yrdCE3zO/Y6EzXsWo=
+Date:   Thu, 20 Feb 2020 08:31:54 +0100
 From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Santosh Sivaraj <santosh@fossix.org>
-Cc:     linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
-        stable@vger.kernel.org, peterz@infradead.org,
-        aneesh.kumar@linux.ibm.com, akshay.adiga@linux.ibm.com
-Subject: Re: [PATCH 0/6] Memory corruption may occur due to incorrent tlb
- flush
-Message-ID: <20200220072934.GA3253157@kroah.com>
-References: <20200220053457.930231-1-santosh@fossix.org>
+To:     Ajay Kaher <akaher@vmware.com>
+Cc:     stable@vger.kernel.org, srivatsab@vmware.com,
+        srivatsa@csail.mit.edu, amakhalov@vmware.com, srinidhir@vmware.com,
+        bvikas@vmware.com, anishs@vmware.com, vsirnapalli@vmware.com,
+        sharathg@vmware.com, srostedt@vmware.com,
+        martin.petersen@oracle.com, hmadhani@marvell.com, mwilck@suse.com,
+        allen.pais@oracle.com
+Subject: Re: [PATCH v4.14.y] scsi: qla2xxx: fix a potential NULL pointer
+ dereference
+Message-ID: <20200220073154.GB3253157@kroah.com>
+References: <1582172443-20029-1-git-send-email-akaher@vmware.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20200220053457.930231-1-santosh@fossix.org>
+In-Reply-To: <1582172443-20029-1-git-send-email-akaher@vmware.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Feb 20, 2020 at 11:04:51AM +0530, Santosh Sivaraj wrote:
-> The TLB flush optimisation (a46cc7a90f: powerpc/mm/radix: Improve TLB/PWC
-> flushes) may result in random memory corruption. Any concurrent page-table walk
-> could end up with a Use-after-Free. Even on UP this might give issues, since
-> mmu_gather is preemptible these days. An interrupt or preempted task accessing
-> user pages might stumble into the free page if the hardware caches page
-> directories.
+On Thu, Feb 20, 2020 at 09:50:41AM +0530, Ajay Kaher wrote:
+> From: Allen Pais <allen.pais@oracle.com>
 > 
-> The series is a backport of the fix sent by Peter [1].
+> commit 35a79a63517981a8aea395497c548776347deda8 upstream
 > 
-> The first three patches are dependencies for the last patch (avoid potential
-> double flush). If the performance impact due to double flush is considered
-> trivial then the first three patches and last patch may be dropped.
+> alloc_workqueue is not checked for errors and as a result a potential
+> NULL dereference could occur.
 > 
-> [1] https://patchwork.kernel.org/cover/11284843/
+> Link: https://lore.kernel.org/r/1568824618-4366-1-git-send-email-allen.pais@oracle.com
+> Signed-off-by: Allen Pais <allen.pais@oracle.com>
+> Reviewed-by: Martin Wilck <mwilck@suse.com>
+> Acked-by: Himanshu Madhani <hmadhani@marvell.com>
+> Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+> [Ajay: Modified to apply on v4.14.y]
+> Signed-off-by: Ajay Kaher <akaher@vmware.com>
+> ---
+>  drivers/scsi/qla2xxx/qla_os.c | 4 ++++
+>  1 file changed, 4 insertions(+)
 
-Can you resend these with the git commit ids of the upstream patches in
-them, and say what stable tree(s) you wish to have them applied to?
-
-thanks,
+All 3 patches now queued up, thanks.
 
 greg k-h
