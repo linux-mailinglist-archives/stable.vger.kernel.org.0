@@ -2,21 +2,21 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7FD47165657
-	for <lists+stable@lfdr.de>; Thu, 20 Feb 2020 05:39:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A70F165658
+	for <lists+stable@lfdr.de>; Thu, 20 Feb 2020 05:40:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727747AbgBTEju (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Feb 2020 23:39:50 -0500
-Received: from ex13-edg-ou-002.vmware.com ([208.91.0.190]:18566 "EHLO
+        id S1727576AbgBTEkF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Feb 2020 23:40:05 -0500
+Received: from ex13-edg-ou-002.vmware.com ([208.91.0.190]:8841 "EHLO
         EX13-EDG-OU-002.vmware.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727469AbgBTEjt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Feb 2020 23:39:49 -0500
+        by vger.kernel.org with ESMTP id S1727469AbgBTEkF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Feb 2020 23:40:05 -0500
 Received: from sc9-mailhost3.vmware.com (10.113.161.73) by
  EX13-EDG-OU-002.vmware.com (10.113.208.156) with Microsoft SMTP Server id
- 15.0.1156.6; Wed, 19 Feb 2020 20:24:43 -0800
+ 15.0.1156.6; Wed, 19 Feb 2020 20:24:59 -0800
 Received: from akaher-virtual-machine.eng.vmware.com (unknown [10.197.103.239])
-        by sc9-mailhost3.vmware.com (Postfix) with ESMTP id 5AF16403A0;
-        Wed, 19 Feb 2020 20:24:45 -0800 (PST)
+        by sc9-mailhost3.vmware.com (Postfix) with ESMTP id 62E2B406F8;
+        Wed, 19 Feb 2020 20:25:01 -0800 (PST)
 From:   Ajay Kaher <akaher@vmware.com>
 To:     <gregkh@linuxfoundation.org>
 CC:     <stable@vger.kernel.org>, <srivatsab@vmware.com>,
@@ -26,9 +26,9 @@ CC:     <stable@vger.kernel.org>, <srivatsab@vmware.com>,
         <sharathg@vmware.com>, <srostedt@vmware.com>,
         <martin.petersen@oracle.com>, <hmadhani@marvell.com>,
         <mwilck@suse.com>, <allen.pais@oracle.com>
-Subject: [PATCH v4.4.y] scsi: qla2xxx: fix a potential NULL pointer dereference
-Date:   Thu, 20 Feb 2020 09:50:42 +0530
-Message-ID: <1582172443-20029-2-git-send-email-akaher@vmware.com>
+Subject: [PATCH v4.9.y] scsi: qla2xxx: fix a potential NULL pointer dereference
+Date:   Thu, 20 Feb 2020 09:50:43 +0530
+Message-ID: <1582172443-20029-3-git-send-email-akaher@vmware.com>
 X-Mailer: git-send-email 2.7.4
 In-Reply-To: <1582172443-20029-1-git-send-email-akaher@vmware.com>
 References: <1582172443-20029-1-git-send-email-akaher@vmware.com>
@@ -53,7 +53,7 @@ Signed-off-by: Allen Pais <allen.pais@oracle.com>
 Reviewed-by: Martin Wilck <mwilck@suse.com>
 Acked-by: Himanshu Madhani <hmadhani@marvell.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-[Ajay: Rewrote this patch for v4.4.y, as 4.4.y codebase is different from mainline]
+[Ajay: Rewrote this patch for v4.9.y, as 4.9.y codebase is different from mainline]
 Signed-off-by: Ajay Kaher <akaher@vmware.com>
 ---
  drivers/scsi/qla2xxx/qla_os.c | 19 +++++++++++++------
