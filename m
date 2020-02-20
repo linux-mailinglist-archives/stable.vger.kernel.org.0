@@ -2,128 +2,89 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 02814165748
-	for <lists+stable@lfdr.de>; Thu, 20 Feb 2020 07:06:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 76C2316574B
+	for <lists+stable@lfdr.de>; Thu, 20 Feb 2020 07:08:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726027AbgBTGGW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Feb 2020 01:06:22 -0500
-Received: from mail-pl1-f194.google.com ([209.85.214.194]:42860 "EHLO
-        mail-pl1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725942AbgBTGGW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 20 Feb 2020 01:06:22 -0500
-Received: by mail-pl1-f194.google.com with SMTP id e8so1107026plt.9
-        for <stable@vger.kernel.org>; Wed, 19 Feb 2020 22:06:22 -0800 (PST)
+        id S1726149AbgBTGIO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Feb 2020 01:08:14 -0500
+Received: from mail-pj1-f67.google.com ([209.85.216.67]:53686 "EHLO
+        mail-pj1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725995AbgBTGIO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 20 Feb 2020 01:08:14 -0500
+Received: by mail-pj1-f67.google.com with SMTP id n96so414746pjc.3
+        for <stable@vger.kernel.org>; Wed, 19 Feb 2020 22:08:12 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=from:to:cc:subject:date:message-id;
-        bh=FwVgCncLbVot4SV9ouCUOJjc6U+mADi+9P9iseWgOPI=;
-        b=FIncW3q427jUrJc76Y5wnHtilxkDdRipTd9Z0W6sQzjmc+I7zTxLGoIyw5+dU7OBr6
-         xrVqqX8ncq4AKJ6CL6Qmo+cGKPU73ueOlos1tpypHNlQ9M/EvpgTzwpB9AaEnQI8ck2v
-         ms4ipHKtI5c1iTbQd9nEPS6BnFc4XgsIZlFyZd02dzlB9ONFilIOqF7K7KyGkZohLd8/
-         ewQy5rduuyxd99ICYAUd8gFtrG5NWZav4DTMTYEYj5gKuL5jCuiCM2t8XBn8CnbTCSvN
-         niBFIKoC72wYfwWxxcYjLuo+3jO1dQPeLMcexsDoxjb9MfY0Cgz96/d2bqLFVL/D9jPv
-         W/Lg==
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=4zKzg20LXxGqvxm8sOZd/00DzGzP+6WwxTqN7K4NA5E=;
+        b=thFUbrnE70r7p3d+ghNNKE5jyBb0GyMYVtqO9EhsxD5wkn2cBY3mt4CARX6gyjvZT+
+         03uWnanySBagdWLKPALjvQ2YDZD94EyFUMxe6MB5D5KAB1cs1pBaALPCXeyZbd5u0z0O
+         /nu7s5R7Vd5G5958TuqCgZ3zcUR+Oxpbwg6hRY8DIZto9w3iRwded8vjp8rprrU02gGI
+         Kw6aBmxvQMBhI+diPtfF1m2U9NY3BpvoY6jqIrDgIHv+TR1AvLKyoIeB+0QzMznpJiTO
+         ZdnEN7TPQDbV1hGcYpMltmEGWx+Wi4Wz7r/pu7384+92+lHDPO+Rrk8VHk9h7dP/Shxp
+         Pm1Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id;
-        bh=FwVgCncLbVot4SV9ouCUOJjc6U+mADi+9P9iseWgOPI=;
-        b=r9esW/4LZarKBFI5J10x1DFDGdznmnrx+IRBEvUd49QPloPQhIx4orR8vUbBb6u18U
-         +jf1E3UhOQxLRQLlnDta/Rpbjn5Lqsna5RTFqcFpK7nkWFZvvb7S/c1auMis74waIZHX
-         RxNcfPmAIJhqkbZJ95eB6NWVdkr8zndAiFo9i/lOLI66tluo/DQ7fd/A6WBrlLC4lGml
-         RmRFSfsKe7dy8k+ywn7HXvQStSSl3zYT1qCd9kR8OcFhQTLlYV78qPrS/GR1S9W2ilk2
-         qbPiQCGFbk3qFVSUL3ogn6bOVPw1rFQLkKS5KSKOrUpJPA/ACOFPtGpX8GwfjU8tc709
-         llTQ==
-X-Gm-Message-State: APjAAAU79R4U6b6Efwk5pS+wucgqJMDxgImSNROiGtnuyNhagDmrXj2w
-        5T0LsrhWzA8tRefhGA4+NxDg3w==
-X-Google-Smtp-Source: APXvYqwnon8ICd/yoj8ge5wkuOIkItWJbqBTJlG7DQJMrVrVL6k/BZq66xnHxJjvkgHYIn2qovfoQA==
-X-Received: by 2002:a17:902:d20f:: with SMTP id t15mr30941281ply.55.1582178781449;
-        Wed, 19 Feb 2020 22:06:21 -0800 (PST)
-Received: from localhost.localdomain ([2601:1c2:680:1319:692:26ff:feda:3a81])
-        by smtp.gmail.com with ESMTPSA id v5sm1747887pgc.11.2020.02.19.22.06.19
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=4zKzg20LXxGqvxm8sOZd/00DzGzP+6WwxTqN7K4NA5E=;
+        b=GAjWSeBRNQjbbQP5yEDaYJSXn2+Gtf+XQzI1gRhywMyIH/Vi0yzZH9t5nRhhVwBVjx
+         8a0YUqMjJ/Bfnxyka5gLMer5m0S5hELBxvEa/K4C1qvNJMw10cvcYcTtIlmGWxeeU0De
+         yKO3wZqipGXENYSNS9bEo8c1kyhqxJ+gWNYCEv5e9yXuyxLonDGnZvzAXyfUuhwQDjQ+
+         KM2VMlYu52/B8sTCvudaADddXEN+XqIpVnGb+T64+hsADctTPtyq6I/kdbt5U5A3Qtyw
+         GZh3qU93qaOTgt8XMMNb7lfeqouIuiHrUWLuobWC60rR7OO/CCIfj9LNuTilD+kYvbAC
+         Asbg==
+X-Gm-Message-State: APjAAAUu1Ddt/oTTenhURtsOL5Tqip4GuAHTCeLz/twBSp130gMvDRTv
+        dsRk9Zq4RR8YnIIwLhT6FXngQ5lE5bY=
+X-Google-Smtp-Source: APXvYqy5adjsqi6BTyD798faugSd1wnfJ45D72PsG0qz/Ke3r5gCc9SX49CJkixu+VKZi5eF8iu8vQ==
+X-Received: by 2002:a17:902:8604:: with SMTP id f4mr30518702plo.278.1582178892167;
+        Wed, 19 Feb 2020 22:08:12 -0800 (PST)
+Received: from [10.0.9.4] ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id fz21sm1592485pjb.15.2020.02.19.22.08.10
+        for <stable@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 19 Feb 2020 22:06:20 -0800 (PST)
-From:   John Stultz <john.stultz@linaro.org>
-To:     lkml <linux-kernel@vger.kernel.org>
-Cc:     Pratham Pratap <prathampratap@codeaurora.org>,
-        Felipe Balbi <balbi@kernel.org>, Yang Fei <fei.yang@intel.com>,
-        Thinh Nguyen <thinhn@synopsys.com>,
-        Tejas Joglekar <tejas.joglekar@synopsys.com>,
-        Andrzej Pietrasiewicz <andrzej.p@collabora.com>,
-        Jack Pham <jackp@codeaurora.org>, Todd Kjos <tkjos@google.com>,
-        Greg KH <gregkh@linuxfoundation.org>,
-        Linux USB List <linux-usb@vger.kernel.org>,
-        stable <stable@vger.kernel.org>,
-        John Stultz <john.stultz@linaro.org>
-Subject: [PATCH v2] usb: dwc3: gadget: Update chain bit correctly when using sg list
-Date:   Thu, 20 Feb 2020 06:06:16 +0000
-Message-Id: <20200220060616.54389-1-john.stultz@linaro.org>
-X-Mailer: git-send-email 2.17.1
+        Wed, 19 Feb 2020 22:08:10 -0800 (PST)
+Message-ID: <5e4e224a.1c69fb81.f81b7.573d@mx.google.com>
+Date:   Wed, 19 Feb 2020 22:08:10 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.4.214-12-gcdfcbd60833e
+X-Kernelci-Report-Type: boot
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-4.4.y
+Subject: stable-rc/linux-4.4.y boot: 3 boots: 1 failed,
+ 2 passed (v4.4.214-12-gcdfcbd60833e)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pratham Pratap <prathampratap@codeaurora.org>
+stable-rc/linux-4.4.y boot: 3 boots: 1 failed, 2 passed (v4.4.214-12-gcdfcb=
+d60833e)
 
-If scatter-gather operation is allowed, a large USB request is split
-into multiple TRBs. For preparing TRBs for sg list, driver iterates
-over the list and creates TRB for each sg and mark the chain bit to
-false for the last sg. The current IOMMU driver is clubbing the list
-of sgs which shares a page boundary into one and giving it to USB driver.
-With this the number of sgs mapped it not equal to the the number of sgs
-passed. Because of this USB driver is not marking the chain bit to false
-since it couldn't iterate to the last sg. This patch addresses this issue
-by marking the chain bit to false if it is the last mapped sg.
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.4.y/kernel/v4.4.214-12-gcdfcbd60833e/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.4.y=
+/kernel/v4.4.214-12-gcdfcbd60833e/
 
-At a practical level, this patch resolves USB transfer stalls
-seen with adb on dwc3 based db845c, pixel3 and other qcom
-hardware after functionfs gadget added scatter-gather support
-around v4.20.
+Tree: stable-rc
+Branch: linux-4.4.y
+Git Describe: v4.4.214-12-gcdfcbd60833e
+Git Commit: cdfcbd60833ead34457b09b11989d9ec77e928c7
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 3 unique boards, 2 SoC families, 2 builds out of 57
 
-Credit also to Anurag Kumar Vulisha <anurag.kumar.vulisha@xilinx.com>
-who implemented a very similar fix to this issue.
+Boot Failure Detected:
 
-Cc: Felipe Balbi <balbi@kernel.org>
-Cc: Yang Fei <fei.yang@intel.com>
-Cc: Thinh Nguyen <thinhn@synopsys.com>
-Cc: Tejas Joglekar <tejas.joglekar@synopsys.com>
-Cc: Andrzej Pietrasiewicz <andrzej.p@collabora.com>
-Cc: Jack Pham <jackp@codeaurora.org>
-Cc: Todd Kjos <tkjos@google.com>
-Cc: Greg KH <gregkh@linuxfoundation.org>
-Cc: Linux USB List <linux-usb@vger.kernel.org>
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Pratham Pratap <prathampratap@codeaurora.org>
-[jstultz: Slight tweak to remove sg_is_last() usage, reworked
-          commit message, minor comment tweak]
-Signed-off-by: John Stultz <john.stultz@linaro.org>
+arm:
+    sama5_defconfig:
+        gcc-8:
+            at91-sama5d4_xplained: 1 failed lab
+
 ---
-v2:
-* Fix typeos and unnecssary parens as suggested by Jack
----
- drivers/usb/dwc3/gadget.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
-index 1b8014ab0b25..721d897fef94 100644
---- a/drivers/usb/dwc3/gadget.c
-+++ b/drivers/usb/dwc3/gadget.c
-@@ -1071,7 +1071,14 @@ static void dwc3_prepare_one_trb_sg(struct dwc3_ep *dep,
- 		unsigned int rem = length % maxp;
- 		unsigned chain = true;
- 
--		if (sg_is_last(s))
-+		/*
-+		 * IOMMU driver is coalescing the list of sgs which shares a
-+		 * page boundary into one and giving it to USB driver. With
-+		 * this the number of sgs mapped is not equal to the number of
-+		 * sgs passed. So mark the chain bit to false if it isthe last
-+		 * mapped sg.
-+		 */
-+		if (i == remaining - 1)
- 			chain = false;
- 
- 		if (rem && usb_endpoint_dir_out(dep->endpoint.desc) && !chain) {
--- 
-2.17.1
-
+For more info write to <info@kernelci.org>
