@@ -2,94 +2,72 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 66C181667FB
-	for <lists+stable@lfdr.de>; Thu, 20 Feb 2020 21:08:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1ECCA166841
+	for <lists+stable@lfdr.de>; Thu, 20 Feb 2020 21:22:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728958AbgBTUIa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Feb 2020 15:08:30 -0500
-Received: from mail-wm1-f65.google.com ([209.85.128.65]:37899 "EHLO
-        mail-wm1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728770AbgBTUIa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 20 Feb 2020 15:08:30 -0500
-Received: by mail-wm1-f65.google.com with SMTP id a9so3415464wmj.3;
-        Thu, 20 Feb 2020 12:08:28 -0800 (PST)
+        id S1728958AbgBTUW4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Feb 2020 15:22:56 -0500
+Received: from mail-il1-f196.google.com ([209.85.166.196]:44677 "EHLO
+        mail-il1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728556AbgBTUW4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 20 Feb 2020 15:22:56 -0500
+Received: by mail-il1-f196.google.com with SMTP id s85so24797793ill.11
+        for <stable@vger.kernel.org>; Thu, 20 Feb 2020 12:22:56 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
+        d=google.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=kBIhuNzrd9/ICrWDQr4DVMV2/B2/59BRqjR58cRFSa8=;
-        b=mLjP5rCdAC6xFhQp9dOe10slf2tWdLGlp1jHu9A/olLcXXEAaYmvzZ7Zhy693tEkoj
-         fJqN/7P/bZ9+EZEqKuyp8WEevdfQinxoUWik/FWSYT6REWm1SvWUKhljrUdMpniafFYM
-         ZmLZCnPcMhKZ8OLKRd6LYyOv/AEV2vG3sKzuNcOHJ7XGwJhc2ghDW2nW7x6jVFJA9zBa
-         XUpl64Z+Isf9bF9r9yNS5Z6H1IVqCGbtRP0qs692nxBNDJ6iyn4ewCCcOOZb62L7Xzha
-         lYzWZDj4Rdc2AG3x+sT7qJu8nhN2EQHhApyzeIhU71KV3qfiS5zAWtTwpGUwfzmbbtks
-         6u6A==
+         :cc:content-transfer-encoding;
+        bh=g43zi0Kc4rp1x+vu6qU/MJPQUkT5VTc1y7CjnMTKB/U=;
+        b=DxaOa9H9LsXwmVeUcdQ9a2a4Lx+1AEoRQm+cxsk/FaZxVs1YQwqkXI7AjFdbvv9Kn+
+         NJIunjk6QvzzWAgEXLi0++42eecdwfZQc5vl+YKwnu4NU/RHtKpkQFK9L6g2KuWt1hOW
+         RCN0wLy6+dIBia15/uRLf1XwwS5HwEPEsywENq5mVi35JW3EC1srSI4tk4nswAUNhJ0j
+         IfIz3NixVjRiC+eVbeDd7yY3yTFNTzgU2dn00nZzQrhEh3LpzzCwByHW4Ew0TzeYxpWD
+         /BjTsQrfY14WfDsK+Hf7MFDzLwa2hSM25QlcmhN3OTlsLoPtFK4t9ukFJ2yLdMVR1UeS
+         7lkA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=kBIhuNzrd9/ICrWDQr4DVMV2/B2/59BRqjR58cRFSa8=;
-        b=Ge6MUy1eCa2afAM2rZyDO/FNl08f0Bshehx8EN4+AuwM0xHGas8ctbfTrsJ+YDwf+R
-         /6d/n9nYge6YvtwfD0BREtem0sMIeHaNXwAn1h1fNh8iW/poLCgbpOQedHZyYr3Ipqp5
-         bO6uZGOo2fOrtMO2c4R4mgZHLXhezwQGzCPe/lbUFugdxKFWaD1hCqkEdKNnhPhBg4wl
-         dgdvWJ95mv23z4l1dCbnRMGBWk31eX1pwPgQOWJe4RjKQow+KP8OkwyZyPzynb5Uy2Nd
-         lVQlNjTOq6XO3cxAo+81AsM1/oB6jxodSonTXYRey0ko/FbCB+eufM3PaHKKbUq9d2OV
-         8g2A==
-X-Gm-Message-State: APjAAAWNqFRvSpG9wgN/vflpHMq2Jf7mtkNVvhZFtyan8DnHTXbswQql
-        xxr8qJu1IGq4cfImesmuvPGskHuddBRKgZT5DTM=
-X-Google-Smtp-Source: APXvYqy7eptXAdEZnovXNA47MGEG44idKZd6tifmRJg1r8lBP52ZR9PRv5Q5jHU2VMNFc4VIVH+tkdwNPjyGtXAaRz0=
-X-Received: by 2002:a05:600c:2255:: with SMTP id a21mr6249867wmm.79.1582229308197;
- Thu, 20 Feb 2020 12:08:28 -0800 (PST)
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=g43zi0Kc4rp1x+vu6qU/MJPQUkT5VTc1y7CjnMTKB/U=;
+        b=Yxgmvgd03wMw+EKnXu/GphKyvnUA9csRBgJZPhxHLLfQ3YPKtiv++7wxvasN+nDwMr
+         EkLLLWBmO3DpVaDoVpQ5xPHG6r3FPXeoq44ASFKY1EzCbxbGDxYVLXK1Enakt3t+aSzu
+         ZpC/+cYlMk9IHnuh4rgrvVjD9KzEEGnzbLE4Q9vr9k/D4kXQEJsbeJab3CFES1TQHXWA
+         XWEPAPa78EF4H6pjhErU1QBxstDxgpUZHsuKEx3xG985ASkU11d2TZK9kLIoSmUOrtL9
+         XdVWOpgLTUD6AhiGeErazKu4DhMA+yIpEJ1tZi17CbCLPGSVF6P26SNDJjP+Synnt/29
+         +i9A==
+X-Gm-Message-State: APjAAAU8n7XSwueC7bP+2gARkHtCV3p7HEkw9ZE5iQbWs/vXXwkgEhCu
+        EpoM5+L6qJMt8vz3UsEDrgO2bqtKwlFvidZMnQoj5Prb
+X-Google-Smtp-Source: APXvYqyNuaplL0CRgFxpxvHvZUjqeUhgKd8v09MShHRL8DnQfTpresGrI6AdEogQfkeQ7PjxSJJZjicYnNlz2G89rVM=
+X-Received: by 2002:a92:4a0a:: with SMTP id m10mr31992109ilf.84.1582230175748;
+ Thu, 20 Feb 2020 12:22:55 -0800 (PST)
 MIME-Version: 1.0
-References: <20200214154854.6746-1-sashal@kernel.org> <20200214154854.6746-530-sashal@kernel.org>
- <CADnq5_Oq-6VYYMWgvSbTcs5S6+DHP1K+ambo3Cd_BBkYFQk8HQ@mail.gmail.com> <20200220192654.GJ1734@sasha-vm>
-In-Reply-To: <20200220192654.GJ1734@sasha-vm>
-From:   Alex Deucher <alexdeucher@gmail.com>
-Date:   Thu, 20 Feb 2020 15:08:16 -0500
-Message-ID: <CADnq5_MRkgK=Of_GJ7n1FHnnuSzdb=OJ7zdQJegi0=xMUidKXg@mail.gmail.com>
-Subject: Re: [PATCH AUTOSEL 5.5 530/542] drm/amdgpu/smu10: fix smu10_get_clock_by_type_with_voltage
+References: <20200102215518.148051-1-matthewgarrett@google.com> <20200104053108.B393D2071A@mail.kernel.org>
+In-Reply-To: <20200104053108.B393D2071A@mail.kernel.org>
+From:   Matthew Garrett <mjg59@google.com>
+Date:   Thu, 20 Feb 2020 12:22:44 -0800
+Message-ID: <CACdnJutSTAK8JA_dD9Mo_sNaZxK5GbUxa=xx7xrysh9gPqQNtw@mail.gmail.com>
+Subject: Re: [PATCH V2] tpm: Don't make log failures fatal
 To:     Sasha Levin <sashal@kernel.org>
-Cc:     LKML <linux-kernel@vger.kernel.org>,
-        "for 3.8" <stable@vger.kernel.org>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Evan Quan <evan.quan@amd.com>,
-        Maling list - DRI developers 
-        <dri-devel@lists.freedesktop.org>,
-        amd-gfx list <amd-gfx@lists.freedesktop.org>
+Cc:     linux-integrity <linux-integrity@vger.kernel.org>,
+        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
+        stable@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Feb 20, 2020 at 2:26 PM Sasha Levin <sashal@kernel.org> wrote:
+On Fri, Jan 3, 2020 at 9:31 PM Sasha Levin <sashal@kernel.org> wrote:
 >
-> On Fri, Feb 14, 2020 at 11:31:31AM -0500, Alex Deucher wrote:
-> >On Fri, Feb 14, 2020 at 11:00 AM Sasha Levin <sashal@kernel.org> wrote:
-> >>
-> >> From: Alex Deucher <alexander.deucher@amd.com>
-> >>
-> >> [ Upstream commit 1064ad4aeef94f51ca230ac639a9e996fb7867a0 ]
-> >>
-> >> Cull out 0 clocks to avoid a warning in DC.
-> >>
-> >> Bug: https://gitlab.freedesktop.org/drm/amd/issues/963
-> >
-> >All of the upstream commits that reference this bug need to be applied
-> >or this patch set will be broken.  Please either apply them all or
-> >drop them.
->
-> Okay, so I have these 3 in 4.19-5.5:
->
-> c37243579d6c ("drm/amdgpu/display: handle multiple numbers of fclks in dcn_calcs.c (v2)")
-> 4d0a72b66065 ("drm/amdgpu/smu10: fix smu10_get_clock_by_type_with_latency")
-> 1064ad4aeef9 ("drm/amdgpu/smu10: fix smu10_get_clock_by_type_with_voltage"
+> The bot has tested the following trees: v5.4.7, v5.3.18, v4.19.92, v4.14.=
+161, v4.9.207, v4.4.207.
+> v4.14.161: Failed to apply! Possible dependencies:
+=E2=80=A6
+> v4.9.207: Failed to apply! Possible dependencies:
+=E2=80=A6
+> v4.4.207: Failed to apply! Possible dependencies:
+=E2=80=A6
+> How should we proceed with this patch?
 
-Yes, that should do it.  Thanks!
-
-Alex
-
->
-> --
-> Thanks,
-> Sasha
+Ignoring these kernels should be fine.
