@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B2BBB16753B
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:30:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AA04E16753D
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:30:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388688AbgBUIYq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 03:24:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37334 "EHLO mail.kernel.org"
+        id S2388694AbgBUIYt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 03:24:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37398 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388687AbgBUIYp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 03:24:45 -0500
+        id S2388690AbgBUIYs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 03:24:48 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2DA4A2469F;
-        Fri, 21 Feb 2020 08:24:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AA655246A6;
+        Fri, 21 Feb 2020 08:24:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582273484;
-        bh=Dsh/Qd043VlBj8iAhdts5UbxfZgcXm4Hu4M2aPNVJ/o=;
+        s=default; t=1582273487;
+        bh=QkWuP5eAMNL26mHFDAU6zKXyBGmWQWkMnXy5SCg3/fs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Pb5F8teg/hNA07G7BP3RS7poI6CLKXhERBNOc5gPk6wQNfjIobCcexZF6v80lApC4
-         qG25xwOhXoW88lx6gXBweXar643/kKr9ZVbBOqIuX8jphyPNB41eP5qrpfZ8SnS2FA
-         xSUJHuPOwLLYYnPqzYHwSrxK0RxRfoEiWlOvDd2k=
+        b=f4md70kgKOdFzC2lwL4TMVqXQRN2t/l5myUXP7DOetlCPV40GfWJhpCyQGS6GWoE7
+         dNyWbv33Ns140KrZURJIS9WtVFNK8DMZPXq4ycvHXTjj1M0y3lMBvlyGyWPorjt4t6
+         utE2OKPI+xGcPgVcoEQn4vb82zcMpNgiBuvQvYkY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Steve French <stfrench@microsoft.com>,
-        Oleg Kravtsov <oleg@tuxera.com>,
-        Ronnie Sahlberg <lsahlber@redhat.com>,
-        Pavel Shilovsky <pshilov@microsoft.com>,
+        stable@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>,
+        David Hildenbrand <david@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 188/191] cifs: log warning message (once) if out of disk space
-Date:   Fri, 21 Feb 2020 08:42:41 +0100
-Message-Id: <20200221072313.381537875@linuxfoundation.org>
+Subject: [PATCH 4.19 189/191] virtio_balloon: prevent pfn array overflow
+Date:   Fri, 21 Feb 2020 08:42:42 +0100
+Message-Id: <20200221072313.478061333@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200221072250.732482588@linuxfoundation.org>
 References: <20200221072250.732482588@linuxfoundation.org>
@@ -46,40 +44,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steve French <stfrench@microsoft.com>
+From: Michael S. Tsirkin <mst@redhat.com>
 
-[ Upstream commit d6fd41905ec577851734623fb905b1763801f5ef ]
+[ Upstream commit 6e9826e77249355c09db6ba41cd3f84e89f4b614 ]
 
-We ran into a confusing problem where an application wasn't checking
-return code on close and so user didn't realize that the application
-ran out of disk space.  log a warning message (once) in these
-cases. For example:
+Make sure, at build time, that pfn array is big enough to hold a single
+page.  It happens to be true since the PAGE_SHIFT value at the moment is
+20, which is 1M - exactly 256 4K balloon pages.
 
-  [ 8407.391909] Out of space writing to \\oleg-server\small-share
-
-Signed-off-by: Steve French <stfrench@microsoft.com>
-Reported-by: Oleg Kravtsov <oleg@tuxera.com>
-Reviewed-by: Ronnie Sahlberg <lsahlber@redhat.com>
-Reviewed-by: Pavel Shilovsky <pshilov@microsoft.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/smb2pdu.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/virtio/virtio_balloon.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/fs/cifs/smb2pdu.c b/fs/cifs/smb2pdu.c
-index 0d4e4d97e6cf5..e2d2b749c8f38 100644
---- a/fs/cifs/smb2pdu.c
-+++ b/fs/cifs/smb2pdu.c
-@@ -3425,6 +3425,9 @@ smb2_writev_callback(struct mid_q_entry *mid)
- 				     wdata->cfile->fid.persistent_fid,
- 				     tcon->tid, tcon->ses->Suid, wdata->offset,
- 				     wdata->bytes, wdata->result);
-+		if (wdata->result == -ENOSPC)
-+			printk_once(KERN_WARNING "Out of space writing to %s\n",
-+				    tcon->treeName);
- 	} else
- 		trace_smb3_write_done(0 /* no xid */,
- 				      wdata->cfile->fid.persistent_fid,
+diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+index 14ac36ca8fbd3..1afcbef397ab7 100644
+--- a/drivers/virtio/virtio_balloon.c
++++ b/drivers/virtio/virtio_balloon.c
+@@ -126,6 +126,8 @@ static void set_page_pfns(struct virtio_balloon *vb,
+ {
+ 	unsigned int i;
+ 
++	BUILD_BUG_ON(VIRTIO_BALLOON_PAGES_PER_PAGE > VIRTIO_BALLOON_ARRAY_PFNS_MAX);
++
+ 	/*
+ 	 * Set balloon pfns pointing at this page.
+ 	 * Note that the first pfn points at start of the page.
 -- 
 2.20.1
 
