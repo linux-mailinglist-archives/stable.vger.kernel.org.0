@@ -2,143 +2,129 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2582C167B99
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 12:13:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E2BB167BDF
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 12:17:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726909AbgBULNQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 06:13:16 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33912 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726694AbgBULNQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 06:13:16 -0500
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 154DE207FD;
-        Fri, 21 Feb 2020 11:13:14 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582283595;
-        bh=1Udq+7Q69q3s3KUMwUZ8BG97EPboX7J33NslS8Xmk0M=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=KV9jz8yu6t/SDUZjJtrNxxjcTDcMTonrg1ozc33TeV+Y09h6uI05MN2kYNDEatK7A
-         hBQPWg8ZkhXmM92WnIeC8Gr9CDjk+jJlt4l2j6JVJsXqYgYcG9mn2XlwPT4e3Y0nK2
-         P5UZpgmIITRx6wT+fYHMHgV6ksp+iMbAhPrklyhE=
-Date:   Fri, 21 Feb 2020 12:13:13 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Chanwoo Choi <cw00.choi@samsung.com>
-Cc:     John Stultz <john.stultz@linaro.org>,
-        Orson Zhai <orson.unisoc@gmail.com>,
-        MyungJoo Ham <myungjoo.ham@samsung.com>,
-        Kyungmin Park <kyungmin.park@samsung.com>,
-        mingmin.ling@unisoc.com, orsonzhai@gmail.com,
-        jingchao.ye@unisoc.com, Linux PM list <linux-pm@vger.kernel.org>,
-        lkml <linux-kernel@vger.kernel.org>,
-        stable <stable@vger.kernel.org>
-Subject: Re: [PATCH] Revert "PM / devfreq: Modify the device name as
- devfreq(X) for sysfs"
-Message-ID: <20200221111313.GA110504@kroah.com>
-References: <1582220224-1904-1-git-send-email-orson.unisoc@gmail.com>
- <20200220191513.GA3450796@kroah.com>
- <CALAqxLViRgGE8FsukCJL+doqk_GqabLDCtXBWem+VOGf9xXZdg@mail.gmail.com>
- <CGME20200221070652epcas1p11e82863794f130373055c0b7bdedff23@epcas1p1.samsung.com>
- <20200221070646.GA4103708@kroah.com>
- <1b9e510a-71bb-5aa8-ef85-a9a9c623f313@samsung.com>
+        id S1726395AbgBULR6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 06:17:58 -0500
+Received: from mail-lf1-f66.google.com ([209.85.167.66]:45715 "EHLO
+        mail-lf1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726325AbgBULR6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 21 Feb 2020 06:17:58 -0500
+Received: by mail-lf1-f66.google.com with SMTP id z5so1187339lfd.12
+        for <stable@vger.kernel.org>; Fri, 21 Feb 2020 03:17:57 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=Gim0LahUou+1GhT0i2NTsUJucCc3gqJedRUqf5uOSGY=;
+        b=YapktekuYDYpX1KTSNJAZ2QZReOKHtBO1DePweQSweEsAq1UHVUy1RypFJE81btbve
+         ZJILpa8pMOwj3RPbn7ykJKganH0aQQ2ar63kA5mcgWPSCvb9P6piCgYUIr5o1QBWn+ZX
+         RbZeed8wn7fwIu/Em8IJ21LS/NE2kiarmk7xDyHwdMUtwhDcbPag5gQjxjeBZ/4pUBim
+         MCJmins9PcZqcjkg6H1DP64Hw+I8GKLMWlKwlat7dz0Zr8k7SLT70L/gbOWLw4veNqmm
+         i460+mvR8VJ0/a0iNGzsI9QQ2uGlpu1AIF48iIyex/Tx3kSoTCOfykalbc+T7PAHfiDx
+         DJzQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=Gim0LahUou+1GhT0i2NTsUJucCc3gqJedRUqf5uOSGY=;
+        b=oKn+FcVNrK7vPVYwsXsS+EqDKaZNoWztNCl4r9UH+04FwisWeG1qcXz42QlyNgELmp
+         vZ5oG1nOiEgSDD7zoEozftBSd93sjvBSaSAAvEyhmSJ6uiDLL2epxfhkMnFA/TKjcYTR
+         EEABPZu9JvalxzQu9HKiAqLHBU95dnlReZShEs/kDcdEpSqiN6Toaax9+89vA2ssz0Kb
+         fifzHwNPwmv6JlkdDgLnyi8QISOx/LoOG6aKyX9AqSqnMXRH0ps9Xgqoj5RLrTSw6AJV
+         2PvdSCZekIcOQizytGylDPgq3fJdA3XfPfXuMHq9Q3xBwsfUoSoUm90eqR6L2oOKRHtJ
+         tc3Q==
+X-Gm-Message-State: APjAAAXAfQeNXfW+fWM4p6Ju0gEutIwSwIlChXPQ9uFXVsoJc24hskRp
+        Ymm+leWTwuSeK7aOPLD1nwlJ+Xjbp1L2+iGbdg3jUg==
+X-Google-Smtp-Source: APXvYqwBQiV+KkA20U9up3VHyUSJOdigNHkwyzQDqlAHqaQHklI/NeQBKdnFSBD4r3qgBx1CeYRW6gAVDCwxU/N2S0Q=
+X-Received: by 2002:ac2:4199:: with SMTP id z25mr19750795lfh.26.1582283876489;
+ Fri, 21 Feb 2020 03:17:56 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1b9e510a-71bb-5aa8-ef85-a9a9c623f313@samsung.com>
+References: <20200221072349.335551332@linuxfoundation.org> <529a5a4a-974e-995a-9556-c2a14d09bb5d@nvidia.com>
+In-Reply-To: <529a5a4a-974e-995a-9556-c2a14d09bb5d@nvidia.com>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Fri, 21 Feb 2020 16:47:45 +0530
+Message-ID: <CA+G9fYv-KC0v++YsyXR-rhC2JBGUfhNGD+XYaZjN3fJSX1x_mg@mail.gmail.com>
+Subject: Re: [PATCH 5.4 000/344] 5.4.22-stable review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>, t-kristo@ti.com
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        lkft-triage@lists.linaro.org,
+        linux- stable <stable@vger.kernel.org>,
+        linux-tegra <linux-tegra@vger.kernel.org>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Jon Hunter <jonathanh@nvidia.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Feb 21, 2020 at 05:11:02PM +0900, Chanwoo Choi wrote:
-> On 2/21/20 4:06 PM, Greg Kroah-Hartman wrote:
-> > On Thu, Feb 20, 2020 at 11:47:41AM -0800, John Stultz wrote:
-> >> On Thu, Feb 20, 2020 at 11:15 AM Greg Kroah-Hartman
-> >> <gregkh@linuxfoundation.org> wrote:
-> >>>
-> >>> On Fri, Feb 21, 2020 at 01:37:04AM +0800, Orson Zhai wrote:
-> >>>> This reverts commit 4585fbcb5331fc910b7e553ad3efd0dd7b320d14.
-> >>>>
-> >>>> The name changing as devfreq(X) breaks some user space applications,
-> >>>> such as Android HAL from Unisoc and Hikey [1].
-> >>>> The device name will be changed unexpectly after every boot depending
-> >>>> on module init sequence. It will make trouble to setup some system
-> >>>> configuration like selinux for Android.
-> >>>>
-> >>>> So we'd like to revert it back to old naming rule before any better
-> >>>> way being found.
-> >>>>
-> >>>> [1] https://protect2.fireeye.com/url?k=00fa721e-5d2a7af6-00fbf951-000babff32e3-95e4b92259b05656&u=https://lkml.org/lkml/2018/5/8/1042
-> >>>>
-> >>>> Cc: John Stultz <john.stultz@linaro.org>
-> >>>> Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> >>>> Cc: stable@vger.kernel.org
-> >>>> Signed-off-by: Orson Zhai <orson.unisoc@gmail.com>
-> >>>>
-> >>>> ---
-> >>>>  drivers/devfreq/devfreq.c | 4 +---
-> >>>>  1 file changed, 1 insertion(+), 3 deletions(-)
-> >>>>
-> >>>> diff --git a/drivers/devfreq/devfreq.c b/drivers/devfreq/devfreq.c
-> >>>> index cceee8b..7dcf209 100644
-> >>>> --- a/drivers/devfreq/devfreq.c
-> >>>> +++ b/drivers/devfreq/devfreq.c
-> >>>> @@ -738,7 +738,6 @@ struct devfreq *devfreq_add_device(struct device *dev,
-> >>>>  {
-> >>>>       struct devfreq *devfreq;
-> >>>>       struct devfreq_governor *governor;
-> >>>> -     static atomic_t devfreq_no = ATOMIC_INIT(-1);
-> >>>>       int err = 0;
-> >>>>
-> >>>>       if (!dev || !profile || !governor_name) {
-> >>>> @@ -800,8 +799,7 @@ struct devfreq *devfreq_add_device(struct device *dev,
-> >>>>       devfreq->suspend_freq = dev_pm_opp_get_suspend_opp_freq(dev);
-> >>>>       atomic_set(&devfreq->suspend_count, 0);
-> >>>>
-> >>>> -     dev_set_name(&devfreq->dev, "devfreq%d",
-> >>>> -                             atomic_inc_return(&devfreq_no));
-> >>>> +     dev_set_name(&devfreq->dev, "%s", dev_name(dev));
-> >>>>       err = device_register(&devfreq->dev);
-> >>>>       if (err) {
-> >>>>               mutex_unlock(&devfreq->lock);
-> >>>> --
-> >>>> 2.7.4
-> >>>>
-> >>>
-> >>> Thanks for this, I agree, this needs to get back to the way things were
-> >>> as it seems to break too many existing systems as-is.
-> >>>
-> >>> I'll queue this up in my tree now, thanks.
-> >>
-> >> Oof this old thing. I unfortunately didn't get back to look at the
-> >> devfreq name node issue or the compatibility links, since the impact
-> >> of the regression (breaking the powerHAL's interactions with the gpu)
-> >> wasn't as big as other problems we had. While the regression was
-> >> frustrating, my only hesitancy at this point is that its been this way
-> >> since 4.10, so reverting the problematic patch is likely to break any
-> >> new users since then.
-> > 
-> > Looks like most users just revert that commit in their trees:
-> > 	https://protect2.fireeye.com/url?k=1012ad0f-4dc2a5e7-10132640-000babff32e3-35779c5ed675ef0f&u=https://source.codeaurora.org/quic/la/kernel/msm-4.14/commit/drivers/devfreq?h=msm-4.14&id=ccf273f6d89ad0fa8032e9225305ad6f62c7770c
-> > 
-> > So we should be ok here.
-> 
-> I'm sorry about changing the devfreq node name.
-> 
-> OK. Do you pick this patch to your tree?
+On Fri, 21 Feb 2020 at 15:34, Jon Hunter <jonathanh@nvidia.com> wrote:
+>
+>
+> On 21/02/2020 07:36, Greg Kroah-Hartman wrote:
+> > This is the start of the stable review cycle for the 5.4.22 release.
+> > There are 344 patches in this series, all will be posted as a response
+> > to this one.  If anyone has any issues with these being applied, please
+> > let me know.
+> >
+> > Responses should be made by Sun, 23 Feb 2020 07:19:49 +0000.
+> > Anything received after that time might be too late.
+> >
+> > The whole patch series can be found in one patch at:
+> >       https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.22-rc1.gz
+> > or in the git tree and branch at:
+> >       git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
+> > and the diffstat can be found below.
+> >
+> > thanks,
+> >
+> > greg k-h
+> >
+> > -------------
+> > Pseudo-Shortlog of commits:
+>
+> ...
+>
+> > Tero Kristo <t-kristo@ti.com>
+> >     ARM: OMAP2+: pdata-quirks: add PRM data for reset support
+>
+>
+> The above commit is generating the following build error on ARM systems ...
+>
+> dvs/git/dirty/git-master_l4t-upstream/kernel/arch/arm/mach-omap2/pdata-quirks.c:27:10: fatal error: linux/platform_data/ti-prm.h: No such file or directory
+>  #include <linux/platform_data/ti-prm.h>
+>           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Yes, I can do that.
+build error:
 
-> or If not, I'll apply it to devfreq-next branch for v5.7-rc1.
-> 
-> And do you apply it to kernel of linux-stable tree since 4.11?
+../arch/arm/mach-omap2/pdata-quirks.c:27:10: fatal error:
+linux/platform_data/ti-prm.h: No such file or directory
+   27 | #include <linux/platform_data/ti-prm.h>
+      |          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+compilation terminated.
+make[2]: *** [../scripts/Makefile.build:265:
+arch/arm/mach-omap2/pdata-quirks.o] Error 1
 
-Yeah, I'll mark it for stable.
+With these below three patches, it applies cleanly and builds.
+But I'm not sure these are not expected to get into stable rc 5.4 branch.
 
-Can I get an ack from you for this?
+3e99cb214f03 ("soc: ti: add initial PRM driver with reset control support")
+c5117a78dd88 ("soc: ti: omap-prm: poll for reset complete during de-assert")
+d30cd83f6853 ("soc: ti: omap-prm: add support for denying idle for
+reset clockdomain")
 
-thanks,
+However, it's only patch
+d30cd83f6853 ("soc: ti: omap-prm: add support for denying idle for
+reset clockdomain")
+that introduces file linux/platform_data/ti-prm.h
 
-greg k-h
+--
+Linaro LKFT
+https://lkft.linaro.org
