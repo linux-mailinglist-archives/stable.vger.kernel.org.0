@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 985DC1670B1
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 08:48:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B0CBE1670B8
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 08:48:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727867AbgBUHrZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 02:47:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43178 "EHLO mail.kernel.org"
+        id S1727946AbgBUHrm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 02:47:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43610 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728901AbgBUHrX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 02:47:23 -0500
+        id S1728567AbgBUHrl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 02:47:41 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 287F2222C4;
-        Fri, 21 Feb 2020 07:47:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 413A3222C4;
+        Fri, 21 Feb 2020 07:47:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582271242;
-        bh=v9kgbTRLSbsOE/FA6v/8+h7+wnByHJqRW7CwIyvCXio=;
+        s=default; t=1582271260;
+        bh=j10t5HO3W2ltOm3+De7grvLgQUA7DCKNukRC3XW6FKE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WZLrCG6HVhkcxIjdlGz/Q9zpkkyEUxuBxh64TYcycG7mQ4f0VJEAitQxQtvXco3aR
-         VhzRl1a7Sv97aAJRBf1d/aLBMqwLFSacBvnFiqM2xhKUw1nJwiYdg5eUwvpPi2+/UJ
-         fibyoG/KDkDf5LnQQ49H411ezwEkvxLBjeWkXR/8=
+        b=OIoavv12lfHqrk/Kvtp1brFnhfrzDWtv6uUK+cEmkz8/PClvkPxY8cCU1a4l5E6fz
+         imIPGeyyOqR/wH0mHed7JNo8n2u3Lus2bMB+G47hMzWjAd2lxA2IdDw+9JR34OLKWG
+         P/+zssTfKciwQhnJYogU1UpuSju3u0gAX/teaIRY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Louis Li <Ching-shih.Li@amd.com>,
-        Wenjing Liu <Wenjing.Liu@amd.com>,
-        Hersen Wu <hersenxs.wu@amd.com>,
-        Eric Yang <Eric.Yang2@amd.com>,
-        Harry Wentland <harry.wentland@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org,
+        Vincenzo Frascino <vincenzo.frascino@arm.com>,
+        Masahiro Yamada <masahiroy@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 092/399] drm/amd/display: Retrain dongles when SINK_COUNT becomes non-zero
-Date:   Fri, 21 Feb 2020 08:36:57 +0100
-Message-Id: <20200221072411.287157032@linuxfoundation.org>
+Subject: [PATCH 5.5 099/399] kconfig: fix broken dependency in randconfig-generated .config
+Date:   Fri, 21 Feb 2020 08:37:04 +0100
+Message-Id: <20200221072412.031746752@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200221072402.315346745@linuxfoundation.org>
 References: <20200221072402.315346745@linuxfoundation.org>
@@ -48,69 +45,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Harry Wentland <harry.wentland@amd.com>
+From: Masahiro Yamada <masahiroy@kernel.org>
 
-[ Upstream commit 3eb6d7aca53d81ce888624f09cd44dc0302161e8 ]
+[ Upstream commit c8fb7d7e48d11520ad24808cfce7afb7b9c9f798 ]
 
-[WHY]
-Two years ago the patch referenced by the Fixes tag stopped running
-dp_verify_link_cap_with_retries during DP detection when the reason
-for the detection was a short-pulse interrupt. This effectively meant
-that we were no longer doing the verify_link_cap training on active
-dongles when their SINK_COUNT changed from 0 to 1.
+Running randconfig on arm64 using KCONFIG_SEED=0x40C5E904 (e.g. on v5.5)
+produces the .config with CONFIG_EFI=y and CONFIG_CPU_BIG_ENDIAN=y,
+which does not meet the !CONFIG_CPU_BIG_ENDIAN dependency.
 
-A year ago this was partly remedied with:
-commit 80adaebd2d41 ("drm/amd/display: Don't skip link training for empty dongle")
+This is because the user choice for CONFIG_CPU_LITTLE_ENDIAN vs
+CONFIG_CPU_BIG_ENDIAN is set by randomize_choice_values() after the
+value of CONFIG_EFI is calculated.
 
-This made sure that we trained the dongle on initial hotplug (without
-connected downstream devices).
+When this happens, the has_changed flag should be set.
 
-This is all fine and dandy if it weren't for the fact that there are
-some dongles on the market that don't like link training when SINK_COUNT
-is 0 These dongles will in fact indicate a SINK_COUNT of 0 immediately
-after hotplug, even when a downstream device is connected, and then
-trigger a shortpulse interrupt indicating a SINK_COUNT change to 1.
+Currently, it takes the result from the last iteration. It should
+accumulate all the results of the loop.
 
-In order to play nicely we will need our policy to not link train an
-active DP dongle when SINK_COUNT is 0 but ensure we train it when the
-SINK_COUNT changes to 1.
-
-[HOW]
-Call dp_verify_link_cap_with_retries on detection even when the detection
-is triggered from a short pulse interrupt.
-
-With this change we can also revert this commit which we'll do in a separate
-follow-up change:
-commit 80adaebd2d41 ("drm/amd/display: Don't skip link training for empty dongle")
-
-Fixes: 0301ccbaf67d ("drm/amd/display: DP Compliance 400.1.1 failure")
-Suggested-by: Louis Li <Ching-shih.Li@amd.com>
-Tested-by: Louis Li <Ching-shih.Li@amd.com>
-Cc: Wenjing Liu <Wenjing.Liu@amd.com>
-Cc: Hersen Wu <hersenxs.wu@amd.com>
-Cc: Eric Yang <Eric.Yang2@amd.com>
-Reviewed-by: Wenjing Liu <Wenjing.Liu@amd.com>
-Signed-off-by: Harry Wentland <harry.wentland@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Fixes: 3b9a19e08960 ("kconfig: loop as long as we changed some symbols in randconfig")
+Reported-by: Vincenzo Frascino <vincenzo.frascino@arm.com>
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/core/dc_link.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ scripts/kconfig/confdata.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/core/dc_link.c b/drivers/gpu/drm/amd/display/dc/core/dc_link.c
-index 4619f94f0ac78..70846ae7d854d 100644
---- a/drivers/gpu/drm/amd/display/dc/core/dc_link.c
-+++ b/drivers/gpu/drm/amd/display/dc/core/dc_link.c
-@@ -968,8 +968,7 @@ static bool dc_link_detect_helper(struct dc_link *link,
- 			same_edid = is_same_edid(&prev_sink->dc_edid, &sink->dc_edid);
+diff --git a/scripts/kconfig/confdata.c b/scripts/kconfig/confdata.c
+index 3569d2dec37ce..17298239e3633 100644
+--- a/scripts/kconfig/confdata.c
++++ b/scripts/kconfig/confdata.c
+@@ -1353,7 +1353,7 @@ bool conf_set_all_new_symbols(enum conf_def_mode mode)
  
- 		if (link->connector_signal == SIGNAL_TYPE_DISPLAY_PORT &&
--			sink_caps.transaction_type == DDC_TRANSACTION_TYPE_I2C_OVER_AUX &&
--			reason != DETECT_REASON_HPDRX) {
-+			sink_caps.transaction_type == DDC_TRANSACTION_TYPE_I2C_OVER_AUX) {
- 			/*
- 			 * TODO debug why Dell 2413 doesn't like
- 			 *  two link trainings
+ 		sym_calc_value(csym);
+ 		if (mode == def_random)
+-			has_changed = randomize_choice_values(csym);
++			has_changed |= randomize_choice_values(csym);
+ 		else {
+ 			set_all_choice_values(csym);
+ 			has_changed = true;
 -- 
 2.20.1
 
