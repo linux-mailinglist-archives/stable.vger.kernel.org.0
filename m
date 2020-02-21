@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D12D16769E
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:37:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 948B31677F7
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:46:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730006AbgBUIhA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 03:37:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38924 "EHLO mail.kernel.org"
+        id S1729654AbgBUHvC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 02:51:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48120 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731818AbgBUIFZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 03:05:25 -0500
+        id S1729160AbgBUHu7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 02:50:59 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DF60C20801;
-        Fri, 21 Feb 2020 08:05:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C06BE20801;
+        Fri, 21 Feb 2020 07:50:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582272325;
-        bh=j27L0uvNh+GXvHJve/VVwZnTA0Mp4pOfRumbA87sMpU=;
+        s=default; t=1582271459;
+        bh=Du1mF7eeMg+m+or7MrRy+2BjnUnht8x6SX8IIkgj73U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JX39ZVqhxZ9furNYtzEoSqL+z/A/3V6wCzZBHshQBoDQqU7glS6pXM/l1FYmGfm7F
-         s2Ueruyb5akKjYQ2RVUqXJ4i+YrGzb0bn2ql0wp8HqtpHvgw/oKsc7VBRCILNPNm3d
-         508W5CjGhL6KXlSVh50nPYAk5dmZwGFTOzQvwRtc=
+        b=qV085T1w87DacPgFpuKWUjliuRL7bCBxd7+Gf+YkKcpL3PJOkxC70kW0CkuSC+Lc6
+         kB62rPirZNWFdkC0yoCzx3ZXmIzB0iQ/b8SpRL+rvZqkTEArkttrD11jCKjSoVZUrg
+         HLxNZa9bjIRqnwvcvzlyeayFVESnWaG/zJJ6yTOI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Robin Murphy <robin.murphy@arm.com>,
-        Heiko Stuebner <heiko@sntech.de>,
+        stable@vger.kernel.org,
+        Jaihind Yadav <jaihindyadav@codeaurora.org>,
+        Ravi Kumar Siddojigari <rsiddoji@codeaurora.org>,
+        Paul Moore <paul@paul-moore.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 099/344] arm64: dts: rockchip: Fix NanoPC-T4 cooling maps
-Date:   Fri, 21 Feb 2020 08:38:18 +0100
-Message-Id: <20200221072357.937889303@linuxfoundation.org>
+Subject: [PATCH 5.5 174/399] selinux: ensure we cleanup the internal AVC counters on error in avc_update()
+Date:   Fri, 21 Feb 2020 08:38:19 +0100
+Message-Id: <20200221072419.566662004@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200221072349.335551332@linuxfoundation.org>
-References: <20200221072349.335551332@linuxfoundation.org>
+In-Reply-To: <20200221072402.315346745@linuxfoundation.org>
+References: <20200221072402.315346745@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,64 +46,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robin Murphy <robin.murphy@arm.com>
+From: Jaihind Yadav <jaihindyadav@codeaurora.org>
 
-[ Upstream commit a793e19c15f25a126138ac4ae9facf9204754af3 ]
+[ Upstream commit 030b995ad9ece9fa2d218af4429c1c78c2342096 ]
 
-Although it appeared to follow logically from the bindings, apparently
-the thermal framework can't properly cope with a single cooling device
-being shared between multiple maps. The CPU zone is probably easier to
-overheat, so remove the references to the (optional) fan from the GPU
-cooling zone to avoid things getting confused. Hopefully GPU-intensive
-tasks will leak enough heat across to the CPU zone to still hit the
-fan trips before reaching critical GPU temperatures.
+In AVC update we don't call avc_node_kill() when avc_xperms_populate()
+fails, resulting in the avc->avc_cache.active_nodes counter having a
+false value.  In last patch this changes was missed , so correcting it.
 
-Signed-off-by: Robin Murphy <robin.murphy@arm.com>
-Link: https://lore.kernel.org/r/5bb39f3115df1a487d717d3ae87e523b03749379.1573908197.git.robin.murphy@arm.com
-Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+Fixes: fa1aa143ac4a ("selinux: extended permissions for ioctls")
+Signed-off-by: Jaihind Yadav <jaihindyadav@codeaurora.org>
+Signed-off-by: Ravi Kumar Siddojigari <rsiddoji@codeaurora.org>
+[PM: merge fuzz, minor description cleanup]
+Signed-off-by: Paul Moore <paul@paul-moore.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../boot/dts/rockchip/rk3399-nanopc-t4.dts    | 27 -------------------
- 1 file changed, 27 deletions(-)
+ security/selinux/avc.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/rockchip/rk3399-nanopc-t4.dts b/arch/arm64/boot/dts/rockchip/rk3399-nanopc-t4.dts
-index 2a127985ab171..d3ed8e5e770f1 100644
---- a/arch/arm64/boot/dts/rockchip/rk3399-nanopc-t4.dts
-+++ b/arch/arm64/boot/dts/rockchip/rk3399-nanopc-t4.dts
-@@ -94,33 +94,6 @@
- 	};
- };
- 
--&gpu_thermal {
--	trips {
--		gpu_warm: gpu_warm {
--			temperature = <55000>;
--			hysteresis = <2000>;
--			type = "active";
--		};
--
--		gpu_hot: gpu_hot {
--			temperature = <65000>;
--			hysteresis = <2000>;
--			type = "active";
--		};
--	};
--	cooling-maps {
--		map1 {
--			trip = <&gpu_warm>;
--			cooling-device = <&fan THERMAL_NO_LIMIT 1>;
--		};
--
--		map2 {
--			trip = <&gpu_hot>;
--			cooling-device = <&fan 2 THERMAL_NO_LIMIT>;
--		};
--	};
--};
--
- &pinctrl {
- 	ir {
- 		ir_rx: ir-rx {
+diff --git a/security/selinux/avc.c b/security/selinux/avc.c
+index 6646300f7ccb2..d18cb32a242ae 100644
+--- a/security/selinux/avc.c
++++ b/security/selinux/avc.c
+@@ -891,7 +891,7 @@ static int avc_update_node(struct selinux_avc *avc,
+ 	if (orig->ae.xp_node) {
+ 		rc = avc_xperms_populate(node, orig->ae.xp_node);
+ 		if (rc) {
+-			kmem_cache_free(avc_node_cachep, node);
++			avc_node_kill(avc, node);
+ 			goto out_unlock;
+ 		}
+ 	}
 -- 
 2.20.1
 
