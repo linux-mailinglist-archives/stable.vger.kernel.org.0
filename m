@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B7EFE167243
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:02:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 29A7C167247
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:02:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731246AbgBUIB4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 03:01:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34290 "EHLO mail.kernel.org"
+        id S1731306AbgBUICH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 03:02:07 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34510 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730951AbgBUIBz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 03:01:55 -0500
+        id S1731003AbgBUICF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 03:02:05 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3A14F206ED;
-        Fri, 21 Feb 2020 08:01:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7899D20801;
+        Fri, 21 Feb 2020 08:02:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582272114;
-        bh=iuyIbYzgZDi9u7sIMIx8Fd9TnuJLfU1RqCaPaTF+SmE=;
+        s=default; t=1582272124;
+        bh=7+wHRW/OFH6ZSv2n77YPfpKBJ3mqYTMJDhk1Z2zwpLs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yBPy0OAF4mZv8CxOR3Yt+Wyrs1LEGuhg9nZzDa9qvZdtISZS5DA+CNKLwijSrk2xt
-         /SVhgPKTvWRJ7Hzd2uSv4faQz45Y3sWLQJc4IGjdr1Mbbj8gyyniQbaI7pj5MTDUUE
-         ihVO3AtPQz6aerqlUsvKdnOTvdxLp9pqzE+RLto0=
+        b=RoJStspxSGy1JsfjyM9S6ai2wXVhTA92RQyVg6nZBmwI9E/ixqiaBJeAKc7KpRkKK
+         uvFEcZIsEYHVQ9KIqjn/tm7dvWm4wCd0sfe2ZdIrsy5bZ6h4e2o864iu8FrWu1zN2O
+         VvKQHQ06NCsfr3RwpsJEzePxhldMjxIYrHlV1LHY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Navid Emamdoost <navid.emamdoost@gmail.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 021/344] brcmfmac: Fix memory leak in brcmf_p2p_create_p2pdev()
-Date:   Fri, 21 Feb 2020 08:37:00 +0100
-Message-Id: <20200221072351.124138974@linuxfoundation.org>
+        stable@vger.kernel.org, Zahari Petkov <zahari@balena.io>,
+        Pavel Machek <pavel@ucw.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 025/344] leds: pca963x: Fix open-drain initialization
+Date:   Fri, 21 Feb 2020 08:37:04 +0100
+Message-Id: <20200221072351.466635614@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200221072349.335551332@linuxfoundation.org>
 References: <20200221072349.335551332@linuxfoundation.org>
@@ -45,37 +43,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Navid Emamdoost <navid.emamdoost@gmail.com>
+From: Zahari Petkov <zahari@balena.io>
 
-[ Upstream commit 5cc509aa83c6acd2c5cd94f99065c39d2bd0a490 ]
+[ Upstream commit 697529091ac7a0a90ca349b914bb30641c13c753 ]
 
-In the implementation of brcmf_p2p_create_p2pdev() the allocated memory
-for p2p_vif is leaked when the mac address is the same as primary
-interface. To fix this, go to error path to release p2p_vif via
-brcmf_free_vif().
+Before commit bb29b9cccd95 ("leds: pca963x: Add bindings to invert
+polarity") Mode register 2 was initialized directly with either 0x01
+or 0x05 for open-drain or totem pole (push-pull) configuration.
 
-Fixes: cb746e47837a ("brcmfmac: check p2pdev mac address uniqueness")
-Signed-off-by: Navid Emamdoost <navid.emamdoost@gmail.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Afterwards, MODE2 initialization started using bitwise operations on
+top of the default MODE2 register value (0x05). Using bitwise OR for
+setting OUTDRV with 0x01 and 0x05 does not produce correct results.
+When open-drain is used, instead of setting OUTDRV to 0, the driver
+keeps it as 1:
+
+Open-drain: 0x05 | 0x01 -> 0x05 (0b101 - incorrect)
+Totem pole: 0x05 | 0x05 -> 0x05 (0b101 - correct but still wrong)
+
+Now OUTDRV setting uses correct bitwise operations for initialization:
+
+Open-drain: 0x05 & ~0x04 -> 0x01 (0b001 - correct)
+Totem pole: 0x05 | 0x04 -> 0x05 (0b101 - correct)
+
+Additional MODE2 register definitions are introduced now as well.
+
+Fixes: bb29b9cccd95 ("leds: pca963x: Add bindings to invert polarity")
+Signed-off-by: Zahari Petkov <zahari@balena.io>
+Signed-off-by: Pavel Machek <pavel@ucw.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/broadcom/brcm80211/brcmfmac/p2p.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/leds/leds-pca963x.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/p2p.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/p2p.c
-index 7ba9f6a686459..1f5deea5a288e 100644
---- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/p2p.c
-+++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/p2p.c
-@@ -2092,7 +2092,8 @@ static struct wireless_dev *brcmf_p2p_create_p2pdev(struct brcmf_p2p_info *p2p,
- 	/* firmware requires unique mac address for p2pdev interface */
- 	if (addr && ether_addr_equal(addr, pri_ifp->mac_addr)) {
- 		bphy_err(drvr, "discovery vif must be different from primary interface\n");
--		return ERR_PTR(-EINVAL);
-+		err = -EINVAL;
-+		goto fail;
- 	}
+diff --git a/drivers/leds/leds-pca963x.c b/drivers/leds/leds-pca963x.c
+index 4afc317901a89..66cdc003b8f42 100644
+--- a/drivers/leds/leds-pca963x.c
++++ b/drivers/leds/leds-pca963x.c
+@@ -40,6 +40,8 @@
+ #define PCA963X_LED_PWM		0x2	/* Controlled through PWM */
+ #define PCA963X_LED_GRP_PWM	0x3	/* Controlled through PWM/GRPPWM */
  
- 	brcmf_p2p_generate_bss_mac(p2p, addr);
++#define PCA963X_MODE2_OUTDRV	0x04	/* Open-drain or totem pole */
++#define PCA963X_MODE2_INVRT	0x10	/* Normal or inverted direction */
+ #define PCA963X_MODE2_DMBLNK	0x20	/* Enable blinking */
+ 
+ #define PCA963X_MODE1		0x00
+@@ -438,12 +440,12 @@ static int pca963x_probe(struct i2c_client *client,
+ 						    PCA963X_MODE2);
+ 		/* Configure output: open-drain or totem pole (push-pull) */
+ 		if (pdata->outdrv == PCA963X_OPEN_DRAIN)
+-			mode2 |= 0x01;
++			mode2 &= ~PCA963X_MODE2_OUTDRV;
+ 		else
+-			mode2 |= 0x05;
++			mode2 |= PCA963X_MODE2_OUTDRV;
+ 		/* Configure direction: normal or inverted */
+ 		if (pdata->dir == PCA963X_INVERTED)
+-			mode2 |= 0x10;
++			mode2 |= PCA963X_MODE2_INVRT;
+ 		i2c_smbus_write_byte_data(pca963x->chip->client, PCA963X_MODE2,
+ 					  mode2);
+ 	}
 -- 
 2.20.1
 
