@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BD3C5167602
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:36:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9AF311677D7
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:45:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731892AbgBUIGH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 03:06:07 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39654 "EHLO mail.kernel.org"
+        id S1728904AbgBUHvp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 02:51:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49178 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731531AbgBUIGC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 03:06:02 -0500
+        id S1729799AbgBUHvm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 02:51:42 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ED1D620801;
-        Fri, 21 Feb 2020 08:05:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5810A20801;
+        Fri, 21 Feb 2020 07:51:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582272360;
-        bh=D6q+W0uw71RZQXApkieYo4qW7HwpywQhRGI3KCCb+3o=;
+        s=default; t=1582271501;
+        bh=t+CZ/Xrc3LGCVh6lVgMRcMaaEwqkKuYLyhpdG8JoK2A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Tb+XovJ/3e1pSDY8em0G8teI660cC8UzQVAeqWwDrHznVcSPMFqmZkr4A8K07nT8b
-         SgYBhX7dOY1SPVckjAokfupJOzlwPZPKUsRaYZDU+bAt3X804Da3bbbkf9X+L2xnqI
-         of1mYFDPw0E/oY+USYzmWSZIV+zYc/HRhGRcbx3A=
+        b=uRv6jhRpiVdsUZYD6wuxPOzRmUaxRTgr6LrONBkJ8s9BxZ1Ga0Ppfep5bna24lqof
+         EPu89PRREWSOW8O7X77wPpQTnIo6CrkOiJgazVa0oRmK88NC5ZzafqGI8fgC5qxU/X
+         aQAuh53iXrXGDfXf5U/URgGHgzqqZRhbWowEUf14=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Abel Vesa <abel.vesa@nxp.com>,
-        Shawn Guo <shawnguo@kernel.org>,
+        stable@vger.kernel.org, Valdis Kletnieks <valdis.kletnieks@vt.edu>,
+        Borislav Petkov <bp@suse.de>, "H. Peter Anvin" <hpa@zytor.com>,
+        Andy Lutomirski <luto@kernel.org>,
+        Ingo Molnar <mingo@redhat.com>,
+        Thomas Gleixner <tglx@linutronix.de>, x86-ml <x86@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 114/344] clk: imx: Add correct failure handling for clk based helpers
-Date:   Fri, 21 Feb 2020 08:38:33 +0100
-Message-Id: <20200221072359.249701774@linuxfoundation.org>
+Subject: [PATCH 5.5 189/399] x86/vdso: Provide missing include file
+Date:   Fri, 21 Feb 2020 08:38:34 +0100
+Message-Id: <20200221072421.184464346@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200221072349.335551332@linuxfoundation.org>
-References: <20200221072349.335551332@linuxfoundation.org>
+In-Reply-To: <20200221072402.315346745@linuxfoundation.org>
+References: <20200221072402.315346745@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,107 +47,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Abel Vesa <abel.vesa@nxp.com>
+From: Valdis Klētnieks <valdis.kletnieks@vt.edu>
 
-[ Upstream commit f60f1c62c3188fcca945581e35e3440ee3fdcc95 ]
+[ Upstream commit bff47c2302cc249bcd550b17067f8dddbd4b6f77 ]
 
-If the clk_hw based API returns an error, trying to return the clk from
-hw will end up in a NULL pointer dereference. So adding the to_clk
-checker and using it inside every clk based macro helper we handle that
-case correctly.
+When building with C=1, sparse issues a warning:
 
-This to_clk is also temporary and will go away along with the clk based
-macro helpers once there is no user that need them anymore.
+  CHECK   arch/x86/entry/vdso/vdso32-setup.c
+  arch/x86/entry/vdso/vdso32-setup.c:28:28: warning: symbol 'vdso32_enabled' was not declared. Should it be static?
 
-Signed-off-by: Abel Vesa <abel.vesa@nxp.com>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Provide the missing header file.
+
+Signed-off-by: Valdis Kletnieks <valdis.kletnieks@vt.edu>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: x86-ml <x86@kernel.org>
+Link: https://lkml.kernel.org/r/36224.1575599767@turing-police
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/imx/clk.h | 37 ++++++++++++++++++++++---------------
- 1 file changed, 22 insertions(+), 15 deletions(-)
+ arch/x86/entry/vdso/vdso32-setup.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/clk/imx/clk.h b/drivers/clk/imx/clk.h
-index f7a389a50401a..6fe64ff8ffa12 100644
---- a/drivers/clk/imx/clk.h
-+++ b/drivers/clk/imx/clk.h
-@@ -51,48 +51,48 @@ struct imx_pll14xx_clk {
- };
+diff --git a/arch/x86/entry/vdso/vdso32-setup.c b/arch/x86/entry/vdso/vdso32-setup.c
+index 240626e7f55aa..43842fade8fa1 100644
+--- a/arch/x86/entry/vdso/vdso32-setup.c
++++ b/arch/x86/entry/vdso/vdso32-setup.c
+@@ -11,6 +11,7 @@
+ #include <linux/smp.h>
+ #include <linux/kernel.h>
+ #include <linux/mm_types.h>
++#include <linux/elf.h>
  
- #define imx_clk_cpu(name, parent_name, div, mux, pll, step) \
--	imx_clk_hw_cpu(name, parent_name, div, mux, pll, step)->clk
-+	to_clk(imx_clk_hw_cpu(name, parent_name, div, mux, pll, step))
- 
- #define clk_register_gate2(dev, name, parent_name, flags, reg, bit_idx, \
- 				cgr_val, clk_gate_flags, lock, share_count) \
--	clk_hw_register_gate2(dev, name, parent_name, flags, reg, bit_idx, \
--				cgr_val, clk_gate_flags, lock, share_count)->clk
-+	to_clk(clk_hw_register_gate2(dev, name, parent_name, flags, reg, bit_idx, \
-+				cgr_val, clk_gate_flags, lock, share_count))
- 
- #define imx_clk_pllv3(type, name, parent_name, base, div_mask) \
--	imx_clk_hw_pllv3(type, name, parent_name, base, div_mask)->clk
-+	to_clk(imx_clk_hw_pllv3(type, name, parent_name, base, div_mask))
- 
- #define imx_clk_pfd(name, parent_name, reg, idx) \
--	imx_clk_hw_pfd(name, parent_name, reg, idx)->clk
-+	to_clk(imx_clk_hw_pfd(name, parent_name, reg, idx))
- 
- #define imx_clk_gate_exclusive(name, parent, reg, shift, exclusive_mask) \
--	imx_clk_hw_gate_exclusive(name, parent, reg, shift, exclusive_mask)->clk
-+	to_clk(imx_clk_hw_gate_exclusive(name, parent, reg, shift, exclusive_mask))
- 
- #define imx_clk_fixed_factor(name, parent, mult, div) \
--	imx_clk_hw_fixed_factor(name, parent, mult, div)->clk
-+	to_clk(imx_clk_hw_fixed_factor(name, parent, mult, div))
- 
- #define imx_clk_divider2(name, parent, reg, shift, width) \
--	imx_clk_hw_divider2(name, parent, reg, shift, width)->clk
-+	to_clk(imx_clk_hw_divider2(name, parent, reg, shift, width))
- 
- #define imx_clk_gate_dis(name, parent, reg, shift) \
--	imx_clk_hw_gate_dis(name, parent, reg, shift)->clk
-+	to_clk(imx_clk_hw_gate_dis(name, parent, reg, shift))
- 
- #define imx_clk_gate2(name, parent, reg, shift) \
--	imx_clk_hw_gate2(name, parent, reg, shift)->clk
-+	to_clk(imx_clk_hw_gate2(name, parent, reg, shift))
- 
- #define imx_clk_gate2_flags(name, parent, reg, shift, flags) \
--	imx_clk_hw_gate2_flags(name, parent, reg, shift, flags)->clk
-+	to_clk(imx_clk_hw_gate2_flags(name, parent, reg, shift, flags))
- 
- #define imx_clk_gate2_shared2(name, parent, reg, shift, share_count) \
--	imx_clk_hw_gate2_shared2(name, parent, reg, shift, share_count)->clk
-+	to_clk(imx_clk_hw_gate2_shared2(name, parent, reg, shift, share_count))
- 
- #define imx_clk_gate3(name, parent, reg, shift) \
--	imx_clk_hw_gate3(name, parent, reg, shift)->clk
-+	to_clk(imx_clk_hw_gate3(name, parent, reg, shift))
- 
- #define imx_clk_gate4(name, parent, reg, shift) \
--	imx_clk_hw_gate4(name, parent, reg, shift)->clk
-+	to_clk(imx_clk_hw_gate4(name, parent, reg, shift))
- 
- #define imx_clk_mux(name, reg, shift, width, parents, num_parents) \
--	imx_clk_hw_mux(name, reg, shift, width, parents, num_parents)->clk
-+	to_clk(imx_clk_hw_mux(name, reg, shift, width, parents, num_parents))
- 
- struct clk *imx_clk_pll14xx(const char *name, const char *parent_name,
- 		 void __iomem *base, const struct imx_pll14xx_clk *pll_clk);
-@@ -195,6 +195,13 @@ struct clk_hw *imx_clk_hw_fixup_mux(const char *name, void __iomem *reg,
- 			      u8 shift, u8 width, const char * const *parents,
- 			      int num_parents, void (*fixup)(u32 *val));
- 
-+static inline struct clk *to_clk(struct clk_hw *hw)
-+{
-+	if (IS_ERR_OR_NULL(hw))
-+		return ERR_CAST(hw);
-+	return hw->clk;
-+}
-+
- static inline struct clk *imx_clk_fixed(const char *name, int rate)
- {
- 	return clk_register_fixed_rate(NULL, name, NULL, 0, rate);
+ #include <asm/processor.h>
+ #include <asm/vdso.h>
 -- 
 2.20.1
 
