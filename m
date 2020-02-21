@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AB0EA167682
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:37:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A38431677C7
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:44:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730778AbgBUIfr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 03:35:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41056 "EHLO mail.kernel.org"
+        id S1729554AbgBUHwa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 02:52:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50352 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731565AbgBUIHB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 03:07:01 -0500
+        id S1729755AbgBUHw3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 02:52:29 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4F9F520578;
-        Fri, 21 Feb 2020 08:07:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 14B432073A;
+        Fri, 21 Feb 2020 07:52:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582272420;
-        bh=aYvPL4xL2X6g2nzpVJWpIYuUFC45aYyDMfrrbDYhJj4=;
+        s=default; t=1582271548;
+        bh=yU3/HvfUjHjQ53JRdVWT8WNLGIo0vYw31AjxgZcgicY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CPJMucxHSgVd8j5/PJDyxxJhb1iYm/+TR9i+iMT0byzt+VV7an3pyzAjWP3+uY5gh
-         0ZWWrrDg9bV7RvmmOyCkBPX3TvZcRqlZzMy9dzkXz8jDGOrmBMtN9+o5bbS4AZ8eSl
-         z+NrlQ6BUJP9j8AcvIvEwMKzOSr9OCEB/6OxrW+4=
+        b=s10bYFfsILumYawezrFzGUiIbAPtQS9eWSRhixntcenmWt9bwYSE5NforiwfJmG6l
+         O3ELP0zoy91wEnJsYIodEBsBdwfhpK5lYGTf8104sM6/VdQcHiMsjVZKj+g4HWLx4i
+         8fpJw4e9Sb//MKIr3E3sGrbPJ3ScQhL5E+8lsz3I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, James Sewart <jamessewart@arista.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
+        stable@vger.kernel.org, Sam McNally <sammc@chromium.org>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 135/344] PCI: Add nr_devfns parameter to pci_add_dma_alias()
+Subject: [PATCH 5.5 209/399] ASoC: Intel: sof_rt5682: Ignore the speaker amp when there isnt one.
 Date:   Fri, 21 Feb 2020 08:38:54 +0100
-Message-Id: <20200221072401.096999408@linuxfoundation.org>
+Message-Id: <20200221072423.264139200@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200221072349.335551332@linuxfoundation.org>
-References: <20200221072349.335551332@linuxfoundation.org>
+In-Reply-To: <20200221072402.315346745@linuxfoundation.org>
+References: <20200221072402.315346745@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,173 +45,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Sewart <jamessewart@arista.com>
+From: Sam McNally <sammc@chromium.org>
 
-[ Upstream commit 09298542cd891b43778db1f65aa3613aa5a562eb ]
+[ Upstream commit d4b74e218a8d0d6cf58e546627ab9d4d4f2645ab ]
 
-Add a "nr_devfns" parameter to pci_add_dma_alias() so it can be used to
-create DMA aliases for a range of devfns.
+Some members of the Google_Hatch family include a rt5682 jack codec, but
+no speaker amplifier. This uses the same driver (sof_rt5682) as a
+combination of rt5682 jack codec and max98357a speaker amplifier. Within
+the sof_rt5682 driver, these cases are not currently distinguishable,
+relying on a DMI quirk to decide the configuration. This causes an
+incorrect configuration when only the rt5682 is present on a
+Google_Hatch device.
 
-[bhelgaas: incorporate nr_devfns fix from James, update
-quirk_pex_vca_alias() and setup_aliases()]
-Signed-off-by: James Sewart <jamessewart@arista.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+For CML, the jack codec is used as the primary key when matching,
+with a possible speaker amplifier described in quirk_data. The two cases
+of interest are the second and third 10EC5682 entries in
+snd_soc_acpi_intel_cml_machines[]. The second entry matches the
+combination of rt5682 and max98357a, resulting in the quirk_data field
+in the snd_soc_acpi_mach being non-null, pointing at
+max98357a_spk_codecs, the snd_soc_acpi_codecs for the matched speaker
+amplifier. The third entry matches just the rt5682, resulting in a null
+quirk_data.
+
+The sof_rt5682 driver's DMI data matching identifies that a speaker
+amplifier is present for all Google_Hatch family devices. Detect cases
+where there is no speaker amplifier by checking for a null quirk_data in
+the snd_soc_acpi_mach and remove the speaker amplifier bit in that case.
+
+Signed-off-by: Sam McNally <sammc@chromium.org>
+Acked-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Link: https://lore.kernel.org/r/20200103124921.v3.1.Ib87c4a7fbb3fc818ea12198e291b87dc2d5bc8c2@changeid
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/amd_iommu.c |  7 ++-----
- drivers/pci/pci.c         | 22 +++++++++++++++++-----
- drivers/pci/quirks.c      | 23 +++++++++--------------
- include/linux/pci.h       |  2 +-
- 4 files changed, 29 insertions(+), 25 deletions(-)
+ sound/soc/intel/boards/sof_rt5682.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/iommu/amd_iommu.c b/drivers/iommu/amd_iommu.c
-index 454695b372c8c..8bd5d608a82c2 100644
---- a/drivers/iommu/amd_iommu.c
-+++ b/drivers/iommu/amd_iommu.c
-@@ -272,11 +272,8 @@ static struct pci_dev *setup_aliases(struct device *dev)
- 	 */
- 	ivrs_alias = amd_iommu_alias_table[pci_dev_id(pdev)];
- 	if (ivrs_alias != pci_dev_id(pdev) &&
--	    PCI_BUS_NUM(ivrs_alias) == pdev->bus->number) {
--		pci_add_dma_alias(pdev, ivrs_alias & 0xff);
--		pci_info(pdev, "Added PCI DMA alias %02x.%d\n",
--			PCI_SLOT(ivrs_alias), PCI_FUNC(ivrs_alias));
--	}
-+	    PCI_BUS_NUM(ivrs_alias) == pdev->bus->number)
-+		pci_add_dma_alias(pdev, ivrs_alias & 0xff, 1);
+diff --git a/sound/soc/intel/boards/sof_rt5682.c b/sound/soc/intel/boards/sof_rt5682.c
+index ad8a2b4bc7092..8a13231dee15d 100644
+--- a/sound/soc/intel/boards/sof_rt5682.c
++++ b/sound/soc/intel/boards/sof_rt5682.c
+@@ -603,6 +603,14 @@ static int sof_audio_probe(struct platform_device *pdev)
  
- 	clone_aliases(pdev);
+ 	dmi_check_system(sof_rt5682_quirk_table);
  
-diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
-index cbf3d3889874c..981ae16f935bc 100644
---- a/drivers/pci/pci.c
-+++ b/drivers/pci/pci.c
-@@ -5875,7 +5875,8 @@ EXPORT_SYMBOL_GPL(pci_pr3_present);
- /**
-  * pci_add_dma_alias - Add a DMA devfn alias for a device
-  * @dev: the PCI device for which alias is added
-- * @devfn: alias slot and function
-+ * @devfn_from: alias slot and function
-+ * @nr_devfns: number of subsequent devfns to alias
-  *
-  * This helper encodes an 8-bit devfn as a bit number in dma_alias_mask
-  * which is used to program permissible bus-devfn source addresses for DMA
-@@ -5891,8 +5892,13 @@ EXPORT_SYMBOL_GPL(pci_pr3_present);
-  * cannot be left as a userspace activity).  DMA aliases should therefore
-  * be configured via quirks, such as the PCI fixup header quirk.
-  */
--void pci_add_dma_alias(struct pci_dev *dev, u8 devfn)
-+void pci_add_dma_alias(struct pci_dev *dev, u8 devfn_from, unsigned nr_devfns)
- {
-+	int devfn_to;
++	mach = (&pdev->dev)->platform_data;
 +
-+	nr_devfns = min(nr_devfns, (unsigned) MAX_NR_DEVFNS - devfn_from);
-+	devfn_to = devfn_from + nr_devfns - 1;
++	/* A speaker amp might not be present when the quirk claims one is.
++	 * Detect this via whether the machine driver match includes quirk_data.
++	 */
++	if ((sof_rt5682_quirk & SOF_SPEAKER_AMP_PRESENT) && !mach->quirk_data)
++		sof_rt5682_quirk &= ~SOF_SPEAKER_AMP_PRESENT;
 +
- 	if (!dev->dma_alias_mask)
- 		dev->dma_alias_mask = bitmap_zalloc(MAX_NR_DEVFNS, GFP_KERNEL);
- 	if (!dev->dma_alias_mask) {
-@@ -5900,9 +5906,15 @@ void pci_add_dma_alias(struct pci_dev *dev, u8 devfn)
- 		return;
- 	}
+ 	if (soc_intel_is_byt() || soc_intel_is_cht()) {
+ 		is_legacy_cpu = 1;
+ 		dmic_be_num = 0;
+@@ -663,7 +671,6 @@ static int sof_audio_probe(struct platform_device *pdev)
+ 	INIT_LIST_HEAD(&ctx->hdmi_pcm_list);
  
--	set_bit(devfn, dev->dma_alias_mask);
--	pci_info(dev, "Enabling fixed DMA alias to %02x.%d\n",
--		 PCI_SLOT(devfn), PCI_FUNC(devfn));
-+	bitmap_set(dev->dma_alias_mask, devfn_from, nr_devfns);
-+
-+	if (nr_devfns == 1)
-+		pci_info(dev, "Enabling fixed DMA alias to %02x.%d\n",
-+				PCI_SLOT(devfn_from), PCI_FUNC(devfn_from));
-+	else if (nr_devfns > 1)
-+		pci_info(dev, "Enabling fixed DMA alias for devfn range from %02x.%d to %02x.%d\n",
-+				PCI_SLOT(devfn_from), PCI_FUNC(devfn_from),
-+				PCI_SLOT(devfn_to), PCI_FUNC(devfn_to));
- }
+ 	sof_audio_card_rt5682.dev = &pdev->dev;
+-	mach = (&pdev->dev)->platform_data;
  
- bool pci_devs_are_dma_aliases(struct pci_dev *dev1, struct pci_dev *dev2)
-diff --git a/drivers/pci/quirks.c b/drivers/pci/quirks.c
-index 7b6df2d8d6cde..67a9ad3734d18 100644
---- a/drivers/pci/quirks.c
-+++ b/drivers/pci/quirks.c
-@@ -3927,7 +3927,7 @@ int pci_dev_specific_reset(struct pci_dev *dev, int probe)
- static void quirk_dma_func0_alias(struct pci_dev *dev)
- {
- 	if (PCI_FUNC(dev->devfn) != 0)
--		pci_add_dma_alias(dev, PCI_DEVFN(PCI_SLOT(dev->devfn), 0));
-+		pci_add_dma_alias(dev, PCI_DEVFN(PCI_SLOT(dev->devfn), 0), 1);
- }
- 
- /*
-@@ -3941,7 +3941,7 @@ DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_RICOH, 0xe476, quirk_dma_func0_alias);
- static void quirk_dma_func1_alias(struct pci_dev *dev)
- {
- 	if (PCI_FUNC(dev->devfn) != 1)
--		pci_add_dma_alias(dev, PCI_DEVFN(PCI_SLOT(dev->devfn), 1));
-+		pci_add_dma_alias(dev, PCI_DEVFN(PCI_SLOT(dev->devfn), 1), 1);
- }
- 
- /*
-@@ -4026,7 +4026,7 @@ static void quirk_fixed_dma_alias(struct pci_dev *dev)
- 
- 	id = pci_match_id(fixed_dma_alias_tbl, dev);
- 	if (id)
--		pci_add_dma_alias(dev, id->driver_data);
-+		pci_add_dma_alias(dev, id->driver_data, 1);
- }
- 
- DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_ADAPTEC2, 0x0285, quirk_fixed_dma_alias);
-@@ -4068,9 +4068,9 @@ DECLARE_PCI_FIXUP_HEADER(0x8086, 0x244e, quirk_use_pcie_bridge_dma_alias);
-  */
- static void quirk_mic_x200_dma_alias(struct pci_dev *pdev)
- {
--	pci_add_dma_alias(pdev, PCI_DEVFN(0x10, 0x0));
--	pci_add_dma_alias(pdev, PCI_DEVFN(0x11, 0x0));
--	pci_add_dma_alias(pdev, PCI_DEVFN(0x12, 0x3));
-+	pci_add_dma_alias(pdev, PCI_DEVFN(0x10, 0x0), 1);
-+	pci_add_dma_alias(pdev, PCI_DEVFN(0x11, 0x0), 1);
-+	pci_add_dma_alias(pdev, PCI_DEVFN(0x12, 0x3), 1);
- }
- DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL, 0x2260, quirk_mic_x200_dma_alias);
- DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL, 0x2264, quirk_mic_x200_dma_alias);
-@@ -4094,13 +4094,8 @@ static void quirk_pex_vca_alias(struct pci_dev *pdev)
- 	const unsigned int num_pci_slots = 0x20;
- 	unsigned int slot;
- 
--	for (slot = 0; slot < num_pci_slots; slot++) {
--		pci_add_dma_alias(pdev, PCI_DEVFN(slot, 0x0));
--		pci_add_dma_alias(pdev, PCI_DEVFN(slot, 0x1));
--		pci_add_dma_alias(pdev, PCI_DEVFN(slot, 0x2));
--		pci_add_dma_alias(pdev, PCI_DEVFN(slot, 0x3));
--		pci_add_dma_alias(pdev, PCI_DEVFN(slot, 0x4));
--	}
-+	for (slot = 0; slot < num_pci_slots; slot++)
-+		pci_add_dma_alias(pdev, PCI_DEVFN(slot, 0x0), 5);
- }
- DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL, 0x2954, quirk_pex_vca_alias);
- DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL, 0x2955, quirk_pex_vca_alias);
-@@ -5315,7 +5310,7 @@ static void quirk_switchtec_ntb_dma_alias(struct pci_dev *pdev)
- 			pci_dbg(pdev,
- 				"Aliasing Partition %d Proxy ID %02x.%d\n",
- 				pp, PCI_SLOT(devfn), PCI_FUNC(devfn));
--			pci_add_dma_alias(pdev, devfn);
-+			pci_add_dma_alias(pdev, devfn, 1);
- 		}
- 	}
- 
-diff --git a/include/linux/pci.h b/include/linux/pci.h
-index be529d311122d..f39f22f9ee474 100644
---- a/include/linux/pci.h
-+++ b/include/linux/pci.h
-@@ -2324,7 +2324,7 @@ static inline struct eeh_dev *pci_dev_to_eeh_dev(struct pci_dev *pdev)
- }
- #endif
- 
--void pci_add_dma_alias(struct pci_dev *dev, u8 devfn);
-+void pci_add_dma_alias(struct pci_dev *dev, u8 devfn_from, unsigned nr_devfns);
- bool pci_devs_are_dma_aliases(struct pci_dev *dev1, struct pci_dev *dev2);
- int pci_for_each_dma_alias(struct pci_dev *pdev,
- 			   int (*fn)(struct pci_dev *pdev,
+ 	/* set platform name for each dailink */
+ 	ret = snd_soc_fixup_dai_links_platform_name(&sof_audio_card_rt5682,
 -- 
 2.20.1
 
