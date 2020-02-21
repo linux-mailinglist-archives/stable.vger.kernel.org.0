@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 596B7167516
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:30:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 050011675B6
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:31:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388419AbgBUIXG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 03:23:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34982 "EHLO mail.kernel.org"
+        id S1733024AbgBUIP1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 03:15:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52236 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388417AbgBUIXG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 03:23:06 -0500
+        id S1732343AbgBUIP0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 03:15:26 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2C9E92467A;
-        Fri, 21 Feb 2020 08:23:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B50F824680;
+        Fri, 21 Feb 2020 08:15:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582273385;
-        bh=vz5gTBeqfS9iKhsuyNNi+PbAPPat9tNnC+F6SHigKak=;
+        s=default; t=1582272926;
+        bh=S3Nc5wzGIiH5GB3g7PUxAN4EYIumqeMsxMMOXpWjoMg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oR8m9N1S1SuOINum0ywTBy/D1VKSvsaJmxRWB26UCaeDamHDGUmqr9BznWkm/CBAu
-         jhhRNju3O5NeClY4DTXRQXbjMnXUE4tVnfiIVgSpPIB+RpQmJQvCcbIcLQBflfPhBz
-         javFmg+4BYBUo9z3pO7xtK7J4Dcest3w4Nv09S6o=
+        b=fvgazyIzAWpscasGsdh1j7ld62yqy8sOIJ52Ebxsq0FgOBl+nNpQHJsq8gGCpw6Dx
+         BPl8F5TZVoeRrf9RaWxwGgDolgEqp6mpJWgVAzZD2mbGqXCMnWqqvmZoMW1J5a2mYG
+         A9PFj2n9s5z+yS1WcjtNeqtLXmRvyf5GEbBV6j1M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Masahiro Yamada <masahiroy@kernel.org>,
+        stable@vger.kernel.org, kbuild test robot <lkp@intel.com>,
+        "Joel Fernandes (Google)" <joel@joelfernandes.org>,
+        Amol Grover <frextrite@gmail.com>,
+        Keith Busch <kbusch@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 151/191] kbuild: use -S instead of -E for precise cc-option test in Kconfig
-Date:   Fri, 21 Feb 2020 08:42:04 +0100
-Message-Id: <20200221072308.858375369@linuxfoundation.org>
+Subject: [PATCH 5.4 326/344] nvmet: Pass lockdep expression to RCU lists
+Date:   Fri, 21 Feb 2020 08:42:05 +0100
+Message-Id: <20200221072419.831805995@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200221072250.732482588@linuxfoundation.org>
-References: <20200221072250.732482588@linuxfoundation.org>
+In-Reply-To: <20200221072349.335551332@linuxfoundation.org>
+References: <20200221072349.335551332@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,47 +46,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masahiro Yamada <masahiroy@kernel.org>
+From: Amol Grover <frextrite@gmail.com>
 
-[ Upstream commit 3bed1b7b9d79ca40e41e3af130931a3225e951a3 ]
+[ Upstream commit 4ac76436a6d07dec1c3c766f234aa787a16e8f65 ]
 
-Currently, -E (stop after the preprocessing stage) is used to check
-whether the given compiler flag is supported.
+ctrl->subsys->namespaces and subsys->namespaces are traversed with
+list_for_each_entry_rcu outside an RCU read-side critical section but
+under the protection of ctrl->subsys->lock and subsys->lock respectively.
 
-While it is faster than -S (or -c), it can be false-positive. You need
-to run the compilation proper to check the flag more precisely.
+Hence, add the corresponding lockdep expression to the list traversal
+primitive to silence false-positive lockdep warnings, and harden RCU
+lists.
 
-For example, -E and -S disagree about the support of
-"--param asan-instrument-allocas=1".
-
-$ gcc -Werror --param asan-instrument-allocas=1 -E -x c /dev/null -o /dev/null
-$ echo $?
-0
-
-$ gcc -Werror --param asan-instrument-allocas=1 -S -x c /dev/null -o /dev/null
-cc1: error: invalid --param name ‘asan-instrument-allocas’; did you mean ‘asan-instrument-writes’?
-$ echo $?
-1
-
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+Reported-by: kbuild test robot <lkp@intel.com>
+Reviewed-by: Joel Fernandes (Google) <joel@joelfernandes.org>
+Signed-off-by: Amol Grover <frextrite@gmail.com>
+Signed-off-by: Keith Busch <kbusch@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- scripts/Kconfig.include | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/nvme/target/core.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/scripts/Kconfig.include b/scripts/Kconfig.include
-index 3b2861f47709b..79455ad6b3863 100644
---- a/scripts/Kconfig.include
-+++ b/scripts/Kconfig.include
-@@ -20,7 +20,7 @@ success = $(if-success,$(1),y,n)
+diff --git a/drivers/nvme/target/core.c b/drivers/nvme/target/core.c
+index 3a67e244e5685..57a4062cbb59e 100644
+--- a/drivers/nvme/target/core.c
++++ b/drivers/nvme/target/core.c
+@@ -555,7 +555,8 @@ int nvmet_ns_enable(struct nvmet_ns *ns)
+ 	} else {
+ 		struct nvmet_ns *old;
  
- # $(cc-option,<flag>)
- # Return y if the compiler supports <flag>, n otherwise
--cc-option = $(success,$(CC) -Werror $(CLANG_FLAGS) $(1) -E -x c /dev/null -o /dev/null)
-+cc-option = $(success,$(CC) -Werror $(CLANG_FLAGS) $(1) -S -x c /dev/null -o /dev/null)
+-		list_for_each_entry_rcu(old, &subsys->namespaces, dev_link) {
++		list_for_each_entry_rcu(old, &subsys->namespaces, dev_link,
++					lockdep_is_held(&subsys->lock)) {
+ 			BUG_ON(ns->nsid == old->nsid);
+ 			if (ns->nsid < old->nsid)
+ 				break;
+@@ -1174,7 +1175,8 @@ static void nvmet_setup_p2p_ns_map(struct nvmet_ctrl *ctrl,
  
- # $(ld-option,<flag>)
- # Return y if the linker supports <flag>, n otherwise
+ 	ctrl->p2p_client = get_device(req->p2p_client);
+ 
+-	list_for_each_entry_rcu(ns, &ctrl->subsys->namespaces, dev_link)
++	list_for_each_entry_rcu(ns, &ctrl->subsys->namespaces, dev_link,
++				lockdep_is_held(&ctrl->subsys->lock))
+ 		nvmet_p2pmem_ns_add_p2p(ctrl, ns);
+ }
+ 
 -- 
 2.20.1
 
