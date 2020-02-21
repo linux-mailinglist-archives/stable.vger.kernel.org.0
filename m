@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 62C47167514
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:30:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 66AFB16772D
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:41:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388171AbgBUIXD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 03:23:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34880 "EHLO mail.kernel.org"
+        id S1731785AbgBUIjW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 03:39:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33494 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388400AbgBUIXC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 03:23:02 -0500
+        id S1731166AbgBUIBM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 03:01:12 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3409D2467D;
-        Fri, 21 Feb 2020 08:23:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 40A6D2073A;
+        Fri, 21 Feb 2020 08:01:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582273380;
-        bh=gSIXnvYSzb1E5aXmOOPxu2e/NXExAykLWXKDEtJ6b8o=;
+        s=default; t=1582272071;
+        bh=H0djIpIgCKD0Tf20YOgU5LkJ2ifFfJbbpxqtLDzx5TY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gGqJkc65hwn9i00Lm0HWa7ErC3zDQ4Tb27eKxro0a31854RsE9tcyKD5JvviA+sli
-         UKvbrdsoRLdLLFDi7a0XTt01vsBd8K+vYcTZzoAzOgO2910GMiSCimwjLGTj2SN69M
-         aSw4Uu+sZzt2sc1acwVhd+jtNHH3oJ9yKF6BlUHk=
+        b=XhmlP9rOrzRabEaY8SH4QiI/uFSRCm0DSvLHmgAEnhyek0iZhxv6s7UD99Q2w+spq
+         U5oJX+BFbJRzzp5WZzvJB8KMahJIsKJxqNiBe7HaKuyojKKeMt3NGd/W5EH+oDYApI
+         VP1mODx4JXc2HR/7AH7ZeYs/jWhWopx9GPv6X+I8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, John Garry <john.garry@huawei.com>,
-        Marc Zyngier <maz@kernel.org>,
-        Hanjun Guo <guohanjun@huawei.com>,
+        stable@vger.kernel.org,
+        Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 149/191] irqchip/mbigen: Set driver .suppress_bind_attrs to avoid remove problems
-Date:   Fri, 21 Feb 2020 08:42:02 +0100
-Message-Id: <20200221072308.441059400@linuxfoundation.org>
+Subject: [PATCH 5.5 398/399] drm/amdgpu/display: handle multiple numbers of fclks in dcn_calcs.c (v2)
+Date:   Fri, 21 Feb 2020 08:42:03 +0100
+Message-Id: <20200221072438.501365877@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200221072250.732482588@linuxfoundation.org>
-References: <20200221072250.732482588@linuxfoundation.org>
+In-Reply-To: <20200221072402.315346745@linuxfoundation.org>
+References: <20200221072402.315346745@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,124 +45,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Garry <john.garry@huawei.com>
+From: Alex Deucher <alexander.deucher@amd.com>
 
-[ Upstream commit d6152e6ec9e2171280436f7b31a571509b9287e1 ]
+[ Upstream commit c37243579d6c881c575dcfb54cf31c9ded88f946 ]
 
-The following crash can be seen for setting
-CONFIG_DEBUG_TEST_DRIVER_REMOVE=y for DT FW (which some people still use):
+We might get different numbers of clocks from powerplay depending
+on what the OEM has populated.
 
-Hisilicon MBIGEN-V2 60080000.interrupt-controller: Failed to create mbi-gen irqdomain
-Hisilicon MBIGEN-V2: probe of 60080000.interrupt-controller failed with error -12
+v2: add assert for at least one level
 
-[...]
-
-Unable to handle kernel paging request at virtual address 0000000000005008
- Mem abort info:
-   ESR = 0x96000004
-   EC = 0x25: DABT (current EL), IL = 32 bits
-   SET = 0, FnV = 0
-   EA = 0, S1PTW = 0
- Data abort info:
-   ISV = 0, ISS = 0x00000004
-   CM = 0, WnR = 0
- user pgtable: 4k pages, 48-bit VAs, pgdp=0000041fb9990000
- [0000000000005008] pgd=0000000000000000
- Internal error: Oops: 96000004 [#1] PREEMPT SMP
- Modules linked in:
- CPU: 7 PID: 1 Comm: swapper/0 Not tainted 5.5.0-rc6-00002-g3fc42638a506-dirty #1622
- Hardware name: Huawei Taishan 2280 /D05, BIOS Hisilicon D05 IT21 Nemo 2.0 RC0 04/18/2018
- pstate: 40000085 (nZcv daIf -PAN -UAO)
- pc : mbigen_set_type+0x38/0x60
- lr : __irq_set_trigger+0x6c/0x188
- sp : ffff800014b4b400
- x29: ffff800014b4b400 x28: 0000000000000007
- x27: 0000000000000000 x26: 0000000000000000
- x25: ffff041fd83bd0d4 x24: ffff041fd83bd188
- x23: 0000000000000000 x22: ffff80001193ce00
- x21: 0000000000000004 x20: 0000000000000000
- x19: ffff041fd83bd000 x18: ffffffffffffffff
- x17: 0000000000000000 x16: 0000000000000000
- x15: ffff8000119098c8 x14: ffff041fb94ec91c
- x13: ffff041fb94ec1a1 x12: 0000000000000030
- x11: 0101010101010101 x10: 0000000000000040
- x9 : 0000000000000000 x8 : ffff041fb98c6680
- x7 : ffff800014b4b380 x6 : ffff041fd81636c8
- x5 : 0000000000000000 x4 : 000000000000025f
- x3 : 0000000000005000 x2 : 0000000000005008
- x1 : 0000000000000004 x0 : 0000000080000000
- Call trace:
-  mbigen_set_type+0x38/0x60
-  __setup_irq+0x744/0x900
-  request_threaded_irq+0xe0/0x198
-  pcie_pme_probe+0x98/0x118
-  pcie_port_probe_service+0x38/0x78
-  really_probe+0xa0/0x3e0
-  driver_probe_device+0x58/0x100
-  __device_attach_driver+0x90/0xb0
-  bus_for_each_drv+0x64/0xc8
-  __device_attach+0xd8/0x138
-  device_initial_probe+0x10/0x18
-  bus_probe_device+0x90/0x98
-  device_add+0x4c4/0x770
-  device_register+0x1c/0x28
-  pcie_port_device_register+0x1e4/0x4f0
-  pcie_portdrv_probe+0x34/0xd8
-  local_pci_probe+0x3c/0xa0
-  pci_device_probe+0x128/0x1c0
-  really_probe+0xa0/0x3e0
-  driver_probe_device+0x58/0x100
-  __device_attach_driver+0x90/0xb0
-  bus_for_each_drv+0x64/0xc8
-  __device_attach+0xd8/0x138
-  device_attach+0x10/0x18
-  pci_bus_add_device+0x4c/0xb8
-  pci_bus_add_devices+0x38/0x88
-  pci_host_probe+0x3c/0xc0
-  pci_host_common_probe+0xf0/0x208
-  hisi_pcie_almost_ecam_probe+0x24/0x30
-  platform_drv_probe+0x50/0xa0
-  really_probe+0xa0/0x3e0
-  driver_probe_device+0x58/0x100
-  device_driver_attach+0x6c/0x90
-  __driver_attach+0x84/0xc8
-  bus_for_each_dev+0x74/0xc8
-  driver_attach+0x20/0x28
-  bus_add_driver+0x148/0x1f0
-  driver_register+0x60/0x110
-  __platform_driver_register+0x40/0x48
-  hisi_pcie_almost_ecam_driver_init+0x1c/0x24
-
-The specific problem here is that the mbigen driver real probe has failed
-as the mbigen_of_create_domain()->of_platform_device_create() call fails,
-the reason for that being that we never destroyed the platform device
-created during the remove test dry run and there is some conflict.
-
-Since we generally would never want to unbind this driver, and to save
-adding a driver tear down path for that, just set the driver
-.suppress_bind_attrs member to avoid this possibility.
-
-Signed-off-by: John Garry <john.garry@huawei.com>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Reviewed-by: Hanjun Guo <guohanjun@huawei.com>
-Link: https://lore.kernel.org/r/1579196323-180137-1-git-send-email-john.garry@huawei.com
+Bug: https://gitlab.freedesktop.org/drm/amd/issues/963
+Reviewed-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/irqchip/irq-mbigen.c | 1 +
- 1 file changed, 1 insertion(+)
+ .../gpu/drm/amd/display/dc/calcs/dcn_calcs.c  | 34 +++++++++++++------
+ 1 file changed, 23 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/irqchip/irq-mbigen.c b/drivers/irqchip/irq-mbigen.c
-index 98b6e1d4b1a68..f7fdbf5d183b9 100644
---- a/drivers/irqchip/irq-mbigen.c
-+++ b/drivers/irqchip/irq-mbigen.c
-@@ -381,6 +381,7 @@ static struct platform_driver mbigen_platform_driver = {
- 		.name		= "Hisilicon MBIGEN-V2",
- 		.of_match_table	= mbigen_of_match,
- 		.acpi_match_table = ACPI_PTR(mbigen_acpi_match),
-+		.suppress_bind_attrs = true,
- 	},
- 	.probe			= mbigen_device_probe,
- };
+diff --git a/drivers/gpu/drm/amd/display/dc/calcs/dcn_calcs.c b/drivers/gpu/drm/amd/display/dc/calcs/dcn_calcs.c
+index 9b2cb57bf2bad..c9a241fe46cf4 100644
+--- a/drivers/gpu/drm/amd/display/dc/calcs/dcn_calcs.c
++++ b/drivers/gpu/drm/amd/display/dc/calcs/dcn_calcs.c
+@@ -1438,6 +1438,7 @@ void dcn_bw_update_from_pplib(struct dc *dc)
+ 	struct dc_context *ctx = dc->ctx;
+ 	struct dm_pp_clock_levels_with_voltage fclks = {0}, dcfclks = {0};
+ 	bool res;
++	unsigned vmin0p65_idx, vmid0p72_idx, vnom0p8_idx, vmax0p9_idx;
+ 
+ 	/* TODO: This is not the proper way to obtain fabric_and_dram_bandwidth, should be min(fclk, memclk) */
+ 	res = dm_pp_get_clock_levels_by_type_with_voltage(
+@@ -1449,17 +1450,28 @@ void dcn_bw_update_from_pplib(struct dc *dc)
+ 		res = verify_clock_values(&fclks);
+ 
+ 	if (res) {
+-		ASSERT(fclks.num_levels >= 3);
+-		dc->dcn_soc->fabric_and_dram_bandwidth_vmin0p65 = 32 * (fclks.data[0].clocks_in_khz / 1000.0) / 1000.0;
+-		dc->dcn_soc->fabric_and_dram_bandwidth_vmid0p72 = dc->dcn_soc->number_of_channels *
+-				(fclks.data[fclks.num_levels - (fclks.num_levels > 2 ? 3 : 2)].clocks_in_khz / 1000.0)
+-				* ddr4_dram_factor_single_Channel / 1000.0;
+-		dc->dcn_soc->fabric_and_dram_bandwidth_vnom0p8 = dc->dcn_soc->number_of_channels *
+-				(fclks.data[fclks.num_levels - 2].clocks_in_khz / 1000.0)
+-				* ddr4_dram_factor_single_Channel / 1000.0;
+-		dc->dcn_soc->fabric_and_dram_bandwidth_vmax0p9 = dc->dcn_soc->number_of_channels *
+-				(fclks.data[fclks.num_levels - 1].clocks_in_khz / 1000.0)
+-				* ddr4_dram_factor_single_Channel / 1000.0;
++		ASSERT(fclks.num_levels);
++
++		vmin0p65_idx = 0;
++		vmid0p72_idx = fclks.num_levels -
++			(fclks.num_levels > 2 ? 3 : (fclks.num_levels > 1 ? 2 : 1));
++		vnom0p8_idx = fclks.num_levels - (fclks.num_levels > 1 ? 2 : 1);
++		vmax0p9_idx = fclks.num_levels - 1;
++
++		dc->dcn_soc->fabric_and_dram_bandwidth_vmin0p65 =
++			32 * (fclks.data[vmin0p65_idx].clocks_in_khz / 1000.0) / 1000.0;
++		dc->dcn_soc->fabric_and_dram_bandwidth_vmid0p72 =
++			dc->dcn_soc->number_of_channels *
++			(fclks.data[vmid0p72_idx].clocks_in_khz / 1000.0)
++			* ddr4_dram_factor_single_Channel / 1000.0;
++		dc->dcn_soc->fabric_and_dram_bandwidth_vnom0p8 =
++			dc->dcn_soc->number_of_channels *
++			(fclks.data[vnom0p8_idx].clocks_in_khz / 1000.0)
++			* ddr4_dram_factor_single_Channel / 1000.0;
++		dc->dcn_soc->fabric_and_dram_bandwidth_vmax0p9 =
++			dc->dcn_soc->number_of_channels *
++			(fclks.data[vmax0p9_idx].clocks_in_khz / 1000.0)
++			* ddr4_dram_factor_single_Channel / 1000.0;
+ 	} else
+ 		BREAK_TO_DEBUGGER();
+ 
 -- 
 2.20.1
 
