@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 491E1167273
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:03:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 42611167277
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:03:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731371AbgBUIDl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 03:03:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36476 "EHLO mail.kernel.org"
+        id S1730408AbgBUIDt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 03:03:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36644 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731506AbgBUIDj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 03:03:39 -0500
+        id S1728953AbgBUIDs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 03:03:48 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A468B2073A;
-        Fri, 21 Feb 2020 08:03:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7DD2020801;
+        Fri, 21 Feb 2020 08:03:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582272219;
-        bh=IN9g0QVSJw1Ko04U/o5oXCUMcEqF0UvHQNwT1l5gu9M=;
+        s=default; t=1582272228;
+        bh=kXOCbXtX884i/0EwkkynxVIHBuW1afWpJr5gJ0/prvE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iL77YhhpKjS4LWfIMPGZw0zr4NsP5Db83amoGEjQCpmRTpC04wp03kwGDpj5Rkt4/
-         3iJ5f5ZMrSyvAuOrF2b7TJ5IKf1Z51OS/A/H6n0rSzKL3N+I2dvXKwSBtr15gcxcCK
-         S2GiydVUjDtYjHRy31CFBdFVkpo4sJSKttdK3ELk=
+        b=dgiNcBd22RpmWRI1x9iYSCdwM6LwcMaAsXqIYn1r2pS09lVKfAY3mD1HVUVV7b4CI
+         nN6Ypk5L6CZsvtgNYmkRoeFOGqxELQdu9sNwUL2q0uUCLxZxIBza0S+v9vdOV5HbeO
+         Tag59/9xOv78ns1Q1dgnG2KBbqdS7A4AY6pgS1Sc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jia-Ju Bai <baijiaju1990@gmail.com>,
-        Felipe Balbi <balbi@kernel.org>,
+        stable@vger.kernel.org, Amanda Liu <amanda.liu@amd.com>,
+        Anthony Koo <Anthony.Koo@amd.com>,
+        Harry Wentland <harry.wentland@amd.com>,
+        Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 059/344] usb: gadget: udc: fix possible sleep-in-atomic-context bugs in gr_probe()
-Date:   Fri, 21 Feb 2020 08:37:38 +0100
-Message-Id: <20200221072354.393277008@linuxfoundation.org>
+Subject: [PATCH 5.4 062/344] drm/amd/display: Clear state after exiting fixed active VRR state
+Date:   Fri, 21 Feb 2020 08:37:41 +0100
+Message-Id: <20200221072354.663221434@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200221072349.335551332@linuxfoundation.org>
 References: <20200221072349.335551332@linuxfoundation.org>
@@ -44,108 +47,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jia-Ju Bai <baijiaju1990@gmail.com>
+From: Amanda Liu <amanda.liu@amd.com>
 
-[ Upstream commit 9c1ed62ae0690dfe5d5e31d8f70e70a95cb48e52 ]
+[ Upstream commit 6f8f76444baf405bacb0591d97549a71a9aaa1ac ]
 
-The driver may sleep while holding a spinlock.
-The function call path (from bottom to top) in Linux 4.19 is:
+[why]
+Upon exiting a fixed active VRR state, the state isn't cleared. This
+leads to the variable VRR range to be calculated incorrectly.
 
-drivers/usb/gadget/udc/core.c, 1175:
-	kzalloc(GFP_KERNEL) in usb_add_gadget_udc_release
-drivers/usb/gadget/udc/core.c, 1272:
-	usb_add_gadget_udc_release in usb_add_gadget_udc
-drivers/usb/gadget/udc/gr_udc.c, 2186:
-	usb_add_gadget_udc in gr_probe
-drivers/usb/gadget/udc/gr_udc.c, 2183:
-	spin_lock in gr_probe
+[how]
+Set fixed active state to false when updating vrr params
 
-drivers/usb/gadget/udc/core.c, 1195:
-	mutex_lock in usb_add_gadget_udc_release
-drivers/usb/gadget/udc/core.c, 1272:
-	usb_add_gadget_udc_release in usb_add_gadget_udc
-drivers/usb/gadget/udc/gr_udc.c, 2186:
-	usb_add_gadget_udc in gr_probe
-drivers/usb/gadget/udc/gr_udc.c, 2183:
-	spin_lock in gr_probe
-
-drivers/usb/gadget/udc/gr_udc.c, 212:
-	debugfs_create_file in gr_probe
-drivers/usb/gadget/udc/gr_udc.c, 2197:
-	gr_dfs_create in gr_probe
-drivers/usb/gadget/udc/gr_udc.c, 2183:
-    spin_lock in gr_probe
-
-drivers/usb/gadget/udc/gr_udc.c, 2114:
-	devm_request_threaded_irq in gr_request_irq
-drivers/usb/gadget/udc/gr_udc.c, 2202:
-	gr_request_irq in gr_probe
-drivers/usb/gadget/udc/gr_udc.c, 2183:
-    spin_lock in gr_probe
-
-kzalloc(GFP_KERNEL), mutex_lock(), debugfs_create_file() and
-devm_request_threaded_irq() can sleep at runtime.
-
-To fix these possible bugs, usb_add_gadget_udc(), gr_dfs_create() and
-gr_request_irq() are called without handling the spinlock.
-
-These bugs are found by a static analysis tool STCheck written by myself.
-
-Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
-Signed-off-by: Felipe Balbi <balbi@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Amanda Liu <amanda.liu@amd.com>
+Reviewed-by: Anthony Koo <Anthony.Koo@amd.com>
+Acked-by: Harry Wentland <harry.wentland@amd.com>
+Acked-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/udc/gr_udc.c | 16 +++++++++-------
- 1 file changed, 9 insertions(+), 7 deletions(-)
+ drivers/gpu/drm/amd/display/modules/freesync/freesync.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/usb/gadget/udc/gr_udc.c b/drivers/usb/gadget/udc/gr_udc.c
-index 7a0e9a58c2d84..116d386472efe 100644
---- a/drivers/usb/gadget/udc/gr_udc.c
-+++ b/drivers/usb/gadget/udc/gr_udc.c
-@@ -2176,8 +2176,6 @@ static int gr_probe(struct platform_device *pdev)
- 		return -ENOMEM;
- 	}
+diff --git a/drivers/gpu/drm/amd/display/modules/freesync/freesync.c b/drivers/gpu/drm/amd/display/modules/freesync/freesync.c
+index 0978c698f0f85..7d67cb2c61f04 100644
+--- a/drivers/gpu/drm/amd/display/modules/freesync/freesync.c
++++ b/drivers/gpu/drm/amd/display/modules/freesync/freesync.c
+@@ -803,6 +803,7 @@ void mod_freesync_build_vrr_params(struct mod_freesync *mod_freesync,
+ 			2 * in_out_vrr->min_refresh_in_uhz)
+ 		in_out_vrr->btr.btr_enabled = false;
  
--	spin_lock(&dev->lock);
--
- 	/* Inside lock so that no gadget can use this udc until probe is done */
- 	retval = usb_add_gadget_udc(dev->dev, &dev->gadget);
- 	if (retval) {
-@@ -2186,15 +2184,21 @@ static int gr_probe(struct platform_device *pdev)
- 	}
- 	dev->added = 1;
- 
-+	spin_lock(&dev->lock);
++	in_out_vrr->fixed.fixed_active = false;
+ 	in_out_vrr->btr.btr_active = false;
+ 	in_out_vrr->btr.inserted_duration_in_us = 0;
+ 	in_out_vrr->btr.frames_to_insert = 0;
+@@ -822,6 +823,7 @@ void mod_freesync_build_vrr_params(struct mod_freesync *mod_freesync,
+ 		in_out_vrr->adjust.v_total_max = stream->timing.v_total;
+ 	} else if (in_out_vrr->state == VRR_STATE_ACTIVE_VARIABLE &&
+ 			refresh_range >= MIN_REFRESH_RANGE_IN_US) {
 +
- 	retval = gr_udc_init(dev);
--	if (retval)
-+	if (retval) {
-+		spin_unlock(&dev->lock);
- 		goto out;
--
--	gr_dfs_create(dev);
-+	}
- 
- 	/* Clear all interrupt enables that might be left on since last boot */
- 	gr_disable_interrupts_and_pullup(dev);
- 
-+	spin_unlock(&dev->lock);
-+
-+	gr_dfs_create(dev);
-+
- 	retval = gr_request_irq(dev, dev->irq);
- 	if (retval) {
- 		dev_err(dev->dev, "Failed to request irq %d\n", dev->irq);
-@@ -2223,8 +2227,6 @@ static int gr_probe(struct platform_device *pdev)
- 		dev_info(dev->dev, "regs: %p, irq %d\n", dev->regs, dev->irq);
- 
- out:
--	spin_unlock(&dev->lock);
--
- 	if (retval)
- 		gr_remove(pdev);
- 
+ 		in_out_vrr->adjust.v_total_min =
+ 			calc_v_total_from_refresh(stream,
+ 				in_out_vrr->max_refresh_in_uhz);
 -- 
 2.20.1
 
