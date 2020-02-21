@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E1CE16704B
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 08:44:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6936716704E
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 08:44:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727497AbgBUHn7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 02:43:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38362 "EHLO mail.kernel.org"
+        id S1727699AbgBUHoF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 02:44:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38658 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727460AbgBUHn5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 02:43:57 -0500
+        id S1727683AbgBUHoE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 02:44:04 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 24161207FD;
-        Fri, 21 Feb 2020 07:43:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 09F3B24672;
+        Fri, 21 Feb 2020 07:44:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582271036;
-        bh=NcGh06knfGLcfuN1zseb3JhRUmzE9S2q+eze5sqOnB4=;
+        s=default; t=1582271044;
+        bh=D4GG98E9c9Y1icIuu9/OOXLVnOGJq8xtVvyjOWugdBc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dwY1Tmj0ptOmPTVJAovSfeeOarpsxjMSrjjiMhkTC5aUsD3Q4KIzAtxkjRfAKWoah
-         jqqX7Qrb3Pv5Jlqrxw7tpARAcnseEkBVyWH4pwY/lm8spFd3gXWOOhQjjfe4RCCKyu
-         nGUumueVFeaIozY1GBnd9k1gZdIn79uQO7GJC4wM=
+        b=KmDixRiS/rmKD3kPlZ6hPm0wxAJmGnsz0hUwL/wmlMkuazQO8bsfM4SGzQYMyVXz9
+         jOoEoGmYjcpqqO52QfUwOIF+vjkHWt5YZdkoUeobaEfXj70dBE2MjYO9btskIvBzZ7
+         W4zJncw/2RhiBdXwlVl7TBPD14tOxS9Y6RWxsBcA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Timur Tabi <timur@kernel.org>,
-        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
-        Li Yang <leoyang.li@nxp.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 016/399] soc: fsl: qe: change return type of cpm_muram_alloc() to s32
-Date:   Fri, 21 Feb 2020 08:35:41 +0100
-Message-Id: <20200221072403.897637352@linuxfoundation.org>
+        stable@vger.kernel.org, Damien Le Moal <damien.lemoal@wdc.com>,
+        Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>,
+        Chao Yu <yuchao0@huawei.com>,
+        =?UTF-8?q?Javier=20Gonz=C3=A1lez?= <javier@javigon.com>,
+        Jaegeuk Kim <jaegeuk@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.5 019/399] f2fs: preallocate DIO blocks when forcing buffered_io
+Date:   Fri, 21 Feb 2020 08:35:44 +0100
+Message-Id: <20200221072404.185975701@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200221072402.315346745@linuxfoundation.org>
 References: <20200221072402.315346745@linuxfoundation.org>
@@ -44,186 +47,119 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rasmus Villemoes <linux@rasmusvillemoes.dk>
+From: Jaegeuk Kim <jaegeuk@kernel.org>
 
-[ Upstream commit 800cd6fb76f0ec7711deb72a86c924db1ae42648 ]
+[ Upstream commit 47501f87c61ad2aa234add63e1ae231521dbc3f5 ]
 
-There are a number of problems with cpm_muram_alloc() and its
-callers. Most callers assign the return value to some variable and
-then use IS_ERR_VALUE to check for allocation failure. However, when
-that variable is not sizeof(long), this leads to warnings - and it is
-indeed broken to do e.g.
+The previous preallocation and DIO decision like below.
 
-  u32 foo = cpm_muram_alloc();
-  if (IS_ERR_VALUE(foo))
+                         allow_outplace_dio              !allow_outplace_dio
+f2fs_force_buffered_io   (*) No_Prealloc / Buffered_IO   Prealloc / Buffered_IO
+!f2fs_force_buffered_io  No_Prealloc / DIO               Prealloc / DIO
 
-on a 64-bit platform, since the condition
+But, Javier reported Case (*) where zoned device bypassed preallocation but
+fell back to buffered writes in f2fs_direct_IO(), resulting in stale data
+being read.
 
-  foo >= (unsigned long)-ENOMEM
+In order to fix the issue, actually we need to preallocate blocks whenever
+we fall back to buffered IO like this. No change is made in the other cases.
 
-is tautologically false. There are also callers that ignore the
-possibility of error, and then there are those that check for error by
-comparing the return value to 0...
+                         allow_outplace_dio              !allow_outplace_dio
+f2fs_force_buffered_io   (*) Prealloc / Buffered_IO      Prealloc / Buffered_IO
+!f2fs_force_buffered_io  No_Prealloc / DIO               Prealloc / DIO
 
-One could fix that by changing all callers to store the return value
-temporarily in an "unsigned long" and test that. However, use of
-IS_ERR_VALUE() is error-prone and should be restricted to things which
-are inherently long-sized (stuff in pt_regs etc.). Instead, let's aim
-for changing to the standard kernel style
-
-  int foo = cpm_muram_alloc();
-  if (foo < 0)
-    deal_with_it()
-  some->where = foo;
-
-Changing the return type from unsigned long to s32 (aka signed int)
-doesn't change the value that gets stored into any of the callers'
-variables except if the caller was storing the result in a u64 _and_
-the allocation failed, so in itself this patch should be a no-op.
-
-Another problem with cpm_muram_alloc() is that it can certainly
-validly return 0 - and except if some cpm_muram_alloc_fixed() call
-interferes, the very first cpm_muram_alloc() call will return just
-that. But that shows that both ucc_slow_free() and ucc_fast_free() are
-buggy, since they assume that a value of 0 means "that field was never
-allocated". We'll later change cpm_muram_free() to accept (and ignore)
-a negative offset, so callers can use a sentinel of -1 instead of 0
-and just unconditionally call cpm_muram_free().
-
-Reviewed-by: Timur Tabi <timur@kernel.org>
-Signed-off-by: Rasmus Villemoes <linux@rasmusvillemoes.dk>
-Signed-off-by: Li Yang <leoyang.li@nxp.com>
+Reported-and-tested-by: Javier Gonzalez <javier@javigon.com>
+Signed-off-by: Damien Le Moal <damien.lemoal@wdc.com>
+Tested-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+Reviewed-by: Chao Yu <yuchao0@huawei.com>
+Reviewed-by: Javier González <javier@javigon.com>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soc/fsl/qe/qe_common.c | 29 ++++++++++++++++-------------
- include/soc/fsl/qe/qe.h        | 16 ++++++++--------
- 2 files changed, 24 insertions(+), 21 deletions(-)
+ fs/f2fs/data.c | 13 -------------
+ fs/f2fs/file.c | 43 +++++++++++++++++++++++++++++++++----------
+ 2 files changed, 33 insertions(+), 23 deletions(-)
 
-diff --git a/drivers/soc/fsl/qe/qe_common.c b/drivers/soc/fsl/qe/qe_common.c
-index 83e85e61669f5..84c90105e588b 100644
---- a/drivers/soc/fsl/qe/qe_common.c
-+++ b/drivers/soc/fsl/qe/qe_common.c
-@@ -32,7 +32,7 @@ static phys_addr_t muram_pbase;
+diff --git a/fs/f2fs/data.c b/fs/f2fs/data.c
+index a034cd0ce0217..fc40a72f7827f 100644
+--- a/fs/f2fs/data.c
++++ b/fs/f2fs/data.c
+@@ -1180,19 +1180,6 @@ int f2fs_preallocate_blocks(struct kiocb *iocb, struct iov_iter *from)
+ 	int err = 0;
+ 	bool direct_io = iocb->ki_flags & IOCB_DIRECT;
  
- struct muram_block {
- 	struct list_head head;
--	unsigned long start;
-+	s32 start;
- 	int size;
- };
+-	/* convert inline data for Direct I/O*/
+-	if (direct_io) {
+-		err = f2fs_convert_inline_inode(inode);
+-		if (err)
+-			return err;
+-	}
+-
+-	if (direct_io && allow_outplace_dio(inode, iocb, from))
+-		return 0;
+-
+-	if (is_inode_flag_set(inode, FI_NO_PREALLOC))
+-		return 0;
+-
+ 	map.m_lblk = F2FS_BLK_ALIGN(iocb->ki_pos);
+ 	map.m_len = F2FS_BYTES_TO_BLK(iocb->ki_pos + iov_iter_count(from));
+ 	if (map.m_len > map.m_lblk)
+diff --git a/fs/f2fs/file.c b/fs/f2fs/file.c
+index 13aef5f28fa8f..33c412d178f0f 100644
+--- a/fs/f2fs/file.c
++++ b/fs/f2fs/file.c
+@@ -3383,18 +3383,41 @@ static ssize_t f2fs_file_write_iter(struct kiocb *iocb, struct iov_iter *from)
+ 				ret = -EAGAIN;
+ 				goto out;
+ 			}
+-		} else {
+-			preallocated = true;
+-			target_size = iocb->ki_pos + iov_iter_count(from);
++			goto write;
++		}
  
-@@ -110,13 +110,14 @@ out_muram:
-  * @algo: algorithm for alloc.
-  * @data: data for genalloc's algorithm.
-  *
-- * This function returns an offset into the muram area.
-+ * This function returns a non-negative offset into the muram area, or
-+ * a negative errno on failure.
-  */
--static unsigned long cpm_muram_alloc_common(unsigned long size,
--		genpool_algo_t algo, void *data)
-+static s32 cpm_muram_alloc_common(unsigned long size,
-+				  genpool_algo_t algo, void *data)
- {
- 	struct muram_block *entry;
--	unsigned long start;
-+	s32 start;
+-			err = f2fs_preallocate_blocks(iocb, from);
+-			if (err) {
+-				clear_inode_flag(inode, FI_NO_PREALLOC);
+-				inode_unlock(inode);
+-				ret = err;
+-				goto out;
+-			}
++		if (is_inode_flag_set(inode, FI_NO_PREALLOC))
++			goto write;
++
++		if (iocb->ki_flags & IOCB_DIRECT) {
++			/*
++			 * Convert inline data for Direct I/O before entering
++			 * f2fs_direct_IO().
++			 */
++			err = f2fs_convert_inline_inode(inode);
++			if (err)
++				goto out_err;
++			/*
++			 * If force_buffere_io() is true, we have to allocate
++			 * blocks all the time, since f2fs_direct_IO will fall
++			 * back to buffered IO.
++			 */
++			if (!f2fs_force_buffered_io(inode, iocb, from) &&
++					allow_outplace_dio(inode, iocb, from))
++				goto write;
++		}
++		preallocated = true;
++		target_size = iocb->ki_pos + iov_iter_count(from);
++
++		err = f2fs_preallocate_blocks(iocb, from);
++		if (err) {
++out_err:
++			clear_inode_flag(inode, FI_NO_PREALLOC);
++			inode_unlock(inode);
++			ret = err;
++			goto out;
+ 		}
++write:
+ 		ret = __generic_file_write_iter(iocb, from);
+ 		clear_inode_flag(inode, FI_NO_PREALLOC);
  
- 	if (!muram_pool && cpm_muram_init())
- 		goto out2;
-@@ -137,7 +138,7 @@ static unsigned long cpm_muram_alloc_common(unsigned long size,
- out1:
- 	gen_pool_free(muram_pool, start, size);
- out2:
--	return (unsigned long)-ENOMEM;
-+	return -ENOMEM;
- }
- 
- /*
-@@ -145,13 +146,14 @@ out2:
-  * @size: number of bytes to allocate
-  * @align: requested alignment, in bytes
-  *
-- * This function returns an offset into the muram area.
-+ * This function returns a non-negative offset into the muram area, or
-+ * a negative errno on failure.
-  * Use cpm_dpram_addr() to get the virtual address of the area.
-  * Use cpm_muram_free() to free the allocation.
-  */
--unsigned long cpm_muram_alloc(unsigned long size, unsigned long align)
-+s32 cpm_muram_alloc(unsigned long size, unsigned long align)
- {
--	unsigned long start;
-+	s32 start;
- 	unsigned long flags;
- 	struct genpool_data_align muram_pool_data;
- 
-@@ -168,7 +170,7 @@ EXPORT_SYMBOL(cpm_muram_alloc);
-  * cpm_muram_free - free a chunk of multi-user ram
-  * @offset: The beginning of the chunk as returned by cpm_muram_alloc().
-  */
--int cpm_muram_free(unsigned long offset)
-+int cpm_muram_free(s32 offset)
- {
- 	unsigned long flags;
- 	int size;
-@@ -194,13 +196,14 @@ EXPORT_SYMBOL(cpm_muram_free);
-  * cpm_muram_alloc_fixed - reserve a specific region of multi-user ram
-  * @offset: offset of allocation start address
-  * @size: number of bytes to allocate
-- * This function returns an offset into the muram area
-+ * This function returns @offset if the area was available, a negative
-+ * errno otherwise.
-  * Use cpm_dpram_addr() to get the virtual address of the area.
-  * Use cpm_muram_free() to free the allocation.
-  */
--unsigned long cpm_muram_alloc_fixed(unsigned long offset, unsigned long size)
-+s32 cpm_muram_alloc_fixed(unsigned long offset, unsigned long size)
- {
--	unsigned long start;
-+	s32 start;
- 	unsigned long flags;
- 	struct genpool_data_fixed muram_pool_data_fixed;
- 
-diff --git a/include/soc/fsl/qe/qe.h b/include/soc/fsl/qe/qe.h
-index c1036d16ed03b..2d35d5db16231 100644
---- a/include/soc/fsl/qe/qe.h
-+++ b/include/soc/fsl/qe/qe.h
-@@ -98,26 +98,26 @@ static inline void qe_reset(void) {}
- int cpm_muram_init(void);
- 
- #if defined(CONFIG_CPM) || defined(CONFIG_QUICC_ENGINE)
--unsigned long cpm_muram_alloc(unsigned long size, unsigned long align);
--int cpm_muram_free(unsigned long offset);
--unsigned long cpm_muram_alloc_fixed(unsigned long offset, unsigned long size);
-+s32 cpm_muram_alloc(unsigned long size, unsigned long align);
-+int cpm_muram_free(s32 offset);
-+s32 cpm_muram_alloc_fixed(unsigned long offset, unsigned long size);
- void __iomem *cpm_muram_addr(unsigned long offset);
- unsigned long cpm_muram_offset(void __iomem *addr);
- dma_addr_t cpm_muram_dma(void __iomem *addr);
- #else
--static inline unsigned long cpm_muram_alloc(unsigned long size,
--					    unsigned long align)
-+static inline s32 cpm_muram_alloc(unsigned long size,
-+				  unsigned long align)
- {
- 	return -ENOSYS;
- }
- 
--static inline int cpm_muram_free(unsigned long offset)
-+static inline int cpm_muram_free(s32 offset)
- {
- 	return -ENOSYS;
- }
- 
--static inline unsigned long cpm_muram_alloc_fixed(unsigned long offset,
--						  unsigned long size)
-+static inline s32 cpm_muram_alloc_fixed(unsigned long offset,
-+					unsigned long size)
- {
- 	return -ENOSYS;
- }
 -- 
 2.20.1
 
