@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C15BF1677EC
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:46:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9EA5F1676B4
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:38:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728777AbgBUHuZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 02:50:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47286 "EHLO mail.kernel.org"
+        id S1731207AbgBUIE2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 03:04:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37538 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729528AbgBUHuX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 02:50:23 -0500
+        id S1731649AbgBUIE2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 03:04:28 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9A79A207FD;
-        Fri, 21 Feb 2020 07:50:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CC67D24656;
+        Fri, 21 Feb 2020 08:04:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582271423;
-        bh=Nst9ebLRaE3NHXB6enkxe0pAhC967ktXa0/Y8kcJryM=;
+        s=default; t=1582272267;
+        bh=mhrvYHx10N0wbmHbF+nYPvCSAlLYueoEr/8yc7/phfA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KlWo+22aYOpk+499H1KaaX4j+rIACcXZuX6I8wM9GPqna/+ky7dG3YAZec6+onZD2
-         yBwVb9afqaDZghF9QO+ljHy/jS5I61uNaTzzVYjYtGzVQr3MaMNEsI0tSQsrEofccx
-         /LO5n2Cw1D9aHYckYjVnKzBxOV7muw/IlS4o2qZk=
+        b=GISUmqnnFDcd3bLm09Twr/3NcGCelm9P6CYkiJk+BPRhTBAYDJEX8n5KJb+preOVy
+         1naE6I4y2xe6iVi+QJjcyiyAbNXi3jD6FMAkzEwVJScjw0WrFnNopa02WUR9XcBZYK
+         J0A8Eeg8RlxZEM/oMcy5QShj+IYfwDhgMiyeRgD4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, James Sewart <jamessewart@arista.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Logan Gunthorpe <logang@deltatee.com>,
+        stable@vger.kernel.org, Ping-Ke Shih <pkshih@realtek.com>,
+        Yan-Hsuan Chuang <yhchuang@realtek.com>,
+        Chris Chiu <chiu@endlessm.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 153/399] PCI: Add DMA alias quirk for PLX PEX NTB
+Subject: [PATCH 5.4 079/344] rtw88: fix rate mask for 1SS chip
 Date:   Fri, 21 Feb 2020 08:37:58 +0100
-Message-Id: <20200221072417.363036813@linuxfoundation.org>
+Message-Id: <20200221072356.149435301@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200221072402.315346745@linuxfoundation.org>
-References: <20200221072402.315346745@linuxfoundation.org>
+In-Reply-To: <20200221072349.335551332@linuxfoundation.org>
+References: <20200221072349.335551332@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,52 +46,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Sewart <jamessewart@arista.com>
+From: Ping-Ke Shih <pkshih@realtek.com>
 
-[ Upstream commit 7b90dfc4873b87c468cc6046538f46a531c1d785 ]
+[ Upstream commit 35a68fa5f96a80797e11b6952a47c5a84939a7bf ]
 
-The PLX PEX NTB forwards DMA transactions using Requester IDs that don't
-exist as PCI devices.  The devfn for a transaction is used as an index into
-a lookup table storing the origin of a transaction on the other side of the
-bridge.
+The rate mask is used to tell firmware the supported rate depends on
+negotiation. We loop 2 times for all VHT/HT 2SS rate mask first, and then
+only keep the part according to chip's NSS.
 
-Alias all possible devfns to the NTB device so that any transaction coming
-in is governed by the mappings for the NTB.
+This commit fixes the logic error of '&' operations for VHT/HT rate, and
+we should run this logic before adding legacy rate.
 
-Signed-off-by: James Sewart <jamessewart@arista.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Reviewed-by: Logan Gunthorpe <logang@deltatee.com>
+To access HT MCS map, index 0/1 represent MCS 0-7/8-15 respectively. Use
+NL80211_BAND_xxx is incorrect, so fix it as well.
+
+Signed-off-by: Ping-Ke Shih <pkshih@realtek.com>
+Signed-off-by: Yan-Hsuan Chuang <yhchuang@realtek.com>
+Reviewed-by: Chris Chiu <chiu@endlessm.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/quirks.c | 15 +++++++++++++++
- 1 file changed, 15 insertions(+)
+ drivers/net/wireless/realtek/rtw88/main.c | 12 +++++-------
+ 1 file changed, 5 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/pci/quirks.c b/drivers/pci/quirks.c
-index 9aa590eb712fe..83953752337c4 100644
---- a/drivers/pci/quirks.c
-+++ b/drivers/pci/quirks.c
-@@ -5371,6 +5371,21 @@ SWITCHTEC_QUIRK(0x8574);  /* PFXI 64XG3 */
- SWITCHTEC_QUIRK(0x8575);  /* PFXI 80XG3 */
- SWITCHTEC_QUIRK(0x8576);  /* PFXI 96XG3 */
+diff --git a/drivers/net/wireless/realtek/rtw88/main.c b/drivers/net/wireless/realtek/rtw88/main.c
+index 806af37192bc2..88e2252bf8a2b 100644
+--- a/drivers/net/wireless/realtek/rtw88/main.c
++++ b/drivers/net/wireless/realtek/rtw88/main.c
+@@ -556,8 +556,8 @@ void rtw_update_sta_info(struct rtw_dev *rtwdev, struct rtw_sta_info *si)
+ 		if (sta->vht_cap.cap & IEEE80211_VHT_CAP_SHORT_GI_80)
+ 			is_support_sgi = true;
+ 	} else if (sta->ht_cap.ht_supported) {
+-		ra_mask |= (sta->ht_cap.mcs.rx_mask[NL80211_BAND_5GHZ] << 20) |
+-			   (sta->ht_cap.mcs.rx_mask[NL80211_BAND_2GHZ] << 12);
++		ra_mask |= (sta->ht_cap.mcs.rx_mask[1] << 20) |
++			   (sta->ht_cap.mcs.rx_mask[0] << 12);
+ 		if (sta->ht_cap.cap & IEEE80211_HT_CAP_RX_STBC)
+ 			stbc_en = HT_STBC_EN;
+ 		if (sta->ht_cap.cap & IEEE80211_HT_CAP_LDPC_CODING)
+@@ -567,6 +567,9 @@ void rtw_update_sta_info(struct rtw_dev *rtwdev, struct rtw_sta_info *si)
+ 			is_support_sgi = true;
+ 	}
  
-+/*
-+ * The PLX NTB uses devfn proxy IDs to move TLPs between NT endpoints.
-+ * These IDs are used to forward responses to the originator on the other
-+ * side of the NTB.  Alias all possible IDs to the NTB to permit access when
-+ * the IOMMU is turned on.
-+ */
-+static void quirk_plx_ntb_dma_alias(struct pci_dev *pdev)
-+{
-+	pci_info(pdev, "Setting PLX NTB proxy ID aliases\n");
-+	/* PLX NTB may use all 256 devfns */
-+	pci_add_dma_alias(pdev, 0, 256);
-+}
-+DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_PLX, 0x87b0, quirk_plx_ntb_dma_alias);
-+DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_PLX, 0x87b1, quirk_plx_ntb_dma_alias);
++	if (efuse->hw_cap.nss == 1)
++		ra_mask &= RA_MASK_VHT_RATES_1SS | RA_MASK_HT_RATES_1SS;
 +
- /*
-  * On Lenovo Thinkpad P50 SKUs with a Nvidia Quadro M1000M, the BIOS does
-  * not always reset the secondary Nvidia GPU between reboots if the system
+ 	if (hal->current_band_type == RTW_BAND_5G) {
+ 		ra_mask |= (u64)sta->supp_rates[NL80211_BAND_5GHZ] << 4;
+ 		if (sta->vht_cap.vht_supported) {
+@@ -600,11 +603,6 @@ void rtw_update_sta_info(struct rtw_dev *rtwdev, struct rtw_sta_info *si)
+ 		wireless_set = 0;
+ 	}
+ 
+-	if (efuse->hw_cap.nss == 1) {
+-		ra_mask &= RA_MASK_VHT_RATES_1SS;
+-		ra_mask &= RA_MASK_HT_RATES_1SS;
+-	}
+-
+ 	switch (sta->bandwidth) {
+ 	case IEEE80211_STA_RX_BW_80:
+ 		bw_mode = RTW_CHANNEL_WIDTH_80;
 -- 
 2.20.1
 
