@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 14F01167762
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:42:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6AC5B167582
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:31:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730308AbgBUH4V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 02:56:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55600 "EHLO mail.kernel.org"
+        id S2388820AbgBUI21 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 03:28:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59076 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730457AbgBUH4U (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 02:56:20 -0500
+        id S2388122AbgBUIUI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 03:20:08 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 07A1020578;
-        Fri, 21 Feb 2020 07:56:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 821162468F;
+        Fri, 21 Feb 2020 08:20:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582271779;
-        bh=HETN9lzhT4lP6BoRdKhMd9UfEPjojCOaxXyYfT0N564=;
+        s=default; t=1582273208;
+        bh=dVCBeU47LpUoBpEaYThXBUKJX+NcHZty3tt/uZlIUyw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=E+4LWrPVimaYCjindCl5Sl9NZ3QfFYoQuZpeu6CbKBh/3Tj/MSDjMsW0I6Rg8QT82
-         NZ68gq7RfOhzFyZgStPmnEyf5n2NXrSQkNS5aRjd+aRJ/V436wZp+mchRIyiv5AwPs
-         18KLvZI93vT+HbAWWMmW33hDEnNb+8Am4rS0mzDo=
+        b=UWo7w3AeXb29SGbNSdHy6rtWfJMuu/xwmfWBtDHe/Vp7VxH2lr9Sxe7Yqv335gk5j
+         e3BXdwKsBufV7alX9U3GDbz7VYYDlbs3Em5c0oz4ivT8L3t1s8V06VM2UKrOOZEfT6
+         vHW3EqDjlKqYd+EB9NwipELiLQ2I0JVgp8NTOQz0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qian Cai <cai@lca.pw>,
-        Marco Elver <elver@google.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
+        stable@vger.kernel.org, Julian Wiedmann <jwi@linux.ibm.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Thomas Huth <thuth@redhat.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 295/399] debugobjects: Fix various data races
-Date:   Fri, 21 Feb 2020 08:40:20 +0100
-Message-Id: <20200221072430.429006860@linuxfoundation.org>
+Subject: [PATCH 4.19 048/191] KVM: s390: ENOTSUPP -> EOPNOTSUPP fixups
+Date:   Fri, 21 Feb 2020 08:40:21 +0100
+Message-Id: <20200221072257.461312055@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200221072402.315346745@linuxfoundation.org>
-References: <20200221072402.315346745@linuxfoundation.org>
+In-Reply-To: <20200221072250.732482588@linuxfoundation.org>
+References: <20200221072250.732482588@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,236 +46,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marco Elver <elver@google.com>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
 
-[ Upstream commit 35fd7a637c42bb54ba4608f4d40ae6e55fc88781 ]
+[ Upstream commit c611990844c28c61ca4b35ff69d3a2ae95ccd486 ]
 
-The counters obj_pool_free, and obj_nr_tofree, and the flag obj_freeing are
-read locklessly outside the pool_lock critical sections. If read with plain
-accesses, this would result in data races.
+There is no ENOTSUPP for userspace.
 
-This is addressed as follows:
-
- * reads outside critical sections become READ_ONCE()s (pairing with
-   WRITE_ONCE()s added);
-
- * writes become WRITE_ONCE()s (pairing with READ_ONCE()s added); since
-   writes happen inside critical sections, only the write and not the read
-   of RMWs needs to be atomic, thus WRITE_ONCE(var, var +/- X) is
-   sufficient.
-
-The data races were reported by KCSAN:
-
-  BUG: KCSAN: data-race in __free_object / fill_pool
-
-  write to 0xffffffff8beb04f8 of 4 bytes by interrupt on cpu 1:
-   __free_object+0x1ee/0x8e0 lib/debugobjects.c:404
-   __debug_check_no_obj_freed+0x199/0x330 lib/debugobjects.c:969
-   debug_check_no_obj_freed+0x3c/0x44 lib/debugobjects.c:994
-   slab_free_hook mm/slub.c:1422 [inline]
-
-  read to 0xffffffff8beb04f8 of 4 bytes by task 1 on cpu 2:
-   fill_pool+0x3d/0x520 lib/debugobjects.c:135
-   __debug_object_init+0x3c/0x810 lib/debugobjects.c:536
-   debug_object_init lib/debugobjects.c:591 [inline]
-   debug_object_activate+0x228/0x320 lib/debugobjects.c:677
-   debug_rcu_head_queue kernel/rcu/rcu.h:176 [inline]
-
-  BUG: KCSAN: data-race in __debug_object_init / fill_pool
-
-  read to 0xffffffff8beb04f8 of 4 bytes by task 10 on cpu 6:
-   fill_pool+0x3d/0x520 lib/debugobjects.c:135
-   __debug_object_init+0x3c/0x810 lib/debugobjects.c:536
-   debug_object_init_on_stack+0x39/0x50 lib/debugobjects.c:606
-   init_timer_on_stack_key kernel/time/timer.c:742 [inline]
-
-  write to 0xffffffff8beb04f8 of 4 bytes by task 1 on cpu 3:
-   alloc_object lib/debugobjects.c:258 [inline]
-   __debug_object_init+0x717/0x810 lib/debugobjects.c:544
-   debug_object_init lib/debugobjects.c:591 [inline]
-   debug_object_activate+0x228/0x320 lib/debugobjects.c:677
-   debug_rcu_head_queue kernel/rcu/rcu.h:176 [inline]
-
-  BUG: KCSAN: data-race in free_obj_work / free_object
-
-  read to 0xffffffff9140c190 of 4 bytes by task 10 on cpu 6:
-   free_object+0x4b/0xd0 lib/debugobjects.c:426
-   debug_object_free+0x190/0x210 lib/debugobjects.c:824
-   destroy_timer_on_stack kernel/time/timer.c:749 [inline]
-
-  write to 0xffffffff9140c190 of 4 bytes by task 93 on cpu 1:
-   free_obj_work+0x24f/0x480 lib/debugobjects.c:313
-   process_one_work+0x454/0x8d0 kernel/workqueue.c:2264
-   worker_thread+0x9a/0x780 kernel/workqueue.c:2410
-
-Reported-by: Qian Cai <cai@lca.pw>
-Signed-off-by: Marco Elver <elver@google.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Link: https://lore.kernel.org/r/20200116185529.11026-1-elver@google.com
+Reported-by: Julian Wiedmann <jwi@linux.ibm.com>
+Fixes: 519783935451 ("KVM: s390: introduce ais mode modify function")
+Fixes: 2c1a48f2e5ed ("KVM: S390: add new group for flic")
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Reviewed-by: Thomas Huth <thuth@redhat.com>
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/debugobjects.c | 46 +++++++++++++++++++++++++---------------------
- 1 file changed, 25 insertions(+), 21 deletions(-)
+ arch/s390/kvm/interrupt.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/lib/debugobjects.c b/lib/debugobjects.c
-index 61261195f5b60..48054dbf1b51f 100644
---- a/lib/debugobjects.c
-+++ b/lib/debugobjects.c
-@@ -132,14 +132,18 @@ static void fill_pool(void)
- 	struct debug_obj *obj;
- 	unsigned long flags;
+diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
+index 05ea466b9e403..3515f2b55eb9e 100644
+--- a/arch/s390/kvm/interrupt.c
++++ b/arch/s390/kvm/interrupt.c
+@@ -2109,7 +2109,7 @@ static int flic_ais_mode_get_all(struct kvm *kvm, struct kvm_device_attr *attr)
+ 		return -EINVAL;
  
--	if (likely(obj_pool_free >= debug_objects_pool_min_level))
-+	if (likely(READ_ONCE(obj_pool_free) >= debug_objects_pool_min_level))
- 		return;
+ 	if (!test_kvm_facility(kvm, 72))
+-		return -ENOTSUPP;
++		return -EOPNOTSUPP;
  
- 	/*
- 	 * Reuse objs from the global free list; they will be reinitialized
- 	 * when allocating.
-+	 *
-+	 * Both obj_nr_tofree and obj_pool_free are checked locklessly; the
-+	 * READ_ONCE()s pair with the WRITE_ONCE()s in pool_lock critical
-+	 * sections.
- 	 */
--	while (obj_nr_tofree && (obj_pool_free < obj_pool_min_free)) {
-+	while (READ_ONCE(obj_nr_tofree) && (READ_ONCE(obj_pool_free) < obj_pool_min_free)) {
- 		raw_spin_lock_irqsave(&pool_lock, flags);
- 		/*
- 		 * Recheck with the lock held as the worker thread might have
-@@ -148,9 +152,9 @@ static void fill_pool(void)
- 		while (obj_nr_tofree && (obj_pool_free < obj_pool_min_free)) {
- 			obj = hlist_entry(obj_to_free.first, typeof(*obj), node);
- 			hlist_del(&obj->node);
--			obj_nr_tofree--;
-+			WRITE_ONCE(obj_nr_tofree, obj_nr_tofree - 1);
- 			hlist_add_head(&obj->node, &obj_pool);
--			obj_pool_free++;
-+			WRITE_ONCE(obj_pool_free, obj_pool_free + 1);
- 		}
- 		raw_spin_unlock_irqrestore(&pool_lock, flags);
- 	}
-@@ -158,7 +162,7 @@ static void fill_pool(void)
- 	if (unlikely(!obj_cache))
- 		return;
+ 	mutex_lock(&fi->ais_lock);
+ 	ais.simm = fi->simm;
+@@ -2412,7 +2412,7 @@ static int modify_ais_mode(struct kvm *kvm, struct kvm_device_attr *attr)
+ 	int ret = 0;
  
--	while (obj_pool_free < debug_objects_pool_min_level) {
-+	while (READ_ONCE(obj_pool_free) < debug_objects_pool_min_level) {
- 		struct debug_obj *new[ODEBUG_BATCH_SIZE];
- 		int cnt;
+ 	if (!test_kvm_facility(kvm, 72))
+-		return -ENOTSUPP;
++		return -EOPNOTSUPP;
  
-@@ -174,7 +178,7 @@ static void fill_pool(void)
- 		while (cnt) {
- 			hlist_add_head(&new[--cnt]->node, &obj_pool);
- 			debug_objects_allocated++;
--			obj_pool_free++;
-+			WRITE_ONCE(obj_pool_free, obj_pool_free + 1);
- 		}
- 		raw_spin_unlock_irqrestore(&pool_lock, flags);
- 	}
-@@ -236,7 +240,7 @@ alloc_object(void *addr, struct debug_bucket *b, struct debug_obj_descr *descr)
- 	obj = __alloc_object(&obj_pool);
- 	if (obj) {
- 		obj_pool_used++;
--		obj_pool_free--;
-+		WRITE_ONCE(obj_pool_free, obj_pool_free - 1);
+ 	if (copy_from_user(&req, (void __user *)attr->addr, sizeof(req)))
+ 		return -EFAULT;
+@@ -2492,7 +2492,7 @@ static int flic_ais_mode_set_all(struct kvm *kvm, struct kvm_device_attr *attr)
+ 	struct kvm_s390_ais_all ais;
  
- 		/*
- 		 * Looking ahead, allocate one batch of debug objects and
-@@ -255,7 +259,7 @@ alloc_object(void *addr, struct debug_bucket *b, struct debug_obj_descr *descr)
- 					       &percpu_pool->free_objs);
- 				percpu_pool->obj_free++;
- 				obj_pool_used++;
--				obj_pool_free--;
-+				WRITE_ONCE(obj_pool_free, obj_pool_free - 1);
- 			}
- 		}
+ 	if (!test_kvm_facility(kvm, 72))
+-		return -ENOTSUPP;
++		return -EOPNOTSUPP;
  
-@@ -309,8 +313,8 @@ static void free_obj_work(struct work_struct *work)
- 		obj = hlist_entry(obj_to_free.first, typeof(*obj), node);
- 		hlist_del(&obj->node);
- 		hlist_add_head(&obj->node, &obj_pool);
--		obj_pool_free++;
--		obj_nr_tofree--;
-+		WRITE_ONCE(obj_pool_free, obj_pool_free + 1);
-+		WRITE_ONCE(obj_nr_tofree, obj_nr_tofree - 1);
- 	}
- 	raw_spin_unlock_irqrestore(&pool_lock, flags);
- 	return;
-@@ -324,7 +328,7 @@ free_objs:
- 	if (obj_nr_tofree) {
- 		hlist_move_list(&obj_to_free, &tofree);
- 		debug_objects_freed += obj_nr_tofree;
--		obj_nr_tofree = 0;
-+		WRITE_ONCE(obj_nr_tofree, 0);
- 	}
- 	raw_spin_unlock_irqrestore(&pool_lock, flags);
- 
-@@ -375,10 +379,10 @@ free_to_obj_pool:
- 	obj_pool_used--;
- 
- 	if (work) {
--		obj_nr_tofree++;
-+		WRITE_ONCE(obj_nr_tofree, obj_nr_tofree + 1);
- 		hlist_add_head(&obj->node, &obj_to_free);
- 		if (lookahead_count) {
--			obj_nr_tofree += lookahead_count;
-+			WRITE_ONCE(obj_nr_tofree, obj_nr_tofree + lookahead_count);
- 			obj_pool_used -= lookahead_count;
- 			while (lookahead_count) {
- 				hlist_add_head(&objs[--lookahead_count]->node,
-@@ -396,15 +400,15 @@ free_to_obj_pool:
- 			for (i = 0; i < ODEBUG_BATCH_SIZE; i++) {
- 				obj = __alloc_object(&obj_pool);
- 				hlist_add_head(&obj->node, &obj_to_free);
--				obj_pool_free--;
--				obj_nr_tofree++;
-+				WRITE_ONCE(obj_pool_free, obj_pool_free - 1);
-+				WRITE_ONCE(obj_nr_tofree, obj_nr_tofree + 1);
- 			}
- 		}
- 	} else {
--		obj_pool_free++;
-+		WRITE_ONCE(obj_pool_free, obj_pool_free + 1);
- 		hlist_add_head(&obj->node, &obj_pool);
- 		if (lookahead_count) {
--			obj_pool_free += lookahead_count;
-+			WRITE_ONCE(obj_pool_free, obj_pool_free + lookahead_count);
- 			obj_pool_used -= lookahead_count;
- 			while (lookahead_count) {
- 				hlist_add_head(&objs[--lookahead_count]->node,
-@@ -423,7 +427,7 @@ free_to_obj_pool:
- static void free_object(struct debug_obj *obj)
- {
- 	__free_object(obj);
--	if (!obj_freeing && obj_nr_tofree) {
-+	if (!READ_ONCE(obj_freeing) && READ_ONCE(obj_nr_tofree)) {
- 		WRITE_ONCE(obj_freeing, true);
- 		schedule_delayed_work(&debug_obj_work, ODEBUG_FREE_WORK_DELAY);
- 	}
-@@ -982,7 +986,7 @@ repeat:
- 		debug_objects_maxchecked = objs_checked;
- 
- 	/* Schedule work to actually kmem_cache_free() objects */
--	if (!obj_freeing && obj_nr_tofree) {
-+	if (!READ_ONCE(obj_freeing) && READ_ONCE(obj_nr_tofree)) {
- 		WRITE_ONCE(obj_freeing, true);
- 		schedule_delayed_work(&debug_obj_work, ODEBUG_FREE_WORK_DELAY);
- 	}
-@@ -1008,12 +1012,12 @@ static int debug_stats_show(struct seq_file *m, void *v)
- 	seq_printf(m, "max_checked   :%d\n", debug_objects_maxchecked);
- 	seq_printf(m, "warnings      :%d\n", debug_objects_warnings);
- 	seq_printf(m, "fixups        :%d\n", debug_objects_fixups);
--	seq_printf(m, "pool_free     :%d\n", obj_pool_free + obj_percpu_free);
-+	seq_printf(m, "pool_free     :%d\n", READ_ONCE(obj_pool_free) + obj_percpu_free);
- 	seq_printf(m, "pool_pcp_free :%d\n", obj_percpu_free);
- 	seq_printf(m, "pool_min_free :%d\n", obj_pool_min_free);
- 	seq_printf(m, "pool_used     :%d\n", obj_pool_used - obj_percpu_free);
- 	seq_printf(m, "pool_max_used :%d\n", obj_pool_max_used);
--	seq_printf(m, "on_free_list  :%d\n", obj_nr_tofree);
-+	seq_printf(m, "on_free_list  :%d\n", READ_ONCE(obj_nr_tofree));
- 	seq_printf(m, "objs_allocated:%d\n", debug_objects_allocated);
- 	seq_printf(m, "objs_freed    :%d\n", debug_objects_freed);
- 	return 0;
+ 	if (copy_from_user(&ais, (void __user *)attr->addr, sizeof(ais)))
+ 		return -EFAULT;
 -- 
 2.20.1
 
