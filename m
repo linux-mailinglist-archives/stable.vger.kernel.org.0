@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 166DD1675CE
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:32:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 79D801676D6
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:41:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732834AbgBUIOF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 03:14:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50474 "EHLO mail.kernel.org"
+        id S1730770AbgBUH60 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 02:58:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58240 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732691AbgBUIOE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 03:14:04 -0500
+        id S1730134AbgBUH6Z (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 02:58:25 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BEE6124650;
-        Fri, 21 Feb 2020 08:14:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 760C224672;
+        Fri, 21 Feb 2020 07:58:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582272844;
-        bh=FGprxRun26IH1icAQXs7d2ZLvfCNFwA9W5z0AhAUZhE=;
+        s=default; t=1582271904;
+        bh=PNI4J4LnI5EeNudriscWBtbKyV+GK1O1DWXIYeyYIG4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aIlVWDlPi/XwBv2rRmr/PYR/XK9RjBimphfjHfUsViFtWCq/ToqqdFQd5MwUZD0+p
-         uTMgkvXj6BgVUgnl6y56DJFegEssVMzexJsaZjaq+WAqQgitwG2TY7KkpSSpt0c/m/
-         E+JRvpPPjf2ypOaOBcE/NEdgrB1f3ogohoqznkGc=
+        b=BVvSRKTaS8QL+59DHOfI2PkxGWVaM2kBgSLGwLfz2yO2/0GA6R/xGgeTE1zrVE3J1
+         8w+9oU48rDLCFp1wHNG6i2MbbzdY6BjcX1S0j5fGwFL0H8onwExeMSJpu93fWNZeLh
+         hBwPpvpHfFQuJsFMLMv83HdGwh6n9OgjoAfTnQ2o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miroslav Benes <mbenes@suse.cz>,
-        Jessica Yu <jeyu@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 267/344] module: avoid setting info->name early in case we can fall back to info->mod->name
-Date:   Fri, 21 Feb 2020 08:41:06 +0100
-Message-Id: <20200221072413.919611653@linuxfoundation.org>
+        stable@vger.kernel.org, Steve Best <sbest@redhat.com>,
+        Douglas Miller <dougmill@us.ibm.com>,
+        Oliver OHalloran <oohall@gmail.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.5 342/399] selftests/eeh: Bump EEH wait time to 60s
+Date:   Fri, 21 Feb 2020 08:41:07 +0100
+Message-Id: <20200221072434.082898081@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200221072349.335551332@linuxfoundation.org>
-References: <20200221072349.335551332@linuxfoundation.org>
+In-Reply-To: <20200221072402.315346745@linuxfoundation.org>
+References: <20200221072402.315346745@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,58 +46,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jessica Yu <jeyu@kernel.org>
+From: Oliver O'Halloran <oohall@gmail.com>
 
-[ Upstream commit 708e0ada1916be765b7faa58854062f2bc620bbf ]
+[ Upstream commit 414f50434aa2463202a5b35e844f4125dd1a7101 ]
 
-In setup_load_info(), info->name (which contains the name of the module,
-mostly used for early logging purposes before the module gets set up)
-gets unconditionally assigned if .modinfo is missing despite the fact
-that there is an if (!info->name) check near the end of the function.
-Avoid assigning a placeholder string to info->name if .modinfo doesn't
-exist, so that we can fall back to info->mod->name later on.
+Some newer cards supported by aacraid can take up to 40s to recover
+after an EEH event. This causes spurious failures in the basic EEH
+self-test since the current maximim timeout is only 30s.
 
-Fixes: 5fdc7db6448a ("module: setup load info before module_sig_check()")
-Reviewed-by: Miroslav Benes <mbenes@suse.cz>
-Signed-off-by: Jessica Yu <jeyu@kernel.org>
+Fix the immediate issue by bumping the timeout to a default of 60s,
+and allow the wait time to be specified via an environmental variable
+(EEH_MAX_WAIT).
+
+Reported-by: Steve Best <sbest@redhat.com>
+Suggested-by: Douglas Miller <dougmill@us.ibm.com>
+Signed-off-by: Oliver O'Halloran <oohall@gmail.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20200122031125.25991-1-oohall@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/module.c | 9 ++++-----
- 1 file changed, 4 insertions(+), 5 deletions(-)
+ tools/testing/selftests/powerpc/eeh/eeh-functions.sh | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
-diff --git a/kernel/module.c b/kernel/module.c
-index 135861c2ac782..a2a47f4a33a78 100644
---- a/kernel/module.c
-+++ b/kernel/module.c
-@@ -3059,9 +3059,7 @@ static int setup_load_info(struct load_info *info, int flags)
+diff --git a/tools/testing/selftests/powerpc/eeh/eeh-functions.sh b/tools/testing/selftests/powerpc/eeh/eeh-functions.sh
+index 26112ab5cdf42..f52ed92b53e74 100755
+--- a/tools/testing/selftests/powerpc/eeh/eeh-functions.sh
++++ b/tools/testing/selftests/powerpc/eeh/eeh-functions.sh
+@@ -53,9 +53,13 @@ eeh_one_dev() {
+ 	# is a no-op.
+ 	echo $dev >/sys/kernel/debug/powerpc/eeh_dev_check
  
- 	/* Try to find a name early so we can log errors with a module name */
- 	info->index.info = find_sec(info, ".modinfo");
--	if (!info->index.info)
--		info->name = "(missing .modinfo section)";
--	else
-+	if (info->index.info)
- 		info->name = get_modinfo(info, "name");
+-	# Enforce a 30s timeout for recovery. Even the IPR, which is infamously
+-	# slow to reset, should recover within 30s.
+-	max_wait=30
++	# Default to a 60s timeout when waiting for a device to recover. This
++	# is an arbitrary default which can be overridden by setting the
++	# EEH_MAX_WAIT environmental variable when required.
++
++	# The current record holder for longest recovery time is:
++	#  "Adaptec Series 8 12G SAS/PCIe 3" at 39 seconds
++	max_wait=${EEH_MAX_WAIT:=60}
  
- 	/* Find internal symbols and strings. */
-@@ -3076,14 +3074,15 @@ static int setup_load_info(struct load_info *info, int flags)
- 	}
- 
- 	if (info->index.sym == 0) {
--		pr_warn("%s: module has no symbols (stripped?)\n", info->name);
-+		pr_warn("%s: module has no symbols (stripped?)\n",
-+			info->name ?: "(missing .modinfo section or name field)");
- 		return -ENOEXEC;
- 	}
- 
- 	info->index.mod = find_sec(info, ".gnu.linkonce.this_module");
- 	if (!info->index.mod) {
- 		pr_warn("%s: No module found in object\n",
--			info->name ?: "(missing .modinfo name field)");
-+			info->name ?: "(missing .modinfo section or name field)");
- 		return -ENOEXEC;
- 	}
- 	/* This is temporary: point mod into copy of data. */
+ 	for i in `seq 0 ${max_wait}` ; do
+ 		if pe_ok $dev ; then
 -- 
 2.20.1
 
