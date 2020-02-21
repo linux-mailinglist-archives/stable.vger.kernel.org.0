@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 107751676E9
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:41:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 83FDF1675B5
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:31:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730924AbgBUH7b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 02:59:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59590 "EHLO mail.kernel.org"
+        id S1733077AbgBUIPh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 03:15:37 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52444 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730921AbgBUH7b (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 02:59:31 -0500
+        id S1732657AbgBUIPg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 03:15:36 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 64FCF206ED;
-        Fri, 21 Feb 2020 07:59:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 00B9C24670;
+        Fri, 21 Feb 2020 08:15:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582271970;
-        bh=p1BD/3vga0HznWfeYY31jHKkRLD5Q/e2+NDXdLmUEBA=;
+        s=default; t=1582272935;
+        bh=tHzSWHCdyVFWI5DrEYz+/oYVT8reW7bX7g380mK4cOs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wy6LyMxbYqz5spSUZs742/Db0uKVqMgZ68TI55q07joaFI7+1tQlT+RiyejMMW2q9
-         mlY9crVhW9nFhU9Ycud3md9VQf3zMMmMzToxZGFn4g/hxrvqyuKzG0rhNhoTak3Ir2
-         +tmoGEO9wE17FnJTWnunwHtuBBlymItvBpn0dbCo=
+        b=AKo/AbW+GZdcOKzFC8KoJC6wznCJg+c/KbsCtRvMxE9ZqT0z/3nCsp7PZd0uqVTkH
+         RdqV/QIUn//4WV0EoFmwuTdL3Z40dI4mRfmGFP6i9y2gavFU6EMjWQJE+XPz0dAPHl
+         z9q9+9PVXK+95bUR1fL2dBsE335IZFN19rSJP99g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tom Zanussi <zanussi@kernel.org>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
+        stable@vger.kernel.org, "zhangyi (F)" <yi.zhang@huawei.com>,
+        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 368/399] tracing: Fix now invalid var_ref_vals assumption in trace action
+Subject: [PATCH 5.4 294/344] jbd2: make sure ESHUTDOWN to be recorded in the journal superblock
 Date:   Fri, 21 Feb 2020 08:41:33 +0100
-Message-Id: <20200221072436.329313560@linuxfoundation.org>
+Message-Id: <20200221072416.569187874@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200221072402.315346745@linuxfoundation.org>
-References: <20200221072402.315346745@linuxfoundation.org>
+In-Reply-To: <20200221072349.335551332@linuxfoundation.org>
+References: <20200221072349.335551332@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,173 +44,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tom Zanussi <zanussi@kernel.org>
+From: zhangyi (F) <yi.zhang@huawei.com>
 
-[ Upstream commit d380dcde9a07ca5de4805dee11f58a98ec0ad6ff ]
+[ Upstream commit 0e98c084a21177ef136149c6a293b3d1eb33ff92 ]
 
-The patch 'tracing: Fix histogram code when expression has same var as
-value' added code to return an existing variable reference when
-creating a new variable reference, which resulted in var_ref_vals
-slots being reused instead of being duplicated.
+Commit fb7c02445c49 ("ext4: pass -ESHUTDOWN code to jbd2 layer") want
+to allow jbd2 layer to distinguish shutdown journal abort from other
+error cases. So the ESHUTDOWN should be taken precedence over any other
+errno which has already been recoded after EXT4_FLAGS_SHUTDOWN is set,
+but it only update errno in the journal suoerblock now if the old errno
+is 0.
 
-The implementation of the trace action assumes that the end of the
-var_ref_vals array starting at action_data.var_ref_idx corresponds to
-the values that will be assigned to the trace params. The patch
-mentioned above invalidates that assumption, which means that each
-param needs to explicitly specify its index into var_ref_vals.
-
-This fix changes action_data.var_ref_idx to an array of var ref
-indexes to account for that.
-
-Link: https://lore.kernel.org/r/1580335695.6220.8.camel@kernel.org
-
-Fixes: 8bcebc77e85f ("tracing: Fix histogram code when expression has same var as value")
-Signed-off-by: Tom Zanussi <zanussi@kernel.org>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Fixes: fb7c02445c49 ("ext4: pass -ESHUTDOWN code to jbd2 layer")
+Signed-off-by: zhangyi (F) <yi.zhang@huawei.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/20191204124614.45424-4-yi.zhang@huawei.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/trace/trace_events_hist.c | 53 +++++++++++++++++++++++---------
- 1 file changed, 38 insertions(+), 15 deletions(-)
+ fs/jbd2/journal.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/kernel/trace/trace_events_hist.c b/kernel/trace/trace_events_hist.c
-index 48f9075e4fa18..e10585ef00e15 100644
---- a/kernel/trace/trace_events_hist.c
-+++ b/kernel/trace/trace_events_hist.c
-@@ -470,11 +470,12 @@ struct action_data {
- 	 * When a histogram trigger is hit, the values of any
- 	 * references to variables, including variables being passed
- 	 * as parameters to synthetic events, are collected into a
--	 * var_ref_vals array.  This var_ref_idx is the index of the
--	 * first param in the array to be passed to the synthetic
--	 * event invocation.
-+	 * var_ref_vals array.  This var_ref_idx array is an array of
-+	 * indices into the var_ref_vals array, one for each synthetic
-+	 * event param, and is passed to the synthetic event
-+	 * invocation.
- 	 */
--	unsigned int		var_ref_idx;
-+	unsigned int		var_ref_idx[TRACING_MAP_VARS_MAX];
- 	struct synth_event	*synth_event;
- 	bool			use_trace_keyword;
- 	char			*synth_event_name;
-@@ -875,14 +876,14 @@ static struct trace_event_functions synth_event_funcs = {
+diff --git a/fs/jbd2/journal.c b/fs/jbd2/journal.c
+index 65e78d3a2f64c..c1ce2805c5639 100644
+--- a/fs/jbd2/journal.c
++++ b/fs/jbd2/journal.c
+@@ -2114,8 +2114,7 @@ static void __journal_abort_soft (journal_t *journal, int errno)
  
- static notrace void trace_event_raw_event_synth(void *__data,
- 						u64 *var_ref_vals,
--						unsigned int var_ref_idx)
-+						unsigned int *var_ref_idx)
- {
- 	struct trace_event_file *trace_file = __data;
- 	struct synth_trace_event *entry;
- 	struct trace_event_buffer fbuffer;
- 	struct ring_buffer *buffer;
- 	struct synth_event *event;
--	unsigned int i, n_u64;
-+	unsigned int i, n_u64, val_idx;
- 	int fields_size = 0;
- 
- 	event = trace_file->event_call->data;
-@@ -905,15 +906,16 @@ static notrace void trace_event_raw_event_synth(void *__data,
- 		goto out;
- 
- 	for (i = 0, n_u64 = 0; i < event->n_fields; i++) {
-+		val_idx = var_ref_idx[i];
- 		if (event->fields[i]->is_string) {
--			char *str_val = (char *)(long)var_ref_vals[var_ref_idx + i];
-+			char *str_val = (char *)(long)var_ref_vals[val_idx];
- 			char *str_field = (char *)&entry->fields[n_u64];
- 
- 			strscpy(str_field, str_val, STR_VAR_LEN_MAX);
- 			n_u64 += STR_VAR_LEN_MAX / sizeof(u64);
- 		} else {
- 			struct synth_field *field = event->fields[i];
--			u64 val = var_ref_vals[var_ref_idx + i];
-+			u64 val = var_ref_vals[val_idx];
- 
- 			switch (field->size) {
- 			case 1:
-@@ -1113,10 +1115,10 @@ static struct tracepoint *alloc_synth_tracepoint(char *name)
- }
- 
- typedef void (*synth_probe_func_t) (void *__data, u64 *var_ref_vals,
--				    unsigned int var_ref_idx);
-+				    unsigned int *var_ref_idx);
- 
- static inline void trace_synth(struct synth_event *event, u64 *var_ref_vals,
--			       unsigned int var_ref_idx)
-+			       unsigned int *var_ref_idx)
- {
- 	struct tracepoint *tp = event->tp;
- 
-@@ -2651,6 +2653,22 @@ static int init_var_ref(struct hist_field *ref_field,
- 	goto out;
- }
- 
-+static int find_var_ref_idx(struct hist_trigger_data *hist_data,
-+			    struct hist_field *var_field)
-+{
-+	struct hist_field *ref_field;
-+	int i;
-+
-+	for (i = 0; i < hist_data->n_var_refs; i++) {
-+		ref_field = hist_data->var_refs[i];
-+		if (ref_field->var.idx == var_field->var.idx &&
-+		    ref_field->var.hist_data == var_field->hist_data)
-+			return i;
-+	}
-+
-+	return -ENOENT;
-+}
-+
- /**
-  * create_var_ref - Create a variable reference and attach it to trigger
-  * @hist_data: The trigger that will be referencing the variable
-@@ -4224,11 +4242,11 @@ static int trace_action_create(struct hist_trigger_data *hist_data,
- 	struct trace_array *tr = hist_data->event_file->tr;
- 	char *event_name, *param, *system = NULL;
- 	struct hist_field *hist_field, *var_ref;
--	unsigned int i, var_ref_idx;
-+	unsigned int i;
- 	unsigned int field_pos = 0;
- 	struct synth_event *event;
- 	char *synth_event_name;
--	int ret = 0;
-+	int var_ref_idx, ret = 0;
- 
- 	lockdep_assert_held(&event_mutex);
- 
-@@ -4245,8 +4263,6 @@ static int trace_action_create(struct hist_trigger_data *hist_data,
- 
- 	event->ref++;
- 
--	var_ref_idx = hist_data->n_var_refs;
--
- 	for (i = 0; i < data->n_params; i++) {
- 		char *p;
- 
-@@ -4295,6 +4311,14 @@ static int trace_action_create(struct hist_trigger_data *hist_data,
- 				goto err;
- 			}
- 
-+			var_ref_idx = find_var_ref_idx(hist_data, var_ref);
-+			if (WARN_ON(var_ref_idx < 0)) {
-+				ret = var_ref_idx;
-+				goto err;
-+			}
-+
-+			data->var_ref_idx[i] = var_ref_idx;
-+
- 			field_pos++;
- 			kfree(p);
- 			continue;
-@@ -4313,7 +4337,6 @@ static int trace_action_create(struct hist_trigger_data *hist_data,
+ 	if (journal->j_flags & JBD2_ABORT) {
+ 		write_unlock(&journal->j_state_lock);
+-		if (!old_errno && old_errno != -ESHUTDOWN &&
+-		    errno == -ESHUTDOWN)
++		if (old_errno != -ESHUTDOWN && errno == -ESHUTDOWN)
+ 			jbd2_journal_update_sb_errno(journal);
+ 		return;
  	}
- 
- 	data->synth_event = event;
--	data->var_ref_idx = var_ref_idx;
-  out:
- 	return ret;
-  err:
 -- 
 2.20.1
 
