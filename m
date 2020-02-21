@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 51591167578
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:31:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7BD9D1675F0
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:32:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730832AbgBUI2A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 03:28:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60008 "EHLO mail.kernel.org"
+        id S1732714AbgBUING (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 03:13:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49066 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732493AbgBUIUp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 03:20:45 -0500
+        id S1732943AbgBUINE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 03:13:04 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B33AE24673;
-        Fri, 21 Feb 2020 08:20:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 12C7320722;
+        Fri, 21 Feb 2020 08:13:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582273245;
-        bh=GrMvaoHiW8mqPaedW80LgmLZTHUhiLrqAUih5cuG+FQ=;
+        s=default; t=1582272784;
+        bh=xR3TCnZhgPJN93bqdEvo5BwP1dB3RHfGLzJ+ceAVSPg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GLkqvRxCSopf1KruuAe9Z5nsRhgjG8BR8FWNcktgSDbmpJSTAkpRbUB/xHyI9yu8n
-         nYdFCWacrC8IeKXmd08eem0de25/CKaruMDcHFzg8kkP+XSL1OYyhD/rUn2WOlXqcQ
-         wZpiMS4ZTgs8Ibz5gJt9/BTsKs9I3J/XeNXY86F0=
+        b=vOK6eeXPu0So8KVaAxJrm4olxWvvL9lbaF/dpYW1NdnkzSShE5LMT1QM0hBb4mOBE
+         fVIneWNsLENCL5OcSJ8EZY9BAFwDVHTyQRBzHgi257EG8wDQkbjipfh5bcDgX23Zo7
+         qR7QKMjmxliz7gqVrNJ7SDJCL7T+QRTe/6vUkvSw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jason Ekstrand <jason@jlekstrand.net>,
-        Hans de Goede <hdegoede@redhat.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        stable@vger.kernel.org,
+        Shile Zhang <shile.zhang@linux.alibaba.com>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        Ingo Molnar <mingo@kernel.org>,
+        Kamalesh Babulal <kamalesh@linux.vnet.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 100/191] ACPI: button: Add DMI quirk for Razer Blade Stealth 13 late 2019 lid switch
+Subject: [PATCH 5.4 274/344] objtool: Fix ARCH=x86_64 build error
 Date:   Fri, 21 Feb 2020 08:41:13 +0100
-Message-Id: <20200221072303.080004751@linuxfoundation.org>
+Message-Id: <20200221072414.609965291@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200221072250.732482588@linuxfoundation.org>
-References: <20200221072250.732482588@linuxfoundation.org>
+In-Reply-To: <20200221072349.335551332@linuxfoundation.org>
+References: <20200221072349.335551332@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,45 +47,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason Ekstrand <jason@jlekstrand.net>
+From: Shile Zhang <shile.zhang@linux.alibaba.com>
 
-[ Upstream commit 0528904926aab19bffb2068879aa44db166c6d5f ]
+[ Upstream commit 8580bed7e751e6d4f17881e059daf3cb37ba4717 ]
 
-Running evemu-record on the lid switch event shows that the lid reports
-the first "close" but then never reports an "open".  This causes systemd
-to continuously re-suspend the laptop every 30s.  Resetting the _LID to
-"open" fixes the issue.
+Building objtool with ARCH=x86_64 fails with:
 
-Signed-off-by: Jason Ekstrand <jason@jlekstrand.net>
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+   $make ARCH=x86_64 -C tools/objtool
+   ...
+     CC       arch/x86/decode.o
+   arch/x86/decode.c:10:22: fatal error: asm/insn.h: No such file or directory
+    #include <asm/insn.h>
+                         ^
+   compilation terminated.
+   mv: cannot stat ‘arch/x86/.decode.o.tmp’: No such file or directory
+   make[2]: *** [arch/x86/decode.o] Error 1
+   ...
+
+The root cause is that the command-line variable 'ARCH' cannot be
+overridden.  It can be replaced by 'SRCARCH', which is defined in
+'tools/scripts/Makefile.arch'.
+
+Signed-off-by: Shile Zhang <shile.zhang@linux.alibaba.com>
+Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Reviewed-by: Kamalesh Babulal <kamalesh@linux.vnet.ibm.com>
+Link: https://lore.kernel.org/r/d5d11370ae116df6c653493acd300ec3d7f5e925.1579543924.git.jpoimboe@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/button.c | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+ tools/objtool/Makefile | 6 +-----
+ 1 file changed, 1 insertion(+), 5 deletions(-)
 
-diff --git a/drivers/acpi/button.c b/drivers/acpi/button.c
-index a25d77b3a16ad..d5c19e25ddf59 100644
---- a/drivers/acpi/button.c
-+++ b/drivers/acpi/button.c
-@@ -102,6 +102,17 @@ static const struct dmi_system_id lid_blacklst[] = {
- 		},
- 		.driver_data = (void *)(long)ACPI_BUTTON_LID_INIT_OPEN,
- 	},
-+	{
-+		/*
-+		 * Razer Blade Stealth 13 late 2019, notification of the LID device
-+		 * only happens on close, not on open and _LID always returns closed.
-+		 */
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "Razer"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "Razer Blade Stealth 13 Late 2019"),
-+		},
-+		.driver_data = (void *)(long)ACPI_BUTTON_LID_INIT_OPEN,
-+	},
- 	{}
- };
+diff --git a/tools/objtool/Makefile b/tools/objtool/Makefile
+index d2a19b0bc05aa..ee08aeff30a19 100644
+--- a/tools/objtool/Makefile
++++ b/tools/objtool/Makefile
+@@ -2,10 +2,6 @@
+ include ../scripts/Makefile.include
+ include ../scripts/Makefile.arch
  
+-ifeq ($(ARCH),x86_64)
+-ARCH := x86
+-endif
+-
+ # always use the host compiler
+ HOSTAR	?= ar
+ HOSTCC	?= gcc
+@@ -33,7 +29,7 @@ all: $(OBJTOOL)
+ 
+ INCLUDES := -I$(srctree)/tools/include \
+ 	    -I$(srctree)/tools/arch/$(HOSTARCH)/include/uapi \
+-	    -I$(srctree)/tools/arch/$(ARCH)/include
++	    -I$(srctree)/tools/arch/$(SRCARCH)/include
+ WARNINGS := $(EXTRA_WARNINGS) -Wno-switch-default -Wno-switch-enum -Wno-packed
+ CFLAGS   := -Werror $(WARNINGS) $(KBUILD_HOSTCFLAGS) -g $(INCLUDES) $(LIBELF_FLAGS)
+ LDFLAGS  += $(LIBELF_LIBS) $(LIBSUBCMD) $(KBUILD_HOSTLDFLAGS)
 -- 
 2.20.1
 
