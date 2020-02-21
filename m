@@ -2,39 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 515CF1674CB
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:29:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 738DA16731D
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:09:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733287AbgBUIRA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 03:17:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54232 "EHLO mail.kernel.org"
+        id S1732350AbgBUIJZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 03:09:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44256 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387599AbgBUIQ6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 03:16:58 -0500
+        id S1732340AbgBUIJY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 03:09:24 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9651524682;
-        Fri, 21 Feb 2020 08:16:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 172A520578;
+        Fri, 21 Feb 2020 08:09:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582273018;
-        bh=Kg5IVRnEpP2SMZz+UVMqxwQ0BK2QI7KyO+6LMZWsYPg=;
+        s=default; t=1582272564;
+        bh=VoQBGjb/JsFJM3BKoLOX/WXeB1JAJ+3TWYgmREkaBvI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q2DdOPomZNiJOYs5W6UA6yfQT9qWWlG/e4K+VlnI49PhhY5k0OTAzq8PPL6vYf0Ju
-         qeschWZgHi1eV/uirIEUj0QzPPdvkFJBpOM/R7zZEPubpCuEin693UFZFPv1vCovcr
-         eIWF2iuFdrL+wFnK0gG5p/6DgbR6wo+zGnzEizhw=
+        b=kx1AxzVIDbUoqz27v758FoVA/gURGqy7dO9wF4Aow61K6ve7feMCVQU0hELq15ATY
+         P8h2MH3QYqsSviXW8qNsa4E01yZPr4H/SZhtAqbcFQItnXfXD2SrTJDWOOgs7E0wCT
+         6guJDH2rfaqseiHPX/U1j0s4xztUoiB8vgEScMkA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Sakamoto <o-takashi@sakamocchi.jp>,
-        Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.de>,
+        stable@vger.kernel.org,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Felipe Balbi <balbi@kernel.org>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 017/191] ALSA: ctl: allow TLV read operation for callback type of element in locked case
+Subject: [PATCH 5.4 191/344] usb: dwc3: use proper initializers for property entries
 Date:   Fri, 21 Feb 2020 08:39:50 +0100
-Message-Id: <20200221072253.251887423@linuxfoundation.org>
+Message-Id: <20200221072406.390732331@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200221072250.732482588@linuxfoundation.org>
-References: <20200221072250.732482588@linuxfoundation.org>
+In-Reply-To: <20200221072349.335551332@linuxfoundation.org>
+References: <20200221072349.335551332@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,58 +48,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Sakamoto <o-takashi@sakamocchi.jp>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-[ Upstream commit d61fe22c2ae42d9fd76c34ef4224064cca4b04b0 ]
+[ Upstream commit 5eb5afb07853d6e90d3a2b230c825e028e948f79 ]
 
-A design of ALSA control core allows applications to execute three
-operations for TLV feature; read, write and command. Furthermore, it
-allows driver developers to process the operations by two ways; allocated
-array or callback function. In the former, read operation is just allowed,
-thus developers uses the latter when device driver supports variety of
-models or the target model is expected to dynamically change information
-stored in TLV container.
+We should not be reaching into property entries and initialize them by
+hand, but rather use proper initializer macros. This way we can alter
+internal representation of property entries with no visible changes to
+their users.
 
-The core also allows applications to lock any element so that the other
-applications can't perform write operation to the element for element
-value and TLV information. When the element is locked, write and command
-operation for TLV information are prohibited as well as element value.
-Any read operation should be allowed in the case.
-
-At present, when an element has callback function for TLV information,
-TLV read operation returns EPERM if the element is locked. On the
-other hand, the read operation is success when an element has allocated
-array for TLV information. In both cases, read operation is success for
-element value expectedly.
-
-This commit fixes the bug. This change can be backported to v4.14
-kernel or later.
-
-Signed-off-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
-Reviewed-by: Jaroslav Kysela <perex@perex.cz>
-Link: https://lore.kernel.org/r/20191223093347.15279-1-o-takashi@sakamocchi.jp
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Reported-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Tested-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Acked-by: Hans de Goede <hdegoede@redhat.com>
+Acked-by: Felipe Balbi <balbi@kernel.org>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/core/control.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/usb/dwc3/host.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/sound/core/control.c b/sound/core/control.c
-index 649d3217590ed..d1312f14d78fb 100644
---- a/sound/core/control.c
-+++ b/sound/core/control.c
-@@ -1468,8 +1468,9 @@ static int call_tlv_handler(struct snd_ctl_file *file, int op_flag,
- 	if (kctl->tlv.c == NULL)
- 		return -ENXIO;
+diff --git a/drivers/usb/dwc3/host.c b/drivers/usb/dwc3/host.c
+index 5567ed2cddbec..fa252870c926f 100644
+--- a/drivers/usb/dwc3/host.c
++++ b/drivers/usb/dwc3/host.c
+@@ -88,10 +88,10 @@ int dwc3_host_init(struct dwc3 *dwc)
+ 	memset(props, 0, sizeof(struct property_entry) * ARRAY_SIZE(props));
  
--	/* When locked, this is unavailable. */
--	if (vd->owner != NULL && vd->owner != file)
-+	/* Write and command operations are not allowed for locked element. */
-+	if (op_flag != SNDRV_CTL_TLV_OP_READ &&
-+	    vd->owner != NULL && vd->owner != file)
- 		return -EPERM;
+ 	if (dwc->usb3_lpm_capable)
+-		props[prop_idx++].name = "usb3-lpm-capable";
++		props[prop_idx++] = PROPERTY_ENTRY_BOOL("usb3-lpm-capable");
  
- 	return kctl->tlv.c(kctl, op_flag, size, buf);
+ 	if (dwc->usb2_lpm_disable)
+-		props[prop_idx++].name = "usb2-lpm-disable";
++		props[prop_idx++] = PROPERTY_ENTRY_BOOL("usb2-lpm-disable");
+ 
+ 	/**
+ 	 * WORKAROUND: dwc3 revisions <=3.00a have a limitation
+@@ -103,7 +103,7 @@ int dwc3_host_init(struct dwc3 *dwc)
+ 	 * This following flag tells XHCI to do just that.
+ 	 */
+ 	if (dwc->revision <= DWC3_REVISION_300A)
+-		props[prop_idx++].name = "quirk-broken-port-ped";
++		props[prop_idx++] = PROPERTY_ENTRY_BOOL("quirk-broken-port-ped");
+ 
+ 	if (prop_idx) {
+ 		ret = platform_device_add_properties(xhci, props);
 -- 
 2.20.1
 
