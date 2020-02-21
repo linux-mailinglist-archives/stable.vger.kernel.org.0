@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0BE1016768D
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:37:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4BEA116778F
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:44:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732429AbgBUIgR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 03:36:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40498 "EHLO mail.kernel.org"
+        id S1729655AbgBUHxw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 02:53:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52220 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731959AbgBUIGf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 03:06:35 -0500
+        id S1729935AbgBUHxs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 02:53:48 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D523F24670;
-        Fri, 21 Feb 2020 08:06:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 09EFF20801;
+        Fri, 21 Feb 2020 07:53:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582272394;
-        bh=JgJdL0BFnsR0Jb/1/9CkhRAzvlV9Y2mCo/X46u5JkZ4=;
+        s=default; t=1582271628;
+        bh=y3cLW9E43Gt6K/m046jOyePIA/a7L/iQ/HgdNX4WiRg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lMJn3afyS2iKOnvpHcRMgb28UsiEF7SgayGSMQdg3HTjJvNYfGPQsxLsEpE+LEVb5
-         bkvT+0RJzskSWQyp5Z4PH1/3HHXiJ3Ett/AVZmvlD8m7xoRwFCy5xr9xER9lHxts+B
-         iToS1ttKXl2SQSWhpIYu9Qm+MWFenxxxnH+hnnYs=
+        b=wqaVEQb71c51YsnHFllCVBMGnqbYv6MgCmF1tJ8WUYvsMJRyEQ/umaq5r86zJVsZA
+         WMns6KDz3dRYO9LTHkks0DPxnTDWtU8vbOV0pf+GumXK90J+mL1LrbE+8+b6FsyOzy
+         yx6aJ8Hg6HMUiueqNHn34iMmk+NzxQb1X5tmU9ro=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ezequiel Garcia <ezequiel@collabora.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        stable@vger.kernel.org, Icenowy Zheng <icenowy@aosc.io>,
+        Vasily Khoruzhick <anarsoul@gmail.com>,
+        Maxime Ripard <maxime@cerno.tech>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 126/344] media: v4l2-device.h: Explicitly compare grp{id,mask} to zero in v4l2_device macros
+Subject: [PATCH 5.5 200/399] clk: sunxi-ng: add mux and pll notifiers for A64 CPU clock
 Date:   Fri, 21 Feb 2020 08:38:45 +0100
-Message-Id: <20200221072400.306485974@linuxfoundation.org>
+Message-Id: <20200221072422.257927177@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200221072349.335551332@linuxfoundation.org>
-References: <20200221072349.335551332@linuxfoundation.org>
+In-Reply-To: <20200221072402.315346745@linuxfoundation.org>
+References: <20200221072402.315346745@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,91 +45,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <natechancellor@gmail.com>
+From: Icenowy Zheng <icenowy@aosc.io>
 
-[ Upstream commit afb34781620274236bd9fc9246e22f6963ef5262 ]
+[ Upstream commit ec97faff743b398e21f74a54c81333f3390093aa ]
 
-When building with Clang + -Wtautological-constant-compare, several of
-the ivtv and cx18 drivers warn along the lines of:
+The A64 PLL_CPU clock has the same instability if some factor changed
+without the PLL gated like other SoCs with sun6i-style CCU, e.g. A33,
+H3.
 
- drivers/media/pci/cx18/cx18-driver.c:1005:21: warning: converting the
- result of '<<' to a boolean always evaluates to true
- [-Wtautological-constant-compare]
-                         cx18_call_hw(cx, CX18_HW_GPIO_RESET_CTRL,
-                                         ^
- drivers/media/pci/cx18/cx18-cards.h:18:37: note: expanded from macro
- 'CX18_HW_GPIO_RESET_CTRL'
- #define CX18_HW_GPIO_RESET_CTRL         (1 << 6)
-                                           ^
- 1 warning generated.
+Add the mux and pll notifiers for A64 CPU clock to workaround the
+problem.
 
-This warning happens because the shift operation is implicitly converted
-to a boolean in v4l2_device_mask_call_all before being negated. This can
-be solved by just comparing the mask result to 0 explicitly so that
-there is no boolean conversion. The ultimate goal is to enable
--Wtautological-compare globally because there are several subwarnings
-that would be helpful to have.
-
-For visual consistency and avoidance of these warnings in the future,
-all of the implicitly boolean conversions in the v4l2_device macros
-are converted to explicit ones as well.
-
-Link: https://github.com/ClangBuiltLinux/linux/issues/752
-
-Reviewed-by: Ezequiel Garcia <ezequiel@collabora.com>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Fixes: c6a0637460c2 ("clk: sunxi-ng: Add A64 clocks")
+Signed-off-by: Icenowy Zheng <icenowy@aosc.io>
+Signed-off-by: Vasily Khoruzhick <anarsoul@gmail.com>
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/media/v4l2-device.h | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ drivers/clk/sunxi-ng/ccu-sun50i-a64.c | 28 ++++++++++++++++++++++++++-
+ 1 file changed, 27 insertions(+), 1 deletion(-)
 
-diff --git a/include/media/v4l2-device.h b/include/media/v4l2-device.h
-index e0b8f2602670d..a0e93f0ef62a1 100644
---- a/include/media/v4l2-device.h
-+++ b/include/media/v4l2-device.h
-@@ -371,7 +371,7 @@ static inline bool v4l2_device_supports_requests(struct v4l2_device *v4l2_dev)
- 		struct v4l2_subdev *__sd;				\
- 									\
- 		__v4l2_device_call_subdevs_p(v4l2_dev, __sd,		\
--			!(grpid) || __sd->grp_id == (grpid), o, f ,	\
-+			(grpid) == 0 || __sd->grp_id == (grpid), o, f ,	\
- 			##args);					\
- 	} while (0)
+diff --git a/drivers/clk/sunxi-ng/ccu-sun50i-a64.c b/drivers/clk/sunxi-ng/ccu-sun50i-a64.c
+index 49bd7a4c015c4..5f66bf8797723 100644
+--- a/drivers/clk/sunxi-ng/ccu-sun50i-a64.c
++++ b/drivers/clk/sunxi-ng/ccu-sun50i-a64.c
+@@ -921,11 +921,26 @@ static const struct sunxi_ccu_desc sun50i_a64_ccu_desc = {
+ 	.num_resets	= ARRAY_SIZE(sun50i_a64_ccu_resets),
+ };
  
-@@ -403,7 +403,7 @@ static inline bool v4l2_device_supports_requests(struct v4l2_device *v4l2_dev)
- ({									\
- 	struct v4l2_subdev *__sd;					\
- 	__v4l2_device_call_subdevs_until_err_p(v4l2_dev, __sd,		\
--			!(grpid) || __sd->grp_id == (grpid), o, f ,	\
-+			(grpid) == 0 || __sd->grp_id == (grpid), o, f ,	\
- 			##args);					\
- })
++static struct ccu_pll_nb sun50i_a64_pll_cpu_nb = {
++	.common	= &pll_cpux_clk.common,
++	/* copy from pll_cpux_clk */
++	.enable	= BIT(31),
++	.lock	= BIT(28),
++};
++
++static struct ccu_mux_nb sun50i_a64_cpu_nb = {
++	.common		= &cpux_clk.common,
++	.cm		= &cpux_clk.mux,
++	.delay_us	= 1, /* > 8 clock cycles at 24 MHz */
++	.bypass_index	= 1, /* index of 24 MHz oscillator */
++};
++
+ static int sun50i_a64_ccu_probe(struct platform_device *pdev)
+ {
+ 	struct resource *res;
+ 	void __iomem *reg;
+ 	u32 val;
++	int ret;
  
-@@ -431,8 +431,8 @@ static inline bool v4l2_device_supports_requests(struct v4l2_device *v4l2_dev)
- 		struct v4l2_subdev *__sd;				\
- 									\
- 		__v4l2_device_call_subdevs_p(v4l2_dev, __sd,		\
--			!(grpmsk) || (__sd->grp_id & (grpmsk)), o, f ,	\
--			##args);					\
-+			(grpmsk) == 0 || (__sd->grp_id & (grpmsk)), o,	\
-+			f , ##args);					\
- 	} while (0)
+ 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+ 	reg = devm_ioremap_resource(&pdev->dev, res);
+@@ -939,7 +954,18 @@ static int sun50i_a64_ccu_probe(struct platform_device *pdev)
  
- /**
-@@ -462,8 +462,8 @@ static inline bool v4l2_device_supports_requests(struct v4l2_device *v4l2_dev)
- ({									\
- 	struct v4l2_subdev *__sd;					\
- 	__v4l2_device_call_subdevs_until_err_p(v4l2_dev, __sd,		\
--			!(grpmsk) || (__sd->grp_id & (grpmsk)), o, f ,	\
--			##args);					\
-+			(grpmsk) == 0 || (__sd->grp_id & (grpmsk)), o,	\
-+			f , ##args);					\
- })
+ 	writel(0x515, reg + SUN50I_A64_PLL_MIPI_REG);
  
+-	return sunxi_ccu_probe(pdev->dev.of_node, reg, &sun50i_a64_ccu_desc);
++	ret = sunxi_ccu_probe(pdev->dev.of_node, reg, &sun50i_a64_ccu_desc);
++	if (ret)
++		return ret;
++
++	/* Gate then ungate PLL CPU after any rate changes */
++	ccu_pll_notifier_register(&sun50i_a64_pll_cpu_nb);
++
++	/* Reparent CPU during PLL CPU rate changes */
++	ccu_mux_notifier_register(pll_cpux_clk.common.hw.clk,
++				  &sun50i_a64_cpu_nb);
++
++	return 0;
+ }
  
+ static const struct of_device_id sun50i_a64_ccu_ids[] = {
 -- 
 2.20.1
 
