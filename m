@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 54E3E167806
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:46:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BCF691676B2
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:38:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730052AbgBUIpT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 03:45:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48646 "EHLO mail.kernel.org"
+        id S1731482AbgBUIEh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 03:04:37 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37736 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729731AbgBUHvV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 02:51:21 -0500
+        id S1731649AbgBUIEg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 03:04:36 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B793320578;
-        Fri, 21 Feb 2020 07:51:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DC62920801;
+        Fri, 21 Feb 2020 08:04:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582271481;
-        bh=bl4iuWnv7Ff8rWhVfVF5g7jyH2xnHRR9FIkJVGc2BpQ=;
+        s=default; t=1582272275;
+        bh=kxpirQj5IrgXL6otZ76CxHFPJdZleVRuEeL9JZvpVKY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DVUBKUhdYGyfKWcfm4mLj6YhPzM3EyPjXmIvHr8t3O65zzrbQaSbAvqGKXEpF2MRz
-         sEaaDR2RTlMuATwwj4aNfoA7X2d7huEfa1BkGdPZKB3sFT1mT6pk8ved0QbrjGXynp
-         VkkYemlaXsuYqG93Y6Jh+IZSiIh7yksHKSa4fDBI=
+        b=qBn1WmqarBxVRdXI+h1ocemV7iS0J+5XhjFbe/HEg7Zsf4mtPe+iFnznbZISsPvgZ
+         cs+VcGRIY1t7QRgqiD7Nz+p7Wn4SubZFsmnZ+hdqPCHa+QY2e183XTDT3RX1/2AgC0
+         TYec2875JdRy5ERS9mVhFmwbb8ERqU6l87Mhr9w8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Phong Tran <tranmanphong@gmail.com>,
-        Kees Cook <keescook@chromium.org>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>,
+        kbuild test robot <lkp@intel.com>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 155/399] ipw2x00: Fix -Wcast-function-type
-Date:   Fri, 21 Feb 2020 08:38:00 +0100
-Message-Id: <20200221072417.579182101@linuxfoundation.org>
+Subject: [PATCH 5.4 082/344] rtc: i2c/spi: Avoid inclusion of REGMAP support when not needed
+Date:   Fri, 21 Feb 2020 08:38:01 +0100
+Message-Id: <20200221072356.411673050@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200221072402.315346745@linuxfoundation.org>
-References: <20200221072402.315346745@linuxfoundation.org>
+In-Reply-To: <20200221072349.335551332@linuxfoundation.org>
+References: <20200221072349.335551332@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,79 +45,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Phong Tran <tranmanphong@gmail.com>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
 
-[ Upstream commit ebd77feb27e91bb5fe35a7818b7c13ea7435fb98 ]
+[ Upstream commit 34719de919af07682861cb0fa2bcf64da33ecf44 ]
 
-correct usage prototype of callback in tasklet_init().
-Report by https://github.com/KSPP/linux/issues/20
+Merely enabling I2C and RTC selects REGMAP_I2C and REGMAP_SPI, even when
+no driver needs it.  While the former can be moduler, the latter cannot,
+and thus becomes built-in.
 
-Signed-off-by: Phong Tran <tranmanphong@gmail.com>
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Fix this by moving the select statements for REGMAP_I2C and REGMAP_SPI
+from the RTC_I2C_AND_SPI helper to the individual drivers that depend on
+it.
+
+Note that the comment for RTC_I2C_AND_SPI refers to SND_SOC_I2C_AND_SPI
+for more information, but the latter does not select REGMAP_{I2C,SPI}
+itself, and defers that to the individual drivers, too.
+
+Fixes: 080481f54ef62121 ("rtc: merge ds3232 and ds3234")
+Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Reported-by: kbuild test robot <lkp@intel.com>
+Reported-by: kbuild test robot <lkp@intel.com>
+Link: https://lore.kernel.org/r/20200112171349.22268-1-geert@linux-m68k.org
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/intel/ipw2x00/ipw2100.c | 7 ++++---
- drivers/net/wireless/intel/ipw2x00/ipw2200.c | 5 +++--
- 2 files changed, 7 insertions(+), 5 deletions(-)
+ drivers/rtc/Kconfig | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/wireless/intel/ipw2x00/ipw2100.c b/drivers/net/wireless/intel/ipw2x00/ipw2100.c
-index c4c83ab60cbc4..0579554ed4b38 100644
---- a/drivers/net/wireless/intel/ipw2x00/ipw2100.c
-+++ b/drivers/net/wireless/intel/ipw2x00/ipw2100.c
-@@ -3206,8 +3206,9 @@ static void ipw2100_tx_send_data(struct ipw2100_priv *priv)
- 	}
- }
+diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
+index 1adf9f8156522..5efc6af539c0d 100644
+--- a/drivers/rtc/Kconfig
++++ b/drivers/rtc/Kconfig
+@@ -859,14 +859,14 @@ config RTC_I2C_AND_SPI
+ 	default m if I2C=m
+ 	default y if I2C=y
+ 	default y if SPI_MASTER=y
+-	select REGMAP_I2C if I2C
+-	select REGMAP_SPI if SPI_MASTER
  
--static void ipw2100_irq_tasklet(struct ipw2100_priv *priv)
-+static void ipw2100_irq_tasklet(unsigned long data)
- {
-+	struct ipw2100_priv *priv = (struct ipw2100_priv *)data;
- 	struct net_device *dev = priv->net_dev;
- 	unsigned long flags;
- 	u32 inta, tmp;
-@@ -6006,7 +6007,7 @@ static void ipw2100_rf_kill(struct work_struct *work)
- 	spin_unlock_irqrestore(&priv->low_lock, flags);
- }
+ comment "SPI and I2C RTC drivers"
  
--static void ipw2100_irq_tasklet(struct ipw2100_priv *priv);
-+static void ipw2100_irq_tasklet(unsigned long data);
- 
- static const struct net_device_ops ipw2100_netdev_ops = {
- 	.ndo_open		= ipw2100_open,
-@@ -6136,7 +6137,7 @@ static struct net_device *ipw2100_alloc_device(struct pci_dev *pci_dev,
- 	INIT_DELAYED_WORK(&priv->rf_kill, ipw2100_rf_kill);
- 	INIT_DELAYED_WORK(&priv->scan_event, ipw2100_scan_event);
- 
--	tasklet_init(&priv->irq_tasklet, (void (*)(unsigned long))
-+	tasklet_init(&priv->irq_tasklet,
- 		     ipw2100_irq_tasklet, (unsigned long)priv);
- 
- 	/* NOTE:  We do not start the deferred work for status checks yet */
-diff --git a/drivers/net/wireless/intel/ipw2x00/ipw2200.c b/drivers/net/wireless/intel/ipw2x00/ipw2200.c
-index 31e43fc1d12b3..5ef6f87a48ac7 100644
---- a/drivers/net/wireless/intel/ipw2x00/ipw2200.c
-+++ b/drivers/net/wireless/intel/ipw2x00/ipw2200.c
-@@ -1945,8 +1945,9 @@ static void notify_wx_assoc_event(struct ipw_priv *priv)
- 	wireless_send_event(priv->net_dev, SIOCGIWAP, &wrqu, NULL);
- }
- 
--static void ipw_irq_tasklet(struct ipw_priv *priv)
-+static void ipw_irq_tasklet(unsigned long data)
- {
-+	struct ipw_priv *priv = (struct ipw_priv *)data;
- 	u32 inta, inta_mask, handled = 0;
- 	unsigned long flags;
- 	int rc = 0;
-@@ -10677,7 +10678,7 @@ static int ipw_setup_deferred_work(struct ipw_priv *priv)
- 	INIT_WORK(&priv->qos_activate, ipw_bg_qos_activate);
- #endif				/* CONFIG_IPW2200_QOS */
- 
--	tasklet_init(&priv->irq_tasklet, (void (*)(unsigned long))
-+	tasklet_init(&priv->irq_tasklet,
- 		     ipw_irq_tasklet, (unsigned long)priv);
- 
- 	return ret;
+ config RTC_DRV_DS3232
+ 	tristate "Dallas/Maxim DS3232/DS3234"
+ 	depends on RTC_I2C_AND_SPI
++	select REGMAP_I2C if I2C
++	select REGMAP_SPI if SPI_MASTER
+ 	help
+ 	  If you say yes here you get support for Dallas Semiconductor
+ 	  DS3232 and DS3234 real-time clock chips. If an interrupt is associated
+@@ -886,6 +886,8 @@ config RTC_DRV_DS3232_HWMON
+ config RTC_DRV_PCF2127
+ 	tristate "NXP PCF2127"
+ 	depends on RTC_I2C_AND_SPI
++	select REGMAP_I2C if I2C
++	select REGMAP_SPI if SPI_MASTER
+ 	select WATCHDOG_CORE if WATCHDOG
+ 	help
+ 	  If you say yes here you get support for the NXP PCF2127/29 RTC
+@@ -902,6 +904,8 @@ config RTC_DRV_PCF2127
+ config RTC_DRV_RV3029C2
+ 	tristate "Micro Crystal RV3029/3049"
+ 	depends on RTC_I2C_AND_SPI
++	select REGMAP_I2C if I2C
++	select REGMAP_SPI if SPI_MASTER
+ 	help
+ 	  If you say yes here you get support for the Micro Crystal
+ 	  RV3029 and RV3049 RTC chips.
 -- 
 2.20.1
 
