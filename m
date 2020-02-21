@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D54A4167828
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:47:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A99ED1676BB
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:38:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730256AbgBUIqw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 03:46:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45878 "EHLO mail.kernel.org"
+        id S1731316AbgBUIEN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 03:04:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37202 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728198AbgBUHtY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 02:49:24 -0500
+        id S1731588AbgBUIEM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 03:04:12 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E952C208C4;
-        Fri, 21 Feb 2020 07:49:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4E99620801;
+        Fri, 21 Feb 2020 08:04:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582271363;
-        bh=Z+YSjqjpzc7rQw4bo2wzZnOWNDIeIgJkYMzUDWpteo8=;
+        s=default; t=1582272251;
+        bh=jwaeIp2MEMtqr9PJUVmeKPM5rbDAUa0EDOJ3hWpd4tw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=URqjOFw4Zxweu4dBV8DSv6A+Mi4MOlfcNqNq+NA1X47OFSv+iuOOP+1GBs1HTulx2
-         FKihIWa/L9yp6Gn+5nh/eTWuyNT1vUlK6xyrPYzq4DlAYI5n7bBCHuxb7Bqh2SWvBM
-         49Cc6egFKBgXKMeW7QHMK/BFpGIJc5evX7Qp9zDM=
+        b=QuxzJrWIWV1pXUzBjENVM3YSzpO6Y9jMsVC97o9mostEOSV6Mr5wr+9FoDIZjBmw9
+         WyyC/RkzJI2eKCJcy+y8wb5zOU/zgrxasT+TNgB8eMFJeX7NaUJL0Ey6+ynM4AZDV+
+         jwmaz9F7Mver2zEgGOCdBl2LjlqWe7IWRpI/bfCc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Drake <drake@endlessm.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 137/399] PCI: Increase D3 delay for AMD Ryzen5/7 XHCI controllers
-Date:   Fri, 21 Feb 2020 08:37:42 +0100
-Message-Id: <20200221072415.792531597@linuxfoundation.org>
+        stable@vger.kernel.org, Eric Biggers <ebiggers@google.com>,
+        Theodore Tso <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 065/344] ext4: fix deadlock allocating bio_post_read_ctx from mempool
+Date:   Fri, 21 Feb 2020 08:37:44 +0100
+Message-Id: <20200221072354.916782225@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200221072402.315346745@linuxfoundation.org>
-References: <20200221072402.315346745@linuxfoundation.org>
+In-Reply-To: <20200221072349.335551332@linuxfoundation.org>
+References: <20200221072349.335551332@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,67 +43,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Drake <drake@endlessm.com>
+From: Eric Biggers <ebiggers@google.com>
 
-[ Upstream commit 3030df209aa8cf831b9963829bd9f94900ee8032 ]
+[ Upstream commit 68e45330e341dad2d3a0a3f8ef2ec46a2a0a3bbc ]
 
-On Asus UX434DA (AMD Ryzen7 3700U) and Asus X512DK (AMD Ryzen5 3500U), the
-XHCI controller fails to resume from runtime suspend or s2idle, and USB
-becomes unusable from that point.
+Without any form of coordination, any case where multiple allocations
+from the same mempool are needed at a time to make forward progress can
+deadlock under memory pressure.
 
-  xhci_hcd 0000:03:00.4: Refused to change power state, currently in D3
-  xhci_hcd 0000:03:00.4: enabling device (0000 -> 0002)
-  xhci_hcd 0000:03:00.4: WARN: xHC restore state timeout
-  xhci_hcd 0000:03:00.4: PCI post-resume error -110!
-  xhci_hcd 0000:03:00.4: HC died; cleaning up
+This is the case for struct bio_post_read_ctx, as one can be allocated
+to decrypt a Merkle tree page during fsverity_verify_bio(), which itself
+is running from a post-read callback for a data bio which has its own
+struct bio_post_read_ctx.
 
-During suspend, a transition to D3cold is attempted, however the affected
-platforms do not seem to cut the power to the PCI device when in this
-state, so the device stays in D3hot.
+Fix this by freeing the first bio_post_read_ctx before calling
+fsverity_verify_bio().  This works because verity (if enabled) is always
+the last post-read step.
 
-Upon resume, the D3hot-to-D0 transition is successful only if the D3 delay
-is increased to 20ms. The transition failure does not appear to be
-detectable as a CRS condition. Add a PCI quirk to increase the delay on the
-affected hardware.
+This deadlock can be reproduced by trying to read from an encrypted
+verity file after reducing NUM_PREALLOC_POST_READ_CTXS to 1 and patching
+mempool_alloc() to pretend that pool->alloc() always fails.
 
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=205587
-Link: http://lkml.kernel.org/r/CAD8Lp47Vh69gQjROYG69=waJgL7hs1PwnLonL9+27S_TcRhixA@mail.gmail.com
-Link: https://lore.kernel.org/r/20191127053836.31624-2-drake@endlessm.com
-Signed-off-by: Daniel Drake <drake@endlessm.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Note that since NUM_PREALLOC_POST_READ_CTXS is actually 128, to actually
+hit this bug in practice would require reading from lots of encrypted
+verity files at the same time.  But it's theoretically possible, as N
+available objects isn't enough to guarantee forward progress when > N/2
+threads each need 2 objects at a time.
+
+Fixes: 22cfe4b48ccb ("ext4: add fs-verity read support")
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+Link: https://lore.kernel.org/r/20191231181222.47684-1-ebiggers@kernel.org
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/quirks.c | 16 ++++++++++++++++
- 1 file changed, 16 insertions(+)
+ fs/ext4/readpage.c | 17 +++++++++++++++--
+ 1 file changed, 15 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/pci/quirks.c b/drivers/pci/quirks.c
-index 27008edce1a24..c0b7aa4dc0f51 100644
---- a/drivers/pci/quirks.c
-+++ b/drivers/pci/quirks.c
-@@ -1889,6 +1889,22 @@ static void quirk_radeon_pm(struct pci_dev *dev)
- }
- DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_ATI, 0x6741, quirk_radeon_pm);
+diff --git a/fs/ext4/readpage.c b/fs/ext4/readpage.c
+index a30b203fa461c..a5f55fece9b04 100644
+--- a/fs/ext4/readpage.c
++++ b/fs/ext4/readpage.c
+@@ -57,6 +57,7 @@ enum bio_post_read_step {
+ 	STEP_INITIAL = 0,
+ 	STEP_DECRYPT,
+ 	STEP_VERITY,
++	STEP_MAX,
+ };
  
-+/*
-+ * Ryzen5/7 XHCI controllers fail upon resume from runtime suspend or s2idle.
-+ * https://bugzilla.kernel.org/show_bug.cgi?id=205587
-+ *
-+ * The kernel attempts to transition these devices to D3cold, but that seems
-+ * to be ineffective on the platforms in question; the PCI device appears to
-+ * remain on in D3hot state. The D3hot-to-D0 transition then requires an
-+ * extended delay in order to succeed.
-+ */
-+static void quirk_ryzen_xhci_d3hot(struct pci_dev *dev)
-+{
-+	quirk_d3hot_delay(dev, 20);
-+}
-+DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_AMD, 0x15e0, quirk_ryzen_xhci_d3hot);
-+DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_AMD, 0x15e1, quirk_ryzen_xhci_d3hot);
-+
- #ifdef CONFIG_X86_IO_APIC
- static int dmi_disable_ioapicreroute(const struct dmi_system_id *d)
+ struct bio_post_read_ctx {
+@@ -106,10 +107,22 @@ static void verity_work(struct work_struct *work)
  {
+ 	struct bio_post_read_ctx *ctx =
+ 		container_of(work, struct bio_post_read_ctx, work);
++	struct bio *bio = ctx->bio;
+ 
+-	fsverity_verify_bio(ctx->bio);
++	/*
++	 * fsverity_verify_bio() may call readpages() again, and although verity
++	 * will be disabled for that, decryption may still be needed, causing
++	 * another bio_post_read_ctx to be allocated.  So to guarantee that
++	 * mempool_alloc() never deadlocks we must free the current ctx first.
++	 * This is safe because verity is the last post-read step.
++	 */
++	BUILD_BUG_ON(STEP_VERITY + 1 != STEP_MAX);
++	mempool_free(ctx, bio_post_read_ctx_pool);
++	bio->bi_private = NULL;
+ 
+-	bio_post_read_processing(ctx);
++	fsverity_verify_bio(bio);
++
++	__read_end_io(bio);
+ }
+ 
+ static void bio_post_read_processing(struct bio_post_read_ctx *ctx)
 -- 
 2.20.1
 
