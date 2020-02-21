@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 80D39167042
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 08:43:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5CC39167043
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 08:44:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726853AbgBUHnn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 02:43:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38120 "EHLO mail.kernel.org"
+        id S1727025AbgBUHnq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 02:43:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38230 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726045AbgBUHnm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 02:43:42 -0500
+        id S1726045AbgBUHnq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 02:43:46 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8E7C020801;
-        Fri, 21 Feb 2020 07:43:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C6388208C4;
+        Fri, 21 Feb 2020 07:43:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582271021;
-        bh=gnFCA0YLoSCVotL7bGApUYDpuF8NUTKSgkzZLI+u9qg=;
+        s=default; t=1582271024;
+        bh=LoGvoCiSwR3JH5U7wIqySCdnVjdTGHmGcOe0AU87k4c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zWvWYgTzt7gh2zT/M1JPcQCqweImff96AmmvCMqIcoeFK1XxF9F8BbTtxiTR3EtgO
-         qCPiXmuBsnxNqOEsr8Hx5GzQAfzwJeQvMjed/ncrKJiZ3mFd44DZ+zc7GfWy0nGDlQ
-         2dHU3R5fPkqQjhop2Mfcx9O13NrTRNoek0JXams0=
+        b=K46FQb9WQ1dCCh2aaDGyeeEkAfI+HVdjskNcYfzSmemWeHIujaiNhp/rYpBlswRHH
+         3DTysB5BE1nZkN7G+cv9FQhwwK3S/GyjJTQ4TWec7EzXf4hQF1Zi665gBGKngk1HQG
+         YypehBjyAq1sAsrYTHCtcPhdUC6U0th+I2Y28ENU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
-        Maya Erez <merez@codeaurora.org>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org, Gerd Hoffmann <kraxel@redhat.com>,
+        Gurchetan Singh <gurchetansingh@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 010/399] wil6210: fix break that is never reached because of zeroing of a retry counter
-Date:   Fri, 21 Feb 2020 08:35:35 +0100
-Message-Id: <20200221072403.316856665@linuxfoundation.org>
+Subject: [PATCH 5.5 011/399] drm/virtio: fix byteorder handling in virtio_gpu_cmd_transfer_{from, to}_host_3d functions
+Date:   Fri, 21 Feb 2020 08:35:36 +0100
+Message-Id: <20200221072403.416070831@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200221072402.315346745@linuxfoundation.org>
 References: <20200221072402.315346745@linuxfoundation.org>
@@ -45,48 +44,191 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Gerd Hoffmann <kraxel@redhat.com>
 
-[ Upstream commit 5b1413f00b5beb9f5fed94e43ea0c497d5db9633 ]
+[ Upstream commit 1dc3485247170d3b88a21cadee7f7da1f0433495 ]
 
-There is a check on the retry counter invalid_buf_id_retry that is always
-false because invalid_buf_id_retry is initialized to zero on each iteration
-of a while-loop.  Fix this by initializing the retry counter before the
-while-loop starts.
+Be consistent with the rest of the code base.
+No functional change.
 
-Addresses-Coverity: ("Logically dead code")
-Fixes: b4a967b7d0f5 ("wil6210: reset buff id in status message after completion")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Reviewed-by: Maya Erez <merez@codeaurora.org>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+v2:
+ - fix sparse warnings for virtio_gpu_cmd_transfer_to_host_2d call.
+ - move convert_to_hw_box helper function.
+
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+Reviewed-by: Gurchetan Singh <gurchetansingh@chromium.org>
+Link: http://patchwork.freedesktop.org/patch/msgid/20191023062539.11728-2-kraxel@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/wil6210/txrx_edma.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/virtio/virtgpu_drv.h   |  5 +++--
+ drivers/gpu/drm/virtio/virtgpu_ioctl.c | 22 +++-------------------
+ drivers/gpu/drm/virtio/virtgpu_vq.c    | 19 +++++++++++++++----
+ 3 files changed, 21 insertions(+), 25 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/wil6210/txrx_edma.c b/drivers/net/wireless/ath/wil6210/txrx_edma.c
-index 778b63be6a9a4..02548d40253c7 100644
---- a/drivers/net/wireless/ath/wil6210/txrx_edma.c
-+++ b/drivers/net/wireless/ath/wil6210/txrx_edma.c
-@@ -869,6 +869,7 @@ static struct sk_buff *wil_sring_reap_rx_edma(struct wil6210_priv *wil,
- 	u8 data_offset;
- 	struct wil_rx_status_extended *s;
- 	u16 sring_idx = sring - wil->srings;
-+	int invalid_buff_id_retry;
+diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
+index 0b56ba005e253..eedae2a7b532d 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_drv.h
++++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
+@@ -38,6 +38,7 @@
+ #include <drm/drm_gem_shmem_helper.h>
+ #include <drm/drm_ioctl.h>
+ #include <drm/drm_probe_helper.h>
++#include <drm/virtgpu_drm.h>
  
- 	BUILD_BUG_ON(sizeof(struct wil_rx_status_extended) > sizeof(skb->cb));
+ #define DRIVER_NAME "virtio_gpu"
+ #define DRIVER_DESC "virtio GPU"
+@@ -312,13 +313,13 @@ void virtio_gpu_cmd_submit(struct virtio_gpu_device *vgdev,
+ void virtio_gpu_cmd_transfer_from_host_3d(struct virtio_gpu_device *vgdev,
+ 					  uint32_t ctx_id,
+ 					  uint64_t offset, uint32_t level,
+-					  struct virtio_gpu_box *box,
++					  struct drm_virtgpu_3d_box *box,
+ 					  struct virtio_gpu_object_array *objs,
+ 					  struct virtio_gpu_fence *fence);
+ void virtio_gpu_cmd_transfer_to_host_3d(struct virtio_gpu_device *vgdev,
+ 					uint32_t ctx_id,
+ 					uint64_t offset, uint32_t level,
+-					struct virtio_gpu_box *box,
++					struct drm_virtgpu_3d_box *box,
+ 					struct virtio_gpu_object_array *objs,
+ 					struct virtio_gpu_fence *fence);
+ void
+diff --git a/drivers/gpu/drm/virtio/virtgpu_ioctl.c b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
+index 9af1ec62434f2..205ec4abae2b9 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_ioctl.c
++++ b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
+@@ -33,17 +33,6 @@
  
-@@ -882,9 +883,9 @@ again:
- 	/* Extract the buffer ID from the status message */
- 	buff_id = le16_to_cpu(wil_rx_status_get_buff_id(msg));
+ #include "virtgpu_drv.h"
  
-+	invalid_buff_id_retry = 0;
- 	while (!buff_id) {
- 		struct wil_rx_status_extended *s;
--		int invalid_buff_id_retry = 0;
+-static void convert_to_hw_box(struct virtio_gpu_box *dst,
+-			      const struct drm_virtgpu_3d_box *src)
+-{
+-	dst->x = cpu_to_le32(src->x);
+-	dst->y = cpu_to_le32(src->y);
+-	dst->z = cpu_to_le32(src->z);
+-	dst->w = cpu_to_le32(src->w);
+-	dst->h = cpu_to_le32(src->h);
+-	dst->d = cpu_to_le32(src->d);
+-}
+-
+ static int virtio_gpu_map_ioctl(struct drm_device *dev, void *data,
+ 				struct drm_file *file_priv)
+ {
+@@ -304,7 +293,6 @@ static int virtio_gpu_transfer_from_host_ioctl(struct drm_device *dev,
+ 	struct virtio_gpu_fence *fence;
+ 	int ret;
+ 	u32 offset = args->offset;
+-	struct virtio_gpu_box box;
  
- 		wil_dbg_txrx(wil,
- 			     "buff_id is not updated yet by HW, (swhead 0x%x)\n",
+ 	if (vgdev->has_virgl_3d == false)
+ 		return -ENOSYS;
+@@ -317,8 +305,6 @@ static int virtio_gpu_transfer_from_host_ioctl(struct drm_device *dev,
+ 	if (ret != 0)
+ 		goto err_put_free;
+ 
+-	convert_to_hw_box(&box, &args->box);
+-
+ 	fence = virtio_gpu_fence_alloc(vgdev);
+ 	if (!fence) {
+ 		ret = -ENOMEM;
+@@ -326,7 +312,7 @@ static int virtio_gpu_transfer_from_host_ioctl(struct drm_device *dev,
+ 	}
+ 	virtio_gpu_cmd_transfer_from_host_3d
+ 		(vgdev, vfpriv->ctx_id, offset, args->level,
+-		 &box, objs, fence);
++		 &args->box, objs, fence);
+ 	dma_fence_put(&fence->f);
+ 	return 0;
+ 
+@@ -345,7 +331,6 @@ static int virtio_gpu_transfer_to_host_ioctl(struct drm_device *dev, void *data,
+ 	struct drm_virtgpu_3d_transfer_to_host *args = data;
+ 	struct virtio_gpu_object_array *objs;
+ 	struct virtio_gpu_fence *fence;
+-	struct virtio_gpu_box box;
+ 	int ret;
+ 	u32 offset = args->offset;
+ 
+@@ -353,11 +338,10 @@ static int virtio_gpu_transfer_to_host_ioctl(struct drm_device *dev, void *data,
+ 	if (objs == NULL)
+ 		return -ENOENT;
+ 
+-	convert_to_hw_box(&box, &args->box);
+ 	if (!vgdev->has_virgl_3d) {
+ 		virtio_gpu_cmd_transfer_to_host_2d
+ 			(vgdev, offset,
+-			 box.w, box.h, box.x, box.y,
++			 args->box.w, args->box.h, args->box.x, args->box.y,
+ 			 objs, NULL);
+ 	} else {
+ 		ret = virtio_gpu_array_lock_resv(objs);
+@@ -372,7 +356,7 @@ static int virtio_gpu_transfer_to_host_ioctl(struct drm_device *dev, void *data,
+ 		virtio_gpu_cmd_transfer_to_host_3d
+ 			(vgdev,
+ 			 vfpriv ? vfpriv->ctx_id : 0, offset,
+-			 args->level, &box, objs, fence);
++			 args->level, &args->box, objs, fence);
+ 		dma_fence_put(&fence->f);
+ 	}
+ 	return 0;
+diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virtio/virtgpu_vq.c
+index 74ad3bc3ebe83..9274c4063c701 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_vq.c
++++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
+@@ -40,6 +40,17 @@
+ 			       + MAX_INLINE_CMD_SIZE		 \
+ 			       + MAX_INLINE_RESP_SIZE)
+ 
++static void convert_to_hw_box(struct virtio_gpu_box *dst,
++			      const struct drm_virtgpu_3d_box *src)
++{
++	dst->x = cpu_to_le32(src->x);
++	dst->y = cpu_to_le32(src->y);
++	dst->z = cpu_to_le32(src->z);
++	dst->w = cpu_to_le32(src->w);
++	dst->h = cpu_to_le32(src->h);
++	dst->d = cpu_to_le32(src->d);
++}
++
+ void virtio_gpu_ctrl_ack(struct virtqueue *vq)
+ {
+ 	struct drm_device *dev = vq->vdev->priv;
+@@ -965,7 +976,7 @@ virtio_gpu_cmd_resource_create_3d(struct virtio_gpu_device *vgdev,
+ void virtio_gpu_cmd_transfer_to_host_3d(struct virtio_gpu_device *vgdev,
+ 					uint32_t ctx_id,
+ 					uint64_t offset, uint32_t level,
+-					struct virtio_gpu_box *box,
++					struct drm_virtgpu_3d_box *box,
+ 					struct virtio_gpu_object_array *objs,
+ 					struct virtio_gpu_fence *fence)
+ {
+@@ -987,7 +998,7 @@ void virtio_gpu_cmd_transfer_to_host_3d(struct virtio_gpu_device *vgdev,
+ 	cmd_p->hdr.type = cpu_to_le32(VIRTIO_GPU_CMD_TRANSFER_TO_HOST_3D);
+ 	cmd_p->hdr.ctx_id = cpu_to_le32(ctx_id);
+ 	cmd_p->resource_id = cpu_to_le32(bo->hw_res_handle);
+-	cmd_p->box = *box;
++	convert_to_hw_box(&cmd_p->box, box);
+ 	cmd_p->offset = cpu_to_le64(offset);
+ 	cmd_p->level = cpu_to_le32(level);
+ 
+@@ -997,7 +1008,7 @@ void virtio_gpu_cmd_transfer_to_host_3d(struct virtio_gpu_device *vgdev,
+ void virtio_gpu_cmd_transfer_from_host_3d(struct virtio_gpu_device *vgdev,
+ 					  uint32_t ctx_id,
+ 					  uint64_t offset, uint32_t level,
+-					  struct virtio_gpu_box *box,
++					  struct drm_virtgpu_3d_box *box,
+ 					  struct virtio_gpu_object_array *objs,
+ 					  struct virtio_gpu_fence *fence)
+ {
+@@ -1013,7 +1024,7 @@ void virtio_gpu_cmd_transfer_from_host_3d(struct virtio_gpu_device *vgdev,
+ 	cmd_p->hdr.type = cpu_to_le32(VIRTIO_GPU_CMD_TRANSFER_FROM_HOST_3D);
+ 	cmd_p->hdr.ctx_id = cpu_to_le32(ctx_id);
+ 	cmd_p->resource_id = cpu_to_le32(bo->hw_res_handle);
+-	cmd_p->box = *box;
++	convert_to_hw_box(&cmd_p->box, box);
+ 	cmd_p->offset = cpu_to_le64(offset);
+ 	cmd_p->level = cpu_to_le32(level);
+ 
 -- 
 2.20.1
 
