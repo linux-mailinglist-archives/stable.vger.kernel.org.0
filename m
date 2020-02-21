@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 276851675E8
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:32:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4FAC61676E5
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:41:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732992AbgBUINX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 03:13:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49452 "EHLO mail.kernel.org"
+        id S1730591AbgBUH7Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 02:59:16 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59272 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732537AbgBUINX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 03:13:23 -0500
+        id S1730873AbgBUH7P (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 02:59:15 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1E5C420722;
-        Fri, 21 Feb 2020 08:13:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2D2D620578;
+        Fri, 21 Feb 2020 07:59:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582272802;
-        bh=vhv9ahD5jt/VGshNDEu0h4s5rHcm99nOExO90XMU3HQ=;
+        s=default; t=1582271954;
+        bh=4aonCssWYdstuScFHWHex3lRsbsWzswOK1XgUJWXPzA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T3dxmM+CtllzzXGLjEEJmc0xLSyculEao95b28H1nBzbrcy3KXE5LAuYGB5zF2i8C
-         j7pzsnoSiD/3poBzYs5bPB3q3r/ZE/ltoHwH0JNPEMobJhtht3/AWD00rDLEvQLhex
-         L08vtpt5WALhUx725By1LMn6HIg6U3NattoUglLU=
+        b=rbo4wvdplNdLmL2j4FBc9dRTw22rFDm215JViWFT2pZgC++s01wVYgwaKsJNaICsk
+         rjJXEcNZadCo9Qr5wxRk0hcbbs/s3tKwinu/qpGr1FNNlBOeCHL78V2A0kuIXheCzx
+         5c/lTX6fR1+tb8YhPwDIh0Dr5dI81MCAJO6umYf0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Peter=20Gro=C3=9Fe?= <pegro@friiks.de>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 280/344] ALSA: hda - Add docking station support for Lenovo Thinkpad T420s
+        stable@vger.kernel.org, Christophe Leroy <christophe.leroy@c-s.fr>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.5 354/399] powerpc/mm: Dont log user reads to 0xffffffff
 Date:   Fri, 21 Feb 2020 08:41:19 +0100
-Message-Id: <20200221072415.195560600@linuxfoundation.org>
+Message-Id: <20200221072435.333365196@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200221072349.335551332@linuxfoundation.org>
-References: <20200221072349.335551332@linuxfoundation.org>
+In-Reply-To: <20200221072402.315346745@linuxfoundation.org>
+References: <20200221072402.315346745@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,33 +44,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Große <pegro@friiks.de>
+From: Christophe Leroy <christophe.leroy@c-s.fr>
 
-[ Upstream commit ef7d84caa5928b40b1c93a26dbe5a3f12737c6ab ]
+[ Upstream commit 0f9aee0cb9da7db7d96f63cfa2dc5e4f1bffeb87 ]
 
-Lenovo Thinkpad T420s uses the same codec as T420, so apply the
-same quirk to enable audio output on a docking station.
+Running vdsotest leaves many times the following log:
 
-Signed-off-by: Peter Große <pegro@friiks.de>
-Link: https://lore.kernel.org/r/20200122180106.9351-1-pegro@friiks.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+  [   79.629901] vdsotest[396]: User access of kernel address (ffffffff) - exploit attempt? (uid: 0)
+
+A pointer set to (-1) is likely a programming error similar to
+a NULL pointer and is not worth logging as an exploit attempt.
+
+Don't log user accesses to 0xffffffff.
+
+Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/0728849e826ba16f1fbd6fa7f5c6cc87bd64e097.1577087627.git.christophe.leroy@c-s.fr
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/patch_conexant.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/powerpc/mm/fault.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/sound/pci/hda/patch_conexant.c b/sound/pci/hda/patch_conexant.c
-index 90aa0f400a57d..1e20e85e9b466 100644
---- a/sound/pci/hda/patch_conexant.c
-+++ b/sound/pci/hda/patch_conexant.c
-@@ -922,6 +922,7 @@ static const struct snd_pci_quirk cxt5066_fixups[] = {
- 	SND_PCI_QUIRK(0x17aa, 0x215f, "Lenovo T510", CXT_PINCFG_LENOVO_TP410),
- 	SND_PCI_QUIRK(0x17aa, 0x21ce, "Lenovo T420", CXT_PINCFG_LENOVO_TP410),
- 	SND_PCI_QUIRK(0x17aa, 0x21cf, "Lenovo T520", CXT_PINCFG_LENOVO_TP410),
-+	SND_PCI_QUIRK(0x17aa, 0x21d2, "Lenovo T420s", CXT_PINCFG_LENOVO_TP410),
- 	SND_PCI_QUIRK(0x17aa, 0x21da, "Lenovo X220", CXT_PINCFG_LENOVO_TP410),
- 	SND_PCI_QUIRK(0x17aa, 0x21db, "Lenovo X220-tablet", CXT_PINCFG_LENOVO_TP410),
- 	SND_PCI_QUIRK(0x17aa, 0x38af, "Lenovo IdeaPad Z560", CXT_FIXUP_MUTE_LED_EAPD),
+diff --git a/arch/powerpc/mm/fault.c b/arch/powerpc/mm/fault.c
+index 1baeb045f7f4b..e083a9f67f701 100644
+--- a/arch/powerpc/mm/fault.c
++++ b/arch/powerpc/mm/fault.c
+@@ -354,6 +354,9 @@ static void sanity_check_fault(bool is_write, bool is_user,
+ 	 * Userspace trying to access kernel address, we get PROTFAULT for that.
+ 	 */
+ 	if (is_user && address >= TASK_SIZE) {
++		if ((long)address == -1)
++			return;
++
+ 		pr_crit_ratelimited("%s[%d]: User access of kernel address (%lx) - exploit attempt? (uid: %d)\n",
+ 				   current->comm, current->pid, address,
+ 				   from_kuid(&init_user_ns, current_uid()));
 -- 
 2.20.1
 
