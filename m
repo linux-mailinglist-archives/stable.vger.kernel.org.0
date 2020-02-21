@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5326216750D
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:30:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F7571673B7
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:18:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388299AbgBUIWa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 03:22:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34114 "EHLO mail.kernel.org"
+        id S1732600AbgBUIOu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 03:14:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51446 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388184AbgBUIW3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 03:22:29 -0500
+        id S1733236AbgBUIOu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 03:14:50 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A3F662467D;
-        Fri, 21 Feb 2020 08:22:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 274AB24680;
+        Fri, 21 Feb 2020 08:14:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582273349;
-        bh=nZ6V4uw3ZrXBLfZspGcx/9cmZIdgngtSWXyEIL1Y0As=;
+        s=default; t=1582272889;
+        bh=qy/UrVKJD9Yzo9V6luGLjIKHtwLML0Xd8oiQh3MDx2c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=teaghmC5fVjkc5wCDWvwRk5EqNPo9MwTH0/kvfBDlbdEgcK1+xbTsvWY8ojl573/J
-         CwfXhGOVgq6jrvoIB/SDchbR5k2gTa5W9rtFx9MBuCBOZexIoAN6Mfm611QCQI9Gg8
-         wYA+yAjWx1vvQCnJesUzWTdA6DGOoRG61Vqufcew=
+        b=EVO9+7mGfNnl2di7lk7P8gNiebOM0xQumb9oAXkLQ9VMnmcxsVXGk8gTjKYyUHRMg
+         AjOzLeE5zcIxjj0SELe4HOIIZwxJOJWa7xfS0dl4UcgQr+yQ+kMJJvNaRabVbRp4US
+         U8BaRUK9NKRZUIsJlx6B37zwEPqoLza4X3mlom2A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chao Yu <yuchao0@huawei.com>,
-        Jaegeuk Kim <jaegeuk@kernel.org>,
+        stable@vger.kernel.org, Vasily Averin <vvs@virtuozzo.com>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 138/191] f2fs: fix memleak of kobject
-Date:   Fri, 21 Feb 2020 08:41:51 +0100
-Message-Id: <20200221072307.261675924@linuxfoundation.org>
+Subject: [PATCH 5.4 313/344] ftrace: fpid_next() should increase position index
+Date:   Fri, 21 Feb 2020 08:41:52 +0100
+Message-Id: <20200221072418.491462997@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200221072250.732482588@linuxfoundation.org>
-References: <20200221072250.732482588@linuxfoundation.org>
+In-Reply-To: <20200221072349.335551332@linuxfoundation.org>
+References: <20200221072349.335551332@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,52 +44,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chao Yu <yuchao0@huawei.com>
+From: Vasily Averin <vvs@virtuozzo.com>
 
-[ Upstream commit fe396ad8e7526f059f7b8c7290d33a1b84adacab ]
+[ Upstream commit e4075e8bdffd93a9b6d6e1d52fabedceeca5a91b ]
 
-If kobject_init_and_add() failed, caller needs to invoke kobject_put()
-to release kobject explicitly.
+if seq_file .next fuction does not change position index,
+read after some lseek can generate unexpected output.
 
-Signed-off-by: Chao Yu <yuchao0@huawei.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Without patch:
+ # dd bs=4 skip=1 if=/sys/kernel/tracing/set_ftrace_pid
+ dd: /sys/kernel/tracing/set_ftrace_pid: cannot skip to specified offset
+ id
+ no pid
+ 2+1 records in
+ 2+1 records out
+ 10 bytes copied, 0.000213285 s, 46.9 kB/s
+
+Notice the "id" followed by "no pid".
+
+With the patch:
+ # dd bs=4 skip=1 if=/sys/kernel/tracing/set_ftrace_pid
+ dd: /sys/kernel/tracing/set_ftrace_pid: cannot skip to specified offset
+ id
+ 0+1 records in
+ 0+1 records out
+ 3 bytes copied, 0.000202112 s, 14.8 kB/s
+
+Notice that it only prints "id" and not the "no pid" afterward.
+
+Link: http://lkml.kernel.org/r/4f87c6ad-f114-30bb-8506-c32274ce2992@virtuozzo.com
+
+https://bugzilla.kernel.org/show_bug.cgi?id=206283
+Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/sysfs.c | 11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
+ kernel/trace/ftrace.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/fs/f2fs/sysfs.c b/fs/f2fs/sysfs.c
-index b405548202d3b..9a59f49ba4050 100644
---- a/fs/f2fs/sysfs.c
-+++ b/fs/f2fs/sysfs.c
-@@ -658,10 +658,12 @@ int __init f2fs_init_sysfs(void)
+diff --git a/kernel/trace/ftrace.c b/kernel/trace/ftrace.c
+index 407d8bf4ed93e..15160d707da45 100644
+--- a/kernel/trace/ftrace.c
++++ b/kernel/trace/ftrace.c
+@@ -6537,9 +6537,10 @@ static void *fpid_next(struct seq_file *m, void *v, loff_t *pos)
+ 	struct trace_array *tr = m->private;
+ 	struct trace_pid_list *pid_list = rcu_dereference_sched(tr->function_pids);
  
- 	ret = kobject_init_and_add(&f2fs_feat, &f2fs_feat_ktype,
- 				   NULL, "features");
--	if (ret)
-+	if (ret) {
-+		kobject_put(&f2fs_feat);
- 		kset_unregister(&f2fs_kset);
--	else
-+	} else {
- 		f2fs_proc_root = proc_mkdir("fs/f2fs", NULL);
+-	if (v == FTRACE_NO_PIDS)
++	if (v == FTRACE_NO_PIDS) {
++		(*pos)++;
+ 		return NULL;
+-
 +	}
- 	return ret;
+ 	return trace_pid_next(pid_list, v, pos);
  }
  
-@@ -682,8 +684,11 @@ int f2fs_register_sysfs(struct f2fs_sb_info *sbi)
- 	init_completion(&sbi->s_kobj_unregister);
- 	err = kobject_init_and_add(&sbi->s_kobj, &f2fs_sb_ktype, NULL,
- 				"%s", sb->s_id);
--	if (err)
-+	if (err) {
-+		kobject_put(&sbi->s_kobj);
-+		wait_for_completion(&sbi->s_kobj_unregister);
- 		return err;
-+	}
- 
- 	if (f2fs_proc_root)
- 		sbi->s_proc = proc_mkdir(sb->s_id, f2fs_proc_root);
 -- 
 2.20.1
 
