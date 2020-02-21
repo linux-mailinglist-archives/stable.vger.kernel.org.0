@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 90BE31677E3
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:46:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 975B916769D
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:37:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728719AbgBUHts (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 02:49:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46384 "EHLO mail.kernel.org"
+        id S1731079AbgBUIgy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 03:36:54 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39352 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728915AbgBUHtr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 02:49:47 -0500
+        id S1731492AbgBUIFo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 03:05:44 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8E770207FD;
-        Fri, 21 Feb 2020 07:49:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 13749222C4;
+        Fri, 21 Feb 2020 08:05:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582271387;
-        bh=z70ujt1EqXAZKyx0yyjAuQe/ZW4XhB3+LwH5tlRzWqs=;
+        s=default; t=1582272343;
+        bh=wySVuzOAKsVfP2zWPLQgRaUCUUY7XFfw5EC5uuHR3qU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ij5GzNZnieMU3Qb1AKCRTktbQb5LrKJmaZbNn4R5IhsPqek0icQg+1JOz/HaPgDqq
-         qGSaqWs79l50SwqmSyQYSbgjCxFm1sFBWNy1QdSwvaui9WbuP02DiIceUW0l6K+3IT
-         QKzvUmB1RhWg0k9SjJKNlysX0RECV3xhFSqdrHDs=
+        b=GUxByzR1X1yXH0FoWJZ81OQ3U5DcLH61mFDfjHVD5pVWP65SNV0bbsPwSvRXu6FXa
+         TifsYVdpAKzbUviXK6m5FH+e68DVPegoMhhWAU+3JKUXhhhmbfYwgw4xVLBCufNjxq
+         cFraDjtdMNdLi+V/VI1bLqe694MrFHTup1Jp79eQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aditya Pakki <pakki001@umn.edu>,
+        stable@vger.kernel.org, Martin Schiller <ms@dev.tdt.de>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 145/399] fore200e: Fix incorrect checks of NULL pointer dereference
+Subject: [PATCH 5.4 071/344] wan/hdlc_x25: fix skb handling
 Date:   Fri, 21 Feb 2020 08:37:50 +0100
-Message-Id: <20200221072416.610622795@linuxfoundation.org>
+Message-Id: <20200221072355.441387749@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200221072402.315346745@linuxfoundation.org>
-References: <20200221072402.315346745@linuxfoundation.org>
+In-Reply-To: <20200221072349.335551332@linuxfoundation.org>
+References: <20200221072349.335551332@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,78 +44,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aditya Pakki <pakki001@umn.edu>
+From: Martin Schiller <ms@dev.tdt.de>
 
-[ Upstream commit bbd20c939c8aa3f27fa30e86691af250bf92973a ]
+[ Upstream commit 953c4a08dfc9ffe763a8340ac10f459d6c6cc4eb ]
 
-In fore200e_send and fore200e_close, the pointers from the arguments
-are dereferenced in the variable declaration block and then checked
-for NULL. The patch fixes these issues by avoiding NULL pointer
-dereferences.
+o call skb_reset_network_header() before hdlc->xmit()
+ o change skb proto to HDLC (0x0019) before hdlc->xmit()
+ o call dev_queue_xmit_nit() before hdlc->xmit()
 
-Signed-off-by: Aditya Pakki <pakki001@umn.edu>
+This changes make it possible to trace (tcpdump) outgoing layer2
+(ETH_P_HDLC) packets
+
+Additionally call skb_reset_network_header() after each skb_push() /
+skb_pull().
+
+Signed-off-by: Martin Schiller <ms@dev.tdt.de>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/atm/fore200e.c | 25 ++++++++++++++++++-------
- 1 file changed, 18 insertions(+), 7 deletions(-)
+ drivers/net/wan/hdlc_x25.c | 13 +++++++++++--
+ 1 file changed, 11 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/atm/fore200e.c b/drivers/atm/fore200e.c
-index f1a5002053132..8fbd36eb89410 100644
---- a/drivers/atm/fore200e.c
-+++ b/drivers/atm/fore200e.c
-@@ -1414,12 +1414,14 @@ fore200e_open(struct atm_vcc *vcc)
- static void
- fore200e_close(struct atm_vcc* vcc)
+diff --git a/drivers/net/wan/hdlc_x25.c b/drivers/net/wan/hdlc_x25.c
+index 5643675ff7241..bf78073ee7fd9 100644
+--- a/drivers/net/wan/hdlc_x25.c
++++ b/drivers/net/wan/hdlc_x25.c
+@@ -62,11 +62,12 @@ static int x25_data_indication(struct net_device *dev, struct sk_buff *skb)
  {
--    struct fore200e*        fore200e = FORE200E_DEV(vcc->dev);
-     struct fore200e_vcc*    fore200e_vcc;
-+    struct fore200e*        fore200e;
-     struct fore200e_vc_map* vc_map;
-     unsigned long           flags;
+ 	unsigned char *ptr;
  
-     ASSERT(vcc);
-+    fore200e = FORE200E_DEV(vcc->dev);
+-	skb_push(skb, 1);
+-
+ 	if (skb_cow(skb, 1))
+ 		return NET_RX_DROP;
+ 
++	skb_push(skb, 1);
++	skb_reset_network_header(skb);
 +
-     ASSERT((vcc->vpi >= 0) && (vcc->vpi < 1<<FORE200E_VPI_BITS));
-     ASSERT((vcc->vci >= 0) && (vcc->vci < 1<<FORE200E_VCI_BITS));
+ 	ptr  = skb->data;
+ 	*ptr = X25_IFACE_DATA;
  
-@@ -1464,10 +1466,10 @@ fore200e_close(struct atm_vcc* vcc)
- static int
- fore200e_send(struct atm_vcc *vcc, struct sk_buff *skb)
+@@ -79,6 +80,13 @@ static int x25_data_indication(struct net_device *dev, struct sk_buff *skb)
+ static void x25_data_transmit(struct net_device *dev, struct sk_buff *skb)
  {
--    struct fore200e*        fore200e     = FORE200E_DEV(vcc->dev);
--    struct fore200e_vcc*    fore200e_vcc = FORE200E_VCC(vcc);
-+    struct fore200e*        fore200e;
-+    struct fore200e_vcc*    fore200e_vcc;
-     struct fore200e_vc_map* vc_map;
--    struct host_txq*        txq          = &fore200e->host_txq;
-+    struct host_txq*        txq;
-     struct host_txq_entry*  entry;
-     struct tpd*             tpd;
-     struct tpd_haddr        tpd_haddr;
-@@ -1480,9 +1482,18 @@ fore200e_send(struct atm_vcc *vcc, struct sk_buff *skb)
-     unsigned char*          data;
-     unsigned long           flags;
+ 	hdlc_device *hdlc = dev_to_hdlc(dev);
++
++	skb_reset_network_header(skb);
++	skb->protocol = hdlc_type_trans(skb, dev);
++
++	if (dev_nit_active(dev))
++		dev_queue_xmit_nit(skb, dev);
++
+ 	hdlc->xmit(skb, dev); /* Ignore return value :-( */
+ }
  
--    ASSERT(vcc);
--    ASSERT(fore200e);
--    ASSERT(fore200e_vcc);
-+    if (!vcc)
-+        return -EINVAL;
-+
-+    fore200e = FORE200E_DEV(vcc->dev);
-+    fore200e_vcc = FORE200E_VCC(vcc);
-+
-+    if (!fore200e)
-+        return -EINVAL;
-+
-+    txq = &fore200e->host_txq;
-+    if (!fore200e_vcc)
-+        return -EINVAL;
- 
-     if (!test_bit(ATM_VF_READY, &vcc->flags)) {
- 	DPRINTK(1, "VC %d.%d.%d not ready for tx\n", vcc->itf, vcc->vpi, vcc->vpi);
+@@ -93,6 +101,7 @@ static netdev_tx_t x25_xmit(struct sk_buff *skb, struct net_device *dev)
+ 	switch (skb->data[0]) {
+ 	case X25_IFACE_DATA:	/* Data to be transmitted */
+ 		skb_pull(skb, 1);
++		skb_reset_network_header(skb);
+ 		if ((result = lapb_data_request(dev, skb)) != LAPB_OK)
+ 			dev_kfree_skb(skb);
+ 		return NETDEV_TX_OK;
 -- 
 2.20.1
 
