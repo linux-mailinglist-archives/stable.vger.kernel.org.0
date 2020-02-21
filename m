@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B5AA71677A7
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:44:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7540D16761A
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:36:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730386AbgBUImP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 03:42:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54540 "EHLO mail.kernel.org"
+        id S1730986AbgBUIIY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 03:08:24 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42900 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730336AbgBUHzd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 02:55:33 -0500
+        id S1732195AbgBUIIX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 03:08:23 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C8D9520801;
-        Fri, 21 Feb 2020 07:55:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DD98720578;
+        Fri, 21 Feb 2020 08:08:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582271732;
-        bh=MRoXizrDdNo5LVjqVL+dFy8VuIsDO+eoD/g3sbT6HT8=;
+        s=default; t=1582272502;
+        bh=xxCsjBFavE+Ep+35R27UtR9b/HJYcZ9FN9xkEQ429ok=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mVXaD8ZKPXhEjflw8OMO430uTvK+WEGjVBBVlKI6BmadOCpAjZ4SHA4eAkUL4u/He
-         wJPV5eFGK1fAeXGoCgJ/StVm2+7NrKWyvG5FhNSMeK2TvukWoNUPDRGIZ97CC/zQEW
-         v4BiMBgamrXKhhbs+mUN2geoJV8xOzZM1wvfDrVU=
+        b=kkrtWdOxFj0G7kWU6h31ukYwgDqij8E4k/DsBDR8X021AK+53bYXTeFdGcaPHDzXs
+         V1/TOLCroKn0eKqVTLv933GLe5PLG3DbCIsztfI4gPtnmyd79Y0HqYCS3w8N72n5A5
+         FZTiWdLTsBQnNf4lEoqhXNpb9DrQTXgwxhb3Lomg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexander Tsoy <alexander@tsoy.me>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 240/399] ALSA: usb-audio: Add boot quirk for MOTU M Series
-Date:   Fri, 21 Feb 2020 08:39:25 +0100
-Message-Id: <20200221072425.892256060@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>, Dave Airlie <airlied@redhat.com>,
+        Manasi Navare <manasi.d.navare@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 167/344] drm/fbdev: Fallback to non tiled mode if all tiles not present
+Date:   Fri, 21 Feb 2020 08:39:26 +0100
+Message-Id: <20200221072404.041050356@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200221072402.315346745@linuxfoundation.org>
-References: <20200221072402.315346745@linuxfoundation.org>
+In-Reply-To: <20200221072349.335551332@linuxfoundation.org>
+References: <20200221072349.335551332@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,117 +46,164 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Tsoy <alexander@tsoy.me>
+From: Manasi Navare <manasi.d.navare@intel.com>
 
-[ Upstream commit 73ac9f5e5b43a5dbadb61f27dae7a971f7ec0d22 ]
+[ Upstream commit f25c7a006cd1c07254780e3406e45cee4842b933 ]
 
-Add delay to make sure that audio urbs are not sent too early.
-Otherwise the device hangs. Windows driver makes ~2s delay, so use
-about the same time delay value.
+In case of tiled displays, if we hotplug just one connector,
+fbcon currently just selects the preferred mode and if it is
+tiled mode then that becomes a problem if rest of the tiles are
+not present.
+So in the fbdev driver on hotplug when we probe the client modeset,
+if we dont find all the connectors for all tiles, then on a connector
+with one tile, just fallback to the first available non tiled mode
+to display over a single connector.
+On the hotplug of the consecutive tiled connectors, if the tiled mode
+no longer exists because of fbcon size limitation, then return
+no modes for consecutive tiles but retain the non tiled mode
+on the 0th tile.
+Use the same logic in case of connected boot case as well.
+This has been tested with Dell UP328K tiled monitor.
 
-snd_usb_apply_boot_quirk() is called 3 times for my MOTU M4, which
-is an overkill. Thus a quirk that is called only once is implemented.
+v2:
+* Set the modes on consecutive hotplugged tiles to no mode
+if tiled mode is pruned (Dave)
+v1:
+* Just handle the 1st connector hotplug case
+* v1 Reviewed-by: Dave Airlie <airlied@redhat.com>
 
-Also send two vendor-specific control messages before and after
-the delay. This behaviour is blindly copied from the Windows driver.
-
-Signed-off-by: Alexander Tsoy <alexander@tsoy.me>
-Link: https://lore.kernel.org/r/20200112102358.18085-1-alexander@tsoy.me
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Suggested-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Suggested-by: Dave Airlie <airlied@redhat.com>
+Cc: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Cc: Dave Airlie <airlied@redhat.com>
+Signed-off-by: Manasi Navare <manasi.d.navare@intel.com>
+Reviewed-by: Dave Airlie <airlied@redhat.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20191113222952.9231-1-manasi.d.navare@intel.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/usb/card.c   |  4 ++++
- sound/usb/quirks.c | 38 ++++++++++++++++++++++++++++++++++++++
- sound/usb/quirks.h |  5 +++++
- 3 files changed, 47 insertions(+)
+ drivers/gpu/drm/drm_client_modeset.c | 72 ++++++++++++++++++++++++++++
+ 1 file changed, 72 insertions(+)
 
-diff --git a/sound/usb/card.c b/sound/usb/card.c
-index 9f743ebae615d..2f582ac7cf789 100644
---- a/sound/usb/card.c
-+++ b/sound/usb/card.c
-@@ -600,6 +600,10 @@ static int usb_audio_probe(struct usb_interface *intf,
- 		}
- 	}
- 	if (! chip) {
-+		err = snd_usb_apply_boot_quirk_once(dev, intf, quirk, id);
-+		if (err < 0)
-+			return err;
-+
- 		/* it's a fresh one.
- 		 * now look for an empty slot and create a new card instance
- 		 */
-diff --git a/sound/usb/quirks.c b/sound/usb/quirks.c
-index 1ed25b1d2a6a2..7448ab07bd363 100644
---- a/sound/usb/quirks.c
-+++ b/sound/usb/quirks.c
-@@ -1113,6 +1113,31 @@ free_buf:
- 	return err;
+diff --git a/drivers/gpu/drm/drm_client_modeset.c b/drivers/gpu/drm/drm_client_modeset.c
+index c8922b7cac091..12e748b202d6f 100644
+--- a/drivers/gpu/drm/drm_client_modeset.c
++++ b/drivers/gpu/drm/drm_client_modeset.c
+@@ -114,6 +114,33 @@ drm_client_find_modeset(struct drm_client_dev *client, struct drm_crtc *crtc)
+ 	return NULL;
  }
  
-+static int snd_usb_motu_m_series_boot_quirk(struct usb_device *dev)
++static struct drm_display_mode *
++drm_connector_get_tiled_mode(struct drm_connector *connector)
 +{
-+	int ret;
++	struct drm_display_mode *mode;
 +
-+	if (snd_usb_pipe_sanity_check(dev, usb_sndctrlpipe(dev, 0)))
-+		return -EINVAL;
-+	ret = usb_control_msg(dev, usb_sndctrlpipe(dev, 0),
-+			      1, USB_TYPE_VENDOR | USB_RECIP_DEVICE,
-+			      0x0, 0, NULL, 0, 1000);
-+
-+	if (ret < 0)
-+		return ret;
-+
-+	msleep(2000);
-+
-+	ret = usb_control_msg(dev, usb_sndctrlpipe(dev, 0),
-+			      1, USB_TYPE_VENDOR | USB_RECIP_DEVICE,
-+			      0x20, 0, NULL, 0, 1000);
-+
-+	if (ret < 0)
-+		return ret;
-+
-+	return 0;
++	list_for_each_entry(mode, &connector->modes, head) {
++		if (mode->hdisplay == connector->tile_h_size &&
++		    mode->vdisplay == connector->tile_v_size)
++			return mode;
++	}
++	return NULL;
 +}
 +
- /*
-  * Setup quirks
-  */
-@@ -1297,6 +1322,19 @@ int snd_usb_apply_boot_quirk(struct usb_device *dev,
- 	return 0;
- }
- 
-+int snd_usb_apply_boot_quirk_once(struct usb_device *dev,
-+				  struct usb_interface *intf,
-+				  const struct snd_usb_audio_quirk *quirk,
-+				  unsigned int id)
++static struct drm_display_mode *
++drm_connector_fallback_non_tiled_mode(struct drm_connector *connector)
 +{
-+	switch (id) {
-+	case USB_ID(0x07fd, 0x0008): /* MOTU M Series */
-+		return snd_usb_motu_m_series_boot_quirk(dev);
++	struct drm_display_mode *mode;
++
++	list_for_each_entry(mode, &connector->modes, head) {
++		if (mode->hdisplay == connector->tile_h_size &&
++		    mode->vdisplay == connector->tile_v_size)
++			continue;
++		return mode;
++	}
++	return NULL;
++}
++
+ static struct drm_display_mode *
+ drm_connector_has_preferred_mode(struct drm_connector *connector, int width, int height)
+ {
+@@ -348,8 +375,15 @@ static bool drm_client_target_preferred(struct drm_connector **connectors,
+ 	struct drm_connector *connector;
+ 	u64 conn_configured = 0;
+ 	int tile_pass = 0;
++	int num_tiled_conns = 0;
+ 	int i;
+ 
++	for (i = 0; i < connector_count; i++) {
++		if (connectors[i]->has_tile &&
++		    connectors[i]->status == connector_status_connected)
++			num_tiled_conns++;
 +	}
 +
-+	return 0;
-+}
+ retry:
+ 	for (i = 0; i < connector_count; i++) {
+ 		connector = connectors[i];
+@@ -399,6 +433,28 @@ retry:
+ 			list_for_each_entry(modes[i], &connector->modes, head)
+ 				break;
+ 		}
++		/*
++		 * In case of tiled mode if all tiles not present fallback to
++		 * first available non tiled mode.
++		 * After all tiles are present, try to find the tiled mode
++		 * for all and if tiled mode not present due to fbcon size
++		 * limitations, use first non tiled mode only for
++		 * tile 0,0 and set to no mode for all other tiles.
++		 */
++		if (connector->has_tile) {
++			if (num_tiled_conns <
++			    connector->num_h_tile * connector->num_v_tile ||
++			    (connector->tile_h_loc == 0 &&
++			     connector->tile_v_loc == 0 &&
++			     !drm_connector_get_tiled_mode(connector))) {
++				DRM_DEBUG_KMS("Falling back to non tiled mode on Connector %d\n",
++					      connector->base.id);
++				modes[i] = drm_connector_fallback_non_tiled_mode(connector);
++			} else {
++				modes[i] = drm_connector_get_tiled_mode(connector);
++			}
++		}
 +
- /*
-  * check if the device uses big-endian samples
-  */
-diff --git a/sound/usb/quirks.h b/sound/usb/quirks.h
-index a80e0ddd07364..df0355843a4c1 100644
---- a/sound/usb/quirks.h
-+++ b/sound/usb/quirks.h
-@@ -20,6 +20,11 @@ int snd_usb_apply_boot_quirk(struct usb_device *dev,
- 			     const struct snd_usb_audio_quirk *quirk,
- 			     unsigned int usb_id);
+ 		DRM_DEBUG_KMS("found mode %s\n", modes[i] ? modes[i]->name :
+ 			  "none");
+ 		conn_configured |= BIT_ULL(i);
+@@ -516,6 +572,7 @@ static bool drm_client_firmware_config(struct drm_client_dev *client,
+ 	bool fallback = true, ret = true;
+ 	int num_connectors_enabled = 0;
+ 	int num_connectors_detected = 0;
++	int num_tiled_conns = 0;
+ 	struct drm_modeset_acquire_ctx ctx;
  
-+int snd_usb_apply_boot_quirk_once(struct usb_device *dev,
-+				  struct usb_interface *intf,
-+				  const struct snd_usb_audio_quirk *quirk,
-+				  unsigned int usb_id);
-+
- void snd_usb_set_format_quirk(struct snd_usb_substream *subs,
- 			      struct audioformat *fmt);
+ 	if (!drm_drv_uses_atomic_modeset(dev))
+@@ -533,6 +590,11 @@ static bool drm_client_firmware_config(struct drm_client_dev *client,
+ 	memcpy(save_enabled, enabled, count);
+ 	mask = GENMASK(count - 1, 0);
+ 	conn_configured = 0;
++	for (i = 0; i < count; i++) {
++		if (connectors[i]->has_tile &&
++		    connectors[i]->status == connector_status_connected)
++			num_tiled_conns++;
++	}
+ retry:
+ 	conn_seq = conn_configured;
+ 	for (i = 0; i < count; i++) {
+@@ -632,6 +694,16 @@ retry:
+ 				      connector->name);
+ 			modes[i] = &connector->state->crtc->mode;
+ 		}
++		/*
++		 * In case of tiled modes, if all tiles are not present
++		 * then fallback to a non tiled mode.
++		 */
++		if (connector->has_tile &&
++		    num_tiled_conns < connector->num_h_tile * connector->num_v_tile) {
++			DRM_DEBUG_KMS("Falling back to non tiled mode on Connector %d\n",
++				      connector->base.id);
++			modes[i] = drm_connector_fallback_non_tiled_mode(connector);
++		}
+ 		crtcs[i] = new_crtc;
  
+ 		DRM_DEBUG_KMS("connector %s on [CRTC:%d:%s]: %dx%d%s\n",
 -- 
 2.20.1
 
