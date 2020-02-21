@@ -2,94 +2,73 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1967316811E
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 16:05:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B939116813B
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 16:15:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728891AbgBUPFN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 10:05:13 -0500
-Received: from mga11.intel.com ([192.55.52.93]:12778 "EHLO mga11.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728910AbgBUPFM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 10:05:12 -0500
-X-Amp-Result: UNKNOWN
-X-Amp-Original-Verdict: FILE UNKNOWN
-X-Amp-File-Uploaded: False
-Received: from orsmga002.jf.intel.com ([10.7.209.21])
-  by fmsmga102.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 21 Feb 2020 07:05:12 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.70,468,1574150400"; 
-   d="scan'208";a="254843543"
-Received: from sjchrist-coffee.jf.intel.com (HELO linux.intel.com) ([10.54.74.202])
-  by orsmga002.jf.intel.com with ESMTP; 21 Feb 2020 07:05:12 -0800
-Date:   Fri, 21 Feb 2020 07:05:12 -0800
-From:   Sean Christopherson <sean.j.christopherson@intel.com>
-To:     Pavel Machek <pavel@denx.de>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 4.19 009/191] KVM: nVMX: Use correct root level for
- nested EPT shadow page tables
-Message-ID: <20200221150512.GB12665@linux.intel.com>
-References: <20200221072250.732482588@linuxfoundation.org>
- <20200221072252.173149129@linuxfoundation.org>
- <20200221102949.GA14608@duo.ucw.cz>
+        id S1728846AbgBUPPN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 10:15:13 -0500
+Received: from imap2.colo.codethink.co.uk ([78.40.148.184]:36054 "EHLO
+        imap2.colo.codethink.co.uk" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728804AbgBUPPN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 21 Feb 2020 10:15:13 -0500
+Received: from [167.98.27.226] (helo=xylophone)
+        by imap2.colo.codethink.co.uk with esmtpsa  (Exim 4.92 #3 (Debian))
+        id 1j5A19-0007bf-5j; Fri, 21 Feb 2020 15:15:03 +0000
+Message-ID: <9a4b6a0a2cbc6264e691b501ac962767283f08ad.camel@codethink.co.uk>
+Subject: Re: [PATCH 5.4 000/344] 5.4.22-stable review
+From:   Ben Hutchings <ben.hutchings@codethink.co.uk>
+To:     Guenter Roeck <linux@roeck-us.net>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, stable@vger.kernel.org
+Date:   Fri, 21 Feb 2020 15:15:02 +0000
+In-Reply-To: <45ea9919-8924-fd56-6c78-3cf7f23bb7ff@roeck-us.net>
+References: <20200221072349.335551332@linuxfoundation.org>
+         <45ea9919-8924-fd56-6c78-3cf7f23bb7ff@roeck-us.net>
+Organization: Codethink Ltd.
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.30.5-1.1 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200221102949.GA14608@duo.ucw.cz>
-User-Agent: Mutt/1.5.24 (2015-08-30)
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Feb 21, 2020 at 11:29:49AM +0100, Pavel Machek wrote:
-> Hi!
-> 
-> > Hardcode the EPT page-walk level for L2 to be 4 levels, as KVM's MMU
-> > currently also hardcodes the page walk level for nested EPT to be 4
-> > levels.  The L2 guest is all but guaranteed to soft hang on its first
-> > instruction when L1 is using EPT, as KVM will construct 4-level page
-> > tables and then tell hardware to use 5-level page tables.
-> 
-> I don't get it. 7/191 reverts the patch, then 9/191 reverts the
-> revert. Can we simply drop both 7 and 9, for exactly the same result?
->
-> (Patch 8 is a unused file, so it does not change the picture).
-
-Patch 07 is reverting this patch from the same unused file, 
-arch/x86/kvm/vmx/vmx.c[*].  The reason patch 07 looks like a normal diff is
-that a prior patch in 4.19.105 created the unused file (which is what's
-reverted by patch 08 here).
-
-Patch 09 reintroduces the fix for the correct file, arch/x86/kvm/vmx.c.
-
-[*] In upstream, vmx.c now lives in arch/x86/kvm/vmx/, but in 4.19 and
-    earlier it lives in arch/x86/kvm/.
-
-> 
-> Best regards,
-> 								Pavel
-> 
-> > +++ b/arch/x86/kvm/vmx.c
-> > @@ -5302,6 +5302,9 @@ static void vmx_set_cr0(struct kvm_vcpu *vcpu, unsigned long cr0)
-> >  
-> >  static int get_ept_level(struct kvm_vcpu *vcpu)
-> >  {
-> > +	/* Nested EPT currently only supports 4-level walks. */
-> > +	if (is_guest_mode(vcpu) && nested_cpu_has_ept(get_vmcs12(vcpu)))
-> > +		return 4;
-> >  	if (cpu_has_vmx_ept_5levels() && (cpuid_maxphyaddr(vcpu) > 48))
-> >  		return 5;
-> >  	return 4;
-> > -- 
-> > 2.20.1
+On Fri, 2020-02-21 at 06:22 -0800, Guenter Roeck wrote:
+> On 2/20/20 11:36 PM, Greg Kroah-Hartman wrote:
+> > This is the start of the stable review cycle for the 5.4.22 release.
+> > There are 344 patches in this series, all will be posted as a response
+> > to this one.  If anyone has any issues with these being applied, please
+> > let me know.
 > > 
+> > Responses should be made by Sun, 23 Feb 2020 07:19:49 +0000.
+> > Anything received after that time might be too late.
 > > 
 > 
-> -- 
-> (english) http://www.livejournal.com/~pavelmachek
-> (cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+> Build reference: v5.4.21-345-gbae6e9bf73af
+> gcc version: x86_64-linux-gcc (GCC) 9.2.0
+> 
+> Building x86_64:allnoconfig ... failed
+> --------------
+> Error log:
+> arch/x86/kernel/unwind_orc.c: In function 'unwind_init':
+> arch/x86/kernel/unwind_orc.c:278:56: error: 'orc_sort_cmp' undeclared (first use in this function)
+> 
+> Affects v{4.14,4.19,5,4,5,5}.y.queue.
 
+This seems to be due to commit 22a7fa8848c5 (x86-unwind-orc-fix-
+config_modules-build-warning.patch), which is only valid after commit
+f14bf6a350df "x86/unwind/orc: Remove boot-time ORC unwind tables
+sorting".
+
+Ben.
+
+> 
+-- 
+Ben Hutchings, Software Developer                         Codethink Ltd
+https://www.codethink.co.uk/                 Dale House, 35 Dale Street
+                                     Manchester, M1 2HF, United Kingdom
 
