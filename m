@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 74C971670E9
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 08:50:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9E5981670EE
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 08:50:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729055AbgBUHt3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 02:49:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45984 "EHLO mail.kernel.org"
+        id S1729080AbgBUHtp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 02:49:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46260 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728824AbgBUHt2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 02:49:28 -0500
+        id S1729399AbgBUHtm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 02:49:42 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ED568207FD;
-        Fri, 21 Feb 2020 07:49:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C6673208C4;
+        Fri, 21 Feb 2020 07:49:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582271368;
-        bh=lO0caDtha1NplqJQjeZaJidxhiU6dcZ2jyMKnQl68Lg=;
+        s=default; t=1582271381;
+        bh=AM/cxaMLSs+1tt+XbdmWhg83uD3mrehTan0F9wpp1Xs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Plkm1KLR5On4ZIKyj7e9ZlA89sna8V251CB+A1LLv3A4qIpHRko1/uDBN+Mx08fYR
-         lictojHYBlh8m32ZYdwzrWZnsqbQlVfU9Hxs9QrWD/jyWrDWeeSp32xcM+H+5iJYLg
-         OoRdv1+LKaC1kY/S94ds4q8EBKhhMdSOa7ehmKns=
+        b=hvZL6mGYig004T0QDMeDNhsDsYscQvxMXPvNq6tEPfJmLuzCU4lMllZYMRtmvMJo5
+         1sPA3PUT4sPKkaP9QxhoQh+RWso3krsC5ANdwg3uogR3r6Z+spgp6J1tq70bTXaCfo
+         nOO6siT9D64VKSavSpnNbKaWkJKQ8xcyx5vfnILA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paul Cercueil <paul@crapouillou.net>,
-        Sam Ravnborg <sam@ravnborg.org>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@redhat.com>,
+        Alexei Starovoitov <ast@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 139/399] gpu/drm: ingenic: Avoid null pointer deference in plane atomic update
-Date:   Fri, 21 Feb 2020 08:37:44 +0100
-Message-Id: <20200221072415.979908175@linuxfoundation.org>
+Subject: [PATCH 5.5 143/399] samples/bpf: Set -fno-stack-protector when building BPF programs
+Date:   Fri, 21 Feb 2020 08:37:48 +0100
+Message-Id: <20200221072416.391366107@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200221072402.315346745@linuxfoundation.org>
 References: <20200221072402.315346745@linuxfoundation.org>
@@ -44,53 +45,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Cercueil <paul@crapouillou.net>
+From: Toke Høiland-Jørgensen <toke@redhat.com>
 
-[ Upstream commit 354b051c5dcbeb35bbfd5d54161364fc7a75a58a ]
+[ Upstream commit 450278977acbf494a20367c22fbb38729772d1fc ]
 
-It is possible that there is no drm_framebuffer associated with a given
-plane state.
+It seems Clang can in some cases turn on stack protection by default, which
+doesn't work with BPF. This was reported once before[0], but it seems the
+flag to explicitly turn off the stack protector wasn't added to the
+Makefile, so do that now.
 
-v2: Handle drm_plane->state which can be NULL too
+The symptom of this is compile errors like the following:
 
-Signed-off-by: Paul Cercueil <paul@crapouillou.net>
-Link: https://patchwork.freedesktop.org/patch/msgid/20191210144142.33143-2-paul@crapouillou.net
-# *** extracted tags ***
-Acked-by: Sam Ravnborg <sam@ravnborg.org>
+error: <unknown>:0:0: in function bpf_prog1 i32 (%struct.__sk_buff*): A call to built-in function '__stack_chk_fail' is not supported.
+
+[0] https://www.spinics.net/lists/netdev/msg556400.html
+
+Signed-off-by: Toke Høiland-Jørgensen <toke@redhat.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Link: https://lore.kernel.org/bpf/20191216103819.359535-1-toke@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/ingenic/ingenic-drm.c | 16 ++++++++++------
- 1 file changed, 10 insertions(+), 6 deletions(-)
+ samples/bpf/Makefile | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/gpu/drm/ingenic/ingenic-drm.c b/drivers/gpu/drm/ingenic/ingenic-drm.c
-index ec32e1c673350..43a015f33e975 100644
---- a/drivers/gpu/drm/ingenic/ingenic-drm.c
-+++ b/drivers/gpu/drm/ingenic/ingenic-drm.c
-@@ -372,14 +372,18 @@ static void ingenic_drm_plane_atomic_update(struct drm_plane *plane,
- 	struct ingenic_drm *priv = drm_plane_get_priv(plane);
- 	struct drm_plane_state *state = plane->state;
- 	unsigned int width, height, cpp;
-+	dma_addr_t addr;
+diff --git a/samples/bpf/Makefile b/samples/bpf/Makefile
+index c0147a8cf1882..06ebe3104cc03 100644
+--- a/samples/bpf/Makefile
++++ b/samples/bpf/Makefile
+@@ -236,6 +236,7 @@ BTF_LLVM_PROBE := $(shell echo "int main() { return 0; }" | \
+ 			  readelf -S ./llvm_btf_verify.o | grep BTF; \
+ 			  /bin/rm -f ./llvm_btf_verify.o)
  
--	width = state->crtc->state->adjusted_mode.hdisplay;
--	height = state->crtc->state->adjusted_mode.vdisplay;
--	cpp = state->fb->format->cpp[plane->index];
-+	if (state && state->fb) {
-+		addr = drm_fb_cma_get_gem_addr(state->fb, state, 0);
-+		width = state->crtc->state->adjusted_mode.hdisplay;
-+		height = state->crtc->state->adjusted_mode.vdisplay;
-+		cpp = state->fb->format->cpp[plane->index];
- 
--	priv->dma_hwdesc->addr = drm_fb_cma_get_gem_addr(state->fb, state, 0);
--	priv->dma_hwdesc->cmd = width * height * cpp / 4;
--	priv->dma_hwdesc->cmd |= JZ_LCD_CMD_EOF_IRQ;
-+		priv->dma_hwdesc->addr = addr;
-+		priv->dma_hwdesc->cmd = width * height * cpp / 4;
-+		priv->dma_hwdesc->cmd |= JZ_LCD_CMD_EOF_IRQ;
-+	}
- }
- 
- static void ingenic_drm_encoder_atomic_mode_set(struct drm_encoder *encoder,
++BPF_EXTRA_CFLAGS += -fno-stack-protector
+ ifneq ($(BTF_LLVM_PROBE),)
+ 	BPF_EXTRA_CFLAGS += -g
+ else
 -- 
 2.20.1
 
