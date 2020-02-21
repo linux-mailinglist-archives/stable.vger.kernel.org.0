@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D3A116738F
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:13:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8AD0416721A
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:00:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732537AbgBUIN2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 03:13:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49560 "EHLO mail.kernel.org"
+        id S1730477AbgBUIAN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 03:00:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60578 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733005AbgBUIN2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 03:13:28 -0500
+        id S1729111AbgBUIAN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 03:00:13 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 443D320722;
-        Fri, 21 Feb 2020 08:13:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6053524650;
+        Fri, 21 Feb 2020 08:00:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582272807;
-        bh=H+HW9LdC+gGzgBI2knQjxdHksSbqipHsIqlIEKwTmKU=;
+        s=default; t=1582272012;
+        bh=RWrPWhIW4nq0JRUzQClNsebzVS2WeaoqVeS3VclYGbw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fi5/Sm4EyA8DjWIqx4D8U7BGvGgUhXV+n24O/fUxJw7qtwaV5yZ1qSVNqSZ5u9Iv8
-         TOSlBoZ5Xj8vMsaDGrhs+Y92DzxLR572+6WLIA1mWVIK9rw6aN+p7mnU7fHPlgS6xx
-         7trFu7X14e0LkP0mUbRIdI2XHYpvAUdhMd48/KXA=
+        b=gVrtKfBMqrL2dEqKTfxStdz9ur4UeOb221Yp3L1DN7Adc5ZhViWdsO4cTQqNmltdp
+         4LJNc3mu+vWpR5LlKrtQfLiHPD2o4ZMPAdoq+WlU80tB8J7btJDAf7kGw54pxnFhP2
+         eIlhqQrSe5aX9Hr8y+boBYAhSZjWFwb+vfNNGOCU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ben Skeggs <bskeggs@redhat.com>,
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Ilya Dryomov <idryomov@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 282/344] drm/nouveau/mmu: fix comptag memory leak
+Subject: [PATCH 5.5 356/399] rbd: work around -Wuninitialized warning
 Date:   Fri, 21 Feb 2020 08:41:21 +0100
-Message-Id: <20200221072415.386457732@linuxfoundation.org>
+Message-Id: <20200221072435.456302295@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200221072349.335551332@linuxfoundation.org>
-References: <20200221072349.335551332@linuxfoundation.org>
+In-Reply-To: <20200221072402.315346745@linuxfoundation.org>
+References: <20200221072402.315346745@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,30 +44,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ben Skeggs <bskeggs@redhat.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit 35e4909b6a2b4005ced3c4238da60d926b78fdea ]
+[ Upstream commit a55e601b2f02df5db7070e9a37bd655c9c576a52 ]
 
-Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
+gcc -O3 warns about a dummy variable that is passed
+down into rbd_img_fill_nodata without being initialized:
+
+drivers/block/rbd.c: In function 'rbd_img_fill_nodata':
+drivers/block/rbd.c:2573:13: error: 'dummy' is used uninitialized in this function [-Werror=uninitialized]
+  fctx->iter = *fctx->pos;
+
+Since this is a dummy, I assume the warning is harmless, but
+it's better to initialize it anyway and avoid the warning.
+
+Fixes: mmtom ("init/Kconfig: enable -O3 for all arches")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Reviewed-by: Ilya Dryomov <idryomov@gmail.com>
+Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/nouveau/nvkm/core/memory.c | 2 +-
+ drivers/block/rbd.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/nouveau/nvkm/core/memory.c b/drivers/gpu/drm/nouveau/nvkm/core/memory.c
-index e85a08ecd9da5..4cc186262d344 100644
---- a/drivers/gpu/drm/nouveau/nvkm/core/memory.c
-+++ b/drivers/gpu/drm/nouveau/nvkm/core/memory.c
-@@ -91,8 +91,8 @@ nvkm_memory_tags_get(struct nvkm_memory *memory, struct nvkm_device *device,
- 	}
- 
- 	refcount_set(&tags->refcount, 1);
-+	*ptags = memory->tags = tags;
- 	mutex_unlock(&fb->subdev.mutex);
--	*ptags = tags;
- 	return 0;
- }
- 
+diff --git a/drivers/block/rbd.c b/drivers/block/rbd.c
+index 2b184563cd32e..38dcb39051a7f 100644
+--- a/drivers/block/rbd.c
++++ b/drivers/block/rbd.c
+@@ -2662,7 +2662,7 @@ static int rbd_img_fill_nodata(struct rbd_img_request *img_req,
+ 			       u64 off, u64 len)
+ {
+ 	struct ceph_file_extent ex = { off, len };
+-	union rbd_img_fill_iter dummy;
++	union rbd_img_fill_iter dummy = {};
+ 	struct rbd_img_fill_ctx fctx = {
+ 		.pos_type = OBJ_REQUEST_NODATA,
+ 		.pos = &dummy,
 -- 
 2.20.1
 
