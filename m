@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 574781676A1
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:37:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 29AEE1677F6
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:46:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731528AbgBUIhF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 03:37:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38802 "EHLO mail.kernel.org"
+        id S1729106AbgBUHuz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 02:50:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47982 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731797AbgBUIFU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 03:05:20 -0500
+        id S1729638AbgBUHuy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 02:50:54 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A338724656;
-        Fri, 21 Feb 2020 08:05:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B9B0C20801;
+        Fri, 21 Feb 2020 07:50:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582272320;
-        bh=X/Dq+PeQjECF1L6QQ6O2t+J7BdtB35HFF99zLyDSSpU=;
+        s=default; t=1582271454;
+        bh=HnagLcugEPxKRMVeDKW3PpwSXLKSbWNBKXlVLtNoHMA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iv27sNbx6edO92s6rYLyDQCrWIvQRw5pPzzahHGBtnYVxoEhfcdi24MbYrqnuEQ9v
-         x09JLa86Ziq8IOzTAfzQlFwG5+wk52BzrpKZjitHkE/cmeQIxd1DZ8Tg83I/wvqTgc
-         IIELH/xrUW9gFIK4GFi7lQMeA2c8B2Wxy8CwCH+s=
+        b=WYNEMq9+yXUjb4ckZAZ6PERlXoSaZeoJV+UOr0ivicf7ccILZElz0sNxxtxlvioeJ
+         ckeeuvzmKRMN++I5Y16ejtaorsCT/92Hsh4P1zeHInwlsANOr4TfPjUnXRb2DawhFO
+         yHfqe067AoburiuU1u6k/CkfXPpbbqj/bjtmG0mc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 097/344] drm/amdgpu: Ensure ret is always initialized when using SOC15_WAIT_ON_RREG
-Date:   Fri, 21 Feb 2020 08:38:16 +0100
-Message-Id: <20200221072357.758403499@linuxfoundation.org>
+Subject: [PATCH 5.5 172/399] ARM: dts: r8a7779: Add device node for ARM global timer
+Date:   Fri, 21 Feb 2020 08:38:17 +0100
+Message-Id: <20200221072419.371199406@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200221072349.335551332@linuxfoundation.org>
-References: <20200221072349.335551332@linuxfoundation.org>
+In-Reply-To: <20200221072402.315346745@linuxfoundation.org>
+References: <20200221072402.315346745@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,66 +44,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <natechancellor@gmail.com>
+From: Geert Uytterhoeven <geert+renesas@glider.be>
 
-[ Upstream commit a63141e31764f8daf3f29e8e2d450dcf9199d1c8 ]
+[ Upstream commit 8443ffd1bbd5be74e9b12db234746d12e8ea93e2 ]
 
-Commit b0f3cd3191cd ("drm/amdgpu: remove unnecessary JPEG2.0 code from
-VCN2.0") introduced a new clang warning in the vcn_v2_0_stop function:
+Add a device node for the global timer, which is part of the Cortex-A9
+MPCore.
 
-../drivers/gpu/drm/amd/amdgpu/vcn_v2_0.c:1082:2: warning: variable 'r'
-is used uninitialized whenever 'while' loop exits because its condition
-is false [-Wsometimes-uninitialized]
-        SOC15_WAIT_ON_RREG(VCN, 0, mmUVD_STATUS, UVD_STATUS__IDLE, 0x7, r);
-        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-../drivers/gpu/drm/amd/amdgpu/../amdgpu/soc15_common.h:55:10: note:
-expanded from macro 'SOC15_WAIT_ON_RREG'
-                while ((tmp_ & (mask)) != (expected_value)) {   \
-                       ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-../drivers/gpu/drm/amd/amdgpu/vcn_v2_0.c:1083:6: note: uninitialized use
-occurs here
-        if (r)
-            ^
-../drivers/gpu/drm/amd/amdgpu/vcn_v2_0.c:1082:2: note: remove the
-condition if it is always true
-        SOC15_WAIT_ON_RREG(VCN, 0, mmUVD_STATUS, UVD_STATUS__IDLE, 0x7, r);
-        ^
-../drivers/gpu/drm/amd/amdgpu/../amdgpu/soc15_common.h:55:10: note:
-expanded from macro 'SOC15_WAIT_ON_RREG'
-                while ((tmp_ & (mask)) != (expected_value)) {   \
-                       ^
-../drivers/gpu/drm/amd/amdgpu/vcn_v2_0.c:1072:7: note: initialize the
-variable 'r' to silence this warning
-        int r;
-             ^
-              = 0
-1 warning generated.
+The global timer can serve as an accurate (4 ns) clock source for
+scheduling and delay loops.
 
-To prevent warnings like this from happening in the future, make the
-SOC15_WAIT_ON_RREG macro initialize its ret variable before the while
-loop that can time out. This macro's return value is always checked so
-it should set ret in both the success and fail path.
-
-Link: https://github.com/ClangBuiltLinux/linux/issues/776
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Link: https://lore.kernel.org/r/20191211135222.26770-4-geert+renesas@glider.be
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/soc15_common.h | 1 +
- 1 file changed, 1 insertion(+)
+ arch/arm/boot/dts/r8a7779.dtsi | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/soc15_common.h b/drivers/gpu/drm/amd/amdgpu/soc15_common.h
-index 839f186e1182a..19e870c798967 100644
---- a/drivers/gpu/drm/amd/amdgpu/soc15_common.h
-+++ b/drivers/gpu/drm/amd/amdgpu/soc15_common.h
-@@ -52,6 +52,7 @@
- 		uint32_t old_ = 0;	\
- 		uint32_t tmp_ = RREG32(adev->reg_offset[ip##_HWIP][inst][reg##_BASE_IDX] + reg); \
- 		uint32_t loop = adev->usec_timeout;		\
-+		ret = 0;					\
- 		while ((tmp_ & (mask)) != (expected_value)) {	\
- 			if (old_ != tmp_) {			\
- 				loop = adev->usec_timeout;	\
+diff --git a/arch/arm/boot/dts/r8a7779.dtsi b/arch/arm/boot/dts/r8a7779.dtsi
+index ebf5b7cfe2159..63341635bddf8 100644
+--- a/arch/arm/boot/dts/r8a7779.dtsi
++++ b/arch/arm/boot/dts/r8a7779.dtsi
+@@ -68,6 +68,14 @@
+ 		      <0xf0000100 0x100>;
+ 	};
+ 
++	timer@f0000200 {
++		compatible = "arm,cortex-a9-global-timer";
++		reg = <0xf0000200 0x100>;
++		interrupts = <GIC_PPI 11
++			(GIC_CPU_MASK_SIMPLE(4) | IRQ_TYPE_EDGE_RISING)>;
++		clocks = <&cpg_clocks R8A7779_CLK_ZS>;
++	};
++
+ 	timer@f0000600 {
+ 		compatible = "arm,cortex-a9-twd-timer";
+ 		reg = <0xf0000600 0x20>;
 -- 
 2.20.1
 
