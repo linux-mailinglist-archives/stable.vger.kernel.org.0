@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B6AEA167374
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:13:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 685CC167451
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:23:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732846AbgBUIM1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 03:12:27 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48228 "EHLO mail.kernel.org"
+        id S2387703AbgBUIUS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 03:20:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59252 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732841AbgBUIM1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 03:12:27 -0500
+        id S2387693AbgBUIUQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 03:20:16 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 84CB824670;
-        Fri, 21 Feb 2020 08:12:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2588924691;
+        Fri, 21 Feb 2020 08:20:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582272746;
-        bh=h62/Q1MOMGNxLFikIqAhIvarrw+FE87HvYaIQdp5x5A=;
+        s=default; t=1582273215;
+        bh=R8kP/lPwVPh2SHNxuUxq4sc7Ey3PQap5rwy06oOFQew=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L85PpnxkJnA72rl7Z7RShFAzcE9PH3LqUwqaCqsK97gu9GjrOgnojNOv5qqhU+Yb2
-         mx3zx7tbUAkMt8oqcj8JV6k7vR/UWaFD5gDlvXLXCII3oE6+WzHyoxRcOrYYVX/xWn
-         VYhEcUo3lXV1YgBOwoRyfo3E7MFWpTWGJRiXWhuA=
+        b=v6xtTzmJyvReBT9XXHL3Ilk6LrAZ9MhoTKcuKvn+7t3Sbq/ZE3A3zegbssCYShh8S
+         TMPuY4qdbzraSR8njnqks2AqJMX9uvpnVl3yJl0nkwHNmpCMArAKVnRXHvK2yX9n6w
+         v5A+/kfzO+3IhPVAqhPHfDNosaZcsvxQTGrJ4JTE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        stable@vger.kernel.org, Douglas Anderson <dianders@chromium.org>,
+        Matthias Kaehlcke <mka@chromium.org>,
+        Stephen Boyd <sboyd@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 222/344] vme: bridges: reduce stack usage
-Date:   Fri, 21 Feb 2020 08:40:21 +0100
-Message-Id: <20200221072409.369896414@linuxfoundation.org>
+Subject: [PATCH 4.19 050/191] clk: qcom: rcg2: Dont crash if our parent cant be found; return an error
+Date:   Fri, 21 Feb 2020 08:40:23 +0100
+Message-Id: <20200221072257.624702762@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200221072349.335551332@linuxfoundation.org>
-References: <20200221072349.335551332@linuxfoundation.org>
+In-Reply-To: <20200221072250.732482588@linuxfoundation.org>
+References: <20200221072250.732482588@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,108 +45,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Douglas Anderson <dianders@chromium.org>
 
-[ Upstream commit 7483e7a939c074d887450ef1c4d9ccc5909405f8 ]
+[ Upstream commit 908b050114d8fefdddc57ec9fbc213c3690e7f5f ]
 
-With CONFIG_CC_OPTIMIZE_FOR_PERFORMANCE_O3, the stack usage in vme_fake
-grows above the warning limit:
+When I got my clock parenting slightly wrong I ended up with a crash
+that looked like this:
 
-drivers/vme/bridges/vme_fake.c: In function 'fake_master_read':
-drivers/vme/bridges/vme_fake.c:610:1: error: the frame size of 1160 bytes is larger than 1024 bytes [-Werror=frame-larger-than=]
-drivers/vme/bridges/vme_fake.c: In function 'fake_master_write':
-drivers/vme/bridges/vme_fake.c:797:1: error: the frame size of 1160 bytes is larger than 1024 bytes [-Werror=frame-larger-than=]
+  Unable to handle kernel NULL pointer dereference at virtual
+  address 0000000000000000
+  ...
+  pc : clk_hw_get_rate+0x14/0x44
+  ...
+  Call trace:
+   clk_hw_get_rate+0x14/0x44
+   _freq_tbl_determine_rate+0x94/0xfc
+   clk_rcg2_determine_rate+0x2c/0x38
+   clk_core_determine_round_nolock+0x4c/0x88
+   clk_core_round_rate_nolock+0x6c/0xa8
+   clk_core_round_rate_nolock+0x9c/0xa8
+   clk_core_set_rate_nolock+0x70/0x180
+   clk_set_rate+0x3c/0x6c
+   of_clk_set_defaults+0x254/0x360
+   platform_drv_probe+0x28/0xb0
+   really_probe+0x120/0x2dc
+   driver_probe_device+0x64/0xfc
+   device_driver_attach+0x4c/0x6c
+   __driver_attach+0xac/0xc0
+   bus_for_each_dev+0x84/0xcc
+   driver_attach+0x2c/0x38
+   bus_add_driver+0xfc/0x1d0
+   driver_register+0x64/0xf8
+   __platform_driver_register+0x4c/0x58
+   msm_drm_register+0x5c/0x60
+   ...
 
-The problem is that in some configurations, each call to
-fake_vmereadX() puts another variable on the stack.
+It turned out that clk_hw_get_parent_by_index() was returning NULL and
+we weren't checking.  Let's check it so that we don't crash.
 
-Reduce the amount of inlining to get back to the previous state,
-with no function using more than 200 bytes each.
-
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Link: https://lore.kernel.org/r/20200107200610.3482901-1-arnd@arndb.de
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: ac269395cdd8 ("clk: qcom: Convert to clk_hw based provider APIs")
+Signed-off-by: Douglas Anderson <dianders@chromium.org>
+Reviewed-by: Matthias Kaehlcke <mka@chromium.org>
+Link: https://lkml.kernel.org/r/20200203103049.v4.1.I7487325fe8e701a68a07d3be8a6a4b571eca9cfa@changeid
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/vme/bridges/vme_fake.c | 30 ++++++++++++++++++------------
- 1 file changed, 18 insertions(+), 12 deletions(-)
+ drivers/clk/qcom/clk-rcg2.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/vme/bridges/vme_fake.c b/drivers/vme/bridges/vme_fake.c
-index 3208a4409e44e..6a1bc284f297c 100644
---- a/drivers/vme/bridges/vme_fake.c
-+++ b/drivers/vme/bridges/vme_fake.c
-@@ -414,8 +414,9 @@ static void fake_lm_check(struct fake_driver *bridge, unsigned long long addr,
- 	}
- }
+diff --git a/drivers/clk/qcom/clk-rcg2.c b/drivers/clk/qcom/clk-rcg2.c
+index 51b2388d80ac9..ee693e15d9ebc 100644
+--- a/drivers/clk/qcom/clk-rcg2.c
++++ b/drivers/clk/qcom/clk-rcg2.c
+@@ -203,6 +203,9 @@ static int _freq_tbl_determine_rate(struct clk_hw *hw, const struct freq_tbl *f,
  
--static u8 fake_vmeread8(struct fake_driver *bridge, unsigned long long addr,
--		u32 aspace, u32 cycle)
-+static noinline_for_stack u8 fake_vmeread8(struct fake_driver *bridge,
-+					   unsigned long long addr,
-+					   u32 aspace, u32 cycle)
- {
- 	u8 retval = 0xff;
- 	int i;
-@@ -446,8 +447,9 @@ static u8 fake_vmeread8(struct fake_driver *bridge, unsigned long long addr,
- 	return retval;
- }
- 
--static u16 fake_vmeread16(struct fake_driver *bridge, unsigned long long addr,
--		u32 aspace, u32 cycle)
-+static noinline_for_stack u16 fake_vmeread16(struct fake_driver *bridge,
-+					     unsigned long long addr,
-+					     u32 aspace, u32 cycle)
- {
- 	u16 retval = 0xffff;
- 	int i;
-@@ -478,8 +480,9 @@ static u16 fake_vmeread16(struct fake_driver *bridge, unsigned long long addr,
- 	return retval;
- }
- 
--static u32 fake_vmeread32(struct fake_driver *bridge, unsigned long long addr,
--		u32 aspace, u32 cycle)
-+static noinline_for_stack u32 fake_vmeread32(struct fake_driver *bridge,
-+					     unsigned long long addr,
-+					     u32 aspace, u32 cycle)
- {
- 	u32 retval = 0xffffffff;
- 	int i;
-@@ -609,8 +612,9 @@ out:
- 	return retval;
- }
- 
--static void fake_vmewrite8(struct fake_driver *bridge, u8 *buf,
--			   unsigned long long addr, u32 aspace, u32 cycle)
-+static noinline_for_stack void fake_vmewrite8(struct fake_driver *bridge,
-+					      u8 *buf, unsigned long long addr,
-+					      u32 aspace, u32 cycle)
- {
- 	int i;
- 	unsigned long long start, end, offset;
-@@ -639,8 +643,9 @@ static void fake_vmewrite8(struct fake_driver *bridge, u8 *buf,
- 
- }
- 
--static void fake_vmewrite16(struct fake_driver *bridge, u16 *buf,
--			    unsigned long long addr, u32 aspace, u32 cycle)
-+static noinline_for_stack void fake_vmewrite16(struct fake_driver *bridge,
-+					       u16 *buf, unsigned long long addr,
-+					       u32 aspace, u32 cycle)
- {
- 	int i;
- 	unsigned long long start, end, offset;
-@@ -669,8 +674,9 @@ static void fake_vmewrite16(struct fake_driver *bridge, u16 *buf,
- 
- }
- 
--static void fake_vmewrite32(struct fake_driver *bridge, u32 *buf,
--			    unsigned long long addr, u32 aspace, u32 cycle)
-+static noinline_for_stack void fake_vmewrite32(struct fake_driver *bridge,
-+					       u32 *buf, unsigned long long addr,
-+					       u32 aspace, u32 cycle)
- {
- 	int i;
- 	unsigned long long start, end, offset;
+ 	clk_flags = clk_hw_get_flags(hw);
+ 	p = clk_hw_get_parent_by_index(hw, index);
++	if (!p)
++		return -EINVAL;
++
+ 	if (clk_flags & CLK_SET_RATE_PARENT) {
+ 		rate = f->freq;
+ 		if (f->pre_div) {
 -- 
 2.20.1
 
