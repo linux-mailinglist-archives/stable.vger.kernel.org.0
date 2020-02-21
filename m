@@ -2,173 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DADA51686F2
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 19:49:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C853D168710
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 19:55:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729397AbgBUStL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 13:49:11 -0500
-Received: from outgoing-auth-1.mit.edu ([18.9.28.11]:52560 "EHLO
-        outgoing.mit.edu" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726150AbgBUStK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 21 Feb 2020 13:49:10 -0500
-Received: from callcc.thunk.org (guestnat-104-133-8-109.corp.google.com [104.133.8.109] (may be forged))
-        (authenticated bits=0)
-        (User authenticated as tytso@ATHENA.MIT.EDU)
-        by outgoing.mit.edu (8.14.7/8.12.4) with ESMTP id 01LImp7B012378
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 21 Feb 2020 13:48:52 -0500
-Received: by callcc.thunk.org (Postfix, from userid 15806)
-        id CE99A4211EF; Fri, 21 Feb 2020 13:48:50 -0500 (EST)
-Date:   Fri, 21 Feb 2020 13:48:50 -0500
-From:   "Theodore Y. Ts'o" <tytso@mit.edu>
-To:     wangyan <wangyan122@huawei.com>
-Cc:     jack@suse.com, linux-ext4@vger.kernel.org,
-        "ocfs2-devel@oss.oracle.com" <ocfs2-devel@oss.oracle.com>,
-        stable@vger.kernel.org, piaojun <piaojun@huawei.com>
-Subject: Re: [PATCH] jbd2: fix ocfs2 corrupt when clearing block group bits
-Message-ID: <20200221184850.GA741939@mit.edu>
-References: <f72a623f-b3f1-381a-d91d-d22a1c83a336@huawei.com>
+        id S1729454AbgBUSzu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 13:55:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45284 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1729397AbgBUSzu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 13:55:50 -0500
+Received: from localhost (unknown [73.61.17.76])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9AD7020578;
+        Fri, 21 Feb 2020 18:55:48 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1582311349;
+        bh=CzfU9GB6VhqeyGdmd1CGoDtXuLwG9/WAXjiadWDIAUs=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=iWvgPtC6bA708AtAM+hqQ61QxjY/3nta6lM1+YZTS8axTLr5KRCFrWvBz4RjnTrwd
+         ra+O8NgmYcJ8o1tGmSgTDd++4boZXMkGqhUv93WdUApCSLr4nmtLdvnIBH+QYf1/6r
+         7oAYLh9t3ttLIa5IBgQv7iJqxUKIt+9952PPTPh4=
+Date:   Fri, 21 Feb 2020 13:55:46 -0500
+From:   Sasha Levin <sashal@kernel.org>
+To:     Guenter Roeck <linux@roeck-us.net>
+Cc:     Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, stable@vger.kernel.org
+Subject: Re: [PATCH 5.4 000/344] 5.4.22-stable review
+Message-ID: <20200221185546.GB1449@sasha-vm>
+References: <20200221072349.335551332@linuxfoundation.org>
+ <4e8cb265-4745-4249-45e4-86bd84f068ed@roeck-us.net>
+ <9f719752c33321fca7280a5cc59a886e1dd0dfda.camel@codethink.co.uk>
+ <20200221155507.GB11868@roeck-us.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
-In-Reply-To: <f72a623f-b3f1-381a-d91d-d22a1c83a336@huawei.com>
+In-Reply-To: <20200221155507.GB11868@roeck-us.net>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Feb 20, 2020 at 09:46:14PM +0800, wangyan wrote:
-> I found a NULL pointer dereference in ocfs2_block_group_clear_bits().
-> The running environment:
-> 	kernel version: 4.19
-> 	A cluster with two nodes, 5 luns mounted on two nodes, and do some
-> 	file operations like dd/fallocate/truncate/rm on every lun with storage
-> 	network disconnection.
-> 
-> The fallocate operation on dm-23-45 caused an null pointer dereference.
-> 
-> The information of NULL pointer dereference as follows:
-> 	[577992.878282] JBD2: Error -5 detected when updating journal superblock for dm-23-45.
-> 	[577992.878290] Aborting journal on device dm-23-45.
-> 	...
-> 	[577992.890778] JBD2: Error -5 detected when updating journal superblock for dm-24-46.
-> 	[577992.890908] __journal_remove_journal_head: freeing b_committed_data
-> 	[577992.890916] (fallocate,88392,52):ocfs2_extend_trans:474 ERROR: status = -30
-> 	[577992.890918] __journal_remove_journal_head: freeing b_committed_data
-> 	[577992.890920] (fallocate,88392,52):ocfs2_rotate_tree_right:2500 ERROR: status = -30
-> 	[577992.890922] __journal_remove_journal_head: freeing b_committed_data
-> 	[577992.890924] (fallocate,88392,52):ocfs2_do_insert_extent:4382 ERROR: status = -30
-> 	[577992.890928] (fallocate,88392,52):ocfs2_insert_extent:4842 ERROR: status = -30
-> 	[577992.890928] __journal_remove_journal_head: freeing b_committed_data
-> 	[577992.890930] (fallocate,88392,52):ocfs2_add_clusters_in_btree:4947 ERROR: status = -30
-> 	[577992.890933] __journal_remove_journal_head: freeing b_committed_data
-> 	[577992.890939] __journal_remove_journal_head: freeing b_committed_data
-> 	[577992.890949] Unable to handle kernel NULL pointer dereference at virtual address 0000000000000020
-> 	[577992.890950] Mem abort info:
-> 	[577992.890951]   ESR = 0x96000004
-> 	[577992.890952]   Exception class = DABT (current EL), IL = 32 bits
-> 	[577992.890952]   SET = 0, FnV = 0
-> 	[577992.890953]   EA = 0, S1PTW = 0
-> 	[577992.890954] Data abort info:
-> 	[577992.890955]   ISV = 0, ISS = 0x00000004
-> 	[577992.890956]   CM = 0, WnR = 0
-> 	[577992.890958] user pgtable: 4k pages, 48-bit VAs, pgdp = 00000000f8da07a9
-> 	[577992.890960] [0000000000000020] pgd=0000000000000000
-> 	[577992.890964] Internal error: Oops: 96000004 [#1] SMP
-> 	[577992.890965] Process fallocate (pid: 88392, stack limit = 0x00000000013db2fd)
-> 	[577992.890968] CPU: 52 PID: 88392 Comm: fallocate Kdump: loaded Tainted: G        W  OE     4.19.36 #1
-> 	[577992.890969] Hardware name: Huawei TaiShan 2280 V2/BC82AMDD, BIOS 0.98 08/25/2019
-> 	[577992.890971] pstate: 60400009 (nZCv daif +PAN -UAO)
-> 	[577992.891054] pc : _ocfs2_free_suballoc_bits+0x63c/0x968 [ocfs2]
-> 	[577992.891082] lr : _ocfs2_free_suballoc_bits+0x618/0x968 [ocfs2]
-> 	[577992.891084] sp : ffff0000c8e2b810
-> 	[577992.891085] x29: ffff0000c8e2b820 x28: 0000000000000000
-> 	[577992.891087] x27: 00000000000006f3 x26: ffffa07957b02e70
-> 	[577992.891089] x25: ffff807c59d50000 x24: 00000000000006f2
-> 	[577992.891091] x23: 0000000000000001 x22: ffff807bd39abc30
-> 	[577992.891093] x21: ffff0000811d9000 x20: ffffa07535d6a000
-> 	[577992.891097] x19: ffff000001681638 x18: ffffffffffffffff
-> 	[577992.891098] x17: 0000000000000000 x16: ffff000080a03df0
-> 	[577992.891100] x15: ffff0000811d9708 x14: 203d207375746174
-> 	[577992.891101] x13: 73203a524f525245 x12: 20373439343a6565
-> 	[577992.891103] x11: 0000000000000038 x10: 0101010101010101
-> 	[577992.891106] x9 : ffffa07c68a85d70 x8 : 7f7f7f7f7f7f7f7f
-> 	[577992.891109] x7 : 0000000000000000 x6 : 0000000000000080
-> 	[577992.891110] x5 : 0000000000000000 x4 : 0000000000000002
-> 	[577992.891112] x3 : ffff000001713390 x2 : 2ff90f88b1c22f00
-> 	[577992.891114] x1 : ffff807bd39abc30 x0 : 0000000000000000
-> 	[577992.891116] Call trace:
-> 	[577992.891139]  _ocfs2_free_suballoc_bits+0x63c/0x968 [ocfs2]
-> 	[577992.891162]  _ocfs2_free_clusters+0x100/0x290 [ocfs2]
-> 	[577992.891185]  ocfs2_free_clusters+0x50/0x68 [ocfs2]
-> 	[577992.891206]  ocfs2_add_clusters_in_btree+0x198/0x5e0 [ocfs2]
-> 	[577992.891227]  ocfs2_add_inode_data+0x94/0xc8 [ocfs2]
-> 	[577992.891248]  ocfs2_extend_allocation+0x1bc/0x7a8 [ocfs2]
-> 	[577992.891269]  ocfs2_allocate_extents+0x14c/0x338 [ocfs2]
-> 	[577992.891290]  __ocfs2_change_file_space+0x3f8/0x610 [ocfs2]
-> 	[577992.891309]  ocfs2_fallocate+0xe4/0x128 [ocfs2]
-> 	[577992.891316]  vfs_fallocate+0x11c/0x250
-> 	[577992.891317]  ksys_fallocate+0x54/0x88
-> 	[577992.891319]  __arm64_sys_fallocate+0x28/0x38
-> 	[577992.891323]  el0_svc_common+0x78/0x130
-> 	[577992.891325]  el0_svc_handler+0x38/0x78
-> 	[577992.891327]  el0_svc+0x8/0xc
-> 
-> My analysis process as follows:
-> ocfs2_fallocate
->   __ocfs2_change_file_space
->     ocfs2_allocate_extents
->       ocfs2_extend_allocation
->         ocfs2_add_inode_data
->           ocfs2_add_clusters_in_btree
->             ocfs2_insert_extent
->               ocfs2_do_insert_extent
->                 ocfs2_rotate_tree_right
->                   ocfs2_extend_rotate_transaction
->                     ocfs2_extend_trans
->                       jbd2_journal_restart
->                         jbd2__journal_restart
->                           /* handle->h_transaction is NULL,
->                            * is_handle_aborted(handle) is true
->                            */
->                           handle->h_transaction = NULL;
->                           start_this_handle
->                             return -EROFS;
->             ocfs2_free_clusters
->               _ocfs2_free_clusters
->                 _ocfs2_free_suballoc_bits
->                   ocfs2_block_group_clear_bits
->                     ocfs2_journal_access_gd
->                       __ocfs2_journal_access
->                         jbd2_journal_get_undo_access
->                           /* I think jbd2_write_access_granted() will
->                            * return true, because do_get_write_access()
->                            * will return -EROFS.
->                            */
->                           if (jbd2_write_access_granted(...)) return 0;
->                           do_get_write_access
->                             /* handle->h_transaction is NULL, it will
->                              * return -EROFS here, so do_get_write_access()
->                              * was not called.
->                              */
->                             if (is_handle_aborted(handle)) return -EROFS;
->                     /* bh2jh(group_bh) is NULL, caused NULL
->                        pointer dereference */
->                     undo_bg = (struct ocfs2_group_desc *)
->                                 bh2jh(group_bh)->b_committed_data;
-> 
-> If handle->h_transaction == NULL, then jbd2_write_access_granted()
-> does not really guarantee that journal_head will stay around,
-> not even speaking of its b_committed_data. The bh2jh(group_bh)
-> can be removed after ocfs2_journal_access_gd() and before call
-> "bh2jh(group_bh)->b_committed_data". So, we should move
-> is_handle_aborted() check from do_get_write_access() into
-> jbd2_journal_get_undo_access() and jbd2_journal_get_write_access()
-> before the call to jbd2_write_access_granted().
-> 
-> Signed-off-by: Yan Wang <wangyan122@huawei.com>
-> Reviewed-by: Jun Piao <piaojun@huawei.com>
+On Fri, Feb 21, 2020 at 07:55:07AM -0800, Guenter Roeck wrote:
+>On Fri, Feb 21, 2020 at 03:21:30PM +0000, Ben Hutchings wrote:
+>> On Fri, 2020-02-21 at 06:28 -0800, Guenter Roeck wrote:
+>> [...]
+>> > Building powerpc:defconfig ... failed
+>> > Building powerpc:mpc83xx_defconfig ... failed
+>> > --------------
+>> > Error log:
+>> > drivers/rtc/rtc-ds1307.c:1570:21: error: variable 'regmap_config' has initializer but incomplete type
+>> >
+>> > as well as various follow-up errors.
+>> >
+>> > The second problem affects both v5.4.y and v5.5.y.
+>>
+>> This seems to be caused by commit 34719de919af (rtc-i2c-spi-avoid-
+>> inclusion-of-regmap-support-when-n.patch).  These branches will need
+>> commit 578c2b661e2b "rtc: Kconfig: select REGMAP_I2C when necessary" as
+>> well.
+>>
+>
+>Yes, I recall we had the same problem before, and the offending patch
+>was removed from the queue. Wonder how it made it back in without the
+>context patch (which either you or someone else also reported at the time).
 
-Thanks, applied.
+The first time was Greg picking it up, the second time it was me :)
 
-						- Ted
+My build bot is busted, and I'm working on repairing it, appologies for
+the noise.
+
+I've grabbed 578c2b661e2b for both 5.5 and 5.4.
+
+-- 
+Thanks,
+Sasha
