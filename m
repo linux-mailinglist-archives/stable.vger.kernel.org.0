@@ -2,36 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AC6E6167239
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:01:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AA90A16723B
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:01:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731222AbgBUIBf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 03:01:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33836 "EHLO mail.kernel.org"
+        id S1731082AbgBUIBj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 03:01:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33888 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730919AbgBUIBd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 03:01:33 -0500
+        id S1731224AbgBUIBg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 03:01:36 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 822682073A;
-        Fri, 21 Feb 2020 08:01:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D8316206ED;
+        Fri, 21 Feb 2020 08:01:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582272093;
-        bh=NcGh06knfGLcfuN1zseb3JhRUmzE9S2q+eze5sqOnB4=;
+        s=default; t=1582272095;
+        bh=VAEiBAgjy/gCmBix35/puJS0Yzce1xq9F45YjCo8c9o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kdA+VciMMnvSvhJBGINvcV+UewIZSg/oiE6HG7XVo+fEfmfrvHnAMJQznExCo14nx
-         SVjqCeFBJaDQPoNV7z0leoFX/UDaHzX8Iha7TvjeYsUb+arjY1vnOgYLlzzUnyfcpo
-         bgQ2B5UOCg8cnq9r4DjGZMPhT1pY1QXc8RTF4+R0=
+        b=U8wyxf7R8hSI3xMMZwGUGXeXAedXO/00ZqYfMXkfGi6jfmx7+kXCcMsUyeG9lhcOt
+         Zkr4O0YPN959z1dHtaO/mey9Ajip9mPCcqffdz1FN+oIAP5/Y8E7N3mTsiZ7STYInA
+         8tFz77OEJs0WsppR5Kjgz7xvDWZqWtxekXk1BMAE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Timur Tabi <timur@kernel.org>,
-        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
-        Li Yang <leoyang.li@nxp.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 014/344] soc: fsl: qe: change return type of cpm_muram_alloc() to s32
-Date:   Fri, 21 Feb 2020 08:36:53 +0100
-Message-Id: <20200221072350.550822621@linuxfoundation.org>
+        stable@vger.kernel.org, Marco Elver <elver@google.com>,
+        "Paul E. McKenney" <paulmck@kernel.org>,
+        Josh Triplett <josh@joshtriplett.org>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+        Joel Fernandes <joel@joelfernandes.org>,
+        Ingo Molnar <mingo@redhat.com>,
+        Dmitry Vyukov <dvyukov@google.com>, rcu@vger.kernel.org,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 015/344] rcu: Fix data-race due to atomic_t copy-by-value
+Date:   Fri, 21 Feb 2020 08:36:54 +0100
+Message-Id: <20200221072350.630576454@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200221072349.335551332@linuxfoundation.org>
 References: <20200221072349.335551332@linuxfoundation.org>
@@ -44,186 +50,130 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rasmus Villemoes <linux@rasmusvillemoes.dk>
+From: Marco Elver <elver@google.com>
 
-[ Upstream commit 800cd6fb76f0ec7711deb72a86c924db1ae42648 ]
+[ Upstream commit 6cf539a87a61a4fbc43f625267dbcbcf283872ed ]
 
-There are a number of problems with cpm_muram_alloc() and its
-callers. Most callers assign the return value to some variable and
-then use IS_ERR_VALUE to check for allocation failure. However, when
-that variable is not sizeof(long), this leads to warnings - and it is
-indeed broken to do e.g.
+This fixes a data-race where `atomic_t dynticks` is copied by value. The
+copy is performed non-atomically, resulting in a data-race if `dynticks`
+is updated concurrently.
 
-  u32 foo = cpm_muram_alloc();
-  if (IS_ERR_VALUE(foo))
+This data-race was found with KCSAN:
+==================================================================
+BUG: KCSAN: data-race in dyntick_save_progress_counter / rcu_irq_enter
 
-on a 64-bit platform, since the condition
+write to 0xffff989dbdbe98e0 of 4 bytes by task 10 on cpu 3:
+ atomic_add_return include/asm-generic/atomic-instrumented.h:78 [inline]
+ rcu_dynticks_snap kernel/rcu/tree.c:310 [inline]
+ dyntick_save_progress_counter+0x43/0x1b0 kernel/rcu/tree.c:984
+ force_qs_rnp+0x183/0x200 kernel/rcu/tree.c:2286
+ rcu_gp_fqs kernel/rcu/tree.c:1601 [inline]
+ rcu_gp_fqs_loop+0x71/0x880 kernel/rcu/tree.c:1653
+ rcu_gp_kthread+0x22c/0x3b0 kernel/rcu/tree.c:1799
+ kthread+0x1b5/0x200 kernel/kthread.c:255
+ <snip>
 
-  foo >= (unsigned long)-ENOMEM
+read to 0xffff989dbdbe98e0 of 4 bytes by task 154 on cpu 7:
+ rcu_nmi_enter_common kernel/rcu/tree.c:828 [inline]
+ rcu_irq_enter+0xda/0x240 kernel/rcu/tree.c:870
+ irq_enter+0x5/0x50 kernel/softirq.c:347
+ <snip>
 
-is tautologically false. There are also callers that ignore the
-possibility of error, and then there are those that check for error by
-comparing the return value to 0...
+Reported by Kernel Concurrency Sanitizer on:
+CPU: 7 PID: 154 Comm: kworker/7:1H Not tainted 5.3.0+ #5
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.12.0-1 04/01/2014
+Workqueue: kblockd blk_mq_run_work_fn
+==================================================================
 
-One could fix that by changing all callers to store the return value
-temporarily in an "unsigned long" and test that. However, use of
-IS_ERR_VALUE() is error-prone and should be restricted to things which
-are inherently long-sized (stuff in pt_regs etc.). Instead, let's aim
-for changing to the standard kernel style
-
-  int foo = cpm_muram_alloc();
-  if (foo < 0)
-    deal_with_it()
-  some->where = foo;
-
-Changing the return type from unsigned long to s32 (aka signed int)
-doesn't change the value that gets stored into any of the callers'
-variables except if the caller was storing the result in a u64 _and_
-the allocation failed, so in itself this patch should be a no-op.
-
-Another problem with cpm_muram_alloc() is that it can certainly
-validly return 0 - and except if some cpm_muram_alloc_fixed() call
-interferes, the very first cpm_muram_alloc() call will return just
-that. But that shows that both ucc_slow_free() and ucc_fast_free() are
-buggy, since they assume that a value of 0 means "that field was never
-allocated". We'll later change cpm_muram_free() to accept (and ignore)
-a negative offset, so callers can use a sentinel of -1 instead of 0
-and just unconditionally call cpm_muram_free().
-
-Reviewed-by: Timur Tabi <timur@kernel.org>
-Signed-off-by: Rasmus Villemoes <linux@rasmusvillemoes.dk>
-Signed-off-by: Li Yang <leoyang.li@nxp.com>
+Signed-off-by: Marco Elver <elver@google.com>
+Cc: Paul E. McKenney <paulmck@kernel.org>
+Cc: Josh Triplett <josh@joshtriplett.org>
+Cc: Steven Rostedt <rostedt@goodmis.org>
+Cc: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+Cc: Joel Fernandes <joel@joelfernandes.org>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Dmitry Vyukov <dvyukov@google.com>
+Cc: rcu@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Reviewed-by: Joel Fernandes (Google) <joel@joelfernandes.org>
+Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soc/fsl/qe/qe_common.c | 29 ++++++++++++++++-------------
- include/soc/fsl/qe/qe.h        | 16 ++++++++--------
- 2 files changed, 24 insertions(+), 21 deletions(-)
+ include/trace/events/rcu.h |  4 ++--
+ kernel/rcu/tree.c          | 11 ++++++-----
+ 2 files changed, 8 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/soc/fsl/qe/qe_common.c b/drivers/soc/fsl/qe/qe_common.c
-index 83e85e61669f5..84c90105e588b 100644
---- a/drivers/soc/fsl/qe/qe_common.c
-+++ b/drivers/soc/fsl/qe/qe_common.c
-@@ -32,7 +32,7 @@ static phys_addr_t muram_pbase;
- 
- struct muram_block {
- 	struct list_head head;
--	unsigned long start;
-+	s32 start;
- 	int size;
- };
- 
-@@ -110,13 +110,14 @@ out_muram:
-  * @algo: algorithm for alloc.
-  * @data: data for genalloc's algorithm.
-  *
-- * This function returns an offset into the muram area.
-+ * This function returns a non-negative offset into the muram area, or
-+ * a negative errno on failure.
+diff --git a/include/trace/events/rcu.h b/include/trace/events/rcu.h
+index 694bd040cf51a..fdd31c5fd1265 100644
+--- a/include/trace/events/rcu.h
++++ b/include/trace/events/rcu.h
+@@ -442,7 +442,7 @@ TRACE_EVENT_RCU(rcu_fqs,
   */
--static unsigned long cpm_muram_alloc_common(unsigned long size,
--		genpool_algo_t algo, void *data)
-+static s32 cpm_muram_alloc_common(unsigned long size,
-+				  genpool_algo_t algo, void *data)
- {
- 	struct muram_block *entry;
--	unsigned long start;
-+	s32 start;
+ TRACE_EVENT_RCU(rcu_dyntick,
  
- 	if (!muram_pool && cpm_muram_init())
- 		goto out2;
-@@ -137,7 +138,7 @@ static unsigned long cpm_muram_alloc_common(unsigned long size,
- out1:
- 	gen_pool_free(muram_pool, start, size);
- out2:
--	return (unsigned long)-ENOMEM;
-+	return -ENOMEM;
- }
+-	TP_PROTO(const char *polarity, long oldnesting, long newnesting, atomic_t dynticks),
++	TP_PROTO(const char *polarity, long oldnesting, long newnesting, int dynticks),
  
- /*
-@@ -145,13 +146,14 @@ out2:
-  * @size: number of bytes to allocate
-  * @align: requested alignment, in bytes
-  *
-- * This function returns an offset into the muram area.
-+ * This function returns a non-negative offset into the muram area, or
-+ * a negative errno on failure.
-  * Use cpm_dpram_addr() to get the virtual address of the area.
-  * Use cpm_muram_free() to free the allocation.
-  */
--unsigned long cpm_muram_alloc(unsigned long size, unsigned long align)
-+s32 cpm_muram_alloc(unsigned long size, unsigned long align)
- {
--	unsigned long start;
-+	s32 start;
- 	unsigned long flags;
- 	struct genpool_data_align muram_pool_data;
+ 	TP_ARGS(polarity, oldnesting, newnesting, dynticks),
  
-@@ -168,7 +170,7 @@ EXPORT_SYMBOL(cpm_muram_alloc);
-  * cpm_muram_free - free a chunk of multi-user ram
-  * @offset: The beginning of the chunk as returned by cpm_muram_alloc().
-  */
--int cpm_muram_free(unsigned long offset)
-+int cpm_muram_free(s32 offset)
- {
- 	unsigned long flags;
- 	int size;
-@@ -194,13 +196,14 @@ EXPORT_SYMBOL(cpm_muram_free);
-  * cpm_muram_alloc_fixed - reserve a specific region of multi-user ram
-  * @offset: offset of allocation start address
-  * @size: number of bytes to allocate
-- * This function returns an offset into the muram area
-+ * This function returns @offset if the area was available, a negative
-+ * errno otherwise.
-  * Use cpm_dpram_addr() to get the virtual address of the area.
-  * Use cpm_muram_free() to free the allocation.
-  */
--unsigned long cpm_muram_alloc_fixed(unsigned long offset, unsigned long size)
-+s32 cpm_muram_alloc_fixed(unsigned long offset, unsigned long size)
- {
--	unsigned long start;
-+	s32 start;
- 	unsigned long flags;
- 	struct genpool_data_fixed muram_pool_data_fixed;
+@@ -457,7 +457,7 @@ TRACE_EVENT_RCU(rcu_dyntick,
+ 		__entry->polarity = polarity;
+ 		__entry->oldnesting = oldnesting;
+ 		__entry->newnesting = newnesting;
+-		__entry->dynticks = atomic_read(&dynticks);
++		__entry->dynticks = dynticks;
+ 	),
  
-diff --git a/include/soc/fsl/qe/qe.h b/include/soc/fsl/qe/qe.h
-index c1036d16ed03b..2d35d5db16231 100644
---- a/include/soc/fsl/qe/qe.h
-+++ b/include/soc/fsl/qe/qe.h
-@@ -98,26 +98,26 @@ static inline void qe_reset(void) {}
- int cpm_muram_init(void);
+ 	TP_printk("%s %lx %lx %#3x", __entry->polarity,
+diff --git a/kernel/rcu/tree.c b/kernel/rcu/tree.c
+index 81105141b6a82..62e59596a30a0 100644
+--- a/kernel/rcu/tree.c
++++ b/kernel/rcu/tree.c
+@@ -576,7 +576,7 @@ static void rcu_eqs_enter(bool user)
+ 	}
  
- #if defined(CONFIG_CPM) || defined(CONFIG_QUICC_ENGINE)
--unsigned long cpm_muram_alloc(unsigned long size, unsigned long align);
--int cpm_muram_free(unsigned long offset);
--unsigned long cpm_muram_alloc_fixed(unsigned long offset, unsigned long size);
-+s32 cpm_muram_alloc(unsigned long size, unsigned long align);
-+int cpm_muram_free(s32 offset);
-+s32 cpm_muram_alloc_fixed(unsigned long offset, unsigned long size);
- void __iomem *cpm_muram_addr(unsigned long offset);
- unsigned long cpm_muram_offset(void __iomem *addr);
- dma_addr_t cpm_muram_dma(void __iomem *addr);
- #else
--static inline unsigned long cpm_muram_alloc(unsigned long size,
--					    unsigned long align)
-+static inline s32 cpm_muram_alloc(unsigned long size,
-+				  unsigned long align)
- {
- 	return -ENOSYS;
- }
+ 	lockdep_assert_irqs_disabled();
+-	trace_rcu_dyntick(TPS("Start"), rdp->dynticks_nesting, 0, rdp->dynticks);
++	trace_rcu_dyntick(TPS("Start"), rdp->dynticks_nesting, 0, atomic_read(&rdp->dynticks));
+ 	WARN_ON_ONCE(IS_ENABLED(CONFIG_RCU_EQS_DEBUG) && !user && !is_idle_task(current));
+ 	rdp = this_cpu_ptr(&rcu_data);
+ 	do_nocb_deferred_wakeup(rdp);
+@@ -649,14 +649,15 @@ static __always_inline void rcu_nmi_exit_common(bool irq)
+ 	 * leave it in non-RCU-idle state.
+ 	 */
+ 	if (rdp->dynticks_nmi_nesting != 1) {
+-		trace_rcu_dyntick(TPS("--="), rdp->dynticks_nmi_nesting, rdp->dynticks_nmi_nesting - 2, rdp->dynticks);
++		trace_rcu_dyntick(TPS("--="), rdp->dynticks_nmi_nesting, rdp->dynticks_nmi_nesting - 2,
++				  atomic_read(&rdp->dynticks));
+ 		WRITE_ONCE(rdp->dynticks_nmi_nesting, /* No store tearing. */
+ 			   rdp->dynticks_nmi_nesting - 2);
+ 		return;
+ 	}
  
--static inline int cpm_muram_free(unsigned long offset)
-+static inline int cpm_muram_free(s32 offset)
- {
- 	return -ENOSYS;
- }
+ 	/* This NMI interrupted an RCU-idle CPU, restore RCU-idleness. */
+-	trace_rcu_dyntick(TPS("Startirq"), rdp->dynticks_nmi_nesting, 0, rdp->dynticks);
++	trace_rcu_dyntick(TPS("Startirq"), rdp->dynticks_nmi_nesting, 0, atomic_read(&rdp->dynticks));
+ 	WRITE_ONCE(rdp->dynticks_nmi_nesting, 0); /* Avoid store tearing. */
  
--static inline unsigned long cpm_muram_alloc_fixed(unsigned long offset,
--						  unsigned long size)
-+static inline s32 cpm_muram_alloc_fixed(unsigned long offset,
-+					unsigned long size)
- {
- 	return -ENOSYS;
- }
+ 	if (irq)
+@@ -743,7 +744,7 @@ static void rcu_eqs_exit(bool user)
+ 	rcu_dynticks_task_exit();
+ 	rcu_dynticks_eqs_exit();
+ 	rcu_cleanup_after_idle();
+-	trace_rcu_dyntick(TPS("End"), rdp->dynticks_nesting, 1, rdp->dynticks);
++	trace_rcu_dyntick(TPS("End"), rdp->dynticks_nesting, 1, atomic_read(&rdp->dynticks));
+ 	WARN_ON_ONCE(IS_ENABLED(CONFIG_RCU_EQS_DEBUG) && !user && !is_idle_task(current));
+ 	WRITE_ONCE(rdp->dynticks_nesting, 1);
+ 	WARN_ON_ONCE(rdp->dynticks_nmi_nesting);
+@@ -827,7 +828,7 @@ static __always_inline void rcu_nmi_enter_common(bool irq)
+ 	}
+ 	trace_rcu_dyntick(incby == 1 ? TPS("Endirq") : TPS("++="),
+ 			  rdp->dynticks_nmi_nesting,
+-			  rdp->dynticks_nmi_nesting + incby, rdp->dynticks);
++			  rdp->dynticks_nmi_nesting + incby, atomic_read(&rdp->dynticks));
+ 	WRITE_ONCE(rdp->dynticks_nmi_nesting, /* Prevent store tearing. */
+ 		   rdp->dynticks_nmi_nesting + incby);
+ 	barrier();
 -- 
 2.20.1
 
