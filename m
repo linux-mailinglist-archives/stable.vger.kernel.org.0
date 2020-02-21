@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 982B21671F4
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 08:59:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7DD6C167209
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:00:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730829AbgBUH6u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 02:58:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58722 "EHLO mail.kernel.org"
+        id S1730776AbgBUH7o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 02:59:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59874 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730821AbgBUH6t (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 02:58:49 -0500
+        id S1730955AbgBUH7o (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 02:59:44 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D41022073A;
-        Fri, 21 Feb 2020 07:58:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5D6F4222C4;
+        Fri, 21 Feb 2020 07:59:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582271928;
-        bh=WgQL7+GbhR6kljUvHY2XQ7tGW6A7NHb7v1vA6LNW3yg=;
+        s=default; t=1582271983;
+        bh=4jo9KR+p8Pvoztd6WQ9nIREIO+yassnhD6D/AMCTV7Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EiriTJ37SQr9y239Kmx7OY/7ipVVHqFZSXC0+84VJ9gTB0F6i0fmDWc0Rf+yKpM7m
-         KjZV4AoMZSxFCWK6eltiXOtu/5OkcuB5SA+dl3pm9rWlSj1mZjd9cfPLFgEyaV8XeA
-         bTEnbbSvpJy6kYQOo48cyTl+6IurR4+7R89t1cLE=
+        b=12GUs59v3xp3TWjI1oYUTeYZYf3BrqMmRR60i4EEAvaexIYIImQxfYCrhFebk8Yej
+         RIPgC9sOL+LH6ZsXwyoR6MSTEFUT/BBi5AssxjlbxpsONmf7hVH+LUYLT1zq64SY3b
+         sowCRyQs/JVTrEd5iYJ+yJBJdZ5Xy2cOohgiFLnA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Paulo Alcantara (SUSE)" <pc@cjr.nz>,
-        Martijn de Gouw <martijn.de.gouw@prodrive-technologies.com>,
-        Steve French <stfrench@microsoft.com>,
+        stable@vger.kernel.org, Xiubo Li <xiubli@redhat.com>,
+        Jeff Layton <jlayton@kernel.org>,
+        Ilya Dryomov <idryomov@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 350/399] cifs: Fix mount options set in automount
-Date:   Fri, 21 Feb 2020 08:41:15 +0100
-Message-Id: <20200221072435.111290869@linuxfoundation.org>
+Subject: [PATCH 5.5 355/399] ceph: check availability of mds cluster on mount after wait timeout
+Date:   Fri, 21 Feb 2020 08:41:20 +0100
+Message-Id: <20200221072435.393145622@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200221072402.315346745@linuxfoundation.org>
 References: <20200221072402.315346745@linuxfoundation.org>
@@ -45,213 +45,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paulo Alcantara (SUSE) <pc@cjr.nz>
+From: Xiubo Li <xiubli@redhat.com>
 
-[ Upstream commit 5739375ee4230980166807d347cc21c305532bbc ]
+[ Upstream commit 97820058fb2831a4b203981fa2566ceaaa396103 ]
 
-Starting from 4a367dc04435, we must set the mount options based on the
-DFS full path rather than the resolved target, that is, cifs_mount()
-will be responsible for resolving the DFS link (cached) as well as
-performing failover to any other targets in the referral.
+If all the MDS daemons are down for some reason, then the first mount
+attempt will fail with EIO after the mount request times out.  A mount
+attempt will also fail with EIO if all of the MDS's are laggy.
 
-Signed-off-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
-Reported-by: Martijn de Gouw <martijn.de.gouw@prodrive-technologies.com>
-Fixes: 4a367dc04435 ("cifs: Add support for failover in cifs_mount()")
-Link: https://lore.kernel.org/linux-cifs/39643d7d-2abb-14d3-ced6-c394fab9a777@prodrive-technologies.com
-Tested-by: Martijn de Gouw <martijn.de.gouw@prodrive-technologies.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+This patch changes the code to return -EHOSTUNREACH in these situations
+and adds a pr_info error message to help the admin determine the cause.
+
+URL: https://tracker.ceph.com/issues/4386
+Signed-off-by: Xiubo Li <xiubli@redhat.com>
+Reviewed-by: Jeff Layton <jlayton@kernel.org>
+Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/cifs_dfs_ref.c | 97 +++++++++++++++++++-----------------------
- 1 file changed, 43 insertions(+), 54 deletions(-)
+ fs/ceph/mds_client.c | 3 +--
+ fs/ceph/super.c      | 5 +++++
+ 2 files changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/fs/cifs/cifs_dfs_ref.c b/fs/cifs/cifs_dfs_ref.c
-index 41957b82d7960..606f26d862dc1 100644
---- a/fs/cifs/cifs_dfs_ref.c
-+++ b/fs/cifs/cifs_dfs_ref.c
-@@ -120,17 +120,17 @@ cifs_build_devname(char *nodename, const char *prepath)
- 
- 
- /**
-- * cifs_compose_mount_options	-	creates mount options for refferral
-+ * cifs_compose_mount_options	-	creates mount options for referral
-  * @sb_mountdata:	parent/root DFS mount options (template)
-  * @fullpath:		full path in UNC format
-- * @ref:		server's referral
-+ * @ref:		optional server's referral
-  * @devname:		optional pointer for saving device name
-  *
-  * creates mount options for submount based on template options sb_mountdata
-  * and replacing unc,ip,prefixpath options with ones we've got form ref_unc.
-  *
-  * Returns: pointer to new mount options or ERR_PTR.
-- * Caller is responcible for freeing retunrned value if it is not error.
-+ * Caller is responsible for freeing returned value if it is not error.
-  */
- char *cifs_compose_mount_options(const char *sb_mountdata,
- 				   const char *fullpath,
-@@ -150,18 +150,27 @@ char *cifs_compose_mount_options(const char *sb_mountdata,
- 	if (sb_mountdata == NULL)
- 		return ERR_PTR(-EINVAL);
- 
--	if (strlen(fullpath) - ref->path_consumed) {
--		prepath = fullpath + ref->path_consumed;
--		/* skip initial delimiter */
--		if (*prepath == '/' || *prepath == '\\')
--			prepath++;
--	}
-+	if (ref) {
-+		if (strlen(fullpath) - ref->path_consumed) {
-+			prepath = fullpath + ref->path_consumed;
-+			/* skip initial delimiter */
-+			if (*prepath == '/' || *prepath == '\\')
-+				prepath++;
-+		}
- 
--	name = cifs_build_devname(ref->node_name, prepath);
--	if (IS_ERR(name)) {
--		rc = PTR_ERR(name);
--		name = NULL;
--		goto compose_mount_options_err;
-+		name = cifs_build_devname(ref->node_name, prepath);
-+		if (IS_ERR(name)) {
-+			rc = PTR_ERR(name);
-+			name = NULL;
-+			goto compose_mount_options_err;
-+		}
-+	} else {
-+		name = cifs_build_devname((char *)fullpath, NULL);
-+		if (IS_ERR(name)) {
-+			rc = PTR_ERR(name);
-+			name = NULL;
-+			goto compose_mount_options_err;
-+		}
+diff --git a/fs/ceph/mds_client.c b/fs/ceph/mds_client.c
+index 145d46ba25ae2..816d49aed96bc 100644
+--- a/fs/ceph/mds_client.c
++++ b/fs/ceph/mds_client.c
+@@ -2558,8 +2558,7 @@ static void __do_request(struct ceph_mds_client *mdsc,
+ 		if (!(mdsc->fsc->mount_options->flags &
+ 		      CEPH_MOUNT_OPT_MOUNTWAIT) &&
+ 		    !ceph_mdsmap_is_cluster_available(mdsc->mdsmap)) {
+-			err = -ENOENT;
+-			pr_info("probably no mds server is up\n");
++			err = -EHOSTUNREACH;
+ 			goto finish;
+ 		}
  	}
+diff --git a/fs/ceph/super.c b/fs/ceph/super.c
+index 9b5536451528b..5a708ac9a54c3 100644
+--- a/fs/ceph/super.c
++++ b/fs/ceph/super.c
+@@ -1066,6 +1066,11 @@ static int ceph_get_tree(struct fs_context *fc)
+ 	return 0;
  
- 	rc = dns_resolve_server_name_to_ip(name, &srvIP);
-@@ -225,6 +234,8 @@ char *cifs_compose_mount_options(const char *sb_mountdata,
- 
- 	if (devname)
- 		*devname = name;
-+	else
-+		kfree(name);
- 
- 	/*cifs_dbg(FYI, "%s: parent mountdata: %s\n", __func__, sb_mountdata);*/
- 	/*cifs_dbg(FYI, "%s: submount mountdata: %s\n", __func__, mountdata );*/
-@@ -241,23 +252,23 @@ compose_mount_options_err:
- }
- 
- /**
-- * cifs_dfs_do_refmount - mounts specified path using provided refferal
-+ * cifs_dfs_do_mount - mounts specified path using DFS full path
-+ *
-+ * Always pass down @fullpath to smb3_do_mount() so we can use the root server
-+ * to perform failover in case we failed to connect to the first target in the
-+ * referral.
-+ *
-  * @cifs_sb:		parent/root superblock
-  * @fullpath:		full path in UNC format
-- * @ref:		server's referral
-  */
--static struct vfsmount *cifs_dfs_do_refmount(struct dentry *mntpt,
--		struct cifs_sb_info *cifs_sb,
--		const char *fullpath, const struct dfs_info3_param *ref)
-+static struct vfsmount *cifs_dfs_do_mount(struct dentry *mntpt,
-+					  struct cifs_sb_info *cifs_sb,
-+					  const char *fullpath)
- {
- 	struct vfsmount *mnt;
- 	char *mountdata;
- 	char *devname;
- 
--	/*
--	 * Always pass down the DFS full path to smb3_do_mount() so we
--	 * can use it later for failover.
--	 */
- 	devname = kstrndup(fullpath, strlen(fullpath), GFP_KERNEL);
- 	if (!devname)
- 		return ERR_PTR(-ENOMEM);
-@@ -266,7 +277,7 @@ static struct vfsmount *cifs_dfs_do_refmount(struct dentry *mntpt,
- 
- 	/* strip first '\' from fullpath */
- 	mountdata = cifs_compose_mount_options(cifs_sb->mountdata,
--					       fullpath + 1, ref, NULL);
-+					       fullpath + 1, NULL, NULL);
- 	if (IS_ERR(mountdata)) {
- 		kfree(devname);
- 		return (struct vfsmount *)mountdata;
-@@ -278,28 +289,16 @@ static struct vfsmount *cifs_dfs_do_refmount(struct dentry *mntpt,
- 	return mnt;
- }
- 
--static void dump_referral(const struct dfs_info3_param *ref)
--{
--	cifs_dbg(FYI, "DFS: ref path: %s\n", ref->path_name);
--	cifs_dbg(FYI, "DFS: node path: %s\n", ref->node_name);
--	cifs_dbg(FYI, "DFS: fl: %d, srv_type: %d\n",
--		 ref->flags, ref->server_type);
--	cifs_dbg(FYI, "DFS: ref_flags: %d, path_consumed: %d\n",
--		 ref->ref_flag, ref->path_consumed);
--}
--
- /*
-  * Create a vfsmount that we can automount
-  */
- static struct vfsmount *cifs_dfs_do_automount(struct dentry *mntpt)
- {
--	struct dfs_info3_param referral = {0};
- 	struct cifs_sb_info *cifs_sb;
- 	struct cifs_ses *ses;
- 	struct cifs_tcon *tcon;
- 	char *full_path, *root_path;
- 	unsigned int xid;
--	int len;
- 	int rc;
- 	struct vfsmount *mnt;
- 
-@@ -357,7 +356,7 @@ static struct vfsmount *cifs_dfs_do_automount(struct dentry *mntpt)
- 	if (!rc) {
- 		rc = dfs_cache_find(xid, ses, cifs_sb->local_nls,
- 				    cifs_remap(cifs_sb), full_path + 1,
--				    &referral, NULL);
-+				    NULL, NULL);
- 	}
- 
- 	free_xid(xid);
-@@ -366,26 +365,16 @@ static struct vfsmount *cifs_dfs_do_automount(struct dentry *mntpt)
- 		mnt = ERR_PTR(rc);
- 		goto free_root_path;
- 	}
--
--	dump_referral(&referral);
--
--	len = strlen(referral.node_name);
--	if (len < 2) {
--		cifs_dbg(VFS, "%s: Net Address path too short: %s\n",
--			 __func__, referral.node_name);
--		mnt = ERR_PTR(-EINVAL);
--		goto free_dfs_ref;
--	}
- 	/*
--	 * cifs_mount() will retry every available node server in case
--	 * of failures.
-+	 * OK - we were able to get and cache a referral for @full_path.
-+	 *
-+	 * Now, pass it down to cifs_mount() and it will retry every available
-+	 * node server in case of failures - no need to do it here.
- 	 */
--	mnt = cifs_dfs_do_refmount(mntpt, cifs_sb, full_path, &referral);
--	cifs_dbg(FYI, "%s: cifs_dfs_do_refmount:%s , mnt:%p\n", __func__,
--		 referral.node_name, mnt);
-+	mnt = cifs_dfs_do_mount(mntpt, cifs_sb, full_path);
-+	cifs_dbg(FYI, "%s: cifs_dfs_do_mount:%s , mnt:%p\n", __func__,
-+		 full_path + 1, mnt);
- 
--free_dfs_ref:
--	free_dfs_info_param(&referral);
- free_root_path:
- 	kfree(root_path);
- free_full_path:
+ out_splat:
++	if (!ceph_mdsmap_is_cluster_available(fsc->mdsc->mdsmap)) {
++		pr_info("No mds server is up or the cluster is laggy\n");
++		err = -EHOSTUNREACH;
++	}
++
+ 	ceph_mdsc_close_sessions(fsc->mdsc);
+ 	deactivate_locked_super(sb);
+ 	goto out_final;
 -- 
 2.20.1
 
