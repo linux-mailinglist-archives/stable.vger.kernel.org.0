@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E5981670EE
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 08:50:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 010BE1670F8
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 08:50:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729080AbgBUHtp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 02:49:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46260 "EHLO mail.kernel.org"
+        id S1728802AbgBUHuG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 02:50:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46838 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729399AbgBUHtm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 02:49:42 -0500
+        id S1729483AbgBUHuF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 02:50:05 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C6673208C4;
-        Fri, 21 Feb 2020 07:49:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7047524650;
+        Fri, 21 Feb 2020 07:50:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582271381;
-        bh=AM/cxaMLSs+1tt+XbdmWhg83uD3mrehTan0F9wpp1Xs=;
+        s=default; t=1582271404;
+        bh=HAmXvkOBj7wGi5sj2L8cQWewIrF6aeIPxUXQV2C0J68=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hvZL6mGYig004T0QDMeDNhsDsYscQvxMXPvNq6tEPfJmLuzCU4lMllZYMRtmvMJo5
-         1sPA3PUT4sPKkaP9QxhoQh+RWso3krsC5ANdwg3uogR3r6Z+spgp6J1tq70bTXaCfo
-         nOO6siT9D64VKSavSpnNbKaWkJKQ8xcyx5vfnILA=
+        b=H0w4jw3SlDGgLaDW5QkR3Bv4A3vEbFQskVmKHzlWCZzzL0gDWovk9iMpx2Ph/87wN
+         Hdq+ENWoGbW995Zws0RmoihAbVUPXgCxuP2qwIYjEfCIWgMBFGfMeKK46ueP3cqlIE
+         SkuD3qkKB5A1SVznSMTgcTlGJwrU4lPCowgI6inw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@redhat.com>,
-        Alexei Starovoitov <ast@kernel.org>,
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 143/399] samples/bpf: Set -fno-stack-protector when building BPF programs
-Date:   Fri, 21 Feb 2020 08:37:48 +0100
-Message-Id: <20200221072416.391366107@linuxfoundation.org>
+Subject: [PATCH 5.5 151/399] nfs: fix timstamp debug prints
+Date:   Fri, 21 Feb 2020 08:37:56 +0100
+Message-Id: <20200221072417.169613497@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200221072402.315346745@linuxfoundation.org>
 References: <20200221072402.315346745@linuxfoundation.org>
@@ -45,41 +43,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Toke Høiland-Jørgensen <toke@redhat.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit 450278977acbf494a20367c22fbb38729772d1fc ]
+[ Upstream commit 057f184b1245150b88e59997fc6f1af0e138d42e ]
 
-It seems Clang can in some cases turn on stack protection by default, which
-doesn't work with BPF. This was reported once before[0], but it seems the
-flag to explicitly turn off the stack protector wasn't added to the
-Makefile, so do that now.
+Starting in v5.5, the timestamps are correctly passed down as
+64-bit seconds with NFSv4 on 32-bit machines, but some debug
+statements still truncate them to 'long'.
 
-The symptom of this is compile errors like the following:
-
-error: <unknown>:0:0: in function bpf_prog1 i32 (%struct.__sk_buff*): A call to built-in function '__stack_chk_fail' is not supported.
-
-[0] https://www.spinics.net/lists/netdev/msg556400.html
-
-Signed-off-by: Toke Høiland-Jørgensen <toke@redhat.com>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Link: https://lore.kernel.org/bpf/20191216103819.359535-1-toke@redhat.com
+Fixes: e86d5a02874c ("NFS: Convert struct nfs_fattr to use struct timespec64")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- samples/bpf/Makefile | 1 +
- 1 file changed, 1 insertion(+)
+ fs/nfs/nfs4xdr.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/samples/bpf/Makefile b/samples/bpf/Makefile
-index c0147a8cf1882..06ebe3104cc03 100644
---- a/samples/bpf/Makefile
-+++ b/samples/bpf/Makefile
-@@ -236,6 +236,7 @@ BTF_LLVM_PROBE := $(shell echo "int main() { return 0; }" | \
- 			  readelf -S ./llvm_btf_verify.o | grep BTF; \
- 			  /bin/rm -f ./llvm_btf_verify.o)
+diff --git a/fs/nfs/nfs4xdr.c b/fs/nfs/nfs4xdr.c
+index d0feef17db50d..dc6b9c2f36b2a 100644
+--- a/fs/nfs/nfs4xdr.c
++++ b/fs/nfs/nfs4xdr.c
+@@ -4097,7 +4097,7 @@ static int decode_attr_time_access(struct xdr_stream *xdr, uint32_t *bitmap, str
+ 			status = NFS_ATTR_FATTR_ATIME;
+ 		bitmap[1] &= ~FATTR4_WORD1_TIME_ACCESS;
+ 	}
+-	dprintk("%s: atime=%ld\n", __func__, (long)time->tv_sec);
++	dprintk("%s: atime=%lld\n", __func__, time->tv_sec);
+ 	return status;
+ }
  
-+BPF_EXTRA_CFLAGS += -fno-stack-protector
- ifneq ($(BTF_LLVM_PROBE),)
- 	BPF_EXTRA_CFLAGS += -g
- else
+@@ -4115,7 +4115,7 @@ static int decode_attr_time_metadata(struct xdr_stream *xdr, uint32_t *bitmap, s
+ 			status = NFS_ATTR_FATTR_CTIME;
+ 		bitmap[1] &= ~FATTR4_WORD1_TIME_METADATA;
+ 	}
+-	dprintk("%s: ctime=%ld\n", __func__, (long)time->tv_sec);
++	dprintk("%s: ctime=%lld\n", __func__, time->tv_sec);
+ 	return status;
+ }
+ 
+@@ -4132,8 +4132,8 @@ static int decode_attr_time_delta(struct xdr_stream *xdr, uint32_t *bitmap,
+ 		status = decode_attr_time(xdr, time);
+ 		bitmap[1] &= ~FATTR4_WORD1_TIME_DELTA;
+ 	}
+-	dprintk("%s: time_delta=%ld %ld\n", __func__, (long)time->tv_sec,
+-		(long)time->tv_nsec);
++	dprintk("%s: time_delta=%lld %ld\n", __func__, time->tv_sec,
++		time->tv_nsec);
+ 	return status;
+ }
+ 
+@@ -4197,7 +4197,7 @@ static int decode_attr_time_modify(struct xdr_stream *xdr, uint32_t *bitmap, str
+ 			status = NFS_ATTR_FATTR_MTIME;
+ 		bitmap[1] &= ~FATTR4_WORD1_TIME_MODIFY;
+ 	}
+-	dprintk("%s: mtime=%ld\n", __func__, (long)time->tv_sec);
++	dprintk("%s: mtime=%lld\n", __func__, time->tv_sec);
+ 	return status;
+ }
+ 
 -- 
 2.20.1
 
