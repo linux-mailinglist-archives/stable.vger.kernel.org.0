@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 18590167567
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:31:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C77FD167704
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:41:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387714AbgBUI0w (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 03:26:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34438 "EHLO mail.kernel.org"
+        id S1731186AbgBUIBS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 03:01:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33570 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731468AbgBUIWp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 03:22:45 -0500
+        id S1731024AbgBUIBR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 03:01:17 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3B7F72469A;
-        Fri, 21 Feb 2020 08:22:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C8E592073A;
+        Fri, 21 Feb 2020 08:01:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582273364;
-        bh=JJMmc5g1eGCmHENbQ2PMQGmXelm8gaob9rFnxvQpAFU=;
+        s=default; t=1582272077;
+        bh=0yf6ce4sDrBOesE1j8wafwtcfGWYWuH7tZjl7vWwWFs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mPyu6WXNVU5ndggZvBi4dbAl8tHgGWZx7lSF7a76qNPnRHSQmxBwvJNl9u1cnefp/
-         ptpAfnSvSMvJvIZcJj02+nQsPPYO/15ytjwvbk/ZO7oGcDqcpr+C6svdzP+sjl6zP8
-         KkZB9MQJBzo9B2hf+1/jR0k5Dv6c1pU2K6BMxfCI=
+        b=ImkZpzxJspaB5ieOOs0GoFlH9baWE2BjBVc/cvhcxP5QEvtkOyxqtvY7thKRNxd3w
+         9PPXtll6dhYxqtmy16hefQulu4+QOtC37eSzVb4snsgWSgm3FMH7h15J2dN5GsukMU
+         PJ0rDIVCuDWQloEhqH4/uknp9cYJshuuORO7uIRc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johannes Thumshirn <jth@kernel.org>,
-        David Sterba <dsterba@suse.com>,
+        stable@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>,
+        David Hildenbrand <david@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 144/191] btrfs: fix possible NULL-pointer dereference in integrity checks
-Date:   Fri, 21 Feb 2020 08:41:57 +0100
-Message-Id: <20200221072307.905099818@linuxfoundation.org>
+Subject: [PATCH 5.5 393/399] virtio_balloon: prevent pfn array overflow
+Date:   Fri, 21 Feb 2020 08:41:58 +0100
+Message-Id: <20200221072438.118804855@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200221072250.732482588@linuxfoundation.org>
-References: <20200221072250.732482588@linuxfoundation.org>
+In-Reply-To: <20200221072402.315346745@linuxfoundation.org>
+References: <20200221072402.315346745@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,49 +44,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Thumshirn <jth@kernel.org>
+From: Michael S. Tsirkin <mst@redhat.com>
 
-[ Upstream commit 3dbd351df42109902fbcebf27104149226a4fcd9 ]
+[ Upstream commit 6e9826e77249355c09db6ba41cd3f84e89f4b614 ]
 
-A user reports a possible NULL-pointer dereference in
-btrfsic_process_superblock(). We are assigning state->fs_info to a local
-fs_info variable and afterwards checking for the presence of state.
+Make sure, at build time, that pfn array is big enough to hold a single
+page.  It happens to be true since the PAGE_SHIFT value at the moment is
+20, which is 1M - exactly 256 4K balloon pages.
 
-While we would BUG_ON() a NULL state anyways, we can also just remove
-the local fs_info copy, as fs_info is only used once as the first
-argument for btrfs_num_copies(). There we can just pass in
-state->fs_info as well.
-
-Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=205003
-Signed-off-by: Johannes Thumshirn <jth@kernel.org>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/check-integrity.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/virtio/virtio_balloon.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/fs/btrfs/check-integrity.c b/fs/btrfs/check-integrity.c
-index 833cf3c35b4df..3b77c8ab5357e 100644
---- a/fs/btrfs/check-integrity.c
-+++ b/fs/btrfs/check-integrity.c
-@@ -629,7 +629,6 @@ static struct btrfsic_dev_state *btrfsic_dev_state_hashtable_lookup(dev_t dev,
- static int btrfsic_process_superblock(struct btrfsic_state *state,
- 				      struct btrfs_fs_devices *fs_devices)
+diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+index 7e5d84caeb940..7bfe365d93720 100644
+--- a/drivers/virtio/virtio_balloon.c
++++ b/drivers/virtio/virtio_balloon.c
+@@ -158,6 +158,8 @@ static void set_page_pfns(struct virtio_balloon *vb,
  {
--	struct btrfs_fs_info *fs_info = state->fs_info;
- 	struct btrfs_super_block *selected_super;
- 	struct list_head *dev_head = &fs_devices->devices;
- 	struct btrfs_device *device;
-@@ -700,7 +699,7 @@ static int btrfsic_process_superblock(struct btrfsic_state *state,
- 			break;
- 		}
+ 	unsigned int i;
  
--		num_copies = btrfs_num_copies(fs_info, next_bytenr,
-+		num_copies = btrfs_num_copies(state->fs_info, next_bytenr,
- 					      state->metablock_size);
- 		if (state->print_mask & BTRFSIC_PRINT_MASK_NUM_COPIES)
- 			pr_info("num_copies(log_bytenr=%llu) = %d\n",
++	BUILD_BUG_ON(VIRTIO_BALLOON_PAGES_PER_PAGE > VIRTIO_BALLOON_ARRAY_PFNS_MAX);
++
+ 	/*
+ 	 * Set balloon pfns pointing at this page.
+ 	 * Note that the first pfn points at start of the page.
 -- 
 2.20.1
 
