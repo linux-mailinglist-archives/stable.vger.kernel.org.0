@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 888F816759F
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:31:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A5331675A0
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:31:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387516AbgBUIQY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 03:16:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53466 "EHLO mail.kernel.org"
+        id S1732648AbgBUIaL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 03:30:11 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53490 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733191AbgBUIQX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 03:16:23 -0500
+        id S2387523AbgBUIQZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 03:16:25 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7ED2D2467B;
-        Fri, 21 Feb 2020 08:16:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F38E924689;
+        Fri, 21 Feb 2020 08:16:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582272983;
-        bh=JPF2rN+8oq6r0Z+/bpVeXmqbRRqTwGoYbApl8cGhl/g=;
+        s=default; t=1582272985;
+        bh=uiFWzuo/y1vx3D80IkrnHuinHjU+Bj+7CiDyhZhphNc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TZFVjKu4TbfSGI+JCKzGpR97jYGYff0u56Eyw/Zflyz5EZMkwIiSlinZ4ARLX2njQ
-         I+jOyqDWgFOt8M2cE0O0omnEE2C3n91jXin3sTBbUzc/GgRF9Qh3uJOAnieKYFWJI+
-         LDEsohcOzRcXvMbl3PQjfXzPdFoW7jtsxsnRgeX4=
+        b=raWKnFEP+XgfdJr/2ggqbYpv0aDEDbx60tY7qGIxdAwnvVr4GFirqVKCLLG2Glmph
+         muLpd1IeHTqHlLX1500GTX89jfCiW5EN+ihI+QVVKys+addZ5mifURFhj4L4ZmY8AM
+         YPHXDp9g5M6DMSejTB8pdQMZ1PEOK+aehhsRrRBs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wenwen Wang <wenwen@cs.uga.edu>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>,
+        stable@vger.kernel.org, Vasily Averin <vvs@virtuozzo.com>,
+        Mike Marshall <hubcap@omnibond.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 335/344] NFS: Fix memory leaks
-Date:   Fri, 21 Feb 2020 08:42:14 +0100
-Message-Id: <20200221072420.818808992@linuxfoundation.org>
+Subject: [PATCH 5.4 336/344] help_next should increase position index
+Date:   Fri, 21 Feb 2020 08:42:15 +0100
+Message-Id: <20200221072420.936356526@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200221072349.335551332@linuxfoundation.org>
 References: <20200221072349.335551332@linuxfoundation.org>
@@ -44,49 +44,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wenwen Wang <wenwen@cs.uga.edu>
+From: Vasily Averin <vvs@virtuozzo.com>
 
-[ Upstream commit 123c23c6a7b7ecd2a3d6060bea1d94019f71fd66 ]
+[ Upstream commit 9f198a2ac543eaaf47be275531ad5cbd50db3edf ]
 
-In _nfs42_proc_copy(), 'res->commit_res.verf' is allocated through
-kzalloc() if 'args->sync' is true. In the following code, if
-'res->synchronous' is false, handle_async_copy() will be invoked. If an
-error occurs during the invocation, the following code will not be executed
-and the error will be returned . However, the allocated
-'res->commit_res.verf' is not deallocated, leading to a memory leak. This
-is also true if the invocation of process_copy_commit() returns an error.
+if seq_file .next fuction does not change position index,
+read after some lseek can generate unexpected output.
 
-To fix the above leaks, redirect the execution to the 'out' label if an
-error is encountered.
-
-Signed-off-by: Wenwen Wang <wenwen@cs.uga.edu>
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+https://bugzilla.kernel.org/show_bug.cgi?id=206283
+Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
+Signed-off-by: Mike Marshall <hubcap@omnibond.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/nfs42proc.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ fs/orangefs/orangefs-debugfs.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/fs/nfs/nfs42proc.c b/fs/nfs/nfs42proc.c
-index 5196bfa7894d2..9b61c80a93e9e 100644
---- a/fs/nfs/nfs42proc.c
-+++ b/fs/nfs/nfs42proc.c
-@@ -283,14 +283,14 @@ static ssize_t _nfs42_proc_copy(struct file *src,
- 		status = handle_async_copy(res, server, src, dst,
- 				&args->src_stateid);
- 		if (status)
--			return status;
-+			goto out;
- 	}
+diff --git a/fs/orangefs/orangefs-debugfs.c b/fs/orangefs/orangefs-debugfs.c
+index 25543a966c486..29eaa45443727 100644
+--- a/fs/orangefs/orangefs-debugfs.c
++++ b/fs/orangefs/orangefs-debugfs.c
+@@ -273,6 +273,7 @@ static void *help_start(struct seq_file *m, loff_t *pos)
  
- 	if ((!res->synchronous || !args->sync) &&
- 			res->write_res.verifier.committed != NFS_FILE_SYNC) {
- 		status = process_copy_commit(dst, pos_dst, res);
- 		if (status)
--			return status;
-+			goto out;
- 	}
+ static void *help_next(struct seq_file *m, void *v, loff_t *pos)
+ {
++	(*pos)++;
+ 	gossip_debug(GOSSIP_DEBUGFS_DEBUG, "help_next: start\n");
  
- 	truncate_pagecache_range(dst_inode, pos_dst,
+ 	return NULL;
 -- 
 2.20.1
 
