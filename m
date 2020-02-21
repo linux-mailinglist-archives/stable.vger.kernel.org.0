@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 31C24167818
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:46:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6086C1676A8
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:38:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728781AbgBUHti (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 02:49:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46164 "EHLO mail.kernel.org"
+        id S1731296AbgBUIFN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 03:05:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38538 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729359AbgBUHth (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 02:49:37 -0500
+        id S1731768AbgBUIFK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 03:05:10 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 97298207FD;
-        Fri, 21 Feb 2020 07:49:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 582392073A;
+        Fri, 21 Feb 2020 08:05:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582271376;
-        bh=hBhHgVs21RfUtJ9MHJuULdGWNwNaJs1/5JtqnA9mtJE=;
+        s=default; t=1582272309;
+        bh=Qt8Et4Nmv72ffbqegZAEOEqYIFv83EAW38M0+ZpuCtQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gPuelTugs7HtS+Oh/YYcz0V96mf3cW4eF/yIDkJSuwXYdHn5rpy6516VXgx+tdi7h
-         Pw/mBcC2dgm0t7XIvUYl71YoysymbJ4NVs/Xu4svFOvfCtZ5ClIGz2ANQUXj5d0lPX
-         Ci0lL0m8gjBkRXqheMmf8epR/nK7x90E1wRqjMr0=
+        b=TPwIE65MOrqiTM0KQWGbX6i/7+1UB2Jcw6+soP8o6+WILBL2Esy6dAhfL0f7SldiR
+         Ibq+cjIvcEaB2G16/ivPAko6HLxByK90p/wB/AI2g4kqMwEOpNdoep4ci8ZV4vpNSX
+         1jLPvfITVObqaOJidc7EyW9i4zHMOaoUTHz8CTTY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ezequiel Garcia <ezequiel@collabora.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 141/399] media: v4l2-device.h: Explicitly compare grp{id,mask} to zero in v4l2_device macros
+        stable@vger.kernel.org, Christopher Head <chead@chead.ca>,
+        Arvind Sankar <nivedita@alum.mit.edu>,
+        Borislav Petkov <bp@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 067/344] x86/sysfb: Fix check for bad VRAM size
 Date:   Fri, 21 Feb 2020 08:37:46 +0100
-Message-Id: <20200221072416.179424460@linuxfoundation.org>
+Message-Id: <20200221072355.090036361@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200221072402.315346745@linuxfoundation.org>
-References: <20200221072402.315346745@linuxfoundation.org>
+In-Reply-To: <20200221072349.335551332@linuxfoundation.org>
+References: <20200221072349.335551332@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,91 +44,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <natechancellor@gmail.com>
+From: Arvind Sankar <nivedita@alum.mit.edu>
 
-[ Upstream commit afb34781620274236bd9fc9246e22f6963ef5262 ]
+[ Upstream commit dacc9092336be20b01642afe1a51720b31f60369 ]
 
-When building with Clang + -Wtautological-constant-compare, several of
-the ivtv and cx18 drivers warn along the lines of:
+When checking whether the reported lfb_size makes sense, the height
+* stride result is page-aligned before seeing whether it exceeds the
+reported size.
 
- drivers/media/pci/cx18/cx18-driver.c:1005:21: warning: converting the
- result of '<<' to a boolean always evaluates to true
- [-Wtautological-constant-compare]
-                         cx18_call_hw(cx, CX18_HW_GPIO_RESET_CTRL,
-                                         ^
- drivers/media/pci/cx18/cx18-cards.h:18:37: note: expanded from macro
- 'CX18_HW_GPIO_RESET_CTRL'
- #define CX18_HW_GPIO_RESET_CTRL         (1 << 6)
-                                           ^
- 1 warning generated.
+This doesn't work if height * stride is not an exact number of pages.
+For example, as reported in the kernel bugzilla below, an 800x600x32 EFI
+framebuffer gets skipped because of this.
 
-This warning happens because the shift operation is implicitly converted
-to a boolean in v4l2_device_mask_call_all before being negated. This can
-be solved by just comparing the mask result to 0 explicitly so that
-there is no boolean conversion. The ultimate goal is to enable
--Wtautological-compare globally because there are several subwarnings
-that would be helpful to have.
+Move the PAGE_ALIGN to after the check vs size.
 
-For visual consistency and avoidance of these warnings in the future,
-all of the implicitly boolean conversions in the v4l2_device macros
-are converted to explicit ones as well.
-
-Link: https://github.com/ClangBuiltLinux/linux/issues/752
-
-Reviewed-by: Ezequiel Garcia <ezequiel@collabora.com>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Reported-by: Christopher Head <chead@chead.ca>
+Tested-by: Christopher Head <chead@chead.ca>
+Signed-off-by: Arvind Sankar <nivedita@alum.mit.edu>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=206051
+Link: https://lkml.kernel.org/r/20200107230410.2291947-1-nivedita@alum.mit.edu
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/media/v4l2-device.h | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ arch/x86/kernel/sysfb_simplefb.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/include/media/v4l2-device.h b/include/media/v4l2-device.h
-index 5f36e0d2ede67..95353ae476a18 100644
---- a/include/media/v4l2-device.h
-+++ b/include/media/v4l2-device.h
-@@ -371,7 +371,7 @@ static inline bool v4l2_device_supports_requests(struct v4l2_device *v4l2_dev)
- 		struct v4l2_subdev *__sd;				\
- 									\
- 		__v4l2_device_call_subdevs_p(v4l2_dev, __sd,		\
--			!(grpid) || __sd->grp_id == (grpid), o, f ,	\
-+			(grpid) == 0 || __sd->grp_id == (grpid), o, f ,	\
- 			##args);					\
- 	} while (0)
+diff --git a/arch/x86/kernel/sysfb_simplefb.c b/arch/x86/kernel/sysfb_simplefb.c
+index 01f0e2263b86b..298fc1edd9c95 100644
+--- a/arch/x86/kernel/sysfb_simplefb.c
++++ b/arch/x86/kernel/sysfb_simplefb.c
+@@ -90,11 +90,11 @@ __init int create_simplefb(const struct screen_info *si,
+ 	if (si->orig_video_isVGA == VIDEO_TYPE_VLFB)
+ 		size <<= 16;
+ 	length = mode->height * mode->stride;
+-	length = PAGE_ALIGN(length);
+ 	if (length > size) {
+ 		printk(KERN_WARNING "sysfb: VRAM smaller than advertised\n");
+ 		return -EINVAL;
+ 	}
++	length = PAGE_ALIGN(length);
  
-@@ -403,7 +403,7 @@ static inline bool v4l2_device_supports_requests(struct v4l2_device *v4l2_dev)
- ({									\
- 	struct v4l2_subdev *__sd;					\
- 	__v4l2_device_call_subdevs_until_err_p(v4l2_dev, __sd,		\
--			!(grpid) || __sd->grp_id == (grpid), o, f ,	\
-+			(grpid) == 0 || __sd->grp_id == (grpid), o, f ,	\
- 			##args);					\
- })
- 
-@@ -431,8 +431,8 @@ static inline bool v4l2_device_supports_requests(struct v4l2_device *v4l2_dev)
- 		struct v4l2_subdev *__sd;				\
- 									\
- 		__v4l2_device_call_subdevs_p(v4l2_dev, __sd,		\
--			!(grpmsk) || (__sd->grp_id & (grpmsk)), o, f ,	\
--			##args);					\
-+			(grpmsk) == 0 || (__sd->grp_id & (grpmsk)), o,	\
-+			f , ##args);					\
- 	} while (0)
- 
- /**
-@@ -462,8 +462,8 @@ static inline bool v4l2_device_supports_requests(struct v4l2_device *v4l2_dev)
- ({									\
- 	struct v4l2_subdev *__sd;					\
- 	__v4l2_device_call_subdevs_until_err_p(v4l2_dev, __sd,		\
--			!(grpmsk) || (__sd->grp_id & (grpmsk)), o, f ,	\
--			##args);					\
-+			(grpmsk) == 0 || (__sd->grp_id & (grpmsk)), o,	\
-+			f , ##args);					\
- })
- 
- 
+ 	/* setup IORESOURCE_MEM as framebuffer memory */
+ 	memset(&res, 0, sizeof(res));
 -- 
 2.20.1
 
