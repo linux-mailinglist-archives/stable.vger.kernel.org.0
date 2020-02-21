@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D36211676F4
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:41:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E7ABB1675C2
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:32:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730307AbgBUIA1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 03:00:27 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60818 "EHLO mail.kernel.org"
+        id S1733226AbgBUIOs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 03:14:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51392 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730888AbgBUIAY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 03:00:24 -0500
+        id S1732492AbgBUIOr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 03:14:47 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B7DC02465D;
-        Fri, 21 Feb 2020 08:00:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A42AA24670;
+        Fri, 21 Feb 2020 08:14:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582272024;
-        bh=z45Deq5jpfh5BBTwJ6zU+HtvdTraWuKGso37UKduEvs=;
+        s=default; t=1582272887;
+        bh=hDDi7NfkHyAkUUnTbKQGRytKtjAXcZBx1AojSyMOTjA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AWgHJMOZCkvVEuuW9B8YKsM642y1jpU5pSbuTWtPwhwseWDbT1FBFV6/r9zSY9XT9
-         jYE++/fuznOb/bGvx3Oa/luT+YpBs5Dy6Y4V+lLodQYChcdDX5vFU9S9KmfXHcnxww
-         DxhBr45enlurn2nU4QdzBbAKQA0oC8v1BtXEF9q0=
+        b=Y+mUhSB+L/4xHwI2sLVHH79pkNKFV1ZHQzGNiwuhehikdGo5XlX00pCGsAvT49tbU
+         lVZ3dx1M1Du46YMYjGnk7ld+vlTvG32For/QgBfX/1ByQTBC/TXgrg89M3cpOK+MhN
+         zcLSSQFkfHdMH/OA78jo+qz/L/4DzhWNpXW+FIvE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Evan Quan <evan.quan@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org,
+        "Gustavo A. R. Silva" <gustavo@embeddedor.com>,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        Eric Biggers <ebiggers@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 386/399] drm/amdgpu/smu10: fix smu10_get_clock_by_type_with_latency
+Subject: [PATCH 5.4 312/344] char: hpet: Fix out-of-bounds read bug
 Date:   Fri, 21 Feb 2020 08:41:51 +0100
-Message-Id: <20200221072437.595796227@linuxfoundation.org>
+Message-Id: <20200221072418.378382693@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200221072402.315346745@linuxfoundation.org>
-References: <20200221072402.315346745@linuxfoundation.org>
+In-Reply-To: <20200221072349.335551332@linuxfoundation.org>
+References: <20200221072349.335551332@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,47 +46,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alex Deucher <alexander.deucher@amd.com>
+From: Gustavo A. R. Silva <gustavo@embeddedor.com>
 
-[ Upstream commit 4d0a72b66065dd7e274bad6aa450196d42fd8f84 ]
+[ Upstream commit 98c49f1746ac44ccc164e914b9a44183fad09f51 ]
 
-Only send non-0 clocks to DC for validation.  This mirrors
-what the windows driver does.
+Currently, there is an out-of-bounds read on array hpetp->hp_dev
+in the following for loop:
 
-Bug: https://gitlab.freedesktop.org/drm/amd/issues/963
-Reviewed-by: Evan Quan <evan.quan@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+870         for (i = 0; i < hdp->hd_nirqs; i++)
+871                 hpetp->hp_dev[i].hd_hdwirq = hdp->hd_irq[i];
+
+This is due to the recent change from one-element array to
+flexible-array member in struct hpets:
+
+104 struct hpets {
+	...
+113         struct hpet_dev hp_dev[];
+114 };
+
+This change affected the total size of the dynamic memory
+allocation, decreasing it by one time the size of struct hpet_dev.
+
+Fix this by adjusting the allocation size when calling
+struct_size().
+
+Fixes: 987f028b8637c ("char: hpet: Use flexible-array member")
+Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
+Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Acked-by: Eric Biggers <ebiggers@kernel.org>
+Link: https://lore.kernel.org/r/20200129022613.GA24281@embeddedor.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/powerplay/hwmgr/smu10_hwmgr.c | 15 +++++++++------
- 1 file changed, 9 insertions(+), 6 deletions(-)
+ drivers/char/hpet.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/powerplay/hwmgr/smu10_hwmgr.c b/drivers/gpu/drm/amd/powerplay/hwmgr/smu10_hwmgr.c
-index 1115761982a78..627a42e8fd318 100644
---- a/drivers/gpu/drm/amd/powerplay/hwmgr/smu10_hwmgr.c
-+++ b/drivers/gpu/drm/amd/powerplay/hwmgr/smu10_hwmgr.c
-@@ -1026,12 +1026,15 @@ static int smu10_get_clock_by_type_with_latency(struct pp_hwmgr *hwmgr,
- 
- 	clocks->num_levels = 0;
- 	for (i = 0; i < pclk_vol_table->count; i++) {
--		clocks->data[i].clocks_in_khz = pclk_vol_table->entries[i].clk * 10;
--		clocks->data[i].latency_in_us = latency_required ?
--						smu10_get_mem_latency(hwmgr,
--						pclk_vol_table->entries[i].clk) :
--						0;
--		clocks->num_levels++;
-+		if (pclk_vol_table->entries[i].clk) {
-+			clocks->data[clocks->num_levels].clocks_in_khz =
-+				pclk_vol_table->entries[i].clk * 10;
-+			clocks->data[clocks->num_levels].latency_in_us = latency_required ?
-+				smu10_get_mem_latency(hwmgr,
-+						      pclk_vol_table->entries[i].clk) :
-+				0;
-+			clocks->num_levels++;
-+		}
+diff --git a/drivers/char/hpet.c b/drivers/char/hpet.c
+index 9ac6671bb5141..f69609b47fef8 100644
+--- a/drivers/char/hpet.c
++++ b/drivers/char/hpet.c
+@@ -855,7 +855,7 @@ int hpet_alloc(struct hpet_data *hdp)
+ 		return 0;
  	}
  
- 	return 0;
+-	hpetp = kzalloc(struct_size(hpetp, hp_dev, hdp->hd_nirqs - 1),
++	hpetp = kzalloc(struct_size(hpetp, hp_dev, hdp->hd_nirqs),
+ 			GFP_KERNEL);
+ 
+ 	if (!hpetp)
 -- 
 2.20.1
 
