@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D613416778E
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:44:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A9465167692
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:37:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729825AbgBUHxq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 02:53:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52122 "EHLO mail.kernel.org"
+        id S1731950AbgBUIga (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 03:36:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40396 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730120AbgBUHxn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 02:53:43 -0500
+        id S1731927AbgBUIG3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 03:06:29 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9483E24653;
-        Fri, 21 Feb 2020 07:53:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CE9152465D;
+        Fri, 21 Feb 2020 08:06:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582271623;
-        bh=qj+b2RpW9TJz60O6E8Om1vFFC0f3M1Zglp4/l4ocLbg=;
+        s=default; t=1582272389;
+        bh=mD/81wOsSpiXRMLsMfU2sksf0W/6xASYrsz7X25q6NI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dHsQY5D9k/29RmsUCX84wHyYXf223YCq8EMeRNHUUD0vra8r4qTWDNG7hXaPCac5+
-         xgfJPqC7Ew/C+m4QAuL+oHKqnibOKfglJhnY83cytFoqxVL7S8nkkkucZbhrL+vaNH
-         L0rGIQUgRarbQTu6/oDDDc3iizyh1qqLnUE7R9P4=
+        b=fIg9DYANMpqcRz/SWRQkYXiM4VdnPvwj9TffY7AkCCibR8zJTBi4Y3oiDLPMDxRPE
+         QS/xAcJ08Xi/yv3w2D8LELTog14eVtXR1uql9Yj16tZ/qoOj+eF7pq2n0Gp094wYvU
+         2/KeCCYKtl+MjK1ooNeE09i8mAm2cNghAU9Fkr6s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiewei Ke <kejiewei.cn@gmail.com>,
-        Jason Gunthorpe <jgg@mellanox.com>,
+        stable@vger.kernel.org, Paul Cercueil <paul@crapouillou.net>,
+        Sam Ravnborg <sam@ravnborg.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 198/399] RDMA/rxe: Fix error type of mmap_offset
+Subject: [PATCH 5.4 124/344] gpu/drm: ingenic: Avoid null pointer deference in plane atomic update
 Date:   Fri, 21 Feb 2020 08:38:43 +0100
-Message-Id: <20200221072422.053151016@linuxfoundation.org>
+Message-Id: <20200221072400.127480914@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200221072402.315346745@linuxfoundation.org>
-References: <20200221072402.315346745@linuxfoundation.org>
+In-Reply-To: <20200221072349.335551332@linuxfoundation.org>
+References: <20200221072349.335551332@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,36 +44,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiewei Ke <kejiewei.cn@gmail.com>
+From: Paul Cercueil <paul@crapouillou.net>
 
-[ Upstream commit 6ca18d8927d468c763571f78c9a7387a69ffa020 ]
+[ Upstream commit 354b051c5dcbeb35bbfd5d54161364fc7a75a58a ]
 
-The type of mmap_offset should be u64 instead of int to match the type of
-mminfo.offset. If otherwise, after we create several thousands of CQs, it
-will run into overflow issues.
+It is possible that there is no drm_framebuffer associated with a given
+plane state.
 
-Link: https://lore.kernel.org/r/20191227113613.5020-1-kejiewei.cn@gmail.com
-Signed-off-by: Jiewei Ke <kejiewei.cn@gmail.com>
-Reviewed-by: Jason Gunthorpe <jgg@mellanox.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+v2: Handle drm_plane->state which can be NULL too
+
+Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+Link: https://patchwork.freedesktop.org/patch/msgid/20191210144142.33143-2-paul@crapouillou.net
+# *** extracted tags ***
+Acked-by: Sam Ravnborg <sam@ravnborg.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/sw/rxe/rxe_verbs.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/ingenic/ingenic-drm.c | 16 ++++++++++------
+ 1 file changed, 10 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/infiniband/sw/rxe/rxe_verbs.h b/drivers/infiniband/sw/rxe/rxe_verbs.h
-index 95834206c80c3..92de39c4a7c1e 100644
---- a/drivers/infiniband/sw/rxe/rxe_verbs.h
-+++ b/drivers/infiniband/sw/rxe/rxe_verbs.h
-@@ -408,7 +408,7 @@ struct rxe_dev {
- 	struct list_head	pending_mmaps;
+diff --git a/drivers/gpu/drm/ingenic/ingenic-drm.c b/drivers/gpu/drm/ingenic/ingenic-drm.c
+index 2e2ed653e9c6b..f156f245fdecf 100644
+--- a/drivers/gpu/drm/ingenic/ingenic-drm.c
++++ b/drivers/gpu/drm/ingenic/ingenic-drm.c
+@@ -371,14 +371,18 @@ static void ingenic_drm_plane_atomic_update(struct drm_plane *plane,
+ 	struct ingenic_drm *priv = drm_plane_get_priv(plane);
+ 	struct drm_plane_state *state = plane->state;
+ 	unsigned int width, height, cpp;
++	dma_addr_t addr;
  
- 	spinlock_t		mmap_offset_lock; /* guard mmap_offset */
--	int			mmap_offset;
-+	u64			mmap_offset;
+-	width = state->crtc->state->adjusted_mode.hdisplay;
+-	height = state->crtc->state->adjusted_mode.vdisplay;
+-	cpp = state->fb->format->cpp[plane->index];
++	if (state && state->fb) {
++		addr = drm_fb_cma_get_gem_addr(state->fb, state, 0);
++		width = state->crtc->state->adjusted_mode.hdisplay;
++		height = state->crtc->state->adjusted_mode.vdisplay;
++		cpp = state->fb->format->cpp[plane->index];
  
- 	atomic64_t		stats_counters[RXE_NUM_OF_COUNTERS];
+-	priv->dma_hwdesc->addr = drm_fb_cma_get_gem_addr(state->fb, state, 0);
+-	priv->dma_hwdesc->cmd = width * height * cpp / 4;
+-	priv->dma_hwdesc->cmd |= JZ_LCD_CMD_EOF_IRQ;
++		priv->dma_hwdesc->addr = addr;
++		priv->dma_hwdesc->cmd = width * height * cpp / 4;
++		priv->dma_hwdesc->cmd |= JZ_LCD_CMD_EOF_IRQ;
++	}
+ }
  
+ static void ingenic_drm_encoder_atomic_mode_set(struct drm_encoder *encoder,
 -- 
 2.20.1
 
