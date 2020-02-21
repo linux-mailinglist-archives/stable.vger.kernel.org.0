@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 31F04167321
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:09:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BCCA21674CE
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:29:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732356AbgBUIJb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 03:09:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44392 "EHLO mail.kernel.org"
+        id S1733185AbgBUIRE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 03:17:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54326 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732362AbgBUIJa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 03:09:30 -0500
+        id S2387605AbgBUIRE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 03:17:04 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8710D20722;
-        Fri, 21 Feb 2020 08:09:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DA9F024670;
+        Fri, 21 Feb 2020 08:17:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582272570;
-        bh=BbynmfQcKModhyEQg3FLos1RtWnCUPBZgCxGcT5IdOs=;
+        s=default; t=1582273023;
+        bh=ZXhnpMrj5CaWrpKLVqIdetget1X44xH0z5FU1tXfW64=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hDdFSmHl3wZjxhZvdFlznva1aiA6P32h7w7uEVtDOmjDaGsGP5Vvix6MY2oLSTBPW
-         Vo+DqVV6mMMpDmxBnAmn1SP7wUp0pFga6aJJf0m+7C/mYD1jOeAhHIKsAJx8cQeU+J
-         J0ALcoD336Sjgz+3zr3PsTKFr+pJNi2TaBOtm1mk=
+        b=mmC8GuysOts1xwqcih/uKXvvwAS26ZrN0npZ3kjFl4fRTkh/JudEaNShsU/RdcHj7
+         d2v6qoImYmpn+7yAD9HTi3WH2/Z8r7ewQpOS+8ITlDDtgSBw/Ze3CSCxRANRQ/GN/C
+         ln/m8oPrcHjN+0VGeY6KiPr4w6KU5unP2TC1NHko=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shuah Khan <skhan@linuxfoundation.org>,
+        stable@vger.kernel.org,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 193/344] usbip: Fix unsafe unaligned pointer usage
+Subject: [PATCH 4.19 019/191] pinctrl: sh-pfc: sh7264: Fix CAN function GPIOs
 Date:   Fri, 21 Feb 2020 08:39:52 +0100
-Message-Id: <20200221072406.589313569@linuxfoundation.org>
+Message-Id: <20200221072253.537006601@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200221072349.335551332@linuxfoundation.org>
-References: <20200221072349.335551332@linuxfoundation.org>
+In-Reply-To: <20200221072250.732482588@linuxfoundation.org>
+References: <20200221072250.732482588@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,150 +44,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shuah Khan <skhan@linuxfoundation.org>
+From: Geert Uytterhoeven <geert+renesas@glider.be>
 
-[ Upstream commit 585c91f40d201bc564d4e76b83c05b3b5363fe7e ]
+[ Upstream commit 55b1cb1f03ad5eea39897d0c74035e02deddcff2 ]
 
-Fix unsafe unaligned pointer usage in usbip network interfaces. usbip tool
-build fails with new gcc -Werror=address-of-packed-member checks.
+pinmux_func_gpios[] contains a hole due to the missing function GPIO
+definition for the "CTX0&CTX1" signal, which is the logical "AND" of the
+two CAN outputs.
 
-usbip_network.c: In function ‘usbip_net_pack_usb_device’:
-usbip_network.c:79:32: error: taking address of packed member of ‘struct usbip_usb_device’ may result in an unaligned pointer value [-Werror=address-of-packed-member]
-   79 |  usbip_net_pack_uint32_t(pack, &udev->busnum);
+Fix this by:
+  - Renaming CRX0_CRX1_MARK to CTX0_CTX1_MARK, as PJ2MD[2:0]=010
+    configures the combined "CTX0&CTX1" output signal,
+  - Renaming CRX0X1_MARK to CRX0_CRX1_MARK, as PJ3MD[1:0]=10 configures
+    the shared "CRX0/CRX1" input signal, which is fed to both CAN
+    inputs,
+  - Adding the missing function GPIO definition for "CTX0&CTX1" to
+    pinmux_func_gpios[],
+  - Moving all CAN enums next to each other.
 
-Fix with minor changes to pass by value instead of by address.
+See SH7262 Group, SH7264 Group User's Manual: Hardware, Rev. 4.00:
+  [1] Figure 1.2 (3) (Pin Assignment for the SH7264 Group (1-Mbyte
+      Version),
+  [2] Figure 1.2 (4) Pin Assignment for the SH7264 Group (640-Kbyte
+      Version,
+  [3] Table 1.4 List of Pins,
+  [4] Figure 20.29 Connection Example when Using This Module as 1-Channel
+      Module (64 Mailboxes x 1 Channel),
+  [5] Table 32.10 Multiplexed Pins (Port J),
+  [6] Section 32.2.30 (3) Port J Control Register 0 (PJCR0).
 
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
-Link: https://lore.kernel.org/r/20200109012416.2875-1-skhan@linuxfoundation.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Note that the last 2 disagree about PJ2MD[2:0], which is probably the
+root cause of this bug.  But considering [4], "CTx0&CTx1" in [5] must
+be correct, and "CRx0&CRx1" in [6] must be wrong.
+
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Link: https://lore.kernel.org/r/20191218194812.12741-4-geert+renesas@glider.be
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/usb/usbip/src/usbip_network.c | 40 +++++++++++++++++------------
- tools/usb/usbip/src/usbip_network.h | 12 +++------
- 2 files changed, 27 insertions(+), 25 deletions(-)
+ drivers/pinctrl/sh-pfc/pfc-sh7264.c | 9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
 
-diff --git a/tools/usb/usbip/src/usbip_network.c b/tools/usb/usbip/src/usbip_network.c
-index d595d72693fbb..ed4dc8c142690 100644
---- a/tools/usb/usbip/src/usbip_network.c
-+++ b/tools/usb/usbip/src/usbip_network.c
-@@ -50,39 +50,39 @@ void usbip_setup_port_number(char *arg)
- 	info("using port %d (\"%s\")", usbip_port, usbip_port_string);
- }
+diff --git a/drivers/pinctrl/sh-pfc/pfc-sh7264.c b/drivers/pinctrl/sh-pfc/pfc-sh7264.c
+index e1c34e19222ee..3ddb9565ed804 100644
+--- a/drivers/pinctrl/sh-pfc/pfc-sh7264.c
++++ b/drivers/pinctrl/sh-pfc/pfc-sh7264.c
+@@ -500,17 +500,15 @@ enum {
+ 	SD_WP_MARK, SD_CLK_MARK, SD_CMD_MARK,
+ 	CRX0_MARK, CRX1_MARK,
+ 	CTX0_MARK, CTX1_MARK,
++	CRX0_CRX1_MARK, CTX0_CTX1_MARK,
  
--void usbip_net_pack_uint32_t(int pack, uint32_t *num)
-+uint32_t usbip_net_pack_uint32_t(int pack, uint32_t num)
- {
- 	uint32_t i;
+ 	PWM1A_MARK, PWM1B_MARK, PWM1C_MARK, PWM1D_MARK,
+ 	PWM1E_MARK, PWM1F_MARK, PWM1G_MARK, PWM1H_MARK,
+ 	PWM2A_MARK, PWM2B_MARK, PWM2C_MARK, PWM2D_MARK,
+ 	PWM2E_MARK, PWM2F_MARK, PWM2G_MARK, PWM2H_MARK,
+ 	IERXD_MARK, IETXD_MARK,
+-	CRX0_CRX1_MARK,
+ 	WDTOVF_MARK,
  
- 	if (pack)
--		i = htonl(*num);
-+		i = htonl(num);
- 	else
--		i = ntohl(*num);
-+		i = ntohl(num);
- 
--	*num = i;
-+	return i;
- }
- 
--void usbip_net_pack_uint16_t(int pack, uint16_t *num)
-+uint16_t usbip_net_pack_uint16_t(int pack, uint16_t num)
- {
- 	uint16_t i;
- 
- 	if (pack)
--		i = htons(*num);
-+		i = htons(num);
- 	else
--		i = ntohs(*num);
-+		i = ntohs(num);
- 
--	*num = i;
-+	return i;
- }
- 
- void usbip_net_pack_usb_device(int pack, struct usbip_usb_device *udev)
- {
--	usbip_net_pack_uint32_t(pack, &udev->busnum);
--	usbip_net_pack_uint32_t(pack, &udev->devnum);
--	usbip_net_pack_uint32_t(pack, &udev->speed);
-+	udev->busnum = usbip_net_pack_uint32_t(pack, udev->busnum);
-+	udev->devnum = usbip_net_pack_uint32_t(pack, udev->devnum);
-+	udev->speed = usbip_net_pack_uint32_t(pack, udev->speed);
- 
--	usbip_net_pack_uint16_t(pack, &udev->idVendor);
--	usbip_net_pack_uint16_t(pack, &udev->idProduct);
--	usbip_net_pack_uint16_t(pack, &udev->bcdDevice);
-+	udev->idVendor = usbip_net_pack_uint16_t(pack, udev->idVendor);
-+	udev->idProduct = usbip_net_pack_uint16_t(pack, udev->idProduct);
-+	udev->bcdDevice = usbip_net_pack_uint16_t(pack, udev->bcdDevice);
- }
- 
- void usbip_net_pack_usb_interface(int pack __attribute__((unused)),
-@@ -129,6 +129,14 @@ ssize_t usbip_net_send(int sockfd, void *buff, size_t bufflen)
- 	return usbip_net_xmit(sockfd, buff, bufflen, 1);
- }
- 
-+static inline void usbip_net_pack_op_common(int pack,
-+					    struct op_common *op_common)
-+{
-+	op_common->version = usbip_net_pack_uint16_t(pack, op_common->version);
-+	op_common->code = usbip_net_pack_uint16_t(pack, op_common->code);
-+	op_common->status = usbip_net_pack_uint32_t(pack, op_common->status);
-+}
-+
- int usbip_net_send_op_common(int sockfd, uint32_t code, uint32_t status)
- {
- 	struct op_common op_common;
-@@ -140,7 +148,7 @@ int usbip_net_send_op_common(int sockfd, uint32_t code, uint32_t status)
- 	op_common.code    = code;
- 	op_common.status  = status;
- 
--	PACK_OP_COMMON(1, &op_common);
-+	usbip_net_pack_op_common(1, &op_common);
- 
- 	rc = usbip_net_send(sockfd, &op_common, sizeof(op_common));
- 	if (rc < 0) {
-@@ -164,7 +172,7 @@ int usbip_net_recv_op_common(int sockfd, uint16_t *code, int *status)
- 		goto err;
- 	}
- 
--	PACK_OP_COMMON(0, &op_common);
-+	usbip_net_pack_op_common(0, &op_common);
- 
- 	if (op_common.version != USBIP_VERSION) {
- 		err("USBIP Kernel and tool version mismatch: %d %d:",
-diff --git a/tools/usb/usbip/src/usbip_network.h b/tools/usb/usbip/src/usbip_network.h
-index 555215eae43e9..83b4c5344f721 100644
---- a/tools/usb/usbip/src/usbip_network.h
-+++ b/tools/usb/usbip/src/usbip_network.h
-@@ -32,12 +32,6 @@ struct op_common {
- 
- } __attribute__((packed));
- 
--#define PACK_OP_COMMON(pack, op_common)  do {\
--	usbip_net_pack_uint16_t(pack, &(op_common)->version);\
--	usbip_net_pack_uint16_t(pack, &(op_common)->code);\
--	usbip_net_pack_uint32_t(pack, &(op_common)->status);\
--} while (0)
+-	CRX0X1_MARK,
 -
- /* ---------------------------------------------------------------------- */
- /* Dummy Code */
- #define OP_UNSPEC	0x00
-@@ -163,11 +157,11 @@ struct op_devlist_reply_extra {
- } while (0)
+ 	/* DMAC */
+ 	TEND0_MARK, DACK0_MARK, DREQ0_MARK,
+ 	TEND1_MARK, DACK1_MARK, DREQ1_MARK,
+@@ -998,12 +996,12 @@ static const u16 pinmux_data[] = {
  
- #define PACK_OP_DEVLIST_REPLY(pack, reply)  do {\
--	usbip_net_pack_uint32_t(pack, &(reply)->ndev);\
-+	(reply)->ndev = usbip_net_pack_uint32_t(pack, (reply)->ndev);\
- } while (0)
+ 	PINMUX_DATA(PJ3_DATA, PJ3MD_00),
+ 	PINMUX_DATA(CRX1_MARK, PJ3MD_01),
+-	PINMUX_DATA(CRX0X1_MARK, PJ3MD_10),
++	PINMUX_DATA(CRX0_CRX1_MARK, PJ3MD_10),
+ 	PINMUX_DATA(IRQ1_PJ_MARK, PJ3MD_11),
  
--void usbip_net_pack_uint32_t(int pack, uint32_t *num);
--void usbip_net_pack_uint16_t(int pack, uint16_t *num);
-+uint32_t usbip_net_pack_uint32_t(int pack, uint32_t num);
-+uint16_t usbip_net_pack_uint16_t(int pack, uint16_t num);
- void usbip_net_pack_usb_device(int pack, struct usbip_usb_device *udev);
- void usbip_net_pack_usb_interface(int pack, struct usbip_usb_interface *uinf);
+ 	PINMUX_DATA(PJ2_DATA, PJ2MD_000),
+ 	PINMUX_DATA(CTX1_MARK, PJ2MD_001),
+-	PINMUX_DATA(CRX0_CRX1_MARK, PJ2MD_010),
++	PINMUX_DATA(CTX0_CTX1_MARK, PJ2MD_010),
+ 	PINMUX_DATA(CS2_MARK, PJ2MD_011),
+ 	PINMUX_DATA(SCK0_MARK, PJ2MD_100),
+ 	PINMUX_DATA(LCD_M_DISP_MARK, PJ2MD_101),
+@@ -1248,6 +1246,7 @@ static const struct pinmux_func pinmux_func_gpios[] = {
+ 	GPIO_FN(CTX1),
+ 	GPIO_FN(CRX1),
+ 	GPIO_FN(CTX0),
++	GPIO_FN(CTX0_CTX1),
+ 	GPIO_FN(CRX0),
+ 	GPIO_FN(CRX0_CRX1),
  
 -- 
 2.20.1
