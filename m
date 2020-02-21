@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F514167604
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:36:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C13116778D
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:44:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731803AbgBUIG2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 03:06:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40346 "EHLO mail.kernel.org"
+        id S1729798AbgBUHxm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 02:53:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52058 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731946AbgBUIG1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 03:06:27 -0500
+        id S1730144AbgBUHxl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 02:53:41 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 54E0D24670;
-        Fri, 21 Feb 2020 08:06:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 156EF2465D;
+        Fri, 21 Feb 2020 07:53:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582272386;
-        bh=8uG1pKmllG6vODb9BHuyO83kQ55D5RpViPviNkzTLOs=;
+        s=default; t=1582271620;
+        bh=MpOLrtBpFCiszf4oe87gUXnv6QKAfqqQwxxRDU9gY+c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QpFuzaIBAXs0TcQaSzz0S8Hdl80HGMKyIks8PktFetxSFzWnYNDjEHr3pZNXDTjs8
-         P+tlft6YtvSe7sTkyfmDekiKCAYVpuCbdt+KNF4j3N6s2EAFZInxGyWQrdcJ+s0eO6
-         e9foMSkkLAMlNQVBX0EVpUJn9B3FI8brh+f7cZF8=
+        b=0wLSxlcRjdT8zhhGu+3TEkjNHOMAkYm1SsUPqSqajWx3a3SKGpIESUJaPOidasM9C
+         FeVFRhbY7pkEwJbgfGps2NUcuqIsMNelpNkMdcSACdLw+lbaXbUfYoKzUe+Kub9Czt
+         WLCOv/JPHjv1EPVh8VM0CCINuT40UlshiL0SQq50=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Jakub Kicinski <jakub.kicinski@netronome.com>,
-        John Hurley <john.hurley@netronome.com>,
+        stable@vger.kernel.org, Peter Rosin <peda@axentia.se>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Matthew Wilcox <willy@infradead.org>,
+        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 123/344] Revert "nfp: abm: fix memory leak in nfp_abm_u32_knode_replace"
+Subject: [PATCH 5.5 197/399] fbdev: fix numbering of fbcon options
 Date:   Fri, 21 Feb 2020 08:38:42 +0100
-Message-Id: <20200221072400.039652706@linuxfoundation.org>
+Message-Id: <20200221072421.968666513@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200221072349.335551332@linuxfoundation.org>
-References: <20200221072349.335551332@linuxfoundation.org>
+In-Reply-To: <20200221072402.315346745@linuxfoundation.org>
+References: <20200221072402.315346745@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,72 +47,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakub Kicinski <jakub.kicinski@netronome.com>
+From: Peter Rosin <peda@axentia.se>
 
-[ Upstream commit 1d1997db870f4058676439ef7014390ba9e24eb2 ]
+[ Upstream commit fd933c00ebe220060e66fb136a7050a242456566 ]
 
-This reverts commit 78beef629fd9 ("nfp: abm: fix memory leak in
-nfp_abm_u32_knode_replace").
+Three shall be the number thou shalt count, and the number of the
+counting shall be three. Four shalt thou not count...
 
-The quoted commit does not fix anything and resulted in a bogus
-CVE-2019-19076.
+One! Two! Five!
 
-If match is NULL then it is known there is no matching entry in
-list, hence, calling nfp_abm_u32_knode_delete() is pointless.
-
-Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
-Reviewed-by: John Hurley <john.hurley@netronome.com>
+Fixes: efb985f6b265 ("[PATCH] fbcon: Console Rotation - Add framebuffer console documentation")
+Signed-off-by: Peter Rosin <peda@axentia.se>
+Reviewed-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Jonathan Corbet <corbet@lwn.net>
+Cc: Matthew Wilcox <willy@infradead.org>
+Signed-off-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20190827110854.12574-2-peda@axentia.se
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/netronome/nfp/abm/cls.c | 14 ++++----------
- 1 file changed, 4 insertions(+), 10 deletions(-)
+ Documentation/fb/fbcon.rst | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/ethernet/netronome/nfp/abm/cls.c b/drivers/net/ethernet/netronome/nfp/abm/cls.c
-index 9f8a1f69c0c4c..23ebddfb95325 100644
---- a/drivers/net/ethernet/netronome/nfp/abm/cls.c
-+++ b/drivers/net/ethernet/netronome/nfp/abm/cls.c
-@@ -176,10 +176,8 @@ nfp_abm_u32_knode_replace(struct nfp_abm_link *alink,
- 	u8 mask, val;
- 	int err;
+diff --git a/Documentation/fb/fbcon.rst b/Documentation/fb/fbcon.rst
+index ebca41785abea..65ba402551374 100644
+--- a/Documentation/fb/fbcon.rst
++++ b/Documentation/fb/fbcon.rst
+@@ -127,7 +127,7 @@ C. Boot options
+ 	is typically located on the same video card.  Thus, the consoles that
+ 	are controlled by the VGA console will be garbled.
  
--	if (!nfp_abm_u32_check_knode(alink->abm, knode, proto, extack)) {
--		err = -EOPNOTSUPP;
-+	if (!nfp_abm_u32_check_knode(alink->abm, knode, proto, extack))
- 		goto err_delete;
--	}
+-4. fbcon=rotate:<n>
++5. fbcon=rotate:<n>
  
- 	tos_off = proto == htons(ETH_P_IP) ? 16 : 20;
+ 	This option changes the orientation angle of the console display. The
+ 	value 'n' accepts the following:
+@@ -152,21 +152,21 @@ C. Boot options
+ 	Actually, the underlying fb driver is totally ignorant of console
+ 	rotation.
  
-@@ -200,18 +198,14 @@ nfp_abm_u32_knode_replace(struct nfp_abm_link *alink,
- 		if ((iter->val & cmask) == (val & cmask) &&
- 		    iter->band != knode->res->classid) {
- 			NL_SET_ERR_MSG_MOD(extack, "conflict with already offloaded filter");
--			err = -EOPNOTSUPP;
- 			goto err_delete;
- 		}
- 	}
+-5. fbcon=margin:<color>
++6. fbcon=margin:<color>
  
- 	if (!match) {
- 		match = kzalloc(sizeof(*match), GFP_KERNEL);
--		if (!match) {
--			err = -ENOMEM;
--			goto err_delete;
--		}
--
-+		if (!match)
-+			return -ENOMEM;
- 		list_add(&match->list, &alink->dscp_map);
- 	}
- 	match->handle = knode->handle;
-@@ -227,7 +221,7 @@ nfp_abm_u32_knode_replace(struct nfp_abm_link *alink,
+ 	This option specifies the color of the margins. The margins are the
+ 	leftover area at the right and the bottom of the screen that are not
+ 	used by text. By default, this area will be black. The 'color' value
+ 	is an integer number that depends on the framebuffer driver being used.
  
- err_delete:
- 	nfp_abm_u32_knode_delete(alink, knode);
--	return err;
-+	return -EOPNOTSUPP;
- }
+-6. fbcon=nodefer
++7. fbcon=nodefer
  
- static int nfp_abm_setup_tc_block_cb(enum tc_setup_type type,
+ 	If the kernel is compiled with deferred fbcon takeover support, normally
+ 	the framebuffer contents, left in place by the firmware/bootloader, will
+ 	be preserved until there actually is some text is output to the console.
+ 	This option causes fbcon to bind immediately to the fbdev device.
+ 
+-7. fbcon=logo-pos:<location>
++8. fbcon=logo-pos:<location>
+ 
+ 	The only possible 'location' is 'center' (without quotes), and when
+ 	given, the bootup logo is moved from the default top-left corner
 -- 
 2.20.1
 
