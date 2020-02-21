@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 944CB16749E
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:24:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8BD711674A0
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:24:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388417AbgBUIXJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 03:23:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35060 "EHLO mail.kernel.org"
+        id S2388436AbgBUIXM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 03:23:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35126 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388161AbgBUIXJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 03:23:09 -0500
+        id S2388431AbgBUIXL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 03:23:11 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AAA672467A;
-        Fri, 21 Feb 2020 08:23:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 341E324676;
+        Fri, 21 Feb 2020 08:23:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582273388;
-        bh=oUGotKBzy2j3QIRjeLXO0AHupuNeztgdJnNv5snOaDE=;
+        s=default; t=1582273390;
+        bh=hoSFGmctaTzSSVStkDlRbN6DIPzYVjHFy5EUE2RbAa8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RbbWOS8bE/wdGSGAm5x1bVgaPMAiHM/pa9inBNEEh7RTRLzlb8dDE1HKfHf2QYEFy
-         IiGTKC/IeUXIrBJ6OPj7yN+isj2QS+R9C9ar1yGEv/WlCC9DE65ei/Z/nz3QjCOCDd
-         JtntqtsgNNNDLxPHh3gmuvBap3hykhWX0klo1YV0=
+        b=dOqGVIvW6VFjpd4HmQmDMPuwrjXb/L60T3K0qFrbPnlbxGp602PlEePhsi1FyC4kM
+         ao4Q3H2Y99SerdXXLJn7DH2HOU0LUR5KFHd+rp35UVT+TXb1APIXgMd1oa7vdGm0gX
+         BrHH+9u032mkmAmj1pL9NN6noJmUa337v3z7EYTA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        Borislav Petkov <bp@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 152/191] x86/decoder: Add TEST opcode to Group3-2
-Date:   Fri, 21 Feb 2020 08:42:05 +0100
-Message-Id: <20200221072309.059926659@linuxfoundation.org>
+        stable@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 153/191] s390: adjust -mpacked-stack support check for clang 10
+Date:   Fri, 21 Feb 2020 08:42:06 +0100
+Message-Id: <20200221072309.140906328@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200221072250.732482588@linuxfoundation.org>
 References: <20200221072250.732482588@linuxfoundation.org>
@@ -44,78 +44,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masami Hiramatsu <mhiramat@kernel.org>
+From: Vasily Gorbik <gor@linux.ibm.com>
 
-[ Upstream commit 8b7e20a7ba54836076ff35a28349dabea4cec48f ]
+[ Upstream commit 253b3c4b2920e07ce9e2b18800b9b65245e2fafa ]
 
-Add TEST opcode to Group3-2 reg=001b as same as Group3-1 does.
+clang 10 introduces -mpacked-stack compiler option implementation. At the
+same time currently it does not support a combination of -mpacked-stack
+and -mbackchain. This leads to the following build error:
 
-Commit
+clang: error: unsupported option '-mpacked-stack with -mbackchain' for
+target 's390x-ibm-linux'
 
-  12a78d43de76 ("x86/decoder: Add new TEST instruction pattern")
+If/when clang adds support for a combination of -mpacked-stack and
+-mbackchain it would also require -msoft-float (like gcc does). According
+to Ulrich Weigand "stack slot assigned to the kernel backchain overlaps
+the stack slot assigned to the FPR varargs (both are required to be
+placed immediately after the saved r15 slot if present)."
 
-added a TEST opcode assignment to f6 XX/001/XXX (Group 3-1), but did
-not add f7 XX/001/XXX (Group 3-2).
+Extend -mpacked-stack compiler option support check to include all 3
+options -mpacked-stack -mbackchain -msoft-float which must present to
+support -mpacked-stack with -mbackchain.
 
-Actually, this TEST opcode variant (ModRM.reg /1) is not described in
-the Intel SDM Vol2 but in AMD64 Architecture Programmer's Manual Vol.3,
-Appendix A.2 Table A-6. ModRM.reg Extensions for the Primary Opcode Map.
-
-Without this fix, Randy found a warning by insn_decoder_test related
-to this issue as below.
-
-    HOSTCC  arch/x86/tools/insn_decoder_test
-    HOSTCC  arch/x86/tools/insn_sanity
-    TEST    posttest
-  arch/x86/tools/insn_decoder_test: warning: Found an x86 instruction decoder bug, please report this.
-  arch/x86/tools/insn_decoder_test: warning: ffffffff81000bf1:	f7 0b 00 01 08 00    	testl  $0x80100,(%rbx)
-  arch/x86/tools/insn_decoder_test: warning: objdump says 6 bytes, but insn_get_length() says 2
-  arch/x86/tools/insn_decoder_test: warning: Decoded and checked 11913894 instructions with 1 failures
-    TEST    posttest
-  arch/x86/tools/insn_sanity: Success: decoded and checked 1000000 random instructions with 0 errors (seed:0x871ce29c)
-
-To fix this error, add the TEST opcode according to AMD64 APM Vol.3.
-
- [ bp: Massage commit message. ]
-
-Reported-by: Randy Dunlap <rdunlap@infradead.org>
-Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Acked-by: Randy Dunlap <rdunlap@infradead.org>
-Tested-by: Randy Dunlap <rdunlap@infradead.org>
-Link: https://lkml.kernel.org/r/157966631413.9580.10311036595431878351.stgit@devnote2
+Acked-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/lib/x86-opcode-map.txt               | 2 +-
- tools/objtool/arch/x86/lib/x86-opcode-map.txt | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ arch/s390/Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/x86/lib/x86-opcode-map.txt b/arch/x86/lib/x86-opcode-map.txt
-index 0a0e9112f2842..5cb9f009f2be3 100644
---- a/arch/x86/lib/x86-opcode-map.txt
-+++ b/arch/x86/lib/x86-opcode-map.txt
-@@ -909,7 +909,7 @@ EndTable
+diff --git a/arch/s390/Makefile b/arch/s390/Makefile
+index e6c2e8925fefa..4bccde36cb161 100644
+--- a/arch/s390/Makefile
++++ b/arch/s390/Makefile
+@@ -63,7 +63,7 @@ cflags-y += -Wa,-I$(srctree)/arch/$(ARCH)/include
+ #
+ cflags-$(CONFIG_FRAME_POINTER) += -fno-optimize-sibling-calls
  
- GrpTable: Grp3_2
- 0: TEST Ev,Iz
--1:
-+1: TEST Ev,Iz
- 2: NOT Ev
- 3: NEG Ev
- 4: MUL rAX,Ev
-diff --git a/tools/objtool/arch/x86/lib/x86-opcode-map.txt b/tools/objtool/arch/x86/lib/x86-opcode-map.txt
-index 0a0e9112f2842..5cb9f009f2be3 100644
---- a/tools/objtool/arch/x86/lib/x86-opcode-map.txt
-+++ b/tools/objtool/arch/x86/lib/x86-opcode-map.txt
-@@ -909,7 +909,7 @@ EndTable
- 
- GrpTable: Grp3_2
- 0: TEST Ev,Iz
--1:
-+1: TEST Ev,Iz
- 2: NOT Ev
- 3: NEG Ev
- 4: MUL rAX,Ev
+-ifeq ($(call cc-option-yn,-mpacked-stack),y)
++ifeq ($(call cc-option-yn,-mpacked-stack -mbackchain -msoft-float),y)
+ cflags-$(CONFIG_PACK_STACK)  += -mpacked-stack -D__PACK_STACK
+ aflags-$(CONFIG_PACK_STACK)  += -D__PACK_STACK
+ endif
 -- 
 2.20.1
 
