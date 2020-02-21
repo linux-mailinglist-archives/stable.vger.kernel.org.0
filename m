@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EB7A916779C
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:44:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D3B39167614
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:36:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728379AbgBUHy4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 02:54:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53606 "EHLO mail.kernel.org"
+        id S1731907AbgBUIIN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 03:08:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42628 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728266AbgBUHyy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 02:54:54 -0500
+        id S1731761AbgBUIIJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 03:08:09 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ACA2E24676;
-        Fri, 21 Feb 2020 07:54:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A6A4F2073A;
+        Fri, 21 Feb 2020 08:08:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582271694;
-        bh=Elypwm/GdKoQjG1p8rjSFWmks3rnxmuWqZfaNPE83j0=;
+        s=default; t=1582272489;
+        bh=QiFOD+/nSAFN6ygp/s8ZWgKvY9OZQGoD661PrTs2uLQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pTYupw3nutUZxLmsBwbffmZyCIulZ+Bm2aXixDVrN5kGp4nNmDkBGrHasqHg6cS1N
-         w16/Ve1mzPzFHwKzhlsP57rF0KUrZPkvR0nuJWbvKH2k7ms2st2W3I2Ln4UxNK7s9R
-         fNrdPeVqFm8TppxSTp3ekvl/LOeYx/EEPhFsOFNI=
+        b=NzEXoJDK1v8wgo9JsZApiu9pp6JwkbowK3R9uwVSSvRMWMYeIHI/s/KYBVkkjnj/m
+         V+edHjH/iGGO9QHy8VDuTcmttqQX3MBAWI1hEDjWUsMTCxpYkWWr9KK6kKdJBjhfAE
+         txtFH5SFxhEaSNkkL3JlYDzWsDtIkdrYcZenV8zc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Jonker <jbx6244@gmail.com>,
-        Heiko Stuebner <heiko@sntech.de>,
+        stable@vger.kernel.org,
+        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 236/399] arm64: dts: rockchip: fix dwmmc clock name for px30
+Subject: [PATCH 5.4 162/344] net: phy: realtek: add logging for the RGMII TX delay configuration
 Date:   Fri, 21 Feb 2020 08:39:21 +0100
-Message-Id: <20200221072425.606791701@linuxfoundation.org>
+Message-Id: <20200221072403.559101777@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200221072402.315346745@linuxfoundation.org>
-References: <20200221072402.315346745@linuxfoundation.org>
+In-Reply-To: <20200221072349.335551332@linuxfoundation.org>
+References: <20200221072349.335551332@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,59 +46,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Jonker <jbx6244@gmail.com>
+From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
 
-[ Upstream commit 7f2147350291569acd1df5a26dcdfc573916016f ]
+[ Upstream commit 3aec743d69822d22d4a5b60deb9518ed8be6fa67 ]
 
-An experimental test with the command below gives this error:
-px30-evb.dt.yaml: dwmmc@ff390000: clock-names:2:
-'ciu-drive' was expected
+RGMII requires a delay of 2ns between the data and the clock signal.
+There are at least three ways this can happen. One possibility is by
+having the PHY generate this delay.
+This is a common source for problems (for example with slow TX speeds or
+packet loss when sending data). The TX delay configuration of the
+RTL8211F PHY can be set either by pin-strappping the RXD1 pin (HIGH
+means enabled, LOW means disabled) or through configuring a paged
+register. The setting from the RXD1 pin is also reflected in the
+register.
 
-'ciu-drv' is not a valid dwmmc clock name,
-so fix this by changing it to 'ciu-drive'.
+Add debug logging to the TX delay configuration on RTL8211F so it's
+easier to spot these issues (for example if the TX delay is enabled for
+both, the RTL8211F PHY and the MAC).
+This is especially helpful because there is no public datasheet for the
+RTL8211F PHY available with all the RX/TX delay specifics.
 
-make ARCH=arm64 dtbs_check
-DT_SCHEMA_FILES=Documentation/devicetree/bindings/mmc/rockchip-dw-mshc.yaml
-
-Signed-off-by: Johan Jonker <jbx6244@gmail.com>
-Link: https://lore.kernel.org/r/20200110161200.22755-1-jbx6244@gmail.com
-Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/rockchip/px30.dtsi | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/net/phy/realtek.c | 19 ++++++++++++++++++-
+ 1 file changed, 18 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/rockchip/px30.dtsi b/arch/arm64/boot/dts/rockchip/px30.dtsi
-index 8812b70f39111..5acd5ce714d4a 100644
---- a/arch/arm64/boot/dts/rockchip/px30.dtsi
-+++ b/arch/arm64/boot/dts/rockchip/px30.dtsi
-@@ -826,7 +826,7 @@
- 		interrupts = <GIC_SPI 54 IRQ_TYPE_LEVEL_HIGH>;
- 		clocks = <&cru HCLK_SDMMC>, <&cru SCLK_SDMMC>,
- 			 <&cru SCLK_SDMMC_DRV>, <&cru SCLK_SDMMC_SAMPLE>;
--		clock-names = "biu", "ciu", "ciu-drv", "ciu-sample";
-+		clock-names = "biu", "ciu", "ciu-drive", "ciu-sample";
- 		fifo-depth = <0x100>;
- 		max-frequency = <150000000>;
- 		pinctrl-names = "default";
-@@ -841,7 +841,7 @@
- 		interrupts = <GIC_SPI 55 IRQ_TYPE_LEVEL_HIGH>;
- 		clocks = <&cru HCLK_SDIO>, <&cru SCLK_SDIO>,
- 			 <&cru SCLK_SDIO_DRV>, <&cru SCLK_SDIO_SAMPLE>;
--		clock-names = "biu", "ciu", "ciu-drv", "ciu-sample";
-+		clock-names = "biu", "ciu", "ciu-drive", "ciu-sample";
- 		fifo-depth = <0x100>;
- 		max-frequency = <150000000>;
- 		pinctrl-names = "default";
-@@ -856,7 +856,7 @@
- 		interrupts = <GIC_SPI 53 IRQ_TYPE_LEVEL_HIGH>;
- 		clocks = <&cru HCLK_EMMC>, <&cru SCLK_EMMC>,
- 			 <&cru SCLK_EMMC_DRV>, <&cru SCLK_EMMC_SAMPLE>;
--		clock-names = "biu", "ciu", "ciu-drv", "ciu-sample";
-+		clock-names = "biu", "ciu", "ciu-drive", "ciu-sample";
- 		fifo-depth = <0x100>;
- 		max-frequency = <150000000>;
- 		pinctrl-names = "default";
+diff --git a/drivers/net/phy/realtek.c b/drivers/net/phy/realtek.c
+index 677c45985338a..c76df51dd3c51 100644
+--- a/drivers/net/phy/realtek.c
++++ b/drivers/net/phy/realtek.c
+@@ -171,7 +171,9 @@ static int rtl8211c_config_init(struct phy_device *phydev)
+ 
+ static int rtl8211f_config_init(struct phy_device *phydev)
+ {
++	struct device *dev = &phydev->mdio.dev;
+ 	u16 val;
++	int ret;
+ 
+ 	/* enable TX-delay for rgmii-{id,txid}, and disable it for rgmii and
+ 	 * rgmii-rxid. The RX-delay can be enabled by the external RXDLY pin.
+@@ -189,7 +191,22 @@ static int rtl8211f_config_init(struct phy_device *phydev)
+ 		return 0;
+ 	}
+ 
+-	return phy_modify_paged(phydev, 0xd08, 0x11, RTL8211F_TX_DELAY, val);
++	ret = phy_modify_paged_changed(phydev, 0xd08, 0x11, RTL8211F_TX_DELAY,
++				       val);
++	if (ret < 0) {
++		dev_err(dev, "Failed to update the TX delay register\n");
++		return ret;
++	} else if (ret) {
++		dev_dbg(dev,
++			"%s 2ns TX delay (and changing the value from pin-strapping RXD1 or the bootloader)\n",
++			val ? "Enabling" : "Disabling");
++	} else {
++		dev_dbg(dev,
++			"2ns TX delay was already %s (by pin-strapping RXD1 or bootloader configuration)\n",
++			val ? "enabled" : "disabled");
++	}
++
++	return 0;
+ }
+ 
+ static int rtl8211e_config_init(struct phy_device *phydev)
 -- 
 2.20.1
 
