@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A40E3167841
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:48:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DD8CA167712
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:41:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728511AbgBUHs0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 02:48:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44496 "EHLO mail.kernel.org"
+        id S1729589AbgBUICY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 03:02:24 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34848 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728122AbgBUHsZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 02:48:25 -0500
+        id S1731344AbgBUICW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 03:02:22 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1DF20207FD;
-        Fri, 21 Feb 2020 07:48:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A9D54206ED;
+        Fri, 21 Feb 2020 08:02:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582271304;
-        bh=wySVuzOAKsVfP2zWPLQgRaUCUUY7XFfw5EC5uuHR3qU=;
+        s=default; t=1582272142;
+        bh=iizZAyercRHhHnVKVnz2FCSb1mKDfhdMnIA7i4tjXoE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jXa1KmZpqWhVVlI8JpTD3AtfbPxm+4SJS9yJU+CfJaAssPlIEKjtFUQHJSExffmAu
-         CJkthCUE9PXhxsRwIPdIYptlJxRTxV9MtujtBz+Ou40sgIY3pGpGAvnO25/VdJadGx
-         jkKQsPdfUD9UngwRULmgaBdQOy5J1rQGV9XpWyLE=
+        b=IQQlBT4+52+NNwBD70z0WB/ZYyMsmfu3hJoAAmrEY28BQWCix9kIedu18Om/BkQQ9
+         0vahTVklG14ylvXa17eoeuWTrVTBBrSK5US4OEP2qYOOuU0rPP9ezUFwHjGRoSYRTC
+         w/i+RPhaXz/GQmGXMdSWyzm3DAn/4OVOwRa5wDuo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Martin Schiller <ms@dev.tdt.de>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 078/399] wan/hdlc_x25: fix skb handling
-Date:   Fri, 21 Feb 2020 08:36:43 +0100
-Message-Id: <20200221072409.927263069@linuxfoundation.org>
+        stable@vger.kernel.org, Davide Caratti <dcaratti@redhat.com>,
+        Jiri Pirko <jiri@mellanox.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.4 005/344] net/sched: matchall: add missing validation of TCA_MATCHALL_FLAGS
+Date:   Fri, 21 Feb 2020 08:36:44 +0100
+Message-Id: <20200221072349.786047686@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200221072402.315346745@linuxfoundation.org>
-References: <20200221072402.315346745@linuxfoundation.org>
+In-Reply-To: <20200221072349.335551332@linuxfoundation.org>
+References: <20200221072349.335551332@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,70 +44,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Schiller <ms@dev.tdt.de>
+From: Davide Caratti <dcaratti@redhat.com>
 
-[ Upstream commit 953c4a08dfc9ffe763a8340ac10f459d6c6cc4eb ]
+[ Upstream commit 1afa3cc90f8fb745c777884d79eaa1001d6927a6 ]
 
-o call skb_reset_network_header() before hdlc->xmit()
- o change skb proto to HDLC (0x0019) before hdlc->xmit()
- o call dev_queue_xmit_nit() before hdlc->xmit()
+unlike other classifiers that can be offloaded (i.e. users can set flags
+like 'skip_hw' and 'skip_sw'), 'cls_matchall' doesn't validate the size
+of netlink attribute 'TCA_MATCHALL_FLAGS' provided by user: add a proper
+entry to mall_policy.
 
-This changes make it possible to trace (tcpdump) outgoing layer2
-(ETH_P_HDLC) packets
-
-Additionally call skb_reset_network_header() after each skb_push() /
-skb_pull().
-
-Signed-off-by: Martin Schiller <ms@dev.tdt.de>
+Fixes: b87f7936a932 ("net/sched: Add match-all classifier hw offloading.")
+Signed-off-by: Davide Caratti <dcaratti@redhat.com>
+Acked-by: Jiri Pirko <jiri@mellanox.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wan/hdlc_x25.c | 13 +++++++++++--
- 1 file changed, 11 insertions(+), 2 deletions(-)
+ net/sched/cls_matchall.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/wan/hdlc_x25.c b/drivers/net/wan/hdlc_x25.c
-index 5643675ff7241..bf78073ee7fd9 100644
---- a/drivers/net/wan/hdlc_x25.c
-+++ b/drivers/net/wan/hdlc_x25.c
-@@ -62,11 +62,12 @@ static int x25_data_indication(struct net_device *dev, struct sk_buff *skb)
- {
- 	unsigned char *ptr;
+--- a/net/sched/cls_matchall.c
++++ b/net/sched/cls_matchall.c
+@@ -157,6 +157,7 @@ static void *mall_get(struct tcf_proto *
+ static const struct nla_policy mall_policy[TCA_MATCHALL_MAX + 1] = {
+ 	[TCA_MATCHALL_UNSPEC]		= { .type = NLA_UNSPEC },
+ 	[TCA_MATCHALL_CLASSID]		= { .type = NLA_U32 },
++	[TCA_MATCHALL_FLAGS]		= { .type = NLA_U32 },
+ };
  
--	skb_push(skb, 1);
--
- 	if (skb_cow(skb, 1))
- 		return NET_RX_DROP;
- 
-+	skb_push(skb, 1);
-+	skb_reset_network_header(skb);
-+
- 	ptr  = skb->data;
- 	*ptr = X25_IFACE_DATA;
- 
-@@ -79,6 +80,13 @@ static int x25_data_indication(struct net_device *dev, struct sk_buff *skb)
- static void x25_data_transmit(struct net_device *dev, struct sk_buff *skb)
- {
- 	hdlc_device *hdlc = dev_to_hdlc(dev);
-+
-+	skb_reset_network_header(skb);
-+	skb->protocol = hdlc_type_trans(skb, dev);
-+
-+	if (dev_nit_active(dev))
-+		dev_queue_xmit_nit(skb, dev);
-+
- 	hdlc->xmit(skb, dev); /* Ignore return value :-( */
- }
- 
-@@ -93,6 +101,7 @@ static netdev_tx_t x25_xmit(struct sk_buff *skb, struct net_device *dev)
- 	switch (skb->data[0]) {
- 	case X25_IFACE_DATA:	/* Data to be transmitted */
- 		skb_pull(skb, 1);
-+		skb_reset_network_header(skb);
- 		if ((result = lapb_data_request(dev, skb)) != LAPB_OK)
- 			dev_kfree_skb(skb);
- 		return NETDEV_TX_OK;
--- 
-2.20.1
-
+ static int mall_set_parms(struct net *net, struct tcf_proto *tp,
 
 
