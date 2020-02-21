@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6E25D1676D8
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:41:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 58B2B1676DA
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:41:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730782AbgBUH6b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 02:58:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58336 "EHLO mail.kernel.org"
+        id S1730617AbgBUH6i (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 02:58:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58394 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729326AbgBUH6a (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 02:58:30 -0500
+        id S1730543AbgBUH6d (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 02:58:33 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6D778206ED;
-        Fri, 21 Feb 2020 07:58:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F2C772073A;
+        Fri, 21 Feb 2020 07:58:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582271909;
-        bh=avJYHk9+rm68xYfto9kc+SfaVmoDR3ZjTQltM8N55/w=;
+        s=default; t=1582271912;
+        bh=4xz8fuR2XJP3Un2ldiH769b+k8BXaoSjCq8w1wOO9rc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Bt0aCeNZM8APTueFCUyJVtkXdJCskYVvD7p2QFeLn6NZTE4aDnqiMk2+I8jbVJlEf
-         GBCBubc/IfTRVSXhn4e3cS9BXtqGBgqGYls4yX5JvAQYkplw4zTMqJPN/Ejzwkje2f
-         mgNZXcGl0Z0P2jIEWxxNLkxbQuYEbuzfH1i/kOXU=
+        b=v8ZO7mWDHff0rGVlg9vtpkHp6gk1mIHMwh8Em0i41TaDc1nltmHUXb/SHbWJjz3XI
+         zrYVkx7wFxHVsnOZ0uaKo/wDiLw+gD7+lM8P0KBu8MxUT17Vq7hrsE3xXe79J38tiX
+         LQVmyR+A0kSYkVEdQmnfmHoIW5PLDUVWWisyKH+c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ard Biesheuvel <ardb@kernel.org>,
+        stable@vger.kernel.org,
+        Vincenzo Frascino <vincenzo.frascino@arm.com>,
         Russell King <rmk+kernel@armlinux.org.uk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 343/399] ARM: 8941/1: decompressor: enable CP15 barrier instructions in v7 cache setup code
-Date:   Fri, 21 Feb 2020 08:41:08 +0100
-Message-Id: <20200221072434.159323322@linuxfoundation.org>
+Subject: [PATCH 5.5 344/399] ARM: 8951/1: Fix Kexec compilation issue.
+Date:   Fri, 21 Feb 2020 08:41:09 +0100
+Message-Id: <20200221072434.230713301@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200221072402.315346745@linuxfoundation.org>
 References: <20200221072402.315346745@linuxfoundation.org>
@@ -44,79 +45,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+From: Vincenzo Frascino <vincenzo.frascino@arm.com>
 
-[ Upstream commit 8239fc7755fd3d410920006615abd0c7d653560f ]
+[ Upstream commit 76950f7162cad51d2200ebd22c620c14af38f718 ]
 
-Commit e17b1af96b2afc38e684aa2f1033387e2ed10029
+To perform the reserve_crashkernel() operation kexec uses SECTION_SIZE to
+find a memblock in a range.
+SECTION_SIZE is not defined for nommu systems. Trying to compile kexec in
+these conditions results in a build error:
 
-  "ARM: 8857/1: efi: enable CP15 DMB instructions before cleaning the cache"
+  linux/arch/arm/kernel/setup.c: In function ‘reserve_crashkernel’:
+  linux/arch/arm/kernel/setup.c:1016:25: error: ‘SECTION_SIZE’ undeclared
+     (first use in this function); did you mean ‘SECTIONS_WIDTH’?
+             crash_size, SECTION_SIZE);
+                         ^~~~~~~~~~~~
+                         SECTIONS_WIDTH
+  linux/arch/arm/kernel/setup.c:1016:25: note: each undeclared identifier
+     is reported only once for each function it appears in
+  linux/scripts/Makefile.build:265: recipe for target 'arch/arm/kernel/setup.o'
+     failed
 
-added some explicit handling of the CP15BEN bit in the SCTLR system
-register, to ensure that CP15 barrier instructions are enabled, even
-if we enter the decompressor via the EFI stub.
+Make KEXEC depend on MMU to fix the compilation issue.
 
-However, as it turns out, there are other ways in which we may end up
-using CP15 barrier instructions without them being enabled. I.e., when
-the decompressor startup code skips the cache_on() initially, we end
-up calling cache_clean_flush() with the caches and MMU off, in which
-case the CP15BEN bit in SCTLR may not be programmed either. And in
-fact, cache_on() itself issues CP15 barrier instructions before actually
-enabling them by programming the new SCTLR value (and issuing an ISB)
-
-Since these routines are shared between v7 CPUs and older ones that
-implement the CPUID extension as well, using the ordinary v7 barrier
-instructions in this code is not possible, and so we should enable the
-CP15 ones explicitly before issuing them. Note that a v7 ISB is still
-required between programming the SCTLR register and using the CP15 barrier
-instructions, and we should take care to branch over it if the CP15BEN
-bit is already set, given that in that case, the CPU may not support it.
-
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Vincenzo Frascino <vincenzo.frascino@arm.com>
 Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/compressed/head.S | 13 +++++++++++++
- 1 file changed, 13 insertions(+)
+ arch/arm/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/compressed/head.S b/arch/arm/boot/compressed/head.S
-index ead21e5f2b803..469a2b3b60c09 100644
---- a/arch/arm/boot/compressed/head.S
-+++ b/arch/arm/boot/compressed/head.S
-@@ -140,6 +140,17 @@
- #endif
- 		.endm
- 
-+		.macro	enable_cp15_barriers, reg
-+		mrc	p15, 0, \reg, c1, c0, 0	@ read SCTLR
-+		tst	\reg, #(1 << 5)		@ CP15BEN bit set?
-+		bne	.L_\@
-+		orr	\reg, \reg, #(1 << 5)	@ CP15 barrier instructions
-+		mcr	p15, 0, \reg, c1, c0, 0	@ write SCTLR
-+ ARM(		.inst   0xf57ff06f		@ v7+ isb	)
-+ THUMB(		isb						)
-+.L_\@:
-+		.endm
-+
- 		.section ".start", "ax"
- /*
-  * sort out different calling conventions
-@@ -820,6 +831,7 @@ __armv4_mmu_cache_on:
- 		mov	pc, r12
- 
- __armv7_mmu_cache_on:
-+		enable_cp15_barriers	r11
- 		mov	r12, lr
- #ifdef CONFIG_MMU
- 		mrc	p15, 0, r11, c0, c1, 4	@ read ID_MMFR0
-@@ -1209,6 +1221,7 @@ __armv6_mmu_cache_flush:
- 		mov	pc, lr
- 
- __armv7_mmu_cache_flush:
-+		enable_cp15_barriers	r10
- 		tst	r4, #1
- 		bne	iflush
- 		mrc	p15, 0, r10, c0, c1, 5	@ read ID_MMFR1
+diff --git a/arch/arm/Kconfig b/arch/arm/Kconfig
+index 2c3a9fd05f571..7ef1916fcbf45 100644
+--- a/arch/arm/Kconfig
++++ b/arch/arm/Kconfig
+@@ -1905,7 +1905,7 @@ config XIP_DEFLATED_DATA
+ config KEXEC
+ 	bool "Kexec system call (EXPERIMENTAL)"
+ 	depends on (!SMP || PM_SLEEP_SMP)
+-	depends on !CPU_V7M
++	depends on MMU
+ 	select KEXEC_CORE
+ 	help
+ 	  kexec is a system call that implements the ability to shutdown your
 -- 
 2.20.1
 
