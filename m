@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 387681674D3
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:29:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B15EF167331
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:10:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732804AbgBUIRe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 03:17:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55072 "EHLO mail.kernel.org"
+        id S1732464AbgBUIKC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 03:10:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45112 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387686AbgBUIRd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 03:17:33 -0500
+        id S1732453AbgBUIJ7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 03:09:59 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E0CB92468C;
-        Fri, 21 Feb 2020 08:17:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 67C33222C4;
+        Fri, 21 Feb 2020 08:09:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582273053;
-        bh=KNL8q96VW054YfXBZfeHGlfLCZJ5LleWzR+KoB/9j4w=;
+        s=default; t=1582272598;
+        bh=IDpon7Kel+MjWfOUEwoMjIHhIYdi6Oyu2TpugZYs3X0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EKiAagVb9r91HEr065nbHOYlHW1apmxv3xAtPhrLsaAv24H4QZUcvR/BBabMmPkTq
-         Onu8/2FN4a01Pq0gZgjc6sUU91qXOKeKC0H8Ly4wRu34KarP8KAWVQ8IxVIKYpXuUd
-         OMVR95YdRtdu5i/CMZuFv2X4tQAkKivg05fE9oDw=
+        b=bJC4cOKag59tbtLTXlpvPs9bMY2wtb7k4kWomT4Qbd6X6zN982uKDSUtoe0AIZgWh
+         GPnCUBLV8DZI4w18CeEw5iXPmjn6AXAVa06SmHyrBAr9hRJ7gNp37hwO/bh7u7CRY6
+         GrCsjqfaEWPqnS4ZkOAjkoSJ2F5rUFgWZ/awoByk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tiezhu Yang <yangtiezhu@loongson.cn>,
-        Paul Burton <paulburton@kernel.org>,
-        Ralf Baechle <ralf@linux-mips.org>,
-        Huacai Chen <chenhc@lemote.com>,
-        Jiaxun Yang <jiaxun.yang@flygoat.com>,
-        linux-mips@vger.kernel.org, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 029/191] MIPS: Loongson: Fix potential NULL dereference in loongson3_platform_init()
+        stable@vger.kernel.org, Jonathan Lemon <jonathan.lemon@gmail.com>,
+        Andy Gospodarek <gospo@broadcom.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 203/344] bnxt: Detach page from page pool before sending up the stack
 Date:   Fri, 21 Feb 2020 08:40:02 +0100
-Message-Id: <20200221072254.750279305@linuxfoundation.org>
+Message-Id: <20200221072407.533078487@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200221072250.732482588@linuxfoundation.org>
-References: <20200221072250.732482588@linuxfoundation.org>
+In-Reply-To: <20200221072349.335551332@linuxfoundation.org>
+References: <20200221072349.335551332@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,40 +45,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tiezhu Yang <yangtiezhu@loongson.cn>
+From: Jonathan Lemon <jonathan.lemon@gmail.com>
 
-[ Upstream commit 72d052e28d1d2363f9107be63ef3a3afdea6143c ]
+[ Upstream commit 3071c51783b39d6a676d02a9256c3b3f87804285 ]
 
-If kzalloc fails, it should return -ENOMEM, otherwise may trigger a NULL
-pointer dereference.
+When running in XDP mode, pages come from the page pool, and should
+be freed back to the same pool or specifically detached.  Currently,
+when the driver re-initializes, the page pool destruction is delayed
+forever since it thinks there are oustanding pages.
 
-Fixes: 3adeb2566b9b ("MIPS: Loongson: Improve LEFI firmware interface")
-Signed-off-by: Tiezhu Yang <yangtiezhu@loongson.cn>
-Signed-off-by: Paul Burton <paulburton@kernel.org>
-Cc: Ralf Baechle <ralf@linux-mips.org>
-Cc: Huacai Chen <chenhc@lemote.com>
-Cc: Jiaxun Yang <jiaxun.yang@flygoat.com>
-Cc: linux-mips@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
+Fixes: 322b87ca55f2 ("bnxt_en: add page_pool support")
+Signed-off-by: Jonathan Lemon <jonathan.lemon@gmail.com>
+Reviewed-by: Andy Gospodarek <gospo@broadcom.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/loongson64/loongson-3/platform.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/net/ethernet/broadcom/bnxt/bnxt.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/mips/loongson64/loongson-3/platform.c b/arch/mips/loongson64/loongson-3/platform.c
-index 25a97cc0ee336..0db4cc3196ebd 100644
---- a/arch/mips/loongson64/loongson-3/platform.c
-+++ b/arch/mips/loongson64/loongson-3/platform.c
-@@ -31,6 +31,9 @@ static int __init loongson3_platform_init(void)
- 			continue;
+diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt.c b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
+index 41297533b4a86..68618891b0e42 100644
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
+@@ -942,6 +942,7 @@ static struct sk_buff *bnxt_rx_page_skb(struct bnxt *bp,
+ 	dma_addr -= bp->rx_dma_offset;
+ 	dma_unmap_page_attrs(&bp->pdev->dev, dma_addr, PAGE_SIZE, bp->rx_dir,
+ 			     DMA_ATTR_WEAK_ORDERING);
++	page_pool_release_page(rxr->page_pool, page);
  
- 		pdev = kzalloc(sizeof(struct platform_device), GFP_KERNEL);
-+		if (!pdev)
-+			return -ENOMEM;
-+
- 		pdev->name = loongson_sysconf.sensors[i].name;
- 		pdev->id = loongson_sysconf.sensors[i].id;
- 		pdev->dev.platform_data = &loongson_sysconf.sensors[i];
+ 	if (unlikely(!payload))
+ 		payload = eth_get_headlen(bp->dev, data_ptr, len);
 -- 
 2.20.1
 
