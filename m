@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 17C1F16772A
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:41:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2ECD816782E
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:48:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730014AbgBUIjH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 03:39:07 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33946 "EHLO mail.kernel.org"
+        id S1728467AbgBUHrS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 02:47:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43028 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730797AbgBUIBj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 03:01:39 -0500
+        id S1728327AbgBUHrO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 02:47:14 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E46A120801;
-        Fri, 21 Feb 2020 08:01:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B8D1B20801;
+        Fri, 21 Feb 2020 07:47:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582272098;
-        bh=tNTO4ct9SDI8I9KV6SDwnENGAUGgcphrJePh9bylMEQ=;
+        s=default; t=1582271234;
+        bh=kwYS4IJqe/CCzOFwvS5e6qcl5rOhH6tgd+nA24huEr8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ojJr7tagSiqXGwpyfhu1nyCyf4vxOAahFOAg4OSEcwsQPv9ahy9cmcV0faOD2KzWJ
-         KkQiP/JYWJp2rjFWmUv7WgVAPLktSgf/ZEJihl5hcz5++47kAgJADJz6jQaPLh2TpX
-         FCr8OWWN3oBm7/EUvxcqGWN8U/olNkHfkhzJ8Dok=
+        b=ZksfEvkC5Pdv9k1MSuJ5xoqGX5FcBdCvM71NVDLyMl9N7iczWmjv3RaQX2O0I8JwS
+         raeuj9NtrEFXHuR8Y3/yzCtLhUD3c2mvCspwqFGz7NnE7Ed4V1p2sLkzKDT7QOw9zq
+         nei8WTdlOEN6A7Q9+OBrV7hmYd5zLZltzT6oOCLg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Damien Le Moal <damien.lemoal@wdc.com>,
-        Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>,
-        Chao Yu <yuchao0@huawei.com>,
-        =?UTF-8?q?Javier=20Gonz=C3=A1lez?= <javier@javigon.com>,
-        Jaegeuk Kim <jaegeuk@kernel.org>,
+        stable@vger.kernel.org,
+        Matthieu Baerts <matthieu.baerts@tessares.net>,
+        Kees Cook <keescook@chromium.org>,
+        Shuah Khan <skhan@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 016/344] f2fs: preallocate DIO blocks when forcing buffered_io
+Subject: [PATCH 5.5 090/399] selftests: settings: tests can be in subsubdirs
 Date:   Fri, 21 Feb 2020 08:36:55 +0100
-Message-Id: <20200221072350.716190611@linuxfoundation.org>
+Message-Id: <20200221072411.075444301@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200221072349.335551332@linuxfoundation.org>
-References: <20200221072349.335551332@linuxfoundation.org>
+In-Reply-To: <20200221072402.315346745@linuxfoundation.org>
+References: <20200221072402.315346745@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,119 +46,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jaegeuk Kim <jaegeuk@kernel.org>
+From: Matthieu Baerts <matthieu.baerts@tessares.net>
 
-[ Upstream commit 47501f87c61ad2aa234add63e1ae231521dbc3f5 ]
+[ Upstream commit ac87813d4372f4c005264acbe3b7f00c1dee37c4 ]
 
-The previous preallocation and DIO decision like below.
+Commit 852c8cbf34d3 ("selftests/kselftest/runner.sh: Add 45 second
+timeout per test") adds support for a new per-test-directory "settings"
+file. But this only works for tests not in a sub-subdirectories, e.g.
 
-                         allow_outplace_dio              !allow_outplace_dio
-f2fs_force_buffered_io   (*) No_Prealloc / Buffered_IO   Prealloc / Buffered_IO
-!f2fs_force_buffered_io  No_Prealloc / DIO               Prealloc / DIO
+ - tools/testing/selftests/rtc (rtc) is OK,
+ - tools/testing/selftests/net/mptcp (net/mptcp) is not.
 
-But, Javier reported Case (*) where zoned device bypassed preallocation but
-fell back to buffered writes in f2fs_direct_IO(), resulting in stale data
-being read.
+We have to increase the timeout for net/mptcp tests which are not
+upstreamed yet but this fix is valid for other tests if they need to add
+a "settings" file, see the full list with:
 
-In order to fix the issue, actually we need to preallocate blocks whenever
-we fall back to buffered IO like this. No change is made in the other cases.
+  tools/testing/selftests/*/*/**/Makefile
 
-                         allow_outplace_dio              !allow_outplace_dio
-f2fs_force_buffered_io   (*) Prealloc / Buffered_IO      Prealloc / Buffered_IO
-!f2fs_force_buffered_io  No_Prealloc / DIO               Prealloc / DIO
+Note that this patch changes the text header message printed at the end
+of the execution but this text is modified only for the tests that are
+in sub-subdirectories, e.g.
 
-Reported-and-tested-by: Javier Gonzalez <javier@javigon.com>
-Signed-off-by: Damien Le Moal <damien.lemoal@wdc.com>
-Tested-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Reviewed-by: Chao Yu <yuchao0@huawei.com>
-Reviewed-by: Javier González <javier@javigon.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+  ok 1 selftests: net/mptcp: mptcp_connect.sh
+
+Before we had:
+
+  ok 1 selftests: mptcp: mptcp_connect.sh
+
+But showing the full target name is probably better, just in case a
+subsubdir has the same name as another one in another subdirectory.
+
+Fixes: 852c8cbf34d3 (selftests/kselftest/runner.sh: Add 45 second timeout per test)
+Signed-off-by: Matthieu Baerts <matthieu.baerts@tessares.net>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/data.c | 13 -------------
- fs/f2fs/file.c | 43 +++++++++++++++++++++++++++++++++----------
- 2 files changed, 33 insertions(+), 23 deletions(-)
+ tools/testing/selftests/kselftest/runner.sh | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/f2fs/data.c b/fs/f2fs/data.c
-index 2e9c731658008..5d6fd940aab2e 100644
---- a/fs/f2fs/data.c
-+++ b/fs/f2fs/data.c
-@@ -1074,19 +1074,6 @@ int f2fs_preallocate_blocks(struct kiocb *iocb, struct iov_iter *from)
- 	int err = 0;
- 	bool direct_io = iocb->ki_flags & IOCB_DIRECT;
- 
--	/* convert inline data for Direct I/O*/
--	if (direct_io) {
--		err = f2fs_convert_inline_inode(inode);
--		if (err)
--			return err;
--	}
--
--	if (direct_io && allow_outplace_dio(inode, iocb, from))
--		return 0;
--
--	if (is_inode_flag_set(inode, FI_NO_PREALLOC))
--		return 0;
--
- 	map.m_lblk = F2FS_BLK_ALIGN(iocb->ki_pos);
- 	map.m_len = F2FS_BYTES_TO_BLK(iocb->ki_pos + iov_iter_count(from));
- 	if (map.m_len > map.m_lblk)
-diff --git a/fs/f2fs/file.c b/fs/f2fs/file.c
-index 72f308790a8e5..44bc5f4a9ce19 100644
---- a/fs/f2fs/file.c
-+++ b/fs/f2fs/file.c
-@@ -3348,18 +3348,41 @@ static ssize_t f2fs_file_write_iter(struct kiocb *iocb, struct iov_iter *from)
- 				ret = -EAGAIN;
- 				goto out;
- 			}
--		} else {
--			preallocated = true;
--			target_size = iocb->ki_pos + iov_iter_count(from);
-+			goto write;
-+		}
- 
--			err = f2fs_preallocate_blocks(iocb, from);
--			if (err) {
--				clear_inode_flag(inode, FI_NO_PREALLOC);
--				inode_unlock(inode);
--				ret = err;
--				goto out;
--			}
-+		if (is_inode_flag_set(inode, FI_NO_PREALLOC))
-+			goto write;
-+
-+		if (iocb->ki_flags & IOCB_DIRECT) {
-+			/*
-+			 * Convert inline data for Direct I/O before entering
-+			 * f2fs_direct_IO().
-+			 */
-+			err = f2fs_convert_inline_inode(inode);
-+			if (err)
-+				goto out_err;
-+			/*
-+			 * If force_buffere_io() is true, we have to allocate
-+			 * blocks all the time, since f2fs_direct_IO will fall
-+			 * back to buffered IO.
-+			 */
-+			if (!f2fs_force_buffered_io(inode, iocb, from) &&
-+					allow_outplace_dio(inode, iocb, from))
-+				goto write;
-+		}
-+		preallocated = true;
-+		target_size = iocb->ki_pos + iov_iter_count(from);
-+
-+		err = f2fs_preallocate_blocks(iocb, from);
-+		if (err) {
-+out_err:
-+			clear_inode_flag(inode, FI_NO_PREALLOC);
-+			inode_unlock(inode);
-+			ret = err;
-+			goto out;
- 		}
-+write:
- 		ret = __generic_file_write_iter(iocb, from);
- 		clear_inode_flag(inode, FI_NO_PREALLOC);
- 
+diff --git a/tools/testing/selftests/kselftest/runner.sh b/tools/testing/selftests/kselftest/runner.sh
+index a8d20cbb711cf..e84d901f85672 100644
+--- a/tools/testing/selftests/kselftest/runner.sh
++++ b/tools/testing/selftests/kselftest/runner.sh
+@@ -91,7 +91,7 @@ run_one()
+ run_many()
+ {
+ 	echo "TAP version 13"
+-	DIR=$(basename "$PWD")
++	DIR="${PWD#${BASE_DIR}/}"
+ 	test_num=0
+ 	total=$(echo "$@" | wc -w)
+ 	echo "1..$total"
 -- 
 2.20.1
 
