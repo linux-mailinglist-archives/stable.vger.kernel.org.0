@@ -2,62 +2,70 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4619C16815E
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 16:21:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A56A81681B4
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 16:33:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727352AbgBUPVk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 10:21:40 -0500
-Received: from imap2.colo.codethink.co.uk ([78.40.148.184]:36332 "EHLO
-        imap2.colo.codethink.co.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727851AbgBUPVk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 21 Feb 2020 10:21:40 -0500
-Received: from [167.98.27.226] (helo=xylophone)
-        by imap2.colo.codethink.co.uk with esmtpsa  (Exim 4.92 #3 (Debian))
-        id 1j5A7P-0007ni-Fo; Fri, 21 Feb 2020 15:21:31 +0000
-Message-ID: <9f719752c33321fca7280a5cc59a886e1dd0dfda.camel@codethink.co.uk>
-Subject: Re: [PATCH 5.4 000/344] 5.4.22-stable review
-From:   Ben Hutchings <ben.hutchings@codethink.co.uk>
-To:     Guenter Roeck <linux@roeck-us.net>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, stable@vger.kernel.org
-Date:   Fri, 21 Feb 2020 15:21:30 +0000
-In-Reply-To: <4e8cb265-4745-4249-45e4-86bd84f068ed@roeck-us.net>
-References: <20200221072349.335551332@linuxfoundation.org>
-         <4e8cb265-4745-4249-45e4-86bd84f068ed@roeck-us.net>
-Organization: Codethink Ltd.
-Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.30.5-1.1 
+        id S1729128AbgBUPdC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 10:33:02 -0500
+Received: from mail-lj1-f181.google.com ([209.85.208.181]:33660 "EHLO
+        mail-lj1-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729066AbgBUPdB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 21 Feb 2020 10:33:01 -0500
+Received: by mail-lj1-f181.google.com with SMTP id y6so2647635lji.0
+        for <stable@vger.kernel.org>; Fri, 21 Feb 2020 07:33:00 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=tVFIILbLigXa2LaGau6WSUSinRQYYOxk7dDhxxCC9M4=;
+        b=nSa7UJPITzxQgoaqt3ZmZekxwxB07aqoRFYAm7MsinYY5gSCTe7GtiH7vF5KF8zuVO
+         2bp8KWiW2XpREjwCCssS1mopmzRFfvssXNkQff/SItRX+z00Q6UWL4ZASnZ81TP/LhDt
+         APkOYB+3tewawTByabfpE9zoghB8+EcNg+45WtcFkoNlgPhwiPRJvLa3KxOQiBk286Ir
+         HTE9tUy87Vy0NZXt6Urr0Y7tcLKky3ZrZzkU1Wc0KtbCm5+zJLeoDcoQbUjBa5FaYC/g
+         AqZdITMqnNyLnBqvV8iaQG2MwCk1dmlscPuK0TIEdfis63ioJ+9opusphNh7RIIdcaK0
+         R4Xg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=tVFIILbLigXa2LaGau6WSUSinRQYYOxk7dDhxxCC9M4=;
+        b=Wdv9VyJwumqTqu7UUI3Vt5T1e8eAkB3q0NfeT2COwQtdhZFMxc4BJ98nWTgXPiSJPy
+         susyMA1WWx6GOUrtW56/h08Acdwy2NzxKeJu4hLppa8+D/EpCdR13EIW5pUVuo3EOins
+         BUEPnEZySX7Viuo9MT1sc+J2QuruwqiCt2MHhLu9eyNgbb2Hx9guet24EFiZav17lbcu
+         vLgU+QkAw3onFroUxNqzXBGJngsZ4NxiwDyvI2i0VP3nyvNNwnoawGTh8cZyHk+eZrgM
+         EVc/LFoWOrMdHC44dZJT6zCh9qPJlR1ba33qpY9quJCTclIn5D7IxRC27FVvVd2Osxsp
+         /qaw==
+X-Gm-Message-State: APjAAAWMHsqunqg/lVkqTE0veum0gH5A1noxFpFkJ8huxQH6bzjLG8FC
+        D5t9zU2h2G8D1TzV96rvsVJFGRBMB+SCtQUNreUvAmRO
+X-Google-Smtp-Source: APXvYqx/VyPaUurPNIviW5uMqcYgAE1ZWQK0EiPaviXmH2sf65VsY2i2alV7n3qhZ6YzCxX4r3N78IB3xDjH6z8BsRM=
+X-Received: by 2002:a2e:8e70:: with SMTP id t16mr22600520ljk.73.1582299179419;
+ Fri, 21 Feb 2020 07:32:59 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
+References: <adb8b3ba-16c4-49f9-0160-3522681b49f8@roeck-us.net>
+In-Reply-To: <adb8b3ba-16c4-49f9-0160-3522681b49f8@roeck-us.net>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Fri, 21 Feb 2020 21:02:47 +0530
+Message-ID: <CA+G9fYtCZpVYmSDLO75UJZpF9oz=UVWeENz-6x9vj=urqt+0oQ@mail.gmail.com>
+Subject: Re: Build failures in v4.9.y, v4.14.y stable queues
+To:     Guenter Roeck <linux@roeck-us.net>
+Cc:     stable <stable@vger.kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, lkft-triage@lists.linaro.org
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, 2020-02-21 at 06:28 -0800, Guenter Roeck wrote:
-[...]
-> Building powerpc:defconfig ... failed
-> Building powerpc:mpc83xx_defconfig ... failed
+On Fri, 21 Feb 2020 at 20:03, Guenter Roeck <linux@roeck-us.net> wrote:
+>
+> Building arm:allmodconfig ... failed
 > --------------
 > Error log:
-> drivers/rtc/rtc-ds1307.c:1570:21: error: variable 'regmap_config' has initializer but incomplete type
-> 
-> as well as various follow-up errors.
+> arch/arm/boot/dts/sun8i-h3-orangepi-lite.dtb: ERROR (phandle_references): Reference to non-existent node or label "cpu0"
 >
-> The second problem affects both v5.4.y and v5.5.y.
+> Affects both v4.9.y (v4.9.214-119-gb651de82f0d1) and v4.14.y (v4.14.171-173-g611d08c2bab0).
 
-This seems to be caused by commit 34719de919af (rtc-i2c-spi-avoid-
-inclusion-of-regmap-support-when-n.patch).  These branches will need
-commit 578c2b661e2b "rtc: Kconfig: select REGMAP_I2C when necessary" as
-well.
+We do see this build problems.
 
-Ben.
-
--- 
-Ben Hutchings, Software Developer                         Codethink Ltd
-https://www.codethink.co.uk/                 Dale House, 35 Dale Street
-                                     Manchester, M1 2HF, United Kingdom
-
+- Naresh
