@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BF08B167510
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:30:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 073DA1675BE
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:32:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388330AbgBUIWg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 03:22:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34218 "EHLO mail.kernel.org"
+        id S1732448AbgBUIO4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 03:14:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51552 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388317AbgBUIWf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 03:22:35 -0500
+        id S1733252AbgBUIOz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 03:14:55 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4DD7E24672;
-        Fri, 21 Feb 2020 08:22:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 24E482467B;
+        Fri, 21 Feb 2020 08:14:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582273354;
-        bh=GmrqN0DFIZ7l/FZPcAk3tdx0dJ/S2si6wfb5OJrkPpw=;
+        s=default; t=1582272894;
+        bh=6BIz0sbbF8aSruqpnPbCttGMJV/o3U6qNcUvabsK/cU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PH0PsBMTQBgk0XSvcARdW/nYBUhI6jSQ7xr6QlGnWCZJAo4pW6969AK27CeuowSsk
-         WuNvyH6Ah1qB+4QveEiloaImB/r8enIDfoU/2qlxXTkVwBbFrEoJmmTAXveEjx3UK7
-         eW711QO19nBJnO3U4W8QtUFhT+yas/sbfCFXAJ6g=
+        b=gc2pG0l+T8qgIc7LjSMwYpK8JSEHNXm1JEci0K9JWiLj2GM7WV+dXSEl8s2tg+wjD
+         WDevVAzt4i6bs3LqWRZvx1qyB5Oro0yPgw4I0jsP7yd7q8fG9LK5ksLJoUXZctqIgw
+         pCpV0Qq4zGRsrQnYio1xdtincbSBSRSjqwS84sa8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
-        Thierry Reding <thierry.reding@gmail.com>,
+        stable@vger.kernel.org, Alex Deucher <alexander.deucher@amd.com>,
+        =?UTF-8?q?Michel=20D=C3=A4nzer?= <michel.daenzer@amd.com>,
+        Daniel Vetter <daniel.vetter@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 140/191] pwm: omap-dmtimer: Remove PWM chip in .remove before making it unfunctional
-Date:   Fri, 21 Feb 2020 08:41:53 +0100
-Message-Id: <20200221072307.481538716@linuxfoundation.org>
+Subject: [PATCH 5.4 315/344] radeon: insert 10ms sleep in dce5_crtc_load_lut
+Date:   Fri, 21 Feb 2020 08:41:54 +0100
+Message-Id: <20200221072418.692644324@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200221072250.732482588@linuxfoundation.org>
-References: <20200221072250.732482588@linuxfoundation.org>
+In-Reply-To: <20200221072349.335551332@linuxfoundation.org>
+References: <20200221072349.335551332@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,47 +45,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+From: Daniel Vetter <daniel.vetter@ffwll.ch>
 
-[ Upstream commit 43efdc8f0e6d7088ec61bd55a73bf853f002d043 ]
+[ Upstream commit ec3d65082d7dabad6fa8f66a8ef166f2d522d6b2 ]
 
-In the old code (e.g.) mutex_destroy() was called before
-pwmchip_remove(). Between these two calls it is possible that a PWM
-callback is used which tries to grab the mutex.
+Per at least one tester this is enough magic to recover the regression
+introduced for some people (but not all) in
 
-Fixes: 6604c6556db9 ("pwm: Add PWM driver for OMAP using dual-mode timers")
-Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
+commit b8e2b0199cc377617dc238f5106352c06dcd3fa2
+Author: Peter Rosin <peda@axentia.se>
+Date:   Tue Jul 4 12:36:57 2017 +0200
+
+    drm/fb-helper: factor out pseudo-palette
+
+which for radeon had the side-effect of refactoring out a seemingly
+redudant writing of the color palette.
+
+10ms in a fairly slow modeset path feels like an acceptable form of
+duct-tape, so maybe worth a shot and see what sticks.
+
+Cc: Alex Deucher <alexander.deucher@amd.com>
+Cc: Michel Dänzer <michel.daenzer@amd.com>
+Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pwm/pwm-omap-dmtimer.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/radeon/radeon_display.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/pwm/pwm-omap-dmtimer.c b/drivers/pwm/pwm-omap-dmtimer.c
-index 2d585c101d52e..c6e710a713d31 100644
---- a/drivers/pwm/pwm-omap-dmtimer.c
-+++ b/drivers/pwm/pwm-omap-dmtimer.c
-@@ -364,6 +364,11 @@ put:
- static int pwm_omap_dmtimer_remove(struct platform_device *pdev)
- {
- 	struct pwm_omap_dmtimer_chip *omap = platform_get_drvdata(pdev);
-+	int ret;
+diff --git a/drivers/gpu/drm/radeon/radeon_display.c b/drivers/gpu/drm/radeon/radeon_display.c
+index e81b01f8db90e..0826efd9b5f51 100644
+--- a/drivers/gpu/drm/radeon/radeon_display.c
++++ b/drivers/gpu/drm/radeon/radeon_display.c
+@@ -127,6 +127,8 @@ static void dce5_crtc_load_lut(struct drm_crtc *crtc)
+ 
+ 	DRM_DEBUG_KMS("%d\n", radeon_crtc->crtc_id);
+ 
++	msleep(10);
 +
-+	ret = pwmchip_remove(&omap->chip);
-+	if (ret)
-+		return ret;
- 
- 	if (pm_runtime_active(&omap->dm_timer_pdev->dev))
- 		omap->pdata->stop(omap->dm_timer);
-@@ -372,7 +377,7 @@ static int pwm_omap_dmtimer_remove(struct platform_device *pdev)
- 
- 	mutex_destroy(&omap->mutex);
- 
--	return pwmchip_remove(&omap->chip);
-+	return 0;
- }
- 
- static const struct of_device_id pwm_omap_dmtimer_of_match[] = {
+ 	WREG32(NI_INPUT_CSC_CONTROL + radeon_crtc->crtc_offset,
+ 	       (NI_INPUT_CSC_GRPH_MODE(NI_INPUT_CSC_BYPASS) |
+ 		NI_INPUT_CSC_OVL_MODE(NI_INPUT_CSC_BYPASS)));
 -- 
 2.20.1
 
