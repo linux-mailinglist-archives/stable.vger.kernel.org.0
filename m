@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4FF17167201
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 08:59:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8995816720B
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:00:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730896AbgBUH7Z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 02:59:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59402 "EHLO mail.kernel.org"
+        id S1730819AbgBUH7u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 02:59:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59994 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730909AbgBUH7X (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 02:59:23 -0500
+        id S1730626AbgBUH7t (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 02:59:49 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 28EF8222C4;
-        Fri, 21 Feb 2020 07:59:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 73ED8222C4;
+        Fri, 21 Feb 2020 07:59:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582271962;
-        bh=6BIz0sbbF8aSruqpnPbCttGMJV/o3U6qNcUvabsK/cU=;
+        s=default; t=1582271988;
+        bh=zgVsgEnnXQ7LrYe7AE7KvemzilGGhK+OX2oKdOz0gEs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cqcx4ZKj+Rn1SlmLHl0a5UNwb8QLWGiXHD9CiazIr82J/hZAunZ51eAD9cOwFXPZ/
-         1KJhzB093MpUE/D80MSklg2BR1sWllcZbaAAvJi/gQuuF/WuB7eXwBITwUaLvRm+DU
-         U+RL/P00plAL3y4QBrCOrbBns6cbRqxo9ekxVRf4=
+        b=GqgQVrmz3eoARox4mz8EHj7VU/QqnhXEepWBykuZJKYjQsMl7b74SWpVNS2HKpwyX
+         quqb39HeX1eztOnOzIoMWoUC/4Kd+UT4/8qOpVH9qYhjLpEMlDOZT901yQcGcddnzH
+         +ZDuipg4VJUvVZXtFUwY/X1DFVUZxLkHBwBE6qRA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alex Deucher <alexander.deucher@amd.com>,
-        =?UTF-8?q?Michel=20D=C3=A4nzer?= <michel.daenzer@amd.com>,
-        Daniel Vetter <daniel.vetter@intel.com>,
+        stable@vger.kernel.org, kbuild test robot <lkp@intel.com>,
+        Coly Li <colyli@suse.de>, Jens Axboe <axboe@kernel.dk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 365/399] radeon: insert 10ms sleep in dce5_crtc_load_lut
-Date:   Fri, 21 Feb 2020 08:41:30 +0100
-Message-Id: <20200221072436.112534362@linuxfoundation.org>
+Subject: [PATCH 5.5 374/399] bcache: explicity type cast in bset_bkey_last()
+Date:   Fri, 21 Feb 2020 08:41:39 +0100
+Message-Id: <20200221072436.745148874@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200221072402.315346745@linuxfoundation.org>
 References: <20200221072402.315346745@linuxfoundation.org>
@@ -45,47 +44,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Vetter <daniel.vetter@ffwll.ch>
+From: Coly Li <colyli@suse.de>
 
-[ Upstream commit ec3d65082d7dabad6fa8f66a8ef166f2d522d6b2 ]
+[ Upstream commit 7c02b0055f774ed9afb6e1c7724f33bf148ffdc0 ]
 
-Per at least one tester this is enough magic to recover the regression
-introduced for some people (but not all) in
+In bset.h, macro bset_bkey_last() is defined as,
+    bkey_idx((struct bkey *) (i)->d, (i)->keys)
 
-commit b8e2b0199cc377617dc238f5106352c06dcd3fa2
-Author: Peter Rosin <peda@axentia.se>
-Date:   Tue Jul 4 12:36:57 2017 +0200
+Parameter i can be variable type of data structure, the macro always
+works once the type of struct i has member 'd' and 'keys'.
 
-    drm/fb-helper: factor out pseudo-palette
+bset_bkey_last() is also used in macro csum_set() to calculate the
+checksum of a on-disk data structure. When csum_set() is used to
+calculate checksum of on-disk bcache super block, the parameter 'i'
+data type is struct cache_sb_disk. Inside struct cache_sb_disk (also in
+struct cache_sb) the member keys is __u16 type. But bkey_idx() expects
+unsigned int (a 32bit width), so there is problem when sending
+parameters via stack to call bkey_idx().
 
-which for radeon had the side-effect of refactoring out a seemingly
-redudant writing of the color palette.
+Sparse tool from Intel 0day kbuild system reports this incompatible
+problem. bkey_idx() is part of user space API, so the simplest fix is
+to cast the (i)->keys to unsigned int type in macro bset_bkey_last().
 
-10ms in a fairly slow modeset path feels like an acceptable form of
-duct-tape, so maybe worth a shot and see what sticks.
-
-Cc: Alex Deucher <alexander.deucher@amd.com>
-Cc: Michel Dänzer <michel.daenzer@amd.com>
-Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Reported-by: kbuild test robot <lkp@intel.com>
+Signed-off-by: Coly Li <colyli@suse.de>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/radeon/radeon_display.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/md/bcache/bset.h | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/radeon/radeon_display.c b/drivers/gpu/drm/radeon/radeon_display.c
-index e81b01f8db90e..0826efd9b5f51 100644
---- a/drivers/gpu/drm/radeon/radeon_display.c
-+++ b/drivers/gpu/drm/radeon/radeon_display.c
-@@ -127,6 +127,8 @@ static void dce5_crtc_load_lut(struct drm_crtc *crtc)
+diff --git a/drivers/md/bcache/bset.h b/drivers/md/bcache/bset.h
+index c71365e7c1fac..a50dcfda656f5 100644
+--- a/drivers/md/bcache/bset.h
++++ b/drivers/md/bcache/bset.h
+@@ -397,7 +397,8 @@ void bch_btree_keys_stats(struct btree_keys *b, struct bset_stats *state);
  
- 	DRM_DEBUG_KMS("%d\n", radeon_crtc->crtc_id);
+ /* Bkey utility code */
  
-+	msleep(10);
-+
- 	WREG32(NI_INPUT_CSC_CONTROL + radeon_crtc->crtc_offset,
- 	       (NI_INPUT_CSC_GRPH_MODE(NI_INPUT_CSC_BYPASS) |
- 		NI_INPUT_CSC_OVL_MODE(NI_INPUT_CSC_BYPASS)));
+-#define bset_bkey_last(i)	bkey_idx((struct bkey *) (i)->d, (i)->keys)
++#define bset_bkey_last(i)	bkey_idx((struct bkey *) (i)->d, \
++					 (unsigned int)(i)->keys)
+ 
+ static inline struct bkey *bset_bkey_idx(struct bset *i, unsigned int idx)
+ {
 -- 
 2.20.1
 
