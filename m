@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 993891671AA
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 08:56:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DE69B1671C5
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 08:57:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729072AbgBUH4M (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 02:56:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55416 "EHLO mail.kernel.org"
+        id S1730436AbgBUH5K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 02:57:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56660 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730439AbgBUH4M (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 02:56:12 -0500
+        id S1730417AbgBUH5K (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 02:57:10 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B1CFD222C4;
-        Fri, 21 Feb 2020 07:56:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2E67320578;
+        Fri, 21 Feb 2020 07:57:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582271771;
-        bh=7cQc4SRp6iphGymWqLpNl7n+Za/QHc3wM/3uBQapzDQ=;
+        s=default; t=1582271829;
+        bh=i0ttOQxN0z0/Ta+VR+Huvh00r/qVH5VVQyPCyChB4BE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YwB3IcRYnIgBuSxUozpzvNygj5HB6rVkG7sW1yKvSbTNDprj3QsHE+QU1wxRidWsf
-         +DSLH6Zi00gUvg1Wx/TsjgIkGNovQrXB3hmsVvkgMPGs/WSUnGHB0Bm0Y8ezmbkecG
-         MZp8avVCSdHfGyQaZUbZ5AgSVF2imBDCV4jBdX94=
+        b=sWP8ps81d0pR450K8W5qZYWj9inVqX+EN5I7D89aA3NdnxM4HwkdNVG3++k+8Zisz
+         hbTvVv7Y2GUh9j08BUyaW91C9QgaEkG7yFpH/fgN8MBqmK8huSyQAsUsywZaOLarzp
+         EmYDFRXOGfCGcYxF6t70cdMqpdvQm1V2Ki2+AybU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zaibo Xu <xuzaibo@huawei.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 275/399] crypto: hisilicon - Bugfixed tfm leak
-Date:   Fri, 21 Feb 2020 08:40:00 +0100
-Message-Id: <20200221072428.849850793@linuxfoundation.org>
+        stable@vger.kernel.org, Alexander Tsoy <alexander@tsoy.me>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.5 277/399] ALSA: usb-audio: add implicit fb quirk for MOTU M Series
+Date:   Fri, 21 Feb 2020 08:40:02 +0100
+Message-Id: <20200221072428.997803104@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200221072402.315346745@linuxfoundation.org>
 References: <20200221072402.315346745@linuxfoundation.org>
@@ -44,81 +43,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zaibo Xu <xuzaibo@huawei.com>
+From: Alexander Tsoy <alexander@tsoy.me>
 
-[ Upstream commit dfee9955abc7ec9364413d16316181322cf44f2f ]
+[ Upstream commit c249177944b650816069f6c49b769baaa94339dc ]
 
-1.Fixed the bug of software tfm leakage.
-2.Update HW error log message.
+This fixes crackling sound during playback.
 
-Signed-off-by: Zaibo Xu <xuzaibo@huawei.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Further note: MOTU is known for reusing Product IDs for different
+devices or different generations of the device (e.g. MicroBook
+I/II/IIc shares a single Product ID). This patch was only tested with
+M4 audio interface, but the same Product ID is also used by M2. Hope
+it will work for M2 as well.
+
+Signed-off-by: Alexander Tsoy <alexander@tsoy.me>
+Link: https://lore.kernel.org/r/20200115151358.56672-1-alexander@tsoy.me
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/hisilicon/hpre/hpre_crypto.c |  7 +++++-
- drivers/crypto/hisilicon/hpre/hpre_main.c   | 24 ++++++++++-----------
- 2 files changed, 18 insertions(+), 13 deletions(-)
+ sound/usb/pcm.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/crypto/hisilicon/hpre/hpre_crypto.c b/drivers/crypto/hisilicon/hpre/hpre_crypto.c
-index 98f037e6ea3e4..d8b015266ee49 100644
---- a/drivers/crypto/hisilicon/hpre/hpre_crypto.c
-+++ b/drivers/crypto/hisilicon/hpre/hpre_crypto.c
-@@ -1043,6 +1043,7 @@ static unsigned int hpre_rsa_max_size(struct crypto_akcipher *tfm)
- static int hpre_rsa_init_tfm(struct crypto_akcipher *tfm)
- {
- 	struct hpre_ctx *ctx = akcipher_tfm_ctx(tfm);
-+	int ret;
- 
- 	ctx->rsa.soft_tfm = crypto_alloc_akcipher("rsa-generic", 0, 0);
- 	if (IS_ERR(ctx->rsa.soft_tfm)) {
-@@ -1050,7 +1051,11 @@ static int hpre_rsa_init_tfm(struct crypto_akcipher *tfm)
- 		return PTR_ERR(ctx->rsa.soft_tfm);
- 	}
- 
--	return hpre_ctx_init(ctx);
-+	ret = hpre_ctx_init(ctx);
-+	if (ret)
-+		crypto_free_akcipher(ctx->rsa.soft_tfm);
-+
-+	return ret;
- }
- 
- static void hpre_rsa_exit_tfm(struct crypto_akcipher *tfm)
-diff --git a/drivers/crypto/hisilicon/hpre/hpre_main.c b/drivers/crypto/hisilicon/hpre/hpre_main.c
-index 34e0424410bfc..0c98c37e39f4a 100644
---- a/drivers/crypto/hisilicon/hpre/hpre_main.c
-+++ b/drivers/crypto/hisilicon/hpre/hpre_main.c
-@@ -106,18 +106,18 @@ static const char * const hpre_debug_file_name[] = {
- };
- 
- static const struct hpre_hw_error hpre_hw_errors[] = {
--	{ .int_msk = BIT(0), .msg = "hpre_ecc_1bitt_err" },
--	{ .int_msk = BIT(1), .msg = "hpre_ecc_2bit_err" },
--	{ .int_msk = BIT(2), .msg = "hpre_data_wr_err" },
--	{ .int_msk = BIT(3), .msg = "hpre_data_rd_err" },
--	{ .int_msk = BIT(4), .msg = "hpre_bd_rd_err" },
--	{ .int_msk = BIT(5), .msg = "hpre_ooo_2bit_ecc_err" },
--	{ .int_msk = BIT(6), .msg = "hpre_cltr1_htbt_tm_out_err" },
--	{ .int_msk = BIT(7), .msg = "hpre_cltr2_htbt_tm_out_err" },
--	{ .int_msk = BIT(8), .msg = "hpre_cltr3_htbt_tm_out_err" },
--	{ .int_msk = BIT(9), .msg = "hpre_cltr4_htbt_tm_out_err" },
--	{ .int_msk = GENMASK(15, 10), .msg = "hpre_ooo_rdrsp_err" },
--	{ .int_msk = GENMASK(21, 16), .msg = "hpre_ooo_wrrsp_err" },
-+	{ .int_msk = BIT(0), .msg = "core_ecc_1bit_err_int_set" },
-+	{ .int_msk = BIT(1), .msg = "core_ecc_2bit_err_int_set" },
-+	{ .int_msk = BIT(2), .msg = "dat_wb_poison_int_set" },
-+	{ .int_msk = BIT(3), .msg = "dat_rd_poison_int_set" },
-+	{ .int_msk = BIT(4), .msg = "bd_rd_poison_int_set" },
-+	{ .int_msk = BIT(5), .msg = "ooo_ecc_2bit_err_int_set" },
-+	{ .int_msk = BIT(6), .msg = "cluster1_shb_timeout_int_set" },
-+	{ .int_msk = BIT(7), .msg = "cluster2_shb_timeout_int_set" },
-+	{ .int_msk = BIT(8), .msg = "cluster3_shb_timeout_int_set" },
-+	{ .int_msk = BIT(9), .msg = "cluster4_shb_timeout_int_set" },
-+	{ .int_msk = GENMASK(15, 10), .msg = "ooo_rdrsp_err_int_set" },
-+	{ .int_msk = GENMASK(21, 16), .msg = "ooo_wrrsp_err_int_set" },
- 	{ /* sentinel */ }
- };
- 
+diff --git a/sound/usb/pcm.c b/sound/usb/pcm.c
+index 0e4eab96e23e0..c9e1609296dff 100644
+--- a/sound/usb/pcm.c
++++ b/sound/usb/pcm.c
+@@ -348,6 +348,10 @@ static int set_sync_ep_implicit_fb_quirk(struct snd_usb_substream *subs,
+ 		ep = 0x84;
+ 		ifnum = 0;
+ 		goto add_sync_ep_from_ifnum;
++	case USB_ID(0x07fd, 0x0008): /* MOTU M Series */
++		ep = 0x81;
++		ifnum = 2;
++		goto add_sync_ep_from_ifnum;
+ 	case USB_ID(0x0582, 0x01d8): /* BOSS Katana */
+ 		/* BOSS Katana amplifiers do not need quirks */
+ 		return 0;
 -- 
 2.20.1
 
