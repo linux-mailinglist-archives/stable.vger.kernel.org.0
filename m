@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E768D16754E
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:30:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 41A10167564
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:31:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388492AbgBUIZM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 03:25:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37948 "EHLO mail.kernel.org"
+        id S1730661AbgBUI0P (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 03:26:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36472 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388482AbgBUIZL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 03:25:11 -0500
+        id S2388598AbgBUIYI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 03:24:08 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 98AED246AA;
-        Fri, 21 Feb 2020 08:25:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A7B072469D;
+        Fri, 21 Feb 2020 08:24:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582273511;
-        bh=UvVanc2Y8drvz0lTCD+gBtMmeB+L03JmO7eGDGY6rxs=;
+        s=default; t=1582273448;
+        bh=WfyRji/FvQF4TG98tKGWVFWrcCVN4w/9py2R/eS+vXo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gDWDsbiE2g6sVnkLhYoLSynQunmp2OVTjF5Nik9CNVREsqHjJg9en4h3DgzhSxuho
-         j+J0L32+Tp5VQrZLWDpOYHXtPmS3exmqvIjuJ/B82ZKqJIaZV2a6VNQo0Hh2vamdZ1
-         25Z/1DM0RkvTtqn4GqtVxY3x9uJahz4TR/Gg9uA4=
+        b=V7oxcgSus5ePOaTghRoAV4woKtuoiHHoNrR7anGhgqJliEKrJwkPAQO4zNOZri11J
+         sSmCEf7dZFP83+mBe1ZLl8Bpy4fd4B+wQJfEh7NeE1p8azVl5q/ucYAAOzhHiMW5g6
+         UpHwbGFnCF+vETMseK28nX2TGAfFs64C0ZfBh0B4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vasily Averin <vvs@virtuozzo.com>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
+        stable@vger.kernel.org, Alex Deucher <alexander.deucher@amd.com>,
+        =?UTF-8?q?Michel=20D=C3=A4nzer?= <michel.daenzer@amd.com>,
+        Daniel Vetter <daniel.vetter@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 174/191] trigger_next should increase position index
-Date:   Fri, 21 Feb 2020 08:42:27 +0100
-Message-Id: <20200221072311.633212807@linuxfoundation.org>
+Subject: [PATCH 4.19 175/191] radeon: insert 10ms sleep in dce5_crtc_load_lut
+Date:   Fri, 21 Feb 2020 08:42:28 +0100
+Message-Id: <20200221072311.718262780@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200221072250.732482588@linuxfoundation.org>
 References: <20200221072250.732482588@linuxfoundation.org>
@@ -44,62 +45,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasily Averin <vvs@virtuozzo.com>
+From: Daniel Vetter <daniel.vetter@ffwll.ch>
 
-[ Upstream commit 6722b23e7a2ace078344064a9735fb73e554e9ef ]
+[ Upstream commit ec3d65082d7dabad6fa8f66a8ef166f2d522d6b2 ]
 
-if seq_file .next fuction does not change position index,
-read after some lseek can generate unexpected output.
+Per at least one tester this is enough magic to recover the regression
+introduced for some people (but not all) in
 
-Without patch:
- # dd bs=30 skip=1 if=/sys/kernel/tracing/events/sched/sched_switch/trigger
- dd: /sys/kernel/tracing/events/sched/sched_switch/trigger: cannot skip to specified offset
- n traceoff snapshot stacktrace enable_event disable_event enable_hist disable_hist hist
- # Available triggers:
- # traceon traceoff snapshot stacktrace enable_event disable_event enable_hist disable_hist hist
- 6+1 records in
- 6+1 records out
- 206 bytes copied, 0.00027916 s, 738 kB/s
+commit b8e2b0199cc377617dc238f5106352c06dcd3fa2
+Author: Peter Rosin <peda@axentia.se>
+Date:   Tue Jul 4 12:36:57 2017 +0200
 
-Notice the printing of "# Available triggers:..." after the line.
+    drm/fb-helper: factor out pseudo-palette
 
-With the patch:
- # dd bs=30 skip=1 if=/sys/kernel/tracing/events/sched/sched_switch/trigger
- dd: /sys/kernel/tracing/events/sched/sched_switch/trigger: cannot skip to specified offset
- n traceoff snapshot stacktrace enable_event disable_event enable_hist disable_hist hist
- 2+1 records in
- 2+1 records out
- 88 bytes copied, 0.000526867 s, 167 kB/s
+which for radeon had the side-effect of refactoring out a seemingly
+redudant writing of the color palette.
 
-It only prints the end of the file, and does not restart.
+10ms in a fairly slow modeset path feels like an acceptable form of
+duct-tape, so maybe worth a shot and see what sticks.
 
-Link: http://lkml.kernel.org/r/3c35ee24-dd3a-8119-9c19-552ed253388a@virtuozzo.com
-
-https://bugzilla.kernel.org/show_bug.cgi?id=206283
-Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Cc: Alex Deucher <alexander.deucher@amd.com>
+Cc: Michel Dänzer <michel.daenzer@amd.com>
+Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/trace/trace_events_trigger.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/radeon/radeon_display.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/kernel/trace/trace_events_trigger.c b/kernel/trace/trace_events_trigger.c
-index b05d1b6a62911..9300e8bbf08ac 100644
---- a/kernel/trace/trace_events_trigger.c
-+++ b/kernel/trace/trace_events_trigger.c
-@@ -115,9 +115,10 @@ static void *trigger_next(struct seq_file *m, void *t, loff_t *pos)
- {
- 	struct trace_event_file *event_file = event_file_data(m->private);
+diff --git a/drivers/gpu/drm/radeon/radeon_display.c b/drivers/gpu/drm/radeon/radeon_display.c
+index d8e2d7b3b8365..7d1e14f0140a2 100644
+--- a/drivers/gpu/drm/radeon/radeon_display.c
++++ b/drivers/gpu/drm/radeon/radeon_display.c
+@@ -121,6 +121,8 @@ static void dce5_crtc_load_lut(struct drm_crtc *crtc)
  
--	if (t == SHOW_AVAILABLE_TRIGGERS)
-+	if (t == SHOW_AVAILABLE_TRIGGERS) {
-+		(*pos)++;
- 		return NULL;
--
-+	}
- 	return seq_list_next(t, &event_file->triggers, pos);
- }
+ 	DRM_DEBUG_KMS("%d\n", radeon_crtc->crtc_id);
  
++	msleep(10);
++
+ 	WREG32(NI_INPUT_CSC_CONTROL + radeon_crtc->crtc_offset,
+ 	       (NI_INPUT_CSC_GRPH_MODE(NI_INPUT_CSC_BYPASS) |
+ 		NI_INPUT_CSC_OVL_MODE(NI_INPUT_CSC_BYPASS)));
 -- 
 2.20.1
 
