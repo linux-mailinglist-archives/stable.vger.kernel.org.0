@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 41E9C1675E2
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:32:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 46C9516772F
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:41:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733029AbgBUIbs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 03:31:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49816 "EHLO mail.kernel.org"
+        id S1729062AbgBUIjc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 03:39:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33216 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732431AbgBUINi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 03:13:38 -0500
+        id S1731131AbgBUIA5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 03:00:57 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 728BB20578;
-        Fri, 21 Feb 2020 08:13:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7BB48206ED;
+        Fri, 21 Feb 2020 08:00:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582272817;
-        bh=sr4AxBpVkrWKUM0/W5gOFoSBI4JuE8Ie0711+bXurxQ=;
+        s=default; t=1582272056;
+        bh=hDDi7NfkHyAkUUnTbKQGRytKtjAXcZBx1AojSyMOTjA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Etv5rHspdy0bRjh2XM2N8vTEQAjVH9IrqFKLN37DXLAiY2I+hkYqSlaw6ywgCv8dH
-         8oGvNcQLw0XhnK+iOkcpHxJO3G3yHHRITdWxzdmScTXwrqVyHMXGfz1fSSvyov9uRn
-         UJoJH5lBWHMdDW8Vy6ffzIyaFDFBk3MUlHuRpWpY=
+        b=1L3pVzJKZuNiOgwUb2P10Q5Yj6WRta6/fLxn9UGm/6F2ukdqruBaLN36qi9thicmF
+         K/+MgLsp/za0MGsF/aELw51ilbrRI6Dq2FdDXy7kImgHMEtDFg6wNq2AfBchLQWYj9
+         KvdeiWmVKdkKD2eV+9UxXqyxzX2wz0l1FBxLluEM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Su Yue <Damenly_Su@gmx.com>,
-        Josef Bacik <josef@toxicpanda.com>,
-        Nikolay Borisov <nborisov@suse.com>,
-        David Sterba <dsterba@suse.com>,
+        stable@vger.kernel.org,
+        "Gustavo A. R. Silva" <gustavo@embeddedor.com>,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        Eric Biggers <ebiggers@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 286/344] btrfs: Fix split-brain handling when changing FSID to metadata uuid
-Date:   Fri, 21 Feb 2020 08:41:25 +0100
-Message-Id: <20200221072415.767517771@linuxfoundation.org>
+Subject: [PATCH 5.5 362/399] char: hpet: Fix out-of-bounds read bug
+Date:   Fri, 21 Feb 2020 08:41:27 +0100
+Message-Id: <20200221072435.896514172@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200221072349.335551332@linuxfoundation.org>
-References: <20200221072349.335551332@linuxfoundation.org>
+In-Reply-To: <20200221072402.315346745@linuxfoundation.org>
+References: <20200221072402.315346745@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,106 +46,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nikolay Borisov <nborisov@suse.com>
+From: Gustavo A. R. Silva <gustavo@embeddedor.com>
 
-[ Upstream commit 1362089d2ad7e20d16371b39d3c11990d4ec23e4 ]
+[ Upstream commit 98c49f1746ac44ccc164e914b9a44183fad09f51 ]
 
-Current code doesn't correctly handle the situation which arises when
-a file system that has METADATA_UUID_INCOMPAT flag set and has its FSID
-changed to the one in metadata uuid. This causes the incompat flag to
-disappear.
+Currently, there is an out-of-bounds read on array hpetp->hp_dev
+in the following for loop:
 
-In case of a power failure we could end up in a situation where part of
-the disks in a multi-disk filesystem are correctly reverted to
-METADATA_UUID_INCOMPAT flag unset state, while others have
-METADATA_UUID_INCOMPAT set and CHANGING_FSID_V2_IN_PROGRESS.
+870         for (i = 0; i < hdp->hd_nirqs; i++)
+871                 hpetp->hp_dev[i].hd_hdwirq = hdp->hd_irq[i];
 
-This patch corrects the behavior required to handle the case where a
-disk of the second type is scanned first, creating the necessary
-btrfs_fs_devices. Subsequently, when a disk which has already completed
-the transition is scanned it should overwrite the data in
-btrfs_fs_devices.
+This is due to the recent change from one-element array to
+flexible-array member in struct hpets:
 
-Reported-by: Su Yue <Damenly_Su@gmx.com>
-Reviewed-by: Josef Bacik <josef@toxicpanda.com>
-Signed-off-by: Nikolay Borisov <nborisov@suse.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+104 struct hpets {
+	...
+113         struct hpet_dev hp_dev[];
+114 };
+
+This change affected the total size of the dynamic memory
+allocation, decreasing it by one time the size of struct hpet_dev.
+
+Fix this by adjusting the allocation size when calling
+struct_size().
+
+Fixes: 987f028b8637c ("char: hpet: Use flexible-array member")
+Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
+Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Acked-by: Eric Biggers <ebiggers@kernel.org>
+Link: https://lore.kernel.org/r/20200129022613.GA24281@embeddedor.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/volumes.c | 42 ++++++++++++++++++++++++++++++++++++++----
- 1 file changed, 38 insertions(+), 4 deletions(-)
+ drivers/char/hpet.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/btrfs/volumes.c b/fs/btrfs/volumes.c
-index 9ab3ae5df3005..3e64f49c394b8 100644
---- a/fs/btrfs/volumes.c
-+++ b/fs/btrfs/volumes.c
-@@ -907,6 +907,32 @@ static struct btrfs_fs_devices *find_fsid_changed(
- 
- 	return NULL;
- }
-+
-+static struct btrfs_fs_devices *find_fsid_reverted_metadata(
-+				struct btrfs_super_block *disk_super)
-+{
-+	struct btrfs_fs_devices *fs_devices;
-+
-+	/*
-+	 * Handle the case where the scanned device is part of an fs whose last
-+	 * metadata UUID change reverted it to the original FSID. At the same
-+	 * time * fs_devices was first created by another constitutent device
-+	 * which didn't fully observe the operation. This results in an
-+	 * btrfs_fs_devices created with metadata/fsid different AND
-+	 * btrfs_fs_devices::fsid_change set AND the metadata_uuid of the
-+	 * fs_devices equal to the FSID of the disk.
-+	 */
-+	list_for_each_entry(fs_devices, &fs_uuids, fs_list) {
-+		if (memcmp(fs_devices->fsid, fs_devices->metadata_uuid,
-+			   BTRFS_FSID_SIZE) != 0 &&
-+		    memcmp(fs_devices->metadata_uuid, disk_super->fsid,
-+			   BTRFS_FSID_SIZE) == 0 &&
-+		    fs_devices->fsid_change)
-+			return fs_devices;
-+	}
-+
-+	return NULL;
-+}
- /*
-  * Add new device to list of registered devices
-  *
-@@ -946,7 +972,9 @@ static noinline struct btrfs_device *device_list_add(const char *path,
- 		fs_devices = find_fsid(disk_super->fsid,
- 				       disk_super->metadata_uuid);
- 	} else {
--		fs_devices = find_fsid(disk_super->fsid, NULL);
-+		fs_devices = find_fsid_reverted_metadata(disk_super);
-+		if (!fs_devices)
-+			fs_devices = find_fsid(disk_super->fsid, NULL);
+diff --git a/drivers/char/hpet.c b/drivers/char/hpet.c
+index 9ac6671bb5141..f69609b47fef8 100644
+--- a/drivers/char/hpet.c
++++ b/drivers/char/hpet.c
+@@ -855,7 +855,7 @@ int hpet_alloc(struct hpet_data *hdp)
+ 		return 0;
  	}
  
+-	hpetp = kzalloc(struct_size(hpetp, hp_dev, hdp->hd_nirqs - 1),
++	hpetp = kzalloc(struct_size(hpetp, hp_dev, hdp->hd_nirqs),
+ 			GFP_KERNEL);
  
-@@ -976,12 +1004,18 @@ static noinline struct btrfs_device *device_list_add(const char *path,
- 		 * a device which had the CHANGING_FSID_V2 flag then replace the
- 		 * metadata_uuid/fsid values of the fs_devices.
- 		 */
--		if (has_metadata_uuid && fs_devices->fsid_change &&
-+		if (fs_devices->fsid_change &&
- 		    found_transid > fs_devices->latest_generation) {
- 			memcpy(fs_devices->fsid, disk_super->fsid,
- 					BTRFS_FSID_SIZE);
--			memcpy(fs_devices->metadata_uuid,
--					disk_super->metadata_uuid, BTRFS_FSID_SIZE);
-+
-+			if (has_metadata_uuid)
-+				memcpy(fs_devices->metadata_uuid,
-+				       disk_super->metadata_uuid,
-+				       BTRFS_FSID_SIZE);
-+			else
-+				memcpy(fs_devices->metadata_uuid,
-+				       disk_super->fsid, BTRFS_FSID_SIZE);
- 
- 			fs_devices->fsid_change = false;
- 		}
+ 	if (!hpetp)
 -- 
 2.20.1
 
