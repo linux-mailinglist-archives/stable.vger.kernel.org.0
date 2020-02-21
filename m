@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 79D801676D6
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:41:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E25D1676D8
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:41:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730770AbgBUH60 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 02:58:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58240 "EHLO mail.kernel.org"
+        id S1730782AbgBUH6b (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 02:58:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58336 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730134AbgBUH6Z (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 02:58:25 -0500
+        id S1729326AbgBUH6a (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 02:58:30 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 760C224672;
-        Fri, 21 Feb 2020 07:58:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6D778206ED;
+        Fri, 21 Feb 2020 07:58:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582271904;
-        bh=PNI4J4LnI5EeNudriscWBtbKyV+GK1O1DWXIYeyYIG4=;
+        s=default; t=1582271909;
+        bh=avJYHk9+rm68xYfto9kc+SfaVmoDR3ZjTQltM8N55/w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BVvSRKTaS8QL+59DHOfI2PkxGWVaM2kBgSLGwLfz2yO2/0GA6R/xGgeTE1zrVE3J1
-         8w+9oU48rDLCFp1wHNG6i2MbbzdY6BjcX1S0j5fGwFL0H8onwExeMSJpu93fWNZeLh
-         hBwPpvpHfFQuJsFMLMv83HdGwh6n9OgjoAfTnQ2o=
+        b=Bt0aCeNZM8APTueFCUyJVtkXdJCskYVvD7p2QFeLn6NZTE4aDnqiMk2+I8jbVJlEf
+         GBCBubc/IfTRVSXhn4e3cS9BXtqGBgqGYls4yX5JvAQYkplw4zTMqJPN/Ejzwkje2f
+         mgNZXcGl0Z0P2jIEWxxNLkxbQuYEbuzfH1i/kOXU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Steve Best <sbest@redhat.com>,
-        Douglas Miller <dougmill@us.ibm.com>,
-        Oliver OHalloran <oohall@gmail.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Ard Biesheuvel <ardb@kernel.org>,
+        Russell King <rmk+kernel@armlinux.org.uk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 342/399] selftests/eeh: Bump EEH wait time to 60s
-Date:   Fri, 21 Feb 2020 08:41:07 +0100
-Message-Id: <20200221072434.082898081@linuxfoundation.org>
+Subject: [PATCH 5.5 343/399] ARM: 8941/1: decompressor: enable CP15 barrier instructions in v7 cache setup code
+Date:   Fri, 21 Feb 2020 08:41:08 +0100
+Message-Id: <20200221072434.159323322@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200221072402.315346745@linuxfoundation.org>
 References: <20200221072402.315346745@linuxfoundation.org>
@@ -46,49 +44,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oliver O'Halloran <oohall@gmail.com>
+From: Ard Biesheuvel <ard.biesheuvel@linaro.org>
 
-[ Upstream commit 414f50434aa2463202a5b35e844f4125dd1a7101 ]
+[ Upstream commit 8239fc7755fd3d410920006615abd0c7d653560f ]
 
-Some newer cards supported by aacraid can take up to 40s to recover
-after an EEH event. This causes spurious failures in the basic EEH
-self-test since the current maximim timeout is only 30s.
+Commit e17b1af96b2afc38e684aa2f1033387e2ed10029
 
-Fix the immediate issue by bumping the timeout to a default of 60s,
-and allow the wait time to be specified via an environmental variable
-(EEH_MAX_WAIT).
+  "ARM: 8857/1: efi: enable CP15 DMB instructions before cleaning the cache"
 
-Reported-by: Steve Best <sbest@redhat.com>
-Suggested-by: Douglas Miller <dougmill@us.ibm.com>
-Signed-off-by: Oliver O'Halloran <oohall@gmail.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20200122031125.25991-1-oohall@gmail.com
+added some explicit handling of the CP15BEN bit in the SCTLR system
+register, to ensure that CP15 barrier instructions are enabled, even
+if we enter the decompressor via the EFI stub.
+
+However, as it turns out, there are other ways in which we may end up
+using CP15 barrier instructions without them being enabled. I.e., when
+the decompressor startup code skips the cache_on() initially, we end
+up calling cache_clean_flush() with the caches and MMU off, in which
+case the CP15BEN bit in SCTLR may not be programmed either. And in
+fact, cache_on() itself issues CP15 barrier instructions before actually
+enabling them by programming the new SCTLR value (and issuing an ISB)
+
+Since these routines are shared between v7 CPUs and older ones that
+implement the CPUID extension as well, using the ordinary v7 barrier
+instructions in this code is not possible, and so we should enable the
+CP15 ones explicitly before issuing them. Note that a v7 ISB is still
+required between programming the SCTLR register and using the CP15 barrier
+instructions, and we should take care to branch over it if the CP15BEN
+bit is already set, given that in that case, the CPU may not support it.
+
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/powerpc/eeh/eeh-functions.sh | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ arch/arm/boot/compressed/head.S | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
-diff --git a/tools/testing/selftests/powerpc/eeh/eeh-functions.sh b/tools/testing/selftests/powerpc/eeh/eeh-functions.sh
-index 26112ab5cdf42..f52ed92b53e74 100755
---- a/tools/testing/selftests/powerpc/eeh/eeh-functions.sh
-+++ b/tools/testing/selftests/powerpc/eeh/eeh-functions.sh
-@@ -53,9 +53,13 @@ eeh_one_dev() {
- 	# is a no-op.
- 	echo $dev >/sys/kernel/debug/powerpc/eeh_dev_check
+diff --git a/arch/arm/boot/compressed/head.S b/arch/arm/boot/compressed/head.S
+index ead21e5f2b803..469a2b3b60c09 100644
+--- a/arch/arm/boot/compressed/head.S
++++ b/arch/arm/boot/compressed/head.S
+@@ -140,6 +140,17 @@
+ #endif
+ 		.endm
  
--	# Enforce a 30s timeout for recovery. Even the IPR, which is infamously
--	# slow to reset, should recover within 30s.
--	max_wait=30
-+	# Default to a 60s timeout when waiting for a device to recover. This
-+	# is an arbitrary default which can be overridden by setting the
-+	# EEH_MAX_WAIT environmental variable when required.
++		.macro	enable_cp15_barriers, reg
++		mrc	p15, 0, \reg, c1, c0, 0	@ read SCTLR
++		tst	\reg, #(1 << 5)		@ CP15BEN bit set?
++		bne	.L_\@
++		orr	\reg, \reg, #(1 << 5)	@ CP15 barrier instructions
++		mcr	p15, 0, \reg, c1, c0, 0	@ write SCTLR
++ ARM(		.inst   0xf57ff06f		@ v7+ isb	)
++ THUMB(		isb						)
++.L_\@:
++		.endm
 +
-+	# The current record holder for longest recovery time is:
-+	#  "Adaptec Series 8 12G SAS/PCIe 3" at 39 seconds
-+	max_wait=${EEH_MAX_WAIT:=60}
+ 		.section ".start", "ax"
+ /*
+  * sort out different calling conventions
+@@ -820,6 +831,7 @@ __armv4_mmu_cache_on:
+ 		mov	pc, r12
  
- 	for i in `seq 0 ${max_wait}` ; do
- 		if pe_ok $dev ; then
+ __armv7_mmu_cache_on:
++		enable_cp15_barriers	r11
+ 		mov	r12, lr
+ #ifdef CONFIG_MMU
+ 		mrc	p15, 0, r11, c0, c1, 4	@ read ID_MMFR0
+@@ -1209,6 +1221,7 @@ __armv6_mmu_cache_flush:
+ 		mov	pc, lr
+ 
+ __armv7_mmu_cache_flush:
++		enable_cp15_barriers	r10
+ 		tst	r4, #1
+ 		bne	iflush
+ 		mrc	p15, 0, r10, c0, c1, 5	@ read ID_MMFR1
 -- 
 2.20.1
 
