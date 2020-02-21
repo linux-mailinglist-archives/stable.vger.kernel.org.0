@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7F7E0167226
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:01:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C9BAF167492
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:24:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730941AbgBUIAl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 03:00:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:32894 "EHLO mail.kernel.org"
+        id S2388366AbgBUIWs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 03:22:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34506 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731100AbgBUIAk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 03:00:40 -0500
+        id S2388363AbgBUIWr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 03:22:47 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1DC3C222C4;
-        Fri, 21 Feb 2020 08:00:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AF57D2467D;
+        Fri, 21 Feb 2020 08:22:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582272040;
-        bh=z0rNwAgT4RhdH7E/PP6WgAWT6eALymRlsnU1oUbYAkw=;
+        s=default; t=1582273367;
+        bh=Vo9ppF8tbSkSkbJ7l6Xs3X6/KUsvF3UdevzqhdqS7/Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m3+w8DCUZNrrmoV2ibE/1wKPjONbE7ydVr90nQh6Hbn1CxBRVFhywEAeEXBBxKMA8
-         xQwgu1+AL3LdBcdbzvEjpwKEQi40p9Ucoi1cQ5KMVX35vP1fXm4rPsyXU69/ot0K0u
-         jilldGstHffPTxQ3+WsMpdR4vgXO7vMDP/e0pf9E=
+        b=BuGGUvqUjsJmg5ifnLQr28KIyhUF26Wh9e59OvEdWMyOETeHWqeNmqUjSB3pcXdCs
+         RswMfu8p0A6UR9dIRneRhEI6SUZonC1Tq0cfy3QUGnrkYgGqMkEsdmr3C5O0lWyVE+
+         5r1PzpJfn9ocz+X6Z84tX8DeaC3epDPvHpDJD0m4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Steve French <stfrench@microsoft.com>,
-        Oleg Kravtsov <oleg@tuxera.com>,
-        Ronnie Sahlberg <lsahlber@redhat.com>,
-        Pavel Shilovsky <pshilov@microsoft.com>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Josef Bacik <josef@toxicpanda.com>,
+        David Sterba <dsterba@suse.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 392/399] cifs: log warning message (once) if out of disk space
-Date:   Fri, 21 Feb 2020 08:41:57 +0100
-Message-Id: <20200221072438.042478510@linuxfoundation.org>
+Subject: [PATCH 4.19 145/191] btrfs: safely advance counter when looking up bio csums
+Date:   Fri, 21 Feb 2020 08:41:58 +0100
+Message-Id: <20200221072308.005607611@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200221072402.315346745@linuxfoundation.org>
-References: <20200221072402.315346745@linuxfoundation.org>
+In-Reply-To: <20200221072250.732482588@linuxfoundation.org>
+References: <20200221072250.732482588@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,40 +45,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steve French <stfrench@microsoft.com>
+From: David Sterba <dsterba@suse.com>
 
-[ Upstream commit d6fd41905ec577851734623fb905b1763801f5ef ]
+[ Upstream commit 4babad10198fa73fe73239d02c2e99e3333f5f5c ]
 
-We ran into a confusing problem where an application wasn't checking
-return code on close and so user didn't realize that the application
-ran out of disk space.  log a warning message (once) in these
-cases. For example:
+Dan's smatch tool reports
 
-  [ 8407.391909] Out of space writing to \\oleg-server\small-share
+  fs/btrfs/file-item.c:295 btrfs_lookup_bio_sums()
+  warn: should this be 'count == -1'
 
-Signed-off-by: Steve French <stfrench@microsoft.com>
-Reported-by: Oleg Kravtsov <oleg@tuxera.com>
-Reviewed-by: Ronnie Sahlberg <lsahlber@redhat.com>
-Reviewed-by: Pavel Shilovsky <pshilov@microsoft.com>
+which points to the while (count--) loop. With count == 0 the check
+itself could decrement it to -1. There's a WARN_ON a few lines below
+that has never been seen in practice though.
+
+It turns out that the value of page_bytes_left matches the count (by
+sectorsize multiples). The loop never reaches the state where count
+would go to -1, because page_bytes_left == 0 is found first and this
+breaks out.
+
+For clarity, use only plain check on count (and only for positive
+value), decrement safely inside the loop. Any other discrepancy after
+the whole bio list processing should be reported by the exising
+WARN_ON_ONCE as well.
+
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Reviewed-by: Josef Bacik <josef@toxicpanda.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/smb2pdu.c | 3 +++
- 1 file changed, 3 insertions(+)
+ fs/btrfs/file-item.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/fs/cifs/smb2pdu.c b/fs/cifs/smb2pdu.c
-index 0a3b37abc5e12..6c9497c18f0b8 100644
---- a/fs/cifs/smb2pdu.c
-+++ b/fs/cifs/smb2pdu.c
-@@ -4029,6 +4029,9 @@ smb2_writev_callback(struct mid_q_entry *mid)
- 				     wdata->cfile->fid.persistent_fid,
- 				     tcon->tid, tcon->ses->Suid, wdata->offset,
- 				     wdata->bytes, wdata->result);
-+		if (wdata->result == -ENOSPC)
-+			printk_once(KERN_WARNING "Out of space writing to %s\n",
-+				    tcon->treeName);
- 	} else
- 		trace_smb3_write_done(0 /* no xid */,
- 				      wdata->cfile->fid.persistent_fid,
+diff --git a/fs/btrfs/file-item.c b/fs/btrfs/file-item.c
+index 4cf2817ab1202..f9e280d0b44f3 100644
+--- a/fs/btrfs/file-item.c
++++ b/fs/btrfs/file-item.c
+@@ -275,7 +275,8 @@ found:
+ 		csum += count * csum_size;
+ 		nblocks -= count;
+ next:
+-		while (count--) {
++		while (count > 0) {
++			count--;
+ 			disk_bytenr += fs_info->sectorsize;
+ 			offset += fs_info->sectorsize;
+ 			page_bytes_left -= fs_info->sectorsize;
 -- 
 2.20.1
 
