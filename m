@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5173E16783E
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:48:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 06EA9167813
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:46:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728436AbgBUHsK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 02:48:10 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44130 "EHLO mail.kernel.org"
+        id S1731521AbgBUIqK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 03:46:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47224 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728420AbgBUHsJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 02:48:09 -0500
+        id S1729545AbgBUHuV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 02:50:21 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 76482207FD;
-        Fri, 21 Feb 2020 07:48:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1E1DC24656;
+        Fri, 21 Feb 2020 07:50:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582271288;
-        bh=X/Dq+PeQjECF1L6QQ6O2t+J7BdtB35HFF99zLyDSSpU=;
+        s=default; t=1582271420;
+        bh=deNAJfb+HengsUnbWaZWDBpg7gTmWXmNHJ17KELUfr4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bE5vg+lVaqQO/xHpII9FSib8gcdeUa9w4E931TSrqGu7SSTeleN2I+uHckMQWCnIn
-         s2MZoLMbNKB0j3bupr0tk/vO0YuEnh/V2MUBMzIHC1K8mgELxRPo4hAf/jrebCLLek
-         93m/CD2goUxqP34xWhiIRGnCpdCb7NmahO2FFE9M=
+        b=DHpo0ZSRCUwDw2IqzpRQT1IcskFT5oyg5a2avqZiVoQotbbcKoASZUGFbttYw8GlA
+         uPDVYIKdLftzwdbyOY3B1NdROFPDEkZAfMoVvx3TH6kZ2cbQR73IaLnXw/5PXyLygb
+         g6PElscMdCCYGr6N01iS8Ou8iFUBjmJKAwfFwhic=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 108/399] drm/amdgpu: Ensure ret is always initialized when using SOC15_WAIT_ON_RREG
-Date:   Fri, 21 Feb 2020 08:37:13 +0100
-Message-Id: <20200221072412.929625036@linuxfoundation.org>
+        stable@vger.kernel.org, Masami Hiramatsu <mhiramat@kernel.org>,
+        Jessica Yu <jeyu@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.5 111/399] modules: lockdep: Suppress suspicious RCU usage warning
+Date:   Fri, 21 Feb 2020 08:37:16 +0100
+Message-Id: <20200221072413.235275688@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200221072402.315346745@linuxfoundation.org>
 References: <20200221072402.315346745@linuxfoundation.org>
@@ -45,66 +43,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <natechancellor@gmail.com>
+From: Masami Hiramatsu <mhiramat@kernel.org>
 
-[ Upstream commit a63141e31764f8daf3f29e8e2d450dcf9199d1c8 ]
+[ Upstream commit bf08949cc8b98b7d1e20cfbba169a5938d42dae8 ]
 
-Commit b0f3cd3191cd ("drm/amdgpu: remove unnecessary JPEG2.0 code from
-VCN2.0") introduced a new clang warning in the vcn_v2_0_stop function:
+While running kprobe module test, find_module_all() caused
+a suspicious RCU usage warning.
 
-../drivers/gpu/drm/amd/amdgpu/vcn_v2_0.c:1082:2: warning: variable 'r'
-is used uninitialized whenever 'while' loop exits because its condition
-is false [-Wsometimes-uninitialized]
-        SOC15_WAIT_ON_RREG(VCN, 0, mmUVD_STATUS, UVD_STATUS__IDLE, 0x7, r);
-        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-../drivers/gpu/drm/amd/amdgpu/../amdgpu/soc15_common.h:55:10: note:
-expanded from macro 'SOC15_WAIT_ON_RREG'
-                while ((tmp_ & (mask)) != (expected_value)) {   \
-                       ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-../drivers/gpu/drm/amd/amdgpu/vcn_v2_0.c:1083:6: note: uninitialized use
-occurs here
-        if (r)
-            ^
-../drivers/gpu/drm/amd/amdgpu/vcn_v2_0.c:1082:2: note: remove the
-condition if it is always true
-        SOC15_WAIT_ON_RREG(VCN, 0, mmUVD_STATUS, UVD_STATUS__IDLE, 0x7, r);
-        ^
-../drivers/gpu/drm/amd/amdgpu/../amdgpu/soc15_common.h:55:10: note:
-expanded from macro 'SOC15_WAIT_ON_RREG'
-                while ((tmp_ & (mask)) != (expected_value)) {   \
-                       ^
-../drivers/gpu/drm/amd/amdgpu/vcn_v2_0.c:1072:7: note: initialize the
-variable 'r' to silence this warning
-        int r;
-             ^
-              = 0
-1 warning generated.
+-----
+ =============================
+ WARNING: suspicious RCU usage
+ 5.4.0-next-20191202+ #63 Not tainted
+ -----------------------------
+ kernel/module.c:619 RCU-list traversed in non-reader section!!
 
-To prevent warnings like this from happening in the future, make the
-SOC15_WAIT_ON_RREG macro initialize its ret variable before the while
-loop that can time out. This macro's return value is always checked so
-it should set ret in both the success and fail path.
+ other info that might help us debug this:
 
-Link: https://github.com/ClangBuiltLinux/linux/issues/776
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+ rcu_scheduler_active = 2, debug_locks = 1
+ 1 lock held by rmmod/642:
+  #0: ffffffff8227da80 (module_mutex){+.+.}, at: __x64_sys_delete_module+0x9a/0x230
+
+ stack backtrace:
+ CPU: 0 PID: 642 Comm: rmmod Not tainted 5.4.0-next-20191202+ #63
+ Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.12.1-0-ga5cab58e9a3f-prebuilt.qemu.org 04/01/2014
+ Call Trace:
+  dump_stack+0x71/0xa0
+  find_module_all+0xc1/0xd0
+  __x64_sys_delete_module+0xac/0x230
+  ? do_syscall_64+0x12/0x1f0
+  do_syscall_64+0x50/0x1f0
+  entry_SYSCALL_64_after_hwframe+0x49/0xbe
+ RIP: 0033:0x4b6d49
+-----
+
+This is because list_for_each_entry_rcu(modules) is called
+without rcu_read_lock(). This is safe because the module_mutex
+is locked.
+
+Pass lockdep_is_held(&module_mutex) to the list_for_each_entry_rcu()
+to suppress this warning, This also fixes similar issue in
+mod_find() and each_symbol_section().
+
+Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
+Signed-off-by: Jessica Yu <jeyu@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/soc15_common.h | 1 +
- 1 file changed, 1 insertion(+)
+ kernel/module.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/soc15_common.h b/drivers/gpu/drm/amd/amdgpu/soc15_common.h
-index 839f186e1182a..19e870c798967 100644
---- a/drivers/gpu/drm/amd/amdgpu/soc15_common.h
-+++ b/drivers/gpu/drm/amd/amdgpu/soc15_common.h
-@@ -52,6 +52,7 @@
- 		uint32_t old_ = 0;	\
- 		uint32_t tmp_ = RREG32(adev->reg_offset[ip##_HWIP][inst][reg##_BASE_IDX] + reg); \
- 		uint32_t loop = adev->usec_timeout;		\
-+		ret = 0;					\
- 		while ((tmp_ & (mask)) != (expected_value)) {	\
- 			if (old_ != tmp_) {			\
- 				loop = adev->usec_timeout;	\
+diff --git a/kernel/module.c b/kernel/module.c
+index 8785e31c2dd0f..d83edc3a41a33 100644
+--- a/kernel/module.c
++++ b/kernel/module.c
+@@ -214,7 +214,8 @@ static struct module *mod_find(unsigned long addr)
+ {
+ 	struct module *mod;
+ 
+-	list_for_each_entry_rcu(mod, &modules, list) {
++	list_for_each_entry_rcu(mod, &modules, list,
++				lockdep_is_held(&module_mutex)) {
+ 		if (within_module(addr, mod))
+ 			return mod;
+ 	}
+@@ -448,7 +449,8 @@ bool each_symbol_section(bool (*fn)(const struct symsearch *arr,
+ 	if (each_symbol_in_section(arr, ARRAY_SIZE(arr), NULL, fn, data))
+ 		return true;
+ 
+-	list_for_each_entry_rcu(mod, &modules, list) {
++	list_for_each_entry_rcu(mod, &modules, list,
++				lockdep_is_held(&module_mutex)) {
+ 		struct symsearch arr[] = {
+ 			{ mod->syms, mod->syms + mod->num_syms, mod->crcs,
+ 			  NOT_GPL_ONLY, false },
+@@ -616,7 +618,8 @@ static struct module *find_module_all(const char *name, size_t len,
+ 
+ 	module_assert_mutex_or_preempt();
+ 
+-	list_for_each_entry_rcu(mod, &modules, list) {
++	list_for_each_entry_rcu(mod, &modules, list,
++				lockdep_is_held(&module_mutex)) {
+ 		if (!even_unformed && mod->state == MODULE_STATE_UNFORMED)
+ 			continue;
+ 		if (strlen(mod->name) == len && !memcmp(mod->name, name, len))
 -- 
 2.20.1
 
