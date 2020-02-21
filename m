@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 14E36167869
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:48:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 863F916772B
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:41:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728836AbgBUHrD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 02:47:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42766 "EHLO mail.kernel.org"
+        id S1731483AbgBUIjM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 03:39:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33786 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728829AbgBUHrC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 02:47:02 -0500
+        id S1731041AbgBUIB2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 03:01:28 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 35A5524676;
-        Fri, 21 Feb 2020 07:47:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7A0E120801;
+        Fri, 21 Feb 2020 08:01:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582271221;
-        bh=YHz7O6G/jmkaVCvMuEpPsNeQD/iCyedN0ScyPG8tI5s=;
+        s=default; t=1582272087;
+        bh=H3LKj47Yqut0p8cQXZtywNFL074vZu1UaiH+k7PfGpE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TNysK6CfZxjRTIM3lkvUxMnOlLkVA2YYGCGGHVsXRbxG7HqnCp4lYr85+b8CMExQ6
-         5o21D+RVDjecB6iv3KlRw/ngGuLcF86uJargXyWzg6ryRfWTXUs7U5nT7wvTTcefBq
-         zjyVi8PKu50Ro4UN7lirxjMqk6eSVLQLjhEYr3Qw=
+        b=P80SaBEcqGJ7qOtBgaxXtWru5zd21bsM4/ZVPEYQBtxGESb3tZvk//qhCtMFNGZcs
+         7V1Sv9l0jMzj0A/f8gOgVSrs1CjGsx75IF0PHnbQS64SG7IHYfBAv0qxKJSfEmDGDJ
+         Bac0rlZcYUSj0WtWaEiWvq9ka6FRG5t5Uk+fksU4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Vincenzo Frascino <vincenzo.frascino@arm.com>,
-        Russell King <rmk+kernel@armlinux.org.uk>,
+        stable@vger.kernel.org, Stefan Reiter <stefan@pimaker.at>,
+        "Paul E. McKenney" <paulmck@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 085/399] ARM: 8952/1: Disable kmemleak on XIP kernels
-Date:   Fri, 21 Feb 2020 08:36:50 +0100
-Message-Id: <20200221072410.601248586@linuxfoundation.org>
+Subject: [PATCH 5.4 012/344] rcu/nocb: Fix dump_tree hierarchy print always active
+Date:   Fri, 21 Feb 2020 08:36:51 +0100
+Message-Id: <20200221072350.365524788@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200221072402.315346745@linuxfoundation.org>
-References: <20200221072402.315346745@linuxfoundation.org>
+In-Reply-To: <20200221072349.335551332@linuxfoundation.org>
+References: <20200221072349.335551332@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,52 +44,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vincenzo Frascino <vincenzo.frascino@arm.com>
+From: Stefan Reiter <stefan@pimaker.at>
 
-[ Upstream commit bc420c6ceefbb86cbbc8c00061bd779c17fa6997 ]
+[ Upstream commit 610dea36d3083a977e4f156206cbe1eaa2a532f0 ]
 
-Kmemleak relies on specific symbols to register the read only data
-during init (e.g. __start_ro_after_init).
-Trying to build an XIP kernel on arm results in the linking error
-reported below because when this option is selected read only data
-after init are not allowed since .data is read only (.rodata).
+Commit 18cd8c93e69e ("rcu/nocb: Print gp/cb kthread hierarchy if
+dump_tree") added print statements to rcu_organize_nocb_kthreads for
+debugging, but incorrectly guarded them, causing the function to always
+spew out its message.
 
-  arm-linux-gnueabihf-ld: mm/kmemleak.o: in function `kmemleak_init':
-  kmemleak.c:(.init.text+0x148): undefined reference to `__end_ro_after_init'
-  arm-linux-gnueabihf-ld: kmemleak.c:(.init.text+0x14c):
-     undefined reference to `__end_ro_after_init'
-  arm-linux-gnueabihf-ld: kmemleak.c:(.init.text+0x150):
-     undefined reference to `__start_ro_after_init'
-  arm-linux-gnueabihf-ld: kmemleak.c:(.init.text+0x156):
-     undefined reference to `__start_ro_after_init'
-  arm-linux-gnueabihf-ld: kmemleak.c:(.init.text+0x162):
-     undefined reference to `__start_ro_after_init'
-  arm-linux-gnueabihf-ld: kmemleak.c:(.init.text+0x16a):
-     undefined reference to `__start_ro_after_init'
-  linux/Makefile:1078: recipe for target 'vmlinux' failed
+This patch fixes it by guarding both pr_alert statements with dump_tree,
+while also changing the second pr_alert to a pr_cont, to print the
+hierarchy in a single line (assuming that's how it was supposed to
+work).
 
-Fix the issue enabling kmemleak only on non XIP kernels.
-
-Signed-off-by: Vincenzo Frascino <vincenzo.frascino@arm.com>
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+Fixes: 18cd8c93e69e ("rcu/nocb: Print gp/cb kthread hierarchy if dump_tree")
+Signed-off-by: Stefan Reiter <stefan@pimaker.at>
+[ paulmck: Make single-nocbs-CPU GP kthreads look less erroneous. ]
+Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/Kconfig | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/rcu/tree_plugin.h | 22 +++++++++++++++++-----
+ 1 file changed, 17 insertions(+), 5 deletions(-)
 
-diff --git a/arch/arm/Kconfig b/arch/arm/Kconfig
-index 96dab76da3b39..2c3a9fd05f571 100644
---- a/arch/arm/Kconfig
-+++ b/arch/arm/Kconfig
-@@ -74,7 +74,7 @@ config ARM
- 	select HAVE_CONTEXT_TRACKING
- 	select HAVE_COPY_THREAD_TLS
- 	select HAVE_C_RECORDMCOUNT
--	select HAVE_DEBUG_KMEMLEAK
-+	select HAVE_DEBUG_KMEMLEAK if !XIP_KERNEL
- 	select HAVE_DMA_CONTIGUOUS if MMU
- 	select HAVE_DYNAMIC_FTRACE if !XIP_KERNEL && !CPU_ENDIAN_BE32 && MMU
- 	select HAVE_DYNAMIC_FTRACE_WITH_REGS if HAVE_DYNAMIC_FTRACE
+diff --git a/kernel/rcu/tree_plugin.h b/kernel/rcu/tree_plugin.h
+index f849e7429816f..f7118842a2b88 100644
+--- a/kernel/rcu/tree_plugin.h
++++ b/kernel/rcu/tree_plugin.h
+@@ -2322,6 +2322,8 @@ static void __init rcu_organize_nocb_kthreads(void)
+ {
+ 	int cpu;
+ 	bool firsttime = true;
++	bool gotnocbs = false;
++	bool gotnocbscbs = true;
+ 	int ls = rcu_nocb_gp_stride;
+ 	int nl = 0;  /* Next GP kthread. */
+ 	struct rcu_data *rdp;
+@@ -2344,21 +2346,31 @@ static void __init rcu_organize_nocb_kthreads(void)
+ 		rdp = per_cpu_ptr(&rcu_data, cpu);
+ 		if (rdp->cpu >= nl) {
+ 			/* New GP kthread, set up for CBs & next GP. */
++			gotnocbs = true;
+ 			nl = DIV_ROUND_UP(rdp->cpu + 1, ls) * ls;
+ 			rdp->nocb_gp_rdp = rdp;
+ 			rdp_gp = rdp;
+-			if (!firsttime && dump_tree)
+-				pr_cont("\n");
+-			firsttime = false;
+-			pr_alert("%s: No-CB GP kthread CPU %d:", __func__, cpu);
++			if (dump_tree) {
++				if (!firsttime)
++					pr_cont("%s\n", gotnocbscbs
++							? "" : " (self only)");
++				gotnocbscbs = false;
++				firsttime = false;
++				pr_alert("%s: No-CB GP kthread CPU %d:",
++					 __func__, cpu);
++			}
+ 		} else {
+ 			/* Another CB kthread, link to previous GP kthread. */
++			gotnocbscbs = true;
+ 			rdp->nocb_gp_rdp = rdp_gp;
+ 			rdp_prev->nocb_next_cb_rdp = rdp;
+-			pr_alert(" %d", cpu);
++			if (dump_tree)
++				pr_cont(" %d", cpu);
+ 		}
+ 		rdp_prev = rdp;
+ 	}
++	if (gotnocbs && dump_tree)
++		pr_cont("%s\n", gotnocbscbs ? "" : " (self only)");
+ }
+ 
+ /*
 -- 
 2.20.1
 
