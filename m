@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D0A4D167887
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:50:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 46491167888
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:50:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727913AbgBUHoV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 02:44:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38972 "EHLO mail.kernel.org"
+        id S1727928AbgBUHoW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 02:44:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39016 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727894AbgBUHoT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 02:44:19 -0500
+        id S1727851AbgBUHoV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 02:44:21 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BFBA52465D;
-        Fri, 21 Feb 2020 07:44:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5118320801;
+        Fri, 21 Feb 2020 07:44:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582271058;
-        bh=2zzEizZPgz3jQw2F25+EGzqeylL8hud7mBY/PTOc2w4=;
+        s=default; t=1582271060;
+        bh=m2QY89YMDTBv5LbPtFDrXsFu6fj+7Qh5AXzAdmpTi+o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=usr6CPVeOwJnaaAWqMEgbTqEOXxqGWna/QDhUk4zldh4/L7ARdjJ6dkoBVvXNvmss
-         mzowhHIag5kK5ZHPdcxy0K6WBaky7cL82N2jRn3/IbXEBDfBJRPKbCuLpahoFt/zUI
-         +/rWqMCOn+0Myo+fVg0lJgtbKzNJbd6eIHRk0FKE=
+        b=d4lkq79SuWR8JOpsoiqsPQw+R+qd6H8TJoUSoP/y9ttC3LLzc38QT5cO8KRnUZ6wy
+         uLp00gXiEwn05Oh65MGKGdBCpjYbeJ1kwfy4JVts+iHiUAy1Pygwse88OdFWXYmxu/
+         mT+ohkBVWPoXIBYBEULxGEocIF1xrGABF9S6s4LY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Paul E. McKenney" <paulmck@kernel.org>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Sasha Levin <sashal@kernel.org>, Tejun Heo <tj@kernel.org>
-Subject: [PATCH 5.5 023/399] cpu/hotplug, stop_machine: Fix stop_machine vs hotplug order
-Date:   Fri, 21 Feb 2020 08:35:48 +0100
-Message-Id: <20200221072404.603207525@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.5 024/399] drm: rcar-du: Recognize "renesas,vsps" in addition to "vsps"
+Date:   Fri, 21 Feb 2020 08:35:49 +0100
+Message-Id: <20200221072404.720617938@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200221072402.315346745@linuxfoundation.org>
 References: <20200221072402.315346745@linuxfoundation.org>
@@ -44,89 +45,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Geert Uytterhoeven <geert+renesas@glider.be>
 
-[ Upstream commit 45178ac0cea853fe0e405bf11e101bdebea57b15 ]
+[ Upstream commit 7b627ce80fbd05885b27f711a5f9820f2b40749a ]
 
-Paul reported a very sporadic, rcutorture induced, workqueue failure.
-When the planets align, the workqueue rescuer's self-migrate fails and
-then triggers a WARN for running a work on the wrong CPU.
+The Renesas-specific "vsps" property lacks a vendor prefix.
+Add a "renesas," prefix to comply with DT best practises.
+Retain backward compatibility with old DTBs by falling back to "vsps"
+when needed.
 
-Tejun then figured that set_cpus_allowed_ptr()'s stop_one_cpu() call
-could be ignored! When stopper->enabled is false, stop_machine will
-insta complete the work, without actually doing the work. Worse, it
-will not WARN about this (we really should fix this).
-
-It turns out there is a small window where a freshly online'ed CPU is
-marked 'online' but doesn't yet have the stopper task running:
-
-	BP				AP
-
-	bringup_cpu()
-	  __cpu_up(cpu, idle)	 -->	start_secondary()
-					...
-					cpu_startup_entry()
-	  bringup_wait_for_ap()
-	    wait_for_ap_thread() <--	  cpuhp_online_idle()
-					  while (1)
-					    do_idle()
-
-					... available to run kthreads ...
-
-	    stop_machine_unpark()
-	      stopper->enable = true;
-
-Close this by moving the stop_machine_unpark() into
-cpuhp_online_idle(), such that the stopper thread is ready before we
-start the idle loop and schedule.
-
-Reported-by: "Paul E. McKenney" <paulmck@kernel.org>
-Debugged-by: Tejun Heo <tj@kernel.org>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Tested-by: "Paul E. McKenney" <paulmck@kernel.org>
+Fixes: 6d62ef3ac30be756 ("drm: rcar-du: Expose the VSP1 compositor through KMS planes")
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Reviewed-by: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>
+Signed-off-by: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/cpu.c | 13 +++++++++----
- 1 file changed, 9 insertions(+), 4 deletions(-)
+ drivers/gpu/drm/rcar-du/rcar_du_kms.c | 17 ++++++++++++-----
+ 1 file changed, 12 insertions(+), 5 deletions(-)
 
-diff --git a/kernel/cpu.c b/kernel/cpu.c
-index 4dc279ed3b2d7..9c706af713fbc 100644
---- a/kernel/cpu.c
-+++ b/kernel/cpu.c
-@@ -525,8 +525,7 @@ static int bringup_wait_for_ap(unsigned int cpu)
- 	if (WARN_ON_ONCE((!cpu_online(cpu))))
- 		return -ECANCELED;
- 
--	/* Unpark the stopper thread and the hotplug thread of the target cpu */
--	stop_machine_unpark(cpu);
-+	/* Unpark the hotplug thread of the target cpu */
- 	kthread_unpark(st->thread);
- 
- 	/*
-@@ -1089,8 +1088,8 @@ void notify_cpu_starting(unsigned int cpu)
- 
- /*
-  * Called from the idle task. Wake up the controlling task which brings the
-- * stopper and the hotplug thread of the upcoming CPU up and then delegates
-- * the rest of the online bringup to the hotplug thread.
-+ * hotplug thread of the upcoming CPU up and then delegates the rest of the
-+ * online bringup to the hotplug thread.
-  */
- void cpuhp_online_idle(enum cpuhp_state state)
+diff --git a/drivers/gpu/drm/rcar-du/rcar_du_kms.c b/drivers/gpu/drm/rcar-du/rcar_du_kms.c
+index 0d59f390de19a..662d8075f4116 100644
+--- a/drivers/gpu/drm/rcar-du/rcar_du_kms.c
++++ b/drivers/gpu/drm/rcar-du/rcar_du_kms.c
+@@ -542,6 +542,7 @@ static int rcar_du_properties_init(struct rcar_du_device *rcdu)
+ static int rcar_du_vsps_init(struct rcar_du_device *rcdu)
  {
-@@ -1100,6 +1099,12 @@ void cpuhp_online_idle(enum cpuhp_state state)
- 	if (state != CPUHP_AP_ONLINE_IDLE)
- 		return;
+ 	const struct device_node *np = rcdu->dev->of_node;
++	const char *vsps_prop_name = "renesas,vsps";
+ 	struct of_phandle_args args;
+ 	struct {
+ 		struct device_node *np;
+@@ -557,15 +558,21 @@ static int rcar_du_vsps_init(struct rcar_du_device *rcdu)
+ 	 * entry contains a pointer to the VSP DT node and a bitmask of the
+ 	 * connected DU CRTCs.
+ 	 */
+-	cells = of_property_count_u32_elems(np, "vsps") / rcdu->num_crtcs - 1;
++	ret = of_property_count_u32_elems(np, vsps_prop_name);
++	if (ret < 0) {
++		/* Backward compatibility with old DTBs. */
++		vsps_prop_name = "vsps";
++		ret = of_property_count_u32_elems(np, vsps_prop_name);
++	}
++	cells = ret / rcdu->num_crtcs - 1;
+ 	if (cells > 1)
+ 		return -EINVAL;
  
-+	/*
-+	 * Unpart the stopper thread before we start the idle loop (and start
-+	 * scheduling); this ensures the stopper task is always available.
-+	 */
-+	stop_machine_unpark(smp_processor_id());
-+
- 	st->state = CPUHP_AP_ONLINE_IDLE;
- 	complete_ap_thread(st, true);
- }
+ 	for (i = 0; i < rcdu->num_crtcs; ++i) {
+ 		unsigned int j;
+ 
+-		ret = of_parse_phandle_with_fixed_args(np, "vsps", cells, i,
+-						       &args);
++		ret = of_parse_phandle_with_fixed_args(np, vsps_prop_name,
++						       cells, i, &args);
+ 		if (ret < 0)
+ 			goto error;
+ 
+@@ -587,8 +594,8 @@ static int rcar_du_vsps_init(struct rcar_du_device *rcdu)
+ 
+ 		/*
+ 		 * Store the VSP pointer and pipe index in the CRTC. If the
+-		 * second cell of the 'vsps' specifier isn't present, default
+-		 * to 0 to remain compatible with older DT bindings.
++		 * second cell of the 'renesas,vsps' specifier isn't present,
++		 * default to 0 to remain compatible with older DT bindings.
+ 		 */
+ 		rcdu->crtcs[i].vsp = &rcdu->vsps[j];
+ 		rcdu->crtcs[i].vsp_pipe = cells >= 1 ? args.args[0] : 0;
 -- 
 2.20.1
 
