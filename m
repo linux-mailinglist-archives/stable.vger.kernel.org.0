@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 83BBE167368
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:13:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 484B21674F0
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:30:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732773AbgBUIMA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 03:12:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47648 "EHLO mail.kernel.org"
+        id S2388056AbgBUITl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 03:19:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58368 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732748AbgBUIMA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 03:12:00 -0500
+        id S2388052AbgBUITk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 03:19:40 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 80E2D24670;
-        Fri, 21 Feb 2020 08:11:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 795D324696;
+        Fri, 21 Feb 2020 08:19:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582272720;
-        bh=tO4IK6qaQxYUSnNMvJsU3p6KHsQXd6nqqTonDg5LQMo=;
+        s=default; t=1582273179;
+        bh=lv5xvxyMif5bZ1fAdyvV/Px71qvpbnTsgaX777TW9vE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fd8o92BOFIj7mV92FMhPwM0TWDadxEzaZcFogfmTmU3MbhkWXwNHLtVqba8M+7JI+
-         dZNn4nYS2/wHq+f7XDTgAqqmBdK2FvMJ3miHPKpwzWEKIFpRcdeUn3eonSaE9ElSKT
-         /z5nb7e0/NcfMDWrJCHeS+Ia666uCnFc7RowvFaY=
+        b=BamyKO+3oyPPN7T8Lr46GATkmunGfJ4JsEM85c/b4mbgV+lyhip+ycPu3JMbokjD/
+         DL9V14cEYOTiTAIl9YAWJB+UqMoozB8L2jqATtYeQ8zI4CkTTAHC2QxhiByxhtZ5BA
+         PhF80BzTLM4Cc/7Gfdnjm9JTEJYeyGLp8ckUWeMA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        zhengbin <zhengbin13@huawei.com>,
-        Paul Mackerras <paulus@ozlabs.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 248/344] KVM: PPC: Remove set but not used variable ra, rs, rt
+        stable@vger.kernel.org,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 074/191] ALSA: usx2y: Adjust indentation in snd_usX2Y_hwdep_dsp_status
 Date:   Fri, 21 Feb 2020 08:40:47 +0100
-Message-Id: <20200221072411.973601352@linuxfoundation.org>
+Message-Id: <20200221072300.198413998@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200221072349.335551332@linuxfoundation.org>
-References: <20200221072349.335551332@linuxfoundation.org>
+In-Reply-To: <20200221072250.732482588@linuxfoundation.org>
+References: <20200221072250.732482588@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,53 +44,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: zhengbin <zhengbin13@huawei.com>
+From: Nathan Chancellor <natechancellor@gmail.com>
 
-[ Upstream commit 4de0a8355463e068e443b48eb5ae32370155368b ]
+[ Upstream commit df4654bd6e42125d9b85ce3a26eaca2935290b98 ]
 
-Fixes gcc '-Wunused-but-set-variable' warning:
+Clang warns:
 
-arch/powerpc/kvm/emulate_loadstore.c: In function kvmppc_emulate_loadstore:
-arch/powerpc/kvm/emulate_loadstore.c:87:6: warning: variable ra set but not used [-Wunused-but-set-variable]
-arch/powerpc/kvm/emulate_loadstore.c: In function kvmppc_emulate_loadstore:
-arch/powerpc/kvm/emulate_loadstore.c:87:10: warning: variable rs set but not used [-Wunused-but-set-variable]
-arch/powerpc/kvm/emulate_loadstore.c: In function kvmppc_emulate_loadstore:
-arch/powerpc/kvm/emulate_loadstore.c:87:14: warning: variable rt set but not used [-Wunused-but-set-variable]
+../sound/usb/usx2y/usX2Yhwdep.c:122:3: warning: misleading indentation;
+statement is not part of the previous 'if' [-Wmisleading-indentation]
+        info->version = USX2Y_DRIVER_VERSION;
+        ^
+../sound/usb/usx2y/usX2Yhwdep.c:120:2: note: previous statement is here
+        if (us428->chip_status & USX2Y_STAT_CHIP_INIT)
+        ^
+1 warning generated.
 
-They are not used since commit 2b33cb585f94 ("KVM: PPC: Reimplement
-LOAD_FP/STORE_FP instruction mmio emulation with analyse_instr() input")
+This warning occurs because there is a space before the tab on this
+line. Remove it so that the indentation is consistent with the Linux
+kernel coding style and clang no longer warns.
 
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: zhengbin <zhengbin13@huawei.com>
-Signed-off-by: Paul Mackerras <paulus@ozlabs.org>
+This was introduced before the beginning of git history so no fixes tag.
+
+Link: https://github.com/ClangBuiltLinux/linux/issues/831
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+Link: https://lore.kernel.org/r/20191218034257.54535-1-natechancellor@gmail.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kvm/emulate_loadstore.c | 5 -----
- 1 file changed, 5 deletions(-)
+ sound/usb/usx2y/usX2Yhwdep.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/kvm/emulate_loadstore.c b/arch/powerpc/kvm/emulate_loadstore.c
-index 2e496eb86e94a..1139bc56e0045 100644
---- a/arch/powerpc/kvm/emulate_loadstore.c
-+++ b/arch/powerpc/kvm/emulate_loadstore.c
-@@ -73,7 +73,6 @@ int kvmppc_emulate_loadstore(struct kvm_vcpu *vcpu)
- {
- 	struct kvm_run *run = vcpu->run;
- 	u32 inst;
--	int ra, rs, rt;
- 	enum emulation_result emulated = EMULATE_FAIL;
- 	int advance = 1;
- 	struct instruction_op op;
-@@ -85,10 +84,6 @@ int kvmppc_emulate_loadstore(struct kvm_vcpu *vcpu)
- 	if (emulated != EMULATE_DONE)
- 		return emulated;
+diff --git a/sound/usb/usx2y/usX2Yhwdep.c b/sound/usb/usx2y/usX2Yhwdep.c
+index c1dd9a7b48df6..36b3459703640 100644
+--- a/sound/usb/usx2y/usX2Yhwdep.c
++++ b/sound/usb/usx2y/usX2Yhwdep.c
+@@ -131,7 +131,7 @@ static int snd_usX2Y_hwdep_dsp_status(struct snd_hwdep *hw,
+ 	info->num_dsps = 2;		// 0: Prepad Data, 1: FPGA Code
+ 	if (us428->chip_status & USX2Y_STAT_CHIP_INIT)
+ 		info->chip_ready = 1;
+- 	info->version = USX2Y_DRIVER_VERSION; 
++	info->version = USX2Y_DRIVER_VERSION;
+ 	return 0;
+ }
  
--	ra = get_ra(inst);
--	rs = get_rs(inst);
--	rt = get_rt(inst);
--
- 	vcpu->arch.mmio_vsx_copy_nums = 0;
- 	vcpu->arch.mmio_vsx_offset = 0;
- 	vcpu->arch.mmio_copy_type = KVMPPC_VSX_COPY_NONE;
 -- 
 2.20.1
 
