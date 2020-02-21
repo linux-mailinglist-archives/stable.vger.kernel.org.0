@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D37B1672B9
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:06:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2E16C1672BB
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:06:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731580AbgBUIGK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 03:06:10 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39816 "EHLO mail.kernel.org"
+        id S1731919AbgBUIGM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 03:06:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39898 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731910AbgBUIGJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 03:06:09 -0500
+        id S1731557AbgBUIGL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 03:06:11 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 255AA20578;
-        Fri, 21 Feb 2020 08:06:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9A71020578;
+        Fri, 21 Feb 2020 08:06:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582272368;
-        bh=kJWdcJPvZE287SU5CAesXG1gRxh01xitM8yvtMiSSGw=;
+        s=default; t=1582272371;
+        bh=AOoUCVz+M6lYYlM1lQNzSbPm93ZmILm9W0AXjwEgkTM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BAG/iDVdjqS1YCwK53rjEKDE3Z/Yr0/JBYS4wiKF1df39XEBB0UUQ5okFmAGZd+yZ
-         q0t+miFpOZ500hjMSUgwYwb5nZJBcgrFwNgMbxkbC8fovA6PsA1+CtZ455rLqIg377
-         SDrPFHznmO1l9WL1JCG9oPO5m6lfmVYHBw/SEjD4=
+        b=NGk5G7pFGr0hvTdtY68/+zs0DIhFmfBz+1iEmSkz6y+WjXOR9EXXhZ3ukwHJsxRis
+         fZRtjdBmRHvUMskpcrwGDvhm4aRO1jcy/tRRbbrO7n2cfMH7EcDMp5pJPjh9k6Unuc
+         YKNwah92Y27Ko/yLWHQLdtPv3a1VGQcUEPHJsKQw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chris Healy <cphealy@gmail.com>,
-        Lucas Stach <l.stach@pengutronix.de>,
-        Andrey Smirnov <andrew.smirnov@gmail.com>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Fabio Estevam <festevam@gmail.com>,
-        linux-arm-kernel@lists.infradead.org,
+        stable@vger.kernel.org, Keerthy <j-keerthy@ti.com>,
+        Roger Quadros <rogerq@ti.com>, Tero Kristo <t-kristo@ti.com>,
+        Tony Lindgren <tony@atomide.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 117/344] ARM: dts: imx6: rdu2: Limit USBH1 to Full Speed
-Date:   Fri, 21 Feb 2020 08:38:36 +0100
-Message-Id: <20200221072359.524645578@linuxfoundation.org>
+Subject: [PATCH 5.4 118/344] bus: ti-sysc: Implement quirk handling for CLKDM_NOAUTO
+Date:   Fri, 21 Feb 2020 08:38:37 +0100
+Message-Id: <20200221072359.611087030@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200221072349.335551332@linuxfoundation.org>
 References: <20200221072349.335551332@linuxfoundation.org>
@@ -48,41 +45,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrey Smirnov <andrew.smirnov@gmail.com>
+From: Tony Lindgren <tony@atomide.com>
 
-[ Upstream commit 6bb1e09c4c375db29770444f689f35f5cbe696bc ]
+[ Upstream commit 94f6345712b37e4bb23cb265ce4c65b9d177e75a ]
 
-Cabling used to connect devices to USBH1 on RDU2 does not meet USB
-spec cable quality and cable length requirements to operate at High
-Speed, so limit the port to Full Speed only.
+For dra7 dcan and dwc3 instances we need to block clockdomain autoidle.
+Let's do this with CLKDM_NOAUTO quirk flag and enable it for dcan and
+dwc3.
 
-Reported-by: Chris Healy <cphealy@gmail.com>
-Reviewed-by: Chris Healy <cphealy@gmail.com>
-Reviewed-by: Lucas Stach <l.stach@pengutronix.de>
-Signed-off-by: Andrey Smirnov <andrew.smirnov@gmail.com>
-Cc: Shawn Guo <shawnguo@kernel.org>
-Cc: Fabio Estevam <festevam@gmail.com>
-Cc: Lucas Stach <l.stach@pengutronix.de>
-Cc: linux-arm-kernel@lists.infradead.org
-Cc: linux-kernel@vger.kernel.org
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Cc: Keerthy <j-keerthy@ti.com>
+Cc: Roger Quadros <rogerq@ti.com>
+Cc: Tero Kristo <t-kristo@ti.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/imx6qdl-zii-rdu2.dtsi | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/bus/ti-sysc.c                 | 10 ++++++++--
+ include/linux/platform_data/ti-sysc.h |  1 +
+ 2 files changed, 9 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm/boot/dts/imx6qdl-zii-rdu2.dtsi b/arch/arm/boot/dts/imx6qdl-zii-rdu2.dtsi
-index 7b5c0e9b0fcff..a66c4fac6baf0 100644
---- a/arch/arm/boot/dts/imx6qdl-zii-rdu2.dtsi
-+++ b/arch/arm/boot/dts/imx6qdl-zii-rdu2.dtsi
-@@ -774,6 +774,7 @@
- &usbh1 {
- 	vbus-supply = <&reg_5p0v_main>;
- 	disable-over-current;
-+	maximum-speed = "full-speed";
- 	status = "okay";
+diff --git a/drivers/bus/ti-sysc.c b/drivers/bus/ti-sysc.c
+index d9846265a5cd9..a0cecb12b6f96 100644
+--- a/drivers/bus/ti-sysc.c
++++ b/drivers/bus/ti-sysc.c
+@@ -479,7 +479,7 @@ static void sysc_clkdm_deny_idle(struct sysc *ddata)
+ {
+ 	struct ti_sysc_platform_data *pdata;
+ 
+-	if (ddata->legacy_mode)
++	if (ddata->legacy_mode || (ddata->cfg.quirks & SYSC_QUIRK_CLKDM_NOAUTO))
+ 		return;
+ 
+ 	pdata = dev_get_platdata(ddata->dev);
+@@ -491,7 +491,7 @@ static void sysc_clkdm_allow_idle(struct sysc *ddata)
+ {
+ 	struct ti_sysc_platform_data *pdata;
+ 
+-	if (ddata->legacy_mode)
++	if (ddata->legacy_mode || (ddata->cfg.quirks & SYSC_QUIRK_CLKDM_NOAUTO))
+ 		return;
+ 
+ 	pdata = dev_get_platdata(ddata->dev);
+@@ -1251,6 +1251,12 @@ static const struct sysc_revision_quirk sysc_revision_quirks[] = {
+ 	/* Quirks that need to be set based on detected module */
+ 	SYSC_QUIRK("aess", 0, 0, 0x10, -1, 0x40000000, 0xffffffff,
+ 		   SYSC_MODULE_QUIRK_AESS),
++	SYSC_QUIRK("dcan", 0x48480000, 0x20, -1, -1, 0xa3170504, 0xffffffff,
++		   SYSC_QUIRK_CLKDM_NOAUTO),
++	SYSC_QUIRK("dwc3", 0x48880000, 0, 0x10, -1, 0x500a0200, 0xffffffff,
++		   SYSC_QUIRK_CLKDM_NOAUTO),
++	SYSC_QUIRK("dwc3", 0x488c0000, 0, 0x10, -1, 0x500a0200, 0xffffffff,
++		   SYSC_QUIRK_CLKDM_NOAUTO),
+ 	SYSC_QUIRK("hdq1w", 0, 0, 0x14, 0x18, 0x00000006, 0xffffffff,
+ 		   SYSC_MODULE_QUIRK_HDQ1W),
+ 	SYSC_QUIRK("hdq1w", 0, 0, 0x14, 0x18, 0x0000000a, 0xffffffff,
+diff --git a/include/linux/platform_data/ti-sysc.h b/include/linux/platform_data/ti-sysc.h
+index 8cfe570fdece6..2cbde6542849d 100644
+--- a/include/linux/platform_data/ti-sysc.h
++++ b/include/linux/platform_data/ti-sysc.h
+@@ -49,6 +49,7 @@ struct sysc_regbits {
+ 	s8 emufree_shift;
  };
  
++#define SYSC_QUIRK_CLKDM_NOAUTO		BIT(21)
+ #define SYSC_QUIRK_FORCE_MSTANDBY	BIT(20)
+ #define SYSC_MODULE_QUIRK_AESS		BIT(19)
+ #define SYSC_MODULE_QUIRK_SGX		BIT(18)
 -- 
 2.20.1
 
