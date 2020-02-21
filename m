@@ -2,37 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EBD751678A0
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:50:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 66FDC167891
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:50:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727940AbgBUItb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 03:49:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40306 "EHLO mail.kernel.org"
+        id S1727576AbgBUHp0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 02:45:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40536 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728273AbgBUHpO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 02:45:14 -0500
+        id S1727611AbgBUHpZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 02:45:25 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BEC36208C4;
-        Fri, 21 Feb 2020 07:45:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 535D2208C4;
+        Fri, 21 Feb 2020 07:45:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582271113;
-        bh=aaj207FIdZCp8J89QIqEslcb0Ntch/67YAl/hSeNfyc=;
+        s=default; t=1582271124;
+        bh=rya72cDI956HviiwG0v5mNpwy6n2E3LyPKsA3FCHJ8Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Rljylct+HRidFrWv3wwYbDUe+UdsoQCXerP3NclLGGtyd02HbRRFYDKfikPxcJYVx
-         fbqSvO472ZbAP19+XPGKdCW/8AyS9X3j0mhjcpi44l121fytdROvsBUz8BMhPdxTy1
-         C29Nc/3G8pk8xVsKF2ENLQMpqk6r78KTzqPW16ic=
+        b=g7+3YFw1Nzd6mjp2/PFrJpSaDLFKh/71eWv98Dv7ZvC99XiiECmXrP7IK2wKo+2DR
+         84+eiiv5iNBbKiJyqMlp5pUq6af6AeD2HGQlNxA52jppvFU2Wovhb06dClCwMLvujA
+         +quCABsu0s286VKE9coU3QDx9nFsNG8TmBsI7vVE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexey Kardashevskiy <aik@ozlabs.ru>,
-        Oliver OHalloran <oohall@gmail.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Yu-cheng Yu <yu-cheng.yu@intel.com>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Borislav Petkov <bp@suse.de>,
+        Andy Lutomirski <luto@kernel.org>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Fenghua Yu <fenghua.yu@intel.com>,
+        "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>,
+        Jann Horn <jannh@google.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        "Ravi V. Shankar" <ravi.v.shankar@intel.com>,
+        Rik van Riel <riel@surriel.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Tony Luck <tony.luck@intel.com>, x86-ml <x86@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 045/399] powerpc/powernv/iov: Ensure the pdn for VFs always contains a valid PE number
-Date:   Fri, 21 Feb 2020 08:36:10 +0100
-Message-Id: <20200221072406.750910388@linuxfoundation.org>
+Subject: [PATCH 5.5 049/399] x86/fpu: Deactivate FPU state after failure during state load
+Date:   Fri, 21 Feb 2020 08:36:14 +0100
+Message-Id: <20200221072407.118570703@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200221072402.315346745@linuxfoundation.org>
 References: <20200221072402.315346745@linuxfoundation.org>
@@ -45,164 +55,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oliver O'Halloran <oohall@gmail.com>
+From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 
-[ Upstream commit 3b5b9997b331e77ce967eba2c4bc80dc3134a7fe ]
+[ Upstream commit bbc55341b9c67645d1a5471506370caf7dd4a203 ]
 
-On pseries there is a bug with adding hotplugged devices to an IOMMU
-group. For a number of dumb reasons fixing that bug first requires
-re-working how VFs are configured on PowerNV. For background, on
-PowerNV we use the pcibios_sriov_enable() hook to do two things:
+In __fpu__restore_sig(), fpu_fpregs_owner_ctx needs to be reset if the
+FPU state was not fully restored. Otherwise the following may happen (on
+the same CPU):
 
-  1. Create a pci_dn structure for each of the VFs, and
-  2. Configure the PHB's internal BARs so the MMIO range for each VF
-     maps to a unique PE.
+  Task A                     Task B               fpu_fpregs_owner_ctx
+  *active*                                        A.fpu
+  __fpu__restore_sig()
+                             ctx switch           load B.fpu
+                             *active*             B.fpu
+  fpregs_lock()
+  copy_user_to_fpregs_zeroing()
+    copy_kernel_to_xregs() *modify*
+    copy_user_to_xregs() *fails*
+  fpregs_unlock()
+                            ctx switch            skip loading B.fpu,
+                            *active*              B.fpu
 
-Roughly speaking a PE is the hardware counterpart to a Linux IOMMU
-group since all the devices in a PE share the same IOMMU table. A PE
-also defines the set of devices that should be isolated in response to
-a PCI error (i.e. bad DMA, UR/CA, AER events, etc). When isolated all
-MMIO and DMA traffic to and from devicein the PE is blocked by the
-root complex until the PE is recovered by the OS.
+In the success case, fpu_fpregs_owner_ctx is set to the current task.
 
-The requirement to block MMIO causes a giant headache because the P8
-PHB generally uses a fixed mapping between MMIO addresses and PEs. As
-a result we need to delay configuring the IOMMU groups for device
-until after MMIO resources are assigned. For physical devices (i.e.
-non-VFs) the PE assignment is done in pcibios_setup_bridge() which is
-called immediately after the MMIO resources for downstream
-devices (and the bridge's windows) are assigned. For VFs the setup is
-more complicated because:
+In the failure case, the FPU state might have been modified by loading
+the init state.
 
-  a) pcibios_setup_bridge() is not called again when VFs are activated, and
-  b) The pci_dev for VFs are created by generic code which runs after
-     pcibios_sriov_enable() is called.
+In this case, fpu_fpregs_owner_ctx needs to be reset in order to ensure
+that the FPU state of the following task is loaded from saved state (and
+not skipped because it was the previous state).
 
-The work around for this is a two step process:
+Reset fpu_fpregs_owner_ctx after a failure during restore occurred, to
+ensure that the FPU state for the next task is always loaded.
 
-  1. A fixup in pcibios_add_device() is used to initialised the cached
-     pe_number in pci_dn, then
-  2. A bus notifier then adds the device to the IOMMU group for the PE
-     specified in pci_dn->pe_number.
+The problem was debugged-by Yu-cheng Yu <yu-cheng.yu@intel.com>.
 
-A side effect fixing the pseries bug mentioned in the first paragraph
-is moving the fixup out of pcibios_add_device() and into
-pcibios_bus_add_device(), which is called much later. This results in
-step 2. failing because pci_dn->pe_number won't be initialised when
-the bus notifier is run.
+ [ bp: Massage commit message. ]
 
-We can fix this by removing the need for the fixup. The PE for a VF is
-known before the VF is even scanned so we can initialise
-pci_dn->pe_number pcibios_sriov_enable() instead. Unfortunately,
-moving the initialisation causes two problems:
-
-  1. We trip the WARN_ON() in the current fixup code, and
-  2. The EEH core clears pdn->pe_number when recovering a VF and
-     relies on the fixup to correctly re-set it.
-
-The only justification for either of these is a comment in
-eeh_rmv_device() suggesting that pdn->pe_number *must* be set to
-IODA_INVALID_PE in order for the VF to be scanned. However, this
-comment appears to have no basis in reality. Both bugs can be fixed by
-just deleting the code.
-
-Tested-by: Alexey Kardashevskiy <aik@ozlabs.ru>
-Reviewed-by: Alexey Kardashevskiy <aik@ozlabs.ru>
-Signed-off-by: Oliver O'Halloran <oohall@gmail.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20191028085424.12006-1-oohall@gmail.com
+Fixes: 5f409e20b7945 ("x86/fpu: Defer FPU state load until return to userspace")
+Reported-by: Yu-cheng Yu <yu-cheng.yu@intel.com>
+Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: Dave Hansen <dave.hansen@linux.intel.com>
+Cc: Fenghua Yu <fenghua.yu@intel.com>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Jann Horn <jannh@google.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: "Ravi V. Shankar" <ravi.v.shankar@intel.com>
+Cc: Rik van Riel <riel@surriel.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Tony Luck <tony.luck@intel.com>
+Cc: x86-ml <x86@kernel.org>
+Link: https://lkml.kernel.org/r/20191220195906.plk6kpmsrikvbcfn@linutronix.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kernel/eeh_driver.c          |  6 ------
- arch/powerpc/platforms/powernv/pci-ioda.c | 19 +++++++++++++++----
- arch/powerpc/platforms/powernv/pci.c      |  4 ----
- 3 files changed, 15 insertions(+), 14 deletions(-)
+ arch/x86/kernel/fpu/signal.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/arch/powerpc/kernel/eeh_driver.c b/arch/powerpc/kernel/eeh_driver.c
-index 3dd1a422fc29d..a1eaffe868de4 100644
---- a/arch/powerpc/kernel/eeh_driver.c
-+++ b/arch/powerpc/kernel/eeh_driver.c
-@@ -525,12 +525,6 @@ static void eeh_rmv_device(struct eeh_dev *edev, void *userdata)
+diff --git a/arch/x86/kernel/fpu/signal.c b/arch/x86/kernel/fpu/signal.c
+index 0071b794ed193..400a05e1c1c51 100644
+--- a/arch/x86/kernel/fpu/signal.c
++++ b/arch/x86/kernel/fpu/signal.c
+@@ -352,6 +352,7 @@ static int __fpu__restore_sig(void __user *buf, void __user *buf_fx, int size)
+ 			fpregs_unlock();
+ 			return 0;
+ 		}
++		fpregs_deactivate(fpu);
+ 		fpregs_unlock();
+ 	}
  
- 		pci_iov_remove_virtfn(edev->physfn, pdn->vf_index);
- 		edev->pdev = NULL;
--
--		/*
--		 * We have to set the VF PE number to invalid one, which is
--		 * required to plug the VF successfully.
--		 */
--		pdn->pe_number = IODA_INVALID_PE;
- #endif
- 		if (rmv_data)
- 			list_add(&edev->rmv_entry, &rmv_data->removed_vf_list);
-diff --git a/arch/powerpc/platforms/powernv/pci-ioda.c b/arch/powerpc/platforms/powernv/pci-ioda.c
-index da1068a9c2637..4374836b033b4 100644
---- a/arch/powerpc/platforms/powernv/pci-ioda.c
-+++ b/arch/powerpc/platforms/powernv/pci-ioda.c
-@@ -1558,6 +1558,10 @@ static void pnv_ioda_setup_vf_PE(struct pci_dev *pdev, u16 num_vfs)
+@@ -403,6 +404,8 @@ static int __fpu__restore_sig(void __user *buf, void __user *buf_fx, int size)
+ 	}
+ 	if (!ret)
+ 		fpregs_mark_activate();
++	else
++		fpregs_deactivate(fpu);
+ 	fpregs_unlock();
  
- 	/* Reserve PE for each VF */
- 	for (vf_index = 0; vf_index < num_vfs; vf_index++) {
-+		int vf_devfn = pci_iov_virtfn_devfn(pdev, vf_index);
-+		int vf_bus = pci_iov_virtfn_bus(pdev, vf_index);
-+		struct pci_dn *vf_pdn;
-+
- 		if (pdn->m64_single_mode)
- 			pe_num = pdn->pe_num_map[vf_index];
- 		else
-@@ -1570,13 +1574,11 @@ static void pnv_ioda_setup_vf_PE(struct pci_dev *pdev, u16 num_vfs)
- 		pe->pbus = NULL;
- 		pe->parent_dev = pdev;
- 		pe->mve_number = -1;
--		pe->rid = (pci_iov_virtfn_bus(pdev, vf_index) << 8) |
--			   pci_iov_virtfn_devfn(pdev, vf_index);
-+		pe->rid = (vf_bus << 8) | vf_devfn;
- 
- 		pe_info(pe, "VF %04d:%02d:%02d.%d associated with PE#%x\n",
- 			hose->global_number, pdev->bus->number,
--			PCI_SLOT(pci_iov_virtfn_devfn(pdev, vf_index)),
--			PCI_FUNC(pci_iov_virtfn_devfn(pdev, vf_index)), pe_num);
-+			PCI_SLOT(vf_devfn), PCI_FUNC(vf_devfn), pe_num);
- 
- 		if (pnv_ioda_configure_pe(phb, pe)) {
- 			/* XXX What do we do here ? */
-@@ -1590,6 +1592,15 @@ static void pnv_ioda_setup_vf_PE(struct pci_dev *pdev, u16 num_vfs)
- 		list_add_tail(&pe->list, &phb->ioda.pe_list);
- 		mutex_unlock(&phb->ioda.pe_list_mutex);
- 
-+		/* associate this pe to it's pdn */
-+		list_for_each_entry(vf_pdn, &pdn->parent->child_list, list) {
-+			if (vf_pdn->busno == vf_bus &&
-+			    vf_pdn->devfn == vf_devfn) {
-+				vf_pdn->pe_number = pe_num;
-+				break;
-+			}
-+		}
-+
- 		pnv_pci_ioda2_setup_dma_pe(phb, pe);
- #ifdef CONFIG_IOMMU_API
- 		iommu_register_group(&pe->table_group,
-diff --git a/arch/powerpc/platforms/powernv/pci.c b/arch/powerpc/platforms/powernv/pci.c
-index c0bea75ac27bf..e8e58a2cccddf 100644
---- a/arch/powerpc/platforms/powernv/pci.c
-+++ b/arch/powerpc/platforms/powernv/pci.c
-@@ -816,16 +816,12 @@ void pnv_pci_dma_dev_setup(struct pci_dev *pdev)
- 	struct pnv_phb *phb = hose->private_data;
- #ifdef CONFIG_PCI_IOV
- 	struct pnv_ioda_pe *pe;
--	struct pci_dn *pdn;
- 
- 	/* Fix the VF pdn PE number */
- 	if (pdev->is_virtfn) {
--		pdn = pci_get_pdn(pdev);
--		WARN_ON(pdn->pe_number != IODA_INVALID_PE);
- 		list_for_each_entry(pe, &phb->ioda.pe_list, list) {
- 			if (pe->rid == ((pdev->bus->number << 8) |
- 			    (pdev->devfn & 0xff))) {
--				pdn->pe_number = pe->pe_number;
- 				pe->pdev = pdev;
- 				break;
- 			}
+ err_out:
 -- 
 2.20.1
 
