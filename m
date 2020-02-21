@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B9B91670CD
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 08:50:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B2541670DE
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 08:50:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728739AbgBUHsP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 02:48:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44216 "EHLO mail.kernel.org"
+        id S1729187AbgBUHtF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 02:49:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45346 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728781AbgBUHsO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 02:48:14 -0500
+        id S1729182AbgBUHtF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 02:49:05 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 843A020801;
-        Fri, 21 Feb 2020 07:48:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 518EA208C4;
+        Fri, 21 Feb 2020 07:49:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582271294;
-        bh=j27L0uvNh+GXvHJve/VVwZnTA0Mp4pOfRumbA87sMpU=;
+        s=default; t=1582271344;
+        bh=LsO3erdrUgkkKVMYNWXfDkFZw7NLd8nvZFbGJDdSyS0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hivSmJTSn3tkZIn+NG38H/ckpTDignhgkMIzaBAa/rzNXhcyHqrhriNphMrJ84ieA
-         +PwKhdAvr0DZa3n7hTok4qI8U0vEmE98x4JjWCBwxFdgVPSH0XBE5o1lK3vUtHWDaJ
-         p49Ef5aqxhQHyLUr6sKuAJsxMrdnYKfbBtru372I=
+        b=mTOaVUOmvxEsyC6yF+3yIMlhNt8FlmDEre0waCSoQCbBvBaiNaz0Qjf7S9XuVyG0U
+         ErvhGY4VPQZV13JYUUgQNgiDKpqS4SMCtuT7LUWOZY66NyoaQ+pwNKk+5pRvfrkZRX
+         gQlIXer5CjkquVepbD0Pylom1hC6Oz9rLx824bn0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Robin Murphy <robin.murphy@arm.com>,
-        Heiko Stuebner <heiko@sntech.de>,
+        stable@vger.kernel.org,
+        Sathyanarayana Nujella <sathyanarayana.nujella@intel.com>,
+        Jairaj Arava <jairaj.arava@intel.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 110/399] arm64: dts: rockchip: Fix NanoPC-T4 cooling maps
-Date:   Fri, 21 Feb 2020 08:37:15 +0100
-Message-Id: <20200221072413.128831313@linuxfoundation.org>
+Subject: [PATCH 5.5 113/399] ASoC: intel: sof_rt5682: Add support for tgl-max98357a-rt5682
+Date:   Fri, 21 Feb 2020 08:37:18 +0100
+Message-Id: <20200221072413.436643262@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200221072402.315346745@linuxfoundation.org>
 References: <20200221072402.315346745@linuxfoundation.org>
@@ -44,64 +47,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robin Murphy <robin.murphy@arm.com>
+From: Sathyanarayana Nujella <sathyanarayana.nujella@intel.com>
 
-[ Upstream commit a793e19c15f25a126138ac4ae9facf9204754af3 ]
+[ Upstream commit 6605f0ca3af3b964635287ec7c9dadc812b78eb0 ]
 
-Although it appeared to follow logically from the bindings, apparently
-the thermal framework can't properly cope with a single cooling device
-being shared between multiple maps. The CPU zone is probably easier to
-overheat, so remove the references to the (optional) fan from the GPU
-cooling zone to avoid things getting confused. Hopefully GPU-intensive
-tasks will leak enough heat across to the CPU zone to still hit the
-fan trips before reaching critical GPU temperatures.
+This patch adds the driver data and updates quirk info
+for tgl with max98357a speaker amp and ALC5682 headset codec.
 
-Signed-off-by: Robin Murphy <robin.murphy@arm.com>
-Link: https://lore.kernel.org/r/5bb39f3115df1a487d717d3ae87e523b03749379.1573908197.git.robin.murphy@arm.com
-Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+Signed-off-by: Sathyanarayana Nujella <sathyanarayana.nujella@intel.com>
+Signed-off-by: Jairaj Arava <jairaj.arava@intel.com>
+Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Link: https://lore.kernel.org/r/20191126143205.21987-3-pierre-louis.bossart@linux.intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../boot/dts/rockchip/rk3399-nanopc-t4.dts    | 27 -------------------
- 1 file changed, 27 deletions(-)
+ sound/soc/intel/boards/sof_rt5682.c | 20 ++++++++++++++++++++
+ 1 file changed, 20 insertions(+)
 
-diff --git a/arch/arm64/boot/dts/rockchip/rk3399-nanopc-t4.dts b/arch/arm64/boot/dts/rockchip/rk3399-nanopc-t4.dts
-index 2a127985ab171..d3ed8e5e770f1 100644
---- a/arch/arm64/boot/dts/rockchip/rk3399-nanopc-t4.dts
-+++ b/arch/arm64/boot/dts/rockchip/rk3399-nanopc-t4.dts
-@@ -94,33 +94,6 @@
- 	};
- };
+diff --git a/sound/soc/intel/boards/sof_rt5682.c b/sound/soc/intel/boards/sof_rt5682.c
+index 57adadacbf436..ad8a2b4bc7092 100644
+--- a/sound/soc/intel/boards/sof_rt5682.c
++++ b/sound/soc/intel/boards/sof_rt5682.c
+@@ -598,6 +598,9 @@ static int sof_audio_probe(struct platform_device *pdev)
+ 	if (!ctx)
+ 		return -ENOMEM;
  
--&gpu_thermal {
--	trips {
--		gpu_warm: gpu_warm {
--			temperature = <55000>;
--			hysteresis = <2000>;
--			type = "active";
--		};
--
--		gpu_hot: gpu_hot {
--			temperature = <65000>;
--			hysteresis = <2000>;
--			type = "active";
--		};
--	};
--	cooling-maps {
--		map1 {
--			trip = <&gpu_warm>;
--			cooling-device = <&fan THERMAL_NO_LIMIT 1>;
--		};
--
--		map2 {
--			trip = <&gpu_hot>;
--			cooling-device = <&fan 2 THERMAL_NO_LIMIT>;
--		};
--	};
--};
--
- &pinctrl {
- 	ir {
- 		ir_rx: ir-rx {
++	if (pdev->id_entry && pdev->id_entry->driver_data)
++		sof_rt5682_quirk = (unsigned long)pdev->id_entry->driver_data;
++
+ 	dmi_check_system(sof_rt5682_quirk_table);
+ 
+ 	if (soc_intel_is_byt() || soc_intel_is_cht()) {
+@@ -691,6 +694,21 @@ static int sof_rt5682_remove(struct platform_device *pdev)
+ 	return 0;
+ }
+ 
++static const struct platform_device_id board_ids[] = {
++	{
++		.name = "sof_rt5682",
++	},
++	{
++		.name = "tgl_max98357a_rt5682",
++		.driver_data = (kernel_ulong_t)(SOF_RT5682_MCLK_EN |
++					SOF_RT5682_SSP_CODEC(0) |
++					SOF_SPEAKER_AMP_PRESENT |
++					SOF_RT5682_SSP_AMP(1) |
++					SOF_RT5682_NUM_HDMIDEV(4)),
++	},
++	{ }
++};
++
+ static struct platform_driver sof_audio = {
+ 	.probe = sof_audio_probe,
+ 	.remove = sof_rt5682_remove,
+@@ -698,6 +716,7 @@ static struct platform_driver sof_audio = {
+ 		.name = "sof_rt5682",
+ 		.pm = &snd_soc_pm_ops,
+ 	},
++	.id_table = board_ids,
+ };
+ module_platform_driver(sof_audio)
+ 
+@@ -707,3 +726,4 @@ MODULE_AUTHOR("Bard Liao <bard.liao@intel.com>");
+ MODULE_AUTHOR("Sathya Prakash M R <sathya.prakash.m.r@intel.com>");
+ MODULE_LICENSE("GPL v2");
+ MODULE_ALIAS("platform:sof_rt5682");
++MODULE_ALIAS("platform:tgl_max98357a_rt5682");
 -- 
 2.20.1
 
