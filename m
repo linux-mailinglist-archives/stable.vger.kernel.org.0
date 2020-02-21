@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 202CF167870
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:48:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C96CE16786D
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:48:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729710AbgBUIsd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1728826AbgBUIsd (ORCPT <rfc822;lists+stable@lfdr.de>);
         Fri, 21 Feb 2020 03:48:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42242 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:42310 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728259AbgBUHqj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 02:46:39 -0500
+        id S1728776AbgBUHqm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 02:46:42 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9A88124656;
-        Fri, 21 Feb 2020 07:46:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9E002208C4;
+        Fri, 21 Feb 2020 07:46:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582271199;
-        bh=t+HGHp5WXwS0C0Tt94knmpE+cBtGP+NH5K22SJzMyk0=;
+        s=default; t=1582271202;
+        bh=c7JCE0FUS+3bdwXpx4DK8SQXjElF8rXBOwR4c3H51RI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Jgb9oTYQ2Yw7f265m5QzMYnNQg9m0HBLli1n7S/TWxH5Lmoo2hh/ZaS4sN416A8Gt
-         3wjIHQA2YAT0+0p62FL5NnslGHmoORcxct6XWWYGngapHpPBLBS1FjD1fXlcywK0PV
-         lCOxjWCR6T1QwLOk4Q+cyKdhrn+0wjDutDpKOznA=
+        b=jO8mCzjn9na203pNXUOrvWMDANOWe+f/Ptdqon0ZAw2uTBBxf8J1xDgxPOLOO0/mP
+         NjON7K6Ow1At9dKjAuhPnWFxPjkHW/NGqEeZsZU7jqBH4RokrnqiAlK9VmIzzX4el6
+         YtnFoLcPBdLQAKBK/Q+8SnIwONHC2hMjjqZiXBFk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Adam Ford <aford173@gmail.com>,
+        stable@vger.kernel.org, Wenyou Yang <wenyou.yang@microchip.com>,
+        Eugen Hristev <eugen.hristev@microchip.com>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
         Sakari Ailus <sakari.ailus@linux.intel.com>,
         Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 039/399] media: ov5640: Fix check for PLL1 exceeding max allowed rate
-Date:   Fri, 21 Feb 2020 08:36:04 +0100
-Message-Id: <20200221072406.165679359@linuxfoundation.org>
+Subject: [PATCH 5.5 040/399] media: i2c: mt9v032: fix enum mbus codes and frame sizes
+Date:   Fri, 21 Feb 2020 08:36:05 +0100
+Message-Id: <20200221072406.249690333@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200221072402.315346745@linuxfoundation.org>
 References: <20200221072402.315346745@linuxfoundation.org>
@@ -45,40 +47,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adam Ford <aford173@gmail.com>
+From: Eugen Hristev <eugen.hristev@microchip.com>
 
-[ Upstream commit 2e3df204f9af42a47823ee955c08950373417420 ]
+[ Upstream commit 1451d5ae351d938a0ab1677498c893f17b9ee21d ]
 
-The variable _rate is by ov5640_compute_sys_clk() which returns
-zero if the PLL exceeds 1GHz.  Unfortunately, the check to see
-if the max PLL1 output is checking 'rate' and not '_rate' and
-'rate' does not ever appear to be 0.
+This driver supports both the mt9v032 (color) and the mt9v022 (mono)
+sensors. Depending on which sensor is used, the format from the sensor is
+different. The format.code inside the dev struct holds this information.
+The enum mbus and enum frame sizes need to take into account both type of
+sensors, not just the color one. To solve this, use the format.code in
+these functions instead of the hardcoded bayer color format (which is only
+used for mt9v032).
 
-This patch changes the check against the returned value of
-'_rate' to determine if the PLL1 output exceeds 1GHz.
+[Sakari Ailus: rewrapped commit message]
 
-Fixes: aa2882481cad ("media: ov5640: Adjust the clock based on the expected rate")
-Signed-off-by: Adam Ford <aford173@gmail.com>
+Suggested-by: Wenyou Yang <wenyou.yang@microchip.com>
+Signed-off-by: Eugen Hristev <eugen.hristev@microchip.com>
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
 Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/i2c/ov5640.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/media/i2c/mt9v032.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/media/i2c/ov5640.c b/drivers/media/i2c/ov5640.c
-index 5e495c833d329..bb968e764f318 100644
---- a/drivers/media/i2c/ov5640.c
-+++ b/drivers/media/i2c/ov5640.c
-@@ -874,7 +874,7 @@ static unsigned long ov5640_calc_sys_clk(struct ov5640_dev *sensor,
- 			 * We have reached the maximum allowed PLL1 output,
- 			 * increase sysdiv.
- 			 */
--			if (!rate)
-+			if (!_rate)
- 				break;
+diff --git a/drivers/media/i2c/mt9v032.c b/drivers/media/i2c/mt9v032.c
+index 4b9b98cf6674c..5bd3ae82992f3 100644
+--- a/drivers/media/i2c/mt9v032.c
++++ b/drivers/media/i2c/mt9v032.c
+@@ -428,10 +428,12 @@ static int mt9v032_enum_mbus_code(struct v4l2_subdev *subdev,
+ 				  struct v4l2_subdev_pad_config *cfg,
+ 				  struct v4l2_subdev_mbus_code_enum *code)
+ {
++	struct mt9v032 *mt9v032 = to_mt9v032(subdev);
++
+ 	if (code->index > 0)
+ 		return -EINVAL;
  
- 			/*
+-	code->code = MEDIA_BUS_FMT_SGRBG10_1X10;
++	code->code = mt9v032->format.code;
+ 	return 0;
+ }
+ 
+@@ -439,7 +441,11 @@ static int mt9v032_enum_frame_size(struct v4l2_subdev *subdev,
+ 				   struct v4l2_subdev_pad_config *cfg,
+ 				   struct v4l2_subdev_frame_size_enum *fse)
+ {
+-	if (fse->index >= 3 || fse->code != MEDIA_BUS_FMT_SGRBG10_1X10)
++	struct mt9v032 *mt9v032 = to_mt9v032(subdev);
++
++	if (fse->index >= 3)
++		return -EINVAL;
++	if (mt9v032->format.code != fse->code)
+ 		return -EINVAL;
+ 
+ 	fse->min_width = MT9V032_WINDOW_WIDTH_DEF / (1 << fse->index);
 -- 
 2.20.1
 
