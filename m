@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9BC32167819
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:46:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A1AA7167719
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:41:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728824AbgBUHtf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 02:49:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46114 "EHLO mail.kernel.org"
+        id S1730239AbgBUICs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 03:02:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35256 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729359AbgBUHte (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 02:49:34 -0500
+        id S1730143AbgBUICp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 03:02:45 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1D4D4222C4;
-        Fri, 21 Feb 2020 07:49:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CB36B222C4;
+        Fri, 21 Feb 2020 08:02:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582271373;
-        bh=sedOC4hZMGE2g2i99HGX1ZfpSvh9kBm9p5Cv+cu1atc=;
+        s=default; t=1582272163;
+        bh=tq1ldxCn4iEg3EiFuIwctrjMjHIVRX06VphHO4saNNA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kr2oWadv++V3vPW6tpbL35zMOrtLPVBalD3a8A4DP6jsG9UoXeT0G0TLHoa5PDkaL
-         0wP+6edMl1nRzu3xYPdlpAiPKcrSxD1w2CNW3jsXboABcGaPjkkJ6MsCjS97mpMUsK
-         EOCFxgFlCyr2qemsftf0DWOhUZ0puNibOYxWVGx8=
+        b=XcsJHCOgkvYUSBJacy+XCzZIF/4QtVCBneHecQZpJFGN1xLfCtTo7YURUxeSgr40h
+         gytetZIG6ONGjWS4aaskeJjtS8CdEyiLbA4c0v3QmKrd2gozrCt2rHvO00hPaTMnPF
+         WodINlC2X/kqzDigD7m0Tjh/P71lQaaJh2MPji3U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Bard Liao <yung-chuan.liao@linux.intel.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Alexey Kardashevskiy <aik@ozlabs.ru>,
+        Oliver OHalloran <oohall@gmail.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 114/399] ASoC: SOF: Intel: hda: solve MSI issues by merging ipc and stream irq handlers
+Subject: [PATCH 5.4 040/344] powerpc/powernv/iov: Ensure the pdn for VFs always contains a valid PE number
 Date:   Fri, 21 Feb 2020 08:37:19 +0100
-Message-Id: <20200221072413.537539962@linuxfoundation.org>
+Message-Id: <20200221072352.763955822@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200221072402.315346745@linuxfoundation.org>
-References: <20200221072402.315346745@linuxfoundation.org>
+In-Reply-To: <20200221072349.335551332@linuxfoundation.org>
+References: <20200221072349.335551332@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,337 +45,164 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bard Liao <yung-chuan.liao@linux.intel.com>
+From: Oliver O'Halloran <oohall@gmail.com>
 
-[ Upstream commit 7c11af9fcdc425b80f140a218d4fef9f17734bfc ]
+[ Upstream commit 3b5b9997b331e77ce967eba2c4bc80dc3134a7fe ]
 
-The existing code uses two handlers for a shared edge-based MSI interrupts.
-In corner cases, interrupts are lost, leading to IPC timeouts. Those
-timeouts do not appear in legacy mode.
+On pseries there is a bug with adding hotplugged devices to an IOMMU
+group. For a number of dumb reasons fixing that bug first requires
+re-working how VFs are configured on PowerNV. For background, on
+PowerNV we use the pcibios_sriov_enable() hook to do two things:
 
-This patch merges the two handlers and threads into a single one, and
-simplifies the mask/unmask operations by using a single top-level mask
-(Global Interrupt Enable). The handler only checks for interrupt
-sources using the Global Interrupt Status (GIS) field, and all the
-actual work happens in the thread. This also enables us to remove the
-use of spin locks. Stream events are prioritized over IPC ones.
+  1. Create a pci_dn structure for each of the VFs, and
+  2. Configure the PHB's internal BARs so the MMIO range for each VF
+     maps to a unique PE.
 
-This patch was tested with HDaudio and SoundWire platforms, and all
-known IPC timeout issues are solved in MSI mode. The
-SoundWire-specific patches will be provided in follow-up patches,
-where the SoundWire interrupts are handled in the same thread as IPC
-and stream interrupts.
+Roughly speaking a PE is the hardware counterpart to a Linux IOMMU
+group since all the devices in a PE share the same IOMMU table. A PE
+also defines the set of devices that should be isolated in response to
+a PCI error (i.e. bad DMA, UR/CA, AER events, etc). When isolated all
+MMIO and DMA traffic to and from devicein the PE is blocked by the
+root complex until the PE is recovered by the OS.
 
-Signed-off-by: Bard Liao <yung-chuan.liao@linux.intel.com>
-Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Link: https://lore.kernel.org/r/20191204212859.13239-1-pierre-louis.bossart@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+The requirement to block MMIO causes a giant headache because the P8
+PHB generally uses a fixed mapping between MMIO addresses and PEs. As
+a result we need to delay configuring the IOMMU groups for device
+until after MMIO resources are assigned. For physical devices (i.e.
+non-VFs) the PE assignment is done in pcibios_setup_bridge() which is
+called immediately after the MMIO resources for downstream
+devices (and the bridge's windows) are assigned. For VFs the setup is
+more complicated because:
+
+  a) pcibios_setup_bridge() is not called again when VFs are activated, and
+  b) The pci_dev for VFs are created by generic code which runs after
+     pcibios_sriov_enable() is called.
+
+The work around for this is a two step process:
+
+  1. A fixup in pcibios_add_device() is used to initialised the cached
+     pe_number in pci_dn, then
+  2. A bus notifier then adds the device to the IOMMU group for the PE
+     specified in pci_dn->pe_number.
+
+A side effect fixing the pseries bug mentioned in the first paragraph
+is moving the fixup out of pcibios_add_device() and into
+pcibios_bus_add_device(), which is called much later. This results in
+step 2. failing because pci_dn->pe_number won't be initialised when
+the bus notifier is run.
+
+We can fix this by removing the need for the fixup. The PE for a VF is
+known before the VF is even scanned so we can initialise
+pci_dn->pe_number pcibios_sriov_enable() instead. Unfortunately,
+moving the initialisation causes two problems:
+
+  1. We trip the WARN_ON() in the current fixup code, and
+  2. The EEH core clears pdn->pe_number when recovering a VF and
+     relies on the fixup to correctly re-set it.
+
+The only justification for either of these is a comment in
+eeh_rmv_device() suggesting that pdn->pe_number *must* be set to
+IODA_INVALID_PE in order for the VF to be scanned. However, this
+comment appears to have no basis in reality. Both bugs can be fixed by
+just deleting the code.
+
+Tested-by: Alexey Kardashevskiy <aik@ozlabs.ru>
+Reviewed-by: Alexey Kardashevskiy <aik@ozlabs.ru>
+Signed-off-by: Oliver O'Halloran <oohall@gmail.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20191028085424.12006-1-oohall@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/sof/intel/apl.c        |  1 -
- sound/soc/sof/intel/cnl.c        |  5 ---
- sound/soc/sof/intel/hda-ipc.c    | 23 +++--------
- sound/soc/sof/intel/hda-stream.c | 20 ++++-----
- sound/soc/sof/intel/hda.c        | 69 ++++++++++++++++++++++----------
- sound/soc/sof/intel/hda.h        | 11 ++---
- 6 files changed, 70 insertions(+), 59 deletions(-)
+ arch/powerpc/kernel/eeh_driver.c          |  6 ------
+ arch/powerpc/platforms/powernv/pci-ioda.c | 19 +++++++++++++++----
+ arch/powerpc/platforms/powernv/pci.c      |  4 ----
+ 3 files changed, 15 insertions(+), 14 deletions(-)
 
-diff --git a/sound/soc/sof/intel/apl.c b/sound/soc/sof/intel/apl.c
-index 7daa8eb456c8d..6f45e14f2b2e3 100644
---- a/sound/soc/sof/intel/apl.c
-+++ b/sound/soc/sof/intel/apl.c
-@@ -41,7 +41,6 @@ const struct snd_sof_dsp_ops sof_apl_ops = {
- 	.block_write	= sof_block_write,
+diff --git a/arch/powerpc/kernel/eeh_driver.c b/arch/powerpc/kernel/eeh_driver.c
+index c031be8d41ffd..2fb166928e91b 100644
+--- a/arch/powerpc/kernel/eeh_driver.c
++++ b/arch/powerpc/kernel/eeh_driver.c
+@@ -541,12 +541,6 @@ static void eeh_rmv_device(struct eeh_dev *edev, void *userdata)
  
- 	/* doorbell */
--	.irq_handler	= hda_dsp_ipc_irq_handler,
- 	.irq_thread	= hda_dsp_ipc_irq_thread,
- 
- 	/* ipc */
-diff --git a/sound/soc/sof/intel/cnl.c b/sound/soc/sof/intel/cnl.c
-index 0e1e265f3f3b3..9bd169e2691e2 100644
---- a/sound/soc/sof/intel/cnl.c
-+++ b/sound/soc/sof/intel/cnl.c
-@@ -106,10 +106,6 @@ static irqreturn_t cnl_ipc_irq_thread(int irq, void *context)
- 				    "nothing to do in IPC IRQ thread\n");
- 	}
- 
--	/* re-enable IPC interrupt */
--	snd_sof_dsp_update_bits(sdev, HDA_DSP_BAR, HDA_DSP_REG_ADSPIC,
--				HDA_DSP_ADSPIC_IPC, HDA_DSP_ADSPIC_IPC);
+ 		pci_iov_remove_virtfn(edev->physfn, pdn->vf_index);
+ 		edev->pdev = NULL;
 -
- 	return IRQ_HANDLED;
- }
- 
-@@ -231,7 +227,6 @@ const struct snd_sof_dsp_ops sof_cnl_ops = {
- 	.block_write	= sof_block_write,
- 
- 	/* doorbell */
--	.irq_handler	= hda_dsp_ipc_irq_handler,
- 	.irq_thread	= cnl_ipc_irq_thread,
- 
- 	/* ipc */
-diff --git a/sound/soc/sof/intel/hda-ipc.c b/sound/soc/sof/intel/hda-ipc.c
-index 0fd2153c17695..1837f66e361fd 100644
---- a/sound/soc/sof/intel/hda-ipc.c
-+++ b/sound/soc/sof/intel/hda-ipc.c
-@@ -230,22 +230,15 @@ irqreturn_t hda_dsp_ipc_irq_thread(int irq, void *context)
- 				    "nothing to do in IPC IRQ thread\n");
- 	}
- 
--	/* re-enable IPC interrupt */
--	snd_sof_dsp_update_bits(sdev, HDA_DSP_BAR, HDA_DSP_REG_ADSPIC,
--				HDA_DSP_ADSPIC_IPC, HDA_DSP_ADSPIC_IPC);
--
- 	return IRQ_HANDLED;
- }
- 
--/* is this IRQ for ADSP ? - we only care about IPC here */
--irqreturn_t hda_dsp_ipc_irq_handler(int irq, void *context)
-+/* Check if an IPC IRQ occurred */
-+bool hda_dsp_check_ipc_irq(struct snd_sof_dev *sdev)
- {
--	struct snd_sof_dev *sdev = context;
--	int ret = IRQ_NONE;
-+	bool ret = false;
- 	u32 irq_status;
- 
--	spin_lock(&sdev->hw_lock);
--
- 	/* store status */
- 	irq_status = snd_sof_dsp_read(sdev, HDA_DSP_BAR, HDA_DSP_REG_ADSPIS);
- 	dev_vdbg(sdev->dev, "irq handler: irq_status:0x%x\n", irq_status);
-@@ -255,16 +248,10 @@ irqreturn_t hda_dsp_ipc_irq_handler(int irq, void *context)
- 		goto out;
- 
- 	/* IPC message ? */
--	if (irq_status & HDA_DSP_ADSPIS_IPC) {
--		/* disable IPC interrupt */
--		snd_sof_dsp_update_bits_unlocked(sdev, HDA_DSP_BAR,
--						 HDA_DSP_REG_ADSPIC,
--						 HDA_DSP_ADSPIC_IPC, 0);
--		ret = IRQ_WAKE_THREAD;
--	}
-+	if (irq_status & HDA_DSP_ADSPIS_IPC)
-+		ret = true;
- 
- out:
--	spin_unlock(&sdev->hw_lock);
- 	return ret;
- }
- 
-diff --git a/sound/soc/sof/intel/hda-stream.c b/sound/soc/sof/intel/hda-stream.c
-index 29ab432816701..927a36f92c242 100644
---- a/sound/soc/sof/intel/hda-stream.c
-+++ b/sound/soc/sof/intel/hda-stream.c
-@@ -549,22 +549,23 @@ int hda_dsp_stream_hw_free(struct snd_sof_dev *sdev,
- 	return 0;
- }
- 
--irqreturn_t hda_dsp_stream_interrupt(int irq, void *context)
-+bool hda_dsp_check_stream_irq(struct snd_sof_dev *sdev)
- {
--	struct hdac_bus *bus = context;
--	int ret = IRQ_WAKE_THREAD;
-+	struct hdac_bus *bus = sof_to_bus(sdev);
-+	bool ret = false;
- 	u32 status;
- 
--	spin_lock(&bus->reg_lock);
-+	/* The function can be called at irq thread, so use spin_lock_irq */
-+	spin_lock_irq(&bus->reg_lock);
- 
- 	status = snd_hdac_chip_readl(bus, INTSTS);
- 	dev_vdbg(bus->dev, "stream irq, INTSTS status: 0x%x\n", status);
- 
--	/* Register inaccessible, ignore it.*/
--	if (status == 0xffffffff)
--		ret = IRQ_NONE;
-+	/* if Register inaccessible, ignore it.*/
-+	if (status != 0xffffffff)
-+		ret = true;
- 
--	spin_unlock(&bus->reg_lock);
-+	spin_unlock_irq(&bus->reg_lock);
- 
- 	return ret;
- }
-@@ -602,7 +603,8 @@ static bool hda_dsp_stream_check(struct hdac_bus *bus, u32 status)
- 
- irqreturn_t hda_dsp_stream_threaded_handler(int irq, void *context)
- {
--	struct hdac_bus *bus = context;
-+	struct snd_sof_dev *sdev = context;
-+	struct hdac_bus *bus = sof_to_bus(sdev);
- #if IS_ENABLED(CONFIG_SND_SOC_SOF_HDA)
- 	u32 rirb_status;
+-		/*
+-		 * We have to set the VF PE number to invalid one, which is
+-		 * required to plug the VF successfully.
+-		 */
+-		pdn->pe_number = IODA_INVALID_PE;
  #endif
-diff --git a/sound/soc/sof/intel/hda.c b/sound/soc/sof/intel/hda.c
-index fb17b87b684bf..82ecadda886c6 100644
---- a/sound/soc/sof/intel/hda.c
-+++ b/sound/soc/sof/intel/hda.c
-@@ -499,6 +499,49 @@ static const struct sof_intel_dsp_desc
- 	return chip_info;
- }
+ 		if (rmv_data)
+ 			list_add(&edev->rmv_entry, &rmv_data->removed_vf_list);
+diff --git a/arch/powerpc/platforms/powernv/pci-ioda.c b/arch/powerpc/platforms/powernv/pci-ioda.c
+index c28d0d9b7ee0f..59de6a5bc41c2 100644
+--- a/arch/powerpc/platforms/powernv/pci-ioda.c
++++ b/arch/powerpc/platforms/powernv/pci-ioda.c
+@@ -1558,6 +1558,10 @@ static void pnv_ioda_setup_vf_PE(struct pci_dev *pdev, u16 num_vfs)
  
-+static irqreturn_t hda_dsp_interrupt_handler(int irq, void *context)
-+{
-+	struct snd_sof_dev *sdev = context;
+ 	/* Reserve PE for each VF */
+ 	for (vf_index = 0; vf_index < num_vfs; vf_index++) {
++		int vf_devfn = pci_iov_virtfn_devfn(pdev, vf_index);
++		int vf_bus = pci_iov_virtfn_bus(pdev, vf_index);
++		struct pci_dn *vf_pdn;
 +
-+	/*
-+	 * Get global interrupt status. It includes all hardware interrupt
-+	 * sources in the Intel HD Audio controller.
-+	 */
-+	if (snd_sof_dsp_read(sdev, HDA_DSP_HDA_BAR, SOF_HDA_INTSTS) &
-+	    SOF_HDA_INTSTS_GIS) {
+ 		if (pdn->m64_single_mode)
+ 			pe_num = pdn->pe_num_map[vf_index];
+ 		else
+@@ -1570,13 +1574,11 @@ static void pnv_ioda_setup_vf_PE(struct pci_dev *pdev, u16 num_vfs)
+ 		pe->pbus = NULL;
+ 		pe->parent_dev = pdev;
+ 		pe->mve_number = -1;
+-		pe->rid = (pci_iov_virtfn_bus(pdev, vf_index) << 8) |
+-			   pci_iov_virtfn_devfn(pdev, vf_index);
++		pe->rid = (vf_bus << 8) | vf_devfn;
+ 
+ 		pe_info(pe, "VF %04d:%02d:%02d.%d associated with PE#%x\n",
+ 			hose->global_number, pdev->bus->number,
+-			PCI_SLOT(pci_iov_virtfn_devfn(pdev, vf_index)),
+-			PCI_FUNC(pci_iov_virtfn_devfn(pdev, vf_index)), pe_num);
++			PCI_SLOT(vf_devfn), PCI_FUNC(vf_devfn), pe_num);
+ 
+ 		if (pnv_ioda_configure_pe(phb, pe)) {
+ 			/* XXX What do we do here ? */
+@@ -1590,6 +1592,15 @@ static void pnv_ioda_setup_vf_PE(struct pci_dev *pdev, u16 num_vfs)
+ 		list_add_tail(&pe->list, &phb->ioda.pe_list);
+ 		mutex_unlock(&phb->ioda.pe_list_mutex);
+ 
++		/* associate this pe to it's pdn */
++		list_for_each_entry(vf_pdn, &pdn->parent->child_list, list) {
++			if (vf_pdn->busno == vf_bus &&
++			    vf_pdn->devfn == vf_devfn) {
++				vf_pdn->pe_number = pe_num;
++				break;
++			}
++		}
 +
-+		/* disable GIE interrupt */
-+		snd_sof_dsp_update_bits(sdev, HDA_DSP_HDA_BAR,
-+					SOF_HDA_INTCTL,
-+					SOF_HDA_INT_GLOBAL_EN,
-+					0);
-+
-+		return IRQ_WAKE_THREAD;
-+	}
-+
-+	return IRQ_NONE;
-+}
-+
-+static irqreturn_t hda_dsp_interrupt_thread(int irq, void *context)
-+{
-+	struct snd_sof_dev *sdev = context;
-+
-+	/* deal with streams and controller first */
-+	if (hda_dsp_check_stream_irq(sdev))
-+		hda_dsp_stream_threaded_handler(irq, sdev);
-+
-+	if (hda_dsp_check_ipc_irq(sdev))
-+		sof_ops(sdev)->irq_thread(irq, sdev);
-+
-+	/* enable GIE interrupt */
-+	snd_sof_dsp_update_bits(sdev, HDA_DSP_HDA_BAR,
-+				SOF_HDA_INTCTL,
-+				SOF_HDA_INT_GLOBAL_EN,
-+				SOF_HDA_INT_GLOBAL_EN);
-+
-+	return IRQ_HANDLED;
-+}
-+
- int hda_dsp_probe(struct snd_sof_dev *sdev)
- {
- 	struct pci_dev *pci = to_pci_dev(sdev->dev);
-@@ -603,9 +646,7 @@ int hda_dsp_probe(struct snd_sof_dev *sdev)
- 	 */
- 	if (hda_use_msi && pci_alloc_irq_vectors(pci, 1, 1, PCI_IRQ_MSI) > 0) {
- 		dev_info(sdev->dev, "use msi interrupt mode\n");
--		hdev->irq = pci_irq_vector(pci, 0);
--		/* ipc irq number is the same of hda irq */
--		sdev->ipc_irq = hdev->irq;
-+		sdev->ipc_irq = pci_irq_vector(pci, 0);
- 		/* initialised to "false" by kzalloc() */
- 		sdev->msi_enabled = true;
- 	}
-@@ -616,28 +657,17 @@ int hda_dsp_probe(struct snd_sof_dev *sdev)
- 		 * in IO-APIC mode, hda->irq and ipc_irq are using the same
- 		 * irq number of pci->irq
- 		 */
--		hdev->irq = pci->irq;
- 		sdev->ipc_irq = pci->irq;
- 	}
+ 		pnv_pci_ioda2_setup_dma_pe(phb, pe);
+ #ifdef CONFIG_IOMMU_API
+ 		iommu_register_group(&pe->table_group,
+diff --git a/arch/powerpc/platforms/powernv/pci.c b/arch/powerpc/platforms/powernv/pci.c
+index c0bea75ac27bf..e8e58a2cccddf 100644
+--- a/arch/powerpc/platforms/powernv/pci.c
++++ b/arch/powerpc/platforms/powernv/pci.c
+@@ -816,16 +816,12 @@ void pnv_pci_dma_dev_setup(struct pci_dev *pdev)
+ 	struct pnv_phb *phb = hose->private_data;
+ #ifdef CONFIG_PCI_IOV
+ 	struct pnv_ioda_pe *pe;
+-	struct pci_dn *pdn;
  
--	dev_dbg(sdev->dev, "using HDA IRQ %d\n", hdev->irq);
--	ret = request_threaded_irq(hdev->irq, hda_dsp_stream_interrupt,
--				   hda_dsp_stream_threaded_handler,
--				   IRQF_SHARED, "AudioHDA", bus);
--	if (ret < 0) {
--		dev_err(sdev->dev, "error: failed to register HDA IRQ %d\n",
--			hdev->irq);
--		goto free_irq_vector;
--	}
--
- 	dev_dbg(sdev->dev, "using IPC IRQ %d\n", sdev->ipc_irq);
--	ret = request_threaded_irq(sdev->ipc_irq, hda_dsp_ipc_irq_handler,
--				   sof_ops(sdev)->irq_thread, IRQF_SHARED,
--				   "AudioDSP", sdev);
-+	ret = request_threaded_irq(sdev->ipc_irq, hda_dsp_interrupt_handler,
-+				   hda_dsp_interrupt_thread,
-+				   IRQF_SHARED, "AudioDSP", sdev);
- 	if (ret < 0) {
- 		dev_err(sdev->dev, "error: failed to register IPC IRQ %d\n",
- 			sdev->ipc_irq);
--		goto free_hda_irq;
-+		goto free_irq_vector;
- 	}
- 
- 	pci_set_master(pci);
-@@ -668,8 +698,6 @@ int hda_dsp_probe(struct snd_sof_dev *sdev)
- 
- free_ipc_irq:
- 	free_irq(sdev->ipc_irq, sdev);
--free_hda_irq:
--	free_irq(hdev->irq, bus);
- free_irq_vector:
- 	if (sdev->msi_enabled)
- 		pci_free_irq_vectors(pci);
-@@ -715,7 +743,6 @@ int hda_dsp_remove(struct snd_sof_dev *sdev)
- 				SOF_HDA_PPCTL_GPROCEN, 0);
- 
- 	free_irq(sdev->ipc_irq, sdev);
--	free_irq(hda->irq, bus);
- 	if (sdev->msi_enabled)
- 		pci_free_irq_vectors(pci);
- 
-diff --git a/sound/soc/sof/intel/hda.h b/sound/soc/sof/intel/hda.h
-index 18d7e72bf9b72..63df888dddb6c 100644
---- a/sound/soc/sof/intel/hda.h
-+++ b/sound/soc/sof/intel/hda.h
-@@ -43,11 +43,14 @@
- /* SOF_HDA_GCTL register bist */
- #define SOF_HDA_GCTL_RESET		BIT(0)
- 
--/* SOF_HDA_INCTL and SOF_HDA_INTSTS regs */
-+/* SOF_HDA_INCTL regs */
- #define SOF_HDA_INT_GLOBAL_EN		BIT(31)
- #define SOF_HDA_INT_CTRL_EN		BIT(30)
- #define SOF_HDA_INT_ALL_STREAM		0xff
- 
-+/* SOF_HDA_INTSTS regs */
-+#define SOF_HDA_INTSTS_GIS		BIT(31)
-+
- #define SOF_HDA_MAX_CAPS		10
- #define SOF_HDA_CAP_ID_OFF		16
- #define SOF_HDA_CAP_ID_MASK		GENMASK(SOF_HDA_CAP_ID_OFF + 11,\
-@@ -406,8 +409,6 @@ struct sof_intel_hda_dev {
- 	/* the maximum number of streams (playback + capture) supported */
- 	u32 stream_max;
- 
--	int irq;
--
- 	/* PM related */
- 	bool l1_support_changed;/* during suspend, is L1SEN changed or not */
- 
-@@ -511,11 +512,12 @@ int hda_dsp_stream_hw_params(struct snd_sof_dev *sdev,
- 			     struct snd_pcm_hw_params *params);
- int hda_dsp_stream_trigger(struct snd_sof_dev *sdev,
- 			   struct hdac_ext_stream *stream, int cmd);
--irqreturn_t hda_dsp_stream_interrupt(int irq, void *context);
- irqreturn_t hda_dsp_stream_threaded_handler(int irq, void *context);
- int hda_dsp_stream_setup_bdl(struct snd_sof_dev *sdev,
- 			     struct snd_dma_buffer *dmab,
- 			     struct hdac_stream *stream);
-+bool hda_dsp_check_ipc_irq(struct snd_sof_dev *sdev);
-+bool hda_dsp_check_stream_irq(struct snd_sof_dev *sdev);
- 
- struct hdac_ext_stream *
- 	hda_dsp_stream_get(struct snd_sof_dev *sdev, int direction);
-@@ -540,7 +542,6 @@ void hda_dsp_ipc_get_reply(struct snd_sof_dev *sdev);
- int hda_dsp_ipc_get_mailbox_offset(struct snd_sof_dev *sdev);
- int hda_dsp_ipc_get_window_offset(struct snd_sof_dev *sdev, u32 id);
- 
--irqreturn_t hda_dsp_ipc_irq_handler(int irq, void *context);
- irqreturn_t hda_dsp_ipc_irq_thread(int irq, void *context);
- int hda_dsp_ipc_cmd_done(struct snd_sof_dev *sdev, int dir);
- 
+ 	/* Fix the VF pdn PE number */
+ 	if (pdev->is_virtfn) {
+-		pdn = pci_get_pdn(pdev);
+-		WARN_ON(pdn->pe_number != IODA_INVALID_PE);
+ 		list_for_each_entry(pe, &phb->ioda.pe_list, list) {
+ 			if (pe->rid == ((pdev->bus->number << 8) |
+ 			    (pdev->devfn & 0xff))) {
+-				pdn->pe_number = pe->pe_number;
+ 				pe->pdev = pdev;
+ 				break;
+ 			}
 -- 
 2.20.1
 
