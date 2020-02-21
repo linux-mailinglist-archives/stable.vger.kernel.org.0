@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 06EA9167813
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:46:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F6F71676BC
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:38:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731521AbgBUIqK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 03:46:10 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47224 "EHLO mail.kernel.org"
+        id S1730190AbgBUIEE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 03:04:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36998 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729545AbgBUHuV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 02:50:21 -0500
+        id S1731578AbgBUIEE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 03:04:04 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1E1DC24656;
-        Fri, 21 Feb 2020 07:50:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C410C20801;
+        Fri, 21 Feb 2020 08:04:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582271420;
-        bh=deNAJfb+HengsUnbWaZWDBpg7gTmWXmNHJ17KELUfr4=;
+        s=default; t=1582272243;
+        bh=uTLnBEJERTGry/cuDv6VzwuoL0a2YHXZt5HbDHNk0wA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DHpo0ZSRCUwDw2IqzpRQT1IcskFT5oyg5a2avqZiVoQotbbcKoASZUGFbttYw8GlA
-         uPDVYIKdLftzwdbyOY3B1NdROFPDEkZAfMoVvx3TH6kZ2cbQR73IaLnXw/5PXyLygb
-         g6PElscMdCCYGr6N01iS8Ou8iFUBjmJKAwfFwhic=
+        b=rNVdrYtAZh7R9w7UVFTPg0RqyMY2wfH7kY6eoweFNRf1hJ3qndW9NCKIcKdsMOxKQ
+         kidg2cDOD4rt/YILJf2c2yL42miKTTd/x5cGhkCdeGJfDO2Nr+NsPwMdg011Lj+OYf
+         SbxWT19yfW6c+XI8iNill9K8327f5lZLJPWfHFtU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Masami Hiramatsu <mhiramat@kernel.org>,
-        Jessica Yu <jeyu@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 111/399] modules: lockdep: Suppress suspicious RCU usage warning
+        stable@vger.kernel.org, Chen-Yu Tsai <wens@csie.org>,
+        Maxime Ripard <mripard@kernel.org>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 037/344] media: sun4i-csi: Fix data sampling polarity handling
 Date:   Fri, 21 Feb 2020 08:37:16 +0100
-Message-Id: <20200221072413.235275688@linuxfoundation.org>
+Message-Id: <20200221072352.510854002@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200221072402.315346745@linuxfoundation.org>
-References: <20200221072402.315346745@linuxfoundation.org>
+In-Reply-To: <20200221072349.335551332@linuxfoundation.org>
+References: <20200221072349.335551332@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,88 +46,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masami Hiramatsu <mhiramat@kernel.org>
+From: Chen-Yu Tsai <wens@csie.org>
 
-[ Upstream commit bf08949cc8b98b7d1e20cfbba169a5938d42dae8 ]
+[ Upstream commit cf9e6d5dbdd56ef2aa72f28c806711c4293c8848 ]
 
-While running kprobe module test, find_module_all() caused
-a suspicious RCU usage warning.
+The CLK_POL field specifies whether data is sampled on the falling or
+rising edge of PCLK, not whether the data lines are active high or low.
+Evidence of this can be found in the timing diagram labeled "horizontal
+size setting and pixel clock timing".
 
------
- =============================
- WARNING: suspicious RCU usage
- 5.4.0-next-20191202+ #63 Not tainted
- -----------------------------
- kernel/module.c:619 RCU-list traversed in non-reader section!!
+Fix the setting by checking the correct flag, V4L2_MBUS_PCLK_SAMPLE_RISING.
+While at it, reorder the three polarity flag checks so HSYNC and VSYNC
+are grouped together.
 
- other info that might help us debug this:
-
- rcu_scheduler_active = 2, debug_locks = 1
- 1 lock held by rmmod/642:
-  #0: ffffffff8227da80 (module_mutex){+.+.}, at: __x64_sys_delete_module+0x9a/0x230
-
- stack backtrace:
- CPU: 0 PID: 642 Comm: rmmod Not tainted 5.4.0-next-20191202+ #63
- Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.12.1-0-ga5cab58e9a3f-prebuilt.qemu.org 04/01/2014
- Call Trace:
-  dump_stack+0x71/0xa0
-  find_module_all+0xc1/0xd0
-  __x64_sys_delete_module+0xac/0x230
-  ? do_syscall_64+0x12/0x1f0
-  do_syscall_64+0x50/0x1f0
-  entry_SYSCALL_64_after_hwframe+0x49/0xbe
- RIP: 0033:0x4b6d49
------
-
-This is because list_for_each_entry_rcu(modules) is called
-without rcu_read_lock(). This is safe because the module_mutex
-is locked.
-
-Pass lockdep_is_held(&module_mutex) to the list_for_each_entry_rcu()
-to suppress this warning, This also fixes similar issue in
-mod_find() and each_symbol_section().
-
-Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
-Signed-off-by: Jessica Yu <jeyu@kernel.org>
+Fixes: 577bbf23b758 ("media: sunxi: Add A10 CSI driver")
+Signed-off-by: Chen-Yu Tsai <wens@csie.org>
+Acked-by: Maxime Ripard <mripard@kernel.org>
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/module.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ drivers/media/platform/sunxi/sun4i-csi/sun4i_dma.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/kernel/module.c b/kernel/module.c
-index 8785e31c2dd0f..d83edc3a41a33 100644
---- a/kernel/module.c
-+++ b/kernel/module.c
-@@ -214,7 +214,8 @@ static struct module *mod_find(unsigned long addr)
- {
- 	struct module *mod;
+diff --git a/drivers/media/platform/sunxi/sun4i-csi/sun4i_dma.c b/drivers/media/platform/sunxi/sun4i-csi/sun4i_dma.c
+index d6979e11a67b2..8b567d0f019bf 100644
+--- a/drivers/media/platform/sunxi/sun4i-csi/sun4i_dma.c
++++ b/drivers/media/platform/sunxi/sun4i-csi/sun4i_dma.c
+@@ -279,8 +279,8 @@ static int sun4i_csi_start_streaming(struct vb2_queue *vq, unsigned int count)
+ 	       csi->regs + CSI_WIN_CTRL_H_REG);
  
--	list_for_each_entry_rcu(mod, &modules, list) {
-+	list_for_each_entry_rcu(mod, &modules, list,
-+				lockdep_is_held(&module_mutex)) {
- 		if (within_module(addr, mod))
- 			return mod;
- 	}
-@@ -448,7 +449,8 @@ bool each_symbol_section(bool (*fn)(const struct symsearch *arr,
- 	if (each_symbol_in_section(arr, ARRAY_SIZE(arr), NULL, fn, data))
- 		return true;
- 
--	list_for_each_entry_rcu(mod, &modules, list) {
-+	list_for_each_entry_rcu(mod, &modules, list,
-+				lockdep_is_held(&module_mutex)) {
- 		struct symsearch arr[] = {
- 			{ mod->syms, mod->syms + mod->num_syms, mod->crcs,
- 			  NOT_GPL_ONLY, false },
-@@ -616,7 +618,8 @@ static struct module *find_module_all(const char *name, size_t len,
- 
- 	module_assert_mutex_or_preempt();
- 
--	list_for_each_entry_rcu(mod, &modules, list) {
-+	list_for_each_entry_rcu(mod, &modules, list,
-+				lockdep_is_held(&module_mutex)) {
- 		if (!even_unformed && mod->state == MODULE_STATE_UNFORMED)
- 			continue;
- 		if (strlen(mod->name) == len && !memcmp(mod->name, name, len))
+ 	hsync_pol = !!(bus->flags & V4L2_MBUS_HSYNC_ACTIVE_HIGH);
+-	pclk_pol = !!(bus->flags & V4L2_MBUS_DATA_ACTIVE_HIGH);
+ 	vsync_pol = !!(bus->flags & V4L2_MBUS_VSYNC_ACTIVE_HIGH);
++	pclk_pol = !!(bus->flags & V4L2_MBUS_PCLK_SAMPLE_RISING);
+ 	writel(CSI_CFG_INPUT_FMT(csi_fmt->input) |
+ 	       CSI_CFG_OUTPUT_FMT(csi_fmt->output) |
+ 	       CSI_CFG_VSYNC_POL(vsync_pol) |
 -- 
 2.20.1
 
