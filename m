@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 134FB167700
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:41:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 62C47167514
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:30:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730706AbgBUIBL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 03:01:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33464 "EHLO mail.kernel.org"
+        id S2388171AbgBUIXD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 03:23:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34880 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731161AbgBUIBK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 03:01:10 -0500
+        id S2388400AbgBUIXC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 03:23:02 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BD49F206ED;
-        Fri, 21 Feb 2020 08:01:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3409D2467D;
+        Fri, 21 Feb 2020 08:23:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582272069;
-        bh=Df6Drub/gyVbgXioqxJtd2ALD8EBW3djCNk3Y/1Enoc=;
+        s=default; t=1582273380;
+        bh=gSIXnvYSzb1E5aXmOOPxu2e/NXExAykLWXKDEtJ6b8o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a2hY4ofrO5/95suckeUHDJobIeQ+ImW3/oE/+uQstdZFW9vSp948fh5emCL0+QUbs
-         sfomchFvjwHzo8nDgVlzhX02eg2TgQ5MAu1yvc8Bmp/RELzoLRhDyV6/oud6t0HHgY
-         8AYnqC6nSETHuCClaNNhA/WRi9ddk0xrFaYYQojs=
+        b=gGqJkc65hwn9i00Lm0HWa7ErC3zDQ4Tb27eKxro0a31854RsE9tcyKD5JvviA+sli
+         UKvbrdsoRLdLLFDi7a0XTt01vsBd8K+vYcTZzoAzOgO2910GMiSCimwjLGTj2SN69M
+         aSw4Uu+sZzt2sc1acwVhd+jtNHH3oJ9yKF6BlUHk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Niklas Schnelle <schnelle@linux.ibm.com>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
+        stable@vger.kernel.org, John Garry <john.garry@huawei.com>,
+        Marc Zyngier <maz@kernel.org>,
+        Hanjun Guo <guohanjun@huawei.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 397/399] s390/pci: Recover handle in clp_set_pci_fn()
+Subject: [PATCH 4.19 149/191] irqchip/mbigen: Set driver .suppress_bind_attrs to avoid remove problems
 Date:   Fri, 21 Feb 2020 08:42:02 +0100
-Message-Id: <20200221072438.426522639@linuxfoundation.org>
+Message-Id: <20200221072308.441059400@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200221072402.315346745@linuxfoundation.org>
-References: <20200221072402.315346745@linuxfoundation.org>
+In-Reply-To: <20200221072250.732482588@linuxfoundation.org>
+References: <20200221072250.732482588@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,192 +45,124 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Niklas Schnelle <schnelle@linux.ibm.com>
+From: John Garry <john.garry@huawei.com>
 
-[ Upstream commit 17cdec960cf776b20b1fb08c622221babe591d51 ]
+[ Upstream commit d6152e6ec9e2171280436f7b31a571509b9287e1 ]
 
-When we try to recover a PCI function using
+The following crash can be seen for setting
+CONFIG_DEBUG_TEST_DRIVER_REMOVE=y for DT FW (which some people still use):
 
-    echo 1 > /sys/bus/pci/devices/<id>/recover
+Hisilicon MBIGEN-V2 60080000.interrupt-controller: Failed to create mbi-gen irqdomain
+Hisilicon MBIGEN-V2: probe of 60080000.interrupt-controller failed with error -12
 
-or manually with
+[...]
 
-    echo 1 > /sys/bus/pci/devices/<id>/remove
-    echo 0 > /sys/bus/pci/slots/<slot>/power
-    echo 1 > /sys/bus/pci/slots/<slot>/power
+Unable to handle kernel paging request at virtual address 0000000000005008
+ Mem abort info:
+   ESR = 0x96000004
+   EC = 0x25: DABT (current EL), IL = 32 bits
+   SET = 0, FnV = 0
+   EA = 0, S1PTW = 0
+ Data abort info:
+   ISV = 0, ISS = 0x00000004
+   CM = 0, WnR = 0
+ user pgtable: 4k pages, 48-bit VAs, pgdp=0000041fb9990000
+ [0000000000005008] pgd=0000000000000000
+ Internal error: Oops: 96000004 [#1] PREEMPT SMP
+ Modules linked in:
+ CPU: 7 PID: 1 Comm: swapper/0 Not tainted 5.5.0-rc6-00002-g3fc42638a506-dirty #1622
+ Hardware name: Huawei Taishan 2280 /D05, BIOS Hisilicon D05 IT21 Nemo 2.0 RC0 04/18/2018
+ pstate: 40000085 (nZcv daIf -PAN -UAO)
+ pc : mbigen_set_type+0x38/0x60
+ lr : __irq_set_trigger+0x6c/0x188
+ sp : ffff800014b4b400
+ x29: ffff800014b4b400 x28: 0000000000000007
+ x27: 0000000000000000 x26: 0000000000000000
+ x25: ffff041fd83bd0d4 x24: ffff041fd83bd188
+ x23: 0000000000000000 x22: ffff80001193ce00
+ x21: 0000000000000004 x20: 0000000000000000
+ x19: ffff041fd83bd000 x18: ffffffffffffffff
+ x17: 0000000000000000 x16: 0000000000000000
+ x15: ffff8000119098c8 x14: ffff041fb94ec91c
+ x13: ffff041fb94ec1a1 x12: 0000000000000030
+ x11: 0101010101010101 x10: 0000000000000040
+ x9 : 0000000000000000 x8 : ffff041fb98c6680
+ x7 : ffff800014b4b380 x6 : ffff041fd81636c8
+ x5 : 0000000000000000 x4 : 000000000000025f
+ x3 : 0000000000005000 x2 : 0000000000005008
+ x1 : 0000000000000004 x0 : 0000000080000000
+ Call trace:
+  mbigen_set_type+0x38/0x60
+  __setup_irq+0x744/0x900
+  request_threaded_irq+0xe0/0x198
+  pcie_pme_probe+0x98/0x118
+  pcie_port_probe_service+0x38/0x78
+  really_probe+0xa0/0x3e0
+  driver_probe_device+0x58/0x100
+  __device_attach_driver+0x90/0xb0
+  bus_for_each_drv+0x64/0xc8
+  __device_attach+0xd8/0x138
+  device_initial_probe+0x10/0x18
+  bus_probe_device+0x90/0x98
+  device_add+0x4c4/0x770
+  device_register+0x1c/0x28
+  pcie_port_device_register+0x1e4/0x4f0
+  pcie_portdrv_probe+0x34/0xd8
+  local_pci_probe+0x3c/0xa0
+  pci_device_probe+0x128/0x1c0
+  really_probe+0xa0/0x3e0
+  driver_probe_device+0x58/0x100
+  __device_attach_driver+0x90/0xb0
+  bus_for_each_drv+0x64/0xc8
+  __device_attach+0xd8/0x138
+  device_attach+0x10/0x18
+  pci_bus_add_device+0x4c/0xb8
+  pci_bus_add_devices+0x38/0x88
+  pci_host_probe+0x3c/0xc0
+  pci_host_common_probe+0xf0/0x208
+  hisi_pcie_almost_ecam_probe+0x24/0x30
+  platform_drv_probe+0x50/0xa0
+  really_probe+0xa0/0x3e0
+  driver_probe_device+0x58/0x100
+  device_driver_attach+0x6c/0x90
+  __driver_attach+0x84/0xc8
+  bus_for_each_dev+0x74/0xc8
+  driver_attach+0x20/0x28
+  bus_add_driver+0x148/0x1f0
+  driver_register+0x60/0x110
+  __platform_driver_register+0x40/0x48
+  hisi_pcie_almost_ecam_driver_init+0x1c/0x24
 
-clp_disable_fn() / clp_enable_fn() call clp_set_pci_fn() to first
-disable and then reenable the function.
+The specific problem here is that the mbigen driver real probe has failed
+as the mbigen_of_create_domain()->of_platform_device_create() call fails,
+the reason for that being that we never destroyed the platform device
+created during the remove test dry run and there is some conflict.
 
-When the function is already in the requested state we may be left with
-an invalid function handle.
+Since we generally would never want to unbind this driver, and to save
+adding a driver tear down path for that, just set the driver
+.suppress_bind_attrs member to avoid this possibility.
 
-To get a new valid handle we do a clp_list_pci() call. For this we need
-both the function ID and function handle in clp_set_pci_fn() so pass the
-zdev and get both.
-
-To simplify things also pull setting the refreshed function handle into
-clp_set_pci_fn()
-
-Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
-Reviewed-by: Peter Oberparleiter <oberpar@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: John Garry <john.garry@huawei.com>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Reviewed-by: Hanjun Guo <guohanjun@huawei.com>
+Link: https://lore.kernel.org/r/1579196323-180137-1-git-send-email-john.garry@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/include/asm/pci.h |  2 +-
- arch/s390/pci/pci.c         |  2 +-
- arch/s390/pci/pci_clp.c     | 48 ++++++++++++++++++++++---------------
- 3 files changed, 31 insertions(+), 21 deletions(-)
+ drivers/irqchip/irq-mbigen.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/s390/include/asm/pci.h b/arch/s390/include/asm/pci.h
-index 3a06c264ea533..b05187ce5dbdc 100644
---- a/arch/s390/include/asm/pci.h
-+++ b/arch/s390/include/asm/pci.h
-@@ -180,7 +180,7 @@ void zpci_remove_reserved_devices(void);
- /* CLP */
- int clp_scan_pci_devices(void);
- int clp_rescan_pci_devices(void);
--int clp_rescan_pci_devices_simple(void);
-+int clp_rescan_pci_devices_simple(u32 *fid);
- int clp_add_pci_device(u32, u32, int);
- int clp_enable_fh(struct zpci_dev *, u8);
- int clp_disable_fh(struct zpci_dev *);
-diff --git a/arch/s390/pci/pci.c b/arch/s390/pci/pci.c
-index 8e872951c07ba..bc61ea18e88d9 100644
---- a/arch/s390/pci/pci.c
-+++ b/arch/s390/pci/pci.c
-@@ -939,5 +939,5 @@ subsys_initcall_sync(pci_base_init);
- void zpci_rescan(void)
- {
- 	if (zpci_is_enabled())
--		clp_rescan_pci_devices_simple();
-+		clp_rescan_pci_devices_simple(NULL);
- }
-diff --git a/arch/s390/pci/pci_clp.c b/arch/s390/pci/pci_clp.c
-index 4c613e569fe08..0d3d8f170ea42 100644
---- a/arch/s390/pci/pci_clp.c
-+++ b/arch/s390/pci/pci_clp.c
-@@ -240,12 +240,14 @@ error:
- }
- 
- /*
-- * Enable/Disable a given PCI function defined by its function handle.
-+ * Enable/Disable a given PCI function and update its function handle if
-+ * necessary
-  */
--static int clp_set_pci_fn(u32 *fh, u8 nr_dma_as, u8 command)
-+static int clp_set_pci_fn(struct zpci_dev *zdev, u8 nr_dma_as, u8 command)
- {
- 	struct clp_req_rsp_set_pci *rrb;
- 	int rc, retries = 100;
-+	u32 fid = zdev->fid;
- 
- 	rrb = clp_alloc_block(GFP_KERNEL);
- 	if (!rrb)
-@@ -256,7 +258,7 @@ static int clp_set_pci_fn(u32 *fh, u8 nr_dma_as, u8 command)
- 		rrb->request.hdr.len = sizeof(rrb->request);
- 		rrb->request.hdr.cmd = CLP_SET_PCI_FN;
- 		rrb->response.hdr.len = sizeof(rrb->response);
--		rrb->request.fh = *fh;
-+		rrb->request.fh = zdev->fh;
- 		rrb->request.oc = command;
- 		rrb->request.ndas = nr_dma_as;
- 
-@@ -269,12 +271,17 @@ static int clp_set_pci_fn(u32 *fh, u8 nr_dma_as, u8 command)
- 		}
- 	} while (rrb->response.hdr.rsp == CLP_RC_SETPCIFN_BUSY);
- 
--	if (!rc && rrb->response.hdr.rsp == CLP_RC_OK)
--		*fh = rrb->response.fh;
--	else {
-+	if (rc || rrb->response.hdr.rsp != CLP_RC_OK) {
- 		zpci_err("Set PCI FN:\n");
- 		zpci_err_clp(rrb->response.hdr.rsp, rc);
--		rc = -EIO;
-+	}
-+
-+	if (!rc && rrb->response.hdr.rsp == CLP_RC_OK) {
-+		zdev->fh = rrb->response.fh;
-+	} else if (!rc && rrb->response.hdr.rsp == CLP_RC_SETPCIFN_ALRDY &&
-+			rrb->response.fh == 0) {
-+		/* Function is already in desired state - update handle */
-+		rc = clp_rescan_pci_devices_simple(&fid);
- 	}
- 	clp_free_block(rrb);
- 	return rc;
-@@ -282,18 +289,17 @@ static int clp_set_pci_fn(u32 *fh, u8 nr_dma_as, u8 command)
- 
- int clp_enable_fh(struct zpci_dev *zdev, u8 nr_dma_as)
- {
--	u32 fh = zdev->fh;
- 	int rc;
- 
--	rc = clp_set_pci_fn(&fh, nr_dma_as, CLP_SET_ENABLE_PCI_FN);
--	zpci_dbg(3, "ena fid:%x, fh:%x, rc:%d\n", zdev->fid, fh, rc);
-+	rc = clp_set_pci_fn(zdev, nr_dma_as, CLP_SET_ENABLE_PCI_FN);
-+	zpci_dbg(3, "ena fid:%x, fh:%x, rc:%d\n", zdev->fid, zdev->fh, rc);
- 	if (rc)
- 		goto out;
- 
--	zdev->fh = fh;
- 	if (zpci_use_mio(zdev)) {
--		rc = clp_set_pci_fn(&fh, nr_dma_as, CLP_SET_ENABLE_MIO);
--		zpci_dbg(3, "ena mio fid:%x, fh:%x, rc:%d\n", zdev->fid, fh, rc);
-+		rc = clp_set_pci_fn(zdev, nr_dma_as, CLP_SET_ENABLE_MIO);
-+		zpci_dbg(3, "ena mio fid:%x, fh:%x, rc:%d\n",
-+				zdev->fid, zdev->fh, rc);
- 		if (rc)
- 			clp_disable_fh(zdev);
- 	}
-@@ -309,11 +315,8 @@ int clp_disable_fh(struct zpci_dev *zdev)
- 	if (!zdev_enabled(zdev))
- 		return 0;
- 
--	rc = clp_set_pci_fn(&fh, 0, CLP_SET_DISABLE_PCI_FN);
-+	rc = clp_set_pci_fn(zdev, 0, CLP_SET_DISABLE_PCI_FN);
- 	zpci_dbg(3, "dis fid:%x, fh:%x, rc:%d\n", zdev->fid, fh, rc);
--	if (!rc)
--		zdev->fh = fh;
--
- 	return rc;
- }
- 
-@@ -370,10 +373,14 @@ static void __clp_add(struct clp_fh_list_entry *entry, void *data)
- static void __clp_update(struct clp_fh_list_entry *entry, void *data)
- {
- 	struct zpci_dev *zdev;
-+	u32 *fid = data;
- 
- 	if (!entry->vendor_id)
- 		return;
- 
-+	if (fid && *fid != entry->fid)
-+		return;
-+
- 	zdev = get_zdev_by_fid(entry->fid);
- 	if (!zdev)
- 		return;
-@@ -413,7 +420,10 @@ int clp_rescan_pci_devices(void)
- 	return rc;
- }
- 
--int clp_rescan_pci_devices_simple(void)
-+/* Rescan PCI functions and refresh function handles. If fid is non-NULL only
-+ * refresh the handle of the function matching @fid
-+ */
-+int clp_rescan_pci_devices_simple(u32 *fid)
- {
- 	struct clp_req_rsp_list_pci *rrb;
- 	int rc;
-@@ -422,7 +432,7 @@ int clp_rescan_pci_devices_simple(void)
- 	if (!rrb)
- 		return -ENOMEM;
- 
--	rc = clp_list_pci(rrb, NULL, __clp_update);
-+	rc = clp_list_pci(rrb, fid, __clp_update);
- 
- 	clp_free_block(rrb);
- 	return rc;
+diff --git a/drivers/irqchip/irq-mbigen.c b/drivers/irqchip/irq-mbigen.c
+index 98b6e1d4b1a68..f7fdbf5d183b9 100644
+--- a/drivers/irqchip/irq-mbigen.c
++++ b/drivers/irqchip/irq-mbigen.c
+@@ -381,6 +381,7 @@ static struct platform_driver mbigen_platform_driver = {
+ 		.name		= "Hisilicon MBIGEN-V2",
+ 		.of_match_table	= mbigen_of_match,
+ 		.acpi_match_table = ACPI_PTR(mbigen_acpi_match),
++		.suppress_bind_attrs = true,
+ 	},
+ 	.probe			= mbigen_device_probe,
+ };
 -- 
 2.20.1
 
