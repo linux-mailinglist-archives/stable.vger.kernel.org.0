@@ -2,42 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0AE591678AE
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:50:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B552F1678AB
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:50:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727993AbgBUIuK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 03:50:10 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38390 "EHLO mail.kernel.org"
+        id S1727460AbgBUHoD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 02:44:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38446 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727495AbgBUHoA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 02:44:00 -0500
+        id S1727624AbgBUHoD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 02:44:03 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6609C222C4;
-        Fri, 21 Feb 2020 07:43:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 83915207FD;
+        Fri, 21 Feb 2020 07:44:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582271038;
-        bh=HzO3ag8UxDL8oDxRgE0ImymDAM2E6B8Jsq3Oz5gyom4=;
+        s=default; t=1582271042;
+        bh=gy6cSk/mJ9DL3eoxl/R33L4+8ze4UUWArDMHb+InQKI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2kMxu/vFWSl6Aqna7pzO+yDBFaGpDmU1da9vq4Hb9AFvUsz7Gh1yUFwwH6TNug17r
-         Ygnmrm3wqYK9MNbjU466qz8Rk7aC6WDyGaQ/3yIao99ZdDy/G2Shwj0xnvQR/3fJtg
-         PWAadduxoX1pkZ2wVNf2z8yOwsy6OT02NsdVEG4A=
+        b=erVDM82bc/gO7s0gB+mssSPxiBfYccJUcxOl7qvD9SxIdy7rg4cLg2BmEvjFH5ide
+         QS5SOdG8d8TqWPTvI33BmYrZ+s4kszP0IBp8OI9PKwEJi7VwYruNvucrar7x61cwWC
+         In2fVKe9S/rdopf9RCtpxjUq/mPqGlULypoh9Qkk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marco Elver <elver@google.com>,
-        "Paul E. McKenney" <paulmck@kernel.org>,
-        Josh Triplett <josh@joshtriplett.org>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
-        Joel Fernandes <joel@joelfernandes.org>,
-        Ingo Molnar <mingo@redhat.com>,
-        Dmitry Vyukov <dvyukov@google.com>, rcu@vger.kernel.org,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 017/399] rcu: Fix data-race due to atomic_t copy-by-value
-Date:   Fri, 21 Feb 2020 08:35:42 +0100
-Message-Id: <20200221072403.999831553@linuxfoundation.org>
+        stable@vger.kernel.org, Chuhong Yuan <hslester96@gmail.com>,
+        Peter Ujfalusi <peter.ujfalusi@ti.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.5 018/399] dmaengine: ti: edma: add missed operations
+Date:   Fri, 21 Feb 2020 08:35:43 +0100
+Message-Id: <20200221072404.100592581@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200221072402.315346745@linuxfoundation.org>
 References: <20200221072402.315346745@linuxfoundation.org>
@@ -50,130 +44,131 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marco Elver <elver@google.com>
+From: Chuhong Yuan <hslester96@gmail.com>
 
-[ Upstream commit 6cf539a87a61a4fbc43f625267dbcbcf283872ed ]
+[ Upstream commit 2a03c1314506557277829562dd2ec5c11a6ea914 ]
 
-This fixes a data-race where `atomic_t dynticks` is copied by value. The
-copy is performed non-atomically, resulting in a data-race if `dynticks`
-is updated concurrently.
+The driver forgets to call pm_runtime_disable and pm_runtime_put_sync in
+probe failure and remove.
+Add the calls and modify probe failure handling to fix it.
 
-This data-race was found with KCSAN:
-==================================================================
-BUG: KCSAN: data-race in dyntick_save_progress_counter / rcu_irq_enter
+To simplify the fix, the patch adjusts the calling order and merges checks
+for devm_kcalloc.
 
-write to 0xffff989dbdbe98e0 of 4 bytes by task 10 on cpu 3:
- atomic_add_return include/asm-generic/atomic-instrumented.h:78 [inline]
- rcu_dynticks_snap kernel/rcu/tree.c:310 [inline]
- dyntick_save_progress_counter+0x43/0x1b0 kernel/rcu/tree.c:984
- force_qs_rnp+0x183/0x200 kernel/rcu/tree.c:2286
- rcu_gp_fqs kernel/rcu/tree.c:1601 [inline]
- rcu_gp_fqs_loop+0x71/0x880 kernel/rcu/tree.c:1653
- rcu_gp_kthread+0x22c/0x3b0 kernel/rcu/tree.c:1799
- kthread+0x1b5/0x200 kernel/kthread.c:255
- <snip>
-
-read to 0xffff989dbdbe98e0 of 4 bytes by task 154 on cpu 7:
- rcu_nmi_enter_common kernel/rcu/tree.c:828 [inline]
- rcu_irq_enter+0xda/0x240 kernel/rcu/tree.c:870
- irq_enter+0x5/0x50 kernel/softirq.c:347
- <snip>
-
-Reported by Kernel Concurrency Sanitizer on:
-CPU: 7 PID: 154 Comm: kworker/7:1H Not tainted 5.3.0+ #5
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.12.0-1 04/01/2014
-Workqueue: kblockd blk_mq_run_work_fn
-==================================================================
-
-Signed-off-by: Marco Elver <elver@google.com>
-Cc: Paul E. McKenney <paulmck@kernel.org>
-Cc: Josh Triplett <josh@joshtriplett.org>
-Cc: Steven Rostedt <rostedt@goodmis.org>
-Cc: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
-Cc: Joel Fernandes <joel@joelfernandes.org>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Dmitry Vyukov <dvyukov@google.com>
-Cc: rcu@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Reviewed-by: Joel Fernandes (Google) <joel@joelfernandes.org>
-Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
+Fixes: 2b6b3b742019 ("ARM/dmaengine: edma: Merge the two drivers under drivers/dma/")
+Signed-off-by: Chuhong Yuan <hslester96@gmail.com>
+Acked-by: Peter Ujfalusi <peter.ujfalusi@ti.com>
+Link: https://lore.kernel.org/r/20191124052855.6472-1-hslester96@gmail.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/trace/events/rcu.h |  4 ++--
- kernel/rcu/tree.c          | 11 ++++++-----
- 2 files changed, 8 insertions(+), 7 deletions(-)
+ drivers/dma/ti/edma.c | 37 ++++++++++++++++++++-----------------
+ 1 file changed, 20 insertions(+), 17 deletions(-)
 
-diff --git a/include/trace/events/rcu.h b/include/trace/events/rcu.h
-index 66122602bd085..697e2c0624dcd 100644
---- a/include/trace/events/rcu.h
-+++ b/include/trace/events/rcu.h
-@@ -449,7 +449,7 @@ TRACE_EVENT_RCU(rcu_fqs,
-  */
- TRACE_EVENT_RCU(rcu_dyntick,
+diff --git a/drivers/dma/ti/edma.c b/drivers/dma/ti/edma.c
+index 756a3c951dc72..0628ee4bf1b41 100644
+--- a/drivers/dma/ti/edma.c
++++ b/drivers/dma/ti/edma.c
+@@ -2289,13 +2289,6 @@ static int edma_probe(struct platform_device *pdev)
+ 	if (!info)
+ 		return -ENODEV;
  
--	TP_PROTO(const char *polarity, long oldnesting, long newnesting, atomic_t dynticks),
-+	TP_PROTO(const char *polarity, long oldnesting, long newnesting, int dynticks),
+-	pm_runtime_enable(dev);
+-	ret = pm_runtime_get_sync(dev);
+-	if (ret < 0) {
+-		dev_err(dev, "pm_runtime_get_sync() failed\n");
+-		return ret;
+-	}
+-
+ 	ret = dma_set_mask_and_coherent(dev, DMA_BIT_MASK(32));
+ 	if (ret)
+ 		return ret;
+@@ -2326,27 +2319,31 @@ static int edma_probe(struct platform_device *pdev)
  
- 	TP_ARGS(polarity, oldnesting, newnesting, dynticks),
+ 	platform_set_drvdata(pdev, ecc);
  
-@@ -464,7 +464,7 @@ TRACE_EVENT_RCU(rcu_dyntick,
- 		__entry->polarity = polarity;
- 		__entry->oldnesting = oldnesting;
- 		__entry->newnesting = newnesting;
--		__entry->dynticks = atomic_read(&dynticks);
-+		__entry->dynticks = dynticks;
- 	),
++	pm_runtime_enable(dev);
++	ret = pm_runtime_get_sync(dev);
++	if (ret < 0) {
++		dev_err(dev, "pm_runtime_get_sync() failed\n");
++		pm_runtime_disable(dev);
++		return ret;
++	}
++
+ 	/* Get eDMA3 configuration from IP */
+ 	ret = edma_setup_from_hw(dev, info, ecc);
+ 	if (ret)
+-		return ret;
++		goto err_disable_pm;
  
- 	TP_printk("%s %lx %lx %#3x", __entry->polarity,
-diff --git a/kernel/rcu/tree.c b/kernel/rcu/tree.c
-index 1694a6b57ad8c..6145e08a14072 100644
---- a/kernel/rcu/tree.c
-+++ b/kernel/rcu/tree.c
-@@ -577,7 +577,7 @@ static void rcu_eqs_enter(bool user)
+ 	/* Allocate memory based on the information we got from the IP */
+ 	ecc->slave_chans = devm_kcalloc(dev, ecc->num_channels,
+ 					sizeof(*ecc->slave_chans), GFP_KERNEL);
+-	if (!ecc->slave_chans)
+-		return -ENOMEM;
+ 
+ 	ecc->slot_inuse = devm_kcalloc(dev, BITS_TO_LONGS(ecc->num_slots),
+ 				       sizeof(unsigned long), GFP_KERNEL);
+-	if (!ecc->slot_inuse)
+-		return -ENOMEM;
+ 
+ 	ecc->channels_mask = devm_kcalloc(dev,
+ 					   BITS_TO_LONGS(ecc->num_channels),
+ 					   sizeof(unsigned long), GFP_KERNEL);
+-	if (!ecc->channels_mask)
+-		return -ENOMEM;
++	if (!ecc->slave_chans || !ecc->slot_inuse || !ecc->channels_mask)
++		goto err_disable_pm;
+ 
+ 	/* Mark all channels available initially */
+ 	bitmap_fill(ecc->channels_mask, ecc->num_channels);
+@@ -2388,7 +2385,7 @@ static int edma_probe(struct platform_device *pdev)
+ 				       ecc);
+ 		if (ret) {
+ 			dev_err(dev, "CCINT (%d) failed --> %d\n", irq, ret);
+-			return ret;
++			goto err_disable_pm;
+ 		}
+ 		ecc->ccint = irq;
+ 	}
+@@ -2404,7 +2401,7 @@ static int edma_probe(struct platform_device *pdev)
+ 				       ecc);
+ 		if (ret) {
+ 			dev_err(dev, "CCERRINT (%d) failed --> %d\n", irq, ret);
+-			return ret;
++			goto err_disable_pm;
+ 		}
+ 		ecc->ccerrint = irq;
+ 	}
+@@ -2412,7 +2409,8 @@ static int edma_probe(struct platform_device *pdev)
+ 	ecc->dummy_slot = edma_alloc_slot(ecc, EDMA_SLOT_ANY);
+ 	if (ecc->dummy_slot < 0) {
+ 		dev_err(dev, "Can't allocate PaRAM dummy slot\n");
+-		return ecc->dummy_slot;
++		ret = ecc->dummy_slot;
++		goto err_disable_pm;
  	}
  
- 	lockdep_assert_irqs_disabled();
--	trace_rcu_dyntick(TPS("Start"), rdp->dynticks_nesting, 0, rdp->dynticks);
-+	trace_rcu_dyntick(TPS("Start"), rdp->dynticks_nesting, 0, atomic_read(&rdp->dynticks));
- 	WARN_ON_ONCE(IS_ENABLED(CONFIG_RCU_EQS_DEBUG) && !user && !is_idle_task(current));
- 	rdp = this_cpu_ptr(&rcu_data);
- 	do_nocb_deferred_wakeup(rdp);
-@@ -650,14 +650,15 @@ static __always_inline void rcu_nmi_exit_common(bool irq)
- 	 * leave it in non-RCU-idle state.
- 	 */
- 	if (rdp->dynticks_nmi_nesting != 1) {
--		trace_rcu_dyntick(TPS("--="), rdp->dynticks_nmi_nesting, rdp->dynticks_nmi_nesting - 2, rdp->dynticks);
-+		trace_rcu_dyntick(TPS("--="), rdp->dynticks_nmi_nesting, rdp->dynticks_nmi_nesting - 2,
-+				  atomic_read(&rdp->dynticks));
- 		WRITE_ONCE(rdp->dynticks_nmi_nesting, /* No store tearing. */
- 			   rdp->dynticks_nmi_nesting - 2);
- 		return;
- 	}
+ 	queue_priority_mapping = info->queue_priority_mapping;
+@@ -2512,6 +2510,9 @@ static int edma_probe(struct platform_device *pdev)
  
- 	/* This NMI interrupted an RCU-idle CPU, restore RCU-idleness. */
--	trace_rcu_dyntick(TPS("Startirq"), rdp->dynticks_nmi_nesting, 0, rdp->dynticks);
-+	trace_rcu_dyntick(TPS("Startirq"), rdp->dynticks_nmi_nesting, 0, atomic_read(&rdp->dynticks));
- 	WRITE_ONCE(rdp->dynticks_nmi_nesting, 0); /* Avoid store tearing. */
+ err_reg1:
+ 	edma_free_slot(ecc, ecc->dummy_slot);
++err_disable_pm:
++	pm_runtime_put_sync(dev);
++	pm_runtime_disable(dev);
+ 	return ret;
+ }
  
- 	if (irq)
-@@ -744,7 +745,7 @@ static void rcu_eqs_exit(bool user)
- 	rcu_dynticks_task_exit();
- 	rcu_dynticks_eqs_exit();
- 	rcu_cleanup_after_idle();
--	trace_rcu_dyntick(TPS("End"), rdp->dynticks_nesting, 1, rdp->dynticks);
-+	trace_rcu_dyntick(TPS("End"), rdp->dynticks_nesting, 1, atomic_read(&rdp->dynticks));
- 	WARN_ON_ONCE(IS_ENABLED(CONFIG_RCU_EQS_DEBUG) && !user && !is_idle_task(current));
- 	WRITE_ONCE(rdp->dynticks_nesting, 1);
- 	WARN_ON_ONCE(rdp->dynticks_nmi_nesting);
-@@ -833,7 +834,7 @@ static __always_inline void rcu_nmi_enter_common(bool irq)
- 	}
- 	trace_rcu_dyntick(incby == 1 ? TPS("Endirq") : TPS("++="),
- 			  rdp->dynticks_nmi_nesting,
--			  rdp->dynticks_nmi_nesting + incby, rdp->dynticks);
-+			  rdp->dynticks_nmi_nesting + incby, atomic_read(&rdp->dynticks));
- 	WRITE_ONCE(rdp->dynticks_nmi_nesting, /* Prevent store tearing. */
- 		   rdp->dynticks_nmi_nesting + incby);
- 	barrier();
+@@ -2542,6 +2543,8 @@ static int edma_remove(struct platform_device *pdev)
+ 	if (ecc->dma_memcpy)
+ 		dma_async_device_unregister(ecc->dma_memcpy);
+ 	edma_free_slot(ecc, ecc->dummy_slot);
++	pm_runtime_put_sync(dev);
++	pm_runtime_disable(dev);
+ 
+ 	return 0;
+ }
 -- 
 2.20.1
 
