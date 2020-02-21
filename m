@@ -2,37 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A38431677C7
+	by mail.lfdr.de (Postfix) with ESMTP id 394F71677C6
 	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:44:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729554AbgBUHwa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 02:52:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50352 "EHLO mail.kernel.org"
+        id S1729573AbgBUHwd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 02:52:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50408 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729755AbgBUHw3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 02:52:29 -0500
+        id S1729756AbgBUHwb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 02:52:31 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 14B432073A;
-        Fri, 21 Feb 2020 07:52:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5D8B224656;
+        Fri, 21 Feb 2020 07:52:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582271548;
-        bh=yU3/HvfUjHjQ53JRdVWT8WNLGIo0vYw31AjxgZcgicY=;
+        s=default; t=1582271550;
+        bh=IMsQ7+myA2VFgMAOR1pcDR51QxoVGL6Z14/X9w+j5No=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s10bYFfsILumYawezrFzGUiIbAPtQS9eWSRhixntcenmWt9bwYSE5NforiwfJmG6l
-         O3ELP0zoy91wEnJsYIodEBsBdwfhpK5lYGTf8104sM6/VdQcHiMsjVZKj+g4HWLx4i
-         8fpJw4e9Sb//MKIr3E3sGrbPJ3ScQhL5E+8lsz3I=
+        b=ZV7MklTKhWanuDbWNforIkjcMGd+JnTw2+1z78WBE5+CCH2uHfHGDsMl4M7o4Fydn
+         qpO1bnQYrjRihYCPrnKqupTSGd2JYk9/kPv/dhFMNOz8rA8sEEikC50B4K7Fg8KUK9
+         jnoIsH2rg8a6gVptt8NyZinQNeAkSuKXm1vle7vg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sam McNally <sammc@chromium.org>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 209/399] ASoC: Intel: sof_rt5682: Ignore the speaker amp when there isnt one.
-Date:   Fri, 21 Feb 2020 08:38:54 +0100
-Message-Id: <20200221072423.264139200@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Shile Zhang <shile.zhang@linux.alibaba.com>,
+        Stephen Rothwell <sfr@canb.auug.org.au>,
+        Andy Lutomirski <luto@amacapital.net>,
+        Borislav Petkov <bp@alien8.de>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.5 210/399] x86/unwind/orc: Fix !CONFIG_MODULES build warning
+Date:   Fri, 21 Feb 2020 08:38:55 +0100
+Message-Id: <20200221072423.381718413@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200221072402.315346745@linuxfoundation.org>
 References: <20200221072402.315346745@linuxfoundation.org>
@@ -45,69 +50,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sam McNally <sammc@chromium.org>
+From: Shile Zhang <shile.zhang@linux.alibaba.com>
 
-[ Upstream commit d4b74e218a8d0d6cf58e546627ab9d4d4f2645ab ]
+[ Upstream commit 22a7fa8848c5e881d87ef2f7f3c2ea77b286e6f9 ]
 
-Some members of the Google_Hatch family include a rt5682 jack codec, but
-no speaker amplifier. This uses the same driver (sof_rt5682) as a
-combination of rt5682 jack codec and max98357a speaker amplifier. Within
-the sof_rt5682 driver, these cases are not currently distinguishable,
-relying on a DMI quirk to decide the configuration. This causes an
-incorrect configuration when only the rt5682 is present on a
-Google_Hatch device.
+To fix follwowing warning due to ORC sort moved to build time:
 
-For CML, the jack codec is used as the primary key when matching,
-with a possible speaker amplifier described in quirk_data. The two cases
-of interest are the second and third 10EC5682 entries in
-snd_soc_acpi_intel_cml_machines[]. The second entry matches the
-combination of rt5682 and max98357a, resulting in the quirk_data field
-in the snd_soc_acpi_mach being non-null, pointing at
-max98357a_spk_codecs, the snd_soc_acpi_codecs for the matched speaker
-amplifier. The third entry matches just the rt5682, resulting in a null
-quirk_data.
+  arch/x86/kernel/unwind_orc.c:210:12: warning: ‘orc_sort_cmp’ defined but not used [-Wunused-function]
+  arch/x86/kernel/unwind_orc.c:190:13: warning: ‘orc_sort_swap’ defined but not used [-Wunused-function]
 
-The sof_rt5682 driver's DMI data matching identifies that a speaker
-amplifier is present for all Google_Hatch family devices. Detect cases
-where there is no speaker amplifier by checking for a null quirk_data in
-the snd_soc_acpi_mach and remove the speaker amplifier bit in that case.
-
-Signed-off-by: Sam McNally <sammc@chromium.org>
-Acked-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Link: https://lore.kernel.org/r/20200103124921.v3.1.Ib87c4a7fbb3fc818ea12198e291b87dc2d5bc8c2@changeid
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Shile Zhang <shile.zhang@linux.alibaba.com>
+Reported-by: Stephen Rothwell <sfr@canb.auug.org.au>
+Cc: Andy Lutomirski <luto@amacapital.net>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: Josh Poimboeuf <jpoimboe@redhat.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Link: https://lkml.kernel.org/r/c9c81536-2afc-c8aa-c5f8-c7618ecd4f54@linux.alibaba.com
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/intel/boards/sof_rt5682.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ arch/x86/kernel/unwind_orc.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/sound/soc/intel/boards/sof_rt5682.c b/sound/soc/intel/boards/sof_rt5682.c
-index ad8a2b4bc7092..8a13231dee15d 100644
---- a/sound/soc/intel/boards/sof_rt5682.c
-+++ b/sound/soc/intel/boards/sof_rt5682.c
-@@ -603,6 +603,14 @@ static int sof_audio_probe(struct platform_device *pdev)
+diff --git a/arch/x86/kernel/unwind_orc.c b/arch/x86/kernel/unwind_orc.c
+index 332ae6530fa88..7a9306bc5982f 100644
+--- a/arch/x86/kernel/unwind_orc.c
++++ b/arch/x86/kernel/unwind_orc.c
+@@ -187,6 +187,8 @@ static struct orc_entry *orc_find(unsigned long ip)
+ 	return orc_ftrace_find(ip);
+ }
  
- 	dmi_check_system(sof_rt5682_quirk_table);
- 
-+	mach = (&pdev->dev)->platform_data;
++#ifdef CONFIG_MODULES
 +
-+	/* A speaker amp might not be present when the quirk claims one is.
-+	 * Detect this via whether the machine driver match includes quirk_data.
-+	 */
-+	if ((sof_rt5682_quirk & SOF_SPEAKER_AMP_PRESENT) && !mach->quirk_data)
-+		sof_rt5682_quirk &= ~SOF_SPEAKER_AMP_PRESENT;
-+
- 	if (soc_intel_is_byt() || soc_intel_is_cht()) {
- 		is_legacy_cpu = 1;
- 		dmic_be_num = 0;
-@@ -663,7 +671,6 @@ static int sof_audio_probe(struct platform_device *pdev)
- 	INIT_LIST_HEAD(&ctx->hdmi_pcm_list);
+ static void orc_sort_swap(void *_a, void *_b, int size)
+ {
+ 	struct orc_entry *orc_a, *orc_b;
+@@ -229,7 +231,6 @@ static int orc_sort_cmp(const void *_a, const void *_b)
+ 	return orc_a->sp_reg == ORC_REG_UNDEFINED && !orc_a->end ? -1 : 1;
+ }
  
- 	sof_audio_card_rt5682.dev = &pdev->dev;
--	mach = (&pdev->dev)->platform_data;
- 
- 	/* set platform name for each dailink */
- 	ret = snd_soc_fixup_dai_links_platform_name(&sof_audio_card_rt5682,
+-#ifdef CONFIG_MODULES
+ void unwind_module_init(struct module *mod, void *_orc_ip, size_t orc_ip_size,
+ 			void *_orc, size_t orc_size)
+ {
 -- 
 2.20.1
 
