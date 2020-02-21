@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 11734167124
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 08:52:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B32B167127
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 08:52:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729528AbgBUHvc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 02:51:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48886 "EHLO mail.kernel.org"
+        id S1729780AbgBUHvi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 02:51:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48966 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729326AbgBUHvc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 02:51:32 -0500
+        id S1729764AbgBUHve (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 02:51:34 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AA8A120801;
-        Fri, 21 Feb 2020 07:51:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3CCD420578;
+        Fri, 21 Feb 2020 07:51:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582271491;
-        bh=Cnisj9RKGQR/FA7XIim+1rtIYd3BMtJlvkxzs51h6yw=;
+        s=default; t=1582271493;
+        bh=MMvYnTh/h4R2QL5OTCI5uAa2vYTgJROedZx4TjC11Sw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vTbhc/JNDPIfUf29GP/E/sm+8O9fOiVV/RngVp5FdkxuJzZoH2aKSsAMKIj+YmJSa
-         avT1qY61+5mG9LRgZa4ocJdwVUJUGlVYvHwjNwhfN+XKlZRXd3RrpiucmZ5Tg3DXJn
-         8SfC+JszwZoGNYifwk/uRWB8AULVAcG5KeXiTp/Y=
+        b=sjp7jtY+utdkALWE+Kf9aOrGuEa81Chyj+Sp9sFjwR4EDzlZ0KbBB6AJk4xRTrt1V
+         ubqQY/EwDRYRgd/MjLx4cAFZENrmVGzfWVH/mSPDUw8Z4HNItk1no1qXI2NInDvmfc
+         jtYlgm4SndczUhUAivdYnMZz+4n1HocULZZi73V4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sascha Hauer <s.hauer@pengutronix.de>,
-        Robin Gong <yibin.gong@nxp.com>, Vinod Koul <vkoul@kernel.org>,
+        stable@vger.kernel.org, Hechao Li <hechaol@fb.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 185/399] dmaengine: imx-sdma: Fix memory leak
-Date:   Fri, 21 Feb 2020 08:38:30 +0100
-Message-Id: <20200221072420.786249017@linuxfoundation.org>
+Subject: [PATCH 5.5 186/399] bpf: Print error message for bpftool cgroup show
+Date:   Fri, 21 Feb 2020 08:38:31 +0100
+Message-Id: <20200221072420.894981197@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200221072402.315346745@linuxfoundation.org>
 References: <20200221072402.315346745@linuxfoundation.org>
@@ -44,76 +44,138 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sascha Hauer <s.hauer@pengutronix.de>
+From: Hechao Li <hechaol@fb.com>
 
-[ Upstream commit 02939cd167095f16328a1bd5cab5a90b550606df ]
+[ Upstream commit 1162f844030ac1ac7321b5e8f6c9badc7a11428f ]
 
-The current descriptor is not on any list of the virtual DMA channel.
-Once sdma_terminate_all() is called when a descriptor is currently
-in flight then this one is forgotten to be freed. We have to call
-vchan_terminate_vdesc() on this descriptor to re-add it to the lists.
-Now that we also free the currently running descriptor we can (and
-actually have to) remove the current descriptor from its list also
-for the cyclic case.
+Currently, when bpftool cgroup show <path> has an error, no error
+message is printed. This is confusing because the user may think the
+result is empty.
 
-Signed-off-by: Sascha Hauer <s.hauer@pengutronix.de>
-Reviewed-by: Robin Gong <yibin.gong@nxp.com>
-Tested-by: Robin Gong <yibin.gong@nxp.com>
-Link: https://lore.kernel.org/r/20191216105328.15198-10-s.hauer@pengutronix.de
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Before the change:
+
+$ bpftool cgroup show /sys/fs/cgroup
+ID       AttachType      AttachFlags     Name
+$ echo $?
+255
+
+After the change:
+$ ./bpftool cgroup show /sys/fs/cgroup
+Error: can't query bpf programs attached to /sys/fs/cgroup: Operation
+not permitted
+
+v2: Rename check_query_cgroup_progs to cgroup_has_attached_progs
+
+Signed-off-by: Hechao Li <hechaol@fb.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Link: https://lore.kernel.org/bpf/20191224011742.3714301-1-hechaol@fb.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/imx-sdma.c | 19 +++++++++++--------
- 1 file changed, 11 insertions(+), 8 deletions(-)
+ tools/bpf/bpftool/cgroup.c | 56 ++++++++++++++++++++++++++------------
+ 1 file changed, 39 insertions(+), 17 deletions(-)
 
-diff --git a/drivers/dma/imx-sdma.c b/drivers/dma/imx-sdma.c
-index c27e206a764c3..66f1b2ac5cde4 100644
---- a/drivers/dma/imx-sdma.c
-+++ b/drivers/dma/imx-sdma.c
-@@ -760,12 +760,8 @@ static void sdma_start_desc(struct sdma_channel *sdmac)
- 		return;
- 	}
- 	sdmac->desc = desc = to_sdma_desc(&vd->tx);
--	/*
--	 * Do not delete the node in desc_issued list in cyclic mode, otherwise
--	 * the desc allocated will never be freed in vchan_dma_desc_free_list
--	 */
--	if (!(sdmac->flags & IMX_DMA_SG_LOOP))
--		list_del(&vd->node);
+diff --git a/tools/bpf/bpftool/cgroup.c b/tools/bpf/bpftool/cgroup.c
+index 1ef45e55039e1..2f017caa678dc 100644
+--- a/tools/bpf/bpftool/cgroup.c
++++ b/tools/bpf/bpftool/cgroup.c
+@@ -117,6 +117,25 @@ static int count_attached_bpf_progs(int cgroup_fd, enum bpf_attach_type type)
+ 	return prog_cnt;
+ }
+ 
++static int cgroup_has_attached_progs(int cgroup_fd)
++{
++	enum bpf_attach_type type;
++	bool no_prog = true;
 +
-+	list_del(&vd->node);
- 
- 	sdma->channel_control[channel].base_bd_ptr = desc->bd_phys;
- 	sdma->channel_control[channel].current_bd_ptr = desc->bd_phys;
-@@ -1071,7 +1067,6 @@ static void sdma_channel_terminate_work(struct work_struct *work)
- 
- 	spin_lock_irqsave(&sdmac->vc.lock, flags);
- 	vchan_get_all_descriptors(&sdmac->vc, &head);
--	sdmac->desc = NULL;
- 	spin_unlock_irqrestore(&sdmac->vc.lock, flags);
- 	vchan_dma_desc_free_list(&sdmac->vc, &head);
- 	sdmac->context_loaded = false;
-@@ -1080,11 +1075,19 @@ static void sdma_channel_terminate_work(struct work_struct *work)
- static int sdma_disable_channel_async(struct dma_chan *chan)
- {
- 	struct sdma_channel *sdmac = to_sdma_chan(chan);
-+	unsigned long flags;
++	for (type = 0; type < __MAX_BPF_ATTACH_TYPE; type++) {
++		int count = count_attached_bpf_progs(cgroup_fd, type);
 +
-+	spin_lock_irqsave(&sdmac->vc.lock, flags);
- 
- 	sdma_disable_channel(chan);
- 
--	if (sdmac->desc)
-+	if (sdmac->desc) {
-+		vchan_terminate_vdesc(&sdmac->desc->vd);
-+		sdmac->desc = NULL;
- 		schedule_work(&sdmac->terminate_worker);
++		if (count < 0 && errno != EINVAL)
++			return -1;
++
++		if (count > 0) {
++			no_prog = false;
++			break;
++		}
 +	}
 +
-+	spin_unlock_irqrestore(&sdmac->vc.lock, flags);
++	return no_prog ? 0 : 1;
++}
+ static int show_attached_bpf_progs(int cgroup_fd, enum bpf_attach_type type,
+ 				   int level)
+ {
+@@ -161,6 +180,7 @@ static int show_attached_bpf_progs(int cgroup_fd, enum bpf_attach_type type,
+ static int do_show(int argc, char **argv)
+ {
+ 	enum bpf_attach_type type;
++	int has_attached_progs;
+ 	const char *path;
+ 	int cgroup_fd;
+ 	int ret = -1;
+@@ -192,6 +212,16 @@ static int do_show(int argc, char **argv)
+ 		goto exit;
+ 	}
  
- 	return 0;
- }
++	has_attached_progs = cgroup_has_attached_progs(cgroup_fd);
++	if (has_attached_progs < 0) {
++		p_err("can't query bpf programs attached to %s: %s",
++		      path, strerror(errno));
++		goto exit_cgroup;
++	} else if (!has_attached_progs) {
++		ret = 0;
++		goto exit_cgroup;
++	}
++
+ 	if (json_output)
+ 		jsonw_start_array(json_wtr);
+ 	else
+@@ -212,6 +242,7 @@ static int do_show(int argc, char **argv)
+ 	if (json_output)
+ 		jsonw_end_array(json_wtr);
+ 
++exit_cgroup:
+ 	close(cgroup_fd);
+ exit:
+ 	return ret;
+@@ -228,7 +259,7 @@ static int do_show_tree_fn(const char *fpath, const struct stat *sb,
+ 			   int typeflag, struct FTW *ftw)
+ {
+ 	enum bpf_attach_type type;
+-	bool skip = true;
++	int has_attached_progs;
+ 	int cgroup_fd;
+ 
+ 	if (typeflag != FTW_D)
+@@ -240,22 +271,13 @@ static int do_show_tree_fn(const char *fpath, const struct stat *sb,
+ 		return SHOW_TREE_FN_ERR;
+ 	}
+ 
+-	for (type = 0; type < __MAX_BPF_ATTACH_TYPE; type++) {
+-		int count = count_attached_bpf_progs(cgroup_fd, type);
+-
+-		if (count < 0 && errno != EINVAL) {
+-			p_err("can't query bpf programs attached to %s: %s",
+-			      fpath, strerror(errno));
+-			close(cgroup_fd);
+-			return SHOW_TREE_FN_ERR;
+-		}
+-		if (count > 0) {
+-			skip = false;
+-			break;
+-		}
+-	}
+-
+-	if (skip) {
++	has_attached_progs = cgroup_has_attached_progs(cgroup_fd);
++	if (has_attached_progs < 0) {
++		p_err("can't query bpf programs attached to %s: %s",
++		      fpath, strerror(errno));
++		close(cgroup_fd);
++		return SHOW_TREE_FN_ERR;
++	} else if (!has_attached_progs) {
+ 		close(cgroup_fd);
+ 		return 0;
+ 	}
 -- 
 2.20.1
 
