@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 153A01673B0
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:18:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 386741674B4
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:24:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732902AbgBUIOi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 03:14:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51154 "EHLO mail.kernel.org"
+        id S2388582AbgBUIYB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 03:24:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36262 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733203AbgBUIOh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 03:14:37 -0500
+        id S2388578AbgBUIYA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 03:24:00 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 26F0320722;
-        Fri, 21 Feb 2020 08:14:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 92C3A206ED;
+        Fri, 21 Feb 2020 08:23:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582272876;
-        bh=We/SMqES5kF9MPTnXDpKNKHaq6SPjYDZobbxfBZQkFw=;
+        s=default; t=1582273440;
+        bh=yzoiKmt3nAhRVtfsDr9a8b1lx8fMEShoEFhjBaCQzqo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wFEHXwTRU5OSOZuyne7uGX+8+ABJ1A3dvZjJnzjInBxpOHc3rT2siIHPSZqv9ZXBu
-         QYGYB1WzUs4yL6gHeKbecOHCjUhoeOyGPhS7t6g+f9XUoInorklvlx7N2VdwngUpkZ
-         X7lN5QP977vXo+N7q75gxV5JUAWYDM1y5monZZnY=
+        b=K6mDsBZ2L4ITRiXisAD0xwkJZ8rAc1BXKySDIcueCp+xONOktAB1YosNk2fm1MszZ
+         vKAxEhTzSFUn3NOkW2M51fBQpGmHft+Wm7aW5kWInd++iaEQa+eLQBHzGz/CMw+toI
+         ym/kPEeO2eCMSfcOZy4nBb1L4mot/ozcdsn72oo8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dor Askayo <dor.askayo@gmail.com>,
-        Leo Li <sunpeng.li@amd.com>,
+        stable@vger.kernel.org, Jun Lei <Jun.Lei@amd.com>,
+        Anthony Koo <Anthony.Koo@amd.com>,
+        Harry Wentland <harry.wentland@amd.com>,
+        Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>,
         Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 309/344] drm/amd/display: do not allocate display_mode_lib unnecessarily
+Subject: [PATCH 4.19 135/191] drm/amd/display: fixup DML dependencies
 Date:   Fri, 21 Feb 2020 08:41:48 +0100
-Message-Id: <20200221072418.050680237@linuxfoundation.org>
+Message-Id: <20200221072306.955796760@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200221072349.335551332@linuxfoundation.org>
-References: <20200221072349.335551332@linuxfoundation.org>
+In-Reply-To: <20200221072250.732482588@linuxfoundation.org>
+References: <20200221072250.732482588@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,65 +47,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dor Askayo <dor.askayo@gmail.com>
+From: Jun Lei <Jun.Lei@amd.com>
 
-[ Upstream commit bb67bfd2e7101bf2ac5327b0b7a847cd9fb9723f ]
+[ Upstream commit 34ad0230062c39cdcba564d16d122c0fb467a7d6 ]
 
-This allocation isn't required and can fail when resuming from suspend.
+[why]
+Need to fix DML portability issues to enable SW unit testing around DML
 
-Bug: https://gitlab.freedesktop.org/drm/amd/issues/1009
-Signed-off-by: Dor Askayo <dor.askayo@gmail.com>
-Reviewed-by: Leo Li <sunpeng.li@amd.com>
+[how]
+Move calcs into dc include folder since multiple components reference it
+Remove relative paths to external dependencies
+
+Signed-off-by: Jun Lei <Jun.Lei@amd.com>
+Reviewed-by: Anthony Koo <Anthony.Koo@amd.com>
+Acked-by: Harry Wentland <harry.wentland@amd.com>
+Acked-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/core/dc.c | 17 +++++++++--------
- 1 file changed, 9 insertions(+), 8 deletions(-)
+ drivers/gpu/drm/amd/display/dc/dml/dml_common_defs.c          | 2 +-
+ drivers/gpu/drm/amd/display/dc/dml/dml_inline_defs.h          | 2 +-
+ drivers/gpu/drm/amd/display/dc/{calcs => inc}/dcn_calc_math.h | 0
+ 3 files changed, 2 insertions(+), 2 deletions(-)
+ rename drivers/gpu/drm/amd/display/dc/{calcs => inc}/dcn_calc_math.h (100%)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/core/dc.c b/drivers/gpu/drm/amd/display/dc/core/dc.c
-index 4b8819c27fcda..4704aac336c29 100644
---- a/drivers/gpu/drm/amd/display/dc/core/dc.c
-+++ b/drivers/gpu/drm/amd/display/dc/core/dc.c
-@@ -2267,12 +2267,7 @@ void dc_set_power_state(
- 	enum dc_acpi_cm_power_state power_state)
- {
- 	struct kref refcount;
--	struct display_mode_lib *dml = kzalloc(sizeof(struct display_mode_lib),
--						GFP_KERNEL);
--
--	ASSERT(dml);
--	if (!dml)
--		return;
-+	struct display_mode_lib *dml;
+diff --git a/drivers/gpu/drm/amd/display/dc/dml/dml_common_defs.c b/drivers/gpu/drm/amd/display/dc/dml/dml_common_defs.c
+index b953b02a15121..723af0b2dda04 100644
+--- a/drivers/gpu/drm/amd/display/dc/dml/dml_common_defs.c
++++ b/drivers/gpu/drm/amd/display/dc/dml/dml_common_defs.c
+@@ -24,7 +24,7 @@
+  */
  
- 	switch (power_state) {
- 	case DC_ACPI_CM_POWER_STATE_D0:
-@@ -2294,6 +2289,12 @@ void dc_set_power_state(
- 		 * clean state, and dc hw programming optimizations will not
- 		 * cause any trouble.
- 		 */
-+		dml = kzalloc(sizeof(struct display_mode_lib),
-+				GFP_KERNEL);
-+
-+		ASSERT(dml);
-+		if (!dml)
-+			return;
+ #include "dml_common_defs.h"
+-#include "../calcs/dcn_calc_math.h"
++#include "dcn_calc_math.h"
  
- 		/* Preserve refcount */
- 		refcount = dc->current_state->refcount;
-@@ -2307,10 +2308,10 @@ void dc_set_power_state(
- 		dc->current_state->refcount = refcount;
- 		dc->current_state->bw_ctx.dml = *dml;
+ #include "dml_inline_defs.h"
  
-+		kfree(dml);
-+
- 		break;
- 	}
--
--	kfree(dml);
- }
+diff --git a/drivers/gpu/drm/amd/display/dc/dml/dml_inline_defs.h b/drivers/gpu/drm/amd/display/dc/dml/dml_inline_defs.h
+index e8ce08567cd8e..e4f595a3038c4 100644
+--- a/drivers/gpu/drm/amd/display/dc/dml/dml_inline_defs.h
++++ b/drivers/gpu/drm/amd/display/dc/dml/dml_inline_defs.h
+@@ -27,7 +27,7 @@
+ #define __DML_INLINE_DEFS_H__
  
- void dc_resume(struct dc *dc)
+ #include "dml_common_defs.h"
+-#include "../calcs/dcn_calc_math.h"
++#include "dcn_calc_math.h"
+ #include "dml_logger.h"
+ 
+ static inline double dml_min(double a, double b)
+diff --git a/drivers/gpu/drm/amd/display/dc/calcs/dcn_calc_math.h b/drivers/gpu/drm/amd/display/dc/inc/dcn_calc_math.h
+similarity index 100%
+rename from drivers/gpu/drm/amd/display/dc/calcs/dcn_calc_math.h
+rename to drivers/gpu/drm/amd/display/dc/inc/dcn_calc_math.h
 -- 
 2.20.1
 
