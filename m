@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A99ED1676BB
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:38:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7BC3416781B
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:46:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731316AbgBUIEN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 03:04:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37202 "EHLO mail.kernel.org"
+        id S1728724AbgBUIqg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 03:46:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46056 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731588AbgBUIEM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 03:04:12 -0500
+        id S1728761AbgBUHtb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 02:49:31 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4E99620801;
-        Fri, 21 Feb 2020 08:04:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 83F46208C4;
+        Fri, 21 Feb 2020 07:49:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582272251;
-        bh=jwaeIp2MEMtqr9PJUVmeKPM5rbDAUa0EDOJ3hWpd4tw=;
+        s=default; t=1582271371;
+        bh=88HK1gOY1FHSYpLNTI+/uJaGR/7f7jW7TlUIoj3OmtE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QuxzJrWIWV1pXUzBjENVM3YSzpO6Y9jMsVC97o9mostEOSV6Mr5wr+9FoDIZjBmw9
-         WyyC/RkzJI2eKCJcy+y8wb5zOU/zgrxasT+TNgB8eMFJeX7NaUJL0Ey6+ynM4AZDV+
-         jwmaz9F7Mver2zEgGOCdBl2LjlqWe7IWRpI/bfCc=
+        b=w7AJViBqB4Py6msE4FfJht0LZ1vUT9h1fURiuJelDg95e0noN40cyDrdtT61t904x
+         kx/tdCNxeFk8C7vpeDE4vF4099lf8i+5Yhuu0PrSS8lg0S6o5bqZo2Bg9/dV+Xk2cy
+         zETbL2JdXEzOrBpZsmzgAS9fR8Mlxa9eAjVvZ0AU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Biggers <ebiggers@google.com>,
-        Theodore Tso <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 065/344] ext4: fix deadlock allocating bio_post_read_ctx from mempool
-Date:   Fri, 21 Feb 2020 08:37:44 +0100
-Message-Id: <20200221072354.916782225@linuxfoundation.org>
+        stable@vger.kernel.org, Naresh Kamboju <naresh.kamboju@linaro.org>,
+        Willem de Bruijn <willemb@google.com>,
+        Jakub Kicinski <jakub.kicinski@netronome.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.5 140/399] selftests/net: make so_txtime more robust to timer variance
+Date:   Fri, 21 Feb 2020 08:37:45 +0100
+Message-Id: <20200221072416.072603731@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200221072349.335551332@linuxfoundation.org>
-References: <20200221072349.335551332@linuxfoundation.org>
+In-Reply-To: <20200221072402.315346745@linuxfoundation.org>
+References: <20200221072402.315346745@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,79 +45,224 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+From: Willem de Bruijn <willemb@google.com>
 
-[ Upstream commit 68e45330e341dad2d3a0a3f8ef2ec46a2a0a3bbc ]
+[ Upstream commit ea6a547669b37453f2b1a5d85188d75b3613dfaa ]
 
-Without any form of coordination, any case where multiple allocations
-from the same mempool are needed at a time to make forward progress can
-deadlock under memory pressure.
+The SO_TXTIME test depends on accurate timers. In some virtualized
+environments the test has been reported to be flaky. This is easily
+reproduced by disabling kvm acceleration in Qemu.
 
-This is the case for struct bio_post_read_ctx, as one can be allocated
-to decrypt a Merkle tree page during fsverity_verify_bio(), which itself
-is running from a post-read callback for a data bio which has its own
-struct bio_post_read_ctx.
+Allow greater variance in a run and retry to further reduce flakiness.
 
-Fix this by freeing the first bio_post_read_ctx before calling
-fsverity_verify_bio().  This works because verity (if enabled) is always
-the last post-read step.
+Observed errors are one of two kinds: either the packet arrives too
+early or late at recv(), or it was dropped in the qdisc itself and the
+recv() call times out.
 
-This deadlock can be reproduced by trying to read from an encrypted
-verity file after reducing NUM_PREALLOC_POST_READ_CTXS to 1 and patching
-mempool_alloc() to pretend that pool->alloc() always fails.
+In the latter case, the qdisc queues a notification to the error
+queue of the send socket. Also explicitly report this cause.
 
-Note that since NUM_PREALLOC_POST_READ_CTXS is actually 128, to actually
-hit this bug in practice would require reading from lots of encrypted
-verity files at the same time.  But it's theoretically possible, as N
-available objects isn't enough to guarantee forward progress when > N/2
-threads each need 2 objects at a time.
-
-Fixes: 22cfe4b48ccb ("ext4: add fs-verity read support")
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Link: https://lore.kernel.org/r/20191231181222.47684-1-ebiggers@kernel.org
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Link: https://lore.kernel.org/netdev/CA+FuTSdYOnJCsGuj43xwV1jxvYsaoa_LzHQF9qMyhrkLrivxKw@mail.gmail.com
+Reported-by: Naresh Kamboju <naresh.kamboju@linaro.org>
+Signed-off-by: Willem de Bruijn <willemb@google.com>
+Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/readpage.c | 17 +++++++++++++++--
- 1 file changed, 15 insertions(+), 2 deletions(-)
+ tools/testing/selftests/net/so_txtime.c  | 84 +++++++++++++++++++++++-
+ tools/testing/selftests/net/so_txtime.sh |  9 ++-
+ 2 files changed, 88 insertions(+), 5 deletions(-)
 
-diff --git a/fs/ext4/readpage.c b/fs/ext4/readpage.c
-index a30b203fa461c..a5f55fece9b04 100644
---- a/fs/ext4/readpage.c
-+++ b/fs/ext4/readpage.c
-@@ -57,6 +57,7 @@ enum bio_post_read_step {
- 	STEP_INITIAL = 0,
- 	STEP_DECRYPT,
- 	STEP_VERITY,
-+	STEP_MAX,
- };
+diff --git a/tools/testing/selftests/net/so_txtime.c b/tools/testing/selftests/net/so_txtime.c
+index 34df4c8882afb..383bac05ac324 100644
+--- a/tools/testing/selftests/net/so_txtime.c
++++ b/tools/testing/selftests/net/so_txtime.c
+@@ -12,7 +12,11 @@
+ #include <arpa/inet.h>
+ #include <error.h>
+ #include <errno.h>
++#include <inttypes.h>
+ #include <linux/net_tstamp.h>
++#include <linux/errqueue.h>
++#include <linux/ipv6.h>
++#include <linux/tcp.h>
+ #include <stdbool.h>
+ #include <stdlib.h>
+ #include <stdio.h>
+@@ -28,7 +32,7 @@ static int	cfg_clockid	= CLOCK_TAI;
+ static bool	cfg_do_ipv4;
+ static bool	cfg_do_ipv6;
+ static uint16_t	cfg_port	= 8000;
+-static int	cfg_variance_us	= 2000;
++static int	cfg_variance_us	= 4000;
  
- struct bio_post_read_ctx {
-@@ -106,10 +107,22 @@ static void verity_work(struct work_struct *work)
- {
- 	struct bio_post_read_ctx *ctx =
- 		container_of(work, struct bio_post_read_ctx, work);
-+	struct bio *bio = ctx->bio;
+ static uint64_t glob_tstart;
  
--	fsverity_verify_bio(ctx->bio);
-+	/*
-+	 * fsverity_verify_bio() may call readpages() again, and although verity
-+	 * will be disabled for that, decryption may still be needed, causing
-+	 * another bio_post_read_ctx to be allocated.  So to guarantee that
-+	 * mempool_alloc() never deadlocks we must free the current ctx first.
-+	 * This is safe because verity is the last post-read step.
-+	 */
-+	BUILD_BUG_ON(STEP_VERITY + 1 != STEP_MAX);
-+	mempool_free(ctx, bio_post_read_ctx_pool);
-+	bio->bi_private = NULL;
+@@ -43,6 +47,9 @@ static struct timed_send cfg_in[MAX_NUM_PKT];
+ static struct timed_send cfg_out[MAX_NUM_PKT];
+ static int cfg_num_pkt;
  
--	bio_post_read_processing(ctx);
-+	fsverity_verify_bio(bio);
++static int cfg_errq_level;
++static int cfg_errq_type;
 +
-+	__read_end_io(bio);
+ static uint64_t gettime_ns(void)
+ {
+ 	struct timespec ts;
+@@ -90,13 +97,15 @@ static void do_send_one(int fdt, struct timed_send *ts)
+ 
  }
  
- static void bio_post_read_processing(struct bio_post_read_ctx *ctx)
+-static void do_recv_one(int fdr, struct timed_send *ts)
++static bool do_recv_one(int fdr, struct timed_send *ts)
+ {
+ 	int64_t tstop, texpect;
+ 	char rbuf[2];
+ 	int ret;
+ 
+ 	ret = recv(fdr, rbuf, sizeof(rbuf), 0);
++	if (ret == -1 && errno == EAGAIN)
++		return true;
+ 	if (ret == -1)
+ 		error(1, errno, "read");
+ 	if (ret != 1)
+@@ -113,6 +122,8 @@ static void do_recv_one(int fdr, struct timed_send *ts)
+ 
+ 	if (labs(tstop - texpect) > cfg_variance_us)
+ 		error(1, 0, "exceeds variance (%d us)", cfg_variance_us);
++
++	return false;
+ }
+ 
+ static void do_recv_verify_empty(int fdr)
+@@ -125,12 +136,70 @@ static void do_recv_verify_empty(int fdr)
+ 		error(1, 0, "recv: not empty as expected (%d, %d)", ret, errno);
+ }
+ 
++static void do_recv_errqueue_timeout(int fdt)
++{
++	char control[CMSG_SPACE(sizeof(struct sock_extended_err)) +
++		     CMSG_SPACE(sizeof(struct sockaddr_in6))] = {0};
++	char data[sizeof(struct ipv6hdr) +
++		  sizeof(struct tcphdr) + 1];
++	struct sock_extended_err *err;
++	struct msghdr msg = {0};
++	struct iovec iov = {0};
++	struct cmsghdr *cm;
++	int64_t tstamp = 0;
++	int ret;
++
++	iov.iov_base = data;
++	iov.iov_len = sizeof(data);
++
++	msg.msg_iov = &iov;
++	msg.msg_iovlen = 1;
++
++	msg.msg_control = control;
++	msg.msg_controllen = sizeof(control);
++
++	while (1) {
++		ret = recvmsg(fdt, &msg, MSG_ERRQUEUE);
++		if (ret == -1 && errno == EAGAIN)
++			break;
++		if (ret == -1)
++			error(1, errno, "errqueue");
++		if (msg.msg_flags != MSG_ERRQUEUE)
++			error(1, 0, "errqueue: flags 0x%x\n", msg.msg_flags);
++
++		cm = CMSG_FIRSTHDR(&msg);
++		if (cm->cmsg_level != cfg_errq_level ||
++		    cm->cmsg_type != cfg_errq_type)
++			error(1, 0, "errqueue: type 0x%x.0x%x\n",
++				    cm->cmsg_level, cm->cmsg_type);
++
++		err = (struct sock_extended_err *)CMSG_DATA(cm);
++		if (err->ee_origin != SO_EE_ORIGIN_TXTIME)
++			error(1, 0, "errqueue: origin 0x%x\n", err->ee_origin);
++		if (err->ee_code != ECANCELED)
++			error(1, 0, "errqueue: code 0x%x\n", err->ee_code);
++
++		tstamp = ((int64_t) err->ee_data) << 32 | err->ee_info;
++		tstamp -= (int64_t) glob_tstart;
++		tstamp /= 1000 * 1000;
++		fprintf(stderr, "send: pkt %c at %" PRId64 "ms dropped\n",
++				data[ret - 1], tstamp);
++
++		msg.msg_flags = 0;
++		msg.msg_controllen = sizeof(control);
++	}
++
++	error(1, 0, "recv: timeout");
++}
++
+ static void setsockopt_txtime(int fd)
+ {
+ 	struct sock_txtime so_txtime_val = { .clockid = cfg_clockid };
+ 	struct sock_txtime so_txtime_val_read = { 0 };
+ 	socklen_t vallen = sizeof(so_txtime_val);
+ 
++	so_txtime_val.flags = SOF_TXTIME_REPORT_ERRORS;
++
+ 	if (setsockopt(fd, SOL_SOCKET, SO_TXTIME,
+ 		       &so_txtime_val, sizeof(so_txtime_val)))
+ 		error(1, errno, "setsockopt txtime");
+@@ -194,7 +263,8 @@ static void do_test(struct sockaddr *addr, socklen_t alen)
+ 	for (i = 0; i < cfg_num_pkt; i++)
+ 		do_send_one(fdt, &cfg_in[i]);
+ 	for (i = 0; i < cfg_num_pkt; i++)
+-		do_recv_one(fdr, &cfg_out[i]);
++		if (do_recv_one(fdr, &cfg_out[i]))
++			do_recv_errqueue_timeout(fdt);
+ 
+ 	do_recv_verify_empty(fdr);
+ 
+@@ -280,6 +350,10 @@ int main(int argc, char **argv)
+ 		addr6.sin6_family = AF_INET6;
+ 		addr6.sin6_port = htons(cfg_port);
+ 		addr6.sin6_addr = in6addr_loopback;
++
++		cfg_errq_level = SOL_IPV6;
++		cfg_errq_type = IPV6_RECVERR;
++
+ 		do_test((void *)&addr6, sizeof(addr6));
+ 	}
+ 
+@@ -289,6 +363,10 @@ int main(int argc, char **argv)
+ 		addr4.sin_family = AF_INET;
+ 		addr4.sin_port = htons(cfg_port);
+ 		addr4.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
++
++		cfg_errq_level = SOL_IP;
++		cfg_errq_type = IP_RECVERR;
++
+ 		do_test((void *)&addr4, sizeof(addr4));
+ 	}
+ 
+diff --git a/tools/testing/selftests/net/so_txtime.sh b/tools/testing/selftests/net/so_txtime.sh
+index 5aa519328a5b5..3f7800eaecb1e 100755
+--- a/tools/testing/selftests/net/so_txtime.sh
++++ b/tools/testing/selftests/net/so_txtime.sh
+@@ -5,7 +5,12 @@
+ 
+ # Run in network namespace
+ if [[ $# -eq 0 ]]; then
+-	./in_netns.sh $0 __subprocess
++	if ! ./in_netns.sh $0 __subprocess; then
++		# test is time sensitive, can be flaky
++		echo "test failed: retry once"
++		./in_netns.sh $0 __subprocess
++	fi
++
+ 	exit $?
+ fi
+ 
+@@ -18,7 +23,7 @@ tc qdisc add dev lo root fq
+ ./so_txtime -4 -6 -c mono a,10,b,20 a,10,b,20
+ ./so_txtime -4 -6 -c mono a,20,b,10 b,20,a,20
+ 
+-if tc qdisc replace dev lo root etf clockid CLOCK_TAI delta 200000; then
++if tc qdisc replace dev lo root etf clockid CLOCK_TAI delta 400000; then
+ 	! ./so_txtime -4 -6 -c tai a,-1 a,-1
+ 	! ./so_txtime -4 -6 -c tai a,0 a,0
+ 	./so_txtime -4 -6 -c tai a,10 a,10
 -- 
 2.20.1
 
