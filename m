@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BC1CF167539
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:30:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B2BBB16753B
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:30:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388667AbgBUIYm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 03:24:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37280 "EHLO mail.kernel.org"
+        id S2388688AbgBUIYq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 03:24:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37334 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732961AbgBUIYm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 03:24:42 -0500
+        id S2388687AbgBUIYp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 03:24:45 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 13037246AA;
-        Fri, 21 Feb 2020 08:24:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2DA4A2469F;
+        Fri, 21 Feb 2020 08:24:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582273481;
-        bh=q2TutZycWO+06LIexJy5S4hJwrIdMx3yDfrCaRz7C08=;
+        s=default; t=1582273484;
+        bh=Dsh/Qd043VlBj8iAhdts5UbxfZgcXm4Hu4M2aPNVJ/o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KqCP/Y2kX6bT/BmHtD0HtQWbC2a2PxYYhTkDDgkP9Di3WY2MGXW7JIX+NMRLaaSoe
-         bHcV4LARCHpRPKpSAKfq/JE9BsnAYEB7sUDN7d1s9Ai9XaOxkDFsLdiB59re2K16sI
-         CvbbUkbeJT3KsTmNephs1bAZQ/ZZrFHRrs1mPm1U=
+        b=Pb5F8teg/hNA07G7BP3RS7poI6CLKXhERBNOc5gPk6wQNfjIobCcexZF6v80lApC4
+         qG25xwOhXoW88lx6gXBweXar643/kKr9ZVbBOqIuX8jphyPNB41eP5qrpfZ8SnS2FA
+         xSUJHuPOwLLYYnPqzYHwSrxK0RxRfoEiWlOvDd2k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vasily Averin <vvs@virtuozzo.com>,
-        Mike Marshall <hubcap@omnibond.com>,
+        stable@vger.kernel.org, Steve French <stfrench@microsoft.com>,
+        Oleg Kravtsov <oleg@tuxera.com>,
+        Ronnie Sahlberg <lsahlber@redhat.com>,
+        Pavel Shilovsky <pshilov@microsoft.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 187/191] help_next should increase position index
-Date:   Fri, 21 Feb 2020 08:42:40 +0100
-Message-Id: <20200221072313.291976267@linuxfoundation.org>
+Subject: [PATCH 4.19 188/191] cifs: log warning message (once) if out of disk space
+Date:   Fri, 21 Feb 2020 08:42:41 +0100
+Message-Id: <20200221072313.381537875@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200221072250.732482588@linuxfoundation.org>
 References: <20200221072250.732482588@linuxfoundation.org>
@@ -44,33 +46,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasily Averin <vvs@virtuozzo.com>
+From: Steve French <stfrench@microsoft.com>
 
-[ Upstream commit 9f198a2ac543eaaf47be275531ad5cbd50db3edf ]
+[ Upstream commit d6fd41905ec577851734623fb905b1763801f5ef ]
 
-if seq_file .next fuction does not change position index,
-read after some lseek can generate unexpected output.
+We ran into a confusing problem where an application wasn't checking
+return code on close and so user didn't realize that the application
+ran out of disk space.  log a warning message (once) in these
+cases. For example:
 
-https://bugzilla.kernel.org/show_bug.cgi?id=206283
-Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
-Signed-off-by: Mike Marshall <hubcap@omnibond.com>
+  [ 8407.391909] Out of space writing to \\oleg-server\small-share
+
+Signed-off-by: Steve French <stfrench@microsoft.com>
+Reported-by: Oleg Kravtsov <oleg@tuxera.com>
+Reviewed-by: Ronnie Sahlberg <lsahlber@redhat.com>
+Reviewed-by: Pavel Shilovsky <pshilov@microsoft.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/orangefs/orangefs-debugfs.c | 1 +
- 1 file changed, 1 insertion(+)
+ fs/cifs/smb2pdu.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/fs/orangefs/orangefs-debugfs.c b/fs/orangefs/orangefs-debugfs.c
-index 0732cb08173e9..e24738c691f66 100644
---- a/fs/orangefs/orangefs-debugfs.c
-+++ b/fs/orangefs/orangefs-debugfs.c
-@@ -305,6 +305,7 @@ static void *help_start(struct seq_file *m, loff_t *pos)
- 
- static void *help_next(struct seq_file *m, void *v, loff_t *pos)
- {
-+	(*pos)++;
- 	gossip_debug(GOSSIP_DEBUGFS_DEBUG, "help_next: start\n");
- 
- 	return NULL;
+diff --git a/fs/cifs/smb2pdu.c b/fs/cifs/smb2pdu.c
+index 0d4e4d97e6cf5..e2d2b749c8f38 100644
+--- a/fs/cifs/smb2pdu.c
++++ b/fs/cifs/smb2pdu.c
+@@ -3425,6 +3425,9 @@ smb2_writev_callback(struct mid_q_entry *mid)
+ 				     wdata->cfile->fid.persistent_fid,
+ 				     tcon->tid, tcon->ses->Suid, wdata->offset,
+ 				     wdata->bytes, wdata->result);
++		if (wdata->result == -ENOSPC)
++			printk_once(KERN_WARNING "Out of space writing to %s\n",
++				    tcon->treeName);
+ 	} else
+ 		trace_smb3_write_done(0 /* no xid */,
+ 				      wdata->cfile->fid.persistent_fid,
 -- 
 2.20.1
 
