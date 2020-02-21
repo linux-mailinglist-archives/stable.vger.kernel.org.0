@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B7483167285
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:04:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CFB9616728C
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:04:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731412AbgBUIEP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 03:04:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37262 "EHLO mail.kernel.org"
+        id S1731372AbgBUIEd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 03:04:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37664 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731588AbgBUIEP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 03:04:15 -0500
+        id S1731649AbgBUIEc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 03:04:32 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C9ECF222C4;
-        Fri, 21 Feb 2020 08:04:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C714F24656;
+        Fri, 21 Feb 2020 08:04:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582272254;
-        bh=J6ZA5zhmLHjSnqGLjJAepvomCyU6cfVMPbDp9X4Wd9E=;
+        s=default; t=1582272272;
+        bh=kwYS4IJqe/CCzOFwvS5e6qcl5rOhH6tgd+nA24huEr8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TNPIU845KRNMHL0SE6X9Fwp5cFY8Q7fydRM8e2zzL2vB3ZgPmp1SSIrgEQXUvnkew
-         2jPMilzV1/POAVGNoRY371BKUSq/pXCbnLHt/jAz5DeEpI5gLAtE8onIurs8M4ssw7
-         Blum5K0s4KuK/0hfFdv7zuzVN4bf6Fl/wiKfLdLM=
+        b=NC8+yWotBW0fGWnveJULYJKilA2Ei101N65v3K6AFQRs3MoR0Lns7+RYrrugQ0Ayb
+         UXRhJkCKMYHijBakT3dpzingHvTGzmFvCxc9wK/M7TfG6bcyIlL+084Qb77dnJYXL4
+         Tk8U/UX+aCWeCRLNPaa/Ia9yFQm5L1bT2ZZ/xfCw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Luis Henriques <luis.henriques@canonical.com>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
+        Matthieu Baerts <matthieu.baerts@tessares.net>,
+        Kees Cook <keescook@chromium.org>,
+        Shuah Khan <skhan@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 074/344] tracing: Fix tracing_stat return values in error handling paths
-Date:   Fri, 21 Feb 2020 08:37:53 +0100
-Message-Id: <20200221072355.716162238@linuxfoundation.org>
+Subject: [PATCH 5.4 081/344] selftests: settings: tests can be in subsubdirs
+Date:   Fri, 21 Feb 2020 08:38:00 +0100
+Message-Id: <20200221072356.324661870@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200221072349.335551332@linuxfoundation.org>
 References: <20200221072349.335551332@linuxfoundation.org>
@@ -45,56 +46,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luis Henriques <luis.henriques@canonical.com>
+From: Matthieu Baerts <matthieu.baerts@tessares.net>
 
-[ Upstream commit afccc00f75bbbee4e4ae833a96c2d29a7259c693 ]
+[ Upstream commit ac87813d4372f4c005264acbe3b7f00c1dee37c4 ]
 
-tracing_stat_init() was always returning '0', even on the error paths.  It
-now returns -ENODEV if tracing_init_dentry() fails or -ENOMEM if it fails
-to created the 'trace_stat' debugfs directory.
+Commit 852c8cbf34d3 ("selftests/kselftest/runner.sh: Add 45 second
+timeout per test") adds support for a new per-test-directory "settings"
+file. But this only works for tests not in a sub-subdirectories, e.g.
 
-Link: http://lkml.kernel.org/r/1410299381-20108-1-git-send-email-luis.henriques@canonical.com
+ - tools/testing/selftests/rtc (rtc) is OK,
+ - tools/testing/selftests/net/mptcp (net/mptcp) is not.
 
-Fixes: ed6f1c996bfe4 ("tracing: Check return value of tracing_init_dentry()")
-Signed-off-by: Luis Henriques <luis.henriques@canonical.com>
-[ Pulled from the archeological digging of my INBOX ]
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+We have to increase the timeout for net/mptcp tests which are not
+upstreamed yet but this fix is valid for other tests if they need to add
+a "settings" file, see the full list with:
+
+  tools/testing/selftests/*/*/**/Makefile
+
+Note that this patch changes the text header message printed at the end
+of the execution but this text is modified only for the tests that are
+in sub-subdirectories, e.g.
+
+  ok 1 selftests: net/mptcp: mptcp_connect.sh
+
+Before we had:
+
+  ok 1 selftests: mptcp: mptcp_connect.sh
+
+But showing the full target name is probably better, just in case a
+subsubdir has the same name as another one in another subdirectory.
+
+Fixes: 852c8cbf34d3 (selftests/kselftest/runner.sh: Add 45 second timeout per test)
+Signed-off-by: Matthieu Baerts <matthieu.baerts@tessares.net>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/trace/trace_stat.c | 12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+ tools/testing/selftests/kselftest/runner.sh | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/kernel/trace/trace_stat.c b/kernel/trace/trace_stat.c
-index 9ab0a1a7ad5ee..1257dc6c07796 100644
---- a/kernel/trace/trace_stat.c
-+++ b/kernel/trace/trace_stat.c
-@@ -282,18 +282,22 @@ static int tracing_stat_init(void)
- 
- 	d_tracing = tracing_init_dentry();
- 	if (IS_ERR(d_tracing))
--		return 0;
-+		return -ENODEV;
- 
- 	stat_dir = tracefs_create_dir("trace_stat", d_tracing);
--	if (!stat_dir)
-+	if (!stat_dir) {
- 		pr_warn("Could not create tracefs 'trace_stat' entry\n");
-+		return -ENOMEM;
-+	}
- 	return 0;
- }
- 
- static int init_stat_file(struct stat_session *session)
+diff --git a/tools/testing/selftests/kselftest/runner.sh b/tools/testing/selftests/kselftest/runner.sh
+index a8d20cbb711cf..e84d901f85672 100644
+--- a/tools/testing/selftests/kselftest/runner.sh
++++ b/tools/testing/selftests/kselftest/runner.sh
+@@ -91,7 +91,7 @@ run_one()
+ run_many()
  {
--	if (!stat_dir && tracing_stat_init())
--		return -ENODEV;
-+	int ret;
-+
-+	if (!stat_dir && (ret = tracing_stat_init()))
-+		return ret;
- 
- 	session->file = tracefs_create_file(session->ts->name, 0644,
- 					    stat_dir,
+ 	echo "TAP version 13"
+-	DIR=$(basename "$PWD")
++	DIR="${PWD#${BASE_DIR}/}"
+ 	test_num=0
+ 	total=$(echo "$@" | wc -w)
+ 	echo "1..$total"
 -- 
 2.20.1
 
