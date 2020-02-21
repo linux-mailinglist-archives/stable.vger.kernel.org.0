@@ -2,42 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 394F71677C6
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:44:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C2B0F1677C5
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:44:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729573AbgBUHwd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 02:52:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50408 "EHLO mail.kernel.org"
+        id S1729918AbgBUHwe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 02:52:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50448 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729756AbgBUHwb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 02:52:31 -0500
+        id S1729757AbgBUHwe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 02:52:34 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5D8B224656;
-        Fri, 21 Feb 2020 07:52:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DEB652073A;
+        Fri, 21 Feb 2020 07:52:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582271550;
-        bh=IMsQ7+myA2VFgMAOR1pcDR51QxoVGL6Z14/X9w+j5No=;
+        s=default; t=1582271553;
+        bh=e6hZLrdtLccx63LlzwcLe3onLTHlCbLuO+s10UC2pWg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZV7MklTKhWanuDbWNforIkjcMGd+JnTw2+1z78WBE5+CCH2uHfHGDsMl4M7o4Fydn
-         qpO1bnQYrjRihYCPrnKqupTSGd2JYk9/kPv/dhFMNOz8rA8sEEikC50B4K7Fg8KUK9
-         jnoIsH2rg8a6gVptt8NyZinQNeAkSuKXm1vle7vg=
+        b=MmigjjFgKNBKjKMo8OeP3C8dukNKEwCdHaFKVAiPGNjyDZRZy3BG/6/hfXWffADhN
+         +ySygb6qgeTj0CrfSAiJJJGFsr1o3TDxm1bQeUlJ8XayHaphQmv6nr7ycdg016Goc8
+         RUw5SNUpwpMTaNqYyl9puTNAZrviRu02cX3W7DqQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Shile Zhang <shile.zhang@linux.alibaba.com>,
-        Stephen Rothwell <sfr@canb.auug.org.au>,
-        Andy Lutomirski <luto@amacapital.net>,
-        Borislav Petkov <bp@alien8.de>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 210/399] x86/unwind/orc: Fix !CONFIG_MODULES build warning
-Date:   Fri, 21 Feb 2020 08:38:55 +0100
-Message-Id: <20200221072423.381718413@linuxfoundation.org>
+        stable@vger.kernel.org, Jason Ekstrand <jason@jlekstrand.net>,
+        Hans de Goede <hdegoede@redhat.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.5 211/399] ACPI: button: Add DMI quirk for Razer Blade Stealth 13 late 2019 lid switch
+Date:   Fri, 21 Feb 2020 08:38:56 +0100
+Message-Id: <20200221072423.479594028@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200221072402.315346745@linuxfoundation.org>
 References: <20200221072402.315346745@linuxfoundation.org>
@@ -50,50 +45,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shile Zhang <shile.zhang@linux.alibaba.com>
+From: Jason Ekstrand <jason@jlekstrand.net>
 
-[ Upstream commit 22a7fa8848c5e881d87ef2f7f3c2ea77b286e6f9 ]
+[ Upstream commit 0528904926aab19bffb2068879aa44db166c6d5f ]
 
-To fix follwowing warning due to ORC sort moved to build time:
+Running evemu-record on the lid switch event shows that the lid reports
+the first "close" but then never reports an "open".  This causes systemd
+to continuously re-suspend the laptop every 30s.  Resetting the _LID to
+"open" fixes the issue.
 
-  arch/x86/kernel/unwind_orc.c:210:12: warning: ‘orc_sort_cmp’ defined but not used [-Wunused-function]
-  arch/x86/kernel/unwind_orc.c:190:13: warning: ‘orc_sort_swap’ defined but not used [-Wunused-function]
-
-Signed-off-by: Shile Zhang <shile.zhang@linux.alibaba.com>
-Reported-by: Stephen Rothwell <sfr@canb.auug.org.au>
-Cc: Andy Lutomirski <luto@amacapital.net>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: Josh Poimboeuf <jpoimboe@redhat.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Link: https://lkml.kernel.org/r/c9c81536-2afc-c8aa-c5f8-c7618ecd4f54@linux.alibaba.com
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Signed-off-by: Jason Ekstrand <jason@jlekstrand.net>
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/unwind_orc.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/acpi/button.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-diff --git a/arch/x86/kernel/unwind_orc.c b/arch/x86/kernel/unwind_orc.c
-index 332ae6530fa88..7a9306bc5982f 100644
---- a/arch/x86/kernel/unwind_orc.c
-+++ b/arch/x86/kernel/unwind_orc.c
-@@ -187,6 +187,8 @@ static struct orc_entry *orc_find(unsigned long ip)
- 	return orc_ftrace_find(ip);
- }
+diff --git a/drivers/acpi/button.c b/drivers/acpi/button.c
+index b758b45737f50..f6925f16c4a2a 100644
+--- a/drivers/acpi/button.c
++++ b/drivers/acpi/button.c
+@@ -122,6 +122,17 @@ static const struct dmi_system_id dmi_lid_quirks[] = {
+ 		},
+ 		.driver_data = (void *)(long)ACPI_BUTTON_LID_INIT_OPEN,
+ 	},
++	{
++		/*
++		 * Razer Blade Stealth 13 late 2019, notification of the LID device
++		 * only happens on close, not on open and _LID always returns closed.
++		 */
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "Razer"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "Razer Blade Stealth 13 Late 2019"),
++		},
++		.driver_data = (void *)(long)ACPI_BUTTON_LID_INIT_OPEN,
++	},
+ 	{}
+ };
  
-+#ifdef CONFIG_MODULES
-+
- static void orc_sort_swap(void *_a, void *_b, int size)
- {
- 	struct orc_entry *orc_a, *orc_b;
-@@ -229,7 +231,6 @@ static int orc_sort_cmp(const void *_a, const void *_b)
- 	return orc_a->sp_reg == ORC_REG_UNDEFINED && !orc_a->end ? -1 : 1;
- }
- 
--#ifdef CONFIG_MODULES
- void unwind_module_init(struct module *mod, void *_orc_ip, size_t orc_ip_size,
- 			void *_orc, size_t orc_size)
- {
 -- 
 2.20.1
 
