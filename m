@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9EE9D167868
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:48:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1CF0B167707
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:41:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728840AbgBUHrE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 02:47:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42824 "EHLO mail.kernel.org"
+        id S1731065AbgBUIBb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 03:01:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33810 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728327AbgBUHrE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 02:47:04 -0500
+        id S1731211AbgBUIBa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 03:01:30 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A151224673;
-        Fri, 21 Feb 2020 07:47:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 03CC224650;
+        Fri, 21 Feb 2020 08:01:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582271224;
-        bh=pRskqeaNfrHsjSKu/BICCOe1KcKWegziRhTbDGCm92Y=;
+        s=default; t=1582272090;
+        bh=UYqKx2O8ccgfc2BEmoOMtLzRV0341XwG6c3PzYFulew=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XceSzoiA2abMsevzDSv3BG8dRxlME5H0pNFcGK9UHUKvjdKutIK1j3ZYVhTawI96U
-         r5Jgf4S5YNOMSuYrpx1NeEJrGMkG6oGQ5CCEjJ9/uSGYWd0CSIQU9fJZu8a6DB12ZF
-         QQ57GfaZSEPcTRgGtFBljhnzfhwpIklfFxfZnFNQ=
+        b=H1G3Y6obPmZmuy0U18fryAC3MLUZvdzjygBRPRUM7Fuubrb32LwxfIr59SWXlm9rM
+         24fc5G6QkGUaaNIEB75YVkOHFNvrDzsSBUhZDuq4R0wzHEG5DeCjZfjRPJwDoi7Moh
+         eBzv7P1uIi6rvVbYcYwo+or7vD+FjUBmDwtXLCjE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "zhangyi (F)" <yi.zhang@huawei.com>,
-        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>,
+        stable@vger.kernel.org, Neeraj Upadhyay <neeraju@codeaurora.org>,
+        "Paul E. McKenney" <paulmck@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 086/399] ext4, jbd2: ensure panic when aborting with zero errno
-Date:   Fri, 21 Feb 2020 08:36:51 +0100
-Message-Id: <20200221072410.685318711@linuxfoundation.org>
+Subject: [PATCH 5.4 013/344] rcu: Fix missed wakeup of exp_wq waiters
+Date:   Fri, 21 Feb 2020 08:36:52 +0100
+Message-Id: <20200221072350.452224944@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200221072402.315346745@linuxfoundation.org>
-References: <20200221072402.315346745@linuxfoundation.org>
+In-Reply-To: <20200221072349.335551332@linuxfoundation.org>
+References: <20200221072349.335551332@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,74 +44,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: zhangyi (F) <yi.zhang@huawei.com>
+From: Neeraj Upadhyay <neeraju@codeaurora.org>
 
-[ Upstream commit 51f57b01e4a3c7d7bdceffd84de35144e8c538e7 ]
+[ Upstream commit fd6bc19d7676a060a171d1cf3dcbf6fd797eb05f ]
 
-JBD2_REC_ERR flag used to indicate the errno has been updated when jbd2
-aborted, and then __ext4_abort() and ext4_handle_error() can invoke
-panic if ERRORS_PANIC is specified. But if the journal has been aborted
-with zero errno, jbd2_journal_abort() didn't set this flag so we can
-no longer panic. Fix this by always record the proper errno in the
-journal superblock.
+Tasks waiting within exp_funnel_lock() for an expedited grace period to
+elapse can be starved due to the following sequence of events:
 
-Fixes: 4327ba52afd03 ("ext4, jbd2: ensure entering into panic after recording an error in superblock")
-Signed-off-by: zhangyi (F) <yi.zhang@huawei.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20191204124614.45424-3-yi.zhang@huawei.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+1.	Tasks A and B both attempt to start an expedited grace
+	period at about the same time.	This grace period will have
+	completed when the lower four bits of the rcu_state structure's
+	->expedited_sequence field are 0b'0100', for example, when the
+	initial value of this counter is zero.	Task A wins, and thus
+	does the actual work of starting the grace period, including
+	acquiring the rcu_state structure's .exp_mutex and sets the
+	counter to 0b'0001'.
+
+2.	Because task B lost the race to start the grace period, it
+	waits on ->expedited_sequence to reach 0b'0100' inside of
+	exp_funnel_lock(). This task therefore blocks on the rcu_node
+	structure's ->exp_wq[1] field, keeping in mind that the
+	end-of-grace-period value of ->expedited_sequence (0b'0100')
+	is shifted down two bits before indexing the ->exp_wq[] field.
+
+3.	Task C attempts to start another expedited grace period,
+	but blocks on ->exp_mutex, which is still held by Task A.
+
+4.	The aforementioned expedited grace period completes, so that
+	->expedited_sequence now has the value 0b'0100'.  A kworker task
+	therefore acquires the rcu_state structure's ->exp_wake_mutex
+	and starts awakening any tasks waiting for this grace period.
+
+5.	One of the first tasks awakened happens to be Task A.  Task A
+	therefore releases the rcu_state structure's ->exp_mutex,
+	which allows Task C to start the next expedited grace period,
+	which causes the lower four bits of the rcu_state structure's
+	->expedited_sequence field to become 0b'0101'.
+
+6.	Task C's expedited grace period completes, so that the lower four
+	bits of the rcu_state structure's ->expedited_sequence field now
+	become 0b'1000'.
+
+7.	The kworker task from step 4 above continues its wakeups.
+	Unfortunately, the wake_up_all() refetches the rcu_state
+	structure's .expedited_sequence field:
+
+	wake_up_all(&rnp->exp_wq[rcu_seq_ctr(rcu_state.expedited_sequence) & 0x3]);
+
+	This results in the wakeup being applied to the rcu_node
+	structure's ->exp_wq[2] field, which is unfortunate given that
+	Task B is instead waiting on ->exp_wq[1].
+
+On a busy system, no harm is done (or at least no permanent harm is done).
+Some later expedited grace period will redo the wakeup.  But on a quiet
+system, such as many embedded systems, it might be a good long time before
+there was another expedited grace period.  On such embedded systems,
+this situation could therefore result in a system hang.
+
+This issue manifested as DPM device timeout during suspend (which
+usually qualifies as a quiet time) due to a SCSI device being stuck in
+_synchronize_rcu_expedited(), with the following stack trace:
+
+	schedule()
+	synchronize_rcu_expedited()
+	synchronize_rcu()
+	scsi_device_quiesce()
+	scsi_bus_suspend()
+	dpm_run_callback()
+	__device_suspend()
+
+This commit therefore prevents such delays, timeouts, and hangs by
+making rcu_exp_wait_wake() use its "s" argument consistently instead of
+refetching from rcu_state.expedited_sequence.
+
+Fixes: 3b5f668e715b ("rcu: Overlap wakeups with next expedited grace period")
+Signed-off-by: Neeraj Upadhyay <neeraju@codeaurora.org>
+Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/jbd2/checkpoint.c |  2 +-
- fs/jbd2/journal.c    | 15 ++++-----------
- 2 files changed, 5 insertions(+), 12 deletions(-)
+ kernel/rcu/tree_exp.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/jbd2/checkpoint.c b/fs/jbd2/checkpoint.c
-index 8fff6677a5da4..96bf33986d030 100644
---- a/fs/jbd2/checkpoint.c
-+++ b/fs/jbd2/checkpoint.c
-@@ -164,7 +164,7 @@ void __jbd2_log_wait_for_space(journal_t *journal)
- 				       "journal space in %s\n", __func__,
- 				       journal->j_devname);
- 				WARN_ON(1);
--				jbd2_journal_abort(journal, 0);
-+				jbd2_journal_abort(journal, -EIO);
- 			}
- 			write_lock(&journal->j_state_lock);
- 		} else {
-diff --git a/fs/jbd2/journal.c b/fs/jbd2/journal.c
-index 6847b18455068..8479e84159675 100644
---- a/fs/jbd2/journal.c
-+++ b/fs/jbd2/journal.c
-@@ -2156,12 +2156,10 @@ static void __journal_abort_soft (journal_t *journal, int errno)
- 
- 	__jbd2_journal_abort_hard(journal);
- 
--	if (errno) {
--		jbd2_journal_update_sb_errno(journal);
--		write_lock(&journal->j_state_lock);
--		journal->j_flags |= JBD2_REC_ERR;
--		write_unlock(&journal->j_state_lock);
--	}
-+	jbd2_journal_update_sb_errno(journal);
-+	write_lock(&journal->j_state_lock);
-+	journal->j_flags |= JBD2_REC_ERR;
-+	write_unlock(&journal->j_state_lock);
- }
- 
- /**
-@@ -2203,11 +2201,6 @@ static void __journal_abort_soft (journal_t *journal, int errno)
-  * failure to disk.  ext3_error, for example, now uses this
-  * functionality.
-  *
-- * Errors which originate from within the journaling layer will NOT
-- * supply an errno; a null errno implies that absolutely no further
-- * writes are done to the journal (unless there are any already in
-- * progress).
-- *
-  */
- 
- void jbd2_journal_abort(journal_t *journal, int errno)
+diff --git a/kernel/rcu/tree_exp.h b/kernel/rcu/tree_exp.h
+index 69c5aa64fcfd6..f504ac8317797 100644
+--- a/kernel/rcu/tree_exp.h
++++ b/kernel/rcu/tree_exp.h
+@@ -558,7 +558,7 @@ static void rcu_exp_wait_wake(unsigned long s)
+ 			spin_unlock(&rnp->exp_lock);
+ 		}
+ 		smp_mb(); /* All above changes before wakeup. */
+-		wake_up_all(&rnp->exp_wq[rcu_seq_ctr(rcu_state.expedited_sequence) & 0x3]);
++		wake_up_all(&rnp->exp_wq[rcu_seq_ctr(s) & 0x3]);
+ 	}
+ 	trace_rcu_exp_grace_period(rcu_state.name, s, TPS("endwake"));
+ 	mutex_unlock(&rcu_state.exp_wake_mutex);
 -- 
 2.20.1
 
