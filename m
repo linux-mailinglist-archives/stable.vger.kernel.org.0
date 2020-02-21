@@ -2,102 +2,109 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C824167BF4
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 12:27:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 63932167C05
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 12:28:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726909AbgBUL1B (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 06:27:01 -0500
-Received: from mail-pl1-f194.google.com ([209.85.214.194]:45279 "EHLO
-        mail-pl1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726395AbgBUL1B (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 21 Feb 2020 06:27:01 -0500
-Received: by mail-pl1-f194.google.com with SMTP id b22so713378pls.12
-        for <stable@vger.kernel.org>; Fri, 21 Feb 2020 03:26:59 -0800 (PST)
+        id S1727683AbgBUL2Z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 06:28:25 -0500
+Received: from mail-il1-f195.google.com ([209.85.166.195]:33924 "EHLO
+        mail-il1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727096AbgBUL2Y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 21 Feb 2020 06:28:24 -0500
+Received: by mail-il1-f195.google.com with SMTP id l4so1383527ilj.1
+        for <stable@vger.kernel.org>; Fri, 21 Feb 2020 03:28:24 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=WSlF2S/jKbQcArR3him41JwiyCJwloEsBdOWpNATzGE=;
-        b=lUvqx/Bn5QknfFaeZdI9rXy0NSEpiz3UmoT+Bz5ExJmVzMGuMZxwOCL0gdN6hRHTyh
-         O5awSyONgj5zkJ/RIw1cLf8SZs4u+XZmmcEU3gMJfugR39xgylZP5KEmsom5Rr5h7Smo
-         O7aJ6RfWYRe/tK//eIkujLrnF9sAlI7o6XzHGzsGynnlhMDpHMX8UG9AEtbIBvzrrx5g
-         NaIzvMJbh1F4L7e5DgQh7/RFG0s2avC8dSg6O6+WFqRMPSdxSqZ4kkgqnMbL9HxMeg/c
-         n4KWsZ2iIGyIn6wg2OSwtjXqCyAXkZAhH35RFY2AFdOrTN3cvKs8tl+RR35/5dVj4krX
-         zgOg==
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to
+         :content-transfer-encoding;
+        bh=wC99gSViwW4QZxw2MoLHrD9fHuB3q5UX7y2pGfODZfM=;
+        b=ZnM0izGEKr8peIWc1hWGoZ7TVqT5BnTW6vDTbCBUmTNGfmfHpPhDVqB2bAknIVtzzj
+         itG7El0owrowWDtGjsii0pesty5kXgqttq7gma7uE9VaTvI+xBf8UJqdV45/za5SM+2I
+         k7wapRhsAIm+4IV82fGgw2q1FoMUjbeZ7nvFhigqqmkDjh7ZnKtcxCbkEHVNMjgeRurP
+         iDiF++kApcwtxX0vlG+cU9CnDb+ckKo/5sKJXungurSW3gwqMRSWhfboGMBvBkFuRCNB
+         H5hvMiB1Nqv58xAWflmbBMa6ni/kR8RfYF54Pfvf0OLpVBkIi48/mib49LOkPddMC++i
+         QArg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=WSlF2S/jKbQcArR3him41JwiyCJwloEsBdOWpNATzGE=;
-        b=crHS8Oqr9KC1jJidKoYP+OP/Mrf42FVDG79W6lI57vHjO/zlmtDMy2SWp0IU25FJ6R
-         cKari5m9QtfGZUh/jYi0BJAhPHIdBgcF7is+QYmAAeSWOjFx0KDtFl/4kdVfcHFdtFDe
-         6XERPDKCAKJwAeWIH+dalfgoe5nMCOeOmKr3mn1EVWZlgIRsd16OZBC/nEiywThGBgwq
-         9eCsf1cIUPK10gb/pF0w2+eNKK9tT8wiEIq3roRSv5asdFRfUF65diXlS//crqLKIDHU
-         2785d/2ZPRpK9pPE7pbUTrkmS+kFzZVCYcpW1ibWInjYxxpCvOzyeOHl7+7RTx80u3xJ
-         agTQ==
-X-Gm-Message-State: APjAAAUXT6luEdZdtjITCHNfkuBzkGlMbyJpbon+pP7+Zia3TkkhqRmY
-        WsTBfbT+TBN+13wPda7e/yiq/+RFkWw=
-X-Google-Smtp-Source: APXvYqzyp7Sxp4urddHEarbh6mPgR3IY0cgOAeT42wXH2wyADpWXg5Z1D4kGnTwLcNYrIL5MBSnApQ==
-X-Received: by 2002:a17:90b:4396:: with SMTP id in22mr2520980pjb.83.1582284418715;
-        Fri, 21 Feb 2020 03:26:58 -0800 (PST)
-Received: from [10.0.9.4] ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id d2sm2384677pjv.18.2020.02.21.03.26.57
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 21 Feb 2020 03:26:58 -0800 (PST)
-Message-ID: <5e4fbe82.1c69fb81.6096.7d79@mx.google.com>
-Date:   Fri, 21 Feb 2020 03:26:58 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to:content-transfer-encoding;
+        bh=wC99gSViwW4QZxw2MoLHrD9fHuB3q5UX7y2pGfODZfM=;
+        b=Pm8e49qIVCajCGpKj72BQ9y+tkLiWAptVHAVGLjzMjB/AQbitA/TlFnjVl3/xl1B3Z
+         Xey4eyTXXbYbNduqqVR5kxov6A3BdMgV091p+ONCgfTu3bOv/tADhpyaWoF6RzpJ259b
+         nWgfp9O2nsenZ1n5Xw0L8c2P1e3sibUV1DMveGs/uaLlgWBDrldV0CLRQZFo+cCFqttP
+         UbF5DThDqlBA28zx8IOspcaTm9xgLCufB0mI9meB22QmZ/XchsarLUsPHGYD5edGBLbC
+         /iDpYKZnuCDfRGBN68+BjJRQ9/Sp88i8guq53R8orizPrt1AuBUE0U2H6BaYHFZxi89D
+         g4ZA==
+X-Gm-Message-State: APjAAAUGrzBNngvAn0PXAzKW2DbmPsOztyHwEvVU7f7XprGUhwJAaoCm
+        PHvIYgQ/yf06LxmGGAjJJuo3hLV0qLFnn5h2rYs=
+X-Google-Smtp-Source: APXvYqzgZmR/CxzRc2Flc/QiXSKz7P8cluHDDUx0cIAbFmR32teIfkwfux/A4umr44PapXFQ7IczqrAZohVWzdqTBdY=
+X-Received: by 2002:a92:d3cc:: with SMTP id c12mr36666246ilh.266.1582284503997;
+ Fri, 21 Feb 2020 03:28:23 -0800 (PST)
 MIME-Version: 1.0
+Received: by 2002:a92:25c9:0:0:0:0:0 with HTTP; Fri, 21 Feb 2020 03:28:23
+ -0800 (PST)
+Reply-To: stellar074maoris@gmail.com
+From:   "Mrs.Stellar Maoris" <barrister.c.o.mathins@gmail.com>
+Date:   Fri, 21 Feb 2020 03:28:23 -0800
+Message-ID: <CALWmkatBnceeeV9f7_OcEYHVLR5ysg8ZXJ5g1Lk1smmYwBxJbg@mail.gmail.com>
+Subject: Hello Dear Friend.
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.14.171
-X-Kernelci-Report-Type: boot
-X-Kernelci-Tree: stable
-X-Kernelci-Branch: linux-4.14.y
-Subject: stable/linux-4.14.y boot: 29 boots: 2 failed, 27 passed (v4.14.171)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable/linux-4.14.y boot: 29 boots: 2 failed, 27 passed (v4.14.171)
+My Dear Friend,
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable/branch/linux-4.=
-14.y/kernel/v4.14.171/
-Full Build Summary: https://kernelci.org/build/stable/branch/linux-4.14.y/k=
-ernel/v4.14.171/
+I am  Mrs. Stellar Maoris from united state of America a manger in
+HSBC bank in Madrid Spain, 35 years old of age, divorced , I am
+sending you this brief letter to seek for your partnership and long term
+relationship, I have an important and urgent issue I want to discuss
+with you privately about Transaction fund worth the sum of $9.5 million
+America dollars left by most of the greedy Asia Kuwait politician in
+our bank here in Madrid Spain,
 
-Tree: stable
-Branch: linux-4.14.y
-Git Describe: v4.14.171
-Git Commit: 98db2bf27b9ed2d5ed0b6c9c8a4bfcb127a19796
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e.git
-Tested: 25 unique boards, 12 SoC families, 7 builds out of 163
+I want the bank to transfer the money left by most of the greedy
+Asia Kuwait politician into your bank account in your country for a
+good project investment, those so called   politician  used our bank
+to launder money overseas through the help of their Political
+advisers. And Most of the funds which they Transferred out of the
+shores of Asia  were gold and oil money that
+Was supposed to have been used to develop the continent.
 
-Boot Regressions Detected:
+can you invest this money and also help the poor in your country ? the amou=
+nt
+value at ($9.5million Dollars) left in his account still unclaimed
+because no one come to ask for the fund and our bank governor want to
+transfer the fund into governor treasury account as unclaimed fund
+after 1month if no one come to ask for the fund and I have every
+relevant information And documents to back you up.
 
-arm:
+So if you are interested we shall have percentage of  (50% for me)
+(35% for you) while 15% for the orphanage in your country.
 
-    sama5_defconfig:
-        gcc-8:
-          at91-sama5d4_xplained:
-              lab-baylibre: failing since 28 days (last pass: v4.14.166 - f=
-irst fail: v4.14.167)
+Kindly fill the space listed below to enable me draft you an
+application letter of claim which you will used to contact the bank
+for immediate transfer of the fund into your bank account.
 
-Boot Failures Detected:
 
-arm:
-    sama5_defconfig:
-        gcc-8:
-            at91-sama5d4_xplained: 1 failed lab
+Your full names................
 
-arm64:
-    defconfig:
-        gcc-8:
-            meson-gxm-q200: 1 failed lab
+Your country of origin................
 
----
-For more info write to <info@kernelci.org>
+Your Mobile No & ID......................
+
+Your Married Status=E2=80=A6=E2=80=A6=E2=80=A6=E2=80=A6=E2=80=A6=E2=80=A6=
+=E2=80=A6=E2=80=A6
+
+Your Age=E2=80=A6=E2=80=A6=E2=80=A6=E2=80=A6=E2=80=A6=E2=80=A6=E2=80=A6=E2=
+=80=A6
+Your urgent respond will be highly appreciated Awaiting to hear from you as=
+ap.
+
+My Regard.
+Stellar Maoris
+Please Contact Email Direct : stellar074maoris@gmail.com
+Phone Number: +34(62) 768 5146
