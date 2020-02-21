@@ -2,43 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C1EC5167856
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:48:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F6E21676CB
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:38:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731637AbgBUIrX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 03:47:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45038 "EHLO mail.kernel.org"
+        id S1731455AbgBUIDX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 03:03:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36122 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727581AbgBUHsw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 02:48:52 -0500
+        id S1731324AbgBUIDX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 03:03:23 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 033AB207FD;
-        Fri, 21 Feb 2020 07:48:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9F2962073A;
+        Fri, 21 Feb 2020 08:03:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582271331;
-        bh=g+nxvFtCGXVDVESHzV7WxP9F5yKhklfpQ8nAd22t4mU=;
+        s=default; t=1582272201;
+        bh=DF0xzH7KHrXRGTpdus/MUq9ztK8Z6G1+lyoNv4pAiRA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nkk6F9GBceU8mmSTtGzoE+x3PAygVCRPycegfMNLT6JOHZOFFJFF7iTBMH6YHHxM+
-         zbcZp1LLrr+6rJWHTiSl6g0wALGd6u0+PVxJ4E3CSUtDaFXqOJjifqul5r8AUbjas0
-         ktnkkb1FRpZcJs3SD4U0uMjrz76CuR+eqrH9AXKY=
+        b=ow9b1tj9rl/vCtct+/XBArsvhCfoTuitDnAbBoH6asmCoH8skPGuCiESQaCnxOt15
+         VcYeEvPoAz/I2XsE0fOAiT0RCdfIs89Vg2r05b85TE0rOroD5zvYlh8koEcRABnXPa
+         LMClPP8pnaQkorkhM3r1Jvq7od7PCkPAqxSvK3fA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Jordan <daniel.m.jordan@oracle.com>,
-        Eric Biggers <ebiggers@kernel.org>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        Steffen Klassert <steffen.klassert@secunet.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        linux-crypto@vger.kernel.org, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 126/399] padata: validate cpumask without removed CPU during offline
-Date:   Fri, 21 Feb 2020 08:37:31 +0100
-Message-Id: <20200221072414.720191053@linuxfoundation.org>
+        stable@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 053/344] net: ethernet: ixp4xx: Standard module init
+Date:   Fri, 21 Feb 2020 08:37:32 +0100
+Message-Id: <20200221072353.898158155@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200221072402.315346745@linuxfoundation.org>
-References: <20200221072402.315346745@linuxfoundation.org>
+In-Reply-To: <20200221072349.335551332@linuxfoundation.org>
+References: <20200221072349.335551332@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,185 +44,226 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Jordan <daniel.m.jordan@oracle.com>
+From: Linus Walleij <linus.walleij@linaro.org>
 
-[ Upstream commit 894c9ef9780c5cf2f143415e867ee39a33ecb75d ]
+[ Upstream commit c83db9ef5640548631707e8b4a7bcddc115fdbae ]
 
-Configuring an instance's parallel mask without any online CPUs...
+The IXP4xx driver was initializing the MDIO bus before even
+probing, in the callbacks supposed to be used for setting up
+the module itself, and with the side effect of trying to
+register the MDIO bus as soon as this module was loaded or
+compiled into the kernel whether the device was discovered
+or not.
 
-  echo 2 > /sys/kernel/pcrypt/pencrypt/parallel_cpumask
-  echo 0 > /sys/devices/system/cpu/cpu1/online
+This does not work with multiplatform environments.
 
-...makes tcrypt mode=215 crash like this:
+To get rid of this: set up the MDIO bus from the probe()
+callback and remove it in the remove() callback. Rename
+the probe() and remove() calls to reflect the most common
+conventions.
 
-  divide error: 0000 [#1] SMP PTI
-  CPU: 4 PID: 283 Comm: modprobe Not tainted 5.4.0-rc8-padata-doc-v2+ #2
-  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS ?-20191013_105130-anatol 04/01/2014
-  RIP: 0010:padata_do_parallel+0x114/0x300
-  Call Trace:
-   pcrypt_aead_encrypt+0xc0/0xd0 [pcrypt]
-   crypto_aead_encrypt+0x1f/0x30
-   do_mult_aead_op+0x4e/0xdf [tcrypt]
-   test_mb_aead_speed.constprop.0.cold+0x226/0x564 [tcrypt]
-   do_test+0x28c2/0x4d49 [tcrypt]
-   tcrypt_mod_init+0x55/0x1000 [tcrypt]
-   ...
+Since there is a bit of checking for the ethernet feature
+to be present in the MDIO registering function, making the
+whole module not even be registered if we can't find an
+MDIO bus, we need something similar: register the MDIO
+bus when the corresponding ethernet is probed, and
+return -EPROBE_DEFER on the other interfaces until this
+happens. If no MDIO bus is present on any of the
+registered interfaces we will eventually bail out.
 
-cpumask_weight() in padata_cpu_hash() returns 0 because the mask has no
-CPUs.  The problem is __padata_remove_cpu() checks for valid masks too
-early and so doesn't mark the instance PADATA_INVALID as expected, which
-would have made padata_do_parallel() return error before doing the
-division.
+None of the platforms I've seen has e.g. MDIO on EthB
+and only uses EthC, there is always a Ethernet hardware
+on the NPE (B, C) that has the MDIO bus, we just might
+have to wait for it.
 
-Fix by introducing a second padata CPU hotplug state before
-CPUHP_BRINGUP_CPU so that __padata_remove_cpu() sees the online mask
-without @cpu.  No need for the second argument to padata_replace() since
-@cpu is now already missing from the online mask.
-
-Fixes: 33e54450683c ("padata: Handle empty padata cpumasks")
-Signed-off-by: Daniel Jordan <daniel.m.jordan@oracle.com>
-Cc: Eric Biggers <ebiggers@kernel.org>
-Cc: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Cc: Steffen Klassert <steffen.klassert@secunet.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: linux-crypto@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/cpuhotplug.h |  1 +
- kernel/padata.c            | 30 ++++++++++++++++++------------
- 2 files changed, 19 insertions(+), 12 deletions(-)
+ drivers/net/ethernet/xscale/ixp4xx_eth.c | 96 +++++++++++-------------
+ 1 file changed, 44 insertions(+), 52 deletions(-)
 
-diff --git a/include/linux/cpuhotplug.h b/include/linux/cpuhotplug.h
-index e51ee772b9f57..def48a5836700 100644
---- a/include/linux/cpuhotplug.h
-+++ b/include/linux/cpuhotplug.h
-@@ -59,6 +59,7 @@ enum cpuhp_state {
- 	CPUHP_IOMMU_INTEL_DEAD,
- 	CPUHP_LUSTRE_CFS_DEAD,
- 	CPUHP_AP_ARM_CACHE_B15_RAC_DEAD,
-+	CPUHP_PADATA_DEAD,
- 	CPUHP_WORKQUEUE_PREP,
- 	CPUHP_POWER_NUMA_PREPARE,
- 	CPUHP_HRTIMERS_PREPARE,
-diff --git a/kernel/padata.c b/kernel/padata.c
-index 9c82ee4a97323..fda7a7039422d 100644
---- a/kernel/padata.c
-+++ b/kernel/padata.c
-@@ -512,7 +512,7 @@ static int padata_replace_one(struct padata_shell *ps)
- 	return 0;
- }
- 
--static int padata_replace(struct padata_instance *pinst, int cpu)
-+static int padata_replace(struct padata_instance *pinst)
- {
- 	int notification_mask = 0;
- 	struct padata_shell *ps;
-@@ -523,16 +523,12 @@ static int padata_replace(struct padata_instance *pinst, int cpu)
- 	cpumask_copy(pinst->omask, pinst->rcpumask.pcpu);
- 	cpumask_and(pinst->rcpumask.pcpu, pinst->cpumask.pcpu,
- 		    cpu_online_mask);
--	if (cpu >= 0)
--		cpumask_clear_cpu(cpu, pinst->rcpumask.pcpu);
- 	if (!cpumask_equal(pinst->omask, pinst->rcpumask.pcpu))
- 		notification_mask |= PADATA_CPU_PARALLEL;
- 
- 	cpumask_copy(pinst->omask, pinst->rcpumask.cbcpu);
- 	cpumask_and(pinst->rcpumask.cbcpu, pinst->cpumask.cbcpu,
- 		    cpu_online_mask);
--	if (cpu >= 0)
--		cpumask_clear_cpu(cpu, pinst->rcpumask.cbcpu);
- 	if (!cpumask_equal(pinst->omask, pinst->rcpumask.cbcpu))
- 		notification_mask |= PADATA_CPU_SERIAL;
- 
-@@ -624,7 +620,7 @@ out_replace:
- 	cpumask_copy(pinst->cpumask.pcpu, pcpumask);
- 	cpumask_copy(pinst->cpumask.cbcpu, cbcpumask);
- 
--	err = padata_setup_cpumasks(pinst) ?: padata_replace(pinst, -1);
-+	err = padata_setup_cpumasks(pinst) ?: padata_replace(pinst);
- 
- 	if (valid)
- 		__padata_start(pinst);
-@@ -715,7 +711,7 @@ static int __padata_add_cpu(struct padata_instance *pinst, int cpu)
- 	int err = 0;
- 
- 	if (cpumask_test_cpu(cpu, cpu_online_mask)) {
--		err = padata_replace(pinst, -1);
-+		err = padata_replace(pinst);
- 
- 		if (padata_validate_cpumask(pinst, pinst->cpumask.pcpu) &&
- 		    padata_validate_cpumask(pinst, pinst->cpumask.cbcpu))
-@@ -729,12 +725,12 @@ static int __padata_remove_cpu(struct padata_instance *pinst, int cpu)
- {
- 	int err = 0;
- 
--	if (cpumask_test_cpu(cpu, cpu_online_mask)) {
-+	if (!cpumask_test_cpu(cpu, cpu_online_mask)) {
- 		if (!padata_validate_cpumask(pinst, pinst->cpumask.pcpu) ||
- 		    !padata_validate_cpumask(pinst, pinst->cpumask.cbcpu))
- 			__padata_stop(pinst);
- 
--		err = padata_replace(pinst, cpu);
-+		err = padata_replace(pinst);
- 	}
- 
- 	return err;
-@@ -796,7 +792,7 @@ static int padata_cpu_online(unsigned int cpu, struct hlist_node *node)
+diff --git a/drivers/net/ethernet/xscale/ixp4xx_eth.c b/drivers/net/ethernet/xscale/ixp4xx_eth.c
+index 6fc04ffb22c2a..d4e095d0e8f14 100644
+--- a/drivers/net/ethernet/xscale/ixp4xx_eth.c
++++ b/drivers/net/ethernet/xscale/ixp4xx_eth.c
+@@ -517,25 +517,14 @@ static int ixp4xx_mdio_write(struct mii_bus *bus, int phy_id, int location,
  	return ret;
  }
  
--static int padata_cpu_prep_down(unsigned int cpu, struct hlist_node *node)
-+static int padata_cpu_dead(unsigned int cpu, struct hlist_node *node)
+-static int ixp4xx_mdio_register(void)
++static int ixp4xx_mdio_register(struct eth_regs __iomem *regs)
  {
- 	struct padata_instance *pinst;
- 	int ret;
-@@ -817,6 +813,7 @@ static enum cpuhp_state hp_online;
- static void __padata_free(struct padata_instance *pinst)
+ 	int err;
+ 
+ 	if (!(mdio_bus = mdiobus_alloc()))
+ 		return -ENOMEM;
+ 
+-	if (cpu_is_ixp43x()) {
+-		/* IXP43x lacks NPE-B and uses NPE-C for MII PHY access */
+-		if (!(ixp4xx_read_feature_bits() & IXP4XX_FEATURE_NPEC_ETH))
+-			return -ENODEV;
+-		mdio_regs = (struct eth_regs __iomem *)IXP4XX_EthC_BASE_VIRT;
+-	} else {
+-		/* All MII PHY accesses use NPE-B Ethernet registers */
+-		if (!(ixp4xx_read_feature_bits() & IXP4XX_FEATURE_NPEB_ETH0))
+-			return -ENODEV;
+-		mdio_regs = (struct eth_regs __iomem *)IXP4XX_EthB_BASE_VIRT;
+-	}
+-
++	mdio_regs = regs;
+ 	__raw_writel(DEFAULT_CORE_CNTRL, &mdio_regs->core_control);
+ 	spin_lock_init(&mdio_lock);
+ 	mdio_bus->name = "IXP4xx MII Bus";
+@@ -1374,7 +1363,7 @@ static const struct net_device_ops ixp4xx_netdev_ops = {
+ 	.ndo_validate_addr = eth_validate_addr,
+ };
+ 
+-static int eth_init_one(struct platform_device *pdev)
++static int ixp4xx_eth_probe(struct platform_device *pdev)
  {
- #ifdef CONFIG_HOTPLUG_CPU
-+	cpuhp_state_remove_instance_nocalls(CPUHP_PADATA_DEAD, &pinst->node);
- 	cpuhp_state_remove_instance_nocalls(hp_online, &pinst->node);
- #endif
+ 	struct port *port;
+ 	struct net_device *dev;
+@@ -1384,7 +1373,7 @@ static int eth_init_one(struct platform_device *pdev)
+ 	char phy_id[MII_BUS_ID_SIZE + 3];
+ 	int err;
  
-@@ -1024,6 +1021,8 @@ static struct padata_instance *padata_alloc(const char *name,
+-	if (!(dev = alloc_etherdev(sizeof(struct port))))
++	if (!(dev = devm_alloc_etherdev(&pdev->dev, sizeof(struct port))))
+ 		return -ENOMEM;
  
- #ifdef CONFIG_HOTPLUG_CPU
- 	cpuhp_state_add_instance_nocalls_cpuslocked(hp_online, &pinst->node);
-+	cpuhp_state_add_instance_nocalls_cpuslocked(CPUHP_PADATA_DEAD,
-+						    &pinst->node);
- #endif
+ 	SET_NETDEV_DEV(dev, &pdev->dev);
+@@ -1394,20 +1383,51 @@ static int eth_init_one(struct platform_device *pdev)
  
- 	put_online_cpus();
-@@ -1136,17 +1135,24 @@ static __init int padata_driver_init(void)
- 	int ret;
+ 	switch (port->id) {
+ 	case IXP4XX_ETH_NPEA:
++		/* If the MDIO bus is not up yet, defer probe */
++		if (!mdio_bus)
++			return -EPROBE_DEFER;
+ 		port->regs = (struct eth_regs __iomem *)IXP4XX_EthA_BASE_VIRT;
+ 		regs_phys  = IXP4XX_EthA_BASE_PHYS;
+ 		break;
+ 	case IXP4XX_ETH_NPEB:
++		/*
++		 * On all except IXP43x, NPE-B is used for the MDIO bus.
++		 * If there is no NPE-B in the feature set, bail out, else
++		 * register the MDIO bus.
++		 */
++		if (!cpu_is_ixp43x()) {
++			if (!(ixp4xx_read_feature_bits() &
++			      IXP4XX_FEATURE_NPEB_ETH0))
++				return -ENODEV;
++			/* Else register the MDIO bus on NPE-B */
++			if ((err = ixp4xx_mdio_register(IXP4XX_EthC_BASE_VIRT)))
++				return err;
++		}
++		if (!mdio_bus)
++			return -EPROBE_DEFER;
+ 		port->regs = (struct eth_regs __iomem *)IXP4XX_EthB_BASE_VIRT;
+ 		regs_phys  = IXP4XX_EthB_BASE_PHYS;
+ 		break;
+ 	case IXP4XX_ETH_NPEC:
++		/*
++		 * IXP43x lacks NPE-B and uses NPE-C for the MDIO bus access,
++		 * of there is no NPE-C, no bus, nothing works, so bail out.
++		 */
++		if (cpu_is_ixp43x()) {
++			if (!(ixp4xx_read_feature_bits() &
++			      IXP4XX_FEATURE_NPEC_ETH))
++				return -ENODEV;
++			/* Else register the MDIO bus on NPE-C */
++			if ((err = ixp4xx_mdio_register(IXP4XX_EthC_BASE_VIRT)))
++				return err;
++		}
++		if (!mdio_bus)
++			return -EPROBE_DEFER;
+ 		port->regs = (struct eth_regs __iomem *)IXP4XX_EthC_BASE_VIRT;
+ 		regs_phys  = IXP4XX_EthC_BASE_PHYS;
+ 		break;
+ 	default:
+-		err = -ENODEV;
+-		goto err_free;
++		return -ENODEV;
+ 	}
  
- 	ret = cpuhp_setup_state_multi(CPUHP_AP_ONLINE_DYN, "padata:online",
--				      padata_cpu_online,
--				      padata_cpu_prep_down);
-+				      padata_cpu_online, NULL);
- 	if (ret < 0)
- 		return ret;
- 	hp_online = ret;
-+
-+	ret = cpuhp_setup_state_multi(CPUHP_PADATA_DEAD, "padata:dead",
-+				      NULL, padata_cpu_dead);
-+	if (ret < 0) {
-+		cpuhp_remove_multi_state(hp_online);
-+		return ret;
-+	}
+ 	dev->netdev_ops = &ixp4xx_netdev_ops;
+@@ -1416,10 +1436,8 @@ static int eth_init_one(struct platform_device *pdev)
+ 
+ 	netif_napi_add(dev, &port->napi, eth_poll, NAPI_WEIGHT);
+ 
+-	if (!(port->npe = npe_request(NPE_ID(port->id)))) {
+-		err = -EIO;
+-		goto err_free;
+-	}
++	if (!(port->npe = npe_request(NPE_ID(port->id))))
++		return -EIO;
+ 
+ 	port->mem_res = request_mem_region(regs_phys, REGS_SIZE, dev->name);
+ 	if (!port->mem_res) {
+@@ -1465,12 +1483,10 @@ err_free_mem:
+ 	release_resource(port->mem_res);
+ err_npe_rel:
+ 	npe_release(port->npe);
+-err_free:
+-	free_netdev(dev);
+ 	return err;
+ }
+ 
+-static int eth_remove_one(struct platform_device *pdev)
++static int ixp4xx_eth_remove(struct platform_device *pdev)
+ {
+ 	struct net_device *dev = platform_get_drvdata(pdev);
+ 	struct phy_device *phydev = dev->phydev;
+@@ -1478,45 +1494,21 @@ static int eth_remove_one(struct platform_device *pdev)
+ 
+ 	unregister_netdev(dev);
+ 	phy_disconnect(phydev);
++	ixp4xx_mdio_remove();
+ 	npe_port_tab[NPE_ID(port->id)] = NULL;
+ 	npe_release(port->npe);
+ 	release_resource(port->mem_res);
+-	free_netdev(dev);
  	return 0;
  }
- module_init(padata_driver_init);
  
- static __exit void padata_driver_exit(void)
- {
-+	cpuhp_remove_multi_state(CPUHP_PADATA_DEAD);
- 	cpuhp_remove_multi_state(hp_online);
- }
- module_exit(padata_driver_exit);
+ static struct platform_driver ixp4xx_eth_driver = {
+ 	.driver.name	= DRV_NAME,
+-	.probe		= eth_init_one,
+-	.remove		= eth_remove_one,
++	.probe		= ixp4xx_eth_probe,
++	.remove		= ixp4xx_eth_remove,
+ };
+-
+-static int __init eth_init_module(void)
+-{
+-	int err;
+-
+-	/*
+-	 * FIXME: we bail out on device tree boot but this really needs
+-	 * to be fixed in a nicer way: this registers the MDIO bus before
+-	 * even matching the driver infrastructure, we should only probe
+-	 * detected hardware.
+-	 */
+-	if (of_have_populated_dt())
+-		return -ENODEV;
+-	if ((err = ixp4xx_mdio_register()))
+-		return err;
+-	return platform_driver_register(&ixp4xx_eth_driver);
+-}
+-
+-static void __exit eth_cleanup_module(void)
+-{
+-	platform_driver_unregister(&ixp4xx_eth_driver);
+-	ixp4xx_mdio_remove();
+-}
++module_platform_driver(ixp4xx_eth_driver);
+ 
+ MODULE_AUTHOR("Krzysztof Halasa");
+ MODULE_DESCRIPTION("Intel IXP4xx Ethernet driver");
+ MODULE_LICENSE("GPL v2");
+ MODULE_ALIAS("platform:ixp4xx_eth");
+-module_init(eth_init_module);
+-module_exit(eth_cleanup_module);
 -- 
 2.20.1
 
