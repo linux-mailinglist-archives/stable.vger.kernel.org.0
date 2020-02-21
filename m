@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A5215167364
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:13:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C6F281674EF
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:30:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732477AbgBUILt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 03:11:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47402 "EHLO mail.kernel.org"
+        id S2388032AbgBUITc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 03:19:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58148 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732466AbgBUILs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 03:11:48 -0500
+        id S1733154AbgBUITc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 03:19:32 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E8EE420722;
-        Fri, 21 Feb 2020 08:11:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2D56F24691;
+        Fri, 21 Feb 2020 08:19:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582272708;
-        bh=/eTuMA1+EKSBwjBLo0bimCwtlU8PRo/V9j/mbKbSwU4=;
+        s=default; t=1582273171;
+        bh=UHTF/KQOikrcVa58Jc+AI++DU1+I2cfHGw4+SZ/+l5w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=w8ZeF1qx2jagMbURjq80fhdAyX/3FthZHNbjGZ7OKV+zITPc1omeS85S4jmrbTBHN
-         XTCUC29VDJ+7++gXS8gKc59i/6gPYwklVfSwBzPU5srJtwWYsiwzIOebCwQCHBlurs
-         QH9d+ACbbVE35lALyPtcmj5MSnOs5o9Zbe6XZ000=
+        b=nrOPvMhU0AlSonBLOdRfEJhUjUwUGr/O0HaZntmiQ5dTArVpvymR+YBeOOLobdlFX
+         9c93V3RBUV1BZ2N4YOW+44tQW1YtltJl1w2VV11YRf0DnJ4A1/cKBxoXUb9tZFB4VR
+         npJoCZqA3+/O7yLOOD3661HmGCrcY7RYIhoeD09U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sami Tolvanen <samitolvanen@google.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Kees Cook <keescook@chromium.org>,
-        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 245/344] arm64: fix alternatives with LLVMs integrated assembler
-Date:   Fri, 21 Feb 2020 08:40:44 +0100
-Message-Id: <20200221072411.649211484@linuxfoundation.org>
+        stable@vger.kernel.org, kbuild test robot <lkp@intel.com>,
+        "kernelci.org bot" <bot@kernelci.org>,
+        Olofs autobuilder <build@lixom.net>,
+        Stephen Rothwell <sfr@canb.auug.org.au>,
+        Arnd Bergmann <arnd@arndb.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 072/191] isdn: dont mark kcapi_proc_exit as __exit
+Date:   Fri, 21 Feb 2020 08:40:45 +0100
+Message-Id: <20200221072259.984793218@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200221072349.335551332@linuxfoundation.org>
-References: <20200221072349.335551332@linuxfoundation.org>
+In-Reply-To: <20200221072250.732482588@linuxfoundation.org>
+References: <20200221072250.732482588@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,117 +46,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sami Tolvanen <samitolvanen@google.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit c54f90c2627cc316d365e3073614731e17dbc631 ]
+[ Upstream commit b33bdf8020c94438269becc6dace9ed49257c4ba ]
 
-LLVM's integrated assembler fails with the following error when
-building KVM:
+As everybody pointed out by now, my patch to clean up CAPI introduced
+a link time warning, as the two parts of the capi driver are now in
+one module and the exit function may need to be called in the error
+path of the init function:
 
-  <inline asm>:12:6: error: expected absolute expression
-   .if kvm_update_va_mask == 0
-       ^
-  <inline asm>:21:6: error: expected absolute expression
-   .if kvm_update_va_mask == 0
-       ^
-  <inline asm>:24:2: error: unrecognized instruction mnemonic
-          NOT_AN_INSTRUCTION
-          ^
-  LLVM ERROR: Error parsing inline asm
+>> WARNING: drivers/isdn/capi/kernelcapi.o(.text+0xea4): Section mismatch in reference from the function kcapi_exit() to the function .exit.text:kcapi_proc_exit()
+   The function kcapi_exit() references a function in an exit section.
+   Often the function kcapi_proc_exit() has valid usage outside the exit section
+   and the fix is to remove the __exit annotation of kcapi_proc_exit.
 
-These errors come from ALTERNATIVE_CB and __ALTERNATIVE_CFG,
-which test for the existence of the callback parameter in inline
-assembly using the following expression:
+Remove the incorrect __exit annotation.
 
-  " .if " __stringify(cb) " == 0\n"
-
-This works with GNU as, but isn't supported by LLVM. This change
-splits __ALTERNATIVE_CFG and ALTINSTR_ENTRY into separate macros
-to fix the LLVM build.
-
-Link: https://github.com/ClangBuiltLinux/linux/issues/472
-Signed-off-by: Sami Tolvanen <samitolvanen@google.com>
-Tested-by: Nick Desaulniers <ndesaulniers@google.com>
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Will Deacon <will@kernel.org>
+Reported-by: kbuild test robot <lkp@intel.com>
+Reported-by: kernelci.org bot <bot@kernelci.org>
+Reported-by: Olof's autobuilder <build@lixom.net>
+Reported-by: Stephen Rothwell <sfr@canb.auug.org.au>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Link: https://lore.kernel.org/r/20191216194909.1983639-1-arnd@arndb.de
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/include/asm/alternative.h | 32 ++++++++++++++++++----------
- 1 file changed, 21 insertions(+), 11 deletions(-)
+ drivers/isdn/capi/kcapi_proc.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm64/include/asm/alternative.h b/arch/arm64/include/asm/alternative.h
-index b9f8d787eea9f..324e7d5ab37ed 100644
---- a/arch/arm64/include/asm/alternative.h
-+++ b/arch/arm64/include/asm/alternative.h
-@@ -35,13 +35,16 @@ void apply_alternatives_module(void *start, size_t length);
- static inline void apply_alternatives_module(void *start, size_t length) { }
- #endif
+diff --git a/drivers/isdn/capi/kcapi_proc.c b/drivers/isdn/capi/kcapi_proc.c
+index c94bd12c0f7c6..28cd051f1dfd9 100644
+--- a/drivers/isdn/capi/kcapi_proc.c
++++ b/drivers/isdn/capi/kcapi_proc.c
+@@ -239,7 +239,7 @@ kcapi_proc_init(void)
+ 	proc_create_seq("capi/driver",       0, NULL, &seq_capi_driver_ops);
+ }
  
--#define ALTINSTR_ENTRY(feature,cb)					      \
-+#define ALTINSTR_ENTRY(feature)					              \
- 	" .word 661b - .\n"				/* label           */ \
--	" .if " __stringify(cb) " == 0\n"				      \
- 	" .word 663f - .\n"				/* new instruction */ \
--	" .else\n"							      \
-+	" .hword " __stringify(feature) "\n"		/* feature bit     */ \
-+	" .byte 662b-661b\n"				/* source len      */ \
-+	" .byte 664f-663f\n"				/* replacement len */
-+
-+#define ALTINSTR_ENTRY_CB(feature, cb)					      \
-+	" .word 661b - .\n"				/* label           */ \
- 	" .word " __stringify(cb) "- .\n"		/* callback */	      \
--	" .endif\n"							      \
- 	" .hword " __stringify(feature) "\n"		/* feature bit     */ \
- 	" .byte 662b-661b\n"				/* source len      */ \
- 	" .byte 664f-663f\n"				/* replacement len */
-@@ -62,15 +65,14 @@ static inline void apply_alternatives_module(void *start, size_t length) { }
-  *
-  * Alternatives with callbacks do not generate replacement instructions.
-  */
--#define __ALTERNATIVE_CFG(oldinstr, newinstr, feature, cfg_enabled, cb)	\
-+#define __ALTERNATIVE_CFG(oldinstr, newinstr, feature, cfg_enabled)	\
- 	".if "__stringify(cfg_enabled)" == 1\n"				\
- 	"661:\n\t"							\
- 	oldinstr "\n"							\
- 	"662:\n"							\
- 	".pushsection .altinstructions,\"a\"\n"				\
--	ALTINSTR_ENTRY(feature,cb)					\
-+	ALTINSTR_ENTRY(feature)						\
- 	".popsection\n"							\
--	" .if " __stringify(cb) " == 0\n"				\
- 	".pushsection .altinstr_replacement, \"a\"\n"			\
- 	"663:\n\t"							\
- 	newinstr "\n"							\
-@@ -78,17 +80,25 @@ static inline void apply_alternatives_module(void *start, size_t length) { }
- 	".popsection\n\t"						\
- 	".org	. - (664b-663b) + (662b-661b)\n\t"			\
- 	".org	. - (662b-661b) + (664b-663b)\n"			\
--	".else\n\t"							\
-+	".endif\n"
-+
-+#define __ALTERNATIVE_CFG_CB(oldinstr, feature, cfg_enabled, cb)	\
-+	".if "__stringify(cfg_enabled)" == 1\n"				\
-+	"661:\n\t"							\
-+	oldinstr "\n"							\
-+	"662:\n"							\
-+	".pushsection .altinstructions,\"a\"\n"				\
-+	ALTINSTR_ENTRY_CB(feature, cb)					\
-+	".popsection\n"							\
- 	"663:\n\t"							\
- 	"664:\n\t"							\
--	".endif\n"							\
- 	".endif\n"
- 
- #define _ALTERNATIVE_CFG(oldinstr, newinstr, feature, cfg, ...)	\
--	__ALTERNATIVE_CFG(oldinstr, newinstr, feature, IS_ENABLED(cfg), 0)
-+	__ALTERNATIVE_CFG(oldinstr, newinstr, feature, IS_ENABLED(cfg))
- 
- #define ALTERNATIVE_CB(oldinstr, cb) \
--	__ALTERNATIVE_CFG(oldinstr, "NOT_AN_INSTRUCTION", ARM64_CB_PATCH, 1, cb)
-+	__ALTERNATIVE_CFG_CB(oldinstr, ARM64_CB_PATCH, 1, cb)
- #else
- 
- #include <asm/assembler.h>
+-void __exit
++void
+ kcapi_proc_exit(void)
+ {
+ 	remove_proc_entry("capi/driver",       NULL);
 -- 
 2.20.1
 
