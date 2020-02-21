@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D76E4167267
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:03:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C454D16727D
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:04:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731419AbgBUIDJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 03:03:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35804 "EHLO mail.kernel.org"
+        id S1730230AbgBUID7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 03:03:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36866 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731133AbgBUIDI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 03:03:08 -0500
+        id S1731543AbgBUID6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 03:03:58 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 87747206ED;
-        Fri, 21 Feb 2020 08:03:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 98FAA2465D;
+        Fri, 21 Feb 2020 08:03:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582272188;
-        bh=XVGy6iK7CadxPsP1+MFoAhGr6E5YoTKUWdF1RoQobYU=;
+        s=default; t=1582272238;
+        bh=c7JCE0FUS+3bdwXpx4DK8SQXjElF8rXBOwR4c3H51RI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wUeT3dDr+JnOGsmfPR4OGFpDFvvDOfpunr1zujMKpP9f2e55MTtCEk5FUvcBAiIug
-         sUWDyJIe6VLRm+XpVZaWfsjIleVG7NP9Wwp8TPDdOZEp4+T8Rz+wQ2fOev6qrK6so0
-         sNnMvHYqAbtRlJc0ax2hptHeOiGu5A2se7Oa+70c=
+        b=vOEcUhnUOVIZt3siLMsY3uR+/9p3QmNjYZKHYYRCVbSKcPbOu7TgY4Vm3yZEFikJq
+         yhZUH/IgZDhaQxZWh3NqHtxpdJv9gNSKHQwqEYG1bKFFiOu2pP4U3bKUD6Qj4Ysqoj
+         BEis3nzDChns7ridzjcCpRr4VkXZW/T66/uLrIKw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        =?UTF-8?q?Noralf=20Tr=C3=B8nnes?= <noralf@tronnes.org>,
+        stable@vger.kernel.org, Wenyou Yang <wenyou.yang@microchip.com>,
+        Eugen Hristev <eugen.hristev@microchip.com>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 031/344] drm/mipi_dbi: Fix off-by-one bugs in mipi_dbi_blank()
-Date:   Fri, 21 Feb 2020 08:37:10 +0100
-Message-Id: <20200221072351.967212900@linuxfoundation.org>
+Subject: [PATCH 5.4 035/344] media: i2c: mt9v032: fix enum mbus codes and frame sizes
+Date:   Fri, 21 Feb 2020 08:37:14 +0100
+Message-Id: <20200221072352.340706566@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200221072349.335551332@linuxfoundation.org>
 References: <20200221072349.335551332@linuxfoundation.org>
@@ -45,46 +47,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+From: Eugen Hristev <eugen.hristev@microchip.com>
 
-[ Upstream commit 2ce18249af5a28031b3f909cfafccc88ea966c9d ]
+[ Upstream commit 1451d5ae351d938a0ab1677498c893f17b9ee21d ]
 
-When configuring the frame memory window, the last column and row
-numbers are written to the column resp. page address registers.  These
-numbers are thus one less than the actual window width resp. height.
+This driver supports both the mt9v032 (color) and the mt9v022 (mono)
+sensors. Depending on which sensor is used, the format from the sensor is
+different. The format.code inside the dev struct holds this information.
+The enum mbus and enum frame sizes need to take into account both type of
+sensors, not just the color one. To solve this, use the format.code in
+these functions instead of the hardcoded bayer color format (which is only
+used for mt9v032).
 
-While this is handled correctly in mipi_dbi_fb_dirty() since commit
-03ceb1c8dfd1e293 ("drm/tinydrm: Fix setting of the column/page end
-addresses."), it is not in mipi_dbi_blank().  The latter still forgets
-to subtract one when calculating the most significant bytes of the
-column and row numbers, thus programming wrong values when the display
-width or height is a multiple of 256.
+[Sakari Ailus: rewrapped commit message]
 
-Fixes: 02dd95fe31693626 ("drm/tinydrm: Add MIPI DBI support")
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Signed-off-by: Noralf Trønnes <noralf@tronnes.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20191230130604.31006-1-geert+renesas@glider.be
+Suggested-by: Wenyou Yang <wenyou.yang@microchip.com>
+Signed-off-by: Eugen Hristev <eugen.hristev@microchip.com>
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/drm_mipi_dbi.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/media/i2c/mt9v032.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/drm_mipi_dbi.c b/drivers/gpu/drm/drm_mipi_dbi.c
-index f8154316a3b0d..a05e64e3d80bb 100644
---- a/drivers/gpu/drm/drm_mipi_dbi.c
-+++ b/drivers/gpu/drm/drm_mipi_dbi.c
-@@ -367,9 +367,9 @@ static void mipi_dbi_blank(struct mipi_dbi_dev *dbidev)
- 	memset(dbidev->tx_buf, 0, len);
+diff --git a/drivers/media/i2c/mt9v032.c b/drivers/media/i2c/mt9v032.c
+index 4b9b98cf6674c..5bd3ae82992f3 100644
+--- a/drivers/media/i2c/mt9v032.c
++++ b/drivers/media/i2c/mt9v032.c
+@@ -428,10 +428,12 @@ static int mt9v032_enum_mbus_code(struct v4l2_subdev *subdev,
+ 				  struct v4l2_subdev_pad_config *cfg,
+ 				  struct v4l2_subdev_mbus_code_enum *code)
+ {
++	struct mt9v032 *mt9v032 = to_mt9v032(subdev);
++
+ 	if (code->index > 0)
+ 		return -EINVAL;
  
- 	mipi_dbi_command(dbi, MIPI_DCS_SET_COLUMN_ADDRESS, 0, 0,
--			 (width >> 8) & 0xFF, (width - 1) & 0xFF);
-+			 ((width - 1) >> 8) & 0xFF, (width - 1) & 0xFF);
- 	mipi_dbi_command(dbi, MIPI_DCS_SET_PAGE_ADDRESS, 0, 0,
--			 (height >> 8) & 0xFF, (height - 1) & 0xFF);
-+			 ((height - 1) >> 8) & 0xFF, (height - 1) & 0xFF);
- 	mipi_dbi_command_buf(dbi, MIPI_DCS_WRITE_MEMORY_START,
- 			     (u8 *)dbidev->tx_buf, len);
+-	code->code = MEDIA_BUS_FMT_SGRBG10_1X10;
++	code->code = mt9v032->format.code;
+ 	return 0;
+ }
  
+@@ -439,7 +441,11 @@ static int mt9v032_enum_frame_size(struct v4l2_subdev *subdev,
+ 				   struct v4l2_subdev_pad_config *cfg,
+ 				   struct v4l2_subdev_frame_size_enum *fse)
+ {
+-	if (fse->index >= 3 || fse->code != MEDIA_BUS_FMT_SGRBG10_1X10)
++	struct mt9v032 *mt9v032 = to_mt9v032(subdev);
++
++	if (fse->index >= 3)
++		return -EINVAL;
++	if (mt9v032->format.code != fse->code)
+ 		return -EINVAL;
+ 
+ 	fse->min_width = MT9V032_WINDOW_WIDTH_DEF / (1 << fse->index);
 -- 
 2.20.1
 
