@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D30991676C0
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:38:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B57B416782A
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:47:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731103AbgBUIDp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 03:03:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36594 "EHLO mail.kernel.org"
+        id S1729287AbgBUHtW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 02:49:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45710 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728953AbgBUIDp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 03:03:45 -0500
+        id S1728359AbgBUHtS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 02:49:18 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 342E024650;
-        Fri, 21 Feb 2020 08:03:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 50CE3208C4;
+        Fri, 21 Feb 2020 07:49:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582272224;
-        bh=6lKOMqR9i+K8QwMDVdaLd2gD/Oq+Ml/qLNpP7AQyCxU=;
+        s=default; t=1582271357;
+        bh=pisCp0L8OYluLdVr5lRE1PQQni0pQHeVSXt5Ghx26zE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y3GMhxVBG0s92AgK9ypOTSG2GeSBXTFnG5Yv6/EKXE1g5QJrusv4hR8QIpW/1o2MH
-         U3ZyrDWBF4zt/nLBjRIqzWszZs/vVbYjlHKhh3pEdzfhMZ+LJDAtWFNfVRYVX21P/u
-         eI4ncTNJimunE/fVXF7DVV2K1Ok9bWe9bCbJYJIw=
+        b=0O7l+owIid4Qzte1YQ1gmPbeL+MLWKDjygw/oukblxeaqIwc41pxOQxU0f51evA/w
+         EKm/mPyszso5lxIBizrZ61jOeMjhxsxQ2Zo7++msPtEuIvG7piB95TV9lHD1SxTOZa
+         8JtK+Klgw8/3ThnypbaoiT2tDj+5uCAAnAFKVRdY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        stable@vger.kernel.org, Forest Crossman <cyrozap@gmail.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 061/344] clocksource/drivers/bcm2835_timer: Fix memory leak of timer
+Subject: [PATCH 5.5 135/399] media: cx23885: Add support for AVerMedia CE310B
 Date:   Fri, 21 Feb 2020 08:37:40 +0100
-Message-Id: <20200221072354.581014752@linuxfoundation.org>
+Message-Id: <20200221072415.585833854@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200221072349.335551332@linuxfoundation.org>
-References: <20200221072349.335551332@linuxfoundation.org>
+In-Reply-To: <20200221072402.315346745@linuxfoundation.org>
+References: <20200221072402.315346745@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,49 +45,111 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Forest Crossman <cyrozap@gmail.com>
 
-[ Upstream commit 2052d032c06761330bca4944bb7858b00960e868 ]
+[ Upstream commit dc4cac67e13515835ed8081d510aa507aacb013b ]
 
-Currently when setup_irq fails the error exit path will leak the
-recently allocated timer structure.  Originally the code would
-throw a panic but a later commit changed the behaviour to return
-via the err_iounmap path and hence we now have a memory leak. Fix
-this by adding a err_timer_free error path that kfree's timer.
+The AVerMedia CE310B is a simple composite + S-Video + stereo audio
+capture card, and uses only the CX23888 to perform all of these
+functions.
 
-Addresses-Coverity: ("Resource Leak")
-Fixes: 524a7f08983d ("clocksource/drivers/bcm2835_timer: Convert init function to return error")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
-Link: https://lore.kernel.org/r/20191219213246.34437-1-colin.king@canonical.com
+I've tested both video inputs and the audio interface and confirmed that
+they're all working. However, there are some issues:
+
+* Sometimes when I switch inputs the video signal turns black and can't
+  be recovered until the system is rebooted. I haven't been able to
+  determine the cause of this behavior, nor have I found a solution to
+  fix it or any workarounds other than rebooting.
+* The card sometimes seems to have trouble syncing to the video signal,
+  and some of the VBI data appears as noise at the top of the frame, but
+  I assume that to be a result of my very noisy RF environment and the
+  card's unshielded input traces rather than a configuration issue.
+
+Signed-off-by: Forest Crossman <cyrozap@gmail.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clocksource/bcm2835_timer.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/media/pci/cx23885/cx23885-cards.c | 24 +++++++++++++++++++++++
+ drivers/media/pci/cx23885/cx23885-video.c |  3 ++-
+ drivers/media/pci/cx23885/cx23885.h       |  1 +
+ 3 files changed, 27 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/clocksource/bcm2835_timer.c b/drivers/clocksource/bcm2835_timer.c
-index 2b196cbfadb62..b235f446ee50f 100644
---- a/drivers/clocksource/bcm2835_timer.c
-+++ b/drivers/clocksource/bcm2835_timer.c
-@@ -121,7 +121,7 @@ static int __init bcm2835_timer_init(struct device_node *node)
- 	ret = setup_irq(irq, &timer->act);
- 	if (ret) {
- 		pr_err("Can't set up timer IRQ\n");
--		goto err_iounmap;
-+		goto err_timer_free;
- 	}
+diff --git a/drivers/media/pci/cx23885/cx23885-cards.c b/drivers/media/pci/cx23885/cx23885-cards.c
+index 8644205d3cd33..8e5a2c580821e 100644
+--- a/drivers/media/pci/cx23885/cx23885-cards.c
++++ b/drivers/media/pci/cx23885/cx23885-cards.c
+@@ -801,6 +801,25 @@ struct cx23885_board cx23885_boards[] = {
+ 		.name		= "Hauppauge WinTV-Starburst2",
+ 		.portb		= CX23885_MPEG_DVB,
+ 	},
++	[CX23885_BOARD_AVERMEDIA_CE310B] = {
++		.name		= "AVerMedia CE310B",
++		.porta		= CX23885_ANALOG_VIDEO,
++		.force_bff	= 1,
++		.input          = {{
++			.type   = CX23885_VMUX_COMPOSITE1,
++			.vmux   = CX25840_VIN1_CH1 |
++				  CX25840_NONE_CH2 |
++				  CX25840_NONE0_CH3,
++			.amux   = CX25840_AUDIO7,
++		}, {
++			.type   = CX23885_VMUX_SVIDEO,
++			.vmux   = CX25840_VIN8_CH1 |
++				  CX25840_NONE_CH2 |
++				  CX25840_VIN7_CH3 |
++				  CX25840_SVIDEO_ON,
++			.amux   = CX25840_AUDIO7,
++		} },
++	},
+ };
+ const unsigned int cx23885_bcount = ARRAY_SIZE(cx23885_boards);
  
- 	clockevents_config_and_register(&timer->evt, freq, 0xf, 0xffffffff);
-@@ -130,6 +130,9 @@ static int __init bcm2835_timer_init(struct device_node *node)
+@@ -1124,6 +1143,10 @@ struct cx23885_subid cx23885_subids[] = {
+ 		.subvendor = 0x0070,
+ 		.subdevice = 0xf02a,
+ 		.card      = CX23885_BOARD_HAUPPAUGE_STARBURST2,
++	}, {
++		.subvendor = 0x1461,
++		.subdevice = 0x3100,
++		.card      = CX23885_BOARD_AVERMEDIA_CE310B,
+ 	},
+ };
+ const unsigned int cx23885_idcount = ARRAY_SIZE(cx23885_subids);
+@@ -2348,6 +2371,7 @@ void cx23885_card_setup(struct cx23885_dev *dev)
+ 	case CX23885_BOARD_DVBSKY_T982:
+ 	case CX23885_BOARD_VIEWCAST_260E:
+ 	case CX23885_BOARD_VIEWCAST_460E:
++	case CX23885_BOARD_AVERMEDIA_CE310B:
+ 		dev->sd_cx25840 = v4l2_i2c_new_subdev(&dev->v4l2_dev,
+ 				&dev->i2c_bus[2].i2c_adap,
+ 				"cx25840", 0x88 >> 1, NULL);
+diff --git a/drivers/media/pci/cx23885/cx23885-video.c b/drivers/media/pci/cx23885/cx23885-video.c
+index 8098b15493de9..7fc408ee4934f 100644
+--- a/drivers/media/pci/cx23885/cx23885-video.c
++++ b/drivers/media/pci/cx23885/cx23885-video.c
+@@ -257,7 +257,8 @@ static int cx23885_video_mux(struct cx23885_dev *dev, unsigned int input)
+ 		(dev->board == CX23885_BOARD_MYGICA_X8507) ||
+ 		(dev->board == CX23885_BOARD_AVERMEDIA_HC81R) ||
+ 		(dev->board == CX23885_BOARD_VIEWCAST_260E) ||
+-		(dev->board == CX23885_BOARD_VIEWCAST_460E)) {
++		(dev->board == CX23885_BOARD_VIEWCAST_460E) ||
++		(dev->board == CX23885_BOARD_AVERMEDIA_CE310B)) {
+ 		/* Configure audio routing */
+ 		v4l2_subdev_call(dev->sd_cx25840, audio, s_routing,
+ 			INPUT(input)->amux, 0, 0);
+diff --git a/drivers/media/pci/cx23885/cx23885.h b/drivers/media/pci/cx23885/cx23885.h
+index a95a2e4c6a0d3..c472498e57c4e 100644
+--- a/drivers/media/pci/cx23885/cx23885.h
++++ b/drivers/media/pci/cx23885/cx23885.h
+@@ -101,6 +101,7 @@
+ #define CX23885_BOARD_HAUPPAUGE_STARBURST2     59
+ #define CX23885_BOARD_HAUPPAUGE_QUADHD_DVB_885 60
+ #define CX23885_BOARD_HAUPPAUGE_QUADHD_ATSC_885 61
++#define CX23885_BOARD_AVERMEDIA_CE310B         62
  
- 	return 0;
- 
-+err_timer_free:
-+	kfree(timer);
-+
- err_iounmap:
- 	iounmap(base);
- 	return ret;
+ #define GPIO_0 0x00000001
+ #define GPIO_1 0x00000002
 -- 
 2.20.1
 
