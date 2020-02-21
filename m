@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 88295167528
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:30:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D6DB71675C8
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:32:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388313AbgBUIYH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 03:24:07 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36324 "EHLO mail.kernel.org"
+        id S1732748AbgBUIOQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 03:14:16 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50670 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388287AbgBUIYD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 03:24:03 -0500
+        id S1732732AbgBUIOQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 03:14:16 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AC51A206ED;
-        Fri, 21 Feb 2020 08:24:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ED00A24650;
+        Fri, 21 Feb 2020 08:14:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582273443;
-        bh=m/otNxC3zvJZKrphncMYDqdLByu/oTw6h9f5kpSGpsU=;
+        s=default; t=1582272855;
+        bh=jrIDkJCJcAj5Fx5ifyW1/d9XY7z2Jyo3nzdyGhxeQ3o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WiNPEteuG9/lB4JPEevXiL5LxgctTsYcVYpDA6jhcFnmJzHkdiwMhzIhbTpDRkfb+
-         de7DqTVsuJvx2cA/U9u+YfMrJ/QAtPL5XJb0q7ScIEt+SEmNcvtcJPK/L8WOHPaFHm
-         OUIF5SWUPjtaG+2Acbo42xXrbVIuy/gclO49zV80=
+        b=InsRJF7yZYOUj/sy7UYn5o/npd47AhHafyTfUqsctCBrp/YiJlKsV9Mq6KyIyu91L
+         hvF3eo+/dN6C49CyStbw+LHfBFxG4qllbAtQeXTVGjCDaGTfMwJlY8diDLMi1Hp6uY
+         HXB8M3tHFAuf0tkDu05lBWWl4mZdeOlsXY3RfWzA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        YueHaibing <yuehaibing@huawei.com>,
-        Ben Skeggs <bskeggs@redhat.com>,
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        Stanislaw Gruszka <stf_xl@wp.pl>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 126/191] drm/nouveau/drm/ttm: Remove set but not used variable mem
-Date:   Fri, 21 Feb 2020 08:41:39 +0100
-Message-Id: <20200221072306.079147050@linuxfoundation.org>
+Subject: [PATCH 5.4 301/344] iwlegacy: ensure loop counter addr does not wrap and cause an infinite loop
+Date:   Fri, 21 Feb 2020 08:41:40 +0100
+Message-Id: <20200221072417.234434582@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200221072250.732482588@linuxfoundation.org>
-References: <20200221072250.732482588@linuxfoundation.org>
+In-Reply-To: <20200221072349.335551332@linuxfoundation.org>
+References: <20200221072349.335551332@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,56 +45,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YueHaibing <yuehaibing@huawei.com>
+From: Colin Ian King <colin.king@canonical.com>
 
-[ Upstream commit 2e4534a22794746b11a794b2229b8d58797eccce ]
+[ Upstream commit c2f9a4e4a5abfc84c01b738496b3fd2d471e0b18 ]
 
-drivers/gpu/drm/nouveau/nouveau_ttm.c: In function nouveau_vram_manager_new:
-drivers/gpu/drm/nouveau/nouveau_ttm.c:66:22: warning: variable mem set but not used [-Wunused-but-set-variable]
-drivers/gpu/drm/nouveau/nouveau_ttm.c: In function nouveau_gart_manager_new:
-drivers/gpu/drm/nouveau/nouveau_ttm.c:106:22: warning: variable mem set but not used [-Wunused-but-set-variable]
+The loop counter addr is a u16 where as the upper limit of the loop
+is an int. In the unlikely event that the il->cfg->eeprom_size is
+greater than 64K then we end up with an infinite loop since addr will
+wrap around an never reach upper loop limit. Fix this by making addr
+an int.
 
-They are not used any more, so remove it.
-
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
+Addresses-Coverity: ("Infinite loop")
+Fixes: be663ab67077 ("iwlwifi: split the drivers for agn and legacy devices 3945/4965")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Acked-by: Stanislaw Gruszka <stf_xl@wp.pl>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/nouveau/nouveau_ttm.c | 4 ----
- 1 file changed, 4 deletions(-)
+ drivers/net/wireless/intel/iwlegacy/common.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/nouveau/nouveau_ttm.c b/drivers/gpu/drm/nouveau/nouveau_ttm.c
-index e4b977cc84528..37715a2a2f3f9 100644
---- a/drivers/gpu/drm/nouveau/nouveau_ttm.c
-+++ b/drivers/gpu/drm/nouveau/nouveau_ttm.c
-@@ -63,14 +63,12 @@ nouveau_vram_manager_new(struct ttm_mem_type_manager *man,
- {
- 	struct nouveau_bo *nvbo = nouveau_bo(bo);
- 	struct nouveau_drm *drm = nouveau_bdev(bo->bdev);
--	struct nouveau_mem *mem;
+diff --git a/drivers/net/wireless/intel/iwlegacy/common.c b/drivers/net/wireless/intel/iwlegacy/common.c
+index 73f7bbf742bc6..746749f379964 100644
+--- a/drivers/net/wireless/intel/iwlegacy/common.c
++++ b/drivers/net/wireless/intel/iwlegacy/common.c
+@@ -699,7 +699,7 @@ il_eeprom_init(struct il_priv *il)
+ 	u32 gp = _il_rd(il, CSR_EEPROM_GP);
+ 	int sz;
  	int ret;
+-	u16 addr;
++	int addr;
  
- 	if (drm->client.device.info.ram_size == 0)
- 		return -ENOMEM;
- 
- 	ret = nouveau_mem_new(&drm->master, nvbo->kind, nvbo->comp, reg);
--	mem = nouveau_mem(reg);
- 	if (ret)
- 		return ret;
- 
-@@ -103,11 +101,9 @@ nouveau_gart_manager_new(struct ttm_mem_type_manager *man,
- {
- 	struct nouveau_bo *nvbo = nouveau_bo(bo);
- 	struct nouveau_drm *drm = nouveau_bdev(bo->bdev);
--	struct nouveau_mem *mem;
- 	int ret;
- 
- 	ret = nouveau_mem_new(&drm->master, nvbo->kind, nvbo->comp, reg);
--	mem = nouveau_mem(reg);
- 	if (ret)
- 		return ret;
- 
+ 	/* allocate eeprom */
+ 	sz = il->cfg->eeprom_size;
 -- 
 2.20.1
 
