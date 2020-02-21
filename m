@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A17C116723D
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:01:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BB2E416723F
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:01:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731236AbgBUIBl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 03:01:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34012 "EHLO mail.kernel.org"
+        id S1731242AbgBUIBp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 03:01:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34078 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731233AbgBUIBl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 03:01:41 -0500
+        id S1731087AbgBUIBo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 03:01:44 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6BAAB2465D;
-        Fri, 21 Feb 2020 08:01:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B869C20801;
+        Fri, 21 Feb 2020 08:01:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582272100;
-        bh=TIlAmDaKuKNXe97gekocfkoxJrftjK9We8gokKkrcl0=;
+        s=default; t=1582272104;
+        bh=HDNfsmOpb9MK1yv2aN+/E97lXV9iDVXQh3D1EFAviJE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vpRsngZy/uWizkYH/iMkKai0IUZiOyaUpidmQ27cV9kGNc4qPjmlr5lMFdnx8OdAY
-         zbIj76nomXqBofOxqLtb3mdheVoQ/xQXhAWP2o61JD+CWT+6CWb228ReSQJ0a8tkHB
-         OcEh5a0+dHI6vRq1nUXX3hiH1PEmcZ76h6lci1ak=
+        b=mgEzOxwonY1OFOBaNYGjxiZj815+SkiHGqDnpEwjqgamUTeoVbmzPu5LaeTgdHXnu
+         VAMaNSvTwDuLzNkgDv5PxHQ2tLHFLlPhLx9im+V8oaN6Wz3Avi88MA49IqoWQrHWYJ
+         m74oeAD03FtawvDsDb+DepOImH8xL23TrrHyWcfg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chao Yu <yuchao0@huawei.com>,
-        Jaegeuk Kim <jaegeuk@kernel.org>,
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        Kevin Hilman <khilman@baylibre.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 017/344] f2fs: call f2fs_balance_fs outside of locked page
-Date:   Fri, 21 Feb 2020 08:36:56 +0100
-Message-Id: <20200221072350.797443746@linuxfoundation.org>
+Subject: [PATCH 5.4 018/344] media: meson: add missing allocation failure check on new_buf
+Date:   Fri, 21 Feb 2020 08:36:57 +0100
+Message-Id: <20200221072350.877403151@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200221072349.335551332@linuxfoundation.org>
 References: <20200221072349.335551332@linuxfoundation.org>
@@ -44,66 +46,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jaegeuk Kim <jaegeuk@kernel.org>
+From: Colin Ian King <colin.king@canonical.com>
 
-[ Upstream commit bdf03299248916640a835a05d32841bb3d31912d ]
+[ Upstream commit 11e0e167d071a28288a7a0a211d48c571d19b56f ]
 
-Otherwise, we can hit deadlock by waiting for the locked page in
-move_data_block in GC.
+Currently if the allocation of new_buf fails then a null pointer
+dereference occurs when assiging new_buf->vb. Avoid this by returning
+early on a memory allocation failure as there is not much more can
+be done at this point.
 
- Thread A                     Thread B
- - do_page_mkwrite
-  - f2fs_vm_page_mkwrite
-   - lock_page
-                              - f2fs_balance_fs
-                                  - mutex_lock(gc_mutex)
-                               - f2fs_gc
-                                - do_garbage_collect
-                                 - ra_data_block
-                                  - grab_cache_page
-   - f2fs_balance_fs
-    - mutex_lock(gc_mutex)
+Addresses-Coverity: ("Dereference null return")
 
-Fixes: 39a8695824510 ("f2fs: refactor ->page_mkwrite() flow")
-Reviewed-by: Chao Yu <yuchao0@huawei.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Fixes: 3e7f51bd9607 ("media: meson: add v4l2 m2m video decoder driver")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Reviewed-by: Kevin Hilman <khilman@baylibre.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/file.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/staging/media/meson/vdec/vdec.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/fs/f2fs/file.c b/fs/f2fs/file.c
-index 44bc5f4a9ce19..c3a9da79ac997 100644
---- a/fs/f2fs/file.c
-+++ b/fs/f2fs/file.c
-@@ -50,7 +50,7 @@ static vm_fault_t f2fs_vm_page_mkwrite(struct vm_fault *vmf)
- 	struct page *page = vmf->page;
- 	struct inode *inode = file_inode(vmf->vma->vm_file);
- 	struct f2fs_sb_info *sbi = F2FS_I_SB(inode);
--	struct dnode_of_data dn = { .node_changed = false };
-+	struct dnode_of_data dn;
- 	int err;
+diff --git a/drivers/staging/media/meson/vdec/vdec.c b/drivers/staging/media/meson/vdec/vdec.c
+index 0a1a04fd5d13d..8dd1396909d7e 100644
+--- a/drivers/staging/media/meson/vdec/vdec.c
++++ b/drivers/staging/media/meson/vdec/vdec.c
+@@ -133,6 +133,8 @@ vdec_queue_recycle(struct amvdec_session *sess, struct vb2_buffer *vb)
+ 	struct amvdec_buffer *new_buf;
  
- 	if (unlikely(f2fs_cp_error(sbi))) {
-@@ -63,6 +63,9 @@ static vm_fault_t f2fs_vm_page_mkwrite(struct vm_fault *vmf)
- 		goto err;
- 	}
+ 	new_buf = kmalloc(sizeof(*new_buf), GFP_KERNEL);
++	if (!new_buf)
++		return;
+ 	new_buf->vb = vb;
  
-+	/* should do out of any locked page */
-+	f2fs_balance_fs(sbi, true);
-+
- 	sb_start_pagefault(inode->i_sb);
- 
- 	f2fs_bug_on(sbi, f2fs_has_inline_data(inode));
-@@ -120,8 +123,6 @@ static vm_fault_t f2fs_vm_page_mkwrite(struct vm_fault *vmf)
- out_sem:
- 	up_read(&F2FS_I(inode)->i_mmap_sem);
- 
--	f2fs_balance_fs(sbi, dn.node_changed);
--
- 	sb_end_pagefault(inode->i_sb);
- err:
- 	return block_page_mkwrite_return(err);
+ 	mutex_lock(&sess->bufs_recycle_lock);
 -- 
 2.20.1
 
