@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5907C167835
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:48:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 93C0516770F
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:41:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728208AbgBUHrj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 02:47:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43548 "EHLO mail.kernel.org"
+        id S1730895AbgBUICF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 03:02:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34462 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728951AbgBUHri (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 02:47:38 -0500
+        id S1731289AbgBUICD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 03:02:03 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0B660208C4;
-        Fri, 21 Feb 2020 07:47:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DB663206ED;
+        Fri, 21 Feb 2020 08:02:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582271257;
-        bh=hhHJKlpWN495uh2vdO0TDhEHxnvrpn3GndEc5iHu2kc=;
+        s=default; t=1582272122;
+        bh=WR9Oaq7I2qiVdzYcJS2BkJV1ZDAdhC9BSSC5ISkdASE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q3iGfMW5cl3w4TlHD0NOB0cCwMrSaRIpeVbiigz9kTSygSeiPuIwt5kSL/cqeNwaB
-         W7g7M731aRuVRduDTilFNWYRp2BfizytGM8ymqcFfbQ/X4sXJPzaGUtzNWcEuyD/gR
-         JevL81HatMEuQW7pMxGQmrBmpyIDublpTauWZ6Uk=
+        b=qmXz8KLV1dkLp1F2uIo1kHUIekh1m0xIK9G5+wkF+bsB4mmcctwDew4gupnsmovdN
+         +34NsMQYKetsA3ik1gvZlN3/FX7Fg6DvVwP9brjeqtaHeynPKqQBN5PjC5zi8/Qdpv
+         aHurTk3z0DsP6DUOTKuxYK4bJ1eDQ59zS+8TWlFU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Oleksandr Natalenko <oleksandr@natalenko.name>,
-        Patrick Dung <patdung100@gmail.com>,
-        Paolo Valente <paolo.valente@linaro.org>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 098/399] block, bfq: do not plug I/O for bfq_queues with no proc refs
+        stable@vger.kernel.org, Nikola Cornij <nikola.cornij@amd.com>,
+        Jun Lei <Jun.Lei@amd.com>,
+        Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 024/344] drm/amd/display: Map ODM memory correctly when doing ODM combine
 Date:   Fri, 21 Feb 2020 08:37:03 +0100
-Message-Id: <20200221072411.906324287@linuxfoundation.org>
+Message-Id: <20200221072351.380418585@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200221072402.315346745@linuxfoundation.org>
-References: <20200221072402.315346745@linuxfoundation.org>
+In-Reply-To: <20200221072349.335551332@linuxfoundation.org>
+References: <20200221072349.335551332@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,74 +46,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paolo Valente <paolo.valente@linaro.org>
+From: Nikola Cornij <nikola.cornij@amd.com>
 
-[ Upstream commit f718b093277df582fbf8775548a4f163e664d282 ]
+[ Upstream commit ec5b356c58941bb8930858155d9ce14ceb3d30a0 ]
 
-Commit 478de3380c1c ("block, bfq: deschedule empty bfq_queues not
-referred by any process") fixed commit 3726112ec731 ("block, bfq:
-re-schedule empty queues if they deserve I/O plugging") by
-descheduling an empty bfq_queue when it remains with not process
-reference. Yet, this still left a case uncovered: an empty bfq_queue
-with not process reference that remains in service. This happens for
-an in-service sync bfq_queue that is deemed to deserve I/O-dispatch
-plugging when it remains empty. Yet no new requests will arrive for
-such a bfq_queue if no process sends requests to it any longer. Even
-worse, the bfq_queue may happen to be prematurely freed while still in
-service (because there may remain no reference to it any longer).
+[why]
+Up to 4 ODM memory pieces are required per ODM combine and cannot
+overlap, i.e. each ODM "session" has to use its own memory pieces.
+The ODM-memory mapping is currently broken for generic case.
 
-This commit solves this problem by preventing I/O dispatch from being
-plugged for the in-service bfq_queue, if the latter has no process
-reference (the bfq_queue is then prevented from remaining in service).
+The maximum number of memory pieces is ASIC-dependent, but it's always
+big enough to satisfy maximum number of ODM combines. Memory pieces
+are mapped as a bit-map, i.e. one memory piece corresponds to one bit.
+The OPTC doing ODM needs to select memory pieces by setting the
+corresponding bits, making sure there's no overlap with other OPTC
+instances that might be doing ODM.
 
-Fixes: 3726112ec731 ("block, bfq: re-schedule empty queues if they deserve I/O plugging")
-Tested-by: Oleksandr Natalenko <oleksandr@natalenko.name>
-Reported-by: Patrick Dung <patdung100@gmail.com>
-Tested-by: Patrick Dung <patdung100@gmail.com>
-Signed-off-by: Paolo Valente <paolo.valente@linaro.org>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+The current mapping works only for OPTC instance indexes smaller than
+3. For instance indexes 3 and up it practically maps no ODM memory,
+causing black, gray or white screen in display configs that include
+ODM on OPTC instance 3 or up.
+
+[how]
+Statically map two unique ODM memory pieces for each OPTC instance
+and piece them together when programming ODM combine mode.
+
+Signed-off-by: Nikola Cornij <nikola.cornij@amd.com>
+Reviewed-by: Jun Lei <Jun.Lei@amd.com>
+Acked-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/bfq-iosched.c | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ .../gpu/drm/amd/display/dc/dcn20/dcn20_optc.c    | 16 ++++++++++++----
+ 1 file changed, 12 insertions(+), 4 deletions(-)
 
-diff --git a/block/bfq-iosched.c b/block/bfq-iosched.c
-index ad4af4aaf2ced..5c239c540c47a 100644
---- a/block/bfq-iosched.c
-+++ b/block/bfq-iosched.c
-@@ -3444,6 +3444,10 @@ static void bfq_dispatch_remove(struct request_queue *q, struct request *rq)
- static bool idling_needed_for_service_guarantees(struct bfq_data *bfqd,
- 						 struct bfq_queue *bfqq)
+diff --git a/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_optc.c b/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_optc.c
+index dda90995ba933..8d5cfd5357c75 100644
+--- a/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_optc.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_optc.c
+@@ -233,12 +233,13 @@ void optc2_set_odm_combine(struct timing_generator *optc, int *opp_id, int opp_c
+ 		struct dc_crtc_timing *timing)
  {
-+	/* No point in idling for bfqq if it won't get requests any longer */
-+	if (unlikely(!bfqq_process_refs(bfqq)))
-+		return false;
+ 	struct optc *optc1 = DCN10TG_FROM_TG(optc);
+-	/* 2 pieces of memory required for up to 5120 displays, 4 for up to 8192 */
+ 	int mpcc_hactive = (timing->h_addressable + timing->h_border_left + timing->h_border_right)
+ 			/ opp_cnt;
+-	int memory_mask = mpcc_hactive <= 2560 ? 0x3 : 0xf;
++	uint32_t memory_mask;
+ 	uint32_t data_fmt = 0;
+ 
++	ASSERT(opp_cnt == 2);
 +
- 	return (bfqq->wr_coeff > 1 &&
- 		(bfqd->wr_busy_queues <
- 		 bfq_tot_busy_queues(bfqd) ||
-@@ -4077,6 +4081,10 @@ static bool idling_boosts_thr_without_issues(struct bfq_data *bfqd,
- 		bfqq_sequential_and_IO_bound,
- 		idling_boosts_thr;
- 
-+	/* No point in idling for bfqq if it won't get requests any longer */
-+	if (unlikely(!bfqq_process_refs(bfqq)))
-+		return false;
+ 	/* TODO: In pseudocode but does not affect maximus, delete comment if we dont need on asic
+ 	 * REG_SET(OTG_GLOBAL_CONTROL2, 0, GLOBAL_UPDATE_LOCK_EN, 1);
+ 	 * Program OTG register MASTER_UPDATE_LOCK_DB_X/Y to the position before DP frame start
+@@ -246,9 +247,17 @@ void optc2_set_odm_combine(struct timing_generator *optc, int *opp_id, int opp_c
+ 	 *		MASTER_UPDATE_LOCK_DB_X, 160,
+ 	 *		MASTER_UPDATE_LOCK_DB_Y, 240);
+ 	 */
 +
- 	bfqq_sequential_and_IO_bound = !BFQQ_SEEKY(bfqq) &&
- 		bfq_bfqq_IO_bound(bfqq) && bfq_bfqq_has_short_ttime(bfqq);
- 
-@@ -4170,6 +4178,10 @@ static bool bfq_better_to_idle(struct bfq_queue *bfqq)
- 	struct bfq_data *bfqd = bfqq->bfqd;
- 	bool idling_boosts_thr_with_no_issue, idling_needed_for_service_guar;
- 
-+	/* No point in idling for bfqq if it won't get requests any longer */
-+	if (unlikely(!bfqq_process_refs(bfqq)))
-+		return false;
++	/* 2 pieces of memory required for up to 5120 displays, 4 for up to 8192,
++	 * however, for ODM combine we can simplify by always using 4.
++	 * To make sure there's no overlap, each instance "reserves" 2 memories and
++	 * they are uniquely combined here.
++	 */
++	memory_mask = 0x3 << (opp_id[0] * 2) | 0x3 << (opp_id[1] * 2);
 +
- 	if (unlikely(bfqd->strict_guarantees))
- 		return true;
+ 	if (REG(OPTC_MEMORY_CONFIG))
+ 		REG_SET(OPTC_MEMORY_CONFIG, 0,
+-			OPTC_MEM_SEL, memory_mask << (optc->inst * 4));
++			OPTC_MEM_SEL, memory_mask);
  
+ 	if (timing->pixel_encoding == PIXEL_ENCODING_YCBCR422)
+ 		data_fmt = 1;
+@@ -257,7 +266,6 @@ void optc2_set_odm_combine(struct timing_generator *optc, int *opp_id, int opp_c
+ 
+ 	REG_UPDATE(OPTC_DATA_FORMAT_CONTROL, OPTC_DATA_FORMAT, data_fmt);
+ 
+-	ASSERT(opp_cnt == 2);
+ 	REG_SET_3(OPTC_DATA_SOURCE_SELECT, 0,
+ 			OPTC_NUM_OF_INPUT_SEGMENT, 1,
+ 			OPTC_SEG0_SRC_SEL, opp_id[0],
 -- 
 2.20.1
 
