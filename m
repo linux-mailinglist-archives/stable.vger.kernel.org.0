@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 29B92167877
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:49:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B3E30167876
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:48:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728128AbgBUHqM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 02:46:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41590 "EHLO mail.kernel.org"
+        id S1728699AbgBUHq0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 02:46:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41898 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728616AbgBUHqL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 02:46:11 -0500
+        id S1728687AbgBUHqY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 02:46:24 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9DDC824673;
-        Fri, 21 Feb 2020 07:46:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4F54424650;
+        Fri, 21 Feb 2020 07:46:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582271170;
-        bh=m4jyVE18pfZq4qi+TJEPKig9Dd0guUKdRgNJXmVZibI=;
+        s=default; t=1582271183;
+        bh=tud2cv99dE6wjxlK392HtWbNS/Q2yAcd7HSkB+mD/w0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OBJox8ve3LEncH7UMCcme+d2ZHnrGc05i0zdInZbH21APtJ3ucnXfnW3NbnZU+LkA
-         sX9QYW75n6eEqPhe0hT3ARg+GL+J+jsnwfEQe/yradoZpKc7H8sGO4dPQbYkcT3Q/s
-         QM9dSQsNxIJbMFWolbg+L19vbGtQU4f2+pgKvtB0=
+        b=y/QKPcTD/gtXmdsREkTILNEe/8tEt2ZGK2qvySJknqBFq06m0zg19hTe0dqoY5OGr
+         jl43ERf7njBzCbP424TIOoLt5QFk0rXerccGO+LklfbGPVNL4Sh6MAnpCpmJQiCoPd
+         6DmIS5o3cQRcpPYJcbo65JjeilogJ4cMSNDmGZN4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Philippe Schenker <philippe.schenker@toradex.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Amanda Liu <amanda.liu@amd.com>,
+        Anthony Koo <Anthony.Koo@amd.com>,
+        Harry Wentland <harry.wentland@amd.com>,
+        Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 064/399] spi: fsl-lpspi: fix only one cs-gpio working
-Date:   Fri, 21 Feb 2020 08:36:29 +0100
-Message-Id: <20200221072408.604738913@linuxfoundation.org>
+Subject: [PATCH 5.5 069/399] drm/amd/display: Clear state after exiting fixed active VRR state
+Date:   Fri, 21 Feb 2020 08:36:34 +0100
+Message-Id: <20200221072409.067636564@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200221072402.315346745@linuxfoundation.org>
 References: <20200221072402.315346745@linuxfoundation.org>
@@ -45,88 +47,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Philippe Schenker <philippe.schenker@toradex.com>
+From: Amanda Liu <amanda.liu@amd.com>
 
-[ Upstream commit bc3a8b295e5bca9d1ec2622a6ba38289f9fd3d8a ]
+[ Upstream commit 6f8f76444baf405bacb0591d97549a71a9aaa1ac ]
 
-Why it does not work at the moment:
-- num_chipselect sets the number of cs-gpios that are in the DT.
-  This comes from drivers/spi/spi.c
-- num_chipselect gets set with devm_spi_register_controller, that is
-  called in drivers/spi/spi.c
-- devm_spi_register_controller got called after num_chipselect has
-  been used.
+[why]
+Upon exiting a fixed active VRR state, the state isn't cleared. This
+leads to the variable VRR range to be calculated incorrectly.
 
-How this commit fixes the issue:
-- devm_spi_register_controller gets called before num_chipselect is
-  being used.
+[how]
+Set fixed active state to false when updating vrr params
 
-Fixes: c7a402599504 ("spi: lpspi: use the core way to implement cs-gpio function")
-Signed-off-by: Philippe Schenker <philippe.schenker@toradex.com>
-Link: https://lore.kernel.org/r/20191204141312.1411251-1-philippe.schenker@toradex.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Amanda Liu <amanda.liu@amd.com>
+Reviewed-by: Anthony Koo <Anthony.Koo@amd.com>
+Acked-by: Harry Wentland <harry.wentland@amd.com>
+Acked-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-fsl-lpspi.c | 32 ++++++++++++++++----------------
- 1 file changed, 16 insertions(+), 16 deletions(-)
+ drivers/gpu/drm/amd/display/modules/freesync/freesync.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/spi/spi-fsl-lpspi.c b/drivers/spi/spi-fsl-lpspi.c
-index 2cc0ddb4a9889..1375bdfc587bf 100644
---- a/drivers/spi/spi-fsl-lpspi.c
-+++ b/drivers/spi/spi-fsl-lpspi.c
-@@ -862,6 +862,22 @@ static int fsl_lpspi_probe(struct platform_device *pdev)
- 	fsl_lpspi->dev = &pdev->dev;
- 	fsl_lpspi->is_slave = is_slave;
+diff --git a/drivers/gpu/drm/amd/display/modules/freesync/freesync.c b/drivers/gpu/drm/amd/display/modules/freesync/freesync.c
+index 5437b50e9f90d..d9ea4ae690af6 100644
+--- a/drivers/gpu/drm/amd/display/modules/freesync/freesync.c
++++ b/drivers/gpu/drm/amd/display/modules/freesync/freesync.c
+@@ -807,6 +807,7 @@ void mod_freesync_build_vrr_params(struct mod_freesync *mod_freesync,
+ 			2 * in_out_vrr->min_refresh_in_uhz)
+ 		in_out_vrr->btr.btr_enabled = false;
  
-+	controller->bits_per_word_mask = SPI_BPW_RANGE_MASK(8, 32);
-+	controller->transfer_one = fsl_lpspi_transfer_one;
-+	controller->prepare_transfer_hardware = lpspi_prepare_xfer_hardware;
-+	controller->unprepare_transfer_hardware = lpspi_unprepare_xfer_hardware;
-+	controller->mode_bits = SPI_CPOL | SPI_CPHA | SPI_CS_HIGH;
-+	controller->flags = SPI_MASTER_MUST_RX | SPI_MASTER_MUST_TX;
-+	controller->dev.of_node = pdev->dev.of_node;
-+	controller->bus_num = pdev->id;
-+	controller->slave_abort = fsl_lpspi_slave_abort;
++	in_out_vrr->fixed.fixed_active = false;
+ 	in_out_vrr->btr.btr_active = false;
+ 	in_out_vrr->btr.inserted_duration_in_us = 0;
+ 	in_out_vrr->btr.frames_to_insert = 0;
+@@ -826,6 +827,7 @@ void mod_freesync_build_vrr_params(struct mod_freesync *mod_freesync,
+ 		in_out_vrr->adjust.v_total_max = stream->timing.v_total;
+ 	} else if (in_out_vrr->state == VRR_STATE_ACTIVE_VARIABLE &&
+ 			refresh_range >= MIN_REFRESH_RANGE_IN_US) {
 +
-+	ret = devm_spi_register_controller(&pdev->dev, controller);
-+	if (ret < 0) {
-+		dev_err(&pdev->dev, "spi_register_controller error.\n");
-+		goto out_controller_put;
-+	}
-+
- 	if (!fsl_lpspi->is_slave) {
- 		for (i = 0; i < controller->num_chipselect; i++) {
- 			int cs_gpio = of_get_named_gpio(np, "cs-gpios", i);
-@@ -885,16 +901,6 @@ static int fsl_lpspi_probe(struct platform_device *pdev)
- 		controller->prepare_message = fsl_lpspi_prepare_message;
- 	}
- 
--	controller->bits_per_word_mask = SPI_BPW_RANGE_MASK(8, 32);
--	controller->transfer_one = fsl_lpspi_transfer_one;
--	controller->prepare_transfer_hardware = lpspi_prepare_xfer_hardware;
--	controller->unprepare_transfer_hardware = lpspi_unprepare_xfer_hardware;
--	controller->mode_bits = SPI_CPOL | SPI_CPHA | SPI_CS_HIGH;
--	controller->flags = SPI_MASTER_MUST_RX | SPI_MASTER_MUST_TX;
--	controller->dev.of_node = pdev->dev.of_node;
--	controller->bus_num = pdev->id;
--	controller->slave_abort = fsl_lpspi_slave_abort;
--
- 	init_completion(&fsl_lpspi->xfer_done);
- 
- 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-@@ -952,12 +958,6 @@ static int fsl_lpspi_probe(struct platform_device *pdev)
- 	if (ret < 0)
- 		dev_err(&pdev->dev, "dma setup error %d, use pio\n", ret);
- 
--	ret = devm_spi_register_controller(&pdev->dev, controller);
--	if (ret < 0) {
--		dev_err(&pdev->dev, "spi_register_controller error.\n");
--		goto out_controller_put;
--	}
--
- 	return 0;
- 
- out_controller_put:
+ 		in_out_vrr->adjust.v_total_min =
+ 			calc_v_total_from_refresh(stream,
+ 				in_out_vrr->max_refresh_in_uhz);
 -- 
 2.20.1
 
