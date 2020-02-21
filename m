@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8FB34167466
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:23:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 862EF167468
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:23:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388218AbgBUIVF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 03:21:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60394 "EHLO mail.kernel.org"
+        id S2388227AbgBUIVI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 03:21:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60438 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387997AbgBUIVE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 03:21:04 -0500
+        id S2388225AbgBUIVI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 03:21:08 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DCA19206ED;
-        Fri, 21 Feb 2020 08:21:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 759AD222C4;
+        Fri, 21 Feb 2020 08:21:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582273264;
-        bh=sVnxuLXbC0/c7u22TqpsUNlP8xJHaNjnGHR1lfIr40U=;
+        s=default; t=1582273266;
+        bh=hEI+DnjtVdc0WPrY+zyzHd5RgdLumkLZqFZf81F03qA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S4yC/l54ZA0PQDvLy+UDKu7P6cgFID8QIcdrlJe2uOV8TDpZkShM9gXsd/fujuMOr
-         fVAUkqSo1+Aq359E89Sjze2TDDOxClMLlhxoKfTwNG7u6Zz+XikJG2lc7tO2hMtjs3
-         FtHYUDfWPaR3QFXeFx/4NNT2FnyqoDMg4WOySGAo=
+        b=MssJ9WLtpa7FxkAal3EyIqM3NxGJh9g5UdQlPQAya1A9Y5ux8JiiSkQJsMylhdXUV
+         LekxMw4PHiaJuHcK2uTo5x8OK5LC5ZkcouG1eMabl1RAoCjQYFKfQXJm3azdynXwHC
+         +XDrkPyZdJZlLOK+zKmiugau2QywHqkiz8rpinE0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        stable@vger.kernel.org, Kaike Wan <kaike.wan@intel.com>,
+        Mike Marciniszyn <mike.marciniszyn@intel.com>,
+        Dennis Dalessandro <dennis.dalessandro@intel.com>,
+        Jason Gunthorpe <jgg@mellanox.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 106/191] staging: rtl8188: avoid excessive stack usage
-Date:   Fri, 21 Feb 2020 08:41:19 +0100
-Message-Id: <20200221072303.661252801@linuxfoundation.org>
+Subject: [PATCH 4.19 107/191] IB/hfi1: Add software counter for ctxt0 seq drop
+Date:   Fri, 21 Feb 2020 08:41:20 +0100
+Message-Id: <20200221072303.764816803@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200221072250.732482588@linuxfoundation.org>
 References: <20200221072250.732482588@linuxfoundation.org>
@@ -43,72 +46,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Mike Marciniszyn <mike.marciniszyn@intel.com>
 
-[ Upstream commit c497ae2077c055b85c1bf04f3d182a84bd8f365b ]
+[ Upstream commit 5ffd048698ea5139743acd45e8ab388a683642b8 ]
 
-The rtl8188 copy of the os_dep support code causes a
-warning about a very significant stack usage in the translate_scan()
-function:
+All other code paths increment some form of drop counter.
 
-drivers/staging/rtl8188eu/os_dep/ioctl_linux.c: In function 'translate_scan':
-drivers/staging/rtl8188eu/os_dep/ioctl_linux.c:306:1: error: the frame size of 1560 bytes is larger than 1400 bytes [-Werror=frame-larger-than=]
+This was missed in the original implementation.
 
-Use the same trick as in the rtl8723bs copy of the same function, and
-allocate it dynamically.
-
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Link: https://lore.kernel.org/r/20200104214832.558198-1-arnd@arndb.de
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 82c2611daaf0 ("staging/rdma/hfi1: Handle packets with invalid RHF on context 0")
+Link: https://lore.kernel.org/r/20200106134228.119356.96828.stgit@awfm-01.aw.intel.com
+Reviewed-by: Kaike Wan <kaike.wan@intel.com>
+Signed-off-by: Mike Marciniszyn <mike.marciniszyn@intel.com>
+Signed-off-by: Dennis Dalessandro <dennis.dalessandro@intel.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/rtl8188eu/os_dep/ioctl_linux.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ drivers/infiniband/hw/hfi1/chip.c   | 10 ++++++++++
+ drivers/infiniband/hw/hfi1/chip.h   |  1 +
+ drivers/infiniband/hw/hfi1/driver.c |  1 +
+ drivers/infiniband/hw/hfi1/hfi.h    |  2 ++
+ 4 files changed, 14 insertions(+)
 
-diff --git a/drivers/staging/rtl8188eu/os_dep/ioctl_linux.c b/drivers/staging/rtl8188eu/os_dep/ioctl_linux.c
-index bee3c3a7a7a99..2db4444267a74 100644
---- a/drivers/staging/rtl8188eu/os_dep/ioctl_linux.c
-+++ b/drivers/staging/rtl8188eu/os_dep/ioctl_linux.c
-@@ -229,18 +229,21 @@ static char *translate_scan(struct adapter *padapter,
+diff --git a/drivers/infiniband/hw/hfi1/chip.c b/drivers/infiniband/hw/hfi1/chip.c
+index b09a4b1cf397b..1221faea75a68 100644
+--- a/drivers/infiniband/hw/hfi1/chip.c
++++ b/drivers/infiniband/hw/hfi1/chip.c
+@@ -1687,6 +1687,14 @@ static u64 access_sw_pio_drain(const struct cntr_entry *entry,
+ 	return dd->verbs_dev.n_piodrain;
+ }
  
- 	/* parsing WPA/WPA2 IE */
- 	{
--		u8 buf[MAX_WPA_IE_LEN];
-+		u8 *buf;
- 		u8 wpa_ie[255], rsn_ie[255];
- 		u16 wpa_len = 0, rsn_len = 0;
- 		u8 *p;
- 
-+		buf = kzalloc(MAX_WPA_IE_LEN, GFP_ATOMIC);
-+		if (!buf)
-+			return start;
++static u64 access_sw_ctx0_seq_drop(const struct cntr_entry *entry,
++				   void *context, int vl, int mode, u64 data)
++{
++	struct hfi1_devdata *dd = context;
 +
- 		rtw_get_sec_ie(pnetwork->network.ies, pnetwork->network.ie_length, rsn_ie, &rsn_len, wpa_ie, &wpa_len);
- 		RT_TRACE(_module_rtl871x_mlme_c_, _drv_info_, ("rtw_wx_get_scan: ssid =%s\n", pnetwork->network.Ssid.Ssid));
- 		RT_TRACE(_module_rtl871x_mlme_c_, _drv_info_, ("rtw_wx_get_scan: wpa_len =%d rsn_len =%d\n", wpa_len, rsn_len));
++	return dd->ctx0_seq_drop;
++}
++
+ static u64 access_sw_vtx_wait(const struct cntr_entry *entry,
+ 			      void *context, int vl, int mode, u64 data)
+ {
+@@ -4247,6 +4255,8 @@ static struct cntr_entry dev_cntrs[DEV_CNTR_LAST] = {
+ 			    access_sw_cpu_intr),
+ [C_SW_CPU_RCV_LIM] = CNTR_ELEM("RcvLimit", 0, 0, CNTR_NORMAL,
+ 			    access_sw_cpu_rcv_limit),
++[C_SW_CTX0_SEQ_DROP] = CNTR_ELEM("SeqDrop0", 0, 0, CNTR_NORMAL,
++			    access_sw_ctx0_seq_drop),
+ [C_SW_VTX_WAIT] = CNTR_ELEM("vTxWait", 0, 0, CNTR_NORMAL,
+ 			    access_sw_vtx_wait),
+ [C_SW_PIO_WAIT] = CNTR_ELEM("PioWait", 0, 0, CNTR_NORMAL,
+diff --git a/drivers/infiniband/hw/hfi1/chip.h b/drivers/infiniband/hw/hfi1/chip.h
+index 36b04d6300e54..c9a352d8a7e13 100644
+--- a/drivers/infiniband/hw/hfi1/chip.h
++++ b/drivers/infiniband/hw/hfi1/chip.h
+@@ -909,6 +909,7 @@ enum {
+ 	C_DC_PG_STS_TX_MBE_CNT,
+ 	C_SW_CPU_INTR,
+ 	C_SW_CPU_RCV_LIM,
++	C_SW_CTX0_SEQ_DROP,
+ 	C_SW_VTX_WAIT,
+ 	C_SW_PIO_WAIT,
+ 	C_SW_PIO_DRAIN,
+diff --git a/drivers/infiniband/hw/hfi1/driver.c b/drivers/infiniband/hw/hfi1/driver.c
+index d5277c23cba60..769e114567a03 100644
+--- a/drivers/infiniband/hw/hfi1/driver.c
++++ b/drivers/infiniband/hw/hfi1/driver.c
+@@ -734,6 +734,7 @@ static noinline int skip_rcv_packet(struct hfi1_packet *packet, int thread)
+ {
+ 	int ret;
  
- 		if (wpa_len > 0) {
- 			p = buf;
--			memset(buf, 0, MAX_WPA_IE_LEN);
- 			p += sprintf(p, "wpa_ie=");
- 			for (i = 0; i < wpa_len; i++)
- 				p += sprintf(p, "%02x", wpa_ie[i]);
-@@ -257,7 +260,6 @@ static char *translate_scan(struct adapter *padapter,
- 		}
- 		if (rsn_len > 0) {
- 			p = buf;
--			memset(buf, 0, MAX_WPA_IE_LEN);
- 			p += sprintf(p, "rsn_ie=");
- 			for (i = 0; i < rsn_len; i++)
- 				p += sprintf(p, "%02x", rsn_ie[i]);
-@@ -271,6 +273,7 @@ static char *translate_scan(struct adapter *padapter,
- 			iwe.u.data.length = rsn_len;
- 			start = iwe_stream_add_point(info, start, stop, &iwe, rsn_ie);
- 		}
-+		kfree(buf);
- 	}
++	packet->rcd->dd->ctx0_seq_drop++;
+ 	/* Set up for the next packet */
+ 	packet->rhqoff += packet->rsize;
+ 	if (packet->rhqoff >= packet->maxcnt)
+diff --git a/drivers/infiniband/hw/hfi1/hfi.h b/drivers/infiniband/hw/hfi1/hfi.h
+index ab981874c71cc..e38de547785d0 100644
+--- a/drivers/infiniband/hw/hfi1/hfi.h
++++ b/drivers/infiniband/hw/hfi1/hfi.h
+@@ -1093,6 +1093,8 @@ struct hfi1_devdata {
  
- 	{/* parsing WPS IE */
+ 	char *boardname; /* human readable board info */
+ 
++	u64 ctx0_seq_drop;
++
+ 	/* reset value */
+ 	u64 z_int_counter;
+ 	u64 z_rcv_limit;
 -- 
 2.20.1
 
