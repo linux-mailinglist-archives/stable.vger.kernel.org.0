@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EAB551674E7
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:30:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9553D167353
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:11:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387928AbgBUIS7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 03:18:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57132 "EHLO mail.kernel.org"
+        id S1732346AbgBUILZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 03:11:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46822 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387897AbgBUIS7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 03:18:59 -0500
+        id S1732682AbgBUILX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 03:11:23 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1C6CA24689;
-        Fri, 21 Feb 2020 08:18:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 25E5224672;
+        Fri, 21 Feb 2020 08:11:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582273138;
-        bh=fjEoFM/ZI/nczcEXkmdnLMMUAcHJBEZV0uX7k/XZlH4=;
+        s=default; t=1582272682;
+        bh=BnLV/XiU1Mx19jyOQNilqFRCAMb07AFrLVYS7MrpU00=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ALwLw8dyteAdQAbKRiBR1K/AVB2ZS9i8YFDnDxlqxKARNIMg5Kh8KNQOXpmcD1hxu
-         BPjcEy/p00Vx7k4racnk71N7+sZhOogsH3+a+XjxSb8YHA1rwRx5Fk/wZysjxfS8cy
-         cIt6SWfNAp8hlaoLhqEDSGom/sGwe0aqBVsk45LU=
+        b=hMlk9VkDol0gLctKkNyzd4yVy3S5drHfow5jKBgXaHMGLaQKdBqXikvSUyOkanpXl
+         qypDnQyy2ua7TQ4i0ZfVNuIeaYyvQS0e6OGS+Kd5WON+Zd/NKxrlBvK0K9zeS3i69a
+         3fzHVw3iRjgaO0ifEJdX4DCNo86sQS8fQZMCTbSc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Jordan <daniel.m.jordan@oracle.com>,
-        Eric Biggers <ebiggers@kernel.org>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Steffen Klassert <steffen.klassert@secunet.com>,
-        linux-crypto@vger.kernel.org, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 061/191] padata: always acquire cpu_hotplug_lock before pinst->lock
-Date:   Fri, 21 Feb 2020 08:40:34 +0100
-Message-Id: <20200221072258.745173144@linuxfoundation.org>
+        stable@vger.kernel.org, Jaegeuk Kim <jaegeuk@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 236/344] f2fs: set I_LINKABLE early to avoid wrong access by vfs
+Date:   Fri, 21 Feb 2020 08:40:35 +0100
+Message-Id: <20200221072410.747000091@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200221072250.732482588@linuxfoundation.org>
-References: <20200221072250.732482588@linuxfoundation.org>
+In-Reply-To: <20200221072349.335551332@linuxfoundation.org>
+References: <20200221072349.335551332@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,69 +43,132 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Jordan <daniel.m.jordan@oracle.com>
+From: Jaegeuk Kim <jaegeuk@kernel.org>
 
-[ Upstream commit 38228e8848cd7dd86ccb90406af32de0cad24be3 ]
+[ Upstream commit 5b1dbb082f196278f82b6a15a13848efacb9ff11 ]
 
-lockdep complains when padata's paths to update cpumasks via CPU hotplug
-and sysfs are both taken:
+This patch moves setting I_LINKABLE early in rename2(whiteout) to avoid the
+below warning.
 
-  # echo 0 > /sys/devices/system/cpu/cpu1/online
-  # echo ff > /sys/kernel/pcrypt/pencrypt/parallel_cpumask
+[ 3189.163385] WARNING: CPU: 3 PID: 59523 at fs/inode.c:358 inc_nlink+0x32/0x40
+[ 3189.246979] Call Trace:
+[ 3189.248707]  f2fs_init_inode_metadata+0x2d6/0x440 [f2fs]
+[ 3189.251399]  f2fs_add_inline_entry+0x162/0x8c0 [f2fs]
+[ 3189.254010]  f2fs_add_dentry+0x69/0xe0 [f2fs]
+[ 3189.256353]  f2fs_do_add_link+0xc5/0x100 [f2fs]
+[ 3189.258774]  f2fs_rename2+0xabf/0x1010 [f2fs]
+[ 3189.261079]  vfs_rename+0x3f8/0xaa0
+[ 3189.263056]  ? tomoyo_path_rename+0x44/0x60
+[ 3189.265283]  ? do_renameat2+0x49b/0x550
+[ 3189.267324]  do_renameat2+0x49b/0x550
+[ 3189.269316]  __x64_sys_renameat2+0x20/0x30
+[ 3189.271441]  do_syscall_64+0x5a/0x230
+[ 3189.273410]  entry_SYSCALL_64_after_hwframe+0x49/0xbe
+[ 3189.275848] RIP: 0033:0x7f270b4d9a49
 
-  ======================================================
-  WARNING: possible circular locking dependency detected
-  5.4.0-rc8-padata-cpuhp-v3+ #1 Not tainted
-  ------------------------------------------------------
-  bash/205 is trying to acquire lock:
-  ffffffff8286bcd0 (cpu_hotplug_lock.rw_sem){++++}, at: padata_set_cpumask+0x2b/0x120
-
-  but task is already holding lock:
-  ffff8880001abfa0 (&pinst->lock){+.+.}, at: padata_set_cpumask+0x26/0x120
-
-  which lock already depends on the new lock.
-
-padata doesn't take cpu_hotplug_lock and pinst->lock in a consistent
-order.  Which should be first?  CPU hotplug calls into padata with
-cpu_hotplug_lock already held, so it should have priority.
-
-Fixes: 6751fb3c0e0c ("padata: Use get_online_cpus/put_online_cpus")
-Signed-off-by: Daniel Jordan <daniel.m.jordan@oracle.com>
-Cc: Eric Biggers <ebiggers@kernel.org>
-Cc: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: Steffen Klassert <steffen.klassert@secunet.com>
-Cc: linux-crypto@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/padata.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ fs/f2fs/namei.c | 27 +++++++++++++--------------
+ 1 file changed, 13 insertions(+), 14 deletions(-)
 
-diff --git a/kernel/padata.c b/kernel/padata.c
-index cfab62923c452..c280cb153915f 100644
---- a/kernel/padata.c
-+++ b/kernel/padata.c
-@@ -671,8 +671,8 @@ int padata_set_cpumask(struct padata_instance *pinst, int cpumask_type,
- 	struct cpumask *serial_mask, *parallel_mask;
- 	int err = -EINVAL;
+diff --git a/fs/f2fs/namei.c b/fs/f2fs/namei.c
+index a1c507b0b4ac4..5d9584281935f 100644
+--- a/fs/f2fs/namei.c
++++ b/fs/f2fs/namei.c
+@@ -797,6 +797,7 @@ static int __f2fs_tmpfile(struct inode *dir, struct dentry *dentry,
  
--	mutex_lock(&pinst->lock);
- 	get_online_cpus();
-+	mutex_lock(&pinst->lock);
+ 	if (whiteout) {
+ 		f2fs_i_links_write(inode, false);
++		inode->i_state |= I_LINKABLE;
+ 		*whiteout = inode;
+ 	} else {
+ 		d_tmpfile(dentry, inode);
+@@ -867,6 +868,12 @@ static int f2fs_rename(struct inode *old_dir, struct dentry *old_dentry,
+ 			F2FS_I(old_dentry->d_inode)->i_projid)))
+ 		return -EXDEV;
  
- 	switch (cpumask_type) {
- 	case PADATA_CPU_PARALLEL:
-@@ -690,8 +690,8 @@ int padata_set_cpumask(struct padata_instance *pinst, int cpumask_type,
- 	err =  __padata_set_cpumasks(pinst, parallel_mask, serial_mask);
++	if (flags & RENAME_WHITEOUT) {
++		err = f2fs_create_whiteout(old_dir, &whiteout);
++		if (err)
++			return err;
++	}
++
+ 	err = dquot_initialize(old_dir);
+ 	if (err)
+ 		goto out;
+@@ -898,17 +905,11 @@ static int f2fs_rename(struct inode *old_dir, struct dentry *old_dentry,
+ 		}
+ 	}
  
+-	if (flags & RENAME_WHITEOUT) {
+-		err = f2fs_create_whiteout(old_dir, &whiteout);
+-		if (err)
+-			goto out_dir;
+-	}
+-
+ 	if (new_inode) {
+ 
+ 		err = -ENOTEMPTY;
+ 		if (old_dir_entry && !f2fs_empty_dir(new_inode))
+-			goto out_whiteout;
++			goto out_dir;
+ 
+ 		err = -ENOENT;
+ 		new_entry = f2fs_find_entry(new_dir, &new_dentry->d_name,
+@@ -916,7 +917,7 @@ static int f2fs_rename(struct inode *old_dir, struct dentry *old_dentry,
+ 		if (!new_entry) {
+ 			if (IS_ERR(new_page))
+ 				err = PTR_ERR(new_page);
+-			goto out_whiteout;
++			goto out_dir;
+ 		}
+ 
+ 		f2fs_balance_fs(sbi, true);
+@@ -948,7 +949,7 @@ static int f2fs_rename(struct inode *old_dir, struct dentry *old_dentry,
+ 		err = f2fs_add_link(new_dentry, old_inode);
+ 		if (err) {
+ 			f2fs_unlock_op(sbi);
+-			goto out_whiteout;
++			goto out_dir;
+ 		}
+ 
+ 		if (old_dir_entry)
+@@ -972,7 +973,7 @@ static int f2fs_rename(struct inode *old_dir, struct dentry *old_dentry,
+ 				if (IS_ERR(old_page))
+ 					err = PTR_ERR(old_page);
+ 				f2fs_unlock_op(sbi);
+-				goto out_whiteout;
++				goto out_dir;
+ 			}
+ 		}
+ 	}
+@@ -991,7 +992,6 @@ static int f2fs_rename(struct inode *old_dir, struct dentry *old_dentry,
+ 	f2fs_delete_entry(old_entry, old_page, old_dir, NULL);
+ 
+ 	if (whiteout) {
+-		whiteout->i_state |= I_LINKABLE;
+ 		set_inode_flag(whiteout, FI_INC_LINK);
+ 		err = f2fs_add_link(old_dentry, whiteout);
+ 		if (err)
+@@ -1027,15 +1027,14 @@ put_out_dir:
+ 	f2fs_unlock_op(sbi);
+ 	if (new_page)
+ 		f2fs_put_page(new_page, 0);
+-out_whiteout:
+-	if (whiteout)
+-		iput(whiteout);
+ out_dir:
+ 	if (old_dir_entry)
+ 		f2fs_put_page(old_dir_page, 0);
+ out_old:
+ 	f2fs_put_page(old_page, 0);
  out:
--	put_online_cpus();
- 	mutex_unlock(&pinst->lock);
-+	put_online_cpus();
- 
++	if (whiteout)
++		iput(whiteout);
  	return err;
  }
+ 
 -- 
 2.20.1
 
