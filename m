@@ -2,87 +2,73 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5383F167DD0
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 13:59:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 46BF5167EF2
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 14:46:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727095AbgBUM7E (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 07:59:04 -0500
-Received: from mail-pf1-f196.google.com ([209.85.210.196]:46274 "EHLO
-        mail-pf1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727077AbgBUM7E (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 21 Feb 2020 07:59:04 -0500
-Received: by mail-pf1-f196.google.com with SMTP id k29so1151078pfp.13
-        for <stable@vger.kernel.org>; Fri, 21 Feb 2020 04:59:04 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=294cdso95aWPgbfhUJIwWwUnmvcQMbMlyQX6pC1/bds=;
-        b=Xp6HmDoOUzUfp2kR46eFqOK2ulcAJmRigN6jLkeimY3BrzlhUoGResujIdc8GkC5j2
-         GLhbchoLgPG9UqvUvtw1WWJoA2ha9oB7YRJsh0hOU/I8wIZc7XVkErZ5yqNI4d0Wp0zY
-         BfRj92Lp0tjYPCUTQZXtE0O+WyN+tS3oMuSMEIS8Fey8hQ6D1Nc4qmZJcgzWnWM7AbGZ
-         3HMX/EMpW1qsH6V5hEW+tY3Yt2fcusz4o2I0HU2geA9zm5ZoO4Mq0J4tQLv+Mf48wZ33
-         UUYUvcppdZNq1TRoxEhUAPq0oYCHoYdmenqtCtkokxj0/HM3EVngPKqkprvy62eHiNGj
-         W1nA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=294cdso95aWPgbfhUJIwWwUnmvcQMbMlyQX6pC1/bds=;
-        b=JbEyehocdjsZIclhw26pcNOJ5yDWAq5+FCVNqfvCX25Ub8Cae66snJHMCkDxYu22pT
-         jogZ1e4/oLf/CnZY7Xg95WJNQc+womnAsBbqi5JPcaeIuWOtYjeNegUOurq3eiABjE7c
-         8jZ5AH8AiF6MWxQvYtSRkhZc4N/0zK4VjRsVZmgL6EW4UIBXia9aRqhctcfH9hi5WA0t
-         l1aqUFRIWta8lYKxXbAK+lo5itLMGWMzgerXPapjwFPa9EFzAzBvM8ttRnlvy3xr5VgQ
-         87Fqq8abfGNdz6p8i2Adh3jqUzPPuHya0sLfSDm8AW4LyG+maqWYXwJNjSU9shP5limB
-         F/jg==
-X-Gm-Message-State: APjAAAUn+/aU0r4ra0e0EnCyKrIviwoGTSL4m+T56WoLH/1jd6wR04Vu
-        c5y48nLxq0HkW8a1EBOi7Bu44pEwOKA=
-X-Google-Smtp-Source: APXvYqyHJpHSTubUTEBDEwvbSTcnCigEcxzp2n1OgY10UTXTtygDo2+N8gmhe/SiPokteuS3fjijNA==
-X-Received: by 2002:a63:ee4d:: with SMTP id n13mr2491197pgk.434.1582289943165;
-        Fri, 21 Feb 2020 04:59:03 -0800 (PST)
-Received: from [10.0.9.4] ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id f9sm2767189pfd.141.2020.02.21.04.59.01
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 21 Feb 2020 04:59:02 -0800 (PST)
-Message-ID: <5e4fd416.1c69fb81.b35f7.878b@mx.google.com>
-Date:   Fri, 21 Feb 2020 04:59:02 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S1728330AbgBUNqG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 08:46:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55520 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728326AbgBUNqG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 08:46:06 -0500
+Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 85D40208C4;
+        Fri, 21 Feb 2020 13:46:05 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1582292765;
+        bh=mBsHTSw31L0TMb2yfrDynuDuS482C9HiTD/9hJCN4RU=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=gC+ilwwfB+TVg9PnDX3mEufg5OgILbWwqwtHVvXkPgiWonRQYib282g7WkjOfeSLM
+         BSyiPdD3Scce6VZ1bMYZckuugPf2s+HIZkCMqKIOqfsD8yiV9KokPBk8+rxjuvGv3t
+         Vy+8Ow1QRxMDe6pReskGbNxa+vtEWEDhKlLgjOls=
+Date:   Fri, 21 Feb 2020 08:46:04 -0500
+From:   Sasha Levin <sashal@kernel.org>
+To:     Rasmus Villemoes <linux@rasmusvillemoes.dk>
+Cc:     stable-commits@vger.kernel.org,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: Re: Patch "soc: fsl: qe: change return type of cpm_muram_alloc() to
+ s32" has been added to the 5.5-stable tree
+Message-ID: <20200221134604.GL1734@sasha-vm>
+References: <20200221012743.D5A0E208E4@mail.kernel.org>
+ <89ccc850-54af-aaec-4a9e-330dcb814ca7@rasmusvillemoes.dk>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.4.214
-X-Kernelci-Report-Type: boot
-X-Kernelci-Tree: stable
-X-Kernelci-Branch: linux-4.4.y
-Subject: stable/linux-4.4.y boot: 13 boots: 1 failed, 12 passed (v4.4.214)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <89ccc850-54af-aaec-4a9e-330dcb814ca7@rasmusvillemoes.dk>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable/linux-4.4.y boot: 13 boots: 1 failed, 12 passed (v4.4.214)
+On Fri, Feb 21, 2020 at 09:53:04AM +0100, Rasmus Villemoes wrote:
+>On 21/02/2020 02.27, Sasha Levin wrote:
+>> This is a note to let you know that I've just added the patch titled
+>>
+>>     soc: fsl: qe: change return type of cpm_muram_alloc() to s32
+>>
+>> to the 5.5-stable tree which can be found at:
+>>     http://www.kernel.org/git/?p=linux/kernel/git/stable/stable-queue.git;a=summary
+>>
+>> The filename of the patch is:
+>>      soc-fsl-qe-change-return-type-of-cpm_muram_alloc-to-.patch
+>> and it can be found in the queue-5.5 subdirectory.
+>>
+>> If you, or anyone else, feels it should not be added to the stable tree,
+>> please let <stable@vger.kernel.org> know about it.
+>
+>Isn't that what I did when I replied to the AUTOSEL mail a week ago?
+>
+>https://lore.kernel.org/stable/a920b57f-ad9e-5c25-3981-0462febd952a@rasmusvillemoes.dk/
+>
+>The TL;DR is the last part of the middle paragraph "... I think they
+>should not be added to any -stable kernel."
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable/branch/linux-4.=
-4.y/kernel/v4.4.214/
-Full Build Summary: https://kernelci.org/build/stable/branch/linux-4.4.y/ke=
-rnel/v4.4.214/
+You did and I've missed your mail, sorry. I'll drop it now.
 
-Tree: stable
-Branch: linux-4.4.y
-Git Describe: v4.4.214
-Git Commit: 76e5c6fd6d163f1aa63969cc982e79be1fee87a7
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e.git
-Tested: 10 unique boards, 4 SoC families, 5 builds out of 129
-
-Boot Failure Detected:
-
-arm:
-    sama5_defconfig:
-        gcc-8:
-            at91-sama5d4_xplained: 1 failed lab
-
----
-For more info write to <info@kernelci.org>
+-- 
+Thanks,
+Sasha
