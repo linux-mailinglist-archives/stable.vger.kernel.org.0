@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BCA1E1676FD
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:41:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 67B1A1675BB
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:31:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730852AbgBUIBF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 03:01:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33342 "EHLO mail.kernel.org"
+        id S1733312AbgBUIa4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 03:30:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51970 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730878AbgBUIBE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 03:01:04 -0500
+        id S1733282AbgBUIPN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 03:15:13 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A761F24656;
-        Fri, 21 Feb 2020 08:01:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 824BA2467B;
+        Fri, 21 Feb 2020 08:15:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582272064;
-        bh=yDTaCK/ytGY8aZ97lgRFlGc4UE+I2EUoD7z51dMYExw=;
+        s=default; t=1582272913;
+        bh=mXyGHYPh6/1oUrgz+oAwhP1+dXUpSXvKWEMnzTEpH5o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iqT2zU51Taa08QidjZokPc6Y04y/eoZlaJlEWgx39sqmYzvFZG3tFy+VnvvthLnQt
-         knE9LFZRUozjMQ7x73acIazLBPeRsAMofCgNmPHpvLcs+kas3gk6FUDYybMLbcQ6Db
-         9vvWQV7+7c1HxtkV8iY7pJ0AxJ/2R7H7ACreTUqE=
+        b=qWfMwIM16qVSg3I8z/BcdusHIsxObAstEAI/nLPcvI9TGyoxU65PjxDwtawNIDipT
+         mL0fKSXFhZCvwhDdVrf71YL21uQHqW2TL7DO8pEQfwUcZB5h/QYJS9HwEOS1iJm4SR
+         NeWfs1EdPYouUFcUtn30bJ3RcFk9Ud9bcX+G8dIk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vadim Pasternak <vadimp@mellanox.com>,
-        Jiri Pirko <jiri@mellanox.com>,
-        Ido Schimmel <idosch@mellanox.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Yunfeng Ye <yeyunfeng@huawei.com>,
+        zhengbin <zhengbin13@huawei.com>,
+        Hu Shiyuan <hushiyuan@huawei.com>,
+        Feilong Lin <linfeilong@huawei.com>, Jan Kara <jack@suse.cz>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 395/399] mlxsw: core: Add validation of hardware device types for MGPIR register
+Subject: [PATCH 5.4 321/344] reiserfs: prevent NULL pointer dereference in reiserfs_insert_item()
 Date:   Fri, 21 Feb 2020 08:42:00 +0100
-Message-Id: <20200221072438.273759534@linuxfoundation.org>
+Message-Id: <20200221072419.334207282@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200221072402.315346745@linuxfoundation.org>
-References: <20200221072402.315346745@linuxfoundation.org>
+In-Reply-To: <20200221072349.335551332@linuxfoundation.org>
+References: <20200221072349.335551332@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,95 +48,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vadim Pasternak <vadimp@mellanox.com>
+From: Yunfeng Ye <yeyunfeng@huawei.com>
 
-[ Upstream commit 36844c855b896f90bab51ccecf72940eb7e3cfe1 ]
+[ Upstream commit aacee5446a2a1aa35d0a49dab289552578657fb4 ]
 
-When reading the number of gearboxes from the hardware, the driver does
-not validate the returned 'device type' field. The driver can therefore
-wrongly assume that the queried devices are gearboxes.
+The variable inode may be NULL in reiserfs_insert_item(), but there is
+no check before accessing the member of inode.
 
-On Spectrum-3 systems that support different types of devices, this can
-prevent the driver from loading, as it will try to query the
-temperature sensors from devices which it assumes are gearboxes and in
-fact are not.
+Fix this by adding NULL pointer check before calling reiserfs_debug().
 
-For example:
-[  218.129230] mlxsw_minimal 2-0048: Reg cmd access status failed (status=7(bad parameter))
-[  218.138282] mlxsw_minimal 2-0048: Reg cmd access failed (reg_id=900a(mtmp),type=write)
-[  218.147131] mlxsw_minimal 2-0048: Failed to setup temp sensor number 256
-[  218.534480] mlxsw_minimal 2-0048: Fail to register core bus
-[  218.540714] mlxsw_minimal: probe of 2-0048 failed with error -5
-
-Fix this by validating the 'device type' field.
-
-Fixes: 2e265a8b6c094 ("mlxsw: core: Extend hwmon interface with inter-connect temperature attributes")
-Fixes: f14f4e621b1b4 ("mlxsw: core: Extend thermal core with per inter-connect device thermal zones")
-Signed-off-by: Vadim Pasternak <vadimp@mellanox.com>
-Acked-by: Jiri Pirko <jiri@mellanox.com>
-Signed-off-by: Ido Schimmel <idosch@mellanox.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Link: http://lkml.kernel.org/r/79c5135d-ff25-1cc9-4e99-9f572b88cc00@huawei.com
+Signed-off-by: Yunfeng Ye <yeyunfeng@huawei.com>
+Cc: zhengbin <zhengbin13@huawei.com>
+Cc: Hu Shiyuan <hushiyuan@huawei.com>
+Cc: Feilong Lin <linfeilong@huawei.com>
+Cc: Jan Kara <jack@suse.cz>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlxsw/core_hwmon.c   | 6 ++++--
- drivers/net/ethernet/mellanox/mlxsw/core_thermal.c | 8 ++++++--
- 2 files changed, 10 insertions(+), 4 deletions(-)
+ fs/reiserfs/stree.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlxsw/core_hwmon.c b/drivers/net/ethernet/mellanox/mlxsw/core_hwmon.c
-index 9bf8da5f6dafc..3fe878d7c94cb 100644
---- a/drivers/net/ethernet/mellanox/mlxsw/core_hwmon.c
-+++ b/drivers/net/ethernet/mellanox/mlxsw/core_hwmon.c
-@@ -573,6 +573,7 @@ static int mlxsw_hwmon_module_init(struct mlxsw_hwmon *mlxsw_hwmon)
- 
- static int mlxsw_hwmon_gearbox_init(struct mlxsw_hwmon *mlxsw_hwmon)
- {
-+	enum mlxsw_reg_mgpir_device_type device_type;
- 	int index, max_index, sensor_index;
- 	char mgpir_pl[MLXSW_REG_MGPIR_LEN];
- 	char mtmp_pl[MLXSW_REG_MTMP_LEN];
-@@ -584,8 +585,9 @@ static int mlxsw_hwmon_gearbox_init(struct mlxsw_hwmon *mlxsw_hwmon)
- 	if (err)
- 		return err;
- 
--	mlxsw_reg_mgpir_unpack(mgpir_pl, &gbox_num, NULL, NULL, NULL);
--	if (!gbox_num)
-+	mlxsw_reg_mgpir_unpack(mgpir_pl, &gbox_num, &device_type, NULL, NULL);
-+	if (device_type != MLXSW_REG_MGPIR_DEVICE_TYPE_GEARBOX_DIE ||
-+	    !gbox_num)
- 		return 0;
- 
- 	index = mlxsw_hwmon->module_sensor_max;
-diff --git a/drivers/net/ethernet/mellanox/mlxsw/core_thermal.c b/drivers/net/ethernet/mellanox/mlxsw/core_thermal.c
-index c721b171bd8de..ce0a6837daa32 100644
---- a/drivers/net/ethernet/mellanox/mlxsw/core_thermal.c
-+++ b/drivers/net/ethernet/mellanox/mlxsw/core_thermal.c
-@@ -895,8 +895,10 @@ static int
- mlxsw_thermal_gearboxes_init(struct device *dev, struct mlxsw_core *core,
- 			     struct mlxsw_thermal *thermal)
- {
-+	enum mlxsw_reg_mgpir_device_type device_type;
- 	struct mlxsw_thermal_module *gearbox_tz;
- 	char mgpir_pl[MLXSW_REG_MGPIR_LEN];
-+	u8 gbox_num;
- 	int i;
- 	int err;
- 
-@@ -908,11 +910,13 @@ mlxsw_thermal_gearboxes_init(struct device *dev, struct mlxsw_core *core,
- 	if (err)
- 		return err;
- 
--	mlxsw_reg_mgpir_unpack(mgpir_pl, &thermal->tz_gearbox_num, NULL, NULL,
-+	mlxsw_reg_mgpir_unpack(mgpir_pl, &gbox_num, &device_type, NULL,
- 			       NULL);
--	if (!thermal->tz_gearbox_num)
-+	if (device_type != MLXSW_REG_MGPIR_DEVICE_TYPE_GEARBOX_DIE ||
-+	    !gbox_num)
- 		return 0;
- 
-+	thermal->tz_gearbox_num = gbox_num;
- 	thermal->tz_gearbox_arr = kcalloc(thermal->tz_gearbox_num,
- 					  sizeof(*thermal->tz_gearbox_arr),
- 					  GFP_KERNEL);
+diff --git a/fs/reiserfs/stree.c b/fs/reiserfs/stree.c
+index da9ebe33882b7..bb4973aefbb18 100644
+--- a/fs/reiserfs/stree.c
++++ b/fs/reiserfs/stree.c
+@@ -2246,7 +2246,8 @@ error_out:
+ 	/* also releases the path */
+ 	unfix_nodes(&s_ins_balance);
+ #ifdef REISERQUOTA_DEBUG
+-	reiserfs_debug(th->t_super, REISERFS_DEBUG_CODE,
++	if (inode)
++		reiserfs_debug(th->t_super, REISERFS_DEBUG_CODE,
+ 		       "reiserquota insert_item(): freeing %u id=%u type=%c",
+ 		       quota_bytes, inode->i_uid, head2type(ih));
+ #endif
 -- 
 2.20.1
 
