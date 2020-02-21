@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F1D31676F0
+	by mail.lfdr.de (Postfix) with ESMTP id 894DC1676F1
 	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:41:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730984AbgBUH77 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 02:59:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60184 "EHLO mail.kernel.org"
+        id S1730314AbgBUIAC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 03:00:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60242 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730982AbgBUH76 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 02:59:58 -0500
+        id S1730986AbgBUIAB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 03:00:01 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3B4FB206ED;
-        Fri, 21 Feb 2020 07:59:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BFD52206ED;
+        Fri, 21 Feb 2020 07:59:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582271997;
-        bh=4MDVES3THZ/HyptygoMnFX/brvs0LcNdsxCNUjLPTbk=;
+        s=default; t=1582272000;
+        bh=AQyN84R5YGMyWpb9NCPcHNHXXRYjZNMbDO4ty2yJ4Is=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qlo08bQOQLosRIi6x6tlJhV4GhWDPOdx7R7nBS3NThJlzmQtKP/n81SV0RaAIOV7v
-         kALMf1n+J3ZYYIc9uwm1R/l4MwIihMhNP1yjg8Fb2l+dNvB6vJSvIRXHYDWi39xZrE
-         FO7Tz5b3QbVWwXR98nSFl4MZx17Z81xVV74TF/B8=
+        b=l9I34nVYXg8C3UXcnEKnOrn+AwqmWAxlLEA2e1NzGkz+pJkemOF6yiK8KZnbkH3v0
+         rzqFkvXquj5rBDZTUTxR5drSdNHHlXiOA7TL6blq+JYJB2lPI/Qm3wTK1SNB8xN9nl
+         mcFj/9s+CzrKrOZB7RTw7ljbqvNT/egs0JCw5NXU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kbuild test robot <lkp@intel.com>,
-        "Joel Fernandes (Google)" <joel@joelfernandes.org>,
-        Amol Grover <frextrite@gmail.com>,
+        stable@vger.kernel.org, Dakshaja Uppalapati <dakshaja@chelsio.com>,
+        Max Gurtovoy <maxg@mellanox.com>,
+        Sagi Grimberg <sagi@grimberg.me>,
         Keith Busch <kbusch@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 377/399] nvmet: Pass lockdep expression to RCU lists
-Date:   Fri, 21 Feb 2020 08:41:42 +0100
-Message-Id: <20200221072436.950442563@linuxfoundation.org>
+        Sasha Levin <sashal@kernel.org>, Christoph Hellwig <hch@lst.de>
+Subject: [PATCH 5.5 378/399] nvmet: fix dsm failure when payload does not match sgl descriptor
+Date:   Fri, 21 Feb 2020 08:41:43 +0100
+Message-Id: <20200221072437.020455451@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200221072402.315346745@linuxfoundation.org>
 References: <20200221072402.315346745@linuxfoundation.org>
@@ -46,51 +46,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Amol Grover <frextrite@gmail.com>
+From: Sagi Grimberg <sagi@grimberg.me>
 
-[ Upstream commit 4ac76436a6d07dec1c3c766f234aa787a16e8f65 ]
+[ Upstream commit b716e6889c95f64ba32af492461f6cc9341f3f05 ]
 
-ctrl->subsys->namespaces and subsys->namespaces are traversed with
-list_for_each_entry_rcu outside an RCU read-side critical section but
-under the protection of ctrl->subsys->lock and subsys->lock respectively.
+The host is allowed to pass the controller an sgl describing a buffer
+that is larger than the dsm payload itself, allow it when executing
+dsm.
 
-Hence, add the corresponding lockdep expression to the list traversal
-primitive to silence false-positive lockdep warnings, and harden RCU
-lists.
-
-Reported-by: kbuild test robot <lkp@intel.com>
-Reviewed-by: Joel Fernandes (Google) <joel@joelfernandes.org>
-Signed-off-by: Amol Grover <frextrite@gmail.com>
+Reported-by: Dakshaja Uppalapati <dakshaja@chelsio.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>,
+Reviewed-by: Max Gurtovoy <maxg@mellanox.com>
+Signed-off-by: Sagi Grimberg <sagi@grimberg.me>
 Signed-off-by: Keith Busch <kbusch@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/target/core.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/nvme/target/core.c        | 11 +++++++++++
+ drivers/nvme/target/io-cmd-bdev.c |  2 +-
+ drivers/nvme/target/io-cmd-file.c |  2 +-
+ drivers/nvme/target/nvmet.h       |  1 +
+ 4 files changed, 14 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/nvme/target/core.c b/drivers/nvme/target/core.c
-index 28438b833c1b0..35810a0a8d212 100644
+index 35810a0a8d212..461987f669c50 100644
 --- a/drivers/nvme/target/core.c
 +++ b/drivers/nvme/target/core.c
-@@ -555,7 +555,8 @@ int nvmet_ns_enable(struct nvmet_ns *ns)
- 	} else {
- 		struct nvmet_ns *old;
- 
--		list_for_each_entry_rcu(old, &subsys->namespaces, dev_link) {
-+		list_for_each_entry_rcu(old, &subsys->namespaces, dev_link,
-+					lockdep_is_held(&subsys->lock)) {
- 			BUG_ON(ns->nsid == old->nsid);
- 			if (ns->nsid < old->nsid)
- 				break;
-@@ -1172,7 +1173,8 @@ static void nvmet_setup_p2p_ns_map(struct nvmet_ctrl *ctrl,
- 
- 	ctrl->p2p_client = get_device(req->p2p_client);
- 
--	list_for_each_entry_rcu(ns, &ctrl->subsys->namespaces, dev_link)
-+	list_for_each_entry_rcu(ns, &ctrl->subsys->namespaces, dev_link,
-+				lockdep_is_held(&ctrl->subsys->lock))
- 		nvmet_p2pmem_ns_add_p2p(ctrl, ns);
+@@ -939,6 +939,17 @@ bool nvmet_check_data_len(struct nvmet_req *req, size_t data_len)
  }
+ EXPORT_SYMBOL_GPL(nvmet_check_data_len);
  
++bool nvmet_check_data_len_lte(struct nvmet_req *req, size_t data_len)
++{
++	if (unlikely(data_len > req->transfer_len)) {
++		req->error_loc = offsetof(struct nvme_common_command, dptr);
++		nvmet_req_complete(req, NVME_SC_SGL_INVALID_DATA | NVME_SC_DNR);
++		return false;
++	}
++
++	return true;
++}
++
+ int nvmet_req_alloc_sgl(struct nvmet_req *req)
+ {
+ 	struct pci_dev *p2p_dev = NULL;
+diff --git a/drivers/nvme/target/io-cmd-bdev.c b/drivers/nvme/target/io-cmd-bdev.c
+index b6fca0e421ef1..ea0e596be15dc 100644
+--- a/drivers/nvme/target/io-cmd-bdev.c
++++ b/drivers/nvme/target/io-cmd-bdev.c
+@@ -280,7 +280,7 @@ static void nvmet_bdev_execute_discard(struct nvmet_req *req)
+ 
+ static void nvmet_bdev_execute_dsm(struct nvmet_req *req)
+ {
+-	if (!nvmet_check_data_len(req, nvmet_dsm_len(req)))
++	if (!nvmet_check_data_len_lte(req, nvmet_dsm_len(req)))
+ 		return;
+ 
+ 	switch (le32_to_cpu(req->cmd->dsm.attributes)) {
+diff --git a/drivers/nvme/target/io-cmd-file.c b/drivers/nvme/target/io-cmd-file.c
+index caebfce066056..cd5670b83118f 100644
+--- a/drivers/nvme/target/io-cmd-file.c
++++ b/drivers/nvme/target/io-cmd-file.c
+@@ -336,7 +336,7 @@ static void nvmet_file_dsm_work(struct work_struct *w)
+ 
+ static void nvmet_file_execute_dsm(struct nvmet_req *req)
+ {
+-	if (!nvmet_check_data_len(req, nvmet_dsm_len(req)))
++	if (!nvmet_check_data_len_lte(req, nvmet_dsm_len(req)))
+ 		return;
+ 	INIT_WORK(&req->f.work, nvmet_file_dsm_work);
+ 	schedule_work(&req->f.work);
+diff --git a/drivers/nvme/target/nvmet.h b/drivers/nvme/target/nvmet.h
+index 46df45e837c95..eda28b22a2c87 100644
+--- a/drivers/nvme/target/nvmet.h
++++ b/drivers/nvme/target/nvmet.h
+@@ -374,6 +374,7 @@ bool nvmet_req_init(struct nvmet_req *req, struct nvmet_cq *cq,
+ 		struct nvmet_sq *sq, const struct nvmet_fabrics_ops *ops);
+ void nvmet_req_uninit(struct nvmet_req *req);
+ bool nvmet_check_data_len(struct nvmet_req *req, size_t data_len);
++bool nvmet_check_data_len_lte(struct nvmet_req *req, size_t data_len);
+ void nvmet_req_complete(struct nvmet_req *req, u16 status);
+ int nvmet_req_alloc_sgl(struct nvmet_req *req);
+ void nvmet_req_free_sgl(struct nvmet_req *req);
 -- 
 2.20.1
 
