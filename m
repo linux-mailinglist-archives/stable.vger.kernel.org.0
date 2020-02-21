@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6595716780D
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:46:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 574781676A1
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:37:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729980AbgBUIpq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 03:45:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47886 "EHLO mail.kernel.org"
+        id S1731528AbgBUIhF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 03:37:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38802 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728680AbgBUHuu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 02:50:50 -0500
+        id S1731797AbgBUIFU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 03:05:20 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E2FCF20801;
-        Fri, 21 Feb 2020 07:50:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A338724656;
+        Fri, 21 Feb 2020 08:05:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582271449;
-        bh=rVvA20sfcoYyNmfXyFcd9GfCkMVmQpc8fvd+zdtoQew=;
+        s=default; t=1582272320;
+        bh=X/Dq+PeQjECF1L6QQ6O2t+J7BdtB35HFF99zLyDSSpU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tdunyDA33V2sJDiUxEH+WjeATsJUN3my3UB8yp/C5XZn2zDvm4pD0QnqsBcV1lblm
-         rAAIKqoGiNX59T2yqlSmYgEmhwutL16j4GoCM042cES33me/BAqrfIewuMzHycH9va
-         p9CgKmj7NOPFQGES12qh2KOr06joXfyvhH4SL2Tg=
+        b=iv27sNbx6edO92s6rYLyDQCrWIvQRw5pPzzahHGBtnYVxoEhfcdi24MbYrqnuEQ9v
+         x09JLa86Ziq8IOzTAfzQlFwG5+wk52BzrpKZjitHkE/cmeQIxd1DZ8Tg83I/wvqTgc
+         IIELH/xrUW9gFIK4GFi7lQMeA2c8B2Wxy8CwCH+s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 171/399] clk: renesas: rcar-gen3: Allow changing the RPC[D2] clocks
+Subject: [PATCH 5.4 097/344] drm/amdgpu: Ensure ret is always initialized when using SOC15_WAIT_ON_RREG
 Date:   Fri, 21 Feb 2020 08:38:16 +0100
-Message-Id: <20200221072419.274033711@linuxfoundation.org>
+Message-Id: <20200221072357.758403499@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200221072402.315346745@linuxfoundation.org>
-References: <20200221072402.315346745@linuxfoundation.org>
+In-Reply-To: <20200221072349.335551332@linuxfoundation.org>
+References: <20200221072349.335551332@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,47 +45,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+From: Nathan Chancellor <natechancellor@gmail.com>
 
-[ Upstream commit 0d67c0340a60829c5c1b7d09629d23bbd67696f3 ]
+[ Upstream commit a63141e31764f8daf3f29e8e2d450dcf9199d1c8 ]
 
-I was unable to get clk_set_rate() setting a lower RPC-IF clock frequency
-and that issue boiled down to me not passing CLK_SET_RATE_PARENT flag to
-clk_register_composite() when registering the RPC[D2] clocks...
+Commit b0f3cd3191cd ("drm/amdgpu: remove unnecessary JPEG2.0 code from
+VCN2.0") introduced a new clang warning in the vcn_v2_0_stop function:
 
-Fixes: db4a0073cc82 ("clk: renesas: rcar-gen3: Add RPC clocks")
-Signed-off-by: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
-Link: https://lore.kernel.org/r/be27a344-d8bf-9e0c-8950-2d1b48498496@cogentembedded.com
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+../drivers/gpu/drm/amd/amdgpu/vcn_v2_0.c:1082:2: warning: variable 'r'
+is used uninitialized whenever 'while' loop exits because its condition
+is false [-Wsometimes-uninitialized]
+        SOC15_WAIT_ON_RREG(VCN, 0, mmUVD_STATUS, UVD_STATUS__IDLE, 0x7, r);
+        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+../drivers/gpu/drm/amd/amdgpu/../amdgpu/soc15_common.h:55:10: note:
+expanded from macro 'SOC15_WAIT_ON_RREG'
+                while ((tmp_ & (mask)) != (expected_value)) {   \
+                       ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+../drivers/gpu/drm/amd/amdgpu/vcn_v2_0.c:1083:6: note: uninitialized use
+occurs here
+        if (r)
+            ^
+../drivers/gpu/drm/amd/amdgpu/vcn_v2_0.c:1082:2: note: remove the
+condition if it is always true
+        SOC15_WAIT_ON_RREG(VCN, 0, mmUVD_STATUS, UVD_STATUS__IDLE, 0x7, r);
+        ^
+../drivers/gpu/drm/amd/amdgpu/../amdgpu/soc15_common.h:55:10: note:
+expanded from macro 'SOC15_WAIT_ON_RREG'
+                while ((tmp_ & (mask)) != (expected_value)) {   \
+                       ^
+../drivers/gpu/drm/amd/amdgpu/vcn_v2_0.c:1072:7: note: initialize the
+variable 'r' to silence this warning
+        int r;
+             ^
+              = 0
+1 warning generated.
+
+To prevent warnings like this from happening in the future, make the
+SOC15_WAIT_ON_RREG macro initialize its ret variable before the while
+loop that can time out. This macro's return value is always checked so
+it should set ret in both the success and fail path.
+
+Link: https://github.com/ClangBuiltLinux/linux/issues/776
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/renesas/rcar-gen3-cpg.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/soc15_common.h | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/clk/renesas/rcar-gen3-cpg.c b/drivers/clk/renesas/rcar-gen3-cpg.c
-index c97b647db9b68..488f8b3980c55 100644
---- a/drivers/clk/renesas/rcar-gen3-cpg.c
-+++ b/drivers/clk/renesas/rcar-gen3-cpg.c
-@@ -470,7 +470,8 @@ static struct clk * __init cpg_rpc_clk_register(const char *name,
- 
- 	clk = clk_register_composite(NULL, name, &parent_name, 1, NULL, NULL,
- 				     &rpc->div.hw,  &clk_divider_ops,
--				     &rpc->gate.hw, &clk_gate_ops, 0);
-+				     &rpc->gate.hw, &clk_gate_ops,
-+				     CLK_SET_RATE_PARENT);
- 	if (IS_ERR(clk)) {
- 		kfree(rpc);
- 		return clk;
-@@ -506,7 +507,8 @@ static struct clk * __init cpg_rpcd2_clk_register(const char *name,
- 
- 	clk = clk_register_composite(NULL, name, &parent_name, 1, NULL, NULL,
- 				     &rpcd2->fixed.hw, &clk_fixed_factor_ops,
--				     &rpcd2->gate.hw, &clk_gate_ops, 0);
-+				     &rpcd2->gate.hw, &clk_gate_ops,
-+				     CLK_SET_RATE_PARENT);
- 	if (IS_ERR(clk))
- 		kfree(rpcd2);
- 
+diff --git a/drivers/gpu/drm/amd/amdgpu/soc15_common.h b/drivers/gpu/drm/amd/amdgpu/soc15_common.h
+index 839f186e1182a..19e870c798967 100644
+--- a/drivers/gpu/drm/amd/amdgpu/soc15_common.h
++++ b/drivers/gpu/drm/amd/amdgpu/soc15_common.h
+@@ -52,6 +52,7 @@
+ 		uint32_t old_ = 0;	\
+ 		uint32_t tmp_ = RREG32(adev->reg_offset[ip##_HWIP][inst][reg##_BASE_IDX] + reg); \
+ 		uint32_t loop = adev->usec_timeout;		\
++		ret = 0;					\
+ 		while ((tmp_ & (mask)) != (expected_value)) {	\
+ 			if (old_ != tmp_) {			\
+ 				loop = adev->usec_timeout;	\
 -- 
 2.20.1
 
