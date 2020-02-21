@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 685CC167451
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:23:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F811167453
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:23:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387703AbgBUIUS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 03:20:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59252 "EHLO mail.kernel.org"
+        id S2388151AbgBUIUX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 03:20:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59320 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387693AbgBUIUQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 03:20:16 -0500
+        id S2387589AbgBUIUT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 03:20:19 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2588924691;
-        Fri, 21 Feb 2020 08:20:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F0EBD24695;
+        Fri, 21 Feb 2020 08:20:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582273215;
-        bh=R8kP/lPwVPh2SHNxuUxq4sc7Ey3PQap5rwy06oOFQew=;
+        s=default; t=1582273218;
+        bh=RqJS7QbbRmZS0WLnFBjn58eX5kSMkaGaf7vbD4wQ2l4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v6xtTzmJyvReBT9XXHL3Ilk6LrAZ9MhoTKcuKvn+7t3Sbq/ZE3A3zegbssCYShh8S
-         TMPuY4qdbzraSR8njnqks2AqJMX9uvpnVl3yJl0nkwHNmpCMArAKVnRXHvK2yX9n6w
-         v5A+/kfzO+3IhPVAqhPHfDNosaZcsvxQTGrJ4JTE=
+        b=lOXWV/mSA3OD+iIhdRRybGDohhEwKbUuoHedvRTk3hpg+hSaCM0B1hagid1V8e3HZ
+         d7n2IWIxbCHypz3LBwAj/L45CfubL2tawreEBcnyiS2Y2qRk3b5zZ9HwxaeoXQO40U
+         pPSf/6mIyipDlGPVSL/4aDWVTRcqTRGbuC2hrpp4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Douglas Anderson <dianders@chromium.org>,
-        Matthias Kaehlcke <mka@chromium.org>,
-        Stephen Boyd <sboyd@kernel.org>,
+        stable@vger.kernel.org, yu kuai <yukuai3@huawei.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 050/191] clk: qcom: rcg2: Dont crash if our parent cant be found; return an error
-Date:   Fri, 21 Feb 2020 08:40:23 +0100
-Message-Id: <20200221072257.624702762@linuxfoundation.org>
+Subject: [PATCH 4.19 051/191] drm/amdgpu: remove 4 set but not used variable in amdgpu_atombios_get_connector_info_from_object_table
+Date:   Fri, 21 Feb 2020 08:40:24 +0100
+Message-Id: <20200221072257.717801346@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200221072250.732482588@linuxfoundation.org>
 References: <20200221072250.732482588@linuxfoundation.org>
@@ -45,68 +44,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Douglas Anderson <dianders@chromium.org>
+From: yu kuai <yukuai3@huawei.com>
 
-[ Upstream commit 908b050114d8fefdddc57ec9fbc213c3690e7f5f ]
+[ Upstream commit bae028e3e521e8cb8caf2cc16a455ce4c55f2332 ]
 
-When I got my clock parenting slightly wrong I ended up with a crash
-that looked like this:
+Fixes gcc '-Wunused-but-set-variable' warning:
 
-  Unable to handle kernel NULL pointer dereference at virtual
-  address 0000000000000000
-  ...
-  pc : clk_hw_get_rate+0x14/0x44
-  ...
-  Call trace:
-   clk_hw_get_rate+0x14/0x44
-   _freq_tbl_determine_rate+0x94/0xfc
-   clk_rcg2_determine_rate+0x2c/0x38
-   clk_core_determine_round_nolock+0x4c/0x88
-   clk_core_round_rate_nolock+0x6c/0xa8
-   clk_core_round_rate_nolock+0x9c/0xa8
-   clk_core_set_rate_nolock+0x70/0x180
-   clk_set_rate+0x3c/0x6c
-   of_clk_set_defaults+0x254/0x360
-   platform_drv_probe+0x28/0xb0
-   really_probe+0x120/0x2dc
-   driver_probe_device+0x64/0xfc
-   device_driver_attach+0x4c/0x6c
-   __driver_attach+0xac/0xc0
-   bus_for_each_dev+0x84/0xcc
-   driver_attach+0x2c/0x38
-   bus_add_driver+0xfc/0x1d0
-   driver_register+0x64/0xf8
-   __platform_driver_register+0x4c/0x58
-   msm_drm_register+0x5c/0x60
-   ...
+drivers/gpu/drm/amd/amdgpu/amdgpu_atombios.c: In function
+'amdgpu_atombios_get_connector_info_from_object_table':
+drivers/gpu/drm/amd/amdgpu/amdgpu_atombios.c:376:26: warning: variable
+'grph_obj_num' set but not used [-Wunused-but-set-variable]
+drivers/gpu/drm/amd/amdgpu/amdgpu_atombios.c:376:13: warning: variable
+'grph_obj_id' set but not used [-Wunused-but-set-variable]
+drivers/gpu/drm/amd/amdgpu/amdgpu_atombios.c:341:37: warning: variable
+'con_obj_type' set but not used [-Wunused-but-set-variable]
+drivers/gpu/drm/amd/amdgpu/amdgpu_atombios.c:341:24: warning: variable
+'con_obj_num' set but not used [-Wunused-but-set-variable]
 
-It turned out that clk_hw_get_parent_by_index() was returning NULL and
-we weren't checking.  Let's check it so that we don't crash.
+They are never used, so can be removed.
 
-Fixes: ac269395cdd8 ("clk: qcom: Convert to clk_hw based provider APIs")
-Signed-off-by: Douglas Anderson <dianders@chromium.org>
-Reviewed-by: Matthias Kaehlcke <mka@chromium.org>
-Link: https://lkml.kernel.org/r/20200203103049.v4.1.I7487325fe8e701a68a07d3be8a6a4b571eca9cfa@changeid
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Fixes: d38ceaf99ed0 ("drm/amdgpu: add core driver (v4)")
+Signed-off-by: yu kuai <yukuai3@huawei.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/qcom/clk-rcg2.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_atombios.c | 19 ++-----------------
+ 1 file changed, 2 insertions(+), 17 deletions(-)
 
-diff --git a/drivers/clk/qcom/clk-rcg2.c b/drivers/clk/qcom/clk-rcg2.c
-index 51b2388d80ac9..ee693e15d9ebc 100644
---- a/drivers/clk/qcom/clk-rcg2.c
-+++ b/drivers/clk/qcom/clk-rcg2.c
-@@ -203,6 +203,9 @@ static int _freq_tbl_determine_rate(struct clk_hw *hw, const struct freq_tbl *f,
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_atombios.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_atombios.c
+index bf872f694f509..d1fbaea91f580 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_atombios.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_atombios.c
+@@ -337,17 +337,9 @@ bool amdgpu_atombios_get_connector_info_from_object_table(struct amdgpu_device *
+ 		path_size += le16_to_cpu(path->usSize);
  
- 	clk_flags = clk_hw_get_flags(hw);
- 	p = clk_hw_get_parent_by_index(hw, index);
-+	if (!p)
-+		return -EINVAL;
-+
- 	if (clk_flags & CLK_SET_RATE_PARENT) {
- 		rate = f->freq;
- 		if (f->pre_div) {
+ 		if (device_support & le16_to_cpu(path->usDeviceTag)) {
+-			uint8_t con_obj_id, con_obj_num, con_obj_type;
+-
+-			con_obj_id =
++			uint8_t con_obj_id =
+ 			    (le16_to_cpu(path->usConnObjectId) & OBJECT_ID_MASK)
+ 			    >> OBJECT_ID_SHIFT;
+-			con_obj_num =
+-			    (le16_to_cpu(path->usConnObjectId) & ENUM_ID_MASK)
+-			    >> ENUM_ID_SHIFT;
+-			con_obj_type =
+-			    (le16_to_cpu(path->usConnObjectId) &
+-			     OBJECT_TYPE_MASK) >> OBJECT_TYPE_SHIFT;
+ 
+ 			/* Skip TV/CV support */
+ 			if ((le16_to_cpu(path->usDeviceTag) ==
+@@ -372,14 +364,7 @@ bool amdgpu_atombios_get_connector_info_from_object_table(struct amdgpu_device *
+ 			router.ddc_valid = false;
+ 			router.cd_valid = false;
+ 			for (j = 0; j < ((le16_to_cpu(path->usSize) - 8) / 2); j++) {
+-				uint8_t grph_obj_id, grph_obj_num, grph_obj_type;
+-
+-				grph_obj_id =
+-				    (le16_to_cpu(path->usGraphicObjIds[j]) &
+-				     OBJECT_ID_MASK) >> OBJECT_ID_SHIFT;
+-				grph_obj_num =
+-				    (le16_to_cpu(path->usGraphicObjIds[j]) &
+-				     ENUM_ID_MASK) >> ENUM_ID_SHIFT;
++				uint8_t grph_obj_type=
+ 				grph_obj_type =
+ 				    (le16_to_cpu(path->usGraphicObjIds[j]) &
+ 				     OBJECT_TYPE_MASK) >> OBJECT_TYPE_SHIFT;
 -- 
 2.20.1
 
