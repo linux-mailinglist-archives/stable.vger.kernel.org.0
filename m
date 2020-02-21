@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A873B16763D
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:37:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 88BB316763F
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:37:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732531AbgBUIK2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 03:10:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45700 "EHLO mail.kernel.org"
+        id S1732540AbgBUIKb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 03:10:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45736 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732082AbgBUIK2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 03:10:28 -0500
+        id S1732343AbgBUIKa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 03:10:30 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D4D4C20801;
-        Fri, 21 Feb 2020 08:10:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 587D920578;
+        Fri, 21 Feb 2020 08:10:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582272627;
-        bh=EfqTLV/Ja2CAc990v9LG2sf9f+XqMnZ58KAWfhoHIno=;
+        s=default; t=1582272629;
+        bh=GxeaPn+Hi8p0/CIxFlRsxVrH5otHDsR5tXjDQcI6rFI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b3dBiTKoxEq7pB8R7Nd00UMmef2KHxGfwU8UZ+uXl6tE70IQw8uEV/09nYeP7lR0W
-         gWJsQQhGU7JbyXWTO6Inq4YYV+FVp5MtSylxAEQzVXJjs/3gTxQvNuxh4hX8k5DkVl
-         AQk2HH/xZmsTv5IwMtzycfLAWLtTH3CDTWpgYGws=
+        b=BypTbVMPKB9JGWuplNJDTwNKdXhR7SQafmeZkU6GVyivScxQoOyPnE0nH33GKGSkw
+         t890AnkLqkB1/vdSWdP6vg+B0BzdAHWJWiudQcKTQ64dCioLpo884Jk+VJfme1gEzN
+         d17sfYwhf46q2NcROo5myoZZj+s53iG/a49yjlBc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Guralnik <michaelgur@mellanox.com>,
-        Jason Gunthorpe <jgg@mellanox.com>,
+        stable@vger.kernel.org,
+        Nathan Chancellor <natechancellor@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 213/344] RDMA/uverbs: Remove needs_kfree_rcu from uverbs_obj_type_class
-Date:   Fri, 21 Feb 2020 08:40:12 +0100
-Message-Id: <20200221072408.545629391@linuxfoundation.org>
+Subject: [PATCH 5.4 214/344] tty: synclinkmp: Adjust indentation in several functions
+Date:   Fri, 21 Feb 2020 08:40:13 +0100
+Message-Id: <20200221072408.633897173@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200221072349.335551332@linuxfoundation.org>
 References: <20200221072349.335551332@linuxfoundation.org>
@@ -44,88 +44,157 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason Gunthorpe <jgg@mellanox.com>
+From: Nathan Chancellor <natechancellor@gmail.com>
 
-[ Upstream commit 8bdf9dd984c18375d1090ddeb1792511f619c5c1 ]
+[ Upstream commit 1feedf61e7265128244f6993f23421f33dd93dbc ]
 
-After device disassociation the uapi_objects are destroyed and freed,
-however it is still possible that core code can be holding a kref on the
-uobject. When it finally goes to uverbs_uobject_free() via the kref_put()
-it can trigger a use-after-free on the uapi_object.
+Clang warns:
 
-Since needs_kfree_rcu is a micro optimization that only benefits file
-uobjects, just get rid of it. There is no harm in using kfree_rcu even if
-it isn't required, and the number of involved objects is small.
+../drivers/tty/synclinkmp.c:1456:3: warning: misleading indentation;
+statement is not part of the previous 'if' [-Wmisleading-indentation]
+        if (C_CRTSCTS(tty)) {
+        ^
+../drivers/tty/synclinkmp.c:1453:2: note: previous statement is here
+        if (I_IXOFF(tty))
+        ^
+../drivers/tty/synclinkmp.c:2473:8: warning: misleading indentation;
+statement is not part of the previous 'if' [-Wmisleading-indentation]
+                                                info->port.tty->hw_stopped = 0;
+                                                ^
+../drivers/tty/synclinkmp.c:2471:7: note: previous statement is here
+                                                if ( debug_level >= DEBUG_LEVEL_ISR )
+                                                ^
+../drivers/tty/synclinkmp.c:2482:8: warning: misleading indentation;
+statement is not part of the previous 'if' [-Wmisleading-indentation]
+                                                info->port.tty->hw_stopped = 1;
+                                                ^
+../drivers/tty/synclinkmp.c:2480:7: note: previous statement is here
+                                                if ( debug_level >= DEBUG_LEVEL_ISR )
+                                                ^
+../drivers/tty/synclinkmp.c:2809:3: warning: misleading indentation;
+statement is not part of the previous 'if' [-Wmisleading-indentation]
+        if (I_BRKINT(info->port.tty) || I_PARMRK(info->port.tty))
+        ^
+../drivers/tty/synclinkmp.c:2807:2: note: previous statement is here
+        if (I_INPCK(info->port.tty))
+        ^
+../drivers/tty/synclinkmp.c:3246:3: warning: misleading indentation;
+statement is not part of the previous 'else' [-Wmisleading-indentation]
+        set_signals(info);
+        ^
+../drivers/tty/synclinkmp.c:3244:2: note: previous statement is here
+        else
+        ^
+5 warnings generated.
 
-Link: https://lore.kernel.org/r/20200113143306.GA28717@ziepe.ca
-Signed-off-by: Michael Guralnik <michaelgur@mellanox.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+The indentation on these lines is not at all consistent, tabs and spaces
+are mixed together. Convert to just using tabs to be consistent with the
+Linux kernel coding style and eliminate these warnings from clang.
+
+Link: https://github.com/ClangBuiltLinux/linux/issues/823
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+Link: https://lore.kernel.org/r/20191218024720.3528-1-natechancellor@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/core/rdma_core.c | 23 +----------------------
- include/rdma/uverbs_types.h         |  1 -
- 2 files changed, 1 insertion(+), 23 deletions(-)
+ drivers/tty/synclinkmp.c | 24 ++++++++++++------------
+ 1 file changed, 12 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/infiniband/core/rdma_core.c b/drivers/infiniband/core/rdma_core.c
-index ccf4d069c25c9..7dd9bd1e4d118 100644
---- a/drivers/infiniband/core/rdma_core.c
-+++ b/drivers/infiniband/core/rdma_core.c
-@@ -49,13 +49,7 @@ void uverbs_uobject_get(struct ib_uobject *uobject)
+diff --git a/drivers/tty/synclinkmp.c b/drivers/tty/synclinkmp.c
+index fcb91bf7a15ba..54b897a646d02 100644
+--- a/drivers/tty/synclinkmp.c
++++ b/drivers/tty/synclinkmp.c
+@@ -1453,10 +1453,10 @@ static void throttle(struct tty_struct * tty)
+ 	if (I_IXOFF(tty))
+ 		send_xchar(tty, STOP_CHAR(tty));
  
- static void uverbs_uobject_free(struct kref *ref)
- {
--	struct ib_uobject *uobj =
--		container_of(ref, struct ib_uobject, ref);
--
--	if (uobj->uapi_object->type_class->needs_kfree_rcu)
--		kfree_rcu(uobj, rcu);
--	else
--		kfree(uobj);
-+	kfree_rcu(container_of(ref, struct ib_uobject, ref), rcu);
+- 	if (C_CRTSCTS(tty)) {
++	if (C_CRTSCTS(tty)) {
+ 		spin_lock_irqsave(&info->lock,flags);
+ 		info->serial_signals &= ~SerialSignal_RTS;
+-	 	set_signals(info);
++		set_signals(info);
+ 		spin_unlock_irqrestore(&info->lock,flags);
+ 	}
+ }
+@@ -1482,10 +1482,10 @@ static void unthrottle(struct tty_struct * tty)
+ 			send_xchar(tty, START_CHAR(tty));
+ 	}
+ 
+- 	if (C_CRTSCTS(tty)) {
++	if (C_CRTSCTS(tty)) {
+ 		spin_lock_irqsave(&info->lock,flags);
+ 		info->serial_signals |= SerialSignal_RTS;
+-	 	set_signals(info);
++		set_signals(info);
+ 		spin_unlock_irqrestore(&info->lock,flags);
+ 	}
+ }
+@@ -2470,7 +2470,7 @@ static void isr_io_pin( SLMP_INFO *info, u16 status )
+ 					if (status & SerialSignal_CTS) {
+ 						if ( debug_level >= DEBUG_LEVEL_ISR )
+ 							printk("CTS tx start...");
+-			 			info->port.tty->hw_stopped = 0;
++						info->port.tty->hw_stopped = 0;
+ 						tx_start(info);
+ 						info->pending_bh |= BH_TRANSMIT;
+ 						return;
+@@ -2479,7 +2479,7 @@ static void isr_io_pin( SLMP_INFO *info, u16 status )
+ 					if (!(status & SerialSignal_CTS)) {
+ 						if ( debug_level >= DEBUG_LEVEL_ISR )
+ 							printk("CTS tx stop...");
+-			 			info->port.tty->hw_stopped = 1;
++						info->port.tty->hw_stopped = 1;
+ 						tx_stop(info);
+ 					}
+ 				}
+@@ -2806,8 +2806,8 @@ static void change_params(SLMP_INFO *info)
+ 	info->read_status_mask2 = OVRN;
+ 	if (I_INPCK(info->port.tty))
+ 		info->read_status_mask2 |= PE | FRME;
+- 	if (I_BRKINT(info->port.tty) || I_PARMRK(info->port.tty))
+- 		info->read_status_mask1 |= BRKD;
++	if (I_BRKINT(info->port.tty) || I_PARMRK(info->port.tty))
++		info->read_status_mask1 |= BRKD;
+ 	if (I_IGNPAR(info->port.tty))
+ 		info->ignore_status_mask2 |= PE | FRME;
+ 	if (I_IGNBRK(info->port.tty)) {
+@@ -3177,7 +3177,7 @@ static int tiocmget(struct tty_struct *tty)
+  	unsigned long flags;
+ 
+ 	spin_lock_irqsave(&info->lock,flags);
+- 	get_signals(info);
++	get_signals(info);
+ 	spin_unlock_irqrestore(&info->lock,flags);
+ 
+ 	result = ((info->serial_signals & SerialSignal_RTS) ? TIOCM_RTS : 0) |
+@@ -3215,7 +3215,7 @@ static int tiocmset(struct tty_struct *tty,
+ 		info->serial_signals &= ~SerialSignal_DTR;
+ 
+ 	spin_lock_irqsave(&info->lock,flags);
+- 	set_signals(info);
++	set_signals(info);
+ 	spin_unlock_irqrestore(&info->lock,flags);
+ 
+ 	return 0;
+@@ -3227,7 +3227,7 @@ static int carrier_raised(struct tty_port *port)
+ 	unsigned long flags;
+ 
+ 	spin_lock_irqsave(&info->lock,flags);
+- 	get_signals(info);
++	get_signals(info);
+ 	spin_unlock_irqrestore(&info->lock,flags);
+ 
+ 	return (info->serial_signals & SerialSignal_DCD) ? 1 : 0;
+@@ -3243,7 +3243,7 @@ static void dtr_rts(struct tty_port *port, int on)
+ 		info->serial_signals |= SerialSignal_RTS | SerialSignal_DTR;
+ 	else
+ 		info->serial_signals &= ~(SerialSignal_RTS | SerialSignal_DTR);
+- 	set_signals(info);
++	set_signals(info);
+ 	spin_unlock_irqrestore(&info->lock,flags);
  }
  
- void uverbs_uobject_put(struct ib_uobject *uobject)
-@@ -744,20 +738,6 @@ const struct uverbs_obj_type_class uverbs_idr_class = {
- 	.lookup_put = lookup_put_idr_uobject,
- 	.destroy_hw = destroy_hw_idr_uobject,
- 	.remove_handle = remove_handle_idr_uobject,
--	/*
--	 * When we destroy an object, we first just lock it for WRITE and
--	 * actually DESTROY it in the finalize stage. So, the problematic
--	 * scenario is when we just started the finalize stage of the
--	 * destruction (nothing was executed yet). Now, the other thread
--	 * fetched the object for READ access, but it didn't lock it yet.
--	 * The DESTROY thread continues and starts destroying the object.
--	 * When the other thread continue - without the RCU, it would
--	 * access freed memory. However, the rcu_read_lock delays the free
--	 * until the rcu_read_lock of the READ operation quits. Since the
--	 * exclusive lock of the object is still taken by the DESTROY flow, the
--	 * READ operation will get -EBUSY and it'll just bail out.
--	 */
--	.needs_kfree_rcu = true,
- };
- EXPORT_SYMBOL(uverbs_idr_class);
- 
-@@ -919,7 +899,6 @@ const struct uverbs_obj_type_class uverbs_fd_class = {
- 	.lookup_put = lookup_put_fd_uobject,
- 	.destroy_hw = destroy_hw_fd_uobject,
- 	.remove_handle = remove_handle_fd_uobject,
--	.needs_kfree_rcu = false,
- };
- EXPORT_SYMBOL(uverbs_fd_class);
- 
-diff --git a/include/rdma/uverbs_types.h b/include/rdma/uverbs_types.h
-index d57a5ba00c743..0b0f5a5f392de 100644
---- a/include/rdma/uverbs_types.h
-+++ b/include/rdma/uverbs_types.h
-@@ -98,7 +98,6 @@ struct uverbs_obj_type_class {
- 				       enum rdma_remove_reason why,
- 				       struct uverbs_attr_bundle *attrs);
- 	void (*remove_handle)(struct ib_uobject *uobj);
--	u8    needs_kfree_rcu;
- };
- 
- struct uverbs_obj_type {
 -- 
 2.20.1
 
