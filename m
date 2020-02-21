@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E8A311672CD
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:06:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E3DC91672D3
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:07:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731976AbgBUIGm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 03:06:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40642 "EHLO mail.kernel.org"
+        id S1730038AbgBUIG5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 03:06:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40938 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731974AbgBUIGk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 03:06:40 -0500
+        id S1732016AbgBUIG4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 03:06:56 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 10B9620801;
-        Fri, 21 Feb 2020 08:06:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3557720722;
+        Fri, 21 Feb 2020 08:06:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582272399;
-        bh=+6OD4s2vRRb+ORzvSH/0sh+5jFUR8ccoPu4YOS3Y5Bg=;
+        s=default; t=1582272415;
+        bh=sYHwINYDTcWh7EmWRxPDfsVNBX9NO+F8ciF4WJXac0s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gUqOSJIrL1b/ivRPSHEP2AXeXxkJS049JW/EY6RSGecI/QAcwxWENybsEIAKE6nGU
-         hC+2AGshJizmooAjdCh2JwUIRmE0RnfwlpQiqhVjIp24ZiGKqJlUoe1NIs8ZRXM2BJ
-         gvfhntJoKy49a9Q0MVBkPbyH/37hNCdCmCSx8dzQ=
+        b=mFpCa/ZfsY5UQURB5UG35AEsPUtyIMDd7Dhw4U0c5oBaLUOuYDC/dJzCaNFGRp9f4
+         jvfaUCgBb0sepdY/AsGHfT25BG+hfXDdGlMnzl5KQjqeG8UZPuQ8HSxujDFuPJqv6I
+         GytFCigDr8qTS/RS/7maOM+Okvl/HIlBDoiI2p6k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@redhat.com>,
-        Alexei Starovoitov <ast@kernel.org>,
+        stable@vger.kernel.org, Xin Long <lucien.xin@gmail.com>,
+        Simon Horman <simon.horman@netronome.com>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 128/344] samples/bpf: Set -fno-stack-protector when building BPF programs
-Date:   Fri, 21 Feb 2020 08:38:47 +0100
-Message-Id: <20200221072400.485232607@linuxfoundation.org>
+Subject: [PATCH 5.4 133/344] netfilter: nft_tunnel: add the missing ERSPAN_VERSION nla_policy
+Date:   Fri, 21 Feb 2020 08:38:52 +0100
+Message-Id: <20200221072400.909595150@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200221072349.335551332@linuxfoundation.org>
 References: <20200221072349.335551332@linuxfoundation.org>
@@ -45,41 +45,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Toke Høiland-Jørgensen <toke@redhat.com>
+From: Xin Long <lucien.xin@gmail.com>
 
-[ Upstream commit 450278977acbf494a20367c22fbb38729772d1fc ]
+[ Upstream commit 0705f95c332081036d85f26691e9d3cd7d901c31 ]
 
-It seems Clang can in some cases turn on stack protection by default, which
-doesn't work with BPF. This was reported once before[0], but it seems the
-flag to explicitly turn off the stack protector wasn't added to the
-Makefile, so do that now.
+ERSPAN_VERSION is an attribute parsed in kernel side, nla_policy
+type should be added for it, like other attributes.
 
-The symptom of this is compile errors like the following:
-
-error: <unknown>:0:0: in function bpf_prog1 i32 (%struct.__sk_buff*): A call to built-in function '__stack_chk_fail' is not supported.
-
-[0] https://www.spinics.net/lists/netdev/msg556400.html
-
-Signed-off-by: Toke Høiland-Jørgensen <toke@redhat.com>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Link: https://lore.kernel.org/bpf/20191216103819.359535-1-toke@redhat.com
+Fixes: af308b94a2a4 ("netfilter: nf_tables: add tunnel support")
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
+Reviewed-by: Simon Horman <simon.horman@netronome.com>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- samples/bpf/Makefile | 1 +
- 1 file changed, 1 insertion(+)
+ net/netfilter/nft_tunnel.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/samples/bpf/Makefile b/samples/bpf/Makefile
-index e7ad48c605e0f..6d1df7117e117 100644
---- a/samples/bpf/Makefile
-+++ b/samples/bpf/Makefile
-@@ -219,6 +219,7 @@ BTF_LLVM_PROBE := $(shell echo "int main() { return 0; }" | \
- 			  readelf -S ./llvm_btf_verify.o | grep BTF; \
- 			  /bin/rm -f ./llvm_btf_verify.o)
+diff --git a/net/netfilter/nft_tunnel.c b/net/netfilter/nft_tunnel.c
+index 5284fcf16be73..f8d2919cf9fdc 100644
+--- a/net/netfilter/nft_tunnel.c
++++ b/net/netfilter/nft_tunnel.c
+@@ -248,8 +248,9 @@ static int nft_tunnel_obj_vxlan_init(const struct nlattr *attr,
+ }
  
-+BPF_EXTRA_CFLAGS += -fno-stack-protector
- ifneq ($(BTF_LLVM_PROBE),)
- 	EXTRA_CFLAGS += -g
- else
+ static const struct nla_policy nft_tunnel_opts_erspan_policy[NFTA_TUNNEL_KEY_ERSPAN_MAX + 1] = {
++	[NFTA_TUNNEL_KEY_ERSPAN_VERSION]	= { .type = NLA_U32 },
+ 	[NFTA_TUNNEL_KEY_ERSPAN_V1_INDEX]	= { .type = NLA_U32 },
+-	[NFTA_TUNNEL_KEY_ERSPAN_V2_DIR]	= { .type = NLA_U8 },
++	[NFTA_TUNNEL_KEY_ERSPAN_V2_DIR]		= { .type = NLA_U8 },
+ 	[NFTA_TUNNEL_KEY_ERSPAN_V2_HWID]	= { .type = NLA_U8 },
+ };
+ 
 -- 
 2.20.1
 
