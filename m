@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E24D21670A0
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 08:46:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 501D2167097
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 08:46:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728311AbgBUHqq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 02:46:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42392 "EHLO mail.kernel.org"
+        id S1728723AbgBUHqa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 02:46:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41990 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728779AbgBUHqp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 02:46:45 -0500
+        id S1728126AbgBUHq3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 02:46:29 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2D773222C4;
-        Fri, 21 Feb 2020 07:46:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6379D207FD;
+        Fri, 21 Feb 2020 07:46:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582271204;
-        bh=JqQmPfLAZJXhisUZizc6HtTiGx32zdBvxS/MOj0sltw=;
+        s=default; t=1582271188;
+        bh=T7uWfjRYwYIvMGHvSLHzXsYWS5MRR42vOXJsYdLx2RE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SJejF+TXCWh8SSMJoNU0TUOWEGwNgi/Rrdo2uYnqyc6CgraJuf3QxO1MI3IbD3CmX
-         d7sDRh4pBtFsNXGng9QuWnPxhNY3nXmZqz36z9z7Xx8NbTahOF9fMIs22TevY3Bd/3
-         KSUoGaOBnakykI06Ks2q+3xqQSs21bGrBBvvuTuo=
+        b=sEY+7dzGPSOP3vLkiPhfP001uRy6E7zj5K/vpzxPiQeaAYYPu5R+CKOzYjHzQuLp7
+         PyImtUU/LiAOVkeUvUf8XG/4q8G7xlzvgQeebVUt77o7RmCGzqCsa5o8kcRhwpO3bG
+         eG3z6ZsXw6clPmA6we/cEsXbs6oqi3u6qdh6r/Do=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jan Kara <jack@suse.cz>,
-        Matthew Bobrowski <mbobrowski@mbobrowski.org>,
-        Joseph Qi <joseph.qi@linux.alibaba.com>,
-        Ritesh Harjani <riteshh@linux.ibm.com>,
-        Theodore Tso <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 031/399] ext4: fix ext4_dax_read/write inode locking sequence for IOCB_NOWAIT
-Date:   Fri, 21 Feb 2020 08:35:56 +0100
-Message-Id: <20200221072405.381988654@linuxfoundation.org>
+        stable@vger.kernel.org, Steven Rostedt <rostedt@goodmis.org>,
+        John Ogness <john.ogness@linutronix.de>,
+        Sergey Senozhatsky <sergey.senozhatsky@gmail.com>,
+        Petr Mladek <pmladek@suse.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.5 035/399] printk: fix exclusive_console replaying
+Date:   Fri, 21 Feb 2020 08:36:00 +0100
+Message-Id: <20200221072405.779898046@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200221072402.315346745@linuxfoundation.org>
 References: <20200221072402.315346745@linuxfoundation.org>
@@ -46,57 +45,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ritesh Harjani <riteshh@linux.ibm.com>
+From: John Ogness <john.ogness@linutronix.de>
 
-[ Upstream commit f629afe3369e9885fd6e9cc7a4f514b6a65cf9e9 ]
+[ Upstream commit def97da136515cb289a14729292c193e0a93bc64 ]
 
-Apparently our current rwsem code doesn't like doing the trylock, then
-lock for real scheme.  So change our dax read/write methods to just do the
-trylock for the RWF_NOWAIT case.
-This seems to fix AIM7 regression in some scalable filesystems upto ~25%
-in some cases. Claimed in commit 942491c9e6d6 ("xfs: fix AIM7 regression")
+Commit f92b070f2dc8 ("printk: Do not miss new messages when replaying
+the log") introduced a new variable @exclusive_console_stop_seq to
+store when an exclusive console should stop printing. It should be
+set to the @console_seq value at registration. However, @console_seq
+is previously set to @syslog_seq so that the exclusive console knows
+where to begin. This results in the exclusive console immediately
+reactivating all the other consoles and thus repeating the messages
+for those consoles.
 
-Reviewed-by: Jan Kara <jack@suse.cz>
-Reviewed-by: Matthew Bobrowski <mbobrowski@mbobrowski.org>
-Tested-by: Joseph Qi <joseph.qi@linux.alibaba.com>
-Signed-off-by: Ritesh Harjani <riteshh@linux.ibm.com>
-Link: https://lore.kernel.org/r/20191212055557.11151-2-riteshh@linux.ibm.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Set @console_seq after @exclusive_console_stop_seq has stored the
+current @console_seq value.
+
+Fixes: f92b070f2dc8 ("printk: Do not miss new messages when replaying the log")
+Link: http://lkml.kernel.org/r/20191219115322.31160-1-john.ogness@linutronix.de
+Cc: Steven Rostedt <rostedt@goodmis.org>
+Cc: linux-kernel@vger.kernel.org
+Signed-off-by: John Ogness <john.ogness@linutronix.de>
+Acked-by: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
+Signed-off-by: Petr Mladek <pmladek@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/file.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ kernel/printk/printk.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/fs/ext4/file.c b/fs/ext4/file.c
-index 6a7293a5cda2d..977ac58dc718d 100644
---- a/fs/ext4/file.c
-+++ b/fs/ext4/file.c
-@@ -88,9 +88,10 @@ static ssize_t ext4_dax_read_iter(struct kiocb *iocb, struct iov_iter *to)
- 	struct inode *inode = file_inode(iocb->ki_filp);
- 	ssize_t ret;
- 
--	if (!inode_trylock_shared(inode)) {
--		if (iocb->ki_flags & IOCB_NOWAIT)
-+	if (iocb->ki_flags & IOCB_NOWAIT) {
-+		if (!inode_trylock_shared(inode))
- 			return -EAGAIN;
-+	} else {
- 		inode_lock_shared(inode);
+diff --git a/kernel/printk/printk.c b/kernel/printk/printk.c
+index 1ef6f75d92f1f..fada22dc4ab6c 100644
+--- a/kernel/printk/printk.c
++++ b/kernel/printk/printk.c
+@@ -2770,8 +2770,6 @@ void register_console(struct console *newcon)
+ 		 * for us.
+ 		 */
+ 		logbuf_lock_irqsave(flags);
+-		console_seq = syslog_seq;
+-		console_idx = syslog_idx;
+ 		/*
+ 		 * We're about to replay the log buffer.  Only do this to the
+ 		 * just-registered console to avoid excessive message spam to
+@@ -2783,6 +2781,8 @@ void register_console(struct console *newcon)
+ 		 */
+ 		exclusive_console = newcon;
+ 		exclusive_console_stop_seq = console_seq;
++		console_seq = syslog_seq;
++		console_idx = syslog_idx;
+ 		logbuf_unlock_irqrestore(flags);
  	}
- 	/*
-@@ -487,9 +488,10 @@ ext4_dax_write_iter(struct kiocb *iocb, struct iov_iter *from)
- 	bool extend = false;
- 	struct inode *inode = file_inode(iocb->ki_filp);
- 
--	if (!inode_trylock(inode)) {
--		if (iocb->ki_flags & IOCB_NOWAIT)
-+	if (iocb->ki_flags & IOCB_NOWAIT) {
-+		if (!inode_trylock(inode))
- 			return -EAGAIN;
-+	} else {
- 		inode_lock(inode);
- 	}
- 
+ 	console_unlock();
 -- 
 2.20.1
 
