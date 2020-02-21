@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CD0C21676A9
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:38:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 208C21677EF
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:46:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731434AbgBUIFH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 03:05:07 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38466 "EHLO mail.kernel.org"
+        id S1728734AbgBUHuh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 02:50:37 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47544 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731748AbgBUIFF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 03:05:05 -0500
+        id S1729576AbgBUHuh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 02:50:37 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5E70224670;
-        Fri, 21 Feb 2020 08:05:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9910E208C4;
+        Fri, 21 Feb 2020 07:50:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582272304;
-        bh=BvI1Wvm5Gi7agi+XZRfqk2PKyoFwI1R06nXhT/Qs+S8=;
+        s=default; t=1582271436;
+        bh=9jKTml5Ut7aNjGGWZVXQ6XT7y0ifxxAgeEEzRnZBi68=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N+IA/FIviTZlfp5k+Y3sGO2W0MuBk4V0JindT1MWoFwg19P3i9qgscPv5Rriy+Kdd
-         FVUaYwojNzKFQk17sA11NvZlYe4u2ajbghh2iiLREXJsBRmmApez2C5CK38nSk/qyA
-         Kf8QZ/IGON+ulU6WSNrfF5zgc73n3OCxMiTGriSQ=
+        b=OVNYsBfrLL2yS5fiaoiypi7zQN9+qTRWLl+QopkxUx5wqyQCxSXuR4+CzQR1CWX6Z
+         fsKZCo7+nSzAY9/pT3yxUJ7KEB/CXEmTXvKQ9WTvqyfk0S1Bz45eRkbAli+1WLPnUK
+         3XGsX0MNSfYhjf/ZiFPtqmfdWXKf6wFQ0Bj4tECo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Douglas Anderson <dianders@chromium.org>,
-        Matthias Kaehlcke <mka@chromium.org>,
-        Stephen Boyd <sboyd@kernel.org>,
+        stable@vger.kernel.org, Alim Akhtar <alim.akhtar@samsung.com>,
+        Bean Huo <beanhuo@micron.com>, Can Guo <cang@codeaurora.org>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 092/344] clk: qcom: rcg2: Dont crash if our parent cant be found; return an error
+Subject: [PATCH 5.5 166/399] scsi: ufs: Complete pending requests in host reset and restore path
 Date:   Fri, 21 Feb 2020 08:38:11 +0100
-Message-Id: <20200221072357.319340100@linuxfoundation.org>
+Message-Id: <20200221072418.756532005@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200221072349.335551332@linuxfoundation.org>
-References: <20200221072349.335551332@linuxfoundation.org>
+In-Reply-To: <20200221072402.315346745@linuxfoundation.org>
+References: <20200221072402.315346745@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,68 +45,120 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Douglas Anderson <dianders@chromium.org>
+From: Can Guo <cang@codeaurora.org>
 
-[ Upstream commit 908b050114d8fefdddc57ec9fbc213c3690e7f5f ]
+[ Upstream commit 2df74b6985b51e77756e2e8faa16c45ca3ba53c5 ]
 
-When I got my clock parenting slightly wrong I ended up with a crash
-that looked like this:
+In UFS host reset and restore path, before probe, we stop and start the
+host controller once. After host controller is stopped, the pending
+requests, if any, are cleared from the doorbell, but no completion IRQ
+would be raised due to the hba is stopped.  These pending requests shall be
+completed along with the first NOP_OUT command (as it is the first command
+which can raise a transfer completion IRQ) sent during probe.  Since the
+OCSs of these pending requests are not SUCCESS (because they are not yet
+literally finished), their UPIUs shall be dumped. When there are multiple
+pending requests, the UPIU dump can be overwhelming and may lead to
+stability issues because it is in atomic context.  Therefore, before probe,
+complete these pending requests right after host controller is stopped and
+silence the UPIU dump from them.
 
-  Unable to handle kernel NULL pointer dereference at virtual
-  address 0000000000000000
-  ...
-  pc : clk_hw_get_rate+0x14/0x44
-  ...
-  Call trace:
-   clk_hw_get_rate+0x14/0x44
-   _freq_tbl_determine_rate+0x94/0xfc
-   clk_rcg2_determine_rate+0x2c/0x38
-   clk_core_determine_round_nolock+0x4c/0x88
-   clk_core_round_rate_nolock+0x6c/0xa8
-   clk_core_round_rate_nolock+0x9c/0xa8
-   clk_core_set_rate_nolock+0x70/0x180
-   clk_set_rate+0x3c/0x6c
-   of_clk_set_defaults+0x254/0x360
-   platform_drv_probe+0x28/0xb0
-   really_probe+0x120/0x2dc
-   driver_probe_device+0x64/0xfc
-   device_driver_attach+0x4c/0x6c
-   __driver_attach+0xac/0xc0
-   bus_for_each_dev+0x84/0xcc
-   driver_attach+0x2c/0x38
-   bus_add_driver+0xfc/0x1d0
-   driver_register+0x64/0xf8
-   __platform_driver_register+0x4c/0x58
-   msm_drm_register+0x5c/0x60
-   ...
-
-It turned out that clk_hw_get_parent_by_index() was returning NULL and
-we weren't checking.  Let's check it so that we don't crash.
-
-Fixes: ac269395cdd8 ("clk: qcom: Convert to clk_hw based provider APIs")
-Signed-off-by: Douglas Anderson <dianders@chromium.org>
-Reviewed-by: Matthias Kaehlcke <mka@chromium.org>
-Link: https://lkml.kernel.org/r/20200203103049.v4.1.I7487325fe8e701a68a07d3be8a6a4b571eca9cfa@changeid
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Link: https://lore.kernel.org/r/1574751214-8321-5-git-send-email-cang@qti.qualcomm.com
+Reviewed-by: Alim Akhtar <alim.akhtar@samsung.com>
+Reviewed-by: Bean Huo <beanhuo@micron.com>
+Tested-by: Bean Huo <beanhuo@micron.com>
+Signed-off-by: Can Guo <cang@codeaurora.org>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/qcom/clk-rcg2.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/scsi/ufs/ufshcd.c | 24 ++++++++++--------------
+ drivers/scsi/ufs/ufshcd.h |  2 ++
+ 2 files changed, 12 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/clk/qcom/clk-rcg2.c b/drivers/clk/qcom/clk-rcg2.c
-index 5174222cbfab2..a88101480e337 100644
---- a/drivers/clk/qcom/clk-rcg2.c
-+++ b/drivers/clk/qcom/clk-rcg2.c
-@@ -217,6 +217,9 @@ static int _freq_tbl_determine_rate(struct clk_hw *hw, const struct freq_tbl *f,
+diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
+index 3fbf9ea16c64e..7d8300c9a0148 100644
+--- a/drivers/scsi/ufs/ufshcd.c
++++ b/drivers/scsi/ufs/ufshcd.c
+@@ -4799,7 +4799,7 @@ ufshcd_transfer_rsp_status(struct ufs_hba *hba, struct ufshcd_lrb *lrbp)
+ 		break;
+ 	} /* end of switch */
  
- 	clk_flags = clk_hw_get_flags(hw);
- 	p = clk_hw_get_parent_by_index(hw, index);
-+	if (!p)
-+		return -EINVAL;
-+
- 	if (clk_flags & CLK_SET_RATE_PARENT) {
- 		rate = f->freq;
- 		if (f->pre_div) {
+-	if (host_byte(result) != DID_OK)
++	if ((host_byte(result) != DID_OK) && !hba->silence_err_logs)
+ 		ufshcd_print_trs(hba, 1 << lrbp->task_tag, true);
+ 	return result;
+ }
+@@ -5351,8 +5351,8 @@ static void ufshcd_err_handler(struct work_struct *work)
+ 
+ 	/*
+ 	 * if host reset is required then skip clearing the pending
+-	 * transfers forcefully because they will automatically get
+-	 * cleared after link startup.
++	 * transfers forcefully because they will get cleared during
++	 * host reset and restore
+ 	 */
+ 	if (needs_reset)
+ 		goto skip_pending_xfer_clear;
+@@ -6282,9 +6282,15 @@ static int ufshcd_host_reset_and_restore(struct ufs_hba *hba)
+ 	int err;
+ 	unsigned long flags;
+ 
+-	/* Reset the host controller */
++	/*
++	 * Stop the host controller and complete the requests
++	 * cleared by h/w
++	 */
+ 	spin_lock_irqsave(hba->host->host_lock, flags);
+ 	ufshcd_hba_stop(hba, false);
++	hba->silence_err_logs = true;
++	ufshcd_complete_requests(hba);
++	hba->silence_err_logs = false;
+ 	spin_unlock_irqrestore(hba->host->host_lock, flags);
+ 
+ 	/* scale up clocks to max frequency before full reinitialization */
+@@ -6318,7 +6324,6 @@ out:
+ static int ufshcd_reset_and_restore(struct ufs_hba *hba)
+ {
+ 	int err = 0;
+-	unsigned long flags;
+ 	int retries = MAX_HOST_RESET_RETRIES;
+ 
+ 	do {
+@@ -6328,15 +6333,6 @@ static int ufshcd_reset_and_restore(struct ufs_hba *hba)
+ 		err = ufshcd_host_reset_and_restore(hba);
+ 	} while (err && --retries);
+ 
+-	/*
+-	 * After reset the door-bell might be cleared, complete
+-	 * outstanding requests in s/w here.
+-	 */
+-	spin_lock_irqsave(hba->host->host_lock, flags);
+-	ufshcd_transfer_req_compl(hba);
+-	ufshcd_tmc_handler(hba);
+-	spin_unlock_irqrestore(hba->host->host_lock, flags);
+-
+ 	return err;
+ }
+ 
+diff --git a/drivers/scsi/ufs/ufshcd.h b/drivers/scsi/ufs/ufshcd.h
+index 2740f6941ec69..2e59f9d8ab89e 100644
+--- a/drivers/scsi/ufs/ufshcd.h
++++ b/drivers/scsi/ufs/ufshcd.h
+@@ -513,6 +513,7 @@ struct ufs_stats {
+  * @uic_error: UFS interconnect layer error status
+  * @saved_err: sticky error mask
+  * @saved_uic_err: sticky UIC error mask
++ * @silence_err_logs: flag to silence error logs
+  * @dev_cmd: ufs device management command information
+  * @last_dme_cmd_tstamp: time stamp of the last completed DME command
+  * @auto_bkops_enabled: to track whether bkops is enabled in device
+@@ -670,6 +671,7 @@ struct ufs_hba {
+ 	u32 saved_err;
+ 	u32 saved_uic_err;
+ 	struct ufs_stats ufs_stats;
++	bool silence_err_logs;
+ 
+ 	/* Device management request data */
+ 	struct ufs_dev_cmd dev_cmd;
 -- 
 2.20.1
 
