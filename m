@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B6DE4167512
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:30:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C7331676FF
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:41:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388386AbgBUIW4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 03:22:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34712 "EHLO mail.kernel.org"
+        id S1731002AbgBUIBH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 03:01:07 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33404 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730697AbgBUIW4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 03:22:56 -0500
+        id S1731157AbgBUIBH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 03:01:07 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B1A762467D;
-        Fri, 21 Feb 2020 08:22:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 37AF424672;
+        Fri, 21 Feb 2020 08:01:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582273375;
-        bh=3KRChEGwMrFyCZkXflHL2hF+PqaYvlhAhPObu7WcK68=;
+        s=default; t=1582272066;
+        bh=8nF09Mx0R0VykZIsatHCLOID3H5n0MCFoFllwCAnXoI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2K05UsswHBv/KKUzwDXGcnEar+z3NP0QXebb7dMMLbG8x3AX5rzLUdnXrhsSq9wki
-         1CXc+IwaLxEBuE9CWDaNryB0iq2Rj5l3OLP6XbyC2+80jDLNBShJnTKkcnP1mKrj65
-         76MYFW3+cacrovAJbz0ELQknzJL/K9xniu9WBKTg=
+        b=Jn0WDFIlrXZ4e+CitKHx9IOAom5LIQ0FhSd8I6w0lMsRek/A4yd4DZzi82nt4Dubj
+         fFuC1vFVZZUQ0Ys1FAQzx1FcC2M6/D0fLTCp9R9Syu9HfBAvMdGJasFKvKElV6N3Tc
+         yxy6wFakmv5PbA/uRoDcVm+qnUc/TGhhNXDAV+fs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miroslav Benes <mbenes@suse.cz>,
-        Jessica Yu <jeyu@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 147/191] module: avoid setting info->name early in case we can fall back to info->mod->name
-Date:   Fri, 21 Feb 2020 08:42:00 +0100
-Message-Id: <20200221072308.211661443@linuxfoundation.org>
+        stable@vger.kernel.org, Ido Schimmel <idosch@mellanox.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.5 396/399] mlxsw: spectrum_dpipe: Add missing error path
+Date:   Fri, 21 Feb 2020 08:42:01 +0100
+Message-Id: <20200221072438.349040400@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200221072250.732482588@linuxfoundation.org>
-References: <20200221072250.732482588@linuxfoundation.org>
+In-Reply-To: <20200221072402.315346745@linuxfoundation.org>
+References: <20200221072402.315346745@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,58 +44,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jessica Yu <jeyu@kernel.org>
+From: Ido Schimmel <idosch@mellanox.com>
 
-[ Upstream commit 708e0ada1916be765b7faa58854062f2bc620bbf ]
+[ Upstream commit 3a99cbb6fa7bca1995586ec2dc21b0368aad4937 ]
 
-In setup_load_info(), info->name (which contains the name of the module,
-mostly used for early logging purposes before the module gets set up)
-gets unconditionally assigned if .modinfo is missing despite the fact
-that there is an if (!info->name) check near the end of the function.
-Avoid assigning a placeholder string to info->name if .modinfo doesn't
-exist, so that we can fall back to info->mod->name later on.
+In case devlink_dpipe_entry_ctx_prepare() failed, release RTNL that was
+previously taken and free the memory allocated by
+mlxsw_sp_erif_entry_prepare().
 
-Fixes: 5fdc7db6448a ("module: setup load info before module_sig_check()")
-Reviewed-by: Miroslav Benes <mbenes@suse.cz>
-Signed-off-by: Jessica Yu <jeyu@kernel.org>
+Fixes: 2ba5999f009d ("mlxsw: spectrum: Add Support for erif table entries access")
+Signed-off-by: Ido Schimmel <idosch@mellanox.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/module.c | 9 ++++-----
- 1 file changed, 4 insertions(+), 5 deletions(-)
+ drivers/net/ethernet/mellanox/mlxsw/spectrum_dpipe.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/kernel/module.c b/kernel/module.c
-index 70a75a7216abb..20fc0efc679c0 100644
---- a/kernel/module.c
-+++ b/kernel/module.c
-@@ -2980,9 +2980,7 @@ static int setup_load_info(struct load_info *info, int flags)
- 
- 	/* Try to find a name early so we can log errors with a module name */
- 	info->index.info = find_sec(info, ".modinfo");
--	if (!info->index.info)
--		info->name = "(missing .modinfo section)";
--	else
-+	if (info->index.info)
- 		info->name = get_modinfo(info, "name");
- 
- 	/* Find internal symbols and strings. */
-@@ -2997,14 +2995,15 @@ static int setup_load_info(struct load_info *info, int flags)
- 	}
- 
- 	if (info->index.sym == 0) {
--		pr_warn("%s: module has no symbols (stripped?)\n", info->name);
-+		pr_warn("%s: module has no symbols (stripped?)\n",
-+			info->name ?: "(missing .modinfo section or name field)");
- 		return -ENOEXEC;
- 	}
- 
- 	info->index.mod = find_sec(info, ".gnu.linkonce.this_module");
- 	if (!info->index.mod) {
- 		pr_warn("%s: No module found in object\n",
--			info->name ?: "(missing .modinfo name field)");
-+			info->name ?: "(missing .modinfo section or name field)");
- 		return -ENOEXEC;
- 	}
- 	/* This is temporary: point mod into copy of data. */
+diff --git a/drivers/net/ethernet/mellanox/mlxsw/spectrum_dpipe.c b/drivers/net/ethernet/mellanox/mlxsw/spectrum_dpipe.c
+index 49933818c6f59..2dc0978428e64 100644
+--- a/drivers/net/ethernet/mellanox/mlxsw/spectrum_dpipe.c
++++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum_dpipe.c
+@@ -215,7 +215,7 @@ mlxsw_sp_dpipe_table_erif_entries_dump(void *priv, bool counters_enabled,
+ start_again:
+ 	err = devlink_dpipe_entry_ctx_prepare(dump_ctx);
+ 	if (err)
+-		return err;
++		goto err_ctx_prepare;
+ 	j = 0;
+ 	for (; i < rif_count; i++) {
+ 		struct mlxsw_sp_rif *rif = mlxsw_sp_rif_by_index(mlxsw_sp, i);
+@@ -247,6 +247,7 @@ start_again:
+ 	return 0;
+ err_entry_append:
+ err_entry_get:
++err_ctx_prepare:
+ 	rtnl_unlock();
+ 	devlink_dpipe_entry_clear(&entry);
+ 	return err;
 -- 
 2.20.1
 
