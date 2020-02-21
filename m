@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 25FE31676D3
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:41:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 601171675D9
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:32:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730742AbgBUH6O (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 02:58:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57970 "EHLO mail.kernel.org"
+        id S1733087AbgBUINz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 03:13:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50258 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730565AbgBUH6N (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 02:58:13 -0500
+        id S1733060AbgBUINy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 03:13:54 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 57528206ED;
-        Fri, 21 Feb 2020 07:58:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AE8B824650;
+        Fri, 21 Feb 2020 08:13:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582271891;
-        bh=1cIvgbQumL/bZuCtORG9WNL/02NREKUgNOvzr9i7L+c=;
+        s=default; t=1582272834;
+        bh=y2KdCYZvWSq0h8YAq2s31CMB/GuJJswO/YD0CnIzWXQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Sha8DEcsWzZadR5vKKSJy+Qf5X7RhEwpLbP5hsAPEBpH/9tvgNBv+LL1qhJ5YmNHr
-         yAvKKCwXXEBhaYYAFpSv9+tXTSndPCpw6URK3JPrm7ceWblQp3Ixg+4rkwkmmm2+0Q
-         E2H+IfrLvF7m29AfhJbmJlLG1qYSFMAvnkZQFFF0=
+        b=GuWWPATWq0XnbovVUTzagPDrpfJcfiuoRrWOymJc/yAU1EWemSoIB5OVGFcz6MvrQ
+         KMnDPGjpYhE6yzhRTDSy3AxNNy/vEHffU3H++8vGfO3OTBx8+x6svcDwCJMtnsqXnC
+         CvmTsTA245ow7KFITMC8PoAmS9ZvvK992djpVY0I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Douglas Anderson <dianders@chromium.org>,
-        Stephen Boyd <swboyd@chromium.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
+        stable@vger.kernel.org, yu kuai <yukuai3@huawei.com>,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>,
+        Thierry Reding <thierry.reding@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 337/399] alarmtimer: Make alarmtimer platform device child of RTC device
+Subject: [PATCH 5.4 263/344] pwm: Remove set but not set variable pwm
 Date:   Fri, 21 Feb 2020 08:41:02 +0100
-Message-Id: <20200221072433.728072958@linuxfoundation.org>
+Message-Id: <20200221072413.519394099@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200221072402.315346745@linuxfoundation.org>
-References: <20200221072402.315346745@linuxfoundation.org>
+In-Reply-To: <20200221072349.335551332@linuxfoundation.org>
+References: <20200221072349.335551332@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,100 +46,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephen Boyd <swboyd@chromium.org>
+From: yu kuai <yukuai3@huawei.com>
 
-[ Upstream commit c79108bd19a8490315847e0c95ac6526fcd8e770 ]
+[ Upstream commit 9871abffc81048e20f02e15d6aa4558a44ad53ea ]
 
-The alarmtimer_suspend() function will fail if an RTC device is on a bus
-such as SPI or i2c and that RTC device registers and probes after
-alarmtimer_init() registers and probes the 'alarmtimer' platform device.
+Fixes gcc '-Wunused-but-set-variable' warning:
 
-This is because system wide suspend suspends devices in the reverse order
-of their probe. When alarmtimer_suspend() attempts to program the RTC for a
-wakeup it will try to program an RTC device on a bus that has already been
-suspended.
+	drivers/pwm/pwm-pca9685.c: In function ‘pca9685_pwm_gpio_free’:
+	drivers/pwm/pwm-pca9685.c:162:21: warning: variable ‘pwm’ set but not used [-Wunused-but-set-variable]
 
-Move the alarmtimer device registration to happen when the RTC which is
-used for wakeup is registered. Register the 'alarmtimer' platform device as
-a child of the RTC device too, so that it can be guaranteed that the RTC
-device won't be suspended when alarmtimer_suspend() is called.
+It is never used, and so can be removed. In that case, hold and release
+the lock 'pca->lock' can be removed since nothing will be done between
+them.
 
-Reported-by: Douglas Anderson <dianders@chromium.org>
-Signed-off-by: Stephen Boyd <swboyd@chromium.org>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Reviewed-by: Douglas Anderson <dianders@chromium.org>
-Link: https://lore.kernel.org/r/20200124055849.154411-2-swboyd@chromium.org
+Fixes: e926b12c611c ("pwm: Clear chip_data in pwm_put()")
+Signed-off-by: yu kuai <yukuai3@huawei.com>
+Acked-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/time/alarmtimer.c | 20 +++++++++-----------
- 1 file changed, 9 insertions(+), 11 deletions(-)
+ drivers/pwm/pwm-pca9685.c | 4 ----
+ 1 file changed, 4 deletions(-)
 
-diff --git a/kernel/time/alarmtimer.c b/kernel/time/alarmtimer.c
-index 4b11f0309eee4..b97401f6bc232 100644
---- a/kernel/time/alarmtimer.c
-+++ b/kernel/time/alarmtimer.c
-@@ -88,6 +88,7 @@ static int alarmtimer_rtc_add_device(struct device *dev,
- 	unsigned long flags;
- 	struct rtc_device *rtc = to_rtc_device(dev);
- 	struct wakeup_source *__ws;
-+	struct platform_device *pdev;
- 	int ret = 0;
- 
- 	if (rtcdev)
-@@ -99,9 +100,11 @@ static int alarmtimer_rtc_add_device(struct device *dev,
- 		return -1;
- 
- 	__ws = wakeup_source_register(dev, "alarmtimer");
-+	pdev = platform_device_register_data(dev, "alarmtimer",
-+					     PLATFORM_DEVID_AUTO, NULL, 0);
- 
- 	spin_lock_irqsave(&rtcdev_lock, flags);
--	if (!rtcdev) {
-+	if (__ws && !IS_ERR(pdev) && !rtcdev) {
- 		if (!try_module_get(rtc->owner)) {
- 			ret = -1;
- 			goto unlock;
-@@ -112,10 +115,14 @@ static int alarmtimer_rtc_add_device(struct device *dev,
- 		get_device(dev);
- 		ws = __ws;
- 		__ws = NULL;
-+		pdev = NULL;
-+	} else {
-+		ret = -1;
- 	}
- unlock:
- 	spin_unlock_irqrestore(&rtcdev_lock, flags);
- 
-+	platform_device_unregister(pdev);
- 	wakeup_source_unregister(__ws);
- 
- 	return ret;
-@@ -876,8 +883,7 @@ static struct platform_driver alarmtimer_driver = {
-  */
- static int __init alarmtimer_init(void)
+diff --git a/drivers/pwm/pwm-pca9685.c b/drivers/pwm/pwm-pca9685.c
+index 168684b02ebce..b07bdca3d510d 100644
+--- a/drivers/pwm/pwm-pca9685.c
++++ b/drivers/pwm/pwm-pca9685.c
+@@ -159,13 +159,9 @@ static void pca9685_pwm_gpio_set(struct gpio_chip *gpio, unsigned int offset,
+ static void pca9685_pwm_gpio_free(struct gpio_chip *gpio, unsigned int offset)
  {
--	struct platform_device *pdev;
--	int error = 0;
-+	int error;
- 	int i;
+ 	struct pca9685 *pca = gpiochip_get_data(gpio);
+-	struct pwm_device *pwm;
  
- 	alarmtimer_rtc_timer_init();
-@@ -900,15 +906,7 @@ static int __init alarmtimer_init(void)
- 	if (error)
- 		goto out_if;
+ 	pca9685_pwm_gpio_set(gpio, offset, 0);
+ 	pm_runtime_put(pca->chip.dev);
+-	mutex_lock(&pca->lock);
+-	pwm = &pca->chip.pwms[offset];
+-	mutex_unlock(&pca->lock);
+ }
  
--	pdev = platform_device_register_simple("alarmtimer", -1, NULL, 0);
--	if (IS_ERR(pdev)) {
--		error = PTR_ERR(pdev);
--		goto out_drv;
--	}
- 	return 0;
--
--out_drv:
--	platform_driver_unregister(&alarmtimer_driver);
- out_if:
- 	alarmtimer_rtc_interface_remove();
- 	return error;
+ static int pca9685_pwm_gpio_get_direction(struct gpio_chip *chip,
 -- 
 2.20.1
 
