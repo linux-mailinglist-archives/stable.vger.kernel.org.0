@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8193B16721C
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:00:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A6A416750B
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:30:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730827AbgBUIAT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 03:00:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60658 "EHLO mail.kernel.org"
+        id S1732397AbgBUIWZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 03:22:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33976 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729111AbgBUIAQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 03:00:16 -0500
+        id S2388290AbgBUIWY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 03:22:24 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 85F85206ED;
-        Fri, 21 Feb 2020 08:00:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 07AC824672;
+        Fri, 21 Feb 2020 08:22:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582272016;
-        bh=RrihWs1bIyYOToiy0ScEICNCuQs5FEPMAr1Amv+Q22g=;
+        s=default; t=1582273343;
+        bh=O6NHsOKP5WI6rUdV37NfHsDshjlGXVTkDbk7qfG4Jhg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NNFxtXA8e4Tvzcq+2ZQmXjPEmTuSCwNHyZOl4mHnujCW5xu9xaaLl+HQiKgJIv70O
-         apUtRNYYA+qLEpb8z/tu/OouWQIP5AOOXIMnHkCF7zzraLcj+tU8GV5PRXJe9mSTYE
-         lQ/Xm3pfIYUkmIr8bXx/J7NB/Vmhn3iDZ9hb+r9o=
+        b=K86l6mVukoeVqz8gWq5GCJ4IqnRnXVL1uQKVgAb0CGtoOgfAoE7g6qT05CzeLlvJW
+         lur9tnTlzcWG573szagXydf0PSjFZyjkgcnvlcOD+EOT+ZCqwv3RkrK/yJ917zYwDn
+         MK2gxafkSezEam4WMn5nN4ZOs6OlbpfM1EC/PU0M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Davide Caratti <dcaratti@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Robert Richter <rrichter@marvell.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 383/399] tc-testing: add missing nsPlugin to basic.json
-Date:   Fri, 21 Feb 2020 08:41:48 +0100
-Message-Id: <20200221072437.383540819@linuxfoundation.org>
+Subject: [PATCH 4.19 136/191] watchdog/softlockup: Enforce that timestamp is valid on boot
+Date:   Fri, 21 Feb 2020 08:41:49 +0100
+Message-Id: <20200221072307.055337500@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200221072402.315346745@linuxfoundation.org>
-References: <20200221072402.315346745@linuxfoundation.org>
+In-Reply-To: <20200221072250.732482588@linuxfoundation.org>
+References: <20200221072250.732482588@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,197 +44,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Davide Caratti <dcaratti@redhat.com>
+From: Thomas Gleixner <tglx@linutronix.de>
 
-[ Upstream commit e9ed4fa7b4400d7b2cf03108842a30e6c9bd0eb2 ]
+[ Upstream commit 11e31f608b499f044f24b20be73f1dcab3e43f8a ]
 
-since tdc tests for cls_basic need $DEV1, use 'nsPlugin' so that the
-following command can be run without errors:
+Robert reported that during boot the watchdog timestamp is set to 0 for one
+second which is the indicator for a watchdog reset.
 
- [root@f31 tc-testing]# ./tdc.py -c basic
+The reason for this is that the timestamp is in seconds and the time is
+taken from sched clock and divided by ~1e9. sched clock starts at 0 which
+means that for the first second during boot the watchdog timestamp is 0,
+i.e. reset.
 
-Fixes: 4717b05328ba ("tc-testing: Introduced tdc tests for basic filter")
-Signed-off-by: Davide Caratti <dcaratti@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Use ULONG_MAX as the reset indicator value so the watchdog works correctly
+right from the start. ULONG_MAX would only conflict with a real timestamp
+if the system reaches an uptime of 136 years on 32bit and almost eternity
+on 64bit.
+
+Reported-by: Robert Richter <rrichter@marvell.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Link: https://lore.kernel.org/r/87o8v3uuzl.fsf@nanos.tec.linutronix.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../tc-testing/tc-tests/filters/basic.json    | 51 +++++++++++++++++++
- 1 file changed, 51 insertions(+)
+ kernel/watchdog.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/tools/testing/selftests/tc-testing/tc-tests/filters/basic.json b/tools/testing/selftests/tc-testing/tc-tests/filters/basic.json
-index 2e361cea63bcd..98a20faf31986 100644
---- a/tools/testing/selftests/tc-testing/tc-tests/filters/basic.json
-+++ b/tools/testing/selftests/tc-testing/tc-tests/filters/basic.json
-@@ -6,6 +6,9 @@
-             "filter",
-             "basic"
-         ],
-+        "plugins": {
-+            "requires": "nsPlugin"
-+        },
-         "setup": [
-             "$TC qdisc add dev $DEV1 ingress"
-         ],
-@@ -25,6 +28,9 @@
-             "filter",
-             "basic"
-         ],
-+        "plugins": {
-+            "requires": "nsPlugin"
-+        },
-         "setup": [
-             "$TC qdisc add dev $DEV1 ingress"
-         ],
-@@ -44,6 +50,9 @@
-             "filter",
-             "basic"
-         ],
-+        "plugins": {
-+            "requires": "nsPlugin"
-+        },
-         "setup": [
-             "$TC qdisc add dev $DEV1 ingress"
-         ],
-@@ -63,6 +72,9 @@
-             "filter",
-             "basic"
-         ],
-+        "plugins": {
-+            "requires": "nsPlugin"
-+        },
-         "setup": [
-             "$TC qdisc add dev $DEV1 ingress"
-         ],
-@@ -82,6 +94,9 @@
-             "filter",
-             "basic"
-         ],
-+        "plugins": {
-+            "requires": "nsPlugin"
-+        },
-         "setup": [
-             "$TC qdisc add dev $DEV1 ingress"
-         ],
-@@ -101,6 +116,9 @@
-             "filter",
-             "basic"
-         ],
-+        "plugins": {
-+            "requires": "nsPlugin"
-+        },
-         "setup": [
-             "$TC qdisc add dev $DEV1 ingress"
-         ],
-@@ -120,6 +138,9 @@
-             "filter",
-             "basic"
-         ],
-+        "plugins": {
-+            "requires": "nsPlugin"
-+        },
-         "setup": [
-             "$TC qdisc add dev $DEV1 ingress"
-         ],
-@@ -139,6 +160,9 @@
-             "filter",
-             "basic"
-         ],
-+        "plugins": {
-+            "requires": "nsPlugin"
-+        },
-         "setup": [
-             "$TC qdisc add dev $DEV1 ingress"
-         ],
-@@ -158,6 +182,9 @@
-             "filter",
-             "basic"
-         ],
-+        "plugins": {
-+            "requires": "nsPlugin"
-+        },
-         "setup": [
-             "$TC qdisc add dev $DEV1 ingress"
-         ],
-@@ -177,6 +204,9 @@
-             "filter",
-             "basic"
-         ],
-+        "plugins": {
-+            "requires": "nsPlugin"
-+        },
-         "setup": [
-             "$TC qdisc add dev $DEV1 ingress"
-         ],
-@@ -196,6 +226,9 @@
-             "filter",
-             "basic"
-         ],
-+        "plugins": {
-+            "requires": "nsPlugin"
-+        },
-         "setup": [
-             "$TC qdisc add dev $DEV1 ingress"
-         ],
-@@ -215,6 +248,9 @@
-             "filter",
-             "basic"
-         ],
-+        "plugins": {
-+            "requires": "nsPlugin"
-+        },
-         "setup": [
-             "$TC qdisc add dev $DEV1 ingress"
-         ],
-@@ -234,6 +270,9 @@
-             "filter",
-             "basic"
-         ],
-+        "plugins": {
-+            "requires": "nsPlugin"
-+        },
-         "setup": [
-             "$TC qdisc add dev $DEV1 ingress"
-         ],
-@@ -253,6 +292,9 @@
-             "filter",
-             "basic"
-         ],
-+        "plugins": {
-+            "requires": "nsPlugin"
-+        },
-         "setup": [
-             "$TC qdisc add dev $DEV1 ingress"
-         ],
-@@ -272,6 +314,9 @@
-             "filter",
-             "basic"
-         ],
-+        "plugins": {
-+            "requires": "nsPlugin"
-+        },
-         "setup": [
-             "$TC qdisc add dev $DEV1 ingress"
-         ],
-@@ -291,6 +336,9 @@
-             "filter",
-             "basic"
-         ],
-+        "plugins": {
-+            "requires": "nsPlugin"
-+        },
-         "setup": [
-             "$TC qdisc add dev $DEV1 ingress"
-         ],
-@@ -310,6 +358,9 @@
-             "filter",
-             "basic"
-         ],
-+        "plugins": {
-+            "requires": "nsPlugin"
-+        },
-         "setup": [
-             "$TC qdisc add dev $DEV1 ingress"
-         ],
+diff --git a/kernel/watchdog.c b/kernel/watchdog.c
+index bbc4940f21af6..6d60701dc6361 100644
+--- a/kernel/watchdog.c
++++ b/kernel/watchdog.c
+@@ -161,6 +161,8 @@ static void lockup_detector_update_enable(void)
+ 
+ #ifdef CONFIG_SOFTLOCKUP_DETECTOR
+ 
++#define SOFTLOCKUP_RESET	ULONG_MAX
++
+ /* Global variables, exported for sysctl */
+ unsigned int __read_mostly softlockup_panic =
+ 			CONFIG_BOOTPARAM_SOFTLOCKUP_PANIC_VALUE;
+@@ -267,7 +269,7 @@ notrace void touch_softlockup_watchdog_sched(void)
+ 	 * Preemption can be enabled.  It doesn't matter which CPU's timestamp
+ 	 * gets zeroed here, so use the raw_ operation.
+ 	 */
+-	raw_cpu_write(watchdog_touch_ts, 0);
++	raw_cpu_write(watchdog_touch_ts, SOFTLOCKUP_RESET);
+ }
+ 
+ notrace void touch_softlockup_watchdog(void)
+@@ -291,14 +293,14 @@ void touch_all_softlockup_watchdogs(void)
+ 	 * the softlockup check.
+ 	 */
+ 	for_each_cpu(cpu, &watchdog_allowed_mask)
+-		per_cpu(watchdog_touch_ts, cpu) = 0;
++		per_cpu(watchdog_touch_ts, cpu) = SOFTLOCKUP_RESET;
+ 	wq_watchdog_touch(-1);
+ }
+ 
+ void touch_softlockup_watchdog_sync(void)
+ {
+ 	__this_cpu_write(softlockup_touch_sync, true);
+-	__this_cpu_write(watchdog_touch_ts, 0);
++	__this_cpu_write(watchdog_touch_ts, SOFTLOCKUP_RESET);
+ }
+ 
+ static int is_softlockup(unsigned long touch_ts)
+@@ -376,7 +378,7 @@ static enum hrtimer_restart watchdog_timer_fn(struct hrtimer *hrtimer)
+ 	/* .. and repeat */
+ 	hrtimer_forward_now(hrtimer, ns_to_ktime(sample_period));
+ 
+-	if (touch_ts == 0) {
++	if (touch_ts == SOFTLOCKUP_RESET) {
+ 		if (unlikely(__this_cpu_read(softlockup_touch_sync))) {
+ 			/*
+ 			 * If the time stamp was touched atomically
 -- 
 2.20.1
 
