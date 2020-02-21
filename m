@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 70B501676AF
+	by mail.lfdr.de (Postfix) with ESMTP id 06C801676AE
 	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:38:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731481AbgBUIEp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 03:04:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37960 "EHLO mail.kernel.org"
+        id S1731704AbgBUIEt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 03:04:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38104 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731034AbgBUIEo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 03:04:44 -0500
+        id S1731436AbgBUIEt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 03:04:49 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0D34B2073A;
-        Fri, 21 Feb 2020 08:04:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F3AA62467D;
+        Fri, 21 Feb 2020 08:04:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582272283;
-        bh=Bder6H6v+8vZj+HHIqzkVKXYCG1a6QBzUr2WFqJFoAc=;
+        s=default; t=1582272288;
+        bh=4T5JPQqUE6xKW9k7cnqNq3V+LwoqG3tjHTLL42udH/w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2Z6FZTR20ixC6LJHAP5FOE6pujLIk/zCvtMYNYfBjm9TeOCbYgvFV2cek84ACX+Ew
-         oRKw/YsHZAvWQahXL8q+WFu+u4n/ZkV09FTmvJw9Spmzk35nnbN63fy/ATGw0Yueo1
-         jreSXwT2M9PHw0m1eSxqi53WEBJAuFz33qKmM2v0=
+        b=jlHVDoPIqznT2NmBkGkO7yS0kPvHoMPuwgUcN0vsx606f+LRw1XYgEk0SPUAjPf3w
+         dhsABg7czOXkW8h2oJN0seMD3i1E359jBWpw/Y5GrUdxOwZN//nu03L8h+D9zzzTjj
+         k2RH6/dbqLKjE8AssSkXwRxVFyQKwbKHK9v1AM4U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Masami Hiramatsu <mhiramat@kernel.org>,
-        Tom Zanussi <zanussi@kernel.org>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
+        stable@vger.kernel.org, Julian Wiedmann <jwi@linux.ibm.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Thomas Huth <thuth@redhat.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 084/344] tracing: Simplify assignment parsing for hist triggers
-Date:   Fri, 21 Feb 2020 08:38:03 +0100
-Message-Id: <20200221072356.603328366@linuxfoundation.org>
+Subject: [PATCH 5.4 086/344] KVM: s390: ENOTSUPP -> EOPNOTSUPP fixups
+Date:   Fri, 21 Feb 2020 08:38:05 +0100
+Message-Id: <20200221072356.789783962@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200221072349.335551332@linuxfoundation.org>
 References: <20200221072349.335551332@linuxfoundation.org>
@@ -45,191 +46,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tom Zanussi <zanussi@kernel.org>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
 
-[ Upstream commit b527b638fd63ba791dc90a0a6e9a3035b10df52b ]
+[ Upstream commit c611990844c28c61ca4b35ff69d3a2ae95ccd486 ]
 
-In the process of adding better error messages for sorting, I realized
-that strsep was being used incorrectly and some of the error paths I
-was expecting to be hit weren't and just fell through to the common
-invalid key error case.
+There is no ENOTSUPP for userspace.
 
-It also became obvious that for keyword assignments, it wasn't
-necessary to save the full assignment and reparse it later, and having
-a common empty-assignment check would also make more sense in terms of
-error processing.
-
-Change the code to fix these problems and simplify it for new error
-message changes in a subsequent patch.
-
-Link: http://lkml.kernel.org/r/1c3ef0b6655deaf345f6faee2584a0298ac2d743.1561743018.git.zanussi@kernel.org
-
-Fixes: e62347d24534 ("tracing: Add hist trigger support for user-defined sorting ('sort=' param)")
-Fixes: 7ef224d1d0e3 ("tracing: Add 'hist' event trigger command")
-Fixes: a4072fe85ba3 ("tracing: Add a clock attribute for hist triggers")
-Reported-by: Masami Hiramatsu <mhiramat@kernel.org>
-Reviewed-by: Masami Hiramatsu <mhiramat@kernel.org>
-Signed-off-by: Tom Zanussi <zanussi@kernel.org>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Reported-by: Julian Wiedmann <jwi@linux.ibm.com>
+Fixes: 519783935451 ("KVM: s390: introduce ais mode modify function")
+Fixes: 2c1a48f2e5ed ("KVM: S390: add new group for flic")
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Reviewed-by: Thomas Huth <thuth@redhat.com>
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/trace/trace_events_hist.c | 70 ++++++++++++--------------------
- 1 file changed, 27 insertions(+), 43 deletions(-)
+ arch/s390/kvm/interrupt.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/kernel/trace/trace_events_hist.c b/kernel/trace/trace_events_hist.c
-index 4be7fc84d6b6a..a31be3fce3e8e 100644
---- a/kernel/trace/trace_events_hist.c
-+++ b/kernel/trace/trace_events_hist.c
-@@ -2037,12 +2037,6 @@ static int parse_map_size(char *str)
- 	unsigned long size, map_bits;
- 	int ret;
+diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
+index d1ccc168c0714..62388a678b91a 100644
+--- a/arch/s390/kvm/interrupt.c
++++ b/arch/s390/kvm/interrupt.c
+@@ -2191,7 +2191,7 @@ static int flic_ais_mode_get_all(struct kvm *kvm, struct kvm_device_attr *attr)
+ 		return -EINVAL;
  
--	strsep(&str, "=");
--	if (!str) {
--		ret = -EINVAL;
--		goto out;
--	}
--
- 	ret = kstrtoul(str, 0, &size);
- 	if (ret)
- 		goto out;
-@@ -2102,25 +2096,25 @@ static int parse_action(char *str, struct hist_trigger_attrs *attrs)
- static int parse_assignment(struct trace_array *tr,
- 			    char *str, struct hist_trigger_attrs *attrs)
- {
--	int ret = 0;
-+	int len, ret = 0;
+ 	if (!test_kvm_facility(kvm, 72))
+-		return -ENOTSUPP;
++		return -EOPNOTSUPP;
  
--	if ((str_has_prefix(str, "key=")) ||
--	    (str_has_prefix(str, "keys="))) {
--		attrs->keys_str = kstrdup(str, GFP_KERNEL);
-+	if ((len = str_has_prefix(str, "key=")) ||
-+	    (len = str_has_prefix(str, "keys="))) {
-+		attrs->keys_str = kstrdup(str + len, GFP_KERNEL);
- 		if (!attrs->keys_str) {
- 			ret = -ENOMEM;
- 			goto out;
- 		}
--	} else if ((str_has_prefix(str, "val=")) ||
--		   (str_has_prefix(str, "vals=")) ||
--		   (str_has_prefix(str, "values="))) {
--		attrs->vals_str = kstrdup(str, GFP_KERNEL);
-+	} else if ((len = str_has_prefix(str, "val=")) ||
-+		   (len = str_has_prefix(str, "vals=")) ||
-+		   (len = str_has_prefix(str, "values="))) {
-+		attrs->vals_str = kstrdup(str + len, GFP_KERNEL);
- 		if (!attrs->vals_str) {
- 			ret = -ENOMEM;
- 			goto out;
- 		}
--	} else if (str_has_prefix(str, "sort=")) {
--		attrs->sort_key_str = kstrdup(str, GFP_KERNEL);
-+	} else if ((len = str_has_prefix(str, "sort="))) {
-+		attrs->sort_key_str = kstrdup(str + len, GFP_KERNEL);
- 		if (!attrs->sort_key_str) {
- 			ret = -ENOMEM;
- 			goto out;
-@@ -2131,12 +2125,8 @@ static int parse_assignment(struct trace_array *tr,
- 			ret = -ENOMEM;
- 			goto out;
- 		}
--	} else if (str_has_prefix(str, "clock=")) {
--		strsep(&str, "=");
--		if (!str) {
--			ret = -EINVAL;
--			goto out;
--		}
-+	} else if ((len = str_has_prefix(str, "clock="))) {
-+		str += len;
+ 	mutex_lock(&fi->ais_lock);
+ 	ais.simm = fi->simm;
+@@ -2500,7 +2500,7 @@ static int modify_ais_mode(struct kvm *kvm, struct kvm_device_attr *attr)
+ 	int ret = 0;
  
- 		str = strstrip(str);
- 		attrs->clock = kstrdup(str, GFP_KERNEL);
-@@ -2144,8 +2134,8 @@ static int parse_assignment(struct trace_array *tr,
- 			ret = -ENOMEM;
- 			goto out;
- 		}
--	} else if (str_has_prefix(str, "size=")) {
--		int map_bits = parse_map_size(str);
-+	} else if ((len = str_has_prefix(str, "size="))) {
-+		int map_bits = parse_map_size(str + len);
+ 	if (!test_kvm_facility(kvm, 72))
+-		return -ENOTSUPP;
++		return -EOPNOTSUPP;
  
- 		if (map_bits < 0) {
- 			ret = map_bits;
-@@ -2185,8 +2175,14 @@ parse_hist_trigger_attrs(struct trace_array *tr, char *trigger_str)
+ 	if (copy_from_user(&req, (void __user *)attr->addr, sizeof(req)))
+ 		return -EFAULT;
+@@ -2580,7 +2580,7 @@ static int flic_ais_mode_set_all(struct kvm *kvm, struct kvm_device_attr *attr)
+ 	struct kvm_s390_ais_all ais;
  
- 	while (trigger_str) {
- 		char *str = strsep(&trigger_str, ":");
-+		char *rhs;
+ 	if (!test_kvm_facility(kvm, 72))
+-		return -ENOTSUPP;
++		return -EOPNOTSUPP;
  
--		if (strchr(str, '=')) {
-+		rhs = strchr(str, '=');
-+		if (rhs) {
-+			if (!strlen(++rhs)) {
-+				ret = -EINVAL;
-+				goto free;
-+			}
- 			ret = parse_assignment(tr, str, attrs);
- 			if (ret)
- 				goto free;
-@@ -4559,10 +4555,6 @@ static int create_val_fields(struct hist_trigger_data *hist_data,
- 	if (!fields_str)
- 		goto out;
- 
--	strsep(&fields_str, "=");
--	if (!fields_str)
--		goto out;
--
- 	for (i = 0, j = 1; i < TRACING_MAP_VALS_MAX &&
- 		     j < TRACING_MAP_VALS_MAX; i++) {
- 		field_str = strsep(&fields_str, ",");
-@@ -4657,10 +4649,6 @@ static int create_key_fields(struct hist_trigger_data *hist_data,
- 	if (!fields_str)
- 		goto out;
- 
--	strsep(&fields_str, "=");
--	if (!fields_str)
--		goto out;
--
- 	for (i = n_vals; i < n_vals + TRACING_MAP_KEYS_MAX; i++) {
- 		field_str = strsep(&fields_str, ",");
- 		if (!field_str)
-@@ -4818,12 +4806,6 @@ static int create_sort_keys(struct hist_trigger_data *hist_data)
- 	if (!fields_str)
- 		goto out;
- 
--	strsep(&fields_str, "=");
--	if (!fields_str) {
--		ret = -EINVAL;
--		goto out;
--	}
--
- 	for (i = 0; i < TRACING_MAP_SORT_KEYS_MAX; i++) {
- 		struct hist_field *hist_field;
- 		char *field_str, *field_name;
-@@ -4832,9 +4814,11 @@ static int create_sort_keys(struct hist_trigger_data *hist_data)
- 		sort_key = &hist_data->sort_keys[i];
- 
- 		field_str = strsep(&fields_str, ",");
--		if (!field_str) {
--			if (i == 0)
--				ret = -EINVAL;
-+		if (!field_str)
-+			break;
-+
-+		if (!*field_str) {
-+			ret = -EINVAL;
- 			break;
- 		}
- 
-@@ -4844,7 +4828,7 @@ static int create_sort_keys(struct hist_trigger_data *hist_data)
- 		}
- 
- 		field_name = strsep(&field_str, ".");
--		if (!field_name) {
-+		if (!field_name || !*field_name) {
- 			ret = -EINVAL;
- 			break;
- 		}
+ 	if (copy_from_user(&ais, (void __user *)attr->addr, sizeof(ais)))
+ 		return -EFAULT;
 -- 
 2.20.1
 
