@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1407C1675A6
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:31:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DA56B16755D
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:31:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732426AbgBUIQI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 03:16:08 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53092 "EHLO mail.kernel.org"
+        id S1730086AbgBUIZn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 03:25:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37692 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387476AbgBUIQI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 03:16:08 -0500
+        id S2388736AbgBUIZA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 03:25:00 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A60CA24681;
-        Fri, 21 Feb 2020 08:16:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CBA3E2467D;
+        Fri, 21 Feb 2020 08:24:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582272967;
-        bh=H0djIpIgCKD0Tf20YOgU5LkJ2ifFfJbbpxqtLDzx5TY=;
+        s=default; t=1582273500;
+        bh=alg3hx0ZsAVDxehLFVHesumGzR/P6vdWyx9Oo5Cvnrc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=skyhErt0m9WgpxXMTCII64rzhtypTUaglKrFrb/kWk8ShErtgWGTXxPMYTHSQqqFV
-         q3doYwBwu+kJrtrMCmuuwNwiCmNnrDFJeT4OiC0U++3vAwofAMeda5NL+PezRRoS/S
-         MaFjZo2cED5r0KpQNXpBtBYC+/qp93jSyDu3Ktrs=
+        b=kpWXBq9ZvjAWj6yu9eBnAnmJ90Dl41GHnu1FRZWCelQv/YNXopck5JtHQ8Ii2ASAR
+         ROMJHN7FHXNVXp1tY/j+q4nnb01FUzesvKlKSsbg3rXPQiFOWnzoikmiqNQXwbazI6
+         oEsjrIiwyHfPTp5jY4Mh0I1piZLEllVxh1vdFq2M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Ilya Dryomov <idryomov@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 343/344] drm/amdgpu/display: handle multiple numbers of fclks in dcn_calcs.c (v2)
-Date:   Fri, 21 Feb 2020 08:42:22 +0100
-Message-Id: <20200221072421.622181768@linuxfoundation.org>
+Subject: [PATCH 4.19 170/191] rbd: work around -Wuninitialized warning
+Date:   Fri, 21 Feb 2020 08:42:23 +0100
+Message-Id: <20200221072311.089769997@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200221072349.335551332@linuxfoundation.org>
-References: <20200221072349.335551332@linuxfoundation.org>
+In-Reply-To: <20200221072250.732482588@linuxfoundation.org>
+References: <20200221072250.732482588@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,75 +44,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alex Deucher <alexander.deucher@amd.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit c37243579d6c881c575dcfb54cf31c9ded88f946 ]
+[ Upstream commit a55e601b2f02df5db7070e9a37bd655c9c576a52 ]
 
-We might get different numbers of clocks from powerplay depending
-on what the OEM has populated.
+gcc -O3 warns about a dummy variable that is passed
+down into rbd_img_fill_nodata without being initialized:
 
-v2: add assert for at least one level
+drivers/block/rbd.c: In function 'rbd_img_fill_nodata':
+drivers/block/rbd.c:2573:13: error: 'dummy' is used uninitialized in this function [-Werror=uninitialized]
+  fctx->iter = *fctx->pos;
 
-Bug: https://gitlab.freedesktop.org/drm/amd/issues/963
-Reviewed-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Since this is a dummy, I assume the warning is harmless, but
+it's better to initialize it anyway and avoid the warning.
+
+Fixes: mmtom ("init/Kconfig: enable -O3 for all arches")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Reviewed-by: Ilya Dryomov <idryomov@gmail.com>
+Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../gpu/drm/amd/display/dc/calcs/dcn_calcs.c  | 34 +++++++++++++------
- 1 file changed, 23 insertions(+), 11 deletions(-)
+ drivers/block/rbd.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/calcs/dcn_calcs.c b/drivers/gpu/drm/amd/display/dc/calcs/dcn_calcs.c
-index 9b2cb57bf2bad..c9a241fe46cf4 100644
---- a/drivers/gpu/drm/amd/display/dc/calcs/dcn_calcs.c
-+++ b/drivers/gpu/drm/amd/display/dc/calcs/dcn_calcs.c
-@@ -1438,6 +1438,7 @@ void dcn_bw_update_from_pplib(struct dc *dc)
- 	struct dc_context *ctx = dc->ctx;
- 	struct dm_pp_clock_levels_with_voltage fclks = {0}, dcfclks = {0};
- 	bool res;
-+	unsigned vmin0p65_idx, vmid0p72_idx, vnom0p8_idx, vmax0p9_idx;
- 
- 	/* TODO: This is not the proper way to obtain fabric_and_dram_bandwidth, should be min(fclk, memclk) */
- 	res = dm_pp_get_clock_levels_by_type_with_voltage(
-@@ -1449,17 +1450,28 @@ void dcn_bw_update_from_pplib(struct dc *dc)
- 		res = verify_clock_values(&fclks);
- 
- 	if (res) {
--		ASSERT(fclks.num_levels >= 3);
--		dc->dcn_soc->fabric_and_dram_bandwidth_vmin0p65 = 32 * (fclks.data[0].clocks_in_khz / 1000.0) / 1000.0;
--		dc->dcn_soc->fabric_and_dram_bandwidth_vmid0p72 = dc->dcn_soc->number_of_channels *
--				(fclks.data[fclks.num_levels - (fclks.num_levels > 2 ? 3 : 2)].clocks_in_khz / 1000.0)
--				* ddr4_dram_factor_single_Channel / 1000.0;
--		dc->dcn_soc->fabric_and_dram_bandwidth_vnom0p8 = dc->dcn_soc->number_of_channels *
--				(fclks.data[fclks.num_levels - 2].clocks_in_khz / 1000.0)
--				* ddr4_dram_factor_single_Channel / 1000.0;
--		dc->dcn_soc->fabric_and_dram_bandwidth_vmax0p9 = dc->dcn_soc->number_of_channels *
--				(fclks.data[fclks.num_levels - 1].clocks_in_khz / 1000.0)
--				* ddr4_dram_factor_single_Channel / 1000.0;
-+		ASSERT(fclks.num_levels);
-+
-+		vmin0p65_idx = 0;
-+		vmid0p72_idx = fclks.num_levels -
-+			(fclks.num_levels > 2 ? 3 : (fclks.num_levels > 1 ? 2 : 1));
-+		vnom0p8_idx = fclks.num_levels - (fclks.num_levels > 1 ? 2 : 1);
-+		vmax0p9_idx = fclks.num_levels - 1;
-+
-+		dc->dcn_soc->fabric_and_dram_bandwidth_vmin0p65 =
-+			32 * (fclks.data[vmin0p65_idx].clocks_in_khz / 1000.0) / 1000.0;
-+		dc->dcn_soc->fabric_and_dram_bandwidth_vmid0p72 =
-+			dc->dcn_soc->number_of_channels *
-+			(fclks.data[vmid0p72_idx].clocks_in_khz / 1000.0)
-+			* ddr4_dram_factor_single_Channel / 1000.0;
-+		dc->dcn_soc->fabric_and_dram_bandwidth_vnom0p8 =
-+			dc->dcn_soc->number_of_channels *
-+			(fclks.data[vnom0p8_idx].clocks_in_khz / 1000.0)
-+			* ddr4_dram_factor_single_Channel / 1000.0;
-+		dc->dcn_soc->fabric_and_dram_bandwidth_vmax0p9 =
-+			dc->dcn_soc->number_of_channels *
-+			(fclks.data[vmax0p9_idx].clocks_in_khz / 1000.0)
-+			* ddr4_dram_factor_single_Channel / 1000.0;
- 	} else
- 		BREAK_TO_DEBUGGER();
- 
+diff --git a/drivers/block/rbd.c b/drivers/block/rbd.c
+index b942f4c8cea8c..d3ad1b8c133e6 100644
+--- a/drivers/block/rbd.c
++++ b/drivers/block/rbd.c
+@@ -2097,7 +2097,7 @@ static int rbd_img_fill_nodata(struct rbd_img_request *img_req,
+ 			       u64 off, u64 len)
+ {
+ 	struct ceph_file_extent ex = { off, len };
+-	union rbd_img_fill_iter dummy;
++	union rbd_img_fill_iter dummy = {};
+ 	struct rbd_img_fill_ctx fctx = {
+ 		.pos_type = OBJ_REQUEST_NODATA,
+ 		.pos = &dummy,
 -- 
 2.20.1
 
