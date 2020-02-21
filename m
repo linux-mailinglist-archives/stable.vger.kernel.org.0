@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BB2E416723F
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:01:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B7EFE167243
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:02:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731242AbgBUIBp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 03:01:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34078 "EHLO mail.kernel.org"
+        id S1731246AbgBUIB4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 03:01:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34290 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731087AbgBUIBo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 03:01:44 -0500
+        id S1730951AbgBUIBz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 03:01:55 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B869C20801;
-        Fri, 21 Feb 2020 08:01:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3A14F206ED;
+        Fri, 21 Feb 2020 08:01:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582272104;
-        bh=HDNfsmOpb9MK1yv2aN+/E97lXV9iDVXQh3D1EFAviJE=;
+        s=default; t=1582272114;
+        bh=iuyIbYzgZDi9u7sIMIx8Fd9TnuJLfU1RqCaPaTF+SmE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mgEzOxwonY1OFOBaNYGjxiZj815+SkiHGqDnpEwjqgamUTeoVbmzPu5LaeTgdHXnu
-         VAMaNSvTwDuLzNkgDv5PxHQ2tLHFLlPhLx9im+V8oaN6Wz3Avi88MA49IqoWQrHWYJ
-         m74oeAD03FtawvDsDb+DepOImH8xL23TrrHyWcfg=
+        b=yBPy0OAF4mZv8CxOR3Yt+Wyrs1LEGuhg9nZzDa9qvZdtISZS5DA+CNKLwijSrk2xt
+         /SVhgPKTvWRJ7Hzd2uSv4faQz45Y3sWLQJc4IGjdr1Mbbj8gyyniQbaI7pj5MTDUUE
+         ihVO3AtPQz6aerqlUsvKdnOTvdxLp9pqzE+RLto0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
-        Kevin Hilman <khilman@baylibre.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        stable@vger.kernel.org,
+        Navid Emamdoost <navid.emamdoost@gmail.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 018/344] media: meson: add missing allocation failure check on new_buf
-Date:   Fri, 21 Feb 2020 08:36:57 +0100
-Message-Id: <20200221072350.877403151@linuxfoundation.org>
+Subject: [PATCH 5.4 021/344] brcmfmac: Fix memory leak in brcmf_p2p_create_p2pdev()
+Date:   Fri, 21 Feb 2020 08:37:00 +0100
+Message-Id: <20200221072351.124138974@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200221072349.335551332@linuxfoundation.org>
 References: <20200221072349.335551332@linuxfoundation.org>
@@ -46,40 +45,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Navid Emamdoost <navid.emamdoost@gmail.com>
 
-[ Upstream commit 11e0e167d071a28288a7a0a211d48c571d19b56f ]
+[ Upstream commit 5cc509aa83c6acd2c5cd94f99065c39d2bd0a490 ]
 
-Currently if the allocation of new_buf fails then a null pointer
-dereference occurs when assiging new_buf->vb. Avoid this by returning
-early on a memory allocation failure as there is not much more can
-be done at this point.
+In the implementation of brcmf_p2p_create_p2pdev() the allocated memory
+for p2p_vif is leaked when the mac address is the same as primary
+interface. To fix this, go to error path to release p2p_vif via
+brcmf_free_vif().
 
-Addresses-Coverity: ("Dereference null return")
-
-Fixes: 3e7f51bd9607 ("media: meson: add v4l2 m2m video decoder driver")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Reviewed-by: Kevin Hilman <khilman@baylibre.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Fixes: cb746e47837a ("brcmfmac: check p2pdev mac address uniqueness")
+Signed-off-by: Navid Emamdoost <navid.emamdoost@gmail.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/media/meson/vdec/vdec.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/wireless/broadcom/brcm80211/brcmfmac/p2p.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/staging/media/meson/vdec/vdec.c b/drivers/staging/media/meson/vdec/vdec.c
-index 0a1a04fd5d13d..8dd1396909d7e 100644
---- a/drivers/staging/media/meson/vdec/vdec.c
-+++ b/drivers/staging/media/meson/vdec/vdec.c
-@@ -133,6 +133,8 @@ vdec_queue_recycle(struct amvdec_session *sess, struct vb2_buffer *vb)
- 	struct amvdec_buffer *new_buf;
+diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/p2p.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/p2p.c
+index 7ba9f6a686459..1f5deea5a288e 100644
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/p2p.c
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/p2p.c
+@@ -2092,7 +2092,8 @@ static struct wireless_dev *brcmf_p2p_create_p2pdev(struct brcmf_p2p_info *p2p,
+ 	/* firmware requires unique mac address for p2pdev interface */
+ 	if (addr && ether_addr_equal(addr, pri_ifp->mac_addr)) {
+ 		bphy_err(drvr, "discovery vif must be different from primary interface\n");
+-		return ERR_PTR(-EINVAL);
++		err = -EINVAL;
++		goto fail;
+ 	}
  
- 	new_buf = kmalloc(sizeof(*new_buf), GFP_KERNEL);
-+	if (!new_buf)
-+		return;
- 	new_buf->vb = vb;
- 
- 	mutex_lock(&sess->bufs_recycle_lock);
+ 	brcmf_p2p_generate_bss_mac(p2p, addr);
 -- 
 2.20.1
 
