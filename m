@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BEAEC167866
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:48:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 17C1F16772A
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:41:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728351AbgBUIsV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 03:48:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42878 "EHLO mail.kernel.org"
+        id S1730014AbgBUIjH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 03:39:07 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33946 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728389AbgBUHrH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 02:47:07 -0500
+        id S1730797AbgBUIBj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 03:01:39 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3E90024650;
-        Fri, 21 Feb 2020 07:47:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E46A120801;
+        Fri, 21 Feb 2020 08:01:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582271226;
-        bh=I6NtYLAPNib460xwCVxXUT8qx07WuH0UxST/BdX8blg=;
+        s=default; t=1582272098;
+        bh=tNTO4ct9SDI8I9KV6SDwnENGAUGgcphrJePh9bylMEQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HzlgMZud36xM76U7VQexBxusJraGwT+gsC0kYpI7RzN78ISWyeQNP+CrysAUzZA1c
-         aLSohVxhZbtKdA6F2l+3A68MnZG7lVMOq326ZJZCopAptUlyMrby8/bFfzEeF9AD2c
-         Wt3rB51pFewQai0060t2jdX+7U7ep8g7nb2/1A1U=
+        b=ojJr7tagSiqXGwpyfhu1nyCyf4vxOAahFOAg4OSEcwsQPv9ahy9cmcV0faOD2KzWJ
+         KkQiP/JYWJp2rjFWmUv7WgVAPLktSgf/ZEJihl5hcz5++47kAgJADJz6jQaPLh2TpX
+         FCr8OWWN3oBm7/EUvxcqGWN8U/olNkHfkhzJ8Dok=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rakesh Pillai <pillair@codeaurora.org>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org, Damien Le Moal <damien.lemoal@wdc.com>,
+        Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>,
+        Chao Yu <yuchao0@huawei.com>,
+        =?UTF-8?q?Javier=20Gonz=C3=A1lez?= <javier@javigon.com>,
+        Jaegeuk Kim <jaegeuk@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 087/399] ath10k: Correct the DMA direction for management tx buffers
-Date:   Fri, 21 Feb 2020 08:36:52 +0100
-Message-Id: <20200221072410.803417902@linuxfoundation.org>
+Subject: [PATCH 5.4 016/344] f2fs: preallocate DIO blocks when forcing buffered_io
+Date:   Fri, 21 Feb 2020 08:36:55 +0100
+Message-Id: <20200221072350.716190611@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200221072402.315346745@linuxfoundation.org>
-References: <20200221072402.315346745@linuxfoundation.org>
+In-Reply-To: <20200221072349.335551332@linuxfoundation.org>
+References: <20200221072349.335551332@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,55 +47,119 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rakesh Pillai <pillair@codeaurora.org>
+From: Jaegeuk Kim <jaegeuk@kernel.org>
 
-[ Upstream commit 6ba8b3b6bd772f575f7736c8fd893c6981fcce16 ]
+[ Upstream commit 47501f87c61ad2aa234add63e1ae231521dbc3f5 ]
 
-The management packets, send to firmware via WMI, are
-mapped using the direction DMA_TO_DEVICE. Currently in
-case of wmi cleanup, these buffers are being unmapped
-using an incorrect DMA direction. This can cause unwanted
-behavior when the host driver is handling a restart
-of the wlan firmware.
+The previous preallocation and DIO decision like below.
 
-We might see a trace like below
+                         allow_outplace_dio              !allow_outplace_dio
+f2fs_force_buffered_io   (*) No_Prealloc / Buffered_IO   Prealloc / Buffered_IO
+!f2fs_force_buffered_io  No_Prealloc / DIO               Prealloc / DIO
 
-[<ffffff8008098b18>] __dma_inv_area+0x28/0x58
-[<ffffff8001176734>] ath10k_wmi_mgmt_tx_clean_up_pending+0x60/0xb0 [ath10k_core]
-[<ffffff80088c7c50>] idr_for_each+0x78/0xe4
-[<ffffff80011766a4>] ath10k_wmi_detach+0x4c/0x7c [ath10k_core]
-[<ffffff8001163d7c>] ath10k_core_stop+0x58/0x68 [ath10k_core]
-[<ffffff800114fb74>] ath10k_halt+0xec/0x13c [ath10k_core]
-[<ffffff8001165110>] ath10k_core_restart+0x11c/0x1a8 [ath10k_core]
-[<ffffff80080c36bc>] process_one_work+0x16c/0x31c
+But, Javier reported Case (*) where zoned device bypassed preallocation but
+fell back to buffered writes in f2fs_direct_IO(), resulting in stale data
+being read.
 
-Fix the incorrect DMA direction during the wmi
-management tx buffer cleanup.
+In order to fix the issue, actually we need to preallocate blocks whenever
+we fall back to buffered IO like this. No change is made in the other cases.
 
-Tested HW: WCN3990
-Tested FW: WLAN.HL.3.1-00784-QCAHLSWMTPLZ-1
+                         allow_outplace_dio              !allow_outplace_dio
+f2fs_force_buffered_io   (*) Prealloc / Buffered_IO      Prealloc / Buffered_IO
+!f2fs_force_buffered_io  No_Prealloc / DIO               Prealloc / DIO
 
-Fixes: dc405152bb6 ("ath10k: handle mgmt tx completion event")
-Signed-off-by: Rakesh Pillai <pillair@codeaurora.org>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Reported-and-tested-by: Javier Gonzalez <javier@javigon.com>
+Signed-off-by: Damien Le Moal <damien.lemoal@wdc.com>
+Tested-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+Reviewed-by: Chao Yu <yuchao0@huawei.com>
+Reviewed-by: Javier González <javier@javigon.com>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath10k/wmi.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/f2fs/data.c | 13 -------------
+ fs/f2fs/file.c | 43 +++++++++++++++++++++++++++++++++----------
+ 2 files changed, 33 insertions(+), 23 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/ath10k/wmi.c b/drivers/net/wireless/ath/ath10k/wmi.c
-index 9f564e2b7a148..214d65108b294 100644
---- a/drivers/net/wireless/ath/ath10k/wmi.c
-+++ b/drivers/net/wireless/ath/ath10k/wmi.c
-@@ -9476,7 +9476,7 @@ static int ath10k_wmi_mgmt_tx_clean_up_pending(int msdu_id, void *ptr,
+diff --git a/fs/f2fs/data.c b/fs/f2fs/data.c
+index 2e9c731658008..5d6fd940aab2e 100644
+--- a/fs/f2fs/data.c
++++ b/fs/f2fs/data.c
+@@ -1074,19 +1074,6 @@ int f2fs_preallocate_blocks(struct kiocb *iocb, struct iov_iter *from)
+ 	int err = 0;
+ 	bool direct_io = iocb->ki_flags & IOCB_DIRECT;
  
- 	msdu = pkt_addr->vaddr;
- 	dma_unmap_single(ar->dev, pkt_addr->paddr,
--			 msdu->len, DMA_FROM_DEVICE);
-+			 msdu->len, DMA_TO_DEVICE);
- 	ieee80211_free_txskb(ar->hw, msdu);
+-	/* convert inline data for Direct I/O*/
+-	if (direct_io) {
+-		err = f2fs_convert_inline_inode(inode);
+-		if (err)
+-			return err;
+-	}
+-
+-	if (direct_io && allow_outplace_dio(inode, iocb, from))
+-		return 0;
+-
+-	if (is_inode_flag_set(inode, FI_NO_PREALLOC))
+-		return 0;
+-
+ 	map.m_lblk = F2FS_BLK_ALIGN(iocb->ki_pos);
+ 	map.m_len = F2FS_BYTES_TO_BLK(iocb->ki_pos + iov_iter_count(from));
+ 	if (map.m_len > map.m_lblk)
+diff --git a/fs/f2fs/file.c b/fs/f2fs/file.c
+index 72f308790a8e5..44bc5f4a9ce19 100644
+--- a/fs/f2fs/file.c
++++ b/fs/f2fs/file.c
+@@ -3348,18 +3348,41 @@ static ssize_t f2fs_file_write_iter(struct kiocb *iocb, struct iov_iter *from)
+ 				ret = -EAGAIN;
+ 				goto out;
+ 			}
+-		} else {
+-			preallocated = true;
+-			target_size = iocb->ki_pos + iov_iter_count(from);
++			goto write;
++		}
  
- 	return 0;
+-			err = f2fs_preallocate_blocks(iocb, from);
+-			if (err) {
+-				clear_inode_flag(inode, FI_NO_PREALLOC);
+-				inode_unlock(inode);
+-				ret = err;
+-				goto out;
+-			}
++		if (is_inode_flag_set(inode, FI_NO_PREALLOC))
++			goto write;
++
++		if (iocb->ki_flags & IOCB_DIRECT) {
++			/*
++			 * Convert inline data for Direct I/O before entering
++			 * f2fs_direct_IO().
++			 */
++			err = f2fs_convert_inline_inode(inode);
++			if (err)
++				goto out_err;
++			/*
++			 * If force_buffere_io() is true, we have to allocate
++			 * blocks all the time, since f2fs_direct_IO will fall
++			 * back to buffered IO.
++			 */
++			if (!f2fs_force_buffered_io(inode, iocb, from) &&
++					allow_outplace_dio(inode, iocb, from))
++				goto write;
++		}
++		preallocated = true;
++		target_size = iocb->ki_pos + iov_iter_count(from);
++
++		err = f2fs_preallocate_blocks(iocb, from);
++		if (err) {
++out_err:
++			clear_inode_flag(inode, FI_NO_PREALLOC);
++			inode_unlock(inode);
++			ret = err;
++			goto out;
+ 		}
++write:
+ 		ret = __generic_file_write_iter(iocb, from);
+ 		clear_inode_flag(inode, FI_NO_PREALLOC);
+ 
 -- 
 2.20.1
 
