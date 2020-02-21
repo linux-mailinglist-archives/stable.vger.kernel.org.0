@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A85C916704A
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 08:44:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E1CE16704B
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 08:44:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727448AbgBUHnz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 02:43:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38340 "EHLO mail.kernel.org"
+        id S1727497AbgBUHn7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 02:43:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38362 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727227AbgBUHnz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 02:43:55 -0500
+        id S1727460AbgBUHn5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 02:43:57 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 94FF5207FD;
-        Fri, 21 Feb 2020 07:43:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 24161207FD;
+        Fri, 21 Feb 2020 07:43:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582271034;
-        bh=UYqKx2O8ccgfc2BEmoOMtLzRV0341XwG6c3PzYFulew=;
+        s=default; t=1582271036;
+        bh=NcGh06knfGLcfuN1zseb3JhRUmzE9S2q+eze5sqOnB4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vjt057nJSU5NMJ1c/wtF2gsaA2exC3fm9Pw94eSBICG6UXGCLrRXvaUvrFGTLKRDd
-         0A8xUbG677BUgP1iA6elJAZOie/5txeIgeNNonnj4RguDLiRx0lyGYA5PihMPfYYOP
-         gHYGVUEs9fQfdjyxRmKNH6JngPtL53P4KFHeMePU=
+        b=dwY1Tmj0ptOmPTVJAovSfeeOarpsxjMSrjjiMhkTC5aUsD3Q4KIzAtxkjRfAKWoah
+         jqqX7Qrb3Pv5Jlqrxw7tpARAcnseEkBVyWH4pwY/lm8spFd3gXWOOhQjjfe4RCCKyu
+         nGUumueVFeaIozY1GBnd9k1gZdIn79uQO7GJC4wM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Neeraj Upadhyay <neeraju@codeaurora.org>,
-        "Paul E. McKenney" <paulmck@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 015/399] rcu: Fix missed wakeup of exp_wq waiters
-Date:   Fri, 21 Feb 2020 08:35:40 +0100
-Message-Id: <20200221072403.811685185@linuxfoundation.org>
+        stable@vger.kernel.org, Timur Tabi <timur@kernel.org>,
+        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+        Li Yang <leoyang.li@nxp.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.5 016/399] soc: fsl: qe: change return type of cpm_muram_alloc() to s32
+Date:   Fri, 21 Feb 2020 08:35:41 +0100
+Message-Id: <20200221072403.897637352@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200221072402.315346745@linuxfoundation.org>
 References: <20200221072402.315346745@linuxfoundation.org>
@@ -44,100 +44,186 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Neeraj Upadhyay <neeraju@codeaurora.org>
+From: Rasmus Villemoes <linux@rasmusvillemoes.dk>
 
-[ Upstream commit fd6bc19d7676a060a171d1cf3dcbf6fd797eb05f ]
+[ Upstream commit 800cd6fb76f0ec7711deb72a86c924db1ae42648 ]
 
-Tasks waiting within exp_funnel_lock() for an expedited grace period to
-elapse can be starved due to the following sequence of events:
+There are a number of problems with cpm_muram_alloc() and its
+callers. Most callers assign the return value to some variable and
+then use IS_ERR_VALUE to check for allocation failure. However, when
+that variable is not sizeof(long), this leads to warnings - and it is
+indeed broken to do e.g.
 
-1.	Tasks A and B both attempt to start an expedited grace
-	period at about the same time.	This grace period will have
-	completed when the lower four bits of the rcu_state structure's
-	->expedited_sequence field are 0b'0100', for example, when the
-	initial value of this counter is zero.	Task A wins, and thus
-	does the actual work of starting the grace period, including
-	acquiring the rcu_state structure's .exp_mutex and sets the
-	counter to 0b'0001'.
+  u32 foo = cpm_muram_alloc();
+  if (IS_ERR_VALUE(foo))
 
-2.	Because task B lost the race to start the grace period, it
-	waits on ->expedited_sequence to reach 0b'0100' inside of
-	exp_funnel_lock(). This task therefore blocks on the rcu_node
-	structure's ->exp_wq[1] field, keeping in mind that the
-	end-of-grace-period value of ->expedited_sequence (0b'0100')
-	is shifted down two bits before indexing the ->exp_wq[] field.
+on a 64-bit platform, since the condition
 
-3.	Task C attempts to start another expedited grace period,
-	but blocks on ->exp_mutex, which is still held by Task A.
+  foo >= (unsigned long)-ENOMEM
 
-4.	The aforementioned expedited grace period completes, so that
-	->expedited_sequence now has the value 0b'0100'.  A kworker task
-	therefore acquires the rcu_state structure's ->exp_wake_mutex
-	and starts awakening any tasks waiting for this grace period.
+is tautologically false. There are also callers that ignore the
+possibility of error, and then there are those that check for error by
+comparing the return value to 0...
 
-5.	One of the first tasks awakened happens to be Task A.  Task A
-	therefore releases the rcu_state structure's ->exp_mutex,
-	which allows Task C to start the next expedited grace period,
-	which causes the lower four bits of the rcu_state structure's
-	->expedited_sequence field to become 0b'0101'.
+One could fix that by changing all callers to store the return value
+temporarily in an "unsigned long" and test that. However, use of
+IS_ERR_VALUE() is error-prone and should be restricted to things which
+are inherently long-sized (stuff in pt_regs etc.). Instead, let's aim
+for changing to the standard kernel style
 
-6.	Task C's expedited grace period completes, so that the lower four
-	bits of the rcu_state structure's ->expedited_sequence field now
-	become 0b'1000'.
+  int foo = cpm_muram_alloc();
+  if (foo < 0)
+    deal_with_it()
+  some->where = foo;
 
-7.	The kworker task from step 4 above continues its wakeups.
-	Unfortunately, the wake_up_all() refetches the rcu_state
-	structure's .expedited_sequence field:
+Changing the return type from unsigned long to s32 (aka signed int)
+doesn't change the value that gets stored into any of the callers'
+variables except if the caller was storing the result in a u64 _and_
+the allocation failed, so in itself this patch should be a no-op.
 
-	wake_up_all(&rnp->exp_wq[rcu_seq_ctr(rcu_state.expedited_sequence) & 0x3]);
+Another problem with cpm_muram_alloc() is that it can certainly
+validly return 0 - and except if some cpm_muram_alloc_fixed() call
+interferes, the very first cpm_muram_alloc() call will return just
+that. But that shows that both ucc_slow_free() and ucc_fast_free() are
+buggy, since they assume that a value of 0 means "that field was never
+allocated". We'll later change cpm_muram_free() to accept (and ignore)
+a negative offset, so callers can use a sentinel of -1 instead of 0
+and just unconditionally call cpm_muram_free().
 
-	This results in the wakeup being applied to the rcu_node
-	structure's ->exp_wq[2] field, which is unfortunate given that
-	Task B is instead waiting on ->exp_wq[1].
-
-On a busy system, no harm is done (or at least no permanent harm is done).
-Some later expedited grace period will redo the wakeup.  But on a quiet
-system, such as many embedded systems, it might be a good long time before
-there was another expedited grace period.  On such embedded systems,
-this situation could therefore result in a system hang.
-
-This issue manifested as DPM device timeout during suspend (which
-usually qualifies as a quiet time) due to a SCSI device being stuck in
-_synchronize_rcu_expedited(), with the following stack trace:
-
-	schedule()
-	synchronize_rcu_expedited()
-	synchronize_rcu()
-	scsi_device_quiesce()
-	scsi_bus_suspend()
-	dpm_run_callback()
-	__device_suspend()
-
-This commit therefore prevents such delays, timeouts, and hangs by
-making rcu_exp_wait_wake() use its "s" argument consistently instead of
-refetching from rcu_state.expedited_sequence.
-
-Fixes: 3b5f668e715b ("rcu: Overlap wakeups with next expedited grace period")
-Signed-off-by: Neeraj Upadhyay <neeraju@codeaurora.org>
-Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
+Reviewed-by: Timur Tabi <timur@kernel.org>
+Signed-off-by: Rasmus Villemoes <linux@rasmusvillemoes.dk>
+Signed-off-by: Li Yang <leoyang.li@nxp.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/rcu/tree_exp.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/soc/fsl/qe/qe_common.c | 29 ++++++++++++++++-------------
+ include/soc/fsl/qe/qe.h        | 16 ++++++++--------
+ 2 files changed, 24 insertions(+), 21 deletions(-)
 
-diff --git a/kernel/rcu/tree_exp.h b/kernel/rcu/tree_exp.h
-index 69c5aa64fcfd6..f504ac8317797 100644
---- a/kernel/rcu/tree_exp.h
-+++ b/kernel/rcu/tree_exp.h
-@@ -558,7 +558,7 @@ static void rcu_exp_wait_wake(unsigned long s)
- 			spin_unlock(&rnp->exp_lock);
- 		}
- 		smp_mb(); /* All above changes before wakeup. */
--		wake_up_all(&rnp->exp_wq[rcu_seq_ctr(rcu_state.expedited_sequence) & 0x3]);
-+		wake_up_all(&rnp->exp_wq[rcu_seq_ctr(s) & 0x3]);
- 	}
- 	trace_rcu_exp_grace_period(rcu_state.name, s, TPS("endwake"));
- 	mutex_unlock(&rcu_state.exp_wake_mutex);
+diff --git a/drivers/soc/fsl/qe/qe_common.c b/drivers/soc/fsl/qe/qe_common.c
+index 83e85e61669f5..84c90105e588b 100644
+--- a/drivers/soc/fsl/qe/qe_common.c
++++ b/drivers/soc/fsl/qe/qe_common.c
+@@ -32,7 +32,7 @@ static phys_addr_t muram_pbase;
+ 
+ struct muram_block {
+ 	struct list_head head;
+-	unsigned long start;
++	s32 start;
+ 	int size;
+ };
+ 
+@@ -110,13 +110,14 @@ out_muram:
+  * @algo: algorithm for alloc.
+  * @data: data for genalloc's algorithm.
+  *
+- * This function returns an offset into the muram area.
++ * This function returns a non-negative offset into the muram area, or
++ * a negative errno on failure.
+  */
+-static unsigned long cpm_muram_alloc_common(unsigned long size,
+-		genpool_algo_t algo, void *data)
++static s32 cpm_muram_alloc_common(unsigned long size,
++				  genpool_algo_t algo, void *data)
+ {
+ 	struct muram_block *entry;
+-	unsigned long start;
++	s32 start;
+ 
+ 	if (!muram_pool && cpm_muram_init())
+ 		goto out2;
+@@ -137,7 +138,7 @@ static unsigned long cpm_muram_alloc_common(unsigned long size,
+ out1:
+ 	gen_pool_free(muram_pool, start, size);
+ out2:
+-	return (unsigned long)-ENOMEM;
++	return -ENOMEM;
+ }
+ 
+ /*
+@@ -145,13 +146,14 @@ out2:
+  * @size: number of bytes to allocate
+  * @align: requested alignment, in bytes
+  *
+- * This function returns an offset into the muram area.
++ * This function returns a non-negative offset into the muram area, or
++ * a negative errno on failure.
+  * Use cpm_dpram_addr() to get the virtual address of the area.
+  * Use cpm_muram_free() to free the allocation.
+  */
+-unsigned long cpm_muram_alloc(unsigned long size, unsigned long align)
++s32 cpm_muram_alloc(unsigned long size, unsigned long align)
+ {
+-	unsigned long start;
++	s32 start;
+ 	unsigned long flags;
+ 	struct genpool_data_align muram_pool_data;
+ 
+@@ -168,7 +170,7 @@ EXPORT_SYMBOL(cpm_muram_alloc);
+  * cpm_muram_free - free a chunk of multi-user ram
+  * @offset: The beginning of the chunk as returned by cpm_muram_alloc().
+  */
+-int cpm_muram_free(unsigned long offset)
++int cpm_muram_free(s32 offset)
+ {
+ 	unsigned long flags;
+ 	int size;
+@@ -194,13 +196,14 @@ EXPORT_SYMBOL(cpm_muram_free);
+  * cpm_muram_alloc_fixed - reserve a specific region of multi-user ram
+  * @offset: offset of allocation start address
+  * @size: number of bytes to allocate
+- * This function returns an offset into the muram area
++ * This function returns @offset if the area was available, a negative
++ * errno otherwise.
+  * Use cpm_dpram_addr() to get the virtual address of the area.
+  * Use cpm_muram_free() to free the allocation.
+  */
+-unsigned long cpm_muram_alloc_fixed(unsigned long offset, unsigned long size)
++s32 cpm_muram_alloc_fixed(unsigned long offset, unsigned long size)
+ {
+-	unsigned long start;
++	s32 start;
+ 	unsigned long flags;
+ 	struct genpool_data_fixed muram_pool_data_fixed;
+ 
+diff --git a/include/soc/fsl/qe/qe.h b/include/soc/fsl/qe/qe.h
+index c1036d16ed03b..2d35d5db16231 100644
+--- a/include/soc/fsl/qe/qe.h
++++ b/include/soc/fsl/qe/qe.h
+@@ -98,26 +98,26 @@ static inline void qe_reset(void) {}
+ int cpm_muram_init(void);
+ 
+ #if defined(CONFIG_CPM) || defined(CONFIG_QUICC_ENGINE)
+-unsigned long cpm_muram_alloc(unsigned long size, unsigned long align);
+-int cpm_muram_free(unsigned long offset);
+-unsigned long cpm_muram_alloc_fixed(unsigned long offset, unsigned long size);
++s32 cpm_muram_alloc(unsigned long size, unsigned long align);
++int cpm_muram_free(s32 offset);
++s32 cpm_muram_alloc_fixed(unsigned long offset, unsigned long size);
+ void __iomem *cpm_muram_addr(unsigned long offset);
+ unsigned long cpm_muram_offset(void __iomem *addr);
+ dma_addr_t cpm_muram_dma(void __iomem *addr);
+ #else
+-static inline unsigned long cpm_muram_alloc(unsigned long size,
+-					    unsigned long align)
++static inline s32 cpm_muram_alloc(unsigned long size,
++				  unsigned long align)
+ {
+ 	return -ENOSYS;
+ }
+ 
+-static inline int cpm_muram_free(unsigned long offset)
++static inline int cpm_muram_free(s32 offset)
+ {
+ 	return -ENOSYS;
+ }
+ 
+-static inline unsigned long cpm_muram_alloc_fixed(unsigned long offset,
+-						  unsigned long size)
++static inline s32 cpm_muram_alloc_fixed(unsigned long offset,
++					unsigned long size)
+ {
+ 	return -ENOSYS;
+ }
 -- 
 2.20.1
 
