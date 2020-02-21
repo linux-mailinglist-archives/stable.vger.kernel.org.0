@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D8E3F1674EB
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:30:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 66931167436
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:23:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732576AbgBUITU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 03:19:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57626 "EHLO mail.kernel.org"
+        id S1731806AbgBUITX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 03:19:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57840 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733032AbgBUITR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 03:19:17 -0500
+        id S1732901AbgBUITW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 03:19:22 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6A38C24692;
-        Fri, 21 Feb 2020 08:19:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 192F62468F;
+        Fri, 21 Feb 2020 08:19:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582273155;
-        bh=GgJwrUCWdPGyw1CTN1/A7IZ7q3flXT5Vd3XYZc9nzVU=;
+        s=default; t=1582273161;
+        bh=wq7lxjt7cRlqyFc4oM2xYceah9Pd7LC/X/ok4YEThvs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TCE1gIqBlBoaKuWfLGhDFUegpNqT/xzF5/98fXK51GO0rFDwi0hEtk9yIAM32Uaxd
-         H4GtlMYRpQrxeBE6JJqaUsifYohZwcmx1tcW+2kaKPpM9zMu337CNVcn9YMJcaKUUM
-         FxkQDW8pnP+qXCfSLtZtKrkBLYPqBz62IjWKrCFw=
+        b=dca5lb4URahPWGlxhZ1+Q/8vGoLWWzIHexZp3j2SuCypSpQm3iVRhFMWbSmrTEWv9
+         sYAxoxBk9yGOmeSutWhP3jZs2iPlLl6HKxPnW2AbQKc1MjqcXudWz/33NOcilkipTa
+         M/CeXCgYpHqt8P1sAJAr7sO+JBmhVpbgtGzhpsnM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Drake <drake@endlessm.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        stable@vger.kernel.org, Ezequiel Garcia <ezequiel@collabora.com>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 066/191] PCI: Add generic quirk for increasing D3hot delay
-Date:   Fri, 21 Feb 2020 08:40:39 +0100
-Message-Id: <20200221072259.310486656@linuxfoundation.org>
+Subject: [PATCH 4.19 068/191] media: v4l2-device.h: Explicitly compare grp{id,mask} to zero in v4l2_device macros
+Date:   Fri, 21 Feb 2020 08:40:41 +0100
+Message-Id: <20200221072259.546521124@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200221072250.732482588@linuxfoundation.org>
 References: <20200221072250.732482588@linuxfoundation.org>
@@ -45,58 +47,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Drake <drake@endlessm.com>
+From: Nathan Chancellor <natechancellor@gmail.com>
 
-[ Upstream commit 62fe23df067715a21c4aef44068efe7ceaa8f627 ]
+[ Upstream commit afb34781620274236bd9fc9246e22f6963ef5262 ]
 
-Separate the D3 delay increase functionality out of quirk_radeon_pm() into
-its own function so that it can be shared with other quirks, including the
-AMD Ryzen XHCI quirk that will be introduced in a followup commit.
+When building with Clang + -Wtautological-constant-compare, several of
+the ivtv and cx18 drivers warn along the lines of:
 
-Tweak the function name and message to indicate more clearly that the delay
-relates to a D3hot-to-D0 transition.
+ drivers/media/pci/cx18/cx18-driver.c:1005:21: warning: converting the
+ result of '<<' to a boolean always evaluates to true
+ [-Wtautological-constant-compare]
+                         cx18_call_hw(cx, CX18_HW_GPIO_RESET_CTRL,
+                                         ^
+ drivers/media/pci/cx18/cx18-cards.h:18:37: note: expanded from macro
+ 'CX18_HW_GPIO_RESET_CTRL'
+ #define CX18_HW_GPIO_RESET_CTRL         (1 << 6)
+                                           ^
+ 1 warning generated.
 
-Link: https://lore.kernel.org/r/20191127053836.31624-1-drake@endlessm.com
-Signed-off-by: Daniel Drake <drake@endlessm.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+This warning happens because the shift operation is implicitly converted
+to a boolean in v4l2_device_mask_call_all before being negated. This can
+be solved by just comparing the mask result to 0 explicitly so that
+there is no boolean conversion. The ultimate goal is to enable
+-Wtautological-compare globally because there are several subwarnings
+that would be helpful to have.
+
+For visual consistency and avoidance of these warnings in the future,
+all of the implicitly boolean conversions in the v4l2_device macros
+are converted to explicit ones as well.
+
+Link: https://github.com/ClangBuiltLinux/linux/issues/752
+
+Reviewed-by: Ezequiel Garcia <ezequiel@collabora.com>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/quirks.c | 19 ++++++++++++-------
- 1 file changed, 12 insertions(+), 7 deletions(-)
+ include/media/v4l2-device.h | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/pci/quirks.c b/drivers/pci/quirks.c
-index 84f10cda539ea..798d46a266037 100644
---- a/drivers/pci/quirks.c
-+++ b/drivers/pci/quirks.c
-@@ -1848,16 +1848,21 @@ DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_INTEL,	0x2609, quirk_intel_pcie_pm);
- DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_INTEL,	0x260a, quirk_intel_pcie_pm);
- DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_INTEL,	0x260b, quirk_intel_pcie_pm);
+diff --git a/include/media/v4l2-device.h b/include/media/v4l2-device.h
+index b330e4a08a6b8..40840fec337ca 100644
+--- a/include/media/v4l2-device.h
++++ b/include/media/v4l2-device.h
+@@ -372,7 +372,7 @@ static inline void v4l2_subdev_notify(struct v4l2_subdev *sd,
+ 		struct v4l2_subdev *__sd;				\
+ 									\
+ 		__v4l2_device_call_subdevs_p(v4l2_dev, __sd,		\
+-			!(grpid) || __sd->grp_id == (grpid), o, f ,	\
++			(grpid) == 0 || __sd->grp_id == (grpid), o, f ,	\
+ 			##args);					\
+ 	} while (0)
  
-+static void quirk_d3hot_delay(struct pci_dev *dev, unsigned int delay)
-+{
-+	if (dev->d3_delay >= delay)
-+		return;
-+
-+	dev->d3_delay = delay;
-+	pci_info(dev, "extending delay after power-on from D3hot to %d msec\n",
-+		 dev->d3_delay);
-+}
-+
- static void quirk_radeon_pm(struct pci_dev *dev)
- {
- 	if (dev->subsystem_vendor == PCI_VENDOR_ID_APPLE &&
--	    dev->subsystem_device == 0x00e2) {
--		if (dev->d3_delay < 20) {
--			dev->d3_delay = 20;
--			pci_info(dev, "extending delay after power-on from D3 to %d msec\n",
--				 dev->d3_delay);
--		}
--	}
-+	    dev->subsystem_device == 0x00e2)
-+		quirk_d3hot_delay(dev, 20);
- }
- DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_ATI, 0x6741, quirk_radeon_pm);
+@@ -404,7 +404,7 @@ static inline void v4l2_subdev_notify(struct v4l2_subdev *sd,
+ ({									\
+ 	struct v4l2_subdev *__sd;					\
+ 	__v4l2_device_call_subdevs_until_err_p(v4l2_dev, __sd,		\
+-			!(grpid) || __sd->grp_id == (grpid), o, f ,	\
++			(grpid) == 0 || __sd->grp_id == (grpid), o, f ,	\
+ 			##args);					\
+ })
+ 
+@@ -432,8 +432,8 @@ static inline void v4l2_subdev_notify(struct v4l2_subdev *sd,
+ 		struct v4l2_subdev *__sd;				\
+ 									\
+ 		__v4l2_device_call_subdevs_p(v4l2_dev, __sd,		\
+-			!(grpmsk) || (__sd->grp_id & (grpmsk)), o, f ,	\
+-			##args);					\
++			(grpmsk) == 0 || (__sd->grp_id & (grpmsk)), o,	\
++			f , ##args);					\
+ 	} while (0)
+ 
+ /**
+@@ -463,8 +463,8 @@ static inline void v4l2_subdev_notify(struct v4l2_subdev *sd,
+ ({									\
+ 	struct v4l2_subdev *__sd;					\
+ 	__v4l2_device_call_subdevs_until_err_p(v4l2_dev, __sd,		\
+-			!(grpmsk) || (__sd->grp_id & (grpmsk)), o, f ,	\
+-			##args);					\
++			(grpmsk) == 0 || (__sd->grp_id & (grpmsk)), o,	\
++			f , ##args);					\
+ })
+ 
  
 -- 
 2.20.1
