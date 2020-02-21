@@ -2,36 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1952C1677C8
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:44:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 431F51677CD
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:44:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729271AbgBUHwY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 02:52:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50160 "EHLO mail.kernel.org"
+        id S1730474AbgBUIo0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 03:44:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50220 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729497AbgBUHwV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 02:52:21 -0500
+        id S1729267AbgBUHwY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 02:52:24 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6930C2073A;
-        Fri, 21 Feb 2020 07:52:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1E6B120578;
+        Fri, 21 Feb 2020 07:52:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582271540;
-        bh=KuEgsFhctq+NMX/iGUxTFyaBIdZHanXPB/FL5E3J6L8=;
+        s=default; t=1582271543;
+        bh=6tbLCWnpf1qdG/ZfEExJsIDCvHtX8M011tK0lJqgro0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mCWB3XGNaWD5+2NejxNewmRxRNL93BYLDKXkBBYjx+nC8dd1ct702LhqC6BkMaF0t
-         AKshNOfd5nj4HP8wkI1nVQWZn/htz87jr9kmw6I1keWOeCT1MFzibMQoTMUawQXL6X
-         UV+tCYdwrvLAj9LN3f1TDzsr6NJy8VRCThRQ7KNQ=
+        b=TADtCVr4qZ5qCSaQyEQjkVnVu/W6+KP3EIFA5QnEU8D3LeXRP0tpPeDRpUETtJnR3
+         vxd7X1+VO3j4w91wl/m6+ULJ4xqPpc36djBKBPH+kNOEiM6RZNUKAlCjVfTdKpMUcc
+         E/0n+BJq7nnkOTXpN13sM6IgrBwigSxzA6oxz52k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        stable@vger.kernel.org,
+        Andrey Zhizhikin <andrey.zhizhikin@leica-geosystems.com>,
+        Petr Mladek <pmladek@suse.com>, Jiri Olsa <jolsa@kernel.org>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Andrii Nakryiko <andriin@fb.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Kefeng Wang <wangkefeng.wang@huawei.com>,
+        Martin KaFai Lau <kafai@fb.com>,
+        Sergey Senozhatsky <sergey.senozhatsky@gmail.com>,
+        Song Liu <songliubraving@fb.com>, Yonghong Song <yhs@fb.com>,
+        bpf@vger.kernel.org, netdev@vger.kernel.org,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 206/399] net: phy: fixed_phy: fix use-after-free when checking link GPIO
-Date:   Fri, 21 Feb 2020 08:38:51 +0100
-Message-Id: <20200221072422.910002773@linuxfoundation.org>
+Subject: [PATCH 5.5 207/399] tools lib api fs: Fix gcc9 stringop-truncation compilation error
+Date:   Fri, 21 Feb 2020 08:38:52 +0100
+Message-Id: <20200221072423.010626148@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200221072402.315346745@linuxfoundation.org>
 References: <20200221072402.315346745@linuxfoundation.org>
@@ -44,45 +54,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+From: Andrey Zhizhikin <andrey.z@gmail.com>
 
-[ Upstream commit d266f19f3ae7fbcaf92229639b78d2110ae44f33 ]
+[ Upstream commit 6794200fa3c9c3e6759dae099145f23e4310f4f7 ]
 
-If we fail to locate GPIO for any reason other than deferral or
-not-found-GPIO, we try to print device tree node info, however if might
-be freed already as we called of_node_put() on it.
+GCC9 introduced string hardening mechanisms, which exhibits the error
+during fs api compilation:
 
-Acked-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+error: '__builtin_strncpy' specified bound 4096 equals destination size
+[-Werror=stringop-truncation]
+
+This comes when the length of copy passed to strncpy is is equal to
+destination size, which could potentially lead to buffer overflow.
+
+There is a need to mitigate this potential issue by limiting the size of
+destination by 1 and explicitly terminate the destination with NULL.
+
+Signed-off-by: Andrey Zhizhikin <andrey.zhizhikin@leica-geosystems.com>
+Reviewed-by: Petr Mladek <pmladek@suse.com>
+Acked-by: Jiri Olsa <jolsa@kernel.org>
+Cc: Alexei Starovoitov <ast@kernel.org>
+Cc: Andrii Nakryiko <andriin@fb.com>
+Cc: Daniel Borkmann <daniel@iogearbox.net>
+Cc: Kefeng Wang <wangkefeng.wang@huawei.com>
+Cc: Martin KaFai Lau <kafai@fb.com>
+Cc: Petr Mladek <pmladek@suse.com>
+Cc: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
+Cc: Song Liu <songliubraving@fb.com>
+Cc: Yonghong Song <yhs@fb.com>
+Cc: bpf@vger.kernel.org
+Cc: netdev@vger.kernel.org
+Link: http://lore.kernel.org/lkml/20191211080109.18765-1-andrey.zhizhikin@leica-geosystems.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/phy/fixed_phy.c | 7 ++-----
- 1 file changed, 2 insertions(+), 5 deletions(-)
+ tools/lib/api/fs/fs.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/phy/fixed_phy.c b/drivers/net/phy/fixed_phy.c
-index 7c5265fd2b94d..4190f9ed5313d 100644
---- a/drivers/net/phy/fixed_phy.c
-+++ b/drivers/net/phy/fixed_phy.c
-@@ -212,16 +212,13 @@ static struct gpio_desc *fixed_phy_get_gpiod(struct device_node *np)
- 	 */
- 	gpiod = gpiod_get_from_of_node(fixed_link_node, "link-gpios", 0,
- 				       GPIOD_IN, "mdio");
--	of_node_put(fixed_link_node);
--	if (IS_ERR(gpiod)) {
--		if (PTR_ERR(gpiod) == -EPROBE_DEFER)
--			return gpiod;
--
-+	if (IS_ERR(gpiod) && PTR_ERR(gpiod) != -EPROBE_DEFER) {
- 		if (PTR_ERR(gpiod) != -ENOENT)
- 			pr_err("error getting GPIO for fixed link %pOF, proceed without\n",
- 			       fixed_link_node);
- 		gpiod = NULL;
- 	}
-+	of_node_put(fixed_link_node);
+diff --git a/tools/lib/api/fs/fs.c b/tools/lib/api/fs/fs.c
+index 11b3885e833ed..027b18f7ed8cf 100644
+--- a/tools/lib/api/fs/fs.c
++++ b/tools/lib/api/fs/fs.c
+@@ -210,6 +210,7 @@ static bool fs__env_override(struct fs *fs)
+ 	size_t name_len = strlen(fs->name);
+ 	/* name + "_PATH" + '\0' */
+ 	char upper_name[name_len + 5 + 1];
++
+ 	memcpy(upper_name, fs->name, name_len);
+ 	mem_toupper(upper_name, name_len);
+ 	strcpy(&upper_name[name_len], "_PATH");
+@@ -219,7 +220,8 @@ static bool fs__env_override(struct fs *fs)
+ 		return false;
  
- 	return gpiod;
+ 	fs->found = true;
+-	strncpy(fs->path, override_path, sizeof(fs->path));
++	strncpy(fs->path, override_path, sizeof(fs->path) - 1);
++	fs->path[sizeof(fs->path) - 1] = '\0';
+ 	return true;
  }
+ 
 -- 
 2.20.1
 
