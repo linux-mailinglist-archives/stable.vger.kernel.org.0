@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C2B721675DE
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:32:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BA6571676E6
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:41:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732438AbgBUINs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 03:13:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50046 "EHLO mail.kernel.org"
+        id S1730743AbgBUH7T (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 02:59:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59318 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733050AbgBUINq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 03:13:46 -0500
+        id S1730738AbgBUH7S (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 02:59:18 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B492124650;
-        Fri, 21 Feb 2020 08:13:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BB41E2465D;
+        Fri, 21 Feb 2020 07:59:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582272826;
-        bh=rnx7Ggz4AoJzIVWIKtQRb/wV81Ljlb8nmprGeQWWiKM=;
+        s=default; t=1582271957;
+        bh=sysEa46Yz0+Q77T04gaS8Khuim8g/xr/Jf5pGs2Miq0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OSuibr2+XfYz/8Eh9H1I8E8Bly9NJlU9jFLWGhPP8jgY6n2gsKGHVGacQQhzxUE8u
-         R31Mm3b+dyFvlID1fSmr1iVs4SlKzV/S0PzR1o5bWzXT74RpM5AMsqP6fqq9QV1tN/
-         +MR5mennAGYxmVjvv2VU2/myH1++D4UI8mQ0x6R4=
+        b=NLmONyA0EfsXegiPNfKGlWxT21XKwuT+wooe6FAR5T37Le63pCiWUpjAsLKsQFlHG
+         PboywBz3hWauFl8LpVjkdzoRUQAwP18YwUx9dGjNWZnWyvFxqKCpmohZGZEZG0fWuV
+         JrXl7H5JvPQHWEZnfy8FXN+OXfZOwtHEngrWBCz4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
-        Coly Li <colyli@suse.de>, Jens Axboe <axboe@kernel.dk>,
+        stable@vger.kernel.org, Vasily Averin <vvs@virtuozzo.com>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 288/344] bcache: rework error unwinding in register_bcache
-Date:   Fri, 21 Feb 2020 08:41:27 +0100
-Message-Id: <20200221072415.983628889@linuxfoundation.org>
+Subject: [PATCH 5.5 363/399] ftrace: fpid_next() should increase position index
+Date:   Fri, 21 Feb 2020 08:41:28 +0100
+Message-Id: <20200221072435.967534118@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200221072349.335551332@linuxfoundation.org>
-References: <20200221072349.335551332@linuxfoundation.org>
+In-Reply-To: <20200221072402.315346745@linuxfoundation.org>
+References: <20200221072402.315346745@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,159 +44,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoph Hellwig <hch@lst.de>
+From: Vasily Averin <vvs@virtuozzo.com>
 
-[ Upstream commit 50246693f81fe887f4db78bf7089051d7f1894cc ]
+[ Upstream commit e4075e8bdffd93a9b6d6e1d52fabedceeca5a91b ]
 
-Split the successful and error return path, and use one goto label for each
-resource to unwind.  This also fixes some small errors like leaking the
-module reference count in the reboot case (which seems entirely harmless)
-or printing the wrong warning messages for early failures.
+if seq_file .next fuction does not change position index,
+read after some lseek can generate unexpected output.
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Coly Li <colyli@suse.de>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Without patch:
+ # dd bs=4 skip=1 if=/sys/kernel/tracing/set_ftrace_pid
+ dd: /sys/kernel/tracing/set_ftrace_pid: cannot skip to specified offset
+ id
+ no pid
+ 2+1 records in
+ 2+1 records out
+ 10 bytes copied, 0.000213285 s, 46.9 kB/s
+
+Notice the "id" followed by "no pid".
+
+With the patch:
+ # dd bs=4 skip=1 if=/sys/kernel/tracing/set_ftrace_pid
+ dd: /sys/kernel/tracing/set_ftrace_pid: cannot skip to specified offset
+ id
+ 0+1 records in
+ 0+1 records out
+ 3 bytes copied, 0.000202112 s, 14.8 kB/s
+
+Notice that it only prints "id" and not the "no pid" afterward.
+
+Link: http://lkml.kernel.org/r/4f87c6ad-f114-30bb-8506-c32274ce2992@virtuozzo.com
+
+https://bugzilla.kernel.org/show_bug.cgi?id=206283
+Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/bcache/super.c | 75 +++++++++++++++++++++++----------------
- 1 file changed, 45 insertions(+), 30 deletions(-)
+ kernel/trace/ftrace.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/md/bcache/super.c b/drivers/md/bcache/super.c
-index b86cf72033401..86f7e09d31516 100644
---- a/drivers/md/bcache/super.c
-+++ b/drivers/md/bcache/super.c
-@@ -2372,29 +2372,33 @@ static bool bch_is_open(struct block_device *bdev)
- static ssize_t register_bcache(struct kobject *k, struct kobj_attribute *attr,
- 			       const char *buffer, size_t size)
- {
--	ssize_t ret = -EINVAL;
--	const char *err = "cannot allocate memory";
--	char *path = NULL;
--	struct cache_sb *sb = NULL;
-+	const char *err;
-+	char *path;
-+	struct cache_sb *sb;
- 	struct block_device *bdev = NULL;
--	struct page *sb_page = NULL;
-+	struct page *sb_page;
-+	ssize_t ret;
+diff --git a/kernel/trace/ftrace.c b/kernel/trace/ftrace.c
+index 3581bd96d6eb3..ddb47a0af854b 100644
+--- a/kernel/trace/ftrace.c
++++ b/kernel/trace/ftrace.c
+@@ -7038,9 +7038,10 @@ static void *fpid_next(struct seq_file *m, void *v, loff_t *pos)
+ 	struct trace_array *tr = m->private;
+ 	struct trace_pid_list *pid_list = rcu_dereference_sched(tr->function_pids);
  
-+	ret = -EBUSY;
- 	if (!try_module_get(THIS_MODULE))
--		return -EBUSY;
-+		goto out;
- 
- 	/* For latest state of bcache_is_reboot */
- 	smp_mb();
- 	if (bcache_is_reboot)
--		return -EBUSY;
-+		goto out_module_put;
- 
-+	ret = -ENOMEM;
-+	err = "cannot allocate memory";
- 	path = kstrndup(buffer, size, GFP_KERNEL);
- 	if (!path)
--		goto err;
-+		goto out_module_put;
- 
- 	sb = kmalloc(sizeof(struct cache_sb), GFP_KERNEL);
- 	if (!sb)
--		goto err;
-+		goto out_free_path;
- 
-+	ret = -EINVAL;
- 	err = "failed to open device";
- 	bdev = blkdev_get_by_path(strim(path),
- 				  FMODE_READ|FMODE_WRITE|FMODE_EXCL,
-@@ -2411,57 +2415,68 @@ static ssize_t register_bcache(struct kobject *k, struct kobj_attribute *attr,
- 			if (!IS_ERR(bdev))
- 				bdput(bdev);
- 			if (attr == &ksysfs_register_quiet)
--				goto quiet_out;
-+				goto done;
- 		}
--		goto err;
-+		goto out_free_sb;
- 	}
- 
- 	err = "failed to set blocksize";
- 	if (set_blocksize(bdev, 4096))
--		goto err_close;
-+		goto out_blkdev_put;
- 
- 	err = read_super(sb, bdev, &sb_page);
- 	if (err)
--		goto err_close;
-+		goto out_blkdev_put;
- 
- 	err = "failed to register device";
- 	if (SB_IS_BDEV(sb)) {
- 		struct cached_dev *dc = kzalloc(sizeof(*dc), GFP_KERNEL);
- 
- 		if (!dc)
--			goto err_close;
-+			goto out_put_sb_page;
- 
- 		mutex_lock(&bch_register_lock);
- 		ret = register_bdev(sb, sb_page, bdev, dc);
- 		mutex_unlock(&bch_register_lock);
- 		/* blkdev_put() will be called in cached_dev_free() */
--		if (ret < 0)
--			goto err;
-+		if (ret < 0) {
-+			bdev = NULL;
-+			goto out_put_sb_page;
-+		}
- 	} else {
- 		struct cache *ca = kzalloc(sizeof(*ca), GFP_KERNEL);
- 
- 		if (!ca)
--			goto err_close;
-+			goto out_put_sb_page;
- 
- 		/* blkdev_put() will be called in bch_cache_release() */
--		if (register_cache(sb, sb_page, bdev, ca) != 0)
--			goto err;
-+		if (register_cache(sb, sb_page, bdev, ca) != 0) {
-+			bdev = NULL;
-+			goto out_put_sb_page;
-+		}
- 	}
--quiet_out:
--	ret = size;
--out:
--	if (sb_page)
--		put_page(sb_page);
-+
-+	put_page(sb_page);
-+done:
- 	kfree(sb);
- 	kfree(path);
- 	module_put(THIS_MODULE);
--	return ret;
+-	if (v == FTRACE_NO_PIDS)
++	if (v == FTRACE_NO_PIDS) {
++		(*pos)++;
+ 		return NULL;
 -
--err_close:
--	blkdev_put(bdev, FMODE_READ|FMODE_WRITE|FMODE_EXCL);
--err:
-+	return size;
-+
-+out_put_sb_page:
-+	put_page(sb_page);
-+out_blkdev_put:
-+	if (bdev)
-+		blkdev_put(bdev, FMODE_READ | FMODE_WRITE | FMODE_EXCL);
-+out_free_sb:
-+	kfree(sb);
-+out_free_path:
-+	kfree(path);
-+out_module_put:
-+	module_put(THIS_MODULE);
-+out:
- 	pr_info("error %s: %s", path, err);
--	goto out;
-+	return ret;
++	}
+ 	return trace_pid_next(pid_list, v, pos);
  }
- 
  
 -- 
 2.20.1
