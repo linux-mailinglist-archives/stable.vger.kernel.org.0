@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id ADB53167838
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:48:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8DAEB16783A
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:48:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728999AbgBUHr7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 02:47:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43954 "EHLO mail.kernel.org"
+        id S1728704AbgBUHsC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 02:48:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44020 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728678AbgBUHr7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 02:47:59 -0500
+        id S1728686AbgBUHsB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 02:48:01 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E13D6208C4;
-        Fri, 21 Feb 2020 07:47:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 705D7208C4;
+        Fri, 21 Feb 2020 07:48:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582271278;
-        bh=viIBm9b3VhN1DKXhLg9bkTkhgxwWO6/AiWhtmjD5vHo=;
+        s=default; t=1582271280;
+        bh=lHp6HLooUJjBCjnT0guE5tBIfkpyYzCfVXdCw7n+3+U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ADO9yyexnFvAes95NrUGY/aRemdq3FnPYt5gIGL18fKr3mi1QjFjuQBB9jrudkhoz
-         mIMierxaji/5S9yMD9FSkK/fWxx8qMeKwq971KSKRU3i4ffBrN9APFqdBAKJmYmj4J
-         zpQsPduzGaQ3oKbvGBQjJekrf6f/FYcbUWzyQSYU=
+        b=GItGi85dBMhYblguvs6oEdW9GjhptlGdgNgy1xraZkcpEBI+H1YtEzQ39JMBVdddn
+         XAJa4YAfI71MuvodUo1bgmW45WOC9heRXGSth1u7CusNFItfm1f6FKxG41Eh39iGjF
+         X6mMb+V3hA1vf9HGg99p7VcD3oDEIABoJ6AkYPUI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Yang <Eric.Yang2@amd.com>,
-        Tony Cheng <Tony.Cheng@amd.com>,
-        Bhawanpreet Lakha <Bhawanpreet.Lakha@amd.com>,
+        stable@vger.kernel.org, yu kuai <yukuai3@huawei.com>,
         Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 104/399] drm/amd/display: Renoir chroma viewport WA
-Date:   Fri, 21 Feb 2020 08:37:09 +0100
-Message-Id: <20200221072412.531999562@linuxfoundation.org>
+Subject: [PATCH 5.5 105/399] drm/amdgpu: remove 4 set but not used variable in amdgpu_atombios_get_connector_info_from_object_table
+Date:   Fri, 21 Feb 2020 08:37:10 +0100
+Message-Id: <20200221072412.629163673@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200221072402.315346745@linuxfoundation.org>
 References: <20200221072402.315346745@linuxfoundation.org>
@@ -46,139 +44,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Yang <Eric.Yang2@amd.com>
+From: yu kuai <yukuai3@huawei.com>
 
-[ Upstream commit 1cad8ff7ecc6b70a062b8e8b74a0cd08c928341d ]
+[ Upstream commit bae028e3e521e8cb8caf2cc16a455ce4c55f2332 ]
 
-[Why]
-For unknown reason, immediate flip with host VM translation on NV12
-surface will underflow on last row of PTE.
+Fixes gcc '-Wunused-but-set-variable' warning:
 
-[How]
-Hack chroma viewport height to make fetch one more row of PTE.
-Note that this will cause hubp underflow on all video underlay
-cases, but the underflow is not user visible since it is in
-blank region.
+drivers/gpu/drm/amd/amdgpu/amdgpu_atombios.c: In function
+'amdgpu_atombios_get_connector_info_from_object_table':
+drivers/gpu/drm/amd/amdgpu/amdgpu_atombios.c:376:26: warning: variable
+'grph_obj_num' set but not used [-Wunused-but-set-variable]
+drivers/gpu/drm/amd/amdgpu/amdgpu_atombios.c:376:13: warning: variable
+'grph_obj_id' set but not used [-Wunused-but-set-variable]
+drivers/gpu/drm/amd/amdgpu/amdgpu_atombios.c:341:37: warning: variable
+'con_obj_type' set but not used [-Wunused-but-set-variable]
+drivers/gpu/drm/amd/amdgpu/amdgpu_atombios.c:341:24: warning: variable
+'con_obj_num' set but not used [-Wunused-but-set-variable]
 
-Signed-off-by: Eric Yang <Eric.Yang2@amd.com>
-Reviewed-by: Tony Cheng <Tony.Cheng@amd.com>
-Acked-by: Bhawanpreet Lakha <Bhawanpreet.Lakha@amd.com>
+They are never used, so can be removed.
+
+Fixes: d38ceaf99ed0 ("drm/amdgpu: add core driver (v4)")
+Signed-off-by: yu kuai <yukuai3@huawei.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/dc.h           |  2 +
- .../gpu/drm/amd/display/dc/dcn21/dcn21_hubp.c | 65 ++++++++++++++++++-
- .../drm/amd/display/dc/dcn21/dcn21_resource.c |  1 +
- 3 files changed, 67 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_atombios.c | 19 ++-----------------
+ 1 file changed, 2 insertions(+), 17 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dc.h b/drivers/gpu/drm/amd/display/dc/dc.h
-index 0416a17b0897c..320f4eeebf84c 100644
---- a/drivers/gpu/drm/amd/display/dc/dc.h
-+++ b/drivers/gpu/drm/amd/display/dc/dc.h
-@@ -417,6 +417,8 @@ struct dc_debug_options {
- 	bool cm_in_bypass;
- #endif
- 	int force_clock_mode;/*every mode change.*/
-+
-+	bool nv12_iflip_vm_wa;
- };
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_atombios.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_atombios.c
+index 72232fccf61a7..be6d0cfe41aec 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_atombios.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_atombios.c
+@@ -338,17 +338,9 @@ bool amdgpu_atombios_get_connector_info_from_object_table(struct amdgpu_device *
+ 		path_size += le16_to_cpu(path->usSize);
  
- struct dc_debug_data {
-diff --git a/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_hubp.c b/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_hubp.c
-index 2f5a5867e6749..1ddd6ae221558 100644
---- a/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_hubp.c
-+++ b/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_hubp.c
-@@ -164,6 +164,69 @@ static void hubp21_setup(
+ 		if (device_support & le16_to_cpu(path->usDeviceTag)) {
+-			uint8_t con_obj_id, con_obj_num, con_obj_type;
+-
+-			con_obj_id =
++			uint8_t con_obj_id =
+ 			    (le16_to_cpu(path->usConnObjectId) & OBJECT_ID_MASK)
+ 			    >> OBJECT_ID_SHIFT;
+-			con_obj_num =
+-			    (le16_to_cpu(path->usConnObjectId) & ENUM_ID_MASK)
+-			    >> ENUM_ID_SHIFT;
+-			con_obj_type =
+-			    (le16_to_cpu(path->usConnObjectId) &
+-			     OBJECT_TYPE_MASK) >> OBJECT_TYPE_SHIFT;
  
- }
- 
-+void hubp21_set_viewport(
-+	struct hubp *hubp,
-+	const struct rect *viewport,
-+	const struct rect *viewport_c)
-+{
-+	struct dcn21_hubp *hubp21 = TO_DCN21_HUBP(hubp);
-+	int patched_viewport_height = 0;
-+	struct dc_debug_options *debug = &hubp->ctx->dc->debug;
-+
-+	REG_SET_2(DCSURF_PRI_VIEWPORT_DIMENSION, 0,
-+		  PRI_VIEWPORT_WIDTH, viewport->width,
-+		  PRI_VIEWPORT_HEIGHT, viewport->height);
-+
-+	REG_SET_2(DCSURF_PRI_VIEWPORT_START, 0,
-+		  PRI_VIEWPORT_X_START, viewport->x,
-+		  PRI_VIEWPORT_Y_START, viewport->y);
-+
-+	/*for stereo*/
-+	REG_SET_2(DCSURF_SEC_VIEWPORT_DIMENSION, 0,
-+		  SEC_VIEWPORT_WIDTH, viewport->width,
-+		  SEC_VIEWPORT_HEIGHT, viewport->height);
-+
-+	REG_SET_2(DCSURF_SEC_VIEWPORT_START, 0,
-+		  SEC_VIEWPORT_X_START, viewport->x,
-+		  SEC_VIEWPORT_Y_START, viewport->y);
-+
-+	/*
-+	 *	Work around for underflow issue with NV12 + rIOMMU translation
-+	 *	+ immediate flip. This will cause hubp underflow, but will not
-+	 *	be user visible since underflow is in blank region
-+	 */
-+	patched_viewport_height = viewport_c->height;
-+	if (viewport_c->height != 0 && debug->nv12_iflip_vm_wa) {
-+		int pte_row_height = 0;
-+		int pte_rows = 0;
-+
-+		REG_GET(DCHUBP_REQ_SIZE_CONFIG,
-+			PTE_ROW_HEIGHT_LINEAR, &pte_row_height);
-+
-+		pte_row_height = 1 << (pte_row_height + 3);
-+		pte_rows = (viewport_c->height + pte_row_height - 1) / pte_row_height;
-+		patched_viewport_height = pte_rows * pte_row_height + 3;
-+	}
-+
-+
-+	/* DC supports NV12 only at the moment */
-+	REG_SET_2(DCSURF_PRI_VIEWPORT_DIMENSION_C, 0,
-+		  PRI_VIEWPORT_WIDTH_C, viewport_c->width,
-+		  PRI_VIEWPORT_HEIGHT_C, patched_viewport_height);
-+
-+	REG_SET_2(DCSURF_PRI_VIEWPORT_START_C, 0,
-+		  PRI_VIEWPORT_X_START_C, viewport_c->x,
-+		  PRI_VIEWPORT_Y_START_C, viewport_c->y);
-+
-+	REG_SET_2(DCSURF_SEC_VIEWPORT_DIMENSION_C, 0,
-+		  SEC_VIEWPORT_WIDTH_C, viewport_c->width,
-+		  SEC_VIEWPORT_HEIGHT_C, patched_viewport_height);
-+
-+	REG_SET_2(DCSURF_SEC_VIEWPORT_START_C, 0,
-+		  SEC_VIEWPORT_X_START_C, viewport_c->x,
-+		  SEC_VIEWPORT_Y_START_C, viewport_c->y);
-+}
-+
- void hubp21_set_vm_system_aperture_settings(struct hubp *hubp,
- 		struct vm_system_aperture_param *apt)
- {
-@@ -211,7 +274,7 @@ static struct hubp_funcs dcn21_hubp_funcs = {
- 	.hubp_set_vm_system_aperture_settings = hubp21_set_vm_system_aperture_settings,
- 	.set_blank = hubp1_set_blank,
- 	.dcc_control = hubp1_dcc_control,
--	.mem_program_viewport = min_set_viewport,
-+	.mem_program_viewport = hubp21_set_viewport,
- 	.set_cursor_attributes	= hubp2_cursor_set_attributes,
- 	.set_cursor_position	= hubp1_cursor_set_position,
- 	.hubp_clk_cntl = hubp1_clk_cntl,
-diff --git a/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c b/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c
-index b29b2c99a564e..fe0ed4c09ad0a 100644
---- a/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c
-+++ b/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c
-@@ -847,6 +847,7 @@ static const struct dc_debug_options debug_defaults_drv = {
- 		.scl_reset_length10 = true,
- 		.sanity_checks = true,
- 		.disable_48mhz_pwrdwn = false,
-+		.nv12_iflip_vm_wa = true
- };
- 
- static const struct dc_debug_options debug_defaults_diags = {
+ 			/* Skip TV/CV support */
+ 			if ((le16_to_cpu(path->usDeviceTag) ==
+@@ -373,14 +365,7 @@ bool amdgpu_atombios_get_connector_info_from_object_table(struct amdgpu_device *
+ 			router.ddc_valid = false;
+ 			router.cd_valid = false;
+ 			for (j = 0; j < ((le16_to_cpu(path->usSize) - 8) / 2); j++) {
+-				uint8_t grph_obj_id, grph_obj_num, grph_obj_type;
+-
+-				grph_obj_id =
+-				    (le16_to_cpu(path->usGraphicObjIds[j]) &
+-				     OBJECT_ID_MASK) >> OBJECT_ID_SHIFT;
+-				grph_obj_num =
+-				    (le16_to_cpu(path->usGraphicObjIds[j]) &
+-				     ENUM_ID_MASK) >> ENUM_ID_SHIFT;
++				uint8_t grph_obj_type=
+ 				grph_obj_type =
+ 				    (le16_to_cpu(path->usGraphicObjIds[j]) &
+ 				     OBJECT_TYPE_MASK) >> OBJECT_TYPE_SHIFT;
 -- 
 2.20.1
 
