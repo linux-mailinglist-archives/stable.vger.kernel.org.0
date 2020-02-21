@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 242A4167522
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:30:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E04781675C6
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:32:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731059AbgBUIXr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 03:23:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35996 "EHLO mail.kernel.org"
+        id S1732798AbgBUIOZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 03:14:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50838 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388543AbgBUIXq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 03:23:46 -0500
+        id S1732548AbgBUIOY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 03:14:24 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A82A22469D;
-        Fri, 21 Feb 2020 08:23:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 689B720578;
+        Fri, 21 Feb 2020 08:14:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582273426;
-        bh=Cn24knfDqUAqJvb4N8NFHPFVd8dzAnate7ktenvU3Ek=;
+        s=default; t=1582272863;
+        bh=cclzFkiBpLoO2SrI2jMFGiPVusooNw/Dq2xBkCYQvuQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=st1NPQK9GZWjCFDRXWQe9eVGsyfKhU3iK24cSOaaL9hYIcydTAxGPqeyU/F4Txhuc
-         TKJ68V4Lo1Tc4SMBM1KNBgif5xppEQ2k6nHM8j52eZTxjN/Cp3/YOGRebGxctSFuN4
-         k+mRZ2NoTGlDyxfBQ4Ukg8yo3k7kA6wnDzikLtxE=
+        b=2fvumROBHEdYaVC/LLKL4CQZXr90vqhLhBS9StUL4jlTM/r26J6v1xQoyh9CjnoGV
+         Dw6Udv8TWhcbx4Edfa+SsOAmtzchmnHtBzsyUBeEUHQ9YEcot1H3nIiQ0n3EKDHPlf
+         2YnlYuKVoe9ti2gNWnUGXNAEyNhtz3Oj3rK/vYOc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Jean-Philippe Brucker <jean-philippe@linaro.org>,
-        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 130/191] iommu/arm-smmu-v3: Use WRITE_ONCE() when changing validity of an STE
+        stable@vger.kernel.org, Ronnie Sahlberg <lsahlber@redhat.com>,
+        Steve French <stfrench@microsoft.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 304/344] cifs: fix NULL dereference in match_prepath
 Date:   Fri, 21 Feb 2020 08:41:43 +0100
-Message-Id: <20200221072306.451259038@linuxfoundation.org>
+Message-Id: <20200221072417.533401019@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200221072250.732482588@linuxfoundation.org>
-References: <20200221072250.732482588@linuxfoundation.org>
+In-Reply-To: <20200221072349.335551332@linuxfoundation.org>
+References: <20200221072349.335551332@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,38 +44,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Will Deacon <will@kernel.org>
+From: Ronnie Sahlberg <lsahlber@redhat.com>
 
-[ Upstream commit d71e01716b3606a6648df7e5646ae12c75babde4 ]
+[ Upstream commit fe1292686333d1dadaf84091f585ee903b9ddb84 ]
 
-If, for some bizarre reason, the compiler decided to split up the write
-of STE DWORD 0, we could end up making a partial structure valid.
+RHBZ: 1760879
 
-Although this probably won't happen, follow the example of the
-context-descriptor code and use WRITE_ONCE() to ensure atomicity of the
-write.
+Fix an oops in match_prepath() by making sure that the prepath string is not
+NULL before we pass it into strcmp().
 
-Reported-by: Jean-Philippe Brucker <jean-philippe@linaro.org>
-Signed-off-by: Will Deacon <will@kernel.org>
+This is similar to other checks we make for example in cifs_root_iget()
+
+Signed-off-by: Ronnie Sahlberg <lsahlber@redhat.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/arm-smmu-v3.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ fs/cifs/connect.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/iommu/arm-smmu-v3.c b/drivers/iommu/arm-smmu-v3.c
-index eff1f3aa5ef43..6b7664052b5be 100644
---- a/drivers/iommu/arm-smmu-v3.c
-+++ b/drivers/iommu/arm-smmu-v3.c
-@@ -1185,7 +1185,8 @@ static void arm_smmu_write_strtab_ent(struct arm_smmu_device *smmu, u32 sid,
- 	}
+diff --git a/fs/cifs/connect.c b/fs/cifs/connect.c
+index 02451d085ddd0..5d3c867bdc808 100644
+--- a/fs/cifs/connect.c
++++ b/fs/cifs/connect.c
+@@ -3652,8 +3652,10 @@ match_prepath(struct super_block *sb, struct cifs_mnt_data *mnt_data)
+ {
+ 	struct cifs_sb_info *old = CIFS_SB(sb);
+ 	struct cifs_sb_info *new = mnt_data->cifs_sb;
+-	bool old_set = old->mnt_cifs_flags & CIFS_MOUNT_USE_PREFIX_PATH;
+-	bool new_set = new->mnt_cifs_flags & CIFS_MOUNT_USE_PREFIX_PATH;
++	bool old_set = (old->mnt_cifs_flags & CIFS_MOUNT_USE_PREFIX_PATH) &&
++		old->prepath;
++	bool new_set = (new->mnt_cifs_flags & CIFS_MOUNT_USE_PREFIX_PATH) &&
++		new->prepath;
  
- 	arm_smmu_sync_ste_for_sid(smmu, sid);
--	dst[0] = cpu_to_le64(val);
-+	/* See comment in arm_smmu_write_ctx_desc() */
-+	WRITE_ONCE(dst[0], cpu_to_le64(val));
- 	arm_smmu_sync_ste_for_sid(smmu, sid);
- 
- 	/* It's likely that we'll want to use the new STE soon */
+ 	if (old_set && new_set && !strcmp(new->prepath, old->prepath))
+ 		return 1;
 -- 
 2.20.1
 
