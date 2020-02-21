@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 386741674B4
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:24:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8193B16721C
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:00:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388582AbgBUIYB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 03:24:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36262 "EHLO mail.kernel.org"
+        id S1730827AbgBUIAT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 03:00:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60658 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388578AbgBUIYA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 03:24:00 -0500
+        id S1729111AbgBUIAQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 03:00:16 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 92C3A206ED;
-        Fri, 21 Feb 2020 08:23:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 85F85206ED;
+        Fri, 21 Feb 2020 08:00:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582273440;
-        bh=yzoiKmt3nAhRVtfsDr9a8b1lx8fMEShoEFhjBaCQzqo=;
+        s=default; t=1582272016;
+        bh=RrihWs1bIyYOToiy0ScEICNCuQs5FEPMAr1Amv+Q22g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K6mDsBZ2L4ITRiXisAD0xwkJZ8rAc1BXKySDIcueCp+xONOktAB1YosNk2fm1MszZ
-         vKAxEhTzSFUn3NOkW2M51fBQpGmHft+Wm7aW5kWInd++iaEQa+eLQBHzGz/CMw+toI
-         ym/kPEeO2eCMSfcOZy4nBb1L4mot/ozcdsn72oo8=
+        b=NNFxtXA8e4Tvzcq+2ZQmXjPEmTuSCwNHyZOl4mHnujCW5xu9xaaLl+HQiKgJIv70O
+         apUtRNYYA+qLEpb8z/tu/OouWQIP5AOOXIMnHkCF7zzraLcj+tU8GV5PRXJe9mSTYE
+         lQ/Xm3pfIYUkmIr8bXx/J7NB/Vmhn3iDZ9hb+r9o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jun Lei <Jun.Lei@amd.com>,
-        Anthony Koo <Anthony.Koo@amd.com>,
-        Harry Wentland <harry.wentland@amd.com>,
-        Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org, Davide Caratti <dcaratti@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 135/191] drm/amd/display: fixup DML dependencies
+Subject: [PATCH 5.5 383/399] tc-testing: add missing nsPlugin to basic.json
 Date:   Fri, 21 Feb 2020 08:41:48 +0100
-Message-Id: <20200221072306.955796760@linuxfoundation.org>
+Message-Id: <20200221072437.383540819@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200221072250.732482588@linuxfoundation.org>
-References: <20200221072250.732482588@linuxfoundation.org>
+In-Reply-To: <20200221072402.315346745@linuxfoundation.org>
+References: <20200221072402.315346745@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,60 +44,197 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jun Lei <Jun.Lei@amd.com>
+From: Davide Caratti <dcaratti@redhat.com>
 
-[ Upstream commit 34ad0230062c39cdcba564d16d122c0fb467a7d6 ]
+[ Upstream commit e9ed4fa7b4400d7b2cf03108842a30e6c9bd0eb2 ]
 
-[why]
-Need to fix DML portability issues to enable SW unit testing around DML
+since tdc tests for cls_basic need $DEV1, use 'nsPlugin' so that the
+following command can be run without errors:
 
-[how]
-Move calcs into dc include folder since multiple components reference it
-Remove relative paths to external dependencies
+ [root@f31 tc-testing]# ./tdc.py -c basic
 
-Signed-off-by: Jun Lei <Jun.Lei@amd.com>
-Reviewed-by: Anthony Koo <Anthony.Koo@amd.com>
-Acked-by: Harry Wentland <harry.wentland@amd.com>
-Acked-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Fixes: 4717b05328ba ("tc-testing: Introduced tdc tests for basic filter")
+Signed-off-by: Davide Caratti <dcaratti@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/dml/dml_common_defs.c          | 2 +-
- drivers/gpu/drm/amd/display/dc/dml/dml_inline_defs.h          | 2 +-
- drivers/gpu/drm/amd/display/dc/{calcs => inc}/dcn_calc_math.h | 0
- 3 files changed, 2 insertions(+), 2 deletions(-)
- rename drivers/gpu/drm/amd/display/dc/{calcs => inc}/dcn_calc_math.h (100%)
+ .../tc-testing/tc-tests/filters/basic.json    | 51 +++++++++++++++++++
+ 1 file changed, 51 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dml/dml_common_defs.c b/drivers/gpu/drm/amd/display/dc/dml/dml_common_defs.c
-index b953b02a15121..723af0b2dda04 100644
---- a/drivers/gpu/drm/amd/display/dc/dml/dml_common_defs.c
-+++ b/drivers/gpu/drm/amd/display/dc/dml/dml_common_defs.c
-@@ -24,7 +24,7 @@
-  */
- 
- #include "dml_common_defs.h"
--#include "../calcs/dcn_calc_math.h"
-+#include "dcn_calc_math.h"
- 
- #include "dml_inline_defs.h"
- 
-diff --git a/drivers/gpu/drm/amd/display/dc/dml/dml_inline_defs.h b/drivers/gpu/drm/amd/display/dc/dml/dml_inline_defs.h
-index e8ce08567cd8e..e4f595a3038c4 100644
---- a/drivers/gpu/drm/amd/display/dc/dml/dml_inline_defs.h
-+++ b/drivers/gpu/drm/amd/display/dc/dml/dml_inline_defs.h
-@@ -27,7 +27,7 @@
- #define __DML_INLINE_DEFS_H__
- 
- #include "dml_common_defs.h"
--#include "../calcs/dcn_calc_math.h"
-+#include "dcn_calc_math.h"
- #include "dml_logger.h"
- 
- static inline double dml_min(double a, double b)
-diff --git a/drivers/gpu/drm/amd/display/dc/calcs/dcn_calc_math.h b/drivers/gpu/drm/amd/display/dc/inc/dcn_calc_math.h
-similarity index 100%
-rename from drivers/gpu/drm/amd/display/dc/calcs/dcn_calc_math.h
-rename to drivers/gpu/drm/amd/display/dc/inc/dcn_calc_math.h
+diff --git a/tools/testing/selftests/tc-testing/tc-tests/filters/basic.json b/tools/testing/selftests/tc-testing/tc-tests/filters/basic.json
+index 2e361cea63bcd..98a20faf31986 100644
+--- a/tools/testing/selftests/tc-testing/tc-tests/filters/basic.json
++++ b/tools/testing/selftests/tc-testing/tc-tests/filters/basic.json
+@@ -6,6 +6,9 @@
+             "filter",
+             "basic"
+         ],
++        "plugins": {
++            "requires": "nsPlugin"
++        },
+         "setup": [
+             "$TC qdisc add dev $DEV1 ingress"
+         ],
+@@ -25,6 +28,9 @@
+             "filter",
+             "basic"
+         ],
++        "plugins": {
++            "requires": "nsPlugin"
++        },
+         "setup": [
+             "$TC qdisc add dev $DEV1 ingress"
+         ],
+@@ -44,6 +50,9 @@
+             "filter",
+             "basic"
+         ],
++        "plugins": {
++            "requires": "nsPlugin"
++        },
+         "setup": [
+             "$TC qdisc add dev $DEV1 ingress"
+         ],
+@@ -63,6 +72,9 @@
+             "filter",
+             "basic"
+         ],
++        "plugins": {
++            "requires": "nsPlugin"
++        },
+         "setup": [
+             "$TC qdisc add dev $DEV1 ingress"
+         ],
+@@ -82,6 +94,9 @@
+             "filter",
+             "basic"
+         ],
++        "plugins": {
++            "requires": "nsPlugin"
++        },
+         "setup": [
+             "$TC qdisc add dev $DEV1 ingress"
+         ],
+@@ -101,6 +116,9 @@
+             "filter",
+             "basic"
+         ],
++        "plugins": {
++            "requires": "nsPlugin"
++        },
+         "setup": [
+             "$TC qdisc add dev $DEV1 ingress"
+         ],
+@@ -120,6 +138,9 @@
+             "filter",
+             "basic"
+         ],
++        "plugins": {
++            "requires": "nsPlugin"
++        },
+         "setup": [
+             "$TC qdisc add dev $DEV1 ingress"
+         ],
+@@ -139,6 +160,9 @@
+             "filter",
+             "basic"
+         ],
++        "plugins": {
++            "requires": "nsPlugin"
++        },
+         "setup": [
+             "$TC qdisc add dev $DEV1 ingress"
+         ],
+@@ -158,6 +182,9 @@
+             "filter",
+             "basic"
+         ],
++        "plugins": {
++            "requires": "nsPlugin"
++        },
+         "setup": [
+             "$TC qdisc add dev $DEV1 ingress"
+         ],
+@@ -177,6 +204,9 @@
+             "filter",
+             "basic"
+         ],
++        "plugins": {
++            "requires": "nsPlugin"
++        },
+         "setup": [
+             "$TC qdisc add dev $DEV1 ingress"
+         ],
+@@ -196,6 +226,9 @@
+             "filter",
+             "basic"
+         ],
++        "plugins": {
++            "requires": "nsPlugin"
++        },
+         "setup": [
+             "$TC qdisc add dev $DEV1 ingress"
+         ],
+@@ -215,6 +248,9 @@
+             "filter",
+             "basic"
+         ],
++        "plugins": {
++            "requires": "nsPlugin"
++        },
+         "setup": [
+             "$TC qdisc add dev $DEV1 ingress"
+         ],
+@@ -234,6 +270,9 @@
+             "filter",
+             "basic"
+         ],
++        "plugins": {
++            "requires": "nsPlugin"
++        },
+         "setup": [
+             "$TC qdisc add dev $DEV1 ingress"
+         ],
+@@ -253,6 +292,9 @@
+             "filter",
+             "basic"
+         ],
++        "plugins": {
++            "requires": "nsPlugin"
++        },
+         "setup": [
+             "$TC qdisc add dev $DEV1 ingress"
+         ],
+@@ -272,6 +314,9 @@
+             "filter",
+             "basic"
+         ],
++        "plugins": {
++            "requires": "nsPlugin"
++        },
+         "setup": [
+             "$TC qdisc add dev $DEV1 ingress"
+         ],
+@@ -291,6 +336,9 @@
+             "filter",
+             "basic"
+         ],
++        "plugins": {
++            "requires": "nsPlugin"
++        },
+         "setup": [
+             "$TC qdisc add dev $DEV1 ingress"
+         ],
+@@ -310,6 +358,9 @@
+             "filter",
+             "basic"
+         ],
++        "plugins": {
++            "requires": "nsPlugin"
++        },
+         "setup": [
+             "$TC qdisc add dev $DEV1 ingress"
+         ],
 -- 
 2.20.1
 
