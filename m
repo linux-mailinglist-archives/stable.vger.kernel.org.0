@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CCF15167846
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:48:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 97AD3167722
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:41:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728453AbgBUHsl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 02:48:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44828 "EHLO mail.kernel.org"
+        id S1731796AbgBUIiT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 03:38:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35898 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727315AbgBUHsl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 02:48:41 -0500
+        id S1731422AbgBUIDL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 03:03:11 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C6C55208C4;
-        Fri, 21 Feb 2020 07:48:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 202D22465D;
+        Fri, 21 Feb 2020 08:03:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582271320;
-        bh=pkzmAGkgONH4rFn4Kchybr1EOFbP5fb3Z/OEklRicnc=;
+        s=default; t=1582272190;
+        bh=Ptu6GMFRDrGb22Ao6q2UrifXKbK8uk5mZ/S7nJG3Xkg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2KfnzyHmxLccS+5su/nNBWr/99jO0Fvdo/tDeJ4zCI99vs5e+tVVWk6CXdtSLvENO
-         wxyk9SbTzsciV3OSxlefdYlVIpCZkeYzrYETbkilXm61WXR0FrIHqKfLVfxuXqRkel
-         k001DVbMq2X/vr0NxGGc+SDN6Skv2ITc+FVDQ9Kw=
+        b=Fc9LmMvIqzEblBPCWzDmioZZW3pjd/EH33sCadqm9t/Jlv1zTNc9ohPzQFmZdYL/3
+         KFOZlBjdKW6swvcwpQRQs6ijCIi3dtsISPpCXBsuEdrwRAynzClAMS9N66anB7n1XJ
+         Uq35souBC5JWalbDBiGFqbcVUecRiNOW8YpA3L1s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Viresh Kumar <viresh.kumar@linaro.org>,
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 122/399] opp: Free static OPPs on errors while adding them
-Date:   Fri, 21 Feb 2020 08:37:27 +0100
-Message-Id: <20200221072414.333210327@linuxfoundation.org>
+Subject: [PATCH 5.4 049/344] pinctrl: baytrail: Do not clear IRQ flags on direct-irq enabled pins
+Date:   Fri, 21 Feb 2020 08:37:28 +0100
+Message-Id: <20200221072353.537145973@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200221072402.315346745@linuxfoundation.org>
-References: <20200221072402.315346745@linuxfoundation.org>
+In-Reply-To: <20200221072349.335551332@linuxfoundation.org>
+References: <20200221072349.335551332@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,76 +46,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Viresh Kumar <viresh.kumar@linaro.org>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit ba0033192145cbd4e70ef64552958b13d597eb9e ]
+[ Upstream commit a23680594da7a9e2696dbcf4f023e9273e2fa40b ]
 
-The static OPPs aren't getting freed properly, if errors occur while
-adding them. Fix that by calling _put_opp_list_kref() and putting their
-reference on failures.
+Suspending Goodix touchscreens requires changing the interrupt pin to
+output before sending them a power-down command. Followed by wiggling
+the interrupt pin to wake the device up, after which it is put back
+in input mode.
 
-Fixes: 11e1a1648298 ("opp: Don't decrement uninitialized list_kref")
-Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
+On Bay Trail devices with a Goodix touchscreen direct-irq mode is used
+in combination with listing the pin as a normal GpioIo resource.
+
+This works fine, until the goodix driver gets rmmod-ed and then insmod-ed
+again. In this case byt_gpio_disable_free() calls
+byt_gpio_clear_triggering() which clears the IRQ flags and after that the
+(direct) IRQ no longer triggers.
+
+This commit fixes this by adding a check for the BYT_DIRECT_IRQ_EN flag
+to byt_gpio_clear_triggering().
+
+Note that byt_gpio_clear_triggering() only gets called from
+byt_gpio_disable_free() for direct-irq enabled pins, as these are excluded
+from the irq_valid mask by byt_init_irq_valid_mask().
+
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/opp/of.c | 17 +++++++++++++----
- 1 file changed, 13 insertions(+), 4 deletions(-)
+ drivers/pinctrl/intel/pinctrl-baytrail.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/opp/of.c b/drivers/opp/of.c
-index 1cbb58240b801..1e5fcdee043c4 100644
---- a/drivers/opp/of.c
-+++ b/drivers/opp/of.c
-@@ -678,15 +678,17 @@ static int _of_add_opp_table_v2(struct device *dev, struct opp_table *opp_table)
- 			dev_err(dev, "%s: Failed to add OPP, %d\n", __func__,
- 				ret);
- 			of_node_put(np);
--			return ret;
-+			goto put_list_kref;
- 		} else if (opp) {
- 			count++;
- 		}
- 	}
+diff --git a/drivers/pinctrl/intel/pinctrl-baytrail.c b/drivers/pinctrl/intel/pinctrl-baytrail.c
+index 7d658e6627e7a..606fe216f902a 100644
+--- a/drivers/pinctrl/intel/pinctrl-baytrail.c
++++ b/drivers/pinctrl/intel/pinctrl-baytrail.c
+@@ -752,7 +752,13 @@ static void byt_gpio_clear_triggering(struct byt_gpio *vg, unsigned int offset)
  
- 	/* There should be one of more OPP defined */
--	if (WARN_ON(!count))
--		return -ENOENT;
-+	if (WARN_ON(!count)) {
-+		ret = -ENOENT;
-+		goto put_list_kref;
-+	}
- 
- 	list_for_each_entry(opp, &opp_table->opp_list, node)
- 		pstate_count += !!opp->pstate;
-@@ -695,7 +697,8 @@ static int _of_add_opp_table_v2(struct device *dev, struct opp_table *opp_table)
- 	if (pstate_count && pstate_count != count) {
- 		dev_err(dev, "Not all nodes have performance state set (%d: %d)\n",
- 			count, pstate_count);
--		return -ENOENT;
-+		ret = -ENOENT;
-+		goto put_list_kref;
- 	}
- 
- 	if (pstate_count)
-@@ -704,6 +707,11 @@ static int _of_add_opp_table_v2(struct device *dev, struct opp_table *opp_table)
- 	opp_table->parsed_static_opps = true;
- 
- 	return 0;
+ 	raw_spin_lock_irqsave(&byt_lock, flags);
+ 	value = readl(reg);
+-	value &= ~(BYT_TRIG_POS | BYT_TRIG_NEG | BYT_TRIG_LVL);
 +
-+put_list_kref:
-+	_put_opp_list_kref(opp_table);
++	/* Do not clear direct-irq enabled IRQs (from gpio_disable_free) */
++	if (value & BYT_DIRECT_IRQ_EN)
++		/* nothing to do */ ;
++	else
++		value &= ~(BYT_TRIG_POS | BYT_TRIG_NEG | BYT_TRIG_LVL);
 +
-+	return ret;
+ 	writel(value, reg);
+ 	raw_spin_unlock_irqrestore(&byt_lock, flags);
  }
- 
- /* Initializes OPP tables based on old-deprecated bindings */
-@@ -738,6 +746,7 @@ static int _of_add_opp_table_v1(struct device *dev, struct opp_table *opp_table)
- 		if (ret) {
- 			dev_err(dev, "%s: Failed to add OPP %ld (%d)\n",
- 				__func__, freq, ret);
-+			_put_opp_list_kref(opp_table);
- 			return ret;
- 		}
- 		nr -= 2;
 -- 
 2.20.1
 
