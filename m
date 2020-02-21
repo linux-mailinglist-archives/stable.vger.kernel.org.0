@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D5D651673CF
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:18:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F34A3167504
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:30:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387425AbgBUIPr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 03:15:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52638 "EHLO mail.kernel.org"
+        id S2387770AbgBUIV5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 03:21:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33362 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387420AbgBUIPq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 03:15:46 -0500
+        id S1730921AbgBUIV5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 03:21:57 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A03B624670;
-        Fri, 21 Feb 2020 08:15:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 15E8C2467D;
+        Fri, 21 Feb 2020 08:21:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582272946;
-        bh=gL1QEeR6PJrwA5ExvA/MU2u2t/8kiN9G1g+z+gyqnTA=;
+        s=default; t=1582273316;
+        bh=38p9MvRGjy//9Vx20f5bGwTQYOMD8UNHHMDJnca5RVU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PBLso7USxQA+uH05r42yGduzJCH0nAomhyRGfSrvLmVyr4wwxCIC9d2ZumeqDGa77
-         OBlzAPXaDGj5fKHy6HE6QRHFY6D5nTpeOhPt77qtaVK6J33edYQQjNZjWxoM4huzhb
-         3OM6AeuLmqsvRGiSaXbmwJMV7e5syrA5dswFhNHE=
+        b=Rzo9FPyGtQkJ+5WM5Ne7bkEeq5tcybv1VpM9SF+cs+PPKXTQ8IuFZ4HerdAs76vOC
+         WhMfMrrGXVteVw9lh6HRmaiRQ0hvNV4Yi/2Fs0D9H3PNiZf6gBHh7gqA+FzChwYkTw
+         CzCHGMGA1FliLIqegSxGWsopUfM44mausm6ZGDfs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nicola Lunghi <nick83ola@gmail.com>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 298/344] ALSA: usb-audio: add quirks for Line6 Helix devices fw>=2.82
+        stable@vger.kernel.org, Ben Skeggs <bskeggs@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 124/191] drm/nouveau/gr/gk20a,gm200-: add terminators to method lists read from fw
 Date:   Fri, 21 Feb 2020 08:41:37 +0100
-Message-Id: <20200221072416.959718850@linuxfoundation.org>
+Message-Id: <20200221072305.696997756@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200221072349.335551332@linuxfoundation.org>
-References: <20200221072349.335551332@linuxfoundation.org>
+In-Reply-To: <20200221072250.732482588@linuxfoundation.org>
+References: <20200221072250.732482588@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,39 +43,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicola Lunghi <nick83ola@gmail.com>
+From: Ben Skeggs <bskeggs@redhat.com>
 
-[ Upstream commit b81cbf7abfc94878a3c6f0789f2185ee55b1cc21 ]
+[ Upstream commit 7adc77aa0e11f25b0e762859219c70852cd8d56f ]
 
-With firmware 2.82 Line6 changed the usb id of some of the Helix
-devices but the quirks is still needed.
+Method init is typically ordered by class in the FW image as ThreeD,
+TwoD, Compute.
 
-Add it to the quirk list for line6 helix family of devices.
+Due to a bug in parsing the FW into our internal format, we've been
+accidentally sending Twod + Compute methods to the ThreeD class, as
+well as Compute methods to the TwoD class - oops.
 
-Thanks to Jens for pointing out the missing ids.
-
-Signed-off-by: Nicola Lunghi <nick83ola@gmail.com>
-Link: https://lore.kernel.org/r/20200125150917.5040-1-nick83ola@gmail.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/usb/format.c | 3 +++
- 1 file changed, 3 insertions(+)
+ .../gpu/drm/nouveau/nvkm/engine/gr/gk20a.c    | 21 ++++++++++---------
+ 1 file changed, 11 insertions(+), 10 deletions(-)
 
-diff --git a/sound/usb/format.c b/sound/usb/format.c
-index 25668ba5e68e3..f4f0cf3deaf0c 100644
---- a/sound/usb/format.c
-+++ b/sound/usb/format.c
-@@ -296,6 +296,9 @@ static int line6_parse_audio_format_rates_quirk(struct snd_usb_audio *chip,
- 	case USB_ID(0x0E41, 0x4242): /* Line6 Helix Rack */
- 	case USB_ID(0x0E41, 0x4244): /* Line6 Helix LT */
- 	case USB_ID(0x0E41, 0x4246): /* Line6 HX-Stomp */
-+	case USB_ID(0x0E41, 0x4248): /* Line6 Helix >= fw 2.82 */
-+	case USB_ID(0x0E41, 0x4249): /* Line6 Helix Rack >= fw 2.82 */
-+	case USB_ID(0x0E41, 0x424a): /* Line6 Helix LT >= fw 2.82 */
- 		/* supported rates: 48Khz */
- 		kfree(fp->rate_table);
- 		fp->rate_table = kmalloc(sizeof(int), GFP_KERNEL);
+diff --git a/drivers/gpu/drm/nouveau/nvkm/engine/gr/gk20a.c b/drivers/gpu/drm/nouveau/nvkm/engine/gr/gk20a.c
+index 500cb08dd6080..b57ab5cea9a10 100644
+--- a/drivers/gpu/drm/nouveau/nvkm/engine/gr/gk20a.c
++++ b/drivers/gpu/drm/nouveau/nvkm/engine/gr/gk20a.c
+@@ -143,23 +143,24 @@ gk20a_gr_av_to_method(struct gf100_gr *gr, const char *fw_name,
+ 
+ 	nent = (fuc.size / sizeof(struct gk20a_fw_av));
+ 
+-	pack = vzalloc((sizeof(*pack) * max_classes) +
+-		       (sizeof(*init) * (nent + 1)));
++	pack = vzalloc((sizeof(*pack) * (max_classes + 1)) +
++		       (sizeof(*init) * (nent + max_classes + 1)));
+ 	if (!pack) {
+ 		ret = -ENOMEM;
+ 		goto end;
+ 	}
+ 
+-	init = (void *)(pack + max_classes);
++	init = (void *)(pack + max_classes + 1);
+ 
+-	for (i = 0; i < nent; i++) {
+-		struct gf100_gr_init *ent = &init[i];
++	for (i = 0; i < nent; i++, init++) {
+ 		struct gk20a_fw_av *av = &((struct gk20a_fw_av *)fuc.data)[i];
+ 		u32 class = av->addr & 0xffff;
+ 		u32 addr = (av->addr & 0xffff0000) >> 14;
+ 
+ 		if (prevclass != class) {
+-			pack[classidx].init = ent;
++			if (prevclass) /* Add terminator to the method list. */
++				init++;
++			pack[classidx].init = init;
+ 			pack[classidx].type = class;
+ 			prevclass = class;
+ 			if (++classidx >= max_classes) {
+@@ -169,10 +170,10 @@ gk20a_gr_av_to_method(struct gf100_gr *gr, const char *fw_name,
+ 			}
+ 		}
+ 
+-		ent->addr = addr;
+-		ent->data = av->data;
+-		ent->count = 1;
+-		ent->pitch = 1;
++		init->addr = addr;
++		init->data = av->data;
++		init->count = 1;
++		init->pitch = 1;
+ 	}
+ 
+ 	*ppack = pack;
 -- 
 2.20.1
 
