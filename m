@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D67C167705
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:41:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 14E36167869
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:48:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730907AbgBUIB0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 03:01:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33716 "EHLO mail.kernel.org"
+        id S1728836AbgBUHrD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 02:47:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42766 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731200AbgBUIB0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 03:01:26 -0500
+        id S1728829AbgBUHrC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 02:47:02 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F2D522073A;
-        Fri, 21 Feb 2020 08:01:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 35A5524676;
+        Fri, 21 Feb 2020 07:47:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582272085;
-        bh=hOuaW7/hKWZaEBAmeRmZWycGWtxt52azLEnrtlhg/2E=;
+        s=default; t=1582271221;
+        bh=YHz7O6G/jmkaVCvMuEpPsNeQD/iCyedN0ScyPG8tI5s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UuSSGp81xMzqQMRbXBSKjylNlSQrGslXoXmQLNUtjiMlkuct51efW5lyhX+G+I/k7
-         bG3kN9uI1S+eNKPSmmK/MmO45bQe9m+z8ORNu4tunWelbhmjO9mRle4fNANyGvoFOM
-         PlfOW+g96W5t5uRiYwrk3L/IJJxY3gE8lTXZ3tsI=
+        b=TNysK6CfZxjRTIM3lkvUxMnOlLkVA2YYGCGGHVsXRbxG7HqnCp4lYr85+b8CMExQ6
+         5o21D+RVDjecB6iv3KlRw/ngGuLcF86uJargXyWzg6ryRfWTXUs7U5nT7wvTTcefBq
+         zjyVi8PKu50Ro4UN7lirxjMqk6eSVLQLjhEYr3Qw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        "J. Bruce Fields" <bfields@redhat.com>,
+        stable@vger.kernel.org,
+        Vincenzo Frascino <vincenzo.frascino@arm.com>,
+        Russell King <rmk+kernel@armlinux.org.uk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 011/344] nfsd4: avoid NULL deference on strange COPY compounds
+Subject: [PATCH 5.5 085/399] ARM: 8952/1: Disable kmemleak on XIP kernels
 Date:   Fri, 21 Feb 2020 08:36:50 +0100
-Message-Id: <20200221072350.280729321@linuxfoundation.org>
+Message-Id: <20200221072410.601248586@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200221072349.335551332@linuxfoundation.org>
-References: <20200221072349.335551332@linuxfoundation.org>
+In-Reply-To: <20200221072402.315346745@linuxfoundation.org>
+References: <20200221072402.315346745@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,52 +45,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: J. Bruce Fields <bfields@redhat.com>
+From: Vincenzo Frascino <vincenzo.frascino@arm.com>
 
-[ Upstream commit d781e3df710745fbbaee4eb07fd5b64331a1b175 ]
+[ Upstream commit bc420c6ceefbb86cbbc8c00061bd779c17fa6997 ]
 
-With cross-server COPY we've introduced the possibility that the current
-or saved filehandle might not have fh_dentry/fh_export filled in, but we
-missed a place that assumed it was.  I think this could be triggered by
-a compound like:
+Kmemleak relies on specific symbols to register the read only data
+during init (e.g. __start_ro_after_init).
+Trying to build an XIP kernel on arm results in the linking error
+reported below because when this option is selected read only data
+after init are not allowed since .data is read only (.rodata).
 
-	PUTFH(foreign filehandle)
-	GETATTR
-	SAVEFH
-	COPY
+  arm-linux-gnueabihf-ld: mm/kmemleak.o: in function `kmemleak_init':
+  kmemleak.c:(.init.text+0x148): undefined reference to `__end_ro_after_init'
+  arm-linux-gnueabihf-ld: kmemleak.c:(.init.text+0x14c):
+     undefined reference to `__end_ro_after_init'
+  arm-linux-gnueabihf-ld: kmemleak.c:(.init.text+0x150):
+     undefined reference to `__start_ro_after_init'
+  arm-linux-gnueabihf-ld: kmemleak.c:(.init.text+0x156):
+     undefined reference to `__start_ro_after_init'
+  arm-linux-gnueabihf-ld: kmemleak.c:(.init.text+0x162):
+     undefined reference to `__start_ro_after_init'
+  arm-linux-gnueabihf-ld: kmemleak.c:(.init.text+0x16a):
+     undefined reference to `__start_ro_after_init'
+  linux/Makefile:1078: recipe for target 'vmlinux' failed
 
-First, check_if_stalefh_allowed sets no_verify on the first (PUTFH) op.
-Then op_func = nfsd4_putfh runs and leaves current_fh->fh_export NULL.
-need_wrongsec_check returns true, since this PUTFH has OP_IS_PUTFH_LIKE
-set and GETATTR does not have OP_HANDLES_WRONGSEC set.
+Fix the issue enabling kmemleak only on non XIP kernels.
 
-We should probably also consider tightening the checks in
-check_if_stalefh_allowed and double-checking that we don't assume the
-filehandle is verified elsewhere in the compound.  But I think this
-fixes the immediate issue.
-
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Fixes: 4e48f1cccab3 "NFSD: allow inter server COPY to have... "
-Signed-off-by: J. Bruce Fields <bfields@redhat.com>
+Signed-off-by: Vincenzo Frascino <vincenzo.frascino@arm.com>
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfsd/nfs4proc.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/arm/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/nfsd/nfs4proc.c b/fs/nfsd/nfs4proc.c
-index 4798667af647c..4d1d0bf8e385f 100644
---- a/fs/nfsd/nfs4proc.c
-+++ b/fs/nfsd/nfs4proc.c
-@@ -2025,7 +2025,8 @@ nfsd4_proc_compound(struct svc_rqst *rqstp)
- 			if (op->opdesc->op_flags & OP_CLEAR_STATEID)
- 				clear_current_stateid(cstate);
- 
--			if (need_wrongsec_check(rqstp))
-+			if (current_fh->fh_export &&
-+					need_wrongsec_check(rqstp))
- 				op->status = check_nfsd_access(current_fh->fh_export, rqstp);
- 		}
- encode_op:
+diff --git a/arch/arm/Kconfig b/arch/arm/Kconfig
+index 96dab76da3b39..2c3a9fd05f571 100644
+--- a/arch/arm/Kconfig
++++ b/arch/arm/Kconfig
+@@ -74,7 +74,7 @@ config ARM
+ 	select HAVE_CONTEXT_TRACKING
+ 	select HAVE_COPY_THREAD_TLS
+ 	select HAVE_C_RECORDMCOUNT
+-	select HAVE_DEBUG_KMEMLEAK
++	select HAVE_DEBUG_KMEMLEAK if !XIP_KERNEL
+ 	select HAVE_DMA_CONTIGUOUS if MMU
+ 	select HAVE_DYNAMIC_FTRACE if !XIP_KERNEL && !CPU_ENDIAN_BE32 && MMU
+ 	select HAVE_DYNAMIC_FTRACE_WITH_REGS if HAVE_DYNAMIC_FTRACE
 -- 
 2.20.1
 
