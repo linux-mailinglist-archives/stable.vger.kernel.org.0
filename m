@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AD2D416736D
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:13:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8CB6B16736F
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:13:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732801AbgBUIML (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 03:12:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47880 "EHLO mail.kernel.org"
+        id S1732808AbgBUIMQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 03:12:16 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47924 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732797AbgBUIML (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 03:12:11 -0500
+        id S1732335AbgBUIMN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 03:12:13 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BFBF120722;
-        Fri, 21 Feb 2020 08:12:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4CA8024650;
+        Fri, 21 Feb 2020 08:12:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582272730;
-        bh=+Rv2mcBG+tM8uETzSGed8+ZUKb3xzwLhZrMdg0JEZHM=;
+        s=default; t=1582272732;
+        bh=ipx4Td6141LujbD+iqs7ftTylfFP+MA6LuFhN97F7WA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RV2R1LVesroau5Airm+pfJGjYTuU8acWe++xxXMwEvSJBhsjbPsBHxnptLGsVx+3u
-         flETYa/3SmQ2oS6s1DyKLeggji6W7ItGGuZhHXcYHjQ1wkuL8en5i8WzPrj2o95EGu
-         l0unC46y0fpI7UtVvfYGm69OoY1e2EOXAZw3eHh8=
+        b=dMGAntm28hamj2i30Zdggp1EnjQ9WjRh70XldYO8fKdQU/rC7+CyoKNMA3sRqLtx2
+         lIyRAZMJrOWY7BkFQUZQJYKpmXIurINbfLlHpATqnq4Nb8cvkDvFhta6Y6WiByAKC+
+         TxsJErf4QMyzh/7dGdQ2vvxXmpzEATMyXg1oQnI4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kim Phillips <kim.phillips@amd.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        stable@vger.kernel.org, Robert Richter <rrichter@marvell.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 252/344] perf/x86/amd: Constrain Large Increment per Cycle events
-Date:   Fri, 21 Feb 2020 08:40:51 +0100
-Message-Id: <20200221072412.395970009@linuxfoundation.org>
+Subject: [PATCH 5.4 253/344] watchdog/softlockup: Enforce that timestamp is valid on boot
+Date:   Fri, 21 Feb 2020 08:40:52 +0100
+Message-Id: <20200221072412.491746863@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200221072349.335551332@linuxfoundation.org>
 References: <20200221072349.335551332@linuxfoundation.org>
@@ -44,202 +44,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kim Phillips <kim.phillips@amd.com>
+From: Thomas Gleixner <tglx@linutronix.de>
 
-[ Upstream commit 471af006a747f1c535c8a8c6c0973c320fe01b22 ]
+[ Upstream commit 11e31f608b499f044f24b20be73f1dcab3e43f8a ]
 
-AMD Family 17h processors and above gain support for Large Increment
-per Cycle events.  Unfortunately there is no CPUID or equivalent bit
-that indicates whether the feature exists or not, so we continue to
-determine eligibility based on a CPU family number comparison.
+Robert reported that during boot the watchdog timestamp is set to 0 for one
+second which is the indicator for a watchdog reset.
 
-For Large Increment per Cycle events, we add a f17h-and-compatibles
-get_event_constraints_f17h() that returns an even counter bitmask:
-Large Increment per Cycle events can only be placed on PMCs 0, 2,
-and 4 out of the currently available 0-5.  The only currently
-public event that requires this feature to report valid counts
-is PMCx003 "Retired SSE/AVX Operations".
+The reason for this is that the timestamp is in seconds and the time is
+taken from sched clock and divided by ~1e9. sched clock starts at 0 which
+means that for the first second during boot the watchdog timestamp is 0,
+i.e. reset.
 
-Note that the CPU family logic in amd_core_pmu_init() is changed
-so as to be able to selectively add initialization for features
-available in ranges of backward-compatible CPU families.  This
-Large Increment per Cycle feature is expected to be retained
-in future families.
+Use ULONG_MAX as the reset indicator value so the watchdog works correctly
+right from the start. ULONG_MAX would only conflict with a real timestamp
+if the system reaches an uptime of 136 years on 32bit and almost eternity
+on 64bit.
 
-A side-effect of assigning a new get_constraints function for f17h
-disables calling the old (prior to f15h) amd_get_event_constraints
-implementation left enabled by commit e40ed1542dd7 ("perf/x86: Add perf
-support for AMD family-17h processors"), which is no longer
-necessary since those North Bridge event codes are obsoleted.
-
-Also fix a spelling mistake whilst in the area (calulating ->
-calculating).
-
-Fixes: e40ed1542dd7 ("perf/x86: Add perf support for AMD family-17h processors")
-Signed-off-by: Kim Phillips <kim.phillips@amd.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/20191114183720.19887-2-kim.phillips@amd.com
+Reported-by: Robert Richter <rrichter@marvell.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Link: https://lore.kernel.org/r/87o8v3uuzl.fsf@nanos.tec.linutronix.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/events/amd/core.c   | 91 ++++++++++++++++++++++++------------
- arch/x86/events/perf_event.h |  2 +
- 2 files changed, 63 insertions(+), 30 deletions(-)
+ kernel/watchdog.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/arch/x86/events/amd/core.c b/arch/x86/events/amd/core.c
-index beffafd7dcc3f..3ea8056148d84 100644
---- a/arch/x86/events/amd/core.c
-+++ b/arch/x86/events/amd/core.c
-@@ -302,6 +302,25 @@ static inline int amd_pmu_addr_offset(int index, bool eventsel)
- 	return offset;
- }
+diff --git a/kernel/watchdog.c b/kernel/watchdog.c
+index f41334ef09713..cbd3cf503c904 100644
+--- a/kernel/watchdog.c
++++ b/kernel/watchdog.c
+@@ -161,6 +161,8 @@ static void lockup_detector_update_enable(void)
  
-+/*
-+ * AMD64 events are detected based on their event codes.
-+ */
-+static inline unsigned int amd_get_event_code(struct hw_perf_event *hwc)
-+{
-+	return ((hwc->config >> 24) & 0x0f00) | (hwc->config & 0x00ff);
-+}
-+
-+static inline bool amd_is_pair_event_code(struct hw_perf_event *hwc)
-+{
-+	if (!(x86_pmu.flags & PMU_FL_PAIR))
-+		return false;
-+
-+	switch (amd_get_event_code(hwc)) {
-+	case 0x003:	return true;	/* Retired SSE/AVX FLOPs */
-+	default:	return false;
-+	}
-+}
-+
- static int amd_core_hw_config(struct perf_event *event)
- {
- 	if (event->attr.exclude_host && event->attr.exclude_guest)
-@@ -320,14 +339,6 @@ static int amd_core_hw_config(struct perf_event *event)
- 	return 0;
- }
+ #ifdef CONFIG_SOFTLOCKUP_DETECTOR
  
--/*
-- * AMD64 events are detected based on their event codes.
-- */
--static inline unsigned int amd_get_event_code(struct hw_perf_event *hwc)
--{
--	return ((hwc->config >> 24) & 0x0f00) | (hwc->config & 0x00ff);
--}
--
- static inline int amd_is_nb_event(struct hw_perf_event *hwc)
- {
- 	return (hwc->config & 0xe0) == 0xe0;
-@@ -865,6 +876,20 @@ amd_get_event_constraints_f15h(struct cpu_hw_events *cpuc, int idx,
- 	}
- }
- 
-+static struct event_constraint pair_constraint;
++#define SOFTLOCKUP_RESET	ULONG_MAX
 +
-+static struct event_constraint *
-+amd_get_event_constraints_f17h(struct cpu_hw_events *cpuc, int idx,
-+			       struct perf_event *event)
-+{
-+	struct hw_perf_event *hwc = &event->hw;
-+
-+	if (amd_is_pair_event_code(hwc))
-+		return &pair_constraint;
-+
-+	return &unconstrained;
-+}
-+
- static ssize_t amd_event_sysfs_show(char *page, u64 config)
- {
- 	u64 event = (config & ARCH_PERFMON_EVENTSEL_EVENT) |
-@@ -908,33 +933,15 @@ static __initconst const struct x86_pmu amd_pmu = {
- 
- static int __init amd_core_pmu_init(void)
- {
-+	u64 even_ctr_mask = 0ULL;
-+	int i;
-+
- 	if (!boot_cpu_has(X86_FEATURE_PERFCTR_CORE))
- 		return 0;
- 
--	/* Avoid calulating the value each time in the NMI handler */
-+	/* Avoid calculating the value each time in the NMI handler */
- 	perf_nmi_window = msecs_to_jiffies(100);
- 
--	switch (boot_cpu_data.x86) {
--	case 0x15:
--		pr_cont("Fam15h ");
--		x86_pmu.get_event_constraints = amd_get_event_constraints_f15h;
--		break;
--	case 0x17:
--		pr_cont("Fam17h ");
--		/*
--		 * In family 17h, there are no event constraints in the PMC hardware.
--		 * We fallback to using default amd_get_event_constraints.
--		 */
--		break;
--	case 0x18:
--		pr_cont("Fam18h ");
--		/* Using default amd_get_event_constraints. */
--		break;
--	default:
--		pr_err("core perfctr but no constraints; unknown hardware!\n");
--		return -ENODEV;
--	}
--
- 	/*
- 	 * If core performance counter extensions exists, we must use
- 	 * MSR_F15H_PERF_CTL/MSR_F15H_PERF_CTR msrs. See also
-@@ -949,6 +956,30 @@ static int __init amd_core_pmu_init(void)
+ /* Global variables, exported for sysctl */
+ unsigned int __read_mostly softlockup_panic =
+ 			CONFIG_BOOTPARAM_SOFTLOCKUP_PANIC_VALUE;
+@@ -274,7 +276,7 @@ notrace void touch_softlockup_watchdog_sched(void)
+ 	 * Preemption can be enabled.  It doesn't matter which CPU's timestamp
+ 	 * gets zeroed here, so use the raw_ operation.
  	 */
- 	x86_pmu.amd_nb_constraints = 0;
- 
-+	if (boot_cpu_data.x86 == 0x15) {
-+		pr_cont("Fam15h ");
-+		x86_pmu.get_event_constraints = amd_get_event_constraints_f15h;
-+	}
-+	if (boot_cpu_data.x86 >= 0x17) {
-+		pr_cont("Fam17h+ ");
-+		/*
-+		 * Family 17h and compatibles have constraints for Large
-+		 * Increment per Cycle events: they may only be assigned an
-+		 * even numbered counter that has a consecutive adjacent odd
-+		 * numbered counter following it.
-+		 */
-+		for (i = 0; i < x86_pmu.num_counters - 1; i += 2)
-+			even_ctr_mask |= 1 << i;
-+
-+		pair_constraint = (struct event_constraint)
-+				    __EVENT_CONSTRAINT(0, even_ctr_mask, 0,
-+				    x86_pmu.num_counters / 2, 0,
-+				    PERF_X86_EVENT_PAIR);
-+
-+		x86_pmu.get_event_constraints = amd_get_event_constraints_f17h;
-+		x86_pmu.flags |= PMU_FL_PAIR;
-+	}
-+
- 	pr_cont("core perfctr, ");
- 	return 0;
+-	raw_cpu_write(watchdog_touch_ts, 0);
++	raw_cpu_write(watchdog_touch_ts, SOFTLOCKUP_RESET);
  }
-diff --git a/arch/x86/events/perf_event.h b/arch/x86/events/perf_event.h
-index ecacfbf4ebc12..0ed910237c4d8 100644
---- a/arch/x86/events/perf_event.h
-+++ b/arch/x86/events/perf_event.h
-@@ -77,6 +77,7 @@ static inline bool constraint_match(struct event_constraint *c, u64 ecode)
- #define PERF_X86_EVENT_AUTO_RELOAD	0x0200 /* use PEBS auto-reload */
- #define PERF_X86_EVENT_LARGE_PEBS	0x0400 /* use large PEBS */
- #define PERF_X86_EVENT_PEBS_VIA_PT	0x0800 /* use PT buffer for PEBS */
-+#define PERF_X86_EVENT_PAIR		0x1000 /* Large Increment per Cycle */
  
- struct amd_nb {
- 	int nb_id;  /* NorthBridge id */
-@@ -735,6 +736,7 @@ do {									\
- #define PMU_FL_EXCL_ENABLED	0x8 /* exclusive counter active */
- #define PMU_FL_PEBS_ALL		0x10 /* all events are valid PEBS events */
- #define PMU_FL_TFA		0x20 /* deal with TSX force abort */
-+#define PMU_FL_PAIR		0x40 /* merge counters for large incr. events */
+ notrace void touch_softlockup_watchdog(void)
+@@ -298,14 +300,14 @@ void touch_all_softlockup_watchdogs(void)
+ 	 * the softlockup check.
+ 	 */
+ 	for_each_cpu(cpu, &watchdog_allowed_mask)
+-		per_cpu(watchdog_touch_ts, cpu) = 0;
++		per_cpu(watchdog_touch_ts, cpu) = SOFTLOCKUP_RESET;
+ 	wq_watchdog_touch(-1);
+ }
  
- #define EVENT_VAR(_id)  event_attr_##_id
- #define EVENT_PTR(_id) &event_attr_##_id.attr.attr
+ void touch_softlockup_watchdog_sync(void)
+ {
+ 	__this_cpu_write(softlockup_touch_sync, true);
+-	__this_cpu_write(watchdog_touch_ts, 0);
++	__this_cpu_write(watchdog_touch_ts, SOFTLOCKUP_RESET);
+ }
+ 
+ static int is_softlockup(unsigned long touch_ts)
+@@ -383,7 +385,7 @@ static enum hrtimer_restart watchdog_timer_fn(struct hrtimer *hrtimer)
+ 	/* .. and repeat */
+ 	hrtimer_forward_now(hrtimer, ns_to_ktime(sample_period));
+ 
+-	if (touch_ts == 0) {
++	if (touch_ts == SOFTLOCKUP_RESET) {
+ 		if (unlikely(__this_cpu_read(softlockup_touch_sync))) {
+ 			/*
+ 			 * If the time stamp was touched atomically
 -- 
 2.20.1
 
