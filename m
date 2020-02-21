@@ -2,202 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E09FD1679DD
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 10:52:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 38930167A1F
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 11:04:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728114AbgBUJw2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 04:52:28 -0500
-Received: from foss.arm.com ([217.140.110.172]:35372 "EHLO foss.arm.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726989AbgBUJw1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 04:52:27 -0500
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id F04D131B;
-        Fri, 21 Feb 2020 01:52:26 -0800 (PST)
-Received: from e121166-lin.cambridge.arm.com (e121166-lin.cambridge.arm.com [10.1.196.255])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id A0FC13F68F;
-        Fri, 21 Feb 2020 01:52:25 -0800 (PST)
-Date:   Fri, 21 Feb 2020 09:52:23 +0000
-From:   Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Pankaj Bansal <pankaj.bansal@nxp.com>,
-        Hanjun Guo <guohanjun@huawei.com>,
-        Will Deacon <will@kernel.org>,
-        Sudeep Holla <sudeep.holla@arm.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 4.19 137/191] ACPI/IORT: Fix Number of IDs handling in
- iort_id_map()
-Message-ID: <20200221095223.GC29220@e121166-lin.cambridge.arm.com>
-References: <20200221072250.732482588@linuxfoundation.org>
- <20200221072307.150803032@linuxfoundation.org>
+        id S1728075AbgBUKEZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 05:04:25 -0500
+Received: from hqnvemgate26.nvidia.com ([216.228.121.65]:16187 "EHLO
+        hqnvemgate26.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727036AbgBUKEY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 21 Feb 2020 05:04:24 -0500
+Received: from hqpgpgate102.nvidia.com (Not Verified[216.228.121.13]) by hqnvemgate26.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
+        id <B5e4fab1a0000>; Fri, 21 Feb 2020 02:04:10 -0800
+Received: from hqmail.nvidia.com ([172.20.161.6])
+  by hqpgpgate102.nvidia.com (PGP Universal service);
+  Fri, 21 Feb 2020 02:04:23 -0800
+X-PGP-Universal: processed;
+        by hqpgpgate102.nvidia.com on Fri, 21 Feb 2020 02:04:23 -0800
+Received: from [10.21.133.51] (10.124.1.5) by HQMAIL107.nvidia.com
+ (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Fri, 21 Feb
+ 2020 10:04:21 +0000
+Subject: Re: [PATCH 5.4 000/344] 5.4.22-stable review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        <linux-kernel@vger.kernel.org>
+CC:     <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
+        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
+        <ben.hutchings@codethink.co.uk>, <lkft-triage@lists.linaro.org>,
+        <stable@vger.kernel.org>, linux-tegra <linux-tegra@vger.kernel.org>
+References: <20200221072349.335551332@linuxfoundation.org>
+From:   Jon Hunter <jonathanh@nvidia.com>
+Message-ID: <529a5a4a-974e-995a-9556-c2a14d09bb5d@nvidia.com>
+Date:   Fri, 21 Feb 2020 10:04:19 +0000
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.4.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200221072307.150803032@linuxfoundation.org>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+In-Reply-To: <20200221072349.335551332@linuxfoundation.org>
+X-Originating-IP: [10.124.1.5]
+X-ClientProxiedBy: HQMAIL101.nvidia.com (172.20.187.10) To
+ HQMAIL107.nvidia.com (172.20.187.13)
+Content-Type: text/plain; charset="utf-8"
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
+        t=1582279450; bh=IKj9oBht6F74wt8Tijrc8dxdv5/sxm8v6sVGPOHfoFA=;
+        h=X-PGP-Universal:Subject:To:CC:References:From:Message-ID:Date:
+         User-Agent:MIME-Version:In-Reply-To:X-Originating-IP:
+         X-ClientProxiedBy:Content-Type:Content-Language:
+         Content-Transfer-Encoding;
+        b=cSZHOrHtHeVXoa5oqZ6OZ6wSuSqy1mF7avVnBbAH8N1LatXEVVK5w2zi5v8gim53n
+         VAPpop6cB1EXClmG00uGOyFLZUqT7fGIl7TunNa3exWUPYXIISMGPcf1jCLvI0zmXj
+         jcExcSL2CMk7ZnFtb0iA3Qu/yp6tGFTDSheaGIv9CcB/+z0y/uSAc6Mw/0MURQwl5Z
+         U22bQn3JIKaAb3/zJ/9vAw35Dd4RgY+Ik4oXh9xLSav3+2c9KzANkesEuDRMbPBLGg
+         Mewf11qDQN9WbecfP2yWGe9dVFfR7B21B02S3AS2py0sf19Y5i3bMCSr0Nsrn1zELy
+         A+VEpmTfXV+EA==
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Feb 21, 2020 at 08:41:50AM +0100, Greg Kroah-Hartman wrote:
-> From: Hanjun Guo <guohanjun@huawei.com>
-> 
-> [ Upstream commit 3c23b83a88d00383e1d498cfa515249aa2fe0238 ]
 
-Please drop this patch from the stable queue, thanks.
+On 21/02/2020 07:36, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.4.22 release.
+> There are 344 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Sun, 23 Feb 2020 07:19:49 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.22-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
+> 
+> -------------
+> Pseudo-Shortlog of commits:
 
-Lorenzo
+...
 
-> The IORT specification [0] (Section 3, table 4, page 9) defines the
-> 'Number of IDs' as 'The number of IDs in the range minus one'.
-> 
-> However, the IORT ID mapping function iort_id_map() treats the 'Number
-> of IDs' field as if it were the full IDs mapping count, with the
-> following check in place to detect out of boundary input IDs:
-> 
-> InputID >= Input base + Number of IDs
-> 
-> This check is flawed in that it considers the 'Number of IDs' field as
-> the full number of IDs mapping and disregards the 'minus one' from
-> the IDs count.
-> 
-> The correct check in iort_id_map() should be implemented as:
-> 
-> InputID > Input base + Number of IDs
-> 
-> this implements the specification correctly but unfortunately it breaks
-> existing firmwares that erroneously set the 'Number of IDs' as the full
-> IDs mapping count rather than IDs mapping count minus one.
-> 
-> e.g.
-> 
-> PCI hostbridge mapping entry 1:
-> Input base:  0x1000
-> ID Count:    0x100
-> Output base: 0x1000
-> Output reference: 0xC4  //ITS reference
-> 
-> PCI hostbridge mapping entry 2:
-> Input base:  0x1100
-> ID Count:    0x100
-> Output base: 0x2000
-> Output reference: 0xD4  //ITS reference
-> 
-> Two mapping entries which the second entry's Input base = the first
-> entry's Input base + ID count, so for InputID 0x1100 and with the
-> correct InputID check in place in iort_id_map() the kernel would map
-> the InputID to ITS 0xC4 not 0xD4 as it would be expected.
-> 
-> Therefore, to keep supporting existing flawed firmwares, introduce a
-> workaround that instructs the kernel to use the old InputID range check
-> logic in iort_id_map(), so that we can support both firmwares written
-> with the flawed 'Number of IDs' logic and the correct one as defined in
-> the specifications.
-> 
-> [0]: http://infocenter.arm.com/help/topic/com.arm.doc.den0049d/DEN0049D_IO_Remapping_Table.pdf
-> 
-> Reported-by: Pankaj Bansal <pankaj.bansal@nxp.com>
-> Link: https://lore.kernel.org/linux-acpi/20191215203303.29811-1-pankaj.bansal@nxp.com/
-> Signed-off-by: Hanjun Guo <guohanjun@huawei.com>
-> Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-> Cc: Pankaj Bansal <pankaj.bansal@nxp.com>
-> Cc: Will Deacon <will@kernel.org>
-> Cc: Sudeep Holla <sudeep.holla@arm.com>
-> Cc: Catalin Marinas <catalin.marinas@arm.com>
-> Cc: Robin Murphy <robin.murphy@arm.com>
-> Signed-off-by: Will Deacon <will@kernel.org>
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
-> ---
->  drivers/acpi/arm64/iort.c | 57 +++++++++++++++++++++++++++++++++++++--
->  1 file changed, 55 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/acpi/arm64/iort.c b/drivers/acpi/arm64/iort.c
-> index e11b5da6f828f..7d86468300b78 100644
-> --- a/drivers/acpi/arm64/iort.c
-> +++ b/drivers/acpi/arm64/iort.c
-> @@ -306,6 +306,59 @@ out:
->  	return status;
->  }
->  
-> +struct iort_workaround_oem_info {
-> +	char oem_id[ACPI_OEM_ID_SIZE + 1];
-> +	char oem_table_id[ACPI_OEM_TABLE_ID_SIZE + 1];
-> +	u32 oem_revision;
-> +};
-> +
-> +static bool apply_id_count_workaround;
-> +
-> +static struct iort_workaround_oem_info wa_info[] __initdata = {
-> +	{
-> +		.oem_id		= "HISI  ",
-> +		.oem_table_id	= "HIP07   ",
-> +		.oem_revision	= 0,
-> +	}, {
-> +		.oem_id		= "HISI  ",
-> +		.oem_table_id	= "HIP08   ",
-> +		.oem_revision	= 0,
-> +	}
-> +};
-> +
-> +static void __init
-> +iort_check_id_count_workaround(struct acpi_table_header *tbl)
-> +{
-> +	int i;
-> +
-> +	for (i = 0; i < ARRAY_SIZE(wa_info); i++) {
-> +		if (!memcmp(wa_info[i].oem_id, tbl->oem_id, ACPI_OEM_ID_SIZE) &&
-> +		    !memcmp(wa_info[i].oem_table_id, tbl->oem_table_id, ACPI_OEM_TABLE_ID_SIZE) &&
-> +		    wa_info[i].oem_revision == tbl->oem_revision) {
-> +			apply_id_count_workaround = true;
-> +			pr_warn(FW_BUG "ID count for ID mapping entry is wrong, applying workaround\n");
-> +			break;
-> +		}
-> +	}
-> +}
-> +
-> +static inline u32 iort_get_map_max(struct acpi_iort_id_mapping *map)
-> +{
-> +	u32 map_max = map->input_base + map->id_count;
-> +
-> +	/*
-> +	 * The IORT specification revision D (Section 3, table 4, page 9) says
-> +	 * Number of IDs = The number of IDs in the range minus one, but the
-> +	 * IORT code ignored the "minus one", and some firmware did that too,
-> +	 * so apply a workaround here to keep compatible with both the spec
-> +	 * compliant and non-spec compliant firmwares.
-> +	 */
-> +	if (apply_id_count_workaround)
-> +		map_max--;
-> +
-> +	return map_max;
-> +}
-> +
->  static int iort_id_map(struct acpi_iort_id_mapping *map, u8 type, u32 rid_in,
->  		       u32 *rid_out)
->  {
-> @@ -322,8 +375,7 @@ static int iort_id_map(struct acpi_iort_id_mapping *map, u8 type, u32 rid_in,
->  		return -ENXIO;
->  	}
->  
-> -	if (rid_in < map->input_base ||
-> -	    (rid_in >= map->input_base + map->id_count))
-> +	if (rid_in < map->input_base || rid_in > iort_get_map_max(map))
->  		return -ENXIO;
->  
->  	*rid_out = map->output_base + (rid_in - map->input_base);
-> @@ -1542,5 +1594,6 @@ void __init acpi_iort_init(void)
->  		return;
->  	}
->  
-> +	iort_check_id_count_workaround(iort_table);
->  	iort_init_platform_devices();
->  }
-> -- 
-> 2.20.1
-> 
-> 
-> 
+> Tero Kristo <t-kristo@ti.com>
+>     ARM: OMAP2+: pdata-quirks: add PRM data for reset support
+
+
+The above commit is generating the following build error on ARM systems ...
+
+dvs/git/dirty/git-master_l4t-upstream/kernel/arch/arm/mach-omap2/pdata-quirks.c:27:10: fatal error: linux/platform_data/ti-prm.h: No such file or directory
+ #include <linux/platform_data/ti-prm.h>
+          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Cheers
+Jon
+
+-- 
+nvpublic
