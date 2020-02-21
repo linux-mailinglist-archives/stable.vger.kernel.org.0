@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E629A1677DA
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:45:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 30E8C1677D6
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:45:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728424AbgBUIot (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 03:44:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49262 "EHLO mail.kernel.org"
+        id S1729810AbgBUHvs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 02:51:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49326 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729786AbgBUHvo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 02:51:44 -0500
+        id S1729806AbgBUHvr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 02:51:47 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CBB932073A;
-        Fri, 21 Feb 2020 07:51:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5711520578;
+        Fri, 21 Feb 2020 07:51:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582271504;
-        bh=K+GbBvUYMrSGOr40poPKHl1+OJzijRKgppJ0R0XLZ9M=;
+        s=default; t=1582271506;
+        bh=kHrVyKQu4EWN7X+O0OX9IdROv4KxjFWl9tyQX76enSU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nOrmEFvFhWy07iWiJmi3xh8hW2JP3I+vjLPNsg2+lbienWoHTwjW4GBcuhZ9pjrjK
-         jkO6ft05xDO3zt6uqTy1B9A61t1AuiVMw8OK9WVPUoOXiea1rdLgUHpXxgC8bZ2N18
-         lUnEi6s61PvbOjVmZnjsKS/t3JTEpySuX/kGjTgc=
+        b=Yy5WrAKNKkJRYoj6fpFDRVkSc3KjpZ0BzKQpDQ+6NYC47XJtrflacbEP/JgnZk3/W
+         rnOwmF0MuKpScOO8Kg/sHOATlEDmFqMtn2I2lE5m8QbLGAwYV3Gtnw/R0OaDQN8CPl
+         bFGIkNtkl+sB9J/EjocOXem0WAXnySeu4Cmjgg4o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        stable@vger.kernel.org, Kamil Konieczny <k.konieczny@samsung.com>,
         Chanwoo Choi <cw00.choi@samsung.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 190/399] PM / devfreq: exynos-ppmu: Fix excessive stack usage
-Date:   Fri, 21 Feb 2020 08:38:35 +0100
-Message-Id: <20200221072421.275322914@linuxfoundation.org>
+Subject: [PATCH 5.5 191/399] PM / devfreq: Change time stats to 64-bit
+Date:   Fri, 21 Feb 2020 08:38:36 +0100
+Message-Id: <20200221072421.377625465@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200221072402.315346745@linuxfoundation.org>
 References: <20200221072402.315346745@linuxfoundation.org>
@@ -44,72 +44,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Kamil Konieczny <k.konieczny@samsung.com>
 
-[ Upstream commit d4556f5e99d5f603913bac01adaff8670cb2d08b ]
+[ Upstream commit b76b3479dab948bea0a98b6d263eb56d8f358528 ]
 
-Putting a 'struct devfreq_event_dev' object on the stack is generally
-a bad idea and here it leads to a warnig about potential stack overflow:
+Change time stats counting to bigger type by using 64-bit jiffies.
+This will make devfreq stats code look similar to cpufreq stats and
+prevents overflow (for HZ = 1000 after 49.7 days).
 
-drivers/devfreq/event/exynos-ppmu.c:643:12: error: stack frame size of 1040 bytes in function 'exynos_ppmu_probe' [-Werror,-Wframe-larger-than=]
-
-There is no real need for the device structure, only the string inside
-it, so add an internal helper function that simply takes the string
-as its argument and remove the device structure.
-
-Fixes: 1dd62c66d345 ("PM / devfreq: events: extend events by type of counted data")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-[cw00.choi: Fix the issue from 'desc->name' to 'desc[j].name']
+Signed-off-by: Kamil Konieczny <k.konieczny@samsung.com>
+Acked-by: Chanwoo Choi <cw00.choi@samsung.com>
 Signed-off-by: Chanwoo Choi <cw00.choi@samsung.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/devfreq/event/exynos-ppmu.c | 13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
+ drivers/devfreq/devfreq.c | 14 +++++++-------
+ include/linux/devfreq.h   |  4 ++--
+ 2 files changed, 9 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/devfreq/event/exynos-ppmu.c b/drivers/devfreq/event/exynos-ppmu.c
-index 85c7a77bf3f0d..055deea42c373 100644
---- a/drivers/devfreq/event/exynos-ppmu.c
-+++ b/drivers/devfreq/event/exynos-ppmu.c
-@@ -101,17 +101,22 @@ static struct __exynos_ppmu_events {
- 	PPMU_EVENT(dmc1_1),
- };
- 
--static int exynos_ppmu_find_ppmu_id(struct devfreq_event_dev *edev)
-+static int __exynos_ppmu_find_ppmu_id(const char *edev_name)
+diff --git a/drivers/devfreq/devfreq.c b/drivers/devfreq/devfreq.c
+index 07602083c743e..554d155106a5f 100644
+--- a/drivers/devfreq/devfreq.c
++++ b/drivers/devfreq/devfreq.c
+@@ -209,10 +209,10 @@ static int set_freq_table(struct devfreq *devfreq)
+ int devfreq_update_status(struct devfreq *devfreq, unsigned long freq)
  {
- 	int i;
+ 	int lev, prev_lev, ret = 0;
+-	unsigned long cur_time;
++	u64 cur_time;
  
- 	for (i = 0; i < ARRAY_SIZE(ppmu_events); i++)
--		if (!strcmp(edev->desc->name, ppmu_events[i].name))
-+		if (!strcmp(edev_name, ppmu_events[i].name))
- 			return ppmu_events[i].id;
+ 	lockdep_assert_held(&devfreq->lock);
+-	cur_time = jiffies;
++	cur_time = get_jiffies_64();
  
- 	return -EINVAL;
- }
+ 	/* Immediately exit if previous_freq is not initialized yet. */
+ 	if (!devfreq->previous_freq)
+@@ -535,7 +535,7 @@ void devfreq_monitor_resume(struct devfreq *devfreq)
+ 			msecs_to_jiffies(devfreq->profile->polling_ms));
  
-+static int exynos_ppmu_find_ppmu_id(struct devfreq_event_dev *edev)
-+{
-+	return __exynos_ppmu_find_ppmu_id(edev->desc->name);
-+}
-+
- /*
-  * The devfreq-event ops structure for PPMU v1.1
-  */
-@@ -556,13 +561,11 @@ static int of_get_devfreq_events(struct device_node *np,
- 			 * use default if not.
- 			 */
- 			if (info->ppmu_type == EXYNOS_TYPE_PPMU_V2) {
--				struct devfreq_event_dev edev;
- 				int id;
- 				/* Not all registers take the same value for
- 				 * read+write data count.
- 				 */
--				edev.desc = &desc[j];
--				id = exynos_ppmu_find_ppmu_id(&edev);
-+				id = __exynos_ppmu_find_ppmu_id(desc[j].name);
+ out_update:
+-	devfreq->last_stat_updated = jiffies;
++	devfreq->last_stat_updated = get_jiffies_64();
+ 	devfreq->stop_polling = false;
  
- 				switch (id) {
- 				case PPMU_PMNCNT0:
+ 	if (devfreq->profile->get_cur_freq &&
+@@ -820,7 +820,7 @@ struct devfreq *devfreq_add_device(struct device *dev,
+ 
+ 	devfreq->time_in_state = devm_kcalloc(&devfreq->dev,
+ 			devfreq->profile->max_state,
+-			sizeof(unsigned long),
++			sizeof(*devfreq->time_in_state),
+ 			GFP_KERNEL);
+ 	if (!devfreq->time_in_state) {
+ 		mutex_unlock(&devfreq->lock);
+@@ -828,7 +828,7 @@ struct devfreq *devfreq_add_device(struct device *dev,
+ 		goto err_devfreq;
+ 	}
+ 
+-	devfreq->last_stat_updated = jiffies;
++	devfreq->last_stat_updated = get_jiffies_64();
+ 
+ 	srcu_init_notifier_head(&devfreq->transition_notifier_list);
+ 
+@@ -1589,8 +1589,8 @@ static ssize_t trans_stat_show(struct device *dev,
+ 		for (j = 0; j < max_state; j++)
+ 			len += sprintf(buf + len, "%10u",
+ 				devfreq->trans_table[(i * max_state) + j]);
+-		len += sprintf(buf + len, "%10u\n",
+-			jiffies_to_msecs(devfreq->time_in_state[i]));
++		len += sprintf(buf + len, "%10llu\n", (u64)
++			jiffies64_to_msecs(devfreq->time_in_state[i]));
+ 	}
+ 
+ 	len += sprintf(buf + len, "Total transition : %u\n",
+diff --git a/include/linux/devfreq.h b/include/linux/devfreq.h
+index fb376b5b72819..95816a8e3d266 100644
+--- a/include/linux/devfreq.h
++++ b/include/linux/devfreq.h
+@@ -177,8 +177,8 @@ struct devfreq {
+ 	/* information for device frequency transition */
+ 	unsigned int total_trans;
+ 	unsigned int *trans_table;
+-	unsigned long *time_in_state;
+-	unsigned long last_stat_updated;
++	u64 *time_in_state;
++	u64 last_stat_updated;
+ 
+ 	struct srcu_notifier_head transition_notifier_list;
+ 
 -- 
 2.20.1
 
