@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9678D167792
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:44:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 359B8167603
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:36:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730179AbgBUHxz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 02:53:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52328 "EHLO mail.kernel.org"
+        id S1731924AbgBUIGQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 03:06:16 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39958 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730174AbgBUHxx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 02:53:53 -0500
+        id S1731637AbgBUIGO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 03:06:14 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E85C620801;
-        Fri, 21 Feb 2020 07:53:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 223B620801;
+        Fri, 21 Feb 2020 08:06:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582271633;
-        bh=2wsmw7LgUVLxcb60T5P9mFsAuefCeFVQD3JLWpvFv74=;
+        s=default; t=1582272373;
+        bh=kJ+GEgyavCSD+Gyv/bXnbhVvtw92kKW+0WVumqnbQDg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=icMVpQ19TbfQsOKGhARVnj9BtDB7CmsRPi41xnZK/Y8UcLATw5M/FgJxmPOZfngiF
-         PC1+vxvP/fSedn3Rs4ZB2FoJlt3mJomGZMUJbx/HS0nvdDcDhyxKUE/E8lZrPgByPG
-         cK3TCT1vWnSuBbrGUxhTJe91VCzA+otMbMKZUbeE=
+        b=2B1l279kQjAWiKVlHSRp47qunUwd0OZFI+ar/gkQhJqd1ammPWxwhXtdVLViyTJin
+         EgASKv2hsmmEzJD/O0MqqnSov2tmWW7Ge+mHNU3yjDG/5yTXjDdwo08IY/Mla0masn
+         jLk+SOVDILxVdw/2n8zs2QODedZm1WZRBaqIxX8c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kbuild test robot <lkp@intel.com>,
-        Chanwoo Choi <cw00.choi@samsung.com>,
+        stable@vger.kernel.org, Wei Liu <wei.liu@kernel.org>,
+        Bjorn Helgaas <bhelgaas@google.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 192/399] PM / devfreq: rk3399_dmc: Add COMPILE_TEST and HAVE_ARM_SMCCC dependency
-Date:   Fri, 21 Feb 2020 08:38:37 +0100
-Message-Id: <20200221072421.485975199@linuxfoundation.org>
+Subject: [PATCH 5.4 119/344] PCI: iproc: Apply quirk_paxc_bridge() for module as well as built-in
+Date:   Fri, 21 Feb 2020 08:38:38 +0100
+Message-Id: <20200221072359.694623605@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200221072402.315346745@linuxfoundation.org>
-References: <20200221072402.315346745@linuxfoundation.org>
+In-Reply-To: <20200221072349.335551332@linuxfoundation.org>
+References: <20200221072349.335551332@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,50 +44,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chanwoo Choi <cw00.choi@samsung.com>
+From: Wei Liu <wei.liu@kernel.org>
 
-[ Upstream commit eff5d31f7407fa9d31fb840106f1593399457298 ]
+[ Upstream commit 574f29036fce385e28617547955dd6911d375025 ]
 
-To build test, add COMPILE_TEST depedency to both ARM_RK3399_DMC_DEVFREQ
-and DEVFREQ_EVENT_ROCKCHIP_DFI configuration. And ARM_RK3399_DMC_DEVFREQ
-used the SMCCC interface so that add HAVE_ARM_SMCCC dependency to prevent
-the build break.
+Previously quirk_paxc_bridge() was applied when the iproc driver was
+built-in, but not when it was compiled as a module.
 
-Reported-by: kbuild test robot <lkp@intel.com>
-Signed-off-by: Chanwoo Choi <cw00.choi@samsung.com>
+This happened because it was under #ifdef CONFIG_PCIE_IPROC_PLATFORM:
+PCIE_IPROC_PLATFORM=y causes CONFIG_PCIE_IPROC_PLATFORM to be defined, but
+PCIE_IPROC_PLATFORM=m causes CONFIG_PCIE_IPROC_PLATFORM_MODULE to be
+defined.
+
+Move quirk_paxc_bridge() to pcie-iproc.c and drop the #ifdef so the quirk
+is always applied, whether iproc is built-in or a module.
+
+[bhelgaas: commit log, move to pcie-iproc.c, not pcie-iproc-platform.c]
+Link: https://lore.kernel.org/r/20191211174511.89713-1-wei.liu@kernel.org
+Signed-off-by: Wei Liu <wei.liu@kernel.org>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/devfreq/Kconfig       | 3 ++-
- drivers/devfreq/event/Kconfig | 2 +-
- 2 files changed, 3 insertions(+), 2 deletions(-)
+ drivers/pci/controller/pcie-iproc.c | 24 ++++++++++++++++++++++++
+ drivers/pci/quirks.c                | 26 --------------------------
+ 2 files changed, 24 insertions(+), 26 deletions(-)
 
-diff --git a/drivers/devfreq/Kconfig b/drivers/devfreq/Kconfig
-index 35535833b6f78..c7804635e89ea 100644
---- a/drivers/devfreq/Kconfig
-+++ b/drivers/devfreq/Kconfig
-@@ -115,7 +115,8 @@ config ARM_TEGRA20_DEVFREQ
+diff --git a/drivers/pci/controller/pcie-iproc.c b/drivers/pci/controller/pcie-iproc.c
+index 2d457bfdaf66e..933a4346ae5d6 100644
+--- a/drivers/pci/controller/pcie-iproc.c
++++ b/drivers/pci/controller/pcie-iproc.c
+@@ -1608,6 +1608,30 @@ DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_BROADCOM, 0xd802,
+ DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_BROADCOM, 0xd804,
+ 			quirk_paxc_disable_msi_parsing);
  
- config ARM_RK3399_DMC_DEVFREQ
- 	tristate "ARM RK3399 DMC DEVFREQ Driver"
--	depends on ARCH_ROCKCHIP
-+	depends on (ARCH_ROCKCHIP && HAVE_ARM_SMCCC) || \
-+		(COMPILE_TEST && HAVE_ARM_SMCCC)
- 	select DEVFREQ_EVENT_ROCKCHIP_DFI
- 	select DEVFREQ_GOV_SIMPLE_ONDEMAND
- 	select PM_DEVFREQ_EVENT
-diff --git a/drivers/devfreq/event/Kconfig b/drivers/devfreq/event/Kconfig
-index cef2cf5347ca7..a53e0a6ffdfeb 100644
---- a/drivers/devfreq/event/Kconfig
-+++ b/drivers/devfreq/event/Kconfig
-@@ -34,7 +34,7 @@ config DEVFREQ_EVENT_EXYNOS_PPMU
++static void quirk_paxc_bridge(struct pci_dev *pdev)
++{
++	/*
++	 * The PCI config space is shared with the PAXC root port and the first
++	 * Ethernet device.  So, we need to workaround this by telling the PCI
++	 * code that the bridge is not an Ethernet device.
++	 */
++	if (pdev->hdr_type == PCI_HEADER_TYPE_BRIDGE)
++		pdev->class = PCI_CLASS_BRIDGE_PCI << 8;
++
++	/*
++	 * MPSS is not being set properly (as it is currently 0).  This is
++	 * because that area of the PCI config space is hard coded to zero, and
++	 * is not modifiable by firmware.  Set this to 2 (e.g., 512 byte MPS)
++	 * so that the MPS can be set to the real max value.
++	 */
++	pdev->pcie_mpss = 2;
++}
++DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_BROADCOM, 0x16cd, quirk_paxc_bridge);
++DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_BROADCOM, 0x16f0, quirk_paxc_bridge);
++DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_BROADCOM, 0xd750, quirk_paxc_bridge);
++DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_BROADCOM, 0xd802, quirk_paxc_bridge);
++DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_BROADCOM, 0xd804, quirk_paxc_bridge);
++
+ MODULE_AUTHOR("Ray Jui <rjui@broadcom.com>");
+ MODULE_DESCRIPTION("Broadcom iPROC PCIe common driver");
+ MODULE_LICENSE("GPL v2");
+diff --git a/drivers/pci/quirks.c b/drivers/pci/quirks.c
+index 2f88b1ff7ada4..7afbce082d83e 100644
+--- a/drivers/pci/quirks.c
++++ b/drivers/pci/quirks.c
+@@ -2381,32 +2381,6 @@ DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_BROADCOM,
+ 			 PCI_DEVICE_ID_TIGON3_5719,
+ 			 quirk_brcm_5719_limit_mrrs);
  
- config DEVFREQ_EVENT_ROCKCHIP_DFI
- 	tristate "ROCKCHIP DFI DEVFREQ event Driver"
--	depends on ARCH_ROCKCHIP
-+	depends on ARCH_ROCKCHIP || COMPILE_TEST
- 	help
- 	  This add the devfreq-event driver for Rockchip SoC. It provides DFI
- 	  (DDR Monitor Module) driver to count ddr load.
+-#ifdef CONFIG_PCIE_IPROC_PLATFORM
+-static void quirk_paxc_bridge(struct pci_dev *pdev)
+-{
+-	/*
+-	 * The PCI config space is shared with the PAXC root port and the first
+-	 * Ethernet device.  So, we need to workaround this by telling the PCI
+-	 * code that the bridge is not an Ethernet device.
+-	 */
+-	if (pdev->hdr_type == PCI_HEADER_TYPE_BRIDGE)
+-		pdev->class = PCI_CLASS_BRIDGE_PCI << 8;
+-
+-	/*
+-	 * MPSS is not being set properly (as it is currently 0).  This is
+-	 * because that area of the PCI config space is hard coded to zero, and
+-	 * is not modifiable by firmware.  Set this to 2 (e.g., 512 byte MPS)
+-	 * so that the MPS can be set to the real max value.
+-	 */
+-	pdev->pcie_mpss = 2;
+-}
+-DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_BROADCOM, 0x16cd, quirk_paxc_bridge);
+-DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_BROADCOM, 0x16f0, quirk_paxc_bridge);
+-DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_BROADCOM, 0xd750, quirk_paxc_bridge);
+-DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_BROADCOM, 0xd802, quirk_paxc_bridge);
+-DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_BROADCOM, 0xd804, quirk_paxc_bridge);
+-#endif
+-
+ /*
+  * Originally in EDAC sources for i82875P: Intel tells BIOS developers to
+  * hide device 6 which configures the overflow device access containing the
 -- 
 2.20.1
 
