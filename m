@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B7DD21677BE
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:44:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F6F8167623
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:37:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730127AbgBUInz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 03:43:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51002 "EHLO mail.kernel.org"
+        id S1732304AbgBUIJI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 03:09:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43770 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729581AbgBUHw6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 02:52:58 -0500
+        id S1731841AbgBUIJD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 03:09:03 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 190B420578;
-        Fri, 21 Feb 2020 07:52:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 59A0C20722;
+        Fri, 21 Feb 2020 08:09:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582271577;
-        bh=8Yb5HhRfNtu90zyqPHEgbqHDjAy4hSB8qwaNWc47P64=;
+        s=default; t=1582272542;
+        bh=SU3yTFK0moA1ZpFMk66XOzgtSwD61Ysj1ui+kNG0sAU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AEnKq3ThMpZlW+et7qcjGC+wl6KfdYV9Gs+z9yEDLRUEwam4OUXYJfGRXulxWJN1u
-         MnQNolX6QMXgNslOV6aa07Esc0rbqFv0ySqzp18SG+cIjhRwYsLxwfLBtz9RO4CbGI
-         5LN/xmVopeujnNMDBp3Hq0byBPHLgKheJ0wmiykA=
+        b=gXrNjQ+qb6K4/zZ0f8M1AaSZcek0ge6IJb92w7tjxr+uIcqgbflgMurf9SmXbvtbX
+         rqV3l4sycpRmVTDwoEAIJiicBdre9P6eOaVRGp4E4LML/nOrvthYQ6IVzPDQ9L7HMZ
+         vc3E9JGN4/9+Ri6trCeNajdydtJTIbQxAS7H7/uQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Benjamin Gaignard <benjamin.gaignard@st.com>,
-        Alexandre Torgue <alexandre.torgue@st.com>,
+        stable@vger.kernel.org, Dave Chinner <david@fromorbit.com>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        "J. Bruce Fields" <bfields@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 219/399] ARM: dts: stm32: Add power-supply for DSI panel on stm32f469-disco
+Subject: [PATCH 5.4 145/344] nfsd: Clone should commit src file metadata too
 Date:   Fri, 21 Feb 2020 08:39:04 +0100
-Message-Id: <20200221072424.287292973@linuxfoundation.org>
+Message-Id: <20200221072401.971335066@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200221072402.315346745@linuxfoundation.org>
-References: <20200221072402.315346745@linuxfoundation.org>
+In-Reply-To: <20200221072349.335551332@linuxfoundation.org>
+References: <20200221072349.335551332@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,47 +45,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Benjamin Gaignard <benjamin.gaignard@st.com>
+From: Trond Myklebust <trondmy@gmail.com>
 
-[ Upstream commit 0ff15a86d0c5a3f004fee2e92d65b88e56a3bc58 ]
+[ Upstream commit 57f64034966fb945fc958f95f0c51e47af590344 ]
 
-Add a fixed regulator and use it as power supply for DSI panel.
+vfs_clone_file_range() can modify the metadata on the source file too,
+so we need to commit that to stable storage as well.
 
-Fixes: 18c8866266 ("ARM: dts: stm32: Add display support on stm32f469-disco")
-
-Signed-off-by: Benjamin Gaignard <benjamin.gaignard@st.com>
-Signed-off-by: Alexandre Torgue <alexandre.torgue@st.com>
+Reported-by: Dave Chinner <david@fromorbit.com>
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Acked-by: Dave Chinner <david@fromorbit.com>
+Signed-off-by: J. Bruce Fields <bfields@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/stm32f469-disco.dts | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ fs/nfsd/vfs.c | 19 ++++++++++++++-----
+ 1 file changed, 14 insertions(+), 5 deletions(-)
 
-diff --git a/arch/arm/boot/dts/stm32f469-disco.dts b/arch/arm/boot/dts/stm32f469-disco.dts
-index f3ce477b7bae6..9397db0c43de2 100644
---- a/arch/arm/boot/dts/stm32f469-disco.dts
-+++ b/arch/arm/boot/dts/stm32f469-disco.dts
-@@ -76,6 +76,13 @@
- 		regulator-max-microvolt = <3300000>;
- 	};
+diff --git a/fs/nfsd/vfs.c b/fs/nfsd/vfs.c
+index fc38b9fe45495..005d1802ab40e 100644
+--- a/fs/nfsd/vfs.c
++++ b/fs/nfsd/vfs.c
+@@ -280,19 +280,25 @@ out:
+  * Commit metadata changes to stable storage.
+  */
+ static int
+-commit_metadata(struct svc_fh *fhp)
++commit_inode_metadata(struct inode *inode)
+ {
+-	struct inode *inode = d_inode(fhp->fh_dentry);
+ 	const struct export_operations *export_ops = inode->i_sb->s_export_op;
  
-+	vdd_dsi: vdd-dsi {
-+		compatible = "regulator-fixed";
-+		regulator-name = "vdd_dsi";
-+		regulator-min-microvolt = <3300000>;
-+		regulator-max-microvolt = <3300000>;
-+	};
+-	if (!EX_ISSYNC(fhp->fh_export))
+-		return 0;
+-
+ 	if (export_ops->commit_metadata)
+ 		return export_ops->commit_metadata(inode);
+ 	return sync_inode_metadata(inode, 1);
+ }
+ 
++static int
++commit_metadata(struct svc_fh *fhp)
++{
++	struct inode *inode = d_inode(fhp->fh_dentry);
 +
- 	soc {
- 		dma-ranges = <0xc0000000 0x0 0x10000000>;
- 	};
-@@ -155,6 +162,7 @@
- 		compatible = "orisetech,otm8009a";
- 		reg = <0>; /* dsi virtual channel (0..3) */
- 		reset-gpios = <&gpioh 7 GPIO_ACTIVE_LOW>;
-+		power-supply = <&vdd_dsi>;
- 		status = "okay";
- 
- 		port {
++	if (!EX_ISSYNC(fhp->fh_export))
++		return 0;
++	return commit_inode_metadata(inode);
++}
++
+ /*
+  * Go over the attributes and take care of the small differences between
+  * NFS semantics and what Linux expects.
+@@ -537,6 +543,9 @@ __be32 nfsd4_clone_file_range(struct file *src, u64 src_pos, struct file *dst,
+ 	if (sync) {
+ 		loff_t dst_end = count ? dst_pos + count - 1 : LLONG_MAX;
+ 		int status = vfs_fsync_range(dst, dst_pos, dst_end, 0);
++
++		if (!status)
++			status = commit_inode_metadata(file_inode(src));
+ 		if (status < 0)
+ 			return nfserrno(status);
+ 	}
 -- 
 2.20.1
 
