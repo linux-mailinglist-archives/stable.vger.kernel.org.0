@@ -2,114 +2,91 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D486616800B
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 15:21:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F574168014
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 15:22:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728754AbgBUOVS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 09:21:18 -0500
-Received: from foss.arm.com ([217.140.110.172]:40442 "EHLO foss.arm.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727851AbgBUOVS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 09:21:18 -0500
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 74370FEC;
-        Fri, 21 Feb 2020 06:21:17 -0800 (PST)
-Received: from localhost (unknown [10.37.6.21])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id DFC0B3F703;
-        Fri, 21 Feb 2020 06:21:16 -0800 (PST)
-Date:   Fri, 21 Feb 2020 14:21:15 +0000
-From:   Mark Brown <broonie@kernel.org>
-To:     Lukas Wunner <lukas@wunner.de>
-Cc:     Linus Walleij <linus.walleij@linaro.org>,
-        linux-spi@vger.kernel.org, Mark Brown <broonie@kernel.org>,
-        Simon Han <z.han@kunbus.com>, stable@vger.kernel.org
-Subject: Applied "spi: spidev: Fix CS polarity if GPIO descriptors are used" to the spi tree
-In-Reply-To: <fca3ba7cdc930cd36854666ceac4fbcf01b89028.1582027457.git.lukas@wunner.de>
-Message-Id: <applied-fca3ba7cdc930cd36854666ceac4fbcf01b89028.1582027457.git.lukas@wunner.de>
-X-Patchwork-Hint: ignore
+        id S1727851AbgBUOWh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 09:22:37 -0500
+Received: from mail-pf1-f196.google.com ([209.85.210.196]:33039 "EHLO
+        mail-pf1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727096AbgBUOWh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 21 Feb 2020 09:22:37 -0500
+Received: by mail-pf1-f196.google.com with SMTP id n7so1294897pfn.0;
+        Fri, 21 Feb 2020 06:22:36 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=sender:subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=2/IamDH/mtHsNqby1ZwnFXi7BQZdjG+nXNoAha0VInA=;
+        b=CJHFTM42Ml7uYcrJxBGS64hGqhjQJRWH2je59qF4p4SGxO2oZf4/MccPWSPsJ3Zp2s
+         RHCXSfAhZSrR3ksyh19nhWDhVek2c1JfsYaLFiCcQivJ/YakaUDtrmOGPtyonTsMJKm1
+         qmcK5PqOE/3G95ciYJ+gd0ETtJVJThR1C4GsnYTzdoSXAGvz/iZVC3sfB/vFYjGuOFYC
+         T2Ql0P5dr5JqPjDIZ9dWWJ4pvS6x1Lvlad1GuAugsZJASin9abk36UjErpjnS1sStfe3
+         V5iW810KLF+n2H3ayPWz0zpJRFwikNJ0yBvbKJmW/zCuVJzilq+amzMuvMqryE0HoqTY
+         SueQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:sender:subject:to:cc:references:from:message-id
+         :date:user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=2/IamDH/mtHsNqby1ZwnFXi7BQZdjG+nXNoAha0VInA=;
+        b=Vy6QDKo13I0RdNCH4eCBB6NG15mvCiL8oCf5EvyzE/C1uMfrzRM5Odux5WzWDPEtKH
+         wEb0TnasrR8vketfeaNUoORw4NHWJEFr+sXX68apNZtwPupOIgDnJ76w/rmJ+kdME38d
+         3jVlWv3wit8RxENDv+ynGR03Uiut/PDVqaJAGmxW5wo790ck7jqjmTdfwGgETay42uHI
+         YQvVk4al6Q/9NQ4D00bl1zxNnMacDEDAg8iccv8TriAjDlW+Bhxjz9qqjqCpcuZshjoS
+         KevovLBfkKk6omlB6J488WSirkNJ0KsFjokO8cpx4gCBPv/mXAmPytMb6kivAZlxho56
+         CLKw==
+X-Gm-Message-State: APjAAAUD/vtsDjCuhtr0wn4qjBdSouevk/tUxHjX02oMQ6RfVibjv1Ry
+        TpNC2ioPp+NWY/uUd4cxQdJ4BPKl
+X-Google-Smtp-Source: APXvYqyTtkxL9g+5f29bei1JeFyLDYsIxwx5He88ws/0SiC2j1CITerwXPTHx8RU9J5XsgaVg+8kig==
+X-Received: by 2002:a62:fb07:: with SMTP id x7mr38015384pfm.125.1582294955677;
+        Fri, 21 Feb 2020 06:22:35 -0800 (PST)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id l13sm2854965pjq.23.2020.02.21.06.22.34
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 21 Feb 2020 06:22:34 -0800 (PST)
+Subject: Re: [PATCH 5.4 000/344] 5.4.22-stable review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org
+References: <20200221072349.335551332@linuxfoundation.org>
+From:   Guenter Roeck <linux@roeck-us.net>
+Message-ID: <45ea9919-8924-fd56-6c78-3cf7f23bb7ff@roeck-us.net>
+Date:   Fri, 21 Feb 2020 06:22:33 -0800
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.4.1
+MIME-Version: 1.0
+In-Reply-To: <20200221072349.335551332@linuxfoundation.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The patch
+On 2/20/20 11:36 PM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.4.22 release.
+> There are 344 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Sun, 23 Feb 2020 07:19:49 +0000.
+> Anything received after that time might be too late.
+> 
 
-   spi: spidev: Fix CS polarity if GPIO descriptors are used
+Build reference: v5.4.21-345-gbae6e9bf73af
+gcc version: x86_64-linux-gcc (GCC) 9.2.0
 
-has been applied to the spi tree at
+Building x86_64:allnoconfig ... failed
+--------------
+Error log:
+arch/x86/kernel/unwind_orc.c: In function 'unwind_init':
+arch/x86/kernel/unwind_orc.c:278:56: error: 'orc_sort_cmp' undeclared (first use in this function)
 
-   https://git.kernel.org/pub/scm/linux/kernel/git/broonie/spi.git for-5.6
+Affects v{4.14,4.19,5,4,5,5}.y.queue.
 
-All being well this means that it will be integrated into the linux-next
-tree (usually sometime in the next 24 hours) and sent to Linus during
-the next merge window (or sooner if it is a bug fix), however if
-problems are discovered then the patch may be dropped or reverted.  
-
-You may get further e-mails resulting from automated or manual testing
-and review of the tree, please engage with people reporting problems and
-send followup patches addressing any issues that are reported if needed.
-
-If any updates are required or you are submitting further changes they
-should be sent as incremental updates against current git, existing
-patches will not be replaced.
-
-Please add any relevant lists and maintainers to the CCs when replying
-to this mail.
-
-Thanks,
-Mark
-
-From 138c9c32f090894614899eca15e0bb7279f59865 Mon Sep 17 00:00:00 2001
-From: Lukas Wunner <lukas@wunner.de>
-Date: Tue, 18 Feb 2020 13:08:00 +0100
-Subject: [PATCH] spi: spidev: Fix CS polarity if GPIO descriptors are used
-
-Commit f3186dd87669 ("spi: Optionally use GPIO descriptors for CS GPIOs")
-amended of_spi_parse_dt() to always set SPI_CS_HIGH for SPI slaves whose
-Chip Select is defined by a "cs-gpios" devicetree property.
-
-This change broke userspace applications which issue an SPI_IOC_WR_MODE
-ioctl() to an spidev:  Chip Select polarity will be incorrect unless the
-application is changed to set SPI_CS_HIGH.  And once changed, it will be
-incompatible with kernels not containing the commit.
-
-Fix by setting SPI_CS_HIGH in spidev_ioctl() (under the same conditions
-as in of_spi_parse_dt()).
-
-Fixes: f3186dd87669 ("spi: Optionally use GPIO descriptors for CS GPIOs")
-Reported-by: Simon Han <z.han@kunbus.com>
-Signed-off-by: Lukas Wunner <lukas@wunner.de>
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-Link: https://lore.kernel.org/r/fca3ba7cdc930cd36854666ceac4fbcf01b89028.1582027457.git.lukas@wunner.de
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Cc: stable@vger.kernel.org # v5.1+
----
- drivers/spi/spidev.c | 5 +++++
- 1 file changed, 5 insertions(+)
-
-diff --git a/drivers/spi/spidev.c b/drivers/spi/spidev.c
-index 1e217e3e9486..2ab6e782f14c 100644
---- a/drivers/spi/spidev.c
-+++ b/drivers/spi/spidev.c
-@@ -396,6 +396,7 @@ spidev_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
- 		else
- 			retval = get_user(tmp, (u32 __user *)arg);
- 		if (retval == 0) {
-+			struct spi_controller *ctlr = spi->controller;
- 			u32	save = spi->mode;
- 
- 			if (tmp & ~SPI_MODE_MASK) {
-@@ -403,6 +404,10 @@ spidev_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
- 				break;
- 			}
- 
-+			if (ctlr->use_gpio_descriptors && ctlr->cs_gpiods &&
-+			    ctlr->cs_gpiods[spi->chip_select])
-+				tmp |= SPI_CS_HIGH;
-+
- 			tmp |= spi->mode & ~SPI_MODE_MASK;
- 			spi->mode = (u16)tmp;
- 			retval = spi_setup(spi);
--- 
-2.20.1
 
