@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 931FF1676F8
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:41:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DCE971675BC
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:31:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731085AbgBUIAg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 03:00:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:32792 "EHLO mail.kernel.org"
+        id S1732393AbgBUIPC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 03:15:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51674 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731083AbgBUIAg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 03:00:36 -0500
+        id S1732984AbgBUIPB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 03:15:01 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 26B6F206ED;
-        Fri, 21 Feb 2020 08:00:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B1E0524670;
+        Fri, 21 Feb 2020 08:14:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582272035;
-        bh=vCOwDC4HiMKfA9asIcQGpE8w0AH9BpB7uecmviq9Qsc=;
+        s=default; t=1582272900;
+        bh=/ftWOuIqJbuF1FJbcbyfQ/FpqcOGit5DcD0jDMgoevE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oc555iWMlm83sUjlvAONGDMOemnJzzH70SK7UARQPdrVK+i32xZ/W5OQARVQXT0VW
-         U7SadToKB2pdrjBw5wvrxKdEhuGb/4z83jL9fYhbsrDbmfz9xCebEfrsLyBieBvEWw
-         TikUBnY0pMBQ190M965dCJIzjxBU2FuundeXVISw=
+        b=HxtTNuqWbJjkTg8ZbsJa0go0gaMV/8TiwRp7xvpmQGPzUDA1Uk7fq/xlhyNJRaamF
+         p3NfO8n/XFEMVecO4bkF//1Wh1cd2oymnRkyxQOpkSxOplJg9srhH/RxAMgR+J87aI
+         gcPFcYyD7SHT37JODc0E+SfnGGtetw8pyO6PZSxA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Maciej Fijalkowski <maciej.fijalkowski@intel.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        =?UTF-8?q?Bj=C3=B6rn=20T=C3=B6pel?= <bjorn.topel@intel.com>,
+        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
+        David Sterba <dsterba@suse.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 390/399] i40e: Relax i40e_xsk_wakeups return value when PF is busy
-Date:   Fri, 21 Feb 2020 08:41:55 +0100
-Message-Id: <20200221072437.894914775@linuxfoundation.org>
+Subject: [PATCH 5.4 317/344] btrfs: do not do delalloc reservation under page lock
+Date:   Fri, 21 Feb 2020 08:41:56 +0100
+Message-Id: <20200221072418.921021513@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200221072402.315346745@linuxfoundation.org>
-References: <20200221072402.315346745@linuxfoundation.org>
+In-Reply-To: <20200221072349.335551332@linuxfoundation.org>
+References: <20200221072349.335551332@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,37 +44,218 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
+From: Josef Bacik <josef@toxicpanda.com>
 
-[ Upstream commit c77e9f09143822623dd71a0fdc84331129e97c3a ]
+[ Upstream commit f4b1363cae43fef7c86c993b7ca7fe7d546b3c68 ]
 
-Return -EAGAIN instead of -ENETDOWN to provide a slightly milder
-information to user space so that an application will know to retry the
-syscall when __I40E_CONFIG_BUSY bit is set on pf->state.
+We ran into a deadlock in production with the fixup worker.  The stack
+traces were as follows:
 
-Fixes: b3873a5be757 ("net/i40e: Fix concurrency issues between config flow and XSK")
-Signed-off-by: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: Björn Töpel <bjorn.topel@intel.com>
-Link: https://lore.kernel.org/bpf/20200205045834.56795-2-maciej.fijalkowski@intel.com
+Thread responsible for the writeout, waiting on the page lock
+
+  [<0>] io_schedule+0x12/0x40
+  [<0>] __lock_page+0x109/0x1e0
+  [<0>] extent_write_cache_pages+0x206/0x360
+  [<0>] extent_writepages+0x40/0x60
+  [<0>] do_writepages+0x31/0xb0
+  [<0>] __writeback_single_inode+0x3d/0x350
+  [<0>] writeback_sb_inodes+0x19d/0x3c0
+  [<0>] __writeback_inodes_wb+0x5d/0xb0
+  [<0>] wb_writeback+0x231/0x2c0
+  [<0>] wb_workfn+0x308/0x3c0
+  [<0>] process_one_work+0x1e0/0x390
+  [<0>] worker_thread+0x2b/0x3c0
+  [<0>] kthread+0x113/0x130
+  [<0>] ret_from_fork+0x35/0x40
+  [<0>] 0xffffffffffffffff
+
+Thread of the fixup worker who is holding the page lock
+
+  [<0>] start_delalloc_inodes+0x241/0x2d0
+  [<0>] btrfs_start_delalloc_roots+0x179/0x230
+  [<0>] btrfs_alloc_data_chunk_ondemand+0x11b/0x2e0
+  [<0>] btrfs_check_data_free_space+0x53/0xa0
+  [<0>] btrfs_delalloc_reserve_space+0x20/0x70
+  [<0>] btrfs_writepage_fixup_worker+0x1fc/0x2a0
+  [<0>] normal_work_helper+0x11c/0x360
+  [<0>] process_one_work+0x1e0/0x390
+  [<0>] worker_thread+0x2b/0x3c0
+  [<0>] kthread+0x113/0x130
+  [<0>] ret_from_fork+0x35/0x40
+  [<0>] 0xffffffffffffffff
+
+Thankfully the stars have to align just right to hit this.  First you
+have to end up in the fixup worker, which is tricky by itself (my
+reproducer does DIO reads into a MMAP'ed region, so not a common
+operation).  Then you have to have less than a page size of free data
+space and 0 unallocated space so you go down the "commit the transaction
+to free up pinned space" path.  This was accomplished by a random
+balance that was running on the host.  Then you get this deadlock.
+
+I'm still in the process of trying to force the deadlock to happen on
+demand, but I've hit other issues.  I can still trigger the fixup worker
+path itself so this patch has been tested in that regard, so the normal
+case is fine.
+
+Fixes: 87826df0ec36 ("btrfs: delalloc for page dirtied out-of-band in fixup worker")
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/i40e/i40e_xsk.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/btrfs/inode.c | 76 ++++++++++++++++++++++++++++++++++++++----------
+ 1 file changed, 60 insertions(+), 16 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/i40e/i40e_xsk.c b/drivers/net/ethernet/intel/i40e/i40e_xsk.c
-index f73cd917c44f7..3156de786d955 100644
---- a/drivers/net/ethernet/intel/i40e/i40e_xsk.c
-+++ b/drivers/net/ethernet/intel/i40e/i40e_xsk.c
-@@ -791,7 +791,7 @@ int i40e_xsk_wakeup(struct net_device *dev, u32 queue_id, u32 flags)
- 	struct i40e_ring *ring;
+diff --git a/fs/btrfs/inode.c b/fs/btrfs/inode.c
+index 1b4ab02be9243..b83eef445db33 100644
+--- a/fs/btrfs/inode.c
++++ b/fs/btrfs/inode.c
+@@ -2168,6 +2168,7 @@ int btrfs_set_extent_delalloc(struct inode *inode, u64 start, u64 end,
+ /* see btrfs_writepage_start_hook for details on why this is required */
+ struct btrfs_writepage_fixup {
+ 	struct page *page;
++	struct inode *inode;
+ 	struct btrfs_work work;
+ };
  
- 	if (test_bit(__I40E_CONFIG_BUSY, pf->state))
--		return -ENETDOWN;
-+		return -EAGAIN;
+@@ -2182,9 +2183,20 @@ static void btrfs_writepage_fixup_worker(struct btrfs_work *work)
+ 	u64 page_start;
+ 	u64 page_end;
+ 	int ret = 0;
++	bool free_delalloc_space = true;
  
- 	if (test_bit(__I40E_VSI_DOWN, vsi->state))
- 		return -ENETDOWN;
+ 	fixup = container_of(work, struct btrfs_writepage_fixup, work);
+ 	page = fixup->page;
++	inode = fixup->inode;
++	page_start = page_offset(page);
++	page_end = page_offset(page) + PAGE_SIZE - 1;
++
++	/*
++	 * This is similar to page_mkwrite, we need to reserve the space before
++	 * we take the page lock.
++	 */
++	ret = btrfs_delalloc_reserve_space(inode, &data_reserved, page_start,
++					   PAGE_SIZE);
+ again:
+ 	lock_page(page);
+ 
+@@ -2193,25 +2205,48 @@ again:
+ 	 * page->mapping may go NULL, but it shouldn't be moved to a different
+ 	 * address space.
+ 	 */
+-	if (!page->mapping || !PageDirty(page) || !PageChecked(page))
++	if (!page->mapping || !PageDirty(page) || !PageChecked(page)) {
++		/*
++		 * Unfortunately this is a little tricky, either
++		 *
++		 * 1) We got here and our page had already been dealt with and
++		 *    we reserved our space, thus ret == 0, so we need to just
++		 *    drop our space reservation and bail.  This can happen the
++		 *    first time we come into the fixup worker, or could happen
++		 *    while waiting for the ordered extent.
++		 * 2) Our page was already dealt with, but we happened to get an
++		 *    ENOSPC above from the btrfs_delalloc_reserve_space.  In
++		 *    this case we obviously don't have anything to release, but
++		 *    because the page was already dealt with we don't want to
++		 *    mark the page with an error, so make sure we're resetting
++		 *    ret to 0.  This is why we have this check _before_ the ret
++		 *    check, because we do not want to have a surprise ENOSPC
++		 *    when the page was already properly dealt with.
++		 */
++		if (!ret) {
++			btrfs_delalloc_release_extents(BTRFS_I(inode),
++						       PAGE_SIZE);
++			btrfs_delalloc_release_space(inode, data_reserved,
++						     page_start, PAGE_SIZE,
++						     true);
++		}
++		ret = 0;
+ 		goto out_page;
++	}
+ 
+ 	/*
+-	 * We keep the PageChecked() bit set until we're done with the
+-	 * btrfs_start_ordered_extent() dance that we do below.  That drops and
+-	 * retakes the page lock, so we don't want new fixup workers queued for
+-	 * this page during the churn.
++	 * We can't mess with the page state unless it is locked, so now that
++	 * it is locked bail if we failed to make our space reservation.
+ 	 */
+-	inode = page->mapping->host;
+-	page_start = page_offset(page);
+-	page_end = page_offset(page) + PAGE_SIZE - 1;
++	if (ret)
++		goto out_page;
+ 
+ 	lock_extent_bits(&BTRFS_I(inode)->io_tree, page_start, page_end,
+ 			 &cached_state);
+ 
+ 	/* already ordered? We're done */
+ 	if (PagePrivate2(page))
+-		goto out;
++		goto out_reserved;
+ 
+ 	ordered = btrfs_lookup_ordered_range(BTRFS_I(inode), page_start,
+ 					PAGE_SIZE);
+@@ -2224,11 +2259,6 @@ again:
+ 		goto again;
+ 	}
+ 
+-	ret = btrfs_delalloc_reserve_space(inode, &data_reserved, page_start,
+-					   PAGE_SIZE);
+-	if (ret)
+-		goto out;
+-
+ 	ret = btrfs_set_extent_delalloc(inode, page_start, page_end, 0,
+ 					&cached_state);
+ 	if (ret)
+@@ -2242,12 +2272,12 @@ again:
+ 	 * The page was dirty when we started, nothing should have cleaned it.
+ 	 */
+ 	BUG_ON(!PageDirty(page));
++	free_delalloc_space = false;
+ out_reserved:
+ 	btrfs_delalloc_release_extents(BTRFS_I(inode), PAGE_SIZE);
+-	if (ret)
++	if (free_delalloc_space)
+ 		btrfs_delalloc_release_space(inode, data_reserved, page_start,
+ 					     PAGE_SIZE, true);
+-out:
+ 	unlock_extent_cached(&BTRFS_I(inode)->io_tree, page_start, page_end,
+ 			     &cached_state);
+ out_page:
+@@ -2266,6 +2296,12 @@ out_page:
+ 	put_page(page);
+ 	kfree(fixup);
+ 	extent_changeset_free(data_reserved);
++	/*
++	 * As a precaution, do a delayed iput in case it would be the last iput
++	 * that could need flushing space. Recursing back to fixup worker would
++	 * deadlock.
++	 */
++	btrfs_add_delayed_iput(inode);
+ }
+ 
+ /*
+@@ -2303,10 +2339,18 @@ int btrfs_writepage_cow_fixup(struct page *page, u64 start, u64 end)
+ 	if (!fixup)
+ 		return -EAGAIN;
+ 
++	/*
++	 * We are already holding a reference to this inode from
++	 * write_cache_pages.  We need to hold it because the space reservation
++	 * takes place outside of the page lock, and we can't trust
++	 * page->mapping outside of the page lock.
++	 */
++	ihold(inode);
+ 	SetPageChecked(page);
+ 	get_page(page);
+ 	btrfs_init_work(&fixup->work, btrfs_writepage_fixup_worker, NULL, NULL);
+ 	fixup->page = page;
++	fixup->inode = inode;
+ 	btrfs_queue_work(fs_info->fixup_workers, &fixup->work);
+ 
+ 	return -EAGAIN;
 -- 
 2.20.1
 
