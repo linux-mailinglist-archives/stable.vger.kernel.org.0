@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DC843167345
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:10:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 996051674DD
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:30:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732257AbgBUIKx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 03:10:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46176 "EHLO mail.kernel.org"
+        id S2387841AbgBUISa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 03:18:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56414 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732072AbgBUIKw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 03:10:52 -0500
+        id S2387548AbgBUIS1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 03:18:27 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 391FB2067D;
-        Fri, 21 Feb 2020 08:10:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 53D6324692;
+        Fri, 21 Feb 2020 08:18:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582272651;
-        bh=wIqsMrdKLb+D/TuHlWfbWthZCsYzOhhbmcyKf/OfsBY=;
+        s=default; t=1582273106;
+        bh=jEj5vj6rTmN0KRMTw6UUhT9B/y/Cgc6kZ9BcXBDAkvs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RLs1G5MCf1AkWRCsND5gMuH1BkwciGreu8a97CMHEo/OFiqwvZuGgoNpsfmk0RXDN
-         pp7Q8BGvnw+P21vW1tfO4B1317+10OJoj+Aynk0xKr3lS1NYr+jSuFZsZxp/iEUJk3
-         i2SNjIDYFGxt1koeE88/ylN17yu/JJmHpzZID5vY=
+        b=uqgFobikW1irbmDhX8FyTxhAbipQPeHAcWJ89OD2ebfEXEA4SDQL1yhrr4P0RWQag
+         NVeNo05H+xH/21g0caAtdmPiSm7TNIi8K8Wp4ux8XcolOitQlqhYAoKkbHrsCSqG04
+         lyKmXLTCJD5n5zZQbOdDJfoO4DN+9nNW2weoR07s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Adhemerval Zanella <adhemerval.zanella@linaro.org>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Saeed Mahameed <saeedm@mellanox.com>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Franky Lin <franky.lin@broadcom.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 188/344] mlx5: work around high stack usage with gcc
+Subject: [PATCH 4.19 014/191] brcmfmac: Fix use after free in brcmf_sdio_readframes()
 Date:   Fri, 21 Feb 2020 08:39:47 +0100
-Message-Id: <20200221072406.110358619@linuxfoundation.org>
+Message-Id: <20200221072252.894264114@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200221072349.335551332@linuxfoundation.org>
-References: <20200221072349.335551332@linuxfoundation.org>
+In-Reply-To: <20200221072250.732482588@linuxfoundation.org>
+References: <20200221072250.732482588@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,44 +45,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 42ae1a5c76691928ed217c7e40269db27f5225e9 ]
+[ Upstream commit 216b44000ada87a63891a8214c347e05a4aea8fe ]
 
-In some configurations, gcc tries too hard to optimize this code:
+The brcmu_pkt_buf_free_skb() function frees "pkt" so it leads to a
+static checker warning:
 
-drivers/net/ethernet/mellanox/mlx5/core/en_stats.c: In function 'mlx5e_grp_sw_update_stats':
-drivers/net/ethernet/mellanox/mlx5/core/en_stats.c:302:1: error: the frame size of 1336 bytes is larger than 1024 bytes [-Werror=frame-larger-than=]
+    drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c:1974 brcmf_sdio_readframes()
+    error: dereferencing freed memory 'pkt'
 
-As was stated in the bug report, the reason is that gcc runs into a corner
-case in the register allocator that is rather hard to fix in a good way.
+It looks like there was supposed to be a continue after we free "pkt".
 
-As there is an easy way to work around it, just add a comment and the
-barrier that stops gcc from trying to overoptimize the function.
-
-Link: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=92657
-Cc: Adhemerval Zanella <adhemerval.zanella@linaro.org>
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
+Fixes: 4754fceeb9a6 ("brcmfmac: streamline SDIO read frame routine")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Acked-by: Franky Lin <franky.lin@broadcom.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/en_stats.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_stats.c b/drivers/net/ethernet/mellanox/mlx5/core/en_stats.c
-index 9f09253f9f466..a05158472ed11 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en_stats.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en_stats.c
-@@ -297,6 +297,9 @@ static void mlx5e_grp_sw_update_stats(struct mlx5e_priv *priv)
- 			s->tx_tls_drop_bypass_req   += sq_stats->tls_drop_bypass_req;
- #endif
- 			s->tx_cqes		+= sq_stats->cqes;
-+
-+			/* https://gcc.gnu.org/bugzilla/show_bug.cgi?id=92657 */
-+			barrier();
- 		}
- 	}
- }
+diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c
+index 5c3b62e619807..e0211321fe9e8 100644
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c
+@@ -1934,6 +1934,7 @@ static uint brcmf_sdio_readframes(struct brcmf_sdio *bus, uint maxframes)
+ 					       BRCMF_SDIO_FT_NORMAL)) {
+ 				rd->len = 0;
+ 				brcmu_pkt_buf_free_skb(pkt);
++				continue;
+ 			}
+ 			bus->sdcnt.rx_readahead_cnt++;
+ 			if (rd->len != roundup(rd_new.len, 16)) {
 -- 
 2.20.1
 
