@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 21FDA167072
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 08:45:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 02241167074
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 08:45:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728307AbgBUHpR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 02:45:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40346 "EHLO mail.kernel.org"
+        id S1727510AbgBUHpU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 02:45:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40402 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727815AbgBUHpQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 02:45:16 -0500
+        id S1727489AbgBUHpT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 02:45:19 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3BFD02467A;
-        Fri, 21 Feb 2020 07:45:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C0ED6208C4;
+        Fri, 21 Feb 2020 07:45:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582271115;
-        bh=LNZd425aiv0ZyvHJC6f+H2IvIXnySvmj0POmQMGzmiw=;
+        s=default; t=1582271119;
+        bh=UIOE5O03yqKGfd8b8kfCJ4j1pgm5NLZDnME+d1bMZ9E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1yvUteUzg2a5xpttl8jpSlCSfzMLpnsPsg6aid5An+S2ya56FMkDWHYB6axMAJkr6
-         EDyxW5CAUtgwXpu/+whrjpkcTHevFXNVzLqGdmi231kuwSPaf8I0AOP/UkmBDXjpiG
-         V22bLDKM97HdL4LPbOH+1D6HDpagsroZAnpKCJO4=
+        b=Sbxcx29Bj0ZTRpp15K6UVhdXGxva2rIuzU86nXJj56fLeTx4EvvZdpJAJ83IpIMJ3
+         fD8wqtHFnFL5Prqda3d2xyats3aVTAI0MkNtlmyv9oyJf0B086h1dOTUv7jj+e99IZ
+         PR0a16Ionejr6y+w73eB3OnIGNmlMjJeMjO+mSac=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
-        Jerome Brunet <jbrunet@baylibre.com>,
+        stable@vger.kernel.org, Jia-Ju Bai <baijiaju1990@gmail.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 046/399] clk: meson: meson8b: make the CCF use the glitch-free mali mux
-Date:   Fri, 21 Feb 2020 08:36:11 +0100
-Message-Id: <20200221072406.843543589@linuxfoundation.org>
+Subject: [PATCH 5.5 047/399] gpio: gpio-grgpio: fix possible sleep-in-atomic-context bugs in grgpio_irq_map/unmap()
+Date:   Fri, 21 Feb 2020 08:36:12 +0100
+Message-Id: <20200221072406.933397208@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200221072402.315346745@linuxfoundation.org>
 References: <20200221072402.315346745@linuxfoundation.org>
@@ -45,63 +44,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+From: Jia-Ju Bai <baijiaju1990@gmail.com>
 
-[ Upstream commit 8daeaea99caabe24a0929fac17977ebfb882fa86 ]
+[ Upstream commit e36eaf94be8f7bc4e686246eed3cf92d845e2ef8 ]
 
-The "mali_0" or "mali_1" clock trees should not be updated while the
-clock is running. Enforce this by setting CLK_SET_RATE_GATE on the
-"mali_0" and "mali_1" gates. This makes the CCF switch to the "mali_1"
-tree when "mali_0" is currently active and vice versa, which is exactly
-what the vendor driver does when updating the frequency of the mali
-clock.
+The driver may sleep while holding a spinlock.
+The function call path (from bottom to top) in Linux 4.19 is:
 
-This fixes a potential hang when changing the GPU frequency at runtime.
+drivers/gpio/gpio-grgpio.c, 261:
+	request_irq in grgpio_irq_map
+drivers/gpio/gpio-grgpio.c, 255:
+	_raw_spin_lock_irqsave in grgpio_irq_map
 
-Fixes: 74e1f2521f16ff ("clk: meson: meson8b: add the GPU clock tree")
-Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-Signed-off-by: Jerome Brunet <jbrunet@baylibre.com>
+drivers/gpio/gpio-grgpio.c, 318:
+	free_irq in grgpio_irq_unmap
+drivers/gpio/gpio-grgpio.c, 299:
+	_raw_spin_lock_irqsave in grgpio_irq_unmap
+
+request_irq() and free_irq() can sleep at runtime.
+
+To fix these bugs, request_irq() and free_irq() are called without
+holding the spinlock.
+
+These bugs are found by a static analysis tool STCheck written by myself.
+
+Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
+Link: https://lore.kernel.org/r/20191218132605.10594-1-baijiaju1990@gmail.com
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/meson/meson8b.c | 11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+ drivers/gpio/gpio-grgpio.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/clk/meson/meson8b.c b/drivers/clk/meson/meson8b.c
-index 67e6691e080c1..8856ce476ccfa 100644
---- a/drivers/clk/meson/meson8b.c
-+++ b/drivers/clk/meson/meson8b.c
-@@ -1764,8 +1764,11 @@ static struct clk_regmap meson8b_hdmi_sys = {
+diff --git a/drivers/gpio/gpio-grgpio.c b/drivers/gpio/gpio-grgpio.c
+index 08234e64993a9..3224933f4c8f4 100644
+--- a/drivers/gpio/gpio-grgpio.c
++++ b/drivers/gpio/gpio-grgpio.c
+@@ -253,17 +253,16 @@ static int grgpio_irq_map(struct irq_domain *d, unsigned int irq,
+ 	lirq->irq = irq;
+ 	uirq = &priv->uirqs[lirq->index];
+ 	if (uirq->refcnt == 0) {
++		spin_unlock_irqrestore(&priv->gc.bgpio_lock, flags);
+ 		ret = request_irq(uirq->uirq, grgpio_irq_handler, 0,
+ 				  dev_name(priv->dev), priv);
+ 		if (ret) {
+ 			dev_err(priv->dev,
+ 				"Could not request underlying irq %d\n",
+ 				uirq->uirq);
+-
+-			spin_unlock_irqrestore(&priv->gc.bgpio_lock, flags);
+-
+ 			return ret;
+ 		}
++		spin_lock_irqsave(&priv->gc.bgpio_lock, flags);
+ 	}
+ 	uirq->refcnt++;
  
- /*
-  * The MALI IP is clocked by two identical clocks (mali_0 and mali_1)
-- * muxed by a glitch-free switch on Meson8b and Meson8m2. Meson8 only
-- * has mali_0 and no glitch-free mux.
-+ * muxed by a glitch-free switch on Meson8b and Meson8m2. The CCF can
-+ * actually manage this glitch-free mux because it does top-to-bottom
-+ * updates the each clock tree and switches to the "inactive" one when
-+ * CLK_SET_RATE_GATE is set.
-+ * Meson8 only has mali_0 and no glitch-free mux.
-  */
- static const struct clk_hw *meson8b_mali_0_1_parent_hws[] = {
- 	&meson8b_xtal.hw,
-@@ -1830,7 +1833,7 @@ static struct clk_regmap meson8b_mali_0 = {
- 			&meson8b_mali_0_div.hw
- 		},
- 		.num_parents = 1,
--		.flags = CLK_SET_RATE_PARENT,
-+		.flags = CLK_SET_RATE_GATE | CLK_SET_RATE_PARENT,
- 	},
- };
+@@ -309,8 +308,11 @@ static void grgpio_irq_unmap(struct irq_domain *d, unsigned int irq)
+ 	if (index >= 0) {
+ 		uirq = &priv->uirqs[lirq->index];
+ 		uirq->refcnt--;
+-		if (uirq->refcnt == 0)
++		if (uirq->refcnt == 0) {
++			spin_unlock_irqrestore(&priv->gc.bgpio_lock, flags);
+ 			free_irq(uirq->uirq, priv);
++			return;
++		}
+ 	}
  
-@@ -1885,7 +1888,7 @@ static struct clk_regmap meson8b_mali_1 = {
- 			&meson8b_mali_1_div.hw
- 		},
- 		.num_parents = 1,
--		.flags = CLK_SET_RATE_PARENT,
-+		.flags = CLK_SET_RATE_GATE | CLK_SET_RATE_PARENT,
- 	},
- };
- 
+ 	spin_unlock_irqrestore(&priv->gc.bgpio_lock, flags);
 -- 
 2.20.1
 
