@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5FE27167572
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:31:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C2B721675DE
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:32:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730303AbgBUI1j (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 03:27:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60950 "EHLO mail.kernel.org"
+        id S1732438AbgBUINs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 03:13:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50046 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730807AbgBUIV1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 03:21:27 -0500
+        id S1733050AbgBUINq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 03:13:46 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6D145222C4;
-        Fri, 21 Feb 2020 08:21:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B492124650;
+        Fri, 21 Feb 2020 08:13:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582273286;
-        bh=3kbU4PpQCtspoH5V5Ms/X/D2pQJR9+ziZQiWMj764e8=;
+        s=default; t=1582272826;
+        bh=rnx7Ggz4AoJzIVWIKtQRb/wV81Ljlb8nmprGeQWWiKM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PGzVEzlQ92jr5rSb7WR1lkWOV+R/ljd5Iz6WgzUZtVO0Yp7EUENEOmNaidh6aPZfR
-         YX4pL6whB/Vud8dVsw12rENfQMnxMPIQJtrargcaqQ0G3o/MyEAa+xRfUWnqou5K6d
-         AS97oTkrpIYulsTteA5s0qRvUKRok0hocibeE5wA=
+        b=OSuibr2+XfYz/8Eh9H1I8E8Bly9NJlU9jFLWGhPP8jgY6n2gsKGHVGacQQhzxUE8u
+         R31Mm3b+dyFvlID1fSmr1iVs4SlKzV/S0PzR1o5bWzXT74RpM5AMsqP6fqq9QV1tN/
+         +MR5mennAGYxmVjvv2VU2/myH1++D4UI8mQ0x6R4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Chen Zhou <chenzhou10@huawei.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
+        Coly Li <colyli@suse.de>, Jens Axboe <axboe@kernel.dk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 114/191] ASoC: atmel: fix build error with CONFIG_SND_ATMEL_SOC_DMA=m
+Subject: [PATCH 5.4 288/344] bcache: rework error unwinding in register_bcache
 Date:   Fri, 21 Feb 2020 08:41:27 +0100
-Message-Id: <20200221072304.590894861@linuxfoundation.org>
+Message-Id: <20200221072415.983628889@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200221072250.732482588@linuxfoundation.org>
-References: <20200221072250.732482588@linuxfoundation.org>
+In-Reply-To: <20200221072349.335551332@linuxfoundation.org>
+References: <20200221072349.335551332@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,41 +44,160 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen Zhou <chenzhou10@huawei.com>
+From: Christoph Hellwig <hch@lst.de>
 
-[ Upstream commit 8fea78029f5e6ed734ae1957bef23cfda1af4354 ]
+[ Upstream commit 50246693f81fe887f4db78bf7089051d7f1894cc ]
 
-If CONFIG_SND_ATMEL_SOC_DMA=m, build error:
+Split the successful and error return path, and use one goto label for each
+resource to unwind.  This also fixes some small errors like leaking the
+module reference count in the reboot case (which seems entirely harmless)
+or printing the wrong warning messages for early failures.
 
-sound/soc/atmel/atmel_ssc_dai.o: In function `atmel_ssc_set_audio':
-(.text+0x7cd): undefined reference to `atmel_pcm_dma_platform_register'
-
-Function atmel_pcm_dma_platform_register is defined under
-CONFIG SND_ATMEL_SOC_DMA, so select SND_ATMEL_SOC_DMA in
-CONFIG SND_ATMEL_SOC_SSC, same to CONFIG_SND_ATMEL_SOC_PDC.
-
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Chen Zhou <chenzhou10@huawei.com>
-Link: https://lore.kernel.org/r/20200113133242.144550-1-chenzhou10@huawei.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Coly Li <colyli@suse.de>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/atmel/Kconfig | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/md/bcache/super.c | 75 +++++++++++++++++++++++----------------
+ 1 file changed, 45 insertions(+), 30 deletions(-)
 
-diff --git a/sound/soc/atmel/Kconfig b/sound/soc/atmel/Kconfig
-index 64b784e96f844..dad778e5884bd 100644
---- a/sound/soc/atmel/Kconfig
-+++ b/sound/soc/atmel/Kconfig
-@@ -25,6 +25,8 @@ config SND_ATMEL_SOC_DMA
+diff --git a/drivers/md/bcache/super.c b/drivers/md/bcache/super.c
+index b86cf72033401..86f7e09d31516 100644
+--- a/drivers/md/bcache/super.c
++++ b/drivers/md/bcache/super.c
+@@ -2372,29 +2372,33 @@ static bool bch_is_open(struct block_device *bdev)
+ static ssize_t register_bcache(struct kobject *k, struct kobj_attribute *attr,
+ 			       const char *buffer, size_t size)
+ {
+-	ssize_t ret = -EINVAL;
+-	const char *err = "cannot allocate memory";
+-	char *path = NULL;
+-	struct cache_sb *sb = NULL;
++	const char *err;
++	char *path;
++	struct cache_sb *sb;
+ 	struct block_device *bdev = NULL;
+-	struct page *sb_page = NULL;
++	struct page *sb_page;
++	ssize_t ret;
  
- config SND_ATMEL_SOC_SSC_DMA
- 	tristate
-+	select SND_ATMEL_SOC_DMA
-+	select SND_ATMEL_SOC_PDC
++	ret = -EBUSY;
+ 	if (!try_module_get(THIS_MODULE))
+-		return -EBUSY;
++		goto out;
  
- config SND_ATMEL_SOC_SSC
- 	tristate
+ 	/* For latest state of bcache_is_reboot */
+ 	smp_mb();
+ 	if (bcache_is_reboot)
+-		return -EBUSY;
++		goto out_module_put;
+ 
++	ret = -ENOMEM;
++	err = "cannot allocate memory";
+ 	path = kstrndup(buffer, size, GFP_KERNEL);
+ 	if (!path)
+-		goto err;
++		goto out_module_put;
+ 
+ 	sb = kmalloc(sizeof(struct cache_sb), GFP_KERNEL);
+ 	if (!sb)
+-		goto err;
++		goto out_free_path;
+ 
++	ret = -EINVAL;
+ 	err = "failed to open device";
+ 	bdev = blkdev_get_by_path(strim(path),
+ 				  FMODE_READ|FMODE_WRITE|FMODE_EXCL,
+@@ -2411,57 +2415,68 @@ static ssize_t register_bcache(struct kobject *k, struct kobj_attribute *attr,
+ 			if (!IS_ERR(bdev))
+ 				bdput(bdev);
+ 			if (attr == &ksysfs_register_quiet)
+-				goto quiet_out;
++				goto done;
+ 		}
+-		goto err;
++		goto out_free_sb;
+ 	}
+ 
+ 	err = "failed to set blocksize";
+ 	if (set_blocksize(bdev, 4096))
+-		goto err_close;
++		goto out_blkdev_put;
+ 
+ 	err = read_super(sb, bdev, &sb_page);
+ 	if (err)
+-		goto err_close;
++		goto out_blkdev_put;
+ 
+ 	err = "failed to register device";
+ 	if (SB_IS_BDEV(sb)) {
+ 		struct cached_dev *dc = kzalloc(sizeof(*dc), GFP_KERNEL);
+ 
+ 		if (!dc)
+-			goto err_close;
++			goto out_put_sb_page;
+ 
+ 		mutex_lock(&bch_register_lock);
+ 		ret = register_bdev(sb, sb_page, bdev, dc);
+ 		mutex_unlock(&bch_register_lock);
+ 		/* blkdev_put() will be called in cached_dev_free() */
+-		if (ret < 0)
+-			goto err;
++		if (ret < 0) {
++			bdev = NULL;
++			goto out_put_sb_page;
++		}
+ 	} else {
+ 		struct cache *ca = kzalloc(sizeof(*ca), GFP_KERNEL);
+ 
+ 		if (!ca)
+-			goto err_close;
++			goto out_put_sb_page;
+ 
+ 		/* blkdev_put() will be called in bch_cache_release() */
+-		if (register_cache(sb, sb_page, bdev, ca) != 0)
+-			goto err;
++		if (register_cache(sb, sb_page, bdev, ca) != 0) {
++			bdev = NULL;
++			goto out_put_sb_page;
++		}
+ 	}
+-quiet_out:
+-	ret = size;
+-out:
+-	if (sb_page)
+-		put_page(sb_page);
++
++	put_page(sb_page);
++done:
+ 	kfree(sb);
+ 	kfree(path);
+ 	module_put(THIS_MODULE);
+-	return ret;
+-
+-err_close:
+-	blkdev_put(bdev, FMODE_READ|FMODE_WRITE|FMODE_EXCL);
+-err:
++	return size;
++
++out_put_sb_page:
++	put_page(sb_page);
++out_blkdev_put:
++	if (bdev)
++		blkdev_put(bdev, FMODE_READ | FMODE_WRITE | FMODE_EXCL);
++out_free_sb:
++	kfree(sb);
++out_free_path:
++	kfree(path);
++out_module_put:
++	module_put(THIS_MODULE);
++out:
+ 	pr_info("error %s: %s", path, err);
+-	goto out;
++	return ret;
+ }
+ 
+ 
 -- 
 2.20.1
 
