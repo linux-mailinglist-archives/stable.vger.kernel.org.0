@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9CCAF1675FB
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:32:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BCB211676D0
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:41:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732829AbgBUIMV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 03:12:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48090 "EHLO mail.kernel.org"
+        id S1729024AbgBUH54 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 02:57:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57604 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732812AbgBUIMV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 03:12:21 -0500
+        id S1730460AbgBUH54 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 02:57:56 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8385720722;
-        Fri, 21 Feb 2020 08:12:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2589820578;
+        Fri, 21 Feb 2020 07:57:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582272741;
-        bh=7AOqokVREmq51fFdwM3EZKsgEKghH5r7iEePC9Yg5p8=;
+        s=default; t=1582271875;
+        bh=r9VGlkabVTr9GSTTMrDDChb7M40vvOC140rzj7v6A9M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b3vgw5R0Fn/6Vspra8kjiyhvb52uCiKg1F13ZBrDIen5LtR+edxgHrRJegUNqSa1s
-         18oNeNx0MV5BrGisQm5at5AxuBM/VwN+UKKP0KChm+SqDt1WxWknCwyBNy6kchcDPe
-         jwBN2ZWrrUrfrVe4StFC1xvgb+LbL8jgb+Y6FveM=
+        b=qnsuWW7/I7+jg5mf36qzkLDGkfNslrWKAGXVHtFkSW/CLDLkkXzAKvxcjGaxFXkim
+         q67uPCdVBwShjveFh7Oeo1KyfrFsyf/GIeCb4Bh/gE8749AltkmPuwR3y+IOxRHP7K
+         mVh5a65dcTOqSCX5USwydjTnZWIbrLf8cftBh6SI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Cezary Rojewski <cezary.rojewski@intel.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 256/344] ASoC: SOF: Intel: hda: Fix SKL dai count
-Date:   Fri, 21 Feb 2020 08:40:55 +0100
-Message-Id: <20200221072412.819540646@linuxfoundation.org>
+        stable@vger.kernel.org, Liang Chen <liangchen.linux@gmail.com>,
+        Christoph Hellwig <hch@lst.de>, Coly Li <colyli@suse.de>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.5 332/399] bcache: cached_dev_free needs to put the sb page
+Date:   Fri, 21 Feb 2020 08:40:57 +0100
+Message-Id: <20200221072433.373213024@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200221072349.335551332@linuxfoundation.org>
-References: <20200221072349.335551332@linuxfoundation.org>
+In-Reply-To: <20200221072402.315346745@linuxfoundation.org>
+References: <20200221072402.315346745@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,37 +44,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cezary Rojewski <cezary.rojewski@intel.com>
+From: Liang Chen <liangchen.linux@gmail.com>
 
-[ Upstream commit a6947c9d86bcfd61b758b5693eba58defe7fd2ae ]
+[ Upstream commit e8547d42095e58bee658f00fef8e33d2a185c927 ]
 
-With fourth pin added for iDisp for skl_dai, update SOF_SKL_DAI_NUM to
-account for the change. Without this, dais from the bottom of the list
-are skipped. In current state that's the case for 'Alt Analog CPU DAI'.
+Same as cache device, the buffer page needs to be put while
+freeing cached_dev.  Otherwise a page would be leaked every
+time a cached_dev is stopped.
 
-Fixes: ac42b142cd76 ("ASoC: SOF: Intel: hda: Add iDisp4 DAI")
-Signed-off-by: Cezary Rojewski <cezary.rojewski@intel.com>
-Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Link: https://lore.kernel.org/r/20200113114054.9716-1-cezary.rojewski@intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Liang Chen <liangchen.linux@gmail.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Coly Li <colyli@suse.de>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/sof/intel/hda.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/md/bcache/super.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/sound/soc/sof/intel/hda.h b/sound/soc/sof/intel/hda.h
-index 23e430d3e0568..4be53ef2eab6e 100644
---- a/sound/soc/sof/intel/hda.h
-+++ b/sound/soc/sof/intel/hda.h
-@@ -336,7 +336,7 @@
+diff --git a/drivers/md/bcache/super.c b/drivers/md/bcache/super.c
+index 77e9869345e70..a573ce1d85aae 100644
+--- a/drivers/md/bcache/super.c
++++ b/drivers/md/bcache/super.c
+@@ -1275,6 +1275,9 @@ static void cached_dev_free(struct closure *cl)
  
- /* Number of DAIs */
- #if IS_ENABLED(CONFIG_SND_SOC_SOF_HDA)
--#define SOF_SKL_NUM_DAIS		14
-+#define SOF_SKL_NUM_DAIS		15
- #else
- #define SOF_SKL_NUM_DAIS		8
- #endif
+ 	mutex_unlock(&bch_register_lock);
+ 
++	if (dc->sb_bio.bi_inline_vecs[0].bv_page)
++		put_page(bio_first_page_all(&dc->sb_bio));
++
+ 	if (!IS_ERR_OR_NULL(dc->bdev))
+ 		blkdev_put(dc->bdev, FMODE_READ|FMODE_WRITE|FMODE_EXCL);
+ 
 -- 
 2.20.1
 
