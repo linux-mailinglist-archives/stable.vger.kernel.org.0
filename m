@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7CF5F1671C2
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 08:57:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A5F901671CF
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 08:57:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730556AbgBUH5C (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 02:57:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56502 "EHLO mail.kernel.org"
+        id S1730633AbgBUH5a (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 02:57:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57050 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728301AbgBUH5C (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 02:57:02 -0500
+        id S1730629AbgBUH53 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 02:57:29 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 000E020578;
-        Fri, 21 Feb 2020 07:57:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EF9692073A;
+        Fri, 21 Feb 2020 07:57:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582271821;
-        bh=LUbkeXlPtCA6S3i2O8c+vGXGoIF16WvHwsz2W6tdzrE=;
+        s=default; t=1582271849;
+        bh=Q1AXNF7/YBceLKM0t6wsQ+e5+2pz9pwHhqbAUEzue1w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CufJDoYz2ZgAzuh1oQ0Mzwf8agXR42kXDoedzok6sBgTNZfKD5NAFCO4fLeO2htJJ
-         H3SArrrlYKjedSuj3I/lM0dgLWffgAss4+dOUMkhV98bYVtkXfiZg5nIWI7EGhNNH5
-         dOeXFkxjZ/LMAKIUz6jJZhiToxqG5BMb3LsZHxLo=
+        b=jiqQJpmGAuihlPtKoOi3JQy6pPk+6mVIiAM3mj2BuJxbXfcE1zTS8FJ3v67mT5NO8
+         rbkIBC6cf5wk/upzOsui5/DGYJI8/NqsPJLdgNZv768kouwR6xKPk1aaTkCuC5uc1n
+         XVVpshGI+dwGQ5oGxoqxGIOMRV5uakeg1f8nPAxU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miroslav Benes <mbenes@suse.cz>,
-        Jessica Yu <jeyu@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 310/399] module: avoid setting info->name early in case we can fall back to info->mod->name
-Date:   Fri, 21 Feb 2020 08:40:35 +0100
-Message-Id: <20200221072431.685881155@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.5 314/399] ALSA: hda/hdmi - add retry logic to parse_intel_hdmi()
+Date:   Fri, 21 Feb 2020 08:40:39 +0100
+Message-Id: <20200221072431.990812034@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200221072402.315346745@linuxfoundation.org>
 References: <20200221072402.315346745@linuxfoundation.org>
@@ -43,58 +44,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jessica Yu <jeyu@kernel.org>
+From: Kai Vehmanen <kai.vehmanen@linux.intel.com>
 
-[ Upstream commit 708e0ada1916be765b7faa58854062f2bc620bbf ]
+[ Upstream commit 2928fa0a97ebb9549cb877fdc99aed9b95438c3a ]
 
-In setup_load_info(), info->name (which contains the name of the module,
-mostly used for early logging purposes before the module gets set up)
-gets unconditionally assigned if .modinfo is missing despite the fact
-that there is an if (!info->name) check near the end of the function.
-Avoid assigning a placeholder string to info->name if .modinfo doesn't
-exist, so that we can fall back to info->mod->name later on.
+The initial snd_hda_get_sub_node() can fail on certain
+devices (e.g. some Chromebook models using Intel GLK).
+The failure rate is very low, but as this is is part of
+the probe process, end-user impact is high.
 
-Fixes: 5fdc7db6448a ("module: setup load info before module_sig_check()")
-Reviewed-by: Miroslav Benes <mbenes@suse.cz>
-Signed-off-by: Jessica Yu <jeyu@kernel.org>
+In observed cases, related hardware status registers have
+expected values, but the node query still fails. Retrying
+the node query does seem to help, so fix the problem by
+adding retry logic to the query. This does not impact
+non-Intel platforms.
+
+BugLink: https://github.com/thesofproject/linux/issues/1642
+Signed-off-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
+Reviewed-by: Takashi Iwai <tiwai@suse.de>
+Link: https://lore.kernel.org/r/20200120160117.29130-4-kai.vehmanen@linux.intel.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/module.c | 9 ++++-----
- 1 file changed, 4 insertions(+), 5 deletions(-)
+ sound/pci/hda/patch_hdmi.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/kernel/module.c b/kernel/module.c
-index d83edc3a41a33..4810ce0fbbca3 100644
---- a/kernel/module.c
-+++ b/kernel/module.c
-@@ -3059,9 +3059,7 @@ static int setup_load_info(struct load_info *info, int flags)
+diff --git a/sound/pci/hda/patch_hdmi.c b/sound/pci/hda/patch_hdmi.c
+index bde50414029d9..4f195c7d966a9 100644
+--- a/sound/pci/hda/patch_hdmi.c
++++ b/sound/pci/hda/patch_hdmi.c
+@@ -2862,9 +2862,12 @@ static int alloc_intel_hdmi(struct hda_codec *codec)
+ /* parse and post-process for Intel codecs */
+ static int parse_intel_hdmi(struct hda_codec *codec)
+ {
+-	int err;
++	int err, retries = 3;
++
++	do {
++		err = hdmi_parse_codec(codec);
++	} while (err < 0 && retries--);
  
- 	/* Try to find a name early so we can log errors with a module name */
- 	info->index.info = find_sec(info, ".modinfo");
--	if (!info->index.info)
--		info->name = "(missing .modinfo section)";
--	else
-+	if (info->index.info)
- 		info->name = get_modinfo(info, "name");
- 
- 	/* Find internal symbols and strings. */
-@@ -3076,14 +3074,15 @@ static int setup_load_info(struct load_info *info, int flags)
- 	}
- 
- 	if (info->index.sym == 0) {
--		pr_warn("%s: module has no symbols (stripped?)\n", info->name);
-+		pr_warn("%s: module has no symbols (stripped?)\n",
-+			info->name ?: "(missing .modinfo section or name field)");
- 		return -ENOEXEC;
- 	}
- 
- 	info->index.mod = find_sec(info, ".gnu.linkonce.this_module");
- 	if (!info->index.mod) {
- 		pr_warn("%s: No module found in object\n",
--			info->name ?: "(missing .modinfo name field)");
-+			info->name ?: "(missing .modinfo section or name field)");
- 		return -ENOEXEC;
- 	}
- 	/* This is temporary: point mod into copy of data. */
+-	err = hdmi_parse_codec(codec);
+ 	if (err < 0) {
+ 		generic_spec_free(codec);
+ 		return err;
 -- 
 2.20.1
 
