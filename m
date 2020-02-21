@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2994E16726F
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:03:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 491E1167273
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:03:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731324AbgBUID2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 03:03:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36188 "EHLO mail.kernel.org"
+        id S1731371AbgBUIDl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 03:03:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36476 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731004AbgBUIDY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 03:03:24 -0500
+        id S1731506AbgBUIDj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 03:03:39 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A564F2073A;
-        Fri, 21 Feb 2020 08:03:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A468B2073A;
+        Fri, 21 Feb 2020 08:03:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582272204;
-        bh=F1Trexx99c5lKvDtbQFpRyhfDrMxurBJs0BaHnCMNeE=;
+        s=default; t=1582272219;
+        bh=IN9g0QVSJw1Ko04U/o5oXCUMcEqF0UvHQNwT1l5gu9M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EZ0tH52qpHCIXvYQe1QQzfA6I+elvo9C7L2Z4eHnbPjngIlE4FCk19zF7Jalora25
-         W3BORveQqhKhtIEjePPuqWsAAituRoMmVXTBRJ8yRdFbmbUvCOh+lyeYjHK0Jv2uUg
-         T6rtsYNvLyfIKmKoEydJsWdq+pBXYPPbpZm6sTu8=
+        b=iL77YhhpKjS4LWfIMPGZw0zr4NsP5Db83amoGEjQCpmRTpC04wp03kwGDpj5Rkt4/
+         3iJ5f5ZMrSyvAuOrF2b7TJ5IKf1Z51OS/A/H6n0rSzKL3N+I2dvXKwSBtr15gcxcCK
+         S2GiydVUjDtYjHRy31CFBdFVkpo4sJSKttdK3ELk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhengyuan Liu <liuzhengyuan@kylinos.cn>,
-        Song Liu <songliubraving@fb.com>,
+        stable@vger.kernel.org, Jia-Ju Bai <baijiaju1990@gmail.com>,
+        Felipe Balbi <balbi@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 054/344] raid6/test: fix a compilation error
-Date:   Fri, 21 Feb 2020 08:37:33 +0100
-Message-Id: <20200221072353.982938414@linuxfoundation.org>
+Subject: [PATCH 5.4 059/344] usb: gadget: udc: fix possible sleep-in-atomic-context bugs in gr_probe()
+Date:   Fri, 21 Feb 2020 08:37:38 +0100
+Message-Id: <20200221072354.393277008@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200221072349.335551332@linuxfoundation.org>
 References: <20200221072349.335551332@linuxfoundation.org>
@@ -44,53 +44,108 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhengyuan Liu <liuzhengyuan@kylinos.cn>
+From: Jia-Ju Bai <baijiaju1990@gmail.com>
 
-[ Upstream commit 6b8651aac1dca6140dd7fb4c9fec2736ed3f6223 ]
+[ Upstream commit 9c1ed62ae0690dfe5d5e31d8f70e70a95cb48e52 ]
 
-The compilation error is redeclaration showed as following:
+The driver may sleep while holding a spinlock.
+The function call path (from bottom to top) in Linux 4.19 is:
 
-        In file included from ../../../include/linux/limits.h:6,
-                         from /usr/include/x86_64-linux-gnu/bits/local_lim.h:38,
-                         from /usr/include/x86_64-linux-gnu/bits/posix1_lim.h:161,
-                         from /usr/include/limits.h:183,
-                         from /usr/lib/gcc/x86_64-linux-gnu/8/include-fixed/limits.h:194,
-                         from /usr/lib/gcc/x86_64-linux-gnu/8/include-fixed/syslimits.h:7,
-                         from /usr/lib/gcc/x86_64-linux-gnu/8/include-fixed/limits.h:34,
-                         from ../../../include/linux/raid/pq.h:30,
-                         from algos.c:14:
-        ../../../include/linux/types.h:114:15: error: conflicting types for ‘int64_t’
-         typedef s64   int64_t;
-                       ^~~~~~~
-        In file included from /usr/include/stdint.h:34,
-                         from /usr/lib/gcc/x86_64-linux-gnu/8/include/stdint.h:9,
-                         from /usr/include/inttypes.h:27,
-                         from ../../../include/linux/raid/pq.h:29,
-                         from algos.c:14:
-        /usr/include/x86_64-linux-gnu/bits/stdint-intn.h:27:19: note: previous \
-        declaration of ‘int64_t’ was here
-         typedef __int64_t int64_t;
+drivers/usb/gadget/udc/core.c, 1175:
+	kzalloc(GFP_KERNEL) in usb_add_gadget_udc_release
+drivers/usb/gadget/udc/core.c, 1272:
+	usb_add_gadget_udc_release in usb_add_gadget_udc
+drivers/usb/gadget/udc/gr_udc.c, 2186:
+	usb_add_gadget_udc in gr_probe
+drivers/usb/gadget/udc/gr_udc.c, 2183:
+	spin_lock in gr_probe
 
-Fixes: 54d50897d544 ("linux/kernel.h: split *_MAX and *_MIN macros into <linux/limits.h>")
-Signed-off-by: Zhengyuan Liu <liuzhengyuan@kylinos.cn>
-Signed-off-by: Song Liu <songliubraving@fb.com>
+drivers/usb/gadget/udc/core.c, 1195:
+	mutex_lock in usb_add_gadget_udc_release
+drivers/usb/gadget/udc/core.c, 1272:
+	usb_add_gadget_udc_release in usb_add_gadget_udc
+drivers/usb/gadget/udc/gr_udc.c, 2186:
+	usb_add_gadget_udc in gr_probe
+drivers/usb/gadget/udc/gr_udc.c, 2183:
+	spin_lock in gr_probe
+
+drivers/usb/gadget/udc/gr_udc.c, 212:
+	debugfs_create_file in gr_probe
+drivers/usb/gadget/udc/gr_udc.c, 2197:
+	gr_dfs_create in gr_probe
+drivers/usb/gadget/udc/gr_udc.c, 2183:
+    spin_lock in gr_probe
+
+drivers/usb/gadget/udc/gr_udc.c, 2114:
+	devm_request_threaded_irq in gr_request_irq
+drivers/usb/gadget/udc/gr_udc.c, 2202:
+	gr_request_irq in gr_probe
+drivers/usb/gadget/udc/gr_udc.c, 2183:
+    spin_lock in gr_probe
+
+kzalloc(GFP_KERNEL), mutex_lock(), debugfs_create_file() and
+devm_request_threaded_irq() can sleep at runtime.
+
+To fix these possible bugs, usb_add_gadget_udc(), gr_dfs_create() and
+gr_request_irq() are called without handling the spinlock.
+
+These bugs are found by a static analysis tool STCheck written by myself.
+
+Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
+Signed-off-by: Felipe Balbi <balbi@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/raid/pq.h | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/usb/gadget/udc/gr_udc.c | 16 +++++++++-------
+ 1 file changed, 9 insertions(+), 7 deletions(-)
 
-diff --git a/include/linux/raid/pq.h b/include/linux/raid/pq.h
-index 0832c9b66852e..0b6e7ad9cd2a8 100644
---- a/include/linux/raid/pq.h
-+++ b/include/linux/raid/pq.h
-@@ -27,7 +27,6 @@ extern const char raid6_empty_zero_page[PAGE_SIZE];
+diff --git a/drivers/usb/gadget/udc/gr_udc.c b/drivers/usb/gadget/udc/gr_udc.c
+index 7a0e9a58c2d84..116d386472efe 100644
+--- a/drivers/usb/gadget/udc/gr_udc.c
++++ b/drivers/usb/gadget/udc/gr_udc.c
+@@ -2176,8 +2176,6 @@ static int gr_probe(struct platform_device *pdev)
+ 		return -ENOMEM;
+ 	}
  
- #include <errno.h>
- #include <inttypes.h>
--#include <limits.h>
- #include <stddef.h>
- #include <sys/mman.h>
- #include <sys/time.h>
+-	spin_lock(&dev->lock);
+-
+ 	/* Inside lock so that no gadget can use this udc until probe is done */
+ 	retval = usb_add_gadget_udc(dev->dev, &dev->gadget);
+ 	if (retval) {
+@@ -2186,15 +2184,21 @@ static int gr_probe(struct platform_device *pdev)
+ 	}
+ 	dev->added = 1;
+ 
++	spin_lock(&dev->lock);
++
+ 	retval = gr_udc_init(dev);
+-	if (retval)
++	if (retval) {
++		spin_unlock(&dev->lock);
+ 		goto out;
+-
+-	gr_dfs_create(dev);
++	}
+ 
+ 	/* Clear all interrupt enables that might be left on since last boot */
+ 	gr_disable_interrupts_and_pullup(dev);
+ 
++	spin_unlock(&dev->lock);
++
++	gr_dfs_create(dev);
++
+ 	retval = gr_request_irq(dev, dev->irq);
+ 	if (retval) {
+ 		dev_err(dev->dev, "Failed to request irq %d\n", dev->irq);
+@@ -2223,8 +2227,6 @@ static int gr_probe(struct platform_device *pdev)
+ 		dev_info(dev->dev, "regs: %p, irq %d\n", dev->regs, dev->irq);
+ 
+ out:
+-	spin_unlock(&dev->lock);
+-
+ 	if (retval)
+ 		gr_remove(pdev);
+ 
 -- 
 2.20.1
 
