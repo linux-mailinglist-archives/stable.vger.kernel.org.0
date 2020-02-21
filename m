@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6970C167570
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:31:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 107751676E9
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:41:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730768AbgBUI1f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 03:27:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33134 "EHLO mail.kernel.org"
+        id S1730924AbgBUH7b (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 02:59:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59590 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730303AbgBUIVq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 03:21:46 -0500
+        id S1730921AbgBUH7b (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 02:59:31 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6AC6220578;
-        Fri, 21 Feb 2020 08:21:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 64FCF206ED;
+        Fri, 21 Feb 2020 07:59:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582273305;
-        bh=H7Q6UGkUDohsAqgIcQdUPnUGdO92IToU1TSe781EBNM=;
+        s=default; t=1582271970;
+        bh=p1BD/3vga0HznWfeYY31jHKkRLD5Q/e2+NDXdLmUEBA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bJZeTYiHXWq6XK9lxFIIdi733E90l/sCV1RkQOrJ3p9lQ72unS95lsX0l8Kq0mFQZ
-         GKBCO+QEYzFWDskG2q8bvnJDDQUVxIaoSjn5OUxPoUPnFhh37DOFZpTf+jDe9JtjS0
-         mWFyPJKKSx9nmZuLixFxLC+HnU/t1zKMSCtKh0e4=
+        b=wy6LyMxbYqz5spSUZs742/Db0uKVqMgZ68TI55q07joaFI7+1tQlT+RiyejMMW2q9
+         mlY9crVhW9nFhU9Ycud3md9VQf3zMMmMzToxZGFn4g/hxrvqyuKzG0rhNhoTak3Ir2
+         +tmoGEO9wE17FnJTWnunwHtuBBlymItvBpn0dbCo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
+        stable@vger.kernel.org, Tom Zanussi <zanussi@kernel.org>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 120/191] driver core: Print device when resources present in really_probe()
+Subject: [PATCH 5.5 368/399] tracing: Fix now invalid var_ref_vals assumption in trace action
 Date:   Fri, 21 Feb 2020 08:41:33 +0100
-Message-Id: <20200221072305.278715977@linuxfoundation.org>
+Message-Id: <20200221072436.329313560@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200221072250.732482588@linuxfoundation.org>
-References: <20200221072250.732482588@linuxfoundation.org>
+In-Reply-To: <20200221072402.315346745@linuxfoundation.org>
+References: <20200221072402.315346745@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,43 +44,173 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+From: Tom Zanussi <zanussi@kernel.org>
 
-[ Upstream commit 7c35e699c88bd60734277b26962783c60e04b494 ]
+[ Upstream commit d380dcde9a07ca5de4805dee11f58a98ec0ad6ff ]
 
-If a device already has devres items attached before probing, a warning
-backtrace is printed.  However, this backtrace does not reveal the
-offending device, leaving the user uninformed.  Furthermore, using
-WARN_ON() causes systems with panic-on-warn to reboot.
+The patch 'tracing: Fix histogram code when expression has same var as
+value' added code to return an existing variable reference when
+creating a new variable reference, which resulted in var_ref_vals
+slots being reused instead of being duplicated.
 
-Fix this by replacing the WARN_ON() by a dev_crit() message.
-Abort probing the device, to prevent doing more damage to the device's
-resources.
+The implementation of the trace action assumes that the end of the
+var_ref_vals array starting at action_data.var_ref_idx corresponds to
+the values that will be assigned to the trace params. The patch
+mentioned above invalidates that assumption, which means that each
+param needs to explicitly specify its index into var_ref_vals.
 
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Link: https://lore.kernel.org/r/20191206132219.28908-1-geert+renesas@glider.be
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This fix changes action_data.var_ref_idx to an array of var ref
+indexes to account for that.
+
+Link: https://lore.kernel.org/r/1580335695.6220.8.camel@kernel.org
+
+Fixes: 8bcebc77e85f ("tracing: Fix histogram code when expression has same var as value")
+Signed-off-by: Tom Zanussi <zanussi@kernel.org>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/base/dd.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ kernel/trace/trace_events_hist.c | 53 +++++++++++++++++++++++---------
+ 1 file changed, 38 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/base/dd.c b/drivers/base/dd.c
-index 11d24a552ee49..5f6416e6ba96b 100644
---- a/drivers/base/dd.c
-+++ b/drivers/base/dd.c
-@@ -470,7 +470,10 @@ static int really_probe(struct device *dev, struct device_driver *drv)
- 	atomic_inc(&probe_count);
- 	pr_debug("bus: '%s': %s: probing driver %s with device %s\n",
- 		 drv->bus->name, __func__, drv->name, dev_name(dev));
--	WARN_ON(!list_empty(&dev->devres_head));
-+	if (!list_empty(&dev->devres_head)) {
-+		dev_crit(dev, "Resources present before probing\n");
-+		return -EBUSY;
-+	}
+diff --git a/kernel/trace/trace_events_hist.c b/kernel/trace/trace_events_hist.c
+index 48f9075e4fa18..e10585ef00e15 100644
+--- a/kernel/trace/trace_events_hist.c
++++ b/kernel/trace/trace_events_hist.c
+@@ -470,11 +470,12 @@ struct action_data {
+ 	 * When a histogram trigger is hit, the values of any
+ 	 * references to variables, including variables being passed
+ 	 * as parameters to synthetic events, are collected into a
+-	 * var_ref_vals array.  This var_ref_idx is the index of the
+-	 * first param in the array to be passed to the synthetic
+-	 * event invocation.
++	 * var_ref_vals array.  This var_ref_idx array is an array of
++	 * indices into the var_ref_vals array, one for each synthetic
++	 * event param, and is passed to the synthetic event
++	 * invocation.
+ 	 */
+-	unsigned int		var_ref_idx;
++	unsigned int		var_ref_idx[TRACING_MAP_VARS_MAX];
+ 	struct synth_event	*synth_event;
+ 	bool			use_trace_keyword;
+ 	char			*synth_event_name;
+@@ -875,14 +876,14 @@ static struct trace_event_functions synth_event_funcs = {
  
- re_probe:
- 	dev->driver = drv;
+ static notrace void trace_event_raw_event_synth(void *__data,
+ 						u64 *var_ref_vals,
+-						unsigned int var_ref_idx)
++						unsigned int *var_ref_idx)
+ {
+ 	struct trace_event_file *trace_file = __data;
+ 	struct synth_trace_event *entry;
+ 	struct trace_event_buffer fbuffer;
+ 	struct ring_buffer *buffer;
+ 	struct synth_event *event;
+-	unsigned int i, n_u64;
++	unsigned int i, n_u64, val_idx;
+ 	int fields_size = 0;
+ 
+ 	event = trace_file->event_call->data;
+@@ -905,15 +906,16 @@ static notrace void trace_event_raw_event_synth(void *__data,
+ 		goto out;
+ 
+ 	for (i = 0, n_u64 = 0; i < event->n_fields; i++) {
++		val_idx = var_ref_idx[i];
+ 		if (event->fields[i]->is_string) {
+-			char *str_val = (char *)(long)var_ref_vals[var_ref_idx + i];
++			char *str_val = (char *)(long)var_ref_vals[val_idx];
+ 			char *str_field = (char *)&entry->fields[n_u64];
+ 
+ 			strscpy(str_field, str_val, STR_VAR_LEN_MAX);
+ 			n_u64 += STR_VAR_LEN_MAX / sizeof(u64);
+ 		} else {
+ 			struct synth_field *field = event->fields[i];
+-			u64 val = var_ref_vals[var_ref_idx + i];
++			u64 val = var_ref_vals[val_idx];
+ 
+ 			switch (field->size) {
+ 			case 1:
+@@ -1113,10 +1115,10 @@ static struct tracepoint *alloc_synth_tracepoint(char *name)
+ }
+ 
+ typedef void (*synth_probe_func_t) (void *__data, u64 *var_ref_vals,
+-				    unsigned int var_ref_idx);
++				    unsigned int *var_ref_idx);
+ 
+ static inline void trace_synth(struct synth_event *event, u64 *var_ref_vals,
+-			       unsigned int var_ref_idx)
++			       unsigned int *var_ref_idx)
+ {
+ 	struct tracepoint *tp = event->tp;
+ 
+@@ -2651,6 +2653,22 @@ static int init_var_ref(struct hist_field *ref_field,
+ 	goto out;
+ }
+ 
++static int find_var_ref_idx(struct hist_trigger_data *hist_data,
++			    struct hist_field *var_field)
++{
++	struct hist_field *ref_field;
++	int i;
++
++	for (i = 0; i < hist_data->n_var_refs; i++) {
++		ref_field = hist_data->var_refs[i];
++		if (ref_field->var.idx == var_field->var.idx &&
++		    ref_field->var.hist_data == var_field->hist_data)
++			return i;
++	}
++
++	return -ENOENT;
++}
++
+ /**
+  * create_var_ref - Create a variable reference and attach it to trigger
+  * @hist_data: The trigger that will be referencing the variable
+@@ -4224,11 +4242,11 @@ static int trace_action_create(struct hist_trigger_data *hist_data,
+ 	struct trace_array *tr = hist_data->event_file->tr;
+ 	char *event_name, *param, *system = NULL;
+ 	struct hist_field *hist_field, *var_ref;
+-	unsigned int i, var_ref_idx;
++	unsigned int i;
+ 	unsigned int field_pos = 0;
+ 	struct synth_event *event;
+ 	char *synth_event_name;
+-	int ret = 0;
++	int var_ref_idx, ret = 0;
+ 
+ 	lockdep_assert_held(&event_mutex);
+ 
+@@ -4245,8 +4263,6 @@ static int trace_action_create(struct hist_trigger_data *hist_data,
+ 
+ 	event->ref++;
+ 
+-	var_ref_idx = hist_data->n_var_refs;
+-
+ 	for (i = 0; i < data->n_params; i++) {
+ 		char *p;
+ 
+@@ -4295,6 +4311,14 @@ static int trace_action_create(struct hist_trigger_data *hist_data,
+ 				goto err;
+ 			}
+ 
++			var_ref_idx = find_var_ref_idx(hist_data, var_ref);
++			if (WARN_ON(var_ref_idx < 0)) {
++				ret = var_ref_idx;
++				goto err;
++			}
++
++			data->var_ref_idx[i] = var_ref_idx;
++
+ 			field_pos++;
+ 			kfree(p);
+ 			continue;
+@@ -4313,7 +4337,6 @@ static int trace_action_create(struct hist_trigger_data *hist_data,
+ 	}
+ 
+ 	data->synth_event = event;
+-	data->var_ref_idx = var_ref_idx;
+  out:
+ 	return ret;
+  err:
 -- 
 2.20.1
 
