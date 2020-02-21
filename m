@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E5C851673A2
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:17:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EF55C16744E
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:23:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733130AbgBUIOI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 03:14:08 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50524 "EHLO mail.kernel.org"
+        id S2388131AbgBUIUL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 03:20:11 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59150 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732691AbgBUIOH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 03:14:07 -0500
+        id S2387693AbgBUIUK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 03:20:10 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CA4CD24650;
-        Fri, 21 Feb 2020 08:14:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0316424691;
+        Fri, 21 Feb 2020 08:20:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582272847;
-        bh=bJwMejCJ7wfSrKEAorwvGbjuKx8HNWXqhXK5lwq8Rxs=;
+        s=default; t=1582273210;
+        bh=6HKEoRuBusvKcuT8Fuw5jbBQs7MAmC6gXzaQukErTvA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x9tLduMSsjjYGexEYph16t1rQ4+/VWoHCUg5Xpc2YW2q78U5kWlUxT4xs1dWyMHnM
-         Ro27KHFkr4gG0xAqsCvV6dcg6jF1JCnPHhm9NpSq02njgblJ30ecBGA0RmZDOc+fa3
-         wgXn+haOMQSBXy1MWu+xbORYOoBG7tCMnU9SuPUg=
+        b=rKL0PryQ8eNwxkEn07Q8/fZYiloFuo3jeLZ6RTvWvzUocqljfVcGrfgRYGQz287XJ
+         WJP5kVM3r8vYUPtUBzxTp7LTv8vbOHlMr5QVaxU6ttAMh6mE9sO2tyQ4cnyJGcK8xP
+         XKe3dYly8zBthN8ZC3lFP+SDfljkyyJ76dBGlVvk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chao Yu <yuchao0@huawei.com>,
-        Jaegeuk Kim <jaegeuk@kernel.org>,
+        stable@vger.kernel.org,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 258/344] f2fs: fix memleak of kobject
+Subject: [PATCH 4.19 084/191] ARM: dts: r8a7779: Add device node for ARM global timer
 Date:   Fri, 21 Feb 2020 08:40:57 +0100
-Message-Id: <20200221072413.025017432@linuxfoundation.org>
+Message-Id: <20200221072301.311962195@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200221072349.335551332@linuxfoundation.org>
-References: <20200221072349.335551332@linuxfoundation.org>
+In-Reply-To: <20200221072250.732482588@linuxfoundation.org>
+References: <20200221072250.732482588@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,52 +44,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chao Yu <yuchao0@huawei.com>
+From: Geert Uytterhoeven <geert+renesas@glider.be>
 
-[ Upstream commit fe396ad8e7526f059f7b8c7290d33a1b84adacab ]
+[ Upstream commit 8443ffd1bbd5be74e9b12db234746d12e8ea93e2 ]
 
-If kobject_init_and_add() failed, caller needs to invoke kobject_put()
-to release kobject explicitly.
+Add a device node for the global timer, which is part of the Cortex-A9
+MPCore.
 
-Signed-off-by: Chao Yu <yuchao0@huawei.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+The global timer can serve as an accurate (4 ns) clock source for
+scheduling and delay loops.
+
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Link: https://lore.kernel.org/r/20191211135222.26770-4-geert+renesas@glider.be
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/sysfs.c | 11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
+ arch/arm/boot/dts/r8a7779.dtsi | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/fs/f2fs/sysfs.c b/fs/f2fs/sysfs.c
-index 8544c0ab7b32b..170934430d7d7 100644
---- a/fs/f2fs/sysfs.c
-+++ b/fs/f2fs/sysfs.c
-@@ -729,10 +729,12 @@ int __init f2fs_init_sysfs(void)
+diff --git a/arch/arm/boot/dts/r8a7779.dtsi b/arch/arm/boot/dts/r8a7779.dtsi
+index 03919714645ae..f1c9b2bc542c5 100644
+--- a/arch/arm/boot/dts/r8a7779.dtsi
++++ b/arch/arm/boot/dts/r8a7779.dtsi
+@@ -68,6 +68,14 @@
+ 		      <0xf0000100 0x100>;
+ 	};
  
- 	ret = kobject_init_and_add(&f2fs_feat, &f2fs_feat_ktype,
- 				   NULL, "features");
--	if (ret)
-+	if (ret) {
-+		kobject_put(&f2fs_feat);
- 		kset_unregister(&f2fs_kset);
--	else
-+	} else {
- 		f2fs_proc_root = proc_mkdir("fs/f2fs", NULL);
-+	}
- 	return ret;
- }
- 
-@@ -753,8 +755,11 @@ int f2fs_register_sysfs(struct f2fs_sb_info *sbi)
- 	init_completion(&sbi->s_kobj_unregister);
- 	err = kobject_init_and_add(&sbi->s_kobj, &f2fs_sb_ktype, NULL,
- 				"%s", sb->s_id);
--	if (err)
-+	if (err) {
-+		kobject_put(&sbi->s_kobj);
-+		wait_for_completion(&sbi->s_kobj_unregister);
- 		return err;
-+	}
- 
- 	if (f2fs_proc_root)
- 		sbi->s_proc = proc_mkdir(sb->s_id, f2fs_proc_root);
++	timer@f0000200 {
++		compatible = "arm,cortex-a9-global-timer";
++		reg = <0xf0000200 0x100>;
++		interrupts = <GIC_PPI 11
++			(GIC_CPU_MASK_SIMPLE(4) | IRQ_TYPE_EDGE_RISING)>;
++		clocks = <&cpg_clocks R8A7779_CLK_ZS>;
++	};
++
+ 	timer@f0000600 {
+ 		compatible = "arm,cortex-a9-twd-timer";
+ 		reg = <0xf0000600 0x20>;
 -- 
 2.20.1
 
