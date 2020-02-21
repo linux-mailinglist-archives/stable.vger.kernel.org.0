@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EFFCE1670E2
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 08:50:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 661781670E3
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 08:50:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727370AbgBUHtN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 02:49:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45520 "EHLO mail.kernel.org"
+        id S1728780AbgBUHtO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 02:49:14 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45602 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729216AbgBUHtK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 02:49:10 -0500
+        id S1728295AbgBUHtM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 02:49:12 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5E1D3207FD;
-        Fri, 21 Feb 2020 07:49:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DDCA8222C4;
+        Fri, 21 Feb 2020 07:49:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582271349;
-        bh=Ni2uE3UrzUOKeHuUBp47BRf/YTw6+RTDvh2UjhiuMWU=;
+        s=default; t=1582271352;
+        bh=vAcka8fHr6mFiJZkIqQNpXN3P/qJC9ZOA4MvldSnGKc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vJAfNnHGhd1GfWZ1pvvzkEp75RfaRNDMwkArKaGS28OHAtvWdvl138nNDlIK6GPCL
-         WJlspvrVKFWBr/if3cNod4GAof2chTX3I9SiqEKlICA4ckMjmqS+5iwkWgHsYhuxmG
-         OC1V2iIEkQU4rHa5/sAI0xbJuYdKEpcqXhjKcvvg=
+        b=awJuXkvMRMSasY/df93VCZ6HaGq//N17FopRnVbMp8PaEHTP37EzNrQZlG/sJoSwG
+         /v0FhKHLkI7PXow5QKiI2ujVd+i+fHI/DxWbOAm9cMW+6t/qeyEcHyfdZlkyRbgxwZ
+         T84mKdyyLORUtklvGxnc6qeJVdSJDq4BpSm/9Jmw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Lakshmi Ramasubramanian <nramas@linux.microsoft.com>,
-        Mimi Zohar <zohar@linux.ibm.com>,
+        stable@vger.kernel.org, Keerthy <j-keerthy@ti.com>,
+        Roger Quadros <rogerq@ti.com>, Tero Kristo <t-kristo@ti.com>,
+        Tony Lindgren <tony@atomide.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 132/399] IMA: Check IMA policy flag
-Date:   Fri, 21 Feb 2020 08:37:37 +0100
-Message-Id: <20200221072415.299614924@linuxfoundation.org>
+Subject: [PATCH 5.5 133/399] bus: ti-sysc: Implement quirk handling for CLKDM_NOAUTO
+Date:   Fri, 21 Feb 2020 08:37:38 +0100
+Message-Id: <20200221072415.398762898@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200221072402.315346745@linuxfoundation.org>
 References: <20200221072402.315346745@linuxfoundation.org>
@@ -45,39 +45,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lakshmi Ramasubramanian <nramas@linux.microsoft.com>
+From: Tony Lindgren <tony@atomide.com>
 
-[ Upstream commit c5563bad88e07017e08cce1142903e501598c80c ]
+[ Upstream commit 94f6345712b37e4bb23cb265ce4c65b9d177e75a ]
 
-process_buffer_measurement() may be called prior to IMA being
-initialized (for instance, when the IMA hook is called when
-a key is added to the .builtin_trusted_keys keyring), which
-would result in a kernel panic.
+For dra7 dcan and dwc3 instances we need to block clockdomain autoidle.
+Let's do this with CLKDM_NOAUTO quirk flag and enable it for dcan and
+dwc3.
 
-This patch adds the check in process_buffer_measurement()
-to return immediately if IMA is not initialized yet.
-
-Signed-off-by: Lakshmi Ramasubramanian <nramas@linux.microsoft.com>
-Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
+Cc: Keerthy <j-keerthy@ti.com>
+Cc: Roger Quadros <rogerq@ti.com>
+Cc: Tero Kristo <t-kristo@ti.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/integrity/ima/ima_main.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/bus/ti-sysc.c                 | 10 ++++++++--
+ include/linux/platform_data/ti-sysc.h |  1 +
+ 2 files changed, 9 insertions(+), 2 deletions(-)
 
-diff --git a/security/integrity/ima/ima_main.c b/security/integrity/ima/ima_main.c
-index d7e987baf1274..9b35db2fc777a 100644
---- a/security/integrity/ima/ima_main.c
-+++ b/security/integrity/ima/ima_main.c
-@@ -655,6 +655,9 @@ void process_buffer_measurement(const void *buf, int size,
- 	int action = 0;
- 	u32 secid;
+diff --git a/drivers/bus/ti-sysc.c b/drivers/bus/ti-sysc.c
+index ccb44fe790a71..3d79b074f9581 100644
+--- a/drivers/bus/ti-sysc.c
++++ b/drivers/bus/ti-sysc.c
+@@ -479,7 +479,7 @@ static void sysc_clkdm_deny_idle(struct sysc *ddata)
+ {
+ 	struct ti_sysc_platform_data *pdata;
  
-+	if (!ima_policy_flag)
-+		return;
-+
- 	/*
- 	 * Both LSM hooks and auxilary based buffer measurements are
- 	 * based on policy.  To avoid code duplication, differentiate
+-	if (ddata->legacy_mode)
++	if (ddata->legacy_mode || (ddata->cfg.quirks & SYSC_QUIRK_CLKDM_NOAUTO))
+ 		return;
+ 
+ 	pdata = dev_get_platdata(ddata->dev);
+@@ -491,7 +491,7 @@ static void sysc_clkdm_allow_idle(struct sysc *ddata)
+ {
+ 	struct ti_sysc_platform_data *pdata;
+ 
+-	if (ddata->legacy_mode)
++	if (ddata->legacy_mode || (ddata->cfg.quirks & SYSC_QUIRK_CLKDM_NOAUTO))
+ 		return;
+ 
+ 	pdata = dev_get_platdata(ddata->dev);
+@@ -1251,6 +1251,12 @@ static const struct sysc_revision_quirk sysc_revision_quirks[] = {
+ 	/* Quirks that need to be set based on detected module */
+ 	SYSC_QUIRK("aess", 0, 0, 0x10, -1, 0x40000000, 0xffffffff,
+ 		   SYSC_MODULE_QUIRK_AESS),
++	SYSC_QUIRK("dcan", 0x48480000, 0x20, -1, -1, 0xa3170504, 0xffffffff,
++		   SYSC_QUIRK_CLKDM_NOAUTO),
++	SYSC_QUIRK("dwc3", 0x48880000, 0, 0x10, -1, 0x500a0200, 0xffffffff,
++		   SYSC_QUIRK_CLKDM_NOAUTO),
++	SYSC_QUIRK("dwc3", 0x488c0000, 0, 0x10, -1, 0x500a0200, 0xffffffff,
++		   SYSC_QUIRK_CLKDM_NOAUTO),
+ 	SYSC_QUIRK("hdq1w", 0, 0, 0x14, 0x18, 0x00000006, 0xffffffff,
+ 		   SYSC_MODULE_QUIRK_HDQ1W),
+ 	SYSC_QUIRK("hdq1w", 0, 0, 0x14, 0x18, 0x0000000a, 0xffffffff,
+diff --git a/include/linux/platform_data/ti-sysc.h b/include/linux/platform_data/ti-sysc.h
+index 8cfe570fdece6..2cbde6542849d 100644
+--- a/include/linux/platform_data/ti-sysc.h
++++ b/include/linux/platform_data/ti-sysc.h
+@@ -49,6 +49,7 @@ struct sysc_regbits {
+ 	s8 emufree_shift;
+ };
+ 
++#define SYSC_QUIRK_CLKDM_NOAUTO		BIT(21)
+ #define SYSC_QUIRK_FORCE_MSTANDBY	BIT(20)
+ #define SYSC_MODULE_QUIRK_AESS		BIT(19)
+ #define SYSC_MODULE_QUIRK_SGX		BIT(18)
 -- 
 2.20.1
 
