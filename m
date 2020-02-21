@@ -2,22 +2,22 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CCE211679D9
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 10:51:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E09FD1679DD
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 10:52:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728130AbgBUJvc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 04:51:32 -0500
-Received: from foss.arm.com ([217.140.110.172]:35338 "EHLO foss.arm.com"
+        id S1728114AbgBUJw2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 04:52:28 -0500
+Received: from foss.arm.com ([217.140.110.172]:35372 "EHLO foss.arm.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726989AbgBUJvc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 04:51:32 -0500
+        id S1726989AbgBUJw1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 04:52:27 -0500
 Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 55EFD31B;
-        Fri, 21 Feb 2020 01:51:31 -0800 (PST)
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id F04D131B;
+        Fri, 21 Feb 2020 01:52:26 -0800 (PST)
 Received: from e121166-lin.cambridge.arm.com (e121166-lin.cambridge.arm.com [10.1.196.255])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 069A63F68F;
-        Fri, 21 Feb 2020 01:51:29 -0800 (PST)
-Date:   Fri, 21 Feb 2020 09:51:27 +0000
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id A0FC13F68F;
+        Fri, 21 Feb 2020 01:52:25 -0800 (PST)
+Date:   Fri, 21 Feb 2020 09:52:23 +0000
 From:   Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
@@ -28,29 +28,27 @@ Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
         Catalin Marinas <catalin.marinas@arm.com>,
         Robin Murphy <robin.murphy@arm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 5.4 254/344] ACPI/IORT: Fix Number of IDs handling in
+Subject: Re: [PATCH 4.19 137/191] ACPI/IORT: Fix Number of IDs handling in
  iort_id_map()
-Message-ID: <20200221095127.GB29220@e121166-lin.cambridge.arm.com>
-References: <20200221072349.335551332@linuxfoundation.org>
- <20200221072412.606392874@linuxfoundation.org>
+Message-ID: <20200221095223.GC29220@e121166-lin.cambridge.arm.com>
+References: <20200221072250.732482588@linuxfoundation.org>
+ <20200221072307.150803032@linuxfoundation.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20200221072412.606392874@linuxfoundation.org>
+In-Reply-To: <20200221072307.150803032@linuxfoundation.org>
 User-Agent: Mutt/1.9.4 (2018-02-28)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Feb 21, 2020 at 08:40:53AM +0100, Greg Kroah-Hartman wrote:
+On Fri, Feb 21, 2020 at 08:41:50AM +0100, Greg Kroah-Hartman wrote:
 > From: Hanjun Guo <guohanjun@huawei.com>
 > 
 > [ Upstream commit 3c23b83a88d00383e1d498cfa515249aa2fe0238 ]
 
-Hi Greg,
-
-this patch should be dropped from the stable queue, thanks.
+Please drop this patch from the stable queue, thanks.
 
 Lorenzo
 
@@ -118,10 +116,10 @@ Lorenzo
 >  1 file changed, 55 insertions(+), 2 deletions(-)
 > 
 > diff --git a/drivers/acpi/arm64/iort.c b/drivers/acpi/arm64/iort.c
-> index 5a7551d060f25..161b609e4cdfb 100644
+> index e11b5da6f828f..7d86468300b78 100644
 > --- a/drivers/acpi/arm64/iort.c
 > +++ b/drivers/acpi/arm64/iort.c
-> @@ -298,6 +298,59 @@ out:
+> @@ -306,6 +306,59 @@ out:
 >  	return status;
 >  }
 >  
@@ -181,7 +179,7 @@ Lorenzo
 >  static int iort_id_map(struct acpi_iort_id_mapping *map, u8 type, u32 rid_in,
 >  		       u32 *rid_out)
 >  {
-> @@ -314,8 +367,7 @@ static int iort_id_map(struct acpi_iort_id_mapping *map, u8 type, u32 rid_in,
+> @@ -322,8 +375,7 @@ static int iort_id_map(struct acpi_iort_id_mapping *map, u8 type, u32 rid_in,
 >  		return -ENXIO;
 >  	}
 >  
@@ -191,7 +189,7 @@ Lorenzo
 >  		return -ENXIO;
 >  
 >  	*rid_out = map->output_base + (rid_in - map->input_base);
-> @@ -1637,5 +1689,6 @@ void __init acpi_iort_init(void)
+> @@ -1542,5 +1594,6 @@ void __init acpi_iort_init(void)
 >  		return;
 >  	}
 >  
