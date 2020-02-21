@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C77FD167704
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:41:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 325BD1676FE
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:41:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731186AbgBUIBS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 03:01:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33570 "EHLO mail.kernel.org"
+        id S1730774AbgBUIBG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 03:01:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33308 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731024AbgBUIBR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 03:01:17 -0500
+        id S1730649AbgBUIBC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 03:01:02 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C8E592073A;
-        Fri, 21 Feb 2020 08:01:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6BBD324670;
+        Fri, 21 Feb 2020 08:01:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582272077;
-        bh=0yf6ce4sDrBOesE1j8wafwtcfGWYWuH7tZjl7vWwWFs=;
+        s=default; t=1582272061;
+        bh=xMt+/WZJ7JX4l2wXXyGzZfDgtpkGtXEWwqSlZvxiJAE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ImkZpzxJspaB5ieOOs0GoFlH9baWE2BjBVc/cvhcxP5QEvtkOyxqtvY7thKRNxd3w
-         9PPXtll6dhYxqtmy16hefQulu4+QOtC37eSzVb4snsgWSgm3FMH7h15J2dN5GsukMU
-         PJ0rDIVCuDWQloEhqH4/uknp9cYJshuuORO7uIRc=
+        b=FHGJma7MRfYf8T1TInTgV45LswH5mgutdTi1vI2590SLiUjCApOltJE+oyUMkhqp9
+         1l7Lhv1GCnRB+cQuSWguVHbf3iux9Jed16LyULe+MnqjBmVp1Iwbnxw7vwmUbR74LU
+         gsCsFrdInh8TC1kml7DJHkJsaSxPYgCFxg1ysxPQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>,
-        David Hildenbrand <david@redhat.com>,
+        stable@vger.kernel.org, Xiao Yang <ice_yangxiao@163.com>,
+        Miklos Szeredi <mszeredi@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 393/399] virtio_balloon: prevent pfn array overflow
-Date:   Fri, 21 Feb 2020 08:41:58 +0100
-Message-Id: <20200221072438.118804855@linuxfoundation.org>
+Subject: [PATCH 5.5 394/399] fuse: dont overflow LLONG_MAX with end offset
+Date:   Fri, 21 Feb 2020 08:41:59 +0100
+Message-Id: <20200221072438.196078759@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200221072402.315346745@linuxfoundation.org>
 References: <20200221072402.315346745@linuxfoundation.org>
@@ -44,34 +44,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael S. Tsirkin <mst@redhat.com>
+From: Miklos Szeredi <mszeredi@redhat.com>
 
-[ Upstream commit 6e9826e77249355c09db6ba41cd3f84e89f4b614 ]
+[ Upstream commit 2f1398291bf35fe027914ae7a9610d8e601fbfde ]
 
-Make sure, at build time, that pfn array is big enough to hold a single
-page.  It happens to be true since the PAGE_SHIFT value at the moment is
-20, which is 1M - exactly 256 4K balloon pages.
+Handle the special case of fuse_readpages() wanting to read the last page
+of a hugest file possible and overflowing the end offset in the process.
 
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
+This is basically to unbreak xfstests:generic/525 and prevent filesystems
+from doing bad things with an overflowing offset.
+
+Reported-by: Xiao Yang <ice_yangxiao@163.com>
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/virtio/virtio_balloon.c | 2 ++
- 1 file changed, 2 insertions(+)
+ fs/fuse/file.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
-diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-index 7e5d84caeb940..7bfe365d93720 100644
---- a/drivers/virtio/virtio_balloon.c
-+++ b/drivers/virtio/virtio_balloon.c
-@@ -158,6 +158,8 @@ static void set_page_pfns(struct virtio_balloon *vb,
- {
- 	unsigned int i;
+diff --git a/fs/fuse/file.c b/fs/fuse/file.c
+index 695369f46f92d..3dd37a998ea93 100644
+--- a/fs/fuse/file.c
++++ b/fs/fuse/file.c
+@@ -803,6 +803,10 @@ static int fuse_do_readpage(struct file *file, struct page *page)
  
-+	BUILD_BUG_ON(VIRTIO_BALLOON_PAGES_PER_PAGE > VIRTIO_BALLOON_ARRAY_PFNS_MAX);
+ 	attr_ver = fuse_get_attr_version(fc);
+ 
++	/* Don't overflow end offset */
++	if (pos + (desc.length - 1) == LLONG_MAX)
++		desc.length--;
 +
- 	/*
- 	 * Set balloon pfns pointing at this page.
- 	 * Note that the first pfn points at start of the page.
+ 	fuse_read_args_fill(&ia, file, pos, desc.length, FUSE_READ);
+ 	res = fuse_simple_request(fc, &ia.ap.args);
+ 	if (res < 0)
+@@ -888,6 +892,14 @@ static void fuse_send_readpages(struct fuse_io_args *ia, struct file *file)
+ 	ap->args.out_pages = true;
+ 	ap->args.page_zeroing = true;
+ 	ap->args.page_replace = true;
++
++	/* Don't overflow end offset */
++	if (pos + (count - 1) == LLONG_MAX) {
++		count--;
++		ap->descs[ap->num_pages - 1].length--;
++	}
++	WARN_ON((loff_t) (pos + count) < 0);
++
+ 	fuse_read_args_fill(ia, file, pos, count, FUSE_READ);
+ 	ia->read.attr_ver = fuse_get_attr_version(fc);
+ 	if (fc->async_read) {
 -- 
 2.20.1
 
