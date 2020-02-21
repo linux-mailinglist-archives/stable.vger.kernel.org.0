@@ -2,47 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 66FDC167891
+	by mail.lfdr.de (Postfix) with ESMTP id D53F7167892
 	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:50:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727576AbgBUHp0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 02:45:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40536 "EHLO mail.kernel.org"
+        id S1728365AbgBUHp2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 02:45:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40630 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727611AbgBUHpZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 02:45:25 -0500
+        id S1727646AbgBUHp2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 02:45:28 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 535D2208C4;
-        Fri, 21 Feb 2020 07:45:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D1F362465D;
+        Fri, 21 Feb 2020 07:45:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582271124;
-        bh=rya72cDI956HviiwG0v5mNpwy6n2E3LyPKsA3FCHJ8Q=;
+        s=default; t=1582271127;
+        bh=QDbcSE8Xu5JeiofYS9+dLJs+2AYt2A/dcxPo4yHaiRo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g7+3YFw1Nzd6mjp2/PFrJpSaDLFKh/71eWv98Dv7ZvC99XiiECmXrP7IK2wKo+2DR
-         84+eiiv5iNBbKiJyqMlp5pUq6af6AeD2HGQlNxA52jppvFU2Wovhb06dClCwMLvujA
-         +quCABsu0s286VKE9coU3QDx9nFsNG8TmBsI7vVE=
+        b=lhWiRdGs3dR8LPeipRJrZHrCLKIUw9YJRTWJcmljcR9BmGY27isFdQ4/eaLs0k3Hb
+         nSA5MPOdK7SLuK89YrILxoNPZl2oucSlCRPB/xUiq56bjkWnhsRPKpnHbOeMR6CJev
+         DEAm6pf6pNOrC23jAHanhssO98hqrKYUmiuHbPYY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yu-cheng Yu <yu-cheng.yu@intel.com>,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        Borislav Petkov <bp@suse.de>,
-        Andy Lutomirski <luto@kernel.org>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Fenghua Yu <fenghua.yu@intel.com>,
-        "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>,
-        Jann Horn <jannh@google.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        "Ravi V. Shankar" <ravi.v.shankar@intel.com>,
-        Rik van Riel <riel@surriel.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Tony Luck <tony.luck@intel.com>, x86-ml <x86@kernel.org>,
+        stable@vger.kernel.org, Heinz Mauelshagen <heinzm@redhat.com>,
+        Mike Snitzer <snitzer@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 049/399] x86/fpu: Deactivate FPU state after failure during state load
-Date:   Fri, 21 Feb 2020 08:36:14 +0100
-Message-Id: <20200221072407.118570703@linuxfoundation.org>
+Subject: [PATCH 5.5 050/399] dm raid: table line rebuild status fixes
+Date:   Fri, 21 Feb 2020 08:36:15 +0100
+Message-Id: <20200221072407.209419820@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200221072402.315346745@linuxfoundation.org>
 References: <20200221072402.315346745@linuxfoundation.org>
@@ -55,86 +44,135 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+From: Heinz Mauelshagen <heinzm@redhat.com>
 
-[ Upstream commit bbc55341b9c67645d1a5471506370caf7dd4a203 ]
+[ Upstream commit 43f3952a51f8198d365acb7f51fe42d578fe5d0a ]
 
-In __fpu__restore_sig(), fpu_fpregs_owner_ctx needs to be reset if the
-FPU state was not fully restored. Otherwise the following may happen (on
-the same CPU):
+raid_status() wasn't emitting rebuild flags on the table line properly
+because the rdev number was not yet set properly; index raid component
+devices array directly to solve.
 
-  Task A                     Task B               fpu_fpregs_owner_ctx
-  *active*                                        A.fpu
-  __fpu__restore_sig()
-                             ctx switch           load B.fpu
-                             *active*             B.fpu
-  fpregs_lock()
-  copy_user_to_fpregs_zeroing()
-    copy_kernel_to_xregs() *modify*
-    copy_user_to_xregs() *fails*
-  fpregs_unlock()
-                            ctx switch            skip loading B.fpu,
-                            *active*              B.fpu
+Also fix wrong argument count on emitted table line caused by 1 too
+many rebuild/write_mostly argument and consider any journal_(dev|mode)
+pairs.
 
-In the success case, fpu_fpregs_owner_ctx is set to the current task.
-
-In the failure case, the FPU state might have been modified by loading
-the init state.
-
-In this case, fpu_fpregs_owner_ctx needs to be reset in order to ensure
-that the FPU state of the following task is loaded from saved state (and
-not skipped because it was the previous state).
-
-Reset fpu_fpregs_owner_ctx after a failure during restore occurred, to
-ensure that the FPU state for the next task is always loaded.
-
-The problem was debugged-by Yu-cheng Yu <yu-cheng.yu@intel.com>.
-
- [ bp: Massage commit message. ]
-
-Fixes: 5f409e20b7945 ("x86/fpu: Defer FPU state load until return to userspace")
-Reported-by: Yu-cheng Yu <yu-cheng.yu@intel.com>
-Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Cc: Andy Lutomirski <luto@kernel.org>
-Cc: Dave Hansen <dave.hansen@linux.intel.com>
-Cc: Fenghua Yu <fenghua.yu@intel.com>
-Cc: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Jann Horn <jannh@google.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: "Ravi V. Shankar" <ravi.v.shankar@intel.com>
-Cc: Rik van Riel <riel@surriel.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Tony Luck <tony.luck@intel.com>
-Cc: x86-ml <x86@kernel.org>
-Link: https://lkml.kernel.org/r/20191220195906.plk6kpmsrikvbcfn@linutronix.de
+Link: https://bugzilla.redhat.com/1782045
+Signed-off-by: Heinz Mauelshagen <heinzm@redhat.com>
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/fpu/signal.c | 3 +++
- 1 file changed, 3 insertions(+)
+ .../admin-guide/device-mapper/dm-raid.rst     |  2 +
+ drivers/md/dm-raid.c                          | 43 ++++++++++---------
+ 2 files changed, 24 insertions(+), 21 deletions(-)
 
-diff --git a/arch/x86/kernel/fpu/signal.c b/arch/x86/kernel/fpu/signal.c
-index 0071b794ed193..400a05e1c1c51 100644
---- a/arch/x86/kernel/fpu/signal.c
-+++ b/arch/x86/kernel/fpu/signal.c
-@@ -352,6 +352,7 @@ static int __fpu__restore_sig(void __user *buf, void __user *buf_fx, int size)
- 			fpregs_unlock();
- 			return 0;
- 		}
-+		fpregs_deactivate(fpu);
- 		fpregs_unlock();
- 	}
+diff --git a/Documentation/admin-guide/device-mapper/dm-raid.rst b/Documentation/admin-guide/device-mapper/dm-raid.rst
+index f6344675e3951..695a2ea1d1ae2 100644
+--- a/Documentation/admin-guide/device-mapper/dm-raid.rst
++++ b/Documentation/admin-guide/device-mapper/dm-raid.rst
+@@ -419,3 +419,5 @@ Version History
+ 	rebuild errors.
+  1.15.0 Fix size extensions not being synchronized in case of new MD bitmap
+         pages allocated;  also fix those not occuring after previous reductions
++ 1.15.1 Fix argument count and arguments for rebuild/write_mostly/journal_(dev|mode)
++        on the status line.
+diff --git a/drivers/md/dm-raid.c b/drivers/md/dm-raid.c
+index c412eaa975fc0..9a18bef0a5ff0 100644
+--- a/drivers/md/dm-raid.c
++++ b/drivers/md/dm-raid.c
+@@ -129,7 +129,9 @@ struct raid_dev {
+ 				  CTR_FLAG_RAID10_COPIES | \
+ 				  CTR_FLAG_RAID10_FORMAT | \
+ 				  CTR_FLAG_DELTA_DISKS | \
+-				  CTR_FLAG_DATA_OFFSET)
++				  CTR_FLAG_DATA_OFFSET | \
++				  CTR_FLAG_JOURNAL_DEV | \
++				  CTR_FLAG_JOURNAL_MODE)
  
-@@ -403,6 +404,8 @@ static int __fpu__restore_sig(void __user *buf, void __user *buf_fx, int size)
- 	}
- 	if (!ret)
- 		fpregs_mark_activate();
-+	else
-+		fpregs_deactivate(fpu);
- 	fpregs_unlock();
+ /* Valid options definitions per raid level... */
  
- err_out:
+@@ -3001,7 +3003,6 @@ static int raid_ctr(struct dm_target *ti, unsigned int argc, char **argv)
+ 		{ 1, 254, "Cannot understand number of raid devices parameters" }
+ 	};
+ 
+-	/* Must have <raid_type> */
+ 	arg = dm_shift_arg(&as);
+ 	if (!arg) {
+ 		ti->error = "No arguments";
+@@ -3508,8 +3509,7 @@ static void raid_status(struct dm_target *ti, status_type_t type,
+ 	unsigned long recovery;
+ 	unsigned int raid_param_cnt = 1; /* at least 1 for chunksize */
+ 	unsigned int sz = 0;
+-	unsigned int rebuild_disks;
+-	unsigned int write_mostly_params = 0;
++	unsigned int rebuild_writemostly_count = 0;
+ 	sector_t progress, resync_max_sectors, resync_mismatches;
+ 	enum sync_state state;
+ 	struct raid_type *rt;
+@@ -3593,18 +3593,20 @@ static void raid_status(struct dm_target *ti, status_type_t type,
+ 	case STATUSTYPE_TABLE:
+ 		/* Report the table line string you would use to construct this raid set */
+ 
+-		/* Calculate raid parameter count */
+-		for (i = 0; i < rs->raid_disks; i++)
+-			if (test_bit(WriteMostly, &rs->dev[i].rdev.flags))
+-				write_mostly_params += 2;
+-		rebuild_disks = memweight(rs->rebuild_disks, DISKS_ARRAY_ELEMS * sizeof(*rs->rebuild_disks));
+-		raid_param_cnt += rebuild_disks * 2 +
+-				  write_mostly_params +
++		/*
++		 * Count any rebuild or writemostly argument pairs and subtract the
++		 * hweight count being added below of any rebuild and writemostly ctr flags.
++		 */
++		for (i = 0; i < rs->raid_disks; i++) {
++			rebuild_writemostly_count += (test_bit(i, (void *) rs->rebuild_disks) ? 2 : 0) +
++						     (test_bit(WriteMostly, &rs->dev[i].rdev.flags) ? 2 : 0);
++		}
++		rebuild_writemostly_count -= (test_bit(__CTR_FLAG_REBUILD, &rs->ctr_flags) ? 2 : 0) +
++					     (test_bit(__CTR_FLAG_WRITE_MOSTLY, &rs->ctr_flags) ? 2 : 0);
++		/* Calculate raid parameter count based on ^ rebuild/writemostly argument counts and ctr flags set. */
++		raid_param_cnt += rebuild_writemostly_count +
+ 				  hweight32(rs->ctr_flags & CTR_FLAG_OPTIONS_NO_ARGS) +
+-				  hweight32(rs->ctr_flags & CTR_FLAG_OPTIONS_ONE_ARG) * 2 +
+-				  (test_bit(__CTR_FLAG_JOURNAL_DEV, &rs->ctr_flags) ? 2 : 0) +
+-				  (test_bit(__CTR_FLAG_JOURNAL_MODE, &rs->ctr_flags) ? 2 : 0);
+-
++				  hweight32(rs->ctr_flags & CTR_FLAG_OPTIONS_ONE_ARG) * 2;
+ 		/* Emit table line */
+ 		/* This has to be in the documented order for userspace! */
+ 		DMEMIT("%s %u %u", rs->raid_type->name, raid_param_cnt, mddev->new_chunk_sectors);
+@@ -3612,11 +3614,10 @@ static void raid_status(struct dm_target *ti, status_type_t type,
+ 			DMEMIT(" %s", dm_raid_arg_name_by_flag(CTR_FLAG_SYNC));
+ 		if (test_bit(__CTR_FLAG_NOSYNC, &rs->ctr_flags))
+ 			DMEMIT(" %s", dm_raid_arg_name_by_flag(CTR_FLAG_NOSYNC));
+-		if (rebuild_disks)
++		if (test_bit(__CTR_FLAG_REBUILD, &rs->ctr_flags))
+ 			for (i = 0; i < rs->raid_disks; i++)
+-				if (test_bit(rs->dev[i].rdev.raid_disk, (void *) rs->rebuild_disks))
+-					DMEMIT(" %s %u", dm_raid_arg_name_by_flag(CTR_FLAG_REBUILD),
+-							 rs->dev[i].rdev.raid_disk);
++				if (test_bit(i, (void *) rs->rebuild_disks))
++					DMEMIT(" %s %u", dm_raid_arg_name_by_flag(CTR_FLAG_REBUILD), i);
+ 		if (test_bit(__CTR_FLAG_DAEMON_SLEEP, &rs->ctr_flags))
+ 			DMEMIT(" %s %lu", dm_raid_arg_name_by_flag(CTR_FLAG_DAEMON_SLEEP),
+ 					  mddev->bitmap_info.daemon_sleep);
+@@ -3626,7 +3627,7 @@ static void raid_status(struct dm_target *ti, status_type_t type,
+ 		if (test_bit(__CTR_FLAG_MAX_RECOVERY_RATE, &rs->ctr_flags))
+ 			DMEMIT(" %s %d", dm_raid_arg_name_by_flag(CTR_FLAG_MAX_RECOVERY_RATE),
+ 					 mddev->sync_speed_max);
+-		if (write_mostly_params)
++		if (test_bit(__CTR_FLAG_WRITE_MOSTLY, &rs->ctr_flags))
+ 			for (i = 0; i < rs->raid_disks; i++)
+ 				if (test_bit(WriteMostly, &rs->dev[i].rdev.flags))
+ 					DMEMIT(" %s %d", dm_raid_arg_name_by_flag(CTR_FLAG_WRITE_MOSTLY),
+@@ -4029,7 +4030,7 @@ static void raid_resume(struct dm_target *ti)
+ 
+ static struct target_type raid_target = {
+ 	.name = "raid",
+-	.version = {1, 15, 0},
++	.version = {1, 15, 1},
+ 	.module = THIS_MODULE,
+ 	.ctr = raid_ctr,
+ 	.dtr = raid_dtr,
 -- 
 2.20.1
 
