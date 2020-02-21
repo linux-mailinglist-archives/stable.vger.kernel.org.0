@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 86206167656
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:37:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6649F167658
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:37:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732097AbgBUIMF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 03:12:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47708 "EHLO mail.kernel.org"
+        id S1732785AbgBUIMG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 03:12:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47776 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728862AbgBUIMD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 03:12:03 -0500
+        id S1732781AbgBUIMF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 03:12:05 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 421772467A;
-        Fri, 21 Feb 2020 08:12:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B5B8D24650;
+        Fri, 21 Feb 2020 08:12:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582272722;
-        bh=JisXudK13Jk6Kspb8myNxbaBJxcABpU3ZxO3USpbX0w=;
+        s=default; t=1582272725;
+        bh=xFhBmw0OsCRZLZGUfObY3W1rt2hlf52F5D9bNt+4aaA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pBo17/wXvVgoRlKTDUMVdIKcwB0AqAbXFzSWfYOXCynThpUbMxb04RrDLGD5Lk+ag
-         Qrf2du6XcfY3JYgr97vBWnBZPXU7vs3kiisera6SLyMEaWcgcDC3Bhh0C2xGh51hqZ
-         NlU+oyNXCTIAagTRJtGtbjhmnyfqLvObR+iSOaCQ=
+        b=WZ8Vy0jPSLxQB25pYiAgwJd7NrUyGln1sr3z//iBmNHoT1NwN7ZUHylm6+slY9UC2
+         dQPaEhtopqRGQg2xvFiGejYDkvmLYg601tA612H0qq2l90YCrRR6HclCdGvOA9gJGo
+         rrmEajlxABHG4lk9bxuSM6O9pE2rkdy1rGM6x7l4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Suman Anna <s-anna@ti.com>,
-        Lokesh Vutla <lokeshvutla@ti.com>,
-        Tero Kristo <t-kristo@ti.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 249/344] arm64: dts: ti: k3-j721e-main: Add missing power-domains for smmu
-Date:   Fri, 21 Feb 2020 08:40:48 +0100
-Message-Id: <20200221072412.079807827@linuxfoundation.org>
+        stable@vger.kernel.org, Li Guanglei <guanglei.li@unisoc.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Qais Yousef <qais.yousef@arm.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 250/344] sched/core: Fix size of rq::uclamp initialization
+Date:   Fri, 21 Feb 2020 08:40:49 +0100
+Message-Id: <20200221072412.189178126@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200221072349.335551332@linuxfoundation.org>
 References: <20200221072349.335551332@linuxfoundation.org>
@@ -44,35 +45,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lokesh Vutla <lokeshvutla@ti.com>
+From: Li Guanglei <guanglei.li@unisoc.com>
 
-[ Upstream commit 3f03a58b25753843ce9e4511e9e246c51bd11011 ]
+[ Upstream commit dcd6dffb0a75741471297724640733fa4e958d72 ]
 
-Add power-domains entry for smmu, so that the it is accessible as long
-as the driver is active. Without this device shutdown is throwing the
-below warning:
-"[   44.736348] arm-smmu-v3 36600000.smmu: failed to clear cr0"
+rq::uclamp is an array of struct uclamp_rq, make sure we clear the
+whole thing.
 
-Reported-by: Suman Anna <s-anna@ti.com>
-Signed-off-by: Lokesh Vutla <lokeshvutla@ti.com>
-Signed-off-by: Tero Kristo <t-kristo@ti.com>
+Fixes: 69842cba9ace ("sched/uclamp: Add CPU's clamp buckets refcountinga")
+Signed-off-by: Li Guanglei <guanglei.li@unisoc.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Qais Yousef <qais.yousef@arm.com>
+Link: https://lkml.kernel.org/r/1577259844-12677-1-git-send-email-guangleix.li@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/ti/k3-j721e-main.dtsi | 1 +
- 1 file changed, 1 insertion(+)
+ kernel/sched/core.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/ti/k3-j721e-main.dtsi b/arch/arm64/boot/dts/ti/k3-j721e-main.dtsi
-index 698ef9a1d5b75..96445111e3985 100644
---- a/arch/arm64/boot/dts/ti/k3-j721e-main.dtsi
-+++ b/arch/arm64/boot/dts/ti/k3-j721e-main.dtsi
-@@ -43,6 +43,7 @@
- 	smmu0: smmu@36600000 {
- 		compatible = "arm,smmu-v3";
- 		reg = <0x0 0x36600000 0x0 0x100000>;
-+		power-domains = <&k3_pds 229 TI_SCI_PD_EXCLUSIVE>;
- 		interrupt-parent = <&gic500>;
- 		interrupts = <GIC_SPI 772 IRQ_TYPE_EDGE_RISING>,
- 			     <GIC_SPI 768 IRQ_TYPE_EDGE_RISING>;
+diff --git a/kernel/sched/core.c b/kernel/sched/core.c
+index dfaefb175ba05..e6c65725b7ce0 100644
+--- a/kernel/sched/core.c
++++ b/kernel/sched/core.c
+@@ -1252,7 +1252,8 @@ static void __init init_uclamp(void)
+ 	mutex_init(&uclamp_mutex);
+ 
+ 	for_each_possible_cpu(cpu) {
+-		memset(&cpu_rq(cpu)->uclamp, 0, sizeof(struct uclamp_rq));
++		memset(&cpu_rq(cpu)->uclamp, 0,
++				sizeof(struct uclamp_rq)*UCLAMP_CNT);
+ 		cpu_rq(cpu)->uclamp_flags = 0;
+ 	}
+ 
 -- 
 2.20.1
 
