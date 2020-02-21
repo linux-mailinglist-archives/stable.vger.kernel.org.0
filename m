@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7BA3B16756C
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:31:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F20F3167740
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:41:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730744AbgBUI1O (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 03:27:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33704 "EHLO mail.kernel.org"
+        id S1731532AbgBUIkv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 03:40:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58118 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732311AbgBUIWK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 03:22:10 -0500
+        id S1730454AbgBUH6U (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 02:58:20 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CC94724673;
-        Fri, 21 Feb 2020 08:22:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 83D08206ED;
+        Fri, 21 Feb 2020 07:58:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582273330;
-        bh=UpZvJzYBeiSR3mvF3VSpvjTTs9IvGaU4AIbik5XnVTo=;
+        s=default; t=1582271900;
+        bh=twJQEWCQ37vDII3xieELM8sc2WqfXhyOgkp6OAROLMA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OzNevrBizFGpT9gQfFciBA9ChL5oPxRRSfp11Kl5B5q31Bm7wsJqYVzRVXDgHPRWg
-         Lv33nbfMOe78DJvuQY9dvBrMGEIWwlmOvYPUDeV4h4H2ADUn3kVMaE8jrmqfvBriX5
-         I0Mq61Wn9ih2Mt8mUHvNzldsdvrZfPsmZ6rLAIYQ=
+        b=aRoarab2fr8j6iRAM+B91nenDV4ktA7ArMWE3/8uxg1JZk1RDQ3fnD/mkEbiNq+S7
+         p7KjmsWWOBM0hh7oyp2TjJvhqcwq3eNR9dY+CRmCoHVW8a6g3cuj6ieSu7HMc0svOW
+         BupFw4DIh8RxDI/0VBUsuIc4KLN9KLFuQz+WW3jc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Kunihiko Hayashi <hayashi.kunihiko@socionext.com>,
-        Masahiro Yamada <yamada.masahiro@socionext.com>,
-        Philipp Zabel <p.zabel@pengutronix.de>,
+        stable@vger.kernel.org, "zhangyi (F)" <yi.zhang@huawei.com>,
+        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 092/191] reset: uniphier: Add SCSSI reset control for each channel
+Subject: [PATCH 5.5 340/399] jbd2: make sure ESHUTDOWN to be recorded in the journal superblock
 Date:   Fri, 21 Feb 2020 08:41:05 +0100
-Message-Id: <20200221072302.071631536@linuxfoundation.org>
+Message-Id: <20200221072433.940512555@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200221072250.732482588@linuxfoundation.org>
-References: <20200221072250.732482588@linuxfoundation.org>
+In-Reply-To: <20200221072402.315346745@linuxfoundation.org>
+References: <20200221072402.315346745@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,61 +44,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kunihiko Hayashi <hayashi.kunihiko@socionext.com>
+From: zhangyi (F) <yi.zhang@huawei.com>
 
-[ Upstream commit f4aec227e985e31d2fdc5608daf48e3de19157b7 ]
+[ Upstream commit 0e98c084a21177ef136149c6a293b3d1eb33ff92 ]
 
-SCSSI has reset controls for each channel in the SoCs newer than Pro4,
-so this adds missing reset controls for channel 1, 2 and 3. And more, this
-moves MCSSI reset ID after SCSSI.
+Commit fb7c02445c49 ("ext4: pass -ESHUTDOWN code to jbd2 layer") want
+to allow jbd2 layer to distinguish shutdown journal abort from other
+error cases. So the ESHUTDOWN should be taken precedence over any other
+errno which has already been recoded after EXT4_FLAGS_SHUTDOWN is set,
+but it only update errno in the journal suoerblock now if the old errno
+is 0.
 
-Fixes: 6b39fd590aeb ("reset: uniphier: add reset control support for SPI")
-Signed-off-by: Kunihiko Hayashi <hayashi.kunihiko@socionext.com>
-Acked-by: Masahiro Yamada <yamada.masahiro@socionext.com>
-Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
+Fixes: fb7c02445c49 ("ext4: pass -ESHUTDOWN code to jbd2 layer")
+Signed-off-by: zhangyi (F) <yi.zhang@huawei.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/20191204124614.45424-4-yi.zhang@huawei.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/reset/reset-uniphier.c | 13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
+ fs/jbd2/journal.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/reset/reset-uniphier.c b/drivers/reset/reset-uniphier.c
-index 5605745663ae0..adbecb2c7cd3a 100644
---- a/drivers/reset/reset-uniphier.c
-+++ b/drivers/reset/reset-uniphier.c
-@@ -202,8 +202,8 @@ static const struct uniphier_reset_data uniphier_pro5_sd_reset_data[] = {
- #define UNIPHIER_PERI_RESET_FI2C(id, ch)		\
- 	UNIPHIER_RESETX((id), 0x114, 24 + (ch))
+diff --git a/fs/jbd2/journal.c b/fs/jbd2/journal.c
+index 8479e84159675..0b4280fcad91d 100644
+--- a/fs/jbd2/journal.c
++++ b/fs/jbd2/journal.c
+@@ -2147,8 +2147,7 @@ static void __journal_abort_soft (journal_t *journal, int errno)
  
--#define UNIPHIER_PERI_RESET_SCSSI(id)			\
--	UNIPHIER_RESETX((id), 0x110, 17)
-+#define UNIPHIER_PERI_RESET_SCSSI(id, ch)		\
-+	UNIPHIER_RESETX((id), 0x110, 17 + (ch))
- 
- #define UNIPHIER_PERI_RESET_MCSSI(id)			\
- 	UNIPHIER_RESETX((id), 0x114, 14)
-@@ -218,7 +218,7 @@ static const struct uniphier_reset_data uniphier_ld4_peri_reset_data[] = {
- 	UNIPHIER_PERI_RESET_I2C(6, 2),
- 	UNIPHIER_PERI_RESET_I2C(7, 3),
- 	UNIPHIER_PERI_RESET_I2C(8, 4),
--	UNIPHIER_PERI_RESET_SCSSI(11),
-+	UNIPHIER_PERI_RESET_SCSSI(11, 0),
- 	UNIPHIER_RESET_END,
- };
- 
-@@ -234,8 +234,11 @@ static const struct uniphier_reset_data uniphier_pro4_peri_reset_data[] = {
- 	UNIPHIER_PERI_RESET_FI2C(8, 4),
- 	UNIPHIER_PERI_RESET_FI2C(9, 5),
- 	UNIPHIER_PERI_RESET_FI2C(10, 6),
--	UNIPHIER_PERI_RESET_SCSSI(11),
--	UNIPHIER_PERI_RESET_MCSSI(12),
-+	UNIPHIER_PERI_RESET_SCSSI(11, 0),
-+	UNIPHIER_PERI_RESET_SCSSI(12, 1),
-+	UNIPHIER_PERI_RESET_SCSSI(13, 2),
-+	UNIPHIER_PERI_RESET_SCSSI(14, 3),
-+	UNIPHIER_PERI_RESET_MCSSI(15),
- 	UNIPHIER_RESET_END,
- };
- 
+ 	if (journal->j_flags & JBD2_ABORT) {
+ 		write_unlock(&journal->j_state_lock);
+-		if (!old_errno && old_errno != -ESHUTDOWN &&
+-		    errno == -ESHUTDOWN)
++		if (old_errno != -ESHUTDOWN && errno == -ESHUTDOWN)
+ 			jbd2_journal_update_sb_errno(journal);
+ 		return;
+ 	}
 -- 
 2.20.1
 
