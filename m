@@ -2,43 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0909E16703F
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 08:43:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 56D4816705F
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 08:44:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726244AbgBUHnl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 02:43:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38086 "EHLO mail.kernel.org"
+        id S1728075AbgBUHoh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 02:44:37 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39416 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726045AbgBUHnk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 02:43:40 -0500
+        id S1728031AbgBUHoh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 02:44:37 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1F281207FD;
-        Fri, 21 Feb 2020 07:43:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0D818207FD;
+        Fri, 21 Feb 2020 07:44:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582271018;
-        bh=eIloBTwvsOyWW6PIIMAVvNlfEXpQpxLEgnRLS+X0kNc=;
+        s=default; t=1582271076;
+        bh=FRua610wSp+hISmJPGLxav2876D6fNeZkA358A2HiMw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uBrV2IEe9im65H1Huy/KtmJz+2WeczVwoSTSI/0B2KueaoIjlW/WIBCRGauWj230h
-         lK5lrqbPxLmB3K/jlpQ73IKV4DhbF1F3PQNgP+68qJ+R/oQcefuUYE291TxBmyk+vZ
-         HR87Wv12CGd6RnnfHh2FMiod6kdK2RvMq6KQ/l34=
+        b=1MWXMF8NLd4Z56ogJV6H+IPNJflmORdXODmnADkfzVLhRNPbv/1+q7zQR2BCL8sI6
+         tXqojAYaYWsATqH62lZq7Em51gy69c2cbZT6pFZiHISJOWh5KGjKIJQIJUZ1728iCg
+         JA2PqJAWqRegjQLENEGPzDjyCbY905c69haGgnBo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stepan Horacek <shoracek@redhat.com>,
-        Paolo Abeni <pabeni@redhat.com>,
-        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@redhat.com>,
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        Ursula Braun <ubraun@linux.vnet.ibm.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.5 001/399] core: Dont skip generic XDP program execution for cloned SKBs
-Date:   Fri, 21 Feb 2020 08:35:26 +0100
-Message-Id: <20200221072402.463752189@linuxfoundation.org>
+Subject: [PATCH 5.5 003/399] net/smc: fix leak of kernel memory to user space
+Date:   Fri, 21 Feb 2020 08:35:28 +0100
+Message-Id: <20200221072402.667012935@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200221072402.315346745@linuxfoundation.org>
 References: <20200221072402.315346745@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -47,136 +44,111 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Toke Høiland-Jørgensen" <toke@redhat.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit ad1e03b2b3d4430baaa109b77bc308dc73050de3 ]
+[ Upstream commit 457fed775c97ac2c0cd1672aaf2ff2c8a6235e87 ]
 
-The current generic XDP handler skips execution of XDP programs entirely if
-an SKB is marked as cloned. This leads to some surprising behaviour, as
-packets can end up being cloned in various ways, which will make an XDP
-program not see all the traffic on an interface.
+As nlmsg_put() does not clear the memory that is reserved,
+it this the caller responsability to make sure all of this
+memory will be written, in order to not reveal prior content.
 
-This was discovered by a simple test case where an XDP program that always
-returns XDP_DROP is installed on a veth device. When combining this with
-the Scapy packet sniffer (which uses an AF_PACKET) socket on the sending
-side, SKBs reliably end up in the cloned state, causing them to be passed
-through to the receiving interface instead of being dropped. A minimal
-reproducer script for this is included below.
+While we are at it, we can provide the socket cookie even
+if clsock is not set.
 
-This patch fixed the issue by simply triggering the existing linearisation
-code for cloned SKBs instead of skipping the XDP program execution. This
-behaviour is in line with the behaviour of the native XDP implementation
-for the veth driver, which will reallocate and copy the SKB data if the SKB
-is marked as shared.
+syzbot reported :
 
-Reproducer Python script (requires BCC and Scapy):
+BUG: KMSAN: uninit-value in __arch_swab32 arch/x86/include/uapi/asm/swab.h:10 [inline]
+BUG: KMSAN: uninit-value in __fswab32 include/uapi/linux/swab.h:59 [inline]
+BUG: KMSAN: uninit-value in __swab32p include/uapi/linux/swab.h:179 [inline]
+BUG: KMSAN: uninit-value in __be32_to_cpup include/uapi/linux/byteorder/little_endian.h:82 [inline]
+BUG: KMSAN: uninit-value in get_unaligned_be32 include/linux/unaligned/access_ok.h:30 [inline]
+BUG: KMSAN: uninit-value in ____bpf_skb_load_helper_32 net/core/filter.c:240 [inline]
+BUG: KMSAN: uninit-value in ____bpf_skb_load_helper_32_no_cache net/core/filter.c:255 [inline]
+BUG: KMSAN: uninit-value in bpf_skb_load_helper_32_no_cache+0x14a/0x390 net/core/filter.c:252
+CPU: 1 PID: 5262 Comm: syz-executor.5 Not tainted 5.5.0-rc5-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+Call Trace:
+ __dump_stack lib/dump_stack.c:77 [inline]
+ dump_stack+0x1c9/0x220 lib/dump_stack.c:118
+ kmsan_report+0xf7/0x1e0 mm/kmsan/kmsan_report.c:118
+ __msan_warning+0x58/0xa0 mm/kmsan/kmsan_instr.c:215
+ __arch_swab32 arch/x86/include/uapi/asm/swab.h:10 [inline]
+ __fswab32 include/uapi/linux/swab.h:59 [inline]
+ __swab32p include/uapi/linux/swab.h:179 [inline]
+ __be32_to_cpup include/uapi/linux/byteorder/little_endian.h:82 [inline]
+ get_unaligned_be32 include/linux/unaligned/access_ok.h:30 [inline]
+ ____bpf_skb_load_helper_32 net/core/filter.c:240 [inline]
+ ____bpf_skb_load_helper_32_no_cache net/core/filter.c:255 [inline]
+ bpf_skb_load_helper_32_no_cache+0x14a/0x390 net/core/filter.c:252
 
-from scapy.all import TCP, IP, Ether, sendp, sniff, AsyncSniffer, Raw, UDP
-from bcc import BPF
-import time, sys, subprocess, shlex
+Uninit was created at:
+ kmsan_save_stack_with_flags mm/kmsan/kmsan.c:144 [inline]
+ kmsan_internal_poison_shadow+0x66/0xd0 mm/kmsan/kmsan.c:127
+ kmsan_kmalloc_large+0x73/0xc0 mm/kmsan/kmsan_hooks.c:128
+ kmalloc_large_node_hook mm/slub.c:1406 [inline]
+ kmalloc_large_node+0x282/0x2c0 mm/slub.c:3841
+ __kmalloc_node_track_caller+0x44b/0x1200 mm/slub.c:4368
+ __kmalloc_reserve net/core/skbuff.c:141 [inline]
+ __alloc_skb+0x2fd/0xac0 net/core/skbuff.c:209
+ alloc_skb include/linux/skbuff.h:1049 [inline]
+ netlink_dump+0x44b/0x1ab0 net/netlink/af_netlink.c:2224
+ __netlink_dump_start+0xbb2/0xcf0 net/netlink/af_netlink.c:2352
+ netlink_dump_start include/linux/netlink.h:233 [inline]
+ smc_diag_handler_dump+0x2ba/0x300 net/smc/smc_diag.c:242
+ sock_diag_rcv_msg+0x211/0x610 net/core/sock_diag.c:256
+ netlink_rcv_skb+0x451/0x650 net/netlink/af_netlink.c:2477
+ sock_diag_rcv+0x63/0x80 net/core/sock_diag.c:275
+ netlink_unicast_kernel net/netlink/af_netlink.c:1302 [inline]
+ netlink_unicast+0xf9e/0x1100 net/netlink/af_netlink.c:1328
+ netlink_sendmsg+0x1248/0x14d0 net/netlink/af_netlink.c:1917
+ sock_sendmsg_nosec net/socket.c:639 [inline]
+ sock_sendmsg net/socket.c:659 [inline]
+ kernel_sendmsg+0x433/0x440 net/socket.c:679
+ sock_no_sendpage+0x235/0x300 net/core/sock.c:2740
+ kernel_sendpage net/socket.c:3776 [inline]
+ sock_sendpage+0x1e1/0x2c0 net/socket.c:937
+ pipe_to_sendpage+0x38c/0x4c0 fs/splice.c:458
+ splice_from_pipe_feed fs/splice.c:512 [inline]
+ __splice_from_pipe+0x539/0xed0 fs/splice.c:636
+ splice_from_pipe fs/splice.c:671 [inline]
+ generic_splice_sendpage+0x1d5/0x2d0 fs/splice.c:844
+ do_splice_from fs/splice.c:863 [inline]
+ do_splice fs/splice.c:1170 [inline]
+ __do_sys_splice fs/splice.c:1447 [inline]
+ __se_sys_splice+0x2380/0x3350 fs/splice.c:1427
+ __x64_sys_splice+0x6e/0x90 fs/splice.c:1427
+ do_syscall_64+0xb8/0x160 arch/x86/entry/common.c:296
+ entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
-SKB_MODE = (1 << 1)
-DRV_MODE = (1 << 2)
-PYTHON=sys.executable
-
-def client():
-    time.sleep(2)
-    # Sniffing on the sender causes skb_cloned() to be set
-    s = AsyncSniffer()
-    s.start()
-
-    for p in range(10):
-        sendp(Ether(dst="aa:aa:aa:aa:aa:aa", src="cc:cc:cc:cc:cc:cc")/IP()/UDP()/Raw("Test"),
-              verbose=False)
-        time.sleep(0.1)
-
-    s.stop()
-    return 0
-
-def server(mode):
-    prog = BPF(text="int dummy_drop(struct xdp_md *ctx) {return XDP_DROP;}")
-    func = prog.load_func("dummy_drop", BPF.XDP)
-    prog.attach_xdp("a_to_b", func, mode)
-
-    time.sleep(1)
-
-    s = sniff(iface="a_to_b", count=10, timeout=15)
-    if len(s):
-        print(f"Got {len(s)} packets - should have gotten 0")
-        return 1
-    else:
-        print("Got no packets - as expected")
-        return 0
-
-if len(sys.argv) < 2:
-    print(f"Usage: {sys.argv[0]} <skb|drv>")
-    sys.exit(1)
-
-if sys.argv[1] == "client":
-    sys.exit(client())
-elif sys.argv[1] == "server":
-    mode = SKB_MODE if sys.argv[2] == 'skb' else DRV_MODE
-    sys.exit(server(mode))
-else:
-    try:
-        mode = sys.argv[1]
-        if mode not in ('skb', 'drv'):
-            print(f"Usage: {sys.argv[0]} <skb|drv>")
-            sys.exit(1)
-        print(f"Running in {mode} mode")
-
-        for cmd in [
-                'ip netns add netns_a',
-                'ip netns add netns_b',
-                'ip -n netns_a link add a_to_b type veth peer name b_to_a netns netns_b',
-                # Disable ipv6 to make sure there's no address autoconf traffic
-                'ip netns exec netns_a sysctl -qw net.ipv6.conf.a_to_b.disable_ipv6=1',
-                'ip netns exec netns_b sysctl -qw net.ipv6.conf.b_to_a.disable_ipv6=1',
-                'ip -n netns_a link set dev a_to_b address aa:aa:aa:aa:aa:aa',
-                'ip -n netns_b link set dev b_to_a address cc:cc:cc:cc:cc:cc',
-                'ip -n netns_a link set dev a_to_b up',
-                'ip -n netns_b link set dev b_to_a up']:
-            subprocess.check_call(shlex.split(cmd))
-
-        server = subprocess.Popen(shlex.split(f"ip netns exec netns_a {PYTHON} {sys.argv[0]} server {mode}"))
-        client = subprocess.Popen(shlex.split(f"ip netns exec netns_b {PYTHON} {sys.argv[0]} client"))
-
-        client.wait()
-        server.wait()
-        sys.exit(server.returncode)
-
-    finally:
-        subprocess.run(shlex.split("ip netns delete netns_a"))
-        subprocess.run(shlex.split("ip netns delete netns_b"))
-
-Fixes: d445516966dc ("net: xdp: support xdp generic on virtual devices")
-Reported-by: Stepan Horacek <shoracek@redhat.com>
-Suggested-by: Paolo Abeni <pabeni@redhat.com>
-Signed-off-by: Toke HÃ¸iland-JÃ¸rgensen <toke@redhat.com>
+Fixes: f16a7dd5cf27 ("smc: netlink interface for SMC sockets")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Cc: Ursula Braun <ubraun@linux.vnet.ibm.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/core/dev.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/smc/smc_diag.c |    5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
---- a/net/core/dev.c
-+++ b/net/core/dev.c
-@@ -4477,14 +4477,14 @@ static u32 netif_receive_generic_xdp(str
- 	/* Reinjected packets coming from act_mirred or similar should
- 	 * not get XDP generic processing.
- 	 */
--	if (skb_cloned(skb) || skb_is_tc_redirected(skb))
-+	if (skb_is_tc_redirected(skb))
- 		return XDP_PASS;
+--- a/net/smc/smc_diag.c
++++ b/net/smc/smc_diag.c
+@@ -39,16 +39,15 @@ static void smc_diag_msg_common_fill(str
+ {
+ 	struct smc_sock *smc = smc_sk(sk);
  
- 	/* XDP packets must be linear and must have sufficient headroom
- 	 * of XDP_PACKET_HEADROOM bytes. This is the guarantee that also
- 	 * native XDP provides, thus we need to do it here as well.
- 	 */
--	if (skb_is_nonlinear(skb) ||
-+	if (skb_cloned(skb) || skb_is_nonlinear(skb) ||
- 	    skb_headroom(skb) < XDP_PACKET_HEADROOM) {
- 		int hroom = XDP_PACKET_HEADROOM - skb_headroom(skb);
- 		int troom = skb->tail + skb->data_len - skb->end;
++	memset(r, 0, sizeof(*r));
+ 	r->diag_family = sk->sk_family;
++	sock_diag_save_cookie(sk, r->id.idiag_cookie);
+ 	if (!smc->clcsock)
+ 		return;
+ 	r->id.idiag_sport = htons(smc->clcsock->sk->sk_num);
+ 	r->id.idiag_dport = smc->clcsock->sk->sk_dport;
+ 	r->id.idiag_if = smc->clcsock->sk->sk_bound_dev_if;
+-	sock_diag_save_cookie(sk, r->id.idiag_cookie);
+ 	if (sk->sk_protocol == SMCPROTO_SMC) {
+-		memset(&r->id.idiag_src, 0, sizeof(r->id.idiag_src));
+-		memset(&r->id.idiag_dst, 0, sizeof(r->id.idiag_dst));
+ 		r->id.idiag_src[0] = smc->clcsock->sk->sk_rcv_saddr;
+ 		r->id.idiag_dst[0] = smc->clcsock->sk->sk_daddr;
+ #if IS_ENABLED(CONFIG_IPV6)
 
 
