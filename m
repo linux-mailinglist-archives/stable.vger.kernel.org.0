@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EC5851675A4
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:31:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 888F816759F
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:31:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387508AbgBUIQU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 03:16:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53308 "EHLO mail.kernel.org"
+        id S2387516AbgBUIQY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 03:16:24 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53466 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733018AbgBUIQR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 03:16:17 -0500
+        id S1733191AbgBUIQX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 03:16:23 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CDE9924689;
-        Fri, 21 Feb 2020 08:16:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7ED2D2467B;
+        Fri, 21 Feb 2020 08:16:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582272977;
-        bh=z45Deq5jpfh5BBTwJ6zU+HtvdTraWuKGso37UKduEvs=;
+        s=default; t=1582272983;
+        bh=JPF2rN+8oq6r0Z+/bpVeXmqbRRqTwGoYbApl8cGhl/g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZAP3fRC38+jhDC5oBFSBSbaoR9aqbhV+FcO1DyK5faqwF77jmftYpVZU33KEKEyR7
-         xuprRA80FiUfy9xHsNoxvUQl6dhGNSu9/+bUZ0OUQmHk6JLJ0jgXc2VRxIEIPkzscq
-         quUeIiTD1cyLxc3zd+WnsCewluQ//lfsuzy/jyOc=
+        b=TZFVjKu4TbfSGI+JCKzGpR97jYGYff0u56Eyw/Zflyz5EZMkwIiSlinZ4ARLX2njQ
+         I+jOyqDWgFOt8M2cE0O0omnEE2C3n91jXin3sTBbUzc/GgRF9Qh3uJOAnieKYFWJI+
+         LDEsohcOzRcXvMbl3PQjfXzPdFoW7jtsxsnRgeX4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Evan Quan <evan.quan@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org, Wenwen Wang <wenwen@cs.uga.edu>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 333/344] drm/amdgpu/smu10: fix smu10_get_clock_by_type_with_latency
-Date:   Fri, 21 Feb 2020 08:42:12 +0100
-Message-Id: <20200221072420.612307785@linuxfoundation.org>
+Subject: [PATCH 5.4 335/344] NFS: Fix memory leaks
+Date:   Fri, 21 Feb 2020 08:42:14 +0100
+Message-Id: <20200221072420.818808992@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200221072349.335551332@linuxfoundation.org>
 References: <20200221072349.335551332@linuxfoundation.org>
@@ -44,47 +44,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alex Deucher <alexander.deucher@amd.com>
+From: Wenwen Wang <wenwen@cs.uga.edu>
 
-[ Upstream commit 4d0a72b66065dd7e274bad6aa450196d42fd8f84 ]
+[ Upstream commit 123c23c6a7b7ecd2a3d6060bea1d94019f71fd66 ]
 
-Only send non-0 clocks to DC for validation.  This mirrors
-what the windows driver does.
+In _nfs42_proc_copy(), 'res->commit_res.verf' is allocated through
+kzalloc() if 'args->sync' is true. In the following code, if
+'res->synchronous' is false, handle_async_copy() will be invoked. If an
+error occurs during the invocation, the following code will not be executed
+and the error will be returned . However, the allocated
+'res->commit_res.verf' is not deallocated, leading to a memory leak. This
+is also true if the invocation of process_copy_commit() returns an error.
 
-Bug: https://gitlab.freedesktop.org/drm/amd/issues/963
-Reviewed-by: Evan Quan <evan.quan@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+To fix the above leaks, redirect the execution to the 'out' label if an
+error is encountered.
+
+Signed-off-by: Wenwen Wang <wenwen@cs.uga.edu>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/powerplay/hwmgr/smu10_hwmgr.c | 15 +++++++++------
- 1 file changed, 9 insertions(+), 6 deletions(-)
+ fs/nfs/nfs42proc.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/powerplay/hwmgr/smu10_hwmgr.c b/drivers/gpu/drm/amd/powerplay/hwmgr/smu10_hwmgr.c
-index 1115761982a78..627a42e8fd318 100644
---- a/drivers/gpu/drm/amd/powerplay/hwmgr/smu10_hwmgr.c
-+++ b/drivers/gpu/drm/amd/powerplay/hwmgr/smu10_hwmgr.c
-@@ -1026,12 +1026,15 @@ static int smu10_get_clock_by_type_with_latency(struct pp_hwmgr *hwmgr,
- 
- 	clocks->num_levels = 0;
- 	for (i = 0; i < pclk_vol_table->count; i++) {
--		clocks->data[i].clocks_in_khz = pclk_vol_table->entries[i].clk * 10;
--		clocks->data[i].latency_in_us = latency_required ?
--						smu10_get_mem_latency(hwmgr,
--						pclk_vol_table->entries[i].clk) :
--						0;
--		clocks->num_levels++;
-+		if (pclk_vol_table->entries[i].clk) {
-+			clocks->data[clocks->num_levels].clocks_in_khz =
-+				pclk_vol_table->entries[i].clk * 10;
-+			clocks->data[clocks->num_levels].latency_in_us = latency_required ?
-+				smu10_get_mem_latency(hwmgr,
-+						      pclk_vol_table->entries[i].clk) :
-+				0;
-+			clocks->num_levels++;
-+		}
+diff --git a/fs/nfs/nfs42proc.c b/fs/nfs/nfs42proc.c
+index 5196bfa7894d2..9b61c80a93e9e 100644
+--- a/fs/nfs/nfs42proc.c
++++ b/fs/nfs/nfs42proc.c
+@@ -283,14 +283,14 @@ static ssize_t _nfs42_proc_copy(struct file *src,
+ 		status = handle_async_copy(res, server, src, dst,
+ 				&args->src_stateid);
+ 		if (status)
+-			return status;
++			goto out;
  	}
  
- 	return 0;
+ 	if ((!res->synchronous || !args->sync) &&
+ 			res->write_res.verifier.committed != NFS_FILE_SYNC) {
+ 		status = process_copy_commit(dst, pos_dst, res);
+ 		if (status)
+-			return status;
++			goto out;
+ 	}
+ 
+ 	truncate_pagecache_range(dst_inode, pos_dst,
 -- 
 2.20.1
 
