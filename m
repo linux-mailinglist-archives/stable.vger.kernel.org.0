@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CF0C6167083
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 08:46:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B8655167085
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 08:46:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728502AbgBUHpt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 02:45:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41070 "EHLO mail.kernel.org"
+        id S1728531AbgBUHp4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 02:45:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41204 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727867AbgBUHpt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 02:45:49 -0500
+        id S1727974AbgBUHpz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 02:45:55 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6C53F222C4;
-        Fri, 21 Feb 2020 07:45:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0CA5724673;
+        Fri, 21 Feb 2020 07:45:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582271148;
-        bh=SX59StiBv01BZsQL/M6GsKcpiCvE0GOavYHZERRX5mk=;
+        s=default; t=1582271154;
+        bh=DF0xzH7KHrXRGTpdus/MUq9ztK8Z6G1+lyoNv4pAiRA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oS4+2Lh8MB7OuhWIR5bN3I91vOqgKVJym5wOgECL6DTm6HU51bs+3XdL81/+JjABw
-         TX3i+w8cW0HzSiaw6qeWcNBwoRXnz+QhG92m7S349ZI2qfOyVur6Natwa1dhKLfPY5
-         dC44GI0hOI7tYu8kjPjqqkN96JV7FJvEhYp2APXA=
+        b=hDomd7TC9+MAHewdmznM7MAH+lKVomv4ol0ltHmHnNyHxuA/pvKA6kavLebmgwIiz
+         y8u4f8qNPrQ2UynbR4hbYMrOkfVxEpOdOayfleGGMt4Z3YDXJIOzqRd1bodhifCp2i
+         j7ME/bXEhZEPoKWyiaIh65Q6MM5RdPuj5/DQrCIU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ard Biesheuvel <ardb@kernel.org>,
-        Andy Lutomirski <luto@kernel.org>,
-        Ard Biesheuvel <ard.biesheuvel@linaro.org>,
-        Arvind Sankar <nivedita@alum.mit.edu>,
-        Matthew Garrett <mjg59@google.com>, linux-efi@vger.kernel.org,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 057/399] efi/x86: Map the entire EFI vendor string before copying it
-Date:   Fri, 21 Feb 2020 08:36:22 +0100
-Message-Id: <20200221072407.895325178@linuxfoundation.org>
+        stable@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.5 059/399] net: ethernet: ixp4xx: Standard module init
+Date:   Fri, 21 Feb 2020 08:36:24 +0100
+Message-Id: <20200221072408.081785102@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200221072402.315346745@linuxfoundation.org>
 References: <20200221072402.315346745@linuxfoundation.org>
@@ -47,67 +44,226 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ard Biesheuvel <ardb@kernel.org>
+From: Linus Walleij <linus.walleij@linaro.org>
 
-[ Upstream commit ffc2760bcf2dba0dbef74013ed73eea8310cc52c ]
+[ Upstream commit c83db9ef5640548631707e8b4a7bcddc115fdbae ]
 
-Fix a couple of issues with the way we map and copy the vendor string:
-- we map only 2 bytes, which usually works since you get at least a
-  page, but if the vendor string happens to cross a page boundary,
-  a crash will result
-- only call early_memunmap() if early_memremap() succeeded, or we will
-  call it with a NULL address which it doesn't like,
-- while at it, switch to early_memremap_ro(), and array indexing rather
-  than pointer dereferencing to read the CHAR16 characters.
+The IXP4xx driver was initializing the MDIO bus before even
+probing, in the callbacks supposed to be used for setting up
+the module itself, and with the side effect of trying to
+register the MDIO bus as soon as this module was loaded or
+compiled into the kernel whether the device was discovered
+or not.
 
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
-Cc: Andy Lutomirski <luto@kernel.org>
-Cc: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Cc: Arvind Sankar <nivedita@alum.mit.edu>
-Cc: Matthew Garrett <mjg59@google.com>
-Cc: linux-efi@vger.kernel.org
-Fixes: 5b83683f32b1 ("x86: EFI runtime service support")
-Link: https://lkml.kernel.org/r/20200103113953.9571-5-ardb@kernel.org
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+This does not work with multiplatform environments.
+
+To get rid of this: set up the MDIO bus from the probe()
+callback and remove it in the remove() callback. Rename
+the probe() and remove() calls to reflect the most common
+conventions.
+
+Since there is a bit of checking for the ethernet feature
+to be present in the MDIO registering function, making the
+whole module not even be registered if we can't find an
+MDIO bus, we need something similar: register the MDIO
+bus when the corresponding ethernet is probed, and
+return -EPROBE_DEFER on the other interfaces until this
+happens. If no MDIO bus is present on any of the
+registered interfaces we will eventually bail out.
+
+None of the platforms I've seen has e.g. MDIO on EthB
+and only uses EthC, there is always a Ethernet hardware
+on the NPE (B, C) that has the MDIO bus, we just might
+have to wait for it.
+
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/platform/efi/efi.c | 13 +++++++------
- 1 file changed, 7 insertions(+), 6 deletions(-)
+ drivers/net/ethernet/xscale/ixp4xx_eth.c | 96 +++++++++++-------------
+ 1 file changed, 44 insertions(+), 52 deletions(-)
 
-diff --git a/arch/x86/platform/efi/efi.c b/arch/x86/platform/efi/efi.c
-index 38d44f36d5ede..06f69bcd233fe 100644
---- a/arch/x86/platform/efi/efi.c
-+++ b/arch/x86/platform/efi/efi.c
-@@ -541,7 +541,6 @@ void __init efi_init(void)
- 	efi_char16_t *c16;
- 	char vendor[100] = "unknown";
- 	int i = 0;
--	void *tmp;
+diff --git a/drivers/net/ethernet/xscale/ixp4xx_eth.c b/drivers/net/ethernet/xscale/ixp4xx_eth.c
+index 6fc04ffb22c2a..d4e095d0e8f14 100644
+--- a/drivers/net/ethernet/xscale/ixp4xx_eth.c
++++ b/drivers/net/ethernet/xscale/ixp4xx_eth.c
+@@ -517,25 +517,14 @@ static int ixp4xx_mdio_write(struct mii_bus *bus, int phy_id, int location,
+ 	return ret;
+ }
  
- #ifdef CONFIG_X86_32
- 	if (boot_params.efi_info.efi_systab_hi ||
-@@ -566,14 +565,16 @@ void __init efi_init(void)
- 	/*
- 	 * Show what we know for posterity
- 	 */
--	c16 = tmp = early_memremap(efi.systab->fw_vendor, 2);
-+	c16 = early_memremap_ro(efi.systab->fw_vendor,
-+				sizeof(vendor) * sizeof(efi_char16_t));
- 	if (c16) {
--		for (i = 0; i < sizeof(vendor) - 1 && *c16; ++i)
--			vendor[i] = *c16++;
-+		for (i = 0; i < sizeof(vendor) - 1 && c16[i]; ++i)
-+			vendor[i] = c16[i];
- 		vendor[i] = '\0';
--	} else
-+		early_memunmap(c16, sizeof(vendor) * sizeof(efi_char16_t));
-+	} else {
- 		pr_err("Could not map the firmware vendor!\n");
--	early_memunmap(tmp, 2);
-+	}
+-static int ixp4xx_mdio_register(void)
++static int ixp4xx_mdio_register(struct eth_regs __iomem *regs)
+ {
+ 	int err;
  
- 	pr_info("EFI v%u.%.02u by %s\n",
- 		efi.systab->hdr.revision >> 16,
+ 	if (!(mdio_bus = mdiobus_alloc()))
+ 		return -ENOMEM;
+ 
+-	if (cpu_is_ixp43x()) {
+-		/* IXP43x lacks NPE-B and uses NPE-C for MII PHY access */
+-		if (!(ixp4xx_read_feature_bits() & IXP4XX_FEATURE_NPEC_ETH))
+-			return -ENODEV;
+-		mdio_regs = (struct eth_regs __iomem *)IXP4XX_EthC_BASE_VIRT;
+-	} else {
+-		/* All MII PHY accesses use NPE-B Ethernet registers */
+-		if (!(ixp4xx_read_feature_bits() & IXP4XX_FEATURE_NPEB_ETH0))
+-			return -ENODEV;
+-		mdio_regs = (struct eth_regs __iomem *)IXP4XX_EthB_BASE_VIRT;
+-	}
+-
++	mdio_regs = regs;
+ 	__raw_writel(DEFAULT_CORE_CNTRL, &mdio_regs->core_control);
+ 	spin_lock_init(&mdio_lock);
+ 	mdio_bus->name = "IXP4xx MII Bus";
+@@ -1374,7 +1363,7 @@ static const struct net_device_ops ixp4xx_netdev_ops = {
+ 	.ndo_validate_addr = eth_validate_addr,
+ };
+ 
+-static int eth_init_one(struct platform_device *pdev)
++static int ixp4xx_eth_probe(struct platform_device *pdev)
+ {
+ 	struct port *port;
+ 	struct net_device *dev;
+@@ -1384,7 +1373,7 @@ static int eth_init_one(struct platform_device *pdev)
+ 	char phy_id[MII_BUS_ID_SIZE + 3];
+ 	int err;
+ 
+-	if (!(dev = alloc_etherdev(sizeof(struct port))))
++	if (!(dev = devm_alloc_etherdev(&pdev->dev, sizeof(struct port))))
+ 		return -ENOMEM;
+ 
+ 	SET_NETDEV_DEV(dev, &pdev->dev);
+@@ -1394,20 +1383,51 @@ static int eth_init_one(struct platform_device *pdev)
+ 
+ 	switch (port->id) {
+ 	case IXP4XX_ETH_NPEA:
++		/* If the MDIO bus is not up yet, defer probe */
++		if (!mdio_bus)
++			return -EPROBE_DEFER;
+ 		port->regs = (struct eth_regs __iomem *)IXP4XX_EthA_BASE_VIRT;
+ 		regs_phys  = IXP4XX_EthA_BASE_PHYS;
+ 		break;
+ 	case IXP4XX_ETH_NPEB:
++		/*
++		 * On all except IXP43x, NPE-B is used for the MDIO bus.
++		 * If there is no NPE-B in the feature set, bail out, else
++		 * register the MDIO bus.
++		 */
++		if (!cpu_is_ixp43x()) {
++			if (!(ixp4xx_read_feature_bits() &
++			      IXP4XX_FEATURE_NPEB_ETH0))
++				return -ENODEV;
++			/* Else register the MDIO bus on NPE-B */
++			if ((err = ixp4xx_mdio_register(IXP4XX_EthC_BASE_VIRT)))
++				return err;
++		}
++		if (!mdio_bus)
++			return -EPROBE_DEFER;
+ 		port->regs = (struct eth_regs __iomem *)IXP4XX_EthB_BASE_VIRT;
+ 		regs_phys  = IXP4XX_EthB_BASE_PHYS;
+ 		break;
+ 	case IXP4XX_ETH_NPEC:
++		/*
++		 * IXP43x lacks NPE-B and uses NPE-C for the MDIO bus access,
++		 * of there is no NPE-C, no bus, nothing works, so bail out.
++		 */
++		if (cpu_is_ixp43x()) {
++			if (!(ixp4xx_read_feature_bits() &
++			      IXP4XX_FEATURE_NPEC_ETH))
++				return -ENODEV;
++			/* Else register the MDIO bus on NPE-C */
++			if ((err = ixp4xx_mdio_register(IXP4XX_EthC_BASE_VIRT)))
++				return err;
++		}
++		if (!mdio_bus)
++			return -EPROBE_DEFER;
+ 		port->regs = (struct eth_regs __iomem *)IXP4XX_EthC_BASE_VIRT;
+ 		regs_phys  = IXP4XX_EthC_BASE_PHYS;
+ 		break;
+ 	default:
+-		err = -ENODEV;
+-		goto err_free;
++		return -ENODEV;
+ 	}
+ 
+ 	dev->netdev_ops = &ixp4xx_netdev_ops;
+@@ -1416,10 +1436,8 @@ static int eth_init_one(struct platform_device *pdev)
+ 
+ 	netif_napi_add(dev, &port->napi, eth_poll, NAPI_WEIGHT);
+ 
+-	if (!(port->npe = npe_request(NPE_ID(port->id)))) {
+-		err = -EIO;
+-		goto err_free;
+-	}
++	if (!(port->npe = npe_request(NPE_ID(port->id))))
++		return -EIO;
+ 
+ 	port->mem_res = request_mem_region(regs_phys, REGS_SIZE, dev->name);
+ 	if (!port->mem_res) {
+@@ -1465,12 +1483,10 @@ err_free_mem:
+ 	release_resource(port->mem_res);
+ err_npe_rel:
+ 	npe_release(port->npe);
+-err_free:
+-	free_netdev(dev);
+ 	return err;
+ }
+ 
+-static int eth_remove_one(struct platform_device *pdev)
++static int ixp4xx_eth_remove(struct platform_device *pdev)
+ {
+ 	struct net_device *dev = platform_get_drvdata(pdev);
+ 	struct phy_device *phydev = dev->phydev;
+@@ -1478,45 +1494,21 @@ static int eth_remove_one(struct platform_device *pdev)
+ 
+ 	unregister_netdev(dev);
+ 	phy_disconnect(phydev);
++	ixp4xx_mdio_remove();
+ 	npe_port_tab[NPE_ID(port->id)] = NULL;
+ 	npe_release(port->npe);
+ 	release_resource(port->mem_res);
+-	free_netdev(dev);
+ 	return 0;
+ }
+ 
+ static struct platform_driver ixp4xx_eth_driver = {
+ 	.driver.name	= DRV_NAME,
+-	.probe		= eth_init_one,
+-	.remove		= eth_remove_one,
++	.probe		= ixp4xx_eth_probe,
++	.remove		= ixp4xx_eth_remove,
+ };
+-
+-static int __init eth_init_module(void)
+-{
+-	int err;
+-
+-	/*
+-	 * FIXME: we bail out on device tree boot but this really needs
+-	 * to be fixed in a nicer way: this registers the MDIO bus before
+-	 * even matching the driver infrastructure, we should only probe
+-	 * detected hardware.
+-	 */
+-	if (of_have_populated_dt())
+-		return -ENODEV;
+-	if ((err = ixp4xx_mdio_register()))
+-		return err;
+-	return platform_driver_register(&ixp4xx_eth_driver);
+-}
+-
+-static void __exit eth_cleanup_module(void)
+-{
+-	platform_driver_unregister(&ixp4xx_eth_driver);
+-	ixp4xx_mdio_remove();
+-}
++module_platform_driver(ixp4xx_eth_driver);
+ 
+ MODULE_AUTHOR("Krzysztof Halasa");
+ MODULE_DESCRIPTION("Intel IXP4xx Ethernet driver");
+ MODULE_LICENSE("GPL v2");
+ MODULE_ALIAS("platform:ixp4xx_eth");
+-module_init(eth_init_module);
+-module_exit(eth_cleanup_module);
 -- 
 2.20.1
 
