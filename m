@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 77E18167724
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:41:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 221AD16771A
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:41:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730143AbgBUIic (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 03:38:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35380 "EHLO mail.kernel.org"
+        id S1731240AbgBUICw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 03:02:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35442 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730260AbgBUICt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 03:02:49 -0500
+        id S1730143AbgBUICw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 03:02:52 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 885A9222C4;
-        Fri, 21 Feb 2020 08:02:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 22AFB2073A;
+        Fri, 21 Feb 2020 08:02:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582272169;
-        bh=UIOE5O03yqKGfd8b8kfCJ4j1pgm5NLZDnME+d1bMZ9E=;
+        s=default; t=1582272171;
+        bh=h5EqkVv0DO84hWwSL2dDOcUgBtNX3MwH2uaDNvbe5qg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H0VL1l9xnBLYoEyU8DbWE5BOoFBbR3ILiBScnYCNaajiq/nMzqZLR+32yrC+ZnZ55
-         TStD/FjK6O939MrT3z/fYx1hfdD/0Z6C23P3EY7kbU864cAQNLOp2mtjgp0oMr4t8J
-         9ABKPxKDFbJSz15BhD6xouc//0dPu/OlY/vqJDPQ=
+        b=oRDimnuZKx6OPk8C+H5UrI/L6KaK+E+8CjHoMaMMt4gntylcqdHDqa4Pqf7ie/5vs
+         byWRR4jf672oMGOaTo3nOuonkYpbTYPLs3JOOlKD5968X+KQwH1Itoe7J6AlI5zE2C
+         w+xmbowaqDesXxSTMAztVn6s+yZu4hm8yRXjA+zw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jia-Ju Bai <baijiaju1990@gmail.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 042/344] gpio: gpio-grgpio: fix possible sleep-in-atomic-context bugs in grgpio_irq_map/unmap()
-Date:   Fri, 21 Feb 2020 08:37:21 +0100
-Message-Id: <20200221072352.931541795@linuxfoundation.org>
+        stable@vger.kernel.org, Eric Auger <eric.auger@redhat.com>,
+        Jacob Pan <jacob.jun.pan@linux.intel.com>,
+        Lu Baolu <baolu.lu@linux.intel.com>,
+        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 043/344] iommu/vt-d: Fix off-by-one in PASID allocation
+Date:   Fri, 21 Feb 2020 08:37:22 +0100
+Message-Id: <20200221072353.034323020@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200221072349.335551332@linuxfoundation.org>
 References: <20200221072349.335551332@linuxfoundation.org>
@@ -44,75 +45,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jia-Ju Bai <baijiaju1990@gmail.com>
+From: Jacob Pan <jacob.jun.pan@linux.intel.com>
 
-[ Upstream commit e36eaf94be8f7bc4e686246eed3cf92d845e2ef8 ]
+[ Upstream commit 39d630e332144028f56abba83d94291978e72df1 ]
 
-The driver may sleep while holding a spinlock.
-The function call path (from bottom to top) in Linux 4.19 is:
+PASID allocator uses IDR which is exclusive for the end of the
+allocation range. There is no need to decrement pasid_max.
 
-drivers/gpio/gpio-grgpio.c, 261:
-	request_irq in grgpio_irq_map
-drivers/gpio/gpio-grgpio.c, 255:
-	_raw_spin_lock_irqsave in grgpio_irq_map
-
-drivers/gpio/gpio-grgpio.c, 318:
-	free_irq in grgpio_irq_unmap
-drivers/gpio/gpio-grgpio.c, 299:
-	_raw_spin_lock_irqsave in grgpio_irq_unmap
-
-request_irq() and free_irq() can sleep at runtime.
-
-To fix these bugs, request_irq() and free_irq() are called without
-holding the spinlock.
-
-These bugs are found by a static analysis tool STCheck written by myself.
-
-Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
-Link: https://lore.kernel.org/r/20191218132605.10594-1-baijiaju1990@gmail.com
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Fixes: af39507305fb ("iommu/vt-d: Apply global PASID in SVA")
+Reported-by: Eric Auger <eric.auger@redhat.com>
+Signed-off-by: Jacob Pan <jacob.jun.pan@linux.intel.com>
+Reviewed-by: Eric Auger <eric.auger@redhat.com>
+Signed-off-by: Lu Baolu <baolu.lu@linux.intel.com>
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpio/gpio-grgpio.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ drivers/iommu/intel-svm.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpio/gpio-grgpio.c b/drivers/gpio/gpio-grgpio.c
-index 08234e64993a9..3224933f4c8f4 100644
---- a/drivers/gpio/gpio-grgpio.c
-+++ b/drivers/gpio/gpio-grgpio.c
-@@ -253,17 +253,16 @@ static int grgpio_irq_map(struct irq_domain *d, unsigned int irq,
- 	lirq->irq = irq;
- 	uirq = &priv->uirqs[lirq->index];
- 	if (uirq->refcnt == 0) {
-+		spin_unlock_irqrestore(&priv->gc.bgpio_lock, flags);
- 		ret = request_irq(uirq->uirq, grgpio_irq_handler, 0,
- 				  dev_name(priv->dev), priv);
- 		if (ret) {
- 			dev_err(priv->dev,
- 				"Could not request underlying irq %d\n",
- 				uirq->uirq);
--
--			spin_unlock_irqrestore(&priv->gc.bgpio_lock, flags);
--
- 			return ret;
- 		}
-+		spin_lock_irqsave(&priv->gc.bgpio_lock, flags);
- 	}
- 	uirq->refcnt++;
- 
-@@ -309,8 +308,11 @@ static void grgpio_irq_unmap(struct irq_domain *d, unsigned int irq)
- 	if (index >= 0) {
- 		uirq = &priv->uirqs[lirq->index];
- 		uirq->refcnt--;
--		if (uirq->refcnt == 0)
-+		if (uirq->refcnt == 0) {
-+			spin_unlock_irqrestore(&priv->gc.bgpio_lock, flags);
- 			free_irq(uirq->uirq, priv);
-+			return;
-+		}
- 	}
- 
- 	spin_unlock_irqrestore(&priv->gc.bgpio_lock, flags);
+diff --git a/drivers/iommu/intel-svm.c b/drivers/iommu/intel-svm.c
+index dca88f9fdf29a..ff7a3f9add325 100644
+--- a/drivers/iommu/intel-svm.c
++++ b/drivers/iommu/intel-svm.c
+@@ -317,7 +317,7 @@ int intel_svm_bind_mm(struct device *dev, int *pasid, int flags, struct svm_dev_
+ 		/* Do not use PASID 0 in caching mode (virtualised IOMMU) */
+ 		ret = intel_pasid_alloc_id(svm,
+ 					   !!cap_caching_mode(iommu->cap),
+-					   pasid_max - 1, GFP_KERNEL);
++					   pasid_max, GFP_KERNEL);
+ 		if (ret < 0) {
+ 			kfree(svm);
+ 			kfree(sdev);
 -- 
 2.20.1
 
