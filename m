@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 72EF21671B2
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 08:56:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D1E9E1671B5
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 08:56:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730471AbgBUH43 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 02:56:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55784 "EHLO mail.kernel.org"
+        id S1730271AbgBUH4d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 02:56:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55948 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727872AbgBUH42 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 02:56:28 -0500
+        id S1730481AbgBUH4c (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 02:56:32 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 29DFE20578;
-        Fri, 21 Feb 2020 07:56:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 224DC20578;
+        Fri, 21 Feb 2020 07:56:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582271787;
-        bh=7oaIDcG5sR819ZC9N4iXtsmUArGfUPkCaLdu3IjP0BA=;
+        s=default; t=1582271792;
+        bh=11ds414/iVeTj4WTOhRtPXdUUxm9wT7k1cnNpmj1euk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IWYu+s8imCHyhI4L+ZxzMwkPnXNLBvyxOskXRmlDhthGfiZYQ86pzFH5fGKQsimVh
-         pIQBC814OMVFyat7HXwM8V8CQ9NR3lkLj80Mno9u5KLo1ffnYYf7a0zV05aS3rPGrF
-         L0ry1TKBBv4ssX7Nxg/8j7I6VibrzRZGmlJbXZoU=
+        b=BcX3nK9uAJVFxYXG1JiCV7S2QsAsguWg2H1X2sWV8cdgBmWjwJSp8uYhYPbeQ/5/N
+         V2T9REqdvYv/VarmEZvAkPvx5Q/pgQHNeTL4NEFcdnF1VDyCgMrEIXyeIuvC85ley9
+         JDsXGZkMEAReIpIiSop9zeKVlquskgLh2s2ZzVLE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Douglas Anderson <dianders@chromium.org>,
-        Enric Balletbo i Serra <enric.balletbo@collabora.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 298/399] regulator: vctrl-regulator: Avoid deadlock getting and setting the voltage
-Date:   Fri, 21 Feb 2020 08:40:23 +0100
-Message-Id: <20200221072430.711864171@linuxfoundation.org>
+        stable@vger.kernel.org, Ard Biesheuvel <ardb@kernel.org>,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.5 300/399] x86/mm: Fix NX bit clearing issue in kernel_map_pages_in_pgd
+Date:   Fri, 21 Feb 2020 08:40:25 +0100
+Message-Id: <20200221072430.888387229@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200221072402.315346745@linuxfoundation.org>
 References: <20200221072402.315346745@linuxfoundation.org>
@@ -45,171 +43,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+From: Ard Biesheuvel <ardb@kernel.org>
 
-[ Upstream commit e9153311491da9d9863ead9888a1613531cb4a1b ]
+[ Upstream commit 75fbef0a8b6b4bb19b9a91b5214f846c2dc5139e ]
 
-`cat /sys/kernel/debug/regulator/regulator_summary` ends on a deadlock
-when you have a voltage controlled regulator (vctrl).
+The following commit:
 
-The problem is that the vctrl_get_voltage() and vctrl_set_voltage() calls the
-regulator_get_voltage() and regulator_set_voltage() and that will try to lock
-again the dependent regulators (the regulator supplying the control voltage).
+  15f003d20782 ("x86/mm/pat: Don't implicitly allow _PAGE_RW in kernel_map_pages_in_pgd()")
 
-Fix the issue by exporting the unlocked version of the regulator_get_voltage()
-and regulator_set_voltage() API so drivers that need it, like the voltage
-controlled regulator driver can use it.
+modified kernel_map_pages_in_pgd() to manage writable permissions
+of memory mappings in the EFI page table in a different way, but
+in the process, it removed the ability to clear NX attributes from
+read-only mappings, by clobbering the clear mask if _PAGE_RW is not
+being requested.
 
-Fixes: f8702f9e4aa7 ("regulator: core: Use ww_mutex for regulators locking")
-Reported-by: Douglas Anderson <dianders@chromium.org>
-Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-Link: https://lore.kernel.org/r/20200116094543.2847321-1-enric.balletbo@collabora.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Failure to remove the NX attribute from read-only mappings is
+unlikely to be a security issue, but it does prevent us from
+tightening the permissions in the EFI page tables going forward,
+so let's fix it now.
+
+Fixes: 15f003d20782 ("x86/mm/pat: Don't implicitly allow _PAGE_RW in kernel_map_pages_in_pgd()
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Link: https://lore.kernel.org/r/20200113172245.27925-5-ardb@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/regulator/core.c            |  2 ++
- drivers/regulator/vctrl-regulator.c | 38 +++++++++++++++++------------
- 2 files changed, 25 insertions(+), 15 deletions(-)
+ arch/x86/mm/pageattr.c | 8 +-------
+ 1 file changed, 1 insertion(+), 7 deletions(-)
 
-diff --git a/drivers/regulator/core.c b/drivers/regulator/core.c
-index 03d79fee2987e..e7d167ce326cb 100644
---- a/drivers/regulator/core.c
-+++ b/drivers/regulator/core.c
-@@ -3470,6 +3470,7 @@ int regulator_set_voltage_rdev(struct regulator_dev *rdev, int min_uV,
- out:
- 	return ret;
- }
-+EXPORT_SYMBOL(regulator_set_voltage_rdev);
+diff --git a/arch/x86/mm/pageattr.c b/arch/x86/mm/pageattr.c
+index 1b99ad05b1177..f42780ba08937 100644
+--- a/arch/x86/mm/pageattr.c
++++ b/arch/x86/mm/pageattr.c
+@@ -2215,7 +2215,7 @@ int __init kernel_map_pages_in_pgd(pgd_t *pgd, u64 pfn, unsigned long address,
+ 		.pgd = pgd,
+ 		.numpages = numpages,
+ 		.mask_set = __pgprot(0),
+-		.mask_clr = __pgprot(0),
++		.mask_clr = __pgprot(~page_flags & (_PAGE_NX|_PAGE_RW)),
+ 		.flags = 0,
+ 	};
  
- static int regulator_limit_voltage_step(struct regulator_dev *rdev,
- 					int *current_uV, int *min_uV)
-@@ -4034,6 +4035,7 @@ int regulator_get_voltage_rdev(struct regulator_dev *rdev)
- 		return ret;
- 	return ret - rdev->constraints->uV_offset;
- }
-+EXPORT_SYMBOL(regulator_get_voltage_rdev);
+@@ -2224,12 +2224,6 @@ int __init kernel_map_pages_in_pgd(pgd_t *pgd, u64 pfn, unsigned long address,
+ 	if (!(__supported_pte_mask & _PAGE_NX))
+ 		goto out;
  
- /**
-  * regulator_get_voltage - get regulator output voltage
-diff --git a/drivers/regulator/vctrl-regulator.c b/drivers/regulator/vctrl-regulator.c
-index 9a9ee81881098..cbadb1c996790 100644
---- a/drivers/regulator/vctrl-regulator.c
-+++ b/drivers/regulator/vctrl-regulator.c
-@@ -11,10 +11,13 @@
- #include <linux/module.h>
- #include <linux/of.h>
- #include <linux/of_device.h>
-+#include <linux/regulator/coupler.h>
- #include <linux/regulator/driver.h>
- #include <linux/regulator/of_regulator.h>
- #include <linux/sort.h>
+-	if (!(page_flags & _PAGE_NX))
+-		cpa.mask_clr = __pgprot(_PAGE_NX);
+-
+-	if (!(page_flags & _PAGE_RW))
+-		cpa.mask_clr = __pgprot(_PAGE_RW);
+-
+ 	if (!(page_flags & _PAGE_ENC))
+ 		cpa.mask_clr = pgprot_encrypted(cpa.mask_clr);
  
-+#include "internal.h"
-+
- struct vctrl_voltage_range {
- 	int min_uV;
- 	int max_uV;
-@@ -79,7 +82,7 @@ static int vctrl_calc_output_voltage(struct vctrl_data *vctrl, int ctrl_uV)
- static int vctrl_get_voltage(struct regulator_dev *rdev)
- {
- 	struct vctrl_data *vctrl = rdev_get_drvdata(rdev);
--	int ctrl_uV = regulator_get_voltage(vctrl->ctrl_reg);
-+	int ctrl_uV = regulator_get_voltage_rdev(vctrl->ctrl_reg->rdev);
- 
- 	return vctrl_calc_output_voltage(vctrl, ctrl_uV);
- }
-@@ -90,16 +93,16 @@ static int vctrl_set_voltage(struct regulator_dev *rdev,
- {
- 	struct vctrl_data *vctrl = rdev_get_drvdata(rdev);
- 	struct regulator *ctrl_reg = vctrl->ctrl_reg;
--	int orig_ctrl_uV = regulator_get_voltage(ctrl_reg);
-+	int orig_ctrl_uV = regulator_get_voltage_rdev(ctrl_reg->rdev);
- 	int uV = vctrl_calc_output_voltage(vctrl, orig_ctrl_uV);
- 	int ret;
- 
- 	if (req_min_uV >= uV || !vctrl->ovp_threshold)
- 		/* voltage rising or no OVP */
--		return regulator_set_voltage(
--			ctrl_reg,
-+		return regulator_set_voltage_rdev(ctrl_reg->rdev,
- 			vctrl_calc_ctrl_voltage(vctrl, req_min_uV),
--			vctrl_calc_ctrl_voltage(vctrl, req_max_uV));
-+			vctrl_calc_ctrl_voltage(vctrl, req_max_uV),
-+			PM_SUSPEND_ON);
- 
- 	while (uV > req_min_uV) {
- 		int max_drop_uV = (uV * vctrl->ovp_threshold) / 100;
-@@ -114,9 +117,10 @@ static int vctrl_set_voltage(struct regulator_dev *rdev,
- 		next_uV = max_t(int, req_min_uV, uV - max_drop_uV);
- 		next_ctrl_uV = vctrl_calc_ctrl_voltage(vctrl, next_uV);
- 
--		ret = regulator_set_voltage(ctrl_reg,
-+		ret = regulator_set_voltage_rdev(ctrl_reg->rdev,
-+					    next_ctrl_uV,
- 					    next_ctrl_uV,
--					    next_ctrl_uV);
-+					    PM_SUSPEND_ON);
- 		if (ret)
- 			goto err;
- 
-@@ -130,7 +134,8 @@ static int vctrl_set_voltage(struct regulator_dev *rdev,
- 
- err:
- 	/* Try to go back to original voltage */
--	regulator_set_voltage(ctrl_reg, orig_ctrl_uV, orig_ctrl_uV);
-+	regulator_set_voltage_rdev(ctrl_reg->rdev, orig_ctrl_uV, orig_ctrl_uV,
-+				   PM_SUSPEND_ON);
- 
- 	return ret;
- }
-@@ -155,9 +160,10 @@ static int vctrl_set_voltage_sel(struct regulator_dev *rdev,
- 
- 	if (selector >= vctrl->sel || !vctrl->ovp_threshold) {
- 		/* voltage rising or no OVP */
--		ret = regulator_set_voltage(ctrl_reg,
-+		ret = regulator_set_voltage_rdev(ctrl_reg->rdev,
-+					    vctrl->vtable[selector].ctrl,
- 					    vctrl->vtable[selector].ctrl,
--					    vctrl->vtable[selector].ctrl);
-+					    PM_SUSPEND_ON);
- 		if (!ret)
- 			vctrl->sel = selector;
- 
-@@ -173,9 +179,10 @@ static int vctrl_set_voltage_sel(struct regulator_dev *rdev,
- 		else
- 			next_sel = vctrl->vtable[vctrl->sel].ovp_min_sel;
- 
--		ret = regulator_set_voltage(ctrl_reg,
-+		ret = regulator_set_voltage_rdev(ctrl_reg->rdev,
- 					    vctrl->vtable[next_sel].ctrl,
--					    vctrl->vtable[next_sel].ctrl);
-+					    vctrl->vtable[next_sel].ctrl,
-+					    PM_SUSPEND_ON);
- 		if (ret) {
- 			dev_err(&rdev->dev,
- 				"failed to set control voltage to %duV\n",
-@@ -195,9 +202,10 @@ static int vctrl_set_voltage_sel(struct regulator_dev *rdev,
- err:
- 	if (vctrl->sel != orig_sel) {
- 		/* Try to go back to original voltage */
--		if (!regulator_set_voltage(ctrl_reg,
-+		if (!regulator_set_voltage_rdev(ctrl_reg->rdev,
-+					   vctrl->vtable[orig_sel].ctrl,
- 					   vctrl->vtable[orig_sel].ctrl,
--					   vctrl->vtable[orig_sel].ctrl))
-+					   PM_SUSPEND_ON))
- 			vctrl->sel = orig_sel;
- 		else
- 			dev_warn(&rdev->dev,
-@@ -482,7 +490,7 @@ static int vctrl_probe(struct platform_device *pdev)
- 		if (ret)
- 			return ret;
- 
--		ctrl_uV = regulator_get_voltage(vctrl->ctrl_reg);
-+		ctrl_uV = regulator_get_voltage_rdev(vctrl->ctrl_reg->rdev);
- 		if (ctrl_uV < 0) {
- 			dev_err(&pdev->dev, "failed to get control voltage\n");
- 			return ctrl_uV;
 -- 
 2.20.1
 
