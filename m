@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2926316770E
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:41:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5907C167835
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:48:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731292AbgBUICA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 03:02:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34378 "EHLO mail.kernel.org"
+        id S1728208AbgBUHrj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 02:47:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43548 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731289AbgBUICA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 03:02:00 -0500
+        id S1728951AbgBUHri (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 02:47:38 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4C76E2073A;
-        Fri, 21 Feb 2020 08:01:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0B660208C4;
+        Fri, 21 Feb 2020 07:47:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582272119;
-        bh=ZcUzQxygeVJz1o5yxME7aj3M2UwDiUg43GIMxLnHJpU=;
+        s=default; t=1582271257;
+        bh=hhHJKlpWN495uh2vdO0TDhEHxnvrpn3GndEc5iHu2kc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Uy1CT9BLBXGu7qxVq/n/+/IrumgCjgAatdKk5SSyBPFiZ6QwDCV9dea5+PDC5U9re
-         vRj4wFBQxDfymT67UXi3Z8QcsKJwgf97eXaxTpZGOqqeO+StVaMFGQeagBFr5DsCC4
-         Zi/eUWdJay3fd8DhoKwDPMfh5fJGRgYxuDBmQqaQ=
+        b=q3iGfMW5cl3w4TlHD0NOB0cCwMrSaRIpeVbiigz9kTSygSeiPuIwt5kSL/cqeNwaB
+         W7g7M731aRuVRduDTilFNWYRp2BfizytGM8ymqcFfbQ/X4sXJPzaGUtzNWcEuyD/gR
+         JevL81HatMEuQW7pMxGQmrBmpyIDublpTauWZ6Uk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, James Sewart <jamessewart@arista.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Logan Gunthorpe <logang@deltatee.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 023/344] PCI: Fix pci_add_dma_alias() bitmask size
-Date:   Fri, 21 Feb 2020 08:37:02 +0100
-Message-Id: <20200221072351.297453692@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Oleksandr Natalenko <oleksandr@natalenko.name>,
+        Patrick Dung <patdung100@gmail.com>,
+        Paolo Valente <paolo.valente@linaro.org>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.5 098/399] block, bfq: do not plug I/O for bfq_queues with no proc refs
+Date:   Fri, 21 Feb 2020 08:37:03 +0100
+Message-Id: <20200221072411.906324287@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200221072349.335551332@linuxfoundation.org>
-References: <20200221072349.335551332@linuxfoundation.org>
+In-Reply-To: <20200221072402.315346745@linuxfoundation.org>
+References: <20200221072402.315346745@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,75 +46,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Sewart <jamessewart@arista.com>
+From: Paolo Valente <paolo.valente@linaro.org>
 
-[ Upstream commit f8bf2aeb651b3460a4b36fd7ba1ba1d31777d35c ]
+[ Upstream commit f718b093277df582fbf8775548a4f163e664d282 ]
 
-The number of possible devfns is 256, but pci_add_dma_alias() allocated a
-bitmap of size 255.  Fix this off-by-one error.
+Commit 478de3380c1c ("block, bfq: deschedule empty bfq_queues not
+referred by any process") fixed commit 3726112ec731 ("block, bfq:
+re-schedule empty queues if they deserve I/O plugging") by
+descheduling an empty bfq_queue when it remains with not process
+reference. Yet, this still left a case uncovered: an empty bfq_queue
+with not process reference that remains in service. This happens for
+an in-service sync bfq_queue that is deemed to deserve I/O-dispatch
+plugging when it remains empty. Yet no new requests will arrive for
+such a bfq_queue if no process sends requests to it any longer. Even
+worse, the bfq_queue may happen to be prematurely freed while still in
+service (because there may remain no reference to it any longer).
 
-This fixes commits 338c3149a221 ("PCI: Add support for multiple DMA
-aliases") and c6635792737b ("PCI: Allocate dma_alias_mask with
-bitmap_zalloc()"), but I doubt it was possible to see a problem because
-it takes 4 64-bit longs (or 8 32-bit longs) to hold 255 bits, and
-bitmap_zalloc() doesn't save the 255-bit size anywhere.
+This commit solves this problem by preventing I/O dispatch from being
+plugged for the in-service bfq_queue, if the latter has no process
+reference (the bfq_queue is then prevented from remaining in service).
 
-[bhelgaas: commit log, move #define to drivers/pci/pci.h, include loop
-limit fix from Qian Cai:
-https://lore.kernel.org/r/20191218170004.5297-1-cai@lca.pw]
-Signed-off-by: James Sewart <jamessewart@arista.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Reviewed-by: Logan Gunthorpe <logang@deltatee.com>
+Fixes: 3726112ec731 ("block, bfq: re-schedule empty queues if they deserve I/O plugging")
+Tested-by: Oleksandr Natalenko <oleksandr@natalenko.name>
+Reported-by: Patrick Dung <patdung100@gmail.com>
+Tested-by: Patrick Dung <patdung100@gmail.com>
+Signed-off-by: Paolo Valente <paolo.valente@linaro.org>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/pci.c    | 2 +-
- drivers/pci/pci.h    | 3 +++
- drivers/pci/search.c | 4 ++--
- 3 files changed, 6 insertions(+), 3 deletions(-)
+ block/bfq-iosched.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
-diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
-index fcfaadc774eef..cbf3d3889874c 100644
---- a/drivers/pci/pci.c
-+++ b/drivers/pci/pci.c
-@@ -5894,7 +5894,7 @@ EXPORT_SYMBOL_GPL(pci_pr3_present);
- void pci_add_dma_alias(struct pci_dev *dev, u8 devfn)
+diff --git a/block/bfq-iosched.c b/block/bfq-iosched.c
+index ad4af4aaf2ced..5c239c540c47a 100644
+--- a/block/bfq-iosched.c
++++ b/block/bfq-iosched.c
+@@ -3444,6 +3444,10 @@ static void bfq_dispatch_remove(struct request_queue *q, struct request *rq)
+ static bool idling_needed_for_service_guarantees(struct bfq_data *bfqd,
+ 						 struct bfq_queue *bfqq)
  {
- 	if (!dev->dma_alias_mask)
--		dev->dma_alias_mask = bitmap_zalloc(U8_MAX, GFP_KERNEL);
-+		dev->dma_alias_mask = bitmap_zalloc(MAX_NR_DEVFNS, GFP_KERNEL);
- 	if (!dev->dma_alias_mask) {
- 		pci_warn(dev, "Unable to allocate DMA alias mask\n");
- 		return;
-diff --git a/drivers/pci/pci.h b/drivers/pci/pci.h
-index 3f6947ee3324a..273d60cb0762d 100644
---- a/drivers/pci/pci.h
-+++ b/drivers/pci/pci.h
-@@ -4,6 +4,9 @@
- 
- #include <linux/pci.h>
- 
-+/* Number of possible devfns: 0.0 to 1f.7 inclusive */
-+#define MAX_NR_DEVFNS 256
++	/* No point in idling for bfqq if it won't get requests any longer */
++	if (unlikely(!bfqq_process_refs(bfqq)))
++		return false;
 +
- #define PCI_FIND_CAP_TTL	48
+ 	return (bfqq->wr_coeff > 1 &&
+ 		(bfqd->wr_busy_queues <
+ 		 bfq_tot_busy_queues(bfqd) ||
+@@ -4077,6 +4081,10 @@ static bool idling_boosts_thr_without_issues(struct bfq_data *bfqd,
+ 		bfqq_sequential_and_IO_bound,
+ 		idling_boosts_thr;
  
- #define PCI_VSEC_ID_INTEL_TBT	0x1234	/* Thunderbolt */
-diff --git a/drivers/pci/search.c b/drivers/pci/search.c
-index bade14002fd8a..e4dbdef5aef05 100644
---- a/drivers/pci/search.c
-+++ b/drivers/pci/search.c
-@@ -41,9 +41,9 @@ int pci_for_each_dma_alias(struct pci_dev *pdev,
- 	 * DMA, iterate over that too.
- 	 */
- 	if (unlikely(pdev->dma_alias_mask)) {
--		u8 devfn;
-+		unsigned int devfn;
++	/* No point in idling for bfqq if it won't get requests any longer */
++	if (unlikely(!bfqq_process_refs(bfqq)))
++		return false;
++
+ 	bfqq_sequential_and_IO_bound = !BFQQ_SEEKY(bfqq) &&
+ 		bfq_bfqq_IO_bound(bfqq) && bfq_bfqq_has_short_ttime(bfqq);
  
--		for_each_set_bit(devfn, pdev->dma_alias_mask, U8_MAX) {
-+		for_each_set_bit(devfn, pdev->dma_alias_mask, MAX_NR_DEVFNS) {
- 			ret = fn(pdev, PCI_DEVID(pdev->bus->number, devfn),
- 				 data);
- 			if (ret)
+@@ -4170,6 +4178,10 @@ static bool bfq_better_to_idle(struct bfq_queue *bfqq)
+ 	struct bfq_data *bfqd = bfqq->bfqd;
+ 	bool idling_boosts_thr_with_no_issue, idling_needed_for_service_guar;
+ 
++	/* No point in idling for bfqq if it won't get requests any longer */
++	if (unlikely(!bfqq_process_refs(bfqq)))
++		return false;
++
+ 	if (unlikely(bfqd->strict_guarantees))
+ 		return true;
+ 
 -- 
 2.20.1
 
