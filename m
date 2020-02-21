@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A61C1675C3
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:32:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F37541676F2
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:41:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732063AbgBUIOp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 03:14:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51296 "EHLO mail.kernel.org"
+        id S1731035AbgBUIAT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 03:00:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60704 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732492AbgBUIOm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 03:14:42 -0500
+        id S1730575AbgBUIAS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 03:00:18 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AB38A20722;
-        Fri, 21 Feb 2020 08:14:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 058A124650;
+        Fri, 21 Feb 2020 08:00:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582272882;
-        bh=vaK5QLAbHaoGjjiAE8dsHHEguWhG8eVINS0uUsivSg0=;
+        s=default; t=1582272018;
+        bh=bsY2Ez2fjYKqL4INXHo6t0AnfkI2oIAHfv+cfuoZhC0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eZm1DSkas7DaR+NOzJZmotVgtil32swtr8gtiz7TYNLUptsLb7wBfXFoDmsfD8IrK
-         sNYK/spIHCjEQ+2Jx0/XcOefJi7X4gzlMTtr+WBH2czqcdafj5BH0FO2Tp24qIYokb
-         fOB7LgMNUIlCq0F9gaTNvOY0MNcJJdniDTQl/YE0=
+        b=RczmJubIo8DaD3sZFApvh8WOqcqy1RIOAk9M1SQ0l0L8Q/3uRZrQngZzQSNcjryvz
+         azTLixkry1R/wrJC737vhOdOGh6wMVwp80snutCVXo1OuAx6ysvhQHFNVn5/9Rin3Z
+         O9BysYHenhOJ+2jV96SH9H5uF5/QXLoiG4sOdFq4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
-        Heyi Guo <guoheyi@huawei.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 310/344] irqchip/gic-v3: Only provision redistributors that are enabled in ACPI
+        stable@vger.kernel.org,
+        Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>,
+        Michal Simek <michal.simek@xilinx.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.5 384/399] microblaze: Prevent the overflow of the start
 Date:   Fri, 21 Feb 2020 08:41:49 +0100
-Message-Id: <20200221072418.171289758@linuxfoundation.org>
+Message-Id: <20200221072437.454993271@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200221072349.335551332@linuxfoundation.org>
-References: <20200221072349.335551332@linuxfoundation.org>
+In-Reply-To: <20200221072402.315346745@linuxfoundation.org>
+References: <20200221072402.315346745@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,68 +45,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Zyngier <maz@kernel.org>
+From: Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>
 
-[ Upstream commit 926b5dfa6b8dc666ff398044af6906b156e1d949 ]
+[ Upstream commit 061d2c1d593076424c910cb1b64ecdb5c9a6923f ]
 
-We currently allocate redistributor region structures for
-individual redistributors when ACPI doesn't present us with
-compact MMIO regions covering multiple redistributors.
+In case the start + cache size is more than the max int the
+start overflows.
+Prevent the same.
 
-It turns out that we allocate these structures even when
-the redistributor is flagged as disabled by ACPI. It works
-fine until someone actually tries to tarse one of these
-structures, and access the corresponding MMIO region.
-
-Instead, track the number of enabled redistributors, and
-only allocate what is required. This makes sure that there
-is no invalid data to misuse.
-
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Reported-by: Heyi Guo <guoheyi@huawei.com>
-Tested-by: Heyi Guo <guoheyi@huawei.com>
-Link: https://lore.kernel.org/r/20191216062745.63397-1-guoheyi@huawei.com
+Signed-off-by: Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>
+Signed-off-by: Michal Simek <michal.simek@xilinx.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/irqchip/irq-gic-v3.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ arch/microblaze/kernel/cpu/cache.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/irqchip/irq-gic-v3.c b/drivers/irqchip/irq-gic-v3.c
-index 1edc99335a946..446603efbc90b 100644
---- a/drivers/irqchip/irq-gic-v3.c
-+++ b/drivers/irqchip/irq-gic-v3.c
-@@ -1801,6 +1801,7 @@ static struct
- 	struct redist_region *redist_regs;
- 	u32 nr_redist_regions;
- 	bool single_redist;
-+	int enabled_rdists;
- 	u32 maint_irq;
- 	int maint_irq_mode;
- 	phys_addr_t vcpu_base;
-@@ -1895,8 +1896,10 @@ static int __init gic_acpi_match_gicc(union acpi_subtable_headers *header,
- 	 * If GICC is enabled and has valid gicr base address, then it means
- 	 * GICR base is presented via GICC
- 	 */
--	if ((gicc->flags & ACPI_MADT_ENABLED) && gicc->gicr_base_address)
-+	if ((gicc->flags & ACPI_MADT_ENABLED) && gicc->gicr_base_address) {
-+		acpi_data.enabled_rdists++;
- 		return 0;
-+	}
+diff --git a/arch/microblaze/kernel/cpu/cache.c b/arch/microblaze/kernel/cpu/cache.c
+index 0bde47e4fa694..dcba53803fa5f 100644
+--- a/arch/microblaze/kernel/cpu/cache.c
++++ b/arch/microblaze/kernel/cpu/cache.c
+@@ -92,7 +92,8 @@ static inline void __disable_dcache_nomsr(void)
+ #define CACHE_LOOP_LIMITS(start, end, cache_line_length, cache_size)	\
+ do {									\
+ 	int align = ~(cache_line_length - 1);				\
+-	end = min(start + cache_size, end);				\
++	if (start <  UINT_MAX - cache_size)				\
++		end = min(start + cache_size, end);			\
+ 	start &= align;							\
+ } while (0)
  
- 	/*
- 	 * It's perfectly valid firmware can pass disabled GICC entry, driver
-@@ -1926,8 +1929,10 @@ static int __init gic_acpi_count_gicr_regions(void)
- 
- 	count = acpi_table_parse_madt(ACPI_MADT_TYPE_GENERIC_INTERRUPT,
- 				      gic_acpi_match_gicc, 0);
--	if (count > 0)
-+	if (count > 0) {
- 		acpi_data.single_redist = true;
-+		count = acpi_data.enabled_rdists;
-+	}
- 
- 	return count;
- }
 -- 
 2.20.1
 
