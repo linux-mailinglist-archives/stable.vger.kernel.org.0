@@ -2,36 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B89671671A6
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 08:56:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 83BF21671AC
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 08:56:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730424AbgBUH4E (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 02:56:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55258 "EHLO mail.kernel.org"
+        id S1730285AbgBUH4Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 02:56:16 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55478 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728286AbgBUH4E (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 02:56:04 -0500
+        id S1730447AbgBUH4O (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 02:56:14 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1165A20658;
-        Fri, 21 Feb 2020 07:56:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5EA8020578;
+        Fri, 21 Feb 2020 07:56:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582271763;
-        bh=b8RJsYpvF1Q+Tn7nBm8uiHgkJbJ2rIKXICWRWJJPqAo=;
+        s=default; t=1582271773;
+        bh=wEovUnVAJ3olaZoXD7wRRiPJz8vfxqM6vpopy8X8Pq8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Xpu5f0MI1TzuFXUQDAD9KYh0vpaDEo80T73SroDXUaPs+TjzXT22SOBGpcyOq/AS2
-         7+DpdggCbGEHJs6Wx05E6LfOPiclc1DefgMoqisoJudqrmsGGvdWecJr0LzR0L9gdl
-         2xHgT2alIc+sRf0zZvs69IiwNwWQUE0AV3iMfot8=
+        b=KqCogJoH492OFNhjxksuwYk+6MqJg5vD0U3vTN6Zn1lyA1/9jN+K7zSI5yy+Vr8G5
+         JrzmP21/662grOo+IVBov593LLnDf9JHQk9x3a50hkQdF3nD0wvpwZsd5+R90Pa8Dr
+         ho4qEQCdKOsl3zCWBGQrCfosPL90LCoMhgNWgNPw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kim Phillips <kim.phillips@amd.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        stable@vger.kernel.org, Pankaj Bansal <pankaj.bansal@nxp.com>,
+        Hanjun Guo <guohanjun@huawei.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Sudeep Holla <sudeep.holla@arm.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Robin Murphy <robin.murphy@arm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 290/399] perf/x86/amd: Constrain Large Increment per Cycle events
-Date:   Fri, 21 Feb 2020 08:40:15 +0100
-Message-Id: <20200221072430.007681489@linuxfoundation.org>
+Subject: [PATCH 5.5 293/399] ACPI/IORT: Fix Number of IDs handling in iort_id_map()
+Date:   Fri, 21 Feb 2020 08:40:18 +0100
+Message-Id: <20200221072430.253096930@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200221072402.315346745@linuxfoundation.org>
 References: <20200221072402.315346745@linuxfoundation.org>
@@ -44,202 +49,154 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kim Phillips <kim.phillips@amd.com>
+From: Hanjun Guo <guohanjun@huawei.com>
 
-[ Upstream commit 471af006a747f1c535c8a8c6c0973c320fe01b22 ]
+[ Upstream commit 3c23b83a88d00383e1d498cfa515249aa2fe0238 ]
 
-AMD Family 17h processors and above gain support for Large Increment
-per Cycle events.  Unfortunately there is no CPUID or equivalent bit
-that indicates whether the feature exists or not, so we continue to
-determine eligibility based on a CPU family number comparison.
+The IORT specification [0] (Section 3, table 4, page 9) defines the
+'Number of IDs' as 'The number of IDs in the range minus one'.
 
-For Large Increment per Cycle events, we add a f17h-and-compatibles
-get_event_constraints_f17h() that returns an even counter bitmask:
-Large Increment per Cycle events can only be placed on PMCs 0, 2,
-and 4 out of the currently available 0-5.  The only currently
-public event that requires this feature to report valid counts
-is PMCx003 "Retired SSE/AVX Operations".
+However, the IORT ID mapping function iort_id_map() treats the 'Number
+of IDs' field as if it were the full IDs mapping count, with the
+following check in place to detect out of boundary input IDs:
 
-Note that the CPU family logic in amd_core_pmu_init() is changed
-so as to be able to selectively add initialization for features
-available in ranges of backward-compatible CPU families.  This
-Large Increment per Cycle feature is expected to be retained
-in future families.
+InputID >= Input base + Number of IDs
 
-A side-effect of assigning a new get_constraints function for f17h
-disables calling the old (prior to f15h) amd_get_event_constraints
-implementation left enabled by commit e40ed1542dd7 ("perf/x86: Add perf
-support for AMD family-17h processors"), which is no longer
-necessary since those North Bridge event codes are obsoleted.
+This check is flawed in that it considers the 'Number of IDs' field as
+the full number of IDs mapping and disregards the 'minus one' from
+the IDs count.
 
-Also fix a spelling mistake whilst in the area (calulating ->
-calculating).
+The correct check in iort_id_map() should be implemented as:
 
-Fixes: e40ed1542dd7 ("perf/x86: Add perf support for AMD family-17h processors")
-Signed-off-by: Kim Phillips <kim.phillips@amd.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/20191114183720.19887-2-kim.phillips@amd.com
+InputID > Input base + Number of IDs
+
+this implements the specification correctly but unfortunately it breaks
+existing firmwares that erroneously set the 'Number of IDs' as the full
+IDs mapping count rather than IDs mapping count minus one.
+
+e.g.
+
+PCI hostbridge mapping entry 1:
+Input base:  0x1000
+ID Count:    0x100
+Output base: 0x1000
+Output reference: 0xC4  //ITS reference
+
+PCI hostbridge mapping entry 2:
+Input base:  0x1100
+ID Count:    0x100
+Output base: 0x2000
+Output reference: 0xD4  //ITS reference
+
+Two mapping entries which the second entry's Input base = the first
+entry's Input base + ID count, so for InputID 0x1100 and with the
+correct InputID check in place in iort_id_map() the kernel would map
+the InputID to ITS 0xC4 not 0xD4 as it would be expected.
+
+Therefore, to keep supporting existing flawed firmwares, introduce a
+workaround that instructs the kernel to use the old InputID range check
+logic in iort_id_map(), so that we can support both firmwares written
+with the flawed 'Number of IDs' logic and the correct one as defined in
+the specifications.
+
+[0]: http://infocenter.arm.com/help/topic/com.arm.doc.den0049d/DEN0049D_IO_Remapping_Table.pdf
+
+Reported-by: Pankaj Bansal <pankaj.bansal@nxp.com>
+Link: https://lore.kernel.org/linux-acpi/20191215203303.29811-1-pankaj.bansal@nxp.com/
+Signed-off-by: Hanjun Guo <guohanjun@huawei.com>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Cc: Pankaj Bansal <pankaj.bansal@nxp.com>
+Cc: Will Deacon <will@kernel.org>
+Cc: Sudeep Holla <sudeep.holla@arm.com>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Robin Murphy <robin.murphy@arm.com>
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/events/amd/core.c   | 91 ++++++++++++++++++++++++------------
- arch/x86/events/perf_event.h |  2 +
- 2 files changed, 63 insertions(+), 30 deletions(-)
+ drivers/acpi/arm64/iort.c | 57 +++++++++++++++++++++++++++++++++++++--
+ 1 file changed, 55 insertions(+), 2 deletions(-)
 
-diff --git a/arch/x86/events/amd/core.c b/arch/x86/events/amd/core.c
-index dede714b46e83..3253797fa8a14 100644
---- a/arch/x86/events/amd/core.c
-+++ b/arch/x86/events/amd/core.c
-@@ -302,6 +302,25 @@ static inline int amd_pmu_addr_offset(int index, bool eventsel)
- 	return offset;
+diff --git a/drivers/acpi/arm64/iort.c b/drivers/acpi/arm64/iort.c
+index 33f71983e0017..6078064684c6c 100644
+--- a/drivers/acpi/arm64/iort.c
++++ b/drivers/acpi/arm64/iort.c
+@@ -298,6 +298,59 @@ out:
+ 	return status;
  }
  
-+/*
-+ * AMD64 events are detected based on their event codes.
-+ */
-+static inline unsigned int amd_get_event_code(struct hw_perf_event *hwc)
-+{
-+	return ((hwc->config >> 24) & 0x0f00) | (hwc->config & 0x00ff);
-+}
++struct iort_workaround_oem_info {
++	char oem_id[ACPI_OEM_ID_SIZE + 1];
++	char oem_table_id[ACPI_OEM_TABLE_ID_SIZE + 1];
++	u32 oem_revision;
++};
 +
-+static inline bool amd_is_pair_event_code(struct hw_perf_event *hwc)
-+{
-+	if (!(x86_pmu.flags & PMU_FL_PAIR))
-+		return false;
++static bool apply_id_count_workaround;
 +
-+	switch (amd_get_event_code(hwc)) {
-+	case 0x003:	return true;	/* Retired SSE/AVX FLOPs */
-+	default:	return false;
++static struct iort_workaround_oem_info wa_info[] __initdata = {
++	{
++		.oem_id		= "HISI  ",
++		.oem_table_id	= "HIP07   ",
++		.oem_revision	= 0,
++	}, {
++		.oem_id		= "HISI  ",
++		.oem_table_id	= "HIP08   ",
++		.oem_revision	= 0,
 +	}
-+}
++};
 +
- static int amd_core_hw_config(struct perf_event *event)
- {
- 	if (event->attr.exclude_host && event->attr.exclude_guest)
-@@ -320,14 +339,6 @@ static int amd_core_hw_config(struct perf_event *event)
- 	return 0;
- }
- 
--/*
-- * AMD64 events are detected based on their event codes.
-- */
--static inline unsigned int amd_get_event_code(struct hw_perf_event *hwc)
--{
--	return ((hwc->config >> 24) & 0x0f00) | (hwc->config & 0x00ff);
--}
--
- static inline int amd_is_nb_event(struct hw_perf_event *hwc)
- {
- 	return (hwc->config & 0xe0) == 0xe0;
-@@ -856,6 +867,20 @@ amd_get_event_constraints_f15h(struct cpu_hw_events *cpuc, int idx,
- 	}
- }
- 
-+static struct event_constraint pair_constraint;
-+
-+static struct event_constraint *
-+amd_get_event_constraints_f17h(struct cpu_hw_events *cpuc, int idx,
-+			       struct perf_event *event)
++static void __init
++iort_check_id_count_workaround(struct acpi_table_header *tbl)
 +{
-+	struct hw_perf_event *hwc = &event->hw;
-+
-+	if (amd_is_pair_event_code(hwc))
-+		return &pair_constraint;
-+
-+	return &unconstrained;
-+}
-+
- static ssize_t amd_event_sysfs_show(char *page, u64 config)
- {
- 	u64 event = (config & ARCH_PERFMON_EVENTSEL_EVENT) |
-@@ -899,33 +924,15 @@ static __initconst const struct x86_pmu amd_pmu = {
- 
- static int __init amd_core_pmu_init(void)
- {
-+	u64 even_ctr_mask = 0ULL;
 +	int i;
 +
- 	if (!boot_cpu_has(X86_FEATURE_PERFCTR_CORE))
- 		return 0;
- 
--	/* Avoid calulating the value each time in the NMI handler */
-+	/* Avoid calculating the value each time in the NMI handler */
- 	perf_nmi_window = msecs_to_jiffies(100);
- 
--	switch (boot_cpu_data.x86) {
--	case 0x15:
--		pr_cont("Fam15h ");
--		x86_pmu.get_event_constraints = amd_get_event_constraints_f15h;
--		break;
--	case 0x17:
--		pr_cont("Fam17h ");
--		/*
--		 * In family 17h, there are no event constraints in the PMC hardware.
--		 * We fallback to using default amd_get_event_constraints.
--		 */
--		break;
--	case 0x18:
--		pr_cont("Fam18h ");
--		/* Using default amd_get_event_constraints. */
--		break;
--	default:
--		pr_err("core perfctr but no constraints; unknown hardware!\n");
--		return -ENODEV;
--	}
--
- 	/*
- 	 * If core performance counter extensions exists, we must use
- 	 * MSR_F15H_PERF_CTL/MSR_F15H_PERF_CTR msrs. See also
-@@ -940,6 +947,30 @@ static int __init amd_core_pmu_init(void)
- 	 */
- 	x86_pmu.amd_nb_constraints = 0;
- 
-+	if (boot_cpu_data.x86 == 0x15) {
-+		pr_cont("Fam15h ");
-+		x86_pmu.get_event_constraints = amd_get_event_constraints_f15h;
++	for (i = 0; i < ARRAY_SIZE(wa_info); i++) {
++		if (!memcmp(wa_info[i].oem_id, tbl->oem_id, ACPI_OEM_ID_SIZE) &&
++		    !memcmp(wa_info[i].oem_table_id, tbl->oem_table_id, ACPI_OEM_TABLE_ID_SIZE) &&
++		    wa_info[i].oem_revision == tbl->oem_revision) {
++			apply_id_count_workaround = true;
++			pr_warn(FW_BUG "ID count for ID mapping entry is wrong, applying workaround\n");
++			break;
++		}
 +	}
-+	if (boot_cpu_data.x86 >= 0x17) {
-+		pr_cont("Fam17h+ ");
-+		/*
-+		 * Family 17h and compatibles have constraints for Large
-+		 * Increment per Cycle events: they may only be assigned an
-+		 * even numbered counter that has a consecutive adjacent odd
-+		 * numbered counter following it.
-+		 */
-+		for (i = 0; i < x86_pmu.num_counters - 1; i += 2)
-+			even_ctr_mask |= 1 << i;
++}
 +
-+		pair_constraint = (struct event_constraint)
-+				    __EVENT_CONSTRAINT(0, even_ctr_mask, 0,
-+				    x86_pmu.num_counters / 2, 0,
-+				    PERF_X86_EVENT_PAIR);
++static inline u32 iort_get_map_max(struct acpi_iort_id_mapping *map)
++{
++	u32 map_max = map->input_base + map->id_count;
 +
-+		x86_pmu.get_event_constraints = amd_get_event_constraints_f17h;
-+		x86_pmu.flags |= PMU_FL_PAIR;
-+	}
++	/*
++	 * The IORT specification revision D (Section 3, table 4, page 9) says
++	 * Number of IDs = The number of IDs in the range minus one, but the
++	 * IORT code ignored the "minus one", and some firmware did that too,
++	 * so apply a workaround here to keep compatible with both the spec
++	 * compliant and non-spec compliant firmwares.
++	 */
++	if (apply_id_count_workaround)
++		map_max--;
 +
- 	pr_cont("core perfctr, ");
- 	return 0;
++	return map_max;
++}
++
+ static int iort_id_map(struct acpi_iort_id_mapping *map, u8 type, u32 rid_in,
+ 		       u32 *rid_out)
+ {
+@@ -314,8 +367,7 @@ static int iort_id_map(struct acpi_iort_id_mapping *map, u8 type, u32 rid_in,
+ 		return -ENXIO;
+ 	}
+ 
+-	if (rid_in < map->input_base ||
+-	    (rid_in >= map->input_base + map->id_count))
++	if (rid_in < map->input_base || rid_in > iort_get_map_max(map))
+ 		return -ENXIO;
+ 
+ 	*rid_out = map->output_base + (rid_in - map->input_base);
+@@ -1631,5 +1683,6 @@ void __init acpi_iort_init(void)
+ 		return;
+ 	}
+ 
++	iort_check_id_count_workaround(iort_table);
+ 	iort_init_platform_devices();
  }
-diff --git a/arch/x86/events/perf_event.h b/arch/x86/events/perf_event.h
-index 930611db8f9ad..e2fd363de6490 100644
---- a/arch/x86/events/perf_event.h
-+++ b/arch/x86/events/perf_event.h
-@@ -77,6 +77,7 @@ static inline bool constraint_match(struct event_constraint *c, u64 ecode)
- #define PERF_X86_EVENT_AUTO_RELOAD	0x0200 /* use PEBS auto-reload */
- #define PERF_X86_EVENT_LARGE_PEBS	0x0400 /* use large PEBS */
- #define PERF_X86_EVENT_PEBS_VIA_PT	0x0800 /* use PT buffer for PEBS */
-+#define PERF_X86_EVENT_PAIR		0x1000 /* Large Increment per Cycle */
- 
- struct amd_nb {
- 	int nb_id;  /* NorthBridge id */
-@@ -743,6 +744,7 @@ do {									\
- #define PMU_FL_EXCL_ENABLED	0x8 /* exclusive counter active */
- #define PMU_FL_PEBS_ALL		0x10 /* all events are valid PEBS events */
- #define PMU_FL_TFA		0x20 /* deal with TSX force abort */
-+#define PMU_FL_PAIR		0x40 /* merge counters for large incr. events */
- 
- #define EVENT_VAR(_id)  event_attr_##_id
- #define EVENT_PTR(_id) &event_attr_##_id.attr.attr
 -- 
 2.20.1
 
