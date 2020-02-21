@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BA3B5167222
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:00:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DA68D16748E
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:24:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730908AbgBUIAa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 03:00:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60928 "EHLO mail.kernel.org"
+        id S2388341AbgBUIWj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 03:22:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34270 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731068AbgBUIAa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 03:00:30 -0500
+        id S2388334AbgBUIWh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 03:22:37 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 92031206ED;
-        Fri, 21 Feb 2020 08:00:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B92772467D;
+        Fri, 21 Feb 2020 08:22:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582272030;
-        bh=fWkVieqX4+okU8uVSg0m7NTofCEOdf4K60FWuuLXt9s=;
+        s=default; t=1582273357;
+        bh=2+cmvOTfjefLg7z9K6NEbzvp0YsZpeIAhXSEBWBCpx8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x9iksqhNfoGA8XiYKQWXYwQIIzhnYXFDRgu/pGrd8ouLdUhbn9rXj2z2qfQh10Tz6
-         siwM0yT8C1go77NP8K+kags2aN8SXgeBYC4ZL0wUwOx1GYi7/kvYeWSkvxEyD5QTuF
-         0Esg9HJTrukBoDFgMOBNhbzZop0NqoeNZOzG9bfY=
+        b=XklDQV6UFWI9aAd33JBIUkpF9ii30QEJHAIZNAU/vqk3IeVv6GyJRWHx1y7BXUDLL
+         9CP6ovsM/D4P2MUw1nnNx/Ar6ik1QMescLnBIJd/r+y1wsl5GBqJjU8nSjuZSRDLoI
+         m+kF0qSCqInAbyieQqYA8Kzq3BgHUHgjdj53WsQg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wenwen Wang <wenwen@cs.uga.edu>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 388/399] NFS: Fix memory leaks
-Date:   Fri, 21 Feb 2020 08:41:53 +0100
-Message-Id: <20200221072437.736264325@linuxfoundation.org>
+Subject: [PATCH 4.19 141/191] cmd64x: potential buffer overflow in cmd64x_program_timings()
+Date:   Fri, 21 Feb 2020 08:41:54 +0100
+Message-Id: <20200221072307.595664535@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200221072402.315346745@linuxfoundation.org>
-References: <20200221072402.315346745@linuxfoundation.org>
+In-Reply-To: <20200221072250.732482588@linuxfoundation.org>
+References: <20200221072250.732482588@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,49 +44,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wenwen Wang <wenwen@cs.uga.edu>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 123c23c6a7b7ecd2a3d6060bea1d94019f71fd66 ]
+[ Upstream commit 117fcc3053606d8db5cef8821dca15022ae578bb ]
 
-In _nfs42_proc_copy(), 'res->commit_res.verf' is allocated through
-kzalloc() if 'args->sync' is true. In the following code, if
-'res->synchronous' is false, handle_async_copy() will be invoked. If an
-error occurs during the invocation, the following code will not be executed
-and the error will be returned . However, the allocated
-'res->commit_res.verf' is not deallocated, leading to a memory leak. This
-is also true if the invocation of process_copy_commit() returns an error.
+The "drive->dn" value is a u8 and it is controlled by root only, but
+it could be out of bounds here so let's check.
 
-To fix the above leaks, redirect the execution to the 'out' label if an
-error is encountered.
-
-Signed-off-by: Wenwen Wang <wenwen@cs.uga.edu>
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/nfs42proc.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/ide/cmd64x.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/fs/nfs/nfs42proc.c b/fs/nfs/nfs42proc.c
-index 9637aad36bdca..e2ae54b35dfe1 100644
---- a/fs/nfs/nfs42proc.c
-+++ b/fs/nfs/nfs42proc.c
-@@ -343,14 +343,14 @@ static ssize_t _nfs42_proc_copy(struct file *src,
- 		status = handle_async_copy(res, dst_server, src_server, src,
- 				dst, &args->src_stateid, restart);
- 		if (status)
--			return status;
-+			goto out;
- 	}
+diff --git a/drivers/ide/cmd64x.c b/drivers/ide/cmd64x.c
+index b127ed60c7336..9dde8390da09b 100644
+--- a/drivers/ide/cmd64x.c
++++ b/drivers/ide/cmd64x.c
+@@ -65,6 +65,9 @@ static void cmd64x_program_timings(ide_drive_t *drive, u8 mode)
+ 	struct ide_timing t;
+ 	u8 arttim = 0;
  
- 	if ((!res->synchronous || !args->sync) &&
- 			res->write_res.verifier.committed != NFS_FILE_SYNC) {
- 		status = process_copy_commit(dst, pos_dst, res);
- 		if (status)
--			return status;
-+			goto out;
- 	}
++	if (drive->dn >= ARRAY_SIZE(drwtim_regs))
++		return;
++
+ 	ide_timing_compute(drive, mode, &t, T, 0);
  
- 	truncate_pagecache_range(dst_inode, pos_dst,
+ 	/*
 -- 
 2.20.1
 
