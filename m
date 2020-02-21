@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AB07E1677EE
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:46:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B1AB81676AB
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:38:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728744AbgBUHue (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 02:50:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47480 "EHLO mail.kernel.org"
+        id S1731558AbgBUIFE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 03:05:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38408 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728734AbgBUHue (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 02:50:34 -0500
+        id S1731261AbgBUIFC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 03:05:02 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 11B41222C4;
-        Fri, 21 Feb 2020 07:50:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 22EF824676;
+        Fri, 21 Feb 2020 08:05:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582271433;
-        bh=wR6C10GPXR4V7ZmI26zS0GY6Vw80a1HSsoiKfIcNmlI=;
+        s=default; t=1582272301;
+        bh=JDVA4kPHn3/WHslHxrVCCMC6R0vLzrDqSzqYuvBaUyo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JHC+bLA31V6WORv7kWO4Er0sE1YDVnLEka+Ct4ysvPezXC9JgcVge/xyTSlZQYRvZ
-         oVMwBqFZzTDOwQkltP5eTyGr/GUbWMfq/bBSIVlIyYETJWD2+rASng5gjVOKLYR33d
-         NilBJHSWAO7oIk4PKkePXI5pcXAWb76g5v3Zf6mE=
+        b=A+90EoNRAMY3YAFDYeVUO5UFsmR+pwB+B33+L/VgB1wOKKmS+yAgycJ1nuYRghM2i
+         QJlpxYT60N5Ke3KbIwqKOmXeNapwwU7l9fr2+R1ddkycybyIkzLhJsdC9CgmvCXg/u
+         wapWqw7biNqFCMOHkZddmJ9Ouwd9moARLitQhVi4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dave Chinner <david@fromorbit.com>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        "J. Bruce Fields" <bfields@redhat.com>,
+        stable@vger.kernel.org, Rajendra Nayak <rnayak@codeaurora.org>,
+        Stephen Boyd <sboyd@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 165/399] nfsd: Clone should commit src file metadata too
+Subject: [PATCH 5.4 091/344] clk: qcom: Dont overwrite cfg in clk_rcg2_dfs_populate_freq()
 Date:   Fri, 21 Feb 2020 08:38:10 +0100
-Message-Id: <20200221072418.647868113@linuxfoundation.org>
+Message-Id: <20200221072357.231206580@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200221072402.315346745@linuxfoundation.org>
-References: <20200221072402.315346745@linuxfoundation.org>
+In-Reply-To: <20200221072349.335551332@linuxfoundation.org>
+References: <20200221072349.335551332@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,67 +44,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trondmy@gmail.com>
+From: Stephen Boyd <sboyd@kernel.org>
 
-[ Upstream commit 57f64034966fb945fc958f95f0c51e47af590344 ]
+[ Upstream commit 21e157c62eeded8b1558a991b4820b761d48a730 ]
 
-vfs_clone_file_range() can modify the metadata on the source file too,
-so we need to commit that to stable storage as well.
+The DFS frequency table logic overwrites 'cfg' while detecting the
+parent clk and then later on in clk_rcg2_dfs_populate_freq() we use that
+same variable to figure out the mode of the clk, either MND or not. Add
+a new variable to hold the parent clk bit so that 'cfg' is left
+untouched for use later.
 
-Reported-by: Dave Chinner <david@fromorbit.com>
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
-Acked-by: Dave Chinner <david@fromorbit.com>
-Signed-off-by: J. Bruce Fields <bfields@redhat.com>
+This fixes problems in detecting the supported frequencies for any clks
+in DFS mode.
+
+Fixes: cc4f6944d0e3 ("clk: qcom: Add support for RCG to register for DFS")
+Reported-by: Rajendra Nayak <rnayak@codeaurora.org>
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Link: https://lkml.kernel.org/r/20200128193329.45635-1-sboyd@kernel.org
+Tested-by: Rajendra Nayak <rnayak@codeaurora.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfsd/vfs.c | 19 ++++++++++++++-----
- 1 file changed, 14 insertions(+), 5 deletions(-)
+ drivers/clk/qcom/clk-rcg2.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/fs/nfsd/vfs.c b/fs/nfsd/vfs.c
-index f0bca0e87d0c4..82cf80dde5c71 100644
---- a/fs/nfsd/vfs.c
-+++ b/fs/nfsd/vfs.c
-@@ -280,19 +280,25 @@ out:
-  * Commit metadata changes to stable storage.
-  */
- static int
--commit_metadata(struct svc_fh *fhp)
-+commit_inode_metadata(struct inode *inode)
- {
--	struct inode *inode = d_inode(fhp->fh_dentry);
- 	const struct export_operations *export_ops = inode->i_sb->s_export_op;
+diff --git a/drivers/clk/qcom/clk-rcg2.c b/drivers/clk/qcom/clk-rcg2.c
+index 5a89ed88cc27a..5174222cbfab2 100644
+--- a/drivers/clk/qcom/clk-rcg2.c
++++ b/drivers/clk/qcom/clk-rcg2.c
+@@ -952,7 +952,7 @@ static void clk_rcg2_dfs_populate_freq(struct clk_hw *hw, unsigned int l,
+ 	struct clk_rcg2 *rcg = to_clk_rcg2(hw);
+ 	struct clk_hw *p;
+ 	unsigned long prate = 0;
+-	u32 val, mask, cfg, mode;
++	u32 val, mask, cfg, mode, src;
+ 	int i, num_parents;
  
--	if (!EX_ISSYNC(fhp->fh_export))
--		return 0;
--
- 	if (export_ops->commit_metadata)
- 		return export_ops->commit_metadata(inode);
- 	return sync_inode_metadata(inode, 1);
- }
+ 	regmap_read(rcg->clkr.regmap, rcg->cmd_rcgr + SE_PERF_DFSR(l), &cfg);
+@@ -962,12 +962,12 @@ static void clk_rcg2_dfs_populate_freq(struct clk_hw *hw, unsigned int l,
+ 	if (cfg & mask)
+ 		f->pre_div = cfg & mask;
  
-+static int
-+commit_metadata(struct svc_fh *fhp)
-+{
-+	struct inode *inode = d_inode(fhp->fh_dentry);
-+
-+	if (!EX_ISSYNC(fhp->fh_export))
-+		return 0;
-+	return commit_inode_metadata(inode);
-+}
-+
- /*
-  * Go over the attributes and take care of the small differences between
-  * NFS semantics and what Linux expects.
-@@ -537,6 +543,9 @@ __be32 nfsd4_clone_file_range(struct file *src, u64 src_pos, struct file *dst,
- 	if (sync) {
- 		loff_t dst_end = count ? dst_pos + count - 1 : LLONG_MAX;
- 		int status = vfs_fsync_range(dst, dst_pos, dst_end, 0);
-+
-+		if (!status)
-+			status = commit_inode_metadata(file_inode(src));
- 		if (status < 0)
- 			return nfserrno(status);
- 	}
+-	cfg &= CFG_SRC_SEL_MASK;
+-	cfg >>= CFG_SRC_SEL_SHIFT;
++	src = cfg & CFG_SRC_SEL_MASK;
++	src >>= CFG_SRC_SEL_SHIFT;
+ 
+ 	num_parents = clk_hw_get_num_parents(hw);
+ 	for (i = 0; i < num_parents; i++) {
+-		if (cfg == rcg->parent_map[i].cfg) {
++		if (src == rcg->parent_map[i].cfg) {
+ 			f->src = rcg->parent_map[i].src;
+ 			p = clk_hw_get_parent_by_index(&rcg->clkr.hw, i);
+ 			prate = clk_hw_get_rate(p);
 -- 
 2.20.1
 
