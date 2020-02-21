@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 21C441674FA
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:30:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BBEF316738B
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:13:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388205AbgBUIU6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 03:20:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60248 "EHLO mail.kernel.org"
+        id S1732982AbgBUINU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 03:13:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49344 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387930AbgBUIU5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 03:20:57 -0500
+        id S1732978AbgBUINR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 03:13:17 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 473502073A;
-        Fri, 21 Feb 2020 08:20:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B1EAA24650;
+        Fri, 21 Feb 2020 08:13:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582273256;
-        bh=tvKzxyBSOWdbycPIokxc9W8PB7ktoh/zY9HjhmgDT+k=;
+        s=default; t=1582272797;
+        bh=cgZgQbXA5EXmpfCJ4zk9MfAj8jEBQWtRyXE+AKDmBgU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QMrLwEP17n6c/jDdIkcSoAa6Q7lojdYaypmavPKtFcSojqK0zbQKk3v/OEu8HMza0
-         tLmeN1mqpZqI6H6YVEX+xk2tgYf4ha8j4v+mt7V/qKD0Vk4NkpXkHHYM/4G0iltkOf
-         D96L3tsJF0kU+oAM1g6T9E3XHGnhaNXL3QBhtc8c=
+        b=baH1pFIpynKRRXx+KYoV2yvNr5FUbTX/SpV+vLf/6lEJEGjIxqrh7/wdhpBAZpKoI
+         +Bb1Qg1nU3zk2wa8xufAaYfy+YfiX3Z/pWzomA1A53oJo8Ib0eZ+nycR4KhegujqGt
+         w5aQlpwD1ST29kFyM3pCB7GvuHuXdrkn3pTL+UVY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shuah Khan <skhan@linuxfoundation.org>,
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 104/191] usbip: Fix unsafe unaligned pointer usage
+Subject: [PATCH 5.4 278/344] driver core: platform: fix u32 greater or equal to zero comparison
 Date:   Fri, 21 Feb 2020 08:41:17 +0100
-Message-Id: <20200221072303.443382006@linuxfoundation.org>
+Message-Id: <20200221072415.010652868@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200221072250.732482588@linuxfoundation.org>
-References: <20200221072250.732482588@linuxfoundation.org>
+In-Reply-To: <20200221072349.335551332@linuxfoundation.org>
+References: <20200221072349.335551332@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,151 +44,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shuah Khan <skhan@linuxfoundation.org>
+From: Colin Ian King <colin.king@canonical.com>
 
-[ Upstream commit 585c91f40d201bc564d4e76b83c05b3b5363fe7e ]
+[ Upstream commit 0707cfa5c3ef58effb143db9db6d6e20503f9dec ]
 
-Fix unsafe unaligned pointer usage in usbip network interfaces. usbip tool
-build fails with new gcc -Werror=address-of-packed-member checks.
+Currently the check that a u32 variable i is >= 0 is always true because
+the unsigned variable will never be negative, causing the loop to run
+forever.  Fix this by changing the pre-decrement check to a zero check on
+i followed by a decrement of i.
 
-usbip_network.c: In function ‘usbip_net_pack_usb_device’:
-usbip_network.c:79:32: error: taking address of packed member of ‘struct usbip_usb_device’ may result in an unaligned pointer value [-Werror=address-of-packed-member]
-   79 |  usbip_net_pack_uint32_t(pack, &udev->busnum);
-
-Fix with minor changes to pass by value instead of by address.
-
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
-Link: https://lore.kernel.org/r/20200109012416.2875-1-skhan@linuxfoundation.org
+Addresses-Coverity: ("Unsigned compared against 0")
+Fixes: 39cc539f90d0 ("driver core: platform: Prevent resouce overflow from causing infinite loops")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Reviewed-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Link: https://lore.kernel.org/r/20200116175758.88396-1-colin.king@canonical.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/usb/usbip/src/usbip_network.c | 40 +++++++++++++++++------------
- tools/usb/usbip/src/usbip_network.h | 12 +++------
- 2 files changed, 27 insertions(+), 25 deletions(-)
+ drivers/base/platform.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/usb/usbip/src/usbip_network.c b/tools/usb/usbip/src/usbip_network.c
-index 8ffcd47d96385..902f55208e239 100644
---- a/tools/usb/usbip/src/usbip_network.c
-+++ b/tools/usb/usbip/src/usbip_network.c
-@@ -62,39 +62,39 @@ void usbip_setup_port_number(char *arg)
- 	info("using port %d (\"%s\")", usbip_port, usbip_port_string);
- }
- 
--void usbip_net_pack_uint32_t(int pack, uint32_t *num)
-+uint32_t usbip_net_pack_uint32_t(int pack, uint32_t num)
- {
- 	uint32_t i;
- 
- 	if (pack)
--		i = htonl(*num);
-+		i = htonl(num);
- 	else
--		i = ntohl(*num);
-+		i = ntohl(num);
- 
--	*num = i;
-+	return i;
- }
- 
--void usbip_net_pack_uint16_t(int pack, uint16_t *num)
-+uint16_t usbip_net_pack_uint16_t(int pack, uint16_t num)
- {
- 	uint16_t i;
- 
- 	if (pack)
--		i = htons(*num);
-+		i = htons(num);
- 	else
--		i = ntohs(*num);
-+		i = ntohs(num);
- 
--	*num = i;
-+	return i;
- }
- 
- void usbip_net_pack_usb_device(int pack, struct usbip_usb_device *udev)
- {
--	usbip_net_pack_uint32_t(pack, &udev->busnum);
--	usbip_net_pack_uint32_t(pack, &udev->devnum);
--	usbip_net_pack_uint32_t(pack, &udev->speed);
-+	udev->busnum = usbip_net_pack_uint32_t(pack, udev->busnum);
-+	udev->devnum = usbip_net_pack_uint32_t(pack, udev->devnum);
-+	udev->speed = usbip_net_pack_uint32_t(pack, udev->speed);
- 
--	usbip_net_pack_uint16_t(pack, &udev->idVendor);
--	usbip_net_pack_uint16_t(pack, &udev->idProduct);
--	usbip_net_pack_uint16_t(pack, &udev->bcdDevice);
-+	udev->idVendor = usbip_net_pack_uint16_t(pack, udev->idVendor);
-+	udev->idProduct = usbip_net_pack_uint16_t(pack, udev->idProduct);
-+	udev->bcdDevice = usbip_net_pack_uint16_t(pack, udev->bcdDevice);
- }
- 
- void usbip_net_pack_usb_interface(int pack __attribute__((unused)),
-@@ -141,6 +141,14 @@ ssize_t usbip_net_send(int sockfd, void *buff, size_t bufflen)
- 	return usbip_net_xmit(sockfd, buff, bufflen, 1);
- }
- 
-+static inline void usbip_net_pack_op_common(int pack,
-+					    struct op_common *op_common)
-+{
-+	op_common->version = usbip_net_pack_uint16_t(pack, op_common->version);
-+	op_common->code = usbip_net_pack_uint16_t(pack, op_common->code);
-+	op_common->status = usbip_net_pack_uint32_t(pack, op_common->status);
-+}
-+
- int usbip_net_send_op_common(int sockfd, uint32_t code, uint32_t status)
- {
- 	struct op_common op_common;
-@@ -152,7 +160,7 @@ int usbip_net_send_op_common(int sockfd, uint32_t code, uint32_t status)
- 	op_common.code    = code;
- 	op_common.status  = status;
- 
--	PACK_OP_COMMON(1, &op_common);
-+	usbip_net_pack_op_common(1, &op_common);
- 
- 	rc = usbip_net_send(sockfd, &op_common, sizeof(op_common));
- 	if (rc < 0) {
-@@ -176,7 +184,7 @@ int usbip_net_recv_op_common(int sockfd, uint16_t *code, int *status)
- 		goto err;
+diff --git a/drivers/base/platform.c b/drivers/base/platform.c
+index ee99b15581290..60386a32208ff 100644
+--- a/drivers/base/platform.c
++++ b/drivers/base/platform.c
+@@ -543,7 +543,7 @@ int platform_device_add(struct platform_device *pdev)
+ 		pdev->id = PLATFORM_DEVID_AUTO;
  	}
  
--	PACK_OP_COMMON(0, &op_common);
-+	usbip_net_pack_op_common(0, &op_common);
- 
- 	if (op_common.version != USBIP_VERSION) {
- 		err("USBIP Kernel and tool version mismatch: %d %d:",
-diff --git a/tools/usb/usbip/src/usbip_network.h b/tools/usb/usbip/src/usbip_network.h
-index 555215eae43e9..83b4c5344f721 100644
---- a/tools/usb/usbip/src/usbip_network.h
-+++ b/tools/usb/usbip/src/usbip_network.h
-@@ -32,12 +32,6 @@ struct op_common {
- 
- } __attribute__((packed));
- 
--#define PACK_OP_COMMON(pack, op_common)  do {\
--	usbip_net_pack_uint16_t(pack, &(op_common)->version);\
--	usbip_net_pack_uint16_t(pack, &(op_common)->code);\
--	usbip_net_pack_uint32_t(pack, &(op_common)->status);\
--} while (0)
--
- /* ---------------------------------------------------------------------- */
- /* Dummy Code */
- #define OP_UNSPEC	0x00
-@@ -163,11 +157,11 @@ struct op_devlist_reply_extra {
- } while (0)
- 
- #define PACK_OP_DEVLIST_REPLY(pack, reply)  do {\
--	usbip_net_pack_uint32_t(pack, &(reply)->ndev);\
-+	(reply)->ndev = usbip_net_pack_uint32_t(pack, (reply)->ndev);\
- } while (0)
- 
--void usbip_net_pack_uint32_t(int pack, uint32_t *num);
--void usbip_net_pack_uint16_t(int pack, uint16_t *num);
-+uint32_t usbip_net_pack_uint32_t(int pack, uint32_t num);
-+uint16_t usbip_net_pack_uint16_t(int pack, uint16_t num);
- void usbip_net_pack_usb_device(int pack, struct usbip_usb_device *udev);
- void usbip_net_pack_usb_interface(int pack, struct usbip_usb_interface *uinf);
- 
+-	while (--i >= 0) {
++	while (i--) {
+ 		struct resource *r = &pdev->resource[i];
+ 		if (r->parent)
+ 			release_resource(r);
 -- 
 2.20.1
 
