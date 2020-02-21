@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A690A167394
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:14:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 06A0716722D
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:01:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732452AbgBUINm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 03:13:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49884 "EHLO mail.kernel.org"
+        id S1730955AbgBUIA4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 03:00:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33154 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733026AbgBUINk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 03:13:40 -0500
+        id S1730649AbgBUIAy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 03:00:54 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F249524650;
-        Fri, 21 Feb 2020 08:13:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5F8D1206ED;
+        Fri, 21 Feb 2020 08:00:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582272820;
-        bh=2spouiENZlNYp3MJcPrlIyDeaNk6twYapLciEAA6zdg=;
+        s=default; t=1582272053;
+        bh=J82JkTofHDDCykmw5UKeVbFfNcfQzl+TMlBOTvHz5nY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p26Hr/ts1N0s5nA4cJw7qorG4dHpDIUPy/1SFeCa9Pb9puCJQDNqXRvkIQ9NZl33M
-         r1tWHsavISLgJy9vMcdIZZ6vKhlrZv6ucKHgKly0NjCT54CJTIwCJlpi6opOjDYJgI
-         K83sc6x3FHxFfMw4YCe9Bzp+Xf2KQJEBcpGeQUKo=
+        b=ahixFYLf5R9fJviHhnEoR3OS0DLdUjWQQhRTko1Lxgfzn59FHbp1tgm/CNMXsqy/H
+         dI8GUgM5/1y9U/M1FDvZavO9Hnh2ZeoIQR9pe9XpeynCGaue0Zz7hJ+jnry22J49bs
+         KfQ9GYW3gMqU0X44k08FsDqr9L5e7Mf7mlUq7ugs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Liang Chen <liangchen.linux@gmail.com>,
-        Christoph Hellwig <hch@lst.de>, Coly Li <colyli@suse.de>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 287/344] bcache: cached_dev_free needs to put the sb page
+        stable@vger.kernel.org, Ben Skeggs <bskeggs@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.5 361/399] drm/nouveau/disp/nv50-: prevent oops when no channel method map provided
 Date:   Fri, 21 Feb 2020 08:41:26 +0100
-Message-Id: <20200221072415.873554828@linuxfoundation.org>
+Message-Id: <20200221072435.827235341@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200221072349.335551332@linuxfoundation.org>
-References: <20200221072349.335551332@linuxfoundation.org>
+In-Reply-To: <20200221072402.315346745@linuxfoundation.org>
+References: <20200221072402.315346745@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,37 +43,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liang Chen <liangchen.linux@gmail.com>
+From: Ben Skeggs <bskeggs@redhat.com>
 
-[ Upstream commit e8547d42095e58bee658f00fef8e33d2a185c927 ]
+[ Upstream commit 0e6176c6d286316e9431b4f695940cfac4ffe6c2 ]
 
-Same as cache device, the buffer page needs to be put while
-freeing cached_dev.  Otherwise a page would be leaked every
-time a cached_dev is stopped.
+The implementations for most channel types contains a map of methods to
+priv registers in order to provide debugging info when a disp exception
+has been raised.
 
-Signed-off-by: Liang Chen <liangchen.linux@gmail.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Coly Li <colyli@suse.de>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+This info is missing from the implementation of PIO channels as they're
+rather simplistic already, however, if an exception is raised by one of
+them, we'd end up triggering a NULL-pointer deref.  Not ideal...
+
+Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=206299
+Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/bcache/super.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/gpu/drm/nouveau/nvkm/engine/disp/channv50.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/md/bcache/super.c b/drivers/md/bcache/super.c
-index 64999c7a8033f..b86cf72033401 100644
---- a/drivers/md/bcache/super.c
-+++ b/drivers/md/bcache/super.c
-@@ -1274,6 +1274,9 @@ static void cached_dev_free(struct closure *cl)
+diff --git a/drivers/gpu/drm/nouveau/nvkm/engine/disp/channv50.c b/drivers/gpu/drm/nouveau/nvkm/engine/disp/channv50.c
+index bcf32d92ee5a9..50e3539f33d22 100644
+--- a/drivers/gpu/drm/nouveau/nvkm/engine/disp/channv50.c
++++ b/drivers/gpu/drm/nouveau/nvkm/engine/disp/channv50.c
+@@ -74,6 +74,8 @@ nv50_disp_chan_mthd(struct nv50_disp_chan *chan, int debug)
  
- 	mutex_unlock(&bch_register_lock);
+ 	if (debug > subdev->debug)
+ 		return;
++	if (!mthd)
++		return;
  
-+	if (dc->sb_bio.bi_inline_vecs[0].bv_page)
-+		put_page(bio_first_page_all(&dc->sb_bio));
-+
- 	if (!IS_ERR_OR_NULL(dc->bdev))
- 		blkdev_put(dc->bdev, FMODE_READ|FMODE_WRITE|FMODE_EXCL);
- 
+ 	for (i = 0; (list = mthd->data[i].mthd) != NULL; i++) {
+ 		u32 base = chan->head * mthd->addr;
 -- 
 2.20.1
 
