@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E78416760E
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:36:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A3E87167800
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:46:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729843AbgBUIHX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 03:07:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41532 "EHLO mail.kernel.org"
+        id S1729746AbgBUHv1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 02:51:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48750 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731841AbgBUIHT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 03:07:19 -0500
+        id S1729314AbgBUHv1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 02:51:27 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E1E2724676;
-        Fri, 21 Feb 2020 08:07:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AAAF720578;
+        Fri, 21 Feb 2020 07:51:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582272439;
-        bh=pkzmAGkgONH4rFn4Kchybr1EOFbP5fb3Z/OEklRicnc=;
+        s=default; t=1582271486;
+        bh=Aa4LQc/fQ6MQQpm24YQGRNw2rQxRYku0iwSvM44nrAE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=upSfSfpDuElEDVhrSemAwQWV9FhaQfrmVSVR0G7t46WUISb/kCp439T4C9pz85Ggl
-         H1kGn4oVIY5XCG4/IgRr0sp8ChJVsTKO++Kj/wVRvXA3YJIvkxAh6WsjYZE5ZVayST
-         4/rklAzYNirKRF/Zfu6J5DWaeOYHR1hwSXVJv4Cw=
+        b=YYpUMrDE2XvihKxoPexK6blB9K5e+pBoW7akfydQz5SELmmj3P4J+MeR9ncAWq/tF
+         gBU+0ob1O5lYKcHeWKtYf/fO2v8K3JXS0QGivcZkKgEf3Mft8keG8RXAdI2TcZCjPF
+         tqTJCz9HyKtR7nfKYZ8J6Zm8B6fy+7VZ1Xo6BTS8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Viresh Kumar <viresh.kumar@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 109/344] opp: Free static OPPs on errors while adding them
+        stable@vger.kernel.org, Logan Gunthorpe <logang@deltatee.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.5 183/399] dmaengine: Store module owner in dma_device struct
 Date:   Fri, 21 Feb 2020 08:38:28 +0100
-Message-Id: <20200221072358.819637558@linuxfoundation.org>
+Message-Id: <20200221072420.576010551@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200221072349.335551332@linuxfoundation.org>
-References: <20200221072349.335551332@linuxfoundation.org>
+In-Reply-To: <20200221072402.315346745@linuxfoundation.org>
+References: <20200221072402.315346745@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,76 +43,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Viresh Kumar <viresh.kumar@linaro.org>
+From: Logan Gunthorpe <logang@deltatee.com>
 
-[ Upstream commit ba0033192145cbd4e70ef64552958b13d597eb9e ]
+[ Upstream commit dae7a589c18a4d979d5f14b09374e871b995ceb1 ]
 
-The static OPPs aren't getting freed properly, if errors occur while
-adding them. Fix that by calling _put_opp_list_kref() and putting their
-reference on failures.
+dma_chan_to_owner() dereferences the driver from the struct device to
+obtain the owner and call module_[get|put](). However, if the backing
+device is unbound before the dma_device is unregistered, the driver
+will be cleared and this will cause a NULL pointer dereference.
 
-Fixes: 11e1a1648298 ("opp: Don't decrement uninitialized list_kref")
-Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
+Instead, store a pointer to the owner module in the dma_device struct
+so the module reference can be properly put when the channel is put, even
+if the backing device was destroyed first.
+
+This change helps to support a safer unbind of DMA engines.
+If the dma_device is unregistered in the driver's remove function,
+there's no guarantee that there are no existing clients and a users
+action may trigger the WARN_ONCE in dma_async_device_unregister()
+which is unlikely to leave the system in a consistent state.
+Instead, a better approach is to allow the backing driver to go away
+and fail any subsequent requests to it.
+
+Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
+Link: https://lore.kernel.org/r/20191216190120.21374-2-logang@deltatee.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/opp/of.c | 17 +++++++++++++----
- 1 file changed, 13 insertions(+), 4 deletions(-)
+ drivers/dma/dmaengine.c   | 4 +++-
+ include/linux/dmaengine.h | 2 ++
+ 2 files changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/opp/of.c b/drivers/opp/of.c
-index 1cbb58240b801..1e5fcdee043c4 100644
---- a/drivers/opp/of.c
-+++ b/drivers/opp/of.c
-@@ -678,15 +678,17 @@ static int _of_add_opp_table_v2(struct device *dev, struct opp_table *opp_table)
- 			dev_err(dev, "%s: Failed to add OPP, %d\n", __func__,
- 				ret);
- 			of_node_put(np);
--			return ret;
-+			goto put_list_kref;
- 		} else if (opp) {
- 			count++;
- 		}
- 	}
+diff --git a/drivers/dma/dmaengine.c b/drivers/dma/dmaengine.c
+index 03ac4b96117cd..4b604086b1b3a 100644
+--- a/drivers/dma/dmaengine.c
++++ b/drivers/dma/dmaengine.c
+@@ -179,7 +179,7 @@ __dma_device_satisfies_mask(struct dma_device *device,
  
- 	/* There should be one of more OPP defined */
--	if (WARN_ON(!count))
--		return -ENOENT;
-+	if (WARN_ON(!count)) {
-+		ret = -ENOENT;
-+		goto put_list_kref;
-+	}
- 
- 	list_for_each_entry(opp, &opp_table->opp_list, node)
- 		pstate_count += !!opp->pstate;
-@@ -695,7 +697,8 @@ static int _of_add_opp_table_v2(struct device *dev, struct opp_table *opp_table)
- 	if (pstate_count && pstate_count != count) {
- 		dev_err(dev, "Not all nodes have performance state set (%d: %d)\n",
- 			count, pstate_count);
--		return -ENOENT;
-+		ret = -ENOENT;
-+		goto put_list_kref;
- 	}
- 
- 	if (pstate_count)
-@@ -704,6 +707,11 @@ static int _of_add_opp_table_v2(struct device *dev, struct opp_table *opp_table)
- 	opp_table->parsed_static_opps = true;
- 
- 	return 0;
-+
-+put_list_kref:
-+	_put_opp_list_kref(opp_table);
-+
-+	return ret;
+ static struct module *dma_chan_to_owner(struct dma_chan *chan)
+ {
+-	return chan->device->dev->driver->owner;
++	return chan->device->owner;
  }
  
- /* Initializes OPP tables based on old-deprecated bindings */
-@@ -738,6 +746,7 @@ static int _of_add_opp_table_v1(struct device *dev, struct opp_table *opp_table)
- 		if (ret) {
- 			dev_err(dev, "%s: Failed to add OPP %ld (%d)\n",
- 				__func__, freq, ret);
-+			_put_opp_list_kref(opp_table);
- 			return ret;
- 		}
- 		nr -= 2;
+ /**
+@@ -919,6 +919,8 @@ int dma_async_device_register(struct dma_device *device)
+ 		return -EIO;
+ 	}
+ 
++	device->owner = device->dev->driver->owner;
++
+ 	if (dma_has_cap(DMA_MEMCPY, device->cap_mask) && !device->device_prep_dma_memcpy) {
+ 		dev_err(device->dev,
+ 			"Device claims capability %s, but op is not defined\n",
+diff --git a/include/linux/dmaengine.h b/include/linux/dmaengine.h
+index dad4a68fa0094..8013562751a50 100644
+--- a/include/linux/dmaengine.h
++++ b/include/linux/dmaengine.h
+@@ -674,6 +674,7 @@ struct dma_filter {
+  * @fill_align: alignment shift for memset operations
+  * @dev_id: unique device ID
+  * @dev: struct device reference for dma mapping api
++ * @owner: owner module (automatically set based on the provided dev)
+  * @src_addr_widths: bit mask of src addr widths the device supports
+  *	Width is specified in bytes, e.g. for a device supporting
+  *	a width of 4 the mask should have BIT(4) set.
+@@ -737,6 +738,7 @@ struct dma_device {
+ 
+ 	int dev_id;
+ 	struct device *dev;
++	struct module *owner;
+ 
+ 	u32 src_addr_widths;
+ 	u32 dst_addr_widths;
 -- 
 2.20.1
 
