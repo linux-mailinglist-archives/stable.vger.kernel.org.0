@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 46C9516772F
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:41:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5FE27167572
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:31:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729062AbgBUIjc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 03:39:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33216 "EHLO mail.kernel.org"
+        id S1730303AbgBUI1j (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 03:27:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60950 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731131AbgBUIA5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 03:00:57 -0500
+        id S1730807AbgBUIV1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 03:21:27 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7BB48206ED;
-        Fri, 21 Feb 2020 08:00:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6D145222C4;
+        Fri, 21 Feb 2020 08:21:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582272056;
-        bh=hDDi7NfkHyAkUUnTbKQGRytKtjAXcZBx1AojSyMOTjA=;
+        s=default; t=1582273286;
+        bh=3kbU4PpQCtspoH5V5Ms/X/D2pQJR9+ziZQiWMj764e8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1L3pVzJKZuNiOgwUb2P10Q5Yj6WRta6/fLxn9UGm/6F2ukdqruBaLN36qi9thicmF
-         K/+MgLsp/za0MGsF/aELw51ilbrRI6Dq2FdDXy7kImgHMEtDFg6wNq2AfBchLQWYj9
-         KvdeiWmVKdkKD2eV+9UxXqyxzX2wz0l1FBxLluEM=
+        b=PGzVEzlQ92jr5rSb7WR1lkWOV+R/ljd5Iz6WgzUZtVO0Yp7EUENEOmNaidh6aPZfR
+         YX4pL6whB/Vud8dVsw12rENfQMnxMPIQJtrargcaqQ0G3o/MyEAa+xRfUWnqou5K6d
+         AS97oTkrpIYulsTteA5s0qRvUKRok0hocibeE5wA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Gustavo A. R. Silva" <gustavo@embeddedor.com>,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-        Eric Biggers <ebiggers@kernel.org>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Chen Zhou <chenzhou10@huawei.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 362/399] char: hpet: Fix out-of-bounds read bug
+Subject: [PATCH 4.19 114/191] ASoC: atmel: fix build error with CONFIG_SND_ATMEL_SOC_DMA=m
 Date:   Fri, 21 Feb 2020 08:41:27 +0100
-Message-Id: <20200221072435.896514172@linuxfoundation.org>
+Message-Id: <20200221072304.590894861@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200221072402.315346745@linuxfoundation.org>
-References: <20200221072402.315346745@linuxfoundation.org>
+In-Reply-To: <20200221072250.732482588@linuxfoundation.org>
+References: <20200221072250.732482588@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,54 +45,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gustavo A. R. Silva <gustavo@embeddedor.com>
+From: Chen Zhou <chenzhou10@huawei.com>
 
-[ Upstream commit 98c49f1746ac44ccc164e914b9a44183fad09f51 ]
+[ Upstream commit 8fea78029f5e6ed734ae1957bef23cfda1af4354 ]
 
-Currently, there is an out-of-bounds read on array hpetp->hp_dev
-in the following for loop:
+If CONFIG_SND_ATMEL_SOC_DMA=m, build error:
 
-870         for (i = 0; i < hdp->hd_nirqs; i++)
-871                 hpetp->hp_dev[i].hd_hdwirq = hdp->hd_irq[i];
+sound/soc/atmel/atmel_ssc_dai.o: In function `atmel_ssc_set_audio':
+(.text+0x7cd): undefined reference to `atmel_pcm_dma_platform_register'
 
-This is due to the recent change from one-element array to
-flexible-array member in struct hpets:
+Function atmel_pcm_dma_platform_register is defined under
+CONFIG SND_ATMEL_SOC_DMA, so select SND_ATMEL_SOC_DMA in
+CONFIG SND_ATMEL_SOC_SSC, same to CONFIG_SND_ATMEL_SOC_PDC.
 
-104 struct hpets {
-	...
-113         struct hpet_dev hp_dev[];
-114 };
-
-This change affected the total size of the dynamic memory
-allocation, decreasing it by one time the size of struct hpet_dev.
-
-Fix this by adjusting the allocation size when calling
-struct_size().
-
-Fixes: 987f028b8637c ("char: hpet: Use flexible-array member")
-Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
-Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Acked-by: Eric Biggers <ebiggers@kernel.org>
-Link: https://lore.kernel.org/r/20200129022613.GA24281@embeddedor.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Chen Zhou <chenzhou10@huawei.com>
+Link: https://lore.kernel.org/r/20200113133242.144550-1-chenzhou10@huawei.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/char/hpet.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/soc/atmel/Kconfig | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/char/hpet.c b/drivers/char/hpet.c
-index 9ac6671bb5141..f69609b47fef8 100644
---- a/drivers/char/hpet.c
-+++ b/drivers/char/hpet.c
-@@ -855,7 +855,7 @@ int hpet_alloc(struct hpet_data *hdp)
- 		return 0;
- 	}
+diff --git a/sound/soc/atmel/Kconfig b/sound/soc/atmel/Kconfig
+index 64b784e96f844..dad778e5884bd 100644
+--- a/sound/soc/atmel/Kconfig
++++ b/sound/soc/atmel/Kconfig
+@@ -25,6 +25,8 @@ config SND_ATMEL_SOC_DMA
  
--	hpetp = kzalloc(struct_size(hpetp, hp_dev, hdp->hd_nirqs - 1),
-+	hpetp = kzalloc(struct_size(hpetp, hp_dev, hdp->hd_nirqs),
- 			GFP_KERNEL);
+ config SND_ATMEL_SOC_SSC_DMA
+ 	tristate
++	select SND_ATMEL_SOC_DMA
++	select SND_ATMEL_SOC_PDC
  
- 	if (!hpetp)
+ config SND_ATMEL_SOC_SSC
+ 	tristate
 -- 
 2.20.1
 
