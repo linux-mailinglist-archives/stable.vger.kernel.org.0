@@ -2,82 +2,72 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C853D168710
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 19:55:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A54921687C8
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 20:50:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729454AbgBUSzu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 13:55:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45284 "EHLO mail.kernel.org"
+        id S1726483AbgBUTuX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 14:50:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42724 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729397AbgBUSzu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 13:55:50 -0500
-Received: from localhost (unknown [73.61.17.76])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        id S1726443AbgBUTuX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 14:50:23 -0500
+Received: from [192.168.1.112] (c-24-9-64-241.hsd1.co.comcast.net [24.9.64.241])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9AD7020578;
-        Fri, 21 Feb 2020 18:55:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 83992208C4;
+        Fri, 21 Feb 2020 19:50:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582311349;
-        bh=CzfU9GB6VhqeyGdmd1CGoDtXuLwG9/WAXjiadWDIAUs=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=iWvgPtC6bA708AtAM+hqQ61QxjY/3nta6lM1+YZTS8axTLr5KRCFrWvBz4RjnTrwd
-         ra+O8NgmYcJ8o1tGmSgTDd++4boZXMkGqhUv93WdUApCSLr4nmtLdvnIBH+QYf1/6r
-         7oAYLh9t3ttLIa5IBgQv7iJqxUKIt+9952PPTPh4=
-Date:   Fri, 21 Feb 2020 13:55:46 -0500
-From:   Sasha Levin <sashal@kernel.org>
-To:     Guenter Roeck <linux@roeck-us.net>
-Cc:     Ben Hutchings <ben.hutchings@codethink.co.uk>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, stable@vger.kernel.org
-Subject: Re: [PATCH 5.4 000/344] 5.4.22-stable review
-Message-ID: <20200221185546.GB1449@sasha-vm>
-References: <20200221072349.335551332@linuxfoundation.org>
- <4e8cb265-4745-4249-45e4-86bd84f068ed@roeck-us.net>
- <9f719752c33321fca7280a5cc59a886e1dd0dfda.camel@codethink.co.uk>
- <20200221155507.GB11868@roeck-us.net>
+        s=default; t=1582314623;
+        bh=jN4g4WSuKcWzVoT6NqAvvjqRtCEUHvJuV6lBGt7ilc4=;
+        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
+        b=SwtpSDilq2/X4194/+fpgk83ZQd6ITpoOcJypXVS+AjI+NPAgFsfL9pYsDFOOhbbz
+         loD2PuM8hq9QbcbQltKpLtLKFOuMBgClyumwykqvxTkE8kS+t+AM3If44QgQjUaHzq
+         +6zrsGmS3GTGPB8Nmh0MNbLgsmL5fi/gI1ucq1VM=
+Subject: Re: [PATCH 5.5 000/399] 5.5.6-stable review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org, shuah <shuah@kernel.org>
+References: <20200221072402.315346745@linuxfoundation.org>
+From:   shuah <shuah@kernel.org>
+Message-ID: <66e39cf3-03a4-73b9-2886-1fdd0ab86866@kernel.org>
+Date:   Fri, 21 Feb 2020 12:50:21 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.4.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <20200221155507.GB11868@roeck-us.net>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+In-Reply-To: <20200221072402.315346745@linuxfoundation.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Feb 21, 2020 at 07:55:07AM -0800, Guenter Roeck wrote:
->On Fri, Feb 21, 2020 at 03:21:30PM +0000, Ben Hutchings wrote:
->> On Fri, 2020-02-21 at 06:28 -0800, Guenter Roeck wrote:
->> [...]
->> > Building powerpc:defconfig ... failed
->> > Building powerpc:mpc83xx_defconfig ... failed
->> > --------------
->> > Error log:
->> > drivers/rtc/rtc-ds1307.c:1570:21: error: variable 'regmap_config' has initializer but incomplete type
->> >
->> > as well as various follow-up errors.
->> >
->> > The second problem affects both v5.4.y and v5.5.y.
->>
->> This seems to be caused by commit 34719de919af (rtc-i2c-spi-avoid-
->> inclusion-of-regmap-support-when-n.patch).  These branches will need
->> commit 578c2b661e2b "rtc: Kconfig: select REGMAP_I2C when necessary" as
->> well.
->>
+On 2/21/20 12:35 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.5.6 release.
+> There are 399 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Sun, 23 Feb 2020 07:19:49 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.5.6-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.5.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
+> 
 >
->Yes, I recall we had the same problem before, and the offending patch
->was removed from the queue. Wonder how it made it back in without the
->context patch (which either you or someone else also reported at the time).
 
-The first time was Greg picking it up, the second time it was me :)
+Compiled and booted on test system. No dmesg regressions.
 
-My build bot is busted, and I'm working on repairing it, appologies for
-the noise.
-
-I've grabbed 578c2b661e2b for both 5.5 and 5.4.
-
--- 
-Thanks,
-Sasha
+thanks,
+-- Shuah
