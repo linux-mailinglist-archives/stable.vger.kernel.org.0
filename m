@@ -2,127 +2,143 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DFB5B167B8B
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 12:11:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2582C167B99
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 12:13:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727629AbgBULLg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 06:11:36 -0500
-Received: from us-smtp-1.mimecast.com ([205.139.110.61]:47060 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726268AbgBULLg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 21 Feb 2020 06:11:36 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1582283495;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=ohzBP3K+Mt0fsuxycfty2Ga3uEJUsh8gIu8OmX1I0WU=;
-        b=dflMmzzL/BXaekxrr60PLGgYWtF5PfLn+Z8g9xq6sSj1xbSegK29NUQl36ENhxWU1CBrm0
-        rvQNO6RGg8he6T5aTiaU0uPA34dM6Y0qI0g3rm+GJZwg27v+NXt0GxEe9qm860bX2SRRuW
-        9EJ4Pdz4v0HeJyMhqtTYB3v79Y+hO40=
-Received: from mail-qt1-f197.google.com (mail-qt1-f197.google.com
- [209.85.160.197]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-332-oq1JsyHNN9a6JPNIS6b5Tw-1; Fri, 21 Feb 2020 06:11:33 -0500
-X-MC-Unique: oq1JsyHNN9a6JPNIS6b5Tw-1
-Received: by mail-qt1-f197.google.com with SMTP id t9so1446177qtn.2
-        for <stable@vger.kernel.org>; Fri, 21 Feb 2020 03:11:33 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:content-transfer-encoding
-         :in-reply-to;
-        bh=ohzBP3K+Mt0fsuxycfty2Ga3uEJUsh8gIu8OmX1I0WU=;
-        b=lcDKjVXXtYmRkG2a6EZVfkUtGliS3O6SGirNWPFBNXiRgorZAYnZ5KRTojfLF4Q7f/
-         Yi4mrPY2CZMDEuuvUhn5daDk9xCWAWtPG1babPuBcTA9THUJDWRHDF+tiXT8dfIgrUbO
-         FmAG6vC0AKDD7T0i2BvbPbvH1L52dfvpdUn4XRR0BO4wowuRzskkzGuFsDyTVXQ80glk
-         IkigmN4ZjvYIbnJcbh8+Kuci/T7w29BBOlIgSkS7pfTQESIkYvirGPgUH6Kh8HQGVvvT
-         quf6a17LxwIIomvvvLimUY9WNER9ZESOzL8BLqxYu+QKQkeHLNfA9l/d49mFtysOXipz
-         Yv5Q==
-X-Gm-Message-State: APjAAAVlnHn78VH3xGmyxFReHUk7n2x2AnV/gqKaqXhRZoTEMlda4DYM
-        GLLl7+eVEQdXJOqQ+v2WkgcsjUYdZrcGRHQRpPXQk6i0M6AtnaislcgXWwn+75PbyloUlAcAXt8
-        znn5YIs7HcbBRqpCC
-X-Received: by 2002:a05:620a:62b:: with SMTP id 11mr7833801qkv.90.1582283493403;
-        Fri, 21 Feb 2020 03:11:33 -0800 (PST)
-X-Google-Smtp-Source: APXvYqy6Q2uUzX1S2mVtdvc2ob5KdYLc4+DO8jko69GJDeSg1gBJ4/I2Q4F8j8Rk9Q5ly0Cjqk3+Zg==
-X-Received: by 2002:a05:620a:62b:: with SMTP id 11mr7833775qkv.90.1582283493157;
-        Fri, 21 Feb 2020 03:11:33 -0800 (PST)
-Received: from redhat.com (bzq-109-67-14-209.red.bezeqint.net. [109.67.14.209])
-        by smtp.gmail.com with ESMTPSA id m23sm1336239qtp.6.2020.02.21.03.11.29
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 21 Feb 2020 03:11:32 -0800 (PST)
-Date:   Fri, 21 Feb 2020 06:11:27 -0500
-From:   "Michael S. Tsirkin" <mst@redhat.com>
-To:     Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>
-Cc:     jasowang@redhat.com, kvm@vger.kernel.org, netdev@vger.kernel.org,
-        stable@vger.kernel.org, jreuter@yaina.de, ralf@linux-mips.org
-Subject: Re: [PATCH] vhost: Check docket sk_family instead of call getname
-Message-ID: <20200221060916-mutt-send-email-mst@kernel.org>
-References: <20200221110656.11811-1-eperezma@redhat.com>
+        id S1726909AbgBULNQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 06:13:16 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33912 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726694AbgBULNQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 06:13:16 -0500
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 154DE207FD;
+        Fri, 21 Feb 2020 11:13:14 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1582283595;
+        bh=1Udq+7Q69q3s3KUMwUZ8BG97EPboX7J33NslS8Xmk0M=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=KV9jz8yu6t/SDUZjJtrNxxjcTDcMTonrg1ozc33TeV+Y09h6uI05MN2kYNDEatK7A
+         hBQPWg8ZkhXmM92WnIeC8Gr9CDjk+jJlt4l2j6JVJsXqYgYcG9mn2XlwPT4e3Y0nK2
+         P5UZpgmIITRx6wT+fYHMHgV6ksp+iMbAhPrklyhE=
+Date:   Fri, 21 Feb 2020 12:13:13 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Chanwoo Choi <cw00.choi@samsung.com>
+Cc:     John Stultz <john.stultz@linaro.org>,
+        Orson Zhai <orson.unisoc@gmail.com>,
+        MyungJoo Ham <myungjoo.ham@samsung.com>,
+        Kyungmin Park <kyungmin.park@samsung.com>,
+        mingmin.ling@unisoc.com, orsonzhai@gmail.com,
+        jingchao.ye@unisoc.com, Linux PM list <linux-pm@vger.kernel.org>,
+        lkml <linux-kernel@vger.kernel.org>,
+        stable <stable@vger.kernel.org>
+Subject: Re: [PATCH] Revert "PM / devfreq: Modify the device name as
+ devfreq(X) for sysfs"
+Message-ID: <20200221111313.GA110504@kroah.com>
+References: <1582220224-1904-1-git-send-email-orson.unisoc@gmail.com>
+ <20200220191513.GA3450796@kroah.com>
+ <CALAqxLViRgGE8FsukCJL+doqk_GqabLDCtXBWem+VOGf9xXZdg@mail.gmail.com>
+ <CGME20200221070652epcas1p11e82863794f130373055c0b7bdedff23@epcas1p1.samsung.com>
+ <20200221070646.GA4103708@kroah.com>
+ <1b9e510a-71bb-5aa8-ef85-a9a9c623f313@samsung.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20200221110656.11811-1-eperezma@redhat.com>
+In-Reply-To: <1b9e510a-71bb-5aa8-ef85-a9a9c623f313@samsung.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Feb 21, 2020 at 12:06:56PM +0100, Eugenio Pérez wrote:
-> Doing so, we save one call to get data we already have in the struct.
+On Fri, Feb 21, 2020 at 05:11:02PM +0900, Chanwoo Choi wrote:
+> On 2/21/20 4:06 PM, Greg Kroah-Hartman wrote:
+> > On Thu, Feb 20, 2020 at 11:47:41AM -0800, John Stultz wrote:
+> >> On Thu, Feb 20, 2020 at 11:15 AM Greg Kroah-Hartman
+> >> <gregkh@linuxfoundation.org> wrote:
+> >>>
+> >>> On Fri, Feb 21, 2020 at 01:37:04AM +0800, Orson Zhai wrote:
+> >>>> This reverts commit 4585fbcb5331fc910b7e553ad3efd0dd7b320d14.
+> >>>>
+> >>>> The name changing as devfreq(X) breaks some user space applications,
+> >>>> such as Android HAL from Unisoc and Hikey [1].
+> >>>> The device name will be changed unexpectly after every boot depending
+> >>>> on module init sequence. It will make trouble to setup some system
+> >>>> configuration like selinux for Android.
+> >>>>
+> >>>> So we'd like to revert it back to old naming rule before any better
+> >>>> way being found.
+> >>>>
+> >>>> [1] https://protect2.fireeye.com/url?k=00fa721e-5d2a7af6-00fbf951-000babff32e3-95e4b92259b05656&u=https://lkml.org/lkml/2018/5/8/1042
+> >>>>
+> >>>> Cc: John Stultz <john.stultz@linaro.org>
+> >>>> Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> >>>> Cc: stable@vger.kernel.org
+> >>>> Signed-off-by: Orson Zhai <orson.unisoc@gmail.com>
+> >>>>
+> >>>> ---
+> >>>>  drivers/devfreq/devfreq.c | 4 +---
+> >>>>  1 file changed, 1 insertion(+), 3 deletions(-)
+> >>>>
+> >>>> diff --git a/drivers/devfreq/devfreq.c b/drivers/devfreq/devfreq.c
+> >>>> index cceee8b..7dcf209 100644
+> >>>> --- a/drivers/devfreq/devfreq.c
+> >>>> +++ b/drivers/devfreq/devfreq.c
+> >>>> @@ -738,7 +738,6 @@ struct devfreq *devfreq_add_device(struct device *dev,
+> >>>>  {
+> >>>>       struct devfreq *devfreq;
+> >>>>       struct devfreq_governor *governor;
+> >>>> -     static atomic_t devfreq_no = ATOMIC_INIT(-1);
+> >>>>       int err = 0;
+> >>>>
+> >>>>       if (!dev || !profile || !governor_name) {
+> >>>> @@ -800,8 +799,7 @@ struct devfreq *devfreq_add_device(struct device *dev,
+> >>>>       devfreq->suspend_freq = dev_pm_opp_get_suspend_opp_freq(dev);
+> >>>>       atomic_set(&devfreq->suspend_count, 0);
+> >>>>
+> >>>> -     dev_set_name(&devfreq->dev, "devfreq%d",
+> >>>> -                             atomic_inc_return(&devfreq_no));
+> >>>> +     dev_set_name(&devfreq->dev, "%s", dev_name(dev));
+> >>>>       err = device_register(&devfreq->dev);
+> >>>>       if (err) {
+> >>>>               mutex_unlock(&devfreq->lock);
+> >>>> --
+> >>>> 2.7.4
+> >>>>
+> >>>
+> >>> Thanks for this, I agree, this needs to get back to the way things were
+> >>> as it seems to break too many existing systems as-is.
+> >>>
+> >>> I'll queue this up in my tree now, thanks.
+> >>
+> >> Oof this old thing. I unfortunately didn't get back to look at the
+> >> devfreq name node issue or the compatibility links, since the impact
+> >> of the regression (breaking the powerHAL's interactions with the gpu)
+> >> wasn't as big as other problems we had. While the regression was
+> >> frustrating, my only hesitancy at this point is that its been this way
+> >> since 4.10, so reverting the problematic patch is likely to break any
+> >> new users since then.
+> > 
+> > Looks like most users just revert that commit in their trees:
+> > 	https://protect2.fireeye.com/url?k=1012ad0f-4dc2a5e7-10132640-000babff32e3-35779c5ed675ef0f&u=https://source.codeaurora.org/quic/la/kernel/msm-4.14/commit/drivers/devfreq?h=msm-4.14&id=ccf273f6d89ad0fa8032e9225305ad6f62c7770c
+> > 
+> > So we should be ok here.
 > 
-> Also, since there is no guarantee that getname use sockaddr_ll
-> parameter beyond its size, we add a little bit of security here.
-> It should do not do beyond MAX_ADDR_LEN, but syzbot found that
-> ax25_getname writes more (72 bytes, the size of full_sockaddr_ax25,
-> versus 20 + 32 bytes of sockaddr_ll + MAX_ADDR_LEN in syzbot repro).
+> I'm sorry about changing the devfreq node name.
 > 
-> Fixes: 3a4d5c94e9593 ("vhost_net: a kernel-level virtio server")
-> Reported-by: syzbot+f2a62d07a5198c819c7b@syzkaller.appspotmail.com
-> Signed-off-by: Eugenio Pérez <eperezma@redhat.com>
+> OK. Do you pick this patch to your tree?
 
+Yes, I can do that.
 
-Thanks for debugging this!
-
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
-
-
-
-
-
-> ---
->  drivers/vhost/net.c | 10 +---------
->  1 file changed, 1 insertion(+), 9 deletions(-)
+> or If not, I'll apply it to devfreq-next branch for v5.7-rc1.
 > 
-> diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-> index e158159671fa..18e205eeb9af 100644
-> --- a/drivers/vhost/net.c
-> +++ b/drivers/vhost/net.c
-> @@ -1414,10 +1414,6 @@ static int vhost_net_release(struct inode *inode, struct file *f)
->  
->  static struct socket *get_raw_socket(int fd)
->  {
-> -	struct {
-> -		struct sockaddr_ll sa;
-> -		char  buf[MAX_ADDR_LEN];
-> -	} uaddr;
->  	int r;
->  	struct socket *sock = sockfd_lookup(fd, &r);
->  
-> @@ -1430,11 +1426,7 @@ static struct socket *get_raw_socket(int fd)
->  		goto err;
->  	}
->  
-> -	r = sock->ops->getname(sock, (struct sockaddr *)&uaddr.sa, 0);
-> -	if (r < 0)
-> -		goto err;
-> -
-> -	if (uaddr.sa.sll_family != AF_PACKET) {
-> +	if (sock->sk->sk_family != AF_PACKET) {
->  		r = -EPFNOSUPPORT;
->  		goto err;
->  	}
-> -- 
-> 2.18.1
+> And do you apply it to kernel of linux-stable tree since 4.11?
 
+Yeah, I'll mark it for stable.
+
+Can I get an ack from you for this?
+
+thanks,
+
+greg k-h
