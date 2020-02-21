@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 863F916772B
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:41:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9EE9D167868
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:48:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731483AbgBUIjM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 03:39:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33786 "EHLO mail.kernel.org"
+        id S1728840AbgBUHrE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 02:47:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42824 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731041AbgBUIB2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 03:01:28 -0500
+        id S1728327AbgBUHrE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 02:47:04 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7A0E120801;
-        Fri, 21 Feb 2020 08:01:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A151224673;
+        Fri, 21 Feb 2020 07:47:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582272087;
-        bh=H3LKj47Yqut0p8cQXZtywNFL074vZu1UaiH+k7PfGpE=;
+        s=default; t=1582271224;
+        bh=pRskqeaNfrHsjSKu/BICCOe1KcKWegziRhTbDGCm92Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P80SaBEcqGJ7qOtBgaxXtWru5zd21bsM4/ZVPEYQBtxGESb3tZvk//qhCtMFNGZcs
-         7V1Sv9l0jMzj0A/f8gOgVSrs1CjGsx75IF0PHnbQS64SG7IHYfBAv0qxKJSfEmDGDJ
-         Bac0rlZcYUSj0WtWaEiWvq9ka6FRG5t5Uk+fksU4=
+        b=XceSzoiA2abMsevzDSv3BG8dRxlME5H0pNFcGK9UHUKvjdKutIK1j3ZYVhTawI96U
+         r5Jgf4S5YNOMSuYrpx1NeEJrGMkG6oGQ5CCEjJ9/uSGYWd0CSIQU9fJZu8a6DB12ZF
+         QQ57GfaZSEPcTRgGtFBljhnzfhwpIklfFxfZnFNQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stefan Reiter <stefan@pimaker.at>,
-        "Paul E. McKenney" <paulmck@kernel.org>,
+        stable@vger.kernel.org, "zhangyi (F)" <yi.zhang@huawei.com>,
+        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 012/344] rcu/nocb: Fix dump_tree hierarchy print always active
+Subject: [PATCH 5.5 086/399] ext4, jbd2: ensure panic when aborting with zero errno
 Date:   Fri, 21 Feb 2020 08:36:51 +0100
-Message-Id: <20200221072350.365524788@linuxfoundation.org>
+Message-Id: <20200221072410.685318711@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200221072349.335551332@linuxfoundation.org>
-References: <20200221072349.335551332@linuxfoundation.org>
+In-Reply-To: <20200221072402.315346745@linuxfoundation.org>
+References: <20200221072402.315346745@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,79 +44,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefan Reiter <stefan@pimaker.at>
+From: zhangyi (F) <yi.zhang@huawei.com>
 
-[ Upstream commit 610dea36d3083a977e4f156206cbe1eaa2a532f0 ]
+[ Upstream commit 51f57b01e4a3c7d7bdceffd84de35144e8c538e7 ]
 
-Commit 18cd8c93e69e ("rcu/nocb: Print gp/cb kthread hierarchy if
-dump_tree") added print statements to rcu_organize_nocb_kthreads for
-debugging, but incorrectly guarded them, causing the function to always
-spew out its message.
+JBD2_REC_ERR flag used to indicate the errno has been updated when jbd2
+aborted, and then __ext4_abort() and ext4_handle_error() can invoke
+panic if ERRORS_PANIC is specified. But if the journal has been aborted
+with zero errno, jbd2_journal_abort() didn't set this flag so we can
+no longer panic. Fix this by always record the proper errno in the
+journal superblock.
 
-This patch fixes it by guarding both pr_alert statements with dump_tree,
-while also changing the second pr_alert to a pr_cont, to print the
-hierarchy in a single line (assuming that's how it was supposed to
-work).
-
-Fixes: 18cd8c93e69e ("rcu/nocb: Print gp/cb kthread hierarchy if dump_tree")
-Signed-off-by: Stefan Reiter <stefan@pimaker.at>
-[ paulmck: Make single-nocbs-CPU GP kthreads look less erroneous. ]
-Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
+Fixes: 4327ba52afd03 ("ext4, jbd2: ensure entering into panic after recording an error in superblock")
+Signed-off-by: zhangyi (F) <yi.zhang@huawei.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/20191204124614.45424-3-yi.zhang@huawei.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/rcu/tree_plugin.h | 22 +++++++++++++++++-----
- 1 file changed, 17 insertions(+), 5 deletions(-)
+ fs/jbd2/checkpoint.c |  2 +-
+ fs/jbd2/journal.c    | 15 ++++-----------
+ 2 files changed, 5 insertions(+), 12 deletions(-)
 
-diff --git a/kernel/rcu/tree_plugin.h b/kernel/rcu/tree_plugin.h
-index f849e7429816f..f7118842a2b88 100644
---- a/kernel/rcu/tree_plugin.h
-+++ b/kernel/rcu/tree_plugin.h
-@@ -2322,6 +2322,8 @@ static void __init rcu_organize_nocb_kthreads(void)
- {
- 	int cpu;
- 	bool firsttime = true;
-+	bool gotnocbs = false;
-+	bool gotnocbscbs = true;
- 	int ls = rcu_nocb_gp_stride;
- 	int nl = 0;  /* Next GP kthread. */
- 	struct rcu_data *rdp;
-@@ -2344,21 +2346,31 @@ static void __init rcu_organize_nocb_kthreads(void)
- 		rdp = per_cpu_ptr(&rcu_data, cpu);
- 		if (rdp->cpu >= nl) {
- 			/* New GP kthread, set up for CBs & next GP. */
-+			gotnocbs = true;
- 			nl = DIV_ROUND_UP(rdp->cpu + 1, ls) * ls;
- 			rdp->nocb_gp_rdp = rdp;
- 			rdp_gp = rdp;
--			if (!firsttime && dump_tree)
--				pr_cont("\n");
--			firsttime = false;
--			pr_alert("%s: No-CB GP kthread CPU %d:", __func__, cpu);
-+			if (dump_tree) {
-+				if (!firsttime)
-+					pr_cont("%s\n", gotnocbscbs
-+							? "" : " (self only)");
-+				gotnocbscbs = false;
-+				firsttime = false;
-+				pr_alert("%s: No-CB GP kthread CPU %d:",
-+					 __func__, cpu);
-+			}
+diff --git a/fs/jbd2/checkpoint.c b/fs/jbd2/checkpoint.c
+index 8fff6677a5da4..96bf33986d030 100644
+--- a/fs/jbd2/checkpoint.c
++++ b/fs/jbd2/checkpoint.c
+@@ -164,7 +164,7 @@ void __jbd2_log_wait_for_space(journal_t *journal)
+ 				       "journal space in %s\n", __func__,
+ 				       journal->j_devname);
+ 				WARN_ON(1);
+-				jbd2_journal_abort(journal, 0);
++				jbd2_journal_abort(journal, -EIO);
+ 			}
+ 			write_lock(&journal->j_state_lock);
  		} else {
- 			/* Another CB kthread, link to previous GP kthread. */
-+			gotnocbscbs = true;
- 			rdp->nocb_gp_rdp = rdp_gp;
- 			rdp_prev->nocb_next_cb_rdp = rdp;
--			pr_alert(" %d", cpu);
-+			if (dump_tree)
-+				pr_cont(" %d", cpu);
- 		}
- 		rdp_prev = rdp;
- 	}
-+	if (gotnocbs && dump_tree)
-+		pr_cont("%s\n", gotnocbscbs ? "" : " (self only)");
+diff --git a/fs/jbd2/journal.c b/fs/jbd2/journal.c
+index 6847b18455068..8479e84159675 100644
+--- a/fs/jbd2/journal.c
++++ b/fs/jbd2/journal.c
+@@ -2156,12 +2156,10 @@ static void __journal_abort_soft (journal_t *journal, int errno)
+ 
+ 	__jbd2_journal_abort_hard(journal);
+ 
+-	if (errno) {
+-		jbd2_journal_update_sb_errno(journal);
+-		write_lock(&journal->j_state_lock);
+-		journal->j_flags |= JBD2_REC_ERR;
+-		write_unlock(&journal->j_state_lock);
+-	}
++	jbd2_journal_update_sb_errno(journal);
++	write_lock(&journal->j_state_lock);
++	journal->j_flags |= JBD2_REC_ERR;
++	write_unlock(&journal->j_state_lock);
  }
  
- /*
+ /**
+@@ -2203,11 +2201,6 @@ static void __journal_abort_soft (journal_t *journal, int errno)
+  * failure to disk.  ext3_error, for example, now uses this
+  * functionality.
+  *
+- * Errors which originate from within the journaling layer will NOT
+- * supply an errno; a null errno implies that absolutely no further
+- * writes are done to the journal (unless there are any already in
+- * progress).
+- *
+  */
+ 
+ void jbd2_journal_abort(journal_t *journal, int errno)
 -- 
 2.20.1
 
