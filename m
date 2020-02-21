@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EE5DA1676D7
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:41:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 071BE16765E
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:37:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730444AbgBUH6a (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 02:58:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58288 "EHLO mail.kernel.org"
+        id S1733071AbgBUIcz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 03:32:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47270 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730776AbgBUH62 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 02:58:28 -0500
+        id S1729820AbgBUILl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 03:11:41 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DB838206ED;
-        Fri, 21 Feb 2020 07:58:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6C8992467A;
+        Fri, 21 Feb 2020 08:11:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582271907;
-        bh=FSZNZhAOFhYYMThmr+oCAnsLgXdPEgdWYjoPiw6Ulfs=;
+        s=default; t=1582272700;
+        bh=smEs9DZXB4IjMLlUyI3DmUCZLnk/s0uOHhPvWXcrfnE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v34Cg5drAv/RGS7/77AhPqIwS39Ay7+v7Frs802BNN5nXXt2NSyIdYbfTmaBeju22
-         9WYpxTsQCFU3fG6eDZgPZ0kiUEUZNwxxfcFhVJTom0HIsvw3qQPQiJ0Bc3MQXlfXmO
-         8gN6MJPbyDEMqb5lUedEkn98adpo26svcImhZDfs=
+        b=XDD0ms2aygHYc/ZuJGl1GE5yFUE8o3RDjEsMyJR8myxCdB1p8A2gWkDlQ49EBW45K
+         sK+BB2aVr7sG6wGJWp/fxHDolISGttR7c1dk6dI7w6vLJdWZiwhnzYdWJ+xeXu2teY
+         vTqsAMiqdr149xdFqKiZdt/HZb65zJ1kxGHTE8BU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Masahiro Yamada <masahiroy@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 316/399] kbuild: use -S instead of -E for precise cc-option test in Kconfig
+        stable@vger.kernel.org, Alexander Tsoy <alexander@tsoy.me>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 242/344] ALSA: usb-audio: add implicit fb quirk for MOTU M Series
 Date:   Fri, 21 Feb 2020 08:40:41 +0100
-Message-Id: <20200221072432.144557510@linuxfoundation.org>
+Message-Id: <20200221072411.316132660@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200221072402.315346745@linuxfoundation.org>
-References: <20200221072402.315346745@linuxfoundation.org>
+In-Reply-To: <20200221072349.335551332@linuxfoundation.org>
+References: <20200221072349.335551332@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,47 +43,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masahiro Yamada <masahiroy@kernel.org>
+From: Alexander Tsoy <alexander@tsoy.me>
 
-[ Upstream commit 3bed1b7b9d79ca40e41e3af130931a3225e951a3 ]
+[ Upstream commit c249177944b650816069f6c49b769baaa94339dc ]
 
-Currently, -E (stop after the preprocessing stage) is used to check
-whether the given compiler flag is supported.
+This fixes crackling sound during playback.
 
-While it is faster than -S (or -c), it can be false-positive. You need
-to run the compilation proper to check the flag more precisely.
+Further note: MOTU is known for reusing Product IDs for different
+devices or different generations of the device (e.g. MicroBook
+I/II/IIc shares a single Product ID). This patch was only tested with
+M4 audio interface, but the same Product ID is also used by M2. Hope
+it will work for M2 as well.
 
-For example, -E and -S disagree about the support of
-"--param asan-instrument-allocas=1".
-
-$ gcc -Werror --param asan-instrument-allocas=1 -E -x c /dev/null -o /dev/null
-$ echo $?
-0
-
-$ gcc -Werror --param asan-instrument-allocas=1 -S -x c /dev/null -o /dev/null
-cc1: error: invalid --param name ‘asan-instrument-allocas’; did you mean ‘asan-instrument-writes’?
-$ echo $?
-1
-
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+Signed-off-by: Alexander Tsoy <alexander@tsoy.me>
+Link: https://lore.kernel.org/r/20200115151358.56672-1-alexander@tsoy.me
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- scripts/Kconfig.include | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/usb/pcm.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/scripts/Kconfig.include b/scripts/Kconfig.include
-index d4adfbe426903..bfb44b265a948 100644
---- a/scripts/Kconfig.include
-+++ b/scripts/Kconfig.include
-@@ -25,7 +25,7 @@ failure = $(if-success,$(1),n,y)
- 
- # $(cc-option,<flag>)
- # Return y if the compiler supports <flag>, n otherwise
--cc-option = $(success,$(CC) -Werror $(CLANG_FLAGS) $(1) -E -x c /dev/null -o /dev/null)
-+cc-option = $(success,$(CC) -Werror $(CLANG_FLAGS) $(1) -S -x c /dev/null -o /dev/null)
- 
- # $(ld-option,<flag>)
- # Return y if the linker supports <flag>, n otherwise
+diff --git a/sound/usb/pcm.c b/sound/usb/pcm.c
+index fa24bd491cf6a..ad8f38380aa3e 100644
+--- a/sound/usb/pcm.c
++++ b/sound/usb/pcm.c
+@@ -348,6 +348,10 @@ static int set_sync_ep_implicit_fb_quirk(struct snd_usb_substream *subs,
+ 		ep = 0x84;
+ 		ifnum = 0;
+ 		goto add_sync_ep_from_ifnum;
++	case USB_ID(0x07fd, 0x0008): /* MOTU M Series */
++		ep = 0x81;
++		ifnum = 2;
++		goto add_sync_ep_from_ifnum;
+ 	case USB_ID(0x0582, 0x01d8): /* BOSS Katana */
+ 		/* BOSS Katana amplifiers do not need quirks */
+ 		return 0;
 -- 
 2.20.1
 
