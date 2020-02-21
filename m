@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D94D167831
-	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:48:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 676E116770A
+	for <lists+stable@lfdr.de>; Fri, 21 Feb 2020 09:41:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728510AbgBUHr2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 02:47:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43236 "EHLO mail.kernel.org"
+        id S1731255AbgBUIBx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 03:01:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34232 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728913AbgBUHr1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 02:47:27 -0500
+        id S1731110AbgBUIBw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 03:01:52 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 98A7720801;
-        Fri, 21 Feb 2020 07:47:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AD2EA206ED;
+        Fri, 21 Feb 2020 08:01:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582271245;
-        bh=y/fHO2NUkuUAl0Ye179CG0J01vFCflv+yegSPsLRYk8=;
+        s=default; t=1582272112;
+        bh=gecPiQ7v5GjEeaOs2ggxatXWN3mW4uwxGEFNfz7DXuU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JW+EMHOX64XSI7Vu/p2Lcc5U+K3Y2FhC/FLr6Ngb7CJyUlSLjMKu0FJ0fqSoON/VL
-         jNuAcP06RTxqEWJiSnH/MzGa8QIM87UMuixkHWge4QY+G4Mlc3zqFlrv6fS580eZgF
-         lN3qaTL1SuxImXN/Lwx8bHOq6DwLkdCIiBIeG12g=
+        b=AU5B0i29iHqC7tzA3CbDIhW7pUeyjOql/Ft9Ur5lvlNUMlHsO79iNI72d4Dymb84N
+         AnelOaoMGLadG65rlOYc2vx/vv1GsnHUNDMO0W1mpAn2TXgrHSW++3wohRkIk2oerg
+         R/3M8BZVM7OyLcIBgNVVo2ykMlIu7Iudi7o2rDWU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Masami Hiramatsu <mhiramat@kernel.org>,
-        Tom Zanussi <zanussi@kernel.org>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 093/399] tracing: Simplify assignment parsing for hist triggers
-Date:   Fri, 21 Feb 2020 08:36:58 +0100
-Message-Id: <20200221072411.383968851@linuxfoundation.org>
+        stable@vger.kernel.org, "Paul E. McKenney" <paulmck@kernel.org>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Sasha Levin <sashal@kernel.org>, Tejun Heo <tj@kernel.org>
+Subject: [PATCH 5.4 020/344] cpu/hotplug, stop_machine: Fix stop_machine vs hotplug order
+Date:   Fri, 21 Feb 2020 08:36:59 +0100
+Message-Id: <20200221072351.043868164@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200221072402.315346745@linuxfoundation.org>
-References: <20200221072402.315346745@linuxfoundation.org>
+In-Reply-To: <20200221072349.335551332@linuxfoundation.org>
+References: <20200221072349.335551332@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,191 +44,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tom Zanussi <zanussi@kernel.org>
+From: Peter Zijlstra <peterz@infradead.org>
 
-[ Upstream commit b527b638fd63ba791dc90a0a6e9a3035b10df52b ]
+[ Upstream commit 45178ac0cea853fe0e405bf11e101bdebea57b15 ]
 
-In the process of adding better error messages for sorting, I realized
-that strsep was being used incorrectly and some of the error paths I
-was expecting to be hit weren't and just fell through to the common
-invalid key error case.
+Paul reported a very sporadic, rcutorture induced, workqueue failure.
+When the planets align, the workqueue rescuer's self-migrate fails and
+then triggers a WARN for running a work on the wrong CPU.
 
-It also became obvious that for keyword assignments, it wasn't
-necessary to save the full assignment and reparse it later, and having
-a common empty-assignment check would also make more sense in terms of
-error processing.
+Tejun then figured that set_cpus_allowed_ptr()'s stop_one_cpu() call
+could be ignored! When stopper->enabled is false, stop_machine will
+insta complete the work, without actually doing the work. Worse, it
+will not WARN about this (we really should fix this).
 
-Change the code to fix these problems and simplify it for new error
-message changes in a subsequent patch.
+It turns out there is a small window where a freshly online'ed CPU is
+marked 'online' but doesn't yet have the stopper task running:
 
-Link: http://lkml.kernel.org/r/1c3ef0b6655deaf345f6faee2584a0298ac2d743.1561743018.git.zanussi@kernel.org
+	BP				AP
 
-Fixes: e62347d24534 ("tracing: Add hist trigger support for user-defined sorting ('sort=' param)")
-Fixes: 7ef224d1d0e3 ("tracing: Add 'hist' event trigger command")
-Fixes: a4072fe85ba3 ("tracing: Add a clock attribute for hist triggers")
-Reported-by: Masami Hiramatsu <mhiramat@kernel.org>
-Reviewed-by: Masami Hiramatsu <mhiramat@kernel.org>
-Signed-off-by: Tom Zanussi <zanussi@kernel.org>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+	bringup_cpu()
+	  __cpu_up(cpu, idle)	 -->	start_secondary()
+					...
+					cpu_startup_entry()
+	  bringup_wait_for_ap()
+	    wait_for_ap_thread() <--	  cpuhp_online_idle()
+					  while (1)
+					    do_idle()
+
+					... available to run kthreads ...
+
+	    stop_machine_unpark()
+	      stopper->enable = true;
+
+Close this by moving the stop_machine_unpark() into
+cpuhp_online_idle(), such that the stopper thread is ready before we
+start the idle loop and schedule.
+
+Reported-by: "Paul E. McKenney" <paulmck@kernel.org>
+Debugged-by: Tejun Heo <tj@kernel.org>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Tested-by: "Paul E. McKenney" <paulmck@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/trace/trace_events_hist.c | 70 ++++++++++++--------------------
- 1 file changed, 27 insertions(+), 43 deletions(-)
+ kernel/cpu.c | 13 +++++++++----
+ 1 file changed, 9 insertions(+), 4 deletions(-)
 
-diff --git a/kernel/trace/trace_events_hist.c b/kernel/trace/trace_events_hist.c
-index 6ac35b9e195de..48f9075e4fa18 100644
---- a/kernel/trace/trace_events_hist.c
-+++ b/kernel/trace/trace_events_hist.c
-@@ -2035,12 +2035,6 @@ static int parse_map_size(char *str)
- 	unsigned long size, map_bits;
- 	int ret;
+diff --git a/kernel/cpu.c b/kernel/cpu.c
+index 116825437cd61..406828fb30388 100644
+--- a/kernel/cpu.c
++++ b/kernel/cpu.c
+@@ -525,8 +525,7 @@ static int bringup_wait_for_ap(unsigned int cpu)
+ 	if (WARN_ON_ONCE((!cpu_online(cpu))))
+ 		return -ECANCELED;
  
--	strsep(&str, "=");
--	if (!str) {
--		ret = -EINVAL;
--		goto out;
--	}
--
- 	ret = kstrtoul(str, 0, &size);
- 	if (ret)
- 		goto out;
-@@ -2100,25 +2094,25 @@ static int parse_action(char *str, struct hist_trigger_attrs *attrs)
- static int parse_assignment(struct trace_array *tr,
- 			    char *str, struct hist_trigger_attrs *attrs)
+-	/* Unpark the stopper thread and the hotplug thread of the target cpu */
+-	stop_machine_unpark(cpu);
++	/* Unpark the hotplug thread of the target cpu */
+ 	kthread_unpark(st->thread);
+ 
+ 	/*
+@@ -1089,8 +1088,8 @@ void notify_cpu_starting(unsigned int cpu)
+ 
+ /*
+  * Called from the idle task. Wake up the controlling task which brings the
+- * stopper and the hotplug thread of the upcoming CPU up and then delegates
+- * the rest of the online bringup to the hotplug thread.
++ * hotplug thread of the upcoming CPU up and then delegates the rest of the
++ * online bringup to the hotplug thread.
+  */
+ void cpuhp_online_idle(enum cpuhp_state state)
  {
--	int ret = 0;
-+	int len, ret = 0;
+@@ -1100,6 +1099,12 @@ void cpuhp_online_idle(enum cpuhp_state state)
+ 	if (state != CPUHP_AP_ONLINE_IDLE)
+ 		return;
  
--	if ((str_has_prefix(str, "key=")) ||
--	    (str_has_prefix(str, "keys="))) {
--		attrs->keys_str = kstrdup(str, GFP_KERNEL);
-+	if ((len = str_has_prefix(str, "key=")) ||
-+	    (len = str_has_prefix(str, "keys="))) {
-+		attrs->keys_str = kstrdup(str + len, GFP_KERNEL);
- 		if (!attrs->keys_str) {
- 			ret = -ENOMEM;
- 			goto out;
- 		}
--	} else if ((str_has_prefix(str, "val=")) ||
--		   (str_has_prefix(str, "vals=")) ||
--		   (str_has_prefix(str, "values="))) {
--		attrs->vals_str = kstrdup(str, GFP_KERNEL);
-+	} else if ((len = str_has_prefix(str, "val=")) ||
-+		   (len = str_has_prefix(str, "vals=")) ||
-+		   (len = str_has_prefix(str, "values="))) {
-+		attrs->vals_str = kstrdup(str + len, GFP_KERNEL);
- 		if (!attrs->vals_str) {
- 			ret = -ENOMEM;
- 			goto out;
- 		}
--	} else if (str_has_prefix(str, "sort=")) {
--		attrs->sort_key_str = kstrdup(str, GFP_KERNEL);
-+	} else if ((len = str_has_prefix(str, "sort="))) {
-+		attrs->sort_key_str = kstrdup(str + len, GFP_KERNEL);
- 		if (!attrs->sort_key_str) {
- 			ret = -ENOMEM;
- 			goto out;
-@@ -2129,12 +2123,8 @@ static int parse_assignment(struct trace_array *tr,
- 			ret = -ENOMEM;
- 			goto out;
- 		}
--	} else if (str_has_prefix(str, "clock=")) {
--		strsep(&str, "=");
--		if (!str) {
--			ret = -EINVAL;
--			goto out;
--		}
-+	} else if ((len = str_has_prefix(str, "clock="))) {
-+		str += len;
- 
- 		str = strstrip(str);
- 		attrs->clock = kstrdup(str, GFP_KERNEL);
-@@ -2142,8 +2132,8 @@ static int parse_assignment(struct trace_array *tr,
- 			ret = -ENOMEM;
- 			goto out;
- 		}
--	} else if (str_has_prefix(str, "size=")) {
--		int map_bits = parse_map_size(str);
-+	} else if ((len = str_has_prefix(str, "size="))) {
-+		int map_bits = parse_map_size(str + len);
- 
- 		if (map_bits < 0) {
- 			ret = map_bits;
-@@ -2183,8 +2173,14 @@ parse_hist_trigger_attrs(struct trace_array *tr, char *trigger_str)
- 
- 	while (trigger_str) {
- 		char *str = strsep(&trigger_str, ":");
-+		char *rhs;
- 
--		if (strchr(str, '=')) {
-+		rhs = strchr(str, '=');
-+		if (rhs) {
-+			if (!strlen(++rhs)) {
-+				ret = -EINVAL;
-+				goto free;
-+			}
- 			ret = parse_assignment(tr, str, attrs);
- 			if (ret)
- 				goto free;
-@@ -4536,10 +4532,6 @@ static int create_val_fields(struct hist_trigger_data *hist_data,
- 	if (!fields_str)
- 		goto out;
- 
--	strsep(&fields_str, "=");
--	if (!fields_str)
--		goto out;
--
- 	for (i = 0, j = 1; i < TRACING_MAP_VALS_MAX &&
- 		     j < TRACING_MAP_VALS_MAX; i++) {
- 		field_str = strsep(&fields_str, ",");
-@@ -4634,10 +4626,6 @@ static int create_key_fields(struct hist_trigger_data *hist_data,
- 	if (!fields_str)
- 		goto out;
- 
--	strsep(&fields_str, "=");
--	if (!fields_str)
--		goto out;
--
- 	for (i = n_vals; i < n_vals + TRACING_MAP_KEYS_MAX; i++) {
- 		field_str = strsep(&fields_str, ",");
- 		if (!field_str)
-@@ -4795,12 +4783,6 @@ static int create_sort_keys(struct hist_trigger_data *hist_data)
- 	if (!fields_str)
- 		goto out;
- 
--	strsep(&fields_str, "=");
--	if (!fields_str) {
--		ret = -EINVAL;
--		goto out;
--	}
--
- 	for (i = 0; i < TRACING_MAP_SORT_KEYS_MAX; i++) {
- 		struct hist_field *hist_field;
- 		char *field_str, *field_name;
-@@ -4809,9 +4791,11 @@ static int create_sort_keys(struct hist_trigger_data *hist_data)
- 		sort_key = &hist_data->sort_keys[i];
- 
- 		field_str = strsep(&fields_str, ",");
--		if (!field_str) {
--			if (i == 0)
--				ret = -EINVAL;
-+		if (!field_str)
-+			break;
++	/*
++	 * Unpart the stopper thread before we start the idle loop (and start
++	 * scheduling); this ensures the stopper task is always available.
++	 */
++	stop_machine_unpark(smp_processor_id());
 +
-+		if (!*field_str) {
-+			ret = -EINVAL;
- 			break;
- 		}
- 
-@@ -4821,7 +4805,7 @@ static int create_sort_keys(struct hist_trigger_data *hist_data)
- 		}
- 
- 		field_name = strsep(&field_str, ".");
--		if (!field_name) {
-+		if (!field_name || !*field_name) {
- 			ret = -EINVAL;
- 			break;
- 		}
+ 	st->state = CPUHP_AP_ONLINE_IDLE;
+ 	complete_ap_thread(st, true);
+ }
 -- 
 2.20.1
 
