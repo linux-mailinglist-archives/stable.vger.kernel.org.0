@@ -2,113 +2,75 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B3641168AA1
-	for <lists+stable@lfdr.de>; Sat, 22 Feb 2020 01:01:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 54285168ABE
+	for <lists+stable@lfdr.de>; Sat, 22 Feb 2020 01:12:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729187AbgBVAA6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 19:00:58 -0500
-Received: from aserp2120.oracle.com ([141.146.126.78]:35624 "EHLO
-        aserp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726802AbgBVAA6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 21 Feb 2020 19:00:58 -0500
-Received: from pps.filterd (aserp2120.oracle.com [127.0.0.1])
-        by aserp2120.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 01M00Vfk122309;
-        Sat, 22 Feb 2020 00:00:31 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=date : from : to : cc
- : subject : message-id : references : mime-version : content-type :
- in-reply-to; s=corp-2020-01-29;
- bh=EWJFhG6yhtm3ul3h7WoSZAkEKq6UjIeEomHo8PWThow=;
- b=KPQE/C9esyf64uM6XExvFniOurRwQ4sK/tyKdJRr2W6jcDL2NAtcHqTmJxu84c0z95SL
- Ezdjvhg3Hfmyo0IK55dFbfPyIPiQwRn6Vd01zixrO0RMHatzpLdHQklZ5LXFjDFTHaib
- hA2HlPYiBLkw9Q7SPRKWNPBFYbtqXxB10icU1Nj51wIuDO2k4cu4M57NLMNxFYWExww+
- X6F7t3f5NIFYdfgIxkK4dyUCcr06WYsvan6dDCslbVnTJgWksoWj0KAfixsAKQpC/VCs
- dtdLgxj2X5C05I12xICyQy52WetIBXXYPVhMXYbDpsXO9/G9uRmxjlw2c9XP/noh+run 2g== 
-Received: from userp3020.oracle.com (userp3020.oracle.com [156.151.31.79])
-        by aserp2120.oracle.com with ESMTP id 2y8udkufqu-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Sat, 22 Feb 2020 00:00:31 +0000
-Received: from pps.filterd (userp3020.oracle.com [127.0.0.1])
-        by userp3020.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 01LNvpU6153765;
-        Sat, 22 Feb 2020 00:00:30 GMT
-Received: from userv0121.oracle.com (userv0121.oracle.com [156.151.31.72])
-        by userp3020.oracle.com with ESMTP id 2y8ud7vec6-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Sat, 22 Feb 2020 00:00:30 +0000
-Received: from abhmp0010.oracle.com (abhmp0010.oracle.com [141.146.116.16])
-        by userv0121.oracle.com (8.14.4/8.13.8) with ESMTP id 01M00SuG007204;
-        Sat, 22 Feb 2020 00:00:29 GMT
-Received: from ca-dmjordan1.us.oracle.com (/10.211.9.48)
-        by default (Oracle Beehive Gateway v4.0)
-        with ESMTP ; Fri, 21 Feb 2020 16:00:28 -0800
-Date:   Fri, 21 Feb 2020 19:00:45 -0500
-From:   Daniel Jordan <daniel.m.jordan@oracle.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Daniel Jordan <daniel.m.jordan@oracle.com>,
-        Eric Biggers <ebiggers@kernel.org>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Steffen Klassert <steffen.klassert@secunet.com>,
-        linux-crypto@vger.kernel.org, Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 4.19 061/191] padata: always acquire cpu_hotplug_lock
- before pinst->lock
-Message-ID: <20200222000045.cl45vclfhvkjursm@ca-dmjordan1.us.oracle.com>
-References: <20200221072250.732482588@linuxfoundation.org>
- <20200221072258.745173144@linuxfoundation.org>
+        id S1726613AbgBVAMG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 19:12:06 -0500
+Received: from mail-vs1-f65.google.com ([209.85.217.65]:41275 "EHLO
+        mail-vs1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726045AbgBVAMG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 21 Feb 2020 19:12:06 -0500
+Received: by mail-vs1-f65.google.com with SMTP id k188so2381215vsc.8
+        for <stable@vger.kernel.org>; Fri, 21 Feb 2020 16:12:04 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=x5akGU9+EHQDDbaAZTxCnbpLn2pYtJ9WPxFlCw/E2KU=;
+        b=CvBYZ1qarO0tdjB6qoa5uka/cHsJpFtvtds3ZM8Eb5C56Z+JOXHTdxy8s0Fe9Xx4A7
+         aykbxXqt0eaRmMHynXWCMf+FiDVKEom1+R9NyCv0Pw8VSOphp0jvT+Iip/JY1fDiXRs0
+         25pi3+R4BWubgYo2AqP7rV3iartrgh4wQwSSe1KjYxzjbf97iZ57lD2/6zHcT6R9lY60
+         VeO2AzCM5eJFmjpC0RNGmomHeEm9Q4uRViEmOPlpsGZpJOZs9eaRb4Dv+0tI//ymdv3r
+         VeElQl3SHPX+gXZ2jc6B7L02PbZ/Dh9N1iGyYg5TOV+pH3c0WYTK9ZxaBI7m2ToPh3S3
+         5mCg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=x5akGU9+EHQDDbaAZTxCnbpLn2pYtJ9WPxFlCw/E2KU=;
+        b=aGjjJtnMq76wf2DNB7gQkXiK9nIRoOXkaJXZ+Y0/qeihfAZaoq+WqMuV934qswLvqG
+         2VT4hdQHGKHHn8A09SbelIJl9iZQI0ZYNp612WfkGFy6xgML3LT7mYT8ufYisAVPtJZ4
+         BzWt8NJNMbJox51cytODRrP/1ky3VrbiSKaRhkgGeq8CtrZyQ3X24ZM80IwW19h/gt50
+         mqJ40W5Otra7mzlJ5h0JtwJfGrQG418IuWPhD59h2Af6PsCNt+JoRVNuANekXCQ8CfDH
+         +qgWvOyusyp2QXd9X8Q6yO5KUR191sEko5e1SAtcVU3FBWw3HKurIFvgFtnAvY7MWtia
+         anhA==
+X-Gm-Message-State: APjAAAUc8cbHZkfgED2pJCVXvmiXPtYXKXWr30OxzahQ3g/AtSxNJvdO
+        2s3g1tP4Foc8jr/2KXirMN0szepTdoRvbfZJrJ4=
+X-Google-Smtp-Source: APXvYqw1bQrxsI9pcu8J9tsdzxArAqiWJpVM5hxeC++gNOA0mxEgJ2Vjcw53r34UFBHEmT+PXdfLsLsMii7XLVUuM64=
+X-Received: by 2002:a67:1301:: with SMTP id 1mr21375880vst.225.1582330323536;
+ Fri, 21 Feb 2020 16:12:03 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200221072258.745173144@linuxfoundation.org>
-User-Agent: NeoMutt/20180716
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9538 signatures=668685
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 bulkscore=0 malwarescore=0
- mlxlogscore=503 suspectscore=0 adultscore=0 spamscore=0 mlxscore=0
- phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2001150001 definitions=main-2002210180
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9538 signatures=668685
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 lowpriorityscore=0 suspectscore=0
- spamscore=0 priorityscore=1501 adultscore=0 mlxscore=0 clxscore=1011
- malwarescore=0 mlxlogscore=552 phishscore=0 impostorscore=0 bulkscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2001150001
- definitions=main-2002210180
+Received: by 2002:a67:ee92:0:0:0:0:0 with HTTP; Fri, 21 Feb 2020 16:12:03
+ -0800 (PST)
+Reply-To: nataliarein02@gmail.com
+From:   DR NATALIA REIN <reinrorex4@gmail.com>
+Date:   Sat, 22 Feb 2020 01:12:03 +0100
+Message-ID: <CAD5H=QJXH0p8HsdJb13AQmOcU6scHg3Rkq=bohQ1p2JBtU4DhA@mail.gmail.com>
+Subject: My name is Natalia Rein ,I am 36years old banker from United State of American
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Feb 21, 2020 at 08:40:34AM +0100, Greg Kroah-Hartman wrote:
-> From: Daniel Jordan <daniel.m.jordan@oracle.com>
-> 
-> [ Upstream commit 38228e8848cd7dd86ccb90406af32de0cad24be3 ]
-> 
-> lockdep complains when padata's paths to update cpumasks via CPU hotplug
-> and sysfs are both taken:
-> 
->   # echo 0 > /sys/devices/system/cpu/cpu1/online
->   # echo ff > /sys/kernel/pcrypt/pencrypt/parallel_cpumask
-> 
->   ======================================================
->   WARNING: possible circular locking dependency detected
->   5.4.0-rc8-padata-cpuhp-v3+ #1 Not tainted
->   ------------------------------------------------------
->   bash/205 is trying to acquire lock:
->   ffffffff8286bcd0 (cpu_hotplug_lock.rw_sem){++++}, at: padata_set_cpumask+0x2b/0x120
-> 
->   but task is already holding lock:
->   ffff8880001abfa0 (&pinst->lock){+.+.}, at: padata_set_cpumask+0x26/0x120
-> 
->   which lock already depends on the new lock.
+Hello Dear.
 
-I think this patch should be dropped from all stable queues (4.4, 4.9, 4.14,
-4.19, 5.4, and 5.5).
+My name is Natalia Rein ,I am 36years old banker from United State of
+American but workimg here in Canada ,starting from today, I was just
+going through the Internet search when your profile which i
+like it, am looking for a good honest  and trustworthy friend that can
+lead to something good,
+if you are honest person please get back to me and tell me something
+about yourself, please I do not need love of money from any man.
 
-The main benefit is to un-break lockdep for testing with future padata changes,
-and an actual deadlock seems unlikely.
+I will be happy to see your reply for us to know each other better and
+give you my pictures and details about me. you can reach me at
 
-These stable versions don't fix the ordering in padata_remove_cpu() either
-(nothing calls it though).
+Natalia.rein01@yahoo.com
 
-I tried the other stable padata patch in this cycle ("padata: validate cpumask
-without removed CPU during offline"), it passed my tests and should stay in.
+and tell me about yourself
 
-thanks,
-Daniel
+Yours
+
+Natalia Rein
