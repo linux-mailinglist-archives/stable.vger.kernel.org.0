@@ -2,94 +2,70 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 64415168EF9
-	for <lists+stable@lfdr.de>; Sat, 22 Feb 2020 13:59:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6DF58168F42
+	for <lists+stable@lfdr.de>; Sat, 22 Feb 2020 15:13:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727090AbgBVM7e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Feb 2020 07:59:34 -0500
-Received: from jabberwock.ucw.cz ([46.255.230.98]:56120 "EHLO
-        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726839AbgBVM7e (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Feb 2020 07:59:34 -0500
-Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
-        id 8982F1C036F; Sat, 22 Feb 2020 13:59:32 +0100 (CET)
-Date:   Sat, 22 Feb 2020 13:59:31 +0100
-From:   Pavel Machek <pavel@denx.de>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Steve French <stfrench@microsoft.com>,
-        Oleg Kravtsov <oleg@tuxera.com>,
-        Ronnie Sahlberg <lsahlber@redhat.com>,
-        Pavel Shilovsky <pshilov@microsoft.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 4.19 188/191] cifs: log warning message (once) if out of
- disk space
-Message-ID: <20200222125931.GC14067@amd>
-References: <20200221072250.732482588@linuxfoundation.org>
- <20200221072313.381537875@linuxfoundation.org>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="da4uJneut+ArUgXk"
-Content-Disposition: inline
-In-Reply-To: <20200221072313.381537875@linuxfoundation.org>
-User-Agent: Mutt/1.5.23 (2014-03-12)
+        id S1727115AbgBVONz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Feb 2020 09:13:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53668 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726883AbgBVONz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 22 Feb 2020 09:13:55 -0500
+Received: from localhost (unknown [137.135.114.1])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id EFA18206D7;
+        Sat, 22 Feb 2020 14:13:54 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1582380835;
+        bh=Sj50+WKbpeOFdpdWCe9jgIEfPwoTqzVxQrce7HHxHyY=;
+        h=Date:From:To:To:To:Cc:Cc:Cc:Subject:In-Reply-To:References:From;
+        b=G+B97beEoQXDyzIFLtgTAP565qscNbUaUpmkA0pLIBvlkW2PgeYkiX9Ik5D8IMlz+
+         qAlP7yQ+0H2svycTluQIQDjcJxynCvXWKRazBzEzKgJk+fMcOU4ma2mB4fC2icNAPX
+         aG47vH265KF3ypC/7uf3io6PAV5/5A0x/VrS8j4M=
+Date:   Sat, 22 Feb 2020 14:13:53 +0000
+From:   Sasha Levin <sashal@kernel.org>
+To:     Sasha Levin <sashal@kernel.org>
+To:     Felix Fietkau <nbd@nbd.name>
+To:     linux-wireless@vger.kernel.org
+Cc:     kvalo@codeaurora.org, stable@vger.kernel.org
+Cc:     stable@vger.kernel.org
+Cc:     stable@vger.kernel.org
+Subject: Re: [PATCH 5.6] mt76: fix array overflow on receiving too many fragments for a packet
+In-Reply-To: <20200220114139.46508-1-nbd@nbd.name>
+References: <20200220114139.46508-1-nbd@nbd.name>
+Message-Id: <20200222141354.EFA18206D7@mail.kernel.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Hi,
 
---da4uJneut+ArUgXk
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+[This is an automated email]
 
-On Fri 2020-02-21 08:42:41, Greg Kroah-Hartman wrote:
-> From: Steve French <stfrench@microsoft.com>
->=20
-> [ Upstream commit d6fd41905ec577851734623fb905b1763801f5ef ]
->=20
-> We ran into a confusing problem where an application wasn't checking
-> return code on close and so user didn't realize that the application
-> ran out of disk space.  log a warning message (once) in these
-> cases. For example:
->=20
->   [ 8407.391909] Out of space writing to \\oleg-server\small-share
+This commit has been processed because it contains a -stable tag.
+The stable tag indicates that it's relevant for the following trees: all
 
-Out of space can happen on any filesystem, and yes, it can be
-confusing. But why is cifs so special that we warn here (and not
-elsewhere) and why was this marked for stable?
+The bot has tested the following trees: v5.5.5, v5.4.21, v4.19.105, v4.14.171, v4.9.214, v4.4.214.
 
-Best regards,
-								Pavel
+v5.5.5: Build OK!
+v5.4.21: Build OK!
+v4.19.105: Build OK!
+v4.14.171: Failed to apply! Possible dependencies:
+    17f1de56df05 ("mt76: add common code shared between multiple chipsets")
 
-> +++ b/fs/cifs/smb2pdu.c
-> @@ -3425,6 +3425,9 @@ smb2_writev_callback(struct mid_q_entry *mid)
->  				     wdata->cfile->fid.persistent_fid,
->  				     tcon->tid, tcon->ses->Suid, wdata->offset,
->  				     wdata->bytes, wdata->result);
-> +		if (wdata->result =3D=3D -ENOSPC)
-> +			printk_once(KERN_WARNING "Out of space writing to %s\n",
-> +				    tcon->treeName);
->  	} else
->  		trace_smb3_write_done(0 /* no xid */,
->  				      wdata->cfile->fid.persistent_fid,
+v4.9.214: Failed to apply! Possible dependencies:
+    17f1de56df05 ("mt76: add common code shared between multiple chipsets")
 
---=20
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
-g.html
+v4.4.214: Failed to apply! Possible dependencies:
+    17f1de56df05 ("mt76: add common code shared between multiple chipsets")
 
---da4uJneut+ArUgXk
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
+NOTE: The patch will not be queued to stable trees until it is upstream.
 
-iEYEARECAAYFAl5RJbMACgkQMOfwapXb+vLCGQCgrGjJIfafpgWeDlUD4lQDyTlk
-EBwAmgLIA2xgvjoxSOCFHf/XPKc4B7bf
-=ux05
------END PGP SIGNATURE-----
+How should we proceed with this patch?
 
---da4uJneut+ArUgXk--
+-- 
+Thanks,
+Sasha
