@@ -2,82 +2,89 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D319D168CE3
-	for <lists+stable@lfdr.de>; Sat, 22 Feb 2020 07:33:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 509E4168D47
+	for <lists+stable@lfdr.de>; Sat, 22 Feb 2020 08:40:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726726AbgBVGd3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Feb 2020 01:33:29 -0500
-Received: from szxga07-in.huawei.com ([45.249.212.35]:44120 "EHLO huawei.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726684AbgBVGd3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 22 Feb 2020 01:33:29 -0500
-Received: from DGGEMS409-HUB.china.huawei.com (unknown [172.30.72.60])
-        by Forcepoint Email with ESMTP id 315C9FA8F813A2B4B96F;
-        Sat, 22 Feb 2020 14:33:20 +0800 (CST)
-Received: from [127.0.0.1] (10.177.246.209) by DGGEMS409-HUB.china.huawei.com
- (10.3.19.209) with Microsoft SMTP Server id 14.3.439.0; Sat, 22 Feb 2020
- 14:33:11 +0800
-Subject: Re: [PATCH v2] mm/hugetlb: fix a addressing exception caused by
- huge_pte_offset()
-To:     Qian Cai <cai@lca.pw>
-CC:     <akpm@linux-foundation.org>, <mike.kravetz@oracle.com>,
-        <kirill.shutemov@linux.intel.com>, <linux-kernel@vger.kernel.org>,
-        <arei.gonglei@huawei.com>, <weidong.huang@huawei.com>,
-        <weifuqiang@huawei.com>, <kvm@vger.kernel.org>,
-        <linux-mm@kvack.org>, "Matthew Wilcox" <willy@infradead.org>,
-        Sean Christopherson <sean.j.christopherson@intel.com>,
-        <stable@vger.kernel.org>
-References: <C4ED630A-FAD8-4998-A0A3-9C36F3303379@lca.pw>
-From:   "Longpeng (Mike)" <longpeng2@huawei.com>
-Message-ID: <f274b368-6fdb-2ae3-160e-fd8b105b9ac4@huawei.com>
-Date:   Sat, 22 Feb 2020 14:33:10 +0800
-User-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64; rv:60.0) Gecko/20100101
- Thunderbird/60.7.2
+        id S1726653AbgBVHku (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Feb 2020 02:40:50 -0500
+Received: from jabberwock.ucw.cz ([46.255.230.98]:56628 "EHLO
+        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726343AbgBVHku (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Feb 2020 02:40:50 -0500
+Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
+        id 474A11C1CBB; Sat, 22 Feb 2020 08:40:48 +0100 (CET)
+Date:   Sat, 22 Feb 2020 08:40:47 +0100
+From:   Pavel Machek <pavel@denx.de>
+To:     Sean Christopherson <sean.j.christopherson@intel.com>
+Cc:     Pavel Machek <pavel@denx.de>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH 4.19 009/191] KVM: nVMX: Use correct root level for
+ nested EPT shadow page tables
+Message-ID: <20200222074047.GA21289@amd>
+References: <20200221072250.732482588@linuxfoundation.org>
+ <20200221072252.173149129@linuxfoundation.org>
+ <20200221102949.GA14608@duo.ucw.cz>
+ <20200221150512.GB12665@linux.intel.com>
 MIME-Version: 1.0
-In-Reply-To: <C4ED630A-FAD8-4998-A0A3-9C36F3303379@lca.pw>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
-X-Originating-IP: [10.177.246.209]
-X-CFilter-Loop: Reflected
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="CE+1k2dSO48ffgeK"
+Content-Disposition: inline
+In-Reply-To: <20200221150512.GB12665@linux.intel.com>
+User-Agent: Mutt/1.5.23 (2014-03-12)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-在 2020/2/22 13:23, Qian Cai 写道:
-> 
-> 
->> On Feb 21, 2020, at 10:34 PM, Longpeng(Mike) <longpeng2@huawei.com> wrote:
->>
->> diff --git a/mm/hugetlb.c b/mm/hugetlb.c
->> index dd8737a..90daf37 100644
->> --- a/mm/hugetlb.c
->> +++ b/mm/hugetlb.c
->> @@ -4910,28 +4910,30 @@ pte_t *huge_pte_offset(struct mm_struct *mm,
->> {
->>    pgd_t *pgd;
->>    p4d_t *p4d;
->> -    pud_t *pud;
->> -    pmd_t *pmd;
->> +    pud_t *pud, pud_entry;
->> +    pmd_t *pmd, pmd_entry;
->>
->>    pgd = pgd_offset(mm, addr);
->> -    if (!pgd_present(*pgd))
->> +    if (!pgd_present(READ_ONCE(*pgd)))
->>        return NULL;
->>    p4d = p4d_offset(pgd, addr);
->> -    if (!p4d_present(*p4d))
->> +    if (!p4d_present(READ_ONCE(*p4d)))
->>        return NULL;
-> 
-> What’s the point of READ_ONCE() on those two places?
-> 
-As explained in the commit messages, it's for safe(e.g. avoid the compilier
-mischief). You can also find the same usage in the ARM64's huge_pte_offset() in
-arch/arm64/mm/hugetlbpage.c
 
--- 
-Regards,
-Longpeng(Mike)
+--CE+1k2dSO48ffgeK
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
+Hi!
+
+> > > Hardcode the EPT page-walk level for L2 to be 4 levels, as KVM's MMU
+> > > currently also hardcodes the page walk level for nested EPT to be 4
+> > > levels.  The L2 guest is all but guaranteed to soft hang on its first
+> > > instruction when L1 is using EPT, as KVM will construct 4-level page
+> > > tables and then tell hardware to use 5-level page tables.
+> >=20
+> > I don't get it. 7/191 reverts the patch, then 9/191 reverts the
+> > revert. Can we simply drop both 7 and 9, for exactly the same result?
+> >
+> > (Patch 8 is a unused file, so it does not change the picture).
+>=20
+> Patch 07 is reverting this patch from the same unused file,=20
+> arch/x86/kvm/vmx/vmx.c[*].  The reason patch 07 looks like a normal diff =
+is
+> that a prior patch in 4.19.105 created the unused file (which is what's
+> reverted by patch 08 here).
+>=20
+> Patch 09 reintroduces the fix for the correct file, arch/x86/kvm/vmx.c.
+
+Aha, thanks, I checked content few times but missed difference in
+filename. Now it makes sense.
+
+Best regards,
+								Pavel
+--=20
+DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
+HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
+
+--CE+1k2dSO48ffgeK
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iEYEARECAAYFAl5Q2v8ACgkQMOfwapXb+vJzRwCfQQ19/SrBDH/PvDONs3aDKxfy
+7ugAn2ig/hR6tIHKVraop7RE5m8NTm5f
+=LtIB
+-----END PGP SIGNATURE-----
+
+--CE+1k2dSO48ffgeK--
