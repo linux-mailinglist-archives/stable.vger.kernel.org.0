@@ -2,89 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1BE94168C73
-	for <lists+stable@lfdr.de>; Sat, 22 Feb 2020 06:12:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A0917168C83
+	for <lists+stable@lfdr.de>; Sat, 22 Feb 2020 06:23:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726053AbgBVFMQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Feb 2020 00:12:16 -0500
-Received: from mail-pj1-f66.google.com ([209.85.216.66]:40034 "EHLO
-        mail-pj1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725976AbgBVFMQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Feb 2020 00:12:16 -0500
-Received: by mail-pj1-f66.google.com with SMTP id 12so1688813pjb.5
-        for <stable@vger.kernel.org>; Fri, 21 Feb 2020 21:12:15 -0800 (PST)
+        id S1726230AbgBVFXr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Feb 2020 00:23:47 -0500
+Received: from mail-qk1-f193.google.com ([209.85.222.193]:35966 "EHLO
+        mail-qk1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726189AbgBVFXr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Feb 2020 00:23:47 -0500
+Received: by mail-qk1-f193.google.com with SMTP id f3so1028053qkh.3
+        for <stable@vger.kernel.org>; Fri, 21 Feb 2020 21:23:47 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=j6hdHivjSOUEjrn4EF3DoV3OPzOPzAW4i5CNbgJbERI=;
-        b=DsqRn1FyuUatE6u5VO52gJFVeZmW5v2EIvuUF96KyVoq2xTF0l9bw50fPxNIDEbsRo
-         TZrJl6XcCGl0TvFB6Vza/4+7q4Rkn7KZqfHt4ROKGPlXTttwawJVNHlds8kvR8tGcJol
-         5WPtk0mMt9ykcu8EO8PnNqXiQwvDkj41owqsuxlQzNWUhcIzCQLOokSL1Fv5KNp2zkwI
-         VQ4b1totsRolOdBdDlj0dkMNioSycJQx0Tq5c2xFos9ABTtoRzSS7KAhlhRNs1ZUkYic
-         FaQ3vz/MOWgLbmvNsFl0EuAisTQkjojL4d+PRX8+k8NwBw9vTMuUWWy+u0vZusx9zYI2
-         /9RA==
+        d=lca.pw; s=google;
+        h=content-transfer-encoding:from:mime-version:date:subject:message-id
+         :cc:to;
+        bh=IBBznMQ3bpiql9lX29jMw8rTRB5UTkasssHzmZ7+M1c=;
+        b=LrZLayjPzm6EQLYSudY/2Rq4gWifOId4PQrAAT2F3r3h4NRgVvIhbC9wOx7dlx1Tyk
+         WYPz/nHQ3vkybT2k2xkip3nUM4f72z609ZgHuowVvxaTzPOYtt/rzDEr2NC84AIv8CXR
+         U0opX2VzCXA/HJ/qpCXLc9V2nv5DRytdGovTfs1rZAEOs7Y6qmGvGpAdfto34hIsA8Ra
+         pkfe+e2+ciVrJ92OSsP2KnSO+hNJDpQYdRs7y3RPJ+SbfCtXmkkIIvCahCwn6T2Unqfv
+         bBKdNSO98xMr8l4tnMagKiMmWhHFfKIKh6j29waM9bi1stIdadM5rNWv1myS2PUTOZqY
+         FLTg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=j6hdHivjSOUEjrn4EF3DoV3OPzOPzAW4i5CNbgJbERI=;
-        b=ebgb9b2QAccklA4DZvAv+0R2ZVACG86l4Q6mem+aeDk/OZ1hXUM5ojs8UIypdBg6w+
-         EEbN7SIOJCR1jjB02KXMg5H7fdgGoM0WOxEPly2xS2onFEpX1EYvmNiqdoGwCGA1Esu+
-         TApWuBIckpGtVpFwxhyWdisvjIDYmp4hpd/Acvhudgz+5feVKVO3Gd1t1CMO0g7dIHOJ
-         UjjM8LhDcdOBRu+nOjov7tZ+q/uvwikUSWMhYOhGPAqt9LuVhD0pIIcWusQMrfJgIp5w
-         sNqgbvs/R9N4zX+eimjkvj3SgU29t2Sr8WTWaL6xNwQKzFB4+21JtfUogXzzcUj1h7Z/
-         gzQQ==
-X-Gm-Message-State: APjAAAXjSTaZXfVYVkRNhxAk/tew7hmNY/+78VuPCT0udooQSLozWnKo
-        z7JtwPc4zUtBZ0GTlebxXqCcOfO9TgI=
-X-Google-Smtp-Source: APXvYqx6VFECUU646SOg4jUJ0G1U+f889/3kr69JUCwFrM4Dz44+i1uda4+qnS0yLRYblxpP8KkLMw==
-X-Received: by 2002:a17:90b:46c4:: with SMTP id jx4mr7213065pjb.32.1582348334936;
-        Fri, 21 Feb 2020 21:12:14 -0800 (PST)
-Received: from [10.0.9.4] ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id b1sm4344746pgs.27.2020.02.21.21.12.13
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 21 Feb 2020 21:12:14 -0800 (PST)
-Message-ID: <5e50b82e.1c69fb81.b9b14.db96@mx.google.com>
-Date:   Fri, 21 Feb 2020 21:12:14 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
+        h=x-gm-message-state:content-transfer-encoding:from:mime-version:date
+         :subject:message-id:cc:to;
+        bh=IBBznMQ3bpiql9lX29jMw8rTRB5UTkasssHzmZ7+M1c=;
+        b=UUGJ1MLQOckQeG0WhDVXXavuwFdJGNSTK32du4lQzpvjyWoVfp3vHVVgkWoWXBq7Pt
+         JtNG0X7rw0NvGaA84WHh+Jy5cXfHpohgrFyDJ3b619470IfOh0Wa2hATZcP2NyFKrJxD
+         LCAGJZtAeAGDIF+ZQUev5Zk/zSNzKytFxMpcsaeKC5LPBNuaejfKvfH7acmfHBkuxGwC
+         Kwv0cbWL5LOQ1XP1CthK2Es8N26TslJY12+m5eVy6sKiGYJcBjZmIBqEmTJo12gxfWkp
+         /TJV9iIfTzHcFOhpyexRTglVFM+ADr8GA9pt/HlPnXyBwiCVwGQVSWEBC1PjmrHN3iJ7
+         hE/A==
+X-Gm-Message-State: APjAAAXdE9b6oQEeyBnK0YO//hCrp1dhacFPdzZWHnWK3nctc1ia3ry6
+        xwuKNn31mRBUqYquyhQ7msyElQ==
+X-Google-Smtp-Source: APXvYqxGJcaAbkb93bWjAuEqI5MWehvGgfWEWF9ozw2izn5dANYgU464h3LFov9e+Z+7R98DjY8LlQ==
+X-Received: by 2002:a37:bc06:: with SMTP id m6mr21225596qkf.383.1582349026611;
+        Fri, 21 Feb 2020 21:23:46 -0800 (PST)
+Received: from [192.168.1.183] (pool-71-184-117-43.bstnma.fios.verizon.net. [71.184.117.43])
+        by smtp.gmail.com with ESMTPSA id j30sm2612022qki.96.2020.02.21.21.23.45
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 21 Feb 2020 21:23:46 -0800 (PST)
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.19.105-192-g27ac98449017
-X-Kernelci-Report-Type: boot
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-4.19.y
-Subject: stable-rc/linux-4.19.y boot: 61 boots: 1 failed,
- 60 passed (v4.19.105-192-g27ac98449017)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+From:   Qian Cai <cai@lca.pw>
+Mime-Version: 1.0 (1.0)
+Date:   Sat, 22 Feb 2020 00:23:44 -0500
+Subject: Re: [PATCH v2] mm/hugetlb: fix a addressing exception caused by huge_pte_offset()
+Message-Id: <C4ED630A-FAD8-4998-A0A3-9C36F3303379@lca.pw>
+Cc:     akpm@linux-foundation.org, mike.kravetz@oracle.com,
+        kirill.shutemov@linux.intel.com, linux-kernel@vger.kernel.org,
+        arei.gonglei@huawei.com, weidong.huang@huawei.com,
+        weifuqiang@huawei.com, kvm@vger.kernel.org, linux-mm@kvack.org,
+        Matthew Wilcox <willy@infradead.org>,
+        Sean Christopherson <sean.j.christopherson@intel.com>,
+        stable@vger.kernel.org
+To:     "Longpeng(Mike)" <longpeng2@huawei.com>
+X-Mailer: iPhone Mail (17D50)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.19.y boot: 61 boots: 1 failed, 60 passed (v4.19.105-192-g=
-27ac98449017)
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.19.y/kernel/v4.19.105-192-g27ac98449017/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.19.=
-y/kernel/v4.19.105-192-g27ac98449017/
 
-Tree: stable-rc
-Branch: linux-4.19.y
-Git Describe: v4.19.105-192-g27ac98449017
-Git Commit: 27ac98449017eb9c569bcc95c65f29ca3948148f
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 41 unique boards, 12 SoC families, 8 builds out of 118
+> On Feb 21, 2020, at 10:34 PM, Longpeng(Mike) <longpeng2@huawei.com> wrote:=
 
-Boot Failure Detected:
+>=20
+> diff --git a/mm/hugetlb.c b/mm/hugetlb.c
+> index dd8737a..90daf37 100644
+> --- a/mm/hugetlb.c
+> +++ b/mm/hugetlb.c
+> @@ -4910,28 +4910,30 @@ pte_t *huge_pte_offset(struct mm_struct *mm,
+> {
+>    pgd_t *pgd;
+>    p4d_t *p4d;
+> -    pud_t *pud;
+> -    pmd_t *pmd;
+> +    pud_t *pud, pud_entry;
+> +    pmd_t *pmd, pmd_entry;
+>=20
+>    pgd =3D pgd_offset(mm, addr);
+> -    if (!pgd_present(*pgd))
+> +    if (!pgd_present(READ_ONCE(*pgd)))
+>        return NULL;
+>    p4d =3D p4d_offset(pgd, addr);
+> -    if (!p4d_present(*p4d))
+> +    if (!p4d_present(READ_ONCE(*p4d)))
+>        return NULL;
 
-arm:
-    sama5_defconfig:
-        gcc-8:
-            at91-sama5d4_xplained: 1 failed lab
-
----
-For more info write to <info@kernelci.org>
+What=E2=80=99s the point of READ_ONCE() on those two places?=
