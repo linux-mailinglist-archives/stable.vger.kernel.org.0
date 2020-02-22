@@ -2,184 +2,89 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 80367168C63
-	for <lists+stable@lfdr.de>; Sat, 22 Feb 2020 05:51:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1BE94168C73
+	for <lists+stable@lfdr.de>; Sat, 22 Feb 2020 06:12:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727186AbgBVEvv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 23:51:51 -0500
-Received: from vps.xff.cz ([195.181.215.36]:53294 "EHLO vps.xff.cz"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726393AbgBVEvv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Feb 2020 23:51:51 -0500
-X-Greylist: delayed 597 seconds by postgrey-1.27 at vger.kernel.org; Fri, 21 Feb 2020 23:51:50 EST
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=megous.com; s=mail;
-        t=1582346512; bh=lu42HKPfs8W3F34qV2Vvg++VjwzFzV7KC4WH6c2u/0Y=;
-        h=Date:From:To:Cc:Subject:References:X-My-GPG-KeyId:From;
-        b=r0kgt1qzNAwLorPK+IlooEqy5oL0J1E/DJZVoFiAzdDyuET7pqJKA7Dm/5F8su1AT
-         BgL+65fJ0CjaxPS5CTJsndzkpc5QM1yc5V4NUO57izHozKf3De3qEInt3p+trOkO7P
-         fYX496T3AdqhasAVKhr5Uf/P6KGdf9gOJ/FUVNk8=
-Date:   Sat, 22 Feb 2020 05:41:51 +0100
-From:   =?utf-8?Q?Ond=C5=99ej?= Jirman <megous@megous.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Chao Yu <yuchao0@huawei.com>, Jaegeuk Kim <jaegeuk@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 5.5 020/399] f2fs: call f2fs_balance_fs outside of locked
- page
-Message-ID: <20200222044151.odurt3xqyhgxqqve@core.my.home>
-Mail-Followup-To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Chao Yu <yuchao0@huawei.com>, Jaegeuk Kim <jaegeuk@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-References: <20200221072402.315346745@linuxfoundation.org>
- <20200221072404.289499313@linuxfoundation.org>
+        id S1726053AbgBVFMQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Feb 2020 00:12:16 -0500
+Received: from mail-pj1-f66.google.com ([209.85.216.66]:40034 "EHLO
+        mail-pj1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725976AbgBVFMQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Feb 2020 00:12:16 -0500
+Received: by mail-pj1-f66.google.com with SMTP id 12so1688813pjb.5
+        for <stable@vger.kernel.org>; Fri, 21 Feb 2020 21:12:15 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=j6hdHivjSOUEjrn4EF3DoV3OPzOPzAW4i5CNbgJbERI=;
+        b=DsqRn1FyuUatE6u5VO52gJFVeZmW5v2EIvuUF96KyVoq2xTF0l9bw50fPxNIDEbsRo
+         TZrJl6XcCGl0TvFB6Vza/4+7q4Rkn7KZqfHt4ROKGPlXTttwawJVNHlds8kvR8tGcJol
+         5WPtk0mMt9ykcu8EO8PnNqXiQwvDkj41owqsuxlQzNWUhcIzCQLOokSL1Fv5KNp2zkwI
+         VQ4b1totsRolOdBdDlj0dkMNioSycJQx0Tq5c2xFos9ABTtoRzSS7KAhlhRNs1ZUkYic
+         FaQ3vz/MOWgLbmvNsFl0EuAisTQkjojL4d+PRX8+k8NwBw9vTMuUWWy+u0vZusx9zYI2
+         /9RA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=j6hdHivjSOUEjrn4EF3DoV3OPzOPzAW4i5CNbgJbERI=;
+        b=ebgb9b2QAccklA4DZvAv+0R2ZVACG86l4Q6mem+aeDk/OZ1hXUM5ojs8UIypdBg6w+
+         EEbN7SIOJCR1jjB02KXMg5H7fdgGoM0WOxEPly2xS2onFEpX1EYvmNiqdoGwCGA1Esu+
+         TApWuBIckpGtVpFwxhyWdisvjIDYmp4hpd/Acvhudgz+5feVKVO3Gd1t1CMO0g7dIHOJ
+         UjjM8LhDcdOBRu+nOjov7tZ+q/uvwikUSWMhYOhGPAqt9LuVhD0pIIcWusQMrfJgIp5w
+         sNqgbvs/R9N4zX+eimjkvj3SgU29t2Sr8WTWaL6xNwQKzFB4+21JtfUogXzzcUj1h7Z/
+         gzQQ==
+X-Gm-Message-State: APjAAAXjSTaZXfVYVkRNhxAk/tew7hmNY/+78VuPCT0udooQSLozWnKo
+        z7JtwPc4zUtBZ0GTlebxXqCcOfO9TgI=
+X-Google-Smtp-Source: APXvYqx6VFECUU646SOg4jUJ0G1U+f889/3kr69JUCwFrM4Dz44+i1uda4+qnS0yLRYblxpP8KkLMw==
+X-Received: by 2002:a17:90b:46c4:: with SMTP id jx4mr7213065pjb.32.1582348334936;
+        Fri, 21 Feb 2020 21:12:14 -0800 (PST)
+Received: from [10.0.9.4] ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id b1sm4344746pgs.27.2020.02.21.21.12.13
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 21 Feb 2020 21:12:14 -0800 (PST)
+Message-ID: <5e50b82e.1c69fb81.b9b14.db96@mx.google.com>
+Date:   Fri, 21 Feb 2020 21:12:14 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200221072404.289499313@linuxfoundation.org>
-X-My-GPG-KeyId: EBFBDDE11FB918D44D1F56C1F9F0A873BE9777ED
- <https://xff.cz/key.txt>
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.19.105-192-g27ac98449017
+X-Kernelci-Report-Type: boot
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-4.19.y
+Subject: stable-rc/linux-4.19.y boot: 61 boots: 1 failed,
+ 60 passed (v4.19.105-192-g27ac98449017)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello,
+stable-rc/linux-4.19.y boot: 61 boots: 1 failed, 60 passed (v4.19.105-192-g=
+27ac98449017)
 
-On Fri, Feb 21, 2020 at 08:35:45AM +0100, Greg Kroah-Hartman wrote:
-> From: Jaegeuk Kim <jaegeuk@kernel.org>
-> 
-> [ Upstream commit bdf03299248916640a835a05d32841bb3d31912d ]
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.19.y/kernel/v4.19.105-192-g27ac98449017/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.19.=
+y/kernel/v4.19.105-192-g27ac98449017/
 
-I have somes issues with this patch.
+Tree: stable-rc
+Branch: linux-4.19.y
+Git Describe: v4.19.105-192-g27ac98449017
+Git Commit: 27ac98449017eb9c569bcc95c65f29ca3948148f
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 41 unique boards, 12 SoC families, 8 builds out of 118
 
-It causes panics due to hung tasks on 5.6. I guess it fixes one deadlock, but
-causes other one? Not sure backporting it to stable branches is a good idea.
+Boot Failure Detected:
 
-regards,
-	o.
+arm:
+    sama5_defconfig:
+        gcc-8:
+            at91-sama5d4_xplained: 1 failed lab
 
-
-INFO: task kworker/u16:2:341 blocked for more than 122 seconds.
-      Not tainted 5.6.0-rc2-00254-g9a029a493dc16 #4
-"echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
-kworker/u16:2   D    0   341      2 0x00000000
-Workqueue: writeback wb_workfn (flush-179:0)
-Backtrace:
-[<c0912bd0>] (__schedule) from [<c0913274>] (schedule+0x78/0xf4)
- r10:ede1a000 r9:00000000 r8:ede1ba60 r7:ec417290 r6:00000002 r5:ede1a000
- r4:ee8e8000
-[<c09131fc>] (schedule) from [<c017ec74>] (rwsem_down_write_slowpath+0x24c/0x4c0)
- r5:00000001 r4:ec417280
-[<c017ea28>] (rwsem_down_write_slowpath) from [<c0915f6c>] (down_write+0x6c/0x70)
- r10:ec417280 r9:ede1bd80 r8:ee128000 r7:00000001 r6:00000000 r5:eff0afc4
- r4:ec417280
-[<c0915f00>] (down_write) from [<c0435b68>] (f2fs_write_single_data_page+0x608/0x7ac)
- r5:eff0afc4 r4:ec4170e0
-[<c0435560>] (f2fs_write_single_data_page) from [<c0435fc0>] (f2fs_write_cache_pages+0x2b4/0x7c4)
- r10:ede1bc28 r9:ec4171e0 r8:ec4170e0 r7:00000001 r6:ede1bd80 r5:00000001
- r4:eff0afc4
-[<c0435d0c>] (f2fs_write_cache_pages) from [<c0436814>] (f2fs_write_data_pages+0x344/0x35c)
- r10:0000012c r9:ee12802c r8:ee128000 r7:00000004 r6:ec4171e0 r5:ec4170e0
- r4:ede1bd80
-[<c04364d0>] (f2fs_write_data_pages) from [<c0267fa0>] (do_writepages+0x3c/0xd4)
- r10:0000012c r9:c0e03d00 r8:00001400 r7:c0264e94 r6:ede1bd80 r5:ec4171e0
- r4:ec4170e0
-[<c0267f64>] (do_writepages) from [<c0310d24>] (__writeback_single_inode+0x44/0x454)
- r7:ec4171e0 r6:ede1beac r5:ede1bd80 r4:ec4170e0
-[<c0310ce0>] (__writeback_single_inode) from [<c0311338>] (writeback_sb_inodes+0x204/0x4b0)
- r10:0000012c r9:c0e03d00 r8:ec417148 r7:ec4170e0 r6:ede1beac r5:ec417188
- r4:eebed848
-[<c0311134>] (writeback_sb_inodes) from [<c0311634>] (__writeback_inodes_wb+0x50/0xe4)
- r10:ee7128e8 r9:c0e03d00 r8:eebed85c r7:ede1beac r6:00000000 r5:eebed848
- r4:ee120000
-[<c03115e4>] (__writeback_inodes_wb) from [<c031195c>] (wb_writeback+0x294/0x338)
- r10:00020800 r9:ede1a000 r8:c0e04e64 r7:eebed848 r6:000192d0 r5:ede1beac
- r4:eebed848
-[<c03116c8>] (wb_writeback) from [<c0312e98>] (wb_workfn+0x3e0/0x54c)
- r10:ee894005 r9:eebed84c r8:eebed948 r7:eebed848 r6:00000000 r5:eebed954
- r4:00002b6e
-[<c0312ab8>] (wb_workfn) from [<c014f2b8>] (process_one_work+0x214/0x544)
- r10:ee894005 r9:00000200 r8:00000000 r7:ee894000 r6:ef044400 r5:edb1c700
- r4:eebed954
-[<c014f0a4>] (process_one_work) from [<c014f634>] (worker_thread+0x4c/0x574)
- r10:ef044400 r9:c0e03d00 r8:ef044418 r7:00000088 r6:ef044400 r5:edb1c714
- r4:edb1c700
-[<c014f5e8>] (worker_thread) from [<c01564fc>] (kthread+0x144/0x170)
- r10:ef125e90 r9:ec0f235c r8:edb1c700 r7:ede1a000 r6:00000000 r5:ec0f2300
- r4:ec0f2340
-[<c01563b8>] (kthread) from [<c01010e8>] (ret_from_fork+0x14/0x2c)
-Exception stack(0xede1bfb0 to 0xede1bff8)
-bfa0:                                     00000000 00000000 00000000 00000000
-bfc0: 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
-bfe0: 00000000 00000000 00000000 00000000 00000013 00000000
- r10:00000000 r9:00000000 r8:00000000 r7:00000000 r6:00000000 r5:c01563b8
- r4:ec0f2300
-NMI backtrace for cpu 2
-CPU: 2 PID: 52 Comm: khungtaskd Not tainted 5.6.0-rc2-00254-g9a029a493dc16 #4
-Hardware name: Allwinner A83t board
-Backtrace:
-[<c010db5c>] (dump_backtrace) from [<c010dee0>] (show_stack+0x20/0x24)
- r7:00000000 r6:60060013 r5:00000000 r4:c0e9ab10
-
-> Otherwise, we can hit deadlock by waiting for the locked page in
-> move_data_block in GC.
-> 
->  Thread A                     Thread B
->  - do_page_mkwrite
->   - f2fs_vm_page_mkwrite
->    - lock_page
->                               - f2fs_balance_fs
->                                   - mutex_lock(gc_mutex)
->                                - f2fs_gc
->                                 - do_garbage_collect
->                                  - ra_data_block
->                                   - grab_cache_page
->    - f2fs_balance_fs
->     - mutex_lock(gc_mutex)
-> 
-> Fixes: 39a8695824510 ("f2fs: refactor ->page_mkwrite() flow")
-> Reviewed-by: Chao Yu <yuchao0@huawei.com>
-> Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
-> ---
->  fs/f2fs/file.c | 7 ++++---
->  1 file changed, 4 insertions(+), 3 deletions(-)
-> 
-> diff --git a/fs/f2fs/file.c b/fs/f2fs/file.c
-> index 33c412d178f0f..6c4436a5ce797 100644
-> --- a/fs/f2fs/file.c
-> +++ b/fs/f2fs/file.c
-> @@ -50,7 +50,7 @@ static vm_fault_t f2fs_vm_page_mkwrite(struct vm_fault *vmf)
->  	struct page *page = vmf->page;
->  	struct inode *inode = file_inode(vmf->vma->vm_file);
->  	struct f2fs_sb_info *sbi = F2FS_I_SB(inode);
-> -	struct dnode_of_data dn = { .node_changed = false };
-> +	struct dnode_of_data dn;
->  	int err;
->  
->  	if (unlikely(f2fs_cp_error(sbi))) {
-> @@ -63,6 +63,9 @@ static vm_fault_t f2fs_vm_page_mkwrite(struct vm_fault *vmf)
->  		goto err;
->  	}
->  
-> +	/* should do out of any locked page */
-> +	f2fs_balance_fs(sbi, true);
-> +
->  	sb_start_pagefault(inode->i_sb);
->  
->  	f2fs_bug_on(sbi, f2fs_has_inline_data(inode));
-> @@ -120,8 +123,6 @@ static vm_fault_t f2fs_vm_page_mkwrite(struct vm_fault *vmf)
->  out_sem:
->  	up_read(&F2FS_I(inode)->i_mmap_sem);
->  
-> -	f2fs_balance_fs(sbi, dn.node_changed);
-> -
->  	sb_end_pagefault(inode->i_sb);
->  err:
->  	return block_page_mkwrite_return(err);
-> -- 
-> 2.20.1
-> 
-> 
-> 
+---
+For more info write to <info@kernelci.org>
