@@ -2,89 +2,59 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 509E4168D47
-	for <lists+stable@lfdr.de>; Sat, 22 Feb 2020 08:40:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7F4A7168E11
+	for <lists+stable@lfdr.de>; Sat, 22 Feb 2020 10:48:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726653AbgBVHku (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Feb 2020 02:40:50 -0500
-Received: from jabberwock.ucw.cz ([46.255.230.98]:56628 "EHLO
-        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726343AbgBVHku (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Feb 2020 02:40:50 -0500
-Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
-        id 474A11C1CBB; Sat, 22 Feb 2020 08:40:48 +0100 (CET)
-Date:   Sat, 22 Feb 2020 08:40:47 +0100
-From:   Pavel Machek <pavel@denx.de>
-To:     Sean Christopherson <sean.j.christopherson@intel.com>
-Cc:     Pavel Machek <pavel@denx.de>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 4.19 009/191] KVM: nVMX: Use correct root level for
- nested EPT shadow page tables
-Message-ID: <20200222074047.GA21289@amd>
-References: <20200221072250.732482588@linuxfoundation.org>
- <20200221072252.173149129@linuxfoundation.org>
- <20200221102949.GA14608@duo.ucw.cz>
- <20200221150512.GB12665@linux.intel.com>
+        id S1726726AbgBVJsH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Feb 2020 04:48:07 -0500
+Received: from szxga06-in.huawei.com ([45.249.212.32]:41304 "EHLO huawei.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1726689AbgBVJsG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 22 Feb 2020 04:48:06 -0500
+Received: from DGGEMS401-HUB.china.huawei.com (unknown [172.30.72.59])
+        by Forcepoint Email with ESMTP id 3BFBC96D7D7CF1D8649E;
+        Sat, 22 Feb 2020 17:48:04 +0800 (CST)
+Received: from localhost.localdomain (10.175.124.28) by
+ DGGEMS401-HUB.china.huawei.com (10.3.19.201) with Microsoft SMTP Server id
+ 14.3.439.0; Sat, 22 Feb 2020 17:47:56 +0800
+From:   yangerkun <yangerkun@huawei.com>
+To:     <gregkh@linuxfoundation.org>
+CC:     <stable@vger.kernel.org>, <yangerkun@huawei.com>
+Subject: [PATCH 4.4-stable] slip: stop double free sl->dev in slip_open
+Date:   Sat, 22 Feb 2020 17:46:49 +0800
+Message-ID: <20200222094649.10933-1-yangerkun@huawei.com>
+X-Mailer: git-send-email 2.17.2
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="CE+1k2dSO48ffgeK"
-Content-Disposition: inline
-In-Reply-To: <20200221150512.GB12665@linux.intel.com>
-User-Agent: Mutt/1.5.23 (2014-03-12)
+Content-Type: text/plain
+X-Originating-IP: [10.175.124.28]
+X-CFilter-Loop: Reflected
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+After commit e4c157955483 ("slip: Fix use-after-free Read in slip_open"),
+we will double free sl->dev since sl_free_netdev will free sl->dev too.
+It's fine for mainline since sl_free_netdev in mainline won't free
+sl->dev.
 
---CE+1k2dSO48ffgeK
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Signed-off-by: yangerkun <yangerkun@huawei.com>
+---
+ drivers/net/slip/slip.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-Hi!
+diff --git a/drivers/net/slip/slip.c b/drivers/net/slip/slip.c
+index ef6b25ec75a1..7fe9183fad0e 100644
+--- a/drivers/net/slip/slip.c
++++ b/drivers/net/slip/slip.c
+@@ -861,7 +861,6 @@ err_free_chan:
+ 	tty->disc_data = NULL;
+ 	clear_bit(SLF_INUSE, &sl->flags);
+ 	sl_free_netdev(sl->dev);
+-	free_netdev(sl->dev);
+ 
+ err_exit:
+ 	rtnl_unlock();
+-- 
+2.17.2
 
-> > > Hardcode the EPT page-walk level for L2 to be 4 levels, as KVM's MMU
-> > > currently also hardcodes the page walk level for nested EPT to be 4
-> > > levels.  The L2 guest is all but guaranteed to soft hang on its first
-> > > instruction when L1 is using EPT, as KVM will construct 4-level page
-> > > tables and then tell hardware to use 5-level page tables.
-> >=20
-> > I don't get it. 7/191 reverts the patch, then 9/191 reverts the
-> > revert. Can we simply drop both 7 and 9, for exactly the same result?
-> >
-> > (Patch 8 is a unused file, so it does not change the picture).
->=20
-> Patch 07 is reverting this patch from the same unused file,=20
-> arch/x86/kvm/vmx/vmx.c[*].  The reason patch 07 looks like a normal diff =
-is
-> that a prior patch in 4.19.105 created the unused file (which is what's
-> reverted by patch 08 here).
->=20
-> Patch 09 reintroduces the fix for the correct file, arch/x86/kvm/vmx.c.
-
-Aha, thanks, I checked content few times but missed difference in
-filename. Now it makes sense.
-
-Best regards,
-								Pavel
---=20
-DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
-HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
-
---CE+1k2dSO48ffgeK
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iEYEARECAAYFAl5Q2v8ACgkQMOfwapXb+vJzRwCfQQ19/SrBDH/PvDONs3aDKxfy
-7ugAn2ig/hR6tIHKVraop7RE5m8NTm5f
-=LtIB
------END PGP SIGNATURE-----
-
---CE+1k2dSO48ffgeK--
