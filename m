@@ -2,88 +2,184 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0DC9A168C4E
-	for <lists+stable@lfdr.de>; Sat, 22 Feb 2020 05:23:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 80367168C63
+	for <lists+stable@lfdr.de>; Sat, 22 Feb 2020 05:51:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727987AbgBVEXI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 23:23:08 -0500
-Received: from mail-wm1-f66.google.com ([209.85.128.66]:37624 "EHLO
-        mail-wm1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726198AbgBVEXH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 21 Feb 2020 23:23:07 -0500
-Received: by mail-wm1-f66.google.com with SMTP id a6so3959224wme.2
-        for <stable@vger.kernel.org>; Fri, 21 Feb 2020 20:23:04 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=dX3cgkRvFAI8AVtMOAUQjcXHfSQoUwJ0PPyH1g7HEjM=;
-        b=ZkfmO8pUiOB7YtQvX3N6QzeYxpXdw5QjE5vXdiX2vUbnwm87WPcp89q59HcGKMQuPN
-         rlTVRNRcxi4opz7W4nfmZ6+mNqHb8fANckCQDUENQL2yjNyFWIj4BDbuEf24nVhqGWRK
-         l5fCjCPi7xgW6tmRBFM6loSdsFicUiz3iuWlou/FGabpmFO4KI2ipVkzQp/Zvx4FpXsU
-         Os5cSiR44alyBEUrslVofTO0N4ye/vNcp25RYime7gHMOXL8H76d3qZMdJ8+PkpKHVlZ
-         ZATMXu3we8362p6pnQw5uYZAqYuVuhFILnBOlkQ3YarckJ+XY3b06fvOLySTqVMXTk9h
-         VoMg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=dX3cgkRvFAI8AVtMOAUQjcXHfSQoUwJ0PPyH1g7HEjM=;
-        b=tNzSwUutM864GEuh3ICFYDbA8tT0TCrlNKwoMzAYFzuls6L+Ue3Q+7nzFKLlZwYmJw
-         pUE7VvO+PMFVmTinuR+rGKgWfsL1qMGuUXcsq1wmktmg3tFcbqWLhd2xbP6d3TZmFvEJ
-         vncadgZaCWYepy019NCTmNmiBEFJ+ZUtxMvOyZ+3wR/czOFZvzBtXhPDomWnxztdtzCr
-         rhPlG8i5rM7j8L921hYyUENgGdA6lbxxsvP0WnqMUMPr7rrDHjxT7bims0pwj7oJ0s1j
-         XwGDWEx89rVR+zcRAryDr3CP00lmtAxu0oSpHPJwnoYEd9YbdZVGhKvXMB2z/0fSQAwW
-         tSEg==
-X-Gm-Message-State: APjAAAVk4C3AhGNyy3b0DOkkXrThjSnig064CWrKiIMLkf4wTh8PmQrL
-        GFpf2YohGfkDATcknsZBhof7iA8CrIPBEJMvNgc=
-X-Google-Smtp-Source: APXvYqyTrLqkRAbB96a9YDdcxoi5qOt9c1k7359ODlgvtRpDbIau+jhm/oCqZ/S9GKZQACtqZhS/QxMZG/xgpgLX18k=
-X-Received: by 2002:a05:600c:3d1:: with SMTP id z17mr7942849wmd.90.1582345384179;
- Fri, 21 Feb 2020 20:23:04 -0800 (PST)
+        id S1727186AbgBVEvv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 23:51:51 -0500
+Received: from vps.xff.cz ([195.181.215.36]:53294 "EHLO vps.xff.cz"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726393AbgBVEvv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Feb 2020 23:51:51 -0500
+X-Greylist: delayed 597 seconds by postgrey-1.27 at vger.kernel.org; Fri, 21 Feb 2020 23:51:50 EST
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=megous.com; s=mail;
+        t=1582346512; bh=lu42HKPfs8W3F34qV2Vvg++VjwzFzV7KC4WH6c2u/0Y=;
+        h=Date:From:To:Cc:Subject:References:X-My-GPG-KeyId:From;
+        b=r0kgt1qzNAwLorPK+IlooEqy5oL0J1E/DJZVoFiAzdDyuET7pqJKA7Dm/5F8su1AT
+         BgL+65fJ0CjaxPS5CTJsndzkpc5QM1yc5V4NUO57izHozKf3De3qEInt3p+trOkO7P
+         fYX496T3AdqhasAVKhr5Uf/P6KGdf9gOJ/FUVNk8=
+Date:   Sat, 22 Feb 2020 05:41:51 +0100
+From:   =?utf-8?Q?Ond=C5=99ej?= Jirman <megous@megous.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Chao Yu <yuchao0@huawei.com>, Jaegeuk Kim <jaegeuk@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH 5.5 020/399] f2fs: call f2fs_balance_fs outside of locked
+ page
+Message-ID: <20200222044151.odurt3xqyhgxqqve@core.my.home>
+Mail-Followup-To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Chao Yu <yuchao0@huawei.com>, Jaegeuk Kim <jaegeuk@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+References: <20200221072402.315346745@linuxfoundation.org>
+ <20200221072404.289499313@linuxfoundation.org>
 MIME-Version: 1.0
-References: <1581992882-22134-1-git-send-email-pkushwaha@marvell.com> <20200218044136.GB2046752@kroah.com>
-In-Reply-To: <20200218044136.GB2046752@kroah.com>
-From:   Prabhakar Kushwaha <prabhakar.pkin@gmail.com>
-Date:   Sat, 22 Feb 2020 09:52:27 +0530
-Message-ID: <CAJ2QiJLOqAFGN9UPWb0jGBE8mRvTsY3RufTt3fu2H_au6iA77A@mail.gmail.com>
-Subject: Re: [RESEND][PATCH] ata: ahci: Add shutdown to freeze hardware
- resources of ahci
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     Prabhakar Kushwaha <pkushwaha@marvell.com>, stable@vger.kernel.org,
-        Jens Axboe <axboe@kernel.dk>,
-        Ganapatrao Prabhakerrao Kulkarni <gkulkarni@marvell.com>,
-        Kamlakant Patel <kamlakantp@marvell.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200221072404.289499313@linuxfoundation.org>
+X-My-GPG-KeyId: EBFBDDE11FB918D44D1F56C1F9F0A873BE9777ED
+ <https://xff.cz/key.txt>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Feb 18, 2020 at 10:11 AM Greg KH <gregkh@linuxfoundation.org> wrote:
->
-> On Mon, Feb 17, 2020 at 06:28:02PM -0800, Prabhakar Kushwaha wrote:
-> > device_shutdown() called from reboot or power_shutdown expect
-> > all devices to be shutdown. Same is true for even ahci pci driver.
-> > As no ahci shutdown function is implemented, the ata subsystem
-> > always remains alive with DMA & interrupt support. File system
-> > related calls should not be honored after device_shutdown().
-> >
-> > So defining ahci pci driver shutdown to freeze hardware (mask
-> > interrupt, stop DMA engine and free DMA resources).
-> >
-> > Signed-off-by: Prabhakar Kushwaha <pkushwaha@marvell.com>
-> > Signed-off-by: Jens Axboe <axboe@kernel.dk>
-> > ---
-> >
-> > This problem has also been seen on older kernel. So sending to stable@vger.kernel.org
-> > Note: It is already applied to git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git
-> > with commit id: 10a663a1b151 ("ata: ahci: Add shutdown to freeze hardware resources of ahci")
->
-> So what kernel(s) do you wish to have this commit backported to?
->
+Hello,
 
-Sorry for the late reply.  This patch should be back-ported to
-following kernels versions
-4.9, 4.14, 4.19, 5.4 and 5.5
+On Fri, Feb 21, 2020 at 08:35:45AM +0100, Greg Kroah-Hartman wrote:
+> From: Jaegeuk Kim <jaegeuk@kernel.org>
+> 
+> [ Upstream commit bdf03299248916640a835a05d32841bb3d31912d ]
 
---pk
+I have somes issues with this patch.
+
+It causes panics due to hung tasks on 5.6. I guess it fixes one deadlock, but
+causes other one? Not sure backporting it to stable branches is a good idea.
+
+regards,
+	o.
+
+
+INFO: task kworker/u16:2:341 blocked for more than 122 seconds.
+      Not tainted 5.6.0-rc2-00254-g9a029a493dc16 #4
+"echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+kworker/u16:2   D    0   341      2 0x00000000
+Workqueue: writeback wb_workfn (flush-179:0)
+Backtrace:
+[<c0912bd0>] (__schedule) from [<c0913274>] (schedule+0x78/0xf4)
+ r10:ede1a000 r9:00000000 r8:ede1ba60 r7:ec417290 r6:00000002 r5:ede1a000
+ r4:ee8e8000
+[<c09131fc>] (schedule) from [<c017ec74>] (rwsem_down_write_slowpath+0x24c/0x4c0)
+ r5:00000001 r4:ec417280
+[<c017ea28>] (rwsem_down_write_slowpath) from [<c0915f6c>] (down_write+0x6c/0x70)
+ r10:ec417280 r9:ede1bd80 r8:ee128000 r7:00000001 r6:00000000 r5:eff0afc4
+ r4:ec417280
+[<c0915f00>] (down_write) from [<c0435b68>] (f2fs_write_single_data_page+0x608/0x7ac)
+ r5:eff0afc4 r4:ec4170e0
+[<c0435560>] (f2fs_write_single_data_page) from [<c0435fc0>] (f2fs_write_cache_pages+0x2b4/0x7c4)
+ r10:ede1bc28 r9:ec4171e0 r8:ec4170e0 r7:00000001 r6:ede1bd80 r5:00000001
+ r4:eff0afc4
+[<c0435d0c>] (f2fs_write_cache_pages) from [<c0436814>] (f2fs_write_data_pages+0x344/0x35c)
+ r10:0000012c r9:ee12802c r8:ee128000 r7:00000004 r6:ec4171e0 r5:ec4170e0
+ r4:ede1bd80
+[<c04364d0>] (f2fs_write_data_pages) from [<c0267fa0>] (do_writepages+0x3c/0xd4)
+ r10:0000012c r9:c0e03d00 r8:00001400 r7:c0264e94 r6:ede1bd80 r5:ec4171e0
+ r4:ec4170e0
+[<c0267f64>] (do_writepages) from [<c0310d24>] (__writeback_single_inode+0x44/0x454)
+ r7:ec4171e0 r6:ede1beac r5:ede1bd80 r4:ec4170e0
+[<c0310ce0>] (__writeback_single_inode) from [<c0311338>] (writeback_sb_inodes+0x204/0x4b0)
+ r10:0000012c r9:c0e03d00 r8:ec417148 r7:ec4170e0 r6:ede1beac r5:ec417188
+ r4:eebed848
+[<c0311134>] (writeback_sb_inodes) from [<c0311634>] (__writeback_inodes_wb+0x50/0xe4)
+ r10:ee7128e8 r9:c0e03d00 r8:eebed85c r7:ede1beac r6:00000000 r5:eebed848
+ r4:ee120000
+[<c03115e4>] (__writeback_inodes_wb) from [<c031195c>] (wb_writeback+0x294/0x338)
+ r10:00020800 r9:ede1a000 r8:c0e04e64 r7:eebed848 r6:000192d0 r5:ede1beac
+ r4:eebed848
+[<c03116c8>] (wb_writeback) from [<c0312e98>] (wb_workfn+0x3e0/0x54c)
+ r10:ee894005 r9:eebed84c r8:eebed948 r7:eebed848 r6:00000000 r5:eebed954
+ r4:00002b6e
+[<c0312ab8>] (wb_workfn) from [<c014f2b8>] (process_one_work+0x214/0x544)
+ r10:ee894005 r9:00000200 r8:00000000 r7:ee894000 r6:ef044400 r5:edb1c700
+ r4:eebed954
+[<c014f0a4>] (process_one_work) from [<c014f634>] (worker_thread+0x4c/0x574)
+ r10:ef044400 r9:c0e03d00 r8:ef044418 r7:00000088 r6:ef044400 r5:edb1c714
+ r4:edb1c700
+[<c014f5e8>] (worker_thread) from [<c01564fc>] (kthread+0x144/0x170)
+ r10:ef125e90 r9:ec0f235c r8:edb1c700 r7:ede1a000 r6:00000000 r5:ec0f2300
+ r4:ec0f2340
+[<c01563b8>] (kthread) from [<c01010e8>] (ret_from_fork+0x14/0x2c)
+Exception stack(0xede1bfb0 to 0xede1bff8)
+bfa0:                                     00000000 00000000 00000000 00000000
+bfc0: 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
+bfe0: 00000000 00000000 00000000 00000000 00000013 00000000
+ r10:00000000 r9:00000000 r8:00000000 r7:00000000 r6:00000000 r5:c01563b8
+ r4:ec0f2300
+NMI backtrace for cpu 2
+CPU: 2 PID: 52 Comm: khungtaskd Not tainted 5.6.0-rc2-00254-g9a029a493dc16 #4
+Hardware name: Allwinner A83t board
+Backtrace:
+[<c010db5c>] (dump_backtrace) from [<c010dee0>] (show_stack+0x20/0x24)
+ r7:00000000 r6:60060013 r5:00000000 r4:c0e9ab10
+
+> Otherwise, we can hit deadlock by waiting for the locked page in
+> move_data_block in GC.
+> 
+>  Thread A                     Thread B
+>  - do_page_mkwrite
+>   - f2fs_vm_page_mkwrite
+>    - lock_page
+>                               - f2fs_balance_fs
+>                                   - mutex_lock(gc_mutex)
+>                                - f2fs_gc
+>                                 - do_garbage_collect
+>                                  - ra_data_block
+>                                   - grab_cache_page
+>    - f2fs_balance_fs
+>     - mutex_lock(gc_mutex)
+> 
+> Fixes: 39a8695824510 ("f2fs: refactor ->page_mkwrite() flow")
+> Reviewed-by: Chao Yu <yuchao0@huawei.com>
+> Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+> Signed-off-by: Sasha Levin <sashal@kernel.org>
+> ---
+>  fs/f2fs/file.c | 7 ++++---
+>  1 file changed, 4 insertions(+), 3 deletions(-)
+> 
+> diff --git a/fs/f2fs/file.c b/fs/f2fs/file.c
+> index 33c412d178f0f..6c4436a5ce797 100644
+> --- a/fs/f2fs/file.c
+> +++ b/fs/f2fs/file.c
+> @@ -50,7 +50,7 @@ static vm_fault_t f2fs_vm_page_mkwrite(struct vm_fault *vmf)
+>  	struct page *page = vmf->page;
+>  	struct inode *inode = file_inode(vmf->vma->vm_file);
+>  	struct f2fs_sb_info *sbi = F2FS_I_SB(inode);
+> -	struct dnode_of_data dn = { .node_changed = false };
+> +	struct dnode_of_data dn;
+>  	int err;
+>  
+>  	if (unlikely(f2fs_cp_error(sbi))) {
+> @@ -63,6 +63,9 @@ static vm_fault_t f2fs_vm_page_mkwrite(struct vm_fault *vmf)
+>  		goto err;
+>  	}
+>  
+> +	/* should do out of any locked page */
+> +	f2fs_balance_fs(sbi, true);
+> +
+>  	sb_start_pagefault(inode->i_sb);
+>  
+>  	f2fs_bug_on(sbi, f2fs_has_inline_data(inode));
+> @@ -120,8 +123,6 @@ static vm_fault_t f2fs_vm_page_mkwrite(struct vm_fault *vmf)
+>  out_sem:
+>  	up_read(&F2FS_I(inode)->i_mmap_sem);
+>  
+> -	f2fs_balance_fs(sbi, dn.node_changed);
+> -
+>  	sb_end_pagefault(inode->i_sb);
+>  err:
+>  	return block_page_mkwrite_return(err);
+> -- 
+> 2.20.1
+> 
+> 
+> 
