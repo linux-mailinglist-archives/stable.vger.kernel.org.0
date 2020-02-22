@@ -2,66 +2,84 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BECDC169067
-	for <lists+stable@lfdr.de>; Sat, 22 Feb 2020 17:43:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CA11A169094
+	for <lists+stable@lfdr.de>; Sat, 22 Feb 2020 18:02:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726044AbgBVQnO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Feb 2020 11:43:14 -0500
-Received: from mail-lf1-f65.google.com ([209.85.167.65]:47033 "EHLO
-        mail-lf1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725976AbgBVQnN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Feb 2020 11:43:13 -0500
-Received: by mail-lf1-f65.google.com with SMTP id u2so1054427lfk.13
-        for <stable@vger.kernel.org>; Sat, 22 Feb 2020 08:43:13 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:sender:from:date:message-id:subject:to;
-        bh=ULz88pDDezK7jVo3RjaW8cpxm1CWlzOZIt9X8rPlb24=;
-        b=kOJkJaGnNzuGHLkmqJwOH5P06zYuWiZNF+VTtlHX2DUCoSkaj1iUXw13hZNRrnl9UU
-         8XSeV2+V7sdl8eSh/chkyG+q8x0YBi/8qFoBpjrBMNI+7LOl/XnQFWh6/V2/kAzjUp/z
-         z+7PtjOstEB5HDgTia/SRHtTDyin1jKEz9LBK1TRSLiJ+UWKDZ4uYAZR5YlZYKwnT1Ua
-         /251tW80waVNTiBK1m6Xkt8g+tL8quigUPXL69jiQ8VzgrKZiHbc9Wmd2PGJhdfrqT93
-         JoFIy1vHwO2+iEXqf/BeFGyz9vp485IoEi+VnVjxG5qYIYdErCBLEM9TAad0mVGq7eKI
-         ZW2A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:sender:from:date:message-id:subject
-         :to;
-        bh=ULz88pDDezK7jVo3RjaW8cpxm1CWlzOZIt9X8rPlb24=;
-        b=nLhhQ3jwFv5wm/j4BxwIPLy7skaIYDkz8a/4fkPUu2T2n+CJoplCgECso1SFT0J8yz
-         AfRuviAkqxfEm7RgF49tZmgLAX/QYJAEsdqsfdXdrOofJAYj08zXm0sAf753km5N8adF
-         GXG+tBfFlhVGGDywOMOKOJd0HrQBDR7e9wREgVHc5nmSME0GPyqsotmHhFEvEmLP7a0H
-         0puG3zZJD5uwfZK98lD3KxCRCbVsJmW3IHf7YCj4wgJklilKt9b5z46yydkQeTsb65n0
-         08akNeDRG14VdndEKbdrhxLK1uCp0rPQmBB+17yu3neWnpdQBI7tEBRPJVPkyZJBviop
-         +kfQ==
-X-Gm-Message-State: APjAAAUVlObDf1atasVM4FVCN72Mc6DO0qFM5fhxdZMkrnYyS8Mr9NnE
-        BapIlEmbu3DHJquvqr4nHzNGrohE6KTvkaN+OwU=
-X-Google-Smtp-Source: APXvYqx1vIFfA6PuQCioPfoPapHYDF85Tmt53+p8oGYGXmh7jfISBUeI7U4mK5v2oxqgGeGudbAhIThHrC0RJ8lvhag=
-X-Received: by 2002:a19:c38e:: with SMTP id t136mr7563127lff.153.1582389792414;
- Sat, 22 Feb 2020 08:43:12 -0800 (PST)
+        id S1726550AbgBVRCn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Feb 2020 12:02:43 -0500
+Received: from bombadil.infradead.org ([198.137.202.133]:54650 "EHLO
+        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726198AbgBVRCn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Feb 2020 12:02:43 -0500
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=bombadil.20170209; h=In-Reply-To:Content-Transfer-Encoding
+        :Content-Type:MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:
+        Sender:Reply-To:Content-ID:Content-Description;
+        bh=SY35JLLv+vBVjF2AfSVM5A43C4jm9v1brv6q5yWkRzU=; b=cC5CpFYDWqcMFhwSbiePfLpJKa
+        kwoTL5cYHcxmTKP4DMbY102XnLlQ1/AzXURwUHkNRRfyLgSJvx1zzHEhf3reZhSBiyR3e8zzxZAoe
+        lVTUiNE3CXPjPBQntPEKui5NqJqN+VkYowNZbqQ1iFWjRy61gEIz7SI8cJH/Gf816sEfp7aV5upTJ
+        mQzDU8DQZuG0Cz9vLDeWs37a/PRueidkzItJknwFV3xw3PrAsaobmY+hCTKsyAtHlJnVxOo7NEXsl
+        umj5CTV59yw67b98GLGClqC66/erz7kWsWGm1tYystlInM0vFwwgmk85tI/OwDg0x2lSuGmpjJ9TR
+        qVbURNWA==;
+Received: from willy by bombadil.infradead.org with local (Exim 4.92.3 #3 (Red Hat Linux))
+        id 1j5YAY-0005UU-St; Sat, 22 Feb 2020 17:02:22 +0000
+Date:   Sat, 22 Feb 2020 09:02:22 -0800
+From:   Matthew Wilcox <willy@infradead.org>
+To:     "Longpeng (Mike)" <longpeng2@huawei.com>
+Cc:     Qian Cai <cai@lca.pw>, akpm@linux-foundation.org,
+        mike.kravetz@oracle.com, kirill.shutemov@linux.intel.com,
+        linux-kernel@vger.kernel.org, arei.gonglei@huawei.com,
+        weidong.huang@huawei.com, weifuqiang@huawei.com,
+        kvm@vger.kernel.org, linux-mm@kvack.org,
+        Sean Christopherson <sean.j.christopherson@intel.com>,
+        stable@vger.kernel.org
+Subject: Re: [PATCH v2] mm/hugetlb: fix a addressing exception caused by
+ huge_pte_offset()
+Message-ID: <20200222170222.GJ24185@bombadil.infradead.org>
+References: <C4ED630A-FAD8-4998-A0A3-9C36F3303379@lca.pw>
+ <f274b368-6fdb-2ae3-160e-fd8b105b9ac4@huawei.com>
 MIME-Version: 1.0
-Received: by 2002:ac2:58cf:0:0:0:0:0 with HTTP; Sat, 22 Feb 2020 08:43:11
- -0800 (PST)
-From:   jan king <kingjan650@gmail.com>
-Date:   Sat, 22 Feb 2020 08:43:11 -0800
-X-Google-Sender-Auth: Hb4Sw0tsIcviPU23-eqKGnYkQuc
-Message-ID: <CAG+GZ_BGEN1htWtyq2pAkC1zio7_KLRHosv3p-gp0rihz4NQrQ@mail.gmail.com>
-Subject: URGENT RESPONSES
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <f274b368-6fdb-2ae3-160e-fd8b105b9ac4@huawei.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
- Sir / Madam,
+On Sat, Feb 22, 2020 at 02:33:10PM +0800, Longpeng (Mike) wrote:
+> 在 2020/2/22 13:23, Qian Cai 写道:
+> >> On Feb 21, 2020, at 10:34 PM, Longpeng(Mike) <longpeng2@huawei.com> wrote:
+> >>
+> >> diff --git a/mm/hugetlb.c b/mm/hugetlb.c
+> >> index dd8737a..90daf37 100644
+> >> --- a/mm/hugetlb.c
+> >> +++ b/mm/hugetlb.c
+> >> @@ -4910,28 +4910,30 @@ pte_t *huge_pte_offset(struct mm_struct *mm,
+> >> {
+> >>    pgd_t *pgd;
+> >>    p4d_t *p4d;
+> >> -    pud_t *pud;
+> >> -    pmd_t *pmd;
+> >> +    pud_t *pud, pud_entry;
+> >> +    pmd_t *pmd, pmd_entry;
+> >>
+> >>    pgd = pgd_offset(mm, addr);
+> >> -    if (!pgd_present(*pgd))
+> >> +    if (!pgd_present(READ_ONCE(*pgd)))
+> >>        return NULL;
+> >>    p4d = p4d_offset(pgd, addr);
+> >> -    if (!p4d_present(*p4d))
+> >> +    if (!p4d_present(READ_ONCE(*p4d)))
+> >>        return NULL;
+> > 
+> > What’s the point of READ_ONCE() on those two places?
+> > 
+> As explained in the commit messages, it's for safe(e.g. avoid the compilier
+> mischief). You can also find the same usage in the ARM64's huge_pte_offset() in
+> arch/arm64/mm/hugetlbpage.c
 
-Hi Friend I am the accountant and auditing manager of the
-International Finance Bank Plc bf I want to transfer an abandoned sum
-of 10.5 millions USD  to your account.50% will be for you. No risk
-involved. Contact me for more details.
-
-Kindly reply me back to my alternative email address (kingjan650@gmail.com)
-
-Thanks
-Prince King Jan.
+I rather agree with Qian; if we need something like READ_ONCE() here,
+why don't we always need it as part of pgd_present()?  It seems like an
+unnecessary burden for every user.
