@@ -2,82 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 66298168C38
-	for <lists+stable@lfdr.de>; Sat, 22 Feb 2020 04:44:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0DC9A168C4E
+	for <lists+stable@lfdr.de>; Sat, 22 Feb 2020 05:23:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726393AbgBVDoq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Feb 2020 22:44:46 -0500
-Received: from mail-pg1-f170.google.com ([209.85.215.170]:42541 "EHLO
-        mail-pg1-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726032AbgBVDoq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 21 Feb 2020 22:44:46 -0500
-Received: by mail-pg1-f170.google.com with SMTP id w21so1969810pgl.9
-        for <stable@vger.kernel.org>; Fri, 21 Feb 2020 19:44:45 -0800 (PST)
+        id S1727987AbgBVEXI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Feb 2020 23:23:08 -0500
+Received: from mail-wm1-f66.google.com ([209.85.128.66]:37624 "EHLO
+        mail-wm1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726198AbgBVEXH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 21 Feb 2020 23:23:07 -0500
+Received: by mail-wm1-f66.google.com with SMTP id a6so3959224wme.2
+        for <stable@vger.kernel.org>; Fri, 21 Feb 2020 20:23:04 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=WVdqEezD2CxTsaf5GTaUF8XROBU2iE7KQHG88+w6WgU=;
-        b=PojAnjiflO2mTs0YZg4rUl1gJesQ2b/PXikslwS3ylKiT7EfmxaFqHIUP8LiOWrPdO
-         /FAMU7AscigssfUvAOjs1F4N1KvkunyXkKwQay8aWoPin1lZbAnM7p5hJHa5uS84fx0f
-         Sx44YImt73olTTLiIon0AOSTTpP704bubyeZjm0Gvs+vMRJmQPxkn/zbntL0qJEoHYvv
-         2SNAEpW8qPhZYVGsZ03u2KEshlMxQ+ZTRYbTZenYaV1vft0E1RHFNM8PjKQlJfMCPRso
-         HYOOVS1pcRbyFARqv2Fbu/5mHGE1Zanmh/DQYzvptqDISny5nlgAUyleghp+3EU5rnzP
-         khvA==
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=dX3cgkRvFAI8AVtMOAUQjcXHfSQoUwJ0PPyH1g7HEjM=;
+        b=ZkfmO8pUiOB7YtQvX3N6QzeYxpXdw5QjE5vXdiX2vUbnwm87WPcp89q59HcGKMQuPN
+         rlTVRNRcxi4opz7W4nfmZ6+mNqHb8fANckCQDUENQL2yjNyFWIj4BDbuEf24nVhqGWRK
+         l5fCjCPi7xgW6tmRBFM6loSdsFicUiz3iuWlou/FGabpmFO4KI2ipVkzQp/Zvx4FpXsU
+         Os5cSiR44alyBEUrslVofTO0N4ye/vNcp25RYime7gHMOXL8H76d3qZMdJ8+PkpKHVlZ
+         ZATMXu3we8362p6pnQw5uYZAqYuVuhFILnBOlkQ3YarckJ+XY3b06fvOLySTqVMXTk9h
+         VoMg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=WVdqEezD2CxTsaf5GTaUF8XROBU2iE7KQHG88+w6WgU=;
-        b=ZGVHBrtYZ1k/J5W2DkOnNlnn2+i13Sk+TAApjFVYygq8QlxmRF4tdaMS8icZDhdMP8
-         5LAwyDlxmhoeq2ymcmQvUBRSbqoDJbv08UQ2ehGKMeWsJvU+3PmEmlQyFUCRg6F3CBoD
-         ldUroVadga23thsNLPtx7yVCljh4Cc23tnn7Z3jx6bCbFZNGtXLFN4ctRzh5HzYoBQeZ
-         yTNbE/aWg29JMJnWX6WEM6GoBgV2DIkFGH39MG1JPE2auQfeuZ//drG6whQLOZ3nJaBZ
-         hknIQMT33zVbeuwKaqDKhQfLT8nME2xiEc66Jc8qIuRDSwcKga67C+zwnvu7cm2xvBMV
-         epfA==
-X-Gm-Message-State: APjAAAVCnYoKgwH15wh1c/vG6e2VRDeRBBqlHn1HS8zkTSt8KodxzmgK
-        4mllfDM1XHUTTx0DY9bGuzjJY04hZzE=
-X-Google-Smtp-Source: APXvYqyv5uUWS/+bB1LCr+MPUvUXTBbRiyxc6lHn68Anelw1zxR33zlKB5aOqgUrX4zWUp0usXwDGA==
-X-Received: by 2002:a62:fb07:: with SMTP id x7mr41098151pfm.125.1582343085051;
-        Fri, 21 Feb 2020 19:44:45 -0800 (PST)
-Received: from [10.0.9.4] ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id 64sm4251637pfd.48.2020.02.21.19.44.43
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 21 Feb 2020 19:44:44 -0800 (PST)
-Message-ID: <5e50a3ac.1c69fb81.a5710.e1b2@mx.google.com>
-Date:   Fri, 21 Feb 2020 19:44:44 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=dX3cgkRvFAI8AVtMOAUQjcXHfSQoUwJ0PPyH1g7HEjM=;
+        b=tNzSwUutM864GEuh3ICFYDbA8tT0TCrlNKwoMzAYFzuls6L+Ue3Q+7nzFKLlZwYmJw
+         pUE7VvO+PMFVmTinuR+rGKgWfsL1qMGuUXcsq1wmktmg3tFcbqWLhd2xbP6d3TZmFvEJ
+         vncadgZaCWYepy019NCTmNmiBEFJ+ZUtxMvOyZ+3wR/czOFZvzBtXhPDomWnxztdtzCr
+         rhPlG8i5rM7j8L921hYyUENgGdA6lbxxsvP0WnqMUMPr7rrDHjxT7bims0pwj7oJ0s1j
+         XwGDWEx89rVR+zcRAryDr3CP00lmtAxu0oSpHPJwnoYEd9YbdZVGhKvXMB2z/0fSQAwW
+         tSEg==
+X-Gm-Message-State: APjAAAVk4C3AhGNyy3b0DOkkXrThjSnig064CWrKiIMLkf4wTh8PmQrL
+        GFpf2YohGfkDATcknsZBhof7iA8CrIPBEJMvNgc=
+X-Google-Smtp-Source: APXvYqyTrLqkRAbB96a9YDdcxoi5qOt9c1k7359ODlgvtRpDbIau+jhm/oCqZ/S9GKZQACtqZhS/QxMZG/xgpgLX18k=
+X-Received: by 2002:a05:600c:3d1:: with SMTP id z17mr7942849wmd.90.1582345384179;
+ Fri, 21 Feb 2020 20:23:04 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.4.214-83-g4e4aa6d2ec5e
-X-Kernelci-Report-Type: boot
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-4.4.y
-Subject: stable-rc/linux-4.4.y boot: 22 boots: 0 failed,
- 22 passed (v4.4.214-83-g4e4aa6d2ec5e)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+References: <1581992882-22134-1-git-send-email-pkushwaha@marvell.com> <20200218044136.GB2046752@kroah.com>
+In-Reply-To: <20200218044136.GB2046752@kroah.com>
+From:   Prabhakar Kushwaha <prabhakar.pkin@gmail.com>
+Date:   Sat, 22 Feb 2020 09:52:27 +0530
+Message-ID: <CAJ2QiJLOqAFGN9UPWb0jGBE8mRvTsY3RufTt3fu2H_au6iA77A@mail.gmail.com>
+Subject: Re: [RESEND][PATCH] ata: ahci: Add shutdown to freeze hardware
+ resources of ahci
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     Prabhakar Kushwaha <pkushwaha@marvell.com>, stable@vger.kernel.org,
+        Jens Axboe <axboe@kernel.dk>,
+        Ganapatrao Prabhakerrao Kulkarni <gkulkarni@marvell.com>,
+        Kamlakant Patel <kamlakantp@marvell.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.4.y boot: 22 boots: 0 failed, 22 passed (v4.4.214-83-g4e4=
-aa6d2ec5e)
+On Tue, Feb 18, 2020 at 10:11 AM Greg KH <gregkh@linuxfoundation.org> wrote:
+>
+> On Mon, Feb 17, 2020 at 06:28:02PM -0800, Prabhakar Kushwaha wrote:
+> > device_shutdown() called from reboot or power_shutdown expect
+> > all devices to be shutdown. Same is true for even ahci pci driver.
+> > As no ahci shutdown function is implemented, the ata subsystem
+> > always remains alive with DMA & interrupt support. File system
+> > related calls should not be honored after device_shutdown().
+> >
+> > So defining ahci pci driver shutdown to freeze hardware (mask
+> > interrupt, stop DMA engine and free DMA resources).
+> >
+> > Signed-off-by: Prabhakar Kushwaha <pkushwaha@marvell.com>
+> > Signed-off-by: Jens Axboe <axboe@kernel.dk>
+> > ---
+> >
+> > This problem has also been seen on older kernel. So sending to stable@vger.kernel.org
+> > Note: It is already applied to git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git
+> > with commit id: 10a663a1b151 ("ata: ahci: Add shutdown to freeze hardware resources of ahci")
+>
+> So what kernel(s) do you wish to have this commit backported to?
+>
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.4.y/kernel/v4.4.214-83-g4e4aa6d2ec5e/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.4.y=
-/kernel/v4.4.214-83-g4e4aa6d2ec5e/
+Sorry for the late reply.  This patch should be back-ported to
+following kernels versions
+4.9, 4.14, 4.19, 5.4 and 5.5
 
-Tree: stable-rc
-Branch: linux-4.4.y
-Git Describe: v4.4.214-83-g4e4aa6d2ec5e
-Git Commit: 4e4aa6d2ec5e7bcc5b31343d7b686fca95ade2e1
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 17 unique boards, 8 SoC families, 5 builds out of 77
-
----
-For more info write to <info@kernelci.org>
+--pk
