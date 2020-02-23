@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 51E74169364
-	for <lists+stable@lfdr.de>; Sun, 23 Feb 2020 03:22:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5AF16169376
+	for <lists+stable@lfdr.de>; Sun, 23 Feb 2020 03:23:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728301AbgBWCWq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Feb 2020 21:22:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51878 "EHLO mail.kernel.org"
+        id S1728451AbgBWCXG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Feb 2020 21:23:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52296 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728298AbgBWCWq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 22 Feb 2020 21:22:46 -0500
+        id S1727664AbgBWCXE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 22 Feb 2020 21:23:04 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 34A3722464;
-        Sun, 23 Feb 2020 02:22:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4C809208C3;
+        Sun, 23 Feb 2020 02:23:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582424566;
-        bh=9O5ymUWpNt3jhqdPiucuIYgwSShPohd5ByDTUrD1C6E=;
+        s=default; t=1582424584;
+        bh=Y2gDl/DBouWsnZ7k9yTDr+JWTxGOv496eoFBcZNk5EU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BK1tvgKfomzRLwH0GXSddAzstvChp3chXDUoSfRQOjI9jKc0J6vjBJGfgmve+T4fK
-         vDDgxhzysriqj6JEx986XaPCcJSfuL9Gy4ajm9kwYQG8crwbz97q2PVTBVn2+BIbgV
-         CoFj2G8WiyqoNwyf9PzDJnxxHOhoZENJhUhBiF14=
+        b=GyKMpp3SO5eO513O6RHlh8fg8pO/4d//+FUmK6ZzO/VNCNfrakHlvPDwNVjy096Fq
+         7PUvkRPmyv8dmgZkZnVqo+ZIOomOZ2r5t705p1H8VgtfRRvho0E5fPdra/VdlA80ns
+         JwXaTuSKayKMOtKMzJY8Zf5PPOjvgwOJgOKI/kfc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sergey Matyukevich <sergey.matyukevich.os@quantenna.com>,
-        Johannes Berg <johannes.berg@intel.com>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 08/50] cfg80211: check wiphy driver existence for drvinfo report
-Date:   Sat, 22 Feb 2020 21:21:53 -0500
-Message-Id: <20200223022235.1404-8-sashal@kernel.org>
+Cc:     Aric Cyr <aric.cyr@amd.com>,
+        Harry Wentland <harry.wentland@amd.com>,
+        Bhawanpreet Lakha <Bhawanpreet.Lakha@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.4 23/50] drm/amd/display: Check engine is not NULL before acquiring
+Date:   Sat, 22 Feb 2020 21:22:08 -0500
+Message-Id: <20200223022235.1404-23-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200223022235.1404-1-sashal@kernel.org>
 References: <20200223022235.1404-1-sashal@kernel.org>
@@ -44,42 +46,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sergey Matyukevich <sergey.matyukevich.os@quantenna.com>
+From: Aric Cyr <aric.cyr@amd.com>
 
-[ Upstream commit bfb7bac3a8f47100ebe7961bd14e924c96e21ca7 ]
+[ Upstream commit 2b63d0ec0daf79ba503fa8bfa25e07dc3da274f3 ]
 
-When preparing ethtool drvinfo, check if wiphy driver is defined
-before dereferencing it. Driver may not exist, e.g. if wiphy is
-attached to a virtual platform device.
+[Why]
+Engine can be NULL in some cases, so we must not acquire it.
 
-Signed-off-by: Sergey Matyukevich <sergey.matyukevich.os@quantenna.com>
-Link: https://lore.kernel.org/r/20200203105644.28875-1-sergey.matyukevich.os@quantenna.com
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+[How]
+Check for NULL engine before acquiring.
+
+Signed-off-by: Aric Cyr <aric.cyr@amd.com>
+Reviewed-by: Harry Wentland <harry.wentland@amd.com>
+Acked-by: Bhawanpreet Lakha <Bhawanpreet.Lakha@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/wireless/ethtool.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/amd/display/dc/dce/dce_aux.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/wireless/ethtool.c b/net/wireless/ethtool.c
-index a9c0f368db5d2..24e18405cdb48 100644
---- a/net/wireless/ethtool.c
-+++ b/net/wireless/ethtool.c
-@@ -7,9 +7,13 @@
- void cfg80211_get_drvinfo(struct net_device *dev, struct ethtool_drvinfo *info)
+diff --git a/drivers/gpu/drm/amd/display/dc/dce/dce_aux.c b/drivers/gpu/drm/amd/display/dc/dce/dce_aux.c
+index c3f9f4185ce8d..cf877238fff9d 100644
+--- a/drivers/gpu/drm/amd/display/dc/dce/dce_aux.c
++++ b/drivers/gpu/drm/amd/display/dc/dce/dce_aux.c
+@@ -386,7 +386,7 @@ static bool acquire(
  {
- 	struct wireless_dev *wdev = dev->ieee80211_ptr;
-+	struct device *pdev = wiphy_dev(wdev->wiphy);
+ 	enum gpio_result result;
  
--	strlcpy(info->driver, wiphy_dev(wdev->wiphy)->driver->name,
--		sizeof(info->driver));
-+	if (pdev->driver)
-+		strlcpy(info->driver, pdev->driver->name,
-+			sizeof(info->driver));
-+	else
-+		strlcpy(info->driver, "N/A", sizeof(info->driver));
+-	if (!is_engine_available(engine))
++	if ((engine == NULL) || !is_engine_available(engine))
+ 		return false;
  
- 	strlcpy(info->version, init_utsname()->release, sizeof(info->version));
- 
+ 	result = dal_ddc_open(ddc, GPIO_MODE_HARDWARE,
 -- 
 2.20.1
 
