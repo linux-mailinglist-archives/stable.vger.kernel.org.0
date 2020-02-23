@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7BFF91693C9
-	for <lists+stable@lfdr.de>; Sun, 23 Feb 2020 03:25:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7DCC11693BE
+	for <lists+stable@lfdr.de>; Sun, 23 Feb 2020 03:25:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728571AbgBWCZ2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Feb 2020 21:25:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55668 "EHLO mail.kernel.org"
+        id S1728304AbgBWCZI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Feb 2020 21:25:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55704 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729603AbgBWCZG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 22 Feb 2020 21:25:06 -0500
+        id S1729615AbgBWCZH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 22 Feb 2020 21:25:07 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0CFB120707;
-        Sun, 23 Feb 2020 02:25:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2E2F421D56;
+        Sun, 23 Feb 2020 02:25:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582424705;
-        bh=4BrJ9EXZcJa6znthVl0F5PfVP+9GqPmq6sX3Q6IIDOM=;
+        s=default; t=1582424706;
+        bh=v+LS8lTv33twM/8R1u/V5jF9GnZzvDvZPfP5JaMQFQM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fd2mDTtZgU3jgSQPGK9wl1KxUmfnuFGC+Rhp+M/pMdSRbJFcSPltA5bnpjiXryk+2
-         LDfunowOjMeLP7fUcBA2ZHljUgqxf9bNcmCF89MYUXVHopwFO1Pi3XyLdsQq2TH/Wu
-         hDvHAt0vKPV0dwi/kUimTXQ5qLiaO+ym7om4/ZFs=
+        b=Hy84ecl9gLHetXtQnG8v81VLgGHRA9QVz1QMJT1xfWnlqq5ZXyoRHqHZMS3tB5q/w
+         TrQsZuvmxz0HXvUAwk8bGzUx2YmZvYBQi3/WF4ojxRRbBj3cqNGgzqst6SvOC4oKMS
+         6SOUcRfBxzEDi14wmF2Pt1IozUC3OiTVdcIByMqs=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Firo Yang <firo.yang@suse.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 5/7] enic: prevent waking up stopped tx queues over watchdog reset
-Date:   Sat, 22 Feb 2020 21:24:57 -0500
-Message-Id: <20200223022459.2594-5-sashal@kernel.org>
+Cc:     Frank Sorenson <sorenson@redhat.com>,
+        Steve French <stfrench@microsoft.com>,
+        Sasha Levin <sashal@kernel.org>, linux-cifs@vger.kernel.org,
+        samba-technical@lists.samba.org
+Subject: [PATCH AUTOSEL 4.4 6/7] cifs: Fix mode output in debugging statements
+Date:   Sat, 22 Feb 2020 21:24:58 -0500
+Message-Id: <20200223022459.2594-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200223022459.2594-1-sashal@kernel.org>
 References: <20200223022459.2594-1-sashal@kernel.org>
@@ -43,60 +44,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Firo Yang <firo.yang@suse.com>
+From: Frank Sorenson <sorenson@redhat.com>
 
-[ Upstream commit 0f90522591fd09dd201065c53ebefdfe3c6b55cb ]
+[ Upstream commit f52aa79df43c4509146140de0241bc21a4a3b4c7 ]
 
-Recent months, our customer reported several kernel crashes all
-preceding with following message:
-NETDEV WATCHDOG: eth2 (enic): transmit queue 0 timed out
-Error message of one of those crashes:
-BUG: unable to handle kernel paging request at ffffffffa007e090
+A number of the debug statements output file or directory mode
+in hex.  Change these to print using octal.
 
-After analyzing severl vmcores, I found that most of crashes are
-caused by memory corruption. And all the corrupted memory areas
-are overwritten by data of network packets. Moreover, I also found
-that the tx queues were enabled over watchdog reset.
-
-After going through the source code, I found that in enic_stop(),
-the tx queues stopped by netif_tx_disable() could be woken up over
-a small time window between netif_tx_disable() and the
-napi_disable() by the following code path:
-napi_poll->
-  enic_poll_msix_wq->
-     vnic_cq_service->
-        enic_wq_service->
-           netif_wake_subqueue(enic->netdev, q_number)->
-              test_and_clear_bit(__QUEUE_STATE_DRV_XOFF, &txq->state)
-In turn, upper netowrk stack could queue skb to ENIC NIC though
-enic_hard_start_xmit(). And this might introduce some race condition.
-
-Our customer comfirmed that this kind of kernel crash doesn't occur over
-90 days since they applied this patch.
-
-Signed-off-by: Firo Yang <firo.yang@suse.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Frank Sorenson <sorenson@redhat.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/cisco/enic/enic_main.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/cifs/cifsacl.c | 4 ++--
+ fs/cifs/connect.c | 2 +-
+ fs/cifs/inode.c   | 2 +-
+ 3 files changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/ethernet/cisco/enic/enic_main.c b/drivers/net/ethernet/cisco/enic/enic_main.c
-index 3c20d0dc92568..9b97933338163 100644
---- a/drivers/net/ethernet/cisco/enic/enic_main.c
-+++ b/drivers/net/ethernet/cisco/enic/enic_main.c
-@@ -1807,10 +1807,10 @@ static int enic_stop(struct net_device *netdev)
- 	}
+diff --git a/fs/cifs/cifsacl.c b/fs/cifs/cifsacl.c
+index 3f93125916bf0..f5b87a8f75c47 100644
+--- a/fs/cifs/cifsacl.c
++++ b/fs/cifs/cifsacl.c
+@@ -480,7 +480,7 @@ static void access_flags_to_mode(__le32 ace_flags, int type, umode_t *pmode,
+ 			((flags & FILE_EXEC_RIGHTS) == FILE_EXEC_RIGHTS))
+ 		*pmode |= (S_IXUGO & (*pbits_to_set));
  
- 	netif_carrier_off(netdev);
--	netif_tx_disable(netdev);
- 	if (vnic_dev_get_intr_mode(enic->vdev) == VNIC_DEV_INTR_MODE_MSIX)
- 		for (i = 0; i < enic->wq_count; i++)
- 			napi_disable(&enic->napi[enic_cq_wq(enic, i)]);
-+	netif_tx_disable(netdev);
+-	cifs_dbg(NOISY, "access flags 0x%x mode now 0x%x\n", flags, *pmode);
++	cifs_dbg(NOISY, "access flags 0x%x mode now %04o\n", flags, *pmode);
+ 	return;
+ }
  
- 	if (!enic_is_dynamic(enic) && !enic_is_sriov_vf(enic))
- 		enic_dev_del_station_addr(enic);
+@@ -509,7 +509,7 @@ static void mode_to_access_flags(umode_t mode, umode_t bits_to_use,
+ 	if (mode & S_IXUGO)
+ 		*pace_flags |= SET_FILE_EXEC_RIGHTS;
+ 
+-	cifs_dbg(NOISY, "mode: 0x%x, access flags now 0x%x\n",
++	cifs_dbg(NOISY, "mode: %04o, access flags now 0x%x\n",
+ 		 mode, *pace_flags);
+ 	return;
+ }
+diff --git a/fs/cifs/connect.c b/fs/cifs/connect.c
+index 4bde8acca455c..cf104bbe30a14 100644
+--- a/fs/cifs/connect.c
++++ b/fs/cifs/connect.c
+@@ -3402,7 +3402,7 @@ void cifs_setup_cifs_sb(struct smb_vol *pvolume_info,
+ 	cifs_sb->mnt_gid = pvolume_info->linux_gid;
+ 	cifs_sb->mnt_file_mode = pvolume_info->file_mode;
+ 	cifs_sb->mnt_dir_mode = pvolume_info->dir_mode;
+-	cifs_dbg(FYI, "file mode: 0x%hx  dir mode: 0x%hx\n",
++	cifs_dbg(FYI, "file mode: %04ho  dir mode: %04ho\n",
+ 		 cifs_sb->mnt_file_mode, cifs_sb->mnt_dir_mode);
+ 
+ 	cifs_sb->actimeo = pvolume_info->actimeo;
+diff --git a/fs/cifs/inode.c b/fs/cifs/inode.c
+index 0a219545940d9..8827de2ba7bef 100644
+--- a/fs/cifs/inode.c
++++ b/fs/cifs/inode.c
+@@ -1540,7 +1540,7 @@ int cifs_mkdir(struct inode *inode, struct dentry *direntry, umode_t mode)
+ 	struct TCP_Server_Info *server;
+ 	char *full_path;
+ 
+-	cifs_dbg(FYI, "In cifs_mkdir, mode = 0x%hx inode = 0x%p\n",
++	cifs_dbg(FYI, "In cifs_mkdir, mode = %04ho inode = 0x%p\n",
+ 		 mode, inode);
+ 
+ 	cifs_sb = CIFS_SB(inode->i_sb);
 -- 
 2.20.1
 
