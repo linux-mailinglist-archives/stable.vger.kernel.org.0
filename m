@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 22A4E1694A6
-	for <lists+stable@lfdr.de>; Sun, 23 Feb 2020 03:32:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CAAB81694A3
+	for <lists+stable@lfdr.de>; Sun, 23 Feb 2020 03:32:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727221AbgBWCcK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Feb 2020 21:32:10 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52728 "EHLO mail.kernel.org"
+        id S1728062AbgBWCcB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Feb 2020 21:32:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52758 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728547AbgBWCXQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 22 Feb 2020 21:23:16 -0500
+        id S1728584AbgBWCXR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 22 Feb 2020 21:23:17 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6215624680;
-        Sun, 23 Feb 2020 02:23:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A437C20702;
+        Sun, 23 Feb 2020 02:23:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582424595;
-        bh=e1SKCZPdGa2avM3Ux/3r2Ge8S6FtgQ3cCJFYoRw0Vzs=;
+        s=default; t=1582424597;
+        bh=XSfqdRlJCiHaWS/0DHgFpfH9F1yRENfouWsQPjTtI+k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yyFtZjlm7vDnmcfe4+fEPBEAm2mI1xNth7vi5npW+kT3t8mTg+i4OUYSlDYNVRQdo
-         ySpTS1RVaf6fNUSDFRfN4nPuBek1tSMJedO7HSMIYs/Pvtbvx/tUhOlc0dUPgcpA1J
-         l2nIDoxaXCJNjCU4mjDyDsaxOCjRJyfh81eXHqZ8=
+        b=hIShQbLfbWWJbwx4qIsV7RsZYSDT0Bztxmiavzimo3JjFc+mgXxjfh3WOL0dscNK3
+         hiXFyWGn7gHDLCdaUhQX7xDxyOMdt/3OlA6utC19RIAnU7M1+SEtGxUXWPZdscz/cp
+         Nn9KwvY+drGlOU6hrGimo9laDMlEHE3zG9/5dMck=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Arthur Kiyanovski <akiyano@amazon.com>,
-        Sameeh Jubran <sameehj@amazon.com>,
+Cc:     Sameeh Jubran <sameehj@amazon.com>,
         "David S . Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 32/50] net: ena: fix incorrect default RSS key
-Date:   Sat, 22 Feb 2020 21:22:17 -0500
-Message-Id: <20200223022235.1404-32-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 34/50] net: ena: rss: fix failure to get indirection table
+Date:   Sat, 22 Feb 2020 21:22:19 -0500
+Message-Id: <20200223022235.1404-34-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200223022235.1404-1-sashal@kernel.org>
 References: <20200223022235.1404-1-sashal@kernel.org>
@@ -44,81 +43,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arthur Kiyanovski <akiyano@amazon.com>
+From: Sameeh Jubran <sameehj@amazon.com>
 
-[ Upstream commit 0d1c3de7b8c78a5e44b74b62ede4a63629f5d811 ]
+[ Upstream commit 0c8923c0a64fb5d14bebb9a9065d2dc25ac5e600 ]
 
-Bug description:
-When running "ethtool -x <if_name>" the key shows up as all zeros.
+On old hardware, getting / setting the hash function is not supported while
+gettting / setting the indirection table is.
 
-When we use "ethtool -X <if_name> hfunc toeplitz hkey <some:random:key>" to
-set the key and then try to retrieve it using "ethtool -x <if_name>" then
-we return the correct key because we return the one we saved.
-
-Bug cause:
-We don't fetch the key from the device but instead return the key
-that we have saved internally which is by default set to zero upon
-allocation.
-
-Fix:
-This commit fixes the issue by initializing the key to a random value
-using netdev_rss_key_fill().
+This commit enables us to still show the indirection table on older
+hardwares by setting the hash function and key to NULL.
 
 Fixes: 1738cd3ed342 ("net: ena: Add a driver for Amazon Elastic Network Adapters (ENA)")
 Signed-off-by: Sameeh Jubran <sameehj@amazon.com>
-Signed-off-by: Arthur Kiyanovski <akiyano@amazon.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/amazon/ena/ena_com.c | 15 +++++++++++++++
- drivers/net/ethernet/amazon/ena/ena_com.h |  1 +
- 2 files changed, 16 insertions(+)
+ drivers/net/ethernet/amazon/ena/ena_ethtool.c | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
-diff --git a/drivers/net/ethernet/amazon/ena/ena_com.c b/drivers/net/ethernet/amazon/ena/ena_com.c
-index e54c44fdcaa73..d6b894b06fa30 100644
---- a/drivers/net/ethernet/amazon/ena/ena_com.c
-+++ b/drivers/net/ethernet/amazon/ena/ena_com.c
-@@ -1041,6 +1041,19 @@ static int ena_com_get_feature(struct ena_com_dev *ena_dev,
- 				      feature_ver);
- }
+diff --git a/drivers/net/ethernet/amazon/ena/ena_ethtool.c b/drivers/net/ethernet/amazon/ena/ena_ethtool.c
+index 4472e41bd7825..52a3decff34a4 100644
+--- a/drivers/net/ethernet/amazon/ena/ena_ethtool.c
++++ b/drivers/net/ethernet/amazon/ena/ena_ethtool.c
+@@ -648,7 +648,21 @@ static int ena_get_rxfh(struct net_device *netdev, u32 *indir, u8 *key,
+ 	if (rc)
+ 		return rc;
  
-+static void ena_com_hash_key_fill_default_key(struct ena_com_dev *ena_dev)
-+{
-+	struct ena_admin_feature_rss_flow_hash_control *hash_key =
-+		(ena_dev->rss).hash_key;
-+
-+	netdev_rss_key_fill(&hash_key->key, sizeof(hash_key->key));
-+	/* The key is stored in the device in u32 array
-+	 * as well as the API requires the key to be passed in this
-+	 * format. Thus the size of our array should be divided by 4
++	/* We call this function in order to check if the device
++	 * supports getting/setting the hash function.
 +	 */
-+	hash_key->keys_num = sizeof(hash_key->key) / sizeof(u32);
-+}
+ 	rc = ena_com_get_hash_function(adapter->ena_dev, &ena_func, key);
 +
- static int ena_com_hash_key_allocate(struct ena_com_dev *ena_dev)
- {
- 	struct ena_rss *rss = &ena_dev->rss;
-@@ -2631,6 +2644,8 @@ int ena_com_rss_init(struct ena_com_dev *ena_dev, u16 indr_tbl_log_size)
- 	if (unlikely(rc))
- 		goto err_hash_key;
- 
-+	ena_com_hash_key_fill_default_key(ena_dev);
++	if (rc) {
++		if (rc == -EOPNOTSUPP) {
++			key = NULL;
++			hfunc = NULL;
++			rc = 0;
++		}
 +
- 	rc = ena_com_hash_ctrl_init(ena_dev);
- 	if (unlikely(rc))
- 		goto err_hash_ctrl;
-diff --git a/drivers/net/ethernet/amazon/ena/ena_com.h b/drivers/net/ethernet/amazon/ena/ena_com.h
-index 0ce37d54ed108..9b5bd28ed0ac6 100644
---- a/drivers/net/ethernet/amazon/ena/ena_com.h
-+++ b/drivers/net/ethernet/amazon/ena/ena_com.h
-@@ -44,6 +44,7 @@
- #include <linux/spinlock.h>
- #include <linux/types.h>
- #include <linux/wait.h>
-+#include <linux/netdevice.h>
++		return rc;
++	}
++
+ 	if (rc)
+ 		return rc;
  
- #include "ena_common_defs.h"
- #include "ena_admin_defs.h"
 -- 
 2.20.1
 
