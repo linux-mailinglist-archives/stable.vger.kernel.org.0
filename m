@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B6179169403
-	for <lists+stable@lfdr.de>; Sun, 23 Feb 2020 03:27:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 01E0E1693FD
+	for <lists+stable@lfdr.de>; Sun, 23 Feb 2020 03:27:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728662AbgBWC1Z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Feb 2020 21:27:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54640 "EHLO mail.kernel.org"
+        id S1729271AbgBWCYh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Feb 2020 21:24:37 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54698 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728440AbgBWCYf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 22 Feb 2020 21:24:35 -0500
+        id S1729334AbgBWCYg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 22 Feb 2020 21:24:36 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 306F120707;
-        Sun, 23 Feb 2020 02:24:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 591B722525;
+        Sun, 23 Feb 2020 02:24:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582424674;
-        bh=2VtHtDsYyS3H5iXlcYpMfL984qgMkhzZ3L+twuNg+SA=;
+        s=default; t=1582424676;
+        bh=a0c4B7PxUO8VOO83gnyibvpUAjvQ4+k9xvqYAPsf+Dg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CfaKvmDYEPx4MaW0v9e4Mu2ZbaP5YfZpsPPaIc3K8Jjl0H2lhAZGuE+iMVYrKPxyj
-         sxwBjhJ9lNZOZ/OLZj5ct+H/uupy6JJU6MgTfravb3LUkUTQ7cdaoD5cRsw/CUwZOd
-         9UNSzOaBq677/Ho2M1Yj55kbmKgQRYExzwCv6qnk=
+        b=CeIIoFQ4PdXpeIYZ/VPk52Os7olzjlDg2leTf6h6lanqzJvy1bA3/1PvRT1rLKjyQ
+         I/arwiV4ouu1B8qVLpgkOhv+Y/rZUR6lV1XRyWSjW057xc+a+BaIPGz1b1zP14XrC9
+         aeOruczLyLgva/7fwR4Wj/IOfHqDhicVX1Nw9JXI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Frank Sorenson <sorenson@redhat.com>,
-        Steve French <stfrench@microsoft.com>,
-        Sasha Levin <sashal@kernel.org>, linux-cifs@vger.kernel.org,
-        samba-technical@lists.samba.org
-Subject: [PATCH AUTOSEL 4.14 19/21] cifs: Fix mode output in debugging statements
-Date:   Sat, 22 Feb 2020 21:24:09 -0500
-Message-Id: <20200223022411.2159-19-sashal@kernel.org>
+Cc:     Coly Li <colyli@suse.de>, Jens Axboe <axboe@kernel.dk>,
+        Sasha Levin <sashal@kernel.org>, linux-bcache@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 20/21] bcache: ignore pending signals when creating gc and allocator thread
+Date:   Sat, 22 Feb 2020 21:24:10 -0500
+Message-Id: <20200223022411.2159-20-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200223022411.2159-1-sashal@kernel.org>
 References: <20200223022411.2159-1-sashal@kernel.org>
@@ -44,70 +42,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Frank Sorenson <sorenson@redhat.com>
+From: Coly Li <colyli@suse.de>
 
-[ Upstream commit f52aa79df43c4509146140de0241bc21a4a3b4c7 ]
+[ Upstream commit 0b96da639a4874311e9b5156405f69ef9fc3bef8 ]
 
-A number of the debug statements output file or directory mode
-in hex.  Change these to print using octal.
+When run a cache set, all the bcache btree node of this cache set will
+be checked by bch_btree_check(). If the bcache btree is very large,
+iterating all the btree nodes will occupy too much system memory and
+the bcache registering process might be selected and killed by system
+OOM killer. kthread_run() will fail if current process has pending
+signal, therefore the kthread creating in run_cache_set() for gc and
+allocator kernel threads are very probably failed for a very large
+bcache btree.
 
-Signed-off-by: Frank Sorenson <sorenson@redhat.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+Indeed such OOM is safe and the registering process will exit after
+the registration done. Therefore this patch flushes pending signals
+during the cache set start up, specificly in bch_cache_allocator_start()
+and bch_gc_thread_start(), to make sure run_cache_set() won't fail for
+large cahced data set.
+
+Signed-off-by: Coly Li <colyli@suse.de>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/cifsacl.c | 4 ++--
- fs/cifs/connect.c | 2 +-
- fs/cifs/inode.c   | 2 +-
- 3 files changed, 4 insertions(+), 4 deletions(-)
+ drivers/md/bcache/alloc.c | 18 ++++++++++++++++--
+ drivers/md/bcache/btree.c | 13 +++++++++++++
+ 2 files changed, 29 insertions(+), 2 deletions(-)
 
-diff --git a/fs/cifs/cifsacl.c b/fs/cifs/cifsacl.c
-index b98436f5c7c74..73d428af97a9e 100644
---- a/fs/cifs/cifsacl.c
-+++ b/fs/cifs/cifsacl.c
-@@ -603,7 +603,7 @@ static void access_flags_to_mode(__le32 ace_flags, int type, umode_t *pmode,
- 			((flags & FILE_EXEC_RIGHTS) == FILE_EXEC_RIGHTS))
- 		*pmode |= (S_IXUGO & (*pbits_to_set));
+diff --git a/drivers/md/bcache/alloc.c b/drivers/md/bcache/alloc.c
+index ada94a01e1423..9e85d44faeb49 100644
+--- a/drivers/md/bcache/alloc.c
++++ b/drivers/md/bcache/alloc.c
+@@ -67,6 +67,7 @@
+ #include <linux/blkdev.h>
+ #include <linux/kthread.h>
+ #include <linux/random.h>
++#include <linux/sched/signal.h>
+ #include <trace/events/bcache.h>
  
--	cifs_dbg(NOISY, "access flags 0x%x mode now 0x%x\n", flags, *pmode);
-+	cifs_dbg(NOISY, "access flags 0x%x mode now %04o\n", flags, *pmode);
- 	return;
- }
+ #define MAX_OPEN_BUCKETS 128
+@@ -700,8 +701,21 @@ int bch_open_buckets_alloc(struct cache_set *c)
  
-@@ -632,7 +632,7 @@ static void mode_to_access_flags(umode_t mode, umode_t bits_to_use,
- 	if (mode & S_IXUGO)
- 		*pace_flags |= SET_FILE_EXEC_RIGHTS;
+ int bch_cache_allocator_start(struct cache *ca)
+ {
+-	struct task_struct *k = kthread_run(bch_allocator_thread,
+-					    ca, "bcache_allocator");
++	struct task_struct *k;
++
++	/*
++	 * In case previous btree check operation occupies too many
++	 * system memory for bcache btree node cache, and the
++	 * registering process is selected by OOM killer. Here just
++	 * ignore the SIGKILL sent by OOM killer if there is, to
++	 * avoid kthread_run() being failed by pending signals. The
++	 * bcache registering process will exit after the registration
++	 * done.
++	 */
++	if (signal_pending(current))
++		flush_signals(current);
++
++	k = kthread_run(bch_allocator_thread, ca, "bcache_allocator");
+ 	if (IS_ERR(k))
+ 		return PTR_ERR(k);
  
--	cifs_dbg(NOISY, "mode: 0x%x, access flags now 0x%x\n",
-+	cifs_dbg(NOISY, "mode: %04o, access flags now 0x%x\n",
- 		 mode, *pace_flags);
- 	return;
- }
-diff --git a/fs/cifs/connect.c b/fs/cifs/connect.c
-index f0b1279a7de66..c925ca606b9df 100644
---- a/fs/cifs/connect.c
-+++ b/fs/cifs/connect.c
-@@ -3519,7 +3519,7 @@ int cifs_setup_cifs_sb(struct smb_vol *pvolume_info,
- 	cifs_sb->mnt_gid = pvolume_info->linux_gid;
- 	cifs_sb->mnt_file_mode = pvolume_info->file_mode;
- 	cifs_sb->mnt_dir_mode = pvolume_info->dir_mode;
--	cifs_dbg(FYI, "file mode: 0x%hx  dir mode: 0x%hx\n",
-+	cifs_dbg(FYI, "file mode: %04ho  dir mode: %04ho\n",
- 		 cifs_sb->mnt_file_mode, cifs_sb->mnt_dir_mode);
+diff --git a/drivers/md/bcache/btree.c b/drivers/md/bcache/btree.c
+index 96a6583e7b522..d61c1a4937109 100644
+--- a/drivers/md/bcache/btree.c
++++ b/drivers/md/bcache/btree.c
+@@ -34,6 +34,7 @@
+ #include <linux/random.h>
+ #include <linux/rcupdate.h>
+ #include <linux/sched/clock.h>
++#include <linux/sched/signal.h>
+ #include <linux/rculist.h>
  
- 	cifs_sb->actimeo = pvolume_info->actimeo;
-diff --git a/fs/cifs/inode.c b/fs/cifs/inode.c
-index a35c141059067..3a10d405362e2 100644
---- a/fs/cifs/inode.c
-+++ b/fs/cifs/inode.c
-@@ -1581,7 +1581,7 @@ int cifs_mkdir(struct inode *inode, struct dentry *direntry, umode_t mode)
- 	struct TCP_Server_Info *server;
- 	char *full_path;
+ #include <trace/events/bcache.h>
+@@ -1801,6 +1802,18 @@ static int bch_gc_thread(void *arg)
  
--	cifs_dbg(FYI, "In cifs_mkdir, mode = 0x%hx inode = 0x%p\n",
-+	cifs_dbg(FYI, "In cifs_mkdir, mode = %04ho inode = 0x%p\n",
- 		 mode, inode);
- 
- 	cifs_sb = CIFS_SB(inode->i_sb);
+ int bch_gc_thread_start(struct cache_set *c)
+ {
++	/*
++	 * In case previous btree check operation occupies too many
++	 * system memory for bcache btree node cache, and the
++	 * registering process is selected by OOM killer. Here just
++	 * ignore the SIGKILL sent by OOM killer if there is, to
++	 * avoid kthread_run() being failed by pending signals. The
++	 * bcache registering process will exit after the registration
++	 * done.
++	 */
++	if (signal_pending(current))
++		flush_signals(current);
++
+ 	c->gc_thread = kthread_run(bch_gc_thread, c, "bcache_gc");
+ 	if (IS_ERR(c->gc_thread))
+ 		return PTR_ERR(c->gc_thread);
 -- 
 2.20.1
 
