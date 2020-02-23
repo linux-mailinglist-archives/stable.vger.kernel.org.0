@@ -2,51 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A8F31169A58
-	for <lists+stable@lfdr.de>; Sun, 23 Feb 2020 22:44:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A056169A9C
+	for <lists+stable@lfdr.de>; Mon, 24 Feb 2020 00:11:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726678AbgBWVoq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 23 Feb 2020 16:44:46 -0500
-Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:20027 "EHLO
+        id S1727169AbgBWXL1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 23 Feb 2020 18:11:27 -0500
+Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:35256 "EHLO
         us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726302AbgBWVoq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 23 Feb 2020 16:44:46 -0500
+        with ESMTP id S1727064AbgBWXL1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 23 Feb 2020 18:11:27 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1582494283;
+        s=mimecast20190719; t=1582499485;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding;
-        bh=39pkpaSmkYzq4N3EedfkqQv7utYpayi6cG+rVp1weCI=;
-        b=ix4Y6X1JStLC6xWIvy1vIKMnJXLJ+7erXt6HQAHZ6eB8ouaew1s2Gr2IhMKHqZXFjbAf1f
-        HCKnKsIdKPelsOmD+CCDyODy+HkDeab6hcUuGk6tHGG6um2dZlIvmTX8SVdVbkCs2AY85B
-        hx98fmd9wIy0ZQdO6fHXadzE3zF57pY=
+        bh=KgxY8tTjtNPwgvmnyXIEnz4NsWlyB3qHO9NXOdyENjw=;
+        b=DIQXHb1pKj4kZiQFR8akXP2uVVr3CnXeQqVAuQrZkkLtfgKc2q4LHE9X2kK+UtiGwX3sgk
+        cZnMhESun0srBPKVxAy1X8VP0nEdKbDEZvU0YV9OmLMvfLvp/2i6weKsF+4xYNM7AbJU+0
+        CCyRIE0Y1QAyp1SO1PMmREwggKapXQM=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-406-eNYPqbYMMOmSXHcwSg3dqg-1; Sun, 23 Feb 2020 16:44:38 -0500
-X-MC-Unique: eNYPqbYMMOmSXHcwSg3dqg-1
-Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
+ us-mta-485-nAkir-IQPpq_f-Z7-k1_OQ-1; Sun, 23 Feb 2020 18:11:17 -0500
+X-MC-Unique: nAkir-IQPpq_f-Z7-k1_OQ-1
+Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 75F94185734D
-        for <stable@vger.kernel.org>; Sun, 23 Feb 2020 21:44:37 +0000 (UTC)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id C2CBD8017DF
+        for <stable@vger.kernel.org>; Sun, 23 Feb 2020 23:11:16 +0000 (UTC)
 Received: from [172.54.105.135] (cpt-1041.paas.prod.upshift.rdu2.redhat.com [10.0.19.38])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 96A6A1001B30;
-        Sun, 23 Feb 2020 21:44:34 +0000 (UTC)
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 480EB60BEC;
+        Sun, 23 Feb 2020 23:11:11 +0000 (UTC)
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
 From:   CKI Project <cki-project@redhat.com>
 To:     Linux Stable maillist <stable@vger.kernel.org>
-Subject: =?utf-8?b?4p2M?= FAIL: Test report for kernel 5.4.22-rc2-b0b4130.cki
+Subject: =?utf-8?b?4p2M?= FAIL: Test report for kernel 5.4.22-rc3-3b5dde2.cki
  (stable)
-Date:   Sun, 23 Feb 2020 21:44:34 -0000
+Date:   Sun, 23 Feb 2020 23:11:10 -0000
 CC:     Milos Malik <mmalik@redhat.com>,
-        Ondrej Mosnacek <omosnace@redhat.com>
-Message-ID: <cki.C91ED894FB.V073T4NSBU@redhat.com>
-X-Gitlab-Pipeline-ID: 453522
+        Ondrej Mosnacek <omosnace@redhat.com>,
+        Memory Management <mm-qe@redhat.com>
+Message-ID: <cki.FF96ECB4E2.86I5IQEHH7@redhat.com>
+X-Gitlab-Pipeline-ID: 453654
 X-Gitlab-Url: https://xci32.lab.eng.rdu2.redhat.com
-X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/453522
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
+X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/453654
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -59,7 +60,7 @@ We ran automated tests on a recent commit from this kernel tree:
 
        Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linu=
 x-stable-rc.git
-            Commit: b0b41307fca1 - Linux 5.4.22-rc2
+            Commit: 3b5dde2478ad - Linux 5.4.22-rc3
 
 The results of these automated tests are provided below.
 
@@ -71,7 +72,7 @@ The results of these automated tests are provided below.
 All kernel binaries, config files, and logs are available for download here:
 
   https://cki-artifacts.s3.us-east-2.amazonaws.com/index.html?prefix=3Ddatawa=
-rehouse/2020/02/23/453522
+rehouse/2020/02/23/453654
 
 One or more kernel tests failed:
 
@@ -120,18 +121,6 @@ We booted each kernel and ran the following tests:
   aarch64:
     Host 1:
        =E2=9C=85 Boot test
-       =E2=9C=85 xfstests - ext4
-       =E2=9C=85 xfstests - xfs
-       =E2=9D=8C selinux-policy: serge-testsuite
-       =E2=9C=85 lvm thinp sanity
-       =E2=9C=85 storage: software RAID testing
-       =E2=9C=85 stress: stress-ng
-       =F0=9F=9A=A7 =E2=9C=85 IPMI driver test
-       =F0=9F=9A=A7 =E2=9C=85 IPMItool loop stress test
-       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
-
-    Host 2:
-       =E2=9C=85 Boot test
        =E2=9C=85 Podman system integration test - as root
        =E2=9C=85 Podman system integration test - as user
        =E2=9C=85 LTP
@@ -172,6 +161,18 @@ We booted each kernel and ran the following tests:
        =F0=9F=9A=A7 =E2=9C=85 iotop: sanity
        =F0=9F=9A=A7 =E2=9C=85 Usex - version 1.9-29
        =F0=9F=9A=A7 =E2=9C=85 storage: dm/common
+
+    Host 2:
+       =E2=9C=85 Boot test
+       =E2=9C=85 xfstests - ext4
+       =E2=9C=85 xfstests - xfs
+       =E2=9D=8C selinux-policy: serge-testsuite
+       =E2=9C=85 lvm thinp sanity
+       =E2=9C=85 storage: software RAID testing
+       =E2=9C=85 stress: stress-ng
+       =F0=9F=9A=A7 =E2=9C=85 IPMI driver test
+       =F0=9F=9A=A7 =E2=9C=85 IPMItool loop stress test
+       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
 
   ppc64le:
     Host 1:
@@ -228,19 +229,6 @@ We booted each kernel and ran the following tests:
   x86_64:
     Host 1:
        =E2=9C=85 Boot test
-       =E2=9C=85 xfstests - ext4
-       =E2=9C=85 xfstests - xfs
-       =E2=9D=8C selinux-policy: serge-testsuite
-       =E2=9C=85 lvm thinp sanity
-       =E2=9C=85 storage: software RAID testing
-       =E2=9C=85 stress: stress-ng
-       =F0=9F=9A=A7 =E2=9C=85 IOMMU boot test
-       =F0=9F=9A=A7 =E2=9C=85 IPMI driver test
-       =F0=9F=9A=A7 =E2=9C=85 IPMItool loop stress test
-       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
-
-    Host 2:
-       =E2=9C=85 Boot test
        =E2=9C=85 Podman system integration test - as root
        =E2=9C=85 Podman system integration test - as user
        =E2=9C=85 LTP
@@ -276,20 +264,33 @@ We booted each kernel and ran the following tests:
        =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
        =F0=9F=9A=A7 =E2=9C=85 jvm - DaCapo Benchmark Suite
        =F0=9F=9A=A7 =E2=9C=85 jvm - jcstress tests
-       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
+       =F0=9F=9A=A7 =E2=9D=8C Memory function: kaslr
        =F0=9F=9A=A7 =E2=9C=85 LTP: openposix test suite
        =F0=9F=9A=A7 =E2=9C=85 Networking vnic: ipvlan/basic
        =F0=9F=9A=A7 =E2=9C=85 iotop: sanity
        =F0=9F=9A=A7 =E2=9C=85 Usex - version 1.9-29
        =F0=9F=9A=A7 =E2=9C=85 storage: dm/common
 
+    Host 2:
+       =E2=9C=85 Boot test
+       =E2=9C=85 xfstests - ext4
+       =E2=9C=85 xfstests - xfs
+       =E2=9D=8C selinux-policy: serge-testsuite
+       =E2=9C=85 lvm thinp sanity
+       =E2=9C=85 storage: software RAID testing
+       =E2=9C=85 stress: stress-ng
+       =F0=9F=9A=A7 =E2=9C=85 IOMMU boot test
+       =F0=9F=9A=A7 =E2=9C=85 IPMI driver test
+       =F0=9F=9A=A7 =E2=9C=85 IPMItool loop stress test
+       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
+
     Host 3:
        =E2=9C=85 Boot test
-       =E2=9C=85 Storage SAN device stress - megaraid_sas
+       =E2=9C=85 Storage SAN device stress - mpt3sas driver
 
     Host 4:
        =E2=9C=85 Boot test
-       =E2=9C=85 Storage SAN device stress - mpt3sas driver
+       =E2=9C=85 Storage SAN device stress - megaraid_sas
 
   Test sources: https://github.com/CKI-project/tests-beaker
     =F0=9F=92=9A Pull requests are welcome for new tests or improvements to e=
