@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C9D0D169567
-	for <lists+stable@lfdr.de>; Sun, 23 Feb 2020 03:38:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7F8E1169564
+	for <lists+stable@lfdr.de>; Sun, 23 Feb 2020 03:38:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727756AbgBWCiB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Feb 2020 21:38:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49792 "EHLO mail.kernel.org"
+        id S1727869AbgBWChu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Feb 2020 21:37:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49828 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727229AbgBWCV2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 22 Feb 2020 21:21:28 -0500
+        id S1727074AbgBWCVa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 22 Feb 2020 21:21:30 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B2445214DB;
-        Sun, 23 Feb 2020 02:21:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2B5C320707;
+        Sun, 23 Feb 2020 02:21:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582424487;
-        bh=oBFlDE9A/gis0xHj4tQtmtNTj/P1n3aibbo6E0lXCWU=;
+        s=default; t=1582424489;
+        bh=9O5ymUWpNt3jhqdPiucuIYgwSShPohd5ByDTUrD1C6E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=17RmoHZgQ2jP22/+LnQzM48rIiM3H5+4vM81ITcq9rxBDCbw9ys6dcwuujoDFx74c
-         GboYYXVNhrVRRSS4zD3tAqnQQaxLQdo5j/Rr8kc8LjMa5B3yI01t+8U9lwI8MhqckB
-         C4KATk2gEP/UxAydI8d4VnVWgYmwMUHilvRorYiA=
+        b=AbZH+oRRBpnZCjZ/dQItPjb1Bj4hwBn+Yt03o9aNM60BLyyQeAXqvIpf9gdqjfW6W
+         uLoHxg16mO5QsY7M+EgOEUO47zt8Zhv6rNS7/EoJMQglf3TK3cr8O46zRnhyNCajEW
+         XI7nhWeXL7vNF6bRxXvP8fYRPW0jZTWZkpbSV0bI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jeff Moyer <jmoyer@redhat.com>, Christoph Hellwig <hch@lst.de>,
-        Jan Kara <jack@suse.cz>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Sasha Levin <sashal@kernel.org>, linux-fsdevel@vger.kernel.org,
-        linux-nvdimm@lists.01.org
-Subject: [PATCH AUTOSEL 5.5 06/58] dax: pass NOWAIT flag to iomap_apply
-Date:   Sat, 22 Feb 2020 21:20:27 -0500
-Message-Id: <20200223022119.707-6-sashal@kernel.org>
+Cc:     Sergey Matyukevich <sergey.matyukevich.os@quantenna.com>,
+        Johannes Berg <johannes.berg@intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.5 08/58] cfg80211: check wiphy driver existence for drvinfo report
+Date:   Sat, 22 Feb 2020 21:20:29 -0500
+Message-Id: <20200223022119.707-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200223022119.707-1-sashal@kernel.org>
 References: <20200223022119.707-1-sashal@kernel.org>
@@ -45,41 +44,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeff Moyer <jmoyer@redhat.com>
+From: Sergey Matyukevich <sergey.matyukevich.os@quantenna.com>
 
-[ Upstream commit 96222d53842dfe54869ec4e1b9d4856daf9105a2 ]
+[ Upstream commit bfb7bac3a8f47100ebe7961bd14e924c96e21ca7 ]
 
-fstests generic/471 reports a failure when run with MOUNT_OPTIONS="-o
-dax".  The reason is that the initial pwrite to an empty file with the
-RWF_NOWAIT flag set does not return -EAGAIN.  It turns out that
-dax_iomap_rw doesn't pass that flag through to iomap_apply.
+When preparing ethtool drvinfo, check if wiphy driver is defined
+before dereferencing it. Driver may not exist, e.g. if wiphy is
+attached to a virtual platform device.
 
-With this patch applied, generic/471 passes for me.
-
-Signed-off-by: Jeff Moyer <jmoyer@redhat.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/x49r1z86e1d.fsf@segfault.boston.devel.redhat.com
-Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+Signed-off-by: Sergey Matyukevich <sergey.matyukevich.os@quantenna.com>
+Link: https://lore.kernel.org/r/20200203105644.28875-1-sergey.matyukevich.os@quantenna.com
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/dax.c | 3 +++
- 1 file changed, 3 insertions(+)
+ net/wireless/ethtool.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/fs/dax.c b/fs/dax.c
-index 1f1f0201cad18..0b0d8819cb1bb 100644
---- a/fs/dax.c
-+++ b/fs/dax.c
-@@ -1207,6 +1207,9 @@ dax_iomap_rw(struct kiocb *iocb, struct iov_iter *iter,
- 		lockdep_assert_held(&inode->i_rwsem);
- 	}
+diff --git a/net/wireless/ethtool.c b/net/wireless/ethtool.c
+index a9c0f368db5d2..24e18405cdb48 100644
+--- a/net/wireless/ethtool.c
++++ b/net/wireless/ethtool.c
+@@ -7,9 +7,13 @@
+ void cfg80211_get_drvinfo(struct net_device *dev, struct ethtool_drvinfo *info)
+ {
+ 	struct wireless_dev *wdev = dev->ieee80211_ptr;
++	struct device *pdev = wiphy_dev(wdev->wiphy);
  
-+	if (iocb->ki_flags & IOCB_NOWAIT)
-+		flags |= IOMAP_NOWAIT;
-+
- 	while (iov_iter_count(iter)) {
- 		ret = iomap_apply(inode, pos, iov_iter_count(iter), flags, ops,
- 				iter, dax_iomap_actor);
+-	strlcpy(info->driver, wiphy_dev(wdev->wiphy)->driver->name,
+-		sizeof(info->driver));
++	if (pdev->driver)
++		strlcpy(info->driver, pdev->driver->name,
++			sizeof(info->driver));
++	else
++		strlcpy(info->driver, "N/A", sizeof(info->driver));
+ 
+ 	strlcpy(info->version, init_utsname()->release, sizeof(info->version));
+ 
 -- 
 2.20.1
 
