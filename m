@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 722091694C0
-	for <lists+stable@lfdr.de>; Sun, 23 Feb 2020 03:33:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C7D8A1694CA
+	for <lists+stable@lfdr.de>; Sun, 23 Feb 2020 03:34:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728385AbgBWCXA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Feb 2020 21:23:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52148 "EHLO mail.kernel.org"
+        id S1728030AbgBWCdA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Feb 2020 21:33:00 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52190 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728397AbgBWCXA (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1728406AbgBWCXA (ORCPT <rfc822;stable@vger.kernel.org>);
         Sat, 22 Feb 2020 21:23:00 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6AFDB20702;
-        Sun, 23 Feb 2020 02:22:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8FBF322464;
+        Sun, 23 Feb 2020 02:22:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582424579;
-        bh=+0DCorTTN4tjWO1sG8JADOF2c+tIaEeqv2Mh+42zHBw=;
+        s=default; t=1582424580;
+        bh=b0T7XcKyF7fdfoO4CCzBX1iv4p+VefjFERsskt64TYA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Pl4lr3zFxJYIJ39MyST4GOLKM/jsovVFMXTXzBranAcu5RZUhwjfpyHpTIGnY/qP8
-         glxbkHmaF4ERxMhjnFrD5M1/4S6ZvaS4Q2oZHV6yAq7v5mh9nVGQMV/MBXPjMzXTlQ
-         DmQFb+X6lBhEFar+D9Krlc4V5fXosqsalKlGxKuk=
+        b=SubP6+ehdXAUX7Da6ZZ/IuGDkVkuKQMk9DIffcj0mvc16lc6Vj8F8j4R5OIgCSWrr
+         QxH49UWAVijsHvHIa2OAHAx6/HBE1hvzO0CTnbDKEmPKLiFbasdJsQringWaRM9T/k
+         /yfWMK/RzM+1xNPbQyA0MNVA1SWlbBxjQTwmdGSk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Xiubo Li <xiubli@redhat.com>, Jeff Layton <jlayton@kernel.org>,
-        Ilya Dryomov <idryomov@gmail.com>,
-        Sasha Levin <sashal@kernel.org>, ceph-devel@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 19/50] ceph: do not execute direct write in parallel if O_APPEND is specified
-Date:   Sat, 22 Feb 2020 21:22:04 -0500
-Message-Id: <20200223022235.1404-19-sashal@kernel.org>
+Cc:     Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>,
+        Patrice Chotard <patrice.chotard@st.com>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 20/50] ARM: dts: sti: fixup sound frame-inversion for stihxxx-b2120.dtsi
+Date:   Sat, 22 Feb 2020 21:22:05 -0500
+Message-Id: <20200223022235.1404-20-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200223022235.1404-1-sashal@kernel.org>
 References: <20200223022235.1404-1-sashal@kernel.org>
@@ -43,92 +44,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiubo Li <xiubli@redhat.com>
+From: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
 
-[ Upstream commit 8e4473bb50a1796c9c32b244e5dbc5ee24ead937 ]
+[ Upstream commit f24667779b5348279e5e4328312a141a730a1fc7 ]
 
-In O_APPEND & O_DIRECT mode, the data from different writers will
-be possibly overlapping each other since they take the shared lock.
+frame-inversion is "flag" not "uint32".
+This patch fixup it.
 
-For example, both Writer1 and Writer2 are in O_APPEND and O_DIRECT
-mode:
-
-          Writer1                         Writer2
-
-     shared_lock()                   shared_lock()
-     getattr(CAP_SIZE)               getattr(CAP_SIZE)
-     iocb->ki_pos = EOF              iocb->ki_pos = EOF
-     write(data1)
-                                     write(data2)
-     shared_unlock()                 shared_unlock()
-
-The data2 will overlap the data1 from the same file offset, the
-old EOF.
-
-Switch to exclusive lock instead when O_APPEND is specified.
-
-Signed-off-by: Xiubo Li <xiubli@redhat.com>
-Reviewed-by: Jeff Layton <jlayton@kernel.org>
-Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
+Signed-off-by: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
+Reviewed-by: Patrice Chotard <patrice.chotard@st.com>
+Signed-off-by: Patrice Chotard <patrice.chotard@st.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ceph/file.c | 17 +++++++++++------
- 1 file changed, 11 insertions(+), 6 deletions(-)
+ arch/arm/boot/dts/stihxxx-b2120.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/ceph/file.c b/fs/ceph/file.c
-index 11929d2bb594c..cd09e63d682b7 100644
---- a/fs/ceph/file.c
-+++ b/fs/ceph/file.c
-@@ -1418,6 +1418,7 @@ static ssize_t ceph_write_iter(struct kiocb *iocb, struct iov_iter *from)
- 	struct ceph_cap_flush *prealloc_cf;
- 	ssize_t count, written = 0;
- 	int err, want, got;
-+	bool direct_lock = false;
- 	loff_t pos;
- 	loff_t limit = max(i_size_read(inode), fsc->max_file_size);
- 
-@@ -1428,8 +1429,11 @@ static ssize_t ceph_write_iter(struct kiocb *iocb, struct iov_iter *from)
- 	if (!prealloc_cf)
- 		return -ENOMEM;
- 
-+	if ((iocb->ki_flags & (IOCB_DIRECT | IOCB_APPEND)) == IOCB_DIRECT)
-+		direct_lock = true;
-+
- retry_snap:
--	if (iocb->ki_flags & IOCB_DIRECT)
-+	if (direct_lock)
- 		ceph_start_io_direct(inode);
- 	else
- 		ceph_start_io_write(inode);
-@@ -1519,14 +1523,15 @@ static ssize_t ceph_write_iter(struct kiocb *iocb, struct iov_iter *from)
- 
- 		/* we might need to revert back to that point */
- 		data = *from;
--		if (iocb->ki_flags & IOCB_DIRECT) {
-+		if (iocb->ki_flags & IOCB_DIRECT)
- 			written = ceph_direct_read_write(iocb, &data, snapc,
- 							 &prealloc_cf);
--			ceph_end_io_direct(inode);
--		} else {
-+		else
- 			written = ceph_sync_write(iocb, &data, pos, snapc);
-+		if (direct_lock)
-+			ceph_end_io_direct(inode);
-+		else
- 			ceph_end_io_write(inode);
--		}
- 		if (written > 0)
- 			iov_iter_advance(from, written);
- 		ceph_put_snap_context(snapc);
-@@ -1577,7 +1582,7 @@ static ssize_t ceph_write_iter(struct kiocb *iocb, struct iov_iter *from)
- 
- 	goto out_unlocked;
- out:
--	if (iocb->ki_flags & IOCB_DIRECT)
-+	if (direct_lock)
- 		ceph_end_io_direct(inode);
- 	else
- 		ceph_end_io_write(inode);
+diff --git a/arch/arm/boot/dts/stihxxx-b2120.dtsi b/arch/arm/boot/dts/stihxxx-b2120.dtsi
+index 60e11045ad762..d051f080e52ec 100644
+--- a/arch/arm/boot/dts/stihxxx-b2120.dtsi
++++ b/arch/arm/boot/dts/stihxxx-b2120.dtsi
+@@ -46,7 +46,7 @@
+ 			/* DAC */
+ 			format = "i2s";
+ 			mclk-fs = <256>;
+-			frame-inversion = <1>;
++			frame-inversion;
+ 			cpu {
+ 				sound-dai = <&sti_uni_player2>;
+ 			};
 -- 
 2.20.1
 
