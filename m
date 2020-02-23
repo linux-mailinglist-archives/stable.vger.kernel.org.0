@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9560D169421
-	for <lists+stable@lfdr.de>; Sun, 23 Feb 2020 03:28:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B06416941E
+	for <lists+stable@lfdr.de>; Sun, 23 Feb 2020 03:28:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728571AbgBWC2T (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Feb 2020 21:28:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54336 "EHLO mail.kernel.org"
+        id S1727978AbgBWC2J (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Feb 2020 21:28:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54350 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729187AbgBWCYW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 22 Feb 2020 21:24:22 -0500
+        id S1729216AbgBWCYY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 22 Feb 2020 21:24:24 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8F97324650;
-        Sun, 23 Feb 2020 02:24:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BE58520707;
+        Sun, 23 Feb 2020 02:24:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582424662;
-        bh=w7dB8T6smZtpdozM3mayPW1yOSMdu7lo1XVeSa7u92U=;
+        s=default; t=1582424663;
+        bh=6HincFukh6m/qVXH3pMpi4GVE7V9F9LNOMFzb1HTzAI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vu1UD82TUvtPYpuZciAx7LPR2IX8KNOHceBHoeDhaMGEZOzZtph3QM+Ui7tafts4z
-         qlCqA/micijWOJno0fQj8+HDdm+hQbYjIg5OHRrxZSI5mgWZn0yNZmDLWs/XagW+5h
-         y2jjQneqYIDa3XcCj6Nqttgw+PmRS+N04P1LWHSw=
+        b=LpszYODwpLwvAMGKsNkas7tzhcH7FCXMgG5zwRH/lodNHXOzmwG1KTD5RS975gsEX
+         14O3fjb+RQq0Ifcfniy1gTdGgZh+ea85hYeuuQ4BtueMXfzw2kNfY3yMn0HfnVhxr2
+         /zFWxyojecNWASYjOhRcyFoel3xYd8gwMp889WX8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Peter Zijlstra <peterz@infradead.org>,
-        Dmitry Osipenko <digetx@gmail.com>,
-        Ingo Molnar <mingo@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.14 08/21] arm/ftrace: Fix BE text poking
-Date:   Sat, 22 Feb 2020 21:23:58 -0500
-Message-Id: <20200223022411.2159-8-sashal@kernel.org>
+Cc:     Arthur Kiyanovski <akiyano@amazon.com>,
+        Sameeh Jubran <sameehj@amazon.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 09/21] net: ena: fix potential crash when rxfh key is NULL
+Date:   Sat, 22 Feb 2020 21:23:59 -0500
+Message-Id: <20200223022411.2159-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200223022411.2159-1-sashal@kernel.org>
 References: <20200223022411.2159-1-sashal@kernel.org>
@@ -45,44 +44,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Arthur Kiyanovski <akiyano@amazon.com>
 
-[ Upstream commit be993e44badc448add6a18d6f12b20615692c4c3 ]
+[ Upstream commit 91a65b7d3ed8450f31ab717a65dcb5f9ceb5ab02 ]
 
-The __patch_text() function already applies __opcode_to_mem_*(), so
-when __opcode_to_mem_*() is not the identity (BE*), it is applied
-twice, wrecking the instruction.
+When ethtool -X is called without an hkey, ena_com_fill_hash_function()
+is called with key=NULL, which is passed to memcpy causing a crash.
 
-Fixes: 42e51f187f86 ("arm/ftrace: Use __patch_text()")
-Reported-by: Dmitry Osipenko <digetx@gmail.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Tested-by: Dmitry Osipenko <digetx@gmail.com>
+This commit fixes this issue by checking key is not NULL.
+
+Fixes: 1738cd3ed342 ("net: ena: Add a driver for Amazon Elastic Network Adapters (ENA)")
+Signed-off-by: Sameeh Jubran <sameehj@amazon.com>
+Signed-off-by: Arthur Kiyanovski <akiyano@amazon.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/kernel/ftrace.c | 7 ++-----
- 1 file changed, 2 insertions(+), 5 deletions(-)
+ drivers/net/ethernet/amazon/ena/ena_com.c | 17 +++++++++--------
+ 1 file changed, 9 insertions(+), 8 deletions(-)
 
-diff --git a/arch/arm/kernel/ftrace.c b/arch/arm/kernel/ftrace.c
-index 5617932a83dfa..26b7321bb2152 100644
---- a/arch/arm/kernel/ftrace.c
-+++ b/arch/arm/kernel/ftrace.c
-@@ -106,13 +106,10 @@ static int ftrace_modify_code(unsigned long pc, unsigned long old,
- {
- 	unsigned long replaced;
+diff --git a/drivers/net/ethernet/amazon/ena/ena_com.c b/drivers/net/ethernet/amazon/ena/ena_com.c
+index 10e6053f66712..f2dde1ab424a1 100644
+--- a/drivers/net/ethernet/amazon/ena/ena_com.c
++++ b/drivers/net/ethernet/amazon/ena/ena_com.c
+@@ -2069,15 +2069,16 @@ int ena_com_fill_hash_function(struct ena_com_dev *ena_dev,
  
--	if (IS_ENABLED(CONFIG_THUMB2_KERNEL)) {
-+	if (IS_ENABLED(CONFIG_THUMB2_KERNEL))
- 		old = __opcode_to_mem_thumb32(old);
--		new = __opcode_to_mem_thumb32(new);
--	} else {
-+	else
- 		old = __opcode_to_mem_arm(old);
--		new = __opcode_to_mem_arm(new);
--	}
- 
- 	if (validate) {
- 		if (probe_kernel_read(&replaced, (void *)pc, MCOUNT_INSN_SIZE))
+ 	switch (func) {
+ 	case ENA_ADMIN_TOEPLITZ:
+-		if (key_len > sizeof(hash_key->key)) {
+-			pr_err("key len (%hu) is bigger than the max supported (%zu)\n",
+-			       key_len, sizeof(hash_key->key));
+-			return -EINVAL;
++		if (key) {
++			if (key_len != sizeof(hash_key->key)) {
++				pr_err("key len (%hu) doesn't equal the supported size (%zu)\n",
++				       key_len, sizeof(hash_key->key));
++				return -EINVAL;
++			}
++			memcpy(hash_key->key, key, key_len);
++			rss->hash_init_val = init_val;
++			hash_key->keys_num = key_len >> 2;
+ 		}
+-
+-		memcpy(hash_key->key, key, key_len);
+-		rss->hash_init_val = init_val;
+-		hash_key->keys_num = key_len >> 2;
+ 		break;
+ 	case ENA_ADMIN_CRC32:
+ 		rss->hash_init_val = init_val;
 -- 
 2.20.1
 
