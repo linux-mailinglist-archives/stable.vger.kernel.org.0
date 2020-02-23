@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C901516945F
-	for <lists+stable@lfdr.de>; Sun, 23 Feb 2020 03:30:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 99485169459
+	for <lists+stable@lfdr.de>; Sun, 23 Feb 2020 03:30:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727267AbgBWCaF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Feb 2020 21:30:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53590 "EHLO mail.kernel.org"
+        id S1728878AbgBWCXz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Feb 2020 21:23:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53634 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728857AbgBWCXw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 22 Feb 2020 21:23:52 -0500
+        id S1728864AbgBWCXy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 22 Feb 2020 21:23:54 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A0627208C4;
-        Sun, 23 Feb 2020 02:23:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C259D24676;
+        Sun, 23 Feb 2020 02:23:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582424632;
-        bh=LkB/ld1v7E5olWXI7Cv6NehVA818PbkX17uUoHk2kUY=;
+        s=default; t=1582424633;
+        bh=SPgzoJBpWxhqKj4AqAQmm2VU7/zyGbEZx9wPtWTH1TE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Jxotl4JexpuDxvKIOzSu5Zqrj/tGj/s209DDSks+GnFjdGzRhTp8qy4FlW258sCOH
-         218jsf9vVeziiZXl/DBTVDHl3CIdllIfJz1UgsM45kXDM05XBXbkQkmCubYPHcga5u
-         AWbg2j1GAmCSJJA5makf6UirvNoDCUr5ljTk82ow=
+        b=vJEFHdwU75onJziJNCZUFpWgTw4oOK0Q7EJY4fZXmaQ9fVFTzIWV/dlx8fDFtbu08
+         /IDEh0FLVeYOMjSbtGZOIqGYIX6vaNqB2MaVmx6YBY30pu5+xvoM7retYPtYQ683hN
+         YU4a7yaDOPo9z12LkBVzFpRh/5LfPdhDUug3yJWA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Peter Zijlstra <peterz@infradead.org>,
-        Dmitry Osipenko <digetx@gmail.com>,
-        Ingo Molnar <mingo@kernel.org>,
+Cc:     Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>,
+        Patrice Chotard <patrice.chotard@st.com>,
         Sasha Levin <sashal@kernel.org>,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.19 10/25] arm/ftrace: Fix BE text poking
-Date:   Sat, 22 Feb 2020 21:23:24 -0500
-Message-Id: <20200223022339.1885-10-sashal@kernel.org>
+        linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 11/25] ARM: dts: sti: fixup sound frame-inversion for stihxxx-b2120.dtsi
+Date:   Sat, 22 Feb 2020 21:23:25 -0500
+Message-Id: <20200223022339.1885-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200223022339.1885-1-sashal@kernel.org>
 References: <20200223022339.1885-1-sashal@kernel.org>
@@ -45,44 +44,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
 
-[ Upstream commit be993e44badc448add6a18d6f12b20615692c4c3 ]
+[ Upstream commit f24667779b5348279e5e4328312a141a730a1fc7 ]
 
-The __patch_text() function already applies __opcode_to_mem_*(), so
-when __opcode_to_mem_*() is not the identity (BE*), it is applied
-twice, wrecking the instruction.
+frame-inversion is "flag" not "uint32".
+This patch fixup it.
 
-Fixes: 42e51f187f86 ("arm/ftrace: Use __patch_text()")
-Reported-by: Dmitry Osipenko <digetx@gmail.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Tested-by: Dmitry Osipenko <digetx@gmail.com>
+Signed-off-by: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
+Reviewed-by: Patrice Chotard <patrice.chotard@st.com>
+Signed-off-by: Patrice Chotard <patrice.chotard@st.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/kernel/ftrace.c | 7 ++-----
- 1 file changed, 2 insertions(+), 5 deletions(-)
+ arch/arm/boot/dts/stihxxx-b2120.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm/kernel/ftrace.c b/arch/arm/kernel/ftrace.c
-index ee673c09aa6c0..dd0215fb6fe23 100644
---- a/arch/arm/kernel/ftrace.c
-+++ b/arch/arm/kernel/ftrace.c
-@@ -106,13 +106,10 @@ static int ftrace_modify_code(unsigned long pc, unsigned long old,
- {
- 	unsigned long replaced;
- 
--	if (IS_ENABLED(CONFIG_THUMB2_KERNEL)) {
-+	if (IS_ENABLED(CONFIG_THUMB2_KERNEL))
- 		old = __opcode_to_mem_thumb32(old);
--		new = __opcode_to_mem_thumb32(new);
--	} else {
-+	else
- 		old = __opcode_to_mem_arm(old);
--		new = __opcode_to_mem_arm(new);
--	}
- 
- 	if (validate) {
- 		if (probe_kernel_read(&replaced, (void *)pc, MCOUNT_INSN_SIZE))
+diff --git a/arch/arm/boot/dts/stihxxx-b2120.dtsi b/arch/arm/boot/dts/stihxxx-b2120.dtsi
+index 4dedfcb0fcb30..ac42d3c6bda0b 100644
+--- a/arch/arm/boot/dts/stihxxx-b2120.dtsi
++++ b/arch/arm/boot/dts/stihxxx-b2120.dtsi
+@@ -45,7 +45,7 @@
+ 			/* DAC */
+ 			format = "i2s";
+ 			mclk-fs = <256>;
+-			frame-inversion = <1>;
++			frame-inversion;
+ 			cpu {
+ 				sound-dai = <&sti_uni_player2>;
+ 			};
 -- 
 2.20.1
 
