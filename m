@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C6EB16942E
-	for <lists+stable@lfdr.de>; Sun, 23 Feb 2020 03:29:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 47FF4169398
+	for <lists+stable@lfdr.de>; Sun, 23 Feb 2020 03:24:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729056AbgBWCYK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Feb 2020 21:24:10 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53996 "EHLO mail.kernel.org"
+        id S1729096AbgBWCYO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Feb 2020 21:24:14 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54076 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729042AbgBWCYK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 22 Feb 2020 21:24:10 -0500
+        id S1729042AbgBWCYN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 22 Feb 2020 21:24:13 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DB02E21D56;
-        Sun, 23 Feb 2020 02:24:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AE5BD20707;
+        Sun, 23 Feb 2020 02:24:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582424649;
-        bh=Mza0Sia5ckBcm/F+8ry5l6Hexh5VcJP+9/hvYktOy60=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EVnXTaXNiaa0+K9VoWlN5GrBCe28dB6QBi16jnXcTL/ho0rboCAXz2VrERoOiShyl
-         3n0JcB9JWS3hbxdegh9gQ/PT0TN+Dd72Aw3CS6iWRJLU83/FLobIbjmenbXOdVakhG
-         dKoaZLQYRqCcOfWwo4F/BMQybepTnseS0anIIz40=
+        s=default; t=1582424653;
+        bh=YtPBR0nkaVCMtqMjv17lPUpNC7kM+qkgKQDoZjkHLQg=;
+        h=From:To:Cc:Subject:Date:From;
+        b=d0x2jMhWfwi0JmNrevyTSvGfdYMwOET0l7M2Mro6GVtdl7/rlZj11xKHkxm7aqWX+
+         4WqEJ2RfSWEv6iuq6D/IkXrkZ/hVB3Y8e3biIAKSOWBKX94SVn0gmqjkB6a9b5MdT0
+         mvXWv2x/vNegh+o1k7nOtCZHFKISBtd9zG57/ESY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sergey Matyukevich <sergey.matyukevich.os@quantenna.com>,
-        Johannes Berg <johannes.berg@intel.com>,
+Cc:     Corey Minyard <cminyard@mvista.com>,
+        kbuild test robot <lkp@intel.com>,
         Sasha Levin <sashal@kernel.org>,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 25/25] cfg80211: add missing policy for NL80211_ATTR_STATUS_CODE
-Date:   Sat, 22 Feb 2020 21:23:39 -0500
-Message-Id: <20200223022339.1885-25-sashal@kernel.org>
+        openipmi-developer@lists.sourceforge.net
+Subject: [PATCH AUTOSEL 4.14 01/21] ipmi:ssif: Handle a possible NULL pointer reference
+Date:   Sat, 22 Feb 2020 21:23:51 -0500
+Message-Id: <20200223022411.2159-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20200223022339.1885-1-sashal@kernel.org>
-References: <20200223022339.1885-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -44,34 +42,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sergey Matyukevich <sergey.matyukevich.os@quantenna.com>
+From: Corey Minyard <cminyard@mvista.com>
 
-[ Upstream commit ea75080110a4c1fa011b0a73cb8f42227143ee3e ]
+[ Upstream commit 6b8526d3abc02c08a2f888e8c20b7ac9e5776dfe ]
 
-The nl80211_policy is missing for NL80211_ATTR_STATUS_CODE attribute.
-As a result, for strictly validated commands, it's assumed to not be
-supported.
+In error cases a NULL can be passed to memcpy.  The length will always
+be zero, so it doesn't really matter, but go ahead and check for NULL,
+anyway, to be more precise and avoid static analysis errors.
 
-Signed-off-by: Sergey Matyukevich <sergey.matyukevich.os@quantenna.com>
-Link: https://lore.kernel.org/r/20200213131608.10541-2-sergey.matyukevich.os@quantenna.com
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Reported-by: kbuild test robot <lkp@intel.com>
+Signed-off-by: Corey Minyard <cminyard@mvista.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/wireless/nl80211.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/char/ipmi/ipmi_ssif.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
-diff --git a/net/wireless/nl80211.c b/net/wireless/nl80211.c
-index 823dea187691f..dfde06b8d25d1 100644
---- a/net/wireless/nl80211.c
-+++ b/net/wireless/nl80211.c
-@@ -323,6 +323,7 @@ static const struct nla_policy nl80211_policy[NUM_NL80211_ATTR] = {
- 	[NL80211_ATTR_CONTROL_PORT_NO_ENCRYPT] = { .type = NLA_FLAG },
- 	[NL80211_ATTR_CONTROL_PORT_OVER_NL80211] = { .type = NLA_FLAG },
- 	[NL80211_ATTR_PRIVACY] = { .type = NLA_FLAG },
-+	[NL80211_ATTR_STATUS_CODE] = { .type = NLA_U16 },
- 	[NL80211_ATTR_CIPHER_SUITE_GROUP] = { .type = NLA_U32 },
- 	[NL80211_ATTR_WPA_VERSIONS] = { .type = NLA_U32 },
- 	[NL80211_ATTR_PID] = { .type = NLA_U32 },
+diff --git a/drivers/char/ipmi/ipmi_ssif.c b/drivers/char/ipmi/ipmi_ssif.c
+index 941bffd9b49cd..0146bc3252c5a 100644
+--- a/drivers/char/ipmi/ipmi_ssif.c
++++ b/drivers/char/ipmi/ipmi_ssif.c
+@@ -750,10 +750,14 @@ static void msg_done_handler(struct ssif_info *ssif_info, int result,
+ 	flags = ipmi_ssif_lock_cond(ssif_info, &oflags);
+ 	msg = ssif_info->curr_msg;
+ 	if (msg) {
++		if (data) {
++			if (len > IPMI_MAX_MSG_LENGTH)
++				len = IPMI_MAX_MSG_LENGTH;
++			memcpy(msg->rsp, data, len);
++		} else {
++			len = 0;
++		}
+ 		msg->rsp_size = len;
+-		if (msg->rsp_size > IPMI_MAX_MSG_LENGTH)
+-			msg->rsp_size = IPMI_MAX_MSG_LENGTH;
+-		memcpy(msg->rsp, data, msg->rsp_size);
+ 		ssif_info->curr_msg = NULL;
+ 	}
+ 
 -- 
 2.20.1
 
