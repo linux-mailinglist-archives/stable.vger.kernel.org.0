@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 139741694C6
-	for <lists+stable@lfdr.de>; Sun, 23 Feb 2020 03:34:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E8BC1694B2
+	for <lists+stable@lfdr.de>; Sun, 23 Feb 2020 03:32:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727756AbgBWCcn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Feb 2020 21:32:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52422 "EHLO mail.kernel.org"
+        id S1728495AbgBWCXL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Feb 2020 21:23:11 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52536 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728470AbgBWCXI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 22 Feb 2020 21:23:08 -0500
+        id S1728493AbgBWCXK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 22 Feb 2020 21:23:10 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 397E720702;
-        Sun, 23 Feb 2020 02:23:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7ECA42071E;
+        Sun, 23 Feb 2020 02:23:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582424588;
-        bh=nu12upa2YBED248NaTn+dMF9VDPyyAVLRlkgIW0kpbc=;
+        s=default; t=1582424590;
+        bh=3gWKxybEj+MPghi+m6w934dffMdy1LR+18drW+smWv0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ctjQr527dfwdfDOlF9M9dXm6qrTWpOXe21lMgfLxtfKKPc7nsuuaWudg1SaJj8m2D
-         uHrjOntD1fnxR89EyCHC5xQg5b3BsCQQMtUQSVa1ylRhN/pgphd/WxLGD4H/FHDXW0
-         eZQpVWOpj0FcCvg+zF96HKNU0ye0OUXbbTF+zM4w=
+        b=iiXKuAQbTpw6+jJNHSSh6+hTFOvcV6LxBXVNx8IlQ1jo5EjYAgmPY+u726UNZQANT
+         01ZfUdnjhM8BxQEPB1RfI6JZAFc4AJEwxo/biayRrazvPUfWBeGgJtdsOQFZloPpX7
+         QZ3rBwdzD/G/IbgHrOvPqn7AAkImJr0ijMHoJnLY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Daniel Kolesa <daniel@octaforge.org>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.4 26/50] amdgpu: Prevent build errors regarding soft/hard-float FP ABI tags
-Date:   Sat, 22 Feb 2020 21:22:11 -0500
-Message-Id: <20200223022235.1404-26-sashal@kernel.org>
+Cc:     Brett Creeley <brett.creeley@intel.com>,
+        Andrew Bowers <andrewx.bowers@intel.com>,
+        Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>,
+        intel-wired-lan@lists.osuosl.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 28/50] i40e: Fix the conditional for i40e_vc_validate_vqs_bitmaps
+Date:   Sat, 22 Feb 2020 21:22:13 -0500
+Message-Id: <20200223022235.1404-28-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200223022235.1404-1-sashal@kernel.org>
 References: <20200223022235.1404-1-sashal@kernel.org>
@@ -44,46 +46,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Kolesa <daniel@octaforge.org>
+From: Brett Creeley <brett.creeley@intel.com>
 
-[ Upstream commit 416611d9b6eebaeae58ed26cc7d23131c69126b1 ]
+[ Upstream commit f27f37a04a69890ac85d9155f03ee2d23b678d8f ]
 
-On PowerPC, the compiler will tag object files with whether they
-use hard or soft float FP ABI and whether they use 64 or 128-bit
-long double ABI. On systems with 64-bit long double ABI, a tag
-will get emitted whenever a double is used, as on those systems
-a long double is the same as a double. This will prevent linkage
-as other files are being compiled with hard-float.
+Commit d9d6a9aed3f6 ("i40e: Fix virtchnl_queue_select bitmap
+validation") introduced a necessary change for verifying how queue
+bitmaps from the iavf driver get validated. Unfortunately, the
+conditional was reversed. Fix this.
 
-On ppc64, this code will never actually get used for the time
-being, as the only currently existing hardware using it are the
-Renoir APUs. Therefore, until this is testable and can be fixed
-properly, at least make sure the build will not fail.
-
-Signed-off-by: Daniel Kolesa <daniel@octaforge.org>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Fixes: d9d6a9aed3f6 ("i40e: Fix virtchnl_queue_select bitmap validation")
+Signed-off-by: Brett Creeley <brett.creeley@intel.com>
+Tested-by: Andrew Bowers <andrewx.bowers@intel.com>
+Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/clk_mgr/Makefile | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/clk_mgr/Makefile b/drivers/gpu/drm/amd/display/dc/clk_mgr/Makefile
-index b864869cc7e3e..6fa7422c51da5 100644
---- a/drivers/gpu/drm/amd/display/dc/clk_mgr/Makefile
-+++ b/drivers/gpu/drm/amd/display/dc/clk_mgr/Makefile
-@@ -91,6 +91,12 @@ ifdef CONFIG_DRM_AMD_DC_DCN2_1
- ###############################################################################
- CLK_MGR_DCN21 = rn_clk_mgr.o rn_clk_mgr_vbios_smu.o
+diff --git a/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c b/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
+index 3515ace0f0201..38042d610f82c 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
+@@ -2363,7 +2363,7 @@ static int i40e_vc_enable_queues_msg(struct i40e_vf *vf, u8 *msg)
+ 		goto error_param;
+ 	}
  
-+# prevent build errors regarding soft-float vs hard-float FP ABI tags
-+# this code is currently unused on ppc64, as it applies to Renoir APUs only
-+ifdef CONFIG_PPC64
-+CFLAGS_$(AMDDALPATH)/dc/clk_mgr/dcn21/rn_clk_mgr.o := $(call cc-option,-mno-gnu-attribute)
-+endif
-+
- AMD_DAL_CLK_MGR_DCN21 = $(addprefix $(AMDDALPATH)/dc/clk_mgr/dcn21/,$(CLK_MGR_DCN21))
+-	if (i40e_vc_validate_vqs_bitmaps(vqs)) {
++	if (!i40e_vc_validate_vqs_bitmaps(vqs)) {
+ 		aq_ret = I40E_ERR_PARAM;
+ 		goto error_param;
+ 	}
+@@ -2425,7 +2425,7 @@ static int i40e_vc_disable_queues_msg(struct i40e_vf *vf, u8 *msg)
+ 		goto error_param;
+ 	}
  
- AMD_DISPLAY_FILES += $(AMD_DAL_CLK_MGR_DCN21)
+-	if (i40e_vc_validate_vqs_bitmaps(vqs)) {
++	if (!i40e_vc_validate_vqs_bitmaps(vqs)) {
+ 		aq_ret = I40E_ERR_PARAM;
+ 		goto error_param;
+ 	}
 -- 
 2.20.1
 
