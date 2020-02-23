@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D15E916942F
+	by mail.lfdr.de (Postfix) with ESMTP id 5C6EB16942E
 	for <lists+stable@lfdr.de>; Sun, 23 Feb 2020 03:29:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728995AbgBWCYK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1729056AbgBWCYK (ORCPT <rfc822;lists+stable@lfdr.de>);
         Sat, 22 Feb 2020 21:24:10 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53980 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:53996 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729031AbgBWCYJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 22 Feb 2020 21:24:09 -0500
+        id S1729042AbgBWCYK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 22 Feb 2020 21:24:10 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CE5B42465D;
-        Sun, 23 Feb 2020 02:24:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DB02E21D56;
+        Sun, 23 Feb 2020 02:24:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582424648;
-        bh=iC3KiavSmh80Y2SIDeaFyRbSocJf6RlacDi9Ii3VjW0=;
+        s=default; t=1582424649;
+        bh=Mza0Sia5ckBcm/F+8ry5l6Hexh5VcJP+9/hvYktOy60=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0QWeSTzw+kOzXLpXR98b3cZf5mSHWucTNvNxEiRT4tnbBRiXyApHNpj14IxH5V41T
-         Hmme0UTQiP8TL5HPwIP9rXh1L2y9i8yUQaxVqUnDBrdrF/AQMtKduZb4UVYLYYQEXT
-         G5McFVzx9No6qf6JC/TH+8vGFtMmqAhCWHhz2/ZM=
+        b=EVnXTaXNiaa0+K9VoWlN5GrBCe28dB6QBi16jnXcTL/ho0rboCAXz2VrERoOiShyl
+         3n0JcB9JWS3hbxdegh9gQ/PT0TN+Dd72Aw3CS6iWRJLU83/FLobIbjmenbXOdVakhG
+         dKoaZLQYRqCcOfWwo4F/BMQybepTnseS0anIIz40=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Coly Li <colyli@suse.de>, Jens Axboe <axboe@kernel.dk>,
-        Sasha Levin <sashal@kernel.org>, linux-bcache@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 24/25] bcache: ignore pending signals when creating gc and allocator thread
-Date:   Sat, 22 Feb 2020 21:23:38 -0500
-Message-Id: <20200223022339.1885-24-sashal@kernel.org>
+Cc:     Sergey Matyukevich <sergey.matyukevich.os@quantenna.com>,
+        Johannes Berg <johannes.berg@intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 25/25] cfg80211: add missing policy for NL80211_ATTR_STATUS_CODE
+Date:   Sat, 22 Feb 2020 21:23:39 -0500
+Message-Id: <20200223022339.1885-25-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200223022339.1885-1-sashal@kernel.org>
 References: <20200223022339.1885-1-sashal@kernel.org>
@@ -42,100 +44,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Coly Li <colyli@suse.de>
+From: Sergey Matyukevich <sergey.matyukevich.os@quantenna.com>
 
-[ Upstream commit 0b96da639a4874311e9b5156405f69ef9fc3bef8 ]
+[ Upstream commit ea75080110a4c1fa011b0a73cb8f42227143ee3e ]
 
-When run a cache set, all the bcache btree node of this cache set will
-be checked by bch_btree_check(). If the bcache btree is very large,
-iterating all the btree nodes will occupy too much system memory and
-the bcache registering process might be selected and killed by system
-OOM killer. kthread_run() will fail if current process has pending
-signal, therefore the kthread creating in run_cache_set() for gc and
-allocator kernel threads are very probably failed for a very large
-bcache btree.
+The nl80211_policy is missing for NL80211_ATTR_STATUS_CODE attribute.
+As a result, for strictly validated commands, it's assumed to not be
+supported.
 
-Indeed such OOM is safe and the registering process will exit after
-the registration done. Therefore this patch flushes pending signals
-during the cache set start up, specificly in bch_cache_allocator_start()
-and bch_gc_thread_start(), to make sure run_cache_set() won't fail for
-large cahced data set.
-
-Signed-off-by: Coly Li <colyli@suse.de>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Sergey Matyukevich <sergey.matyukevich.os@quantenna.com>
+Link: https://lore.kernel.org/r/20200213131608.10541-2-sergey.matyukevich.os@quantenna.com
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/bcache/alloc.c | 18 ++++++++++++++++--
- drivers/md/bcache/btree.c | 13 +++++++++++++
- 2 files changed, 29 insertions(+), 2 deletions(-)
+ net/wireless/nl80211.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/md/bcache/alloc.c b/drivers/md/bcache/alloc.c
-index 46794cac167e7..2074860cbb16c 100644
---- a/drivers/md/bcache/alloc.c
-+++ b/drivers/md/bcache/alloc.c
-@@ -67,6 +67,7 @@
- #include <linux/blkdev.h>
- #include <linux/kthread.h>
- #include <linux/random.h>
-+#include <linux/sched/signal.h>
- #include <trace/events/bcache.h>
- 
- #define MAX_OPEN_BUCKETS 128
-@@ -733,8 +734,21 @@ int bch_open_buckets_alloc(struct cache_set *c)
- 
- int bch_cache_allocator_start(struct cache *ca)
- {
--	struct task_struct *k = kthread_run(bch_allocator_thread,
--					    ca, "bcache_allocator");
-+	struct task_struct *k;
-+
-+	/*
-+	 * In case previous btree check operation occupies too many
-+	 * system memory for bcache btree node cache, and the
-+	 * registering process is selected by OOM killer. Here just
-+	 * ignore the SIGKILL sent by OOM killer if there is, to
-+	 * avoid kthread_run() being failed by pending signals. The
-+	 * bcache registering process will exit after the registration
-+	 * done.
-+	 */
-+	if (signal_pending(current))
-+		flush_signals(current);
-+
-+	k = kthread_run(bch_allocator_thread, ca, "bcache_allocator");
- 	if (IS_ERR(k))
- 		return PTR_ERR(k);
- 
-diff --git a/drivers/md/bcache/btree.c b/drivers/md/bcache/btree.c
-index bb40bd66a10e4..83d6739fd067b 100644
---- a/drivers/md/bcache/btree.c
-+++ b/drivers/md/bcache/btree.c
-@@ -34,6 +34,7 @@
- #include <linux/random.h>
- #include <linux/rcupdate.h>
- #include <linux/sched/clock.h>
-+#include <linux/sched/signal.h>
- #include <linux/rculist.h>
- #include <linux/delay.h>
- #include <trace/events/bcache.h>
-@@ -1898,6 +1899,18 @@ static int bch_gc_thread(void *arg)
- 
- int bch_gc_thread_start(struct cache_set *c)
- {
-+	/*
-+	 * In case previous btree check operation occupies too many
-+	 * system memory for bcache btree node cache, and the
-+	 * registering process is selected by OOM killer. Here just
-+	 * ignore the SIGKILL sent by OOM killer if there is, to
-+	 * avoid kthread_run() being failed by pending signals. The
-+	 * bcache registering process will exit after the registration
-+	 * done.
-+	 */
-+	if (signal_pending(current))
-+		flush_signals(current);
-+
- 	c->gc_thread = kthread_run(bch_gc_thread, c, "bcache_gc");
- 	return PTR_ERR_OR_ZERO(c->gc_thread);
- }
+diff --git a/net/wireless/nl80211.c b/net/wireless/nl80211.c
+index 823dea187691f..dfde06b8d25d1 100644
+--- a/net/wireless/nl80211.c
++++ b/net/wireless/nl80211.c
+@@ -323,6 +323,7 @@ static const struct nla_policy nl80211_policy[NUM_NL80211_ATTR] = {
+ 	[NL80211_ATTR_CONTROL_PORT_NO_ENCRYPT] = { .type = NLA_FLAG },
+ 	[NL80211_ATTR_CONTROL_PORT_OVER_NL80211] = { .type = NLA_FLAG },
+ 	[NL80211_ATTR_PRIVACY] = { .type = NLA_FLAG },
++	[NL80211_ATTR_STATUS_CODE] = { .type = NLA_U16 },
+ 	[NL80211_ATTR_CIPHER_SUITE_GROUP] = { .type = NLA_U32 },
+ 	[NL80211_ATTR_WPA_VERSIONS] = { .type = NLA_U32 },
+ 	[NL80211_ATTR_PID] = { .type = NLA_U32 },
 -- 
 2.20.1
 
