@@ -2,159 +2,87 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2149A169936
-	for <lists+stable@lfdr.de>; Sun, 23 Feb 2020 18:54:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C45D916994A
+	for <lists+stable@lfdr.de>; Sun, 23 Feb 2020 19:03:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726208AbgBWRy0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 23 Feb 2020 12:54:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43408 "EHLO mail.kernel.org"
+        id S1726302AbgBWSDN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 23 Feb 2020 13:03:13 -0500
+Received: from mail.klausen.dk ([174.138.9.187]:51114 "EHLO mail.klausen.dk"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726678AbgBWRy0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 23 Feb 2020 12:54:26 -0500
-Received: from localhost (95-141-97-180.as16211.net [95.141.97.180])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7EC5A206E0;
-        Sun, 23 Feb 2020 17:54:24 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582480465;
-        bh=M3NMimfAZ1sgL3y3XjG68/hxflxXlHu+b3pf9l5741Y=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=arTf2rniNYwRgk5352xBxhz3unJzzzguYAuguqqA8We+q2uIukINzyk6wPvcdwoNN
-         S591q9RMxibHIi2k0oY8zdrXSKRnaI6ZQJyvi2axuTnaNJoe6FwuteRGgt2wuDUg+w
-         NQmUIY53jzgnn4T+s3BT2GPhWoC8mR6e/jgBp7AI=
-Date:   Sun, 23 Feb 2020 18:54:22 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Chanwoo Choi <chanwoo@kernel.org>
-Cc:     Chanwoo Choi <cw00.choi@samsung.com>,
-        John Stultz <john.stultz@linaro.org>,
-        Orson Zhai <orson.unisoc@gmail.com>,
-        MyungJoo Ham <myungjoo.ham@samsung.com>,
-        Kyungmin Park <kyungmin.park@samsung.com>,
-        mingmin.ling@unisoc.com, orsonzhai@gmail.com,
-        jingchao.ye@unisoc.com, Linux PM list <linux-pm@vger.kernel.org>,
-        lkml <linux-kernel@vger.kernel.org>,
-        stable <stable@vger.kernel.org>
-Subject: Re: [PATCH] Revert "PM / devfreq: Modify the device name as
- devfreq(X) for sysfs"
-Message-ID: <20200223175422.GD488486@kroah.com>
-References: <1582220224-1904-1-git-send-email-orson.unisoc@gmail.com>
- <20200220191513.GA3450796@kroah.com>
- <CALAqxLViRgGE8FsukCJL+doqk_GqabLDCtXBWem+VOGf9xXZdg@mail.gmail.com>
- <CGME20200221070652epcas1p11e82863794f130373055c0b7bdedff23@epcas1p1.samsung.com>
- <20200221070646.GA4103708@kroah.com>
- <1b9e510a-71bb-5aa8-ef85-a9a9c623f313@samsung.com>
- <20200221111313.GA110504@kroah.com>
- <CAGTfZH0Ev2sCH073WdUjZJS5MNnJ9vzgsc_ApYkg+na2Fk4J+g@mail.gmail.com>
+        id S1726208AbgBWSDN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 23 Feb 2020 13:03:13 -0500
+X-Greylist: delayed 485 seconds by postgrey-1.27 at vger.kernel.org; Sun, 23 Feb 2020 13:03:12 EST
+From:   Kristian Klausen <kristian@klausen.dk>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=klausen.dk; s=dkim;
+        t=1582480506;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=utK+oLkr9l1Cuc8a7GIw2kKbzlBUQBE/1NUTH56pjtc=;
+        b=CUWp8fnaNBMlbliuHVKD+nwWnMaGssnt1NnlhwDhb91TLPZmcyAn1GfG5U3mnewZivK08k
+        mnzi5kFLGxlf36dXoA/bXH2ICHof2kB/rAXxRnFHnBsosMIOOWkrZ0azQ7QNDdJT+NYp5c
+        Xm/0idFhe9Qzw7G3YQSld240ZOn5NXI=
+To:     platform-driver-x86@vger.kernel.org
+Cc:     Kristian Klausen <kristian@klausen.dk>, stable@vger.kernel.org
+Subject: [PATCH] platform/x86: asus-wmi: Support laptops where the first battery is named BATT
+Date:   Sun, 23 Feb 2020 18:54:24 +0100
+Message-Id: <20200223175424.15613-1-kristian@klausen.dk>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAGTfZH0Ev2sCH073WdUjZJS5MNnJ9vzgsc_ApYkg+na2Fk4J+g@mail.gmail.com>
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, Feb 22, 2020 at 08:55:22AM +0900, Chanwoo Choi wrote:
-> On Fri, Feb 21, 2020 at 8:13 PM Greg Kroah-Hartman
-> <gregkh@linuxfoundation.org> wrote:
-> >
-> > On Fri, Feb 21, 2020 at 05:11:02PM +0900, Chanwoo Choi wrote:
-> > > On 2/21/20 4:06 PM, Greg Kroah-Hartman wrote:
-> > > > On Thu, Feb 20, 2020 at 11:47:41AM -0800, John Stultz wrote:
-> > > >> On Thu, Feb 20, 2020 at 11:15 AM Greg Kroah-Hartman
-> > > >> <gregkh@linuxfoundation.org> wrote:
-> > > >>>
-> > > >>> On Fri, Feb 21, 2020 at 01:37:04AM +0800, Orson Zhai wrote:
-> > > >>>> This reverts commit 4585fbcb5331fc910b7e553ad3efd0dd7b320d14.
-> > > >>>>
-> > > >>>> The name changing as devfreq(X) breaks some user space applications,
-> > > >>>> such as Android HAL from Unisoc and Hikey [1].
-> > > >>>> The device name will be changed unexpectly after every boot depending
-> > > >>>> on module init sequence. It will make trouble to setup some system
-> > > >>>> configuration like selinux for Android.
-> > > >>>>
-> > > >>>> So we'd like to revert it back to old naming rule before any better
-> > > >>>> way being found.
-> > > >>>>
-> > > >>>> [1] https://protect2.fireeye.com/url?k=00fa721e-5d2a7af6-00fbf951-000babff32e3-95e4b92259b05656&u=https://lkml.org/lkml/2018/5/8/1042
-> > > >>>>
-> > > >>>> Cc: John Stultz <john.stultz@linaro.org>
-> > > >>>> Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> > > >>>> Cc: stable@vger.kernel.org
-> > > >>>> Signed-off-by: Orson Zhai <orson.unisoc@gmail.com>
-> > > >>>>
-> > > >>>> ---
-> > > >>>>  drivers/devfreq/devfreq.c | 4 +---
-> > > >>>>  1 file changed, 1 insertion(+), 3 deletions(-)
-> > > >>>>
-> > > >>>> diff --git a/drivers/devfreq/devfreq.c b/drivers/devfreq/devfreq.c
-> > > >>>> index cceee8b..7dcf209 100644
-> > > >>>> --- a/drivers/devfreq/devfreq.c
-> > > >>>> +++ b/drivers/devfreq/devfreq.c
-> > > >>>> @@ -738,7 +738,6 @@ struct devfreq *devfreq_add_device(struct device *dev,
-> > > >>>>  {
-> > > >>>>       struct devfreq *devfreq;
-> > > >>>>       struct devfreq_governor *governor;
-> > > >>>> -     static atomic_t devfreq_no = ATOMIC_INIT(-1);
-> > > >>>>       int err = 0;
-> > > >>>>
-> > > >>>>       if (!dev || !profile || !governor_name) {
-> > > >>>> @@ -800,8 +799,7 @@ struct devfreq *devfreq_add_device(struct device *dev,
-> > > >>>>       devfreq->suspend_freq = dev_pm_opp_get_suspend_opp_freq(dev);
-> > > >>>>       atomic_set(&devfreq->suspend_count, 0);
-> > > >>>>
-> > > >>>> -     dev_set_name(&devfreq->dev, "devfreq%d",
-> > > >>>> -                             atomic_inc_return(&devfreq_no));
-> > > >>>> +     dev_set_name(&devfreq->dev, "%s", dev_name(dev));
-> > > >>>>       err = device_register(&devfreq->dev);
-> > > >>>>       if (err) {
-> > > >>>>               mutex_unlock(&devfreq->lock);
-> > > >>>> --
-> > > >>>> 2.7.4
-> > > >>>>
-> > > >>>
-> > > >>> Thanks for this, I agree, this needs to get back to the way things were
-> > > >>> as it seems to break too many existing systems as-is.
-> > > >>>
-> > > >>> I'll queue this up in my tree now, thanks.
-> > > >>
-> > > >> Oof this old thing. I unfortunately didn't get back to look at the
-> > > >> devfreq name node issue or the compatibility links, since the impact
-> > > >> of the regression (breaking the powerHAL's interactions with the gpu)
-> > > >> wasn't as big as other problems we had. While the regression was
-> > > >> frustrating, my only hesitancy at this point is that its been this way
-> > > >> since 4.10, so reverting the problematic patch is likely to break any
-> > > >> new users since then.
-> > > >
-> > > > Looks like most users just revert that commit in their trees:
-> > > >     https://protect2.fireeye.com/url?k=1012ad0f-4dc2a5e7-10132640-000babff32e3-35779c5ed675ef0f&u=https://source.codeaurora.org/quic/la/kernel/msm-4.14/commit/drivers/devfreq?h=msm-4.14&id=ccf273f6d89ad0fa8032e9225305ad6f62c7770c
-> > > >
-> > > > So we should be ok here.
-> > >
-> > > I'm sorry about changing the devfreq node name.
-> > >
-> > > OK. Do you pick this patch to your tree?
-> >
-> > Yes, I can do that.
-> 
-> If you agree, how about merging it to devfreq.git
-> for preventing the potential merge conflict with other devfreq patches?
+The WMI method to set the charge threshold does not provide a
+way to specific a battery, so we assume it is the first/primary
+battery (by checking if the name is BAT0).
+On some newer ASUS laptops (Zenbook UM431DA) though, the
+primary/first battery isn't named BAT0 but BATT, so we need
+to support that case.
 
-Sure, but it should go for 5.6-final, right?
+Signed-off-by: Kristian Klausen <kristian@klausen.dk>
+Cc: stable@vger.kernel.org
+---
+I'm not sure if this is candidate for -stable, it fix a real bug
+(charge threshold doesn't work on newer ASUS laptops) which has been
+reported by a user[1], but is that enough?
+I had a quick look at[2], can this be considered a "something
+critical"? It "bothers people"[1]. My point: I'm not sure..
 
-> > > or If not, I'll apply it to devfreq-next branch for v5.7-rc1.
-> > >
-> > > And do you apply it to kernel of linux-stable tree since 4.11?
-> >
-> > Yeah, I'll mark it for stable.
-> 
-> Thanks.
-> 
-> >
-> > Can I get an ack from you for this?
-> 
-> OK. but, if it will be merged to devfreq.git,
-> can I get an ack from you?
+I'm unsure if there is a bettery way to fix this. Maybe a counter
+would be better (+1 for every new battery)? It would probably need
+to be atomic to prevent race condition (I'm not sure how this code
+is run), but this "fix" is way simpler.
 
-Acked-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Please do not accept this patch just yet, I'm waiting for the tester
+to either confirm or deny credit[3].
+
+[1] https://gist.github.com/klausenbusk/643f15320ae8997427155c38be13e445#gistcomment-3186025
+[2] https://www.kernel.org/doc/html/v5.5/process/stable-kernel-rules.html
+[3] https://gist.github.com/klausenbusk/643f15320ae8997427155c38be13e445#gistcomment-3186429
+
+ drivers/platform/x86/asus-wmi.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/platform/x86/asus-wmi.c b/drivers/platform/x86/asus-wmi.c
+index 612ef5526226..4c690cebdd55 100644
+--- a/drivers/platform/x86/asus-wmi.c
++++ b/drivers/platform/x86/asus-wmi.c
+@@ -426,8 +426,11 @@ static int asus_wmi_battery_add(struct power_supply *battery)
+ {
+ 	/* The WMI method does not provide a way to specific a battery, so we
+ 	 * just assume it is the first battery.
++	 * Note: On some newer ASUS laptops (Zenbook UM431DA), the primary/first
++	 * battery is named BATT.
+ 	 */
+-	if (strcmp(battery->desc->name, "BAT0") != 0)
++	if (strcmp(battery->desc->name, "BAT0") != 0
++	&& (strcmp(battery->desc->name, "BATT") != 0))
+ 		return -ENODEV;
+ 
+ 	if (device_create_file(&battery->dev,
+-- 
+2.25.1
+
