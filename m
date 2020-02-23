@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CE19916953E
-	for <lists+stable@lfdr.de>; Sun, 23 Feb 2020 03:37:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E921916952A
+	for <lists+stable@lfdr.de>; Sun, 23 Feb 2020 03:37:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728126AbgBWCgv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Feb 2020 21:36:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50552 "EHLO mail.kernel.org"
+        id S1727833AbgBWCV4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Feb 2020 21:21:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50598 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727816AbgBWCVy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 22 Feb 2020 21:21:54 -0500
+        id S1727804AbgBWCVz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 22 Feb 2020 21:21:55 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 53E3C2192A;
-        Sun, 23 Feb 2020 02:21:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 84D7C20707;
+        Sun, 23 Feb 2020 02:21:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582424514;
-        bh=UsYeohpK6s/8P45xPBN0BM1m3ZQJsw1sNlWd83+Re8c=;
+        s=default; t=1582424515;
+        bh=ZgrOXiqRzy5igwgxlz+b0I01l7sWc+pNE3y9vXxcG64=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eEtgEN1EMPxJEVvNOCoab4iomHKvSb9AR9r5eeYfe4BpBiwHT+H0ELMc2yRCowXbc
-         GniizxuW5XOjbR7b5Tm4eKacEM/hjGOBWCdOvCIfcCay2Qjq5SIWXNUR0hhANn+69T
-         Xnaj/rPTX4+do7ZfRUgPFlc9y5cDx3nGvYoTxtH8=
+        b=kWEQnypRIDbH7WOwpVduGqPRN5ZRk3PHVSZWVTFqEI4HXL7IAnnE0Uvl8m4eUpDrq
+         DzYxm/FGVBmNtzE5YkBZ+uzIYr0bDK2XpjbBt+JEw4IE8x7afheGzCUyvF7SCCaV0e
+         iJE58Z0WXc4vhx1Dz6cNvruyXDwaFbcdrHZhHe84=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Thierry Reding <treding@nvidia.com>,
-        kbuild test robot <lkp@intel.com>,
-        Olof Johansson <olof@lixom.net>,
-        Sasha Levin <sashal@kernel.org>, linux-tegra@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.5 28/58] soc/tegra: fuse: Fix build with Tegra194 configuration
-Date:   Sat, 22 Feb 2020 21:20:49 -0500
-Message-Id: <20200223022119.707-28-sashal@kernel.org>
+Cc:     Brett Creeley <brett.creeley@intel.com>,
+        Andrew Bowers <andrewx.bowers@intel.com>,
+        Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>,
+        intel-wired-lan@lists.osuosl.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.5 29/58] i40e: Fix the conditional for i40e_vc_validate_vqs_bitmaps
+Date:   Sat, 22 Feb 2020 21:20:50 -0500
+Message-Id: <20200223022119.707-29-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200223022119.707-1-sashal@kernel.org>
 References: <20200223022119.707-1-sashal@kernel.org>
@@ -44,38 +46,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thierry Reding <treding@nvidia.com>
+From: Brett Creeley <brett.creeley@intel.com>
 
-[ Upstream commit 6f4ecbe284df5f22e386a640d9a4b32cede62030 ]
+[ Upstream commit f27f37a04a69890ac85d9155f03ee2d23b678d8f ]
 
-If only Tegra194 support is enabled, the tegra30_fuse_read() and
-tegra30_fuse_init() function are not declared and cause a build failure.
-Add Tegra194 to the preprocessor guard to make sure these functions are
-available for Tegra194-only builds as well.
+Commit d9d6a9aed3f6 ("i40e: Fix virtchnl_queue_select bitmap
+validation") introduced a necessary change for verifying how queue
+bitmaps from the iavf driver get validated. Unfortunately, the
+conditional was reversed. Fix this.
 
-Link: https://lore.kernel.org/r/20200203143114.3967295-1-thierry.reding@gmail.com
-Reported-by: kbuild test robot <lkp@intel.com>
-Signed-off-by: Thierry Reding <treding@nvidia.com>
-Signed-off-by: Olof Johansson <olof@lixom.net>
+Fixes: d9d6a9aed3f6 ("i40e: Fix virtchnl_queue_select bitmap validation")
+Signed-off-by: Brett Creeley <brett.creeley@intel.com>
+Tested-by: Andrew Bowers <andrewx.bowers@intel.com>
+Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soc/tegra/fuse/fuse-tegra30.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/soc/tegra/fuse/fuse-tegra30.c b/drivers/soc/tegra/fuse/fuse-tegra30.c
-index b8daaf5b7291b..efd158b4607cb 100644
---- a/drivers/soc/tegra/fuse/fuse-tegra30.c
-+++ b/drivers/soc/tegra/fuse/fuse-tegra30.c
-@@ -36,7 +36,8 @@
-     defined(CONFIG_ARCH_TEGRA_124_SOC) || \
-     defined(CONFIG_ARCH_TEGRA_132_SOC) || \
-     defined(CONFIG_ARCH_TEGRA_210_SOC) || \
--    defined(CONFIG_ARCH_TEGRA_186_SOC)
-+    defined(CONFIG_ARCH_TEGRA_186_SOC) || \
-+    defined(CONFIG_ARCH_TEGRA_194_SOC)
- static u32 tegra30_fuse_read_early(struct tegra_fuse *fuse, unsigned int offset)
- {
- 	if (WARN_ON(!fuse->base))
+diff --git a/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c b/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
+index 69523ac85639e..56b9e445732ba 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
+@@ -2362,7 +2362,7 @@ static int i40e_vc_enable_queues_msg(struct i40e_vf *vf, u8 *msg)
+ 		goto error_param;
+ 	}
+ 
+-	if (i40e_vc_validate_vqs_bitmaps(vqs)) {
++	if (!i40e_vc_validate_vqs_bitmaps(vqs)) {
+ 		aq_ret = I40E_ERR_PARAM;
+ 		goto error_param;
+ 	}
+@@ -2424,7 +2424,7 @@ static int i40e_vc_disable_queues_msg(struct i40e_vf *vf, u8 *msg)
+ 		goto error_param;
+ 	}
+ 
+-	if (i40e_vc_validate_vqs_bitmaps(vqs)) {
++	if (!i40e_vc_validate_vqs_bitmaps(vqs)) {
+ 		aq_ret = I40E_ERR_PARAM;
+ 		goto error_param;
+ 	}
 -- 
 2.20.1
 
