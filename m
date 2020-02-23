@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 231DE16938F
-	for <lists+stable@lfdr.de>; Sun, 23 Feb 2020 03:24:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 18EC616945A
+	for <lists+stable@lfdr.de>; Sun, 23 Feb 2020 03:30:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728885AbgBWCXz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Feb 2020 21:23:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53674 "EHLO mail.kernel.org"
+        id S1728898AbgBWCX4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Feb 2020 21:23:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53700 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728871AbgBWCXz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 22 Feb 2020 21:23:55 -0500
+        id S1728801AbgBWCX4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 22 Feb 2020 21:23:56 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E017C21D56;
-        Sun, 23 Feb 2020 02:23:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 124C222464;
+        Sun, 23 Feb 2020 02:23:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582424634;
-        bh=trmqcw4mum0jAgYjGfrbgcFg0HUsASEtcGK5hr0g88M=;
+        s=default; t=1582424635;
+        bh=3e93H9hKUcz5QbUSGjf9au83mTkA3AVksZMm/ZBw/qE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0/1GQaQU6BtrHYP+OwejXfkoJpIHqkRRZZ1hGYO6so21BEJHGHIOeHEL4vNoIs+yM
-         PpIP3Z6l53tglCK3irmvivjLC2EY0Tm+yRJiDeFygXgTScQXk0hunRjOqd1n06+9zt
-         xYs4ZJnQwHYic6y9ev7Q37WEcBbL8CSJwjO3osmo=
+        b=JznPPy7peB5U5RT4Smez6ZdF/ROXKFLRqnE3IyJb/sCi1JQX41WBENrMn+e0tLXFF
+         6dpLg52jp6xGq5j9Y+B1Jql9vPkTyNTBe8F8aIqGpGBbhf9oM+1ox7GH0z6yW50iAe
+         vtj2qHdU+pFlzXMo2Xo9vqz7EtG3Bitb01HEsv4A=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Thierry Reding <treding@nvidia.com>,
-        kbuild test robot <lkp@intel.com>,
-        Olof Johansson <olof@lixom.net>,
-        Sasha Levin <sashal@kernel.org>, linux-tegra@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 12/25] soc/tegra: fuse: Fix build with Tegra194 configuration
-Date:   Sat, 22 Feb 2020 21:23:26 -0500
-Message-Id: <20200223022339.1885-12-sashal@kernel.org>
+Cc:     Arthur Kiyanovski <akiyano@amazon.com>,
+        Sameeh Jubran <sameehj@amazon.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 13/25] net: ena: fix potential crash when rxfh key is NULL
+Date:   Sat, 22 Feb 2020 21:23:27 -0500
+Message-Id: <20200223022339.1885-13-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200223022339.1885-1-sashal@kernel.org>
 References: <20200223022339.1885-1-sashal@kernel.org>
@@ -44,38 +44,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thierry Reding <treding@nvidia.com>
+From: Arthur Kiyanovski <akiyano@amazon.com>
 
-[ Upstream commit 6f4ecbe284df5f22e386a640d9a4b32cede62030 ]
+[ Upstream commit 91a65b7d3ed8450f31ab717a65dcb5f9ceb5ab02 ]
 
-If only Tegra194 support is enabled, the tegra30_fuse_read() and
-tegra30_fuse_init() function are not declared and cause a build failure.
-Add Tegra194 to the preprocessor guard to make sure these functions are
-available for Tegra194-only builds as well.
+When ethtool -X is called without an hkey, ena_com_fill_hash_function()
+is called with key=NULL, which is passed to memcpy causing a crash.
 
-Link: https://lore.kernel.org/r/20200203143114.3967295-1-thierry.reding@gmail.com
-Reported-by: kbuild test robot <lkp@intel.com>
-Signed-off-by: Thierry Reding <treding@nvidia.com>
-Signed-off-by: Olof Johansson <olof@lixom.net>
+This commit fixes this issue by checking key is not NULL.
+
+Fixes: 1738cd3ed342 ("net: ena: Add a driver for Amazon Elastic Network Adapters (ENA)")
+Signed-off-by: Sameeh Jubran <sameehj@amazon.com>
+Signed-off-by: Arthur Kiyanovski <akiyano@amazon.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soc/tegra/fuse/fuse-tegra30.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/amazon/ena/ena_com.c | 17 +++++++++--------
+ 1 file changed, 9 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/soc/tegra/fuse/fuse-tegra30.c b/drivers/soc/tegra/fuse/fuse-tegra30.c
-index 257e254c6137f..0ec6385eb15e6 100644
---- a/drivers/soc/tegra/fuse/fuse-tegra30.c
-+++ b/drivers/soc/tegra/fuse/fuse-tegra30.c
-@@ -47,7 +47,8 @@
-     defined(CONFIG_ARCH_TEGRA_124_SOC) || \
-     defined(CONFIG_ARCH_TEGRA_132_SOC) || \
-     defined(CONFIG_ARCH_TEGRA_210_SOC) || \
--    defined(CONFIG_ARCH_TEGRA_186_SOC)
-+    defined(CONFIG_ARCH_TEGRA_186_SOC) || \
-+    defined(CONFIG_ARCH_TEGRA_194_SOC)
- static u32 tegra30_fuse_read_early(struct tegra_fuse *fuse, unsigned int offset)
- {
- 	if (WARN_ON(!fuse->base))
+diff --git a/drivers/net/ethernet/amazon/ena/ena_com.c b/drivers/net/ethernet/amazon/ena/ena_com.c
+index 92261c946e2a3..c9b21306cf6c4 100644
+--- a/drivers/net/ethernet/amazon/ena/ena_com.c
++++ b/drivers/net/ethernet/amazon/ena/ena_com.c
+@@ -2075,15 +2075,16 @@ int ena_com_fill_hash_function(struct ena_com_dev *ena_dev,
+ 
+ 	switch (func) {
+ 	case ENA_ADMIN_TOEPLITZ:
+-		if (key_len > sizeof(hash_key->key)) {
+-			pr_err("key len (%hu) is bigger than the max supported (%zu)\n",
+-			       key_len, sizeof(hash_key->key));
+-			return -EINVAL;
++		if (key) {
++			if (key_len != sizeof(hash_key->key)) {
++				pr_err("key len (%hu) doesn't equal the supported size (%zu)\n",
++				       key_len, sizeof(hash_key->key));
++				return -EINVAL;
++			}
++			memcpy(hash_key->key, key, key_len);
++			rss->hash_init_val = init_val;
++			hash_key->keys_num = key_len >> 2;
+ 		}
+-
+-		memcpy(hash_key->key, key, key_len);
+-		rss->hash_init_val = init_val;
+-		hash_key->keys_num = key_len >> 2;
+ 		break;
+ 	case ENA_ADMIN_CRC32:
+ 		rss->hash_init_val = init_val;
 -- 
 2.20.1
 
