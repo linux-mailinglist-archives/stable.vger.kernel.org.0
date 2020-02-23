@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BDA9F1694C3
-	for <lists+stable@lfdr.de>; Sun, 23 Feb 2020 03:33:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9DE911694C5
+	for <lists+stable@lfdr.de>; Sun, 23 Feb 2020 03:34:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728462AbgBWCXH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1728454AbgBWCXH (ORCPT <rfc822;lists+stable@lfdr.de>);
         Sat, 22 Feb 2020 21:23:07 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52218 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:52306 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728435AbgBWCXD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 22 Feb 2020 21:23:03 -0500
+        id S1728421AbgBWCXG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 22 Feb 2020 21:23:06 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2C5B520702;
-        Sun, 23 Feb 2020 02:23:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 981A8208C4;
+        Sun, 23 Feb 2020 02:23:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582424582;
-        bh=GWuUrhosaMkp3+xGKPMnYKEDkAsJtfQyw4gsf0saGCk=;
+        s=default; t=1582424585;
+        bh=DRIj/511LI9YCCerkUGQuQURMrZ2X0geKBW/bOYrSwk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cQJKdhO57evVypPQ7tJ7nZnQErEjt3y89TsJpmxUA7JP/zutbXjGq+ZpZY8ipd9LN
-         +kpQbTNLKY4S26AegVc94HBKANYVKp1BfT6skUUdux4sO1mZtES+Qo437iXGzYlAN/
-         JSf6LSCLu/rhY99wWJ6fw+Ksnop/O75Y2HACEfak=
+        b=tT6I7qmb96XSR3nffMDZSi2LZ4+V6HpLkjGiMqs9sonosk4dGQZG/2z/8k26SC9zl
+         QGlbS5eN6rbJuUdlLe6m2FyhEBsHrm3f23T3c6mMHdf7C5XI/s0lyctf8mMfRnXZtx
+         4O2hnIiOs01xNzWdH0AyHp8aSqVAl6VKVkXZi92I=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Krishnamraju Eraparaju <krishna2@chelsio.com>,
-        Jason Gunthorpe <jgg@mellanox.com>,
-        Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 22/50] RDMA/siw: Remove unwanted WARN_ON in siw_cm_llp_data_ready()
-Date:   Sat, 22 Feb 2020 21:22:07 -0500
-Message-Id: <20200223022235.1404-22-sashal@kernel.org>
+Cc:     Yongqiang Sun <yongqiang.sun@amd.com>,
+        Eric Yang <eric.yang2@amd.com>,
+        Bhawanpreet Lakha <Bhawanpreet.Lakha@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.4 24/50] drm/amd/display: Limit minimum DPPCLK to 100MHz.
+Date:   Sat, 22 Feb 2020 21:22:09 -0500
+Message-Id: <20200223022235.1404-24-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200223022235.1404-1-sashal@kernel.org>
 References: <20200223022235.1404-1-sashal@kernel.org>
@@ -43,63 +46,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krishnamraju Eraparaju <krishna2@chelsio.com>
+From: Yongqiang Sun <yongqiang.sun@amd.com>
 
-[ Upstream commit 663218a3e715fd9339d143a3e10088316b180f4f ]
+[ Upstream commit 6c81917a0485ee2a1be0dc23321ac10ecfd9578b ]
 
-Warnings like below can fill up the dmesg while disconnecting RDMA
-connections.
-Hence, remove the unwanted WARN_ON.
+[Why]
+Underflow is observed when plug in a 4K@60 monitor with
+1366x768 eDP due to DPPCLK is too low.
 
-  WARNING: CPU: 6 PID: 0 at drivers/infiniband/sw/siw/siw_cm.c:1229 siw_cm_llp_data_ready+0xc1/0xd0 [siw]
-  RIP: 0010:siw_cm_llp_data_ready+0xc1/0xd0 [siw]
-  Call Trace:
-   <IRQ>
-   tcp_data_queue+0x226/0xb40
-   tcp_rcv_established+0x220/0x620
-   tcp_v4_do_rcv+0x12a/0x1e0
-   tcp_v4_rcv+0xb05/0xc00
-   ip_local_deliver_finish+0x69/0x210
-   ip_local_deliver+0x6b/0xe0
-   ip_rcv+0x273/0x362
-   __netif_receive_skb_core+0xb35/0xc30
-   netif_receive_skb_internal+0x3d/0xb0
-   napi_gro_frags+0x13b/0x200
-   t4_ethrx_handler+0x433/0x7d0 [cxgb4]
-   process_responses+0x318/0x580 [cxgb4]
-   napi_rx_handler+0x14/0x100 [cxgb4]
-   net_rx_action+0x149/0x3b0
-   __do_softirq+0xe3/0x30a
-   irq_exit+0x100/0x110
-   do_IRQ+0x7f/0xe0
-   common_interrupt+0xf/0xf
-   </IRQ>
+[How]
+Limit minimum DPPCLK to 100MHz.
 
-Link: https://lore.kernel.org/r/20200207141429.27927-1-krishna2@chelsio.com
-Signed-off-by: Krishnamraju Eraparaju <krishna2@chelsio.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+Signed-off-by: Yongqiang Sun <yongqiang.sun@amd.com>
+Reviewed-by: Eric Yang <eric.yang2@amd.com>
+Acked-by: Bhawanpreet Lakha <Bhawanpreet.Lakha@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/sw/siw/siw_cm.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/amd/display/dc/clk_mgr/dcn21/rn_clk_mgr.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/infiniband/sw/siw/siw_cm.c b/drivers/infiniband/sw/siw/siw_cm.c
-index 0454561718d95..31aa41d85ccff 100644
---- a/drivers/infiniband/sw/siw/siw_cm.c
-+++ b/drivers/infiniband/sw/siw/siw_cm.c
-@@ -1225,10 +1225,9 @@ static void siw_cm_llp_data_ready(struct sock *sk)
- 	read_lock(&sk->sk_callback_lock);
+diff --git a/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn21/rn_clk_mgr.c b/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn21/rn_clk_mgr.c
+index 787f94d815f42..dd92f9c295b45 100644
+--- a/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn21/rn_clk_mgr.c
++++ b/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn21/rn_clk_mgr.c
+@@ -91,6 +91,12 @@ void rn_update_clocks(struct clk_mgr *clk_mgr_base,
+ 		rn_vbios_smu_set_min_deep_sleep_dcfclk(clk_mgr, clk_mgr_base->clks.dcfclk_deep_sleep_khz);
+ 	}
  
- 	cep = sk_to_cep(sk);
--	if (!cep) {
--		WARN_ON(1);
-+	if (!cep)
- 		goto out;
--	}
++	// workaround: Limit dppclk to 100Mhz to avoid lower eDP panel switch to plus 4K monitor underflow.
++	if (!IS_DIAG_DC(dc->ctx->dce_environment)) {
++		if (new_clocks->dppclk_khz < 100000)
++			new_clocks->dppclk_khz = 100000;
++	}
 +
- 	siw_dbg_cep(cep, "state: %d\n", cep->state);
- 
- 	switch (cep->state) {
+ 	if (should_set_clock(safe_to_lower, new_clocks->dppclk_khz, clk_mgr->base.clks.dppclk_khz)) {
+ 		if (clk_mgr->base.clks.dppclk_khz > new_clocks->dppclk_khz)
+ 			dpp_clock_lowered = true;
 -- 
 2.20.1
 
