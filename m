@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5FC7B1693D2
-	for <lists+stable@lfdr.de>; Sun, 23 Feb 2020 03:25:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C2051693B9
+	for <lists+stable@lfdr.de>; Sun, 23 Feb 2020 03:25:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727783AbgBWCZk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Feb 2020 21:25:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55606 "EHLO mail.kernel.org"
+        id S1728678AbgBWCZF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Feb 2020 21:25:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55642 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729573AbgBWCZD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 22 Feb 2020 21:25:03 -0500
+        id S1729598AbgBWCZF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 22 Feb 2020 21:25:05 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ADC0A20707;
-        Sun, 23 Feb 2020 02:25:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D7D1424673;
+        Sun, 23 Feb 2020 02:25:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582424703;
-        bh=cy7SP9sbTFkiqIp2R+EgdcYVzesuD6fYlrZu3pfgR18=;
+        s=default; t=1582424704;
+        bh=bIEcXbkcDGAtFRHevsBRWkFZdGSxx9gvCVYRqCiSmYY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eXr7l+E3z4uLI3JGpkGRVleInL5h1rAS255tu78jH+YRorOOalJ66gjcurmG40CBZ
-         dzVtiFqNBbKSd1LisbpAWbeJE5NhGMY0VWpdDURWm49Zdiv9sIt2Q6p/6Yw/YzxJit
-         ppPl+oCPMsuxh1NK82gobZ5uD5LjZg392O/wEDVo=
+        b=1ILzwIyOARDqD91F6UtY4/4doKG2qpVWAi2V+w+WqpyrqAO2QRm5wQddJOgPnP7s3
+         napZ5KoyJvHi+uswYg5h9m2mgMw7Fg1iJgNyt3FpdEl1/7iGeXcjE58g1a6IFESi/r
+         iYayQMi2QGZahVLU2dTlAqwwVNWPYpFB7ZAcmLUw=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sergey Matyukevich <sergey.matyukevich.os@quantenna.com>,
-        Johannes Berg <johannes.berg@intel.com>,
+Cc:     Peter Zijlstra <peterz@infradead.org>,
+        Dmitry Osipenko <digetx@gmail.com>,
+        Ingo Molnar <mingo@kernel.org>,
         Sasha Levin <sashal@kernel.org>,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 3/7] cfg80211: check wiphy driver existence for drvinfo report
-Date:   Sat, 22 Feb 2020 21:24:55 -0500
-Message-Id: <20200223022459.2594-3-sashal@kernel.org>
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.4 4/7] arm/ftrace: Fix BE text poking
+Date:   Sat, 22 Feb 2020 21:24:56 -0500
+Message-Id: <20200223022459.2594-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200223022459.2594-1-sashal@kernel.org>
 References: <20200223022459.2594-1-sashal@kernel.org>
@@ -44,42 +45,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sergey Matyukevich <sergey.matyukevich.os@quantenna.com>
+From: Peter Zijlstra <peterz@infradead.org>
 
-[ Upstream commit bfb7bac3a8f47100ebe7961bd14e924c96e21ca7 ]
+[ Upstream commit be993e44badc448add6a18d6f12b20615692c4c3 ]
 
-When preparing ethtool drvinfo, check if wiphy driver is defined
-before dereferencing it. Driver may not exist, e.g. if wiphy is
-attached to a virtual platform device.
+The __patch_text() function already applies __opcode_to_mem_*(), so
+when __opcode_to_mem_*() is not the identity (BE*), it is applied
+twice, wrecking the instruction.
 
-Signed-off-by: Sergey Matyukevich <sergey.matyukevich.os@quantenna.com>
-Link: https://lore.kernel.org/r/20200203105644.28875-1-sergey.matyukevich.os@quantenna.com
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Fixes: 42e51f187f86 ("arm/ftrace: Use __patch_text()")
+Reported-by: Dmitry Osipenko <digetx@gmail.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Tested-by: Dmitry Osipenko <digetx@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/wireless/ethtool.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ arch/arm/kernel/ftrace.c | 7 ++-----
+ 1 file changed, 2 insertions(+), 5 deletions(-)
 
-diff --git a/net/wireless/ethtool.c b/net/wireless/ethtool.c
-index e9e91298c70de..3cedf2c2b60bd 100644
---- a/net/wireless/ethtool.c
-+++ b/net/wireless/ethtool.c
-@@ -6,9 +6,13 @@
- void cfg80211_get_drvinfo(struct net_device *dev, struct ethtool_drvinfo *info)
+diff --git a/arch/arm/kernel/ftrace.c b/arch/arm/kernel/ftrace.c
+index faa9a905826ee..7982409e5c27f 100644
+--- a/arch/arm/kernel/ftrace.c
++++ b/arch/arm/kernel/ftrace.c
+@@ -105,13 +105,10 @@ static int ftrace_modify_code(unsigned long pc, unsigned long old,
  {
- 	struct wireless_dev *wdev = dev->ieee80211_ptr;
-+	struct device *pdev = wiphy_dev(wdev->wiphy);
+ 	unsigned long replaced;
  
--	strlcpy(info->driver, wiphy_dev(wdev->wiphy)->driver->name,
--		sizeof(info->driver));
-+	if (pdev->driver)
-+		strlcpy(info->driver, pdev->driver->name,
-+			sizeof(info->driver));
+-	if (IS_ENABLED(CONFIG_THUMB2_KERNEL)) {
++	if (IS_ENABLED(CONFIG_THUMB2_KERNEL))
+ 		old = __opcode_to_mem_thumb32(old);
+-		new = __opcode_to_mem_thumb32(new);
+-	} else {
 +	else
-+		strlcpy(info->driver, "N/A", sizeof(info->driver));
+ 		old = __opcode_to_mem_arm(old);
+-		new = __opcode_to_mem_arm(new);
+-	}
  
- 	strlcpy(info->version, init_utsname()->release, sizeof(info->version));
- 
+ 	if (validate) {
+ 		if (probe_kernel_read(&replaced, (void *)pc, MCOUNT_INSN_SIZE))
 -- 
 2.20.1
 
