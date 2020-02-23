@@ -2,84 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C9D4C16946D
-	for <lists+stable@lfdr.de>; Sun, 23 Feb 2020 03:30:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DABEC16961C
+	for <lists+stable@lfdr.de>; Sun, 23 Feb 2020 06:43:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728150AbgBWCXt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Feb 2020 21:23:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53496 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728801AbgBWCXs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 22 Feb 2020 21:23:48 -0500
-Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AE15024653;
-        Sun, 23 Feb 2020 02:23:46 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582424627;
-        bh=9O5ymUWpNt3jhqdPiucuIYgwSShPohd5ByDTUrD1C6E=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fRfD09iVE4FDJSglQdY+vMOm6JoEmE8kG1xvAZWC5wFdnwb/leD8uLqej6CW8dbim
-         lAxGcHCc25mVaWuaHZCCPjB9+dVznITsiZNyrgglT4afcmjlHQGTOcgJh4PMbMrk2f
-         PdxEQLHtcrdDZ4zxbu9kj27xpLX9E1yyjerwBbeg=
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sergey Matyukevich <sergey.matyukevich.os@quantenna.com>,
-        Johannes Berg <johannes.berg@intel.com>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 06/25] cfg80211: check wiphy driver existence for drvinfo report
-Date:   Sat, 22 Feb 2020 21:23:20 -0500
-Message-Id: <20200223022339.1885-6-sashal@kernel.org>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20200223022339.1885-1-sashal@kernel.org>
-References: <20200223022339.1885-1-sashal@kernel.org>
-MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
-Content-Transfer-Encoding: 8bit
+        id S1726334AbgBWFnb convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Sun, 23 Feb 2020 00:43:31 -0500
+Received: from shards.monkeyblade.net ([23.128.96.9]:52090 "EHLO
+        shards.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726046AbgBWFnb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 23 Feb 2020 00:43:31 -0500
+Received: from localhost (unknown [IPv6:2601:601:9f00:477::f0c])
+        (using TLSv1 with cipher AES256-SHA (256/256 bits))
+        (Client did not present a certificate)
+        (Authenticated sender: davem-davemloft)
+        by shards.monkeyblade.net (Postfix) with ESMTPSA id 65BDD141C8A55;
+        Sat, 22 Feb 2020 21:43:30 -0800 (PST)
+Date:   Sat, 22 Feb 2020 21:43:29 -0800 (PST)
+Message-Id: <20200222.214329.2179749831482216415.davem@davemloft.net>
+To:     eperezma@redhat.com
+Cc:     mst@redhat.com, jasowang@redhat.com, kvm@vger.kernel.org,
+        netdev@vger.kernel.org, stable@vger.kernel.org, jreuter@yaina.de,
+        ralf@linux-mips.org
+Subject: Re: [PATCH] vhost: Check docket sk_family instead of call getname
+From:   David Miller <davem@davemloft.net>
+In-Reply-To: <20200221110656.11811-1-eperezma@redhat.com>
+References: <20200221110656.11811-1-eperezma@redhat.com>
+X-Mailer: Mew version 6.8 on Emacs 26.3
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
+X-Greylist: Sender succeeded SMTP AUTH, not delayed by milter-greylist-4.5.12 (shards.monkeyblade.net [149.20.54.216]); Sat, 22 Feb 2020 21:43:30 -0800 (PST)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sergey Matyukevich <sergey.matyukevich.os@quantenna.com>
+From: Eugenio Pérez <eperezma@redhat.com>
+Date: Fri, 21 Feb 2020 12:06:56 +0100
 
-[ Upstream commit bfb7bac3a8f47100ebe7961bd14e924c96e21ca7 ]
+> Doing so, we save one call to get data we already have in the struct.
+> 
+> Also, since there is no guarantee that getname use sockaddr_ll
+> parameter beyond its size, we add a little bit of security here.
+> It should do not do beyond MAX_ADDR_LEN, but syzbot found that
+> ax25_getname writes more (72 bytes, the size of full_sockaddr_ax25,
+> versus 20 + 32 bytes of sockaddr_ll + MAX_ADDR_LEN in syzbot repro).
+> 
+> Fixes: 3a4d5c94e9593 ("vhost_net: a kernel-level virtio server")
+> Reported-by: syzbot+f2a62d07a5198c819c7b@syzkaller.appspotmail.com
+> Signed-off-by: Eugenio Pérez <eperezma@redhat.com>
 
-When preparing ethtool drvinfo, check if wiphy driver is defined
-before dereferencing it. Driver may not exist, e.g. if wiphy is
-attached to a virtual platform device.
-
-Signed-off-by: Sergey Matyukevich <sergey.matyukevich.os@quantenna.com>
-Link: https://lore.kernel.org/r/20200203105644.28875-1-sergey.matyukevich.os@quantenna.com
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- net/wireless/ethtool.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
-
-diff --git a/net/wireless/ethtool.c b/net/wireless/ethtool.c
-index a9c0f368db5d2..24e18405cdb48 100644
---- a/net/wireless/ethtool.c
-+++ b/net/wireless/ethtool.c
-@@ -7,9 +7,13 @@
- void cfg80211_get_drvinfo(struct net_device *dev, struct ethtool_drvinfo *info)
- {
- 	struct wireless_dev *wdev = dev->ieee80211_ptr;
-+	struct device *pdev = wiphy_dev(wdev->wiphy);
- 
--	strlcpy(info->driver, wiphy_dev(wdev->wiphy)->driver->name,
--		sizeof(info->driver));
-+	if (pdev->driver)
-+		strlcpy(info->driver, pdev->driver->name,
-+			sizeof(info->driver));
-+	else
-+		strlcpy(info->driver, "N/A", sizeof(info->driver));
- 
- 	strlcpy(info->version, init_utsname()->release, sizeof(info->version));
- 
--- 
-2.20.1
-
+Applied and queued up for -stable, thanks.
