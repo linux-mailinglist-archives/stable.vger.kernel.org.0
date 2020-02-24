@@ -2,110 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E95716AD2F
-	for <lists+stable@lfdr.de>; Mon, 24 Feb 2020 18:23:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DC59E16AE09
+	for <lists+stable@lfdr.de>; Mon, 24 Feb 2020 18:52:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727259AbgBXRWz convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Mon, 24 Feb 2020 12:22:55 -0500
-Received: from skedge04.snt-world.com ([91.208.41.69]:49414 "EHLO
-        skedge04.snt-world.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727758AbgBXRWv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Feb 2020 12:22:51 -0500
-Received: from sntmail12r.snt-is.com (unknown [10.203.32.182])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by skedge04.snt-world.com (Postfix) with ESMTPS id 2B61C67A860;
-        Mon, 24 Feb 2020 18:22:47 +0100 (CET)
-Received: from sntmail12r.snt-is.com (10.203.32.182) by sntmail12r.snt-is.com
- (10.203.32.182) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.1913.5; Mon, 24 Feb
- 2020 18:22:46 +0100
-Received: from sntmail12r.snt-is.com ([fe80::e551:8750:7bba:3305]) by
- sntmail12r.snt-is.com ([fe80::e551:8750:7bba:3305%3]) with mapi id
- 15.01.1913.005; Mon, 24 Feb 2020 18:22:46 +0100
-From:   Schrempf Frieder <frieder.schrempf@kontron.de>
-To:     Dan Williams <dan.j.williams@intel.com>,
-        Fabio Estevam <festevam@gmail.com>,
-        Linus Walleij <linus.ml.walleij@gmail.com>,
-        "NXP Linux Team" <linux-imx@nxp.com>,
-        Pengutronix Kernel Team <kernel@pengutronix.de>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        Shawn Guo <shawnguo@kernel.org>,
-        "Vinod Koul" <vkoul@kernel.org>
-CC:     Schrempf Frieder <frieder.schrempf@kontron.de>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "dmaengine@vger.kernel.org" <dmaengine@vger.kernel.org>,
-        "linux-arm-kernel@lists.infradead.org" 
-        <linux-arm-kernel@lists.infradead.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: [PATCH] dma: imx-sdma: Fix the event id check to include RX event for
- UART6
-Thread-Topic: [PATCH] dma: imx-sdma: Fix the event id check to include RX
- event for UART6
-Thread-Index: AQHV6zcHvJnYHLnVJki1UPp7vKjn9Q==
-Date:   Mon, 24 Feb 2020 17:22:46 +0000
-Message-ID: <20200224172236.22478-1-frieder.schrempf@kontron.de>
-Accept-Language: de-DE, en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-mailer: git-send-email 2.17.1
-x-originating-ip: [172.25.9.193]
-x-c2processedorg: 51b406b7-48a2-4d03-b652-521f56ac89f3
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+        id S1727775AbgBXRwa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Feb 2020 12:52:30 -0500
+Received: from userp2120.oracle.com ([156.151.31.85]:55354 "EHLO
+        userp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727426AbgBXRw3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Feb 2020 12:52:29 -0500
+Received: from pps.filterd (userp2120.oracle.com [127.0.0.1])
+        by userp2120.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 01OHmTxJ084403;
+        Mon, 24 Feb 2020 17:52:27 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=to : cc : subject :
+ from : references : date : in-reply-to : message-id : mime-version :
+ content-type : content-transfer-encoding; s=corp-2020-01-29;
+ bh=qmgUgu24Yy0HVd+aU67Awpt3MrSwhtOcS9FZzwYaVTo=;
+ b=LwaNxJdGyxXXuQE3FTg/B0ds5e2+ySht3hUU1tTeYjddQnlV2OX538y/Jo78chiF00tu
+ En6ZvVbImyz07Hha0YGbE5vZhgI1lJwRWdvLo7aAV6kOjFYMEx+GKLQ1z8pFyRBxg4bC
+ 7NX8hrXdxdQv9g5DtHvLtajNAP+ODeiLTZFHjmyE7J5Jvi04q0Bck31z3rn0CsvLKS8B
+ ex9MEVBrecqFw7Aog2JYZmT1sK5SOVL4cHaKa4YURMGt/twq3loRoizECcY64saqV3mu
+ fGRJyYxQXAtOuhxSp1aCmLU0Dlpc6FTC2CN6Pzq3SlCvEOFtgIKbG1Ieh5Z6t9D2zEVZ Fg== 
+Received: from aserp3020.oracle.com (aserp3020.oracle.com [141.146.126.70])
+        by userp2120.oracle.com with ESMTP id 2yavxrgy4a-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 24 Feb 2020 17:52:27 +0000
+Received: from pps.filterd (aserp3020.oracle.com [127.0.0.1])
+        by aserp3020.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 01OHm6kB030445;
+        Mon, 24 Feb 2020 17:52:26 GMT
+Received: from aserv0121.oracle.com (aserv0121.oracle.com [141.146.126.235])
+        by aserp3020.oracle.com with ESMTP id 2yby5cyq1f-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 24 Feb 2020 17:52:26 +0000
+Received: from abhmp0016.oracle.com (abhmp0016.oracle.com [141.146.116.22])
+        by aserv0121.oracle.com (8.14.4/8.13.8) with ESMTP id 01OHqQnr013155;
+        Mon, 24 Feb 2020 17:52:26 GMT
+Received: from ca-mkp.ca.oracle.com (/10.159.214.123)
+        by default (Oracle Beehive Gateway v4.0)
+        with ESMTP ; Mon, 24 Feb 2020 09:52:25 -0800
+To:     Benjamin Block <bblock@linux.ibm.com>
+Cc:     "James E.J. Bottomley" <jejb@linux.ibm.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Steffen Maier <maier@linux.ibm.com>,
+        Fedor Loshakov <loshakov@linux.ibm.com>,
+        Jens Remus <jremus@linux.ibm.com>,
+        Julian Wiedmann <jwi@linux.ibm.com>,
+        Heiko Carstens <heiko.carstens@de.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH] zfcp: fix wrong data and display format of SFP+ temperature
+From:   "Martin K. Petersen" <martin.petersen@oracle.com>
+Organization: Oracle Corporation
+References: <d6e3be5428da5c9490cfff4df7cae868bc9f1a7e.1582039501.git.bblock@linux.ibm.com>
+Date:   Mon, 24 Feb 2020 12:52:22 -0500
+In-Reply-To: <d6e3be5428da5c9490cfff4df7cae868bc9f1a7e.1582039501.git.bblock@linux.ibm.com>
+        (Benjamin Block's message of "Wed, 19 Feb 2020 16:09:25 +0100")
+Message-ID: <yq14kvfhnzd.fsf@oracle.com>
+User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/26.1.92 (gnu/linux)
 MIME-Version: 1.0
-X-SnT-MailScanner-Information: Please contact the ISP for more information
-X-SnT-MailScanner-ID: 2B61C67A860.AF1C6
-X-SnT-MailScanner: Not scanned: please contact your Internet E-Mail Service Provider for details
-X-SnT-MailScanner-SpamCheck: 
-X-SnT-MailScanner-From: frieder.schrempf@kontron.de
-X-SnT-MailScanner-To: dan.j.williams@intel.com, dmaengine@vger.kernel.org,
-        festevam@gmail.com, kernel@pengutronix.de,
-        linus.ml.walleij@gmail.com, linux-arm-kernel@lists.infradead.org,
-        linux-imx@nxp.com, linux-kernel@vger.kernel.org,
-        s.hauer@pengutronix.de, shawnguo@kernel.org, stable@vger.kernel.org,
-        vkoul@kernel.org
-X-Spam-Status: No
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9541 signatures=668685
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 malwarescore=0 mlxscore=0 bulkscore=0
+ suspectscore=0 mlxlogscore=999 phishscore=0 adultscore=0 spamscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2001150001
+ definitions=main-2002240132
+X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9541 signatures=668685
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 impostorscore=0 lowpriorityscore=0
+ spamscore=0 clxscore=1011 suspectscore=0 bulkscore=0 mlxlogscore=999
+ malwarescore=0 phishscore=0 adultscore=0 priorityscore=1501 mlxscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2001150001
+ definitions=main-2002240132
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Frieder Schrempf <frieder.schrempf@kontron.de>
 
-On i.MX6 the DMA event for the RX channel of UART6 is '0'. To fix
-the broken DMA support for UART6, we change the check for event_id0
-to include '0' as a valid id.
+Benjamin,
 
-Fixes: 1ec1e82f2510 ("dmaengine: Add Freescale i.MX SDMA support")
-Cc: stable@vger.kernel.org
-Signed-off-by: Frieder Schrempf <frieder.schrempf@kontron.de>
----
- drivers/dma/imx-sdma.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+> When implementing support for retrieval of local diagnostic data from
+> the FCP channel, the wrong data format was assumed for the temperature
+> of the local SFP+ connector. The Fibre Channel Link Services (FC-LS-3)
+> specification is not clear on the format of the stored integer, and
+> only after consulting the SNIA specification SFF-8472 did we realize
+> it is stored as two's complement. Thus, the used data and display
+> format is wrong, and highly misleading for users when the temperature
+> should drop below 0=C2=B0C (however unlikely that may be).
 
-diff --git a/drivers/dma/imx-sdma.c b/drivers/dma/imx-sdma.c
-index 066b21a32232..3d4aac97b1fc 100644
---- a/drivers/dma/imx-sdma.c
-+++ b/drivers/dma/imx-sdma.c
-@@ -1331,7 +1331,7 @@ static void sdma_free_chan_resources(struct dma_chan *chan)
- 
- 	sdma_channel_synchronize(chan);
- 
--	if (sdmac->event_id0)
-+	if (sdmac->event_id0 >= 0)
- 		sdma_event_disable(sdmac, sdmac->event_id0);
- 	if (sdmac->event_id1)
- 		sdma_event_disable(sdmac, sdmac->event_id1);
-@@ -1631,7 +1631,7 @@ static int sdma_config(struct dma_chan *chan,
- 	memcpy(&sdmac->slave_config, dmaengine_cfg, sizeof(*dmaengine_cfg));
- 
- 	/* Set ENBLn earlier to make sure dma request triggered after that */
--	if (sdmac->event_id0) {
-+	if (sdmac->event_id0 >= 0) {
- 		if (sdmac->event_id0 >= sdmac->sdma->drvdata->num_events)
- 			return -EINVAL;
- 		sdma_event_enable(sdmac, sdmac->event_id0);
--- 
-2.17.1
+Applied to 5.6/scsi-fixes, thanks!
+
+--=20
+Martin K. Petersen	Oracle Linux Engineering
