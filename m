@@ -2,108 +2,114 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 54E76169B55
-	for <lists+stable@lfdr.de>; Mon, 24 Feb 2020 01:45:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B1E43169B95
+	for <lists+stable@lfdr.de>; Mon, 24 Feb 2020 02:10:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727219AbgBXApC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 23 Feb 2020 19:45:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40232 "EHLO mail.kernel.org"
+        id S1727168AbgBXBKR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 23 Feb 2020 20:10:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46190 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727188AbgBXApC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 23 Feb 2020 19:45:02 -0500
-Received: from localhost.localdomain (c-71-198-47-131.hsd1.ca.comcast.net [71.198.47.131])
+        id S1727167AbgBXBKR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 23 Feb 2020 20:10:17 -0500
+Received: from localhost (unknown [137.135.114.1])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A121D20836;
-        Mon, 24 Feb 2020 00:45:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9FC2B208C3;
+        Mon, 24 Feb 2020 01:10:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582505101;
-        bh=x4NRUEQT2b+6gUZ1mwOnv3jKroRBoj5tOM4zkVopOZQ=;
-        h=Date:From:To:Subject:From;
-        b=XbFN9yovwaHN1oGyaqM2ZR+T3j3roJrL3TGBwxwyu4zaAFLvImUdGJGTTsdPacFIv
-         K8bSrmuX23NtazRVcZdTzHiHNazydDGISg1tc4elYot4fNWWbaQUlKweq/ATzBevuy
-         ml5poFBndoUbX/VQS+Yr7voy0sThDho2zyiR10E0=
-Date:   Sun, 23 Feb 2020 16:45:01 -0800
-From:   akpm@linux-foundation.org
-To:     dvyukov@google.com, glider@google.com, gregkh@linuxfoundation.org,
-        jpoimboe@redhat.com, kstewart@linuxfoundation.org,
-        matthias.bgg@gmail.com, mm-commits@vger.kernel.org,
-        stable@vger.kernel.org, tglx@linutronix.de,
-        walter-zh.wu@mediatek.com
-Subject:  [merged]
- lib-stackdepot-fix-global-out-of-bounds-in-stack_slabs.patch removed from
- -mm tree
-Message-ID: <20200224004501.GAmhlki8G%akpm@linux-foundation.org>
-User-Agent: s-nail v14.8.16
+        s=default; t=1582506616;
+        bh=bNmnhRvLAHHShiho3id6NWFT/f7CDbpbOjyUuNDByJk=;
+        h=Date:From:To:To:To:Cc:Cc:Cc:Subject:In-Reply-To:References:From;
+        b=2r0BjHkRaEVrehj3WL+OSx5sbp8hPT4bbgD0id6tXJtyu1R/LjXxPinCWev+qC2oM
+         pk0FcxnTNnVBSV03gyIWmvCC0WM4CvgroEcIMvQolNhveHFJC18utZ5kZ2W8Xgcsx8
+         kYV7q7rLpMvLIxPp2nOXMf0sPFom017JasvMCKgE=
+Date:   Mon, 24 Feb 2020 01:10:15 +0000
+From:   Sasha Levin <sashal@kernel.org>
+To:     Sasha Levin <sashal@kernel.org>
+To:     Kristian Klausen <kristian@klausen.dk>
+To:     platform-driver-x86@vger.kernel.org
+Cc:     Kristian Klausen <kristian@klausen.dk>, stable@vger.kernel.org
+Cc:     stable@vger.kernel.org
+Cc:     stable@vger.kernel.org
+Subject: Re: [PATCH] platform/x86: asus-wmi: Support laptops where the first battery is named BATT
+In-Reply-To: <20200223175424.15613-1-kristian@klausen.dk>
+References: <20200223175424.15613-1-kristian@klausen.dk>
+Message-Id: <20200224011016.9FC2B208C3@mail.kernel.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Hi,
 
-The patch titled
-     Subject: lib/stackdepot.c: fix global out-of-bounds in stack_slabs
-has been removed from the -mm tree.  Its filename was
-     lib-stackdepot-fix-global-out-of-bounds-in-stack_slabs.patch
+[This is an automated email]
 
-This patch was dropped because it was merged into mainline or a subsystem tree
+This commit has been processed because it contains a -stable tag.
+The stable tag indicates that it's relevant for the following trees: all
 
-------------------------------------------------------
-From: Alexander Potapenko <glider@google.com>
-Subject: lib/stackdepot.c: fix global out-of-bounds in stack_slabs
+The bot has tested the following trees: v5.5.5, v5.4.21, v4.19.105, v4.14.171, v4.9.214, v4.4.214.
 
-Walter Wu has reported a potential case in which init_stack_slab() is
-called after stack_slabs[STACK_ALLOC_MAX_SLABS - 1] has already been
-initialized.  In that case init_stack_slab() will overwrite
-stack_slabs[STACK_ALLOC_MAX_SLABS], which may result in a memory
-corruption.
+v5.5.5: Build OK!
+v5.4.21: Build OK!
+v4.19.105: Failed to apply! Possible dependencies:
+    11e87702be65 ("PCI: pciehp: Differentiate between surprise and safe removal")
+    125450f81441 ("PCI: hotplug: Embed hotplug_slot")
+    5790a9c78e78 ("PCI: pciehp: Unify controller and slot structs")
+    7973353e92ee ("platform/x86: asus-wmi: Refactor charge threshold to use the battery hooking API")
+    80696f991424 ("PCI: pciehp: Tolerate Presence Detect hardwired to zero")
+    81c4b5bf30de ("PCI: hotplug: Constify hotplug_slot_ops")
+    a7da21613c4e ("PCI: hotplug: Drop hotplug_slot_info")
+    b096f626a682 ("platform/x86: asus-wmi: Switch fan boost mode")
+    eee6e273843d ("PCI: pciehp: Drop hotplug_slot_ops wrappers")
 
-Link: http://lkml.kernel.org/r/20200218102950.260263-1-glider@google.com
-Fixes: cd11016e5f521 ("mm, kasan: stackdepot implementation. Enable stackdepot for SLAB")
-Signed-off-by: Alexander Potapenko <glider@google.com>
-Reported-by: Walter Wu <walter-zh.wu@mediatek.com>
-Cc: Dmitry Vyukov <dvyukov@google.com>
-Cc: Matthias Brugger <matthias.bgg@gmail.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Josh Poimboeuf <jpoimboe@redhat.com>
-Cc: Kate Stewart <kstewart@linuxfoundation.org>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
+v4.14.171: Failed to apply! Possible dependencies:
+    125450f81441 ("PCI: hotplug: Embed hotplug_slot")
+    4aed1cd6fb95 ("PCI: pciehp: Document struct slot and struct controller")
+    51bbf9bee34f ("PCI: hotplug: Demidlayer registration with the core")
+    5790a9c78e78 ("PCI: pciehp: Unify controller and slot structs")
+    7973353e92ee ("platform/x86: asus-wmi: Refactor charge threshold to use the battery hooking API")
+    81c4b5bf30de ("PCI: hotplug: Constify hotplug_slot_ops")
+    97c6f25d5828 ("PCI/hotplug: ppc: correct a php_slot usage after free")
+    a7da21613c4e ("PCI: hotplug: Drop hotplug_slot_info")
+    b096f626a682 ("platform/x86: asus-wmi: Switch fan boost mode")
+    c7abb2352c29 ("PCI: Remove unnecessary messages for memory allocation failures")
+    dbb3d78f61ba ("platform/x86: asus-wmi: Call led hw_changed API on kbd brightness change")
+    ed99d29b2b15 ("platform/x86: asus-wmi: Add keyboard backlight toggle support")
 
- lib/stackdepot.c |    8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+v4.9.214: Failed to apply! Possible dependencies:
+    125450f81441 ("PCI: hotplug: Embed hotplug_slot")
+    4aed1cd6fb95 ("PCI: pciehp: Document struct slot and struct controller")
+    51bbf9bee34f ("PCI: hotplug: Demidlayer registration with the core")
+    5790a9c78e78 ("PCI: pciehp: Unify controller and slot structs")
+    7973353e92ee ("platform/x86: asus-wmi: Refactor charge threshold to use the battery hooking API")
+    81c4b5bf30de ("PCI: hotplug: Constify hotplug_slot_ops")
+    97c6f25d5828 ("PCI/hotplug: ppc: correct a php_slot usage after free")
+    a7da21613c4e ("PCI: hotplug: Drop hotplug_slot_info")
+    b096f626a682 ("platform/x86: asus-wmi: Switch fan boost mode")
+    c7abb2352c29 ("PCI: Remove unnecessary messages for memory allocation failures")
+    dbb3d78f61ba ("platform/x86: asus-wmi: Call led hw_changed API on kbd brightness change")
+    ed99d29b2b15 ("platform/x86: asus-wmi: Add keyboard backlight toggle support")
 
---- a/lib/stackdepot.c~lib-stackdepot-fix-global-out-of-bounds-in-stack_slabs
-+++ a/lib/stackdepot.c
-@@ -83,15 +83,19 @@ static bool init_stack_slab(void **preal
- 		return true;
- 	if (stack_slabs[depot_index] == NULL) {
- 		stack_slabs[depot_index] = *prealloc;
-+		*prealloc = NULL;
- 	} else {
--		stack_slabs[depot_index + 1] = *prealloc;
-+		/* If this is the last depot slab, do not touch the next one. */
-+		if (depot_index + 1 < STACK_ALLOC_MAX_SLABS) {
-+			stack_slabs[depot_index + 1] = *prealloc;
-+			*prealloc = NULL;
-+		}
- 		/*
- 		 * This smp_store_release pairs with smp_load_acquire() from
- 		 * |next_slab_inited| above and in stack_depot_save().
- 		 */
- 		smp_store_release(&next_slab_inited, 1);
- 	}
--	*prealloc = NULL;
- 	return true;
- }
- 
-_
+v4.4.214: Failed to apply! Possible dependencies:
+    125450f81441 ("PCI: hotplug: Embed hotplug_slot")
+    2ac83cccabbc ("PCI: hotplug: Use list_for_each_entry() to simplify code")
+    51bbf9bee34f ("PCI: hotplug: Demidlayer registration with the core")
+    66725152fb9f ("PCI/hotplug: PowerPC PowerNV PCI hotplug driver")
+    7973353e92ee ("platform/x86: asus-wmi: Refactor charge threshold to use the battery hooking API")
+    89379f165a1b ("PCI/hotplug: pnv_php: export symbols and move struct types needed by cxl")
+    97c6f25d5828 ("PCI/hotplug: ppc: correct a php_slot usage after free")
+    a7da21613c4e ("PCI: hotplug: Drop hotplug_slot_info")
+    b096f626a682 ("platform/x86: asus-wmi: Switch fan boost mode")
+    dbb3d78f61ba ("platform/x86: asus-wmi: Call led hw_changed API on kbd brightness change")
+    ed99d29b2b15 ("platform/x86: asus-wmi: Add keyboard backlight toggle support")
+    ef69b03dfd32 ("MAINTAINERS: Add powerpc drivers to the powerpc section")
+    ff3ce480e8b5 ("PCI: Fix all whitespace issues")
 
-Patches currently in -mm which might be from glider@google.com are
 
-stackdepot-check-depot_index-before-accessing-the-stack-slab.patch
-stackdepot-build-with-fno-builtin.patch
-kasan-stackdepot-move-filter_irq_stacks-to-stackdepotc.patch
+NOTE: The patch will not be queued to stable trees until it is upstream.
 
+How should we proceed with this patch?
+
+-- 
+Thanks,
+Sasha
