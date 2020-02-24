@@ -2,77 +2,68 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CAF5D16A5EB
-	for <lists+stable@lfdr.de>; Mon, 24 Feb 2020 13:18:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 932B416A615
+	for <lists+stable@lfdr.de>; Mon, 24 Feb 2020 13:25:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727265AbgBXMSA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Feb 2020 07:18:00 -0500
-Received: from mail-qk1-f193.google.com ([209.85.222.193]:39368 "EHLO
-        mail-qk1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727183AbgBXMR7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Feb 2020 07:17:59 -0500
-Received: by mail-qk1-f193.google.com with SMTP id e16so5654428qkl.6
-        for <stable@vger.kernel.org>; Mon, 24 Feb 2020 04:17:59 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to
-         :content-transfer-encoding;
-        bh=WTBczowU/Nsod2w33lz16yranT9oF8yu5BlEgmgClk0=;
-        b=W1xG5ifbxeJW+UfPrejCi9A/IH6ilBBQgv0cP6R9SDmV9MmnTl7u8qlS3OHjVXluLs
-         RYqlyA1hvPor6dUJQ2TRIf/qAhiic8xFkWp4a9hbtOJ/rJdfr4CCUGYVhJJswNXAetOa
-         Zr5UQ8V5HsbjAq0JbsEQ5gB5E095OPYrEVo0f++XEP+sBZZUjj3zDT+iDZL+j2JsHOqA
-         8hZ/AQKpdSRwZ/wvLPzNf1teDRUZdUN3DH/aeCffyV+n/pPeXtIRdJ1rBFclQ6EnnHun
-         oSO/UUe0gkNPYbhfgEw/zK6y83eYEZE9q8VZ7ED8FAArmwCdnuJBPkENE7HOYNS6cmMR
-         2Vyg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to:content-transfer-encoding;
-        bh=WTBczowU/Nsod2w33lz16yranT9oF8yu5BlEgmgClk0=;
-        b=tYxCMIESLtFR0GmJ94AiDSAsdZ+HqRb+cg3iKf3zt/DbF6eOnDFV82bFPYLrYAgyQE
-         NCWa2dQMPC5mQ4F1IJp+mlj7BuRMb+eRi+YPAO0ohVpjl3TRAhrItZKbasvuu26xD6I0
-         MlcOrTt+ygZPKw5rEj5u6aK3NH2sayRFmSM3oacFsLnFHqO6xYiabwkP9y1EQvxrgTPw
-         sITzXuTNhKAf+k65RTb7M6CD9i9yKQg2Jyx7uLBt3Ap6od4+F+mPCKHQ5qXXVCuax1xN
-         C5gLlDTGGnZNS08myOeRmcNLpHIwWW9N/qCdYomcNtR7RnwohsIChEkfhF5mxdP23MCA
-         enYw==
-X-Gm-Message-State: APjAAAV0sipSvfj4RZN6aJMYmM8EqTEZK/99xhj0VOWxzuJFxPGEDGi7
-        WEJniHcdV94Lf09CBhJq6BUJ/KuuDx2NGrx4z4Q=
-X-Google-Smtp-Source: APXvYqyvqqLUgJUszX50jf3h0ZATK2+8a3gAnjMkUSALSUs2RftMaICB6SJZy0gN8KfMYwQUqVPOxfDSRwpr2JsXQuo=
-X-Received: by 2002:a05:620a:a94:: with SMTP id v20mr10456944qkg.153.1582546678707;
- Mon, 24 Feb 2020 04:17:58 -0800 (PST)
+        id S1727348AbgBXMZQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Feb 2020 07:25:16 -0500
+Received: from sonic306-20.consmr.mail.ne1.yahoo.com ([66.163.189.82]:39964
+        "EHLO sonic306-20.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727310AbgBXMZQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Feb 2020 07:25:16 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1582547113; bh=vdONypa+pmkSCxMpJ481zxWsfmYXdIIKq3bhYsM38cE=; h=Date:From:Reply-To:Subject:References:From:Subject; b=WPQxhjTnOoojIPd3pgtegA8KWUZqK72pnEUg2qkL6Z9D1EwOEAO9Arh+5PhgMqwfWiFH4GfdBZAu3sbne14QFuOCLa4zQidmVX7P0QEFib+X5WYjudgRxElaWlNP/Tgn+xvo73hK/Tf8I3AUD972YK6gUtdEEBsrihRkMJiXoQfQGWUiLPrmJ8n1zl8DkRdLA15FDcPckT0W0c5IVu/UcIfBDVnVp5gKlsp+4D0yKY4XKTvOGW3YXnQMigSBY4Xsw6bQYb4wMEBbBCC3uIkoqU1Ri22WRwQBCeRLt2CY68OiCYf7MVk+p16UsIJJWR0e7YfOKBspOJ8uvizqdiKFnA==
+X-YMail-OSG: tPCaVn0VM1kJdscoSyzisBp.y7l4iL4x_0wBx5qvJOqDqsnF9zsgZkfhD9zGF6M
+ kXcSW23Lxq50kjWaI.4h.mwDLTKPmyXPeKgGphlxWJAAnyFolI5_eTjNRanznlXLf3I67dxbwu1k
+ 8Rpy4FJc4bBVCKh0KpL6PS6K6EFDr2ZMx9cITZ0JypNQfWiQNEexlqWgLStO3yyiE5889iwsdEiB
+ 5.yQPDbTn3L1RL9pd9dqP8gib39p.BGD99kMNO0ADUvyMQkxNMtKtB85Xfz8tODJmJe4BI0gOAgE
+ vw1PvZdbdKFfxBqDoW7DxB8U35EU0ZRfZ2gK80dz5fJyMiTBIYcucNk8bOqQt2WmkT8rwh3DkTEj
+ lV476nO2kAjfMWVcs8jfJ5mijoItDSsgTIisTdqN7NnYq.njOlugyZm76XoAQo03Ag1MCearGG.B
+ 9oZUlorh3xqinChtxXMbPLe1K1GMTef9WTongaHTQ7I3r.da7JALwGXixsDRuY9okjUa.tYyr4eO
+ RDD0d0D_xb5395LrnaABPMep5YPMqFmQgBq0EOJBloPlTTQ0UQHik8ki_hZoXDQwscFE5ZAqOKHx
+ EvjR4kAy5tjl.JKLuKMvtHmRNNID7cHYkfOl6Oc0y6_ECqinzSJUTKrTuj89lycRZbUoC0GQuur7
+ _fop0pFzD.uJw.Wb9x84r04f1w0Gy8fuX4SmN25AWStLnLpt7fKJBGl.lFN8tj7LMcY1UijcHFQN
+ 43DnhXeZYa7._3upxv.ftd3M.mZ8UwwfYIO2mu48fCu.yymgyDA8MP0yCYdrx.50172ORjYt3c.D
+ .rKWUXaKh.G7LUi4szwxrYMJXHyNcdjcp3KPDArGmfnwvxE851..2AGCKuEj.XUfXCfy097w7N6.
+ pF9TXQyuQ55RWM0ztHjV73Tj9PQ371XlXyhdphCIo7s.SMmfMlinIg1XgQXB57cFfV8am4nkfGNI
+ lFXjVceXS2_VLx8sZ4tf.OrR3dIYtxJUoeDEVD2.En_sc9qgMSPMo8oAQ0CA6Md1we5n5J4CTrLF
+ 8.PSOmX18Hep5EntdDdsd0vNuIV9UQA.2QTcBJlf_03bNNmp.wc7mz3jEflUdcFduRLcL_hTWmsW
+ AmpZeQM_rYuvcaVJ0WcdqrCtKs_l4UG2zpsGeT5JWthwCnNTBfY8rO0jemtt3rmeW6C3DNDiV6J5
+ W01j_kbpGGEyZmQAEAFMY4Q5Tz0zqJiE4V8pZc7Gsr1mzkTkAKrC.jtml4_sz516AbbBq1QihYna
+ w4wPjyvfLqSqDj_SOX1lcrvs.vOVmrBrHRUGljTBTmvnDUv1i6PN_vo_6rILfIGUDsLHnINmseXF
+ ePVTOt8vYnMXn
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic306.consmr.mail.ne1.yahoo.com with HTTP; Mon, 24 Feb 2020 12:25:13 +0000
+Date:   Mon, 24 Feb 2020 12:25:11 +0000 (UTC)
+From:   Mrs Elodie Antoine <mrselodieantoine@gmail.com>
+Reply-To: antoinm93@yahoo.com
+Message-ID: <1311552627.7326768.1582547111731@mail.yahoo.com>
+Subject: Greetings From Mrs Elodie,
 MIME-Version: 1.0
-Received: by 2002:a05:6214:190f:0:0:0:0 with HTTP; Mon, 24 Feb 2020 04:17:58
- -0800 (PST)
-Reply-To: brianjesse343@gmail.com
-From:   brianjesse <wstrnnln@gmail.com>
-Date:   Mon, 24 Feb 2020 12:17:58 +0000
-Message-ID: <CAALz-EfBs_nsJUeHtkxUa5D00tM2jBMb5-yYYk5EoZZM39jVJg@mail.gmail.com>
-Subject: Hl
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+References: <1311552627.7326768.1582547111731.ref@mail.yahoo.com>
+X-Mailer: WebService/1.1.15199 YMailNodin Mozilla/5.0 (Windows NT 6.1; rv:73.0) Gecko/20100101 Firefox/73.0
+To:     unlisted-recipients:; (no To-header on input)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Witaj, Uprzejmie informujemy, =C5=BCe ten e-mail, kt=C3=B3ry dotar=C5=82 do=
- Twojej
-skrzynki pocztowej, nie jest
-b=C5=82=C4=85d, ale zosta=C5=82 specjalnie skierowany do rozpatrzenia. ja
-mam propozycj=C4=99 (7,500.000,00 $) pozostawion=C4=85 przez mojego zmar=C5=
-=82ego
-klienta in=C5=BCyniera Carlosa
-kt=C3=B3ry nosi przy tobie to samo imi=C4=99, kt=C3=B3ry pracowa=C5=82 i mi=
-eszka=C5=82 tutaj w Lom=C3=A9
-I=C5=9B=C4=87. M=C3=B3j zmar=C5=82y klient i rodzina uczestniczyli w wypadk=
-u samochodowym,
-kt=C3=B3ry mia=C5=82 miejsce
-ich =C5=BCycia. Kontaktuj=C4=99 si=C4=99 z tob=C4=85 jako najbli=C5=BCszym =
-krewnym zmar=C5=82ego, wi=C4=99c ty
-mo=C5=BCe otrzyma=C4=87 =C5=9Brodki na roszczenia. Zrobi=C4=99 to po twojej=
- szybkiej odpowiedzi
-poinformuj=C4=99 ci=C4=99 o sposobach wykonania tego przymierza. skontaktuj=
- si=C4=99
-ze mn=C4=85 w tej sprawie
-e-maile (brianjesse343@gmail.com)
+
+
+Greetings From Mrs Elodie,
+
+Calvary Greetings in the name of the LORD Almighty and Our LORD JESUS CHRIST the giver of every good thing. Good day,i know this letter will definitely come to you as a huge surprise, but I implore you to take the time to go through it carefully as the decision you make will go off a long way to determine my future and continued existence. I am Mrs Elodie Antoine
+aging widow of 59 years old suffering from long time illness. I have some funds I inherited from my late husband,
+
+The sum of (US$4.5 Million Dollars) and I needed a very honest and God fearing who can withdraw this money then use the funds for Charity works. I WISH TO GIVE THIS FUNDS TO YOU FOR CHARITY WORKS. I found your email address from the internet after honest prayers to the LORD to bring me a helper and i decided to contact you if you may be willing and interested to handle these trust funds in good faith before anything happens to me.
+I accept this decision because I do not have any child who will inherit this money after I die. I want your urgent reply to me so that I will give you the deposit receipt which the COMPANY issued to me as next of kin for immediate transfer of the money to your account in your country, to start the good work of God, I want you to use the 15/percent of the total amount to help yourself in doing the project.
+
+
+I am desperately in keen need of assistance and I have summoned up courage to contact you for this task, you must not fail me and the millions of the poor people in our todays WORLD. This is no stolen money and there are no dangers involved,100% RISK FREE with full legal proof. Please if you would be able to use the funds for the Charity works kindly let me know immediately.I will appreciate your utmost confidentiality and trust in this matter to accomplish my heart desire, as I don't want anything that will jeopardize my last wish. I want you to take 15 percent of the total money for your personal use while 85% of the money will go to charity.I will appreciate your utmost confidentiality and trust in this matter to accomplish my heart desire, as I don't want anything that will jeopardize my last wish.
+
+
+kindly respond for further details.
+
+Thanks and God bless you,
+
+Mrs Elodie Antoine
