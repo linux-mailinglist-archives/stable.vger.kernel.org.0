@@ -2,27 +2,29 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 77E9E16A888
-	for <lists+stable@lfdr.de>; Mon, 24 Feb 2020 15:38:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8012D16A886
+	for <lists+stable@lfdr.de>; Mon, 24 Feb 2020 15:38:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727448AbgBXOiR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Feb 2020 09:38:17 -0500
-Received: from www.linuxtv.org ([130.149.80.248]:54432 "EHLO www.linuxtv.org"
+        id S1727648AbgBXOiQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Feb 2020 09:38:16 -0500
+Received: from www.linuxtv.org ([130.149.80.248]:54418 "EHLO www.linuxtv.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727299AbgBXOiR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Feb 2020 09:38:17 -0500
+        id S1727160AbgBXOiQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Feb 2020 09:38:16 -0500
 Received: from mchehab by www.linuxtv.org with local (Exim 4.92)
         (envelope-from <mchehab@linuxtv.org>)
-        id 1j6EqW-008usU-8l; Mon, 24 Feb 2020 14:36:32 +0000
+        id 1j6EqW-008us6-43; Mon, 24 Feb 2020 14:36:32 +0000
 From:   Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Date:   Mon, 24 Feb 2020 14:10:04 +0000
-Subject: [git:media_tree/master] media: mc-entity.c: use & to check pad flags, not ==
+Date:   Mon, 24 Feb 2020 14:10:39 +0000
+Subject: [git:media_tree/master] media: hantro: Fix broken media controller links
 To:     linuxtv-commits@linuxtv.org
-Cc:     stable@vger.kernel.org, Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Cc:     Ezequiel Garcia <ezequiel@collabora.com>, stable@vger.kernel.org,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Nicolas Dufresne <nicolas.dufresne@collabora.com>
 Mail-followup-to: linux-media@vger.kernel.org
 Forward-to: linux-media@vger.kernel.org
 Reply-to: linux-media@vger.kernel.org
-Message-Id: <E1j6EqW-008usU-8l@www.linuxtv.org>
+Message-Id: <E1j6EqW-008us6-43@www.linuxtv.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -30,39 +32,43 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is an automatic generated email to let you know that the following patch were queued:
 
-Subject: media: mc-entity.c: use & to check pad flags, not ==
-Author:  Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Date:    Tue Feb 4 19:19:22 2020 +0100
+Subject: media: hantro: Fix broken media controller links
+Author:  Ezequiel Garcia <ezequiel@collabora.com>
+Date:    Tue Feb 4 20:38:37 2020 +0100
 
-These are bits so to test if a pad is a sink you use & but not ==.
+The driver currently creates a broken topology,
+with a source-to-source link and a sink-to-sink
+link instead of two source-to-sink links.
 
-It looks like the only reason this hasn't caused problems before is that
-media_get_pad_index() is currently only used with pads that do not set the
-MEDIA_PAD_FL_MUST_CONNECT flag. So a pad really had only the SINK or SOURCE
-flag set and nothing else.
-
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Reported-by: Nicolas Dufresne <nicolas@ndufresne.ca>
 Cc: <stable@vger.kernel.org>      # for v5.3 and up
+Signed-off-by: Ezequiel Garcia <ezequiel@collabora.com>
+Tested-by: Nicolas Dufresne <nicolas.dufresne@collabora.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 
- drivers/media/mc/mc-entity.c | 4 ++--
+ drivers/staging/media/hantro/hantro_drv.c | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
 ---
 
-diff --git a/drivers/media/mc/mc-entity.c b/drivers/media/mc/mc-entity.c
-index 7c429ce98bae..668770e9f609 100644
---- a/drivers/media/mc/mc-entity.c
-+++ b/drivers/media/mc/mc-entity.c
-@@ -639,9 +639,9 @@ int media_get_pad_index(struct media_entity *entity, bool is_sink,
- 		return -EINVAL;
+diff --git a/drivers/staging/media/hantro/hantro_drv.c b/drivers/staging/media/hantro/hantro_drv.c
+index 97c615a2f057..c98835326135 100644
+--- a/drivers/staging/media/hantro/hantro_drv.c
++++ b/drivers/staging/media/hantro/hantro_drv.c
+@@ -558,13 +558,13 @@ static int hantro_attach_func(struct hantro_dev *vpu,
+ 		goto err_rel_entity1;
  
- 	for (i = 0; i < entity->num_pads; i++) {
--		if (entity->pads[i].flags == MEDIA_PAD_FL_SINK)
-+		if (entity->pads[i].flags & MEDIA_PAD_FL_SINK)
- 			pad_is_sink = true;
--		else if (entity->pads[i].flags == MEDIA_PAD_FL_SOURCE)
-+		else if (entity->pads[i].flags & MEDIA_PAD_FL_SOURCE)
- 			pad_is_sink = false;
- 		else
- 			continue;	/* This is an error! */
+ 	/* Connect the three entities */
+-	ret = media_create_pad_link(&func->vdev.entity, 0, &func->proc, 1,
++	ret = media_create_pad_link(&func->vdev.entity, 0, &func->proc, 0,
+ 				    MEDIA_LNK_FL_IMMUTABLE |
+ 				    MEDIA_LNK_FL_ENABLED);
+ 	if (ret)
+ 		goto err_rel_entity2;
+ 
+-	ret = media_create_pad_link(&func->proc, 0, &func->sink, 0,
++	ret = media_create_pad_link(&func->proc, 1, &func->sink, 0,
+ 				    MEDIA_LNK_FL_IMMUTABLE |
+ 				    MEDIA_LNK_FL_ENABLED);
+ 	if (ret)
