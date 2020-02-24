@@ -2,28 +2,29 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0481516AA27
-	for <lists+stable@lfdr.de>; Mon, 24 Feb 2020 16:33:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8AED016AC40
+	for <lists+stable@lfdr.de>; Mon, 24 Feb 2020 17:54:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727498AbgBXPdT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Feb 2020 10:33:19 -0500
-Received: from www.linuxtv.org ([130.149.80.248]:43884 "EHLO www.linuxtv.org"
+        id S1727405AbgBXQyH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Feb 2020 11:54:07 -0500
+Received: from www.linuxtv.org ([130.149.80.248]:36406 "EHLO www.linuxtv.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727359AbgBXPdT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Feb 2020 10:33:19 -0500
+        id S1727108AbgBXQyH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Feb 2020 11:54:07 -0500
 Received: from mchehab by www.linuxtv.org with local (Exim 4.92)
         (envelope-from <mchehab@linuxtv.org>)
-        id 1j6Fhm-008yAf-KK; Mon, 24 Feb 2020 15:31:34 +0000
+        id 1j6Gxx-0093eK-Tj; Mon, 24 Feb 2020 16:52:21 +0000
 From:   Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Date:   Mon, 24 Feb 2020 15:24:21 +0000
-Subject: [git:media_tree/master] media: dib0700: fix rc endpoint lookup
+Date:   Mon, 24 Feb 2020 16:18:13 +0000
+Subject: [git:media_tree/master] media: hantro: Read be32 words starting at every fourth byte
 To:     linuxtv-commits@linuxtv.org
-Cc:     stable <stable@vger.kernel.org>, Sean Young <sean@mess.org>,
-        Johan Hovold <johan@kernel.org>
+Cc:     Hans Verkuil <hverkuil-cisco@xs4all.nl>, stable@vger.kernel.org,
+        Andrzej Pietrasiewicz <andrzej.p@collabora.com>,
+        Ezequiel Garcia <ezequiel@collabora.com>
 Mail-followup-to: linux-media@vger.kernel.org
 Forward-to: linux-media@vger.kernel.org
 Reply-to: linux-media@vger.kernel.org
-Message-Id: <E1j6Fhm-008yAf-KK@www.linuxtv.org>
+Message-Id: <E1j6Gxx-0093eK-Tj@www.linuxtv.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -31,46 +32,74 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is an automatic generated email to let you know that the following patch were queued:
 
-Subject: media: dib0700: fix rc endpoint lookup
-Author:  Johan Hovold <johan@kernel.org>
-Date:    Fri Jan 3 17:35:12 2020 +0100
+Subject: media: hantro: Read be32 words starting at every fourth byte
+Author:  Andrzej Pietrasiewicz <andrzej.p@collabora.com>
+Date:    Mon Jan 27 15:30:06 2020 +0100
 
-Make sure to use the current alternate setting when verifying the
-interface descriptors to avoid submitting an URB to an invalid endpoint.
+Since (luma/chroma)_qtable is an array of unsigned char, indexing it
+returns consecutive byte locations, but we are supposed to read the arrays
+in four-byte words. Consequently, we should be pointing
+get_unaligned_be32() at consecutive word locations instead.
 
-Failing to do so could cause the driver to misbehave or trigger a WARN()
-in usb_submit_urb() that kernels with panic_on_warn set would choke on.
-
-Fixes: c4018fa2e4c0 ("[media] dib0700: fix RC support on Hauppauge Nova-TD")
-Cc: stable <stable@vger.kernel.org>     # 3.16
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: Sean Young <sean@mess.org>
+Signed-off-by: Andrzej Pietrasiewicz <andrzej.p@collabora.com>
+Reviewed-by: Ezequiel Garcia <ezequiel@collabora.com>
+Tested-by: Ezequiel Garcia <ezequiel@collabora.com>
+Cc: stable@vger.kernel.org
+Fixes: 00c30f42c7595f "media: rockchip vpu: remove some unused vars"
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 
- drivers/media/usb/dvb-usb/dib0700_core.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/staging/media/hantro/hantro_h1_jpeg_enc.c     | 9 +++++++--
+ drivers/staging/media/hantro/rk3399_vpu_hw_jpeg_enc.c | 9 +++++++--
+ 2 files changed, 14 insertions(+), 4 deletions(-)
 
 ---
 
-diff --git a/drivers/media/usb/dvb-usb/dib0700_core.c b/drivers/media/usb/dvb-usb/dib0700_core.c
-index e53c58ab6488..ef62dd6c5ae4 100644
---- a/drivers/media/usb/dvb-usb/dib0700_core.c
-+++ b/drivers/media/usb/dvb-usb/dib0700_core.c
-@@ -818,7 +818,7 @@ int dib0700_rc_setup(struct dvb_usb_device *d, struct usb_interface *intf)
+diff --git a/drivers/staging/media/hantro/hantro_h1_jpeg_enc.c b/drivers/staging/media/hantro/hantro_h1_jpeg_enc.c
+index 0d8afc3e5d71..4f72d92cd98f 100644
+--- a/drivers/staging/media/hantro/hantro_h1_jpeg_enc.c
++++ b/drivers/staging/media/hantro/hantro_h1_jpeg_enc.c
+@@ -67,12 +67,17 @@ hantro_h1_jpeg_enc_set_qtable(struct hantro_dev *vpu,
+ 			      unsigned char *chroma_qtable)
+ {
+ 	u32 reg, i;
++	__be32 *luma_qtable_p;
++	__be32 *chroma_qtable_p;
++
++	luma_qtable_p = (__be32 *)luma_qtable;
++	chroma_qtable_p = (__be32 *)chroma_qtable;
  
- 	/* Starting in firmware 1.20, the RC info is provided on a bulk pipe */
+ 	for (i = 0; i < H1_JPEG_QUANT_TABLE_COUNT; i++) {
+-		reg = get_unaligned_be32(&luma_qtable[i]);
++		reg = get_unaligned_be32(&luma_qtable_p[i]);
+ 		vepu_write_relaxed(vpu, reg, H1_REG_JPEG_LUMA_QUAT(i));
  
--	if (intf->altsetting[0].desc.bNumEndpoints < rc_ep + 1)
-+	if (intf->cur_altsetting->desc.bNumEndpoints < rc_ep + 1)
- 		return -ENODEV;
+-		reg = get_unaligned_be32(&chroma_qtable[i]);
++		reg = get_unaligned_be32(&chroma_qtable_p[i]);
+ 		vepu_write_relaxed(vpu, reg, H1_REG_JPEG_CHROMA_QUAT(i));
+ 	}
+ }
+diff --git a/drivers/staging/media/hantro/rk3399_vpu_hw_jpeg_enc.c b/drivers/staging/media/hantro/rk3399_vpu_hw_jpeg_enc.c
+index 4c2d43fb6fd1..a85c4f9fd10a 100644
+--- a/drivers/staging/media/hantro/rk3399_vpu_hw_jpeg_enc.c
++++ b/drivers/staging/media/hantro/rk3399_vpu_hw_jpeg_enc.c
+@@ -98,12 +98,17 @@ rk3399_vpu_jpeg_enc_set_qtable(struct hantro_dev *vpu,
+ 			       unsigned char *chroma_qtable)
+ {
+ 	u32 reg, i;
++	__be32 *luma_qtable_p;
++	__be32 *chroma_qtable_p;
++
++	luma_qtable_p = (__be32 *)luma_qtable;
++	chroma_qtable_p = (__be32 *)chroma_qtable;
  
- 	purb = usb_alloc_urb(0, GFP_KERNEL);
-@@ -838,7 +838,7 @@ int dib0700_rc_setup(struct dvb_usb_device *d, struct usb_interface *intf)
- 	 * Some devices like the Hauppauge NovaTD model 52009 use an interrupt
- 	 * endpoint, while others use a bulk one.
- 	 */
--	e = &intf->altsetting[0].endpoint[rc_ep].desc;
-+	e = &intf->cur_altsetting->endpoint[rc_ep].desc;
- 	if (usb_endpoint_dir_in(e)) {
- 		if (usb_endpoint_xfer_bulk(e)) {
- 			pipe = usb_rcvbulkpipe(d->udev, rc_ep);
+ 	for (i = 0; i < VEPU_JPEG_QUANT_TABLE_COUNT; i++) {
+-		reg = get_unaligned_be32(&luma_qtable[i]);
++		reg = get_unaligned_be32(&luma_qtable_p[i]);
+ 		vepu_write_relaxed(vpu, reg, VEPU_REG_JPEG_LUMA_QUAT(i));
+ 
+-		reg = get_unaligned_be32(&chroma_qtable[i]);
++		reg = get_unaligned_be32(&chroma_qtable_p[i]);
+ 		vepu_write_relaxed(vpu, reg, VEPU_REG_JPEG_CHROMA_QUAT(i));
+ 	}
+ }
