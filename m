@@ -2,172 +2,111 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 17A5016B389
-	for <lists+stable@lfdr.de>; Mon, 24 Feb 2020 23:04:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C56616B3DF
+	for <lists+stable@lfdr.de>; Mon, 24 Feb 2020 23:26:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727662AbgBXWE5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Feb 2020 17:04:57 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45092 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727421AbgBXWE5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Feb 2020 17:04:57 -0500
-Received: from localhost.localdomain (c-73-231-172-41.hsd1.ca.comcast.net [73.231.172.41])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D977A20CC7;
-        Mon, 24 Feb 2020 22:04:55 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582581896;
-        bh=5RIpeSa1+8cZrd4xyKXDVcxvO9GHW2Dd1FmdKrlbUK0=;
-        h=Date:From:To:Subject:In-Reply-To:From;
-        b=zwQvusg5C5hLf8cDi2dav0VptVzmF8Ackc8ukiVePUjsr0v93gSFYtbWdq82hEPfF
-         2p2sBj04tx1cGb+Lxs62LDx7eijk86uPQ8PYr2pc+LDcfpLM6nGMCSBof5CIolox0A
-         AzKsJy8UO0VQAj7MVAunMaXKKyNhiWsHv1FZDGyg=
-Date:   Mon, 24 Feb 2020 14:04:55 -0800
-From:   Andrew Morton <akpm@linux-foundation.org>
-To:     cai@lca.pw, david@redhat.com, gerald.schaefer@de.ibm.com,
-        iamjoonsoo.kim@lge.com, mm-commits@vger.kernel.org,
-        stable@vger.kernel.org, vbabka@suse.cz
-Subject:  +
- =?US-ASCII?Q?mm-hotplug-fix-page-online-with-debug=5Fpagealloc-compiled-b?=
- =?US-ASCII?Q?ut-not-enabled.patch?= added to -mm tree
-Message-ID: <20200224220455.J_VQeuNgd%akpm@linux-foundation.org>
-In-Reply-To: <20200203173311.6269a8be06a05e5a4aa08a93@linux-foundation.org>
-User-Agent: s-nail v14.8.16
+        id S1726687AbgBXW03 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Feb 2020 17:26:29 -0500
+Received: from mail-pl1-f193.google.com ([209.85.214.193]:33481 "EHLO
+        mail-pl1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726651AbgBXW03 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Feb 2020 17:26:29 -0500
+Received: by mail-pl1-f193.google.com with SMTP id ay11so4631966plb.0
+        for <stable@vger.kernel.org>; Mon, 24 Feb 2020 14:26:29 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=dR6iUCm5Vr5c3iF7genBmi2UWEQCe7ju45R+bPQh6CI=;
+        b=C5idHMoN78eWoA+ru5cRrjU+zReiMyg5faBzDomNuhtRCyhWyj9XFBOHPFA5Od2pmZ
+         j9DdnficpXtwN6B1vL9KRyjqr87HWnAm/Z/0070NJ/xkt44PTuAnaedhucFMkJMltDko
+         6qDvkkDPy7Kd7SuoYf0doBWk0bX+vhYI/74xQjlmwQaOUB4J11luo5x7eV5YWnKr/9zr
+         YDfS2zJLbl1OUyncIWs1HouYLKWP6I5DYIMBbkOREIWvR9GLD6g28u1sUedSv1lPbrvP
+         Vo26IvheybZ3kym3+8RlbwrTMpjy8DYc5h95pnFmhtUa1l1JBPs8FlGBPzZekc5BU8eJ
+         UMqw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=dR6iUCm5Vr5c3iF7genBmi2UWEQCe7ju45R+bPQh6CI=;
+        b=OZ5JOvLO6qzsuq6IYu3SBojg3BjDMarHMuB6jIzg4t9ITsiionFFHfSNT9RgObXZ5z
+         3PuD+aKSOwHwUdzXeURucSB7a4toZEnKk50glVKDM63UZBq777OgMdJZ4P2FxOayRzEY
+         AcEvPCKA8ectJW67Q6uxhlZbMXIYZRt18p0zAqbkKqXsgcZh78QjHZ7a2Jhfm031/ATL
+         ftf2fjONlH+VHvh1vtkbCBFv59dXDqFiqFk4CLoudu2tz08r2f/28XNnddPRtxcjJxdN
+         WNAxMm6C7y49b9ng9wV7k1Ko9tXsBPAttX8XCqK3R8Obb7AmmcBl3GyP2f4jDEzHhzpC
+         jxEw==
+X-Gm-Message-State: APjAAAVhuJr9vuqagyPqW4nU2ffgbEozQbkg8pdGsDRb46PAXOSeGk0+
+        FA1RofWxAx6qW44o3TNTBlqBogGtysE=
+X-Google-Smtp-Source: APXvYqwxYnmw5D0t+n7dw+xvqheqdCW7gTtWR8KqNSRgtobhiN0WYaw0ZwruQyRSA9tbkgguEIA1qg==
+X-Received: by 2002:a17:902:8d83:: with SMTP id v3mr52995941plo.282.1582583188747;
+        Mon, 24 Feb 2020 14:26:28 -0800 (PST)
+Received: from [10.0.9.4] ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id s130sm14661580pfc.62.2020.02.24.14.26.27
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 24 Feb 2020 14:26:28 -0800 (PST)
+Message-ID: <5e544d94.1c69fb81.d44fb.73a2@mx.google.com>
+Date:   Mon, 24 Feb 2020 14:26:28 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.19.106
+X-Kernelci-Report-Type: boot
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-4.19.y
+Subject: stable-rc/linux-4.19.y boot: 89 boots: 2 failed,
+ 86 passed with 1 untried/unknown (v4.19.106)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable-rc/linux-4.19.y boot: 89 boots: 2 failed, 86 passed with 1 untried/u=
+nknown (v4.19.106)
 
-The patch titled
-     Subject: mm, hotplug: fix page online with DEBUG_PAGEALLOC compiled but not enabled
-has been added to the -mm tree.  Its filename is
-     mm-hotplug-fix-page-online-with-debug_pagealloc-compiled-but-not-enabled.patch
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.19.y/kernel/v4.19.106/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.19.=
+y/kernel/v4.19.106/
 
-This patch should soon appear at
-    http://ozlabs.org/~akpm/mmots/broken-out/mm-hotplug-fix-page-online-with-debug_pagealloc-compiled-but-not-enabled.patch
-and later at
-    http://ozlabs.org/~akpm/mmotm/broken-out/mm-hotplug-fix-page-online-with-debug_pagealloc-compiled-but-not-enabled.patch
+Tree: stable-rc
+Branch: linux-4.19.y
+Git Describe: v4.19.106
+Git Commit: f25804f389846835535db255e7ba80eeed967ed7
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 52 unique boards, 16 SoC families, 15 builds out of 205
 
-Before you just go and hit "reply", please:
-   a) Consider who else should be cc'ed
-   b) Prefer to cc a suitable mailing list as well
-   c) Ideally: find the original patch on the mailing list and do a
-      reply-to-all to that, adding suitable additional cc's
+Boot Regressions Detected:
 
-*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+arm:
 
-The -mm tree is included into linux-next and is updated
-there every 3-4 working days
+    multi_v7_defconfig:
+        gcc-8:
+          omap3-beagle-xm:
+              lab-baylibre: new failure (last pass: v4.19.105-192-g27ac9844=
+9017)
 
-------------------------------------------------------
-From: Vlastimil Babka <vbabka@suse.cz>
-Subject: mm, hotplug: fix page online with DEBUG_PAGEALLOC compiled but not enabled
+arm64:
 
-Commit cd02cf1aceea ("mm/hotplug: fix an imbalance with DEBUG_PAGEALLOC")
-fixed memory hotplug with debug_pagealloc enabled, where onlining a page
-goes through page freeing, which removes the direct mapping.  Some arches
-don't like when the page is not mapped in the first place, so
-generic_online_page() maps it first.  This is somewhat wasteful, but
-better than special casing page freeing fast paths.
+    defconfig:
+        gcc-8:
+          meson-gxl-s905x-libretech-cc:
+              lab-clabbe: new failure (last pass: v4.19.105-192-g27ac984490=
+17)
 
-The commit however missed that DEBUG_PAGEALLOC configured doesn't mean
-it's actually enabled.  One has to test debug_pagealloc_enabled() since
-031bc5743f15 ("mm/debug-pagealloc: make debug-pagealloc boottime
-configurable"), or alternatively debug_pagealloc_enabled_static() since
-8e57f8acbbd1 ("mm, debug_pagealloc: don't rely on static keys too early"),
-but this is not done.
+Boot Failures Detected:
 
-As a result, a s390 kernel with DEBUG_PAGEALLOC configured but not enabled
-will crash:
+arm:
+    multi_v7_defconfig:
+        gcc-8:
+            omap3-beagle-xm: 1 failed lab
 
-Unable to handle kernel pointer dereference in virtual kernel address space
-Failing address: 0000000000000000 TEID: 0000000000000483
-Fault in home space mode while using kernel ASCE.
-AS:0000001ece13400b R2:000003fff7fd000b R3:000003fff7fcc007 S:000003fff7fd7000 P:000000000000013d
-Oops: 0004 ilc:2 [#1] SMP
-CPU: 1 PID: 26015 Comm: chmem Kdump: loaded Tainted: GX 5.3.18-5-default #1 SLE15-SP2 (unreleased)
-Krnl PSW : 0704e00180000000 0000001ecd281b9e (__kernel_map_pages+0x166/0x188)
-R:0 T:1 IO:1 EX:1 Key:0 M:1 W:0 P:0 AS:3 CC:2 PM:0 RI:0 EA:3
-Krnl GPRS: 0000000000000000 0000000000000800 0000400b00000000 0000000000000100
-0000000000000001 0000000000000000 0000000000000002 0000000000000100
-0000001ece139230 0000001ecdd98d40 0000400b00000100 0000000000000000
-000003ffa17e4000 001fffe0114f7d08 0000001ecd4d93ea 001fffe0114f7b20
-Krnl Code: 0000001ecd281b8e: ec17ffff00d8 ahik %r1,%r7,-1
-0000001ecd281b94: ec111dbc0355 risbg %r1,%r1,29,188,3
->0000001ecd281b9e: 94fb5006 ni 6(%r5),251
-0000001ecd281ba2: 41505008 la %r5,8(%r5)
-0000001ecd281ba6: ec51fffc6064 cgrj %r5,%r1,6,1ecd281b9e
-0000001ecd281bac: 1a07 ar %r0,%r7
-0000001ecd281bae: ec03ff584076 crj %r0,%r3,4,1ecd281a5e
-Call Trace:
-[<0000001ecd281b9e>] __kernel_map_pages+0x166/0x188
-[<0000001ecd4d9516>] online_pages_range+0xf6/0x128
-[<0000001ecd2a8186>] walk_system_ram_range+0x7e/0xd8
-[<0000001ecda28aae>] online_pages+0x2fe/0x3f0
-[<0000001ecd7d02a6>] memory_subsys_online+0x8e/0xc0
-[<0000001ecd7add42>] device_online+0x5a/0xc8
-[<0000001ecd7d0430>] state_store+0x88/0x118
-[<0000001ecd5b9f62>] kernfs_fop_write+0xc2/0x200
-[<0000001ecd5064b6>] vfs_write+0x176/0x1e0
-[<0000001ecd50676a>] ksys_write+0xa2/0x100
-[<0000001ecda315d4>] system_call+0xd8/0x2c8
+    sama5_defconfig:
+        gcc-8:
+            at91-sama5d4_xplained: 1 failed lab
 
-Fix this by checking debug_pagealloc_enabled_static() before calling
-kernel_map_pages(). Backports for kernel before 5.5 should use
-debug_pagealloc_enabled() instead. Also add comments.
-
-Link: http://lkml.kernel.org/r/20200224094651.18257-1-vbabka@suse.cz
-Fixes: cd02cf1aceea ("mm/hotplug: fix an imbalance with DEBUG_PAGEALLOC")
-Signed-off-by: Vlastimil Babka <vbabka@suse.cz>
-Reported-by: Gerald Schaefer <gerald.schaefer@de.ibm.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-Cc: Qian Cai <cai@lca.pw>
-Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
-
- include/linux/mm.h  |    4 ++++
- mm/memory_hotplug.c |    8 +++++++-
- 2 files changed, 11 insertions(+), 1 deletion(-)
-
---- a/include/linux/mm.h~mm-hotplug-fix-page-online-with-debug_pagealloc-compiled-but-not-enabled
-+++ a/include/linux/mm.h
-@@ -2715,6 +2715,10 @@ static inline bool debug_pagealloc_enabl
- #if defined(CONFIG_DEBUG_PAGEALLOC) || defined(CONFIG_ARCH_HAS_SET_DIRECT_MAP)
- extern void __kernel_map_pages(struct page *page, int numpages, int enable);
- 
-+/*
-+ * When called in DEBUG_PAGEALLOC context, the call should most likely be
-+ * guarded by debug_pagealloc_enabled() or debug_pagealloc_enabled_static()
-+ */
- static inline void
- kernel_map_pages(struct page *page, int numpages, int enable)
- {
---- a/mm/memory_hotplug.c~mm-hotplug-fix-page-online-with-debug_pagealloc-compiled-but-not-enabled
-+++ a/mm/memory_hotplug.c
-@@ -574,7 +574,13 @@ EXPORT_SYMBOL_GPL(restore_online_page_ca
- 
- void generic_online_page(struct page *page, unsigned int order)
- {
--	kernel_map_pages(page, 1 << order, 1);
-+	/*
-+	 * Freeing the page with debug_pagealloc enabled will try to unmap it,
-+	 * so we should map it first. This is better than introducing a special
-+	 * case in page freeing fast path.
-+	 */
-+	if (debug_pagealloc_enabled_static())
-+		kernel_map_pages(page, 1 << order, 1);
- 	__free_pages_core(page, order);
- 	totalram_pages_add(1UL << order);
- #ifdef CONFIG_HIGHMEM
-_
-
-Patches currently in -mm which might be from vbabka@suse.cz are
-
-mm-hotplug-fix-page-online-with-debug_pagealloc-compiled-but-not-enabled.patch
-
+For more info write to <info@kernelci.org>
