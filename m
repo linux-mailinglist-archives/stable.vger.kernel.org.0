@@ -2,73 +2,77 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DC8D216A588
-	for <lists+stable@lfdr.de>; Mon, 24 Feb 2020 12:53:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CAF5D16A5EB
+	for <lists+stable@lfdr.de>; Mon, 24 Feb 2020 13:18:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727185AbgBXLxq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Feb 2020 06:53:46 -0500
-Received: from mail-lj1-f194.google.com ([209.85.208.194]:39096 "EHLO
-        mail-lj1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726778AbgBXLxq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Feb 2020 06:53:46 -0500
-Received: by mail-lj1-f194.google.com with SMTP id o15so9766731ljg.6
-        for <stable@vger.kernel.org>; Mon, 24 Feb 2020 03:53:44 -0800 (PST)
+        id S1727265AbgBXMSA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Feb 2020 07:18:00 -0500
+Received: from mail-qk1-f193.google.com ([209.85.222.193]:39368 "EHLO
+        mail-qk1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727183AbgBXMR7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Feb 2020 07:17:59 -0500
+Received: by mail-qk1-f193.google.com with SMTP id e16so5654428qkl.6
+        for <stable@vger.kernel.org>; Mon, 24 Feb 2020 04:17:59 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=3UqRrXR93FQdctcONgP71/bIILS55BPNGX70vasGTx4=;
-        b=GQFWQdbcMQJt+VEiS0QSDxH95VN793fu+1gjgGeoYfjzbgHGB9Yy8tmX4+wq1EdVyp
-         wTsfMF3Jn8K3CJs1ETf3tjR4RpT8nK39P5aJ2K1eTzeoKkoDKPZJU6yPvr+k0rLAJrad
-         1wmpjvzaW00e8F6lHK79R0C2Q3hQm54IIlGT1yryIaBR0/DELNVeHWquf1o3ORioBurD
-         xHuQQrSEpRFMbo1oiowUuAz49IMIpdC8xaaToeCy2GDILKxCFbbDhkX+s54XPmTp1a7N
-         V+KyGPuS6etn/mjZTuaYzhFBiDtJqEFAw9NHaYnE+IlzruicBgPO0V7sjW0Yzr0ROP8U
-         MfXw==
+        h=mime-version:reply-to:from:date:message-id:subject:to
+         :content-transfer-encoding;
+        bh=WTBczowU/Nsod2w33lz16yranT9oF8yu5BlEgmgClk0=;
+        b=W1xG5ifbxeJW+UfPrejCi9A/IH6ilBBQgv0cP6R9SDmV9MmnTl7u8qlS3OHjVXluLs
+         RYqlyA1hvPor6dUJQ2TRIf/qAhiic8xFkWp4a9hbtOJ/rJdfr4CCUGYVhJJswNXAetOa
+         Zr5UQ8V5HsbjAq0JbsEQ5gB5E095OPYrEVo0f++XEP+sBZZUjj3zDT+iDZL+j2JsHOqA
+         8hZ/AQKpdSRwZ/wvLPzNf1teDRUZdUN3DH/aeCffyV+n/pPeXtIRdJ1rBFclQ6EnnHun
+         oSO/UUe0gkNPYbhfgEw/zK6y83eYEZE9q8VZ7ED8FAArmwCdnuJBPkENE7HOYNS6cmMR
+         2Vyg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=3UqRrXR93FQdctcONgP71/bIILS55BPNGX70vasGTx4=;
-        b=tE4owzwc2yVGjoxQS9zBNbgGPOCET/HmE0dUNUDG3YMqDJA0TiMX+PCbRAKF5Jxtoe
-         ZgJJLOAQ82K5tf74bs0AtxqM93VseD2RVdC5qPrqbT8rFDYYdTNTbC71pucA9dm2sUh9
-         5UY3aFTr4ZLsz+orAY3vnAs/lWvEGZkJcEP6ozSyUL5TiMHDUdo2sVuHxFP59GMCNYOp
-         KLLK5sAayOZBe3guOuL8utUH/vKEBEkplHnEp1osfvvaWdfutW22nn6G8u19EZPaIk5v
-         SFl08QQ8alCPKXP3/k026O6TWIAMtEHnPTc7XaKUHT8nRw/QKb/Bl80xfapwlvBkUD7i
-         UshA==
-X-Gm-Message-State: APjAAAXSq7JgHItlSQ8DhNqtCh1qdfh6Sskkc40kQnuO2midxX68bqgM
-        AK3j0gg9aUYeZgqlDOqcQUQ6ZmG7FZ8xkfvkWBI=
-X-Google-Smtp-Source: APXvYqxGssZP7LShHZ71EZN9eRoBQnOSm6j24OeaJgh92vFo5H6louMzcOh32aq2/xTRCrRXfd/h7M+hLUw/Ori9wMQ=
-X-Received: by 2002:a2e:990d:: with SMTP id v13mr31172481lji.47.1582545223366;
- Mon, 24 Feb 2020 03:53:43 -0800 (PST)
+         :subject:to:content-transfer-encoding;
+        bh=WTBczowU/Nsod2w33lz16yranT9oF8yu5BlEgmgClk0=;
+        b=tYxCMIESLtFR0GmJ94AiDSAsdZ+HqRb+cg3iKf3zt/DbF6eOnDFV82bFPYLrYAgyQE
+         NCWa2dQMPC5mQ4F1IJp+mlj7BuRMb+eRi+YPAO0ohVpjl3TRAhrItZKbasvuu26xD6I0
+         MlcOrTt+ygZPKw5rEj5u6aK3NH2sayRFmSM3oacFsLnFHqO6xYiabwkP9y1EQvxrgTPw
+         sITzXuTNhKAf+k65RTb7M6CD9i9yKQg2Jyx7uLBt3Ap6od4+F+mPCKHQ5qXXVCuax1xN
+         C5gLlDTGGnZNS08myOeRmcNLpHIwWW9N/qCdYomcNtR7RnwohsIChEkfhF5mxdP23MCA
+         enYw==
+X-Gm-Message-State: APjAAAV0sipSvfj4RZN6aJMYmM8EqTEZK/99xhj0VOWxzuJFxPGEDGi7
+        WEJniHcdV94Lf09CBhJq6BUJ/KuuDx2NGrx4z4Q=
+X-Google-Smtp-Source: APXvYqyvqqLUgJUszX50jf3h0ZATK2+8a3gAnjMkUSALSUs2RftMaICB6SJZy0gN8KfMYwQUqVPOxfDSRwpr2JsXQuo=
+X-Received: by 2002:a05:620a:a94:: with SMTP id v20mr10456944qkg.153.1582546678707;
+ Mon, 24 Feb 2020 04:17:58 -0800 (PST)
 MIME-Version: 1.0
-Received: by 2002:a2e:8eca:0:0:0:0:0 with HTTP; Mon, 24 Feb 2020 03:53:42
+Received: by 2002:a05:6214:190f:0:0:0:0 with HTTP; Mon, 24 Feb 2020 04:17:58
  -0800 (PST)
-Reply-To: atmdepartment1940@gmail.com
-From:   "Mr.kavian amiri" <agenthenry.williams01@gmail.com>
-Date:   Mon, 24 Feb 2020 11:53:42 +0000
-Message-ID: <CAN1G01=gio27kx+qfsofynLeKunyp9M3fQTDJzub4L=CKhbn1Q@mail.gmail.com>
-Subject: Dear Beneficiary
+Reply-To: brianjesse343@gmail.com
+From:   brianjesse <wstrnnln@gmail.com>
+Date:   Mon, 24 Feb 2020 12:17:58 +0000
+Message-ID: <CAALz-EfBs_nsJUeHtkxUa5D00tM2jBMb5-yYYk5EoZZM39jVJg@mail.gmail.com>
+Subject: Hl
 To:     undisclosed-recipients:;
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Dear Beneficiary,
-
-Your Over-due ATM Card Payment Compensation fund from United Nations
-Compensation Commission valued US$17,750.000.00 has been deposited
-here in the Bank on your behalf. Therefore, re-confirm your
-information such as,full Name, Address and Telephone Numbers. Also
-state categorically your age, occupations and marital status.
-
-Immediately contact the Coordinator Compensation Unite Mr.kavian
-amiri,, who is in position to release your ATM Card to you.
-
-Mr.Kavian.Amir,
-Coordinator
-(atmdepartment1940@gmail.com)
-(United Nations Compensation Commission, MAKING THE WORLD A BETTER PLACE).
-
-yours sincerely,
-Mr.Kavian.Amir,
+Witaj, Uprzejmie informujemy, =C5=BCe ten e-mail, kt=C3=B3ry dotar=C5=82 do=
+ Twojej
+skrzynki pocztowej, nie jest
+b=C5=82=C4=85d, ale zosta=C5=82 specjalnie skierowany do rozpatrzenia. ja
+mam propozycj=C4=99 (7,500.000,00 $) pozostawion=C4=85 przez mojego zmar=C5=
+=82ego
+klienta in=C5=BCyniera Carlosa
+kt=C3=B3ry nosi przy tobie to samo imi=C4=99, kt=C3=B3ry pracowa=C5=82 i mi=
+eszka=C5=82 tutaj w Lom=C3=A9
+I=C5=9B=C4=87. M=C3=B3j zmar=C5=82y klient i rodzina uczestniczyli w wypadk=
+u samochodowym,
+kt=C3=B3ry mia=C5=82 miejsce
+ich =C5=BCycia. Kontaktuj=C4=99 si=C4=99 z tob=C4=85 jako najbli=C5=BCszym =
+krewnym zmar=C5=82ego, wi=C4=99c ty
+mo=C5=BCe otrzyma=C4=87 =C5=9Brodki na roszczenia. Zrobi=C4=99 to po twojej=
+ szybkiej odpowiedzi
+poinformuj=C4=99 ci=C4=99 o sposobach wykonania tego przymierza. skontaktuj=
+ si=C4=99
+ze mn=C4=85 w tej sprawie
+e-maile (brianjesse343@gmail.com)
