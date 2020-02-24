@@ -2,73 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8012D16A886
-	for <lists+stable@lfdr.de>; Mon, 24 Feb 2020 15:38:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 12D7A16A86A
+	for <lists+stable@lfdr.de>; Mon, 24 Feb 2020 15:34:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727648AbgBXOiQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Feb 2020 09:38:16 -0500
-Received: from www.linuxtv.org ([130.149.80.248]:54418 "EHLO www.linuxtv.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727160AbgBXOiQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Feb 2020 09:38:16 -0500
-Received: from mchehab by www.linuxtv.org with local (Exim 4.92)
-        (envelope-from <mchehab@linuxtv.org>)
-        id 1j6EqW-008us6-43; Mon, 24 Feb 2020 14:36:32 +0000
-From:   Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Date:   Mon, 24 Feb 2020 14:10:39 +0000
-Subject: [git:media_tree/master] media: hantro: Fix broken media controller links
-To:     linuxtv-commits@linuxtv.org
-Cc:     Ezequiel Garcia <ezequiel@collabora.com>, stable@vger.kernel.org,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Nicolas Dufresne <nicolas.dufresne@collabora.com>
-Mail-followup-to: linux-media@vger.kernel.org
-Forward-to: linux-media@vger.kernel.org
-Reply-to: linux-media@vger.kernel.org
-Message-Id: <E1j6EqW-008us6-43@www.linuxtv.org>
+        id S1727804AbgBXOew (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Feb 2020 09:34:52 -0500
+Received: from hqnvemgate24.nvidia.com ([216.228.121.143]:6094 "EHLO
+        hqnvemgate24.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727498AbgBXOew (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Feb 2020 09:34:52 -0500
+Received: from hqpgpgate101.nvidia.com (Not Verified[216.228.121.13]) by hqnvemgate24.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
+        id <B5e53debf0001>; Mon, 24 Feb 2020 06:33:35 -0800
+Received: from hqmail.nvidia.com ([172.20.161.6])
+  by hqpgpgate101.nvidia.com (PGP Universal service);
+  Mon, 24 Feb 2020 06:34:51 -0800
+X-PGP-Universal: processed;
+        by hqpgpgate101.nvidia.com on Mon, 24 Feb 2020 06:34:51 -0800
+Received: from HQMAIL105.nvidia.com (172.20.187.12) by HQMAIL101.nvidia.com
+ (172.20.187.10) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Mon, 24 Feb
+ 2020 14:34:50 +0000
+Received: from rnnvemgw01.nvidia.com (10.128.109.123) by HQMAIL105.nvidia.com
+ (172.20.187.12) with Microsoft SMTP Server (TLS) id 15.0.1473.3 via Frontend
+ Transport; Mon, 24 Feb 2020 14:34:50 +0000
+Received: from thunderball.nvidia.com (Not Verified[10.21.140.91]) by rnnvemgw01.nvidia.com with Trustwave SEG (v7,5,8,10121)
+        id <B5e53df090001>; Mon, 24 Feb 2020 06:34:50 -0800
+From:   Jon Hunter <jonathanh@nvidia.com>
+To:     Thierry Reding <thierry.reding@gmail.com>
+CC:     <devicetree@vger.kernel.org>, <linux-tegra@vger.kernel.org>,
+        Jon Hunter <jonathanh@nvidia.com>, <stable@vger.kernel.org>
+Subject: [PATCH 1/4] ARM64: Tegra: Enable I2C controller for EEPROM
+Date:   Mon, 24 Feb 2020 14:34:33 +0000
+Message-ID: <20200224143436.5438-1-jonathanh@nvidia.com>
+X-Mailer: git-send-email 2.17.1
+X-NVConfidentiality: public
+MIME-Version: 1.0
+Content-Type: text/plain
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
+        t=1582554815; bh=SKhUz0YkoB6pD4YoE/4KFxZbYw2qmSp519cZdmcBM3o=;
+        h=X-PGP-Universal:From:To:CC:Subject:Date:Message-ID:X-Mailer:
+         X-NVConfidentiality:MIME-Version:Content-Type;
+        b=duOxTEf6wTpBnmdA4GzgtJ0CYXr5t34ZZNN48pc9hExmRqaCcppGHAY2wcXqnjNmL
+         YwvDy0gfFikGS9gPJKICW2X6f4iOcgfnVhYOWdgnzSFD1bhtOoN+bEcXPC+LRDY89m
+         uAwuuKQR4MMohz9C8MW8xyatlc13ZEU0jeW1+S3PYfX2GhwRUooeFCGnmLUso5s2DZ
+         65p26CoCGdQNBARsw2TNevBzLshNSXvHBdlFiKSs4S0hB7yJJrCwZx2JsjOm+aRtb3
+         dgVHvAZAd8GLLKC8NvPCAhbIRhDt0vkyWmqHnB5suduti7g4QA1Eb8HLAXB5ptvzeK
+         jor+qP+NC8CVQ==
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is an automatic generated email to let you know that the following patch were queued:
+Commit a5b6b67364cb ("arm64: tegra: Add ID EEPROM for Jetson TX1
+module") populated the EEPROM on the Jetson TX1 module, but did not
+enable the corresponding I2C controller. Enable the I2C controller so
+that this EEPROM can be accessed.
 
-Subject: media: hantro: Fix broken media controller links
-Author:  Ezequiel Garcia <ezequiel@collabora.com>
-Date:    Tue Feb 4 20:38:37 2020 +0100
+Fixes: a5b6b67364cb ("arm64: tegra: Add ID EEPROM for Jetson TX1 module")
 
-The driver currently creates a broken topology,
-with a source-to-source link and a sink-to-sink
-link instead of two source-to-sink links.
-
-Reported-by: Nicolas Dufresne <nicolas@ndufresne.ca>
-Cc: <stable@vger.kernel.org>      # for v5.3 and up
-Signed-off-by: Ezequiel Garcia <ezequiel@collabora.com>
-Tested-by: Nicolas Dufresne <nicolas.dufresne@collabora.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-
- drivers/staging/media/hantro/hantro_drv.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Jon Hunter <jonathanh@nvidia.com>
 ---
+ arch/arm64/boot/dts/nvidia/tegra210-p2180.dtsi | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/staging/media/hantro/hantro_drv.c b/drivers/staging/media/hantro/hantro_drv.c
-index 97c615a2f057..c98835326135 100644
---- a/drivers/staging/media/hantro/hantro_drv.c
-+++ b/drivers/staging/media/hantro/hantro_drv.c
-@@ -558,13 +558,13 @@ static int hantro_attach_func(struct hantro_dev *vpu,
- 		goto err_rel_entity1;
+diff --git a/arch/arm64/boot/dts/nvidia/tegra210-p2180.dtsi b/arch/arm64/boot/dts/nvidia/tegra210-p2180.dtsi
+index cb58f79deb48..95b1a6e76e6e 100644
+--- a/arch/arm64/boot/dts/nvidia/tegra210-p2180.dtsi
++++ b/arch/arm64/boot/dts/nvidia/tegra210-p2180.dtsi
+@@ -265,6 +265,8 @@
+ 	};
  
- 	/* Connect the three entities */
--	ret = media_create_pad_link(&func->vdev.entity, 0, &func->proc, 1,
-+	ret = media_create_pad_link(&func->vdev.entity, 0, &func->proc, 0,
- 				    MEDIA_LNK_FL_IMMUTABLE |
- 				    MEDIA_LNK_FL_ENABLED);
- 	if (ret)
- 		goto err_rel_entity2;
- 
--	ret = media_create_pad_link(&func->proc, 0, &func->sink, 0,
-+	ret = media_create_pad_link(&func->proc, 1, &func->sink, 0,
- 				    MEDIA_LNK_FL_IMMUTABLE |
- 				    MEDIA_LNK_FL_ENABLED);
- 	if (ret)
+ 	i2c@7000c500 {
++		status = "okay";
++
+ 		/* module ID EEPROM */
+ 		eeprom@50 {
+ 			compatible = "atmel,24c02";
+-- 
+2.17.1
+
