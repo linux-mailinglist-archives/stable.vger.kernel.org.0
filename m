@@ -2,52 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 32DC6169CF3
-	for <lists+stable@lfdr.de>; Mon, 24 Feb 2020 05:24:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B15BB169D28
+	for <lists+stable@lfdr.de>; Mon, 24 Feb 2020 05:47:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727215AbgBXEYu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 23 Feb 2020 23:24:50 -0500
-Received: from mail-lj1-f193.google.com ([209.85.208.193]:35126 "EHLO
-        mail-lj1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727189AbgBXEYu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 23 Feb 2020 23:24:50 -0500
-Received: by mail-lj1-f193.google.com with SMTP id q8so8490752ljb.2
-        for <stable@vger.kernel.org>; Sun, 23 Feb 2020 20:24:48 -0800 (PST)
+        id S1727239AbgBXErB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 23 Feb 2020 23:47:01 -0500
+Received: from mail-lf1-f65.google.com ([209.85.167.65]:43597 "EHLO
+        mail-lf1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727189AbgBXErB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 23 Feb 2020 23:47:01 -0500
+Received: by mail-lf1-f65.google.com with SMTP id s23so5805657lfs.10
+        for <stable@vger.kernel.org>; Sun, 23 Feb 2020 20:47:00 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc:content-transfer-encoding;
-        bh=QrhnLhFbW+fdvfBMAqRskaBbHVZAIsNvMbf8wfengAw=;
-        b=y9dov9AMvYV8Pxi1Hadtwz+FKkbfO9Hua8zZPNRv0gA74ecQ7VFdmSLYG9NvHeijUw
-         Yz3ZRxI2wTmYrgFC5SwRVN6Odbp+G1ab6Q5clGXV7osmJ+1z4h20wV4HhryZYwaf9+OE
-         qWgsT+dxGdj+B1hmHQNZiHNq+HiUXfTpjhW9DYNHQi7eikOK9yDdCxNq28FD/utaZZCo
-         N7ewkzckr+UpKR8VfQhLLUSgMhxxiAsQhUwFAD9HuNoWUzkvQ1lxJFCUgPCDxbfxDtBu
-         KyY4mQNUkbGsRXEDkdxS9msDqEg1O+wWGLUjjI8D5SwpJig/Sw1PJ8IoAFu/LkTFIjG8
-         e+xg==
+        bh=EaOedTAhSGj97ZLFcQ+8SGq3qeS+x1XBKNdclV9bMFg=;
+        b=ZxPLyB+RbkZEl94OpzlEFkmmh2nWlMdlFUkuOVSYeyPBPu2tUDcPn0lhwTgvz7CR8v
+         Qb6rmkEWXeCwwqIviGF/vYoYZ8c9Dp9a8YjehfD2gArfrBDYy4b29TgTzI2M3iFuyg8y
+         AMHe2fmNdrC8FzFEKY4gg8jZaFXWWhVdkZg8vsnSHXbEQH4fAb+gQ1rYcRBJq74WT/QO
+         r7XzvdMHBF5YxOgGRj9TPidAqQg7/3IV3zMeSx7WILsTKr3+00LhAnGXJ59I+nMxPon9
+         3j/noxEZLjFy6my73lCN6NhrqW5eVe8VFqyylWRKtO4NXAhDyOv8mgIFs82yVM0Hyjh5
+         /wEg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc:content-transfer-encoding;
-        bh=QrhnLhFbW+fdvfBMAqRskaBbHVZAIsNvMbf8wfengAw=;
-        b=TqLkGt8cax27aizffhyfDLHv3SfBXSAImbi5kHOWKaK8pyzcwB7JRjvzSjnUHGI+/9
-         wOB0w3U56/tjxfkdSNLK3vbwHi1y4fmrlBuO6ALt7tr2vD0MGA5mei78g00Rm7ZJD87m
-         JQJFYHs58Pxf9xkGHGUgfZelPcSmXNWz5qqXTPEaxRaPjQQqeVNle8eabET73RJlaPss
-         Bt3ctJNGgTBCVWQKA+yEwqAyAg0KGdjNuUnheDY354mPwuxagLqlHkvvZy3v9X3pN4EW
-         OkZ0/0DZ1CHkX71dGh7pUgW1DnKvS5lLRt/GtUUnUDHLdmXUmmkFPuNtBNOUvAtTXUfa
-         CfuQ==
-X-Gm-Message-State: APjAAAXaaHildi94QvfafzGS/vQVXDPF6Y79ji2FYGFdQpTSQdwioXue
-        bvC0CRThsuDq4smR0KFsl0Tf8w2s3S8AqGZcVLgwjg==
-X-Google-Smtp-Source: APXvYqx+pWYHpXMdStz7hfn1G1V+Ky6Ob/qeQhcIKsMe21mDhFskaaTTeOQhW9hd+tTiafi5Wyd2fbNte/0LQQIh6sQ=
-X-Received: by 2002:a05:651c:1072:: with SMTP id y18mr29835061ljm.243.1582518287981;
- Sun, 23 Feb 2020 20:24:47 -0800 (PST)
+        bh=EaOedTAhSGj97ZLFcQ+8SGq3qeS+x1XBKNdclV9bMFg=;
+        b=jjjaksP+t+qUGT47OltdzLIpP2u1zi3ol2bKB517FO1wgxiT50yRBvz68XJLTjzUP7
+         TwBECNt0kqAjwe25q2tQxTHSZBpHRned/Q16i/NYRyNYD3cbfHL5aAMf4HQ1Rbnhf++3
+         fVPX2R5gwziO1UGYqy/CGC/g4iX72GlXysi3dSyuZgPTtm/e/A77obcgH9g3i+8MYjvH
+         dJpH8pb277NpRlUqk7Ut41xOgHkLW2ozc7Vr8lEVK0pRTYCNx/ELoN0nsBQxi0/aggU8
+         Wu0pIT1++Jx8unFb0CQxkvyoLL/vboTQuMjeLMKmyzJ+7WiMkkDrl9qyukGJg1sWXuVZ
+         6KiA==
+X-Gm-Message-State: APjAAAXVcejI7Wy4/qe0RYe8IDSIHuCDYy1pIBrCG+nIik60pGBOnL3B
+        WvFuHPuF5waM6o2diDUFTwIEy5wJ5IWVTQ4AUe6wLg==
+X-Google-Smtp-Source: APXvYqyoFbi/L+o957yyE4IdSJSof+8WXHg5DIdFhwDADvJuDbtYCGLkOwlXmnCcLIPQXAgsAaZc433F21iVx/scbc0=
+X-Received: by 2002:ac2:4d16:: with SMTP id r22mr1362407lfi.74.1582519619533;
+ Sun, 23 Feb 2020 20:46:59 -0800 (PST)
 MIME-Version: 1.0
-References: <20200221072349.335551332@linuxfoundation.org> <20200223154049.GB131562@kroah.com>
- <20200223173142.GB485503@kroah.com>
-In-Reply-To: <20200223173142.GB485503@kroah.com>
+References: <20200221072402.315346745@linuxfoundation.org> <20200223154024.GA131562@kroah.com>
+ <20200223173204.GC485503@kroah.com>
+In-Reply-To: <20200223173204.GC485503@kroah.com>
 From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Mon, 24 Feb 2020 09:54:36 +0530
-Message-ID: <CA+G9fYvdHV3pACCHXhBLSkXmrpB1OALFVYHZsyTWNwvOy1Zj8g@mail.gmail.com>
-Subject: Re: [PATCH 5.4 000/344] 5.4.22-stable review
+Date:   Mon, 24 Feb 2020 10:16:48 +0530
+Message-ID: <CA+G9fYuK+qmpofdLThcTW6w2YCCM0byfoy7vvy2FGvgZoes5Pg@mail.gmail.com>
+Subject: Re: [PATCH 5.5 000/399] 5.5.6-stable review
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     open list <linux-kernel@vger.kernel.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
@@ -64,12 +64,12 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, 23 Feb 2020 at 23:01, Greg Kroah-Hartman
+On Sun, 23 Feb 2020 at 23:02, Greg Kroah-Hartman
 <gregkh@linuxfoundation.org> wrote:
 >
 > -rc3 is out:
 >         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
-5.4.22-rc3.gz
+5.5.6-rc3.gz
 
 Results from Linaro=E2=80=99s test farm.
 No regressions on arm64, arm, x86_64, and i386.
@@ -77,21 +77,20 @@ No regressions on arm64, arm, x86_64, and i386.
 Summary
 ------------------------------------------------------------------------
 
-kernel: 5.4.22-rc3
+kernel: 5.5.6-rc3
 git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
 le-rc.git
-git branch: linux-5.4.y
-git commit: 3b5dde2478ad5b400cc44737c1a26e9503608360
-git describe: v5.4.21-338-g3b5dde2478ad
-Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-5.4-oe/bui=
-ld/v5.4.21-338-g3b5dde2478ad
+git branch: linux-5.5.y
+git commit: 8ba99698af46e415241a1582e8fe2b5472440a8a
+git describe: v5.5.5-393-g8ba99698af46
+Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-5.5-oe/bui=
+ld/v5.5.5-393-g8ba99698af46
 
-No regressions (compared to build v5.4.21)
+No regressions (compared to build v5.5.5)
 
-No fixes (compared to build v5.4.21)
+No fixes (compared to build v5.5.5)
 
-
-Ran 27869 total tests in the following environments and test suites.
+Ran 26321 total tests in the following environments and test suites.
 
 Environments
 --------------
@@ -124,6 +123,7 @@ Test Suites
 * ltp-filecaps-tests
 * ltp-fs_bind-tests
 * ltp-fs_perms_simple-tests
+* ltp-fsx-tests
 * ltp-hugetlb-tests
 * ltp-io-tests
 * ltp-ipc-tests
@@ -138,19 +138,18 @@ Test Suites
 * spectre-meltdown-checker-test
 * v4l2-compliance
 * ltp-fs-tests
-* ltp-fsx-tests
-* network-basic-tests
 * ltp-open-posix-tests
+* network-basic-tests
 * kvm-unit-tests
 * ltp-cap_bounds-64k-page_size-tests
 * ltp-cap_bounds-kasan-tests
 * ltp-commands-64k-page_size-tests
-* ltp-commands-kasan-tests
 * ltp-containers-64k-page_size-tests
 * ltp-containers-kasan-tests
 * ltp-cpuhotplug-64k-page_size-tests
 * ltp-cpuhotplug-kasan-tests
 * ltp-cve-64k-page_size-tests
+* ltp-cve-kasan-tests
 * ltp-dio-64k-page_size-tests
 * ltp-dio-kasan-tests
 * ltp-fcntl-locktests-64k-page_size-tests
@@ -185,9 +184,9 @@ Test Suites
 * ltp-syscalls-64k-page_size-tests
 * ltp-syscalls-compat-tests
 * ltp-syscalls-kasan-tests
+* ssuite
 * kselftest-vsyscall-mode-native
 * kselftest-vsyscall-mode-none
-* ssuite
 
 --=20
 Linaro LKFT
