@@ -2,73 +2,160 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 11F3E16EA0D
-	for <lists+stable@lfdr.de>; Tue, 25 Feb 2020 16:28:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 26F3016EA33
+	for <lists+stable@lfdr.de>; Tue, 25 Feb 2020 16:34:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731009AbgBYP2V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 25 Feb 2020 10:28:21 -0500
-Received: from mail-qv1-f67.google.com ([209.85.219.67]:44513 "EHLO
-        mail-qv1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730909AbgBYP2U (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 25 Feb 2020 10:28:20 -0500
-Received: by mail-qv1-f67.google.com with SMTP id n8so5840917qvg.11
-        for <stable@vger.kernel.org>; Tue, 25 Feb 2020 07:28:20 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:from:date:message-id:subject:to;
-        bh=UGEY4jExlsCi3asdtrPMUO8wnlyeQkEzdNYhWNuvD78=;
-        b=lGTDVHCGzJJS5/bMi+gMG5PrsyENyOl9YELAu9HMdxiF+pu5NZFL4PlpGWndBGK9ce
-         /g+WJ+uC0vekvK7VHSnOJzXt3k7igoGdsqMmsOwDxdnMXA+Y2YcvYpF5mcpFvEbXWoBT
-         JwbMrslGof01YA3QR+eVYS2/c/M5z6KNnt+dPbGv59Q6+bz40BEtrpeacVtm1U9pek3C
-         Xw37SKJiOzzFS2qNhw+eXbJ0levnXkyBGYc1UoUKicE5jhHSbQZ+R/8LBaSl4x3+Siiv
-         0H2tb6wn9BDEcmgDFVy5q8p1ABgr/kPzbf0TrbG98gfhz2rBpQtLujX4uXPxcD14yydS
-         iyNQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:from:date:message-id:subject:to;
-        bh=UGEY4jExlsCi3asdtrPMUO8wnlyeQkEzdNYhWNuvD78=;
-        b=nKFnaCoYoAop7gpaMAyjCZH3hiFx2chITeLnMRF721ACnCcC4mE7wZPDUUdw56wF50
-         TwfZ8QH++Kdx4ahRQYvMt4FQLbH2zZR9VJhlP+xLCyDrKca7WKydNNtwGZfP68xo/PL+
-         XyTwUWfSX5z6XYIYRz8pwB6GlXo9/f5DK7z8suqLu8B1i3rvCckML3UR1c9E9SW4rita
-         pVhYmtXPX12LO32F9FtonYZhGJBVbGIfyymELHNWpmyRCks0joY1qL3/hYdO2FRSQU53
-         SrvV62lZvNTICK0L66rnARCJIxSbLiAcouRMuqgSXGG0HLeNySfp0rgqgn9QqCKq3SzU
-         D/Qg==
-X-Gm-Message-State: APjAAAV30lyAHCqEG0OyCm8xnYyiqEJr0ate1GX6dRcmAJX4ZauyvEih
-        9JrSVTQBjYAKpObfrTl5srzhuKvZOij5s0R0fj0=
-X-Google-Smtp-Source: APXvYqzqfBgegJhWtCL0OJcFE40rmrdxXHj+YD436fohEpquYGpSDPN9KiO6ukmjSNqmeJYTugbY5ZlRFd4T+0fuwS8=
-X-Received: by 2002:a05:6214:6aa:: with SMTP id s10mr52335931qvz.138.1582644499931;
- Tue, 25 Feb 2020 07:28:19 -0800 (PST)
+        id S1731042AbgBYPeF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 25 Feb 2020 10:34:05 -0500
+Received: from mga18.intel.com ([134.134.136.126]:18134 "EHLO mga18.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1730971AbgBYPeF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 25 Feb 2020 10:34:05 -0500
+X-Amp-Result: UNKNOWN
+X-Amp-Original-Verdict: FILE UNKNOWN
+X-Amp-File-Uploaded: False
+Received: from fmsmga002.fm.intel.com ([10.253.24.26])
+  by orsmga106.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 25 Feb 2020 07:34:03 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.70,484,1574150400"; 
+   d="scan'208";a="271349579"
+Received: from stinkbox.fi.intel.com (HELO stinkbox) ([10.237.72.174])
+  by fmsmga002.fm.intel.com with SMTP; 25 Feb 2020 07:34:00 -0800
+Received: by stinkbox (sSMTP sendmail emulation); Tue, 25 Feb 2020 17:34:00 +0200
+Date:   Tue, 25 Feb 2020 17:34:00 +0200
+From:   Ville =?iso-8859-1?Q?Syrj=E4l=E4?= <ville.syrjala@linux.intel.com>
+To:     Daniel Vetter <daniel.vetter@ffwll.ch>
+Cc:     DRI Development <dri-devel@lists.freedesktop.org>,
+        Daniel Stone <daniels@collabora.com>,
+        Intel Graphics Development <intel-gfx@lists.freedesktop.org>,
+        stable <stable@vger.kernel.org>,
+        Daniel Vetter <daniel.vetter@intel.com>,
+        Pekka Paalanen <pekka.paalanen@collabora.co.uk>
+Subject: Re: [Intel-gfx] [PATCH] drm: avoid spurious EBUSY due to nonblocking
+ atomic modesets
+Message-ID: <20200225153400.GE13686@intel.com>
+References: <20200225115024.2386811-1-daniel.vetter@ffwll.ch>
+ <20200225144814.GC13686@intel.com>
+ <CAKMK7uFKJd1G8qT2Kup8nOfp22V7eQmDZC=6bdU=UEpqO7K3QQ@mail.gmail.com>
 MIME-Version: 1.0
-Received: by 2002:a05:6214:4ef:0:0:0:0 with HTTP; Tue, 25 Feb 2020 07:28:19
- -0800 (PST)
-From:   "mproject08@gmail.com" <mproject08@gmail.com>
-Date:   Tue, 25 Feb 2020 15:28:19 +0000
-Message-ID: <CAEfYtyFwDNnF_z75Yx5ie8GMTofFNoX-s1MApmoOHAdNErYztQ@mail.gmail.com>
-Subject: RE: BUSINESS ENQUIRY
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <CAKMK7uFKJd1G8qT2Kup8nOfp22V7eQmDZC=6bdU=UEpqO7K3QQ@mail.gmail.com>
+X-Patchwork-Hint: comment
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-RE: BUSINESS ENQUIRY
+On Tue, Feb 25, 2020 at 04:09:26PM +0100, Daniel Vetter wrote:
+> On Tue, Feb 25, 2020 at 3:48 PM Ville Syrjälä
+> <ville.syrjala@linux.intel.com> wrote:
+> >
+> > On Tue, Feb 25, 2020 at 12:50:24PM +0100, Daniel Vetter wrote:
+> > > When doing an atomic modeset with ALLOW_MODESET drivers are allowed to
+> > > pull in arbitrary other resources, including CRTCs (e.g. when
+> > > reconfiguring global resources).
+> > >
+> > > But in nonblocking mode userspace has then no idea this happened,
+> > > which can lead to spurious EBUSY calls, both:
+> > > - when that other CRTC is currently busy doing a page_flip the
+> > >   ALLOW_MODESET commit can fail with an EBUSY
+> > > - on the other CRTC a normal atomic flip can fail with EBUSY because
+> > >   of the additional commit inserted by the kernel without userspace's
+> > >   knowledge
+> > >
+> > > For blocking commits this isn't a problem, because everyone else will
+> > > just block until all the CRTC are reconfigured. Only thing userspace
+> > > can notice is the dropped frames without any reason for why frames got
+> > > dropped.
+> > >
+> > > Consensus is that we need new uapi to handle this properly, but no one
+> > > has any idea what exactly the new uapi should look like. As a stop-gap
+> > > plug this problem by demoting nonblocking commits which might cause
+> > > issues by including CRTCs not in the original request to blocking
+> > > commits.
+> > >
+> > > v2: Add comments and a WARN_ON to enforce this only when allowed - we
+> > > don't want to silently convert page flips into blocking plane updates
+> > > just because the driver is buggy.
+> > >
+> > > v3: Fix inverted WARN_ON (Pekka).
+> > >
+> > > References: https://lists.freedesktop.org/archives/dri-devel/2018-July/182281.html
+> > > Bugzilla: https://gitlab.freedesktop.org/wayland/weston/issues/24#note_9568
+> > > Cc: Daniel Stone <daniel@fooishbar.org>
+> > > Cc: Pekka Paalanen <pekka.paalanen@collabora.co.uk>
+> > > Cc: stable@vger.kernel.org
+> > > Reviewed-by: Daniel Stone <daniels@collabora.com>
+> > > Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
+> > > ---
+> > >  drivers/gpu/drm/drm_atomic.c | 34 +++++++++++++++++++++++++++++++---
+> > >  1 file changed, 31 insertions(+), 3 deletions(-)
+> > >
+> > > diff --git a/drivers/gpu/drm/drm_atomic.c b/drivers/gpu/drm/drm_atomic.c
+> > > index 9ccfbf213d72..4c035abf98b8 100644
+> > > --- a/drivers/gpu/drm/drm_atomic.c
+> > > +++ b/drivers/gpu/drm/drm_atomic.c
+> > > @@ -1362,15 +1362,43 @@ EXPORT_SYMBOL(drm_atomic_commit);
+> > >  int drm_atomic_nonblocking_commit(struct drm_atomic_state *state)
+> > >  {
+> > >       struct drm_mode_config *config = &state->dev->mode_config;
+> > > -     int ret;
+> > > +     unsigned requested_crtc = 0;
+> > > +     unsigned affected_crtc = 0;
+> > > +     struct drm_crtc *crtc;
+> > > +     struct drm_crtc_state *crtc_state;
+> > > +     bool nonblocking = true;
+> > > +     int ret, i;
+> > > +
+> > > +     /*
+> > > +      * For commits that allow modesets drivers can add other CRTCs to the
+> > > +      * atomic commit, e.g. when they need to reallocate global resources.
+> > > +      *
+> > > +      * But when userspace also requests a nonblocking commit then userspace
+> > > +      * cannot know that the commit affects other CRTCs, which can result in
+> > > +      * spurious EBUSY failures. Until we have better uapi plug this by
+> > > +      * demoting such commits to blocking mode.
+> > > +      */
+> > > +     for_each_new_crtc_in_state(state, crtc, crtc_state, i)
+> > > +             requested_crtc |= drm_crtc_mask(crtc);
+> > >
+> > >       ret = drm_atomic_check_only(state);
+> > >       if (ret)
+> > >               return ret;
+> > >
+> > > -     DRM_DEBUG_ATOMIC("committing %p nonblocking\n", state);
+> > > +     for_each_new_crtc_in_state(state, crtc, crtc_state, i)
+> > > +             affected_crtc |= drm_crtc_mask(crtc);
+> > > +
+> > > +     if (affected_crtc != requested_crtc) {
+> > > +             /* adding other CRTC is only allowed for modeset commits */
+> > > +             WARN_ON(!state->allow_modeset);
+> >
+> > Not sure that's really true. What if the driver needs to eg.
+> > redistribute FIFO space or something between the pipes? Or do we
+> > expect drivers to now examine state->allow_modeset to figure out
+> > if they're allowed to do certain things?
+> 
+> Maybe we need more fine-grained flags here, but adding other states
+> (and blocking a commit flow) is exactly the uapi headaches this patch
+> tries to solve here. So if our driver currently adds crtc states to
+> reallocate fifo between pipes for an atomic flip then yes we're
+> breaking userspace. Well, everyone figured out by now that you get
+> random EBUSY and dropped frames for no apparent reason at all, and
+> work around it. But happy, they are not.
 
-We have mandate of our client to source for credible/trustworthy
-investment partnership to manage funds for offshore investment under
-Joint Venture partnership for the period of 10 years on Return on
-Investment (ROI) of 5-10% annually.
+I don't think we do this currently for the FIFO, but in theory we
+could.
 
-We are open for face-to-face live meeting with you/groups for both
-parties to further our discussion, for you/groups to layout your full
-detailed plans and advice on areas of the investment plans and to
-establishing trust/confidence to remove all kinds of skepticism that
-may hinder the realization of this investment partnership.
+The one thing we might do currently is cdclk reprogramming, but that
+can only happen without a full modeset when there's only a single
+active pipe. So we shouldn't hit this right now. But that restriction
+is going to disappear in the future, at which point we may want to
+do this even with multiple active pipes.
 
-More details shall be available once I have your interest confirmed in
-your return mail
-
-Yours Sincerely
-Johnson Laylor
-Office: DFCU House, 26 Kyaddondo Road
-Kampala, Uganda
+-- 
+Ville Syrjälä
+Intel
