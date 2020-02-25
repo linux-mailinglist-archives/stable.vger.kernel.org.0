@@ -2,85 +2,92 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id ACA6F16BDFB
-	for <lists+stable@lfdr.de>; Tue, 25 Feb 2020 10:55:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9000116BE81
+	for <lists+stable@lfdr.de>; Tue, 25 Feb 2020 11:21:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729086AbgBYJzg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 25 Feb 2020 04:55:36 -0500
-Received: from mail-pf1-f196.google.com ([209.85.210.196]:47002 "EHLO
-        mail-pf1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725788AbgBYJzg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 25 Feb 2020 04:55:36 -0500
-Received: by mail-pf1-f196.google.com with SMTP id k29so6884806pfp.13;
-        Tue, 25 Feb 2020 01:55:36 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=9/TmeUl6Orrpw9iJyKF2cvUy7KVXMYW9mff75+x6dlg=;
-        b=j3u7m08y2p7UzNFy01ACdbJzicLjNJIvbEY9WAS5mq+9u3PvywiKG6KcsUKU7z939M
-         gFIftcqkFtBEe7t90qhq94XBNYhnInkzS5+25Rf37EV3IAyKEX8Wh0IqvvpHc0zONKyB
-         vjnzsHm/isvySFAT+zBuVtSMw3q8de0ckQd1rt24D471oW/KFv10SLQqk40Ay3ECfAyn
-         E2LIctw1utjuKHWZu55Zz5/tubRbEZHp4aiJ/0pDcNdOVsHuIlAV5Pz88bcg9F/L38m4
-         eUX4DNudeFL2cVlAmzL0U+Ld6cItm7xLK1GiJ+iVUYEOOuE5raAcgFpOPgmlfZC3xAyd
-         LOPw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=9/TmeUl6Orrpw9iJyKF2cvUy7KVXMYW9mff75+x6dlg=;
-        b=sYUPpABhwa9Aufj55H1r0r98dRBHl+DRqTchZGua6D/NkzfU5QmUrZ+7XUAEBy3Rn8
-         jQ4v4AWTFoZ8vYiGtPx75XsggggMgmtY1SxUBLfETdSwY8h/MF493/F3Q8YhVxXR8wzy
-         uEhhZtkHbTdA/+22wCiLVoZs8XR4saup4jD/xeVm5Swojkel9SOzvkLfC3H8tyfMVuEw
-         we6ey7Y24qQGKFiKDLJJP3aDq5mc6Q/c7plr64BzYabj/Qfe/CjI7U6AfKLLEkk0Fo5f
-         nN5fT4EkFOI7lr3QluKUWCaJ59tkjeG8XOjYA/AsTnxLMNJmkf4FvpobWpUx+P5nzF1S
-         sXVg==
-X-Gm-Message-State: APjAAAXGRJXZpPbuP4ENfvCKC+5TSUW6dMf6kD0jDABSLk9wDRbvCniZ
-        L0LfSDcy67nIXwdo/tJmH/Zehm1CVsSxCcNtosk=
-X-Google-Smtp-Source: APXvYqzw30KS5AwcFDpf0LcS9a3PXLWY+Y8GNLgLcjUUR/GN3NQPfrg4ufmdTSQNpFB1xo7YihEx0iWBm7wFRycE2Oc=
-X-Received: by 2002:a63:798a:: with SMTP id u132mr59871900pgc.203.1582624535612;
- Tue, 25 Feb 2020 01:55:35 -0800 (PST)
+        id S1728958AbgBYKVH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 25 Feb 2020 05:21:07 -0500
+Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:49228 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1729941AbgBYKVH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 25 Feb 2020 05:21:07 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1582626066;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=HTDduFhSgGyXI8Pt5AT3Pqq77oijGM+3E0am3scvXRw=;
+        b=E29bK7pZ97TLCjmiiLN8v+Xzdd1DzL+s9DLTKkEYmeQ/fpahoAnu3g9Cr0v4P/UYptZI1R
+        i6TAbOi73EOe4ypBz0me/DxojLopmBurX/5YOrLzEzPcFQ31r2GjXgemQvW03nKH7gE4+p
+        5NLfVVlJ3DtUJg1gGKkE/2af7MjKc6U=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-83-ywIDTBTWNM6D9v8QavJvlg-1; Tue, 25 Feb 2020 05:20:57 -0500
+X-MC-Unique: ywIDTBTWNM6D9v8QavJvlg-1
+Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id D2B6080272E;
+        Tue, 25 Feb 2020 10:20:55 +0000 (UTC)
+Received: from ming.t460p (ovpn-8-31.pek2.redhat.com [10.72.8.31])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id EEAF81001B2D;
+        Tue, 25 Feb 2020 10:20:49 +0000 (UTC)
+Date:   Tue, 25 Feb 2020 18:20:45 +0800
+From:   Ming Lei <ming.lei@redhat.com>
+To:     Jan Kara <jack@suse.cz>
+Cc:     Jens Axboe <axboe@kernel.dk>, linux-block@vger.kernel.org,
+        tristmd@gmail.com, stable@vger.kernel.org
+Subject: Re: [PATCH] blktrace: Protect q->blk_trace with RCU
+Message-ID: <20200225102045.GB1771@ming.t460p>
+References: <20200206142812.25989-1-jack@suse.cz>
+ <20200219125947.GA29390@quack2.suse.cz>
 MIME-Version: 1.0
-References: <20200223181832.17131-1-kristian@klausen.dk> <20200224011017.C5207208C4@mail.kernel.org>
- <e700ebdc-3dce-c151-3ea5-f7ab1e4cb07f@klausen.dk> <CAHp75VcAZZ-d1BQON0ciLoCGt5=1qh4s1jLGhDdApicT+7BEGg@mail.gmail.com>
- <af54a82e-0b9f-1e88-8741-bd4a3658d8e7@klausen.dk>
-In-Reply-To: <af54a82e-0b9f-1e88-8741-bd4a3658d8e7@klausen.dk>
-From:   Andy Shevchenko <andy.shevchenko@gmail.com>
-Date:   Tue, 25 Feb 2020 11:55:27 +0200
-Message-ID: <CAHp75VfGkn_oGCNyP=RWo9fHvh8YzEy6e7cDCczJefsq2HMRFw@mail.gmail.com>
-Subject: Re: [PATCH v2] platform/x86: asus-wmi: Support laptops where the
- first battery is named BATT
-To:     Kristian Klausen <kristian@klausen.dk>
-Cc:     Sasha Levin <sashal@kernel.org>,
-        Platform Driver <platform-driver-x86@vger.kernel.org>,
-        Stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200219125947.GA29390@quack2.suse.cz>
+User-Agent: Mutt/1.12.1 (2019-06-15)
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Feb 25, 2020 at 11:51 AM Kristian Klausen <kristian@klausen.dk> wrote:
-> On 25.02.2020 10.30, Andy Shevchenko wrote:
-> > On Mon, Feb 24, 2020 at 3:15 AM Kristian Klausen <kristian@klausen.dk> wrote:
-> >> On 24.02.2020 02.10, Sasha Levin wrote:
-> >>> NOTE: The patch will not be queued to stable trees until it is upstream.
-> >>>
-> >>> How should we proceed with this patch?
-> >> The patch should only be applied to the v5.4 and v5.5 trees.
-> > I'm not sure I got this right. Do we have already this change in upstream?
-> > I don't see it there. So, why there is no mention of the v5.6 and
-> > current upstream in above list?
->
-> Sorry about that, my response does not make any sense.
-> The change isn't upstream yet, and should be applied upstream first and
-> the 5.4 and 5.6 tree tree if possible.
+On Wed, Feb 19, 2020 at 01:59:47PM +0100, Jan Kara wrote:
+> On Thu 06-02-20 15:28:12, Jan Kara wrote:
+> > KASAN is reporting that __blk_add_trace() has a use-after-free issue
+> > when accessing q->blk_trace. Indeed the switching of block tracing (and
+> > thus eventual freeing of q->blk_trace) is completely unsynchronized with
+> > the currently running tracing and thus it can happen that the blk_trace
+> > structure is being freed just while __blk_add_trace() works on it.
+> > Protect accesses to q->blk_trace by RCU during tracing and make sure we
+> > wait for the end of RCU grace period when shutting down tracing. Luckily
+> > that is rare enough event that we can afford that. Note that postponing
+> > the freeing of blk_trace to an RCU callback should better be avoided as
+> > it could have unexpected user visible side-effects as debugfs files
+> > would be still existing for a short while block tracing has been shut
+> > down.
+> > 
+> > Link: https://bugzilla.kernel.org/show_bug.cgi?id=205711
+> > CC: stable@vger.kernel.org
+> > Reported-by: Tristan <tristmd@gmail.com>
+> > Signed-off-by: Jan Kara <jack@suse.cz>
+> 
+> Jens, do you plan to pick up the patch? Also the reporter asked me to
+> update the reference as:
+> 
+> Reported-by: Tristan Madani <tristmd@gmail.com>
+> 
+> Should I resend the patch with this update & reviewed-by's or will you fix
+> it up on commit? Thanks.
+> 
 
-The usual pattern is to add Fixes tag and Cc: stable@.
+I have run concurrent quick/repeated blktrace & long-time heavy IO, looks
+this patch just works fine, so:
 
-> Was I wrong CC'ing stable@vger.kernel.org? (suggested by git send-email
-> due to "Cc: stable@vger.kernel.org")
+Tested-by: Ming Lei <ming.lei@redhat.com>
 
--- 
-With Best Regards,
-Andy Shevchenko
+Jens, any chance to take a look at this CVE issue?
+
+Thanks,
+Ming
+
