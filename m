@@ -2,136 +2,122 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DEA2D16F01A
-	for <lists+stable@lfdr.de>; Tue, 25 Feb 2020 21:32:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 68BA016F022
+	for <lists+stable@lfdr.de>; Tue, 25 Feb 2020 21:34:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731190AbgBYUcy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 25 Feb 2020 15:32:54 -0500
-Received: from metis.ext.pengutronix.de ([85.220.165.71]:36369 "EHLO
-        metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730870AbgBYUcy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 25 Feb 2020 15:32:54 -0500
-Received: from gallifrey.ext.pengutronix.de ([2001:67c:670:201:5054:ff:fe8d:eefb] helo=bjornoya.blackshift.org)
-        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <mkl@pengutronix.de>)
-        id 1j6gsq-0006R0-1i; Tue, 25 Feb 2020 21:32:48 +0100
-Received: from [IPv6:2a03:f580:87bc:d400:6ccf:3365:1a9c:55ad] (unknown [IPv6:2a03:f580:87bc:d400:6ccf:3365:1a9c:55ad])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange ECDHE (P-384) server-signature RSA-PSS (4096 bits) server-digest SHA256
-         client-signature RSA-PSS (4096 bits) client-digest SHA256)
-        (Client CN "mkl@blackshift.org", Issuer "StartCom Class 1 Client CA" (not verified))
-        (Authenticated sender: mkl@blackshift.org)
-        by smtp.blackshift.org (Postfix) with ESMTPSA id 2164C4C09B4;
-        Tue, 25 Feb 2020 20:32:45 +0000 (UTC)
-Subject: Re: [PATCH] bonding: do not enslave CAN devices
-To:     Oliver Hartkopp <socketcan@hartkopp.net>, linux-can@vger.kernel.org
-Cc:     netdev@vger.kernel.org,
-        syzbot+c3ea30e1e2485573f953@syzkaller.appspotmail.com,
-        dvyukov@google.com, j.vosburgh@gmail.com, vfalico@gmail.com,
-        andy@greyhouse.net, davem@davemloft.net,
-        linux-stable <stable@vger.kernel.org>
-References: <20200130133046.2047-1-socketcan@hartkopp.net>
-From:   Marc Kleine-Budde <mkl@pengutronix.de>
-Openpgp: preference=signencrypt
-Autocrypt: addr=mkl@pengutronix.de; prefer-encrypt=mutual; keydata=
- mQINBFFVq30BEACtnSvtXHoeHJxG6nRULcvlkW6RuNwHKmrqoksispp43X8+nwqIFYgb8UaX
- zu8T6kZP2wEIpM9RjEL3jdBjZNCsjSS6x1qzpc2+2ivjdiJsqeaagIgvy2JWy7vUa4/PyGfx
- QyUeXOxdj59DvLwAx8I6hOgeHx2X/ntKAMUxwawYfPZpP3gwTNKc27dJWSomOLgp+gbmOmgc
- 6U5KwhAxPTEb3CsT5RicsC+uQQFumdl5I6XS+pbeXZndXwnj5t84M+HEj7RN6bUfV2WZO/AB
- Xt5+qFkC/AVUcj/dcHvZwQJlGeZxoi4veCoOT2MYqfR0ax1MmN+LVRvKm29oSyD4Ts/97cbs
- XsZDRxnEG3z/7Winiv0ZanclA7v7CQwrzsbpCv+oj+zokGuKasofzKdpywkjAfSE1zTyF+8K
- nxBAmzwEqeQ3iKqBc3AcCseqSPX53mPqmwvNVS2GqBpnOfY7Mxr1AEmxdEcRYbhG6Xdn+ACq
- Dq0Db3A++3PhMSaOu125uIAIwMXRJIzCXYSqXo8NIeo9tobk0C/9w3fUfMTrBDtSviLHqlp8
- eQEP8+TDSmRP/CwmFHv36jd+XGmBHzW5I7qw0OORRwNFYBeEuiOIgxAfjjbLGHh9SRwEqXAL
- kw+WVTwh0MN1k7I9/CDVlGvc3yIKS0sA+wudYiselXzgLuP5cQARAQABtCZNYXJjIEtsZWlu
- ZS1CdWRkZSA8bWtsQHBlbmd1dHJvbml4LmRlPokCVAQTAQoAPgIbAwIeAQIXgAULCQgHAwUV
- CgkICwUWAgMBABYhBMFAC6CzmJ5vvH1bXCte4hHFiupUBQJcUsSbBQkM366zAAoJECte4hHF
- iupUgkAP/2RdxKPZ3GMqag33jKwKAbn/fRqAFWqUH9TCsRH3h6+/uEPnZdzhkL4a9p/6OeJn
- Z6NXqgsyRAOTZsSFcwlfxLNHVxBWm8pMwrBecdt4lzrjSt/3ws2GqxPsmza1Gs61lEdYvLST
- Ix2vPbB4FAfE0kizKAjRZzlwOyuHOr2ilujDsKTpFtd8lV1nBNNn6HBIBR5ShvJnwyUdzuby
- tOsSt7qJEvF1x3y49bHCy3uy+MmYuoEyG6zo9udUzhVsKe3hHYC2kfB16ZOBjFC3lH2U5An+
- yQYIIPZrSWXUeKjeMaKGvbg6W9Oi4XEtrwpzUGhbewxCZZCIrzAH2hz0dUhacxB201Y/faY6
- BdTS75SPs+zjTYo8yE9Y9eG7x/lB60nQjJiZVNvZ88QDfVuLl/heuIq+fyNajBbqbtBT5CWf
- mOP4Dh4xjm3Vwlz8imWW/drEVJZJrPYqv0HdPbY8jVMpqoe5jDloyVn3prfLdXSbKPexlJaW
- 5tnPd4lj8rqOFShRnLFCibpeHWIumqrIqIkiRA9kFW3XMgtU6JkIrQzhJb6Tc6mZg2wuYW0d
- Wo2qvdziMgPkMFiWJpsxM9xPk9BBVwR+uojNq5LzdCsXQ2seG0dhaOTaaIDWVS8U/V8Nqjrl
- 6bGG2quo5YzJuXKjtKjZ4R6k762pHJ3tnzI/jnlc1sXz
-Message-ID: <767580d8-1c93-907b-609c-4c1c049b7c42@pengutronix.de>
-Date:   Tue, 25 Feb 2020 21:32:41 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.9.0
+        id S1730566AbgBYUec (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 25 Feb 2020 15:34:32 -0500
+Received: from mail-dm6nam12on2086.outbound.protection.outlook.com ([40.107.243.86]:6141
+        "EHLO NAM12-DM6-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1731776AbgBYUeb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 25 Feb 2020 15:34:31 -0500
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=ltp/Knx8KLVZBUcJalNrSK/AJOQtMTyPmqqoDj3AAQYDiYrsLBgFsdfm1hqmaeLcEtmwlcK2GvdhbtLpLIyt5JojY7cCKFaCTGr9MB2Dm66ZjbJYV8/UEas99bPQS85gQHfVpZe+wzaP7JsVgDnk7/wJXOCO76ZWyT+kBFBC/DEIL/2XRRfcsS9TS3iNhQsVizdBmwYGN6b5lwoQksNZuhtY0GRsH9MvQJqdm9MQUQ76suyAkF0nbWXna6oBikyEzwAWyQtieE4cSN7eDDIpIzmHNemNXhB46EInyRNFXz9u5W02ApkgVFXDVS2j9MFoFN9ogaYUtlvvk/U0SYs/Ng==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=ciSrhoRWl5fJZAbFD2m6ipK9I1Q384FlQu3j2N/Mfk4=;
+ b=IoQkZSFr+VyewX0RZ+QtksGL0d+VG3Y0akEusroKbnVnTT89VE6UJZLPs7iiH7RPjmzMjBGMa/qFOvh9YaKnzWXVV9cJ7LWrUmOlUQCZAceRAhsYm3n127VFls/Dq5OHHirHRlm55wNoJzr6a9lqFTcGi1bHwQJgJ3hVq8k+ZazPfEScuTIFPSPhXvg3toR7jySLAmPHNEAZkq9nAdmor9o4hYTl1n/Nw7oqSNeYxlphsBYR2m96ueR5HDpwzBOp+xcH+DtAmWmFRkiF8UAnQKo6rJ2u87/e6OsqEk3w5cl8DgcKz1dZuPtoxxSBh9oloK8G4XLbJfCN8lAbg72onA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
+ header.d=amd.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=amdcloud.onmicrosoft.com; s=selector2-amdcloud-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=ciSrhoRWl5fJZAbFD2m6ipK9I1Q384FlQu3j2N/Mfk4=;
+ b=HoMgjm4Au0swH41Pf7oZcYNXiaVih+Adp/EHkGSNBkhvQHTdL9bxEiPB5GR0vaz/yGRJO1vrIh/WrwzYoFsjGAT0JSY0Z1yRTFcYREljtbzUU4Q977P4phbEWFA8RpEqVmTfz2tcJBVR2n2cwq8k9gs30x7+9MH0jkXtgueVZe8=
+Authentication-Results: spf=none (sender IP is )
+ smtp.mailfrom=Thomas.Lendacky@amd.com; 
+Received: from DM6PR12MB3163.namprd12.prod.outlook.com (2603:10b6:5:15e::26)
+ by DM6PR12MB4434.namprd12.prod.outlook.com (2603:10b6:5:2ad::12) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.2750.21; Tue, 25 Feb
+ 2020 20:34:29 +0000
+Received: from DM6PR12MB3163.namprd12.prod.outlook.com
+ ([fe80::f0f9:a88f:f840:2733]) by DM6PR12MB3163.namprd12.prod.outlook.com
+ ([fe80::f0f9:a88f:f840:2733%7]) with mapi id 15.20.2750.021; Tue, 25 Feb 2020
+ 20:34:29 +0000
+From:   Tom Lendacky <thomas.lendacky@amd.com>
+To:     linux-kernel@vger.kernel.org, x86@kernel.org,
+        linux-efi@vger.kernel.org, platform-driver-x86@vger.kernel.org
+Cc:     Ard Biesheuvel <ardb@kernel.org>,
+        Darren Hart <dvhart@infradead.org>,
+        Andy Shevchenko <andy@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        "H. Peter Anvin" <hpa@zytor.com>, stable@vger.kernel.org
+Subject: [PATCH v3 1/2] x86/efi: Add TPM related EFI tables to unencrypted mapping checks
+Date:   Tue, 25 Feb 2020 14:34:01 -0600
+Message-Id: <4144cd813f113c20cdfa511cf59500a64e6015be.1582662842.git.thomas.lendacky@amd.com>
+X-Mailer: git-send-email 2.17.1
+In-Reply-To: <cover.1582662842.git.thomas.lendacky@amd.com>
+References: <cover.1582662842.git.thomas.lendacky@amd.com>
+Content-Type: text/plain
+X-ClientProxiedBy: SN4PR0701CA0012.namprd07.prod.outlook.com
+ (2603:10b6:803:28::22) To DM6PR12MB3163.namprd12.prod.outlook.com
+ (2603:10b6:5:15e::26)
 MIME-Version: 1.0
-In-Reply-To: <20200130133046.2047-1-socketcan@hartkopp.net>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-GB
-Content-Transfer-Encoding: 8bit
-X-SA-Exim-Connect-IP: 2001:67c:670:201:5054:ff:fe8d:eefb
-X-SA-Exim-Mail-From: mkl@pengutronix.de
-X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
-X-PTX-Original-Recipient: stable@vger.kernel.org
+X-MS-Exchange-MessageSentRepresentingType: 1
+Received: from tlendack-t1.amd.com (165.204.77.1) by SN4PR0701CA0012.namprd07.prod.outlook.com (2603:10b6:803:28::22) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.2772.14 via Frontend Transport; Tue, 25 Feb 2020 20:34:22 +0000
+X-Mailer: git-send-email 2.17.1
+X-Originating-IP: [165.204.77.1]
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-HT: Tenant
+X-MS-Office365-Filtering-Correlation-Id: 71a4d733-cbf1-4b4f-9df0-08d7ba32192b
+X-MS-TrafficTypeDiagnostic: DM6PR12MB4434:|DM6PR12MB4434:
+X-MS-Exchange-Transport-Forked: True
+X-Microsoft-Antispam-PRVS: <DM6PR12MB44349F2BFE7D78D14A504C7DECED0@DM6PR12MB4434.namprd12.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:8882;
+X-Forefront-PRVS: 0324C2C0E2
+X-Forefront-Antispam-Report: SFV:NSPM;SFS:(10009020)(4636009)(376002)(39860400002)(346002)(366004)(396003)(136003)(189003)(199004)(956004)(6486002)(7416002)(52116002)(7696005)(66556008)(4744005)(316002)(5660300002)(2616005)(6666004)(66946007)(36756003)(86362001)(186003)(81156014)(2906002)(81166006)(4326008)(54906003)(16526019)(66476007)(8936002)(26005)(8676002)(478600001);DIR:OUT;SFP:1101;SCL:1;SRVR:DM6PR12MB4434;H:DM6PR12MB3163.namprd12.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;MX:1;A:1;
+Received-SPF: None (protection.outlook.com: amd.com does not designate
+ permitted sender hosts)
+X-MS-Exchange-SenderADCheck: 1
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: 7/ThVTtYVBFCXtOyG3sHIWFh+APJUt4Ivc4vnNcWDf88abdBNjwgkKiJFFaTteRguDB93JmLbMzh1zxBaK177CVFdaiMfQMvrfAFJ5sczD7JGi3zw2OE+pdocgrvXoDlNyU1oJ+yJnCt8Oi43xzMUdh5VnZfm6Q1cHQvuTofHKwnXlIn44G3/bphlD7RVxKmhsZl0Lwer7ef2kOaCjegbGgnrIv+rB7O/c9l2YKH4dDtLDhdqrU5ouUavdNQrtd4rZrZdFpvDZVQx64xQnRoTe3xmOyz+IcTDJUAwJe6WupPa6SmqRFC/OeksuDE6RqMQEqxyzVwp/+66Nu6txyNY7qwMGjuRuz9FbGJF7Y1L/aEC25oEXQbjNW/LvJOggBRXRZufXcsnzUP9hThUKhAm6KZnLakRB5B8xX6fKjGcGuU0M2lk05v0ZjDNKhL7R3E
+X-MS-Exchange-AntiSpam-MessageData: T4nbNLE7mjOFMGzoF7aW8jnjWZX0ci7u8oDGk2cgSzxLuW36M/r112f+TRbSzWkCwi8Y4cpJpqg58i0vkMnfPs2R2WgSBpQ/af/Us63RIyEgREc95JkooFU5EJT+neI7ds8xApkQ3QYuKBqH+OEKSw==
+X-OriginatorOrg: amd.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 71a4d733-cbf1-4b4f-9df0-08d7ba32192b
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 25 Feb 2020 20:34:29.4347
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: vQ6ft9FPinS9QFvTTY2V5m1u8bFz3T6hpDBPVtmerHPF2D3ydGqI7uE2lWyMzk5dNF6e1stu1j35OYLeLDrRDQ==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM6PR12MB4434
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 1/30/20 2:30 PM, Oliver Hartkopp wrote:
-> Since commit 8df9ffb888c ("can: make use of preallocated can_ml_priv for per
-> device struct can_dev_rcv_lists") the device specific CAN receive filter lists
-> are stored in netdev_priv() and dev->ml_priv points to these filters.
-> 
-> In the bug report Syzkaller enslaved a vxcan1 CAN device and accessed the
-> bonding device with a PF_CAN socket which lead to a crash due to an access of
-> an unhandled bond_dev->ml_priv pointer.
-> 
-> Deny to enslave CAN devices by the bonding driver as the resulting bond_dev
-> pretends to be a CAN device by copying dev->type without really being one.
-> 
-> Reported-by: syzbot+c3ea30e1e2485573f953@syzkaller.appspotmail.com
-> Fixes: 8df9ffb888c ("can: make use of preallocated can_ml_priv for per
-> device struct can_dev_rcv_lists")
-> Cc: linux-stable <stable@vger.kernel.org> # >= v5.4
-> Signed-off-by: Oliver Hartkopp <socketcan@hartkopp.net>
-Acked-by: Marc Kleine-Budde <mkl@pengutronix.de>
+When booting with SME active, EFI tables must be mapped unencrypted since
+they were built by UEFI in unencrypted memory. Update the list of tables
+to be checked during early_memremap() processing to account for the EFI
+TPM tables.
 
-What's the preferred to upstream this? I could take this via the
-linux-can tree.
+This fixes a bug where an EFI TPM log table has been created by UEFI, but
+it lives in memory that has been marked as usable rather than reserved.
 
-regards,
-Marc
+Cc: <stable@vger.kernel.org> # 5.4.x-
+Signed-off-by: Tom Lendacky <thomas.lendacky@amd.com>
+---
+ arch/x86/platform/efi/efi.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-> ---
->  drivers/net/bonding/bond_main.c | 12 ++++++++++++
->  1 file changed, 12 insertions(+)
-> 
-> diff --git a/drivers/net/bonding/bond_main.c b/drivers/net/bonding/bond_main.c
-> index 48d5ec770b94..4b781a7dfd96 100644
-> --- a/drivers/net/bonding/bond_main.c
-> +++ b/drivers/net/bonding/bond_main.c
-> @@ -1475,6 +1475,18 @@ int bond_enslave(struct net_device *bond_dev, struct net_device *slave_dev,
->  		return -EPERM;
->  	}
->  
-> +	/* CAN network devices hold device specific filter lists in
-> +	 * netdev_priv() where dev->ml_priv sets a reference to.
-> +	 * As bonding assumes to have some ethernet-like device it doesn't
-> +	 * take care about these CAN specific filter lists today.
-> +	 * So we deny the enslaving of CAN interfaces here.
-> +	 */
-> +	if (slave_dev->type == ARPHRD_CAN) {
-> +		NL_SET_ERR_MSG(extack, "CAN devices can not be enslaved");
-> +		slave_err(bond_dev, slave_dev, "no bonding on CAN devices\n");
-> +		return -EINVAL;
-> +	}
-> +
->  	/* set bonding device ether type by slave - bonding netdevices are
->  	 * created with ether_setup, so when the slave type is not ARPHRD_ETHER
->  	 * there is a need to override some of the type dependent attribs/funcs.
-> 
-
-
+diff --git a/arch/x86/platform/efi/efi.c b/arch/x86/platform/efi/efi.c
+index 43b24e149312..0a8117865430 100644
+--- a/arch/x86/platform/efi/efi.c
++++ b/arch/x86/platform/efi/efi.c
+@@ -88,6 +88,8 @@ static const unsigned long * const efi_tables[] = {
+ #ifdef CONFIG_EFI_RCI2_TABLE
+ 	&rci2_table_phys,
+ #endif
++	&efi.tpm_log,
++	&efi.tpm_final_log,
+ };
+ 
+ u64 efi_setup;		/* efi setup_data physical address */
 -- 
-Pengutronix e.K.                 | Marc Kleine-Budde           |
-Embedded Linux                   | https://www.pengutronix.de  |
-Vertretung West/Dortmund         | Phone: +49-231-2826-924     |
-Amtsgericht Hildesheim, HRA 2686 | Fax:   +49-5121-206917-5555 |
+2.17.1
+
