@@ -2,85 +2,101 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2667616BFF8
-	for <lists+stable@lfdr.de>; Tue, 25 Feb 2020 12:52:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DBEFE16C08B
+	for <lists+stable@lfdr.de>; Tue, 25 Feb 2020 13:15:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730146AbgBYLwr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 25 Feb 2020 06:52:47 -0500
-Received: from foss.arm.com ([217.140.110.172]:49668 "EHLO foss.arm.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729976AbgBYLwr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 25 Feb 2020 06:52:47 -0500
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 2AF2A1063;
-        Tue, 25 Feb 2020 03:52:46 -0800 (PST)
-Received: from arrakis.emea.arm.com (arrakis.cambridge.arm.com [10.1.196.71])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id E589E3F6CF;
-        Tue, 25 Feb 2020 03:52:43 -0800 (PST)
-Date:   Tue, 25 Feb 2020 11:52:41 +0000
-From:   Catalin Marinas <catalin.marinas@arm.com>
-To:     Macpaul Lin <macpaul.lin@mediatek.com>
-Cc:     Matthias Brugger <matthias.bgg@gmail.com>,
-        Shen Jing <jingx.shen@intel.com>,
-        Sasha Levin <sashal@kernel.org>,
-        John Stultz <john.stultz@linaro.org>,
-        Andrzej Pietrasiewicz <andrzej.p@collabora.com>,
-        Vincent Pelletier <plr.vincent@gmail.com>,
-        Jerry Zhang <zhangjerry@google.com>, linux-usb@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-mediatek@lists.infradead.org,
-        Mediatek WSD Upstream <wsd_upstream@mediatek.com>,
-        CC Hwang <cc.hwang@mediatek.com>,
-        Loda Chou <loda.chou@mediatek.com>,
-        Al Viro <viro@zeniv.linux.org.uk>, stable@vger.kernel.org,
-        andreyknvl@google.com
-Subject: Re: [PATCH v3] usb: gadget: f_fs: try to fix AIO issue under ARM 64
- bit TAGGED mode
-Message-ID: <20200225115241.GB2410978@arrakis.emea.arm.com>
-References: <1582472947-22471-1-git-send-email-macpaul.lin@mediatek.com>
- <1582627315-21123-1-git-send-email-macpaul.lin@mediatek.com>
+        id S1729306AbgBYMPr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 25 Feb 2020 07:15:47 -0500
+Received: from ex13-edg-ou-002.vmware.com ([208.91.0.190]:18426 "EHLO
+        EX13-EDG-OU-002.vmware.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725788AbgBYMPq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 25 Feb 2020 07:15:46 -0500
+Received: from sc9-mailhost3.vmware.com (10.113.161.73) by
+ EX13-EDG-OU-002.vmware.com (10.113.208.156) with Microsoft SMTP Server id
+ 15.0.1156.6; Tue, 25 Feb 2020 04:15:43 -0800
+Received: from akaher-lnx-dev.eng.vmware.com (unknown [10.110.19.203])
+        by sc9-mailhost3.vmware.com (Postfix) with ESMTP id 021A7405C3;
+        Tue, 25 Feb 2020 04:15:38 -0800 (PST)
+From:   Ajay Kaher <akaher@vmware.com>
+To:     <gregkh@linuxfoundation.org>
+CC:     <torvalds@linux-foundation.org>, <willy@infradead.org>,
+        <jannh@google.com>, <vbabka@suse.cz>, <will.deacon@arm.com>,
+        <punit.agrawal@arm.com>, <steve.capper@arm.com>,
+        <kirill.shutemov@linux.intel.com>,
+        <aneesh.kumar@linux.vnet.ibm.com>, <catalin.marinas@arm.com>,
+        <n-horiguchi@ah.jp.nec.com>, <mark.rutland@arm.com>,
+        <mhocko@suse.com>, <mike.kravetz@oracle.com>,
+        <akpm@linux-foundation.org>, <mszeredi@redhat.com>,
+        <viro@zeniv.linux.org.uk>, <stable@vger.kernel.org>,
+        <srivatsab@vmware.com>, <srivatsa@csail.mit.edu>,
+        <amakhalov@vmware.com>, <srinidhir@vmware.com>,
+        <bvikas@vmware.com>, <anishs@vmware.com>, <vsirnapalli@vmware.com>,
+        <sharathg@vmware.com>, <srostedt@vmware.com>, <akaher@vmware.com>
+Subject: [PATCH v4 v4.4.y 0/7] Backported fixes for 4.4 stable tree
+Date:   Wed, 26 Feb 2020 01:46:07 +0530
+Message-ID: <1582661774-30925-1-git-send-email-akaher@vmware.com>
+X-Mailer: git-send-email 2.7.4
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1582627315-21123-1-git-send-email-macpaul.lin@mediatek.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+Received-SPF: None (EX13-EDG-OU-002.vmware.com: akaher@vmware.com does not
+ designate permitted sender hosts)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Feb 25, 2020 at 06:41:55PM +0800, Macpaul Lin wrote:
-> diff --git a/drivers/usb/gadget/function/f_fs.c b/drivers/usb/gadget/function/f_fs.c
-> index ce1d023..728c260 100644
-> --- a/drivers/usb/gadget/function/f_fs.c
-> +++ b/drivers/usb/gadget/function/f_fs.c
-> @@ -35,6 +35,7 @@
->  #include <linux/mmu_context.h>
->  #include <linux/poll.h>
->  #include <linux/eventfd.h>
-> +#include <linux/thread_info.h>
->  
->  #include "u_fs.h"
->  #include "u_f.h"
-> @@ -826,6 +827,10 @@ static void ffs_user_copy_worker(struct work_struct *work)
->  	if (io_data->read && ret > 0) {
->  		mm_segment_t oldfs = get_fs();
->  
-> +#if defined(CONFIG_ARM64)
-> +		if (IS_ENABLED(CONFIG_ARM64_TAGGED_ADDR_ABI))
-> +			set_thread_flag(TIF_TAGGED_ADDR);
-> +#endif
->  		set_fs(USER_DS);
->  		use_mm(io_data->mm);
->  		ret = ffs_copy_to_iter(io_data->buf, ret, &io_data->data);
+[Posting again after correcting CC’ed e-mail id]
 
-I really don't think that's the correct fix. The TIF_TAGGED_ADDR is a
-per-thread property and not really compatible with use_mm(). We've had
-tagged pointers in arm64 user-space since day 0 and access_ok() would
-have prevented them, so this config is not something new. For some
-reason, adb now passes them to the kernel (presumably because user-space
-makes more use of them). If you have strong reasons not to fix it in
-adb, the next best thing may be to untag the addresses in the usb gadget
-driver.
+These patches include few backported fixes for the 4.4 stable
+tree.
+I would appreciate if you could kindly consider including them in the
+next release.
 
--- 
-Catalin
+Ajay
+
+---
+
+[Changes from v3]:
+- Dropped [Patch v3 8/8] [2] as patches 1-7 are independent from patch 8
+  and patch 8 may require more work.
+
+[Changes from v2]:
+Merged following changes from Vlastimil's series [1]:
+- Added page_ref_count() in [Patch v3 5/8]
+- Added missing refcount overflow checks on x86 and s390 [Patch v3 5/8]
+- Added [Patch v3 8/8]
+- Removed 7aef4172c795 i.e. [Patch v2 3/8]
+
+[1] https://lore.kernel.org/stable/20191108093814.16032-1-vbabka@suse.cz/
+[2] https://lore.kernel.org/stable/1576529149-14269-9-git-send-email-akaher@vmware.com/
+---
+
+[PATCH v4 1/7]:
+Backporting of upstream commit f958d7b528b1:
+mm: make page ref count overflow check tighter and more explicit
+
+[PATCH v4 2/7]:
+Backporting of upstream commit 88b1a17dfc3e:
+mm: add 'try_get_page()' helper function
+
+[PATCH v4 3/7]:
+Backporting of upstream commit a3e328556d41:
+mm, gup: remove broken VM_BUG_ON_PAGE compound check for hugepages
+
+[PATCH v4 4/7]:
+Backporting of upstream commit d63206ee32b6:
+mm, gup: ensure real head page is ref-counted when using hugepages
+
+[PATCH v4 5/7]:
+Backporting of upstream commit 8fde12ca79af:
+mm: prevent get_user_pages() from overflowing page refcount
+
+[PATCH v4 6/7]:
+Backporting of upstream commit 7bf2d1df8082:
+pipe: add pipe_buf_get() helper
+
+[PATCH v4 7/7]:
+Backporting of upstream commit 15fab63e1e57:
+fs: prevent page refcount overflow in pipe_buf_get
+
