@@ -2,87 +2,85 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D416D16F05A
-	for <lists+stable@lfdr.de>; Tue, 25 Feb 2020 21:46:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A169616F2C4
+	for <lists+stable@lfdr.de>; Tue, 25 Feb 2020 23:52:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728515AbgBYUqR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 25 Feb 2020 15:46:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40482 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727624AbgBYUqR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 25 Feb 2020 15:46:17 -0500
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CC60520675;
-        Tue, 25 Feb 2020 20:46:15 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582663576;
-        bh=4IWGZkg45H4wwTJtRfLUUjItUN8vOEIOKvgXXkO48Ws=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=iOW/0dQ1nMgVUxUvb8Ly1JCK6yWLNLEbKpLGtLM2DH+s361gQ89XpGOTsitOHm4EP
-         tIqB1M6SForyzr64pIxrAInpJwS0d/CIcxQ1Y21vGmYLN1ZXwMkkB3417fo0qskFcz
-         hr8f7Pz6oOgNg54re0P8PRA5VfAD0+S8mXFWi8NI=
-Date:   Tue, 25 Feb 2020 21:46:13 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Kai-Heng Feng <kai.heng.feng@canonical.com>
-Cc:     stable <stable@vger.kernel.org>,
-        Alexander Duyck <alexander.duyck@gmail.com>,
-        zdai@linux.vnet.ibm.com,
-        "open list:NETWORKING DRIVERS" <netdev@vger.kernel.org>,
-        open list <linux-kernel@vger.kernel.org>,
-        "moderated list:INTEL ETHERNET DRIVERS" 
-        <intel-wired-lan@lists.osuosl.org>,
-        "Kirsher, Jeffrey T" <jeffrey.t.kirsher@intel.com>,
-        zdai@us.ibm.com, David Miller <davem@davemloft.net>
-Subject: Re: [RFC PATCH v2] e1000e: Use rtnl_lock to prevent race conditions
- between net and pci/pm
-Message-ID: <20200225204613.GA14366@kroah.com>
-References: <CAKgT0UdwqGGKvaSJ+3vd-_d-6t9MB=No+7SpkbOT2PnynRK+2w@mail.gmail.com>
- <20191007172559.11166.29328.stgit@localhost.localdomain>
- <681404C7-9015-4C64-B8FE-2C93D75A7318@canonical.com>
+        id S1729287AbgBYWwn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 25 Feb 2020 17:52:43 -0500
+Received: from mail-vs1-f65.google.com ([209.85.217.65]:37225 "EHLO
+        mail-vs1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729271AbgBYWwj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 25 Feb 2020 17:52:39 -0500
+Received: by mail-vs1-f65.google.com with SMTP id x18so582202vsq.4
+        for <stable@vger.kernel.org>; Tue, 25 Feb 2020 14:52:38 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=/7MQONwXqnHZRXQDO+5cFHOizIPUenx2kjrngECUQSQ=;
+        b=ML4KwGNSQIrO0D7ruk1fYSg4pB4VLASqOhJQ3+uvt30zctxClfPEpcN/raNLCNmle0
+         SzlFwyCZJpsknAC2v7Mx6mWCveGnkD2zRjQq6VBxAdF6c4ozhJ2E419eCZdmA/VTqlB5
+         gtjdkt9Xhdv+Hl8JBcTplN/eAA3umRtDZL0Ks=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=/7MQONwXqnHZRXQDO+5cFHOizIPUenx2kjrngECUQSQ=;
+        b=o0ghJTH7cnjXbxvThQyp96tgVFtpbYuRpFm25yYm1hMQV/I3Q0rqwTJbcRM02fpLck
+         A3r0V3J93xWEIRHQodXG5OK+hAKW+7fpvCY4yy+cMb7sDkSiiSu5g0wSIVWYKO4sabpl
+         0Yk4LNrAKRXnjf2F1X64rb1nuijQUwNqaxLanVNPahhu4a1HU7z73AsIoqmY8ngzmj0j
+         FTZDMx9BxO551d4z+w6+PMneWP9S45PhJ/IeW0CKgXCaoP4L84f2n2jxpQZP0XGLrVVT
+         4RoEQ8Mn97/3jgXStNbNjbYWzDVjd952DMSidTT4fqNWN+fVsCpphEfWc9uYmb818dEp
+         TN8g==
+X-Gm-Message-State: APjAAAXlq0szdUoKxU0NW7C7A54JstuyoCUcW2+a7PhhQqYtcgnIA2Ry
+        F/Rg/9BnaP4vCqXp7PtmoQ72qZ1x+3g=
+X-Google-Smtp-Source: APXvYqwB4S8x3T68PcsBX23PmOSr7vJmOE1lAFNrdlJCrdTOXuPjmdya7WaypMH5qxmMi2znsLqfOw==
+X-Received: by 2002:a05:6102:677:: with SMTP id z23mr1419686vsf.202.1582671157901;
+        Tue, 25 Feb 2020 14:52:37 -0800 (PST)
+Received: from mail-vs1-f51.google.com (mail-vs1-f51.google.com. [209.85.217.51])
+        by smtp.gmail.com with ESMTPSA id r190sm95731vkf.43.2020.02.25.14.52.36
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 25 Feb 2020 14:52:36 -0800 (PST)
+Received: by mail-vs1-f51.google.com with SMTP id 7so552042vsr.10
+        for <stable@vger.kernel.org>; Tue, 25 Feb 2020 14:52:36 -0800 (PST)
+X-Received: by 2002:a67:e342:: with SMTP id s2mr1474052vsm.198.1582671156402;
+ Tue, 25 Feb 2020 14:52:36 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <681404C7-9015-4C64-B8FE-2C93D75A7318@canonical.com>
+References: <20200103045016.12459-1-wgong@codeaurora.org> <20200105.144704.221506192255563950.davem@davemloft.net>
+In-Reply-To: <20200105.144704.221506192255563950.davem@davemloft.net>
+From:   Doug Anderson <dianders@chromium.org>
+Date:   Tue, 25 Feb 2020 14:52:24 -0800
+X-Gmail-Original-Message-ID: <CAD=FV=WiceRwLUS1sdL_W=ELKYZ9zKE13e8vx9SO0+tRvX74QQ@mail.gmail.com>
+Message-ID: <CAD=FV=WiceRwLUS1sdL_W=ELKYZ9zKE13e8vx9SO0+tRvX74QQ@mail.gmail.com>
+Subject: Re: [PATCH v2] net: qrtr: fix len of skb_put_padto in qrtr_node_enqueue
+To:     "stable@vger.kernel.org" <stable@vger.kernel.org>
+Cc:     Wen Gong <wgong@codeaurora.org>, netdev <netdev@vger.kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>, ath11k@lists.infradead.org,
+        David Miller <davem@davemloft.net>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Feb 25, 2020 at 05:42:26PM +0800, Kai-Heng Feng wrote:
-> Hi Greg,
-> 
-> > On Oct 8, 2019, at 01:27, Alexander Duyck <alexander.duyck@gmail.com> wrote:
-> > 
-> > From: Alexander Duyck <alexander.h.duyck@linux.intel.com>
-> > 
-> > This patch is meant to address possible race conditions that can exist
-> > between network configuration and power management. A similar issue was
-> > fixed for igb in commit 9474933caf21 ("igb: close/suspend race in
-> > netif_device_detach").
-> > 
-> > In addition it consolidates the code so that the PCI error handling code
-> > will essentially perform the power management freeze on the device prior to
-> > attempting a reset, and will thaw the device afterwards if that is what it
-> > is planning to do. Otherwise when we call close on the interface it should
-> > see it is detached and not attempt to call the logic to down the interface
-> > and free the IRQs again.
-> > 
-> >> From what I can tell the check that was adding the check for __E1000_DOWN
-> > in e1000e_close was added when runtime power management was added. However
-> > it should not be relevant for us as we perform a call to
-> > pm_runtime_get_sync before we call e1000_down/free_irq so it should always
-> > be back up before we call into this anyway.
-> > 
-> > Signed-off-by: Alexander Duyck <alexander.h.duyck@linux.intel.com>
-> 
-> Please merge this commit, a7023819404ac9bd2bb311a4fafd38515cfa71ec to stable v5.14.
-> 
-> `modprobe -r e1000e` triggers a null pointer dereference [1] after the the following two patches are applied to v5.4.y:
-> d635e7c4b34e6a630c7a1e8f1a8fd52c3e3ceea7 e1000e: Revert "e1000e: Make watchdog use delayed work"
-> 21c6137939723ed6f5e4aec7882cdfc247304c27 e1000e: Drop unnecessary __E1000_DOWN bit twiddling
+Hi,
 
-Now queued up, thanks.
 
-greg k-h
+On Sun, Jan 5, 2020 at 2:47 PM David Miller <davem@davemloft.net> wrote:
+>
+> From: Wen Gong <wgong@codeaurora.org>
+> Date: Fri,  3 Jan 2020 12:50:16 +0800
+>
+> > The len used for skb_put_padto is wrong, it need to add len of hdr.
+>
+> Thanks, applied.
+
+I noticed this patch is in mainline now as:
+
+ce57785bf91b net: qrtr: fix len of skb_put_padto in qrtr_node_enqueue
+
+Though I'm not an expert on the code, it feels like a stable candidate
+unless someone objects.
+
+-Doug
