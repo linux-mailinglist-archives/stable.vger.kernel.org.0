@@ -2,111 +2,155 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E63AE16BF47
-	for <lists+stable@lfdr.de>; Tue, 25 Feb 2020 12:07:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EE4A116BFF3
+	for <lists+stable@lfdr.de>; Tue, 25 Feb 2020 12:50:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729792AbgBYLHo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 25 Feb 2020 06:07:44 -0500
-Received: from mailgw01.mediatek.com ([210.61.82.183]:33669 "EHLO
-        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1729034AbgBYLHn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 25 Feb 2020 06:07:43 -0500
-X-UUID: 27556acbd761478096be470492a74c69-20200225
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=mediatek.com; s=dk;
-        h=Content-Transfer-Encoding:MIME-Version:Content-Type:References:In-Reply-To:Date:CC:To:From:Subject:Message-ID; bh=NIVA4F3l7yQpEwqBqiJgTY82QKy3hO5czh6wpcjlijk=;
-        b=Ipz4bO+D3YZ9Y9KXCCPN+lEr4fmGYyzfYDpyIEMemegZZoCB71iSkjODWd04jRlkz6ssb/WsobqN8qZ3hgvHrs5XRU022KA0ciirYZz68kmqxRd2euDvEGEu7KXMgW+/sYnCraC93eFjoGE8RdDJ92ZekTE1Eu+8gPnXy2j6g+g=;
-X-UUID: 27556acbd761478096be470492a74c69-20200225
-Received: from mtkexhb02.mediatek.inc [(172.21.101.103)] by mailgw01.mediatek.com
-        (envelope-from <miles.chen@mediatek.com>)
-        (Cellopoint E-mail Firewall v4.1.10 Build 0809 with TLS)
-        with ESMTP id 1274444266; Tue, 25 Feb 2020 19:07:38 +0800
-Received: from mtkcas09.mediatek.inc (172.21.101.178) by
- mtkmbs01n2.mediatek.inc (172.21.101.79) with Microsoft SMTP Server (TLS) id
- 15.0.1395.4; Tue, 25 Feb 2020 19:03:29 +0800
-Received: from [172.21.77.33] (172.21.77.33) by mtkcas09.mediatek.inc
- (172.21.101.73) with Microsoft SMTP Server id 15.0.1395.4 via Frontend
- Transport; Tue, 25 Feb 2020 19:07:22 +0800
-Message-ID: <1582628855.31160.3.camel@mtkswgap22>
-Subject: Re: [PATCH v3] usb: gadget: f_fs: try to fix AIO issue under ARM 64
- bit TAGGED mode
-From:   Miles Chen <miles.chen@mediatek.com>
-To:     Macpaul Lin <macpaul.lin@mediatek.com>
-CC:     Matthias Brugger <matthias.bgg@gmail.com>,
-        Shen Jing <jingx.shen@intel.com>,
-        Sasha Levin <sashal@kernel.org>,
-        John Stultz <john.stultz@linaro.org>,
-        Andrzej Pietrasiewicz <andrzej.p@collabora.com>,
-        Vincent Pelletier <plr.vincent@gmail.com>,
-        Jerry Zhang <zhangjerry@google.com>,
-        <linux-usb@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-mediatek@lists.infradead.org>,
-        Mediatek WSD Upstream <wsd_upstream@mediatek.com>,
-        CC Hwang <cc.hwang@mediatek.com>,
-        Loda Chou <loda.chou@mediatek.com>,
-        Al Viro <viro@zeniv.linux.org.uk>, <stable@vger.kernel.org>
-Date:   Tue, 25 Feb 2020 19:07:35 +0800
-In-Reply-To: <1582627315-21123-1-git-send-email-macpaul.lin@mediatek.com>
-References: <1582472947-22471-1-git-send-email-macpaul.lin@mediatek.com>
-         <1582627315-21123-1-git-send-email-macpaul.lin@mediatek.com>
-Content-Type: text/plain; charset="UTF-8"
-X-Mailer: Evolution 3.2.3-0ubuntu6 
+        id S1729973AbgBYLud (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 25 Feb 2020 06:50:33 -0500
+Received: from mail-wr1-f66.google.com ([209.85.221.66]:37133 "EHLO
+        mail-wr1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729976AbgBYLuc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 25 Feb 2020 06:50:32 -0500
+Received: by mail-wr1-f66.google.com with SMTP id l5so10123039wrx.4
+        for <stable@vger.kernel.org>; Tue, 25 Feb 2020 03:50:31 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=ffwll.ch; s=google;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=PdTyKBaTg8Qo4ILE+rwR1Bwd8DQYGX//WMu/YUlCs0I=;
+        b=OfMcq4QDoay9vzi4dyREOeBWd6QLCX66XG1G0uxkLuLjNFp5w2ZtK8lTMmdE+t4XQI
+         5gUC+n2Xk3V0m8K+OV35IaOODDOm5xLiu4FYy/6tT1Jz/T20ug1h2ZsR2J4OJG8JgFBn
+         vzItZhUyCeUXYZpbkHX18Ft+7BdC1ZFPiA668=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=PdTyKBaTg8Qo4ILE+rwR1Bwd8DQYGX//WMu/YUlCs0I=;
+        b=MX1b4+Coo8ckMqU59iGLnSwk0tjCnGjM6G1dni3Zho6RnEIJH9hD0iq36BGRc9o9hf
+         bBaodrWYrMpd1fyR3Xc/L6mNg/hp9HFwq9JkjK1n3qq+n+qoksTax4yRZ7B0SAoMPBDv
+         3R8HSkkPdXlIjpatHnVnZpoTbDN4LoPeqC62C/rCQDBa7JbWJzTiMqjCAZO2F2cRI4bj
+         Z//FsfxYLq1KagXlhnJ5Fljz8PTp/K7JOYz1ZupxoYiQkR32hFQiNrrbNflwAJyQmfHc
+         7uKjsh61dXbIXhzM4L293A9R277yRb2Ds6csCfgmKabE+f5M56osuUfSb6FzY098hRqe
+         0gLw==
+X-Gm-Message-State: APjAAAVTVtuzejWScQOUx7IyFftaKL263YjPwxE+KSTKye5TdhQhzmI5
+        5Ap0kWutI5AkQsbqvps8exXQ3A==
+X-Google-Smtp-Source: APXvYqxXmRcPlYalesaPbDBTyZlFmRdgPXFsGhjv1DdX1GWp4d7EOFwNeqbJZ15b4V7LTbW5RLLohA==
+X-Received: by 2002:adf:f607:: with SMTP id t7mr3807177wrp.36.1582631430430;
+        Tue, 25 Feb 2020 03:50:30 -0800 (PST)
+Received: from phenom.ffwll.local ([2a02:168:57f4:0:efd0:b9e5:5ae6:c2fa])
+        by smtp.gmail.com with ESMTPSA id k7sm3674674wmi.19.2020.02.25.03.50.29
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 25 Feb 2020 03:50:29 -0800 (PST)
+From:   Daniel Vetter <daniel.vetter@ffwll.ch>
+To:     DRI Development <dri-devel@lists.freedesktop.org>
+Cc:     Intel Graphics Development <intel-gfx@lists.freedesktop.org>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        Daniel Stone <daniel@fooishbar.org>,
+        Pekka Paalanen <pekka.paalanen@collabora.co.uk>,
+        stable@vger.kernel.org, Daniel Stone <daniels@collabora.com>,
+        Daniel Vetter <daniel.vetter@intel.com>
+Subject: [PATCH] drm: avoid spurious EBUSY due to nonblocking atomic modesets
+Date:   Tue, 25 Feb 2020 12:50:24 +0100
+Message-Id: <20200225115024.2386811-1-daniel.vetter@ffwll.ch>
+X-Mailer: git-send-email 2.24.1
 MIME-Version: 1.0
-X-TM-SNTS-SMTP: 4C2CF332432AB414CFC0F2323587578A8A6BD2A698FE908B77F606313F3EF5E22000:8
-X-MTK:  N
-Content-Transfer-Encoding: base64
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-T24gVHVlLCAyMDIwLTAyLTI1IGF0IDE4OjQxICswODAwLCBNYWNwYXVsIExpbiB3cm90ZToNCj4g
-VGhpcyBpc3N1ZSB3YXMgZm91bmQgd2hlbiBhZGJkIHRyeWluZyB0byBvcGVuIGZ1bmN0aW9uZnMg
-d2l0aCBBSU8gbW9kZS4NCj4gVXN1YWxseSwgd2UgbmVlZCB0byBzZXQgInNldHByb3Agc3lzLnVz
-Yi5mZnMuYWlvX2NvbXBhdCAwIiB0byBlbmFibGUNCj4gYWRiZCB3aXRoIEFJTyBtb2RlIG9uIEFu
-ZHJvaWQuDQo+IA0KPiBXaGVuIGFkYmQgaXMgb3BlbmluZyBmdW5jdGlvbmZzLCBpdCB3aWxsIHRy
-eSB0byByZWFkIDI0IGJ5dGVzIGF0IHRoZQ0KPiBmaXJzdCByZWFkIEkvTyBjb250cm9sLiBJZiB0
-aGlzIHJlYWRpbmcgaGFzIGJlZW4gZmFpbGVkLCBhZGJkIHdpbGwNCj4gdHJ5IHRvIHNlbmQgRlVO
-Q1RJT05GU19DTEVBUl9IQUxUIHRvIGZ1bmN0aW9uZnMuIFdoZW4gYWRiZCBpcyBpbiBBSU8NCj4g
-bW9kZSwgZnVuY3Rpb25mcyB3aWxsIGJlIGFjdGVkIHdpdGggYXN5bmNyb25pemVkIEkvTyBwYXRo
-LiBBZnRlciB0aGUNCj4gc3VjY2Vzc2Z1bCByZWFkIHRyYW5zZmVyIGhhcyBiZWVuIGNvbXBsZXRl
-ZCBieSBnYWRnZXQgaGFyZHdhcmUsIHRoZQ0KPiBmb2xsb3dpbmcgc2VyaWVzIG9mIGZ1bmN0aW9u
-cyB3aWxsIGJlIGNhbGxlZC4NCj4gICBmZnNfZXBmaWxlX2FzeW5jX2lvX2NvbXBsZXRlKCkgLT4g
-ZmZzX3VzZXJfY29weV93b3JrZXIoKSAtPg0KPiAgICAgY29weV90b19pdGVyKCkgLT4gX2NvcHlf
-dG9faXRlcigpIC0+IGNvcHlvdXQoKSAtPg0KPiAgICAgaXRlcmF0ZV9hbmRfYWR2YW5jZSgpIC0+
-IGl0ZXJhdGVfaW92ZWMoKQ0KPiANCj4gQWRkaW5nIGRlYnVnIHRyYWNlIHRvIHRoZXNlIGZ1bmN0
-aW9ucywgaXQgaGFzIGJlZW4gZm91bmQgdGhhdCBpbg0KPiBjb3B5b3V0KCksIGFjY2Vzc19vaygp
-IHdpbGwgY2hlY2sgaWYgdGhlIHVzZXIgc3BhY2UgYWRkcmVzcyBpcyB2YWxpZA0KPiB0byB3cml0
-ZS4gSG93ZXZlciBpZiBDT05GSUdfQVJNNjRfVEFHR0VEX0FERFJfQUJJIGlzIGVuYWJsZWQsIGFk
-YmQNCj4gYWx3YXlzIHBhc3NlcyB1c2VyIHNwYWNlIGFkZHJlc3Mgc3RhcnQgd2l0aCAiMHgzQyIg
-dG8gZ2FkZ2V0J3MgQUlPDQo+IGJsb2Nrcy4gVGhpcyB0YWdnZWQgYWRkcmVzcyB3aWxsIGNhdXNl
-IGFjY2Vzc19vaygpIGNoZWNrIGFsd2F5cyBmYWlsLg0KPiBXaGljaCBjYXVzZXMgbGF0ZXIgY2Fs
-Y3VsYXRpb24gaW4gaXRlcmF0ZV9pb3ZlYygpIHR1cm4gemVyby4NCj4gQ29weW91dCgpIHdvbid0
-IGNvcHkgZGF0YSB0byB1c2Vyc3BhY2Ugc2luY2UgdGhlIGxlbmd0aCB0byBiZSBjb3BpZWQNCj4g
-InYuaW92X2xlbiIgd2lsbCBiZSB6ZXJvLiBGaW5hbGx5IGxlYWRzIGZmc19jb3B5X3RvX2l0ZXIo
-KSBhbHdheXMgcmV0dXJuDQo+IC1FRkFVTFQsIGNhdXNlcyBhZGJkIGNhbm5vdCBvcGVuIGZ1bmN0
-aW9uZnMgYW5kIHNlbmQNCj4gRlVOQ1RJT05GU19DTEVBUl9IQUxULg0KPiANCj4gU2lnbmVkLW9m
-Zi1ieTogTWFjcGF1bCBMaW4gPG1hY3BhdWwubGluQG1lZGlhdGVrLmNvbT4NCj4gLS0tDQo+IENo
-YW5nZXMgZm9yIHYzOg0KPiAgIC0gRml4IG1pc3NwZWxsaW5nIGluIGNvbW1pdCBtZXNzYWdlLg0K
-DQpDb3VsZCB5b3Ugc2F5ICJ0aGFuayB5b3UiIHRvIFBldGVyIGZvciBoaXMgY29tbWVudCBhbmQg
-YWRkIA0KIkNjOiBQZXRlciBDaGVuIDxwZXRlci5jaGVuQG54cC5jb20+IiB0byB0aGlzIHBhdGNo
-LCBwbGVhc2U/DQoNCj4gDQo+IENoYW5nZXMgZm9yIHYyOg0KPiAgIC0gRml4IGJ1aWxkIGVycm9y
-IGZvciAzMi1iaXQgbG9hZC4gQW4gI2lmIGRlZmluZWQoQ09ORklHX0FSTTY0KSBzdGlsbCBuZWVk
-DQo+ICAgICBmb3IgYXZvaWRpbmcgdW5kZWNsYXJlZCBkZWZpbmVzLg0KPiANCj4gIGRyaXZlcnMv
-dXNiL2dhZGdldC9mdW5jdGlvbi9mX2ZzLmMgfCAgICA1ICsrKysrDQo+ICAxIGZpbGUgY2hhbmdl
-ZCwgNSBpbnNlcnRpb25zKCspDQo+IA0KPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy91c2IvZ2FkZ2V0
-L2Z1bmN0aW9uL2ZfZnMuYyBiL2RyaXZlcnMvdXNiL2dhZGdldC9mdW5jdGlvbi9mX2ZzLmMNCj4g
-aW5kZXggY2UxZDAyMy4uNzI4YzI2MCAxMDA2NDQNCj4gLS0tIGEvZHJpdmVycy91c2IvZ2FkZ2V0
-L2Z1bmN0aW9uL2ZfZnMuYw0KPiArKysgYi9kcml2ZXJzL3VzYi9nYWRnZXQvZnVuY3Rpb24vZl9m
-cy5jDQo+IEBAIC0zNSw2ICszNSw3IEBADQo+ICAjaW5jbHVkZSA8bGludXgvbW11X2NvbnRleHQu
-aD4NCj4gICNpbmNsdWRlIDxsaW51eC9wb2xsLmg+DQo+ICAjaW5jbHVkZSA8bGludXgvZXZlbnRm
-ZC5oPg0KPiArI2luY2x1ZGUgPGxpbnV4L3RocmVhZF9pbmZvLmg+DQo+ICANCj4gICNpbmNsdWRl
-ICJ1X2ZzLmgiDQo+ICAjaW5jbHVkZSAidV9mLmgiDQo+IEBAIC04MjYsNiArODI3LDEwIEBAIHN0
-YXRpYyB2b2lkIGZmc191c2VyX2NvcHlfd29ya2VyKHN0cnVjdCB3b3JrX3N0cnVjdCAqd29yaykN
-Cj4gIAlpZiAoaW9fZGF0YS0+cmVhZCAmJiByZXQgPiAwKSB7DQo+ICAJCW1tX3NlZ21lbnRfdCBv
-bGRmcyA9IGdldF9mcygpOw0KPiAgDQo+ICsjaWYgZGVmaW5lZChDT05GSUdfQVJNNjQpDQo+ICsJ
-CWlmIChJU19FTkFCTEVEKENPTkZJR19BUk02NF9UQUdHRURfQUREUl9BQkkpKQ0KPiArCQkJc2V0
-X3RocmVhZF9mbGFnKFRJRl9UQUdHRURfQUREUik7DQo+ICsjZW5kaWYNCj4gIAkJc2V0X2ZzKFVT
-RVJfRFMpOw0KPiAgCQl1c2VfbW0oaW9fZGF0YS0+bW0pOw0KPiAgCQlyZXQgPSBmZnNfY29weV90
-b19pdGVyKGlvX2RhdGEtPmJ1ZiwgcmV0LCAmaW9fZGF0YS0+ZGF0YSk7DQoNCg==
+When doing an atomic modeset with ALLOW_MODESET drivers are allowed to
+pull in arbitrary other resources, including CRTCs (e.g. when
+reconfiguring global resources).
+
+But in nonblocking mode userspace has then no idea this happened,
+which can lead to spurious EBUSY calls, both:
+- when that other CRTC is currently busy doing a page_flip the
+  ALLOW_MODESET commit can fail with an EBUSY
+- on the other CRTC a normal atomic flip can fail with EBUSY because
+  of the additional commit inserted by the kernel without userspace's
+  knowledge
+
+For blocking commits this isn't a problem, because everyone else will
+just block until all the CRTC are reconfigured. Only thing userspace
+can notice is the dropped frames without any reason for why frames got
+dropped.
+
+Consensus is that we need new uapi to handle this properly, but no one
+has any idea what exactly the new uapi should look like. As a stop-gap
+plug this problem by demoting nonblocking commits which might cause
+issues by including CRTCs not in the original request to blocking
+commits.
+
+v2: Add comments and a WARN_ON to enforce this only when allowed - we
+don't want to silently convert page flips into blocking plane updates
+just because the driver is buggy.
+
+v3: Fix inverted WARN_ON (Pekka).
+
+References: https://lists.freedesktop.org/archives/dri-devel/2018-July/182281.html
+Bugzilla: https://gitlab.freedesktop.org/wayland/weston/issues/24#note_9568
+Cc: Daniel Stone <daniel@fooishbar.org>
+Cc: Pekka Paalanen <pekka.paalanen@collabora.co.uk>
+Cc: stable@vger.kernel.org
+Reviewed-by: Daniel Stone <daniels@collabora.com>
+Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
+---
+ drivers/gpu/drm/drm_atomic.c | 34 +++++++++++++++++++++++++++++++---
+ 1 file changed, 31 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/gpu/drm/drm_atomic.c b/drivers/gpu/drm/drm_atomic.c
+index 9ccfbf213d72..4c035abf98b8 100644
+--- a/drivers/gpu/drm/drm_atomic.c
++++ b/drivers/gpu/drm/drm_atomic.c
+@@ -1362,15 +1362,43 @@ EXPORT_SYMBOL(drm_atomic_commit);
+ int drm_atomic_nonblocking_commit(struct drm_atomic_state *state)
+ {
+ 	struct drm_mode_config *config = &state->dev->mode_config;
+-	int ret;
++	unsigned requested_crtc = 0;
++	unsigned affected_crtc = 0;
++	struct drm_crtc *crtc;
++	struct drm_crtc_state *crtc_state;
++	bool nonblocking = true;
++	int ret, i;
++
++	/*
++	 * For commits that allow modesets drivers can add other CRTCs to the
++	 * atomic commit, e.g. when they need to reallocate global resources.
++	 *
++	 * But when userspace also requests a nonblocking commit then userspace
++	 * cannot know that the commit affects other CRTCs, which can result in
++	 * spurious EBUSY failures. Until we have better uapi plug this by
++	 * demoting such commits to blocking mode.
++	 */
++	for_each_new_crtc_in_state(state, crtc, crtc_state, i)
++		requested_crtc |= drm_crtc_mask(crtc);
+ 
+ 	ret = drm_atomic_check_only(state);
+ 	if (ret)
+ 		return ret;
+ 
+-	DRM_DEBUG_ATOMIC("committing %p nonblocking\n", state);
++	for_each_new_crtc_in_state(state, crtc, crtc_state, i)
++		affected_crtc |= drm_crtc_mask(crtc);
++
++	if (affected_crtc != requested_crtc) {
++		/* adding other CRTC is only allowed for modeset commits */
++		WARN_ON(!state->allow_modeset);
++
++		DRM_DEBUG_ATOMIC("demoting %p to blocking mode to avoid EBUSY\n", state);
++		nonblocking = false;
++	} else {
++		DRM_DEBUG_ATOMIC("committing %p nonblocking\n", state);
++	}
+ 
+-	return config->funcs->atomic_commit(state->dev, state, true);
++	return config->funcs->atomic_commit(state->dev, state, nonblocking);
+ }
+ EXPORT_SYMBOL(drm_atomic_nonblocking_commit);
+ 
+-- 
+2.24.1
 
