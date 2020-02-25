@@ -2,230 +2,63 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AAAEA16BDB5
-	for <lists+stable@lfdr.de>; Tue, 25 Feb 2020 10:42:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D8C2316BDE4
+	for <lists+stable@lfdr.de>; Tue, 25 Feb 2020 10:51:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729072AbgBYJmf convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Tue, 25 Feb 2020 04:42:35 -0500
-Received: from youngberry.canonical.com ([91.189.89.112]:55398 "EHLO
-        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729324AbgBYJmf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 25 Feb 2020 04:42:35 -0500
-Received: from mail-pj1-f71.google.com ([209.85.216.71])
-        by youngberry.canonical.com with esmtps (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        (Exim 4.86_2)
-        (envelope-from <kai.heng.feng@canonical.com>)
-        id 1j6WjY-0007FV-Fb
-        for stable@vger.kernel.org; Tue, 25 Feb 2020 09:42:32 +0000
-Received: by mail-pj1-f71.google.com with SMTP id hi12so1729818pjb.7
-        for <stable@vger.kernel.org>; Tue, 25 Feb 2020 01:42:32 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:subject:from:in-reply-to:date:cc
-         :content-transfer-encoding:message-id:references:to;
-        bh=qW9RGA2yoPMiW3Kx/nzk+m/gnWxZba3lZu/gpv/Ykio=;
-        b=DmmDTP7I7r9QJOK00UPvQ9GkEBj/1DY+l3lnZ1FgrPzKIeLey4wfrDc7o3sXBIBl0Q
-         PffOUq/l3G+djgRmaEJSNSsMlzihe447IxQBpctr+wOBag9YHB08JDlkdiTafOM55KLx
-         ZTTmIYsOU5fgxjD0cm/9PmiE9+oVyKd8J2vWMo3dXrS9s0+cBC4X+JV1Cf1zu4o5N2XS
-         ixyyJoslvFrtuS5Uk44rizfWNDMtgycQP48GWKmGf2LX9lpe2Vk6r/DzC/qoaI/22FOv
-         thixVascAkK+aqt14QSL0O18BeVr+FNlui5XVo5BNng4MF83NtIomYEN/8EGNYZNVwTV
-         t5xg==
-X-Gm-Message-State: APjAAAU48qYBTbI2Ewaa8kiHutWpa/5cDmgIqY5PVCXOPO7Jm6lFpjL3
-        WPs0Dt1GCtlLQo6AIZ0CtTf4edB7QnQR+oCJ92ShqgF3orI9IOqcRtGxgHbYZatzW2CqKutbisc
-        JVT3n2x4yY75FCCGRBut+WyMJjR/GJ+q26g==
-X-Received: by 2002:a17:902:b089:: with SMTP id p9mr54667618plr.42.1582623751054;
-        Tue, 25 Feb 2020 01:42:31 -0800 (PST)
-X-Google-Smtp-Source: APXvYqzXiUrpXHoo48RK24Wp0HqIr5ldhZ93iqCXYewVgNjhMgIUvCWcxmth/JlUGNfosIYuNKD1nw==
-X-Received: by 2002:a17:902:b089:: with SMTP id p9mr54667588plr.42.1582623750614;
-        Tue, 25 Feb 2020 01:42:30 -0800 (PST)
-Received: from 2001-b011-380f-3214-6d62-6b9e-e5b8-db59.dynamic-ip6.hinet.net (2001-b011-380f-3214-6d62-6b9e-e5b8-db59.dynamic-ip6.hinet.net. [2001:b011:380f:3214:6d62:6b9e:e5b8:db59])
-        by smtp.gmail.com with ESMTPSA id e18sm16697476pfm.24.2020.02.25.01.42.28
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 25 Feb 2020 01:42:30 -0800 (PST)
-Content-Type: text/plain;
-        charset=us-ascii
-Mime-Version: 1.0 (Mac OS X Mail 13.0 \(3608.60.0.2.5\))
-Subject: Re: [RFC PATCH v2] e1000e: Use rtnl_lock to prevent race conditions
- between net and pci/pm
-From:   Kai-Heng Feng <kai.heng.feng@canonical.com>
-In-Reply-To: <20191007172559.11166.29328.stgit@localhost.localdomain>
-Date:   Tue, 25 Feb 2020 17:42:26 +0800
-Cc:     Alexander Duyck <alexander.duyck@gmail.com>,
-        zdai@linux.vnet.ibm.com,
-        "open list:NETWORKING DRIVERS" <netdev@vger.kernel.org>,
-        open list <linux-kernel@vger.kernel.org>,
-        "moderated list:INTEL ETHERNET DRIVERS" 
-        <intel-wired-lan@lists.osuosl.org>,
-        "Kirsher, Jeffrey T" <jeffrey.t.kirsher@intel.com>,
-        zdai@us.ibm.com, David Miller <davem@davemloft.net>
-Content-Transfer-Encoding: 8BIT
-Message-Id: <681404C7-9015-4C64-B8FE-2C93D75A7318@canonical.com>
-References: <CAKgT0UdwqGGKvaSJ+3vd-_d-6t9MB=No+7SpkbOT2PnynRK+2w@mail.gmail.com>
- <20191007172559.11166.29328.stgit@localhost.localdomain>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable <stable@vger.kernel.org>
-X-Mailer: Apple Mail (2.3608.60.0.2.5)
+        id S1729264AbgBYJvz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 25 Feb 2020 04:51:55 -0500
+Received: from mail.klausen.dk ([174.138.9.187]:49972 "EHLO mail.klausen.dk"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1729178AbgBYJvz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 25 Feb 2020 04:51:55 -0500
+Subject: Re: [PATCH v2] platform/x86: asus-wmi: Support laptops where the
+ first battery is named BATT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=klausen.dk; s=dkim;
+        t=1582624312;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=cayDO/spxhnm0XTSfjb5VkL79VovgljmFLAhBNwnvBY=;
+        b=IfTxTlgfITmIqZynGBEFT0XHg8r3YczQ5bwVetW5Jch554lwAk08+T0vAnCFhTec+n0tjh
+        XbEe8UvWDI44MPvg5b3sgCKk9sI0qYTWTNns7hqIy0G54aIG1cxAcU5bjW/z5v2QugEh1o
+        vs7sd8rVZyaLMNiT9DNfc2g/tVuPtLI=
+To:     Andy Shevchenko <andy.shevchenko@gmail.com>
+Cc:     Sasha Levin <sashal@kernel.org>,
+        Platform Driver <platform-driver-x86@vger.kernel.org>,
+        Stable <stable@vger.kernel.org>
+References: <20200223181832.17131-1-kristian@klausen.dk>
+ <20200224011017.C5207208C4@mail.kernel.org>
+ <e700ebdc-3dce-c151-3ea5-f7ab1e4cb07f@klausen.dk>
+ <CAHp75VcAZZ-d1BQON0ciLoCGt5=1qh4s1jLGhDdApicT+7BEGg@mail.gmail.com>
+From:   Kristian Klausen <kristian@klausen.dk>
+Message-ID: <af54a82e-0b9f-1e88-8741-bd4a3658d8e7@klausen.dk>
+Date:   Tue, 25 Feb 2020 10:51:50 +0100
+MIME-Version: 1.0
+In-Reply-To: <CAHp75VcAZZ-d1BQON0ciLoCGt5=1qh4s1jLGhDdApicT+7BEGg@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Greg,
+On 25.02.2020 10.30, Andy Shevchenko wrote:
+> On Mon, Feb 24, 2020 at 3:15 AM Kristian Klausen <kristian@klausen.dk> wrote:
+>> On 24.02.2020 02.10, Sasha Levin wrote:
+>>> NOTE: The patch will not be queued to stable trees until it is upstream.
+>>>
+>>> How should we proceed with this patch?
+>> The patch should only be applied to the v5.4 and v5.5 trees.
+> I'm not sure I got this right. Do we have already this change in upstream?
+> I don't see it there. So, why there is no mention of the v5.6 and
+> current upstream in above list?
 
-> On Oct 8, 2019, at 01:27, Alexander Duyck <alexander.duyck@gmail.com> wrote:
-> 
-> From: Alexander Duyck <alexander.h.duyck@linux.intel.com>
-> 
-> This patch is meant to address possible race conditions that can exist
-> between network configuration and power management. A similar issue was
-> fixed for igb in commit 9474933caf21 ("igb: close/suspend race in
-> netif_device_detach").
-> 
-> In addition it consolidates the code so that the PCI error handling code
-> will essentially perform the power management freeze on the device prior to
-> attempting a reset, and will thaw the device afterwards if that is what it
-> is planning to do. Otherwise when we call close on the interface it should
-> see it is detached and not attempt to call the logic to down the interface
-> and free the IRQs again.
-> 
->> From what I can tell the check that was adding the check for __E1000_DOWN
-> in e1000e_close was added when runtime power management was added. However
-> it should not be relevant for us as we perform a call to
-> pm_runtime_get_sync before we call e1000_down/free_irq so it should always
-> be back up before we call into this anyway.
-> 
-> Signed-off-by: Alexander Duyck <alexander.h.duyck@linux.intel.com>
+Sorry about that, my response does not make any sense.
+The change isn't upstream yet, and should be applied upstream first and 
+the 5.4 and 5.6 tree tree if possible.
+Was I wrong CC'ing stable@vger.kernel.org? (suggested by git send-email 
+due to "Cc: stable@vger.kernel.org")
 
-Please merge this commit, a7023819404ac9bd2bb311a4fafd38515cfa71ec to stable v5.14.
-
-`modprobe -r e1000e` triggers a null pointer dereference [1] after the the following two patches are applied to v5.4.y:
-d635e7c4b34e6a630c7a1e8f1a8fd52c3e3ceea7 e1000e: Revert "e1000e: Make watchdog use delayed work"
-21c6137939723ed6f5e4aec7882cdfc247304c27 e1000e: Drop unnecessary __E1000_DOWN bit twiddling
-
-[1] https://bugs.launchpad.net/bugs/1864303
-
-Kai-Heng
-
-> ---
-> 
-> RFC v2: Dropped some unused variables
-> 	Added logic to check for device present before removing to pm_freeze
-> 	Fixed misplaced err_irq to before rtnl_unlock()
-> 
-> drivers/net/ethernet/intel/e1000e/netdev.c |   40 +++++++++++++++-------------
-> 1 file changed, 21 insertions(+), 19 deletions(-)
-> 
-> diff --git a/drivers/net/ethernet/intel/e1000e/netdev.c b/drivers/net/ethernet/intel/e1000e/netdev.c
-> index d7d56e42a6aa..8b4e589aca36 100644
-> --- a/drivers/net/ethernet/intel/e1000e/netdev.c
-> +++ b/drivers/net/ethernet/intel/e1000e/netdev.c
-> @@ -4715,12 +4715,12 @@ int e1000e_close(struct net_device *netdev)
-> 
-> 	pm_runtime_get_sync(&pdev->dev);
-> 
-> -	if (!test_bit(__E1000_DOWN, &adapter->state)) {
-> +	if (netif_device_present(netdev)) {
-> 		e1000e_down(adapter, true);
-> 		e1000_free_irq(adapter);
-> 
-> 		/* Link status message must follow this format */
-> -		pr_info("%s NIC Link is Down\n", adapter->netdev->name);
-> +		pr_info("%s NIC Link is Down\n", netdev->name);
-> 	}
-> 
-> 	napi_disable(&adapter->napi);
-> @@ -6298,10 +6298,14 @@ static int e1000e_pm_freeze(struct device *dev)
-> {
-> 	struct net_device *netdev = dev_get_drvdata(dev);
-> 	struct e1000_adapter *adapter = netdev_priv(netdev);
-> +	bool present;
-> 
-> +	rtnl_lock();
-> +
-> +	present = netif_device_present(netdev);
-> 	netif_device_detach(netdev);
-> 
-> -	if (netif_running(netdev)) {
-> +	if (present && netif_running(netdev)) {
-> 		int count = E1000_CHECK_RESET_COUNT;
-> 
-> 		while (test_bit(__E1000_RESETTING, &adapter->state) && count--)
-> @@ -6313,6 +6317,8 @@ static int e1000e_pm_freeze(struct device *dev)
-> 		e1000e_down(adapter, false);
-> 		e1000_free_irq(adapter);
-> 	}
-> +	rtnl_unlock();
-> +
-> 	e1000e_reset_interrupt_capability(adapter);
-> 
-> 	/* Allow time for pending master requests to run */
-> @@ -6626,27 +6632,31 @@ static int __e1000_resume(struct pci_dev *pdev)
-> 	return 0;
-> }
-> 
-> -#ifdef CONFIG_PM_SLEEP
-> static int e1000e_pm_thaw(struct device *dev)
-> {
-> 	struct net_device *netdev = dev_get_drvdata(dev);
-> 	struct e1000_adapter *adapter = netdev_priv(netdev);
-> +	int rc = 0;
-> 
-> 	e1000e_set_interrupt_capability(adapter);
-> -	if (netif_running(netdev)) {
-> -		u32 err = e1000_request_irq(adapter);
-> 
-> -		if (err)
-> -			return err;
-> +	rtnl_lock();
-> +	if (netif_running(netdev)) {
-> +		rc = e1000_request_irq(adapter);
-> +		if (rc)
-> +			goto err_irq;
-> 
-> 		e1000e_up(adapter);
-> 	}
-> 
-> 	netif_device_attach(netdev);
-> +err_irq:
-> +	rtnl_unlock();
-> 
-> -	return 0;
-> +	return rc;
-> }
-> 
-> +#ifdef CONFIG_PM_SLEEP
-> static int e1000e_pm_suspend(struct device *dev)
-> {
-> 	struct pci_dev *pdev = to_pci_dev(dev);
-> @@ -6818,16 +6828,11 @@ static void e1000_netpoll(struct net_device *netdev)
-> static pci_ers_result_t e1000_io_error_detected(struct pci_dev *pdev,
-> 						pci_channel_state_t state)
-> {
-> -	struct net_device *netdev = pci_get_drvdata(pdev);
-> -	struct e1000_adapter *adapter = netdev_priv(netdev);
-> -
-> -	netif_device_detach(netdev);
-> +	e1000e_pm_freeze(&pdev->dev);
-> 
-> 	if (state == pci_channel_io_perm_failure)
-> 		return PCI_ERS_RESULT_DISCONNECT;
-> 
-> -	if (netif_running(netdev))
-> -		e1000e_down(adapter, true);
-> 	pci_disable_device(pdev);
-> 
-> 	/* Request a slot slot reset. */
-> @@ -6893,10 +6898,7 @@ static void e1000_io_resume(struct pci_dev *pdev)
-> 
-> 	e1000_init_manageability_pt(adapter);
-> 
-> -	if (netif_running(netdev))
-> -		e1000e_up(adapter);
-> -
-> -	netif_device_attach(netdev);
-> +	e1000e_pm_thaw(&pdev->dev);
-> 
-> 	/* If the controller has AMT, do not set DRV_LOAD until the interface
-> 	 * is up.  For all other cases, let the f/w know that the h/w is now
-> 
 
