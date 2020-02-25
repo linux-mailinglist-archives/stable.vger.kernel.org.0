@@ -2,228 +2,78 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B383616C098
-	for <lists+stable@lfdr.de>; Tue, 25 Feb 2020 13:18:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6BD0816C0D7
+	for <lists+stable@lfdr.de>; Tue, 25 Feb 2020 13:31:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729034AbgBYMSL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 25 Feb 2020 07:18:11 -0500
-Received: from ex13-edg-ou-001.vmware.com ([208.91.0.189]:59982 "EHLO
-        EX13-EDG-OU-001.vmware.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726019AbgBYMSL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 25 Feb 2020 07:18:11 -0500
-Received: from sc9-mailhost3.vmware.com (10.113.161.73) by
- EX13-EDG-OU-001.vmware.com (10.113.208.155) with Microsoft SMTP Server id
- 15.0.1156.6; Tue, 25 Feb 2020 04:18:08 -0800
-Received: from akaher-lnx-dev.eng.vmware.com (unknown [10.110.19.203])
-        by sc9-mailhost3.vmware.com (Postfix) with ESMTP id 0DD63408C1;
-        Tue, 25 Feb 2020 04:18:02 -0800 (PST)
-From:   Ajay Kaher <akaher@vmware.com>
-To:     <gregkh@linuxfoundation.org>
-CC:     <torvalds@linux-foundation.org>, <willy@infradead.org>,
-        <jannh@google.com>, <vbabka@suse.cz>, <will.deacon@arm.com>,
-        <punit.agrawal@arm.com>, <steve.capper@arm.com>,
-        <kirill.shutemov@linux.intel.com>,
-        <aneesh.kumar@linux.vnet.ibm.com>, <catalin.marinas@arm.com>,
-        <n-horiguchi@ah.jp.nec.com>, <mark.rutland@arm.com>,
-        <mhocko@suse.com>, <mike.kravetz@oracle.com>,
-        <akpm@linux-foundation.org>, <mszeredi@redhat.com>,
-        <viro@zeniv.linux.org.uk>, <stable@vger.kernel.org>,
-        <srivatsab@vmware.com>, <srivatsa@csail.mit.edu>,
-        <amakhalov@vmware.com>, <srinidhir@vmware.com>,
-        <bvikas@vmware.com>, <anishs@vmware.com>, <vsirnapalli@vmware.com>,
-        <sharathg@vmware.com>, <srostedt@vmware.com>, <akaher@vmware.com>,
-        <stable@kernel.org>
-Subject: [PATCH v4 v4.4.y 7/7] fs: prevent page refcount overflow in pipe_buf_get
-Date:   Wed, 26 Feb 2020 01:46:14 +0530
-Message-ID: <1582661774-30925-8-git-send-email-akaher@vmware.com>
-X-Mailer: git-send-email 2.7.4
-In-Reply-To: <1582661774-30925-1-git-send-email-akaher@vmware.com>
-References: <1582661774-30925-1-git-send-email-akaher@vmware.com>
+        id S1729899AbgBYMbs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 25 Feb 2020 07:31:48 -0500
+Received: from mail-wm1-f66.google.com ([209.85.128.66]:39212 "EHLO
+        mail-wm1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729781AbgBYMbs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 25 Feb 2020 07:31:48 -0500
+Received: by mail-wm1-f66.google.com with SMTP id c84so2963377wme.4
+        for <stable@vger.kernel.org>; Tue, 25 Feb 2020 04:31:46 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:from:date:message-id:subject:to;
+        bh=bZwPA3RGwD8pU8aBxNxgLZ7Z78acc8f6Au1L1blgYZs=;
+        b=D0G8t26W+KpUjKAcMh4+97G/zRthe6JH5pexb8YbTeOms7z9qTBwVWBUB2R+ZmA3mv
+         54IF9zjg7vX7KYxMmUJhAnjjQ06KffrJeo34k5gYTBBfdnAJQuRUHW9CLi8xwdYrB1NP
+         tkIYsRufH985RPEbG7AyzFvoQtOFmwk9pdwQ9IsxQ9uNXi4pl+OYAW9DwuXmRoiNjRdf
+         bXKzbJn66DxapJxxG98azWpAZrYYZ8TBVX6Zr9qQ5QweRMW88E5EYI63xWeCFE7Dur4+
+         cyniotXboKL7tNfa+dGNP7XQ/n2gdo9D9xjneGYkpbuZyR0QAkzE/oR2cyBf0YMIlbNM
+         V5Bg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:from:date:message-id:subject:to;
+        bh=bZwPA3RGwD8pU8aBxNxgLZ7Z78acc8f6Au1L1blgYZs=;
+        b=uA3xP5Ral1HDxQ1HzWsTM+nakaGjkHuUHLct7r/mGPO0TK8Bz7GNiVbydhyakMGrJp
+         6gNZglEPB4JNczBHI6c9AOg/6LbUJ/uuwi8d//a4cFrRmUPvcZ4368Sy0ajYFsN/1SUp
+         Q9LTPyeQJPpo+Q8ur8LsQGdANfH5qUtcD7kZCKqJyUI0DFYxC01MypEY9Nu/I4eFqf8q
+         y3GpYKHztF4QiR7Kv50nW9WaZYERROKHAPZiNlqcfrV24+Wg2azJwCbdsUtYMMYsgM2+
+         zHA2ryJrATrhZVdluIl/nvRWGAYSQMJ7/k/W06R47M96xARSKbD/E4/qr2O6NptBOb/E
+         fupA==
+X-Gm-Message-State: APjAAAUftWe1I6+TE4u4Sf9Jv1FTyU46roWxk9k92Ccew4hXwngBtPVN
+        IT0yA7VC06NyRaH1bTjh4w2PwlvbXHWdJxaXGcg=
+X-Google-Smtp-Source: APXvYqzMpkmBJ1PulBF5ucVF4c/crDYx/qD70mPjsICtY6coqwfq1ldIn8D60H70RyFZHfVCI9Ewairg5JSc0LnxSVI=
+X-Received: by 2002:a7b:cf01:: with SMTP id l1mr5090079wmg.86.1582633906196;
+ Tue, 25 Feb 2020 04:31:46 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain
-Received-SPF: None (EX13-EDG-OU-001.vmware.com: akaher@vmware.com does not
- designate permitted sender hosts)
+Received: by 2002:a5d:4b82:0:0:0:0:0 with HTTP; Tue, 25 Feb 2020 04:31:45
+ -0800 (PST)
+From:   "fedmfiinance10@gmail.com" <fedmfiinance10@gmail.com>
+Date:   Tue, 25 Feb 2020 12:31:45 +0000
+Message-ID: <CAHbjaFB_bW-e54b9r-KmXOr0GfWZ4kuw-g1po9WtCogPZo7o5Q@mail.gmail.com>
+Subject: Prompt reply would be greatly appreciated
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matthew Wilcox <willy@infradead.org>
+RE: LOAN FACILITY
 
-commit 15fab63e1e57be9fdb5eec1bbc5916e9825e9acb upstream.
+Have you been trying to obtain a Loan from any of the Banks or Loan
+Companies and they have refused to grant you Loan due to bad credit?.
+We have Loan facility at a low Interest Rate of 3% annually for a
+duration of 15 years with 24 months moratorium period.
 
-Change pipe_buf_get() to return a bool indicating whether it succeeded
-in raising the refcount of the page (if the thing in the pipe is a page).
-This removes another mechanism for overflowing the page refcount.  All
-callers converted to handle a failure.
+The categories of Loan facility offered include but not limited to:
+Business Loan, Personal Loan, Company Loan, Mortgage Loan, Debt
+consolidation and financial funding for both turnkey and mega projects
+etc.
 
-Reported-by: Jann Horn <jannh@google.com>
-Signed-off-by: Matthew Wilcox <willy@infradead.org>
-Cc: stable@kernel.org
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-[ 4.4.y backport notes:
-  Regarding the change in generic_pipe_buf_get(), note that
-  page_cache_get() is the same as get_page(). See mainline commit
-  09cbfeaf1a5a6 "mm, fs: get rid of PAGE_CACHE_* and
-  page_cache_{get,release} macros" for context. ]
-Signed-off-by: Ajay Kaher <akaher@vmware.com>
-Signed-off-by: Vlastimil Babka <vbabka@suse.cz>
----
- fs/fuse/dev.c             | 12 ++++++------
- fs/pipe.c                 |  4 ++--
- fs/splice.c               | 12 ++++++++++--
- include/linux/pipe_fs_i.h | 10 ++++++----
- kernel/trace/trace.c      |  6 +++++-
- 5 files changed, 29 insertions(+), 15 deletions(-)
+Should you find this interesting, kindly get in touch with your
+business plan for details, terms and conditions and share your
+WhatsApp line for easy communication.
 
-diff --git a/fs/fuse/dev.c b/fs/fuse/dev.c
-index 36a5df9..16891f5 100644
---- a/fs/fuse/dev.c
-+++ b/fs/fuse/dev.c
-@@ -2031,10 +2031,8 @@ static ssize_t fuse_dev_splice_write(struct pipe_inode_info *pipe,
- 		rem += pipe->bufs[(pipe->curbuf + idx) & (pipe->buffers - 1)].len;
- 
- 	ret = -EINVAL;
--	if (rem < len) {
--		pipe_unlock(pipe);
--		goto out;
--	}
-+	if (rem < len)
-+		goto out_free;
- 
- 	rem = len;
- 	while (rem) {
-@@ -2052,7 +2050,9 @@ static ssize_t fuse_dev_splice_write(struct pipe_inode_info *pipe,
- 			pipe->curbuf = (pipe->curbuf + 1) & (pipe->buffers - 1);
- 			pipe->nrbufs--;
- 		} else {
--			pipe_buf_get(pipe, ibuf);
-+			if (!pipe_buf_get(pipe, ibuf))
-+				goto out_free;
-+
- 			*obuf = *ibuf;
- 			obuf->flags &= ~PIPE_BUF_FLAG_GIFT;
- 			obuf->len = rem;
-@@ -2075,13 +2075,13 @@ static ssize_t fuse_dev_splice_write(struct pipe_inode_info *pipe,
- 	ret = fuse_dev_do_write(fud, &cs, len);
- 
- 	pipe_lock(pipe);
-+out_free:
- 	for (idx = 0; idx < nbuf; idx++) {
- 		struct pipe_buffer *buf = &bufs[idx];
- 		buf->ops->release(pipe, buf);
- 	}
- 	pipe_unlock(pipe);
- 
--out:
- 	kfree(bufs);
- 	return ret;
- }
-diff --git a/fs/pipe.c b/fs/pipe.c
-index 1e7263b..6534470 100644
---- a/fs/pipe.c
-+++ b/fs/pipe.c
-@@ -178,9 +178,9 @@ EXPORT_SYMBOL(generic_pipe_buf_steal);
-  *	in the tee() system call, when we duplicate the buffers in one
-  *	pipe into another.
-  */
--void generic_pipe_buf_get(struct pipe_inode_info *pipe, struct pipe_buffer *buf)
-+bool generic_pipe_buf_get(struct pipe_inode_info *pipe, struct pipe_buffer *buf)
- {
--	page_cache_get(buf->page);
-+	return try_get_page(buf->page);
- }
- EXPORT_SYMBOL(generic_pipe_buf_get);
- 
-diff --git a/fs/splice.c b/fs/splice.c
-index fde1263..57ccc58 100644
---- a/fs/splice.c
-+++ b/fs/splice.c
-@@ -1876,7 +1876,11 @@ retry:
- 			 * Get a reference to this pipe buffer,
- 			 * so we can copy the contents over.
- 			 */
--			pipe_buf_get(ipipe, ibuf);
-+			if (!pipe_buf_get(ipipe, ibuf)) {
-+				if (ret == 0)
-+					ret = -EFAULT;
-+				break;
-+			}
- 			*obuf = *ibuf;
- 
- 			/*
-@@ -1948,7 +1952,11 @@ static int link_pipe(struct pipe_inode_info *ipipe,
- 		 * Get a reference to this pipe buffer,
- 		 * so we can copy the contents over.
- 		 */
--		pipe_buf_get(ipipe, ibuf);
-+		if (!pipe_buf_get(ipipe, ibuf)) {
-+			if (ret == 0)
-+				ret = -EFAULT;
-+			break;
-+		}
- 
- 		obuf = opipe->bufs + nbuf;
- 		*obuf = *ibuf;
-diff --git a/include/linux/pipe_fs_i.h b/include/linux/pipe_fs_i.h
-index 10876f3..0b28b65 100644
---- a/include/linux/pipe_fs_i.h
-+++ b/include/linux/pipe_fs_i.h
-@@ -112,18 +112,20 @@ struct pipe_buf_operations {
- 	/*
- 	 * Get a reference to the pipe buffer.
- 	 */
--	void (*get)(struct pipe_inode_info *, struct pipe_buffer *);
-+	bool (*get)(struct pipe_inode_info *, struct pipe_buffer *);
- };
- 
- /**
-  * pipe_buf_get - get a reference to a pipe_buffer
-  * @pipe:	the pipe that the buffer belongs to
-  * @buf:	the buffer to get a reference to
-+ *
-+ * Return: %true if the reference was successfully obtained.
-  */
--static inline void pipe_buf_get(struct pipe_inode_info *pipe,
-+static inline __must_check bool pipe_buf_get(struct pipe_inode_info *pipe,
- 				struct pipe_buffer *buf)
- {
--	buf->ops->get(pipe, buf);
-+	return buf->ops->get(pipe, buf);
- }
- 
- /* Differs from PIPE_BUF in that PIPE_SIZE is the length of the actual
-@@ -148,7 +150,7 @@ struct pipe_inode_info *alloc_pipe_info(void);
- void free_pipe_info(struct pipe_inode_info *);
- 
- /* Generic pipe buffer ops functions */
--void generic_pipe_buf_get(struct pipe_inode_info *, struct pipe_buffer *);
-+bool generic_pipe_buf_get(struct pipe_inode_info *, struct pipe_buffer *);
- int generic_pipe_buf_confirm(struct pipe_inode_info *, struct pipe_buffer *);
- int generic_pipe_buf_steal(struct pipe_inode_info *, struct pipe_buffer *);
- void generic_pipe_buf_release(struct pipe_inode_info *, struct pipe_buffer *);
-diff --git a/kernel/trace/trace.c b/kernel/trace/trace.c
-index ae00e68..7fe8d04 100644
---- a/kernel/trace/trace.c
-+++ b/kernel/trace/trace.c
-@@ -5731,12 +5731,16 @@ static void buffer_pipe_buf_release(struct pipe_inode_info *pipe,
- 	buf->private = 0;
- }
- 
--static void buffer_pipe_buf_get(struct pipe_inode_info *pipe,
-+static bool buffer_pipe_buf_get(struct pipe_inode_info *pipe,
- 				struct pipe_buffer *buf)
- {
- 	struct buffer_ref *ref = (struct buffer_ref *)buf->private;
- 
-+	if (ref->ref > INT_MAX/2)
-+		return false;
-+
- 	ref->ref++;
-+	return true;
- }
- 
- /* Pipe buffer operations for a buffer. */
--- 
-2.7.4
+Prompt reply would be greatly appreciated
 
+Best Regards,
+Mr. Shabab Isaac
+CONSULTANTS OF FINANCIAL SERVICES LIMITED
+57 Frederick Road, Sutton, Surrey,
+SM1 2HP United Kingdom
+Company number: 08898840
+Phone: +44-7452379198  / WhatsApp: +44-7978379923
