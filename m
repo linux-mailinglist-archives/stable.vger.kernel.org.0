@@ -2,220 +2,74 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3593F1701CD
-	for <lists+stable@lfdr.de>; Wed, 26 Feb 2020 16:02:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C73151701E9
+	for <lists+stable@lfdr.de>; Wed, 26 Feb 2020 16:06:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726905AbgBZPCT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 26 Feb 2020 10:02:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48978 "EHLO mail.kernel.org"
+        id S1727444AbgBZPGz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 26 Feb 2020 10:06:55 -0500
+Received: from mga18.intel.com ([134.134.136.126]:50073 "EHLO mga18.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726148AbgBZPCT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 26 Feb 2020 10:02:19 -0500
-Received: from paulmck-ThinkPad-P72.home (199-192-87-166.static.wiline.com [199.192.87.166])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 85CEF24685;
-        Wed, 26 Feb 2020 15:02:18 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582729338;
-        bh=YdavwjKW764gaMMCY/6DItdn27P+LhGI44b50YrPEik=;
-        h=Date:From:To:Cc:Subject:Reply-To:References:In-Reply-To:From;
-        b=2sbgL7e94ntYhGUYANr6/gsCMc4+cpMtj2zUZzW86ef6QQ/sINUHOGKCC+zaZtY22
-         9tF1d/YcOZy8tHHY3SWS+aE5sOqTjoWXdcu3Sou4jrMnhLZSCl4YQ5Tg5MKs47Vgvs
-         fLmHXpRZ5ZEtdywYOBJJv+82msglW71Xvhdb8PUY=
-Received: by paulmck-ThinkPad-P72.home (Postfix, from userid 1000)
-        id 14E833521EAF; Wed, 26 Feb 2020 07:02:18 -0800 (PST)
-Date:   Wed, 26 Feb 2020 07:02:18 -0800
-From:   "Paul E. McKenney" <paulmck@kernel.org>
-To:     Boqun Feng <boqun.feng@gmail.com>
-Cc:     rcu@vger.kernel.org, linux-kernel@vger.kernel.org,
-        kernel-team@fb.com, mingo@kernel.org, jiangshanlai@gmail.com,
-        dipankar@in.ibm.com, akpm@linux-foundation.org,
-        mathieu.desnoyers@efficios.com, josh@joshtriplett.org,
-        tglx@linutronix.de, peterz@infradead.org, rostedt@goodmis.org,
-        dhowells@redhat.com, edumazet@google.com, fweisbec@gmail.com,
-        oleg@redhat.com, joel@joelfernandes.org,
-        "# 5 . 5 . x" <stable@vger.kernel.org>
-Subject: Re: [PATCH tip/core/rcu 30/30] rcu: Make rcu_barrier() account for
- offline no-CBs CPUs
-Message-ID: <20200226150218.GA2935@paulmck-ThinkPad-P72>
-Reply-To: paulmck@kernel.org
-References: <20200214235536.GA13364@paulmck-ThinkPad-P72>
- <20200214235607.13749-30-paulmck@kernel.org>
- <20200225102436.GF110915@debian-boqun.qqnc3lrjykvubdpftowmye0fmh.lx.internal.cloudapp.net>
- <20200226031455.GZ2935@paulmck-ThinkPad-P72>
- <20200226061430.GG110915@debian-boqun.qqnc3lrjykvubdpftowmye0fmh.lx.internal.cloudapp.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200226061430.GG110915@debian-boqun.qqnc3lrjykvubdpftowmye0fmh.lx.internal.cloudapp.net>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+        id S1726990AbgBZPGz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 26 Feb 2020 10:06:55 -0500
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from orsmga005.jf.intel.com ([10.7.209.41])
+  by orsmga106.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 26 Feb 2020 07:06:54 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.70,488,1574150400"; 
+   d="scan'208";a="410643391"
+Received: from mattu-haswell.fi.intel.com ([10.237.72.170])
+  by orsmga005.jf.intel.com with ESMTP; 26 Feb 2020 07:06:52 -0800
+From:   Mathias Nyman <mathias.nyman@linux.intel.com>
+To:     stable@vger.kernel.org
+Cc:     Mathias Nyman <mathias.nyman@linux.intel.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: [PATCH] xhci: apply XHCI_PME_STUCK_QUIRK to Intel Comet Lake platforms
+Date:   Wed, 26 Feb 2020 17:08:48 +0200
+Message-Id: <20200226150848.28162-1-mathias.nyman@linux.intel.com>
+X-Mailer: git-send-email 2.17.1
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Feb 26, 2020 at 02:14:30PM +0800, Boqun Feng wrote:
-> On Tue, Feb 25, 2020 at 07:14:55PM -0800, Paul E. McKenney wrote:
-> > On Tue, Feb 25, 2020 at 06:24:36PM +0800, Boqun Feng wrote:
-> > > Hi Paul,
-> > > 
-> > > On Fri, Feb 14, 2020 at 03:56:07PM -0800, paulmck@kernel.org wrote:
-> > > > From: "Paul E. McKenney" <paulmck@kernel.org>
-> > > > 
-> > > > Currently, rcu_barrier() ignores offline CPUs,  However, it is possible
-> > > > for an offline no-CBs CPU to have callbacks queued, and rcu_barrier()
-> > > > must wait for those callbacks.  This commit therefore makes rcu_barrier()
-> > > > directly invoke the rcu_barrier_func() with interrupts disabled for such
-> > > > CPUs.  This requires passing the CPU number into this function so that
-> > > > it can entrain the rcu_barrier() callback onto the correct CPU's callback
-> > > > list, given that the code must instead execute on the current CPU.
-> > > > 
-> > > > While in the area, this commit fixes a bug where the first CPU's callback
-> > > > might have been invoked before rcu_segcblist_entrain() returned, which
-> > > > would also result in an early wakeup.
-> > > > 
-> > > > Fixes: 5d6742b37727 ("rcu/nocb: Use rcu_segcblist for no-CBs CPUs")
-> > > > Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
-> > > > Cc: <stable@vger.kernel.org> # 5.5.x
-> > > > ---
-> > > >  include/trace/events/rcu.h |  1 +
-> > > >  kernel/rcu/tree.c          | 32 ++++++++++++++++++++------------
-> > > >  2 files changed, 21 insertions(+), 12 deletions(-)
-> > > > 
-> > > > diff --git a/include/trace/events/rcu.h b/include/trace/events/rcu.h
-> > > > index 5e49b06..d56d54c 100644
-> > > > --- a/include/trace/events/rcu.h
-> > > > +++ b/include/trace/events/rcu.h
-> > > > @@ -712,6 +712,7 @@ TRACE_EVENT_RCU(rcu_torture_read,
-> > > >   *	"Begin": rcu_barrier() started.
-> > > >   *	"EarlyExit": rcu_barrier() piggybacked, thus early exit.
-> > > >   *	"Inc1": rcu_barrier() piggyback check counter incremented.
-> > > > + *	"OfflineNoCBQ": rcu_barrier() found offline no-CBs CPU with callbacks.
-> > > >   *	"OnlineQ": rcu_barrier() found online CPU with callbacks.
-> > > >   *	"OnlineNQ": rcu_barrier() found online CPU, no callbacks.
-> > > >   *	"IRQ": An rcu_barrier_callback() callback posted on remote CPU.
-> > > > diff --git a/kernel/rcu/tree.c b/kernel/rcu/tree.c
-> > > > index d15041f..160643e 100644
-> > > > --- a/kernel/rcu/tree.c
-> > > > +++ b/kernel/rcu/tree.c
-> > > > @@ -3098,9 +3098,10 @@ static void rcu_barrier_callback(struct rcu_head *rhp)
-> > > >  /*
-> > > >   * Called with preemption disabled, and from cross-cpu IRQ context.
-> > > >   */
-> > > > -static void rcu_barrier_func(void *unused)
-> > > > +static void rcu_barrier_func(void *cpu_in)
-> > > >  {
-> > > > -	struct rcu_data *rdp = raw_cpu_ptr(&rcu_data);
-> > > > +	uintptr_t cpu = (uintptr_t)cpu_in;
-> > > > +	struct rcu_data *rdp = per_cpu_ptr(&rcu_data, cpu);
-> > > >  
-> > > >  	rcu_barrier_trace(TPS("IRQ"), -1, rcu_state.barrier_sequence);
-> > > >  	rdp->barrier_head.func = rcu_barrier_callback;
-> > > > @@ -3127,7 +3128,7 @@ static void rcu_barrier_func(void *unused)
-> > > >   */
-> > > >  void rcu_barrier(void)
-> > > >  {
-> > > > -	int cpu;
-> > > > +	uintptr_t cpu;
-> > > >  	struct rcu_data *rdp;
-> > > >  	unsigned long s = rcu_seq_snap(&rcu_state.barrier_sequence);
-> > > >  
-> > > > @@ -3150,13 +3151,14 @@ void rcu_barrier(void)
-> > > >  	rcu_barrier_trace(TPS("Inc1"), -1, rcu_state.barrier_sequence);
-> > > >  
-> > > >  	/*
-> > > > -	 * Initialize the count to one rather than to zero in order to
-> > > > -	 * avoid a too-soon return to zero in case of a short grace period
-> > > > -	 * (or preemption of this task).  Exclude CPU-hotplug operations
-> > > > -	 * to ensure that no offline CPU has callbacks queued.
-> > > > +	 * Initialize the count to two rather than to zero in order
-> > > > +	 * to avoid a too-soon return to zero in case of an immediate
-> > > > +	 * invocation of the just-enqueued callback (or preemption of
-> > > > +	 * this task).  Exclude CPU-hotplug operations to ensure that no
-> > > > +	 * offline non-offloaded CPU has callbacks queued.
-> > > >  	 */
-> > > >  	init_completion(&rcu_state.barrier_completion);
-> > > > -	atomic_set(&rcu_state.barrier_cpu_count, 1);
-> > > > +	atomic_set(&rcu_state.barrier_cpu_count, 2);
-> > > >  	get_online_cpus();
-> > > >  
-> > > >  	/*
-> > > > @@ -3166,13 +3168,19 @@ void rcu_barrier(void)
-> > > >  	 */
-> > > >  	for_each_possible_cpu(cpu) {
-> > > >  		rdp = per_cpu_ptr(&rcu_data, cpu);
-> > > > -		if (!cpu_online(cpu) &&
-> > > > +		if (cpu_is_offline(cpu) &&
-> > > >  		    !rcu_segcblist_is_offloaded(&rdp->cblist))
-> > > >  			continue;
-> > > > -		if (rcu_segcblist_n_cbs(&rdp->cblist)) {
-> > > > +		if (rcu_segcblist_n_cbs(&rdp->cblist) && cpu_online(cpu)) {
-> > > >  			rcu_barrier_trace(TPS("OnlineQ"), cpu,
-> > > >  					  rcu_state.barrier_sequence);
-> > > > -			smp_call_function_single(cpu, rcu_barrier_func, NULL, 1);
-> > > > +			smp_call_function_single(cpu, rcu_barrier_func, (void *)cpu, 1);
-> > > > +		} else if (cpu_is_offline(cpu)) {
-> > > 
-> > > I wonder whether this should be:
-> > > 
-> > > 		  else if (rcu_segcblist_n_cbs(&rdp->cblist) && cpu_is_offline(cpu))
-> > > 
-> > > ? Because I think we only want to queue the barrier call back if there
-> > > are callbacks for a particular CPU. Am I missing something subtle?
-> > 
-> > I don't believe that you are missing anything at all!
-> > 
-> > Thank you very much -- this bug would not have shown up in any validation
-> > setup that I am aware of.  ;-)
-> > 
-> > 							Thanx, Paul
-> > 
-> > > Regards,
-> > > Boqun
-> > > 
-> > > > +			rcu_barrier_trace(TPS("OfflineNoCBQ"), cpu,
-> > > > +					  rcu_state.barrier_sequence);
-> > > > +			local_irq_disable();
-> > > > +			rcu_barrier_func((void *)cpu);
-> > > > +			local_irq_enable();
-> 
-> Another (interesting) thing I found here is that we actually don't need
-> the irq-off section to call rcu_barrier_func() in this branch. Because
-> the target CPU is offlined, so only the cblist is only accessed at two
-> places, IIUC, one is the rcuo kthread and one is here (in
-> rcu_barrier()), and both places are in the process context rather than
-> irq context, so irq-off is not required to prevent the deadlock.
-> 
-> But yes, I know, if we drop the local_irq_disable/enable() pair here,
-> it will make lockdep very unhappy ;-)
+[ Upstream commit a3ae87dce3a5abe0b57c811bab02b2564b574106 ]
 
-And acquiring ->nocb_lock with interrupts enabled would be rather scary.
-And probably would be an accident waiting to happen.  So I am happy to
-disable interrupts on this path, given that it should be infrequent,
-only being executed for a short time after a no-CBs CPU goes offline.
+Backport for 4.4, 4.9, 4.14, and 4.19 stable
 
-Much nicer to let lockdep do its thing than to have to second-guess it
-on every change that involves acquiring ->nocb_lock in an interrupt
-handler!  ;-)
+Intel Comet Lake based platform require the XHCI_PME_STUCK_QUIRK
+quirk as well. Without this xHC can not enter D3 in runtime suspend.
 
-							Thanx, Paul
+Cc: stable@vger.kernel.org
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Link: https://lore.kernel.org/r/20200210134553.9144-5-mathias.nyman@linux.intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/usb/host/xhci-pci.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-> Regards,
-> Boqun
-> 
-> > > >  		} else {
-> > > >  			rcu_barrier_trace(TPS("OnlineNQ"), cpu,
-> > > >  					  rcu_state.barrier_sequence);
-> > > > @@ -3184,7 +3192,7 @@ void rcu_barrier(void)
-> > > >  	 * Now that we have an rcu_barrier_callback() callback on each
-> > > >  	 * CPU, and thus each counted, remove the initial count.
-> > > >  	 */
-> > > > -	if (atomic_dec_and_test(&rcu_state.barrier_cpu_count))
-> > > > +	if (atomic_sub_and_test(2, &rcu_state.barrier_cpu_count))
-> > > >  		complete(&rcu_state.barrier_completion);
-> > > >  
-> > > >  	/* Wait for all rcu_barrier_callback() callbacks to be invoked. */
-> > > > -- 
-> > > > 2.9.5
-> > > > 
+diff --git a/drivers/usb/host/xhci-pci.c b/drivers/usb/host/xhci-pci.c
+index df86ea308415..5af57afb4e56 100644
+--- a/drivers/usb/host/xhci-pci.c
++++ b/drivers/usb/host/xhci-pci.c
+@@ -53,6 +53,7 @@
+ #define PCI_DEVICE_ID_INTEL_BROXTON_B_XHCI		0x1aa8
+ #define PCI_DEVICE_ID_INTEL_APL_XHCI			0x5aa8
+ #define PCI_DEVICE_ID_INTEL_DNV_XHCI			0x19d0
++#define PCI_DEVICE_ID_INTEL_CML_XHCI			0xa3af
+ 
+ static const char hcd_name[] = "xhci_hcd";
+ 
+@@ -169,7 +170,8 @@ static void xhci_pci_quirks(struct device *dev, struct xhci_hcd *xhci)
+ 		 pdev->device == PCI_DEVICE_ID_INTEL_BROXTON_M_XHCI ||
+ 		 pdev->device == PCI_DEVICE_ID_INTEL_BROXTON_B_XHCI ||
+ 		 pdev->device == PCI_DEVICE_ID_INTEL_APL_XHCI ||
+-		 pdev->device == PCI_DEVICE_ID_INTEL_DNV_XHCI)) {
++		 pdev->device == PCI_DEVICE_ID_INTEL_DNV_XHCI ||
++		 pdev->device == PCI_DEVICE_ID_INTEL_CML_XHCI)) {
+ 		xhci->quirks |= XHCI_PME_STUCK_QUIRK;
+ 	}
+ 	if (pdev->vendor == PCI_VENDOR_ID_INTEL &&
+-- 
+2.17.1
+
