@@ -2,52 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4CD2F16FC55
-	for <lists+stable@lfdr.de>; Wed, 26 Feb 2020 11:35:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B297E16FC56
+	for <lists+stable@lfdr.de>; Wed, 26 Feb 2020 11:35:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727191AbgBZKfF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 26 Feb 2020 05:35:05 -0500
-Received: from out4-smtp.messagingengine.com ([66.111.4.28]:35717 "EHLO
+        id S1727463AbgBZKfM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 26 Feb 2020 05:35:12 -0500
+Received: from out4-smtp.messagingengine.com ([66.111.4.28]:47459 "EHLO
         out4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726057AbgBZKfF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 26 Feb 2020 05:35:05 -0500
+        by vger.kernel.org with ESMTP id S1727362AbgBZKfM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 26 Feb 2020 05:35:12 -0500
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 6177821AC2;
-        Wed, 26 Feb 2020 05:35:04 -0500 (EST)
+        by mailout.nyi.internal (Postfix) with ESMTP id 4528421EC3;
+        Wed, 26 Feb 2020 05:35:11 -0500 (EST)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Wed, 26 Feb 2020 05:35:04 -0500
+  by compute6.internal (MEProxy); Wed, 26 Feb 2020 05:35:11 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=AaQVOx
-        Co92Qriw61cpFU5Dq/p7f5YIaUdz3WXPilWzg=; b=R/V0VpF+vD0BawIkp731r+
-        bRqcbfE3cgTC6tV8OFgOWCfpkGYQE5gS1/zgg9FX9ZRxMqC1h32AzWNiylotgjyE
-        BpWqajjwRHvewgIP9Jg6C4GMT6nnnnnDseIk9m61Mz79YbgWtDhAMVg8MtOTwfG3
-        06ByM2FXQW5PfsLnPh2q2KHlsZDyjIi+su3+AtIU0a/Eop7lMACP1QOhT6PtMY7m
-        YNmHyI8T0/cLCmteJauT+1+X8+AFVhxmQN1G4h2au96zm3JhdYaC8RBxQe77SSE2
-        o+lYBrFUn/OwmC1PFQO+siGieZl2aQMvJAQKPxnrILLn9P/Yxb0vLdXyjOeK4QZw
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=m70nOR
+        qj72IC02q8z8v1BxGgf1WJAqX4eGm3sP8UK2w=; b=QJHdgIOpsdZgLd5feOvIvs
+        gRpJ/34O1hzZ4DqWKul4UC4lTXwmbpPQDuiyCxZjNlEOb38ImxC38KcCD6di81Yq
+        xw+EdvefGcmnZGQy1tjv/yoCVIK8Dis5tAc71tndpPnmvSmYKvrqaz6P/TR4Dn3z
+        m4CcIuFseNkQW73003KQfXsWntr8X/2atlSCrMGd1tvAkMbqWY3KwJJawszWwxfz
+        Sv8c90GuyVNa5mXis47Te1P2SR5j9u4F9icmHRIttOmdjtvjkM7Csy5bOYdY9zRS
+        8ILxxNO4VpapWShZVk/1SYB1SRIbWrlX1JwtmRPC44JKmL06WKeibyOUaAcMX6tQ
         ==
-X-ME-Sender: <xms:1klWXnoIQxAfdlveaxmn-pCke9MZ_GSTntKlIZbnl0dVY-hDSmr-3A>
+X-ME-Sender: <xms:3klWXv25avFdghcHnfwde5ktk4n45PcYKfHGfeJ9jj_ncrdE0eRlDA>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedugedrleeggddukecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
     qeenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeekfedrkeeirdekledrud
-    dtjeenucevlhhushhtvghrufhiiigvpedunecurfgrrhgrmhepmhgrihhlfhhrohhmpehg
+    dtjeenucevlhhushhtvghrufhiiigvpedvnecurfgrrhgrmhepmhgrihhlfhhrohhmpehg
     rhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:10lWXrGebHIjURd2gJIjvBpPIYQHZMbmcpTFy0jlqHFaLmyKFrcTAA>
-    <xmx:10lWXq3tq9BaEEpTSpl22h-bFFqauh4lMRtrjgZGxqYawbaWEl7oIA>
-    <xmx:10lWXtT9Q2rZLHhJ8XCViCTJIuqbXNdpgNkoKrXWPQJl_v2l-p363w>
-    <xmx:2ElWXuz9emoqew6Pnpv8oR0Hxs28UM6pI7qBVGA_5ey2tidblLKN_A>
+X-ME-Proxy: <xmx:3klWXpGPovrpL0H22nH1XYU8EkBqDNZ7xBKQdRNLmBmc1zi9wUmP6Q>
+    <xmx:3klWXmi5p6ofKL0MUSIadcLNKuZkGoJA4OnxeH-GgtB_3uNez56DoQ>
+    <xmx:3klWXidzJnU6DgB1hLaBS5UMWB0uauL0Rew1f8hflfU9exD5P0efjg>
+    <xmx:30lWXnwzjK8a-5OKbZ9oDNRXPOdTNSIiid4zeee5Caz0ysFkGIEvlw>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id AFB293060FCB;
-        Wed, 26 Feb 2020 05:35:02 -0500 (EST)
-Subject: FAILED: patch "[PATCH] x86/cpu/amd: Enable the fixed Instructions Retired counter" failed to apply to 4.14-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id A32743060BD1;
+        Wed, 26 Feb 2020 05:35:10 -0500 (EST)
+Subject: FAILED: patch "[PATCH] x86/cpu/amd: Enable the fixed Instructions Retired counter" failed to apply to 4.9-stable tree
 To:     kim.phillips@amd.com, bp@suse.de, peterz@infradead.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 26 Feb 2020 11:35:00 +0100
-Message-ID: <1582713300108186@kroah.com>
+Date:   Wed, 26 Feb 2020 11:35:01 +0100
+Message-ID: <158271330124488@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -57,7 +57,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
