@@ -2,108 +2,84 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CD3611706A4
-	for <lists+stable@lfdr.de>; Wed, 26 Feb 2020 18:51:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 398CB170767
+	for <lists+stable@lfdr.de>; Wed, 26 Feb 2020 19:14:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727084AbgBZRvv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 26 Feb 2020 12:51:51 -0500
-Received: from smtp1.de.adit-jv.com ([93.241.18.167]:34657 "EHLO
-        smtp1.de.adit-jv.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726891AbgBZRvu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 26 Feb 2020 12:51:50 -0500
-Received: from localhost (smtp1.de.adit-jv.com [127.0.0.1])
-        by smtp1.de.adit-jv.com (Postfix) with ESMTP id AE5BE3C009D;
-        Wed, 26 Feb 2020 18:51:48 +0100 (CET)
-Received: from smtp1.de.adit-jv.com ([127.0.0.1])
-        by localhost (smtp1.de.adit-jv.com [127.0.0.1]) (amavisd-new, port 10024)
-        with ESMTP id 6vHIzGP5pHOv; Wed, 26 Feb 2020 18:51:43 +0100 (CET)
-Received: from HI2EXCH01.adit-jv.com (hi2exch01.adit-jv.com [10.72.92.24])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by smtp1.de.adit-jv.com (Postfix) with ESMTPS id 9A9F03C005E;
-        Wed, 26 Feb 2020 18:51:43 +0100 (CET)
-Received: from lxhi-065.adit-jv.com (10.72.93.66) by HI2EXCH01.adit-jv.com
- (10.72.92.24) with Microsoft SMTP Server (TLS) id 14.3.468.0; Wed, 26 Feb
- 2020 18:51:43 +0100
-From:   Eugeniu Rosca <erosca@de.adit-jv.com>
-To:     Alan Stern <stern@rowland.harvard.edu>,
-        <linux-usb@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-CC:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        id S1726980AbgBZSOZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 26 Feb 2020 13:14:25 -0500
+Received: from iolanthe.rowland.org ([192.131.102.54]:50854 "HELO
+        iolanthe.rowland.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with SMTP id S1726787AbgBZSOZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 26 Feb 2020 13:14:25 -0500
+Received: (qmail 2447 invoked by uid 2102); 26 Feb 2020 13:14:24 -0500
+Received: from localhost (sendmail-bs@127.0.0.1)
+  by localhost with SMTP; 26 Feb 2020 13:14:24 -0500
+Date:   Wed, 26 Feb 2020 13:14:24 -0500 (EST)
+From:   Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@iolanthe.rowland.org
+To:     Eugeniu Rosca <erosca@de.adit-jv.com>
+cc:     linux-usb@vger.kernel.org, <linux-kernel@vger.kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Thinh Nguyen <Thinh.Nguyen@synopsys.com>,
         "Lee, Chiasheng" <chiasheng.lee@intel.com>,
         Mathieu Malaterre <malat@debian.org>,
         Kai-Heng Feng <kai.heng.feng@canonical.com>,
         Eugeniu Rosca <roscaeugeniu@gmail.com>,
-        Eugeniu Rosca <erosca@de.adit-jv.com>, <stable@vger.kernel.org>
-Subject: [PATCH v3 3/3] usb: core: port: do error out if usb_autopm_get_interface() fails
-Date:   Wed, 26 Feb 2020 18:50:36 +0100
-Message-ID: <20200226175036.14946-3-erosca@de.adit-jv.com>
-X-Mailer: git-send-email 2.25.1
+        Hardik Gajjar <hgajjar@de.adit-jv.com>,
+        <stable@vger.kernel.org>, <scan-admin@coverity.com>
+Subject: Re: [PATCH v3 1/3] usb: core: hub: fix unhandled return by employing
+ a void function
 In-Reply-To: <20200226175036.14946-1-erosca@de.adit-jv.com>
-References: <20200226175036.14946-1-erosca@de.adit-jv.com>
+Message-ID: <Pine.LNX.4.44L0.2002261313390.1406-100000@iolanthe.rowland.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Content-Type:   text/plain; charset=US-ASCII
-X-Originating-IP: [10.72.93.66]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Reviewing a fresh portion of coverity defects in USB core
-(specifically CID 1458999), Alan Stern noted below in [1]:
+On Wed, 26 Feb 2020, Eugeniu Rosca wrote:
 
-On Tue, Feb 25, 2020 at 02:39:23PM -0500, Alan Stern wrote:
- > A revised search finds line 997 in drivers/usb/core/hub.c and lines
- > 216, 269 in drivers/usb/core/port.c.  (I didn't try looking in any
- > other directories.)  AFAICT all three of these should check the
- > return value, although a error message in the kernel log probably
- > isn't needed.
+> Address below Coverity complaint (Feb 25, 2020, 8:06 AM CET):
+> 
+> *** CID 1458999:  Error handling issues  (CHECKED_RETURN)
+> /drivers/usb/core/hub.c: 1869 in hub_probe()
+> 1863
+> 1864            if (id->driver_info & HUB_QUIRK_CHECK_PORT_AUTOSUSPEND)
+> 1865                    hub->quirk_check_port_auto_suspend = 1;
+> 1866
+> 1867            if (id->driver_info & HUB_QUIRK_DISABLE_AUTOSUSPEND) {
+> 1868                    hub->quirk_disable_autosuspend = 1;
+>  >>>     CID 1458999:  Error handling issues  (CHECKED_RETURN)
+>  >>>     Calling "usb_autopm_get_interface" without checking return value (as is done elsewhere 97 out of 111 times).
+> 1869                    usb_autopm_get_interface(intf);
+> 1870            }
+> 1871
+> 1872            if (hub_configure(hub, &desc->endpoint[0].desc) >= 0)
+> 1873                    return 0;
+> 1874
+> 
+> Rather than checking the return value of 'usb_autopm_get_interface()',
+> switch to the usb_autopm_get_interface_no_resume() API, as per:
+> 
+> On Tue, Feb 25, 2020 at 10:32:32AM -0500, Alan Stern wrote:
+>  ------ 8< ------
+>  > This change (i.e. 'ret = usb_autopm_get_interface') is not necessary,
+>  > because the resume operation cannot fail at this point (interfaces
+>  > are always powered-up during probe). A better solution would be to
+>  > call usb_autopm_get_interface_no_resume() instead.
+>  ------ 8< ------
+> 
+> Fixes: 1208f9e1d758c9 ("USB: hub: Fix the broken detection of USB3 device in SMSC hub")
+> Cc: Hardik Gajjar <hgajjar@de.adit-jv.com>
+> Cc: Alan Stern <stern@rowland.harvard.edu>
+> Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> Cc: stable@vger.kernel.org # v4.14+
+> Reported-by: scan-admin@coverity.com
+> Suggested-by: Alan Stern <stern@rowland.harvard.edu>
+> Signed-off-by: Eugeniu Rosca <erosca@de.adit-jv.com>
 
-Factor out the usb_port_runtime_{resume,suspend}() changes into a
-standalone patch to allow conflict-free porting on top of stable v3.9+.
+For all three patches:
 
-[1] https://lore.kernel.org/lkml/Pine.LNX.4.44L0.2002251419120.1485-100000@iolanthe.rowland.org
-
-Fixes: 971fcd492cebf5 ("usb: add runtime pm support for usb port device")
-Cc: stable@vger.kernel.org # v3.9+
-Suggested-by: Alan Stern <stern@rowland.harvard.edu>
-Signed-off-by: Eugeniu Rosca <erosca@de.adit-jv.com>
----
-v3:
- - Newly submitted
----
- drivers/usb/core/port.c | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/usb/core/port.c b/drivers/usb/core/port.c
-index bbbb35fa639f..235a7c645503 100644
---- a/drivers/usb/core/port.c
-+++ b/drivers/usb/core/port.c
-@@ -213,7 +213,10 @@ static int usb_port_runtime_resume(struct device *dev)
- 	if (!port_dev->is_superspeed && peer)
- 		pm_runtime_get_sync(&peer->dev);
- 
--	usb_autopm_get_interface(intf);
-+	retval = usb_autopm_get_interface(intf);
-+	if (retval < 0)
-+		return retval;
-+
- 	retval = usb_hub_set_port_power(hdev, hub, port1, true);
- 	msleep(hub_power_on_good_delay(hub));
- 	if (udev && !retval) {
-@@ -266,7 +269,10 @@ static int usb_port_runtime_suspend(struct device *dev)
- 	if (usb_port_block_power_off)
- 		return -EBUSY;
- 
--	usb_autopm_get_interface(intf);
-+	retval = usb_autopm_get_interface(intf);
-+	if (retval < 0)
-+		return retval;
-+
- 	retval = usb_hub_set_port_power(hdev, hub, port1, false);
- 	usb_clear_port_feature(hdev, port1, USB_PORT_FEAT_C_CONNECTION);
- 	if (!port_dev->is_superspeed)
--- 
-2.25.1
+Acked-by: Alan Stern <stern@rowland.harvard.edu>
 
