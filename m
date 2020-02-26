@@ -2,103 +2,171 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D770816F60A
-	for <lists+stable@lfdr.de>; Wed, 26 Feb 2020 04:19:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B41AF16F661
+	for <lists+stable@lfdr.de>; Wed, 26 Feb 2020 05:18:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729434AbgBZDTW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 25 Feb 2020 22:19:22 -0500
-Received: from mail-pj1-f68.google.com ([209.85.216.68]:51985 "EHLO
-        mail-pj1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729226AbgBZDTV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 25 Feb 2020 22:19:21 -0500
-Received: by mail-pj1-f68.google.com with SMTP id fa20so648787pjb.1
-        for <stable@vger.kernel.org>; Tue, 25 Feb 2020 19:19:21 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=AN7xXr+iqq409M6etWtHInZZ/FP98zY+rl3I/ZknXr4=;
-        b=Tw591YS2/Iojlfqg0FiDJzxZeL0DtD5jChlrl+VGOIg2v90Awpohq1pZXr+82l0PV0
-         bY2UkuQ5RF7NrEXxi+rc7njWk6wpYkoJoTAJleNbB4ZDYZsFK/G8TCY1KvcQGEs5SR0G
-         Pn7U4rh7ewrHDK6kK3dBQ11dkoo4Qw41QZq+LjKYvPMXkR/99QX7eRx8ZYA903kOX+rt
-         BYUdgFIHcHe/lbDtPSl4OEjCvaDhhIYEFvn4LVqtLMXomSoUtgM4gvlc0+Sksa2/MhAE
-         f2iAQmCE4P3jnd15AM0cOymSknuiz7iZ3Bz1E6ZtXxxrl3A7OyCWrmXBtTCoaFGOIsDp
-         QVZw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=AN7xXr+iqq409M6etWtHInZZ/FP98zY+rl3I/ZknXr4=;
-        b=UseCwAeUI2O+iD32bE0r+aynYoyzj6dKRP2/jgqVbAoTCtQGFaWD7YlXcoIE5Xhx8G
-         MwMnfZNws2/zlm51Bl8XnlB6ydiVj6xwzX6YWL0N3bmr1EVomsTatfBYg6UPXio7Zx6R
-         HYVZrmK12PNvLOMsqwXRLNUDhQ62rDnBYWGZl40vl5Y1QACbyRI2+Fa0x4fgn1VlbpC7
-         d/UqsdD/UnQT/efUqvfs5JTJNsi9NasIsa+ClCaN8FNb+gH7hbsJpBrZCmAU6H3t225E
-         OTTFl7ANMgDsn3y5MkD/P9MFw6bpRHXHM8WP/Sot5Wq0BQaYyubA6+0pR6N3AVw2pR9t
-         H46Q==
-X-Gm-Message-State: APjAAAVbIE6SpJVZ6vJPqd0yF9l2ayZBNvzcZsIyZr3w6d5+kQ0g0RVW
-        GrYt5z5gyTq/V2/cGB73yIH1DZLJZvc=
-X-Google-Smtp-Source: APXvYqwRsFUvVUNn6U2ZVMfFSXLfbmlJVN1NWPvKe+cvyDSpqoyOns+XRISrHoS5OAYVKmjfm+hj/w==
-X-Received: by 2002:a17:90a:ba91:: with SMTP id t17mr2707225pjr.74.1582687160339;
-        Tue, 25 Feb 2020 19:19:20 -0800 (PST)
-Received: from [10.0.9.4] ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id q66sm386663pgq.50.2020.02.25.19.19.19
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 25 Feb 2020 19:19:19 -0800 (PST)
-Message-ID: <5e55e3b7.1c69fb81.64bdb.21f3@mx.google.com>
-Date:   Tue, 25 Feb 2020 19:19:19 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S1726039AbgBZESl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 25 Feb 2020 23:18:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43910 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725788AbgBZESl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 25 Feb 2020 23:18:41 -0500
+Received: from paulmck-ThinkPad-P72.home (199-192-87-166.static.wiline.com [199.192.87.166])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 452A821D7E;
+        Wed, 26 Feb 2020 04:18:40 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1582690720;
+        bh=wa0ljoR4VKK7AhtcPWEwY9ai7AZZg6kuy4bimaFCvDw=;
+        h=Date:From:To:Cc:Subject:Reply-To:References:In-Reply-To:From;
+        b=XFhFqlnat9Kma6j8YRzZQIF0YpG7+omQM53gZLnZfyg78icJvpZ5C+WNFlVBzMT6F
+         9rAsvD2Kg9A8fFNOxP961HwP/PVlAAMMt24Wq9nFeLo6eqqEQNV1p76pwG1DhndQf2
+         554I/BZFHVYB0HG7LWVvORTkZF08qm9zs/+9hex0=
+Received: by paulmck-ThinkPad-P72.home (Postfix, from userid 1000)
+        id 8586635226CF; Tue, 25 Feb 2020 20:18:39 -0800 (PST)
+Date:   Tue, 25 Feb 2020 20:18:39 -0800
+From:   "Paul E. McKenney" <paulmck@kernel.org>
+To:     Boqun Feng <boqun.feng@gmail.com>
+Cc:     rcu@vger.kernel.org, linux-kernel@vger.kernel.org,
+        kernel-team@fb.com, mingo@kernel.org, jiangshanlai@gmail.com,
+        dipankar@in.ibm.com, akpm@linux-foundation.org,
+        mathieu.desnoyers@efficios.com, josh@joshtriplett.org,
+        tglx@linutronix.de, peterz@infradead.org, rostedt@goodmis.org,
+        dhowells@redhat.com, edumazet@google.com, fweisbec@gmail.com,
+        oleg@redhat.com, joel@joelfernandes.org,
+        "# 5 . 5 . x" <stable@vger.kernel.org>
+Subject: Re: [PATCH tip/core/rcu 30/30] rcu: Make rcu_barrier() account for
+ offline no-CBs CPUs
+Message-ID: <20200226041839.GA13200@paulmck-ThinkPad-P72>
+Reply-To: paulmck@kernel.org
+References: <20200214235536.GA13364@paulmck-ThinkPad-P72>
+ <20200214235607.13749-30-paulmck@kernel.org>
+ <20200225102436.GF110915@debian-boqun.qqnc3lrjykvubdpftowmye0fmh.lx.internal.cloudapp.net>
+ <20200226031455.GZ2935@paulmck-ThinkPad-P72>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v5.4.22
-X-Kernelci-Report-Type: boot
-X-Kernelci-Tree: stable
-X-Kernelci-Branch: linux-5.4.y
-Subject: stable/linux-5.4.y boot: 101 boots: 2 failed,
- 98 passed with 1 untried/unknown (v5.4.22)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200226031455.GZ2935@paulmck-ThinkPad-P72>
+User-Agent: Mutt/1.9.4 (2018-02-28)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable/linux-5.4.y boot: 101 boots: 2 failed, 98 passed with 1 untried/unkn=
-own (v5.4.22)
+On Tue, Feb 25, 2020 at 07:14:55PM -0800, Paul E. McKenney wrote:
+> On Tue, Feb 25, 2020 at 06:24:36PM +0800, Boqun Feng wrote:
+> > Hi Paul,
+> > 
+> > On Fri, Feb 14, 2020 at 03:56:07PM -0800, paulmck@kernel.org wrote:
+> > > From: "Paul E. McKenney" <paulmck@kernel.org>
+> > > 
+> > > Currently, rcu_barrier() ignores offline CPUs,  However, it is possible
+> > > for an offline no-CBs CPU to have callbacks queued, and rcu_barrier()
+> > > must wait for those callbacks.  This commit therefore makes rcu_barrier()
+> > > directly invoke the rcu_barrier_func() with interrupts disabled for such
+> > > CPUs.  This requires passing the CPU number into this function so that
+> > > it can entrain the rcu_barrier() callback onto the correct CPU's callback
+> > > list, given that the code must instead execute on the current CPU.
+> > > 
+> > > While in the area, this commit fixes a bug where the first CPU's callback
+> > > might have been invoked before rcu_segcblist_entrain() returned, which
+> > > would also result in an early wakeup.
+> > > 
+> > > Fixes: 5d6742b37727 ("rcu/nocb: Use rcu_segcblist for no-CBs CPUs")
+> > > Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
+> > > Cc: <stable@vger.kernel.org> # 5.5.x
+> > > ---
+> > >  include/trace/events/rcu.h |  1 +
+> > >  kernel/rcu/tree.c          | 32 ++++++++++++++++++++------------
+> > >  2 files changed, 21 insertions(+), 12 deletions(-)
+> > > 
+> > > diff --git a/include/trace/events/rcu.h b/include/trace/events/rcu.h
+> > > index 5e49b06..d56d54c 100644
+> > > --- a/include/trace/events/rcu.h
+> > > +++ b/include/trace/events/rcu.h
+> > > @@ -712,6 +712,7 @@ TRACE_EVENT_RCU(rcu_torture_read,
+> > >   *	"Begin": rcu_barrier() started.
+> > >   *	"EarlyExit": rcu_barrier() piggybacked, thus early exit.
+> > >   *	"Inc1": rcu_barrier() piggyback check counter incremented.
+> > > + *	"OfflineNoCBQ": rcu_barrier() found offline no-CBs CPU with callbacks.
+> > >   *	"OnlineQ": rcu_barrier() found online CPU with callbacks.
+> > >   *	"OnlineNQ": rcu_barrier() found online CPU, no callbacks.
+> > >   *	"IRQ": An rcu_barrier_callback() callback posted on remote CPU.
+> > > diff --git a/kernel/rcu/tree.c b/kernel/rcu/tree.c
+> > > index d15041f..160643e 100644
+> > > --- a/kernel/rcu/tree.c
+> > > +++ b/kernel/rcu/tree.c
+> > > @@ -3098,9 +3098,10 @@ static void rcu_barrier_callback(struct rcu_head *rhp)
+> > >  /*
+> > >   * Called with preemption disabled, and from cross-cpu IRQ context.
+> > >   */
+> > > -static void rcu_barrier_func(void *unused)
+> > > +static void rcu_barrier_func(void *cpu_in)
+> > >  {
+> > > -	struct rcu_data *rdp = raw_cpu_ptr(&rcu_data);
+> > > +	uintptr_t cpu = (uintptr_t)cpu_in;
+> > > +	struct rcu_data *rdp = per_cpu_ptr(&rcu_data, cpu);
+> > >  
+> > >  	rcu_barrier_trace(TPS("IRQ"), -1, rcu_state.barrier_sequence);
+> > >  	rdp->barrier_head.func = rcu_barrier_callback;
+> > > @@ -3127,7 +3128,7 @@ static void rcu_barrier_func(void *unused)
+> > >   */
+> > >  void rcu_barrier(void)
+> > >  {
+> > > -	int cpu;
+> > > +	uintptr_t cpu;
+> > >  	struct rcu_data *rdp;
+> > >  	unsigned long s = rcu_seq_snap(&rcu_state.barrier_sequence);
+> > >  
+> > > @@ -3150,13 +3151,14 @@ void rcu_barrier(void)
+> > >  	rcu_barrier_trace(TPS("Inc1"), -1, rcu_state.barrier_sequence);
+> > >  
+> > >  	/*
+> > > -	 * Initialize the count to one rather than to zero in order to
+> > > -	 * avoid a too-soon return to zero in case of a short grace period
+> > > -	 * (or preemption of this task).  Exclude CPU-hotplug operations
+> > > -	 * to ensure that no offline CPU has callbacks queued.
+> > > +	 * Initialize the count to two rather than to zero in order
+> > > +	 * to avoid a too-soon return to zero in case of an immediate
+> > > +	 * invocation of the just-enqueued callback (or preemption of
+> > > +	 * this task).  Exclude CPU-hotplug operations to ensure that no
+> > > +	 * offline non-offloaded CPU has callbacks queued.
+> > >  	 */
+> > >  	init_completion(&rcu_state.barrier_completion);
+> > > -	atomic_set(&rcu_state.barrier_cpu_count, 1);
+> > > +	atomic_set(&rcu_state.barrier_cpu_count, 2);
+> > >  	get_online_cpus();
+> > >  
+> > >  	/*
+> > > @@ -3166,13 +3168,19 @@ void rcu_barrier(void)
+> > >  	 */
+> > >  	for_each_possible_cpu(cpu) {
+> > >  		rdp = per_cpu_ptr(&rcu_data, cpu);
+> > > -		if (!cpu_online(cpu) &&
+> > > +		if (cpu_is_offline(cpu) &&
+> > >  		    !rcu_segcblist_is_offloaded(&rdp->cblist))
+> > >  			continue;
+> > > -		if (rcu_segcblist_n_cbs(&rdp->cblist)) {
+> > > +		if (rcu_segcblist_n_cbs(&rdp->cblist) && cpu_online(cpu)) {
+> > >  			rcu_barrier_trace(TPS("OnlineQ"), cpu,
+> > >  					  rcu_state.barrier_sequence);
+> > > -			smp_call_function_single(cpu, rcu_barrier_func, NULL, 1);
+> > > +			smp_call_function_single(cpu, rcu_barrier_func, (void *)cpu, 1);
+> > > +		} else if (cpu_is_offline(cpu)) {
+> > 
+> > I wonder whether this should be:
+> > 
+> > 		  else if (rcu_segcblist_n_cbs(&rdp->cblist) && cpu_is_offline(cpu))
+> > 
+> > ? Because I think we only want to queue the barrier call back if there
+> > are callbacks for a particular CPU. Am I missing something subtle?
+> 
+> I don't believe that you are missing anything at all!
+> 
+> Thank you very much -- this bug would not have shown up in any validation
+> setup that I am aware of.  ;-)
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable/branch/linux-5.=
-4.y/kernel/v5.4.22/
-Full Build Summary: https://kernelci.org/build/stable/branch/linux-5.4.y/ke=
-rnel/v5.4.22/
+And with additional adjustment to make tracing accurate.
 
-Tree: stable
-Branch: linux-5.4.y
-Git Describe: v5.4.22
-Git Commit: f22dcb31727e3cf31a9143437f134ea133021982
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e.git
-Tested: 66 unique boards, 20 SoC families, 17 builds out of 200
-
-Boot Regressions Detected:
-
-arm:
-
-    versatile_defconfig:
-        gcc-8:
-          versatile-pb:
-              lab-collabora: new failure (last pass: v5.4.21)
-
-Boot Failures Detected:
-
-arm:
-    sama5_defconfig:
-        gcc-8:
-            at91-sama5d4_xplained: 1 failed lab
-
-arm64:
-    defconfig:
-        gcc-8:
-            msm8998-mtp: 1 failed lab
-
----
-For more info write to <info@kernelci.org>
+							Thanx, Paul
