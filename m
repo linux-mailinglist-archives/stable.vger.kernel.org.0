@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CF44B16FCB1
+	by mail.lfdr.de (Postfix) with ESMTP id 8D80816FCB0
 	for <lists+stable@lfdr.de>; Wed, 26 Feb 2020 11:56:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728010AbgBZK4R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1726408AbgBZK4R (ORCPT <rfc822;lists+stable@lfdr.de>);
         Wed, 26 Feb 2020 05:56:17 -0500
-Received: from wnew3-smtp.messagingengine.com ([64.147.123.17]:38825 "EHLO
+Received: from wnew3-smtp.messagingengine.com ([64.147.123.17]:38017 "EHLO
         wnew3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728014AbgBZK4R (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 26 Feb 2020 05:56:17 -0500
+        by vger.kernel.org with ESMTP id S1728010AbgBZK4Q (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 26 Feb 2020 05:56:16 -0500
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailnew.west.internal (Postfix) with ESMTP id 542CA6A3;
-        Wed, 26 Feb 2020 05:50:46 -0500 (EST)
+        by mailnew.west.internal (Postfix) with ESMTP id 3CAE76F0;
+        Wed, 26 Feb 2020 05:50:47 -0500 (EST)
 Received: from mailfrontend1 ([10.202.2.162])
   by compute6.internal (MEProxy); Wed, 26 Feb 2020 05:50:47 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=rBRkzD
-        WBnCODPnMWTB8M3O7i6dJLlH18o6I0sr/I52E=; b=cPacFVjh2chsAZDjX61g9L
-        gYxvt1zNlSYWumttpFv9PD4hrodRvjcch4E5Zj/q9xR8msl69PHKyKH+Eqh4fCbB
-        Fp2vRbli641B+TXcHJvnOusCMP9dCsGLCkOxeVr3/Dhke6/G7nMszRn7dZz9M/ry
-        3+ZXlK2gQ3ViYHyIFBGsCGXVBuO35JJWlXTJhltAV5mVKJY8TynwCYfQvysDqwDD
-        GQlPXyx2qnTBcDDo0SFlMonG5tLex7NKbFP10tFPy2SkfotCBnCkqo9v6y4oq1eC
-        WokfvrUXyJCFsA2AiY0DfxqzWLu8xwbaHYvpAEBaFYEe2sxI11wk8S33kuF4i+gg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=yjsBD+
+        K4z4Qn6jiJKHSAMaJlRbP0ZZlQauqBCRG+KSU=; b=yMt3DGEN6simcixxTCeb3O
+        R7lzIVi0QI4B7sHZRSrfaRmxU9rQ2d77J/sSL1KjUjxa4XD4205Pgubt97DwiJ0i
+        DwRMycPg1JGCzzHjjuO45iOWs2Ph7VLVzCOB8RiAtu11pJww9Nau9CLxkoGUmJWZ
+        vl4nW/GcgQwTvNp2V/6CeqHXZ2inTBj2ao8PCj4Gfof99I/IdCi6lT38gj39xNiu
+        bM1KYOKGwEIJcnBYjyvO47w6r0vPu50xVrdHa0JpAqM+NX0hRrnXZHPfcigbRPTc
+        jTF6oNlu/e9QhKyunq/oeEG2ZACeOBMX9o1HDm2jirRD/85+Kvvb3ANLbjhjofxA
         ==
-X-ME-Sender: <xms:hU1WXk_GmVaPyFrJ0ehlgnNG4dy8_6VdkNwcHulVBGOgk2xGSdxoNw>
+X-ME-Sender: <xms:hk1WXlqC9xz5HyYXWssppLCwQWt6m8FSVEFwR3nu00kxJO4oZid4XQ>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedugedrleeggddvudcutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
@@ -35,14 +35,14 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedugedrleeggddvudcutefuodetggdote
     qeenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeekfedrkeeirdekledrud
     dtjeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehg
     rhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:hU1WXv0X2kWMowmxjt6yKqB664O0HHdr48RneOmSQon3Pb1eekLgiA>
-    <xmx:hU1WXhxDC-PR22kY9rvoZKQvzY7YmGE4dT7abFtQfwoiDERW6BHhlA>
-    <xmx:hU1WXneyYj9CyVPaiCMaBj11mi6j5G3ZSsNTRJv1zrF8-Ji2CNoBIw>
-    <xmx:hU1WXi5GaV4h5qeMb_bMQ_TfJ7aQdq5G5ndpU0x6jyRFcPM3uJ8ZUcXqMGE>
+X-ME-Proxy: <xmx:hk1WXlSSyU5vavEDOcmhFz2Wzgc8beoxjKEknCWj5qShboCUboPg9w>
+    <xmx:hk1WXs17AVThu5wnwtm0umQWdAodXeJ4Qky3c1FTLzCPkwJohsVYOg>
+    <xmx:hk1WXq3fOaP7AHDKrCpu1EXgmMzGaX8ZHsITSYhmsAfdXzQtXjLatQ>
+    <xmx:hk1WXgUh1Eg9vSi900FohUQcD5dE5AgisRcUnl3rxVumq0RuicxhZLu_NyY>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 0491B328005E;
-        Wed, 26 Feb 2020 05:50:44 -0500 (EST)
-Subject: FAILED: patch "[PATCH] lib/stackdepot.c: fix global out-of-bounds in stack_slabs" failed to apply to 4.19-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 78FEB328005A;
+        Wed, 26 Feb 2020 05:50:46 -0500 (EST)
+Subject: FAILED: patch "[PATCH] lib/stackdepot.c: fix global out-of-bounds in stack_slabs" failed to apply to 4.9-stable tree
 To:     glider@google.com, akpm@linux-foundation.org, dvyukov@google.com,
         gregkh@linuxfoundation.org, jpoimboe@redhat.com,
         kstewart@linuxfoundation.org, matthias.bgg@gmail.com,
@@ -50,8 +50,8 @@ To:     glider@google.com, akpm@linux-foundation.org, dvyukov@google.com,
         torvalds@linux-foundation.org, walter-zh.wu@mediatek.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 26 Feb 2020 11:49:42 +0100
-Message-ID: <1582714182242120@kroah.com>
+Date:   Wed, 26 Feb 2020 11:49:43 +0100
+Message-ID: <1582714183201113@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -61,7 +61,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
