@@ -2,102 +2,127 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B7091709B1
-	for <lists+stable@lfdr.de>; Wed, 26 Feb 2020 21:30:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B07ED1709EF
+	for <lists+stable@lfdr.de>; Wed, 26 Feb 2020 21:41:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727469AbgBZUam (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 26 Feb 2020 15:30:42 -0500
-Received: from mail-pf1-f202.google.com ([209.85.210.202]:39037 "EHLO
-        mail-pf1-f202.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727434AbgBZUam (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 26 Feb 2020 15:30:42 -0500
-Received: by mail-pf1-f202.google.com with SMTP id x189so256534pfd.6
-        for <stable@vger.kernel.org>; Wed, 26 Feb 2020 12:30:41 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=date:message-id:mime-version:subject:from:to:cc;
-        bh=9oP9ZiTU1p6lF1U2mfS1bBIXLROAWtwOnKtBSbb21XQ=;
-        b=c+fqP6D62YFfsQ+J6OBoM/aeGgTpFFp6n879QHcWNXJ9rZEA3joGLu5Khb/SAjaZwv
-         yuSXfO/WvDezMPhKpeVoFdIUBiyrw6CTx1pApaHbssDflsPf1+RC+6DY3+GGhGx1KWJi
-         68lBGhbGdFAoGu5K/nKOUhdyJFwYc1TMGRkYFAiIJdged0YFP76LlT38a9DbwBqXK/34
-         uqyyBLmJYNXz6tE9+Vxhch09eMpn2UNX2P8D5sVB1B5FfKn4HMfwfAeoDg9p45rz8FfS
-         oW+WQOJnUW8nbgJlwUcd7MT8SiMAl5sjpmCP8PUdcc+IJsja6qKXu13jzTYanXCb+8Fv
-         f9WA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:message-id:mime-version:subject:from:to:cc;
-        bh=9oP9ZiTU1p6lF1U2mfS1bBIXLROAWtwOnKtBSbb21XQ=;
-        b=MVsl3ni/U13nPBBAx0nyoMB2EZlxBNXcvxrodCKtlO1e3xZr33sClt8koIrH+wWoqr
-         1TXbZbo/Tg+6sc+zZgPBggNlzrmwmW14CwfPNJ/blsIFbVyDsaf/ALtO3WbW7FkzEuNS
-         70GBOhXN9A5FUh5wPVj6GMLODldmeM+bxnS6YFjTI7avqQyGUUf1R1axpA88HSbATFd7
-         uN2I98qvmbmRUL4sjMVk/0IeYVq08KslK7VlpgbdcMKXUbZ6r2KMh/IxI5c70F8A1M05
-         W6c8MsuDGL8/R7kg7/3TgwxhGeu9Xtpdef31FZePCcKCTv8Uui7MoBxRwHRK1/TO6/dr
-         RQyQ==
-X-Gm-Message-State: APjAAAU3qpTganyYBN3dKJfMXZVApLEQ+Z6Z95HOkDFTnu3dxYizlBSH
-        6v6m4xnh78uXVZv0jxLWd7NMg3yEbfHo9g==
-X-Google-Smtp-Source: APXvYqxc3+QtUOXjvCNDTiXAo4RmNzOVk/qFDGek88Tooc1vbUAVhLRDfbsX+YtSCJhE/899DR3rlT69jwQ5PA==
-X-Received: by 2002:a63:1e44:: with SMTP id p4mr568086pgm.367.1582749040887;
- Wed, 26 Feb 2020 12:30:40 -0800 (PST)
-Date:   Wed, 26 Feb 2020 12:30:06 -0800
-Message-Id: <20200226203006.51567-1-yonghyun@google.com>
-Mime-Version: 1.0
-X-Mailer: git-send-email 2.25.0.265.gbab2e86ba0-goog
-Subject: [PATCH v3] iommu/vt-d: Fix a bug in intel_iommu_iova_to_phys() for
- huge page
-From:   Yonghyun Hwang <yonghyun@google.com>
-To:     David Woodhouse <dwmw2@infradead.org>,
-        Lu Baolu <baolu.lu@linux.intel.com>,
-        Joerg Roedel <joro@8bytes.org>
-Cc:     iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org,
-        Havard Skinnemoen <hskinnemoen@google.com>,
-        Deepa Dinamani <deepadinamani@google.com>,
-        Moritz Fischer <mdf@kernel.org>,
-        Yonghyun Hwang <yonghyun@google.com>, stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+        id S1727425AbgBZUli (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 26 Feb 2020 15:41:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36056 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727350AbgBZUli (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 26 Feb 2020 15:41:38 -0500
+Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0267324653;
+        Wed, 26 Feb 2020 20:41:36 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1582749697;
+        bh=FH7SrB5CmXmJnSP7KBo7QQ+M+eNcMD8K3sE835utQYE=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=KRPlA6G4eUppMxlYT/LJto/EV3MUFGn8VFDX4dte9GXgC5whXe4V4f5R2rinUeuZQ
+         6hgMI+YDs5zOi8DISvyrfkjmZcS8Z2rQFpS993QLV47NbbxNxjphcemJ+pUyJcUSeD
+         NwuyEC9U78hZUMtGPo+enTRXnaS+SADudMoyd178=
+Date:   Wed, 26 Feb 2020 15:41:35 -0500
+From:   Sasha Levin <sashal@kernel.org>
+To:     gregkh@linuxfoundation.org
+Cc:     edumazet@google.com, stable@vger.kernel.org,
+        syzkaller@googlegroups.com
+Subject: Re: FAILED: patch "[PATCH] vt: vt_ioctl: fix race in VT_RESIZEX"
+ failed to apply to 4.14-stable tree
+Message-ID: <20200226204135.GA22178@sasha-vm>
+References: <1582706352202194@kroah.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <1582706352202194@kroah.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-intel_iommu_iova_to_phys() has a bug when it translates an IOVA for a huge
-page onto its corresponding physical address. This commit fixes the bug by
-accomodating the level of page entry for the IOVA and adds IOVA's lower
-address to the physical address.
+On Wed, Feb 26, 2020 at 09:39:12AM +0100, gregkh@linuxfoundation.org wrote:
+>
+>The patch below does not apply to the 4.14-stable tree.
+>If someone wants it applied there, or to any other stable or longterm
+>tree, then please email the backport, including the original git commit
+>id to <stable@vger.kernel.org>.
+>
+>thanks,
+>
+>greg k-h
+>
+>------------------ original commit in Linus's tree ------------------
+>
+>From 6cd1ed50efd88261298577cd92a14f2768eddeeb Mon Sep 17 00:00:00 2001
+>From: Eric Dumazet <edumazet@google.com>
+>Date: Mon, 10 Feb 2020 11:07:21 -0800
+>Subject: [PATCH] vt: vt_ioctl: fix race in VT_RESIZEX
+>
+>We need to make sure vc_cons[i].d is not NULL after grabbing
+>console_lock(), or risk a crash.
+>
+>general protection fault, probably for non-canonical address 0xdffffc0000000068: 0000 [#1] PREEMPT SMP KASAN
+>KASAN: null-ptr-deref in range [0x0000000000000340-0x0000000000000347]
+>CPU: 1 PID: 19462 Comm: syz-executor.5 Not tainted 5.5.0-syzkaller #0
+>Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+>RIP: 0010:vt_ioctl+0x1f96/0x26d0 drivers/tty/vt/vt_ioctl.c:883
+>Code: 74 41 e8 bd a6 84 fd 48 89 d8 48 c1 e8 03 42 80 3c 28 00 0f 85 e4 04 00 00 48 8b 03 48 8d b8 40 03 00 00 48 89 fa 48 c1 ea 03 <42> 0f b6 14 2a 84 d2 74 09 80 fa 03 0f 8e b1 05 00 00 44 89 b8 40
+>RSP: 0018:ffffc900086d7bb0 EFLAGS: 00010202
+>RAX: 0000000000000000 RBX: ffffffff8c34ee88 RCX: ffffc9001415c000
+>RDX: 0000000000000068 RSI: ffffffff83f0e6e3 RDI: 0000000000000340
+>RBP: ffffc900086d7cd0 R08: ffff888054ce0100 R09: fffffbfff16a2f6d
+>R10: ffff888054ce0998 R11: ffff888054ce0100 R12: 000000000000001d
+>R13: dffffc0000000000 R14: 1ffff920010daf79 R15: 000000000000ff7f
+>FS:  00007f7d13c12700(0000) GS:ffff8880ae900000(0000) knlGS:0000000000000000
+>CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+>CR2: 00007ffd477e3c38 CR3: 0000000095d0a000 CR4: 00000000001406e0
+>DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+>DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+>Call Trace:
+> tty_ioctl+0xa37/0x14f0 drivers/tty/tty_io.c:2660
+> vfs_ioctl fs/ioctl.c:47 [inline]
+> ksys_ioctl+0x123/0x180 fs/ioctl.c:763
+> __do_sys_ioctl fs/ioctl.c:772 [inline]
+> __se_sys_ioctl fs/ioctl.c:770 [inline]
+> __x64_sys_ioctl+0x73/0xb0 fs/ioctl.c:770
+> do_syscall_64+0xfa/0x790 arch/x86/entry/common.c:294
+> entry_SYSCALL_64_after_hwframe+0x49/0xbe
+>RIP: 0033:0x45b399
+>Code: ad b6 fb ff c3 66 2e 0f 1f 84 00 00 00 00 00 66 90 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 0f 83 7b b6 fb ff c3 66 2e 0f 1f 84 00 00 00 00
+>RSP: 002b:00007f7d13c11c78 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
+>RAX: ffffffffffffffda RBX: 00007f7d13c126d4 RCX: 000000000045b399
+>RDX: 0000000020000080 RSI: 000000000000560a RDI: 0000000000000003
+>RBP: 000000000075bf20 R08: 0000000000000000 R09: 0000000000000000
+>R10: 0000000000000000 R11: 0000000000000246 R12: 00000000ffffffff
+>R13: 0000000000000666 R14: 00000000004c7f04 R15: 000000000075bf2c
+>Modules linked in:
+>---[ end trace 80970faf7a67eb77 ]---
+>RIP: 0010:vt_ioctl+0x1f96/0x26d0 drivers/tty/vt/vt_ioctl.c:883
+>Code: 74 41 e8 bd a6 84 fd 48 89 d8 48 c1 e8 03 42 80 3c 28 00 0f 85 e4 04 00 00 48 8b 03 48 8d b8 40 03 00 00 48 89 fa 48 c1 ea 03 <42> 0f b6 14 2a 84 d2 74 09 80 fa 03 0f 8e b1 05 00 00 44 89 b8 40
+>RSP: 0018:ffffc900086d7bb0 EFLAGS: 00010202
+>RAX: 0000000000000000 RBX: ffffffff8c34ee88 RCX: ffffc9001415c000
+>RDX: 0000000000000068 RSI: ffffffff83f0e6e3 RDI: 0000000000000340
+>RBP: ffffc900086d7cd0 R08: ffff888054ce0100 R09: fffffbfff16a2f6d
+>R10: ffff888054ce0998 R11: ffff888054ce0100 R12: 000000000000001d
+>R13: dffffc0000000000 R14: 1ffff920010daf79 R15: 000000000000ff7f
+>FS:  00007f7d13c12700(0000) GS:ffff8880ae900000(0000) knlGS:0000000000000000
+>CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+>CR2: 00007ffd477e3c38 CR3: 0000000095d0a000 CR4: 00000000001406e0
+>DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+>DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+>
+>Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+>Signed-off-by: Eric Dumazet <edumazet@google.com>
+>Cc: stable <stable@vger.kernel.org>
+>Reported-by: syzbot <syzkaller@googlegroups.com>
+>Link: https://lore.kernel.org/r/20200210190721.200418-1-edumazet@google.com
+>Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Cc: <stable@vger.kernel.org>
-Acked-by: Lu Baolu <baolu.lu@linux.intel.com>
-Reviewed-by: Moritz Fischer <mdf@kernel.org>
-Signed-off-by: Yonghyun Hwang <yonghyun@google.com>
----
+I've grabbed 1b3bce4d6bf8 ("VT_RESIZEX: get rid of field-by-field
+copyin") as a dependency as queued both patches for 4.14-4.4.
 
-Changes from v2:
-- a new condition is added to check whether the pte is present.
-
-Changes from v1:
-- level cannot be 0. So, the condition, "if (level > 1)", is removed, which results in a simple code.
-- a macro, BIT_MASK, is used to have a bit mask
-
----
- drivers/iommu/intel-iommu.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/iommu/intel-iommu.c b/drivers/iommu/intel-iommu.c
-index 932267f49f9a..0837e0063973 100644
---- a/drivers/iommu/intel-iommu.c
-+++ b/drivers/iommu/intel-iommu.c
-@@ -5553,8 +5553,10 @@ static phys_addr_t intel_iommu_iova_to_phys(struct iommu_domain *domain,
- 	u64 phys = 0;
- 
- 	pte = pfn_to_dma_pte(dmar_domain, iova >> VTD_PAGE_SHIFT, &level);
--	if (pte)
--		phys = dma_pte_addr(pte);
-+	if (pte && dma_pte_present(pte))
-+		phys = dma_pte_addr(pte) +
-+			(iova & (BIT_MASK(level_to_offset_bits(level) +
-+						VTD_PAGE_SHIFT) - 1));
- 
- 	return phys;
- }
 -- 
-2.25.0.265.gbab2e86ba0-goog
-
+Thanks,
+Sasha
