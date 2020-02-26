@@ -2,54 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0568A16FC5B
-	for <lists+stable@lfdr.de>; Wed, 26 Feb 2020 11:36:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 50ECC16FC60
+	for <lists+stable@lfdr.de>; Wed, 26 Feb 2020 11:37:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727362AbgBZKgM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 26 Feb 2020 05:36:12 -0500
-Received: from wout2-smtp.messagingengine.com ([64.147.123.25]:50881 "EHLO
+        id S1727457AbgBZKha (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 26 Feb 2020 05:37:30 -0500
+Received: from wout2-smtp.messagingengine.com ([64.147.123.25]:37283 "EHLO
         wout2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726057AbgBZKgM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 26 Feb 2020 05:36:12 -0500
+        by vger.kernel.org with ESMTP id S1726057AbgBZKha (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 26 Feb 2020 05:37:30 -0500
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id 371356D4;
-        Wed, 26 Feb 2020 05:36:11 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Wed, 26 Feb 2020 05:36:11 -0500
+        by mailout.west.internal (Postfix) with ESMTP id C6D186D7;
+        Wed, 26 Feb 2020 05:37:28 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute6.internal (MEProxy); Wed, 26 Feb 2020 05:37:29 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=vH2ybk
-        ycEZH1DCxfWcbulVVF3Oq6q2im/FqlYYCEQ+0=; b=1wtM2Xy2Y0j7bQLAtWvoDP
-        LoT84ERQ6U6Jug+xMnEFH7f/DuyfPRHLqymcGDzJgxyLxlP3He6kB+uM6SlpgkQ8
-        qoY2q3+44vkCTmQjZS1HLZWu8auFnr53xqe9U+NXQK/DsCKxzp3PvpGuEU5Rlw55
-        E4IW4XL7/G4QXce9fiME6XeDDpAnQ03ZyO6DHB250pK+c8oBmdesHG7NjtGD+Dpy
-        mTs2+Wk3QvnKHfPV/twOhSf+6LUHy+NOSnCC6htLFj+RW/05KNOC1PLrh1PqNE3w
-        jxxlzO+uggALoUCB9hHTLWBbJZMs5mmyaBGWftESnchwNYQtuQX7cBkGt0p48q2Q
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=BizYol
+        8Bhz9ZI3mHAxUgikQx7Lhw5pGrICWkQj9f2Rg=; b=qMzaCP3JuO13GrYyjiYYRj
+        U0VM/tTn0Vlsjbsc615uklZT0wkjVYn1oowdMJYX8MB1aSkb8Y5RSD5aVOSJtOQo
+        RDLPJY5ctzzqYy8A6VaN11SCe07rlne1i1qZxgQYjeT8vMJ7IwnU1P9GygZWQDxA
+        /oW77qr2vpc/tWSMDcRpcrZgmp+G0B9rlmCtPL/m4f0+dwXiLnVKnbaCzdjvMn5a
+        BWB4/3jmgWl20yg1njm50azfICuqHRvI3Wmqkg6cQdobGszAQaJu19oABBmds96j
+        xcnrdbaAYPbH9t9W2llnvWwC+OYdwZLGhtBNwjEjgmP6OyCxz0Avf+tpAPhHmwSQ
         ==
-X-ME-Sender: <xms:GkpWXiRanIwB6QrnkJJtFevolBMSlZIBQWdjcASro3TPcFr_BZyQzA>
+X-ME-Sender: <xms:aEpWXv2iyS50BPLBBHdoNtggQB6kXXYfHCS-xUxpODqJmXrbjb8agQ>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedugedrleeggddukecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
     qeenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeekfedrkeeirdekledrud
-    dtjeenucevlhhushhtvghrufhiiigvpeefnecurfgrrhgrmhepmhgrihhlfhhrohhmpehg
+    dtjeenucevlhhushhtvghrufhiiigvpeejnecurfgrrhgrmhepmhgrihhlfhhrohhmpehg
     rhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:GkpWXj0ObYqjofcXG7etdjA0Td8IeAz4Ketc6sFw9KplQW7w3A0EDQ>
-    <xmx:GkpWXsgstiRIkZiz4RAYy1cq-xxGlOUrPRDtecqAith_WpTCUywQtA>
-    <xmx:GkpWXkXvVSf1_R4iDHQobGxuIzR-Vz0a42-dfQ8lkpmuViuVu3gjkw>
-    <xmx:GkpWXiDgLp2_sKceGXt-EzuM0dxJqjwBuTQjdk5QkZkx500NWpwSvA>
+X-ME-Proxy: <xmx:aEpWXsnGiVX8XUMuLtNlv8mW8mAIKFXNKAmeDw39g286qWxHtN7b6g>
+    <xmx:aEpWXmmvRw0US9VZmX0jm2vhosUJPsWPdrli18C8yJls07tkxFvONw>
+    <xmx:aEpWXj_wHl7XhZYW_VMFOvoE0MgScVM9Eee3wwykNqZgEHiDvwNw5g>
+    <xmx:aEpWXobIiZ_DYB9PSNQJZbz4bjqBFbJZMSgju5BXEDMySlcrKPd62A>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 75C663060FDD;
-        Wed, 26 Feb 2020 05:36:10 -0500 (EST)
-Subject: FAILED: patch "[PATCH] serial: 8250: Check UPF_IRQ_SHARED in advance" failed to apply to 4.4-stable tree
-To:     andriy.shevchenko@linux.intel.com, gregkh@linuxfoundation.org,
-        kurt@linutronix.de, lirongqing@baidu.com, stable@vger.kernel.org,
-        vikram.pandita@ti.com
+        by mail.messagingengine.com (Postfix) with ESMTPA id 10EED328005A;
+        Wed, 26 Feb 2020 05:37:27 -0500 (EST)
+Subject: FAILED: patch "[PATCH] tty: serial: qcom_geni_serial: Fix RX cancel command failure" failed to apply to 4.9-stable tree
+To:     skakit@codeaurora.org, gregkh@linuxfoundation.org,
+        stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 26 Feb 2020 11:36:07 +0100
-Message-ID: <158271336721122@kroah.com>
+Date:   Wed, 26 Feb 2020 11:37:17 +0100
+Message-ID: <158271343718375@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +58,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.4-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -70,129 +69,66 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 7febbcbc48fc92e3f33863b32ed715ba4aff18c4 Mon Sep 17 00:00:00 2001
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Date: Tue, 11 Feb 2020 15:55:59 +0200
-Subject: [PATCH] serial: 8250: Check UPF_IRQ_SHARED in advance
+From 679aac5ead2f18d223554a52b543e1195e181811 Mon Sep 17 00:00:00 2001
+From: satya priya <skakit@codeaurora.org>
+Date: Tue, 11 Feb 2020 15:43:02 +0530
+Subject: [PATCH] tty: serial: qcom_geni_serial: Fix RX cancel command failure
 
-The commit 54e53b2e8081
-  ("tty: serial: 8250: pass IRQ shared flag to UART ports")
-nicely explained the problem:
+RX cancel command fails when BT is switched on and off multiple times.
 
----8<---8<---
+To handle this, poll for the cancel bit in SE_GENI_S_IRQ_STATUS register
+instead of SE_GENI_S_CMD_CTRL_REG.
 
-On some systems IRQ lines between multiple UARTs might be shared. If so, the
-irqflags have to be configured accordingly. The reason is: The 8250 port startup
-code performs IRQ tests *before* the IRQ handler for that particular port is
-registered. This is performed in serial8250_do_startup(). This function checks
-whether IRQF_SHARED is configured and only then disables the IRQ line while
-testing.
+As per the HPG update, handle the RX last bit after cancel command
+and flush out the RX FIFO buffer.
 
-This test is performed upon each open() of the UART device. Imagine two UARTs
-share the same IRQ line: On is already opened and the IRQ is active. When the
-second UART is opened, the IRQ line has to be disabled while performing IRQ
-tests. Otherwise an IRQ might handler might be invoked, but the IRQ itself
-cannot be handled, because the corresponding handler isn't registered,
-yet. That's because the 8250 code uses a chain-handler and invokes the
-corresponding port's IRQ handling routines himself.
-
-Unfortunately this IRQF_SHARED flag isn't configured for UARTs probed via device
-tree even if the IRQs are shared. This way, the actual and shared IRQ line isn't
-disabled while performing tests and the kernel correctly detects a spurious
-IRQ. So, adding this flag to the DT probe solves the issue.
-
-Note: The UPF_SHARE_IRQ flag is configured unconditionally. Therefore, the
-IRQF_SHARED flag can be set unconditionally as well.
-
-Example stack trace by performing `echo 1 > /dev/ttyS2` on a non-patched system:
-
-|irq 85: nobody cared (try booting with the "irqpoll" option)
-| [...]
-|handlers:
-|[<ffff0000080fc628>] irq_default_primary_handler threaded [<ffff00000855fbb8>] serial8250_interrupt
-|Disabling IRQ #85
-
----8<---8<---
-
-But unfortunately didn't fix the root cause. Let's try again here by moving
-IRQ flag assignment from serial_link_irq_chain() to serial8250_do_startup().
-
-This should fix the similar issue reported for 8250_pnp case.
-
-Since this change we don't need to have custom solutions in 8250_aspeed_vuart
-and 8250_of drivers, thus, drop them.
-
-Fixes: 1c2f04937b3e ("serial: 8250: add IRQ trigger support")
-Reported-by: Li RongQing <lirongqing@baidu.com>
-Cc: Kurt Kanzenbach <kurt@linutronix.de>
-Cc: Vikram Pandita <vikram.pandita@ti.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: satya priya <skakit@codeaurora.org>
 Cc: stable <stable@vger.kernel.org>
-Acked-by: Kurt Kanzenbach <kurt@linutronix.de>
-Link: https://lore.kernel.org/r/20200211135559.85960-1-andriy.shevchenko@linux.intel.com
+Link: https://lore.kernel.org/r/1581415982-8793-1-git-send-email-skakit@codeaurora.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-diff --git a/drivers/tty/serial/8250/8250_aspeed_vuart.c b/drivers/tty/serial/8250/8250_aspeed_vuart.c
-index d657aa14c3e4..c33e02cbde93 100644
---- a/drivers/tty/serial/8250/8250_aspeed_vuart.c
-+++ b/drivers/tty/serial/8250/8250_aspeed_vuart.c
-@@ -446,7 +446,6 @@ static int aspeed_vuart_probe(struct platform_device *pdev)
- 		port.port.line = rc;
+diff --git a/drivers/tty/serial/qcom_geni_serial.c b/drivers/tty/serial/qcom_geni_serial.c
+index 191abb18fc2a..0bd1684cabb3 100644
+--- a/drivers/tty/serial/qcom_geni_serial.c
++++ b/drivers/tty/serial/qcom_geni_serial.c
+@@ -129,6 +129,7 @@ static int handle_rx_console(struct uart_port *uport, u32 bytes, bool drop);
+ static int handle_rx_uart(struct uart_port *uport, u32 bytes, bool drop);
+ static unsigned int qcom_geni_serial_tx_empty(struct uart_port *port);
+ static void qcom_geni_serial_stop_rx(struct uart_port *uport);
++static void qcom_geni_serial_handle_rx(struct uart_port *uport, bool drop);
  
- 	port.port.irq = irq_of_parse_and_map(np, 0);
--	port.port.irqflags = IRQF_SHARED;
- 	port.port.handle_irq = aspeed_vuart_handle_irq;
- 	port.port.iotype = UPIO_MEM;
- 	port.port.type = PORT_16550A;
-diff --git a/drivers/tty/serial/8250/8250_core.c b/drivers/tty/serial/8250/8250_core.c
-index 0894a22fd702..f2a33c9082a6 100644
---- a/drivers/tty/serial/8250/8250_core.c
-+++ b/drivers/tty/serial/8250/8250_core.c
-@@ -174,7 +174,7 @@ static int serial_link_irq_chain(struct uart_8250_port *up)
- 	struct hlist_head *h;
- 	struct hlist_node *n;
- 	struct irq_info *i;
--	int ret, irq_flags = up->port.flags & UPF_SHARE_IRQ ? IRQF_SHARED : 0;
-+	int ret;
+ static const unsigned long root_freq[] = {7372800, 14745600, 19200000, 29491200,
+ 					32000000, 48000000, 64000000, 80000000,
+@@ -599,7 +600,7 @@ static void qcom_geni_serial_stop_rx(struct uart_port *uport)
+ 	u32 irq_en;
+ 	u32 status;
+ 	struct qcom_geni_serial_port *port = to_dev_port(uport, uport);
+-	u32 irq_clear = S_CMD_DONE_EN;
++	u32 s_irq_status;
  
- 	mutex_lock(&hash_mutex);
+ 	irq_en = readl(uport->membase + SE_GENI_S_IRQ_EN);
+ 	irq_en &= ~(S_RX_FIFO_WATERMARK_EN | S_RX_FIFO_LAST_EN);
+@@ -615,10 +616,19 @@ static void qcom_geni_serial_stop_rx(struct uart_port *uport)
+ 		return;
  
-@@ -209,9 +209,8 @@ static int serial_link_irq_chain(struct uart_8250_port *up)
- 		INIT_LIST_HEAD(&up->list);
- 		i->head = &up->list;
- 		spin_unlock_irq(&i->lock);
--		irq_flags |= up->port.irqflags;
- 		ret = request_irq(up->port.irq, serial8250_interrupt,
--				  irq_flags, up->port.name, i);
-+				  up->port.irqflags, up->port.name, i);
- 		if (ret < 0)
- 			serial_do_unlink(i, up);
- 	}
-diff --git a/drivers/tty/serial/8250/8250_of.c b/drivers/tty/serial/8250/8250_of.c
-index 531ad67395e0..f6687756ec5e 100644
---- a/drivers/tty/serial/8250/8250_of.c
-+++ b/drivers/tty/serial/8250/8250_of.c
-@@ -202,7 +202,6 @@ static int of_platform_serial_setup(struct platform_device *ofdev,
- 
- 	port->type = type;
- 	port->uartclk = clk;
--	port->irqflags |= IRQF_SHARED;
- 
- 	if (of_property_read_bool(np, "no-loopback-test"))
- 		port->flags |= UPF_SKIP_TEST;
-diff --git a/drivers/tty/serial/8250/8250_port.c b/drivers/tty/serial/8250/8250_port.c
-index 430e3467aff7..0325f2e53b74 100644
---- a/drivers/tty/serial/8250/8250_port.c
-+++ b/drivers/tty/serial/8250/8250_port.c
-@@ -2177,6 +2177,10 @@ int serial8250_do_startup(struct uart_port *port)
- 		}
- 	}
- 
-+	/* Check if we need to have shared IRQs */
-+	if (port->irq && (up->port.flags & UPF_SHARE_IRQ))
-+		up->port.irqflags |= IRQF_SHARED;
+ 	geni_se_cancel_s_cmd(&port->se);
+-	qcom_geni_serial_poll_bit(uport, SE_GENI_S_CMD_CTRL_REG,
+-					S_GENI_CMD_CANCEL, false);
++	qcom_geni_serial_poll_bit(uport, SE_GENI_S_IRQ_STATUS,
++					S_CMD_CANCEL_EN, true);
++	/*
++	 * If timeout occurs secondary engine remains active
++	 * and Abort sequence is executed.
++	 */
++	s_irq_status = readl(uport->membase + SE_GENI_S_IRQ_STATUS);
++	/* Flush the Rx buffer */
++	if (s_irq_status & S_RX_FIFO_LAST_EN)
++		qcom_geni_serial_handle_rx(uport, true);
++	writel(s_irq_status, uport->membase + SE_GENI_S_IRQ_CLEAR);
 +
- 	if (port->irq && !(up->port.flags & UPF_NO_THRE_TEST)) {
- 		unsigned char iir1;
- 		/*
+ 	status = readl(uport->membase + SE_GENI_STATUS);
+-	writel(irq_clear, uport->membase + SE_GENI_S_IRQ_CLEAR);
+ 	if (status & S_GENI_CMD_ACTIVE)
+ 		qcom_geni_serial_abort_rx(uport);
+ }
 
