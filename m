@@ -2,85 +2,220 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 030BB170153
-	for <lists+stable@lfdr.de>; Wed, 26 Feb 2020 15:37:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3593F1701CD
+	for <lists+stable@lfdr.de>; Wed, 26 Feb 2020 16:02:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727471AbgBZOh3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 26 Feb 2020 09:37:29 -0500
-Received: from bhuna.collabora.co.uk ([46.235.227.227]:53602 "EHLO
-        bhuna.collabora.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727322AbgBZOh3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 26 Feb 2020 09:37:29 -0500
-Received: from [127.0.0.1] (localhost [127.0.0.1])
-        (Authenticated sender: dafna)
-        with ESMTPSA id AB61F29258C
-Subject: Re: [PATCH v4] media: v4l2-core: fix a use-after-free bug of
- sd->devnode
-To:     linux-media@vger.kernel.org
-Cc:     hverkuil@xs4all.nl, dafna3@gmail.com, helen.koike@collabora.com,
-        ezequiel@collabora.com, stable@vger.kernel.org,
-        kernel@collabora.com
-References: <20200219152554.25222-1-dafna.hirschfeld@collabora.com>
-From:   Dafna Hirschfeld <dafna.hirschfeld@collabora.com>
-Message-ID: <47ac13b7-6709-3f2a-4fb9-b0fc178959f3@collabora.com>
-Date:   Wed, 26 Feb 2020 15:37:22 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.4.1
+        id S1726905AbgBZPCT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 26 Feb 2020 10:02:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48978 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726148AbgBZPCT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 26 Feb 2020 10:02:19 -0500
+Received: from paulmck-ThinkPad-P72.home (199-192-87-166.static.wiline.com [199.192.87.166])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 85CEF24685;
+        Wed, 26 Feb 2020 15:02:18 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1582729338;
+        bh=YdavwjKW764gaMMCY/6DItdn27P+LhGI44b50YrPEik=;
+        h=Date:From:To:Cc:Subject:Reply-To:References:In-Reply-To:From;
+        b=2sbgL7e94ntYhGUYANr6/gsCMc4+cpMtj2zUZzW86ef6QQ/sINUHOGKCC+zaZtY22
+         9tF1d/YcOZy8tHHY3SWS+aE5sOqTjoWXdcu3Sou4jrMnhLZSCl4YQ5Tg5MKs47Vgvs
+         fLmHXpRZ5ZEtdywYOBJJv+82msglW71Xvhdb8PUY=
+Received: by paulmck-ThinkPad-P72.home (Postfix, from userid 1000)
+        id 14E833521EAF; Wed, 26 Feb 2020 07:02:18 -0800 (PST)
+Date:   Wed, 26 Feb 2020 07:02:18 -0800
+From:   "Paul E. McKenney" <paulmck@kernel.org>
+To:     Boqun Feng <boqun.feng@gmail.com>
+Cc:     rcu@vger.kernel.org, linux-kernel@vger.kernel.org,
+        kernel-team@fb.com, mingo@kernel.org, jiangshanlai@gmail.com,
+        dipankar@in.ibm.com, akpm@linux-foundation.org,
+        mathieu.desnoyers@efficios.com, josh@joshtriplett.org,
+        tglx@linutronix.de, peterz@infradead.org, rostedt@goodmis.org,
+        dhowells@redhat.com, edumazet@google.com, fweisbec@gmail.com,
+        oleg@redhat.com, joel@joelfernandes.org,
+        "# 5 . 5 . x" <stable@vger.kernel.org>
+Subject: Re: [PATCH tip/core/rcu 30/30] rcu: Make rcu_barrier() account for
+ offline no-CBs CPUs
+Message-ID: <20200226150218.GA2935@paulmck-ThinkPad-P72>
+Reply-To: paulmck@kernel.org
+References: <20200214235536.GA13364@paulmck-ThinkPad-P72>
+ <20200214235607.13749-30-paulmck@kernel.org>
+ <20200225102436.GF110915@debian-boqun.qqnc3lrjykvubdpftowmye0fmh.lx.internal.cloudapp.net>
+ <20200226031455.GZ2935@paulmck-ThinkPad-P72>
+ <20200226061430.GG110915@debian-boqun.qqnc3lrjykvubdpftowmye0fmh.lx.internal.cloudapp.net>
 MIME-Version: 1.0
-In-Reply-To: <20200219152554.25222-1-dafna.hirschfeld@collabora.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200226061430.GG110915@debian-boqun.qqnc3lrjykvubdpftowmye0fmh.lx.internal.cloudapp.net>
+User-Agent: Mutt/1.9.4 (2018-02-28)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
-When a subdevice is registered with
-v4l2_async_register_subdev_sensor_common and the main driver is
-unloaded and reloaded, it does not register a node for the subdevice
-since the devonde is not set to null.
-in v4l2_device_register_subdev_nodes the sd is skipped if sd->devnode.
+On Wed, Feb 26, 2020 at 02:14:30PM +0800, Boqun Feng wrote:
+> On Tue, Feb 25, 2020 at 07:14:55PM -0800, Paul E. McKenney wrote:
+> > On Tue, Feb 25, 2020 at 06:24:36PM +0800, Boqun Feng wrote:
+> > > Hi Paul,
+> > > 
+> > > On Fri, Feb 14, 2020 at 03:56:07PM -0800, paulmck@kernel.org wrote:
+> > > > From: "Paul E. McKenney" <paulmck@kernel.org>
+> > > > 
+> > > > Currently, rcu_barrier() ignores offline CPUs,  However, it is possible
+> > > > for an offline no-CBs CPU to have callbacks queued, and rcu_barrier()
+> > > > must wait for those callbacks.  This commit therefore makes rcu_barrier()
+> > > > directly invoke the rcu_barrier_func() with interrupts disabled for such
+> > > > CPUs.  This requires passing the CPU number into this function so that
+> > > > it can entrain the rcu_barrier() callback onto the correct CPU's callback
+> > > > list, given that the code must instead execute on the current CPU.
+> > > > 
+> > > > While in the area, this commit fixes a bug where the first CPU's callback
+> > > > might have been invoked before rcu_segcblist_entrain() returned, which
+> > > > would also result in an early wakeup.
+> > > > 
+> > > > Fixes: 5d6742b37727 ("rcu/nocb: Use rcu_segcblist for no-CBs CPUs")
+> > > > Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
+> > > > Cc: <stable@vger.kernel.org> # 5.5.x
+> > > > ---
+> > > >  include/trace/events/rcu.h |  1 +
+> > > >  kernel/rcu/tree.c          | 32 ++++++++++++++++++++------------
+> > > >  2 files changed, 21 insertions(+), 12 deletions(-)
+> > > > 
+> > > > diff --git a/include/trace/events/rcu.h b/include/trace/events/rcu.h
+> > > > index 5e49b06..d56d54c 100644
+> > > > --- a/include/trace/events/rcu.h
+> > > > +++ b/include/trace/events/rcu.h
+> > > > @@ -712,6 +712,7 @@ TRACE_EVENT_RCU(rcu_torture_read,
+> > > >   *	"Begin": rcu_barrier() started.
+> > > >   *	"EarlyExit": rcu_barrier() piggybacked, thus early exit.
+> > > >   *	"Inc1": rcu_barrier() piggyback check counter incremented.
+> > > > + *	"OfflineNoCBQ": rcu_barrier() found offline no-CBs CPU with callbacks.
+> > > >   *	"OnlineQ": rcu_barrier() found online CPU with callbacks.
+> > > >   *	"OnlineNQ": rcu_barrier() found online CPU, no callbacks.
+> > > >   *	"IRQ": An rcu_barrier_callback() callback posted on remote CPU.
+> > > > diff --git a/kernel/rcu/tree.c b/kernel/rcu/tree.c
+> > > > index d15041f..160643e 100644
+> > > > --- a/kernel/rcu/tree.c
+> > > > +++ b/kernel/rcu/tree.c
+> > > > @@ -3098,9 +3098,10 @@ static void rcu_barrier_callback(struct rcu_head *rhp)
+> > > >  /*
+> > > >   * Called with preemption disabled, and from cross-cpu IRQ context.
+> > > >   */
+> > > > -static void rcu_barrier_func(void *unused)
+> > > > +static void rcu_barrier_func(void *cpu_in)
+> > > >  {
+> > > > -	struct rcu_data *rdp = raw_cpu_ptr(&rcu_data);
+> > > > +	uintptr_t cpu = (uintptr_t)cpu_in;
+> > > > +	struct rcu_data *rdp = per_cpu_ptr(&rcu_data, cpu);
+> > > >  
+> > > >  	rcu_barrier_trace(TPS("IRQ"), -1, rcu_state.barrier_sequence);
+> > > >  	rdp->barrier_head.func = rcu_barrier_callback;
+> > > > @@ -3127,7 +3128,7 @@ static void rcu_barrier_func(void *unused)
+> > > >   */
+> > > >  void rcu_barrier(void)
+> > > >  {
+> > > > -	int cpu;
+> > > > +	uintptr_t cpu;
+> > > >  	struct rcu_data *rdp;
+> > > >  	unsigned long s = rcu_seq_snap(&rcu_state.barrier_sequence);
+> > > >  
+> > > > @@ -3150,13 +3151,14 @@ void rcu_barrier(void)
+> > > >  	rcu_barrier_trace(TPS("Inc1"), -1, rcu_state.barrier_sequence);
+> > > >  
+> > > >  	/*
+> > > > -	 * Initialize the count to one rather than to zero in order to
+> > > > -	 * avoid a too-soon return to zero in case of a short grace period
+> > > > -	 * (or preemption of this task).  Exclude CPU-hotplug operations
+> > > > -	 * to ensure that no offline CPU has callbacks queued.
+> > > > +	 * Initialize the count to two rather than to zero in order
+> > > > +	 * to avoid a too-soon return to zero in case of an immediate
+> > > > +	 * invocation of the just-enqueued callback (or preemption of
+> > > > +	 * this task).  Exclude CPU-hotplug operations to ensure that no
+> > > > +	 * offline non-offloaded CPU has callbacks queued.
+> > > >  	 */
+> > > >  	init_completion(&rcu_state.barrier_completion);
+> > > > -	atomic_set(&rcu_state.barrier_cpu_count, 1);
+> > > > +	atomic_set(&rcu_state.barrier_cpu_count, 2);
+> > > >  	get_online_cpus();
+> > > >  
+> > > >  	/*
+> > > > @@ -3166,13 +3168,19 @@ void rcu_barrier(void)
+> > > >  	 */
+> > > >  	for_each_possible_cpu(cpu) {
+> > > >  		rdp = per_cpu_ptr(&rcu_data, cpu);
+> > > > -		if (!cpu_online(cpu) &&
+> > > > +		if (cpu_is_offline(cpu) &&
+> > > >  		    !rcu_segcblist_is_offloaded(&rdp->cblist))
+> > > >  			continue;
+> > > > -		if (rcu_segcblist_n_cbs(&rdp->cblist)) {
+> > > > +		if (rcu_segcblist_n_cbs(&rdp->cblist) && cpu_online(cpu)) {
+> > > >  			rcu_barrier_trace(TPS("OnlineQ"), cpu,
+> > > >  					  rcu_state.barrier_sequence);
+> > > > -			smp_call_function_single(cpu, rcu_barrier_func, NULL, 1);
+> > > > +			smp_call_function_single(cpu, rcu_barrier_func, (void *)cpu, 1);
+> > > > +		} else if (cpu_is_offline(cpu)) {
+> > > 
+> > > I wonder whether this should be:
+> > > 
+> > > 		  else if (rcu_segcblist_n_cbs(&rdp->cblist) && cpu_is_offline(cpu))
+> > > 
+> > > ? Because I think we only want to queue the barrier call back if there
+> > > are callbacks for a particular CPU. Am I missing something subtle?
+> > 
+> > I don't believe that you are missing anything at all!
+> > 
+> > Thank you very much -- this bug would not have shown up in any validation
+> > setup that I am aware of.  ;-)
+> > 
+> > 							Thanx, Paul
+> > 
+> > > Regards,
+> > > Boqun
+> > > 
+> > > > +			rcu_barrier_trace(TPS("OfflineNoCBQ"), cpu,
+> > > > +					  rcu_state.barrier_sequence);
+> > > > +			local_irq_disable();
+> > > > +			rcu_barrier_func((void *)cpu);
+> > > > +			local_irq_enable();
+> 
+> Another (interesting) thing I found here is that we actually don't need
+> the irq-off section to call rcu_barrier_func() in this branch. Because
+> the target CPU is offlined, so only the cblist is only accessed at two
+> places, IIUC, one is the rcuo kthread and one is here (in
+> rcu_barrier()), and both places are in the process context rather than
+> irq context, so irq-off is not required to prevent the deadlock.
+> 
+> But yes, I know, if we drop the local_irq_disable/enable() pair here,
+> it will make lockdep very unhappy ;-)
 
-This patch solves this issue as well.
+And acquiring ->nocb_lock with interrupts enabled would be rather scary.
+And probably would be an accident waiting to happen.  So I am happy to
+disable interrupts on this path, given that it should be infrequent,
+only being executed for a short time after a no-CBs CPU goes offline.
 
-Dafna
+Much nicer to let lockdep do its thing than to have to second-guess it
+on every change that involves acquiring ->nocb_lock in an interrupt
+handler!  ;-)
 
-On 19.02.20 16:25, Dafna Hirschfeld wrote:
-> sd->devnode is released after calling
-> v4l2_subdev_release. Therefore it should be set
-> to NULL so that the subdev won't hold a pointer
-> to a released object. This fixes a reference
-> after free bug in function
-> v4l2_device_unregister_subdev
+							Thanx, Paul
+
+> Regards,
+> Boqun
 > 
-> Cc: stable@vger.kernel.org
-> Fixes: 0e43734d4c46e ("media: v4l2-subdev: add release() internal op")
-> Signed-off-by: Dafna Hirschfeld <dafna.hirschfeld@collabora.com>
-> Reviewed-by: Ezequiel Garcia <ezequiel@collabora.com>
-> ---
-> changes since v2:
-> - since this is a regresion fix, I added Fixes and Cc to stable tags,
-> - change the commit title and log to be more clear.
-> 
-> changes since v3:
-> move the sd->devnode = NULL; line below the call to the release cb
-> so that it can still use it.
-> 
->   drivers/media/v4l2-core/v4l2-device.c | 1 +
->   1 file changed, 1 insertion(+)
-> 
-> diff --git a/drivers/media/v4l2-core/v4l2-device.c b/drivers/media/v4l2-core/v4l2-device.c
-> index 63d6b147b21e..41da73ce2e98 100644
-> --- a/drivers/media/v4l2-core/v4l2-device.c
-> +++ b/drivers/media/v4l2-core/v4l2-device.c
-> @@ -179,6 +179,7 @@ static void v4l2_subdev_release(struct v4l2_subdev *sd)
->   
->   	if (sd->internal_ops && sd->internal_ops->release)
->   		sd->internal_ops->release(sd);
-> +	sd->devnode = NULL;
->   	module_put(owner);
->   }
->   
-> 
+> > > >  		} else {
+> > > >  			rcu_barrier_trace(TPS("OnlineNQ"), cpu,
+> > > >  					  rcu_state.barrier_sequence);
+> > > > @@ -3184,7 +3192,7 @@ void rcu_barrier(void)
+> > > >  	 * Now that we have an rcu_barrier_callback() callback on each
+> > > >  	 * CPU, and thus each counted, remove the initial count.
+> > > >  	 */
+> > > > -	if (atomic_dec_and_test(&rcu_state.barrier_cpu_count))
+> > > > +	if (atomic_sub_and_test(2, &rcu_state.barrier_cpu_count))
+> > > >  		complete(&rcu_state.barrier_completion);
+> > > >  
+> > > >  	/* Wait for all rcu_barrier_callback() callbacks to be invoked. */
+> > > > -- 
+> > > > 2.9.5
+> > > > 
