@@ -2,75 +2,125 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 10F5C170637
-	for <lists+stable@lfdr.de>; Wed, 26 Feb 2020 18:37:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7313A17069C
+	for <lists+stable@lfdr.de>; Wed, 26 Feb 2020 18:51:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726695AbgBZRhY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 26 Feb 2020 12:37:24 -0500
-Received: from sonic311-24.consmr.mail.ne1.yahoo.com ([66.163.188.205]:39850
-        "EHLO sonic311-24.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726642AbgBZRhY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 26 Feb 2020 12:37:24 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=aol.com; s=a2048; t=1582738642; bh=KB5k1+sCGpSRd9pTKc0P9/4ZGPy9ZVtmix5g8Hf7Eac=; h=Date:From:Reply-To:Subject:References:From:Subject; b=O2Lg25JEvJRggFYXOA6KnBC8wWwHadbgJhh9ByvsLBd43gMVWvUnOPl34r97qlEmNhB9gYqVvJZJYRXr/Ryxx6z6RcBpujZei+QT0aNTwuxyQXR7N4Qs3HBuZpZ4hbqOrezde6mxjJtL5agJxwV6l25cI8cbx/kzjL3TIFxdWxjB5m+gk4AcXymOkRITaXA2+aGXhaYipSOTCzSOElLr0wr/8GptgmfiDTzds9ceCnX+ih2lsalEgQu/oYIl0g7EfoxOPLnQAAbYotWKs/CWBaQNXe84mzS6FCNsXIGx+ry1mFviVjD+FNaydyZUdC3kuACf62UlV1+G4B2FiDU0uw==
-X-YMail-OSG: mUF7nUYVM1mjmK1TbNOsBr802542_LjbGC2iM7rf3Kc22hfP3zgJIMuCiF2JAVD
- pOB9CLzuEKQTfIxILpXsYXJwiCBNzVp6_LzC0.84fyQHfm0HEVD4NJ8x86YhkAozb0PtfpsWT1Zy
- 3Ex2nXDorOYg5vNGhnwRnev7BDqdEKpmLd5TbPA2N.gkapIllcACp6pUjk22bYaONIc4c0vmVCnD
- HaLYIHsc72UfCvTqF44xD2uES6.uZovcEfDiGy.bxZ8yCdEpjc5r1MS0U1zykpG0EWHMnsIW68tW
- 6doqr4jcs_vBRRNn5p1bpU7NU8xZRdDcpfZ160EE8sctvqGAJ0w9CLgQcdZ8GAvQrjY1J6ia1GGg
- EXCUPg1v1mUBAW7h_66wQ8qN2RDeST8yPexKkaKV0OOsCyIGa69UziGmfPoZ8G5x8C9_zVGZ9xg1
- u_uypvJ3SwgBY9JNhaXFBwA51lTEDI3jBUv2mu0E81LiBBccvU80bzfxtKKd346U8.pMst3xDjRJ
- B4UchGyd9qRSgzDnkxbcLQ6Uagb9Bs6JRzkQoDurOAmGZap_5TWso1zOEbGr68VPEEtVh86BPLKR
- Ot0FM73dapr4dNED5dvFW2GlWvlm_JgIRmBLe7FaVu.saekeWw3vnjqSbYzsy9ZL3UPV6wu.8fpj
- TguitzI3OhFCCW9fDSCM8NcQ068.QUzDXGejNHZ.DxBVcWiIgv2H2Qr_3BYXG2O6R5U_.OUCP8HC
- 0y5Xy1Cey3eDuDPHA7O5g4pyWR_Z2_IwpIbochm1XKpj5ZsHhi8aug26XgR6o32b8dcp9AYNc7ZN
- AxcTLX.32JZo0TWVyRh9mQP1oZIiB7ewpuyaYMA8DvySItBHARpcbqx9KFKkPbuM..tmRkaG0T0C
- JxX8VgLWMVluCFkmToHTTpRDA7LvHgAWjM5L8yc6XBYkk8IDCQ6Tmcr2oG9verbWBCvLNxjG.sAI
- 5Bt_yJ59SaeVenoWjAlCZdHnIT1_p3O5LQLJK947zOlbONtmBvYFBnyt7PKW49ph55H9p5hhO.1G
- wpd6JJFl_Dpt3aBTcqlYvDq5so5gDWQ3V8qedZ_1r32dCaJnO_C_GX9.rmVnmTNkjHPj6bZWP8fQ
- pBfEWz5siJxOMCbktq7qYuuIwfMwMRZUxcdN8sG3zOK31punYQK2uIogepdqzdh2DswM4iCz1v6w
- DWgZrGyiiSaIg32Rh7aI07iBByQZuFyzQ0yNFJ1mPaLQNK3uSioqpjgH.K6ROW9eOLQ9ve2gD1Nm
- 4M5Cj40KP9k_zC7idyERhceObEHxMZ_9kaN0nA1MTfWA_38cJ.IlogwjcZzTE57HyVAPn5SA-
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic311.consmr.mail.ne1.yahoo.com with HTTP; Wed, 26 Feb 2020 17:37:22 +0000
-Date:   Wed, 26 Feb 2020 17:37:17 +0000 (UTC)
-From:   jerom Njitap <jeromenjitap10@aol.com>
-Reply-To: jeromenjitap100@gmail.com
-Message-ID: <2071638843.888167.1582738637500@mail.yahoo.com>
-Subject: SESAME SEED SUPPLY BURKINA FASO
+        id S1727002AbgBZRv3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 26 Feb 2020 12:51:29 -0500
+Received: from smtp1.de.adit-jv.com ([93.241.18.167]:34638 "EHLO
+        smtp1.de.adit-jv.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727000AbgBZRv3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 26 Feb 2020 12:51:29 -0500
+Received: from localhost (smtp1.de.adit-jv.com [127.0.0.1])
+        by smtp1.de.adit-jv.com (Postfix) with ESMTP id 38C763C009D;
+        Wed, 26 Feb 2020 18:51:26 +0100 (CET)
+Received: from smtp1.de.adit-jv.com ([127.0.0.1])
+        by localhost (smtp1.de.adit-jv.com [127.0.0.1]) (amavisd-new, port 10024)
+        with ESMTP id vLozTJuWFvoL; Wed, 26 Feb 2020 18:51:20 +0100 (CET)
+Received: from HI2EXCH01.adit-jv.com (hi2exch01.adit-jv.com [10.72.92.24])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by smtp1.de.adit-jv.com (Postfix) with ESMTPS id DDDDE3C005E;
+        Wed, 26 Feb 2020 18:51:20 +0100 (CET)
+Received: from lxhi-065.adit-jv.com (10.72.93.66) by HI2EXCH01.adit-jv.com
+ (10.72.92.24) with Microsoft SMTP Server (TLS) id 14.3.468.0; Wed, 26 Feb
+ 2020 18:51:20 +0100
+From:   Eugeniu Rosca <erosca@de.adit-jv.com>
+To:     Alan Stern <stern@rowland.harvard.edu>,
+        <linux-usb@vger.kernel.org>, <linux-kernel@vger.kernel.org>
+CC:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Thinh Nguyen <Thinh.Nguyen@synopsys.com>,
+        "Lee, Chiasheng" <chiasheng.lee@intel.com>,
+        Mathieu Malaterre <malat@debian.org>,
+        Kai-Heng Feng <kai.heng.feng@canonical.com>,
+        Eugeniu Rosca <roscaeugeniu@gmail.com>,
+        Eugeniu Rosca <erosca@de.adit-jv.com>,
+        Hardik Gajjar <hgajjar@de.adit-jv.com>,
+        <stable@vger.kernel.org>, <scan-admin@coverity.com>
+Subject: [PATCH v3 1/3] usb: core: hub: fix unhandled return by employing a void function
+Date:   Wed, 26 Feb 2020 18:50:34 +0100
+Message-ID: <20200226175036.14946-1-erosca@de.adit-jv.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-References: <2071638843.888167.1582738637500.ref@mail.yahoo.com>
-X-Mailer: WebService/1.1.15302 YMailNodin Mozilla/5.0 (Windows NT 6.3; Win64; x64; rv:73.0) Gecko/20100101 Firefox/73.0
-To:     unlisted-recipients:; (no To-header on input)
+Content-Transfer-Encoding: 7BIT
+Content-Type:   text/plain; charset=US-ASCII
+X-Originating-IP: [10.72.93.66]
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Dear Sir,
+Address below Coverity complaint (Feb 25, 2020, 8:06 AM CET):
 
-This is to bring to your notice that we can supply your needs for
-quality Sesame seeds and other products listed below :
+*** CID 1458999:  Error handling issues  (CHECKED_RETURN)
+/drivers/usb/core/hub.c: 1869 in hub_probe()
+1863
+1864            if (id->driver_info & HUB_QUIRK_CHECK_PORT_AUTOSUSPEND)
+1865                    hub->quirk_check_port_auto_suspend = 1;
+1866
+1867            if (id->driver_info & HUB_QUIRK_DISABLE_AUTOSUSPEND) {
+1868                    hub->quirk_disable_autosuspend = 1;
+ >>>     CID 1458999:  Error handling issues  (CHECKED_RETURN)
+ >>>     Calling "usb_autopm_get_interface" without checking return value (as is done elsewhere 97 out of 111 times).
+1869                    usb_autopm_get_interface(intf);
+1870            }
+1871
+1872            if (hub_configure(hub, &desc->endpoint[0].desc) >= 0)
+1873                    return 0;
+1874
 
+Rather than checking the return value of 'usb_autopm_get_interface()',
+switch to the usb_autopm_get_interface_no_resume() API, as per:
 
-Cashew nut
-Raw cotton
-Sesame seed
-Copper cathode
-Copper wire scraps
-Mazut 100 oil,D6
-Used rails
-HMS 1/2
+On Tue, Feb 25, 2020 at 10:32:32AM -0500, Alan Stern wrote:
+ ------ 8< ------
+ > This change (i.e. 'ret = usb_autopm_get_interface') is not necessary,
+ > because the resume operation cannot fail at this point (interfaces
+ > are always powered-up during probe). A better solution would be to
+ > call usb_autopm_get_interface_no_resume() instead.
+ ------ 8< ------
 
+Fixes: 1208f9e1d758c9 ("USB: hub: Fix the broken detection of USB3 device in SMSC hub")
+Cc: Hardik Gajjar <hgajjar@de.adit-jv.com>
+Cc: Alan Stern <stern@rowland.harvard.edu>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: stable@vger.kernel.org # v4.14+
+Reported-by: scan-admin@coverity.com
+Suggested-by: Alan Stern <stern@rowland.harvard.edu>
+Signed-off-by: Eugeniu Rosca <erosca@de.adit-jv.com>
+---
+v3:
+ - Make the summary line more clear
+ - s/autpm/autopm/ in patch description
+ - Cc <stable> with v4.14+ since v4.14.x is the earliest stable kernel
+   which accepted commit 1208f9e1d758c9 ("USB: hub: Fix the broken
+   detection of USB3 device in SMSC hub")
 
-We offer the best quality at reasonable prices both on CIF and FOB,
-depending on the nature of your offer. Our company has been in this
-line of business for over a decade so you you can expect nothing but a
-top-notch professional touch and guarantee when you deal or trade with
-us.all communication should be through this email address for
-confidencial purpose(jeromenjitap100@gmail.com)and your whatsaap number.
+v2:
+ - [Alan Stern] Use usb_autopm_get_interface_no_resume() instead of
+   usb_autopm_get_interface()
+ - Augment commit description to provide background
+ - Link: https://lore.kernel.org/lkml/20200225183057.31953-1-erosca@de.adit-jv.com
 
-Look forward to your response.
+v1:
+ - Link: https://lore.kernel.org/lkml/20200225130846.20236-1-erosca@de.adit-jv.com
+---
+ drivers/usb/core/hub.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Regards
-Mr Jerome
+diff --git a/drivers/usb/core/hub.c b/drivers/usb/core/hub.c
+index 1d212f82c69b..1105983b5c1c 100644
+--- a/drivers/usb/core/hub.c
++++ b/drivers/usb/core/hub.c
+@@ -1866,7 +1866,7 @@ static int hub_probe(struct usb_interface *intf, const struct usb_device_id *id)
+ 
+ 	if (id->driver_info & HUB_QUIRK_DISABLE_AUTOSUSPEND) {
+ 		hub->quirk_disable_autosuspend = 1;
+-		usb_autopm_get_interface(intf);
++		usb_autopm_get_interface_no_resume(intf);
+ 	}
+ 
+ 	if (hub_configure(hub, &desc->endpoint[0].desc) >= 0)
+-- 
+2.25.1
+
