@@ -2,100 +2,191 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 93FF716F5CA
-	for <lists+stable@lfdr.de>; Wed, 26 Feb 2020 03:50:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6494116F604
+	for <lists+stable@lfdr.de>; Wed, 26 Feb 2020 04:15:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729045AbgBZCuW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 25 Feb 2020 21:50:22 -0500
-Received: from mail-pl1-f193.google.com ([209.85.214.193]:41118 "EHLO
-        mail-pl1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728989AbgBZCuW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 25 Feb 2020 21:50:22 -0500
-Received: by mail-pl1-f193.google.com with SMTP id t14so657025plr.8
-        for <stable@vger.kernel.org>; Tue, 25 Feb 2020 18:50:21 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=RahB/YPvNKcKHZNrVz8htSgIpKfS5kdNOf3TeYUSeWA=;
-        b=BKMvAhZxN5a87szHm16Pc3R94s34MRtDULY2/YrE+izY7IUNTgtS8kwkd+3FLE1t6z
-         LtOLZj0vgxFMa1FzwZHfATYQGoMg/WLQ9KuPkciDsYg2PB75WatoMhxmTbU5XV+HyKxL
-         yroB76GrnU5t/P3UToOakx0Y/mh9s+ib/XFVkLpcB0L4Uln4IuHcl7cogH8bLKGj2uy8
-         f/auzzmWxk4e8WLLB1ExjOwAatvUQ72vhSp6yhVS4xIOvOi9XI4lc/Ar4qbL5IbLCcQZ
-         vw5jXRMAxclgIzVPTw6JTB357sameMexiUUh9Mb3zOHLfBSOlrxboOewcezm2wMN7xpT
-         Wk6A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=RahB/YPvNKcKHZNrVz8htSgIpKfS5kdNOf3TeYUSeWA=;
-        b=rVDHRD58FPMg7s9Ytanlt32URDnlcnSwxRd6Uehm7UonRDzEE7MoRjUebiAL3dSyYX
-         FuwV81T0f8jWP2EV2oQYtkG/v67QLA5KtMt3UNUkYiA20uKAh3RTtYl0lfGH2esMivot
-         GEV50QgGBTO/Bua7lltLWfVF/VCLXH7pj205kdjZHIfYnCniwRZ8fAGB991R9dShpJeQ
-         IjU093FN8QdABPnfEYhk8lQdlYMvNStkHlkZv1PpoPjGLfT2BzT8cacNkvi+ZyyYD8vR
-         Z8iVhk2odkDMchl2t/CUQ9eEdVFVjkuvP5W0S1zzxK668oID0rlDy9acyrjxwFWesPKv
-         dtPQ==
-X-Gm-Message-State: APjAAAUy3on93X7Ay9FHxCoLyxjzJPwSY/M+59t9dX/xkivA0LESDvhp
-        iqmGZeZy1qTY/KN681ib5mxJt7ozH1U=
-X-Google-Smtp-Source: APXvYqxrFoaOnl7vVEYJs3TuQR9ADYFJniNLMTi4yslnEm8nZ2CYRFVr9ZlRwwDencw5AQ7CHAKk/w==
-X-Received: by 2002:a17:90a:330f:: with SMTP id m15mr2461871pjb.24.1582685420698;
-        Tue, 25 Feb 2020 18:50:20 -0800 (PST)
-Received: from [10.0.9.4] ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id u12sm371190pgr.3.2020.02.25.18.50.18
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 25 Feb 2020 18:50:19 -0800 (PST)
-Message-ID: <5e55dceb.1c69fb81.7f287.2336@mx.google.com>
-Date:   Tue, 25 Feb 2020 18:50:19 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S1729420AbgBZDO4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 25 Feb 2020 22:14:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33816 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1729434AbgBZDO4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 25 Feb 2020 22:14:56 -0500
+Received: from paulmck-ThinkPad-P72.home (199-192-87-166.static.wiline.com [199.192.87.166])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8E43721927;
+        Wed, 26 Feb 2020 03:14:55 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1582686895;
+        bh=t6C+JSqpJc3ZGM0GQELXv6dxp1w3T5mg2ZA90yJosw4=;
+        h=Date:From:To:Cc:Subject:Reply-To:References:In-Reply-To:From;
+        b=IJUq6jyQYRAIwcaoj/y5igedXdeK3nckj9xJenUbGWvkNY/n9b/2w2o2bVMUzmy9l
+         tet1PSe45NBEpdYnTJua6nL/P21DiR9Cysxbo6O/CY2OcMs8cIXimZmG9DHHectwkz
+         JSj5EThaVSHv3G94rkwwFarnWts2OYwCQZxZTONs=
+Received: by paulmck-ThinkPad-P72.home (Postfix, from userid 1000)
+        id 215983521EAF; Tue, 25 Feb 2020 19:14:55 -0800 (PST)
+Date:   Tue, 25 Feb 2020 19:14:55 -0800
+From:   "Paul E. McKenney" <paulmck@kernel.org>
+To:     Boqun Feng <boqun.feng@gmail.com>
+Cc:     rcu@vger.kernel.org, linux-kernel@vger.kernel.org,
+        kernel-team@fb.com, mingo@kernel.org, jiangshanlai@gmail.com,
+        dipankar@in.ibm.com, akpm@linux-foundation.org,
+        mathieu.desnoyers@efficios.com, josh@joshtriplett.org,
+        tglx@linutronix.de, peterz@infradead.org, rostedt@goodmis.org,
+        dhowells@redhat.com, edumazet@google.com, fweisbec@gmail.com,
+        oleg@redhat.com, joel@joelfernandes.org,
+        "# 5 . 5 . x" <stable@vger.kernel.org>
+Subject: Re: [PATCH tip/core/rcu 30/30] rcu: Make rcu_barrier() account for
+ offline no-CBs CPUs
+Message-ID: <20200226031455.GZ2935@paulmck-ThinkPad-P72>
+Reply-To: paulmck@kernel.org
+References: <20200214235536.GA13364@paulmck-ThinkPad-P72>
+ <20200214235607.13749-30-paulmck@kernel.org>
+ <20200225102436.GF110915@debian-boqun.qqnc3lrjykvubdpftowmye0fmh.lx.internal.cloudapp.net>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.19.106
-X-Kernelci-Report-Type: boot
-X-Kernelci-Tree: stable
-X-Kernelci-Branch: linux-4.19.y
-Subject: stable/linux-4.19.y boot: 58 boots: 2 failed, 56 passed (v4.19.106)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200225102436.GF110915@debian-boqun.qqnc3lrjykvubdpftowmye0fmh.lx.internal.cloudapp.net>
+User-Agent: Mutt/1.9.4 (2018-02-28)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable/linux-4.19.y boot: 58 boots: 2 failed, 56 passed (v4.19.106)
+On Tue, Feb 25, 2020 at 06:24:36PM +0800, Boqun Feng wrote:
+> Hi Paul,
+> 
+> On Fri, Feb 14, 2020 at 03:56:07PM -0800, paulmck@kernel.org wrote:
+> > From: "Paul E. McKenney" <paulmck@kernel.org>
+> > 
+> > Currently, rcu_barrier() ignores offline CPUs,  However, it is possible
+> > for an offline no-CBs CPU to have callbacks queued, and rcu_barrier()
+> > must wait for those callbacks.  This commit therefore makes rcu_barrier()
+> > directly invoke the rcu_barrier_func() with interrupts disabled for such
+> > CPUs.  This requires passing the CPU number into this function so that
+> > it can entrain the rcu_barrier() callback onto the correct CPU's callback
+> > list, given that the code must instead execute on the current CPU.
+> > 
+> > While in the area, this commit fixes a bug where the first CPU's callback
+> > might have been invoked before rcu_segcblist_entrain() returned, which
+> > would also result in an early wakeup.
+> > 
+> > Fixes: 5d6742b37727 ("rcu/nocb: Use rcu_segcblist for no-CBs CPUs")
+> > Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
+> > Cc: <stable@vger.kernel.org> # 5.5.x
+> > ---
+> >  include/trace/events/rcu.h |  1 +
+> >  kernel/rcu/tree.c          | 32 ++++++++++++++++++++------------
+> >  2 files changed, 21 insertions(+), 12 deletions(-)
+> > 
+> > diff --git a/include/trace/events/rcu.h b/include/trace/events/rcu.h
+> > index 5e49b06..d56d54c 100644
+> > --- a/include/trace/events/rcu.h
+> > +++ b/include/trace/events/rcu.h
+> > @@ -712,6 +712,7 @@ TRACE_EVENT_RCU(rcu_torture_read,
+> >   *	"Begin": rcu_barrier() started.
+> >   *	"EarlyExit": rcu_barrier() piggybacked, thus early exit.
+> >   *	"Inc1": rcu_barrier() piggyback check counter incremented.
+> > + *	"OfflineNoCBQ": rcu_barrier() found offline no-CBs CPU with callbacks.
+> >   *	"OnlineQ": rcu_barrier() found online CPU with callbacks.
+> >   *	"OnlineNQ": rcu_barrier() found online CPU, no callbacks.
+> >   *	"IRQ": An rcu_barrier_callback() callback posted on remote CPU.
+> > diff --git a/kernel/rcu/tree.c b/kernel/rcu/tree.c
+> > index d15041f..160643e 100644
+> > --- a/kernel/rcu/tree.c
+> > +++ b/kernel/rcu/tree.c
+> > @@ -3098,9 +3098,10 @@ static void rcu_barrier_callback(struct rcu_head *rhp)
+> >  /*
+> >   * Called with preemption disabled, and from cross-cpu IRQ context.
+> >   */
+> > -static void rcu_barrier_func(void *unused)
+> > +static void rcu_barrier_func(void *cpu_in)
+> >  {
+> > -	struct rcu_data *rdp = raw_cpu_ptr(&rcu_data);
+> > +	uintptr_t cpu = (uintptr_t)cpu_in;
+> > +	struct rcu_data *rdp = per_cpu_ptr(&rcu_data, cpu);
+> >  
+> >  	rcu_barrier_trace(TPS("IRQ"), -1, rcu_state.barrier_sequence);
+> >  	rdp->barrier_head.func = rcu_barrier_callback;
+> > @@ -3127,7 +3128,7 @@ static void rcu_barrier_func(void *unused)
+> >   */
+> >  void rcu_barrier(void)
+> >  {
+> > -	int cpu;
+> > +	uintptr_t cpu;
+> >  	struct rcu_data *rdp;
+> >  	unsigned long s = rcu_seq_snap(&rcu_state.barrier_sequence);
+> >  
+> > @@ -3150,13 +3151,14 @@ void rcu_barrier(void)
+> >  	rcu_barrier_trace(TPS("Inc1"), -1, rcu_state.barrier_sequence);
+> >  
+> >  	/*
+> > -	 * Initialize the count to one rather than to zero in order to
+> > -	 * avoid a too-soon return to zero in case of a short grace period
+> > -	 * (or preemption of this task).  Exclude CPU-hotplug operations
+> > -	 * to ensure that no offline CPU has callbacks queued.
+> > +	 * Initialize the count to two rather than to zero in order
+> > +	 * to avoid a too-soon return to zero in case of an immediate
+> > +	 * invocation of the just-enqueued callback (or preemption of
+> > +	 * this task).  Exclude CPU-hotplug operations to ensure that no
+> > +	 * offline non-offloaded CPU has callbacks queued.
+> >  	 */
+> >  	init_completion(&rcu_state.barrier_completion);
+> > -	atomic_set(&rcu_state.barrier_cpu_count, 1);
+> > +	atomic_set(&rcu_state.barrier_cpu_count, 2);
+> >  	get_online_cpus();
+> >  
+> >  	/*
+> > @@ -3166,13 +3168,19 @@ void rcu_barrier(void)
+> >  	 */
+> >  	for_each_possible_cpu(cpu) {
+> >  		rdp = per_cpu_ptr(&rcu_data, cpu);
+> > -		if (!cpu_online(cpu) &&
+> > +		if (cpu_is_offline(cpu) &&
+> >  		    !rcu_segcblist_is_offloaded(&rdp->cblist))
+> >  			continue;
+> > -		if (rcu_segcblist_n_cbs(&rdp->cblist)) {
+> > +		if (rcu_segcblist_n_cbs(&rdp->cblist) && cpu_online(cpu)) {
+> >  			rcu_barrier_trace(TPS("OnlineQ"), cpu,
+> >  					  rcu_state.barrier_sequence);
+> > -			smp_call_function_single(cpu, rcu_barrier_func, NULL, 1);
+> > +			smp_call_function_single(cpu, rcu_barrier_func, (void *)cpu, 1);
+> > +		} else if (cpu_is_offline(cpu)) {
+> 
+> I wonder whether this should be:
+> 
+> 		  else if (rcu_segcblist_n_cbs(&rdp->cblist) && cpu_is_offline(cpu))
+> 
+> ? Because I think we only want to queue the barrier call back if there
+> are callbacks for a particular CPU. Am I missing something subtle?
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable/branch/linux-4.=
-19.y/kernel/v4.19.106/
-Full Build Summary: https://kernelci.org/build/stable/branch/linux-4.19.y/k=
-ernel/v4.19.106/
+I don't believe that you are missing anything at all!
 
-Tree: stable
-Branch: linux-4.19.y
-Git Describe: v4.19.106
-Git Commit: f25804f389846835535db255e7ba80eeed967ed7
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e.git
-Tested: 44 unique boards, 15 SoC families, 15 builds out of 206
+Thank you very much -- this bug would not have shown up in any validation
+setup that I am aware of.  ;-)
 
-Boot Regressions Detected:
+							Thanx, Paul
 
-arm:
-
-    multi_v7_defconfig:
-        gcc-8:
-          omap3-beagle-xm:
-              lab-baylibre: new failure (last pass: v4.19.105)
-
-Boot Failures Detected:
-
-arm:
-    multi_v7_defconfig:
-        gcc-8:
-            omap3-beagle-xm: 1 failed lab
-
-    sama5_defconfig:
-        gcc-8:
-            at91-sama5d4_xplained: 1 failed lab
-
----
-For more info write to <info@kernelci.org>
+> Regards,
+> Boqun
+> 
+> > +			rcu_barrier_trace(TPS("OfflineNoCBQ"), cpu,
+> > +					  rcu_state.barrier_sequence);
+> > +			local_irq_disable();
+> > +			rcu_barrier_func((void *)cpu);
+> > +			local_irq_enable();
+> >  		} else {
+> >  			rcu_barrier_trace(TPS("OnlineNQ"), cpu,
+> >  					  rcu_state.barrier_sequence);
+> > @@ -3184,7 +3192,7 @@ void rcu_barrier(void)
+> >  	 * Now that we have an rcu_barrier_callback() callback on each
+> >  	 * CPU, and thus each counted, remove the initial count.
+> >  	 */
+> > -	if (atomic_dec_and_test(&rcu_state.barrier_cpu_count))
+> > +	if (atomic_sub_and_test(2, &rcu_state.barrier_cpu_count))
+> >  		complete(&rcu_state.barrier_completion);
+> >  
+> >  	/* Wait for all rcu_barrier_callback() callbacks to be invoked. */
+> > -- 
+> > 2.9.5
+> > 
