@@ -2,74 +2,181 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C73151701E9
-	for <lists+stable@lfdr.de>; Wed, 26 Feb 2020 16:06:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B79D117022A
+	for <lists+stable@lfdr.de>; Wed, 26 Feb 2020 16:19:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727444AbgBZPGz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 26 Feb 2020 10:06:55 -0500
-Received: from mga18.intel.com ([134.134.136.126]:50073 "EHLO mga18.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726990AbgBZPGz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 26 Feb 2020 10:06:55 -0500
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga005.jf.intel.com ([10.7.209.41])
-  by orsmga106.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 26 Feb 2020 07:06:54 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.70,488,1574150400"; 
-   d="scan'208";a="410643391"
-Received: from mattu-haswell.fi.intel.com ([10.237.72.170])
-  by orsmga005.jf.intel.com with ESMTP; 26 Feb 2020 07:06:52 -0800
-From:   Mathias Nyman <mathias.nyman@linux.intel.com>
-To:     stable@vger.kernel.org
-Cc:     Mathias Nyman <mathias.nyman@linux.intel.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH] xhci: apply XHCI_PME_STUCK_QUIRK to Intel Comet Lake platforms
-Date:   Wed, 26 Feb 2020 17:08:48 +0200
-Message-Id: <20200226150848.28162-1-mathias.nyman@linux.intel.com>
-X-Mailer: git-send-email 2.17.1
+        id S1728072AbgBZPTd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 26 Feb 2020 10:19:33 -0500
+Received: from metis.ext.pengutronix.de ([85.220.165.71]:49105 "EHLO
+        metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727576AbgBZPTc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 26 Feb 2020 10:19:32 -0500
+Received: from kresse.hi.pengutronix.de ([2001:67c:670:100:1d::2a])
+        by metis.ext.pengutronix.de with esmtp (Exim 4.92)
+        (envelope-from <l.stach@pengutronix.de>)
+        id 1j6yTC-0005WE-8j; Wed, 26 Feb 2020 16:19:30 +0100
+Message-ID: <78e5e739269ee8f7467284ad88d2097e2ad991ba.camel@pengutronix.de>
+Subject: Re: [PATCH] drm/etnaviv: rework perfmon query infrastructure
+From:   Lucas Stach <l.stach@pengutronix.de>
+To:     Christian Gmeiner <christian.gmeiner@gmail.com>,
+        linux-kernel@vger.kernel.org
+Cc:     David Airlie <airlied@linux.ie>, etnaviv@lists.freedesktop.org,
+        stable@vger.kernel.org, dri-devel@lists.freedesktop.org,
+        Daniel Vetter <daniel@ffwll.ch>,
+        Russell King <linux+etnaviv@armlinux.org.uk>,
+        Dan Carpenter <dan.carpenter@oracle.com>
+Date:   Wed, 26 Feb 2020 16:19:29 +0100
+In-Reply-To: <20200106104339.215511-1-christian.gmeiner@gmail.com>
+References: <20200106104339.215511-1-christian.gmeiner@gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.30.5-1.1 
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+X-SA-Exim-Connect-IP: 2001:67c:670:100:1d::2a
+X-SA-Exim-Mail-From: l.stach@pengutronix.de
+X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
+X-PTX-Original-Recipient: stable@vger.kernel.org
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit a3ae87dce3a5abe0b57c811bab02b2564b574106 ]
+Hi Christian,
 
-Backport for 4.4, 4.9, 4.14, and 4.19 stable
+sorry for taking so long to get around to this.
 
-Intel Comet Lake based platform require the XHCI_PME_STUCK_QUIRK
-quirk as well. Without this xHC can not enter D3 in runtime suspend.
+On Mo, 2020-01-06 at 11:43 +0100, Christian Gmeiner wrote:
+> Report the correct perfmon domains and signals depending
+> on the supported feature flags.
+> 
+> Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+> Fixes: 9e2c2e273012 ("drm/etnaviv: add infrastructure to query perf counter")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Christian Gmeiner <christian.gmeiner@gmail.com>
+> ---
+>  drivers/gpu/drm/etnaviv/etnaviv_perfmon.c | 57 ++++++++++++++++++++---
+>  1 file changed, 50 insertions(+), 7 deletions(-)
+> 
+> diff --git a/drivers/gpu/drm/etnaviv/etnaviv_perfmon.c b/drivers/gpu/drm/etnaviv/etnaviv_perfmon.c
+> index 8adbf2861bff..7ae8f347ca06 100644
+> --- a/drivers/gpu/drm/etnaviv/etnaviv_perfmon.c
+> +++ b/drivers/gpu/drm/etnaviv/etnaviv_perfmon.c
+> @@ -32,6 +32,7 @@ struct etnaviv_pm_domain {
+>  };
+>  
+>  struct etnaviv_pm_domain_meta {
+> +	unsigned int feature;
+>  	const struct etnaviv_pm_domain *domains;
+>  	u32 nr_domains;
+>  };
+> @@ -410,36 +411,78 @@ static const struct etnaviv_pm_domain doms_vg[] = {
+>  
+>  static const struct etnaviv_pm_domain_meta doms_meta[] = {
+>  	{
+> +		.feature = chipFeatures_PIPE_3D,
+>  		.nr_domains = ARRAY_SIZE(doms_3d),
+>  		.domains = &doms_3d[0]
+>  	},
+>  	{
+> +		.feature = chipFeatures_PIPE_2D,
+>  		.nr_domains = ARRAY_SIZE(doms_2d),
+>  		.domains = &doms_2d[0]
+>  	},
+>  	{
+> +		.feature = chipFeatures_PIPE_VG,
+>  		.nr_domains = ARRAY_SIZE(doms_vg),
+>  		.domains = &doms_vg[0]
+>  	}
+>  };
+>  
+> +static unsigned int num_pm_domains(const struct etnaviv_gpu *gpu)
+> +{
+> +	unsigned int num = 0, i;
+> +
+> +	for (i = 0; i < ARRAY_SIZE(doms_meta); i++) {
+> +		const struct etnaviv_pm_domain_meta *meta = &doms_meta[i];
+> +
+> +		if (gpu->identity.features & meta->feature)
+> +			num += meta->nr_domains;
+> +	}
+> +
+> +	return num;
+> +}
+> +
+> +static const struct etnaviv_pm_domain *pm_domain(const struct etnaviv_gpu *gpu,
+> +	unsigned int index)
+> +{
+> +	const struct etnaviv_pm_domain *domain = NULL;
+> +	unsigned int offset = 0, i;
+> +
+> +	for (i = 0; i < ARRAY_SIZE(doms_meta); i++) {
+> +		const struct etnaviv_pm_domain_meta *meta = &doms_meta[i];
+> +
+> +		if (!(gpu->identity.features & meta->feature))
+> +			continue;
+> +
+> +		if (meta->nr_domains < (index - offset)) {
+> +			offset += meta->nr_domains;
+> +			continue;
+> +		}
+> +
+> +		domain = meta->domains + (index - offset);
+> +	}
+> +
+> +	BUG_ON(!domain);
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/20200210134553.9144-5-mathias.nyman@linux.intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/usb/host/xhci-pci.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+This is a no-go. BUG_ON is reserved for only the most severe kernel
+bugs where you can't possibly continue without risking a corruption of
+non-volatile state. This isn't the case here, please instead just make
+the callers handle a NULL return gracefully.
 
-diff --git a/drivers/usb/host/xhci-pci.c b/drivers/usb/host/xhci-pci.c
-index df86ea308415..5af57afb4e56 100644
---- a/drivers/usb/host/xhci-pci.c
-+++ b/drivers/usb/host/xhci-pci.c
-@@ -53,6 +53,7 @@
- #define PCI_DEVICE_ID_INTEL_BROXTON_B_XHCI		0x1aa8
- #define PCI_DEVICE_ID_INTEL_APL_XHCI			0x5aa8
- #define PCI_DEVICE_ID_INTEL_DNV_XHCI			0x19d0
-+#define PCI_DEVICE_ID_INTEL_CML_XHCI			0xa3af
- 
- static const char hcd_name[] = "xhci_hcd";
- 
-@@ -169,7 +170,8 @@ static void xhci_pci_quirks(struct device *dev, struct xhci_hcd *xhci)
- 		 pdev->device == PCI_DEVICE_ID_INTEL_BROXTON_M_XHCI ||
- 		 pdev->device == PCI_DEVICE_ID_INTEL_BROXTON_B_XHCI ||
- 		 pdev->device == PCI_DEVICE_ID_INTEL_APL_XHCI ||
--		 pdev->device == PCI_DEVICE_ID_INTEL_DNV_XHCI)) {
-+		 pdev->device == PCI_DEVICE_ID_INTEL_DNV_XHCI ||
-+		 pdev->device == PCI_DEVICE_ID_INTEL_CML_XHCI)) {
- 		xhci->quirks |= XHCI_PME_STUCK_QUIRK;
- 	}
- 	if (pdev->vendor == PCI_VENDOR_ID_INTEL &&
--- 
-2.17.1
+Regards,
+Lucas
+
+> +
+> +	return domain;
+> +}
+> +
+>  int etnaviv_pm_query_dom(struct etnaviv_gpu *gpu,
+>  	struct drm_etnaviv_pm_domain *domain)
+>  {
+> -	const struct etnaviv_pm_domain_meta *meta = &doms_meta[domain->pipe];
+> +	const unsigned int nr_domains = num_pm_domains(gpu);
+>  	const struct etnaviv_pm_domain *dom;
+>  
+> -	if (domain->iter >= meta->nr_domains)
+> +	if (domain->iter >= nr_domains)
+>  		return -EINVAL;
+>  
+> -	dom = meta->domains + domain->iter;
+> +	dom = pm_domain(gpu, domain->iter);
+>  
+>  	domain->id = domain->iter;
+>  	domain->nr_signals = dom->nr_signals;
+>  	strncpy(domain->name, dom->name, sizeof(domain->name));
+>  
+>  	domain->iter++;
+> -	if (domain->iter == meta->nr_domains)
+> +	if (domain->iter == nr_domains)
+>  		domain->iter = 0xff;
+>  
+>  	return 0;
+> @@ -448,14 +491,14 @@ int etnaviv_pm_query_dom(struct etnaviv_gpu *gpu,
+>  int etnaviv_pm_query_sig(struct etnaviv_gpu *gpu,
+>  	struct drm_etnaviv_pm_signal *signal)
+>  {
+> -	const struct etnaviv_pm_domain_meta *meta = &doms_meta[signal->pipe];
+> +	const unsigned int nr_domains = num_pm_domains(gpu);
+>  	const struct etnaviv_pm_domain *dom;
+>  	const struct etnaviv_pm_signal *sig;
+>  
+> -	if (signal->domain >= meta->nr_domains)
+> +	if (signal->domain >= nr_domains)
+>  		return -EINVAL;
+>  
+> -	dom = meta->domains + signal->domain;
+> +	dom = pm_domain(gpu, signal->domain);
+>  
+>  	if (signal->iter >= dom->nr_signals)
+>  		return -EINVAL;
 
