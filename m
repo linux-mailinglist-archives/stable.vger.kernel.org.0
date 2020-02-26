@@ -2,84 +2,96 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 398CB170767
-	for <lists+stable@lfdr.de>; Wed, 26 Feb 2020 19:14:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B2DD917077A
+	for <lists+stable@lfdr.de>; Wed, 26 Feb 2020 19:18:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726980AbgBZSOZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 26 Feb 2020 13:14:25 -0500
-Received: from iolanthe.rowland.org ([192.131.102.54]:50854 "HELO
-        iolanthe.rowland.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with SMTP id S1726787AbgBZSOZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 26 Feb 2020 13:14:25 -0500
-Received: (qmail 2447 invoked by uid 2102); 26 Feb 2020 13:14:24 -0500
-Received: from localhost (sendmail-bs@127.0.0.1)
-  by localhost with SMTP; 26 Feb 2020 13:14:24 -0500
-Date:   Wed, 26 Feb 2020 13:14:24 -0500 (EST)
-From:   Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@iolanthe.rowland.org
-To:     Eugeniu Rosca <erosca@de.adit-jv.com>
-cc:     linux-usb@vger.kernel.org, <linux-kernel@vger.kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Thinh Nguyen <Thinh.Nguyen@synopsys.com>,
-        "Lee, Chiasheng" <chiasheng.lee@intel.com>,
-        Mathieu Malaterre <malat@debian.org>,
-        Kai-Heng Feng <kai.heng.feng@canonical.com>,
-        Eugeniu Rosca <roscaeugeniu@gmail.com>,
-        Hardik Gajjar <hgajjar@de.adit-jv.com>,
-        <stable@vger.kernel.org>, <scan-admin@coverity.com>
-Subject: Re: [PATCH v3 1/3] usb: core: hub: fix unhandled return by employing
- a void function
-In-Reply-To: <20200226175036.14946-1-erosca@de.adit-jv.com>
-Message-ID: <Pine.LNX.4.44L0.2002261313390.1406-100000@iolanthe.rowland.org>
+        id S1726970AbgBZSSB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 26 Feb 2020 13:18:01 -0500
+Received: from out5-smtp.messagingengine.com ([66.111.4.29]:39027 "EHLO
+        out5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726956AbgBZSSB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 26 Feb 2020 13:18:01 -0500
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailout.nyi.internal (Postfix) with ESMTP id 7C659220BD;
+        Wed, 26 Feb 2020 13:18:00 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute6.internal (MEProxy); Wed, 26 Feb 2020 13:18:00 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=W/7azV
+        ayQ1f5A8h/LsRXzan1Y46FY9T4M5Nm7JiantM=; b=J/55S1gAzxuTy4aH6ecWuA
+        1N9/u/GPssnRYqK3Gi70A1flD/RBH+3kl8EKzET67WjrJDXtMxdOuZ/wJ02Ox2Vu
+        Xu4Nvt1E1+mdk3vRMw9QVN12F/501o05gUOqIOhCFZffdLpvVsw7CZZgKFu/TlDB
+        dhtkS/6coHa0xAJj/jXesrby0blW8/G3fq9QnjIsEM2zhVdXmuEbACabXByf6GBr
+        NK/Rf/3mizbwu3cgHXVa1WtzsYzSGA/pECGeIEc2wsJfvRmqcfrdrOxFYqi8uTeG
+        YJdZN5Kv+X9Gt6VCo1O4seI/E2km1rfs4CNsjbo6+m0FDlWCuS+h7q23AvIeVs5w
+        ==
+X-ME-Sender: <xms:WLZWXsnWDkMCcUO3Wh-gfRhUgjd5FBxC1_XEWDVnoEiO-vAngxiI8A>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedugedrleeggdduudefucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
+    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
+    gheqnecukfhppeekfedrkeeirdekledruddtjeenucevlhhushhtvghrufhiiigvpedune
+    curfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
+X-ME-Proxy: <xmx:WLZWXgH_utL85cGncQdo1pFMlClVhCahZfsBaC_2isMq-IgtEp7Wjw>
+    <xmx:WLZWXlpmUG9xcmZsdLzNH3qNaflGkdUeLWwSkotAkan0R22JBIbLUg>
+    <xmx:WLZWXs55JxfytaO8ojdUktqsKROYJZYXJ6-nkKnrG6UvkBd4Ox58aA>
+    <xmx:WLZWXs6-BUIbI6UdHunxstarPzucJnxQI60cKPaoA76VHFbVVlpisQ>
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 21C23328005E;
+        Wed, 26 Feb 2020 13:18:00 -0500 (EST)
+Subject: FAILED: patch "[PATCH] KVM: nVMX: Don't emulate instructions in guest mode" failed to apply to 4.9-stable tree
+To:     pbonzini@redhat.com, oupton@google.com
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Wed, 26 Feb 2020 19:17:49 +0100
+Message-ID: <158274106914255@kroah.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 26 Feb 2020, Eugeniu Rosca wrote:
 
-> Address below Coverity complaint (Feb 25, 2020, 8:06 AM CET):
-> 
-> *** CID 1458999:  Error handling issues  (CHECKED_RETURN)
-> /drivers/usb/core/hub.c: 1869 in hub_probe()
-> 1863
-> 1864            if (id->driver_info & HUB_QUIRK_CHECK_PORT_AUTOSUSPEND)
-> 1865                    hub->quirk_check_port_auto_suspend = 1;
-> 1866
-> 1867            if (id->driver_info & HUB_QUIRK_DISABLE_AUTOSUSPEND) {
-> 1868                    hub->quirk_disable_autosuspend = 1;
->  >>>     CID 1458999:  Error handling issues  (CHECKED_RETURN)
->  >>>     Calling "usb_autopm_get_interface" without checking return value (as is done elsewhere 97 out of 111 times).
-> 1869                    usb_autopm_get_interface(intf);
-> 1870            }
-> 1871
-> 1872            if (hub_configure(hub, &desc->endpoint[0].desc) >= 0)
-> 1873                    return 0;
-> 1874
-> 
-> Rather than checking the return value of 'usb_autopm_get_interface()',
-> switch to the usb_autopm_get_interface_no_resume() API, as per:
-> 
-> On Tue, Feb 25, 2020 at 10:32:32AM -0500, Alan Stern wrote:
->  ------ 8< ------
->  > This change (i.e. 'ret = usb_autopm_get_interface') is not necessary,
->  > because the resume operation cannot fail at this point (interfaces
->  > are always powered-up during probe). A better solution would be to
->  > call usb_autopm_get_interface_no_resume() instead.
->  ------ 8< ------
-> 
-> Fixes: 1208f9e1d758c9 ("USB: hub: Fix the broken detection of USB3 device in SMSC hub")
-> Cc: Hardik Gajjar <hgajjar@de.adit-jv.com>
-> Cc: Alan Stern <stern@rowland.harvard.edu>
-> Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> Cc: stable@vger.kernel.org # v4.14+
-> Reported-by: scan-admin@coverity.com
-> Suggested-by: Alan Stern <stern@rowland.harvard.edu>
-> Signed-off-by: Eugeniu Rosca <erosca@de.adit-jv.com>
+The patch below does not apply to the 4.9-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-For all three patches:
+thanks,
 
-Acked-by: Alan Stern <stern@rowland.harvard.edu>
+greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From 07721feee46b4b248402133228235318199b05ec Mon Sep 17 00:00:00 2001
+From: Paolo Bonzini <pbonzini@redhat.com>
+Date: Tue, 4 Feb 2020 15:26:29 -0800
+Subject: [PATCH] KVM: nVMX: Don't emulate instructions in guest mode
+
+vmx_check_intercept is not yet fully implemented. To avoid emulating
+instructions disallowed by the L1 hypervisor, refuse to emulate
+instructions by default.
+
+Cc: stable@vger.kernel.org
+[Made commit, added commit msg - Oliver]
+Signed-off-by: Oliver Upton <oupton@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+
+diff --git a/arch/x86/kvm/vmx/vmx.c b/arch/x86/kvm/vmx/vmx.c
+index dcca514ffd42..5801a86f9c24 100644
+--- a/arch/x86/kvm/vmx/vmx.c
++++ b/arch/x86/kvm/vmx/vmx.c
+@@ -7164,7 +7164,7 @@ static int vmx_check_intercept(struct kvm_vcpu *vcpu,
+ 	}
+ 
+ 	/* TODO: check more intercepts... */
+-	return X86EMUL_CONTINUE;
++	return X86EMUL_UNHANDLEABLE;
+ }
+ 
+ #ifdef CONFIG_X86_64
 
