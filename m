@@ -2,117 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 694C516FE92
-	for <lists+stable@lfdr.de>; Wed, 26 Feb 2020 13:02:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 27EB9170100
+	for <lists+stable@lfdr.de>; Wed, 26 Feb 2020 15:20:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726920AbgBZMCP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 26 Feb 2020 07:02:15 -0500
-Received: from mailgw01.mediatek.com ([210.61.82.183]:6851 "EHLO
-        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726272AbgBZMCP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 26 Feb 2020 07:02:15 -0500
-X-UUID: 618771a74bec4bba8d11e5bc7ea6f553-20200226
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=mediatek.com; s=dk;
-        h=Content-Transfer-Encoding:Content-Type:MIME-Version:References:In-Reply-To:Message-ID:Date:Subject:CC:To:From; bh=HeqaTDjIL0PTx6tfNZRsJGOB5wSUUqHsQNV/Ncz2fJc=;
-        b=ENbT1nfHLPmaa1KnVt+jRf/tknKxc2p2KiK+s6CU1rwJAp+Lk3CSRMzwDpCHeadWl1fqHuy8hhUWvULtNVcLJGPLWkNfldClAau63AQr7JW2Wod7LrFdac8b6i7YmPCYva695mdKqQLe76+fThWjqwBTnhRst8AF2MHGbGBUrjI=;
-X-UUID: 618771a74bec4bba8d11e5bc7ea6f553-20200226
-Received: from mtkcas07.mediatek.inc [(172.21.101.84)] by mailgw01.mediatek.com
-        (envelope-from <macpaul.lin@mediatek.com>)
-        (Cellopoint E-mail Firewall v4.1.10 Build 0809 with TLS)
-        with ESMTP id 804146539; Wed, 26 Feb 2020 20:02:07 +0800
-Received: from mtkcas07.mediatek.inc (172.21.101.84) by
- mtkmbs01n2.mediatek.inc (172.21.101.79) with Microsoft SMTP Server (TLS) id
- 15.0.1395.4; Wed, 26 Feb 2020 19:57:57 +0800
-Received: from mtkswgap22.mediatek.inc (172.21.77.33) by mtkcas07.mediatek.inc
- (172.21.101.73) with Microsoft SMTP Server id 15.0.1395.4 via Frontend
- Transport; Wed, 26 Feb 2020 20:01:57 +0800
-From:   Macpaul Lin <macpaul.lin@mediatek.com>
-To:     Matthias Brugger <matthias.bgg@gmail.com>,
-        Shen Jing <jingx.shen@intel.com>,
-        Sasha Levin <sashal@kernel.org>,
-        John Stultz <john.stultz@linaro.org>,
-        Andrzej Pietrasiewicz <andrzej.p@collabora.com>,
-        Vincent Pelletier <plr.vincent@gmail.com>,
-        Jerry Zhang <zhangjerry@google.com>,
-        <linux-usb@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-mediatek@lists.infradead.org>,
-        Mediatek WSD Upstream <wsd_upstream@mediatek.com>,
-        CC Hwang <cc.hwang@mediatek.com>,
-        Loda Chou <loda.chou@mediatek.com>,
-        Al Viro <viro@zeniv.linux.org.uk>, <stable@vger.kernel.org>,
-        <andreyknvl@google.com>
-CC:     Macpaul Lin <macpaul.lin@mediatek.com>,
-        Peter Chen <peter.chen@nxp.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Miles Chen <miles.chen@mediatek.com>
-Subject: [PATCH v4] usb: gadget: f_fs: try to fix AIO issue under ARM 64 bit TAGGED mode
-Date:   Wed, 26 Feb 2020 20:01:52 +0800
-Message-ID: <1582718512-28923-1-git-send-email-macpaul.lin@mediatek.com>
-X-Mailer: git-send-email 1.7.9.5
-In-Reply-To: <1582627315-21123-1-git-send-email-macpaul.lin@mediatek.com>
-References: <1582627315-21123-1-git-send-email-macpaul.lin@mediatek.com>
+        id S1727274AbgBZOUx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 26 Feb 2020 09:20:53 -0500
+Received: from Galois.linutronix.de ([193.142.43.55]:57936 "EHLO
+        Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727091AbgBZOUw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 26 Feb 2020 09:20:52 -0500
+Received: from [5.158.153.53] (helo=tip-bot2.lab.linutronix.de)
+        by Galois.linutronix.de with esmtpsa (TLS1.2:DHE_RSA_AES_256_CBC_SHA256:256)
+        (Exim 4.80)
+        (envelope-from <tip-bot2@linutronix.de>)
+        id 1j6xYE-00080V-JW; Wed, 26 Feb 2020 15:20:38 +0100
+Received: from [127.0.1.1] (localhost [IPv6:::1])
+        by tip-bot2.lab.linutronix.de (Postfix) with ESMTP id 357481C215A;
+        Wed, 26 Feb 2020 15:20:38 +0100 (CET)
+Date:   Wed, 26 Feb 2020 14:20:37 -0000
+From:   "tip-bot2 for Adrian Hunter" <tip-bot2@linutronix.de>
+Reply-to: linux-kernel@vger.kernel.org
+To:     linux-tip-commits@vger.kernel.org
+Subject: [tip: perf/urgent] perf arm-spe: Fix endless record after being terminated
+Cc:     Adrian Hunter <adrian.hunter@intel.com>,
+        Jiri Olsa <jolsa@redhat.com>,
+        Tan Xiaojun <tanxiaojun@huawei.com>, stable@vger.kernel.org,
+        #@tip-bot2.tec.linutronix.de, 5.4+@tip-bot2.tec.linutronix.de,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        x86 <x86@kernel.org>, LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20200214132654.20395-5-adrian.hunter@intel.com>
+References: <20200214132654.20395-5-adrian.hunter@intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain
-X-TM-SNTS-SMTP: 272F8CE54AD6E67D73DACACA69671537612B9D56AD5648D8354972DCC44EFC2F2000:8
-X-MTK:  N
-Content-Transfer-Encoding: base64
+Message-ID: <158272683792.28353.5388500922946867357.tip-bot2@tip-bot2>
+X-Mailer: tip-git-log-daemon
+Robot-ID: <tip-bot2.linutronix.de>
+Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-Linutronix-Spam-Score: -1.0
+X-Linutronix-Spam-Level: -
+X-Linutronix-Spam-Status: No , -1.0 points, 5.0 required,  ALL_TRUSTED=-1,SHORTCIRCUIT=-0.0001
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-VGhpcyBpc3N1ZSB3YXMgZm91bmQgd2hlbiBhZGJkIHRyeWluZyB0byBvcGVuIGZ1bmN0aW9uZnMg
-d2l0aCBBSU8gbW9kZS4NClVzdWFsbHksIHdlIG5lZWQgdG8gc2V0ICJzZXRwcm9wIHN5cy51c2Iu
-ZmZzLmFpb19jb21wYXQgMCIgdG8gZW5hYmxlDQphZGJkIHdpdGggQUlPIG1vZGUgb24gQW5kcm9p
-ZC4NCg0KV2hlbiBhZGJkIGlzIG9wZW5pbmcgZnVuY3Rpb25mcywgaXQgd2lsbCB0cnkgdG8gcmVh
-ZCAyNCBieXRlcyBhdCB0aGUNCmZpcnN0IHJlYWQgSS9PIGNvbnRyb2wuIElmIHRoaXMgcmVhZGlu
-ZyBoYXMgYmVlbiBmYWlsZWQsIGFkYmQgd2lsbA0KdHJ5IHRvIHNlbmQgRlVOQ1RJT05GU19DTEVB
-Ul9IQUxUIHRvIGZ1bmN0aW9uZnMuIFdoZW4gYWRiZCBpcyBpbiBBSU8NCm1vZGUsIGZ1bmN0aW9u
-ZnMgd2lsbCBiZSBhY3RlZCB3aXRoIGFzeW5jcm9uaXplZCBJL08gcGF0aC4gQWZ0ZXIgdGhlDQpz
-dWNjZXNzZnVsIHJlYWQgdHJhbnNmZXIgaGFzIGJlZW4gY29tcGxldGVkIGJ5IGdhZGdldCBoYXJk
-d2FyZSwgdGhlDQpmb2xsb3dpbmcgc2VyaWVzIG9mIGZ1bmN0aW9ucyB3aWxsIGJlIGNhbGxlZC4N
-CiAgZmZzX2VwZmlsZV9hc3luY19pb19jb21wbGV0ZSgpIC0+IGZmc191c2VyX2NvcHlfd29ya2Vy
-KCkgLT4NCiAgICBjb3B5X3RvX2l0ZXIoKSAtPiBfY29weV90b19pdGVyKCkgLT4gY29weW91dCgp
-IC0+DQogICAgaXRlcmF0ZV9hbmRfYWR2YW5jZSgpIC0+IGl0ZXJhdGVfaW92ZWMoKQ0KDQpBZGRp
-bmcgZGVidWcgdHJhY2UgdG8gdGhlc2UgZnVuY3Rpb25zLCBpdCBoYXMgYmVlbiBmb3VuZCB0aGF0
-IGluDQpjb3B5b3V0KCksIGFjY2Vzc19vaygpIHdpbGwgY2hlY2sgaWYgdGhlIHVzZXIgc3BhY2Ug
-YWRkcmVzcyBpcyB2YWxpZA0KdG8gd3JpdGUuIEhvd2V2ZXIgaWYgQ09ORklHX0FSTTY0X1RBR0dF
-RF9BRERSX0FCSSBpcyBlbmFibGVkLCBhZGJkDQphbHdheXMgcGFzc2VzIHVzZXIgc3BhY2UgYWRk
-cmVzcyBzdGFydCB3aXRoICIweDNDIiB0byBnYWRnZXQncyBBSU8NCmJsb2Nrcy4gVGhpcyB0YWdn
-ZWQgYWRkcmVzcyB3aWxsIGNhdXNlIGFjY2Vzc19vaygpIGNoZWNrIGFsd2F5cyBmYWlsLg0KV2hp
-Y2ggY2F1c2VzIGxhdGVyIGNhbGN1bGF0aW9uIGluIGl0ZXJhdGVfaW92ZWMoKSB0dXJuIHplcm8u
-DQpDb3B5b3V0KCkgd29uJ3QgY29weSBkYXRhIHRvIHVzZXIgc3BhY2Ugc2luY2UgdGhlIGxlbmd0
-aCB0byBiZSBjb3BpZWQNCiJ2Lmlvdl9sZW4iIHdpbGwgYmUgemVyby4gRmluYWxseSBsZWFkcyBm
-ZnNfY29weV90b19pdGVyKCkgYWx3YXlzIHJldHVybg0KLUVGQVVMVCwgY2F1c2VzIGFkYmQgY2Fu
-bm90IG9wZW4gZnVuY3Rpb25mcyBhbmQgc2VuZA0KRlVOQ1RJT05GU19DTEVBUl9IQUxULg0KDQpT
-aWduZWQtb2ZmLWJ5OiBNYWNwYXVsIExpbiA8bWFjcGF1bC5saW5AbWVkaWF0ZWsuY29tPg0KQ2M6
-IFBldGVyIENoZW4gPHBldGVyLmNoZW5AbnhwLmNvbT4NCkNjOiBDYXRhbGluIE1hcmluYXMgPGNh
-dGFsaW4ubWFyaW5hc0Bhcm0uY29tPg0KQ2M6IE1pbGVzIENoZW4gPG1pbGVzLmNoZW5AbWVkaWF0
-ZWsuY29tPg0KLS0tDQpDaGFuZ2VzIGZvciB2NDoNCiAgLSBBYmFuZG9uIHNvbHV0aW9uIHYzIGJ5
-IGFkZGluZyAiVElGX1RBR0dFRF9BRERSIiBmbGFnIHRvIGdhZGdldCBkcml2ZXIuDQogICAgQWNj
-b3JkaW5nIHRvIENhdGFsaW4ncyBzdWdnZXN0aW9uLCBjaGFuZ2UgdGhlIHNvbHV0aW9uIGJ5IHVu
-dGFnZ2luZyANCiAgICB1c2VyIHNwYWNlIGFkZHJlc3MgcGFzc2VkIGJ5IEFJTyBpbiBnYWRnZXQg
-ZHJpdmVyLg0KDQpDaGFuZ2VzIGZvciB2MzoNCiAgLSBGaXggbWlzc3BlbGxpbmcgaW4gY29tbWl0
-IG1lc3NhZ2UuDQogICAgVGhhbmtzIGZvciBQZXRlcidzIHJldmlldy4NCg0KQ2hhbmdlcyBmb3Ig
-djI6DQogIC0gRml4IGJ1aWxkIGVycm9yIGZvciAzMi1iaXQgbG9hZC4gQW4gI2lmIGRlZmluZWQo
-Q09ORklHX0FSTTY0KSBzdGlsbCBuZWVkDQogICAgZm9yIGF2b2lkaW5nIHVuZGVjbGFyZWQgZGVm
-aW5lcy4NCg0KIGRyaXZlcnMvdXNiL2dhZGdldC9mdW5jdGlvbi9mX2ZzLmMgfCAgIDE1ICsrKysr
-KysrKysrKysrLQ0KIDEgZmlsZSBjaGFuZ2VkLCAxNCBpbnNlcnRpb25zKCspLCAxIGRlbGV0aW9u
-KC0pDQoNCmRpZmYgLS1naXQgYS9kcml2ZXJzL3VzYi9nYWRnZXQvZnVuY3Rpb24vZl9mcy5jIGIv
-ZHJpdmVycy91c2IvZ2FkZ2V0L2Z1bmN0aW9uL2ZfZnMuYw0KaW5kZXggY2UxZDAyMy4uMTkyOTM1
-ZiAxMDA2NDQNCi0tLSBhL2RyaXZlcnMvdXNiL2dhZGdldC9mdW5jdGlvbi9mX2ZzLmMNCisrKyBi
-L2RyaXZlcnMvdXNiL2dhZGdldC9mdW5jdGlvbi9mX2ZzLmMNCkBAIC03MTUsNyArNzE1LDIwIEBA
-IHN0YXRpYyB2b2lkIGZmc19lcGZpbGVfaW9fY29tcGxldGUoc3RydWN0IHVzYl9lcCAqX2VwLCBz
-dHJ1Y3QgdXNiX3JlcXVlc3QgKnJlcSkNCiANCiBzdGF0aWMgc3NpemVfdCBmZnNfY29weV90b19p
-dGVyKHZvaWQgKmRhdGEsIGludCBkYXRhX2xlbiwgc3RydWN0IGlvdl9pdGVyICppdGVyKQ0KIHsN
-Ci0Jc3NpemVfdCByZXQgPSBjb3B5X3RvX2l0ZXIoZGF0YSwgZGF0YV9sZW4sIGl0ZXIpOw0KKwlz
-c2l6ZV90IHJldDsNCisNCisjaWYgZGVmaW5lZChDT05GSUdfQVJNNjQpDQorCS8qDQorCSAqIFJl
-cGxhY2UgdGFnZ2VkIGFkZHJlc3MgcGFzc2VkIGJ5IHVzZXIgc3BhY2UgYXBwbGljYXRpb24gYmVm
-b3JlDQorCSAqIGNvcHlpbmcuDQorCSAqLw0KKwlpZiAoSVNfRU5BQkxFRChDT05GSUdfQVJNNjRf
-VEFHR0VEX0FERFJfQUJJKSAmJg0KKwkJKGl0ZXItPnR5cGUgPT0gSVRFUl9JT1ZFQykpIHsNCisJ
-CSoodW5zaWduZWQgbG9uZyAqKSZpdGVyLT5pb3YtPmlvdl9iYXNlID0NCisJCQkodW5zaWduZWQg
-bG9uZyl1bnRhZ2dlZF9hZGRyKGl0ZXItPmlvdi0+aW92X2Jhc2UpOw0KKwl9DQorI2VuZGlmDQor
-CXJldCA9IGNvcHlfdG9faXRlcihkYXRhLCBkYXRhX2xlbiwgaXRlcik7DQogCWlmIChsaWtlbHko
-cmV0ID09IGRhdGFfbGVuKSkNCiAJCXJldHVybiByZXQ7DQogDQotLSANCjEuNy45LjUNCg==
+The following commit has been merged into the perf/urgent branch of tip:
 
+Commit-ID:     d6bc34c5ec18c3544c4b0d85963768dfbcd24184
+Gitweb:        https://git.kernel.org/tip/d6bc34c5ec18c3544c4b0d85963768dfbcd24184
+Author:        Adrian Hunter <adrian.hunter@intel.com>
+AuthorDate:    Fri, 14 Feb 2020 15:26:53 +02:00
+Committer:     Arnaldo Carvalho de Melo <acme@redhat.com>
+CommitterDate: Tue, 18 Feb 2020 10:13:29 -03:00
+
+perf arm-spe: Fix endless record after being terminated
+
+In __cmd_record(), when receiving SIGINT(ctrl + c), a 'done' flag will
+be set and the event list will be disabled by evlist__disable() once.
+
+While in auxtrace_record.read_finish(), the related events will be
+enabled again, if they are continuous, the recording seems to be
+endless.
+
+If the event is disabled, don't enable it again here.
+
+Based-on-patch-by: Wei Li <liwei391@huawei.com>
+Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Tan Xiaojun <tanxiaojun@huawei.com>
+Cc: stable@vger.kernel.org # 5.4+
+Link: http://lore.kernel.org/lkml/20200214132654.20395-5-adrian.hunter@intel.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+---
+ tools/perf/arch/arm64/util/arm-spe.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/tools/perf/arch/arm64/util/arm-spe.c b/tools/perf/arch/arm64/util/arm-spe.c
+index eba6541..1d993c2 100644
+--- a/tools/perf/arch/arm64/util/arm-spe.c
++++ b/tools/perf/arch/arm64/util/arm-spe.c
+@@ -165,9 +165,12 @@ static int arm_spe_read_finish(struct auxtrace_record *itr, int idx)
+ 	struct evsel *evsel;
+ 
+ 	evlist__for_each_entry(sper->evlist, evsel) {
+-		if (evsel->core.attr.type == sper->arm_spe_pmu->type)
++		if (evsel->core.attr.type == sper->arm_spe_pmu->type) {
++			if (evsel->disabled)
++				return 0;
+ 			return perf_evlist__enable_event_idx(sper->evlist,
+ 							     evsel, idx);
++		}
+ 	}
+ 	return -EINVAL;
+ }
