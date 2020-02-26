@@ -2,181 +2,60 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B79D117022A
-	for <lists+stable@lfdr.de>; Wed, 26 Feb 2020 16:19:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7177C170385
+	for <lists+stable@lfdr.de>; Wed, 26 Feb 2020 16:58:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728072AbgBZPTd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 26 Feb 2020 10:19:33 -0500
-Received: from metis.ext.pengutronix.de ([85.220.165.71]:49105 "EHLO
-        metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727576AbgBZPTc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 26 Feb 2020 10:19:32 -0500
-Received: from kresse.hi.pengutronix.de ([2001:67c:670:100:1d::2a])
-        by metis.ext.pengutronix.de with esmtp (Exim 4.92)
-        (envelope-from <l.stach@pengutronix.de>)
-        id 1j6yTC-0005WE-8j; Wed, 26 Feb 2020 16:19:30 +0100
-Message-ID: <78e5e739269ee8f7467284ad88d2097e2ad991ba.camel@pengutronix.de>
-Subject: Re: [PATCH] drm/etnaviv: rework perfmon query infrastructure
-From:   Lucas Stach <l.stach@pengutronix.de>
-To:     Christian Gmeiner <christian.gmeiner@gmail.com>,
-        linux-kernel@vger.kernel.org
-Cc:     David Airlie <airlied@linux.ie>, etnaviv@lists.freedesktop.org,
-        stable@vger.kernel.org, dri-devel@lists.freedesktop.org,
-        Daniel Vetter <daniel@ffwll.ch>,
-        Russell King <linux+etnaviv@armlinux.org.uk>,
-        Dan Carpenter <dan.carpenter@oracle.com>
-Date:   Wed, 26 Feb 2020 16:19:29 +0100
-In-Reply-To: <20200106104339.215511-1-christian.gmeiner@gmail.com>
-References: <20200106104339.215511-1-christian.gmeiner@gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.30.5-1.1 
+        id S1728818AbgBZP62 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 26 Feb 2020 10:58:28 -0500
+Received: from elvis.franken.de ([193.175.24.41]:39037 "EHLO elvis.franken.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728551AbgBZP62 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 26 Feb 2020 10:58:28 -0500
+X-Greylist: delayed 3532 seconds by postgrey-1.27 at vger.kernel.org; Wed, 26 Feb 2020 10:58:27 EST
+Received: from uucp (helo=alpha)
+        by elvis.franken.de with local-bsmtp (Exim 3.36 #1)
+        id 1j6y9t-0001cq-00; Wed, 26 Feb 2020 15:59:33 +0100
+Received: by alpha.franken.de (Postfix, from userid 1000)
+        id 4FF4BC0E99; Wed, 26 Feb 2020 15:59:17 +0100 (CET)
+Date:   Wed, 26 Feb 2020 15:59:17 +0100
+From:   Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+To:     Paul Cercueil <paul@crapouillou.net>
+Cc:     Paul Burton <paulburton@kernel.org>, od@zcrc.me,
+        linux-mips@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH] MIPS: Fix CONFIG_MIPS_CMDLINE_DTB_EXTEND handling
+Message-ID: <20200226145917.GA12722@alpha.franken.de>
+References: <20200225152810.45048-1-paul@crapouillou.net>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-X-SA-Exim-Connect-IP: 2001:67c:670:100:1d::2a
-X-SA-Exim-Mail-From: l.stach@pengutronix.de
-X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
-X-PTX-Original-Recipient: stable@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200225152810.45048-1-paul@crapouillou.net>
+User-Agent: Mutt/1.5.23 (2014-03-12)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Christian,
-
-sorry for taking so long to get around to this.
-
-On Mo, 2020-01-06 at 11:43 +0100, Christian Gmeiner wrote:
-> Report the correct perfmon domains and signals depending
-> on the supported feature flags.
+On Tue, Feb 25, 2020 at 12:28:09PM -0300, Paul Cercueil wrote:
+> The CONFIG_MIPS_CMDLINE_DTB_EXTEND option is used so that the kernel
+> arguments provided in the 'bootargs' property in devicetree are extended
+> with the kernel arguments provided by the bootloader.
 > 
-> Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-> Fixes: 9e2c2e273012 ("drm/etnaviv: add infrastructure to query perf counter")
+> The code was broken, as it didn't actually take any of the kernel
+> arguments provided in devicetree when that option was set.
+> 
+> Fixes: 7784cac69735 ("MIPS: cmdline: Clean up boot_command_line
+> initialization")
 > Cc: stable@vger.kernel.org
-> Signed-off-by: Christian Gmeiner <christian.gmeiner@gmail.com>
+> Signed-off-by: Paul Cercueil <paul@crapouillou.net>
 > ---
->  drivers/gpu/drm/etnaviv/etnaviv_perfmon.c | 57 ++++++++++++++++++++---
->  1 file changed, 50 insertions(+), 7 deletions(-)
-> 
-> diff --git a/drivers/gpu/drm/etnaviv/etnaviv_perfmon.c b/drivers/gpu/drm/etnaviv/etnaviv_perfmon.c
-> index 8adbf2861bff..7ae8f347ca06 100644
-> --- a/drivers/gpu/drm/etnaviv/etnaviv_perfmon.c
-> +++ b/drivers/gpu/drm/etnaviv/etnaviv_perfmon.c
-> @@ -32,6 +32,7 @@ struct etnaviv_pm_domain {
->  };
->  
->  struct etnaviv_pm_domain_meta {
-> +	unsigned int feature;
->  	const struct etnaviv_pm_domain *domains;
->  	u32 nr_domains;
->  };
-> @@ -410,36 +411,78 @@ static const struct etnaviv_pm_domain doms_vg[] = {
->  
->  static const struct etnaviv_pm_domain_meta doms_meta[] = {
->  	{
-> +		.feature = chipFeatures_PIPE_3D,
->  		.nr_domains = ARRAY_SIZE(doms_3d),
->  		.domains = &doms_3d[0]
->  	},
->  	{
-> +		.feature = chipFeatures_PIPE_2D,
->  		.nr_domains = ARRAY_SIZE(doms_2d),
->  		.domains = &doms_2d[0]
->  	},
->  	{
-> +		.feature = chipFeatures_PIPE_VG,
->  		.nr_domains = ARRAY_SIZE(doms_vg),
->  		.domains = &doms_vg[0]
->  	}
->  };
->  
-> +static unsigned int num_pm_domains(const struct etnaviv_gpu *gpu)
-> +{
-> +	unsigned int num = 0, i;
-> +
-> +	for (i = 0; i < ARRAY_SIZE(doms_meta); i++) {
-> +		const struct etnaviv_pm_domain_meta *meta = &doms_meta[i];
-> +
-> +		if (gpu->identity.features & meta->feature)
-> +			num += meta->nr_domains;
-> +	}
-> +
-> +	return num;
-> +}
-> +
-> +static const struct etnaviv_pm_domain *pm_domain(const struct etnaviv_gpu *gpu,
-> +	unsigned int index)
-> +{
-> +	const struct etnaviv_pm_domain *domain = NULL;
-> +	unsigned int offset = 0, i;
-> +
-> +	for (i = 0; i < ARRAY_SIZE(doms_meta); i++) {
-> +		const struct etnaviv_pm_domain_meta *meta = &doms_meta[i];
-> +
-> +		if (!(gpu->identity.features & meta->feature))
-> +			continue;
-> +
-> +		if (meta->nr_domains < (index - offset)) {
-> +			offset += meta->nr_domains;
-> +			continue;
-> +		}
-> +
-> +		domain = meta->domains + (index - offset);
-> +	}
-> +
-> +	BUG_ON(!domain);
+>  arch/mips/kernel/setup.c | 3 ++-
+>  1 file changed, 2 insertions(+), 1 deletion(-)
 
-This is a no-go. BUG_ON is reserved for only the most severe kernel
-bugs where you can't possibly continue without risking a corruption of
-non-volatile state. This isn't the case here, please instead just make
-the callers handle a NULL return gracefully.
+applied to mips-fixes.
 
-Regards,
-Lucas
+Thomas.
 
-> +
-> +	return domain;
-> +}
-> +
->  int etnaviv_pm_query_dom(struct etnaviv_gpu *gpu,
->  	struct drm_etnaviv_pm_domain *domain)
->  {
-> -	const struct etnaviv_pm_domain_meta *meta = &doms_meta[domain->pipe];
-> +	const unsigned int nr_domains = num_pm_domains(gpu);
->  	const struct etnaviv_pm_domain *dom;
->  
-> -	if (domain->iter >= meta->nr_domains)
-> +	if (domain->iter >= nr_domains)
->  		return -EINVAL;
->  
-> -	dom = meta->domains + domain->iter;
-> +	dom = pm_domain(gpu, domain->iter);
->  
->  	domain->id = domain->iter;
->  	domain->nr_signals = dom->nr_signals;
->  	strncpy(domain->name, dom->name, sizeof(domain->name));
->  
->  	domain->iter++;
-> -	if (domain->iter == meta->nr_domains)
-> +	if (domain->iter == nr_domains)
->  		domain->iter = 0xff;
->  
->  	return 0;
-> @@ -448,14 +491,14 @@ int etnaviv_pm_query_dom(struct etnaviv_gpu *gpu,
->  int etnaviv_pm_query_sig(struct etnaviv_gpu *gpu,
->  	struct drm_etnaviv_pm_signal *signal)
->  {
-> -	const struct etnaviv_pm_domain_meta *meta = &doms_meta[signal->pipe];
-> +	const unsigned int nr_domains = num_pm_domains(gpu);
->  	const struct etnaviv_pm_domain *dom;
->  	const struct etnaviv_pm_signal *sig;
->  
-> -	if (signal->domain >= meta->nr_domains)
-> +	if (signal->domain >= nr_domains)
->  		return -EINVAL;
->  
-> -	dom = meta->domains + signal->domain;
-> +	dom = pm_domain(gpu, signal->domain);
->  
->  	if (signal->iter >= dom->nr_signals)
->  		return -EINVAL;
-
+-- 
+Crap can work. Given enough thrust pigs will fly, but it's not necessarily a
+good idea.                                                [ RFC1925, 2.3 ]
