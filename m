@@ -2,325 +2,113 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3FCD216FC8B
-	for <lists+stable@lfdr.de>; Wed, 26 Feb 2020 11:53:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D02016FCB3
+	for <lists+stable@lfdr.de>; Wed, 26 Feb 2020 11:56:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727377AbgBZKxz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 26 Feb 2020 05:53:55 -0500
-Received: from wout2-smtp.messagingengine.com ([64.147.123.25]:47689 "EHLO
-        wout2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726329AbgBZKxz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 26 Feb 2020 05:53:55 -0500
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id A92716EB;
-        Wed, 26 Feb 2020 05:53:53 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Wed, 26 Feb 2020 05:53:54 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=s41d4q
-        YmIfXFd9LB+DcOURci02ZTE5ej7dNuvGAzHF4=; b=KAH3MHFvFP7dxy+43k/KTk
-        fqQv3xayVHDjkFkx33DBp/jiiFaYBdlp2lqJCQWWikEy8hA9G5ki/mU4sDB8Q6KK
-        KcVPp8fgbrGNjPGexLUDDYY00S0CzRXOWD9aiF8H5Da8R3wbJOYDl2jkdwk01ZZ6
-        BS59eP2c1ftPsH2zgUaVHX9eWXG+XhI5bC3hPKL0MOtVFT90K53zzZcCtIcYVzgF
-        4bTdPkTnfSOyh9OTBiPvY7k0pmywZee5C3M43XQq0qnW4aCKCPIZScPuYkQdHtT6
-        xcVDhF5oIGVRMy2wzascORtwlNvME6lrnRDDjHw4UpSnEmWb5aQcQNJIk2kLwbcw
-        ==
-X-ME-Sender: <xms:QU5WXpOM9Y56FR9FJTNlLzFpcsejN2elFVrXiLSwU7oOd6RKs0gf-w>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedugedrleeggddvvdcutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
-    flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
-    qeenucffohhmrghinhepfhhrvggvuggvshhkthhophdrohhrghenucfkphepkeefrdekie
-    drkeelrddutdejnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhf
-    rhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:QU5WXigQut0P3OzKD_hwxta-4JCYAwGz246xnZ9ygiMJpRtHNV3lrw>
-    <xmx:QU5WXlWNC12_DkCNV0Lo1OHokn8Gbh3X_QqjfTLhURuJNbFFeMsxXg>
-    <xmx:QU5WXprO9VeZ5gwwXEzKxyBZGTCgCHDDOrrkD_9Iq8IbYHpX8fL2iA>
-    <xmx:QU5WXv4kT7dH_d2ABbfzam1e-E6dfJU73jo4Pm7zPx06qD8w3wTrqw>
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id E85ED3060FCB;
-        Wed, 26 Feb 2020 05:53:52 -0500 (EST)
-Subject: FAILED: patch "[PATCH] drm/i915: Wean off drm_pci_alloc/drm_pci_free" failed to apply to 4.9-stable tree
-To:     chris@chris-wilson.co.uk, daniel.vetter@ffwll.ch,
-        jani.nikula@intel.com, kirill.shutemov@linux.intel.com,
-        stable@vger.kernel.org
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 26 Feb 2020 11:53:39 +0100
-Message-ID: <158271441930172@kroah.com>
+        id S1727891AbgBZK43 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 26 Feb 2020 05:56:29 -0500
+Received: from ns.mm-sol.com ([37.157.136.199]:39845 "EHLO extserv.mm-sol.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727463AbgBZK43 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 26 Feb 2020 05:56:29 -0500
+Received: from [192.168.27.209] (unknown [37.157.136.193])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (Client did not present a certificate)
+        by extserv.mm-sol.com (Postfix) with ESMTPSA id E54EACF87;
+        Wed, 26 Feb 2020 12:56:25 +0200 (EET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=mm-sol.com; s=201706;
+        t=1582714585; bh=0fhTqZuAuScb+3wjVpZ3mzL33tpGlwZ/fo6HSg9kaIM=;
+        h=Subject:To:Cc:From:Date:From;
+        b=D9BpdAmeswVlbyJr/5FoHLhHLjdTNyEzmlRJj6TAZ7+7CU8zgN1hGEP1332YDhZad
+         Tj1nw9rOL/Z//oM5+ctvSkIzMyGOuu0bV5qpliyN8RnN6cEvSLgk8887dwgMRoh6o/
+         sZmTqZE0f6kwVf4gEcSZwUsqdgM8dd7snCBSP5G8vdrwiyL/g8UVv00scMt32U+mOw
+         z1GfueVf8LZ1YcMcmDouZIXHe6kvTqMRSKH6qw8oEbFEAROjjC7LxNb8FCa9LnY84z
+         6PX6Ui1CotV9CzMQhPJ5rXakN/dHnuPpDLecWexWWXCPWNe+dgtLsO5VZeNsPl37qS
+         DD1+IPXhZ32qA==
+Subject: Re: [PATCH v2] PCI: qcom: Fix the fixup of PCI_VENDOR_ID_QCOM
+To:     Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>
+Cc:     Andrew Murray <andrew.murray@arm.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        linux-arm-msm@vger.kernel.org, linux-pci@vger.kernel.org,
+        linux-kernel@vger.kernel.org,
+        Marc Gonzalez <marc.w.gonzalez@free.fr>, stable@vger.kernel.org
+References: <20191227012717.78965-1-bjorn.andersson@linaro.org>
+ <20200226102255.GA13830@e121166-lin.cambridge.arm.com>
+From:   Stanimir Varbanov <svarbanov@mm-sol.com>
+Message-ID: <4e1587e9-352c-a2de-d136-18506500641d@mm-sol.com>
+Date:   Wed, 26 Feb 2020 12:56:23 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.4.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20200226102255.GA13830@e121166-lin.cambridge.arm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Hi Lorenzo,
 
-The patch below does not apply to the 4.9-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+On 2/26/20 12:22 PM, Lorenzo Pieralisi wrote:
+> On Thu, Dec 26, 2019 at 05:27:17PM -0800, Bjorn Andersson wrote:
+>> There exists non-bridge PCIe devices with PCI_VENDOR_ID_QCOM, so limit
+>> the fixup to only affect the relevant PCIe bridges.
+>>
+>> Cc: stable@vger.kernel.org
+> 
+> Hi Bjorn,
+> 
+> to simplify stable's merging, would you mind helping me with
+> the stable releases you want this patch to apply to please ?
+> 
 
-thanks,
+We've to have this in the patch:
 
-greg k-h
+Cc: stable@vger.kernel.org # v5.2+
+Fixes: 322f03436692 ("PCI: qcom: Use default config space read function")
 
------------------- original commit in Linus's tree ------------------
+> I will apply it then.
+> 
+> Thanks,
+> Lorenzo
+> 
+>> Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+>> ---
+>>
+>> Stan, I picked up all the suggested device id's from the previous thread and
+>> added 0x1000 for QCS404. I looked at creating platform specific defines in
+>> pci_ids.h, but SDM845 has both 106 and 107... Please let me know if you would
+>> prefer that I do this anyway.
+>>
+>>  drivers/pci/controller/dwc/pcie-qcom.c | 8 +++++++-
+>>  1 file changed, 7 insertions(+), 1 deletion(-)
+>>
+>> diff --git a/drivers/pci/controller/dwc/pcie-qcom.c b/drivers/pci/controller/dwc/pcie-qcom.c
+>> index 5ea527a6bd9f..138e1a2d21cc 100644
+>> --- a/drivers/pci/controller/dwc/pcie-qcom.c
+>> +++ b/drivers/pci/controller/dwc/pcie-qcom.c
+>> @@ -1439,7 +1439,13 @@ static void qcom_fixup_class(struct pci_dev *dev)
+>>  {
+>>  	dev->class = PCI_CLASS_BRIDGE_PCI << 8;
+>>  }
+>> -DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_QCOM, PCI_ANY_ID, qcom_fixup_class);
+>> +DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_QCOM, 0x0101, qcom_fixup_class);
+>> +DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_QCOM, 0x0104, qcom_fixup_class);
+>> +DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_QCOM, 0x0106, qcom_fixup_class);
+>> +DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_QCOM, 0x0107, qcom_fixup_class);
+>> +DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_QCOM, 0x0302, qcom_fixup_class);
+>> +DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_QCOM, 0x1000, qcom_fixup_class);
+>> +DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_QCOM, 0x1001, qcom_fixup_class);
+>>  
+>>  static struct platform_driver qcom_pcie_driver = {
+>>  	.probe = qcom_pcie_probe,
+>> -- 
+>> 2.24.0
+>>
 
-From aa3146193ae25d0fe4b96d815169a135db2e8f01 Mon Sep 17 00:00:00 2001
-From: Chris Wilson <chris@chris-wilson.co.uk>
-Date: Sun, 2 Feb 2020 15:39:34 +0000
-Subject: [PATCH] drm/i915: Wean off drm_pci_alloc/drm_pci_free
-
-drm_pci_alloc and drm_pci_free are just very thin wrappers around
-dma_alloc_coherent, with a note that we should be removing them.
-Furthermore since
-
-commit de09d31dd38a50fdce106c15abd68432eebbd014
-Author: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
-Date:   Fri Jan 15 16:51:42 2016 -0800
-
-    page-flags: define PG_reserved behavior on compound pages
-
-    As far as I can see there's no users of PG_reserved on compound pages.
-    Let's use PF_NO_COMPOUND here.
-
-drm_pci_alloc has been declared broken since it mixes GFP_COMP and
-SetPageReserved. Avoid this conflict by weaning ourselves off using the
-abstraction and using the dma functions directly.
-
-Reported-by: Taketo Kabe
-Closes: https://gitlab.freedesktop.org/drm/intel/issues/1027
-Fixes: de09d31dd38a ("page-flags: define PG_reserved behavior on compound pages")
-Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Cc: <stable@vger.kernel.org> # v4.5+
-Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200202153934.3899472-1-chris@chris-wilson.co.uk
-(cherry picked from commit c6790dc22312f592c1434577258b31c48c72d52a)
-Signed-off-by: Jani Nikula <jani.nikula@intel.com>
-
-diff --git a/drivers/gpu/drm/i915/display/intel_display.c b/drivers/gpu/drm/i915/display/intel_display.c
-index e68ec25fc97c..aa453953908b 100644
---- a/drivers/gpu/drm/i915/display/intel_display.c
-+++ b/drivers/gpu/drm/i915/display/intel_display.c
-@@ -11087,7 +11087,7 @@ static u32 intel_cursor_base(const struct intel_plane_state *plane_state)
- 	u32 base;
- 
- 	if (INTEL_INFO(dev_priv)->display.cursor_needs_physical)
--		base = obj->phys_handle->busaddr;
-+		base = sg_dma_address(obj->mm.pages->sgl);
- 	else
- 		base = intel_plane_ggtt_offset(plane_state);
- 
-diff --git a/drivers/gpu/drm/i915/gem/i915_gem_object_types.h b/drivers/gpu/drm/i915/gem/i915_gem_object_types.h
-index f64ad77e6b1e..c2174da35bb0 100644
---- a/drivers/gpu/drm/i915/gem/i915_gem_object_types.h
-+++ b/drivers/gpu/drm/i915/gem/i915_gem_object_types.h
-@@ -285,9 +285,6 @@ struct drm_i915_gem_object {
- 
- 		void *gvt_info;
- 	};
--
--	/** for phys allocated objects */
--	struct drm_dma_handle *phys_handle;
- };
- 
- static inline struct drm_i915_gem_object *
-diff --git a/drivers/gpu/drm/i915/gem/i915_gem_phys.c b/drivers/gpu/drm/i915/gem/i915_gem_phys.c
-index b1b7c1b3038a..b07bb40edd5a 100644
---- a/drivers/gpu/drm/i915/gem/i915_gem_phys.c
-+++ b/drivers/gpu/drm/i915/gem/i915_gem_phys.c
-@@ -22,88 +22,87 @@
- static int i915_gem_object_get_pages_phys(struct drm_i915_gem_object *obj)
- {
- 	struct address_space *mapping = obj->base.filp->f_mapping;
--	struct drm_dma_handle *phys;
--	struct sg_table *st;
- 	struct scatterlist *sg;
--	char *vaddr;
-+	struct sg_table *st;
-+	dma_addr_t dma;
-+	void *vaddr;
-+	void *dst;
- 	int i;
--	int err;
- 
- 	if (WARN_ON(i915_gem_object_needs_bit17_swizzle(obj)))
- 		return -EINVAL;
- 
--	/* Always aligning to the object size, allows a single allocation
-+	/*
-+	 * Always aligning to the object size, allows a single allocation
- 	 * to handle all possible callers, and given typical object sizes,
- 	 * the alignment of the buddy allocation will naturally match.
- 	 */
--	phys = drm_pci_alloc(obj->base.dev,
--			     roundup_pow_of_two(obj->base.size),
--			     roundup_pow_of_two(obj->base.size));
--	if (!phys)
-+	vaddr = dma_alloc_coherent(&obj->base.dev->pdev->dev,
-+				   roundup_pow_of_two(obj->base.size),
-+				   &dma, GFP_KERNEL);
-+	if (!vaddr)
- 		return -ENOMEM;
- 
--	vaddr = phys->vaddr;
-+	st = kmalloc(sizeof(*st), GFP_KERNEL);
-+	if (!st)
-+		goto err_pci;
-+
-+	if (sg_alloc_table(st, 1, GFP_KERNEL))
-+		goto err_st;
-+
-+	sg = st->sgl;
-+	sg->offset = 0;
-+	sg->length = obj->base.size;
-+
-+	sg_assign_page(sg, (struct page *)vaddr);
-+	sg_dma_address(sg) = dma;
-+	sg_dma_len(sg) = obj->base.size;
-+
-+	dst = vaddr;
- 	for (i = 0; i < obj->base.size / PAGE_SIZE; i++) {
- 		struct page *page;
--		char *src;
-+		void *src;
- 
- 		page = shmem_read_mapping_page(mapping, i);
--		if (IS_ERR(page)) {
--			err = PTR_ERR(page);
--			goto err_phys;
--		}
-+		if (IS_ERR(page))
-+			goto err_st;
- 
- 		src = kmap_atomic(page);
--		memcpy(vaddr, src, PAGE_SIZE);
--		drm_clflush_virt_range(vaddr, PAGE_SIZE);
-+		memcpy(dst, src, PAGE_SIZE);
-+		drm_clflush_virt_range(dst, PAGE_SIZE);
- 		kunmap_atomic(src);
- 
- 		put_page(page);
--		vaddr += PAGE_SIZE;
-+		dst += PAGE_SIZE;
- 	}
- 
- 	intel_gt_chipset_flush(&to_i915(obj->base.dev)->gt);
- 
--	st = kmalloc(sizeof(*st), GFP_KERNEL);
--	if (!st) {
--		err = -ENOMEM;
--		goto err_phys;
--	}
--
--	if (sg_alloc_table(st, 1, GFP_KERNEL)) {
--		kfree(st);
--		err = -ENOMEM;
--		goto err_phys;
--	}
--
--	sg = st->sgl;
--	sg->offset = 0;
--	sg->length = obj->base.size;
--
--	sg_dma_address(sg) = phys->busaddr;
--	sg_dma_len(sg) = obj->base.size;
--
--	obj->phys_handle = phys;
--
- 	__i915_gem_object_set_pages(obj, st, sg->length);
- 
- 	return 0;
- 
--err_phys:
--	drm_pci_free(obj->base.dev, phys);
--
--	return err;
-+err_st:
-+	kfree(st);
-+err_pci:
-+	dma_free_coherent(&obj->base.dev->pdev->dev,
-+			  roundup_pow_of_two(obj->base.size),
-+			  vaddr, dma);
-+	return -ENOMEM;
- }
- 
- static void
- i915_gem_object_put_pages_phys(struct drm_i915_gem_object *obj,
- 			       struct sg_table *pages)
- {
-+	dma_addr_t dma = sg_dma_address(pages->sgl);
-+	void *vaddr = sg_page(pages->sgl);
-+
- 	__i915_gem_object_release_shmem(obj, pages, false);
- 
- 	if (obj->mm.dirty) {
- 		struct address_space *mapping = obj->base.filp->f_mapping;
--		char *vaddr = obj->phys_handle->vaddr;
-+		void *src = vaddr;
- 		int i;
- 
- 		for (i = 0; i < obj->base.size / PAGE_SIZE; i++) {
-@@ -115,15 +114,16 @@ i915_gem_object_put_pages_phys(struct drm_i915_gem_object *obj,
- 				continue;
- 
- 			dst = kmap_atomic(page);
--			drm_clflush_virt_range(vaddr, PAGE_SIZE);
--			memcpy(dst, vaddr, PAGE_SIZE);
-+			drm_clflush_virt_range(src, PAGE_SIZE);
-+			memcpy(dst, src, PAGE_SIZE);
- 			kunmap_atomic(dst);
- 
- 			set_page_dirty(page);
- 			if (obj->mm.madv == I915_MADV_WILLNEED)
- 				mark_page_accessed(page);
- 			put_page(page);
--			vaddr += PAGE_SIZE;
-+
-+			src += PAGE_SIZE;
- 		}
- 		obj->mm.dirty = false;
- 	}
-@@ -131,7 +131,9 @@ i915_gem_object_put_pages_phys(struct drm_i915_gem_object *obj,
- 	sg_free_table(pages);
- 	kfree(pages);
- 
--	drm_pci_free(obj->base.dev, obj->phys_handle);
-+	dma_free_coherent(&obj->base.dev->pdev->dev,
-+			  roundup_pow_of_two(obj->base.size),
-+			  vaddr, dma);
- }
- 
- static void phys_release(struct drm_i915_gem_object *obj)
-diff --git a/drivers/gpu/drm/i915/i915_gem.c b/drivers/gpu/drm/i915/i915_gem.c
-index c2de2f45b459..5f6e63952821 100644
---- a/drivers/gpu/drm/i915/i915_gem.c
-+++ b/drivers/gpu/drm/i915/i915_gem.c
-@@ -180,7 +180,7 @@ i915_gem_phys_pwrite(struct drm_i915_gem_object *obj,
- 		     struct drm_i915_gem_pwrite *args,
- 		     struct drm_file *file)
- {
--	void *vaddr = obj->phys_handle->vaddr + args->offset;
-+	void *vaddr = sg_page(obj->mm.pages->sgl) + args->offset;
- 	char __user *user_data = u64_to_user_ptr(args->data_ptr);
- 
- 	/*
-@@ -844,10 +844,10 @@ i915_gem_pwrite_ioctl(struct drm_device *dev, void *data,
- 		ret = i915_gem_gtt_pwrite_fast(obj, args);
- 
- 	if (ret == -EFAULT || ret == -ENOSPC) {
--		if (obj->phys_handle)
--			ret = i915_gem_phys_pwrite(obj, args, file);
--		else
-+		if (i915_gem_object_has_struct_page(obj))
- 			ret = i915_gem_shmem_pwrite(obj, args);
-+		else
-+			ret = i915_gem_phys_pwrite(obj, args, file);
- 	}
- 
- 	i915_gem_object_unpin_pages(obj);
-
+-- 
+regards,
+Stan
