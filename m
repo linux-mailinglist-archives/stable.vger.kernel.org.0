@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D80816FCB0
+	by mail.lfdr.de (Postfix) with ESMTP id 371B616FCAF
 	for <lists+stable@lfdr.de>; Wed, 26 Feb 2020 11:56:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726408AbgBZK4R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1728016AbgBZK4R (ORCPT <rfc822;lists+stable@lfdr.de>);
         Wed, 26 Feb 2020 05:56:17 -0500
-Received: from wnew3-smtp.messagingengine.com ([64.147.123.17]:38017 "EHLO
+Received: from wnew3-smtp.messagingengine.com ([64.147.123.17]:36989 "EHLO
         wnew3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728010AbgBZK4Q (ORCPT
+        by vger.kernel.org with ESMTP id S1726408AbgBZK4Q (ORCPT
         <rfc822;stable@vger.kernel.org>); Wed, 26 Feb 2020 05:56:16 -0500
+X-Greylist: delayed 329 seconds by postgrey-1.27 at vger.kernel.org; Wed, 26 Feb 2020 05:56:16 EST
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailnew.west.internal (Postfix) with ESMTP id 3CAE76F0;
-        Wed, 26 Feb 2020 05:50:47 -0500 (EST)
+        by mailnew.west.internal (Postfix) with ESMTP id 1C9916EF;
+        Wed, 26 Feb 2020 05:50:49 -0500 (EST)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Wed, 26 Feb 2020 05:50:47 -0500
+  by compute6.internal (MEProxy); Wed, 26 Feb 2020 05:50:49 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=yjsBD+
-        K4z4Qn6jiJKHSAMaJlRbP0ZZlQauqBCRG+KSU=; b=yMt3DGEN6simcixxTCeb3O
-        R7lzIVi0QI4B7sHZRSrfaRmxU9rQ2d77J/sSL1KjUjxa4XD4205Pgubt97DwiJ0i
-        DwRMycPg1JGCzzHjjuO45iOWs2Ph7VLVzCOB8RiAtu11pJww9Nau9CLxkoGUmJWZ
-        vl4nW/GcgQwTvNp2V/6CeqHXZ2inTBj2ao8PCj4Gfof99I/IdCi6lT38gj39xNiu
-        bM1KYOKGwEIJcnBYjyvO47w6r0vPu50xVrdHa0JpAqM+NX0hRrnXZHPfcigbRPTc
-        jTF6oNlu/e9QhKyunq/oeEG2ZACeOBMX9o1HDm2jirRD/85+Kvvb3ANLbjhjofxA
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=liscf2
+        AgnAP4WeuGtNroeRo0qkTKZOFXGwE4JfrPDbs=; b=a/rfhZdJjBpG/gP3iR/ijo
+        kEaAyjkiSY2HF1CTvv2z2TjIsgPP7wZHuoZTbxJHB1G0X3VAZXP7HuZFuyMgN3Y5
+        CapIlijPEPUKgaDvG0z1P946I+NlBTKVsCCAVKoW2vc00iCDdlgCBZhEh4WelDol
+        gSlGM4ajkrnFlSBnDoLrBpx8sj331KAA67L4h/UUqFHUlIRn15ylm8fDsElfuptl
+        lEb7eB4eXMvrEuA3JM+vXZxTQE8sjoTAfgDknbn3TlwC70S1k0toUolA9vGAJmVz
+        joIAQayVJ20wrjuzNwqgWBoE+yeRZYbkIiYqkLEvgWxJEL2AuioQfb4VgcYSQ+jQ
         ==
-X-ME-Sender: <xms:hk1WXlqC9xz5HyYXWssppLCwQWt6m8FSVEFwR3nu00kxJO4oZid4XQ>
+X-ME-Sender: <xms:iE1WXukIvkcnGW_CNqYqnbw_DJ28gi6Tx5K5Lqhm26IA9OhA1nCElA>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedugedrleeggddvudcutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
@@ -35,14 +36,14 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedugedrleeggddvudcutefuodetggdote
     qeenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeekfedrkeeirdekledrud
     dtjeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehg
     rhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:hk1WXlSSyU5vavEDOcmhFz2Wzgc8beoxjKEknCWj5qShboCUboPg9w>
-    <xmx:hk1WXs17AVThu5wnwtm0umQWdAodXeJ4Qky3c1FTLzCPkwJohsVYOg>
-    <xmx:hk1WXq3fOaP7AHDKrCpu1EXgmMzGaX8ZHsITSYhmsAfdXzQtXjLatQ>
-    <xmx:hk1WXgUh1Eg9vSi900FohUQcD5dE5AgisRcUnl3rxVumq0RuicxhZLu_NyY>
+X-ME-Proxy: <xmx:iE1WXr-QfNbuGAHvr8cyNIIWy_Tk-xy6Ggj7lNbkZ2OEM3SGSKnxAQ>
+    <xmx:iE1WXjlgS7ftbS5LCCr_VJdN9b6IW8qgRTxmKGke37WnNd8pO3gmng>
+    <xmx:iE1WXpurPbU41h-cY4S76z4XWxEIlGcF05FErjlwZQQ_NrS1Szb-Eg>
+    <xmx:iE1WXmPnrSljnw1HIw8AmybWZLjrji-QADzM2rjUKQQ-yYBw3fJl6dzoAnc>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 78FEB328005A;
-        Wed, 26 Feb 2020 05:50:46 -0500 (EST)
-Subject: FAILED: patch "[PATCH] lib/stackdepot.c: fix global out-of-bounds in stack_slabs" failed to apply to 4.9-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 41163328005A;
+        Wed, 26 Feb 2020 05:50:48 -0500 (EST)
+Subject: FAILED: patch "[PATCH] lib/stackdepot.c: fix global out-of-bounds in stack_slabs" failed to apply to 4.14-stable tree
 To:     glider@google.com, akpm@linux-foundation.org, dvyukov@google.com,
         gregkh@linuxfoundation.org, jpoimboe@redhat.com,
         kstewart@linuxfoundation.org, matthias.bgg@gmail.com,
@@ -51,7 +52,7 @@ To:     glider@google.com, akpm@linux-foundation.org, dvyukov@google.com,
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Wed, 26 Feb 2020 11:49:43 +0100
-Message-ID: <1582714183201113@kroah.com>
+Message-ID: <1582714183119146@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -61,7 +62,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
