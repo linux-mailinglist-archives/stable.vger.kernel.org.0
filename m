@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B4937171AD2
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 14:57:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7FDCE17198A
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 14:46:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732084AbgB0N5P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 08:57:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57974 "EHLO mail.kernel.org"
+        id S1729652AbgB0Npp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 08:45:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41740 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732251AbgB0N5N (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 08:57:13 -0500
+        id S1730419AbgB0Npp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 08:45:45 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BDABC20578;
-        Thu, 27 Feb 2020 13:57:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 19BE720726;
+        Thu, 27 Feb 2020 13:45:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582811832;
-        bh=C/wdEos4wA2xfQpgeNBE4p1Xv5QaOA7GnM1ypr2cjgE=;
+        s=default; t=1582811144;
+        bh=7/ppde6gtQAayolTromL0dUdEI07aG1CC03+goNB0f4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZmeMW1o8LRQUKZTVPiON0Qt1sdrXLTxeRUWoXYHKCfMMJC5/lReQXliBWbzjjDEFP
-         Uic4za9E2QP14t5opmErB2ibuOgujfWi8zqKJHZehgT7I7Lkvi7j3R6aQsGZtPqsN8
-         nMrC4KqBAVgg7hZyP059N1cjODkkyf/93oh9wHfY=
+        b=diH7Dz7PqfF5j1iyqr0NKB8PIspCb1PB68o0zoWsUltgI7sKHggofb+qZJ2Sy3pKm
+         /oWZCwuoZOBBvo8dKjdHXzFW5d+6q8vjuXd+jJ9+pWBtxlOjgF6wD6uru9qdc+hESk
+         nHrHOD/sGKNgRzH5+R3cE8uVYrPlgU+b/EWkVMTE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aditya Pakki <pakki001@umn.edu>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 080/237] fore200e: Fix incorrect checks of NULL pointer dereference
+        stable@vger.kernel.org, Allen Pais <allen.pais@oracle.com>,
+        Martin Wilck <mwilck@suse.com>,
+        Himanshu Madhani <hmadhani@marvell.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Ajay Kaher <akaher@vmware.com>
+Subject: [PATCH 4.9 020/165] scsi: qla2xxx: fix a potential NULL pointer dereference
 Date:   Thu, 27 Feb 2020 14:34:54 +0100
-Message-Id: <20200227132302.988629389@linuxfoundation.org>
+Message-Id: <20200227132233.946217851@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200227132255.285644406@linuxfoundation.org>
-References: <20200227132255.285644406@linuxfoundation.org>
+In-Reply-To: <20200227132230.840899170@linuxfoundation.org>
+References: <20200227132230.840899170@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,80 +46,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aditya Pakki <pakki001@umn.edu>
+From: Allen Pais <allen.pais@oracle.com>
 
-[ Upstream commit bbd20c939c8aa3f27fa30e86691af250bf92973a ]
+commit 35a79a63517981a8aea395497c548776347deda8 upstream.
 
-In fore200e_send and fore200e_close, the pointers from the arguments
-are dereferenced in the variable declaration block and then checked
-for NULL. The patch fixes these issues by avoiding NULL pointer
-dereferences.
+alloc_workqueue is not checked for errors and as a result a potential
+NULL dereference could occur.
 
-Signed-off-by: Aditya Pakki <pakki001@umn.edu>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://lore.kernel.org/r/1568824618-4366-1-git-send-email-allen.pais@oracle.com
+Signed-off-by: Allen Pais <allen.pais@oracle.com>
+Reviewed-by: Martin Wilck <mwilck@suse.com>
+Acked-by: Himanshu Madhani <hmadhani@marvell.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+[Ajay: Rewrote this patch for v4.9.y, as 4.9.y codebase is different from mainline]
+Signed-off-by: Ajay Kaher <akaher@vmware.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/atm/fore200e.c | 25 ++++++++++++++++++-------
- 1 file changed, 18 insertions(+), 7 deletions(-)
+ drivers/scsi/qla2xxx/qla_os.c |   19 +++++++++++++------
+ 1 file changed, 13 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/atm/fore200e.c b/drivers/atm/fore200e.c
-index f8b7e86907cc2..0a1ad1a1d34fb 100644
---- a/drivers/atm/fore200e.c
-+++ b/drivers/atm/fore200e.c
-@@ -1496,12 +1496,14 @@ fore200e_open(struct atm_vcc *vcc)
- static void
- fore200e_close(struct atm_vcc* vcc)
- {
--    struct fore200e*        fore200e = FORE200E_DEV(vcc->dev);
-     struct fore200e_vcc*    fore200e_vcc;
-+    struct fore200e*        fore200e;
-     struct fore200e_vc_map* vc_map;
-     unsigned long           flags;
- 
-     ASSERT(vcc);
-+    fore200e = FORE200E_DEV(vcc->dev);
+--- a/drivers/scsi/qla2xxx/qla_os.c
++++ b/drivers/scsi/qla2xxx/qla_os.c
+@@ -451,6 +451,12 @@ static int qla25xx_setup_mode(struct scs
+ 		goto fail;
+ 	}
+ 	if (ql2xmultique_tag) {
++		ha->wq = alloc_workqueue("qla2xxx_wq", WQ_MEM_RECLAIM, 1);
++		if (unlikely(!ha->wq)) {
++			ql_log(ql_log_warn, vha, 0x01e0,
++			    "Failed to alloc workqueue.\n");
++			goto fail;
++		}
+ 		/* create a request queue for IO */
+ 		options |= BIT_7;
+ 		req = qla25xx_create_req_que(ha, options, 0, 0, -1,
+@@ -458,9 +464,8 @@ static int qla25xx_setup_mode(struct scs
+ 		if (!req) {
+ 			ql_log(ql_log_warn, vha, 0x00e0,
+ 			    "Failed to create request queue.\n");
+-			goto fail;
++			goto fail2;
+ 		}
+-		ha->wq = alloc_workqueue("qla2xxx_wq", WQ_MEM_RECLAIM, 1);
+ 		vha->req = ha->req_q_map[req];
+ 		options |= BIT_1;
+ 		for (ques = 1; ques < ha->max_rsp_queues; ques++) {
+@@ -468,7 +473,7 @@ static int qla25xx_setup_mode(struct scs
+ 			if (!ret) {
+ 				ql_log(ql_log_warn, vha, 0x00e8,
+ 				    "Failed to create response queue.\n");
+-				goto fail2;
++				goto fail3;
+ 			}
+ 		}
+ 		ha->flags.cpu_affinity_enabled = 1;
+@@ -482,11 +487,13 @@ static int qla25xx_setup_mode(struct scs
+ 		    ha->max_rsp_queues, ha->max_req_queues);
+ 	}
+ 	return 0;
+-fail2:
 +
-     ASSERT((vcc->vpi >= 0) && (vcc->vpi < 1<<FORE200E_VPI_BITS));
-     ASSERT((vcc->vci >= 0) && (vcc->vci < 1<<FORE200E_VCI_BITS));
- 
-@@ -1546,10 +1548,10 @@ fore200e_close(struct atm_vcc* vcc)
- static int
- fore200e_send(struct atm_vcc *vcc, struct sk_buff *skb)
- {
--    struct fore200e*        fore200e     = FORE200E_DEV(vcc->dev);
--    struct fore200e_vcc*    fore200e_vcc = FORE200E_VCC(vcc);
-+    struct fore200e*        fore200e;
-+    struct fore200e_vcc*    fore200e_vcc;
-     struct fore200e_vc_map* vc_map;
--    struct host_txq*        txq          = &fore200e->host_txq;
-+    struct host_txq*        txq;
-     struct host_txq_entry*  entry;
-     struct tpd*             tpd;
-     struct tpd_haddr        tpd_haddr;
-@@ -1562,9 +1564,18 @@ fore200e_send(struct atm_vcc *vcc, struct sk_buff *skb)
-     unsigned char*          data;
-     unsigned long           flags;
- 
--    ASSERT(vcc);
--    ASSERT(fore200e);
--    ASSERT(fore200e_vcc);
-+    if (!vcc)
-+        return -EINVAL;
-+
-+    fore200e = FORE200E_DEV(vcc->dev);
-+    fore200e_vcc = FORE200E_VCC(vcc);
-+
-+    if (!fore200e)
-+        return -EINVAL;
-+
-+    txq = &fore200e->host_txq;
-+    if (!fore200e_vcc)
-+        return -EINVAL;
- 
-     if (!test_bit(ATM_VF_READY, &vcc->flags)) {
- 	DPRINTK(1, "VC %d.%d.%d not ready for tx\n", vcc->itf, vcc->vpi, vcc->vpi);
--- 
-2.20.1
-
++fail3:
+ 	qla25xx_delete_queues(vha);
+-	destroy_workqueue(ha->wq);
+-	ha->wq = NULL;
+ 	vha->req = ha->req_q_map[0];
++fail2:
++        destroy_workqueue(ha->wq);
++        ha->wq = NULL;
+ fail:
+ 	ha->mqenable = 0;
+ 	kfree(ha->req_q_map);
 
 
