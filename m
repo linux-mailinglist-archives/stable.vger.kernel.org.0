@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 53AE4171E3E
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:26:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 63A92171B43
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:01:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388445AbgB0OKA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 09:10:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48018 "EHLO mail.kernel.org"
+        id S1732823AbgB0OAz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 09:00:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34566 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388437AbgB0OJ4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 09:09:56 -0500
+        id S1732820AbgB0OAy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 09:00:54 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6460821D7E;
-        Thu, 27 Feb 2020 14:09:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 096C221556;
+        Thu, 27 Feb 2020 14:00:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582812595;
-        bh=BOzoi9lkMAY+Td1+7TDcoWC0IM5Mo+0Ns0xY4jmUkA0=;
+        s=default; t=1582812054;
+        bh=A5eJRkIxHXYZYGfzRKlgumnOYOGJoFzREid9BwALZVU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s2DQ9VBVhUSftW0FX4Z6KPzMAc72BplWqQq3AX0DodAATeMVns80wxFkRbLbYOnb+
-         Eouf8Xif8WzyIa7C6dn7U0APwdxg2XWqlosZChh+UTmE4ku3Zk9mwIaCR9/OA6BHE0
-         YPTAzEYIxn4RV2eFGKGML5tM39nisjoVpUpjFGp4=
+        b=JF2EZYyx0nBHA6VP5GJmxuCaH5T8i6zN2lDaNXYnYrysbfK8fO83qfDvT1zojbyYy
+         TSzJGWG+COlsKyzJrH3jyTwxchZc7iLaOgtEBCQUFJBJZct5X9Eu2sCjc9PfGrOlmH
+         Vvg9AzkHQwgFX0G1sWQN5DL8Nuue+Er/X66QJRG8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qian Cai <cai@lca.pw>,
-        Theodore Tso <tytso@mit.edu>, stable@kernel.org
-Subject: [PATCH 5.4 079/135] ext4: fix a data race in EXT4_I(inode)->i_disksize
+        stable@vger.kernel.org,
+        Gustavo Romero <gromero@linux.vnet.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 205/237] powerpc/tm: Fix endianness flip on trap
 Date:   Thu, 27 Feb 2020 14:36:59 +0100
-Message-Id: <20200227132241.272894137@linuxfoundation.org>
+Message-Id: <20200227132311.326575336@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200227132228.710492098@linuxfoundation.org>
-References: <20200227132228.710492098@linuxfoundation.org>
+In-Reply-To: <20200227132255.285644406@linuxfoundation.org>
+References: <20200227132255.285644406@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,87 +45,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qian Cai <cai@lca.pw>
+From: Gustavo Romero <gromero@linux.vnet.ibm.com>
 
-commit 35df4299a6487f323b0aca120ea3f485dfee2ae3 upstream.
+[ Upstream commit 1c200e63d055ec0125e44a5e386b9b78aada7eb3 ]
 
-EXT4_I(inode)->i_disksize could be accessed concurrently as noticed by
-KCSAN,
+Currently it's possible that a thread on PPC64 LE has its endianness
+flipped inadvertently to Big-Endian resulting in a crash once the process
+is back from the signal handler.
 
- BUG: KCSAN: data-race in ext4_write_end [ext4] / ext4_writepages [ext4]
+If giveup_all() is called when regs->msr has the bits MSR.FP and MSR.VEC
+disabled (and hence MSR.VSX disabled too) it returns without calling
+check_if_tm_restore_required() which copies regs->msr to ckpt_regs->msr if
+the process caught a signal whilst in transactional mode. Then once in
+setup_tm_sigcontexts() MSR from ckpt_regs.msr is used, but since
+check_if_tm_restore_required() was not called previuosly, gp_regs[PT_MSR]
+gets a copy of invalid MSR bits as MSR in ckpt_regs was not updated from
+regs->msr and so is zeroed. Later when leaving the signal handler once in
+sys_rt_sigreturn() the TS bits of gp_regs[PT_MSR] are checked to determine
+if restore_tm_sigcontexts() must be called to pull in the correct MSR state
+into the user context. Because TS bits are zeroed
+restore_tm_sigcontexts() is never called and MSR restored from the user
+context on returning from the signal handler has the MSR.LE (the endianness
+bit) forced to zero (Big-Endian). That leads, for instance, to 'nop' being
+treated as an illegal instruction in the following sequence:
 
- write to 0xffff91c6713b00f8 of 8 bytes by task 49268 on cpu 127:
-  ext4_write_end+0x4e3/0x750 [ext4]
-  ext4_update_i_disksize at fs/ext4/ext4.h:3032
-  (inlined by) ext4_update_inode_size at fs/ext4/ext4.h:3046
-  (inlined by) ext4_write_end at fs/ext4/inode.c:1287
-  generic_perform_write+0x208/0x2a0
-  ext4_buffered_write_iter+0x11f/0x210 [ext4]
-  ext4_file_write_iter+0xce/0x9e0 [ext4]
-  new_sync_write+0x29c/0x3b0
-  __vfs_write+0x92/0xa0
-  vfs_write+0x103/0x260
-  ksys_write+0x9d/0x130
-  __x64_sys_write+0x4c/0x60
-  do_syscall_64+0x91/0xb47
-  entry_SYSCALL_64_after_hwframe+0x49/0xbe
+	tbegin.
+	beq	1f
+	trap
+	tend.
+1:	nop
 
- read to 0xffff91c6713b00f8 of 8 bytes by task 24872 on cpu 37:
-  ext4_writepages+0x10ac/0x1d00 [ext4]
-  mpage_map_and_submit_extent at fs/ext4/inode.c:2468
-  (inlined by) ext4_writepages at fs/ext4/inode.c:2772
-  do_writepages+0x5e/0x130
-  __writeback_single_inode+0xeb/0xb20
-  writeback_sb_inodes+0x429/0x900
-  __writeback_inodes_wb+0xc4/0x150
-  wb_writeback+0x4bd/0x870
-  wb_workfn+0x6b4/0x960
-  process_one_work+0x54c/0xbe0
-  worker_thread+0x80/0x650
-  kthread+0x1e0/0x200
-  ret_from_fork+0x27/0x50
+on PPC64 LE machines and the process dies just after returning from the
+signal handler.
 
- Reported by Kernel Concurrency Sanitizer on:
- CPU: 37 PID: 24872 Comm: kworker/u261:2 Tainted: G        W  O L 5.5.0-next-20200204+ #5
- Hardware name: HPE ProLiant DL385 Gen10/ProLiant DL385 Gen10, BIOS A40 07/10/2019
- Workqueue: writeback wb_workfn (flush-7:0)
+PPC64 BE is also affected but in a subtle way since forcing Big-Endian on
+a BE machine does not change the endianness.
 
-Since only the read is operating as lockless (outside of the
-"i_data_sem"), load tearing could introduce a logic bug. Fix it by
-adding READ_ONCE() for the read and WRITE_ONCE() for the write.
+This commit fixes the issue described above by ensuring that once in
+setup_tm_sigcontexts() the MSR used is from regs->msr instead of from
+ckpt_regs->msr and by ensuring that we pull in only the MSR.FP, MSR.VEC,
+and MSR.VSX bits from ckpt_regs->msr.
 
-Signed-off-by: Qian Cai <cai@lca.pw>
-Link: https://lore.kernel.org/r/1581085751-31793-1-git-send-email-cai@lca.pw
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Cc: stable@kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+The fix was tested both on LE and BE machines and no regression regarding
+the powerpc/tm selftests was observed.
 
+Signed-off-by: Gustavo Romero <gromero@linux.vnet.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/ext4.h  |    2 +-
- fs/ext4/inode.c |    2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ arch/powerpc/kernel/signal_64.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
---- a/fs/ext4/ext4.h
-+++ b/fs/ext4/ext4.h
-@@ -2969,7 +2969,7 @@ static inline void ext4_update_i_disksiz
- 		     !inode_is_locked(inode));
- 	down_write(&EXT4_I(inode)->i_data_sem);
- 	if (newsize > EXT4_I(inode)->i_disksize)
--		EXT4_I(inode)->i_disksize = newsize;
-+		WRITE_ONCE(EXT4_I(inode)->i_disksize, newsize);
- 	up_write(&EXT4_I(inode)->i_data_sem);
- }
+diff --git a/arch/powerpc/kernel/signal_64.c b/arch/powerpc/kernel/signal_64.c
+index 2d52fed72e216..b203c16d46d4e 100644
+--- a/arch/powerpc/kernel/signal_64.c
++++ b/arch/powerpc/kernel/signal_64.c
+@@ -207,7 +207,7 @@ static long setup_tm_sigcontexts(struct sigcontext __user *sc,
+ 	elf_vrreg_t __user *tm_v_regs = sigcontext_vmx_regs(tm_sc);
+ #endif
+ 	struct pt_regs *regs = tsk->thread.regs;
+-	unsigned long msr = tsk->thread.ckpt_regs.msr;
++	unsigned long msr = tsk->thread.regs->msr;
+ 	long err = 0;
  
---- a/fs/ext4/inode.c
-+++ b/fs/ext4/inode.c
-@@ -2573,7 +2573,7 @@ update_disksize:
- 	 * truncate are avoided by checking i_size under i_data_sem.
- 	 */
- 	disksize = ((loff_t)mpd->first_page) << PAGE_SHIFT;
--	if (disksize > EXT4_I(inode)->i_disksize) {
-+	if (disksize > READ_ONCE(EXT4_I(inode)->i_disksize)) {
- 		int err2;
- 		loff_t i_size;
+ 	BUG_ON(tsk != current);
+@@ -216,6 +216,12 @@ static long setup_tm_sigcontexts(struct sigcontext __user *sc,
  
+ 	WARN_ON(tm_suspend_disabled);
+ 
++	/* Restore checkpointed FP, VEC, and VSX bits from ckpt_regs as
++	 * it contains the correct FP, VEC, VSX state after we treclaimed
++	 * the transaction and giveup_all() was called on reclaiming.
++	 */
++	msr |= tsk->thread.ckpt_regs.msr & (MSR_FP | MSR_VEC | MSR_VSX);
++
+ 	/* Remove TM bits from thread's MSR.  The MSR in the sigcontext
+ 	 * just indicates to userland that we were doing a transaction, but we
+ 	 * don't want to return in transactional state.  This also ensures
+-- 
+2.20.1
+
 
 
