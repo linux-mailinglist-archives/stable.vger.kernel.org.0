@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A605171ECB
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:30:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A7E04172144
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:49:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387892AbgB0OaV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 09:30:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41820 "EHLO mail.kernel.org"
+        id S1729883AbgB0NnD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 08:43:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38164 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387713AbgB0OFM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 09:05:12 -0500
+        id S1729580AbgB0NnC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 08:43:02 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 25EFD20801;
-        Thu, 27 Feb 2020 14:05:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 757F320578;
+        Thu, 27 Feb 2020 13:43:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582812311;
-        bh=IAbXsdKThfWp5kflFnf+H5CpkjsYJ220+iv2NJURT2I=;
+        s=default; t=1582810981;
+        bh=kPczogWiXOSiS49EYVauMu0X+s/wJe9Q8hPGsbMerHE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N4lr0BJE9XiJlvkta5RjsVc3KQLKxa9uCM3AR8euAavaAYt5LGONU5Q8toyRODWw1
-         5q+P03hHX+1yOm/FLhBpHfdtU271PO90M+BLsIIssPHCtRK/88lrk1mR0dOsafMEit
-         33DnhhgcI48Q8Z7VgJ2K1D1hdx98cHTEJrK6srUI=
+        b=md4rov3naB0J861uvrcftcgWJWZaBwpVZYQlP82/A9GJ2ej8GgBSKKBZxZDwtHREh
+         NfsUOh7TDgAI9vPIaSZ8hXPtoZ8QseNfGrDyEFQTuq1mrTXFhA6frI3Pubv1wCKGJA
+         S+/6Ff5bnxfpprPYOAulHW+3/sIpt7xTrfBHb/tY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rene D Obermueller <cmdrrdo@gmail.com>,
-        Mathias Nyman <mathias.nyman@linux.intel.com>
-Subject: [PATCH 4.19 19/97] xhci: Force Maximum Packet size for Full-speed bulk devices to valid range.
-Date:   Thu, 27 Feb 2020 14:36:27 +0100
-Message-Id: <20200227132217.754364763@linuxfoundation.org>
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        Stanislaw Gruszka <stf_xl@wp.pl>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 072/113] iwlegacy: ensure loop counter addr does not wrap and cause an infinite loop
+Date:   Thu, 27 Feb 2020 14:36:28 +0100
+Message-Id: <20200227132223.297849844@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200227132214.553656188@linuxfoundation.org>
-References: <20200227132214.553656188@linuxfoundation.org>
+In-Reply-To: <20200227132211.791484803@linuxfoundation.org>
+References: <20200227132211.791484803@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,51 +45,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mathias Nyman <mathias.nyman@linux.intel.com>
+From: Colin Ian King <colin.king@canonical.com>
 
-commit f148b9f402ef002b57bcff3964d45abc8ffb6c3f upstream.
+[ Upstream commit c2f9a4e4a5abfc84c01b738496b3fd2d471e0b18 ]
 
-A Full-speed bulk USB audio device (DJ-Tech CTRL) with a invalid Maximum
-Packet Size of 4 causes a xHC "Parameter Error" at enumeration.
+The loop counter addr is a u16 where as the upper limit of the loop
+is an int. In the unlikely event that the il->cfg->eeprom_size is
+greater than 64K then we end up with an infinite loop since addr will
+wrap around an never reach upper loop limit. Fix this by making addr
+an int.
 
-This is because valid Maximum packet sizes for Full-speed bulk endpoints
-are 8, 16, 32 and 64 bytes. Hosts are not required to support other values
-than these. See usb 2 specs section 5.8.3 for details.
-
-The device starts working after forcing the maximum packet size to 8.
-This is most likely the case with other devices as well, so force the
-maximum packet size to a valid range.
-
-Cc: stable@vger.kernel.org
-Reported-by: Rene D Obermueller <cmdrrdo@gmail.com>
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/20200210134553.9144-2-mathias.nyman@linux.intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Addresses-Coverity: ("Infinite loop")
+Fixes: be663ab67077 ("iwlwifi: split the drivers for agn and legacy devices 3945/4965")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Acked-by: Stanislaw Gruszka <stf_xl@wp.pl>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/host/xhci-mem.c |   12 +++++++++---
- 1 file changed, 9 insertions(+), 3 deletions(-)
+ drivers/net/wireless/iwlegacy/common.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/host/xhci-mem.c
-+++ b/drivers/usb/host/xhci-mem.c
-@@ -1475,9 +1475,15 @@ int xhci_endpoint_init(struct xhci_hcd *
- 	/* Allow 3 retries for everything but isoc, set CErr = 3 */
- 	if (!usb_endpoint_xfer_isoc(&ep->desc))
- 		err_count = 3;
--	/* Some devices get this wrong */
--	if (usb_endpoint_xfer_bulk(&ep->desc) && udev->speed == USB_SPEED_HIGH)
--		max_packet = 512;
-+	/* HS bulk max packet should be 512, FS bulk supports 8, 16, 32 or 64 */
-+	if (usb_endpoint_xfer_bulk(&ep->desc)) {
-+		if (udev->speed == USB_SPEED_HIGH)
-+			max_packet = 512;
-+		if (udev->speed == USB_SPEED_FULL) {
-+			max_packet = rounddown_pow_of_two(max_packet);
-+			max_packet = clamp_val(max_packet, 8, 64);
-+		}
-+	}
- 	/* xHCI 1.0 and 1.1 indicates that ctrl ep avg TRB Length should be 8 */
- 	if (usb_endpoint_xfer_control(&ep->desc) && xhci->hci_version >= 0x100)
- 		avg_trb_len = 8;
+diff --git a/drivers/net/wireless/iwlegacy/common.c b/drivers/net/wireless/iwlegacy/common.c
+index 887114582583b..544ab3750ea6e 100644
+--- a/drivers/net/wireless/iwlegacy/common.c
++++ b/drivers/net/wireless/iwlegacy/common.c
+@@ -717,7 +717,7 @@ il_eeprom_init(struct il_priv *il)
+ 	u32 gp = _il_rd(il, CSR_EEPROM_GP);
+ 	int sz;
+ 	int ret;
+-	u16 addr;
++	int addr;
+ 
+ 	/* allocate eeprom */
+ 	sz = il->cfg->eeprom_size;
+-- 
+2.20.1
+
 
 
