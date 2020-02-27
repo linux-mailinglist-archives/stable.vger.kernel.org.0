@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3AAFA171B0E
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 14:59:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7323017195F
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 14:44:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732558AbgB0N7E (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 08:59:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60386 "EHLO mail.kernel.org"
+        id S1729744AbgB0NoR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 08:44:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39728 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732557AbgB0N7D (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 08:59:03 -0500
+        id S1730178AbgB0NoP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 08:44:15 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A47E124691;
-        Thu, 27 Feb 2020 13:59:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9AA0720578;
+        Thu, 27 Feb 2020 13:44:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582811943;
-        bh=sXKr07LhSMJaxeyVmTeEL6LuRaf6FLMgJOtCXcSEip8=;
+        s=default; t=1582811055;
+        bh=SBthw1y1SCy+Et+NPmFWXARheYZUgLQBwqsZ6puPn8I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mPJtU7II1kCVgDB5iO787NeU2lz0nXiZrXEWIxNTU5JNSLaz81yROV4esKVq5laxe
-         Rqthil7E6VVDeVcB+6+Z1BIXc59akrywuw2k4X/7L7J8iEUVJ7OGTVOGyHp+28+R1w
-         uH4SQa7MoiypGmFUDWH793BZPkavkvMIgx+J07FY=
+        b=tClYiJE45bUD6Wvx0Dw6rGR91l34+wehsu9FCng1oIRxdVgQ9zs3cDRanTnSzvTN0
+         2GxJKR2mvXb3zBLiN4rPIzpPmUZJre8LAMUk5dViIbiLKOFQHVCqrXPtH6/VGQR2Za
+         AvakV9gNKrHr9HcI6DRNh8BHp2fI62tn/K5VTMKw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhiqiang Liu <liuzhiqiang26@huawei.com>,
-        Bob Liu <bob.liu@oracle.com>, Ming Lei <ming.lei@redhat.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 162/237] brd: check and limit max_part par
+        stable@vger.kernel.org, YueHaibing <yuehaibing@huawei.com>,
+        Ben Skeggs <bskeggs@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 060/113] drm/nouveau: Fix copy-paste error in nouveau_fence_wait_uevent_handler
 Date:   Thu, 27 Feb 2020 14:36:16 +0100
-Message-Id: <20200227132308.417513087@linuxfoundation.org>
+Message-Id: <20200227132221.353543969@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200227132255.285644406@linuxfoundation.org>
-References: <20200227132255.285644406@linuxfoundation.org>
+In-Reply-To: <20200227132211.791484803@linuxfoundation.org>
+References: <20200227132211.791484803@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,107 +44,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhiqiang Liu <liuzhiqiang26@huawei.com>
+From: YueHaibing <yuehaibing@huawei.com>
 
-[ Upstream commit c8ab422553c81a0eb070329c63725df1cd1425bc ]
+[ Upstream commit 1eb013473bff5f95b6fe1ca4dd7deda47257b9c2 ]
 
-In brd_init func, rd_nr num of brd_device are firstly allocated
-and add in brd_devices, then brd_devices are traversed to add each
-brd_device by calling add_disk func. When allocating brd_device,
-the disk->first_minor is set to i * max_part, if rd_nr * max_part
-is larger than MINORMASK, two different brd_device may have the same
-devt, then only one of them can be successfully added.
-when rmmod brd.ko, it will cause oops when calling brd_exit.
+Like other cases, it should use rcu protected 'chan' rather
+than 'fence->channel' in nouveau_fence_wait_uevent_handler.
 
-Follow those steps:
-  # modprobe brd rd_nr=3 rd_size=102400 max_part=1048576
-  # rmmod brd
-then, the oops will appear.
-
-Oops log:
-[  726.613722] Call trace:
-[  726.614175]  kernfs_find_ns+0x24/0x130
-[  726.614852]  kernfs_find_and_get_ns+0x44/0x68
-[  726.615749]  sysfs_remove_group+0x38/0xb0
-[  726.616520]  blk_trace_remove_sysfs+0x1c/0x28
-[  726.617320]  blk_unregister_queue+0x98/0x100
-[  726.618105]  del_gendisk+0x144/0x2b8
-[  726.618759]  brd_exit+0x68/0x560 [brd]
-[  726.619501]  __arm64_sys_delete_module+0x19c/0x2a0
-[  726.620384]  el0_svc_common+0x78/0x130
-[  726.621057]  el0_svc_handler+0x38/0x78
-[  726.621738]  el0_svc+0x8/0xc
-[  726.622259] Code: aa0203f6 aa0103f7 aa1e03e0 d503201f (7940e260)
-
-Here, we add brd_check_and_reset_par func to check and limit max_part par.
-
---
-V5->V6:
- - remove useless code
-
-V4->V5:(suggested by Ming Lei)
- - make sure max_part is not larger than DISK_MAX_PARTS
-
-V3->V4:(suggested by Ming Lei)
- - remove useless change
- - add one limit of max_part
-
-V2->V3: (suggested by Ming Lei)
- - clear .minors when running out of consecutive minor space in brd_alloc
- - remove limit of rd_nr
-
-V1->V2:
- - add more checks in brd_check_par_valid as suggested by Ming Lei.
-
-Signed-off-by: Zhiqiang Liu <liuzhiqiang26@huawei.com>
-Reviewed-by: Bob Liu <bob.liu@oracle.com>
-Reviewed-by: Ming Lei <ming.lei@redhat.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: 0ec5f02f0e2c ("drm/nouveau: prevent stale fence->channel pointers, and protect with rcu")
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/brd.c | 22 ++++++++++++++++++++--
- 1 file changed, 20 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/nouveau/nouveau_fence.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/block/brd.c b/drivers/block/brd.c
-index 2d7178f7754ed..0129b1921cb36 100644
---- a/drivers/block/brd.c
-+++ b/drivers/block/brd.c
-@@ -529,6 +529,25 @@ static struct kobject *brd_probe(dev_t dev, int *part, void *data)
- 	return kobj;
- }
+diff --git a/drivers/gpu/drm/nouveau/nouveau_fence.c b/drivers/gpu/drm/nouveau/nouveau_fence.c
+index 574c36b492ee4..fccec23731e24 100644
+--- a/drivers/gpu/drm/nouveau/nouveau_fence.c
++++ b/drivers/gpu/drm/nouveau/nouveau_fence.c
+@@ -157,7 +157,7 @@ nouveau_fence_wait_uevent_handler(struct nvif_notify *notify)
  
-+static inline void brd_check_and_reset_par(void)
-+{
-+	if (unlikely(!max_part))
-+		max_part = 1;
-+
-+	/*
-+	 * make sure 'max_part' can be divided exactly by (1U << MINORBITS),
-+	 * otherwise, it is possiable to get same dev_t when adding partitions.
-+	 */
-+	if ((1U << MINORBITS) % max_part != 0)
-+		max_part = 1UL << fls(max_part);
-+
-+	if (max_part > DISK_MAX_PARTS) {
-+		pr_info("brd: max_part can't be larger than %d, reset max_part = %d.\n",
-+			DISK_MAX_PARTS, DISK_MAX_PARTS);
-+		max_part = DISK_MAX_PARTS;
-+	}
-+}
-+
- static int __init brd_init(void)
- {
- 	struct brd_device *brd, *next;
-@@ -552,8 +571,7 @@ static int __init brd_init(void)
- 	if (register_blkdev(RAMDISK_MAJOR, "ramdisk"))
- 		return -EIO;
- 
--	if (unlikely(!max_part))
--		max_part = 1;
-+	brd_check_and_reset_par();
- 
- 	for (i = 0; i < rd_nr; i++) {
- 		brd = brd_alloc(i);
+ 		fence = list_entry(fctx->pending.next, typeof(*fence), head);
+ 		chan = rcu_dereference_protected(fence->channel, lockdep_is_held(&fctx->lock));
+-		if (nouveau_fence_update(fence->channel, fctx))
++		if (nouveau_fence_update(chan, fctx))
+ 			ret = NVIF_NOTIFY_DROP;
+ 	}
+ 	spin_unlock_irqrestore(&fctx->lock, flags);
 -- 
 2.20.1
 
