@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D5DC4171902
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 14:41:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CEB11171904
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 14:41:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729528AbgB0NlN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 08:41:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35730 "EHLO mail.kernel.org"
+        id S1729545AbgB0NlR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 08:41:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35800 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729517AbgB0NlK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 08:41:10 -0500
+        id S1729502AbgB0NlN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 08:41:13 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D4FC321D7E;
-        Thu, 27 Feb 2020 13:41:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 617D720578;
+        Thu, 27 Feb 2020 13:41:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582810870;
-        bh=dO8xwNUMWfiDMM1KGW8bWZI+laE6+d2er+ZLiyojtyY=;
+        s=default; t=1582810872;
+        bh=/uhP3ZwQ5abxbXuZsmYwVHtt+b2kPXwWmXQHgMYq7mE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t3TxlvoeanN1JZOIRWfK4RyqNEakmohyrEP9jFwkD/rbFgnoCr47FAPEWIILPY036
-         4z4BfIXwT641VDllQGmXrkHQWeJtC2DPqxGCPTxmPLbcCGXF/dmG8uXYt/P95ygbL9
-         ZwoBQ9o5lUEUlD2D8KumVeCSPb1T0Kj26+zy5ltw=
+        b=NIZSOCCIUIDujhnp2jd/zo8FcYW15IJFDSZ7sx9D1GdimWElmWeP8ToBs3G94Ep/S
+         rzw8kyQtxjAinhQhnJl+GksTkuPsV2rzFFGI3ycZOSThBojos2eKIdzK0IJ+PYhicZ
+         YFrvPe9ZR7Ium+883S0rg/nGd15fvgb/NRKPJnlg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kai Li <li.kai4@h3c.com>,
-        Theodore Tso <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 030/113] jbd2: clear JBD2_ABORT flag before journal_reset to update log tail info when load journal
-Date:   Thu, 27 Feb 2020 14:35:46 +0100
-Message-Id: <20200227132216.540635114@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Luis Henriques <luis.henriques@canonical.com>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 031/113] tracing: Fix very unlikely race of registering two stat tracers
+Date:   Thu, 27 Feb 2020 14:35:47 +0100
+Message-Id: <20200227132216.707719460@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200227132211.791484803@linuxfoundation.org>
 References: <20200227132211.791484803@linuxfoundation.org>
@@ -43,53 +45,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai Li <li.kai4@h3c.com>
+From: Steven Rostedt (VMware) <rostedt@goodmis.org>
 
-[ Upstream commit a09decff5c32060639a685581c380f51b14e1fc2 ]
+[ Upstream commit dfb6cd1e654315168e36d947471bd2a0ccd834ae ]
 
-If the journal is dirty when the filesystem is mounted, jbd2 will replay
-the journal but the journal superblock will not be updated by
-journal_reset() because JBD2_ABORT flag is still set (it was set in
-journal_init_common()). This is problematic because when a new transaction
-is then committed, it will be recorded in block 1 (journal->j_tail was set
-to 1 in journal_reset()). If unclean shutdown happens again before the
-journal superblock is updated, the new recorded transaction will not be
-replayed during the next mount (because of stale sb->s_start and
-sb->s_sequence values) which can lead to filesystem corruption.
+Looking through old emails in my INBOX, I came across a patch from Luis
+Henriques that attempted to fix a race of two stat tracers registering the
+same stat trace (extremely unlikely, as this is done in the kernel, and
+probably doesn't even exist). The submitted patch wasn't quite right as it
+needed to deal with clean up a bit better (if two stat tracers were the
+same, it would have the same files).
 
-Fixes: 85e0c4e89c1b ("jbd2: if the journal is aborted then don't allow update of the log tail")
-Signed-off-by: Kai Li <li.kai4@h3c.com>
-Link: https://lore.kernel.org/r/20200111022542.5008-1-li.kai4@h3c.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+But to make the code cleaner, all we needed to do is to keep the
+all_stat_sessions_mutex held for most of the registering function.
+
+Link: http://lkml.kernel.org/r/1410299375-20068-1-git-send-email-luis.henriques@canonical.com
+
+Fixes: 002bb86d8d42f ("tracing/ftrace: separate events tracing and stats tracing engine")
+Reported-by: Luis Henriques <luis.henriques@canonical.com>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/jbd2/journal.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ kernel/trace/trace_stat.c | 19 +++++++++----------
+ 1 file changed, 9 insertions(+), 10 deletions(-)
 
-diff --git a/fs/jbd2/journal.c b/fs/jbd2/journal.c
-index 9398d1b70545c..deb3300299709 100644
---- a/fs/jbd2/journal.c
-+++ b/fs/jbd2/journal.c
-@@ -1656,6 +1656,11 @@ int jbd2_journal_load(journal_t *journal)
- 		       journal->j_devname);
- 		return -EFSCORRUPTED;
+diff --git a/kernel/trace/trace_stat.c b/kernel/trace/trace_stat.c
+index 6cf9353167696..a2081a7f0c2cd 100644
+--- a/kernel/trace/trace_stat.c
++++ b/kernel/trace/trace_stat.c
+@@ -302,7 +302,7 @@ static int init_stat_file(struct stat_session *session)
+ int register_stat_tracer(struct tracer_stat *trace)
+ {
+ 	struct stat_session *session, *node;
+-	int ret;
++	int ret = -EINVAL;
+ 
+ 	if (!trace)
+ 		return -EINVAL;
+@@ -313,17 +313,15 @@ int register_stat_tracer(struct tracer_stat *trace)
+ 	/* Already registered? */
+ 	mutex_lock(&all_stat_sessions_mutex);
+ 	list_for_each_entry(node, &all_stat_sessions, session_list) {
+-		if (node->ts == trace) {
+-			mutex_unlock(&all_stat_sessions_mutex);
+-			return -EINVAL;
+-		}
++		if (node->ts == trace)
++			goto out;
  	}
-+	/*
-+	 * clear JBD2_ABORT flag initialized in journal_init_common
-+	 * here to update log tail information with the newest seq.
-+	 */
-+	journal->j_flags &= ~JBD2_ABORT;
+-	mutex_unlock(&all_stat_sessions_mutex);
  
- 	/* OK, we've finished with the dynamic journal bits:
- 	 * reinitialise the dynamic contents of the superblock in memory
-@@ -1663,7 +1668,6 @@ int jbd2_journal_load(journal_t *journal)
- 	if (journal_reset(journal))
- 		goto recovery_error;
++	ret = -ENOMEM;
+ 	/* Init the session */
+ 	session = kzalloc(sizeof(*session), GFP_KERNEL);
+ 	if (!session)
+-		return -ENOMEM;
++		goto out;
  
--	journal->j_flags &= ~JBD2_ABORT;
- 	journal->j_flags |= JBD2_LOADED;
- 	return 0;
+ 	session->ts = trace;
+ 	INIT_LIST_HEAD(&session->session_list);
+@@ -332,15 +330,16 @@ int register_stat_tracer(struct tracer_stat *trace)
+ 	ret = init_stat_file(session);
+ 	if (ret) {
+ 		destroy_session(session);
+-		return ret;
++		goto out;
+ 	}
  
++	ret = 0;
+ 	/* Register */
+-	mutex_lock(&all_stat_sessions_mutex);
+ 	list_add_tail(&session->session_list, &all_stat_sessions);
++ out:
+ 	mutex_unlock(&all_stat_sessions_mutex);
+ 
+-	return 0;
++	return ret;
+ }
+ 
+ void unregister_stat_tracer(struct tracer_stat *trace)
 -- 
 2.20.1
 
