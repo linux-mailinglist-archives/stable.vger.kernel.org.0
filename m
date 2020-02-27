@@ -2,45 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D4D81171CD8
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:15:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A37A6171E44
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:26:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389356AbgB0OPq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 09:15:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55422 "EHLO mail.kernel.org"
+        id S2387894AbgB0OJo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 09:09:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47728 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389352AbgB0OPp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 09:15:45 -0500
+        id S1733262AbgB0OJo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 09:09:44 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 86570246A0;
-        Thu, 27 Feb 2020 14:15:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9AAB220578;
+        Thu, 27 Feb 2020 14:09:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582812945;
-        bh=54BZhhHTvezPRnYlAHI41UMVku5HZBj5re7OJNW61D0=;
+        s=default; t=1582812583;
+        bh=dWhSqp2sSGA0j+GHD0x8+OvJzlBkzswpfjc/63BfTu4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MQ4sk5eACSm1Y4m+7bw86DLJwn+SVK/lDGbxfSPg0/wTb9EvUZfPFV88HtSYUL3i6
-         SUDpyJ7j+826YjQ+0mlSB31IaCgumlS1OcdFmRvbmdbDXhafgcnJchuuq+ClPTQusM
-         2SM2K9DiwMeVwFuaukMaw1dUdAsZ2PswogFZKebA=
+        b=oBDGDDjMj687ANgfIieooO1/OwnDoNlbGcgEBJYrkKmePtHQIN30fFzlygj3HfOE7
+         90D6xbY3TAqOzabg+zSoeRyaVzvJyLjVpd7b+Er4lf0dhKZz7kvjpjF2KR4RY2wXZI
+         t+f9LtBMNTCSDmTnZ9/lZWAvjvDNPrJvM33s2C3o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wei Yang <richardw.yang@linux.intel.com>,
-        Baoquan He <bhe@redhat.com>,
-        David Hildenbrand <david@redhat.com>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Michal Hocko <mhocko@suse.com>,
-        Mike Rapoport <rppt@linux.ibm.com>,
-        Oscar Salvador <osalvador@suse.de>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.5 077/150] mm/sparsemem: pfn_to_page is not valid yet on SPARSEMEM
+        stable@vger.kernel.org, Chris Wilson <chris@chris-wilson.co.uk>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        Jani Nikula <jani.nikula@intel.com>
+Subject: [PATCH 5.4 074/135] drm/i915: Wean off drm_pci_alloc/drm_pci_free
 Date:   Thu, 27 Feb 2020 14:36:54 +0100
-Message-Id: <20200227132244.212362604@linuxfoundation.org>
+Message-Id: <20200227132240.508720004@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200227132232.815448360@linuxfoundation.org>
-References: <20200227132232.815448360@linuxfoundation.org>
+In-Reply-To: <20200227132228.710492098@linuxfoundation.org>
+References: <20200227132228.710492098@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,91 +44,257 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wei Yang <richardw.yang@linux.intel.com>
+From: Chris Wilson <chris@chris-wilson.co.uk>
 
-commit 18e19f195cd888f65643a77a0c6aee8f5be6439a upstream.
+commit aa3146193ae25d0fe4b96d815169a135db2e8f01 upstream.
 
-When we use SPARSEMEM instead of SPARSEMEM_VMEMMAP, pfn_to_page()
-doesn't work before sparse_init_one_section() is called.
+drm_pci_alloc and drm_pci_free are just very thin wrappers around
+dma_alloc_coherent, with a note that we should be removing them.
+Furthermore since
 
-This leads to a crash when hotplug memory:
+commit de09d31dd38a50fdce106c15abd68432eebbd014
+Author: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Date:   Fri Jan 15 16:51:42 2016 -0800
 
-    BUG: unable to handle page fault for address: 0000000006400000
-    #PF: supervisor write access in kernel mode
-    #PF: error_code(0x0002) - not-present page
-    PGD 0 P4D 0
-    Oops: 0002 [#1] SMP PTI
-    CPU: 3 PID: 221 Comm: kworker/u16:1 Tainted: G        W         5.5.0-next-20200205+ #343
-    Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 0.0.0 02/06/2015
-    Workqueue: kacpi_hotplug acpi_hotplug_work_fn
-    RIP: 0010:__memset+0x24/0x30
-    Code: cc cc cc cc cc cc 0f 1f 44 00 00 49 89 f9 48 89 d1 83 e2 07 48 c1 e9 03 40 0f b6 f6 48 b8 01 01 01 01 01 01 01 01 48 0f af c6 <f3> 48 ab 89 d1 f3 aa 4c 89 c8 c3 90 49 89 f9 40 88 f0 48 89 d1 f3
-    RSP: 0018:ffffb43ac0373c80 EFLAGS: 00010a87
-    RAX: ffffffffffffffff RBX: ffff8a1518800000 RCX: 0000000000050000
-    RDX: 0000000000000000 RSI: 00000000000000ff RDI: 0000000006400000
-    RBP: 0000000000140000 R08: 0000000000100000 R09: 0000000006400000
-    R10: 0000000000000000 R11: 0000000000000002 R12: 0000000000000000
-    R13: 0000000000000028 R14: 0000000000000000 R15: ffff8a153ffd9280
-    FS:  0000000000000000(0000) GS:ffff8a153ab00000(0000) knlGS:0000000000000000
-    CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-    CR2: 0000000006400000 CR3: 0000000136fca000 CR4: 00000000000006e0
-    DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-    DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-    Call Trace:
-     sparse_add_section+0x1c9/0x26a
-     __add_pages+0xbf/0x150
-     add_pages+0x12/0x60
-     add_memory_resource+0xc8/0x210
-     __add_memory+0x62/0xb0
-     acpi_memory_device_add+0x13f/0x300
-     acpi_bus_attach+0xf6/0x200
-     acpi_bus_scan+0x43/0x90
-     acpi_device_hotplug+0x275/0x3d0
-     acpi_hotplug_work_fn+0x1a/0x30
-     process_one_work+0x1a7/0x370
-     worker_thread+0x30/0x380
-     kthread+0x112/0x130
-     ret_from_fork+0x35/0x40
+    page-flags: define PG_reserved behavior on compound pages
 
-We should use memmap as it did.
+    As far as I can see there's no users of PG_reserved on compound pages.
+    Let's use PF_NO_COMPOUND here.
 
-On x86 the impact is limited to x86_32 builds, or x86_64 configurations
-that override the default setting for SPARSEMEM_VMEMMAP.
+drm_pci_alloc has been declared broken since it mixes GFP_COMP and
+SetPageReserved. Avoid this conflict by weaning ourselves off using the
+abstraction and using the dma functions directly.
 
-Other memory hotplug archs (arm64, ia64, and ppc) also default to
-SPARSEMEM_VMEMMAP=y.
-
-[dan.j.williams@intel.com: changelog update]
-{rppt@linux.ibm.com: changelog update]
-Link: http://lkml.kernel.org/r/20200219030454.4844-1-bhe@redhat.com
-Fixes: ba72b4c8cf60 ("mm/sparsemem: support sub-section hotplug")
-Signed-off-by: Wei Yang <richardw.yang@linux.intel.com>
-Signed-off-by: Baoquan He <bhe@redhat.com>
-Acked-by: David Hildenbrand <david@redhat.com>
-Reviewed-by: Baoquan He <bhe@redhat.com>
-Reviewed-by: Dan Williams <dan.j.williams@intel.com>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Cc: Mike Rapoport <rppt@linux.ibm.com>
-Cc: Oscar Salvador <osalvador@suse.de>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Reported-by: Taketo Kabe
+Closes: https://gitlab.freedesktop.org/drm/intel/issues/1027
+Fixes: de09d31dd38a ("page-flags: define PG_reserved behavior on compound pages")
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: <stable@vger.kernel.org> # v4.5+
+Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200202153934.3899472-1-chris@chris-wilson.co.uk
+(cherry picked from commit c6790dc22312f592c1434577258b31c48c72d52a)
+Signed-off-by: Jani Nikula <jani.nikula@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- mm/sparse.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/i915/display/intel_display.c     |    2 
+ drivers/gpu/drm/i915/gem/i915_gem_object_types.h |    3 
+ drivers/gpu/drm/i915/gem/i915_gem_phys.c         |   98 +++++++++++------------
+ drivers/gpu/drm/i915/i915_gem.c                  |    8 -
+ 4 files changed, 55 insertions(+), 56 deletions(-)
 
---- a/mm/sparse.c
-+++ b/mm/sparse.c
-@@ -886,7 +886,7 @@ int __meminit sparse_add_section(int nid
- 	 * Poison uninitialized struct pages in order to catch invalid flags
- 	 * combinations.
- 	 */
--	page_init_poison(pfn_to_page(start_pfn), sizeof(struct page) * nr_pages);
-+	page_init_poison(memmap, sizeof(struct page) * nr_pages);
+--- a/drivers/gpu/drm/i915/display/intel_display.c
++++ b/drivers/gpu/drm/i915/display/intel_display.c
+@@ -10510,7 +10510,7 @@ static u32 intel_cursor_base(const struc
+ 	u32 base;
  
- 	ms = __nr_to_section(section_nr);
- 	set_section_nid(section_nr, nid);
+ 	if (INTEL_INFO(dev_priv)->display.cursor_needs_physical)
+-		base = obj->phys_handle->busaddr;
++		base = sg_dma_address(obj->mm.pages->sgl);
+ 	else
+ 		base = intel_plane_ggtt_offset(plane_state);
+ 
+--- a/drivers/gpu/drm/i915/gem/i915_gem_object_types.h
++++ b/drivers/gpu/drm/i915/gem/i915_gem_object_types.h
+@@ -240,9 +240,6 @@ struct drm_i915_gem_object {
+ 
+ 		void *gvt_info;
+ 	};
+-
+-	/** for phys allocated objects */
+-	struct drm_dma_handle *phys_handle;
+ };
+ 
+ static inline struct drm_i915_gem_object *
+--- a/drivers/gpu/drm/i915/gem/i915_gem_phys.c
++++ b/drivers/gpu/drm/i915/gem/i915_gem_phys.c
+@@ -21,88 +21,87 @@
+ static int i915_gem_object_get_pages_phys(struct drm_i915_gem_object *obj)
+ {
+ 	struct address_space *mapping = obj->base.filp->f_mapping;
+-	struct drm_dma_handle *phys;
+-	struct sg_table *st;
+ 	struct scatterlist *sg;
+-	char *vaddr;
++	struct sg_table *st;
++	dma_addr_t dma;
++	void *vaddr;
++	void *dst;
+ 	int i;
+-	int err;
+ 
+ 	if (WARN_ON(i915_gem_object_needs_bit17_swizzle(obj)))
+ 		return -EINVAL;
+ 
+-	/* Always aligning to the object size, allows a single allocation
++	/*
++	 * Always aligning to the object size, allows a single allocation
+ 	 * to handle all possible callers, and given typical object sizes,
+ 	 * the alignment of the buddy allocation will naturally match.
+ 	 */
+-	phys = drm_pci_alloc(obj->base.dev,
+-			     roundup_pow_of_two(obj->base.size),
+-			     roundup_pow_of_two(obj->base.size));
+-	if (!phys)
++	vaddr = dma_alloc_coherent(&obj->base.dev->pdev->dev,
++				   roundup_pow_of_two(obj->base.size),
++				   &dma, GFP_KERNEL);
++	if (!vaddr)
+ 		return -ENOMEM;
+ 
+-	vaddr = phys->vaddr;
++	st = kmalloc(sizeof(*st), GFP_KERNEL);
++	if (!st)
++		goto err_pci;
++
++	if (sg_alloc_table(st, 1, GFP_KERNEL))
++		goto err_st;
++
++	sg = st->sgl;
++	sg->offset = 0;
++	sg->length = obj->base.size;
++
++	sg_assign_page(sg, (struct page *)vaddr);
++	sg_dma_address(sg) = dma;
++	sg_dma_len(sg) = obj->base.size;
++
++	dst = vaddr;
+ 	for (i = 0; i < obj->base.size / PAGE_SIZE; i++) {
+ 		struct page *page;
+-		char *src;
++		void *src;
+ 
+ 		page = shmem_read_mapping_page(mapping, i);
+-		if (IS_ERR(page)) {
+-			err = PTR_ERR(page);
+-			goto err_phys;
+-		}
++		if (IS_ERR(page))
++			goto err_st;
+ 
+ 		src = kmap_atomic(page);
+-		memcpy(vaddr, src, PAGE_SIZE);
+-		drm_clflush_virt_range(vaddr, PAGE_SIZE);
++		memcpy(dst, src, PAGE_SIZE);
++		drm_clflush_virt_range(dst, PAGE_SIZE);
+ 		kunmap_atomic(src);
+ 
+ 		put_page(page);
+-		vaddr += PAGE_SIZE;
++		dst += PAGE_SIZE;
+ 	}
+ 
+ 	intel_gt_chipset_flush(&to_i915(obj->base.dev)->gt);
+ 
+-	st = kmalloc(sizeof(*st), GFP_KERNEL);
+-	if (!st) {
+-		err = -ENOMEM;
+-		goto err_phys;
+-	}
+-
+-	if (sg_alloc_table(st, 1, GFP_KERNEL)) {
+-		kfree(st);
+-		err = -ENOMEM;
+-		goto err_phys;
+-	}
+-
+-	sg = st->sgl;
+-	sg->offset = 0;
+-	sg->length = obj->base.size;
+-
+-	sg_dma_address(sg) = phys->busaddr;
+-	sg_dma_len(sg) = obj->base.size;
+-
+-	obj->phys_handle = phys;
+-
+ 	__i915_gem_object_set_pages(obj, st, sg->length);
+ 
+ 	return 0;
+ 
+-err_phys:
+-	drm_pci_free(obj->base.dev, phys);
+-
+-	return err;
++err_st:
++	kfree(st);
++err_pci:
++	dma_free_coherent(&obj->base.dev->pdev->dev,
++			  roundup_pow_of_two(obj->base.size),
++			  vaddr, dma);
++	return -ENOMEM;
+ }
+ 
+ static void
+ i915_gem_object_put_pages_phys(struct drm_i915_gem_object *obj,
+ 			       struct sg_table *pages)
+ {
++	dma_addr_t dma = sg_dma_address(pages->sgl);
++	void *vaddr = sg_page(pages->sgl);
++
+ 	__i915_gem_object_release_shmem(obj, pages, false);
+ 
+ 	if (obj->mm.dirty) {
+ 		struct address_space *mapping = obj->base.filp->f_mapping;
+-		char *vaddr = obj->phys_handle->vaddr;
++		void *src = vaddr;
+ 		int i;
+ 
+ 		for (i = 0; i < obj->base.size / PAGE_SIZE; i++) {
+@@ -114,15 +113,16 @@ i915_gem_object_put_pages_phys(struct dr
+ 				continue;
+ 
+ 			dst = kmap_atomic(page);
+-			drm_clflush_virt_range(vaddr, PAGE_SIZE);
+-			memcpy(dst, vaddr, PAGE_SIZE);
++			drm_clflush_virt_range(src, PAGE_SIZE);
++			memcpy(dst, src, PAGE_SIZE);
+ 			kunmap_atomic(dst);
+ 
+ 			set_page_dirty(page);
+ 			if (obj->mm.madv == I915_MADV_WILLNEED)
+ 				mark_page_accessed(page);
+ 			put_page(page);
+-			vaddr += PAGE_SIZE;
++
++			src += PAGE_SIZE;
+ 		}
+ 		obj->mm.dirty = false;
+ 	}
+@@ -130,7 +130,9 @@ i915_gem_object_put_pages_phys(struct dr
+ 	sg_free_table(pages);
+ 	kfree(pages);
+ 
+-	drm_pci_free(obj->base.dev, obj->phys_handle);
++	dma_free_coherent(&obj->base.dev->pdev->dev,
++			  roundup_pow_of_two(obj->base.size),
++			  vaddr, dma);
+ }
+ 
+ static void phys_release(struct drm_i915_gem_object *obj)
+--- a/drivers/gpu/drm/i915/i915_gem.c
++++ b/drivers/gpu/drm/i915/i915_gem.c
+@@ -136,7 +136,7 @@ i915_gem_phys_pwrite(struct drm_i915_gem
+ 		     struct drm_i915_gem_pwrite *args,
+ 		     struct drm_file *file)
+ {
+-	void *vaddr = obj->phys_handle->vaddr + args->offset;
++	void *vaddr = sg_page(obj->mm.pages->sgl) + args->offset;
+ 	char __user *user_data = u64_to_user_ptr(args->data_ptr);
+ 
+ 	/*
+@@ -802,10 +802,10 @@ i915_gem_pwrite_ioctl(struct drm_device
+ 		ret = i915_gem_gtt_pwrite_fast(obj, args);
+ 
+ 	if (ret == -EFAULT || ret == -ENOSPC) {
+-		if (obj->phys_handle)
+-			ret = i915_gem_phys_pwrite(obj, args, file);
+-		else
++		if (i915_gem_object_has_struct_page(obj))
+ 			ret = i915_gem_shmem_pwrite(obj, args);
++		else
++			ret = i915_gem_phys_pwrite(obj, args, file);
+ 	}
+ 
+ 	i915_gem_object_unpin_pages(obj);
 
 
