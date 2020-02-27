@@ -2,45 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 07481171EEE
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:31:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 97F47171F46
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:33:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733062AbgB0ODk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 09:03:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39034 "EHLO mail.kernel.org"
+        id S1732686AbgB0OAH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 09:00:07 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33440 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732995AbgB0ODh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 09:03:37 -0500
+        id S1732676AbgB0OAG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 09:00:06 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3383B2469B;
-        Thu, 27 Feb 2020 14:03:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0D9C42084E;
+        Thu, 27 Feb 2020 14:00:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582812216;
-        bh=VOdujmpR/Y7+yCEJKg2C2pz0Nbpaw3BSbaFvsqkw/VU=;
+        s=default; t=1582812005;
+        bh=Z1DU4+Um6gFHn8qnTTuXqBgAJpwCBlWICAXSJKZeCko=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HxPBtVpkTJTF/UYwfdNvmAOQtE5D8Pd1baFVuc9LXtp9PSMn+eFg8m8y2+WCZbu+6
-         pHPMnuzo5iORAUGke0Mlre30zKKzSshKQZEvJycn9+VMZkI6igGJDSIgM3aHpfML8a
-         LBBmo7kJQRFZIYj38e8tyl7OqBqG4x5RqhYV+Ytc=
+        b=xtDti9Zi9OnpKMJI9QFPJtUAu6ge5cp1F4McXiOFOkNuMPbp0T3uzpTTDs1cNHlM8
+         El4YODj5W/ZKMtPuKOOFxFu7F4HWAdg+KEaeEA5t9yFZbilhxYcTW9mBonJcePwvwS
+         4Upo1Xhl4d6QbALnwn6NdIUfAbjGq4fY+p7+F8zk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Felipe Balbi <balbi@kernel.org>,
-        Yang Fei <fei.yang@intel.com>,
-        Thinh Nguyen <thinhn@synopsys.com>,
-        Tejas Joglekar <tejas.joglekar@synopsys.com>,
-        Andrzej Pietrasiewicz <andrzej.p@collabora.com>,
-        Jack Pham <jackp@codeaurora.org>, Todd Kjos <tkjos@google.com>,
-        Linux USB List <linux-usb@vger.kernel.org>,
-        Anurag Kumar Vulisha <anurag.kumar.vulisha@xilinx.com>,
-        John Stultz <john.stultz@linaro.org>
-Subject: [PATCH 4.19 30/97] usb: dwc3: gadget: Check for IOC/LST bit in TRB->ctrl fields
+        stable@vger.kernel.org, Richard Dodd <richard.o.dodd@gmail.com>
+Subject: [PATCH 4.14 184/237] USB: Fix novation SourceControl XL after suspend
 Date:   Thu, 27 Feb 2020 14:36:38 +0100
-Message-Id: <20200227132219.513967393@linuxfoundation.org>
+Message-Id: <20200227132309.893790856@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200227132214.553656188@linuxfoundation.org>
-References: <20200227132214.553656188@linuxfoundation.org>
+In-Reply-To: <20200227132255.285644406@linuxfoundation.org>
+References: <20200227132255.285644406@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,70 +42,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anurag Kumar Vulisha <anurag.kumar.vulisha@xilinx.com>
+From: Richard Dodd <richard.o.dodd@gmail.com>
 
-commit 5ee858975b13a9b40db00f456989a689fdbb296c upstream.
+commit b692056db8ecc7f452b934f016c17348282b7699 upstream.
 
-The current code in dwc3_gadget_ep_reclaim_completed_trb() will
-check for IOC/LST bit in the event->status and returns if
-IOC/LST bit is set. This logic doesn't work if multiple TRBs
-are queued per request and the IOC/LST bit is set on the last
-TRB of that request.
+Currently, the SourceControl will stay in power-down mode after resuming
+from suspend. This patch resets the device after suspend to power it up.
 
-Consider an example where a queued request has multiple queued
-TRBs and IOC/LST bit is set only for the last TRB. In this case,
-the core generates XferComplete/XferInProgress events only for
-the last TRB (since IOC/LST are set only for the last TRB). As
-per the logic in dwc3_gadget_ep_reclaim_completed_trb()
-event->status is checked for IOC/LST bit and returns on the
-first TRB. This leaves the remaining TRBs left unhandled.
-
-Similarly, if the gadget function enqueues an unaligned request
-with sglist already in it, it should fail the same way, since we
-will append another TRB to something that already uses more than
-one TRB.
-
-To aviod this, this patch changes the code to check for IOC/LST
-bits in TRB->ctrl instead.
-
-At a practical level, this patch resolves USB transfer stalls seen
-with adb on dwc3 based HiKey960 after functionfs gadget added
-scatter-gather support around v4.20.
-
-Cc: Felipe Balbi <balbi@kernel.org>
-Cc: Yang Fei <fei.yang@intel.com>
-Cc: Thinh Nguyen <thinhn@synopsys.com>
-Cc: Tejas Joglekar <tejas.joglekar@synopsys.com>
-Cc: Andrzej Pietrasiewicz <andrzej.p@collabora.com>
-Cc: Jack Pham <jackp@codeaurora.org>
-Cc: Todd Kjos <tkjos@google.com>
-Cc: Greg KH <gregkh@linuxfoundation.org>
-Cc: Linux USB List <linux-usb@vger.kernel.org>
+Signed-off-by: Richard Dodd <richard.o.dodd@gmail.com>
 Cc: stable <stable@vger.kernel.org>
-Tested-by: Tejas Joglekar <tejas.joglekar@synopsys.com>
-Reviewed-by: Thinh Nguyen <thinhn@synopsys.com>
-Signed-off-by: Anurag Kumar Vulisha <anurag.kumar.vulisha@xilinx.com>
-[jstultz: forward ported to mainline, reworded commit log, reworked
- to only check trb->ctrl as suggested by Felipe]
-Signed-off-by: John Stultz <john.stultz@linaro.org>
-Signed-off-by: Felipe Balbi <balbi@kernel.org>
+Link: https://lore.kernel.org/r/20200212142220.36892-1-richard.o.dodd@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/dwc3/gadget.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/usb/core/quirks.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/usb/dwc3/gadget.c
-+++ b/drivers/usb/dwc3/gadget.c
-@@ -2224,7 +2224,8 @@ static int dwc3_gadget_ep_reclaim_comple
- 	if (event->status & DEPEVT_STATUS_SHORT && !chain)
- 		return 1;
+--- a/drivers/usb/core/quirks.c
++++ b/drivers/usb/core/quirks.c
+@@ -291,6 +291,9 @@ static const struct usb_device_id usb_qu
+ 	/* INTEL VALUE SSD */
+ 	{ USB_DEVICE(0x8086, 0xf1a5), .driver_info = USB_QUIRK_RESET_RESUME },
  
--	if (event->status & DEPEVT_STATUS_IOC)
-+	if ((trb->ctrl & DWC3_TRB_CTRL_IOC) ||
-+	    (trb->ctrl & DWC3_TRB_CTRL_LST))
- 		return 1;
++	/* novation SoundControl XL */
++	{ USB_DEVICE(0x1235, 0x0061), .driver_info = USB_QUIRK_RESET_RESUME },
++
+ 	{ }  /* terminating entry must be last */
+ };
  
- 	return 0;
 
 
