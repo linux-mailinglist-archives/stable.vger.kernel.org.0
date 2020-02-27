@@ -2,38 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 46656172021
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:40:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BEA20172018
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:40:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731603AbgB0Nwz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 08:52:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52602 "EHLO mail.kernel.org"
+        id S1731668AbgB0NxW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 08:53:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53130 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731597AbgB0Nwz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 08:52:55 -0500
+        id S1731674AbgB0NxV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 08:53:21 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E96D620801;
-        Thu, 27 Feb 2020 13:52:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2504924656;
+        Thu, 27 Feb 2020 13:53:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582811574;
-        bh=h/4mVMWaw2Epkvs+NzKW1PIecgYyuL+JXn5Pv45vFyk=;
+        s=default; t=1582811600;
+        bh=7uaQ+xB7wlH3uFDsLYIQcjhaLBnRLr4J8dzDV5/9yM0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IwKbOCw4aD2Nz07tPAjMXSmr+r3jkhD979rsV3NqsKdI0HK9sUPQ4zB+UeF6Bw+7r
-         ZvWdbxhB16+vASqotjMBROo3s6770awWQcyllWqfAVJ8tDl742MGqYTptO4QTTQUzE
-         o4piOtotG0eIady/2Nd4lQKOCZ3CpVHeGmQdFP1E=
+        b=Kf6qIQUXtPzuNddZj+jhwHSVNe3b89C3jTXmL3SulmkXMx6iC61aYDk1n1THU/PKW
+         AX6rQ/uqmrRD7HFKYB2ZWhyvF/knACYn7E9gkbx6bZ5pGJpdAH3d8zUjjPhoDOQgZz
+         D9/LG1dbXtG/VUhXlG5uqUh4w3uODOoEJ/HDFoeA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Brian Masney <masneyb@onstation.org>,
-        Naresh Kamboju <naresh.kamboju@linaro.org>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Stephan Gerhold <stephan@gerhold.net>,
-        Joerg Roedel <jroedel@suse.de>
-Subject: [PATCH 4.14 002/237] iommu/qcom: Fix bogus detach logic
-Date:   Thu, 27 Feb 2020 14:33:36 +0100
-Message-Id: <20200227132255.626960493@linuxfoundation.org>
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.14 003/237] ALSA: hda: Use scnprintf() for printing texts for sysfs/procfs
+Date:   Thu, 27 Feb 2020 14:33:37 +0100
+Message-Id: <20200227132255.778177428@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200227132255.285644406@linuxfoundation.org>
 References: <20200227132255.285644406@linuxfoundation.org>
@@ -46,83 +42,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robin Murphy <robin.murphy@arm.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit faf305c51aeabd1ea2d7131e798ef5f55f4a7750 upstream.
+commit 44eeb081b8630bb3ad3cd381d1ae1831463e48bb upstream.
 
-Currently, the implementation of qcom_iommu_domain_free() is guaranteed
-to do one of two things: WARN() and leak everything, or dereference NULL
-and crash. That alone is terrible, but in fact the whole idea of trying
-to track the liveness of a domain via the qcom_domain->iommu pointer as
-a sanity check is full of fundamentally flawed assumptions. Make things
-robust and actually functional by not trying to be quite so clever.
+Some code in HD-audio driver calls snprintf() in a loop and still
+expects that the return value were actually written size, while
+snprintf() returns the expected would-be length instead.  When the
+given buffer limit were small, this leads to a buffer overflow.
 
-Reported-by: Brian Masney <masneyb@onstation.org>
-Tested-by: Brian Masney <masneyb@onstation.org>
-Reported-by: Naresh Kamboju <naresh.kamboju@linaro.org>
-Fixes: 0ae349a0f33f ("iommu/qcom: Add qcom_iommu")
-Signed-off-by: Robin Murphy <robin.murphy@arm.com>
-Tested-by: Stephan Gerhold <stephan@gerhold.net>
-Cc: stable@vger.kernel.org # v4.14+
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Use scnprintf() for addressing those issues.  It returns the actually
+written size unlike snprintf().
+
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200218091409.27162-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/iommu/qcom_iommu.c |   28 ++++++++++++----------------
- 1 file changed, 12 insertions(+), 16 deletions(-)
+ sound/hda/hdmi_chmap.c    |    2 +-
+ sound/pci/hda/hda_codec.c |    2 +-
+ sound/pci/hda/hda_eld.c   |    2 +-
+ sound/pci/hda/hda_sysfs.c |    4 ++--
+ 4 files changed, 5 insertions(+), 5 deletions(-)
 
---- a/drivers/iommu/qcom_iommu.c
-+++ b/drivers/iommu/qcom_iommu.c
-@@ -327,21 +327,19 @@ static void qcom_iommu_domain_free(struc
- {
- 	struct qcom_iommu_domain *qcom_domain = to_qcom_iommu_domain(domain);
+--- a/sound/hda/hdmi_chmap.c
++++ b/sound/hda/hdmi_chmap.c
+@@ -249,7 +249,7 @@ void snd_hdac_print_channel_allocation(i
  
--	if (WARN_ON(qcom_domain->iommu))    /* forgot to detach? */
--		return;
--
- 	iommu_put_dma_cookie(domain);
- 
--	/* NOTE: unmap can be called after client device is powered off,
--	 * for example, with GPUs or anything involving dma-buf.  So we
--	 * cannot rely on the device_link.  Make sure the IOMMU is on to
--	 * avoid unclocked accesses in the TLB inv path:
--	 */
--	pm_runtime_get_sync(qcom_domain->iommu->dev);
--
--	free_io_pgtable_ops(qcom_domain->pgtbl_ops);
--
--	pm_runtime_put_sync(qcom_domain->iommu->dev);
-+	if (qcom_domain->iommu) {
-+		/*
-+		 * NOTE: unmap can be called after client device is powered
-+		 * off, for example, with GPUs or anything involving dma-buf.
-+		 * So we cannot rely on the device_link.  Make sure the IOMMU
-+		 * is on to avoid unclocked accesses in the TLB inv path:
-+		 */
-+		pm_runtime_get_sync(qcom_domain->iommu->dev);
-+		free_io_pgtable_ops(qcom_domain->pgtbl_ops);
-+		pm_runtime_put_sync(qcom_domain->iommu->dev);
-+	}
- 
- 	kfree(qcom_domain);
- }
-@@ -386,7 +384,7 @@ static void qcom_iommu_detach_dev(struct
- 	struct qcom_iommu_domain *qcom_domain = to_qcom_iommu_domain(domain);
- 	unsigned i;
- 
--	if (!qcom_domain->iommu)
-+	if (WARN_ON(!qcom_domain->iommu))
- 		return;
- 
- 	pm_runtime_get_sync(qcom_iommu->dev);
-@@ -397,8 +395,6 @@ static void qcom_iommu_detach_dev(struct
- 		iommu_writel(ctx, ARM_SMMU_CB_SCTLR, 0);
+ 	for (i = 0, j = 0; i < ARRAY_SIZE(cea_speaker_allocation_names); i++) {
+ 		if (spk_alloc & (1 << i))
+-			j += snprintf(buf + j, buflen - j,  " %s",
++			j += scnprintf(buf + j, buflen - j,  " %s",
+ 					cea_speaker_allocation_names[i]);
  	}
- 	pm_runtime_put_sync(qcom_iommu->dev);
--
--	qcom_domain->iommu = NULL;
- }
+ 	buf[j] = '\0';	/* necessary when j == 0 */
+--- a/sound/pci/hda/hda_codec.c
++++ b/sound/pci/hda/hda_codec.c
+@@ -4002,7 +4002,7 @@ void snd_print_pcm_bits(int pcm, char *b
  
- static int qcom_iommu_map(struct iommu_domain *domain, unsigned long iova,
+ 	for (i = 0, j = 0; i < ARRAY_SIZE(bits); i++)
+ 		if (pcm & (AC_SUPPCM_BITS_8 << i))
+-			j += snprintf(buf + j, buflen - j,  " %d", bits[i]);
++			j += scnprintf(buf + j, buflen - j,  " %d", bits[i]);
+ 
+ 	buf[j] = '\0'; /* necessary when j == 0 */
+ }
+--- a/sound/pci/hda/hda_eld.c
++++ b/sound/pci/hda/hda_eld.c
+@@ -373,7 +373,7 @@ static void hdmi_print_pcm_rates(int pcm
+ 
+ 	for (i = 0, j = 0; i < ARRAY_SIZE(alsa_rates); i++)
+ 		if (pcm & (1 << i))
+-			j += snprintf(buf + j, buflen - j,  " %d",
++			j += scnprintf(buf + j, buflen - j,  " %d",
+ 				alsa_rates[i]);
+ 
+ 	buf[j] = '\0'; /* necessary when j == 0 */
+--- a/sound/pci/hda/hda_sysfs.c
++++ b/sound/pci/hda/hda_sysfs.c
+@@ -221,7 +221,7 @@ static ssize_t init_verbs_show(struct de
+ 	mutex_lock(&codec->user_mutex);
+ 	for (i = 0; i < codec->init_verbs.used; i++) {
+ 		struct hda_verb *v = snd_array_elem(&codec->init_verbs, i);
+-		len += snprintf(buf + len, PAGE_SIZE - len,
++		len += scnprintf(buf + len, PAGE_SIZE - len,
+ 				"0x%02x 0x%03x 0x%04x\n",
+ 				v->nid, v->verb, v->param);
+ 	}
+@@ -271,7 +271,7 @@ static ssize_t hints_show(struct device
+ 	mutex_lock(&codec->user_mutex);
+ 	for (i = 0; i < codec->hints.used; i++) {
+ 		struct hda_hint *hint = snd_array_elem(&codec->hints, i);
+-		len += snprintf(buf + len, PAGE_SIZE - len,
++		len += scnprintf(buf + len, PAGE_SIZE - len,
+ 				"%s = %s\n", hint->key, hint->val);
+ 	}
+ 	mutex_unlock(&codec->user_mutex);
 
 
