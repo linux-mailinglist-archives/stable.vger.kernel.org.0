@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BCF2B171EC4
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:30:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BDEC9171C4D
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:11:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387720AbgB0OaC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 09:30:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41954 "EHLO mail.kernel.org"
+        id S2388402AbgB0OKz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 09:10:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49178 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387757AbgB0OFU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 09:05:20 -0500
+        id S2388099AbgB0OKy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 09:10:54 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1C93424691;
-        Thu, 27 Feb 2020 14:05:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9F58024697;
+        Thu, 27 Feb 2020 14:10:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582812319;
-        bh=9Rm7FboJR5u6DSKxWNcSjEtbnTqTU1SriE20FSZRexk=;
+        s=default; t=1582812653;
+        bh=Y0IJhB8s4i8Z14yWH6Bjc2AmXNbSeeQ5F8GXkvYofXU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BbEhvUHC0oKkCGK/uhkYMSgnBzgHtimZXlFpOiRBIf/n7Inff5fWhHYCPWsBRFLhH
-         ozU/IPy/GTOrny7R5XGecxE2Ocj76yGi6j4BbW/6Ho4/PUOruOv7VjpFBGa1SMPvNz
-         IUIk4NAqOna2vidzOIOgGvpazHYmdmzhW8odSHSQ=
+        b=asKkTO+l9FvSCXwEkwcj/FM2FK+QbZPe8oPcgZZ/3c8EDDz1lUmzS0Qg3aVujWm1G
+         XeGbA17ZmBtCz2e0a6TVRY521PahPHgohwIj3DtAx85znitZ8x63wUMBq7DPegpoU3
+         rcslqqSIE4KHm64XvqWZhvW1W0Fw6beHr+Zaqxqw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+2202a584a00fffd19fbf@syzkaller.appspotmail.com,
-        Eric Biggers <ebiggers@google.com>,
-        Theodore Tso <tytso@mit.edu>, Jan Kara <jack@suse.cz>,
-        stable@kernel.org
-Subject: [PATCH 4.19 70/97] ext4: fix race between writepages and enabling EXT4_EXTENTS_FL
-Date:   Thu, 27 Feb 2020 14:37:18 +0100
-Message-Id: <20200227132225.913901998@linuxfoundation.org>
+        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
+        Filipe Manana <fdmanana@suse.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.4 099/135] Btrfs: fix deadlock during fast fsync when logging prealloc extents beyond eof
+Date:   Thu, 27 Feb 2020 14:37:19 +0100
+Message-Id: <20200227132244.110598983@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200227132214.553656188@linuxfoundation.org>
-References: <20200227132214.553656188@linuxfoundation.org>
+In-Reply-To: <20200227132228.710492098@linuxfoundation.org>
+References: <20200227132228.710492098@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,166 +44,213 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+From: Filipe Manana <fdmanana@suse.com>
 
-commit cb85f4d23f794e24127f3e562cb3b54b0803f456 upstream.
+commit a5ae50dea9111db63d30d700766dd5509602f7ad upstream.
 
-If EXT4_EXTENTS_FL is set on an inode while ext4_writepages() is running
-on it, the following warning in ext4_add_complete_io() can be hit:
+While logging the prealloc extents of an inode during a fast fsync we call
+btrfs_truncate_inode_items(), through btrfs_log_prealloc_extents(), while
+holding a read lock on a leaf of the inode's root (not the log root, the
+fs/subvol root), and then that function locks the file range in the inode's
+iotree. This can lead to a deadlock when:
 
-WARNING: CPU: 1 PID: 0 at fs/ext4/page-io.c:234 ext4_put_io_end_defer+0xf0/0x120
+* the fsync is ranged
 
-Here's a minimal reproducer (not 100% reliable) (root isn't required):
+* the file has prealloc extents beyond eof
 
-        while true; do
-                sync
-        done &
-        while true; do
-                rm -f file
-                touch file
-                chattr -e file
-                echo X >> file
-                chattr +e file
-        done
+* writeback for a range different from the fsync range starts
+  during the fsync
 
-The problem is that in ext4_writepages(), ext4_should_dioread_nolock()
-(which only returns true on extent-based files) is checked once to set
-the number of reserved journal credits, and also again later to select
-the flags for ext4_map_blocks() and copy the reserved journal handle to
-ext4_io_end::handle.  But if EXT4_EXTENTS_FL is being concurrently set,
-the first check can see dioread_nolock disabled while the later one can
-see it enabled, causing the reserved handle to unexpectedly be NULL.
+* the size of the file is not sector size aligned
 
-Since changing EXT4_EXTENTS_FL is uncommon, and there may be other races
-related to doing so as well, fix this by synchronizing changing
-EXT4_EXTENTS_FL with ext4_writepages() via the existing
-s_writepages_rwsem (previously called s_journal_flag_rwsem).
+Because when finishing an ordered extent we lock first a file range and
+then try to COW the fs/subvol tree to insert an extent item.
 
-This was originally reported by syzbot without a reproducer at
-https://syzkaller.appspot.com/bug?extid=2202a584a00fffd19fbf,
-but now that dioread_nolock is the default I also started seeing this
-when running syzkaller locally.
+The following diagram shows how the deadlock can happen.
 
-Link: https://lore.kernel.org/r/20200219183047.47417-3-ebiggers@kernel.org
-Reported-by: syzbot+2202a584a00fffd19fbf@syzkaller.appspotmail.com
-Fixes: 6b523df4fb5a ("ext4: use transaction reservation for extent conversion in ext4_end_io")
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Cc: stable@kernel.org
+           CPU 1                                        CPU 2
+
+  btrfs_sync_file()
+    --> for range [0, 1MiB)
+
+    --> inode has a size of
+        1MiB and has 1 prealloc
+        extent beyond the
+        i_size, starting at offset
+        4MiB
+
+    flushes all delalloc for the
+    range [0MiB, 1MiB) and waits
+    for the respective ordered
+    extents to complete
+
+                                              --> before task at CPU 1 locks the
+                                                  inode, a write into file range
+                                                  [1MiB, 2MiB + 1KiB) is made
+
+                                              --> i_size is updated to 2MiB + 1KiB
+
+                                              --> writeback is started for that
+                                                  range, [1MiB, 2MiB + 4KiB)
+                                                  --> end offset rounded up to
+                                                      be sector size aligned
+
+    btrfs_log_dentry_safe()
+      btrfs_log_inode_parent()
+        btrfs_log_inode()
+
+          btrfs_log_changed_extents()
+            btrfs_log_prealloc_extents()
+              --> does a search on the
+                  inode's root
+              --> holds a read lock on
+                  leaf X
+
+                                              btrfs_finish_ordered_io()
+                                                --> locks range [1MiB, 2MiB + 4KiB)
+                                                    --> end offset rounded up
+                                                        to be sector size aligned
+
+                                                --> tries to cow leaf X, through
+                                                    insert_reserved_file_extent()
+                                                    --> already locked by the
+                                                        task at CPU 1
+
+              btrfs_truncate_inode_items()
+
+                --> gets an i_size of
+                    2MiB + 1KiB, which is
+                    not sector size
+                    aligned
+
+                --> tries to lock file
+                    range [2MiB, (u64)-1)
+                    --> the start range
+                        is rounded down
+                        from 2MiB + 1K
+                        to 2MiB to be sector
+                        size aligned
+
+                    --> but the subrange
+                        [2MiB, 2MiB + 4KiB) is
+                        already locked by
+                        task at CPU 2 which
+                        is waiting to get a
+                        write lock on leaf X
+                        for which we are
+                        holding a read lock
+
+                                *** deadlock ***
+
+This results in a stack trace like the following, triggered by test case
+generic/561 from fstests:
+
+  [ 2779.973608] INFO: task kworker/u8:6:247 blocked for more than 120 seconds.
+  [ 2779.979536]       Not tainted 5.6.0-rc2-btrfs-next-53 #1
+  [ 2779.984503] "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+  [ 2779.990136] kworker/u8:6    D    0   247      2 0x80004000
+  [ 2779.990457] Workqueue: btrfs-endio-write btrfs_work_helper [btrfs]
+  [ 2779.990466] Call Trace:
+  [ 2779.990491]  ? __schedule+0x384/0xa30
+  [ 2779.990521]  schedule+0x33/0xe0
+  [ 2779.990616]  btrfs_tree_read_lock+0x19e/0x2e0 [btrfs]
+  [ 2779.990632]  ? remove_wait_queue+0x60/0x60
+  [ 2779.990730]  btrfs_read_lock_root_node+0x2f/0x40 [btrfs]
+  [ 2779.990782]  btrfs_search_slot+0x510/0x1000 [btrfs]
+  [ 2779.990869]  btrfs_lookup_file_extent+0x4a/0x70 [btrfs]
+  [ 2779.990944]  __btrfs_drop_extents+0x161/0x1060 [btrfs]
+  [ 2779.990987]  ? mark_held_locks+0x6d/0xc0
+  [ 2779.990994]  ? __slab_alloc.isra.49+0x99/0x100
+  [ 2779.991060]  ? insert_reserved_file_extent.constprop.19+0x64/0x300 [btrfs]
+  [ 2779.991145]  insert_reserved_file_extent.constprop.19+0x97/0x300 [btrfs]
+  [ 2779.991222]  ? start_transaction+0xdd/0x5c0 [btrfs]
+  [ 2779.991291]  btrfs_finish_ordered_io+0x4f4/0x840 [btrfs]
+  [ 2779.991405]  btrfs_work_helper+0xaa/0x720 [btrfs]
+  [ 2779.991432]  process_one_work+0x26d/0x6a0
+  [ 2779.991460]  worker_thread+0x4f/0x3e0
+  [ 2779.991481]  ? process_one_work+0x6a0/0x6a0
+  [ 2779.991489]  kthread+0x103/0x140
+  [ 2779.991499]  ? kthread_create_worker_on_cpu+0x70/0x70
+  [ 2779.991515]  ret_from_fork+0x3a/0x50
+  (...)
+  [ 2780.026211] INFO: task fsstress:17375 blocked for more than 120 seconds.
+  [ 2780.027480]       Not tainted 5.6.0-rc2-btrfs-next-53 #1
+  [ 2780.028482] "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+  [ 2780.030035] fsstress        D    0 17375  17373 0x00004000
+  [ 2780.030038] Call Trace:
+  [ 2780.030044]  ? __schedule+0x384/0xa30
+  [ 2780.030052]  schedule+0x33/0xe0
+  [ 2780.030075]  lock_extent_bits+0x20c/0x320 [btrfs]
+  [ 2780.030094]  ? btrfs_truncate_inode_items+0xf4/0x1150 [btrfs]
+  [ 2780.030098]  ? rcu_read_lock_sched_held+0x59/0xa0
+  [ 2780.030102]  ? remove_wait_queue+0x60/0x60
+  [ 2780.030122]  btrfs_truncate_inode_items+0x133/0x1150 [btrfs]
+  [ 2780.030151]  ? btrfs_set_path_blocking+0xb2/0x160 [btrfs]
+  [ 2780.030165]  ? btrfs_search_slot+0x379/0x1000 [btrfs]
+  [ 2780.030195]  btrfs_log_changed_extents.isra.8+0x841/0x93e [btrfs]
+  [ 2780.030202]  ? do_raw_spin_unlock+0x49/0xc0
+  [ 2780.030215]  ? btrfs_get_num_csums+0x10/0x10 [btrfs]
+  [ 2780.030239]  btrfs_log_inode+0xf83/0x1124 [btrfs]
+  [ 2780.030251]  ? __mutex_unlock_slowpath+0x45/0x2a0
+  [ 2780.030275]  btrfs_log_inode_parent+0x2a0/0xe40 [btrfs]
+  [ 2780.030282]  ? dget_parent+0xa1/0x370
+  [ 2780.030309]  btrfs_log_dentry_safe+0x4a/0x70 [btrfs]
+  [ 2780.030329]  btrfs_sync_file+0x3f3/0x490 [btrfs]
+  [ 2780.030339]  do_fsync+0x38/0x60
+  [ 2780.030343]  __x64_sys_fdatasync+0x13/0x20
+  [ 2780.030345]  do_syscall_64+0x5c/0x280
+  [ 2780.030348]  entry_SYSCALL_64_after_hwframe+0x49/0xbe
+  [ 2780.030356] RIP: 0033:0x7f2d80f6d5f0
+  [ 2780.030361] Code: Bad RIP value.
+  [ 2780.030362] RSP: 002b:00007ffdba3c8548 EFLAGS: 00000246 ORIG_RAX: 000000000000004b
+  [ 2780.030364] RAX: ffffffffffffffda RBX: 0000000000000003 RCX: 00007f2d80f6d5f0
+  [ 2780.030365] RDX: 00007ffdba3c84b0 RSI: 00007ffdba3c84b0 RDI: 0000000000000003
+  [ 2780.030367] RBP: 000000000000004a R08: 0000000000000001 R09: 00007ffdba3c855c
+  [ 2780.030368] R10: 0000000000000078 R11: 0000000000000246 R12: 00000000000001f4
+  [ 2780.030369] R13: 0000000051eb851f R14: 00007ffdba3c85f0 R15: 0000557a49220d90
+
+So fix this by making btrfs_truncate_inode_items() not lock the range in
+the inode's iotree when the target root is a log root, since it's not
+needed to lock the range for log roots as the protection from the inode's
+lock and log_mutex are all that's needed.
+
+Fixes: 28553fa992cb28 ("Btrfs: fix race between shrinking truncate and fiemap")
+CC: stable@vger.kernel.org # 4.4+
+Reviewed-by: Josef Bacik <josef@toxicpanda.com>
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/ext4/ext4.h    |    5 ++++-
- fs/ext4/migrate.c |   27 +++++++++++++++++++--------
- 2 files changed, 23 insertions(+), 9 deletions(-)
+ fs/btrfs/inode.c |   10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
---- a/fs/ext4/ext4.h
-+++ b/fs/ext4/ext4.h
-@@ -1520,7 +1520,10 @@ struct ext4_sb_info {
- 	struct ratelimit_state s_warning_ratelimit_state;
- 	struct ratelimit_state s_msg_ratelimit_state;
+--- a/fs/btrfs/inode.c
++++ b/fs/btrfs/inode.c
+@@ -4752,8 +4752,9 @@ int btrfs_truncate_inode_items(struct bt
+ 		return -ENOMEM;
+ 	path->reada = READA_BACK;
  
--	/* Barrier between changing inodes' journal flags and writepages ops. */
-+	/*
-+	 * Barrier between writepages ops and changing any inode's JOURNAL_DATA
-+	 * or EXTENTS flag.
-+	 */
- 	struct percpu_rw_semaphore s_writepages_rwsem;
- 	struct dax_device *s_daxdev;
- };
---- a/fs/ext4/migrate.c
-+++ b/fs/ext4/migrate.c
-@@ -427,6 +427,7 @@ static int free_ext_block(handle_t *hand
+-	lock_extent_bits(&BTRFS_I(inode)->io_tree, lock_start, (u64)-1,
+-			 &cached_state);
++	if (root->root_key.objectid != BTRFS_TREE_LOG_OBJECTID)
++		lock_extent_bits(&BTRFS_I(inode)->io_tree, lock_start, (u64)-1,
++				 &cached_state);
  
- int ext4_ext_migrate(struct inode *inode)
- {
-+	struct ext4_sb_info *sbi = EXT4_SB(inode->i_sb);
- 	handle_t *handle;
- 	int retval = 0, i;
- 	__le32 *i_data;
-@@ -451,6 +452,8 @@ int ext4_ext_migrate(struct inode *inode
- 		 */
- 		return retval;
- 
-+	percpu_down_write(&sbi->s_writepages_rwsem);
-+
  	/*
- 	 * Worst case we can touch the allocation bitmaps, a bgd
- 	 * block, and a block to link in the orphan list.  We do need
-@@ -461,7 +464,7 @@ int ext4_ext_migrate(struct inode *inode
- 
- 	if (IS_ERR(handle)) {
- 		retval = PTR_ERR(handle);
--		return retval;
-+		goto out_unlock;
- 	}
- 	goal = (((inode->i_ino - 1) / EXT4_INODES_PER_GROUP(inode->i_sb)) *
- 		EXT4_INODES_PER_GROUP(inode->i_sb)) + 1;
-@@ -472,7 +475,7 @@ int ext4_ext_migrate(struct inode *inode
- 	if (IS_ERR(tmp_inode)) {
- 		retval = PTR_ERR(tmp_inode);
- 		ext4_journal_stop(handle);
--		return retval;
-+		goto out_unlock;
- 	}
- 	i_size_write(tmp_inode, i_size_read(inode));
- 	/*
-@@ -514,7 +517,7 @@ int ext4_ext_migrate(struct inode *inode
- 		 */
- 		ext4_orphan_del(NULL, tmp_inode);
- 		retval = PTR_ERR(handle);
--		goto out;
-+		goto out_tmp_inode;
+ 	 * We want to drop from the next block forward in case this new size is
+@@ -5017,11 +5018,10 @@ out:
+ 		if (!ret && last_size > new_size)
+ 			last_size = new_size;
+ 		btrfs_ordered_update_i_size(inode, last_size, NULL);
++		unlock_extent_cached(&BTRFS_I(inode)->io_tree, lock_start,
++				     (u64)-1, &cached_state);
  	}
  
- 	ei = EXT4_I(inode);
-@@ -595,10 +598,11 @@ err_out:
- 	/* Reset the extent details */
- 	ext4_ext_tree_init(handle, tmp_inode);
- 	ext4_journal_stop(handle);
--out:
-+out_tmp_inode:
- 	unlock_new_inode(tmp_inode);
- 	iput(tmp_inode);
+-	unlock_extent_cached(&BTRFS_I(inode)->io_tree, lock_start, (u64)-1,
+-			     &cached_state);
 -
-+out_unlock:
-+	percpu_up_write(&sbi->s_writepages_rwsem);
- 	return retval;
- }
- 
-@@ -608,7 +612,8 @@ out:
- int ext4_ind_migrate(struct inode *inode)
- {
- 	struct ext4_extent_header	*eh;
--	struct ext4_super_block		*es = EXT4_SB(inode->i_sb)->s_es;
-+	struct ext4_sb_info		*sbi = EXT4_SB(inode->i_sb);
-+	struct ext4_super_block		*es = sbi->s_es;
- 	struct ext4_inode_info		*ei = EXT4_I(inode);
- 	struct ext4_extent		*ex;
- 	unsigned int			i, len;
-@@ -632,9 +637,13 @@ int ext4_ind_migrate(struct inode *inode
- 	if (test_opt(inode->i_sb, DELALLOC))
- 		ext4_alloc_da_blocks(inode);
- 
-+	percpu_down_write(&sbi->s_writepages_rwsem);
-+
- 	handle = ext4_journal_start(inode, EXT4_HT_MIGRATE, 1);
--	if (IS_ERR(handle))
--		return PTR_ERR(handle);
-+	if (IS_ERR(handle)) {
-+		ret = PTR_ERR(handle);
-+		goto out_unlock;
-+	}
- 
- 	down_write(&EXT4_I(inode)->i_data_sem);
- 	ret = ext4_ext_check_inode(inode);
-@@ -669,5 +678,7 @@ int ext4_ind_migrate(struct inode *inode
- errout:
- 	ext4_journal_stop(handle);
- 	up_write(&EXT4_I(inode)->i_data_sem);
-+out_unlock:
-+	percpu_up_write(&sbi->s_writepages_rwsem);
+ 	btrfs_free_path(path);
  	return ret;
  }
 
