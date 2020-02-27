@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E4E37171C9F
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:14:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0AECE171C04
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:07:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389011AbgB0ONw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 09:13:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52890 "EHLO mail.kernel.org"
+        id S2388142AbgB0OHw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 09:07:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45472 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388664AbgB0ONv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 09:13:51 -0500
+        id S2387813AbgB0OHv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 09:07:51 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 811FB24690;
-        Thu, 27 Feb 2020 14:13:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A421024656;
+        Thu, 27 Feb 2020 14:07:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582812831;
-        bh=vJaNTU8zSb9HaUMYb/1v/ZOoPd5jm4mXAI/E2YV4/vs=;
+        s=default; t=1582812471;
+        bh=Y+oO0v4pPjWCM/PYx1KrCQTKLulyQAEUeZpbuxHDaAE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zR1WDja2WlW+VdfWclku/kUUopT2P6mZ9gFHnuelJtkXIr+3bxezCqSMSKVLoPW2d
-         KG6I2V2cp+O6noRPbwe62BDkJixVnkBJeqj7MY9vc2qyVtce4weNPQ59x/1hWhRB3B
-         qZwpJQhJTvyu2H3iYt7UDRoGLzSF9MaoEDB0EayA=
+        b=GPv4cIGQyt6uePuUC6RgPI+u15p8uGKMnKN2SRylPpZw9piwv/g4SEMJYfwJ1HFYn
+         Y6UvNJepVxNT6hKBalFZvIXiE2UTIPN8+7LTCPuz+B0mdWArlUr69a1CkvtENFOPUA
+         S20tIfnxtejx0SGmrrKhijwg2Szf926agSjarbAI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mathias Nyman <mathias.nyman@linux.intel.com>
-Subject: [PATCH 5.5 033/150] xhci: apply XHCI_PME_STUCK_QUIRK to Intel Comet Lake platforms
-Date:   Thu, 27 Feb 2020 14:36:10 +0100
-Message-Id: <20200227132237.690635042@linuxfoundation.org>
+        stable@vger.kernel.org, Richard Dodd <richard.o.dodd@gmail.com>
+Subject: [PATCH 5.4 031/135] USB: Fix novation SourceControl XL after suspend
+Date:   Thu, 27 Feb 2020 14:36:11 +0100
+Message-Id: <20200227132233.749899324@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200227132232.815448360@linuxfoundation.org>
-References: <20200227132232.815448360@linuxfoundation.org>
+In-Reply-To: <20200227132228.710492098@linuxfoundation.org>
+References: <20200227132228.710492098@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,41 +42,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mathias Nyman <mathias.nyman@linux.intel.com>
+From: Richard Dodd <richard.o.dodd@gmail.com>
 
-commit a3ae87dce3a5abe0b57c811bab02b2564b574106 upstream.
+commit b692056db8ecc7f452b934f016c17348282b7699 upstream.
 
-Intel Comet Lake based platform require the XHCI_PME_STUCK_QUIRK
-quirk as well. Without this xHC can not enter D3 in runtime suspend.
+Currently, the SourceControl will stay in power-down mode after resuming
+from suspend. This patch resets the device after suspend to power it up.
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/20200210134553.9144-5-mathias.nyman@linux.intel.com
+Signed-off-by: Richard Dodd <richard.o.dodd@gmail.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200212142220.36892-1-richard.o.dodd@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/host/xhci-pci.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/usb/core/quirks.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/usb/host/xhci-pci.c
-+++ b/drivers/usb/host/xhci-pci.c
-@@ -49,6 +49,7 @@
- #define PCI_DEVICE_ID_INTEL_TITAN_RIDGE_4C_XHCI		0x15ec
- #define PCI_DEVICE_ID_INTEL_TITAN_RIDGE_DD_XHCI		0x15f0
- #define PCI_DEVICE_ID_INTEL_ICE_LAKE_XHCI		0x8a13
-+#define PCI_DEVICE_ID_INTEL_CML_XHCI			0xa3af
+--- a/drivers/usb/core/quirks.c
++++ b/drivers/usb/core/quirks.c
+@@ -449,6 +449,9 @@ static const struct usb_device_id usb_qu
+ 	/* INTEL VALUE SSD */
+ 	{ USB_DEVICE(0x8086, 0xf1a5), .driver_info = USB_QUIRK_RESET_RESUME },
  
- #define PCI_DEVICE_ID_AMD_PROMONTORYA_4			0x43b9
- #define PCI_DEVICE_ID_AMD_PROMONTORYA_3			0x43ba
-@@ -187,7 +188,8 @@ static void xhci_pci_quirks(struct devic
- 		 pdev->device == PCI_DEVICE_ID_INTEL_BROXTON_M_XHCI ||
- 		 pdev->device == PCI_DEVICE_ID_INTEL_BROXTON_B_XHCI ||
- 		 pdev->device == PCI_DEVICE_ID_INTEL_APL_XHCI ||
--		 pdev->device == PCI_DEVICE_ID_INTEL_DNV_XHCI)) {
-+		 pdev->device == PCI_DEVICE_ID_INTEL_DNV_XHCI ||
-+		 pdev->device == PCI_DEVICE_ID_INTEL_CML_XHCI)) {
- 		xhci->quirks |= XHCI_PME_STUCK_QUIRK;
- 	}
- 	if (pdev->vendor == PCI_VENDOR_ID_INTEL &&
++	/* novation SoundControl XL */
++	{ USB_DEVICE(0x1235, 0x0061), .driver_info = USB_QUIRK_RESET_RESUME },
++
+ 	{ }  /* terminating entry must be last */
+ };
+ 
 
 
