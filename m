@@ -2,45 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EB014171E73
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:28:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D57F171B8C
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:03:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388194AbgB0OIF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 09:08:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45716 "EHLO mail.kernel.org"
+        id S1733010AbgB0ODX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 09:03:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38552 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732780AbgB0OID (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 09:08:03 -0500
+        id S2387408AbgB0ODV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 09:03:21 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B67F124656;
-        Thu, 27 Feb 2020 14:08:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C89A421556;
+        Thu, 27 Feb 2020 14:03:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582812482;
-        bh=Dqe8peYwQwuHYE4wE7HzqKcEV4TelEPWey30f3hiVvk=;
+        s=default; t=1582812201;
+        bh=WfR1glQBxu8YOajsf+RKgWMV+PrcXt72mpGHCBNKBu4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=piNiDJA5MISFO0L1gl3TMJ8mgk9F6BB2k1+TEVWFoGK4Atkv54dCEnST2MfiFJ4pE
-         fWcSQnkom840wGyCKxrtXaOzIRQ0qwSMgqHCcBoAw1RCJHRhTnmobyPMK4dT17cVKV
-         879c9fYr8DnrtDKxvgyehKbV70VW1MQloZWR+IB0=
+        b=U26e6XvbRrvsgikOIaf/YGvPRiX8vtolKMkGff1dbq4vc4M0z2jBCN0M5zuL7554O
+         7Db1t0as13HqhAYpRFcscyQX4JEQgrn2aDVuCnF+UhKUwQsgEY1a6g7ww6agzF6BhF
+         iXgmLBvKtXKCMrV/VPF0A7+IqFOEZd8lqjagSwfo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Felipe Balbi <balbi@kernel.org>,
-        Yang Fei <fei.yang@intel.com>,
-        Thinh Nguyen <thinhn@synopsys.com>,
-        Tejas Joglekar <tejas.joglekar@synopsys.com>,
-        Andrzej Pietrasiewicz <andrzej.p@collabora.com>,
-        Jack Pham <jackp@codeaurora.org>, Todd Kjos <tkjos@google.com>,
-        Linux USB List <linux-usb@vger.kernel.org>,
-        Anurag Kumar Vulisha <anurag.kumar.vulisha@xilinx.com>,
-        John Stultz <john.stultz@linaro.org>
-Subject: [PATCH 5.4 035/135] usb: dwc3: gadget: Check for IOC/LST bit in TRB->ctrl fields
+        stable@vger.kernel.org, Wenwen Wang <wenwen@cs.uga.edu>,
+        Tyler Hicks <tyhicks@canonical.com>
+Subject: [PATCH 4.19 07/97] ecryptfs: fix a memory leak bug in ecryptfs_init_messaging()
 Date:   Thu, 27 Feb 2020 14:36:15 +0100
-Message-Id: <20200227132234.268741998@linuxfoundation.org>
+Message-Id: <20200227132215.770740002@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200227132228.710492098@linuxfoundation.org>
-References: <20200227132228.710492098@linuxfoundation.org>
+In-Reply-To: <20200227132214.553656188@linuxfoundation.org>
+References: <20200227132214.553656188@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,70 +43,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anurag Kumar Vulisha <anurag.kumar.vulisha@xilinx.com>
+From: Wenwen Wang <wenwen@cs.uga.edu>
 
-commit 5ee858975b13a9b40db00f456989a689fdbb296c upstream.
+commit b4a81b87a4cfe2bb26a4a943b748d96a43ef20e8 upstream.
 
-The current code in dwc3_gadget_ep_reclaim_completed_trb() will
-check for IOC/LST bit in the event->status and returns if
-IOC/LST bit is set. This logic doesn't work if multiple TRBs
-are queued per request and the IOC/LST bit is set on the last
-TRB of that request.
+In ecryptfs_init_messaging(), if the allocation for 'ecryptfs_msg_ctx_arr'
+fails, the previously allocated 'ecryptfs_daemon_hash' is not deallocated,
+leading to a memory leak bug. To fix this issue, free
+'ecryptfs_daemon_hash' before returning the error.
 
-Consider an example where a queued request has multiple queued
-TRBs and IOC/LST bit is set only for the last TRB. In this case,
-the core generates XferComplete/XferInProgress events only for
-the last TRB (since IOC/LST are set only for the last TRB). As
-per the logic in dwc3_gadget_ep_reclaim_completed_trb()
-event->status is checked for IOC/LST bit and returns on the
-first TRB. This leaves the remaining TRBs left unhandled.
-
-Similarly, if the gadget function enqueues an unaligned request
-with sglist already in it, it should fail the same way, since we
-will append another TRB to something that already uses more than
-one TRB.
-
-To aviod this, this patch changes the code to check for IOC/LST
-bits in TRB->ctrl instead.
-
-At a practical level, this patch resolves USB transfer stalls seen
-with adb on dwc3 based HiKey960 after functionfs gadget added
-scatter-gather support around v4.20.
-
-Cc: Felipe Balbi <balbi@kernel.org>
-Cc: Yang Fei <fei.yang@intel.com>
-Cc: Thinh Nguyen <thinhn@synopsys.com>
-Cc: Tejas Joglekar <tejas.joglekar@synopsys.com>
-Cc: Andrzej Pietrasiewicz <andrzej.p@collabora.com>
-Cc: Jack Pham <jackp@codeaurora.org>
-Cc: Todd Kjos <tkjos@google.com>
-Cc: Greg KH <gregkh@linuxfoundation.org>
-Cc: Linux USB List <linux-usb@vger.kernel.org>
-Cc: stable <stable@vger.kernel.org>
-Tested-by: Tejas Joglekar <tejas.joglekar@synopsys.com>
-Reviewed-by: Thinh Nguyen <thinhn@synopsys.com>
-Signed-off-by: Anurag Kumar Vulisha <anurag.kumar.vulisha@xilinx.com>
-[jstultz: forward ported to mainline, reworded commit log, reworked
- to only check trb->ctrl as suggested by Felipe]
-Signed-off-by: John Stultz <john.stultz@linaro.org>
-Signed-off-by: Felipe Balbi <balbi@kernel.org>
+Cc: stable@vger.kernel.org
+Fixes: 88b4a07e6610 ("[PATCH] eCryptfs: Public key transport mechanism")
+Signed-off-by: Wenwen Wang <wenwen@cs.uga.edu>
+Signed-off-by: Tyler Hicks <tyhicks@canonical.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/dwc3/gadget.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ fs/ecryptfs/messaging.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/usb/dwc3/gadget.c
-+++ b/drivers/usb/dwc3/gadget.c
-@@ -2426,7 +2426,8 @@ static int dwc3_gadget_ep_reclaim_comple
- 	if (event->status & DEPEVT_STATUS_SHORT && !chain)
- 		return 1;
- 
--	if (event->status & DEPEVT_STATUS_IOC)
-+	if ((trb->ctrl & DWC3_TRB_CTRL_IOC) ||
-+	    (trb->ctrl & DWC3_TRB_CTRL_LST))
- 		return 1;
- 
- 	return 0;
+--- a/fs/ecryptfs/messaging.c
++++ b/fs/ecryptfs/messaging.c
+@@ -392,6 +392,7 @@ int __init ecryptfs_init_messaging(void)
+ 					* ecryptfs_message_buf_len),
+ 				       GFP_KERNEL);
+ 	if (!ecryptfs_msg_ctx_arr) {
++		kfree(ecryptfs_daemon_hash);
+ 		rc = -ENOMEM;
+ 		goto out;
+ 	}
 
 
