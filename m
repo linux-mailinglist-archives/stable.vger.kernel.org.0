@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 62763171AE9
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 14:58:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D23B41719CA
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 14:48:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732066AbgB0N57 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 08:57:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59030 "EHLO mail.kernel.org"
+        id S1730568AbgB0NsO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 08:48:14 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44878 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732045AbgB0N56 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 08:57:58 -0500
+        id S1730837AbgB0NsN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 08:48:13 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9406B2084E;
-        Thu, 27 Feb 2020 13:57:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 303E820578;
+        Thu, 27 Feb 2020 13:48:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582811876;
-        bh=MeKY8lI/niWeXOK3SeS9BHyT0CXImgk8ZHTdiX98WcE=;
+        s=default; t=1582811292;
+        bh=0ghdP1grCzdwHSd1n2a9mI5We/QHyGeZGfESMMJlXHI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tAyyKrGuYc2p9ttm+aUD33xQ95B/OpIOEWBGrVrwYg5CeTmbpneV+N8Dt/9KxTJlr
-         SpaxnvFfgHrO4SQlV9aScJlEh3VvrdHRRGleER5NShVVCra8l3GTDNDi321hzgGZyu
-         ePHRb3zQ+ZhQq5cQ0miEGrH7tIoLxbb6AZBHL4pI=
+        b=gWDcitglPOAKtZRoSW5e8Kdt98UGu1h5o6qA8ycOL30RvlCh2kF8WWQVsz5mVv3dO
+         zEUJHFLk4UmVu1Cq2YIurrfXxC0umXAvFuAjTX0royuh3cygSoG4V7u1z08zO72egO
+         NGgjI1J/8YJb2o6mWv+ZePM3QZZDXgEUAUs9O1yE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Brandon Maier <brandon.maier@rockwellcollins.com>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Nathan Chancellor <natechancellor@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 135/237] remoteproc: Initialize rproc_class before use
+Subject: [PATCH 4.9 075/165] tty: synclinkmp: Adjust indentation in several functions
 Date:   Thu, 27 Feb 2020 14:35:49 +0100
-Message-Id: <20200227132306.635828552@linuxfoundation.org>
+Message-Id: <20200227132242.376250187@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200227132255.285644406@linuxfoundation.org>
-References: <20200227132255.285644406@linuxfoundation.org>
+In-Reply-To: <20200227132230.840899170@linuxfoundation.org>
+References: <20200227132230.840899170@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,71 +44,157 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brandon Maier <brandon.maier@rockwellcollins.com>
+From: Nathan Chancellor <natechancellor@gmail.com>
 
-[ Upstream commit a8f40111d184098cd2b3dc0c7170c42250a5fa09 ]
+[ Upstream commit 1feedf61e7265128244f6993f23421f33dd93dbc ]
 
-The remoteproc_core and remoteproc drivers all initialize with module_init().
-However remoteproc drivers need the rproc_class during their probe. If one of
-the remoteproc drivers runs init and gets through probe before
-remoteproc_init() runs, a NULL pointer access of rproc_class's `glue_dirs`
-spinlock occurs.
+Clang warns:
 
-> Unable to handle kernel NULL pointer dereference at virtual address 000000dc
-> pgd = c0004000
-> [000000dc] *pgd=00000000
-> Internal error: Oops: 5 [#1] PREEMPT ARM
-> Modules linked in:
-> CPU: 0 PID: 1 Comm: swapper Tainted: G        W       4.14.106-rt56 #1
-> Hardware name: Generic OMAP36xx (Flattened Device Tree)
-> task: c6050000 task.stack: c604a000
-> PC is at rt_spin_lock+0x40/0x6c
-> LR is at rt_spin_lock+0x28/0x6c
-> pc : [<c0523c90>]    lr : [<c0523c78>]    psr: 60000013
-> sp : c604bdc0  ip : 00000000  fp : 00000000
-> r10: 00000000  r9 : c61c7c10  r8 : c6269c20
-> r7 : c0905888  r6 : c6269c20  r5 : 00000000  r4 : 000000d4
-> r3 : 000000dc  r2 : c6050000  r1 : 00000002  r0 : 000000d4
-> Flags: nZCv  IRQs on  FIQs on  Mode SVC_32  ISA ARM  Segment none
-...
-> [<c0523c90>] (rt_spin_lock) from [<c03b65a4>] (get_device_parent+0x54/0x17c)
-> [<c03b65a4>] (get_device_parent) from [<c03b6bec>] (device_add+0xe0/0x5b4)
-> [<c03b6bec>] (device_add) from [<c042adf4>] (rproc_add+0x18/0xd8)
-> [<c042adf4>] (rproc_add) from [<c01110e4>] (my_rproc_probe+0x158/0x204)
-> [<c01110e4>] (my_rproc_probe) from [<c03bb6b8>] (platform_drv_probe+0x34/0x70)
-> [<c03bb6b8>] (platform_drv_probe) from [<c03b9dd4>] (driver_probe_device+0x2c8/0x420)
-> [<c03b9dd4>] (driver_probe_device) from [<c03ba02c>] (__driver_attach+0x100/0x11c)
-> [<c03ba02c>] (__driver_attach) from [<c03b7d08>] (bus_for_each_dev+0x7c/0xc0)
-> [<c03b7d08>] (bus_for_each_dev) from [<c03b910c>] (bus_add_driver+0x1cc/0x264)
-> [<c03b910c>] (bus_add_driver) from [<c03ba714>] (driver_register+0x78/0xf8)
-> [<c03ba714>] (driver_register) from [<c010181c>] (do_one_initcall+0x100/0x190)
-> [<c010181c>] (do_one_initcall) from [<c0800de8>] (kernel_init_freeable+0x130/0x1d0)
-> [<c0800de8>] (kernel_init_freeable) from [<c051eee8>] (kernel_init+0x8/0x114)
-> [<c051eee8>] (kernel_init) from [<c01175b0>] (ret_from_fork+0x14/0x24)
-> Code: e2843008 e3c2203f f5d3f000 e5922010 (e193cf9f)
-> ---[ end trace 0000000000000002 ]---
+../drivers/tty/synclinkmp.c:1456:3: warning: misleading indentation;
+statement is not part of the previous 'if' [-Wmisleading-indentation]
+        if (C_CRTSCTS(tty)) {
+        ^
+../drivers/tty/synclinkmp.c:1453:2: note: previous statement is here
+        if (I_IXOFF(tty))
+        ^
+../drivers/tty/synclinkmp.c:2473:8: warning: misleading indentation;
+statement is not part of the previous 'if' [-Wmisleading-indentation]
+                                                info->port.tty->hw_stopped = 0;
+                                                ^
+../drivers/tty/synclinkmp.c:2471:7: note: previous statement is here
+                                                if ( debug_level >= DEBUG_LEVEL_ISR )
+                                                ^
+../drivers/tty/synclinkmp.c:2482:8: warning: misleading indentation;
+statement is not part of the previous 'if' [-Wmisleading-indentation]
+                                                info->port.tty->hw_stopped = 1;
+                                                ^
+../drivers/tty/synclinkmp.c:2480:7: note: previous statement is here
+                                                if ( debug_level >= DEBUG_LEVEL_ISR )
+                                                ^
+../drivers/tty/synclinkmp.c:2809:3: warning: misleading indentation;
+statement is not part of the previous 'if' [-Wmisleading-indentation]
+        if (I_BRKINT(info->port.tty) || I_PARMRK(info->port.tty))
+        ^
+../drivers/tty/synclinkmp.c:2807:2: note: previous statement is here
+        if (I_INPCK(info->port.tty))
+        ^
+../drivers/tty/synclinkmp.c:3246:3: warning: misleading indentation;
+statement is not part of the previous 'else' [-Wmisleading-indentation]
+        set_signals(info);
+        ^
+../drivers/tty/synclinkmp.c:3244:2: note: previous statement is here
+        else
+        ^
+5 warnings generated.
 
-Signed-off-by: Brandon Maier <brandon.maier@rockwellcollins.com>
-Link: https://lore.kernel.org/r/20190530225223.136420-1-brandon.maier@rockwellcollins.com
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+The indentation on these lines is not at all consistent, tabs and spaces
+are mixed together. Convert to just using tabs to be consistent with the
+Linux kernel coding style and eliminate these warnings from clang.
+
+Link: https://github.com/ClangBuiltLinux/linux/issues/823
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+Link: https://lore.kernel.org/r/20191218024720.3528-1-natechancellor@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/remoteproc/remoteproc_core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/tty/synclinkmp.c | 24 ++++++++++++------------
+ 1 file changed, 12 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/remoteproc/remoteproc_core.c b/drivers/remoteproc/remoteproc_core.c
-index eab14b414bf0d..cc733b89560a1 100644
---- a/drivers/remoteproc/remoteproc_core.c
-+++ b/drivers/remoteproc/remoteproc_core.c
-@@ -1620,7 +1620,7 @@ static int __init remoteproc_init(void)
+diff --git a/drivers/tty/synclinkmp.c b/drivers/tty/synclinkmp.c
+index dec156586de1b..2f6df8d74b4aa 100644
+--- a/drivers/tty/synclinkmp.c
++++ b/drivers/tty/synclinkmp.c
+@@ -1467,10 +1467,10 @@ static void throttle(struct tty_struct * tty)
+ 	if (I_IXOFF(tty))
+ 		send_xchar(tty, STOP_CHAR(tty));
+ 
+- 	if (C_CRTSCTS(tty)) {
++	if (C_CRTSCTS(tty)) {
+ 		spin_lock_irqsave(&info->lock,flags);
+ 		info->serial_signals &= ~SerialSignal_RTS;
+-	 	set_signals(info);
++		set_signals(info);
+ 		spin_unlock_irqrestore(&info->lock,flags);
+ 	}
+ }
+@@ -1496,10 +1496,10 @@ static void unthrottle(struct tty_struct * tty)
+ 			send_xchar(tty, START_CHAR(tty));
+ 	}
+ 
+- 	if (C_CRTSCTS(tty)) {
++	if (C_CRTSCTS(tty)) {
+ 		spin_lock_irqsave(&info->lock,flags);
+ 		info->serial_signals |= SerialSignal_RTS;
+-	 	set_signals(info);
++		set_signals(info);
+ 		spin_unlock_irqrestore(&info->lock,flags);
+ 	}
+ }
+@@ -2485,7 +2485,7 @@ static void isr_io_pin( SLMP_INFO *info, u16 status )
+ 					if (status & SerialSignal_CTS) {
+ 						if ( debug_level >= DEBUG_LEVEL_ISR )
+ 							printk("CTS tx start...");
+-			 			info->port.tty->hw_stopped = 0;
++						info->port.tty->hw_stopped = 0;
+ 						tx_start(info);
+ 						info->pending_bh |= BH_TRANSMIT;
+ 						return;
+@@ -2494,7 +2494,7 @@ static void isr_io_pin( SLMP_INFO *info, u16 status )
+ 					if (!(status & SerialSignal_CTS)) {
+ 						if ( debug_level >= DEBUG_LEVEL_ISR )
+ 							printk("CTS tx stop...");
+-			 			info->port.tty->hw_stopped = 1;
++						info->port.tty->hw_stopped = 1;
+ 						tx_stop(info);
+ 					}
+ 				}
+@@ -2821,8 +2821,8 @@ static void change_params(SLMP_INFO *info)
+ 	info->read_status_mask2 = OVRN;
+ 	if (I_INPCK(info->port.tty))
+ 		info->read_status_mask2 |= PE | FRME;
+- 	if (I_BRKINT(info->port.tty) || I_PARMRK(info->port.tty))
+- 		info->read_status_mask1 |= BRKD;
++	if (I_BRKINT(info->port.tty) || I_PARMRK(info->port.tty))
++		info->read_status_mask1 |= BRKD;
+ 	if (I_IGNPAR(info->port.tty))
+ 		info->ignore_status_mask2 |= PE | FRME;
+ 	if (I_IGNBRK(info->port.tty)) {
+@@ -3192,7 +3192,7 @@ static int tiocmget(struct tty_struct *tty)
+  	unsigned long flags;
+ 
+ 	spin_lock_irqsave(&info->lock,flags);
+- 	get_signals(info);
++	get_signals(info);
+ 	spin_unlock_irqrestore(&info->lock,flags);
+ 
+ 	result = ((info->serial_signals & SerialSignal_RTS) ? TIOCM_RTS : 0) |
+@@ -3230,7 +3230,7 @@ static int tiocmset(struct tty_struct *tty,
+ 		info->serial_signals &= ~SerialSignal_DTR;
+ 
+ 	spin_lock_irqsave(&info->lock,flags);
+- 	set_signals(info);
++	set_signals(info);
+ 	spin_unlock_irqrestore(&info->lock,flags);
  
  	return 0;
- }
--module_init(remoteproc_init);
-+subsys_initcall(remoteproc_init);
+@@ -3242,7 +3242,7 @@ static int carrier_raised(struct tty_port *port)
+ 	unsigned long flags;
  
- static void __exit remoteproc_exit(void)
- {
+ 	spin_lock_irqsave(&info->lock,flags);
+- 	get_signals(info);
++	get_signals(info);
+ 	spin_unlock_irqrestore(&info->lock,flags);
+ 
+ 	return (info->serial_signals & SerialSignal_DCD) ? 1 : 0;
+@@ -3258,7 +3258,7 @@ static void dtr_rts(struct tty_port *port, int on)
+ 		info->serial_signals |= SerialSignal_RTS | SerialSignal_DTR;
+ 	else
+ 		info->serial_signals &= ~(SerialSignal_RTS | SerialSignal_DTR);
+- 	set_signals(info);
++	set_signals(info);
+ 	spin_unlock_irqrestore(&info->lock,flags);
+ }
+ 
 -- 
 2.20.1
 
