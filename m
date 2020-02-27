@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 24EC0171CA8
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:14:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 682A2171E74
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:28:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389081AbgB0OOJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 09:14:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53230 "EHLO mail.kernel.org"
+        id S2387864AbgB0OIJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 09:08:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45822 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389074AbgB0OOH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 09:14:07 -0500
+        id S1730186AbgB0OIH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 09:08:07 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A34C92469D;
-        Thu, 27 Feb 2020 14:14:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C0E9B20801;
+        Thu, 27 Feb 2020 14:08:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582812846;
-        bh=1Ndqb48KJqg/K3IMEYQ+NXLu38NRSSh+TOesV6xUOGw=;
+        s=default; t=1582812487;
+        bh=IzUhqFyqkl3dMF0O/IH/ZJ6MJuwVTQ07z70oJ/G8tEs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wVyRDHVV/ns0uahDoOPNJdOstKVMKWfxPnlXq0RtmQ92msN+GVWZKQAkcH2xoGDYb
-         5582HBHJ2F4syNVnLvz+H4l7Pa+SaTCmK4FVpj3McHb9qBXDpKm7a/ylz3RcP+7btq
-         CMP7E8mLKbgdcgjChJzjzCPvBNOr8Wp3G1qo+Hfw=
+        b=OqqTWe+u/kUDgJq66/x7uOsXGuT3v4rYUyaVppEqi4D3mQ5BtQLx35nUCATilhug7
+         x0YmNaYTNyJ8thxvZq8dOaPC7H2XdY/d0KlkW9WIbJQrMhwVrDfnhV73ivozGvdjjw
+         LfCcZJuklsdKHhwFPutUgc5U32/RGbyya2LeYZps=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
-        David Heinzelmann <heinzelmann.david@gmail.com>,
-        Paul Zimmerman <pauldzim@gmail.com>
-Subject: [PATCH 5.5 039/150] USB: hub: Dont record a connect-change event during reset-resume
-Date:   Thu, 27 Feb 2020 14:36:16 +0100
-Message-Id: <20200227132238.579582490@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Pavel Zakharov <pavel.zakharov@delphix.com>,
+        Mike Christie <mchristi@redhat.com>,
+        Bart Van Assche <bvanassche@acm.org>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 5.4 037/135] scsi: Revert "target/core: Inline transport_lun_remove_cmd()"
+Date:   Thu, 27 Feb 2020 14:36:17 +0100
+Message-Id: <20200227132234.513109266@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200227132232.815448360@linuxfoundation.org>
-References: <20200227132232.815448360@linuxfoundation.org>
+In-Reply-To: <20200227132228.710492098@linuxfoundation.org>
+References: <20200227132228.710492098@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,84 +46,148 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alan Stern <stern@rowland.harvard.edu>
+From: Bart Van Assche <bvanassche@acm.org>
 
-commit 8099f58f1ecddf4f374f4828a3dff8397c7cbd74 upstream.
+commit c14335ebb92a98646ddbf447e6cacc66de5269ad upstream.
 
-Paul Zimmerman reports that his USB Bluetooth adapter sometimes
-crashes following system resume, when it receives a
-Get-Device-Descriptor request while it is busy doing something else.
+Commit 83f85b8ec305 postponed the percpu_ref_put(&se_cmd->se_lun->lun_ref)
+call from command completion to the time when the final command reference
+is dropped. That approach is not compatible with the iSCSI target driver
+because the iSCSI target driver keeps the command with the highest stat_sn
+after it has completed until the next command is received (see also
+iscsit_ack_from_expstatsn()). Fix this regression by reverting commit
+83f85b8ec305.
 
-Such a request was added by commit a4f55d8b8c14 ("usb: hub: Check
-device descriptor before resusciation").  It gets sent when the hub
-driver's work thread checks whether a connect-change event on an
-enabled port really indicates a new device has been connected, as
-opposed to an old device momentarily disconnecting and then
-reconnecting (which can happen with xHCI host controllers, since they
-automatically enable connected ports).
-
-The same kind of thing occurs when a port's power session is lost
-during system suspend.  When the system wakes up it sees a
-connect-change event on the port, and if the child device's
-persist_enabled flag was set then hub_activate() sets the device's
-reset_resume flag as well as the port's bit in hub->change_bits.  The
-reset-resume code then takes responsibility for checking that the same
-device is still attached to the port, and it does this as part of the
-device's resume pathway.  By the time the hub driver's work thread
-starts up again, the device has already been fully reinitialized and
-is busy doing its own thing.  There's no need for the work thread to
-do the same check a second time, and in fact this unnecessary check is
-what caused the problem that Paul observed.
-
-Note that performing the unnecessary check is not actually a bug.
-Devices are supposed to be able to send descriptors back to the host
-even when they are busy doing something else.  The underlying cause of
-Paul's problem lies in his Bluetooth adapter.  Nevertheless, we
-shouldn't perform the same check twice in a row -- and as a nice side
-benefit, removing the extra check allows the Bluetooth adapter to work
-more reliably.
-
-The work thread performs its check when it sees that the port's bit is
-set in hub->change_bits.  In this situation that bit is interpreted as
-though a connect-change event had occurred on the port _after_ the
-reset-resume, which is not what actually happened.
-
-One possible fix would be to make the reset-resume code clear the
-port's bit in hub->change_bits.  But it seems simpler to just avoid
-setting the bit during hub_activate() in the first place.  That's what
-this patch does.
-
-(Proving that the patch is correct when CONFIG_PM is disabled requires
-a little thought.  In that setting hub_activate() will be called only
-for initialization and resets, since there won't be any resumes or
-reset-resumes.  During initialization and hub resets the hub doesn't
-have any child devices, and so this code path never gets executed.)
-
-Reported-and-tested-by: Paul Zimmerman <pauldzim@gmail.com>
-Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
-Link: https://marc.info/?t=157949360700001&r=1&w=2
-CC: David Heinzelmann <heinzelmann.david@gmail.com>
-CC: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/Pine.LNX.4.44L0.2001311037460.1577-100000@iolanthe.rowland.org
+Fixes: 83f85b8ec305 ("scsi: target/core: Inline transport_lun_remove_cmd()")
+Cc: Pavel Zakharov <pavel.zakharov@delphix.com>
+Cc: Mike Christie <mchristi@redhat.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200210051202.12934-1-bvanassche@acm.org
+Reported-by: Pavel Zakharov <pavel.zakharov@delphix.com>
+Signed-off-by: Bart Van Assche <bvanassche@acm.org>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/core/hub.c |    5 -----
- 1 file changed, 5 deletions(-)
+ drivers/target/target_core_transport.c |   31 ++++++++++++++++++++++++++++---
+ 1 file changed, 28 insertions(+), 3 deletions(-)
 
---- a/drivers/usb/core/hub.c
-+++ b/drivers/usb/core/hub.c
-@@ -1217,11 +1217,6 @@ static void hub_activate(struct usb_hub
- #ifdef CONFIG_PM
- 			udev->reset_resume = 1;
- #endif
--			/* Don't set the change_bits when the device
--			 * was powered off.
--			 */
--			if (test_bit(port1, hub->power_bits))
--				set_bit(port1, hub->change_bits);
+--- a/drivers/target/target_core_transport.c
++++ b/drivers/target/target_core_transport.c
+@@ -666,6 +666,11 @@ static int transport_cmd_check_stop_to_f
  
- 		} else {
- 			/* The power session is gone; tell hub_wq */
+ 	target_remove_from_state_list(cmd);
+ 
++	/*
++	 * Clear struct se_cmd->se_lun before the handoff to FE.
++	 */
++	cmd->se_lun = NULL;
++
+ 	spin_lock_irqsave(&cmd->t_state_lock, flags);
+ 	/*
+ 	 * Determine if frontend context caller is requesting the stopping of
+@@ -693,6 +698,17 @@ static int transport_cmd_check_stop_to_f
+ 	return cmd->se_tfo->check_stop_free(cmd);
+ }
+ 
++static void transport_lun_remove_cmd(struct se_cmd *cmd)
++{
++	struct se_lun *lun = cmd->se_lun;
++
++	if (!lun)
++		return;
++
++	if (cmpxchg(&cmd->lun_ref_active, true, false))
++		percpu_ref_put(&lun->lun_ref);
++}
++
+ static void target_complete_failure_work(struct work_struct *work)
+ {
+ 	struct se_cmd *cmd = container_of(work, struct se_cmd, work);
+@@ -783,6 +799,8 @@ static void target_handle_abort(struct s
+ 
+ 	WARN_ON_ONCE(kref_read(&cmd->cmd_kref) == 0);
+ 
++	transport_lun_remove_cmd(cmd);
++
+ 	transport_cmd_check_stop_to_fabric(cmd);
+ }
+ 
+@@ -1695,6 +1713,7 @@ static void target_complete_tmr_failure(
+ 	se_cmd->se_tmr_req->response = TMR_LUN_DOES_NOT_EXIST;
+ 	se_cmd->se_tfo->queue_tm_rsp(se_cmd);
+ 
++	transport_lun_remove_cmd(se_cmd);
+ 	transport_cmd_check_stop_to_fabric(se_cmd);
+ }
+ 
+@@ -1885,6 +1904,7 @@ void transport_generic_request_failure(s
+ 		goto queue_full;
+ 
+ check_stop:
++	transport_lun_remove_cmd(cmd);
+ 	transport_cmd_check_stop_to_fabric(cmd);
+ 	return;
+ 
+@@ -2182,6 +2202,7 @@ queue_status:
+ 		transport_handle_queue_full(cmd, cmd->se_dev, ret, false);
+ 		return;
+ 	}
++	transport_lun_remove_cmd(cmd);
+ 	transport_cmd_check_stop_to_fabric(cmd);
+ }
+ 
+@@ -2276,6 +2297,7 @@ static void target_complete_ok_work(stru
+ 		if (ret)
+ 			goto queue_full;
+ 
++		transport_lun_remove_cmd(cmd);
+ 		transport_cmd_check_stop_to_fabric(cmd);
+ 		return;
+ 	}
+@@ -2301,6 +2323,7 @@ static void target_complete_ok_work(stru
+ 			if (ret)
+ 				goto queue_full;
+ 
++			transport_lun_remove_cmd(cmd);
+ 			transport_cmd_check_stop_to_fabric(cmd);
+ 			return;
+ 		}
+@@ -2336,6 +2359,7 @@ queue_rsp:
+ 			if (ret)
+ 				goto queue_full;
+ 
++			transport_lun_remove_cmd(cmd);
+ 			transport_cmd_check_stop_to_fabric(cmd);
+ 			return;
+ 		}
+@@ -2371,6 +2395,7 @@ queue_status:
+ 		break;
+ 	}
+ 
++	transport_lun_remove_cmd(cmd);
+ 	transport_cmd_check_stop_to_fabric(cmd);
+ 	return;
+ 
+@@ -2697,6 +2722,9 @@ int transport_generic_free_cmd(struct se
+ 		 */
+ 		if (cmd->state_active)
+ 			target_remove_from_state_list(cmd);
++
++		if (cmd->se_lun)
++			transport_lun_remove_cmd(cmd);
+ 	}
+ 	if (aborted)
+ 		cmd->free_compl = &compl;
+@@ -2768,9 +2796,6 @@ static void target_release_cmd_kref(stru
+ 	struct completion *abrt_compl = se_cmd->abrt_compl;
+ 	unsigned long flags;
+ 
+-	if (se_cmd->lun_ref_active)
+-		percpu_ref_put(&se_cmd->se_lun->lun_ref);
+-
+ 	if (se_sess) {
+ 		spin_lock_irqsave(&se_sess->sess_cmd_lock, flags);
+ 		list_del_init(&se_cmd->se_cmd_list);
 
 
