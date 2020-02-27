@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 81EF8171A6C
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 14:53:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0827D171A50
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 14:52:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731710AbgB0Nxc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 08:53:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53364 "EHLO mail.kernel.org"
+        id S1731528AbgB0Nwb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 08:52:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52018 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731518AbgB0Nxb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 08:53:31 -0500
+        id S1730455AbgB0Nw3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 08:52:29 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6D6A821D7E;
-        Thu, 27 Feb 2020 13:53:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E570E20578;
+        Thu, 27 Feb 2020 13:52:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582811610;
-        bh=/W4QXVI7lhjcPnuwxBd5r5z6cTMz3e7o7C/rJYsgZFI=;
+        s=default; t=1582811548;
+        bh=j5gtom/5IeYiStN19TQ9vC/vOdafBVAjH6Eh3hoKgVg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mh4jv6a6UhSt2kvrftuiMLh4aB0yIxf1xBYaXRGh56CP8mYfWwy73+5/kBYCylCYl
-         FEXWF2p0YH0V7vHdr/tXprkyOOeaCypThzrBLGQ6iydwmvyGICx1rCmCj42KMNmR7B
-         FCuCFm5n9wTnoinLY0Et/uzW0YBetz923Geyablw=
+        b=sM5e+CIkqbSFe4V51K947wWAYz/XwNwg0uCf0gh2aJJ50JqrdGn4FS+y+3w9Q/Uzu
+         iUkSqcaDoW6crsf4d/RroAvWyJY4Dh9SPVI2gBpKABNzxz+J5kD0/PsPwnwebN/lR3
+         M0gWEaRUYH6DyNc4LBrc7vEtR/hJIikNI6568Oh4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lyude Paul <lyude@redhat.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 4.14 007/237] Input: synaptics - switch T470s to RMI4 by default
-Date:   Thu, 27 Feb 2020 14:33:41 +0100
-Message-Id: <20200227132256.304870130@linuxfoundation.org>
+        stable@vger.kernel.org, Arvind Sankar <nivedita@alum.mit.edu>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.14 010/237] ALSA: usb-audio: Apply sample rate quirk for Audioengine D1
+Date:   Thu, 27 Feb 2020 14:33:44 +0100
+Message-Id: <20200227132256.677883462@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200227132255.285644406@linuxfoundation.org>
 References: <20200227132255.285644406@linuxfoundation.org>
@@ -43,32 +43,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lyude Paul <lyude@redhat.com>
+From: Arvind Sankar <nivedita@alum.mit.edu>
 
-commit bf502391353b928e63096127e5fd8482080203f5 upstream.
+commit 93f9d1a4ac5930654c17412e3911b46ece73755a upstream.
 
-This supports RMI4 and everything seems to work, including the touchpad
-buttons. So, let's enable this by default.
+The Audioengine D1 (0x2912:0x30c8) does support reading the sample rate,
+but it returns the rate in byte-reversed order.
 
-Signed-off-by: Lyude Paul <lyude@redhat.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20200204194322.112638-1-lyude@redhat.com
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+When setting sampling rate, the driver produces these warning messages:
+[168840.944226] usb 3-2.2: current rate 4500480 is different from the runtime rate 44100
+[168854.930414] usb 3-2.2: current rate 8436480 is different from the runtime rate 48000
+[168905.185825] usb 3-2.1.2: current rate 30465 is different from the runtime rate 96000
+
+As can be seen from the hexadecimal conversion, the current rate read
+back is byte-reversed from the rate that was set.
+
+44100 == 0x00ac44, 4500480 == 0x44ac00
+48000 == 0x00bb80, 8436480 == 0x80bb00
+96000 == 0x017700,   30465 == 0x007701
+
+Rather than implementing a new quirk to reverse the order, just skip
+checking the rate to avoid spamming the log.
+
+Signed-off-by: Arvind Sankar <nivedita@alum.mit.edu>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200211162235.1639889-1-nivedita@alum.mit.edu
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/input/mouse/synaptics.c |    1 +
+ sound/usb/quirks.c |    1 +
  1 file changed, 1 insertion(+)
 
---- a/drivers/input/mouse/synaptics.c
-+++ b/drivers/input/mouse/synaptics.c
-@@ -172,6 +172,7 @@ static const char * const smbus_pnp_ids[
- 	"LEN004a", /* W541 */
- 	"LEN005b", /* P50 */
- 	"LEN005e", /* T560 */
-+	"LEN006c", /* T470s */
- 	"LEN0071", /* T480 */
- 	"LEN0072", /* X1 Carbon Gen 5 (2017) - Elan/ALPS trackpoint */
- 	"LEN0073", /* X1 Carbon G5 (Elantech) */
+--- a/sound/usb/quirks.c
++++ b/sound/usb/quirks.c
+@@ -1151,6 +1151,7 @@ bool snd_usb_get_sample_rate_quirk(struc
+ 	case USB_ID(0x1de7, 0x0014): /* Phoenix Audio TMX320 */
+ 	case USB_ID(0x1de7, 0x0114): /* Phoenix Audio MT202pcs */
+ 	case USB_ID(0x21B4, 0x0081): /* AudioQuest DragonFly */
++	case USB_ID(0x2912, 0x30c8): /* Audioengine D1 */
+ 		return true;
+ 	}
+ 	return false;
 
 
