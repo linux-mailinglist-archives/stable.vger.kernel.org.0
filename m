@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 643D3171FF2
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:40:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BDD201720D2
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:45:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732277AbgB0OjS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 09:39:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55188 "EHLO mail.kernel.org"
+        id S1730976AbgB0OpR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 09:45:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43112 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731931AbgB0Ny7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 08:54:59 -0500
+        id S1730573AbgB0Nqq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 08:46:46 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A456C2469B;
-        Thu, 27 Feb 2020 13:54:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1D7E62469F;
+        Thu, 27 Feb 2020 13:46:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582811699;
-        bh=0yykBS6MIZWIYyvz4tIC205U5lYukMIJgO3DEgv1NnU=;
+        s=default; t=1582811206;
+        bh=aK/+aFJ9B9J3nmmat7es9bxcZ0UzUzf+c9vF/+cqZ+k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tladFDftksfHAMOfw+wZ1EFNLOIgQKk6S/j3kIDLnFNHyRtgjh5TFRaCjo0qB1Agg
-         mSOGN9DeOGO4DpUCuzFwFgqD/0GToqc8viygMBaYwbCNsF72PFiWerP1ARK43q4clq
-         NjnGne/rL6RSm5VYxYBtjRBiEKUzELpkOyTZXv/8=
+        b=Gh4MhBmROwQeXQBcZ0x1qNZLnVHGhsAWtbhhtwfy4JAT8mTYEGYFwov+LhPXfp3qd
+         wrObf4eIB/0nuiPLUP6BlRBVBZsgKkbBFz30TD+JJbB7jclgI9VHQFjdKsgtZxeBJX
+         kzRxBI5chjhHvx6I0xuhVzw/diKBnwZ1ssMPkw38=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "zhangyi (F)" <yi.zhang@huawei.com>,
-        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 066/237] ext4, jbd2: ensure panic when aborting with zero errno
+        stable@vger.kernel.org, Arvind Sankar <nivedita@alum.mit.edu>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.9 006/165] ALSA: usb-audio: Apply sample rate quirk for Audioengine D1
 Date:   Thu, 27 Feb 2020 14:34:40 +0100
-Message-Id: <20200227132301.908303534@linuxfoundation.org>
+Message-Id: <20200227132232.048294039@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200227132255.285644406@linuxfoundation.org>
-References: <20200227132255.285644406@linuxfoundation.org>
+In-Reply-To: <20200227132230.840899170@linuxfoundation.org>
+References: <20200227132230.840899170@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,76 +43,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: zhangyi (F) <yi.zhang@huawei.com>
+From: Arvind Sankar <nivedita@alum.mit.edu>
 
-[ Upstream commit 51f57b01e4a3c7d7bdceffd84de35144e8c538e7 ]
+commit 93f9d1a4ac5930654c17412e3911b46ece73755a upstream.
 
-JBD2_REC_ERR flag used to indicate the errno has been updated when jbd2
-aborted, and then __ext4_abort() and ext4_handle_error() can invoke
-panic if ERRORS_PANIC is specified. But if the journal has been aborted
-with zero errno, jbd2_journal_abort() didn't set this flag so we can
-no longer panic. Fix this by always record the proper errno in the
-journal superblock.
+The Audioengine D1 (0x2912:0x30c8) does support reading the sample rate,
+but it returns the rate in byte-reversed order.
 
-Fixes: 4327ba52afd03 ("ext4, jbd2: ensure entering into panic after recording an error in superblock")
-Signed-off-by: zhangyi (F) <yi.zhang@huawei.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20191204124614.45424-3-yi.zhang@huawei.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+When setting sampling rate, the driver produces these warning messages:
+[168840.944226] usb 3-2.2: current rate 4500480 is different from the runtime rate 44100
+[168854.930414] usb 3-2.2: current rate 8436480 is different from the runtime rate 48000
+[168905.185825] usb 3-2.1.2: current rate 30465 is different from the runtime rate 96000
+
+As can be seen from the hexadecimal conversion, the current rate read
+back is byte-reversed from the rate that was set.
+
+44100 == 0x00ac44, 4500480 == 0x44ac00
+48000 == 0x00bb80, 8436480 == 0x80bb00
+96000 == 0x017700,   30465 == 0x007701
+
+Rather than implementing a new quirk to reverse the order, just skip
+checking the rate to avoid spamming the log.
+
+Signed-off-by: Arvind Sankar <nivedita@alum.mit.edu>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200211162235.1639889-1-nivedita@alum.mit.edu
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- fs/jbd2/checkpoint.c |  2 +-
- fs/jbd2/journal.c    | 15 ++++-----------
- 2 files changed, 5 insertions(+), 12 deletions(-)
+ sound/usb/quirks.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/fs/jbd2/checkpoint.c b/fs/jbd2/checkpoint.c
-index fe4fe155b7fbe..15d129b7494b0 100644
---- a/fs/jbd2/checkpoint.c
-+++ b/fs/jbd2/checkpoint.c
-@@ -168,7 +168,7 @@ void __jbd2_log_wait_for_space(journal_t *journal)
- 				       "journal space in %s\n", __func__,
- 				       journal->j_devname);
- 				WARN_ON(1);
--				jbd2_journal_abort(journal, 0);
-+				jbd2_journal_abort(journal, -EIO);
- 			}
- 			write_lock(&journal->j_state_lock);
- 		} else {
-diff --git a/fs/jbd2/journal.c b/fs/jbd2/journal.c
-index b72be822f04f2..eae9ced846d51 100644
---- a/fs/jbd2/journal.c
-+++ b/fs/jbd2/journal.c
-@@ -2128,12 +2128,10 @@ static void __journal_abort_soft (journal_t *journal, int errno)
- 
- 	__jbd2_journal_abort_hard(journal);
- 
--	if (errno) {
--		jbd2_journal_update_sb_errno(journal);
--		write_lock(&journal->j_state_lock);
--		journal->j_flags |= JBD2_REC_ERR;
--		write_unlock(&journal->j_state_lock);
--	}
-+	jbd2_journal_update_sb_errno(journal);
-+	write_lock(&journal->j_state_lock);
-+	journal->j_flags |= JBD2_REC_ERR;
-+	write_unlock(&journal->j_state_lock);
- }
- 
- /**
-@@ -2175,11 +2173,6 @@ static void __journal_abort_soft (journal_t *journal, int errno)
-  * failure to disk.  ext3_error, for example, now uses this
-  * functionality.
-  *
-- * Errors which originate from within the journaling layer will NOT
-- * supply an errno; a null errno implies that absolutely no further
-- * writes are done to the journal (unless there are any already in
-- * progress).
-- *
-  */
- 
- void jbd2_journal_abort(journal_t *journal, int errno)
--- 
-2.20.1
-
+--- a/sound/usb/quirks.c
++++ b/sound/usb/quirks.c
+@@ -1149,6 +1149,7 @@ bool snd_usb_get_sample_rate_quirk(struc
+ 	case USB_ID(0x1de7, 0x0014): /* Phoenix Audio TMX320 */
+ 	case USB_ID(0x1de7, 0x0114): /* Phoenix Audio MT202pcs */
+ 	case USB_ID(0x21B4, 0x0081): /* AudioQuest DragonFly */
++	case USB_ID(0x2912, 0x30c8): /* Audioengine D1 */
+ 		return true;
+ 	}
+ 	return false;
 
 
