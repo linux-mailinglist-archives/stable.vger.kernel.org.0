@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A77CF171B1F
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 14:59:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D67E17193D
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 14:43:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730146AbgB0N7n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 08:59:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:32916 "EHLO mail.kernel.org"
+        id S1729904AbgB0NnM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 08:43:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38320 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732633AbgB0N7m (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 08:59:42 -0500
+        id S1729615AbgB0NnK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 08:43:10 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7DB4B20578;
-        Thu, 27 Feb 2020 13:59:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F3BCF20578;
+        Thu, 27 Feb 2020 13:43:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582811982;
-        bh=S0yGJG0Id9N1yY6MyKdC5gdWa6cxWpV1/yYUVgykXEg=;
+        s=default; t=1582810989;
+        bh=dVXJL/T4dMys1FvCdbA1mV3mv1OraNsbPY9kEd0Rh5w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V0ydJYk59tHvBowLVopOmnkmiJbX/haxgz205dzK6dZZPJI2WJ0Ebqkk0RhuO4WXR
-         cBxEyIMW+iPeC1HvoSIsbwWCMpcxjmFSxjabKTL7dBIiJRLQnWssaHil4rKDh/SBSo
-         xqoRsgjdEfTZ6oIC7567Op7wh2MxvpGCWTHr2qHQ=
+        b=fPFEJDpZ483yU8O+dU9atIaFubGRcvW+DwPxHr/jMA0bDKwfaOLDOh9t3hiWTE7en
+         ndILiz87WnK5Tpp7bjHdn5nzzYgVNkoKkP5OM6r7QQ8PUUqR8i6FS51Vt6TOjURm2t
+         /nbI5dNM/VK9KFl2bcslDC5Uc1BQPaX3uCjQiUXc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jordy Zomer <jordy@simplyhacker.com>,
-        Willy Tarreau <w@1wt.eu>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.14 176/237] floppy: check FDC index for errors before assigning it
+        stable@vger.kernel.org, Vasily Averin <vvs@virtuozzo.com>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 074/113] trigger_next should increase position index
 Date:   Thu, 27 Feb 2020 14:36:30 +0100
-Message-Id: <20200227132309.349166224@linuxfoundation.org>
+Message-Id: <20200227132223.637889402@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200227132255.285644406@linuxfoundation.org>
-References: <20200227132255.285644406@linuxfoundation.org>
+In-Reply-To: <20200227132211.791484803@linuxfoundation.org>
+References: <20200227132211.791484803@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,65 +44,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Vasily Averin <vvs@virtuozzo.com>
 
-commit 2e90ca68b0d2f5548804f22f0dd61145516171e3 upstream.
+[ Upstream commit 6722b23e7a2ace078344064a9735fb73e554e9ef ]
 
-Jordy Zomer reported a KASAN out-of-bounds read in the floppy driver in
-wait_til_ready().
+if seq_file .next fuction does not change position index,
+read after some lseek can generate unexpected output.
 
-Which on the face of it can't happen, since as Willy Tarreau points out,
-the function does no particular memory access.  Except through the FDCS
-macro, which just indexes a static allocation through teh current fdc,
-which is always checked against N_FDC.
+Without patch:
+ # dd bs=30 skip=1 if=/sys/kernel/tracing/events/sched/sched_switch/trigger
+ dd: /sys/kernel/tracing/events/sched/sched_switch/trigger: cannot skip to specified offset
+ n traceoff snapshot stacktrace enable_event disable_event enable_hist disable_hist hist
+ # Available triggers:
+ # traceon traceoff snapshot stacktrace enable_event disable_event enable_hist disable_hist hist
+ 6+1 records in
+ 6+1 records out
+ 206 bytes copied, 0.00027916 s, 738 kB/s
 
-Except the checking happens after we've already assigned the value.
+Notice the printing of "# Available triggers:..." after the line.
 
-The floppy driver is a disgrace (a lot of it going back to my original
-horrd "design"), and has no real maintainer.  Nobody has the hardware,
-and nobody really cares.  But it still gets used in virtual environment
-because it's one of those things that everybody supports.
+With the patch:
+ # dd bs=30 skip=1 if=/sys/kernel/tracing/events/sched/sched_switch/trigger
+ dd: /sys/kernel/tracing/events/sched/sched_switch/trigger: cannot skip to specified offset
+ n traceoff snapshot stacktrace enable_event disable_event enable_hist disable_hist hist
+ 2+1 records in
+ 2+1 records out
+ 88 bytes copied, 0.000526867 s, 167 kB/s
 
-The whole thing should be re-written, or at least parts of it should be
-seriously cleaned up.  The 'current fdc' index, which is used by the
-FDCS macro, and which is often shadowed by a local 'fdc' variable, is a
-prime example of how not to write code.
+It only prints the end of the file, and does not restart.
 
-But because nobody has the hardware or the motivation, let's just fix up
-the immediate problem with a nasty band-aid: test the fdc index before
-actually assigning it to the static 'fdc' variable.
+Link: http://lkml.kernel.org/r/3c35ee24-dd3a-8119-9c19-552ed253388a@virtuozzo.com
 
-Reported-by: Jordy Zomer <jordy@simplyhacker.com>
-Cc: Willy Tarreau <w@1wt.eu>
-Cc: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+https://bugzilla.kernel.org/show_bug.cgi?id=206283
+Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/floppy.c |    7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ kernel/trace/trace_events_trigger.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/drivers/block/floppy.c
-+++ b/drivers/block/floppy.c
-@@ -848,14 +848,17 @@ static void reset_fdc_info(int mode)
- /* selects the fdc and drive, and enables the fdc's input/dma. */
- static void set_fdc(int drive)
+diff --git a/kernel/trace/trace_events_trigger.c b/kernel/trace/trace_events_trigger.c
+index 8be66a2b0cacf..6524920c6ebc8 100644
+--- a/kernel/trace/trace_events_trigger.c
++++ b/kernel/trace/trace_events_trigger.c
+@@ -121,9 +121,10 @@ static void *trigger_next(struct seq_file *m, void *t, loff_t *pos)
  {
-+	unsigned int new_fdc = fdc;
-+
- 	if (drive >= 0 && drive < N_DRIVE) {
--		fdc = FDC(drive);
-+		new_fdc = FDC(drive);
- 		current_drive = drive;
- 	}
--	if (fdc != 1 && fdc != 0) {
-+	if (new_fdc >= N_FDC) {
- 		pr_info("bad fdc value\n");
- 		return;
- 	}
-+	fdc = new_fdc;
- 	set_dor(fdc, ~0, 8);
- #if N_FDC > 1
- 	set_dor(1 - fdc, ~8, 0);
+ 	struct trace_event_file *event_file = event_file_data(m->private);
+ 
+-	if (t == SHOW_AVAILABLE_TRIGGERS)
++	if (t == SHOW_AVAILABLE_TRIGGERS) {
++		(*pos)++;
+ 		return NULL;
+-
++	}
+ 	return seq_list_next(t, &event_file->triggers, pos);
+ }
+ 
+-- 
+2.20.1
+
 
 
