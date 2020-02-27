@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C81AB171CCA
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:15:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4088C171E56
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:27:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389260AbgB0OPN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 09:15:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54752 "EHLO mail.kernel.org"
+        id S1731607AbgB0O1H (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 09:27:07 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47114 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389258AbgB0OPM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 09:15:12 -0500
+        id S2388359AbgB0OJM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 09:09:12 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F1F5B20801;
-        Thu, 27 Feb 2020 14:15:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 473F724656;
+        Thu, 27 Feb 2020 14:09:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582812911;
-        bh=evF/NFjY1s7IY6EJgZeQWXpsFLeu01Fl+Ck86HHRJlk=;
+        s=default; t=1582812551;
+        bh=ZY1iDZKCiMk23xFTVQl9UMqSJynqVb1zbUgUTPGQCV4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JkFuJuTX7mIimi9Eiigis9pHwAA7NAZ6lg4v2af8SwykLnNkbRupyquKVCwMfaQUs
-         wDBazwM2lAPmFWPfHyfYdjI1YSpQVpg8p1/OfqkoZGbhOcmjp0JCSHpR8uuAJ2PQRk
-         MUoBPOG1F9gOWOPaXTR8kxyydMfejqdXGrbuaDrE=
+        b=dWla4Yr81OO+kOZpJxUdlEKRQg+YOr3uIPi9RqdJD7YbpP14PEA4Qkbq0pBU+H9Rf
+         ewicUkWKaMursYRsLPYqtoJJqrjbIUrMtHjNOhSJyLHv3iCla2h7krFm0rE+G1UjTO
+         LCcQY3zwFnFi3wD3Sh6A37eGFKX9HHAXiUNr1wIo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiri Slaby <jslaby@suse.cz>,
-        syzbot+59997e8d5cbdc486e6f6@syzkaller.appspotmail.com
-Subject: [PATCH 5.5 027/150] vt: selection, close sel_buffer race
+        stable@vger.kernel.org,
+        Mathias Nyman <mathias.nyman@linux.intel.com>
+Subject: [PATCH 5.4 024/135] xhci: fix runtime pm enabling for quirky Intel hosts
 Date:   Thu, 27 Feb 2020 14:36:04 +0100
-Message-Id: <20200227132236.840520753@linuxfoundation.org>
+Message-Id: <20200227132232.836031603@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200227132232.815448360@linuxfoundation.org>
-References: <20200227132232.815448360@linuxfoundation.org>
+In-Reply-To: <20200227132228.710492098@linuxfoundation.org>
+References: <20200227132228.710492098@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,154 +43,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Slaby <jslaby@suse.cz>
+From: Mathias Nyman <mathias.nyman@linux.intel.com>
 
-commit 07e6124a1a46b4b5a9b3cacc0c306b50da87abf5 upstream.
+commit 024d411e9c5d49eb96c825af52a3ce2682895676 upstream.
 
-syzkaller reported this UAF:
-BUG: KASAN: use-after-free in n_tty_receive_buf_common+0x2481/0x2940 drivers/tty/n_tty.c:1741
-Read of size 1 at addr ffff8880089e40e9 by task syz-executor.1/13184
+Intel hosts that need the XHCI_PME_STUCK_QUIRK flag should enable
+runtime pm by calling xhci_pme_acpi_rtd3_enable() before
+usb_hcd_pci_probe() calls pci_dev_run_wake().
+Otherwise usage count for the device won't be decreased, and runtime
+suspend is prevented.
 
-CPU: 0 PID: 13184 Comm: syz-executor.1 Not tainted 5.4.7 #1
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.12.0-1 04/01/2014
-Call Trace:
-...
- kasan_report+0xe/0x20 mm/kasan/common.c:634
- n_tty_receive_buf_common+0x2481/0x2940 drivers/tty/n_tty.c:1741
- tty_ldisc_receive_buf+0xac/0x190 drivers/tty/tty_buffer.c:461
- paste_selection+0x297/0x400 drivers/tty/vt/selection.c:372
- tioclinux+0x20d/0x4e0 drivers/tty/vt/vt.c:3044
- vt_ioctl+0x1bcf/0x28d0 drivers/tty/vt/vt_ioctl.c:364
- tty_ioctl+0x525/0x15a0 drivers/tty/tty_io.c:2657
- vfs_ioctl fs/ioctl.c:47 [inline]
+usb_hcd_pci_probe() only decreases the usage count if device can
+generate run-time wake-up events, i.e. when pci_dev_run_wake()
+returns true.
 
-It is due to a race between parallel paste_selection (TIOCL_PASTESEL)
-and set_selection_user (TIOCL_SETSEL) invocations. One uses sel_buffer,
-while the other frees it and reallocates a new one for another
-selection. Add a mutex to close this race.
+This issue was exposed by pci_dev_run_wake() change in
+commit 8feaec33b986 ("PCI / PM: Always check PME wakeup capability for
+runtime wakeup support")
+and should be backported to kernels with that change
 
-The mutex takes care properly of sel_buffer and sel_buffer_lth only. The
-other selection global variables (like sel_start, sel_end, and sel_cons)
-are protected only in set_selection_user. The other functions need quite
-some more work to close the races of the variables there. This is going
-to happen later.
-
-This likely fixes (I am unsure as there is no reproducer provided) bug
-206361 too. It was marked as CVE-2020-8648.
-
-Signed-off-by: Jiri Slaby <jslaby@suse.cz>
-Reported-by: syzbot+59997e8d5cbdc486e6f6@syzkaller.appspotmail.com
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200210081131.23572-2-jslaby@suse.cz
+Cc: <stable@vger.kernel.org> # 4.13+
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Link: https://lore.kernel.org/r/20200210134553.9144-4-mathias.nyman@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/tty/vt/selection.c |   23 +++++++++++++++++------
- 1 file changed, 17 insertions(+), 6 deletions(-)
+ drivers/usb/host/xhci-pci.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/tty/vt/selection.c
-+++ b/drivers/tty/vt/selection.c
-@@ -16,6 +16,7 @@
- #include <linux/tty.h>
- #include <linux/sched.h>
- #include <linux/mm.h>
-+#include <linux/mutex.h>
- #include <linux/slab.h>
- #include <linux/types.h>
+--- a/drivers/usb/host/xhci-pci.c
++++ b/drivers/usb/host/xhci-pci.c
+@@ -302,6 +302,9 @@ static int xhci_pci_setup(struct usb_hcd
+ 	if (!usb_hcd_is_primary_hcd(hcd))
+ 		return 0;
  
-@@ -45,6 +46,7 @@ static volatile int sel_start = -1; 	/*
- static int sel_end;
- static int sel_buffer_lth;
- static char *sel_buffer;
-+static DEFINE_MUTEX(sel_lock);
++	if (xhci->quirks & XHCI_PME_STUCK_QUIRK)
++		xhci_pme_acpi_rtd3_enable(pdev);
++
+ 	xhci_dbg(xhci, "Got SBRN %u\n", (unsigned int) xhci->sbrn);
  
- /* clear_selection, highlight and highlight_pointer can be called
-    from interrupt (via scrollback/front) */
-@@ -186,7 +188,7 @@ int set_selection_kernel(struct tiocl_se
- 	char *bp, *obp;
- 	int i, ps, pe, multiplier;
- 	u32 c;
--	int mode;
-+	int mode, ret = 0;
+ 	/* Find any debug ports */
+@@ -359,9 +362,6 @@ static int xhci_pci_probe(struct pci_dev
+ 			HCC_MAX_PSA(xhci->hcc_params) >= 4)
+ 		xhci->shared_hcd->can_do_streams = 1;
  
- 	poke_blanked_console();
- 
-@@ -212,6 +214,7 @@ int set_selection_kernel(struct tiocl_se
- 	if (ps > pe)	/* make sel_start <= sel_end */
- 		swap(ps, pe);
- 
-+	mutex_lock(&sel_lock);
- 	if (sel_cons != vc_cons[fg_console].d) {
- 		clear_selection();
- 		sel_cons = vc_cons[fg_console].d;
-@@ -257,9 +260,10 @@ int set_selection_kernel(struct tiocl_se
- 			break;
- 		case TIOCL_SELPOINTER:
- 			highlight_pointer(pe);
--			return 0;
-+			goto unlock;
- 		default:
--			return -EINVAL;
-+			ret = -EINVAL;
-+			goto unlock;
- 	}
- 
- 	/* remove the pointer */
-@@ -281,7 +285,7 @@ int set_selection_kernel(struct tiocl_se
- 	else if (new_sel_start == sel_start)
- 	{
- 		if (new_sel_end == sel_end)	/* no action required */
--			return 0;
-+			goto unlock;
- 		else if (new_sel_end > sel_end)	/* extend to right */
- 			highlight(sel_end + 2, new_sel_end);
- 		else				/* contract from right */
-@@ -309,7 +313,8 @@ int set_selection_kernel(struct tiocl_se
- 	if (!bp) {
- 		printk(KERN_WARNING "selection: kmalloc() failed\n");
- 		clear_selection();
--		return -ENOMEM;
-+		ret = -ENOMEM;
-+		goto unlock;
- 	}
- 	kfree(sel_buffer);
- 	sel_buffer = bp;
-@@ -334,7 +339,9 @@ int set_selection_kernel(struct tiocl_se
- 		}
- 	}
- 	sel_buffer_lth = bp - sel_buffer;
--	return 0;
-+unlock:
-+	mutex_unlock(&sel_lock);
-+	return ret;
- }
- EXPORT_SYMBOL_GPL(set_selection_kernel);
- 
-@@ -364,6 +371,7 @@ int paste_selection(struct tty_struct *t
- 	tty_buffer_lock_exclusive(&vc->port);
- 
- 	add_wait_queue(&vc->paste_wait, &wait);
-+	mutex_lock(&sel_lock);
- 	while (sel_buffer && sel_buffer_lth > pasted) {
- 		set_current_state(TASK_INTERRUPTIBLE);
- 		if (signal_pending(current)) {
-@@ -371,7 +379,9 @@ int paste_selection(struct tty_struct *t
- 			break;
- 		}
- 		if (tty_throttled(tty)) {
-+			mutex_unlock(&sel_lock);
- 			schedule();
-+			mutex_lock(&sel_lock);
- 			continue;
- 		}
- 		__set_current_state(TASK_RUNNING);
-@@ -380,6 +390,7 @@ int paste_selection(struct tty_struct *t
- 					      count);
- 		pasted += count;
- 	}
-+	mutex_unlock(&sel_lock);
- 	remove_wait_queue(&vc->paste_wait, &wait);
- 	__set_current_state(TASK_RUNNING);
+-	if (xhci->quirks & XHCI_PME_STUCK_QUIRK)
+-		xhci_pme_acpi_rtd3_enable(dev);
+-
+ 	/* USB-2 and USB-3 roothubs initialized, allow runtime pm suspend */
+ 	pm_runtime_put_noidle(&dev->dev);
  
 
 
