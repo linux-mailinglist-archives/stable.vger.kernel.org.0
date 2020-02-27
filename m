@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AC1EB171E59
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:27:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C3115171E55
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:27:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388348AbgB0OJK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 09:09:10 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47064 "EHLO mail.kernel.org"
+        id S2388360AbgB0OJP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 09:09:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47186 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388311AbgB0OJK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 09:09:10 -0500
+        id S2388364AbgB0OJO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 09:09:14 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8192E24656;
-        Thu, 27 Feb 2020 14:09:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B304424656;
+        Thu, 27 Feb 2020 14:09:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582812549;
-        bh=kUKSzHdRRHXlQaZVmuHIoD/S65nhOWHRv5mf2gtz24U=;
+        s=default; t=1582812554;
+        bh=chR6BQ7aV20aKrhv3+T7oUb3YyDnnvGFmO+qnTOjOxs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YYGnjdSdEDs+yfquiP/T7IL7Lc0ZQyZLcNtmufrTms4+e4x9FAOduO367FpUrPq/H
-         t0PKm4/RRlbJFVh5LU14S4YVr7/8WfjNmga0NqzKQudjhBZXA8m4YK4v8iRLvbPXjW
-         0qlcg7X+kdxdX7qkYGYmi9ZNYqCJde8VEGx/xeLE=
+        b=WZTxmb+J1IY23x1Q93TIBoNp/WBhopcn1aOKh2cPoEAOpw8qbTEalqw/n1tTCXry8
+         3RRQn3lKJ2Ks1vuXbb87MbRTMpOHBW6Hi1gPvhRxbXAnvgggQF1nTo7UaeuOZ6ZyZN
+         3JygUQJtl7AAxaJh33XPEQlyJDZ+6AMdAcGY7P0U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Loic Poulain <loic.poulain@linaro.org>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.4 059/135] serdev: ttyport: restore client ops on deregistration
-Date:   Thu, 27 Feb 2020 14:36:39 +0100
-Message-Id: <20200227132237.907077913@linuxfoundation.org>
+        stable@vger.kernel.org, Chris Wilson <chris@chris-wilson.co.uk>,
+        Jani Nikula <jani.nikula@intel.com>
+Subject: [PATCH 5.4 060/135] MAINTAINERS: Update drm/i915 bug filing URL
+Date:   Thu, 27 Feb 2020 14:36:40 +0100
+Message-Id: <20200227132238.071476244@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200227132228.710492098@linuxfoundation.org>
 References: <20200227132228.710492098@linuxfoundation.org>
@@ -43,107 +43,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Jani Nikula <jani.nikula@intel.com>
 
-commit 0c5aae59270fb1f827acce182786094c9ccf598e upstream.
+commit 96228b7df33f8eb9006f8ae96949400aed9bd303 upstream.
 
-The serdev tty-port controller driver should reset the tty-port client
-operations also on deregistration to avoid a NULL-pointer dereference in
-case the port is later re-registered as a normal tty device.
+We've moved from bugzilla to gitlab.
 
-Note that this can only happen with tty drivers such as 8250 which have
-statically allocated port structures that can end up being reused and
-where a later registration would not register a serdev controller (e.g.
-due to registration errors or if the devicetree has been changed in
-between).
-
-Specifically, this can be an issue for any statically defined ports that
-would be registered by 8250 core when an 8250 driver is being unbound.
-
-Fixes: bed35c6dfa6a ("serdev: add a tty port controller driver")
-Cc: stable <stable@vger.kernel.org>     # 4.11
-Reported-by: Loic Poulain <loic.poulain@linaro.org>
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20200210145730.22762-1-johan@kernel.org
+Cc: stable@vger.kernel.org
+Reviewed-by: Chris Wilson <chris@chris-wilson.co.uk>
+Signed-off-by: Jani Nikula <jani.nikula@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200212160434.6437-1-jani.nikula@intel.com
+(cherry picked from commit 3a6a4f0810c8ade6f1ff63c34aa9834176b9d88b)
+Signed-off-by: Jani Nikula <jani.nikula@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/tty/serdev/serdev-ttyport.c |    6 ++----
- drivers/tty/tty_port.c              |    5 +++--
- include/linux/tty.h                 |    2 ++
- 3 files changed, 7 insertions(+), 6 deletions(-)
+ MAINTAINERS |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/tty/serdev/serdev-ttyport.c
-+++ b/drivers/tty/serdev/serdev-ttyport.c
-@@ -265,7 +265,6 @@ struct device *serdev_tty_port_register(
- 					struct device *parent,
- 					struct tty_driver *drv, int idx)
- {
--	const struct tty_port_client_operations *old_ops;
- 	struct serdev_controller *ctrl;
- 	struct serport *serport;
- 	int ret;
-@@ -284,7 +283,6 @@ struct device *serdev_tty_port_register(
- 
- 	ctrl->ops = &ctrl_ops;
- 
--	old_ops = port->client_ops;
- 	port->client_ops = &client_ops;
- 	port->client_data = ctrl;
- 
-@@ -297,7 +295,7 @@ struct device *serdev_tty_port_register(
- 
- err_reset_data:
- 	port->client_data = NULL;
--	port->client_ops = old_ops;
-+	port->client_ops = &tty_port_default_client_ops;
- 	serdev_controller_put(ctrl);
- 
- 	return ERR_PTR(ret);
-@@ -312,8 +310,8 @@ int serdev_tty_port_unregister(struct tt
- 		return -ENODEV;
- 
- 	serdev_controller_remove(ctrl);
--	port->client_ops = NULL;
- 	port->client_data = NULL;
-+	port->client_ops = &tty_port_default_client_ops;
- 	serdev_controller_put(ctrl);
- 
- 	return 0;
---- a/drivers/tty/tty_port.c
-+++ b/drivers/tty/tty_port.c
-@@ -52,10 +52,11 @@ static void tty_port_default_wakeup(stru
- 	}
- }
- 
--static const struct tty_port_client_operations default_client_ops = {
-+const struct tty_port_client_operations tty_port_default_client_ops = {
- 	.receive_buf = tty_port_default_receive_buf,
- 	.write_wakeup = tty_port_default_wakeup,
- };
-+EXPORT_SYMBOL_GPL(tty_port_default_client_ops);
- 
- void tty_port_init(struct tty_port *port)
- {
-@@ -68,7 +69,7 @@ void tty_port_init(struct tty_port *port
- 	spin_lock_init(&port->lock);
- 	port->close_delay = (50 * HZ) / 100;
- 	port->closing_wait = (3000 * HZ) / 100;
--	port->client_ops = &default_client_ops;
-+	port->client_ops = &tty_port_default_client_ops;
- 	kref_init(&port->kref);
- }
- EXPORT_SYMBOL(tty_port_init);
---- a/include/linux/tty.h
-+++ b/include/linux/tty.h
-@@ -225,6 +225,8 @@ struct tty_port_client_operations {
- 	void (*write_wakeup)(struct tty_port *port);
- };
- 
-+extern const struct tty_port_client_operations tty_port_default_client_ops;
-+
- struct tty_port {
- 	struct tty_bufhead	buf;		/* Locked internally */
- 	struct tty_struct	*tty;		/* Back pointer */
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -8201,7 +8201,7 @@ M:	Joonas Lahtinen <joonas.lahtinen@linu
+ M:	Rodrigo Vivi <rodrigo.vivi@intel.com>
+ L:	intel-gfx@lists.freedesktop.org
+ W:	https://01.org/linuxgraphics/
+-B:	https://01.org/linuxgraphics/documentation/how-report-bugs
++B:	https://gitlab.freedesktop.org/drm/intel/-/wikis/How-to-file-i915-bugs
+ C:	irc://chat.freenode.net/intel-gfx
+ Q:	http://patchwork.freedesktop.org/project/intel-gfx/
+ T:	git git://anongit.freedesktop.org/drm-intel
 
 
