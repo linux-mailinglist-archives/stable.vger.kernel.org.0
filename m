@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D1FAE1713D2
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 10:13:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6FA481713D3
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 10:14:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728606AbgB0JNx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 04:13:53 -0500
-Received: from wout1-smtp.messagingengine.com ([64.147.123.24]:58455 "EHLO
+        id S1728621AbgB0JOB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 04:14:01 -0500
+Received: from wout1-smtp.messagingengine.com ([64.147.123.24]:56919 "EHLO
         wout1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728555AbgB0JNw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 27 Feb 2020 04:13:52 -0500
+        by vger.kernel.org with ESMTP id S1728555AbgB0JOA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 27 Feb 2020 04:14:00 -0500
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailout.west.internal (Postfix) with ESMTP id 96C1B753;
-        Thu, 27 Feb 2020 04:13:51 -0500 (EST)
+        by mailout.west.internal (Postfix) with ESMTP id 091565ED;
+        Thu, 27 Feb 2020 04:13:59 -0500 (EST)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Thu, 27 Feb 2020 04:13:51 -0500
+  by compute1.internal (MEProxy); Thu, 27 Feb 2020 04:14:00 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=LLMw79
-        qbYowAsYrDqz4OGOtmmy8kK/qm+hd7UqAC9fA=; b=F6V/TPVtm3DamqYkl7RdD2
-        43B6RZ0vzSiHVPjLp6qG8spTPqwFStIBceLMuoD488XBHedr41YTswMnIyqo/zcI
-        qtagJgsaiLZ+JF26HA1a8ZskKOwM0Cy5V61RMbmTjaVqEnDIY37LDvleMDCzFdBz
-        OcJYDfkykrj7NpwnyGDKEobgj5THOwmCUG/R5H0Qjjbj1dLNvXJ/Nj5Mw6PcpJ//
-        vF54P4GcBWa+8JU+BjraBV24dSE2RLi1MS3OoO4WaFKt2fGLl8BiGyQpBSLtU2fW
-        NAuRzjKWK1H2FVxls2EH7VUKIKUFAjxt0siV5KGLpRQw2EMJ+r/sZZINkknIFKjA
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=RvfsQg
+        8CePY1bD+hGNMEnCEeZM1/qB9/whObPDlZTUA=; b=BIqgJK2qu5bDBjLGOMcsjj
+        jZZgKdvhFeLMeuxq0QOS82sQc3jaWztC1mYf1QLHCewi678C4JxkL7lDcsl8exu4
+        3bYJUu4IpmDhU6tN15+KJKLVLbLIOL8nlX4eWKVXnlUyYbLHSA/4e61V2xbTfhXm
+        Wn0L+ZIDHT8jUpGPQog71yF3wZv77S7DUQDjvOqapYnlp09DmBqJsOqVERLPAWIN
+        qnGw1eSf8gBkJ5L77FNMp54ndLu7IAqUWRDkIFySihh/hRoaUgGtyVtuhHKBfSmI
+        GosM5ClOpy+2DmwgQYx4uY8Yt4PYvQ3OU5gMtnVv8aDZ0ARwUFqdjGhHQ+fg71OQ
         ==
-X-ME-Sender: <xms:TohXXirw3NDP-Z3YqAgKqyKRI8dvLuINPdn_E7QWDlPw4CqEuV35Pg>
+X-ME-Sender: <xms:V4hXXmk9MwtnoU5zn7s6Wb2uiGcwUJWe8ftgzfQlUoA83AhJiW9VTg>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedugedrleeigddtvdcutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
-    qeenucfkphepkeefrdekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivgeptdenuc
+    qeenucfkphepkeefrdekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivgepudenuc
     frrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:TohXXqEz0e2XTtZUgpIXFhh98WeHz_0KEXRaCkBgETjcz5koM2dp1g>
-    <xmx:TohXXmzvd7utzBXafeZdzghxNmurHCpSL4w_R9JdvPGHJZqx55iQpA>
-    <xmx:TohXXnoMp3o5C0-MncByui1wtf3RfyG0J7oz2MhBPD_JTq9Vb2oCng>
-    <xmx:T4hXXgQWAWvOhjfTY92j_x66y0q8cfnDib56dHzUgTQ-MoZmRPYRVg>
+X-ME-Proxy: <xmx:V4hXXlIR8a1kg7KgHv3SBpJn1R69Qf6B72qyZiIdvu930rSjlKzdXQ>
+    <xmx:V4hXXnR7kQLoItdaQtUTBWMkiDnVaAulAhtvu-7tR5ejC3QlX0enYQ>
+    <xmx:V4hXXkrt7ZsoW9ZgPyraBzp-rym5Ie0eaZ_34dRdMlWzEX8IIsYPwQ>
+    <xmx:V4hXXvkL0L1Hy7K4i46dnferQJd5afaCIu5dyvWr1SDggt9mK4FPTw>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 930B23060F09;
-        Thu, 27 Feb 2020 04:13:50 -0500 (EST)
-Subject: FAILED: patch "[PATCH] KVM: nVMX: handle nested posted interrupts when apicv is" failed to apply to 4.9-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 2FAB73060BD1;
+        Thu, 27 Feb 2020 04:13:59 -0500 (EST)
+Subject: FAILED: patch "[PATCH] KVM: nVMX: handle nested posted interrupts when apicv is" failed to apply to 4.4-stable tree
 To:     vkuznets@redhat.com, pbonzini@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 27 Feb 2020 10:13:48 +0100
-Message-ID: <1582794828129242@kroah.com>
+Date:   Thu, 27 Feb 2020 10:13:50 +0100
+Message-ID: <1582794829152151@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -56,7 +56,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
