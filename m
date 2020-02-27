@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 07E24171BDD
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:06:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4445B171C6A
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:11:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387929AbgB0OGZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 09:06:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43548 "EHLO mail.kernel.org"
+        id S2388488AbgB0OLt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 09:11:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50336 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387925AbgB0OGY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 09:06:24 -0500
+        id S2388318AbgB0OLs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 09:11:48 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CB1B420578;
-        Thu, 27 Feb 2020 14:06:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AA22F246AD;
+        Thu, 27 Feb 2020 14:11:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582812384;
-        bh=W4/xiG4eiTXSVrIJ6XH12CjYjNUG6YQO84OF6694ykI=;
+        s=default; t=1582812706;
+        bh=P6ve4YLl/tTD98oyYfZFuy1vti5trftE7wEQ/bg91sA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ya9EyIV5W6ihSA5Il3cQa9LrD3gaX1qXzq3CTjz9PZqudt07YMHiF7EQQHpL/ZtgD
-         YHFSG4WKQDg4sf5JFDVMngZ+mE+5xygKVua2RMAdc+k4/iTcg38jADtmJd210iOuym
-         XxEDm3nRay1ND3DMWYHKZ/m/VBRKCQ5CZKwe3Pes=
+        b=Kqm2AP8E6hZWN4XnbDjdGcwnmXh7MezjwSz5ueseccNovLggDpwfIEy1z2dBfu87A
+         JKqoZvWsWcfTOf5qs+awd9EvChpy/aejkn3NTKki/LuTdF/HOxt4/H1M/jErs85gkG
+         5BzzAiPBXpaT3m1WvffXjX74GicYxjhofeFX84jY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Cong Wang <xiyou.wangcong@gmail.com>,
-        Florian Westphal <fw@strlen.de>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
-        syzbot+adf6c6c2be1c3a718121@syzkaller.appspotmail.com
-Subject: [PATCH 4.19 93/97] netfilter: xt_hashlimit: limit the max size of hashtable
+        stable@vger.kernel.org,
+        Xiaoguang Wang <xiaoguang.wang@linux.alibaba.com>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.4 121/135] io_uring: fix __io_iopoll_check deadlock in io_sq_thread
 Date:   Thu, 27 Feb 2020 14:37:41 +0100
-Message-Id: <20200227132229.871748531@linuxfoundation.org>
+Message-Id: <20200227132247.269204084@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200227132214.553656188@linuxfoundation.org>
-References: <20200227132214.553656188@linuxfoundation.org>
+In-Reply-To: <20200227132228.710492098@linuxfoundation.org>
+References: <20200227132228.710492098@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,52 +44,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cong Wang <xiyou.wangcong@gmail.com>
+From: Xiaoguang Wang <xiaoguang.wang@linux.alibaba.com>
 
-commit 8d0015a7ab76b8b1e89a3e5f5710a6e5103f2dd5 upstream.
+commit c7849be9cc2dd2754c48ddbaca27c2de6d80a95d upstream.
 
-The user-specified hashtable size is unbound, this could
-easily lead to an OOM or a hung task as we hold the global
-mutex while allocating and initializing the new hashtable.
+Since commit a3a0e43fd770 ("io_uring: don't enter poll loop if we have
+CQEs pending"), if we already events pending, we won't enter poll loop.
+In case SETUP_IOPOLL and SETUP_SQPOLL are both enabled, if app has
+been terminated and don't reap pending events which are already in cq
+ring, and there are some reqs in poll_list, io_sq_thread will enter
+__io_iopoll_check(), and find pending events, then return, this loop
+will never have a chance to exit.
 
-Add a max value to cap both cfg->size and cfg->max, as
-suggested by Florian.
+I have seen this issue in fio stress tests, to fix this issue, let
+io_sq_thread call io_iopoll_getevents() with argument 'min' being zero,
+and remove __io_iopoll_check().
 
-Reported-and-tested-by: syzbot+adf6c6c2be1c3a718121@syzkaller.appspotmail.com
-Signed-off-by: Cong Wang <xiyou.wangcong@gmail.com>
-Reviewed-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Fixes: a3a0e43fd770 ("io_uring: don't enter poll loop if we have CQEs pending")
+Signed-off-by: Xiaoguang Wang <xiaoguang.wang@linux.alibaba.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/netfilter/xt_hashlimit.c |   10 ++++++++++
- 1 file changed, 10 insertions(+)
+ fs/io_uring.c |   27 +++++++++------------------
+ 1 file changed, 9 insertions(+), 18 deletions(-)
 
---- a/net/netfilter/xt_hashlimit.c
-+++ b/net/netfilter/xt_hashlimit.c
-@@ -845,6 +845,8 @@ hashlimit_mt(const struct sk_buff *skb,
- 	return hashlimit_mt_common(skb, par, hinfo, &info->cfg, 3);
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -882,11 +882,17 @@ static void io_iopoll_reap_events(struct
+ 	mutex_unlock(&ctx->uring_lock);
  }
  
-+#define HASHLIMIT_MAX_SIZE 1048576
-+
- static int hashlimit_mt_check_common(const struct xt_mtchk_param *par,
- 				     struct xt_hashlimit_htable **hinfo,
- 				     struct hashlimit_cfg3 *cfg,
-@@ -855,6 +857,14 @@ static int hashlimit_mt_check_common(con
+-static int __io_iopoll_check(struct io_ring_ctx *ctx, unsigned *nr_events,
+-			    long min)
++static int io_iopoll_check(struct io_ring_ctx *ctx, unsigned *nr_events,
++			   long min)
+ {
+ 	int iters = 0, ret = 0;
  
- 	if (cfg->gc_interval == 0 || cfg->expire == 0)
- 		return -EINVAL;
-+	if (cfg->size > HASHLIMIT_MAX_SIZE) {
-+		cfg->size = HASHLIMIT_MAX_SIZE;
-+		pr_info_ratelimited("size too large, truncated to %u\n", cfg->size);
-+	}
-+	if (cfg->max > HASHLIMIT_MAX_SIZE) {
-+		cfg->max = HASHLIMIT_MAX_SIZE;
-+		pr_info_ratelimited("max too large, truncated to %u\n", cfg->max);
-+	}
- 	if (par->family == NFPROTO_IPV4) {
- 		if (cfg->srcmask > 32 || cfg->dstmask > 32)
- 			return -EINVAL;
++	/*
++	 * We disallow the app entering submit/complete with polling, but we
++	 * still need to lock the ring to prevent racing with polled issue
++	 * that got punted to a workqueue.
++	 */
++	mutex_lock(&ctx->uring_lock);
+ 	do {
+ 		int tmin = 0;
+ 
+@@ -922,21 +928,6 @@ static int __io_iopoll_check(struct io_r
+ 		ret = 0;
+ 	} while (min && !*nr_events && !need_resched());
+ 
+-	return ret;
+-}
+-
+-static int io_iopoll_check(struct io_ring_ctx *ctx, unsigned *nr_events,
+-			   long min)
+-{
+-	int ret;
+-
+-	/*
+-	 * We disallow the app entering submit/complete with polling, but we
+-	 * still need to lock the ring to prevent racing with polled issue
+-	 * that got punted to a workqueue.
+-	 */
+-	mutex_lock(&ctx->uring_lock);
+-	ret = __io_iopoll_check(ctx, nr_events, min);
+ 	mutex_unlock(&ctx->uring_lock);
+ 	return ret;
+ }
+@@ -2721,7 +2712,7 @@ static int io_sq_thread(void *data)
+ 				 */
+ 				mutex_lock(&ctx->uring_lock);
+ 				if (!list_empty(&ctx->poll_list))
+-					__io_iopoll_check(ctx, &nr_events, 0);
++					io_iopoll_getevents(ctx, &nr_events, 0);
+ 				else
+ 					inflight = 0;
+ 				mutex_unlock(&ctx->uring_lock);
 
 
