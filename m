@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 35FE5171F39
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:33:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F104B171EF4
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:31:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732498AbgB0OdR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 09:33:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34384 "EHLO mail.kernel.org"
+        id S2387786AbgB0ObN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 09:31:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40000 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732801AbgB0OAs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 09:00:48 -0500
+        id S2387519AbgB0OEF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 09:04:05 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9171A2073D;
-        Thu, 27 Feb 2020 14:00:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0B8A721556;
+        Thu, 27 Feb 2020 14:04:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582812047;
-        bh=TSu1Jaccg+uhagN4DT/O2q0J9MNnGzfk0sjA/BxXfx4=;
+        s=default; t=1582812244;
+        bh=+pzRS0Eq/EejrHs1nCrQ67XWl4l3uQT0FLGO4g6YOfo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GxtCtg+sB327jdpIYCgOF6aoW/E5hKDqk+CRfEVRD1cs+n3Or1VCoN0ZbfoeK6Nxt
-         UZyzTL/gBXQjWBvhkFrguALW9io85JPdlfYVaTwkOy5hXGgupwybx9omNtKZqevtsd
-         PntmtcJ1YEnCNct9P5/MTMygC6wvkKZKpjZKw9rk=
+        b=y+OnMnGKY1IKwtDiYvzqKCjUw1X6LiZCyY7wa1Z5zIv+9qqN/6AayjcHLZZwjU7Sm
+         awfhFwDHeI8CuS9p8Ox4GrV9up4BNLgApAiNUKnHaYQ12kqPRtpqsGTdEXvCVwjsW8
+         46tdPN4uGzdtDNaN3WiulZlE8KYV9OwrtjCHXU7A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eagle Zhou <eagle.zhou@nxp.com>,
-        Fugang Duan <fugang.duan@nxp.com>,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>
-Subject: [PATCH 4.14 194/237] tty: serial: imx: setup the correct sg entry for tx dma
+        stable@vger.kernel.org, Li RongQing <lirongqing@baidu.com>,
+        Kurt Kanzenbach <kurt@linutronix.de>,
+        Vikram Pandita <vikram.pandita@ti.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: [PATCH 4.19 40/97] serial: 8250: Check UPF_IRQ_SHARED in advance
 Date:   Thu, 27 Feb 2020 14:36:48 +0100
-Message-Id: <20200227132310.592242412@linuxfoundation.org>
+Message-Id: <20200227132221.097160479@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200227132255.285644406@linuxfoundation.org>
-References: <20200227132255.285644406@linuxfoundation.org>
+In-Reply-To: <20200227132214.553656188@linuxfoundation.org>
+References: <20200227132214.553656188@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,107 +45,128 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fugang Duan <fugang.duan@nxp.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-commit f76707831829530ffdd3888bebc108aecefccaa0 upstream.
+commit 7febbcbc48fc92e3f33863b32ed715ba4aff18c4 upstream.
 
-There has oops as below happen on i.MX8MP EVK platform that has
-6G bytes DDR memory.
+The commit 54e53b2e8081
+  ("tty: serial: 8250: pass IRQ shared flag to UART ports")
+nicely explained the problem:
 
-when (xmit->tail < xmit->head) && (xmit->head == 0),
-it setups one sg entry with sg->length is zero:
-	sg_set_buf(sgl + 1, xmit->buf, xmit->head);
+---8<---8<---
 
-if xmit->buf is allocated from >4G address space, and SDMA only
-support <4G address space, then dma_map_sg() will call swiotlb_map()
-to do bounce buffer copying and mapping.
+On some systems IRQ lines between multiple UARTs might be shared. If so, the
+irqflags have to be configured accordingly. The reason is: The 8250 port startup
+code performs IRQ tests *before* the IRQ handler for that particular port is
+registered. This is performed in serial8250_do_startup(). This function checks
+whether IRQF_SHARED is configured and only then disables the IRQ line while
+testing.
 
-But swiotlb_map() don't allow sg entry's length is zero, otherwise
-report BUG_ON().
+This test is performed upon each open() of the UART device. Imagine two UARTs
+share the same IRQ line: On is already opened and the IRQ is active. When the
+second UART is opened, the IRQ line has to be disabled while performing IRQ
+tests. Otherwise an IRQ might handler might be invoked, but the IRQ itself
+cannot be handled, because the corresponding handler isn't registered,
+yet. That's because the 8250 code uses a chain-handler and invokes the
+corresponding port's IRQ handling routines himself.
 
-So the patch is to correct the tx DMA scatter list.
+Unfortunately this IRQF_SHARED flag isn't configured for UARTs probed via device
+tree even if the IRQs are shared. This way, the actual and shared IRQ line isn't
+disabled while performing tests and the kernel correctly detects a spurious
+IRQ. So, adding this flag to the DT probe solves the issue.
 
-Oops:
-[  287.675715] kernel BUG at kernel/dma/swiotlb.c:497!
-[  287.680592] Internal error: Oops - BUG: 0 [#1] PREEMPT SMP
-[  287.686075] Modules linked in:
-[  287.689133] CPU: 0 PID: 0 Comm: swapper/0 Not tainted 5.4.3-00016-g3fdc4e0-dirty #10
-[  287.696872] Hardware name: FSL i.MX8MP EVK (DT)
-[  287.701402] pstate: 80000085 (Nzcv daIf -PAN -UAO)
-[  287.706199] pc : swiotlb_tbl_map_single+0x1fc/0x310
-[  287.711076] lr : swiotlb_map+0x60/0x148
-[  287.714909] sp : ffff800010003c00
-[  287.718221] x29: ffff800010003c00 x28: 0000000000000000
-[  287.723533] x27: 0000000000000040 x26: ffff800011ae0000
-[  287.728844] x25: ffff800011ae09f8 x24: 0000000000000000
-[  287.734155] x23: 00000001b7af9000 x22: 0000000000000000
-[  287.739465] x21: ffff000176409c10 x20: 00000000001f7ffe
-[  287.744776] x19: ffff000176409c10 x18: 000000000000002e
-[  287.750087] x17: 0000000000000000 x16: 0000000000000000
-[  287.755397] x15: 0000000000000000 x14: 0000000000000000
-[  287.760707] x13: ffff00017f334000 x12: 0000000000000001
-[  287.766018] x11: 00000000001fffff x10: 0000000000000000
-[  287.771328] x9 : 0000000000000003 x8 : 0000000000000000
-[  287.776638] x7 : 0000000000000000 x6 : 0000000000000000
-[  287.781949] x5 : 0000000000200000 x4 : 0000000000000000
-[  287.787259] x3 : 0000000000000001 x2 : 00000001b7af9000
-[  287.792570] x1 : 00000000fbfff000 x0 : 0000000000000000
-[  287.797881] Call trace:
-[  287.800328]  swiotlb_tbl_map_single+0x1fc/0x310
-[  287.804859]  swiotlb_map+0x60/0x148
-[  287.808347]  dma_direct_map_page+0xf0/0x130
-[  287.812530]  dma_direct_map_sg+0x78/0xe0
-[  287.816453]  imx_uart_dma_tx+0x134/0x2f8
-[  287.820374]  imx_uart_dma_tx_callback+0xd8/0x168
-[  287.824992]  vchan_complete+0x194/0x200
-[  287.828828]  tasklet_action_common.isra.0+0x154/0x1a0
-[  287.833879]  tasklet_action+0x24/0x30
-[  287.837540]  __do_softirq+0x120/0x23c
-[  287.841202]  irq_exit+0xb8/0xd8
-[  287.844343]  __handle_domain_irq+0x64/0xb8
-[  287.848438]  gic_handle_irq+0x5c/0x148
-[  287.852185]  el1_irq+0xb8/0x180
-[  287.855327]  cpuidle_enter_state+0x84/0x360
-[  287.859508]  cpuidle_enter+0x34/0x48
-[  287.863083]  call_cpuidle+0x18/0x38
-[  287.866571]  do_idle+0x1e0/0x280
-[  287.869798]  cpu_startup_entry+0x20/0x40
-[  287.873721]  rest_init+0xd4/0xe0
-[  287.876949]  arch_call_rest_init+0xc/0x14
-[  287.880958]  start_kernel+0x420/0x44c
-[  287.884622] Code: 9124c021 9417aff8 a94363f7 17ffffd5 (d4210000)
-[  287.890718] ---[ end trace 5bc44c4ab6b009ce ]---
-[  287.895334] Kernel panic - not syncing: Fatal exception in interrupt
-[  287.901686] SMP: stopping secondary CPUs
-[  288.905607] SMP: failed to stop secondary CPUs 0-1
-[  288.910395] Kernel Offset: disabled
-[  288.913882] CPU features: 0x0002,2000200c
-[  288.917888] Memory Limit: none
-[  288.920944] ---[ end Kernel panic - not syncing: Fatal exception in interrupt ]---
+Note: The UPF_SHARE_IRQ flag is configured unconditionally. Therefore, the
+IRQF_SHARED flag can be set unconditionally as well.
 
-Reported-by: Eagle Zhou <eagle.zhou@nxp.com>
-Tested-by: Eagle Zhou <eagle.zhou@nxp.com>
-Signed-off-by: Fugang Duan <fugang.duan@nxp.com>
+Example stack trace by performing `echo 1 > /dev/ttyS2` on a non-patched system:
+
+|irq 85: nobody cared (try booting with the "irqpoll" option)
+| [...]
+|handlers:
+|[<ffff0000080fc628>] irq_default_primary_handler threaded [<ffff00000855fbb8>] serial8250_interrupt
+|Disabling IRQ #85
+
+---8<---8<---
+
+But unfortunately didn't fix the root cause. Let's try again here by moving
+IRQ flag assignment from serial_link_irq_chain() to serial8250_do_startup().
+
+This should fix the similar issue reported for 8250_pnp case.
+
+Since this change we don't need to have custom solutions in 8250_aspeed_vuart
+and 8250_of drivers, thus, drop them.
+
+Fixes: 1c2f04937b3e ("serial: 8250: add IRQ trigger support")
+Reported-by: Li RongQing <lirongqing@baidu.com>
+Cc: Kurt Kanzenbach <kurt@linutronix.de>
+Cc: Vikram Pandita <vikram.pandita@ti.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Cc: stable <stable@vger.kernel.org>
-Fixes: 7942f8577f2a ("serial: imx: TX DMA: clean up sg initialization")
-Reviewed-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Link: https://lore.kernel.org/r/1581401761-6378-1-git-send-email-fugang.duan@nxp.com
+Acked-by: Kurt Kanzenbach <kurt@linutronix.de>
+Link: https://lore.kernel.org/r/20200211135559.85960-1-andriy.shevchenko@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/tty/serial/imx.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/tty/serial/8250/8250_aspeed_vuart.c |    1 -
+ drivers/tty/serial/8250/8250_core.c         |    5 ++---
+ drivers/tty/serial/8250/8250_of.c           |    1 -
+ drivers/tty/serial/8250/8250_port.c         |    4 ++++
+ 4 files changed, 6 insertions(+), 5 deletions(-)
 
---- a/drivers/tty/serial/imx.c
-+++ b/drivers/tty/serial/imx.c
-@@ -557,7 +557,7 @@ static void imx_dma_tx(struct imx_port *
+--- a/drivers/tty/serial/8250/8250_aspeed_vuart.c
++++ b/drivers/tty/serial/8250/8250_aspeed_vuart.c
+@@ -375,7 +375,6 @@ static int aspeed_vuart_probe(struct pla
+ 		port.port.line = rc;
  
- 	sport->tx_bytes = uart_circ_chars_pending(xmit);
+ 	port.port.irq = irq_of_parse_and_map(np, 0);
+-	port.port.irqflags = IRQF_SHARED;
+ 	port.port.handle_irq = aspeed_vuart_handle_irq;
+ 	port.port.iotype = UPIO_MEM;
+ 	port.port.type = PORT_16550A;
+--- a/drivers/tty/serial/8250/8250_core.c
++++ b/drivers/tty/serial/8250/8250_core.c
+@@ -177,7 +177,7 @@ static int serial_link_irq_chain(struct
+ 	struct hlist_head *h;
+ 	struct hlist_node *n;
+ 	struct irq_info *i;
+-	int ret, irq_flags = up->port.flags & UPF_SHARE_IRQ ? IRQF_SHARED : 0;
++	int ret;
  
--	if (xmit->tail < xmit->head) {
-+	if (xmit->tail < xmit->head || xmit->head == 0) {
- 		sport->dma_tx_nents = 1;
- 		sg_init_one(sgl, xmit->buf + xmit->tail, sport->tx_bytes);
- 	} else {
+ 	mutex_lock(&hash_mutex);
+ 
+@@ -212,9 +212,8 @@ static int serial_link_irq_chain(struct
+ 		INIT_LIST_HEAD(&up->list);
+ 		i->head = &up->list;
+ 		spin_unlock_irq(&i->lock);
+-		irq_flags |= up->port.irqflags;
+ 		ret = request_irq(up->port.irq, serial8250_interrupt,
+-				  irq_flags, up->port.name, i);
++				  up->port.irqflags, up->port.name, i);
+ 		if (ret < 0)
+ 			serial_do_unlink(i, up);
+ 	}
+--- a/drivers/tty/serial/8250/8250_of.c
++++ b/drivers/tty/serial/8250/8250_of.c
+@@ -171,7 +171,6 @@ static int of_platform_serial_setup(stru
+ 
+ 	port->type = type;
+ 	port->uartclk = clk;
+-	port->irqflags |= IRQF_SHARED;
+ 
+ 	if (of_property_read_bool(np, "no-loopback-test"))
+ 		port->flags |= UPF_SKIP_TEST;
+--- a/drivers/tty/serial/8250/8250_port.c
++++ b/drivers/tty/serial/8250/8250_port.c
+@@ -2253,6 +2253,10 @@ int serial8250_do_startup(struct uart_po
+ 		}
+ 	}
+ 
++	/* Check if we need to have shared IRQs */
++	if (port->irq && (up->port.flags & UPF_SHARE_IRQ))
++		up->port.irqflags |= IRQF_SHARED;
++
+ 	if (port->irq && !(up->port.flags & UPF_NO_THRE_TEST)) {
+ 		unsigned char iir1;
+ 		/*
 
 
