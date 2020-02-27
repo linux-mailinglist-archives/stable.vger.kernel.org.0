@@ -2,39 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6E29A171A18
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 14:50:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E946717195C
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 14:44:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731267AbgB0Nut (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 08:50:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49268 "EHLO mail.kernel.org"
+        id S1730146AbgB0NoL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 08:44:11 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39604 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730461AbgB0Nut (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 08:50:49 -0500
+        id S1729207AbgB0NoL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 08:44:11 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D049A246AD;
-        Thu, 27 Feb 2020 13:50:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A4AA120578;
+        Thu, 27 Feb 2020 13:44:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582811448;
-        bh=PoNBKzgoXee5I2KfSjRmarmvASvzYJj4HxwZCgU+UVk=;
+        s=default; t=1582811050;
+        bh=5LpiuVQR4boJBXcfrHIAnyU+ztcPJ+Wm0GQPtVjfVXg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rytMCkxDHodrvyvRZvML5iChu/jgP0fP7lZJ5hui8286p//xzdM/Baf1TFZXmInJP
-         ayqywhxLmX//vlMPa29yvj9UKQCmBgsJdHrzcY2NCTlcJtCPJSUigWH9hUxZ8pUgz+
-         qIXs/ndHgSGblQR1+U9egZGAM5L5XH0D/FXukrk8=
+        b=cjoSby5lJ2SMGXYB8yMNaXNPDmMhpJTs77fO1NGMAz1/VTvr71asTBQ7IV4bykLCs
+         lx0OpjIqmE0GBYjIoMFK3Kzkw7IbRIcFokGDoBqjYuDVMs8cj5JUi3seOljYBDOgpq
+         GJHAPSekBhvTehh3gDx5/LsGzTGqbKiemWQKp4vc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        syzbot <syzkaller@googlegroups.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 137/165] vt: vt_ioctl: fix race in VT_RESIZEX
+        stable@vger.kernel.org,
+        Ioanna Alifieraki <ioanna-maria.alifieraki@canonical.com>,
+        Manfred Spraul <manfred@colorfullife.com>,
+        "Herton R. Krzesinski" <herton@redhat.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Catalin Marinas <catalin.marinas@arm.com>, malat@debian.org,
+        "Joel Fernandes (Google)" <joel@joelfernandes.org>,
+        Davidlohr Bueso <dave@stgolabs.net>,
+        Jay Vosburgh <jay.vosburgh@canonical.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.4 095/113] Revert "ipc,sem: remove uneeded sem_undo_list lock usage in exit_sem()"
 Date:   Thu, 27 Feb 2020 14:36:51 +0100
-Message-Id: <20200227132251.084429853@linuxfoundation.org>
+Message-Id: <20200227132226.936465375@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200227132230.840899170@linuxfoundation.org>
-References: <20200227132230.840899170@linuxfoundation.org>
+In-Reply-To: <20200227132211.791484803@linuxfoundation.org>
+References: <20200227132211.791484803@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,107 +52,135 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Ioanna Alifieraki <ioanna-maria.alifieraki@canonical.com>
 
-[ Upstream commit 6cd1ed50efd88261298577cd92a14f2768eddeeb ]
+commit edf28f4061afe4c2d9eb1c3323d90e882c1d6800 upstream.
 
-We need to make sure vc_cons[i].d is not NULL after grabbing
-console_lock(), or risk a crash.
+This reverts commit a97955844807e327df11aa33869009d14d6b7de0.
 
-general protection fault, probably for non-canonical address 0xdffffc0000000068: 0000 [#1] PREEMPT SMP KASAN
-KASAN: null-ptr-deref in range [0x0000000000000340-0x0000000000000347]
-CPU: 1 PID: 19462 Comm: syz-executor.5 Not tainted 5.5.0-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-RIP: 0010:vt_ioctl+0x1f96/0x26d0 drivers/tty/vt/vt_ioctl.c:883
-Code: 74 41 e8 bd a6 84 fd 48 89 d8 48 c1 e8 03 42 80 3c 28 00 0f 85 e4 04 00 00 48 8b 03 48 8d b8 40 03 00 00 48 89 fa 48 c1 ea 03 <42> 0f b6 14 2a 84 d2 74 09 80 fa 03 0f 8e b1 05 00 00 44 89 b8 40
-RSP: 0018:ffffc900086d7bb0 EFLAGS: 00010202
-RAX: 0000000000000000 RBX: ffffffff8c34ee88 RCX: ffffc9001415c000
-RDX: 0000000000000068 RSI: ffffffff83f0e6e3 RDI: 0000000000000340
-RBP: ffffc900086d7cd0 R08: ffff888054ce0100 R09: fffffbfff16a2f6d
-R10: ffff888054ce0998 R11: ffff888054ce0100 R12: 000000000000001d
-R13: dffffc0000000000 R14: 1ffff920010daf79 R15: 000000000000ff7f
-FS:  00007f7d13c12700(0000) GS:ffff8880ae900000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 00007ffd477e3c38 CR3: 0000000095d0a000 CR4: 00000000001406e0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-Call Trace:
- tty_ioctl+0xa37/0x14f0 drivers/tty/tty_io.c:2660
- vfs_ioctl fs/ioctl.c:47 [inline]
- ksys_ioctl+0x123/0x180 fs/ioctl.c:763
- __do_sys_ioctl fs/ioctl.c:772 [inline]
- __se_sys_ioctl fs/ioctl.c:770 [inline]
- __x64_sys_ioctl+0x73/0xb0 fs/ioctl.c:770
- do_syscall_64+0xfa/0x790 arch/x86/entry/common.c:294
- entry_SYSCALL_64_after_hwframe+0x49/0xbe
-RIP: 0033:0x45b399
-Code: ad b6 fb ff c3 66 2e 0f 1f 84 00 00 00 00 00 66 90 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 0f 83 7b b6 fb ff c3 66 2e 0f 1f 84 00 00 00 00
-RSP: 002b:00007f7d13c11c78 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
-RAX: ffffffffffffffda RBX: 00007f7d13c126d4 RCX: 000000000045b399
-RDX: 0000000020000080 RSI: 000000000000560a RDI: 0000000000000003
-RBP: 000000000075bf20 R08: 0000000000000000 R09: 0000000000000000
-R10: 0000000000000000 R11: 0000000000000246 R12: 00000000ffffffff
-R13: 0000000000000666 R14: 00000000004c7f04 R15: 000000000075bf2c
-Modules linked in:
----[ end trace 80970faf7a67eb77 ]---
-RIP: 0010:vt_ioctl+0x1f96/0x26d0 drivers/tty/vt/vt_ioctl.c:883
-Code: 74 41 e8 bd a6 84 fd 48 89 d8 48 c1 e8 03 42 80 3c 28 00 0f 85 e4 04 00 00 48 8b 03 48 8d b8 40 03 00 00 48 89 fa 48 c1 ea 03 <42> 0f b6 14 2a 84 d2 74 09 80 fa 03 0f 8e b1 05 00 00 44 89 b8 40
-RSP: 0018:ffffc900086d7bb0 EFLAGS: 00010202
-RAX: 0000000000000000 RBX: ffffffff8c34ee88 RCX: ffffc9001415c000
-RDX: 0000000000000068 RSI: ffffffff83f0e6e3 RDI: 0000000000000340
-RBP: ffffc900086d7cd0 R08: ffff888054ce0100 R09: fffffbfff16a2f6d
-R10: ffff888054ce0998 R11: ffff888054ce0100 R12: 000000000000001d
-R13: dffffc0000000000 R14: 1ffff920010daf79 R15: 000000000000ff7f
-FS:  00007f7d13c12700(0000) GS:ffff8880ae900000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 00007ffd477e3c38 CR3: 0000000095d0a000 CR4: 00000000001406e0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Commit a97955844807 ("ipc,sem: remove uneeded sem_undo_list lock usage
+in exit_sem()") removes a lock that is needed.  This leads to a process
+looping infinitely in exit_sem() and can also lead to a crash.  There is
+a reproducer available in [1] and with the commit reverted the issue
+does not reproduce anymore.
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: stable <stable@vger.kernel.org>
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Link: https://lore.kernel.org/r/20200210190721.200418-1-edumazet@google.com
+Using the reproducer found in [1] is fairly easy to reach a point where
+one of the child processes is looping infinitely in exit_sem between
+for(;;) and if (semid == -1) block, while it's trying to free its last
+sem_undo structure which has already been freed by freeary().
+
+Each sem_undo struct is on two lists: one per semaphore set (list_id)
+and one per process (list_proc).  The list_id list tracks undos by
+semaphore set, and the list_proc by process.
+
+Undo structures are removed either by freeary() or by exit_sem().  The
+freeary function is invoked when the user invokes a syscall to remove a
+semaphore set.  During this operation freeary() traverses the list_id
+associated with the semaphore set and removes the undo structures from
+both the list_id and list_proc lists.
+
+For this case, exit_sem() is called at process exit.  Each process
+contains a struct sem_undo_list (referred to as "ulp") which contains
+the head for the list_proc list.  When the process exits, exit_sem()
+traverses this list to remove each sem_undo struct.  As in freeary(),
+whenever a sem_undo struct is removed from list_proc, it is also removed
+from the list_id list.
+
+Removing elements from list_id is safe for both exit_sem() and freeary()
+due to sem_lock().  Removing elements from list_proc is not safe;
+freeary() locks &un->ulp->lock when it performs
+list_del_rcu(&un->list_proc) but exit_sem() does not (locking was
+removed by commit a97955844807 ("ipc,sem: remove uneeded sem_undo_list
+lock usage in exit_sem()").
+
+This can result in the following situation while executing the
+reproducer [1] : Consider a child process in exit_sem() and the parent
+in freeary() (because of semctl(sid[i], NSEM, IPC_RMID)).
+
+ - The list_proc for the child contains the last two undo structs A and
+   B (the rest have been removed either by exit_sem() or freeary()).
+
+ - The semid for A is 1 and semid for B is 2.
+
+ - exit_sem() removes A and at the same time freeary() removes B.
+
+ - Since A and B have different semid sem_lock() will acquire different
+   locks for each process and both can proceed.
+
+The bug is that they remove A and B from the same list_proc at the same
+time because only freeary() acquires the ulp lock. When exit_sem()
+removes A it makes ulp->list_proc.next to point at B and at the same
+time freeary() removes B setting B->semid=-1.
+
+At the next iteration of for(;;) loop exit_sem() will try to remove B.
+
+The only way to break from for(;;) is for (&un->list_proc ==
+&ulp->list_proc) to be true which is not. Then exit_sem() will check if
+B->semid=-1 which is and will continue looping in for(;;) until the
+memory for B is reallocated and the value at B->semid is changed.
+
+At that point, exit_sem() will crash attempting to unlink B from the
+lists (this can be easily triggered by running the reproducer [1] a
+second time).
+
+To prove this scenario instrumentation was added to keep information
+about each sem_undo (un) struct that is removed per process and per
+semaphore set (sma).
+
+          CPU0                                CPU1
+  [caller holds sem_lock(sma for A)]      ...
+  freeary()                               exit_sem()
+  ...                                     ...
+  ...                                     sem_lock(sma for B)
+  spin_lock(A->ulp->lock)                 ...
+  list_del_rcu(un_A->list_proc)           list_del_rcu(un_B->list_proc)
+
+Undo structures A and B have different semid and sem_lock() operations
+proceed.  However they belong to the same list_proc list and they are
+removed at the same time.  This results into ulp->list_proc.next
+pointing to the address of B which is already removed.
+
+After reverting commit a97955844807 ("ipc,sem: remove uneeded
+sem_undo_list lock usage in exit_sem()") the issue was no longer
+reproducible.
+
+[1] https://bugzilla.redhat.com/show_bug.cgi?id=1694779
+
+Link: http://lkml.kernel.org/r/20191211191318.11860-1-ioanna-maria.alifieraki@canonical.com
+Fixes: a97955844807 ("ipc,sem: remove uneeded sem_undo_list lock usage in exit_sem()")
+Signed-off-by: Ioanna Alifieraki <ioanna-maria.alifieraki@canonical.com>
+Acked-by: Manfred Spraul <manfred@colorfullife.com>
+Acked-by: Herton R. Krzesinski <herton@redhat.com>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: <malat@debian.org>
+Cc: Joel Fernandes (Google) <joel@joelfernandes.org>
+Cc: Davidlohr Bueso <dave@stgolabs.net>
+Cc: Jay Vosburgh <jay.vosburgh@canonical.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+
 ---
- drivers/tty/vt/vt_ioctl.c | 17 +++++++++++------
- 1 file changed, 11 insertions(+), 6 deletions(-)
+ ipc/sem.c |    6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/tty/vt/vt_ioctl.c b/drivers/tty/vt/vt_ioctl.c
-index d4c1b100f3b6d..e8efb270dc8f9 100644
---- a/drivers/tty/vt/vt_ioctl.c
-+++ b/drivers/tty/vt/vt_ioctl.c
-@@ -879,15 +879,20 @@ int vt_ioctl(struct tty_struct *tty,
- 			return -EINVAL;
+--- a/ipc/sem.c
++++ b/ipc/sem.c
+@@ -2151,11 +2151,9 @@ void exit_sem(struct task_struct *tsk)
+ 		ipc_assert_locked_object(&sma->sem_perm);
+ 		list_del(&un->list_id);
  
- 		for (i = 0; i < MAX_NR_CONSOLES; i++) {
-+			struct vc_data *vcp;
-+
- 			if (!vc_cons[i].d)
- 				continue;
- 			console_lock();
--			if (v.v_vlin)
--				vc_cons[i].d->vc_scan_lines = v.v_vlin;
--			if (v.v_clin)
--				vc_cons[i].d->vc_font.height = v.v_clin;
--			vc_cons[i].d->vc_resize_user = 1;
--			vc_resize(vc_cons[i].d, v.v_cols, v.v_rows);
-+			vcp = vc_cons[i].d;
-+			if (vcp) {
-+				if (v.v_vlin)
-+					vcp->vc_scan_lines = v.v_vlin;
-+				if (v.v_clin)
-+					vcp->vc_font.height = v.v_clin;
-+				vcp->vc_resize_user = 1;
-+				vc_resize(vcp, v.v_cols, v.v_rows);
-+			}
- 			console_unlock();
- 		}
- 		break;
--- 
-2.20.1
-
+-		/* we are the last process using this ulp, acquiring ulp->lock
+-		 * isn't required. Besides that, we are also protected against
+-		 * IPC_RMID as we hold sma->sem_perm lock now
+-		 */
++		spin_lock(&ulp->lock);
+ 		list_del_rcu(&un->list_proc);
++		spin_unlock(&ulp->lock);
+ 
+ 		/* perform adjustments registered in un */
+ 		for (i = 0; i < sma->sem_nsems; i++) {
 
 
