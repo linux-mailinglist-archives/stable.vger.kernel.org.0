@@ -2,37 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DD199171B79
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:03:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D65B3171DCA
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:23:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733206AbgB0OCs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 09:02:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37606 "EHLO mail.kernel.org"
+        id S2389101AbgB0OOT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 09:14:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53462 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733202AbgB0OCs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 09:02:48 -0500
+        id S2389105AbgB0OOT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 09:14:19 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8AC3E20578;
-        Thu, 27 Feb 2020 14:02:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D740B24697;
+        Thu, 27 Feb 2020 14:14:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582812167;
-        bh=bji/UNK8mMEXp12l0PaZsW0JTTAb0Peu6SUk0C9bnuI=;
+        s=default; t=1582812857;
+        bh=Dqe8peYwQwuHYE4wE7HzqKcEV4TelEPWey30f3hiVvk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a8S3zxwgytszPU/Nmyy6nXzWAXJm6J+DvTIA0TZmBkcXwBHW0ZLLMUwH8mD07WkG8
-         YTWDXwEHgtqYOWhJ2+spdjNgLAVdBMAUos3U2Lww2FXEaURvXbNj/vRdAkx/CKpMKD
-         2PHoADjn+ngvQiY8xhzMJGCQ1TqIPjTmH5mqZ2lc=
+        b=VaYxrrnUVztyfLYJ/Dhq4e7af7CMcAnaCqrHofBQmf5YokhRNO1SHDERZ9kQgwzyK
+         o8YYHlt0x+ztB4jTQQ3R+ZwCE/jdJxSqSGABOKb6SXjBz7egLUVzM/BbAiPNcrR8vx
+         9bc+7D0JlMDJIQMlYSQiSunSVkxeyBjk9eWoeteQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christoph Jung <jung@codemercs.com>
-Subject: [PATCH 4.19 11/97] USB: misc: iowarrior: add support for the 100 device
+        stable@vger.kernel.org, Felipe Balbi <balbi@kernel.org>,
+        Yang Fei <fei.yang@intel.com>,
+        Thinh Nguyen <thinhn@synopsys.com>,
+        Tejas Joglekar <tejas.joglekar@synopsys.com>,
+        Andrzej Pietrasiewicz <andrzej.p@collabora.com>,
+        Jack Pham <jackp@codeaurora.org>, Todd Kjos <tkjos@google.com>,
+        Linux USB List <linux-usb@vger.kernel.org>,
+        Anurag Kumar Vulisha <anurag.kumar.vulisha@xilinx.com>,
+        John Stultz <john.stultz@linaro.org>
+Subject: [PATCH 5.5 042/150] usb: dwc3: gadget: Check for IOC/LST bit in TRB->ctrl fields
 Date:   Thu, 27 Feb 2020 14:36:19 +0100
-Message-Id: <20200227132216.416403671@linuxfoundation.org>
+Message-Id: <20200227132239.087998024@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200227132214.553656188@linuxfoundation.org>
-References: <20200227132214.553656188@linuxfoundation.org>
+In-Reply-To: <20200227132232.815448360@linuxfoundation.org>
+References: <20200227132232.815448360@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,67 +50,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Anurag Kumar Vulisha <anurag.kumar.vulisha@xilinx.com>
 
-commit bab5417f5f0118ce914bc5b2f8381e959e891155 upstream.
+commit 5ee858975b13a9b40db00f456989a689fdbb296c upstream.
 
-Add a new device id for the 100 devie.  It has 4 interfaces like the 28
-and 28L devices but a larger endpoint so more I/O pins.
+The current code in dwc3_gadget_ep_reclaim_completed_trb() will
+check for IOC/LST bit in the event->status and returns if
+IOC/LST bit is set. This logic doesn't work if multiple TRBs
+are queued per request and the IOC/LST bit is set on the last
+TRB of that request.
 
-Cc: Christoph Jung <jung@codemercs.com>
+Consider an example where a queued request has multiple queued
+TRBs and IOC/LST bit is set only for the last TRB. In this case,
+the core generates XferComplete/XferInProgress events only for
+the last TRB (since IOC/LST are set only for the last TRB). As
+per the logic in dwc3_gadget_ep_reclaim_completed_trb()
+event->status is checked for IOC/LST bit and returns on the
+first TRB. This leaves the remaining TRBs left unhandled.
+
+Similarly, if the gadget function enqueues an unaligned request
+with sglist already in it, it should fail the same way, since we
+will append another TRB to something that already uses more than
+one TRB.
+
+To aviod this, this patch changes the code to check for IOC/LST
+bits in TRB->ctrl instead.
+
+At a practical level, this patch resolves USB transfer stalls seen
+with adb on dwc3 based HiKey960 after functionfs gadget added
+scatter-gather support around v4.20.
+
+Cc: Felipe Balbi <balbi@kernel.org>
+Cc: Yang Fei <fei.yang@intel.com>
+Cc: Thinh Nguyen <thinhn@synopsys.com>
+Cc: Tejas Joglekar <tejas.joglekar@synopsys.com>
+Cc: Andrzej Pietrasiewicz <andrzej.p@collabora.com>
+Cc: Jack Pham <jackp@codeaurora.org>
+Cc: Todd Kjos <tkjos@google.com>
+Cc: Greg KH <gregkh@linuxfoundation.org>
+Cc: Linux USB List <linux-usb@vger.kernel.org>
 Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200214161148.GA3963518@kroah.com
+Tested-by: Tejas Joglekar <tejas.joglekar@synopsys.com>
+Reviewed-by: Thinh Nguyen <thinhn@synopsys.com>
+Signed-off-by: Anurag Kumar Vulisha <anurag.kumar.vulisha@xilinx.com>
+[jstultz: forward ported to mainline, reworded commit log, reworked
+ to only check trb->ctrl as suggested by Felipe]
+Signed-off-by: John Stultz <john.stultz@linaro.org>
+Signed-off-by: Felipe Balbi <balbi@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/misc/iowarrior.c |    9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/usb/dwc3/gadget.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/misc/iowarrior.c
-+++ b/drivers/usb/misc/iowarrior.c
-@@ -36,6 +36,7 @@
- /* fuller speed iowarrior */
- #define USB_DEVICE_ID_CODEMERCS_IOW28	0x1504
- #define USB_DEVICE_ID_CODEMERCS_IOW28L	0x1505
-+#define USB_DEVICE_ID_CODEMERCS_IOW100	0x1506
+--- a/drivers/usb/dwc3/gadget.c
++++ b/drivers/usb/dwc3/gadget.c
+@@ -2426,7 +2426,8 @@ static int dwc3_gadget_ep_reclaim_comple
+ 	if (event->status & DEPEVT_STATUS_SHORT && !chain)
+ 		return 1;
  
- /* OEMed devices */
- #define USB_DEVICE_ID_CODEMERCS_IOW24SAG	0x158a
-@@ -148,6 +149,7 @@ static const struct usb_device_id iowarr
- 	{USB_DEVICE(USB_VENDOR_ID_CODEMERCS, USB_DEVICE_ID_CODEMERCS_IOW56AM)},
- 	{USB_DEVICE(USB_VENDOR_ID_CODEMERCS, USB_DEVICE_ID_CODEMERCS_IOW28)},
- 	{USB_DEVICE(USB_VENDOR_ID_CODEMERCS, USB_DEVICE_ID_CODEMERCS_IOW28L)},
-+	{USB_DEVICE(USB_VENDOR_ID_CODEMERCS, USB_DEVICE_ID_CODEMERCS_IOW100)},
- 	{}			/* Terminating entry */
- };
- MODULE_DEVICE_TABLE(usb, iowarrior_ids);
-@@ -390,6 +392,7 @@ static ssize_t iowarrior_write(struct fi
- 	case USB_DEVICE_ID_CODEMERCS_IOW56AM:
- 	case USB_DEVICE_ID_CODEMERCS_IOW28:
- 	case USB_DEVICE_ID_CODEMERCS_IOW28L:
-+	case USB_DEVICE_ID_CODEMERCS_IOW100:
- 		/* The IOW56 uses asynchronous IO and more urbs */
- 		if (atomic_read(&dev->write_busy) == MAX_WRITES_IN_FLIGHT) {
- 			/* Wait until we are below the limit for submitted urbs */
-@@ -801,7 +804,8 @@ static int iowarrior_probe(struct usb_in
- 	if ((dev->product_id == USB_DEVICE_ID_CODEMERCS_IOW56) ||
- 	    (dev->product_id == USB_DEVICE_ID_CODEMERCS_IOW56AM) ||
- 	    (dev->product_id == USB_DEVICE_ID_CODEMERCS_IOW28) ||
--	    (dev->product_id == USB_DEVICE_ID_CODEMERCS_IOW28L)) {
-+	    (dev->product_id == USB_DEVICE_ID_CODEMERCS_IOW28L) ||
-+	    (dev->product_id == USB_DEVICE_ID_CODEMERCS_IOW100)) {
- 		res = usb_find_last_int_out_endpoint(iface_desc,
- 				&dev->int_out_endpoint);
- 		if (res) {
-@@ -817,7 +821,8 @@ static int iowarrior_probe(struct usb_in
- 	    ((dev->product_id == USB_DEVICE_ID_CODEMERCS_IOW56) ||
- 	     (dev->product_id == USB_DEVICE_ID_CODEMERCS_IOW56AM) ||
- 	     (dev->product_id == USB_DEVICE_ID_CODEMERCS_IOW28) ||
--	     (dev->product_id == USB_DEVICE_ID_CODEMERCS_IOW28L)))
-+	     (dev->product_id == USB_DEVICE_ID_CODEMERCS_IOW28L) ||
-+	     (dev->product_id == USB_DEVICE_ID_CODEMERCS_IOW100)))
- 		/* IOWarrior56 has wMaxPacketSize different from report size */
- 		dev->report_size = 7;
+-	if (event->status & DEPEVT_STATUS_IOC)
++	if ((trb->ctrl & DWC3_TRB_CTRL_IOC) ||
++	    (trb->ctrl & DWC3_TRB_CTRL_LST))
+ 		return 1;
  
+ 	return 0;
 
 
