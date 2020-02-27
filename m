@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EA63C171EF6
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:31:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 310C3171F13
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:32:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387642AbgB0ObS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 09:31:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39906 "EHLO mail.kernel.org"
+        id S1733139AbgB0OCc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 09:02:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37228 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387516AbgB0OEE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 09:04:04 -0500
+        id S1733137AbgB0OCc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 09:02:32 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9FE8F20578;
-        Thu, 27 Feb 2020 14:04:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 25C4F20578;
+        Thu, 27 Feb 2020 14:02:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582812242;
-        bh=nFipeVugtVswHfpnVxsrrfKfmR2Tjq+wQ2MwbxCg2TU=;
+        s=default; t=1582812151;
+        bh=snVZpr8Tc1ya9pgap+qDI7pE4d1cCVzZv7mgLWud5jc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RsDgClC6xLCQ7U0vAc2A9lQfFwr8jnFOZik9ddhIPVoqWg/lvv3KvwQyDsuaKUd6C
-         M8Drdtw1PlUv5pRdyb9/ekZi77aLDJyGlhn2lCw65cb4Elwskhi3p4QV4QyCSB5eZc
-         0lMTGCgndi8E91OeL+J8Ql9pwTtwnG7H0PrRjmAI=
+        b=BhKy47Wphif89SbAPNxa3gMlpX4cH35siByvnJ6aFzb5mC3gc09eOeA3jgCb7WLpz
+         Pzj9UPK+wSQPXab9efg1zaz1k1/mAC+AR5r9juTxu0JkLir22TZXeLH8fl/X+PEkcw
+         noQapM5GkvvTDIRTnO7HkVCKv9g0sxoAXFFgRIYI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kim Phillips <kim.phillips@amd.com>,
-        Borislav Petkov <bp@suse.de>,
-        Peter Zijlstra <peterz@infradead.org>
-Subject: [PATCH 4.19 39/97] x86/cpu/amd: Enable the fixed Instructions Retired counter IRPERF
+        stable@vger.kernel.org, Nicolas Ferre <nicolas.ferre@microchip.com>
+Subject: [PATCH 4.14 193/237] tty/serial: atmel: manage shutdown in case of RS485 or ISO7816 mode
 Date:   Thu, 27 Feb 2020 14:36:47 +0100
-Message-Id: <20200227132220.935540589@linuxfoundation.org>
+Message-Id: <20200227132310.526193773@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200227132214.553656188@linuxfoundation.org>
-References: <20200227132214.553656188@linuxfoundation.org>
+In-Reply-To: <20200227132255.285644406@linuxfoundation.org>
+References: <20200227132255.285644406@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,113 +42,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kim Phillips <kim.phillips@amd.com>
+From: Nicolas Ferre <nicolas.ferre@microchip.com>
 
-commit 21b5ee59ef18e27d85810584caf1f7ddc705ea83 upstream.
+commit 04b5bfe3dc94e64d0590c54045815cb5183fb095 upstream.
 
-Commit
+In atmel_shutdown() we call atmel_stop_rx() and atmel_stop_tx() functions.
+Prevent the rx restart that is implemented in RS485 or ISO7816 modes when
+calling atmel_stop_tx() by using the atomic information tasklet_shutdown
+that is already in place for this purpose.
 
-  aaf248848db50 ("perf/x86/msr: Add AMD IRPERF (Instructions Retired)
-		  performance counter")
-
-added support for access to the free-running counter via 'perf -e
-msr/irperf/', but when exercised, it always returns a 0 count:
-
-BEFORE:
-
-  $ perf stat -e instructions,msr/irperf/ true
-
-   Performance counter stats for 'true':
-
-             624,833      instructions
-                   0      msr/irperf/
-
-Simply set its enable bit - HWCR bit 30 - to make it start counting.
-
-Enablement is restricted to all machines advertising IRPERF capability,
-except those susceptible to an erratum that makes the IRPERF return
-bad values.
-
-That erratum occurs in Family 17h models 00-1fh [1], but not in F17h
-models 20h and above [2].
-
-AFTER (on a family 17h model 31h machine):
-
-  $ perf stat -e instructions,msr/irperf/ true
-
-   Performance counter stats for 'true':
-
-             621,690      instructions
-             622,490      msr/irperf/
-
-[1] Revision Guide for AMD Family 17h Models 00h-0Fh Processors
-[2] Revision Guide for AMD Family 17h Models 30h-3Fh Processors
-
-The revision guides are available from the bugzilla Link below.
-
- [ bp: Massage commit message. ]
-
-Fixes: aaf248848db50 ("perf/x86/msr: Add AMD IRPERF (Instructions Retired) performance counter")
-Signed-off-by: Kim Phillips <kim.phillips@amd.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: stable@vger.kernel.org
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=206537
-Link: http://lkml.kernel.org/r/20200214201805.13830-1-kim.phillips@amd.com
+Fixes: 98f2082c3ac4 ("tty/serial: atmel: enforce tasklet init and termination sequences")
+Signed-off-by: Nicolas Ferre <nicolas.ferre@microchip.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200210152053.8289-1-nicolas.ferre@microchip.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/include/asm/msr-index.h |    2 ++
- arch/x86/kernel/cpu/amd.c        |   14 ++++++++++++++
- 2 files changed, 16 insertions(+)
+ drivers/tty/serial/atmel_serial.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/arch/x86/include/asm/msr-index.h
-+++ b/arch/x86/include/asm/msr-index.h
-@@ -455,6 +455,8 @@
- #define MSR_K7_HWCR			0xc0010015
- #define MSR_K7_HWCR_SMMLOCK_BIT		0
- #define MSR_K7_HWCR_SMMLOCK		BIT_ULL(MSR_K7_HWCR_SMMLOCK_BIT)
-+#define MSR_K7_HWCR_IRPERF_EN_BIT	30
-+#define MSR_K7_HWCR_IRPERF_EN		BIT_ULL(MSR_K7_HWCR_IRPERF_EN_BIT)
- #define MSR_K7_FID_VID_CTL		0xc0010041
- #define MSR_K7_FID_VID_STATUS		0xc0010042
+--- a/drivers/tty/serial/atmel_serial.c
++++ b/drivers/tty/serial/atmel_serial.c
+@@ -498,7 +498,8 @@ static void atmel_stop_tx(struct uart_po
+ 	atmel_uart_writel(port, ATMEL_US_IDR, atmel_port->tx_done_mask);
  
---- a/arch/x86/kernel/cpu/amd.c
-+++ b/arch/x86/kernel/cpu/amd.c
-@@ -25,6 +25,7 @@
+ 	if (atmel_uart_is_half_duplex(port))
+-		atmel_start_rx(port);
++		if (!atomic_read(&atmel_port->tasklet_shutdown))
++			atmel_start_rx(port);
  
- static const int amd_erratum_383[];
- static const int amd_erratum_400[];
-+static const int amd_erratum_1054[];
- static bool cpu_has_amd_erratum(struct cpuinfo_x86 *cpu, const int *erratum);
- 
- /*
-@@ -983,6 +984,15 @@ static void init_amd(struct cpuinfo_x86
- 	/* AMD CPUs don't reset SS attributes on SYSRET, Xen does. */
- 	if (!cpu_has(c, X86_FEATURE_XENPV))
- 		set_cpu_bug(c, X86_BUG_SYSRET_SS_ATTRS);
-+
-+	/*
-+	 * Turn on the Instructions Retired free counter on machines not
-+	 * susceptible to erratum #1054 "Instructions Retired Performance
-+	 * Counter May Be Inaccurate".
-+	 */
-+	if (cpu_has(c, X86_FEATURE_IRPERF) &&
-+	    !cpu_has_amd_erratum(c, amd_erratum_1054))
-+		msr_set_bit(MSR_K7_HWCR, MSR_K7_HWCR_IRPERF_EN_BIT);
  }
  
- #ifdef CONFIG_X86_32
-@@ -1110,6 +1120,10 @@ static const int amd_erratum_400[] =
- static const int amd_erratum_383[] =
- 	AMD_OSVW_ERRATUM(3, AMD_MODEL_RANGE(0x10, 0, 0, 0xff, 0xf));
- 
-+/* #1054: Instructions Retired Performance Counter May Be Inaccurate */
-+static const int amd_erratum_1054[] =
-+	AMD_OSVW_ERRATUM(0, AMD_MODEL_RANGE(0x17, 0, 0, 0x2f, 0xf));
-+
- 
- static bool cpu_has_amd_erratum(struct cpuinfo_x86 *cpu, const int *erratum)
- {
 
 
