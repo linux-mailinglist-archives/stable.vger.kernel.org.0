@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 80D81172005
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:40:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EDDB2171FD1
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:40:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731319AbgB0NyH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 08:54:07 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54118 "EHLO mail.kernel.org"
+        id S1731827AbgB0NyP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 08:54:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54260 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731279AbgB0NyF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 08:54:05 -0500
+        id S1731837AbgB0NyO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 08:54:14 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EC91120801;
-        Thu, 27 Feb 2020 13:54:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7A1F32469B;
+        Thu, 27 Feb 2020 13:54:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582811645;
-        bh=+zIrdqNPkEd6fY5EVhJZkgvBuBmEdUWSwmsgVa5DgUQ=;
+        s=default; t=1582811652;
+        bh=8InE86H468oaSvZmmcITyyVP/obxoGRHX02l4sK1+fQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QbHxjfiYBS47XWSxUSHabfjUPzomGGP0tXOOHZb6fuCaOgMQBwvCwu9Hunt5guPh+
-         Xmj7P3H4MBKmK/6g75y0PQqsBtJ9U68siBxBtGQys5LK2g3QO7ZaOdY6ouIz1gc/ml
-         87D4PeH2d2Op3BZ7swfSsMOyAWBriEmPQ2QsJPbo=
+        b=sMwOOhifbMuvcOyHhoTKL8jxyCVKD098gdpLvahnp5PAPNaaVWvkP9ovogLbLeoXz
+         bM4vW215njGv1WuRssdWXfcyiv21H/o4bZaRNwLaCVhdHfxN4AwgmiUPgX5Q+4ROEF
+         JVdWKcPWsY7ULSdAuxvKyy60/dcodpo8r6/zktv0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Lubomir Rintel <lkundrak@v3.sk>,
-        YueHaibing <yuehaibing@huawei.com>,
-        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
+        stable@vger.kernel.org, Alexey Kardashevskiy <aik@ozlabs.ru>,
+        Oliver OHalloran <oohall@gmail.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 047/237] pxa168fb: Fix the function used to release some memory in an error handling path
-Date:   Thu, 27 Feb 2020 14:34:21 +0100
-Message-Id: <20200227132300.170429950@linuxfoundation.org>
+Subject: [PATCH 4.14 049/237] powerpc/powernv/iov: Ensure the pdn for VFs always contains a valid PE number
+Date:   Thu, 27 Feb 2020 14:34:23 +0100
+Message-Id: <20200227132300.333351310@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200227132255.285644406@linuxfoundation.org>
 References: <20200227132255.285644406@linuxfoundation.org>
@@ -47,54 +45,164 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Oliver O'Halloran <oohall@gmail.com>
 
-[ Upstream commit 3c911fe799d1c338d94b78e7182ad452c37af897 ]
+[ Upstream commit 3b5b9997b331e77ce967eba2c4bc80dc3134a7fe ]
 
-In the probe function, some resources are allocated using 'dma_alloc_wc()',
-they should be released with 'dma_free_wc()', not 'dma_free_coherent()'.
+On pseries there is a bug with adding hotplugged devices to an IOMMU
+group. For a number of dumb reasons fixing that bug first requires
+re-working how VFs are configured on PowerNV. For background, on
+PowerNV we use the pcibios_sriov_enable() hook to do two things:
 
-We already use 'dma_free_wc()' in the remove function, but not in the
-error handling path of the probe function.
+  1. Create a pci_dn structure for each of the VFs, and
+  2. Configure the PHB's internal BARs so the MMIO range for each VF
+     maps to a unique PE.
 
-Also, remove a useless 'PAGE_ALIGN()'. 'info->fix.smem_len' is already
-PAGE_ALIGNed.
+Roughly speaking a PE is the hardware counterpart to a Linux IOMMU
+group since all the devices in a PE share the same IOMMU table. A PE
+also defines the set of devices that should be isolated in response to
+a PCI error (i.e. bad DMA, UR/CA, AER events, etc). When isolated all
+MMIO and DMA traffic to and from devicein the PE is blocked by the
+root complex until the PE is recovered by the OS.
 
-Fixes: 638772c7553f ("fb: add support of LCD display controller on pxa168/910 (base layer)")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Reviewed-by: Lubomir Rintel <lkundrak@v3.sk>
-CC: YueHaibing <yuehaibing@huawei.com>
-Signed-off-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20190831100024.3248-1-christophe.jaillet@wanadoo.fr
+The requirement to block MMIO causes a giant headache because the P8
+PHB generally uses a fixed mapping between MMIO addresses and PEs. As
+a result we need to delay configuring the IOMMU groups for device
+until after MMIO resources are assigned. For physical devices (i.e.
+non-VFs) the PE assignment is done in pcibios_setup_bridge() which is
+called immediately after the MMIO resources for downstream
+devices (and the bridge's windows) are assigned. For VFs the setup is
+more complicated because:
+
+  a) pcibios_setup_bridge() is not called again when VFs are activated, and
+  b) The pci_dev for VFs are created by generic code which runs after
+     pcibios_sriov_enable() is called.
+
+The work around for this is a two step process:
+
+  1. A fixup in pcibios_add_device() is used to initialised the cached
+     pe_number in pci_dn, then
+  2. A bus notifier then adds the device to the IOMMU group for the PE
+     specified in pci_dn->pe_number.
+
+A side effect fixing the pseries bug mentioned in the first paragraph
+is moving the fixup out of pcibios_add_device() and into
+pcibios_bus_add_device(), which is called much later. This results in
+step 2. failing because pci_dn->pe_number won't be initialised when
+the bus notifier is run.
+
+We can fix this by removing the need for the fixup. The PE for a VF is
+known before the VF is even scanned so we can initialise
+pci_dn->pe_number pcibios_sriov_enable() instead. Unfortunately,
+moving the initialisation causes two problems:
+
+  1. We trip the WARN_ON() in the current fixup code, and
+  2. The EEH core clears pdn->pe_number when recovering a VF and
+     relies on the fixup to correctly re-set it.
+
+The only justification for either of these is a comment in
+eeh_rmv_device() suggesting that pdn->pe_number *must* be set to
+IODA_INVALID_PE in order for the VF to be scanned. However, this
+comment appears to have no basis in reality. Both bugs can be fixed by
+just deleting the code.
+
+Tested-by: Alexey Kardashevskiy <aik@ozlabs.ru>
+Reviewed-by: Alexey Kardashevskiy <aik@ozlabs.ru>
+Signed-off-by: Oliver O'Halloran <oohall@gmail.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20191028085424.12006-1-oohall@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/pxa168fb.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ arch/powerpc/kernel/eeh_driver.c          |  6 ------
+ arch/powerpc/platforms/powernv/pci-ioda.c | 19 +++++++++++++++----
+ arch/powerpc/platforms/powernv/pci.c      |  4 ----
+ 3 files changed, 15 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/video/fbdev/pxa168fb.c b/drivers/video/fbdev/pxa168fb.c
-index d059d04c63acd..20195d3dbf088 100644
---- a/drivers/video/fbdev/pxa168fb.c
-+++ b/drivers/video/fbdev/pxa168fb.c
-@@ -769,8 +769,8 @@ failed_free_cmap:
- failed_free_clk:
- 	clk_disable_unprepare(fbi->clk);
- failed_free_fbmem:
--	dma_free_coherent(fbi->dev, info->fix.smem_len,
--			info->screen_base, fbi->fb_start_dma);
-+	dma_free_wc(fbi->dev, info->fix.smem_len,
-+		    info->screen_base, fbi->fb_start_dma);
- failed_free_info:
- 	kfree(info);
+diff --git a/arch/powerpc/kernel/eeh_driver.c b/arch/powerpc/kernel/eeh_driver.c
+index 470284f9e4f66..5a48c93aaa1b3 100644
+--- a/arch/powerpc/kernel/eeh_driver.c
++++ b/arch/powerpc/kernel/eeh_driver.c
+@@ -520,12 +520,6 @@ static void *eeh_rmv_device(void *data, void *userdata)
  
-@@ -804,7 +804,7 @@ static int pxa168fb_remove(struct platform_device *pdev)
+ 		pci_iov_remove_virtfn(edev->physfn, pdn->vf_index, 0);
+ 		edev->pdev = NULL;
+-
+-		/*
+-		 * We have to set the VF PE number to invalid one, which is
+-		 * required to plug the VF successfully.
+-		 */
+-		pdn->pe_number = IODA_INVALID_PE;
+ #endif
+ 		if (rmv_data)
+ 			list_add(&edev->rmv_list, &rmv_data->edev_list);
+diff --git a/arch/powerpc/platforms/powernv/pci-ioda.c b/arch/powerpc/platforms/powernv/pci-ioda.c
+index d3d5796f7df60..36ef504eeab32 100644
+--- a/arch/powerpc/platforms/powernv/pci-ioda.c
++++ b/arch/powerpc/platforms/powernv/pci-ioda.c
+@@ -1523,6 +1523,10 @@ static void pnv_ioda_setup_vf_PE(struct pci_dev *pdev, u16 num_vfs)
  
- 	irq = platform_get_irq(pdev, 0);
+ 	/* Reserve PE for each VF */
+ 	for (vf_index = 0; vf_index < num_vfs; vf_index++) {
++		int vf_devfn = pci_iov_virtfn_devfn(pdev, vf_index);
++		int vf_bus = pci_iov_virtfn_bus(pdev, vf_index);
++		struct pci_dn *vf_pdn;
++
+ 		if (pdn->m64_single_mode)
+ 			pe_num = pdn->pe_num_map[vf_index];
+ 		else
+@@ -1535,13 +1539,11 @@ static void pnv_ioda_setup_vf_PE(struct pci_dev *pdev, u16 num_vfs)
+ 		pe->pbus = NULL;
+ 		pe->parent_dev = pdev;
+ 		pe->mve_number = -1;
+-		pe->rid = (pci_iov_virtfn_bus(pdev, vf_index) << 8) |
+-			   pci_iov_virtfn_devfn(pdev, vf_index);
++		pe->rid = (vf_bus << 8) | vf_devfn;
  
--	dma_free_wc(fbi->dev, PAGE_ALIGN(info->fix.smem_len),
-+	dma_free_wc(fbi->dev, info->fix.smem_len,
- 		    info->screen_base, info->fix.smem_start);
+ 		pe_info(pe, "VF %04d:%02d:%02d.%d associated with PE#%x\n",
+ 			hose->global_number, pdev->bus->number,
+-			PCI_SLOT(pci_iov_virtfn_devfn(pdev, vf_index)),
+-			PCI_FUNC(pci_iov_virtfn_devfn(pdev, vf_index)), pe_num);
++			PCI_SLOT(vf_devfn), PCI_FUNC(vf_devfn), pe_num);
  
- 	clk_disable_unprepare(fbi->clk);
+ 		if (pnv_ioda_configure_pe(phb, pe)) {
+ 			/* XXX What do we do here ? */
+@@ -1555,6 +1557,15 @@ static void pnv_ioda_setup_vf_PE(struct pci_dev *pdev, u16 num_vfs)
+ 		list_add_tail(&pe->list, &phb->ioda.pe_list);
+ 		mutex_unlock(&phb->ioda.pe_list_mutex);
+ 
++		/* associate this pe to it's pdn */
++		list_for_each_entry(vf_pdn, &pdn->parent->child_list, list) {
++			if (vf_pdn->busno == vf_bus &&
++			    vf_pdn->devfn == vf_devfn) {
++				vf_pdn->pe_number = pe_num;
++				break;
++			}
++		}
++
+ 		pnv_pci_ioda2_setup_dma_pe(phb, pe);
+ 	}
+ }
+diff --git a/arch/powerpc/platforms/powernv/pci.c b/arch/powerpc/platforms/powernv/pci.c
+index 961c131a5b7e8..844ca1886063b 100644
+--- a/arch/powerpc/platforms/powernv/pci.c
++++ b/arch/powerpc/platforms/powernv/pci.c
+@@ -978,16 +978,12 @@ void pnv_pci_dma_dev_setup(struct pci_dev *pdev)
+ 	struct pnv_phb *phb = hose->private_data;
+ #ifdef CONFIG_PCI_IOV
+ 	struct pnv_ioda_pe *pe;
+-	struct pci_dn *pdn;
+ 
+ 	/* Fix the VF pdn PE number */
+ 	if (pdev->is_virtfn) {
+-		pdn = pci_get_pdn(pdev);
+-		WARN_ON(pdn->pe_number != IODA_INVALID_PE);
+ 		list_for_each_entry(pe, &phb->ioda.pe_list, list) {
+ 			if (pe->rid == ((pdev->bus->number << 8) |
+ 			    (pdev->devfn & 0xff))) {
+-				pdn->pe_number = pe->pe_number;
+ 				pe->pdev = pdev;
+ 				break;
+ 			}
 -- 
 2.20.1
 
