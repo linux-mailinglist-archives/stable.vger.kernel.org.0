@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B5A6A1719B3
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 14:47:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B1FB5171924
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 14:42:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730361AbgB0NrY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 08:47:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43808 "EHLO mail.kernel.org"
+        id S1729751AbgB0NmR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 08:42:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37220 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730348AbgB0NrX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 08:47:23 -0500
+        id S1729745AbgB0NmQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 08:42:16 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1410F20578;
-        Thu, 27 Feb 2020 13:47:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4C24A20578;
+        Thu, 27 Feb 2020 13:42:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582811242;
-        bh=jQfu8bCvF+mzgWJ6k6YWq1ohcse+PpsTW1BLceogg/Q=;
+        s=default; t=1582810935;
+        bh=ngaZZQBiQNpS7ZnpG1OvrrWn13ouAk3LaZijKgYhraM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dRmixvUTLG2deKCx7UN2502OjPaQS4HlwkiOwUKcjKA+v3cqsilZ3JX8SWBSmfM4q
-         kkLZ/VjeuewB8RnSnWjr/gzj9SWS/5H7c8zK3Cj5JxboHUWi/7z5C1wHCiFNiMcWwj
-         cfXBGba8hgYxvSVdMV4JxAYh4569l8d5EstJHReU=
+        b=QmJXWEuwnCgTmd6fJc9ou04cNHiVCjzWcPXNllECiCzsrwPeKMsz/2zM1K8sseWFp
+         47FAqe6qvQLg4kv2jYVyYjkpsbKdcOeJJawLQc6NF0hpfsgxgBkbuU4a9DFWdyKlg/
+         LLWKbPdR22GU+0hCw/YhSFUr55htOkRmdCpuGygY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Elia Geretto <elia.f.geretto@gmail.com>,
-        Bob Moore <robert.moore@intel.com>,
-        Erik Kaneda <erik.kaneda@intel.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 058/165] ACPICA: Disassembler: create buffer fields in ACPI_PARSE_LOAD_PASS1
-Date:   Thu, 27 Feb 2020 14:35:32 +0100
-Message-Id: <20200227132239.908639929@linuxfoundation.org>
+        stable@vger.kernel.org, Allen Pais <allen.pais@oracle.com>,
+        Martin Wilck <mwilck@suse.com>,
+        Himanshu Madhani <hmadhani@marvell.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Ajay Kaher <akaher@vmware.com>
+Subject: [PATCH 4.4 017/113] scsi: qla2xxx: fix a potential NULL pointer dereference
+Date:   Thu, 27 Feb 2020 14:35:33 +0100
+Message-Id: <20200227132214.467764627@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200227132230.840899170@linuxfoundation.org>
-References: <20200227132230.840899170@linuxfoundation.org>
+In-Reply-To: <20200227132211.791484803@linuxfoundation.org>
+References: <20200227132211.791484803@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,86 +46,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Erik Kaneda <erik.kaneda@intel.com>
+From: Allen Pais <allen.pais@oracle.com>
 
-[ Upstream commit 5ddbd77181dfca61b16d2e2222382ea65637f1b9 ]
+commit 35a79a63517981a8aea395497c548776347deda8 upstream.
 
-ACPICA commit 29cc8dbc5463a93625bed87d7550a8bed8913bf4
+alloc_workqueue is not checked for errors and as a result a potential
+NULL dereference could occur.
 
-create_buffer_field is a deferred op that is typically processed in
-load pass 2. However, disassembly of control method contents walk the
-parse tree with ACPI_PARSE_LOAD_PASS1 and AML_CREATE operators are
-processed in a later walk. This is a problem when there is a control
-method that has the same name as the AML_CREATE object. In this case,
-any use of the name segment will be detected as a method call rather
-than a reference to a buffer field. If this is detected as a method
-call, it can result in a mal-formed parse tree if the control methods
-have parameters.
-
-This change in processing AML_CREATE ops earlier solves this issue by
-inserting the named object in the ACPI namespace so that references
-to this name would be detected as a name string rather than a method
-call.
-
-Link: https://github.com/acpica/acpica/commit/29cc8dbc
-Reported-by: Elia Geretto <elia.f.geretto@gmail.com>
-Tested-by: Elia Geretto <elia.f.geretto@gmail.com>
-Signed-off-by: Bob Moore <robert.moore@intel.com>
-Signed-off-by: Erik Kaneda <erik.kaneda@intel.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://lore.kernel.org/r/1568824618-4366-1-git-send-email-allen.pais@oracle.com
+Signed-off-by: Allen Pais <allen.pais@oracle.com>
+Reviewed-by: Martin Wilck <mwilck@suse.com>
+Acked-by: Himanshu Madhani <hmadhani@marvell.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+[Ajay: Rewrote this patch for v4.4.y, as 4.4.y codebase is different from mainline]
+Signed-off-by: Ajay Kaher <akaher@vmware.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/acpi/acpica/dsfield.c |  2 +-
- drivers/acpi/acpica/dswload.c | 21 +++++++++++++++++++++
- 2 files changed, 22 insertions(+), 1 deletion(-)
+ drivers/scsi/qla2xxx/qla_os.c |   19 +++++++++++++------
+ 1 file changed, 13 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/acpi/acpica/dsfield.c b/drivers/acpi/acpica/dsfield.c
-index 6a4b603d0e834..10bbf6ca082ab 100644
---- a/drivers/acpi/acpica/dsfield.c
-+++ b/drivers/acpi/acpica/dsfield.c
-@@ -272,7 +272,7 @@ cleanup:
-  * FUNCTION:    acpi_ds_get_field_names
-  *
-  * PARAMETERS:  info            - create_field info structure
-- *  `           walk_state      - Current method state
-+ *              walk_state      - Current method state
-  *              arg             - First parser arg for the field name list
-  *
-  * RETURN:      Status
-diff --git a/drivers/acpi/acpica/dswload.c b/drivers/acpi/acpica/dswload.c
-index fd34040d4f44a..9c41d2153d0f2 100644
---- a/drivers/acpi/acpica/dswload.c
-+++ b/drivers/acpi/acpica/dswload.c
-@@ -440,6 +440,27 @@ acpi_status acpi_ds_load1_end_op(struct acpi_walk_state *walk_state)
- 	ACPI_DEBUG_PRINT((ACPI_DB_DISPATCH, "Op=%p State=%p\n", op,
- 			  walk_state));
- 
-+	/*
-+	 * Disassembler: handle create field operators here.
-+	 *
-+	 * create_buffer_field is a deferred op that is typically processed in load
-+	 * pass 2. However, disassembly of control method contents walk the parse
-+	 * tree with ACPI_PARSE_LOAD_PASS1 and AML_CREATE operators are processed
-+	 * in a later walk. This is a problem when there is a control method that
-+	 * has the same name as the AML_CREATE object. In this case, any use of the
-+	 * name segment will be detected as a method call rather than a reference
-+	 * to a buffer field.
-+	 *
-+	 * This earlier creation during disassembly solves this issue by inserting
-+	 * the named object in the ACPI namespace so that references to this name
-+	 * would be a name string rather than a method call.
-+	 */
-+	if ((walk_state->parse_flags & ACPI_PARSE_DISASSEMBLE) &&
-+	    (walk_state->op_info->flags & AML_CREATE)) {
-+		status = acpi_ds_create_buffer_field(op, walk_state);
-+		return_ACPI_STATUS(status);
-+	}
+--- a/drivers/scsi/qla2xxx/qla_os.c
++++ b/drivers/scsi/qla2xxx/qla_os.c
+@@ -429,6 +429,12 @@ static int qla25xx_setup_mode(struct scs
+ 		goto fail;
+ 	}
+ 	if (ql2xmultique_tag) {
++		ha->wq = alloc_workqueue("qla2xxx_wq", WQ_MEM_RECLAIM, 1);
++		if (unlikely(!ha->wq)) {
++			ql_log(ql_log_warn, vha, 0x01e0,
++			    "Failed to alloc workqueue.\n");
++			goto fail;
++		}
+ 		/* create a request queue for IO */
+ 		options |= BIT_7;
+ 		req = qla25xx_create_req_que(ha, options, 0, 0, -1,
+@@ -436,9 +442,8 @@ static int qla25xx_setup_mode(struct scs
+ 		if (!req) {
+ 			ql_log(ql_log_warn, vha, 0x00e0,
+ 			    "Failed to create request queue.\n");
+-			goto fail;
++			goto fail2;
+ 		}
+-		ha->wq = alloc_workqueue("qla2xxx_wq", WQ_MEM_RECLAIM, 1);
+ 		vha->req = ha->req_q_map[req];
+ 		options |= BIT_1;
+ 		for (ques = 1; ques < ha->max_rsp_queues; ques++) {
+@@ -446,7 +451,7 @@ static int qla25xx_setup_mode(struct scs
+ 			if (!ret) {
+ 				ql_log(ql_log_warn, vha, 0x00e8,
+ 				    "Failed to create response queue.\n");
+-				goto fail2;
++				goto fail3;
+ 			}
+ 		}
+ 		ha->flags.cpu_affinity_enabled = 1;
+@@ -460,11 +465,13 @@ static int qla25xx_setup_mode(struct scs
+ 		    ha->max_rsp_queues, ha->max_req_queues);
+ 	}
+ 	return 0;
+-fail2:
 +
- 	/* We are only interested in opcodes that have an associated name */
- 
- 	if (!(walk_state->op_info->flags & (AML_NAMED | AML_FIELD))) {
--- 
-2.20.1
-
++fail3:
+ 	qla25xx_delete_queues(vha);
+-	destroy_workqueue(ha->wq);
+-	ha->wq = NULL;
+ 	vha->req = ha->req_q_map[0];
++fail2:
++        destroy_workqueue(ha->wq);
++        ha->wq = NULL;
+ fail:
+ 	ha->mqenable = 0;
+ 	kfree(ha->req_q_map);
 
 
