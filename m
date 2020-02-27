@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B98F171D70
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:20:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 707C4171C70
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:12:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389800AbgB0OR7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 09:17:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58520 "EHLO mail.kernel.org"
+        id S2388404AbgB0OMB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 09:12:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50594 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730575AbgB0OR6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 09:17:58 -0500
+        id S2388779AbgB0OL6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 09:11:58 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0AC0024690;
-        Thu, 27 Feb 2020 14:17:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DEDD024697;
+        Thu, 27 Feb 2020 14:11:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582813077;
-        bh=xvG7Q9c1TnSbn9EvpuDSAZA0zsykoYXqY9kglk0SCtU=;
+        s=default; t=1582812718;
+        bh=qG7L3omsE9Soo2/tazuOT2I0Z+DQxknam2ce7i8Y+LY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pKIhxnhnCFztMjQjajgKIXV6SDL6bnZOygRU7oHaAt/42fjOnFxJKkd8t0Re4JVR3
-         k/TJIGR3TdRVLGRLho/Fm1Wfv5tzm5At/cGFqoENpAwzNHuMEf32XmsfhqiNoeMUpp
-         E4VPeLYOiGP2iKtaveTeBR2wiwaaeYhVEoBBKToc=
+        b=MrRysBP7D3/UYHujCPIdFMoaTPnav7XlOu+OyZAHNtuOeYKvlfkZt1AmV+Auw1C/N
+         cbtNFynC817Ltmj6KW0ZMedtqTaJDz8TyYsYHm6c4MtwMKHoyT7+SPZavJgJxkURkG
+         fEb/Hk10mz3tiysQn8O2PMglRUNq+RaNfaaW8nKA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Borislav Petkov <bp@alien8.de>,
-        Joerg Roedel <jroedel@suse.de>
-Subject: [PATCH 5.5 128/150] iommu/vt-d: Fix compile warning from intel-svm.h
+        stable@vger.kernel.org, Cong Wang <xiyou.wangcong@gmail.com>,
+        Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
+        syzbot+adf6c6c2be1c3a718121@syzkaller.appspotmail.com
+Subject: [PATCH 5.4 125/135] netfilter: xt_hashlimit: limit the max size of hashtable
 Date:   Thu, 27 Feb 2020 14:37:45 +0100
-Message-Id: <20200227132251.494825863@linuxfoundation.org>
+Message-Id: <20200227132247.854451211@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200227132232.815448360@linuxfoundation.org>
-References: <20200227132232.815448360@linuxfoundation.org>
+In-Reply-To: <20200227132228.710492098@linuxfoundation.org>
+References: <20200227132228.710492098@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,38 +45,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joerg Roedel <jroedel@suse.de>
+From: Cong Wang <xiyou.wangcong@gmail.com>
 
-commit e7598fac323aad0e502415edeffd567315994dd6 upstream.
+commit 8d0015a7ab76b8b1e89a3e5f5710a6e5103f2dd5 upstream.
 
-The intel_svm_is_pasid_valid() needs to be marked inline, otherwise it
-causes the compile warning below:
+The user-specified hashtable size is unbound, this could
+easily lead to an OOM or a hung task as we hold the global
+mutex while allocating and initializing the new hashtable.
 
-  CC [M]  drivers/dma/idxd/cdev.o
-In file included from drivers/dma/idxd/cdev.c:9:0:
-./include/linux/intel-svm.h:125:12: warning: ‘intel_svm_is_pasid_valid’ defined but not used [-Wunused-function]
- static int intel_svm_is_pasid_valid(struct device *dev, int pasid)
-            ^~~~~~~~~~~~~~~~~~~~~~~~
+Add a max value to cap both cfg->size and cfg->max, as
+suggested by Florian.
 
-Reported-by: Borislav Petkov <bp@alien8.de>
-Fixes: 15060aba71711 ('iommu/vt-d: Helper function to query if a pasid has any active users')
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Reported-and-tested-by: syzbot+adf6c6c2be1c3a718121@syzkaller.appspotmail.com
+Signed-off-by: Cong Wang <xiyou.wangcong@gmail.com>
+Reviewed-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- include/linux/intel-svm.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/netfilter/xt_hashlimit.c |   10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
---- a/include/linux/intel-svm.h
-+++ b/include/linux/intel-svm.h
-@@ -122,7 +122,7 @@ static inline int intel_svm_unbind_mm(st
- 	BUG();
+--- a/net/netfilter/xt_hashlimit.c
++++ b/net/netfilter/xt_hashlimit.c
+@@ -851,6 +851,8 @@ hashlimit_mt(const struct sk_buff *skb,
+ 	return hashlimit_mt_common(skb, par, hinfo, &info->cfg, 3);
  }
  
--static int intel_svm_is_pasid_valid(struct device *dev, int pasid)
-+static inline int intel_svm_is_pasid_valid(struct device *dev, int pasid)
- {
- 	return -EINVAL;
- }
++#define HASHLIMIT_MAX_SIZE 1048576
++
+ static int hashlimit_mt_check_common(const struct xt_mtchk_param *par,
+ 				     struct xt_hashlimit_htable **hinfo,
+ 				     struct hashlimit_cfg3 *cfg,
+@@ -861,6 +863,14 @@ static int hashlimit_mt_check_common(con
+ 
+ 	if (cfg->gc_interval == 0 || cfg->expire == 0)
+ 		return -EINVAL;
++	if (cfg->size > HASHLIMIT_MAX_SIZE) {
++		cfg->size = HASHLIMIT_MAX_SIZE;
++		pr_info_ratelimited("size too large, truncated to %u\n", cfg->size);
++	}
++	if (cfg->max > HASHLIMIT_MAX_SIZE) {
++		cfg->max = HASHLIMIT_MAX_SIZE;
++		pr_info_ratelimited("max too large, truncated to %u\n", cfg->max);
++	}
+ 	if (par->family == NFPROTO_IPV4) {
+ 		if (cfg->srcmask > 32 || cfg->dstmask > 32)
+ 			return -EINVAL;
 
 
