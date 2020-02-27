@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 418AD171FB6
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:38:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4BA7117218E
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:50:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732643AbgB0OiD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 09:38:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57478 "EHLO mail.kernel.org"
+        id S1729312AbgB0Nkj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 08:40:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34982 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732207AbgB0N4t (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 08:56:49 -0500
+        id S1729291AbgB0Nkh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 08:40:37 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7128C20578;
-        Thu, 27 Feb 2020 13:56:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 92F0F246B4;
+        Thu, 27 Feb 2020 13:40:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582811808;
-        bh=NTq86b0DCPvXQOu5B4YCHjoybaZyE1rhW4Q21+e191c=;
+        s=default; t=1582810837;
+        bh=Um08C7PGHHNXrdgTPMipm2qHetkTk2LXlMARQTH+56Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lCfR+2HdJMr0fZRf3+hNECqTsHbK/OET5IxqAI511qyqj67mmJffSEfITa+ye83Mq
-         or8ecu0Sp7v9itSt+8+ApIQNn/sk8tr93VXuhqfx12rWHynYCj8FOOI2FVZQn1fG1M
-         maL0vWzGioOZ9k2B9LTMG3L5n67PurqwQbE1pSn4=
+        b=MNmHPyFfP4weKwZBG5dDrmMmxLNNCBDDLF3k07Nkydfecht1BhtCzlHq50R8m9+gw
+         +NNBjhIwvdBwMQbGZNerp83kluNSOWNnC/j4ZKXArH9RHvqW3RCBdE+5mpznitD7zD
+         2RUNUV3A8W56zYb0yTwjdhJ/Rbf7uRSP0Tn+B1wo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Philipp Zabel <p.zabel@pengutronix.de>,
-        Marco Felsch <m.felsch@pengutronix.de>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 108/237] Input: edt-ft5x06 - work around first register access error
+        stable@vger.kernel.org, Arvind Sankar <nivedita@alum.mit.edu>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.4 006/113] ALSA: usb-audio: Apply sample rate quirk for Audioengine D1
 Date:   Thu, 27 Feb 2020 14:35:22 +0100
-Message-Id: <20200227132304.849850280@linuxfoundation.org>
+Message-Id: <20200227132212.814584134@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200227132255.285644406@linuxfoundation.org>
-References: <20200227132255.285644406@linuxfoundation.org>
+In-Reply-To: <20200227132211.791484803@linuxfoundation.org>
+References: <20200227132211.791484803@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,55 +43,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Philipp Zabel <p.zabel@pengutronix.de>
+From: Arvind Sankar <nivedita@alum.mit.edu>
 
-[ Upstream commit e112324cc0422c046f1cf54c56f333d34fa20885 ]
+commit 93f9d1a4ac5930654c17412e3911b46ece73755a upstream.
 
-The EP0700MLP1 returns bogus data on the first register read access
-(reading the threshold parameter from register 0x00):
+The Audioengine D1 (0x2912:0x30c8) does support reading the sample rate,
+but it returns the rate in byte-reversed order.
 
-    edt_ft5x06 2-0038: crc error: 0xfc expected, got 0x40
+When setting sampling rate, the driver produces these warning messages:
+[168840.944226] usb 3-2.2: current rate 4500480 is different from the runtime rate 44100
+[168854.930414] usb 3-2.2: current rate 8436480 is different from the runtime rate 48000
+[168905.185825] usb 3-2.1.2: current rate 30465 is different from the runtime rate 96000
 
-It ignores writes until then. This patch adds a dummy read after which
-the number of sensors and parameter read/writes work correctly.
+As can be seen from the hexadecimal conversion, the current rate read
+back is byte-reversed from the rate that was set.
 
-Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
-Signed-off-by: Marco Felsch <m.felsch@pengutronix.de>
-Tested-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+44100 == 0x00ac44, 4500480 == 0x44ac00
+48000 == 0x00bb80, 8436480 == 0x80bb00
+96000 == 0x017700,   30465 == 0x007701
+
+Rather than implementing a new quirk to reverse the order, just skip
+checking the rate to avoid spamming the log.
+
+Signed-off-by: Arvind Sankar <nivedita@alum.mit.edu>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200211162235.1639889-1-nivedita@alum.mit.edu
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/input/touchscreen/edt-ft5x06.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ sound/usb/quirks.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/input/touchscreen/edt-ft5x06.c b/drivers/input/touchscreen/edt-ft5x06.c
-index 5bf63f76dddac..4eff5b44640cf 100644
---- a/drivers/input/touchscreen/edt-ft5x06.c
-+++ b/drivers/input/touchscreen/edt-ft5x06.c
-@@ -888,6 +888,7 @@ static int edt_ft5x06_ts_probe(struct i2c_client *client,
- {
- 	const struct edt_i2c_chip_data *chip_data;
- 	struct edt_ft5x06_ts_data *tsdata;
-+	u8 buf[2] = { 0xfc, 0x00 };
- 	struct input_dev *input;
- 	unsigned long irq_flags;
- 	int error;
-@@ -957,6 +958,12 @@ static int edt_ft5x06_ts_probe(struct i2c_client *client,
- 		return error;
+--- a/sound/usb/quirks.c
++++ b/sound/usb/quirks.c
+@@ -1150,6 +1150,7 @@ bool snd_usb_get_sample_rate_quirk(struc
+ 	case USB_ID(0x1de7, 0x0014): /* Phoenix Audio TMX320 */
+ 	case USB_ID(0x1de7, 0x0114): /* Phoenix Audio MT202pcs */
+ 	case USB_ID(0x21B4, 0x0081): /* AudioQuest DragonFly */
++	case USB_ID(0x2912, 0x30c8): /* Audioengine D1 */
+ 		return true;
  	}
- 
-+	/*
-+	 * Dummy read access. EP0700MLP1 returns bogus data on the first
-+	 * register read access and ignores writes.
-+	 */
-+	edt_ft5x06_ts_readwrite(tsdata->client, 2, buf, 2, buf);
-+
- 	edt_ft5x06_ts_set_regs(tsdata);
- 	edt_ft5x06_ts_get_defaults(&client->dev, tsdata);
- 	edt_ft5x06_ts_get_parameters(tsdata);
--- 
-2.20.1
-
+ 	return false;
 
 
