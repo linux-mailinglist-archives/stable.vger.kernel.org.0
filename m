@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B275A171FFB
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:40:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A52AE171FD9
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:40:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731647AbgB0Ojk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 09:39:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54780 "EHLO mail.kernel.org"
+        id S1730888AbgB0NzJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 08:55:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55370 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731544AbgB0Nyi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 08:54:38 -0500
+        id S1731944AbgB0NzI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 08:55:08 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 91E1A246A5;
-        Thu, 27 Feb 2020 13:54:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C5111246A0;
+        Thu, 27 Feb 2020 13:55:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582811678;
-        bh=TIjHdADiwkFjXfbpjDNPlSxovxMRHrZrzwi8QVZ2//w=;
+        s=default; t=1582811707;
+        bh=9loN91LzLqv3kU3rzAlsVgkm9DxvKaVuV8jhC5wp+P4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jjkJgbqdsm8kk3dbkoLfK0ms/gxjReI+NG1ESi6ZeH6k49yrglp7nwXAt4uWGfCxw
-         reamEVN6Hkvig87MG0HGA2/p2M6u27pR74I2FM1znM2ZDd+KGM/kyORCpzmlY3dsdY
-         TxrsqGAw7kAAFBTKHnHDwn+sXcoIMV0lvUv9z7Mg=
+        b=TLINN8TKA4RQNkzWHylx0L9vU1ba8g2e0P4DJyYWLvexT1kCHZLoFSU9af14sHvQL
+         8jOu2kLgb//CuiKnc+JWIJKfBY2mtrfkoxwUcoy0pAwwdh1FBvZ+YtBxaxtOctNsCI
+         YdxFKGllQFvaX9EJ1mt3is95f+qZjZgvVWcCfAb4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mike Jones <michael-a1.jones@analog.com>,
-        Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 4.14 032/237] hwmon: (pmbus/ltc2978) Fix PMBus polling of MFR_COMMON definitions.
-Date:   Thu, 27 Feb 2020 14:34:06 +0100
-Message-Id: <20200227132259.094040066@linuxfoundation.org>
+        stable@vger.kernel.org, Jan Kara <jack@suse.cz>,
+        "zhangyi (F)" <yi.zhang@huawei.com>, Theodore Tso <tytso@mit.edu>,
+        stable@kernel.org, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 033/237] jbd2: move the clearing of b_modified flag to the journal_unmap_buffer()
+Date:   Thu, 27 Feb 2020 14:34:07 +0100
+Message-Id: <20200227132259.158942633@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200227132255.285644406@linuxfoundation.org>
 References: <20200227132255.285644406@linuxfoundation.org>
@@ -43,40 +44,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Jones <michael-a1.jones@analog.com>
+From: zhangyi (F) <yi.zhang@huawei.com>
 
-commit cf2b012c90e74e85d8aea7d67e48868069cfee0c upstream.
+[ Upstream commit 6a66a7ded12baa6ebbb2e3e82f8cb91382814839 ]
 
-Change 21537dc driver PMBus polling of MFR_COMMON from bits 5/4 to
-bits 6/5. This fixs a LTC297X family bug where polling always returns
-not busy even when the part is busy. This fixes a LTC388X and
-LTM467X bug where polling used PEND and NOT_IN_TRANS, and BUSY was
-not polled, which can lead to NACKing of commands. LTC388X and
-LTM467X modules now poll BUSY and PEND, increasing reliability by
-eliminating NACKing of commands.
+There is no need to delay the clearing of b_modified flag to the
+transaction committing time when unmapping the journalled buffer, so
+just move it to the journal_unmap_buffer().
 
-Signed-off-by: Mike Jones <michael-a1.jones@analog.com>
-Link: https://lore.kernel.org/r/1580234400-2829-2-git-send-email-michael-a1.jones@analog.com
-Fixes: e04d1ce9bbb49 ("hwmon: (ltc2978) Add polling for chips requiring it")
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Link: https://lore.kernel.org/r/20200213063821.30455-2-yi.zhang@huawei.com
+Reviewed-by: Jan Kara <jack@suse.cz>
+Signed-off-by: zhangyi (F) <yi.zhang@huawei.com>
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Cc: stable@kernel.org
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwmon/pmbus/ltc2978.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ fs/jbd2/commit.c      | 43 +++++++++++++++----------------------------
+ fs/jbd2/transaction.c | 10 ++++++----
+ 2 files changed, 21 insertions(+), 32 deletions(-)
 
---- a/drivers/hwmon/pmbus/ltc2978.c
-+++ b/drivers/hwmon/pmbus/ltc2978.c
-@@ -89,8 +89,8 @@ enum chips { ltc2974, ltc2975, ltc2977,
+diff --git a/fs/jbd2/commit.c b/fs/jbd2/commit.c
+index 7dd6133925921..89cbf45a1dcda 100644
+--- a/fs/jbd2/commit.c
++++ b/fs/jbd2/commit.c
+@@ -973,34 +973,21 @@ void jbd2_journal_commit_transaction(journal_t *journal)
+ 		 * it. */
  
- #define LTC_POLL_TIMEOUT		100	/* in milli-seconds */
+ 		/*
+-		* A buffer which has been freed while still being journaled by
+-		* a previous transaction.
+-		*/
+-		if (buffer_freed(bh)) {
+-			/*
+-			 * If the running transaction is the one containing
+-			 * "add to orphan" operation (b_next_transaction !=
+-			 * NULL), we have to wait for that transaction to
+-			 * commit before we can really get rid of the buffer.
+-			 * So just clear b_modified to not confuse transaction
+-			 * credit accounting and refile the buffer to
+-			 * BJ_Forget of the running transaction. If the just
+-			 * committed transaction contains "add to orphan"
+-			 * operation, we can completely invalidate the buffer
+-			 * now. We are rather through in that since the
+-			 * buffer may be still accessible when blocksize <
+-			 * pagesize and it is attached to the last partial
+-			 * page.
+-			 */
+-			jh->b_modified = 0;
+-			if (!jh->b_next_transaction) {
+-				clear_buffer_freed(bh);
+-				clear_buffer_jbddirty(bh);
+-				clear_buffer_mapped(bh);
+-				clear_buffer_new(bh);
+-				clear_buffer_req(bh);
+-				bh->b_bdev = NULL;
+-			}
++		 * A buffer which has been freed while still being journaled
++		 * by a previous transaction, refile the buffer to BJ_Forget of
++		 * the running transaction. If the just committed transaction
++		 * contains "add to orphan" operation, we can completely
++		 * invalidate the buffer now. We are rather through in that
++		 * since the buffer may be still accessible when blocksize <
++		 * pagesize and it is attached to the last partial page.
++		 */
++		if (buffer_freed(bh) && !jh->b_next_transaction) {
++			clear_buffer_freed(bh);
++			clear_buffer_jbddirty(bh);
++			clear_buffer_mapped(bh);
++			clear_buffer_new(bh);
++			clear_buffer_req(bh);
++			bh->b_bdev = NULL;
+ 		}
  
--#define LTC_NOT_BUSY			BIT(5)
--#define LTC_NOT_PENDING			BIT(4)
-+#define LTC_NOT_BUSY			BIT(6)
-+#define LTC_NOT_PENDING			BIT(5)
- 
- /*
-  * LTC2978 clears peak data whenever the CLEAR_FAULTS command is executed, which
+ 		if (buffer_jbddirty(bh)) {
+diff --git a/fs/jbd2/transaction.c b/fs/jbd2/transaction.c
+index 7fe422eced89b..f2ff141a4479e 100644
+--- a/fs/jbd2/transaction.c
++++ b/fs/jbd2/transaction.c
+@@ -2231,14 +2231,16 @@ static int journal_unmap_buffer(journal_t *journal, struct buffer_head *bh,
+ 			return -EBUSY;
+ 		}
+ 		/*
+-		 * OK, buffer won't be reachable after truncate. We just set
+-		 * j_next_transaction to the running transaction (if there is
+-		 * one) and mark buffer as freed so that commit code knows it
+-		 * should clear dirty bits when it is done with the buffer.
++		 * OK, buffer won't be reachable after truncate. We just clear
++		 * b_modified to not confuse transaction credit accounting, and
++		 * set j_next_transaction to the running transaction (if there
++		 * is one) and mark buffer as freed so that commit code knows
++		 * it should clear dirty bits when it is done with the buffer.
+ 		 */
+ 		set_buffer_freed(bh);
+ 		if (journal->j_running_transaction && buffer_jbddirty(bh))
+ 			jh->b_next_transaction = journal->j_running_transaction;
++		jh->b_modified = 0;
+ 		jbd2_journal_put_journal_head(jh);
+ 		spin_unlock(&journal->j_list_lock);
+ 		jbd_unlock_bh_state(bh);
+-- 
+2.20.1
+
 
 
