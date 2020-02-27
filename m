@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 26B9F171A3C
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 14:52:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 86865171A3F
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 14:52:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731039AbgB0Nvy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 08:51:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51226 "EHLO mail.kernel.org"
+        id S1731071AbgB0NwB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 08:52:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51318 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731463AbgB0Nvy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 08:51:54 -0500
+        id S1731262AbgB0Nv6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 08:51:58 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 834452084E;
-        Thu, 27 Feb 2020 13:51:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 640792084E;
+        Thu, 27 Feb 2020 13:51:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582811513;
-        bh=Zqa2Lb07ENrV+14mEoLnG9RRpmguim7blZ99C4OTWqM=;
+        s=default; t=1582811517;
+        bh=lA+Q7/UyPRJhukxBIkkVyVHcgiUCTD/suSchesnD4AY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JX8E1QJRxFh1aV0D+LFUNJ/myREVKmi+pojAtKGlMRpY8679w81Zq5FBtKeFHBbCw
-         tYkWJDRCs35RkbUWA0gada1+wDDjemn5UvkU8d9omtvtsvK3683W5PnjxRalUpAGVr
-         35mbML/beC0hyC/5vm7ATQssBtU7j4DbLlXtVxv0=
+        b=ncvEdgHb9D++k2KTZAYpLE/3+lx8Yq93Y9gMnmI1w65vr05lsew1tQpINQqN3p3MF
+         hbW4OBefVPC72to/7s3L/2wG1+krpTqx2YOepagZe6laV/2/zcz+MDYGP8PPdFE4kT
+         SLdAG9eCb5SHvlnOUQ26NHtewwPLIVbmzKlQMJrM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+65c6c92d04304d0a8efc@syzkaller.appspotmail.com,
-        syzbot+e60ddfa48717579799dd@syzkaller.appspotmail.com,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.9 160/165] ALSA: seq: Avoid concurrent access to queue flags
-Date:   Thu, 27 Feb 2020 14:37:14 +0100
-Message-Id: <20200227132254.099080393@linuxfoundation.org>
+        stable@vger.kernel.org, Cong Wang <xiyou.wangcong@gmail.com>,
+        Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
+        syzbot+adf6c6c2be1c3a718121@syzkaller.appspotmail.com
+Subject: [PATCH 4.9 162/165] netfilter: xt_hashlimit: limit the max size of hashtable
+Date:   Thu, 27 Feb 2020 14:37:16 +0100
+Message-Id: <20200227132254.368737525@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200227132230.840899170@linuxfoundation.org>
 References: <20200227132230.840899170@linuxfoundation.org>
@@ -45,96 +45,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Cong Wang <xiyou.wangcong@gmail.com>
 
-commit bb51e669fa49feb5904f452b2991b240ef31bc97 upstream.
+commit 8d0015a7ab76b8b1e89a3e5f5710a6e5103f2dd5 upstream.
 
-The queue flags are represented in bit fields and the concurrent
-access may result in unexpected results.  Although the current code
-should be mostly OK as it's only reading a field while writing other
-fields as KCSAN reported, it's safer to cover both with a proper
-spinlock protection.
+The user-specified hashtable size is unbound, this could
+easily lead to an OOM or a hung task as we hold the global
+mutex while allocating and initializing the new hashtable.
 
-This patch fixes the possible concurrent read by protecting with
-q->owner_lock.  Also the queue owner field is protected as well since
-it's the field to be protected by the lock itself.
+Add a max value to cap both cfg->size and cfg->max, as
+suggested by Florian.
 
-Reported-by: syzbot+65c6c92d04304d0a8efc@syzkaller.appspotmail.com
-Reported-by: syzbot+e60ddfa48717579799dd@syzkaller.appspotmail.com
-Link: https://lore.kernel.org/r/20200214111316.26939-2-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Reported-and-tested-by: syzbot+adf6c6c2be1c3a718121@syzkaller.appspotmail.com
+Signed-off-by: Cong Wang <xiyou.wangcong@gmail.com>
+Reviewed-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/core/seq/seq_queue.c |   20 ++++++++++++++++----
- 1 file changed, 16 insertions(+), 4 deletions(-)
+ net/netfilter/xt_hashlimit.c |   10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
---- a/sound/core/seq/seq_queue.c
-+++ b/sound/core/seq/seq_queue.c
-@@ -415,6 +415,7 @@ int snd_seq_queue_check_access(int queue
- int snd_seq_queue_set_owner(int queueid, int client, int locked)
- {
- 	struct snd_seq_queue *q = queueptr(queueid);
-+	unsigned long flags;
+--- a/net/netfilter/xt_hashlimit.c
++++ b/net/netfilter/xt_hashlimit.c
+@@ -735,6 +735,8 @@ hashlimit_mt(const struct sk_buff *skb,
+ 	return hashlimit_mt_common(skb, par, hinfo, &info->cfg, 2);
+ }
  
- 	if (q == NULL)
- 		return -EINVAL;
-@@ -424,8 +425,10 @@ int snd_seq_queue_set_owner(int queueid,
- 		return -EPERM;
- 	}
- 
-+	spin_lock_irqsave(&q->owner_lock, flags);
- 	q->locked = locked ? 1 : 0;
- 	q->owner = client;
-+	spin_unlock_irqrestore(&q->owner_lock, flags);
- 	queue_access_unlock(q);
- 	queuefree(q);
- 
-@@ -564,15 +567,17 @@ void snd_seq_queue_client_termination(in
- 	unsigned long flags;
- 	int i;
- 	struct snd_seq_queue *q;
-+	bool matched;
- 
- 	for (i = 0; i < SNDRV_SEQ_MAX_QUEUES; i++) {
- 		if ((q = queueptr(i)) == NULL)
- 			continue;
- 		spin_lock_irqsave(&q->owner_lock, flags);
--		if (q->owner == client)
-+		matched = (q->owner == client);
-+		if (matched)
- 			q->klocked = 1;
- 		spin_unlock_irqrestore(&q->owner_lock, flags);
--		if (q->owner == client) {
-+		if (matched) {
- 			if (q->timer->running)
- 				snd_seq_timer_stop(q->timer);
- 			snd_seq_timer_reset(q->timer);
-@@ -764,6 +769,8 @@ void snd_seq_info_queues_read(struct snd
- 	int i, bpm;
- 	struct snd_seq_queue *q;
- 	struct snd_seq_timer *tmr;
-+	bool locked;
-+	int owner;
- 
- 	for (i = 0; i < SNDRV_SEQ_MAX_QUEUES; i++) {
- 		if ((q = queueptr(i)) == NULL)
-@@ -775,9 +782,14 @@ void snd_seq_info_queues_read(struct snd
- 		else
- 			bpm = 0;
- 
-+		spin_lock_irq(&q->owner_lock);
-+		locked = q->locked;
-+		owner = q->owner;
-+		spin_unlock_irq(&q->owner_lock);
++#define HASHLIMIT_MAX_SIZE 1048576
 +
- 		snd_iprintf(buffer, "queue %d: [%s]\n", q->queue, q->name);
--		snd_iprintf(buffer, "owned by client    : %d\n", q->owner);
--		snd_iprintf(buffer, "lock status        : %s\n", q->locked ? "Locked" : "Free");
-+		snd_iprintf(buffer, "owned by client    : %d\n", owner);
-+		snd_iprintf(buffer, "lock status        : %s\n", locked ? "Locked" : "Free");
- 		snd_iprintf(buffer, "queued time events : %d\n", snd_seq_prioq_avail(q->timeq));
- 		snd_iprintf(buffer, "queued tick events : %d\n", snd_seq_prioq_avail(q->tickq));
- 		snd_iprintf(buffer, "timer state        : %s\n", tmr->running ? "Running" : "Stopped");
+ static int hashlimit_mt_check_common(const struct xt_mtchk_param *par,
+ 				     struct xt_hashlimit_htable **hinfo,
+ 				     struct hashlimit_cfg2 *cfg,
+@@ -745,6 +747,14 @@ static int hashlimit_mt_check_common(con
+ 
+ 	if (cfg->gc_interval == 0 || cfg->expire == 0)
+ 		return -EINVAL;
++	if (cfg->size > HASHLIMIT_MAX_SIZE) {
++		cfg->size = HASHLIMIT_MAX_SIZE;
++		pr_info_ratelimited("size too large, truncated to %u\n", cfg->size);
++	}
++	if (cfg->max > HASHLIMIT_MAX_SIZE) {
++		cfg->max = HASHLIMIT_MAX_SIZE;
++		pr_info_ratelimited("max too large, truncated to %u\n", cfg->max);
++	}
+ 	if (par->family == NFPROTO_IPV4) {
+ 		if (cfg->srcmask > 32 || cfg->dstmask > 32)
+ 			return -EINVAL;
 
 
