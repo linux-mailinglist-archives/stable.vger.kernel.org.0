@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BDF3E171C20
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:09:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E590C171DB0
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:22:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387702AbgB0OJH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 09:09:07 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47000 "EHLO mail.kernel.org"
+        id S2389380AbgB0OPy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 09:15:54 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55610 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388335AbgB0OJH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 09:09:07 -0500
+        id S2389359AbgB0OPx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 09:15:53 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1B43E24656;
-        Thu, 27 Feb 2020 14:09:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3BA9624690;
+        Thu, 27 Feb 2020 14:15:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582812546;
-        bh=/N/Zzy75PVs3te+xDvgGtvNhWvS2dss1xvvFHApiltc=;
+        s=default; t=1582812952;
+        bh=lCVkZ3hBWA7vW1gICuV8jH8iUHCTS9JYngxU4x4nLzo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2hZDGHv4pzmmqiCj/wvICjQ2cB+YKE3z3HdqRV+e6cfZdqfET90XZzyB4T8YzGcVv
-         SikLVyaoDJcjo0XAKzBsWHKA/to4rJrJ5ke7Cd8cAhBbpoDKdq0eGuAZhJ4P10XUhl
-         M0JBX2w6WizQyIkPIt2fd20F4E1Dz4RZomDEE7J0=
+        b=F6HrnmceNNuJO8+l5be/zKswkfXc0q1TeefS0VrGyjsWIjA9AA1Rk/1Wy8NlUWbbJ
+         09aQ0j3pAPhnBO0EFEQNX19gJtlI9Tg301XAb9EVjjWTzTzis2rJ0lH3LIshkd6J5B
+         22OgH9I5sDtbpwS0vx+soVQ4qnQzvAvBSP76nAYk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, satya priya <skakit@codeaurora.org>
-Subject: [PATCH 5.4 058/135] tty: serial: qcom_geni_serial: Fix RX cancel command failure
-Date:   Thu, 27 Feb 2020 14:36:38 +0100
-Message-Id: <20200227132237.768120779@linuxfoundation.org>
+        stable@vger.kernel.org, Kim Phillips <kim.phillips@amd.com>,
+        Borislav Petkov <bp@suse.de>,
+        Peter Zijlstra <peterz@infradead.org>
+Subject: [PATCH 5.5 062/150] x86/cpu/amd: Enable the fixed Instructions Retired counter IRPERF
+Date:   Thu, 27 Feb 2020 14:36:39 +0100
+Message-Id: <20200227132242.193953916@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200227132228.710492098@linuxfoundation.org>
-References: <20200227132228.710492098@linuxfoundation.org>
+In-Reply-To: <20200227132232.815448360@linuxfoundation.org>
+References: <20200227132232.815448360@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,68 +44,113 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: satya priya <skakit@codeaurora.org>
+From: Kim Phillips <kim.phillips@amd.com>
 
-commit 679aac5ead2f18d223554a52b543e1195e181811 upstream.
+commit 21b5ee59ef18e27d85810584caf1f7ddc705ea83 upstream.
 
-RX cancel command fails when BT is switched on and off multiple times.
+Commit
 
-To handle this, poll for the cancel bit in SE_GENI_S_IRQ_STATUS register
-instead of SE_GENI_S_CMD_CTRL_REG.
+  aaf248848db50 ("perf/x86/msr: Add AMD IRPERF (Instructions Retired)
+		  performance counter")
 
-As per the HPG update, handle the RX last bit after cancel command
-and flush out the RX FIFO buffer.
+added support for access to the free-running counter via 'perf -e
+msr/irperf/', but when exercised, it always returns a 0 count:
 
-Signed-off-by: satya priya <skakit@codeaurora.org>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/1581415982-8793-1-git-send-email-skakit@codeaurora.org
+BEFORE:
+
+  $ perf stat -e instructions,msr/irperf/ true
+
+   Performance counter stats for 'true':
+
+             624,833      instructions
+                   0      msr/irperf/
+
+Simply set its enable bit - HWCR bit 30 - to make it start counting.
+
+Enablement is restricted to all machines advertising IRPERF capability,
+except those susceptible to an erratum that makes the IRPERF return
+bad values.
+
+That erratum occurs in Family 17h models 00-1fh [1], but not in F17h
+models 20h and above [2].
+
+AFTER (on a family 17h model 31h machine):
+
+  $ perf stat -e instructions,msr/irperf/ true
+
+   Performance counter stats for 'true':
+
+             621,690      instructions
+             622,490      msr/irperf/
+
+[1] Revision Guide for AMD Family 17h Models 00h-0Fh Processors
+[2] Revision Guide for AMD Family 17h Models 30h-3Fh Processors
+
+The revision guides are available from the bugzilla Link below.
+
+ [ bp: Massage commit message. ]
+
+Fixes: aaf248848db50 ("perf/x86/msr: Add AMD IRPERF (Instructions Retired) performance counter")
+Signed-off-by: Kim Phillips <kim.phillips@amd.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: stable@vger.kernel.org
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=206537
+Link: http://lkml.kernel.org/r/20200214201805.13830-1-kim.phillips@amd.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/tty/serial/qcom_geni_serial.c |   18 ++++++++++++++----
- 1 file changed, 14 insertions(+), 4 deletions(-)
+ arch/x86/include/asm/msr-index.h |    2 ++
+ arch/x86/kernel/cpu/amd.c        |   14 ++++++++++++++
+ 2 files changed, 16 insertions(+)
 
---- a/drivers/tty/serial/qcom_geni_serial.c
-+++ b/drivers/tty/serial/qcom_geni_serial.c
-@@ -125,6 +125,7 @@ static int handle_rx_console(struct uart
- static int handle_rx_uart(struct uart_port *uport, u32 bytes, bool drop);
- static unsigned int qcom_geni_serial_tx_empty(struct uart_port *port);
- static void qcom_geni_serial_stop_rx(struct uart_port *uport);
-+static void qcom_geni_serial_handle_rx(struct uart_port *uport, bool drop);
+--- a/arch/x86/include/asm/msr-index.h
++++ b/arch/x86/include/asm/msr-index.h
+@@ -512,6 +512,8 @@
+ #define MSR_K7_HWCR			0xc0010015
+ #define MSR_K7_HWCR_SMMLOCK_BIT		0
+ #define MSR_K7_HWCR_SMMLOCK		BIT_ULL(MSR_K7_HWCR_SMMLOCK_BIT)
++#define MSR_K7_HWCR_IRPERF_EN_BIT	30
++#define MSR_K7_HWCR_IRPERF_EN		BIT_ULL(MSR_K7_HWCR_IRPERF_EN_BIT)
+ #define MSR_K7_FID_VID_CTL		0xc0010041
+ #define MSR_K7_FID_VID_STATUS		0xc0010042
  
- static const unsigned long root_freq[] = {7372800, 14745600, 19200000, 29491200,
- 					32000000, 48000000, 64000000, 80000000,
-@@ -615,7 +616,7 @@ static void qcom_geni_serial_stop_rx(str
- 	u32 irq_en;
- 	u32 status;
- 	struct qcom_geni_serial_port *port = to_dev_port(uport, uport);
--	u32 irq_clear = S_CMD_DONE_EN;
-+	u32 s_irq_status;
+--- a/arch/x86/kernel/cpu/amd.c
++++ b/arch/x86/kernel/cpu/amd.c
+@@ -28,6 +28,7 @@
  
- 	irq_en = readl(uport->membase + SE_GENI_S_IRQ_EN);
- 	irq_en &= ~(S_RX_FIFO_WATERMARK_EN | S_RX_FIFO_LAST_EN);
-@@ -631,10 +632,19 @@ static void qcom_geni_serial_stop_rx(str
- 		return;
+ static const int amd_erratum_383[];
+ static const int amd_erratum_400[];
++static const int amd_erratum_1054[];
+ static bool cpu_has_amd_erratum(struct cpuinfo_x86 *cpu, const int *erratum);
  
- 	geni_se_cancel_s_cmd(&port->se);
--	qcom_geni_serial_poll_bit(uport, SE_GENI_S_CMD_CTRL_REG,
--					S_GENI_CMD_CANCEL, false);
-+	qcom_geni_serial_poll_bit(uport, SE_GENI_S_IRQ_STATUS,
-+					S_CMD_CANCEL_EN, true);
-+	/*
-+	 * If timeout occurs secondary engine remains active
-+	 * and Abort sequence is executed.
-+	 */
-+	s_irq_status = readl(uport->membase + SE_GENI_S_IRQ_STATUS);
-+	/* Flush the Rx buffer */
-+	if (s_irq_status & S_RX_FIFO_LAST_EN)
-+		qcom_geni_serial_handle_rx(uport, true);
-+	writel(s_irq_status, uport->membase + SE_GENI_S_IRQ_CLEAR);
+ /*
+@@ -978,6 +979,15 @@ static void init_amd(struct cpuinfo_x86
+ 	/* AMD CPUs don't reset SS attributes on SYSRET, Xen does. */
+ 	if (!cpu_has(c, X86_FEATURE_XENPV))
+ 		set_cpu_bug(c, X86_BUG_SYSRET_SS_ATTRS);
 +
- 	status = readl(uport->membase + SE_GENI_STATUS);
--	writel(irq_clear, uport->membase + SE_GENI_S_IRQ_CLEAR);
- 	if (status & S_GENI_CMD_ACTIVE)
- 		qcom_geni_serial_abort_rx(uport);
++	/*
++	 * Turn on the Instructions Retired free counter on machines not
++	 * susceptible to erratum #1054 "Instructions Retired Performance
++	 * Counter May Be Inaccurate".
++	 */
++	if (cpu_has(c, X86_FEATURE_IRPERF) &&
++	    !cpu_has_amd_erratum(c, amd_erratum_1054))
++		msr_set_bit(MSR_K7_HWCR, MSR_K7_HWCR_IRPERF_EN_BIT);
  }
+ 
+ #ifdef CONFIG_X86_32
+@@ -1105,6 +1115,10 @@ static const int amd_erratum_400[] =
+ static const int amd_erratum_383[] =
+ 	AMD_OSVW_ERRATUM(3, AMD_MODEL_RANGE(0x10, 0, 0, 0xff, 0xf));
+ 
++/* #1054: Instructions Retired Performance Counter May Be Inaccurate */
++static const int amd_erratum_1054[] =
++	AMD_OSVW_ERRATUM(0, AMD_MODEL_RANGE(0x17, 0, 0, 0x2f, 0xf));
++
+ 
+ static bool cpu_has_amd_erratum(struct cpuinfo_x86 *cpu, const int *erratum)
+ {
 
 
