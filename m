@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9EF4C171E09
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:25:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A27C171BE2
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:06:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387987AbgB0OLy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 09:11:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50428 "EHLO mail.kernel.org"
+        id S1733158AbgB0OG2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 09:06:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43632 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388762AbgB0OLv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 09:11:51 -0500
+        id S2387930AbgB0OG2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 09:06:28 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9680420578;
-        Thu, 27 Feb 2020 14:11:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4E28520801;
+        Thu, 27 Feb 2020 14:06:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582812711;
-        bh=zF8WyHHyNDWJs5RpuKJQzBGkfwEfo+xK6Oui84XK6xE=;
+        s=default; t=1582812386;
+        bh=IIh3/6eMhrXASqBJV3yaM2anrNKRohA6sfKmGIY7zaU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mOG7zkmnA3HPPL03IqKDq0wly5nurLqX9St58rTBEnJu3vRb/oa7auxpwO7Y9rpTz
-         LrgvBLO+zCOlbHL4r17kbKqwCIX5/89B+cVRLHg9ZibDFu62g/WMi/hgx6MEGHO0WD
-         /ZF+AIzrbhNrfPq4mO8OkcquC1yWiCScwzclXkPE=
+        b=mrUvsiGsGKPPp6/Us57mq1U9pm8KEwGkzt/DQ7+4d1hn/tUdk3M/mulb3Gc15wIrw
+         hEVvt53f015m8RdSpfNSSwlmUGI/mIMLaWnQEs9nrLN9ogIzuf2aNnBt0NNGhK4iTf
+         ITcORXTZkLWcI//wb4DbtvOgaEPJUgaPVQFbpiwc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+576cc007eb9f2c968200@syzkaller.appspotmail.com,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.4 122/135] ALSA: rawmidi: Avoid bit fields for state flags
+        syzbot+d82f3ac8d87e7ccbb2c9@syzkaller.appspotmail.com,
+        syzbot+3f1fd6b8cbf8702d134e@syzkaller.appspotmail.com,
+        David Howells <dhowells@redhat.com>,
+        Hillf Danton <hdanton@sina.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 94/97] rxrpc: Fix call RCU cleanup using non-bh-safe locks
 Date:   Thu, 27 Feb 2020 14:37:42 +0100
-Message-Id: <20200227132247.418514442@linuxfoundation.org>
+Message-Id: <20200227132230.025826948@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200227132228.710492098@linuxfoundation.org>
-References: <20200227132228.710492098@linuxfoundation.org>
+In-Reply-To: <20200227132214.553656188@linuxfoundation.org>
+References: <20200227132214.553656188@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,43 +47,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: David Howells <dhowells@redhat.com>
 
-commit dfa9a5efe8b932a84b3b319250aa3ac60c20f876 upstream.
+commit 963485d436ccc2810177a7b08af22336ec2af67b upstream.
 
-The rawmidi state flags (opened, append, active_sensing) are stored in
-bit fields that can be potentially racy when concurrently accessed
-without any locks.  Although the current code should be fine, there is
-also no any real benefit by keeping the bitfields for this kind of
-short number of members.
+rxrpc_rcu_destroy_call(), which is called as an RCU callback to clean up a
+put call, calls rxrpc_put_connection() which, deep in its bowels, takes a
+number of spinlocks in a non-BH-safe way, including rxrpc_conn_id_lock and
+local->client_conns_lock.  RCU callbacks, however, are normally called from
+softirq context, which can cause lockdep to notice the locking
+inconsistency.
 
-This patch changes those bit fields flags to the simple bool fields.
-There should be no size increase of the snd_rawmidi_substream by this
-change.
+To get lockdep to detect this, it's necessary to have the connection
+cleaned up on the put at the end of the last of its calls, though normally
+the clean up is deferred.  This can be induced, however, by starting a call
+on an AF_RXRPC socket and then closing the socket without reading the
+reply.
 
-Reported-by: syzbot+576cc007eb9f2c968200@syzkaller.appspotmail.com
-Link: https://lore.kernel.org/r/20200214111316.26939-4-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fix this by having rxrpc_rcu_destroy_call() punt the destruction to a
+workqueue if in softirq-mode and defer the destruction to process context.
+
+Note that another way to fix this could be to add a bunch of bh-disable
+annotations to the spinlocks concerned - and there might be more than just
+those two - but that means spending more time with BHs disabled.
+
+Note also that some of these places were covered by bh-disable spinlocks
+belonging to the rxrpc_transport object, but these got removed without the
+_bh annotation being retained on the next lock in.
+
+Fixes: 999b69f89241 ("rxrpc: Kill the client connection bundle concept")
+Reported-by: syzbot+d82f3ac8d87e7ccbb2c9@syzkaller.appspotmail.com
+Reported-by: syzbot+3f1fd6b8cbf8702d134e@syzkaller.appspotmail.com
+Signed-off-by: David Howells <dhowells@redhat.com>
+cc: Hillf Danton <hdanton@sina.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- include/sound/rawmidi.h |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ net/rxrpc/call_object.c |   22 +++++++++++++++++++---
+ 1 file changed, 19 insertions(+), 3 deletions(-)
 
---- a/include/sound/rawmidi.h
-+++ b/include/sound/rawmidi.h
-@@ -77,9 +77,9 @@ struct snd_rawmidi_substream {
- 	struct list_head list;		/* list of all substream for given stream */
- 	int stream;			/* direction */
- 	int number;			/* substream number */
--	unsigned int opened: 1,		/* open flag */
--		     append: 1,		/* append flag (merge more streams) */
--		     active_sensing: 1; /* send active sensing when close */
-+	bool opened;			/* open flag */
-+	bool append;			/* append flag (merge more streams) */
-+	bool active_sensing;		/* send active sensing when close */
- 	int use_count;			/* use counter (for output) */
- 	size_t bytes;
- 	struct snd_rawmidi *rmidi;
+--- a/net/rxrpc/call_object.c
++++ b/net/rxrpc/call_object.c
+@@ -647,11 +647,11 @@ void rxrpc_put_call(struct rxrpc_call *c
+ }
+ 
+ /*
+- * Final call destruction under RCU.
++ * Final call destruction - but must be done in process context.
+  */
+-static void rxrpc_rcu_destroy_call(struct rcu_head *rcu)
++static void rxrpc_destroy_call(struct work_struct *work)
+ {
+-	struct rxrpc_call *call = container_of(rcu, struct rxrpc_call, rcu);
++	struct rxrpc_call *call = container_of(work, struct rxrpc_call, processor);
+ 	struct rxrpc_net *rxnet = call->rxnet;
+ 
+ 	rxrpc_put_connection(call->conn);
+@@ -664,6 +664,22 @@ static void rxrpc_rcu_destroy_call(struc
+ }
+ 
+ /*
++ * Final call destruction under RCU.
++ */
++static void rxrpc_rcu_destroy_call(struct rcu_head *rcu)
++{
++	struct rxrpc_call *call = container_of(rcu, struct rxrpc_call, rcu);
++
++	if (in_softirq()) {
++		INIT_WORK(&call->processor, rxrpc_destroy_call);
++		if (!rxrpc_queue_work(&call->processor))
++			BUG();
++	} else {
++		rxrpc_destroy_call(&call->processor);
++	}
++}
++
++/*
+  * clean up a call
+  */
+ void rxrpc_cleanup_call(struct rxrpc_call *call)
 
 
