@@ -2,38 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2AE3C171923
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 14:42:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 634C3171B24
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:00:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729390AbgB0NmP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 08:42:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37158 "EHLO mail.kernel.org"
+        id S1732351AbgB0N77 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 08:59:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33266 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729739AbgB0NmO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 08:42:14 -0500
+        id S1732370AbgB0N76 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 08:59:58 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CE75C21D7E;
-        Thu, 27 Feb 2020 13:42:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 64A1124691;
+        Thu, 27 Feb 2020 13:59:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582810933;
-        bh=AHEsC+E3W2xJQbzUvuMY92P8qdh5Jea/uQfL/fYkVJo=;
+        s=default; t=1582811997;
+        bh=NCStkUO1sJ0PJivtjHkTUa7b0w8xn2leK7ev7u7wBw0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y5ef+Det/fpy9EB+K2Hf307uPw4LQLIQMLuNmUZpEobRL6Of9V9f4ObhcfKxVCedh
-         GWxePoc+s2QRY/AlVIqH0uUCYCVNK/hVDsst5eK5sF3moSSKFTsjLBDgvTlYMUmon4
-         tN11la7XwwkgKUO91bFvBu0VdlJIgn098753C7GA=
+        b=rrjMdzvNn0ujT+3QGpQe3Rtm91w9KuQ45Xvf8toOrgyReLqghmAgD+1SKD7+njwYJ
+         +BuoqmcacFt+vhjK3mQQGwDlvjyELB4lF8nhyAx/CDXAaRdqO5EmEHjtFsmXjhTZ3X
+         eIQs0uFYal2RCOM2FnzzUasycJgaCY0yq4mH5l4o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shuah Khan <skhan@linuxfoundation.org>,
+        stable@vger.kernel.org, Yan Wang <wangyan122@huawei.com>,
+        Jun Piao <piaojun@huawei.com>, Mark Fasheh <mark@fasheh.com>,
+        Joel Becker <jlbec@evilplan.org>,
+        Junxiao Bi <junxiao.bi@oracle.com>,
+        Joseph Qi <jiangqi903@gmail.com>,
+        Changwei Ge <gechangwei@live.cn>, Gang He <ghe@suse.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 052/113] usbip: Fix unsafe unaligned pointer usage
-Date:   Thu, 27 Feb 2020 14:36:08 +0100
-Message-Id: <20200227132220.080009840@linuxfoundation.org>
+Subject: [PATCH 4.14 155/237] ocfs2: fix a NULL pointer dereference when call ocfs2_update_inode_fsync_trans()
+Date:   Thu, 27 Feb 2020 14:36:09 +0100
+Message-Id: <20200227132307.956262614@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200227132211.791484803@linuxfoundation.org>
-References: <20200227132211.791484803@linuxfoundation.org>
+In-Reply-To: <20200227132255.285644406@linuxfoundation.org>
+References: <20200227132255.285644406@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,151 +50,137 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shuah Khan <skhan@linuxfoundation.org>
+From: wangyan <wangyan122@huawei.com>
 
-[ Upstream commit 585c91f40d201bc564d4e76b83c05b3b5363fe7e ]
+[ Upstream commit 9f16ca48fc818a17de8be1f75d08e7f4addc4497 ]
 
-Fix unsafe unaligned pointer usage in usbip network interfaces. usbip tool
-build fails with new gcc -Werror=address-of-packed-member checks.
+I found a NULL pointer dereference in ocfs2_update_inode_fsync_trans(),
+handle->h_transaction may be NULL in this situation:
 
-usbip_network.c: In function ‘usbip_net_pack_usb_device’:
-usbip_network.c:79:32: error: taking address of packed member of ‘struct usbip_usb_device’ may result in an unaligned pointer value [-Werror=address-of-packed-member]
-   79 |  usbip_net_pack_uint32_t(pack, &udev->busnum);
+ocfs2_file_write_iter
+  ->__generic_file_write_iter
+      ->generic_perform_write
+        ->ocfs2_write_begin
+          ->ocfs2_write_begin_nolock
+            ->ocfs2_write_cluster_by_desc
+              ->ocfs2_write_cluster
+                ->ocfs2_mark_extent_written
+                  ->ocfs2_change_extent_flag
+                    ->ocfs2_split_extent
+                      ->ocfs2_try_to_merge_extent
+                        ->ocfs2_extend_rotate_transaction
+                          ->ocfs2_extend_trans
+                            ->jbd2_journal_restart
+                              ->jbd2__journal_restart
+                                // handle->h_transaction is NULL here
+                                ->handle->h_transaction = NULL;
+                                ->start_this_handle
+                                  /* journal aborted due to storage
+                                     network disconnection, return error */
+                                  ->return -EROFS;
+                         /* line 3806 in ocfs2_try_to_merge_extent (),
+                            it will ignore ret error. */
+                        ->ret = 0;
+        ->...
+        ->ocfs2_write_end
+          ->ocfs2_write_end_nolock
+            ->ocfs2_update_inode_fsync_trans
+              // NULL pointer dereference
+              ->oi->i_sync_tid = handle->h_transaction->t_tid;
 
-Fix with minor changes to pass by value instead of by address.
+The information of NULL pointer dereference as follows:
+    JBD2: Detected IO errors while flushing file data on dm-11-45
+    Aborting journal on device dm-11-45.
+    JBD2: Error -5 detected when updating journal superblock for dm-11-45.
+    (dd,22081,3):ocfs2_extend_trans:474 ERROR: status = -30
+    (dd,22081,3):ocfs2_try_to_merge_extent:3877 ERROR: status = -30
+    Unable to handle kernel NULL pointer dereference at
+    virtual address 0000000000000008
+    Mem abort info:
+      ESR = 0x96000004
+      Exception class = DABT (current EL), IL = 32 bits
+      SET = 0, FnV = 0
+      EA = 0, S1PTW = 0
+    Data abort info:
+      ISV = 0, ISS = 0x00000004
+      CM = 0, WnR = 0
+    user pgtable: 4k pages, 48-bit VAs, pgdp = 00000000e74e1338
+    [0000000000000008] pgd=0000000000000000
+    Internal error: Oops: 96000004 [#1] SMP
+    Process dd (pid: 22081, stack limit = 0x00000000584f35a9)
+    CPU: 3 PID: 22081 Comm: dd Kdump: loaded
+    Hardware name: Huawei TaiShan 2280 V2/BC82AMDD, BIOS 0.98 08/25/2019
+    pstate: 60400009 (nZCv daif +PAN -UAO)
+    pc : ocfs2_write_end_nolock+0x2b8/0x550 [ocfs2]
+    lr : ocfs2_write_end_nolock+0x2a0/0x550 [ocfs2]
+    sp : ffff0000459fba70
+    x29: ffff0000459fba70 x28: 0000000000000000
+    x27: ffff807ccf7f1000 x26: 0000000000000001
+    x25: ffff807bdff57970 x24: ffff807caf1d4000
+    x23: ffff807cc79e9000 x22: 0000000000001000
+    x21: 000000006c6cd000 x20: ffff0000091d9000
+    x19: ffff807ccb239db0 x18: ffffffffffffffff
+    x17: 000000000000000e x16: 0000000000000007
+    x15: ffff807c5e15bd78 x14: 0000000000000000
+    x13: 0000000000000000 x12: 0000000000000000
+    x11: 0000000000000000 x10: 0000000000000001
+    x9 : 0000000000000228 x8 : 000000000000000c
+    x7 : 0000000000000fff x6 : ffff807a308ed6b0
+    x5 : ffff7e01f10967c0 x4 : 0000000000000018
+    x3 : d0bc661572445600 x2 : 0000000000000000
+    x1 : 000000001b2e0200 x0 : 0000000000000000
+    Call trace:
+     ocfs2_write_end_nolock+0x2b8/0x550 [ocfs2]
+     ocfs2_write_end+0x4c/0x80 [ocfs2]
+     generic_perform_write+0x108/0x1a8
+     __generic_file_write_iter+0x158/0x1c8
+     ocfs2_file_write_iter+0x668/0x950 [ocfs2]
+     __vfs_write+0x11c/0x190
+     vfs_write+0xac/0x1c0
+     ksys_write+0x6c/0xd8
+     __arm64_sys_write+0x24/0x30
+     el0_svc_common+0x78/0x130
+     el0_svc_handler+0x38/0x78
+     el0_svc+0x8/0xc
 
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
-Link: https://lore.kernel.org/r/20200109012416.2875-1-skhan@linuxfoundation.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To prevent NULL pointer dereference in this situation, we use
+is_handle_aborted() before using handle->h_transaction->t_tid.
+
+Link: http://lkml.kernel.org/r/03e750ab-9ade-83aa-b000-b9e81e34e539@huawei.com
+Signed-off-by: Yan Wang <wangyan122@huawei.com>
+Reviewed-by: Jun Piao <piaojun@huawei.com>
+Cc: Mark Fasheh <mark@fasheh.com>
+Cc: Joel Becker <jlbec@evilplan.org>
+Cc: Junxiao Bi <junxiao.bi@oracle.com>
+Cc: Joseph Qi <jiangqi903@gmail.com>
+Cc: Changwei Ge <gechangwei@live.cn>
+Cc: Gang He <ghe@suse.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/usb/usbip/src/usbip_network.c | 40 +++++++++++++++++------------
- tools/usb/usbip/src/usbip_network.h | 12 +++------
- 2 files changed, 27 insertions(+), 25 deletions(-)
+ fs/ocfs2/journal.h | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/tools/usb/usbip/src/usbip_network.c b/tools/usb/usbip/src/usbip_network.c
-index b4c37e76a6e08..187dfaa67d0a2 100644
---- a/tools/usb/usbip/src/usbip_network.c
-+++ b/tools/usb/usbip/src/usbip_network.c
-@@ -62,39 +62,39 @@ void usbip_setup_port_number(char *arg)
- 	info("using port %d (\"%s\")", usbip_port, usbip_port_string);
- }
- 
--void usbip_net_pack_uint32_t(int pack, uint32_t *num)
-+uint32_t usbip_net_pack_uint32_t(int pack, uint32_t num)
+diff --git a/fs/ocfs2/journal.h b/fs/ocfs2/journal.h
+index 497a4171ef61f..bfb50fc51528f 100644
+--- a/fs/ocfs2/journal.h
++++ b/fs/ocfs2/journal.h
+@@ -637,9 +637,11 @@ static inline void ocfs2_update_inode_fsync_trans(handle_t *handle,
  {
- 	uint32_t i;
+ 	struct ocfs2_inode_info *oi = OCFS2_I(inode);
  
- 	if (pack)
--		i = htonl(*num);
-+		i = htonl(num);
- 	else
--		i = ntohl(*num);
-+		i = ntohl(num);
- 
--	*num = i;
-+	return i;
+-	oi->i_sync_tid = handle->h_transaction->t_tid;
+-	if (datasync)
+-		oi->i_datasync_tid = handle->h_transaction->t_tid;
++	if (!is_handle_aborted(handle)) {
++		oi->i_sync_tid = handle->h_transaction->t_tid;
++		if (datasync)
++			oi->i_datasync_tid = handle->h_transaction->t_tid;
++	}
  }
  
--void usbip_net_pack_uint16_t(int pack, uint16_t *num)
-+uint16_t usbip_net_pack_uint16_t(int pack, uint16_t num)
- {
- 	uint16_t i;
- 
- 	if (pack)
--		i = htons(*num);
-+		i = htons(num);
- 	else
--		i = ntohs(*num);
-+		i = ntohs(num);
- 
--	*num = i;
-+	return i;
- }
- 
- void usbip_net_pack_usb_device(int pack, struct usbip_usb_device *udev)
- {
--	usbip_net_pack_uint32_t(pack, &udev->busnum);
--	usbip_net_pack_uint32_t(pack, &udev->devnum);
--	usbip_net_pack_uint32_t(pack, &udev->speed);
-+	udev->busnum = usbip_net_pack_uint32_t(pack, udev->busnum);
-+	udev->devnum = usbip_net_pack_uint32_t(pack, udev->devnum);
-+	udev->speed = usbip_net_pack_uint32_t(pack, udev->speed);
- 
--	usbip_net_pack_uint16_t(pack, &udev->idVendor);
--	usbip_net_pack_uint16_t(pack, &udev->idProduct);
--	usbip_net_pack_uint16_t(pack, &udev->bcdDevice);
-+	udev->idVendor = usbip_net_pack_uint16_t(pack, udev->idVendor);
-+	udev->idProduct = usbip_net_pack_uint16_t(pack, udev->idProduct);
-+	udev->bcdDevice = usbip_net_pack_uint16_t(pack, udev->bcdDevice);
- }
- 
- void usbip_net_pack_usb_interface(int pack __attribute__((unused)),
-@@ -141,6 +141,14 @@ ssize_t usbip_net_send(int sockfd, void *buff, size_t bufflen)
- 	return usbip_net_xmit(sockfd, buff, bufflen, 1);
- }
- 
-+static inline void usbip_net_pack_op_common(int pack,
-+					    struct op_common *op_common)
-+{
-+	op_common->version = usbip_net_pack_uint16_t(pack, op_common->version);
-+	op_common->code = usbip_net_pack_uint16_t(pack, op_common->code);
-+	op_common->status = usbip_net_pack_uint32_t(pack, op_common->status);
-+}
-+
- int usbip_net_send_op_common(int sockfd, uint32_t code, uint32_t status)
- {
- 	struct op_common op_common;
-@@ -152,7 +160,7 @@ int usbip_net_send_op_common(int sockfd, uint32_t code, uint32_t status)
- 	op_common.code    = code;
- 	op_common.status  = status;
- 
--	PACK_OP_COMMON(1, &op_common);
-+	usbip_net_pack_op_common(1, &op_common);
- 
- 	rc = usbip_net_send(sockfd, &op_common, sizeof(op_common));
- 	if (rc < 0) {
-@@ -176,7 +184,7 @@ int usbip_net_recv_op_common(int sockfd, uint16_t *code)
- 		goto err;
- 	}
- 
--	PACK_OP_COMMON(0, &op_common);
-+	usbip_net_pack_op_common(0, &op_common);
- 
- 	if (op_common.version != USBIP_VERSION) {
- 		dbg("version mismatch: %d %d", op_common.version,
-diff --git a/tools/usb/usbip/src/usbip_network.h b/tools/usb/usbip/src/usbip_network.h
-index c1e875cf1078c..573fa839b66b7 100644
---- a/tools/usb/usbip/src/usbip_network.h
-+++ b/tools/usb/usbip/src/usbip_network.h
-@@ -33,12 +33,6 @@ struct op_common {
- 
- } __attribute__((packed));
- 
--#define PACK_OP_COMMON(pack, op_common)  do {\
--	usbip_net_pack_uint16_t(pack, &(op_common)->version);\
--	usbip_net_pack_uint16_t(pack, &(op_common)->code);\
--	usbip_net_pack_uint32_t(pack, &(op_common)->status);\
--} while (0)
--
- /* ---------------------------------------------------------------------- */
- /* Dummy Code */
- #define OP_UNSPEC	0x00
-@@ -164,11 +158,11 @@ struct op_devlist_reply_extra {
- } while (0)
- 
- #define PACK_OP_DEVLIST_REPLY(pack, reply)  do {\
--	usbip_net_pack_uint32_t(pack, &(reply)->ndev);\
-+	(reply)->ndev = usbip_net_pack_uint32_t(pack, (reply)->ndev);\
- } while (0)
- 
--void usbip_net_pack_uint32_t(int pack, uint32_t *num);
--void usbip_net_pack_uint16_t(int pack, uint16_t *num);
-+uint32_t usbip_net_pack_uint32_t(int pack, uint32_t num);
-+uint16_t usbip_net_pack_uint16_t(int pack, uint16_t num);
- void usbip_net_pack_usb_device(int pack, struct usbip_usb_device *udev);
- void usbip_net_pack_usb_interface(int pack, struct usbip_usb_interface *uinf);
- 
+ #endif /* OCFS2_JOURNAL_H */
 -- 
 2.20.1
 
