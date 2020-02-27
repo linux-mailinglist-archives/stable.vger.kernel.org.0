@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 12C84171EBC
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:30:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 419BD171D94
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:22:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732638AbgB0OFX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 09:05:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41914 "EHLO mail.kernel.org"
+        id S2388566AbgB0OQ4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 09:16:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57174 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387734AbgB0OFR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 09:05:17 -0500
+        id S2388545AbgB0OQy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 09:16:54 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1B9E020801;
-        Thu, 27 Feb 2020 14:05:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 25DB0246AE;
+        Thu, 27 Feb 2020 14:16:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582812316;
-        bh=U0GxQ/StVdrq3IAdMSnRpyea2jabzGv+n2eoSD3uqs8=;
+        s=default; t=1582813013;
+        bh=NgAudH2365eYL/7DmH6FlmstAmvV6nBUOhVZ+EeAuMM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vW2yornHtMocrqlpwIhy3zVM+1emqbnZ+jPNSrAqcQ1GeM1lNffDRvuU/yjesSS+c
-         o9EApER1NC5tXP1wFR0WN6qOSRylgpMY0sYk+ctm+3qxRWX/hQtI/7AilbZ7Q0RIxv
-         yfPIjxYcP6y/faI1Wmq4P0EdjlXpwGzRvUKLBb7I=
+        b=T8mzDUu3pLtGxpvxtEd/HVhff4pg7KsNc95Z+zZPJwJLvyC2oV1mfdaPGEJjXPURd
+         1phH2oz+r6K897QDxdVjv5hqikr8B9JhCR0SyfucutA6DeA25pRvHJKuUuCsIdh+yf
+         68Di2IgCq5wUIpkfr+SiZvYeK9F/k5bsCmTLzrSw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Biggers <ebiggers@google.com>,
-        Theodore Tso <tytso@mit.edu>, Jan Kara <jack@suse.cz>,
-        stable@kernel.org
-Subject: [PATCH 4.19 69/97] ext4: rename s_journal_flag_rwsem to s_writepages_rwsem
-Date:   Thu, 27 Feb 2020 14:37:17 +0100
-Message-Id: <20200227132225.748009552@linuxfoundation.org>
+        stable@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>,
+        Vitaly Kuznetsov <vkuznets@redhat.com>
+Subject: [PATCH 5.5 101/150] KVM: nVMX: handle nested posted interrupts when apicv is disabled for L1
+Date:   Thu, 27 Feb 2020 14:37:18 +0100
+Message-Id: <20200227132247.708240590@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200227132214.553656188@linuxfoundation.org>
-References: <20200227132214.553656188@linuxfoundation.org>
+In-Reply-To: <20200227132232.815448360@linuxfoundation.org>
+References: <20200227132232.815448360@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,130 +43,113 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+From: Vitaly Kuznetsov <vkuznets@redhat.com>
 
-commit bbd55937de8f2754adc5792b0f8e5ff7d9c0420e upstream.
+commit 91a5f413af596ad01097e59bf487eb07cb3f1331 upstream.
 
-In preparation for making s_journal_flag_rwsem synchronize
-ext4_writepages() with changes to both the EXTENTS and JOURNAL_DATA
-flags (rather than just JOURNAL_DATA as it does currently), rename it to
-s_writepages_rwsem.
+Even when APICv is disabled for L1 it can (and, actually, is) still
+available for L2, this means we need to always call
+vmx_deliver_nested_posted_interrupt() when attempting an interrupt
+delivery.
 
-Link: https://lore.kernel.org/r/20200219183047.47417-2-ebiggers@kernel.org
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Cc: stable@kernel.org
+Suggested-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/ext4/ext4.h  |    2 +-
- fs/ext4/inode.c |   14 +++++++-------
- fs/ext4/super.c |    6 +++---
- 3 files changed, 11 insertions(+), 11 deletions(-)
+ arch/x86/include/asm/kvm_host.h |    2 +-
+ arch/x86/kvm/lapic.c            |    5 +----
+ arch/x86/kvm/svm.c              |    7 ++++++-
+ arch/x86/kvm/vmx/vmx.c          |   13 +++++++++----
+ 4 files changed, 17 insertions(+), 10 deletions(-)
 
---- a/fs/ext4/ext4.h
-+++ b/fs/ext4/ext4.h
-@@ -1521,7 +1521,7 @@ struct ext4_sb_info {
- 	struct ratelimit_state s_msg_ratelimit_state;
+--- a/arch/x86/include/asm/kvm_host.h
++++ b/arch/x86/include/asm/kvm_host.h
+@@ -1115,7 +1115,7 @@ struct kvm_x86_ops {
+ 	void (*load_eoi_exitmap)(struct kvm_vcpu *vcpu, u64 *eoi_exit_bitmap);
+ 	void (*set_virtual_apic_mode)(struct kvm_vcpu *vcpu);
+ 	void (*set_apic_access_page_addr)(struct kvm_vcpu *vcpu, hpa_t hpa);
+-	void (*deliver_posted_interrupt)(struct kvm_vcpu *vcpu, int vector);
++	int (*deliver_posted_interrupt)(struct kvm_vcpu *vcpu, int vector);
+ 	int (*sync_pir_to_irr)(struct kvm_vcpu *vcpu);
+ 	int (*set_tss_addr)(struct kvm *kvm, unsigned int addr);
+ 	int (*set_identity_map_addr)(struct kvm *kvm, u64 ident_addr);
+--- a/arch/x86/kvm/lapic.c
++++ b/arch/x86/kvm/lapic.c
+@@ -1049,11 +1049,8 @@ static int __apic_accept_irq(struct kvm_
+ 						       apic->regs + APIC_TMR);
+ 		}
  
- 	/* Barrier between changing inodes' journal flags and writepages ops. */
--	struct percpu_rw_semaphore s_journal_flag_rwsem;
-+	struct percpu_rw_semaphore s_writepages_rwsem;
- 	struct dax_device *s_daxdev;
- };
- 
---- a/fs/ext4/inode.c
-+++ b/fs/ext4/inode.c
-@@ -2730,7 +2730,7 @@ static int ext4_writepages(struct addres
- 	if (unlikely(ext4_forced_shutdown(EXT4_SB(inode->i_sb))))
- 		return -EIO;
- 
--	percpu_down_read(&sbi->s_journal_flag_rwsem);
-+	percpu_down_read(&sbi->s_writepages_rwsem);
- 	trace_ext4_writepages(inode, wbc);
- 
- 	/*
-@@ -2950,7 +2950,7 @@ unplug:
- out_writepages:
- 	trace_ext4_writepages_result(inode, wbc, ret,
- 				     nr_to_write - wbc->nr_to_write);
--	percpu_up_read(&sbi->s_journal_flag_rwsem);
-+	percpu_up_read(&sbi->s_writepages_rwsem);
- 	return ret;
+-		if (vcpu->arch.apicv_active)
+-			kvm_x86_ops->deliver_posted_interrupt(vcpu, vector);
+-		else {
++		if (kvm_x86_ops->deliver_posted_interrupt(vcpu, vector)) {
+ 			kvm_lapic_set_irr(vector, apic);
+-
+ 			kvm_make_request(KVM_REQ_EVENT, vcpu);
+ 			kvm_vcpu_kick(vcpu);
+ 		}
+--- a/arch/x86/kvm/svm.c
++++ b/arch/x86/kvm/svm.c
+@@ -5160,8 +5160,11 @@ static void svm_load_eoi_exitmap(struct
+ 	return;
  }
  
-@@ -2965,13 +2965,13 @@ static int ext4_dax_writepages(struct ad
- 	if (unlikely(ext4_forced_shutdown(EXT4_SB(inode->i_sb))))
- 		return -EIO;
+-static void svm_deliver_avic_intr(struct kvm_vcpu *vcpu, int vec)
++static int svm_deliver_avic_intr(struct kvm_vcpu *vcpu, int vec)
+ {
++	if (!vcpu->arch.apicv_active)
++		return -1;
++
+ 	kvm_lapic_set_irr(vec, vcpu->arch.apic);
+ 	smp_mb__after_atomic();
  
--	percpu_down_read(&sbi->s_journal_flag_rwsem);
-+	percpu_down_read(&sbi->s_writepages_rwsem);
- 	trace_ext4_writepages(inode, wbc);
- 
- 	ret = dax_writeback_mapping_range(mapping, inode->i_sb->s_bdev, wbc);
- 	trace_ext4_writepages_result(inode, wbc, ret,
- 				     nr_to_write - wbc->nr_to_write);
--	percpu_up_read(&sbi->s_journal_flag_rwsem);
-+	percpu_up_read(&sbi->s_writepages_rwsem);
- 	return ret;
+@@ -5173,6 +5176,8 @@ static void svm_deliver_avic_intr(struct
+ 		put_cpu();
+ 	} else
+ 		kvm_vcpu_wake_up(vcpu);
++
++	return 0;
  }
  
-@@ -6207,7 +6207,7 @@ int ext4_change_inode_journal_flag(struc
- 		}
- 	}
+ static bool svm_dy_apicv_has_pending_interrupt(struct kvm_vcpu *vcpu)
+--- a/arch/x86/kvm/vmx/vmx.c
++++ b/arch/x86/kvm/vmx/vmx.c
+@@ -3848,24 +3848,29 @@ static int vmx_deliver_nested_posted_int
+  * 2. If target vcpu isn't running(root mode), kick it to pick up the
+  * interrupt from PIR in next vmentry.
+  */
+-static void vmx_deliver_posted_interrupt(struct kvm_vcpu *vcpu, int vector)
++static int vmx_deliver_posted_interrupt(struct kvm_vcpu *vcpu, int vector)
+ {
+ 	struct vcpu_vmx *vmx = to_vmx(vcpu);
+ 	int r;
  
--	percpu_down_write(&sbi->s_journal_flag_rwsem);
-+	percpu_down_write(&sbi->s_writepages_rwsem);
- 	jbd2_journal_lock_updates(journal);
+ 	r = vmx_deliver_nested_posted_interrupt(vcpu, vector);
+ 	if (!r)
+-		return;
++		return 0;
++
++	if (!vcpu->arch.apicv_active)
++		return -1;
  
- 	/*
-@@ -6224,7 +6224,7 @@ int ext4_change_inode_journal_flag(struc
- 		err = jbd2_journal_flush(journal);
- 		if (err < 0) {
- 			jbd2_journal_unlock_updates(journal);
--			percpu_up_write(&sbi->s_journal_flag_rwsem);
-+			percpu_up_write(&sbi->s_writepages_rwsem);
- 			return err;
- 		}
- 		ext4_clear_inode_flag(inode, EXT4_INODE_JOURNAL_DATA);
-@@ -6232,7 +6232,7 @@ int ext4_change_inode_journal_flag(struc
- 	ext4_set_aops(inode);
+ 	if (pi_test_and_set_pir(vector, &vmx->pi_desc))
+-		return;
++		return 0;
  
- 	jbd2_journal_unlock_updates(journal);
--	percpu_up_write(&sbi->s_journal_flag_rwsem);
-+	percpu_up_write(&sbi->s_writepages_rwsem);
+ 	/* If a previous notification has sent the IPI, nothing to do.  */
+ 	if (pi_test_and_set_on(&vmx->pi_desc))
+-		return;
++		return 0;
  
- 	if (val)
- 		up_write(&EXT4_I(inode)->i_mmap_sem);
---- a/fs/ext4/super.c
-+++ b/fs/ext4/super.c
-@@ -1017,7 +1017,7 @@ static void ext4_put_super(struct super_
- 	percpu_counter_destroy(&sbi->s_freeinodes_counter);
- 	percpu_counter_destroy(&sbi->s_dirs_counter);
- 	percpu_counter_destroy(&sbi->s_dirtyclusters_counter);
--	percpu_free_rwsem(&sbi->s_journal_flag_rwsem);
-+	percpu_free_rwsem(&sbi->s_writepages_rwsem);
- #ifdef CONFIG_QUOTA
- 	for (i = 0; i < EXT4_MAXQUOTAS; i++)
- 		kfree(get_qf_name(sb, sbi, i));
-@@ -4495,7 +4495,7 @@ no_journal:
- 		err = percpu_counter_init(&sbi->s_dirtyclusters_counter, 0,
- 					  GFP_KERNEL);
- 	if (!err)
--		err = percpu_init_rwsem(&sbi->s_journal_flag_rwsem);
-+		err = percpu_init_rwsem(&sbi->s_writepages_rwsem);
+ 	if (!kvm_vcpu_trigger_posted_interrupt(vcpu, false))
+ 		kvm_vcpu_kick(vcpu);
++
++	return 0;
+ }
  
- 	if (err) {
- 		ext4_msg(sb, KERN_ERR, "insufficient memory");
-@@ -4595,7 +4595,7 @@ failed_mount6:
- 	percpu_counter_destroy(&sbi->s_freeinodes_counter);
- 	percpu_counter_destroy(&sbi->s_dirs_counter);
- 	percpu_counter_destroy(&sbi->s_dirtyclusters_counter);
--	percpu_free_rwsem(&sbi->s_journal_flag_rwsem);
-+	percpu_free_rwsem(&sbi->s_writepages_rwsem);
- failed_mount5:
- 	ext4_ext_release(sb);
- 	ext4_release_system_zone(sb);
+ /*
 
 
