@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D1788171FF5
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:40:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 643D3171FF2
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:40:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731931AbgB0OjZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 09:39:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55090 "EHLO mail.kernel.org"
+        id S1732277AbgB0OjS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 09:39:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55188 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731924AbgB0Nyy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 08:54:54 -0500
+        id S1731931AbgB0Ny7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 08:54:59 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A92BA20578;
-        Thu, 27 Feb 2020 13:54:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A456C2469B;
+        Thu, 27 Feb 2020 13:54:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582811694;
-        bh=MsONPWTNfPo6V0X4S3Ypn68YP2qKHWF1siRbP0V/Czo=;
+        s=default; t=1582811699;
+        bh=0yykBS6MIZWIYyvz4tIC205U5lYukMIJgO3DEgv1NnU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f6IWL7j9Urf9NI4yQ8MuU5J1ebMYxNOHnEzMA6wPlkDn4V71s+QG6M5cZyLds3PMU
-         Cmp3t/o7PRLBERhmKc+aWcgGDv28gA5eK4oRIwWBL3fyR6+uWxf8tgiDfMtxlRR5GM
-         AlCIxQRjT8DNePe5dFfqcOCe3SA6BDU+OszEMPG8=
+        b=tladFDftksfHAMOfw+wZ1EFNLOIgQKk6S/j3kIDLnFNHyRtgjh5TFRaCjo0qB1Agg
+         mSOGN9DeOGO4DpUCuzFwFgqD/0GToqc8viygMBaYwbCNsF72PFiWerP1ARK43q4clq
+         NjnGne/rL6RSm5VYxYBtjRBiEKUzELpkOyTZXv/8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Luis Henriques <luis.henriques@canonical.com>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
+        stable@vger.kernel.org, "zhangyi (F)" <yi.zhang@huawei.com>,
+        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 064/237] tracing: Fix tracing_stat return values in error handling paths
-Date:   Thu, 27 Feb 2020 14:34:38 +0100
-Message-Id: <20200227132301.735318296@linuxfoundation.org>
+Subject: [PATCH 4.14 066/237] ext4, jbd2: ensure panic when aborting with zero errno
+Date:   Thu, 27 Feb 2020 14:34:40 +0100
+Message-Id: <20200227132301.908303534@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200227132255.285644406@linuxfoundation.org>
 References: <20200227132255.285644406@linuxfoundation.org>
@@ -45,56 +44,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luis Henriques <luis.henriques@canonical.com>
+From: zhangyi (F) <yi.zhang@huawei.com>
 
-[ Upstream commit afccc00f75bbbee4e4ae833a96c2d29a7259c693 ]
+[ Upstream commit 51f57b01e4a3c7d7bdceffd84de35144e8c538e7 ]
 
-tracing_stat_init() was always returning '0', even on the error paths.  It
-now returns -ENODEV if tracing_init_dentry() fails or -ENOMEM if it fails
-to created the 'trace_stat' debugfs directory.
+JBD2_REC_ERR flag used to indicate the errno has been updated when jbd2
+aborted, and then __ext4_abort() and ext4_handle_error() can invoke
+panic if ERRORS_PANIC is specified. But if the journal has been aborted
+with zero errno, jbd2_journal_abort() didn't set this flag so we can
+no longer panic. Fix this by always record the proper errno in the
+journal superblock.
 
-Link: http://lkml.kernel.org/r/1410299381-20108-1-git-send-email-luis.henriques@canonical.com
-
-Fixes: ed6f1c996bfe4 ("tracing: Check return value of tracing_init_dentry()")
-Signed-off-by: Luis Henriques <luis.henriques@canonical.com>
-[ Pulled from the archeological digging of my INBOX ]
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Fixes: 4327ba52afd03 ("ext4, jbd2: ensure entering into panic after recording an error in superblock")
+Signed-off-by: zhangyi (F) <yi.zhang@huawei.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/20191204124614.45424-3-yi.zhang@huawei.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/trace/trace_stat.c | 12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+ fs/jbd2/checkpoint.c |  2 +-
+ fs/jbd2/journal.c    | 15 ++++-----------
+ 2 files changed, 5 insertions(+), 12 deletions(-)
 
-diff --git a/kernel/trace/trace_stat.c b/kernel/trace/trace_stat.c
-index 75bf1bcb4a8a5..bf68af63538b4 100644
---- a/kernel/trace/trace_stat.c
-+++ b/kernel/trace/trace_stat.c
-@@ -278,18 +278,22 @@ static int tracing_stat_init(void)
+diff --git a/fs/jbd2/checkpoint.c b/fs/jbd2/checkpoint.c
+index fe4fe155b7fbe..15d129b7494b0 100644
+--- a/fs/jbd2/checkpoint.c
++++ b/fs/jbd2/checkpoint.c
+@@ -168,7 +168,7 @@ void __jbd2_log_wait_for_space(journal_t *journal)
+ 				       "journal space in %s\n", __func__,
+ 				       journal->j_devname);
+ 				WARN_ON(1);
+-				jbd2_journal_abort(journal, 0);
++				jbd2_journal_abort(journal, -EIO);
+ 			}
+ 			write_lock(&journal->j_state_lock);
+ 		} else {
+diff --git a/fs/jbd2/journal.c b/fs/jbd2/journal.c
+index b72be822f04f2..eae9ced846d51 100644
+--- a/fs/jbd2/journal.c
++++ b/fs/jbd2/journal.c
+@@ -2128,12 +2128,10 @@ static void __journal_abort_soft (journal_t *journal, int errno)
  
- 	d_tracing = tracing_init_dentry();
- 	if (IS_ERR(d_tracing))
--		return 0;
-+		return -ENODEV;
+ 	__jbd2_journal_abort_hard(journal);
  
- 	stat_dir = tracefs_create_dir("trace_stat", d_tracing);
--	if (!stat_dir)
-+	if (!stat_dir) {
- 		pr_warn("Could not create tracefs 'trace_stat' entry\n");
-+		return -ENOMEM;
-+	}
- 	return 0;
+-	if (errno) {
+-		jbd2_journal_update_sb_errno(journal);
+-		write_lock(&journal->j_state_lock);
+-		journal->j_flags |= JBD2_REC_ERR;
+-		write_unlock(&journal->j_state_lock);
+-	}
++	jbd2_journal_update_sb_errno(journal);
++	write_lock(&journal->j_state_lock);
++	journal->j_flags |= JBD2_REC_ERR;
++	write_unlock(&journal->j_state_lock);
  }
  
- static int init_stat_file(struct stat_session *session)
- {
--	if (!stat_dir && tracing_stat_init())
--		return -ENODEV;
-+	int ret;
-+
-+	if (!stat_dir && (ret = tracing_stat_init()))
-+		return ret;
+ /**
+@@ -2175,11 +2173,6 @@ static void __journal_abort_soft (journal_t *journal, int errno)
+  * failure to disk.  ext3_error, for example, now uses this
+  * functionality.
+  *
+- * Errors which originate from within the journaling layer will NOT
+- * supply an errno; a null errno implies that absolutely no further
+- * writes are done to the journal (unless there are any already in
+- * progress).
+- *
+  */
  
- 	session->file = tracefs_create_file(session->ts->name, 0644,
- 					    stat_dir,
+ void jbd2_journal_abort(journal_t *journal, int errno)
 -- 
 2.20.1
 
