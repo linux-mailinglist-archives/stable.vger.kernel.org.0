@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 91480171E26
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:25:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 355B1171EB8
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:30:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388119AbgB0OK4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 09:10:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49224 "EHLO mail.kernel.org"
+        id S2387422AbgB0OF3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 09:05:29 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42154 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388278AbgB0OK4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 09:10:56 -0500
+        id S2387769AbgB0OF2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 09:05:28 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2AEEA20714;
-        Thu, 27 Feb 2020 14:10:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 32C9F24691;
+        Thu, 27 Feb 2020 14:05:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582812655;
-        bh=RxtQpwXVCZ8kuPzuL7XmZtmGwiwVZKSh7yis6FrdueQ=;
+        s=default; t=1582812327;
+        bh=hVmMPzbNUFh4d8/1PFfZVOKJRZ7c2slJRQmWFYW7Hjw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D+gZfRGBdEjcD5VhGQqgcEs+uFh6yycdWOcG0HzBQIIPGJheh+47Y1TtmlhQHvuTu
-         XGo/W97CWRTT5wU1rntGBh5RrJ9SIkiVqOPeNcsd1ht3AFg1lzavLyxO+DkV3OQZ8K
-         HUCkvmY8W/K/yg4I190Tmm+PKVPgIYm4Ptl3wr64=
+        b=Z7owrUYlMq4jiNsIVYaBe0eCEFT9emhEWKJQlQJjHkqKbPn8jwT1eMOEzWgGXeRYU
+         FC8hq1t2W4tgjbd4o5/rx/aZU/WRs4uguqjWQhlHDe2aSkGBaxqOu24K4oq2xpeAcG
+         FXGD81WYYn1aSWgn1Rb8MvxsKRSSh7g8jmyu59UQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andreas Tobler <andreas.tobler@onway.ch>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        Robin Gong <yibin.gong@nxp.com>, Vinod Koul <vkoul@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 100/135] Revert "dmaengine: imx-sdma: Fix memory leak"
-Date:   Thu, 27 Feb 2020 14:37:20 +0100
-Message-Id: <20200227132244.250294381@linuxfoundation.org>
+        stable@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>,
+        Vitaly Kuznetsov <vkuznets@redhat.com>
+Subject: [PATCH 4.19 73/97] KVM: nVMX: handle nested posted interrupts when apicv is disabled for L1
+Date:   Thu, 27 Feb 2020 14:37:21 +0100
+Message-Id: <20200227132226.392852498@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200227132228.710492098@linuxfoundation.org>
-References: <20200227132228.710492098@linuxfoundation.org>
+In-Reply-To: <20200227132214.553656188@linuxfoundation.org>
+References: <20200227132214.553656188@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,70 +43,113 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Vitaly Kuznetsov <vkuznets@redhat.com>
 
-This reverts commit 8a7aa4feeaeabc12181e1997a298eb73d2ed2d65 which is
-commit 02939cd167095f16328a1bd5cab5a90b550606df upstream.
+commit 91a5f413af596ad01097e59bf487eb07cb3f1331 upstream.
 
-Andreas writes:
-	This patch breaks our imx6 board with the attached trace.
-	Reverting the patch makes it boot again.
+Even when APICv is disabled for L1 it can (and, actually, is) still
+available for L2, this means we need to always call
+vmx_deliver_nested_posted_interrupt() when attempting an interrupt
+delivery.
 
-Reported-by: Andreas Tobler <andreas.tobler@onway.ch>
-Cc: Sascha Hauer <s.hauer@pengutronix.de>
-Cc: Robin Gong <yibin.gong@nxp.com>
-Cc: Vinod Koul <vkoul@kernel.org>
-Cc: Sasha Levin <sashal@kernel.org>
+Suggested-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/dma/imx-sdma.c |   19 ++++++++-----------
- 1 file changed, 8 insertions(+), 11 deletions(-)
 
---- a/drivers/dma/imx-sdma.c
-+++ b/drivers/dma/imx-sdma.c
-@@ -760,8 +760,12 @@ static void sdma_start_desc(struct sdma_
- 		return;
- 	}
- 	sdmac->desc = desc = to_sdma_desc(&vd->tx);
+---
+ arch/x86/include/asm/kvm_host.h |    2 +-
+ arch/x86/kvm/lapic.c            |    5 +----
+ arch/x86/kvm/svm.c              |    7 ++++++-
+ arch/x86/kvm/vmx.c              |   13 +++++++++----
+ 4 files changed, 17 insertions(+), 10 deletions(-)
+
+--- a/arch/x86/include/asm/kvm_host.h
++++ b/arch/x86/include/asm/kvm_host.h
+@@ -1040,7 +1040,7 @@ struct kvm_x86_ops {
+ 	void (*load_eoi_exitmap)(struct kvm_vcpu *vcpu, u64 *eoi_exit_bitmap);
+ 	void (*set_virtual_apic_mode)(struct kvm_vcpu *vcpu);
+ 	void (*set_apic_access_page_addr)(struct kvm_vcpu *vcpu, hpa_t hpa);
+-	void (*deliver_posted_interrupt)(struct kvm_vcpu *vcpu, int vector);
++	int (*deliver_posted_interrupt)(struct kvm_vcpu *vcpu, int vector);
+ 	int (*sync_pir_to_irr)(struct kvm_vcpu *vcpu);
+ 	int (*set_tss_addr)(struct kvm *kvm, unsigned int addr);
+ 	int (*set_identity_map_addr)(struct kvm *kvm, u64 ident_addr);
+--- a/arch/x86/kvm/lapic.c
++++ b/arch/x86/kvm/lapic.c
+@@ -1060,11 +1060,8 @@ static int __apic_accept_irq(struct kvm_
+ 				apic_clear_vector(vector, apic->regs + APIC_TMR);
+ 		}
+ 
+-		if (vcpu->arch.apicv_active)
+-			kvm_x86_ops->deliver_posted_interrupt(vcpu, vector);
+-		else {
++		if (kvm_x86_ops->deliver_posted_interrupt(vcpu, vector)) {
+ 			kvm_lapic_set_irr(vector, apic);
 -
--	list_del(&vd->node);
-+	/*
-+	 * Do not delete the node in desc_issued list in cyclic mode, otherwise
-+	 * the desc allocated will never be freed in vchan_dma_desc_free_list
-+	 */
-+	if (!(sdmac->flags & IMX_DMA_SG_LOOP))
-+		list_del(&vd->node);
- 
- 	sdma->channel_control[channel].base_bd_ptr = desc->bd_phys;
- 	sdma->channel_control[channel].current_bd_ptr = desc->bd_phys;
-@@ -1067,6 +1071,7 @@ static void sdma_channel_terminate_work(
- 
- 	spin_lock_irqsave(&sdmac->vc.lock, flags);
- 	vchan_get_all_descriptors(&sdmac->vc, &head);
-+	sdmac->desc = NULL;
- 	spin_unlock_irqrestore(&sdmac->vc.lock, flags);
- 	vchan_dma_desc_free_list(&sdmac->vc, &head);
- 	sdmac->context_loaded = false;
-@@ -1075,19 +1080,11 @@ static void sdma_channel_terminate_work(
- static int sdma_disable_channel_async(struct dma_chan *chan)
- {
- 	struct sdma_channel *sdmac = to_sdma_chan(chan);
--	unsigned long flags;
--
--	spin_lock_irqsave(&sdmac->vc.lock, flags);
- 
- 	sdma_disable_channel(chan);
- 
--	if (sdmac->desc) {
--		vchan_terminate_vdesc(&sdmac->desc->vd);
--		sdmac->desc = NULL;
-+	if (sdmac->desc)
- 		schedule_work(&sdmac->terminate_worker);
--	}
--
--	spin_unlock_irqrestore(&sdmac->vc.lock, flags);
- 
- 	return 0;
+ 			kvm_make_request(KVM_REQ_EVENT, vcpu);
+ 			kvm_vcpu_kick(vcpu);
+ 		}
+--- a/arch/x86/kvm/svm.c
++++ b/arch/x86/kvm/svm.c
+@@ -5140,8 +5140,11 @@ static void svm_load_eoi_exitmap(struct
+ 	return;
  }
+ 
+-static void svm_deliver_avic_intr(struct kvm_vcpu *vcpu, int vec)
++static int svm_deliver_avic_intr(struct kvm_vcpu *vcpu, int vec)
+ {
++	if (!vcpu->arch.apicv_active)
++		return -1;
++
+ 	kvm_lapic_set_irr(vec, vcpu->arch.apic);
+ 	smp_mb__after_atomic();
+ 
+@@ -5150,6 +5153,8 @@ static void svm_deliver_avic_intr(struct
+ 		       kvm_cpu_get_apicid(vcpu->cpu));
+ 	else
+ 		kvm_vcpu_wake_up(vcpu);
++
++	return 0;
+ }
+ 
+ static bool svm_dy_apicv_has_pending_interrupt(struct kvm_vcpu *vcpu)
+--- a/arch/x86/kvm/vmx.c
++++ b/arch/x86/kvm/vmx.c
+@@ -6284,24 +6284,29 @@ static int vmx_deliver_nested_posted_int
+  * 2. If target vcpu isn't running(root mode), kick it to pick up the
+  * interrupt from PIR in next vmentry.
+  */
+-static void vmx_deliver_posted_interrupt(struct kvm_vcpu *vcpu, int vector)
++static int vmx_deliver_posted_interrupt(struct kvm_vcpu *vcpu, int vector)
+ {
+ 	struct vcpu_vmx *vmx = to_vmx(vcpu);
+ 	int r;
+ 
+ 	r = vmx_deliver_nested_posted_interrupt(vcpu, vector);
+ 	if (!r)
+-		return;
++		return 0;
++
++	if (!vcpu->arch.apicv_active)
++		return -1;
+ 
+ 	if (pi_test_and_set_pir(vector, &vmx->pi_desc))
+-		return;
++		return 0;
+ 
+ 	/* If a previous notification has sent the IPI, nothing to do.  */
+ 	if (pi_test_and_set_on(&vmx->pi_desc))
+-		return;
++		return 0;
+ 
+ 	if (!kvm_vcpu_trigger_posted_interrupt(vcpu, false))
+ 		kvm_vcpu_kick(vcpu);
++
++	return 0;
+ }
+ 
+ /*
 
 
