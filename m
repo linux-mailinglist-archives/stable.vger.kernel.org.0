@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2255E172025
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:41:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2AF93171F43
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:33:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730832AbgB0NvL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 08:51:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49992 "EHLO mail.kernel.org"
+        id S1732708AbgB0OAP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 09:00:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33584 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731082AbgB0NvJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 08:51:09 -0500
+        id S1732505AbgB0OAO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 09:00:14 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A00E8246AF;
-        Thu, 27 Feb 2020 13:51:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F17522084E;
+        Thu, 27 Feb 2020 14:00:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582811469;
-        bh=QIxfv9IqXqjEULyp9k88AQixp8pBPBBWvgWwqIt/4mo=;
+        s=default; t=1582812013;
+        bh=xqQYtsCBrJ/YNM2yRYXqRKw+lJsnLhucMHS7wPD/g3Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HQf1pYc2W0P25Uyse8ZuS287tNXmX8sX/TkyyX8k+Bm3K6NFxQ8eA96VS//ngxD+n
-         PPL3bKPGSDRZD6MmktCkiaab+87RxCRTTpQBR6XuVOdwNnPn6m1YfL6z7NlyIlu4BD
-         yZlU/w+/DQQ/MHE/AhTR8UF8I65eCQZmMAJ/rntQ=
+        b=VcsiZ+ubndQKAktxsElzUojvFTtW8xSvNrYi0ZMj08/U2F2/TZZJ/mYu9bWV/M0xB
+         xkya/AAtpco4DbKYY6hov+bUCDyuOdvsFXSjSREQa6RgOCnw88tL1tm6BUZlr2aVQD
+         XdFomPgxJx86XPTrWUbJ2p7dgfcqwsaSCYH8F7vM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Pietro Oliva <pietroliva@gmail.com>,
         Larry Finger <Larry.Finger@lwfinger.net>
-Subject: [PATCH 4.9 127/165] staging: rtl8188eu: Fix potential security hole
+Subject: [PATCH 4.14 187/237] staging: rtl8188eu: Fix potential security hole
 Date:   Thu, 27 Feb 2020 14:36:41 +0100
-Message-Id: <20200227132249.642490750@linuxfoundation.org>
+Message-Id: <20200227132310.098614919@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200227132230.840899170@linuxfoundation.org>
-References: <20200227132230.840899170@linuxfoundation.org>
+In-Reply-To: <20200227132255.285644406@linuxfoundation.org>
+References: <20200227132255.285644406@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -69,7 +69,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/drivers/staging/rtl8188eu/os_dep/ioctl_linux.c
 +++ b/drivers/staging/rtl8188eu/os_dep/ioctl_linux.c
-@@ -2859,7 +2859,7 @@ static int rtw_hostapd_ioctl(struct net_
+@@ -2856,7 +2856,7 @@ static int rtw_hostapd_ioctl(struct net_
  		goto out;
  	}
  
