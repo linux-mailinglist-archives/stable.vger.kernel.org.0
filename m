@@ -2,42 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D574171E22
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:25:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A15EA171CD1
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:15:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389063AbgB0OZ2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 09:25:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49608 "EHLO mail.kernel.org"
+        id S2388777AbgB0OPe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 09:15:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55156 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387461AbgB0OLM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 09:11:12 -0500
+        id S2389319AbgB0OPe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 09:15:34 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0174B20578;
-        Thu, 27 Feb 2020 14:11:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3413524690;
+        Thu, 27 Feb 2020 14:15:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582812671;
-        bh=mvXX6h+kds8LV+p+JhJq3T4Jlw4AlEPL8NKmekeMBgg=;
+        s=default; t=1582812932;
+        bh=ogiLIxHaBbWPMNutkARWHFbhFYk5LmlqhuZUM2LEdtI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pBXIE3RjpqrFufJJmqJFLzVE+wV9bm6zo9KoZl3wL4M6ZHjYrnSCik4IKi80SjC/f
-         4NVN9nx/R3iLVkuvy4jWIpHOAxKQRuzPk+UZ+ZVddokZk3+73lSK7y0v51hjq6bmOe
-         S58dHRQKHSKukeODnKSifsdt8Yviy7edEVPvRMs0=
+        b=rhDl8LlKDfIS+qg85i1w+dMBNcAU163aO7v0VEQme/LJRaLgFhDxWEDsQH+BAWm6A
+         KUKmFZwyjMn09/VA0EMyIi4PjfEEjzP14WwM510fQfInsfIFsJATGcndmdLTUumdn2
+         7AuLdwMvJg/9cvt+DM+Z5cBm3Z+aP0bn4qQS8o6s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Weimer <fweimer@redhat.com>,
+        stable@vger.kernel.org,
+        Ioanna Alifieraki <ioanna-maria.alifieraki@canonical.com>,
+        Manfred Spraul <manfred@colorfullife.com>,
+        "Herton R. Krzesinski" <herton@redhat.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Catalin Marinas <catalin.marinas@arm.com>, malat@debian.org,
+        "Joel Fernandes (Google)" <joel@joelfernandes.org>,
+        Davidlohr Bueso <dave@stgolabs.net>,
+        Jay Vosburgh <jay.vosburgh@canonical.com>,
         Andrew Morton <akpm@linux-foundation.org>,
-        Victor Stinner <vstinner@redhat.com>,
-        Will Deacon <will@kernel.org>,
-        Andrey Konovalov <andreyknvl@google.com>,
-        Catalin Marinas <catalin.marinas@arm.com>
-Subject: [PATCH 5.4 069/135] mm: Avoid creating virtual address aliases in brk()/mmap()/mremap()
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.5 072/150] Revert "ipc,sem: remove uneeded sem_undo_list lock usage in exit_sem()"
 Date:   Thu, 27 Feb 2020 14:36:49 +0100
-Message-Id: <20200227132239.672430340@linuxfoundation.org>
+Message-Id: <20200227132243.554032340@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200227132228.710492098@linuxfoundation.org>
-References: <20200227132228.710492098@linuxfoundation.org>
+In-Reply-To: <20200227132232.815448360@linuxfoundation.org>
+References: <20200227132232.815448360@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,92 +52,135 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Catalin Marinas <catalin.marinas@arm.com>
+From: Ioanna Alifieraki <ioanna-maria.alifieraki@canonical.com>
 
-commit dcde237319e626d1ec3c9d8b7613032f0fd4663a upstream.
+commit edf28f4061afe4c2d9eb1c3323d90e882c1d6800 upstream.
 
-Currently the arm64 kernel ignores the top address byte passed to brk(),
-mmap() and mremap(). When the user is not aware of the 56-bit address
-limit or relies on the kernel to return an error, untagging such
-pointers has the potential to create address aliases in user-space.
-Passing a tagged address to munmap(), madvise() is permitted since the
-tagged pointer is expected to be inside an existing mapping.
+This reverts commit a97955844807e327df11aa33869009d14d6b7de0.
 
-The current behaviour breaks the existing glibc malloc() implementation
-which relies on brk() with an address beyond 56-bit to be rejected by
-the kernel.
+Commit a97955844807 ("ipc,sem: remove uneeded sem_undo_list lock usage
+in exit_sem()") removes a lock that is needed.  This leads to a process
+looping infinitely in exit_sem() and can also lead to a crash.  There is
+a reproducer available in [1] and with the commit reverted the issue
+does not reproduce anymore.
 
-Remove untagging in the above functions by partially reverting commit
-ce18d171cb73 ("mm: untag user pointers in mmap/munmap/mremap/brk"). In
-addition, update the arm64 tagged-address-abi.rst document accordingly.
+Using the reproducer found in [1] is fairly easy to reach a point where
+one of the child processes is looping infinitely in exit_sem between
+for(;;) and if (semid == -1) block, while it's trying to free its last
+sem_undo structure which has already been freed by freeary().
 
-Link: https://bugzilla.redhat.com/1797052
-Fixes: ce18d171cb73 ("mm: untag user pointers in mmap/munmap/mremap/brk")
-Cc: <stable@vger.kernel.org> # 5.4.x-
-Cc: Florian Weimer <fweimer@redhat.com>
-Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
-Reported-by: Victor Stinner <vstinner@redhat.com>
-Acked-by: Will Deacon <will@kernel.org>
-Acked-by: Andrey Konovalov <andreyknvl@google.com>
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
-Signed-off-by: Will Deacon <will@kernel.org>
+Each sem_undo struct is on two lists: one per semaphore set (list_id)
+and one per process (list_proc).  The list_id list tracks undos by
+semaphore set, and the list_proc by process.
+
+Undo structures are removed either by freeary() or by exit_sem().  The
+freeary function is invoked when the user invokes a syscall to remove a
+semaphore set.  During this operation freeary() traverses the list_id
+associated with the semaphore set and removes the undo structures from
+both the list_id and list_proc lists.
+
+For this case, exit_sem() is called at process exit.  Each process
+contains a struct sem_undo_list (referred to as "ulp") which contains
+the head for the list_proc list.  When the process exits, exit_sem()
+traverses this list to remove each sem_undo struct.  As in freeary(),
+whenever a sem_undo struct is removed from list_proc, it is also removed
+from the list_id list.
+
+Removing elements from list_id is safe for both exit_sem() and freeary()
+due to sem_lock().  Removing elements from list_proc is not safe;
+freeary() locks &un->ulp->lock when it performs
+list_del_rcu(&un->list_proc) but exit_sem() does not (locking was
+removed by commit a97955844807 ("ipc,sem: remove uneeded sem_undo_list
+lock usage in exit_sem()").
+
+This can result in the following situation while executing the
+reproducer [1] : Consider a child process in exit_sem() and the parent
+in freeary() (because of semctl(sid[i], NSEM, IPC_RMID)).
+
+ - The list_proc for the child contains the last two undo structs A and
+   B (the rest have been removed either by exit_sem() or freeary()).
+
+ - The semid for A is 1 and semid for B is 2.
+
+ - exit_sem() removes A and at the same time freeary() removes B.
+
+ - Since A and B have different semid sem_lock() will acquire different
+   locks for each process and both can proceed.
+
+The bug is that they remove A and B from the same list_proc at the same
+time because only freeary() acquires the ulp lock. When exit_sem()
+removes A it makes ulp->list_proc.next to point at B and at the same
+time freeary() removes B setting B->semid=-1.
+
+At the next iteration of for(;;) loop exit_sem() will try to remove B.
+
+The only way to break from for(;;) is for (&un->list_proc ==
+&ulp->list_proc) to be true which is not. Then exit_sem() will check if
+B->semid=-1 which is and will continue looping in for(;;) until the
+memory for B is reallocated and the value at B->semid is changed.
+
+At that point, exit_sem() will crash attempting to unlink B from the
+lists (this can be easily triggered by running the reproducer [1] a
+second time).
+
+To prove this scenario instrumentation was added to keep information
+about each sem_undo (un) struct that is removed per process and per
+semaphore set (sma).
+
+          CPU0                                CPU1
+  [caller holds sem_lock(sma for A)]      ...
+  freeary()                               exit_sem()
+  ...                                     ...
+  ...                                     sem_lock(sma for B)
+  spin_lock(A->ulp->lock)                 ...
+  list_del_rcu(un_A->list_proc)           list_del_rcu(un_B->list_proc)
+
+Undo structures A and B have different semid and sem_lock() operations
+proceed.  However they belong to the same list_proc list and they are
+removed at the same time.  This results into ulp->list_proc.next
+pointing to the address of B which is already removed.
+
+After reverting commit a97955844807 ("ipc,sem: remove uneeded
+sem_undo_list lock usage in exit_sem()") the issue was no longer
+reproducible.
+
+[1] https://bugzilla.redhat.com/show_bug.cgi?id=1694779
+
+Link: http://lkml.kernel.org/r/20191211191318.11860-1-ioanna-maria.alifieraki@canonical.com
+Fixes: a97955844807 ("ipc,sem: remove uneeded sem_undo_list lock usage in exit_sem()")
+Signed-off-by: Ioanna Alifieraki <ioanna-maria.alifieraki@canonical.com>
+Acked-by: Manfred Spraul <manfred@colorfullife.com>
+Acked-by: Herton R. Krzesinski <herton@redhat.com>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: <malat@debian.org>
+Cc: Joel Fernandes (Google) <joel@joelfernandes.org>
+Cc: Davidlohr Bueso <dave@stgolabs.net>
+Cc: Jay Vosburgh <jay.vosburgh@canonical.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- Documentation/arm64/tagged-address-abi.rst |   11 +++++++++--
- mm/mmap.c                                  |    4 ----
- mm/mremap.c                                |    1 -
- 3 files changed, 9 insertions(+), 7 deletions(-)
+ ipc/sem.c |    6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
---- a/Documentation/arm64/tagged-address-abi.rst
-+++ b/Documentation/arm64/tagged-address-abi.rst
-@@ -44,8 +44,15 @@ The AArch64 Tagged Address ABI has two s
- how the user addresses are used by the kernel:
+--- a/ipc/sem.c
++++ b/ipc/sem.c
+@@ -2368,11 +2368,9 @@ void exit_sem(struct task_struct *tsk)
+ 		ipc_assert_locked_object(&sma->sem_perm);
+ 		list_del(&un->list_id);
  
- 1. User addresses not accessed by the kernel but used for address space
--   management (e.g. ``mmap()``, ``mprotect()``, ``madvise()``). The use
--   of valid tagged pointers in this context is always allowed.
-+   management (e.g. ``mprotect()``, ``madvise()``). The use of valid
-+   tagged pointers in this context is allowed with the exception of
-+   ``brk()``, ``mmap()`` and the ``new_address`` argument to
-+   ``mremap()`` as these have the potential to alias with existing
-+   user addresses.
-+
-+   NOTE: This behaviour changed in v5.6 and so some earlier kernels may
-+   incorrectly accept valid tagged pointers for the ``brk()``,
-+   ``mmap()`` and ``mremap()`` system calls.
+-		/* we are the last process using this ulp, acquiring ulp->lock
+-		 * isn't required. Besides that, we are also protected against
+-		 * IPC_RMID as we hold sma->sem_perm lock now
+-		 */
++		spin_lock(&ulp->lock);
+ 		list_del_rcu(&un->list_proc);
++		spin_unlock(&ulp->lock);
  
- 2. User addresses accessed by the kernel (e.g. ``write()``). This ABI
-    relaxation is disabled by default and the application thread needs to
---- a/mm/mmap.c
-+++ b/mm/mmap.c
-@@ -195,8 +195,6 @@ SYSCALL_DEFINE1(brk, unsigned long, brk)
- 	bool downgraded = false;
- 	LIST_HEAD(uf);
- 
--	brk = untagged_addr(brk);
--
- 	if (down_write_killable(&mm->mmap_sem))
- 		return -EINTR;
- 
-@@ -1583,8 +1581,6 @@ unsigned long ksys_mmap_pgoff(unsigned l
- 	struct file *file = NULL;
- 	unsigned long retval;
- 
--	addr = untagged_addr(addr);
--
- 	if (!(flags & MAP_ANONYMOUS)) {
- 		audit_mmap_fd(fd, flags);
- 		file = fget(fd);
---- a/mm/mremap.c
-+++ b/mm/mremap.c
-@@ -607,7 +607,6 @@ SYSCALL_DEFINE5(mremap, unsigned long, a
- 	LIST_HEAD(uf_unmap);
- 
- 	addr = untagged_addr(addr);
--	new_addr = untagged_addr(new_addr);
- 
- 	if (flags & ~(MREMAP_FIXED | MREMAP_MAYMOVE))
- 		return ret;
+ 		/* perform adjustments registered in un */
+ 		for (i = 0; i < sma->sem_nsems; i++) {
 
 
