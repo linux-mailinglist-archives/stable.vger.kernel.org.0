@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DBE9F17201A
+	by mail.lfdr.de (Postfix) with ESMTP id 3F9E3172019
 	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:40:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731426AbgB0NxO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 08:53:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52974 "EHLO mail.kernel.org"
+        id S1731663AbgB0NxT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 08:53:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53100 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730848AbgB0NxN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 08:53:13 -0500
+        id S1731668AbgB0NxT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 08:53:19 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0A96F21D7E;
-        Thu, 27 Feb 2020 13:53:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A3AA321D7E;
+        Thu, 27 Feb 2020 13:53:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582811592;
-        bh=WJTTeYFlJE9QSkAJVQ5AUme3l7PlwYgX7y3eaAQpA3M=;
+        s=default; t=1582811598;
+        bh=SsUgHWnjTMv3XDYo4fvmono2xbnBa6GKaDXiIuu1cNk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ffd09K57IOKb8NM7kETCAXUeYTekhBoCcKR3wRJfYxevJNcnxprZxiRsCcpIT+g4p
-         y3/0mA2C2CoCcLdykiCA21ZBj77y585BoZul4Js3xnyAMOA0DReMshJxBilubcw45O
-         2jjFKw9CCa3FFrRlobWuM912WMXwo87W7OfDisUE=
+        b=fGgIh/0fq7aMkGcUTlUO+mhMCGxOQuMqAbPrfZmyh98P6SVu5YBCluKTWC+aymU/i
+         uQDLy6zNOUfDGcUfT7UWIzjsWX6rZV0o/QAwjfhL2f3Vhfgi652vaD0Srcl3DgUmpZ
+         8FzdxKVrq+wcbSw7jWrGFYva0DdaURRVUIPZWjzg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
-        Frieder Schrempf <frieder.schrempf@kontron.de>
-Subject: [PATCH 4.14 026/237] serial: imx: ensure that RX irqs are off if RX is off
-Date:   Thu, 27 Feb 2020 14:34:00 +0100
-Message-Id: <20200227132258.304552782@linuxfoundation.org>
+        stable@vger.kernel.org, Kaike Wan <kaike.wan@intel.com>,
+        Mike Marciniszyn <mike.marciniszyn@intel.com>,
+        Dennis Dalessandro <dennis.dalessandro@intel.com>,
+        Jason Gunthorpe <jgg@mellanox.com>
+Subject: [PATCH 4.14 028/237] IB/hfi1: Close window for pq and request coliding
+Date:   Thu, 27 Feb 2020 14:34:02 +0100
+Message-Id: <20200227132258.538671035@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200227132255.285644406@linuxfoundation.org>
 References: <20200227132255.285644406@linuxfoundation.org>
@@ -45,247 +45,270 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+From: Mike Marciniszyn <mike.marciniszyn@intel.com>
 
-commit 76821e222c189b81d553b855ee7054340607eb46 upstream.
+commit be8638344c70bf492963ace206a9896606b6922d upstream.
 
-Make sure that UCR1.RXDMAEN and UCR1.ATDMAEN (for the DMA case) and
-UCR1.RRDYEN (for the PIO case) are off iff UCR1.RXEN is disabled. This
-ensures that the fifo isn't read with RX disabled which results in an
-exception.
+Cleaning up a pq can result in the following warning and panic:
 
-Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-[Backport to v4.14]
-Signed-off-by: Frieder Schrempf <frieder.schrempf@kontron.de>
+  WARNING: CPU: 52 PID: 77418 at lib/list_debug.c:53 __list_del_entry+0x63/0xd0
+  list_del corruption, ffff88cb2c6ac068->next is LIST_POISON1 (dead000000000100)
+  Modules linked in: mmfs26(OE) mmfslinux(OE) tracedev(OE) 8021q garp mrp ib_isert iscsi_target_mod target_core_mod crc_t10dif crct10dif_generic opa_vnic rpcrdma ib_iser libiscsi scsi_transport_iscsi ib_ipoib(OE) bridge stp llc iTCO_wdt iTCO_vendor_support intel_powerclamp coretemp intel_rapl iosf_mbi kvm_intel kvm irqbypass crct10dif_pclmul crct10dif_common crc32_pclmul ghash_clmulni_intel ast aesni_intel ttm lrw gf128mul glue_helper ablk_helper drm_kms_helper cryptd syscopyarea sysfillrect sysimgblt fb_sys_fops drm pcspkr joydev lpc_ich mei_me drm_panel_orientation_quirks i2c_i801 mei wmi ipmi_si ipmi_devintf ipmi_msghandler nfit libnvdimm acpi_power_meter acpi_pad hfi1(OE) rdmavt(OE) rdma_ucm ib_ucm ib_uverbs ib_umad rdma_cm ib_cm iw_cm ib_core binfmt_misc numatools(OE) xpmem(OE) ip_tables
+   nfsv3 nfs_acl nfs lockd grace sunrpc fscache igb ahci i2c_algo_bit libahci dca ptp libata pps_core crc32c_intel [last unloaded: i2c_algo_bit]
+  CPU: 52 PID: 77418 Comm: pvbatch Kdump: loaded Tainted: G           OE  ------------   3.10.0-957.38.3.el7.x86_64 #1
+  Hardware name: HPE.COM HPE SGI 8600-XA730i Gen10/X11DPT-SB-SG007, BIOS SBED1229 01/22/2019
+  Call Trace:
+   [<ffffffff90365ac0>] dump_stack+0x19/0x1b
+   [<ffffffff8fc98b78>] __warn+0xd8/0x100
+   [<ffffffff8fc98bff>] warn_slowpath_fmt+0x5f/0x80
+   [<ffffffff8ff970c3>] __list_del_entry+0x63/0xd0
+   [<ffffffff8ff9713d>] list_del+0xd/0x30
+   [<ffffffff8fddda70>] kmem_cache_destroy+0x50/0x110
+   [<ffffffffc0328130>] hfi1_user_sdma_free_queues+0xf0/0x200 [hfi1]
+   [<ffffffffc02e2350>] hfi1_file_close+0x70/0x1e0 [hfi1]
+   [<ffffffff8fe4519c>] __fput+0xec/0x260
+   [<ffffffff8fe453fe>] ____fput+0xe/0x10
+   [<ffffffff8fcbfd1b>] task_work_run+0xbb/0xe0
+   [<ffffffff8fc2bc65>] do_notify_resume+0xa5/0xc0
+   [<ffffffff90379134>] int_signal+0x12/0x17
+  BUG: unable to handle kernel NULL pointer dereference at 0000000000000010
+  IP: [<ffffffff8fe1f93e>] kmem_cache_close+0x7e/0x300
+  PGD 2cdab19067 PUD 2f7bfdb067 PMD 0
+  Oops: 0000 [#1] SMP
+  Modules linked in: mmfs26(OE) mmfslinux(OE) tracedev(OE) 8021q garp mrp ib_isert iscsi_target_mod target_core_mod crc_t10dif crct10dif_generic opa_vnic rpcrdma ib_iser libiscsi scsi_transport_iscsi ib_ipoib(OE) bridge stp llc iTCO_wdt iTCO_vendor_support intel_powerclamp coretemp intel_rapl iosf_mbi kvm_intel kvm irqbypass crct10dif_pclmul crct10dif_common crc32_pclmul ghash_clmulni_intel ast aesni_intel ttm lrw gf128mul glue_helper ablk_helper drm_kms_helper cryptd syscopyarea sysfillrect sysimgblt fb_sys_fops drm pcspkr joydev lpc_ich mei_me drm_panel_orientation_quirks i2c_i801 mei wmi ipmi_si ipmi_devintf ipmi_msghandler nfit libnvdimm acpi_power_meter acpi_pad hfi1(OE) rdmavt(OE) rdma_ucm ib_ucm ib_uverbs ib_umad rdma_cm ib_cm iw_cm ib_core binfmt_misc numatools(OE) xpmem(OE) ip_tables
+   nfsv3 nfs_acl nfs lockd grace sunrpc fscache igb ahci i2c_algo_bit libahci dca ptp libata pps_core crc32c_intel [last unloaded: i2c_algo_bit]
+  CPU: 52 PID: 77418 Comm: pvbatch Kdump: loaded Tainted: G        W  OE  ------------   3.10.0-957.38.3.el7.x86_64 #1
+  Hardware name: HPE.COM HPE SGI 8600-XA730i Gen10/X11DPT-SB-SG007, BIOS SBED1229 01/22/2019
+  task: ffff88cc26db9040 ti: ffff88b5393a8000 task.ti: ffff88b5393a8000
+  RIP: 0010:[<ffffffff8fe1f93e>]  [<ffffffff8fe1f93e>] kmem_cache_close+0x7e/0x300
+  RSP: 0018:ffff88b5393abd60  EFLAGS: 00010287
+  RAX: 0000000000000000 RBX: ffff88cb2c6ac000 RCX: 0000000000000003
+  RDX: 0000000000000400 RSI: 0000000000000400 RDI: ffffffff9095b800
+  RBP: ffff88b5393abdb0 R08: ffffffff9095b808 R09: ffffffff8ff77c19
+  R10: ffff88b73ce1f160 R11: ffffddecddde9800 R12: ffff88cb2c6ac000
+  R13: 000000000000000c R14: ffff88cf3fdca780 R15: 0000000000000000
+  FS:  00002aaaaab52500(0000) GS:ffff88b73ce00000(0000) knlGS:0000000000000000
+  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+  CR2: 0000000000000010 CR3: 0000002d27664000 CR4: 00000000007607e0
+  DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+  DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+  PKRU: 55555554
+  Call Trace:
+   [<ffffffff8fe20d44>] __kmem_cache_shutdown+0x14/0x80
+   [<ffffffff8fddda78>] kmem_cache_destroy+0x58/0x110
+   [<ffffffffc0328130>] hfi1_user_sdma_free_queues+0xf0/0x200 [hfi1]
+   [<ffffffffc02e2350>] hfi1_file_close+0x70/0x1e0 [hfi1]
+   [<ffffffff8fe4519c>] __fput+0xec/0x260
+   [<ffffffff8fe453fe>] ____fput+0xe/0x10
+   [<ffffffff8fcbfd1b>] task_work_run+0xbb/0xe0
+   [<ffffffff8fc2bc65>] do_notify_resume+0xa5/0xc0
+   [<ffffffff90379134>] int_signal+0x12/0x17
+  Code: 00 00 ba 00 04 00 00 0f 4f c2 3d 00 04 00 00 89 45 bc 0f 84 e7 01 00 00 48 63 45 bc 49 8d 04 c4 48 89 45 b0 48 8b 80 c8 00 00 00 <48> 8b 78 10 48 89 45 c0 48 83 c0 10 48 89 45 d0 48 8b 17 48 39
+  RIP  [<ffffffff8fe1f93e>] kmem_cache_close+0x7e/0x300
+   RSP <ffff88b5393abd60>
+  CR2: 0000000000000010
+
+The panic is the result of slab entries being freed during the destruction
+of the pq slab.
+
+The code attempts to quiesce the pq, but looking for n_req == 0 doesn't
+account for new requests.
+
+Fix the issue by using SRCU to get a pq pointer and adjust the pq free
+logic to NULL the fd pq pointer prior to the quiesce.
+
+Fixes: e87473bc1b6c ("IB/hfi1: Only set fd pointer when base context is completely initialized")
+Link: https://lore.kernel.org/r/20200210131033.87408.81174.stgit@awfm-01.aw.intel.com
+Reviewed-by: Kaike Wan <kaike.wan@intel.com>
+Signed-off-by: Mike Marciniszyn <mike.marciniszyn@intel.com>
+Signed-off-by: Dennis Dalessandro <dennis.dalessandro@intel.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/tty/serial/imx.c |  116 +++++++++++++++++++++++++++++++----------------
- 1 file changed, 78 insertions(+), 38 deletions(-)
 
---- a/drivers/tty/serial/imx.c
-+++ b/drivers/tty/serial/imx.c
-@@ -80,7 +80,7 @@
- #define UCR1_IDEN	(1<<12) /* Idle condition interrupt */
- #define UCR1_ICD_REG(x) (((x) & 3) << 10) /* idle condition detect */
- #define UCR1_RRDYEN	(1<<9)	/* Recv ready interrupt enable */
--#define UCR1_RDMAEN	(1<<8)	/* Recv ready DMA enable */
-+#define UCR1_RXDMAEN	(1<<8)	/* Recv ready DMA enable */
- #define UCR1_IREN	(1<<7)	/* Infrared interface enable */
- #define UCR1_TXMPTYEN	(1<<6)	/* Transimitter empty interrupt enable */
- #define UCR1_RTSDEN	(1<<5)	/* RTS delta interrupt enable */
-@@ -355,6 +355,30 @@ static void imx_port_rts_auto(struct imx
- /*
-  * interrupts disabled on entry
-  */
-+static void imx_start_rx(struct uart_port *port)
-+{
-+	struct imx_port *sport = (struct imx_port *)port;
-+	unsigned int ucr1, ucr2;
-+
-+	ucr1 = readl(port->membase + UCR1);
-+	ucr2 = readl(port->membase + UCR2);
-+
-+	ucr2 |= UCR2_RXEN;
-+
-+	if (sport->dma_is_enabled) {
-+		ucr1 |= UCR1_RXDMAEN | UCR1_ATDMAEN;
-+	} else {
-+		ucr1 |= UCR1_RRDYEN;
-+	}
-+
-+	/* Write UCR2 first as it includes RXEN */
-+	writel(ucr2, port->membase + UCR2);
-+	writel(ucr1, port->membase + UCR1);
-+}
-+
-+/*
-+ * interrupts disabled on entry
-+ */
- static void imx_stop_tx(struct uart_port *port)
- {
- 	struct imx_port *sport = (struct imx_port *)port;
-@@ -378,9 +402,10 @@ static void imx_stop_tx(struct uart_port
- 			imx_port_rts_active(sport, &temp);
- 		else
- 			imx_port_rts_inactive(sport, &temp);
--		temp |= UCR2_RXEN;
- 		writel(temp, port->membase + UCR2);
+---
+ drivers/infiniband/hw/hfi1/file_ops.c     |   52 ++++++++++++++++++------------
+ drivers/infiniband/hw/hfi1/hfi.h          |    5 ++
+ drivers/infiniband/hw/hfi1/user_exp_rcv.c |    3 -
+ drivers/infiniband/hw/hfi1/user_sdma.c    |   17 ++++++---
+ 4 files changed, 48 insertions(+), 29 deletions(-)
+
+--- a/drivers/infiniband/hw/hfi1/file_ops.c
++++ b/drivers/infiniband/hw/hfi1/file_ops.c
+@@ -195,23 +195,24 @@ static int hfi1_file_open(struct inode *
  
-+		imx_start_rx(port);
-+
- 		temp = readl(port->membase + UCR4);
- 		temp &= ~UCR4_TCEN;
- 		writel(temp, port->membase + UCR4);
-@@ -393,7 +418,7 @@ static void imx_stop_tx(struct uart_port
- static void imx_stop_rx(struct uart_port *port)
- {
- 	struct imx_port *sport = (struct imx_port *)port;
--	unsigned long temp;
-+	unsigned long ucr1, ucr2;
+ 	fd = kzalloc(sizeof(*fd), GFP_KERNEL);
  
- 	if (sport->dma_is_enabled && sport->dma_is_rxing) {
- 		if (sport->port.suspended) {
-@@ -404,12 +429,18 @@ static void imx_stop_rx(struct uart_port
- 		}
- 	}
- 
--	temp = readl(sport->port.membase + UCR2);
--	writel(temp & ~UCR2_RXEN, sport->port.membase + UCR2);
-+	ucr1 = readl(sport->port.membase + UCR1);
-+	ucr2 = readl(sport->port.membase + UCR2);
- 
--	/* disable the `Receiver Ready Interrrupt` */
--	temp = readl(sport->port.membase + UCR1);
--	writel(temp & ~UCR1_RRDYEN, sport->port.membase + UCR1);
-+	if (sport->dma_is_enabled) {
-+		ucr1 &= ~(UCR1_RXDMAEN | UCR1_ATDMAEN);
-+	} else {
-+		ucr1 &= ~UCR1_RRDYEN;
-+	}
-+	writel(ucr1, port->membase + UCR1);
-+
-+	ucr2 &= ~UCR2_RXEN;
-+	writel(ucr2, port->membase + UCR2);
+-	if (fd) {
+-		fd->rec_cpu_num = -1; /* no cpu affinity by default */
+-		fd->mm = current->mm;
+-		mmgrab(fd->mm);
+-		fd->dd = dd;
+-		kobject_get(&fd->dd->kobj);
+-		fp->private_data = fd;
+-	} else {
+-		fp->private_data = NULL;
+-
+-		if (atomic_dec_and_test(&dd->user_refcount))
+-			complete(&dd->user_comp);
+-
+-		return -ENOMEM;
+-	}
+-
++	if (!fd || init_srcu_struct(&fd->pq_srcu))
++		goto nomem;
++	spin_lock_init(&fd->pq_rcu_lock);
++	spin_lock_init(&fd->tid_lock);
++	spin_lock_init(&fd->invalid_lock);
++	fd->rec_cpu_num = -1; /* no cpu affinity by default */
++	fd->mm = current->mm;
++	mmgrab(fd->mm);
++	fd->dd = dd;
++	kobject_get(&fd->dd->kobj);
++	fp->private_data = fd;
+ 	return 0;
++nomem:
++	kfree(fd);
++	fp->private_data = NULL;
++	if (atomic_dec_and_test(&dd->user_refcount))
++		complete(&dd->user_comp);
++	return -ENOMEM;
  }
  
- /*
-@@ -581,10 +612,11 @@ static void imx_start_tx(struct uart_por
- 			imx_port_rts_active(sport, &temp);
- 		else
- 			imx_port_rts_inactive(sport, &temp);
--		if (!(port->rs485.flags & SER_RS485_RX_DURING_TX))
--			temp &= ~UCR2_RXEN;
- 		writel(temp, port->membase + UCR2);
+ static long hfi1_file_ioctl(struct file *fp, unsigned int cmd,
+@@ -417,21 +418,30 @@ static long hfi1_file_ioctl(struct file
+ static ssize_t hfi1_write_iter(struct kiocb *kiocb, struct iov_iter *from)
+ {
+ 	struct hfi1_filedata *fd = kiocb->ki_filp->private_data;
+-	struct hfi1_user_sdma_pkt_q *pq = fd->pq;
++	struct hfi1_user_sdma_pkt_q *pq;
+ 	struct hfi1_user_sdma_comp_q *cq = fd->cq;
+ 	int done = 0, reqs = 0;
+ 	unsigned long dim = from->nr_segs;
++	int idx;
  
-+		if (!(port->rs485.flags & SER_RS485_RX_DURING_TX))
-+			imx_stop_rx(port);
-+
- 		/* enable transmitter and shifter empty irq */
- 		temp = readl(port->membase + UCR4);
- 		temp |= UCR4_TCEN;
-@@ -1206,7 +1238,7 @@ static void imx_enable_dma(struct imx_po
+-	if (!cq || !pq)
++	idx = srcu_read_lock(&fd->pq_srcu);
++	pq = srcu_dereference(fd->pq, &fd->pq_srcu);
++	if (!cq || !pq) {
++		srcu_read_unlock(&fd->pq_srcu, idx);
+ 		return -EIO;
++	}
  
- 	/* set UCR1 */
- 	temp = readl(sport->port.membase + UCR1);
--	temp |= UCR1_RDMAEN | UCR1_TDMAEN | UCR1_ATDMAEN;
-+	temp |= UCR1_RXDMAEN | UCR1_TDMAEN | UCR1_ATDMAEN;
- 	writel(temp, sport->port.membase + UCR1);
+-	if (!iter_is_iovec(from) || !dim)
++	if (!iter_is_iovec(from) || !dim) {
++		srcu_read_unlock(&fd->pq_srcu, idx);
+ 		return -EINVAL;
++	}
  
- 	temp = readl(sport->port.membase + UCR2);
-@@ -1224,7 +1256,7 @@ static void imx_disable_dma(struct imx_p
+ 	trace_hfi1_sdma_request(fd->dd, fd->uctxt->ctxt, fd->subctxt, dim);
  
- 	/* clear UCR1 */
- 	temp = readl(sport->port.membase + UCR1);
--	temp &= ~(UCR1_RDMAEN | UCR1_TDMAEN | UCR1_ATDMAEN);
-+	temp &= ~(UCR1_RXDMAEN | UCR1_TDMAEN | UCR1_ATDMAEN);
- 	writel(temp, sport->port.membase + UCR1);
+-	if (atomic_read(&pq->n_reqs) == pq->n_max_reqs)
++	if (atomic_read(&pq->n_reqs) == pq->n_max_reqs) {
++		srcu_read_unlock(&fd->pq_srcu, idx);
+ 		return -ENOSPC;
++	}
  
- 	/* clear UCR2 */
-@@ -1289,11 +1321,9 @@ static int imx_startup(struct uart_port
- 	writel(USR1_RTSD | USR1_DTRD, sport->port.membase + USR1);
- 	writel(USR2_ORE, sport->port.membase + USR2);
- 
--	if (sport->dma_is_inited && !sport->dma_is_enabled)
--		imx_enable_dma(sport);
--
- 	temp = readl(sport->port.membase + UCR1);
--	temp |= UCR1_RRDYEN | UCR1_UARTEN;
-+	temp &= ~UCR1_RRDYEN;
-+	temp |= UCR1_UARTEN;
- 	if (sport->have_rtscts)
- 			temp |= UCR1_RTSDEN;
- 
-@@ -1332,14 +1362,13 @@ static int imx_startup(struct uart_port
- 	 */
- 	imx_enable_ms(&sport->port);
- 
--	/*
--	 * Start RX DMA immediately instead of waiting for RX FIFO interrupts.
--	 * In our iMX53 the average delay for the first reception dropped from
--	 * approximately 35000 microseconds to 1000 microseconds.
--	 */
--	if (sport->dma_is_enabled) {
--		imx_disable_rx_int(sport);
-+	if (sport->dma_is_inited) {
-+		imx_enable_dma(sport);
- 		start_rx_dma(sport);
-+	} else {
-+		temp = readl(sport->port.membase + UCR1);
-+		temp |= UCR1_RRDYEN;
-+		writel(temp, sport->port.membase + UCR1);
+ 	while (dim) {
+ 		int ret;
+@@ -449,6 +459,7 @@ static ssize_t hfi1_write_iter(struct ki
+ 		reqs++;
  	}
  
- 	spin_unlock_irqrestore(&sport->port.lock, flags);
-@@ -1386,7 +1415,8 @@ static void imx_shutdown(struct uart_por
++	srcu_read_unlock(&fd->pq_srcu, idx);
+ 	return reqs;
+ }
  
- 	spin_lock_irqsave(&sport->port.lock, flags);
- 	temp = readl(sport->port.membase + UCR1);
--	temp &= ~(UCR1_TXMPTYEN | UCR1_RRDYEN | UCR1_RTSDEN | UCR1_UARTEN);
-+	temp &= ~(UCR1_TXMPTYEN | UCR1_RRDYEN | UCR1_RTSDEN | UCR1_UARTEN |
-+		  UCR1_RXDMAEN | UCR1_ATDMAEN);
+@@ -824,6 +835,7 @@ done:
+ 	if (atomic_dec_and_test(&dd->user_refcount))
+ 		complete(&dd->user_comp);
  
- 	writel(temp, sport->port.membase + UCR1);
- 	spin_unlock_irqrestore(&sport->port.lock, flags);
-@@ -1659,7 +1689,7 @@ static int imx_poll_init(struct uart_por
++	cleanup_srcu_struct(&fdata->pq_srcu);
+ 	kfree(fdata);
+ 	return 0;
+ }
+--- a/drivers/infiniband/hw/hfi1/hfi.h
++++ b/drivers/infiniband/hw/hfi1/hfi.h
+@@ -1353,10 +1353,13 @@ struct mmu_rb_handler;
+ 
+ /* Private data for file operations */
+ struct hfi1_filedata {
++	struct srcu_struct pq_srcu;
+ 	struct hfi1_devdata *dd;
+ 	struct hfi1_ctxtdata *uctxt;
+ 	struct hfi1_user_sdma_comp_q *cq;
+-	struct hfi1_user_sdma_pkt_q *pq;
++	/* update side lock for SRCU */
++	spinlock_t pq_rcu_lock;
++	struct hfi1_user_sdma_pkt_q __rcu *pq;
+ 	u16 subctxt;
+ 	/* for cpu affinity; -1 if none */
+ 	int rec_cpu_num;
+--- a/drivers/infiniband/hw/hfi1/user_exp_rcv.c
++++ b/drivers/infiniband/hw/hfi1/user_exp_rcv.c
+@@ -90,9 +90,6 @@ int hfi1_user_exp_rcv_init(struct hfi1_f
+ 	struct hfi1_devdata *dd = uctxt->dd;
+ 	int ret = 0;
+ 
+-	spin_lock_init(&fd->tid_lock);
+-	spin_lock_init(&fd->invalid_lock);
+-
+ 	fd->entry_to_rb = kcalloc(uctxt->expected_count,
+ 				  sizeof(struct rb_node *),
+ 				  GFP_KERNEL);
+--- a/drivers/infiniband/hw/hfi1/user_sdma.c
++++ b/drivers/infiniband/hw/hfi1/user_sdma.c
+@@ -179,7 +179,6 @@ int hfi1_user_sdma_alloc_queues(struct h
+ 	pq = kzalloc(sizeof(*pq), GFP_KERNEL);
+ 	if (!pq)
+ 		return -ENOMEM;
+-
+ 	pq->dd = dd;
+ 	pq->ctxt = uctxt->ctxt;
+ 	pq->subctxt = fd->subctxt;
+@@ -236,7 +235,7 @@ int hfi1_user_sdma_alloc_queues(struct h
+ 		goto pq_mmu_fail;
+ 	}
+ 
+-	fd->pq = pq;
++	rcu_assign_pointer(fd->pq, pq);
+ 	fd->cq = cq;
+ 
+ 	return 0;
+@@ -264,8 +263,14 @@ int hfi1_user_sdma_free_queues(struct hf
+ 
+ 	trace_hfi1_sdma_user_free_queues(uctxt->dd, uctxt->ctxt, fd->subctxt);
+ 
+-	pq = fd->pq;
++	spin_lock(&fd->pq_rcu_lock);
++	pq = srcu_dereference_check(fd->pq, &fd->pq_srcu,
++				    lockdep_is_held(&fd->pq_rcu_lock));
+ 	if (pq) {
++		rcu_assign_pointer(fd->pq, NULL);
++		spin_unlock(&fd->pq_rcu_lock);
++		synchronize_srcu(&fd->pq_srcu);
++		/* at this point there can be no more new requests */
+ 		if (pq->handler)
+ 			hfi1_mmu_rb_unregister(pq->handler);
+ 		iowait_sdma_drain(&pq->busy);
+@@ -277,7 +282,8 @@ int hfi1_user_sdma_free_queues(struct hf
+ 		kfree(pq->req_in_use);
+ 		kmem_cache_destroy(pq->txreq_cache);
+ 		kfree(pq);
+-		fd->pq = NULL;
++	} else {
++		spin_unlock(&fd->pq_rcu_lock);
+ 	}
+ 	if (fd->cq) {
+ 		vfree(fd->cq->comps);
+@@ -321,7 +327,8 @@ int hfi1_user_sdma_process_request(struc
  {
- 	struct imx_port *sport = (struct imx_port *)port;
- 	unsigned long flags;
--	unsigned long temp;
-+	unsigned long ucr1, ucr2;
- 	int retval;
- 
- 	retval = clk_prepare_enable(sport->clk_ipg);
-@@ -1673,16 +1703,29 @@ static int imx_poll_init(struct uart_por
- 
- 	spin_lock_irqsave(&sport->port.lock, flags);
- 
--	temp = readl(sport->port.membase + UCR1);
-+	/*
-+	 * Be careful about the order of enabling bits here. First enable the
-+	 * receiver (UARTEN + RXEN) and only then the corresponding irqs.
-+	 * This prevents that a character that already sits in the RX fifo is
-+	 * triggering an irq but the try to fetch it from there results in an
-+	 * exception because UARTEN or RXEN is still off.
-+	 */
-+	ucr1 = readl(port->membase + UCR1);
-+	ucr2 = readl(port->membase + UCR2);
-+
- 	if (is_imx1_uart(sport))
--		temp |= IMX1_UCR1_UARTCLKEN;
--	temp |= UCR1_UARTEN | UCR1_RRDYEN;
--	temp &= ~(UCR1_TXMPTYEN | UCR1_RTSDEN);
--	writel(temp, sport->port.membase + UCR1);
-+		ucr1 |= IMX1_UCR1_UARTCLKEN;
- 
--	temp = readl(sport->port.membase + UCR2);
--	temp |= UCR2_RXEN;
--	writel(temp, sport->port.membase + UCR2);
-+	ucr1 |= UCR1_UARTEN;
-+	ucr1 &= ~(UCR1_TXMPTYEN | UCR1_RTSDEN | UCR1_RRDYEN);
-+
-+	ucr2 |= UCR2_RXEN;
-+
-+	writel(ucr1, sport->port.membase + UCR1);
-+	writel(ucr2, sport->port.membase + UCR2);
-+
-+	/* now enable irqs */
-+	writel(ucr1 | UCR1_RRDYEN, sport->port.membase + UCR1);
- 
- 	spin_unlock_irqrestore(&sport->port.lock, flags);
- 
-@@ -1742,11 +1785,8 @@ static int imx_rs485_config(struct uart_
- 
- 	/* Make sure Rx is enabled in case Tx is active with Rx disabled */
- 	if (!(rs485conf->flags & SER_RS485_ENABLED) ||
--	    rs485conf->flags & SER_RS485_RX_DURING_TX) {
--		temp = readl(sport->port.membase + UCR2);
--		temp |= UCR2_RXEN;
--		writel(temp, sport->port.membase + UCR2);
--	}
-+	    rs485conf->flags & SER_RS485_RX_DURING_TX)
-+		imx_start_rx(port);
- 
- 	port->rs485 = *rs485conf;
- 
+ 	int ret = 0, i;
+ 	struct hfi1_ctxtdata *uctxt = fd->uctxt;
+-	struct hfi1_user_sdma_pkt_q *pq = fd->pq;
++	struct hfi1_user_sdma_pkt_q *pq =
++		srcu_dereference(fd->pq, &fd->pq_srcu);
+ 	struct hfi1_user_sdma_comp_q *cq = fd->cq;
+ 	struct hfi1_devdata *dd = pq->dd;
+ 	unsigned long idx = 0;
 
 
