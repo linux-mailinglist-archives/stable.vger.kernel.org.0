@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 35E17171E7A
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:28:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 09D08171B84
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:03:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388004AbgB0OIa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 09:08:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46294 "EHLO mail.kernel.org"
+        id S1732923AbgB0ODF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 09:03:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38086 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388249AbgB0OI2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 09:08:28 -0500
+        id S1733253AbgB0ODD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 09:03:03 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4A32821D7E;
-        Thu, 27 Feb 2020 14:08:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 756B621556;
+        Thu, 27 Feb 2020 14:03:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582812507;
-        bh=dG1J/I8WKVAUK14Lul6+PWveA9+GuP9eZlvwnpNFn9k=;
+        s=default; t=1582812182;
+        bh=m2kCbEicXJNKO8R5aEY0xA0V8g/smXFnErYXcPaD4io=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RYFeipOa7loet1hNKl21Aucqw8LMSZ/UBIQ1VfxnvRLGKI4lZjrOGhIjOy1eJb+bg
-         GDmNVQnwzmZ/ydMbYmsamFsi+Ai+PaO5x9qXMuGmMOMPNycAd8V0MH5Hm+9Lfe1sQw
-         NDnOB93/qZExvm8Cx8659CLH2dOODHNrkpn9mMXw=
+        b=UCpmA4Oqli+kq2/BBMadIcztGLkNEftWV24FwagbgJ3JKqsHhAVgmJmMfEGqmo0dj
+         6bZGv9C7le70KZKCOFcCyxCvCEThKR7BzQWj5TG+PvZQAhKKr9FBQm2DJTa1Uk+kdI
+         MEUxqCnUxrHYZqZ5VgK4MzUn+PAipq36LROu7JuI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sam Bobroff <sbobroff@linux.ibm.com>,
-        Frederic Barrat <fbarrat@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.4 044/135] powerpc/eeh: Fix deadlock handling dead PHB
-Date:   Thu, 27 Feb 2020 14:36:24 +0100
-Message-Id: <20200227132235.604446318@linuxfoundation.org>
+        stable@vger.kernel.org, Jann Horn <jannh@google.com>,
+        Suren Baghdasaryan <surenb@google.com>,
+        Todd Kjos <tkjos@google.com>,
+        "Joel Fernandes (Google)" <joel@joelfernandes.org>
+Subject: [PATCH 4.19 17/97] staging: android: ashmem: Disallow ashmem memory from being remapped
+Date:   Thu, 27 Feb 2020 14:36:25 +0100
+Message-Id: <20200227132217.437325823@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200227132228.710492098@linuxfoundation.org>
-References: <20200227132228.710492098@linuxfoundation.org>
+In-Reply-To: <20200227132214.553656188@linuxfoundation.org>
+References: <20200227132214.553656188@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,70 +45,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sam Bobroff <sbobroff@linux.ibm.com>
+From: Suren Baghdasaryan <surenb@google.com>
 
-commit d4f194ed9eb9841a8f978710e4d24296f791a85b upstream.
+commit 6d67b0290b4b84c477e6a2fc6e005e174d3c7786 upstream.
 
-Recovering a dead PHB can currently cause a deadlock as the PCI
-rescan/remove lock is taken twice.
+When ashmem file is mmapped, the resulting vma->vm_file points to the
+backing shmem file with the generic fops that do not check ashmem
+permissions like fops of ashmem do. If an mremap is done on the ashmem
+region, then the permission checks will be skipped. Fix that by disallowing
+mapping operation on the backing shmem file.
 
-This is caused as part of an existing bug in
-eeh_handle_special_event(). The pe is processed while traversing the
-PHBs even though the pe is unrelated to the loop. This causes the pe
-to be, incorrectly, processed more than once.
-
-Untangling this section can move the pe processing out of the loop and
-also outside the locked section, correcting both problems.
-
-Fixes: 2e25505147b8 ("powerpc/eeh: Fix crash when edev->pdev changes")
-Cc: stable@vger.kernel.org # 5.4+
-Signed-off-by: Sam Bobroff <sbobroff@linux.ibm.com>
-Reviewed-by: Frederic Barrat <fbarrat@linux.ibm.com>
-Tested-by: Frederic Barrat <fbarrat@linux.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/0547e82dbf90ee0729a2979a8cac5c91665c621f.1581051445.git.sbobroff@linux.ibm.com
+Reported-by: Jann Horn <jannh@google.com>
+Signed-off-by: Suren Baghdasaryan <surenb@google.com>
+Cc: stable <stable@vger.kernel.org> # 4.4,4.9,4.14,4.18,5.4
+Signed-off-by: Todd Kjos <tkjos@google.com>
+Reviewed-by: Joel Fernandes (Google) <joel@joelfernandes.org>
+Link: https://lore.kernel.org/r/20200127235616.48920-1-tkjos@google.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/powerpc/kernel/eeh_driver.c |   21 +++++++++++----------
- 1 file changed, 11 insertions(+), 10 deletions(-)
+ drivers/staging/android/ashmem.c |   28 ++++++++++++++++++++++++++++
+ 1 file changed, 28 insertions(+)
 
---- a/arch/powerpc/kernel/eeh_driver.c
-+++ b/arch/powerpc/kernel/eeh_driver.c
-@@ -1200,6 +1200,17 @@ void eeh_handle_special_event(void)
- 			eeh_pe_state_mark(pe, EEH_PE_RECOVERING);
- 			eeh_handle_normal_event(pe);
- 		} else {
-+			eeh_for_each_pe(pe, tmp_pe)
-+				eeh_pe_for_each_dev(tmp_pe, edev, tmp_edev)
-+					edev->mode &= ~EEH_DEV_NO_HANDLER;
-+
-+			/* Notify all devices to be down */
-+			eeh_pe_state_clear(pe, EEH_PE_PRI_BUS, true);
-+			eeh_set_channel_state(pe, pci_channel_io_perm_failure);
-+			eeh_pe_report(
-+				"error_detected(permanent failure)", pe,
-+				eeh_report_failure, NULL);
-+
- 			pci_lock_rescan_remove();
- 			list_for_each_entry(hose, &hose_list, list_node) {
- 				phb_pe = eeh_phb_pe_get(hose);
-@@ -1208,16 +1219,6 @@ void eeh_handle_special_event(void)
- 				    (phb_pe->state & EEH_PE_RECOVERING))
- 					continue;
+--- a/drivers/staging/android/ashmem.c
++++ b/drivers/staging/android/ashmem.c
+@@ -350,8 +350,23 @@ static inline vm_flags_t calc_vm_may_fla
+ 	       _calc_vm_trans(prot, PROT_EXEC,  VM_MAYEXEC);
+ }
  
--				eeh_for_each_pe(pe, tmp_pe)
--					eeh_pe_for_each_dev(tmp_pe, edev, tmp_edev)
--						edev->mode &= ~EEH_DEV_NO_HANDLER;
--
--				/* Notify all devices to be down */
--				eeh_pe_state_clear(pe, EEH_PE_PRI_BUS, true);
--				eeh_set_channel_state(pe, pci_channel_io_perm_failure);
--				eeh_pe_report(
--					"error_detected(permanent failure)", pe,
--					eeh_report_failure, NULL);
- 				bus = eeh_pe_bus_get(phb_pe);
- 				if (!bus) {
- 					pr_err("%s: Cannot find PCI bus for "
++static int ashmem_vmfile_mmap(struct file *file, struct vm_area_struct *vma)
++{
++	/* do not allow to mmap ashmem backing shmem file directly */
++	return -EPERM;
++}
++
++static unsigned long
++ashmem_vmfile_get_unmapped_area(struct file *file, unsigned long addr,
++				unsigned long len, unsigned long pgoff,
++				unsigned long flags)
++{
++	return current->mm->get_unmapped_area(file, addr, len, pgoff, flags);
++}
++
+ static int ashmem_mmap(struct file *file, struct vm_area_struct *vma)
+ {
++	static struct file_operations vmfile_fops;
+ 	struct ashmem_area *asma = file->private_data;
+ 	int ret = 0;
+ 
+@@ -392,6 +407,19 @@ static int ashmem_mmap(struct file *file
+ 		}
+ 		vmfile->f_mode |= FMODE_LSEEK;
+ 		asma->file = vmfile;
++		/*
++		 * override mmap operation of the vmfile so that it can't be
++		 * remapped which would lead to creation of a new vma with no
++		 * asma permission checks. Have to override get_unmapped_area
++		 * as well to prevent VM_BUG_ON check for f_ops modification.
++		 */
++		if (!vmfile_fops.mmap) {
++			vmfile_fops = *vmfile->f_op;
++			vmfile_fops.mmap = ashmem_vmfile_mmap;
++			vmfile_fops.get_unmapped_area =
++					ashmem_vmfile_get_unmapped_area;
++		}
++		vmfile->f_op = &vmfile_fops;
+ 	}
+ 	get_file(asma->file);
+ 
 
 
