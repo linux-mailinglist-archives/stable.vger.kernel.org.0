@@ -2,39 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E2AD1171F96
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:38:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 06C14172081
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:43:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728028AbgB0N7V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 08:59:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60682 "EHLO mail.kernel.org"
+        id S1731053AbgB0Ntf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 08:49:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47078 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732422AbgB0N7T (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 08:59:19 -0500
+        id S1731050AbgB0Ntf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 08:49:35 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0CD3E24656;
-        Thu, 27 Feb 2020 13:59:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 89D992469F;
+        Thu, 27 Feb 2020 13:49:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582811958;
-        bh=AZscq8XeHW3FWrGVDBy12fTxu1hh2A8Mmnm4Zl5o8jE=;
+        s=default; t=1582811375;
+        bh=NaNTqxtuUOQsOFP1anj/pHzM3OOymIE5IdFmt/ogCK8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Yv9su0/oIviQuHDT+626+oCuKZ73M3H3jFhJCwkL2ft95wvjgSsXdAHdFjry6+q/4
-         Hon/1PhblavzHb00eItj1EGctOCaKc9B8u7r42/H+cHwXcCPKzaUOibLgzvsXfsPyR
-         3x20BM/Abz+c4vKon7fUR+NTA5qcVDPs3dtlhJWU=
+        b=uil1+/EayHTtQm3d3b1Hk7HoxONqUX1PZTaMXcFp1MLWaoWORIDaTlDrggUUZVllx
+         FIknTuzzMPPVekReVZy+97ovl9mFJkvq170Fu/vfVA37FoI0LXxuQZ87Dd1ygEa1ac
+         blBBCiYGKpuh1/5IxfRJ+Gtmm3Nfl27DXVqlB+HE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Per Forlin <perfn@axis.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 168/237] net: dsa: tag_qca: Make sure there is headroom for tag
+        stable@vger.kernel.org, Yunfeng Ye <yeyunfeng@huawei.com>,
+        zhengbin <zhengbin13@huawei.com>,
+        Hu Shiyuan <hushiyuan@huawei.com>,
+        Feilong Lin <linfeilong@huawei.com>, Jan Kara <jack@suse.cz>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 108/165] reiserfs: prevent NULL pointer dereference in reiserfs_insert_item()
 Date:   Thu, 27 Feb 2020 14:36:22 +0100
-Message-Id: <20200227132308.817526332@linuxfoundation.org>
+Message-Id: <20200227132246.941130796@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200227132255.285644406@linuxfoundation.org>
-References: <20200227132255.285644406@linuxfoundation.org>
+In-Reply-To: <20200227132230.840899170@linuxfoundation.org>
+References: <20200227132230.840899170@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,33 +48,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Per Forlin <per.forlin@axis.com>
+From: Yunfeng Ye <yeyunfeng@huawei.com>
 
-[ Upstream commit 04fb91243a853dbde216d829c79d9632e52aa8d9 ]
+[ Upstream commit aacee5446a2a1aa35d0a49dab289552578657fb4 ]
 
-Passing tag size to skb_cow_head will make sure
-there is enough headroom for the tag data.
-This change does not introduce any overhead in case there
-is already available headroom for tag.
+The variable inode may be NULL in reiserfs_insert_item(), but there is
+no check before accessing the member of inode.
 
-Signed-off-by: Per Forlin <perfn@axis.com>
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fix this by adding NULL pointer check before calling reiserfs_debug().
+
+Link: http://lkml.kernel.org/r/79c5135d-ff25-1cc9-4e99-9f572b88cc00@huawei.com
+Signed-off-by: Yunfeng Ye <yeyunfeng@huawei.com>
+Cc: zhengbin <zhengbin13@huawei.com>
+Cc: Hu Shiyuan <hushiyuan@huawei.com>
+Cc: Feilong Lin <linfeilong@huawei.com>
+Cc: Jan Kara <jack@suse.cz>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/dsa/tag_qca.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/reiserfs/stree.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/net/dsa/tag_qca.c
-+++ b/net/dsa/tag_qca.c
-@@ -41,7 +41,7 @@ static struct sk_buff *qca_tag_xmit(stru
- 	struct dsa_slave_priv *p = netdev_priv(dev);
- 	u16 *phdr, hdr;
- 
--	if (skb_cow_head(skb, 0) < 0)
-+	if (skb_cow_head(skb, QCA_HDR_LEN) < 0)
- 		return NULL;
- 
- 	skb_push(skb, QCA_HDR_LEN);
+diff --git a/fs/reiserfs/stree.c b/fs/reiserfs/stree.c
+index a97e352d05d3b..5f5fff0688776 100644
+--- a/fs/reiserfs/stree.c
++++ b/fs/reiserfs/stree.c
+@@ -2249,7 +2249,8 @@ error_out:
+ 	/* also releases the path */
+ 	unfix_nodes(&s_ins_balance);
+ #ifdef REISERQUOTA_DEBUG
+-	reiserfs_debug(th->t_super, REISERFS_DEBUG_CODE,
++	if (inode)
++		reiserfs_debug(th->t_super, REISERFS_DEBUG_CODE,
+ 		       "reiserquota insert_item(): freeing %u id=%u type=%c",
+ 		       quota_bytes, inode->i_uid, head2type(ih));
+ #endif
+-- 
+2.20.1
+
 
 
