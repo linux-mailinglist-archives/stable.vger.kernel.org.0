@@ -2,44 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 91B99171BEB
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:07:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D029171C94
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:13:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387998AbgB0OG4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 09:06:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44254 "EHLO mail.kernel.org"
+        id S2388631AbgB0ONY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 09:13:24 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52320 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387995AbgB0OGz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 09:06:55 -0500
+        id S2388787AbgB0ONY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 09:13:24 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3818421D7E;
-        Thu, 27 Feb 2020 14:06:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6071024697;
+        Thu, 27 Feb 2020 14:13:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582812414;
-        bh=uPZNUo6hZRw9EESZm12SGL2n6SkjBacg92Va+/AxakM=;
+        s=default; t=1582812803;
+        bh=/Z1FwlrqAQpiZx5xw6ycJeKA6LZrTe39tMRJSFipyms=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t3gSnPa0iz84SYkLVicvPEzwWgyV3lx7aL7zKx7fDJ/iO4qHPznw5kTKU1yx6fxWs
-         4WC0pCbesqmYqMKObbc9yRPV++tClDtRww7264iUQc1EW7+zol+QqyqHiovd6BR/P3
-         tNglbppIrYZ2WBaxMRYFqSRwltuB0LqpcAqmhO0w=
+        b=III6pwndXVrDw2sSpMB/o/8vLZaJIppbhhZM46tJC9JvJYOl6KOO2jgzC69HcsvEB
+         v2zim9nMNhcrRjE85UZSjiU96kP7CqEF0VNcLSu/nVRsLbewu1ZS2Tr+JoL3Oa5AQk
+         KzH8zacm7dkC0OQdvUGG4x63shNDoV7jwrDe8/wE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Brian Masney <masneyb@onstation.org>,
-        Naresh Kamboju <naresh.kamboju@linaro.org>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Stephan Gerhold <stephan@gerhold.net>,
+        stable@vger.kernel.org, Jerry Snitselaar <jsnitsel@redhat.com>,
+        Lu Baolu <baolu.lu@linux.intel.com>,
         Joerg Roedel <jroedel@suse.de>
-Subject: [PATCH 5.4 001/135] iommu/qcom: Fix bogus detach logic
+Subject: [PATCH 5.5 004/150] iommu/vt-d: Do deferred attachment in iommu_need_mapping()
 Date:   Thu, 27 Feb 2020 14:35:41 +0100
-Message-Id: <20200227132228.973307226@linuxfoundation.org>
+Message-Id: <20200227132233.391493066@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200227132228.710492098@linuxfoundation.org>
-References: <20200227132228.710492098@linuxfoundation.org>
+In-Reply-To: <20200227132232.815448360@linuxfoundation.org>
+References: <20200227132232.815448360@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -48,83 +44,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robin Murphy <robin.murphy@arm.com>
+From: Joerg Roedel <jroedel@suse.de>
 
-commit faf305c51aeabd1ea2d7131e798ef5f55f4a7750 upstream.
+commit a11bfde9c77df1fd350ea27169ab921f511bf5d0 upstream.
 
-Currently, the implementation of qcom_iommu_domain_free() is guaranteed
-to do one of two things: WARN() and leak everything, or dereference NULL
-and crash. That alone is terrible, but in fact the whole idea of trying
-to track the liveness of a domain via the qcom_domain->iommu pointer as
-a sanity check is full of fundamentally flawed assumptions. Make things
-robust and actually functional by not trying to be quite so clever.
+The attachment of deferred devices needs to happen before the check
+whether the device is identity mapped or not. Otherwise the check will
+return wrong results, cause warnings boot failures in kdump kernels, like
 
-Reported-by: Brian Masney <masneyb@onstation.org>
-Tested-by: Brian Masney <masneyb@onstation.org>
-Reported-by: Naresh Kamboju <naresh.kamboju@linaro.org>
-Fixes: 0ae349a0f33f ("iommu/qcom: Add qcom_iommu")
-Signed-off-by: Robin Murphy <robin.murphy@arm.com>
-Tested-by: Stephan Gerhold <stephan@gerhold.net>
-Cc: stable@vger.kernel.org # v4.14+
+	WARNING: CPU: 0 PID: 318 at ../drivers/iommu/intel-iommu.c:592 domain_get_iommu+0x61/0x70
+
+	[...]
+
+	 Call Trace:
+	  __intel_map_single+0x55/0x190
+	  intel_alloc_coherent+0xac/0x110
+	  dmam_alloc_attrs+0x50/0xa0
+	  ahci_port_start+0xfb/0x1f0 [libahci]
+	  ata_host_start.part.39+0x104/0x1e0 [libata]
+
+With the earlier check the kdump boot succeeds and a crashdump is written.
+
+Fixes: 1ee0186b9a12 ("iommu/vt-d: Refactor find_domain() helper")
+Cc: stable@vger.kernel.org # v5.5
+Reviewed-by: Jerry Snitselaar <jsnitsel@redhat.com>
+Acked-by: Lu Baolu <baolu.lu@linux.intel.com>
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/iommu/qcom_iommu.c |   28 ++++++++++++----------------
- 1 file changed, 12 insertions(+), 16 deletions(-)
+ drivers/iommu/intel-iommu.c |   10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
---- a/drivers/iommu/qcom_iommu.c
-+++ b/drivers/iommu/qcom_iommu.c
-@@ -345,21 +345,19 @@ static void qcom_iommu_domain_free(struc
+--- a/drivers/iommu/intel-iommu.c
++++ b/drivers/iommu/intel-iommu.c
+@@ -2452,9 +2452,6 @@ static void do_deferred_attach(struct de
+ 
+ static struct dmar_domain *deferred_attach_domain(struct device *dev)
  {
- 	struct qcom_iommu_domain *qcom_domain = to_qcom_iommu_domain(domain);
- 
--	if (WARN_ON(qcom_domain->iommu))    /* forgot to detach? */
--		return;
+-	if (unlikely(attach_deferred(dev)))
+-		do_deferred_attach(dev);
 -
- 	iommu_put_dma_cookie(domain);
- 
--	/* NOTE: unmap can be called after client device is powered off,
--	 * for example, with GPUs or anything involving dma-buf.  So we
--	 * cannot rely on the device_link.  Make sure the IOMMU is on to
--	 * avoid unclocked accesses in the TLB inv path:
--	 */
--	pm_runtime_get_sync(qcom_domain->iommu->dev);
--
--	free_io_pgtable_ops(qcom_domain->pgtbl_ops);
--
--	pm_runtime_put_sync(qcom_domain->iommu->dev);
-+	if (qcom_domain->iommu) {
-+		/*
-+		 * NOTE: unmap can be called after client device is powered
-+		 * off, for example, with GPUs or anything involving dma-buf.
-+		 * So we cannot rely on the device_link.  Make sure the IOMMU
-+		 * is on to avoid unclocked accesses in the TLB inv path:
-+		 */
-+		pm_runtime_get_sync(qcom_domain->iommu->dev);
-+		free_io_pgtable_ops(qcom_domain->pgtbl_ops);
-+		pm_runtime_put_sync(qcom_domain->iommu->dev);
-+	}
- 
- 	kfree(qcom_domain);
- }
-@@ -405,7 +403,7 @@ static void qcom_iommu_detach_dev(struct
- 	struct qcom_iommu_domain *qcom_domain = to_qcom_iommu_domain(domain);
- 	unsigned i;
- 
--	if (!qcom_domain->iommu)
-+	if (WARN_ON(!qcom_domain->iommu))
- 		return;
- 
- 	pm_runtime_get_sync(qcom_iommu->dev);
-@@ -418,8 +416,6 @@ static void qcom_iommu_detach_dev(struct
- 		ctx->domain = NULL;
- 	}
- 	pm_runtime_put_sync(qcom_iommu->dev);
--
--	qcom_domain->iommu = NULL;
+ 	return find_domain(dev);
  }
  
- static int qcom_iommu_map(struct iommu_domain *domain, unsigned long iova,
+@@ -3478,6 +3475,9 @@ static bool iommu_need_mapping(struct de
+ 	if (iommu_dummy(dev))
+ 		return false;
+ 
++	if (unlikely(attach_deferred(dev)))
++		do_deferred_attach(dev);
++
+ 	ret = identity_mapping(dev);
+ 	if (ret) {
+ 		u64 dma_mask = *dev->dma_mask;
+@@ -3841,7 +3841,11 @@ bounce_map_single(struct device *dev, ph
+ 	int prot = 0;
+ 	int ret;
+ 
++	if (unlikely(attach_deferred(dev)))
++		do_deferred_attach(dev);
++
+ 	domain = deferred_attach_domain(dev);
++
+ 	if (WARN_ON(dir == DMA_NONE || !domain))
+ 		return DMA_MAPPING_ERROR;
+ 
 
 
