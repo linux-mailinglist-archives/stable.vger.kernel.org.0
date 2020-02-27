@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 827E1171B6D
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:03:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9BE8C171EA5
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:29:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732644AbgB0OCR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 09:02:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36874 "EHLO mail.kernel.org"
+        id S2387827AbgB0OFt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 09:05:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42694 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733078AbgB0OCQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 09:02:16 -0500
+        id S1733039AbgB0OFs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 09:05:48 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A3F3C20801;
-        Thu, 27 Feb 2020 14:02:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1B28D21D7E;
+        Thu, 27 Feb 2020 14:05:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582812136;
-        bh=W4/xiG4eiTXSVrIJ6XH12CjYjNUG6YQO84OF6694ykI=;
+        s=default; t=1582812347;
+        bh=nTUFDxJTSKMw7nm4WtGMqwa/1PFu2+DVEmLu+nBfXK8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vwiJHYlRi0NRFgKlGun5xX4Fgw3a09Uvm//3Qd4egMwPuMkgvtPtUGxQGCm/26x0K
-         AYYLE5obbBoceShBXthiY89C75jDYTjeqI/9efqBSBpMqLW+FnHQ/PeryqF6GcPMGY
-         kbgcyLu3tKo3p7j/tEYIxWVGS2iquwflz3PXFI80=
+        b=PW2vXnxCyA4FGS4ivZT3/nlV2NYsSWNMr/C+M5AaYpeV9PIURtmF5F+hPJKeGZHDs
+         bYaFQMorVJLUr1DiL4JAMnVYnYunkFJ0KtXpdGL5wQEZxn08aoUtNFiLWqkaqRKFll
+         MDUkD/3wKM2Sp+07x0/i5UAFg8KKW4bRJGzUMpyg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Cong Wang <xiyou.wangcong@gmail.com>,
-        Florian Westphal <fw@strlen.de>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
-        syzbot+adf6c6c2be1c3a718121@syzkaller.appspotmail.com
-Subject: [PATCH 4.14 234/237] netfilter: xt_hashlimit: limit the max size of hashtable
+        stable@vger.kernel.org, Rahul Kundu <rahul.kundu@chelsio.com>,
+        Mike Marciniszyn <mike.marciniszyn@intel.com>,
+        Sagi Grimberg <sagi@grimberg.me>,
+        Dakshaja Uppalapati <dakshaja@chelsio.com>,
+        Bart Van Assche <bvanassche@acm.org>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 4.19 80/97] scsi: Revert "RDMA/isert: Fix a recently introduced regression related to logout"
 Date:   Thu, 27 Feb 2020 14:37:28 +0100
-Message-Id: <20200227132313.292102759@linuxfoundation.org>
+Message-Id: <20200227132227.510397955@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200227132255.285644406@linuxfoundation.org>
-References: <20200227132255.285644406@linuxfoundation.org>
+In-Reply-To: <20200227132214.553656188@linuxfoundation.org>
+References: <20200227132214.553656188@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,52 +47,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cong Wang <xiyou.wangcong@gmail.com>
+From: Bart Van Assche <bvanassche@acm.org>
 
-commit 8d0015a7ab76b8b1e89a3e5f5710a6e5103f2dd5 upstream.
+commit 76261ada16dcc3be610396a46d35acc3efbda682 upstream.
 
-The user-specified hashtable size is unbound, this could
-easily lead to an OOM or a hung task as we hold the global
-mutex while allocating and initializing the new hashtable.
+Since commit 04060db41178 introduces soft lockups when toggling network
+interfaces, revert it.
 
-Add a max value to cap both cfg->size and cfg->max, as
-suggested by Florian.
-
-Reported-and-tested-by: syzbot+adf6c6c2be1c3a718121@syzkaller.appspotmail.com
-Signed-off-by: Cong Wang <xiyou.wangcong@gmail.com>
-Reviewed-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Link: https://marc.info/?l=target-devel&m=158157054906196
+Cc: Rahul Kundu <rahul.kundu@chelsio.com>
+Cc: Mike Marciniszyn <mike.marciniszyn@intel.com>
+Cc: Sagi Grimberg <sagi@grimberg.me>
+Reported-by: Dakshaja Uppalapati <dakshaja@chelsio.com>
+Fixes: 04060db41178 ("scsi: RDMA/isert: Fix a recently introduced regression related to logout")
+Signed-off-by: Bart Van Assche <bvanassche@acm.org>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/netfilter/xt_hashlimit.c |   10 ++++++++++
- 1 file changed, 10 insertions(+)
+ drivers/infiniband/ulp/isert/ib_isert.c |   12 ++++++++++++
+ drivers/target/iscsi/iscsi_target.c     |    6 +++---
+ 2 files changed, 15 insertions(+), 3 deletions(-)
 
---- a/net/netfilter/xt_hashlimit.c
-+++ b/net/netfilter/xt_hashlimit.c
-@@ -845,6 +845,8 @@ hashlimit_mt(const struct sk_buff *skb,
- 	return hashlimit_mt_common(skb, par, hinfo, &info->cfg, 3);
+--- a/drivers/infiniband/ulp/isert/ib_isert.c
++++ b/drivers/infiniband/ulp/isert/ib_isert.c
+@@ -2584,6 +2584,17 @@ isert_wait4logout(struct isert_conn *ise
+ 	}
  }
  
-+#define HASHLIMIT_MAX_SIZE 1048576
++static void
++isert_wait4cmds(struct iscsi_conn *conn)
++{
++	isert_info("iscsi_conn %p\n", conn);
 +
- static int hashlimit_mt_check_common(const struct xt_mtchk_param *par,
- 				     struct xt_hashlimit_htable **hinfo,
- 				     struct hashlimit_cfg3 *cfg,
-@@ -855,6 +857,14 @@ static int hashlimit_mt_check_common(con
++	if (conn->sess) {
++		target_sess_cmd_list_set_waiting(conn->sess->se_sess);
++		target_wait_for_sess_cmds(conn->sess->se_sess);
++	}
++}
++
+ /**
+  * isert_put_unsol_pending_cmds() - Drop commands waiting for
+  *     unsolicitate dataout
+@@ -2631,6 +2642,7 @@ static void isert_wait_conn(struct iscsi
  
- 	if (cfg->gc_interval == 0 || cfg->expire == 0)
- 		return -EINVAL;
-+	if (cfg->size > HASHLIMIT_MAX_SIZE) {
-+		cfg->size = HASHLIMIT_MAX_SIZE;
-+		pr_info_ratelimited("size too large, truncated to %u\n", cfg->size);
-+	}
-+	if (cfg->max > HASHLIMIT_MAX_SIZE) {
-+		cfg->max = HASHLIMIT_MAX_SIZE;
-+		pr_info_ratelimited("max too large, truncated to %u\n", cfg->max);
-+	}
- 	if (par->family == NFPROTO_IPV4) {
- 		if (cfg->srcmask > 32 || cfg->dstmask > 32)
- 			return -EINVAL;
+ 	ib_drain_qp(isert_conn->qp);
+ 	isert_put_unsol_pending_cmds(conn);
++	isert_wait4cmds(conn);
+ 	isert_wait4logout(isert_conn);
+ 
+ 	queue_work(isert_release_wq, &isert_conn->release_work);
+--- a/drivers/target/iscsi/iscsi_target.c
++++ b/drivers/target/iscsi/iscsi_target.c
+@@ -4123,6 +4123,9 @@ int iscsit_close_connection(
+ 	iscsit_stop_nopin_response_timer(conn);
+ 	iscsit_stop_nopin_timer(conn);
+ 
++	if (conn->conn_transport->iscsit_wait_conn)
++		conn->conn_transport->iscsit_wait_conn(conn);
++
+ 	/*
+ 	 * During Connection recovery drop unacknowledged out of order
+ 	 * commands for this connection, and prepare the other commands
+@@ -4208,9 +4211,6 @@ int iscsit_close_connection(
+ 	target_sess_cmd_list_set_waiting(sess->se_sess);
+ 	target_wait_for_sess_cmds(sess->se_sess);
+ 
+-	if (conn->conn_transport->iscsit_wait_conn)
+-		conn->conn_transport->iscsit_wait_conn(conn);
+-
+ 	ahash_request_free(conn->conn_tx_hash);
+ 	if (conn->conn_rx_hash) {
+ 		struct crypto_ahash *tfm;
 
 
