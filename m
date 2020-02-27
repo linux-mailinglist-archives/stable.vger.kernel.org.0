@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D7B5171B45
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:01:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E6088171DB4
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:22:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732820AbgB0OA6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 09:00:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34634 "EHLO mail.kernel.org"
+        id S1730580AbgB0OWX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 09:22:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56022 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732636AbgB0OA5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 09:00:57 -0500
+        id S2389420AbgB0OQG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 09:16:06 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 757D824697;
-        Thu, 27 Feb 2020 14:00:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F219B2468F;
+        Thu, 27 Feb 2020 14:16:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582812056;
-        bh=gzcpVSsdVdpj/mjyZvp/iQ5YxCF9AwqZ/AbxbNX2ax8=;
+        s=default; t=1582812965;
+        bh=Hb1/AglAj2BfkkYCvaqrB7kZ5dbo0m6QXAnpIjHn07w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zArNZLKqdXg97CPzM8BDWX5K43RjmQEGBOV+nnn1PsFcWMtnnDwaGx9qNwX2FHzIf
-         cxfeJssMlu61jt4m/L0WQrpaqx1DdrCKQEymG5GFy6hHKV6s177dDOggqWkR3DKLo6
-         NGHz160FvcujzuequfoWidGTgsNoYz87EIymz628=
+        b=POxiS6NLDeGWEe+k6HVWzKmxAd1MXRZp3BE2BNoSGY09eQzaBQJznGjoy9S2DyM8y
+         E1AiXn8E3gdqPs+RNkICCz6OoHIsD/2u8p61PM47YjU7KtszLKaL+gKYPBAu3ltVFM
+         zGsUVfKVeHDfLhOC7dwlnUlh7GQikh+LBss19a7s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Gustavo Luiz Duarte <gustavold@linux.ibm.com>,
-        Michael Neuling <mikey@neuling.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 206/237] powerpc/tm: Fix clearing MSR[TS] in current when reclaiming on signal delivery
-Date:   Thu, 27 Feb 2020 14:37:00 +0100
-Message-Id: <20200227132311.400343912@linuxfoundation.org>
+        stable@vger.kernel.org, Chris Wilson <chris@chris-wilson.co.uk>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        Jani Nikula <jani.nikula@intel.com>
+Subject: [PATCH 5.5 084/150] drm/i915: Wean off drm_pci_alloc/drm_pci_free
+Date:   Thu, 27 Feb 2020 14:37:01 +0100
+Message-Id: <20200227132245.262707944@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200227132255.285644406@linuxfoundation.org>
-References: <20200227132255.285644406@linuxfoundation.org>
+In-Reply-To: <20200227132232.815448360@linuxfoundation.org>
+References: <20200227132232.815448360@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,290 +44,257 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gustavo Luiz Duarte <gustavold@linux.ibm.com>
+From: Chris Wilson <chris@chris-wilson.co.uk>
 
-[ Upstream commit 2464cc4c345699adea52c7aef75707207cb8a2f6 ]
+commit aa3146193ae25d0fe4b96d815169a135db2e8f01 upstream.
 
-After a treclaim, we expect to be in non-transactional state. If we
-don't clear the current thread's MSR[TS] before we get preempted, then
-tm_recheckpoint_new_task() will recheckpoint and we get rescheduled in
-suspended transaction state.
+drm_pci_alloc and drm_pci_free are just very thin wrappers around
+dma_alloc_coherent, with a note that we should be removing them.
+Furthermore since
 
-When handling a signal caught in transactional state,
-handle_rt_signal64() calls get_tm_stackpointer() that treclaims the
-transaction using tm_reclaim_current() but without clearing the
-thread's MSR[TS]. This can cause the TM Bad Thing exception below if
-later we pagefault and get preempted trying to access the user's
-sigframe, using __put_user(). Afterwards, when we are rescheduled back
-into do_page_fault() (but now in suspended state since the thread's
-MSR[TS] was not cleared), upon executing 'rfid' after completion of
-the page fault handling, the exception is raised because a transition
-from suspended to non-transactional state is invalid.
+commit de09d31dd38a50fdce106c15abd68432eebbd014
+Author: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Date:   Fri Jan 15 16:51:42 2016 -0800
 
-  Unexpected TM Bad Thing exception at c00000000000de44 (msr 0x8000000302a03031) tm_scratch=800000010280b033
-  Oops: Unrecoverable exception, sig: 6 [#1]
-  LE PAGE_SIZE=64K MMU=Hash SMP NR_CPUS=2048 NUMA pSeries
-  CPU: 25 PID: 15547 Comm: a.out Not tainted 5.4.0-rc2 #32
-  NIP:  c00000000000de44 LR: c000000000034728 CTR: 0000000000000000
-  REGS: c00000003fe7bd70 TRAP: 0700   Not tainted  (5.4.0-rc2)
-  MSR:  8000000302a03031 <SF,VEC,VSX,FP,ME,IR,DR,LE,TM[SE]>  CR: 44000884  XER: 00000000
-  CFAR: c00000000000dda4 IRQMASK: 0
-  PACATMSCRATCH: 800000010280b033
-  GPR00: c000000000034728 c000000f65a17c80 c000000001662800 00007fffacf3fd78
-  GPR04: 0000000000001000 0000000000001000 0000000000000000 c000000f611f8af0
-  GPR08: 0000000000000000 0000000078006001 0000000000000000 000c000000000000
-  GPR12: c000000f611f84b0 c00000003ffcb200 0000000000000000 0000000000000000
-  GPR16: 0000000000000000 0000000000000000 0000000000000000 0000000000000000
-  GPR20: 0000000000000000 0000000000000000 0000000000000000 c000000f611f8140
-  GPR24: 0000000000000000 00007fffacf3fd68 c000000f65a17d90 c000000f611f7800
-  GPR28: c000000f65a17e90 c000000f65a17e90 c000000001685e18 00007fffacf3f000
-  NIP [c00000000000de44] fast_exception_return+0xf4/0x1b0
-  LR [c000000000034728] handle_rt_signal64+0x78/0xc50
-  Call Trace:
-  [c000000f65a17c80] [c000000000034710] handle_rt_signal64+0x60/0xc50 (unreliable)
-  [c000000f65a17d30] [c000000000023640] do_notify_resume+0x330/0x460
-  [c000000f65a17e20] [c00000000000dcc4] ret_from_except_lite+0x70/0x74
-  Instruction dump:
-  7c4ff120 e8410170 7c5a03a6 38400000 f8410060 e8010070 e8410080 e8610088
-  60000000 60000000 e8810090 e8210078 <4c000024> 48000000 e8610178 88ed0989
-  ---[ end trace 93094aa44b442f87 ]---
+    page-flags: define PG_reserved behavior on compound pages
 
-The simplified sequence of events that triggers the above exception is:
+    As far as I can see there's no users of PG_reserved on compound pages.
+    Let's use PF_NO_COMPOUND here.
 
-  ...				# userspace in NON-TRANSACTIONAL state
-  tbegin			# userspace in TRANSACTIONAL state
-  signal delivery		# kernelspace in SUSPENDED state
-  handle_rt_signal64()
-    get_tm_stackpointer()
-      treclaim			# kernelspace in NON-TRANSACTIONAL state
-    __put_user()
-      page fault happens. We will never get back here because of the TM Bad Thing exception.
+drm_pci_alloc has been declared broken since it mixes GFP_COMP and
+SetPageReserved. Avoid this conflict by weaning ourselves off using the
+abstraction and using the dma functions directly.
 
-  page fault handling kicks in and we voluntarily preempt ourselves
-  do_page_fault()
-    __schedule()
-      __switch_to(other_task)
+Reported-by: Taketo Kabe
+Closes: https://gitlab.freedesktop.org/drm/intel/issues/1027
+Fixes: de09d31dd38a ("page-flags: define PG_reserved behavior on compound pages")
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: <stable@vger.kernel.org> # v4.5+
+Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200202153934.3899472-1-chris@chris-wilson.co.uk
+(cherry picked from commit c6790dc22312f592c1434577258b31c48c72d52a)
+Signed-off-by: Jani Nikula <jani.nikula@intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-  our task is rescheduled and we recheckpoint because the thread's MSR[TS] was not cleared
-  __switch_to(our_task)
-    switch_to_tm()
-      tm_recheckpoint_new_task()
-        trechkpt			# kernelspace in SUSPENDED state
-
-  The page fault handling resumes, but now we are in suspended transaction state
-  do_page_fault()    completes
-  rfid     <----- trying to get back where the page fault happened (we were non-transactional back then)
-  TM Bad Thing			# illegal transition from suspended to non-transactional
-
-This patch fixes that issue by clearing the current thread's MSR[TS]
-just after treclaim in get_tm_stackpointer() so that we stay in
-non-transactional state in case we are preempted. In order to make
-treclaim and clearing the thread's MSR[TS] atomic from a preemption
-perspective when CONFIG_PREEMPT is set, preempt_disable/enable() is
-used. It's also necessary to save the previous value of the thread's
-MSR before get_tm_stackpointer() is called so that it can be exposed
-to the signal handler later in setup_tm_sigcontexts() to inform the
-userspace MSR at the moment of the signal delivery.
-
-Found with tm-signal-context-force-tm kernel selftest.
-
-Fixes: 2b0a576d15e0 ("powerpc: Add new transactional memory state to the signal context")
-Cc: stable@vger.kernel.org # v3.9
-Signed-off-by: Gustavo Luiz Duarte <gustavold@linux.ibm.com>
-Acked-by: Michael Neuling <mikey@neuling.org>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20200211033831.11165-1-gustavold@linux.ibm.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kernel/signal.c    | 17 +++++++++++++++--
- arch/powerpc/kernel/signal_32.c | 28 ++++++++++++++--------------
- arch/powerpc/kernel/signal_64.c | 22 ++++++++++------------
- 3 files changed, 39 insertions(+), 28 deletions(-)
+ drivers/gpu/drm/i915/display/intel_display.c     |    2 
+ drivers/gpu/drm/i915/gem/i915_gem_object_types.h |    3 
+ drivers/gpu/drm/i915/gem/i915_gem_phys.c         |   98 +++++++++++------------
+ drivers/gpu/drm/i915/i915_gem.c                  |    8 -
+ 4 files changed, 55 insertions(+), 56 deletions(-)
 
-diff --git a/arch/powerpc/kernel/signal.c b/arch/powerpc/kernel/signal.c
-index 3d7539b90010c..4cb92022315a4 100644
---- a/arch/powerpc/kernel/signal.c
-+++ b/arch/powerpc/kernel/signal.c
-@@ -193,14 +193,27 @@ unsigned long get_tm_stackpointer(struct task_struct *tsk)
- 	 * normal/non-checkpointed stack pointer.
+--- a/drivers/gpu/drm/i915/display/intel_display.c
++++ b/drivers/gpu/drm/i915/display/intel_display.c
+@@ -10731,7 +10731,7 @@ static u32 intel_cursor_base(const struc
+ 	u32 base;
+ 
+ 	if (INTEL_INFO(dev_priv)->display.cursor_needs_physical)
+-		base = obj->phys_handle->busaddr;
++		base = sg_dma_address(obj->mm.pages->sgl);
+ 	else
+ 		base = intel_plane_ggtt_offset(plane_state);
+ 
+--- a/drivers/gpu/drm/i915/gem/i915_gem_object_types.h
++++ b/drivers/gpu/drm/i915/gem/i915_gem_object_types.h
+@@ -260,9 +260,6 @@ struct drm_i915_gem_object {
+ 
+ 		void *gvt_info;
+ 	};
+-
+-	/** for phys allocated objects */
+-	struct drm_dma_handle *phys_handle;
+ };
+ 
+ static inline struct drm_i915_gem_object *
+--- a/drivers/gpu/drm/i915/gem/i915_gem_phys.c
++++ b/drivers/gpu/drm/i915/gem/i915_gem_phys.c
+@@ -22,88 +22,87 @@
+ static int i915_gem_object_get_pages_phys(struct drm_i915_gem_object *obj)
+ {
+ 	struct address_space *mapping = obj->base.filp->f_mapping;
+-	struct drm_dma_handle *phys;
+-	struct sg_table *st;
+ 	struct scatterlist *sg;
+-	char *vaddr;
++	struct sg_table *st;
++	dma_addr_t dma;
++	void *vaddr;
++	void *dst;
+ 	int i;
+-	int err;
+ 
+ 	if (WARN_ON(i915_gem_object_needs_bit17_swizzle(obj)))
+ 		return -EINVAL;
+ 
+-	/* Always aligning to the object size, allows a single allocation
++	/*
++	 * Always aligning to the object size, allows a single allocation
+ 	 * to handle all possible callers, and given typical object sizes,
+ 	 * the alignment of the buddy allocation will naturally match.
  	 */
+-	phys = drm_pci_alloc(obj->base.dev,
+-			     roundup_pow_of_two(obj->base.size),
+-			     roundup_pow_of_two(obj->base.size));
+-	if (!phys)
++	vaddr = dma_alloc_coherent(&obj->base.dev->pdev->dev,
++				   roundup_pow_of_two(obj->base.size),
++				   &dma, GFP_KERNEL);
++	if (!vaddr)
+ 		return -ENOMEM;
  
-+	unsigned long ret = tsk->thread.regs->gpr[1];
+-	vaddr = phys->vaddr;
++	st = kmalloc(sizeof(*st), GFP_KERNEL);
++	if (!st)
++		goto err_pci;
 +
- #ifdef CONFIG_PPC_TRANSACTIONAL_MEM
- 	BUG_ON(tsk != current);
++	if (sg_alloc_table(st, 1, GFP_KERNEL))
++		goto err_st;
++
++	sg = st->sgl;
++	sg->offset = 0;
++	sg->length = obj->base.size;
++
++	sg_assign_page(sg, (struct page *)vaddr);
++	sg_dma_address(sg) = dma;
++	sg_dma_len(sg) = obj->base.size;
++
++	dst = vaddr;
+ 	for (i = 0; i < obj->base.size / PAGE_SIZE; i++) {
+ 		struct page *page;
+-		char *src;
++		void *src;
  
- 	if (MSR_TM_ACTIVE(tsk->thread.regs->msr)) {
-+		preempt_disable();
- 		tm_reclaim_current(TM_CAUSE_SIGNAL);
- 		if (MSR_TM_TRANSACTIONAL(tsk->thread.regs->msr))
--			return tsk->thread.ckpt_regs.gpr[1];
-+			ret = tsk->thread.ckpt_regs.gpr[1];
-+
-+		/*
-+		 * If we treclaim, we must clear the current thread's TM bits
-+		 * before re-enabling preemption. Otherwise we might be
-+		 * preempted and have the live MSR[TS] changed behind our back
-+		 * (tm_recheckpoint_new_task() would recheckpoint). Besides, we
-+		 * enter the signal handler in non-transactional state.
-+		 */
-+		tsk->thread.regs->msr &= ~MSR_TS_MASK;
-+		preempt_enable();
+ 		page = shmem_read_mapping_page(mapping, i);
+-		if (IS_ERR(page)) {
+-			err = PTR_ERR(page);
+-			goto err_phys;
+-		}
++		if (IS_ERR(page))
++			goto err_st;
+ 
+ 		src = kmap_atomic(page);
+-		memcpy(vaddr, src, PAGE_SIZE);
+-		drm_clflush_virt_range(vaddr, PAGE_SIZE);
++		memcpy(dst, src, PAGE_SIZE);
++		drm_clflush_virt_range(dst, PAGE_SIZE);
+ 		kunmap_atomic(src);
+ 
+ 		put_page(page);
+-		vaddr += PAGE_SIZE;
++		dst += PAGE_SIZE;
  	}
- #endif
--	return tsk->thread.regs->gpr[1];
-+	return ret;
+ 
+ 	intel_gt_chipset_flush(&to_i915(obj->base.dev)->gt);
+ 
+-	st = kmalloc(sizeof(*st), GFP_KERNEL);
+-	if (!st) {
+-		err = -ENOMEM;
+-		goto err_phys;
+-	}
+-
+-	if (sg_alloc_table(st, 1, GFP_KERNEL)) {
+-		kfree(st);
+-		err = -ENOMEM;
+-		goto err_phys;
+-	}
+-
+-	sg = st->sgl;
+-	sg->offset = 0;
+-	sg->length = obj->base.size;
+-
+-	sg_dma_address(sg) = phys->busaddr;
+-	sg_dma_len(sg) = obj->base.size;
+-
+-	obj->phys_handle = phys;
+-
+ 	__i915_gem_object_set_pages(obj, st, sg->length);
+ 
+ 	return 0;
+ 
+-err_phys:
+-	drm_pci_free(obj->base.dev, phys);
+-
+-	return err;
++err_st:
++	kfree(st);
++err_pci:
++	dma_free_coherent(&obj->base.dev->pdev->dev,
++			  roundup_pow_of_two(obj->base.size),
++			  vaddr, dma);
++	return -ENOMEM;
  }
-diff --git a/arch/powerpc/kernel/signal_32.c b/arch/powerpc/kernel/signal_32.c
-index 7157cb6951512..123299fbb33e4 100644
---- a/arch/powerpc/kernel/signal_32.c
-+++ b/arch/powerpc/kernel/signal_32.c
-@@ -515,19 +515,11 @@ static int save_user_regs(struct pt_regs *regs, struct mcontext __user *frame,
-  */
- static int save_tm_user_regs(struct pt_regs *regs,
- 			     struct mcontext __user *frame,
--			     struct mcontext __user *tm_frame, int sigret)
-+			     struct mcontext __user *tm_frame, int sigret,
-+			     unsigned long msr)
+ 
+ static void
+ i915_gem_object_put_pages_phys(struct drm_i915_gem_object *obj,
+ 			       struct sg_table *pages)
  {
--	unsigned long msr = regs->msr;
--
- 	WARN_ON(tm_suspend_disabled);
++	dma_addr_t dma = sg_dma_address(pages->sgl);
++	void *vaddr = sg_page(pages->sgl);
++
+ 	__i915_gem_object_release_shmem(obj, pages, false);
  
--	/* Remove TM bits from thread's MSR.  The MSR in the sigcontext
--	 * just indicates to userland that we were doing a transaction, but we
--	 * don't want to return in transactional state.  This also ensures
--	 * that flush_fp_to_thread won't set TIF_RESTORE_TM again.
--	 */
--	regs->msr &= ~MSR_TS_MASK;
--
- 	/* Save both sets of general registers */
- 	if (save_general_regs(&current->thread.ckpt_regs, frame)
- 	    || save_general_regs(regs, tm_frame))
-@@ -1004,6 +996,10 @@ int handle_rt_signal32(struct ksignal *ksig, sigset_t *oldset,
- 	int sigret;
- 	unsigned long tramp;
- 	struct pt_regs *regs = tsk->thread.regs;
-+#ifdef CONFIG_PPC_TRANSACTIONAL_MEM
-+	/* Save the thread's msr before get_tm_stackpointer() changes it */
-+	unsigned long msr = regs->msr;
-+#endif
+ 	if (obj->mm.dirty) {
+ 		struct address_space *mapping = obj->base.filp->f_mapping;
+-		char *vaddr = obj->phys_handle->vaddr;
++		void *src = vaddr;
+ 		int i;
  
- 	BUG_ON(tsk != current);
+ 		for (i = 0; i < obj->base.size / PAGE_SIZE; i++) {
+@@ -115,15 +114,16 @@ i915_gem_object_put_pages_phys(struct dr
+ 				continue;
  
-@@ -1036,13 +1032,13 @@ int handle_rt_signal32(struct ksignal *ksig, sigset_t *oldset,
+ 			dst = kmap_atomic(page);
+-			drm_clflush_virt_range(vaddr, PAGE_SIZE);
+-			memcpy(dst, vaddr, PAGE_SIZE);
++			drm_clflush_virt_range(src, PAGE_SIZE);
++			memcpy(dst, src, PAGE_SIZE);
+ 			kunmap_atomic(dst);
  
- #ifdef CONFIG_PPC_TRANSACTIONAL_MEM
- 	tm_frame = &rt_sf->uc_transact.uc_mcontext;
--	if (MSR_TM_ACTIVE(regs->msr)) {
-+	if (MSR_TM_ACTIVE(msr)) {
- 		if (__put_user((unsigned long)&rt_sf->uc_transact,
- 			       &rt_sf->uc.uc_link) ||
- 		    __put_user((unsigned long)tm_frame,
- 			       &rt_sf->uc_transact.uc_regs))
- 			goto badframe;
--		if (save_tm_user_regs(regs, frame, tm_frame, sigret))
-+		if (save_tm_user_regs(regs, frame, tm_frame, sigret, msr))
- 			goto badframe;
+ 			set_page_dirty(page);
+ 			if (obj->mm.madv == I915_MADV_WILLNEED)
+ 				mark_page_accessed(page);
+ 			put_page(page);
+-			vaddr += PAGE_SIZE;
++
++			src += PAGE_SIZE;
+ 		}
+ 		obj->mm.dirty = false;
  	}
- 	else
-@@ -1449,6 +1445,10 @@ int handle_signal32(struct ksignal *ksig, sigset_t *oldset,
- 	int sigret;
- 	unsigned long tramp;
- 	struct pt_regs *regs = tsk->thread.regs;
-+#ifdef CONFIG_PPC_TRANSACTIONAL_MEM
-+	/* Save the thread's msr before get_tm_stackpointer() changes it */
-+	unsigned long msr = regs->msr;
-+#endif
+@@ -131,7 +131,9 @@ i915_gem_object_put_pages_phys(struct dr
+ 	sg_free_table(pages);
+ 	kfree(pages);
  
- 	BUG_ON(tsk != current);
+-	drm_pci_free(obj->base.dev, obj->phys_handle);
++	dma_free_coherent(&obj->base.dev->pdev->dev,
++			  roundup_pow_of_two(obj->base.size),
++			  vaddr, dma);
+ }
  
-@@ -1482,9 +1482,9 @@ int handle_signal32(struct ksignal *ksig, sigset_t *oldset,
- 
- #ifdef CONFIG_PPC_TRANSACTIONAL_MEM
- 	tm_mctx = &frame->mctx_transact;
--	if (MSR_TM_ACTIVE(regs->msr)) {
-+	if (MSR_TM_ACTIVE(msr)) {
- 		if (save_tm_user_regs(regs, &frame->mctx, &frame->mctx_transact,
--				      sigret))
-+				      sigret, msr))
- 			goto badframe;
- 	}
- 	else
-diff --git a/arch/powerpc/kernel/signal_64.c b/arch/powerpc/kernel/signal_64.c
-index b203c16d46d4e..71785574aeafb 100644
---- a/arch/powerpc/kernel/signal_64.c
-+++ b/arch/powerpc/kernel/signal_64.c
-@@ -192,7 +192,8 @@ static long setup_sigcontext(struct sigcontext __user *sc,
- static long setup_tm_sigcontexts(struct sigcontext __user *sc,
- 				 struct sigcontext __user *tm_sc,
- 				 struct task_struct *tsk,
--				 int signr, sigset_t *set, unsigned long handler)
-+				 int signr, sigset_t *set, unsigned long handler,
-+				 unsigned long msr)
+ static void phys_release(struct drm_i915_gem_object *obj)
+--- a/drivers/gpu/drm/i915/i915_gem.c
++++ b/drivers/gpu/drm/i915/i915_gem.c
+@@ -154,7 +154,7 @@ i915_gem_phys_pwrite(struct drm_i915_gem
+ 		     struct drm_i915_gem_pwrite *args,
+ 		     struct drm_file *file)
  {
- 	/* When CONFIG_ALTIVEC is set, we _always_ setup v_regs even if the
- 	 * process never used altivec yet (MSR_VEC is zero in pt_regs of
-@@ -207,12 +208,11 @@ static long setup_tm_sigcontexts(struct sigcontext __user *sc,
- 	elf_vrreg_t __user *tm_v_regs = sigcontext_vmx_regs(tm_sc);
- #endif
- 	struct pt_regs *regs = tsk->thread.regs;
--	unsigned long msr = tsk->thread.regs->msr;
- 	long err = 0;
+-	void *vaddr = obj->phys_handle->vaddr + args->offset;
++	void *vaddr = sg_page(obj->mm.pages->sgl) + args->offset;
+ 	char __user *user_data = u64_to_user_ptr(args->data_ptr);
  
- 	BUG_ON(tsk != current);
+ 	/*
+@@ -800,10 +800,10 @@ i915_gem_pwrite_ioctl(struct drm_device
+ 		ret = i915_gem_gtt_pwrite_fast(obj, args);
  
--	BUG_ON(!MSR_TM_ACTIVE(regs->msr));
-+	BUG_ON(!MSR_TM_ACTIVE(msr));
+ 	if (ret == -EFAULT || ret == -ENOSPC) {
+-		if (obj->phys_handle)
+-			ret = i915_gem_phys_pwrite(obj, args, file);
+-		else
++		if (i915_gem_object_has_struct_page(obj))
+ 			ret = i915_gem_shmem_pwrite(obj, args);
++		else
++			ret = i915_gem_phys_pwrite(obj, args, file);
+ 	}
  
- 	WARN_ON(tm_suspend_disabled);
- 
-@@ -222,13 +222,6 @@ static long setup_tm_sigcontexts(struct sigcontext __user *sc,
- 	 */
- 	msr |= tsk->thread.ckpt_regs.msr & (MSR_FP | MSR_VEC | MSR_VSX);
- 
--	/* Remove TM bits from thread's MSR.  The MSR in the sigcontext
--	 * just indicates to userland that we were doing a transaction, but we
--	 * don't want to return in transactional state.  This also ensures
--	 * that flush_fp_to_thread won't set TIF_RESTORE_TM again.
--	 */
--	regs->msr &= ~MSR_TS_MASK;
--
- #ifdef CONFIG_ALTIVEC
- 	err |= __put_user(v_regs, &sc->v_regs);
- 	err |= __put_user(tm_v_regs, &tm_sc->v_regs);
-@@ -805,6 +798,10 @@ int handle_rt_signal64(struct ksignal *ksig, sigset_t *set,
- 	unsigned long newsp = 0;
- 	long err = 0;
- 	struct pt_regs *regs = tsk->thread.regs;
-+#ifdef CONFIG_PPC_TRANSACTIONAL_MEM
-+	/* Save the thread's msr before get_tm_stackpointer() changes it */
-+	unsigned long msr = regs->msr;
-+#endif
- 
- 	BUG_ON(tsk != current);
- 
-@@ -822,7 +819,7 @@ int handle_rt_signal64(struct ksignal *ksig, sigset_t *set,
- 	err |= __put_user(0, &frame->uc.uc_flags);
- 	err |= __save_altstack(&frame->uc.uc_stack, regs->gpr[1]);
- #ifdef CONFIG_PPC_TRANSACTIONAL_MEM
--	if (MSR_TM_ACTIVE(regs->msr)) {
-+	if (MSR_TM_ACTIVE(msr)) {
- 		/* The ucontext_t passed to userland points to the second
- 		 * ucontext_t (for transactional state) with its uc_link ptr.
- 		 */
-@@ -830,7 +827,8 @@ int handle_rt_signal64(struct ksignal *ksig, sigset_t *set,
- 		err |= setup_tm_sigcontexts(&frame->uc.uc_mcontext,
- 					    &frame->uc_transact.uc_mcontext,
- 					    tsk, ksig->sig, NULL,
--					    (unsigned long)ksig->ka.sa.sa_handler);
-+					    (unsigned long)ksig->ka.sa.sa_handler,
-+					    msr);
- 	} else
- #endif
- 	{
--- 
-2.20.1
-
+ 	i915_gem_object_unpin_pages(obj);
 
 
