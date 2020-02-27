@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 365E71719B6
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 14:47:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9DB5B17192A
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 14:42:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730687AbgB0Nr3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 08:47:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43928 "EHLO mail.kernel.org"
+        id S1729454AbgB0Nm3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 08:42:29 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37460 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730696AbgB0Nr2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 08:47:28 -0500
+        id S1729405AbgB0Nm2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 08:42:28 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8F70C2468D;
-        Thu, 27 Feb 2020 13:47:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2B06420726;
+        Thu, 27 Feb 2020 13:42:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582811248;
-        bh=F7DUeTsW+cyMC4RzsgEMADb2jrUEX1Fy6u0Pl9fIC64=;
+        s=default; t=1582810947;
+        bh=kqobUzNIK0zbxE3SOKiTCuJq60wEzhM2JkGtXbIxiek=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Pq+VkjozPWo7bojjWggpqbMOkfPYR3p89mfWQC4UEu58a7wEIZTWP1qMTv0/RtYtH
-         g9Jqt/ZM3G2cwzE4mt4K0eCnCO68eZNq6LjQdtD8erfLk4Tq2hQ148wA6FqBOA2Okt
-         9BerFygrGpuuGCR1FMDZvczdHaF8Hb+hYO6QYc+k=
+        b=VELWjLah64bOEGfb93o7s5kT2GOWSIDX6QP7XBpdNu6JYZgsYPKUzS81UGoajXprZ
+         gMaiwGMV5ah+JuyPmF17meeOg+j/UPXgW8wakY8w/Q/kZlZ7A2EJGApSzLRpfUeZru
+         yx5Ua0Sm09785nYah9cDpujNQJPhmrkuMhIRrFLM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bibby Hsieh <bibby.hsieh@mediatek.com>,
-        CK Hu <ck.hu@mediatek.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 060/165] drm/mediatek: handle events when enabling/disabling crtc
-Date:   Thu, 27 Feb 2020 14:35:34 +0100
-Message-Id: <20200227132240.248172642@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Franky Lin <franky.lin@broadcom.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 020/113] brcmfmac: Fix use after free in brcmf_sdio_readframes()
+Date:   Thu, 27 Feb 2020 14:35:36 +0100
+Message-Id: <20200227132214.894649720@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200227132230.840899170@linuxfoundation.org>
-References: <20200227132230.840899170@linuxfoundation.org>
+In-Reply-To: <20200227132211.791484803@linuxfoundation.org>
+References: <20200227132211.791484803@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,49 +45,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bibby Hsieh <bibby.hsieh@mediatek.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 411f5c1eacfebb1f6e40b653d29447cdfe7282aa ]
+[ Upstream commit 216b44000ada87a63891a8214c347e05a4aea8fe ]
 
-The driver currently handles vblank events only when updating planes on
-an already enabled CRTC. The atomic update API however allows requesting
-an event when enabling or disabling a CRTC. This currently leads to
-event objects being leaked in the kernel and to events not being sent
-out. Fix it.
+The brcmu_pkt_buf_free_skb() function frees "pkt" so it leads to a
+static checker warning:
 
-Signed-off-by: Bibby Hsieh <bibby.hsieh@mediatek.com>
-Signed-off-by: CK Hu <ck.hu@mediatek.com>
+    drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c:1974 brcmf_sdio_readframes()
+    error: dereferencing freed memory 'pkt'
+
+It looks like there was supposed to be a continue after we free "pkt".
+
+Fixes: 4754fceeb9a6 ("brcmfmac: streamline SDIO read frame routine")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Acked-by: Franky Lin <franky.lin@broadcom.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/mediatek/mtk_drm_crtc.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/net/wireless/brcm80211/brcmfmac/sdio.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/gpu/drm/mediatek/mtk_drm_crtc.c b/drivers/gpu/drm/mediatek/mtk_drm_crtc.c
-index 01a21dd835b57..1ed60da76a0ce 100644
---- a/drivers/gpu/drm/mediatek/mtk_drm_crtc.c
-+++ b/drivers/gpu/drm/mediatek/mtk_drm_crtc.c
-@@ -306,6 +306,7 @@ err_pm_runtime_put:
- static void mtk_crtc_ddp_hw_fini(struct mtk_drm_crtc *mtk_crtc)
- {
- 	struct drm_device *drm = mtk_crtc->base.dev;
-+	struct drm_crtc *crtc = &mtk_crtc->base;
- 	int i;
- 
- 	DRM_DEBUG_DRIVER("%s\n", __func__);
-@@ -327,6 +328,13 @@ static void mtk_crtc_ddp_hw_fini(struct mtk_drm_crtc *mtk_crtc)
- 	mtk_disp_mutex_unprepare(mtk_crtc->mutex);
- 
- 	pm_runtime_put(drm->dev);
-+
-+	if (crtc->state->event && !crtc->state->active) {
-+		spin_lock_irq(&crtc->dev->event_lock);
-+		drm_crtc_send_vblank_event(crtc, crtc->state->event);
-+		crtc->state->event = NULL;
-+		spin_unlock_irq(&crtc->dev->event_lock);
-+	}
- }
- 
- static void mtk_drm_crtc_enable(struct drm_crtc *crtc)
+diff --git a/drivers/net/wireless/brcm80211/brcmfmac/sdio.c b/drivers/net/wireless/brcm80211/brcmfmac/sdio.c
+index 9954e641c943d..8bb028f740fd8 100644
+--- a/drivers/net/wireless/brcm80211/brcmfmac/sdio.c
++++ b/drivers/net/wireless/brcm80211/brcmfmac/sdio.c
+@@ -2027,6 +2027,7 @@ static uint brcmf_sdio_readframes(struct brcmf_sdio *bus, uint maxframes)
+ 					       BRCMF_SDIO_FT_NORMAL)) {
+ 				rd->len = 0;
+ 				brcmu_pkt_buf_free_skb(pkt);
++				continue;
+ 			}
+ 			bus->sdcnt.rx_readahead_cnt++;
+ 			if (rd->len != roundup(rd_new.len, 16)) {
 -- 
 2.20.1
 
