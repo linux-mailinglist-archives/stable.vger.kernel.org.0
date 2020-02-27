@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 748E1171B1B
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 14:59:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 23D0F171A00
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 14:49:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732621AbgB0N7h (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 08:59:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60970 "EHLO mail.kernel.org"
+        id S1731106AbgB0Ntu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 08:49:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47506 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732136AbgB0N7f (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 08:59:35 -0500
+        id S1731104AbgB0Ntt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 08:49:49 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0E73920801;
-        Thu, 27 Feb 2020 13:59:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 543AE20578;
+        Thu, 27 Feb 2020 13:49:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582811974;
-        bh=lWkynrj0Gr/70px+CsO3TZpEUaIDq8yPdN6Pjb49AGM=;
+        s=default; t=1582811388;
+        bh=HmgcdBfpLCYwWs0WNfXH3KGRuc+or5T24nV7akRuSHU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mFEu9xHrpOxPLIRuU+JSNNhDdXnlVoG+5s4VYVcD5UyRmRWK46FPjq9j7z5MizFdw
-         Qt00gARUFnzKNKgaGDDtcbpnu/Gv4WHtgVAJGTSfaoDEM8/2hvfVAzfCMpZkrgCO08
-         ohUlZ+Y7v9AWGgPz0As9Km6OY7S4jxbaMH3ptLFY=
+        b=gkT6DucKl3B7UZ5EXeAcLUntGqfpLtoiwg7EoQPnPKai+r2N5RvtWGATyIkMaJnu3
+         StFY/o4UqWk7culgeOKLsduhDdOAfflbl03r5O+K5RTRdWg2+9MdfJM+H9JyDWFcDd
+         6yKOHf6eolvCbVi0/3qRgiWwYurEfq2Fz+42dTF4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christoph Jung <jung@codemercs.com>
-Subject: [PATCH 4.14 173/237] USB: misc: iowarrior: add support for 2 OEMed devices
+        stable@vger.kernel.org, Zhiqiang Liu <liuzhiqiang26@huawei.com>,
+        Bob Liu <bob.liu@oracle.com>, Ming Lei <ming.lei@redhat.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 113/165] brd: check and limit max_part par
 Date:   Thu, 27 Feb 2020 14:36:27 +0100
-Message-Id: <20200227132309.151534544@linuxfoundation.org>
+Message-Id: <20200227132247.603365667@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200227132255.285644406@linuxfoundation.org>
-References: <20200227132255.285644406@linuxfoundation.org>
+In-Reply-To: <20200227132230.840899170@linuxfoundation.org>
+References: <20200227132230.840899170@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,87 +44,109 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Zhiqiang Liu <liuzhiqiang26@huawei.com>
 
-commit 461d8deb26a7d70254bc0391feb4fd8a95e674e8 upstream.
+[ Upstream commit c8ab422553c81a0eb070329c63725df1cd1425bc ]
 
-Add support for two OEM devices that are identical to existing
-IO-Warrior devices, except for the USB device id.
+In brd_init func, rd_nr num of brd_device are firstly allocated
+and add in brd_devices, then brd_devices are traversed to add each
+brd_device by calling add_disk func. When allocating brd_device,
+the disk->first_minor is set to i * max_part, if rd_nr * max_part
+is larger than MINORMASK, two different brd_device may have the same
+devt, then only one of them can be successfully added.
+when rmmod brd.ko, it will cause oops when calling brd_exit.
 
-Cc: Christoph Jung <jung@codemercs.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200212040422.2991-1-gregkh@linuxfoundation.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Follow those steps:
+  # modprobe brd rd_nr=3 rd_size=102400 max_part=1048576
+  # rmmod brd
+then, the oops will appear.
 
+Oops log:
+[  726.613722] Call trace:
+[  726.614175]  kernfs_find_ns+0x24/0x130
+[  726.614852]  kernfs_find_and_get_ns+0x44/0x68
+[  726.615749]  sysfs_remove_group+0x38/0xb0
+[  726.616520]  blk_trace_remove_sysfs+0x1c/0x28
+[  726.617320]  blk_unregister_queue+0x98/0x100
+[  726.618105]  del_gendisk+0x144/0x2b8
+[  726.618759]  brd_exit+0x68/0x560 [brd]
+[  726.619501]  __arm64_sys_delete_module+0x19c/0x2a0
+[  726.620384]  el0_svc_common+0x78/0x130
+[  726.621057]  el0_svc_handler+0x38/0x78
+[  726.621738]  el0_svc+0x8/0xc
+[  726.622259] Code: aa0203f6 aa0103f7 aa1e03e0 d503201f (7940e260)
+
+Here, we add brd_check_and_reset_par func to check and limit max_part par.
+
+--
+V5->V6:
+ - remove useless code
+
+V4->V5:(suggested by Ming Lei)
+ - make sure max_part is not larger than DISK_MAX_PARTS
+
+V3->V4:(suggested by Ming Lei)
+ - remove useless change
+ - add one limit of max_part
+
+V2->V3: (suggested by Ming Lei)
+ - clear .minors when running out of consecutive minor space in brd_alloc
+ - remove limit of rd_nr
+
+V1->V2:
+ - add more checks in brd_check_par_valid as suggested by Ming Lei.
+
+Signed-off-by: Zhiqiang Liu <liuzhiqiang26@huawei.com>
+Reviewed-by: Bob Liu <bob.liu@oracle.com>
+Reviewed-by: Ming Lei <ming.lei@redhat.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/misc/iowarrior.c |   15 +++++++++++++--
- 1 file changed, 13 insertions(+), 2 deletions(-)
+ drivers/block/brd.c | 22 ++++++++++++++++++++--
+ 1 file changed, 20 insertions(+), 2 deletions(-)
 
---- a/drivers/usb/misc/iowarrior.c
-+++ b/drivers/usb/misc/iowarrior.c
-@@ -33,6 +33,10 @@
- /* full speed iowarrior */
- #define USB_DEVICE_ID_CODEMERCS_IOW56	0x1503
+diff --git a/drivers/block/brd.c b/drivers/block/brd.c
+index 0c76d4016eebe..7e35574a17dfc 100644
+--- a/drivers/block/brd.c
++++ b/drivers/block/brd.c
+@@ -581,6 +581,25 @@ static struct kobject *brd_probe(dev_t dev, int *part, void *data)
+ 	return kobj;
+ }
  
-+/* OEMed devices */
-+#define USB_DEVICE_ID_CODEMERCS_IOW24SAG	0x158a
-+#define USB_DEVICE_ID_CODEMERCS_IOW56AM		0x158b
++static inline void brd_check_and_reset_par(void)
++{
++	if (unlikely(!max_part))
++		max_part = 1;
 +
- /* Get a minor range for your devices from the usb maintainer */
- #ifdef CONFIG_USB_DYNAMIC_MINORS
- #define IOWARRIOR_MINOR_BASE	0
-@@ -137,6 +141,8 @@ static const struct usb_device_id iowarr
- 	{USB_DEVICE(USB_VENDOR_ID_CODEMERCS, USB_DEVICE_ID_CODEMERCS_IOWPV1)},
- 	{USB_DEVICE(USB_VENDOR_ID_CODEMERCS, USB_DEVICE_ID_CODEMERCS_IOWPV2)},
- 	{USB_DEVICE(USB_VENDOR_ID_CODEMERCS, USB_DEVICE_ID_CODEMERCS_IOW56)},
-+	{USB_DEVICE(USB_VENDOR_ID_CODEMERCS, USB_DEVICE_ID_CODEMERCS_IOW24SAG)},
-+	{USB_DEVICE(USB_VENDOR_ID_CODEMERCS, USB_DEVICE_ID_CODEMERCS_IOW56AM)},
- 	{}			/* Terminating entry */
- };
- MODULE_DEVICE_TABLE(usb, iowarrior_ids);
-@@ -364,6 +370,7 @@ static ssize_t iowarrior_write(struct fi
- 	}
- 	switch (dev->product_id) {
- 	case USB_DEVICE_ID_CODEMERCS_IOW24:
-+	case USB_DEVICE_ID_CODEMERCS_IOW24SAG:
- 	case USB_DEVICE_ID_CODEMERCS_IOWPV1:
- 	case USB_DEVICE_ID_CODEMERCS_IOWPV2:
- 	case USB_DEVICE_ID_CODEMERCS_IOW40:
-@@ -378,6 +385,7 @@ static ssize_t iowarrior_write(struct fi
- 		goto exit;
- 		break;
- 	case USB_DEVICE_ID_CODEMERCS_IOW56:
-+	case USB_DEVICE_ID_CODEMERCS_IOW56AM:
- 		/* The IOW56 uses asynchronous IO and more urbs */
- 		if (atomic_read(&dev->write_busy) == MAX_WRITES_IN_FLIGHT) {
- 			/* Wait until we are below the limit for submitted urbs */
-@@ -502,6 +510,7 @@ static long iowarrior_ioctl(struct file
- 	switch (cmd) {
- 	case IOW_WRITE:
- 		if (dev->product_id == USB_DEVICE_ID_CODEMERCS_IOW24 ||
-+		    dev->product_id == USB_DEVICE_ID_CODEMERCS_IOW24SAG ||
- 		    dev->product_id == USB_DEVICE_ID_CODEMERCS_IOWPV1 ||
- 		    dev->product_id == USB_DEVICE_ID_CODEMERCS_IOWPV2 ||
- 		    dev->product_id == USB_DEVICE_ID_CODEMERCS_IOW40) {
-@@ -786,7 +795,8 @@ static int iowarrior_probe(struct usb_in
- 		goto error;
- 	}
++	/*
++	 * make sure 'max_part' can be divided exactly by (1U << MINORBITS),
++	 * otherwise, it is possiable to get same dev_t when adding partitions.
++	 */
++	if ((1U << MINORBITS) % max_part != 0)
++		max_part = 1UL << fls(max_part);
++
++	if (max_part > DISK_MAX_PARTS) {
++		pr_info("brd: max_part can't be larger than %d, reset max_part = %d.\n",
++			DISK_MAX_PARTS, DISK_MAX_PARTS);
++		max_part = DISK_MAX_PARTS;
++	}
++}
++
+ static int __init brd_init(void)
+ {
+ 	struct brd_device *brd, *next;
+@@ -604,8 +623,7 @@ static int __init brd_init(void)
+ 	if (register_blkdev(RAMDISK_MAJOR, "ramdisk"))
+ 		return -EIO;
  
--	if (dev->product_id == USB_DEVICE_ID_CODEMERCS_IOW56) {
-+	if ((dev->product_id == USB_DEVICE_ID_CODEMERCS_IOW56) ||
-+	    (dev->product_id == USB_DEVICE_ID_CODEMERCS_IOW56AM)) {
- 		res = usb_find_last_int_out_endpoint(iface_desc,
- 				&dev->int_out_endpoint);
- 		if (res) {
-@@ -799,7 +809,8 @@ static int iowarrior_probe(struct usb_in
- 	/* we have to check the report_size often, so remember it in the endianness suitable for our machine */
- 	dev->report_size = usb_endpoint_maxp(dev->int_in_endpoint);
- 	if ((dev->interface->cur_altsetting->desc.bInterfaceNumber == 0) &&
--	    (dev->product_id == USB_DEVICE_ID_CODEMERCS_IOW56))
-+	    ((dev->product_id == USB_DEVICE_ID_CODEMERCS_IOW56) ||
-+	     (dev->product_id == USB_DEVICE_ID_CODEMERCS_IOW56AM)))
- 		/* IOWarrior56 has wMaxPacketSize different from report size */
- 		dev->report_size = 7;
+-	if (unlikely(!max_part))
+-		max_part = 1;
++	brd_check_and_reset_par();
  
+ 	for (i = 0; i < rd_nr; i++) {
+ 		brd = brd_alloc(i);
+-- 
+2.20.1
+
 
 
