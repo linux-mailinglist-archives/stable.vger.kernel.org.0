@@ -2,131 +2,130 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A850171150
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 08:16:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C6021711D3
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 08:53:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727403AbgB0HQz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 02:16:55 -0500
-Received: from pio-pvt-msa3.bahnhof.se ([79.136.2.42]:55442 "EHLO
-        pio-pvt-msa3.bahnhof.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727336AbgB0HQz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 27 Feb 2020 02:16:55 -0500
-Received: from localhost (localhost [127.0.0.1])
-        by pio-pvt-msa3.bahnhof.se (Postfix) with ESMTP id 0DBF53F619;
-        Thu, 27 Feb 2020 08:16:53 +0100 (CET)
-Authentication-Results: pio-pvt-msa3.bahnhof.se;
-        dkim=pass (1024-bit key; unprotected) header.d=shipmail.org header.i=@shipmail.org header.b=iJco5cwq;
-        dkim-atps=neutral
-X-Virus-Scanned: Debian amavisd-new at bahnhof.se
-X-Spam-Flag: NO
-X-Spam-Score: -2.099
-X-Spam-Level: 
-X-Spam-Status: No, score=-2.099 tagged_above=-999 required=6.31
-        tests=[BAYES_00=-1.9, DKIM_SIGNED=0.1, DKIM_VALID=-0.1,
-        DKIM_VALID_AU=-0.1, DKIM_VALID_EF=-0.1, URIBL_BLOCKED=0.001]
-        autolearn=ham autolearn_force=no
-Received: from pio-pvt-msa3.bahnhof.se ([127.0.0.1])
-        by localhost (pio-pvt-msa3.bahnhof.se [127.0.0.1]) (amavisd-new, port 10024)
-        with ESMTP id 9s2FL3lWlzPa; Thu, 27 Feb 2020 08:16:52 +0100 (CET)
-Received: from mail1.shipmail.org (h-205-35.A357.priv.bahnhof.se [155.4.205.35])
-        (Authenticated sender: mb878879)
-        by pio-pvt-msa3.bahnhof.se (Postfix) with ESMTPA id ED2B23F56A;
-        Thu, 27 Feb 2020 08:16:49 +0100 (CET)
-Received: from localhost.localdomain (h-205-35.A357.priv.bahnhof.se [155.4.205.35])
-        by mail1.shipmail.org (Postfix) with ESMTPSA id 54FBC360161;
-        Thu, 27 Feb 2020 08:16:49 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=shipmail.org; s=mail;
-        t=1582787809; bh=czSVFr3N8XD20OuzmIfwTeJukmx6qXdkbu8G6D4uGW4=;
-        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
-        b=iJco5cwq3tifyUhkXULafE2E2SK5e+v+J9B7XYh2qG+7F11JINzsBKZmLzRA9B/2w
-         y2kbglX6cpm9cvR95UVbBEo93uBouanPt0rjIpjhuPqoTbLAvcCHybEOPYpbD0Irog
-         n46IYsNNHpyrXpXirNOiX5dCn1yFly6CK5V20pqU=
-Subject: Re: [PATCH v5 1/3] drm/shmem: add support for per object caching
- flags.
-To:     Chia-I Wu <olvaffe@gmail.com>
-Cc:     Gerd Hoffmann <kraxel@redhat.com>,
-        ML dri-devel <dri-devel@lists.freedesktop.org>,
-        Guillaume Gardet <Guillaume.Gardet@arm.com>,
+        id S1727702AbgB0Hxa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 02:53:30 -0500
+Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:21147 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1728495AbgB0Hx3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 27 Feb 2020 02:53:29 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1582790008;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=QdZSZmeTi2IR4EjFeqNNXbBpQhhR9pgfAjrS+j97XLk=;
+        b=QTinIWj5lWemza/wh1H7nE+5bGF/6/kNz65ze9hKCs46ICsjANzRTgmjKBsaMzAgXmFPOW
+        eJa79mWqgQgxis8+cQew/yFO1YPUtmIbGKy3d4OfD2BCFnQIM93HzDdFlNsXIcl5u7RZQe
+        5GP13Sf6qjVbLz7BK8vmCM7m4xQtkgU=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-452-bVGe7fi4PHm8nrUFOfsItw-1; Thu, 27 Feb 2020 02:53:24 -0500
+X-MC-Unique: bVGe7fi4PHm8nrUFOfsItw-1
+Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 69614802561;
+        Thu, 27 Feb 2020 07:53:23 +0000 (UTC)
+Received: from sirius.home.kraxel.org (ovpn-116-150.ams2.redhat.com [10.36.116.150])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 0B10F19C58;
+        Thu, 27 Feb 2020 07:53:22 +0000 (UTC)
+Received: by sirius.home.kraxel.org (Postfix, from userid 1000)
+        id B2A621744A; Thu, 27 Feb 2020 08:53:21 +0100 (CET)
+Date:   Thu, 27 Feb 2020 08:53:21 +0100
+From:   Gerd Hoffmann <kraxel@redhat.com>
+To:     Thomas =?utf-8?Q?Hellstr=C3=B6m_=28VMware=29?= 
+        <thomas_os@shipmail.org>
+Cc:     dri-devel@lists.freedesktop.org, Guillaume.Gardet@arm.com,
         David Airlie <airlied@linux.ie>,
         open list <linux-kernel@vger.kernel.org>,
-        stable@vger.kernel.org,
-        Gurchetan Singh <gurchetansingh@chromium.org>,
+        stable@vger.kernel.org, gurchetansingh@chromium.org,
         tzimmermann@suse.de
+Subject: Re: [PATCH v5 1/3] drm/shmem: add support for per object caching
+ flags.
+Message-ID: <20200227075321.ki74hfjpnsqv2yx2@sirius.home.kraxel.org>
 References: <20200226154752.24328-1-kraxel@redhat.com>
  <20200226154752.24328-2-kraxel@redhat.com>
  <f1afba4b-9c06-48a3-42c7-046695947e91@shipmail.org>
- <CAPaKu7R4VFYnk9UdpguZnkWeKk2ELVnoQ60=i72RN2GkME1ukw@mail.gmail.com>
-From:   =?UTF-8?Q?Thomas_Hellstr=c3=b6m_=28VMware=29?= 
-        <thomas_os@shipmail.org>
-Organization: VMware Inc.
-Message-ID: <614ed528-8d6d-0179-6149-218566d4af06@shipmail.org>
-Date:   Thu, 27 Feb 2020 08:16:49 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.2.2
 MIME-Version: 1.0
-In-Reply-To: <CAPaKu7R4VFYnk9UdpguZnkWeKk2ELVnoQ60=i72RN2GkME1ukw@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
-Content-Language: en-US
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+In-Reply-To: <f1afba4b-9c06-48a3-42c7-046695947e91@shipmail.org>
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2/27/20 1:02 AM, Chia-I Wu wrote:
-> On Wed, Feb 26, 2020 at 10:25 AM Thomas Hellström (VMware)
-> <thomas_os@shipmail.org> wrote:
->> Hi, Gerd,
->>
->>
->>
->>    #define to_drm_gem_shmem_obj(obj) \
->> diff --git a/drivers/gpu/drm/drm_gem_shmem_helper.c b/drivers/gpu/drm/drm_gem_shmem_helper.c
->> index a421a2eed48a..aad9324dcf4f 100644
->> --- a/drivers/gpu/drm/drm_gem_shmem_helper.c
->> +++ b/drivers/gpu/drm/drm_gem_shmem_helper.c
->> @@ -254,11 +254,16 @@ static void *drm_gem_shmem_vmap_locked(struct drm_gem_shmem_object *shmem)
->>        if (ret)
->>                goto err_zero_use;
->>
->> -     if (obj->import_attach)
->> +     if (obj->import_attach) {
->>                shmem->vaddr = dma_buf_vmap(obj->import_attach->dmabuf);
->> -     else
->> +     } else {
->> +             pgprot_t prot = PAGE_KERNEL;
->> +
->> +             if (!shmem->map_cached)
->> +                     prot = pgprot_writecombine(prot);
->>                shmem->vaddr = vmap(shmem->pages, obj->size >> PAGE_SHIFT,
->> -                                 VM_MAP, pgprot_writecombine(PAGE_KERNEL));
->> +                                 VM_MAP, prot)
->>
->> Wouldn't a vmap with pgprot_writecombine() create conflicting mappings
->> with the linear kernel map which is not write-combined? Or do you change
->> the linear kernel map of the shmem pages somewhere? vmap bypassess at
->> least the x86 PAT core mapping consistency check and this could
->> potentially cause spuriously overwritten memory.
-> Yeah, I think this creates a conflicting alias.  It seems a call to
-> set_pages_array_wc here or changes elsewhere is needed..
->
-> But this is a pre-existing issue in the shmem helper.  There is also
-> no universal fix (e.g., set_pages_array_wc is x86 only)?  I would hope
-> this series can be merged sooner to fix the regression first.
+  Hi,
 
-The problem is this isn't doable with shmem, since that would create 
-interesting problems when pages are swapped out.
+> > +		if (!shmem->map_cached)
+> > +			prot =3D pgprot_writecombine(prot);
+> >   		shmem->vaddr =3D vmap(shmem->pages, obj->size >> PAGE_SHIFT,
+> > -				    VM_MAP, pgprot_writecombine(PAGE_KERNEL));
+> > +				    VM_MAP, prot)
+>=20
+>=20
+> Wouldn't a vmap with pgprot_writecombine() create conflicting mappings =
+with
+> the linear kernel map which is not write-combined?
 
-So I would argue that the correct fix is to revert commit 0be895893607f 
-("drm/shmem: switch shmem helper to &drm_gem_object_funcs.mmap")
+I think so, yes.
 
-If some drivers can argue that in their particular environment it's safe 
-to use writecombine in this way, then modifying the page protection 
-should be moved out to those drivers documenting that assumption. Using 
-pgprot_decrypted() in this way could never be safe.
+> Or do you change the linear kernel map of the shmem pages somewhere?
 
-But IMO this should never be part of generic helpers.
+Havn't seen anything doing so while browsing the code.
 
-/Thomas
+> vmap bypassess at least the
+> x86 PAT core mapping consistency check and this could potentially cause
+> spuriously overwritten memory.
 
+Well, I don't think the linear kernel map is ever used to access the
+shmem gem objects.  So while this isn't exactly clean it shouldn't
+cause problems in practice.
+
+Suggestions how to fix that?
+
+The reason I need cachable gem object mappings for virtio-gpu is because
+we have a inconsistency between host (cached) and guest (wc) otherwise.
+
+> > +	}
+> >   	if (!shmem->vaddr) {
+> >   		DRM_DEBUG_KMS("Failed to vmap pages\n");
+> > @@ -540,7 +545,9 @@ int drm_gem_shmem_mmap(struct drm_gem_object *obj=
+, struct vm_area_struct *vma)
+> >   	}
+> >   	vma->vm_flags |=3D VM_MIXEDMAP | VM_DONTEXPAND;
+> > -	vma->vm_page_prot =3D pgprot_writecombine(vm_get_page_prot(vma->vm_=
+flags));
+> > +	vma->vm_page_prot =3D vm_get_page_prot(vma->vm_flags);
+> > +	if (!shmem->map_cached)
+> > +		vma->vm_page_prot =3D pgprot_writecombine(vma->vm_page_prot);
+>=20
+> Same thing here. Note that vmf_insert_page() which is used by the fault
+> handler also bypasses the x86 PAT=A0 consistency check, whereas
+> vmf_insert_mixed() doesn't.
+
+vmap + mmap are consistent though, so this likewise shouldn't cause
+issues in practice.
+
+> >   	vma->vm_page_prot =3D pgprot_decrypted(vma->vm_page_prot);
+>=20
+> At least with SME or SEV encryption, where shmem memory has its kernel =
+map
+> set to encrypted, creating conflicting mappings is explicitly disallowe=
+d.
+> BTW, why is mmap mapping decrypted while vmap isn't?
+
+Ok, that sounds like a real problem.  Have to check.
+
+cheers,
+  Gerd
+
+PS: Given we are discussing pre-existing issues in the code I think the
+    series can be merged nevertheless.
 
