@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4AFCA171E40
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:26:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 99464171E34
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:26:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388459AbgB0OKC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 09:10:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48160 "EHLO mail.kernel.org"
+        id S2388541AbgB0OKa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 09:10:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48686 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388455AbgB0OKB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 09:10:01 -0500
+        id S2388302AbgB0OKa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 09:10:30 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E2B4121D7E;
-        Thu, 27 Feb 2020 14:10:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3019120714;
+        Thu, 27 Feb 2020 14:10:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582812601;
-        bh=gXEv9AwRo9KfG6wELhy75P1nWv/0fTeMF95Dm0lXkyQ=;
+        s=default; t=1582812629;
+        bh=jmPtdgeeqMMt7a7698ToRbbA8kl/TlVulUpJZ7oGaa0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ei6/ogCpbXdgs7KpqDMQeC80q7v064ihgih766vPlolATwG4lhabqjK84N1OJnLAJ
-         FS8aAoq7YieSDnkZuRD90m3LLcfpH+3Ege9YMAOjE8e36qpK7WPMPOJr7L9AEbQ/V9
-         kXa4n0/yIPrPUNscP83LbyVNVYJ9sqEkJkgJXlY0=
+        b=xgvyFQmM3lWHswnkfBtlpIZPPmqAsmu5zob/f8rr+gLC/2T93aHncK6IC5Kd1efGH
+         1imBq0PScaJsqc6sNkXF95MDI6hW9GhVhWGlkPajFOimVrmZ3emZxJvfxJDOeDtsNe
+         96VerU63tF8DrLtcTJ4EJpDU1DrHJv33Y//+zz3E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vasily Averin <vvs@virtuozzo.com>,
-        Kirill Tkhai <ktkhai@virtuozzo.com>,
-        Michal Hocko <mhocko@suse.com>, Roman Gushchin <guro@fb.com>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Vladimir Davydov <vdavydov.dev@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.4 063/135] mm/memcontrol.c: lost css_put in memcg_expand_shrinker_maps()
-Date:   Thu, 27 Feb 2020 14:36:43 +0100
-Message-Id: <20200227132238.614620688@linuxfoundation.org>
+        stable@vger.kernel.org, Sagi Grimberg <sagi@grimberg.me>,
+        Christoph Hellwig <hch@lst.de>,
+        Logan Gunthorpe <logang@deltatee.com>,
+        Keith Busch <kbusch@kernel.org>
+Subject: [PATCH 5.4 064/135] nvme-multipath: Fix memory leak with ana_log_buf
+Date:   Thu, 27 Feb 2020 14:36:44 +0100
+Message-Id: <20200227132238.788230946@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200227132228.710492098@linuxfoundation.org>
 References: <20200227132228.710492098@linuxfoundation.org>
@@ -48,43 +45,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasily Averin <vvs@virtuozzo.com>
+From: Logan Gunthorpe <logang@deltatee.com>
 
-commit 75866af62b439859d5146b7093ceb6b482852683 upstream.
+commit 3b7830904e17202524bad1974505a9bfc718d31f upstream.
 
-for_each_mem_cgroup() increases css reference counter for memory cgroup
-and requires to use mem_cgroup_iter_break() if the walk is cancelled.
+kmemleak reports a memory leak with the ana_log_buf allocated by
+nvme_mpath_init():
 
-Link: http://lkml.kernel.org/r/c98414fb-7e1f-da0f-867a-9340ec4bd30b@virtuozzo.com
-Fixes: 0a4465d34028 ("mm, memcg: assign memcg-aware shrinkers bitmap to memcg")
-Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
-Acked-by: Kirill Tkhai <ktkhai@virtuozzo.com>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Reviewed-by: Roman Gushchin <guro@fb.com>
-Cc: Johannes Weiner <hannes@cmpxchg.org>
-Cc: Vladimir Davydov <vdavydov.dev@gmail.com>
+unreferenced object 0xffff888120e94000 (size 8208):
+  comm "nvme", pid 6884, jiffies 4295020435 (age 78786.312s)
+    hex dump (first 32 bytes):
+      00 00 00 00 00 00 00 00 01 00 00 00 00 00 00 00  ................
+      01 00 00 00 01 00 00 00 00 00 00 00 00 00 00 00  ................
+    backtrace:
+      [<00000000e2360188>] kmalloc_order+0x97/0xc0
+      [<0000000079b18dd4>] kmalloc_order_trace+0x24/0x100
+      [<00000000f50c0406>] __kmalloc+0x24c/0x2d0
+      [<00000000f31a10b9>] nvme_mpath_init+0x23c/0x2b0
+      [<000000005802589e>] nvme_init_identify+0x75f/0x1600
+      [<0000000058ef911b>] nvme_loop_configure_admin_queue+0x26d/0x280
+      [<00000000673774b9>] nvme_loop_create_ctrl+0x2a7/0x710
+      [<00000000f1c7a233>] nvmf_dev_write+0xc66/0x10b9
+      [<000000004199f8d0>] __vfs_write+0x50/0xa0
+      [<0000000065466fef>] vfs_write+0xf3/0x280
+      [<00000000b0db9a8b>] ksys_write+0xc6/0x160
+      [<0000000082156b91>] __x64_sys_write+0x43/0x50
+      [<00000000c34fbb6d>] do_syscall_64+0x77/0x2f0
+      [<00000000bbc574c9>] entry_SYSCALL_64_after_hwframe+0x49/0xbe
+
+nvme_mpath_init() is called by nvme_init_identify() which is called in
+multiple places (nvme_reset_work(), nvme_passthru_end(), etc). This
+means nvme_mpath_init() may be called multiple times before
+nvme_mpath_uninit() (which is only called on nvme_free_ctrl()).
+
+When nvme_mpath_init() is called multiple times, it overwrites the
+ana_log_buf pointer with a new allocation, thus leaking the previous
+allocation.
+
+To fix this, free ana_log_buf before allocating a new one.
+
+Fixes: 0d0b660f214dc490 ("nvme: add ANA support")
 Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
+Signed-off-by: Keith Busch <kbusch@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- mm/memcontrol.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/nvme/host/multipath.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/mm/memcontrol.c
-+++ b/mm/memcontrol.c
-@@ -418,8 +418,10 @@ int memcg_expand_shrinker_maps(int new_i
- 		if (mem_cgroup_is_root(memcg))
- 			continue;
- 		ret = memcg_expand_one_shrinker_map(memcg, size, old_size);
--		if (ret)
-+		if (ret) {
-+			mem_cgroup_iter_break(NULL, memcg);
- 			goto unlock;
-+		}
+--- a/drivers/nvme/host/multipath.c
++++ b/drivers/nvme/host/multipath.c
+@@ -711,6 +711,7 @@ int nvme_mpath_init(struct nvme_ctrl *ct
  	}
- unlock:
- 	if (!ret)
+ 
+ 	INIT_WORK(&ctrl->ana_work, nvme_ana_work);
++	kfree(ctrl->ana_log_buf);
+ 	ctrl->ana_log_buf = kmalloc(ctrl->ana_log_size, GFP_KERNEL);
+ 	if (!ctrl->ana_log_buf) {
+ 		error = -ENOMEM;
 
 
