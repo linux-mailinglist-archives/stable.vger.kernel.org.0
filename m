@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 61178171F27
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:32:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7816217202C
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:41:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732701AbgB0OBV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 09:01:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35268 "EHLO mail.kernel.org"
+        id S1731430AbgB0Nvk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 08:51:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50888 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732399AbgB0OBV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 09:01:21 -0500
+        id S1731425AbgB0Nvk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 08:51:40 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E00A620801;
-        Thu, 27 Feb 2020 14:01:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1AC7620801;
+        Thu, 27 Feb 2020 13:51:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582812080;
-        bh=F7HI2yBfKbtM5rC/N2fY391ZUSDKhrZ+HvCn8X7jv9U=;
+        s=default; t=1582811499;
+        bh=tlqMKDrP/fE09dXg47QoERlIiy1VqqALdS7rgKIW6CM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WrlbIC4ZkDdo26LF5hSB423tXizL2drcPs84ZokHXEnLXl9BOb8xce91vo8oIooIZ
-         XmDcDCW94Z4rTgQrDoD+pr91aA1qzfm6/53KX3pX+qS1CHm/vtjUCRK8LEBzNI04FU
-         v4Yg1Wt/8WQ2KdXjOpkctLOeaYyegcyfXe+fovO8=
+        b=Rojd2w/FLR8OXOwHLsJFGoSL1UmP4sQCmtxdrcr0mD8DzeB32KnXhK4nqliL/XS36
+         6F5VZllpmR46aALvHTqL8k25UR1O4MtCmzmfSVFnmZb/6pJzhxF/bEENAyZPAYL29l
+         0RyCbu0GYEjY/MrDWuGYlDgDFTFUGjJB69a5T4g4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Biggers <ebiggers@google.com>,
-        Theodore Tso <tytso@mit.edu>, Jan Kara <jack@suse.cz>,
-        stable@kernel.org
-Subject: [PATCH 4.14 214/237] ext4: rename s_journal_flag_rwsem to s_writepages_rwsem
-Date:   Thu, 27 Feb 2020 14:37:08 +0100
-Message-Id: <20200227132311.931746823@linuxfoundation.org>
+        stable@vger.kernel.org, Rahul Kundu <rahul.kundu@chelsio.com>,
+        Mike Marciniszyn <mike.marciniszyn@intel.com>,
+        Sagi Grimberg <sagi@grimberg.me>,
+        Dakshaja Uppalapati <dakshaja@chelsio.com>,
+        Bart Van Assche <bvanassche@acm.org>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 4.9 155/165] scsi: Revert "target: iscsi: Wait for all commands to finish before freeing a session"
+Date:   Thu, 27 Feb 2020 14:37:09 +0100
+Message-Id: <20200227132253.328715191@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200227132255.285644406@linuxfoundation.org>
-References: <20200227132255.285644406@linuxfoundation.org>
+In-Reply-To: <20200227132230.840899170@linuxfoundation.org>
+References: <20200227132230.840899170@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,114 +47,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+From: Bart Van Assche <bvanassche@acm.org>
 
-commit bbd55937de8f2754adc5792b0f8e5ff7d9c0420e upstream.
+commit 807b9515b7d044cf77df31f1af9d842a76ecd5cb upstream.
 
-In preparation for making s_journal_flag_rwsem synchronize
-ext4_writepages() with changes to both the EXTENTS and JOURNAL_DATA
-flags (rather than just JOURNAL_DATA as it does currently), rename it to
-s_writepages_rwsem.
+Since commit e9d3009cb936 introduced a regression and since the fix for
+that regression was not perfect, revert this commit.
 
-Link: https://lore.kernel.org/r/20200219183047.47417-2-ebiggers@kernel.org
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Cc: stable@kernel.org
+Link: https://marc.info/?l=target-devel&m=158157054906195
+Cc: Rahul Kundu <rahul.kundu@chelsio.com>
+Cc: Mike Marciniszyn <mike.marciniszyn@intel.com>
+Cc: Sagi Grimberg <sagi@grimberg.me>
+Reported-by: Dakshaja Uppalapati <dakshaja@chelsio.com>
+Fixes: e9d3009cb936 ("scsi: target: iscsi: Wait for all commands to finish before freeing a session")
+Signed-off-by: Bart Van Assche <bvanassche@acm.org>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/ext4/ext4.h  |    2 +-
- fs/ext4/inode.c |   10 +++++-----
- fs/ext4/super.c |    6 +++---
- 3 files changed, 9 insertions(+), 9 deletions(-)
+ drivers/target/iscsi/iscsi_target.c |   10 ++--------
+ include/scsi/iscsi_proto.h          |    1 -
+ 2 files changed, 2 insertions(+), 9 deletions(-)
 
---- a/fs/ext4/ext4.h
-+++ b/fs/ext4/ext4.h
-@@ -1533,7 +1533,7 @@ struct ext4_sb_info {
- 	struct ratelimit_state s_msg_ratelimit_state;
+--- a/drivers/target/iscsi/iscsi_target.c
++++ b/drivers/target/iscsi/iscsi_target.c
+@@ -1168,9 +1168,7 @@ int iscsit_setup_scsi_cmd(struct iscsi_c
+ 		hdr->cmdsn, be32_to_cpu(hdr->data_length), payload_length,
+ 		conn->cid);
  
- 	/* Barrier between changing inodes' journal flags and writepages ops. */
--	struct percpu_rw_semaphore s_journal_flag_rwsem;
-+	struct percpu_rw_semaphore s_writepages_rwsem;
- 	struct dax_device *s_daxdev;
- };
+-	if (target_get_sess_cmd(&cmd->se_cmd, true) < 0)
+-		return iscsit_add_reject_cmd(cmd,
+-				ISCSI_REASON_WAITING_FOR_LOGOUT, buf);
++	target_get_sess_cmd(&cmd->se_cmd, true);
  
---- a/fs/ext4/inode.c
-+++ b/fs/ext4/inode.c
-@@ -2744,7 +2744,7 @@ static int ext4_writepages(struct addres
- 	if (unlikely(ext4_forced_shutdown(EXT4_SB(inode->i_sb))))
- 		return -EIO;
+ 	cmd->sense_reason = transport_lookup_cmd_lun(&cmd->se_cmd,
+ 						     scsilun_to_int(&hdr->lun));
+@@ -1988,9 +1986,7 @@ iscsit_handle_task_mgt_cmd(struct iscsi_
+ 			      conn->sess->se_sess, 0, DMA_NONE,
+ 			      TCM_SIMPLE_TAG, cmd->sense_buffer + 2);
  
--	percpu_down_read(&sbi->s_journal_flag_rwsem);
-+	percpu_down_read(&sbi->s_writepages_rwsem);
- 	trace_ext4_writepages(inode, wbc);
- 
- 	if (dax_mapping(mapping)) {
-@@ -2974,7 +2974,7 @@ unplug:
- out_writepages:
- 	trace_ext4_writepages_result(inode, wbc, ret,
- 				     nr_to_write - wbc->nr_to_write);
--	percpu_up_read(&sbi->s_journal_flag_rwsem);
-+	percpu_up_read(&sbi->s_writepages_rwsem);
- 	return ret;
- }
- 
-@@ -6050,7 +6050,7 @@ int ext4_change_inode_journal_flag(struc
- 		}
- 	}
- 
--	percpu_down_write(&sbi->s_journal_flag_rwsem);
-+	percpu_down_write(&sbi->s_writepages_rwsem);
- 	jbd2_journal_lock_updates(journal);
+-	if (target_get_sess_cmd(&cmd->se_cmd, true) < 0)
+-		return iscsit_add_reject_cmd(cmd,
+-				ISCSI_REASON_WAITING_FOR_LOGOUT, buf);
++	target_get_sess_cmd(&cmd->se_cmd, true);
  
  	/*
-@@ -6067,7 +6067,7 @@ int ext4_change_inode_journal_flag(struc
- 		err = jbd2_journal_flush(journal);
- 		if (err < 0) {
- 			jbd2_journal_unlock_updates(journal);
--			percpu_up_write(&sbi->s_journal_flag_rwsem);
-+			percpu_up_write(&sbi->s_writepages_rwsem);
- 			ext4_inode_resume_unlocked_dio(inode);
- 			return err;
- 		}
-@@ -6076,7 +6076,7 @@ int ext4_change_inode_journal_flag(struc
- 	ext4_set_aops(inode);
+ 	 * TASK_REASSIGN for ERL=2 / connection stays inside of
+@@ -4247,8 +4243,6 @@ int iscsit_close_connection(
+ 	 * must wait until they have completed.
+ 	 */
+ 	iscsit_check_conn_usage_count(conn);
+-	target_sess_cmd_list_set_waiting(sess->se_sess);
+-	target_wait_for_sess_cmds(sess->se_sess);
  
- 	jbd2_journal_unlock_updates(journal);
--	percpu_up_write(&sbi->s_journal_flag_rwsem);
-+	percpu_up_write(&sbi->s_writepages_rwsem);
+ 	ahash_request_free(conn->conn_tx_hash);
+ 	if (conn->conn_rx_hash) {
+--- a/include/scsi/iscsi_proto.h
++++ b/include/scsi/iscsi_proto.h
+@@ -638,7 +638,6 @@ struct iscsi_reject {
+ #define ISCSI_REASON_BOOKMARK_INVALID	9
+ #define ISCSI_REASON_BOOKMARK_NO_RESOURCES	10
+ #define ISCSI_REASON_NEGOTIATION_RESET	11
+-#define ISCSI_REASON_WAITING_FOR_LOGOUT	12
  
- 	if (val)
- 		up_write(&EXT4_I(inode)->i_mmap_sem);
---- a/fs/ext4/super.c
-+++ b/fs/ext4/super.c
-@@ -939,7 +939,7 @@ static void ext4_put_super(struct super_
- 	percpu_counter_destroy(&sbi->s_freeinodes_counter);
- 	percpu_counter_destroy(&sbi->s_dirs_counter);
- 	percpu_counter_destroy(&sbi->s_dirtyclusters_counter);
--	percpu_free_rwsem(&sbi->s_journal_flag_rwsem);
-+	percpu_free_rwsem(&sbi->s_writepages_rwsem);
- #ifdef CONFIG_QUOTA
- 	for (i = 0; i < EXT4_MAXQUOTAS; i++)
- 		kfree(get_qf_name(sb, sbi, i));
-@@ -4396,7 +4396,7 @@ no_journal:
- 		err = percpu_counter_init(&sbi->s_dirtyclusters_counter, 0,
- 					  GFP_KERNEL);
- 	if (!err)
--		err = percpu_init_rwsem(&sbi->s_journal_flag_rwsem);
-+		err = percpu_init_rwsem(&sbi->s_writepages_rwsem);
- 
- 	if (err) {
- 		ext4_msg(sb, KERN_ERR, "insufficient memory");
-@@ -4490,7 +4490,7 @@ failed_mount6:
- 	percpu_counter_destroy(&sbi->s_freeinodes_counter);
- 	percpu_counter_destroy(&sbi->s_dirs_counter);
- 	percpu_counter_destroy(&sbi->s_dirtyclusters_counter);
--	percpu_free_rwsem(&sbi->s_journal_flag_rwsem);
-+	percpu_free_rwsem(&sbi->s_writepages_rwsem);
- failed_mount5:
- 	ext4_ext_release(sb);
- 	ext4_release_system_zone(sb);
+ /* Max. number of Key=Value pairs in a text message */
+ #define MAX_KEY_VALUE_PAIRS	8192
 
 
