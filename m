@@ -2,47 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id ADFD7171E48
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:26:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A3FC2171B97
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:04:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730775AbgB0OJf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 09:09:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47500 "EHLO mail.kernel.org"
+        id S2387483AbgB0ODu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 09:03:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39458 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388402AbgB0OJd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 09:09:33 -0500
+        id S2387479AbgB0ODu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 09:03:50 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B28D620578;
-        Thu, 27 Feb 2020 14:09:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AF0FB20578;
+        Thu, 27 Feb 2020 14:03:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582812572;
-        bh=ogiLIxHaBbWPMNutkARWHFbhFYk5LmlqhuZUM2LEdtI=;
+        s=default; t=1582812229;
+        bh=P8PYgOWsOHzpF2C0pimt94XpJ1KpwETzgLdgr1K+Za8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ITgffcRT7auOfZ+8k64zYOTswVCEXNZTKbK7/lcjjvc4tDdgsDcZuEr3OyMnsymKl
-         ci6JEVBO1FTj7fPog438k/7DDyczZ2YEI0PAYMqMkh/DQw1P/KRpfn9JFYRqcn8qcK
-         2OhSA0sU7KhH5fxSTDg7v6cEeUcu6LOXgwLjK9wc=
+        b=lb67Ddd08P5FyRI6m9D76be1Zdb7ze/GBqySjX9gc1x9X/Y6yECHJdxWTtEWza7M7
+         zfZgTGHKZzoA0U5fIs3JpRSejLYBFDx4md5O7VevOmL62qySO09lwJmxrhwK6nW6oY
+         PDoeTIDKj20x3X56EeHQ6oy1qyIzluNYQHZLaP2c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Ioanna Alifieraki <ioanna-maria.alifieraki@canonical.com>,
-        Manfred Spraul <manfred@colorfullife.com>,
-        "Herton R. Krzesinski" <herton@redhat.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Catalin Marinas <catalin.marinas@arm.com>, malat@debian.org,
-        "Joel Fernandes (Google)" <joel@joelfernandes.org>,
-        Davidlohr Bueso <dave@stgolabs.net>,
-        Jay Vosburgh <jay.vosburgh@canonical.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.4 062/135] Revert "ipc,sem: remove uneeded sem_undo_list lock usage in exit_sem()"
-Date:   Thu, 27 Feb 2020 14:36:42 +0100
-Message-Id: <20200227132238.401222506@linuxfoundation.org>
+        Gustavo Luiz Duarte <gustavold@linux.ibm.com>,
+        Michael Neuling <mikey@neuling.org>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 4.19 35/97] powerpc/tm: Fix clearing MSR[TS] in current when reclaiming on signal delivery
+Date:   Thu, 27 Feb 2020 14:36:43 +0100
+Message-Id: <20200227132220.295685948@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200227132228.710492098@linuxfoundation.org>
-References: <20200227132228.710492098@linuxfoundation.org>
+In-Reply-To: <20200227132214.553656188@linuxfoundation.org>
+References: <20200227132214.553656188@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,135 +45,282 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ioanna Alifieraki <ioanna-maria.alifieraki@canonical.com>
+From: Gustavo Luiz Duarte <gustavold@linux.ibm.com>
 
-commit edf28f4061afe4c2d9eb1c3323d90e882c1d6800 upstream.
+commit 2464cc4c345699adea52c7aef75707207cb8a2f6 upstream.
 
-This reverts commit a97955844807e327df11aa33869009d14d6b7de0.
+After a treclaim, we expect to be in non-transactional state. If we
+don't clear the current thread's MSR[TS] before we get preempted, then
+tm_recheckpoint_new_task() will recheckpoint and we get rescheduled in
+suspended transaction state.
 
-Commit a97955844807 ("ipc,sem: remove uneeded sem_undo_list lock usage
-in exit_sem()") removes a lock that is needed.  This leads to a process
-looping infinitely in exit_sem() and can also lead to a crash.  There is
-a reproducer available in [1] and with the commit reverted the issue
-does not reproduce anymore.
+When handling a signal caught in transactional state,
+handle_rt_signal64() calls get_tm_stackpointer() that treclaims the
+transaction using tm_reclaim_current() but without clearing the
+thread's MSR[TS]. This can cause the TM Bad Thing exception below if
+later we pagefault and get preempted trying to access the user's
+sigframe, using __put_user(). Afterwards, when we are rescheduled back
+into do_page_fault() (but now in suspended state since the thread's
+MSR[TS] was not cleared), upon executing 'rfid' after completion of
+the page fault handling, the exception is raised because a transition
+from suspended to non-transactional state is invalid.
 
-Using the reproducer found in [1] is fairly easy to reach a point where
-one of the child processes is looping infinitely in exit_sem between
-for(;;) and if (semid == -1) block, while it's trying to free its last
-sem_undo structure which has already been freed by freeary().
+  Unexpected TM Bad Thing exception at c00000000000de44 (msr 0x8000000302a03031) tm_scratch=800000010280b033
+  Oops: Unrecoverable exception, sig: 6 [#1]
+  LE PAGE_SIZE=64K MMU=Hash SMP NR_CPUS=2048 NUMA pSeries
+  CPU: 25 PID: 15547 Comm: a.out Not tainted 5.4.0-rc2 #32
+  NIP:  c00000000000de44 LR: c000000000034728 CTR: 0000000000000000
+  REGS: c00000003fe7bd70 TRAP: 0700   Not tainted  (5.4.0-rc2)
+  MSR:  8000000302a03031 <SF,VEC,VSX,FP,ME,IR,DR,LE,TM[SE]>  CR: 44000884  XER: 00000000
+  CFAR: c00000000000dda4 IRQMASK: 0
+  PACATMSCRATCH: 800000010280b033
+  GPR00: c000000000034728 c000000f65a17c80 c000000001662800 00007fffacf3fd78
+  GPR04: 0000000000001000 0000000000001000 0000000000000000 c000000f611f8af0
+  GPR08: 0000000000000000 0000000078006001 0000000000000000 000c000000000000
+  GPR12: c000000f611f84b0 c00000003ffcb200 0000000000000000 0000000000000000
+  GPR16: 0000000000000000 0000000000000000 0000000000000000 0000000000000000
+  GPR20: 0000000000000000 0000000000000000 0000000000000000 c000000f611f8140
+  GPR24: 0000000000000000 00007fffacf3fd68 c000000f65a17d90 c000000f611f7800
+  GPR28: c000000f65a17e90 c000000f65a17e90 c000000001685e18 00007fffacf3f000
+  NIP [c00000000000de44] fast_exception_return+0xf4/0x1b0
+  LR [c000000000034728] handle_rt_signal64+0x78/0xc50
+  Call Trace:
+  [c000000f65a17c80] [c000000000034710] handle_rt_signal64+0x60/0xc50 (unreliable)
+  [c000000f65a17d30] [c000000000023640] do_notify_resume+0x330/0x460
+  [c000000f65a17e20] [c00000000000dcc4] ret_from_except_lite+0x70/0x74
+  Instruction dump:
+  7c4ff120 e8410170 7c5a03a6 38400000 f8410060 e8010070 e8410080 e8610088
+  60000000 60000000 e8810090 e8210078 <4c000024> 48000000 e8610178 88ed0989
+  ---[ end trace 93094aa44b442f87 ]---
 
-Each sem_undo struct is on two lists: one per semaphore set (list_id)
-and one per process (list_proc).  The list_id list tracks undos by
-semaphore set, and the list_proc by process.
+The simplified sequence of events that triggers the above exception is:
 
-Undo structures are removed either by freeary() or by exit_sem().  The
-freeary function is invoked when the user invokes a syscall to remove a
-semaphore set.  During this operation freeary() traverses the list_id
-associated with the semaphore set and removes the undo structures from
-both the list_id and list_proc lists.
+  ...				# userspace in NON-TRANSACTIONAL state
+  tbegin			# userspace in TRANSACTIONAL state
+  signal delivery		# kernelspace in SUSPENDED state
+  handle_rt_signal64()
+    get_tm_stackpointer()
+      treclaim			# kernelspace in NON-TRANSACTIONAL state
+    __put_user()
+      page fault happens. We will never get back here because of the TM Bad Thing exception.
 
-For this case, exit_sem() is called at process exit.  Each process
-contains a struct sem_undo_list (referred to as "ulp") which contains
-the head for the list_proc list.  When the process exits, exit_sem()
-traverses this list to remove each sem_undo struct.  As in freeary(),
-whenever a sem_undo struct is removed from list_proc, it is also removed
-from the list_id list.
+  page fault handling kicks in and we voluntarily preempt ourselves
+  do_page_fault()
+    __schedule()
+      __switch_to(other_task)
 
-Removing elements from list_id is safe for both exit_sem() and freeary()
-due to sem_lock().  Removing elements from list_proc is not safe;
-freeary() locks &un->ulp->lock when it performs
-list_del_rcu(&un->list_proc) but exit_sem() does not (locking was
-removed by commit a97955844807 ("ipc,sem: remove uneeded sem_undo_list
-lock usage in exit_sem()").
+  our task is rescheduled and we recheckpoint because the thread's MSR[TS] was not cleared
+  __switch_to(our_task)
+    switch_to_tm()
+      tm_recheckpoint_new_task()
+        trechkpt			# kernelspace in SUSPENDED state
 
-This can result in the following situation while executing the
-reproducer [1] : Consider a child process in exit_sem() and the parent
-in freeary() (because of semctl(sid[i], NSEM, IPC_RMID)).
+  The page fault handling resumes, but now we are in suspended transaction state
+  do_page_fault()    completes
+  rfid     <----- trying to get back where the page fault happened (we were non-transactional back then)
+  TM Bad Thing			# illegal transition from suspended to non-transactional
 
- - The list_proc for the child contains the last two undo structs A and
-   B (the rest have been removed either by exit_sem() or freeary()).
+This patch fixes that issue by clearing the current thread's MSR[TS]
+just after treclaim in get_tm_stackpointer() so that we stay in
+non-transactional state in case we are preempted. In order to make
+treclaim and clearing the thread's MSR[TS] atomic from a preemption
+perspective when CONFIG_PREEMPT is set, preempt_disable/enable() is
+used. It's also necessary to save the previous value of the thread's
+MSR before get_tm_stackpointer() is called so that it can be exposed
+to the signal handler later in setup_tm_sigcontexts() to inform the
+userspace MSR at the moment of the signal delivery.
 
- - The semid for A is 1 and semid for B is 2.
+Found with tm-signal-context-force-tm kernel selftest.
 
- - exit_sem() removes A and at the same time freeary() removes B.
-
- - Since A and B have different semid sem_lock() will acquire different
-   locks for each process and both can proceed.
-
-The bug is that they remove A and B from the same list_proc at the same
-time because only freeary() acquires the ulp lock. When exit_sem()
-removes A it makes ulp->list_proc.next to point at B and at the same
-time freeary() removes B setting B->semid=-1.
-
-At the next iteration of for(;;) loop exit_sem() will try to remove B.
-
-The only way to break from for(;;) is for (&un->list_proc ==
-&ulp->list_proc) to be true which is not. Then exit_sem() will check if
-B->semid=-1 which is and will continue looping in for(;;) until the
-memory for B is reallocated and the value at B->semid is changed.
-
-At that point, exit_sem() will crash attempting to unlink B from the
-lists (this can be easily triggered by running the reproducer [1] a
-second time).
-
-To prove this scenario instrumentation was added to keep information
-about each sem_undo (un) struct that is removed per process and per
-semaphore set (sma).
-
-          CPU0                                CPU1
-  [caller holds sem_lock(sma for A)]      ...
-  freeary()                               exit_sem()
-  ...                                     ...
-  ...                                     sem_lock(sma for B)
-  spin_lock(A->ulp->lock)                 ...
-  list_del_rcu(un_A->list_proc)           list_del_rcu(un_B->list_proc)
-
-Undo structures A and B have different semid and sem_lock() operations
-proceed.  However they belong to the same list_proc list and they are
-removed at the same time.  This results into ulp->list_proc.next
-pointing to the address of B which is already removed.
-
-After reverting commit a97955844807 ("ipc,sem: remove uneeded
-sem_undo_list lock usage in exit_sem()") the issue was no longer
-reproducible.
-
-[1] https://bugzilla.redhat.com/show_bug.cgi?id=1694779
-
-Link: http://lkml.kernel.org/r/20191211191318.11860-1-ioanna-maria.alifieraki@canonical.com
-Fixes: a97955844807 ("ipc,sem: remove uneeded sem_undo_list lock usage in exit_sem()")
-Signed-off-by: Ioanna Alifieraki <ioanna-maria.alifieraki@canonical.com>
-Acked-by: Manfred Spraul <manfred@colorfullife.com>
-Acked-by: Herton R. Krzesinski <herton@redhat.com>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: <malat@debian.org>
-Cc: Joel Fernandes (Google) <joel@joelfernandes.org>
-Cc: Davidlohr Bueso <dave@stgolabs.net>
-Cc: Jay Vosburgh <jay.vosburgh@canonical.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: 2b0a576d15e0 ("powerpc: Add new transactional memory state to the signal context")
+Cc: stable@vger.kernel.org # v3.9
+Signed-off-by: Gustavo Luiz Duarte <gustavold@linux.ibm.com>
+Acked-by: Michael Neuling <mikey@neuling.org>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20200211033831.11165-1-gustavold@linux.ibm.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- ipc/sem.c |    6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ arch/powerpc/kernel/signal.c    |   17 +++++++++++++++--
+ arch/powerpc/kernel/signal_32.c |   28 ++++++++++++++--------------
+ arch/powerpc/kernel/signal_64.c |   22 ++++++++++------------
+ 3 files changed, 39 insertions(+), 28 deletions(-)
 
---- a/ipc/sem.c
-+++ b/ipc/sem.c
-@@ -2368,11 +2368,9 @@ void exit_sem(struct task_struct *tsk)
- 		ipc_assert_locked_object(&sma->sem_perm);
- 		list_del(&un->list_id);
+--- a/arch/powerpc/kernel/signal.c
++++ b/arch/powerpc/kernel/signal.c
+@@ -200,14 +200,27 @@ unsigned long get_tm_stackpointer(struct
+ 	 * normal/non-checkpointed stack pointer.
+ 	 */
  
--		/* we are the last process using this ulp, acquiring ulp->lock
--		 * isn't required. Besides that, we are also protected against
--		 * IPC_RMID as we hold sma->sem_perm lock now
--		 */
-+		spin_lock(&ulp->lock);
- 		list_del_rcu(&un->list_proc);
-+		spin_unlock(&ulp->lock);
++	unsigned long ret = tsk->thread.regs->gpr[1];
++
+ #ifdef CONFIG_PPC_TRANSACTIONAL_MEM
+ 	BUG_ON(tsk != current);
  
- 		/* perform adjustments registered in un */
- 		for (i = 0; i < sma->sem_nsems; i++) {
+ 	if (MSR_TM_ACTIVE(tsk->thread.regs->msr)) {
++		preempt_disable();
+ 		tm_reclaim_current(TM_CAUSE_SIGNAL);
+ 		if (MSR_TM_TRANSACTIONAL(tsk->thread.regs->msr))
+-			return tsk->thread.ckpt_regs.gpr[1];
++			ret = tsk->thread.ckpt_regs.gpr[1];
++
++		/*
++		 * If we treclaim, we must clear the current thread's TM bits
++		 * before re-enabling preemption. Otherwise we might be
++		 * preempted and have the live MSR[TS] changed behind our back
++		 * (tm_recheckpoint_new_task() would recheckpoint). Besides, we
++		 * enter the signal handler in non-transactional state.
++		 */
++		tsk->thread.regs->msr &= ~MSR_TS_MASK;
++		preempt_enable();
+ 	}
+ #endif
+-	return tsk->thread.regs->gpr[1];
++	return ret;
+ }
+--- a/arch/powerpc/kernel/signal_32.c
++++ b/arch/powerpc/kernel/signal_32.c
+@@ -493,19 +493,11 @@ static int save_user_regs(struct pt_regs
+  */
+ static int save_tm_user_regs(struct pt_regs *regs,
+ 			     struct mcontext __user *frame,
+-			     struct mcontext __user *tm_frame, int sigret)
++			     struct mcontext __user *tm_frame, int sigret,
++			     unsigned long msr)
+ {
+-	unsigned long msr = regs->msr;
+-
+ 	WARN_ON(tm_suspend_disabled);
+ 
+-	/* Remove TM bits from thread's MSR.  The MSR in the sigcontext
+-	 * just indicates to userland that we were doing a transaction, but we
+-	 * don't want to return in transactional state.  This also ensures
+-	 * that flush_fp_to_thread won't set TIF_RESTORE_TM again.
+-	 */
+-	regs->msr &= ~MSR_TS_MASK;
+-
+ 	/* Save both sets of general registers */
+ 	if (save_general_regs(&current->thread.ckpt_regs, frame)
+ 	    || save_general_regs(regs, tm_frame))
+@@ -916,6 +908,10 @@ int handle_rt_signal32(struct ksignal *k
+ 	int sigret;
+ 	unsigned long tramp;
+ 	struct pt_regs *regs = tsk->thread.regs;
++#ifdef CONFIG_PPC_TRANSACTIONAL_MEM
++	/* Save the thread's msr before get_tm_stackpointer() changes it */
++	unsigned long msr = regs->msr;
++#endif
+ 
+ 	BUG_ON(tsk != current);
+ 
+@@ -948,13 +944,13 @@ int handle_rt_signal32(struct ksignal *k
+ 
+ #ifdef CONFIG_PPC_TRANSACTIONAL_MEM
+ 	tm_frame = &rt_sf->uc_transact.uc_mcontext;
+-	if (MSR_TM_ACTIVE(regs->msr)) {
++	if (MSR_TM_ACTIVE(msr)) {
+ 		if (__put_user((unsigned long)&rt_sf->uc_transact,
+ 			       &rt_sf->uc.uc_link) ||
+ 		    __put_user((unsigned long)tm_frame,
+ 			       &rt_sf->uc_transact.uc_regs))
+ 			goto badframe;
+-		if (save_tm_user_regs(regs, frame, tm_frame, sigret))
++		if (save_tm_user_regs(regs, frame, tm_frame, sigret, msr))
+ 			goto badframe;
+ 	}
+ 	else
+@@ -1365,6 +1361,10 @@ int handle_signal32(struct ksignal *ksig
+ 	int sigret;
+ 	unsigned long tramp;
+ 	struct pt_regs *regs = tsk->thread.regs;
++#ifdef CONFIG_PPC_TRANSACTIONAL_MEM
++	/* Save the thread's msr before get_tm_stackpointer() changes it */
++	unsigned long msr = regs->msr;
++#endif
+ 
+ 	BUG_ON(tsk != current);
+ 
+@@ -1398,9 +1398,9 @@ int handle_signal32(struct ksignal *ksig
+ 
+ #ifdef CONFIG_PPC_TRANSACTIONAL_MEM
+ 	tm_mctx = &frame->mctx_transact;
+-	if (MSR_TM_ACTIVE(regs->msr)) {
++	if (MSR_TM_ACTIVE(msr)) {
+ 		if (save_tm_user_regs(regs, &frame->mctx, &frame->mctx_transact,
+-				      sigret))
++				      sigret, msr))
+ 			goto badframe;
+ 	}
+ 	else
+--- a/arch/powerpc/kernel/signal_64.c
++++ b/arch/powerpc/kernel/signal_64.c
+@@ -196,7 +196,8 @@ static long setup_sigcontext(struct sigc
+ static long setup_tm_sigcontexts(struct sigcontext __user *sc,
+ 				 struct sigcontext __user *tm_sc,
+ 				 struct task_struct *tsk,
+-				 int signr, sigset_t *set, unsigned long handler)
++				 int signr, sigset_t *set, unsigned long handler,
++				 unsigned long msr)
+ {
+ 	/* When CONFIG_ALTIVEC is set, we _always_ setup v_regs even if the
+ 	 * process never used altivec yet (MSR_VEC is zero in pt_regs of
+@@ -211,12 +212,11 @@ static long setup_tm_sigcontexts(struct
+ 	elf_vrreg_t __user *tm_v_regs = sigcontext_vmx_regs(tm_sc);
+ #endif
+ 	struct pt_regs *regs = tsk->thread.regs;
+-	unsigned long msr = tsk->thread.regs->msr;
+ 	long err = 0;
+ 
+ 	BUG_ON(tsk != current);
+ 
+-	BUG_ON(!MSR_TM_ACTIVE(regs->msr));
++	BUG_ON(!MSR_TM_ACTIVE(msr));
+ 
+ 	WARN_ON(tm_suspend_disabled);
+ 
+@@ -226,13 +226,6 @@ static long setup_tm_sigcontexts(struct
+ 	 */
+ 	msr |= tsk->thread.ckpt_regs.msr & (MSR_FP | MSR_VEC | MSR_VSX);
+ 
+-	/* Remove TM bits from thread's MSR.  The MSR in the sigcontext
+-	 * just indicates to userland that we were doing a transaction, but we
+-	 * don't want to return in transactional state.  This also ensures
+-	 * that flush_fp_to_thread won't set TIF_RESTORE_TM again.
+-	 */
+-	regs->msr &= ~MSR_TS_MASK;
+-
+ #ifdef CONFIG_ALTIVEC
+ 	err |= __put_user(v_regs, &sc->v_regs);
+ 	err |= __put_user(tm_v_regs, &tm_sc->v_regs);
+@@ -803,6 +796,10 @@ int handle_rt_signal64(struct ksignal *k
+ 	unsigned long newsp = 0;
+ 	long err = 0;
+ 	struct pt_regs *regs = tsk->thread.regs;
++#ifdef CONFIG_PPC_TRANSACTIONAL_MEM
++	/* Save the thread's msr before get_tm_stackpointer() changes it */
++	unsigned long msr = regs->msr;
++#endif
+ 
+ 	BUG_ON(tsk != current);
+ 
+@@ -820,7 +817,7 @@ int handle_rt_signal64(struct ksignal *k
+ 	err |= __put_user(0, &frame->uc.uc_flags);
+ 	err |= __save_altstack(&frame->uc.uc_stack, regs->gpr[1]);
+ #ifdef CONFIG_PPC_TRANSACTIONAL_MEM
+-	if (MSR_TM_ACTIVE(regs->msr)) {
++	if (MSR_TM_ACTIVE(msr)) {
+ 		/* The ucontext_t passed to userland points to the second
+ 		 * ucontext_t (for transactional state) with its uc_link ptr.
+ 		 */
+@@ -828,7 +825,8 @@ int handle_rt_signal64(struct ksignal *k
+ 		err |= setup_tm_sigcontexts(&frame->uc.uc_mcontext,
+ 					    &frame->uc_transact.uc_mcontext,
+ 					    tsk, ksig->sig, NULL,
+-					    (unsigned long)ksig->ka.sa.sa_handler);
++					    (unsigned long)ksig->ka.sa.sa_handler,
++					    msr);
+ 	} else
+ #endif
+ 	{
 
 
