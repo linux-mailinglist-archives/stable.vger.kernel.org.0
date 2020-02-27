@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BC812171B4E
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:01:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E600171BA2
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:04:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732889AbgB0OBQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 09:01:16 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35106 "EHLO mail.kernel.org"
+        id S2387533AbgB0OEL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 09:04:11 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40146 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732890AbgB0OBP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 09:01:15 -0500
+        id S2387538AbgB0OEK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 09:04:10 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 29C342073D;
-        Thu, 27 Feb 2020 14:01:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2831020578;
+        Thu, 27 Feb 2020 14:04:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582812074;
-        bh=0WEPTYqZ5Y4oG4shErs6HA0zfDpS3Vlm3zVRv8t6hA4=;
+        s=default; t=1582812249;
+        bh=5YsaWdAwKUSbPBNmx9rRZFNxuU1ndn9QWdU5Y1wBORk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qHQG1Ac9CL9m4JhcVSMbU9Sl5YZtU3+lpR80p8S3F/wQvML1AFDfsqZwUQv0kiRHZ
-         PbxeJNjSm1yzSVZTqChUHNdIfxRl7/fb6tF5xyvo1BkijpS1o12hBEl1dfbM3WkIE3
-         Ccnp6//0pOzPhYNSykoSXzLwbqnRSufEUBNbRUEY=
+        b=xyALwofqVD7kFEfRgiq5y7CrPjmsmsEAWlYqeAI38j1WysEuSepTyqBopTX6P8mhO
+         NQ5K7XBvWlMf2rHHjWSs5rfx+PWeZcn94iSCpRktRzfvA2fN3HxT7iEEKHVvT5CJQI
+         scXMCulkHxdYEHMHOvgdfc4GMu+3JCtcgDPWAtys=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Loic Poulain <loic.poulain@linaro.org>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.14 195/237] serdev: ttyport: restore client ops on deregistration
-Date:   Thu, 27 Feb 2020 14:36:49 +0100
-Message-Id: <20200227132310.657779420@linuxfoundation.org>
+        stable@vger.kernel.org, Eagle Zhou <eagle.zhou@nxp.com>,
+        Fugang Duan <fugang.duan@nxp.com>,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>
+Subject: [PATCH 4.19 42/97] tty: serial: imx: setup the correct sg entry for tx dma
+Date:   Thu, 27 Feb 2020 14:36:50 +0100
+Message-Id: <20200227132221.431505725@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200227132255.285644406@linuxfoundation.org>
-References: <20200227132255.285644406@linuxfoundation.org>
+In-Reply-To: <20200227132214.553656188@linuxfoundation.org>
+References: <20200227132214.553656188@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,107 +45,107 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Fugang Duan <fugang.duan@nxp.com>
 
-commit 0c5aae59270fb1f827acce182786094c9ccf598e upstream.
+commit f76707831829530ffdd3888bebc108aecefccaa0 upstream.
 
-The serdev tty-port controller driver should reset the tty-port client
-operations also on deregistration to avoid a NULL-pointer dereference in
-case the port is later re-registered as a normal tty device.
+There has oops as below happen on i.MX8MP EVK platform that has
+6G bytes DDR memory.
 
-Note that this can only happen with tty drivers such as 8250 which have
-statically allocated port structures that can end up being reused and
-where a later registration would not register a serdev controller (e.g.
-due to registration errors or if the devicetree has been changed in
-between).
+when (xmit->tail < xmit->head) && (xmit->head == 0),
+it setups one sg entry with sg->length is zero:
+	sg_set_buf(sgl + 1, xmit->buf, xmit->head);
 
-Specifically, this can be an issue for any statically defined ports that
-would be registered by 8250 core when an 8250 driver is being unbound.
+if xmit->buf is allocated from >4G address space, and SDMA only
+support <4G address space, then dma_map_sg() will call swiotlb_map()
+to do bounce buffer copying and mapping.
 
-Fixes: bed35c6dfa6a ("serdev: add a tty port controller driver")
-Cc: stable <stable@vger.kernel.org>     # 4.11
-Reported-by: Loic Poulain <loic.poulain@linaro.org>
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20200210145730.22762-1-johan@kernel.org
+But swiotlb_map() don't allow sg entry's length is zero, otherwise
+report BUG_ON().
+
+So the patch is to correct the tx DMA scatter list.
+
+Oops:
+[  287.675715] kernel BUG at kernel/dma/swiotlb.c:497!
+[  287.680592] Internal error: Oops - BUG: 0 [#1] PREEMPT SMP
+[  287.686075] Modules linked in:
+[  287.689133] CPU: 0 PID: 0 Comm: swapper/0 Not tainted 5.4.3-00016-g3fdc4e0-dirty #10
+[  287.696872] Hardware name: FSL i.MX8MP EVK (DT)
+[  287.701402] pstate: 80000085 (Nzcv daIf -PAN -UAO)
+[  287.706199] pc : swiotlb_tbl_map_single+0x1fc/0x310
+[  287.711076] lr : swiotlb_map+0x60/0x148
+[  287.714909] sp : ffff800010003c00
+[  287.718221] x29: ffff800010003c00 x28: 0000000000000000
+[  287.723533] x27: 0000000000000040 x26: ffff800011ae0000
+[  287.728844] x25: ffff800011ae09f8 x24: 0000000000000000
+[  287.734155] x23: 00000001b7af9000 x22: 0000000000000000
+[  287.739465] x21: ffff000176409c10 x20: 00000000001f7ffe
+[  287.744776] x19: ffff000176409c10 x18: 000000000000002e
+[  287.750087] x17: 0000000000000000 x16: 0000000000000000
+[  287.755397] x15: 0000000000000000 x14: 0000000000000000
+[  287.760707] x13: ffff00017f334000 x12: 0000000000000001
+[  287.766018] x11: 00000000001fffff x10: 0000000000000000
+[  287.771328] x9 : 0000000000000003 x8 : 0000000000000000
+[  287.776638] x7 : 0000000000000000 x6 : 0000000000000000
+[  287.781949] x5 : 0000000000200000 x4 : 0000000000000000
+[  287.787259] x3 : 0000000000000001 x2 : 00000001b7af9000
+[  287.792570] x1 : 00000000fbfff000 x0 : 0000000000000000
+[  287.797881] Call trace:
+[  287.800328]  swiotlb_tbl_map_single+0x1fc/0x310
+[  287.804859]  swiotlb_map+0x60/0x148
+[  287.808347]  dma_direct_map_page+0xf0/0x130
+[  287.812530]  dma_direct_map_sg+0x78/0xe0
+[  287.816453]  imx_uart_dma_tx+0x134/0x2f8
+[  287.820374]  imx_uart_dma_tx_callback+0xd8/0x168
+[  287.824992]  vchan_complete+0x194/0x200
+[  287.828828]  tasklet_action_common.isra.0+0x154/0x1a0
+[  287.833879]  tasklet_action+0x24/0x30
+[  287.837540]  __do_softirq+0x120/0x23c
+[  287.841202]  irq_exit+0xb8/0xd8
+[  287.844343]  __handle_domain_irq+0x64/0xb8
+[  287.848438]  gic_handle_irq+0x5c/0x148
+[  287.852185]  el1_irq+0xb8/0x180
+[  287.855327]  cpuidle_enter_state+0x84/0x360
+[  287.859508]  cpuidle_enter+0x34/0x48
+[  287.863083]  call_cpuidle+0x18/0x38
+[  287.866571]  do_idle+0x1e0/0x280
+[  287.869798]  cpu_startup_entry+0x20/0x40
+[  287.873721]  rest_init+0xd4/0xe0
+[  287.876949]  arch_call_rest_init+0xc/0x14
+[  287.880958]  start_kernel+0x420/0x44c
+[  287.884622] Code: 9124c021 9417aff8 a94363f7 17ffffd5 (d4210000)
+[  287.890718] ---[ end trace 5bc44c4ab6b009ce ]---
+[  287.895334] Kernel panic - not syncing: Fatal exception in interrupt
+[  287.901686] SMP: stopping secondary CPUs
+[  288.905607] SMP: failed to stop secondary CPUs 0-1
+[  288.910395] Kernel Offset: disabled
+[  288.913882] CPU features: 0x0002,2000200c
+[  288.917888] Memory Limit: none
+[  288.920944] ---[ end Kernel panic - not syncing: Fatal exception in interrupt ]---
+
+Reported-by: Eagle Zhou <eagle.zhou@nxp.com>
+Tested-by: Eagle Zhou <eagle.zhou@nxp.com>
+Signed-off-by: Fugang Duan <fugang.duan@nxp.com>
+Cc: stable <stable@vger.kernel.org>
+Fixes: 7942f8577f2a ("serial: imx: TX DMA: clean up sg initialization")
+Reviewed-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Link: https://lore.kernel.org/r/1581401761-6378-1-git-send-email-fugang.duan@nxp.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/tty/serdev/serdev-ttyport.c |    6 ++----
- drivers/tty/tty_port.c              |    5 +++--
- include/linux/tty.h                 |    2 ++
- 3 files changed, 7 insertions(+), 6 deletions(-)
+ drivers/tty/serial/imx.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/tty/serdev/serdev-ttyport.c
-+++ b/drivers/tty/serdev/serdev-ttyport.c
-@@ -238,7 +238,6 @@ struct device *serdev_tty_port_register(
- 					struct device *parent,
- 					struct tty_driver *drv, int idx)
- {
--	const struct tty_port_client_operations *old_ops;
- 	struct serdev_controller *ctrl;
- 	struct serport *serport;
- 	int ret;
-@@ -257,7 +256,6 @@ struct device *serdev_tty_port_register(
+--- a/drivers/tty/serial/imx.c
++++ b/drivers/tty/serial/imx.c
+@@ -608,7 +608,7 @@ static void imx_uart_dma_tx(struct imx_p
  
- 	ctrl->ops = &ctrl_ops;
+ 	sport->tx_bytes = uart_circ_chars_pending(xmit);
  
--	old_ops = port->client_ops;
- 	port->client_ops = &client_ops;
- 	port->client_data = ctrl;
- 
-@@ -270,7 +268,7 @@ struct device *serdev_tty_port_register(
- 
- err_reset_data:
- 	port->client_data = NULL;
--	port->client_ops = old_ops;
-+	port->client_ops = &tty_port_default_client_ops;
- 	serdev_controller_put(ctrl);
- 
- 	return ERR_PTR(ret);
-@@ -285,8 +283,8 @@ int serdev_tty_port_unregister(struct tt
- 		return -ENODEV;
- 
- 	serdev_controller_remove(ctrl);
--	port->client_ops = NULL;
- 	port->client_data = NULL;
-+	port->client_ops = &tty_port_default_client_ops;
- 	serdev_controller_put(ctrl);
- 
- 	return 0;
---- a/drivers/tty/tty_port.c
-+++ b/drivers/tty/tty_port.c
-@@ -51,10 +51,11 @@ static void tty_port_default_wakeup(stru
- 	}
- }
- 
--static const struct tty_port_client_operations default_client_ops = {
-+const struct tty_port_client_operations tty_port_default_client_ops = {
- 	.receive_buf = tty_port_default_receive_buf,
- 	.write_wakeup = tty_port_default_wakeup,
- };
-+EXPORT_SYMBOL_GPL(tty_port_default_client_ops);
- 
- void tty_port_init(struct tty_port *port)
- {
-@@ -67,7 +68,7 @@ void tty_port_init(struct tty_port *port
- 	spin_lock_init(&port->lock);
- 	port->close_delay = (50 * HZ) / 100;
- 	port->closing_wait = (3000 * HZ) / 100;
--	port->client_ops = &default_client_ops;
-+	port->client_ops = &tty_port_default_client_ops;
- 	kref_init(&port->kref);
- }
- EXPORT_SYMBOL(tty_port_init);
---- a/include/linux/tty.h
-+++ b/include/linux/tty.h
-@@ -224,6 +224,8 @@ struct tty_port_client_operations {
- 	void (*write_wakeup)(struct tty_port *port);
- };
- 
-+extern const struct tty_port_client_operations tty_port_default_client_ops;
-+
- struct tty_port {
- 	struct tty_bufhead	buf;		/* Locked internally */
- 	struct tty_struct	*tty;		/* Back pointer */
+-	if (xmit->tail < xmit->head) {
++	if (xmit->tail < xmit->head || xmit->head == 0) {
+ 		sport->dma_tx_nents = 1;
+ 		sg_init_one(sgl, xmit->buf + xmit->tail, sport->tx_bytes);
+ 	} else {
 
 
