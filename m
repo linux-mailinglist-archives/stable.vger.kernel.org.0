@@ -2,43 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B472171DAB
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:22:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 11C58171B5D
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:02:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388994AbgB0OPg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 09:15:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55208 "EHLO mail.kernel.org"
+        id S1732602AbgB0OBo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 09:01:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35946 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389084AbgB0OPf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 09:15:35 -0500
+        id S1726378AbgB0OBo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 09:01:44 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A490B20578;
-        Thu, 27 Feb 2020 14:15:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CEDA221556;
+        Thu, 27 Feb 2020 14:01:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582812935;
-        bh=j2T53C+XhosR0b6W3HCOPsfXuad/ruqDqPW93fkEP5Q=;
+        s=default; t=1582812103;
+        bh=/W5HUgLROjaLknRqFXz3IQUcQ1wn8g28oMY+0ptuQm8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eRCdr+GIEYhPlO2eJXgxUCdWapZYeEt+2Ngb5EmKRS2x5fbh0GbTAK+2ogCkOesZK
-         drTp/ncGuO2axNXI+x/Rf024CVE6OsW3FoRa7NvecbWO/tHE569qcd1ab2/qJpzqfB
-         XdIQBZUIsLDw7Uk9HJE4sU9w4rgCPGxlPZtBPKYg=
+        b=wsF1d04IABVYcC4v5EA18wROyNahjIhDzRzb5QnZh5PVPkcER1qnaUQHjm2W8gXSl
+         EStfLuVRZnJOWi9JF55TOLfb++cPQf5bN6Rmxz/0Xwn6IVU2ww1eX0BjjHwz/4lbOf
+         3JJRJ6GLnYCf1BMsFSLtLUBtrVtG6MXuJSRTEuuk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vasily Averin <vvs@virtuozzo.com>,
-        Kirill Tkhai <ktkhai@virtuozzo.com>,
-        Michal Hocko <mhocko@suse.com>, Roman Gushchin <guro@fb.com>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Vladimir Davydov <vdavydov.dev@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.5 073/150] mm/memcontrol.c: lost css_put in memcg_expand_shrinker_maps()
+        stable@vger.kernel.org, Chris Wilson <chris@chris-wilson.co.uk>,
+        Jani Nikula <jani.nikula@intel.com>
+Subject: [PATCH 4.14 196/237] MAINTAINERS: Update drm/i915 bug filing URL
 Date:   Thu, 27 Feb 2020 14:36:50 +0100
-Message-Id: <20200227132243.674420842@linuxfoundation.org>
+Message-Id: <20200227132310.724009522@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200227132232.815448360@linuxfoundation.org>
-References: <20200227132232.815448360@linuxfoundation.org>
+In-Reply-To: <20200227132255.285644406@linuxfoundation.org>
+References: <20200227132255.285644406@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,43 +43,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasily Averin <vvs@virtuozzo.com>
+From: Jani Nikula <jani.nikula@intel.com>
 
-commit 75866af62b439859d5146b7093ceb6b482852683 upstream.
+commit 96228b7df33f8eb9006f8ae96949400aed9bd303 upstream.
 
-for_each_mem_cgroup() increases css reference counter for memory cgroup
-and requires to use mem_cgroup_iter_break() if the walk is cancelled.
+We've moved from bugzilla to gitlab.
 
-Link: http://lkml.kernel.org/r/c98414fb-7e1f-da0f-867a-9340ec4bd30b@virtuozzo.com
-Fixes: 0a4465d34028 ("mm, memcg: assign memcg-aware shrinkers bitmap to memcg")
-Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
-Acked-by: Kirill Tkhai <ktkhai@virtuozzo.com>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Reviewed-by: Roman Gushchin <guro@fb.com>
-Cc: Johannes Weiner <hannes@cmpxchg.org>
-Cc: Vladimir Davydov <vdavydov.dev@gmail.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: stable@vger.kernel.org
+Reviewed-by: Chris Wilson <chris@chris-wilson.co.uk>
+Signed-off-by: Jani Nikula <jani.nikula@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200212160434.6437-1-jani.nikula@intel.com
+(cherry picked from commit 3a6a4f0810c8ade6f1ff63c34aa9834176b9d88b)
+Signed-off-by: Jani Nikula <jani.nikula@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- mm/memcontrol.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ MAINTAINERS |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/mm/memcontrol.c
-+++ b/mm/memcontrol.c
-@@ -409,8 +409,10 @@ int memcg_expand_shrinker_maps(int new_i
- 		if (mem_cgroup_is_root(memcg))
- 			continue;
- 		ret = memcg_expand_one_shrinker_map(memcg, size, old_size);
--		if (ret)
-+		if (ret) {
-+			mem_cgroup_iter_break(NULL, memcg);
- 			goto unlock;
-+		}
- 	}
- unlock:
- 	if (!ret)
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -6877,7 +6877,7 @@ M:	Joonas Lahtinen <joonas.lahtinen@linu
+ M:	Rodrigo Vivi <rodrigo.vivi@intel.com>
+ L:	intel-gfx@lists.freedesktop.org
+ W:	https://01.org/linuxgraphics/
+-B:	https://01.org/linuxgraphics/documentation/how-report-bugs
++B:	https://gitlab.freedesktop.org/drm/intel/-/wikis/How-to-file-i915-bugs
+ C:	irc://chat.freenode.net/intel-gfx
+ Q:	http://patchwork.freedesktop.org/project/intel-gfx/
+ T:	git git://anongit.freedesktop.org/drm-intel
 
 
