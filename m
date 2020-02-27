@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 37324171D30
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:18:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8BDFE171D44
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:19:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389028AbgB0OSr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 09:18:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59368 "EHLO mail.kernel.org"
+        id S2389406AbgB0OTX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 09:19:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59910 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389932AbgB0OSq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 09:18:46 -0500
+        id S2389993AbgB0OTP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 09:19:15 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AF0D824697;
-        Thu, 27 Feb 2020 14:18:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 86EDB2468F;
+        Thu, 27 Feb 2020 14:19:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582813126;
-        bh=pJEZ+mxYnsHGTqanPK8HsJfcvSEjj2ll8edp+o/tCM8=;
+        s=default; t=1582813155;
+        bh=arbXllttc7sXYByydEClyO69CaPDVAGy+H48oV7qm04=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XVFKQu2dDHOdQ/7HU5ZOThdjA5izRJd7WPpkt2XmI3ABzt7Heefs6kqWvr9PSMWLs
-         40rZODLVlp8tyPfnEjIWNCnDiCPL+mmctgHzUlO++FEck8fnpVqkGaV8YYZNDC31is
-         E9K3IMqVW4uORbbHuWHfp1t4HsCgbk/mLlObKtpk=
+        b=Xs1QEeTPRO3nJfp7eKrW65Dsa6JPcb3agwwG0NkAK90X1RldgZrwjfHaOqGZqKeaz
+         XJw+5p0/I9Ke0wrxBxxt++bugd3KOGvpqkCKuo9X4YP8vuCEeEdAM6/FGvhj9L6AUC
+         4keWC0Zs94WccgoFAsGhohHEux/GXq2bRYGO//RA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Huy Nguyen <huyn@mellanox.com>,
-        Mark Bloch <markb@mellanox.com>,
+        stable@vger.kernel.org, Dmytro Linkin <dmitrolin@mellanox.com>,
+        Roi Dayan <roid@mellanox.com>,
         Saeed Mahameed <saeedm@mellanox.com>
-Subject: [PATCH 5.5 145/150] net/mlx5: Fix sleep while atomic in mlx5_eswitch_get_vepa
-Date:   Thu, 27 Feb 2020 14:38:02 +0100
-Message-Id: <20200227132253.720377575@linuxfoundation.org>
+Subject: [PATCH 5.5 146/150] net/mlx5e: Dont clear the whole vf config when switching modes
+Date:   Thu, 27 Feb 2020 14:38:03 +0100
+Message-Id: <20200227132253.848331877@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200227132232.815448360@linuxfoundation.org>
 References: <20200227132232.815448360@linuxfoundation.org>
@@ -44,61 +44,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Huy Nguyen <huyn@mellanox.com>
+From: Dmytro Linkin <dmitrolin@mellanox.com>
 
-commit 3d9c5e023a0dbf3e117bb416cfefd9405bf5af0c upstream.
+commit 383de108157c881074f32914b61125e299820bd2 upstream.
 
-rtnl_bridge_getlink is protected by rcu lock, so mlx5_eswitch_get_vepa
-cannot take mutex lock. Two possible issues can happen:
-1. User at the same time change vepa mode via RTM_SETLINK command.
-2. User at the same time change the switchdev mode via devlink netlink
-interface.
+There is no need to reset all vf config (except link state) between
+legacy and switchdev modes changes.
+Also, set link state to AUTO, when legacy enabled.
 
-Case 1 cannot happen because rtnl executes one message in order.
-Case 2 can happen but we do not expect user to change the switchdev mode
-when changing vepa. Even if a user does it, so he will read a value
-which is no longer valid.
-
-Fixes: 8da202b24913 ("net/mlx5: E-Switch, Add support for VEPA in legacy mode.")
-Signed-off-by: Huy Nguyen <huyn@mellanox.com>
-Reviewed-by: Mark Bloch <markb@mellanox.com>
+Fixes: 3b83b6c2e024 ("net/mlx5e: Clear VF config when switching modes")
+Signed-off-by: Dmytro Linkin <dmitrolin@mellanox.com>
+Reviewed-by: Roi Dayan <roid@mellanox.com>
 Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/ethernet/mellanox/mlx5/core/eswitch.c |   14 +++-----------
- 1 file changed, 3 insertions(+), 11 deletions(-)
+ drivers/net/ethernet/mellanox/mlx5/core/eswitch.c          |    6 +++++-
+ drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads.c |    4 ++--
+ 2 files changed, 7 insertions(+), 3 deletions(-)
 
 --- a/drivers/net/ethernet/mellanox/mlx5/core/eswitch.c
 +++ b/drivers/net/ethernet/mellanox/mlx5/core/eswitch.c
-@@ -2449,25 +2449,17 @@ out:
+@@ -456,12 +456,16 @@ static void esw_destroy_legacy_table(str
  
- int mlx5_eswitch_get_vepa(struct mlx5_eswitch *esw, u8 *setting)
+ static int esw_legacy_enable(struct mlx5_eswitch *esw)
  {
--	int err = 0;
--
- 	if (!esw)
- 		return -EOPNOTSUPP;
+-	int ret;
++	struct mlx5_vport *vport;
++	int ret, i;
  
- 	if (!ESW_ALLOWED(esw))
- 		return -EPERM;
+ 	ret = esw_create_legacy_table(esw);
+ 	if (ret)
+ 		return ret;
  
--	mutex_lock(&esw->state_lock);
--	if (esw->mode != MLX5_ESWITCH_LEGACY) {
--		err = -EOPNOTSUPP;
--		goto out;
--	}
-+	if (esw->mode != MLX5_ESWITCH_LEGACY)
-+		return -EOPNOTSUPP;
++	mlx5_esw_for_each_vf_vport(esw, i, vport, esw->esw_funcs.num_vfs)
++		vport->info.link_state = MLX5_VPORT_ADMIN_STATE_AUTO;
++
+ 	ret = mlx5_eswitch_enable_pf_vf_vports(esw, MLX5_LEGACY_SRIOV_VPORT_EVENTS);
+ 	if (ret)
+ 		esw_destroy_legacy_table(esw);
+--- a/drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads.c
+@@ -1377,7 +1377,7 @@ static int esw_offloads_start(struct mlx
+ 		return -EINVAL;
+ 	}
  
- 	*setting = esw->fdb_table.legacy.vepa_uplink_rule ? 1 : 0;
--
--out:
--	mutex_unlock(&esw->state_lock);
--	return err;
-+	return 0;
- }
+-	mlx5_eswitch_disable(esw, true);
++	mlx5_eswitch_disable(esw, false);
+ 	mlx5_eswitch_update_num_of_vfs(esw, esw->dev->priv.sriov.num_vfs);
+ 	err = mlx5_eswitch_enable(esw, MLX5_ESWITCH_OFFLOADS);
+ 	if (err) {
+@@ -2271,7 +2271,7 @@ static int esw_offloads_stop(struct mlx5
+ {
+ 	int err, err1;
  
- int mlx5_eswitch_set_vport_trust(struct mlx5_eswitch *esw,
+-	mlx5_eswitch_disable(esw, true);
++	mlx5_eswitch_disable(esw, false);
+ 	err = mlx5_eswitch_enable(esw, MLX5_ESWITCH_LEGACY);
+ 	if (err) {
+ 		NL_SET_ERR_MSG_MOD(extack, "Failed setting eswitch to legacy");
 
 
