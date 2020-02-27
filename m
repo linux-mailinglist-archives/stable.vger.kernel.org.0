@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C93017205F
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:43:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B9240171F48
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:34:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730903AbgB0NuF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 08:50:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47820 "EHLO mail.kernel.org"
+        id S1732648AbgB0N7s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 08:59:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33040 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731157AbgB0NuE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 08:50:04 -0500
+        id S1732646AbgB0N7s (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 08:59:48 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ADA2420801;
-        Thu, 27 Feb 2020 13:50:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 272FF2073D;
+        Thu, 27 Feb 2020 13:59:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582811404;
-        bh=xr8WmeTkk+Gy+qJX3xRrO9qExlXpFWJa3wPOnUD0IlQ=;
+        s=default; t=1582811987;
+        bh=00kPkQo5+SpTsNZSdVwpSBf7venKRqfAdLZWy608xyY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SBziOK0Y/0b1Z2rjEk3RMmWt1W7i0JgEg6KGOIAkvkcep87uWb8Q79kmmSL5Flb7m
-         PL+w+kmnsGSJIlF/03yzbRsYpO/v15W0Nfeu2yqL5LwrJBwBVjMCTyWgofDpwpd3ij
-         E1Tu83Rz/LbeRPInIlSFxzclu0/zcdJ4HtWYZ7kg=
+        b=eadsVzuiL+VIUgnj0srxNChkIejlrbhH61Og9qolllJSjKb41AZNE0vrFMSW0RGDX
+         FKAdBk4xc5yO/FlYWFpOwlVkfVLgrB3pSmvkyh416d7KDUedpcyotrGZI6ilMb4C+R
+         J3lES0KTpXDXLlieMS39PCpd9L+2aRrY0UdhKnsY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Davide Caratti <dcaratti@redhat.com>,
-        Jiri Pirko <jiri@mellanox.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 118/165] net/sched: flower: add missing validation of TCA_FLOWER_FLAGS
+        stable@vger.kernel.org, Jann Horn <jannh@google.com>,
+        Suren Baghdasaryan <surenb@google.com>,
+        Todd Kjos <tkjos@google.com>,
+        "Joel Fernandes (Google)" <joel@joelfernandes.org>
+Subject: [PATCH 4.14 178/237] staging: android: ashmem: Disallow ashmem memory from being remapped
 Date:   Thu, 27 Feb 2020 14:36:32 +0100
-Message-Id: <20200227132248.382816241@linuxfoundation.org>
+Message-Id: <20200227132309.479948108@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200227132230.840899170@linuxfoundation.org>
-References: <20200227132230.840899170@linuxfoundation.org>
+In-Reply-To: <20200227132255.285644406@linuxfoundation.org>
+References: <20200227132255.285644406@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,33 +45,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Davide Caratti <dcaratti@redhat.com>
+From: Suren Baghdasaryan <surenb@google.com>
 
-[ Upstream commit e2debf0852c4d66ba1a8bde12869b196094c70a7 ]
+commit 6d67b0290b4b84c477e6a2fc6e005e174d3c7786 upstream.
 
-unlike other classifiers that can be offloaded (i.e. users can set flags
-like 'skip_hw' and 'skip_sw'), 'cls_flower' doesn't validate the size of
-netlink attribute 'TCA_FLOWER_FLAGS' provided by user: add a proper entry
-to fl_policy.
+When ashmem file is mmapped, the resulting vma->vm_file points to the
+backing shmem file with the generic fops that do not check ashmem
+permissions like fops of ashmem do. If an mremap is done on the ashmem
+region, then the permission checks will be skipped. Fix that by disallowing
+mapping operation on the backing shmem file.
 
-Fixes: 5b33f48842fa ("net/flower: Introduce hardware offload support")
-Signed-off-by: Davide Caratti <dcaratti@redhat.com>
-Acked-by: Jiri Pirko <jiri@mellanox.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Reported-by: Jann Horn <jannh@google.com>
+Signed-off-by: Suren Baghdasaryan <surenb@google.com>
+Cc: stable <stable@vger.kernel.org> # 4.4,4.9,4.14,4.18,5.4
+Signed-off-by: Todd Kjos <tkjos@google.com>
+Reviewed-by: Joel Fernandes (Google) <joel@joelfernandes.org>
+Link: https://lore.kernel.org/r/20200127235616.48920-1-tkjos@google.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/sched/cls_flower.c |    1 +
- 1 file changed, 1 insertion(+)
 
---- a/net/sched/cls_flower.c
-+++ b/net/sched/cls_flower.c
-@@ -364,6 +364,7 @@ static const struct nla_policy fl_policy
- 	[TCA_FLOWER_KEY_TCP_DST_MASK]	= { .type = NLA_U16 },
- 	[TCA_FLOWER_KEY_UDP_SRC_MASK]	= { .type = NLA_U16 },
- 	[TCA_FLOWER_KEY_UDP_DST_MASK]	= { .type = NLA_U16 },
-+	[TCA_FLOWER_FLAGS]		= { .type = NLA_U32 },
- };
+---
+ drivers/staging/android/ashmem.c |   28 ++++++++++++++++++++++++++++
+ 1 file changed, 28 insertions(+)
+
+--- a/drivers/staging/android/ashmem.c
++++ b/drivers/staging/android/ashmem.c
+@@ -361,8 +361,23 @@ static inline vm_flags_t calc_vm_may_fla
+ 	       _calc_vm_trans(prot, PROT_EXEC,  VM_MAYEXEC);
+ }
  
- static void fl_set_key_val(struct nlattr **tb,
++static int ashmem_vmfile_mmap(struct file *file, struct vm_area_struct *vma)
++{
++	/* do not allow to mmap ashmem backing shmem file directly */
++	return -EPERM;
++}
++
++static unsigned long
++ashmem_vmfile_get_unmapped_area(struct file *file, unsigned long addr,
++				unsigned long len, unsigned long pgoff,
++				unsigned long flags)
++{
++	return current->mm->get_unmapped_area(file, addr, len, pgoff, flags);
++}
++
+ static int ashmem_mmap(struct file *file, struct vm_area_struct *vma)
+ {
++	static struct file_operations vmfile_fops;
+ 	struct ashmem_area *asma = file->private_data;
+ 	int ret = 0;
+ 
+@@ -403,6 +418,19 @@ static int ashmem_mmap(struct file *file
+ 		}
+ 		vmfile->f_mode |= FMODE_LSEEK;
+ 		asma->file = vmfile;
++		/*
++		 * override mmap operation of the vmfile so that it can't be
++		 * remapped which would lead to creation of a new vma with no
++		 * asma permission checks. Have to override get_unmapped_area
++		 * as well to prevent VM_BUG_ON check for f_ops modification.
++		 */
++		if (!vmfile_fops.mmap) {
++			vmfile_fops = *vmfile->f_op;
++			vmfile_fops.mmap = ashmem_vmfile_mmap;
++			vmfile_fops.get_unmapped_area =
++					ashmem_vmfile_get_unmapped_area;
++		}
++		vmfile->f_op = &vmfile_fops;
+ 	}
+ 	get_file(asma->file);
+ 
 
 
