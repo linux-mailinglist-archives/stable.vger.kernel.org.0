@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C2454171AF9
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 14:58:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2532817191B
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 14:42:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732476AbgB0N6d (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 08:58:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59734 "EHLO mail.kernel.org"
+        id S1729701AbgB0NmB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 08:42:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36726 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732472AbgB0N6d (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 08:58:33 -0500
+        id S1729305AbgB0Nl6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 08:41:58 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 50A8820801;
-        Thu, 27 Feb 2020 13:58:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3D03A20578;
+        Thu, 27 Feb 2020 13:41:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582811912;
-        bh=R2pN4Djw7Hf+vxMaEYlVNvZnSL03bd+Tff0IkCl14nU=;
+        s=default; t=1582810917;
+        bh=BAiSBRFdJMN3ZHL/w78o+PZyV1AC1701XX/Z2jnkgC0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pFCnxU1xAJeXF0iCaTZYSSftdAR0jpwVtkcZ+O9WcPnJ1E23f3d1JFygvNyZoRv3Q
-         cUsIcoPwA3WQPezcyshoR5MsWC9ctduzkmYhu1dAwrhPimOpuWC2bNI/Bu8xW+TnNi
-         XB/SGfG20G0M/dcojITZvleRCj/ALyMfGD2ZSsYs=
+        b=2nOnm2tGnnSQsQKMSbllNiwdh52HQoRdYuRi3nhW6hZCmvz8eE3JM4RHEOzmppwQX
+         hlRCCuz5me4fQtp+ynACQwoeKV7GkD0Mq2mucPfzKjPxqvYO/8rmeXbSy3+DO9sq7C
+         xqJ10MCATnKGGnEQl/v9Sg/p+/f60M6zGHs4EcOY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ronnie Sahlberg <lsahlber@redhat.com>,
-        Steve French <stfrench@microsoft.com>,
+        stable@vger.kernel.org,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 148/237] cifs: fix NULL dereference in match_prepath
+Subject: [PATCH 4.4 046/113] scsi: aic7xxx: Adjust indentation in ahc_find_syncrate
 Date:   Thu, 27 Feb 2020 14:36:02 +0100
-Message-Id: <20200227132307.496317994@linuxfoundation.org>
+Message-Id: <20200227132219.106958971@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200227132255.285644406@linuxfoundation.org>
-References: <20200227132255.285644406@linuxfoundation.org>
+In-Reply-To: <20200227132211.791484803@linuxfoundation.org>
+References: <20200227132211.791484803@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,41 +45,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ronnie Sahlberg <lsahlber@redhat.com>
+From: Nathan Chancellor <natechancellor@gmail.com>
 
-[ Upstream commit fe1292686333d1dadaf84091f585ee903b9ddb84 ]
+[ Upstream commit 4dbc96ad65c45cdd4e895ed7ae4c151b780790c5 ]
 
-RHBZ: 1760879
+Clang warns:
 
-Fix an oops in match_prepath() by making sure that the prepath string is not
-NULL before we pass it into strcmp().
+../drivers/scsi/aic7xxx/aic7xxx_core.c:2317:5: warning: misleading
+indentation; statement is not part of the previous 'if'
+[-Wmisleading-indentation]
+                        if ((syncrate->sxfr_u2 & ST_SXFR) != 0)
+                        ^
+../drivers/scsi/aic7xxx/aic7xxx_core.c:2310:4: note: previous statement
+is here
+                        if (syncrate == &ahc_syncrates[maxsync])
+                        ^
+1 warning generated.
 
-This is similar to other checks we make for example in cifs_root_iget()
+This warning occurs because there is a space amongst the tabs on this
+line. Remove it so that the indentation is consistent with the Linux kernel
+coding style and clang no longer warns.
 
-Signed-off-by: Ronnie Sahlberg <lsahlber@redhat.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+This has been a problem since the beginning of git history hence no fixes
+tag.
+
+Link: https://github.com/ClangBuiltLinux/linux/issues/817
+Link: https://lore.kernel.org/r/20191218014220.52746-1-natechancellor@gmail.com
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/connect.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/scsi/aic7xxx/aic7xxx_core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/cifs/connect.c b/fs/cifs/connect.c
-index f0b1279a7de66..6e5ecf70996a0 100644
---- a/fs/cifs/connect.c
-+++ b/fs/cifs/connect.c
-@@ -3047,8 +3047,10 @@ match_prepath(struct super_block *sb, struct cifs_mnt_data *mnt_data)
- {
- 	struct cifs_sb_info *old = CIFS_SB(sb);
- 	struct cifs_sb_info *new = mnt_data->cifs_sb;
--	bool old_set = old->mnt_cifs_flags & CIFS_MOUNT_USE_PREFIX_PATH;
--	bool new_set = new->mnt_cifs_flags & CIFS_MOUNT_USE_PREFIX_PATH;
-+	bool old_set = (old->mnt_cifs_flags & CIFS_MOUNT_USE_PREFIX_PATH) &&
-+		old->prepath;
-+	bool new_set = (new->mnt_cifs_flags & CIFS_MOUNT_USE_PREFIX_PATH) &&
-+		new->prepath;
- 
- 	if (old_set && new_set && !strcmp(new->prepath, old->prepath))
- 		return 1;
+diff --git a/drivers/scsi/aic7xxx/aic7xxx_core.c b/drivers/scsi/aic7xxx/aic7xxx_core.c
+index 64ab9eaec428c..def3208dd2905 100644
+--- a/drivers/scsi/aic7xxx/aic7xxx_core.c
++++ b/drivers/scsi/aic7xxx/aic7xxx_core.c
+@@ -2321,7 +2321,7 @@ ahc_find_syncrate(struct ahc_softc *ahc, u_int *period,
+ 			 * At some speeds, we only support
+ 			 * ST transfers.
+ 			 */
+-		 	if ((syncrate->sxfr_u2 & ST_SXFR) != 0)
++			if ((syncrate->sxfr_u2 & ST_SXFR) != 0)
+ 				*ppr_options &= ~MSG_EXT_PPR_DT_REQ;
+ 			break;
+ 		}
 -- 
 2.20.1
 
