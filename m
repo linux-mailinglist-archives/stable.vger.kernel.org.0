@@ -2,96 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 88D18171D40
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:19:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 29D96171CE5
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:16:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390009AbgB0OTX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 09:19:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59842 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389985AbgB0OTM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 09:19:12 -0500
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1D21720801;
-        Thu, 27 Feb 2020 14:19:10 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582813151;
-        bh=FIgjdj1w7IAWYyZl/p9F1x2kOjAClWaNTPRGjZiUd8M=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zNnpfVXaZyGv9bVgQDBvOjBHClgJNKP4vxaPzoWwzdMguKQfgUeGrXenSHVkphIS7
-         9YZltuWeeIE4tbr/uudLWCwWb0fmvMj5bVh73aMcaN51BTCKaK2xJVjMmb/8lYHoAA
-         MpjmHAYF9IDsRVQdBvRHR9PICc4RrbCLAJccwvzQ=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, John Fastabend <john.fastabend@gmail.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Jakub Sitnicki <jakub@cloudflare.com>
-Subject: [PATCH 5.5 150/150] bpf: Selftests build error in sockmap_basic.c
-Date:   Thu, 27 Feb 2020 14:38:07 +0100
-Message-Id: <20200227132254.402971343@linuxfoundation.org>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200227132232.815448360@linuxfoundation.org>
-References: <20200227132232.815448360@linuxfoundation.org>
-User-Agent: quilt/0.66
+        id S2389433AbgB0OQJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 09:16:09 -0500
+Received: from Galois.linutronix.de ([193.142.43.55]:34449 "EHLO
+        Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2389425AbgB0OQI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 27 Feb 2020 09:16:08 -0500
+Received: from [5.158.153.53] (helo=tip-bot2.lab.linutronix.de)
+        by Galois.linutronix.de with esmtpsa (TLS1.2:DHE_RSA_AES_256_CBC_SHA256:256)
+        (Exim 4.80)
+        (envelope-from <tip-bot2@linutronix.de>)
+        id 1j7JxI-0005Ch-Tn; Thu, 27 Feb 2020 15:16:01 +0100
+Received: from [127.0.1.1] (localhost [IPv6:::1])
+        by tip-bot2.lab.linutronix.de (Postfix) with ESMTP id 76E441C2170;
+        Thu, 27 Feb 2020 15:15:59 +0100 (CET)
+Date:   Thu, 27 Feb 2020 14:15:59 -0000
+From:   "tip-bot2 for Thomas Gleixner" <tip-bot2@linutronix.de>
+Reply-to: linux-kernel@vger.kernel.org
+To:     linux-tip-commits@vger.kernel.org
+Subject: [tip: x86/entry] x86/entry/32: Add missing ASM_CLAC to
+ general_protection entry
+Cc:     Thomas Gleixner <tglx@linutronix.de>,
+        Frederic Weisbecker <frederic@kernel.org>,
+        Alexandre Chartre <alexandre.chartre@oracle.com>,
+        Andy Lutomirski <luto@kernel.org>, stable@vger.kernel.org,
+        x86 <x86@kernel.org>, LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20200225220216.219537887@linutronix.de>
+References: <20200225220216.219537887@linutronix.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Message-ID: <158281295923.28353.9128124424895443890.tip-bot2@tip-bot2>
+X-Mailer: tip-git-log-daemon
+Robot-ID: <tip-bot2.linutronix.de>
+Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-Linutronix-Spam-Score: -1.0
+X-Linutronix-Spam-Level: -
+X-Linutronix-Spam-Status: No , -1.0 points, 5.0 required,  ALL_TRUSTED=-1,SHORTCIRCUIT=-0.0001
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Fastabend <john.fastabend@gmail.com>
+The following commit has been merged into the x86/entry branch of tip:
 
-commit f2e97dc126b712c0d21219ed0c42710006c1cf52 upstream.
+Commit-ID:     3d51507f29f2153a658df4a0674ec5b592b62085
+Gitweb:        https://git.kernel.org/tip/3d51507f29f2153a658df4a0674ec5b592b62085
+Author:        Thomas Gleixner <tglx@linutronix.de>
+AuthorDate:    Tue, 25 Feb 2020 22:36:37 +01:00
+Committer:     Thomas Gleixner <tglx@linutronix.de>
+CommitterDate: Thu, 27 Feb 2020 14:48:38 +01:00
 
-Fix following build error. We could push a tcp.h header into one of the
-include paths, but I think its easy enough to simply pull in the three
-defines we need here. If we end up using more of tcp.h at some point
-we can pull it in later.
+x86/entry/32: Add missing ASM_CLAC to general_protection entry
 
-/home/john/git/bpf/tools/testing/selftests/bpf/prog_tests/sockmap_basic.c: In function ‘connected_socket_v4’:
-/home/john/git/bpf/tools/testing/selftests/bpf/prog_tests/sockmap_basic.c:20:11: error: ‘TCP_REPAIR_ON’ undeclared (first use in this function)
-  repair = TCP_REPAIR_ON;
-           ^
-/home/john/git/bpf/tools/testing/selftests/bpf/prog_tests/sockmap_basic.c:20:11: note: each undeclared identifier is reported only once for each function it appears in
-/home/john/git/bpf/tools/testing/selftests/bpf/prog_tests/sockmap_basic.c:29:11: error: ‘TCP_REPAIR_OFF_NO_WP’ undeclared (first use in this function)
-  repair = TCP_REPAIR_OFF_NO_WP;
+All exception entry points must have ASM_CLAC right at the
+beginning. The general_protection entry is missing one.
 
-Then with fix,
-
-$ ./test_progs -n 44
-#44/1 sockmap create_update_free:OK
-#44/2 sockhash create_update_free:OK
-#44 sockmap_basic:OK
-
-Fixes: 5d3919a953c3c ("selftests/bpf: Test freeing sockmap/sockhash with a socket in it")
-Signed-off-by: John Fastabend <john.fastabend@gmail.com>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Reviewed-by: Jakub Sitnicki <jakub@cloudflare.com>
-Link: https://lore.kernel.org/bpf/158131347731.21414.12120493483848386652.stgit@john-Precision-5820-Tower
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: e59d1b0a2419 ("x86-32, smap: Add STAC/CLAC instructions to 32-bit kernel entry")
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Reviewed-by: Frederic Weisbecker <frederic@kernel.org>
+Reviewed-by: Alexandre Chartre <alexandre.chartre@oracle.com>
+Reviewed-by: Andy Lutomirski <luto@kernel.org>
+Cc: stable@vger.kernel.org
+Link: https://lkml.kernel.org/r/20200225220216.219537887@linutronix.de
 
 ---
- tools/testing/selftests/bpf/prog_tests/sockmap_basic.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ arch/x86/entry/entry_32.S | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/tools/testing/selftests/bpf/prog_tests/sockmap_basic.c
-+++ b/tools/testing/selftests/bpf/prog_tests/sockmap_basic.c
-@@ -3,6 +3,11 @@
+diff --git a/arch/x86/entry/entry_32.S b/arch/x86/entry/entry_32.S
+index 7e05604..39243df 100644
+--- a/arch/x86/entry/entry_32.S
++++ b/arch/x86/entry/entry_32.S
+@@ -1694,6 +1694,7 @@ SYM_CODE_START(int3)
+ SYM_CODE_END(int3)
  
- #include "test_progs.h"
- 
-+#define TCP_REPAIR		19	/* TCP sock is under repair right now */
-+
-+#define TCP_REPAIR_ON		1
-+#define TCP_REPAIR_OFF_NO_WP	-1	/* Turn off without window probes */
-+
- static int connected_socket_v4(void)
- {
- 	struct sockaddr_in addr = {
-
-
+ SYM_CODE_START(general_protection)
++	ASM_CLAC
+ 	pushl	$do_general_protection
+ 	jmp	common_exception
+ SYM_CODE_END(general_protection)
