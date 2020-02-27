@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0CA7A171C30
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:10:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 792DA171BA8
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:04:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388182AbgB0OJt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 09:09:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47756 "EHLO mail.kernel.org"
+        id S2387581AbgB0OEY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 09:04:24 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40608 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388200AbgB0OJq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 09:09:46 -0500
+        id S2387578AbgB0OEY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 09:04:24 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0EEBA20714;
-        Thu, 27 Feb 2020 14:09:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E038E20578;
+        Thu, 27 Feb 2020 14:04:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582812585;
-        bh=baZE+gclkLql6tEsjelvIynBIWZQ0jvWWVn0n8q8Rxw=;
+        s=default; t=1582812263;
+        bh=eX3CCKJI3h6JY/7HDQXOo9dHoGft1PhSOYahbKrWMz0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Tuq7FgaKf87PdmxnB74w9pvTaoAtViYndBghxtDwLQ4wkyJWsLn2QAwyFaZ8R/1eZ
-         hXIrcKnZOrF17WHE+0GC38iLIvUI4k6CfWRkRAwcjxJxOgR13YUUxTPe/RvXPrGKL/
-         xY/fVEhF2s0VKOuSiD5BKW9N2PG7AeVEVvcbkFFo=
+        b=LpMDba0exa/3Z3CbBUZ8TzkPd/8BgaGLQ7bUDh0j0Nn3h44Mk2OQft3ch67fSHUl4
+         ySg0oZMXy1cKtqTer6ud7hjTDr310nTHgmwSt8EDA78h3PcAhsI2Ue74yUT/xxP9F4
+         ACCgd+0X6qBvVEYlcJxWfn/BMppjVPFIBKuL3420=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chris Wilson <chris@chris-wilson.co.uk>,
-        Jani Nikula <jani.nikula@intel.com>
-Subject: [PATCH 5.4 075/135] drm/i915: Update drm/i915 bug filing URL
+        stable@vger.kernel.org, Sagi Grimberg <sagi@grimberg.me>,
+        Christoph Hellwig <hch@lst.de>,
+        Logan Gunthorpe <logang@deltatee.com>,
+        Keith Busch <kbusch@kernel.org>
+Subject: [PATCH 4.19 47/97] nvme-multipath: Fix memory leak with ana_log_buf
 Date:   Thu, 27 Feb 2020 14:36:55 +0100
-Message-Id: <20200227132240.661052202@linuxfoundation.org>
+Message-Id: <20200227132222.273136212@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200227132228.710492098@linuxfoundation.org>
-References: <20200227132228.710492098@linuxfoundation.org>
+In-Reply-To: <20200227132214.553656188@linuxfoundation.org>
+References: <20200227132214.553656188@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,65 +45,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jani Nikula <jani.nikula@intel.com>
+From: Logan Gunthorpe <logang@deltatee.com>
 
-commit 7ddc7005a0aa2f43a826b71f5d6bd7d4b90f8f2a upstream.
+commit 3b7830904e17202524bad1974505a9bfc718d31f upstream.
 
-We've moved from bugzilla to gitlab.
+kmemleak reports a memory leak with the ana_log_buf allocated by
+nvme_mpath_init():
 
-Cc: stable@vger.kernel.org
-Reviewed-by: Chris Wilson <chris@chris-wilson.co.uk>
-Signed-off-by: Jani Nikula <jani.nikula@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200212160434.6437-2-jani.nikula@intel.com
-(cherry picked from commit ddae4d7af0bbe3b2051f1603459a8b24e9a19324)
-Signed-off-by: Jani Nikula <jani.nikula@intel.com>
+unreferenced object 0xffff888120e94000 (size 8208):
+  comm "nvme", pid 6884, jiffies 4295020435 (age 78786.312s)
+    hex dump (first 32 bytes):
+      00 00 00 00 00 00 00 00 01 00 00 00 00 00 00 00  ................
+      01 00 00 00 01 00 00 00 00 00 00 00 00 00 00 00  ................
+    backtrace:
+      [<00000000e2360188>] kmalloc_order+0x97/0xc0
+      [<0000000079b18dd4>] kmalloc_order_trace+0x24/0x100
+      [<00000000f50c0406>] __kmalloc+0x24c/0x2d0
+      [<00000000f31a10b9>] nvme_mpath_init+0x23c/0x2b0
+      [<000000005802589e>] nvme_init_identify+0x75f/0x1600
+      [<0000000058ef911b>] nvme_loop_configure_admin_queue+0x26d/0x280
+      [<00000000673774b9>] nvme_loop_create_ctrl+0x2a7/0x710
+      [<00000000f1c7a233>] nvmf_dev_write+0xc66/0x10b9
+      [<000000004199f8d0>] __vfs_write+0x50/0xa0
+      [<0000000065466fef>] vfs_write+0xf3/0x280
+      [<00000000b0db9a8b>] ksys_write+0xc6/0x160
+      [<0000000082156b91>] __x64_sys_write+0x43/0x50
+      [<00000000c34fbb6d>] do_syscall_64+0x77/0x2f0
+      [<00000000bbc574c9>] entry_SYSCALL_64_after_hwframe+0x49/0xbe
+
+nvme_mpath_init() is called by nvme_init_identify() which is called in
+multiple places (nvme_reset_work(), nvme_passthru_end(), etc). This
+means nvme_mpath_init() may be called multiple times before
+nvme_mpath_uninit() (which is only called on nvme_free_ctrl()).
+
+When nvme_mpath_init() is called multiple times, it overwrites the
+ana_log_buf pointer with a new allocation, thus leaking the previous
+allocation.
+
+To fix this, free ana_log_buf before allocating a new one.
+
+Fixes: 0d0b660f214dc490 ("nvme: add ANA support")
+Cc: <stable@vger.kernel.org>
+Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
+Signed-off-by: Keith Busch <kbusch@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/i915/Kconfig          |    5 ++---
- drivers/gpu/drm/i915/i915_gpu_error.c |    3 ++-
- drivers/gpu/drm/i915/i915_utils.c     |    5 ++---
- 3 files changed, 6 insertions(+), 7 deletions(-)
+ drivers/nvme/host/multipath.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/gpu/drm/i915/Kconfig
-+++ b/drivers/gpu/drm/i915/Kconfig
-@@ -75,9 +75,8 @@ config DRM_I915_CAPTURE_ERROR
- 	help
- 	  This option enables capturing the GPU state when a hang is detected.
- 	  This information is vital for triaging hangs and assists in debugging.
--	  Please report any hang to
--            https://bugs.freedesktop.org/enter_bug.cgi?product=DRI
--	  for triaging.
-+	  Please report any hang for triaging according to:
-+	    https://gitlab.freedesktop.org/drm/intel/-/wikis/How-to-file-i915-bugs
+--- a/drivers/nvme/host/multipath.c
++++ b/drivers/nvme/host/multipath.c
+@@ -569,6 +569,7 @@ int nvme_mpath_init(struct nvme_ctrl *ct
+ 	}
  
- 	  If in doubt, say "Y".
- 
---- a/drivers/gpu/drm/i915/i915_gpu_error.c
-+++ b/drivers/gpu/drm/i915/i915_gpu_error.c
-@@ -1768,7 +1768,8 @@ void i915_capture_error_state(struct drm
- 	if (!xchg(&warned, true) &&
- 	    ktime_get_real_seconds() - DRIVER_TIMESTAMP < DAY_AS_SECONDS(180)) {
- 		pr_info("GPU hangs can indicate a bug anywhere in the entire gfx stack, including userspace.\n");
--		pr_info("Please file a _new_ bug report on bugs.freedesktop.org against DRI -> DRM/Intel\n");
-+		pr_info("Please file a _new_ bug report at https://gitlab.freedesktop.org/drm/intel/issues/new.\n");
-+		pr_info("Please see https://gitlab.freedesktop.org/drm/intel/-/wikis/How-to-file-i915-bugs for details.\n");
- 		pr_info("drm/i915 developers can then reassign to the right component if it's not a kernel issue.\n");
- 		pr_info("The GPU crash dump is required to analyze GPU hangs, so please always attach it.\n");
- 		pr_info("GPU crash dump saved to /sys/class/drm/card%d/error\n",
---- a/drivers/gpu/drm/i915/i915_utils.c
-+++ b/drivers/gpu/drm/i915/i915_utils.c
-@@ -8,9 +8,8 @@
- #include "i915_drv.h"
- #include "i915_utils.h"
- 
--#define FDO_BUG_URL "https://bugs.freedesktop.org/enter_bug.cgi?product=DRI"
--#define FDO_BUG_MSG "Please file a bug at " FDO_BUG_URL " against DRM/Intel " \
--		    "providing the dmesg log by booting with drm.debug=0xf"
-+#define FDO_BUG_URL "https://gitlab.freedesktop.org/drm/intel/-/wikis/How-to-file-i915-bugs"
-+#define FDO_BUG_MSG "Please file a bug on drm/i915; see " FDO_BUG_URL " for details."
- 
- void
- __i915_printk(struct drm_i915_private *dev_priv, const char *level,
+ 	INIT_WORK(&ctrl->ana_work, nvme_ana_work);
++	kfree(ctrl->ana_log_buf);
+ 	ctrl->ana_log_buf = kmalloc(ctrl->ana_log_size, GFP_KERNEL);
+ 	if (!ctrl->ana_log_buf) {
+ 		error = -ENOMEM;
 
 
