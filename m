@@ -2,52 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E057171231
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 09:14:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D393F17124C
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 09:18:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728465AbgB0IO2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 03:14:28 -0500
-Received: from out2-smtp.messagingengine.com ([66.111.4.26]:58707 "EHLO
+        id S1728511AbgB0ISP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 03:18:15 -0500
+Received: from out2-smtp.messagingengine.com ([66.111.4.26]:54373 "EHLO
         out2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726999AbgB0IO1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 27 Feb 2020 03:14:27 -0500
+        by vger.kernel.org with ESMTP id S1726999AbgB0ISP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 27 Feb 2020 03:18:15 -0500
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailout.nyi.internal (Postfix) with ESMTP id 94D5A21650;
-        Thu, 27 Feb 2020 03:14:26 -0500 (EST)
+        by mailout.nyi.internal (Postfix) with ESMTP id 6D0A621EAE;
+        Thu, 27 Feb 2020 03:18:14 -0500 (EST)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Thu, 27 Feb 2020 03:14:26 -0500
+  by compute1.internal (MEProxy); Thu, 27 Feb 2020 03:18:14 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=DpYKIU
-        fua7FBM522mqMfHgdssustdSs5sG0RG2YhLsU=; b=JzXXEeF3Ta7ptWAJOTnixI
-        UVZwO0AbAAsX6Sq/lVjyfmdf40VyuaWFzzqzLSJc4hUSAf90a8BFNTQBBnFBhB1g
-        X8RFDq9oIIfKMAS+4wCvugraaRWw1VCYKWCrJWsojrULvTzFozR+Mw8Fh8OggBLT
-        87s6JWu8IRm0BLDMxzWFbxOD28rZkCEpUZ5T3UlZqXwIHyDlwcgu66q27GTV4i3j
-        u2vmUM6dxBlI2eRHiEosZHjb00e6P8HcQzHmtEFzpKS7z9j3bltI4jagpZiMqgSc
-        Ksq4f69dEfavqDLOELVHZJQPYVxkanSlbnjDSOg7UjYymZyUiDwdiZQjLCEv2opA
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=6TLw9W
+        WA/NQsp03lgqTM11Y4LP3g7jftjVtAyk7tgrA=; b=JMXXKxSBHIW2YeFWygsJTP
+        fb9qFJ7oYqs5/JYOCMRsuEASq7X43/ppM3OHghFh2wdLhiaivcMXWi3EkILyhwXl
+        3W7OtrCAb7liw29DOq+ieACmcfgNEtN7thwrqM1EfetHRu9/PzvQ42BrbKuO7B2w
+        0kXThCM/EyWQoR3yuW9d+OUdly/w0SNjmUKuHLnMlUdugNkL+HesvhhgkuPiaDPM
+        0JCqoKHVc0FrzezmQe8LTkNF9lmDi8JeLZ/uL0K328ycxuFCkCDVx0Lq6Bn0GTlK
+        G9Mlq61U7SgGL3K0AMb27zW69O6ofercU9VINIWvOVoN8Uw5zAeAmnOugkno8hsA
         ==
-X-ME-Sender: <xms:YnpXXifqh4VXZ77QmBDfakwCYorqa40Y3LR9TN1rWSkSOduiDzjiYg>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedugedrleehgdduvdduucetufdoteggodetrfdotf
+X-ME-Sender: <xms:RntXXmJXuDKbb-PpmUNy0OT8cbk5dHX6IVHbwDnZJFf32gvDtCkLxg>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedugedrleehgdduvddvucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphepkeefrdekiedrkeelrd
-    dutdejnecuvehluhhsthgvrhfuihiivgepvdenucfrrghrrghmpehmrghilhhfrhhomhep
+    dutdejnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhep
     ghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:YnpXXgeyVkbB7RjIrFwplDuiAQPO1xPMx8o9kKt6voWl3BExf8VjBw>
-    <xmx:YnpXXugD-8hnRqvDhyDl_-9JRAm1ul3r7HVqQfKlTbOgkbpEuPqHCQ>
-    <xmx:YnpXXkQjQvEFgL1Vo6dyrz8Vw8ueuzXcSKWdUE7PNFRHPIKC4gY6Qg>
-    <xmx:YnpXXqPK-P_26L_pzZj5ThjgxtrORW6A071udPwLGEKc_x7jjLu5oA>
+X-ME-Proxy: <xmx:RntXXklDv9BZ9W4EgP_MsbajUCu0PzRIpHuVFozl-JJ-hFXXs-7bNA>
+    <xmx:RntXXvhyXtuiX3vOt27XQlJxx2kn-QFNJn0o6m-02U-B_FPwxjB5Ww>
+    <xmx:RntXXqq30b-sWzHCjLfuf1j4lOqqLSvQuz-tm7IPBMzrSS7DOwrJ6w>
+    <xmx:RntXXkRiqGuCeOCHKbtGXAvpWsb53U82eaok6vlLd_w8OlToD43qcw>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 345D53060FD3;
-        Thu, 27 Feb 2020 03:14:26 -0500 (EST)
-Subject: FAILED: patch "[PATCH] ext4: fix potential race between s_group_info online resizing" failed to apply to 4.14-stable tree
-To:     surajjs@amazon.com, sblbir@amazon.com, tytso@mit.edu
+        by mail.messagingengine.com (Postfix) with ESMTPA id CB7E43060FCB;
+        Thu, 27 Feb 2020 03:18:13 -0500 (EST)
+Subject: FAILED: patch "[PATCH] ext4: rename s_journal_flag_rwsem to s_writepages_rwsem" failed to apply to 4.4-stable tree
+To:     ebiggers@google.com, jack@suse.cz, tytso@mit.edu
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 27 Feb 2020 09:14:25 +0100
-Message-ID: <158279126523929@kroah.com>
+Date:   Thu, 27 Feb 2020 09:18:11 +0100
+Message-ID: <158279149142227@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -57,7 +57,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -68,179 +68,129 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From df3da4ea5a0fc5d115c90d5aa6caa4dd433750a7 Mon Sep 17 00:00:00 2001
-From: Suraj Jitindar Singh <surajjs@amazon.com>
-Date: Tue, 18 Feb 2020 19:08:50 -0800
-Subject: [PATCH] ext4: fix potential race between s_group_info online resizing
- and access
+From bbd55937de8f2754adc5792b0f8e5ff7d9c0420e Mon Sep 17 00:00:00 2001
+From: Eric Biggers <ebiggers@google.com>
+Date: Wed, 19 Feb 2020 10:30:46 -0800
+Subject: [PATCH] ext4: rename s_journal_flag_rwsem to s_writepages_rwsem
 
-During an online resize an array of pointers to s_group_info gets replaced
-so it can get enlarged. If there is a concurrent access to the array in
-ext4_get_group_info() and this memory has been reused then this can lead to
-an invalid memory access.
+In preparation for making s_journal_flag_rwsem synchronize
+ext4_writepages() with changes to both the EXTENTS and JOURNAL_DATA
+flags (rather than just JOURNAL_DATA as it does currently), rename it to
+s_writepages_rwsem.
 
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=206443
-Link: https://lore.kernel.org/r/20200221053458.730016-3-tytso@mit.edu
-Signed-off-by: Suraj Jitindar Singh <surajjs@amazon.com>
+Link: https://lore.kernel.org/r/20200219183047.47417-2-ebiggers@kernel.org
+Signed-off-by: Eric Biggers <ebiggers@google.com>
 Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Reviewed-by: Balbir Singh <sblbir@amazon.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
 Cc: stable@kernel.org
 
 diff --git a/fs/ext4/ext4.h b/fs/ext4/ext4.h
-index b51003f75568..b1ece5329738 100644
+index 614fefa7dc7a..4b986ad42b9d 100644
 --- a/fs/ext4/ext4.h
 +++ b/fs/ext4/ext4.h
-@@ -1462,7 +1462,7 @@ struct ext4_sb_info {
- #endif
+@@ -1553,7 +1553,7 @@ struct ext4_sb_info {
+ 	struct ratelimit_state s_msg_ratelimit_state;
  
- 	/* for buddy allocator */
--	struct ext4_group_info ***s_group_info;
-+	struct ext4_group_info ** __rcu *s_group_info;
- 	struct inode *s_buddy_cache;
- 	spinlock_t s_md_lock;
- 	unsigned short *s_mb_offsets;
-@@ -2994,13 +2994,13 @@ static inline
- struct ext4_group_info *ext4_get_group_info(struct super_block *sb,
- 					    ext4_group_t group)
- {
--	 struct ext4_group_info ***grp_info;
-+	 struct ext4_group_info **grp_info;
- 	 long indexv, indexh;
- 	 BUG_ON(group >= EXT4_SB(sb)->s_groups_count);
--	 grp_info = EXT4_SB(sb)->s_group_info;
- 	 indexv = group >> (EXT4_DESC_PER_BLOCK_BITS(sb));
- 	 indexh = group & ((EXT4_DESC_PER_BLOCK(sb)) - 1);
--	 return grp_info[indexv][indexh];
-+	 grp_info = sbi_array_rcu_deref(EXT4_SB(sb), s_group_info, indexv);
-+	 return grp_info[indexh];
+ 	/* Barrier between changing inodes' journal flags and writepages ops. */
+-	struct percpu_rw_semaphore s_journal_flag_rwsem;
++	struct percpu_rw_semaphore s_writepages_rwsem;
+ 	struct dax_device *s_daxdev;
+ #ifdef CONFIG_EXT4_DEBUG
+ 	unsigned long s_simulate_fail;
+diff --git a/fs/ext4/inode.c b/fs/ext4/inode.c
+index 6e1d81ed44ad..fa0ff78dc033 100644
+--- a/fs/ext4/inode.c
++++ b/fs/ext4/inode.c
+@@ -2628,7 +2628,7 @@ static int ext4_writepages(struct address_space *mapping,
+ 	if (unlikely(ext4_forced_shutdown(EXT4_SB(inode->i_sb))))
+ 		return -EIO;
+ 
+-	percpu_down_read(&sbi->s_journal_flag_rwsem);
++	percpu_down_read(&sbi->s_writepages_rwsem);
+ 	trace_ext4_writepages(inode, wbc);
+ 
+ 	/*
+@@ -2849,7 +2849,7 @@ static int ext4_writepages(struct address_space *mapping,
+ out_writepages:
+ 	trace_ext4_writepages_result(inode, wbc, ret,
+ 				     nr_to_write - wbc->nr_to_write);
+-	percpu_up_read(&sbi->s_journal_flag_rwsem);
++	percpu_up_read(&sbi->s_writepages_rwsem);
+ 	return ret;
  }
  
- /*
-diff --git a/fs/ext4/mballoc.c b/fs/ext4/mballoc.c
-index f64838187559..1b46fb63692a 100644
---- a/fs/ext4/mballoc.c
-+++ b/fs/ext4/mballoc.c
-@@ -2356,7 +2356,7 @@ int ext4_mb_alloc_groupinfo(struct super_block *sb, ext4_group_t ngroups)
- {
- 	struct ext4_sb_info *sbi = EXT4_SB(sb);
- 	unsigned size;
--	struct ext4_group_info ***new_groupinfo;
-+	struct ext4_group_info ***old_groupinfo, ***new_groupinfo;
+@@ -2864,13 +2864,13 @@ static int ext4_dax_writepages(struct address_space *mapping,
+ 	if (unlikely(ext4_forced_shutdown(EXT4_SB(inode->i_sb))))
+ 		return -EIO;
  
- 	size = (ngroups + EXT4_DESC_PER_BLOCK(sb) - 1) >>
- 		EXT4_DESC_PER_BLOCK_BITS(sb);
-@@ -2369,13 +2369,16 @@ int ext4_mb_alloc_groupinfo(struct super_block *sb, ext4_group_t ngroups)
- 		ext4_msg(sb, KERN_ERR, "can't allocate buddy meta group");
- 		return -ENOMEM;
- 	}
--	if (sbi->s_group_info) {
--		memcpy(new_groupinfo, sbi->s_group_info,
-+	rcu_read_lock();
-+	old_groupinfo = rcu_dereference(sbi->s_group_info);
-+	if (old_groupinfo)
-+		memcpy(new_groupinfo, old_groupinfo,
- 		       sbi->s_group_info_size * sizeof(*sbi->s_group_info));
--		kvfree(sbi->s_group_info);
--	}
--	sbi->s_group_info = new_groupinfo;
-+	rcu_read_unlock();
-+	rcu_assign_pointer(sbi->s_group_info, new_groupinfo);
- 	sbi->s_group_info_size = size / sizeof(*sbi->s_group_info);
-+	if (old_groupinfo)
-+		ext4_kvfree_array_rcu(old_groupinfo);
- 	ext4_debug("allocated s_groupinfo array for %d meta_bg's\n", 
- 		   sbi->s_group_info_size);
- 	return 0;
-@@ -2387,6 +2390,7 @@ int ext4_mb_add_groupinfo(struct super_block *sb, ext4_group_t group,
- {
- 	int i;
- 	int metalen = 0;
-+	int idx = group >> EXT4_DESC_PER_BLOCK_BITS(sb);
- 	struct ext4_sb_info *sbi = EXT4_SB(sb);
- 	struct ext4_group_info **meta_group_info;
- 	struct kmem_cache *cachep = get_groupinfo_cache(sb->s_blocksize_bits);
-@@ -2405,12 +2409,12 @@ int ext4_mb_add_groupinfo(struct super_block *sb, ext4_group_t group,
- 				 "for a buddy group");
- 			goto exit_meta_group_info;
+-	percpu_down_read(&sbi->s_journal_flag_rwsem);
++	percpu_down_read(&sbi->s_writepages_rwsem);
+ 	trace_ext4_writepages(inode, wbc);
+ 
+ 	ret = dax_writeback_mapping_range(mapping, sbi->s_daxdev, wbc);
+ 	trace_ext4_writepages_result(inode, wbc, ret,
+ 				     nr_to_write - wbc->nr_to_write);
+-	percpu_up_read(&sbi->s_journal_flag_rwsem);
++	percpu_up_read(&sbi->s_writepages_rwsem);
+ 	return ret;
+ }
+ 
+@@ -5861,7 +5861,7 @@ int ext4_change_inode_journal_flag(struct inode *inode, int val)
  		}
--		sbi->s_group_info[group >> EXT4_DESC_PER_BLOCK_BITS(sb)] =
--			meta_group_info;
-+		rcu_read_lock();
-+		rcu_dereference(sbi->s_group_info)[idx] = meta_group_info;
-+		rcu_read_unlock();
  	}
  
--	meta_group_info =
--		sbi->s_group_info[group >> EXT4_DESC_PER_BLOCK_BITS(sb)];
-+	meta_group_info = sbi_array_rcu_deref(sbi, s_group_info, idx);
- 	i = group & (EXT4_DESC_PER_BLOCK(sb) - 1);
+-	percpu_down_write(&sbi->s_journal_flag_rwsem);
++	percpu_down_write(&sbi->s_writepages_rwsem);
+ 	jbd2_journal_lock_updates(journal);
  
- 	meta_group_info[i] = kmem_cache_zalloc(cachep, GFP_NOFS);
-@@ -2458,8 +2462,13 @@ int ext4_mb_add_groupinfo(struct super_block *sb, ext4_group_t group,
- exit_group_info:
- 	/* If a meta_group_info table has been allocated, release it now */
- 	if (group % EXT4_DESC_PER_BLOCK(sb) == 0) {
--		kfree(sbi->s_group_info[group >> EXT4_DESC_PER_BLOCK_BITS(sb)]);
--		sbi->s_group_info[group >> EXT4_DESC_PER_BLOCK_BITS(sb)] = NULL;
-+		struct ext4_group_info ***group_info;
-+
-+		rcu_read_lock();
-+		group_info = rcu_dereference(sbi->s_group_info);
-+		kfree(group_info[idx]);
-+		group_info[idx] = NULL;
-+		rcu_read_unlock();
- 	}
- exit_meta_group_info:
- 	return -ENOMEM;
-@@ -2472,6 +2481,7 @@ static int ext4_mb_init_backend(struct super_block *sb)
- 	struct ext4_sb_info *sbi = EXT4_SB(sb);
- 	int err;
- 	struct ext4_group_desc *desc;
-+	struct ext4_group_info ***group_info;
- 	struct kmem_cache *cachep;
+ 	/*
+@@ -5878,7 +5878,7 @@ int ext4_change_inode_journal_flag(struct inode *inode, int val)
+ 		err = jbd2_journal_flush(journal);
+ 		if (err < 0) {
+ 			jbd2_journal_unlock_updates(journal);
+-			percpu_up_write(&sbi->s_journal_flag_rwsem);
++			percpu_up_write(&sbi->s_writepages_rwsem);
+ 			return err;
+ 		}
+ 		ext4_clear_inode_flag(inode, EXT4_INODE_JOURNAL_DATA);
+@@ -5886,7 +5886,7 @@ int ext4_change_inode_journal_flag(struct inode *inode, int val)
+ 	ext4_set_aops(inode);
  
- 	err = ext4_mb_alloc_groupinfo(sb, ngroups);
-@@ -2507,11 +2517,16 @@ err_freebuddy:
- 	while (i-- > 0)
- 		kmem_cache_free(cachep, ext4_get_group_info(sb, i));
- 	i = sbi->s_group_info_size;
-+	rcu_read_lock();
-+	group_info = rcu_dereference(sbi->s_group_info);
- 	while (i-- > 0)
--		kfree(sbi->s_group_info[i]);
-+		kfree(group_info[i]);
-+	rcu_read_unlock();
- 	iput(sbi->s_buddy_cache);
- err_freesgi:
--	kvfree(sbi->s_group_info);
-+	rcu_read_lock();
-+	kvfree(rcu_dereference(sbi->s_group_info));
-+	rcu_read_unlock();
- 	return -ENOMEM;
- }
+ 	jbd2_journal_unlock_updates(journal);
+-	percpu_up_write(&sbi->s_journal_flag_rwsem);
++	percpu_up_write(&sbi->s_writepages_rwsem);
  
-@@ -2700,7 +2715,7 @@ int ext4_mb_release(struct super_block *sb)
- 	ext4_group_t ngroups = ext4_get_groups_count(sb);
- 	ext4_group_t i;
- 	int num_meta_group_infos;
--	struct ext4_group_info *grinfo;
-+	struct ext4_group_info *grinfo, ***group_info;
- 	struct ext4_sb_info *sbi = EXT4_SB(sb);
- 	struct kmem_cache *cachep = get_groupinfo_cache(sb->s_blocksize_bits);
+ 	if (val)
+ 		up_write(&EXT4_I(inode)->i_mmap_sem);
+diff --git a/fs/ext4/super.c b/fs/ext4/super.c
+index 6b7e628b7903..6928fc229799 100644
+--- a/fs/ext4/super.c
++++ b/fs/ext4/super.c
+@@ -1064,7 +1064,7 @@ static void ext4_put_super(struct super_block *sb)
+ 	percpu_counter_destroy(&sbi->s_freeinodes_counter);
+ 	percpu_counter_destroy(&sbi->s_dirs_counter);
+ 	percpu_counter_destroy(&sbi->s_dirtyclusters_counter);
+-	percpu_free_rwsem(&sbi->s_journal_flag_rwsem);
++	percpu_free_rwsem(&sbi->s_writepages_rwsem);
+ #ifdef CONFIG_QUOTA
+ 	for (i = 0; i < EXT4_MAXQUOTAS; i++)
+ 		kfree(get_qf_name(sb, sbi, i));
+@@ -4626,7 +4626,7 @@ static int ext4_fill_super(struct super_block *sb, void *data, int silent)
+ 		err = percpu_counter_init(&sbi->s_dirtyclusters_counter, 0,
+ 					  GFP_KERNEL);
+ 	if (!err)
+-		err = percpu_init_rwsem(&sbi->s_journal_flag_rwsem);
++		err = percpu_init_rwsem(&sbi->s_writepages_rwsem);
  
-@@ -2719,9 +2734,12 @@ int ext4_mb_release(struct super_block *sb)
- 		num_meta_group_infos = (ngroups +
- 				EXT4_DESC_PER_BLOCK(sb) - 1) >>
- 			EXT4_DESC_PER_BLOCK_BITS(sb);
-+		rcu_read_lock();
-+		group_info = rcu_dereference(sbi->s_group_info);
- 		for (i = 0; i < num_meta_group_infos; i++)
--			kfree(sbi->s_group_info[i]);
--		kvfree(sbi->s_group_info);
-+			kfree(group_info[i]);
-+		kvfree(group_info);
-+		rcu_read_unlock();
- 	}
- 	kfree(sbi->s_mb_offsets);
- 	kfree(sbi->s_mb_maxs);
+ 	if (err) {
+ 		ext4_msg(sb, KERN_ERR, "insufficient memory");
+@@ -4726,7 +4726,7 @@ static int ext4_fill_super(struct super_block *sb, void *data, int silent)
+ 	percpu_counter_destroy(&sbi->s_freeinodes_counter);
+ 	percpu_counter_destroy(&sbi->s_dirs_counter);
+ 	percpu_counter_destroy(&sbi->s_dirtyclusters_counter);
+-	percpu_free_rwsem(&sbi->s_journal_flag_rwsem);
++	percpu_free_rwsem(&sbi->s_writepages_rwsem);
+ failed_mount5:
+ 	ext4_ext_release(sb);
+ 	ext4_release_system_zone(sb);
 
