@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BCE89171E3C
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:26:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 638CF171B47
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:01:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388474AbgB0OKF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 09:10:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48192 "EHLO mail.kernel.org"
+        id S1732652AbgB0OBB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 09:01:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34704 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388467AbgB0OKF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 09:10:05 -0500
+        id S1732840AbgB0OBB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 09:01:01 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 51DA320578;
-        Thu, 27 Feb 2020 14:10:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E96362073D;
+        Thu, 27 Feb 2020 14:00:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582812603;
-        bh=l64Ga3kQyZBVfsBKpZrnDcPI0C6lThiuqKFpSN7FYkE=;
+        s=default; t=1582812059;
+        bh=yFgaM4qwrsNX7+GxOtKUYF7S97q6P22UNf9riz4tXng=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YTeXBQLx//Su8b1xAvFgRxCYtK4Ivi8hCI6T0x/D/lRp9vXm7zgxUVSEUhq1G7wks
-         KXRIKYLLZw39r7iLhuGwrjcNZ/89EFQz6N1t/IqQv4qX/SunQz/zffbeMKDyL0V4Gs
-         ejJm3QxDff7BAGmJ8PfTozGPjvGy6reLWF7cClfw=
+        b=vX58YR1YIjJ/Wbfi4FdrG4n0r9nwW6TyE0YsNLV580VvlT0N520Fy8BDNM+KN64mI
+         PSV4VHVmdn9Xh04PH6JyMxGkKYJv1ksXMiYtpTbVUK6TWaFlh/8LbLkzR+2kS6JwQX
+         W0cTvixwubVvXNhM013bDcWlosff+m26lZv6yD8k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Suraj Jitindar Singh <surajjs@amazon.com>,
-        Theodore Tso <tytso@mit.edu>, stable@kernel.org
-Subject: [PATCH 5.4 081/135] ext4: fix potential race between online resizing and write operations
+        stable@vger.kernel.org, Li RongQing <lirongqing@baidu.com>,
+        Kurt Kanzenbach <kurt@linutronix.de>,
+        Vikram Pandita <vikram.pandita@ti.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 207/237] serial: 8250: Check UPF_IRQ_SHARED in advance
 Date:   Thu, 27 Feb 2020 14:37:01 +0100
-Message-Id: <20200227132241.566446697@linuxfoundation.org>
+Message-Id: <20200227132311.465973412@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200227132228.710492098@linuxfoundation.org>
-References: <20200227132228.710492098@linuxfoundation.org>
+In-Reply-To: <20200227132255.285644406@linuxfoundation.org>
+References: <20200227132255.285644406@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,316 +46,126 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Theodore Ts'o <tytso@mit.edu>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-commit 1d0c3924a92e69bfa91163bda83c12a994b4d106 upstream.
+[ Upstream commit 7febbcbc48fc92e3f33863b32ed715ba4aff18c4 ]
 
-During an online resize an array of pointers to buffer heads gets
-replaced so it can get enlarged.  If there is a racing block
-allocation or deallocation which uses the old array, and the old array
-has gotten reused this can lead to a GPF or some other random kernel
-memory getting modified.
+The commit 54e53b2e8081
+  ("tty: serial: 8250: pass IRQ shared flag to UART ports")
+nicely explained the problem:
 
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=206443
-Link: https://lore.kernel.org/r/20200221053458.730016-2-tytso@mit.edu
-Reported-by: Suraj Jitindar Singh <surajjs@amazon.com>
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Cc: stable@kernel.org
+---8<---8<---
+
+On some systems IRQ lines between multiple UARTs might be shared. If so, the
+irqflags have to be configured accordingly. The reason is: The 8250 port startup
+code performs IRQ tests *before* the IRQ handler for that particular port is
+registered. This is performed in serial8250_do_startup(). This function checks
+whether IRQF_SHARED is configured and only then disables the IRQ line while
+testing.
+
+This test is performed upon each open() of the UART device. Imagine two UARTs
+share the same IRQ line: On is already opened and the IRQ is active. When the
+second UART is opened, the IRQ line has to be disabled while performing IRQ
+tests. Otherwise an IRQ might handler might be invoked, but the IRQ itself
+cannot be handled, because the corresponding handler isn't registered,
+yet. That's because the 8250 code uses a chain-handler and invokes the
+corresponding port's IRQ handling routines himself.
+
+Unfortunately this IRQF_SHARED flag isn't configured for UARTs probed via device
+tree even if the IRQs are shared. This way, the actual and shared IRQ line isn't
+disabled while performing tests and the kernel correctly detects a spurious
+IRQ. So, adding this flag to the DT probe solves the issue.
+
+Note: The UPF_SHARE_IRQ flag is configured unconditionally. Therefore, the
+IRQF_SHARED flag can be set unconditionally as well.
+
+Example stack trace by performing `echo 1 > /dev/ttyS2` on a non-patched system:
+
+|irq 85: nobody cared (try booting with the "irqpoll" option)
+| [...]
+|handlers:
+|[<ffff0000080fc628>] irq_default_primary_handler threaded [<ffff00000855fbb8>] serial8250_interrupt
+|Disabling IRQ #85
+
+---8<---8<---
+
+But unfortunately didn't fix the root cause. Let's try again here by moving
+IRQ flag assignment from serial_link_irq_chain() to serial8250_do_startup().
+
+This should fix the similar issue reported for 8250_pnp case.
+
+Since this change we don't need to have custom solutions in 8250_aspeed_vuart
+and 8250_of drivers, thus, drop them.
+
+Fixes: 1c2f04937b3e ("serial: 8250: add IRQ trigger support")
+Reported-by: Li RongQing <lirongqing@baidu.com>
+Cc: Kurt Kanzenbach <kurt@linutronix.de>
+Cc: Vikram Pandita <vikram.pandita@ti.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: stable <stable@vger.kernel.org>
+Acked-by: Kurt Kanzenbach <kurt@linutronix.de>
+Link: https://lore.kernel.org/r/20200211135559.85960-1-andriy.shevchenko@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/balloc.c |   14 +++++++++++---
- fs/ext4/ext4.h   |   20 +++++++++++++++++++-
- fs/ext4/resize.c |   55 ++++++++++++++++++++++++++++++++++++++++++++-----------
- fs/ext4/super.c  |   33 +++++++++++++++++++++++----------
- 4 files changed, 97 insertions(+), 25 deletions(-)
+ drivers/tty/serial/8250/8250_aspeed_vuart.c | 1 -
+ drivers/tty/serial/8250/8250_core.c         | 5 ++---
+ drivers/tty/serial/8250/8250_port.c         | 4 ++++
+ 3 files changed, 6 insertions(+), 4 deletions(-)
 
---- a/fs/ext4/balloc.c
-+++ b/fs/ext4/balloc.c
-@@ -270,6 +270,7 @@ struct ext4_group_desc * ext4_get_group_
- 	ext4_group_t ngroups = ext4_get_groups_count(sb);
- 	struct ext4_group_desc *desc;
- 	struct ext4_sb_info *sbi = EXT4_SB(sb);
-+	struct buffer_head *bh_p;
+diff --git a/drivers/tty/serial/8250/8250_aspeed_vuart.c b/drivers/tty/serial/8250/8250_aspeed_vuart.c
+index 33a801353114c..0a89df390f248 100644
+--- a/drivers/tty/serial/8250/8250_aspeed_vuart.c
++++ b/drivers/tty/serial/8250/8250_aspeed_vuart.c
+@@ -256,7 +256,6 @@ static int aspeed_vuart_probe(struct platform_device *pdev)
+ 		port.port.line = rc;
  
- 	if (block_group >= ngroups) {
- 		ext4_error(sb, "block_group >= groups_count - block_group = %u,"
-@@ -280,7 +281,14 @@ struct ext4_group_desc * ext4_get_group_
+ 	port.port.irq = irq_of_parse_and_map(np, 0);
+-	port.port.irqflags = IRQF_SHARED;
+ 	port.port.iotype = UPIO_MEM;
+ 	port.port.type = PORT_16550A;
+ 	port.port.uartclk = clk;
+diff --git a/drivers/tty/serial/8250/8250_core.c b/drivers/tty/serial/8250/8250_core.c
+index c698ebab6d3bd..5017a0f46b826 100644
+--- a/drivers/tty/serial/8250/8250_core.c
++++ b/drivers/tty/serial/8250/8250_core.c
+@@ -181,7 +181,7 @@ static int serial_link_irq_chain(struct uart_8250_port *up)
+ 	struct hlist_head *h;
+ 	struct hlist_node *n;
+ 	struct irq_info *i;
+-	int ret, irq_flags = up->port.flags & UPF_SHARE_IRQ ? IRQF_SHARED : 0;
++	int ret;
  
- 	group_desc = block_group >> EXT4_DESC_PER_BLOCK_BITS(sb);
- 	offset = block_group & (EXT4_DESC_PER_BLOCK(sb) - 1);
--	if (!sbi->s_group_desc[group_desc]) {
-+	bh_p = sbi_array_rcu_deref(sbi, s_group_desc, group_desc);
-+	/*
-+	 * sbi_array_rcu_deref returns with rcu unlocked, this is ok since
-+	 * the pointer being dereferenced won't be dereferenced again. By
-+	 * looking at the usage in add_new_gdb() the value isn't modified,
-+	 * just the pointer, and so it remains valid.
-+	 */
-+	if (!bh_p) {
- 		ext4_error(sb, "Group descriptor not loaded - "
- 			   "block_group = %u, group_desc = %u, desc = %u",
- 			   block_group, group_desc, offset);
-@@ -288,10 +296,10 @@ struct ext4_group_desc * ext4_get_group_
+ 	mutex_lock(&hash_mutex);
+ 
+@@ -216,9 +216,8 @@ static int serial_link_irq_chain(struct uart_8250_port *up)
+ 		INIT_LIST_HEAD(&up->list);
+ 		i->head = &up->list;
+ 		spin_unlock_irq(&i->lock);
+-		irq_flags |= up->port.irqflags;
+ 		ret = request_irq(up->port.irq, serial8250_interrupt,
+-				  irq_flags, up->port.name, i);
++				  up->port.irqflags, up->port.name, i);
+ 		if (ret < 0)
+ 			serial_do_unlink(i, up);
+ 	}
+diff --git a/drivers/tty/serial/8250/8250_port.c b/drivers/tty/serial/8250/8250_port.c
+index a73d2bc4b6852..90a93c001e169 100644
+--- a/drivers/tty/serial/8250/8250_port.c
++++ b/drivers/tty/serial/8250/8250_port.c
+@@ -2258,6 +2258,10 @@ int serial8250_do_startup(struct uart_port *port)
+ 		}
  	}
  
- 	desc = (struct ext4_group_desc *)(
--		(__u8 *)sbi->s_group_desc[group_desc]->b_data +
-+		(__u8 *)bh_p->b_data +
- 		offset * EXT4_DESC_SIZE(sb));
- 	if (bh)
--		*bh = sbi->s_group_desc[group_desc];
-+		*bh = bh_p;
- 	return desc;
- }
- 
---- a/fs/ext4/ext4.h
-+++ b/fs/ext4/ext4.h
-@@ -1396,7 +1396,7 @@ struct ext4_sb_info {
- 	loff_t s_bitmap_maxbytes;	/* max bytes for bitmap files */
- 	struct buffer_head * s_sbh;	/* Buffer containing the super block */
- 	struct ext4_super_block *s_es;	/* Pointer to the super block in the buffer */
--	struct buffer_head **s_group_desc;
-+	struct buffer_head * __rcu *s_group_desc;
- 	unsigned int s_mount_opt;
- 	unsigned int s_mount_opt2;
- 	unsigned int s_mount_flags;
-@@ -1570,6 +1570,23 @@ static inline int ext4_valid_inum(struct
- }
- 
- /*
-+ * Returns: sbi->field[index]
-+ * Used to access an array element from the following sbi fields which require
-+ * rcu protection to avoid dereferencing an invalid pointer due to reassignment
-+ * - s_group_desc
-+ * - s_group_info
-+ * - s_flex_group
-+ */
-+#define sbi_array_rcu_deref(sbi, field, index)				   \
-+({									   \
-+	typeof(*((sbi)->field)) _v;					   \
-+	rcu_read_lock();						   \
-+	_v = ((typeof(_v)*)rcu_dereference((sbi)->field))[index];	   \
-+	rcu_read_unlock();						   \
-+	_v;								   \
-+})
++	/* Check if we need to have shared IRQs */
++	if (port->irq && (up->port.flags & UPF_SHARE_IRQ))
++		up->port.irqflags |= IRQF_SHARED;
 +
-+/*
-  * Inode dynamic state flags
-  */
- enum {
-@@ -2666,6 +2683,7 @@ extern int ext4_generic_delete_entry(han
- extern bool ext4_empty_dir(struct inode *inode);
- 
- /* resize.c */
-+extern void ext4_kvfree_array_rcu(void *to_free);
- extern int ext4_group_add(struct super_block *sb,
- 				struct ext4_new_group_data *input);
- extern int ext4_group_extend(struct super_block *sb,
---- a/fs/ext4/resize.c
-+++ b/fs/ext4/resize.c
-@@ -17,6 +17,33 @@
- 
- #include "ext4_jbd2.h"
- 
-+struct ext4_rcu_ptr {
-+	struct rcu_head rcu;
-+	void *ptr;
-+};
-+
-+static void ext4_rcu_ptr_callback(struct rcu_head *head)
-+{
-+	struct ext4_rcu_ptr *ptr;
-+
-+	ptr = container_of(head, struct ext4_rcu_ptr, rcu);
-+	kvfree(ptr->ptr);
-+	kfree(ptr);
-+}
-+
-+void ext4_kvfree_array_rcu(void *to_free)
-+{
-+	struct ext4_rcu_ptr *ptr = kzalloc(sizeof(*ptr), GFP_KERNEL);
-+
-+	if (ptr) {
-+		ptr->ptr = to_free;
-+		call_rcu(&ptr->rcu, ext4_rcu_ptr_callback);
-+		return;
-+	}
-+	synchronize_rcu();
-+	kvfree(to_free);
-+}
-+
- int ext4_resize_begin(struct super_block *sb)
- {
- 	struct ext4_sb_info *sbi = EXT4_SB(sb);
-@@ -560,8 +587,8 @@ static int setup_new_flex_group_blocks(s
- 				brelse(gdb);
- 				goto out;
- 			}
--			memcpy(gdb->b_data, sbi->s_group_desc[j]->b_data,
--			       gdb->b_size);
-+			memcpy(gdb->b_data, sbi_array_rcu_deref(sbi,
-+				s_group_desc, j)->b_data, gdb->b_size);
- 			set_buffer_uptodate(gdb);
- 
- 			err = ext4_handle_dirty_metadata(handle, NULL, gdb);
-@@ -879,13 +906,15 @@ static int add_new_gdb(handle_t *handle,
- 	}
- 	brelse(dind);
- 
--	o_group_desc = EXT4_SB(sb)->s_group_desc;
-+	rcu_read_lock();
-+	o_group_desc = rcu_dereference(EXT4_SB(sb)->s_group_desc);
- 	memcpy(n_group_desc, o_group_desc,
- 	       EXT4_SB(sb)->s_gdb_count * sizeof(struct buffer_head *));
-+	rcu_read_unlock();
- 	n_group_desc[gdb_num] = gdb_bh;
--	EXT4_SB(sb)->s_group_desc = n_group_desc;
-+	rcu_assign_pointer(EXT4_SB(sb)->s_group_desc, n_group_desc);
- 	EXT4_SB(sb)->s_gdb_count++;
--	kvfree(o_group_desc);
-+	ext4_kvfree_array_rcu(o_group_desc);
- 
- 	le16_add_cpu(&es->s_reserved_gdt_blocks, -1);
- 	err = ext4_handle_dirty_super(handle, sb);
-@@ -929,9 +958,11 @@ static int add_new_gdb_meta_bg(struct su
- 		return err;
- 	}
- 
--	o_group_desc = EXT4_SB(sb)->s_group_desc;
-+	rcu_read_lock();
-+	o_group_desc = rcu_dereference(EXT4_SB(sb)->s_group_desc);
- 	memcpy(n_group_desc, o_group_desc,
- 	       EXT4_SB(sb)->s_gdb_count * sizeof(struct buffer_head *));
-+	rcu_read_unlock();
- 	n_group_desc[gdb_num] = gdb_bh;
- 
- 	BUFFER_TRACE(gdb_bh, "get_write_access");
-@@ -942,9 +973,9 @@ static int add_new_gdb_meta_bg(struct su
- 		return err;
- 	}
- 
--	EXT4_SB(sb)->s_group_desc = n_group_desc;
-+	rcu_assign_pointer(EXT4_SB(sb)->s_group_desc, n_group_desc);
- 	EXT4_SB(sb)->s_gdb_count++;
--	kvfree(o_group_desc);
-+	ext4_kvfree_array_rcu(o_group_desc);
- 	return err;
- }
- 
-@@ -1210,7 +1241,8 @@ static int ext4_add_new_descs(handle_t *
- 		 * use non-sparse filesystems anymore.  This is already checked above.
- 		 */
- 		if (gdb_off) {
--			gdb_bh = sbi->s_group_desc[gdb_num];
-+			gdb_bh = sbi_array_rcu_deref(sbi, s_group_desc,
-+						     gdb_num);
- 			BUFFER_TRACE(gdb_bh, "get_write_access");
- 			err = ext4_journal_get_write_access(handle, gdb_bh);
- 
-@@ -1292,7 +1324,7 @@ static int ext4_setup_new_descs(handle_t
+ 	if (port->irq && !(up->port.flags & UPF_NO_THRE_TEST)) {
+ 		unsigned char iir1;
  		/*
- 		 * get_write_access() has been called on gdb_bh by ext4_add_new_desc().
- 		 */
--		gdb_bh = sbi->s_group_desc[gdb_num];
-+		gdb_bh = sbi_array_rcu_deref(sbi, s_group_desc, gdb_num);
- 		/* Update group descriptor block for new group */
- 		gdp = (struct ext4_group_desc *)(gdb_bh->b_data +
- 						 gdb_off * EXT4_DESC_SIZE(sb));
-@@ -1519,7 +1551,8 @@ exit_journal:
- 		for (; gdb_num <= gdb_num_end; gdb_num++) {
- 			struct buffer_head *gdb_bh;
- 
--			gdb_bh = sbi->s_group_desc[gdb_num];
-+			gdb_bh = sbi_array_rcu_deref(sbi, s_group_desc,
-+						     gdb_num);
- 			if (old_gdb == gdb_bh->b_blocknr)
- 				continue;
- 			update_backups(sb, gdb_bh->b_blocknr, gdb_bh->b_data,
---- a/fs/ext4/super.c
-+++ b/fs/ext4/super.c
-@@ -970,6 +970,7 @@ static void ext4_put_super(struct super_
- {
- 	struct ext4_sb_info *sbi = EXT4_SB(sb);
- 	struct ext4_super_block *es = sbi->s_es;
-+	struct buffer_head **group_desc;
- 	int aborted = 0;
- 	int i, err;
- 
-@@ -1000,9 +1001,12 @@ static void ext4_put_super(struct super_
- 	if (!sb_rdonly(sb))
- 		ext4_commit_super(sb, 1);
- 
-+	rcu_read_lock();
-+	group_desc = rcu_dereference(sbi->s_group_desc);
- 	for (i = 0; i < sbi->s_gdb_count; i++)
--		brelse(sbi->s_group_desc[i]);
--	kvfree(sbi->s_group_desc);
-+		brelse(group_desc[i]);
-+	kvfree(group_desc);
-+	rcu_read_unlock();
- 	kvfree(sbi->s_flex_groups);
- 	percpu_counter_destroy(&sbi->s_freeclusters_counter);
- 	percpu_counter_destroy(&sbi->s_freeinodes_counter);
-@@ -3586,7 +3590,7 @@ static int ext4_fill_super(struct super_
- {
- 	struct dax_device *dax_dev = fs_dax_get_by_bdev(sb->s_bdev);
- 	char *orig_data = kstrdup(data, GFP_KERNEL);
--	struct buffer_head *bh;
-+	struct buffer_head *bh, **group_desc;
- 	struct ext4_super_block *es = NULL;
- 	struct ext4_sb_info *sbi = kzalloc(sizeof(*sbi), GFP_KERNEL);
- 	ext4_fsblk_t block;
-@@ -4242,9 +4246,10 @@ static int ext4_fill_super(struct super_
- 			goto failed_mount;
- 		}
- 	}
--	sbi->s_group_desc = kvmalloc_array(db_count,
--					   sizeof(struct buffer_head *),
--					   GFP_KERNEL);
-+	rcu_assign_pointer(sbi->s_group_desc,
-+			   kvmalloc_array(db_count,
-+					  sizeof(struct buffer_head *),
-+					  GFP_KERNEL));
- 	if (sbi->s_group_desc == NULL) {
- 		ext4_msg(sb, KERN_ERR, "not enough memory");
- 		ret = -ENOMEM;
-@@ -4260,14 +4265,19 @@ static int ext4_fill_super(struct super_
- 	}
- 
- 	for (i = 0; i < db_count; i++) {
-+		struct buffer_head *bh;
-+
- 		block = descriptor_loc(sb, logical_sb_block, i);
--		sbi->s_group_desc[i] = sb_bread_unmovable(sb, block);
--		if (!sbi->s_group_desc[i]) {
-+		bh = sb_bread_unmovable(sb, block);
-+		if (!bh) {
- 			ext4_msg(sb, KERN_ERR,
- 			       "can't read group descriptor %d", i);
- 			db_count = i;
- 			goto failed_mount2;
- 		}
-+		rcu_read_lock();
-+		rcu_dereference(sbi->s_group_desc)[i] = bh;
-+		rcu_read_unlock();
- 	}
- 	sbi->s_gdb_count = db_count;
- 	if (!ext4_check_descriptors(sb, logical_sb_block, &first_not_zeroed)) {
-@@ -4676,9 +4686,12 @@ failed_mount3:
- 	if (sbi->s_mmp_tsk)
- 		kthread_stop(sbi->s_mmp_tsk);
- failed_mount2:
-+	rcu_read_lock();
-+	group_desc = rcu_dereference(sbi->s_group_desc);
- 	for (i = 0; i < db_count; i++)
--		brelse(sbi->s_group_desc[i]);
--	kvfree(sbi->s_group_desc);
-+		brelse(group_desc[i]);
-+	kvfree(group_desc);
-+	rcu_read_unlock();
- failed_mount:
- 	if (sbi->s_chksum_driver)
- 		crypto_free_shash(sbi->s_chksum_driver);
+-- 
+2.20.1
+
 
 
