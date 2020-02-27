@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8EBB3171EDC
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:31:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B1201171F2B
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:33:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733052AbgB0Oal (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 09:30:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41356 "EHLO mail.kernel.org"
+        id S1732671AbgB0OBN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 09:01:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35044 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387649AbgB0OEy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 09:04:54 -0500
+        id S1732886AbgB0OBM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 09:01:12 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0146020578;
-        Thu, 27 Feb 2020 14:04:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B1D7020578;
+        Thu, 27 Feb 2020 14:01:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582812293;
-        bh=+Ageaz9hjQCs8xoZUS3femTFGabZap9P1XDvmO90B2w=;
+        s=default; t=1582812072;
+        bh=IaG8NOBc6oMNME+fHXpT0+b3uexJnp8I/CRs7Vj2g1I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cEUMAlaGBZvqUTjxpeP/8JddSlKLUzgwhsaoBeM2iwLk4xT72ZvO9Vbvx3QIRq5AB
-         lwEpvchiN6tqYoesjvFwIcN+NJlkhKUm11EG1Z42NSjFSFG7p67+TeH2pdkrIYcdVr
-         yOwHQNp8iU3j04hz9dFxHA/tCByMITxwzvazgIRY=
+        b=vQr/kmasHo34GLmxn5n1SIHMa9tcE2UkLe4cQAW35J91aUxnFXOddWt/Hcep5uXPL
+         sly8nbkaEcqyEUWkR+6fvoCsweAXwEzlCAFck2qHmHrRvkkLZ+9/iy56r2Q5K/8qrG
+         QN/hpFNqPeyc+jdzVv3Muv1S5yDteteQfmGvjaHk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ryan Case <ryandcase@chromium.org>,
-        Evan Green <evgreen@chromium.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 58/97] tty: serial: qcom_geni_serial: Remove xfer_mode variable
+        stable@vger.kernel.org, Shijie Luo <luoshijie1@huawei.com>,
+        Theodore Tso <tytso@mit.edu>, Jan Kara <jack@suse.cz>,
+        stable@kernel.org
+Subject: [PATCH 4.14 212/237] ext4: add cond_resched() to __ext4_find_entry()
 Date:   Thu, 27 Feb 2020 14:37:06 +0100
-Message-Id: <20200227132224.027856915@linuxfoundation.org>
+Message-Id: <20200227132311.799766708@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200227132214.553656188@linuxfoundation.org>
-References: <20200227132214.553656188@linuxfoundation.org>
+In-Reply-To: <20200227132255.285644406@linuxfoundation.org>
+References: <20200227132255.285644406@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,151 +44,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ryan Case <ryandcase@chromium.org>
+From: Shijie Luo <luoshijie1@huawei.com>
 
-[ Upstream commit bdc05a8a3f822ca0662464055f902faf760da6be ]
+commit 9424ef56e13a1f14c57ea161eed3ecfdc7b2770e upstream.
 
-The driver only supports FIFO mode so setting and checking this variable
-is unnecessary. If DMA support is ever added then such checks can be
-introduced.
+We tested a soft lockup problem in linux 4.19 which could also
+be found in linux 5.x.
 
-Signed-off-by: Ryan Case <ryandcase@chromium.org>
-Reviewed-by: Evan Green <evgreen@chromium.org>
+When dir inode takes up a large number of blocks, and if the
+directory is growing when we are searching, it's possible the
+restart branch could be called many times, and the do while loop
+could hold cpu a long time.
+
+Here is the call trace in linux 4.19.
+
+[  473.756186] Call trace:
+[  473.756196]  dump_backtrace+0x0/0x198
+[  473.756199]  show_stack+0x24/0x30
+[  473.756205]  dump_stack+0xa4/0xcc
+[  473.756210]  watchdog_timer_fn+0x300/0x3e8
+[  473.756215]  __hrtimer_run_queues+0x114/0x358
+[  473.756217]  hrtimer_interrupt+0x104/0x2d8
+[  473.756222]  arch_timer_handler_virt+0x38/0x58
+[  473.756226]  handle_percpu_devid_irq+0x90/0x248
+[  473.756231]  generic_handle_irq+0x34/0x50
+[  473.756234]  __handle_domain_irq+0x68/0xc0
+[  473.756236]  gic_handle_irq+0x6c/0x150
+[  473.756238]  el1_irq+0xb8/0x140
+[  473.756286]  ext4_es_lookup_extent+0xdc/0x258 [ext4]
+[  473.756310]  ext4_map_blocks+0x64/0x5c0 [ext4]
+[  473.756333]  ext4_getblk+0x6c/0x1d0 [ext4]
+[  473.756356]  ext4_bread_batch+0x7c/0x1f8 [ext4]
+[  473.756379]  ext4_find_entry+0x124/0x3f8 [ext4]
+[  473.756402]  ext4_lookup+0x8c/0x258 [ext4]
+[  473.756407]  __lookup_hash+0x8c/0xe8
+[  473.756411]  filename_create+0xa0/0x170
+[  473.756413]  do_mkdirat+0x6c/0x140
+[  473.756415]  __arm64_sys_mkdirat+0x28/0x38
+[  473.756419]  el0_svc_common+0x78/0x130
+[  473.756421]  el0_svc_handler+0x38/0x78
+[  473.756423]  el0_svc+0x8/0xc
+[  485.755156] watchdog: BUG: soft lockup - CPU#2 stuck for 22s! [tmp:5149]
+
+Add cond_resched() to avoid soft lockup and to provide a better
+system responding.
+
+Link: https://lore.kernel.org/r/20200215080206.13293-1-luoshijie1@huawei.com
+Signed-off-by: Shijie Luo <luoshijie1@huawei.com>
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Cc: stable@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+
 ---
- drivers/tty/serial/qcom_geni_serial.c | 67 ++++++++++-----------------
- 1 file changed, 24 insertions(+), 43 deletions(-)
+ fs/ext4/namei.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/tty/serial/qcom_geni_serial.c b/drivers/tty/serial/qcom_geni_serial.c
-index 080fa1d1ecbfd..4182129925dec 100644
---- a/drivers/tty/serial/qcom_geni_serial.c
-+++ b/drivers/tty/serial/qcom_geni_serial.c
-@@ -101,7 +101,6 @@ struct qcom_geni_serial_port {
- 	u32 tx_fifo_depth;
- 	u32 tx_fifo_width;
- 	u32 rx_fifo_depth;
--	enum geni_se_xfer_mode xfer_mode;
- 	bool setup;
- 	int (*handle_rx)(struct uart_port *uport, u32 bytes, bool drop);
- 	unsigned int baud;
-@@ -547,29 +546,20 @@ static int handle_rx_uart(struct uart_port *uport, u32 bytes, bool drop)
- static void qcom_geni_serial_start_tx(struct uart_port *uport)
- {
- 	u32 irq_en;
--	struct qcom_geni_serial_port *port = to_dev_port(uport, uport);
- 	u32 status;
- 
--	if (port->xfer_mode == GENI_SE_FIFO) {
--		/*
--		 * readl ensures reading & writing of IRQ_EN register
--		 * is not re-ordered before checking the status of the
--		 * Serial Engine.
--		 */
--		status = readl(uport->membase + SE_GENI_STATUS);
--		if (status & M_GENI_CMD_ACTIVE)
--			return;
-+	status = readl(uport->membase + SE_GENI_STATUS);
-+	if (status & M_GENI_CMD_ACTIVE)
-+		return;
- 
--		if (!qcom_geni_serial_tx_empty(uport))
--			return;
-+	if (!qcom_geni_serial_tx_empty(uport))
-+		return;
- 
--		irq_en = readl(uport->membase +	SE_GENI_M_IRQ_EN);
--		irq_en |= M_TX_FIFO_WATERMARK_EN | M_CMD_DONE_EN;
-+	irq_en = readl(uport->membase +	SE_GENI_M_IRQ_EN);
-+	irq_en |= M_TX_FIFO_WATERMARK_EN | M_CMD_DONE_EN;
- 
--		writel(DEF_TX_WM, uport->membase +
--						SE_GENI_TX_WATERMARK_REG);
--		writel(irq_en, uport->membase +	SE_GENI_M_IRQ_EN);
--	}
-+	writel(DEF_TX_WM, uport->membase + SE_GENI_TX_WATERMARK_REG);
-+	writel(irq_en, uport->membase +	SE_GENI_M_IRQ_EN);
- }
- 
- static void qcom_geni_serial_stop_tx(struct uart_port *uport)
-@@ -579,12 +569,8 @@ static void qcom_geni_serial_stop_tx(struct uart_port *uport)
- 	struct qcom_geni_serial_port *port = to_dev_port(uport, uport);
- 
- 	irq_en = readl(uport->membase + SE_GENI_M_IRQ_EN);
--	irq_en &= ~M_CMD_DONE_EN;
--	if (port->xfer_mode == GENI_SE_FIFO) {
--		irq_en &= ~M_TX_FIFO_WATERMARK_EN;
--		writel(0, uport->membase +
--				     SE_GENI_TX_WATERMARK_REG);
--	}
-+	irq_en &= ~(M_CMD_DONE_EN | M_TX_FIFO_WATERMARK_EN);
-+	writel(0, uport->membase + SE_GENI_TX_WATERMARK_REG);
- 	writel(irq_en, uport->membase + SE_GENI_M_IRQ_EN);
- 	status = readl(uport->membase + SE_GENI_STATUS);
- 	/* Possible stop tx is called multiple times. */
-@@ -614,15 +600,13 @@ static void qcom_geni_serial_start_rx(struct uart_port *uport)
- 
- 	geni_se_setup_s_cmd(&port->se, UART_START_READ, 0);
- 
--	if (port->xfer_mode == GENI_SE_FIFO) {
--		irq_en = readl(uport->membase + SE_GENI_S_IRQ_EN);
--		irq_en |= S_RX_FIFO_WATERMARK_EN | S_RX_FIFO_LAST_EN;
--		writel(irq_en, uport->membase + SE_GENI_S_IRQ_EN);
-+	irq_en = readl(uport->membase + SE_GENI_S_IRQ_EN);
-+	irq_en |= S_RX_FIFO_WATERMARK_EN | S_RX_FIFO_LAST_EN;
-+	writel(irq_en, uport->membase + SE_GENI_S_IRQ_EN);
- 
--		irq_en = readl(uport->membase + SE_GENI_M_IRQ_EN);
--		irq_en |= M_RX_FIFO_WATERMARK_EN | M_RX_FIFO_LAST_EN;
--		writel(irq_en, uport->membase + SE_GENI_M_IRQ_EN);
--	}
-+	irq_en = readl(uport->membase + SE_GENI_M_IRQ_EN);
-+	irq_en |= M_RX_FIFO_WATERMARK_EN | M_RX_FIFO_LAST_EN;
-+	writel(irq_en, uport->membase + SE_GENI_M_IRQ_EN);
- }
- 
- static void qcom_geni_serial_stop_rx(struct uart_port *uport)
-@@ -632,15 +616,13 @@ static void qcom_geni_serial_stop_rx(struct uart_port *uport)
- 	struct qcom_geni_serial_port *port = to_dev_port(uport, uport);
- 	u32 irq_clear = S_CMD_DONE_EN;
- 
--	if (port->xfer_mode == GENI_SE_FIFO) {
--		irq_en = readl(uport->membase + SE_GENI_S_IRQ_EN);
--		irq_en &= ~(S_RX_FIFO_WATERMARK_EN | S_RX_FIFO_LAST_EN);
--		writel(irq_en, uport->membase + SE_GENI_S_IRQ_EN);
-+	irq_en = readl(uport->membase + SE_GENI_S_IRQ_EN);
-+	irq_en &= ~(S_RX_FIFO_WATERMARK_EN | S_RX_FIFO_LAST_EN);
-+	writel(irq_en, uport->membase + SE_GENI_S_IRQ_EN);
- 
--		irq_en = readl(uport->membase + SE_GENI_M_IRQ_EN);
--		irq_en &= ~(M_RX_FIFO_WATERMARK_EN | M_RX_FIFO_LAST_EN);
--		writel(irq_en, uport->membase + SE_GENI_M_IRQ_EN);
--	}
-+	irq_en = readl(uport->membase + SE_GENI_M_IRQ_EN);
-+	irq_en &= ~(M_RX_FIFO_WATERMARK_EN | M_RX_FIFO_LAST_EN);
-+	writel(irq_en, uport->membase + SE_GENI_M_IRQ_EN);
- 
- 	status = readl(uport->membase + SE_GENI_STATUS);
- 	/* Possible stop rx is called multiple times. */
-@@ -878,7 +860,6 @@ static int qcom_geni_serial_port_setup(struct uart_port *uport)
- 	 * Make an unconditional cancel on the main sequencer to reset
- 	 * it else we could end up in data loss scenarios.
- 	 */
--	port->xfer_mode = GENI_SE_FIFO;
- 	if (uart_console(uport))
- 		qcom_geni_serial_poll_tx_done(uport);
- 	geni_se_config_packing(&port->se, BITS_PER_BYTE, port->tx_bytes_pw,
-@@ -886,7 +867,7 @@ static int qcom_geni_serial_port_setup(struct uart_port *uport)
- 	geni_se_config_packing(&port->se, BITS_PER_BYTE, port->rx_bytes_pw,
- 						false, false, true);
- 	geni_se_init(&port->se, UART_RX_WM, port->rx_fifo_depth - 2);
--	geni_se_select_mode(&port->se, port->xfer_mode);
-+	geni_se_select_mode(&port->se, GENI_SE_FIFO);
- 	if (!uart_console(uport)) {
- 		port->rx_fifo = devm_kcalloc(uport->dev,
- 			port->rx_fifo_depth, sizeof(u32), GFP_KERNEL);
--- 
-2.20.1
-
+--- a/fs/ext4/namei.c
++++ b/fs/ext4/namei.c
+@@ -1430,6 +1430,7 @@ restart:
+ 		/*
+ 		 * We deal with the read-ahead logic here.
+ 		 */
++		cond_resched();
+ 		if (ra_ptr >= ra_max) {
+ 			/* Refill the readahead buffer */
+ 			ra_ptr = 0;
 
 
