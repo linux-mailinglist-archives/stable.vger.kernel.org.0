@@ -2,51 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8DAB71713F7
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 10:19:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A9FE31713FB
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 10:19:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728656AbgB0JT2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 04:19:28 -0500
-Received: from wout1-smtp.messagingengine.com ([64.147.123.24]:54729 "EHLO
+        id S1728627AbgB0JTn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 04:19:43 -0500
+Received: from wout1-smtp.messagingengine.com ([64.147.123.24]:39143 "EHLO
         wout1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728504AbgB0JT1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 27 Feb 2020 04:19:27 -0500
+        by vger.kernel.org with ESMTP id S1728504AbgB0JTn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 27 Feb 2020 04:19:43 -0500
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailout.west.internal (Postfix) with ESMTP id 5636C776;
-        Thu, 27 Feb 2020 04:19:26 -0500 (EST)
+        by mailout.west.internal (Postfix) with ESMTP id 06D15777;
+        Thu, 27 Feb 2020 04:19:41 -0500 (EST)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Thu, 27 Feb 2020 04:19:26 -0500
+  by compute1.internal (MEProxy); Thu, 27 Feb 2020 04:19:42 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=B2ZsC9
-        gWzzb/PBC2R/h3kRaHCryVsGbnNBLQKCSwRsE=; b=ji8Otkph7VNyeRDGHBjUbh
-        mCAVH0PbbJltVTavGVmb+AixjZr/e6iDMhnlIJxoNZaY2TKIaL0Jw2S1uhePRmCC
-        NokZ0T9rscxHIY5WMmCYo12KKXBLEJgU783VaWFUBAkoMOkaZsuMEG+rOmjkPaOn
-        HEcvk7z5nUpI76IhK0WF+EgARyGXeAFZwLtQSRsngdSL4PVV/8Y3WpxMCXlsV9vP
-        njj043m4OMSw7BLN2LnKG7X+f6GwzaZAZxc61D2kbAxCWr68zREW4EA5KDw5Vgtx
-        9G7QQzRRYH1zazHRPrjvmZaHtnVLCPfs8cDnJwXooURN/GhBH2AeNoGzqaS0EdYg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=nLGQn0
+        NcbtWZ/W7k3n8TYAXy3Os9kuyX8f0jpQu37bw=; b=UiPNYLFoVP5w5U6UIUluyZ
+        f8+QIZIkGmTMcetMOxsj0P37/F/CzbfE1IXtCTMx94OTQdXgEZtp8xAOOxJ90P26
+        wW78ZK2yxbCvVWtWpADY+Oj2vffS+yzJN70r6CpG2DYTR8grrsBlmRDpWlXmaMkQ
+        t+SfQExsJ6aGDUxdlmP6XKgdmEewSA7/wCO4V2+tXot2t4C7LmY5bDZd7J0yv9a8
+        IuNQeqKZUh0rrA+XuCjKdVJt2rsh4Kn4CJInOi85X2S7TNnNvvnjTPpgS4OzaZS6
+        U7Yb1FKCJ0F/j6zVE59xAlLr2B/OnoBC38AYieYvFInnFfVBSUg4jWD5ugHHLKKQ
         ==
-X-ME-Sender: <xms:nYlXXu5H3AegHj0edTeIqTO2XAz8d3vEeZvYEXEtNyfcoXUQGUal-g>
+X-ME-Sender: <xms:rYlXXkHfszD7Y-8NMhBzkz5hv4FxoIkezx3WCBZZbLU0pfHGwRMuhw>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedugedrleeigddtfecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
-    qeenucfkphepkeefrdekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivgepleenuc
-    frrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:nYlXXukS_v1LpCFF-xpxj3yBjkgJCVdhgXYBX9ABbeWUNb8ZlRq82w>
-    <xmx:nYlXXo0-D-p1ehdqgtMwSZyWLErHTh2J2H9R_cjxMfn6GZ1zvgyrfQ>
-    <xmx:nYlXXhaWHhWfnLBNa-v1EYqq7G_XkV0fouQl-e0oOnHLkiMVhzpW6w>
-    <xmx:nYlXXqxgvj5LfMWLLScM_-DQhh01Gk1S7A2sJwvJbqyByb44leAx5w>
+    qeenucfkphepkeefrdekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivgepuddune
+    curfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
+X-ME-Proxy: <xmx:rYlXXhlqOyYy6zBRbNWM-JX5eZ7L0Kdhz-DHww36ud2nIeAMRTjetg>
+    <xmx:rYlXXpKPVee_NAgmZQAa9tM_8hrL1HCLflpaUa19B3DtkiznZB6mFQ>
+    <xmx:rYlXXqZWAmR2S1y1dzQ07PhSsdQI4eFRxuKJy88f1HFq11jJncR0Rg>
+    <xmx:rYlXXmU_mVVkperR6jBSqbxbJpJXqpPsS4bxd-HHvisyhTwmBTMN1Q>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 998A93060FE0;
-        Thu, 27 Feb 2020 04:19:25 -0500 (EST)
-Subject: FAILED: patch "[PATCH] Btrfs: fix race between shrinking truncate and fiemap" failed to apply to 4.4-stable tree
-To:     fdmanana@suse.com, dsterba@suse.com, josef@toxicpanda.com
+        by mail.messagingengine.com (Postfix) with ESMTPA id 3DF4430610E8;
+        Thu, 27 Feb 2020 04:19:41 -0500 (EST)
+Subject: FAILED: patch "[PATCH] btrfs: don't set path->leave_spinning for truncate" failed to apply to 4.19-stable tree
+To:     josef@toxicpanda.com, davej@codemonkey.org.uk, dsterba@suse.com,
+        fdmanana@suse.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 27 Feb 2020 10:19:24 +0100
-Message-ID: <15827951645183@kroah.com>
+Date:   Thu, 27 Feb 2020 10:19:40 +0100
+Message-ID: <15827951808020@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -56,7 +57,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.4-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -67,109 +68,76 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 28553fa992cb28be6a65566681aac6cafabb4f2d Mon Sep 17 00:00:00 2001
-From: Filipe Manana <fdmanana@suse.com>
-Date: Fri, 7 Feb 2020 12:23:09 +0000
-Subject: [PATCH] Btrfs: fix race between shrinking truncate and fiemap
+From 52e29e331070cd7d52a64cbf1b0958212a340e28 Mon Sep 17 00:00:00 2001
+From: Josef Bacik <josef@toxicpanda.com>
+Date: Fri, 17 Jan 2020 09:02:20 -0500
+Subject: [PATCH] btrfs: don't set path->leave_spinning for truncate
 
-When there is a fiemap executing in parallel with a shrinking truncate
-we can end up in a situation where we have extent maps for which we no
-longer have corresponding file extent items. This is generally harmless
-and at the moment the only consequences are missing file extent items
-representing holes after we expand the file size again after the
-truncate operation removed the prealloc extent items, and stale
-information for future fiemap calls (reporting extents that no longer
-exist or may have been reallocated to other files for example).
+The only time we actually leave the path spinning is if we're truncating
+a small amount and don't actually free an extent, which is not a common
+occurrence.  We have to set the path blocking in order to add the
+delayed ref anyway, so the first extent we find we set the path to
+blocking and stay blocking for the duration of the operation.  With the
+upcoming file extent map stuff there will be another case that we have
+to have the path blocking, so just swap to blocking always.
 
-Consider the following example:
+Note: this patch also fixes a warning after 28553fa992cb ("Btrfs: fix
+race between shrinking truncate and fiemap") got merged that inserts
+extent locks around truncation so the path must not leave spinning locks
+after btrfs_search_slot.
 
-1) Our inode has a size of 128KiB, one 128KiB extent at file offset 0
-   and a 1MiB prealloc extent at file offset 128KiB;
+  [70.794783] BUG: sleeping function called from invalid context at mm/slab.h:565
+  [70.794834] in_atomic(): 1, irqs_disabled(): 0, non_block: 0, pid: 1141, name: rsync
+  [70.794863] 5 locks held by rsync/1141:
+  [70.794876]  #0: ffff888417b9c408 (sb_writers#17){.+.+}, at: mnt_want_write+0x20/0x50
+  [70.795030]  #1: ffff888428de28e8 (&type->i_mutex_dir_key#13/1){+.+.}, at: lock_rename+0xf1/0x100
+  [70.795051]  #2: ffff888417b9c608 (sb_internal#2){.+.+}, at: start_transaction+0x394/0x560
+  [70.795124]  #3: ffff888403081768 (btrfs-fs-01){++++}, at: btrfs_try_tree_write_lock+0x2f/0x160
+  [70.795203]  #4: ffff888403086568 (btrfs-fs-00){++++}, at: btrfs_try_tree_write_lock+0x2f/0x160
+  [70.795222] CPU: 5 PID: 1141 Comm: rsync Not tainted 5.6.0-rc2-backup+ #2
+  [70.795362] Call Trace:
+  [70.795374]  dump_stack+0x71/0xa0
+  [70.795445]  ___might_sleep.part.96.cold.106+0xa6/0xb6
+  [70.795459]  kmem_cache_alloc+0x1d3/0x290
+  [70.795471]  alloc_extent_state+0x22/0x1c0
+  [70.795544]  __clear_extent_bit+0x3ba/0x580
+  [70.795557]  ? _raw_spin_unlock_irq+0x24/0x30
+  [70.795569]  btrfs_truncate_inode_items+0x339/0xe50
+  [70.795647]  btrfs_evict_inode+0x269/0x540
+  [70.795659]  ? dput.part.38+0x29/0x460
+  [70.795671]  evict+0xcd/0x190
+  [70.795682]  __dentry_kill+0xd6/0x180
+  [70.795754]  dput.part.38+0x2ad/0x460
+  [70.795765]  do_renameat2+0x3cb/0x540
+  [70.795777]  __x64_sys_rename+0x1c/0x20
 
-2) Task A starts doing a shrinking truncate of our inode to reduce it to
-   a size of 64KiB. Before it searches the subvolume tree for file
-   extent items to delete, it drops all the extent maps in the range
-   from 64KiB to (u64)-1 by calling btrfs_drop_extent_cache();
-
-3) Task B starts doing a fiemap against our inode. When looking up for
-   the inode's extent maps in the range from 128KiB to (u64)-1, it
-   doesn't find any in the inode's extent map tree, since they were
-   removed by task A.  Because it didn't find any in the extent map
-   tree, it scans the inode's subvolume tree for file extent items, and
-   it finds the 1MiB prealloc extent at file offset 128KiB, then it
-   creates an extent map based on that file extent item and adds it to
-   inode's extent map tree (this ends up being done by
-   btrfs_get_extent() <- btrfs_get_extent_fiemap() <-
-   get_extent_skip_holes());
-
-4) Task A then drops the prealloc extent at file offset 128KiB and
-   shrinks the 128KiB extent file offset 0 to a length of 64KiB. The
-   truncation operation finishes and we end up with an extent map
-   representing a 1MiB prealloc extent at file offset 128KiB, despite we
-   don't have any more that extent;
-
-After this the two types of problems we have are:
-
-1) Future calls to fiemap always report that a 1MiB prealloc extent
-   exists at file offset 128KiB. This is stale information, no longer
-   correct;
-
-2) If the size of the file is increased, by a truncate operation that
-   increases the file size or by a write into a file offset > 64KiB for
-   example, we end up not inserting file extent items to represent holes
-   for any range between 128KiB and 128KiB + 1MiB, since the hole
-   expansion function, btrfs_cont_expand() will skip hole insertion for
-   any range for which an extent map exists that represents a prealloc
-   extent. This causes fsck to complain about missing file extent items
-   when not using the NO_HOLES feature.
-
-The second issue could be often triggered by test case generic/561 from
-fstests, which runs fsstress and duperemove in parallel, and duperemove
-does frequent fiemap calls.
-
-Essentially the problems happens because fiemap does not acquire the
-inode's lock while truncate does, and fiemap locks the file range in the
-inode's iotree while truncate does not. So fix the issue by making
-btrfs_truncate_inode_items() lock the file range from the new file size
-to (u64)-1, so that it serializes with fiemap.
-
+Reported-by: Dave Jones <davej@codemonkey.org.uk>
+Fixes: 28553fa992cb ("Btrfs: fix race between shrinking truncate and fiemap")
 CC: stable@vger.kernel.org # 4.4+
-Reviewed-by: Josef Bacik <josef@toxicpanda.com>
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Reviewed-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
 Reviewed-by: David Sterba <dsterba@suse.com>
+[ add note ]
 Signed-off-by: David Sterba <dsterba@suse.com>
 
 diff --git a/fs/btrfs/inode.c b/fs/btrfs/inode.c
-index 5b3ec93ff911..7d26b4bfb2c6 100644
+index 7d26b4bfb2c6..36deef69f847 100644
 --- a/fs/btrfs/inode.c
 +++ b/fs/btrfs/inode.c
-@@ -4085,6 +4085,8 @@ int btrfs_truncate_inode_items(struct btrfs_trans_handle *trans,
- 	u64 bytes_deleted = 0;
- 	bool be_nice = false;
- 	bool should_throttle = false;
-+	const u64 lock_start = ALIGN_DOWN(new_size, fs_info->sectorsize);
-+	struct extent_state *cached_state = NULL;
- 
- 	BUG_ON(new_size > 0 && min_type != BTRFS_EXTENT_DATA_KEY);
- 
-@@ -4101,6 +4103,9 @@ int btrfs_truncate_inode_items(struct btrfs_trans_handle *trans,
- 		return -ENOMEM;
- 	path->reada = READA_BACK;
- 
-+	lock_extent_bits(&BTRFS_I(inode)->io_tree, lock_start, (u64)-1,
-+			 &cached_state);
-+
- 	/*
- 	 * We want to drop from the next block forward in case this new size is
- 	 * not block aligned since we will be keeping the last block of the
-@@ -4367,6 +4372,9 @@ int btrfs_truncate_inode_items(struct btrfs_trans_handle *trans,
- 		btrfs_ordered_update_i_size(inode, last_size, NULL);
+@@ -4142,7 +4142,6 @@ int btrfs_truncate_inode_items(struct btrfs_trans_handle *trans,
+ 		goto out;
  	}
  
-+	unlock_extent_cached(&BTRFS_I(inode)->io_tree, lock_start, (u64)-1,
-+			     &cached_state);
-+
- 	btrfs_free_path(path);
- 	return ret;
- }
+-	path->leave_spinning = 1;
+ 	ret = btrfs_search_slot(trans, root, &key, path, -1, 1);
+ 	if (ret < 0)
+ 		goto out;
+@@ -4294,7 +4293,6 @@ int btrfs_truncate_inode_items(struct btrfs_trans_handle *trans,
+ 		     root == fs_info->tree_root)) {
+ 			struct btrfs_ref ref = { 0 };
+ 
+-			btrfs_set_path_blocking(path);
+ 			bytes_deleted += extent_num_bytes;
+ 
+ 			btrfs_init_generic_ref(&ref, BTRFS_DROP_DELAYED_REF,
 
