@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 47306171408
+	by mail.lfdr.de (Postfix) with ESMTP id B8D97171409
 	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 10:20:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728713AbgB0JUo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 04:20:44 -0500
-Received: from wout1-smtp.messagingengine.com ([64.147.123.24]:42193 "EHLO
+        id S1728684AbgB0JUr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 04:20:47 -0500
+Received: from wout1-smtp.messagingengine.com ([64.147.123.24]:36031 "EHLO
         wout1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728684AbgB0JUo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 27 Feb 2020 04:20:44 -0500
+        by vger.kernel.org with ESMTP id S1728678AbgB0JUr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 27 Feb 2020 04:20:47 -0500
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailout.west.internal (Postfix) with ESMTP id AA475766;
-        Thu, 27 Feb 2020 04:20:43 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Thu, 27 Feb 2020 04:20:44 -0500
+        by mailout.west.internal (Postfix) with ESMTP id 5CBC4777;
+        Thu, 27 Feb 2020 04:20:46 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute1.internal (MEProxy); Thu, 27 Feb 2020 04:20:46 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=biD70V
-        RnrsHqtniWHF6YFticewbaFt36Npdxj1+p83A=; b=MwYXK2OLS5Y/qRCOH2+GPS
-        KviQ1l17d+YIXYvEuR2p6cZg/C4rJnz1o8sQrGwm5a1yN5919wcl7GxwJLuDgJKo
-        dt/0RlLExcAp2VfJnPmVBmknnVktls+ciap59TOq22Th4PvwYDaeDMOJpd1j2SLn
-        qlbR4i52fCraFJzap7gmU7YdKpl5s8rbhpDNdz9JlYz3DWBOfLFMyqWBXUMvj8Ii
-        3lrPd9eGsAcRmWddEQGUXZWL9pQAzcXnklS7k1Ac4srzH1ZPP5ZIJq7Nnx8GiUOm
-        xDA9LDN0tszSB6HVVpHnL7VFkLV81w67d2C7ES35xwuqvxAXJmjWA9UYfdbBTDLw
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=000H8G
+        xzeE2Nq1tPiWhlIXX3MydL/NXR0357AlywnyU=; b=dlj7PVuCSOaz0VSychrZG4
+        bec7geH2ab4WSVfmEtC1pscSD+HEoxOqmJlxlhoH5DWds6hialV+4kOzbJ7BkgKb
+        I2BLlWrrnQfWEXvuQwB8sjGel3a+2BzkXKM3W5KPswupmIoIr7U42JslANcacT8h
+        s9+mEOoqlOgS2d94hbYwJnIfwxWaw8Qk6M0WJ6hXwDhBapYt7ZDf7bjuwP3uRoEy
+        1ortIL4Y62qTW27dBCookAn5krctIbDcozTejCJMRoynFnoskUK7mPjih+I8ENF2
+        sUwAJ2kZsmA4QW9QkUeoZ90tI1prwfgD4RaxsaLufLvIO8mmS1LSD5QxxMEukmKQ
         ==
-X-ME-Sender: <xms:64lXXqK6tY7CZEp3I7li326WF_Qntv15Pwe1sRwFkUd5_GjvTiWuhg>
+X-ME-Sender: <xms:7YlXXs24L6_mC0xMU1jnMic3vA-s6yDcy7JBTeqGFNzScZbdeBowKA>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedugedrleeigddtfecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
     qeenucfkphepkeefrdekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivgepudehne
     curfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:64lXXpLDlPWPcdPK-1AfyCJeXSYcj-sgr81HQYY3B79AaR0KfNkrWA>
-    <xmx:64lXXvt-joz7vcnaZqHgZis6WGKK1u0q4HjIjtksVQ4-7jllJbyXyA>
-    <xmx:64lXXuSgRXGLb7ucJN-z5tjjaic6FM7DDaRoCfV_DjIDQKbwAbPWuQ>
-    <xmx:64lXXuSDNqZJl0e5AQgPxnq7MjmcMV_G0Q1YqAOC41c2POpAXSPvWw>
+X-ME-Proxy: <xmx:7YlXXv1z03jWVIGy8wQUmApk7KqamDoyUGovK2uDvcAE1ZxLIV3dwg>
+    <xmx:7YlXXqWxxC7X27sSL4y1-jn2s7oeWcKoq3cqsNY67R73gVKBoXfijA>
+    <xmx:7YlXXphpXpcqKQIa-Ka3_7LApvqyHjSwBTzcCKbGhcJdo_UQusE_Cg>
+    <xmx:7olXXjvlM5rC42s7x1PPa5TYyYhsqd5FtVTvs0VY0tCP3E7pSx1wMA>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id E25373061188;
-        Thu, 27 Feb 2020 04:20:42 -0500 (EST)
-Subject: FAILED: patch "[PATCH] Btrfs: fix deadlock during fast fsync when logging prealloc" failed to apply to 4.19-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 993AE3280059;
+        Thu, 27 Feb 2020 04:20:45 -0500 (EST)
+Subject: FAILED: patch "[PATCH] Btrfs: fix deadlock during fast fsync when logging prealloc" failed to apply to 4.14-stable tree
 To:     fdmanana@suse.com, dsterba@suse.com, josef@toxicpanda.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 27 Feb 2020 10:20:41 +0100
-Message-ID: <1582795241193195@kroah.com>
+Date:   Thu, 27 Feb 2020 10:20:44 +0100
+Message-ID: <1582795244107106@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -56,7 +56,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
