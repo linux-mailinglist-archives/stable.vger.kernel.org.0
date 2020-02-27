@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4EF67171CB8
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:14:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E8A4171C15
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:08:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730962AbgB0OOj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 09:14:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53924 "EHLO mail.kernel.org"
+        id S2388272AbgB0OIh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 09:08:37 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46434 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389149AbgB0OOg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 09:14:36 -0500
+        id S2388268AbgB0OIg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 09:08:36 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DEE5C24697;
-        Thu, 27 Feb 2020 14:14:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5367924697;
+        Thu, 27 Feb 2020 14:08:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582812875;
-        bh=fwnN5a6F8uzQab7v85uVMH9kmVOgZ57n+CCHjKVhpkw=;
+        s=default; t=1582812515;
+        bh=cX2MjCzWKPYkIQ0+jMchJDpZqpV5ZTe8WmRQ/EV9tLs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=awHf3+cGhivvV9+/+pnJPisGHzDpdxeO/qvSHCsAMBplPFjRFulfsdHfrpXmvvm4Q
-         Bq2nImKUXo5/uCOLmkL67wAh8I+hY7elFKvyH9e+LsqpICN7WG6Y8n9XmP5XyfDIdE
-         HdQ5dtouL8N+mTk/oDuhm11B6r0rQSESR+hNT4jU=
+        b=ofiNe8l+oZ55TVF/Ueh6XTLSKKgOmypySUrKsD20ZxcmEewn5f2BBVBNewxj5u8kB
+         04l8B7GLP3/eZizkQE3kxVKPns87kzespJZOOjSAK6DGA/6tfvUr91BKkbaTyWzu/n
+         hKf6o1s2BGmR/ddSv/MzGVaH5uosnCV6LsrFbbeU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Damien Le Moal <Damien.LeMoal@wdc.com>,
-        Damien Le Moal <damien.lemoal@wdc.com>,
-        Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 5.5 049/150] hwmon: (acpi_power_meter) Fix lockdep splat
-Date:   Thu, 27 Feb 2020 14:36:26 +0100
-Message-Id: <20200227132240.313125096@linuxfoundation.org>
+        stable@vger.kernel.org, Christophe Leroy <christophe.leroy@c-s.fr>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.4 047/135] powerpc/hugetlb: Fix 512k hugepages on 8xx with 16k page size
+Date:   Thu, 27 Feb 2020 14:36:27 +0100
+Message-Id: <20200227132236.128376395@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200227132232.815448360@linuxfoundation.org>
-References: <20200227132232.815448360@linuxfoundation.org>
+In-Reply-To: <20200227132228.710492098@linuxfoundation.org>
+References: <20200227132228.710492098@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,222 +43,101 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guenter Roeck <linux@roeck-us.net>
+From: Christophe Leroy <christophe.leroy@c-s.fr>
 
-commit badcd4546d52ae4318f2bcfda0e47a1394b60e38 upstream.
+commit f2b67ef90b0d5eca0f2255e02cf2f620bc0ddcdb upstream.
 
-Damien Le Moal reports a lockdep splat with the acpi_power_meter,
-observed with Linux v5.5 and later.
+Commit 55c8fc3f4930 ("powerpc/8xx: reintroduce 16K pages with HW
+assistance") redefined pte_t as a struct of 4 pte_basic_t, because
+in 16K pages mode there are four identical entries in the
+page table. But the size of hugepage tables is calculated based
+of the size of (void *). Therefore, we end up with page tables
+of size 1k instead of 4k for 512k pages.
 
-======================================================
-WARNING: possible circular locking dependency detected
-5.6.0-rc2+ #629 Not tainted
-------------------------------------------------------
-python/1397 is trying to acquire lock:
-ffff888619080070 (&resource->lock){+.+.}, at: show_power+0x3c/0xa0 [acpi_power_meter]
+As 512k hugepage tables are the same size as standard page tables,
+ie 4k, use the standard page tables instead of PGT_CACHE tables.
 
-               but task is already holding lock:
-ffff88881643f188 (kn->count#119){++++}, at: kernfs_seq_start+0x6a/0x160
-
-               which lock already depends on the new lock.
-
-               the existing dependency chain (in reverse order) is:
-
-               -> #1 (kn->count#119){++++}:
-       __kernfs_remove+0x626/0x7e0
-       kernfs_remove_by_name_ns+0x41/0x80
-       remove_attrs+0xcb/0x3c0 [acpi_power_meter]
-       acpi_power_meter_notify+0x1f7/0x310 [acpi_power_meter]
-       acpi_ev_notify_dispatch+0x198/0x1f3
-       acpi_os_execute_deferred+0x4d/0x70
-       process_one_work+0x7c8/0x1340
-       worker_thread+0x94/0xc70
-       kthread+0x2ed/0x3f0
-       ret_from_fork+0x24/0x30
-
-               -> #0 (&resource->lock){+.+.}:
-       __lock_acquire+0x20be/0x49b0
-       lock_acquire+0x127/0x340
-       __mutex_lock+0x15b/0x1350
-       show_power+0x3c/0xa0 [acpi_power_meter]
-       dev_attr_show+0x3f/0x80
-       sysfs_kf_seq_show+0x216/0x410
-       seq_read+0x407/0xf90
-       vfs_read+0x152/0x2c0
-       ksys_read+0xf3/0x1d0
-       do_syscall_64+0x95/0x1010
-       entry_SYSCALL_64_after_hwframe+0x49/0xbe
-
-               other info that might help us debug this:
-
- Possible unsafe locking scenario:
-
-       CPU0                    CPU1
-       ----                    ----
-  lock(kn->count#119);
-                               lock(&resource->lock);
-                               lock(kn->count#119);
-  lock(&resource->lock);
-
-                *** DEADLOCK ***
-4 locks held by python/1397:
- #0: ffff8890242d64e0 (&f->f_pos_lock){+.+.}, at: __fdget_pos+0x9b/0xb0
- #1: ffff889040be74e0 (&p->lock){+.+.}, at: seq_read+0x6b/0xf90
- #2: ffff8890448eb880 (&of->mutex){+.+.}, at: kernfs_seq_start+0x47/0x160
- #3: ffff88881643f188 (kn->count#119){++++}, at: kernfs_seq_start+0x6a/0x160
-
-               stack backtrace:
-CPU: 10 PID: 1397 Comm: python Not tainted 5.6.0-rc2+ #629
-Hardware name: Supermicro Super Server/X11DPL-i, BIOS 3.1 05/21/2019
-Call Trace:
- dump_stack+0x97/0xe0
- check_noncircular+0x32e/0x3e0
- ? print_circular_bug.isra.0+0x1e0/0x1e0
- ? unwind_next_frame+0xb9a/0x1890
- ? entry_SYSCALL_64_after_hwframe+0x49/0xbe
- ? graph_lock+0x79/0x170
- ? __lockdep_reset_lock+0x3c0/0x3c0
- ? mark_lock+0xbc/0x1150
- __lock_acquire+0x20be/0x49b0
- ? mark_held_locks+0xe0/0xe0
- ? stack_trace_save+0x91/0xc0
- lock_acquire+0x127/0x340
- ? show_power+0x3c/0xa0 [acpi_power_meter]
- ? device_remove_bin_file+0x10/0x10
- ? device_remove_bin_file+0x10/0x10
- __mutex_lock+0x15b/0x1350
- ? show_power+0x3c/0xa0 [acpi_power_meter]
- ? show_power+0x3c/0xa0 [acpi_power_meter]
- ? mutex_lock_io_nested+0x11f0/0x11f0
- ? lock_downgrade+0x6a0/0x6a0
- ? kernfs_seq_start+0x47/0x160
- ? lock_acquire+0x127/0x340
- ? kernfs_seq_start+0x6a/0x160
- ? device_remove_bin_file+0x10/0x10
- ? show_power+0x3c/0xa0 [acpi_power_meter]
- show_power+0x3c/0xa0 [acpi_power_meter]
- dev_attr_show+0x3f/0x80
- ? memset+0x20/0x40
- sysfs_kf_seq_show+0x216/0x410
- seq_read+0x407/0xf90
- ? security_file_permission+0x16f/0x2c0
- vfs_read+0x152/0x2c0
-
-Problem is that reading an attribute takes the kernfs lock in the kernfs
-code, then resource->lock in the driver. During an ACPI notification, the
-opposite happens: The resource lock is taken first, followed by the kernfs
-lock when sysfs attributes are removed and re-created. Presumably this is
-now seen due to some locking related changes in kernfs after v5.4, but it
-was likely always a problem.
-
-Fix the problem by not blindly acquiring the lock in the notification
-function. It is only needed to protect the various update functions.
-However, those update functions are called anyway when sysfs attributes
-are read. This means that we can just stop calling those functions from
-the notifier, and the resource lock in the notifier function is no longer
-needed.
-
-That leaves two situations:
-
-First, METER_NOTIFY_CONFIG removes and re-allocates capability strings.
-While it did so under the resource lock, _displaying_ those strings was not
-protected, creating a race condition. To solve this problem, selectively
-protect both removal/creation and reporting of capability attributes with
-the resource lock.
-
-Second, removing and re-creating the attribute files is no longer protected
-by the resource lock. That doesn't matter since access to each individual
-attribute is protected by the kernfs lock. Userspace may get messed up if
-attributes disappear and reappear under its nose, but that is not different
-than today, and there is nothing we can do about it without major driver
-restructuring.
-
-Last but not least, when removing the driver, remove attribute functions
-first, then release capability strings. This avoids yet another race
-condition.
-
-Reported-by: Damien Le Moal <Damien.LeMoal@wdc.com>
-Cc: Damien Le Moal <Damien.LeMoal@wdc.com>
-Cc: stable@vger.kernel.org # v5.5+
-Tested-by: Damien Le Moal <damien.lemoal@wdc.com>
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Fixes: 3fb69c6a1a13 ("powerpc/8xx: Enable 512k hugepage support with HW assistance")
+Cc: stable@vger.kernel.org # v5.0+
+Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/90ec56a2315be602494619ed0223bba3b0b8d619.1580997007.git.christophe.leroy@c-s.fr
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/hwmon/acpi_power_meter.c |   16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ arch/powerpc/mm/hugetlbpage.c |   29 ++++++++++++++++++-----------
+ 1 file changed, 18 insertions(+), 11 deletions(-)
 
---- a/drivers/hwmon/acpi_power_meter.c
-+++ b/drivers/hwmon/acpi_power_meter.c
-@@ -355,7 +355,9 @@ static ssize_t show_str(struct device *d
- 	struct acpi_device *acpi_dev = to_acpi_device(dev);
- 	struct acpi_power_meter_resource *resource = acpi_dev->driver_data;
- 	acpi_string val;
-+	int ret;
- 
-+	mutex_lock(&resource->lock);
- 	switch (attr->index) {
- 	case 0:
- 		val = resource->model_number;
-@@ -372,8 +374,9 @@ static ssize_t show_str(struct device *d
- 		val = "";
- 		break;
+--- a/arch/powerpc/mm/hugetlbpage.c
++++ b/arch/powerpc/mm/hugetlbpage.c
+@@ -53,20 +53,24 @@ static int __hugepte_alloc(struct mm_str
+ 	if (pshift >= pdshift) {
+ 		cachep = PGT_CACHE(PTE_T_ORDER);
+ 		num_hugepd = 1 << (pshift - pdshift);
++		new = NULL;
+ 	} else if (IS_ENABLED(CONFIG_PPC_8xx)) {
+-		cachep = PGT_CACHE(PTE_INDEX_SIZE);
++		cachep = NULL;
+ 		num_hugepd = 1;
++		new = pte_alloc_one(mm);
+ 	} else {
+ 		cachep = PGT_CACHE(pdshift - pshift);
+ 		num_hugepd = 1;
++		new = NULL;
  	}
--
--	return sprintf(buf, "%s\n", val);
-+	ret = sprintf(buf, "%s\n", val);
-+	mutex_unlock(&resource->lock);
-+	return ret;
- }
  
- static ssize_t show_val(struct device *dev,
-@@ -817,11 +820,12 @@ static void acpi_power_meter_notify(stru
- 
- 	resource = acpi_driver_data(device);
- 
--	mutex_lock(&resource->lock);
- 	switch (event) {
- 	case METER_NOTIFY_CONFIG:
-+		mutex_lock(&resource->lock);
- 		free_capabilities(resource);
- 		res = read_capabilities(resource);
-+		mutex_unlock(&resource->lock);
- 		if (res)
- 			break;
- 
-@@ -830,15 +834,12 @@ static void acpi_power_meter_notify(stru
- 		break;
- 	case METER_NOTIFY_TRIP:
- 		sysfs_notify(&device->dev.kobj, NULL, POWER_AVERAGE_NAME);
--		update_meter(resource);
- 		break;
- 	case METER_NOTIFY_CAP:
- 		sysfs_notify(&device->dev.kobj, NULL, POWER_CAP_NAME);
--		update_cap(resource);
- 		break;
- 	case METER_NOTIFY_INTERVAL:
- 		sysfs_notify(&device->dev.kobj, NULL, POWER_AVG_INTERVAL_NAME);
--		update_avg_interval(resource);
- 		break;
- 	case METER_NOTIFY_CAPPING:
- 		sysfs_notify(&device->dev.kobj, NULL, POWER_ALARM_NAME);
-@@ -848,7 +849,6 @@ static void acpi_power_meter_notify(stru
- 		WARN(1, "Unexpected event %d\n", event);
- 		break;
+-	if (!cachep) {
++	if (!cachep && !new) {
+ 		WARN_ONCE(1, "No page table cache created for hugetlb tables");
+ 		return -ENOMEM;
  	}
--	mutex_unlock(&resource->lock);
  
- 	acpi_bus_generate_netlink_event(ACPI_POWER_METER_CLASS,
- 					dev_name(&device->dev), event, 0);
-@@ -912,8 +912,8 @@ static int acpi_power_meter_remove(struc
- 	resource = acpi_driver_data(device);
- 	hwmon_device_unregister(resource->hwmon_dev);
+-	new = kmem_cache_alloc(cachep, pgtable_gfp_flags(mm, GFP_KERNEL));
++	if (cachep)
++		new = kmem_cache_alloc(cachep, pgtable_gfp_flags(mm, GFP_KERNEL));
  
--	free_capabilities(resource);
- 	remove_attrs(resource);
-+	free_capabilities(resource);
+ 	BUG_ON(pshift > HUGEPD_SHIFT_MASK);
+ 	BUG_ON((unsigned long)new & HUGEPD_SHIFT_MASK);
+@@ -97,7 +101,10 @@ static int __hugepte_alloc(struct mm_str
+ 	if (i < num_hugepd) {
+ 		for (i = i - 1 ; i >= 0; i--, hpdp--)
+ 			*hpdp = __hugepd(0);
+-		kmem_cache_free(cachep, new);
++		if (cachep)
++			kmem_cache_free(cachep, new);
++		else
++			pte_free(mm, new);
+ 	} else {
+ 		kmemleak_ignore(new);
+ 	}
+@@ -324,8 +331,7 @@ static void free_hugepd_range(struct mmu
+ 	if (shift >= pdshift)
+ 		hugepd_free(tlb, hugepte);
+ 	else if (IS_ENABLED(CONFIG_PPC_8xx))
+-		pgtable_free_tlb(tlb, hugepte,
+-				 get_hugepd_cache_index(PTE_INDEX_SIZE));
++		pgtable_free_tlb(tlb, hugepte, 0);
+ 	else
+ 		pgtable_free_tlb(tlb, hugepte,
+ 				 get_hugepd_cache_index(pdshift - shift));
+@@ -639,12 +645,13 @@ static int __init hugetlbpage_init(void)
+ 		 * if we have pdshift and shift value same, we don't
+ 		 * use pgt cache for hugepd.
+ 		 */
+-		if (pdshift > shift && IS_ENABLED(CONFIG_PPC_8xx))
+-			pgtable_cache_add(PTE_INDEX_SIZE);
+-		else if (pdshift > shift)
+-			pgtable_cache_add(pdshift - shift);
+-		else if (IS_ENABLED(CONFIG_PPC_FSL_BOOK3E) || IS_ENABLED(CONFIG_PPC_8xx))
++		if (pdshift > shift) {
++			if (!IS_ENABLED(CONFIG_PPC_8xx))
++				pgtable_cache_add(pdshift - shift);
++		} else if (IS_ENABLED(CONFIG_PPC_FSL_BOOK3E) ||
++			   IS_ENABLED(CONFIG_PPC_8xx)) {
+ 			pgtable_cache_add(PTE_T_ORDER);
++		}
  
- 	kfree(resource);
- 	return 0;
+ 		configured = true;
+ 	}
 
 
