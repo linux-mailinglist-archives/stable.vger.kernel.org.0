@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 480EB171CAA
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:14:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 09D53171E80
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:28:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389092AbgB0OON (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 09:14:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53324 "EHLO mail.kernel.org"
+        id S1731087AbgB0O2T (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 09:28:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45394 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389074AbgB0OOM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 09:14:12 -0500
+        id S1732992AbgB0OHq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 09:07:46 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4376E20578;
-        Thu, 27 Feb 2020 14:14:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BC83621D7E;
+        Thu, 27 Feb 2020 14:07:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582812851;
-        bh=DPmLCLL0ahSP7fn+LS7OG75V/K+ecstt+63o9yJmvHY=;
+        s=default; t=1582812466;
+        bh=kRzhdOxsRy44jcxMVeScwz2Dy3J/se8dLhkDqIglJLI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LojfTRajhVlJxB+TDtxIWGpR0WDTGwHihxtPpcTyHd0W4jlhFi8vcp4XRJEpOSurF
-         YRgwLAj6RhoFr3bTMgL3/ABf4lFqx+dS3d5RrLQ7hl/d9Um/Ac2Ie4VBdJRve2jMHa
-         2yprHEKmIVUO2l/0F8HNYy1d5caepne0yKWVj86g=
+        b=y0i+4XPAI4Yt/+AbLsI1GgXR4CyUDbzhov0zd1WsBjK7RZ50mqgu8SwXj6jGkTzTu
+         ArJ/8jKO3wB0lUR/QQ8QWYhRf7vMCdZKTC0ip7NYrhM3Fh8k+vgeXfWvpdbicJ6tf3
+         DhEsee0XamDuubzXMnPW1llRAy3lcFiYFnRCHEjk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jordy Zomer <jordy@simplyhacker.com>,
-        Willy Tarreau <w@1wt.eu>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.5 023/150] floppy: check FDC index for errors before assigning it
-Date:   Thu, 27 Feb 2020 14:36:00 +0100
-Message-Id: <20200227132236.206297173@linuxfoundation.org>
+        stable@vger.kernel.org, Jann Horn <jannh@google.com>,
+        Suren Baghdasaryan <surenb@google.com>,
+        Todd Kjos <tkjos@google.com>,
+        "Joel Fernandes (Google)" <joel@joelfernandes.org>
+Subject: [PATCH 5.4 021/135] staging: android: ashmem: Disallow ashmem memory from being remapped
+Date:   Thu, 27 Feb 2020 14:36:01 +0100
+Message-Id: <20200227132232.442118065@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200227132232.815448360@linuxfoundation.org>
-References: <20200227132232.815448360@linuxfoundation.org>
+In-Reply-To: <20200227132228.710492098@linuxfoundation.org>
+References: <20200227132228.710492098@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,65 +45,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Suren Baghdasaryan <surenb@google.com>
 
-commit 2e90ca68b0d2f5548804f22f0dd61145516171e3 upstream.
+commit 6d67b0290b4b84c477e6a2fc6e005e174d3c7786 upstream.
 
-Jordy Zomer reported a KASAN out-of-bounds read in the floppy driver in
-wait_til_ready().
+When ashmem file is mmapped, the resulting vma->vm_file points to the
+backing shmem file with the generic fops that do not check ashmem
+permissions like fops of ashmem do. If an mremap is done on the ashmem
+region, then the permission checks will be skipped. Fix that by disallowing
+mapping operation on the backing shmem file.
 
-Which on the face of it can't happen, since as Willy Tarreau points out,
-the function does no particular memory access.  Except through the FDCS
-macro, which just indexes a static allocation through teh current fdc,
-which is always checked against N_FDC.
-
-Except the checking happens after we've already assigned the value.
-
-The floppy driver is a disgrace (a lot of it going back to my original
-horrd "design"), and has no real maintainer.  Nobody has the hardware,
-and nobody really cares.  But it still gets used in virtual environment
-because it's one of those things that everybody supports.
-
-The whole thing should be re-written, or at least parts of it should be
-seriously cleaned up.  The 'current fdc' index, which is used by the
-FDCS macro, and which is often shadowed by a local 'fdc' variable, is a
-prime example of how not to write code.
-
-But because nobody has the hardware or the motivation, let's just fix up
-the immediate problem with a nasty band-aid: test the fdc index before
-actually assigning it to the static 'fdc' variable.
-
-Reported-by: Jordy Zomer <jordy@simplyhacker.com>
-Cc: Willy Tarreau <w@1wt.eu>
-Cc: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Reported-by: Jann Horn <jannh@google.com>
+Signed-off-by: Suren Baghdasaryan <surenb@google.com>
+Cc: stable <stable@vger.kernel.org> # 4.4,4.9,4.14,4.18,5.4
+Signed-off-by: Todd Kjos <tkjos@google.com>
+Reviewed-by: Joel Fernandes (Google) <joel@joelfernandes.org>
+Link: https://lore.kernel.org/r/20200127235616.48920-1-tkjos@google.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/block/floppy.c |    7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/staging/android/ashmem.c |   28 ++++++++++++++++++++++++++++
+ 1 file changed, 28 insertions(+)
 
---- a/drivers/block/floppy.c
-+++ b/drivers/block/floppy.c
-@@ -853,14 +853,17 @@ static void reset_fdc_info(int mode)
- /* selects the fdc and drive, and enables the fdc's input/dma. */
- static void set_fdc(int drive)
- {
-+	unsigned int new_fdc = fdc;
+--- a/drivers/staging/android/ashmem.c
++++ b/drivers/staging/android/ashmem.c
+@@ -351,8 +351,23 @@ static inline vm_flags_t calc_vm_may_fla
+ 	       _calc_vm_trans(prot, PROT_EXEC,  VM_MAYEXEC);
+ }
+ 
++static int ashmem_vmfile_mmap(struct file *file, struct vm_area_struct *vma)
++{
++	/* do not allow to mmap ashmem backing shmem file directly */
++	return -EPERM;
++}
 +
- 	if (drive >= 0 && drive < N_DRIVE) {
--		fdc = FDC(drive);
-+		new_fdc = FDC(drive);
- 		current_drive = drive;
++static unsigned long
++ashmem_vmfile_get_unmapped_area(struct file *file, unsigned long addr,
++				unsigned long len, unsigned long pgoff,
++				unsigned long flags)
++{
++	return current->mm->get_unmapped_area(file, addr, len, pgoff, flags);
++}
++
+ static int ashmem_mmap(struct file *file, struct vm_area_struct *vma)
+ {
++	static struct file_operations vmfile_fops;
+ 	struct ashmem_area *asma = file->private_data;
+ 	int ret = 0;
+ 
+@@ -393,6 +408,19 @@ static int ashmem_mmap(struct file *file
+ 		}
+ 		vmfile->f_mode |= FMODE_LSEEK;
+ 		asma->file = vmfile;
++		/*
++		 * override mmap operation of the vmfile so that it can't be
++		 * remapped which would lead to creation of a new vma with no
++		 * asma permission checks. Have to override get_unmapped_area
++		 * as well to prevent VM_BUG_ON check for f_ops modification.
++		 */
++		if (!vmfile_fops.mmap) {
++			vmfile_fops = *vmfile->f_op;
++			vmfile_fops.mmap = ashmem_vmfile_mmap;
++			vmfile_fops.get_unmapped_area =
++					ashmem_vmfile_get_unmapped_area;
++		}
++		vmfile->f_op = &vmfile_fops;
  	}
--	if (fdc != 1 && fdc != 0) {
-+	if (new_fdc >= N_FDC) {
- 		pr_info("bad fdc value\n");
- 		return;
- 	}
-+	fdc = new_fdc;
- 	set_dor(fdc, ~0, 8);
- #if N_FDC > 1
- 	set_dor(1 - fdc, ~8, 0);
+ 	get_file(asma->file);
+ 
 
 
