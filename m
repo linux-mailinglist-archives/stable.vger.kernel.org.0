@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BA02E171F29
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:33:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8EBB3171EDC
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:31:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732876AbgB0OBL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 09:01:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34988 "EHLO mail.kernel.org"
+        id S1733052AbgB0Oal (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 09:30:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41356 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732873AbgB0OBK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 09:01:10 -0500
+        id S2387649AbgB0OEy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 09:04:54 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 489292073D;
-        Thu, 27 Feb 2020 14:01:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0146020578;
+        Thu, 27 Feb 2020 14:04:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582812069;
-        bh=KqhDusmnOr0PMzX6nhRhCjvLTXSYqGhmCiQq3z60Vno=;
+        s=default; t=1582812293;
+        bh=+Ageaz9hjQCs8xoZUS3femTFGabZap9P1XDvmO90B2w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PHjTFWLWxT/84DYgiDvHTfUIzr/2kMeBHofi6GYONvXrwOv5nm7ovbACAa7H5MD7Y
-         QkaBFrmpTyFSzFciUZn1ASiwGnoJZK7h584q6P7DLddh1zMeXFNCRaVELgvC+H9V7M
-         tUFeTlprU/qx2GbdH0ddZY2Kxo5kGUkmE71o8PXY=
+        b=cEUMAlaGBZvqUTjxpeP/8JddSlKLUzgwhsaoBeM2iwLk4xT72ZvO9Vbvx3QIRq5AB
+         lwEpvchiN6tqYoesjvFwIcN+NJlkhKUm11EG1Z42NSjFSFG7p67+TeH2pdkrIYcdVr
+         yOwHQNp8iU3j04hz9dFxHA/tCByMITxwzvazgIRY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qian Cai <cai@lca.pw>,
-        Theodore Tso <tytso@mit.edu>, stable@kernel.org
-Subject: [PATCH 4.14 211/237] ext4: fix a data race in EXT4_I(inode)->i_disksize
-Date:   Thu, 27 Feb 2020 14:37:05 +0100
-Message-Id: <20200227132311.734338280@linuxfoundation.org>
+        stable@vger.kernel.org, Ryan Case <ryandcase@chromium.org>,
+        Evan Green <evgreen@chromium.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 58/97] tty: serial: qcom_geni_serial: Remove xfer_mode variable
+Date:   Thu, 27 Feb 2020 14:37:06 +0100
+Message-Id: <20200227132224.027856915@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200227132255.285644406@linuxfoundation.org>
-References: <20200227132255.285644406@linuxfoundation.org>
+In-Reply-To: <20200227132214.553656188@linuxfoundation.org>
+References: <20200227132214.553656188@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,87 +44,151 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qian Cai <cai@lca.pw>
+From: Ryan Case <ryandcase@chromium.org>
 
-commit 35df4299a6487f323b0aca120ea3f485dfee2ae3 upstream.
+[ Upstream commit bdc05a8a3f822ca0662464055f902faf760da6be ]
 
-EXT4_I(inode)->i_disksize could be accessed concurrently as noticed by
-KCSAN,
+The driver only supports FIFO mode so setting and checking this variable
+is unnecessary. If DMA support is ever added then such checks can be
+introduced.
 
- BUG: KCSAN: data-race in ext4_write_end [ext4] / ext4_writepages [ext4]
-
- write to 0xffff91c6713b00f8 of 8 bytes by task 49268 on cpu 127:
-  ext4_write_end+0x4e3/0x750 [ext4]
-  ext4_update_i_disksize at fs/ext4/ext4.h:3032
-  (inlined by) ext4_update_inode_size at fs/ext4/ext4.h:3046
-  (inlined by) ext4_write_end at fs/ext4/inode.c:1287
-  generic_perform_write+0x208/0x2a0
-  ext4_buffered_write_iter+0x11f/0x210 [ext4]
-  ext4_file_write_iter+0xce/0x9e0 [ext4]
-  new_sync_write+0x29c/0x3b0
-  __vfs_write+0x92/0xa0
-  vfs_write+0x103/0x260
-  ksys_write+0x9d/0x130
-  __x64_sys_write+0x4c/0x60
-  do_syscall_64+0x91/0xb47
-  entry_SYSCALL_64_after_hwframe+0x49/0xbe
-
- read to 0xffff91c6713b00f8 of 8 bytes by task 24872 on cpu 37:
-  ext4_writepages+0x10ac/0x1d00 [ext4]
-  mpage_map_and_submit_extent at fs/ext4/inode.c:2468
-  (inlined by) ext4_writepages at fs/ext4/inode.c:2772
-  do_writepages+0x5e/0x130
-  __writeback_single_inode+0xeb/0xb20
-  writeback_sb_inodes+0x429/0x900
-  __writeback_inodes_wb+0xc4/0x150
-  wb_writeback+0x4bd/0x870
-  wb_workfn+0x6b4/0x960
-  process_one_work+0x54c/0xbe0
-  worker_thread+0x80/0x650
-  kthread+0x1e0/0x200
-  ret_from_fork+0x27/0x50
-
- Reported by Kernel Concurrency Sanitizer on:
- CPU: 37 PID: 24872 Comm: kworker/u261:2 Tainted: G        W  O L 5.5.0-next-20200204+ #5
- Hardware name: HPE ProLiant DL385 Gen10/ProLiant DL385 Gen10, BIOS A40 07/10/2019
- Workqueue: writeback wb_workfn (flush-7:0)
-
-Since only the read is operating as lockless (outside of the
-"i_data_sem"), load tearing could introduce a logic bug. Fix it by
-adding READ_ONCE() for the read and WRITE_ONCE() for the write.
-
-Signed-off-by: Qian Cai <cai@lca.pw>
-Link: https://lore.kernel.org/r/1581085751-31793-1-git-send-email-cai@lca.pw
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Cc: stable@kernel.org
+Signed-off-by: Ryan Case <ryandcase@chromium.org>
+Reviewed-by: Evan Green <evgreen@chromium.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/ext4.h  |    2 +-
- fs/ext4/inode.c |    2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/tty/serial/qcom_geni_serial.c | 67 ++++++++++-----------------
+ 1 file changed, 24 insertions(+), 43 deletions(-)
 
---- a/fs/ext4/ext4.h
-+++ b/fs/ext4/ext4.h
-@@ -2867,7 +2867,7 @@ static inline void ext4_update_i_disksiz
- 		     !inode_is_locked(inode));
- 	down_write(&EXT4_I(inode)->i_data_sem);
- 	if (newsize > EXT4_I(inode)->i_disksize)
--		EXT4_I(inode)->i_disksize = newsize;
-+		WRITE_ONCE(EXT4_I(inode)->i_disksize, newsize);
- 	up_write(&EXT4_I(inode)->i_data_sem);
+diff --git a/drivers/tty/serial/qcom_geni_serial.c b/drivers/tty/serial/qcom_geni_serial.c
+index 080fa1d1ecbfd..4182129925dec 100644
+--- a/drivers/tty/serial/qcom_geni_serial.c
++++ b/drivers/tty/serial/qcom_geni_serial.c
+@@ -101,7 +101,6 @@ struct qcom_geni_serial_port {
+ 	u32 tx_fifo_depth;
+ 	u32 tx_fifo_width;
+ 	u32 rx_fifo_depth;
+-	enum geni_se_xfer_mode xfer_mode;
+ 	bool setup;
+ 	int (*handle_rx)(struct uart_port *uport, u32 bytes, bool drop);
+ 	unsigned int baud;
+@@ -547,29 +546,20 @@ static int handle_rx_uart(struct uart_port *uport, u32 bytes, bool drop)
+ static void qcom_geni_serial_start_tx(struct uart_port *uport)
+ {
+ 	u32 irq_en;
+-	struct qcom_geni_serial_port *port = to_dev_port(uport, uport);
+ 	u32 status;
+ 
+-	if (port->xfer_mode == GENI_SE_FIFO) {
+-		/*
+-		 * readl ensures reading & writing of IRQ_EN register
+-		 * is not re-ordered before checking the status of the
+-		 * Serial Engine.
+-		 */
+-		status = readl(uport->membase + SE_GENI_STATUS);
+-		if (status & M_GENI_CMD_ACTIVE)
+-			return;
++	status = readl(uport->membase + SE_GENI_STATUS);
++	if (status & M_GENI_CMD_ACTIVE)
++		return;
+ 
+-		if (!qcom_geni_serial_tx_empty(uport))
+-			return;
++	if (!qcom_geni_serial_tx_empty(uport))
++		return;
+ 
+-		irq_en = readl(uport->membase +	SE_GENI_M_IRQ_EN);
+-		irq_en |= M_TX_FIFO_WATERMARK_EN | M_CMD_DONE_EN;
++	irq_en = readl(uport->membase +	SE_GENI_M_IRQ_EN);
++	irq_en |= M_TX_FIFO_WATERMARK_EN | M_CMD_DONE_EN;
+ 
+-		writel(DEF_TX_WM, uport->membase +
+-						SE_GENI_TX_WATERMARK_REG);
+-		writel(irq_en, uport->membase +	SE_GENI_M_IRQ_EN);
+-	}
++	writel(DEF_TX_WM, uport->membase + SE_GENI_TX_WATERMARK_REG);
++	writel(irq_en, uport->membase +	SE_GENI_M_IRQ_EN);
  }
  
---- a/fs/ext4/inode.c
-+++ b/fs/ext4/inode.c
-@@ -2564,7 +2564,7 @@ update_disksize:
- 	 * truncate are avoided by checking i_size under i_data_sem.
- 	 */
- 	disksize = ((loff_t)mpd->first_page) << PAGE_SHIFT;
--	if (disksize > EXT4_I(inode)->i_disksize) {
-+	if (disksize > READ_ONCE(EXT4_I(inode)->i_disksize)) {
- 		int err2;
- 		loff_t i_size;
+ static void qcom_geni_serial_stop_tx(struct uart_port *uport)
+@@ -579,12 +569,8 @@ static void qcom_geni_serial_stop_tx(struct uart_port *uport)
+ 	struct qcom_geni_serial_port *port = to_dev_port(uport, uport);
  
+ 	irq_en = readl(uport->membase + SE_GENI_M_IRQ_EN);
+-	irq_en &= ~M_CMD_DONE_EN;
+-	if (port->xfer_mode == GENI_SE_FIFO) {
+-		irq_en &= ~M_TX_FIFO_WATERMARK_EN;
+-		writel(0, uport->membase +
+-				     SE_GENI_TX_WATERMARK_REG);
+-	}
++	irq_en &= ~(M_CMD_DONE_EN | M_TX_FIFO_WATERMARK_EN);
++	writel(0, uport->membase + SE_GENI_TX_WATERMARK_REG);
+ 	writel(irq_en, uport->membase + SE_GENI_M_IRQ_EN);
+ 	status = readl(uport->membase + SE_GENI_STATUS);
+ 	/* Possible stop tx is called multiple times. */
+@@ -614,15 +600,13 @@ static void qcom_geni_serial_start_rx(struct uart_port *uport)
+ 
+ 	geni_se_setup_s_cmd(&port->se, UART_START_READ, 0);
+ 
+-	if (port->xfer_mode == GENI_SE_FIFO) {
+-		irq_en = readl(uport->membase + SE_GENI_S_IRQ_EN);
+-		irq_en |= S_RX_FIFO_WATERMARK_EN | S_RX_FIFO_LAST_EN;
+-		writel(irq_en, uport->membase + SE_GENI_S_IRQ_EN);
++	irq_en = readl(uport->membase + SE_GENI_S_IRQ_EN);
++	irq_en |= S_RX_FIFO_WATERMARK_EN | S_RX_FIFO_LAST_EN;
++	writel(irq_en, uport->membase + SE_GENI_S_IRQ_EN);
+ 
+-		irq_en = readl(uport->membase + SE_GENI_M_IRQ_EN);
+-		irq_en |= M_RX_FIFO_WATERMARK_EN | M_RX_FIFO_LAST_EN;
+-		writel(irq_en, uport->membase + SE_GENI_M_IRQ_EN);
+-	}
++	irq_en = readl(uport->membase + SE_GENI_M_IRQ_EN);
++	irq_en |= M_RX_FIFO_WATERMARK_EN | M_RX_FIFO_LAST_EN;
++	writel(irq_en, uport->membase + SE_GENI_M_IRQ_EN);
+ }
+ 
+ static void qcom_geni_serial_stop_rx(struct uart_port *uport)
+@@ -632,15 +616,13 @@ static void qcom_geni_serial_stop_rx(struct uart_port *uport)
+ 	struct qcom_geni_serial_port *port = to_dev_port(uport, uport);
+ 	u32 irq_clear = S_CMD_DONE_EN;
+ 
+-	if (port->xfer_mode == GENI_SE_FIFO) {
+-		irq_en = readl(uport->membase + SE_GENI_S_IRQ_EN);
+-		irq_en &= ~(S_RX_FIFO_WATERMARK_EN | S_RX_FIFO_LAST_EN);
+-		writel(irq_en, uport->membase + SE_GENI_S_IRQ_EN);
++	irq_en = readl(uport->membase + SE_GENI_S_IRQ_EN);
++	irq_en &= ~(S_RX_FIFO_WATERMARK_EN | S_RX_FIFO_LAST_EN);
++	writel(irq_en, uport->membase + SE_GENI_S_IRQ_EN);
+ 
+-		irq_en = readl(uport->membase + SE_GENI_M_IRQ_EN);
+-		irq_en &= ~(M_RX_FIFO_WATERMARK_EN | M_RX_FIFO_LAST_EN);
+-		writel(irq_en, uport->membase + SE_GENI_M_IRQ_EN);
+-	}
++	irq_en = readl(uport->membase + SE_GENI_M_IRQ_EN);
++	irq_en &= ~(M_RX_FIFO_WATERMARK_EN | M_RX_FIFO_LAST_EN);
++	writel(irq_en, uport->membase + SE_GENI_M_IRQ_EN);
+ 
+ 	status = readl(uport->membase + SE_GENI_STATUS);
+ 	/* Possible stop rx is called multiple times. */
+@@ -878,7 +860,6 @@ static int qcom_geni_serial_port_setup(struct uart_port *uport)
+ 	 * Make an unconditional cancel on the main sequencer to reset
+ 	 * it else we could end up in data loss scenarios.
+ 	 */
+-	port->xfer_mode = GENI_SE_FIFO;
+ 	if (uart_console(uport))
+ 		qcom_geni_serial_poll_tx_done(uport);
+ 	geni_se_config_packing(&port->se, BITS_PER_BYTE, port->tx_bytes_pw,
+@@ -886,7 +867,7 @@ static int qcom_geni_serial_port_setup(struct uart_port *uport)
+ 	geni_se_config_packing(&port->se, BITS_PER_BYTE, port->rx_bytes_pw,
+ 						false, false, true);
+ 	geni_se_init(&port->se, UART_RX_WM, port->rx_fifo_depth - 2);
+-	geni_se_select_mode(&port->se, port->xfer_mode);
++	geni_se_select_mode(&port->se, GENI_SE_FIFO);
+ 	if (!uart_console(uport)) {
+ 		port->rx_fifo = devm_kcalloc(uport->dev,
+ 			port->rx_fifo_depth, sizeof(u32), GFP_KERNEL);
+-- 
+2.20.1
+
 
 
