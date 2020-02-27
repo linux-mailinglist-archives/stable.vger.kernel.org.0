@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 480A6171A92
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 14:55:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 890501719A7
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 14:47:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731600AbgB0Ny6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 08:54:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55122 "EHLO mail.kernel.org"
+        id S1730171AbgB0Nqw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 08:46:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43176 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731926AbgB0Ny5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 08:54:57 -0500
+        id S1730589AbgB0Nqu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 08:46:50 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1AF902084E;
-        Thu, 27 Feb 2020 13:54:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5E1762469F;
+        Thu, 27 Feb 2020 13:46:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582811696;
-        bh=9HLdkMMX77Gb8gmumIGYRs7r4xKA2witeWT225J7nKA=;
+        s=default; t=1582811209;
+        bh=Swyng6d+9CposMWyIsWX6EsBuZZ282uigPpLCyS1LsI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OpGqQmAGw8rJKsIAtT7l/d5L+GrRr3wFF0qicvv1B0IvgXF0dRnTcNgZPecm1yd5l
-         N4aogUxI0rZSDSC4zVEwzQFeNXph4PMwsPd3vryO4CrKR9o0gEL6QQJIGbX3NXQXWa
-         Ew4ZX2p5K/3qJq+mNzRa8soGTHcP+reafNvv4VY0=
+        b=EnAZutLKfXmC9mYyYZkgIxCMr8ElELic3EC77d+0NZFdb1BH7d7Bepn2NwmMztM9F
+         fZ8ZGhILGkYC0yIbyAD6QIrCI2EIW0NBxkEC9+FU4wc6iu0NZaT2i+7apclmfDX4hB
+         wtJU6HI3/36gxHnjlKqLJB6SEgfKtGH/1Lru7Tl4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Luis Henriques <luis.henriques@canonical.com>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 065/237] tracing: Fix very unlikely race of registering two stat tracers
-Date:   Thu, 27 Feb 2020 14:34:39 +0100
-Message-Id: <20200227132301.821694547@linuxfoundation.org>
+        stable@vger.kernel.org, Andreas Dilger <adilger@dilger.ca>,
+        Theodore Tso <tytso@mit.edu>, stable@kernel.org
+Subject: [PATCH 4.9 007/165] ext4: dont assume that mmp_nodename/bdevname have NUL
+Date:   Thu, 27 Feb 2020 14:34:41 +0100
+Message-Id: <20200227132232.204573341@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200227132255.285644406@linuxfoundation.org>
-References: <20200227132255.285644406@linuxfoundation.org>
+In-Reply-To: <20200227132230.840899170@linuxfoundation.org>
+References: <20200227132230.840899170@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,87 +43,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Rostedt (VMware) <rostedt@goodmis.org>
+From: Andreas Dilger <adilger@dilger.ca>
 
-[ Upstream commit dfb6cd1e654315168e36d947471bd2a0ccd834ae ]
+commit 14c9ca0583eee8df285d68a0e6ec71053efd2228 upstream.
 
-Looking through old emails in my INBOX, I came across a patch from Luis
-Henriques that attempted to fix a race of two stat tracers registering the
-same stat trace (extremely unlikely, as this is done in the kernel, and
-probably doesn't even exist). The submitted patch wasn't quite right as it
-needed to deal with clean up a bit better (if two stat tracers were the
-same, it would have the same files).
+Don't assume that the mmp_nodename and mmp_bdevname strings are NUL
+terminated, since they are filled in by snprintf(), which is not
+guaranteed to do so.
 
-But to make the code cleaner, all we needed to do is to keep the
-all_stat_sessions_mutex held for most of the registering function.
+Link: https://lore.kernel.org/r/1580076215-1048-1-git-send-email-adilger@dilger.ca
+Signed-off-by: Andreas Dilger <adilger@dilger.ca>
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Cc: stable@kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Link: http://lkml.kernel.org/r/1410299375-20068-1-git-send-email-luis.henriques@canonical.com
-
-Fixes: 002bb86d8d42f ("tracing/ftrace: separate events tracing and stats tracing engine")
-Reported-by: Luis Henriques <luis.henriques@canonical.com>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/trace/trace_stat.c | 19 +++++++++----------
- 1 file changed, 9 insertions(+), 10 deletions(-)
+ fs/ext4/mmp.c |   12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
 
-diff --git a/kernel/trace/trace_stat.c b/kernel/trace/trace_stat.c
-index bf68af63538b4..92b76f9e25edd 100644
---- a/kernel/trace/trace_stat.c
-+++ b/kernel/trace/trace_stat.c
-@@ -306,7 +306,7 @@ static int init_stat_file(struct stat_session *session)
- int register_stat_tracer(struct tracer_stat *trace)
+--- a/fs/ext4/mmp.c
++++ b/fs/ext4/mmp.c
+@@ -119,10 +119,10 @@ void __dump_mmp_msg(struct super_block *
  {
- 	struct stat_session *session, *node;
--	int ret;
-+	int ret = -EINVAL;
- 
- 	if (!trace)
- 		return -EINVAL;
-@@ -317,17 +317,15 @@ int register_stat_tracer(struct tracer_stat *trace)
- 	/* Already registered? */
- 	mutex_lock(&all_stat_sessions_mutex);
- 	list_for_each_entry(node, &all_stat_sessions, session_list) {
--		if (node->ts == trace) {
--			mutex_unlock(&all_stat_sessions_mutex);
--			return -EINVAL;
--		}
-+		if (node->ts == trace)
-+			goto out;
- 	}
--	mutex_unlock(&all_stat_sessions_mutex);
- 
-+	ret = -ENOMEM;
- 	/* Init the session */
- 	session = kzalloc(sizeof(*session), GFP_KERNEL);
- 	if (!session)
--		return -ENOMEM;
-+		goto out;
- 
- 	session->ts = trace;
- 	INIT_LIST_HEAD(&session->session_list);
-@@ -336,15 +334,16 @@ int register_stat_tracer(struct tracer_stat *trace)
- 	ret = init_stat_file(session);
- 	if (ret) {
- 		destroy_session(session);
--		return ret;
-+		goto out;
- 	}
- 
-+	ret = 0;
- 	/* Register */
--	mutex_lock(&all_stat_sessions_mutex);
- 	list_add_tail(&session->session_list, &all_stat_sessions);
-+ out:
- 	mutex_unlock(&all_stat_sessions_mutex);
- 
--	return 0;
-+	return ret;
+ 	__ext4_warning(sb, function, line, "%s", msg);
+ 	__ext4_warning(sb, function, line,
+-		       "MMP failure info: last update time: %llu, last update "
+-		       "node: %s, last update device: %s",
+-		       (long long unsigned int) le64_to_cpu(mmp->mmp_time),
+-		       mmp->mmp_nodename, mmp->mmp_bdevname);
++		       "MMP failure info: last update time: %llu, last update node: %.*s, last update device: %.*s",
++		       (unsigned long long)le64_to_cpu(mmp->mmp_time),
++		       (int)sizeof(mmp->mmp_nodename), mmp->mmp_nodename,
++		       (int)sizeof(mmp->mmp_bdevname), mmp->mmp_bdevname);
  }
  
- void unregister_stat_tracer(struct tracer_stat *trace)
--- 
-2.20.1
-
+ /*
+@@ -153,6 +153,7 @@ static int kmmpd(void *data)
+ 	mmp_check_interval = max(EXT4_MMP_CHECK_MULT * mmp_update_interval,
+ 				 EXT4_MMP_MIN_CHECK_INTERVAL);
+ 	mmp->mmp_check_interval = cpu_to_le16(mmp_check_interval);
++	BUILD_BUG_ON(sizeof(mmp->mmp_bdevname) < BDEVNAME_SIZE);
+ 	bdevname(bh->b_bdev, mmp->mmp_bdevname);
+ 
+ 	memcpy(mmp->mmp_nodename, init_utsname()->nodename,
+@@ -377,7 +378,8 @@ skip:
+ 	/*
+ 	 * Start a kernel thread to update the MMP block periodically.
+ 	 */
+-	EXT4_SB(sb)->s_mmp_tsk = kthread_run(kmmpd, mmpd_data, "kmmpd-%s",
++	EXT4_SB(sb)->s_mmp_tsk = kthread_run(kmmpd, mmpd_data, "kmmpd-%.*s",
++					     (int)sizeof(mmp->mmp_bdevname),
+ 					     bdevname(bh->b_bdev,
+ 						      mmp->mmp_bdevname));
+ 	if (IS_ERR(EXT4_SB(sb)->s_mmp_tsk)) {
 
 
