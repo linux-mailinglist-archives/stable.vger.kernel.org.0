@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C598D171A22
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 14:51:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BB997171A24
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 14:51:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730910AbgB0NvI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 08:51:08 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49866 "EHLO mail.kernel.org"
+        id S1731349AbgB0NvM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 08:51:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50090 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731341AbgB0NvH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 08:51:07 -0500
+        id S1731341AbgB0NvM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 08:51:12 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3206120578;
-        Thu, 27 Feb 2020 13:51:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1EA8D20578;
+        Thu, 27 Feb 2020 13:51:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582811466;
-        bh=NhUQGsnafUe+C5Bx0IIl7hrgX87gytrWYkGTQoNos+0=;
+        s=default; t=1582811471;
+        bh=VWIK8UJFD3vQOFRmgq36R1Z0wapKjvDmg7O7W8UYaKs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r0RQYjKtuu00TunCAeT3YW/rPtIs13QYZqmLjpY1NboHFMsSmUTCsyeaCExdfjSib
-         XPU7j5CE1yoIaqfSKJSWEbiVKa1U3Gtly9N+gv0tf7sHFbUrONaXeTfht3mg7AdQs8
-         xOIT6KBVNxKXf4ts7p78MZ738imHPcmQwGz0lZJk=
+        b=2cYE8g9WcoOYe1KL5Mjjvg40GGRIEIopBDxhoYDFiVsi1hw4pq19cN/1y03stKL1m
+         H2iBLuuw9+w7Gt/HuEb79oQqxKf0KbOkxWYKsvYX7O2s26f3VXAujP169Ah4Vnj+YT
+         PeQSRf5gTDPXlBg/rCMe27MWPhnOCiPNYy0oN3AU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jann Horn <jannh@google.com>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
-        Zubin Mithra <zsm@chromium.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 144/165] netfilter: xt_bpf: add overflow checks
-Date:   Thu, 27 Feb 2020 14:36:58 +0100
-Message-Id: <20200227132251.928547530@linuxfoundation.org>
+        stable@vger.kernel.org, Qian Cai <cai@lca.pw>,
+        Theodore Tso <tytso@mit.edu>, stable@kernel.org
+Subject: [PATCH 4.9 145/165] ext4: fix a data race in EXT4_I(inode)->i_disksize
+Date:   Thu, 27 Feb 2020 14:36:59 +0100
+Message-Id: <20200227132252.035204107@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200227132230.840899170@linuxfoundation.org>
 References: <20200227132230.840899170@linuxfoundation.org>
@@ -45,75 +43,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jann Horn <jannh@google.com>
+From: Qian Cai <cai@lca.pw>
 
-[ Upstream commit 6ab405114b0b229151ef06f4e31c7834dd09d0c0 ]
+commit 35df4299a6487f323b0aca120ea3f485dfee2ae3 upstream.
 
-Check whether inputs from userspace are too long (explicit length field too
-big or string not null-terminated) to avoid out-of-bounds reads.
+EXT4_I(inode)->i_disksize could be accessed concurrently as noticed by
+KCSAN,
 
-As far as I can tell, this can at worst lead to very limited kernel heap
-memory disclosure or oopses.
+ BUG: KCSAN: data-race in ext4_write_end [ext4] / ext4_writepages [ext4]
 
-This bug can be triggered by an unprivileged user even if the xt_bpf module
-is not loaded: iptables is available in network namespaces, and the xt_bpf
-module can be autoloaded.
+ write to 0xffff91c6713b00f8 of 8 bytes by task 49268 on cpu 127:
+  ext4_write_end+0x4e3/0x750 [ext4]
+  ext4_update_i_disksize at fs/ext4/ext4.h:3032
+  (inlined by) ext4_update_inode_size at fs/ext4/ext4.h:3046
+  (inlined by) ext4_write_end at fs/ext4/inode.c:1287
+  generic_perform_write+0x208/0x2a0
+  ext4_buffered_write_iter+0x11f/0x210 [ext4]
+  ext4_file_write_iter+0xce/0x9e0 [ext4]
+  new_sync_write+0x29c/0x3b0
+  __vfs_write+0x92/0xa0
+  vfs_write+0x103/0x260
+  ksys_write+0x9d/0x130
+  __x64_sys_write+0x4c/0x60
+  do_syscall_64+0x91/0xb47
+  entry_SYSCALL_64_after_hwframe+0x49/0xbe
 
-Triggering the bug with a classic BPF filter with fake length 0x1000 causes
-the following KASAN report:
+ read to 0xffff91c6713b00f8 of 8 bytes by task 24872 on cpu 37:
+  ext4_writepages+0x10ac/0x1d00 [ext4]
+  mpage_map_and_submit_extent at fs/ext4/inode.c:2468
+  (inlined by) ext4_writepages at fs/ext4/inode.c:2772
+  do_writepages+0x5e/0x130
+  __writeback_single_inode+0xeb/0xb20
+  writeback_sb_inodes+0x429/0x900
+  __writeback_inodes_wb+0xc4/0x150
+  wb_writeback+0x4bd/0x870
+  wb_workfn+0x6b4/0x960
+  process_one_work+0x54c/0xbe0
+  worker_thread+0x80/0x650
+  kthread+0x1e0/0x200
+  ret_from_fork+0x27/0x50
 
-==================================================================
-BUG: KASAN: slab-out-of-bounds in bpf_prog_create+0x84/0xf0
-Read of size 32768 at addr ffff8801eff2c494 by task test/4627
+ Reported by Kernel Concurrency Sanitizer on:
+ CPU: 37 PID: 24872 Comm: kworker/u261:2 Tainted: G        W  O L 5.5.0-next-20200204+ #5
+ Hardware name: HPE ProLiant DL385 Gen10/ProLiant DL385 Gen10, BIOS A40 07/10/2019
+ Workqueue: writeback wb_workfn (flush-7:0)
 
-CPU: 0 PID: 4627 Comm: test Not tainted 4.15.0-rc1+ #1
-[...]
-Call Trace:
- dump_stack+0x5c/0x85
- print_address_description+0x6a/0x260
- kasan_report+0x254/0x370
- ? bpf_prog_create+0x84/0xf0
- memcpy+0x1f/0x50
- bpf_prog_create+0x84/0xf0
- bpf_mt_check+0x90/0xd6 [xt_bpf]
-[...]
-Allocated by task 4627:
- kasan_kmalloc+0xa0/0xd0
- __kmalloc_node+0x47/0x60
- xt_alloc_table_info+0x41/0x70 [x_tables]
-[...]
-The buggy address belongs to the object at ffff8801eff2c3c0
-                which belongs to the cache kmalloc-2048 of size 2048
-The buggy address is located 212 bytes inside of
-                2048-byte region [ffff8801eff2c3c0, ffff8801eff2cbc0)
-[...]
-==================================================================
+Since only the read is operating as lockless (outside of the
+"i_data_sem"), load tearing could introduce a logic bug. Fix it by
+adding READ_ONCE() for the read and WRITE_ONCE() for the write.
 
-Fixes: e6f30c731718 ("netfilter: x_tables: add xt_bpf match")
-Signed-off-by: Jann Horn <jannh@google.com>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
-Signed-off-by: Zubin Mithra <zsm@chromium.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Qian Cai <cai@lca.pw>
+Link: https://lore.kernel.org/r/1581085751-31793-1-git-send-email-cai@lca.pw
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Cc: stable@kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- net/netfilter/xt_bpf.c | 3 +++
- 1 file changed, 3 insertions(+)
+ fs/ext4/ext4.h  |    2 +-
+ fs/ext4/inode.c |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/net/netfilter/xt_bpf.c b/net/netfilter/xt_bpf.c
-index dffee9d47ec4b..7b993f25aab92 100644
---- a/net/netfilter/xt_bpf.c
-+++ b/net/netfilter/xt_bpf.c
-@@ -25,6 +25,9 @@ static int bpf_mt_check(const struct xt_mtchk_param *par)
- 	struct xt_bpf_info *info = par->matchinfo;
- 	struct sock_fprog_kern program;
+--- a/fs/ext4/ext4.h
++++ b/fs/ext4/ext4.h
+@@ -2851,7 +2851,7 @@ static inline void ext4_update_i_disksiz
+ 		     !inode_is_locked(inode));
+ 	down_write(&EXT4_I(inode)->i_data_sem);
+ 	if (newsize > EXT4_I(inode)->i_disksize)
+-		EXT4_I(inode)->i_disksize = newsize;
++		WRITE_ONCE(EXT4_I(inode)->i_disksize, newsize);
+ 	up_write(&EXT4_I(inode)->i_data_sem);
+ }
  
-+	if (info->bpf_program_num_elem > XT_BPF_MAX_NUM_INSTR)
-+		return -EINVAL;
-+
- 	program.len = info->bpf_program_num_elem;
- 	program.filter = info->bpf_program;
+--- a/fs/ext4/inode.c
++++ b/fs/ext4/inode.c
+@@ -2475,7 +2475,7 @@ update_disksize:
+ 	 * truncate are avoided by checking i_size under i_data_sem.
+ 	 */
+ 	disksize = ((loff_t)mpd->first_page) << PAGE_SHIFT;
+-	if (disksize > EXT4_I(inode)->i_disksize) {
++	if (disksize > READ_ONCE(EXT4_I(inode)->i_disksize)) {
+ 		int err2;
+ 		loff_t i_size;
  
--- 
-2.20.1
-
 
 
