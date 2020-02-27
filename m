@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 79309171E04
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:24:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 89DB8171D28
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:18:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388833AbgB0OMX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 09:12:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51034 "EHLO mail.kernel.org"
+        id S2389866AbgB0OSW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 09:18:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58944 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388647AbgB0OMW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 09:12:22 -0500
+        id S1730483AbgB0OSV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 09:18:21 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 610D720801;
-        Thu, 27 Feb 2020 14:12:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ABB512468F;
+        Thu, 27 Feb 2020 14:18:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582812741;
-        bh=wUCnyP0bx4+5EbaDjMSE4OQYAilE4U7QOmG4gmb9nWQ=;
+        s=default; t=1582813101;
+        bh=FMY56qzvCJharns2+c9TUhuElzCBrCqVJxbMDnAG4Go=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=daTq1P/FgzCcDdG6hNozHsWIsHRt7dldWXtlMDo1BKvWTGrl86WPCL8wktAGVrIhn
-         K5iqVjYM7w6au4OIhYuoazYcKS8JhySfRXOeG/v8lEZE93rVGa497FmiUXjIAJKV5t
-         Phg12y2duL3bn35U6DiAZTiejM8/WYNEKj5KF+V4=
+        b=IcISWmWBEshhxiyl6El/h+gyWtyUvdOzYEYSxU+WiH5MjWxnPVOViQ6BdxqfrCSEq
+         6olGBN/TxG+mYbX0OS7J/xuE3degwEG7aakpkK217RE60I3DemMH9Sn3jJKDFJAZL7
+         t5NgQJ+Efgsyw9wweme/msoBVeLo+5EHWDdibTzc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Vasily Gorbik <gor@linux.ibm.com>
-Subject: [PATCH 5.4 133/135] s390/kaslr: Fix casts in get_random
+        stable@vger.kernel.org, Peter Ujfalusi <peter.ujfalusi@ti.com>,
+        Christoph Hellwig <hch@lst.de>
+Subject: [PATCH 5.5 136/150] dma-direct: relax addressability checks in dma_direct_supported
 Date:   Thu, 27 Feb 2020 14:37:53 +0100
-Message-Id: <20200227132249.036936083@linuxfoundation.org>
+Message-Id: <20200227132252.430410586@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200227132228.710492098@linuxfoundation.org>
-References: <20200227132228.710492098@linuxfoundation.org>
+In-Reply-To: <20200227132232.815448360@linuxfoundation.org>
+References: <20200227132232.815448360@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,47 +43,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <natechancellor@gmail.com>
+From: Christoph Hellwig <hch@lst.de>
 
-commit 788d671517b5c81efbed9310ccbadb8cca86a08e upstream.
+commit 91ef26f914171cf753330f13724fd9142b5b1640 upstream.
 
-Clang warns:
+dma_direct_supported tries to find the minimum addressable bitmask
+based on the end pfn and optional magic that architectures can use
+to communicate the size of the magic ZONE_DMA that can be used
+for bounce buffering.  But between the DMA offsets that can change
+per device (or sometimes even region), the fact the ZONE_DMA isn't
+even guaranteed to be the lowest addresses and failure of having
+proper interfaces to the MM code this fails at least for one
+arm subarchitecture.
 
-../arch/s390/boot/kaslr.c:78:25: warning: passing 'char *' to parameter
-of type 'const u8 *' (aka 'const unsigned char *') converts between
-pointers to integer
-types with different sign [-Wpointer-sign]
-                                  (char *) entropy, (char *) entropy,
-                                                    ^~~~~~~~~~~~~~~~
-../arch/s390/include/asm/cpacf.h:280:28: note: passing argument to
-parameter 'src' here
-                            u8 *dest, const u8 *src, long src_len)
-                                                ^
-2 warnings generated.
+As all the legacy DMA implementations have supported 32-bit DMA
+masks, and 32-bit masks are guranteed to always work by the API
+contract (using bounce buffers if needed), we can short cut the
+complicated check and always return true without breaking existing
+assumptions.  Hopefully we can properly clean up the interaction
+with the arch defined zones and the bootmem allocator eventually.
 
-Fix the cast to match what else is done in this function.
-
-Fixes: b2d24b97b2a9 ("s390/kernel: add support for kernel address space layout randomization (KASLR)")
-Link: https://github.com/ClangBuiltLinux/linux/issues/862
-Link: https://lkml.kernel.org/r/20200208141052.48476-1-natechancellor@gmail.com
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Fixes: ad3c7b18c5b3 ("arm: use swiotlb for bounce buffering on LPAE configs")
+Reported-by: Peter Ujfalusi <peter.ujfalusi@ti.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Tested-by: Peter Ujfalusi <peter.ujfalusi@ti.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/s390/boot/kaslr.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/dma/direct.c |   24 +++++++++++-------------
+ 1 file changed, 11 insertions(+), 13 deletions(-)
 
---- a/arch/s390/boot/kaslr.c
-+++ b/arch/s390/boot/kaslr.c
-@@ -75,7 +75,7 @@ static unsigned long get_random(unsigned
- 		*(unsigned long *) prng.parm_block ^= seed;
- 		for (i = 0; i < 16; i++) {
- 			cpacf_kmc(CPACF_KMC_PRNG, prng.parm_block,
--				  (char *) entropy, (char *) entropy,
-+				  (u8 *) entropy, (u8 *) entropy,
- 				  sizeof(entropy));
- 			memcpy(prng.parm_block, entropy, sizeof(entropy));
- 		}
+--- a/kernel/dma/direct.c
++++ b/kernel/dma/direct.c
+@@ -472,28 +472,26 @@ int dma_direct_mmap(struct device *dev,
+ }
+ #endif /* CONFIG_MMU */
+ 
+-/*
+- * Because 32-bit DMA masks are so common we expect every architecture to be
+- * able to satisfy them - either by not supporting more physical memory, or by
+- * providing a ZONE_DMA32.  If neither is the case, the architecture needs to
+- * use an IOMMU instead of the direct mapping.
+- */
+ int dma_direct_supported(struct device *dev, u64 mask)
+ {
+-	u64 min_mask;
++	u64 min_mask = (max_pfn - 1) << PAGE_SHIFT;
+ 
+-	if (IS_ENABLED(CONFIG_ZONE_DMA))
+-		min_mask = DMA_BIT_MASK(zone_dma_bits);
+-	else
+-		min_mask = DMA_BIT_MASK(32);
+-
+-	min_mask = min_t(u64, min_mask, (max_pfn - 1) << PAGE_SHIFT);
++	/*
++	 * Because 32-bit DMA masks are so common we expect every architecture
++	 * to be able to satisfy them - either by not supporting more physical
++	 * memory, or by providing a ZONE_DMA32.  If neither is the case, the
++	 * architecture needs to use an IOMMU instead of the direct mapping.
++	 */
++	if (mask >= DMA_BIT_MASK(32))
++		return 1;
+ 
+ 	/*
+ 	 * This check needs to be against the actual bit mask value, so
+ 	 * use __phys_to_dma() here so that the SME encryption mask isn't
+ 	 * part of the check.
+ 	 */
++	if (IS_ENABLED(CONFIG_ZONE_DMA))
++		min_mask = min_t(u64, min_mask, DMA_BIT_MASK(zone_dma_bits));
+ 	return mask >= __phys_to_dma(dev, min_mask);
+ }
+ 
 
 
