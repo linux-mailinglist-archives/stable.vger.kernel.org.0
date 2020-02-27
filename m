@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 09056171DEB
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:24:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F3538171E8C
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:29:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388632AbgB0ONL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 09:13:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52024 "EHLO mail.kernel.org"
+        id S2387426AbgB0OHJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 09:07:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44526 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730803AbgB0ONK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 09:13:10 -0500
+        id S2387512AbgB0OHI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 09:07:08 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EA94624690;
-        Thu, 27 Feb 2020 14:13:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 98B9120578;
+        Thu, 27 Feb 2020 14:07:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582812788;
-        bh=vgHyGpEbgkvdFyWPBhyjtuKYzDwd/vBivZUC26r7QHk=;
+        s=default; t=1582812428;
+        bh=R9SqpIgeU1zDbhHTVMDsR1tJseZFGh73G+JBMuf0/8g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aMJSGqT2/w+FUkOE+MvymPjZBetuksln9pDn/zznDLRCdxvvCDjnWYyZtIh/26jmR
-         kIg1NdYFiaDhb7DfPcgFrgcs5w+nuAom1QzL+8/ne2vjvMSN6SAZyRcTbfwWdZbccR
-         H5nWHUgLOmz4ii2f+zaYymZiNrO9CRw8O6XT2D6w=
+        b=IXwKkoVrFPcUG0ck8wPJD/ENykSJ+i1ABy90BzVxRWQaizRliwN2VgWZd4RE04vAs
+         QuR5+W96D9xr/7i6EQyUfBdTbaO7gLqqWXFA82rDyv/Toad5fV3CvUvfWH+wscm394
+         z+1J6wEPUUrSNcKkwk3yzN/FNqjPiw5oU7optUIY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dave Jones <davej@codemonkey.org.uk>,
-        Filipe Manana <fdmanana@suse.com>,
-        Josef Bacik <josef@toxicpanda.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.5 017/150] btrfs: dont set path->leave_spinning for truncate
+        stable@vger.kernel.org, Christoph Jung <jung@codemercs.com>
+Subject: [PATCH 5.4 014/135] USB: misc: iowarrior: add support for the 100 device
 Date:   Thu, 27 Feb 2020 14:35:54 +0100
-Message-Id: <20200227132235.183018429@linuxfoundation.org>
+Message-Id: <20200227132231.270836077@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200227132232.815448360@linuxfoundation.org>
-References: <20200227132232.815448360@linuxfoundation.org>
+In-Reply-To: <20200227132228.710492098@linuxfoundation.org>
+References: <20200227132228.710492098@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,79 +42,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josef Bacik <josef@toxicpanda.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-commit 52e29e331070cd7d52a64cbf1b0958212a340e28 upstream.
+commit bab5417f5f0118ce914bc5b2f8381e959e891155 upstream.
 
-The only time we actually leave the path spinning is if we're truncating
-a small amount and don't actually free an extent, which is not a common
-occurrence.  We have to set the path blocking in order to add the
-delayed ref anyway, so the first extent we find we set the path to
-blocking and stay blocking for the duration of the operation.  With the
-upcoming file extent map stuff there will be another case that we have
-to have the path blocking, so just swap to blocking always.
+Add a new device id for the 100 devie.  It has 4 interfaces like the 28
+and 28L devices but a larger endpoint so more I/O pins.
 
-Note: this patch also fixes a warning after 28553fa992cb ("Btrfs: fix
-race between shrinking truncate and fiemap") got merged that inserts
-extent locks around truncation so the path must not leave spinning locks
-after btrfs_search_slot.
-
-  [70.794783] BUG: sleeping function called from invalid context at mm/slab.h:565
-  [70.794834] in_atomic(): 1, irqs_disabled(): 0, non_block: 0, pid: 1141, name: rsync
-  [70.794863] 5 locks held by rsync/1141:
-  [70.794876]  #0: ffff888417b9c408 (sb_writers#17){.+.+}, at: mnt_want_write+0x20/0x50
-  [70.795030]  #1: ffff888428de28e8 (&type->i_mutex_dir_key#13/1){+.+.}, at: lock_rename+0xf1/0x100
-  [70.795051]  #2: ffff888417b9c608 (sb_internal#2){.+.+}, at: start_transaction+0x394/0x560
-  [70.795124]  #3: ffff888403081768 (btrfs-fs-01){++++}, at: btrfs_try_tree_write_lock+0x2f/0x160
-  [70.795203]  #4: ffff888403086568 (btrfs-fs-00){++++}, at: btrfs_try_tree_write_lock+0x2f/0x160
-  [70.795222] CPU: 5 PID: 1141 Comm: rsync Not tainted 5.6.0-rc2-backup+ #2
-  [70.795362] Call Trace:
-  [70.795374]  dump_stack+0x71/0xa0
-  [70.795445]  ___might_sleep.part.96.cold.106+0xa6/0xb6
-  [70.795459]  kmem_cache_alloc+0x1d3/0x290
-  [70.795471]  alloc_extent_state+0x22/0x1c0
-  [70.795544]  __clear_extent_bit+0x3ba/0x580
-  [70.795557]  ? _raw_spin_unlock_irq+0x24/0x30
-  [70.795569]  btrfs_truncate_inode_items+0x339/0xe50
-  [70.795647]  btrfs_evict_inode+0x269/0x540
-  [70.795659]  ? dput.part.38+0x29/0x460
-  [70.795671]  evict+0xcd/0x190
-  [70.795682]  __dentry_kill+0xd6/0x180
-  [70.795754]  dput.part.38+0x2ad/0x460
-  [70.795765]  do_renameat2+0x3cb/0x540
-  [70.795777]  __x64_sys_rename+0x1c/0x20
-
-Reported-by: Dave Jones <davej@codemonkey.org.uk>
-Fixes: 28553fa992cb ("Btrfs: fix race between shrinking truncate and fiemap")
-CC: stable@vger.kernel.org # 4.4+
-Reviewed-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: Josef Bacik <josef@toxicpanda.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-[ add note ]
-Signed-off-by: David Sterba <dsterba@suse.com>
+Cc: Christoph Jung <jung@codemercs.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200214161148.GA3963518@kroah.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/btrfs/inode.c |    2 --
- 1 file changed, 2 deletions(-)
+ drivers/usb/misc/iowarrior.c |    9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
---- a/fs/btrfs/inode.c
-+++ b/fs/btrfs/inode.c
-@@ -4814,7 +4814,6 @@ search_again:
- 		goto out;
- 	}
+--- a/drivers/usb/misc/iowarrior.c
++++ b/drivers/usb/misc/iowarrior.c
+@@ -36,6 +36,7 @@
+ /* fuller speed iowarrior */
+ #define USB_DEVICE_ID_CODEMERCS_IOW28	0x1504
+ #define USB_DEVICE_ID_CODEMERCS_IOW28L	0x1505
++#define USB_DEVICE_ID_CODEMERCS_IOW100	0x1506
  
--	path->leave_spinning = 1;
- 	ret = btrfs_search_slot(trans, root, &key, path, -1, 1);
- 	if (ret < 0)
- 		goto out;
-@@ -4966,7 +4965,6 @@ delete:
- 		     root == fs_info->tree_root)) {
- 			struct btrfs_ref ref = { 0 };
+ /* OEMed devices */
+ #define USB_DEVICE_ID_CODEMERCS_IOW24SAG	0x158a
+@@ -144,6 +145,7 @@ static const struct usb_device_id iowarr
+ 	{USB_DEVICE(USB_VENDOR_ID_CODEMERCS, USB_DEVICE_ID_CODEMERCS_IOW56AM)},
+ 	{USB_DEVICE(USB_VENDOR_ID_CODEMERCS, USB_DEVICE_ID_CODEMERCS_IOW28)},
+ 	{USB_DEVICE(USB_VENDOR_ID_CODEMERCS, USB_DEVICE_ID_CODEMERCS_IOW28L)},
++	{USB_DEVICE(USB_VENDOR_ID_CODEMERCS, USB_DEVICE_ID_CODEMERCS_IOW100)},
+ 	{}			/* Terminating entry */
+ };
+ MODULE_DEVICE_TABLE(usb, iowarrior_ids);
+@@ -386,6 +388,7 @@ static ssize_t iowarrior_write(struct fi
+ 	case USB_DEVICE_ID_CODEMERCS_IOW56AM:
+ 	case USB_DEVICE_ID_CODEMERCS_IOW28:
+ 	case USB_DEVICE_ID_CODEMERCS_IOW28L:
++	case USB_DEVICE_ID_CODEMERCS_IOW100:
+ 		/* The IOW56 uses asynchronous IO and more urbs */
+ 		if (atomic_read(&dev->write_busy) == MAX_WRITES_IN_FLIGHT) {
+ 			/* Wait until we are below the limit for submitted urbs */
+@@ -786,7 +789,8 @@ static int iowarrior_probe(struct usb_in
+ 	if ((dev->product_id == USB_DEVICE_ID_CODEMERCS_IOW56) ||
+ 	    (dev->product_id == USB_DEVICE_ID_CODEMERCS_IOW56AM) ||
+ 	    (dev->product_id == USB_DEVICE_ID_CODEMERCS_IOW28) ||
+-	    (dev->product_id == USB_DEVICE_ID_CODEMERCS_IOW28L)) {
++	    (dev->product_id == USB_DEVICE_ID_CODEMERCS_IOW28L) ||
++	    (dev->product_id == USB_DEVICE_ID_CODEMERCS_IOW100)) {
+ 		res = usb_find_last_int_out_endpoint(iface_desc,
+ 				&dev->int_out_endpoint);
+ 		if (res) {
+@@ -802,7 +806,8 @@ static int iowarrior_probe(struct usb_in
+ 	    ((dev->product_id == USB_DEVICE_ID_CODEMERCS_IOW56) ||
+ 	     (dev->product_id == USB_DEVICE_ID_CODEMERCS_IOW56AM) ||
+ 	     (dev->product_id == USB_DEVICE_ID_CODEMERCS_IOW28) ||
+-	     (dev->product_id == USB_DEVICE_ID_CODEMERCS_IOW28L)))
++	     (dev->product_id == USB_DEVICE_ID_CODEMERCS_IOW28L) ||
++	     (dev->product_id == USB_DEVICE_ID_CODEMERCS_IOW100)))
+ 		/* IOWarrior56 has wMaxPacketSize different from report size */
+ 		dev->report_size = 7;
  
--			btrfs_set_path_blocking(path);
- 			bytes_deleted += extent_num_bytes;
- 
- 			btrfs_init_generic_ref(&ref, BTRFS_DROP_DELAYED_REF,
 
 
