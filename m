@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EB794171EB0
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:29:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A5BC171EA1
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:29:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387584AbgB0O3a (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 09:29:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43764 "EHLO mail.kernel.org"
+        id S1731272AbgB0O3R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 09:29:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43830 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387948AbgB0OGc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 09:06:32 -0500
+        id S2387930AbgB0OGf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 09:06:35 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3C07C21D7E;
-        Thu, 27 Feb 2020 14:06:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A8BE720578;
+        Thu, 27 Feb 2020 14:06:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582812391;
-        bh=PiciUWh6trivm2waRdUpYO3vt8+/QQj86XcJO2eDsJc=;
+        s=default; t=1582812394;
+        bh=4Q9zxIWr3nzH1lCkmXbXCZriRxQ09zVPUbdUTtpjbjc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cxXp3AGP3wt7klrNvloidVfkrFhSpDU9i3P9loVzm5t0S/TLVjI6Hr1pLgsm802FS
-         URUt8wdH7iixJBgwp8GJXLHnEO/AmkwhPFCPOZtFYKQTQjH6eK9L8sq4et8WyP87wB
-         ftG+7XlPZMvw91tHUeRqPU3D4TykNdDm586OzKIU=
+        b=MzkmDm3rmSgoQhfFGiUHd1iNVse1M665R89hnIJu+bB3aGFGzWw3DTmf/I5yszpGE
+         JvzKek/QAFqYynV6HzU7JQpyxCgd1IYmoIylHXNLnQtprrS+Qe4Fy455mGgAHVaZyr
+         CNtyWWypBlUA9491WiH3iojO9r/Kmo3M2gLZVz4A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-        Juergen Gross <jgross@suse.com>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Subject: [PATCH 4.19 96/97] xen: Enable interrupts when calling _cond_resched()
-Date:   Thu, 27 Feb 2020 14:37:44 +0100
-Message-Id: <20200227132230.358208395@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Vasily Gorbik <gor@linux.ibm.com>
+Subject: [PATCH 4.19 97/97] s390/mm: Explicitly compare PAGE_DEFAULT_KEY against zero in storage_key_init_range
+Date:   Thu, 27 Feb 2020 14:37:45 +0100
+Message-Id: <20200227132230.508261205@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200227132214.553656188@linuxfoundation.org>
 References: <20200227132214.553656188@linuxfoundation.org>
@@ -44,43 +45,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+From: Nathan Chancellor <natechancellor@gmail.com>
 
-commit 8645e56a4ad6dcbf504872db7f14a2f67db88ef2 upstream.
+commit 380324734956c64cd060e1db4304f3117ac15809 upstream.
 
-xen_maybe_preempt_hcall() is called from the exception entry point
-xen_do_hypervisor_callback with interrupts disabled.
+Clang warns:
 
-_cond_resched() evades the might_sleep() check in cond_resched() which
-would have caught that and schedule_debug() unfortunately lacks a check
-for irqs_disabled().
+ In file included from ../arch/s390/purgatory/purgatory.c:10:
+ In file included from ../include/linux/kexec.h:18:
+ In file included from ../include/linux/crash_core.h:6:
+ In file included from ../include/linux/elfcore.h:5:
+ In file included from ../include/linux/user.h:1:
+ In file included from ../arch/s390/include/asm/user.h:11:
+ ../arch/s390/include/asm/page.h:45:6: warning: converting the result of
+ '<<' to a boolean always evaluates to false
+ [-Wtautological-constant-compare]
+         if (PAGE_DEFAULT_KEY)
+            ^
+ ../arch/s390/include/asm/page.h:23:44: note: expanded from macro
+ 'PAGE_DEFAULT_KEY'
+ #define PAGE_DEFAULT_KEY        (PAGE_DEFAULT_ACC << 4)
+                                                  ^
+ 1 warning generated.
 
-Enable interrupts around the call and use cond_resched() to catch future
-issues.
+Explicitly compare this against zero to silence the warning as it is
+intended to be used in a boolean context.
 
-Fixes: fdfd811ddde3 ("x86/xen: allow privcmd hypercalls to be preempted")
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Link: https://lore.kernel.org/r/878skypjrh.fsf@nanos.tec.linutronix.de
-Reviewed-by: Juergen Gross <jgross@suse.com>
-Signed-off-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Fixes: de3fa841e429 ("s390/mm: fix compile for PAGE_DEFAULT_KEY != 0")
+Link: https://github.com/ClangBuiltLinux/linux/issues/860
+Link: https://lkml.kernel.org/r/20200214064207.10381-1-natechancellor@gmail.com
+Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/xen/preempt.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/s390/include/asm/page.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/xen/preempt.c
-+++ b/drivers/xen/preempt.c
-@@ -37,7 +37,9 @@ asmlinkage __visible void xen_maybe_pree
- 		 * cpu.
- 		 */
- 		__this_cpu_write(xen_in_preemptible_hcall, false);
--		_cond_resched();
-+		local_irq_enable();
-+		cond_resched();
-+		local_irq_disable();
- 		__this_cpu_write(xen_in_preemptible_hcall, true);
- 	}
+--- a/arch/s390/include/asm/page.h
++++ b/arch/s390/include/asm/page.h
+@@ -42,7 +42,7 @@ void __storage_key_init_range(unsigned l
+ 
+ static inline void storage_key_init_range(unsigned long start, unsigned long end)
+ {
+-	if (PAGE_DEFAULT_KEY)
++	if (PAGE_DEFAULT_KEY != 0)
+ 		__storage_key_init_range(start, end);
  }
+ 
 
 
