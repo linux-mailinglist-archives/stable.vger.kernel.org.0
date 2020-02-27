@@ -2,86 +2,124 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 29D96171CE5
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:16:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E31E171D82
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:21:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389433AbgB0OQJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 09:16:09 -0500
-Received: from Galois.linutronix.de ([193.142.43.55]:34449 "EHLO
-        Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2389425AbgB0OQI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 27 Feb 2020 09:16:08 -0500
-Received: from [5.158.153.53] (helo=tip-bot2.lab.linutronix.de)
-        by Galois.linutronix.de with esmtpsa (TLS1.2:DHE_RSA_AES_256_CBC_SHA256:256)
-        (Exim 4.80)
-        (envelope-from <tip-bot2@linutronix.de>)
-        id 1j7JxI-0005Ch-Tn; Thu, 27 Feb 2020 15:16:01 +0100
-Received: from [127.0.1.1] (localhost [IPv6:::1])
-        by tip-bot2.lab.linutronix.de (Postfix) with ESMTP id 76E441C2170;
-        Thu, 27 Feb 2020 15:15:59 +0100 (CET)
-Date:   Thu, 27 Feb 2020 14:15:59 -0000
-From:   "tip-bot2 for Thomas Gleixner" <tip-bot2@linutronix.de>
-Reply-to: linux-kernel@vger.kernel.org
-To:     linux-tip-commits@vger.kernel.org
-Subject: [tip: x86/entry] x86/entry/32: Add missing ASM_CLAC to
- general_protection entry
-Cc:     Thomas Gleixner <tglx@linutronix.de>,
-        Frederic Weisbecker <frederic@kernel.org>,
-        Alexandre Chartre <alexandre.chartre@oracle.com>,
-        Andy Lutomirski <luto@kernel.org>, stable@vger.kernel.org,
-        x86 <x86@kernel.org>, LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20200225220216.219537887@linutronix.de>
-References: <20200225220216.219537887@linutronix.de>
+        id S2389743AbgB0OVC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 09:21:02 -0500
+Received: from szxga04-in.huawei.com ([45.249.212.190]:11117 "EHLO huawei.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1730611AbgB0OVB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 09:21:01 -0500
+Received: from DGGEMS413-HUB.china.huawei.com (unknown [172.30.72.60])
+        by Forcepoint Email with ESMTP id 11996F31DA52EF086C6A;
+        Thu, 27 Feb 2020 22:20:36 +0800 (CST)
+Received: from [127.0.0.1] (10.133.210.141) by DGGEMS413-HUB.china.huawei.com
+ (10.3.19.213) with Microsoft SMTP Server id 14.3.439.0; Thu, 27 Feb 2020
+ 22:20:31 +0800
+Subject: Re: [PATCH 4.4-stable] slip: stop double free sl->dev in slip_open
+To:     Greg KH <gregkh@linuxfoundation.org>
+CC:     <stable@vger.kernel.org>, <davem@davemloft.net>,
+        "netdev@vger.kernel.org" <netdev@vger.kernel.org>
+References: <20200222094649.10933-1-yangerkun@huawei.com>
+ <4e89e339-e161-fd8e-85e0-e59cdcc9688f@huawei.com>
+ <20200227124911.GA1007215@kroah.com>
+From:   yangerkun <yangerkun@huawei.com>
+Message-ID: <0ad6a6ea-d93c-4900-013d-c781a18e987d@huawei.com>
+Date:   Thu, 27 Feb 2020 22:20:31 +0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
+ Thunderbird/60.7.0
 MIME-Version: 1.0
-Message-ID: <158281295923.28353.9128124424895443890.tip-bot2@tip-bot2>
-X-Mailer: tip-git-log-daemon
-Robot-ID: <tip-bot2.linutronix.de>
-Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
-Content-Type: text/plain; charset="utf-8"
+In-Reply-To: <20200227124911.GA1007215@kroah.com>
+Content-Type: text/plain; charset="utf-8"; format=flowed
+Content-Language: en-US
 Content-Transfer-Encoding: 7bit
-X-Linutronix-Spam-Score: -1.0
-X-Linutronix-Spam-Level: -
-X-Linutronix-Spam-Status: No , -1.0 points, 5.0 required,  ALL_TRUSTED=-1,SHORTCIRCUIT=-0.0001
+X-Originating-IP: [10.133.210.141]
+X-CFilter-Loop: Reflected
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The following commit has been merged into the x86/entry branch of tip:
 
-Commit-ID:     3d51507f29f2153a658df4a0674ec5b592b62085
-Gitweb:        https://git.kernel.org/tip/3d51507f29f2153a658df4a0674ec5b592b62085
-Author:        Thomas Gleixner <tglx@linutronix.de>
-AuthorDate:    Tue, 25 Feb 2020 22:36:37 +01:00
-Committer:     Thomas Gleixner <tglx@linutronix.de>
-CommitterDate: Thu, 27 Feb 2020 14:48:38 +01:00
 
-x86/entry/32: Add missing ASM_CLAC to general_protection entry
+On 2020/2/27 20:49, Greg KH wrote:
+> On Mon, Feb 24, 2020 at 11:06:48AM +0800, yangerkun wrote:
+>> cc David and netdev mail list too.
+>>
+>> On 2020/2/22 17:46, yangerkun wrote:
+>>> After commit e4c157955483 ("slip: Fix use-after-free Read in slip_open"),
+>>> we will double free sl->dev since sl_free_netdev will free sl->dev too.
+>>> It's fine for mainline since sl_free_netdev in mainline won't free
+>>> sl->dev.
+>>>
+>>> Signed-off-by: yangerkun <yangerkun@huawei.com>
+>>> ---
+>>>    drivers/net/slip/slip.c | 1 -
+>>>    1 file changed, 1 deletion(-)
+>>>
+>>> diff --git a/drivers/net/slip/slip.c b/drivers/net/slip/slip.c
+>>> index ef6b25ec75a1..7fe9183fad0e 100644
+>>> --- a/drivers/net/slip/slip.c
+>>> +++ b/drivers/net/slip/slip.c
+>>> @@ -861,7 +861,6 @@ err_free_chan:
+>>>    	tty->disc_data = NULL;
+>>>    	clear_bit(SLF_INUSE, &sl->flags);
+>>>    	sl_free_netdev(sl->dev);
+>>> -	free_netdev(sl->dev);
+>>>    err_exit:
+>>>    	rtnl_unlock();
+>>>
+>>
+> 
+> What commit causes this only to be needed on the 4.4-stable tree?  Can
+> you please list it in the commit log so that we know this?
+> 
+> And this is only for 4.4.y, not 4.9.y or anything else?  Why?
+Hi,
 
-All exception entry points must have ASM_CLAC right at the
-beginning. The general_protection entry is missing one.
+Sorry for does not check other stable branch!
 
-Fixes: e59d1b0a2419 ("x86-32, smap: Add STAC/CLAC instructions to 32-bit kernel entry")
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Reviewed-by: Frederic Weisbecker <frederic@kernel.org>
-Reviewed-by: Alexandre Chartre <alexandre.chartre@oracle.com>
-Reviewed-by: Andy Lutomirski <luto@kernel.org>
-Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/20200225220216.219537887@linutronix.de
+The problem exist in 4.4 stable branch because we merged 3b5a39979daf 
+("slip: Fix memory leak in slip_open error path") and e58c19124189 
+("slip: Fix use-after-free Read in slip_open") without the patch 
+cf124db566e6 ("net: Fix inconsistent teardown and release of private 
+netdev state."). And since cf124db566e6 has remove the free_netdev exist 
+in sl_free_netdev, so fault branch err_free_chan in slip_open will not 
+call free_netdev twice in mainline. However, 4.4 stable branch will do it.
 
----
- arch/x86/entry/entry_32.S | 1 +
- 1 file changed, 1 insertion(+)
+Futhermore, since sl_free_netdev will do the all we need, so I think 
+delete the free_netdev below sl_free_netdev in slip_open will be fine to 
+fix the double free problem, also two problem describes by previous two 
+patch.
 
-diff --git a/arch/x86/entry/entry_32.S b/arch/x86/entry/entry_32.S
-index 7e05604..39243df 100644
---- a/arch/x86/entry/entry_32.S
-+++ b/arch/x86/entry/entry_32.S
-@@ -1694,6 +1694,7 @@ SYM_CODE_START(int3)
- SYM_CODE_END(int3)
- 
- SYM_CODE_START(general_protection)
-+	ASM_CLAC
- 	pushl	$do_general_protection
- 	jmp	common_exception
- SYM_CODE_END(general_protection)
+After check for 3.16.y/4.9.y/4.14.y/4.19.y/5.4.y/5.5.y, and the result 
+show as below:
+
+3.16.y:
+No double free problem since below two commit has not merged in:
+e58c19124189 slip: Fix use-after-free Read in slip_open
+3b5a39979daf slip: Fix memory leak in slip_open error path
+
+4.9.y:
+problem exist
+
+4.14.y/4.19.y/5.4.y/5.5.y:
+no double free problem since cf124db566e6 ("net: Fix inconsistent 
+teardown and release of private netdev state.") has been included
+
+So, 4.9.y need this patch too! I will resend the patch for 4.4.y and 
+4.9.y with commit message refresh.
+
+Thanks,
+Kun.
+
+
+> 
+> thanks,
+> 
+> greg k-h
+> 
+> .
+> 
+
