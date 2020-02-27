@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7DE2E171D85
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:21:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D08C171C50
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:11:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389090AbgB0OVV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 09:21:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57332 "EHLO mail.kernel.org"
+        id S2388628AbgB0OLC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 09:11:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49276 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389631AbgB0ORC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 09:17:02 -0500
+        id S2388620AbgB0OK7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 09:10:59 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 45B352468F;
-        Thu, 27 Feb 2020 14:17:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2EC1620578;
+        Thu, 27 Feb 2020 14:10:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582813021;
-        bh=4i914oy72634ngbPTasVtJ9HokkeB25gdGfM/Zoz6Oo=;
+        s=default; t=1582812658;
+        bh=ngy0aopofd0xPgZDWEqnIE3beTwgyfYyrCAEaubUypc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hW2EYL637uSftS7gaoeLygNik62A8qP7oCo5POnYJbmJ6DbK5tOyw05yb+HkAohfO
-         ysGkuCACCKNNgkQS1HON4rkTun/Lz2spal+3T01fzXw4pOoR5xuxAkPjsyU8xNlmmA
-         FANqNEexIJtLWvQ6wGJ6ABwi6gz07PtKQ9FzsTtk=
+        b=YLXLHxl3JbiIke+Bjh1cm71W5lq7ta7xVSbiBPGMKMxvXlFdG2BXC5rySNTfr6n0s
+         mncAEnm3sOYBROmOJRnK8TQVI1+RflLjT3DyOvLqnDwDaIq8/GLxuyKWv0iHmwgDe+
+         ub2Drhzm3QQPpQhT1VaVy3I/PfUSmkAKiUE48WGc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, satya priya <skakit@codeaurora.org>
-Subject: [PATCH 5.5 067/150] tty: serial: qcom_geni_serial: Fix RX cancel command failure
-Date:   Thu, 27 Feb 2020 14:36:44 +0100
-Message-Id: <20200227132242.865884014@linuxfoundation.org>
+        stable@vger.kernel.org, Zenghui Yu <yuzenghui@huawei.com>,
+        Thomas Gleixner <tglx@linutronix.de>
+Subject: [PATCH 5.4 065/135] genirq/irqdomain: Make sure all irq domain flags are distinct
+Date:   Thu, 27 Feb 2020 14:36:45 +0100
+Message-Id: <20200227132238.954402709@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200227132232.815448360@linuxfoundation.org>
-References: <20200227132232.815448360@linuxfoundation.org>
+In-Reply-To: <20200227132228.710492098@linuxfoundation.org>
+References: <20200227132228.710492098@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,68 +43,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: satya priya <skakit@codeaurora.org>
+From: Zenghui Yu <yuzenghui@huawei.com>
 
-commit 679aac5ead2f18d223554a52b543e1195e181811 upstream.
+commit 2546287c5fb363a0165933ae2181c92f03e701d0 upstream.
 
-RX cancel command fails when BT is switched on and off multiple times.
+This was noticed when printing debugfs for MSIs on my ARM64 server.  The
+new dstate IRQD_MSI_NOMASK_QUIRK came out surprisingly while it should only
+be the x86 stuff for the time being...
 
-To handle this, poll for the cancel bit in SE_GENI_S_IRQ_STATUS register
-instead of SE_GENI_S_CMD_CTRL_REG.
+The new MSI quirk flag uses the same bit as IRQ_DOMAIN_NAME_ALLOCATED which
+is oddly defined as bit 6 for no good reason.
 
-As per the HPG update, handle the RX last bit after cancel command
-and flush out the RX FIFO buffer.
+Switch it to the non used bit 1.
 
-Signed-off-by: satya priya <skakit@codeaurora.org>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/1581415982-8793-1-git-send-email-skakit@codeaurora.org
+Fixes: 6f1a4891a592 ("x86/apic/msi: Plug non-maskable MSI affinity race")
+Signed-off-by: Zenghui Yu <yuzenghui@huawei.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: stable@vger.kernel.org
+Link: https://lkml.kernel.org/r/20200221020725.2038-1-yuzenghui@huawei.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/tty/serial/qcom_geni_serial.c |   18 ++++++++++++++----
- 1 file changed, 14 insertions(+), 4 deletions(-)
+ include/linux/irqdomain.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/tty/serial/qcom_geni_serial.c
-+++ b/drivers/tty/serial/qcom_geni_serial.c
-@@ -128,6 +128,7 @@ static int handle_rx_console(struct uart
- static int handle_rx_uart(struct uart_port *uport, u32 bytes, bool drop);
- static unsigned int qcom_geni_serial_tx_empty(struct uart_port *port);
- static void qcom_geni_serial_stop_rx(struct uart_port *uport);
-+static void qcom_geni_serial_handle_rx(struct uart_port *uport, bool drop);
+--- a/include/linux/irqdomain.h
++++ b/include/linux/irqdomain.h
+@@ -191,7 +191,7 @@ enum {
+ 	IRQ_DOMAIN_FLAG_HIERARCHY	= (1 << 0),
  
- static const unsigned long root_freq[] = {7372800, 14745600, 19200000, 29491200,
- 					32000000, 48000000, 64000000, 80000000,
-@@ -618,7 +619,7 @@ static void qcom_geni_serial_stop_rx(str
- 	u32 irq_en;
- 	u32 status;
- 	struct qcom_geni_serial_port *port = to_dev_port(uport, uport);
--	u32 irq_clear = S_CMD_DONE_EN;
-+	u32 s_irq_status;
+ 	/* Irq domain name was allocated in __irq_domain_add() */
+-	IRQ_DOMAIN_NAME_ALLOCATED	= (1 << 6),
++	IRQ_DOMAIN_NAME_ALLOCATED	= (1 << 1),
  
- 	irq_en = readl(uport->membase + SE_GENI_S_IRQ_EN);
- 	irq_en &= ~(S_RX_FIFO_WATERMARK_EN | S_RX_FIFO_LAST_EN);
-@@ -634,10 +635,19 @@ static void qcom_geni_serial_stop_rx(str
- 		return;
- 
- 	geni_se_cancel_s_cmd(&port->se);
--	qcom_geni_serial_poll_bit(uport, SE_GENI_S_CMD_CTRL_REG,
--					S_GENI_CMD_CANCEL, false);
-+	qcom_geni_serial_poll_bit(uport, SE_GENI_S_IRQ_STATUS,
-+					S_CMD_CANCEL_EN, true);
-+	/*
-+	 * If timeout occurs secondary engine remains active
-+	 * and Abort sequence is executed.
-+	 */
-+	s_irq_status = readl(uport->membase + SE_GENI_S_IRQ_STATUS);
-+	/* Flush the Rx buffer */
-+	if (s_irq_status & S_RX_FIFO_LAST_EN)
-+		qcom_geni_serial_handle_rx(uport, true);
-+	writel(s_irq_status, uport->membase + SE_GENI_S_IRQ_CLEAR);
-+
- 	status = readl(uport->membase + SE_GENI_STATUS);
--	writel(irq_clear, uport->membase + SE_GENI_S_IRQ_CLEAR);
- 	if (status & S_GENI_CMD_ACTIVE)
- 		qcom_geni_serial_abort_rx(uport);
- }
+ 	/* Irq domain is an IPI domain with virq per cpu */
+ 	IRQ_DOMAIN_FLAG_IPI_PER_CPU	= (1 << 2),
 
 
