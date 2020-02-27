@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D1E10171B3C
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:00:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 05AEE171E71
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:28:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732300AbgB0OAl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 09:00:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34098 "EHLO mail.kernel.org"
+        id S2388177AbgB0OIC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 09:08:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45642 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732598AbgB0OAh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 09:00:37 -0500
+        id S2387787AbgB0OIA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 09:08:00 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DA9F72084E;
-        Thu, 27 Feb 2020 14:00:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 60E7521D7E;
+        Thu, 27 Feb 2020 14:07:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582812036;
-        bh=GdSWoQomrdKNr8DZ+H6Ho15kRD6+s3YVagtmPJN4Xkk=;
+        s=default; t=1582812479;
+        bh=RypRGmCPXhCJfp6qrYOlZPi7TCGuoDNfunyBhUdEIxc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QpCmp83er3AMZb0JW1gIrQYm8C0pa6ulF+h0GXr0Mh4JaMTSnLh76Iop9X12rIn19
-         e9ScJaW3q9lSNXFWVw7iH5s5tZyr9lmhxnAGcflAKIaoyrvEMTUAfQ/2ftB9A8hIdW
-         OOCJeuW9cf6izWp2L/ZhCWY+REp8h7O0vsvmgkHk=
+        b=WhCltI3bqpiJljPo+eKiFjGHh8bpiKcIXZ+FxVjmNlDHVVhAIHqptm3mfY38qYRrY
+         PSiKmoJRT4ohmTZn296a576J3de8qI3cYzsdJSSZvPL0cTiw1wXcCzQp2AK2lweQXG
+         +IrGfqpBcaRa3E7vZXbJDpgjrNcT0Q8grM8I2+2g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zenghui Yu <yuzenghui@huawei.com>,
-        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 159/237] irqchip/gic-v3-its: Reference to its_invall_cmd descriptor when building INVALL
-Date:   Thu, 27 Feb 2020 14:36:13 +0100
-Message-Id: <20200227132308.220023750@linuxfoundation.org>
+        stable@vger.kernel.org, Minas Harutyunyan <hminas@synopsys.com>,
+        Jack Mitchell <ml@embed.me.uk>, Felipe Balbi <balbi@kernel.org>
+Subject: [PATCH 5.4 034/135] usb: dwc2: Fix SET/CLEAR_FEATURE and GET_STATUS flows
+Date:   Thu, 27 Feb 2020 14:36:14 +0100
+Message-Id: <20200227132234.138725629@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200227132255.285644406@linuxfoundation.org>
-References: <20200227132255.285644406@linuxfoundation.org>
+In-Reply-To: <20200227132228.710492098@linuxfoundation.org>
+References: <20200227132228.710492098@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,39 +43,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zenghui Yu <yuzenghui@huawei.com>
+From: Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>
 
-[ Upstream commit 107945227ac5d4c37911c7841b27c64b489ce9a9 ]
+commit 9a0d6f7c0a83844baae1d6d85482863d2bf3b7a7 upstream.
 
-It looks like an obvious mistake to use its_mapc_cmd descriptor when
-building the INVALL command block. It so far worked by luck because
-both its_mapc_cmd.col and its_invall_cmd.col sit at the same offset of
-the ITS command descriptor, but we should not rely on it.
+SET/CLEAR_FEATURE for Remote Wakeup allowance not handled correctly.
+GET_STATUS handling provided not correct data on DATA Stage.
+Issue seen when gadget's dr_mode set to "otg" mode and connected
+to MacOS.
+Both are fixed and tested using USBCV Ch.9 tests.
 
-Fixes: cc2d3216f53c ("irqchip: GICv3: ITS command queue")
-Signed-off-by: Zenghui Yu <yuzenghui@huawei.com>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20191202071021.1251-1-yuzenghui@huawei.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Minas Harutyunyan <hminas@synopsys.com>
+Fixes: fa389a6d7726 ("usb: dwc2: gadget: Add remote_wakeup_allowed flag")
+Tested-by: Jack Mitchell <ml@embed.me.uk>
+Cc: stable@vger.kernel.org
+Signed-off-by: Felipe Balbi <balbi@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/irqchip/irq-gic-v3-its.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/dwc2/gadget.c |   28 ++++++++++++++++------------
+ 1 file changed, 16 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/irqchip/irq-gic-v3-its.c b/drivers/irqchip/irq-gic-v3-its.c
-index 52238e6bed392..799df1e598db3 100644
---- a/drivers/irqchip/irq-gic-v3-its.c
-+++ b/drivers/irqchip/irq-gic-v3-its.c
-@@ -527,7 +527,7 @@ static struct its_collection *its_build_invall_cmd(struct its_cmd_block *cmd,
- 						   struct its_cmd_desc *desc)
- {
- 	its_encode_cmd(cmd, GITS_CMD_INVALL);
--	its_encode_collection(cmd, desc->its_mapc_cmd.col->col_id);
-+	its_encode_collection(cmd, desc->its_invall_cmd.col->col_id);
+--- a/drivers/usb/dwc2/gadget.c
++++ b/drivers/usb/dwc2/gadget.c
+@@ -1632,6 +1632,7 @@ static int dwc2_hsotg_process_req_status
+ 	struct dwc2_hsotg_ep *ep0 = hsotg->eps_out[0];
+ 	struct dwc2_hsotg_ep *ep;
+ 	__le16 reply;
++	u16 status;
+ 	int ret;
  
- 	its_fixup_cmd(cmd);
+ 	dev_dbg(hsotg->dev, "%s: USB_REQ_GET_STATUS\n", __func__);
+@@ -1643,11 +1644,10 @@ static int dwc2_hsotg_process_req_status
  
--- 
-2.20.1
-
+ 	switch (ctrl->bRequestType & USB_RECIP_MASK) {
+ 	case USB_RECIP_DEVICE:
+-		/*
+-		 * bit 0 => self powered
+-		 * bit 1 => remote wakeup
+-		 */
+-		reply = cpu_to_le16(0);
++		status = 1 << USB_DEVICE_SELF_POWERED;
++		status |= hsotg->remote_wakeup_allowed <<
++			  USB_DEVICE_REMOTE_WAKEUP;
++		reply = cpu_to_le16(status);
+ 		break;
+ 
+ 	case USB_RECIP_INTERFACE:
+@@ -1758,7 +1758,10 @@ static int dwc2_hsotg_process_req_featur
+ 	case USB_RECIP_DEVICE:
+ 		switch (wValue) {
+ 		case USB_DEVICE_REMOTE_WAKEUP:
+-			hsotg->remote_wakeup_allowed = 1;
++			if (set)
++				hsotg->remote_wakeup_allowed = 1;
++			else
++				hsotg->remote_wakeup_allowed = 0;
+ 			break;
+ 
+ 		case USB_DEVICE_TEST_MODE:
+@@ -1768,16 +1771,17 @@ static int dwc2_hsotg_process_req_featur
+ 				return -EINVAL;
+ 
+ 			hsotg->test_mode = wIndex >> 8;
+-			ret = dwc2_hsotg_send_reply(hsotg, ep0, NULL, 0);
+-			if (ret) {
+-				dev_err(hsotg->dev,
+-					"%s: failed to send reply\n", __func__);
+-				return ret;
+-			}
+ 			break;
+ 		default:
+ 			return -ENOENT;
+ 		}
++
++		ret = dwc2_hsotg_send_reply(hsotg, ep0, NULL, 0);
++		if (ret) {
++			dev_err(hsotg->dev,
++				"%s: failed to send reply\n", __func__);
++			return ret;
++		}
+ 		break;
+ 
+ 	case USB_RECIP_ENDPOINT:
 
 
