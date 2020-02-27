@@ -2,49 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EF4C21720AB
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:44:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F2ED172182
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:50:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730766AbgB0Nrt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 08:47:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44336 "EHLO mail.kernel.org"
+        id S1729269AbgB0Nk7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 08:40:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35448 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730461AbgB0Nrs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 08:47:48 -0500
+        id S1729444AbgB0Nk6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 08:40:58 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9F3BD20801;
-        Thu, 27 Feb 2020 13:47:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 989702469F;
+        Thu, 27 Feb 2020 13:40:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582811268;
-        bh=Ba+QKGRskXBXvu0aL2I2KaAkS6/2ikohdEhv5jDvwgE=;
+        s=default; t=1582810858;
+        bh=u4qyc8uNB1l2T+CyO/foQ1KOl/EGrkXWAq28DrRAVi0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WLq1ORICLn1HIzGbGPUGcKGqi58Uzubl5gUzI0eFK8hq5gYoDWUuKgRs32g6FIeVa
-         MO3O39vVJh8vPXpqOHKFIazY9rSkEZ+lmQYuwjGfz33X9iPGazX4L+7XI4Gi3w4PJd
-         a21/yMV7JYneR5wXzRVdS2xTRiZ7s1ugYt3wIScc=
+        b=ytnKAZ4/nm/pIRWwL3Cj4zcSWFK6ROAE9uvGljhndDFA7RAT3u4LmQlDixG06gg1o
+         sG+7tAuXx/kxDrmP2vGQJ8o4dsU2ib2fD7PFeHcP5TVcSuM19pxyrWj2Wk/GWKlu8F
+         GdX4AQDajDZaDy8aNeH00gimCHs2LcttOF5goWBY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Andrey Zhizhikin <andrey.zhizhikin@leica-geosystems.com>,
-        Petr Mladek <pmladek@suse.com>, Jiri Olsa <jolsa@kernel.org>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Andrii Nakryiko <andriin@fb.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Kefeng Wang <wangkefeng.wang@huawei.com>,
-        Martin KaFai Lau <kafai@fb.com>,
-        Sergey Senozhatsky <sergey.senozhatsky@gmail.com>,
-        Song Liu <songliubraving@fb.com>, Yonghong Song <yhs@fb.com>,
-        bpf@vger.kernel.org, netdev@vger.kernel.org,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 067/165] tools lib api fs: Fix gcc9 stringop-truncation compilation error
+        stable@vger.kernel.org, Ard Biesheuvel <ardb@kernel.org>,
+        Andy Lutomirski <luto@kernel.org>,
+        Ard Biesheuvel <ard.biesheuvel@linaro.org>,
+        Arvind Sankar <nivedita@alum.mit.edu>,
+        Matthew Garrett <mjg59@google.com>, linux-efi@vger.kernel.org,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 025/113] efi/x86: Map the entire EFI vendor string before copying it
 Date:   Thu, 27 Feb 2020 14:35:41 +0100
-Message-Id: <20200227132241.254377714@linuxfoundation.org>
+Message-Id: <20200227132215.703689732@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200227132230.840899170@linuxfoundation.org>
-References: <20200227132230.840899170@linuxfoundation.org>
+In-Reply-To: <20200227132211.791484803@linuxfoundation.org>
+References: <20200227132211.791484803@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,65 +47,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrey Zhizhikin <andrey.z@gmail.com>
+From: Ard Biesheuvel <ardb@kernel.org>
 
-[ Upstream commit 6794200fa3c9c3e6759dae099145f23e4310f4f7 ]
+[ Upstream commit ffc2760bcf2dba0dbef74013ed73eea8310cc52c ]
 
-GCC9 introduced string hardening mechanisms, which exhibits the error
-during fs api compilation:
+Fix a couple of issues with the way we map and copy the vendor string:
+- we map only 2 bytes, which usually works since you get at least a
+  page, but if the vendor string happens to cross a page boundary,
+  a crash will result
+- only call early_memunmap() if early_memremap() succeeded, or we will
+  call it with a NULL address which it doesn't like,
+- while at it, switch to early_memremap_ro(), and array indexing rather
+  than pointer dereferencing to read the CHAR16 characters.
 
-error: '__builtin_strncpy' specified bound 4096 equals destination size
-[-Werror=stringop-truncation]
-
-This comes when the length of copy passed to strncpy is is equal to
-destination size, which could potentially lead to buffer overflow.
-
-There is a need to mitigate this potential issue by limiting the size of
-destination by 1 and explicitly terminate the destination with NULL.
-
-Signed-off-by: Andrey Zhizhikin <andrey.zhizhikin@leica-geosystems.com>
-Reviewed-by: Petr Mladek <pmladek@suse.com>
-Acked-by: Jiri Olsa <jolsa@kernel.org>
-Cc: Alexei Starovoitov <ast@kernel.org>
-Cc: Andrii Nakryiko <andriin@fb.com>
-Cc: Daniel Borkmann <daniel@iogearbox.net>
-Cc: Kefeng Wang <wangkefeng.wang@huawei.com>
-Cc: Martin KaFai Lau <kafai@fb.com>
-Cc: Petr Mladek <pmladek@suse.com>
-Cc: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
-Cc: Song Liu <songliubraving@fb.com>
-Cc: Yonghong Song <yhs@fb.com>
-Cc: bpf@vger.kernel.org
-Cc: netdev@vger.kernel.org
-Link: http://lore.kernel.org/lkml/20191211080109.18765-1-andrey.zhizhikin@leica-geosystems.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Cc: Arvind Sankar <nivedita@alum.mit.edu>
+Cc: Matthew Garrett <mjg59@google.com>
+Cc: linux-efi@vger.kernel.org
+Fixes: 5b83683f32b1 ("x86: EFI runtime service support")
+Link: https://lkml.kernel.org/r/20200103113953.9571-5-ardb@kernel.org
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/lib/api/fs/fs.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/x86/platform/efi/efi.c | 13 +++++++------
+ 1 file changed, 7 insertions(+), 6 deletions(-)
 
-diff --git a/tools/lib/api/fs/fs.c b/tools/lib/api/fs/fs.c
-index f99f49e4a31e6..21e714cf0126c 100644
---- a/tools/lib/api/fs/fs.c
-+++ b/tools/lib/api/fs/fs.c
-@@ -194,6 +194,7 @@ static bool fs__env_override(struct fs *fs)
- 	size_t name_len = strlen(fs->name);
- 	/* name + "_PATH" + '\0' */
- 	char upper_name[name_len + 5 + 1];
-+
- 	memcpy(upper_name, fs->name, name_len);
- 	mem_toupper(upper_name, name_len);
- 	strcpy(&upper_name[name_len], "_PATH");
-@@ -203,7 +204,8 @@ static bool fs__env_override(struct fs *fs)
- 		return false;
+diff --git a/arch/x86/platform/efi/efi.c b/arch/x86/platform/efi/efi.c
+index 4bc352fc08f19..105872617be08 100644
+--- a/arch/x86/platform/efi/efi.c
++++ b/arch/x86/platform/efi/efi.c
+@@ -465,7 +465,6 @@ void __init efi_init(void)
+ 	efi_char16_t *c16;
+ 	char vendor[100] = "unknown";
+ 	int i = 0;
+-	void *tmp;
  
- 	fs->found = true;
--	strncpy(fs->path, override_path, sizeof(fs->path));
-+	strncpy(fs->path, override_path, sizeof(fs->path) - 1);
-+	fs->path[sizeof(fs->path) - 1] = '\0';
- 	return true;
- }
+ #ifdef CONFIG_X86_32
+ 	if (boot_params.efi_info.efi_systab_hi ||
+@@ -490,14 +489,16 @@ void __init efi_init(void)
+ 	/*
+ 	 * Show what we know for posterity
+ 	 */
+-	c16 = tmp = early_memremap(efi.systab->fw_vendor, 2);
++	c16 = early_memremap_ro(efi.systab->fw_vendor,
++				sizeof(vendor) * sizeof(efi_char16_t));
+ 	if (c16) {
+-		for (i = 0; i < sizeof(vendor) - 1 && *c16; ++i)
+-			vendor[i] = *c16++;
++		for (i = 0; i < sizeof(vendor) - 1 && c16[i]; ++i)
++			vendor[i] = c16[i];
+ 		vendor[i] = '\0';
+-	} else
++		early_memunmap(c16, sizeof(vendor) * sizeof(efi_char16_t));
++	} else {
+ 		pr_err("Could not map the firmware vendor!\n");
+-	early_memunmap(tmp, 2);
++	}
  
+ 	pr_info("EFI v%u.%.02u by %s\n",
+ 		efi.systab->hdr.revision >> 16,
 -- 
 2.20.1
 
