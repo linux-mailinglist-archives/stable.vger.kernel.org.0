@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4005E171C1B
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:08:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 87AD3171DD5
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:23:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388308AbgB0OIz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 09:08:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46760 "EHLO mail.kernel.org"
+        id S2389201AbgB0OO5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 09:14:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54374 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388306AbgB0OIy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 09:08:54 -0500
+        id S2389213AbgB0OO5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 09:14:57 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 35F4624656;
-        Thu, 27 Feb 2020 14:08:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2A3C520801;
+        Thu, 27 Feb 2020 14:14:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582812533;
-        bh=EbQDuUGt0WEfjAtVVoBBJSO/K69KsAREfIwf2SmiYVY=;
+        s=default; t=1582812896;
+        bh=lqpYNNcrPhcEJCoVEm5zSXwt3P8XbK0+uztpjf3ftmk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ioNomucrVndTs29P44OC1kaRWxy/tDwdlGiqTgJjbGYd9Wi+VvaWX8nlh9S8L+qd8
-         yThcCe6TSm5QDqWVVpxcf+kfOhUrGOR2oIN0BkN0Hm7Jy6MRQAUWH4bbFwO/ccr8E8
-         zKZ0UNn4DSSKuZDsfuVnhbnvV3gA5zsLjqPcBQ5Y=
+        b=RF+R/LW5iD0KvWYtjNTN04RcafeBZ8yVIxmgQijbKlWxyD20MIZ2wDWC43AoaZBuH
+         dfL4nByHbcZWsaFev37t3XMeATgj0I2KdbrEPH+LOcoLFNOf7VQX2gl/zZcDqwzYKw
+         EBM6iZe0nVrKk7dqTrCKtyTy8qjmecDzPfJcLaNo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-        Borislav Petkov <bp@suse.de>
-Subject: [PATCH 5.4 053/135] x86/mce/amd: Fix kobject lifetime
+        stable@vger.kernel.org, Christophe Leroy <christophe.leroy@c-s.fr>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.5 056/150] powerpc/hugetlb: Fix 8M hugepages on 8xx
 Date:   Thu, 27 Feb 2020 14:36:33 +0100
-Message-Id: <20200227132237.110616024@linuxfoundation.org>
+Message-Id: <20200227132241.367939382@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200227132228.710492098@linuxfoundation.org>
-References: <20200227132228.710492098@linuxfoundation.org>
+In-Reply-To: <20200227132232.815448360@linuxfoundation.org>
+References: <20200227132232.815448360@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,87 +43,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+From: Christophe Leroy <christophe.leroy@c-s.fr>
 
-commit 51dede9c05df2b78acd6dcf6a17d21f0877d2d7b upstream.
+commit 50a175dd18de7a647e72aca7daf4744e3a5a81e3 upstream.
 
-Accessing the MCA thresholding controls in sysfs concurrently with CPU
-hotplug can lead to a couple of KASAN-reported issues:
+With HW assistance all page tables must be 4k aligned, the 8xx drops
+the last 12 bits during the walk.
 
-  BUG: KASAN: use-after-free in sysfs_file_ops+0x155/0x180
-  Read of size 8 at addr ffff888367578940 by task grep/4019
+Redefine HUGEPD_SHIFT_MASK to mask last 12 bits out. HUGEPD_SHIFT_MASK
+is used to for alignment of page table cache.
 
-and
-
-  BUG: KASAN: use-after-free in show_error_count+0x15c/0x180
-  Read of size 2 at addr ffff888368a05514 by task grep/4454
-
-for example. Both result from the fact that the threshold block
-creation/teardown code frees the descriptor memory itself instead of
-defining proper ->release function and leaving it to the driver core to
-take care of that, after all sysfs accesses have completed.
-
-Do that and get rid of the custom freeing code, fixing the above UAFs in
-the process.
-
-  [ bp: write commit message. ]
-
-Fixes: 95268664390b ("[PATCH] x86_64: mce_amd support for family 0x10 processors")
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Cc: <stable@vger.kernel.org>
-Link: https://lkml.kernel.org/r/20200214082801.13836-1-bp@alien8.de
+Fixes: 22569b881d37 ("powerpc/8xx: Enable 8M hugepage support with HW assistance")
+Cc: stable@vger.kernel.org # v5.0+
+Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/778b1a248c4c7ca79640eeff7740044da6a220a0.1581264115.git.christophe.leroy@c-s.fr
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/kernel/cpu/mce/amd.c |   17 +++++++++++------
- 1 file changed, 11 insertions(+), 6 deletions(-)
+ arch/powerpc/include/asm/page.h |    5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/arch/x86/kernel/cpu/mce/amd.c
-+++ b/arch/x86/kernel/cpu/mce/amd.c
-@@ -1161,9 +1161,12 @@ static const struct sysfs_ops threshold_
- 	.store			= store,
- };
+--- a/arch/powerpc/include/asm/page.h
++++ b/arch/powerpc/include/asm/page.h
+@@ -295,8 +295,13 @@ static inline bool pfn_valid(unsigned lo
+ /*
+  * Some number of bits at the level of the page table that points to
+  * a hugepte are used to encode the size.  This masks those bits.
++ * On 8xx, HW assistance requires 4k alignment for the hugepte.
+  */
++#ifdef CONFIG_PPC_8xx
++#define HUGEPD_SHIFT_MASK     0xfff
++#else
+ #define HUGEPD_SHIFT_MASK     0x3f
++#endif
  
-+static void threshold_block_release(struct kobject *kobj);
-+
- static struct kobj_type threshold_ktype = {
- 	.sysfs_ops		= &threshold_ops,
- 	.default_attrs		= default_attrs,
-+	.release		= threshold_block_release,
- };
+ #ifndef __ASSEMBLY__
  
- static const char *get_name(unsigned int bank, struct threshold_block *b)
-@@ -1365,8 +1368,12 @@ static int threshold_create_bank(unsigne
- 	return err;
- }
- 
--static void deallocate_threshold_block(unsigned int cpu,
--						 unsigned int bank)
-+static void threshold_block_release(struct kobject *kobj)
-+{
-+	kfree(to_block(kobj));
-+}
-+
-+static void deallocate_threshold_block(unsigned int cpu, unsigned int bank)
- {
- 	struct threshold_block *pos = NULL;
- 	struct threshold_block *tmp = NULL;
-@@ -1376,13 +1383,11 @@ static void deallocate_threshold_block(u
- 		return;
- 
- 	list_for_each_entry_safe(pos, tmp, &head->blocks->miscj, miscj) {
--		kobject_put(&pos->kobj);
- 		list_del(&pos->miscj);
--		kfree(pos);
-+		kobject_put(&pos->kobj);
- 	}
- 
--	kfree(per_cpu(threshold_banks, cpu)[bank]->blocks);
--	per_cpu(threshold_banks, cpu)[bank]->blocks = NULL;
-+	kobject_put(&head->blocks->kobj);
- }
- 
- static void __threshold_remove_blocks(struct threshold_bank *b)
 
 
