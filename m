@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A7A3171C1D
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:09:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8301A171BB8
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:05:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388315AbgB0OI5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 09:08:57 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46808 "EHLO mail.kernel.org"
+        id S1733258AbgB0OFG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 09:05:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41570 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388311AbgB0OI5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 09:08:57 -0500
+        id S1732980AbgB0OFE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 09:05:04 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AE4432468D;
-        Thu, 27 Feb 2020 14:08:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9CE7C20801;
+        Thu, 27 Feb 2020 14:05:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582812536;
-        bh=JI9fVbysw8MJNXzuudnRo9dSCuDCC2WnuoMEA9dZJoI=;
+        s=default; t=1582812304;
+        bh=Y+oO0v4pPjWCM/PYx1KrCQTKLulyQAEUeZpbuxHDaAE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iMMSOsF4FFDzPca2+fHqKiBGuMbR9VErCpG+J+PW6HolocTF/EfE4yqyUicKaFiF9
-         OjDeS2yDB2L353F8bgDnxojSBTusV0l7coAa9oEi6Jbv6OnLk1CR6GkzAc85iF6FbO
-         OUS4ADrR63MB5Z0BAPCaYSto0NkdrjGzAocUaOvo=
+        b=XOp+olOMerIQstBNrUzZrhlLrSOoOGg913fi3eXeJlWT26BQM2owIsSm+ZxFFOX3i
+         5IEf7UIuiaUm+FXiywdSfiPTyR5kKG8bUH4TPeDDHZvpkBiKFhwOzPF4zAXoV16BOT
+         IpdTzGh6HSd4A3iuXtI/l6NDo/OOMeT26nCWJXMU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kim Phillips <kim.phillips@amd.com>,
-        Borislav Petkov <bp@suse.de>,
-        Peter Zijlstra <peterz@infradead.org>
-Subject: [PATCH 5.4 054/135] x86/cpu/amd: Enable the fixed Instructions Retired counter IRPERF
+        stable@vger.kernel.org, Richard Dodd <richard.o.dodd@gmail.com>
+Subject: [PATCH 4.19 26/97] USB: Fix novation SourceControl XL after suspend
 Date:   Thu, 27 Feb 2020 14:36:34 +0100
-Message-Id: <20200227132237.238373577@linuxfoundation.org>
+Message-Id: <20200227132218.850608981@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200227132228.710492098@linuxfoundation.org>
-References: <20200227132228.710492098@linuxfoundation.org>
+In-Reply-To: <20200227132214.553656188@linuxfoundation.org>
+References: <20200227132214.553656188@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,113 +42,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kim Phillips <kim.phillips@amd.com>
+From: Richard Dodd <richard.o.dodd@gmail.com>
 
-commit 21b5ee59ef18e27d85810584caf1f7ddc705ea83 upstream.
+commit b692056db8ecc7f452b934f016c17348282b7699 upstream.
 
-Commit
+Currently, the SourceControl will stay in power-down mode after resuming
+from suspend. This patch resets the device after suspend to power it up.
 
-  aaf248848db50 ("perf/x86/msr: Add AMD IRPERF (Instructions Retired)
-		  performance counter")
-
-added support for access to the free-running counter via 'perf -e
-msr/irperf/', but when exercised, it always returns a 0 count:
-
-BEFORE:
-
-  $ perf stat -e instructions,msr/irperf/ true
-
-   Performance counter stats for 'true':
-
-             624,833      instructions
-                   0      msr/irperf/
-
-Simply set its enable bit - HWCR bit 30 - to make it start counting.
-
-Enablement is restricted to all machines advertising IRPERF capability,
-except those susceptible to an erratum that makes the IRPERF return
-bad values.
-
-That erratum occurs in Family 17h models 00-1fh [1], but not in F17h
-models 20h and above [2].
-
-AFTER (on a family 17h model 31h machine):
-
-  $ perf stat -e instructions,msr/irperf/ true
-
-   Performance counter stats for 'true':
-
-             621,690      instructions
-             622,490      msr/irperf/
-
-[1] Revision Guide for AMD Family 17h Models 00h-0Fh Processors
-[2] Revision Guide for AMD Family 17h Models 30h-3Fh Processors
-
-The revision guides are available from the bugzilla Link below.
-
- [ bp: Massage commit message. ]
-
-Fixes: aaf248848db50 ("perf/x86/msr: Add AMD IRPERF (Instructions Retired) performance counter")
-Signed-off-by: Kim Phillips <kim.phillips@amd.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: stable@vger.kernel.org
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=206537
-Link: http://lkml.kernel.org/r/20200214201805.13830-1-kim.phillips@amd.com
+Signed-off-by: Richard Dodd <richard.o.dodd@gmail.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200212142220.36892-1-richard.o.dodd@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/include/asm/msr-index.h |    2 ++
- arch/x86/kernel/cpu/amd.c        |   14 ++++++++++++++
- 2 files changed, 16 insertions(+)
+ drivers/usb/core/quirks.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/arch/x86/include/asm/msr-index.h
-+++ b/arch/x86/include/asm/msr-index.h
-@@ -510,6 +510,8 @@
- #define MSR_K7_HWCR			0xc0010015
- #define MSR_K7_HWCR_SMMLOCK_BIT		0
- #define MSR_K7_HWCR_SMMLOCK		BIT_ULL(MSR_K7_HWCR_SMMLOCK_BIT)
-+#define MSR_K7_HWCR_IRPERF_EN_BIT	30
-+#define MSR_K7_HWCR_IRPERF_EN		BIT_ULL(MSR_K7_HWCR_IRPERF_EN_BIT)
- #define MSR_K7_FID_VID_CTL		0xc0010041
- #define MSR_K7_FID_VID_STATUS		0xc0010042
+--- a/drivers/usb/core/quirks.c
++++ b/drivers/usb/core/quirks.c
+@@ -449,6 +449,9 @@ static const struct usb_device_id usb_qu
+ 	/* INTEL VALUE SSD */
+ 	{ USB_DEVICE(0x8086, 0xf1a5), .driver_info = USB_QUIRK_RESET_RESUME },
  
---- a/arch/x86/kernel/cpu/amd.c
-+++ b/arch/x86/kernel/cpu/amd.c
-@@ -28,6 +28,7 @@
- 
- static const int amd_erratum_383[];
- static const int amd_erratum_400[];
-+static const int amd_erratum_1054[];
- static bool cpu_has_amd_erratum(struct cpuinfo_x86 *cpu, const int *erratum);
- 
- /*
-@@ -978,6 +979,15 @@ static void init_amd(struct cpuinfo_x86
- 	/* AMD CPUs don't reset SS attributes on SYSRET, Xen does. */
- 	if (!cpu_has(c, X86_FEATURE_XENPV))
- 		set_cpu_bug(c, X86_BUG_SYSRET_SS_ATTRS);
++	/* novation SoundControl XL */
++	{ USB_DEVICE(0x1235, 0x0061), .driver_info = USB_QUIRK_RESET_RESUME },
 +
-+	/*
-+	 * Turn on the Instructions Retired free counter on machines not
-+	 * susceptible to erratum #1054 "Instructions Retired Performance
-+	 * Counter May Be Inaccurate".
-+	 */
-+	if (cpu_has(c, X86_FEATURE_IRPERF) &&
-+	    !cpu_has_amd_erratum(c, amd_erratum_1054))
-+		msr_set_bit(MSR_K7_HWCR, MSR_K7_HWCR_IRPERF_EN_BIT);
- }
+ 	{ }  /* terminating entry must be last */
+ };
  
- #ifdef CONFIG_X86_32
-@@ -1105,6 +1115,10 @@ static const int amd_erratum_400[] =
- static const int amd_erratum_383[] =
- 	AMD_OSVW_ERRATUM(3, AMD_MODEL_RANGE(0x10, 0, 0, 0xff, 0xf));
- 
-+/* #1054: Instructions Retired Performance Counter May Be Inaccurate */
-+static const int amd_erratum_1054[] =
-+	AMD_OSVW_ERRATUM(0, AMD_MODEL_RANGE(0x17, 0, 0, 0x2f, 0xf));
-+
- 
- static bool cpu_has_amd_erratum(struct cpuinfo_x86 *cpu, const int *erratum)
- {
 
 
