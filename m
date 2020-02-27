@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 702DE171AE1
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 14:57:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D5DC4171902
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 14:41:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732312AbgB0N5o (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 08:57:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58742 "EHLO mail.kernel.org"
+        id S1729528AbgB0NlN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 08:41:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35730 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732329AbgB0N5n (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 08:57:43 -0500
+        id S1729517AbgB0NlK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 08:41:10 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6DABE24691;
-        Thu, 27 Feb 2020 13:57:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D4FC321D7E;
+        Thu, 27 Feb 2020 13:41:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582811862;
-        bh=Wt3NAeACM4K4qNvn/QVuLHb67CRV4buzK2nKtMV9C+Q=;
+        s=default; t=1582810870;
+        bh=dO8xwNUMWfiDMM1KGW8bWZI+laE6+d2er+ZLiyojtyY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K26fIWBNGS1vaLIHeWkjKSaHSpUkkSYAyq7nYBZLYkV/U6GvDPdsVtie31TKQ1tji
-         mhBGXks++R/ty+PxZjGHAypYiQdIpZy2r0p5uV+r3IWPT8fDQ4D7hrYu3FNml0sIZL
-         4g0C+6ye/Wto+XhHVu5/jYu5QiFim5DySZaINGEM=
+        b=t3TxlvoeanN1JZOIRWfK4RyqNEakmohyrEP9jFwkD/rbFgnoCr47FAPEWIILPY036
+         4z4BfIXwT641VDllQGmXrkHQWeJtC2DPqxGCPTxmPLbcCGXF/dmG8uXYt/P95ygbL9
+         ZwoBQ9o5lUEUlD2D8KumVeCSPb1T0Kj26+zy5ltw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, yu kuai <yukuai3@huawei.com>,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
-        Thierry Reding <thierry.reding@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 131/237] pwm: Remove set but not set variable pwm
-Date:   Thu, 27 Feb 2020 14:35:45 +0100
-Message-Id: <20200227132306.369036217@linuxfoundation.org>
+        stable@vger.kernel.org, Kai Li <li.kai4@h3c.com>,
+        Theodore Tso <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 030/113] jbd2: clear JBD2_ABORT flag before journal_reset to update log tail info when load journal
+Date:   Thu, 27 Feb 2020 14:35:46 +0100
+Message-Id: <20200227132216.540635114@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200227132255.285644406@linuxfoundation.org>
-References: <20200227132255.285644406@linuxfoundation.org>
+In-Reply-To: <20200227132211.791484803@linuxfoundation.org>
+References: <20200227132211.791484803@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,46 +43,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: yu kuai <yukuai3@huawei.com>
+From: Kai Li <li.kai4@h3c.com>
 
-[ Upstream commit 9871abffc81048e20f02e15d6aa4558a44ad53ea ]
+[ Upstream commit a09decff5c32060639a685581c380f51b14e1fc2 ]
 
-Fixes gcc '-Wunused-but-set-variable' warning:
+If the journal is dirty when the filesystem is mounted, jbd2 will replay
+the journal but the journal superblock will not be updated by
+journal_reset() because JBD2_ABORT flag is still set (it was set in
+journal_init_common()). This is problematic because when a new transaction
+is then committed, it will be recorded in block 1 (journal->j_tail was set
+to 1 in journal_reset()). If unclean shutdown happens again before the
+journal superblock is updated, the new recorded transaction will not be
+replayed during the next mount (because of stale sb->s_start and
+sb->s_sequence values) which can lead to filesystem corruption.
 
-	drivers/pwm/pwm-pca9685.c: In function ‘pca9685_pwm_gpio_free’:
-	drivers/pwm/pwm-pca9685.c:162:21: warning: variable ‘pwm’ set but not used [-Wunused-but-set-variable]
-
-It is never used, and so can be removed. In that case, hold and release
-the lock 'pca->lock' can be removed since nothing will be done between
-them.
-
-Fixes: e926b12c611c ("pwm: Clear chip_data in pwm_put()")
-Signed-off-by: yu kuai <yukuai3@huawei.com>
-Acked-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
+Fixes: 85e0c4e89c1b ("jbd2: if the journal is aborted then don't allow update of the log tail")
+Signed-off-by: Kai Li <li.kai4@h3c.com>
+Link: https://lore.kernel.org/r/20200111022542.5008-1-li.kai4@h3c.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pwm/pwm-pca9685.c | 4 ----
- 1 file changed, 4 deletions(-)
+ fs/jbd2/journal.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/pwm/pwm-pca9685.c b/drivers/pwm/pwm-pca9685.c
-index 567f5e2771c47..e1e5dfcb16f36 100644
---- a/drivers/pwm/pwm-pca9685.c
-+++ b/drivers/pwm/pwm-pca9685.c
-@@ -170,13 +170,9 @@ static void pca9685_pwm_gpio_set(struct gpio_chip *gpio, unsigned int offset,
- static void pca9685_pwm_gpio_free(struct gpio_chip *gpio, unsigned int offset)
- {
- 	struct pca9685 *pca = gpiochip_get_data(gpio);
--	struct pwm_device *pwm;
+diff --git a/fs/jbd2/journal.c b/fs/jbd2/journal.c
+index 9398d1b70545c..deb3300299709 100644
+--- a/fs/jbd2/journal.c
++++ b/fs/jbd2/journal.c
+@@ -1656,6 +1656,11 @@ int jbd2_journal_load(journal_t *journal)
+ 		       journal->j_devname);
+ 		return -EFSCORRUPTED;
+ 	}
++	/*
++	 * clear JBD2_ABORT flag initialized in journal_init_common
++	 * here to update log tail information with the newest seq.
++	 */
++	journal->j_flags &= ~JBD2_ABORT;
  
- 	pca9685_pwm_gpio_set(gpio, offset, 0);
- 	pm_runtime_put(pca->chip.dev);
--	mutex_lock(&pca->lock);
--	pwm = &pca->chip.pwms[offset];
--	mutex_unlock(&pca->lock);
- }
+ 	/* OK, we've finished with the dynamic journal bits:
+ 	 * reinitialise the dynamic contents of the superblock in memory
+@@ -1663,7 +1668,6 @@ int jbd2_journal_load(journal_t *journal)
+ 	if (journal_reset(journal))
+ 		goto recovery_error;
  
- static int pca9685_pwm_gpio_get_direction(struct gpio_chip *chip,
+-	journal->j_flags &= ~JBD2_ABORT;
+ 	journal->j_flags |= JBD2_LOADED;
+ 	return 0;
+ 
 -- 
 2.20.1
 
