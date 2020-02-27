@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A763171DDA
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:23:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 35E17171E7A
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:28:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388330AbgB0OXb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 09:23:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53816 "EHLO mail.kernel.org"
+        id S2388004AbgB0OIa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 09:08:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46294 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389135AbgB0OOa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 09:14:30 -0500
+        id S2388249AbgB0OI2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 09:08:28 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3FB7624690;
-        Thu, 27 Feb 2020 14:14:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4A32821D7E;
+        Thu, 27 Feb 2020 14:08:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582812869;
-        bh=Gh0r9CNz1XQi1o5EC9F2wUWx/cfLvl0SucLWOQzEXXw=;
+        s=default; t=1582812507;
+        bh=dG1J/I8WKVAUK14Lul6+PWveA9+GuP9eZlvwnpNFn9k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sUoNryZbzFEfgxEssWcS+ZkhtBLj+bsKlqGYwXVu2CkzqKHNjSpti/dv+JS8/0qYI
-         ekDgW9syY2+4yyrAnHuekT8WuM2GktCc8vPzcioOvEgA1j3U2FpW3EI+uX3JuB3m4g
-         VwPPGF8MLpbQi7sF0wuGG1ZYlBAQf2vGbyPpPEko=
+        b=RYFeipOa7loet1hNKl21Aucqw8LMSZ/UBIQ1VfxnvRLGKI4lZjrOGhIjOy1eJb+bg
+         GDmNVQnwzmZ/ydMbYmsamFsi+Ai+PaO5x9qXMuGmMOMPNycAd8V0MH5Hm+9Lfe1sQw
+         NDnOB93/qZExvm8Cx8659CLH2dOODHNrkpn9mMXw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pietro Oliva <pietroliva@gmail.com>,
-        Larry Finger <Larry.Finger@lwfinger.net>
-Subject: [PATCH 5.5 047/150] staging: rtl8723bs: Fix potential security hole
+        stable@vger.kernel.org, Sam Bobroff <sbobroff@linux.ibm.com>,
+        Frederic Barrat <fbarrat@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.4 044/135] powerpc/eeh: Fix deadlock handling dead PHB
 Date:   Thu, 27 Feb 2020 14:36:24 +0100
-Message-Id: <20200227132239.962277163@linuxfoundation.org>
+Message-Id: <20200227132235.604446318@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200227132232.815448360@linuxfoundation.org>
-References: <20200227132232.815448360@linuxfoundation.org>
+In-Reply-To: <20200227132228.710492098@linuxfoundation.org>
+References: <20200227132228.710492098@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,40 +44,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Larry Finger <Larry.Finger@lwfinger.net>
+From: Sam Bobroff <sbobroff@linux.ibm.com>
 
-commit ac33597c0c0d1d819dccfe001bcd0acef7107e7c upstream.
+commit d4f194ed9eb9841a8f978710e4d24296f791a85b upstream.
 
-In routine rtw_hostapd_ioctl(), the user-controlled p->length is assumed
-to be at least the size of struct ieee_param size, but this assumption is
-never checked. This could result in out-of-bounds read/write on kernel
-heap in case a p->length less than the size of struct ieee_param is
-specified by the user. If p->length is allowed to be greater than the size
-of the struct, then a malicious user could be wasting kernel memory.
-Fixes commit 554c0a3abf216 ("0taging: Add rtl8723bs sdio wifi driver").
+Recovering a dead PHB can currently cause a deadlock as the PCI
+rescan/remove lock is taken twice.
 
-Reported by: Pietro Oliva <pietroliva@gmail.com>
-Cc: Pietro Oliva <pietroliva@gmail.com>
-Cc: Stable <stable@vger.kernel.org>
-Fixes 554c0a3abf216 ("0taging: Add rtl8723bs sdio wifi driver").
-Signed-off-by: Larry Finger <Larry.Finger@lwfinger.net>
-Link: https://lore.kernel.org/r/20200210180235.21691-3-Larry.Finger@lwfinger.net
+This is caused as part of an existing bug in
+eeh_handle_special_event(). The pe is processed while traversing the
+PHBs even though the pe is unrelated to the loop. This causes the pe
+to be, incorrectly, processed more than once.
+
+Untangling this section can move the pe processing out of the loop and
+also outside the locked section, correcting both problems.
+
+Fixes: 2e25505147b8 ("powerpc/eeh: Fix crash when edev->pdev changes")
+Cc: stable@vger.kernel.org # 5.4+
+Signed-off-by: Sam Bobroff <sbobroff@linux.ibm.com>
+Reviewed-by: Frederic Barrat <fbarrat@linux.ibm.com>
+Tested-by: Frederic Barrat <fbarrat@linux.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/0547e82dbf90ee0729a2979a8cac5c91665c621f.1581051445.git.sbobroff@linux.ibm.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/staging/rtl8723bs/os_dep/ioctl_linux.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/powerpc/kernel/eeh_driver.c |   21 +++++++++++----------
+ 1 file changed, 11 insertions(+), 10 deletions(-)
 
---- a/drivers/staging/rtl8723bs/os_dep/ioctl_linux.c
-+++ b/drivers/staging/rtl8723bs/os_dep/ioctl_linux.c
-@@ -4207,7 +4207,7 @@ static int rtw_hostapd_ioctl(struct net_
+--- a/arch/powerpc/kernel/eeh_driver.c
++++ b/arch/powerpc/kernel/eeh_driver.c
+@@ -1200,6 +1200,17 @@ void eeh_handle_special_event(void)
+ 			eeh_pe_state_mark(pe, EEH_PE_RECOVERING);
+ 			eeh_handle_normal_event(pe);
+ 		} else {
++			eeh_for_each_pe(pe, tmp_pe)
++				eeh_pe_for_each_dev(tmp_pe, edev, tmp_edev)
++					edev->mode &= ~EEH_DEV_NO_HANDLER;
++
++			/* Notify all devices to be down */
++			eeh_pe_state_clear(pe, EEH_PE_PRI_BUS, true);
++			eeh_set_channel_state(pe, pci_channel_io_perm_failure);
++			eeh_pe_report(
++				"error_detected(permanent failure)", pe,
++				eeh_report_failure, NULL);
++
+ 			pci_lock_rescan_remove();
+ 			list_for_each_entry(hose, &hose_list, list_node) {
+ 				phb_pe = eeh_phb_pe_get(hose);
+@@ -1208,16 +1219,6 @@ void eeh_handle_special_event(void)
+ 				    (phb_pe->state & EEH_PE_RECOVERING))
+ 					continue;
  
- 
- 	/* if (p->length < sizeof(struct ieee_param) || !p->pointer) { */
--	if (!p->pointer) {
-+	if (!p->pointer || p->length != sizeof(*param)) {
- 		ret = -EINVAL;
- 		goto out;
- 	}
+-				eeh_for_each_pe(pe, tmp_pe)
+-					eeh_pe_for_each_dev(tmp_pe, edev, tmp_edev)
+-						edev->mode &= ~EEH_DEV_NO_HANDLER;
+-
+-				/* Notify all devices to be down */
+-				eeh_pe_state_clear(pe, EEH_PE_PRI_BUS, true);
+-				eeh_set_channel_state(pe, pci_channel_io_perm_failure);
+-				eeh_pe_report(
+-					"error_detected(permanent failure)", pe,
+-					eeh_report_failure, NULL);
+ 				bus = eeh_pe_bus_get(phb_pe);
+ 				if (!bus) {
+ 					pr_err("%s: Cannot find PCI bus for "
 
 
