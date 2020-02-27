@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EBB8917202D
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:41:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C6522171F1E
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:32:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731145AbgB0Nv4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 08:51:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51286 "EHLO mail.kernel.org"
+        id S1732736AbgB0OBr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 09:01:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36016 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730836AbgB0Nv4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 08:51:56 -0500
+        id S1732975AbgB0OBq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 09:01:46 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EA65C2084E;
-        Thu, 27 Feb 2020 13:51:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5C3D8246B6;
+        Thu, 27 Feb 2020 14:01:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582811515;
-        bh=lot9hp8M9ZmQ4SErYioRkTfv2/FgtyO+wcAr43RWXLg=;
+        s=default; t=1582812105;
+        bh=M83zeuXPIyGAsJRQmuwMwjHxCkaP2k8wUuH3bxW+5Ew=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uY40Znbw1G4hQz9DENUHX0kLpDP/M2L0JvcWMDWQqM+ySqdwNCxP683OPnIpeucu5
-         dA0bLmhf2YS+GC3lT8pYmTU3bfLleNX724BLtK/SPK800jMmfIHHW7LOvBb7GUxpsT
-         jH609dSMGgJPzywaI7ey0zTxoU7HKInulgCNH4oc=
+        b=wIRndZCTgZX5GMXB4QNERK8fYltNYgFq3bEB8qh6zw7IuV36cJiNIOBx4uoIvBoGr
+         Ot6lFV8rkaSWsVXD3K4qDjs+BcMCH7NCwRewGjRQslaipaxGv2fafi5VKvXzZKAz8K
+         Z5r9aqkpqiYX8LBaA/bR4ONiBbyxNx0lzJ692/v0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+fd5e0eaa1a32999173b2@syzkaller.appspotmail.com,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.9 161/165] ALSA: seq: Fix concurrent access to queue current tick/time
-Date:   Thu, 27 Feb 2020 14:37:15 +0100
-Message-Id: <20200227132254.238907793@linuxfoundation.org>
+        stable@vger.kernel.org, Rahul Kundu <rahul.kundu@chelsio.com>,
+        Mike Marciniszyn <mike.marciniszyn@intel.com>,
+        Sagi Grimberg <sagi@grimberg.me>,
+        Dakshaja Uppalapati <dakshaja@chelsio.com>,
+        Bart Van Assche <bvanassche@acm.org>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 4.14 223/237] scsi: Revert "RDMA/isert: Fix a recently introduced regression related to logout"
+Date:   Thu, 27 Feb 2020 14:37:17 +0100
+Message-Id: <20200227132312.550900088@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200227132230.840899170@linuxfoundation.org>
-References: <20200227132230.840899170@linuxfoundation.org>
+In-Reply-To: <20200227132255.285644406@linuxfoundation.org>
+References: <20200227132255.285644406@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,137 +47,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Bart Van Assche <bvanassche@acm.org>
 
-commit dc7497795e014d84699c3b8809ed6df35352dd74 upstream.
+commit 76261ada16dcc3be610396a46d35acc3efbda682 upstream.
 
-snd_seq_check_queue() passes the current tick and time of the given
-queue as a pointer to snd_seq_prioq_cell_out(), but those might be
-updated concurrently by the seq timer update.
+Since commit 04060db41178 introduces soft lockups when toggling network
+interfaces, revert it.
 
-Fix it by retrieving the current tick and time via the proper helper
-functions at first, and pass those values to snd_seq_prioq_cell_out()
-later in the loops.
-
-snd_seq_timer_get_cur_time() takes a new argument and adjusts with the
-current system time only when it's requested so; this update isn't
-needed for snd_seq_check_queue(), as it's called either from the
-interrupt handler or right after queuing.
-
-Also, snd_seq_timer_get_cur_tick() is changed to read the value in the
-spinlock for the concurrency, too.
-
-Reported-by: syzbot+fd5e0eaa1a32999173b2@syzkaller.appspotmail.com
-Link: https://lore.kernel.org/r/20200214111316.26939-3-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Link: https://marc.info/?l=target-devel&m=158157054906196
+Cc: Rahul Kundu <rahul.kundu@chelsio.com>
+Cc: Mike Marciniszyn <mike.marciniszyn@intel.com>
+Cc: Sagi Grimberg <sagi@grimberg.me>
+Reported-by: Dakshaja Uppalapati <dakshaja@chelsio.com>
+Fixes: 04060db41178 ("scsi: RDMA/isert: Fix a recently introduced regression related to logout")
+Signed-off-by: Bart Van Assche <bvanassche@acm.org>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/core/seq/seq_clientmgr.c |    4 ++--
- sound/core/seq/seq_queue.c     |    9 ++++++---
- sound/core/seq/seq_timer.c     |   13 ++++++++++---
- sound/core/seq/seq_timer.h     |    3 ++-
- 4 files changed, 20 insertions(+), 9 deletions(-)
+ drivers/infiniband/ulp/isert/ib_isert.c |   12 ++++++++++++
+ drivers/target/iscsi/iscsi_target.c     |    6 +++---
+ 2 files changed, 15 insertions(+), 3 deletions(-)
 
---- a/sound/core/seq/seq_clientmgr.c
-+++ b/sound/core/seq/seq_clientmgr.c
-@@ -564,7 +564,7 @@ static int update_timestamp_of_queue(str
- 	event->queue = queue;
- 	event->flags &= ~SNDRV_SEQ_TIME_STAMP_MASK;
- 	if (real_time) {
--		event->time.time = snd_seq_timer_get_cur_time(q->timer);
-+		event->time.time = snd_seq_timer_get_cur_time(q->timer, true);
- 		event->flags |= SNDRV_SEQ_TIME_STAMP_REAL;
- 	} else {
- 		event->time.tick = snd_seq_timer_get_cur_tick(q->timer);
-@@ -1639,7 +1639,7 @@ static int snd_seq_ioctl_get_queue_statu
- 	tmr = queue->timer;
- 	status->events = queue->tickq->cells + queue->timeq->cells;
- 
--	status->time = snd_seq_timer_get_cur_time(tmr);
-+	status->time = snd_seq_timer_get_cur_time(tmr, true);
- 	status->tick = snd_seq_timer_get_cur_tick(tmr);
- 
- 	status->running = tmr->running;
---- a/sound/core/seq/seq_queue.c
-+++ b/sound/core/seq/seq_queue.c
-@@ -261,6 +261,8 @@ void snd_seq_check_queue(struct snd_seq_
- {
- 	unsigned long flags;
- 	struct snd_seq_event_cell *cell;
-+	snd_seq_tick_time_t cur_tick;
-+	snd_seq_real_time_t cur_time;
- 
- 	if (q == NULL)
- 		return;
-@@ -277,17 +279,18 @@ void snd_seq_check_queue(struct snd_seq_
- 
-       __again:
- 	/* Process tick queue... */
-+	cur_tick = snd_seq_timer_get_cur_tick(q->timer);
- 	for (;;) {
--		cell = snd_seq_prioq_cell_out(q->tickq,
--					      &q->timer->tick.cur_tick);
-+		cell = snd_seq_prioq_cell_out(q->tickq, &cur_tick);
- 		if (!cell)
- 			break;
- 		snd_seq_dispatch_event(cell, atomic, hop);
+--- a/drivers/infiniband/ulp/isert/ib_isert.c
++++ b/drivers/infiniband/ulp/isert/ib_isert.c
+@@ -2582,6 +2582,17 @@ isert_wait4logout(struct isert_conn *ise
  	}
- 
- 	/* Process time queue... */
-+	cur_time = snd_seq_timer_get_cur_time(q->timer, false);
- 	for (;;) {
--		cell = snd_seq_prioq_cell_out(q->timeq, &q->timer->cur_time);
-+		cell = snd_seq_prioq_cell_out(q->timeq, &cur_time);
- 		if (!cell)
- 			break;
- 		snd_seq_dispatch_event(cell, atomic, hop);
---- a/sound/core/seq/seq_timer.c
-+++ b/sound/core/seq/seq_timer.c
-@@ -436,14 +436,15 @@ int snd_seq_timer_continue(struct snd_se
  }
  
- /* return current 'real' time. use timeofday() to get better granularity. */
--snd_seq_real_time_t snd_seq_timer_get_cur_time(struct snd_seq_timer *tmr)
-+snd_seq_real_time_t snd_seq_timer_get_cur_time(struct snd_seq_timer *tmr,
-+					       bool adjust_ktime)
- {
- 	snd_seq_real_time_t cur_time;
- 	unsigned long flags;
- 
- 	spin_lock_irqsave(&tmr->lock, flags);
- 	cur_time = tmr->cur_time;
--	if (tmr->running) { 
-+	if (adjust_ktime && tmr->running) {
- 		struct timespec64 tm;
- 
- 		ktime_get_ts64(&tm);
-@@ -460,7 +461,13 @@ snd_seq_real_time_t snd_seq_timer_get_cu
-  high PPQ values) */
- snd_seq_tick_time_t snd_seq_timer_get_cur_tick(struct snd_seq_timer *tmr)
- {
--	return tmr->tick.cur_tick;
-+	snd_seq_tick_time_t cur_tick;
-+	unsigned long flags;
++static void
++isert_wait4cmds(struct iscsi_conn *conn)
++{
++	isert_info("iscsi_conn %p\n", conn);
 +
-+	spin_lock_irqsave(&tmr->lock, flags);
-+	cur_tick = tmr->tick.cur_tick;
-+	spin_unlock_irqrestore(&tmr->lock, flags);
-+	return cur_tick;
- }
++	if (conn->sess) {
++		target_sess_cmd_list_set_waiting(conn->sess->se_sess);
++		target_wait_for_sess_cmds(conn->sess->se_sess);
++	}
++}
++
+ /**
+  * isert_put_unsol_pending_cmds() - Drop commands waiting for
+  *     unsolicitate dataout
+@@ -2629,6 +2640,7 @@ static void isert_wait_conn(struct iscsi
  
+ 	ib_drain_qp(isert_conn->qp);
+ 	isert_put_unsol_pending_cmds(conn);
++	isert_wait4cmds(conn);
+ 	isert_wait4logout(isert_conn);
  
---- a/sound/core/seq/seq_timer.h
-+++ b/sound/core/seq/seq_timer.h
-@@ -135,7 +135,8 @@ int snd_seq_timer_set_ppq(struct snd_seq
- int snd_seq_timer_set_position_tick(struct snd_seq_timer *tmr, snd_seq_tick_time_t position);
- int snd_seq_timer_set_position_time(struct snd_seq_timer *tmr, snd_seq_real_time_t position);
- int snd_seq_timer_set_skew(struct snd_seq_timer *tmr, unsigned int skew, unsigned int base);
--snd_seq_real_time_t snd_seq_timer_get_cur_time(struct snd_seq_timer *tmr);
-+snd_seq_real_time_t snd_seq_timer_get_cur_time(struct snd_seq_timer *tmr,
-+					       bool adjust_ktime);
- snd_seq_tick_time_t snd_seq_timer_get_cur_tick(struct snd_seq_timer *tmr);
+ 	queue_work(isert_release_wq, &isert_conn->release_work);
+--- a/drivers/target/iscsi/iscsi_target.c
++++ b/drivers/target/iscsi/iscsi_target.c
+@@ -4155,6 +4155,9 @@ int iscsit_close_connection(
+ 	iscsit_stop_nopin_response_timer(conn);
+ 	iscsit_stop_nopin_timer(conn);
  
- extern int seq_default_timer_class;
++	if (conn->conn_transport->iscsit_wait_conn)
++		conn->conn_transport->iscsit_wait_conn(conn);
++
+ 	/*
+ 	 * During Connection recovery drop unacknowledged out of order
+ 	 * commands for this connection, and prepare the other commands
+@@ -4240,9 +4243,6 @@ int iscsit_close_connection(
+ 	target_sess_cmd_list_set_waiting(sess->se_sess);
+ 	target_wait_for_sess_cmds(sess->se_sess);
+ 
+-	if (conn->conn_transport->iscsit_wait_conn)
+-		conn->conn_transport->iscsit_wait_conn(conn);
+-
+ 	ahash_request_free(conn->conn_tx_hash);
+ 	if (conn->conn_rx_hash) {
+ 		struct crypto_ahash *tfm;
 
 
