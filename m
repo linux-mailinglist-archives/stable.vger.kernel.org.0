@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 27755171921
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 14:42:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 411E5171B0C
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 14:59:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729730AbgB0NmM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 08:42:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37010 "EHLO mail.kernel.org"
+        id S1729712AbgB0N7C (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 08:59:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60324 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729335AbgB0NmI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 08:42:08 -0500
+        id S1732556AbgB0N7B (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 08:59:01 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C576F222C2;
-        Thu, 27 Feb 2020 13:42:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3BD8B20578;
+        Thu, 27 Feb 2020 13:59:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582810928;
-        bh=gG8HGprrQBBywmF5eY3kLdDk0um/SI/w5sXTZx28iH8=;
+        s=default; t=1582811940;
+        bh=QvxfOGCLgdsLGPzOiRJcc1LAqqGhABSP+R7a3xTSzao=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k9rR1lfj9K2GmErS+f4oMHVjqQVPHDGKC6tOaHSx5u+E4wVtBrYyBVfRf6KuRYMOy
-         EsPR3Art/j54zcPrCDreUdPNYiiu7xGe/J/vyRtjhoPqpucm2G3tGxjN2qN7oB423m
-         TICcTEpPqbHWcXh6PSdZkIrGQuGecLj0HWy8FKrw=
+        b=efRwjP6Es4SZPRDMtBMJlXA+b701xzptCSaerBsZVJxWo8o1X53E7/lF1ra7BJp2m
+         GyfSKcSVis3kgJn0D7IfYDjmqqNshUajuD6MV+/vdj3CqEurCfQpu68CkwaWWzV2sS
+         3wZz3gSJ+Ed6erBF5/ibyDPSqgYxXxSRvVuhp0hE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
+        stable@vger.kernel.org, Vasily Averin <vvs@virtuozzo.com>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 050/113] ALSA: sh: Fix compile warning wrt const
-Date:   Thu, 27 Feb 2020 14:36:06 +0100
-Message-Id: <20200227132219.757796699@linuxfoundation.org>
+Subject: [PATCH 4.14 153/237] trigger_next should increase position index
+Date:   Thu, 27 Feb 2020 14:36:07 +0100
+Message-Id: <20200227132307.822217789@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200227132211.791484803@linuxfoundation.org>
-References: <20200227132211.791484803@linuxfoundation.org>
+In-Reply-To: <20200227132255.285644406@linuxfoundation.org>
+References: <20200227132255.285644406@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,39 +44,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Vasily Averin <vvs@virtuozzo.com>
 
-[ Upstream commit f1dd4795b1523fbca7ab4344dd5a8bb439cc770d ]
+[ Upstream commit 6722b23e7a2ace078344064a9735fb73e554e9ef ]
 
-A long-standing compile warning was seen during build test:
-  sound/sh/aica.c: In function 'load_aica_firmware':
-  sound/sh/aica.c:521:25: warning: passing argument 2 of 'spu_memload' discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+if seq_file .next fuction does not change position index,
+read after some lseek can generate unexpected output.
 
-Fixes: 198de43d758c ("[ALSA] Add ALSA support for the SEGA Dreamcast PCM device")
-Link: https://lore.kernel.org/r/20200105144823.29547-69-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Without patch:
+ # dd bs=30 skip=1 if=/sys/kernel/tracing/events/sched/sched_switch/trigger
+ dd: /sys/kernel/tracing/events/sched/sched_switch/trigger: cannot skip to specified offset
+ n traceoff snapshot stacktrace enable_event disable_event enable_hist disable_hist hist
+ # Available triggers:
+ # traceon traceoff snapshot stacktrace enable_event disable_event enable_hist disable_hist hist
+ 6+1 records in
+ 6+1 records out
+ 206 bytes copied, 0.00027916 s, 738 kB/s
+
+Notice the printing of "# Available triggers:..." after the line.
+
+With the patch:
+ # dd bs=30 skip=1 if=/sys/kernel/tracing/events/sched/sched_switch/trigger
+ dd: /sys/kernel/tracing/events/sched/sched_switch/trigger: cannot skip to specified offset
+ n traceoff snapshot stacktrace enable_event disable_event enable_hist disable_hist hist
+ 2+1 records in
+ 2+1 records out
+ 88 bytes copied, 0.000526867 s, 167 kB/s
+
+It only prints the end of the file, and does not restart.
+
+Link: http://lkml.kernel.org/r/3c35ee24-dd3a-8119-9c19-552ed253388a@virtuozzo.com
+
+https://bugzilla.kernel.org/show_bug.cgi?id=206283
+Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/sh/aica.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ kernel/trace/trace_events_trigger.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/sound/sh/aica.c b/sound/sh/aica.c
-index ad3d9ae380349..dd601b39f69ef 100644
---- a/sound/sh/aica.c
-+++ b/sound/sh/aica.c
-@@ -120,10 +120,10 @@ static void spu_memset(u32 toi, u32 what, int length)
+diff --git a/kernel/trace/trace_events_trigger.c b/kernel/trace/trace_events_trigger.c
+index e2da180ca172a..31e91efe243e5 100644
+--- a/kernel/trace/trace_events_trigger.c
++++ b/kernel/trace/trace_events_trigger.c
+@@ -127,9 +127,10 @@ static void *trigger_next(struct seq_file *m, void *t, loff_t *pos)
+ {
+ 	struct trace_event_file *event_file = event_file_data(m->private);
+ 
+-	if (t == SHOW_AVAILABLE_TRIGGERS)
++	if (t == SHOW_AVAILABLE_TRIGGERS) {
++		(*pos)++;
+ 		return NULL;
+-
++	}
+ 	return seq_list_next(t, &event_file->triggers, pos);
  }
  
- /* spu_memload - write to SPU address space */
--static void spu_memload(u32 toi, void *from, int length)
-+static void spu_memload(u32 toi, const void *from, int length)
- {
- 	unsigned long flags;
--	u32 *froml = from;
-+	const u32 *froml = from;
- 	u32 __iomem *to = (u32 __iomem *) (SPU_MEMORY_BASE + toi);
- 	int i;
- 	u32 val;
 -- 
 2.20.1
 
