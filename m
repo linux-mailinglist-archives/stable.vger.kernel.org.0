@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 88FDB17217A
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:49:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E82F172177
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:49:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729221AbgB0Ot0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 09:49:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35854 "EHLO mail.kernel.org"
+        id S1729570AbgB0NlZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 08:41:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36048 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729517AbgB0NlR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 08:41:17 -0500
+        id S1729583AbgB0NlZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 08:41:25 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BFCE620726;
-        Thu, 27 Feb 2020 13:41:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D6B4921D7E;
+        Thu, 27 Feb 2020 13:41:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582810876;
-        bh=dlGLd9GTpAn/oJ13+6HiwaEdL0sLF13N/akgSQsX7/A=;
+        s=default; t=1582810884;
+        bh=+4Sh4W9Ou5A62S+AACM+nRArbTPrXUh5TK3knHdufww=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Sjvgt/1GqyjJ+tRa7COUqdpekQA7W60dIgpXmlkizHYKKH3FX3ceQ73bitAxXaj36
-         456pzizmIOwcDR756/yYf6o3nr875/4QWH6Dp5b6YMMZAj+x4qDkdishaTJqXCLKhI
-         lZnO+lWHWFVXTN0ODzD5E1kv8bkqLGxndKNyJyks=
+        b=fWH2NY9Wij7Kt++PeTJYAO9LqjUTep6Bha10Mxq/9QfXT0gom5SctGEeMh+AGp69u
+         LkSB7wEa2ZiPrjhU/RKIwrbEQne4esSbhjdWVcKFQ3TU+r30tL9Bu/0QAFioGveOR/
+         ouRiaI3dPs+5V9HeomJwUcExElkZzRP1ahbpXgqs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "zhangyi (F)" <yi.zhang@huawei.com>,
-        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>,
+        stable@vger.kernel.org, Douglas Anderson <dianders@chromium.org>,
+        Matthias Kaehlcke <mka@chromium.org>,
+        Stephen Boyd <sboyd@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 032/113] ext4, jbd2: ensure panic when aborting with zero errno
-Date:   Thu, 27 Feb 2020 14:35:48 +0100
-Message-Id: <20200227132216.847235248@linuxfoundation.org>
+Subject: [PATCH 4.4 034/113] clk: qcom: rcg2: Dont crash if our parent cant be found; return an error
+Date:   Thu, 27 Feb 2020 14:35:50 +0100
+Message-Id: <20200227132217.177696974@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200227132211.791484803@linuxfoundation.org>
 References: <20200227132211.791484803@linuxfoundation.org>
@@ -44,74 +45,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: zhangyi (F) <yi.zhang@huawei.com>
+From: Douglas Anderson <dianders@chromium.org>
 
-[ Upstream commit 51f57b01e4a3c7d7bdceffd84de35144e8c538e7 ]
+[ Upstream commit 908b050114d8fefdddc57ec9fbc213c3690e7f5f ]
 
-JBD2_REC_ERR flag used to indicate the errno has been updated when jbd2
-aborted, and then __ext4_abort() and ext4_handle_error() can invoke
-panic if ERRORS_PANIC is specified. But if the journal has been aborted
-with zero errno, jbd2_journal_abort() didn't set this flag so we can
-no longer panic. Fix this by always record the proper errno in the
-journal superblock.
+When I got my clock parenting slightly wrong I ended up with a crash
+that looked like this:
 
-Fixes: 4327ba52afd03 ("ext4, jbd2: ensure entering into panic after recording an error in superblock")
-Signed-off-by: zhangyi (F) <yi.zhang@huawei.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20191204124614.45424-3-yi.zhang@huawei.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+  Unable to handle kernel NULL pointer dereference at virtual
+  address 0000000000000000
+  ...
+  pc : clk_hw_get_rate+0x14/0x44
+  ...
+  Call trace:
+   clk_hw_get_rate+0x14/0x44
+   _freq_tbl_determine_rate+0x94/0xfc
+   clk_rcg2_determine_rate+0x2c/0x38
+   clk_core_determine_round_nolock+0x4c/0x88
+   clk_core_round_rate_nolock+0x6c/0xa8
+   clk_core_round_rate_nolock+0x9c/0xa8
+   clk_core_set_rate_nolock+0x70/0x180
+   clk_set_rate+0x3c/0x6c
+   of_clk_set_defaults+0x254/0x360
+   platform_drv_probe+0x28/0xb0
+   really_probe+0x120/0x2dc
+   driver_probe_device+0x64/0xfc
+   device_driver_attach+0x4c/0x6c
+   __driver_attach+0xac/0xc0
+   bus_for_each_dev+0x84/0xcc
+   driver_attach+0x2c/0x38
+   bus_add_driver+0xfc/0x1d0
+   driver_register+0x64/0xf8
+   __platform_driver_register+0x4c/0x58
+   msm_drm_register+0x5c/0x60
+   ...
+
+It turned out that clk_hw_get_parent_by_index() was returning NULL and
+we weren't checking.  Let's check it so that we don't crash.
+
+Fixes: ac269395cdd8 ("clk: qcom: Convert to clk_hw based provider APIs")
+Signed-off-by: Douglas Anderson <dianders@chromium.org>
+Reviewed-by: Matthias Kaehlcke <mka@chromium.org>
+Link: https://lkml.kernel.org/r/20200203103049.v4.1.I7487325fe8e701a68a07d3be8a6a4b571eca9cfa@changeid
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/jbd2/checkpoint.c |  2 +-
- fs/jbd2/journal.c    | 15 ++++-----------
- 2 files changed, 5 insertions(+), 12 deletions(-)
+ drivers/clk/qcom/clk-rcg2.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/fs/jbd2/checkpoint.c b/fs/jbd2/checkpoint.c
-index 4d5a5a4cc017c..addb0784dd1c4 100644
---- a/fs/jbd2/checkpoint.c
-+++ b/fs/jbd2/checkpoint.c
-@@ -168,7 +168,7 @@ void __jbd2_log_wait_for_space(journal_t *journal)
- 				       "journal space in %s\n", __func__,
- 				       journal->j_devname);
- 				WARN_ON(1);
--				jbd2_journal_abort(journal, 0);
-+				jbd2_journal_abort(journal, -EIO);
- 			}
- 			write_lock(&journal->j_state_lock);
- 		} else {
-diff --git a/fs/jbd2/journal.c b/fs/jbd2/journal.c
-index deb3300299709..d62435897d0d0 100644
---- a/fs/jbd2/journal.c
-+++ b/fs/jbd2/journal.c
-@@ -2086,12 +2086,10 @@ static void __journal_abort_soft (journal_t *journal, int errno)
+diff --git a/drivers/clk/qcom/clk-rcg2.c b/drivers/clk/qcom/clk-rcg2.c
+index 350a01f748706..8b549ece9f13c 100644
+--- a/drivers/clk/qcom/clk-rcg2.c
++++ b/drivers/clk/qcom/clk-rcg2.c
+@@ -194,6 +194,9 @@ static int _freq_tbl_determine_rate(struct clk_hw *hw,
  
- 	__jbd2_journal_abort_hard(journal);
- 
--	if (errno) {
--		jbd2_journal_update_sb_errno(journal);
--		write_lock(&journal->j_state_lock);
--		journal->j_flags |= JBD2_REC_ERR;
--		write_unlock(&journal->j_state_lock);
--	}
-+	jbd2_journal_update_sb_errno(journal);
-+	write_lock(&journal->j_state_lock);
-+	journal->j_flags |= JBD2_REC_ERR;
-+	write_unlock(&journal->j_state_lock);
- }
- 
- /**
-@@ -2133,11 +2131,6 @@ static void __journal_abort_soft (journal_t *journal, int errno)
-  * failure to disk.  ext3_error, for example, now uses this
-  * functionality.
-  *
-- * Errors which originate from within the journaling layer will NOT
-- * supply an errno; a null errno implies that absolutely no further
-- * writes are done to the journal (unless there are any already in
-- * progress).
-- *
-  */
- 
- void jbd2_journal_abort(journal_t *journal, int errno)
+ 	clk_flags = clk_hw_get_flags(hw);
+ 	p = clk_hw_get_parent_by_index(hw, index);
++	if (!p)
++		return -EINVAL;
++
+ 	if (clk_flags & CLK_SET_RATE_PARENT) {
+ 		if (f->pre_div) {
+ 			if (!rate)
 -- 
 2.20.1
 
