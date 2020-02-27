@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 49C7A171F82
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:38:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DA28D172131
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:49:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732412AbgB0N6K (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 08:58:10 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59222 "EHLO mail.kernel.org"
+        id S1729610AbgB0Nld (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 08:41:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36200 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732407AbgB0N6H (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 08:58:07 -0500
+        id S1729606AbgB0Nlc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 08:41:32 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6287D2084E;
-        Thu, 27 Feb 2020 13:58:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 43C6420726;
+        Thu, 27 Feb 2020 13:41:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582811885;
-        bh=6roczsr85O4bGNPNmBWGic6WqcmqGolhTZaK/baNNnI=;
+        s=default; t=1582810891;
+        bh=GOe/Q8d9pnM7OTay7ZXq8JIEleloYnDKCFv4IzHU8VM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AQ0UozuZh6PpG7Jdd9BEyMygE4J3qpkzag/BfAwfVfGJE1sslvmOznTPHOqOY1CYo
-         h9pnZIRr2v0BmjsFbsmxbKA5PQ9/g8B6sAoF2FiNmrn4AFnr2jKzTripO/3K4yzSNL
-         dthLHLMohMx2BponN5XBcN6cogihnKeJ0eYGNilQ=
+        b=xuTwNMvE/XowoBPr7s2XQO/iiApR2CdCVHtad2ZgP6w7ukaZ9q5MXesIqC2Eg/aI6
+         13fPKsavj4+wzY1bORmqYdriVIElQkin3/PkRQzpIH/dGMvuhIMOQH2pNAF9elVWtO
+         OemflxMRFoOGfaWv1XrXWwg5NO9D7uPb7tEzd2tU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sven Schnelle <sven.schnelle@ibm.com>,
-        Heiko Carstens <heiko.carstens@de.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Mao Wenan <maowenan@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 139/237] s390/ftrace: generate traced function stack frame
+Subject: [PATCH 4.4 037/113] NFC: port100: Convert cpu_to_le16(le16_to_cpu(E1) + E2) to use le16_add_cpu().
 Date:   Thu, 27 Feb 2020 14:35:53 +0100
-Message-Id: <20200227132306.899468816@linuxfoundation.org>
+Message-Id: <20200227132217.643078727@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200227132255.285644406@linuxfoundation.org>
-References: <20200227132255.285644406@linuxfoundation.org>
+In-Reply-To: <20200227132211.791484803@linuxfoundation.org>
+References: <20200227132211.791484803@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,101 +45,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasily Gorbik <gor@linux.ibm.com>
+From: Mao Wenan <maowenan@huawei.com>
 
-[ Upstream commit 45f7a0da600d3c409b5ad8d5ddddacd98ddc8840 ]
+[ Upstream commit 718eae277e62a26e5862eb72a830b5e0fe37b04a ]
 
-Currently backtrace from ftraced function does not contain ftraced
-function itself. e.g. for "path_openat":
+Convert cpu_to_le16(le16_to_cpu(frame->datalen) + len) to
+use le16_add_cpu(), which is more concise and does the same thing.
 
-arch_stack_walk+0x15c/0x2d8
-stack_trace_save+0x50/0x68
-stack_trace_call+0x15e/0x3d8
-ftrace_graph_caller+0x0/0x1c <-- ftrace code
-do_filp_open+0x7c/0xe8 <-- ftraced function caller
-do_open_execat+0x76/0x1b8
-open_exec+0x52/0x78
-load_elf_binary+0x180/0x1160
-search_binary_handler+0x8e/0x288
-load_script+0x2a8/0x2b8
-search_binary_handler+0x8e/0x288
-__do_execve_file.isra.39+0x6fa/0xb40
-__s390x_sys_execve+0x56/0x68
-system_call+0xdc/0x2d8
-
-Ftraced function is expected in the backtrace by ftrace kselftests, which
-are now failing. It would also be nice to have it for clarity reasons.
-
-"ftrace_caller" itself is called without stack frame allocated for it
-and does not store its caller (ftraced function). Instead it simply
-allocates a stack frame for "ftrace_trace_function" and sets backchain
-to point to ftraced function stack frame (which contains ftraced function
-caller in saved r14).
-
-To fix this issue make "ftrace_caller" allocate a stack frame
-for itself just to store ftraced function for the stack unwinder.
-As a result backtrace looks like the following:
-
-arch_stack_walk+0x15c/0x2d8
-stack_trace_save+0x50/0x68
-stack_trace_call+0x15e/0x3d8
-ftrace_graph_caller+0x0/0x1c <-- ftrace code
-path_openat+0x6/0xd60  <-- ftraced function
-do_filp_open+0x7c/0xe8 <-- ftraced function caller
-do_open_execat+0x76/0x1b8
-open_exec+0x52/0x78
-load_elf_binary+0x180/0x1160
-search_binary_handler+0x8e/0x288
-load_script+0x2a8/0x2b8
-search_binary_handler+0x8e/0x288
-__do_execve_file.isra.39+0x6fa/0xb40
-__s390x_sys_execve+0x56/0x68
-system_call+0xdc/0x2d8
-
-Reported-by: Sven Schnelle <sven.schnelle@ibm.com>
-Tested-by: Sven Schnelle <sven.schnelle@ibm.com>
-Reviewed-by: Heiko Carstens <heiko.carstens@de.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Mao Wenan <maowenan@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/kernel/mcount.S | 15 ++++++++++++++-
- 1 file changed, 14 insertions(+), 1 deletion(-)
+ drivers/nfc/port100.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/s390/kernel/mcount.S b/arch/s390/kernel/mcount.S
-index 27110f3294edc..0cfd5a83a1daa 100644
---- a/arch/s390/kernel/mcount.S
-+++ b/arch/s390/kernel/mcount.S
-@@ -25,6 +25,12 @@ ENTRY(ftrace_stub)
- #define STACK_PTREGS	  (STACK_FRAME_OVERHEAD)
- #define STACK_PTREGS_GPRS (STACK_PTREGS + __PT_GPRS)
- #define STACK_PTREGS_PSW  (STACK_PTREGS + __PT_PSW)
-+#ifdef __PACK_STACK
-+/* allocate just enough for r14, r15 and backchain */
-+#define TRACED_FUNC_FRAME_SIZE	24
-+#else
-+#define TRACED_FUNC_FRAME_SIZE	STACK_FRAME_OVERHEAD
-+#endif
+diff --git a/drivers/nfc/port100.c b/drivers/nfc/port100.c
+index 87d5099967040..3ffbed72adf75 100644
+--- a/drivers/nfc/port100.c
++++ b/drivers/nfc/port100.c
+@@ -545,7 +545,7 @@ static void port100_tx_update_payload_len(void *_frame, int len)
+ {
+ 	struct port100_frame *frame = _frame;
  
- ENTRY(_mcount)
- 	BR_EX	%r14
-@@ -38,9 +44,16 @@ ENTRY(ftrace_caller)
- #ifndef CC_USING_HOTPATCH
- 	aghi	%r0,MCOUNT_RETURN_FIXUP
- #endif
--	aghi	%r15,-STACK_FRAME_SIZE
-+	# allocate stack frame for ftrace_caller to contain traced function
-+	aghi	%r15,-TRACED_FUNC_FRAME_SIZE
- 	stg	%r1,__SF_BACKCHAIN(%r15)
-+	stg	%r0,(__SF_GPRS+8*8)(%r15)
-+	stg	%r15,(__SF_GPRS+9*8)(%r15)
-+	# allocate pt_regs and stack frame for ftrace_trace_function
-+	aghi	%r15,-STACK_FRAME_SIZE
- 	stg	%r1,(STACK_PTREGS_GPRS+15*8)(%r15)
-+	aghi	%r1,-TRACED_FUNC_FRAME_SIZE
-+	stg	%r1,__SF_BACKCHAIN(%r15)
- 	stg	%r0,(STACK_PTREGS_PSW+8)(%r15)
- 	stmg	%r2,%r14,(STACK_PTREGS_GPRS+2*8)(%r15)
- #ifdef CONFIG_HAVE_MARCH_Z196_FEATURES
+-	frame->datalen = cpu_to_le16(le16_to_cpu(frame->datalen) + len);
++	le16_add_cpu(&frame->datalen, len);
+ }
+ 
+ static bool port100_rx_frame_is_valid(void *_frame)
 -- 
 2.20.1
 
