@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B50E5171F34
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:33:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 24CAB17212D
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:47:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732613AbgB0OAk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 09:00:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34156 "EHLO mail.kernel.org"
+        id S1730143AbgB0NoH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 08:44:07 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39508 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732597AbgB0OAj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 09:00:39 -0500
+        id S1730139AbgB0NoH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 08:44:07 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 71B6220578;
-        Thu, 27 Feb 2020 14:00:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B516120578;
+        Thu, 27 Feb 2020 13:44:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582812038;
-        bh=EaFYSLWwD9gekvKvQ2KakS9kbGL/UANEAU+960lU688=;
+        s=default; t=1582811045;
+        bh=VbA5W/1MQw39uQmgUFgE7TT+W50DNHyHc3w7JLP4rPg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pHHdniKcxKA2RbwYMk7XSybaFz6kHSMI8SsxRQtre1V1CHSzfquP3Ly3oSZ1bjfWg
-         ZBfWvzFA3naly2+SLOAF+nCfDmIOVYfoNrH6SExIeGsK2+tRBMfCyz+ZAPP6LyU8O0
-         uiZViJy0R1nFZmocGyrUkPYsLFf5hLLVJAQz1nYE=
+        b=ypLKyzXNwgSCRa9rHkRsGPvdOfK7fwFDAiNSLvsGaVGrRcbBPGIFOL0L13TrUkLoA
+         a8wLJnfLlzmjWHitOsqMHkgla6t/5SrT2zskA5mzdo0sVTCVI+SYPn+evxTaqi0bLF
+         Nxgo83QIqGaFks3czV2LZqEYV7nCzbv6+Uqu/STE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Andrei Otcheretianski <andrei.otcheretianski@intel.com>,
-        Luca Coelho <luciano.coelho@intel.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org, Kit Chow <kchow@gigaio.com>,
+        Logan Gunthorpe <logang@deltatee.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 160/237] iwlwifi: mvm: Fix thermal zone registration
+Subject: [PATCH 4.4 058/113] PCI: Dont disable bridge BARs when assigning bus resources
 Date:   Thu, 27 Feb 2020 14:36:14 +0100
-Message-Id: <20200227132308.285203576@linuxfoundation.org>
+Message-Id: <20200227132221.014026556@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200227132255.285644406@linuxfoundation.org>
-References: <20200227132255.285644406@linuxfoundation.org>
+In-Reply-To: <20200227132211.791484803@linuxfoundation.org>
+References: <20200227132211.791484803@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,62 +45,113 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrei Otcheretianski <andrei.otcheretianski@intel.com>
+From: Logan Gunthorpe <logang@deltatee.com>
 
-[ Upstream commit baa6cf8450b72dcab11f37c47efce7c5b9b8ad0f ]
+[ Upstream commit 9db8dc6d0785225c42a37be7b44d1b07b31b8957 ]
 
-Use a unique name when registering a thermal zone. Otherwise, with
-multiple NICS, we hit the following warning during the unregistration.
+Some PCI bridges implement BARs in addition to bridge windows.  For
+example, here's a PLX switch:
 
-WARNING: CPU: 2 PID: 3525 at fs/sysfs/group.c:255
- RIP: 0010:sysfs_remove_group+0x80/0x90
- Call Trace:
-  dpm_sysfs_remove+0x57/0x60
-  device_del+0x5a/0x350
-  ? sscanf+0x4e/0x70
-  device_unregister+0x1a/0x60
-  hwmon_device_unregister+0x4a/0xa0
-  thermal_remove_hwmon_sysfs+0x175/0x1d0
-  thermal_zone_device_unregister+0x188/0x1e0
-  iwl_mvm_thermal_exit+0xe7/0x100 [iwlmvm]
-  iwl_op_mode_mvm_stop+0x27/0x180 [iwlmvm]
-  _iwl_op_mode_stop.isra.3+0x2b/0x50 [iwlwifi]
-  iwl_opmode_deregister+0x90/0xa0 [iwlwifi]
-  __exit_compat+0x10/0x2c7 [iwlmvm]
-  __x64_sys_delete_module+0x13f/0x270
-  do_syscall_64+0x5a/0x110
-  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+  04:00.0 PCI bridge: PLX Technology, Inc. PEX 8724 24-Lane, 6-Port PCI
+            Express Gen 3 (8 GT/s) Switch, 19 x 19mm FCBGA (rev ca)
+	    (prog-if 00 [Normal decode])
+      Flags: bus master, fast devsel, latency 0, IRQ 30, NUMA node 0
+      Memory at 90a00000 (32-bit, non-prefetchable) [size=256K]
+      Bus: primary=04, secondary=05, subordinate=0a, sec-latency=0
+      I/O behind bridge: 00002000-00003fff
+      Memory behind bridge: 90000000-909fffff
+      Prefetchable memory behind bridge: 0000380000800000-0000380000bfffff
 
-Signed-off-by: Andrei Otcheretianski <andrei.otcheretianski@intel.com>
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Previously, when the kernel assigned resource addresses (with the
+pci=realloc command line parameter, for example) it could clear the struct
+resource corresponding to the BAR.  When this happened, lspci would report
+this BAR as "ignored":
+
+   Region 0: Memory at <ignored> (32-bit, non-prefetchable) [size=256K]
+
+This is because the kernel reports a zero start address and zero flags
+in the corresponding sysfs resource file and in /proc/bus/pci/devices.
+Investigation with 'lspci -x', however, shows the BIOS-assigned address
+will still be programmed in the device's BAR registers.
+
+It's clearly a bug that the kernel lost track of the BAR value, but in most
+cases, this still won't result in a visible issue because nothing uses the
+memory, so nothing is affected.  However, when an IOMMU is in use, it will
+not reserve this space in the IOVA because the kernel no longer thinks the
+range is valid.  (See dmar_init_reserved_ranges() for the Intel
+implementation of this.)
+
+Without the proper reserved range, a DMA mapping may allocate an IOVA that
+matches a bridge BAR, which results in DMA accesses going to the BAR
+instead of the intended RAM.
+
+The problem was in pci_assign_unassigned_root_bus_resources().  When any
+resource from a bridge device fails to get assigned, the code set the
+resource's flags to zero.  This makes sense for bridge windows, as they
+will be re-enabled later, but for regular BARs, it makes the kernel
+permanently lose track of the fact that they decode address space.
+
+Change pci_assign_unassigned_root_bus_resources() and
+pci_assign_unassigned_bridge_resources() so they only clear "res->flags"
+for bridge *windows*, not bridge BARs.
+
+Fixes: da7822e5ad71 ("PCI: update bridge resources to get more big ranges when allocating space (again)")
+Link: https://lore.kernel.org/r/20200108213208.4612-1-logang@deltatee.com
+[bhelgaas: commit log, check for pci_is_bridge()]
+Reported-by: Kit Chow <kchow@gigaio.com>
+Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/intel/iwlwifi/mvm/tt.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/pci/setup-bus.c | 20 ++++++++++++++++----
+ 1 file changed, 16 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/tt.c b/drivers/net/wireless/intel/iwlwifi/mvm/tt.c
-index 1232f63278eb6..319103f4b432e 100644
---- a/drivers/net/wireless/intel/iwlwifi/mvm/tt.c
-+++ b/drivers/net/wireless/intel/iwlwifi/mvm/tt.c
-@@ -739,7 +739,8 @@ static  struct thermal_zone_device_ops tzone_ops = {
- static void iwl_mvm_thermal_zone_register(struct iwl_mvm *mvm)
- {
- 	int i;
--	char name[] = "iwlwifi";
-+	char name[16];
-+	static atomic_t counter = ATOMIC_INIT(0);
+diff --git a/drivers/pci/setup-bus.c b/drivers/pci/setup-bus.c
+index 1723ac1b30e10..fe2865a0da395 100644
+--- a/drivers/pci/setup-bus.c
++++ b/drivers/pci/setup-bus.c
+@@ -1760,12 +1760,18 @@ again:
+ 	/* restore size and flags */
+ 	list_for_each_entry(fail_res, &fail_head, list) {
+ 		struct resource *res = fail_res->res;
++		int idx;
  
- 	if (!iwl_mvm_is_tt_in_fw(mvm)) {
- 		mvm->tz_device.tzone = NULL;
-@@ -749,6 +750,7 @@ static void iwl_mvm_thermal_zone_register(struct iwl_mvm *mvm)
+ 		res->start = fail_res->start;
+ 		res->end = fail_res->end;
+ 		res->flags = fail_res->flags;
+-		if (fail_res->dev->subordinate)
+-			res->flags = 0;
++
++		if (pci_is_bridge(fail_res->dev)) {
++			idx = res - &fail_res->dev->resource[0];
++			if (idx >= PCI_BRIDGE_RESOURCES &&
++			    idx <= PCI_BRIDGE_RESOURCE_END)
++				res->flags = 0;
++		}
+ 	}
+ 	free_list(&fail_head);
  
- 	BUILD_BUG_ON(ARRAY_SIZE(name) >= THERMAL_NAME_LENGTH);
+@@ -1826,12 +1832,18 @@ again:
+ 	/* restore size and flags */
+ 	list_for_each_entry(fail_res, &fail_head, list) {
+ 		struct resource *res = fail_res->res;
++		int idx;
  
-+	sprintf(name, "iwlwifi_%u", atomic_inc_return(&counter) & 0xFF);
- 	mvm->tz_device.tzone = thermal_zone_device_register(name,
- 							IWL_MAX_DTS_TRIPS,
- 							IWL_WRITABLE_TRIPS_MSK,
+ 		res->start = fail_res->start;
+ 		res->end = fail_res->end;
+ 		res->flags = fail_res->flags;
+-		if (fail_res->dev->subordinate)
+-			res->flags = 0;
++
++		if (pci_is_bridge(fail_res->dev)) {
++			idx = res - &fail_res->dev->resource[0];
++			if (idx >= PCI_BRIDGE_RESOURCES &&
++			    idx <= PCI_BRIDGE_RESOURCE_END)
++				res->flags = 0;
++		}
+ 	}
+ 	free_list(&fail_head);
+ 
 -- 
 2.20.1
 
