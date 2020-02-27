@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4CFA3171D7A
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:21:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B165E171D0B
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:17:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389139AbgB0ORW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 09:17:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57702 "EHLO mail.kernel.org"
+        id S2389388AbgB0ORX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 09:17:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57764 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730557AbgB0ORU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 09:17:20 -0500
+        id S2389688AbgB0ORX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 09:17:23 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 804522468F;
-        Thu, 27 Feb 2020 14:17:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E559B246AD;
+        Thu, 27 Feb 2020 14:17:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582813040;
-        bh=S/lCLJfRx7rrtZqEHxOCELQHv6pcJ4W7qh5YuUQB7Yo=;
+        s=default; t=1582813042;
+        bh=MGK1Qur0NJz7SAyjMCCjz28nH5j++Jd4iAwKVDhsT+g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hFRXgMul09XW72ZmxyXNcSgqrsNMT1zLl2xOSZ/9vTsIbrMINZvX34bj6Qa5wY+LD
-         BLj75aqkkD5yQ+fljrVe8y4PAPCScNme4mlsypcH6J9KgJPvhYspRlMX+s9v+5NfLw
-         OLUiKWWZAfU+O23SaQdeb8v+e+PywuL1SozIjwRI=
+        b=put39t7SukgZ5l4XLbhYtOrdGiWVZ53aPIRvJdf1YYCmKgHCSiQ0NTmRAS9PMtEk6
+         DG3CZeynuU1Jh/zbFKCLfMsCG5M8vO3SePwccIXRCfMZf1hR71Yizj2xEbL5oPezBq
+         Oi1Zn949WIinMc4u5CTJAP/x3CguXqkmlTk3jDEw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tomi Valkeinen <tomi.valkeinen@ti.com>,
-        Andrey Smirnov <andrew.smirnov@gmail.com>,
-        Neil Armstrong <narmstrong@baylibre.com>
-Subject: [PATCH 5.5 114/150] drm/bridge: tc358767: fix poll timeouts
-Date:   Thu, 27 Feb 2020 14:37:31 +0100
-Message-Id: <20200227132249.571649531@linuxfoundation.org>
+        stable@vger.kernel.org, Chris Wilson <chris@chris-wilson.co.uk>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+        Jon Bloomfield <jon.bloomfield@intel.com>,
+        Jani Nikula <jani.nikula@intel.com>
+Subject: [PATCH 5.5 115/150] drm/i915/gem: Require per-engine reset support for non-persistent contexts
+Date:   Thu, 27 Feb 2020 14:37:32 +0100
+Message-Id: <20200227132249.678010614@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200227132232.815448360@linuxfoundation.org>
 References: <20200227132232.815448360@linuxfoundation.org>
@@ -44,86 +45,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tomi Valkeinen <tomi.valkeinen@ti.com>
+From: Chris Wilson <chris@chris-wilson.co.uk>
 
-commit 8a6483ac634acda3f599f50082c652d2d37199c7 upstream.
+commit dea8d5ce46d7e7f7270b9804df7d1174f88bfd99 upstream.
 
-Link training fails with:
+To enable non-persistent contexts, we require a means of cancelling any
+inflight work from that context. This is first done "gracefully" by
+using preemption to kick the active context off the engine, and then
+forcefully by resetting the engine if it is active. If we are unable to
+reset the engine to remove hostile userspace, we should not allow
+userspace to opt into using non-persistent contexts.
 
-  Link training timeout waiting for LT_LOOPDONE!
-  main link enable error: -110
+If the per-engine reset fails, we still do a full GPU reset, but that is
+rare and usually indicative of much deeper issues. The damage is already
+done. However, the goal of the interface to allow long running compute
+jobs without causing collateral damage elsewhere, and if we are unable
+to support that we should make that known by not providing the
+interface (and falsely pretending we can).
 
-This is caused by too tight timeouts, which were changed recently in
-aa92213f388b ("drm/bridge: tc358767: Simplify polling in tc_link_training()").
-
-With a quick glance, the commit does not change the timeouts. However,
-the method of delaying/sleeping is different, and as the timeout in the
-previous implementation was not explicit, the new version in practice
-has much tighter timeout.
-
-The same change was made to other parts in the driver, but the link
-training timeout is the only one I have seen causing issues.
-Nevertheless, 1 us sleep is not very sane, and the timeouts look pretty
-tight, so lets fix all the timeouts.
-
-One exception was the aux busy poll, where the poll sleep was much
-longer than necessary (or optimal).
-
-I measured the times on my setup, and now the sleep times are set to
-such values that they result in multiple loops, but not too many (say,
-5-10 loops). The timeouts were all increased to 100ms, which should be
-more than enough for all of these, but in case of bad errors, shouldn't
-stop the driver as multi-second timeouts could do.
-
-Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
-Fixes: aa92213f388b ("drm/bridge: tc358767: Simplify polling in tc_link_training()")
-Tested-by: Andrey Smirnov <andrew.smirnov@gmail.com>
-Reviewed-by: Neil Armstrong <narmstrong@baylibre.com>
-Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20191209082707.24531-1-tomi.valkeinen@ti.com
+Fixes: a0e047156cde ("drm/i915/gem: Make context persistence optional")
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
+Cc: Jon Bloomfield <jon.bloomfield@intel.com>
+Reviewed-by: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200130164553.1937718-1-chris@chris-wilson.co.uk
+(cherry picked from commit d1b9b5f127bc3797fc274cfa4f363e039f045c3a)
+Signed-off-by: Jani Nikula <jani.nikula@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/bridge/tc358767.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/gpu/drm/i915/gem/i915_gem_context.c |   16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
 
---- a/drivers/gpu/drm/bridge/tc358767.c
-+++ b/drivers/gpu/drm/bridge/tc358767.c
-@@ -297,7 +297,7 @@ static inline int tc_poll_timeout(struct
+--- a/drivers/gpu/drm/i915/gem/i915_gem_context.c
++++ b/drivers/gpu/drm/i915/gem/i915_gem_context.c
+@@ -484,6 +484,22 @@ static int __context_set_persistence(str
+ 		if (!(ctx->i915->caps.scheduler & I915_SCHEDULER_CAP_PREEMPTION))
+ 			return -ENODEV;
  
- static int tc_aux_wait_busy(struct tc_data *tc)
- {
--	return tc_poll_timeout(tc, DP0_AUXSTATUS, AUX_BUSY, 0, 1000, 100000);
-+	return tc_poll_timeout(tc, DP0_AUXSTATUS, AUX_BUSY, 0, 100, 100000);
- }
++		/*
++		 * If the cancel fails, we then need to reset, cleanly!
++		 *
++		 * If the per-engine reset fails, all hope is lost! We resort
++		 * to a full GPU reset in that unlikely case, but realistically
++		 * if the engine could not reset, the full reset does not fare
++		 * much better. The damage has been done.
++		 *
++		 * However, if we cannot reset an engine by itself, we cannot
++		 * cleanup a hanging persistent context without causing
++		 * colateral damage, and we should not pretend we can by
++		 * exposing the interface.
++		 */
++		if (!intel_has_reset_engine(&ctx->i915->gt))
++			return -ENODEV;
++
+ 		i915_gem_context_clear_persistence(ctx);
+ 	}
  
- static int tc_aux_write_data(struct tc_data *tc, const void *data,
-@@ -640,7 +640,7 @@ static int tc_aux_link_setup(struct tc_d
- 	if (ret)
- 		goto err;
- 
--	ret = tc_poll_timeout(tc, DP_PHY_CTRL, PHY_RDY, PHY_RDY, 1, 1000);
-+	ret = tc_poll_timeout(tc, DP_PHY_CTRL, PHY_RDY, PHY_RDY, 100, 100000);
- 	if (ret == -ETIMEDOUT) {
- 		dev_err(tc->dev, "Timeout waiting for PHY to become ready");
- 		return ret;
-@@ -876,7 +876,7 @@ static int tc_wait_link_training(struct
- 	int ret;
- 
- 	ret = tc_poll_timeout(tc, DP0_LTSTAT, LT_LOOPDONE,
--			      LT_LOOPDONE, 1, 1000);
-+			      LT_LOOPDONE, 500, 100000);
- 	if (ret) {
- 		dev_err(tc->dev, "Link training timeout waiting for LT_LOOPDONE!\n");
- 		return ret;
-@@ -949,7 +949,7 @@ static int tc_main_link_enable(struct tc
- 	dp_phy_ctrl &= ~(DP_PHY_RST | PHY_M1_RST | PHY_M0_RST);
- 	ret = regmap_write(tc->regmap, DP_PHY_CTRL, dp_phy_ctrl);
- 
--	ret = tc_poll_timeout(tc, DP_PHY_CTRL, PHY_RDY, PHY_RDY, 1, 1000);
-+	ret = tc_poll_timeout(tc, DP_PHY_CTRL, PHY_RDY, PHY_RDY, 500, 100000);
- 	if (ret) {
- 		dev_err(dev, "timeout waiting for phy become ready");
- 		return ret;
 
 
