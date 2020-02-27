@@ -2,120 +2,245 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 902C9171253
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 09:20:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E3F67171208
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 09:12:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728469AbgB0IUx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 03:20:53 -0500
-Received: from ste-pvt-msa2.bahnhof.se ([213.80.101.71]:41757 "EHLO
-        ste-pvt-msa2.bahnhof.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728454AbgB0IUx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 27 Feb 2020 03:20:53 -0500
-X-Greylist: delayed 586 seconds by postgrey-1.27 at vger.kernel.org; Thu, 27 Feb 2020 03:20:51 EST
-Received: from localhost (localhost [127.0.0.1])
-        by ste-pvt-msa2.bahnhof.se (Postfix) with ESMTP id 9F5ED3FDD8;
-        Thu, 27 Feb 2020 09:11:03 +0100 (CET)
-Authentication-Results: ste-pvt-msa2.bahnhof.se;
-        dkim=pass (1024-bit key; unprotected) header.d=shipmail.org header.i=@shipmail.org header.b=XxKN2Xlt;
-        dkim-atps=neutral
-X-Virus-Scanned: Debian amavisd-new at bahnhof.se
-X-Spam-Flag: NO
-X-Spam-Score: -2.099
-X-Spam-Level: 
-X-Spam-Status: No, score=-2.099 tagged_above=-999 required=6.31
-        tests=[BAYES_00=-1.9, DKIM_SIGNED=0.1, DKIM_VALID=-0.1,
-        DKIM_VALID_AU=-0.1, DKIM_VALID_EF=-0.1, URIBL_BLOCKED=0.001]
-        autolearn=ham autolearn_force=no
-Authentication-Results: ste-ftg-msa2.bahnhof.se (amavisd-new);
-        dkim=pass (1024-bit key) header.d=shipmail.org
-Received: from ste-pvt-msa2.bahnhof.se ([127.0.0.1])
-        by localhost (ste-ftg-msa2.bahnhof.se [127.0.0.1]) (amavisd-new, port 10024)
-        with ESMTP id I4TNgQ69zXiU; Thu, 27 Feb 2020 09:11:01 +0100 (CET)
-Received: from mail1.shipmail.org (h-205-35.A357.priv.bahnhof.se [155.4.205.35])
-        (Authenticated sender: mb878879)
-        by ste-pvt-msa2.bahnhof.se (Postfix) with ESMTPA id DEC903FD95;
-        Thu, 27 Feb 2020 09:11:00 +0100 (CET)
-Received: from localhost.localdomain (h-205-35.A357.priv.bahnhof.se [155.4.205.35])
-        by mail1.shipmail.org (Postfix) with ESMTPSA id 02844360161;
-        Thu, 27 Feb 2020 09:11:00 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=shipmail.org; s=mail;
-        t=1582791060; bh=4+EUKvhq052ADxUY5m3Qra0RsCbqHdQMZ0878ICxJ/A=;
-        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
-        b=XxKN2Xltkigp8bI3i4eY9sLbnotimpTjgwP/4RwY7bAC+p8ritoU52OUi85dFl1sE
-         awh+0IsJUr1oaYibbpGRnRjHDYPDAYRZhh1Ok6JJlENqZf355Mv4guK/U2DwnTzige
-         /msPpZyKFVYtYP64oOEkUgVja6dPnqpLzz+G3uhk=
-Subject: Re: [PATCH v5 1/3] drm/shmem: add support for per object caching
- flags.
-To:     Gerd Hoffmann <kraxel@redhat.com>
-Cc:     dri-devel@lists.freedesktop.org, Guillaume.Gardet@arm.com,
-        David Airlie <airlied@linux.ie>,
-        open list <linux-kernel@vger.kernel.org>,
-        stable@vger.kernel.org, gurchetansingh@chromium.org,
-        tzimmermann@suse.de
-References: <20200226154752.24328-1-kraxel@redhat.com>
- <20200226154752.24328-2-kraxel@redhat.com>
- <f1afba4b-9c06-48a3-42c7-046695947e91@shipmail.org>
- <20200227075321.ki74hfjpnsqv2yx2@sirius.home.kraxel.org>
-From:   =?UTF-8?Q?Thomas_Hellstr=c3=b6m_=28VMware=29?= 
-        <thomas_os@shipmail.org>
-Organization: VMware Inc.
-Message-ID: <41ca197c-136a-75d8-b269-801db44d4cba@shipmail.org>
-Date:   Thu, 27 Feb 2020 09:10:59 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.2.2
+        id S1728463AbgB0IMt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 03:12:49 -0500
+Received: from out2-smtp.messagingengine.com ([66.111.4.26]:36255 "EHLO
+        out2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726999AbgB0IMt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 27 Feb 2020 03:12:49 -0500
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+        by mailout.nyi.internal (Postfix) with ESMTP id 10AD021650;
+        Thu, 27 Feb 2020 03:12:48 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute1.internal (MEProxy); Thu, 27 Feb 2020 03:12:48 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=d5gChH
+        xXdN8dwoYAfINzO9e4XTwb0FrDOcuspz7Xmqo=; b=OKn9pat/G9LIc3jjsmTRjj
+        JEYniuV7QokCDCOuiY/7id3QiJBM8bFFPtfgm8FBveUlUFg/ydtYfY8tMUkhzy9q
+        PJFBgrTTB6fTOI4ObOOFtQnDLO8NP+4n2BuhP7GJcexxyzJ5tfpxXRVyss/XWV+5
+        3abmg/bDEqE5CPKQJoShRJuKF0i8vW7bbV7Buk3UUr46DnNe8VsoplDhMsPhENX2
+        Hg3YsLvRv1OL2CYppZv5JzUwvP1FDZj50hmubj5/4CiS2Kd7Z6uTNoTl5H8tsSsY
+        Huviwu+HltZNATmOK6N8DN5XzgaB+UrBISKgW+A6Rxl/9B8UvheQsm94/QWLb4Hg
+        ==
+X-ME-Sender: <xms:_3lXXtz41nJwZE3jNDA6-mRGNLGdIaO2HaTucH87XjxvF8rXuH9VOQ>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedugedrleehgdduvdduucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
+    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
+    gheqnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphepkeefrdekiedrkeelrd
+    dutdejnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhep
+    ghhrvghgsehkrhhorghhrdgtohhm
+X-ME-Proxy: <xmx:_3lXXoq8LFqc81C2mSDlYDtRVAglFMjTORV_tX6u8RyEdY7TJEPXGw>
+    <xmx:_3lXXgtJWT6U2PsOJGioHb-VinHWUgUVdzegSxFrls2fGQp6R_2Waw>
+    <xmx:_3lXXnRDMxdFDo2RtoeL9fMajRW6VcElvek6oDw48VhkTDfXxUNzoQ>
+    <xmx:AHpXXq-5WZo9fcTM_s_qR4rgbObvBZf7CZ4D7bWCxH03wFHHTWpoHQ>
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 2A9C2328005A;
+        Thu, 27 Feb 2020 03:12:47 -0500 (EST)
+Subject: FAILED: patch "[PATCH] ext4: fix potential race between s_group_info online resizing" failed to apply to 4.4-stable tree
+To:     surajjs@amazon.com, sblbir@amazon.com, tytso@mit.edu
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Thu, 27 Feb 2020 09:12:45 +0100
+Message-ID: <158279116525196@kroah.com>
 MIME-Version: 1.0
-In-Reply-To: <20200227075321.ki74hfjpnsqv2yx2@sirius.home.kraxel.org>
-Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-Content-Language: en-US
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2/27/20 8:53 AM, Gerd Hoffmann wrote:
->    Hi,
->
->>> +		if (!shmem->map_cached)
->>> +			prot = pgprot_writecombine(prot);
->>>    		shmem->vaddr = vmap(shmem->pages, obj->size >> PAGE_SHIFT,
->>> -				    VM_MAP, pgprot_writecombine(PAGE_KERNEL));
->>> +				    VM_MAP, prot)
->>
->> Wouldn't a vmap with pgprot_writecombine() create conflicting mappings with
->> the linear kernel map which is not write-combined?
-> I think so, yes.
->
->> Or do you change the linear kernel map of the shmem pages somewhere?
-> Havn't seen anything doing so while browsing the code.
->
->> vmap bypassess at least the
->> x86 PAT core mapping consistency check and this could potentially cause
->> spuriously overwritten memory.
-> Well, I don't think the linear kernel map is ever used to access the
-> shmem gem objects.  So while this isn't exactly clean it shouldn't
-> cause problems in practice.
->
-> Suggestions how to fix that?
->
-So this has historically caused problems since the linear kernel map has 
-been accessed while prefetching, even if it's never used. Some 
-processors like AMD athlon actually even wrote back the prefetched 
-contents without ever using it.
 
-Also the linear kernel map could be cached somewhere because of the 
-page's previous usage. (hibernation  for example?)
+The patch below does not apply to the 4.4-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-I think it might be safe for some integrated graphics where the driver 
-maintainers can guarantee that it's safe on all particular processors 
-used with that driver, but then IMO it should be moved out to those drivers.
+thanks,
 
-Other drivers needing write-combine shouldn't really use shmem.
+greg k-h
 
-So again, to fix the regression, could we revert 0be895893607f 
-("drm/shmem: switch shmem helper to &drm_gem_object_funcs.mmap") or does 
-that have other implications?
+------------------ original commit in Linus's tree ------------------
 
-/Thomas
+From df3da4ea5a0fc5d115c90d5aa6caa4dd433750a7 Mon Sep 17 00:00:00 2001
+From: Suraj Jitindar Singh <surajjs@amazon.com>
+Date: Tue, 18 Feb 2020 19:08:50 -0800
+Subject: [PATCH] ext4: fix potential race between s_group_info online resizing
+ and access
 
+During an online resize an array of pointers to s_group_info gets replaced
+so it can get enlarged. If there is a concurrent access to the array in
+ext4_get_group_info() and this memory has been reused then this can lead to
+an invalid memory access.
+
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=206443
+Link: https://lore.kernel.org/r/20200221053458.730016-3-tytso@mit.edu
+Signed-off-by: Suraj Jitindar Singh <surajjs@amazon.com>
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Reviewed-by: Balbir Singh <sblbir@amazon.com>
+Cc: stable@kernel.org
+
+diff --git a/fs/ext4/ext4.h b/fs/ext4/ext4.h
+index b51003f75568..b1ece5329738 100644
+--- a/fs/ext4/ext4.h
++++ b/fs/ext4/ext4.h
+@@ -1462,7 +1462,7 @@ struct ext4_sb_info {
+ #endif
+ 
+ 	/* for buddy allocator */
+-	struct ext4_group_info ***s_group_info;
++	struct ext4_group_info ** __rcu *s_group_info;
+ 	struct inode *s_buddy_cache;
+ 	spinlock_t s_md_lock;
+ 	unsigned short *s_mb_offsets;
+@@ -2994,13 +2994,13 @@ static inline
+ struct ext4_group_info *ext4_get_group_info(struct super_block *sb,
+ 					    ext4_group_t group)
+ {
+-	 struct ext4_group_info ***grp_info;
++	 struct ext4_group_info **grp_info;
+ 	 long indexv, indexh;
+ 	 BUG_ON(group >= EXT4_SB(sb)->s_groups_count);
+-	 grp_info = EXT4_SB(sb)->s_group_info;
+ 	 indexv = group >> (EXT4_DESC_PER_BLOCK_BITS(sb));
+ 	 indexh = group & ((EXT4_DESC_PER_BLOCK(sb)) - 1);
+-	 return grp_info[indexv][indexh];
++	 grp_info = sbi_array_rcu_deref(EXT4_SB(sb), s_group_info, indexv);
++	 return grp_info[indexh];
+ }
+ 
+ /*
+diff --git a/fs/ext4/mballoc.c b/fs/ext4/mballoc.c
+index f64838187559..1b46fb63692a 100644
+--- a/fs/ext4/mballoc.c
++++ b/fs/ext4/mballoc.c
+@@ -2356,7 +2356,7 @@ int ext4_mb_alloc_groupinfo(struct super_block *sb, ext4_group_t ngroups)
+ {
+ 	struct ext4_sb_info *sbi = EXT4_SB(sb);
+ 	unsigned size;
+-	struct ext4_group_info ***new_groupinfo;
++	struct ext4_group_info ***old_groupinfo, ***new_groupinfo;
+ 
+ 	size = (ngroups + EXT4_DESC_PER_BLOCK(sb) - 1) >>
+ 		EXT4_DESC_PER_BLOCK_BITS(sb);
+@@ -2369,13 +2369,16 @@ int ext4_mb_alloc_groupinfo(struct super_block *sb, ext4_group_t ngroups)
+ 		ext4_msg(sb, KERN_ERR, "can't allocate buddy meta group");
+ 		return -ENOMEM;
+ 	}
+-	if (sbi->s_group_info) {
+-		memcpy(new_groupinfo, sbi->s_group_info,
++	rcu_read_lock();
++	old_groupinfo = rcu_dereference(sbi->s_group_info);
++	if (old_groupinfo)
++		memcpy(new_groupinfo, old_groupinfo,
+ 		       sbi->s_group_info_size * sizeof(*sbi->s_group_info));
+-		kvfree(sbi->s_group_info);
+-	}
+-	sbi->s_group_info = new_groupinfo;
++	rcu_read_unlock();
++	rcu_assign_pointer(sbi->s_group_info, new_groupinfo);
+ 	sbi->s_group_info_size = size / sizeof(*sbi->s_group_info);
++	if (old_groupinfo)
++		ext4_kvfree_array_rcu(old_groupinfo);
+ 	ext4_debug("allocated s_groupinfo array for %d meta_bg's\n", 
+ 		   sbi->s_group_info_size);
+ 	return 0;
+@@ -2387,6 +2390,7 @@ int ext4_mb_add_groupinfo(struct super_block *sb, ext4_group_t group,
+ {
+ 	int i;
+ 	int metalen = 0;
++	int idx = group >> EXT4_DESC_PER_BLOCK_BITS(sb);
+ 	struct ext4_sb_info *sbi = EXT4_SB(sb);
+ 	struct ext4_group_info **meta_group_info;
+ 	struct kmem_cache *cachep = get_groupinfo_cache(sb->s_blocksize_bits);
+@@ -2405,12 +2409,12 @@ int ext4_mb_add_groupinfo(struct super_block *sb, ext4_group_t group,
+ 				 "for a buddy group");
+ 			goto exit_meta_group_info;
+ 		}
+-		sbi->s_group_info[group >> EXT4_DESC_PER_BLOCK_BITS(sb)] =
+-			meta_group_info;
++		rcu_read_lock();
++		rcu_dereference(sbi->s_group_info)[idx] = meta_group_info;
++		rcu_read_unlock();
+ 	}
+ 
+-	meta_group_info =
+-		sbi->s_group_info[group >> EXT4_DESC_PER_BLOCK_BITS(sb)];
++	meta_group_info = sbi_array_rcu_deref(sbi, s_group_info, idx);
+ 	i = group & (EXT4_DESC_PER_BLOCK(sb) - 1);
+ 
+ 	meta_group_info[i] = kmem_cache_zalloc(cachep, GFP_NOFS);
+@@ -2458,8 +2462,13 @@ int ext4_mb_add_groupinfo(struct super_block *sb, ext4_group_t group,
+ exit_group_info:
+ 	/* If a meta_group_info table has been allocated, release it now */
+ 	if (group % EXT4_DESC_PER_BLOCK(sb) == 0) {
+-		kfree(sbi->s_group_info[group >> EXT4_DESC_PER_BLOCK_BITS(sb)]);
+-		sbi->s_group_info[group >> EXT4_DESC_PER_BLOCK_BITS(sb)] = NULL;
++		struct ext4_group_info ***group_info;
++
++		rcu_read_lock();
++		group_info = rcu_dereference(sbi->s_group_info);
++		kfree(group_info[idx]);
++		group_info[idx] = NULL;
++		rcu_read_unlock();
+ 	}
+ exit_meta_group_info:
+ 	return -ENOMEM;
+@@ -2472,6 +2481,7 @@ static int ext4_mb_init_backend(struct super_block *sb)
+ 	struct ext4_sb_info *sbi = EXT4_SB(sb);
+ 	int err;
+ 	struct ext4_group_desc *desc;
++	struct ext4_group_info ***group_info;
+ 	struct kmem_cache *cachep;
+ 
+ 	err = ext4_mb_alloc_groupinfo(sb, ngroups);
+@@ -2507,11 +2517,16 @@ err_freebuddy:
+ 	while (i-- > 0)
+ 		kmem_cache_free(cachep, ext4_get_group_info(sb, i));
+ 	i = sbi->s_group_info_size;
++	rcu_read_lock();
++	group_info = rcu_dereference(sbi->s_group_info);
+ 	while (i-- > 0)
+-		kfree(sbi->s_group_info[i]);
++		kfree(group_info[i]);
++	rcu_read_unlock();
+ 	iput(sbi->s_buddy_cache);
+ err_freesgi:
+-	kvfree(sbi->s_group_info);
++	rcu_read_lock();
++	kvfree(rcu_dereference(sbi->s_group_info));
++	rcu_read_unlock();
+ 	return -ENOMEM;
+ }
+ 
+@@ -2700,7 +2715,7 @@ int ext4_mb_release(struct super_block *sb)
+ 	ext4_group_t ngroups = ext4_get_groups_count(sb);
+ 	ext4_group_t i;
+ 	int num_meta_group_infos;
+-	struct ext4_group_info *grinfo;
++	struct ext4_group_info *grinfo, ***group_info;
+ 	struct ext4_sb_info *sbi = EXT4_SB(sb);
+ 	struct kmem_cache *cachep = get_groupinfo_cache(sb->s_blocksize_bits);
+ 
+@@ -2719,9 +2734,12 @@ int ext4_mb_release(struct super_block *sb)
+ 		num_meta_group_infos = (ngroups +
+ 				EXT4_DESC_PER_BLOCK(sb) - 1) >>
+ 			EXT4_DESC_PER_BLOCK_BITS(sb);
++		rcu_read_lock();
++		group_info = rcu_dereference(sbi->s_group_info);
+ 		for (i = 0; i < num_meta_group_infos; i++)
+-			kfree(sbi->s_group_info[i]);
+-		kvfree(sbi->s_group_info);
++			kfree(group_info[i]);
++		kvfree(group_info);
++		rcu_read_unlock();
+ 	}
+ 	kfree(sbi->s_mb_offsets);
+ 	kfree(sbi->s_mb_maxs);
 
