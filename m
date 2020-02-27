@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 434A0172090
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:44:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9DDE5172176
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:49:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730854AbgB0NsV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 08:48:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45070 "EHLO mail.kernel.org"
+        id S1729599AbgB0Nla (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 08:41:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36166 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730514AbgB0NsU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 08:48:20 -0500
+        id S1729179AbgB0Nl3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 08:41:29 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C318E20578;
-        Thu, 27 Feb 2020 13:48:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C15CF20726;
+        Thu, 27 Feb 2020 13:41:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582811300;
-        bh=QF+GM9/wVb1HaoupTgbLeTFq/iwqSRZpYgfw/Bq0fhQ=;
+        s=default; t=1582810889;
+        bh=Wy5Y3bFv3lNObAMJ+SCk+cfbupAnQ2FsFM+1ga9hGkE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Dpp9lgRgsl/jCmdFlhZXcDJmUW0CYR7o5VAkWv9Reen3PJYKARDJQc9CujBi2mgNB
-         9BnZPpEdkPFWyIWfAsDxyiFd9KTyo5pHd9TqxC1hi+yNruSNkY+vBcQXs3CzlagY7y
-         m0TeJPGCcaJYrTgfwAc/Qacm6M4/bbVNvOlpYKYE=
+        b=X80vf89KaURVUTMYdjmRpI5hKj1GPNtarJz2DD/sIUVu8vYyAvjfZOpTqblK/WOzD
+         wom/mDVxUH3BMKWh/fWgP1VDjabUehBrFwaoamYjfg6XGjGVIte5Bey5Swi676p63G
+         SZvlYAIEGHmaLVWuCtYZ5qoT9nY92zaVEzGUemBg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
+        stable@vger.kernel.org, Miquel Raynal <miquel.raynal@bootlin.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 078/165] driver core: Print device when resources present in really_probe()
+Subject: [PATCH 4.4 036/113] regulator: rk808: Lower log level on optional GPIOs being not available
 Date:   Thu, 27 Feb 2020 14:35:52 +0100
-Message-Id: <20200227132242.780012307@linuxfoundation.org>
+Message-Id: <20200227132217.487791419@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200227132230.840899170@linuxfoundation.org>
-References: <20200227132230.840899170@linuxfoundation.org>
+In-Reply-To: <20200227132211.791484803@linuxfoundation.org>
+References: <20200227132211.791484803@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,43 +44,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+From: Miquel Raynal <miquel.raynal@bootlin.com>
 
-[ Upstream commit 7c35e699c88bd60734277b26962783c60e04b494 ]
+[ Upstream commit b8a039d37792067c1a380dc710361905724b9b2f ]
 
-If a device already has devres items attached before probing, a warning
-backtrace is printed.  However, this backtrace does not reveal the
-offending device, leaving the user uninformed.  Furthermore, using
-WARN_ON() causes systems with panic-on-warn to reboot.
+RK808 can leverage a couple of GPIOs to tweak the ramp rate during DVS
+(Dynamic Voltage Scaling). These GPIOs are entirely optional but a
+dev_warn() appeared when cleaning this driver to use a more up-to-date
+gpiod API. At least reduce the log level to 'info' as it is totally
+fine to not populate these GPIO on a hardware design.
 
-Fix this by replacing the WARN_ON() by a dev_crit() message.
-Abort probing the device, to prevent doing more damage to the device's
-resources.
+This change is trivial but it is worth not polluting the logs during
+bringup phase by having real warnings and errors sorted out
+correctly.
 
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Link: https://lore.kernel.org/r/20191206132219.28908-1-geert+renesas@glider.be
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: a13eaf02e2d6 ("regulator: rk808: make better use of the gpiod API")
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Link: https://lore.kernel.org/r/20191203164709.11127-1-miquel.raynal@bootlin.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/base/dd.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/regulator/rk808-regulator.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/base/dd.c b/drivers/base/dd.c
-index ee25a69630c3a..854d218ea76ac 100644
---- a/drivers/base/dd.c
-+++ b/drivers/base/dd.c
-@@ -341,7 +341,10 @@ static int really_probe(struct device *dev, struct device_driver *drv)
- 	atomic_inc(&probe_count);
- 	pr_debug("bus: '%s': %s: probing driver %s with device %s\n",
- 		 drv->bus->name, __func__, drv->name, dev_name(dev));
--	WARN_ON(!list_empty(&dev->devres_head));
-+	if (!list_empty(&dev->devres_head)) {
-+		dev_crit(dev, "Resources present before probing\n");
-+		return -EBUSY;
-+	}
+diff --git a/drivers/regulator/rk808-regulator.c b/drivers/regulator/rk808-regulator.c
+index d86a3dcd61e24..b96d50a03022c 100644
+--- a/drivers/regulator/rk808-regulator.c
++++ b/drivers/regulator/rk808-regulator.c
+@@ -551,7 +551,7 @@ static int rk808_regulator_dt_parse_pdata(struct device *dev,
+ 		}
  
- re_probe:
- 	dev->driver = drv;
+ 		if (!pdata->dvs_gpio[i]) {
+-			dev_warn(dev, "there is no dvs%d gpio\n", i);
++			dev_info(dev, "there is no dvs%d gpio\n", i);
+ 			continue;
+ 		}
+ 
 -- 
 2.20.1
 
