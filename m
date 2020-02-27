@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D08C171C50
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:11:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9963B171B99
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:04:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388628AbgB0OLC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 09:11:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49276 "EHLO mail.kernel.org"
+        id S2387499AbgB0OD4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 09:03:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39662 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388620AbgB0OK7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 09:10:59 -0500
+        id S2387491AbgB0ODz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 09:03:55 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2EC1620578;
-        Thu, 27 Feb 2020 14:10:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 45D5020578;
+        Thu, 27 Feb 2020 14:03:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582812658;
-        bh=ngy0aopofd0xPgZDWEqnIE3beTwgyfYyrCAEaubUypc=;
+        s=default; t=1582812234;
+        bh=mrtOhv2bAUzWQQXwPb0/OSm7lZmeSixm0DRUqFTk9Mo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YLXLHxl3JbiIke+Bjh1cm71W5lq7ta7xVSbiBPGMKMxvXlFdG2BXC5rySNTfr6n0s
-         mncAEnm3sOYBROmOJRnK8TQVI1+RflLjT3DyOvLqnDwDaIq8/GLxuyKWv0iHmwgDe+
-         ub2Drhzm3QQPpQhT1VaVy3I/PfUSmkAKiUE48WGc=
+        b=KwNRhbTaKEY3yFa6X0LlSMhZ5TOdyR0Caoup2c/YVX4IYAAtOvCPasarJr8D9ql2O
+         wGkjCHun35oK5cOHOiKxCVzkxmMGQwAoPrmnEqPdSaUKHXlZDo8o+pqDC1BJjFCyHO
+         Owz91VG5lvF7m816Qv4DUBLPBdm9petMqgoGTEU4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zenghui Yu <yuzenghui@huawei.com>,
-        Thomas Gleixner <tglx@linutronix.de>
-Subject: [PATCH 5.4 065/135] genirq/irqdomain: Make sure all irq domain flags are distinct
+        stable@vger.kernel.org, Saar Amar <Saar.Amar@microsoft.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Borislav Petkov <bp@suse.de>
+Subject: [PATCH 4.19 37/97] x86/mce/amd: Publish the bank pointer only after setup has succeeded
 Date:   Thu, 27 Feb 2020 14:36:45 +0100
-Message-Id: <20200227132238.954402709@linuxfoundation.org>
+Message-Id: <20200227132220.626313876@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200227132228.710492098@linuxfoundation.org>
-References: <20200227132228.710492098@linuxfoundation.org>
+In-Reply-To: <20200227132214.553656188@linuxfoundation.org>
+References: <20200227132214.553656188@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,40 +44,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zenghui Yu <yuzenghui@huawei.com>
+From: Borislav Petkov <bp@suse.de>
 
-commit 2546287c5fb363a0165933ae2181c92f03e701d0 upstream.
+commit 6e5cf31fbe651bed7ba1df768f2e123531132417 upstream.
 
-This was noticed when printing debugfs for MSIs on my ARM64 server.  The
-new dstate IRQD_MSI_NOMASK_QUIRK came out surprisingly while it should only
-be the x86 stuff for the time being...
+threshold_create_bank() creates a bank descriptor per MCA error
+thresholding counter which can be controlled over sysfs. It publishes
+the pointer to that bank in a per-CPU variable and then goes on to
+create additional thresholding blocks if the bank has such.
 
-The new MSI quirk flag uses the same bit as IRQ_DOMAIN_NAME_ALLOCATED which
-is oddly defined as bit 6 for no good reason.
+However, that creation of additional blocks in
+allocate_threshold_blocks() can fail, leading to a use-after-free
+through the per-CPU pointer.
 
-Switch it to the non used bit 1.
+Therefore, publish that pointer only after all blocks have been setup
+successfully.
 
-Fixes: 6f1a4891a592 ("x86/apic/msi: Plug non-maskable MSI affinity race")
-Signed-off-by: Zenghui Yu <yuzenghui@huawei.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/20200221020725.2038-1-yuzenghui@huawei.com
+Fixes: 019f34fccfd5 ("x86, MCE, AMD: Move shared bank to node descriptor")
+Reported-by: Saar Amar <Saar.Amar@microsoft.com>
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Cc: <stable@vger.kernel.org>
+Link: http://lkml.kernel.org/r/20200128140846.phctkvx5btiexvbx@kili.mountain
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- include/linux/irqdomain.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/kernel/cpu/mcheck/mce_amd.c |   33 ++++++++++++++++-----------------
+ 1 file changed, 16 insertions(+), 17 deletions(-)
 
---- a/include/linux/irqdomain.h
-+++ b/include/linux/irqdomain.h
-@@ -191,7 +191,7 @@ enum {
- 	IRQ_DOMAIN_FLAG_HIERARCHY	= (1 << 0),
+--- a/arch/x86/kernel/cpu/mcheck/mce_amd.c
++++ b/arch/x86/kernel/cpu/mcheck/mce_amd.c
+@@ -1152,8 +1152,9 @@ static const char *get_name(unsigned int
+ 	return buf_mcatype;
+ }
  
- 	/* Irq domain name was allocated in __irq_domain_add() */
--	IRQ_DOMAIN_NAME_ALLOCATED	= (1 << 6),
-+	IRQ_DOMAIN_NAME_ALLOCATED	= (1 << 1),
+-static int allocate_threshold_blocks(unsigned int cpu, unsigned int bank,
+-				     unsigned int block, u32 address)
++static int allocate_threshold_blocks(unsigned int cpu, struct threshold_bank *tb,
++				     unsigned int bank, unsigned int block,
++				     u32 address)
+ {
+ 	struct threshold_block *b = NULL;
+ 	u32 low, high;
+@@ -1197,16 +1198,12 @@ static int allocate_threshold_blocks(uns
  
- 	/* Irq domain is an IPI domain with virq per cpu */
- 	IRQ_DOMAIN_FLAG_IPI_PER_CPU	= (1 << 2),
+ 	INIT_LIST_HEAD(&b->miscj);
+ 
+-	if (per_cpu(threshold_banks, cpu)[bank]->blocks) {
+-		list_add(&b->miscj,
+-			 &per_cpu(threshold_banks, cpu)[bank]->blocks->miscj);
+-	} else {
+-		per_cpu(threshold_banks, cpu)[bank]->blocks = b;
+-	}
++	if (tb->blocks)
++		list_add(&b->miscj, &tb->blocks->miscj);
++	else
++		tb->blocks = b;
+ 
+-	err = kobject_init_and_add(&b->kobj, &threshold_ktype,
+-				   per_cpu(threshold_banks, cpu)[bank]->kobj,
+-				   get_name(bank, b));
++	err = kobject_init_and_add(&b->kobj, &threshold_ktype, tb->kobj, get_name(bank, b));
+ 	if (err)
+ 		goto out_free;
+ recurse:
+@@ -1214,7 +1211,7 @@ recurse:
+ 	if (!address)
+ 		return 0;
+ 
+-	err = allocate_threshold_blocks(cpu, bank, block, address);
++	err = allocate_threshold_blocks(cpu, tb, bank, block, address);
+ 	if (err)
+ 		goto out_free;
+ 
+@@ -1299,8 +1296,6 @@ static int threshold_create_bank(unsigne
+ 		goto out_free;
+ 	}
+ 
+-	per_cpu(threshold_banks, cpu)[bank] = b;
+-
+ 	if (is_shared_bank(bank)) {
+ 		refcount_set(&b->cpus, 1);
+ 
+@@ -1311,9 +1306,13 @@ static int threshold_create_bank(unsigne
+ 		}
+ 	}
+ 
+-	err = allocate_threshold_blocks(cpu, bank, 0, msr_ops.misc(bank));
+-	if (!err)
+-		goto out;
++	err = allocate_threshold_blocks(cpu, b, bank, 0, msr_ops.misc(bank));
++	if (err)
++		goto out_free;
++
++	per_cpu(threshold_banks, cpu)[bank] = b;
++
++	return 0;
+ 
+  out_free:
+ 	kfree(b);
 
 
