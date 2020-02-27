@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 81441171DEA
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:24:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A12C3171C89
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:13:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388565AbgB0ONC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S2388933AbgB0ONC (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 27 Feb 2020 09:13:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51814 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:51852 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388719AbgB0OM6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 09:12:58 -0500
+        id S1729545AbgB0ONA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 09:13:00 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5F10020578;
-        Thu, 27 Feb 2020 14:12:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CE3FD24690;
+        Thu, 27 Feb 2020 14:12:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582812777;
-        bh=s9PRbJgZoRfil7RlXNlak23YZ7mHVGiUFrYZ5T47Uj4=;
+        s=default; t=1582812780;
+        bh=+Xbv5ReAxFmQEW1jkTzzswaOV3iBkq7ZlaBz9xuXs4Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gm266H4odsENRqXeYb9OMerYowz57EWRmKkM7c4zM3iVF8BboEElFK9XlmARYvUEC
-         Kmdpz/iDOTJ8sbj636pJWaLiHW0qDiBOkzTG1ZXEomuRosVVdzCr7Fw1cQUjLW0skk
-         LnyccmFV0Dur2I93Wglosgym0DzGTtjNRXYMqkIc=
+        b=ZvXsIEiGEf4hrEFT2il7GK+GcTRFkxlZdiPzk1z/PZmlqbqAQtRcjlFkPpLCP5UXW
+         u0KyNGGKc/6bRdWQKhd1vD44iE04PnjX5jFkmndZ471/7SHyde17wSKUoVVkcQJZe3
+         34IxhU2ygx+oZp8SO+8EVJUyy5tF7xn6Xse1pc4U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Roberto Sassu <roberto.sassu@huawei.com>,
-        Petr Vorel <pvorel@suse.cz>,
-        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-Subject: [PATCH 5.5 013/150] tpm: Initialize crypto_id of allocated_banks to HASH_ALGO__LAST
-Date:   Thu, 27 Feb 2020 14:35:50 +0100
-Message-Id: <20200227132234.635198004@linuxfoundation.org>
+        stable@vger.kernel.org, Wenwen Wang <wenwen@cs.uga.edu>,
+        Tyler Hicks <tyhicks@canonical.com>
+Subject: [PATCH 5.5 014/150] ecryptfs: fix a memory leak bug in parse_tag_1_packet()
+Date:   Thu, 27 Feb 2020 14:35:51 +0100
+Message-Id: <20200227132234.778031974@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200227132232.815448360@linuxfoundation.org>
 References: <20200227132232.815448360@linuxfoundation.org>
@@ -44,45 +43,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roberto Sassu <roberto.sassu@huawei.com>
+From: Wenwen Wang <wenwen@cs.uga.edu>
 
-commit dc10e4181c05a2315ddc375e963b7c763b5ee0df upstream.
+commit fe2e082f5da5b4a0a92ae32978f81507ef37ec66 upstream.
 
-chip->allocated_banks, an array of tpm_bank_info structures, contains the
-list of TPM algorithm IDs of allocated PCR banks. It also contains the
-corresponding ID of the crypto subsystem, so that users of the TPM driver
-can calculate a digest for a PCR extend operation.
+In parse_tag_1_packet(), if tag 1 packet contains a key larger than
+ECRYPTFS_MAX_ENCRYPTED_KEY_BYTES, no cleanup is executed, leading to a
+memory leak on the allocated 'auth_tok_list_item'. To fix this issue, go to
+the label 'out_free' to perform the cleanup work.
 
-However, if there is no mapping between TPM algorithm ID and crypto ID, the
-crypto_id field of tpm_bank_info remains set to zero (the array is
-allocated and initialized with kcalloc() in tpm2_get_pcr_allocation()).
-Zero should not be used as value for unknown mappings, as it is a valid
-crypto ID (HASH_ALGO_MD4).
-
-Thus, initialize crypto_id to HASH_ALGO__LAST.
-
-Cc: stable@vger.kernel.org # 5.1.x
-Fixes: 879b589210a9 ("tpm: retrieve digest size of unknown algorithms with PCR read")
-Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
-Reviewed-by: Petr Vorel <pvorel@suse.cz>
-Reviewed-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-Signed-off-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+Cc: stable@vger.kernel.org
+Fixes: dddfa461fc89 ("[PATCH] eCryptfs: Public key; packet management")
+Signed-off-by: Wenwen Wang <wenwen@cs.uga.edu>
+Signed-off-by: Tyler Hicks <tyhicks@canonical.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/char/tpm/tpm2-cmd.c |    2 ++
- 1 file changed, 2 insertions(+)
+ fs/ecryptfs/keystore.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/char/tpm/tpm2-cmd.c
-+++ b/drivers/char/tpm/tpm2-cmd.c
-@@ -525,6 +525,8 @@ static int tpm2_init_bank_info(struct tp
- 		return 0;
+--- a/fs/ecryptfs/keystore.c
++++ b/fs/ecryptfs/keystore.c
+@@ -1304,7 +1304,7 @@ parse_tag_1_packet(struct ecryptfs_crypt
+ 		printk(KERN_WARNING "Tag 1 packet contains key larger "
+ 		       "than ECRYPTFS_MAX_ENCRYPTED_KEY_BYTES\n");
+ 		rc = -EINVAL;
+-		goto out;
++		goto out_free;
  	}
- 
-+	bank->crypto_id = HASH_ALGO__LAST;
-+
- 	return tpm2_pcr_read(chip, 0, &digest, &bank->digest_size);
- }
- 
+ 	memcpy((*new_auth_tok)->session_key.encrypted_key,
+ 	       &data[(*packet_size)], (body_size - (ECRYPTFS_SIG_SIZE + 2)));
 
 
