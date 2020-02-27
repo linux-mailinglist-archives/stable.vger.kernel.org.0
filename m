@@ -2,39 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A37A6171E44
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:26:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7ABBC171DAD
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:22:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387894AbgB0OJo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 09:09:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47728 "EHLO mail.kernel.org"
+        id S2389362AbgB0OPs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 09:15:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55480 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733262AbgB0OJo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 09:09:44 -0500
+        id S2389359AbgB0OPr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 09:15:47 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9AAB220578;
-        Thu, 27 Feb 2020 14:09:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DAD3C2468F;
+        Thu, 27 Feb 2020 14:15:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582812583;
-        bh=dWhSqp2sSGA0j+GHD0x8+OvJzlBkzswpfjc/63BfTu4=;
+        s=default; t=1582812947;
+        bh=rSno5SUfmCP36VHtQNRPA3Is3Vioa+Kv64tv2eG8qRM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oBDGDDjMj687ANgfIieooO1/OwnDoNlbGcgEBJYrkKmePtHQIN30fFzlygj3HfOE7
-         90D6xbY3TAqOzabg+zSoeRyaVzvJyLjVpd7b+Er4lf0dhKZz7kvjpjF2KR4RY2wXZI
-         t+f9LtBMNTCSDmTnZ9/lZWAvjvDNPrJvM33s2C3o=
+        b=LQ/Lam0znkoqDIoT5HfrSWYNMqe2aPKf79i1t5dr6J093epYPVp9kQCDtQLhzE3wa
+         wOI65sPJHzVQ8SfB0sGZ6hnI+1lRKo8Qn3n5qJDSoLbSAVUoWfCSAkvBqGDANj/sSj
+         qimYcEbzvrtETnrqqBrQ0zpSiz2ZTQEbo85EnVU0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chris Wilson <chris@chris-wilson.co.uk>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Jani Nikula <jani.nikula@intel.com>
-Subject: [PATCH 5.4 074/135] drm/i915: Wean off drm_pci_alloc/drm_pci_free
-Date:   Thu, 27 Feb 2020 14:36:54 +0100
-Message-Id: <20200227132240.508720004@linuxfoundation.org>
+        stable@vger.kernel.org, Alexander Potapenko <glider@google.com>,
+        Walter Wu <walter-zh.wu@mediatek.com>,
+        Dmitry Vyukov <dvyukov@google.com>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        Kate Stewart <kstewart@linuxfoundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.5 078/150] lib/stackdepot.c: fix global out-of-bounds in stack_slabs
+Date:   Thu, 27 Feb 2020 14:36:55 +0100
+Message-Id: <20200227132244.351591835@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200227132228.710492098@linuxfoundation.org>
-References: <20200227132228.710492098@linuxfoundation.org>
+In-Reply-To: <20200227132232.815448360@linuxfoundation.org>
+References: <20200227132232.815448360@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,257 +50,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Wilson <chris@chris-wilson.co.uk>
+From: Alexander Potapenko <glider@google.com>
 
-commit aa3146193ae25d0fe4b96d815169a135db2e8f01 upstream.
+commit 305e519ce48e935702c32241f07d393c3c8fed3e upstream.
 
-drm_pci_alloc and drm_pci_free are just very thin wrappers around
-dma_alloc_coherent, with a note that we should be removing them.
-Furthermore since
+Walter Wu has reported a potential case in which init_stack_slab() is
+called after stack_slabs[STACK_ALLOC_MAX_SLABS - 1] has already been
+initialized.  In that case init_stack_slab() will overwrite
+stack_slabs[STACK_ALLOC_MAX_SLABS], which may result in a memory
+corruption.
 
-commit de09d31dd38a50fdce106c15abd68432eebbd014
-Author: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
-Date:   Fri Jan 15 16:51:42 2016 -0800
-
-    page-flags: define PG_reserved behavior on compound pages
-
-    As far as I can see there's no users of PG_reserved on compound pages.
-    Let's use PF_NO_COMPOUND here.
-
-drm_pci_alloc has been declared broken since it mixes GFP_COMP and
-SetPageReserved. Avoid this conflict by weaning ourselves off using the
-abstraction and using the dma functions directly.
-
-Reported-by: Taketo Kabe
-Closes: https://gitlab.freedesktop.org/drm/intel/issues/1027
-Fixes: de09d31dd38a ("page-flags: define PG_reserved behavior on compound pages")
-Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Cc: <stable@vger.kernel.org> # v4.5+
-Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200202153934.3899472-1-chris@chris-wilson.co.uk
-(cherry picked from commit c6790dc22312f592c1434577258b31c48c72d52a)
-Signed-off-by: Jani Nikula <jani.nikula@intel.com>
+Link: http://lkml.kernel.org/r/20200218102950.260263-1-glider@google.com
+Fixes: cd11016e5f521 ("mm, kasan: stackdepot implementation. Enable stackdepot for SLAB")
+Signed-off-by: Alexander Potapenko <glider@google.com>
+Reported-by: Walter Wu <walter-zh.wu@mediatek.com>
+Cc: Dmitry Vyukov <dvyukov@google.com>
+Cc: Matthias Brugger <matthias.bgg@gmail.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Josh Poimboeuf <jpoimboe@redhat.com>
+Cc: Kate Stewart <kstewart@linuxfoundation.org>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/i915/display/intel_display.c     |    2 
- drivers/gpu/drm/i915/gem/i915_gem_object_types.h |    3 
- drivers/gpu/drm/i915/gem/i915_gem_phys.c         |   98 +++++++++++------------
- drivers/gpu/drm/i915/i915_gem.c                  |    8 -
- 4 files changed, 55 insertions(+), 56 deletions(-)
+ lib/stackdepot.c |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
---- a/drivers/gpu/drm/i915/display/intel_display.c
-+++ b/drivers/gpu/drm/i915/display/intel_display.c
-@@ -10510,7 +10510,7 @@ static u32 intel_cursor_base(const struc
- 	u32 base;
- 
- 	if (INTEL_INFO(dev_priv)->display.cursor_needs_physical)
--		base = obj->phys_handle->busaddr;
-+		base = sg_dma_address(obj->mm.pages->sgl);
- 	else
- 		base = intel_plane_ggtt_offset(plane_state);
- 
---- a/drivers/gpu/drm/i915/gem/i915_gem_object_types.h
-+++ b/drivers/gpu/drm/i915/gem/i915_gem_object_types.h
-@@ -240,9 +240,6 @@ struct drm_i915_gem_object {
- 
- 		void *gvt_info;
- 	};
--
--	/** for phys allocated objects */
--	struct drm_dma_handle *phys_handle;
- };
- 
- static inline struct drm_i915_gem_object *
---- a/drivers/gpu/drm/i915/gem/i915_gem_phys.c
-+++ b/drivers/gpu/drm/i915/gem/i915_gem_phys.c
-@@ -21,88 +21,87 @@
- static int i915_gem_object_get_pages_phys(struct drm_i915_gem_object *obj)
- {
- 	struct address_space *mapping = obj->base.filp->f_mapping;
--	struct drm_dma_handle *phys;
--	struct sg_table *st;
- 	struct scatterlist *sg;
--	char *vaddr;
-+	struct sg_table *st;
-+	dma_addr_t dma;
-+	void *vaddr;
-+	void *dst;
- 	int i;
--	int err;
- 
- 	if (WARN_ON(i915_gem_object_needs_bit17_swizzle(obj)))
- 		return -EINVAL;
- 
--	/* Always aligning to the object size, allows a single allocation
-+	/*
-+	 * Always aligning to the object size, allows a single allocation
- 	 * to handle all possible callers, and given typical object sizes,
- 	 * the alignment of the buddy allocation will naturally match.
- 	 */
--	phys = drm_pci_alloc(obj->base.dev,
--			     roundup_pow_of_two(obj->base.size),
--			     roundup_pow_of_two(obj->base.size));
--	if (!phys)
-+	vaddr = dma_alloc_coherent(&obj->base.dev->pdev->dev,
-+				   roundup_pow_of_two(obj->base.size),
-+				   &dma, GFP_KERNEL);
-+	if (!vaddr)
- 		return -ENOMEM;
- 
--	vaddr = phys->vaddr;
-+	st = kmalloc(sizeof(*st), GFP_KERNEL);
-+	if (!st)
-+		goto err_pci;
-+
-+	if (sg_alloc_table(st, 1, GFP_KERNEL))
-+		goto err_st;
-+
-+	sg = st->sgl;
-+	sg->offset = 0;
-+	sg->length = obj->base.size;
-+
-+	sg_assign_page(sg, (struct page *)vaddr);
-+	sg_dma_address(sg) = dma;
-+	sg_dma_len(sg) = obj->base.size;
-+
-+	dst = vaddr;
- 	for (i = 0; i < obj->base.size / PAGE_SIZE; i++) {
- 		struct page *page;
--		char *src;
-+		void *src;
- 
- 		page = shmem_read_mapping_page(mapping, i);
--		if (IS_ERR(page)) {
--			err = PTR_ERR(page);
--			goto err_phys;
--		}
-+		if (IS_ERR(page))
-+			goto err_st;
- 
- 		src = kmap_atomic(page);
--		memcpy(vaddr, src, PAGE_SIZE);
--		drm_clflush_virt_range(vaddr, PAGE_SIZE);
-+		memcpy(dst, src, PAGE_SIZE);
-+		drm_clflush_virt_range(dst, PAGE_SIZE);
- 		kunmap_atomic(src);
- 
- 		put_page(page);
--		vaddr += PAGE_SIZE;
-+		dst += PAGE_SIZE;
+--- a/lib/stackdepot.c
++++ b/lib/stackdepot.c
+@@ -83,15 +83,19 @@ static bool init_stack_slab(void **preal
+ 		return true;
+ 	if (stack_slabs[depot_index] == NULL) {
+ 		stack_slabs[depot_index] = *prealloc;
++		*prealloc = NULL;
+ 	} else {
+-		stack_slabs[depot_index + 1] = *prealloc;
++		/* If this is the last depot slab, do not touch the next one. */
++		if (depot_index + 1 < STACK_ALLOC_MAX_SLABS) {
++			stack_slabs[depot_index + 1] = *prealloc;
++			*prealloc = NULL;
++		}
+ 		/*
+ 		 * This smp_store_release pairs with smp_load_acquire() from
+ 		 * |next_slab_inited| above and in stack_depot_save().
+ 		 */
+ 		smp_store_release(&next_slab_inited, 1);
  	}
- 
- 	intel_gt_chipset_flush(&to_i915(obj->base.dev)->gt);
- 
--	st = kmalloc(sizeof(*st), GFP_KERNEL);
--	if (!st) {
--		err = -ENOMEM;
--		goto err_phys;
--	}
--
--	if (sg_alloc_table(st, 1, GFP_KERNEL)) {
--		kfree(st);
--		err = -ENOMEM;
--		goto err_phys;
--	}
--
--	sg = st->sgl;
--	sg->offset = 0;
--	sg->length = obj->base.size;
--
--	sg_dma_address(sg) = phys->busaddr;
--	sg_dma_len(sg) = obj->base.size;
--
--	obj->phys_handle = phys;
--
- 	__i915_gem_object_set_pages(obj, st, sg->length);
- 
- 	return 0;
- 
--err_phys:
--	drm_pci_free(obj->base.dev, phys);
--
--	return err;
-+err_st:
-+	kfree(st);
-+err_pci:
-+	dma_free_coherent(&obj->base.dev->pdev->dev,
-+			  roundup_pow_of_two(obj->base.size),
-+			  vaddr, dma);
-+	return -ENOMEM;
+-	*prealloc = NULL;
+ 	return true;
  }
  
- static void
- i915_gem_object_put_pages_phys(struct drm_i915_gem_object *obj,
- 			       struct sg_table *pages)
- {
-+	dma_addr_t dma = sg_dma_address(pages->sgl);
-+	void *vaddr = sg_page(pages->sgl);
-+
- 	__i915_gem_object_release_shmem(obj, pages, false);
- 
- 	if (obj->mm.dirty) {
- 		struct address_space *mapping = obj->base.filp->f_mapping;
--		char *vaddr = obj->phys_handle->vaddr;
-+		void *src = vaddr;
- 		int i;
- 
- 		for (i = 0; i < obj->base.size / PAGE_SIZE; i++) {
-@@ -114,15 +113,16 @@ i915_gem_object_put_pages_phys(struct dr
- 				continue;
- 
- 			dst = kmap_atomic(page);
--			drm_clflush_virt_range(vaddr, PAGE_SIZE);
--			memcpy(dst, vaddr, PAGE_SIZE);
-+			drm_clflush_virt_range(src, PAGE_SIZE);
-+			memcpy(dst, src, PAGE_SIZE);
- 			kunmap_atomic(dst);
- 
- 			set_page_dirty(page);
- 			if (obj->mm.madv == I915_MADV_WILLNEED)
- 				mark_page_accessed(page);
- 			put_page(page);
--			vaddr += PAGE_SIZE;
-+
-+			src += PAGE_SIZE;
- 		}
- 		obj->mm.dirty = false;
- 	}
-@@ -130,7 +130,9 @@ i915_gem_object_put_pages_phys(struct dr
- 	sg_free_table(pages);
- 	kfree(pages);
- 
--	drm_pci_free(obj->base.dev, obj->phys_handle);
-+	dma_free_coherent(&obj->base.dev->pdev->dev,
-+			  roundup_pow_of_two(obj->base.size),
-+			  vaddr, dma);
- }
- 
- static void phys_release(struct drm_i915_gem_object *obj)
---- a/drivers/gpu/drm/i915/i915_gem.c
-+++ b/drivers/gpu/drm/i915/i915_gem.c
-@@ -136,7 +136,7 @@ i915_gem_phys_pwrite(struct drm_i915_gem
- 		     struct drm_i915_gem_pwrite *args,
- 		     struct drm_file *file)
- {
--	void *vaddr = obj->phys_handle->vaddr + args->offset;
-+	void *vaddr = sg_page(obj->mm.pages->sgl) + args->offset;
- 	char __user *user_data = u64_to_user_ptr(args->data_ptr);
- 
- 	/*
-@@ -802,10 +802,10 @@ i915_gem_pwrite_ioctl(struct drm_device
- 		ret = i915_gem_gtt_pwrite_fast(obj, args);
- 
- 	if (ret == -EFAULT || ret == -ENOSPC) {
--		if (obj->phys_handle)
--			ret = i915_gem_phys_pwrite(obj, args, file);
--		else
-+		if (i915_gem_object_has_struct_page(obj))
- 			ret = i915_gem_shmem_pwrite(obj, args);
-+		else
-+			ret = i915_gem_phys_pwrite(obj, args, file);
- 	}
- 
- 	i915_gem_object_unpin_pages(obj);
 
 
