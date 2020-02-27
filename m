@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F9E3172019
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:40:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AEF6F171FDD
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:40:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731663AbgB0NxT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 08:53:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53100 "EHLO mail.kernel.org"
+        id S1731680AbgB0Nza (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 08:55:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55742 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731668AbgB0NxT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 08:53:19 -0500
+        id S1731198AbgB0Nz3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 08:55:29 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A3AA321D7E;
-        Thu, 27 Feb 2020 13:53:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0D6BA2084E;
+        Thu, 27 Feb 2020 13:55:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582811598;
-        bh=SsUgHWnjTMv3XDYo4fvmono2xbnBa6GKaDXiIuu1cNk=;
+        s=default; t=1582811728;
+        bh=ryOnP8ucTIYwFVmX7tPoXN5bUSKlEErdFqgLlvtWFRQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fGgIh/0fq7aMkGcUTlUO+mhMCGxOQuMqAbPrfZmyh98P6SVu5YBCluKTWC+aymU/i
-         uQDLy6zNOUfDGcUfT7UWIzjsWX6rZV0o/QAwjfhL2f3Vhfgi652vaD0Srcl3DgUmpZ
-         8FzdxKVrq+wcbSw7jWrGFYva0DdaURRVUIPZWjzg=
+        b=CZ95Zi9/Y5KNz96QdE+bt8OJmSyv1ebDX1Sb030CLfQUcyhTNoOfqB9+kwJjl8IYE
+         8TSl8pieNKq0vops3iWtFhBK8SMcXhpXUJzsPgUzlQDQq47pHeFrPoVQeY4f5FwhpM
+         LHf0EkzMx+2bPcDI3+l9505Bx1JrhnNIE90bXZ7k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kaike Wan <kaike.wan@intel.com>,
-        Mike Marciniszyn <mike.marciniszyn@intel.com>,
-        Dennis Dalessandro <dennis.dalessandro@intel.com>,
-        Jason Gunthorpe <jgg@mellanox.com>
-Subject: [PATCH 4.14 028/237] IB/hfi1: Close window for pq and request coliding
-Date:   Thu, 27 Feb 2020 14:34:02 +0100
-Message-Id: <20200227132258.538671035@linuxfoundation.org>
+        stable@vger.kernel.org, Maor Gottlieb <maorg@mellanox.com>,
+        Leon Romanovsky <leonro@mellanox.com>
+Subject: [PATCH 4.14 029/237] RDMA/core: Fix protection fault in get_pkey_idx_qp_list
+Date:   Thu, 27 Feb 2020 14:34:03 +0100
+Message-Id: <20200227132258.663284698@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200227132255.285644406@linuxfoundation.org>
 References: <20200227132255.285644406@linuxfoundation.org>
@@ -45,270 +43,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Marciniszyn <mike.marciniszyn@intel.com>
+From: Leon Romanovsky <leonro@mellanox.com>
 
-commit be8638344c70bf492963ace206a9896606b6922d upstream.
+commit 1dd017882e01d2fcd9c5dbbf1eb376211111c393 upstream.
 
-Cleaning up a pq can result in the following warning and panic:
+We don't need to set pkey as valid in case that user set only one of pkey
+index or port number, otherwise it will be resulted in NULL pointer
+dereference while accessing to uninitialized pkey list.  The following
+crash from Syzkaller revealed it.
 
-  WARNING: CPU: 52 PID: 77418 at lib/list_debug.c:53 __list_del_entry+0x63/0xd0
-  list_del corruption, ffff88cb2c6ac068->next is LIST_POISON1 (dead000000000100)
-  Modules linked in: mmfs26(OE) mmfslinux(OE) tracedev(OE) 8021q garp mrp ib_isert iscsi_target_mod target_core_mod crc_t10dif crct10dif_generic opa_vnic rpcrdma ib_iser libiscsi scsi_transport_iscsi ib_ipoib(OE) bridge stp llc iTCO_wdt iTCO_vendor_support intel_powerclamp coretemp intel_rapl iosf_mbi kvm_intel kvm irqbypass crct10dif_pclmul crct10dif_common crc32_pclmul ghash_clmulni_intel ast aesni_intel ttm lrw gf128mul glue_helper ablk_helper drm_kms_helper cryptd syscopyarea sysfillrect sysimgblt fb_sys_fops drm pcspkr joydev lpc_ich mei_me drm_panel_orientation_quirks i2c_i801 mei wmi ipmi_si ipmi_devintf ipmi_msghandler nfit libnvdimm acpi_power_meter acpi_pad hfi1(OE) rdmavt(OE) rdma_ucm ib_ucm ib_uverbs ib_umad rdma_cm ib_cm iw_cm ib_core binfmt_misc numatools(OE) xpmem(OE) ip_tables
-   nfsv3 nfs_acl nfs lockd grace sunrpc fscache igb ahci i2c_algo_bit libahci dca ptp libata pps_core crc32c_intel [last unloaded: i2c_algo_bit]
-  CPU: 52 PID: 77418 Comm: pvbatch Kdump: loaded Tainted: G           OE  ------------   3.10.0-957.38.3.el7.x86_64 #1
-  Hardware name: HPE.COM HPE SGI 8600-XA730i Gen10/X11DPT-SB-SG007, BIOS SBED1229 01/22/2019
-  Call Trace:
-   [<ffffffff90365ac0>] dump_stack+0x19/0x1b
-   [<ffffffff8fc98b78>] __warn+0xd8/0x100
-   [<ffffffff8fc98bff>] warn_slowpath_fmt+0x5f/0x80
-   [<ffffffff8ff970c3>] __list_del_entry+0x63/0xd0
-   [<ffffffff8ff9713d>] list_del+0xd/0x30
-   [<ffffffff8fddda70>] kmem_cache_destroy+0x50/0x110
-   [<ffffffffc0328130>] hfi1_user_sdma_free_queues+0xf0/0x200 [hfi1]
-   [<ffffffffc02e2350>] hfi1_file_close+0x70/0x1e0 [hfi1]
-   [<ffffffff8fe4519c>] __fput+0xec/0x260
-   [<ffffffff8fe453fe>] ____fput+0xe/0x10
-   [<ffffffff8fcbfd1b>] task_work_run+0xbb/0xe0
-   [<ffffffff8fc2bc65>] do_notify_resume+0xa5/0xc0
-   [<ffffffff90379134>] int_signal+0x12/0x17
-  BUG: unable to handle kernel NULL pointer dereference at 0000000000000010
-  IP: [<ffffffff8fe1f93e>] kmem_cache_close+0x7e/0x300
-  PGD 2cdab19067 PUD 2f7bfdb067 PMD 0
-  Oops: 0000 [#1] SMP
-  Modules linked in: mmfs26(OE) mmfslinux(OE) tracedev(OE) 8021q garp mrp ib_isert iscsi_target_mod target_core_mod crc_t10dif crct10dif_generic opa_vnic rpcrdma ib_iser libiscsi scsi_transport_iscsi ib_ipoib(OE) bridge stp llc iTCO_wdt iTCO_vendor_support intel_powerclamp coretemp intel_rapl iosf_mbi kvm_intel kvm irqbypass crct10dif_pclmul crct10dif_common crc32_pclmul ghash_clmulni_intel ast aesni_intel ttm lrw gf128mul glue_helper ablk_helper drm_kms_helper cryptd syscopyarea sysfillrect sysimgblt fb_sys_fops drm pcspkr joydev lpc_ich mei_me drm_panel_orientation_quirks i2c_i801 mei wmi ipmi_si ipmi_devintf ipmi_msghandler nfit libnvdimm acpi_power_meter acpi_pad hfi1(OE) rdmavt(OE) rdma_ucm ib_ucm ib_uverbs ib_umad rdma_cm ib_cm iw_cm ib_core binfmt_misc numatools(OE) xpmem(OE) ip_tables
-   nfsv3 nfs_acl nfs lockd grace sunrpc fscache igb ahci i2c_algo_bit libahci dca ptp libata pps_core crc32c_intel [last unloaded: i2c_algo_bit]
-  CPU: 52 PID: 77418 Comm: pvbatch Kdump: loaded Tainted: G        W  OE  ------------   3.10.0-957.38.3.el7.x86_64 #1
-  Hardware name: HPE.COM HPE SGI 8600-XA730i Gen10/X11DPT-SB-SG007, BIOS SBED1229 01/22/2019
-  task: ffff88cc26db9040 ti: ffff88b5393a8000 task.ti: ffff88b5393a8000
-  RIP: 0010:[<ffffffff8fe1f93e>]  [<ffffffff8fe1f93e>] kmem_cache_close+0x7e/0x300
-  RSP: 0018:ffff88b5393abd60  EFLAGS: 00010287
-  RAX: 0000000000000000 RBX: ffff88cb2c6ac000 RCX: 0000000000000003
-  RDX: 0000000000000400 RSI: 0000000000000400 RDI: ffffffff9095b800
-  RBP: ffff88b5393abdb0 R08: ffffffff9095b808 R09: ffffffff8ff77c19
-  R10: ffff88b73ce1f160 R11: ffffddecddde9800 R12: ffff88cb2c6ac000
-  R13: 000000000000000c R14: ffff88cf3fdca780 R15: 0000000000000000
-  FS:  00002aaaaab52500(0000) GS:ffff88b73ce00000(0000) knlGS:0000000000000000
+  kasan: CONFIG_KASAN_INLINE enabled
+  kasan: GPF could be caused by NULL-ptr deref or user memory access
+  general protection fault: 0000 [#1] SMP KASAN PTI
+  CPU: 1 PID: 14753 Comm: syz-executor.2 Not tainted 5.5.0-rc5 #2
+  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS
+  rel-1.12.1-0-ga5cab58e9a3f-prebuilt.qemu.org 04/01/2014
+  RIP: 0010:get_pkey_idx_qp_list+0x161/0x2d0
+  Code: 01 00 00 49 8b 5e 20 4c 39 e3 0f 84 b9 00 00 00 e8 e4 42 6e fe 48
+  8d 7b 10 48 b8 00 00 00 00 00 fc ff df 48 89 fa 48 c1 ea 03 <0f> b6 04
+  02 84 c0 74 08 3c 01 0f 8e d0 00 00 00 48 8d 7d 04 48 b8
+  RSP: 0018:ffffc9000bc6f950 EFLAGS: 00010202
+  RAX: dffffc0000000000 RBX: 0000000000000000 RCX: ffffffff82c8bdec
+  RDX: 0000000000000002 RSI: ffffc900030a8000 RDI: 0000000000000010
+  RBP: ffff888112c8ce80 R08: 0000000000000004 R09: fffff5200178df1f
+  R10: 0000000000000001 R11: fffff5200178df1f R12: ffff888115dc4430
+  R13: ffff888115da8498 R14: ffff888115dc4410 R15: ffff888115da8000
+  FS:  00007f20777de700(0000) GS:ffff88811b100000(0000)
+  knlGS:0000000000000000
   CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  CR2: 0000000000000010 CR3: 0000002d27664000 CR4: 00000000007607e0
+  CR2: 0000001b2f721000 CR3: 00000001173ca002 CR4: 0000000000360ee0
   DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
   DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-  PKRU: 55555554
   Call Trace:
-   [<ffffffff8fe20d44>] __kmem_cache_shutdown+0x14/0x80
-   [<ffffffff8fddda78>] kmem_cache_destroy+0x58/0x110
-   [<ffffffffc0328130>] hfi1_user_sdma_free_queues+0xf0/0x200 [hfi1]
-   [<ffffffffc02e2350>] hfi1_file_close+0x70/0x1e0 [hfi1]
-   [<ffffffff8fe4519c>] __fput+0xec/0x260
-   [<ffffffff8fe453fe>] ____fput+0xe/0x10
-   [<ffffffff8fcbfd1b>] task_work_run+0xbb/0xe0
-   [<ffffffff8fc2bc65>] do_notify_resume+0xa5/0xc0
-   [<ffffffff90379134>] int_signal+0x12/0x17
-  Code: 00 00 ba 00 04 00 00 0f 4f c2 3d 00 04 00 00 89 45 bc 0f 84 e7 01 00 00 48 63 45 bc 49 8d 04 c4 48 89 45 b0 48 8b 80 c8 00 00 00 <48> 8b 78 10 48 89 45 c0 48 83 c0 10 48 89 45 d0 48 8b 17 48 39
-  RIP  [<ffffffff8fe1f93e>] kmem_cache_close+0x7e/0x300
-   RSP <ffff88b5393abd60>
-  CR2: 0000000000000010
+   port_pkey_list_insert+0xd7/0x7c0
+   ib_security_modify_qp+0x6fa/0xfc0
+   _ib_modify_qp+0x8c4/0xbf0
+   modify_qp+0x10da/0x16d0
+   ib_uverbs_modify_qp+0x9a/0x100
+   ib_uverbs_write+0xaa5/0xdf0
+   __vfs_write+0x7c/0x100
+   vfs_write+0x168/0x4a0
+   ksys_write+0xc8/0x200
+   do_syscall_64+0x9c/0x390
+   entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
-The panic is the result of slab entries being freed during the destruction
-of the pq slab.
-
-The code attempts to quiesce the pq, but looking for n_req == 0 doesn't
-account for new requests.
-
-Fix the issue by using SRCU to get a pq pointer and adjust the pq free
-logic to NULL the fd pq pointer prior to the quiesce.
-
-Fixes: e87473bc1b6c ("IB/hfi1: Only set fd pointer when base context is completely initialized")
-Link: https://lore.kernel.org/r/20200210131033.87408.81174.stgit@awfm-01.aw.intel.com
-Reviewed-by: Kaike Wan <kaike.wan@intel.com>
-Signed-off-by: Mike Marciniszyn <mike.marciniszyn@intel.com>
-Signed-off-by: Dennis Dalessandro <dennis.dalessandro@intel.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+Fixes: d291f1a65232 ("IB/core: Enforce PKey security on QPs")
+Link: https://lore.kernel.org/r/20200212080651.GB679970@unreal
+Signed-off-by: Maor Gottlieb <maorg@mellanox.com>
+Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
+Message-Id: <20200212080651.GB679970@unreal>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/infiniband/hw/hfi1/file_ops.c     |   52 ++++++++++++++++++------------
- drivers/infiniband/hw/hfi1/hfi.h          |    5 ++
- drivers/infiniband/hw/hfi1/user_exp_rcv.c |    3 -
- drivers/infiniband/hw/hfi1/user_sdma.c    |   17 ++++++---
- 4 files changed, 48 insertions(+), 29 deletions(-)
+ drivers/infiniband/core/security.c |   24 +++++++++---------------
+ 1 file changed, 9 insertions(+), 15 deletions(-)
 
---- a/drivers/infiniband/hw/hfi1/file_ops.c
-+++ b/drivers/infiniband/hw/hfi1/file_ops.c
-@@ -195,23 +195,24 @@ static int hfi1_file_open(struct inode *
+--- a/drivers/infiniband/core/security.c
++++ b/drivers/infiniband/core/security.c
+@@ -338,22 +338,16 @@ static struct ib_ports_pkeys *get_new_pp
+ 	if (!new_pps)
+ 		return NULL;
  
- 	fd = kzalloc(sizeof(*fd), GFP_KERNEL);
- 
--	if (fd) {
--		fd->rec_cpu_num = -1; /* no cpu affinity by default */
--		fd->mm = current->mm;
--		mmgrab(fd->mm);
--		fd->dd = dd;
--		kobject_get(&fd->dd->kobj);
--		fp->private_data = fd;
--	} else {
--		fp->private_data = NULL;
+-	if (qp_attr_mask & (IB_QP_PKEY_INDEX | IB_QP_PORT)) {
+-		if (!qp_pps) {
+-			new_pps->main.port_num = qp_attr->port_num;
+-			new_pps->main.pkey_index = qp_attr->pkey_index;
+-		} else {
+-			new_pps->main.port_num = (qp_attr_mask & IB_QP_PORT) ?
+-						  qp_attr->port_num :
+-						  qp_pps->main.port_num;
 -
--		if (atomic_dec_and_test(&dd->user_refcount))
--			complete(&dd->user_comp);
--
--		return -ENOMEM;
--	}
--
-+	if (!fd || init_srcu_struct(&fd->pq_srcu))
-+		goto nomem;
-+	spin_lock_init(&fd->pq_rcu_lock);
-+	spin_lock_init(&fd->tid_lock);
-+	spin_lock_init(&fd->invalid_lock);
-+	fd->rec_cpu_num = -1; /* no cpu affinity by default */
-+	fd->mm = current->mm;
-+	mmgrab(fd->mm);
-+	fd->dd = dd;
-+	kobject_get(&fd->dd->kobj);
-+	fp->private_data = fd;
- 	return 0;
-+nomem:
-+	kfree(fd);
-+	fp->private_data = NULL;
-+	if (atomic_dec_and_test(&dd->user_refcount))
-+		complete(&dd->user_comp);
-+	return -ENOMEM;
- }
- 
- static long hfi1_file_ioctl(struct file *fp, unsigned int cmd,
-@@ -417,21 +418,30 @@ static long hfi1_file_ioctl(struct file
- static ssize_t hfi1_write_iter(struct kiocb *kiocb, struct iov_iter *from)
- {
- 	struct hfi1_filedata *fd = kiocb->ki_filp->private_data;
--	struct hfi1_user_sdma_pkt_q *pq = fd->pq;
-+	struct hfi1_user_sdma_pkt_q *pq;
- 	struct hfi1_user_sdma_comp_q *cq = fd->cq;
- 	int done = 0, reqs = 0;
- 	unsigned long dim = from->nr_segs;
-+	int idx;
- 
--	if (!cq || !pq)
-+	idx = srcu_read_lock(&fd->pq_srcu);
-+	pq = srcu_dereference(fd->pq, &fd->pq_srcu);
-+	if (!cq || !pq) {
-+		srcu_read_unlock(&fd->pq_srcu, idx);
- 		return -EIO;
-+	}
- 
--	if (!iter_is_iovec(from) || !dim)
-+	if (!iter_is_iovec(from) || !dim) {
-+		srcu_read_unlock(&fd->pq_srcu, idx);
- 		return -EINVAL;
-+	}
- 
- 	trace_hfi1_sdma_request(fd->dd, fd->uctxt->ctxt, fd->subctxt, dim);
- 
--	if (atomic_read(&pq->n_reqs) == pq->n_max_reqs)
-+	if (atomic_read(&pq->n_reqs) == pq->n_max_reqs) {
-+		srcu_read_unlock(&fd->pq_srcu, idx);
- 		return -ENOSPC;
-+	}
- 
- 	while (dim) {
- 		int ret;
-@@ -449,6 +459,7 @@ static ssize_t hfi1_write_iter(struct ki
- 		reqs++;
- 	}
- 
-+	srcu_read_unlock(&fd->pq_srcu, idx);
- 	return reqs;
- }
- 
-@@ -824,6 +835,7 @@ done:
- 	if (atomic_dec_and_test(&dd->user_refcount))
- 		complete(&dd->user_comp);
- 
-+	cleanup_srcu_struct(&fdata->pq_srcu);
- 	kfree(fdata);
- 	return 0;
- }
---- a/drivers/infiniband/hw/hfi1/hfi.h
-+++ b/drivers/infiniband/hw/hfi1/hfi.h
-@@ -1353,10 +1353,13 @@ struct mmu_rb_handler;
- 
- /* Private data for file operations */
- struct hfi1_filedata {
-+	struct srcu_struct pq_srcu;
- 	struct hfi1_devdata *dd;
- 	struct hfi1_ctxtdata *uctxt;
- 	struct hfi1_user_sdma_comp_q *cq;
--	struct hfi1_user_sdma_pkt_q *pq;
-+	/* update side lock for SRCU */
-+	spinlock_t pq_rcu_lock;
-+	struct hfi1_user_sdma_pkt_q __rcu *pq;
- 	u16 subctxt;
- 	/* for cpu affinity; -1 if none */
- 	int rec_cpu_num;
---- a/drivers/infiniband/hw/hfi1/user_exp_rcv.c
-+++ b/drivers/infiniband/hw/hfi1/user_exp_rcv.c
-@@ -90,9 +90,6 @@ int hfi1_user_exp_rcv_init(struct hfi1_f
- 	struct hfi1_devdata *dd = uctxt->dd;
- 	int ret = 0;
- 
--	spin_lock_init(&fd->tid_lock);
--	spin_lock_init(&fd->invalid_lock);
--
- 	fd->entry_to_rb = kcalloc(uctxt->expected_count,
- 				  sizeof(struct rb_node *),
- 				  GFP_KERNEL);
---- a/drivers/infiniband/hw/hfi1/user_sdma.c
-+++ b/drivers/infiniband/hw/hfi1/user_sdma.c
-@@ -179,7 +179,6 @@ int hfi1_user_sdma_alloc_queues(struct h
- 	pq = kzalloc(sizeof(*pq), GFP_KERNEL);
- 	if (!pq)
- 		return -ENOMEM;
--
- 	pq->dd = dd;
- 	pq->ctxt = uctxt->ctxt;
- 	pq->subctxt = fd->subctxt;
-@@ -236,7 +235,7 @@ int hfi1_user_sdma_alloc_queues(struct h
- 		goto pq_mmu_fail;
- 	}
- 
--	fd->pq = pq;
-+	rcu_assign_pointer(fd->pq, pq);
- 	fd->cq = cq;
- 
- 	return 0;
-@@ -264,8 +263,14 @@ int hfi1_user_sdma_free_queues(struct hf
- 
- 	trace_hfi1_sdma_user_free_queues(uctxt->dd, uctxt->ctxt, fd->subctxt);
- 
--	pq = fd->pq;
-+	spin_lock(&fd->pq_rcu_lock);
-+	pq = srcu_dereference_check(fd->pq, &fd->pq_srcu,
-+				    lockdep_is_held(&fd->pq_rcu_lock));
- 	if (pq) {
-+		rcu_assign_pointer(fd->pq, NULL);
-+		spin_unlock(&fd->pq_rcu_lock);
-+		synchronize_srcu(&fd->pq_srcu);
-+		/* at this point there can be no more new requests */
- 		if (pq->handler)
- 			hfi1_mmu_rb_unregister(pq->handler);
- 		iowait_sdma_drain(&pq->busy);
-@@ -277,7 +282,8 @@ int hfi1_user_sdma_free_queues(struct hf
- 		kfree(pq->req_in_use);
- 		kmem_cache_destroy(pq->txreq_cache);
- 		kfree(pq);
--		fd->pq = NULL;
-+	} else {
-+		spin_unlock(&fd->pq_rcu_lock);
- 	}
- 	if (fd->cq) {
- 		vfree(fd->cq->comps);
-@@ -321,7 +327,8 @@ int hfi1_user_sdma_process_request(struc
- {
- 	int ret = 0, i;
- 	struct hfi1_ctxtdata *uctxt = fd->uctxt;
--	struct hfi1_user_sdma_pkt_q *pq = fd->pq;
-+	struct hfi1_user_sdma_pkt_q *pq =
-+		srcu_dereference(fd->pq, &fd->pq_srcu);
- 	struct hfi1_user_sdma_comp_q *cq = fd->cq;
- 	struct hfi1_devdata *dd = pq->dd;
- 	unsigned long idx = 0;
+-			new_pps->main.pkey_index =
+-					(qp_attr_mask & IB_QP_PKEY_INDEX) ?
+-					 qp_attr->pkey_index :
+-					 qp_pps->main.pkey_index;
+-		}
++	if (qp_attr_mask & IB_QP_PORT)
++		new_pps->main.port_num =
++			(qp_pps) ? qp_pps->main.port_num : qp_attr->port_num;
++	if (qp_attr_mask & IB_QP_PKEY_INDEX)
++		new_pps->main.pkey_index = (qp_pps) ? qp_pps->main.pkey_index :
++						      qp_attr->pkey_index;
++	if ((qp_attr_mask & IB_QP_PKEY_INDEX) && (qp_attr_mask & IB_QP_PORT))
+ 		new_pps->main.state = IB_PORT_PKEY_VALID;
+-	} else if (qp_pps) {
++
++	if (!(qp_attr_mask & (IB_QP_PKEY_INDEX || IB_QP_PORT)) && qp_pps) {
+ 		new_pps->main.port_num = qp_pps->main.port_num;
+ 		new_pps->main.pkey_index = qp_pps->main.pkey_index;
+ 		if (qp_pps->main.state != IB_PORT_PKEY_NOT_VALID)
 
 
