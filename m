@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 41D19171E19
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:25:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AD0F9171CFB
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:17:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387802AbgB0OLT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 09:11:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49726 "EHLO mail.kernel.org"
+        id S2388987AbgB0OQv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 09:16:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57060 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387700AbgB0OLR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 09:11:17 -0500
+        id S2388545AbgB0OQt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 09:16:49 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 410E020578;
-        Thu, 27 Feb 2020 14:11:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4A31A246AC;
+        Thu, 27 Feb 2020 14:16:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582812676;
-        bh=6m5yAkCc6qhKl2XMWMT+cmdhEAjqz01gM1imA/uQZcs=;
+        s=default; t=1582813008;
+        bh=fV4Y6Zjj87NE4NvvbuXjMkRgeZgSt4y55o2+QO6lu2Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v6cyU+sVVeLCuP24T8LukehL4YlaMDkpF5UM9FiEmqXn8T4g4juiHaoMV/YT+GqKt
-         OC6MOXLGZO1SoYT+XOt+Ph57HpXiI4sGFsZaCLCJ9g8SuwZkKAAFVGawS7xygX+yt5
-         jid17ZREG4FiA1t70TmbG/PYw8Uy3IT0lseeVL0w=
+        b=r4vPX63QOM/M2qwpd6Lk2cswAduBH96KYSmCv1ztkC89IpAUrdrLAmZBv95F97i/1
+         oOuWaMdcwkLwGdabpbv4u0K8CKlNTh6xJY4Xaddl9gO38KYvwynsMFbjPeg/9+sl3e
+         srpUeV3vHZmtcJjDc1yDmcF0Lkw3s2vGWQAgu2yE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Chris Wilson <chris@chris-wilson.co.uk>
-Subject: [PATCH 5.4 061/135] ACPI: PM: s2idle: Check fixed wakeup events in acpi_s2idle_wake()
+        stable@vger.kernel.org, Li RongQing <lirongqing@baidu.com>,
+        Kurt Kanzenbach <kurt@linutronix.de>,
+        Vikram Pandita <vikram.pandita@ti.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: [PATCH 5.5 064/150] serial: 8250: Check UPF_IRQ_SHARED in advance
 Date:   Thu, 27 Feb 2020 14:36:41 +0100
-Message-Id: <20200227132238.234067828@linuxfoundation.org>
+Message-Id: <20200227132242.477576163@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200227132228.710492098@linuxfoundation.org>
-References: <20200227132228.710492098@linuxfoundation.org>
+In-Reply-To: <20200227132232.815448360@linuxfoundation.org>
+References: <20200227132232.815448360@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,109 +45,128 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-commit 63fb9623427fbb44e3782233b6e4714057b76ff2 upstream.
+commit 7febbcbc48fc92e3f33863b32ed715ba4aff18c4 upstream.
 
-Commit fdde0ff8590b ("ACPI: PM: s2idle: Prevent spurious SCIs from
-waking up the system") overlooked the fact that fixed events can wake
-up the system too and broke RTC wakeup from suspend-to-idle as a
-result.
+The commit 54e53b2e8081
+  ("tty: serial: 8250: pass IRQ shared flag to UART ports")
+nicely explained the problem:
 
-Fix this issue by checking the fixed events in acpi_s2idle_wake() in
-addition to checking wakeup GPEs and break out of the suspend-to-idle
-loop if the status bits of any enabled fixed events are set then.
+---8<---8<---
 
-Fixes: fdde0ff8590b ("ACPI: PM: s2idle: Prevent spurious SCIs from waking up the system")
-Reported-and-tested-by: Chris Wilson <chris@chris-wilson.co.uk>
-Cc: 5.4+ <stable@vger.kernel.org> # 5.4+
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+On some systems IRQ lines between multiple UARTs might be shared. If so, the
+irqflags have to be configured accordingly. The reason is: The 8250 port startup
+code performs IRQ tests *before* the IRQ handler for that particular port is
+registered. This is performed in serial8250_do_startup(). This function checks
+whether IRQF_SHARED is configured and only then disables the IRQ line while
+testing.
+
+This test is performed upon each open() of the UART device. Imagine two UARTs
+share the same IRQ line: On is already opened and the IRQ is active. When the
+second UART is opened, the IRQ line has to be disabled while performing IRQ
+tests. Otherwise an IRQ might handler might be invoked, but the IRQ itself
+cannot be handled, because the corresponding handler isn't registered,
+yet. That's because the 8250 code uses a chain-handler and invokes the
+corresponding port's IRQ handling routines himself.
+
+Unfortunately this IRQF_SHARED flag isn't configured for UARTs probed via device
+tree even if the IRQs are shared. This way, the actual and shared IRQ line isn't
+disabled while performing tests and the kernel correctly detects a spurious
+IRQ. So, adding this flag to the DT probe solves the issue.
+
+Note: The UPF_SHARE_IRQ flag is configured unconditionally. Therefore, the
+IRQF_SHARED flag can be set unconditionally as well.
+
+Example stack trace by performing `echo 1 > /dev/ttyS2` on a non-patched system:
+
+|irq 85: nobody cared (try booting with the "irqpoll" option)
+| [...]
+|handlers:
+|[<ffff0000080fc628>] irq_default_primary_handler threaded [<ffff00000855fbb8>] serial8250_interrupt
+|Disabling IRQ #85
+
+---8<---8<---
+
+But unfortunately didn't fix the root cause. Let's try again here by moving
+IRQ flag assignment from serial_link_irq_chain() to serial8250_do_startup().
+
+This should fix the similar issue reported for 8250_pnp case.
+
+Since this change we don't need to have custom solutions in 8250_aspeed_vuart
+and 8250_of drivers, thus, drop them.
+
+Fixes: 1c2f04937b3e ("serial: 8250: add IRQ trigger support")
+Reported-by: Li RongQing <lirongqing@baidu.com>
+Cc: Kurt Kanzenbach <kurt@linutronix.de>
+Cc: Vikram Pandita <vikram.pandita@ti.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: stable <stable@vger.kernel.org>
+Acked-by: Kurt Kanzenbach <kurt@linutronix.de>
+Link: https://lore.kernel.org/r/20200211135559.85960-1-andriy.shevchenko@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/acpi/acpica/evevent.c |   45 ++++++++++++++++++++++++++++++++++++++++++
- drivers/acpi/sleep.c          |    7 ++++++
- include/acpi/acpixf.h         |    1 
- 3 files changed, 53 insertions(+)
+ drivers/tty/serial/8250/8250_aspeed_vuart.c |    1 -
+ drivers/tty/serial/8250/8250_core.c         |    5 ++---
+ drivers/tty/serial/8250/8250_of.c           |    1 -
+ drivers/tty/serial/8250/8250_port.c         |    4 ++++
+ 4 files changed, 6 insertions(+), 5 deletions(-)
 
---- a/drivers/acpi/acpica/evevent.c
-+++ b/drivers/acpi/acpica/evevent.c
-@@ -265,4 +265,49 @@ static u32 acpi_ev_fixed_event_dispatch(
- 		 handler) (acpi_gbl_fixed_event_handlers[event].context));
- }
+--- a/drivers/tty/serial/8250/8250_aspeed_vuart.c
++++ b/drivers/tty/serial/8250/8250_aspeed_vuart.c
+@@ -449,7 +449,6 @@ static int aspeed_vuart_probe(struct pla
+ 		port.port.line = rc;
  
-+/*******************************************************************************
-+ *
-+ * FUNCTION:    acpi_any_fixed_event_status_set
-+ *
-+ * PARAMETERS:  None
-+ *
-+ * RETURN:      TRUE or FALSE
-+ *
-+ * DESCRIPTION: Checks the PM status register for active fixed events
-+ *
-+ ******************************************************************************/
-+
-+u32 acpi_any_fixed_event_status_set(void)
-+{
-+	acpi_status status;
-+	u32 in_status;
-+	u32 in_enable;
-+	u32 i;
-+
-+	status = acpi_hw_register_read(ACPI_REGISTER_PM1_ENABLE, &in_enable);
-+	if (ACPI_FAILURE(status)) {
-+		return (FALSE);
-+	}
-+
-+	status = acpi_hw_register_read(ACPI_REGISTER_PM1_STATUS, &in_status);
-+	if (ACPI_FAILURE(status)) {
-+		return (FALSE);
-+	}
-+
-+	/*
-+	 * Check for all possible Fixed Events and dispatch those that are active
-+	 */
-+	for (i = 0; i < ACPI_NUM_FIXED_EVENTS; i++) {
-+
-+		/* Both the status and enable bits must be on for this event */
-+
-+		if ((in_status & acpi_gbl_fixed_event_info[i].status_bit_mask) &&
-+		    (in_enable & acpi_gbl_fixed_event_info[i].enable_bit_mask)) {
-+			return (TRUE);
-+		}
-+	}
-+
-+	return (FALSE);
-+}
-+
- #endif				/* !ACPI_REDUCED_HARDWARE */
---- a/drivers/acpi/sleep.c
-+++ b/drivers/acpi/sleep.c
-@@ -993,6 +993,13 @@ static bool acpi_s2idle_wake(void)
- 			return true;
+ 	port.port.irq = irq_of_parse_and_map(np, 0);
+-	port.port.irqflags = IRQF_SHARED;
+ 	port.port.handle_irq = aspeed_vuart_handle_irq;
+ 	port.port.iotype = UPIO_MEM;
+ 	port.port.type = PORT_16550A;
+--- a/drivers/tty/serial/8250/8250_core.c
++++ b/drivers/tty/serial/8250/8250_core.c
+@@ -174,7 +174,7 @@ static int serial_link_irq_chain(struct
+ 	struct hlist_head *h;
+ 	struct hlist_node *n;
+ 	struct irq_info *i;
+-	int ret, irq_flags = up->port.flags & UPF_SHARE_IRQ ? IRQF_SHARED : 0;
++	int ret;
  
+ 	mutex_lock(&hash_mutex);
+ 
+@@ -209,9 +209,8 @@ static int serial_link_irq_chain(struct
+ 		INIT_LIST_HEAD(&up->list);
+ 		i->head = &up->list;
+ 		spin_unlock_irq(&i->lock);
+-		irq_flags |= up->port.irqflags;
+ 		ret = request_irq(up->port.irq, serial8250_interrupt,
+-				  irq_flags, up->port.name, i);
++				  up->port.irqflags, up->port.name, i);
+ 		if (ret < 0)
+ 			serial_do_unlink(i, up);
+ 	}
+--- a/drivers/tty/serial/8250/8250_of.c
++++ b/drivers/tty/serial/8250/8250_of.c
+@@ -202,7 +202,6 @@ static int of_platform_serial_setup(stru
+ 
+ 	port->type = type;
+ 	port->uartclk = clk;
+-	port->irqflags |= IRQF_SHARED;
+ 
+ 	if (of_property_read_bool(np, "no-loopback-test"))
+ 		port->flags |= UPF_SKIP_TEST;
+--- a/drivers/tty/serial/8250/8250_port.c
++++ b/drivers/tty/serial/8250/8250_port.c
+@@ -2178,6 +2178,10 @@ int serial8250_do_startup(struct uart_po
+ 		}
+ 	}
+ 
++	/* Check if we need to have shared IRQs */
++	if (port->irq && (up->port.flags & UPF_SHARE_IRQ))
++		up->port.irqflags |= IRQF_SHARED;
++
+ 	if (port->irq && !(up->port.flags & UPF_NO_THRE_TEST)) {
+ 		unsigned char iir1;
  		/*
-+		 * If the status bit of any enabled fixed event is set, the
-+		 * wakeup is regarded as valid.
-+		 */
-+		if (acpi_any_fixed_event_status_set())
-+			return true;
-+
-+		/*
- 		 * If there are no EC events to process and at least one of the
- 		 * other enabled GPEs is active, the wakeup is regarded as a
- 		 * genuine one.
---- a/include/acpi/acpixf.h
-+++ b/include/acpi/acpixf.h
-@@ -749,6 +749,7 @@ ACPI_HW_DEPENDENT_RETURN_STATUS(acpi_sta
- ACPI_HW_DEPENDENT_RETURN_STATUS(acpi_status acpi_enable_all_runtime_gpes(void))
- ACPI_HW_DEPENDENT_RETURN_STATUS(acpi_status acpi_enable_all_wakeup_gpes(void))
- ACPI_HW_DEPENDENT_RETURN_UINT32(u32 acpi_any_gpe_status_set(void))
-+ACPI_HW_DEPENDENT_RETURN_UINT32(u32 acpi_any_fixed_event_status_set(void))
- 
- ACPI_HW_DEPENDENT_RETURN_STATUS(acpi_status
- 				acpi_get_gpe_device(u32 gpe_index,
 
 
