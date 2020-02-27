@@ -2,52 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 642471713FE
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 10:19:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 47306171408
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 10:20:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728652AbgB0JTw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 04:19:52 -0500
-Received: from wout1-smtp.messagingengine.com ([64.147.123.24]:55701 "EHLO
+        id S1728713AbgB0JUo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 04:20:44 -0500
+Received: from wout1-smtp.messagingengine.com ([64.147.123.24]:42193 "EHLO
         wout1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728504AbgB0JTw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 27 Feb 2020 04:19:52 -0500
+        by vger.kernel.org with ESMTP id S1728684AbgB0JUo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 27 Feb 2020 04:20:44 -0500
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailout.west.internal (Postfix) with ESMTP id 3E9D7610;
-        Thu, 27 Feb 2020 04:19:51 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Thu, 27 Feb 2020 04:19:51 -0500
+        by mailout.west.internal (Postfix) with ESMTP id AA475766;
+        Thu, 27 Feb 2020 04:20:43 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute1.internal (MEProxy); Thu, 27 Feb 2020 04:20:44 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=puvLY2
-        aEHuACDbCSdduGUXnMlB0KoIFyLOT4FEjCgY0=; b=RxPsKPPSYTO8Zw7W5LrejB
-        Ysy8er4VBpCrfvoSqfSrBHjv/30AJN+gnyYyoKfjgX5fZi68EQ0q3hPODG2wZnsH
-        HZHPJ9sfQpSA3Dhwm1GN3fufAQjcbhFMI0NECHiherDqD0B9DM3x6hnGlchODJRl
-        LYQPv9XyYvEgWYWknPRgXKQxUGiXQXhAUUErKg6+xQq50OdWCN/HZPSSYVEMe6mg
-        JydJP7i31OEBifnq4Fcxi3mbQziHZz86VLdN8emKpjbft0aeNjKLO8cXDpKD1eXr
-        gGxlVjQItqQSAomY8IzNuyEE2POUHlpCBVCDMKqc5SBdJiqE3wk0gdaw8F5v2gMA
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=biD70V
+        RnrsHqtniWHF6YFticewbaFt36Npdxj1+p83A=; b=MwYXK2OLS5Y/qRCOH2+GPS
+        KviQ1l17d+YIXYvEuR2p6cZg/C4rJnz1o8sQrGwm5a1yN5919wcl7GxwJLuDgJKo
+        dt/0RlLExcAp2VfJnPmVBmknnVktls+ciap59TOq22Th4PvwYDaeDMOJpd1j2SLn
+        qlbR4i52fCraFJzap7gmU7YdKpl5s8rbhpDNdz9JlYz3DWBOfLFMyqWBXUMvj8Ii
+        3lrPd9eGsAcRmWddEQGUXZWL9pQAzcXnklS7k1Ac4srzH1ZPP5ZIJq7Nnx8GiUOm
+        xDA9LDN0tszSB6HVVpHnL7VFkLV81w67d2C7ES35xwuqvxAXJmjWA9UYfdbBTDLw
         ==
-X-ME-Sender: <xms:tolXXlzymKB6tgT-mkTLUem2h2itDd_23_CgLN9VwpZW0gQyjEOcpQ>
+X-ME-Sender: <xms:64lXXqK6tY7CZEp3I7li326WF_Qntv15Pwe1sRwFkUd5_GjvTiWuhg>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedugedrleeigddtfecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
-    qeenucfkphepkeefrdekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivgepudegne
+    qeenucfkphepkeefrdekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivgepudehne
     curfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:tolXXu3Qe1xNJ3L_Bn8L2CPr3a1bedmujJo84w7AUdqitETnBYyWcQ>
-    <xmx:tolXXqzFdZw5TgwiTJ_N3D4EdRII3RAemcITYdPY17CM5-uzmKHcJA>
-    <xmx:tolXXmPzrs_CSAIGrC20dQAxJMEByyxumtWYOFfCe9ndoEHzKiJQWw>
-    <xmx:tolXXncW3v6D1Q8MXeWo8847C2K_wtlRotaKGuV4vhR8y4XdVFkp2g>
+X-ME-Proxy: <xmx:64lXXpLDlPWPcdPK-1AfyCJeXSYcj-sgr81HQYY3B79AaR0KfNkrWA>
+    <xmx:64lXXvt-joz7vcnaZqHgZis6WGKK1u0q4HjIjtksVQ4-7jllJbyXyA>
+    <xmx:64lXXuSgRXGLb7ucJN-z5tjjaic6FM7DDaRoCfV_DjIDQKbwAbPWuQ>
+    <xmx:64lXXuSDNqZJl0e5AQgPxnq7MjmcMV_G0Q1YqAOC41c2POpAXSPvWw>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 7DB45328005D;
-        Thu, 27 Feb 2020 04:19:50 -0500 (EST)
-Subject: FAILED: patch "[PATCH] btrfs: don't set path->leave_spinning for truncate" failed to apply to 4.4-stable tree
-To:     josef@toxicpanda.com, davej@codemonkey.org.uk, dsterba@suse.com,
-        fdmanana@suse.com
+        by mail.messagingengine.com (Postfix) with ESMTPA id E25373061188;
+        Thu, 27 Feb 2020 04:20:42 -0500 (EST)
+Subject: FAILED: patch "[PATCH] Btrfs: fix deadlock during fast fsync when logging prealloc" failed to apply to 4.19-stable tree
+To:     fdmanana@suse.com, dsterba@suse.com, josef@toxicpanda.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 27 Feb 2020 10:19:43 +0100
-Message-ID: <158279518373237@kroah.com>
+Date:   Thu, 27 Feb 2020 10:20:41 +0100
+Message-ID: <1582795241193195@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -57,7 +56,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.4-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -68,76 +67,212 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 52e29e331070cd7d52a64cbf1b0958212a340e28 Mon Sep 17 00:00:00 2001
-From: Josef Bacik <josef@toxicpanda.com>
-Date: Fri, 17 Jan 2020 09:02:20 -0500
-Subject: [PATCH] btrfs: don't set path->leave_spinning for truncate
+From a5ae50dea9111db63d30d700766dd5509602f7ad Mon Sep 17 00:00:00 2001
+From: Filipe Manana <fdmanana@suse.com>
+Date: Thu, 20 Feb 2020 13:29:49 +0000
+Subject: [PATCH] Btrfs: fix deadlock during fast fsync when logging prealloc
+ extents beyond eof
 
-The only time we actually leave the path spinning is if we're truncating
-a small amount and don't actually free an extent, which is not a common
-occurrence.  We have to set the path blocking in order to add the
-delayed ref anyway, so the first extent we find we set the path to
-blocking and stay blocking for the duration of the operation.  With the
-upcoming file extent map stuff there will be another case that we have
-to have the path blocking, so just swap to blocking always.
+While logging the prealloc extents of an inode during a fast fsync we call
+btrfs_truncate_inode_items(), through btrfs_log_prealloc_extents(), while
+holding a read lock on a leaf of the inode's root (not the log root, the
+fs/subvol root), and then that function locks the file range in the inode's
+iotree. This can lead to a deadlock when:
 
-Note: this patch also fixes a warning after 28553fa992cb ("Btrfs: fix
-race between shrinking truncate and fiemap") got merged that inserts
-extent locks around truncation so the path must not leave spinning locks
-after btrfs_search_slot.
+* the fsync is ranged
 
-  [70.794783] BUG: sleeping function called from invalid context at mm/slab.h:565
-  [70.794834] in_atomic(): 1, irqs_disabled(): 0, non_block: 0, pid: 1141, name: rsync
-  [70.794863] 5 locks held by rsync/1141:
-  [70.794876]  #0: ffff888417b9c408 (sb_writers#17){.+.+}, at: mnt_want_write+0x20/0x50
-  [70.795030]  #1: ffff888428de28e8 (&type->i_mutex_dir_key#13/1){+.+.}, at: lock_rename+0xf1/0x100
-  [70.795051]  #2: ffff888417b9c608 (sb_internal#2){.+.+}, at: start_transaction+0x394/0x560
-  [70.795124]  #3: ffff888403081768 (btrfs-fs-01){++++}, at: btrfs_try_tree_write_lock+0x2f/0x160
-  [70.795203]  #4: ffff888403086568 (btrfs-fs-00){++++}, at: btrfs_try_tree_write_lock+0x2f/0x160
-  [70.795222] CPU: 5 PID: 1141 Comm: rsync Not tainted 5.6.0-rc2-backup+ #2
-  [70.795362] Call Trace:
-  [70.795374]  dump_stack+0x71/0xa0
-  [70.795445]  ___might_sleep.part.96.cold.106+0xa6/0xb6
-  [70.795459]  kmem_cache_alloc+0x1d3/0x290
-  [70.795471]  alloc_extent_state+0x22/0x1c0
-  [70.795544]  __clear_extent_bit+0x3ba/0x580
-  [70.795557]  ? _raw_spin_unlock_irq+0x24/0x30
-  [70.795569]  btrfs_truncate_inode_items+0x339/0xe50
-  [70.795647]  btrfs_evict_inode+0x269/0x540
-  [70.795659]  ? dput.part.38+0x29/0x460
-  [70.795671]  evict+0xcd/0x190
-  [70.795682]  __dentry_kill+0xd6/0x180
-  [70.795754]  dput.part.38+0x2ad/0x460
-  [70.795765]  do_renameat2+0x3cb/0x540
-  [70.795777]  __x64_sys_rename+0x1c/0x20
+* the file has prealloc extents beyond eof
 
-Reported-by: Dave Jones <davej@codemonkey.org.uk>
-Fixes: 28553fa992cb ("Btrfs: fix race between shrinking truncate and fiemap")
+* writeback for a range different from the fsync range starts
+  during the fsync
+
+* the size of the file is not sector size aligned
+
+Because when finishing an ordered extent we lock first a file range and
+then try to COW the fs/subvol tree to insert an extent item.
+
+The following diagram shows how the deadlock can happen.
+
+           CPU 1                                        CPU 2
+
+  btrfs_sync_file()
+    --> for range [0, 1MiB)
+
+    --> inode has a size of
+        1MiB and has 1 prealloc
+        extent beyond the
+        i_size, starting at offset
+        4MiB
+
+    flushes all delalloc for the
+    range [0MiB, 1MiB) and waits
+    for the respective ordered
+    extents to complete
+
+                                              --> before task at CPU 1 locks the
+                                                  inode, a write into file range
+                                                  [1MiB, 2MiB + 1KiB) is made
+
+                                              --> i_size is updated to 2MiB + 1KiB
+
+                                              --> writeback is started for that
+                                                  range, [1MiB, 2MiB + 4KiB)
+                                                  --> end offset rounded up to
+                                                      be sector size aligned
+
+    btrfs_log_dentry_safe()
+      btrfs_log_inode_parent()
+        btrfs_log_inode()
+
+          btrfs_log_changed_extents()
+            btrfs_log_prealloc_extents()
+              --> does a search on the
+                  inode's root
+              --> holds a read lock on
+                  leaf X
+
+                                              btrfs_finish_ordered_io()
+                                                --> locks range [1MiB, 2MiB + 4KiB)
+                                                    --> end offset rounded up
+                                                        to be sector size aligned
+
+                                                --> tries to cow leaf X, through
+                                                    insert_reserved_file_extent()
+                                                    --> already locked by the
+                                                        task at CPU 1
+
+              btrfs_truncate_inode_items()
+
+                --> gets an i_size of
+                    2MiB + 1KiB, which is
+                    not sector size
+                    aligned
+
+                --> tries to lock file
+                    range [2MiB, (u64)-1)
+                    --> the start range
+                        is rounded down
+                        from 2MiB + 1K
+                        to 2MiB to be sector
+                        size aligned
+
+                    --> but the subrange
+                        [2MiB, 2MiB + 4KiB) is
+                        already locked by
+                        task at CPU 2 which
+                        is waiting to get a
+                        write lock on leaf X
+                        for which we are
+                        holding a read lock
+
+                                *** deadlock ***
+
+This results in a stack trace like the following, triggered by test case
+generic/561 from fstests:
+
+  [ 2779.973608] INFO: task kworker/u8:6:247 blocked for more than 120 seconds.
+  [ 2779.979536]       Not tainted 5.6.0-rc2-btrfs-next-53 #1
+  [ 2779.984503] "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+  [ 2779.990136] kworker/u8:6    D    0   247      2 0x80004000
+  [ 2779.990457] Workqueue: btrfs-endio-write btrfs_work_helper [btrfs]
+  [ 2779.990466] Call Trace:
+  [ 2779.990491]  ? __schedule+0x384/0xa30
+  [ 2779.990521]  schedule+0x33/0xe0
+  [ 2779.990616]  btrfs_tree_read_lock+0x19e/0x2e0 [btrfs]
+  [ 2779.990632]  ? remove_wait_queue+0x60/0x60
+  [ 2779.990730]  btrfs_read_lock_root_node+0x2f/0x40 [btrfs]
+  [ 2779.990782]  btrfs_search_slot+0x510/0x1000 [btrfs]
+  [ 2779.990869]  btrfs_lookup_file_extent+0x4a/0x70 [btrfs]
+  [ 2779.990944]  __btrfs_drop_extents+0x161/0x1060 [btrfs]
+  [ 2779.990987]  ? mark_held_locks+0x6d/0xc0
+  [ 2779.990994]  ? __slab_alloc.isra.49+0x99/0x100
+  [ 2779.991060]  ? insert_reserved_file_extent.constprop.19+0x64/0x300 [btrfs]
+  [ 2779.991145]  insert_reserved_file_extent.constprop.19+0x97/0x300 [btrfs]
+  [ 2779.991222]  ? start_transaction+0xdd/0x5c0 [btrfs]
+  [ 2779.991291]  btrfs_finish_ordered_io+0x4f4/0x840 [btrfs]
+  [ 2779.991405]  btrfs_work_helper+0xaa/0x720 [btrfs]
+  [ 2779.991432]  process_one_work+0x26d/0x6a0
+  [ 2779.991460]  worker_thread+0x4f/0x3e0
+  [ 2779.991481]  ? process_one_work+0x6a0/0x6a0
+  [ 2779.991489]  kthread+0x103/0x140
+  [ 2779.991499]  ? kthread_create_worker_on_cpu+0x70/0x70
+  [ 2779.991515]  ret_from_fork+0x3a/0x50
+  (...)
+  [ 2780.026211] INFO: task fsstress:17375 blocked for more than 120 seconds.
+  [ 2780.027480]       Not tainted 5.6.0-rc2-btrfs-next-53 #1
+  [ 2780.028482] "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+  [ 2780.030035] fsstress        D    0 17375  17373 0x00004000
+  [ 2780.030038] Call Trace:
+  [ 2780.030044]  ? __schedule+0x384/0xa30
+  [ 2780.030052]  schedule+0x33/0xe0
+  [ 2780.030075]  lock_extent_bits+0x20c/0x320 [btrfs]
+  [ 2780.030094]  ? btrfs_truncate_inode_items+0xf4/0x1150 [btrfs]
+  [ 2780.030098]  ? rcu_read_lock_sched_held+0x59/0xa0
+  [ 2780.030102]  ? remove_wait_queue+0x60/0x60
+  [ 2780.030122]  btrfs_truncate_inode_items+0x133/0x1150 [btrfs]
+  [ 2780.030151]  ? btrfs_set_path_blocking+0xb2/0x160 [btrfs]
+  [ 2780.030165]  ? btrfs_search_slot+0x379/0x1000 [btrfs]
+  [ 2780.030195]  btrfs_log_changed_extents.isra.8+0x841/0x93e [btrfs]
+  [ 2780.030202]  ? do_raw_spin_unlock+0x49/0xc0
+  [ 2780.030215]  ? btrfs_get_num_csums+0x10/0x10 [btrfs]
+  [ 2780.030239]  btrfs_log_inode+0xf83/0x1124 [btrfs]
+  [ 2780.030251]  ? __mutex_unlock_slowpath+0x45/0x2a0
+  [ 2780.030275]  btrfs_log_inode_parent+0x2a0/0xe40 [btrfs]
+  [ 2780.030282]  ? dget_parent+0xa1/0x370
+  [ 2780.030309]  btrfs_log_dentry_safe+0x4a/0x70 [btrfs]
+  [ 2780.030329]  btrfs_sync_file+0x3f3/0x490 [btrfs]
+  [ 2780.030339]  do_fsync+0x38/0x60
+  [ 2780.030343]  __x64_sys_fdatasync+0x13/0x20
+  [ 2780.030345]  do_syscall_64+0x5c/0x280
+  [ 2780.030348]  entry_SYSCALL_64_after_hwframe+0x49/0xbe
+  [ 2780.030356] RIP: 0033:0x7f2d80f6d5f0
+  [ 2780.030361] Code: Bad RIP value.
+  [ 2780.030362] RSP: 002b:00007ffdba3c8548 EFLAGS: 00000246 ORIG_RAX: 000000000000004b
+  [ 2780.030364] RAX: ffffffffffffffda RBX: 0000000000000003 RCX: 00007f2d80f6d5f0
+  [ 2780.030365] RDX: 00007ffdba3c84b0 RSI: 00007ffdba3c84b0 RDI: 0000000000000003
+  [ 2780.030367] RBP: 000000000000004a R08: 0000000000000001 R09: 00007ffdba3c855c
+  [ 2780.030368] R10: 0000000000000078 R11: 0000000000000246 R12: 00000000000001f4
+  [ 2780.030369] R13: 0000000051eb851f R14: 00007ffdba3c85f0 R15: 0000557a49220d90
+
+So fix this by making btrfs_truncate_inode_items() not lock the range in
+the inode's iotree when the target root is a log root, since it's not
+needed to lock the range for log roots as the protection from the inode's
+lock and log_mutex are all that's needed.
+
+Fixes: 28553fa992cb28 ("Btrfs: fix race between shrinking truncate and fiemap")
 CC: stable@vger.kernel.org # 4.4+
-Reviewed-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: Josef Bacik <josef@toxicpanda.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-[ add note ]
+Reviewed-by: Josef Bacik <josef@toxicpanda.com>
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 
 diff --git a/fs/btrfs/inode.c b/fs/btrfs/inode.c
-index 7d26b4bfb2c6..36deef69f847 100644
+index 4f47ba652b31..1ccb3f8d528d 100644
 --- a/fs/btrfs/inode.c
 +++ b/fs/btrfs/inode.c
-@@ -4142,7 +4142,6 @@ int btrfs_truncate_inode_items(struct btrfs_trans_handle *trans,
- 		goto out;
+@@ -4103,8 +4103,9 @@ int btrfs_truncate_inode_items(struct btrfs_trans_handle *trans,
+ 		return -ENOMEM;
+ 	path->reada = READA_BACK;
+ 
+-	lock_extent_bits(&BTRFS_I(inode)->io_tree, lock_start, (u64)-1,
+-			 &cached_state);
++	if (root->root_key.objectid != BTRFS_TREE_LOG_OBJECTID)
++		lock_extent_bits(&BTRFS_I(inode)->io_tree, lock_start, (u64)-1,
++				 &cached_state);
+ 
+ 	/*
+ 	 * We want to drop from the next block forward in case this new size is
+@@ -4368,11 +4369,10 @@ int btrfs_truncate_inode_items(struct btrfs_trans_handle *trans,
+ 		if (!ret && last_size > new_size)
+ 			last_size = new_size;
+ 		btrfs_ordered_update_i_size(inode, last_size, NULL);
++		unlock_extent_cached(&BTRFS_I(inode)->io_tree, lock_start,
++				     (u64)-1, &cached_state);
  	}
  
--	path->leave_spinning = 1;
- 	ret = btrfs_search_slot(trans, root, &key, path, -1, 1);
- 	if (ret < 0)
- 		goto out;
-@@ -4294,7 +4293,6 @@ int btrfs_truncate_inode_items(struct btrfs_trans_handle *trans,
- 		     root == fs_info->tree_root)) {
- 			struct btrfs_ref ref = { 0 };
- 
--			btrfs_set_path_blocking(path);
- 			bytes_deleted += extent_num_bytes;
- 
- 			btrfs_init_generic_ref(&ref, BTRFS_DROP_DELAYED_REF,
+-	unlock_extent_cached(&BTRFS_I(inode)->io_tree, lock_start, (u64)-1,
+-			     &cached_state);
+-
+ 	btrfs_free_path(path);
+ 	return ret;
+ }
 
