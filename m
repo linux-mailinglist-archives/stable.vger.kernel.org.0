@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 09D08171B84
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:03:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 49D1E171CB6
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:14:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732923AbgB0ODF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 09:03:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38086 "EHLO mail.kernel.org"
+        id S2388592AbgB0OOe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 09:14:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53856 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733253AbgB0ODD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 09:03:03 -0500
+        id S2388869AbgB0OOe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 09:14:34 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 756B621556;
-        Thu, 27 Feb 2020 14:03:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 54A7224691;
+        Thu, 27 Feb 2020 14:14:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582812182;
-        bh=m2kCbEicXJNKO8R5aEY0xA0V8g/smXFnErYXcPaD4io=;
+        s=default; t=1582812872;
+        bh=3e95qpOathiCpT3fpvMVTpIad5QufYRPW7eLGapIjoY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UCpmA4Oqli+kq2/BBMadIcztGLkNEftWV24FwagbgJ3JKqsHhAVgmJmMfEGqmo0dj
-         6bZGv9C7le70KZKCOFcCyxCvCEThKR7BzQWj5TG+PvZQAhKKr9FBQm2DJTa1Uk+kdI
-         MEUxqCnUxrHYZqZ5VgK4MzUn+PAipq36LROu7JuI=
+        b=Hmfbbg4qW4HKL+KZUIIx1HBNqnN0lvH8mh24UBHI/PnWwMGL9uNax2Y+2vtE3lSee
+         FVNpYCPKH2tepBJoKNxya6pGqwCZK9L6GQdpL6X3uIlCa3BDg9C78iE991HpNXAEm2
+         o87DsqSuKaFnoP1C64jn3qRZRVNH9hXmnV5a3O90=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jann Horn <jannh@google.com>,
-        Suren Baghdasaryan <surenb@google.com>,
-        Todd Kjos <tkjos@google.com>,
-        "Joel Fernandes (Google)" <joel@joelfernandes.org>
-Subject: [PATCH 4.19 17/97] staging: android: ashmem: Disallow ashmem memory from being remapped
+        stable@vger.kernel.org, Pietro Oliva <pietroliva@gmail.com>,
+        Larry Finger <Larry.Finger@lwfinger.net>
+Subject: [PATCH 5.5 048/150] staging: rtl8723bs: Fix potential overuse of kernel memory
 Date:   Thu, 27 Feb 2020 14:36:25 +0100
-Message-Id: <20200227132217.437325823@linuxfoundation.org>
+Message-Id: <20200227132240.134433315@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200227132214.553656188@linuxfoundation.org>
-References: <20200227132214.553656188@linuxfoundation.org>
+In-Reply-To: <20200227132232.815448360@linuxfoundation.org>
+References: <20200227132232.815448360@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,73 +43,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Suren Baghdasaryan <surenb@google.com>
+From: Larry Finger <Larry.Finger@lwfinger.net>
 
-commit 6d67b0290b4b84c477e6a2fc6e005e174d3c7786 upstream.
+commit 23954cb078febfc63a755301fe77e06bccdb4d2a upstream.
 
-When ashmem file is mmapped, the resulting vma->vm_file points to the
-backing shmem file with the generic fops that do not check ashmem
-permissions like fops of ashmem do. If an mremap is done on the ashmem
-region, then the permission checks will be skipped. Fix that by disallowing
-mapping operation on the backing shmem file.
+In routine wpa_supplicant_ioctl(), the user-controlled p->length is
+checked to be at least the size of struct ieee_param size, but the code
+does not detect the case where p->length is greater than the size
+of the struct, thus a malicious user could be wasting kernel memory.
+Fixes commit 554c0a3abf216 ("staging: Add rtl8723bs sdio wifi driver").
 
-Reported-by: Jann Horn <jannh@google.com>
-Signed-off-by: Suren Baghdasaryan <surenb@google.com>
-Cc: stable <stable@vger.kernel.org> # 4.4,4.9,4.14,4.18,5.4
-Signed-off-by: Todd Kjos <tkjos@google.com>
-Reviewed-by: Joel Fernandes (Google) <joel@joelfernandes.org>
-Link: https://lore.kernel.org/r/20200127235616.48920-1-tkjos@google.com
+Reported by: Pietro Oliva <pietroliva@gmail.com>
+Cc: Pietro Oliva <pietroliva@gmail.com>
+Cc: Stable <stable@vger.kernel.org>
+Fixes: 554c0a3abf216 ("staging: Add rtl8723bs sdio wifi driver").
+Signed-off-by: Larry Finger <Larry.Finger@lwfinger.net>
+Link: https://lore.kernel.org/r/20200210180235.21691-5-Larry.Finger@lwfinger.net
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/staging/android/ashmem.c |   28 ++++++++++++++++++++++++++++
- 1 file changed, 28 insertions(+)
+ drivers/staging/rtl8723bs/os_dep/ioctl_linux.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/staging/android/ashmem.c
-+++ b/drivers/staging/android/ashmem.c
-@@ -350,8 +350,23 @@ static inline vm_flags_t calc_vm_may_fla
- 	       _calc_vm_trans(prot, PROT_EXEC,  VM_MAYEXEC);
- }
+--- a/drivers/staging/rtl8723bs/os_dep/ioctl_linux.c
++++ b/drivers/staging/rtl8723bs/os_dep/ioctl_linux.c
+@@ -3373,7 +3373,7 @@ static int wpa_supplicant_ioctl(struct n
  
-+static int ashmem_vmfile_mmap(struct file *file, struct vm_area_struct *vma)
-+{
-+	/* do not allow to mmap ashmem backing shmem file directly */
-+	return -EPERM;
-+}
-+
-+static unsigned long
-+ashmem_vmfile_get_unmapped_area(struct file *file, unsigned long addr,
-+				unsigned long len, unsigned long pgoff,
-+				unsigned long flags)
-+{
-+	return current->mm->get_unmapped_area(file, addr, len, pgoff, flags);
-+}
-+
- static int ashmem_mmap(struct file *file, struct vm_area_struct *vma)
- {
-+	static struct file_operations vmfile_fops;
- 	struct ashmem_area *asma = file->private_data;
- 	int ret = 0;
+ 	/* down(&ieee->wx_sem); */
  
-@@ -392,6 +407,19 @@ static int ashmem_mmap(struct file *file
- 		}
- 		vmfile->f_mode |= FMODE_LSEEK;
- 		asma->file = vmfile;
-+		/*
-+		 * override mmap operation of the vmfile so that it can't be
-+		 * remapped which would lead to creation of a new vma with no
-+		 * asma permission checks. Have to override get_unmapped_area
-+		 * as well to prevent VM_BUG_ON check for f_ops modification.
-+		 */
-+		if (!vmfile_fops.mmap) {
-+			vmfile_fops = *vmfile->f_op;
-+			vmfile_fops.mmap = ashmem_vmfile_mmap;
-+			vmfile_fops.get_unmapped_area =
-+					ashmem_vmfile_get_unmapped_area;
-+		}
-+		vmfile->f_op = &vmfile_fops;
+-	if (p->length < sizeof(struct ieee_param) || !p->pointer) {
++	if (!p->pointer || p->length != sizeof(struct ieee_param)) {
+ 		ret = -EINVAL;
+ 		goto out;
  	}
- 	get_file(asma->file);
- 
 
 
