@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7FDCE17198A
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 14:46:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EFCDB171990
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 14:46:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729652AbgB0Npp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 08:45:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41740 "EHLO mail.kernel.org"
+        id S1729545AbgB0Np6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 08:45:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41992 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730419AbgB0Npp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 08:45:45 -0500
+        id S1729528AbgB0Np4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 08:45:56 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 19BE720726;
-        Thu, 27 Feb 2020 13:45:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A464220578;
+        Thu, 27 Feb 2020 13:45:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582811144;
-        bh=7/ppde6gtQAayolTromL0dUdEI07aG1CC03+goNB0f4=;
+        s=default; t=1582811156;
+        bh=CxAfZQ85yHal5k9+teaGTcPCjoDGV3TJHRuPbXslCXk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=diH7Dz7PqfF5j1iyqr0NKB8PIspCb1PB68o0zoWsUltgI7sKHggofb+qZJ2Sy3pKm
-         /oWZCwuoZOBBvo8dKjdHXzFW5d+6q8vjuXd+jJ9+pWBtxlOjgF6wD6uru9qdc+hESk
-         nHrHOD/sGKNgRzH5+R3cE8uVYrPlgU+b/EWkVMTE=
+        b=MOa6wPjoM4afNdvT2EdfrDPLQY5jOMD0fE5aKaA63CAjSEdfs2rhKqyayNwbyfse8
+         eifxawk3FcuUPFam4II9RTeuud/Mm27WYT6lzhCKJqyavIrran+kuc7Ad/Psklc0ol
+         DtsBaxpsOl8QBaKDMmjrZ6LFeRZFBeoP7SnDro3U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Allen Pais <allen.pais@oracle.com>,
-        Martin Wilck <mwilck@suse.com>,
-        Himanshu Madhani <hmadhani@marvell.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Ajay Kaher <akaher@vmware.com>
-Subject: [PATCH 4.9 020/165] scsi: qla2xxx: fix a potential NULL pointer dereference
-Date:   Thu, 27 Feb 2020 14:34:54 +0100
-Message-Id: <20200227132233.946217851@linuxfoundation.org>
+        stable@vger.kernel.org, "Paul E. McKenney" <paulmck@kernel.org>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Sasha Levin <sashal@kernel.org>, Tejun Heo <tj@kernel.org>
+Subject: [PATCH 4.9 023/165] cpu/hotplug, stop_machine: Fix stop_machine vs hotplug order
+Date:   Thu, 27 Feb 2020 14:34:57 +0100
+Message-Id: <20200227132234.353061220@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200227132230.840899170@linuxfoundation.org>
 References: <20200227132230.840899170@linuxfoundation.org>
@@ -46,76 +44,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Allen Pais <allen.pais@oracle.com>
+From: Peter Zijlstra <peterz@infradead.org>
 
-commit 35a79a63517981a8aea395497c548776347deda8 upstream.
+[ Upstream commit 45178ac0cea853fe0e405bf11e101bdebea57b15 ]
 
-alloc_workqueue is not checked for errors and as a result a potential
-NULL dereference could occur.
+Paul reported a very sporadic, rcutorture induced, workqueue failure.
+When the planets align, the workqueue rescuer's self-migrate fails and
+then triggers a WARN for running a work on the wrong CPU.
 
-Link: https://lore.kernel.org/r/1568824618-4366-1-git-send-email-allen.pais@oracle.com
-Signed-off-by: Allen Pais <allen.pais@oracle.com>
-Reviewed-by: Martin Wilck <mwilck@suse.com>
-Acked-by: Himanshu Madhani <hmadhani@marvell.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-[Ajay: Rewrote this patch for v4.9.y, as 4.9.y codebase is different from mainline]
-Signed-off-by: Ajay Kaher <akaher@vmware.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Tejun then figured that set_cpus_allowed_ptr()'s stop_one_cpu() call
+could be ignored! When stopper->enabled is false, stop_machine will
+insta complete the work, without actually doing the work. Worse, it
+will not WARN about this (we really should fix this).
+
+It turns out there is a small window where a freshly online'ed CPU is
+marked 'online' but doesn't yet have the stopper task running:
+
+	BP				AP
+
+	bringup_cpu()
+	  __cpu_up(cpu, idle)	 -->	start_secondary()
+					...
+					cpu_startup_entry()
+	  bringup_wait_for_ap()
+	    wait_for_ap_thread() <--	  cpuhp_online_idle()
+					  while (1)
+					    do_idle()
+
+					... available to run kthreads ...
+
+	    stop_machine_unpark()
+	      stopper->enable = true;
+
+Close this by moving the stop_machine_unpark() into
+cpuhp_online_idle(), such that the stopper thread is ready before we
+start the idle loop and schedule.
+
+Reported-by: "Paul E. McKenney" <paulmck@kernel.org>
+Debugged-by: Tejun Heo <tj@kernel.org>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Tested-by: "Paul E. McKenney" <paulmck@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qla2xxx/qla_os.c |   19 +++++++++++++------
- 1 file changed, 13 insertions(+), 6 deletions(-)
+ kernel/cpu.c | 13 +++++++++----
+ 1 file changed, 9 insertions(+), 4 deletions(-)
 
---- a/drivers/scsi/qla2xxx/qla_os.c
-+++ b/drivers/scsi/qla2xxx/qla_os.c
-@@ -451,6 +451,12 @@ static int qla25xx_setup_mode(struct scs
- 		goto fail;
- 	}
- 	if (ql2xmultique_tag) {
-+		ha->wq = alloc_workqueue("qla2xxx_wq", WQ_MEM_RECLAIM, 1);
-+		if (unlikely(!ha->wq)) {
-+			ql_log(ql_log_warn, vha, 0x01e0,
-+			    "Failed to alloc workqueue.\n");
-+			goto fail;
-+		}
- 		/* create a request queue for IO */
- 		options |= BIT_7;
- 		req = qla25xx_create_req_que(ha, options, 0, 0, -1,
-@@ -458,9 +464,8 @@ static int qla25xx_setup_mode(struct scs
- 		if (!req) {
- 			ql_log(ql_log_warn, vha, 0x00e0,
- 			    "Failed to create request queue.\n");
--			goto fail;
-+			goto fail2;
- 		}
--		ha->wq = alloc_workqueue("qla2xxx_wq", WQ_MEM_RECLAIM, 1);
- 		vha->req = ha->req_q_map[req];
- 		options |= BIT_1;
- 		for (ques = 1; ques < ha->max_rsp_queues; ques++) {
-@@ -468,7 +473,7 @@ static int qla25xx_setup_mode(struct scs
- 			if (!ret) {
- 				ql_log(ql_log_warn, vha, 0x00e8,
- 				    "Failed to create response queue.\n");
--				goto fail2;
-+				goto fail3;
- 			}
- 		}
- 		ha->flags.cpu_affinity_enabled = 1;
-@@ -482,11 +487,13 @@ static int qla25xx_setup_mode(struct scs
- 		    ha->max_rsp_queues, ha->max_req_queues);
- 	}
- 	return 0;
--fail2:
+diff --git a/kernel/cpu.c b/kernel/cpu.c
+index c2573e858009b..1fbe93fefc1fa 100644
+--- a/kernel/cpu.c
++++ b/kernel/cpu.c
+@@ -515,8 +515,7 @@ static int bringup_wait_for_ap(unsigned int cpu)
+ 	if (WARN_ON_ONCE((!cpu_online(cpu))))
+ 		return -ECANCELED;
+ 
+-	/* Unpark the stopper thread and the hotplug thread of the target cpu */
+-	stop_machine_unpark(cpu);
++	/* Unpark the hotplug thread of the target cpu */
+ 	kthread_unpark(st->thread);
+ 
+ 	/*
+@@ -1115,8 +1114,8 @@ void notify_cpu_starting(unsigned int cpu)
+ 
+ /*
+  * Called from the idle task. Wake up the controlling task which brings the
+- * stopper and the hotplug thread of the upcoming CPU up and then delegates
+- * the rest of the online bringup to the hotplug thread.
++ * hotplug thread of the upcoming CPU up and then delegates the rest of the
++ * online bringup to the hotplug thread.
+  */
+ void cpuhp_online_idle(enum cpuhp_state state)
+ {
+@@ -1126,6 +1125,12 @@ void cpuhp_online_idle(enum cpuhp_state state)
+ 	if (state != CPUHP_AP_ONLINE_IDLE)
+ 		return;
+ 
++	/*
++	 * Unpart the stopper thread before we start the idle loop (and start
++	 * scheduling); this ensures the stopper task is always available.
++	 */
++	stop_machine_unpark(smp_processor_id());
 +
-+fail3:
- 	qla25xx_delete_queues(vha);
--	destroy_workqueue(ha->wq);
--	ha->wq = NULL;
- 	vha->req = ha->req_q_map[0];
-+fail2:
-+        destroy_workqueue(ha->wq);
-+        ha->wq = NULL;
- fail:
- 	ha->mqenable = 0;
- 	kfree(ha->req_q_map);
+ 	st->state = CPUHP_AP_ONLINE_IDLE;
+ 	complete(&st->done);
+ }
+-- 
+2.20.1
+
 
 
