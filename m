@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BDD201720D2
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:45:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 25E62171FD8
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:40:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730976AbgB0OpR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 09:45:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43112 "EHLO mail.kernel.org"
+        id S1731685AbgB0NzC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 08:55:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55240 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730573AbgB0Nqq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 08:46:46 -0500
+        id S1731488AbgB0NzC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 08:55:02 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1D7E62469F;
-        Thu, 27 Feb 2020 13:46:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 179262469D;
+        Thu, 27 Feb 2020 13:55:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582811206;
-        bh=aK/+aFJ9B9J3nmmat7es9bxcZ0UzUzf+c9vF/+cqZ+k=;
+        s=default; t=1582811701;
+        bh=/cgqfmp8nwk5RY90ggAflTwKCmubantpkDVWc3yF89U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Gh4MhBmROwQeXQBcZ0x1qNZLnVHGhsAWtbhhtwfy4JAT8mTYEGYFwov+LhPXfp3qd
-         wrObf4eIB/0nuiPLUP6BlRBVBZsgKkbBFz30TD+JJbB7jclgI9VHQFjdKsgtZxeBJX
-         kzRxBI5chjhHvx6I0xuhVzw/diKBnwZ1ssMPkw38=
+        b=tAlwyptMBKYwB5gqr+U6s6B7f8GkaQGZShVsagr3uvNl8FfQL1mC2GKiXlYSwvaGn
+         djNO2BdT3L+0hjbQJDbZC8+TY0p7Y5EOOylHOrJz8ke4tm7OKTu3dc5On0QS48P+Th
+         pxsdwKgfpMTINF77nx/jWk6Sd7uhedRzrNLm3ruI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arvind Sankar <nivedita@alum.mit.edu>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.9 006/165] ALSA: usb-audio: Apply sample rate quirk for Audioengine D1
-Date:   Thu, 27 Feb 2020 14:34:40 +0100
-Message-Id: <20200227132232.048294039@linuxfoundation.org>
+        stable@vger.kernel.org, Sun Ke <sunke32@huawei.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 067/237] nbd: add a flush_workqueue in nbd_start_device
+Date:   Thu, 27 Feb 2020 14:34:41 +0100
+Message-Id: <20200227132302.000021274@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200227132230.840899170@linuxfoundation.org>
-References: <20200227132230.840899170@linuxfoundation.org>
+In-Reply-To: <20200227132255.285644406@linuxfoundation.org>
+References: <20200227132255.285644406@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,47 +43,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arvind Sankar <nivedita@alum.mit.edu>
+From: Sun Ke <sunke32@huawei.com>
 
-commit 93f9d1a4ac5930654c17412e3911b46ece73755a upstream.
+[ Upstream commit 5c0dd228b5fc30a3b732c7ae2657e0161ec7ed80 ]
 
-The Audioengine D1 (0x2912:0x30c8) does support reading the sample rate,
-but it returns the rate in byte-reversed order.
+When kzalloc fail, may cause trying to destroy the
+workqueue from inside the workqueue.
 
-When setting sampling rate, the driver produces these warning messages:
-[168840.944226] usb 3-2.2: current rate 4500480 is different from the runtime rate 44100
-[168854.930414] usb 3-2.2: current rate 8436480 is different from the runtime rate 48000
-[168905.185825] usb 3-2.1.2: current rate 30465 is different from the runtime rate 96000
+If num_connections is m (2 < m), and NO.1 ~ NO.n
+(1 < n < m) kzalloc are successful. The NO.(n + 1)
+failed. Then, nbd_start_device will return ENOMEM
+to nbd_start_device_ioctl, and nbd_start_device_ioctl
+will return immediately without running flush_workqueue.
+However, we still have n recv threads. If nbd_release
+run first, recv threads may have to drop the last
+config_refs and try to destroy the workqueue from
+inside the workqueue.
 
-As can be seen from the hexadecimal conversion, the current rate read
-back is byte-reversed from the rate that was set.
+To fix it, add a flush_workqueue in nbd_start_device.
 
-44100 == 0x00ac44, 4500480 == 0x44ac00
-48000 == 0x00bb80, 8436480 == 0x80bb00
-96000 == 0x017700,   30465 == 0x007701
-
-Rather than implementing a new quirk to reverse the order, just skip
-checking the rate to avoid spamming the log.
-
-Signed-off-by: Arvind Sankar <nivedita@alum.mit.edu>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200211162235.1639889-1-nivedita@alum.mit.edu
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: e9e006f5fcf2 ("nbd: fix max number of supported devs")
+Signed-off-by: Sun Ke <sunke32@huawei.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/usb/quirks.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/block/nbd.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
---- a/sound/usb/quirks.c
-+++ b/sound/usb/quirks.c
-@@ -1149,6 +1149,7 @@ bool snd_usb_get_sample_rate_quirk(struc
- 	case USB_ID(0x1de7, 0x0014): /* Phoenix Audio TMX320 */
- 	case USB_ID(0x1de7, 0x0114): /* Phoenix Audio MT202pcs */
- 	case USB_ID(0x21B4, 0x0081): /* AudioQuest DragonFly */
-+	case USB_ID(0x2912, 0x30c8): /* Audioengine D1 */
- 		return true;
- 	}
- 	return false;
+diff --git a/drivers/block/nbd.c b/drivers/block/nbd.c
+index 4c661ad91e7d3..8f56e6b2f114f 100644
+--- a/drivers/block/nbd.c
++++ b/drivers/block/nbd.c
+@@ -1203,6 +1203,16 @@ static int nbd_start_device(struct nbd_device *nbd)
+ 		args = kzalloc(sizeof(*args), GFP_KERNEL);
+ 		if (!args) {
+ 			sock_shutdown(nbd);
++			/*
++			 * If num_connections is m (2 < m),
++			 * and NO.1 ~ NO.n(1 < n < m) kzallocs are successful.
++			 * But NO.(n + 1) failed. We still have n recv threads.
++			 * So, add flush_workqueue here to prevent recv threads
++			 * dropping the last config_refs and trying to destroy
++			 * the workqueue from inside the workqueue.
++			 */
++			if (i)
++				flush_workqueue(nbd->recv_workq);
+ 			return -ENOMEM;
+ 		}
+ 		sk_set_memalloc(config->socks[i]->sock->sk);
+-- 
+2.20.1
+
 
 
