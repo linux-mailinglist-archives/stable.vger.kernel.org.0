@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 12AC117190F
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 14:41:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 936FD171AF2
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 14:58:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729634AbgB0Nll (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 08:41:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36366 "EHLO mail.kernel.org"
+        id S1732444AbgB0N6U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 08:58:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59488 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729241AbgB0Nlk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 08:41:40 -0500
+        id S1732438AbgB0N6T (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 08:58:19 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5E8132468D;
-        Thu, 27 Feb 2020 13:41:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7834D2469B;
+        Thu, 27 Feb 2020 13:58:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582810899;
-        bh=KFLe8morr5OPldRMUX/1jy02yKlvv/xH9S69/+pCTcQ=;
+        s=default; t=1582811898;
+        bh=09fWut8wwww9Ma4jgmxIHwcrfTP9ABN6cLUu+7gBQSc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EWuy00kxe7ppakGiRqV/QUGvYKL8RF3PVsJqD9UCNcSeayO305FVwhcR1XH36LWEH
-         cM7tGwYlEKGNR2GACTuDgn+swCdopGN1uS4tOdzFQUR5tVVMHmJfH0wsyp+u+TuHtt
-         YaTxGNNRVF4Psg27aRXNtGaEd18RJA+obADvpbuE=
+        b=09j1tSkfXfsuTvc+OACPxNb8OJqfEyCpK57FUYAdCZ3bepMmiGhf3L6NXwhtF9nrD
+         U2j835sqJZgz8pnEnaMVpDMJkd/0/Iz9g/Kpf+aQYLEuuxdOJa8zpUu7YfWWXiVbz0
+         c1b/1Z1lcGR8jn9q8G2731zvkWC7N3asaxc/5AOM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Larry Finger <Larry.Finger@lwfinger.net>,
-        Phong Tran <tranmanphong@gmail.com>,
-        Kees Cook <keescook@chromium.org>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org, "zhangyi (F)" <yi.zhang@huawei.com>,
+        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 040/113] b43legacy: Fix -Wcast-function-type
-Date:   Thu, 27 Feb 2020 14:35:56 +0100
-Message-Id: <20200227132218.137911169@linuxfoundation.org>
+Subject: [PATCH 4.14 143/237] jbd2: switch to use jbd2_journal_abort() when failed to submit the commit record
+Date:   Thu, 27 Feb 2020 14:35:57 +0100
+Message-Id: <20200227132307.164420108@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200227132211.791484803@linuxfoundation.org>
-References: <20200227132211.791484803@linuxfoundation.org>
+In-Reply-To: <20200227132255.285644406@linuxfoundation.org>
+References: <20200227132255.285644406@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,46 +44,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Phong Tran <tranmanphong@gmail.com>
+From: zhangyi (F) <yi.zhang@huawei.com>
 
-[ Upstream commit 475eec112e4267232d10f4afe2f939a241692b6c ]
+[ Upstream commit d0a186e0d3e7ac05cc77da7c157dae5aa59f95d9 ]
 
-correct usage prototype of callback in tasklet_init().
-Report by https://github.com/KSPP/linux/issues/20
+We invoke jbd2_journal_abort() to abort the journal and record errno
+in the jbd2 superblock when committing journal transaction besides the
+failure on submitting the commit record. But there is no need for the
+case and we can also invoke jbd2_journal_abort() instead of
+__jbd2_journal_abort_hard().
 
-Tested-by: Larry Finger <Larry.Finger@lwfinger.net>
-Signed-off-by: Phong Tran <tranmanphong@gmail.com>
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Fixes: 818d276ceb83a ("ext4: Add the journal checksum feature")
+Signed-off-by: zhangyi (F) <yi.zhang@huawei.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/20191204124614.45424-2-yi.zhang@huawei.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/b43legacy/main.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ fs/jbd2/commit.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/wireless/b43legacy/main.c b/drivers/net/wireless/b43legacy/main.c
-index afc1fb3e38dfe..bd35a702382fb 100644
---- a/drivers/net/wireless/b43legacy/main.c
-+++ b/drivers/net/wireless/b43legacy/main.c
-@@ -1304,8 +1304,9 @@ static void handle_irq_ucode_debug(struct b43legacy_wldev *dev)
- }
+diff --git a/fs/jbd2/commit.c b/fs/jbd2/commit.c
+index cb0da3d4adc04..1a4bd8d9636e8 100644
+--- a/fs/jbd2/commit.c
++++ b/fs/jbd2/commit.c
+@@ -783,7 +783,7 @@ start_journal_io:
+ 		err = journal_submit_commit_record(journal, commit_transaction,
+ 						 &cbh, crc32_sum);
+ 		if (err)
+-			__jbd2_journal_abort_hard(journal);
++			jbd2_journal_abort(journal, err);
+ 	}
  
- /* Interrupt handler bottom-half */
--static void b43legacy_interrupt_tasklet(struct b43legacy_wldev *dev)
-+static void b43legacy_interrupt_tasklet(unsigned long data)
- {
-+	struct b43legacy_wldev *dev = (struct b43legacy_wldev *)data;
- 	u32 reason;
- 	u32 dma_reason[ARRAY_SIZE(dev->dma_reason)];
- 	u32 merged_dma_reason = 0;
-@@ -3775,7 +3776,7 @@ static int b43legacy_one_core_attach(struct ssb_device *dev,
- 	b43legacy_set_status(wldev, B43legacy_STAT_UNINIT);
- 	wldev->bad_frames_preempt = modparam_bad_frames_preempt;
- 	tasklet_init(&wldev->isr_tasklet,
--		     (void (*)(unsigned long))b43legacy_interrupt_tasklet,
-+		     b43legacy_interrupt_tasklet,
- 		     (unsigned long)wldev);
- 	if (modparam_pio)
- 		wldev->__using_pio = true;
+ 	blk_finish_plug(&plug);
+@@ -876,7 +876,7 @@ start_journal_io:
+ 		err = journal_submit_commit_record(journal, commit_transaction,
+ 						&cbh, crc32_sum);
+ 		if (err)
+-			__jbd2_journal_abort_hard(journal);
++			jbd2_journal_abort(journal, err);
+ 	}
+ 	if (cbh)
+ 		err = journal_wait_on_commit_record(journal, cbh);
 -- 
 2.20.1
 
