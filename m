@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D22D51719C8
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 14:48:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 65A41171AE7
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 14:58:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730128AbgB0NsK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 08:48:10 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44804 "EHLO mail.kernel.org"
+        id S1732211AbgB0N54 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 08:57:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58938 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730831AbgB0NsK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 08:48:10 -0500
+        id S1731910AbgB0N5z (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 08:57:55 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BC44521D7E;
-        Thu, 27 Feb 2020 13:48:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 283EA20578;
+        Thu, 27 Feb 2020 13:57:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582811290;
-        bh=dyJB4AbiRs8UTaYPM1R1ihsyd+1yCPfzHhcMjATqpkc=;
+        s=default; t=1582811873;
+        bh=5vOT5Cbvh9GNxrUOd50DskvivDNUfqGcKhlzkAN2f3Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cwhX5lOy+YFXDc7teLrRlRMnfRNVXrTsY9K9JAvpXToF5GnsghbmmE1OnYQqq+rzE
-         /QAoN15eOWnpGs0UWft5c8qjM5DPPisQabZfpGEMD5JonYmPOTU2PmhIg9Ce/u7g4H
-         311z7LDS0YU1qBSt/uvg7bOgD60hmv/PNBDDw9qA=
+        b=TI/03ntGOrrlSww+ugAXP+mvwEVv1q9140Pkj/1IyAev9Omh8qGEiJ232TNbeiLp5
+         rtqtnt/CtNt01SI+s42aTFpfz5xOQLfbvDM8VgM8X4ii2UNTRZQXEJh6Z4emFhIK0t
+         wks5taxMVfNxhk/sl3bEVtdzd3swnEWaAPnYR86s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Chen Zhou <chenzhou10@huawei.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, philip@philip-seeger.de,
+        Josef Bacik <josef@toxicpanda.com>,
+        Anand Jain <anand.jain@oracle.com>,
+        David Sterba <dsterba@suse.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 074/165] ASoC: atmel: fix build error with CONFIG_SND_ATMEL_SOC_DMA=m
+Subject: [PATCH 4.14 134/237] btrfs: device stats, log when stats are zeroed
 Date:   Thu, 27 Feb 2020 14:35:48 +0100
-Message-Id: <20200227132242.227421509@linuxfoundation.org>
+Message-Id: <20200227132306.569636106@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200227132230.840899170@linuxfoundation.org>
-References: <20200227132230.840899170@linuxfoundation.org>
+In-Reply-To: <20200227132255.285644406@linuxfoundation.org>
+References: <20200227132255.285644406@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,41 +46,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen Zhou <chenzhou10@huawei.com>
+From: Anand Jain <anand.jain@oracle.com>
 
-[ Upstream commit 8fea78029f5e6ed734ae1957bef23cfda1af4354 ]
+[ Upstream commit a69976bc69308aa475d0ba3b8b3efd1d013c0460 ]
 
-If CONFIG_SND_ATMEL_SOC_DMA=m, build error:
+We had a report indicating that some read errors aren't reported by the
+device stats in the userland. It is important to have the errors
+reported in the device stat as user land scripts might depend on it to
+take the reasonable corrective actions. But to debug these issue we need
+to be really sure that request to reset the device stat did not come
+from the userland itself. So log an info message when device error reset
+happens.
 
-sound/soc/atmel/atmel_ssc_dai.o: In function `atmel_ssc_set_audio':
-(.text+0x7cd): undefined reference to `atmel_pcm_dma_platform_register'
+For example:
+ BTRFS info (device sdc): device stats zeroed by btrfs(9223)
 
-Function atmel_pcm_dma_platform_register is defined under
-CONFIG SND_ATMEL_SOC_DMA, so select SND_ATMEL_SOC_DMA in
-CONFIG SND_ATMEL_SOC_SSC, same to CONFIG_SND_ATMEL_SOC_PDC.
-
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Chen Zhou <chenzhou10@huawei.com>
-Link: https://lore.kernel.org/r/20200113133242.144550-1-chenzhou10@huawei.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Reported-by: philip@philip-seeger.de
+Link: https://www.spinics.net/lists/linux-btrfs/msg96528.html
+Reviewed-by: Josef Bacik <josef@toxicpanda.com>
+Signed-off-by: Anand Jain <anand.jain@oracle.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/atmel/Kconfig | 2 ++
+ fs/btrfs/volumes.c | 2 ++
  1 file changed, 2 insertions(+)
 
-diff --git a/sound/soc/atmel/Kconfig b/sound/soc/atmel/Kconfig
-index 22aec9a1e9a49..838d03a138ca2 100644
---- a/sound/soc/atmel/Kconfig
-+++ b/sound/soc/atmel/Kconfig
-@@ -25,6 +25,8 @@ config SND_ATMEL_SOC_DMA
- 
- config SND_ATMEL_SOC_SSC_DMA
- 	tristate
-+	select SND_ATMEL_SOC_DMA
-+	select SND_ATMEL_SOC_PDC
- 
- config SND_ATMEL_SOC_SSC
- 	tristate
+diff --git a/fs/btrfs/volumes.c b/fs/btrfs/volumes.c
+index 358e930df4acd..6d34842912e80 100644
+--- a/fs/btrfs/volumes.c
++++ b/fs/btrfs/volumes.c
+@@ -7227,6 +7227,8 @@ int btrfs_get_dev_stats(struct btrfs_fs_info *fs_info,
+ 			else
+ 				btrfs_dev_stat_reset(dev, i);
+ 		}
++		btrfs_info(fs_info, "device stats zeroed by %s (%d)",
++			   current->comm, task_pid_nr(current));
+ 	} else {
+ 		for (i = 0; i < BTRFS_DEV_STAT_VALUES_MAX; i++)
+ 			if (stats->nr_items > i)
 -- 
 2.20.1
 
