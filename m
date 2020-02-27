@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 99464171E34
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:26:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7DE2E171D85
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:21:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388541AbgB0OKa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 09:10:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48686 "EHLO mail.kernel.org"
+        id S2389090AbgB0OVV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 09:21:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57332 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388302AbgB0OKa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 09:10:30 -0500
+        id S2389631AbgB0ORC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 09:17:02 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3019120714;
-        Thu, 27 Feb 2020 14:10:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 45B352468F;
+        Thu, 27 Feb 2020 14:17:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582812629;
-        bh=jmPtdgeeqMMt7a7698ToRbbA8kl/TlVulUpJZ7oGaa0=;
+        s=default; t=1582813021;
+        bh=4i914oy72634ngbPTasVtJ9HokkeB25gdGfM/Zoz6Oo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xgvyFQmM3lWHswnkfBtlpIZPPmqAsmu5zob/f8rr+gLC/2T93aHncK6IC5Kd1efGH
-         1imBq0PScaJsqc6sNkXF95MDI6hW9GhVhWGlkPajFOimVrmZ3emZxJvfxJDOeDtsNe
-         96VerU63tF8DrLtcTJ4EJpDU1DrHJv33Y//+zz3E=
+        b=hW2EYL637uSftS7gaoeLygNik62A8qP7oCo5POnYJbmJ6DbK5tOyw05yb+HkAohfO
+         ysGkuCACCKNNgkQS1HON4rkTun/Lz2spal+3T01fzXw4pOoR5xuxAkPjsyU8xNlmmA
+         FANqNEexIJtLWvQ6wGJ6ABwi6gz07PtKQ9FzsTtk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sagi Grimberg <sagi@grimberg.me>,
-        Christoph Hellwig <hch@lst.de>,
-        Logan Gunthorpe <logang@deltatee.com>,
-        Keith Busch <kbusch@kernel.org>
-Subject: [PATCH 5.4 064/135] nvme-multipath: Fix memory leak with ana_log_buf
+        stable@vger.kernel.org, satya priya <skakit@codeaurora.org>
+Subject: [PATCH 5.5 067/150] tty: serial: qcom_geni_serial: Fix RX cancel command failure
 Date:   Thu, 27 Feb 2020 14:36:44 +0100
-Message-Id: <20200227132238.788230946@linuxfoundation.org>
+Message-Id: <20200227132242.865884014@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200227132228.710492098@linuxfoundation.org>
-References: <20200227132228.710492098@linuxfoundation.org>
+In-Reply-To: <20200227132232.815448360@linuxfoundation.org>
+References: <20200227132232.815448360@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,66 +42,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Logan Gunthorpe <logang@deltatee.com>
+From: satya priya <skakit@codeaurora.org>
 
-commit 3b7830904e17202524bad1974505a9bfc718d31f upstream.
+commit 679aac5ead2f18d223554a52b543e1195e181811 upstream.
 
-kmemleak reports a memory leak with the ana_log_buf allocated by
-nvme_mpath_init():
+RX cancel command fails when BT is switched on and off multiple times.
 
-unreferenced object 0xffff888120e94000 (size 8208):
-  comm "nvme", pid 6884, jiffies 4295020435 (age 78786.312s)
-    hex dump (first 32 bytes):
-      00 00 00 00 00 00 00 00 01 00 00 00 00 00 00 00  ................
-      01 00 00 00 01 00 00 00 00 00 00 00 00 00 00 00  ................
-    backtrace:
-      [<00000000e2360188>] kmalloc_order+0x97/0xc0
-      [<0000000079b18dd4>] kmalloc_order_trace+0x24/0x100
-      [<00000000f50c0406>] __kmalloc+0x24c/0x2d0
-      [<00000000f31a10b9>] nvme_mpath_init+0x23c/0x2b0
-      [<000000005802589e>] nvme_init_identify+0x75f/0x1600
-      [<0000000058ef911b>] nvme_loop_configure_admin_queue+0x26d/0x280
-      [<00000000673774b9>] nvme_loop_create_ctrl+0x2a7/0x710
-      [<00000000f1c7a233>] nvmf_dev_write+0xc66/0x10b9
-      [<000000004199f8d0>] __vfs_write+0x50/0xa0
-      [<0000000065466fef>] vfs_write+0xf3/0x280
-      [<00000000b0db9a8b>] ksys_write+0xc6/0x160
-      [<0000000082156b91>] __x64_sys_write+0x43/0x50
-      [<00000000c34fbb6d>] do_syscall_64+0x77/0x2f0
-      [<00000000bbc574c9>] entry_SYSCALL_64_after_hwframe+0x49/0xbe
+To handle this, poll for the cancel bit in SE_GENI_S_IRQ_STATUS register
+instead of SE_GENI_S_CMD_CTRL_REG.
 
-nvme_mpath_init() is called by nvme_init_identify() which is called in
-multiple places (nvme_reset_work(), nvme_passthru_end(), etc). This
-means nvme_mpath_init() may be called multiple times before
-nvme_mpath_uninit() (which is only called on nvme_free_ctrl()).
+As per the HPG update, handle the RX last bit after cancel command
+and flush out the RX FIFO buffer.
 
-When nvme_mpath_init() is called multiple times, it overwrites the
-ana_log_buf pointer with a new allocation, thus leaking the previous
-allocation.
-
-To fix this, free ana_log_buf before allocating a new one.
-
-Fixes: 0d0b660f214dc490 ("nvme: add ANA support")
-Cc: <stable@vger.kernel.org>
-Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
-Signed-off-by: Keith Busch <kbusch@kernel.org>
+Signed-off-by: satya priya <skakit@codeaurora.org>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/1581415982-8793-1-git-send-email-skakit@codeaurora.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/nvme/host/multipath.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/tty/serial/qcom_geni_serial.c |   18 ++++++++++++++----
+ 1 file changed, 14 insertions(+), 4 deletions(-)
 
---- a/drivers/nvme/host/multipath.c
-+++ b/drivers/nvme/host/multipath.c
-@@ -711,6 +711,7 @@ int nvme_mpath_init(struct nvme_ctrl *ct
- 	}
+--- a/drivers/tty/serial/qcom_geni_serial.c
++++ b/drivers/tty/serial/qcom_geni_serial.c
+@@ -128,6 +128,7 @@ static int handle_rx_console(struct uart
+ static int handle_rx_uart(struct uart_port *uport, u32 bytes, bool drop);
+ static unsigned int qcom_geni_serial_tx_empty(struct uart_port *port);
+ static void qcom_geni_serial_stop_rx(struct uart_port *uport);
++static void qcom_geni_serial_handle_rx(struct uart_port *uport, bool drop);
  
- 	INIT_WORK(&ctrl->ana_work, nvme_ana_work);
-+	kfree(ctrl->ana_log_buf);
- 	ctrl->ana_log_buf = kmalloc(ctrl->ana_log_size, GFP_KERNEL);
- 	if (!ctrl->ana_log_buf) {
- 		error = -ENOMEM;
+ static const unsigned long root_freq[] = {7372800, 14745600, 19200000, 29491200,
+ 					32000000, 48000000, 64000000, 80000000,
+@@ -618,7 +619,7 @@ static void qcom_geni_serial_stop_rx(str
+ 	u32 irq_en;
+ 	u32 status;
+ 	struct qcom_geni_serial_port *port = to_dev_port(uport, uport);
+-	u32 irq_clear = S_CMD_DONE_EN;
++	u32 s_irq_status;
+ 
+ 	irq_en = readl(uport->membase + SE_GENI_S_IRQ_EN);
+ 	irq_en &= ~(S_RX_FIFO_WATERMARK_EN | S_RX_FIFO_LAST_EN);
+@@ -634,10 +635,19 @@ static void qcom_geni_serial_stop_rx(str
+ 		return;
+ 
+ 	geni_se_cancel_s_cmd(&port->se);
+-	qcom_geni_serial_poll_bit(uport, SE_GENI_S_CMD_CTRL_REG,
+-					S_GENI_CMD_CANCEL, false);
++	qcom_geni_serial_poll_bit(uport, SE_GENI_S_IRQ_STATUS,
++					S_CMD_CANCEL_EN, true);
++	/*
++	 * If timeout occurs secondary engine remains active
++	 * and Abort sequence is executed.
++	 */
++	s_irq_status = readl(uport->membase + SE_GENI_S_IRQ_STATUS);
++	/* Flush the Rx buffer */
++	if (s_irq_status & S_RX_FIFO_LAST_EN)
++		qcom_geni_serial_handle_rx(uport, true);
++	writel(s_irq_status, uport->membase + SE_GENI_S_IRQ_CLEAR);
++
+ 	status = readl(uport->membase + SE_GENI_STATUS);
+-	writel(irq_clear, uport->membase + SE_GENI_S_IRQ_CLEAR);
+ 	if (status & S_GENI_CMD_ACTIVE)
+ 		qcom_geni_serial_abort_rx(uport);
+ }
 
 
