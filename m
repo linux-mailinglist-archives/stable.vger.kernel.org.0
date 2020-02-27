@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D783C172085
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:43:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BF551171F07
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:32:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729548AbgB0Oni (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 09:43:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46654 "EHLO mail.kernel.org"
+        id S1733194AbgB0OCq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 09:02:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37540 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730349AbgB0NtU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 08:49:20 -0500
+        id S1733188AbgB0OCp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 09:02:45 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4221E20578;
-        Thu, 27 Feb 2020 13:49:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1D08221556;
+        Thu, 27 Feb 2020 14:02:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582811359;
-        bh=f3FB7IBIjO231L3q8BcFPZb+tImF0hnLMlwnUYFEUMk=;
+        s=default; t=1582812164;
+        bh=SE3ZIrQ6TFTBLuugNMM70YTNIDDZ0MjWbN4LcPCJ7as=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2eyIZ5uzt4BQXc24aHv+y0NnZarnpjm6gRYx/O4gfCKhDf+ChUftn0oCY9TkRL8bq
-         qkwC+snV3oiL86zAWU8zl0EdPoVqZHq5Gd64mOt5uny3fMiYbbuZQN6H/VtYb55IeA
-         AzsXxCdjwWd67KOQnuMZkww9i86nf1AhTJk6METU=
+        b=ZQt+T61Di2m6TGEgv6i1KtDwzEqSeBXirWao3BG3kHYp1ZfD/p3w4ksuZ5D2d9hgj
+         Iz+OkQa5N11+1AS6fGQB+cF7C9OvWPAZi0mhnJfVGRutjplzXSqSWbYbuAf09ICBPk
+         UVi/p1A3reiEOR6fw4D3K8mceKwXyIYRErlPn1Ww=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vasily Averin <vvs@virtuozzo.com>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 103/165] ftrace: fpid_next() should increase position index
-Date:   Thu, 27 Feb 2020 14:36:17 +0100
-Message-Id: <20200227132246.178585643@linuxfoundation.org>
+        stable@vger.kernel.org, Christoph Jung <jung@codemercs.com>
+Subject: [PATCH 4.19 10/97] USB: misc: iowarrior: add support for the 28 and 28L devices
+Date:   Thu, 27 Feb 2020 14:36:18 +0100
+Message-Id: <20200227132216.257444795@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200227132230.840899170@linuxfoundation.org>
-References: <20200227132230.840899170@linuxfoundation.org>
+In-Reply-To: <20200227132214.553656188@linuxfoundation.org>
+References: <20200227132214.553656188@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,63 +42,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasily Averin <vvs@virtuozzo.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-[ Upstream commit e4075e8bdffd93a9b6d6e1d52fabedceeca5a91b ]
+commit 5f6f8da2d7b5a431d3f391d0d73ace8edfb42af7 upstream.
 
-if seq_file .next fuction does not change position index,
-read after some lseek can generate unexpected output.
+Add new device ids for the 28 and 28L devices.  These have 4 interfaces
+instead of 2, but the driver binds the same, so the driver changes are
+minimal.
 
-Without patch:
- # dd bs=4 skip=1 if=/sys/kernel/tracing/set_ftrace_pid
- dd: /sys/kernel/tracing/set_ftrace_pid: cannot skip to specified offset
- id
- no pid
- 2+1 records in
- 2+1 records out
- 10 bytes copied, 0.000213285 s, 46.9 kB/s
+Cc: Christoph Jung <jung@codemercs.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200212040422.2991-2-gregkh@linuxfoundation.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Notice the "id" followed by "no pid".
-
-With the patch:
- # dd bs=4 skip=1 if=/sys/kernel/tracing/set_ftrace_pid
- dd: /sys/kernel/tracing/set_ftrace_pid: cannot skip to specified offset
- id
- 0+1 records in
- 0+1 records out
- 3 bytes copied, 0.000202112 s, 14.8 kB/s
-
-Notice that it only prints "id" and not the "no pid" afterward.
-
-Link: http://lkml.kernel.org/r/4f87c6ad-f114-30bb-8506-c32274ce2992@virtuozzo.com
-
-https://bugzilla.kernel.org/show_bug.cgi?id=206283
-Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/trace/ftrace.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/usb/misc/iowarrior.c |   15 +++++++++++++--
+ 1 file changed, 13 insertions(+), 2 deletions(-)
 
-diff --git a/kernel/trace/ftrace.c b/kernel/trace/ftrace.c
-index 71a40e5c3a9f0..2ae98f8bce81b 100644
---- a/kernel/trace/ftrace.c
-+++ b/kernel/trace/ftrace.c
-@@ -5455,9 +5455,10 @@ static void *fpid_next(struct seq_file *m, void *v, loff_t *pos)
- 	struct trace_array *tr = m->private;
- 	struct trace_pid_list *pid_list = rcu_dereference_sched(tr->function_pids);
+--- a/drivers/usb/misc/iowarrior.c
++++ b/drivers/usb/misc/iowarrior.c
+@@ -33,6 +33,9 @@
+ #define USB_DEVICE_ID_CODEMERCS_IOWPV2	0x1512
+ /* full speed iowarrior */
+ #define USB_DEVICE_ID_CODEMERCS_IOW56	0x1503
++/* fuller speed iowarrior */
++#define USB_DEVICE_ID_CODEMERCS_IOW28	0x1504
++#define USB_DEVICE_ID_CODEMERCS_IOW28L	0x1505
  
--	if (v == FTRACE_NO_PIDS)
-+	if (v == FTRACE_NO_PIDS) {
-+		(*pos)++;
- 		return NULL;
--
-+	}
- 	return trace_pid_next(pid_list, v, pos);
- }
+ /* OEMed devices */
+ #define USB_DEVICE_ID_CODEMERCS_IOW24SAG	0x158a
+@@ -143,6 +146,8 @@ static const struct usb_device_id iowarr
+ 	{USB_DEVICE(USB_VENDOR_ID_CODEMERCS, USB_DEVICE_ID_CODEMERCS_IOW56)},
+ 	{USB_DEVICE(USB_VENDOR_ID_CODEMERCS, USB_DEVICE_ID_CODEMERCS_IOW24SAG)},
+ 	{USB_DEVICE(USB_VENDOR_ID_CODEMERCS, USB_DEVICE_ID_CODEMERCS_IOW56AM)},
++	{USB_DEVICE(USB_VENDOR_ID_CODEMERCS, USB_DEVICE_ID_CODEMERCS_IOW28)},
++	{USB_DEVICE(USB_VENDOR_ID_CODEMERCS, USB_DEVICE_ID_CODEMERCS_IOW28L)},
+ 	{}			/* Terminating entry */
+ };
+ MODULE_DEVICE_TABLE(usb, iowarrior_ids);
+@@ -383,6 +388,8 @@ static ssize_t iowarrior_write(struct fi
+ 		break;
+ 	case USB_DEVICE_ID_CODEMERCS_IOW56:
+ 	case USB_DEVICE_ID_CODEMERCS_IOW56AM:
++	case USB_DEVICE_ID_CODEMERCS_IOW28:
++	case USB_DEVICE_ID_CODEMERCS_IOW28L:
+ 		/* The IOW56 uses asynchronous IO and more urbs */
+ 		if (atomic_read(&dev->write_busy) == MAX_WRITES_IN_FLIGHT) {
+ 			/* Wait until we are below the limit for submitted urbs */
+@@ -792,7 +799,9 @@ static int iowarrior_probe(struct usb_in
+ 	}
  
--- 
-2.20.1
-
+ 	if ((dev->product_id == USB_DEVICE_ID_CODEMERCS_IOW56) ||
+-	    (dev->product_id == USB_DEVICE_ID_CODEMERCS_IOW56AM)) {
++	    (dev->product_id == USB_DEVICE_ID_CODEMERCS_IOW56AM) ||
++	    (dev->product_id == USB_DEVICE_ID_CODEMERCS_IOW28) ||
++	    (dev->product_id == USB_DEVICE_ID_CODEMERCS_IOW28L)) {
+ 		res = usb_find_last_int_out_endpoint(iface_desc,
+ 				&dev->int_out_endpoint);
+ 		if (res) {
+@@ -806,7 +815,9 @@ static int iowarrior_probe(struct usb_in
+ 	dev->report_size = usb_endpoint_maxp(dev->int_in_endpoint);
+ 	if ((dev->interface->cur_altsetting->desc.bInterfaceNumber == 0) &&
+ 	    ((dev->product_id == USB_DEVICE_ID_CODEMERCS_IOW56) ||
+-	     (dev->product_id == USB_DEVICE_ID_CODEMERCS_IOW56AM)))
++	     (dev->product_id == USB_DEVICE_ID_CODEMERCS_IOW56AM) ||
++	     (dev->product_id == USB_DEVICE_ID_CODEMERCS_IOW28) ||
++	     (dev->product_id == USB_DEVICE_ID_CODEMERCS_IOW28L)))
+ 		/* IOWarrior56 has wMaxPacketSize different from report size */
+ 		dev->report_size = 7;
+ 
 
 
