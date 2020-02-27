@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 05AEE171E71
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:28:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C6CF8171DDD
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:23:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388177AbgB0OIC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 09:08:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45642 "EHLO mail.kernel.org"
+        id S2389060AbgB0OOC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 09:14:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53082 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387787AbgB0OIA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 09:08:00 -0500
+        id S2389056AbgB0OOB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 09:14:01 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 60E7521D7E;
-        Thu, 27 Feb 2020 14:07:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 80D9220801;
+        Thu, 27 Feb 2020 14:14:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582812479;
-        bh=RypRGmCPXhCJfp6qrYOlZPi7TCGuoDNfunyBhUdEIxc=;
+        s=default; t=1582812841;
+        bh=PdxD+UsOCm92zdrHfwVzToyI5Itmc/7U/eA+Aed9TJE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WhCltI3bqpiJljPo+eKiFjGHh8bpiKcIXZ+FxVjmNlDHVVhAIHqptm3mfY38qYRrY
-         PSiKmoJRT4ohmTZn296a576J3de8qI3cYzsdJSSZvPL0cTiw1wXcCzQp2AK2lweQXG
-         +IrGfqpBcaRa3E7vZXbJDpgjrNcT0Q8grM8I2+2g=
+        b=SUTSps8KEvndpazxbjdyuHNCjc0TdvKHhC8wRWwgD7rp+NmcdNF4rhefHFfXhixKL
+         S0xjR0asFNhfxher4Fz87WkkwKiIHA2TkvQJOGUXL11b7v2VqHylRZh94xbXpUaL8q
+         Y/N8rbLA4HINQ9PHstnbHnNb1n7cf+EX6gINS+8o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Minas Harutyunyan <hminas@synopsys.com>,
-        Jack Mitchell <ml@embed.me.uk>, Felipe Balbi <balbi@kernel.org>
-Subject: [PATCH 5.4 034/135] usb: dwc2: Fix SET/CLEAR_FEATURE and GET_STATUS flows
+        stable@vger.kernel.org, EJ Hsu <ejh@nvidia.com>,
+        Oliver Neukum <oneukum@suse.com>
+Subject: [PATCH 5.5 037/150] usb: uas: fix a plug & unplug racing
 Date:   Thu, 27 Feb 2020 14:36:14 +0100
-Message-Id: <20200227132234.138725629@linuxfoundation.org>
+Message-Id: <20200227132238.261820299@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200227132228.710492098@linuxfoundation.org>
-References: <20200227132228.710492098@linuxfoundation.org>
+In-Reply-To: <20200227132232.815448360@linuxfoundation.org>
+References: <20200227132232.815448360@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,88 +43,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>
+From: EJ Hsu <ejh@nvidia.com>
 
-commit 9a0d6f7c0a83844baae1d6d85482863d2bf3b7a7 upstream.
+commit 3e99862c05a9caa5a27969f41566b428696f5a9a upstream.
 
-SET/CLEAR_FEATURE for Remote Wakeup allowance not handled correctly.
-GET_STATUS handling provided not correct data on DATA Stage.
-Issue seen when gadget's dr_mode set to "otg" mode and connected
-to MacOS.
-Both are fixed and tested using USBCV Ch.9 tests.
+When a uas disk is plugged into an external hub, uas_probe()
+will be called by the hub thread to do the probe. It will
+first create a SCSI host and then do the scan for this host.
+During the scan, it will probe the LUN using SCSI INQUERY command
+which will be packed in the URB and submitted to uas disk.
 
-Signed-off-by: Minas Harutyunyan <hminas@synopsys.com>
-Fixes: fa389a6d7726 ("usb: dwc2: gadget: Add remote_wakeup_allowed flag")
-Tested-by: Jack Mitchell <ml@embed.me.uk>
-Cc: stable@vger.kernel.org
-Signed-off-by: Felipe Balbi <balbi@kernel.org>
+There might be a chance that this external hub with uas disk
+attached is unplugged during the scan. In this case, uas driver
+will fail to submit the URB (due to the NOTATTACHED state of uas
+device) and try to put this SCSI command back to request queue
+waiting for next chance to run.
+
+In normal case, this cycle will terminate when hub thread gets
+disconnection event and calls into uas_disconnect() accordingly.
+But in this case, uas_disconnect() will not be called because
+hub thread of external hub gets stuck waiting for the completion
+of this SCSI command. A deadlock happened.
+
+In this fix, uas will call scsi_scan_host() asynchronously to
+avoid the blocking of hub thread.
+
+Signed-off-by: EJ Hsu <ejh@nvidia.com>
+Acked-by: Oliver Neukum <oneukum@suse.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200130092506.102760-1-ejh@nvidia.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/dwc2/gadget.c |   28 ++++++++++++++++------------
- 1 file changed, 16 insertions(+), 12 deletions(-)
+ drivers/usb/storage/uas.c |   23 ++++++++++++++++++++++-
+ 1 file changed, 22 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/dwc2/gadget.c
-+++ b/drivers/usb/dwc2/gadget.c
-@@ -1632,6 +1632,7 @@ static int dwc2_hsotg_process_req_status
- 	struct dwc2_hsotg_ep *ep0 = hsotg->eps_out[0];
- 	struct dwc2_hsotg_ep *ep;
- 	__le16 reply;
-+	u16 status;
- 	int ret;
+--- a/drivers/usb/storage/uas.c
++++ b/drivers/usb/storage/uas.c
+@@ -45,6 +45,7 @@ struct uas_dev_info {
+ 	struct scsi_cmnd *cmnd[MAX_CMNDS];
+ 	spinlock_t lock;
+ 	struct work_struct work;
++	struct work_struct scan_work;      /* for async scanning */
+ };
  
- 	dev_dbg(hsotg->dev, "%s: USB_REQ_GET_STATUS\n", __func__);
-@@ -1643,11 +1644,10 @@ static int dwc2_hsotg_process_req_status
+ enum {
+@@ -114,6 +115,17 @@ out:
+ 	spin_unlock_irqrestore(&devinfo->lock, flags);
+ }
  
- 	switch (ctrl->bRequestType & USB_RECIP_MASK) {
- 	case USB_RECIP_DEVICE:
--		/*
--		 * bit 0 => self powered
--		 * bit 1 => remote wakeup
--		 */
--		reply = cpu_to_le16(0);
-+		status = 1 << USB_DEVICE_SELF_POWERED;
-+		status |= hsotg->remote_wakeup_allowed <<
-+			  USB_DEVICE_REMOTE_WAKEUP;
-+		reply = cpu_to_le16(status);
- 		break;
- 
- 	case USB_RECIP_INTERFACE:
-@@ -1758,7 +1758,10 @@ static int dwc2_hsotg_process_req_featur
- 	case USB_RECIP_DEVICE:
- 		switch (wValue) {
- 		case USB_DEVICE_REMOTE_WAKEUP:
--			hsotg->remote_wakeup_allowed = 1;
-+			if (set)
-+				hsotg->remote_wakeup_allowed = 1;
-+			else
-+				hsotg->remote_wakeup_allowed = 0;
- 			break;
- 
- 		case USB_DEVICE_TEST_MODE:
-@@ -1768,16 +1771,17 @@ static int dwc2_hsotg_process_req_featur
- 				return -EINVAL;
- 
- 			hsotg->test_mode = wIndex >> 8;
--			ret = dwc2_hsotg_send_reply(hsotg, ep0, NULL, 0);
--			if (ret) {
--				dev_err(hsotg->dev,
--					"%s: failed to send reply\n", __func__);
--				return ret;
--			}
- 			break;
- 		default:
- 			return -ENOENT;
- 		}
++static void uas_scan_work(struct work_struct *work)
++{
++	struct uas_dev_info *devinfo =
++		container_of(work, struct uas_dev_info, scan_work);
++	struct Scsi_Host *shost = usb_get_intfdata(devinfo->intf);
 +
-+		ret = dwc2_hsotg_send_reply(hsotg, ep0, NULL, 0);
-+		if (ret) {
-+			dev_err(hsotg->dev,
-+				"%s: failed to send reply\n", __func__);
-+			return ret;
-+		}
- 		break;
++	dev_dbg(&devinfo->intf->dev, "starting scan\n");
++	scsi_scan_host(shost);
++	dev_dbg(&devinfo->intf->dev, "scan complete\n");
++}
++
+ static void uas_add_work(struct uas_cmd_info *cmdinfo)
+ {
+ 	struct scsi_pointer *scp = (void *)cmdinfo;
+@@ -982,6 +994,7 @@ static int uas_probe(struct usb_interfac
+ 	init_usb_anchor(&devinfo->data_urbs);
+ 	spin_lock_init(&devinfo->lock);
+ 	INIT_WORK(&devinfo->work, uas_do_work);
++	INIT_WORK(&devinfo->scan_work, uas_scan_work);
  
- 	case USB_RECIP_ENDPOINT:
+ 	result = uas_configure_endpoints(devinfo);
+ 	if (result)
+@@ -998,7 +1011,9 @@ static int uas_probe(struct usb_interfac
+ 	if (result)
+ 		goto free_streams;
+ 
+-	scsi_scan_host(shost);
++	/* Submit the delayed_work for SCSI-device scanning */
++	schedule_work(&devinfo->scan_work);
++
+ 	return result;
+ 
+ free_streams:
+@@ -1166,6 +1181,12 @@ static void uas_disconnect(struct usb_in
+ 	usb_kill_anchored_urbs(&devinfo->data_urbs);
+ 	uas_zap_pending(devinfo, DID_NO_CONNECT);
+ 
++	/*
++	 * Prevent SCSI scanning (if it hasn't started yet)
++	 * or wait for the SCSI-scanning routine to stop.
++	 */
++	cancel_work_sync(&devinfo->scan_work);
++
+ 	scsi_remove_host(shost);
+ 	uas_free_streams(devinfo);
+ 	scsi_host_put(shost);
 
 
