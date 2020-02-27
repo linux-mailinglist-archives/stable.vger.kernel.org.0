@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D3160171A70
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 14:53:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D3222171A9D
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 14:55:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731322AbgB0Nxn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 08:53:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53574 "EHLO mail.kernel.org"
+        id S1729584AbgB0Nz0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 08:55:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55700 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730589AbgB0Nxm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 08:53:42 -0500
+        id S1731961AbgB0NzZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 08:55:25 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6E9B82084E;
-        Thu, 27 Feb 2020 13:53:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1C4E92084E;
+        Thu, 27 Feb 2020 13:55:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582811621;
-        bh=AQXNCwSq4Z50V5yHlLV51EKDB3lSCNe9jOBAJff5fh4=;
+        s=default; t=1582811725;
+        bh=fM24r4pYPze+XKPLBjPB+T+9mHrOuFpi11CAonpsT/4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dvNnlx3MSoyknP9UyAxda5QBrYkoQ3zVobmz+A+xyOd4vVk0F+/G1TygBwi0hga9+
-         2QVDfdqgsVX90N5GdiGLV8oS11lFJsKogQ3oMigEofquLdjA1EJmVjHAvfM5YYf7/c
-         891XBFOOY5ZODR1oRVlgUytHD+LEWAWikr7EOZXg=
+        b=I6tq1iqWg63BQAZKhpXu89f5n8n3YPgVw0dwPWvWkfd/n8/b4GrVY4IdYFKRHR4qE
+         TBWJy40+I0qpOFStnCs0jluEGnRIqxoyXNR/uJTDBFsjWOhisLeGPv/RAsygU9S46c
+         h7x8dmultwFQNStLPBcgos0wy9kMjVUNac81sThA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nick Desaulniers <ndesaulniers@google.com>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Vasily Gorbik <gor@linux.ibm.com>
-Subject: [PATCH 4.14 030/237] s390/time: Fix clk type in get_tod_clock
-Date:   Thu, 27 Feb 2020 14:34:04 +0100
-Message-Id: <20200227132258.786516802@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Sean Christopherson <sean.j.christopherson@intel.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 038/237] KVM: nVMX: Use correct root level for nested EPT shadow page tables - again
+Date:   Thu, 27 Feb 2020 14:34:12 +0100
+Message-Id: <20200227132259.536427431@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200227132255.285644406@linuxfoundation.org>
 References: <20200227132255.285644406@linuxfoundation.org>
@@ -44,54 +45,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <natechancellor@gmail.com>
+From: Sean Christopherson <sean.j.christopherson@intel.com>
 
-commit 0f8a206df7c920150d2aa45574fba0ab7ff6be4f upstream.
+[ Upstream commit 148d735eb55d32848c3379e460ce365f2c1cbe4b ]
 
-Clang warns:
+Hardcode the EPT page-walk level for L2 to be 4 levels, as KVM's MMU
+currently also hardcodes the page walk level for nested EPT to be 4
+levels.  The L2 guest is all but guaranteed to soft hang on its first
+instruction when L1 is using EPT, as KVM will construct 4-level page
+tables and then tell hardware to use 5-level page tables.
 
-In file included from ../arch/s390/boot/startup.c:3:
-In file included from ../include/linux/elf.h:5:
-In file included from ../arch/s390/include/asm/elf.h:132:
-In file included from ../include/linux/compat.h:10:
-In file included from ../include/linux/time.h:74:
-In file included from ../include/linux/time32.h:13:
-In file included from ../include/linux/timex.h:65:
-../arch/s390/include/asm/timex.h:160:20: warning: passing 'unsigned char
-[16]' to parameter of type 'char *' converts between pointers to integer
-types with different sign [-Wpointer-sign]
-        get_tod_clock_ext(clk);
-                          ^~~
-../arch/s390/include/asm/timex.h:149:44: note: passing argument to
-parameter 'clk' here
-static inline void get_tod_clock_ext(char *clk)
-                                           ^
-
-Change clk's type to just be char so that it matches what happens in
-get_tod_clock_ext.
-
-Fixes: 57b28f66316d ("[S390] s390_hypfs: Add new attributes")
-Link: https://github.com/ClangBuiltLinux/linux/issues/861
-Link: http://lkml.kernel.org/r/20200208140858.47970-1-natechancellor@gmail.com
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 855feb673640 ("KVM: MMU: Add 5 level EPT & Shadow page table support.")
+Cc: stable@vger.kernel.org
+Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/include/asm/timex.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/kvm/vmx.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/arch/s390/include/asm/timex.h
-+++ b/arch/s390/include/asm/timex.h
-@@ -155,7 +155,7 @@ static inline void get_tod_clock_ext(cha
+diff --git a/arch/x86/kvm/vmx.c b/arch/x86/kvm/vmx.c
+index 809d1b031fd9e..a116548a4ade1 100644
+--- a/arch/x86/kvm/vmx.c
++++ b/arch/x86/kvm/vmx.c
+@@ -4597,6 +4597,9 @@ static void vmx_set_cr0(struct kvm_vcpu *vcpu, unsigned long cr0)
  
- static inline unsigned long long get_tod_clock(void)
+ static int get_ept_level(struct kvm_vcpu *vcpu)
  {
--	unsigned char clk[STORE_CLOCK_EXT_SIZE];
-+	char clk[STORE_CLOCK_EXT_SIZE];
- 
- 	get_tod_clock_ext(clk);
- 	return *((unsigned long long *)&clk[1]);
++	/* Nested EPT currently only supports 4-level walks. */
++	if (is_guest_mode(vcpu) && nested_cpu_has_ept(get_vmcs12(vcpu)))
++		return 4;
+ 	if (cpu_has_vmx_ept_5levels() && (cpuid_maxphyaddr(vcpu) > 48))
+ 		return 5;
+ 	return 4;
+-- 
+2.20.1
+
 
 
