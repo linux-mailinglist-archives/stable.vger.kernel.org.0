@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 99E36171FD7
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:40:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7CF9E1720FF
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:47:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731912AbgB0Nyu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 08:54:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54986 "EHLO mail.kernel.org"
+        id S1730023AbgB0NpV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 08:45:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41238 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731904AbgB0Nyu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 08:54:50 -0500
+        id S1730361AbgB0NpV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 08:45:21 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CEFD32084E;
-        Thu, 27 Feb 2020 13:54:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F0E4121D7E;
+        Thu, 27 Feb 2020 13:45:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582811689;
-        bh=y20f20EyVym5ZJBttPilPcZuoK1w1Z50nYChb4w15uA=;
+        s=default; t=1582811120;
+        bh=uOFMmKogUdcEg/YD9HLbQnK54nR8CSKUebSZkQF+56E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oDunBWMGMn9u11ILnT2HxNDhVpBfpn9Zs63x8vwKC7c3HY1ygDsIjYJnHqffVEA82
-         8aMSUDd642t+B24/emhXl+4PkEZkfew9CziiL3m/B40Jv963ozlsKk22Om/IFwZKgf
-         6L4O0IefPYrKXDwM3B8NlqOACC3hLEDNzM7gWakg=
+        b=10RWAOzgo0aUnSV9CrmupI7pnCnqGgrszeI2bada+gfQWVedNdkAB4XX6CkQzlz9x
+         JKtrOplmKrg0cRvJhkosQbrQF9Cwk+DllZp3EnlgBAtnZjXgSeZeDTF2R2ECdxbhc7
+         nj2Pu/v8T+aRokVIcTXSi25A3zTxauw5wNoHG8ZQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kai Li <li.kai4@h3c.com>,
-        Theodore Tso <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 062/237] jbd2: clear JBD2_ABORT flag before journal_reset to update log tail info when load journal
-Date:   Thu, 27 Feb 2020 14:34:36 +0100
-Message-Id: <20200227132301.556194589@linuxfoundation.org>
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.9 003/165] ALSA: hda: Use scnprintf() for printing texts for sysfs/procfs
+Date:   Thu, 27 Feb 2020 14:34:37 +0100
+Message-Id: <20200227132231.535111958@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200227132255.285644406@linuxfoundation.org>
-References: <20200227132255.285644406@linuxfoundation.org>
+In-Reply-To: <20200227132230.840899170@linuxfoundation.org>
+References: <20200227132230.840899170@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,55 +42,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai Li <li.kai4@h3c.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit a09decff5c32060639a685581c380f51b14e1fc2 ]
+commit 44eeb081b8630bb3ad3cd381d1ae1831463e48bb upstream.
 
-If the journal is dirty when the filesystem is mounted, jbd2 will replay
-the journal but the journal superblock will not be updated by
-journal_reset() because JBD2_ABORT flag is still set (it was set in
-journal_init_common()). This is problematic because when a new transaction
-is then committed, it will be recorded in block 1 (journal->j_tail was set
-to 1 in journal_reset()). If unclean shutdown happens again before the
-journal superblock is updated, the new recorded transaction will not be
-replayed during the next mount (because of stale sb->s_start and
-sb->s_sequence values) which can lead to filesystem corruption.
+Some code in HD-audio driver calls snprintf() in a loop and still
+expects that the return value were actually written size, while
+snprintf() returns the expected would-be length instead.  When the
+given buffer limit were small, this leads to a buffer overflow.
 
-Fixes: 85e0c4e89c1b ("jbd2: if the journal is aborted then don't allow update of the log tail")
-Signed-off-by: Kai Li <li.kai4@h3c.com>
-Link: https://lore.kernel.org/r/20200111022542.5008-1-li.kai4@h3c.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Use scnprintf() for addressing those issues.  It returns the actually
+written size unlike snprintf().
+
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200218091409.27162-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- fs/jbd2/journal.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ sound/hda/hdmi_chmap.c    |    2 +-
+ sound/pci/hda/hda_codec.c |    2 +-
+ sound/pci/hda/hda_eld.c   |    2 +-
+ sound/pci/hda/hda_sysfs.c |    4 ++--
+ 4 files changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/fs/jbd2/journal.c b/fs/jbd2/journal.c
-index d3cce5c86fd90..b72be822f04f2 100644
---- a/fs/jbd2/journal.c
-+++ b/fs/jbd2/journal.c
-@@ -1687,6 +1687,11 @@ int jbd2_journal_load(journal_t *journal)
- 		       journal->j_devname);
- 		return -EFSCORRUPTED;
+--- a/sound/hda/hdmi_chmap.c
++++ b/sound/hda/hdmi_chmap.c
+@@ -249,7 +249,7 @@ void snd_hdac_print_channel_allocation(i
+ 
+ 	for (i = 0, j = 0; i < ARRAY_SIZE(cea_speaker_allocation_names); i++) {
+ 		if (spk_alloc & (1 << i))
+-			j += snprintf(buf + j, buflen - j,  " %s",
++			j += scnprintf(buf + j, buflen - j,  " %s",
+ 					cea_speaker_allocation_names[i]);
  	}
-+	/*
-+	 * clear JBD2_ABORT flag initialized in journal_init_common
-+	 * here to update log tail information with the newest seq.
-+	 */
-+	journal->j_flags &= ~JBD2_ABORT;
+ 	buf[j] = '\0';	/* necessary when j == 0 */
+--- a/sound/pci/hda/hda_codec.c
++++ b/sound/pci/hda/hda_codec.c
+@@ -4104,7 +4104,7 @@ void snd_print_pcm_bits(int pcm, char *b
  
- 	/* OK, we've finished with the dynamic journal bits:
- 	 * reinitialise the dynamic contents of the superblock in memory
-@@ -1694,7 +1699,6 @@ int jbd2_journal_load(journal_t *journal)
- 	if (journal_reset(journal))
- 		goto recovery_error;
+ 	for (i = 0, j = 0; i < ARRAY_SIZE(bits); i++)
+ 		if (pcm & (AC_SUPPCM_BITS_8 << i))
+-			j += snprintf(buf + j, buflen - j,  " %d", bits[i]);
++			j += scnprintf(buf + j, buflen - j,  " %d", bits[i]);
  
--	journal->j_flags &= ~JBD2_ABORT;
- 	journal->j_flags |= JBD2_LOADED;
- 	return 0;
+ 	buf[j] = '\0'; /* necessary when j == 0 */
+ }
+--- a/sound/pci/hda/hda_eld.c
++++ b/sound/pci/hda/hda_eld.c
+@@ -373,7 +373,7 @@ static void hdmi_print_pcm_rates(int pcm
  
--- 
-2.20.1
-
+ 	for (i = 0, j = 0; i < ARRAY_SIZE(alsa_rates); i++)
+ 		if (pcm & (1 << i))
+-			j += snprintf(buf + j, buflen - j,  " %d",
++			j += scnprintf(buf + j, buflen - j,  " %d",
+ 				alsa_rates[i]);
+ 
+ 	buf[j] = '\0'; /* necessary when j == 0 */
+--- a/sound/pci/hda/hda_sysfs.c
++++ b/sound/pci/hda/hda_sysfs.c
+@@ -221,7 +221,7 @@ static ssize_t init_verbs_show(struct de
+ 	mutex_lock(&codec->user_mutex);
+ 	for (i = 0; i < codec->init_verbs.used; i++) {
+ 		struct hda_verb *v = snd_array_elem(&codec->init_verbs, i);
+-		len += snprintf(buf + len, PAGE_SIZE - len,
++		len += scnprintf(buf + len, PAGE_SIZE - len,
+ 				"0x%02x 0x%03x 0x%04x\n",
+ 				v->nid, v->verb, v->param);
+ 	}
+@@ -271,7 +271,7 @@ static ssize_t hints_show(struct device
+ 	mutex_lock(&codec->user_mutex);
+ 	for (i = 0; i < codec->hints.used; i++) {
+ 		struct hda_hint *hint = snd_array_elem(&codec->hints, i);
+-		len += snprintf(buf + len, PAGE_SIZE - len,
++		len += scnprintf(buf + len, PAGE_SIZE - len,
+ 				"%s = %s\n", hint->key, hint->val);
+ 	}
+ 	mutex_unlock(&codec->user_mutex);
 
 
