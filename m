@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 020051720DF
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:46:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1ECDD171FE6
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:40:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729991AbgB0NqG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 08:46:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42270 "EHLO mail.kernel.org"
+        id S1731761AbgB0Nzy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 08:55:54 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56240 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730459AbgB0NqG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 08:46:06 -0500
+        id S1731770AbgB0Nzx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 08:55:53 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 87C5320578;
-        Thu, 27 Feb 2020 13:46:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B812D21D7E;
+        Thu, 27 Feb 2020 13:55:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582811166;
-        bh=+zIrdqNPkEd6fY5EVhJZkgvBuBmEdUWSwmsgVa5DgUQ=;
+        s=default; t=1582811752;
+        bh=Wy0ESkAAYpyXO0+bJMScLBBEcP2TxBQqGnkYsNs4JPI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fjORJMeTkPZwweaPSPN6s/+kcjp3lHtRWrgi4JG2uYnRhE3yXBa2+o/TPyiDxgFwf
-         M2TV5HOPppi3KU4Xkhky+WawPfk246TKcwLQq+PapCk8TVM7FL72RGNowtp1/pHecf
-         VrwmGM3nCgNQHkKsPio3bHeOJGAjJjsaZBpI2fT0=
+        b=TjeWxpvkWCRjFjWlgl1PaoiIdgIN6OPksYwBFBUEWn8+AchsX6nqkh+BoKvwuNOk8
+         tfM8f6nUr3gVvdsDxUrHVG3o2HNjU+KuKTWGi2toDmG5D8Cb0A+akCePzj4mV60zSF
+         FmzF2qWUAgpYr0SYijZw571YEX/6hiBVlSo+Ook0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Lubomir Rintel <lkundrak@v3.sk>,
-        YueHaibing <yuehaibing@huawei.com>,
-        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
+        stable@vger.kernel.org, Alim Akhtar <alim.akhtar@samsung.com>,
+        Bean Huo <beanhuo@micron.com>, Can Guo <cang@codeaurora.org>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 027/165] pxa168fb: Fix the function used to release some memory in an error handling path
-Date:   Thu, 27 Feb 2020 14:35:01 +0100
-Message-Id: <20200227132234.883611385@linuxfoundation.org>
+Subject: [PATCH 4.14 088/237] scsi: ufs: Complete pending requests in host reset and restore path
+Date:   Thu, 27 Feb 2020 14:35:02 +0100
+Message-Id: <20200227132303.527766772@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200227132230.840899170@linuxfoundation.org>
-References: <20200227132230.840899170@linuxfoundation.org>
+In-Reply-To: <20200227132255.285644406@linuxfoundation.org>
+References: <20200227132255.285644406@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,54 +45,119 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Can Guo <cang@codeaurora.org>
 
-[ Upstream commit 3c911fe799d1c338d94b78e7182ad452c37af897 ]
+[ Upstream commit 2df74b6985b51e77756e2e8faa16c45ca3ba53c5 ]
 
-In the probe function, some resources are allocated using 'dma_alloc_wc()',
-they should be released with 'dma_free_wc()', not 'dma_free_coherent()'.
+In UFS host reset and restore path, before probe, we stop and start the
+host controller once. After host controller is stopped, the pending
+requests, if any, are cleared from the doorbell, but no completion IRQ
+would be raised due to the hba is stopped.  These pending requests shall be
+completed along with the first NOP_OUT command (as it is the first command
+which can raise a transfer completion IRQ) sent during probe.  Since the
+OCSs of these pending requests are not SUCCESS (because they are not yet
+literally finished), their UPIUs shall be dumped. When there are multiple
+pending requests, the UPIU dump can be overwhelming and may lead to
+stability issues because it is in atomic context.  Therefore, before probe,
+complete these pending requests right after host controller is stopped and
+silence the UPIU dump from them.
 
-We already use 'dma_free_wc()' in the remove function, but not in the
-error handling path of the probe function.
-
-Also, remove a useless 'PAGE_ALIGN()'. 'info->fix.smem_len' is already
-PAGE_ALIGNed.
-
-Fixes: 638772c7553f ("fb: add support of LCD display controller on pxa168/910 (base layer)")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Reviewed-by: Lubomir Rintel <lkundrak@v3.sk>
-CC: YueHaibing <yuehaibing@huawei.com>
-Signed-off-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20190831100024.3248-1-christophe.jaillet@wanadoo.fr
+Link: https://lore.kernel.org/r/1574751214-8321-5-git-send-email-cang@qti.qualcomm.com
+Reviewed-by: Alim Akhtar <alim.akhtar@samsung.com>
+Reviewed-by: Bean Huo <beanhuo@micron.com>
+Tested-by: Bean Huo <beanhuo@micron.com>
+Signed-off-by: Can Guo <cang@codeaurora.org>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/pxa168fb.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/scsi/ufs/ufshcd.c | 24 ++++++++++--------------
+ drivers/scsi/ufs/ufshcd.h |  2 ++
+ 2 files changed, 12 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/video/fbdev/pxa168fb.c b/drivers/video/fbdev/pxa168fb.c
-index d059d04c63acd..20195d3dbf088 100644
---- a/drivers/video/fbdev/pxa168fb.c
-+++ b/drivers/video/fbdev/pxa168fb.c
-@@ -769,8 +769,8 @@ failed_free_cmap:
- failed_free_clk:
- 	clk_disable_unprepare(fbi->clk);
- failed_free_fbmem:
--	dma_free_coherent(fbi->dev, info->fix.smem_len,
--			info->screen_base, fbi->fb_start_dma);
-+	dma_free_wc(fbi->dev, info->fix.smem_len,
-+		    info->screen_base, fbi->fb_start_dma);
- failed_free_info:
- 	kfree(info);
+diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
+index ce40de334f112..c350453246952 100644
+--- a/drivers/scsi/ufs/ufshcd.c
++++ b/drivers/scsi/ufs/ufshcd.c
+@@ -4580,7 +4580,7 @@ ufshcd_transfer_rsp_status(struct ufs_hba *hba, struct ufshcd_lrb *lrbp)
+ 		break;
+ 	} /* end of switch */
  
-@@ -804,7 +804,7 @@ static int pxa168fb_remove(struct platform_device *pdev)
+-	if (host_byte(result) != DID_OK)
++	if ((host_byte(result) != DID_OK) && !hba->silence_err_logs)
+ 		ufshcd_print_trs(hba, 1 << lrbp->task_tag, true);
+ 	return result;
+ }
+@@ -5109,8 +5109,8 @@ static void ufshcd_err_handler(struct work_struct *work)
  
- 	irq = platform_get_irq(pdev, 0);
+ 	/*
+ 	 * if host reset is required then skip clearing the pending
+-	 * transfers forcefully because they will automatically get
+-	 * cleared after link startup.
++	 * transfers forcefully because they will get cleared during
++	 * host reset and restore
+ 	 */
+ 	if (needs_reset)
+ 		goto skip_pending_xfer_clear;
+@@ -5749,9 +5749,15 @@ static int ufshcd_host_reset_and_restore(struct ufs_hba *hba)
+ 	int err;
+ 	unsigned long flags;
  
--	dma_free_wc(fbi->dev, PAGE_ALIGN(info->fix.smem_len),
-+	dma_free_wc(fbi->dev, info->fix.smem_len,
- 		    info->screen_base, info->fix.smem_start);
+-	/* Reset the host controller */
++	/*
++	 * Stop the host controller and complete the requests
++	 * cleared by h/w
++	 */
+ 	spin_lock_irqsave(hba->host->host_lock, flags);
+ 	ufshcd_hba_stop(hba, false);
++	hba->silence_err_logs = true;
++	ufshcd_complete_requests(hba);
++	hba->silence_err_logs = false;
+ 	spin_unlock_irqrestore(hba->host->host_lock, flags);
  
- 	clk_disable_unprepare(fbi->clk);
+ 	/* scale up clocks to max frequency before full reinitialization */
+@@ -5785,22 +5791,12 @@ out:
+ static int ufshcd_reset_and_restore(struct ufs_hba *hba)
+ {
+ 	int err = 0;
+-	unsigned long flags;
+ 	int retries = MAX_HOST_RESET_RETRIES;
+ 
+ 	do {
+ 		err = ufshcd_host_reset_and_restore(hba);
+ 	} while (err && --retries);
+ 
+-	/*
+-	 * After reset the door-bell might be cleared, complete
+-	 * outstanding requests in s/w here.
+-	 */
+-	spin_lock_irqsave(hba->host->host_lock, flags);
+-	ufshcd_transfer_req_compl(hba);
+-	ufshcd_tmc_handler(hba);
+-	spin_unlock_irqrestore(hba->host->host_lock, flags);
+-
+ 	return err;
+ }
+ 
+diff --git a/drivers/scsi/ufs/ufshcd.h b/drivers/scsi/ufs/ufshcd.h
+index cdc8bd05f7dfc..4aac4d86f57b3 100644
+--- a/drivers/scsi/ufs/ufshcd.h
++++ b/drivers/scsi/ufs/ufshcd.h
+@@ -485,6 +485,7 @@ struct ufs_stats {
+  * @uic_error: UFS interconnect layer error status
+  * @saved_err: sticky error mask
+  * @saved_uic_err: sticky UIC error mask
++ * @silence_err_logs: flag to silence error logs
+  * @dev_cmd: ufs device management command information
+  * @last_dme_cmd_tstamp: time stamp of the last completed DME command
+  * @auto_bkops_enabled: to track whether bkops is enabled in device
+@@ -621,6 +622,7 @@ struct ufs_hba {
+ 	u32 saved_err;
+ 	u32 saved_uic_err;
+ 	struct ufs_stats ufs_stats;
++	bool silence_err_logs;
+ 
+ 	/* Device management request data */
+ 	struct ufs_dev_cmd dev_cmd;
 -- 
 2.20.1
 
