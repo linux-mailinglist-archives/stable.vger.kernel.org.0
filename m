@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 360D5171D8A
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:22:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 208DF171BEA
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:07:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389481AbgB0OQU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 09:16:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56388 "EHLO mail.kernel.org"
+        id S2387405AbgB0OGx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 09:06:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44192 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389478AbgB0OQT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 09:16:19 -0500
+        id S2387598AbgB0OGw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 09:06:52 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E5C3624691;
-        Thu, 27 Feb 2020 14:16:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9FC5F20578;
+        Thu, 27 Feb 2020 14:06:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582812978;
-        bh=BM7zitM8Xs6eDc1Sq2p4hyIZGSlsBceV8xTvgE7E6w8=;
+        s=default; t=1582812412;
+        bh=8xjQQ0YhFjU5P9RymGIDkr/KwUaQQ8iwiQv/6zyt+FM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z6jcAFHHofz9sTHnU+oABWGmMD5LhBXKFRSHAhLj7prayq+ucjsdA1bSFPh0gEk/N
-         bWFudOYrXRI2+G4Tai5CzDl1WjLo3qdaPyfPyLQ2qLAS18KxaUP1p5r3+Bup/HNpYf
-         ILbgpRRFrqqf7yblOSGHKuEmznQTBy+GtOiwBAqg=
+        b=PBI1t4CQZEjJeh+zi7GQMg27FIY1X4Ix4hXfuVD5FYRhsfPKYxssrRjqs/qXs7XjY
+         T7+npKeiZsYHpuKbtc+FJ6qhH85HjIn3mCBQrC/bL7rJ/K6ExANyyPFgvw0myAlj+Z
+         6nz/68gc5A1tQlPrjSwgjvPlHHF6rX9PDKek5GUk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qian Cai <cai@lca.pw>,
-        Theodore Tso <tytso@mit.edu>, stable@kernel.org
-Subject: [PATCH 5.5 089/150] ext4: fix a data race in EXT4_I(inode)->i_disksize
-Date:   Thu, 27 Feb 2020 14:37:06 +0100
-Message-Id: <20200227132245.939316844@linuxfoundation.org>
+        stable@vger.kernel.org, satya priya <skakit@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 59/97] tty: serial: qcom_geni_serial: Fix RX cancel command failure
+Date:   Thu, 27 Feb 2020 14:37:07 +0100
+Message-Id: <20200227132224.186889698@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200227132232.815448360@linuxfoundation.org>
-References: <20200227132232.815448360@linuxfoundation.org>
+In-Reply-To: <20200227132214.553656188@linuxfoundation.org>
+References: <20200227132214.553656188@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,87 +43,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qian Cai <cai@lca.pw>
+From: satya priya <skakit@codeaurora.org>
 
-commit 35df4299a6487f323b0aca120ea3f485dfee2ae3 upstream.
+[ Upstream commit 679aac5ead2f18d223554a52b543e1195e181811 ]
 
-EXT4_I(inode)->i_disksize could be accessed concurrently as noticed by
-KCSAN,
+RX cancel command fails when BT is switched on and off multiple times.
 
- BUG: KCSAN: data-race in ext4_write_end [ext4] / ext4_writepages [ext4]
+To handle this, poll for the cancel bit in SE_GENI_S_IRQ_STATUS register
+instead of SE_GENI_S_CMD_CTRL_REG.
 
- write to 0xffff91c6713b00f8 of 8 bytes by task 49268 on cpu 127:
-  ext4_write_end+0x4e3/0x750 [ext4]
-  ext4_update_i_disksize at fs/ext4/ext4.h:3032
-  (inlined by) ext4_update_inode_size at fs/ext4/ext4.h:3046
-  (inlined by) ext4_write_end at fs/ext4/inode.c:1287
-  generic_perform_write+0x208/0x2a0
-  ext4_buffered_write_iter+0x11f/0x210 [ext4]
-  ext4_file_write_iter+0xce/0x9e0 [ext4]
-  new_sync_write+0x29c/0x3b0
-  __vfs_write+0x92/0xa0
-  vfs_write+0x103/0x260
-  ksys_write+0x9d/0x130
-  __x64_sys_write+0x4c/0x60
-  do_syscall_64+0x91/0xb47
-  entry_SYSCALL_64_after_hwframe+0x49/0xbe
+As per the HPG update, handle the RX last bit after cancel command
+and flush out the RX FIFO buffer.
 
- read to 0xffff91c6713b00f8 of 8 bytes by task 24872 on cpu 37:
-  ext4_writepages+0x10ac/0x1d00 [ext4]
-  mpage_map_and_submit_extent at fs/ext4/inode.c:2468
-  (inlined by) ext4_writepages at fs/ext4/inode.c:2772
-  do_writepages+0x5e/0x130
-  __writeback_single_inode+0xeb/0xb20
-  writeback_sb_inodes+0x429/0x900
-  __writeback_inodes_wb+0xc4/0x150
-  wb_writeback+0x4bd/0x870
-  wb_workfn+0x6b4/0x960
-  process_one_work+0x54c/0xbe0
-  worker_thread+0x80/0x650
-  kthread+0x1e0/0x200
-  ret_from_fork+0x27/0x50
-
- Reported by Kernel Concurrency Sanitizer on:
- CPU: 37 PID: 24872 Comm: kworker/u261:2 Tainted: G        W  O L 5.5.0-next-20200204+ #5
- Hardware name: HPE ProLiant DL385 Gen10/ProLiant DL385 Gen10, BIOS A40 07/10/2019
- Workqueue: writeback wb_workfn (flush-7:0)
-
-Since only the read is operating as lockless (outside of the
-"i_data_sem"), load tearing could introduce a logic bug. Fix it by
-adding READ_ONCE() for the read and WRITE_ONCE() for the write.
-
-Signed-off-by: Qian Cai <cai@lca.pw>
-Link: https://lore.kernel.org/r/1581085751-31793-1-git-send-email-cai@lca.pw
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Cc: stable@kernel.org
+Signed-off-by: satya priya <skakit@codeaurora.org>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/1581415982-8793-1-git-send-email-skakit@codeaurora.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/ext4.h  |    2 +-
- fs/ext4/inode.c |    2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/tty/serial/qcom_geni_serial.c | 18 ++++++++++++++----
+ 1 file changed, 14 insertions(+), 4 deletions(-)
 
---- a/fs/ext4/ext4.h
-+++ b/fs/ext4/ext4.h
-@@ -2972,7 +2972,7 @@ static inline void ext4_update_i_disksiz
- 		     !inode_is_locked(inode));
- 	down_write(&EXT4_I(inode)->i_data_sem);
- 	if (newsize > EXT4_I(inode)->i_disksize)
--		EXT4_I(inode)->i_disksize = newsize;
-+		WRITE_ONCE(EXT4_I(inode)->i_disksize, newsize);
- 	up_write(&EXT4_I(inode)->i_data_sem);
+diff --git a/drivers/tty/serial/qcom_geni_serial.c b/drivers/tty/serial/qcom_geni_serial.c
+index 4182129925dec..4458419f053b6 100644
+--- a/drivers/tty/serial/qcom_geni_serial.c
++++ b/drivers/tty/serial/qcom_geni_serial.c
+@@ -121,6 +121,7 @@ static int handle_rx_console(struct uart_port *uport, u32 bytes, bool drop);
+ static int handle_rx_uart(struct uart_port *uport, u32 bytes, bool drop);
+ static unsigned int qcom_geni_serial_tx_empty(struct uart_port *port);
+ static void qcom_geni_serial_stop_rx(struct uart_port *uport);
++static void qcom_geni_serial_handle_rx(struct uart_port *uport, bool drop);
+ 
+ static const unsigned long root_freq[] = {7372800, 14745600, 19200000, 29491200,
+ 					32000000, 48000000, 64000000, 80000000,
+@@ -614,7 +615,7 @@ static void qcom_geni_serial_stop_rx(struct uart_port *uport)
+ 	u32 irq_en;
+ 	u32 status;
+ 	struct qcom_geni_serial_port *port = to_dev_port(uport, uport);
+-	u32 irq_clear = S_CMD_DONE_EN;
++	u32 s_irq_status;
+ 
+ 	irq_en = readl(uport->membase + SE_GENI_S_IRQ_EN);
+ 	irq_en &= ~(S_RX_FIFO_WATERMARK_EN | S_RX_FIFO_LAST_EN);
+@@ -630,10 +631,19 @@ static void qcom_geni_serial_stop_rx(struct uart_port *uport)
+ 		return;
+ 
+ 	geni_se_cancel_s_cmd(&port->se);
+-	qcom_geni_serial_poll_bit(uport, SE_GENI_S_CMD_CTRL_REG,
+-					S_GENI_CMD_CANCEL, false);
++	qcom_geni_serial_poll_bit(uport, SE_GENI_S_IRQ_STATUS,
++					S_CMD_CANCEL_EN, true);
++	/*
++	 * If timeout occurs secondary engine remains active
++	 * and Abort sequence is executed.
++	 */
++	s_irq_status = readl(uport->membase + SE_GENI_S_IRQ_STATUS);
++	/* Flush the Rx buffer */
++	if (s_irq_status & S_RX_FIFO_LAST_EN)
++		qcom_geni_serial_handle_rx(uport, true);
++	writel(s_irq_status, uport->membase + SE_GENI_S_IRQ_CLEAR);
++
+ 	status = readl(uport->membase + SE_GENI_STATUS);
+-	writel(irq_clear, uport->membase + SE_GENI_S_IRQ_CLEAR);
+ 	if (status & S_GENI_CMD_ACTIVE)
+ 		qcom_geni_serial_abort_rx(uport);
  }
- 
---- a/fs/ext4/inode.c
-+++ b/fs/ext4/inode.c
-@@ -2466,7 +2466,7 @@ update_disksize:
- 	 * truncate are avoided by checking i_size under i_data_sem.
- 	 */
- 	disksize = ((loff_t)mpd->first_page) << PAGE_SHIFT;
--	if (disksize > EXT4_I(inode)->i_disksize) {
-+	if (disksize > READ_ONCE(EXT4_I(inode)->i_disksize)) {
- 		int err2;
- 		loff_t i_size;
- 
+-- 
+2.20.1
+
 
 
