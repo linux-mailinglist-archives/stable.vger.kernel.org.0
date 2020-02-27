@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CD91417208C
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:44:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D6EE1171F7D
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:38:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730818AbgB0NsJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 08:48:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44706 "EHLO mail.kernel.org"
+        id S1732357AbgB0N5w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 08:57:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58910 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730805AbgB0NsF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 08:48:05 -0500
+        id S1732211AbgB0N5v (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 08:57:51 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3C0D724656;
-        Thu, 27 Feb 2020 13:48:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AE90B24691;
+        Thu, 27 Feb 2020 13:57:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582811284;
-        bh=xTfDbkr37bVX7WPtntC0qxawFpQYpjYWedgmtw+jqao=;
+        s=default; t=1582811871;
+        bh=UHz6U+bje1bnx38zQBhWgN+LYj72XjeYmLgrKfw5bt0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vGtQ5ymD63hpCyAjY+d5nG21g26U7XDjcUMVMqbV5bQUwXNNXJrqK2wbM18501k+P
-         8roIFuKoMSgNpeHsvn8oCp6hIHnRxAT3gtORQabOqAWaPN/oGX1m4D/hTA2IB5plIO
-         l/E+WS5yDHEKqUJ88ZlfoN0C9ymgqVM4X6kdAkzQ=
+        b=Std5Qpd6PSAQJpCgQiC8uF+CRDvT7kMmbC4FjUlOzd+wm5t/Yks2BhBdfXuy45Sw1
+         qdALH7cL1r71Uej47dQ7Jd6syw9gugnT+NpWPSw9yui62UInh2WtmEMwWJu622Ga6M
+         CT7EE+/i7E89qLssqT+8DWBgOmA4Gph0uYrCWrDQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Philipp Zabel <p.zabel@pengutronix.de>,
-        Marco Felsch <m.felsch@pengutronix.de>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Josef Bacik <josef@toxicpanda.com>,
+        David Sterba <dsterba@suse.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 072/165] Input: edt-ft5x06 - work around first register access error
-Date:   Thu, 27 Feb 2020 14:35:46 +0100
-Message-Id: <20200227132241.932215524@linuxfoundation.org>
+Subject: [PATCH 4.14 133/237] btrfs: safely advance counter when looking up bio csums
+Date:   Thu, 27 Feb 2020 14:35:47 +0100
+Message-Id: <20200227132306.503206704@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200227132230.840899170@linuxfoundation.org>
-References: <20200227132230.840899170@linuxfoundation.org>
+In-Reply-To: <20200227132255.285644406@linuxfoundation.org>
+References: <20200227132255.285644406@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,53 +45,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Philipp Zabel <p.zabel@pengutronix.de>
+From: David Sterba <dsterba@suse.com>
 
-[ Upstream commit e112324cc0422c046f1cf54c56f333d34fa20885 ]
+[ Upstream commit 4babad10198fa73fe73239d02c2e99e3333f5f5c ]
 
-The EP0700MLP1 returns bogus data on the first register read access
-(reading the threshold parameter from register 0x00):
+Dan's smatch tool reports
 
-    edt_ft5x06 2-0038: crc error: 0xfc expected, got 0x40
+  fs/btrfs/file-item.c:295 btrfs_lookup_bio_sums()
+  warn: should this be 'count == -1'
 
-It ignores writes until then. This patch adds a dummy read after which
-the number of sensors and parameter read/writes work correctly.
+which points to the while (count--) loop. With count == 0 the check
+itself could decrement it to -1. There's a WARN_ON a few lines below
+that has never been seen in practice though.
 
-Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
-Signed-off-by: Marco Felsch <m.felsch@pengutronix.de>
-Tested-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+It turns out that the value of page_bytes_left matches the count (by
+sectorsize multiples). The loop never reaches the state where count
+would go to -1, because page_bytes_left == 0 is found first and this
+breaks out.
+
+For clarity, use only plain check on count (and only for positive
+value), decrement safely inside the loop. Any other discrepancy after
+the whole bio list processing should be reported by the exising
+WARN_ON_ONCE as well.
+
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Reviewed-by: Josef Bacik <josef@toxicpanda.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/touchscreen/edt-ft5x06.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ fs/btrfs/file-item.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/input/touchscreen/edt-ft5x06.c b/drivers/input/touchscreen/edt-ft5x06.c
-index 28466e358fee1..22c8d2070faac 100644
---- a/drivers/input/touchscreen/edt-ft5x06.c
-+++ b/drivers/input/touchscreen/edt-ft5x06.c
-@@ -887,6 +887,7 @@ static int edt_ft5x06_ts_probe(struct i2c_client *client,
- {
- 	const struct edt_i2c_chip_data *chip_data;
- 	struct edt_ft5x06_ts_data *tsdata;
-+	u8 buf[2] = { 0xfc, 0x00 };
- 	struct input_dev *input;
- 	unsigned long irq_flags;
- 	int error;
-@@ -956,6 +957,12 @@ static int edt_ft5x06_ts_probe(struct i2c_client *client,
- 		return error;
- 	}
- 
-+	/*
-+	 * Dummy read access. EP0700MLP1 returns bogus data on the first
-+	 * register read access and ignores writes.
-+	 */
-+	edt_ft5x06_ts_readwrite(tsdata->client, 2, buf, 2, buf);
-+
- 	edt_ft5x06_ts_set_regs(tsdata);
- 	edt_ft5x06_ts_get_defaults(&client->dev, tsdata);
- 	edt_ft5x06_ts_get_parameters(tsdata);
+diff --git a/fs/btrfs/file-item.c b/fs/btrfs/file-item.c
+index 702b3606ad0ec..717d82d51bb13 100644
+--- a/fs/btrfs/file-item.c
++++ b/fs/btrfs/file-item.c
+@@ -288,7 +288,8 @@ found:
+ 		csum += count * csum_size;
+ 		nblocks -= count;
+ next:
+-		while (count--) {
++		while (count > 0) {
++			count--;
+ 			disk_bytenr += fs_info->sectorsize;
+ 			offset += fs_info->sectorsize;
+ 			page_bytes_left -= fs_info->sectorsize;
 -- 
 2.20.1
 
