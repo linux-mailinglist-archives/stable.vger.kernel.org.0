@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 16CD91720DB
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:45:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 93EB8171FE7
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:40:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730230AbgB0NqS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 08:46:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42462 "EHLO mail.kernel.org"
+        id S1732051AbgB0Nz6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 08:55:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56346 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730167AbgB0NqO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 08:46:14 -0500
+        id S1730199AbgB0Nz5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 08:55:57 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 96AA120578;
-        Thu, 27 Feb 2020 13:46:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A0F902073D;
+        Thu, 27 Feb 2020 13:55:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582811174;
-        bh=EJCV+PHusrPDBvv0wSIgAo83qYaeUgJOuXs5GXpqagc=;
+        s=default; t=1582811757;
+        bh=fKD8wdPrLOdn12bMz4B1mbh7BH7QGRNFFPpUKkbUYic=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0oGEBZP7eS2R3iM++Y7HqVdaqO3gDIEHcgz0cgL8RbJIDNNPKaXmnOEqrKInCJk4W
-         Q4oBHVL7lRdXenQCteCwBeEF/EsMPfTDMdDOQJ/Xj/g5YzaF8xIj4OnoWc4kDwpn0m
-         R3dG8pSIyIVkCNAXhRvY2jy5R9zuo2hAvlrR02/0=
+        b=ir3hPrgFt2tUZOng2qv7JxfZSXNxG3CeHDbiP26bKhii+ydHtiZMETdka0bk7XD2B
+         4Qq9oMk5SFCLfEfQREyZ0cYIoRsby015B41k19tn4QTlTIJEH1OvCUdnw2PG5Z2Kl6
+         NSAztiUXIn81j9FGR/7PBPNO1zrZQkk3WnyT6vTM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jia-Ju Bai <baijiaju1990@gmail.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 030/165] gpio: gpio-grgpio: fix possible sleep-in-atomic-context bugs in grgpio_irq_map/unmap()
+        stable@vger.kernel.org, Bibby Hsieh <bibby.hsieh@mediatek.com>,
+        CK Hu <ck.hu@mediatek.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 090/237] drm/mediatek: handle events when enabling/disabling crtc
 Date:   Thu, 27 Feb 2020 14:35:04 +0100
-Message-Id: <20200227132235.398284790@linuxfoundation.org>
+Message-Id: <20200227132303.658480261@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200227132230.840899170@linuxfoundation.org>
-References: <20200227132230.840899170@linuxfoundation.org>
+In-Reply-To: <20200227132255.285644406@linuxfoundation.org>
+References: <20200227132255.285644406@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,75 +43,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jia-Ju Bai <baijiaju1990@gmail.com>
+From: Bibby Hsieh <bibby.hsieh@mediatek.com>
 
-[ Upstream commit e36eaf94be8f7bc4e686246eed3cf92d845e2ef8 ]
+[ Upstream commit 411f5c1eacfebb1f6e40b653d29447cdfe7282aa ]
 
-The driver may sleep while holding a spinlock.
-The function call path (from bottom to top) in Linux 4.19 is:
+The driver currently handles vblank events only when updating planes on
+an already enabled CRTC. The atomic update API however allows requesting
+an event when enabling or disabling a CRTC. This currently leads to
+event objects being leaked in the kernel and to events not being sent
+out. Fix it.
 
-drivers/gpio/gpio-grgpio.c, 261:
-	request_irq in grgpio_irq_map
-drivers/gpio/gpio-grgpio.c, 255:
-	_raw_spin_lock_irqsave in grgpio_irq_map
-
-drivers/gpio/gpio-grgpio.c, 318:
-	free_irq in grgpio_irq_unmap
-drivers/gpio/gpio-grgpio.c, 299:
-	_raw_spin_lock_irqsave in grgpio_irq_unmap
-
-request_irq() and free_irq() can sleep at runtime.
-
-To fix these bugs, request_irq() and free_irq() are called without
-holding the spinlock.
-
-These bugs are found by a static analysis tool STCheck written by myself.
-
-Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
-Link: https://lore.kernel.org/r/20191218132605.10594-1-baijiaju1990@gmail.com
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Bibby Hsieh <bibby.hsieh@mediatek.com>
+Signed-off-by: CK Hu <ck.hu@mediatek.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpio/gpio-grgpio.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ drivers/gpu/drm/mediatek/mtk_drm_crtc.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/drivers/gpio/gpio-grgpio.c b/drivers/gpio/gpio-grgpio.c
-index 7847dd34f86fc..036a78b704270 100644
---- a/drivers/gpio/gpio-grgpio.c
-+++ b/drivers/gpio/gpio-grgpio.c
-@@ -259,17 +259,16 @@ static int grgpio_irq_map(struct irq_domain *d, unsigned int irq,
- 	lirq->irq = irq;
- 	uirq = &priv->uirqs[lirq->index];
- 	if (uirq->refcnt == 0) {
-+		spin_unlock_irqrestore(&priv->gc.bgpio_lock, flags);
- 		ret = request_irq(uirq->uirq, grgpio_irq_handler, 0,
- 				  dev_name(priv->dev), priv);
- 		if (ret) {
- 			dev_err(priv->dev,
- 				"Could not request underlying irq %d\n",
- 				uirq->uirq);
--
--			spin_unlock_irqrestore(&priv->gc.bgpio_lock, flags);
--
- 			return ret;
- 		}
-+		spin_lock_irqsave(&priv->gc.bgpio_lock, flags);
- 	}
- 	uirq->refcnt++;
+diff --git a/drivers/gpu/drm/mediatek/mtk_drm_crtc.c b/drivers/gpu/drm/mediatek/mtk_drm_crtc.c
+index 658b8dd45b834..3ea311d32fa9e 100644
+--- a/drivers/gpu/drm/mediatek/mtk_drm_crtc.c
++++ b/drivers/gpu/drm/mediatek/mtk_drm_crtc.c
+@@ -307,6 +307,7 @@ err_pm_runtime_put:
+ static void mtk_crtc_ddp_hw_fini(struct mtk_drm_crtc *mtk_crtc)
+ {
+ 	struct drm_device *drm = mtk_crtc->base.dev;
++	struct drm_crtc *crtc = &mtk_crtc->base;
+ 	int i;
  
-@@ -315,8 +314,11 @@ static void grgpio_irq_unmap(struct irq_domain *d, unsigned int irq)
- 	if (index >= 0) {
- 		uirq = &priv->uirqs[lirq->index];
- 		uirq->refcnt--;
--		if (uirq->refcnt == 0)
-+		if (uirq->refcnt == 0) {
-+			spin_unlock_irqrestore(&priv->gc.bgpio_lock, flags);
- 			free_irq(uirq->uirq, priv);
-+			return;
-+		}
- 	}
+ 	DRM_DEBUG_DRIVER("%s\n", __func__);
+@@ -328,6 +329,13 @@ static void mtk_crtc_ddp_hw_fini(struct mtk_drm_crtc *mtk_crtc)
+ 	mtk_disp_mutex_unprepare(mtk_crtc->mutex);
  
- 	spin_unlock_irqrestore(&priv->gc.bgpio_lock, flags);
+ 	pm_runtime_put(drm->dev);
++
++	if (crtc->state->event && !crtc->state->active) {
++		spin_lock_irq(&crtc->dev->event_lock);
++		drm_crtc_send_vblank_event(crtc, crtc->state->event);
++		crtc->state->event = NULL;
++		spin_unlock_irq(&crtc->dev->event_lock);
++	}
+ }
+ 
+ static void mtk_crtc_ddp_config(struct drm_crtc *crtc)
 -- 
 2.20.1
 
