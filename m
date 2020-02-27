@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4445B171C6A
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:11:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9EF4C171E09
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:25:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388488AbgB0OLt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 09:11:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50336 "EHLO mail.kernel.org"
+        id S2387987AbgB0OLy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 09:11:54 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50428 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388318AbgB0OLs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 09:11:48 -0500
+        id S2388762AbgB0OLv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 09:11:51 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AA22F246AD;
-        Thu, 27 Feb 2020 14:11:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9680420578;
+        Thu, 27 Feb 2020 14:11:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582812706;
-        bh=P6ve4YLl/tTD98oyYfZFuy1vti5trftE7wEQ/bg91sA=;
+        s=default; t=1582812711;
+        bh=zF8WyHHyNDWJs5RpuKJQzBGkfwEfo+xK6Oui84XK6xE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Kqm2AP8E6hZWN4XnbDjdGcwnmXh7MezjwSz5ueseccNovLggDpwfIEy1z2dBfu87A
-         JKqoZvWsWcfTOf5qs+awd9EvChpy/aejkn3NTKki/LuTdF/HOxt4/H1M/jErs85gkG
-         5BzzAiPBXpaT3m1WvffXjX74GicYxjhofeFX84jY=
+        b=mOG7zkmnA3HPPL03IqKDq0wly5nurLqX9St58rTBEnJu3vRb/oa7auxpwO7Y9rpTz
+         LrgvBLO+zCOlbHL4r17kbKqwCIX5/89B+cVRLHg9ZibDFu62g/WMi/hgx6MEGHO0WD
+         /ZF+AIzrbhNrfPq4mO8OkcquC1yWiCScwzclXkPE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Xiaoguang Wang <xiaoguang.wang@linux.alibaba.com>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.4 121/135] io_uring: fix __io_iopoll_check deadlock in io_sq_thread
-Date:   Thu, 27 Feb 2020 14:37:41 +0100
-Message-Id: <20200227132247.269204084@linuxfoundation.org>
+        syzbot+576cc007eb9f2c968200@syzkaller.appspotmail.com,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.4 122/135] ALSA: rawmidi: Avoid bit fields for state flags
+Date:   Thu, 27 Feb 2020 14:37:42 +0100
+Message-Id: <20200227132247.418514442@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200227132228.710492098@linuxfoundation.org>
 References: <20200227132228.710492098@linuxfoundation.org>
@@ -44,83 +44,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiaoguang Wang <xiaoguang.wang@linux.alibaba.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit c7849be9cc2dd2754c48ddbaca27c2de6d80a95d upstream.
+commit dfa9a5efe8b932a84b3b319250aa3ac60c20f876 upstream.
 
-Since commit a3a0e43fd770 ("io_uring: don't enter poll loop if we have
-CQEs pending"), if we already events pending, we won't enter poll loop.
-In case SETUP_IOPOLL and SETUP_SQPOLL are both enabled, if app has
-been terminated and don't reap pending events which are already in cq
-ring, and there are some reqs in poll_list, io_sq_thread will enter
-__io_iopoll_check(), and find pending events, then return, this loop
-will never have a chance to exit.
+The rawmidi state flags (opened, append, active_sensing) are stored in
+bit fields that can be potentially racy when concurrently accessed
+without any locks.  Although the current code should be fine, there is
+also no any real benefit by keeping the bitfields for this kind of
+short number of members.
 
-I have seen this issue in fio stress tests, to fix this issue, let
-io_sq_thread call io_iopoll_getevents() with argument 'min' being zero,
-and remove __io_iopoll_check().
+This patch changes those bit fields flags to the simple bool fields.
+There should be no size increase of the snd_rawmidi_substream by this
+change.
 
-Fixes: a3a0e43fd770 ("io_uring: don't enter poll loop if we have CQEs pending")
-Signed-off-by: Xiaoguang Wang <xiaoguang.wang@linux.alibaba.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Reported-by: syzbot+576cc007eb9f2c968200@syzkaller.appspotmail.com
+Link: https://lore.kernel.org/r/20200214111316.26939-4-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/io_uring.c |   27 +++++++++------------------
- 1 file changed, 9 insertions(+), 18 deletions(-)
+ include/sound/rawmidi.h |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -882,11 +882,17 @@ static void io_iopoll_reap_events(struct
- 	mutex_unlock(&ctx->uring_lock);
- }
- 
--static int __io_iopoll_check(struct io_ring_ctx *ctx, unsigned *nr_events,
--			    long min)
-+static int io_iopoll_check(struct io_ring_ctx *ctx, unsigned *nr_events,
-+			   long min)
- {
- 	int iters = 0, ret = 0;
- 
-+	/*
-+	 * We disallow the app entering submit/complete with polling, but we
-+	 * still need to lock the ring to prevent racing with polled issue
-+	 * that got punted to a workqueue.
-+	 */
-+	mutex_lock(&ctx->uring_lock);
- 	do {
- 		int tmin = 0;
- 
-@@ -922,21 +928,6 @@ static int __io_iopoll_check(struct io_r
- 		ret = 0;
- 	} while (min && !*nr_events && !need_resched());
- 
--	return ret;
--}
--
--static int io_iopoll_check(struct io_ring_ctx *ctx, unsigned *nr_events,
--			   long min)
--{
--	int ret;
--
--	/*
--	 * We disallow the app entering submit/complete with polling, but we
--	 * still need to lock the ring to prevent racing with polled issue
--	 * that got punted to a workqueue.
--	 */
--	mutex_lock(&ctx->uring_lock);
--	ret = __io_iopoll_check(ctx, nr_events, min);
- 	mutex_unlock(&ctx->uring_lock);
- 	return ret;
- }
-@@ -2721,7 +2712,7 @@ static int io_sq_thread(void *data)
- 				 */
- 				mutex_lock(&ctx->uring_lock);
- 				if (!list_empty(&ctx->poll_list))
--					__io_iopoll_check(ctx, &nr_events, 0);
-+					io_iopoll_getevents(ctx, &nr_events, 0);
- 				else
- 					inflight = 0;
- 				mutex_unlock(&ctx->uring_lock);
+--- a/include/sound/rawmidi.h
++++ b/include/sound/rawmidi.h
+@@ -77,9 +77,9 @@ struct snd_rawmidi_substream {
+ 	struct list_head list;		/* list of all substream for given stream */
+ 	int stream;			/* direction */
+ 	int number;			/* substream number */
+-	unsigned int opened: 1,		/* open flag */
+-		     append: 1,		/* append flag (merge more streams) */
+-		     active_sensing: 1; /* send active sensing when close */
++	bool opened;			/* open flag */
++	bool append;			/* append flag (merge more streams) */
++	bool active_sensing;		/* send active sensing when close */
+ 	int use_count;			/* use counter (for output) */
+ 	size_t bytes;
+ 	struct snd_rawmidi *rmidi;
 
 
