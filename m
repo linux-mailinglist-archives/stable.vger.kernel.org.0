@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5DB3F172053
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:42:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B4CFE171F36
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:33:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731245AbgB0Nue (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 08:50:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48742 "EHLO mail.kernel.org"
+        id S1730389AbgB0OAs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 09:00:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34316 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731238AbgB0Nue (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 08:50:34 -0500
+        id S1732498AbgB0OAp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 09:00:45 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E8A8924688;
-        Thu, 27 Feb 2020 13:50:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 22A8220578;
+        Thu, 27 Feb 2020 14:00:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582811433;
-        bh=Y3pyy1a91dcT2uOGt0m1i2q0UP8gkIqP0mq2PHR0szo=;
+        s=default; t=1582812044;
+        bh=NtWsg5WK7mx+W8fFPsrVUDYPhd4aBxrwTVv3Tc1Vd/Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o3iJw2QuVqgLyB9Lj162mRNzveMeuGO/KOMSPrmTcBWY2Bhfh8lbW7J/UKfJu2Nkt
-         DrvNVazAtBUoAH1aOli2OqISklXWPqppYrfTcu+VXOtGMub4u58Jy7GTDgmnuZXvrT
-         ix8K54PfL8QVUurJe9YrAOGthXKg6Qs+acJ/5riA=
+        b=pMoqF7Hah205DLXpWx35ORb3jDbwhF4lVIBVEu7gpjgcaw1/JbVmh5w9tfJlkppWi
+         Q7jZTA7NhlPTyBGwy0oTI15GQ32HRtAGHo/vuIW6CNKXzXFcJwNwEbOQNFPE1kDVLa
+         vcaueJ8DRqLFdBqaqTz3Dk+v4BsK0AYQ5tkEpWzE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sven Schnelle <sven.schnelle@ibm.com>,
-        Heiko Carstens <heiko.carstens@de.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
+        stable@vger.kernel.org, Vasily Averin <vvs@virtuozzo.com>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 092/165] s390/ftrace: generate traced function stack frame
+Subject: [PATCH 4.14 152/237] ftrace: fpid_next() should increase position index
 Date:   Thu, 27 Feb 2020 14:36:06 +0100
-Message-Id: <20200227132244.751100837@linuxfoundation.org>
+Message-Id: <20200227132307.757197690@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200227132230.840899170@linuxfoundation.org>
-References: <20200227132230.840899170@linuxfoundation.org>
+In-Reply-To: <20200227132255.285644406@linuxfoundation.org>
+References: <20200227132255.285644406@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,101 +44,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasily Gorbik <gor@linux.ibm.com>
+From: Vasily Averin <vvs@virtuozzo.com>
 
-[ Upstream commit 45f7a0da600d3c409b5ad8d5ddddacd98ddc8840 ]
+[ Upstream commit e4075e8bdffd93a9b6d6e1d52fabedceeca5a91b ]
 
-Currently backtrace from ftraced function does not contain ftraced
-function itself. e.g. for "path_openat":
+if seq_file .next fuction does not change position index,
+read after some lseek can generate unexpected output.
 
-arch_stack_walk+0x15c/0x2d8
-stack_trace_save+0x50/0x68
-stack_trace_call+0x15e/0x3d8
-ftrace_graph_caller+0x0/0x1c <-- ftrace code
-do_filp_open+0x7c/0xe8 <-- ftraced function caller
-do_open_execat+0x76/0x1b8
-open_exec+0x52/0x78
-load_elf_binary+0x180/0x1160
-search_binary_handler+0x8e/0x288
-load_script+0x2a8/0x2b8
-search_binary_handler+0x8e/0x288
-__do_execve_file.isra.39+0x6fa/0xb40
-__s390x_sys_execve+0x56/0x68
-system_call+0xdc/0x2d8
+Without patch:
+ # dd bs=4 skip=1 if=/sys/kernel/tracing/set_ftrace_pid
+ dd: /sys/kernel/tracing/set_ftrace_pid: cannot skip to specified offset
+ id
+ no pid
+ 2+1 records in
+ 2+1 records out
+ 10 bytes copied, 0.000213285 s, 46.9 kB/s
 
-Ftraced function is expected in the backtrace by ftrace kselftests, which
-are now failing. It would also be nice to have it for clarity reasons.
+Notice the "id" followed by "no pid".
 
-"ftrace_caller" itself is called without stack frame allocated for it
-and does not store its caller (ftraced function). Instead it simply
-allocates a stack frame for "ftrace_trace_function" and sets backchain
-to point to ftraced function stack frame (which contains ftraced function
-caller in saved r14).
+With the patch:
+ # dd bs=4 skip=1 if=/sys/kernel/tracing/set_ftrace_pid
+ dd: /sys/kernel/tracing/set_ftrace_pid: cannot skip to specified offset
+ id
+ 0+1 records in
+ 0+1 records out
+ 3 bytes copied, 0.000202112 s, 14.8 kB/s
 
-To fix this issue make "ftrace_caller" allocate a stack frame
-for itself just to store ftraced function for the stack unwinder.
-As a result backtrace looks like the following:
+Notice that it only prints "id" and not the "no pid" afterward.
 
-arch_stack_walk+0x15c/0x2d8
-stack_trace_save+0x50/0x68
-stack_trace_call+0x15e/0x3d8
-ftrace_graph_caller+0x0/0x1c <-- ftrace code
-path_openat+0x6/0xd60  <-- ftraced function
-do_filp_open+0x7c/0xe8 <-- ftraced function caller
-do_open_execat+0x76/0x1b8
-open_exec+0x52/0x78
-load_elf_binary+0x180/0x1160
-search_binary_handler+0x8e/0x288
-load_script+0x2a8/0x2b8
-search_binary_handler+0x8e/0x288
-__do_execve_file.isra.39+0x6fa/0xb40
-__s390x_sys_execve+0x56/0x68
-system_call+0xdc/0x2d8
+Link: http://lkml.kernel.org/r/4f87c6ad-f114-30bb-8506-c32274ce2992@virtuozzo.com
 
-Reported-by: Sven Schnelle <sven.schnelle@ibm.com>
-Tested-by: Sven Schnelle <sven.schnelle@ibm.com>
-Reviewed-by: Heiko Carstens <heiko.carstens@de.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+https://bugzilla.kernel.org/show_bug.cgi?id=206283
+Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/kernel/mcount.S | 15 ++++++++++++++-
- 1 file changed, 14 insertions(+), 1 deletion(-)
+ kernel/trace/ftrace.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/arch/s390/kernel/mcount.S b/arch/s390/kernel/mcount.S
-index be75e8e49e43d..802a4ded9a626 100644
---- a/arch/s390/kernel/mcount.S
-+++ b/arch/s390/kernel/mcount.S
-@@ -24,6 +24,12 @@ ENTRY(ftrace_stub)
- #define STACK_PTREGS	  (STACK_FRAME_OVERHEAD)
- #define STACK_PTREGS_GPRS (STACK_PTREGS + __PT_GPRS)
- #define STACK_PTREGS_PSW  (STACK_PTREGS + __PT_PSW)
-+#ifdef __PACK_STACK
-+/* allocate just enough for r14, r15 and backchain */
-+#define TRACED_FUNC_FRAME_SIZE	24
-+#else
-+#define TRACED_FUNC_FRAME_SIZE	STACK_FRAME_OVERHEAD
-+#endif
+diff --git a/kernel/trace/ftrace.c b/kernel/trace/ftrace.c
+index 8974ecbcca3cb..8a8d92a8045b1 100644
+--- a/kernel/trace/ftrace.c
++++ b/kernel/trace/ftrace.c
+@@ -6317,9 +6317,10 @@ static void *fpid_next(struct seq_file *m, void *v, loff_t *pos)
+ 	struct trace_array *tr = m->private;
+ 	struct trace_pid_list *pid_list = rcu_dereference_sched(tr->function_pids);
  
- ENTRY(_mcount)
- 	BR_EX	%r14
-@@ -37,9 +43,16 @@ ENTRY(ftrace_caller)
- #ifndef CC_USING_HOTPATCH
- 	aghi	%r0,MCOUNT_RETURN_FIXUP
- #endif
--	aghi	%r15,-STACK_FRAME_SIZE
-+	# allocate stack frame for ftrace_caller to contain traced function
-+	aghi	%r15,-TRACED_FUNC_FRAME_SIZE
- 	stg	%r1,__SF_BACKCHAIN(%r15)
-+	stg	%r0,(__SF_GPRS+8*8)(%r15)
-+	stg	%r15,(__SF_GPRS+9*8)(%r15)
-+	# allocate pt_regs and stack frame for ftrace_trace_function
-+	aghi	%r15,-STACK_FRAME_SIZE
- 	stg	%r1,(STACK_PTREGS_GPRS+15*8)(%r15)
-+	aghi	%r1,-TRACED_FUNC_FRAME_SIZE
-+	stg	%r1,__SF_BACKCHAIN(%r15)
- 	stg	%r0,(STACK_PTREGS_PSW+8)(%r15)
- 	stmg	%r2,%r14,(STACK_PTREGS_GPRS+2*8)(%r15)
- #ifdef CONFIG_HAVE_MARCH_Z196_FEATURES
+-	if (v == FTRACE_NO_PIDS)
++	if (v == FTRACE_NO_PIDS) {
++		(*pos)++;
+ 		return NULL;
+-
++	}
+ 	return trace_pid_next(pid_list, v, pos);
+ }
+ 
 -- 
 2.20.1
 
