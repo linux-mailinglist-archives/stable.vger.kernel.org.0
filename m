@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AEF6F171FDD
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:40:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B4FC172004
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:40:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731680AbgB0Nza (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 08:55:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55742 "EHLO mail.kernel.org"
+        id S1731858AbgB0OkA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 09:40:00 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54200 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731198AbgB0Nz3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 08:55:29 -0500
+        id S1731835AbgB0NyL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 08:54:11 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0D6BA2084E;
-        Thu, 27 Feb 2020 13:55:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F345D21D7E;
+        Thu, 27 Feb 2020 13:54:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582811728;
-        bh=ryOnP8ucTIYwFVmX7tPoXN5bUSKlEErdFqgLlvtWFRQ=;
+        s=default; t=1582811650;
+        bh=AS1x95BfsGnUdfx7JPk4ObLAvdhoZKA9flXyt40rmf8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CZ95Zi9/Y5KNz96QdE+bt8OJmSyv1ebDX1Sb030CLfQUcyhTNoOfqB9+kwJjl8IYE
-         8TSl8pieNKq0vops3iWtFhBK8SMcXhpXUJzsPgUzlQDQq47pHeFrPoVQeY4f5FwhpM
-         LHf0EkzMx+2bPcDI3+l9505Bx1JrhnNIE90bXZ7k=
+        b=ZcJni5K/nR1tASzd6yjS2ZLWz2E/lm51amnEyL9vhcZOdP92qOj3Gub6DpCBke9EA
+         uDx5VAdd0+pxGYxdJRxmLa1nazxr6cwcPBjv749tSCDwkys8d1J/CaFMj1PcgazprN
+         lvCfFKDNoP1djQHI3JersHvdWQD1xddzB7TxbPf0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maor Gottlieb <maorg@mellanox.com>,
-        Leon Romanovsky <leonro@mellanox.com>
-Subject: [PATCH 4.14 029/237] RDMA/core: Fix protection fault in get_pkey_idx_qp_list
-Date:   Thu, 27 Feb 2020 14:34:03 +0100
-Message-Id: <20200227132258.663284698@linuxfoundation.org>
+        stable@vger.kernel.org, Kan Liang <kan.liang@linux.intel.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Ingo Molnar <mingo@kernel.org>
+Subject: [PATCH 4.14 031/237] perf/x86/intel: Fix inaccurate period in context switch for auto-reload
+Date:   Thu, 27 Feb 2020 14:34:05 +0100
+Message-Id: <20200227132259.028413667@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200227132255.285644406@linuxfoundation.org>
 References: <20200227132255.285644406@linuxfoundation.org>
@@ -43,94 +44,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Leon Romanovsky <leonro@mellanox.com>
+From: Kan Liang <kan.liang@linux.intel.com>
 
-commit 1dd017882e01d2fcd9c5dbbf1eb376211111c393 upstream.
+commit f861854e1b435b27197417f6f90d87188003cb24 upstream.
 
-We don't need to set pkey as valid in case that user set only one of pkey
-index or port number, otherwise it will be resulted in NULL pointer
-dereference while accessing to uninitialized pkey list.  The following
-crash from Syzkaller revealed it.
+Perf doesn't take the left period into account when auto-reload is
+enabled with fixed period sampling mode in context switch.
 
-  kasan: CONFIG_KASAN_INLINE enabled
-  kasan: GPF could be caused by NULL-ptr deref or user memory access
-  general protection fault: 0000 [#1] SMP KASAN PTI
-  CPU: 1 PID: 14753 Comm: syz-executor.2 Not tainted 5.5.0-rc5 #2
-  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS
-  rel-1.12.1-0-ga5cab58e9a3f-prebuilt.qemu.org 04/01/2014
-  RIP: 0010:get_pkey_idx_qp_list+0x161/0x2d0
-  Code: 01 00 00 49 8b 5e 20 4c 39 e3 0f 84 b9 00 00 00 e8 e4 42 6e fe 48
-  8d 7b 10 48 b8 00 00 00 00 00 fc ff df 48 89 fa 48 c1 ea 03 <0f> b6 04
-  02 84 c0 74 08 3c 01 0f 8e d0 00 00 00 48 8d 7d 04 48 b8
-  RSP: 0018:ffffc9000bc6f950 EFLAGS: 00010202
-  RAX: dffffc0000000000 RBX: 0000000000000000 RCX: ffffffff82c8bdec
-  RDX: 0000000000000002 RSI: ffffc900030a8000 RDI: 0000000000000010
-  RBP: ffff888112c8ce80 R08: 0000000000000004 R09: fffff5200178df1f
-  R10: 0000000000000001 R11: fffff5200178df1f R12: ffff888115dc4430
-  R13: ffff888115da8498 R14: ffff888115dc4410 R15: ffff888115da8000
-  FS:  00007f20777de700(0000) GS:ffff88811b100000(0000)
-  knlGS:0000000000000000
-  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  CR2: 0000001b2f721000 CR3: 00000001173ca002 CR4: 0000000000360ee0
-  DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-  DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-  Call Trace:
-   port_pkey_list_insert+0xd7/0x7c0
-   ib_security_modify_qp+0x6fa/0xfc0
-   _ib_modify_qp+0x8c4/0xbf0
-   modify_qp+0x10da/0x16d0
-   ib_uverbs_modify_qp+0x9a/0x100
-   ib_uverbs_write+0xaa5/0xdf0
-   __vfs_write+0x7c/0x100
-   vfs_write+0x168/0x4a0
-   ksys_write+0xc8/0x200
-   do_syscall_64+0x9c/0x390
-   entry_SYSCALL_64_after_hwframe+0x44/0xa9
+Here is the MSR trace of the perf command as below.
+(The MSR trace is simplified from a ftrace log.)
 
-Fixes: d291f1a65232 ("IB/core: Enforce PKey security on QPs")
-Link: https://lore.kernel.org/r/20200212080651.GB679970@unreal
-Signed-off-by: Maor Gottlieb <maorg@mellanox.com>
-Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
-Message-Id: <20200212080651.GB679970@unreal>
+    #perf record -e cycles:p -c 2000000 -- ./triad_loop
+
+      //The MSR trace of task schedule out
+      //perf disable all counters, disable PEBS, disable GP counter 0,
+      //read GP counter 0, and re-enable all counters.
+      //The counter 0 stops at 0xfffffff82840
+      write_msr: MSR_CORE_PERF_GLOBAL_CTRL(38f), value 0
+      write_msr: MSR_IA32_PEBS_ENABLE(3f1), value 0
+      write_msr: MSR_P6_EVNTSEL0(186), value 40003003c
+      rdpmc: 0, value fffffff82840
+      write_msr: MSR_CORE_PERF_GLOBAL_CTRL(38f), value f000000ff
+
+      //The MSR trace of the same task schedule in again
+      //perf disable all counters, enable and set GP counter 0,
+      //enable PEBS, and re-enable all counters.
+      //0xffffffe17b80 (-2000000) is written to GP counter 0.
+      write_msr: MSR_CORE_PERF_GLOBAL_CTRL(38f), value 0
+      write_msr: MSR_IA32_PMC0(4c1), value ffffffe17b80
+      write_msr: MSR_P6_EVNTSEL0(186), value 40043003c
+      write_msr: MSR_IA32_PEBS_ENABLE(3f1), value 1
+      write_msr: MSR_CORE_PERF_GLOBAL_CTRL(38f), value f000000ff
+
+When the same task schedule in again, the counter should starts from
+previous left. However, it starts from the fixed period -2000000 again.
+
+A special variant of intel_pmu_save_and_restart() is used for
+auto-reload, which doesn't update the hwc->period_left.
+When the monitored task schedules in again, perf doesn't know the left
+period. The fixed period is used, which is inaccurate.
+
+With auto-reload, the counter always has a negative counter value. So
+the left period is -value. Update the period_left in
+intel_pmu_save_and_restart_reload().
+
+With the patch:
+
+      //The MSR trace of task schedule out
+      write_msr: MSR_CORE_PERF_GLOBAL_CTRL(38f), value 0
+      write_msr: MSR_IA32_PEBS_ENABLE(3f1), value 0
+      write_msr: MSR_P6_EVNTSEL0(186), value 40003003c
+      rdpmc: 0, value ffffffe25cbc
+      write_msr: MSR_CORE_PERF_GLOBAL_CTRL(38f), value f000000ff
+
+      //The MSR trace of the same task schedule in again
+      write_msr: MSR_CORE_PERF_GLOBAL_CTRL(38f), value 0
+      write_msr: MSR_IA32_PMC0(4c1), value ffffffe25cbc
+      write_msr: MSR_P6_EVNTSEL0(186), value 40043003c
+      write_msr: MSR_IA32_PEBS_ENABLE(3f1), value 1
+      write_msr: MSR_CORE_PERF_GLOBAL_CTRL(38f), value f000000ff
+
+Fixes: d31fc13fdcb2 ("perf/x86/intel: Fix event update for auto-reload")
+Signed-off-by: Kan Liang <kan.liang@linux.intel.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Link: https://lkml.kernel.org/r/20200121190125.3389-1-kan.liang@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/infiniband/core/security.c |   24 +++++++++---------------
- 1 file changed, 9 insertions(+), 15 deletions(-)
+ arch/x86/events/intel/ds.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/infiniband/core/security.c
-+++ b/drivers/infiniband/core/security.c
-@@ -338,22 +338,16 @@ static struct ib_ports_pkeys *get_new_pp
- 	if (!new_pps)
- 		return NULL;
+--- a/arch/x86/events/intel/ds.c
++++ b/arch/x86/events/intel/ds.c
+@@ -1368,6 +1368,8 @@ intel_pmu_save_and_restart_reload(struct
+ 	old = ((s64)(prev_raw_count << shift) >> shift);
+ 	local64_add(new - old + count * period, &event->count);
  
--	if (qp_attr_mask & (IB_QP_PKEY_INDEX | IB_QP_PORT)) {
--		if (!qp_pps) {
--			new_pps->main.port_num = qp_attr->port_num;
--			new_pps->main.pkey_index = qp_attr->pkey_index;
--		} else {
--			new_pps->main.port_num = (qp_attr_mask & IB_QP_PORT) ?
--						  qp_attr->port_num :
--						  qp_pps->main.port_num;
--
--			new_pps->main.pkey_index =
--					(qp_attr_mask & IB_QP_PKEY_INDEX) ?
--					 qp_attr->pkey_index :
--					 qp_pps->main.pkey_index;
--		}
-+	if (qp_attr_mask & IB_QP_PORT)
-+		new_pps->main.port_num =
-+			(qp_pps) ? qp_pps->main.port_num : qp_attr->port_num;
-+	if (qp_attr_mask & IB_QP_PKEY_INDEX)
-+		new_pps->main.pkey_index = (qp_pps) ? qp_pps->main.pkey_index :
-+						      qp_attr->pkey_index;
-+	if ((qp_attr_mask & IB_QP_PKEY_INDEX) && (qp_attr_mask & IB_QP_PORT))
- 		new_pps->main.state = IB_PORT_PKEY_VALID;
--	} else if (qp_pps) {
++	local64_set(&hwc->period_left, -new);
 +
-+	if (!(qp_attr_mask & (IB_QP_PKEY_INDEX || IB_QP_PORT)) && qp_pps) {
- 		new_pps->main.port_num = qp_pps->main.port_num;
- 		new_pps->main.pkey_index = qp_pps->main.pkey_index;
- 		if (qp_pps->main.state != IB_PORT_PKEY_NOT_VALID)
+ 	perf_event_update_userpage(event);
+ 
+ 	return 0;
 
 
