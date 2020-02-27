@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E972D17217F
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:49:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4597C171F78
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:37:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729479AbgB0NlE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 08:41:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35602 "EHLO mail.kernel.org"
+        id S1732037AbgB0N5j (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 08:57:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58622 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729465AbgB0NlD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 08:41:03 -0500
+        id S1732312AbgB0N5i (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 08:57:38 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8CDD52469F;
-        Thu, 27 Feb 2020 13:41:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 74F4E2073D;
+        Thu, 27 Feb 2020 13:57:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582810863;
-        bh=k+XzV/W9UPSf5JZG4LsaLccqrAu0LZ7Ag9WTLrAZBPE=;
+        s=default; t=1582811857;
+        bh=2+cmvOTfjefLg7z9K6NEbzvp0YsZpeIAhXSEBWBCpx8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cAN5FtXeNimwAZvyQt5SH6UAuy0yY3dLRuSZRqrEC3T9ode4yVU2270Gh9qQrZBjD
-         UGjPWVWBEX/lfUsAwfb7JTeIAzo77zpq3/Vxp21EatT7y1Jqeqj4pKibQtBPsssBPQ
-         Xw2gIE3J17V/9dbz42klqF0lKqX6Kpf0rKJDddLQ=
+        b=NbQjEvgIkSqr/7UuLfcfW7mH7uMy+KOZeeVZ7KtUq2GlyJo51lD6RkQlGRwcKCrCF
+         TWn1WZeV/eAhtPmySEoz34AZgRIJUuJDt7Y3NHlNGto1H2FvcO9ErpeegG11B1uz32
+         P/E3zx6NqLwuiIIpHVnSUj0tijWWhaL60RuKuyKg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jia-Ju Bai <baijiaju1990@gmail.com>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 027/113] uio: fix a sleep-in-atomic-context bug in uio_dmem_genirq_irqcontrol()
+Subject: [PATCH 4.14 129/237] cmd64x: potential buffer overflow in cmd64x_program_timings()
 Date:   Thu, 27 Feb 2020 14:35:43 +0100
-Message-Id: <20200227132216.032949267@linuxfoundation.org>
+Message-Id: <20200227132306.236241168@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200227132211.791484803@linuxfoundation.org>
-References: <20200227132211.791484803@linuxfoundation.org>
+In-Reply-To: <20200227132255.285644406@linuxfoundation.org>
+References: <20200227132255.285644406@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,54 +44,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jia-Ju Bai <baijiaju1990@gmail.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit b74351287d4bd90636c3f48bc188c2f53824c2d4 ]
+[ Upstream commit 117fcc3053606d8db5cef8821dca15022ae578bb ]
 
-The driver may sleep while holding a spinlock.
-The function call path (from bottom to top) in Linux 4.19 is:
+The "drive->dn" value is a u8 and it is controlled by root only, but
+it could be out of bounds here so let's check.
 
-kernel/irq/manage.c, 523:
-	synchronize_irq in disable_irq
-drivers/uio/uio_dmem_genirq.c, 140:
-	disable_irq in uio_dmem_genirq_irqcontrol
-drivers/uio/uio_dmem_genirq.c, 134:
-	_raw_spin_lock_irqsave in uio_dmem_genirq_irqcontrol
-
-synchronize_irq() can sleep at runtime.
-
-To fix this bug, disable_irq() is called without holding the spinlock.
-
-This bug is found by a static analysis tool STCheck written by myself.
-
-Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
-Link: https://lore.kernel.org/r/20191218094405.6009-1-baijiaju1990@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/uio/uio_dmem_genirq.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/ide/cmd64x.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/uio/uio_dmem_genirq.c b/drivers/uio/uio_dmem_genirq.c
-index e1134a4d97f3f..a00b4aee6c799 100644
---- a/drivers/uio/uio_dmem_genirq.c
-+++ b/drivers/uio/uio_dmem_genirq.c
-@@ -135,11 +135,13 @@ static int uio_dmem_genirq_irqcontrol(struct uio_info *dev_info, s32 irq_on)
- 	if (irq_on) {
- 		if (test_and_clear_bit(0, &priv->flags))
- 			enable_irq(dev_info->irq);
-+		spin_unlock_irqrestore(&priv->lock, flags);
- 	} else {
--		if (!test_and_set_bit(0, &priv->flags))
-+		if (!test_and_set_bit(0, &priv->flags)) {
-+			spin_unlock_irqrestore(&priv->lock, flags);
- 			disable_irq(dev_info->irq);
-+		}
- 	}
--	spin_unlock_irqrestore(&priv->lock, flags);
+diff --git a/drivers/ide/cmd64x.c b/drivers/ide/cmd64x.c
+index b127ed60c7336..9dde8390da09b 100644
+--- a/drivers/ide/cmd64x.c
++++ b/drivers/ide/cmd64x.c
+@@ -65,6 +65,9 @@ static void cmd64x_program_timings(ide_drive_t *drive, u8 mode)
+ 	struct ide_timing t;
+ 	u8 arttim = 0;
  
- 	return 0;
- }
++	if (drive->dn >= ARRAY_SIZE(drwtim_regs))
++		return;
++
+ 	ide_timing_compute(drive, mode, &t, T, 0);
+ 
+ 	/*
 -- 
 2.20.1
 
