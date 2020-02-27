@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5CD5C171B3B
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:00:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 98792171B9B
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:04:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732769AbgB0OAd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 09:00:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33908 "EHLO mail.kernel.org"
+        id S2387503AbgB0OD6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 09:03:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39756 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732702AbgB0OA3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 09:00:29 -0500
+        id S1730232AbgB0OD5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 09:03:57 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8CCF520578;
-        Thu, 27 Feb 2020 14:00:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B2F8B21D7E;
+        Thu, 27 Feb 2020 14:03:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582812029;
-        bh=1GuQ5GGLe50dB+4PbVvgIhOVG2Qc5PRkJxTtW2x6mt8=;
+        s=default; t=1582812237;
+        bh=+TFOXBk75S8bLqdzidN0IZTgL72Fo3EFA7peJq32h5s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VfJglhbaCIab0Xq7QWfQQLOrOeIZXG5QxIP0nBcI1bY9+mirXcdiH1ucDhkqa+s77
-         rRI0iRUadiyAKr0Hf6qW8qTytFgM4v1nJZvPRe2Elrwe4nE5YwAnSwD/HEYYCkd2ap
-         9Js/0BacPPRwUsnANneXjIbFaxCnnkO3a+z+kC+0=
+        b=JUaJG7ejud+R5ir549L1Ep6jtBQvOIy5knAN+VSJBBDCXlJqsK/o7ElrahqV2SDAx
+         6SxpwV1BAR8NRcUGw/lAAgZ0/ZrAZHRISD+mlSaoPveFylt4Oe9Wx832TOR/4evcsZ
+         b3sRFkJGVlbEq5UR8jVsjii+JlCTe+y+W+1+YGvA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
         Borislav Petkov <bp@suse.de>
-Subject: [PATCH 4.14 192/237] x86/mce/amd: Fix kobject lifetime
+Subject: [PATCH 4.19 38/97] x86/mce/amd: Fix kobject lifetime
 Date:   Thu, 27 Feb 2020 14:36:46 +0100
-Message-Id: <20200227132310.443287004@linuxfoundation.org>
+Message-Id: <20200227132220.767800679@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200227132255.285644406@linuxfoundation.org>
-References: <20200227132255.285644406@linuxfoundation.org>
+In-Reply-To: <20200227132214.553656188@linuxfoundation.org>
+References: <20200227132214.553656188@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -81,7 +81,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/arch/x86/kernel/cpu/mcheck/mce_amd.c
 +++ b/arch/x86/kernel/cpu/mcheck/mce_amd.c
-@@ -1116,9 +1116,12 @@ static const struct sysfs_ops threshold_
+@@ -1117,9 +1117,12 @@ static const struct sysfs_ops threshold_
  	.store			= store,
  };
  
@@ -94,7 +94,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  };
  
  static const char *get_name(unsigned int bank, struct threshold_block *b)
-@@ -1320,8 +1323,12 @@ static int threshold_create_bank(unsigne
+@@ -1321,8 +1324,12 @@ static int threshold_create_bank(unsigne
  	return err;
  }
  
@@ -109,7 +109,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  {
  	struct threshold_block *pos = NULL;
  	struct threshold_block *tmp = NULL;
-@@ -1331,13 +1338,11 @@ static void deallocate_threshold_block(u
+@@ -1332,13 +1339,11 @@ static void deallocate_threshold_block(u
  		return;
  
  	list_for_each_entry_safe(pos, tmp, &head->blocks->miscj, miscj) {
