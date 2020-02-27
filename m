@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 603F7171CD5
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:15:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A3C20171E42
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:26:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388964AbgB0OPn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 09:15:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55312 "EHLO mail.kernel.org"
+        id S2387797AbgB0OJj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 09:09:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47626 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388403AbgB0OPk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 09:15:40 -0500
+        id S2387491AbgB0OJi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 09:09:38 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8620320578;
-        Thu, 27 Feb 2020 14:15:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 53A3D20578;
+        Thu, 27 Feb 2020 14:09:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582812940;
-        bh=qeuyLHc7L0dkcvrU9U/EoihFhJn/C0c0dFgiBvVErrE=;
+        s=default; t=1582812577;
+        bh=j7Esz9MRrziFaKvbegGmJ2sP8Zk9oZqygIPzkHsLPYc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rMAL0J/Ol9nWsYe7zRP38aK/vdY9M6BqeAaRVSFDpXxSNDdT4e39vWVmpcNs1srfU
-         FA95cKTtqeEDsylfjPP4st3sEZnWihgKA0nTceAzya33wwLz6I2Gz4BeHmmmjib0wq
-         2bc6GoOTiqzQEoBSJlFlhlQ+48fpOWROdSwoCMNA=
+        b=fYN6v2kJNnI9GnLiEtMGDzFPDqChER8Vh5EdSJmqvrF9kKw6KCDMcQIAMNCdhnVaN
+         TNJkzuopPukeoJf7kJmvaUoMDWQP3HaO9YqY9SVAJfGssuhdye/saWJg5lCI9yzqML
+         kX6PabOPcq7aIDtAfndZ6i8IYTgkaZneqy9uGcrA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zenghui Yu <yuzenghui@huawei.com>,
-        Thomas Gleixner <tglx@linutronix.de>
-Subject: [PATCH 5.5 075/150] genirq/irqdomain: Make sure all irq domain flags are distinct
+        stable@vger.kernel.org, Xiaojie Yuan <xiaojie.yuan@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 5.4 072/135] drm/amdgpu/gfx10: disable gfxoff when reading rlc clock
 Date:   Thu, 27 Feb 2020 14:36:52 +0100
-Message-Id: <20200227132243.931133271@linuxfoundation.org>
+Message-Id: <20200227132240.183783419@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200227132232.815448360@linuxfoundation.org>
-References: <20200227132232.815448360@linuxfoundation.org>
+In-Reply-To: <20200227132228.710492098@linuxfoundation.org>
+References: <20200227132228.710492098@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,40 +43,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zenghui Yu <yuzenghui@huawei.com>
+From: Alex Deucher <alexander.deucher@amd.com>
 
-commit 2546287c5fb363a0165933ae2181c92f03e701d0 upstream.
+commit b08c3ed609aabc4e76e74edc4404f0c26279d7ed upstream.
 
-This was noticed when printing debugfs for MSIs on my ARM64 server.  The
-new dstate IRQD_MSI_NOMASK_QUIRK came out surprisingly while it should only
-be the x86 stuff for the time being...
+Otherwise we readback all ones.  Fixes rlc counter
+readback while gfxoff is active.
 
-The new MSI quirk flag uses the same bit as IRQ_DOMAIN_NAME_ALLOCATED which
-is oddly defined as bit 6 for no good reason.
-
-Switch it to the non used bit 1.
-
-Fixes: 6f1a4891a592 ("x86/apic/msi: Plug non-maskable MSI affinity race")
-Signed-off-by: Zenghui Yu <yuzenghui@huawei.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Reviewed-by: Xiaojie Yuan <xiaojie.yuan@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/20200221020725.2038-1-yuzenghui@huawei.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- include/linux/irqdomain.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/amd/amdgpu/gfx_v10_0.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/include/linux/irqdomain.h
-+++ b/include/linux/irqdomain.h
-@@ -192,7 +192,7 @@ enum {
- 	IRQ_DOMAIN_FLAG_HIERARCHY	= (1 << 0),
+--- a/drivers/gpu/drm/amd/amdgpu/gfx_v10_0.c
++++ b/drivers/gpu/drm/amd/amdgpu/gfx_v10_0.c
+@@ -3977,11 +3977,13 @@ static uint64_t gfx_v10_0_get_gpu_clock_
+ {
+ 	uint64_t clock;
  
- 	/* Irq domain name was allocated in __irq_domain_add() */
--	IRQ_DOMAIN_NAME_ALLOCATED	= (1 << 6),
-+	IRQ_DOMAIN_NAME_ALLOCATED	= (1 << 1),
++	amdgpu_gfx_off_ctrl(adev, false);
+ 	mutex_lock(&adev->gfx.gpu_clock_mutex);
+ 	WREG32_SOC15(GC, 0, mmRLC_CAPTURE_GPU_CLOCK_COUNT, 1);
+ 	clock = (uint64_t)RREG32_SOC15(GC, 0, mmRLC_GPU_CLOCK_COUNT_LSB) |
+ 		((uint64_t)RREG32_SOC15(GC, 0, mmRLC_GPU_CLOCK_COUNT_MSB) << 32ULL);
+ 	mutex_unlock(&adev->gfx.gpu_clock_mutex);
++	amdgpu_gfx_off_ctrl(adev, true);
+ 	return clock;
+ }
  
- 	/* Irq domain is an IPI domain with virq per cpu */
- 	IRQ_DOMAIN_FLAG_IPI_PER_CPU	= (1 << 2),
 
 
