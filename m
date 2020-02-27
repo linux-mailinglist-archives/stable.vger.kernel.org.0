@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0347E171E01
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:24:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B0C3171BC7
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:05:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388839AbgB0OMb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 09:12:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51164 "EHLO mail.kernel.org"
+        id S2387801AbgB0OFl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 09:05:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42436 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730886AbgB0OMa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 09:12:30 -0500
+        id S2387798AbgB0OFk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 09:05:40 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 66DCD20578;
-        Thu, 27 Feb 2020 14:12:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5B02720578;
+        Thu, 27 Feb 2020 14:05:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582812749;
-        bh=Tjc+VNTIwPmQo8lQytQmKQARh+VJKu0de2ydV+Hpy3g=;
+        s=default; t=1582812339;
+        bh=qpo+XMyyKLIxMT/BdGw0TqsKggEost62VlexUf7Rc0o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KLqL0t/hSBpR+m9gG/fhsykQ3FI0tBFYqZkblPG+u8tEiCDycTq+/a1QeZYIvKX4R
-         bwbz8jWBmespnxMJMPx4kMhADebD/81BN1XYS4xQ+18pHKthXBnd4q2v3QAdZloCvR
-         LlYPW6LcMqvpBI4gByvL/JyOVJSqN9+DqVDhxRXQ=
+        b=is+E26KGS639ffM51QOXe238W/R7++lwi2G2r7zdsc9YLUM12LW3oANjBhF1RwEcR
+         xWI8ammLYjGx9a9yigkpaFrWu315Qgu4sGtTYqbqfE5pdd+oxbWaeL6zHaghhIxX+x
+         SgsSrIO2EeYifMuWH+zuXijxUTLBWeOGX0USET38=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rob Clark <robdclark@chromium.org>,
-        Sean Paul <seanpaul@chromium.org>
-Subject: [PATCH 5.4 106/135] drm/msm/dpu: fix BGR565 vs RGB565 confusion
+        stable@vger.kernel.org, Qu Wenruo <wqu@suse.com>,
+        Josef Bacik <josef@toxicpanda.com>,
+        Filipe Manana <fdmanana@suse.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 4.19 78/97] Btrfs: fix btrfs_wait_ordered_range() so that it waits for all ordered extents
 Date:   Thu, 27 Feb 2020 14:37:26 +0100
-Message-Id: <20200227132245.163850701@linuxfoundation.org>
+Message-Id: <20200227132227.200104132@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200227132228.710492098@linuxfoundation.org>
-References: <20200227132228.710492098@linuxfoundation.org>
+In-Reply-To: <20200227132214.553656188@linuxfoundation.org>
+References: <20200227132214.553656188@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,41 +45,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rob Clark <robdclark@chromium.org>
+From: Filipe Manana <fdmanana@suse.com>
 
-commit 8fc7036ee652207ca992fbb9abb64090c355a9e0 upstream.
+commit e75fd33b3f744f644061a4f9662bd63f5434f806 upstream.
 
-The component order between the two was swapped, resulting in incorrect
-color when games with 565 visual hit the overlay path instead of GPU
-composition.
+In btrfs_wait_ordered_range() once we find an ordered extent that has
+finished with an error we exit the loop and don't wait for any other
+ordered extents that might be still in progress.
 
-Fixes: 25fdd5933e4c ("drm/msm: Add SDM845 DPU support")
-Signed-off-by: Rob Clark <robdclark@chromium.org>
-Reviewed-by: Sean Paul <seanpaul@chromium.org>
-Signed-off-by: Rob Clark <robdclark@chromium.org>
+All the users of btrfs_wait_ordered_range() expect that there are no more
+ordered extents in progress after that function returns. So past fixes
+such like the ones from the two following commits:
+
+  ff612ba7849964 ("btrfs: fix panic during relocation after ENOSPC before
+                   writeback happens")
+
+  28aeeac1dd3080 ("Btrfs: fix panic when starting bg cache writeout after
+                   IO error")
+
+don't work when there are multiple ordered extents in the range.
+
+Fix that by making btrfs_wait_ordered_range() wait for all ordered extents
+even after it finds one that had an error.
+
+Link: https://github.com/kdave/btrfs-progs/issues/228#issuecomment-569777554
+CC: stable@vger.kernel.org # 4.4+
+Reviewed-by: Qu Wenruo <wqu@suse.com>
+Reviewed-by: Josef Bacik <josef@toxicpanda.com>
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/msm/disp/dpu1/dpu_formats.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ fs/btrfs/ordered-data.c |    7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/msm/disp/dpu1/dpu_formats.c
-+++ b/drivers/gpu/drm/msm/disp/dpu1/dpu_formats.c
-@@ -255,13 +255,13 @@ static const struct dpu_format dpu_forma
- 
- 	INTERLEAVED_RGB_FMT(RGB565,
- 		0, COLOR_5BIT, COLOR_6BIT, COLOR_5BIT,
--		C2_R_Cr, C0_G_Y, C1_B_Cb, 0, 3,
-+		C1_B_Cb, C0_G_Y, C2_R_Cr, 0, 3,
- 		false, 2, 0,
- 		DPU_FETCH_LINEAR, 1),
- 
- 	INTERLEAVED_RGB_FMT(BGR565,
- 		0, COLOR_5BIT, COLOR_6BIT, COLOR_5BIT,
--		C1_B_Cb, C0_G_Y, C2_R_Cr, 0, 3,
-+		C2_R_Cr, C0_G_Y, C1_B_Cb, 0, 3,
- 		false, 2, 0,
- 		DPU_FETCH_LINEAR, 1),
- 
+--- a/fs/btrfs/ordered-data.c
++++ b/fs/btrfs/ordered-data.c
+@@ -712,10 +712,15 @@ int btrfs_wait_ordered_range(struct inod
+ 		}
+ 		btrfs_start_ordered_extent(inode, ordered, 1);
+ 		end = ordered->file_offset;
++		/*
++		 * If the ordered extent had an error save the error but don't
++		 * exit without waiting first for all other ordered extents in
++		 * the range to complete.
++		 */
+ 		if (test_bit(BTRFS_ORDERED_IOERR, &ordered->flags))
+ 			ret = -EIO;
+ 		btrfs_put_ordered_extent(ordered);
+-		if (ret || end == 0 || end == start)
++		if (end == 0 || end == start)
+ 			break;
+ 		end--;
+ 	}
 
 
