@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BCDFD171E3A
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:26:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 360D5171D8A
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:22:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729950AbgB0O0R (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 09:26:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48446 "EHLO mail.kernel.org"
+        id S2389481AbgB0OQU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 09:16:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56388 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388511AbgB0OKR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 09:10:17 -0500
+        id S2389478AbgB0OQT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 09:16:19 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A36EF24690;
-        Thu, 27 Feb 2020 14:10:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E5C3624691;
+        Thu, 27 Feb 2020 14:16:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582812617;
-        bh=peky+B/+jAuDo7DMEj/vjDnAIaEppoZ3PbEaNfuwQ60=;
+        s=default; t=1582812978;
+        bh=BM7zitM8Xs6eDc1Sq2p4hyIZGSlsBceV8xTvgE7E6w8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=afofdfy7uDqzHusrIzZoWXT3wiHL75kPTXPwAWTKvobe/gA0uiacCiUAOJWA0BPtX
-         8+WsnuJ4e5tDAMgDG2TV8DlysKK31fEdZ7xohopiuWviFJplDzaAyw8I8VR1vmjXVH
-         B/0nooKrCH3OpfO8LDjrPQ0MUL/QUD7i9hzx/Bag=
+        b=Z6jcAFHHofz9sTHnU+oABWGmMD5LhBXKFRSHAhLj7prayq+ucjsdA1bSFPh0gEk/N
+         bWFudOYrXRI2+G4Tai5CzDl1WjLo3qdaPyfPyLQ2qLAS18KxaUP1p5r3+Bup/HNpYf
+         ILbgpRRFrqqf7yblOSGHKuEmznQTBy+GtOiwBAqg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+2202a584a00fffd19fbf@syzkaller.appspotmail.com,
-        Eric Biggers <ebiggers@google.com>,
-        Theodore Tso <tytso@mit.edu>, Jan Kara <jack@suse.cz>,
-        stable@kernel.org
-Subject: [PATCH 5.4 086/135] ext4: fix race between writepages and enabling EXT4_EXTENTS_FL
+        stable@vger.kernel.org, Qian Cai <cai@lca.pw>,
+        Theodore Tso <tytso@mit.edu>, stable@kernel.org
+Subject: [PATCH 5.5 089/150] ext4: fix a data race in EXT4_I(inode)->i_disksize
 Date:   Thu, 27 Feb 2020 14:37:06 +0100
-Message-Id: <20200227132242.252467625@linuxfoundation.org>
+Message-Id: <20200227132245.939316844@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200227132228.710492098@linuxfoundation.org>
-References: <20200227132228.710492098@linuxfoundation.org>
+In-Reply-To: <20200227132232.815448360@linuxfoundation.org>
+References: <20200227132232.815448360@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,167 +43,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+From: Qian Cai <cai@lca.pw>
 
-commit cb85f4d23f794e24127f3e562cb3b54b0803f456 upstream.
+commit 35df4299a6487f323b0aca120ea3f485dfee2ae3 upstream.
 
-If EXT4_EXTENTS_FL is set on an inode while ext4_writepages() is running
-on it, the following warning in ext4_add_complete_io() can be hit:
+EXT4_I(inode)->i_disksize could be accessed concurrently as noticed by
+KCSAN,
 
-WARNING: CPU: 1 PID: 0 at fs/ext4/page-io.c:234 ext4_put_io_end_defer+0xf0/0x120
+ BUG: KCSAN: data-race in ext4_write_end [ext4] / ext4_writepages [ext4]
 
-Here's a minimal reproducer (not 100% reliable) (root isn't required):
+ write to 0xffff91c6713b00f8 of 8 bytes by task 49268 on cpu 127:
+  ext4_write_end+0x4e3/0x750 [ext4]
+  ext4_update_i_disksize at fs/ext4/ext4.h:3032
+  (inlined by) ext4_update_inode_size at fs/ext4/ext4.h:3046
+  (inlined by) ext4_write_end at fs/ext4/inode.c:1287
+  generic_perform_write+0x208/0x2a0
+  ext4_buffered_write_iter+0x11f/0x210 [ext4]
+  ext4_file_write_iter+0xce/0x9e0 [ext4]
+  new_sync_write+0x29c/0x3b0
+  __vfs_write+0x92/0xa0
+  vfs_write+0x103/0x260
+  ksys_write+0x9d/0x130
+  __x64_sys_write+0x4c/0x60
+  do_syscall_64+0x91/0xb47
+  entry_SYSCALL_64_after_hwframe+0x49/0xbe
 
-        while true; do
-                sync
-        done &
-        while true; do
-                rm -f file
-                touch file
-                chattr -e file
-                echo X >> file
-                chattr +e file
-        done
+ read to 0xffff91c6713b00f8 of 8 bytes by task 24872 on cpu 37:
+  ext4_writepages+0x10ac/0x1d00 [ext4]
+  mpage_map_and_submit_extent at fs/ext4/inode.c:2468
+  (inlined by) ext4_writepages at fs/ext4/inode.c:2772
+  do_writepages+0x5e/0x130
+  __writeback_single_inode+0xeb/0xb20
+  writeback_sb_inodes+0x429/0x900
+  __writeback_inodes_wb+0xc4/0x150
+  wb_writeback+0x4bd/0x870
+  wb_workfn+0x6b4/0x960
+  process_one_work+0x54c/0xbe0
+  worker_thread+0x80/0x650
+  kthread+0x1e0/0x200
+  ret_from_fork+0x27/0x50
 
-The problem is that in ext4_writepages(), ext4_should_dioread_nolock()
-(which only returns true on extent-based files) is checked once to set
-the number of reserved journal credits, and also again later to select
-the flags for ext4_map_blocks() and copy the reserved journal handle to
-ext4_io_end::handle.  But if EXT4_EXTENTS_FL is being concurrently set,
-the first check can see dioread_nolock disabled while the later one can
-see it enabled, causing the reserved handle to unexpectedly be NULL.
+ Reported by Kernel Concurrency Sanitizer on:
+ CPU: 37 PID: 24872 Comm: kworker/u261:2 Tainted: G        W  O L 5.5.0-next-20200204+ #5
+ Hardware name: HPE ProLiant DL385 Gen10/ProLiant DL385 Gen10, BIOS A40 07/10/2019
+ Workqueue: writeback wb_workfn (flush-7:0)
 
-Since changing EXT4_EXTENTS_FL is uncommon, and there may be other races
-related to doing so as well, fix this by synchronizing changing
-EXT4_EXTENTS_FL with ext4_writepages() via the existing
-s_writepages_rwsem (previously called s_journal_flag_rwsem).
+Since only the read is operating as lockless (outside of the
+"i_data_sem"), load tearing could introduce a logic bug. Fix it by
+adding READ_ONCE() for the read and WRITE_ONCE() for the write.
 
-This was originally reported by syzbot without a reproducer at
-https://syzkaller.appspot.com/bug?extid=2202a584a00fffd19fbf,
-but now that dioread_nolock is the default I also started seeing this
-when running syzkaller locally.
-
-Link: https://lore.kernel.org/r/20200219183047.47417-3-ebiggers@kernel.org
-Reported-by: syzbot+2202a584a00fffd19fbf@syzkaller.appspotmail.com
-Fixes: 6b523df4fb5a ("ext4: use transaction reservation for extent conversion in ext4_end_io")
-Signed-off-by: Eric Biggers <ebiggers@google.com>
+Signed-off-by: Qian Cai <cai@lca.pw>
+Link: https://lore.kernel.org/r/1581085751-31793-1-git-send-email-cai@lca.pw
 Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Reviewed-by: Jan Kara <jack@suse.cz>
 Cc: stable@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/ext4/ext4.h    |    5 ++++-
- fs/ext4/migrate.c |   27 +++++++++++++++++++--------
- 2 files changed, 23 insertions(+), 9 deletions(-)
+ fs/ext4/ext4.h  |    2 +-
+ fs/ext4/inode.c |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
 --- a/fs/ext4/ext4.h
 +++ b/fs/ext4/ext4.h
-@@ -1548,7 +1548,10 @@ struct ext4_sb_info {
- 	struct ratelimit_state s_warning_ratelimit_state;
- 	struct ratelimit_state s_msg_ratelimit_state;
- 
--	/* Barrier between changing inodes' journal flags and writepages ops. */
-+	/*
-+	 * Barrier between writepages ops and changing any inode's JOURNAL_DATA
-+	 * or EXTENTS flag.
-+	 */
- 	struct percpu_rw_semaphore s_writepages_rwsem;
- 	struct dax_device *s_daxdev;
- };
---- a/fs/ext4/migrate.c
-+++ b/fs/ext4/migrate.c
-@@ -427,6 +427,7 @@ static int free_ext_block(handle_t *hand
- 
- int ext4_ext_migrate(struct inode *inode)
- {
-+	struct ext4_sb_info *sbi = EXT4_SB(inode->i_sb);
- 	handle_t *handle;
- 	int retval = 0, i;
- 	__le32 *i_data;
-@@ -451,6 +452,8 @@ int ext4_ext_migrate(struct inode *inode
- 		 */
- 		return retval;
- 
-+	percpu_down_write(&sbi->s_writepages_rwsem);
-+
- 	/*
- 	 * Worst case we can touch the allocation bitmaps, a bgd
- 	 * block, and a block to link in the orphan list.  We do need
-@@ -461,7 +464,7 @@ int ext4_ext_migrate(struct inode *inode
- 
- 	if (IS_ERR(handle)) {
- 		retval = PTR_ERR(handle);
--		return retval;
-+		goto out_unlock;
- 	}
- 	goal = (((inode->i_ino - 1) / EXT4_INODES_PER_GROUP(inode->i_sb)) *
- 		EXT4_INODES_PER_GROUP(inode->i_sb)) + 1;
-@@ -472,7 +475,7 @@ int ext4_ext_migrate(struct inode *inode
- 	if (IS_ERR(tmp_inode)) {
- 		retval = PTR_ERR(tmp_inode);
- 		ext4_journal_stop(handle);
--		return retval;
-+		goto out_unlock;
- 	}
- 	i_size_write(tmp_inode, i_size_read(inode));
- 	/*
-@@ -514,7 +517,7 @@ int ext4_ext_migrate(struct inode *inode
- 		 */
- 		ext4_orphan_del(NULL, tmp_inode);
- 		retval = PTR_ERR(handle);
--		goto out;
-+		goto out_tmp_inode;
- 	}
- 
- 	ei = EXT4_I(inode);
-@@ -595,10 +598,11 @@ err_out:
- 	/* Reset the extent details */
- 	ext4_ext_tree_init(handle, tmp_inode);
- 	ext4_journal_stop(handle);
--out:
-+out_tmp_inode:
- 	unlock_new_inode(tmp_inode);
- 	iput(tmp_inode);
--
-+out_unlock:
-+	percpu_up_write(&sbi->s_writepages_rwsem);
- 	return retval;
- }
- 
-@@ -608,7 +612,8 @@ out:
- int ext4_ind_migrate(struct inode *inode)
- {
- 	struct ext4_extent_header	*eh;
--	struct ext4_super_block		*es = EXT4_SB(inode->i_sb)->s_es;
-+	struct ext4_sb_info		*sbi = EXT4_SB(inode->i_sb);
-+	struct ext4_super_block		*es = sbi->s_es;
- 	struct ext4_inode_info		*ei = EXT4_I(inode);
- 	struct ext4_extent		*ex;
- 	unsigned int			i, len;
-@@ -632,9 +637,13 @@ int ext4_ind_migrate(struct inode *inode
- 	if (test_opt(inode->i_sb, DELALLOC))
- 		ext4_alloc_da_blocks(inode);
- 
-+	percpu_down_write(&sbi->s_writepages_rwsem);
-+
- 	handle = ext4_journal_start(inode, EXT4_HT_MIGRATE, 1);
--	if (IS_ERR(handle))
--		return PTR_ERR(handle);
-+	if (IS_ERR(handle)) {
-+		ret = PTR_ERR(handle);
-+		goto out_unlock;
-+	}
- 
+@@ -2972,7 +2972,7 @@ static inline void ext4_update_i_disksiz
+ 		     !inode_is_locked(inode));
  	down_write(&EXT4_I(inode)->i_data_sem);
- 	ret = ext4_ext_check_inode(inode);
-@@ -669,5 +678,7 @@ int ext4_ind_migrate(struct inode *inode
- errout:
- 	ext4_journal_stop(handle);
+ 	if (newsize > EXT4_I(inode)->i_disksize)
+-		EXT4_I(inode)->i_disksize = newsize;
++		WRITE_ONCE(EXT4_I(inode)->i_disksize, newsize);
  	up_write(&EXT4_I(inode)->i_data_sem);
-+out_unlock:
-+	percpu_up_write(&sbi->s_writepages_rwsem);
- 	return ret;
  }
+ 
+--- a/fs/ext4/inode.c
++++ b/fs/ext4/inode.c
+@@ -2466,7 +2466,7 @@ update_disksize:
+ 	 * truncate are avoided by checking i_size under i_data_sem.
+ 	 */
+ 	disksize = ((loff_t)mpd->first_page) << PAGE_SHIFT;
+-	if (disksize > EXT4_I(inode)->i_disksize) {
++	if (disksize > READ_ONCE(EXT4_I(inode)->i_disksize)) {
+ 		int err2;
+ 		loff_t i_size;
+ 
 
 
