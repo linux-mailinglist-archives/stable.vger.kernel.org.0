@@ -2,41 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B8C8A171E79
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:28:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AF6A4171B7F
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:03:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388236AbgB0OIZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 09:08:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46196 "EHLO mail.kernel.org"
+        id S1733233AbgB0OC4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 09:02:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37874 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387773AbgB0OIY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 09:08:24 -0500
+        id S1733231AbgB0OCz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 09:02:55 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5DD8120578;
-        Thu, 27 Feb 2020 14:08:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D2F2320578;
+        Thu, 27 Feb 2020 14:02:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582812502;
-        bh=+aqyWWYn7K1Jqt2esBmrsHiElG8yI/T2Tl7qzGvNYJU=;
+        s=default; t=1582812175;
+        bh=13f2Vkppxdi7zojv/bOid2hScaXK2veow//40ND5q4U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mamFFWmeiPuPkU7t3cBlL0SbjHbZoJykcfvgxStt2qzk2xjImgkgXRXW0mDVCOi/h
-         ZZj7HEya/FLYb4RnSEGtZMyIInrRzCSwkme0wzKDXYVpD4u6NvrjwqpN7kBbKowvRs
-         ACQlQtfrfR+7fK5m7hmePlCv81CHwkkXIB24iClA=
+        b=rex8RmtdjJo3ThONP2RajNv8S0SyzFyn/njqnXpLdbJ4+N7/TYg+N/vnJhiQ89zR1
+         1ACrp2EEkM6FZlV4KD9ScBts/7Cx/NC+KV/SUNwAksMLShJmzwbCi3i7BI2F56WfXR
+         WqOzhJEVnKrzv7oOUMxoblTZnafqt47UQODZrum4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Antonio Caggiano <antonio.caggiano@collabora.com>,
-        Boris Brezillon <boris.brezillon@collabora.com>,
-        Steven Price <steven.price@arm.com>,
-        Rob Herring <robh@kernel.org>
-Subject: [PATCH 5.4 042/135] drm/panfrost: perfcnt: Reserve/use the AS attached to the perfcnt MMU context
+        stable@vger.kernel.org, Jiri Slaby <jslaby@suse.cz>
+Subject: [PATCH 4.19 14/97] vt: selection, handle pending signals in paste_selection
 Date:   Thu, 27 Feb 2020 14:36:22 +0100
-Message-Id: <20200227132235.242964214@linuxfoundation.org>
+Message-Id: <20200227132216.953577340@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200227132228.710492098@linuxfoundation.org>
-References: <20200227132228.710492098@linuxfoundation.org>
+In-Reply-To: <20200227132214.553656188@linuxfoundation.org>
+References: <20200227132214.553656188@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,76 +42,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Boris Brezillon <boris.brezillon@collabora.com>
+From: Jiri Slaby <jslaby@suse.cz>
 
-commit dde2bb2da01e96c17f0a44b4a3cf72a30e66e3ef upstream.
+commit 687bff0cd08f790d540cfb7b2349f0d876cdddec upstream.
 
-We need to use the AS attached to the opened FD when dumping counters.
+When pasting a selection to a vt, the task is set as INTERRUPTIBLE while
+waiting for a tty to unthrottle. But signals are not handled at all.
+Normally, this is not a problem as tty_ldisc_receive_buf receives all
+the goods and a user has no reason to interrupt the task.
 
-Reported-by: Antonio Caggiano <antonio.caggiano@collabora.com>
-Fixes: 7282f7645d06 ("drm/panfrost: Implement per FD address spaces")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Boris Brezillon <boris.brezillon@collabora.com>
-Reviewed-by: Steven Price <steven.price@arm.com>
-Tested-by: Antonio Caggiano <antonio.caggiano@collabora.com>
-Signed-off-by: Rob Herring <robh@kernel.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200206141327.446127-1-boris.brezillon@collabora.com
+There are two scenarios where this matters:
+1) when the tty is throttled and a signal is sent to the process, it
+   spins on a CPU until the tty is unthrottled. schedule() does not
+   really echedule, but returns immediately, of course.
+2) when the sel_buffer becomes invalid, KASAN prevents any reads from it
+   and the loop simply does not proceed and spins forever (causing the
+   tty to throttle, but the code never sleeps, the same as above). This
+   sometimes happens as there is a race in the sel_buffer handling code.
+
+So add signal handling to this ioctl (TIOCL_PASTESEL) and return -EINTR
+in case a signal is pending.
+
+Signed-off-by: Jiri Slaby <jslaby@suse.cz>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200210081131.23572-1-jslaby@suse.cz
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/panfrost/panfrost_mmu.c     |    7 ++++++-
- drivers/gpu/drm/panfrost/panfrost_perfcnt.c |   11 ++++-------
- 2 files changed, 10 insertions(+), 8 deletions(-)
+ drivers/tty/vt/selection.c |    9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/panfrost/panfrost_mmu.c
-+++ b/drivers/gpu/drm/panfrost/panfrost_mmu.c
-@@ -151,7 +151,12 @@ u32 panfrost_mmu_as_get(struct panfrost_
- 	as = mmu->as;
- 	if (as >= 0) {
- 		int en = atomic_inc_return(&mmu->as_count);
--		WARN_ON(en >= NUM_JOB_SLOTS);
+--- a/drivers/tty/vt/selection.c
++++ b/drivers/tty/vt/selection.c
+@@ -27,6 +27,8 @@
+ #include <linux/console.h>
+ #include <linux/tty_flip.h>
+ 
++#include <linux/sched/signal.h>
 +
-+		/*
-+		 * AS can be retained by active jobs or a perfcnt context,
-+		 * hence the '+ 1' here.
-+		 */
-+		WARN_ON(en >= (NUM_JOB_SLOTS + 1));
+ /* Don't take this from <ctype.h>: 011-015 on the screen aren't spaces */
+ #define isspace(c)	((c) == ' ')
  
- 		list_move(&mmu->list, &pfdev->as_lru_list);
- 		goto out;
---- a/drivers/gpu/drm/panfrost/panfrost_perfcnt.c
-+++ b/drivers/gpu/drm/panfrost/panfrost_perfcnt.c
-@@ -73,7 +73,7 @@ static int panfrost_perfcnt_enable_locke
- 	struct panfrost_file_priv *user = file_priv->driver_priv;
- 	struct panfrost_perfcnt *perfcnt = pfdev->perfcnt;
- 	struct drm_gem_shmem_object *bo;
--	u32 cfg;
-+	u32 cfg, as;
- 	int ret;
+@@ -337,6 +339,7 @@ int paste_selection(struct tty_struct *t
+ 	unsigned int count;
+ 	struct  tty_ldisc *ld;
+ 	DECLARE_WAITQUEUE(wait, current);
++	int ret = 0;
  
- 	if (user == perfcnt->user)
-@@ -126,12 +126,8 @@ static int panfrost_perfcnt_enable_locke
+ 	console_lock();
+ 	poke_blanked_console();
+@@ -350,6 +353,10 @@ int paste_selection(struct tty_struct *t
+ 	add_wait_queue(&vc->paste_wait, &wait);
+ 	while (sel_buffer && sel_buffer_lth > pasted) {
+ 		set_current_state(TASK_INTERRUPTIBLE);
++		if (signal_pending(current)) {
++			ret = -EINTR;
++			break;
++		}
+ 		if (tty_throttled(tty)) {
+ 			schedule();
+ 			continue;
+@@ -365,5 +372,5 @@ int paste_selection(struct tty_struct *t
  
- 	perfcnt->user = user;
- 
--	/*
--	 * Always use address space 0 for now.
--	 * FIXME: this needs to be updated when we start using different
--	 * address space.
--	 */
--	cfg = GPU_PERFCNT_CFG_AS(0) |
-+	as = panfrost_mmu_as_get(pfdev, perfcnt->mapping->mmu);
-+	cfg = GPU_PERFCNT_CFG_AS(as) |
- 	      GPU_PERFCNT_CFG_MODE(GPU_PERFCNT_CFG_MODE_MANUAL);
- 
- 	/*
-@@ -195,6 +191,7 @@ static int panfrost_perfcnt_disable_lock
- 	drm_gem_shmem_vunmap(&perfcnt->mapping->obj->base.base, perfcnt->buf);
- 	perfcnt->buf = NULL;
- 	panfrost_gem_close(&perfcnt->mapping->obj->base.base, file_priv);
-+	panfrost_mmu_as_put(pfdev, perfcnt->mapping->mmu);
- 	panfrost_gem_mapping_put(perfcnt->mapping);
- 	perfcnt->mapping = NULL;
- 	pm_runtime_mark_last_busy(pfdev->dev);
+ 	tty_buffer_unlock_exclusive(&vc->port);
+ 	tty_ldisc_deref(ld);
+-	return 0;
++	return ret;
+ }
 
 
