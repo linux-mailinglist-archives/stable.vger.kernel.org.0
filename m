@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CBDA1171B7B
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:03:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C9F19171E77
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:28:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732902AbgB0OCv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 09:02:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37710 "EHLO mail.kernel.org"
+        id S2388217AbgB0OIT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 09:08:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46072 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733202AbgB0OCu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 09:02:50 -0500
+        id S2388227AbgB0OIS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 09:08:18 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 28C0E246B6;
-        Thu, 27 Feb 2020 14:02:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6ED1B20801;
+        Thu, 27 Feb 2020 14:08:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582812169;
-        bh=xagn8kmwgvViA4wMu5F0KPD03kbdfnDbrYabCaPa2J8=;
+        s=default; t=1582812497;
+        bh=wgwUsXD3MhMy864LF60dbSO9NBJsQUwXPuA+0vferc0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kcJspthNseOyI/+ond4D4HlPSp7bJ2/dU9qrIr6+4gJIFD0fRoK9ru1gXYVdQU5fu
-         4OdMeSXBvSosB7uAwshEWrURbsUdG2+s0rRMS3Kyp5/brzr6AZv9CwOQl3y01fSSOz
-         4ZLYGAglMuCqKIUK3Ouy043a6C7OKXw3LdVBpHgw=
+        b=pQ9Yqxm8Q0RX9q29+/hIYkIHCw5//DiRbJBLqypogg34pvsdkSsEsq9WtZPfmIN5i
+         xKy5g7TmIJRl0atEF/x+xXej1lYROwBqfx1T5sjRZXlu6Q3wew1SiFd++IpO+ZPRn/
+         yAu1vpxDXSVmOB6cVJ+IRdeaplXPlLF02vJxBFNY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jordy Zomer <jordy@simplyhacker.com>,
-        Willy Tarreau <w@1wt.eu>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.19 12/97] floppy: check FDC index for errors before assigning it
+        stable@vger.kernel.org, Pietro Oliva <pietroliva@gmail.com>,
+        Larry Finger <Larry.Finger@lwfinger.net>
+Subject: [PATCH 5.4 040/135] staging: rtl8723bs: Fix potential security hole
 Date:   Thu, 27 Feb 2020 14:36:20 +0100
-Message-Id: <20200227132216.601985562@linuxfoundation.org>
+Message-Id: <20200227132234.923912732@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200227132214.553656188@linuxfoundation.org>
-References: <20200227132214.553656188@linuxfoundation.org>
+In-Reply-To: <20200227132228.710492098@linuxfoundation.org>
+References: <20200227132228.710492098@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,65 +43,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Larry Finger <Larry.Finger@lwfinger.net>
 
-commit 2e90ca68b0d2f5548804f22f0dd61145516171e3 upstream.
+commit ac33597c0c0d1d819dccfe001bcd0acef7107e7c upstream.
 
-Jordy Zomer reported a KASAN out-of-bounds read in the floppy driver in
-wait_til_ready().
+In routine rtw_hostapd_ioctl(), the user-controlled p->length is assumed
+to be at least the size of struct ieee_param size, but this assumption is
+never checked. This could result in out-of-bounds read/write on kernel
+heap in case a p->length less than the size of struct ieee_param is
+specified by the user. If p->length is allowed to be greater than the size
+of the struct, then a malicious user could be wasting kernel memory.
+Fixes commit 554c0a3abf216 ("0taging: Add rtl8723bs sdio wifi driver").
 
-Which on the face of it can't happen, since as Willy Tarreau points out,
-the function does no particular memory access.  Except through the FDCS
-macro, which just indexes a static allocation through teh current fdc,
-which is always checked against N_FDC.
-
-Except the checking happens after we've already assigned the value.
-
-The floppy driver is a disgrace (a lot of it going back to my original
-horrd "design"), and has no real maintainer.  Nobody has the hardware,
-and nobody really cares.  But it still gets used in virtual environment
-because it's one of those things that everybody supports.
-
-The whole thing should be re-written, or at least parts of it should be
-seriously cleaned up.  The 'current fdc' index, which is used by the
-FDCS macro, and which is often shadowed by a local 'fdc' variable, is a
-prime example of how not to write code.
-
-But because nobody has the hardware or the motivation, let's just fix up
-the immediate problem with a nasty band-aid: test the fdc index before
-actually assigning it to the static 'fdc' variable.
-
-Reported-by: Jordy Zomer <jordy@simplyhacker.com>
-Cc: Willy Tarreau <w@1wt.eu>
-Cc: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Reported by: Pietro Oliva <pietroliva@gmail.com>
+Cc: Pietro Oliva <pietroliva@gmail.com>
+Cc: Stable <stable@vger.kernel.org>
+Fixes 554c0a3abf216 ("0taging: Add rtl8723bs sdio wifi driver").
+Signed-off-by: Larry Finger <Larry.Finger@lwfinger.net>
+Link: https://lore.kernel.org/r/20200210180235.21691-3-Larry.Finger@lwfinger.net
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/block/floppy.c |    7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/staging/rtl8723bs/os_dep/ioctl_linux.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/block/floppy.c
-+++ b/drivers/block/floppy.c
-@@ -852,14 +852,17 @@ static void reset_fdc_info(int mode)
- /* selects the fdc and drive, and enables the fdc's input/dma. */
- static void set_fdc(int drive)
- {
-+	unsigned int new_fdc = fdc;
-+
- 	if (drive >= 0 && drive < N_DRIVE) {
--		fdc = FDC(drive);
-+		new_fdc = FDC(drive);
- 		current_drive = drive;
+--- a/drivers/staging/rtl8723bs/os_dep/ioctl_linux.c
++++ b/drivers/staging/rtl8723bs/os_dep/ioctl_linux.c
+@@ -4213,7 +4213,7 @@ static int rtw_hostapd_ioctl(struct net_
+ 
+ 
+ 	/* if (p->length < sizeof(struct ieee_param) || !p->pointer) { */
+-	if (!p->pointer) {
++	if (!p->pointer || p->length != sizeof(*param)) {
+ 		ret = -EINVAL;
+ 		goto out;
  	}
--	if (fdc != 1 && fdc != 0) {
-+	if (new_fdc >= N_FDC) {
- 		pr_info("bad fdc value\n");
- 		return;
- 	}
-+	fdc = new_fdc;
- 	set_dor(fdc, ~0, 8);
- #if N_FDC > 1
- 	set_dor(1 - fdc, ~8, 0);
 
 
