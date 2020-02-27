@@ -2,81 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5116E171490
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 10:59:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8120C1714AC
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 11:05:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728653AbgB0J7J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 04:59:09 -0500
-Received: from mga02.intel.com ([134.134.136.20]:33573 "EHLO mga02.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728627AbgB0J7J (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 04:59:09 -0500
-X-Amp-Result: UNKNOWN
-X-Amp-Original-Verdict: FILE UNKNOWN
-X-Amp-File-Uploaded: False
-Received: from fmsmga003.fm.intel.com ([10.253.24.29])
-  by orsmga101.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 27 Feb 2020 01:59:08 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.70,491,1574150400"; 
-   d="scan'208";a="285280945"
-Received: from smile.fi.intel.com (HELO smile) ([10.237.68.40])
-  by FMSMGA003.fm.intel.com with ESMTP; 27 Feb 2020 01:59:06 -0800
-Received: from andy by smile with local (Exim 4.93)
-        (envelope-from <andriy.shevchenko@linux.intel.com>)
-        id 1j7Fwi-005948-Gg; Thu, 27 Feb 2020 11:59:08 +0200
-Date:   Thu, 27 Feb 2020 11:59:08 +0200
-From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     gregkh@linuxfoundation.org, kurt@linutronix.de,
-        lirongqing@baidu.com, stable@vger.kernel.org, vikram.pandita@ti.com
-Subject: Re: FAILED: patch "[PATCH] serial: 8250: Check UPF_IRQ_SHARED in
- advance" failed to apply to 4.14-stable tree
-Message-ID: <20200227095908.GC1224808@smile.fi.intel.com>
-References: <158271336456142@kroah.com>
- <20200226233949.GC22178@sasha-vm>
+        id S1728652AbgB0KFl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 05:05:41 -0500
+Received: from wout1-smtp.messagingengine.com ([64.147.123.24]:40571 "EHLO
+        wout1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728630AbgB0KFl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 27 Feb 2020 05:05:41 -0500
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+        by mailout.west.internal (Postfix) with ESMTP id 2922D76E;
+        Thu, 27 Feb 2020 05:05:40 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute1.internal (MEProxy); Thu, 27 Feb 2020 05:05:40 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=MTwmz9
+        l0s0frxONUGrdBqCpqyXCz0cybpYKWQgctW3Y=; b=kam3RfyTmzgMKFmsVFd3kx
+        UJP1IZHo1bL2lE8saqTtFW4dNBRPdsa+4p9HdTMrmYNLUGHaJDwB6MjfOM4E4CRB
+        C0cOwgW862GOa35yVRKYs7sRicc4F+MekM/qKwulRqlrWlQykpcd/Y3bdHyHi+Tp
+        U6ZAgHUd/lJDa67T39oSwizQfG2DJz9hRTHsLrYwC4n9yjRDgyZ6sySEHUsB3RfE
+        Zf2fcS2Es42pbKXuD4eRHgNKCNue3GwKuO+cgbH6o6J/kLogg4n1F1rA2As+w0ne
+        q2MjOpv7Gw0Yf7/TqucmnERAuwVJGwWBlVJG04Ck1u5SQ6bnMEvuyJ9ibbOgyo5g
+        ==
+X-ME-Sender: <xms:c5RXXnulCsmh6KJbNrFkn7scxfmrxs3MlHl424QsqUN4RMUZGMutcA>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedugedrleeigdduvdcutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
+    flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
+    qeenucfkphepkeefrdekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivgepudenuc
+    frrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
+X-ME-Proxy: <xmx:c5RXXgRs6LS6o0LX6_EGJvc44Bs0esfEKrnjNF78FZaVxkWTTfOu-Q>
+    <xmx:c5RXXhLA0_yMCB7gc8LO2I4t00B5im6yGujuonqEuIcoQc8BON4mRw>
+    <xmx:c5RXXuScaoirNvR_-myvOEc8NpT-U8hKBRcAmpyh-HlsrBgSfO51ng>
+    <xmx:c5RXXutaQTJt-vQzNhhRLY1IKnFRGf0zgiLoyjbOvMR2x7QiqD8wlw>
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 685463060FCB;
+        Thu, 27 Feb 2020 05:05:39 -0500 (EST)
+Subject: FAILED: patch "[PATCH] usb: dwc2: Fix in ISOC request length checking" failed to apply to 4.9-stable tree
+To:     Minas.Harutyunyan@synopsys.com, balbi@kernel.org,
+        hminas@synopsys.com
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Thu, 27 Feb 2020 11:05:30 +0100
+Message-ID: <158279793025353@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200226233949.GC22178@sasha-vm>
-Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Feb 26, 2020 at 06:39:49PM -0500, Sasha Levin wrote:
-> On Wed, Feb 26, 2020 at 11:36:04AM +0100, gregkh@linuxfoundation.org wrote:
 
-...
+The patch below does not apply to the 4.9-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-> > Since this change we don't need to have custom solutions in 8250_aspeed_vuart
-> > and 8250_of drivers, thus, drop them.
-> > 
-> > Fixes: 1c2f04937b3e ("serial: 8250: add IRQ trigger support")
-> > Reported-by: Li RongQing <lirongqing@baidu.com>
-> > Cc: Kurt Kanzenbach <kurt@linutronix.de>
-> > Cc: Vikram Pandita <vikram.pandita@ti.com>
-> > Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-> > Cc: stable <stable@vger.kernel.org>
-> > Acked-by: Kurt Kanzenbach <kurt@linutronix.de>
-> > Link: https://lore.kernel.org/r/20200211135559.85960-1-andriy.shevchenko@linux.intel.com
-> > Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> 
-> For 4.14, I've worked around these missing commits:
-> 
-> 5909c0bf9c7a ("serial/aspeed-vuart: Implement quick throttle mechanism")
-> 989983ea849d ("serial/aspeed-vuart: Implement rx throttling")
-> 54e53b2e8081 ("tty: serial: 8250: pass IRQ shared flag to UART ports")
+thanks,
 
-Thanks!
+greg k-h
 
-> And queued up a backport. Older kernels are a bit trickier than that.
+------------------ original commit in Linus's tree ------------------
 
-Since it's quite old bug and not many reports so far I guess we are not in
-hurry to fix that old kernels.
+From 860ef6cd3f90b84a1832f8a6485c90c34d3b588b Mon Sep 17 00:00:00 2001
+From: Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>
+Date: Tue, 21 Jan 2020 14:24:04 +0400
+Subject: [PATCH] usb: dwc2: Fix in ISOC request length checking
 
--- 
-With Best Regards,
-Andy Shevchenko
+Moved ISOC request length checking from dwc2_hsotg_start_req() function to
+dwc2_hsotg_ep_queue().
 
+Fixes: 4fca54aa58293 ("usb: gadget: s3c-hsotg: add multi count support")
+Signed-off-by: Minas Harutyunyan <hminas@synopsys.com>
+Signed-off-by: Felipe Balbi <balbi@kernel.org>
+
+diff --git a/drivers/usb/dwc2/gadget.c b/drivers/usb/dwc2/gadget.c
+index 88f7d6d4ff2d..7b40cf5bdc2f 100644
+--- a/drivers/usb/dwc2/gadget.c
++++ b/drivers/usb/dwc2/gadget.c
+@@ -1083,11 +1083,6 @@ static void dwc2_hsotg_start_req(struct dwc2_hsotg *hsotg,
+ 	else
+ 		packets = 1;	/* send one packet if length is zero. */
+ 
+-	if (hs_ep->isochronous && length > (hs_ep->mc * hs_ep->ep.maxpacket)) {
+-		dev_err(hsotg->dev, "req length > maxpacket*mc\n");
+-		return;
+-	}
+-
+ 	if (dir_in && index != 0)
+ 		if (hs_ep->isochronous)
+ 			epsize = DXEPTSIZ_MC(packets);
+@@ -1391,6 +1386,13 @@ static int dwc2_hsotg_ep_queue(struct usb_ep *ep, struct usb_request *req,
+ 	req->actual = 0;
+ 	req->status = -EINPROGRESS;
+ 
++	/* Don't queue ISOC request if length greater than mps*mc */
++	if (hs_ep->isochronous &&
++	    req->length > (hs_ep->mc * hs_ep->ep.maxpacket)) {
++		dev_err(hs->dev, "req length > maxpacket*mc\n");
++		return -EINVAL;
++	}
++
+ 	/* In DDMA mode for ISOC's don't queue request if length greater
+ 	 * than descriptor limits.
+ 	 */
 
