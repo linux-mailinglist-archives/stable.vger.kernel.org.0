@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7CE18171B71
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:03:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8541F171C2F
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:10:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733133AbgB0OC3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 09:02:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37144 "EHLO mail.kernel.org"
+        id S2388007AbgB0OJt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 09:09:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47810 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733130AbgB0OC3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 09:02:29 -0500
+        id S1733262AbgB0OJs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 09:09:48 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E020524656;
-        Thu, 27 Feb 2020 14:02:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 876C120801;
+        Thu, 27 Feb 2020 14:09:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582812148;
-        bh=vf+BHOk1D3Q/VYSnXXbrInsyNf9aOGqq0TC375Y6d74=;
+        s=default; t=1582812588;
+        bh=8dJc3VjqGnWWFG3e8ysCnj4VZcKV3ZJX84/9oq8ZYP8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CaXRZhesZNEUpP7jUpvG9oskxo/938hG8IZA9DdMtnofk2BPeBZL+HaMmYOotgYgI
-         SrbQzRQUfCJEqtllAgGyWbkhlA5qrW/VxIOXtTaAAh9cLHFZFbcsHlG7IU42VJMNHo
-         I14kIBqFXt4JOPnDGy1IDch1UpElBHzc/EcOEONQ=
+        b=AjAiW/PduskoKG/aLvKEthuUq/oF5Sp8nQ8Zav5gY4mS0gAeM1Hu5sJmqFA/ZgGpx
+         Tm9gLoVTkSoKmBJBS5ugJRRP2Dob+z010eR7geATHQsYKhoKFez1epVUm75SDMUqSt
+         tjcbpiU8fzr+4uJHe39rZxsI3VMh5IyfC3HPwJMc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 202/237] VT_RESIZEX: get rid of field-by-field copyin
+        stable@vger.kernel.org, Suren Baghdasaryan <surenb@google.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Ingo Molnar <mingo@kernel.org>,
+        Johannes Weiner <hannes@cmpxchg.org>
+Subject: [PATCH 5.4 076/135] sched/psi: Fix OOB write when writing 0 bytes to PSI files
 Date:   Thu, 27 Feb 2020 14:36:56 +0100
-Message-Id: <20200227132311.129561837@linuxfoundation.org>
+Message-Id: <20200227132240.815487769@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200227132255.285644406@linuxfoundation.org>
-References: <20200227132255.285644406@linuxfoundation.org>
+In-Reply-To: <20200227132228.710492098@linuxfoundation.org>
+References: <20200227132228.710492098@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,108 +45,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Al Viro <viro@zeniv.linux.org.uk>
+From: Suren Baghdasaryan <surenb@google.com>
 
-[ Upstream commit 1b3bce4d6bf839304a90951b4b25a5863533bf2a ]
+commit 6fcca0fa48118e6d63733eb4644c6cd880c15b8f upstream.
 
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Issuing write() with count parameter set to 0 on any file under
+/proc/pressure/ will cause an OOB write because of the access to
+buf[buf_size-1] when NUL-termination is performed. Fix this by checking
+for buf_size to be non-zero.
+
+Signed-off-by: Suren Baghdasaryan <surenb@google.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Acked-by: Johannes Weiner <hannes@cmpxchg.org>
+Link: https://lkml.kernel.org/r/20200203212216.7076-1-surenb@google.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/tty/vt/vt_ioctl.c | 68 ++++++++++++++++-----------------------
- 1 file changed, 27 insertions(+), 41 deletions(-)
+ kernel/sched/psi.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/tty/vt/vt_ioctl.c b/drivers/tty/vt/vt_ioctl.c
-index 7b34b0ddbf0e0..be7990548afef 100644
---- a/drivers/tty/vt/vt_ioctl.c
-+++ b/drivers/tty/vt/vt_ioctl.c
-@@ -847,58 +847,44 @@ int vt_ioctl(struct tty_struct *tty,
+--- a/kernel/sched/psi.c
++++ b/kernel/sched/psi.c
+@@ -1199,6 +1199,9 @@ static ssize_t psi_write(struct file *fi
+ 	if (static_branch_likely(&psi_disabled))
+ 		return -EOPNOTSUPP;
  
- 	case VT_RESIZEX:
- 	{
--		struct vt_consize __user *vtconsize = up;
--		ushort ll,cc,vlin,clin,vcol,ccol;
-+		struct vt_consize v;
- 		if (!perm)
- 			return -EPERM;
--		if (!access_ok(VERIFY_READ, vtconsize,
--				sizeof(struct vt_consize))) {
--			ret = -EFAULT;
--			break;
--		}
-+		if (copy_from_user(&v, up, sizeof(struct vt_consize)))
-+			return -EFAULT;
- 		/* FIXME: Should check the copies properly */
--		__get_user(ll, &vtconsize->v_rows);
--		__get_user(cc, &vtconsize->v_cols);
--		__get_user(vlin, &vtconsize->v_vlin);
--		__get_user(clin, &vtconsize->v_clin);
--		__get_user(vcol, &vtconsize->v_vcol);
--		__get_user(ccol, &vtconsize->v_ccol);
--		vlin = vlin ? vlin : vc->vc_scan_lines;
--		if (clin) {
--			if (ll) {
--				if (ll != vlin/clin) {
--					/* Parameters don't add up */
--					ret = -EINVAL;
--					break;
--				}
--			} else 
--				ll = vlin/clin;
-+		if (!v.v_vlin)
-+			v.v_vlin = vc->vc_scan_lines;
-+		if (v.v_clin) {
-+			int rows = v.v_vlin/v.v_clin;
-+			if (v.v_rows != rows) {
-+				if (v.v_rows) /* Parameters don't add up */
-+					return -EINVAL;
-+				v.v_rows = rows;
-+			}
- 		}
--		if (vcol && ccol) {
--			if (cc) {
--				if (cc != vcol/ccol) {
--					ret = -EINVAL;
--					break;
--				}
--			} else
--				cc = vcol/ccol;
-+		if (v.v_vcol && v.v_ccol) {
-+			int cols = v.v_vcol/v.v_ccol;
-+			if (v.v_cols != cols) {
-+				if (v.v_cols)
-+					return -EINVAL;
-+				v.v_cols = cols;
-+			}
- 		}
- 
--		if (clin > 32) {
--			ret =  -EINVAL;
--			break;
--		}
--		    
-+		if (v.v_clin > 32)
-+			return -EINVAL;
++	if (!nbytes)
++		return -EINVAL;
 +
- 		for (i = 0; i < MAX_NR_CONSOLES; i++) {
- 			if (!vc_cons[i].d)
- 				continue;
- 			console_lock();
--			if (vlin)
--				vc_cons[i].d->vc_scan_lines = vlin;
--			if (clin)
--				vc_cons[i].d->vc_font.height = clin;
-+			if (v.v_vlin)
-+				vc_cons[i].d->vc_scan_lines = v.v_vlin;
-+			if (v.v_clin)
-+				vc_cons[i].d->vc_font.height = v.v_clin;
- 			vc_cons[i].d->vc_resize_user = 1;
--			vc_resize(vc_cons[i].d, cc, ll);
-+			vc_resize(vc_cons[i].d, v.v_cols, v.v_rows);
- 			console_unlock();
- 		}
- 		break;
--- 
-2.20.1
-
+ 	buf_size = min(nbytes, sizeof(buf));
+ 	if (copy_from_user(buf, user_buf, buf_size))
+ 		return -EFAULT;
 
 
