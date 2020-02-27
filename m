@@ -2,41 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6318A17209F
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:44:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4A932171F06
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:32:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730437AbgB0Ns7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 08:48:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46066 "EHLO mail.kernel.org"
+        id S1733186AbgB0OCo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 09:02:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37450 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730973AbgB0Ns6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 08:48:58 -0500
+        id S1733181AbgB0OCm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 09:02:42 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0AE6C2468D;
-        Thu, 27 Feb 2020 13:48:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 98D3E20578;
+        Thu, 27 Feb 2020 14:02:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582811338;
-        bh=V+Ce6ZOwPdQjcoMItnjmu+Ljkq7PcR3PpGh153vbJNo=;
+        s=default; t=1582812162;
+        bh=KHFU5IGLRHzaH0gh1T6pQ60s3N1CUwn0EGvktTIdu9s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SRCEhLjqQEV7vb2BxJlHc7rtMRLB+u1IDx+tSLniL4GBWifc5Sy7KzZ74HegShzxC
-         cbw3uuxU/3zCeqLbhn4/ERx9ASm1DroUGryn68+LhOyS7DytKsfOgPPINdTrw6juoh
-         dAPbWv9kTUWWi8k89DhaDSL0CIoKih9VfBo6Oktc=
+        b=IP1TFmKhyMZa2+xy7W/vz7HpJvHNX8y0PF82kOncDZD/b94wgv3iowYCq71VZ7xUm
+         t2fwn+Lh8spN5kHbw5G49NmXMK+9xveEpTZqCwSJZdxhgPT1uhzDKHZyORP7QNrvkV
+         UjTq7Mttizri9K1JsEXsMlMl5OUWcl1D3cOsbkj0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oliver OHalloran <oohall@gmail.com>,
-        Sam Bobroff <sbobroff@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 095/165] powerpc/sriov: Remove VF eeh_dev state when disabling SR-IOV
+        stable@vger.kernel.org, Brian Masney <masneyb@onstation.org>,
+        Naresh Kamboju <naresh.kamboju@linaro.org>,
+        Robin Murphy <robin.murphy@arm.com>,
+        Stephan Gerhold <stephan@gerhold.net>,
+        Joerg Roedel <jroedel@suse.de>
+Subject: [PATCH 4.19 01/97] iommu/qcom: Fix bogus detach logic
 Date:   Thu, 27 Feb 2020 14:36:09 +0100
-Message-Id: <20200227132245.170467502@linuxfoundation.org>
+Message-Id: <20200227132214.797276235@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200227132230.840899170@linuxfoundation.org>
-References: <20200227132230.840899170@linuxfoundation.org>
+In-Reply-To: <20200227132214.553656188@linuxfoundation.org>
+References: <20200227132214.553656188@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -45,57 +48,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oliver O'Halloran <oohall@gmail.com>
+From: Robin Murphy <robin.murphy@arm.com>
 
-[ Upstream commit 1fb4124ca9d456656a324f1ee29b7bf942f59ac8 ]
+commit faf305c51aeabd1ea2d7131e798ef5f55f4a7750 upstream.
 
-When disabling virtual functions on an SR-IOV adapter we currently do not
-correctly remove the EEH state for the now-dead virtual functions. When
-removing the pci_dn that was created for the VF when SR-IOV was enabled
-we free the corresponding eeh_dev without removing it from the child device
-list of the eeh_pe that contained it. This can result in crashes due to the
-use-after-free.
+Currently, the implementation of qcom_iommu_domain_free() is guaranteed
+to do one of two things: WARN() and leak everything, or dereference NULL
+and crash. That alone is terrible, but in fact the whole idea of trying
+to track the liveness of a domain via the qcom_domain->iommu pointer as
+a sanity check is full of fundamentally flawed assumptions. Make things
+robust and actually functional by not trying to be quite so clever.
 
-Signed-off-by: Oliver O'Halloran <oohall@gmail.com>
-Reviewed-by: Sam Bobroff <sbobroff@linux.ibm.com>
-Tested-by: Sam Bobroff <sbobroff@linux.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20190821062655.19735-1-oohall@gmail.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reported-by: Brian Masney <masneyb@onstation.org>
+Tested-by: Brian Masney <masneyb@onstation.org>
+Reported-by: Naresh Kamboju <naresh.kamboju@linaro.org>
+Fixes: 0ae349a0f33f ("iommu/qcom: Add qcom_iommu")
+Signed-off-by: Robin Murphy <robin.murphy@arm.com>
+Tested-by: Stephan Gerhold <stephan@gerhold.net>
+Cc: stable@vger.kernel.org # v4.14+
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- arch/powerpc/kernel/pci_dn.c | 15 ++++++++++++++-
- 1 file changed, 14 insertions(+), 1 deletion(-)
+ drivers/iommu/qcom_iommu.c |   28 ++++++++++++----------------
+ 1 file changed, 12 insertions(+), 16 deletions(-)
 
-diff --git a/arch/powerpc/kernel/pci_dn.c b/arch/powerpc/kernel/pci_dn.c
-index 5926934370702..c8f1b78fbd0e2 100644
---- a/arch/powerpc/kernel/pci_dn.c
-+++ b/arch/powerpc/kernel/pci_dn.c
-@@ -271,9 +271,22 @@ void remove_dev_pci_data(struct pci_dev *pdev)
- 				continue;
+--- a/drivers/iommu/qcom_iommu.c
++++ b/drivers/iommu/qcom_iommu.c
+@@ -333,21 +333,19 @@ static void qcom_iommu_domain_free(struc
+ {
+ 	struct qcom_iommu_domain *qcom_domain = to_qcom_iommu_domain(domain);
  
- #ifdef CONFIG_EEH
--			/* Release EEH device for the VF */
-+			/*
-+			 * Release EEH state for this VF. The PCI core
-+			 * has already torn down the pci_dev for this VF, but
-+			 * we're responsible to removing the eeh_dev since it
-+			 * has the same lifetime as the pci_dn that spawned it.
-+			 */
- 			edev = pdn_to_eeh_dev(pdn);
- 			if (edev) {
-+				/*
-+				 * We allocate pci_dn's for the totalvfs count,
-+				 * but only only the vfs that were activated
-+				 * have a configured PE.
-+				 */
-+				if (edev->pe)
-+					eeh_rmv_from_parent_pe(edev);
-+
- 				pdn->edev = NULL;
- 				kfree(edev);
- 			}
--- 
-2.20.1
-
+-	if (WARN_ON(qcom_domain->iommu))    /* forgot to detach? */
+-		return;
+-
+ 	iommu_put_dma_cookie(domain);
+ 
+-	/* NOTE: unmap can be called after client device is powered off,
+-	 * for example, with GPUs or anything involving dma-buf.  So we
+-	 * cannot rely on the device_link.  Make sure the IOMMU is on to
+-	 * avoid unclocked accesses in the TLB inv path:
+-	 */
+-	pm_runtime_get_sync(qcom_domain->iommu->dev);
+-
+-	free_io_pgtable_ops(qcom_domain->pgtbl_ops);
+-
+-	pm_runtime_put_sync(qcom_domain->iommu->dev);
++	if (qcom_domain->iommu) {
++		/*
++		 * NOTE: unmap can be called after client device is powered
++		 * off, for example, with GPUs or anything involving dma-buf.
++		 * So we cannot rely on the device_link.  Make sure the IOMMU
++		 * is on to avoid unclocked accesses in the TLB inv path:
++		 */
++		pm_runtime_get_sync(qcom_domain->iommu->dev);
++		free_io_pgtable_ops(qcom_domain->pgtbl_ops);
++		pm_runtime_put_sync(qcom_domain->iommu->dev);
++	}
+ 
+ 	kfree(qcom_domain);
+ }
+@@ -392,7 +390,7 @@ static void qcom_iommu_detach_dev(struct
+ 	struct qcom_iommu_domain *qcom_domain = to_qcom_iommu_domain(domain);
+ 	unsigned i;
+ 
+-	if (!qcom_domain->iommu)
++	if (WARN_ON(!qcom_domain->iommu))
+ 		return;
+ 
+ 	pm_runtime_get_sync(qcom_iommu->dev);
+@@ -405,8 +403,6 @@ static void qcom_iommu_detach_dev(struct
+ 		ctx->domain = NULL;
+ 	}
+ 	pm_runtime_put_sync(qcom_iommu->dev);
+-
+-	qcom_domain->iommu = NULL;
+ }
+ 
+ static int qcom_iommu_map(struct iommu_domain *domain, unsigned long iova,
 
 
