@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B27E8171DC4
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:23:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 39FCD171E4C
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:27:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388925AbgB0OPR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 09:15:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54812 "EHLO mail.kernel.org"
+        id S2388381AbgB0OJW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 09:09:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47266 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389269AbgB0OPP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 09:15:15 -0500
+        id S1732995AbgB0OJV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 09:09:21 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3599F20801;
-        Thu, 27 Feb 2020 14:15:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7224720714;
+        Thu, 27 Feb 2020 14:09:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582812914;
-        bh=3YCO4uAhKW5WB1BmMc7ir2iC2XygsWoz0wg8AB9GHNc=;
+        s=default; t=1582812559;
+        bh=V2vmIVQW23cwJ256lyyV+7OzHvT8i5zVqa0p7BUUTok=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JQsP9/4qz3YVcR2aI6I5/gE3DH0UlpNleVcHw3jOONd5KglLsBjY+Xgi+PfxFXRS8
-         hnYAEaAPGHi9GdTJ92pt5DMRD60A32ZAV7FpRJkYdWq5526J46PRtldxG3LZBhknVe
-         xlx4ukcgaR33IHTwdNb2D4lB+oayxgqIIIoDvxgM=
+        b=NUYjDlKXYV30XPF4jrgL5VPHMMLfFm/uLydOuYCJ3HRf3cSEVHyuiIbu5R4s8O/Ff
+         ut6FDZe2cdifZaQFEQ9ouFIvfOxjCyUoU45lGnO92n+wPMBslnGLWoeVya7B8vGW/r
+         w+lcaXc3aQZnZraQU/0YXn4ChQE4fTIWZgm8zLjE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        syzbot <syzkaller@googlegroups.com>
-Subject: [PATCH 5.5 028/150] vt: vt_ioctl: fix race in VT_RESIZEX
-Date:   Thu, 27 Feb 2020 14:36:05 +0100
-Message-Id: <20200227132236.987634851@linuxfoundation.org>
+        stable@vger.kernel.org, Paul Menzel <pmenzel@molgen.mpg.de>,
+        Sajja Venkateswara Rao <VenkateswaraRao.Sajja@amd.com>,
+        Mathias Nyman <mathias.nyman@linux.intel.com>,
+        Marek Szyprowski <m.szyprowski@samsung.com>
+Subject: [PATCH 5.4 026/135] xhci: Fix memory leak when caching protocol extended capability PSI tables - take 2
+Date:   Thu, 27 Feb 2020 14:36:06 +0100
+Message-Id: <20200227132233.089533091@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200227132232.815448360@linuxfoundation.org>
-References: <20200227132232.815448360@linuxfoundation.org>
+In-Reply-To: <20200227132228.710492098@linuxfoundation.org>
+References: <20200227132228.710492098@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,102 +45,265 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Mathias Nyman <mathias.nyman@linux.intel.com>
 
-commit 6cd1ed50efd88261298577cd92a14f2768eddeeb upstream.
+commit cf0ee7c60c89641f6e4d1d3c7867fe32b9e30300 upstream.
 
-We need to make sure vc_cons[i].d is not NULL after grabbing
-console_lock(), or risk a crash.
+xhci driver assumed that xHC controllers have at most one custom
+supported speed table (PSI) for all usb 3.x ports.
+Memory was allocated for one PSI table under the xhci hub structure.
 
-general protection fault, probably for non-canonical address 0xdffffc0000000068: 0000 [#1] PREEMPT SMP KASAN
-KASAN: null-ptr-deref in range [0x0000000000000340-0x0000000000000347]
-CPU: 1 PID: 19462 Comm: syz-executor.5 Not tainted 5.5.0-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-RIP: 0010:vt_ioctl+0x1f96/0x26d0 drivers/tty/vt/vt_ioctl.c:883
-Code: 74 41 e8 bd a6 84 fd 48 89 d8 48 c1 e8 03 42 80 3c 28 00 0f 85 e4 04 00 00 48 8b 03 48 8d b8 40 03 00 00 48 89 fa 48 c1 ea 03 <42> 0f b6 14 2a 84 d2 74 09 80 fa 03 0f 8e b1 05 00 00 44 89 b8 40
-RSP: 0018:ffffc900086d7bb0 EFLAGS: 00010202
-RAX: 0000000000000000 RBX: ffffffff8c34ee88 RCX: ffffc9001415c000
-RDX: 0000000000000068 RSI: ffffffff83f0e6e3 RDI: 0000000000000340
-RBP: ffffc900086d7cd0 R08: ffff888054ce0100 R09: fffffbfff16a2f6d
-R10: ffff888054ce0998 R11: ffff888054ce0100 R12: 000000000000001d
-R13: dffffc0000000000 R14: 1ffff920010daf79 R15: 000000000000ff7f
-FS:  00007f7d13c12700(0000) GS:ffff8880ae900000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 00007ffd477e3c38 CR3: 0000000095d0a000 CR4: 00000000001406e0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-Call Trace:
- tty_ioctl+0xa37/0x14f0 drivers/tty/tty_io.c:2660
- vfs_ioctl fs/ioctl.c:47 [inline]
- ksys_ioctl+0x123/0x180 fs/ioctl.c:763
- __do_sys_ioctl fs/ioctl.c:772 [inline]
- __se_sys_ioctl fs/ioctl.c:770 [inline]
- __x64_sys_ioctl+0x73/0xb0 fs/ioctl.c:770
- do_syscall_64+0xfa/0x790 arch/x86/entry/common.c:294
- entry_SYSCALL_64_after_hwframe+0x49/0xbe
-RIP: 0033:0x45b399
-Code: ad b6 fb ff c3 66 2e 0f 1f 84 00 00 00 00 00 66 90 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 0f 83 7b b6 fb ff c3 66 2e 0f 1f 84 00 00 00 00
-RSP: 002b:00007f7d13c11c78 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
-RAX: ffffffffffffffda RBX: 00007f7d13c126d4 RCX: 000000000045b399
-RDX: 0000000020000080 RSI: 000000000000560a RDI: 0000000000000003
-RBP: 000000000075bf20 R08: 0000000000000000 R09: 0000000000000000
-R10: 0000000000000000 R11: 0000000000000246 R12: 00000000ffffffff
-R13: 0000000000000666 R14: 00000000004c7f04 R15: 000000000075bf2c
-Modules linked in:
----[ end trace 80970faf7a67eb77 ]---
-RIP: 0010:vt_ioctl+0x1f96/0x26d0 drivers/tty/vt/vt_ioctl.c:883
-Code: 74 41 e8 bd a6 84 fd 48 89 d8 48 c1 e8 03 42 80 3c 28 00 0f 85 e4 04 00 00 48 8b 03 48 8d b8 40 03 00 00 48 89 fa 48 c1 ea 03 <42> 0f b6 14 2a 84 d2 74 09 80 fa 03 0f 8e b1 05 00 00 44 89 b8 40
-RSP: 0018:ffffc900086d7bb0 EFLAGS: 00010202
-RAX: 0000000000000000 RBX: ffffffff8c34ee88 RCX: ffffc9001415c000
-RDX: 0000000000000068 RSI: ffffffff83f0e6e3 RDI: 0000000000000340
-RBP: ffffc900086d7cd0 R08: ffff888054ce0100 R09: fffffbfff16a2f6d
-R10: ffff888054ce0998 R11: ffff888054ce0100 R12: 000000000000001d
-R13: dffffc0000000000 R14: 1ffff920010daf79 R15: 000000000000ff7f
-FS:  00007f7d13c12700(0000) GS:ffff8880ae900000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 00007ffd477e3c38 CR3: 0000000095d0a000 CR4: 00000000001406e0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Turns out this is not the case, some controllers have a separate
+"supported protocol capability" entry with a PSI table for each port.
+This means each usb3 roothub port can in theory support different custom
+speeds.
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: stable <stable@vger.kernel.org>
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Link: https://lore.kernel.org/r/20200210190721.200418-1-edumazet@google.com
+To solve this, cache all supported protocol capabilities with their PSI
+tables in an array, and add pointers to the xhci port structure so that
+every port points to its capability entry in the array.
+
+When creating the SuperSpeedPlus USB Device Capability BOS descriptor
+for the xhci USB 3.1 roothub we for now will use only data from the
+first USB 3.1 capable protocol capability entry in the array.
+This could be improved later, this patch focuses resolving
+the memory leak.
+
+Reported-by: Paul Menzel <pmenzel@molgen.mpg.de>
+Reported-by: Sajja Venkateswara Rao <VenkateswaraRao.Sajja@amd.com>
+Fixes: 47189098f8be ("xhci: parse xhci protocol speed ID list for usb 3.1 usage")
+Cc: stable <stable@vger.kernel.org> # v4.4+
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Tested-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Link: https://lore.kernel.org/r/20200211150158.14475-1-mathias.nyman@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/tty/vt/vt_ioctl.c |   17 +++++++++++------
- 1 file changed, 11 insertions(+), 6 deletions(-)
+ drivers/usb/host/xhci-hub.c |   25 ++++++++++++------
+ drivers/usb/host/xhci-mem.c |   61 +++++++++++++++++++++++++++-----------------
+ drivers/usb/host/xhci.h     |   14 +++++++---
+ 3 files changed, 66 insertions(+), 34 deletions(-)
 
---- a/drivers/tty/vt/vt_ioctl.c
-+++ b/drivers/tty/vt/vt_ioctl.c
-@@ -876,15 +876,20 @@ int vt_ioctl(struct tty_struct *tty,
- 			return -EINVAL;
+--- a/drivers/usb/host/xhci-hub.c
++++ b/drivers/usb/host/xhci-hub.c
+@@ -55,6 +55,7 @@ static u8 usb_bos_descriptor [] = {
+ static int xhci_create_usb3_bos_desc(struct xhci_hcd *xhci, char *buf,
+ 				     u16 wLength)
+ {
++	struct xhci_port_cap *port_cap = NULL;
+ 	int i, ssa_count;
+ 	u32 temp;
+ 	u16 desc_size, ssp_cap_size, ssa_size = 0;
+@@ -64,16 +65,24 @@ static int xhci_create_usb3_bos_desc(str
+ 	ssp_cap_size = sizeof(usb_bos_descriptor) - desc_size;
  
- 		for (i = 0; i < MAX_NR_CONSOLES; i++) {
-+			struct vc_data *vcp;
+ 	/* does xhci support USB 3.1 Enhanced SuperSpeed */
+-	if (xhci->usb3_rhub.min_rev >= 0x01) {
++	for (i = 0; i < xhci->num_port_caps; i++) {
++		if (xhci->port_caps[i].maj_rev == 0x03 &&
++		    xhci->port_caps[i].min_rev >= 0x01) {
++			usb3_1 = true;
++			port_cap = &xhci->port_caps[i];
++			break;
++		}
++	}
 +
- 			if (!vc_cons[i].d)
- 				continue;
- 			console_lock();
--			if (v.v_vlin)
--				vc_cons[i].d->vc_scan_lines = v.v_vlin;
--			if (v.v_clin)
--				vc_cons[i].d->vc_font.height = v.v_clin;
--			vc_cons[i].d->vc_resize_user = 1;
--			vc_resize(vc_cons[i].d, v.v_cols, v.v_rows);
-+			vcp = vc_cons[i].d;
-+			if (vcp) {
-+				if (v.v_vlin)
-+					vcp->vc_scan_lines = v.v_vlin;
-+				if (v.v_clin)
-+					vcp->vc_font.height = v.v_clin;
-+				vcp->vc_resize_user = 1;
-+				vc_resize(vcp, v.v_cols, v.v_rows);
-+			}
- 			console_unlock();
++	if (usb3_1) {
+ 		/* does xhci provide a PSI table for SSA speed attributes? */
+-		if (xhci->usb3_rhub.psi_count) {
++		if (port_cap->psi_count) {
+ 			/* two SSA entries for each unique PSI ID, RX and TX */
+-			ssa_count = xhci->usb3_rhub.psi_uid_count * 2;
++			ssa_count = port_cap->psi_uid_count * 2;
+ 			ssa_size = ssa_count * sizeof(u32);
+ 			ssp_cap_size -= 16; /* skip copying the default SSA */
  		}
- 		break;
+ 		desc_size += ssp_cap_size;
+-		usb3_1 = true;
+ 	}
+ 	memcpy(buf, &usb_bos_descriptor, min(desc_size, wLength));
+ 
+@@ -99,7 +108,7 @@ static int xhci_create_usb3_bos_desc(str
+ 	}
+ 
+ 	/* If PSI table exists, add the custom speed attributes from it */
+-	if (usb3_1 && xhci->usb3_rhub.psi_count) {
++	if (usb3_1 && port_cap->psi_count) {
+ 		u32 ssp_cap_base, bm_attrib, psi, psi_mant, psi_exp;
+ 		int offset;
+ 
+@@ -111,7 +120,7 @@ static int xhci_create_usb3_bos_desc(str
+ 
+ 		/* attribute count SSAC bits 4:0 and ID count SSIC bits 8:5 */
+ 		bm_attrib = (ssa_count - 1) & 0x1f;
+-		bm_attrib |= (xhci->usb3_rhub.psi_uid_count - 1) << 5;
++		bm_attrib |= (port_cap->psi_uid_count - 1) << 5;
+ 		put_unaligned_le32(bm_attrib, &buf[ssp_cap_base + 4]);
+ 
+ 		if (wLength < desc_size + ssa_size)
+@@ -124,8 +133,8 @@ static int xhci_create_usb3_bos_desc(str
+ 		 * USB 3.1 requires two SSA entries (RX and TX) for every link
+ 		 */
+ 		offset = desc_size;
+-		for (i = 0; i < xhci->usb3_rhub.psi_count; i++) {
+-			psi = xhci->usb3_rhub.psi[i];
++		for (i = 0; i < port_cap->psi_count; i++) {
++			psi = port_cap->psi[i];
+ 			psi &= ~USB_SSP_SUBLINK_SPEED_RSVD;
+ 			psi_exp = XHCI_EXT_PORT_PSIE(psi);
+ 			psi_mant = XHCI_EXT_PORT_PSIM(psi);
+--- a/drivers/usb/host/xhci-mem.c
++++ b/drivers/usb/host/xhci-mem.c
+@@ -1915,17 +1915,17 @@ no_bw:
+ 	xhci->usb3_rhub.num_ports = 0;
+ 	xhci->num_active_eps = 0;
+ 	kfree(xhci->usb2_rhub.ports);
+-	kfree(xhci->usb2_rhub.psi);
+ 	kfree(xhci->usb3_rhub.ports);
+-	kfree(xhci->usb3_rhub.psi);
+ 	kfree(xhci->hw_ports);
+ 	kfree(xhci->rh_bw);
+ 	kfree(xhci->ext_caps);
++	for (i = 0; i < xhci->num_port_caps; i++)
++		kfree(xhci->port_caps[i].psi);
++	kfree(xhci->port_caps);
++	xhci->num_port_caps = 0;
+ 
+ 	xhci->usb2_rhub.ports = NULL;
+-	xhci->usb2_rhub.psi = NULL;
+ 	xhci->usb3_rhub.ports = NULL;
+-	xhci->usb3_rhub.psi = NULL;
+ 	xhci->hw_ports = NULL;
+ 	xhci->rh_bw = NULL;
+ 	xhci->ext_caps = NULL;
+@@ -2126,6 +2126,7 @@ static void xhci_add_in_port(struct xhci
+ 	u8 major_revision, minor_revision;
+ 	struct xhci_hub *rhub;
+ 	struct device *dev = xhci_to_hcd(xhci)->self.sysdev;
++	struct xhci_port_cap *port_cap;
+ 
+ 	temp = readl(addr);
+ 	major_revision = XHCI_EXT_PORT_MAJOR(temp);
+@@ -2160,31 +2161,39 @@ static void xhci_add_in_port(struct xhci
+ 		/* WTF? "Valid values are ‘1’ to MaxPorts" */
+ 		return;
+ 
+-	rhub->psi_count = XHCI_EXT_PORT_PSIC(temp);
+-	if (rhub->psi_count) {
+-		rhub->psi = kcalloc_node(rhub->psi_count, sizeof(*rhub->psi),
+-				    GFP_KERNEL, dev_to_node(dev));
+-		if (!rhub->psi)
+-			rhub->psi_count = 0;
+-
+-		rhub->psi_uid_count++;
+-		for (i = 0; i < rhub->psi_count; i++) {
+-			rhub->psi[i] = readl(addr + 4 + i);
++	port_cap = &xhci->port_caps[xhci->num_port_caps++];
++	if (xhci->num_port_caps > max_caps)
++		return;
++
++	port_cap->maj_rev = major_revision;
++	port_cap->min_rev = minor_revision;
++	port_cap->psi_count = XHCI_EXT_PORT_PSIC(temp);
++
++	if (port_cap->psi_count) {
++		port_cap->psi = kcalloc_node(port_cap->psi_count,
++					     sizeof(*port_cap->psi),
++					     GFP_KERNEL, dev_to_node(dev));
++		if (!port_cap->psi)
++			port_cap->psi_count = 0;
++
++		port_cap->psi_uid_count++;
++		for (i = 0; i < port_cap->psi_count; i++) {
++			port_cap->psi[i] = readl(addr + 4 + i);
+ 
+ 			/* count unique ID values, two consecutive entries can
+ 			 * have the same ID if link is assymetric
+ 			 */
+-			if (i && (XHCI_EXT_PORT_PSIV(rhub->psi[i]) !=
+-				  XHCI_EXT_PORT_PSIV(rhub->psi[i - 1])))
+-				rhub->psi_uid_count++;
++			if (i && (XHCI_EXT_PORT_PSIV(port_cap->psi[i]) !=
++				  XHCI_EXT_PORT_PSIV(port_cap->psi[i - 1])))
++				port_cap->psi_uid_count++;
+ 
+ 			xhci_dbg(xhci, "PSIV:%d PSIE:%d PLT:%d PFD:%d LP:%d PSIM:%d\n",
+-				  XHCI_EXT_PORT_PSIV(rhub->psi[i]),
+-				  XHCI_EXT_PORT_PSIE(rhub->psi[i]),
+-				  XHCI_EXT_PORT_PLT(rhub->psi[i]),
+-				  XHCI_EXT_PORT_PFD(rhub->psi[i]),
+-				  XHCI_EXT_PORT_LP(rhub->psi[i]),
+-				  XHCI_EXT_PORT_PSIM(rhub->psi[i]));
++				  XHCI_EXT_PORT_PSIV(port_cap->psi[i]),
++				  XHCI_EXT_PORT_PSIE(port_cap->psi[i]),
++				  XHCI_EXT_PORT_PLT(port_cap->psi[i]),
++				  XHCI_EXT_PORT_PFD(port_cap->psi[i]),
++				  XHCI_EXT_PORT_LP(port_cap->psi[i]),
++				  XHCI_EXT_PORT_PSIM(port_cap->psi[i]));
+ 		}
+ 	}
+ 	/* cache usb2 port capabilities */
+@@ -2219,6 +2228,7 @@ static void xhci_add_in_port(struct xhci
+ 			continue;
+ 		}
+ 		hw_port->rhub = rhub;
++		hw_port->port_cap = port_cap;
+ 		rhub->num_ports++;
+ 	}
+ 	/* FIXME: Should we disable ports not in the Extended Capabilities? */
+@@ -2309,6 +2319,11 @@ static int xhci_setup_port_arrays(struct
+ 	if (!xhci->ext_caps)
+ 		return -ENOMEM;
+ 
++	xhci->port_caps = kcalloc_node(cap_count, sizeof(*xhci->port_caps),
++				flags, dev_to_node(dev));
++	if (!xhci->port_caps)
++		return -ENOMEM;
++
+ 	offset = cap_start;
+ 
+ 	while (offset) {
+--- a/drivers/usb/host/xhci.h
++++ b/drivers/usb/host/xhci.h
+@@ -1702,12 +1702,20 @@ struct xhci_bus_state {
+  * Intel Lynx Point LP xHCI host.
+  */
+ #define	XHCI_MAX_REXIT_TIMEOUT_MS	20
++struct xhci_port_cap {
++	u32			*psi;	/* array of protocol speed ID entries */
++	u8			psi_count;
++	u8			psi_uid_count;
++	u8			maj_rev;
++	u8			min_rev;
++};
+ 
+ struct xhci_port {
+ 	__le32 __iomem		*addr;
+ 	int			hw_portnum;
+ 	int			hcd_portnum;
+ 	struct xhci_hub		*rhub;
++	struct xhci_port_cap	*port_cap;
+ };
+ 
+ struct xhci_hub {
+@@ -1719,9 +1727,6 @@ struct xhci_hub {
+ 	/* supported prococol extended capabiliy values */
+ 	u8			maj_rev;
+ 	u8			min_rev;
+-	u32			*psi;	/* array of protocol speed ID entries */
+-	u8			psi_count;
+-	u8			psi_uid_count;
+ };
+ 
+ /* There is one xhci_hcd structure per controller */
+@@ -1880,6 +1885,9 @@ struct xhci_hcd {
+ 	/* cached usb2 extened protocol capabilites */
+ 	u32                     *ext_caps;
+ 	unsigned int            num_ext_caps;
++	/* cached extended protocol port capabilities */
++	struct xhci_port_cap	*port_caps;
++	unsigned int		num_port_caps;
+ 	/* Compliance Mode Recovery Data */
+ 	struct timer_list	comp_mode_recovery_timer;
+ 	u32			port_status_u0;
 
 
