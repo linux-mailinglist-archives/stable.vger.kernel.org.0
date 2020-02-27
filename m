@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C420171B29
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:00:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 009B9171949
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 14:43:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732552AbgB0OAC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 09:00:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33318 "EHLO mail.kernel.org"
+        id S1729458AbgB0Nnd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 08:43:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38782 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732676AbgB0OAB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 09:00:01 -0500
+        id S1729981AbgB0Nnc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 08:43:32 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E454C2073D;
-        Thu, 27 Feb 2020 13:59:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 45BBD20578;
+        Thu, 27 Feb 2020 13:43:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582812000;
-        bh=FKtU32cyw/UdGrE2fGzl7hamaEFms3FrtdtOUA6DtKo=;
+        s=default; t=1582811011;
+        bh=eD0+slTQEDPWptH6UvgJhptAS0AAfbbJ/DGCI2QLIbQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xdP4J7dKd2HjF1Lix3ukNpl25IH20L96nFh3W/LXuaI2IQNImQQdhcLFJkIn4vKF9
-         203pBoC9bdiL4QajLJKAwVdbgqaC9UBG1d6SrD8FWlrUKF+og6e6Kr6UlTJpgIn87P
-         M0wATH469YSZCF3J9Mpledmk+aztHAXRev3lPGi8=
+        b=Oyuf9k1gzG18eh3g7pAT3wdUuI43poZaPHUyyWP6nv/X9QeXu8FcEsxHQPekK0SNr
+         ZKgCQPZ2n6HrZDn1WCRrV2t8tpW+buHl4DBtE0xpvcryCL33myL31SQLkxTuo7mxZW
+         bIh3gBI7tKA1qzB6wqNSaYVaRZ+lyCE4D3/CLLls=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Chen <peter.chen@nxp.com>,
-        Mathias Nyman <mathias.nyman@linux.intel.com>,
-        Fabio Estevam <festevam@gmail.com>
-Subject: [PATCH 4.14 182/237] usb: host: xhci: update event ring dequeue pointer on purpose
-Date:   Thu, 27 Feb 2020 14:36:36 +0100
-Message-Id: <20200227132309.751311272@linuxfoundation.org>
+        stable@vger.kernel.org, Zhiqiang Liu <liuzhiqiang26@huawei.com>,
+        Bob Liu <bob.liu@oracle.com>, Ming Lei <ming.lei@redhat.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 082/113] brd: check and limit max_part par
+Date:   Thu, 27 Feb 2020 14:36:38 +0100
+Message-Id: <20200227132224.903806095@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200227132255.285644406@linuxfoundation.org>
-References: <20200227132255.285644406@linuxfoundation.org>
+In-Reply-To: <20200227132211.791484803@linuxfoundation.org>
+References: <20200227132211.791484803@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,116 +44,109 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Chen <peter.chen@nxp.com>
+From: Zhiqiang Liu <liuzhiqiang26@huawei.com>
 
-commit dc0ffbea5729a3abafa577ebfce87f18b79e294b upstream.
+[ Upstream commit c8ab422553c81a0eb070329c63725df1cd1425bc ]
 
-On some situations, the software handles TRB events slower
-than adding TRBs, then xhci_handle_event can't return zero
-long time, the xHC will consider the event ring is full,
-and trigger "Event Ring Full" error, but in fact, the software
-has already finished lots of events, just no chance to
-update ERDP (event ring dequeue pointer).
+In brd_init func, rd_nr num of brd_device are firstly allocated
+and add in brd_devices, then brd_devices are traversed to add each
+brd_device by calling add_disk func. When allocating brd_device,
+the disk->first_minor is set to i * max_part, if rd_nr * max_part
+is larger than MINORMASK, two different brd_device may have the same
+devt, then only one of them can be successfully added.
+when rmmod brd.ko, it will cause oops when calling brd_exit.
 
-In this commit, we force update ERDP if half of TRBS_PER_SEGMENT
-events have handled to avoid "Event Ring Full" error.
+Follow those steps:
+  # modprobe brd rd_nr=3 rd_size=102400 max_part=1048576
+  # rmmod brd
+then, the oops will appear.
 
-Signed-off-by: Peter Chen <peter.chen@nxp.com>
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/1573836603-10871-2-git-send-email-mathias.nyman@linux.intel.com
-Signed-off-by: Fabio Estevam <festevam@gmail.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Oops log:
+[  726.613722] Call trace:
+[  726.614175]  kernfs_find_ns+0x24/0x130
+[  726.614852]  kernfs_find_and_get_ns+0x44/0x68
+[  726.615749]  sysfs_remove_group+0x38/0xb0
+[  726.616520]  blk_trace_remove_sysfs+0x1c/0x28
+[  726.617320]  blk_unregister_queue+0x98/0x100
+[  726.618105]  del_gendisk+0x144/0x2b8
+[  726.618759]  brd_exit+0x68/0x560 [brd]
+[  726.619501]  __arm64_sys_delete_module+0x19c/0x2a0
+[  726.620384]  el0_svc_common+0x78/0x130
+[  726.621057]  el0_svc_handler+0x38/0x78
+[  726.621738]  el0_svc+0x8/0xc
+[  726.622259] Code: aa0203f6 aa0103f7 aa1e03e0 d503201f (7940e260)
 
+Here, we add brd_check_and_reset_par func to check and limit max_part par.
+
+--
+V5->V6:
+ - remove useless code
+
+V4->V5:(suggested by Ming Lei)
+ - make sure max_part is not larger than DISK_MAX_PARTS
+
+V3->V4:(suggested by Ming Lei)
+ - remove useless change
+ - add one limit of max_part
+
+V2->V3: (suggested by Ming Lei)
+ - clear .minors when running out of consecutive minor space in brd_alloc
+ - remove limit of rd_nr
+
+V1->V2:
+ - add more checks in brd_check_par_valid as suggested by Ming Lei.
+
+Signed-off-by: Zhiqiang Liu <liuzhiqiang26@huawei.com>
+Reviewed-by: Bob Liu <bob.liu@oracle.com>
+Reviewed-by: Ming Lei <ming.lei@redhat.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/host/xhci-ring.c |   60 ++++++++++++++++++++++++++++++-------------
- 1 file changed, 43 insertions(+), 17 deletions(-)
+ drivers/block/brd.c | 22 ++++++++++++++++++++--
+ 1 file changed, 20 insertions(+), 2 deletions(-)
 
---- a/drivers/usb/host/xhci-ring.c
-+++ b/drivers/usb/host/xhci-ring.c
-@@ -2759,6 +2759,42 @@ static int xhci_handle_event(struct xhci
+diff --git a/drivers/block/brd.c b/drivers/block/brd.c
+index 1914c63ca8b1d..58c1138ad5e17 100644
+--- a/drivers/block/brd.c
++++ b/drivers/block/brd.c
+@@ -581,6 +581,25 @@ static struct kobject *brd_probe(dev_t dev, int *part, void *data)
+ 	return kobj;
  }
  
- /*
-+ * Update Event Ring Dequeue Pointer:
-+ * - When all events have finished
-+ * - To avoid "Event Ring Full Error" condition
-+ */
-+static void xhci_update_erst_dequeue(struct xhci_hcd *xhci,
-+		union xhci_trb *event_ring_deq)
++static inline void brd_check_and_reset_par(void)
 +{
-+	u64 temp_64;
-+	dma_addr_t deq;
++	if (unlikely(!max_part))
++		max_part = 1;
 +
-+	temp_64 = xhci_read_64(xhci, &xhci->ir_set->erst_dequeue);
-+	/* If necessary, update the HW's version of the event ring deq ptr. */
-+	if (event_ring_deq != xhci->event_ring->dequeue) {
-+		deq = xhci_trb_virt_to_dma(xhci->event_ring->deq_seg,
-+				xhci->event_ring->dequeue);
-+		if (deq == 0)
-+			xhci_warn(xhci, "WARN something wrong with SW event ring dequeue ptr\n");
-+		/*
-+		 * Per 4.9.4, Software writes to the ERDP register shall
-+		 * always advance the Event Ring Dequeue Pointer value.
-+		 */
-+		if ((temp_64 & (u64) ~ERST_PTR_MASK) ==
-+				((u64) deq & (u64) ~ERST_PTR_MASK))
-+			return;
++	/*
++	 * make sure 'max_part' can be divided exactly by (1U << MINORBITS),
++	 * otherwise, it is possiable to get same dev_t when adding partitions.
++	 */
++	if ((1U << MINORBITS) % max_part != 0)
++		max_part = 1UL << fls(max_part);
 +
-+		/* Update HC event ring dequeue pointer */
-+		temp_64 &= ERST_PTR_MASK;
-+		temp_64 |= ((u64) deq & (u64) ~ERST_PTR_MASK);
++	if (max_part > DISK_MAX_PARTS) {
++		pr_info("brd: max_part can't be larger than %d, reset max_part = %d.\n",
++			DISK_MAX_PARTS, DISK_MAX_PARTS);
++		max_part = DISK_MAX_PARTS;
 +	}
-+
-+	/* Clear the event handler busy flag (RW1C) */
-+	temp_64 |= ERST_EHB;
-+	xhci_write_64(xhci, temp_64, &xhci->ir_set->erst_dequeue);
 +}
 +
-+/*
-  * xHCI spec says we can get an interrupt, and if the HC has an error condition,
-  * we might get bad data out of the event ring.  Section 4.10.2.7 has a list of
-  * indicators of an event TRB error, but we check the status *first* to be safe.
-@@ -2769,9 +2805,9 @@ irqreturn_t xhci_irq(struct usb_hcd *hcd
- 	union xhci_trb *event_ring_deq;
- 	irqreturn_t ret = IRQ_NONE;
- 	unsigned long flags;
--	dma_addr_t deq;
- 	u64 temp_64;
- 	u32 status;
-+	int event_loop = 0;
+ static int __init brd_init(void)
+ {
+ 	struct brd_device *brd, *next;
+@@ -604,8 +623,7 @@ static int __init brd_init(void)
+ 	if (register_blkdev(RAMDISK_MAJOR, "ramdisk"))
+ 		return -EIO;
  
- 	spin_lock_irqsave(&xhci->lock, flags);
- 	/* Check if the xHC generated the interrupt, or the irq is shared */
-@@ -2825,24 +2861,14 @@ irqreturn_t xhci_irq(struct usb_hcd *hcd
- 	/* FIXME this should be a delayed service routine
- 	 * that clears the EHB.
- 	 */
--	while (xhci_handle_event(xhci) > 0) {}
--
--	temp_64 = xhci_read_64(xhci, &xhci->ir_set->erst_dequeue);
--	/* If necessary, update the HW's version of the event ring deq ptr. */
--	if (event_ring_deq != xhci->event_ring->dequeue) {
--		deq = xhci_trb_virt_to_dma(xhci->event_ring->deq_seg,
--				xhci->event_ring->dequeue);
--		if (deq == 0)
--			xhci_warn(xhci, "WARN something wrong with SW event "
--					"ring dequeue ptr.\n");
--		/* Update HC event ring dequeue pointer */
--		temp_64 &= ERST_PTR_MASK;
--		temp_64 |= ((u64) deq & (u64) ~ERST_PTR_MASK);
-+	while (xhci_handle_event(xhci) > 0) {
-+		if (event_loop++ < TRBS_PER_SEGMENT / 2)
-+			continue;
-+		xhci_update_erst_dequeue(xhci, event_ring_deq);
-+		event_loop = 0;
- 	}
+-	if (unlikely(!max_part))
+-		max_part = 1;
++	brd_check_and_reset_par();
  
--	/* Clear the event handler busy flag (RW1C); event ring is empty. */
--	temp_64 |= ERST_EHB;
--	xhci_write_64(xhci, temp_64, &xhci->ir_set->erst_dequeue);
-+	xhci_update_erst_dequeue(xhci, event_ring_deq);
- 	ret = IRQ_HANDLED;
- 
- out:
+ 	for (i = 0; i < rd_nr; i++) {
+ 		brd = brd_alloc(i);
+-- 
+2.20.1
+
 
 
