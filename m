@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C0A16171E96
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:29:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F8F9171DF5
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:24:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387568AbgB0O2p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 09:28:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44648 "EHLO mail.kernel.org"
+        id S2388721AbgB0OYO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 09:24:14 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52118 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387746AbgB0OHN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 09:07:13 -0500
+        id S2388954AbgB0ONN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 09:13:13 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7F6EF20801;
-        Thu, 27 Feb 2020 14:07:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DE1F7246AC;
+        Thu, 27 Feb 2020 14:13:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582812433;
-        bh=DPmLCLL0ahSP7fn+LS7OG75V/K+ecstt+63o9yJmvHY=;
+        s=default; t=1582812793;
+        bh=jTvwhF4KjEeGmTKvwo1HGhYhl0LBnNBc2sIqXvNxEEY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0OUrEI9C11me7qXvSORqUHLC6FiRidn7jK/8NM3FfFU2UtE9J0jGyMKAoh343z2Cs
-         Tgd0AaIqRsbfH96WJdLrkOdLLniOq6hLRtRy/8rHr6cqXFNy+xGnNnLrD5MqgfRnAx
-         TcP5Y9A1eD0H+VZEMJPH7vT7fRcqvYPW9FloTkbI=
+        b=0mcypYgoYT1sgwQNLBgEEWJfatHUGtQtuMtJie805P4CFa7t+rLqKwdiaCrkpLHrz
+         HLTGv+xT5xiBDn44xbwMK+2OHt10sK1HsihfkRGE9IbCF/bxhftkuU4bBAwXNAnAtm
+         nE/lb2+Urvt6o77SnSi8xPZMRH2edD3kwD0xQOno=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jordy Zomer <jordy@simplyhacker.com>,
-        Willy Tarreau <w@1wt.eu>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.4 016/135] floppy: check FDC index for errors before assigning it
+        stable@vger.kernel.org,
+        Nicholas Johnson <nicholas.johnson-opensource@outlook.com.au>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>
+Subject: [PATCH 5.5 019/150] thunderbolt: Prevent crash if non-active NVMem file is read
 Date:   Thu, 27 Feb 2020 14:35:56 +0100
-Message-Id: <20200227132231.685788364@linuxfoundation.org>
+Message-Id: <20200227132235.531755428@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200227132228.710492098@linuxfoundation.org>
-References: <20200227132228.710492098@linuxfoundation.org>
+In-Reply-To: <20200227132232.815448360@linuxfoundation.org>
+References: <20200227132232.815448360@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,65 +44,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
 
-commit 2e90ca68b0d2f5548804f22f0dd61145516171e3 upstream.
+commit 03cd45d2e219301880cabc357e3cf478a500080f upstream.
 
-Jordy Zomer reported a KASAN out-of-bounds read in the floppy driver in
-wait_til_ready().
+The driver does not populate .reg_read callback for the non-active NVMem
+because the file is supposed to be write-only. However, it turns out
+NVMem subsystem does not yet support this and expects that the .reg_read
+callback is provided. If user reads the binary attribute it triggers
+NULL pointer dereference like this one:
 
-Which on the face of it can't happen, since as Willy Tarreau points out,
-the function does no particular memory access.  Except through the FDCS
-macro, which just indexes a static allocation through teh current fdc,
-which is always checked against N_FDC.
+  BUG: kernel NULL pointer dereference, address: 0000000000000000
+  ...
+  Call Trace:
+   bin_attr_nvmem_read+0x64/0x80
+   kernfs_fop_read+0xa7/0x180
+   vfs_read+0xbd/0x170
+   ksys_read+0x5a/0xd0
+   do_syscall_64+0x43/0x150
+   entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
-Except the checking happens after we've already assigned the value.
+Fix this in the driver by providing .reg_read callback that always
+returns an error.
 
-The floppy driver is a disgrace (a lot of it going back to my original
-horrd "design"), and has no real maintainer.  Nobody has the hardware,
-and nobody really cares.  But it still gets used in virtual environment
-because it's one of those things that everybody supports.
-
-The whole thing should be re-written, or at least parts of it should be
-seriously cleaned up.  The 'current fdc' index, which is used by the
-FDCS macro, and which is often shadowed by a local 'fdc' variable, is a
-prime example of how not to write code.
-
-But because nobody has the hardware or the motivation, let's just fix up
-the immediate problem with a nasty band-aid: test the fdc index before
-actually assigning it to the static 'fdc' variable.
-
-Reported-by: Jordy Zomer <jordy@simplyhacker.com>
-Cc: Willy Tarreau <w@1wt.eu>
-Cc: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Reported-by: Nicholas Johnson <nicholas.johnson-opensource@outlook.com.au>
+Fixes: e6b245ccd524 ("thunderbolt: Add support for host and device NVM firmware upgrade")
+Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20200213095604.1074-1-mika.westerberg@linux.intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/block/floppy.c |    7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/thunderbolt/switch.c |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/drivers/block/floppy.c
-+++ b/drivers/block/floppy.c
-@@ -853,14 +853,17 @@ static void reset_fdc_info(int mode)
- /* selects the fdc and drive, and enables the fdc's input/dma. */
- static void set_fdc(int drive)
- {
-+	unsigned int new_fdc = fdc;
+--- a/drivers/thunderbolt/switch.c
++++ b/drivers/thunderbolt/switch.c
+@@ -274,6 +274,12 @@ out:
+ 	return ret;
+ }
+ 
++static int tb_switch_nvm_no_read(void *priv, unsigned int offset, void *val,
++				 size_t bytes)
++{
++	return -EPERM;
++}
 +
- 	if (drive >= 0 && drive < N_DRIVE) {
--		fdc = FDC(drive);
-+		new_fdc = FDC(drive);
- 		current_drive = drive;
+ static int tb_switch_nvm_write(void *priv, unsigned int offset, void *val,
+ 			       size_t bytes)
+ {
+@@ -319,6 +325,7 @@ static struct nvmem_device *register_nvm
+ 		config.read_only = true;
+ 	} else {
+ 		config.name = "nvm_non_active";
++		config.reg_read = tb_switch_nvm_no_read;
+ 		config.reg_write = tb_switch_nvm_write;
+ 		config.root_only = true;
  	}
--	if (fdc != 1 && fdc != 0) {
-+	if (new_fdc >= N_FDC) {
- 		pr_info("bad fdc value\n");
- 		return;
- 	}
-+	fdc = new_fdc;
- 	set_dor(fdc, ~0, 8);
- #if N_FDC > 1
- 	set_dor(1 - fdc, ~8, 0);
 
 
