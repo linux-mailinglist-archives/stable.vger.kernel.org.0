@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EADAE171EE9
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:31:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C90DB172155
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:49:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733140AbgB0ObJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 09:31:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40080 "EHLO mail.kernel.org"
+        id S1729193AbgB0Org (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 09:47:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39448 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387528AbgB0OEH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 09:04:07 -0500
+        id S1729591AbgB0NoD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 08:44:03 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A8ED521D7E;
-        Thu, 27 Feb 2020 14:04:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3E50320726;
+        Thu, 27 Feb 2020 13:44:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582812247;
-        bh=ZpcJ/AjfySdFGn8uTT2qz0GFBZHVlQ9gKNE5pnAd3JQ=;
+        s=default; t=1582811042;
+        bh=QA3jeg9gW/R8f7Sgn3etd/gjp/5Lbr+aIijXiYDZ0Yc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bL/lJPlO+/tYt+aOL8nZRMMvq1eUUp3nXfwdAnjEph6wLFrw65bN+nQnkM8yBcMID
-         M3kUB5nP5zSkLCRsb38+lk3gvrFZQaXLwh3+LEBcq6yUzaQD9oDZbgzbBdzI+rZHiu
-         uUO2vmrEjOl/wwgWpLXRLE5euqFJupVsC8e1aohA=
+        b=KfuPhHmoPtgr3+cEspurKPrQ/Vo63cqKgxWMoQ8ZmytJN5kC1TMq1spbxqvp6BphL
+         Wxo3CrKU7te8XRths7jL4LVqLJf+rKzmEc1J+kjPVk+GULMAc2bYqCy7wbpEYSOv6T
+         f6hAu9BrSy4Gp5BkGQvEIHadk0PUHXT0TXOx9zOU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nicolas Ferre <nicolas.ferre@microchip.com>
-Subject: [PATCH 4.19 41/97] tty/serial: atmel: manage shutdown in case of RS485 or ISO7816 mode
+        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+        Borislav Petkov <bp@suse.de>
+Subject: [PATCH 4.4 093/113] x86/mce/amd: Fix kobject lifetime
 Date:   Thu, 27 Feb 2020 14:36:49 +0100
-Message-Id: <20200227132221.272241221@linuxfoundation.org>
+Message-Id: <20200227132226.622931292@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200227132214.553656188@linuxfoundation.org>
-References: <20200227132214.553656188@linuxfoundation.org>
+In-Reply-To: <20200227132211.791484803@linuxfoundation.org>
+References: <20200227132211.791484803@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,36 +43,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicolas Ferre <nicolas.ferre@microchip.com>
+From: Thomas Gleixner <tglx@linutronix.de>
 
-commit 04b5bfe3dc94e64d0590c54045815cb5183fb095 upstream.
+commit 51dede9c05df2b78acd6dcf6a17d21f0877d2d7b upstream.
 
-In atmel_shutdown() we call atmel_stop_rx() and atmel_stop_tx() functions.
-Prevent the rx restart that is implemented in RS485 or ISO7816 modes when
-calling atmel_stop_tx() by using the atomic information tasklet_shutdown
-that is already in place for this purpose.
+Accessing the MCA thresholding controls in sysfs concurrently with CPU
+hotplug can lead to a couple of KASAN-reported issues:
 
-Fixes: 98f2082c3ac4 ("tty/serial: atmel: enforce tasklet init and termination sequences")
-Signed-off-by: Nicolas Ferre <nicolas.ferre@microchip.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200210152053.8289-1-nicolas.ferre@microchip.com
+  BUG: KASAN: use-after-free in sysfs_file_ops+0x155/0x180
+  Read of size 8 at addr ffff888367578940 by task grep/4019
+
+and
+
+  BUG: KASAN: use-after-free in show_error_count+0x15c/0x180
+  Read of size 2 at addr ffff888368a05514 by task grep/4454
+
+for example. Both result from the fact that the threshold block
+creation/teardown code frees the descriptor memory itself instead of
+defining proper ->release function and leaving it to the driver core to
+take care of that, after all sysfs accesses have completed.
+
+Do that and get rid of the custom freeing code, fixing the above UAFs in
+the process.
+
+  [ bp: write commit message. ]
+
+Fixes: 95268664390b ("[PATCH] x86_64: mce_amd support for family 0x10 processors")
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Cc: <stable@vger.kernel.org>
+Link: https://lkml.kernel.org/r/20200214082801.13836-1-bp@alien8.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/tty/serial/atmel_serial.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/x86/kernel/cpu/mcheck/mce_amd.c |   17 +++++++++++------
+ 1 file changed, 11 insertions(+), 6 deletions(-)
 
---- a/drivers/tty/serial/atmel_serial.c
-+++ b/drivers/tty/serial/atmel_serial.c
-@@ -490,7 +490,8 @@ static void atmel_stop_tx(struct uart_po
- 	atmel_uart_writel(port, ATMEL_US_IDR, atmel_port->tx_done_mask);
+--- a/arch/x86/kernel/cpu/mcheck/mce_amd.c
++++ b/arch/x86/kernel/cpu/mcheck/mce_amd.c
+@@ -560,9 +560,12 @@ static const struct sysfs_ops threshold_
+ 	.store			= store,
+ };
  
- 	if (atmel_uart_is_half_duplex(port))
--		atmel_start_rx(port);
-+		if (!atomic_read(&atmel_port->tasklet_shutdown))
-+			atmel_start_rx(port);
++static void threshold_block_release(struct kobject *kobj);
++
+ static struct kobj_type threshold_ktype = {
+ 	.sysfs_ops		= &threshold_ops,
+ 	.default_attrs		= default_attrs,
++	.release		= threshold_block_release,
+ };
  
+ static int allocate_threshold_blocks(unsigned int cpu, unsigned int bank,
+@@ -765,8 +768,12 @@ static int threshold_create_device(unsig
+ 	return err;
  }
  
+-static void deallocate_threshold_block(unsigned int cpu,
+-						 unsigned int bank)
++static void threshold_block_release(struct kobject *kobj)
++{
++	kfree(to_block(kobj));
++}
++
++static void deallocate_threshold_block(unsigned int cpu, unsigned int bank)
+ {
+ 	struct threshold_block *pos = NULL;
+ 	struct threshold_block *tmp = NULL;
+@@ -776,13 +783,11 @@ static void deallocate_threshold_block(u
+ 		return;
+ 
+ 	list_for_each_entry_safe(pos, tmp, &head->blocks->miscj, miscj) {
+-		kobject_put(&pos->kobj);
+ 		list_del(&pos->miscj);
+-		kfree(pos);
++		kobject_put(&pos->kobj);
+ 	}
+ 
+-	kfree(per_cpu(threshold_banks, cpu)[bank]->blocks);
+-	per_cpu(threshold_banks, cpu)[bank]->blocks = NULL;
++	kobject_put(&head->blocks->kobj);
+ }
+ 
+ static void __threshold_remove_blocks(struct threshold_bank *b)
 
 
