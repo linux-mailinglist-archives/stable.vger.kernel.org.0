@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8607B171B89
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:03:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 63CFF171C07
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:08:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732871AbgB0ODR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 09:03:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38390 "EHLO mail.kernel.org"
+        id S2388163AbgB0OH6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 09:07:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45590 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732977AbgB0ODQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 09:03:16 -0500
+        id S2388177AbgB0OH5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 09:07:57 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3A81020801;
-        Thu, 27 Feb 2020 14:03:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3E9F921D7E;
+        Thu, 27 Feb 2020 14:07:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582812195;
-        bh=z57J7PEizy77KM3xdAe4s3IQIQNXSoGZGe440Wy2BQk=;
+        s=default; t=1582812476;
+        bh=1DX1NESB9uCLiSTmV5cjBcrmXUB7/J48HiDJfR/aAMQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WMxW1cCgYlLnfwmINJnrlSkYyQHXWSLGXaisVLr83eZvdaNAHDfz2zCWUEwFTwgqS
-         0yCiOZHOxiVcqRmQENEic/dIUaxDESliCiJv/QjS5AZIt8Xfh5Tkoslk1LEgR5DWAC
-         YV8XDvA1KvTRku7WTb2DD/KXRTUq5Z+/fy4bAEuw=
+        b=1Yfg/2Yn62cT+mh6rAEuN8HTDri9tlPyMVQ8JZYiG+//CYmQv/5711eNOoPqrteuP
+         hwcoJqwx9aON7TzyGJHIA/8Wb6hgccmbYhj6cpG5+QTkViSSvFb/KSPbNDb/hG5DJw
+         oOZ+mKJM9rgogSEtEBRLkeXPZWas6/h2AmnC9Jjw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Samuel Holland <samuel@sholland.org>,
-        Chen-Yu Tsai <wens@csie.org>, stable@kernel.org,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 4.19 05/97] ASoC: sun8i-codec: Fix setting DAI data format
+        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
+        Hardik Gajjar <hgajjar@de.adit-jv.com>,
+        Eugeniu Rosca <erosca@de.adit-jv.com>
+Subject: [PATCH 5.4 033/135] USB: hub: Fix the broken detection of USB3 device in SMSC hub
 Date:   Thu, 27 Feb 2020 14:36:13 +0100
-Message-Id: <20200227132215.467861082@linuxfoundation.org>
+Message-Id: <20200227132234.007724232@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200227132214.553656188@linuxfoundation.org>
-References: <20200227132214.553656188@linuxfoundation.org>
+In-Reply-To: <20200227132228.710492098@linuxfoundation.org>
+References: <20200227132228.710492098@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,43 +44,109 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Samuel Holland <samuel@sholland.org>
+From: Hardik Gajjar <hgajjar@de.adit-jv.com>
 
-commit 96781fd941b39e1f78098009344ebcd7af861c67 upstream.
+commit 1208f9e1d758c991b0a46a1bd60c616b906bbe27 upstream.
 
-Use the correct mask for this two-bit field. This fixes setting the DAI
-data format to RIGHT_J or DSP_A.
+Renesas R-Car H3ULCB + Kingfisher Infotainment Board is either not able
+to detect the USB3.0 mass storage devices or is detecting those as
+USB2.0 high speed devices.
 
-Fixes: 36c684936fae ("ASoC: Add sun8i digital audio codec")
-Signed-off-by: Samuel Holland <samuel@sholland.org>
-Acked-by: Chen-Yu Tsai <wens@csie.org>
-Cc: stable@kernel.org
-Link: https://lore.kernel.org/r/20200217064250.15516-7-samuel@sholland.org
-Signed-off-by: Mark Brown <broonie@kernel.org>
+The explanation given by Renesas is that, due to a HW issue, the XHCI
+driver does not wake up after going to sleep on connecting a USB3.0
+device.
+
+In order to mitigate that, disable the auto-suspend feature
+specifically for SMSC hubs from hub_probe() function, as a quirk.
+
+Renesas Kingfisher Infotainment Board has two USB3.0 ports (CN2) which
+are connected via USB5534B 4-port SuperSpeed/Hi-Speed, low-power,
+configurable hub controller.
+
+[1] SanDisk USB 3.0 device detected as USB-2.0 before the patch
+ [   74.036390] usb 5-1.1: new high-speed USB device number 4 using xhci-hcd
+ [   74.061598] usb 5-1.1: New USB device found, idVendor=0781, idProduct=5581, bcdDevice= 1.00
+ [   74.069976] usb 5-1.1: New USB device strings: Mfr=1, Product=2, SerialNumber=3
+ [   74.077303] usb 5-1.1: Product: Ultra
+ [   74.080980] usb 5-1.1: Manufacturer: SanDisk
+ [   74.085263] usb 5-1.1: SerialNumber: 4C530001110208116550
+
+[2] SanDisk USB 3.0 device detected as USB-3.0 after the patch
+ [   34.565078] usb 6-1.1: new SuperSpeed Gen 1 USB device number 3 using xhci-hcd
+ [   34.588719] usb 6-1.1: New USB device found, idVendor=0781, idProduct=5581, bcdDevice= 1.00
+ [   34.597098] usb 6-1.1: New USB device strings: Mfr=1, Product=2, SerialNumber=3
+ [   34.604430] usb 6-1.1: Product: Ultra
+ [   34.608110] usb 6-1.1: Manufacturer: SanDisk
+ [   34.612397] usb 6-1.1: SerialNumber: 4C530001110208116550
+
+Suggested-by: Alan Stern <stern@rowland.harvard.edu>
+Signed-off-by: Hardik Gajjar <hgajjar@de.adit-jv.com>
+Acked-by: Alan Stern <stern@rowland.harvard.edu>
+Tested-by: Eugeniu Rosca <erosca@de.adit-jv.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/1580989763-32291-1-git-send-email-hgajjar@de.adit-jv.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/soc/sunxi/sun8i-codec.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/usb/core/hub.c |   15 +++++++++++++++
+ drivers/usb/core/hub.h |    1 +
+ 2 files changed, 16 insertions(+)
 
---- a/sound/soc/sunxi/sun8i-codec.c
-+++ b/sound/soc/sunxi/sun8i-codec.c
-@@ -89,6 +89,7 @@
+--- a/drivers/usb/core/hub.c
++++ b/drivers/usb/core/hub.c
+@@ -37,7 +37,9 @@
+ #include "otg_whitelist.h"
  
- #define SUN8I_SYS_SR_CTRL_AIF1_FS_MASK		GENMASK(15, 12)
- #define SUN8I_SYS_SR_CTRL_AIF2_FS_MASK		GENMASK(11, 8)
-+#define SUN8I_AIF1CLK_CTRL_AIF1_DATA_FMT_MASK	GENMASK(3, 2)
- #define SUN8I_AIF1CLK_CTRL_AIF1_WORD_SIZ_MASK	GENMASK(5, 4)
- #define SUN8I_AIF1CLK_CTRL_AIF1_LRCK_DIV_MASK	GENMASK(8, 6)
- #define SUN8I_AIF1CLK_CTRL_AIF1_BCLK_DIV_MASK	GENMASK(12, 9)
-@@ -250,7 +251,7 @@ static int sun8i_set_fmt(struct snd_soc_
- 		return -EINVAL;
- 	}
- 	regmap_update_bits(scodec->regmap, SUN8I_AIF1CLK_CTRL,
--			   BIT(SUN8I_AIF1CLK_CTRL_AIF1_DATA_FMT),
-+			   SUN8I_AIF1CLK_CTRL_AIF1_DATA_FMT_MASK,
- 			   value << SUN8I_AIF1CLK_CTRL_AIF1_DATA_FMT);
+ #define USB_VENDOR_GENESYS_LOGIC		0x05e3
++#define USB_VENDOR_SMSC				0x0424
+ #define HUB_QUIRK_CHECK_PORT_AUTOSUSPEND	0x01
++#define HUB_QUIRK_DISABLE_AUTOSUSPEND		0x02
  
- 	return 0;
+ #define USB_TP_TRANSMISSION_DELAY	40	/* ns */
+ #define USB_TP_TRANSMISSION_DELAY_MAX	65535	/* ns */
+@@ -1725,6 +1727,10 @@ static void hub_disconnect(struct usb_in
+ 	kfree(hub->buffer);
+ 
+ 	pm_suspend_ignore_children(&intf->dev, false);
++
++	if (hub->quirk_disable_autosuspend)
++		usb_autopm_put_interface(intf);
++
+ 	kref_put(&hub->kref, hub_release);
+ }
+ 
+@@ -1857,6 +1863,11 @@ static int hub_probe(struct usb_interfac
+ 	if (id->driver_info & HUB_QUIRK_CHECK_PORT_AUTOSUSPEND)
+ 		hub->quirk_check_port_auto_suspend = 1;
+ 
++	if (id->driver_info & HUB_QUIRK_DISABLE_AUTOSUSPEND) {
++		hub->quirk_disable_autosuspend = 1;
++		usb_autopm_get_interface(intf);
++	}
++
+ 	if (hub_configure(hub, &desc->endpoint[0].desc) >= 0)
+ 		return 0;
+ 
+@@ -5479,6 +5490,10 @@ out_hdev_lock:
+ }
+ 
+ static const struct usb_device_id hub_id_table[] = {
++    { .match_flags = USB_DEVICE_ID_MATCH_VENDOR | USB_DEVICE_ID_MATCH_INT_CLASS,
++      .idVendor = USB_VENDOR_SMSC,
++      .bInterfaceClass = USB_CLASS_HUB,
++      .driver_info = HUB_QUIRK_DISABLE_AUTOSUSPEND},
+     { .match_flags = USB_DEVICE_ID_MATCH_VENDOR
+ 			| USB_DEVICE_ID_MATCH_INT_CLASS,
+       .idVendor = USB_VENDOR_GENESYS_LOGIC,
+--- a/drivers/usb/core/hub.h
++++ b/drivers/usb/core/hub.h
+@@ -61,6 +61,7 @@ struct usb_hub {
+ 	unsigned		quiescing:1;
+ 	unsigned		disconnected:1;
+ 	unsigned		in_reset:1;
++	unsigned		quirk_disable_autosuspend:1;
+ 
+ 	unsigned		quirk_check_port_auto_suspend:1;
+ 
 
 
