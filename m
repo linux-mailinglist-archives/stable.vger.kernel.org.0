@@ -2,73 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E5AA1170FA1
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 05:23:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 48E7F170FA6
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 05:28:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728284AbgB0EX2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 26 Feb 2020 23:23:28 -0500
-Received: from shards.monkeyblade.net ([23.128.96.9]:36922 "EHLO
+        id S1728360AbgB0E2V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 26 Feb 2020 23:28:21 -0500
+Received: from shards.monkeyblade.net ([23.128.96.9]:36992 "EHLO
         shards.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728221AbgB0EX2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 26 Feb 2020 23:23:28 -0500
+        with ESMTP id S1728359AbgB0E2V (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 26 Feb 2020 23:28:21 -0500
 Received: from localhost (unknown [IPv6:2601:601:9f00:477::3d5])
         (using TLSv1 with cipher AES256-SHA (256/256 bits))
         (Client did not present a certificate)
         (Authenticated sender: davem-davemloft)
-        by shards.monkeyblade.net (Postfix) with ESMTPSA id 4AB5315B4632B;
-        Wed, 26 Feb 2020 20:23:27 -0800 (PST)
-Date:   Wed, 26 Feb 2020 20:23:26 -0800 (PST)
-Message-Id: <20200226.202326.295871777946911500.davem@davemloft.net>
-To:     mkl@pengutronix.de
-Cc:     socketcan@hartkopp.net, linux-can@vger.kernel.org,
-        netdev@vger.kernel.org,
-        syzbot+c3ea30e1e2485573f953@syzkaller.appspotmail.com,
-        dvyukov@google.com, j.vosburgh@gmail.com, vfalico@gmail.com,
-        andy@greyhouse.net, stable@vger.kernel.org
-Subject: Re: [PATCH] bonding: do not enslave CAN devices
+        by shards.monkeyblade.net (Postfix) with ESMTPSA id 0996F15B47880;
+        Wed, 26 Feb 2020 20:28:20 -0800 (PST)
+Date:   Wed, 26 Feb 2020 20:28:20 -0800 (PST)
+Message-Id: <20200226.202820.545246435708068018.davem@davemloft.net>
+To:     dianders@chromium.org
+Cc:     stable@vger.kernel.org, wgong@codeaurora.org,
+        netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+        ath11k@lists.infradead.org
+Subject: Re: [PATCH v2] net: qrtr: fix len of skb_put_padto in
+ qrtr_node_enqueue
 From:   David Miller <davem@davemloft.net>
-In-Reply-To: <767580d8-1c93-907b-609c-4c1c049b7c42@pengutronix.de>
-References: <20200130133046.2047-1-socketcan@hartkopp.net>
-        <767580d8-1c93-907b-609c-4c1c049b7c42@pengutronix.de>
+In-Reply-To: <CAD=FV=WiceRwLUS1sdL_W=ELKYZ9zKE13e8vx9SO0+tRvX74QQ@mail.gmail.com>
+References: <20200103045016.12459-1-wgong@codeaurora.org>
+        <20200105.144704.221506192255563950.davem@davemloft.net>
+        <CAD=FV=WiceRwLUS1sdL_W=ELKYZ9zKE13e8vx9SO0+tRvX74QQ@mail.gmail.com>
 X-Mailer: Mew version 6.8 on Emacs 26.1
 Mime-Version: 1.0
 Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Greylist: Sender succeeded SMTP AUTH, not delayed by milter-greylist-4.5.12 (shards.monkeyblade.net [149.20.54.216]); Wed, 26 Feb 2020 20:23:27 -0800 (PST)
+X-Greylist: Sender succeeded SMTP AUTH, not delayed by milter-greylist-4.5.12 (shards.monkeyblade.net [149.20.54.216]); Wed, 26 Feb 2020 20:28:21 -0800 (PST)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Kleine-Budde <mkl@pengutronix.de>
-Date: Tue, 25 Feb 2020 21:32:41 +0100
+From: Doug Anderson <dianders@chromium.org>
+Date: Tue, 25 Feb 2020 14:52:24 -0800
 
-> On 1/30/20 2:30 PM, Oliver Hartkopp wrote:
->> Since commit 8df9ffb888c ("can: make use of preallocated can_ml_priv for per
->> device struct can_dev_rcv_lists") the device specific CAN receive filter lists
->> are stored in netdev_priv() and dev->ml_priv points to these filters.
->> 
->> In the bug report Syzkaller enslaved a vxcan1 CAN device and accessed the
->> bonding device with a PF_CAN socket which lead to a crash due to an access of
->> an unhandled bond_dev->ml_priv pointer.
->> 
->> Deny to enslave CAN devices by the bonding driver as the resulting bond_dev
->> pretends to be a CAN device by copying dev->type without really being one.
->> 
->> Reported-by: syzbot+c3ea30e1e2485573f953@syzkaller.appspotmail.com
->> Fixes: 8df9ffb888c ("can: make use of preallocated can_ml_priv for per
->> device struct can_dev_rcv_lists")
->> Cc: linux-stable <stable@vger.kernel.org> # >= v5.4
->> Signed-off-by: Oliver Hartkopp <socketcan@hartkopp.net>
-> Acked-by: Marc Kleine-Budde <mkl@pengutronix.de>
+> I noticed this patch is in mainline now as:
 > 
-> What's the preferred to upstream this? I could take this via the
-> linux-can tree.
+> ce57785bf91b net: qrtr: fix len of skb_put_padto in qrtr_node_enqueue
+> 
+> Though I'm not an expert on the code, it feels like a stable candidate
+> unless someone objects.
 
-What I don't get is why the PF_CAN is blindly dereferencing a device
-assuming what is behind bond_dev->ml_priv.
-
-If it assumes a device it access is CAN then it should check the
-device by comparing the netdev_ops or via some other means.
-
-This restriction seems arbitrary.
+Ok, queued up, thanks.
