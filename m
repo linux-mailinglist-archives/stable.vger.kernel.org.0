@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 88BD0171FA8
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:38:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CD91417208C
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:44:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732116AbgB0OhM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 09:37:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58830 "EHLO mail.kernel.org"
+        id S1730818AbgB0NsJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 08:48:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44706 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732349AbgB0N5s (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 08:57:48 -0500
+        id S1730805AbgB0NsF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 08:48:05 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AB3C92084E;
-        Thu, 27 Feb 2020 13:57:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3C0D724656;
+        Thu, 27 Feb 2020 13:48:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582811868;
-        bh=JrqyDo3x/1o+v5c62+1zKO0XnJlzXMNnrtph6kSO1Tc=;
+        s=default; t=1582811284;
+        bh=xTfDbkr37bVX7WPtntC0qxawFpQYpjYWedgmtw+jqao=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DPqF235rwKp8fDNj0fJWeXyJWSBvzhDaS7wkoge+bZdrqMUI4+y2C+byPVLmyOns3
-         OSgI0YsPsoZZXoL5MtxWnzwk13tJ07pKr2lXVfL+XFXEJrPUV0bVAfSoEDl4MrwV/W
-         rYjSuS+G61ijUo6WBRt02RqrIT9VdwUiWUZvSifY=
+        b=vGtQ5ymD63hpCyAjY+d5nG21g26U7XDjcUMVMqbV5bQUwXNNXJrqK2wbM18501k+P
+         8roIFuKoMSgNpeHsvn8oCp6hIHnRxAT3gtORQabOqAWaPN/oGX1m4D/hTA2IB5plIO
+         l/E+WS5yDHEKqUJ88ZlfoN0C9ymgqVM4X6kdAkzQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johannes Thumshirn <jth@kernel.org>,
-        David Sterba <dsterba@suse.com>,
+        stable@vger.kernel.org, Philipp Zabel <p.zabel@pengutronix.de>,
+        Marco Felsch <m.felsch@pengutronix.de>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 132/237] btrfs: fix possible NULL-pointer dereference in integrity checks
+Subject: [PATCH 4.9 072/165] Input: edt-ft5x06 - work around first register access error
 Date:   Thu, 27 Feb 2020 14:35:46 +0100
-Message-Id: <20200227132306.434413161@linuxfoundation.org>
+Message-Id: <20200227132241.932215524@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200227132255.285644406@linuxfoundation.org>
-References: <20200227132255.285644406@linuxfoundation.org>
+In-Reply-To: <20200227132230.840899170@linuxfoundation.org>
+References: <20200227132230.840899170@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,49 +46,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Thumshirn <jth@kernel.org>
+From: Philipp Zabel <p.zabel@pengutronix.de>
 
-[ Upstream commit 3dbd351df42109902fbcebf27104149226a4fcd9 ]
+[ Upstream commit e112324cc0422c046f1cf54c56f333d34fa20885 ]
 
-A user reports a possible NULL-pointer dereference in
-btrfsic_process_superblock(). We are assigning state->fs_info to a local
-fs_info variable and afterwards checking for the presence of state.
+The EP0700MLP1 returns bogus data on the first register read access
+(reading the threshold parameter from register 0x00):
 
-While we would BUG_ON() a NULL state anyways, we can also just remove
-the local fs_info copy, as fs_info is only used once as the first
-argument for btrfs_num_copies(). There we can just pass in
-state->fs_info as well.
+    edt_ft5x06 2-0038: crc error: 0xfc expected, got 0x40
 
-Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=205003
-Signed-off-by: Johannes Thumshirn <jth@kernel.org>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+It ignores writes until then. This patch adds a dummy read after which
+the number of sensors and parameter read/writes work correctly.
+
+Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
+Signed-off-by: Marco Felsch <m.felsch@pengutronix.de>
+Tested-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/check-integrity.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/input/touchscreen/edt-ft5x06.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/fs/btrfs/check-integrity.c b/fs/btrfs/check-integrity.c
-index 7d5a9b51f0d7a..4be07cf31d74c 100644
---- a/fs/btrfs/check-integrity.c
-+++ b/fs/btrfs/check-integrity.c
-@@ -642,7 +642,6 @@ static struct btrfsic_dev_state *btrfsic_dev_state_hashtable_lookup(dev_t dev,
- static int btrfsic_process_superblock(struct btrfsic_state *state,
- 				      struct btrfs_fs_devices *fs_devices)
+diff --git a/drivers/input/touchscreen/edt-ft5x06.c b/drivers/input/touchscreen/edt-ft5x06.c
+index 28466e358fee1..22c8d2070faac 100644
+--- a/drivers/input/touchscreen/edt-ft5x06.c
++++ b/drivers/input/touchscreen/edt-ft5x06.c
+@@ -887,6 +887,7 @@ static int edt_ft5x06_ts_probe(struct i2c_client *client,
  {
--	struct btrfs_fs_info *fs_info = state->fs_info;
- 	struct btrfs_super_block *selected_super;
- 	struct list_head *dev_head = &fs_devices->devices;
- 	struct btrfs_device *device;
-@@ -713,7 +712,7 @@ static int btrfsic_process_superblock(struct btrfsic_state *state,
- 			break;
- 		}
+ 	const struct edt_i2c_chip_data *chip_data;
+ 	struct edt_ft5x06_ts_data *tsdata;
++	u8 buf[2] = { 0xfc, 0x00 };
+ 	struct input_dev *input;
+ 	unsigned long irq_flags;
+ 	int error;
+@@ -956,6 +957,12 @@ static int edt_ft5x06_ts_probe(struct i2c_client *client,
+ 		return error;
+ 	}
  
--		num_copies = btrfs_num_copies(fs_info, next_bytenr,
-+		num_copies = btrfs_num_copies(state->fs_info, next_bytenr,
- 					      state->metablock_size);
- 		if (state->print_mask & BTRFSIC_PRINT_MASK_NUM_COPIES)
- 			pr_info("num_copies(log_bytenr=%llu) = %d\n",
++	/*
++	 * Dummy read access. EP0700MLP1 returns bogus data on the first
++	 * register read access and ignores writes.
++	 */
++	edt_ft5x06_ts_readwrite(tsdata->client, 2, buf, 2, buf);
++
+ 	edt_ft5x06_ts_set_regs(tsdata);
+ 	edt_ft5x06_ts_get_defaults(&client->dev, tsdata);
+ 	edt_ft5x06_ts_get_parameters(tsdata);
 -- 
 2.20.1
 
