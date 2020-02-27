@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 20FDC171A4C
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 14:52:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DF66F171A19
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 14:50:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731522AbgB0NwX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 08:52:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51858 "EHLO mail.kernel.org"
+        id S1731288AbgB0Nuu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 08:50:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49136 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731518AbgB0NwV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 08:52:21 -0500
+        id S1731275AbgB0Nun (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 08:50:43 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 790B320578;
-        Thu, 27 Feb 2020 13:52:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AD89920578;
+        Thu, 27 Feb 2020 13:50:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582811540;
-        bh=Ikn2XS6i6nQclqf221B0zLdNpZ8y1O1ErpJ0j8u7WLc=;
+        s=default; t=1582811443;
+        bh=OW+ALG046xOVoYPJkM6XOofOHr8SIKyni8Hj2tdseyk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TOx2PoKj1U3M+SkfwPqtZu/dOcuEioa5mwfe0BgKsqV+oPy1F+uyYAGGaIqAvNlRL
-         07CYFZPhxRkHxanYpRiPjrc3U0V6aeogFuCJNtYxAubs0KjoHBN+WdrTajErcpTNzE
-         xqZ0w5mTqil7Pjsb8tM/UB1cBGN3IPqiOz0Cz/HQ=
+        b=TcDLT4nRbfodbNFxnPbOEsZn98sfPZDdjbQa2I4FsA71EEqSag4aba8mazyGGNynP
+         sE6M+89D3Vg+KK3bnuhidknXCO7y5ilH08zxIygKtQHy82Tmc2S/u7Vxq++QqGJxsT
+         YfHT0SwjOglgUKOdxMLsYWavomYWesQwOjWSyz40=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mathias Nyman <mathias.nyman@linux.intel.com>
-Subject: [PATCH 4.9 134/165] xhci: apply XHCI_PME_STUCK_QUIRK to Intel Comet Lake platforms
-Date:   Thu, 27 Feb 2020 14:36:48 +0100
-Message-Id: <20200227132250.595061503@linuxfoundation.org>
+        stable@vger.kernel.org, Miaohe Lin <linmiaohe@huawei.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 4.9 135/165] KVM: x86: dont notify userspace IOAPIC on edge-triggered interrupt EOI
+Date:   Thu, 27 Feb 2020 14:36:49 +0100
+Message-Id: <20200227132250.789065321@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200227132230.840899170@linuxfoundation.org>
 References: <20200227132230.840899170@linuxfoundation.org>
@@ -43,41 +43,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mathias Nyman <mathias.nyman@linux.intel.com>
+From: Miaohe Lin <linmiaohe@huawei.com>
 
-commit a3ae87dce3a5abe0b57c811bab02b2564b574106 upstream.
+commit 7455a8327674e1a7c9a1f5dd1b0743ab6713f6d1 upstream.
 
-Intel Comet Lake based platform require the XHCI_PME_STUCK_QUIRK
-quirk as well. Without this xHC can not enter D3 in runtime suspend.
+Commit 13db77347db1 ("KVM: x86: don't notify userspace IOAPIC on edge
+EOI") said, edge-triggered interrupts don't set a bit in TMR, which means
+that IOAPIC isn't notified on EOI. And var level indicates level-triggered
+interrupt.
+But commit 3159d36ad799 ("KVM: x86: use generic function for MSI parsing")
+replace var level with irq.level by mistake. Fix it by changing irq.level
+to irq.trig_mode.
 
 Cc: stable@vger.kernel.org
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/20200210134553.9144-5-mathias.nyman@linux.intel.com
+Fixes: 3159d36ad799 ("KVM: x86: use generic function for MSI parsing")
+Signed-off-by: Miaohe Lin <linmiaohe@huawei.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/host/xhci-pci.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/x86/kvm/irq_comm.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/host/xhci-pci.c
-+++ b/drivers/usb/host/xhci-pci.c
-@@ -53,6 +53,7 @@
- #define PCI_DEVICE_ID_INTEL_BROXTON_B_XHCI		0x1aa8
- #define PCI_DEVICE_ID_INTEL_APL_XHCI			0x5aa8
- #define PCI_DEVICE_ID_INTEL_DNV_XHCI			0x19d0
-+#define PCI_DEVICE_ID_INTEL_CML_XHCI			0xa3af
+--- a/arch/x86/kvm/irq_comm.c
++++ b/arch/x86/kvm/irq_comm.c
+@@ -436,7 +436,7 @@ void kvm_scan_ioapic_routes(struct kvm_v
  
- #define PCI_DEVICE_ID_ASMEDIA_1042A_XHCI		0x1142
+ 			kvm_set_msi_irq(vcpu->kvm, entry, &irq);
  
-@@ -170,7 +171,8 @@ static void xhci_pci_quirks(struct devic
- 		 pdev->device == PCI_DEVICE_ID_INTEL_BROXTON_M_XHCI ||
- 		 pdev->device == PCI_DEVICE_ID_INTEL_BROXTON_B_XHCI ||
- 		 pdev->device == PCI_DEVICE_ID_INTEL_APL_XHCI ||
--		 pdev->device == PCI_DEVICE_ID_INTEL_DNV_XHCI)) {
-+		 pdev->device == PCI_DEVICE_ID_INTEL_DNV_XHCI ||
-+		 pdev->device == PCI_DEVICE_ID_INTEL_CML_XHCI)) {
- 		xhci->quirks |= XHCI_PME_STUCK_QUIRK;
- 	}
- 	if (pdev->vendor == PCI_VENDOR_ID_INTEL &&
+-			if (irq.level && kvm_apic_match_dest(vcpu, NULL, 0,
++			if (irq.trig_mode && kvm_apic_match_dest(vcpu, NULL, 0,
+ 						irq.dest_id, irq.dest_mode))
+ 				__set_bit(irq.vector, ioapic_handled_vectors);
+ 		}
 
 
