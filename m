@@ -2,101 +2,125 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 59B6A1728CD
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 20:39:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4FE521728CF
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 20:39:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729835AbgB0TjB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 14:39:01 -0500
-Received: from mail-pg1-f195.google.com ([209.85.215.195]:45680 "EHLO
-        mail-pg1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729766AbgB0TjB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 27 Feb 2020 14:39:01 -0500
-Received: by mail-pg1-f195.google.com with SMTP id m15so191882pgv.12;
-        Thu, 27 Feb 2020 11:39:00 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=roPL+TIfZXnizgw/7azYAkPYosZjjdePOLhyXpL+spM=;
-        b=GU/SLT0k6RNOlJjIG+fSyVJVZdhCNM0ue3amW8ai3qh1JVlZky+XNa0P2UK+JB1ZNG
-         xZ0KpZe5m2LpeNn4wMAgoMHSd/Tgb4BBPNrUtVrlWJhjO8fmeeKdL1hrmDqHcX/BgG3d
-         ScNlda7iVna6RxOhMfYl1P8tMhG7zQYgDFe/KLRCaoyQ9cwbDP5Rm1tSLd8PwLQaJRuE
-         ondl/v9NrhacEr7EGWv07myML7oaykcjiKCtaRrhlaP8PN2xtcN+ydkirwwgGGd/9WDf
-         5c7a5r1o1W9HLAnTLHMghDX7L0h7A/Vjd40urjkOqpm6uSN6aKn8NwLypTPagPNFRVMS
-         TZmQ==
+        id S1730009AbgB0TjQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 14:39:16 -0500
+Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:52713 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1727159AbgB0TjQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 27 Feb 2020 14:39:16 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1582832354;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=jgsSpm8mCta/cft6DGl3blqQG92oahUcVRDoetuNafY=;
+        b=Qsm7IX1BlM8pcdSuXR3oeh9vO8ptVzCFX0Vl/pvTkOhP106XBVpEcryHmg99im8bfz4Fhy
+        k0k+Qs73cIR7zGLMuGS2hafudH+l6Dob/eTRJ8ZkX9mTIoaswn81qtV7gxIJmThTyMWDOa
+        VvA7qCjpr+cZm0KGwN4DmAzkVdUv/aY=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-150-ywh1NWywPMKVXHUtsPnHsg-1; Thu, 27 Feb 2020 14:39:09 -0500
+X-MC-Unique: ywh1NWywPMKVXHUtsPnHsg-1
+Received: by mail-wm1-f70.google.com with SMTP id r19so179619wmh.1
+        for <stable@vger.kernel.org>; Thu, 27 Feb 2020 11:39:09 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :references:mime-version:content-disposition:in-reply-to:user-agent;
-        bh=roPL+TIfZXnizgw/7azYAkPYosZjjdePOLhyXpL+spM=;
-        b=DtMeD1VlHXE7yH/QtdF8hKQLNk+Oh/L+xTfkh3IiK3fbWlb13G7ZbYVJTMXLeGw6p7
-         LIpobatZSg9STg++o2uiAbM991IS2g4O+fvLcJmKGWxAT7kxfbL0VclBP7LoE26HfadU
-         ydIDNQL+JeWAH96LpG80AcdcAE+tfGAtnEmsap/qSYYYn89hOldg8ok6qJ2ZneO/nWvg
-         vO/sw2WO8bWzYDgtPtQ/tMxXOaLlaAG6W17/+G80XfkSnHWSVoUC3BKibocYkts3aKCe
-         BYufeb0cXWwMaZoPEioVdfoYnlH9YYfvfH9EkVYV1JySofxqdtEpqqPAdQhDSbkq3Ewt
-         iO4A==
-X-Gm-Message-State: APjAAAUebWZUQ5dcz6YEhtkQYTuQ4fdX4KonEblx5IbKotl820wHzKTH
-        CtyLOA0o4lR+5wlmhQ789UI=
-X-Google-Smtp-Source: APXvYqwv35MbgQvAOHbr7kYWDxTd0JGZdWlq9UxdbJF/JNZbHGVFyI6Lm2tNg5k//1J5J02jYxf1JA==
-X-Received: by 2002:a63:505b:: with SMTP id q27mr878087pgl.39.1582832339934;
-        Thu, 27 Feb 2020 11:38:59 -0800 (PST)
-Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id z10sm7200800pgz.88.2020.02.27.11.38.59
-        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Thu, 27 Feb 2020 11:38:59 -0800 (PST)
-Date:   Thu, 27 Feb 2020 11:38:58 -0800
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH 4.9 000/165] 4.9.215-stable review
-Message-ID: <20200227193858.GB31847@roeck-us.net>
-References: <20200227132230.840899170@linuxfoundation.org>
+        h=x-gm-message-state:to:from:subject:message-id:date:user-agent
+         :mime-version:content-language:content-transfer-encoding;
+        bh=jgsSpm8mCta/cft6DGl3blqQG92oahUcVRDoetuNafY=;
+        b=VXK0Gs1BhKHylmg9VOPBN9dR4QDrIUPKOiV5wPEuflm3egbneRQupgTlRoSQ7O8gsV
+         vGJSrql++PVdQhF3ZAmEjz4LkVsTbN0n9FQwHLUiNUTNpL+qSyDNZsI0RXEktCsY+rXg
+         YmEC0gV1PD85O6sw4R8jXJfudpdU0exrRv2qftU5LE7bTnzXzS8TPdD8XHWsq3PjpvJU
+         1t9vfenkfqhp3PZJaEhdlo+7R1M4PuLEIVSfzVW8ct4tJM+mgLZn9nPfhu7Ae+GQ7Lb7
+         T3KBDjnEoFgxxzpWnfU/e1Q4qd2734iL62sKk37OsKvwL7lWf39L9xkwR1hLH5WqlpGB
+         t1Hw==
+X-Gm-Message-State: APjAAAWBktehYCJdzjxkhnf9RQzDQCxNqNliIKYu1FLUWSRR8g4nGtlI
+        J6ygX7cpXkP3JD+f//M+eSUe1ztyTcNA/sudHVCulCdnwSa8tn4IhCCZkHZwRLkz7ruagVcn8Mu
+        WetfBTMdc0O2LaHx1
+X-Received: by 2002:a1c:41c3:: with SMTP id o186mr329392wma.27.1582832346266;
+        Thu, 27 Feb 2020 11:39:06 -0800 (PST)
+X-Google-Smtp-Source: APXvYqzt6B01dvTT3p77AIh+ZdGNWNChYvp4s/k2TEaC4ToW4fxA3JQ6a3yuFZ/6Rjg+Sfd49xTykw==
+X-Received: by 2002:a1c:41c3:: with SMTP id o186mr329374wma.27.1582832346045;
+        Thu, 27 Feb 2020 11:39:06 -0800 (PST)
+Received: from x1.localdomain (2001-1c00-0c0c-fe00-fc7e-fd47-85c1-1ab3.cable.dynamic.v6.ziggo.nl. [2001:1c00:c0c:fe00:fc7e:fd47:85c1:1ab3])
+        by smtp.gmail.com with ESMTPSA id z21sm8897937wml.5.2020.02.27.11.39.05
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 27 Feb 2020 11:39:05 -0800 (PST)
+To:     stable@vger.kernel.org,
+        Sathyanarayana Nujella <sathyanarayana.nujella@intel.com>,
+        Cezary Rojewski <cezary.rojewski@intel.com>,
+        Jaroslav Kysela <perex@perex.cz>
+From:   Hans de Goede <hdegoede@redhat.com>
+Subject: 5.5.6 regression (stuck at boot) on devices using the sof_hda audio
+ driver + fix
+Message-ID: <e15641c3-2cf8-db66-3eeb-019af4b482db@redhat.com>
+Date:   Thu, 27 Feb 2020 20:39:04 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.5.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200227132230.840899170@linuxfoundation.org>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Feb 27, 2020 at 02:34:34PM +0100, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 4.9.215 release.
-> There are 165 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Sat, 29 Feb 2020 13:21:24 +0000.
-> Anything received after that time might be too late.
-> 
+Hi All,
 
-Build results:
-	total: 172 pass: 170 fail: 2
-Failed builds:
-	powerpc:defconfig
-	powerpc:allmodconfig
-Qemu test results:
-	total: 375 pass: 361 fail: 14
-Failed tests:
-	ppc64:mac99:ppc64_book3s_defconfig:smp:nvme:rootfs
-	ppc64:pseries:pseries_defconfig:initrd
-	ppc64:pseries:pseries_defconfig:scsi:rootfs
-	ppc64:pseries:pseries_defconfig:usb:rootfs
-	ppc64:pseries:pseries_defconfig:sdhci:mmc:rootfs
-	ppc64:pseries:pseries_defconfig:nvme:rootfs
-	ppc64:pseries:pseries_defconfig:little:initrd
-	ppc64:pseries:pseries_defconfig:little:scsi:rootfs
-	ppc64:pseries:pseries_defconfig:little:usb:rootfs
-	ppc64:pseries:pseries_defconfig:little:scsi[MEGASAS]:rootfs
-	ppc64:pseries:pseries_defconfig:little:scsi[FUSION]:rootfs
-	ppc64:pseries:pseries_defconfig:little:sdhci:mmc:rootfs
-	ppc64:pseries:pseries_defconfig:little:nvme:rootfs
-	ppc64:powernv:powernv_defconfig:initrd
+I and various other Fedora users have noticed that Fedora's 5.5.6 build gets stuck
+at boot on a Lenovo X1 7th gen, see:
+https://bugzilla.redhat.com/show_bug.cgi?id=1772498
 
-Failures as already reported.
+This is caused by the addition of this commit to 5.5.6:
 
-Guenter
+24c259557c45 ("ASoC: SOF: Intel: hda: Fix SKL dai count")
+https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/commit/?h=linux-5.5.y&id=24c259557c45e817941d3843f82331a477c86a7e
+
+###
+ASoC: SOF: Intel: hda: Fix SKL dai count
+[ Upstream commit a6947c9d86bcfd61b758b5693eba58defe7fd2ae ]
+
+With fourth pin added for iDisp for skl_dai, update SOF_SKL_DAI_NUM to
+account for the change. Without this, dais from the bottom of the list
+are skipped. In current state that's the case for 'Alt Analog CPU DAI'.
+
+Fixes: ac42b142cd76 ("ASoC: SOF: Intel: hda: Add iDisp4 DAI")
+Signed-off-by: Cezary Rojewski <cezary.rojewski@intel.com>
+Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Link: https://lore.kernel.org/r/20200113114054.9716-1-cezary.rojewski@intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+###
+
+Notice the "Fixes: ac42b142cd76 (...)", that commit-id actually
+does not exist, the correct commit-id which this fixes is:
+
+e68d6696575e ("ASoC: SOF: Intel: hda: Add iDisp4 DAI")
+and that commit is not in 5.5.6, which is causing the problem,
+the missing commit makes an array one larger and the fix for the
+missing fix which did end up in 5.5.6 and bumps a define which is
+used to walk over the array in some places by one so now the
+walking is going over the array boundary.
+
+For the Fedora kernels I've fixed this by adding the
+"ASoC: SOF: Intel: hda: Add iDisp4 DAI" commit as a downstream
+patch for our kernels. I believe that this is probably the best
+fix for 5.5.z too.
+
+Regards,
+
+Hans
+
+
+p.s.
+
+I know that the stable series are partly based on automatically
+picking patches now. I wonder if the scripts doing that could be
+made smarter wrt rejecting patches with a Fixes tag where the
+fixed patch is not present, so where in essence a pre-requisite
+of the patch being added is missing ?
+
