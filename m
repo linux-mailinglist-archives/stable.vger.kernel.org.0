@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BC448171DDF
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:23:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 51D3B171B39
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:00:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388621AbgB0ON6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 09:13:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52972 "EHLO mail.kernel.org"
+        id S1732702AbgB0OAg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 09:00:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34028 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389034AbgB0ON5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 09:13:57 -0500
+        id S1732597AbgB0OAe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 09:00:34 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8923524691;
-        Thu, 27 Feb 2020 14:13:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7A6AD2084E;
+        Thu, 27 Feb 2020 14:00:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582812836;
-        bh=E0vW91EnFjMbWvi7ObLwZDH0vrqlLgBnMuIIRvTeiF8=;
+        s=default; t=1582812033;
+        bh=8FIpGAv38N3JOcE3mn8yy2om0YdEiQlkwbQpw79bDhg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L3rV/jIFwY5BT/LLTVYFpjci5xwTquQz3JLHKLpCMawq+hFoHnowcmV0QxIVzSJVt
-         COtEs/nBzitYsNY1dpHhnOI/IGhPMtqamG2/UvoHGCRcOBM0QpRqmYwtuomvGufr/9
-         NRXfgIbExqfekyMzjpkZkE4MSPCM/QJzIum4++kc=
+        b=ED9/qWF6i6kq5JdWIxRUhtenCgiwa2SMHlefBf6rdt8NxFi4MOwc5b2Fjd2f6cnG4
+         la35A2fFylehPqajGsYet0td+U79OyZ0D2+gPACciM2Vd6qdthzpeVdISrfN1vgDDY
+         Wjg8OSdQoQhlso8uHIRS4R0LUZOo+5oK46h2j0rk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, edes <edes@gmx.net>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.5 035/150] USB: core: add endpoint-blacklist quirk
+        stable@vger.kernel.org, kbuild test robot <lkp@intel.com>,
+        Coly Li <colyli@suse.de>, Jens Axboe <axboe@kernel.dk>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 158/237] bcache: explicity type cast in bset_bkey_last()
 Date:   Thu, 27 Feb 2020 14:36:12 +0100
-Message-Id: <20200227132237.953205745@linuxfoundation.org>
+Message-Id: <20200227132308.154857170@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200227132232.815448360@linuxfoundation.org>
-References: <20200227132232.815448360@linuxfoundation.org>
+In-Reply-To: <20200227132255.285644406@linuxfoundation.org>
+References: <20200227132255.285644406@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,122 +44,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Coly Li <colyli@suse.de>
 
-commit 73f8bda9b5dc1c69df2bc55c0cbb24461a6391a9 upstream.
+[ Upstream commit 7c02b0055f774ed9afb6e1c7724f33bf148ffdc0 ]
 
-Add a new device quirk that can be used to blacklist endpoints.
+In bset.h, macro bset_bkey_last() is defined as,
+    bkey_idx((struct bkey *) (i)->d, (i)->keys)
 
-Since commit 3e4f8e21c4f2 ("USB: core: fix check for duplicate
-endpoints") USB core ignores any duplicate endpoints found during
-descriptor parsing.
+Parameter i can be variable type of data structure, the macro always
+works once the type of struct i has member 'd' and 'keys'.
 
-In order to handle devices where the first interfaces with duplicate
-endpoints are the ones that should have their endpoints ignored, we need
-to add a blacklist.
+bset_bkey_last() is also used in macro csum_set() to calculate the
+checksum of a on-disk data structure. When csum_set() is used to
+calculate checksum of on-disk bcache super block, the parameter 'i'
+data type is struct cache_sb_disk. Inside struct cache_sb_disk (also in
+struct cache_sb) the member keys is __u16 type. But bkey_idx() expects
+unsigned int (a 32bit width), so there is problem when sending
+parameters via stack to call bkey_idx().
 
-Tested-by: edes <edes@gmx.net>
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20200203153830.26394-2-johan@kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Sparse tool from Intel 0day kbuild system reports this incompatible
+problem. bkey_idx() is part of user space API, so the simplest fix is
+to cast the (i)->keys to unsigned int type in macro bset_bkey_last().
 
+Reported-by: kbuild test robot <lkp@intel.com>
+Signed-off-by: Coly Li <colyli@suse.de>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/core/config.c  |   11 +++++++++++
- drivers/usb/core/quirks.c  |   32 ++++++++++++++++++++++++++++++++
- drivers/usb/core/usb.h     |    3 +++
- include/linux/usb/quirks.h |    3 +++
- 4 files changed, 49 insertions(+)
+ drivers/md/bcache/bset.h | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/core/config.c
-+++ b/drivers/usb/core/config.c
-@@ -256,6 +256,7 @@ static int usb_parse_endpoint(struct dev
- 		struct usb_host_interface *ifp, int num_ep,
- 		unsigned char *buffer, int size)
+diff --git a/drivers/md/bcache/bset.h b/drivers/md/bcache/bset.h
+index 8d1964b472e7e..0bfde500af196 100644
+--- a/drivers/md/bcache/bset.h
++++ b/drivers/md/bcache/bset.h
+@@ -381,7 +381,8 @@ void bch_btree_keys_stats(struct btree_keys *, struct bset_stats *);
+ 
+ /* Bkey utility code */
+ 
+-#define bset_bkey_last(i)	bkey_idx((struct bkey *) (i)->d, (i)->keys)
++#define bset_bkey_last(i)	bkey_idx((struct bkey *) (i)->d, \
++					 (unsigned int)(i)->keys)
+ 
+ static inline struct bkey *bset_bkey_idx(struct bset *i, unsigned idx)
  {
-+	struct usb_device *udev = to_usb_device(ddev);
- 	unsigned char *buffer0 = buffer;
- 	struct usb_endpoint_descriptor *d;
- 	struct usb_host_endpoint *endpoint;
-@@ -297,6 +298,16 @@ static int usb_parse_endpoint(struct dev
- 		goto skip_to_next_endpoint_or_interface_descriptor;
- 	}
- 
-+	/* Ignore blacklisted endpoints */
-+	if (udev->quirks & USB_QUIRK_ENDPOINT_BLACKLIST) {
-+		if (usb_endpoint_is_blacklisted(udev, ifp, d)) {
-+			dev_warn(ddev, "config %d interface %d altsetting %d has a blacklisted endpoint with address 0x%X, skipping\n",
-+					cfgno, inum, asnum,
-+					d->bEndpointAddress);
-+			goto skip_to_next_endpoint_or_interface_descriptor;
-+		}
-+	}
-+
- 	endpoint = &ifp->endpoint[ifp->desc.bNumEndpoints];
- 	++ifp->desc.bNumEndpoints;
- 
---- a/drivers/usb/core/quirks.c
-+++ b/drivers/usb/core/quirks.c
-@@ -472,6 +472,38 @@ static const struct usb_device_id usb_am
- 	{ }  /* terminating entry must be last */
- };
- 
-+/*
-+ * Entries for blacklisted endpoints that should be ignored when parsing
-+ * configuration descriptors.
-+ *
-+ * Matched for devices with USB_QUIRK_ENDPOINT_BLACKLIST.
-+ */
-+static const struct usb_device_id usb_endpoint_blacklist[] = {
-+	{ }
-+};
-+
-+bool usb_endpoint_is_blacklisted(struct usb_device *udev,
-+		struct usb_host_interface *intf,
-+		struct usb_endpoint_descriptor *epd)
-+{
-+	const struct usb_device_id *id;
-+	unsigned int address;
-+
-+	for (id = usb_endpoint_blacklist; id->match_flags; ++id) {
-+		if (!usb_match_device(udev, id))
-+			continue;
-+
-+		if (!usb_match_one_id_intf(udev, intf, id))
-+			continue;
-+
-+		address = id->driver_info;
-+		if (address == epd->bEndpointAddress)
-+			return true;
-+	}
-+
-+	return false;
-+}
-+
- static bool usb_match_any_interface(struct usb_device *udev,
- 				    const struct usb_device_id *id)
- {
---- a/drivers/usb/core/usb.h
-+++ b/drivers/usb/core/usb.h
-@@ -37,6 +37,9 @@ extern void usb_authorize_interface(stru
- extern void usb_detect_quirks(struct usb_device *udev);
- extern void usb_detect_interface_quirks(struct usb_device *udev);
- extern void usb_release_quirk_list(void);
-+extern bool usb_endpoint_is_blacklisted(struct usb_device *udev,
-+		struct usb_host_interface *intf,
-+		struct usb_endpoint_descriptor *epd);
- extern int usb_remove_device(struct usb_device *udev);
- 
- extern int usb_get_device_descriptor(struct usb_device *dev,
---- a/include/linux/usb/quirks.h
-+++ b/include/linux/usb/quirks.h
-@@ -69,4 +69,7 @@
- /* Hub needs extra delay after resetting its port. */
- #define USB_QUIRK_HUB_SLOW_RESET		BIT(14)
- 
-+/* device has blacklisted endpoints */
-+#define USB_QUIRK_ENDPOINT_BLACKLIST		BIT(15)
-+
- #endif /* __LINUX_USB_QUIRKS_H */
+-- 
+2.20.1
+
 
 
