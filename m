@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 54FB8171D8C
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:22:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 98B05171E36
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:26:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388867AbgB0OQa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 09:16:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56636 "EHLO mail.kernel.org"
+        id S2388082AbgB0OK1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 09:10:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48610 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389516AbgB0OQ3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 09:16:29 -0500
+        id S2388531AbgB0OKZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 09:10:25 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A592824691;
-        Thu, 27 Feb 2020 14:16:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3FEF720801;
+        Thu, 27 Feb 2020 14:10:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582812988;
-        bh=LrU+uS2Vwgz4lEFhT8kT1mpxIypdNkPqOwHqcAyCw3U=;
+        s=default; t=1582812624;
+        bh=99iTE+moXDOBvVocvUMuf92PR+/jrXuVSLoXxuCMsds=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KHxv1WzCJua4WCSBms05Bes7CsXqI3NgveD6+2Mh0YmkWU4/YMEpoMvMHXKuKZUY1
-         sCcP1ulxiPYHp6AigGaTiry1nZ/+hYC7N8PI+7UkF/G4Onlz7Bf3BBr+kQp8a6UM8b
-         JDKdS4JZMVuf11LQ8Z5KihBD9Lg+UPckqWNYAUPQ=
+        b=VoZGxCoQlOoSRvS82zgFHtMdulM8Pe9lq/7kQmHnt0781QDtE6C799PKWXKCa63ld
+         xmCV17q4975eJGQefr5eXr3bSckNM+7AHOcGpOTf5w1BVY0qT2T212AVnc89BwbOB5
+         9w+fSaOpO5+r9xmGUdPSpfuGmd7zWZm4PqMNW0Vc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Suraj Jitindar Singh <surajjs@amazon.com>,
-        Theodore Tso <tytso@mit.edu>, Balbir Singh <sblbir@amazon.com>,
-        stable@kernel.org
-Subject: [PATCH 5.5 092/150] ext4: fix potential race between s_group_info online resizing and access
+        stable@vger.kernel.org, Vitaly Kuznetsov <vkuznets@redhat.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.4 089/135] KVM: nVMX: clear PIN_BASED_POSTED_INTR from nested pinbased_ctls only when apicv is globally disabled
 Date:   Thu, 27 Feb 2020 14:37:09 +0100
-Message-Id: <20200227132246.387070706@linuxfoundation.org>
+Message-Id: <20200227132242.680993411@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200227132232.815448360@linuxfoundation.org>
-References: <20200227132232.815448360@linuxfoundation.org>
+In-Reply-To: <20200227132228.710492098@linuxfoundation.org>
+References: <20200227132228.710492098@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,180 +43,122 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Suraj Jitindar Singh <surajjs@amazon.com>
+From: Vitaly Kuznetsov <vkuznets@redhat.com>
 
-commit df3da4ea5a0fc5d115c90d5aa6caa4dd433750a7 upstream.
+commit a4443267800af240072280c44521caab61924e55 upstream.
 
-During an online resize an array of pointers to s_group_info gets replaced
-so it can get enlarged. If there is a concurrent access to the array in
-ext4_get_group_info() and this memory has been reused then this can lead to
-an invalid memory access.
+When apicv is disabled on a vCPU (e.g. by enabling KVM_CAP_HYPERV_SYNIC*),
+nothing happens to VMX MSRs on the already existing vCPUs, however, all new
+ones are created with PIN_BASED_POSTED_INTR filtered out. This is very
+confusing and results in the following picture inside the guest:
 
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=206443
-Link: https://lore.kernel.org/r/20200221053458.730016-3-tytso@mit.edu
-Signed-off-by: Suraj Jitindar Singh <surajjs@amazon.com>
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Reviewed-by: Balbir Singh <sblbir@amazon.com>
-Cc: stable@kernel.org
+$ rdmsr -ax 0x48d
+ff00000016
+7f00000016
+7f00000016
+7f00000016
+
+This is observed with QEMU and 4-vCPU guest: QEMU creates vCPU0, does
+KVM_CAP_HYPERV_SYNIC2 and then creates the remaining three.
+
+L1 hypervisor may only check CPU0's controls to find out what features
+are available and it will be very confused later. Switch to setting
+PIN_BASED_POSTED_INTR control based on global 'enable_apicv' setting.
+
+Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/ext4/ext4.h    |    8 ++++----
- fs/ext4/mballoc.c |   52 +++++++++++++++++++++++++++++++++++-----------------
- 2 files changed, 39 insertions(+), 21 deletions(-)
+ arch/x86/kvm/vmx/capabilities.h |    1 +
+ arch/x86/kvm/vmx/nested.c       |    5 ++---
+ arch/x86/kvm/vmx/nested.h       |    3 +--
+ arch/x86/kvm/vmx/vmx.c          |   10 ++++------
+ 4 files changed, 8 insertions(+), 11 deletions(-)
 
---- a/fs/ext4/ext4.h
-+++ b/fs/ext4/ext4.h
-@@ -1463,7 +1463,7 @@ struct ext4_sb_info {
- #endif
+--- a/arch/x86/kvm/vmx/capabilities.h
++++ b/arch/x86/kvm/vmx/capabilities.h
+@@ -12,6 +12,7 @@ extern bool __read_mostly enable_ept;
+ extern bool __read_mostly enable_unrestricted_guest;
+ extern bool __read_mostly enable_ept_ad_bits;
+ extern bool __read_mostly enable_pml;
++extern bool __read_mostly enable_apicv;
+ extern int __read_mostly pt_mode;
  
- 	/* for buddy allocator */
--	struct ext4_group_info ***s_group_info;
-+	struct ext4_group_info ** __rcu *s_group_info;
- 	struct inode *s_buddy_cache;
- 	spinlock_t s_md_lock;
- 	unsigned short *s_mb_offsets;
-@@ -2934,13 +2934,13 @@ static inline
- struct ext4_group_info *ext4_get_group_info(struct super_block *sb,
- 					    ext4_group_t group)
+ #define PT_MODE_SYSTEM		0
+--- a/arch/x86/kvm/vmx/nested.c
++++ b/arch/x86/kvm/vmx/nested.c
+@@ -5807,8 +5807,7 @@ void nested_vmx_vcpu_setup(void)
+  * bit in the high half is on if the corresponding bit in the control field
+  * may be on. See also vmx_control_verify().
+  */
+-void nested_vmx_setup_ctls_msrs(struct nested_vmx_msrs *msrs, u32 ept_caps,
+-				bool apicv)
++void nested_vmx_setup_ctls_msrs(struct nested_vmx_msrs *msrs, u32 ept_caps)
  {
--	 struct ext4_group_info ***grp_info;
-+	 struct ext4_group_info **grp_info;
- 	 long indexv, indexh;
- 	 BUG_ON(group >= EXT4_SB(sb)->s_groups_count);
--	 grp_info = EXT4_SB(sb)->s_group_info;
- 	 indexv = group >> (EXT4_DESC_PER_BLOCK_BITS(sb));
- 	 indexh = group & ((EXT4_DESC_PER_BLOCK(sb)) - 1);
--	 return grp_info[indexv][indexh];
-+	 grp_info = sbi_array_rcu_deref(EXT4_SB(sb), s_group_info, indexv);
-+	 return grp_info[indexh];
- }
+ 	/*
+ 	 * Note that as a general rule, the high half of the MSRs (bits in
+@@ -5835,7 +5834,7 @@ void nested_vmx_setup_ctls_msrs(struct n
+ 		PIN_BASED_EXT_INTR_MASK |
+ 		PIN_BASED_NMI_EXITING |
+ 		PIN_BASED_VIRTUAL_NMIS |
+-		(apicv ? PIN_BASED_POSTED_INTR : 0);
++		(enable_apicv ? PIN_BASED_POSTED_INTR : 0);
+ 	msrs->pinbased_ctls_high |=
+ 		PIN_BASED_ALWAYSON_WITHOUT_TRUE_MSR |
+ 		PIN_BASED_VMX_PREEMPTION_TIMER;
+--- a/arch/x86/kvm/vmx/nested.h
++++ b/arch/x86/kvm/vmx/nested.h
+@@ -17,8 +17,7 @@ enum nvmx_vmentry_status {
+ };
+ 
+ void vmx_leave_nested(struct kvm_vcpu *vcpu);
+-void nested_vmx_setup_ctls_msrs(struct nested_vmx_msrs *msrs, u32 ept_caps,
+-				bool apicv);
++void nested_vmx_setup_ctls_msrs(struct nested_vmx_msrs *msrs, u32 ept_caps);
+ void nested_vmx_hardware_unsetup(void);
+ __init int nested_vmx_hardware_setup(int (*exit_handlers[])(struct kvm_vcpu *));
+ void nested_vmx_vcpu_setup(void);
+--- a/arch/x86/kvm/vmx/vmx.c
++++ b/arch/x86/kvm/vmx/vmx.c
+@@ -95,7 +95,7 @@ module_param(emulate_invalid_guest_state
+ static bool __read_mostly fasteoi = 1;
+ module_param(fasteoi, bool, S_IRUGO);
+ 
+-static bool __read_mostly enable_apicv = 1;
++bool __read_mostly enable_apicv = 1;
+ module_param(enable_apicv, bool, S_IRUGO);
  
  /*
---- a/fs/ext4/mballoc.c
-+++ b/fs/ext4/mballoc.c
-@@ -2356,7 +2356,7 @@ int ext4_mb_alloc_groupinfo(struct super
- {
- 	struct ext4_sb_info *sbi = EXT4_SB(sb);
- 	unsigned size;
--	struct ext4_group_info ***new_groupinfo;
-+	struct ext4_group_info ***old_groupinfo, ***new_groupinfo;
+@@ -6802,8 +6802,7 @@ static struct kvm_vcpu *vmx_create_vcpu(
  
- 	size = (ngroups + EXT4_DESC_PER_BLOCK(sb) - 1) >>
- 		EXT4_DESC_PER_BLOCK_BITS(sb);
-@@ -2369,13 +2369,16 @@ int ext4_mb_alloc_groupinfo(struct super
- 		ext4_msg(sb, KERN_ERR, "can't allocate buddy meta group");
- 		return -ENOMEM;
- 	}
--	if (sbi->s_group_info) {
--		memcpy(new_groupinfo, sbi->s_group_info,
-+	rcu_read_lock();
-+	old_groupinfo = rcu_dereference(sbi->s_group_info);
-+	if (old_groupinfo)
-+		memcpy(new_groupinfo, old_groupinfo,
- 		       sbi->s_group_info_size * sizeof(*sbi->s_group_info));
--		kvfree(sbi->s_group_info);
--	}
--	sbi->s_group_info = new_groupinfo;
-+	rcu_read_unlock();
-+	rcu_assign_pointer(sbi->s_group_info, new_groupinfo);
- 	sbi->s_group_info_size = size / sizeof(*sbi->s_group_info);
-+	if (old_groupinfo)
-+		ext4_kvfree_array_rcu(old_groupinfo);
- 	ext4_debug("allocated s_groupinfo array for %d meta_bg's\n", 
- 		   sbi->s_group_info_size);
- 	return 0;
-@@ -2387,6 +2390,7 @@ int ext4_mb_add_groupinfo(struct super_b
- {
- 	int i;
- 	int metalen = 0;
-+	int idx = group >> EXT4_DESC_PER_BLOCK_BITS(sb);
- 	struct ext4_sb_info *sbi = EXT4_SB(sb);
- 	struct ext4_group_info **meta_group_info;
- 	struct kmem_cache *cachep = get_groupinfo_cache(sb->s_blocksize_bits);
-@@ -2405,12 +2409,12 @@ int ext4_mb_add_groupinfo(struct super_b
- 				 "for a buddy group");
- 			goto exit_meta_group_info;
- 		}
--		sbi->s_group_info[group >> EXT4_DESC_PER_BLOCK_BITS(sb)] =
--			meta_group_info;
-+		rcu_read_lock();
-+		rcu_dereference(sbi->s_group_info)[idx] = meta_group_info;
-+		rcu_read_unlock();
- 	}
+ 	if (nested)
+ 		nested_vmx_setup_ctls_msrs(&vmx->nested.msrs,
+-					   vmx_capability.ept,
+-					   kvm_vcpu_apicv_active(&vmx->vcpu));
++					   vmx_capability.ept);
+ 	else
+ 		memset(&vmx->nested.msrs, 0, sizeof(vmx->nested.msrs));
  
--	meta_group_info =
--		sbi->s_group_info[group >> EXT4_DESC_PER_BLOCK_BITS(sb)];
-+	meta_group_info = sbi_array_rcu_deref(sbi, s_group_info, idx);
- 	i = group & (EXT4_DESC_PER_BLOCK(sb) - 1);
+@@ -6885,8 +6884,7 @@ static int __init vmx_check_processor_co
+ 	if (setup_vmcs_config(&vmcs_conf, &vmx_cap) < 0)
+ 		return -EIO;
+ 	if (nested)
+-		nested_vmx_setup_ctls_msrs(&vmcs_conf.nested, vmx_cap.ept,
+-					   enable_apicv);
++		nested_vmx_setup_ctls_msrs(&vmcs_conf.nested, vmx_cap.ept);
+ 	if (memcmp(&vmcs_config, &vmcs_conf, sizeof(struct vmcs_config)) != 0) {
+ 		printk(KERN_ERR "kvm: CPU %d feature inconsistency!\n",
+ 				smp_processor_id());
+@@ -7781,7 +7779,7 @@ static __init int hardware_setup(void)
  
- 	meta_group_info[i] = kmem_cache_zalloc(cachep, GFP_NOFS);
-@@ -2458,8 +2462,13 @@ int ext4_mb_add_groupinfo(struct super_b
- exit_group_info:
- 	/* If a meta_group_info table has been allocated, release it now */
- 	if (group % EXT4_DESC_PER_BLOCK(sb) == 0) {
--		kfree(sbi->s_group_info[group >> EXT4_DESC_PER_BLOCK_BITS(sb)]);
--		sbi->s_group_info[group >> EXT4_DESC_PER_BLOCK_BITS(sb)] = NULL;
-+		struct ext4_group_info ***group_info;
-+
-+		rcu_read_lock();
-+		group_info = rcu_dereference(sbi->s_group_info);
-+		kfree(group_info[idx]);
-+		group_info[idx] = NULL;
-+		rcu_read_unlock();
- 	}
- exit_meta_group_info:
- 	return -ENOMEM;
-@@ -2472,6 +2481,7 @@ static int ext4_mb_init_backend(struct s
- 	struct ext4_sb_info *sbi = EXT4_SB(sb);
- 	int err;
- 	struct ext4_group_desc *desc;
-+	struct ext4_group_info ***group_info;
- 	struct kmem_cache *cachep;
+ 	if (nested) {
+ 		nested_vmx_setup_ctls_msrs(&vmcs_config.nested,
+-					   vmx_capability.ept, enable_apicv);
++					   vmx_capability.ept);
  
- 	err = ext4_mb_alloc_groupinfo(sb, ngroups);
-@@ -2507,11 +2517,16 @@ err_freebuddy:
- 	while (i-- > 0)
- 		kmem_cache_free(cachep, ext4_get_group_info(sb, i));
- 	i = sbi->s_group_info_size;
-+	rcu_read_lock();
-+	group_info = rcu_dereference(sbi->s_group_info);
- 	while (i-- > 0)
--		kfree(sbi->s_group_info[i]);
-+		kfree(group_info[i]);
-+	rcu_read_unlock();
- 	iput(sbi->s_buddy_cache);
- err_freesgi:
--	kvfree(sbi->s_group_info);
-+	rcu_read_lock();
-+	kvfree(rcu_dereference(sbi->s_group_info));
-+	rcu_read_unlock();
- 	return -ENOMEM;
- }
- 
-@@ -2700,7 +2715,7 @@ int ext4_mb_release(struct super_block *
- 	ext4_group_t ngroups = ext4_get_groups_count(sb);
- 	ext4_group_t i;
- 	int num_meta_group_infos;
--	struct ext4_group_info *grinfo;
-+	struct ext4_group_info *grinfo, ***group_info;
- 	struct ext4_sb_info *sbi = EXT4_SB(sb);
- 	struct kmem_cache *cachep = get_groupinfo_cache(sb->s_blocksize_bits);
- 
-@@ -2719,9 +2734,12 @@ int ext4_mb_release(struct super_block *
- 		num_meta_group_infos = (ngroups +
- 				EXT4_DESC_PER_BLOCK(sb) - 1) >>
- 			EXT4_DESC_PER_BLOCK_BITS(sb);
-+		rcu_read_lock();
-+		group_info = rcu_dereference(sbi->s_group_info);
- 		for (i = 0; i < num_meta_group_infos; i++)
--			kfree(sbi->s_group_info[i]);
--		kvfree(sbi->s_group_info);
-+			kfree(group_info[i]);
-+		kvfree(group_info);
-+		rcu_read_unlock();
- 	}
- 	kfree(sbi->s_mb_offsets);
- 	kfree(sbi->s_mb_maxs);
+ 		r = nested_vmx_hardware_setup(kvm_vmx_exit_handlers);
+ 		if (r)
 
 
