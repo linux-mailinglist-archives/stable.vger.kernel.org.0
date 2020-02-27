@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 106BD1720E8
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:46:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F58B171FDE
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:40:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729528AbgB0Opy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 09:45:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41962 "EHLO mail.kernel.org"
+        id S1731987AbgB0Nzg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 08:55:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55894 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729470AbgB0Npx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 08:45:53 -0500
+        id S1731985AbgB0Nzg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 08:55:36 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8777D2468D;
-        Thu, 27 Feb 2020 13:45:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9D92721D7E;
+        Thu, 27 Feb 2020 13:55:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582811153;
-        bh=Txxg0CwDxgoAcCHfdSwCfVEMIB5RTNNnMROmmxv2NIQ=;
+        s=default; t=1582811736;
+        bh=9rk5LlT6HcBeMnDrKQcxHFU07pwxbjlNeog18QbJ04U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gQRVerH9Awsrbpez4hroDbCS1rwBIKWm6rwj73U2rCd81FUcr5GUpROHpXxhKuzll
-         WGxdTZIx2LRj1IAWGgk8VR4Wae6UbGjlkblwRxYw3ypMEnjrnMWI/ktDf+77AtGfta
-         rNU2rNU2gVVgeT6wrsU018IZ8peX2MU2Toi7PG9A=
+        b=o2OtJN0t/UcLWWEnPbCKaeaUyr3p6ebGaT2wbA7fXzKL91vkAG/YGlbT+F/LEjYYI
+         7TO3FibtV9Esr8Grh9X3dc7EGZxANpuVfOtC/vPW9YzQsJsd5kRvYThzN8PTORZuUy
+         CPtUp+qC3QUCVPN1FihNOkCBgz3N3C78vV13rGCo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Paul Kocialkowski <paul.kocialkowski@bootlin.com>,
-        Patrik Jakobsson <patrik.r.jakobsson@gmail.com>,
+        stable@vger.kernel.org, Larry Finger <Larry.Finger@lwfinger.net>,
+        Phong Tran <tranmanphong@gmail.com>,
+        Kees Cook <keescook@chromium.org>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 022/165] drm/gma500: Fixup fbdev stolen size usage evaluation
+Subject: [PATCH 4.14 082/237] b43legacy: Fix -Wcast-function-type
 Date:   Thu, 27 Feb 2020 14:34:56 +0100
-Message-Id: <20200227132234.231640464@linuxfoundation.org>
+Message-Id: <20200227132303.122513850@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200227132230.840899170@linuxfoundation.org>
-References: <20200227132230.840899170@linuxfoundation.org>
+In-Reply-To: <20200227132255.285644406@linuxfoundation.org>
+References: <20200227132255.285644406@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,59 +46,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Kocialkowski <paul.kocialkowski@bootlin.com>
+From: Phong Tran <tranmanphong@gmail.com>
 
-[ Upstream commit fd1a5e521c3c083bb43ea731aae0f8b95f12b9bd ]
+[ Upstream commit 475eec112e4267232d10f4afe2f939a241692b6c ]
 
-psbfb_probe performs an evaluation of the required size from the stolen
-GTT memory, but gets it wrong in two distinct ways:
-- The resulting size must be page-size-aligned;
-- The size to allocate is derived from the surface dimensions, not the fb
-  dimensions.
+correct usage prototype of callback in tasklet_init().
+Report by https://github.com/KSPP/linux/issues/20
 
-When two connectors are connected with different modes, the smallest will
-be stored in the fb dimensions, but the size that needs to be allocated must
-match the largest (surface) dimensions. This is what is used in the actual
-allocation code.
-
-Fix this by correcting the evaluation to conform to the two points above.
-It allows correctly switching to 16bpp when one connector is e.g. 1920x1080
-and the other is 1024x768.
-
-Signed-off-by: Paul Kocialkowski <paul.kocialkowski@bootlin.com>
-Signed-off-by: Patrik Jakobsson <patrik.r.jakobsson@gmail.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20191107153048.843881-1-paul.kocialkowski@bootlin.com
+Tested-by: Larry Finger <Larry.Finger@lwfinger.net>
+Signed-off-by: Phong Tran <tranmanphong@gmail.com>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/gma500/framebuffer.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/net/wireless/broadcom/b43legacy/main.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/gma500/framebuffer.c b/drivers/gpu/drm/gma500/framebuffer.c
-index 3a44e705db538..d224fc12b7571 100644
---- a/drivers/gpu/drm/gma500/framebuffer.c
-+++ b/drivers/gpu/drm/gma500/framebuffer.c
-@@ -516,6 +516,7 @@ static int psbfb_probe(struct drm_fb_helper *helper,
- 		container_of(helper, struct psb_fbdev, psb_fb_helper);
- 	struct drm_device *dev = psb_fbdev->psb_fb_helper.dev;
- 	struct drm_psb_private *dev_priv = dev->dev_private;
-+	unsigned int fb_size;
- 	int bytespp;
+diff --git a/drivers/net/wireless/broadcom/b43legacy/main.c b/drivers/net/wireless/broadcom/b43legacy/main.c
+index f1e3dad576292..f435bd0f8b5b5 100644
+--- a/drivers/net/wireless/broadcom/b43legacy/main.c
++++ b/drivers/net/wireless/broadcom/b43legacy/main.c
+@@ -1304,8 +1304,9 @@ static void handle_irq_ucode_debug(struct b43legacy_wldev *dev)
+ }
  
- 	bytespp = sizes->surface_bpp / 8;
-@@ -525,8 +526,11 @@ static int psbfb_probe(struct drm_fb_helper *helper,
- 	/* If the mode will not fit in 32bit then switch to 16bit to get
- 	   a console on full resolution. The X mode setting server will
- 	   allocate its own 32bit GEM framebuffer */
--	if (ALIGN(sizes->fb_width * bytespp, 64) * sizes->fb_height >
--	                dev_priv->vram_stolen_size) {
-+	fb_size = ALIGN(sizes->surface_width * bytespp, 64) *
-+		  sizes->surface_height;
-+	fb_size = ALIGN(fb_size, PAGE_SIZE);
-+
-+	if (fb_size > dev_priv->vram_stolen_size) {
-                 sizes->surface_bpp = 16;
-                 sizes->surface_depth = 16;
-         }
+ /* Interrupt handler bottom-half */
+-static void b43legacy_interrupt_tasklet(struct b43legacy_wldev *dev)
++static void b43legacy_interrupt_tasklet(unsigned long data)
+ {
++	struct b43legacy_wldev *dev = (struct b43legacy_wldev *)data;
+ 	u32 reason;
+ 	u32 dma_reason[ARRAY_SIZE(dev->dma_reason)];
+ 	u32 merged_dma_reason = 0;
+@@ -3775,7 +3776,7 @@ static int b43legacy_one_core_attach(struct ssb_device *dev,
+ 	b43legacy_set_status(wldev, B43legacy_STAT_UNINIT);
+ 	wldev->bad_frames_preempt = modparam_bad_frames_preempt;
+ 	tasklet_init(&wldev->isr_tasklet,
+-		     (void (*)(unsigned long))b43legacy_interrupt_tasklet,
++		     b43legacy_interrupt_tasklet,
+ 		     (unsigned long)wldev);
+ 	if (modparam_pio)
+ 		wldev->__using_pio = true;
 -- 
 2.20.1
 
