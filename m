@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 419BD171D94
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:22:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 58F31171C4B
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:10:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388566AbgB0OQ4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 09:16:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57174 "EHLO mail.kernel.org"
+        id S2388161AbgB0OKv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 09:10:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49108 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388545AbgB0OQy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 09:16:54 -0500
+        id S2388606AbgB0OKv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 09:10:51 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 25DB0246AE;
-        Thu, 27 Feb 2020 14:16:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 24CEA20578;
+        Thu, 27 Feb 2020 14:10:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582813013;
-        bh=NgAudH2365eYL/7DmH6FlmstAmvV6nBUOhVZ+EeAuMM=;
+        s=default; t=1582812650;
+        bh=4Ha7FMeopvq5rImbybGAUymlfZTN71ObR/RK0QDYoZ8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T8mzDUu3pLtGxpvxtEd/HVhff4pg7KsNc95Z+zZPJwJLvyC2oV1mfdaPGEJjXPURd
-         1phH2oz+r6K897QDxdVjv5hqikr8B9JhCR0SyfucutA6DeA25pRvHJKuUuCsIdh+yf
-         68Di2IgCq5wUIpkfr+SiZvYeK9F/k5bsCmTLzrSw=
+        b=ybt6upbornCMS1O8vdFEb2udIIaTLOCsYT1IBNo4EIS8hxdO82R8ftJ9dWEPjOYV5
+         pY9c25SKydAqTp0B3ey/pvka7wk+V/LEcvmAj+sgBLwJdPaY7wHSvgHjYdkKMbp1Hi
+         pvKAx4iBAV1uYpP2y208aGbvCnsE5Egz6A1ppTrQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>,
-        Vitaly Kuznetsov <vkuznets@redhat.com>
-Subject: [PATCH 5.5 101/150] KVM: nVMX: handle nested posted interrupts when apicv is disabled for L1
+        stable@vger.kernel.org, Dave Jones <davej@codemonkey.org.uk>,
+        Filipe Manana <fdmanana@suse.com>,
+        Josef Bacik <josef@toxicpanda.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.4 098/135] btrfs: dont set path->leave_spinning for truncate
 Date:   Thu, 27 Feb 2020 14:37:18 +0100
-Message-Id: <20200227132247.708240590@linuxfoundation.org>
+Message-Id: <20200227132243.962862242@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200227132232.815448360@linuxfoundation.org>
-References: <20200227132232.815448360@linuxfoundation.org>
+In-Reply-To: <20200227132228.710492098@linuxfoundation.org>
+References: <20200227132228.710492098@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,113 +45,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vitaly Kuznetsov <vkuznets@redhat.com>
+From: Josef Bacik <josef@toxicpanda.com>
 
-commit 91a5f413af596ad01097e59bf487eb07cb3f1331 upstream.
+commit 52e29e331070cd7d52a64cbf1b0958212a340e28 upstream.
 
-Even when APICv is disabled for L1 it can (and, actually, is) still
-available for L2, this means we need to always call
-vmx_deliver_nested_posted_interrupt() when attempting an interrupt
-delivery.
+The only time we actually leave the path spinning is if we're truncating
+a small amount and don't actually free an extent, which is not a common
+occurrence.  We have to set the path blocking in order to add the
+delayed ref anyway, so the first extent we find we set the path to
+blocking and stay blocking for the duration of the operation.  With the
+upcoming file extent map stuff there will be another case that we have
+to have the path blocking, so just swap to blocking always.
 
-Suggested-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Note: this patch also fixes a warning after 28553fa992cb ("Btrfs: fix
+race between shrinking truncate and fiemap") got merged that inserts
+extent locks around truncation so the path must not leave spinning locks
+after btrfs_search_slot.
+
+  [70.794783] BUG: sleeping function called from invalid context at mm/slab.h:565
+  [70.794834] in_atomic(): 1, irqs_disabled(): 0, non_block: 0, pid: 1141, name: rsync
+  [70.794863] 5 locks held by rsync/1141:
+  [70.794876]  #0: ffff888417b9c408 (sb_writers#17){.+.+}, at: mnt_want_write+0x20/0x50
+  [70.795030]  #1: ffff888428de28e8 (&type->i_mutex_dir_key#13/1){+.+.}, at: lock_rename+0xf1/0x100
+  [70.795051]  #2: ffff888417b9c608 (sb_internal#2){.+.+}, at: start_transaction+0x394/0x560
+  [70.795124]  #3: ffff888403081768 (btrfs-fs-01){++++}, at: btrfs_try_tree_write_lock+0x2f/0x160
+  [70.795203]  #4: ffff888403086568 (btrfs-fs-00){++++}, at: btrfs_try_tree_write_lock+0x2f/0x160
+  [70.795222] CPU: 5 PID: 1141 Comm: rsync Not tainted 5.6.0-rc2-backup+ #2
+  [70.795362] Call Trace:
+  [70.795374]  dump_stack+0x71/0xa0
+  [70.795445]  ___might_sleep.part.96.cold.106+0xa6/0xb6
+  [70.795459]  kmem_cache_alloc+0x1d3/0x290
+  [70.795471]  alloc_extent_state+0x22/0x1c0
+  [70.795544]  __clear_extent_bit+0x3ba/0x580
+  [70.795557]  ? _raw_spin_unlock_irq+0x24/0x30
+  [70.795569]  btrfs_truncate_inode_items+0x339/0xe50
+  [70.795647]  btrfs_evict_inode+0x269/0x540
+  [70.795659]  ? dput.part.38+0x29/0x460
+  [70.795671]  evict+0xcd/0x190
+  [70.795682]  __dentry_kill+0xd6/0x180
+  [70.795754]  dput.part.38+0x2ad/0x460
+  [70.795765]  do_renameat2+0x3cb/0x540
+  [70.795777]  __x64_sys_rename+0x1c/0x20
+
+Reported-by: Dave Jones <davej@codemonkey.org.uk>
+Fixes: 28553fa992cb ("Btrfs: fix race between shrinking truncate and fiemap")
+CC: stable@vger.kernel.org # 4.4+
+Reviewed-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+[ add note ]
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/include/asm/kvm_host.h |    2 +-
- arch/x86/kvm/lapic.c            |    5 +----
- arch/x86/kvm/svm.c              |    7 ++++++-
- arch/x86/kvm/vmx/vmx.c          |   13 +++++++++----
- 4 files changed, 17 insertions(+), 10 deletions(-)
+ fs/btrfs/inode.c |    2 --
+ 1 file changed, 2 deletions(-)
 
---- a/arch/x86/include/asm/kvm_host.h
-+++ b/arch/x86/include/asm/kvm_host.h
-@@ -1115,7 +1115,7 @@ struct kvm_x86_ops {
- 	void (*load_eoi_exitmap)(struct kvm_vcpu *vcpu, u64 *eoi_exit_bitmap);
- 	void (*set_virtual_apic_mode)(struct kvm_vcpu *vcpu);
- 	void (*set_apic_access_page_addr)(struct kvm_vcpu *vcpu, hpa_t hpa);
--	void (*deliver_posted_interrupt)(struct kvm_vcpu *vcpu, int vector);
-+	int (*deliver_posted_interrupt)(struct kvm_vcpu *vcpu, int vector);
- 	int (*sync_pir_to_irr)(struct kvm_vcpu *vcpu);
- 	int (*set_tss_addr)(struct kvm *kvm, unsigned int addr);
- 	int (*set_identity_map_addr)(struct kvm *kvm, u64 ident_addr);
---- a/arch/x86/kvm/lapic.c
-+++ b/arch/x86/kvm/lapic.c
-@@ -1049,11 +1049,8 @@ static int __apic_accept_irq(struct kvm_
- 						       apic->regs + APIC_TMR);
- 		}
+--- a/fs/btrfs/inode.c
++++ b/fs/btrfs/inode.c
+@@ -4791,7 +4791,6 @@ search_again:
+ 		goto out;
+ 	}
  
--		if (vcpu->arch.apicv_active)
--			kvm_x86_ops->deliver_posted_interrupt(vcpu, vector);
--		else {
-+		if (kvm_x86_ops->deliver_posted_interrupt(vcpu, vector)) {
- 			kvm_lapic_set_irr(vector, apic);
--
- 			kvm_make_request(KVM_REQ_EVENT, vcpu);
- 			kvm_vcpu_kick(vcpu);
- 		}
---- a/arch/x86/kvm/svm.c
-+++ b/arch/x86/kvm/svm.c
-@@ -5160,8 +5160,11 @@ static void svm_load_eoi_exitmap(struct
- 	return;
- }
+-	path->leave_spinning = 1;
+ 	ret = btrfs_search_slot(trans, root, &key, path, -1, 1);
+ 	if (ret < 0)
+ 		goto out;
+@@ -4943,7 +4942,6 @@ delete:
+ 		     root == fs_info->tree_root)) {
+ 			struct btrfs_ref ref = { 0 };
  
--static void svm_deliver_avic_intr(struct kvm_vcpu *vcpu, int vec)
-+static int svm_deliver_avic_intr(struct kvm_vcpu *vcpu, int vec)
- {
-+	if (!vcpu->arch.apicv_active)
-+		return -1;
-+
- 	kvm_lapic_set_irr(vec, vcpu->arch.apic);
- 	smp_mb__after_atomic();
+-			btrfs_set_path_blocking(path);
+ 			bytes_deleted += extent_num_bytes;
  
-@@ -5173,6 +5176,8 @@ static void svm_deliver_avic_intr(struct
- 		put_cpu();
- 	} else
- 		kvm_vcpu_wake_up(vcpu);
-+
-+	return 0;
- }
- 
- static bool svm_dy_apicv_has_pending_interrupt(struct kvm_vcpu *vcpu)
---- a/arch/x86/kvm/vmx/vmx.c
-+++ b/arch/x86/kvm/vmx/vmx.c
-@@ -3848,24 +3848,29 @@ static int vmx_deliver_nested_posted_int
-  * 2. If target vcpu isn't running(root mode), kick it to pick up the
-  * interrupt from PIR in next vmentry.
-  */
--static void vmx_deliver_posted_interrupt(struct kvm_vcpu *vcpu, int vector)
-+static int vmx_deliver_posted_interrupt(struct kvm_vcpu *vcpu, int vector)
- {
- 	struct vcpu_vmx *vmx = to_vmx(vcpu);
- 	int r;
- 
- 	r = vmx_deliver_nested_posted_interrupt(vcpu, vector);
- 	if (!r)
--		return;
-+		return 0;
-+
-+	if (!vcpu->arch.apicv_active)
-+		return -1;
- 
- 	if (pi_test_and_set_pir(vector, &vmx->pi_desc))
--		return;
-+		return 0;
- 
- 	/* If a previous notification has sent the IPI, nothing to do.  */
- 	if (pi_test_and_set_on(&vmx->pi_desc))
--		return;
-+		return 0;
- 
- 	if (!kvm_vcpu_trigger_posted_interrupt(vcpu, false))
- 		kvm_vcpu_kick(vcpu);
-+
-+	return 0;
- }
- 
- /*
+ 			btrfs_init_generic_ref(&ref, BTRFS_DROP_DELAYED_REF,
 
 
