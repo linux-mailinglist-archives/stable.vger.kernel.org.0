@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A8571720E6
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:46:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 787A5171FED
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:40:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729942AbgB0Npm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 08:45:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41708 "EHLO mail.kernel.org"
+        id S1732319AbgB0OjE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 09:39:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55836 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729652AbgB0Npl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 08:45:41 -0500
+        id S1731198AbgB0Nze (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 08:55:34 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C4323222C2;
-        Thu, 27 Feb 2020 13:45:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 34BDA2084E;
+        Thu, 27 Feb 2020 13:55:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582811141;
-        bh=wocrEF5e4Hh9pV3gsmFyQHA4RbYVhMgNWgZlk3YP/ks=;
+        s=default; t=1582811733;
+        bh=UnKCIujtxt1N29GYI8xjhsYmOt5rvNoqX2Lter08qwU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jNpkHmYcZGayZg6LPapxo3uR0LvbEVDi0+aZHZHAVVGQbOzbOKYJa0QF7RM9xxJgI
-         fcueQlDnBfdEtAL/Bqu5gC3ft/fMMYPWub3Q75vBCsja41XjDFCFSPezs4vk6iL+va
-         +RkYy36fReQSg6LASkgGOq7iOfKI27h93otafcNg=
+        b=EnAdLE9eClg/+fRRYZaWnxuypNp8jdTPPd4GEfsVLsXMIwB5tQtNEBpu8c2RRslnu
+         0jpSi5CJNvuSEQrlnEFIkiYIizsj8XrtHfN49Q/gTfPF6LzZh/BeNXBp4qSFA2CGdE
+         kS+pGOzpR8Zweu9EtkV7+xWskkR4K+zcMBh/piaw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chris Murphy <lists@colorremedies.com>,
-        Anand Jain <anand.jain@oracle.com>,
-        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
-        David Sterba <dsterba@suse.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 019/165] btrfs: print message when tree-log replay starts
-Date:   Thu, 27 Feb 2020 14:34:53 +0100
-Message-Id: <20200227132233.814709912@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 081/237] ALSA: usx2y: Adjust indentation in snd_usX2Y_hwdep_dsp_status
+Date:   Thu, 27 Feb 2020 14:34:55 +0100
+Message-Id: <20200227132303.055124442@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200227132230.840899170@linuxfoundation.org>
-References: <20200227132230.840899170@linuxfoundation.org>
+In-Reply-To: <20200227132255.285644406@linuxfoundation.org>
+References: <20200227132255.285644406@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,36 +44,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Sterba <dsterba@suse.com>
+From: Nathan Chancellor <natechancellor@gmail.com>
 
-[ Upstream commit e8294f2f6aa6208ed0923aa6d70cea3be178309a ]
+[ Upstream commit df4654bd6e42125d9b85ce3a26eaca2935290b98 ]
 
-There's no logged information about tree-log replay although this is
-something that points to previous unclean unmount. Other filesystems
-report that as well.
+Clang warns:
 
-Suggested-by: Chris Murphy <lists@colorremedies.com>
-CC: stable@vger.kernel.org # 4.4+
-Reviewed-by: Anand Jain <anand.jain@oracle.com>
-Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+../sound/usb/usx2y/usX2Yhwdep.c:122:3: warning: misleading indentation;
+statement is not part of the previous 'if' [-Wmisleading-indentation]
+        info->version = USX2Y_DRIVER_VERSION;
+        ^
+../sound/usb/usx2y/usX2Yhwdep.c:120:2: note: previous statement is here
+        if (us428->chip_status & USX2Y_STAT_CHIP_INIT)
+        ^
+1 warning generated.
+
+This warning occurs because there is a space before the tab on this
+line. Remove it so that the indentation is consistent with the Linux
+kernel coding style and clang no longer warns.
+
+This was introduced before the beginning of git history so no fixes tag.
+
+Link: https://github.com/ClangBuiltLinux/linux/issues/831
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+Link: https://lore.kernel.org/r/20191218034257.54535-1-natechancellor@gmail.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/disk-io.c | 1 +
- 1 file changed, 1 insertion(+)
+ sound/usb/usx2y/usX2Yhwdep.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/btrfs/disk-io.c b/fs/btrfs/disk-io.c
-index e3524ecce3d77..390053557d4d2 100644
---- a/fs/btrfs/disk-io.c
-+++ b/fs/btrfs/disk-io.c
-@@ -2979,6 +2979,7 @@ int open_ctree(struct super_block *sb,
- 	/* do not make disk changes in broken FS or nologreplay is given */
- 	if (btrfs_super_log_root(disk_super) != 0 &&
- 	    !btrfs_test_opt(tree_root->fs_info, NOLOGREPLAY)) {
-+		btrfs_info(fs_info, "start tree-log replay");
- 		ret = btrfs_replay_log(fs_info, fs_devices);
- 		if (ret) {
- 			err = ret;
+diff --git a/sound/usb/usx2y/usX2Yhwdep.c b/sound/usb/usx2y/usX2Yhwdep.c
+index f4b3cda412fcc..e75271e731b2d 100644
+--- a/sound/usb/usx2y/usX2Yhwdep.c
++++ b/sound/usb/usx2y/usX2Yhwdep.c
+@@ -131,7 +131,7 @@ static int snd_usX2Y_hwdep_dsp_status(struct snd_hwdep *hw,
+ 	info->num_dsps = 2;		// 0: Prepad Data, 1: FPGA Code
+ 	if (us428->chip_status & USX2Y_STAT_CHIP_INIT)
+ 		info->chip_ready = 1;
+- 	info->version = USX2Y_DRIVER_VERSION; 
++	info->version = USX2Y_DRIVER_VERSION;
+ 	return 0;
+ }
+ 
 -- 
 2.20.1
 
