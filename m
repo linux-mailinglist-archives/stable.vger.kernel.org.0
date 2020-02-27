@@ -2,53 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 36D5917124E
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 09:18:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 126D4171252
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 09:20:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728480AbgB0ISn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 03:18:43 -0500
-Received: from out2-smtp.messagingengine.com ([66.111.4.26]:55961 "EHLO
-        out2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726999AbgB0ISn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 27 Feb 2020 03:18:43 -0500
+        id S1728476AbgB0IUw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 03:20:52 -0500
+Received: from wout4-smtp.messagingengine.com ([64.147.123.20]:53281 "EHLO
+        wout4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728469AbgB0IUw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 27 Feb 2020 03:20:52 -0500
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailout.nyi.internal (Postfix) with ESMTP id 0E86521FC6;
-        Thu, 27 Feb 2020 03:18:42 -0500 (EST)
+        by mailout.west.internal (Postfix) with ESMTP id 2D0FF5CE;
+        Thu, 27 Feb 2020 03:20:51 -0500 (EST)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Thu, 27 Feb 2020 03:18:42 -0500
+  by compute1.internal (MEProxy); Thu, 27 Feb 2020 03:20:51 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=TQbl7w
-        wx5Lhp7sVfz1ZhtwT8/yzsk9C2mtetAFO28Gs=; b=N/+uTsQeNQN9dhG+ItDpTF
-        iOFXKyrUM8FllLm0Ux3D28CBpJ1cP/sloUk6wBOR5rBarirK7lrhTM8JTIbyOYb7
-        asLyJc6L+3jb3rRICkwMmdDpX72skLReodeiYMFZOimF+zQvqhhsD3cLetFW5fNt
-        oGq48PkUBWXuOGq8TQesKXDiIPHbgmH1KBWU6Y3+lHdnFJ6bRo3uxF3J9u+A/5U7
-        Mp52lbCc0gZpizieQPc34mClpge+0GXJueaM7iBAOWFDIJJokPSUqzZQN+omVAD9
-        AjgBUBcButecoAg5hSuuNKl0BUN2hhbUEmJ9AktX795b2TCFCRspCy+wxXhDyE3g
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=uv9+Wq
+        TZK8ccWW8QT98bMs3kBc0ueNQVsRdHNrpZYyo=; b=B2p5PTeYt3DJpuidhTWvvO
+        D0d/CwuVYimz8toyuvHFu8wYrhNQe5u0iAAQMo09Rs0q2l/P8a+x8M75YenToyZX
+        iDYA7vTP2bRToPE5b5YrfMnAUlFWT/zxhxr92JVys1TUVJkKDsl6WVHMdaoFZaQL
+        mJF2JWt4ShuPJSGsbTzXevsCrJZHORVAMAm6VkCi2vJLvPeUyDp0aXZBTvpr9glY
+        s/rgEWiCTIH14EP+8/az3sYl5KROobMFiAQwgZalur/svuqZ7pHcfSx9Rn4vUv1H
+        05BHbbCLvjdkQOf7idTxI49gNUEzGyqNCrbugsU3k1VkclgMyWXdnOTVlPQ5EtZg
         ==
-X-ME-Sender: <xms:YXtXXnc6rxJ06erogoRK6M5pdmnVdOw-jV7_B9fRmfDlmI0vS14l8w>
+X-ME-Sender: <xms:4ntXXke59hhjB9SXPffw30Ol1z42hmU2Nvu9Inyb61tmlPh2SUKO4Q>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedugedrleehgdduvddvucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucgoufhushhpvggtthffohhmrghinhculdegledmne
-    cujfgurhepuffvhfffkfggtgfgsehtkeertddttdflnecuhfhrohhmpeeoghhrvghgkhhh
-    sehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhgqeenucffohhmrghinheprghpphhsph
-    hothdrtghomhdpkhgvrhhnvghlrdhorhhgnecukfhppeekfedrkeeirdekledruddtjeen
-    ucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgh
-    eskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:YXtXXnzcwOiPUZ_Dgc7HKNdnluLNpwAYKf7yzmruHppFHzXXNWMLJQ>
-    <xmx:YXtXXtFWpQOyoaG7qCWVcWvg-GJQm49lBUB1Tx4BCBgPJL_OhBVlJQ>
-    <xmx:YXtXXrzyUg3uZB6hg9DnusIhdBk3vuutfE0H60JF_2HSQKuwyzDQHw>
-    <xmx:YntXXlgAd-Cqhc5HGRV0KG03YxmmWU4YwpslvQdthDcyYz8KaXLI6g>
+    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
+    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
+    gheqnecuffhomhgrihhnpehfrhgvvgguvghskhhtohhprdhorhhgnecukfhppeekfedrke
+    eirdekledruddtjeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhl
+    fhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
+X-ME-Proxy: <xmx:4ntXXqeiG0yW2M7MfAPtOTgSjxIeMgw4JpOZscOl0bvDYi4DHl5x3g>
+    <xmx:4ntXXgg4hcG6gLyuAbZilmaXBwKwNw-UyayflgwoWCq650dEYVdBfg>
+    <xmx:4ntXXuQUb7w3k9EbE1QFmVnGvgm5cCWcM_Ho7iOXhYOw9_MEsMAxjg>
+    <xmx:4ntXXsNiyUgVU4LES8VkFFapo0kQ2SofhsicSX7yYHTvMHELaspRIA>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 9E36430610DB;
-        Thu, 27 Feb 2020 03:18:41 -0500 (EST)
-Subject: FAILED: patch "[PATCH] ext4: fix race between writepages and enabling" failed to apply to 4.4-stable tree
-To:     ebiggers@google.com, jack@suse.cz, tytso@mit.edu
+        by mail.messagingengine.com (Postfix) with ESMTPA id DF3E93060FE0;
+        Thu, 27 Feb 2020 03:20:49 -0500 (EST)
+Subject: FAILED: patch "[PATCH] drm/i915/execlists: Always force a context reload when" failed to apply to 5.4-stable tree
+To:     chris@chris-wilson.co.uk, jani.nikula@intel.com,
+        mika.kuoppala@linux.intel.com, stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 27 Feb 2020 09:18:40 +0100
-Message-ID: <158279152018157@kroah.com>
+Date:   Thu, 27 Feb 2020 09:20:48 +0100
+Message-ID: <1582791648240137@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -58,7 +58,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.4-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -69,166 +69,142 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From cb85f4d23f794e24127f3e562cb3b54b0803f456 Mon Sep 17 00:00:00 2001
-From: Eric Biggers <ebiggers@google.com>
-Date: Wed, 19 Feb 2020 10:30:47 -0800
-Subject: [PATCH] ext4: fix race between writepages and enabling
- EXT4_EXTENTS_FL
+From b1339ecac661e1cf3e1dc78ac56bff3aeeaeb92c Mon Sep 17 00:00:00 2001
+From: Chris Wilson <chris@chris-wilson.co.uk>
+Date: Fri, 7 Feb 2020 21:14:52 +0000
+Subject: [PATCH] drm/i915/execlists: Always force a context reload when
+ rewinding RING_TAIL
 
-If EXT4_EXTENTS_FL is set on an inode while ext4_writepages() is running
-on it, the following warning in ext4_add_complete_io() can be hit:
+If we rewind the RING_TAIL on a context, due to a preemption event, we
+must force the context restore for the RING_TAIL update to be properly
+handled. Rather than note which preemption events may cause us to rewind
+the tail, compare the new request's tail with the previously submitted
+RING_TAIL, as it turns out that timeslicing was causing unexpected
+rewinds.
 
-WARNING: CPU: 1 PID: 0 at fs/ext4/page-io.c:234 ext4_put_io_end_defer+0xf0/0x120
+   <idle>-0       0d.s2 1280851190us : __execlists_submission_tasklet: 0000:00:02.0 rcs0: expired last=130:4698, prio=3, hint=3
+   <idle>-0       0d.s2 1280851192us : __i915_request_unsubmit: 0000:00:02.0 rcs0: fence 66:119966, current 119964
+   <idle>-0       0d.s2 1280851195us : __i915_request_unsubmit: 0000:00:02.0 rcs0: fence 130:4698, current 4695
+   <idle>-0       0d.s2 1280851198us : __i915_request_unsubmit: 0000:00:02.0 rcs0: fence 130:4696, current 4695
+^----  Note we unwind 2 requests from the same context
 
-Here's a minimal reproducer (not 100% reliable) (root isn't required):
+   <idle>-0       0d.s2 1280851208us : __i915_request_submit: 0000:00:02.0 rcs0: fence 130:4696, current 4695
+   <idle>-0       0d.s2 1280851213us : __i915_request_submit: 0000:00:02.0 rcs0: fence 134:1508, current 1506
+^---- But to apply the new timeslice, we have to replay the first request
+      before the new client can start -- the unexpected RING_TAIL rewind
 
-        while true; do
-                sync
-        done &
-        while true; do
-                rm -f file
-                touch file
-                chattr -e file
-                echo X >> file
-                chattr +e file
-        done
+   <idle>-0       0d.s2 1280851219us : trace_ports: 0000:00:02.0 rcs0: submit { 130:4696*, 134:1508 }
+ synmark2-5425    2..s. 1280851239us : process_csb: 0000:00:02.0 rcs0: cs-irq head=5, tail=0
+ synmark2-5425    2..s. 1280851240us : process_csb: 0000:00:02.0 rcs0: csb[0]: status=0x00008002:0x00000000
+^---- Preemption event for the ELSP update; note the lite-restore
 
-The problem is that in ext4_writepages(), ext4_should_dioread_nolock()
-(which only returns true on extent-based files) is checked once to set
-the number of reserved journal credits, and also again later to select
-the flags for ext4_map_blocks() and copy the reserved journal handle to
-ext4_io_end::handle.  But if EXT4_EXTENTS_FL is being concurrently set,
-the first check can see dioread_nolock disabled while the later one can
-see it enabled, causing the reserved handle to unexpectedly be NULL.
+ synmark2-5425    2..s. 1280851243us : trace_ports: 0000:00:02.0 rcs0: preempted { 130:4698, 66:119966 }
+ synmark2-5425    2..s. 1280851246us : trace_ports: 0000:00:02.0 rcs0: promote { 130:4696*, 134:1508 }
+ synmark2-5425    2.... 1280851462us : __i915_request_commit: 0000:00:02.0 rcs0: fence 130:4700, current 4695
+ synmark2-5425    2.... 1280852111us : __i915_request_commit: 0000:00:02.0 rcs0: fence 130:4702, current 4695
+ synmark2-5425    2.Ns1 1280852296us : process_csb: 0000:00:02.0 rcs0: cs-irq head=0, tail=2
+ synmark2-5425    2.Ns1 1280852297us : process_csb: 0000:00:02.0 rcs0: csb[1]: status=0x00000814:0x00000000
+ synmark2-5425    2.Ns1 1280852299us : trace_ports: 0000:00:02.0 rcs0: completed { 130:4696!, 134:1508 }
+ synmark2-5425    2.Ns1 1280852301us : process_csb: 0000:00:02.0 rcs0: csb[2]: status=0x00000818:0x00000040
+ synmark2-5425    2.Ns1 1280852302us : trace_ports: 0000:00:02.0 rcs0: completed { 134:1508, 0:0 }
+ synmark2-5425    2.Ns1 1280852313us : process_csb: process_csb:2336 GEM_BUG_ON(!i915_request_completed(*execlists->active) && !reset_in_progress(execlists))
 
-Since changing EXT4_EXTENTS_FL is uncommon, and there may be other races
-related to doing so as well, fix this by synchronizing changing
-EXT4_EXTENTS_FL with ext4_writepages() via the existing
-s_writepages_rwsem (previously called s_journal_flag_rwsem).
+Fixes: 8ee36e048c98 ("drm/i915/execlists: Minimalistic timeslicing")
+Referenecs: 82c69bf58650 ("drm/i915/gt: Detect if we miss WaIdleLiteRestore")
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: Mika Kuoppala <mika.kuoppala@linux.intel.com>
+Reviewed-by: Mika Kuoppala <mika.kuoppala@linux.intel.com>
+Cc: <stable@vger.kernel.org> # v5.4+
+Link: https://patchwork.freedesktop.org/patch/msgid/20200207211452.2860634-1-chris@chris-wilson.co.uk
+(cherry picked from commit 5ba32c7be81e53ea8a27190b0f6be98e6c6779af)
+Signed-off-by: Jani Nikula <jani.nikula@intel.com>
 
-This was originally reported by syzbot without a reproducer at
-https://syzkaller.appspot.com/bug?extid=2202a584a00fffd19fbf,
-but now that dioread_nolock is the default I also started seeing this
-when running syzkaller locally.
-
-Link: https://lore.kernel.org/r/20200219183047.47417-3-ebiggers@kernel.org
-Reported-by: syzbot+2202a584a00fffd19fbf@syzkaller.appspotmail.com
-Fixes: 6b523df4fb5a ("ext4: use transaction reservation for extent conversion in ext4_end_io")
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Cc: stable@kernel.org
-
-diff --git a/fs/ext4/ext4.h b/fs/ext4/ext4.h
-index 4b986ad42b9d..61b37a052052 100644
---- a/fs/ext4/ext4.h
-+++ b/fs/ext4/ext4.h
-@@ -1552,7 +1552,10 @@ struct ext4_sb_info {
- 	struct ratelimit_state s_warning_ratelimit_state;
- 	struct ratelimit_state s_msg_ratelimit_state;
- 
--	/* Barrier between changing inodes' journal flags and writepages ops. */
-+	/*
-+	 * Barrier between writepages ops and changing any inode's JOURNAL_DATA
-+	 * or EXTENTS flag.
-+	 */
- 	struct percpu_rw_semaphore s_writepages_rwsem;
- 	struct dax_device *s_daxdev;
- #ifdef CONFIG_EXT4_DEBUG
-diff --git a/fs/ext4/migrate.c b/fs/ext4/migrate.c
-index 89725fa42573..fb6520f37135 100644
---- a/fs/ext4/migrate.c
-+++ b/fs/ext4/migrate.c
-@@ -407,6 +407,7 @@ static int free_ext_block(handle_t *handle, struct inode *inode)
- 
- int ext4_ext_migrate(struct inode *inode)
+diff --git a/drivers/gpu/drm/i915/gt/intel_lrc.c b/drivers/gpu/drm/i915/gt/intel_lrc.c
+index 0a8a2c8026f1..438d7a97d45c 100644
+--- a/drivers/gpu/drm/i915/gt/intel_lrc.c
++++ b/drivers/gpu/drm/i915/gt/intel_lrc.c
+@@ -1321,7 +1321,7 @@ static u64 execlists_update_context(struct i915_request *rq)
  {
-+	struct ext4_sb_info *sbi = EXT4_SB(inode->i_sb);
- 	handle_t *handle;
- 	int retval = 0, i;
- 	__le32 *i_data;
-@@ -431,6 +432,8 @@ int ext4_ext_migrate(struct inode *inode)
- 		 */
- 		return retval;
+ 	struct intel_context *ce = rq->context;
+ 	u64 desc = ce->lrc_desc;
+-	u32 tail;
++	u32 tail, prev;
  
-+	percpu_down_write(&sbi->s_writepages_rwsem);
-+
  	/*
- 	 * Worst case we can touch the allocation bitmaps, a bgd
- 	 * block, and a block to link in the orphan list.  We do need
-@@ -441,7 +444,7 @@ int ext4_ext_migrate(struct inode *inode)
+ 	 * WaIdleLiteRestore:bdw,skl
+@@ -1334,9 +1334,15 @@ static u64 execlists_update_context(struct i915_request *rq)
+ 	 * subsequent resubmissions (for lite restore). Should that fail us,
+ 	 * and we try and submit the same tail again, force the context
+ 	 * reload.
++	 *
++	 * If we need to return to a preempted context, we need to skip the
++	 * lite-restore and force it to reload the RING_TAIL. Otherwise, the
++	 * HW has a tendency to ignore us rewinding the TAIL to the end of
++	 * an earlier request.
+ 	 */
+ 	tail = intel_ring_set_tail(rq->ring, rq->tail);
+-	if (unlikely(ce->lrc_reg_state[CTX_RING_TAIL] == tail))
++	prev = ce->lrc_reg_state[CTX_RING_TAIL];
++	if (unlikely(intel_ring_direction(rq->ring, tail, prev) <= 0))
+ 		desc |= CTX_DESC_FORCE_RESTORE;
+ 	ce->lrc_reg_state[CTX_RING_TAIL] = tail;
+ 	rq->tail = rq->wa_tail;
+@@ -1839,14 +1845,6 @@ static void execlists_dequeue(struct intel_engine_cs *engine)
+ 			 */
+ 			__unwind_incomplete_requests(engine);
  
- 	if (IS_ERR(handle)) {
- 		retval = PTR_ERR(handle);
--		return retval;
-+		goto out_unlock;
- 	}
- 	goal = (((inode->i_ino - 1) / EXT4_INODES_PER_GROUP(inode->i_sb)) *
- 		EXT4_INODES_PER_GROUP(inode->i_sb)) + 1;
-@@ -452,7 +455,7 @@ int ext4_ext_migrate(struct inode *inode)
- 	if (IS_ERR(tmp_inode)) {
- 		retval = PTR_ERR(tmp_inode);
- 		ext4_journal_stop(handle);
--		return retval;
-+		goto out_unlock;
- 	}
- 	i_size_write(tmp_inode, i_size_read(inode));
+-			/*
+-			 * If we need to return to the preempted context, we
+-			 * need to skip the lite-restore and force it to
+-			 * reload the RING_TAIL. Otherwise, the HW has a
+-			 * tendency to ignore us rewinding the TAIL to the
+-			 * end of an earlier request.
+-			 */
+-			last->context->lrc_desc |= CTX_DESC_FORCE_RESTORE;
+ 			last = NULL;
+ 		} else if (need_timeslice(engine, last) &&
+ 			   timer_expired(&engine->execlists.timer)) {
+diff --git a/drivers/gpu/drm/i915/gt/intel_ring.c b/drivers/gpu/drm/i915/gt/intel_ring.c
+index 374b28f13ca0..6ff803f397c4 100644
+--- a/drivers/gpu/drm/i915/gt/intel_ring.c
++++ b/drivers/gpu/drm/i915/gt/intel_ring.c
+@@ -145,6 +145,7 @@ intel_engine_create_ring(struct intel_engine_cs *engine, int size)
+ 
+ 	kref_init(&ring->ref);
+ 	ring->size = size;
++	ring->wrap = BITS_PER_TYPE(ring->size) - ilog2(size);
+ 
  	/*
-@@ -494,7 +497,7 @@ int ext4_ext_migrate(struct inode *inode)
- 		 */
- 		ext4_orphan_del(NULL, tmp_inode);
- 		retval = PTR_ERR(handle);
--		goto out;
-+		goto out_tmp_inode;
- 	}
- 
- 	ei = EXT4_I(inode);
-@@ -576,10 +579,11 @@ int ext4_ext_migrate(struct inode *inode)
- 	ext4_ext_tree_init(handle, tmp_inode);
- out_stop:
- 	ext4_journal_stop(handle);
--out:
-+out_tmp_inode:
- 	unlock_new_inode(tmp_inode);
- 	iput(tmp_inode);
--
-+out_unlock:
-+	percpu_up_write(&sbi->s_writepages_rwsem);
- 	return retval;
+ 	 * Workaround an erratum on the i830 which causes a hang if
+diff --git a/drivers/gpu/drm/i915/gt/intel_ring.h b/drivers/gpu/drm/i915/gt/intel_ring.h
+index ea2839d9e044..5bdce24994aa 100644
+--- a/drivers/gpu/drm/i915/gt/intel_ring.h
++++ b/drivers/gpu/drm/i915/gt/intel_ring.h
+@@ -56,6 +56,14 @@ static inline u32 intel_ring_wrap(const struct intel_ring *ring, u32 pos)
+ 	return pos & (ring->size - 1);
  }
  
-@@ -589,7 +593,8 @@ int ext4_ext_migrate(struct inode *inode)
- int ext4_ind_migrate(struct inode *inode)
- {
- 	struct ext4_extent_header	*eh;
--	struct ext4_super_block		*es = EXT4_SB(inode->i_sb)->s_es;
-+	struct ext4_sb_info		*sbi = EXT4_SB(inode->i_sb);
-+	struct ext4_super_block		*es = sbi->s_es;
- 	struct ext4_inode_info		*ei = EXT4_I(inode);
- 	struct ext4_extent		*ex;
- 	unsigned int			i, len;
-@@ -613,9 +618,13 @@ int ext4_ind_migrate(struct inode *inode)
- 	if (test_opt(inode->i_sb, DELALLOC))
- 		ext4_alloc_da_blocks(inode);
- 
-+	percpu_down_write(&sbi->s_writepages_rwsem);
++static inline int intel_ring_direction(const struct intel_ring *ring,
++				       u32 next, u32 prev)
++{
++	typecheck(typeof(ring->size), next);
++	typecheck(typeof(ring->size), prev);
++	return (next - prev) << ring->wrap;
++}
 +
- 	handle = ext4_journal_start(inode, EXT4_HT_MIGRATE, 1);
--	if (IS_ERR(handle))
--		return PTR_ERR(handle);
-+	if (IS_ERR(handle)) {
-+		ret = PTR_ERR(handle);
-+		goto out_unlock;
-+	}
+ static inline bool
+ intel_ring_offset_valid(const struct intel_ring *ring,
+ 			unsigned int pos)
+diff --git a/drivers/gpu/drm/i915/gt/intel_ring_types.h b/drivers/gpu/drm/i915/gt/intel_ring_types.h
+index d9f17f38e0cc..3cd7fec7fd8d 100644
+--- a/drivers/gpu/drm/i915/gt/intel_ring_types.h
++++ b/drivers/gpu/drm/i915/gt/intel_ring_types.h
+@@ -45,6 +45,7 @@ struct intel_ring {
  
- 	down_write(&EXT4_I(inode)->i_data_sem);
- 	ret = ext4_ext_check_inode(inode);
-@@ -650,5 +659,7 @@ int ext4_ind_migrate(struct inode *inode)
- errout:
- 	ext4_journal_stop(handle);
- 	up_write(&EXT4_I(inode)->i_data_sem);
-+out_unlock:
-+	percpu_up_write(&sbi->s_writepages_rwsem);
- 	return ret;
- }
+ 	u32 space;
+ 	u32 size;
++	u32 wrap;
+ 	u32 effective_size;
+ };
+ 
 
