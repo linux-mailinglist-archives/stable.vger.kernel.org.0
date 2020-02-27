@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7CF9E1720FF
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:47:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D1788171FF5
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:40:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730023AbgB0NpV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 08:45:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41238 "EHLO mail.kernel.org"
+        id S1731931AbgB0OjZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 09:39:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55090 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730361AbgB0NpV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 08:45:21 -0500
+        id S1731924AbgB0Nyy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 08:54:54 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F0E4121D7E;
-        Thu, 27 Feb 2020 13:45:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A92BA20578;
+        Thu, 27 Feb 2020 13:54:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582811120;
-        bh=uOFMmKogUdcEg/YD9HLbQnK54nR8CSKUebSZkQF+56E=;
+        s=default; t=1582811694;
+        bh=MsONPWTNfPo6V0X4S3Ypn68YP2qKHWF1siRbP0V/Czo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=10RWAOzgo0aUnSV9CrmupI7pnCnqGgrszeI2bada+gfQWVedNdkAB4XX6CkQzlz9x
-         JKtrOplmKrg0cRvJhkosQbrQF9Cwk+DllZp3EnlgBAtnZjXgSeZeDTF2R2ECdxbhc7
-         nj2Pu/v8T+aRokVIcTXSi25A3zTxauw5wNoHG8ZQ=
+        b=f6IWL7j9Urf9NI4yQ8MuU5J1ebMYxNOHnEzMA6wPlkDn4V71s+QG6M5cZyLds3PMU
+         Cmp3t/o7PRLBERhmKc+aWcgGDv28gA5eK4oRIwWBL3fyR6+uWxf8tgiDfMtxlRR5GM
+         AlCIxQRjT8DNePe5dFfqcOCe3SA6BDU+OszEMPG8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.9 003/165] ALSA: hda: Use scnprintf() for printing texts for sysfs/procfs
-Date:   Thu, 27 Feb 2020 14:34:37 +0100
-Message-Id: <20200227132231.535111958@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Luis Henriques <luis.henriques@canonical.com>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 064/237] tracing: Fix tracing_stat return values in error handling paths
+Date:   Thu, 27 Feb 2020 14:34:38 +0100
+Message-Id: <20200227132301.735318296@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200227132230.840899170@linuxfoundation.org>
-References: <20200227132230.840899170@linuxfoundation.org>
+In-Reply-To: <20200227132255.285644406@linuxfoundation.org>
+References: <20200227132255.285644406@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,82 +45,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Luis Henriques <luis.henriques@canonical.com>
 
-commit 44eeb081b8630bb3ad3cd381d1ae1831463e48bb upstream.
+[ Upstream commit afccc00f75bbbee4e4ae833a96c2d29a7259c693 ]
 
-Some code in HD-audio driver calls snprintf() in a loop and still
-expects that the return value were actually written size, while
-snprintf() returns the expected would-be length instead.  When the
-given buffer limit were small, this leads to a buffer overflow.
+tracing_stat_init() was always returning '0', even on the error paths.  It
+now returns -ENODEV if tracing_init_dentry() fails or -ENOMEM if it fails
+to created the 'trace_stat' debugfs directory.
 
-Use scnprintf() for addressing those issues.  It returns the actually
-written size unlike snprintf().
+Link: http://lkml.kernel.org/r/1410299381-20108-1-git-send-email-luis.henriques@canonical.com
 
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200218091409.27162-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: ed6f1c996bfe4 ("tracing: Check return value of tracing_init_dentry()")
+Signed-off-by: Luis Henriques <luis.henriques@canonical.com>
+[ Pulled from the archeological digging of my INBOX ]
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/hda/hdmi_chmap.c    |    2 +-
- sound/pci/hda/hda_codec.c |    2 +-
- sound/pci/hda/hda_eld.c   |    2 +-
- sound/pci/hda/hda_sysfs.c |    4 ++--
- 4 files changed, 5 insertions(+), 5 deletions(-)
+ kernel/trace/trace_stat.c | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
---- a/sound/hda/hdmi_chmap.c
-+++ b/sound/hda/hdmi_chmap.c
-@@ -249,7 +249,7 @@ void snd_hdac_print_channel_allocation(i
+diff --git a/kernel/trace/trace_stat.c b/kernel/trace/trace_stat.c
+index 75bf1bcb4a8a5..bf68af63538b4 100644
+--- a/kernel/trace/trace_stat.c
++++ b/kernel/trace/trace_stat.c
+@@ -278,18 +278,22 @@ static int tracing_stat_init(void)
  
- 	for (i = 0, j = 0; i < ARRAY_SIZE(cea_speaker_allocation_names); i++) {
- 		if (spk_alloc & (1 << i))
--			j += snprintf(buf + j, buflen - j,  " %s",
-+			j += scnprintf(buf + j, buflen - j,  " %s",
- 					cea_speaker_allocation_names[i]);
- 	}
- 	buf[j] = '\0';	/* necessary when j == 0 */
---- a/sound/pci/hda/hda_codec.c
-+++ b/sound/pci/hda/hda_codec.c
-@@ -4104,7 +4104,7 @@ void snd_print_pcm_bits(int pcm, char *b
+ 	d_tracing = tracing_init_dentry();
+ 	if (IS_ERR(d_tracing))
+-		return 0;
++		return -ENODEV;
  
- 	for (i = 0, j = 0; i < ARRAY_SIZE(bits); i++)
- 		if (pcm & (AC_SUPPCM_BITS_8 << i))
--			j += snprintf(buf + j, buflen - j,  " %d", bits[i]);
-+			j += scnprintf(buf + j, buflen - j,  " %d", bits[i]);
- 
- 	buf[j] = '\0'; /* necessary when j == 0 */
+ 	stat_dir = tracefs_create_dir("trace_stat", d_tracing);
+-	if (!stat_dir)
++	if (!stat_dir) {
+ 		pr_warn("Could not create tracefs 'trace_stat' entry\n");
++		return -ENOMEM;
++	}
+ 	return 0;
  }
---- a/sound/pci/hda/hda_eld.c
-+++ b/sound/pci/hda/hda_eld.c
-@@ -373,7 +373,7 @@ static void hdmi_print_pcm_rates(int pcm
  
- 	for (i = 0, j = 0; i < ARRAY_SIZE(alsa_rates); i++)
- 		if (pcm & (1 << i))
--			j += snprintf(buf + j, buflen - j,  " %d",
-+			j += scnprintf(buf + j, buflen - j,  " %d",
- 				alsa_rates[i]);
+ static int init_stat_file(struct stat_session *session)
+ {
+-	if (!stat_dir && tracing_stat_init())
+-		return -ENODEV;
++	int ret;
++
++	if (!stat_dir && (ret = tracing_stat_init()))
++		return ret;
  
- 	buf[j] = '\0'; /* necessary when j == 0 */
---- a/sound/pci/hda/hda_sysfs.c
-+++ b/sound/pci/hda/hda_sysfs.c
-@@ -221,7 +221,7 @@ static ssize_t init_verbs_show(struct de
- 	mutex_lock(&codec->user_mutex);
- 	for (i = 0; i < codec->init_verbs.used; i++) {
- 		struct hda_verb *v = snd_array_elem(&codec->init_verbs, i);
--		len += snprintf(buf + len, PAGE_SIZE - len,
-+		len += scnprintf(buf + len, PAGE_SIZE - len,
- 				"0x%02x 0x%03x 0x%04x\n",
- 				v->nid, v->verb, v->param);
- 	}
-@@ -271,7 +271,7 @@ static ssize_t hints_show(struct device
- 	mutex_lock(&codec->user_mutex);
- 	for (i = 0; i < codec->hints.used; i++) {
- 		struct hda_hint *hint = snd_array_elem(&codec->hints, i);
--		len += snprintf(buf + len, PAGE_SIZE - len,
-+		len += scnprintf(buf + len, PAGE_SIZE - len,
- 				"%s = %s\n", hint->key, hint->val);
- 	}
- 	mutex_unlock(&codec->user_mutex);
+ 	session->file = tracefs_create_file(session->ts->name, 0644,
+ 					    stat_dir,
+-- 
+2.20.1
+
 
 
