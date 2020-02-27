@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B11CB171E88
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:29:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C92C171B5B
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:02:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387990AbgB0OGu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 09:06:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44122 "EHLO mail.kernel.org"
+        id S1732650AbgB0OBl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 09:01:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35870 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733251AbgB0OGu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 09:06:50 -0500
+        id S1732975AbgB0OBl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 09:01:41 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3601620801;
-        Thu, 27 Feb 2020 14:06:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2438920801;
+        Thu, 27 Feb 2020 14:01:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582812409;
-        bh=SG+w3XEZEe1qhjFJHmDkXqxudXX4yoxpPZ91qTpBJyo=;
+        s=default; t=1582812100;
+        bh=+fF5vxh02ltK3ValIuglPLTNYmGZE0zXdwY9RF3Ur7E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J6Ml0PMuyIHPgMzS6n29aeaZdxhdx/CIzG/Ayh59spKAcCueOZqMD6CSAXBM7vz+k
-         NYlVgWKqxT7PbrzrqxzcJRJ8auzKv9ZYaobwWepi4y/7fWuP9zcZ/FnSEm6CqnVvJ1
-         Rzwy2qWkXNkp5XoHYy8cFVinDlMI618VNs8XNNXQ=
+        b=VRq+l4h6afJmyinv3Wuh06yIIPT9bZs5K7gAh2RwJGy0KPo0TcskkuqqAMoQuCvhZ
+         lRAQJVWRMkvaAdq+luQfjI6v19w2t95RB6F8/MXaTNceW4NO34ME6s2cIvA+ElfPsj
+         SN0eTQh9ma1nf4ZowO4VFdL7XyVCtdbAOlFIeJLg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jan Kara <jack@suse.cz>,
-        Theodore Tso <tytso@mit.edu>, stable@kernel.org
-Subject: [PATCH 4.19 68/97] ext4: fix mount failure with quota configured as module
+        stable@vger.kernel.org, Qu Wenruo <wqu@suse.com>,
+        Josef Bacik <josef@toxicpanda.com>,
+        Filipe Manana <fdmanana@suse.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 4.14 222/237] Btrfs: fix btrfs_wait_ordered_range() so that it waits for all ordered extents
 Date:   Thu, 27 Feb 2020 14:37:16 +0100
-Message-Id: <20200227132225.574960751@linuxfoundation.org>
+Message-Id: <20200227132312.480674167@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200227132214.553656188@linuxfoundation.org>
-References: <20200227132214.553656188@linuxfoundation.org>
+In-Reply-To: <20200227132255.285644406@linuxfoundation.org>
+References: <20200227132255.285644406@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,36 +45,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Filipe Manana <fdmanana@suse.com>
 
-commit 9db176bceb5c5df4990486709da386edadc6bd1d upstream.
+commit e75fd33b3f744f644061a4f9662bd63f5434f806 upstream.
 
-When CONFIG_QFMT_V2 is configured as a module, the test in
-ext4_feature_set_ok() fails and so mount of filesystems with quota or
-project features fails. Fix the test to use IS_ENABLED macro which
-works properly even for modules.
+In btrfs_wait_ordered_range() once we find an ordered extent that has
+finished with an error we exit the loop and don't wait for any other
+ordered extents that might be still in progress.
 
-Link: https://lore.kernel.org/r/20200221100835.9332-1-jack@suse.cz
-Fixes: d65d87a07476 ("ext4: improve explanation of a mount failure caused by a misconfigured kernel")
-Signed-off-by: Jan Kara <jack@suse.cz>
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Cc: stable@kernel.org
+All the users of btrfs_wait_ordered_range() expect that there are no more
+ordered extents in progress after that function returns. So past fixes
+such like the ones from the two following commits:
+
+  ff612ba7849964 ("btrfs: fix panic during relocation after ENOSPC before
+                   writeback happens")
+
+  28aeeac1dd3080 ("Btrfs: fix panic when starting bg cache writeout after
+                   IO error")
+
+don't work when there are multiple ordered extents in the range.
+
+Fix that by making btrfs_wait_ordered_range() wait for all ordered extents
+even after it finds one that had an error.
+
+Link: https://github.com/kdave/btrfs-progs/issues/228#issuecomment-569777554
+CC: stable@vger.kernel.org # 4.4+
+Reviewed-by: Qu Wenruo <wqu@suse.com>
+Reviewed-by: Josef Bacik <josef@toxicpanda.com>
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/ext4/super.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/btrfs/ordered-data.c |    7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
---- a/fs/ext4/super.c
-+++ b/fs/ext4/super.c
-@@ -2948,7 +2948,7 @@ static int ext4_feature_set_ok(struct su
- 		return 0;
+--- a/fs/btrfs/ordered-data.c
++++ b/fs/btrfs/ordered-data.c
+@@ -838,10 +838,15 @@ int btrfs_wait_ordered_range(struct inod
+ 		}
+ 		btrfs_start_ordered_extent(inode, ordered, 1);
+ 		end = ordered->file_offset;
++		/*
++		 * If the ordered extent had an error save the error but don't
++		 * exit without waiting first for all other ordered extents in
++		 * the range to complete.
++		 */
+ 		if (test_bit(BTRFS_ORDERED_IOERR, &ordered->flags))
+ 			ret = -EIO;
+ 		btrfs_put_ordered_extent(ordered);
+-		if (ret || end == 0 || end == start)
++		if (end == 0 || end == start)
+ 			break;
+ 		end--;
  	}
- 
--#if !defined(CONFIG_QUOTA) || !defined(CONFIG_QFMT_V2)
-+#if !IS_ENABLED(CONFIG_QUOTA) || !IS_ENABLED(CONFIG_QFMT_V2)
- 	if (!readonly && (ext4_has_feature_quota(sb) ||
- 			  ext4_has_feature_project(sb))) {
- 		ext4_msg(sb, KERN_ERR,
 
 
