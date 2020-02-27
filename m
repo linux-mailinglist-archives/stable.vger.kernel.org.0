@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DBAAB17193A
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 14:43:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A77CF171B1F
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 14:59:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729897AbgB0NnF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 08:43:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38196 "EHLO mail.kernel.org"
+        id S1730146AbgB0N7n (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 08:59:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:32916 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729580AbgB0NnE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 08:43:04 -0500
+        id S1732633AbgB0N7m (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 08:59:42 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E52A020726;
-        Thu, 27 Feb 2020 13:43:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7DB4B20578;
+        Thu, 27 Feb 2020 13:59:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582810984;
-        bh=IEqL5xJdvkCDBxzC/BErSDTVMFN7oI3hvjjONr0p9Tw=;
+        s=default; t=1582811982;
+        bh=S0yGJG0Id9N1yY6MyKdC5gdWa6cxWpV1/yYUVgykXEg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m7r6GJI2m/q861am+/PTQ4S6EU+5gsHzVepu6/noGOz7aAd7ugIA2S1BdjGXvtfZH
-         pizRB6pk8pyyySJYlcPXhAxIjuhUUSViuH+RROBgwA196Fiphgn7ulfvJCMzWWK4sm
-         fvfj7N+M6ZVOCWksQtw3iwj0RFyDJU3UOgvRxGIg=
+        b=V0ydJYk59tHvBowLVopOmnkmiJbX/haxgz205dzK6dZZPJI2WJ0Ebqkk0RhuO4WXR
+         cBxEyIMW+iPeC1HvoSIsbwWCMpcxjmFSxjabKTL7dBIiJRLQnWssaHil4rKDh/SBSo
+         xqoRsgjdEfTZ6oIC7567Op7wh2MxvpGCWTHr2qHQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ben Skeggs <bskeggs@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 073/113] drm/nouveau/disp/nv50-: prevent oops when no channel method map provided
-Date:   Thu, 27 Feb 2020 14:36:29 +0100
-Message-Id: <20200227132223.480230801@linuxfoundation.org>
+        stable@vger.kernel.org, Jordy Zomer <jordy@simplyhacker.com>,
+        Willy Tarreau <w@1wt.eu>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.14 176/237] floppy: check FDC index for errors before assigning it
+Date:   Thu, 27 Feb 2020 14:36:30 +0100
+Message-Id: <20200227132309.349166224@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200227132211.791484803@linuxfoundation.org>
-References: <20200227132211.791484803@linuxfoundation.org>
+In-Reply-To: <20200227132255.285644406@linuxfoundation.org>
+References: <20200227132255.285644406@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,40 +45,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ben Skeggs <bskeggs@redhat.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-[ Upstream commit 0e6176c6d286316e9431b4f695940cfac4ffe6c2 ]
+commit 2e90ca68b0d2f5548804f22f0dd61145516171e3 upstream.
 
-The implementations for most channel types contains a map of methods to
-priv registers in order to provide debugging info when a disp exception
-has been raised.
+Jordy Zomer reported a KASAN out-of-bounds read in the floppy driver in
+wait_til_ready().
 
-This info is missing from the implementation of PIO channels as they're
-rather simplistic already, however, if an exception is raised by one of
-them, we'd end up triggering a NULL-pointer deref.  Not ideal...
+Which on the face of it can't happen, since as Willy Tarreau points out,
+the function does no particular memory access.  Except through the FDCS
+macro, which just indexes a static allocation through teh current fdc,
+which is always checked against N_FDC.
 
-Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=206299
-Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Except the checking happens after we've already assigned the value.
+
+The floppy driver is a disgrace (a lot of it going back to my original
+horrd "design"), and has no real maintainer.  Nobody has the hardware,
+and nobody really cares.  But it still gets used in virtual environment
+because it's one of those things that everybody supports.
+
+The whole thing should be re-written, or at least parts of it should be
+seriously cleaned up.  The 'current fdc' index, which is used by the
+FDCS macro, and which is often shadowed by a local 'fdc' variable, is a
+prime example of how not to write code.
+
+But because nobody has the hardware or the motivation, let's just fix up
+the immediate problem with a nasty band-aid: test the fdc index before
+actually assigning it to the static 'fdc' variable.
+
+Reported-by: Jordy Zomer <jordy@simplyhacker.com>
+Cc: Willy Tarreau <w@1wt.eu>
+Cc: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/gpu/drm/nouveau/nvkm/engine/disp/channv50.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/block/floppy.c |    7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/nouveau/nvkm/engine/disp/channv50.c b/drivers/gpu/drm/nouveau/nvkm/engine/disp/channv50.c
-index 01803c0679b68..d012df9fb9df0 100644
---- a/drivers/gpu/drm/nouveau/nvkm/engine/disp/channv50.c
-+++ b/drivers/gpu/drm/nouveau/nvkm/engine/disp/channv50.c
-@@ -72,6 +72,8 @@ nv50_disp_chan_mthd(struct nv50_disp_chan *chan, int debug)
- 
- 	if (debug > subdev->debug)
+--- a/drivers/block/floppy.c
++++ b/drivers/block/floppy.c
+@@ -848,14 +848,17 @@ static void reset_fdc_info(int mode)
+ /* selects the fdc and drive, and enables the fdc's input/dma. */
+ static void set_fdc(int drive)
+ {
++	unsigned int new_fdc = fdc;
++
+ 	if (drive >= 0 && drive < N_DRIVE) {
+-		fdc = FDC(drive);
++		new_fdc = FDC(drive);
+ 		current_drive = drive;
+ 	}
+-	if (fdc != 1 && fdc != 0) {
++	if (new_fdc >= N_FDC) {
+ 		pr_info("bad fdc value\n");
  		return;
-+	if (!mthd)
-+		return;
- 
- 	for (i = 0; (list = mthd->data[i].mthd) != NULL; i++) {
- 		u32 base = chan->head * mthd->addr;
--- 
-2.20.1
-
+ 	}
++	fdc = new_fdc;
+ 	set_dor(fdc, ~0, 8);
+ #if N_FDC > 1
+ 	set_dor(1 - fdc, ~8, 0);
 
 
