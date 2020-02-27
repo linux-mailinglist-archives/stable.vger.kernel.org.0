@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D8EE7171CC8
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:15:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C81AB171CCA
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:15:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389251AbgB0OPJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 09:15:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54696 "EHLO mail.kernel.org"
+        id S2389260AbgB0OPN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 09:15:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54752 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389245AbgB0OPJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 09:15:09 -0500
+        id S2389258AbgB0OPM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 09:15:12 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8D88F20801;
-        Thu, 27 Feb 2020 14:15:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F1F5B20801;
+        Thu, 27 Feb 2020 14:15:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582812909;
-        bh=NjFPG8xSrKgimw87UF2CW1b5ud1z43xOcu4dU/Mnkqc=;
+        s=default; t=1582812911;
+        bh=evF/NFjY1s7IY6EJgZeQWXpsFLeu01Fl+Ck86HHRJlk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eKMNgZwuDb+fyJ/AxJ6ujoO1NT7iKn8Ux+4LHgq9ihfDwtTaWIRBmW1+jnk5OjT1E
-         juN0dbpw6DKx2iWqJBOyhvWmTOiEI+NJXvMTKLueO7edPnXwuYkReazLlf5y0/Wue7
-         xrGnmDtFapX6Gz7bSH8oIrxZDTesIZXg8MZOLcOM=
+        b=JkFuJuTX7mIimi9Eiigis9pHwAA7NAZ6lg4v2af8SwykLnNkbRupyquKVCwMfaQUs
+         wDBazwM2lAPmFWPfHyfYdjI1YSpQVpg8p1/OfqkoZGbhOcmjp0JCSHpR8uuAJ2PQRk
+         MUoBPOG1F9gOWOPaXTR8kxyydMfejqdXGrbuaDrE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiri Slaby <jslaby@suse.cz>
-Subject: [PATCH 5.5 026/150] vt: selection, handle pending signals in paste_selection
-Date:   Thu, 27 Feb 2020 14:36:03 +0100
-Message-Id: <20200227132236.708097011@linuxfoundation.org>
+        stable@vger.kernel.org, Jiri Slaby <jslaby@suse.cz>,
+        syzbot+59997e8d5cbdc486e6f6@syzkaller.appspotmail.com
+Subject: [PATCH 5.5 027/150] vt: selection, close sel_buffer race
+Date:   Thu, 27 Feb 2020 14:36:04 +0100
+Message-Id: <20200227132236.840520753@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200227132232.815448360@linuxfoundation.org>
 References: <20200227132232.815448360@linuxfoundation.org>
@@ -44,71 +45,152 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jiri Slaby <jslaby@suse.cz>
 
-commit 687bff0cd08f790d540cfb7b2349f0d876cdddec upstream.
+commit 07e6124a1a46b4b5a9b3cacc0c306b50da87abf5 upstream.
 
-When pasting a selection to a vt, the task is set as INTERRUPTIBLE while
-waiting for a tty to unthrottle. But signals are not handled at all.
-Normally, this is not a problem as tty_ldisc_receive_buf receives all
-the goods and a user has no reason to interrupt the task.
+syzkaller reported this UAF:
+BUG: KASAN: use-after-free in n_tty_receive_buf_common+0x2481/0x2940 drivers/tty/n_tty.c:1741
+Read of size 1 at addr ffff8880089e40e9 by task syz-executor.1/13184
 
-There are two scenarios where this matters:
-1) when the tty is throttled and a signal is sent to the process, it
-   spins on a CPU until the tty is unthrottled. schedule() does not
-   really echedule, but returns immediately, of course.
-2) when the sel_buffer becomes invalid, KASAN prevents any reads from it
-   and the loop simply does not proceed and spins forever (causing the
-   tty to throttle, but the code never sleeps, the same as above). This
-   sometimes happens as there is a race in the sel_buffer handling code.
+CPU: 0 PID: 13184 Comm: syz-executor.1 Not tainted 5.4.7 #1
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.12.0-1 04/01/2014
+Call Trace:
+...
+ kasan_report+0xe/0x20 mm/kasan/common.c:634
+ n_tty_receive_buf_common+0x2481/0x2940 drivers/tty/n_tty.c:1741
+ tty_ldisc_receive_buf+0xac/0x190 drivers/tty/tty_buffer.c:461
+ paste_selection+0x297/0x400 drivers/tty/vt/selection.c:372
+ tioclinux+0x20d/0x4e0 drivers/tty/vt/vt.c:3044
+ vt_ioctl+0x1bcf/0x28d0 drivers/tty/vt/vt_ioctl.c:364
+ tty_ioctl+0x525/0x15a0 drivers/tty/tty_io.c:2657
+ vfs_ioctl fs/ioctl.c:47 [inline]
 
-So add signal handling to this ioctl (TIOCL_PASTESEL) and return -EINTR
-in case a signal is pending.
+It is due to a race between parallel paste_selection (TIOCL_PASTESEL)
+and set_selection_user (TIOCL_SETSEL) invocations. One uses sel_buffer,
+while the other frees it and reallocates a new one for another
+selection. Add a mutex to close this race.
+
+The mutex takes care properly of sel_buffer and sel_buffer_lth only. The
+other selection global variables (like sel_start, sel_end, and sel_cons)
+are protected only in set_selection_user. The other functions need quite
+some more work to close the races of the variables there. This is going
+to happen later.
+
+This likely fixes (I am unsure as there is no reproducer provided) bug
+206361 too. It was marked as CVE-2020-8648.
 
 Signed-off-by: Jiri Slaby <jslaby@suse.cz>
+Reported-by: syzbot+59997e8d5cbdc486e6f6@syzkaller.appspotmail.com
 Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200210081131.23572-1-jslaby@suse.cz
+Link: https://lore.kernel.org/r/20200210081131.23572-2-jslaby@suse.cz
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/tty/vt/selection.c |    9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ drivers/tty/vt/selection.c |   23 +++++++++++++++++------
+ 1 file changed, 17 insertions(+), 6 deletions(-)
 
 --- a/drivers/tty/vt/selection.c
 +++ b/drivers/tty/vt/selection.c
-@@ -29,6 +29,8 @@
- #include <linux/console.h>
- #include <linux/tty_flip.h>
+@@ -16,6 +16,7 @@
+ #include <linux/tty.h>
+ #include <linux/sched.h>
+ #include <linux/mm.h>
++#include <linux/mutex.h>
+ #include <linux/slab.h>
+ #include <linux/types.h>
  
-+#include <linux/sched/signal.h>
-+
- /* Don't take this from <ctype.h>: 011-015 on the screen aren't spaces */
- #define isspace(c)	((c) == ' ')
+@@ -45,6 +46,7 @@ static volatile int sel_start = -1; 	/*
+ static int sel_end;
+ static int sel_buffer_lth;
+ static char *sel_buffer;
++static DEFINE_MUTEX(sel_lock);
  
-@@ -350,6 +352,7 @@ int paste_selection(struct tty_struct *t
- 	unsigned int count;
- 	struct  tty_ldisc *ld;
- 	DECLARE_WAITQUEUE(wait, current);
-+	int ret = 0;
+ /* clear_selection, highlight and highlight_pointer can be called
+    from interrupt (via scrollback/front) */
+@@ -186,7 +188,7 @@ int set_selection_kernel(struct tiocl_se
+ 	char *bp, *obp;
+ 	int i, ps, pe, multiplier;
+ 	u32 c;
+-	int mode;
++	int mode, ret = 0;
  
- 	console_lock();
  	poke_blanked_console();
-@@ -363,6 +366,10 @@ int paste_selection(struct tty_struct *t
- 	add_wait_queue(&vc->paste_wait, &wait);
- 	while (sel_buffer && sel_buffer_lth > pasted) {
- 		set_current_state(TASK_INTERRUPTIBLE);
-+		if (signal_pending(current)) {
-+			ret = -EINTR;
-+			break;
-+		}
- 		if (tty_throttled(tty)) {
- 			schedule();
- 			continue;
-@@ -378,6 +385,6 @@ int paste_selection(struct tty_struct *t
  
- 	tty_buffer_unlock_exclusive(&vc->port);
- 	tty_ldisc_deref(ld);
+@@ -212,6 +214,7 @@ int set_selection_kernel(struct tiocl_se
+ 	if (ps > pe)	/* make sel_start <= sel_end */
+ 		swap(ps, pe);
+ 
++	mutex_lock(&sel_lock);
+ 	if (sel_cons != vc_cons[fg_console].d) {
+ 		clear_selection();
+ 		sel_cons = vc_cons[fg_console].d;
+@@ -257,9 +260,10 @@ int set_selection_kernel(struct tiocl_se
+ 			break;
+ 		case TIOCL_SELPOINTER:
+ 			highlight_pointer(pe);
+-			return 0;
++			goto unlock;
+ 		default:
+-			return -EINVAL;
++			ret = -EINVAL;
++			goto unlock;
+ 	}
+ 
+ 	/* remove the pointer */
+@@ -281,7 +285,7 @@ int set_selection_kernel(struct tiocl_se
+ 	else if (new_sel_start == sel_start)
+ 	{
+ 		if (new_sel_end == sel_end)	/* no action required */
+-			return 0;
++			goto unlock;
+ 		else if (new_sel_end > sel_end)	/* extend to right */
+ 			highlight(sel_end + 2, new_sel_end);
+ 		else				/* contract from right */
+@@ -309,7 +313,8 @@ int set_selection_kernel(struct tiocl_se
+ 	if (!bp) {
+ 		printk(KERN_WARNING "selection: kmalloc() failed\n");
+ 		clear_selection();
+-		return -ENOMEM;
++		ret = -ENOMEM;
++		goto unlock;
+ 	}
+ 	kfree(sel_buffer);
+ 	sel_buffer = bp;
+@@ -334,7 +339,9 @@ int set_selection_kernel(struct tiocl_se
+ 		}
+ 	}
+ 	sel_buffer_lth = bp - sel_buffer;
 -	return 0;
++unlock:
++	mutex_unlock(&sel_lock);
 +	return ret;
  }
- EXPORT_SYMBOL_GPL(paste_selection);
+ EXPORT_SYMBOL_GPL(set_selection_kernel);
+ 
+@@ -364,6 +371,7 @@ int paste_selection(struct tty_struct *t
+ 	tty_buffer_lock_exclusive(&vc->port);
+ 
+ 	add_wait_queue(&vc->paste_wait, &wait);
++	mutex_lock(&sel_lock);
+ 	while (sel_buffer && sel_buffer_lth > pasted) {
+ 		set_current_state(TASK_INTERRUPTIBLE);
+ 		if (signal_pending(current)) {
+@@ -371,7 +379,9 @@ int paste_selection(struct tty_struct *t
+ 			break;
+ 		}
+ 		if (tty_throttled(tty)) {
++			mutex_unlock(&sel_lock);
+ 			schedule();
++			mutex_lock(&sel_lock);
+ 			continue;
+ 		}
+ 		__set_current_state(TASK_RUNNING);
+@@ -380,6 +390,7 @@ int paste_selection(struct tty_struct *t
+ 					      count);
+ 		pasted += count;
+ 	}
++	mutex_unlock(&sel_lock);
+ 	remove_wait_queue(&vc->paste_wait, &wait);
+ 	__set_current_state(TASK_RUNNING);
+ 
 
 
