@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 98792171B9B
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:04:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2FD0A171C52
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:11:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387503AbgB0OD6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 09:03:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39756 "EHLO mail.kernel.org"
+        id S2388639AbgB0OLG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 09:11:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49398 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730232AbgB0OD5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 09:03:57 -0500
+        id S2388620AbgB0OLF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 09:11:05 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B2F8B21D7E;
-        Thu, 27 Feb 2020 14:03:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D20C6246A9;
+        Thu, 27 Feb 2020 14:11:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582812237;
-        bh=+TFOXBk75S8bLqdzidN0IZTgL72Fo3EFA7peJq32h5s=;
+        s=default; t=1582812664;
+        bh=x0dEELmNZAG8RaLNGfeiqpBGNqG0RcdRf9EJzV0JgyI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JUaJG7ejud+R5ir549L1Ep6jtBQvOIy5knAN+VSJBBDCXlJqsK/o7ElrahqV2SDAx
-         6SxpwV1BAR8NRcUGw/lAAgZ0/ZrAZHRISD+mlSaoPveFylt4Oe9Wx832TOR/4evcsZ
-         b3sRFkJGVlbEq5UR8jVsjii+JlCTe+y+W+1+YGvA=
+        b=Va+4TQ+ecCME0HWSBV9Xi5NDkOic2GflZxXW+RSBHE5n7XxzctCzlVxZbgCJimXy6
+         +5nvzUZdYBO+sbTQL4PhKzjxuof6bWWnobD/D6jHl4Bwyo7zwUq0k6LaIIbqOl/Q8x
+         H0J1A+/M9RonP4Uy/2PsI87r2W0Bg0xlp6RiVgfc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-        Borislav Petkov <bp@suse.de>
-Subject: [PATCH 4.19 38/97] x86/mce/amd: Fix kobject lifetime
+        stable@vger.kernel.org, Gavin Shan <gshan@redhat.com>,
+        Roman Gushchin <guro@fb.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.4 066/135] mm/vmscan.c: dont round up scan size for online memory cgroup
 Date:   Thu, 27 Feb 2020 14:36:46 +0100
-Message-Id: <20200227132220.767800679@linuxfoundation.org>
+Message-Id: <20200227132239.142582271@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200227132214.553656188@linuxfoundation.org>
-References: <20200227132214.553656188@linuxfoundation.org>
+In-Reply-To: <20200227132228.710492098@linuxfoundation.org>
+References: <20200227132228.710492098@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,87 +45,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+From: Gavin Shan <gshan@redhat.com>
 
-commit 51dede9c05df2b78acd6dcf6a17d21f0877d2d7b upstream.
+commit 76073c646f5f4999d763f471df9e38a5a912d70d upstream.
 
-Accessing the MCA thresholding controls in sysfs concurrently with CPU
-hotplug can lead to a couple of KASAN-reported issues:
+Commit 68600f623d69 ("mm: don't miss the last page because of round-off
+error") makes the scan size round up to @denominator regardless of the
+memory cgroup's state, online or offline.  This affects the overall
+reclaiming behavior: the corresponding LRU list is eligible for
+reclaiming only when its size logically right shifted by @sc->priority
+is bigger than zero in the former formula.
 
-  BUG: KASAN: use-after-free in sysfs_file_ops+0x155/0x180
-  Read of size 8 at addr ffff888367578940 by task grep/4019
+For example, the inactive anonymous LRU list should have at least 0x4000
+pages to be eligible for reclaiming when we have 60/12 for
+swappiness/priority and without taking scan/rotation ratio into account.
 
-and
+After the roundup is applied, the inactive anonymous LRU list becomes
+eligible for reclaiming when its size is bigger than or equal to 0x1000
+in the same condition.
 
-  BUG: KASAN: use-after-free in show_error_count+0x15c/0x180
-  Read of size 2 at addr ffff888368a05514 by task grep/4454
+    (0x4000 >> 12) * 60 / (60 + 140 + 1) = 1
+    ((0x1000 >> 12) * 60) + 200) / (60 + 140 + 1) = 1
 
-for example. Both result from the fact that the threshold block
-creation/teardown code frees the descriptor memory itself instead of
-defining proper ->release function and leaving it to the driver core to
-take care of that, after all sysfs accesses have completed.
+aarch64 has 512MB huge page size when the base page size is 64KB.  The
+memory cgroup that has a huge page is always eligible for reclaiming in
+that case.
 
-Do that and get rid of the custom freeing code, fixing the above UAFs in
-the process.
+The reclaiming is likely to stop after the huge page is reclaimed,
+meaing the further iteration on @sc->priority and the silbing and child
+memory cgroups will be skipped.  The overall behaviour has been changed.
+This fixes the issue by applying the roundup to offlined memory cgroups
+only, to give more preference to reclaim memory from offlined memory
+cgroup.  It sounds reasonable as those memory is unlikedly to be used by
+anyone.
 
-  [ bp: write commit message. ]
+The issue was found by starting up 8 VMs on a Ampere Mustang machine,
+which has 8 CPUs and 16 GB memory.  Each VM is given with 2 vCPUs and
+2GB memory.  It took 264 seconds for all VMs to be completely up and
+784MB swap is consumed after that.  With this patch applied, it took 236
+seconds and 60MB swap to do same thing.  So there is 10% performance
+improvement for my case.  Note that KSM is disable while THP is enabled
+in the testing.
 
-Fixes: 95268664390b ("[PATCH] x86_64: mce_amd support for family 0x10 processors")
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Cc: <stable@vger.kernel.org>
-Link: https://lkml.kernel.org/r/20200214082801.13836-1-bp@alien8.de
+         total     used    free   shared  buff/cache   available
+   Mem:  16196    10065    2049       16        4081        3749
+   Swap:  8175      784    7391
+         total     used    free   shared  buff/cache   available
+   Mem:  16196    11324    3656       24        1215        2936
+   Swap:  8175       60    8115
+
+Link: http://lkml.kernel.org/r/20200211024514.8730-1-gshan@redhat.com
+Fixes: 68600f623d69 ("mm: don't miss the last page because of round-off error")
+Signed-off-by: Gavin Shan <gshan@redhat.com>
+Acked-by: Roman Gushchin <guro@fb.com>
+Cc: <stable@vger.kernel.org>	[4.20+]
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/kernel/cpu/mcheck/mce_amd.c |   17 +++++++++++------
- 1 file changed, 11 insertions(+), 6 deletions(-)
+ mm/vmscan.c |    9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
---- a/arch/x86/kernel/cpu/mcheck/mce_amd.c
-+++ b/arch/x86/kernel/cpu/mcheck/mce_amd.c
-@@ -1117,9 +1117,12 @@ static const struct sysfs_ops threshold_
- 	.store			= store,
- };
- 
-+static void threshold_block_release(struct kobject *kobj);
-+
- static struct kobj_type threshold_ktype = {
- 	.sysfs_ops		= &threshold_ops,
- 	.default_attrs		= default_attrs,
-+	.release		= threshold_block_release,
- };
- 
- static const char *get_name(unsigned int bank, struct threshold_block *b)
-@@ -1321,8 +1324,12 @@ static int threshold_create_bank(unsigne
- 	return err;
- }
- 
--static void deallocate_threshold_block(unsigned int cpu,
--						 unsigned int bank)
-+static void threshold_block_release(struct kobject *kobj)
-+{
-+	kfree(to_block(kobj));
-+}
-+
-+static void deallocate_threshold_block(unsigned int cpu, unsigned int bank)
- {
- 	struct threshold_block *pos = NULL;
- 	struct threshold_block *tmp = NULL;
-@@ -1332,13 +1339,11 @@ static void deallocate_threshold_block(u
- 		return;
- 
- 	list_for_each_entry_safe(pos, tmp, &head->blocks->miscj, miscj) {
--		kobject_put(&pos->kobj);
- 		list_del(&pos->miscj);
--		kfree(pos);
-+		kobject_put(&pos->kobj);
- 	}
- 
--	kfree(per_cpu(threshold_banks, cpu)[bank]->blocks);
--	per_cpu(threshold_banks, cpu)[bank]->blocks = NULL;
-+	kobject_put(&head->blocks->kobj);
- }
- 
- static void __threshold_remove_blocks(struct threshold_bank *b)
+--- a/mm/vmscan.c
++++ b/mm/vmscan.c
+@@ -2530,10 +2530,13 @@ out:
+ 			/*
+ 			 * Scan types proportional to swappiness and
+ 			 * their relative recent reclaim efficiency.
+-			 * Make sure we don't miss the last page
+-			 * because of a round-off error.
++			 * Make sure we don't miss the last page on
++			 * the offlined memory cgroups because of a
++			 * round-off error.
+ 			 */
+-			scan = DIV64_U64_ROUND_UP(scan * fraction[file],
++			scan = mem_cgroup_online(memcg) ?
++			       div64_u64(scan * fraction[file], denominator) :
++			       DIV64_U64_ROUND_UP(scan * fraction[file],
+ 						  denominator);
+ 			break;
+ 		case SCAN_FILE:
 
 
