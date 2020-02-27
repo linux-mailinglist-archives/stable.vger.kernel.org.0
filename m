@@ -2,39 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F5C3172051
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:42:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C637417216E
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:49:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731257AbgB0Nuh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 08:50:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48872 "EHLO mail.kernel.org"
+        id S1729915AbgB0Osz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 09:48:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37080 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731254AbgB0Nug (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 08:50:36 -0500
+        id S1729254AbgB0NmM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 08:42:12 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5D69C20578;
-        Thu, 27 Feb 2020 13:50:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1E3AC20726;
+        Thu, 27 Feb 2020 13:42:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582811435;
-        bh=boCaJ9AjUkm8HQ1bECcY0cYl3TSL6GThXcOQvvRZlhA=;
+        s=default; t=1582810930;
+        bh=WfLUugpGPKXn/iHU2isoZ0mKXtTg4eIb74duBSFyh0I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=c6tSug40LnuCIFpNugHcXlnTYKYQY8PefaHaSeZBb2ZPgdYlttnrENJaQgDv1hrtd
-         Y/wtB8P8zYxme9dQr91O3Cqmx7xxwjU7GQC21f6msddBP3qwgOPDKcbJHrK8GbnfF/
-         gA/6bnSnB09oN/9xWwgLfFwAbZAJTQVsjiG1EDBk=
+        b=KN47diZ6H4cvrVoF3kO1QlgyLpmDCYtRC/Z5xMlN/Onf48gHvxfKNQWQ0cC90K5mL
+         WZSJSuBUYJemmlw3Tg9FpkwAemdDloKhP6zIkNZy96o5Bs3rY6amyPe3msA11OY6QZ
+         wIhvgZcEn8feQeo//BPw3VJsghTaUrOiw7WGJwGI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        stable@vger.kernel.org,
+        Andrey Zhizhikin <andrey.zhizhikin@leica-geosystems.com>,
+        Petr Mladek <pmladek@suse.com>, Jiri Olsa <jolsa@kernel.org>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Andrii Nakryiko <andriin@fb.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Kefeng Wang <wangkefeng.wang@huawei.com>,
+        Martin KaFai Lau <kafai@fb.com>,
+        Sergey Senozhatsky <sergey.senozhatsky@gmail.com>,
+        Song Liu <songliubraving@fb.com>, Yonghong Song <yhs@fb.com>,
+        bpf@vger.kernel.org, netdev@vger.kernel.org,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 093/165] driver core: platform: fix u32 greater or equal to zero comparison
+Subject: [PATCH 4.4 051/113] tools lib api fs: Fix gcc9 stringop-truncation compilation error
 Date:   Thu, 27 Feb 2020 14:36:07 +0100
-Message-Id: <20200227132244.897097243@linuxfoundation.org>
+Message-Id: <20200227132219.917375247@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200227132230.840899170@linuxfoundation.org>
-References: <20200227132230.840899170@linuxfoundation.org>
+In-Reply-To: <20200227132211.791484803@linuxfoundation.org>
+References: <20200227132211.791484803@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,39 +54,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Andrey Zhizhikin <andrey.z@gmail.com>
 
-[ Upstream commit 0707cfa5c3ef58effb143db9db6d6e20503f9dec ]
+[ Upstream commit 6794200fa3c9c3e6759dae099145f23e4310f4f7 ]
 
-Currently the check that a u32 variable i is >= 0 is always true because
-the unsigned variable will never be negative, causing the loop to run
-forever.  Fix this by changing the pre-decrement check to a zero check on
-i followed by a decrement of i.
+GCC9 introduced string hardening mechanisms, which exhibits the error
+during fs api compilation:
 
-Addresses-Coverity: ("Unsigned compared against 0")
-Fixes: 39cc539f90d0 ("driver core: platform: Prevent resouce overflow from causing infinite loops")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Reviewed-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Link: https://lore.kernel.org/r/20200116175758.88396-1-colin.king@canonical.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+error: '__builtin_strncpy' specified bound 4096 equals destination size
+[-Werror=stringop-truncation]
+
+This comes when the length of copy passed to strncpy is is equal to
+destination size, which could potentially lead to buffer overflow.
+
+There is a need to mitigate this potential issue by limiting the size of
+destination by 1 and explicitly terminate the destination with NULL.
+
+Signed-off-by: Andrey Zhizhikin <andrey.zhizhikin@leica-geosystems.com>
+Reviewed-by: Petr Mladek <pmladek@suse.com>
+Acked-by: Jiri Olsa <jolsa@kernel.org>
+Cc: Alexei Starovoitov <ast@kernel.org>
+Cc: Andrii Nakryiko <andriin@fb.com>
+Cc: Daniel Borkmann <daniel@iogearbox.net>
+Cc: Kefeng Wang <wangkefeng.wang@huawei.com>
+Cc: Martin KaFai Lau <kafai@fb.com>
+Cc: Petr Mladek <pmladek@suse.com>
+Cc: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
+Cc: Song Liu <songliubraving@fb.com>
+Cc: Yonghong Song <yhs@fb.com>
+Cc: bpf@vger.kernel.org
+Cc: netdev@vger.kernel.org
+Link: http://lore.kernel.org/lkml/20191211080109.18765-1-andrey.zhizhikin@leica-geosystems.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/base/platform.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/lib/api/fs/fs.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/base/platform.c b/drivers/base/platform.c
-index 6cdc198965f5a..bef299ef62276 100644
---- a/drivers/base/platform.c
-+++ b/drivers/base/platform.c
-@@ -418,7 +418,7 @@ int platform_device_add(struct platform_device *pdev)
- 		pdev->id = PLATFORM_DEVID_AUTO;
- 	}
+diff --git a/tools/lib/api/fs/fs.c b/tools/lib/api/fs/fs.c
+index 459599d1b6c41..58f05748dd39e 100644
+--- a/tools/lib/api/fs/fs.c
++++ b/tools/lib/api/fs/fs.c
+@@ -179,6 +179,7 @@ static bool fs__env_override(struct fs *fs)
+ 	size_t name_len = strlen(fs->name);
+ 	/* name + "_PATH" + '\0' */
+ 	char upper_name[name_len + 5 + 1];
++
+ 	memcpy(upper_name, fs->name, name_len);
+ 	mem_toupper(upper_name, name_len);
+ 	strcpy(&upper_name[name_len], "_PATH");
+@@ -188,7 +189,8 @@ static bool fs__env_override(struct fs *fs)
+ 		return false;
  
--	while (--i >= 0) {
-+	while (i--) {
- 		struct resource *r = &pdev->resource[i];
- 		if (r->parent)
- 			release_resource(r);
+ 	fs->found = true;
+-	strncpy(fs->path, override_path, sizeof(fs->path));
++	strncpy(fs->path, override_path, sizeof(fs->path) - 1);
++	fs->path[sizeof(fs->path) - 1] = '\0';
+ 	return true;
+ }
+ 
 -- 
 2.20.1
 
