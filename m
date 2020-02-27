@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 58541171A14
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 14:50:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F08F171B2F
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:00:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731273AbgB0Num (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 08:50:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49076 "EHLO mail.kernel.org"
+        id S1732449AbgB0OAN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 09:00:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33530 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731267AbgB0Nul (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 08:50:41 -0500
+        id S1732706AbgB0OAM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 09:00:12 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3D8FF20578;
-        Thu, 27 Feb 2020 13:50:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7CEF020578;
+        Thu, 27 Feb 2020 14:00:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582811440;
-        bh=zlIvsWLiIu2vHHDXgrNOvGC1i/J5RK5KM6PJcVaUzck=;
+        s=default; t=1582812011;
+        bh=I71bFMVkIS7ceq415PaCeA1YHheX0pdWEGyBcryD1ew=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IcfnajvQIpH59qeXKZBxazREgxT49vz8k3ZRPAmD8bAYLSWQ9sgg7CUWAREhSrPdv
-         oUhdzC4k3On55Kqijnft0zIYsYKvnxm25TAQ714rvwi+6lAh26DNezMDBJnDfNgJMh
-         VUVXBbqfzrd00NjU/tphhtqr2Cu62nFARzL2IeDQ=
+        b=vIEsVrGuWx4NTZoGYvYxSL31NJozuwfm2L7aEyYLna3+3j6CK6hqrsSP84cf1KSzi
+         M3TpQFhZSC7o/VYqR0j3tfWdSgogSHoCunhrAAkBcxJYaTf7siLheyrbT0Uezrka5b
+         Ek9HUv8LebpUAoVgQixUHY/d517NvWzQZN/bDltQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
-        David Heinzelmann <heinzelmann.david@gmail.com>,
-        Paul Zimmerman <pauldzim@gmail.com>
-Subject: [PATCH 4.9 126/165] USB: hub: Dont record a connect-change event during reset-resume
+        Hardik Gajjar <hgajjar@de.adit-jv.com>,
+        Eugeniu Rosca <erosca@de.adit-jv.com>
+Subject: [PATCH 4.14 186/237] USB: hub: Fix the broken detection of USB3 device in SMSC hub
 Date:   Thu, 27 Feb 2020 14:36:40 +0100
-Message-Id: <20200227132249.511133760@linuxfoundation.org>
+Message-Id: <20200227132310.030905976@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200227132230.840899170@linuxfoundation.org>
-References: <20200227132230.840899170@linuxfoundation.org>
+In-Reply-To: <20200227132255.285644406@linuxfoundation.org>
+References: <20200227132255.285644406@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,84 +44,109 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alan Stern <stern@rowland.harvard.edu>
+From: Hardik Gajjar <hgajjar@de.adit-jv.com>
 
-commit 8099f58f1ecddf4f374f4828a3dff8397c7cbd74 upstream.
+commit 1208f9e1d758c991b0a46a1bd60c616b906bbe27 upstream.
 
-Paul Zimmerman reports that his USB Bluetooth adapter sometimes
-crashes following system resume, when it receives a
-Get-Device-Descriptor request while it is busy doing something else.
+Renesas R-Car H3ULCB + Kingfisher Infotainment Board is either not able
+to detect the USB3.0 mass storage devices or is detecting those as
+USB2.0 high speed devices.
 
-Such a request was added by commit a4f55d8b8c14 ("usb: hub: Check
-device descriptor before resusciation").  It gets sent when the hub
-driver's work thread checks whether a connect-change event on an
-enabled port really indicates a new device has been connected, as
-opposed to an old device momentarily disconnecting and then
-reconnecting (which can happen with xHCI host controllers, since they
-automatically enable connected ports).
+The explanation given by Renesas is that, due to a HW issue, the XHCI
+driver does not wake up after going to sleep on connecting a USB3.0
+device.
 
-The same kind of thing occurs when a port's power session is lost
-during system suspend.  When the system wakes up it sees a
-connect-change event on the port, and if the child device's
-persist_enabled flag was set then hub_activate() sets the device's
-reset_resume flag as well as the port's bit in hub->change_bits.  The
-reset-resume code then takes responsibility for checking that the same
-device is still attached to the port, and it does this as part of the
-device's resume pathway.  By the time the hub driver's work thread
-starts up again, the device has already been fully reinitialized and
-is busy doing its own thing.  There's no need for the work thread to
-do the same check a second time, and in fact this unnecessary check is
-what caused the problem that Paul observed.
+In order to mitigate that, disable the auto-suspend feature
+specifically for SMSC hubs from hub_probe() function, as a quirk.
 
-Note that performing the unnecessary check is not actually a bug.
-Devices are supposed to be able to send descriptors back to the host
-even when they are busy doing something else.  The underlying cause of
-Paul's problem lies in his Bluetooth adapter.  Nevertheless, we
-shouldn't perform the same check twice in a row -- and as a nice side
-benefit, removing the extra check allows the Bluetooth adapter to work
-more reliably.
+Renesas Kingfisher Infotainment Board has two USB3.0 ports (CN2) which
+are connected via USB5534B 4-port SuperSpeed/Hi-Speed, low-power,
+configurable hub controller.
 
-The work thread performs its check when it sees that the port's bit is
-set in hub->change_bits.  In this situation that bit is interpreted as
-though a connect-change event had occurred on the port _after_ the
-reset-resume, which is not what actually happened.
+[1] SanDisk USB 3.0 device detected as USB-2.0 before the patch
+ [   74.036390] usb 5-1.1: new high-speed USB device number 4 using xhci-hcd
+ [   74.061598] usb 5-1.1: New USB device found, idVendor=0781, idProduct=5581, bcdDevice= 1.00
+ [   74.069976] usb 5-1.1: New USB device strings: Mfr=1, Product=2, SerialNumber=3
+ [   74.077303] usb 5-1.1: Product: Ultra
+ [   74.080980] usb 5-1.1: Manufacturer: SanDisk
+ [   74.085263] usb 5-1.1: SerialNumber: 4C530001110208116550
 
-One possible fix would be to make the reset-resume code clear the
-port's bit in hub->change_bits.  But it seems simpler to just avoid
-setting the bit during hub_activate() in the first place.  That's what
-this patch does.
+[2] SanDisk USB 3.0 device detected as USB-3.0 after the patch
+ [   34.565078] usb 6-1.1: new SuperSpeed Gen 1 USB device number 3 using xhci-hcd
+ [   34.588719] usb 6-1.1: New USB device found, idVendor=0781, idProduct=5581, bcdDevice= 1.00
+ [   34.597098] usb 6-1.1: New USB device strings: Mfr=1, Product=2, SerialNumber=3
+ [   34.604430] usb 6-1.1: Product: Ultra
+ [   34.608110] usb 6-1.1: Manufacturer: SanDisk
+ [   34.612397] usb 6-1.1: SerialNumber: 4C530001110208116550
 
-(Proving that the patch is correct when CONFIG_PM is disabled requires
-a little thought.  In that setting hub_activate() will be called only
-for initialization and resets, since there won't be any resumes or
-reset-resumes.  During initialization and hub resets the hub doesn't
-have any child devices, and so this code path never gets executed.)
-
-Reported-and-tested-by: Paul Zimmerman <pauldzim@gmail.com>
-Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
-Link: https://marc.info/?t=157949360700001&r=1&w=2
-CC: David Heinzelmann <heinzelmann.david@gmail.com>
-CC: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/Pine.LNX.4.44L0.2001311037460.1577-100000@iolanthe.rowland.org
+Suggested-by: Alan Stern <stern@rowland.harvard.edu>
+Signed-off-by: Hardik Gajjar <hgajjar@de.adit-jv.com>
+Acked-by: Alan Stern <stern@rowland.harvard.edu>
+Tested-by: Eugeniu Rosca <erosca@de.adit-jv.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/1580989763-32291-1-git-send-email-hgajjar@de.adit-jv.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/core/hub.c |    5 -----
- 1 file changed, 5 deletions(-)
+ drivers/usb/core/hub.c |   15 +++++++++++++++
+ drivers/usb/core/hub.h |    1 +
+ 2 files changed, 16 insertions(+)
 
 --- a/drivers/usb/core/hub.c
 +++ b/drivers/usb/core/hub.c
-@@ -1187,11 +1187,6 @@ static void hub_activate(struct usb_hub
- #ifdef CONFIG_PM
- 			udev->reset_resume = 1;
- #endif
--			/* Don't set the change_bits when the device
--			 * was powered off.
--			 */
--			if (test_bit(port1, hub->power_bits))
--				set_bit(port1, hub->change_bits);
+@@ -36,7 +36,9 @@
+ #include "otg_whitelist.h"
  
- 		} else {
- 			/* The power session is gone; tell hub_wq */
+ #define USB_VENDOR_GENESYS_LOGIC		0x05e3
++#define USB_VENDOR_SMSC				0x0424
+ #define HUB_QUIRK_CHECK_PORT_AUTOSUSPEND	0x01
++#define HUB_QUIRK_DISABLE_AUTOSUSPEND		0x02
+ 
+ /* Protect struct usb_device->state and ->children members
+  * Note: Both are also protected by ->dev.sem, except that ->state can
+@@ -1680,6 +1682,10 @@ static void hub_disconnect(struct usb_in
+ 	kfree(hub->buffer);
+ 
+ 	pm_suspend_ignore_children(&intf->dev, false);
++
++	if (hub->quirk_disable_autosuspend)
++		usb_autopm_put_interface(intf);
++
+ 	kref_put(&hub->kref, hub_release);
+ }
+ 
+@@ -1810,6 +1816,11 @@ static int hub_probe(struct usb_interfac
+ 	if (id->driver_info & HUB_QUIRK_CHECK_PORT_AUTOSUSPEND)
+ 		hub->quirk_check_port_auto_suspend = 1;
+ 
++	if (id->driver_info & HUB_QUIRK_DISABLE_AUTOSUSPEND) {
++		hub->quirk_disable_autosuspend = 1;
++		usb_autopm_get_interface(intf);
++	}
++
+ 	if (hub_configure(hub, &desc->endpoint[0].desc) >= 0)
+ 		return 0;
+ 
+@@ -5288,6 +5299,10 @@ out_hdev_lock:
+ }
+ 
+ static const struct usb_device_id hub_id_table[] = {
++    { .match_flags = USB_DEVICE_ID_MATCH_VENDOR | USB_DEVICE_ID_MATCH_INT_CLASS,
++      .idVendor = USB_VENDOR_SMSC,
++      .bInterfaceClass = USB_CLASS_HUB,
++      .driver_info = HUB_QUIRK_DISABLE_AUTOSUSPEND},
+     { .match_flags = USB_DEVICE_ID_MATCH_VENDOR
+ 			| USB_DEVICE_ID_MATCH_INT_CLASS,
+       .idVendor = USB_VENDOR_GENESYS_LOGIC,
+--- a/drivers/usb/core/hub.h
++++ b/drivers/usb/core/hub.h
+@@ -69,6 +69,7 @@ struct usb_hub {
+ 	unsigned		quiescing:1;
+ 	unsigned		disconnected:1;
+ 	unsigned		in_reset:1;
++	unsigned		quirk_disable_autosuspend:1;
+ 
+ 	unsigned		quirk_check_port_auto_suspend:1;
+ 
 
 
