@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E067A171C5E
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:11:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D9DFF171C60
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:11:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388191AbgB0OLY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 09:11:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49858 "EHLO mail.kernel.org"
+        id S2388699AbgB0OL2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 09:11:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49910 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388688AbgB0OLX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 09:11:23 -0500
+        id S2388690AbgB0OLZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 09:11:25 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0FEEC20578;
-        Thu, 27 Feb 2020 14:11:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8859520801;
+        Thu, 27 Feb 2020 14:11:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582812682;
-        bh=/tyTvlOefgejlw1qNqg4s5MKur21O+cVuaR95mSgyx0=;
+        s=default; t=1582812685;
+        bh=wLfKhXxpa14kf4mWcdqPTEGTf+Z9dEcu+jrqE4IYkmY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ISqdRjUqDog3n7cZUX9IP5BcrMs50Ofv4DAO+GqvHwagB65M58xNgqjoxeh0rNdEC
-         ov/qExun0rqSJRH19y76roCGE4xHEi7hgoP6KI2JDnbyCNP56quqioAtmgDHJtLiTR
-         G2fsJ3yilDrkSuD+7tHJuATf1BjinEuGBfPqwu30=
+        b=cOs4xUXQBp5PD0/DvxwLWgJ7944tv3WAKN9X/tZE5bjg5dSb9cpp6Qx3ZXkM078/N
+         sHGxcOEL6nSd9LHCVl4fOxs7wHLITHCksst6dxAVtdiR6Qux7/3lYnGofkrHJR6Rc9
+         aoQ39Jclca3yUqP+O0WTS99QUXvxlZTfkwaXOa/0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Viresh Kumar <viresh.kumar@linaro.org>,
-        Vaibhav Agarwal <vaibhav.sr@gmail.com>
-Subject: [PATCH 5.4 112/135] staging: greybus: use after free in gb_audio_manager_remove_all()
-Date:   Thu, 27 Feb 2020 14:37:32 +0100
-Message-Id: <20200227132246.031633069@linuxfoundation.org>
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Codrin Ciubotariu <codrin.ciubotariu@microchip.com>,
+        =?UTF-8?q?Micha=C5=82=20Miros=C5=82aw?= <mirq-linux@rere.qmqm.pl>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.4 113/135] ASoC: atmel: fix atmel_ssc_set_audio link failure
+Date:   Thu, 27 Feb 2020 14:37:33 +0100
+Message-Id: <20200227132246.161577149@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200227132228.710492098@linuxfoundation.org>
 References: <20200227132228.710492098@linuxfoundation.org>
@@ -44,36 +45,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-commit b7db58105b80fa9232719c8329b995b3addfab55 upstream.
+commit 9437bfda00f3b26eb5f475737ddaaf4dc07fee4f upstream.
 
-When we call kobject_put() and it's the last reference to the kobject
-then it calls gb_audio_module_release() and frees module.  We dereference
-"module" on the next line which is a use after free.
+The ssc audio driver can call into both pdc and dma backends.  With the
+latest rework, the logic to do this in a safe way avoiding link errors
+was removed, bringing back link errors that were fixed long ago in commit
+061981ff8cc8 ("ASoC: atmel: properly select dma driver state") such as
 
-Fixes: c77f85bbc91a ("greybus: audio: Fix incorrect counting of 'ida'")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Acked-by: Viresh Kumar <viresh.kumar@linaro.org>
-Reviewed-by: Vaibhav Agarwal <vaibhav.sr@gmail.com>
-Link: https://lore.kernel.org/r/20200205123217.jreendkyxulqsool@kili.mountain
+sound/soc/atmel/atmel_ssc_dai.o: In function `atmel_ssc_set_audio':
+atmel_ssc_dai.c:(.text+0xac): undefined reference to `atmel_pcm_pdc_platform_register'
+
+Fix it this time using Makefile hacks and a comment to prevent this
+from accidentally getting removed again rather than Kconfig hacks.
+
+Fixes: 18291410557f ("ASoC: atmel: enable SOC_SSC_PDC and SOC_SSC_DMA in Kconfig")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Codrin Ciubotariu <codrin.ciubotariu@microchip.com>
+Link: https://lore.kernel.org/r/20200130130545.31148-1-codrin.ciubotariu@microchip.com
+Reviewed-by: Michał Mirosław <mirq-linux@rere.qmqm.pl>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/staging/greybus/audio_manager.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/soc/atmel/Kconfig  |    4 ++--
+ sound/soc/atmel/Makefile |   10 ++++++++--
+ 2 files changed, 10 insertions(+), 4 deletions(-)
 
---- a/drivers/staging/greybus/audio_manager.c
-+++ b/drivers/staging/greybus/audio_manager.c
-@@ -92,8 +92,8 @@ void gb_audio_manager_remove_all(void)
+--- a/sound/soc/atmel/Kconfig
++++ b/sound/soc/atmel/Kconfig
+@@ -10,11 +10,11 @@ config SND_ATMEL_SOC
+ if SND_ATMEL_SOC
  
- 	list_for_each_entry_safe(module, next, &modules_list, list) {
- 		list_del(&module->list);
--		kobject_put(&module->kobj);
- 		ida_simple_remove(&module_id, module->id);
-+		kobject_put(&module->kobj);
- 	}
+ config SND_ATMEL_SOC_PDC
+-	tristate
++	bool
+ 	depends on HAS_DMA
  
- 	is_empty = list_empty(&modules_list);
+ config SND_ATMEL_SOC_DMA
+-	tristate
++	bool
+ 	select SND_SOC_GENERIC_DMAENGINE_PCM
+ 
+ config SND_ATMEL_SOC_SSC
+--- a/sound/soc/atmel/Makefile
++++ b/sound/soc/atmel/Makefile
+@@ -6,8 +6,14 @@ snd-soc-atmel_ssc_dai-objs := atmel_ssc_
+ snd-soc-atmel-i2s-objs := atmel-i2s.o
+ snd-soc-mchp-i2s-mcc-objs := mchp-i2s-mcc.o
+ 
+-obj-$(CONFIG_SND_ATMEL_SOC_PDC) += snd-soc-atmel-pcm-pdc.o
+-obj-$(CONFIG_SND_ATMEL_SOC_DMA) += snd-soc-atmel-pcm-dma.o
++# pdc and dma need to both be built-in if any user of
++# ssc is built-in.
++ifdef CONFIG_SND_ATMEL_SOC_PDC
++obj-$(CONFIG_SND_ATMEL_SOC_SSC) += snd-soc-atmel-pcm-pdc.o
++endif
++ifdef CONFIG_SND_ATMEL_SOC_DMA
++obj-$(CONFIG_SND_ATMEL_SOC_SSC) += snd-soc-atmel-pcm-dma.o
++endif
+ obj-$(CONFIG_SND_ATMEL_SOC_SSC) += snd-soc-atmel_ssc_dai.o
+ obj-$(CONFIG_SND_ATMEL_SOC_I2S) += snd-soc-atmel-i2s.o
+ obj-$(CONFIG_SND_MCHP_SOC_I2S_MCC) += snd-soc-mchp-i2s-mcc.o
 
 
