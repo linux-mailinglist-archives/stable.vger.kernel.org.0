@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E27CD171F24
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:32:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EB2DE171F20
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:32:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732910AbgB0OB0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 09:01:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35468 "EHLO mail.kernel.org"
+        id S1730250AbgB0OB3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 09:01:29 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35504 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732912AbgB0OB0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 09:01:26 -0500
+        id S1732912AbgB0OB2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 09:01:28 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0C6B524656;
-        Thu, 27 Feb 2020 14:01:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 896C520578;
+        Thu, 27 Feb 2020 14:01:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582812085;
-        bh=eqTpx2ymV4Xda6QZ0MulQd3E23Bcsb+LDGDNlLUsj+0=;
+        s=default; t=1582812088;
+        bh=85ksYen93kYh5gsGA7RMKMbAp/e0XnVYQSR6Nw4DHvI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=liwJaeyp/C9V0EXgtoS9RVOvPetl+Qj+qY15fZoTGFGtJEU4upXMj1K6rBzTvB5h8
-         FRE97uHCEro9ViYxu8xTg5Apinqwlu8UkcSfuO0smXq81R/ui7Ns8d8c9zZP3mcab3
-         u9H/kIe4ebAZ0bFRBsipXF5HljfdIYeb+1u2fr2w=
+        b=wMBVpsDyN6KSLNlOUrXGvorEKA61/JKFzdQ6yySaheeoN9iUNtO9D+4hnMpuqFDtz
+         rSfQPwxHShvkn4OlEu/dpmA6JkYM41tqoRcoZRb8O10PFxnKf8NJ2LeRh6hBRG0mbl
+         q0/ZLh8XsyDw+iifQN++PS/uvDe66XIPtYvg/B7s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Oliver Upton <oupton@google.com>,
-        Vitaly Kuznetsov <vkuznets@redhat.com>,
         Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 4.14 216/237] KVM: nVMX: Refactor IO bitmap checks into helper function
-Date:   Thu, 27 Feb 2020 14:37:10 +0100
-Message-Id: <20200227132312.065506678@linuxfoundation.org>
+Subject: [PATCH 4.14 217/237] KVM: nVMX: Check IO instruction VM-exit conditions
+Date:   Thu, 27 Feb 2020 14:37:11 +0100
+Message-Id: <20200227132312.136414700@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200227132255.285644406@linuxfoundation.org>
 References: <20200227132255.285644406@linuxfoundation.org>
@@ -46,80 +45,108 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Oliver Upton <oupton@google.com>
 
-commit e71237d3ff1abf9f3388337cfebf53b96df2020d upstream.
+commit 35a571346a94fb93b5b3b6a599675ef3384bc75c upstream.
 
-Checks against the IO bitmap are useful for both instruction emulation
-and VM-exit reflection. Refactor the IO bitmap checks into a helper
-function.
+Consult the 'unconditional IO exiting' and 'use IO bitmaps' VM-execution
+controls when checking instruction interception. If the 'use IO bitmaps'
+VM-execution control is 1, check the instruction access against the IO
+bitmaps to determine if the instruction causes a VM-exit.
 
 Signed-off-by: Oliver Upton <oupton@google.com>
-Reviewed-by: Vitaly Kuznetsov <vkuznets@redhat.com>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/kvm/vmx.c |   40 +++++++++++++++++++++++++++-------------
- 1 file changed, 27 insertions(+), 13 deletions(-)
+ arch/x86/kvm/vmx.c |   59 ++++++++++++++++++++++++++++++++++++++++++++++-------
+ 1 file changed, 52 insertions(+), 7 deletions(-)
 
 --- a/arch/x86/kvm/vmx.c
 +++ b/arch/x86/kvm/vmx.c
-@@ -4991,6 +4991,26 @@ static bool cs_ss_rpl_check(struct kvm_v
- 		 (ss.selector & SEGMENT_RPL_MASK));
+@@ -4997,7 +4997,7 @@ static bool nested_vmx_exit_handled_io(s
+ 				       struct vmcs12 *vmcs12)
+ {
+ 	unsigned long exit_qualification;
+-	unsigned int port;
++	unsigned short port;
+ 	int size;
+ 
+ 	if (!nested_cpu_has(vmcs12, CPU_BASED_USE_IO_BITMAPS))
+@@ -12335,6 +12335,39 @@ static void nested_vmx_entry_failure(str
+ 		to_vmx(vcpu)->nested.sync_shadow_vmcs = true;
  }
  
-+static bool nested_vmx_check_io_bitmaps(struct kvm_vcpu *vcpu,
-+					unsigned int port, int size);
-+static bool nested_vmx_exit_handled_io(struct kvm_vcpu *vcpu,
-+				       struct vmcs12 *vmcs12)
++static int vmx_check_intercept_io(struct kvm_vcpu *vcpu,
++				  struct x86_instruction_info *info)
 +{
-+	unsigned long exit_qualification;
-+	unsigned int port;
++	struct vmcs12 *vmcs12 = get_vmcs12(vcpu);
++	unsigned short port;
++	bool intercept;
 +	int size;
 +
++	if (info->intercept == x86_intercept_in ||
++	    info->intercept == x86_intercept_ins) {
++		port = info->src_val;
++		size = info->dst_bytes;
++	} else {
++		port = info->dst_val;
++		size = info->src_bytes;
++	}
++
++	/*
++	 * If the 'use IO bitmaps' VM-execution control is 0, IO instruction
++	 * VM-exits depend on the 'unconditional IO exiting' VM-execution
++	 * control.
++	 *
++	 * Otherwise, IO instruction VM-exits are controlled by the IO bitmaps.
++	 */
 +	if (!nested_cpu_has(vmcs12, CPU_BASED_USE_IO_BITMAPS))
-+		return nested_cpu_has(vmcs12, CPU_BASED_UNCOND_IO_EXITING);
++		intercept = nested_cpu_has(vmcs12,
++					   CPU_BASED_UNCOND_IO_EXITING);
++	else
++		intercept = nested_vmx_check_io_bitmaps(vcpu, port, size);
 +
-+	exit_qualification = vmcs_readl(EXIT_QUALIFICATION);
-+
-+	port = exit_qualification >> 16;
-+	size = (exit_qualification & 7) + 1;
-+
-+	return nested_vmx_check_io_bitmaps(vcpu, port, size);
++	return intercept ? X86EMUL_UNHANDLEABLE : X86EMUL_CONTINUE;
 +}
 +
- /*
-  * Check if guest state is valid. Returns true if valid, false if
-  * not.
-@@ -8521,23 +8541,17 @@ static int (*const kvm_vmx_exit_handlers
- static const int kvm_vmx_max_exit_handlers =
- 	ARRAY_SIZE(kvm_vmx_exit_handlers);
+ static int vmx_check_intercept(struct kvm_vcpu *vcpu,
+ 			       struct x86_instruction_info *info,
+ 			       enum x86_intercept_stage stage)
+@@ -12342,18 +12375,30 @@ static int vmx_check_intercept(struct kv
+ 	struct vmcs12 *vmcs12 = get_vmcs12(vcpu);
+ 	struct x86_emulate_ctxt *ctxt = &vcpu->arch.emulate_ctxt;
  
--static bool nested_vmx_exit_handled_io(struct kvm_vcpu *vcpu,
--				       struct vmcs12 *vmcs12)
-+/*
-+ * Return true if an IO instruction with the specified port and size should cause
-+ * a VM-exit into L1.
-+ */
-+bool nested_vmx_check_io_bitmaps(struct kvm_vcpu *vcpu, unsigned int port,
-+				 int size)
- {
--	unsigned long exit_qualification;
-+	struct vmcs12 *vmcs12 = get_vmcs12(vcpu);
- 	gpa_t bitmap, last_bitmap;
--	unsigned int port;
--	int size;
- 	u8 b;
++	switch (info->intercept) {
+ 	/*
+ 	 * RDPID causes #UD if disabled through secondary execution controls.
+ 	 * Because it is marked as EmulateOnUD, we need to intercept it here.
+ 	 */
+-	if (info->intercept == x86_intercept_rdtscp &&
+-	    !nested_cpu_has2(vmcs12, SECONDARY_EXEC_RDTSCP)) {
+-		ctxt->exception.vector = UD_VECTOR;
+-		ctxt->exception.error_code_valid = false;
+-		return X86EMUL_PROPAGATE_FAULT;
+-	}
++	case x86_intercept_rdtscp:
++		if (!nested_cpu_has2(vmcs12, SECONDARY_EXEC_RDTSCP)) {
++			ctxt->exception.vector = UD_VECTOR;
++			ctxt->exception.error_code_valid = false;
++			return X86EMUL_PROPAGATE_FAULT;
++		}
++		break;
++
++	case x86_intercept_in:
++	case x86_intercept_ins:
++	case x86_intercept_out:
++	case x86_intercept_outs:
++		return vmx_check_intercept_io(vcpu, info);
  
--	if (!nested_cpu_has(vmcs12, CPU_BASED_USE_IO_BITMAPS))
--		return nested_cpu_has(vmcs12, CPU_BASED_UNCOND_IO_EXITING);
--
--	exit_qualification = vmcs_readl(EXIT_QUALIFICATION);
--
--	port = exit_qualification >> 16;
--	size = (exit_qualification & 7) + 1;
--
- 	last_bitmap = (gpa_t)-1;
- 	b = -1;
+ 	/* TODO: check more intercepts... */
++	default:
++		break;
++	}
++
+ 	return X86EMUL_UNHANDLEABLE;
+ }
  
 
 
