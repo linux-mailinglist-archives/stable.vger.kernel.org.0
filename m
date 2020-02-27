@@ -2,38 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A89A171EE4
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:31:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 263E6172023
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:41:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387588AbgB0OE0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 09:04:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40664 "EHLO mail.kernel.org"
+        id S1731326AbgB0NvC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 08:51:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49578 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387584AbgB0OE0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 09:04:26 -0500
+        id S1730883AbgB0NvB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 08:51:01 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 77C8321556;
-        Thu, 27 Feb 2020 14:04:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B030920801;
+        Thu, 27 Feb 2020 13:51:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582812265;
-        bh=kK7tM/QqgcC+v4N+ijRzV5CC218hvODOXjIg38K2DPM=;
+        s=default; t=1582811461;
+        bh=FOoqKnrn4qOTHfbpPkiMYn5/tbWYlDqVW6aM+YvjngA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b7M90tUIgjR3ZD3mBZV+BMVgaBaUxqV3ARFpmM5H9bv2aTYEVyxpXNZimkqnGEOZG
-         WGhbH5nmxJDhYXEdaGfQhixguj+HC38OzkBNx7U4Ra23nRz5z+La45wov/58OH6FnD
-         5NS5weobpiqfVPxpNQjLA3TLyAC5mnIibw8aHyxI=
+        b=YzfTcdDB+Upq9gxCGsp2VPGkefZxm0vZ4haC86LWFFgeeLsx/Pdbm8M3/qKpjBsMx
+         WmHHP+lEE5d0rSbhsCCtdg2PFG/vJ2I3PzhAEI/0aSWl+/lZ/5IHN+sCGT0W4YJrnJ
+         NCgoh4DXeUV1DGxrABJ31dExAOlL5zHpeyL/SWac=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zenghui Yu <yuzenghui@huawei.com>,
-        Thomas Gleixner <tglx@linutronix.de>
-Subject: [PATCH 4.19 48/97] genirq/irqdomain: Make sure all irq domain flags are distinct
+        stable@vger.kernel.org, Alexander Potapenko <glider@google.com>,
+        Walter Wu <walter-zh.wu@mediatek.com>,
+        Dmitry Vyukov <dvyukov@google.com>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        Kate Stewart <kstewart@linuxfoundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 142/165] lib/stackdepot.c: fix global out-of-bounds in stack_slabs
 Date:   Thu, 27 Feb 2020 14:36:56 +0100
-Message-Id: <20200227132222.454692653@linuxfoundation.org>
+Message-Id: <20200227132251.709838993@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200227132214.553656188@linuxfoundation.org>
-References: <20200227132214.553656188@linuxfoundation.org>
+In-Reply-To: <20200227132230.840899170@linuxfoundation.org>
+References: <20200227132230.840899170@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,40 +51,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zenghui Yu <yuzenghui@huawei.com>
+From: Alexander Potapenko <glider@google.com>
 
-commit 2546287c5fb363a0165933ae2181c92f03e701d0 upstream.
+[ Upstream commit 305e519ce48e935702c32241f07d393c3c8fed3e ]
 
-This was noticed when printing debugfs for MSIs on my ARM64 server.  The
-new dstate IRQD_MSI_NOMASK_QUIRK came out surprisingly while it should only
-be the x86 stuff for the time being...
+Walter Wu has reported a potential case in which init_stack_slab() is
+called after stack_slabs[STACK_ALLOC_MAX_SLABS - 1] has already been
+initialized.  In that case init_stack_slab() will overwrite
+stack_slabs[STACK_ALLOC_MAX_SLABS], which may result in a memory
+corruption.
 
-The new MSI quirk flag uses the same bit as IRQ_DOMAIN_NAME_ALLOCATED which
-is oddly defined as bit 6 for no good reason.
-
-Switch it to the non used bit 1.
-
-Fixes: 6f1a4891a592 ("x86/apic/msi: Plug non-maskable MSI affinity race")
-Signed-off-by: Zenghui Yu <yuzenghui@huawei.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/20200221020725.2038-1-yuzenghui@huawei.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Link: http://lkml.kernel.org/r/20200218102950.260263-1-glider@google.com
+Fixes: cd11016e5f521 ("mm, kasan: stackdepot implementation. Enable stackdepot for SLAB")
+Signed-off-by: Alexander Potapenko <glider@google.com>
+Reported-by: Walter Wu <walter-zh.wu@mediatek.com>
+Cc: Dmitry Vyukov <dvyukov@google.com>
+Cc: Matthias Brugger <matthias.bgg@gmail.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Josh Poimboeuf <jpoimboe@redhat.com>
+Cc: Kate Stewart <kstewart@linuxfoundation.org>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/irqdomain.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ lib/stackdepot.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
---- a/include/linux/irqdomain.h
-+++ b/include/linux/irqdomain.h
-@@ -188,7 +188,7 @@ enum {
- 	IRQ_DOMAIN_FLAG_HIERARCHY	= (1 << 0),
+diff --git a/lib/stackdepot.c b/lib/stackdepot.c
+index 1724cb0d6283f..54fe55b6bbc0a 100644
+--- a/lib/stackdepot.c
++++ b/lib/stackdepot.c
+@@ -92,15 +92,19 @@ static bool init_stack_slab(void **prealloc)
+ 		return true;
+ 	if (stack_slabs[depot_index] == NULL) {
+ 		stack_slabs[depot_index] = *prealloc;
++		*prealloc = NULL;
+ 	} else {
+-		stack_slabs[depot_index + 1] = *prealloc;
++		/* If this is the last depot slab, do not touch the next one. */
++		if (depot_index + 1 < STACK_ALLOC_MAX_SLABS) {
++			stack_slabs[depot_index + 1] = *prealloc;
++			*prealloc = NULL;
++		}
+ 		/*
+ 		 * This smp_store_release pairs with smp_load_acquire() from
+ 		 * |next_slab_inited| above and in stack_depot_save().
+ 		 */
+ 		smp_store_release(&next_slab_inited, 1);
+ 	}
+-	*prealloc = NULL;
+ 	return true;
+ }
  
- 	/* Irq domain name was allocated in __irq_domain_add() */
--	IRQ_DOMAIN_NAME_ALLOCATED	= (1 << 6),
-+	IRQ_DOMAIN_NAME_ALLOCATED	= (1 << 1),
- 
- 	/* Irq domain is an IPI domain with virq per cpu */
- 	IRQ_DOMAIN_FLAG_IPI_PER_CPU	= (1 << 2),
+-- 
+2.20.1
+
 
 
