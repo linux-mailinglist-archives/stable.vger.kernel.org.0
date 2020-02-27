@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 655F4171DF3
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:24:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4A5F8171BF8
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:07:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730774AbgB0OYG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 09:24:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52414 "EHLO mail.kernel.org"
+        id S2387690AbgB0OH2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 09:07:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44872 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388973AbgB0ON1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 09:13:27 -0500
+        id S2388040AbgB0OHY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 09:07:24 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9340320801;
-        Thu, 27 Feb 2020 14:13:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1994020578;
+        Thu, 27 Feb 2020 14:07:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582812807;
-        bh=FhDWb/RYnGRiiU8odP5whwWF/muNFYva5uLwSwHCnZg=;
+        s=default; t=1582812443;
+        bh=cr/QaPGzEv/bFObTRPXLDeYjRdHw3DF50hnytibyPNM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kB0vgMprnzJMw8oUjuIAY8tf49be6iFKjWBPJwthcnSEFxiJ6chCWvkGvG4s+dgdq
-         dB2gZfK7WLvBTKtXrvkVR5ZeBRPtS4JX0vEwoB6d+65aVXZE/3nRYWD5rWYu82KzHc
-         hh5k82kdzryD4jNttvkKRPgO3Q9fFzA5ZNT84q6A=
+        b=Zba8Lct4HqAI+rP3s0+f1RfWHbICbC+FuLy84tEV04nklMaW06qHSSt2YNc6h3yDt
+         nigWBhkjrJxFhOb4LEf62GBaVwwzQ1Bn6dwNfxnq9VAe4la2GZBuEncuDl1xm1Br1/
+         vE71prk+6rJgT3Z/RXXlQrQXPP+iURWTuOItda/A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jerry Snitselaar <jsnitsel@redhat.com>,
-        Lu Baolu <baolu.lu@linux.intel.com>,
-        Joerg Roedel <jroedel@suse.de>
-Subject: [PATCH 5.5 005/150] iommu/vt-d: Remove deferred_attach_domain()
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.4 002/135] ALSA: hda: Use scnprintf() for printing texts for sysfs/procfs
 Date:   Thu, 27 Feb 2020 14:35:42 +0100
-Message-Id: <20200227132233.517585617@linuxfoundation.org>
+Message-Id: <20200227132229.186153449@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200227132232.815448360@linuxfoundation.org>
-References: <20200227132232.815448360@linuxfoundation.org>
+In-Reply-To: <20200227132228.710492098@linuxfoundation.org>
+References: <20200227132228.710492098@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,64 +42,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joerg Roedel <jroedel@suse.de>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 96d170f3b1a607612caf3618c534d5c64fc2d61b upstream.
+commit 44eeb081b8630bb3ad3cd381d1ae1831463e48bb upstream.
 
-The function is now only a wrapper around find_domain(). Remove the
-function and call find_domain() directly at the call-sites.
+Some code in HD-audio driver calls snprintf() in a loop and still
+expects that the return value were actually written size, while
+snprintf() returns the expected would-be length instead.  When the
+given buffer limit were small, this leads to a buffer overflow.
 
-Fixes: 1ee0186b9a12 ("iommu/vt-d: Refactor find_domain() helper")
-Cc: stable@vger.kernel.org # v5.5
-Reviewed-by: Jerry Snitselaar <jsnitsel@redhat.com>
-Acked-by: Lu Baolu <baolu.lu@linux.intel.com>
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Use scnprintf() for addressing those issues.  It returns the actually
+written size unlike snprintf().
+
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200218091409.27162-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/iommu/intel-iommu.c |   11 +++--------
- 1 file changed, 3 insertions(+), 8 deletions(-)
+ sound/hda/hdmi_chmap.c    |    2 +-
+ sound/pci/hda/hda_codec.c |    2 +-
+ sound/pci/hda/hda_eld.c   |    2 +-
+ sound/pci/hda/hda_sysfs.c |    4 ++--
+ 4 files changed, 5 insertions(+), 5 deletions(-)
 
---- a/drivers/iommu/intel-iommu.c
-+++ b/drivers/iommu/intel-iommu.c
-@@ -2450,11 +2450,6 @@ static void do_deferred_attach(struct de
- 		intel_iommu_attach_device(domain, dev);
+--- a/sound/hda/hdmi_chmap.c
++++ b/sound/hda/hdmi_chmap.c
+@@ -250,7 +250,7 @@ void snd_hdac_print_channel_allocation(i
+ 
+ 	for (i = 0, j = 0; i < ARRAY_SIZE(cea_speaker_allocation_names); i++) {
+ 		if (spk_alloc & (1 << i))
+-			j += snprintf(buf + j, buflen - j,  " %s",
++			j += scnprintf(buf + j, buflen - j,  " %s",
+ 					cea_speaker_allocation_names[i]);
+ 	}
+ 	buf[j] = '\0';	/* necessary when j == 0 */
+--- a/sound/pci/hda/hda_codec.c
++++ b/sound/pci/hda/hda_codec.c
+@@ -4019,7 +4019,7 @@ void snd_print_pcm_bits(int pcm, char *b
+ 
+ 	for (i = 0, j = 0; i < ARRAY_SIZE(bits); i++)
+ 		if (pcm & (AC_SUPPCM_BITS_8 << i))
+-			j += snprintf(buf + j, buflen - j,  " %d", bits[i]);
++			j += scnprintf(buf + j, buflen - j,  " %d", bits[i]);
+ 
+ 	buf[j] = '\0'; /* necessary when j == 0 */
  }
+--- a/sound/pci/hda/hda_eld.c
++++ b/sound/pci/hda/hda_eld.c
+@@ -360,7 +360,7 @@ static void hdmi_print_pcm_rates(int pcm
  
--static struct dmar_domain *deferred_attach_domain(struct device *dev)
--{
--	return find_domain(dev);
--}
--
- static inline struct device_domain_info *
- dmar_search_domain_by_dev_info(int segment, int bus, int devfn)
- {
-@@ -3526,7 +3521,7 @@ static dma_addr_t __intel_map_single(str
+ 	for (i = 0, j = 0; i < ARRAY_SIZE(alsa_rates); i++)
+ 		if (pcm & (1 << i))
+-			j += snprintf(buf + j, buflen - j,  " %d",
++			j += scnprintf(buf + j, buflen - j,  " %d",
+ 				alsa_rates[i]);
  
- 	BUG_ON(dir == DMA_NONE);
- 
--	domain = deferred_attach_domain(dev);
-+	domain = find_domain(dev);
- 	if (!domain)
- 		return DMA_MAPPING_ERROR;
- 
-@@ -3746,7 +3741,7 @@ static int intel_map_sg(struct device *d
- 	if (!iommu_need_mapping(dev))
- 		return dma_direct_map_sg(dev, sglist, nelems, dir, attrs);
- 
--	domain = deferred_attach_domain(dev);
-+	domain = find_domain(dev);
- 	if (!domain)
- 		return 0;
- 
-@@ -3844,7 +3839,7 @@ bounce_map_single(struct device *dev, ph
- 	if (unlikely(attach_deferred(dev)))
- 		do_deferred_attach(dev);
- 
--	domain = deferred_attach_domain(dev);
-+	domain = find_domain(dev);
- 
- 	if (WARN_ON(dir == DMA_NONE || !domain))
- 		return DMA_MAPPING_ERROR;
+ 	buf[j] = '\0'; /* necessary when j == 0 */
+--- a/sound/pci/hda/hda_sysfs.c
++++ b/sound/pci/hda/hda_sysfs.c
+@@ -222,7 +222,7 @@ static ssize_t init_verbs_show(struct de
+ 	int i, len = 0;
+ 	mutex_lock(&codec->user_mutex);
+ 	snd_array_for_each(&codec->init_verbs, i, v) {
+-		len += snprintf(buf + len, PAGE_SIZE - len,
++		len += scnprintf(buf + len, PAGE_SIZE - len,
+ 				"0x%02x 0x%03x 0x%04x\n",
+ 				v->nid, v->verb, v->param);
+ 	}
+@@ -272,7 +272,7 @@ static ssize_t hints_show(struct device
+ 	int i, len = 0;
+ 	mutex_lock(&codec->user_mutex);
+ 	snd_array_for_each(&codec->hints, i, hint) {
+-		len += snprintf(buf + len, PAGE_SIZE - len,
++		len += scnprintf(buf + len, PAGE_SIZE - len,
+ 				"%s = %s\n", hint->key, hint->val);
+ 	}
+ 	mutex_unlock(&codec->user_mutex);
 
 
