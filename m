@@ -2,35 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1423C171A46
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 14:52:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 89A91171A49
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 14:52:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730937AbgB0NwM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 08:52:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51634 "EHLO mail.kernel.org"
+        id S1730693AbgB0NwU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 08:52:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51804 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731491AbgB0NwL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 08:52:11 -0500
+        id S1731341AbgB0NwT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 08:52:19 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 349952084E;
-        Thu, 27 Feb 2020 13:52:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 130DC2469B;
+        Thu, 27 Feb 2020 13:52:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582811530;
-        bh=4PA2FXlDRYSxZN4Qkmz16p9cSWxza+zkjDl4XotCPrs=;
+        s=default; t=1582811538;
+        bh=FfWYgf8sGKkIJNFBCXsGswy3RkWWHB9mZbbsaehKW6s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0gDO4EhZ5bHnXU1zDMmmfLSop9ZvIUqvDweHh4GOLGf1g4RSFm3AxTo/GPR7HBiFu
-         JB1Ng4OIrH8u7VhkZcdWrw2BMrd9hkVOQ4fAqQIAAgoWg/LYwCyW9g3ZJ/4VdrVlh2
-         flzUZBQ6UDkZDtVIQW38yHDB+MjNGauglWyoVId4=
+        b=lPAFc+ioaB0NduQG6/wnDOGY09GfyfWH1jmziz1stwTMni+1ccjydKOOpG0wK1hAe
+         OYoD46iOb4b3wJc4IPgQn+/160/lW+0rmOoAAWBXf8OgcPPFYyTtBJ5Vp4mmUqnHTE
+         apZr+y4JqQgasWEHhqLmS9H1MpouTCc3RKtjI79w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-        Borislav Petkov <bp@suse.de>
-Subject: [PATCH 4.9 130/165] x86/mce/amd: Fix kobject lifetime
-Date:   Thu, 27 Feb 2020 14:36:44 +0100
-Message-Id: <20200227132250.007861889@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Ioanna Alifieraki <ioanna-maria.alifieraki@canonical.com>,
+        Manfred Spraul <manfred@colorfullife.com>,
+        "Herton R. Krzesinski" <herton@redhat.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Catalin Marinas <catalin.marinas@arm.com>, malat@debian.org,
+        "Joel Fernandes (Google)" <joel@joelfernandes.org>,
+        Davidlohr Bueso <dave@stgolabs.net>,
+        Jay Vosburgh <jay.vosburgh@canonical.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.9 133/165] Revert "ipc,sem: remove uneeded sem_undo_list lock usage in exit_sem()"
+Date:   Thu, 27 Feb 2020 14:36:47 +0100
+Message-Id: <20200227132250.453942241@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200227132230.840899170@linuxfoundation.org>
 References: <20200227132230.840899170@linuxfoundation.org>
@@ -43,87 +52,135 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+From: Ioanna Alifieraki <ioanna-maria.alifieraki@canonical.com>
 
-commit 51dede9c05df2b78acd6dcf6a17d21f0877d2d7b upstream.
+commit edf28f4061afe4c2d9eb1c3323d90e882c1d6800 upstream.
 
-Accessing the MCA thresholding controls in sysfs concurrently with CPU
-hotplug can lead to a couple of KASAN-reported issues:
+This reverts commit a97955844807e327df11aa33869009d14d6b7de0.
 
-  BUG: KASAN: use-after-free in sysfs_file_ops+0x155/0x180
-  Read of size 8 at addr ffff888367578940 by task grep/4019
+Commit a97955844807 ("ipc,sem: remove uneeded sem_undo_list lock usage
+in exit_sem()") removes a lock that is needed.  This leads to a process
+looping infinitely in exit_sem() and can also lead to a crash.  There is
+a reproducer available in [1] and with the commit reverted the issue
+does not reproduce anymore.
 
-and
+Using the reproducer found in [1] is fairly easy to reach a point where
+one of the child processes is looping infinitely in exit_sem between
+for(;;) and if (semid == -1) block, while it's trying to free its last
+sem_undo structure which has already been freed by freeary().
 
-  BUG: KASAN: use-after-free in show_error_count+0x15c/0x180
-  Read of size 2 at addr ffff888368a05514 by task grep/4454
+Each sem_undo struct is on two lists: one per semaphore set (list_id)
+and one per process (list_proc).  The list_id list tracks undos by
+semaphore set, and the list_proc by process.
 
-for example. Both result from the fact that the threshold block
-creation/teardown code frees the descriptor memory itself instead of
-defining proper ->release function and leaving it to the driver core to
-take care of that, after all sysfs accesses have completed.
+Undo structures are removed either by freeary() or by exit_sem().  The
+freeary function is invoked when the user invokes a syscall to remove a
+semaphore set.  During this operation freeary() traverses the list_id
+associated with the semaphore set and removes the undo structures from
+both the list_id and list_proc lists.
 
-Do that and get rid of the custom freeing code, fixing the above UAFs in
-the process.
+For this case, exit_sem() is called at process exit.  Each process
+contains a struct sem_undo_list (referred to as "ulp") which contains
+the head for the list_proc list.  When the process exits, exit_sem()
+traverses this list to remove each sem_undo struct.  As in freeary(),
+whenever a sem_undo struct is removed from list_proc, it is also removed
+from the list_id list.
 
-  [ bp: write commit message. ]
+Removing elements from list_id is safe for both exit_sem() and freeary()
+due to sem_lock().  Removing elements from list_proc is not safe;
+freeary() locks &un->ulp->lock when it performs
+list_del_rcu(&un->list_proc) but exit_sem() does not (locking was
+removed by commit a97955844807 ("ipc,sem: remove uneeded sem_undo_list
+lock usage in exit_sem()").
 
-Fixes: 95268664390b ("[PATCH] x86_64: mce_amd support for family 0x10 processors")
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Signed-off-by: Borislav Petkov <bp@suse.de>
+This can result in the following situation while executing the
+reproducer [1] : Consider a child process in exit_sem() and the parent
+in freeary() (because of semctl(sid[i], NSEM, IPC_RMID)).
+
+ - The list_proc for the child contains the last two undo structs A and
+   B (the rest have been removed either by exit_sem() or freeary()).
+
+ - The semid for A is 1 and semid for B is 2.
+
+ - exit_sem() removes A and at the same time freeary() removes B.
+
+ - Since A and B have different semid sem_lock() will acquire different
+   locks for each process and both can proceed.
+
+The bug is that they remove A and B from the same list_proc at the same
+time because only freeary() acquires the ulp lock. When exit_sem()
+removes A it makes ulp->list_proc.next to point at B and at the same
+time freeary() removes B setting B->semid=-1.
+
+At the next iteration of for(;;) loop exit_sem() will try to remove B.
+
+The only way to break from for(;;) is for (&un->list_proc ==
+&ulp->list_proc) to be true which is not. Then exit_sem() will check if
+B->semid=-1 which is and will continue looping in for(;;) until the
+memory for B is reallocated and the value at B->semid is changed.
+
+At that point, exit_sem() will crash attempting to unlink B from the
+lists (this can be easily triggered by running the reproducer [1] a
+second time).
+
+To prove this scenario instrumentation was added to keep information
+about each sem_undo (un) struct that is removed per process and per
+semaphore set (sma).
+
+          CPU0                                CPU1
+  [caller holds sem_lock(sma for A)]      ...
+  freeary()                               exit_sem()
+  ...                                     ...
+  ...                                     sem_lock(sma for B)
+  spin_lock(A->ulp->lock)                 ...
+  list_del_rcu(un_A->list_proc)           list_del_rcu(un_B->list_proc)
+
+Undo structures A and B have different semid and sem_lock() operations
+proceed.  However they belong to the same list_proc list and they are
+removed at the same time.  This results into ulp->list_proc.next
+pointing to the address of B which is already removed.
+
+After reverting commit a97955844807 ("ipc,sem: remove uneeded
+sem_undo_list lock usage in exit_sem()") the issue was no longer
+reproducible.
+
+[1] https://bugzilla.redhat.com/show_bug.cgi?id=1694779
+
+Link: http://lkml.kernel.org/r/20191211191318.11860-1-ioanna-maria.alifieraki@canonical.com
+Fixes: a97955844807 ("ipc,sem: remove uneeded sem_undo_list lock usage in exit_sem()")
+Signed-off-by: Ioanna Alifieraki <ioanna-maria.alifieraki@canonical.com>
+Acked-by: Manfred Spraul <manfred@colorfullife.com>
+Acked-by: Herton R. Krzesinski <herton@redhat.com>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: <malat@debian.org>
+Cc: Joel Fernandes (Google) <joel@joelfernandes.org>
+Cc: Davidlohr Bueso <dave@stgolabs.net>
+Cc: Jay Vosburgh <jay.vosburgh@canonical.com>
 Cc: <stable@vger.kernel.org>
-Link: https://lkml.kernel.org/r/20200214082801.13836-1-bp@alien8.de
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/kernel/cpu/mcheck/mce_amd.c |   17 +++++++++++------
- 1 file changed, 11 insertions(+), 6 deletions(-)
+ ipc/sem.c |    6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
---- a/arch/x86/kernel/cpu/mcheck/mce_amd.c
-+++ b/arch/x86/kernel/cpu/mcheck/mce_amd.c
-@@ -846,9 +846,12 @@ static const struct sysfs_ops threshold_
- 	.store			= store,
- };
+--- a/ipc/sem.c
++++ b/ipc/sem.c
+@@ -2159,11 +2159,9 @@ void exit_sem(struct task_struct *tsk)
+ 		ipc_assert_locked_object(&sma->sem_perm);
+ 		list_del(&un->list_id);
  
-+static void threshold_block_release(struct kobject *kobj);
-+
- static struct kobj_type threshold_ktype = {
- 	.sysfs_ops		= &threshold_ops,
- 	.default_attrs		= default_attrs,
-+	.release		= threshold_block_release,
- };
+-		/* we are the last process using this ulp, acquiring ulp->lock
+-		 * isn't required. Besides that, we are also protected against
+-		 * IPC_RMID as we hold sma->sem_perm lock now
+-		 */
++		spin_lock(&ulp->lock);
+ 		list_del_rcu(&un->list_proc);
++		spin_unlock(&ulp->lock);
  
- static const char *get_name(unsigned int bank, struct threshold_block *b)
-@@ -1073,8 +1076,12 @@ static int threshold_create_device(unsig
- 	return err;
- }
- 
--static void deallocate_threshold_block(unsigned int cpu,
--						 unsigned int bank)
-+static void threshold_block_release(struct kobject *kobj)
-+{
-+	kfree(to_block(kobj));
-+}
-+
-+static void deallocate_threshold_block(unsigned int cpu, unsigned int bank)
- {
- 	struct threshold_block *pos = NULL;
- 	struct threshold_block *tmp = NULL;
-@@ -1084,13 +1091,11 @@ static void deallocate_threshold_block(u
- 		return;
- 
- 	list_for_each_entry_safe(pos, tmp, &head->blocks->miscj, miscj) {
--		kobject_put(&pos->kobj);
- 		list_del(&pos->miscj);
--		kfree(pos);
-+		kobject_put(&pos->kobj);
- 	}
- 
--	kfree(per_cpu(threshold_banks, cpu)[bank]->blocks);
--	per_cpu(threshold_banks, cpu)[bank]->blocks = NULL;
-+	kobject_put(&head->blocks->kobj);
- }
- 
- static void __threshold_remove_blocks(struct threshold_bank *b)
+ 		/* perform adjustments registered in un */
+ 		for (i = 0; i < sma->sem_nsems; i++) {
 
 
