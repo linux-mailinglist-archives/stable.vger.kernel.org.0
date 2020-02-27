@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BECB0171BFC
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:07:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DDB50171DF2
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:24:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388106AbgB0OHe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 09:07:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45026 "EHLO mail.kernel.org"
+        id S2388985AbgB0ONh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 09:13:37 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52634 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388088AbgB0OHb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 09:07:31 -0500
+        id S2388980AbgB0ONh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 09:13:37 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6047320578;
-        Thu, 27 Feb 2020 14:07:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AE89024690;
+        Thu, 27 Feb 2020 14:13:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582812450;
-        bh=DSFBM7BNuOdb259OtWqXqz7MxqSG3Bzku8QvVO0rB9s=;
+        s=default; t=1582812817;
+        bh=CbyDrFMn32uvZfgP3IBgZLYcyX5tbyJPqq33qrjGK+I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IPweOxXzj8zii6wZezbmeGRMkPVE/nJ6hIoFlu0oQjylVLsGJipcw2Ux1W9ePmV6z
-         prfw5+NPtNVdF772Z3NzU1X1U0CxPo7vzHJoWJN/amCgR7N/8TRxPzAFnlpxCaxa29
-         j8sxXk8ws0Upq71NPikDe6rw4WAAdgk6RmaJx/kg=
+        b=p/l+derm9Oj69KjzFAQ+HAjZSlLkVUnkxP5O2anCvmT68wFxH7ArkKQaBmR9xageO
+         zH5rd3TcjBbpFfZmo7T9qCQdI0GGvO+tsik4Uct16+PtrGKyZ0+hlnWvj17Y2QdKy+
+         ck2ics2r2xbk8L9zb+9vFuh2R3VHFR71TH6GgB5Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Samuel Holland <samuel@sholland.org>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.4 005/135] ASoC: codec2codec: avoid invalid/double-free of pcm runtime
-Date:   Thu, 27 Feb 2020 14:35:45 +0100
-Message-Id: <20200227132229.738164008@linuxfoundation.org>
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.5 009/150] ALSA: hda/realtek - Apply quirk for yet another MSI laptop
+Date:   Thu, 27 Feb 2020 14:35:46 +0100
+Message-Id: <20200227132234.080064140@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200227132228.710492098@linuxfoundation.org>
-References: <20200227132228.710492098@linuxfoundation.org>
+In-Reply-To: <20200227132232.815448360@linuxfoundation.org>
+References: <20200227132232.815448360@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,36 +42,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Samuel Holland <samuel@sholland.org>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit b6570fdb96edf45bcf71884bd2644bd73d348d1a upstream.
+commit cc5049ae4d457194796f854eb2e38b9727ad8c2d upstream.
 
-The PCM runtime was freed during PMU in the case that the event hook
-encountered an error. However, it is also unconditionally freed during
-PMD. Avoid a double-free by dropping the call to kfree in the PMU hook.
+MSI GP65 laptop with SSID 1462:1293 requires the same quirk as other
+MSI models.
 
-Fixes: a72706ed8208 ("ASoC: codec2codec: remove ephemeral variables")
-Cc: stable@vger.kernel.org
-Signed-off-by: Samuel Holland <samuel@sholland.org>
-Link: https://lore.kernel.org/r/20200213061147.29386-2-samuel@sholland.org
-Signed-off-by: Mark Brown <broonie@kernel.org>
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=204159
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200218080915.3433-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/soc/soc-dapm.c |    3 ---
- 1 file changed, 3 deletions(-)
+ sound/pci/hda/patch_realtek.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/sound/soc/soc-dapm.c
-+++ b/sound/soc/soc-dapm.c
-@@ -3888,9 +3888,6 @@ snd_soc_dai_link_event_pre_pmu(struct sn
- 	runtime->rate = params_rate(params);
- 
- out:
--	if (ret < 0)
--		kfree(runtime);
--
- 	kfree(params);
- 	return ret;
- }
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -2449,6 +2449,7 @@ static const struct snd_pci_quirk alc882
+ 	SND_PCI_QUIRK(0x1458, 0xa0b8, "Gigabyte AZ370-Gaming", ALC1220_FIXUP_GB_DUAL_CODECS),
+ 	SND_PCI_QUIRK(0x1462, 0x1228, "MSI-GP63", ALC1220_FIXUP_CLEVO_P950),
+ 	SND_PCI_QUIRK(0x1462, 0x1276, "MSI-GL73", ALC1220_FIXUP_CLEVO_P950),
++	SND_PCI_QUIRK(0x1462, 0x1293, "MSI-GP65", ALC1220_FIXUP_CLEVO_P950),
+ 	SND_PCI_QUIRK(0x1462, 0x7350, "MSI-7350", ALC889_FIXUP_CD),
+ 	SND_PCI_QUIRK(0x1462, 0xda57, "MSI Z270-Gaming", ALC1220_FIXUP_GB_DUAL_CODECS),
+ 	SND_PCI_QUIRK_VENDOR(0x1462, "MSI", ALC882_FIXUP_GPIO3),
 
 
