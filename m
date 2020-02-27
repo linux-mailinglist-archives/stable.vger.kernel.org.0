@@ -2,52 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2C0981713FD
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 10:19:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 642471713FE
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 10:19:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728630AbgB0JTq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 04:19:46 -0500
-Received: from wout1-smtp.messagingengine.com ([64.147.123.24]:53401 "EHLO
+        id S1728652AbgB0JTw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 04:19:52 -0500
+Received: from wout1-smtp.messagingengine.com ([64.147.123.24]:55701 "EHLO
         wout1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728504AbgB0JTq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 27 Feb 2020 04:19:46 -0500
+        by vger.kernel.org with ESMTP id S1728504AbgB0JTw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 27 Feb 2020 04:19:52 -0500
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailout.west.internal (Postfix) with ESMTP id 40F7A687;
-        Thu, 27 Feb 2020 04:19:45 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Thu, 27 Feb 2020 04:19:45 -0500
+        by mailout.west.internal (Postfix) with ESMTP id 3E9D7610;
+        Thu, 27 Feb 2020 04:19:51 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute1.internal (MEProxy); Thu, 27 Feb 2020 04:19:51 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=Th+E6Z
-        X+wRkqVmHvD6Nflgqa2oziuZ8PTlLB7tnBmfs=; b=XxsGF3qQ2aMknNzWbJRktR
-        tYarw4r84CePW/fWKnHdft65xMMrHn76hdlvhsuG9R/wYk4x/UB3q7GndW/9tvjl
-        9nkwZTgXp97jyZ172aix9WBV6/0QtdWYaM/mtHWmI/PsoR+jcl0SxaUea8OxcLv6
-        0HESHOSaXidU6fVJ1JcW3Uw1Gh3mUwVZfukWZc8ga7JkOjTT0cXmr3KARGE9q2sN
-        prL+KqUApMzuqJ/F89f3oXI+QCIqee/7bXbv42SWdV8TTSKILbWZCsRJafffvRIi
-        xGsoIKzgVuHfow8SQayO25QbbcyKw0m57ebtD1JeMIMKROLIVkIxY/ojySvxp0iw
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=puvLY2
+        aEHuACDbCSdduGUXnMlB0KoIFyLOT4FEjCgY0=; b=RxPsKPPSYTO8Zw7W5LrejB
+        Ysy8er4VBpCrfvoSqfSrBHjv/30AJN+gnyYyoKfjgX5fZi68EQ0q3hPODG2wZnsH
+        HZHPJ9sfQpSA3Dhwm1GN3fufAQjcbhFMI0NECHiherDqD0B9DM3x6hnGlchODJRl
+        LYQPv9XyYvEgWYWknPRgXKQxUGiXQXhAUUErKg6+xQq50OdWCN/HZPSSYVEMe6mg
+        JydJP7i31OEBifnq4Fcxi3mbQziHZz86VLdN8emKpjbft0aeNjKLO8cXDpKD1eXr
+        gGxlVjQItqQSAomY8IzNuyEE2POUHlpCBVCDMKqc5SBdJiqE3wk0gdaw8F5v2gMA
         ==
-X-ME-Sender: <xms:sIlXXlXoe_1q5vgGZVmmlAkaFPZZcZLvC4ratXHwuRMANBDPsXayUA>
+X-ME-Sender: <xms:tolXXlzymKB6tgT-mkTLUem2h2itDd_23_CgLN9VwpZW0gQyjEOcpQ>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedugedrleeigddtfecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
-    qeenucfkphepkeefrdekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivgepuddvne
+    qeenucfkphepkeefrdekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivgepudegne
     curfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:sIlXXqnn_2opfhupdJmfWldhcXVgK8aIO_mtGP6tSiidMJRE448KeA>
-    <xmx:sIlXXiRAULLgmZ_rgKyXZBhsF0KSdPZur5NuA777oYSb_c0hYVl5Ew>
-    <xmx:sIlXXuHquTMfip-2SbB9qSnOmXk3Wbs1kPWQ-zalLE91iXU0eloc7w>
-    <xmx:sIlXXgcLYq0TsAWH09OK6Vho7hm51nsPD9oC25fUGtcKmo4LTUmVBA>
+X-ME-Proxy: <xmx:tolXXu3Qe1xNJ3L_Bn8L2CPr3a1bedmujJo84w7AUdqitETnBYyWcQ>
+    <xmx:tolXXqzFdZw5TgwiTJ_N3D4EdRII3RAemcITYdPY17CM5-uzmKHcJA>
+    <xmx:tolXXmPzrs_CSAIGrC20dQAxJMEByyxumtWYOFfCe9ndoEHzKiJQWw>
+    <xmx:tolXXncW3v6D1Q8MXeWo8847C2K_wtlRotaKGuV4vhR8y4XdVFkp2g>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 7FA1D3060BD1;
-        Thu, 27 Feb 2020 04:19:44 -0500 (EST)
-Subject: FAILED: patch "[PATCH] btrfs: don't set path->leave_spinning for truncate" failed to apply to 4.9-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 7DB45328005D;
+        Thu, 27 Feb 2020 04:19:50 -0500 (EST)
+Subject: FAILED: patch "[PATCH] btrfs: don't set path->leave_spinning for truncate" failed to apply to 4.4-stable tree
 To:     josef@toxicpanda.com, davej@codemonkey.org.uk, dsterba@suse.com,
         fdmanana@suse.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 27 Feb 2020 10:19:42 +0100
-Message-ID: <158279518279125@kroah.com>
+Date:   Thu, 27 Feb 2020 10:19:43 +0100
+Message-ID: <158279518373237@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -57,7 +57,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
