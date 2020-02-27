@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 18DB2171B9C
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:04:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C7156171CBE
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:14:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387509AbgB0OEB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 09:04:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39838 "EHLO mail.kernel.org"
+        id S2389184AbgB0OOt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 09:14:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54200 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387505AbgB0OEA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 09:04:00 -0500
+        id S2388681AbgB0OOs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 09:14:48 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2C4D424697;
-        Thu, 27 Feb 2020 14:03:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 45F142469F;
+        Thu, 27 Feb 2020 14:14:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582812239;
-        bh=js235RE7WI6e08dufc3ksZS1E1vA2bveKpuy4WfdAZw=;
+        s=default; t=1582812887;
+        bh=cPpgNWambOISUkvUqyKNUW+2q5PRa+o3tnRbVTXDbf4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GawC/qhQP7TiqHcOaBmn0owElLGMyBSQNiAtm8zhnw6YCX8+DAA2vaBhTPL6uwoRt
-         Wxpg+gH5m6kmY5ei6pwkk6pARbiBZvwRn9gWxCPkHxcmsYnPKVsNr+uvVq+9JkM6q9
-         UbKLzU3wCneU++O0/2rchL5iGKy/4cq2qBPS0QlA=
+        b=T6ix0aN7mPHdGUdWpUyzSow5DbYHyNAMmm0Hzg5QlPvuLCvj8GL+K2g5T/y2su/HA
+         DKl1yWaS4D1GR6zgr/UCRI1Kj5hnc9TLhzlRX+0OgbtIjlzu/ciBXuJ+jFLC5yZ0O8
+         /BlceqCA/6Sqrb5wn33qmknxhv8DjSMU6MIZ4OMI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paul Menzel <pmenzel@molgen.mpg.de>,
-        Sajja Venkateswara Rao <VenkateswaraRao.Sajja@amd.com>,
-        Mathias Nyman <mathias.nyman@linux.intel.com>,
-        Marek Szyprowski <m.szyprowski@samsung.com>
-Subject: [PATCH 4.19 21/97] xhci: Fix memory leak when caching protocol extended capability PSI tables - take 2
-Date:   Thu, 27 Feb 2020 14:36:29 +0100
-Message-Id: <20200227132218.091304533@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Gustavo Luiz Duarte <gustavold@linux.ibm.com>,
+        Michael Neuling <mikey@neuling.org>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.5 053/150] powerpc/tm: Fix clearing MSR[TS] in current when reclaiming on signal delivery
+Date:   Thu, 27 Feb 2020 14:36:30 +0100
+Message-Id: <20200227132240.909643977@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200227132214.553656188@linuxfoundation.org>
-References: <20200227132214.553656188@linuxfoundation.org>
+In-Reply-To: <20200227132232.815448360@linuxfoundation.org>
+References: <20200227132232.815448360@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,266 +45,282 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mathias Nyman <mathias.nyman@linux.intel.com>
+From: Gustavo Luiz Duarte <gustavold@linux.ibm.com>
 
-commit cf0ee7c60c89641f6e4d1d3c7867fe32b9e30300 upstream.
+commit 2464cc4c345699adea52c7aef75707207cb8a2f6 upstream.
 
-xhci driver assumed that xHC controllers have at most one custom
-supported speed table (PSI) for all usb 3.x ports.
-Memory was allocated for one PSI table under the xhci hub structure.
+After a treclaim, we expect to be in non-transactional state. If we
+don't clear the current thread's MSR[TS] before we get preempted, then
+tm_recheckpoint_new_task() will recheckpoint and we get rescheduled in
+suspended transaction state.
 
-Turns out this is not the case, some controllers have a separate
-"supported protocol capability" entry with a PSI table for each port.
-This means each usb3 roothub port can in theory support different custom
-speeds.
+When handling a signal caught in transactional state,
+handle_rt_signal64() calls get_tm_stackpointer() that treclaims the
+transaction using tm_reclaim_current() but without clearing the
+thread's MSR[TS]. This can cause the TM Bad Thing exception below if
+later we pagefault and get preempted trying to access the user's
+sigframe, using __put_user(). Afterwards, when we are rescheduled back
+into do_page_fault() (but now in suspended state since the thread's
+MSR[TS] was not cleared), upon executing 'rfid' after completion of
+the page fault handling, the exception is raised because a transition
+from suspended to non-transactional state is invalid.
 
-To solve this, cache all supported protocol capabilities with their PSI
-tables in an array, and add pointers to the xhci port structure so that
-every port points to its capability entry in the array.
+  Unexpected TM Bad Thing exception at c00000000000de44 (msr 0x8000000302a03031) tm_scratch=800000010280b033
+  Oops: Unrecoverable exception, sig: 6 [#1]
+  LE PAGE_SIZE=64K MMU=Hash SMP NR_CPUS=2048 NUMA pSeries
+  CPU: 25 PID: 15547 Comm: a.out Not tainted 5.4.0-rc2 #32
+  NIP:  c00000000000de44 LR: c000000000034728 CTR: 0000000000000000
+  REGS: c00000003fe7bd70 TRAP: 0700   Not tainted  (5.4.0-rc2)
+  MSR:  8000000302a03031 <SF,VEC,VSX,FP,ME,IR,DR,LE,TM[SE]>  CR: 44000884  XER: 00000000
+  CFAR: c00000000000dda4 IRQMASK: 0
+  PACATMSCRATCH: 800000010280b033
+  GPR00: c000000000034728 c000000f65a17c80 c000000001662800 00007fffacf3fd78
+  GPR04: 0000000000001000 0000000000001000 0000000000000000 c000000f611f8af0
+  GPR08: 0000000000000000 0000000078006001 0000000000000000 000c000000000000
+  GPR12: c000000f611f84b0 c00000003ffcb200 0000000000000000 0000000000000000
+  GPR16: 0000000000000000 0000000000000000 0000000000000000 0000000000000000
+  GPR20: 0000000000000000 0000000000000000 0000000000000000 c000000f611f8140
+  GPR24: 0000000000000000 00007fffacf3fd68 c000000f65a17d90 c000000f611f7800
+  GPR28: c000000f65a17e90 c000000f65a17e90 c000000001685e18 00007fffacf3f000
+  NIP [c00000000000de44] fast_exception_return+0xf4/0x1b0
+  LR [c000000000034728] handle_rt_signal64+0x78/0xc50
+  Call Trace:
+  [c000000f65a17c80] [c000000000034710] handle_rt_signal64+0x60/0xc50 (unreliable)
+  [c000000f65a17d30] [c000000000023640] do_notify_resume+0x330/0x460
+  [c000000f65a17e20] [c00000000000dcc4] ret_from_except_lite+0x70/0x74
+  Instruction dump:
+  7c4ff120 e8410170 7c5a03a6 38400000 f8410060 e8010070 e8410080 e8610088
+  60000000 60000000 e8810090 e8210078 <4c000024> 48000000 e8610178 88ed0989
+  ---[ end trace 93094aa44b442f87 ]---
 
-When creating the SuperSpeedPlus USB Device Capability BOS descriptor
-for the xhci USB 3.1 roothub we for now will use only data from the
-first USB 3.1 capable protocol capability entry in the array.
-This could be improved later, this patch focuses resolving
-the memory leak.
+The simplified sequence of events that triggers the above exception is:
 
-Reported-by: Paul Menzel <pmenzel@molgen.mpg.de>
-Reported-by: Sajja Venkateswara Rao <VenkateswaraRao.Sajja@amd.com>
-Fixes: 47189098f8be ("xhci: parse xhci protocol speed ID list for usb 3.1 usage")
-Cc: stable <stable@vger.kernel.org> # v4.4+
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Tested-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Link: https://lore.kernel.org/r/20200211150158.14475-1-mathias.nyman@linux.intel.com
+  ...				# userspace in NON-TRANSACTIONAL state
+  tbegin			# userspace in TRANSACTIONAL state
+  signal delivery		# kernelspace in SUSPENDED state
+  handle_rt_signal64()
+    get_tm_stackpointer()
+      treclaim			# kernelspace in NON-TRANSACTIONAL state
+    __put_user()
+      page fault happens. We will never get back here because of the TM Bad Thing exception.
+
+  page fault handling kicks in and we voluntarily preempt ourselves
+  do_page_fault()
+    __schedule()
+      __switch_to(other_task)
+
+  our task is rescheduled and we recheckpoint because the thread's MSR[TS] was not cleared
+  __switch_to(our_task)
+    switch_to_tm()
+      tm_recheckpoint_new_task()
+        trechkpt			# kernelspace in SUSPENDED state
+
+  The page fault handling resumes, but now we are in suspended transaction state
+  do_page_fault()    completes
+  rfid     <----- trying to get back where the page fault happened (we were non-transactional back then)
+  TM Bad Thing			# illegal transition from suspended to non-transactional
+
+This patch fixes that issue by clearing the current thread's MSR[TS]
+just after treclaim in get_tm_stackpointer() so that we stay in
+non-transactional state in case we are preempted. In order to make
+treclaim and clearing the thread's MSR[TS] atomic from a preemption
+perspective when CONFIG_PREEMPT is set, preempt_disable/enable() is
+used. It's also necessary to save the previous value of the thread's
+MSR before get_tm_stackpointer() is called so that it can be exposed
+to the signal handler later in setup_tm_sigcontexts() to inform the
+userspace MSR at the moment of the signal delivery.
+
+Found with tm-signal-context-force-tm kernel selftest.
+
+Fixes: 2b0a576d15e0 ("powerpc: Add new transactional memory state to the signal context")
+Cc: stable@vger.kernel.org # v3.9
+Signed-off-by: Gustavo Luiz Duarte <gustavold@linux.ibm.com>
+Acked-by: Michael Neuling <mikey@neuling.org>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20200211033831.11165-1-gustavold@linux.ibm.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/host/xhci-hub.c |   25 ++++++++++++------
- drivers/usb/host/xhci-mem.c |   61 +++++++++++++++++++++++++++-----------------
- drivers/usb/host/xhci.h     |   16 +++++++++--
- 3 files changed, 68 insertions(+), 34 deletions(-)
+ arch/powerpc/kernel/signal.c    |   17 +++++++++++++++--
+ arch/powerpc/kernel/signal_32.c |   28 ++++++++++++++--------------
+ arch/powerpc/kernel/signal_64.c |   22 ++++++++++------------
+ 3 files changed, 39 insertions(+), 28 deletions(-)
 
---- a/drivers/usb/host/xhci-hub.c
-+++ b/drivers/usb/host/xhci-hub.c
-@@ -55,6 +55,7 @@ static u8 usb_bos_descriptor [] = {
- static int xhci_create_usb3_bos_desc(struct xhci_hcd *xhci, char *buf,
- 				     u16 wLength)
- {
-+	struct xhci_port_cap *port_cap = NULL;
- 	int i, ssa_count;
- 	u32 temp;
- 	u16 desc_size, ssp_cap_size, ssa_size = 0;
-@@ -64,16 +65,24 @@ static int xhci_create_usb3_bos_desc(str
- 	ssp_cap_size = sizeof(usb_bos_descriptor) - desc_size;
+--- a/arch/powerpc/kernel/signal.c
++++ b/arch/powerpc/kernel/signal.c
+@@ -200,14 +200,27 @@ unsigned long get_tm_stackpointer(struct
+ 	 * normal/non-checkpointed stack pointer.
+ 	 */
  
- 	/* does xhci support USB 3.1 Enhanced SuperSpeed */
--	if (xhci->usb3_rhub.min_rev >= 0x01) {
-+	for (i = 0; i < xhci->num_port_caps; i++) {
-+		if (xhci->port_caps[i].maj_rev == 0x03 &&
-+		    xhci->port_caps[i].min_rev >= 0x01) {
-+			usb3_1 = true;
-+			port_cap = &xhci->port_caps[i];
-+			break;
-+		}
-+	}
++	unsigned long ret = tsk->thread.regs->gpr[1];
 +
-+	if (usb3_1) {
- 		/* does xhci provide a PSI table for SSA speed attributes? */
--		if (xhci->usb3_rhub.psi_count) {
-+		if (port_cap->psi_count) {
- 			/* two SSA entries for each unique PSI ID, RX and TX */
--			ssa_count = xhci->usb3_rhub.psi_uid_count * 2;
-+			ssa_count = port_cap->psi_uid_count * 2;
- 			ssa_size = ssa_count * sizeof(u32);
- 			ssp_cap_size -= 16; /* skip copying the default SSA */
- 		}
- 		desc_size += ssp_cap_size;
--		usb3_1 = true;
+ #ifdef CONFIG_PPC_TRANSACTIONAL_MEM
+ 	BUG_ON(tsk != current);
+ 
+ 	if (MSR_TM_ACTIVE(tsk->thread.regs->msr)) {
++		preempt_disable();
+ 		tm_reclaim_current(TM_CAUSE_SIGNAL);
+ 		if (MSR_TM_TRANSACTIONAL(tsk->thread.regs->msr))
+-			return tsk->thread.ckpt_regs.gpr[1];
++			ret = tsk->thread.ckpt_regs.gpr[1];
++
++		/*
++		 * If we treclaim, we must clear the current thread's TM bits
++		 * before re-enabling preemption. Otherwise we might be
++		 * preempted and have the live MSR[TS] changed behind our back
++		 * (tm_recheckpoint_new_task() would recheckpoint). Besides, we
++		 * enter the signal handler in non-transactional state.
++		 */
++		tsk->thread.regs->msr &= ~MSR_TS_MASK;
++		preempt_enable();
  	}
- 	memcpy(buf, &usb_bos_descriptor, min(desc_size, wLength));
- 
-@@ -99,7 +108,7 @@ static int xhci_create_usb3_bos_desc(str
- 	}
- 
- 	/* If PSI table exists, add the custom speed attributes from it */
--	if (usb3_1 && xhci->usb3_rhub.psi_count) {
-+	if (usb3_1 && port_cap->psi_count) {
- 		u32 ssp_cap_base, bm_attrib, psi, psi_mant, psi_exp;
- 		int offset;
- 
-@@ -111,7 +120,7 @@ static int xhci_create_usb3_bos_desc(str
- 
- 		/* attribute count SSAC bits 4:0 and ID count SSIC bits 8:5 */
- 		bm_attrib = (ssa_count - 1) & 0x1f;
--		bm_attrib |= (xhci->usb3_rhub.psi_uid_count - 1) << 5;
-+		bm_attrib |= (port_cap->psi_uid_count - 1) << 5;
- 		put_unaligned_le32(bm_attrib, &buf[ssp_cap_base + 4]);
- 
- 		if (wLength < desc_size + ssa_size)
-@@ -124,8 +133,8 @@ static int xhci_create_usb3_bos_desc(str
- 		 * USB 3.1 requires two SSA entries (RX and TX) for every link
- 		 */
- 		offset = desc_size;
--		for (i = 0; i < xhci->usb3_rhub.psi_count; i++) {
--			psi = xhci->usb3_rhub.psi[i];
-+		for (i = 0; i < port_cap->psi_count; i++) {
-+			psi = port_cap->psi[i];
- 			psi &= ~USB_SSP_SUBLINK_SPEED_RSVD;
- 			psi_exp = XHCI_EXT_PORT_PSIE(psi);
- 			psi_mant = XHCI_EXT_PORT_PSIM(psi);
---- a/drivers/usb/host/xhci-mem.c
-+++ b/drivers/usb/host/xhci-mem.c
-@@ -1915,17 +1915,17 @@ no_bw:
- 	xhci->usb3_rhub.num_ports = 0;
- 	xhci->num_active_eps = 0;
- 	kfree(xhci->usb2_rhub.ports);
--	kfree(xhci->usb2_rhub.psi);
- 	kfree(xhci->usb3_rhub.ports);
--	kfree(xhci->usb3_rhub.psi);
- 	kfree(xhci->hw_ports);
- 	kfree(xhci->rh_bw);
- 	kfree(xhci->ext_caps);
-+	for (i = 0; i < xhci->num_port_caps; i++)
-+		kfree(xhci->port_caps[i].psi);
-+	kfree(xhci->port_caps);
-+	xhci->num_port_caps = 0;
- 
- 	xhci->usb2_rhub.ports = NULL;
--	xhci->usb2_rhub.psi = NULL;
- 	xhci->usb3_rhub.ports = NULL;
--	xhci->usb3_rhub.psi = NULL;
- 	xhci->hw_ports = NULL;
- 	xhci->rh_bw = NULL;
- 	xhci->ext_caps = NULL;
-@@ -2126,6 +2126,7 @@ static void xhci_add_in_port(struct xhci
- 	u8 major_revision, minor_revision;
- 	struct xhci_hub *rhub;
- 	struct device *dev = xhci_to_hcd(xhci)->self.sysdev;
-+	struct xhci_port_cap *port_cap;
- 
- 	temp = readl(addr);
- 	major_revision = XHCI_EXT_PORT_MAJOR(temp);
-@@ -2160,31 +2161,39 @@ static void xhci_add_in_port(struct xhci
- 		/* WTF? "Valid values are ‘1’ to MaxPorts" */
- 		return;
- 
--	rhub->psi_count = XHCI_EXT_PORT_PSIC(temp);
--	if (rhub->psi_count) {
--		rhub->psi = kcalloc_node(rhub->psi_count, sizeof(*rhub->psi),
--				    GFP_KERNEL, dev_to_node(dev));
--		if (!rhub->psi)
--			rhub->psi_count = 0;
--
--		rhub->psi_uid_count++;
--		for (i = 0; i < rhub->psi_count; i++) {
--			rhub->psi[i] = readl(addr + 4 + i);
-+	port_cap = &xhci->port_caps[xhci->num_port_caps++];
-+	if (xhci->num_port_caps > max_caps)
-+		return;
-+
-+	port_cap->maj_rev = major_revision;
-+	port_cap->min_rev = minor_revision;
-+	port_cap->psi_count = XHCI_EXT_PORT_PSIC(temp);
-+
-+	if (port_cap->psi_count) {
-+		port_cap->psi = kcalloc_node(port_cap->psi_count,
-+					     sizeof(*port_cap->psi),
-+					     GFP_KERNEL, dev_to_node(dev));
-+		if (!port_cap->psi)
-+			port_cap->psi_count = 0;
-+
-+		port_cap->psi_uid_count++;
-+		for (i = 0; i < port_cap->psi_count; i++) {
-+			port_cap->psi[i] = readl(addr + 4 + i);
- 
- 			/* count unique ID values, two consecutive entries can
- 			 * have the same ID if link is assymetric
- 			 */
--			if (i && (XHCI_EXT_PORT_PSIV(rhub->psi[i]) !=
--				  XHCI_EXT_PORT_PSIV(rhub->psi[i - 1])))
--				rhub->psi_uid_count++;
-+			if (i && (XHCI_EXT_PORT_PSIV(port_cap->psi[i]) !=
-+				  XHCI_EXT_PORT_PSIV(port_cap->psi[i - 1])))
-+				port_cap->psi_uid_count++;
- 
- 			xhci_dbg(xhci, "PSIV:%d PSIE:%d PLT:%d PFD:%d LP:%d PSIM:%d\n",
--				  XHCI_EXT_PORT_PSIV(rhub->psi[i]),
--				  XHCI_EXT_PORT_PSIE(rhub->psi[i]),
--				  XHCI_EXT_PORT_PLT(rhub->psi[i]),
--				  XHCI_EXT_PORT_PFD(rhub->psi[i]),
--				  XHCI_EXT_PORT_LP(rhub->psi[i]),
--				  XHCI_EXT_PORT_PSIM(rhub->psi[i]));
-+				  XHCI_EXT_PORT_PSIV(port_cap->psi[i]),
-+				  XHCI_EXT_PORT_PSIE(port_cap->psi[i]),
-+				  XHCI_EXT_PORT_PLT(port_cap->psi[i]),
-+				  XHCI_EXT_PORT_PFD(port_cap->psi[i]),
-+				  XHCI_EXT_PORT_LP(port_cap->psi[i]),
-+				  XHCI_EXT_PORT_PSIM(port_cap->psi[i]));
- 		}
- 	}
- 	/* cache usb2 port capabilities */
-@@ -2231,6 +2240,7 @@ static void xhci_add_in_port(struct xhci
- 			continue;
- 		}
- 		hw_port->rhub = rhub;
-+		hw_port->port_cap = port_cap;
- 		rhub->num_ports++;
- 	}
- 	/* FIXME: Should we disable ports not in the Extended Capabilities? */
-@@ -2321,6 +2331,11 @@ static int xhci_setup_port_arrays(struct
- 	if (!xhci->ext_caps)
- 		return -ENOMEM;
- 
-+	xhci->port_caps = kcalloc_node(cap_count, sizeof(*xhci->port_caps),
-+				flags, dev_to_node(dev));
-+	if (!xhci->port_caps)
-+		return -ENOMEM;
-+
- 	offset = cap_start;
- 
- 	while (offset) {
---- a/drivers/usb/host/xhci.h
-+++ b/drivers/usb/host/xhci.h
-@@ -1704,11 +1704,21 @@ static inline unsigned int hcd_index(str
- 	else
- 		return 1;
+ #endif
+-	return tsk->thread.regs->gpr[1];
++	return ret;
  }
-+
-+struct xhci_port_cap {
-+	u32			*psi;	/* array of protocol speed ID entries */
-+	u8			psi_count;
-+	u8			psi_uid_count;
-+	u8			maj_rev;
-+	u8			min_rev;
-+};
-+
- struct xhci_port {
- 	__le32 __iomem		*addr;
- 	int			hw_portnum;
- 	int			hcd_portnum;
- 	struct xhci_hub		*rhub;
-+	struct xhci_port_cap	*port_cap;
- };
+--- a/arch/powerpc/kernel/signal_32.c
++++ b/arch/powerpc/kernel/signal_32.c
+@@ -489,19 +489,11 @@ static int save_user_regs(struct pt_regs
+  */
+ static int save_tm_user_regs(struct pt_regs *regs,
+ 			     struct mcontext __user *frame,
+-			     struct mcontext __user *tm_frame, int sigret)
++			     struct mcontext __user *tm_frame, int sigret,
++			     unsigned long msr)
+ {
+-	unsigned long msr = regs->msr;
+-
+ 	WARN_ON(tm_suspend_disabled);
  
- struct xhci_hub {
-@@ -1718,9 +1728,6 @@ struct xhci_hub {
- 	/* supported prococol extended capabiliy values */
- 	u8			maj_rev;
- 	u8			min_rev;
--	u32			*psi;	/* array of protocol speed ID entries */
--	u8			psi_count;
--	u8			psi_uid_count;
- };
+-	/* Remove TM bits from thread's MSR.  The MSR in the sigcontext
+-	 * just indicates to userland that we were doing a transaction, but we
+-	 * don't want to return in transactional state.  This also ensures
+-	 * that flush_fp_to_thread won't set TIF_RESTORE_TM again.
+-	 */
+-	regs->msr &= ~MSR_TS_MASK;
+-
+ 	/* Save both sets of general registers */
+ 	if (save_general_regs(&current->thread.ckpt_regs, frame)
+ 	    || save_general_regs(regs, tm_frame))
+@@ -912,6 +904,10 @@ int handle_rt_signal32(struct ksignal *k
+ 	int sigret;
+ 	unsigned long tramp;
+ 	struct pt_regs *regs = tsk->thread.regs;
++#ifdef CONFIG_PPC_TRANSACTIONAL_MEM
++	/* Save the thread's msr before get_tm_stackpointer() changes it */
++	unsigned long msr = regs->msr;
++#endif
  
- /* There is one xhci_hcd structure per controller */
-@@ -1882,6 +1889,9 @@ struct xhci_hcd {
- 	/* cached usb2 extened protocol capabilites */
- 	u32                     *ext_caps;
- 	unsigned int            num_ext_caps;
-+	/* cached extended protocol port capabilities */
-+	struct xhci_port_cap	*port_caps;
-+	unsigned int		num_port_caps;
- 	/* Compliance Mode Recovery Data */
- 	struct timer_list	comp_mode_recovery_timer;
- 	u32			port_status_u0;
+ 	BUG_ON(tsk != current);
+ 
+@@ -944,13 +940,13 @@ int handle_rt_signal32(struct ksignal *k
+ 
+ #ifdef CONFIG_PPC_TRANSACTIONAL_MEM
+ 	tm_frame = &rt_sf->uc_transact.uc_mcontext;
+-	if (MSR_TM_ACTIVE(regs->msr)) {
++	if (MSR_TM_ACTIVE(msr)) {
+ 		if (__put_user((unsigned long)&rt_sf->uc_transact,
+ 			       &rt_sf->uc.uc_link) ||
+ 		    __put_user((unsigned long)tm_frame,
+ 			       &rt_sf->uc_transact.uc_regs))
+ 			goto badframe;
+-		if (save_tm_user_regs(regs, frame, tm_frame, sigret))
++		if (save_tm_user_regs(regs, frame, tm_frame, sigret, msr))
+ 			goto badframe;
+ 	}
+ 	else
+@@ -1369,6 +1365,10 @@ int handle_signal32(struct ksignal *ksig
+ 	int sigret;
+ 	unsigned long tramp;
+ 	struct pt_regs *regs = tsk->thread.regs;
++#ifdef CONFIG_PPC_TRANSACTIONAL_MEM
++	/* Save the thread's msr before get_tm_stackpointer() changes it */
++	unsigned long msr = regs->msr;
++#endif
+ 
+ 	BUG_ON(tsk != current);
+ 
+@@ -1402,9 +1402,9 @@ int handle_signal32(struct ksignal *ksig
+ 
+ #ifdef CONFIG_PPC_TRANSACTIONAL_MEM
+ 	tm_mctx = &frame->mctx_transact;
+-	if (MSR_TM_ACTIVE(regs->msr)) {
++	if (MSR_TM_ACTIVE(msr)) {
+ 		if (save_tm_user_regs(regs, &frame->mctx, &frame->mctx_transact,
+-				      sigret))
++				      sigret, msr))
+ 			goto badframe;
+ 	}
+ 	else
+--- a/arch/powerpc/kernel/signal_64.c
++++ b/arch/powerpc/kernel/signal_64.c
+@@ -192,7 +192,8 @@ static long setup_sigcontext(struct sigc
+ static long setup_tm_sigcontexts(struct sigcontext __user *sc,
+ 				 struct sigcontext __user *tm_sc,
+ 				 struct task_struct *tsk,
+-				 int signr, sigset_t *set, unsigned long handler)
++				 int signr, sigset_t *set, unsigned long handler,
++				 unsigned long msr)
+ {
+ 	/* When CONFIG_ALTIVEC is set, we _always_ setup v_regs even if the
+ 	 * process never used altivec yet (MSR_VEC is zero in pt_regs of
+@@ -207,12 +208,11 @@ static long setup_tm_sigcontexts(struct
+ 	elf_vrreg_t __user *tm_v_regs = sigcontext_vmx_regs(tm_sc);
+ #endif
+ 	struct pt_regs *regs = tsk->thread.regs;
+-	unsigned long msr = tsk->thread.regs->msr;
+ 	long err = 0;
+ 
+ 	BUG_ON(tsk != current);
+ 
+-	BUG_ON(!MSR_TM_ACTIVE(regs->msr));
++	BUG_ON(!MSR_TM_ACTIVE(msr));
+ 
+ 	WARN_ON(tm_suspend_disabled);
+ 
+@@ -222,13 +222,6 @@ static long setup_tm_sigcontexts(struct
+ 	 */
+ 	msr |= tsk->thread.ckpt_regs.msr & (MSR_FP | MSR_VEC | MSR_VSX);
+ 
+-	/* Remove TM bits from thread's MSR.  The MSR in the sigcontext
+-	 * just indicates to userland that we were doing a transaction, but we
+-	 * don't want to return in transactional state.  This also ensures
+-	 * that flush_fp_to_thread won't set TIF_RESTORE_TM again.
+-	 */
+-	regs->msr &= ~MSR_TS_MASK;
+-
+ #ifdef CONFIG_ALTIVEC
+ 	err |= __put_user(v_regs, &sc->v_regs);
+ 	err |= __put_user(tm_v_regs, &tm_sc->v_regs);
+@@ -824,6 +817,10 @@ int handle_rt_signal64(struct ksignal *k
+ 	unsigned long newsp = 0;
+ 	long err = 0;
+ 	struct pt_regs *regs = tsk->thread.regs;
++#ifdef CONFIG_PPC_TRANSACTIONAL_MEM
++	/* Save the thread's msr before get_tm_stackpointer() changes it */
++	unsigned long msr = regs->msr;
++#endif
+ 
+ 	BUG_ON(tsk != current);
+ 
+@@ -841,7 +838,7 @@ int handle_rt_signal64(struct ksignal *k
+ 	err |= __put_user(0, &frame->uc.uc_flags);
+ 	err |= __save_altstack(&frame->uc.uc_stack, regs->gpr[1]);
+ #ifdef CONFIG_PPC_TRANSACTIONAL_MEM
+-	if (MSR_TM_ACTIVE(regs->msr)) {
++	if (MSR_TM_ACTIVE(msr)) {
+ 		/* The ucontext_t passed to userland points to the second
+ 		 * ucontext_t (for transactional state) with its uc_link ptr.
+ 		 */
+@@ -849,7 +846,8 @@ int handle_rt_signal64(struct ksignal *k
+ 		err |= setup_tm_sigcontexts(&frame->uc.uc_mcontext,
+ 					    &frame->uc_transact.uc_mcontext,
+ 					    tsk, ksig->sig, NULL,
+-					    (unsigned long)ksig->ka.sa.sa_handler);
++					    (unsigned long)ksig->ka.sa.sa_handler,
++					    msr);
+ 	} else
+ #endif
+ 	{
 
 
