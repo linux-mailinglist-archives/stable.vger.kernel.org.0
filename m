@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DDB50171DF2
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:24:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 697B3171E83
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:28:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388985AbgB0ONh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 09:13:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52634 "EHLO mail.kernel.org"
+        id S2388104AbgB0OHe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 09:07:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45074 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388980AbgB0ONh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 09:13:37 -0500
+        id S2388087AbgB0OHe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 09:07:34 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AE89024690;
-        Thu, 27 Feb 2020 14:13:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C593424690;
+        Thu, 27 Feb 2020 14:07:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582812817;
-        bh=CbyDrFMn32uvZfgP3IBgZLYcyX5tbyJPqq33qrjGK+I=;
+        s=default; t=1582812453;
+        bh=5QnRTmfd6KtE19+R4Twv3aJf/UotOhBde0DRMcUgRyA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p/l+derm9Oj69KjzFAQ+HAjZSlLkVUnkxP5O2anCvmT68wFxH7ArkKQaBmR9xageO
-         zH5rd3TcjBbpFfZmo7T9qCQdI0GGvO+tsik4Uct16+PtrGKyZ0+hlnWvj17Y2QdKy+
-         ck2ics2r2xbk8L9zb+9vFuh2R3VHFR71TH6GgB5Q=
+        b=ws4pxWOorrtrO3D0cB1elXhLIFw7fABNxYeBv1bNIuJdNCm9w2HSGjWIxpPb8REv0
+         xkOnS6bhOKEUlDnPr5RZ5u5F9c4+A+JLUARFfEHHCW/a6ZPeTEuqmPaQxPww0ub9uw
+         Yft9r0iynyqXwpp7BFxKxpZ+76L5O+zEQU/SGVUc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.5 009/150] ALSA: hda/realtek - Apply quirk for yet another MSI laptop
+        stable@vger.kernel.org, Samuel Holland <samuel@sholland.org>,
+        Chen-Yu Tsai <wens@csie.org>, stable@kernel.org,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.4 006/135] ASoC: sun8i-codec: Fix setting DAI data format
 Date:   Thu, 27 Feb 2020 14:35:46 +0100
-Message-Id: <20200227132234.080064140@linuxfoundation.org>
+Message-Id: <20200227132229.927753901@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200227132232.815448360@linuxfoundation.org>
-References: <20200227132232.815448360@linuxfoundation.org>
+In-Reply-To: <20200227132228.710492098@linuxfoundation.org>
+References: <20200227132228.710492098@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,32 +44,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Samuel Holland <samuel@sholland.org>
 
-commit cc5049ae4d457194796f854eb2e38b9727ad8c2d upstream.
+commit 96781fd941b39e1f78098009344ebcd7af861c67 upstream.
 
-MSI GP65 laptop with SSID 1462:1293 requires the same quirk as other
-MSI models.
+Use the correct mask for this two-bit field. This fixes setting the DAI
+data format to RIGHT_J or DSP_A.
 
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=204159
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200218080915.3433-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fixes: 36c684936fae ("ASoC: Add sun8i digital audio codec")
+Signed-off-by: Samuel Holland <samuel@sholland.org>
+Acked-by: Chen-Yu Tsai <wens@csie.org>
+Cc: stable@kernel.org
+Link: https://lore.kernel.org/r/20200217064250.15516-7-samuel@sholland.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/pci/hda/patch_realtek.c |    1 +
- 1 file changed, 1 insertion(+)
+ sound/soc/sunxi/sun8i-codec.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -2449,6 +2449,7 @@ static const struct snd_pci_quirk alc882
- 	SND_PCI_QUIRK(0x1458, 0xa0b8, "Gigabyte AZ370-Gaming", ALC1220_FIXUP_GB_DUAL_CODECS),
- 	SND_PCI_QUIRK(0x1462, 0x1228, "MSI-GP63", ALC1220_FIXUP_CLEVO_P950),
- 	SND_PCI_QUIRK(0x1462, 0x1276, "MSI-GL73", ALC1220_FIXUP_CLEVO_P950),
-+	SND_PCI_QUIRK(0x1462, 0x1293, "MSI-GP65", ALC1220_FIXUP_CLEVO_P950),
- 	SND_PCI_QUIRK(0x1462, 0x7350, "MSI-7350", ALC889_FIXUP_CD),
- 	SND_PCI_QUIRK(0x1462, 0xda57, "MSI Z270-Gaming", ALC1220_FIXUP_GB_DUAL_CODECS),
- 	SND_PCI_QUIRK_VENDOR(0x1462, "MSI", ALC882_FIXUP_GPIO3),
+--- a/sound/soc/sunxi/sun8i-codec.c
++++ b/sound/soc/sunxi/sun8i-codec.c
+@@ -80,6 +80,7 @@
+ 
+ #define SUN8I_SYS_SR_CTRL_AIF1_FS_MASK		GENMASK(15, 12)
+ #define SUN8I_SYS_SR_CTRL_AIF2_FS_MASK		GENMASK(11, 8)
++#define SUN8I_AIF1CLK_CTRL_AIF1_DATA_FMT_MASK	GENMASK(3, 2)
+ #define SUN8I_AIF1CLK_CTRL_AIF1_WORD_SIZ_MASK	GENMASK(5, 4)
+ #define SUN8I_AIF1CLK_CTRL_AIF1_LRCK_DIV_MASK	GENMASK(8, 6)
+ #define SUN8I_AIF1CLK_CTRL_AIF1_BCLK_DIV_MASK	GENMASK(12, 9)
+@@ -241,7 +242,7 @@ static int sun8i_set_fmt(struct snd_soc_
+ 		return -EINVAL;
+ 	}
+ 	regmap_update_bits(scodec->regmap, SUN8I_AIF1CLK_CTRL,
+-			   BIT(SUN8I_AIF1CLK_CTRL_AIF1_DATA_FMT),
++			   SUN8I_AIF1CLK_CTRL_AIF1_DATA_FMT_MASK,
+ 			   value << SUN8I_AIF1CLK_CTRL_AIF1_DATA_FMT);
+ 
+ 	return 0;
 
 
