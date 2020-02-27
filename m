@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 890501719A7
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 14:47:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B1CE4171A95
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 14:55:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730171AbgB0Nqw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 08:46:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43176 "EHLO mail.kernel.org"
+        id S1731808AbgB0NzG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 08:55:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55300 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730589AbgB0Nqu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 08:46:50 -0500
+        id S1731940AbgB0NzF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 08:55:05 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5E1762469F;
-        Thu, 27 Feb 2020 13:46:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5DDB620801;
+        Thu, 27 Feb 2020 13:55:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582811209;
-        bh=Swyng6d+9CposMWyIsWX6EsBuZZ282uigPpLCyS1LsI=;
+        s=default; t=1582811704;
+        bh=m1l2Q5vHW6YWT802IzHx2UfbP3/OKRtAHU8XkXaeWlA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EnAZutLKfXmC9mYyYZkgIxCMr8ElELic3EC77d+0NZFdb1BH7d7Bepn2NwmMztM9F
-         fZ8ZGhILGkYC0yIbyAD6QIrCI2EIW0NBxkEC9+FU4wc6iu0NZaT2i+7apclmfDX4hB
-         wtJU6HI3/36gxHnjlKqLJB6SEgfKtGH/1Lru7Tl4=
+        b=Xo8EwbSa2EkZlRZPkSZrdIJPdu91qFTyHBEio7p/any3r096HJ8HqKR5vbwUv91Rj
+         FIZ6UsAbgfnn9Pffa7ZNM6aJUqhJxnJZD2cxkOwHKkbfeAUsGI9fScoKrNYcBJBePh
+         EwHFNJhl6DH4RcI4Qemv/AV/PMdhsuml2tWZ9Mtg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andreas Dilger <adilger@dilger.ca>,
-        Theodore Tso <tytso@mit.edu>, stable@kernel.org
-Subject: [PATCH 4.9 007/165] ext4: dont assume that mmp_nodename/bdevname have NUL
-Date:   Thu, 27 Feb 2020 14:34:41 +0100
-Message-Id: <20200227132232.204573341@linuxfoundation.org>
+        stable@vger.kernel.org, Julian Wiedmann <jwi@linux.ibm.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Thomas Huth <thuth@redhat.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 068/237] KVM: s390: ENOTSUPP -> EOPNOTSUPP fixups
+Date:   Thu, 27 Feb 2020 14:34:42 +0100
+Message-Id: <20200227132302.085256264@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200227132230.840899170@linuxfoundation.org>
-References: <20200227132230.840899170@linuxfoundation.org>
+In-Reply-To: <20200227132255.285644406@linuxfoundation.org>
+References: <20200227132255.285644406@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,58 +46,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andreas Dilger <adilger@dilger.ca>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
 
-commit 14c9ca0583eee8df285d68a0e6ec71053efd2228 upstream.
+[ Upstream commit c611990844c28c61ca4b35ff69d3a2ae95ccd486 ]
 
-Don't assume that the mmp_nodename and mmp_bdevname strings are NUL
-terminated, since they are filled in by snprintf(), which is not
-guaranteed to do so.
+There is no ENOTSUPP for userspace.
 
-Link: https://lore.kernel.org/r/1580076215-1048-1-git-send-email-adilger@dilger.ca
-Signed-off-by: Andreas Dilger <adilger@dilger.ca>
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Cc: stable@kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Reported-by: Julian Wiedmann <jwi@linux.ibm.com>
+Fixes: 519783935451 ("KVM: s390: introduce ais mode modify function")
+Fixes: 2c1a48f2e5ed ("KVM: S390: add new group for flic")
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Reviewed-by: Thomas Huth <thuth@redhat.com>
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/mmp.c |   12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
+ arch/s390/kvm/interrupt.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/fs/ext4/mmp.c
-+++ b/fs/ext4/mmp.c
-@@ -119,10 +119,10 @@ void __dump_mmp_msg(struct super_block *
- {
- 	__ext4_warning(sb, function, line, "%s", msg);
- 	__ext4_warning(sb, function, line,
--		       "MMP failure info: last update time: %llu, last update "
--		       "node: %s, last update device: %s",
--		       (long long unsigned int) le64_to_cpu(mmp->mmp_time),
--		       mmp->mmp_nodename, mmp->mmp_bdevname);
-+		       "MMP failure info: last update time: %llu, last update node: %.*s, last update device: %.*s",
-+		       (unsigned long long)le64_to_cpu(mmp->mmp_time),
-+		       (int)sizeof(mmp->mmp_nodename), mmp->mmp_nodename,
-+		       (int)sizeof(mmp->mmp_bdevname), mmp->mmp_bdevname);
- }
+diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
+index 28f3796d23c8f..61d25e2c82efa 100644
+--- a/arch/s390/kvm/interrupt.c
++++ b/arch/s390/kvm/interrupt.c
+@@ -1913,7 +1913,7 @@ static int flic_ais_mode_get_all(struct kvm *kvm, struct kvm_device_attr *attr)
+ 		return -EINVAL;
  
- /*
-@@ -153,6 +153,7 @@ static int kmmpd(void *data)
- 	mmp_check_interval = max(EXT4_MMP_CHECK_MULT * mmp_update_interval,
- 				 EXT4_MMP_MIN_CHECK_INTERVAL);
- 	mmp->mmp_check_interval = cpu_to_le16(mmp_check_interval);
-+	BUILD_BUG_ON(sizeof(mmp->mmp_bdevname) < BDEVNAME_SIZE);
- 	bdevname(bh->b_bdev, mmp->mmp_bdevname);
+ 	if (!test_kvm_facility(kvm, 72))
+-		return -ENOTSUPP;
++		return -EOPNOTSUPP;
  
- 	memcpy(mmp->mmp_nodename, init_utsname()->nodename,
-@@ -377,7 +378,8 @@ skip:
- 	/*
- 	 * Start a kernel thread to update the MMP block periodically.
- 	 */
--	EXT4_SB(sb)->s_mmp_tsk = kthread_run(kmmpd, mmpd_data, "kmmpd-%s",
-+	EXT4_SB(sb)->s_mmp_tsk = kthread_run(kmmpd, mmpd_data, "kmmpd-%.*s",
-+					     (int)sizeof(mmp->mmp_bdevname),
- 					     bdevname(bh->b_bdev,
- 						      mmp->mmp_bdevname));
- 	if (IS_ERR(EXT4_SB(sb)->s_mmp_tsk)) {
+ 	mutex_lock(&fi->ais_lock);
+ 	ais.simm = fi->simm;
+@@ -2214,7 +2214,7 @@ static int modify_ais_mode(struct kvm *kvm, struct kvm_device_attr *attr)
+ 	int ret = 0;
+ 
+ 	if (!test_kvm_facility(kvm, 72))
+-		return -ENOTSUPP;
++		return -EOPNOTSUPP;
+ 
+ 	if (copy_from_user(&req, (void __user *)attr->addr, sizeof(req)))
+ 		return -EFAULT;
+@@ -2294,7 +2294,7 @@ static int flic_ais_mode_set_all(struct kvm *kvm, struct kvm_device_attr *attr)
+ 	struct kvm_s390_ais_all ais;
+ 
+ 	if (!test_kvm_facility(kvm, 72))
+-		return -ENOTSUPP;
++		return -EOPNOTSUPP;
+ 
+ 	if (copy_from_user(&ais, (void __user *)attr->addr, sizeof(ais)))
+ 		return -EFAULT;
+-- 
+2.20.1
+
 
 
