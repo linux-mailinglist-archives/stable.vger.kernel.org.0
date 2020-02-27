@@ -2,36 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D67E17193D
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 14:43:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C7440171940
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 14:43:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729904AbgB0NnM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 08:43:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38320 "EHLO mail.kernel.org"
+        id S1729936AbgB0NnT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 08:43:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38438 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729615AbgB0NnK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 08:43:10 -0500
+        id S1729927AbgB0NnR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 08:43:17 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F3BCF20578;
-        Thu, 27 Feb 2020 13:43:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 70BDA222C2;
+        Thu, 27 Feb 2020 13:43:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582810989;
-        bh=dVXJL/T4dMys1FvCdbA1mV3mv1OraNsbPY9kEd0Rh5w=;
+        s=default; t=1582810995;
+        bh=SQwdO+jfBvu42N9g8goU7BJjGbSHqNAI1Ma+uIeASAc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fPFEJDpZ483yU8O+dU9atIaFubGRcvW+DwPxHr/jMA0bDKwfaOLDOh9t3hiWTE7en
-         ndILiz87WnK5Tpp7bjHdn5nzzYgVNkoKkP5OM6r7QQ8PUUqR8i6FS51Vt6TOjURm2t
-         /nbI5dNM/VK9KFl2bcslDC5Uc1BQPaX3uCjQiUXc=
+        b=WVpGXv5rn+F/ggYKFhio3QjMHkIO8P4ZCruRCl06mJrCjQbVU/jjpX3NY1QCtbev5
+         tDyohq/Il7aHzke5oWrJPAY4ySozq9vg/S6KtzbpG3eoe06ulZsGPFFiijn9FiIF3g
+         hsE8lgf60C1vkEj3/6ON4j006bLbnBErqxdQ3smA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vasily Averin <vvs@virtuozzo.com>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
+        stable@vger.kernel.org, Yan Wang <wangyan122@huawei.com>,
+        Jun Piao <piaojun@huawei.com>, Mark Fasheh <mark@fasheh.com>,
+        Joel Becker <jlbec@evilplan.org>,
+        Junxiao Bi <junxiao.bi@oracle.com>,
+        Joseph Qi <jiangqi903@gmail.com>,
+        Changwei Ge <gechangwei@live.cn>, Gang He <ghe@suse.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 074/113] trigger_next should increase position index
-Date:   Thu, 27 Feb 2020 14:36:30 +0100
-Message-Id: <20200227132223.637889402@linuxfoundation.org>
+Subject: [PATCH 4.4 076/113] ocfs2: fix a NULL pointer dereference when call ocfs2_update_inode_fsync_trans()
+Date:   Thu, 27 Feb 2020 14:36:32 +0100
+Message-Id: <20200227132223.941519342@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200227132211.791484803@linuxfoundation.org>
 References: <20200227132211.791484803@linuxfoundation.org>
@@ -44,62 +50,137 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasily Averin <vvs@virtuozzo.com>
+From: wangyan <wangyan122@huawei.com>
 
-[ Upstream commit 6722b23e7a2ace078344064a9735fb73e554e9ef ]
+[ Upstream commit 9f16ca48fc818a17de8be1f75d08e7f4addc4497 ]
 
-if seq_file .next fuction does not change position index,
-read after some lseek can generate unexpected output.
+I found a NULL pointer dereference in ocfs2_update_inode_fsync_trans(),
+handle->h_transaction may be NULL in this situation:
 
-Without patch:
- # dd bs=30 skip=1 if=/sys/kernel/tracing/events/sched/sched_switch/trigger
- dd: /sys/kernel/tracing/events/sched/sched_switch/trigger: cannot skip to specified offset
- n traceoff snapshot stacktrace enable_event disable_event enable_hist disable_hist hist
- # Available triggers:
- # traceon traceoff snapshot stacktrace enable_event disable_event enable_hist disable_hist hist
- 6+1 records in
- 6+1 records out
- 206 bytes copied, 0.00027916 s, 738 kB/s
+ocfs2_file_write_iter
+  ->__generic_file_write_iter
+      ->generic_perform_write
+        ->ocfs2_write_begin
+          ->ocfs2_write_begin_nolock
+            ->ocfs2_write_cluster_by_desc
+              ->ocfs2_write_cluster
+                ->ocfs2_mark_extent_written
+                  ->ocfs2_change_extent_flag
+                    ->ocfs2_split_extent
+                      ->ocfs2_try_to_merge_extent
+                        ->ocfs2_extend_rotate_transaction
+                          ->ocfs2_extend_trans
+                            ->jbd2_journal_restart
+                              ->jbd2__journal_restart
+                                // handle->h_transaction is NULL here
+                                ->handle->h_transaction = NULL;
+                                ->start_this_handle
+                                  /* journal aborted due to storage
+                                     network disconnection, return error */
+                                  ->return -EROFS;
+                         /* line 3806 in ocfs2_try_to_merge_extent (),
+                            it will ignore ret error. */
+                        ->ret = 0;
+        ->...
+        ->ocfs2_write_end
+          ->ocfs2_write_end_nolock
+            ->ocfs2_update_inode_fsync_trans
+              // NULL pointer dereference
+              ->oi->i_sync_tid = handle->h_transaction->t_tid;
 
-Notice the printing of "# Available triggers:..." after the line.
+The information of NULL pointer dereference as follows:
+    JBD2: Detected IO errors while flushing file data on dm-11-45
+    Aborting journal on device dm-11-45.
+    JBD2: Error -5 detected when updating journal superblock for dm-11-45.
+    (dd,22081,3):ocfs2_extend_trans:474 ERROR: status = -30
+    (dd,22081,3):ocfs2_try_to_merge_extent:3877 ERROR: status = -30
+    Unable to handle kernel NULL pointer dereference at
+    virtual address 0000000000000008
+    Mem abort info:
+      ESR = 0x96000004
+      Exception class = DABT (current EL), IL = 32 bits
+      SET = 0, FnV = 0
+      EA = 0, S1PTW = 0
+    Data abort info:
+      ISV = 0, ISS = 0x00000004
+      CM = 0, WnR = 0
+    user pgtable: 4k pages, 48-bit VAs, pgdp = 00000000e74e1338
+    [0000000000000008] pgd=0000000000000000
+    Internal error: Oops: 96000004 [#1] SMP
+    Process dd (pid: 22081, stack limit = 0x00000000584f35a9)
+    CPU: 3 PID: 22081 Comm: dd Kdump: loaded
+    Hardware name: Huawei TaiShan 2280 V2/BC82AMDD, BIOS 0.98 08/25/2019
+    pstate: 60400009 (nZCv daif +PAN -UAO)
+    pc : ocfs2_write_end_nolock+0x2b8/0x550 [ocfs2]
+    lr : ocfs2_write_end_nolock+0x2a0/0x550 [ocfs2]
+    sp : ffff0000459fba70
+    x29: ffff0000459fba70 x28: 0000000000000000
+    x27: ffff807ccf7f1000 x26: 0000000000000001
+    x25: ffff807bdff57970 x24: ffff807caf1d4000
+    x23: ffff807cc79e9000 x22: 0000000000001000
+    x21: 000000006c6cd000 x20: ffff0000091d9000
+    x19: ffff807ccb239db0 x18: ffffffffffffffff
+    x17: 000000000000000e x16: 0000000000000007
+    x15: ffff807c5e15bd78 x14: 0000000000000000
+    x13: 0000000000000000 x12: 0000000000000000
+    x11: 0000000000000000 x10: 0000000000000001
+    x9 : 0000000000000228 x8 : 000000000000000c
+    x7 : 0000000000000fff x6 : ffff807a308ed6b0
+    x5 : ffff7e01f10967c0 x4 : 0000000000000018
+    x3 : d0bc661572445600 x2 : 0000000000000000
+    x1 : 000000001b2e0200 x0 : 0000000000000000
+    Call trace:
+     ocfs2_write_end_nolock+0x2b8/0x550 [ocfs2]
+     ocfs2_write_end+0x4c/0x80 [ocfs2]
+     generic_perform_write+0x108/0x1a8
+     __generic_file_write_iter+0x158/0x1c8
+     ocfs2_file_write_iter+0x668/0x950 [ocfs2]
+     __vfs_write+0x11c/0x190
+     vfs_write+0xac/0x1c0
+     ksys_write+0x6c/0xd8
+     __arm64_sys_write+0x24/0x30
+     el0_svc_common+0x78/0x130
+     el0_svc_handler+0x38/0x78
+     el0_svc+0x8/0xc
 
-With the patch:
- # dd bs=30 skip=1 if=/sys/kernel/tracing/events/sched/sched_switch/trigger
- dd: /sys/kernel/tracing/events/sched/sched_switch/trigger: cannot skip to specified offset
- n traceoff snapshot stacktrace enable_event disable_event enable_hist disable_hist hist
- 2+1 records in
- 2+1 records out
- 88 bytes copied, 0.000526867 s, 167 kB/s
+To prevent NULL pointer dereference in this situation, we use
+is_handle_aborted() before using handle->h_transaction->t_tid.
 
-It only prints the end of the file, and does not restart.
-
-Link: http://lkml.kernel.org/r/3c35ee24-dd3a-8119-9c19-552ed253388a@virtuozzo.com
-
-https://bugzilla.kernel.org/show_bug.cgi?id=206283
-Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Link: http://lkml.kernel.org/r/03e750ab-9ade-83aa-b000-b9e81e34e539@huawei.com
+Signed-off-by: Yan Wang <wangyan122@huawei.com>
+Reviewed-by: Jun Piao <piaojun@huawei.com>
+Cc: Mark Fasheh <mark@fasheh.com>
+Cc: Joel Becker <jlbec@evilplan.org>
+Cc: Junxiao Bi <junxiao.bi@oracle.com>
+Cc: Joseph Qi <jiangqi903@gmail.com>
+Cc: Changwei Ge <gechangwei@live.cn>
+Cc: Gang He <ghe@suse.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/trace/trace_events_trigger.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ fs/ocfs2/journal.h | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/kernel/trace/trace_events_trigger.c b/kernel/trace/trace_events_trigger.c
-index 8be66a2b0cacf..6524920c6ebc8 100644
---- a/kernel/trace/trace_events_trigger.c
-+++ b/kernel/trace/trace_events_trigger.c
-@@ -121,9 +121,10 @@ static void *trigger_next(struct seq_file *m, void *t, loff_t *pos)
+diff --git a/fs/ocfs2/journal.h b/fs/ocfs2/journal.h
+index f4cd3c3e9fb70..0a4d2cbf512f8 100644
+--- a/fs/ocfs2/journal.h
++++ b/fs/ocfs2/journal.h
+@@ -637,9 +637,11 @@ static inline void ocfs2_update_inode_fsync_trans(handle_t *handle,
  {
- 	struct trace_event_file *event_file = event_file_data(m->private);
+ 	struct ocfs2_inode_info *oi = OCFS2_I(inode);
  
--	if (t == SHOW_AVAILABLE_TRIGGERS)
-+	if (t == SHOW_AVAILABLE_TRIGGERS) {
-+		(*pos)++;
- 		return NULL;
--
+-	oi->i_sync_tid = handle->h_transaction->t_tid;
+-	if (datasync)
+-		oi->i_datasync_tid = handle->h_transaction->t_tid;
++	if (!is_handle_aborted(handle)) {
++		oi->i_sync_tid = handle->h_transaction->t_tid;
++		if (datasync)
++			oi->i_datasync_tid = handle->h_transaction->t_tid;
 +	}
- 	return seq_list_next(t, &event_file->triggers, pos);
  }
  
+ #endif /* OCFS2_JOURNAL_H */
 -- 
 2.20.1
 
