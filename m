@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E35F171E27
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:25:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4110B171D7E
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:21:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387461AbgB0OZn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 09:25:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49338 "EHLO mail.kernel.org"
+        id S2389739AbgB0ORl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 09:17:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58130 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388211AbgB0OLB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 09:11:01 -0500
+        id S2389748AbgB0ORl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 09:17:41 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BE3A520714;
-        Thu, 27 Feb 2020 14:11:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 28C2A2468F;
+        Thu, 27 Feb 2020 14:17:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582812661;
-        bh=A9uAKK7YkzX0ba2QET25Yc8HWZTPTDPR+mNkf7f6ehc=;
+        s=default; t=1582813059;
+        bh=NpPQdfyc5L+GRHg5wPDXDM8+oXQBfP++pwzaH75mJkA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TCjs7OqwdpAeBQ/DFQugQwFn72oGGmljeDmEvBTIMkOjwevmXEhZrj5sCNobLbF4t
-         Xnu79nqP5b3JmvcQzwSevidXGovmN2G5n8hSfYLjUHSMmdgiYAxuEbyV5HoFb2ngsP
-         rpQmz5UVVjSbhIa8pkJbwF9/wcSc1GR7iAt9KhR0=
+        b=J1/H601MRsHDvf+1PFMd6ojsqcwD1vLYqwC8gxYHcMxX3V+BWtrK6wqygtulsYIRm
+         MbAHmf6rgJE/TFOJa4kIyaV5Tl3qknsAnEO5cDeuphCZX424m40V3934K0VD/q3DsL
+         tQzyQKBmGTfENT1H4lV4hRryWfC8BvKOe9zd2Z88=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chris Wilson <chris@chris-wilson.co.uk>,
-        Mika Kuoppala <mika.kuoppala@linux.intel.com>,
-        Tvrtko Ursulin <tvrtko.ursulin@intel.com>,
-        stable@kernel.vger.org
-Subject: [PATCH 5.4 101/135] drm/i915/gt: Detect if we miss WaIdleLiteRestore
+        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
+        Jeff Mahoney <jeffm@suse.com>, Qu Wenruo <wqu@suse.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.5 104/150] btrfs: destroy qgroup extent records on transaction abort
 Date:   Thu, 27 Feb 2020 14:37:21 +0100
-Message-Id: <20200227132244.400898378@linuxfoundation.org>
+Message-Id: <20200227132248.117693088@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200227132228.710492098@linuxfoundation.org>
-References: <20200227132228.710492098@linuxfoundation.org>
+In-Reply-To: <20200227132232.815448360@linuxfoundation.org>
+References: <20200227132232.815448360@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,130 +44,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Wilson <chris@chris-wilson.co.uk>
+From: Jeff Mahoney <jeffm@suse.com>
 
-commit 82c69bf58650e644c61aa2bf5100b63a1070fd2f upstream.
+commit 81f7eb00ff5bb8326e82503a32809421d14abb8a upstream.
 
-In order to avoid confusing the HW, we must never submit an empty ring
-during lite-restore, that is we should always advance the RING_TAIL
-before submitting to stay ahead of the RING_HEAD.
+We clean up the delayed references when we abort a transaction but we
+leave the pending qgroup extent records behind, leaking memory.
 
-Normally this is prevented by keeping a couple of spare NOPs in the
-request->wa_tail so that on resubmission we can advance the tail. This
-relies on the request only being resubmitted once, which is the normal
-condition as it is seen once for ELSP[1] and then later in ELSP[0]. On
-preemption, the requests are unwound and the tail reset back to the
-normal end point (as we know the request is incomplete and therefore its
-RING_HEAD is even earlier).
+This patch destroys the extent records when we destroy the delayed refs
+and makes sure ensure they're gone before releasing the transaction.
 
-However, if this w/a should fail we would try and resubmit the request
-with the RING_TAIL already set to the location of this request's wa_tail
-potentially causing a GPU hang. We can spot when we do try and
-incorrectly resubmit without advancing the RING_TAIL and spare any
-embarrassment by forcing the context restore.
-
-In the case of preempt-to-busy, we leave the requests running on the HW
-while we unwind. As the ring is still live, we cannot rewind our
-rq->tail without forcing a reload so leave it set to rq->wa_tail and
-only force a reload if we resubmit after a lite-restore. (Normally, the
-forced reload will be a part of the preemption event.)
-
-Fixes: 22b7a426bbe1 ("drm/i915/execlists: Preempt-to-busy")
-Closes: https://gitlab.freedesktop.org/drm/intel/issues/673
-Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Cc: Mika Kuoppala <mika.kuoppala@linux.intel.com>
-Cc: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-Reviewed-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-Cc: stable@kernel.vger.org
-Link: https://patchwork.freedesktop.org/patch/msgid/20191209023215.3519970-1-chris@chris-wilson.co.uk
+Fixes: 3368d001ba5d ("btrfs: qgroup: Record possible quota-related extent for qgroup.")
+CC: stable@vger.kernel.org # 4.4+
+Reviewed-by: Josef Bacik <josef@toxicpanda.com>
+Signed-off-by: Jeff Mahoney <jeffm@suse.com>
+[ Rebased to latest upstream, remove to_qgroup() helper, use
+  rbtree_postorder_for_each_entry_safe() wrapper ]
+Signed-off-by: Qu Wenruo <wqu@suse.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-
 ---
- drivers/gpu/drm/i915/gt/intel_lrc.c |   42 +++++++++++++++++-------------------
- 1 file changed, 20 insertions(+), 22 deletions(-)
+ fs/btrfs/disk-io.c     |    1 +
+ fs/btrfs/qgroup.c      |   13 +++++++++++++
+ fs/btrfs/qgroup.h      |    1 +
+ fs/btrfs/transaction.c |    2 ++
+ 4 files changed, 17 insertions(+)
 
---- a/drivers/gpu/drm/i915/gt/intel_lrc.c
-+++ b/drivers/gpu/drm/i915/gt/intel_lrc.c
-@@ -471,12 +471,6 @@ lrc_descriptor(struct intel_context *ce,
- 	return desc;
- }
- 
--static void unwind_wa_tail(struct i915_request *rq)
--{
--	rq->tail = intel_ring_wrap(rq->ring, rq->wa_tail - WA_TAIL_BYTES);
--	assert_ring_tail_valid(rq->ring, rq->tail);
--}
--
- static struct i915_request *
- __unwind_incomplete_requests(struct intel_engine_cs *engine)
- {
-@@ -495,7 +489,6 @@ __unwind_incomplete_requests(struct inte
- 			continue; /* XXX */
- 
- 		__i915_request_unsubmit(rq);
--		unwind_wa_tail(rq);
- 
- 		/*
- 		 * Push the request back into the queue for later resubmission.
-@@ -650,13 +643,29 @@ execlists_schedule_out(struct i915_reque
- 	i915_request_put(rq);
- }
- 
--static u64 execlists_update_context(const struct i915_request *rq)
-+static u64 execlists_update_context(struct i915_request *rq)
- {
- 	struct intel_context *ce = rq->hw_context;
--	u64 desc;
-+	u64 desc = ce->lrc_desc;
-+	u32 tail;
- 
--	ce->lrc_reg_state[CTX_RING_TAIL + 1] =
--		intel_ring_set_tail(rq->ring, rq->tail);
-+	/*
-+	 * WaIdleLiteRestore:bdw,skl
-+	 *
-+	 * We should never submit the context with the same RING_TAIL twice
-+	 * just in case we submit an empty ring, which confuses the HW.
-+	 *
-+	 * We append a couple of NOOPs (gen8_emit_wa_tail) after the end of
-+	 * the normal request to be able to always advance the RING_TAIL on
-+	 * subsequent resubmissions (for lite restore). Should that fail us,
-+	 * and we try and submit the same tail again, force the context
-+	 * reload.
-+	 */
-+	tail = intel_ring_set_tail(rq->ring, rq->tail);
-+	if (unlikely(ce->lrc_reg_state[CTX_RING_TAIL + 1] == tail))
-+		desc |= CTX_DESC_FORCE_RESTORE;
-+	ce->lrc_reg_state[CTX_RING_TAIL + 1] = tail;
-+	rq->tail = rq->wa_tail;
- 
- 	/*
- 	 * Make sure the context image is complete before we submit it to HW.
-@@ -675,7 +684,6 @@ static u64 execlists_update_context(cons
- 	 */
- 	mb();
- 
--	desc = ce->lrc_desc;
- 	ce->lrc_desc &= ~CTX_DESC_FORCE_RESTORE;
- 
- 	return desc;
-@@ -1150,16 +1158,6 @@ static void execlists_dequeue(struct int
- 			if (!list_is_last(&last->sched.link,
- 					  &engine->active.requests))
- 				return;
--
--			/*
--			 * WaIdleLiteRestore:bdw,skl
--			 * Apply the wa NOOPs to prevent
--			 * ring:HEAD == rq:TAIL as we resubmit the
--			 * request. See gen8_emit_fini_breadcrumb() for
--			 * where we prepare the padding after the
--			 * end of the request.
--			 */
--			last->tail = last->wa_tail;
- 		}
+--- a/fs/btrfs/disk-io.c
++++ b/fs/btrfs/disk-io.c
+@@ -4272,6 +4272,7 @@ static int btrfs_destroy_delayed_refs(st
+ 		cond_resched();
+ 		spin_lock(&delayed_refs->lock);
  	}
++	btrfs_qgroup_destroy_extent_records(trans);
  
+ 	spin_unlock(&delayed_refs->lock);
+ 
+--- a/fs/btrfs/qgroup.c
++++ b/fs/btrfs/qgroup.c
+@@ -4016,3 +4016,16 @@ out:
+ 	}
+ 	return ret;
+ }
++
++void btrfs_qgroup_destroy_extent_records(struct btrfs_transaction *trans)
++{
++	struct btrfs_qgroup_extent_record *entry;
++	struct btrfs_qgroup_extent_record *next;
++	struct rb_root *root;
++
++	root = &trans->delayed_refs.dirty_extent_root;
++	rbtree_postorder_for_each_entry_safe(entry, next, root, node) {
++		ulist_free(entry->old_roots);
++		kfree(entry);
++	}
++}
+--- a/fs/btrfs/qgroup.h
++++ b/fs/btrfs/qgroup.h
+@@ -414,5 +414,6 @@ int btrfs_qgroup_add_swapped_blocks(stru
+ 		u64 last_snapshot);
+ int btrfs_qgroup_trace_subtree_after_cow(struct btrfs_trans_handle *trans,
+ 		struct btrfs_root *root, struct extent_buffer *eb);
++void btrfs_qgroup_destroy_extent_records(struct btrfs_transaction *trans);
+ 
+ #endif
+--- a/fs/btrfs/transaction.c
++++ b/fs/btrfs/transaction.c
+@@ -121,6 +121,8 @@ void btrfs_put_transaction(struct btrfs_
+ 		BUG_ON(!list_empty(&transaction->list));
+ 		WARN_ON(!RB_EMPTY_ROOT(
+ 				&transaction->delayed_refs.href_root.rb_root));
++		WARN_ON(!RB_EMPTY_ROOT(
++				&transaction->delayed_refs.dirty_extent_root));
+ 		if (transaction->delayed_refs.pending_csums)
+ 			btrfs_err(transaction->fs_info,
+ 				  "pending csums is %llu",
 
 
