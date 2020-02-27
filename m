@@ -2,50 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 07F651720FE
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:47:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 99E36171FD7
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:40:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729783AbgB0NpR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 08:45:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41112 "EHLO mail.kernel.org"
+        id S1731912AbgB0Nyu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 08:54:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54986 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729995AbgB0NpQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 08:45:16 -0500
+        id S1731904AbgB0Nyu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 08:54:50 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DDB2320578;
-        Thu, 27 Feb 2020 13:45:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CEFD32084E;
+        Thu, 27 Feb 2020 13:54:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582811115;
-        bh=3rdEB6lUQ6pPyyCbptbrR7bjgdT1cCzygJYV84n2H3Q=;
+        s=default; t=1582811689;
+        bh=y20f20EyVym5ZJBttPilPcZuoK1w1Z50nYChb4w15uA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uKZjZAT2yNqeqyHhZAhHYZzf0f785LvLAnbtkVawSnsJtQqoV0vlDXvKTSmE9K7x3
-         ig0xzCn6xh9jJUD3gQffg4vim/HG/D2JoxksVU4/4UTEggXFEUymqy6d4n6CKAosmo
-         MxskEvvZQYxRiLRpPhN2kUbnCWnUECRw67qzLI2s=
+        b=oDunBWMGMn9u11ILnT2HxNDhVpBfpn9Zs63x8vwKC7c3HY1ygDsIjYJnHqffVEA82
+         8aMSUDd642t+B24/emhXl+4PkEZkfew9CziiL3m/B40Jv963ozlsKk22Om/IFwZKgf
+         6L4O0IefPYrKXDwM3B8NlqOACC3hLEDNzM7gWakg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Megha Dey <megha.dey@intel.com>,
-        Andy Lutomirski <luto@kernel.org>,
-        Borislav Petkov <bp@alien8.de>,
-        Brian Gerst <brgerst@gmail.com>,
-        Denys Vlasenko <dvlasenk@redhat.com>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@kernel.org>
-Subject: [PATCH 4.9 001/165] x86/vdso: Use RDPID in preference to LSL when available
-Date:   Thu, 27 Feb 2020 14:34:35 +0100
-Message-Id: <20200227132231.080872298@linuxfoundation.org>
+        stable@vger.kernel.org, Kai Li <li.kai4@h3c.com>,
+        Theodore Tso <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 062/237] jbd2: clear JBD2_ABORT flag before journal_reset to update log tail info when load journal
+Date:   Thu, 27 Feb 2020 14:34:36 +0100
+Message-Id: <20200227132301.556194589@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200227132230.840899170@linuxfoundation.org>
-References: <20200227132230.840899170@linuxfoundation.org>
+In-Reply-To: <20200227132255.285644406@linuxfoundation.org>
+References: <20200227132255.285644406@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -54,59 +43,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Lutomirski <luto@kernel.org>
+From: Kai Li <li.kai4@h3c.com>
 
-commit a582c540ac1b10f0a7d37415e04c4af42409fd08 upstream.
+[ Upstream commit a09decff5c32060639a685581c380f51b14e1fc2 ]
 
-RDPID is a new instruction that reads MSR_TSC_AUX quickly.  This
-should be considerably faster than reading the GDT.  Add a
-cpufeature for it and use it from __vdso_getcpu() when available.
+If the journal is dirty when the filesystem is mounted, jbd2 will replay
+the journal but the journal superblock will not be updated by
+journal_reset() because JBD2_ABORT flag is still set (it was set in
+journal_init_common()). This is problematic because when a new transaction
+is then committed, it will be recorded in block 1 (journal->j_tail was set
+to 1 in journal_reset()). If unclean shutdown happens again before the
+journal superblock is updated, the new recorded transaction will not be
+replayed during the next mount (because of stale sb->s_start and
+sb->s_sequence values) which can lead to filesystem corruption.
 
-Tested-by: Megha Dey <megha.dey@intel.com>
-Signed-off-by: Andy Lutomirski <luto@kernel.org>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: Brian Gerst <brgerst@gmail.com>
-Cc: Denys Vlasenko <dvlasenk@redhat.com>
-Cc: H. Peter Anvin <hpa@zytor.com>
-Cc: Josh Poimboeuf <jpoimboe@redhat.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Link: http://lkml.kernel.org/r/4f6c3a22012d10f1c65b9ca15800e01b42c7d39d.1479320367.git.luto@kernel.org
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 85e0c4e89c1b ("jbd2: if the journal is aborted then don't allow update of the log tail")
+Signed-off-by: Kai Li <li.kai4@h3c.com>
+Link: https://lore.kernel.org/r/20200111022542.5008-1-li.kai4@h3c.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/include/asm/cpufeatures.h |    1 +
- arch/x86/include/asm/vgtod.h       |    7 ++++++-
- 2 files changed, 7 insertions(+), 1 deletion(-)
+ fs/jbd2/journal.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/arch/x86/include/asm/cpufeatures.h
-+++ b/arch/x86/include/asm/cpufeatures.h
-@@ -305,6 +305,7 @@
- /* Intel-defined CPU features, CPUID level 0x00000007:0 (ecx), word 16 */
- #define X86_FEATURE_PKU		(16*32+ 3) /* Protection Keys for Userspace */
- #define X86_FEATURE_OSPKE	(16*32+ 4) /* OS Protection Keys Enable */
-+#define X86_FEATURE_RDPID	(16*32+ 22) /* RDPID instruction */
+diff --git a/fs/jbd2/journal.c b/fs/jbd2/journal.c
+index d3cce5c86fd90..b72be822f04f2 100644
+--- a/fs/jbd2/journal.c
++++ b/fs/jbd2/journal.c
+@@ -1687,6 +1687,11 @@ int jbd2_journal_load(journal_t *journal)
+ 		       journal->j_devname);
+ 		return -EFSCORRUPTED;
+ 	}
++	/*
++	 * clear JBD2_ABORT flag initialized in journal_init_common
++	 * here to update log tail information with the newest seq.
++	 */
++	journal->j_flags &= ~JBD2_ABORT;
  
- /* AMD-defined CPU features, CPUID level 0x80000007 (ebx), word 17 */
- #define X86_FEATURE_OVERFLOW_RECOV (17*32+0) /* MCA overflow recovery support */
---- a/arch/x86/include/asm/vgtod.h
-+++ b/arch/x86/include/asm/vgtod.h
-@@ -89,8 +89,13 @@ static inline unsigned int __getcpu(void
- 	 * works on all CPUs.  This is volatile so that it orders
- 	 * correctly wrt barrier() and to keep gcc from cleverly
- 	 * hoisting it out of the calling function.
-+	 *
-+	 * If RDPID is available, use it.
- 	 */
--	asm volatile ("lsl %1,%0" : "=r" (p) : "r" (__PER_CPU_SEG));
-+	alternative_io ("lsl %[p],%[seg]",
-+			".byte 0xf3,0x0f,0xc7,0xf8", /* RDPID %eax/rax */
-+			X86_FEATURE_RDPID,
-+			[p] "=a" (p), [seg] "r" (__PER_CPU_SEG));
+ 	/* OK, we've finished with the dynamic journal bits:
+ 	 * reinitialise the dynamic contents of the superblock in memory
+@@ -1694,7 +1699,6 @@ int jbd2_journal_load(journal_t *journal)
+ 	if (journal_reset(journal))
+ 		goto recovery_error;
  
- 	return p;
- }
+-	journal->j_flags &= ~JBD2_ABORT;
+ 	journal->j_flags |= JBD2_LOADED;
+ 	return 0;
+ 
+-- 
+2.20.1
+
 
 
