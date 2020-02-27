@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 12F411720FC
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:47:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 409E2171F37
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:33:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730319AbgB0NpD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 08:45:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40846 "EHLO mail.kernel.org"
+        id S1731713AbgB0OdM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 09:33:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34500 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730314AbgB0NpD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 08:45:03 -0500
+        id S1732498AbgB0OAx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 09:00:53 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E9BE620578;
-        Thu, 27 Feb 2020 13:45:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8DE552073D;
+        Thu, 27 Feb 2020 14:00:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582811102;
-        bh=X0N4qAhIcSGQX/+onXxgznseKCjCioKEWftFRkvE8Gc=;
+        s=default; t=1582812052;
+        bh=5FV+k+ngRidW9PmWVh+vHJp+W5gO391FAPAFV+eiRjo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dN9SSTpq2PAmTn7uLJnEXsCQts+G0hePMAkJMGy1brdwrmft5ZsEvTCGf3Eb6v1zN
-         1KF1SDESDYKeUodIL7CIXkT7eHzsfJcgUNV8IiHuYIy4nccw5tUBv8VpzuvLE9kCGG
-         eQ6FPB3+A8w5sPtd89CSCiuxbvhDgYdN7qy47JNk=
+        b=hRXG53UyJPX2LdngkcfJ9QVR/AP2h52i32elhM5IkzmEYvCiOiNfZHBHIuG/PV2JD
+         fegbTaMrURlR/8CDiGrqP1WZ7ITdni9HlTBarPPB8VFqivT1VRSv+GXMH+cqAm2nF4
+         MjZr+FYTi/ATRKQAD8mn4hH2Zf9nTgL0IAgBcB/0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shijie Luo <luoshijie1@huawei.com>,
-        Theodore Tso <tytso@mit.edu>, Jan Kara <jack@suse.cz>,
-        stable@kernel.org
-Subject: [PATCH 4.4 102/113] ext4: add cond_resched() to __ext4_find_entry()
+        stable@vger.kernel.org, Michael Neuling <mikey@neuling.org>,
+        Cyril Bur <cyrilbur@gmail.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 204/237] powerpc/tm: P9 disable transactionally suspended sigcontexts
 Date:   Thu, 27 Feb 2020 14:36:58 +0100
-Message-Id: <20200227132228.098577351@linuxfoundation.org>
+Message-Id: <20200227132311.259765788@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200227132211.791484803@linuxfoundation.org>
-References: <20200227132211.791484803@linuxfoundation.org>
+In-Reply-To: <20200227132255.285644406@linuxfoundation.org>
+References: <20200227132255.285644406@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,71 +45,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shijie Luo <luoshijie1@huawei.com>
+From: Michael Neuling <mikey@neuling.org>
 
-commit 9424ef56e13a1f14c57ea161eed3ecfdc7b2770e upstream.
+[ Upstream commit 92fb8690bd04cb421d987d246deac60eef85d272 ]
 
-We tested a soft lockup problem in linux 4.19 which could also
-be found in linux 5.x.
+Unfortunately userspace can construct a sigcontext which enables
+suspend. Thus userspace can force Linux into a path where trechkpt is
+executed.
 
-When dir inode takes up a large number of blocks, and if the
-directory is growing when we are searching, it's possible the
-restart branch could be called many times, and the do while loop
-could hold cpu a long time.
+This patch blocks this from happening on POWER9 by sanity checking
+sigcontexts passed in.
 
-Here is the call trace in linux 4.19.
+ptrace doesn't have this problem as only MSR SE and BE can be changed
+via ptrace.
 
-[  473.756186] Call trace:
-[  473.756196]  dump_backtrace+0x0/0x198
-[  473.756199]  show_stack+0x24/0x30
-[  473.756205]  dump_stack+0xa4/0xcc
-[  473.756210]  watchdog_timer_fn+0x300/0x3e8
-[  473.756215]  __hrtimer_run_queues+0x114/0x358
-[  473.756217]  hrtimer_interrupt+0x104/0x2d8
-[  473.756222]  arch_timer_handler_virt+0x38/0x58
-[  473.756226]  handle_percpu_devid_irq+0x90/0x248
-[  473.756231]  generic_handle_irq+0x34/0x50
-[  473.756234]  __handle_domain_irq+0x68/0xc0
-[  473.756236]  gic_handle_irq+0x6c/0x150
-[  473.756238]  el1_irq+0xb8/0x140
-[  473.756286]  ext4_es_lookup_extent+0xdc/0x258 [ext4]
-[  473.756310]  ext4_map_blocks+0x64/0x5c0 [ext4]
-[  473.756333]  ext4_getblk+0x6c/0x1d0 [ext4]
-[  473.756356]  ext4_bread_batch+0x7c/0x1f8 [ext4]
-[  473.756379]  ext4_find_entry+0x124/0x3f8 [ext4]
-[  473.756402]  ext4_lookup+0x8c/0x258 [ext4]
-[  473.756407]  __lookup_hash+0x8c/0xe8
-[  473.756411]  filename_create+0xa0/0x170
-[  473.756413]  do_mkdirat+0x6c/0x140
-[  473.756415]  __arm64_sys_mkdirat+0x28/0x38
-[  473.756419]  el0_svc_common+0x78/0x130
-[  473.756421]  el0_svc_handler+0x38/0x78
-[  473.756423]  el0_svc+0x8/0xc
-[  485.755156] watchdog: BUG: soft lockup - CPU#2 stuck for 22s! [tmp:5149]
+This patch also adds a number of WARN_ON()s in case we ever enter
+suspend when we shouldn't. This should not happen, but if it does the
+symptoms are soft lockup warnings which are not obviously TM related,
+so the WARN_ON()s should make it obvious what's happening.
 
-Add cond_resched() to avoid soft lockup and to provide a better
-system responding.
-
-Link: https://lore.kernel.org/r/20200215080206.13293-1-luoshijie1@huawei.com
-Signed-off-by: Shijie Luo <luoshijie1@huawei.com>
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Cc: stable@kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Michael Neuling <mikey@neuling.org>
+Signed-off-by: Cyril Bur <cyrilbur@gmail.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/namei.c |    1 +
- 1 file changed, 1 insertion(+)
+ arch/powerpc/kernel/process.c   | 2 ++
+ arch/powerpc/kernel/signal_32.c | 4 ++++
+ arch/powerpc/kernel/signal_64.c | 5 +++++
+ 3 files changed, 11 insertions(+)
 
---- a/fs/ext4/namei.c
-+++ b/fs/ext4/namei.c
-@@ -1418,6 +1418,7 @@ restart:
- 		/*
- 		 * We deal with the read-ahead logic here.
- 		 */
-+		cond_resched();
- 		if (ra_ptr >= ra_max) {
- 			/* Refill the readahead buffer */
- 			ra_ptr = 0;
+diff --git a/arch/powerpc/kernel/process.c b/arch/powerpc/kernel/process.c
+index ba0d4f9a99bac..1615d60cd55cb 100644
+--- a/arch/powerpc/kernel/process.c
++++ b/arch/powerpc/kernel/process.c
+@@ -903,6 +903,8 @@ static inline void tm_reclaim_task(struct task_struct *tsk)
+ 	if (!MSR_TM_ACTIVE(thr->regs->msr))
+ 		goto out_and_saveregs;
+ 
++	WARN_ON(tm_suspend_disabled);
++
+ 	TM_DEBUG("--- tm_reclaim on pid %d (NIP=%lx, "
+ 		 "ccr=%lx, msr=%lx, trap=%lx)\n",
+ 		 tsk->pid, thr->regs->nip,
+diff --git a/arch/powerpc/kernel/signal_32.c b/arch/powerpc/kernel/signal_32.c
+index a03fc3109fa55..7157cb6951512 100644
+--- a/arch/powerpc/kernel/signal_32.c
++++ b/arch/powerpc/kernel/signal_32.c
+@@ -519,6 +519,8 @@ static int save_tm_user_regs(struct pt_regs *regs,
+ {
+ 	unsigned long msr = regs->msr;
+ 
++	WARN_ON(tm_suspend_disabled);
++
+ 	/* Remove TM bits from thread's MSR.  The MSR in the sigcontext
+ 	 * just indicates to userland that we were doing a transaction, but we
+ 	 * don't want to return in transactional state.  This also ensures
+@@ -769,6 +771,8 @@ static long restore_tm_user_regs(struct pt_regs *regs,
+ 	int i;
+ #endif
+ 
++	if (tm_suspend_disabled)
++		return 1;
+ 	/*
+ 	 * restore general registers but not including MSR or SOFTE. Also
+ 	 * take care of keeping r2 (TLS) intact if not a signal.
+diff --git a/arch/powerpc/kernel/signal_64.c b/arch/powerpc/kernel/signal_64.c
+index b75bf6e74209e..2d52fed72e216 100644
+--- a/arch/powerpc/kernel/signal_64.c
++++ b/arch/powerpc/kernel/signal_64.c
+@@ -214,6 +214,8 @@ static long setup_tm_sigcontexts(struct sigcontext __user *sc,
+ 
+ 	BUG_ON(!MSR_TM_ACTIVE(regs->msr));
+ 
++	WARN_ON(tm_suspend_disabled);
++
+ 	/* Remove TM bits from thread's MSR.  The MSR in the sigcontext
+ 	 * just indicates to userland that we were doing a transaction, but we
+ 	 * don't want to return in transactional state.  This also ensures
+@@ -430,6 +432,9 @@ static long restore_tm_sigcontexts(struct task_struct *tsk,
+ 
+ 	BUG_ON(tsk != current);
+ 
++	if (tm_suspend_disabled)
++		return -EINVAL;
++
+ 	/* copy the GPRs */
+ 	err |= __copy_from_user(regs->gpr, tm_sc->gp_regs, sizeof(regs->gpr));
+ 	err |= __copy_from_user(&tsk->thread.ckpt_regs, sc->gp_regs,
+-- 
+2.20.1
+
 
 
