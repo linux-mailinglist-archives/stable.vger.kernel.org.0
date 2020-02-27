@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 03E8E171A89
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 14:54:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0F427171A8D
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 14:54:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731619AbgB0Nyi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 08:54:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54658 "EHLO mail.kernel.org"
+        id S1731757AbgB0Nys (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 08:54:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54930 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731851AbgB0Nye (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 08:54:34 -0500
+        id S1731909AbgB0Nyr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 08:54:47 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AE63A20578;
-        Thu, 27 Feb 2020 13:54:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 52E4620578;
+        Thu, 27 Feb 2020 13:54:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582811673;
-        bh=k+XzV/W9UPSf5JZG4LsaLccqrAu0LZ7Ag9WTLrAZBPE=;
+        s=default; t=1582811686;
+        bh=HSfHtUdMFWc6CS5XaUONf1lMrkLQkHO5y1TvGHsvi9A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0l8QRQEB3z2Ec1AxKNGuNCtjcvdDlnYmOATLeZYimimbkJdFLKsxeI5ibMDJ9fbbn
-         nWC4YSSJCJNKyT8NM/5U64djGANw5Zx+BbfYOuJWlc4jkMVMM/VBOWeAraqonsdLIY
-         XuDuSZgq+UBlbzBHuneFRpsVQPdB+06ywSZyX7wM=
+        b=Cy3CLy8KxkuNZQw6XV2QnLbl9CQZ35zA85/nJmLXQT34FT9/IpYSaPYcF2DCcFCcY
+         DlJ6NW3kluVgKF/XWm88W8evN/4/xQ0lSPV28JGzyEirkSmylA3bG3MKk1KCoOSod5
+         j7YvEe2pxtjo+2QvSSV5ukVkflrLpnV4uhlei47s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jia-Ju Bai <baijiaju1990@gmail.com>,
+        stable@vger.kernel.org, Siddhesh Poyarekar <siddhesh@gotplt.org>,
+        Masami Hiramatsu <masami.hiramatsu@linaro.org>,
+        Tim Bird <tim.bird@sony.com>,
+        Shuah Khan <skhan@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 057/237] uio: fix a sleep-in-atomic-context bug in uio_dmem_genirq_irqcontrol()
-Date:   Thu, 27 Feb 2020 14:34:31 +0100
-Message-Id: <20200227132301.094280994@linuxfoundation.org>
+Subject: [PATCH 4.14 061/237] kselftest: Minimise dependency of get_size on C library interfaces
+Date:   Thu, 27 Feb 2020 14:34:35 +0100
+Message-Id: <20200227132301.452139286@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200227132255.285644406@linuxfoundation.org>
 References: <20200227132255.285644406@linuxfoundation.org>
@@ -43,53 +46,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jia-Ju Bai <baijiaju1990@gmail.com>
+From: Siddhesh Poyarekar <siddhesh@gotplt.org>
 
-[ Upstream commit b74351287d4bd90636c3f48bc188c2f53824c2d4 ]
+[ Upstream commit 6b64a650f0b2ae3940698f401732988699eecf7a ]
 
-The driver may sleep while holding a spinlock.
-The function call path (from bottom to top) in Linux 4.19 is:
+It was observed[1] on arm64 that __builtin_strlen led to an infinite
+loop in the get_size selftest.  This is because __builtin_strlen (and
+other builtins) may sometimes result in a call to the C library
+function.  The C library implementation of strlen uses an IFUNC
+resolver to load the most efficient strlen implementation for the
+underlying machine and hence has a PLT indirection even for static
+binaries.  Because this binary avoids the C library startup routines,
+the PLT initialization never happens and hence the program gets stuck
+in an infinite loop.
 
-kernel/irq/manage.c, 523:
-	synchronize_irq in disable_irq
-drivers/uio/uio_dmem_genirq.c, 140:
-	disable_irq in uio_dmem_genirq_irqcontrol
-drivers/uio/uio_dmem_genirq.c, 134:
-	_raw_spin_lock_irqsave in uio_dmem_genirq_irqcontrol
+On x86_64 the __builtin_strlen just happens to expand inline and avoid
+the call but that is not always guaranteed.
 
-synchronize_irq() can sleep at runtime.
+Further, while testing on x86_64 (Fedora 31), it was observed that the
+test also failed with a segfault inside write() because the generated
+code for the write function in glibc seems to access TLS before the
+syscall (probably due to the cancellation point check) and fails
+because TLS is not initialised.
 
-To fix this bug, disable_irq() is called without holding the spinlock.
+To mitigate these problems, this patch reduces the interface with the
+C library to just the syscall function.  The syscall function still
+sets errno on failure, which is undesirable but for now it only
+affects cases where syscalls fail.
 
-This bug is found by a static analysis tool STCheck written by myself.
+[1] https://bugs.linaro.org/show_bug.cgi?id=5479
 
-Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
-Link: https://lore.kernel.org/r/20191218094405.6009-1-baijiaju1990@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Siddhesh Poyarekar <siddhesh@gotplt.org>
+Reported-by: Masami Hiramatsu <masami.hiramatsu@linaro.org>
+Tested-by: Masami Hiramatsu <masami.hiramatsu@linaro.org>
+Reviewed-by: Tim Bird <tim.bird@sony.com>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/uio/uio_dmem_genirq.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ tools/testing/selftests/size/get_size.c | 24 ++++++++++++++++++------
+ 1 file changed, 18 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/uio/uio_dmem_genirq.c b/drivers/uio/uio_dmem_genirq.c
-index e1134a4d97f3f..a00b4aee6c799 100644
---- a/drivers/uio/uio_dmem_genirq.c
-+++ b/drivers/uio/uio_dmem_genirq.c
-@@ -135,11 +135,13 @@ static int uio_dmem_genirq_irqcontrol(struct uio_info *dev_info, s32 irq_on)
- 	if (irq_on) {
- 		if (test_and_clear_bit(0, &priv->flags))
- 			enable_irq(dev_info->irq);
-+		spin_unlock_irqrestore(&priv->lock, flags);
- 	} else {
--		if (!test_and_set_bit(0, &priv->flags))
-+		if (!test_and_set_bit(0, &priv->flags)) {
-+			spin_unlock_irqrestore(&priv->lock, flags);
- 			disable_irq(dev_info->irq);
-+		}
- 	}
--	spin_unlock_irqrestore(&priv->lock, flags);
+diff --git a/tools/testing/selftests/size/get_size.c b/tools/testing/selftests/size/get_size.c
+index d4b59ab979a09..f55943b6d1e2a 100644
+--- a/tools/testing/selftests/size/get_size.c
++++ b/tools/testing/selftests/size/get_size.c
+@@ -12,23 +12,35 @@
+  * own execution.  It also attempts to have as few dependencies
+  * on kernel features as possible.
+  *
+- * It should be statically linked, with startup libs avoided.
+- * It uses no library calls, and only the following 3 syscalls:
++ * It should be statically linked, with startup libs avoided.  It uses
++ * no library calls except the syscall() function for the following 3
++ * syscalls:
+  *   sysinfo(), write(), and _exit()
+  *
+  * For output, it avoids printf (which in some C libraries
+  * has large external dependencies) by  implementing it's own
+  * number output and print routines, and using __builtin_strlen()
++ *
++ * The test may crash if any of the above syscalls fails because in some
++ * libc implementations (e.g. the GNU C Library) errno is saved in
++ * thread-local storage, which does not get initialized due to avoiding
++ * startup libs.
+  */
  
- 	return 0;
+ #include <sys/sysinfo.h>
+ #include <unistd.h>
++#include <sys/syscall.h>
+ 
+ #define STDOUT_FILENO 1
+ 
+ static int print(const char *s)
+ {
+-	return write(STDOUT_FILENO, s, __builtin_strlen(s));
++	size_t len = 0;
++
++	while (s[len] != '\0')
++		len++;
++
++	return syscall(SYS_write, STDOUT_FILENO, s, len);
+ }
+ 
+ static inline char *num_to_str(unsigned long num, char *buf, int len)
+@@ -80,12 +92,12 @@ void _start(void)
+ 	print("TAP version 13\n");
+ 	print("# Testing system size.\n");
+ 
+-	ccode = sysinfo(&info);
++	ccode = syscall(SYS_sysinfo, &info);
+ 	if (ccode < 0) {
+ 		print("not ok 1");
+ 		print(test_name);
+ 		print(" ---\n reason: \"could not get sysinfo\"\n ...\n");
+-		_exit(ccode);
++		syscall(SYS_exit, ccode);
+ 	}
+ 	print("ok 1");
+ 	print(test_name);
+@@ -101,5 +113,5 @@ void _start(void)
+ 	print(" ...\n");
+ 	print("1..1\n");
+ 
+-	_exit(0);
++	syscall(SYS_exit, 0);
  }
 -- 
 2.20.1
