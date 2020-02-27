@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 58EBF171D3B
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:19:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 88D18171D40
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:19:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389984AbgB0OTL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 09:19:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59794 "EHLO mail.kernel.org"
+        id S2390009AbgB0OTX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 09:19:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59842 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389976AbgB0OTK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 09:19:10 -0500
+        id S2389985AbgB0OTM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 09:19:12 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A99492468F;
-        Thu, 27 Feb 2020 14:19:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1D21720801;
+        Thu, 27 Feb 2020 14:19:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582813149;
-        bh=4Q9zxIWr3nzH1lCkmXbXCZriRxQ09zVPUbdUTtpjbjc=;
+        s=default; t=1582813151;
+        bh=FIgjdj1w7IAWYyZl/p9F1x2kOjAClWaNTPRGjZiUd8M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i4ztx6R2skXXZZtMr4YRWSPZm7Dwq8ek7WvWt3DDvlUzCqtCk9YvZyZCDLcj7TWq3
-         zcjDrByn+83cgU7XUUD9WLhnPs5Uqq7nngid5LVEBbPk23Hg423ePEUkrOUF+r5Shy
-         3u1+zcUkLMH/+RNZaWqzxvWqhJASpt3V/12t/K5Q=
+        b=zNnpfVXaZyGv9bVgQDBvOjBHClgJNKP4vxaPzoWwzdMguKQfgUeGrXenSHVkphIS7
+         9YZltuWeeIE4tbr/uudLWCwWb0fmvMj5bVh73aMcaN51BTCKaK2xJVjMmb/8lYHoAA
+         MpjmHAYF9IDsRVQdBvRHR9PICc4RrbCLAJccwvzQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Vasily Gorbik <gor@linux.ibm.com>
-Subject: [PATCH 5.5 149/150] s390/mm: Explicitly compare PAGE_DEFAULT_KEY against zero in storage_key_init_range
-Date:   Thu, 27 Feb 2020 14:38:06 +0100
-Message-Id: <20200227132254.260920081@linuxfoundation.org>
+        stable@vger.kernel.org, John Fastabend <john.fastabend@gmail.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Jakub Sitnicki <jakub@cloudflare.com>
+Subject: [PATCH 5.5 150/150] bpf: Selftests build error in sockmap_basic.c
+Date:   Thu, 27 Feb 2020 14:38:07 +0100
+Message-Id: <20200227132254.402971343@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200227132232.815448360@linuxfoundation.org>
 References: <20200227132232.815448360@linuxfoundation.org>
@@ -45,54 +44,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <natechancellor@gmail.com>
+From: John Fastabend <john.fastabend@gmail.com>
 
-commit 380324734956c64cd060e1db4304f3117ac15809 upstream.
+commit f2e97dc126b712c0d21219ed0c42710006c1cf52 upstream.
 
-Clang warns:
+Fix following build error. We could push a tcp.h header into one of the
+include paths, but I think its easy enough to simply pull in the three
+defines we need here. If we end up using more of tcp.h at some point
+we can pull it in later.
 
- In file included from ../arch/s390/purgatory/purgatory.c:10:
- In file included from ../include/linux/kexec.h:18:
- In file included from ../include/linux/crash_core.h:6:
- In file included from ../include/linux/elfcore.h:5:
- In file included from ../include/linux/user.h:1:
- In file included from ../arch/s390/include/asm/user.h:11:
- ../arch/s390/include/asm/page.h:45:6: warning: converting the result of
- '<<' to a boolean always evaluates to false
- [-Wtautological-constant-compare]
-         if (PAGE_DEFAULT_KEY)
-            ^
- ../arch/s390/include/asm/page.h:23:44: note: expanded from macro
- 'PAGE_DEFAULT_KEY'
- #define PAGE_DEFAULT_KEY        (PAGE_DEFAULT_ACC << 4)
-                                                  ^
- 1 warning generated.
+/home/john/git/bpf/tools/testing/selftests/bpf/prog_tests/sockmap_basic.c: In function ‘connected_socket_v4’:
+/home/john/git/bpf/tools/testing/selftests/bpf/prog_tests/sockmap_basic.c:20:11: error: ‘TCP_REPAIR_ON’ undeclared (first use in this function)
+  repair = TCP_REPAIR_ON;
+           ^
+/home/john/git/bpf/tools/testing/selftests/bpf/prog_tests/sockmap_basic.c:20:11: note: each undeclared identifier is reported only once for each function it appears in
+/home/john/git/bpf/tools/testing/selftests/bpf/prog_tests/sockmap_basic.c:29:11: error: ‘TCP_REPAIR_OFF_NO_WP’ undeclared (first use in this function)
+  repair = TCP_REPAIR_OFF_NO_WP;
 
-Explicitly compare this against zero to silence the warning as it is
-intended to be used in a boolean context.
+Then with fix,
 
-Fixes: de3fa841e429 ("s390/mm: fix compile for PAGE_DEFAULT_KEY != 0")
-Link: https://github.com/ClangBuiltLinux/linux/issues/860
-Link: https://lkml.kernel.org/r/20200214064207.10381-1-natechancellor@gmail.com
-Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+$ ./test_progs -n 44
+#44/1 sockmap create_update_free:OK
+#44/2 sockhash create_update_free:OK
+#44 sockmap_basic:OK
+
+Fixes: 5d3919a953c3c ("selftests/bpf: Test freeing sockmap/sockhash with a socket in it")
+Signed-off-by: John Fastabend <john.fastabend@gmail.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Reviewed-by: Jakub Sitnicki <jakub@cloudflare.com>
+Link: https://lore.kernel.org/bpf/158131347731.21414.12120493483848386652.stgit@john-Precision-5820-Tower
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/s390/include/asm/page.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/testing/selftests/bpf/prog_tests/sockmap_basic.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/arch/s390/include/asm/page.h
-+++ b/arch/s390/include/asm/page.h
-@@ -42,7 +42,7 @@ void __storage_key_init_range(unsigned l
+--- a/tools/testing/selftests/bpf/prog_tests/sockmap_basic.c
++++ b/tools/testing/selftests/bpf/prog_tests/sockmap_basic.c
+@@ -3,6 +3,11 @@
  
- static inline void storage_key_init_range(unsigned long start, unsigned long end)
+ #include "test_progs.h"
+ 
++#define TCP_REPAIR		19	/* TCP sock is under repair right now */
++
++#define TCP_REPAIR_ON		1
++#define TCP_REPAIR_OFF_NO_WP	-1	/* Turn off without window probes */
++
+ static int connected_socket_v4(void)
  {
--	if (PAGE_DEFAULT_KEY)
-+	if (PAGE_DEFAULT_KEY != 0)
- 		__storage_key_init_range(start, end);
- }
- 
+ 	struct sockaddr_in addr = {
 
 
