@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EA825171D2B
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:18:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0801D171E03
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:24:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389877AbgB0OS0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 09:18:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58994 "EHLO mail.kernel.org"
+        id S2388307AbgB0OM0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 09:12:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51054 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389861AbgB0OSY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 09:18:24 -0500
+        id S2388841AbgB0OMZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 09:12:25 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1F21F20801;
-        Thu, 27 Feb 2020 14:18:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CAB4120578;
+        Thu, 27 Feb 2020 14:12:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582813103;
-        bh=zF8WyHHyNDWJs5RpuKJQzBGkfwEfo+xK6Oui84XK6xE=;
+        s=default; t=1582812744;
+        bh=4Q9zxIWr3nzH1lCkmXbXCZriRxQ09zVPUbdUTtpjbjc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GiF3QRhnUvYZaYV+Wqb8p/KO2gfVtbwRCEW3rb092KZRzNM/3AkK1uHUx70sBqBUi
-         UAISOJvRgJaL1wu9UckQmTV9xpMrNQ0/TIcefjIU6mFS/7TfuUoknnQSPEdxzKVoCR
-         gk6A3qPQwWzA2olmLrrTnfywWZSm30ch8RzOFwYk=
+        b=UPgr5yIrbWe1RpqRxCrqX18MIS/QQYpaY3pTTzZxC9mLNyxMAUzFKxsgGUM7aQwOn
+         jr4ar2Mwf9tfYdXFfid0Um4Yevkcj6AjWfHacOtemjfeQWxbgsiF7GvQvvfRcSbhXP
+         xTpxNOKhEd1c6gZR35UZRx+L3NvjuaC0ISpR6XAM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+576cc007eb9f2c968200@syzkaller.appspotmail.com,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.5 137/150] ALSA: rawmidi: Avoid bit fields for state flags
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Vasily Gorbik <gor@linux.ibm.com>
+Subject: [PATCH 5.4 134/135] s390/mm: Explicitly compare PAGE_DEFAULT_KEY against zero in storage_key_init_range
 Date:   Thu, 27 Feb 2020 14:37:54 +0100
-Message-Id: <20200227132252.547255332@linuxfoundation.org>
+Message-Id: <20200227132249.162136009@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200227132232.815448360@linuxfoundation.org>
-References: <20200227132232.815448360@linuxfoundation.org>
+In-Reply-To: <20200227132228.710492098@linuxfoundation.org>
+References: <20200227132228.710492098@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,43 +45,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Nathan Chancellor <natechancellor@gmail.com>
 
-commit dfa9a5efe8b932a84b3b319250aa3ac60c20f876 upstream.
+commit 380324734956c64cd060e1db4304f3117ac15809 upstream.
 
-The rawmidi state flags (opened, append, active_sensing) are stored in
-bit fields that can be potentially racy when concurrently accessed
-without any locks.  Although the current code should be fine, there is
-also no any real benefit by keeping the bitfields for this kind of
-short number of members.
+Clang warns:
 
-This patch changes those bit fields flags to the simple bool fields.
-There should be no size increase of the snd_rawmidi_substream by this
-change.
+ In file included from ../arch/s390/purgatory/purgatory.c:10:
+ In file included from ../include/linux/kexec.h:18:
+ In file included from ../include/linux/crash_core.h:6:
+ In file included from ../include/linux/elfcore.h:5:
+ In file included from ../include/linux/user.h:1:
+ In file included from ../arch/s390/include/asm/user.h:11:
+ ../arch/s390/include/asm/page.h:45:6: warning: converting the result of
+ '<<' to a boolean always evaluates to false
+ [-Wtautological-constant-compare]
+         if (PAGE_DEFAULT_KEY)
+            ^
+ ../arch/s390/include/asm/page.h:23:44: note: expanded from macro
+ 'PAGE_DEFAULT_KEY'
+ #define PAGE_DEFAULT_KEY        (PAGE_DEFAULT_ACC << 4)
+                                                  ^
+ 1 warning generated.
 
-Reported-by: syzbot+576cc007eb9f2c968200@syzkaller.appspotmail.com
-Link: https://lore.kernel.org/r/20200214111316.26939-4-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Explicitly compare this against zero to silence the warning as it is
+intended to be used in a boolean context.
+
+Fixes: de3fa841e429 ("s390/mm: fix compile for PAGE_DEFAULT_KEY != 0")
+Link: https://github.com/ClangBuiltLinux/linux/issues/860
+Link: https://lkml.kernel.org/r/20200214064207.10381-1-natechancellor@gmail.com
+Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- include/sound/rawmidi.h |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ arch/s390/include/asm/page.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/include/sound/rawmidi.h
-+++ b/include/sound/rawmidi.h
-@@ -77,9 +77,9 @@ struct snd_rawmidi_substream {
- 	struct list_head list;		/* list of all substream for given stream */
- 	int stream;			/* direction */
- 	int number;			/* substream number */
--	unsigned int opened: 1,		/* open flag */
--		     append: 1,		/* append flag (merge more streams) */
--		     active_sensing: 1; /* send active sensing when close */
-+	bool opened;			/* open flag */
-+	bool append;			/* append flag (merge more streams) */
-+	bool active_sensing;		/* send active sensing when close */
- 	int use_count;			/* use counter (for output) */
- 	size_t bytes;
- 	struct snd_rawmidi *rmidi;
+--- a/arch/s390/include/asm/page.h
++++ b/arch/s390/include/asm/page.h
+@@ -42,7 +42,7 @@ void __storage_key_init_range(unsigned l
+ 
+ static inline void storage_key_init_range(unsigned long start, unsigned long end)
+ {
+-	if (PAGE_DEFAULT_KEY)
++	if (PAGE_DEFAULT_KEY != 0)
+ 		__storage_key_init_range(start, end);
+ }
+ 
 
 
