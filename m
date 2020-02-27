@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D9AA5171F22
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:32:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 66E58171F23
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:32:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732589AbgB0OBd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 09:01:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35640 "EHLO mail.kernel.org"
+        id S1732966AbgB0OBj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 09:01:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35796 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732948AbgB0OBd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 09:01:33 -0500
+        id S1732650AbgB0OBi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 09:01:38 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6C39620801;
-        Thu, 27 Feb 2020 14:01:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AD3A120578;
+        Thu, 27 Feb 2020 14:01:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582812092;
-        bh=iXVwXUnzr99/i+tW6fsGq3C1giv6F2HQOb6WXBwSOZM=;
+        s=default; t=1582812098;
+        bh=84P7LOnb432KwSHWPvfHLK1I2ZqwuRIAfRl+Rq2As2s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1k+ZJ1P3BBnqJLETNyzwCXGFFOFI5zJgR4TUF2uTPdRbcdbXkdrOewRbo4ZPe3l4+
-         hzYPG/jvzsPwiO18DhGW31Vy3DJaxpYMxsoR276+4yQElfSBEoPKbQzFv5vRXeCbWd
-         +ElCJs359x9JqCTfO4wmCBUCwQf6i8UGXZWnUQzg=
+        b=Zh9oU3eBpQfDKeIrWOjYwWx3YIdjkfnMP/hWLSPrhmefB0043P6gYW/mCqwOoZfTp
+         NJysi2SfPQSXgP4rGilE8aanKlOq4cyFAbJDF0k5vFSjtg4ZEEkBPaCiofV4qN+nQI
+         hqar1LkMFlw8MDHfcoGaQLdyDz4McEHHTM2Lr85M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vitaly Kuznetsov <vkuznets@redhat.com>,
-        Miaohe Lin <linmiaohe@huawei.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 4.14 219/237] KVM: apic: avoid calculating pending eoi from an uninitialized val
-Date:   Thu, 27 Feb 2020 14:37:13 +0100
-Message-Id: <20200227132312.271268878@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
+        Nikolay Borisov <nborisov@suse.com>, Qu Wenruo <wqu@suse.com>,
+        Josef Bacik <josef@toxicpanda.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 4.14 221/237] btrfs: do not check delayed items are empty for single transaction cleanup
+Date:   Thu, 27 Feb 2020 14:37:15 +0100
+Message-Id: <20200227132312.407218187@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200227132255.285644406@linuxfoundation.org>
 References: <20200227132255.285644406@linuxfoundation.org>
@@ -44,38 +46,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaohe Lin <linmiaohe@huawei.com>
+From: Josef Bacik <josef@toxicpanda.com>
 
-commit 23520b2def95205f132e167cf5b25c609975e959 upstream.
+commit 1e90315149f3fe148e114a5de86f0196d1c21fa5 upstream.
 
-When pv_eoi_get_user() fails, 'val' may remain uninitialized and the return
-value of pv_eoi_get_pending() becomes random. Fix the issue by initializing
-the variable.
+btrfs_assert_delayed_root_empty() will check if the delayed root is
+completely empty, but this is a filesystem-wide check.  On cleanup we
+may have allowed other transactions to begin, for whatever reason, and
+thus the delayed root is not empty.
 
-Reviewed-by: Vitaly Kuznetsov <vkuznets@redhat.com>
-Signed-off-by: Miaohe Lin <linmiaohe@huawei.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+So remove this check from cleanup_one_transation().  This however can
+stay in btrfs_cleanup_transaction(), because it checks only after all of
+the transactions have been properly cleaned up, and thus is valid.
+
+CC: stable@vger.kernel.org # 4.4+
+Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+Reviewed-by: Nikolay Borisov <nborisov@suse.com>
+Reviewed-by: Qu Wenruo <wqu@suse.com>
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/kvm/lapic.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ fs/btrfs/disk-io.c |    1 -
+ 1 file changed, 1 deletion(-)
 
---- a/arch/x86/kvm/lapic.c
-+++ b/arch/x86/kvm/lapic.c
-@@ -566,9 +566,11 @@ static inline bool pv_eoi_enabled(struct
- static bool pv_eoi_get_pending(struct kvm_vcpu *vcpu)
- {
- 	u8 val;
--	if (pv_eoi_get_user(vcpu, &val) < 0)
-+	if (pv_eoi_get_user(vcpu, &val) < 0) {
- 		apic_debug("Can't read EOI MSR value: 0x%llx\n",
- 			   (unsigned long long)vcpu->arch.pv_eoi.msr_val);
-+		return false;
-+	}
- 	return val & 0x1;
- }
+--- a/fs/btrfs/disk-io.c
++++ b/fs/btrfs/disk-io.c
+@@ -4394,7 +4394,6 @@ void btrfs_cleanup_one_transaction(struc
+ 	wake_up(&fs_info->transaction_wait);
  
+ 	btrfs_destroy_delayed_inodes(fs_info);
+-	btrfs_assert_delayed_root_empty(fs_info);
+ 
+ 	btrfs_destroy_marked_extents(fs_info, &cur_trans->dirty_pages,
+ 				     EXTENT_DIRTY);
 
 
