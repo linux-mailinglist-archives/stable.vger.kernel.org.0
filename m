@@ -2,52 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 663BA1714AA
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 11:05:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2AFB71714AD
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 11:05:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728645AbgB0KFd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 05:05:33 -0500
-Received: from wout1-smtp.messagingengine.com ([64.147.123.24]:60537 "EHLO
+        id S1728653AbgB0KFm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 05:05:42 -0500
+Received: from wout1-smtp.messagingengine.com ([64.147.123.24]:49105 "EHLO
         wout1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728630AbgB0KFd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 27 Feb 2020 05:05:33 -0500
+        by vger.kernel.org with ESMTP id S1728630AbgB0KFm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 27 Feb 2020 05:05:42 -0500
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailout.west.internal (Postfix) with ESMTP id 2F76D63D;
-        Thu, 27 Feb 2020 05:05:32 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Thu, 27 Feb 2020 05:05:32 -0500
+        by mailout.west.internal (Postfix) with ESMTP id C7DCA6A4;
+        Thu, 27 Feb 2020 05:05:41 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute1.internal (MEProxy); Thu, 27 Feb 2020 05:05:42 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=g71PCV
-        0lkVW9lSb4xXEqFOfJzhNhHBLfQksQEWzdpB4=; b=u+Lw5ThJ4MbVyU0H/+pE8j
-        5Q+lEU+df+/DS7DVxJcv2rqa/I2zov9kBcw2xD+u7mK9J4nMyq8aB9aDfqkn7sBp
-        QkCGFf1zL91VwiNedRHEI0gBrxJzNLuzJJz1VCLFiyBwlNvvSosjLcLvDotMVPFJ
-        rBcAUXVfLPH4o83dEJQ4hrQzxVQVKQKZ/U8IW68Nt1GAaodXSY6Rze8e1d3OS7io
-        2MjBucYEvT1WpR+71fB+Xa9x6PnbaeAZgI7jyWFDBn0JcoxMfrMbECanJPCHKlmt
-        n6iVBVAZkxPBOG1+wpfWJ6yNzRUUIxSo0f2017EmTo4SEm/KRjLc0vwpA64eXu3w
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=wqYg6x
+        Q0KMeFx3/wH/OBd3QaA/wufNYxIIbkmma3GR4=; b=cE1q0UG+lZRc4TFHbLmPOG
+        Ir9nT0475F/Y1MfAodSY7ENR6iFY9g4Xazc/1i/ZWFC4Vc6XNkfyh0OSYtVh9cjZ
+        cq+mU2UWnq9HWbXc1tCyPaEEcb+wuPp4W08g/j+wrxtHyW3RHQ2BFgq01gidZRRn
+        9hEhfLPjjQEfdiemVNWfuPKqhlauSqOlVPDjf6axZEXqa1qsZNAGQtPcdsFu9vro
+        gs3cDxizmpmnGOQf9LssCE9oCkn60bpfThpbW2TO52/uNrXPtlSkmc42DvHdZrma
+        z/eoGXsmOppcP8z8FyBfeMzIgXhAMo6Rzcdih3WD9IYPOsAOjLQrXx7stdB+YyHg
         ==
-X-ME-Sender: <xms:a5RXXu03WUzRc3vbRQlf__GjplzyFTF5ZxxS8Xm_xJpI7FIsRYGJZQ>
+X-ME-Sender: <xms:dZRXXr43luICH7o6vBzyyiyz9aYqmzKHMIjU95cBdIZPxqXMo8uP6w>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedugedrleeigdduvdcutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
-    qeenucfkphepkeefrdekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivgeptdenuc
+    qeenucfkphepkeefrdekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivgepudenuc
     frrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:a5RXXjIBjA6CCAJKf45aG394wHMTvKyXUz3-Zcejgu0BtDjmGoh1oA>
-    <xmx:a5RXXlB0nOmb1UaMvRBLKGvzXQXt1hLpJjJ7Ei8qEO1yglYZizZomA>
-    <xmx:a5RXXkzask2sVSN-c_MZNEylhzqpVocy0ThQ0nvQobgXK7Pkxx1dPg>
-    <xmx:a5RXXhl2tIfQO3UtnlTP40QrsDgZ03lYdQgBK5eR7gFs4HozonThrg>
+X-ME-Proxy: <xmx:dZRXXlJlVzi-BUJGaOV8TbjZ0YGJzvl9Nkvd8ztqKEM1i3kDsuJ0YA>
+    <xmx:dZRXXte8gMfvwrDdJuDRWFDLNs2koK5sVJ5WHlq1a0oyhegXigWt9g>
+    <xmx:dZRXXgebrDLQM6WFvXZEd9FeS-m_36D8PI-eYQ4vN-seO-gwMVPLXA>
+    <xmx:dZRXXnISnQjIKRPAGqcWZ43ExNlXnl5Rh7nwms6lznp-zjc_GDVkyA>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 640973060FCB;
-        Thu, 27 Feb 2020 05:05:31 -0500 (EST)
-Subject: FAILED: patch "[PATCH] usb: dwc2: Fix in ISOC request length checking" failed to apply to 4.14-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 11AB23280065;
+        Thu, 27 Feb 2020 05:05:40 -0500 (EST)
+Subject: FAILED: patch "[PATCH] usb: dwc2: Fix in ISOC request length checking" failed to apply to 4.4-stable tree
 To:     Minas.Harutyunyan@synopsys.com, balbi@kernel.org,
         hminas@synopsys.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Thu, 27 Feb 2020 11:05:30 +0100
-Message-ID: <158279793077241@kroah.com>
+Message-ID: <158279793024521@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -57,7 +57,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
