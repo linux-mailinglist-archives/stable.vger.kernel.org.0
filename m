@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5582E171AA0
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 14:55:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 598C617197F
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 14:45:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731407AbgB0Nzf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 08:55:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55784 "EHLO mail.kernel.org"
+        id S1729174AbgB0NpY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 08:45:24 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41280 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731869AbgB0Nzb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 08:55:31 -0500
+        id S1729995AbgB0NpX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 08:45:23 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 804EB2469B;
-        Thu, 27 Feb 2020 13:55:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6BA1B2469F;
+        Thu, 27 Feb 2020 13:45:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582811731;
-        bh=2vMDVmLuOR6BkAhzKPJBoLjsBQUyJrJMaKfCRoB8+CI=;
+        s=default; t=1582811122;
+        bh=myyWVHxMkMorN0tW1/lyVEPf40ZNGixf2jQdXeJdxJ4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZWyS/VkP+xebdXOlC1W73vcKVpX8nxWoTPO/jcrzEnBfldL2LO3m+LE84M67vrLlc
-         je65TA6DlzvZugnkw451mUAXHsrEXVyf0J5WEFrTn0/4tR1lFwa59BVzIflOqIOqyW
-         tJ5zAZGj4zzp9FpFXJip3y2hqT+KmeX3dxVPeRGY=
+        b=ZYy9Wxg67GRkT0nB0JwWboXZ+KXXyZiMT890VL0K5mUshaE9r3UmO9zA9/nHaE3GY
+         teo8NFc7FyteLbwPMy52ZBY4MpXgdTGy84SJ4pRYWD1HaBmmA5LbknR9TQ1gDGqHnl
+         MixqBmlq7tOuz44v39Ppqq3dxlsg2iaweobH3izE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miquel Raynal <miquel.raynal@bootlin.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 072/237] regulator: rk808: Lower log level on optional GPIOs being not available
+        stable@vger.kernel.org, Babu Moger <babu.moger@amd.com>,
+        Kim Phillips <kim.phillips@amd.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Ingo Molnar <mingo@kernel.org>
+Subject: [PATCH 4.9 012/165] perf/x86/amd: Add missing L2 misses event spec to AMD Family 17hs event map
 Date:   Thu, 27 Feb 2020 14:34:46 +0100
-Message-Id: <20200227132302.438013018@linuxfoundation.org>
+Message-Id: <20200227132232.858351485@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200227132255.285644406@linuxfoundation.org>
-References: <20200227132255.285644406@linuxfoundation.org>
+In-Reply-To: <20200227132230.840899170@linuxfoundation.org>
+References: <20200227132230.840899170@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,44 +45,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miquel Raynal <miquel.raynal@bootlin.com>
+From: Kim Phillips <kim.phillips@amd.com>
 
-[ Upstream commit b8a039d37792067c1a380dc710361905724b9b2f ]
+commit 25d387287cf0330abf2aad761ce6eee67326a355 upstream.
 
-RK808 can leverage a couple of GPIOs to tweak the ramp rate during DVS
-(Dynamic Voltage Scaling). These GPIOs are entirely optional but a
-dev_warn() appeared when cleaning this driver to use a more up-to-date
-gpiod API. At least reduce the log level to 'info' as it is totally
-fine to not populate these GPIO on a hardware design.
+Commit 3fe3331bb285 ("perf/x86/amd: Add event map for AMD Family 17h"),
+claimed L2 misses were unsupported, due to them not being found in its
+referenced documentation, whose link has now moved [1].
 
-This change is trivial but it is worth not polluting the logs during
-bringup phase by having real warnings and errors sorted out
-correctly.
+That old documentation listed PMCx064 unit mask bit 3 as:
 
-Fixes: a13eaf02e2d6 ("regulator: rk808: make better use of the gpiod API")
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/r/20191203164709.11127-1-miquel.raynal@bootlin.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+    "LsRdBlkC: LS Read Block C S L X Change to X Miss."
+
+and bit 0 as:
+
+    "IcFillMiss: IC Fill Miss"
+
+We now have new public documentation [2] with improved descriptions, that
+clearly indicate what events those unit mask bits represent:
+
+Bit 3 now clearly states:
+
+    "LsRdBlkC: Data Cache Req Miss in L2 (all types)"
+
+and bit 0 is:
+
+    "IcFillMiss: Instruction Cache Req Miss in L2."
+
+So we can now add support for L2 misses in perf's genericised events as
+PMCx064 with both the above unit masks.
+
+[1] The commit's original documentation reference, "Processor Programming
+    Reference (PPR) for AMD Family 17h Model 01h, Revision B1 Processors",
+    originally available here:
+
+        https://www.amd.com/system/files/TechDocs/54945_PPR_Family_17h_Models_00h-0Fh.pdf
+
+    is now available here:
+
+        https://developer.amd.com/wordpress/media/2017/11/54945_PPR_Family_17h_Models_00h-0Fh.pdf
+
+[2] "Processor Programming Reference (PPR) for Family 17h Model 31h,
+    Revision B0 Processors", available here:
+
+	https://developer.amd.com/wp-content/resources/55803_0.54-PUB.pdf
+
+Fixes: 3fe3331bb285 ("perf/x86/amd: Add event map for AMD Family 17h")
+Reported-by: Babu Moger <babu.moger@amd.com>
+Signed-off-by: Kim Phillips <kim.phillips@amd.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Tested-by: Babu Moger <babu.moger@amd.com>
+Cc: stable@vger.kernel.org
+Link: https://lkml.kernel.org/r/20200121171232.28839-1-kim.phillips@amd.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/regulator/rk808-regulator.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/events/amd/core.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/regulator/rk808-regulator.c b/drivers/regulator/rk808-regulator.c
-index 213b68743cc89..92498ac503035 100644
---- a/drivers/regulator/rk808-regulator.c
-+++ b/drivers/regulator/rk808-regulator.c
-@@ -714,7 +714,7 @@ static int rk808_regulator_dt_parse_pdata(struct device *dev,
- 		}
- 
- 		if (!pdata->dvs_gpio[i]) {
--			dev_warn(dev, "there is no dvs%d gpio\n", i);
-+			dev_info(dev, "there is no dvs%d gpio\n", i);
- 			continue;
- 		}
- 
--- 
-2.20.1
-
+--- a/arch/x86/events/amd/core.c
++++ b/arch/x86/events/amd/core.c
+@@ -239,6 +239,7 @@ static const u64 amd_f17h_perfmon_event_
+ 	[PERF_COUNT_HW_CPU_CYCLES]		= 0x0076,
+ 	[PERF_COUNT_HW_INSTRUCTIONS]		= 0x00c0,
+ 	[PERF_COUNT_HW_CACHE_REFERENCES]	= 0xff60,
++	[PERF_COUNT_HW_CACHE_MISSES]		= 0x0964,
+ 	[PERF_COUNT_HW_BRANCH_INSTRUCTIONS]	= 0x00c2,
+ 	[PERF_COUNT_HW_BRANCH_MISSES]		= 0x00c3,
+ 	[PERF_COUNT_HW_STALLED_CYCLES_FRONTEND]	= 0x0287,
 
 
