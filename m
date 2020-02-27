@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E2FF171F90
-	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:38:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 65E161720CB
+	for <lists+stable@lfdr.de>; Thu, 27 Feb 2020 15:45:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732220AbgB0N6w (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 08:58:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60120 "EHLO mail.kernel.org"
+        id S1730692AbgB0Nr0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 08:47:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43858 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732026AbgB0N6v (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 08:58:51 -0500
+        id S1730687AbgB0Nr0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 08:47:26 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 68A182084E;
-        Thu, 27 Feb 2020 13:58:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1479720801;
+        Thu, 27 Feb 2020 13:47:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582811930;
-        bh=0yK99yL8zKpPcOVGxgHL+LeT9F8hHMH66h3KyuMSC2o=;
+        s=default; t=1582811245;
+        bh=BAiSBRFdJMN3ZHL/w78o+PZyV1AC1701XX/Z2jnkgC0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eGladwvypEXq5SymvP8oRfJVz9b/szS4qGWFshGAn+IleKnt74f1ILKnzjYaowM/r
-         855r7a+3INJMX1Co2eq9smQa3ZNdqTSX5hu9a+/tfCOkBp/lO0xQUUXdo8GDwxazSI
-         M1td8qLqg07KNlD+6USUU2cejiTFwqlzErOSbzVM=
+        b=fNHVxbnd/vsNqkuLUnFBjNf2kwijDVuCzTuoXdp6k/WbthbSdSZ6x88YYk61aGMuk
+         qZWWTni2tMStg2IvLwl3oZ8kqai8NN3chM11Sepi8oQjIa1CRlnVK1mKECni99Gdwt
+         zyb6JCSaZcuhDmQhgp+6Z+Ll0T95cyMbZ2KijXWk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Navid Emamdoost <navid.emamdoost@gmail.com>,
-        Thomas Hellstrom <thellstrom@vmware.com>,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 119/237] drm/vmwgfx: prevent memory leak in vmw_cmdbuf_res_add
+Subject: [PATCH 4.9 059/165] scsi: aic7xxx: Adjust indentation in ahc_find_syncrate
 Date:   Thu, 27 Feb 2020 14:35:33 +0100
-Message-Id: <20200227132305.578646199@linuxfoundation.org>
+Message-Id: <20200227132240.091038761@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200227132255.285644406@linuxfoundation.org>
-References: <20200227132255.285644406@linuxfoundation.org>
+In-Reply-To: <20200227132230.840899170@linuxfoundation.org>
+References: <20200227132230.840899170@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,38 +45,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Navid Emamdoost <navid.emamdoost@gmail.com>
+From: Nathan Chancellor <natechancellor@gmail.com>
 
-[ Upstream commit 40efb09a7f53125719e49864da008495e39aaa1e ]
+[ Upstream commit 4dbc96ad65c45cdd4e895ed7ae4c151b780790c5 ]
 
-In vmw_cmdbuf_res_add if drm_ht_insert_item fails the allocated memory
-for cres should be released.
+Clang warns:
 
-Fixes: 18e4a4669c50 ("drm/vmwgfx: Fix compat shader namespace")
-Signed-off-by: Navid Emamdoost <navid.emamdoost@gmail.com>
-Reviewed-by: Thomas Hellstrom <thellstrom@vmware.com>
-Signed-off-by: Thomas Hellstrom <thellstrom@vmware.com>
+../drivers/scsi/aic7xxx/aic7xxx_core.c:2317:5: warning: misleading
+indentation; statement is not part of the previous 'if'
+[-Wmisleading-indentation]
+                        if ((syncrate->sxfr_u2 & ST_SXFR) != 0)
+                        ^
+../drivers/scsi/aic7xxx/aic7xxx_core.c:2310:4: note: previous statement
+is here
+                        if (syncrate == &ahc_syncrates[maxsync])
+                        ^
+1 warning generated.
+
+This warning occurs because there is a space amongst the tabs on this
+line. Remove it so that the indentation is consistent with the Linux kernel
+coding style and clang no longer warns.
+
+This has been a problem since the beginning of git history hence no fixes
+tag.
+
+Link: https://github.com/ClangBuiltLinux/linux/issues/817
+Link: https://lore.kernel.org/r/20191218014220.52746-1-natechancellor@gmail.com
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/vmwgfx/vmwgfx_cmdbuf_res.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/scsi/aic7xxx/aic7xxx_core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/vmwgfx/vmwgfx_cmdbuf_res.c b/drivers/gpu/drm/vmwgfx/vmwgfx_cmdbuf_res.c
-index 36c7b6c839c0d..738ad2fc79a25 100644
---- a/drivers/gpu/drm/vmwgfx/vmwgfx_cmdbuf_res.c
-+++ b/drivers/gpu/drm/vmwgfx/vmwgfx_cmdbuf_res.c
-@@ -210,8 +210,10 @@ int vmw_cmdbuf_res_add(struct vmw_cmdbuf_res_manager *man,
- 
- 	cres->hash.key = user_key | (res_type << 24);
- 	ret = drm_ht_insert_item(&man->resources, &cres->hash);
--	if (unlikely(ret != 0))
-+	if (unlikely(ret != 0)) {
-+		kfree(cres);
- 		goto out_invalid_key;
-+	}
- 
- 	cres->state = VMW_CMDBUF_RES_ADD;
- 	cres->res = vmw_resource_reference(res);
+diff --git a/drivers/scsi/aic7xxx/aic7xxx_core.c b/drivers/scsi/aic7xxx/aic7xxx_core.c
+index 64ab9eaec428c..def3208dd2905 100644
+--- a/drivers/scsi/aic7xxx/aic7xxx_core.c
++++ b/drivers/scsi/aic7xxx/aic7xxx_core.c
+@@ -2321,7 +2321,7 @@ ahc_find_syncrate(struct ahc_softc *ahc, u_int *period,
+ 			 * At some speeds, we only support
+ 			 * ST transfers.
+ 			 */
+-		 	if ((syncrate->sxfr_u2 & ST_SXFR) != 0)
++			if ((syncrate->sxfr_u2 & ST_SXFR) != 0)
+ 				*ppr_options &= ~MSG_EXT_PPR_DT_REQ;
+ 			break;
+ 		}
 -- 
 2.20.1
 
