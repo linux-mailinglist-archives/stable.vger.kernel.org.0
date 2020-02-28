@@ -2,138 +2,190 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A73241739DD
-	for <lists+stable@lfdr.de>; Fri, 28 Feb 2020 15:32:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 615FF1739EF
+	for <lists+stable@lfdr.de>; Fri, 28 Feb 2020 15:35:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726788AbgB1OcO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 28 Feb 2020 09:32:14 -0500
-Received: from mail-pg1-f193.google.com ([209.85.215.193]:33034 "EHLO
-        mail-pg1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726694AbgB1OcO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 28 Feb 2020 09:32:14 -0500
-Received: by mail-pg1-f193.google.com with SMTP id 6so1629225pgk.0;
-        Fri, 28 Feb 2020 06:32:13 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:subject:to:cc:references:from:autocrypt:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=xoRKoP6j51ArtqxMBHBR7VJdpsRqDOQNnxD1Kwwfwds=;
-        b=bG4ek6RSYEIiLOxLbBFPpiLmZFQcNbeKcMMyGrvfkGGU3Y0mEK0SbKzI6JrWBxkHr/
-         gY+FN4MZDpYNyz3zBGE9yYOg7O7XI1/oE0PB5oTaagvWoXs9w4aJcc5Eisaekir31XrP
-         qHQs5+nryMcr6AM5WNngGLycL/43fx55kQpykn8oD1jPmEktibDQr4YoCEpiLYdBUsAk
-         XN65Mux5h/UBe8X6ESx7pqZv2JIDNjrJQsStGx+Qvqe+b7WGbs4nLdkiKlWXFzZ6q314
-         ZcDwK+9DNtxCfnHZvG4UFNJ/aa+QuaL0MSQJHKuaSBtX80PV+ic+QvbDgaTVVWFjZ/VI
-         lL0g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:subject:to:cc:references:from:autocrypt
-         :message-id:date:user-agent:mime-version:in-reply-to
-         :content-language:content-transfer-encoding;
-        bh=xoRKoP6j51ArtqxMBHBR7VJdpsRqDOQNnxD1Kwwfwds=;
-        b=rhJi+6LbxIF6fZKhEnYRy7jUAXawjgnM0dP+qQRdzrL+5dvEuH/WPkYSRjfAqj+0+R
-         yfjc/u9F5FI3p35l1CEuqxc2rwWY5rPA6JAkKYCbYqdJ6uX7SyatVk78QZ/PfiKt9KiC
-         WMeFBlBTP1oet0KfgRmVu4pWfGhHE8QR7CdDG9lt0y6kT9/gkHuQmT2ipYgyza3BCbMp
-         IYa60Z3O08SnhPtok5VBszJN7KMufAftUD1r0rVGWTTQft2x3uLEook3LLsGX7iTdAhK
-         eyUaav/jahX60VOjNmGam1F8Y8GstzBBKEecEr7RRVYDQwNexb+hm4E84a6iZNyiGuJg
-         lMWw==
-X-Gm-Message-State: APjAAAVW+2vadoLKzeU4fycGRIrYHWrm3RkR3CY86e1aClSzZtslWCwv
-        pyV7dOEa7koUFSMIev7//HUQ5MKD
-X-Google-Smtp-Source: APXvYqwvV1GRzBMLWGZ6PVrHx0G1Etfo46k4f/tZhh2DmFPPRzYLxHIUpHU4G1Gg0rqYcw/9Cn0+nA==
-X-Received: by 2002:a63:3004:: with SMTP id w4mr4964152pgw.164.1582900332533;
-        Fri, 28 Feb 2020 06:32:12 -0800 (PST)
-Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id r10sm7953944pgv.25.2020.02.28.06.32.11
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 28 Feb 2020 06:32:11 -0800 (PST)
-Subject: Re: [PATCH 4.14 000/237] 4.14.172-stable review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org
-References: <20200227132255.285644406@linuxfoundation.org>
- <20200228115942.GB3010957@kroah.com>
-From:   Guenter Roeck <linux@roeck-us.net>
-Autocrypt: addr=linux@roeck-us.net; keydata=
- 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
- mDW4+i+XlNFUPUYMrIKi9joBhu18ssf5i5Q=
-Message-ID: <cc5279d8-5bbd-6fca-6f21-60bea9bf7db9@roeck-us.net>
-Date:   Fri, 28 Feb 2020 06:32:10 -0800
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.4.1
+        id S1726738AbgB1OeZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 28 Feb 2020 09:34:25 -0500
+Received: from outils.crapouillou.net ([89.234.176.41]:36694 "EHLO
+        crapouillou.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726875AbgB1OeZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 28 Feb 2020 09:34:25 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=crapouillou.net;
+        s=mail; t=1582900463; h=from:from:sender:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=2iYh4GJzCLrpeJtYfBs2xAG0SYopNEWP83AbHh4thW0=;
+        b=WpX2Sf49Pg3NYVfFNkB1+sdFRtdvG7324DYZQJC+r0R8jOEbxPd9Sl1beMCcybT3g3qE/4
+        7VhUhSA40280rvkxb0YZeXo0Zi7SfuwjfGkva1nut9xwr5CRXaAJ+Zvr+MidI847N5jK8l
+        /XvuqKBvVyA3Z0yMJA0rHGE/f2P3TMo=
+Date:   Fri, 28 Feb 2020 11:34:04 -0300
+From:   Paul Cercueil <paul@crapouillou.net>
+Subject: Re: [PATCH v3 3/6] MIPS: DTS: CI20: fix PMU definitions for ACT8600
+To:     "H. Nikolaus Schaller" <hns@goldelico.com>
+Cc:     Paul Boddie <paul@boddie.org.uk>, Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Ralf Baechle <ralf@linux-mips.org>,
+        Paul Burton <paulburton@kernel.org>,
+        Miquel Raynal <miquel.raynal@bootlin.com>,
+        Andi Kleen <ak@linux.intel.com>,
+        Kees Cook <keescook@chromium.org>,
+        Krzysztof Kozlowski <krzk@kernel.org>,
+        devicetree@vger.kernel.org, linux-mips@vger.kernel.org,
+        linux-kernel@vger.kernel.org, letux-kernel@openphoenux.org,
+        kernel@pyra-handheld.com, stable@vger.kernel.org
+Message-Id: <1582900444.3.1@crapouillou.net>
+In-Reply-To: <36aa1e80153fbb29eeb56f65cac9e3672165f7b7.1581884459.git.hns@goldelico.com>
+References: <cover.1581884459.git.hns@goldelico.com>
+        <36aa1e80153fbb29eeb56f65cac9e3672165f7b7.1581884459.git.hns@goldelico.com>
 MIME-Version: 1.0
-In-Reply-To: <20200228115942.GB3010957@kroah.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1; format=flowed
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2/28/20 3:59 AM, Greg Kroah-Hartman wrote:
-> On Thu, Feb 27, 2020 at 02:33:34PM +0100, Greg Kroah-Hartman wrote:
->> This is the start of the stable review cycle for the 4.14.172 release.
->> There are 237 patches in this series, all will be posted as a response
->> to this one.  If anyone has any issues with these being applied, please
->> let me know.
->>
->> Responses should be made by Sat, 29 Feb 2020 13:21:24 +0000.
->> Anything received after that time might be too late.
->>
->> The whole patch series can be found in one patch at:
->> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.172-rc1.gz
-> 
-> -rc2 is out to hopefully resolve some powerpc build issues:
->  	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.172-rc2.gz
-> 
-For v4.14.171-235-g7184e90f61c3:
+Hi Nikolaus,
 
-Build results:
-	total: 172 pass: 172 fail: 0
-Qemu test results:
-	total: 394 pass: 394 fail: 0
 
-Guenter
+Le dim., f=E9vr. 16, 2020 at 21:20, H. Nikolaus Schaller=20
+<hns@goldelico.com> a =E9crit :
+> There is a ACT8600 on the CI20 board and the bindings of the
+> ACT8865 driver have changed without updating the CI20 device
+> tree. Therefore the PMU can not be probed successfully and
+> is running in power-on reset state.
+>=20
+> Fix DT to match the latest act8865-regulator bindings.
+>=20
+> Fixes: 73f2b940474d ("MIPS: CI20: DTS: Add I2C nodes")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: H. Nikolaus Schaller <hns@goldelico.com>
+> ---
+>  arch/mips/boot/dts/ingenic/ci20.dts | 48=20
+> ++++++++++++++++++++---------
+>  1 file changed, 33 insertions(+), 15 deletions(-)
+>=20
+> diff --git a/arch/mips/boot/dts/ingenic/ci20.dts=20
+> b/arch/mips/boot/dts/ingenic/ci20.dts
+> index 59c104289ece..4f48bc16fb52 100644
+> --- a/arch/mips/boot/dts/ingenic/ci20.dts
+> +++ b/arch/mips/boot/dts/ingenic/ci20.dts
+> @@ -153,6 +153,8 @@
+>  	pinctrl-0 =3D <&pins_uart4>;
+>  };
+>=20
+> +#include <dt-bindings/regulator/active-semi,8865-regulator.h>
+
+Includes at the beginning of the file please. Keeps it tidy.
+
+> +
+>  &i2c0 {
+>  	status =3D "okay";
+>=20
+> @@ -166,65 +168,81 @@
+>  		reg =3D <0x5a>;
+>  		status =3D "okay";
+>=20
+> +/*
+> +Optional input supply properties:
+> +- for act8600:
+> +  - vp1-supply: The input supply for DCDC_REG1
+> +  - vp2-supply: The input supply for DCDC_REG2
+> +  - vp3-supply: The input supply for DCDC_REG3
+> +  - inl-supply: The input supply for LDO_REG5, LDO_REG6, LDO_REG7=20
+> and LDO_REG8
+> +  SUDCDC_REG4, LDO_REG9 and LDO_REG10 do not have separate supplies.
+> +*/
+> +
+>  		regulators {
+>  			vddcore: SUDCDC1 {
+> -				regulator-name =3D "VDDCORE";
+> +				regulator-name =3D "DCDC_REG1";
+>  				regulator-min-microvolt =3D <1100000>;
+>  				regulator-max-microvolt =3D <1100000>;
+>  				regulator-always-on;
+>  			};
+>  			vddmem: SUDCDC2 {
+> -				regulator-name =3D "VDDMEM";
+> +				regulator-name =3D "DCDC_REG2";
+>  				regulator-min-microvolt =3D <1500000>;
+>  				regulator-max-microvolt =3D <1500000>;
+>  				regulator-always-on;
+>  			};
+>  			vcc_33: SUDCDC3 {
+> -				regulator-name =3D "VCC33";
+> +				regulator-name =3D "DCDC_REG3";
+>  				regulator-min-microvolt =3D <3300000>;
+>  				regulator-max-microvolt =3D <3300000>;
+>  				regulator-always-on;
+>  			};
+>  			vcc_50: SUDCDC4 {
+> -				regulator-name =3D "VCC50";
+> +				regulator-name =3D "SUDCDC_REG4";
+>  				regulator-min-microvolt =3D <5000000>;
+>  				regulator-max-microvolt =3D <5000000>;
+>  				regulator-always-on;
+>  			};
+>  			vcc_25: LDO_REG5 {
+> -				regulator-name =3D "VCC25";
+> +				regulator-name =3D "LDO_REG5";
+>  				regulator-min-microvolt =3D <2500000>;
+>  				regulator-max-microvolt =3D <2500000>;
+>  				regulator-always-on;
+>  			};
+>  			wifi_io: LDO_REG6 {
+> -				regulator-name =3D "WIFIIO";
+> +				regulator-name =3D "LDO_REG6";
+>  				regulator-min-microvolt =3D <2500000>;
+>  				regulator-max-microvolt =3D <2500000>;
+>  				regulator-always-on;
+>  			};
+>  			vcc_28: LDO_REG7 {
+> -				regulator-name =3D "VCC28";
+> +				regulator-name =3D "LDO_REG7";
+>  				regulator-min-microvolt =3D <2800000>;
+>  				regulator-max-microvolt =3D <2800000>;
+>  				regulator-always-on;
+>  			};
+>  			vcc_15: LDO_REG8 {
+> -				regulator-name =3D "VCC15";
+> +				regulator-name =3D "LDO_REG8";
+>  				regulator-min-microvolt =3D <1500000>;
+>  				regulator-max-microvolt =3D <1500000>;
+>  				regulator-always-on;
+>  			};
+> -			vcc_18: LDO_REG9 {
+> -				regulator-name =3D "VCC18";
+> -				regulator-min-microvolt =3D <1800000>;
+> -				regulator-max-microvolt =3D <1800000>;
+> +			vrtc_18: LDO_REG9 {
+> +				regulator-name =3D "LDO_REG9";
+> +				/* Despite the datasheet stating 3.3V for REG9 and
+> +				   driver expecting that, REG9 outputs 1.8V.
+> +				   Likely the CI20 uses a chip variant.
+> +				   Since it is a simple on/off LDO the exact values
+> +				   do not matter.
+> +				*/
+> +				regulator-min-microvolt =3D <3300000>;
+> +				regulator-max-microvolt =3D <3300000>;
+>  				regulator-always-on;
+>  			};
+>  			vcc_11: LDO_REG10 {
+> -				regulator-name =3D "VCC11";
+> -				regulator-min-microvolt =3D <1100000>;
+> -				regulator-max-microvolt =3D <1100000>;
+> +				regulator-name =3D "LDO_REG10";
+> +				regulator-min-microvolt =3D <1200000>;
+> +				regulator-max-microvolt =3D <1200000>;
+>  				regulator-always-on;
+>  			};
+>  		};
+> --
+> 2.23.0
+>=20
+
+=
+
