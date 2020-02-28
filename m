@@ -2,103 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EE69A172D4D
-	for <lists+stable@lfdr.de>; Fri, 28 Feb 2020 01:31:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6ADD4172D68
+	for <lists+stable@lfdr.de>; Fri, 28 Feb 2020 01:32:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730296AbgB1AbS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 19:31:18 -0500
-Received: from mga06.intel.com ([134.134.136.31]:44215 "EHLO mga06.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730290AbgB1AbS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 19:31:18 -0500
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from fmsmga007.fm.intel.com ([10.253.24.52])
-  by orsmga104.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 27 Feb 2020 16:31:17 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.70,493,1574150400"; 
-   d="scan'208";a="230941858"
-Received: from wggoh-mobl.gar.corp.intel.com (HELO [10.254.45.93]) ([10.254.45.93])
-  by fmsmga007.fm.intel.com with ESMTP; 27 Feb 2020 16:31:16 -0800
-Subject: Re: [alsa-devel] [PATCH AUTOSEL 5.5 406/542] ASoC: SOF: Intel: hda:
- Fix SKL dai count
-To:     Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-Cc:     Cezary Rojewski <cezary.rojewski@intel.com>,
-        Mark Brown <broonie@kernel.org>, alsa-devel@alsa-project.org,
-        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
-        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
-References: <20200214154854.6746-1-sashal@kernel.org>
- <20200214154854.6746-406-sashal@kernel.org>
-From:   Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Message-ID: <aa50de05-6122-0ce4-e6e9-5fa587169adf@linux.intel.com>
-Date:   Thu, 27 Feb 2020 18:31:16 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.4.1
+        id S1730306AbgB1Ac4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 19:32:56 -0500
+Received: from mail-pg1-f196.google.com ([209.85.215.196]:39646 "EHLO
+        mail-pg1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730250AbgB1Ac4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 27 Feb 2020 19:32:56 -0500
+Received: by mail-pg1-f196.google.com with SMTP id j15so553322pgm.6
+        for <stable@vger.kernel.org>; Thu, 27 Feb 2020 16:32:54 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=qE8v00JBZ+QlDL/myaZJPGI1xg4LoFuBmFcYS9XQdH0=;
+        b=Yt55gpzWJnAIierZ3Z5QPB3r0o2gbvbc15w7wiihd8FwhBhb5xH8si7o9HiXlMErrr
+         e99oSffmQJFpbULK3zsilXTcaiw66SSnIYwg6Rugsn3ZgL/oMlpo2suhYhbrU/mh4bZs
+         dQ0RsWh5DNop+K0MQcnSfquDmfyxAWD4uNjUuMLqY0cRdSiRTxMytCY46fmQLp1wSJRg
+         QISUVbzi7ud2GfqDsd6Ca5CE0COqN6jnOtAW66Z3LObGNOXEPIwfndBRgBDWUASajA4l
+         xrl9p1S10RtOG9gyq7qFagjdgfaaYBwG2tj56fHhkA2DCFltP08h6c0wcPF/bn8SPflh
+         Ig+g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=qE8v00JBZ+QlDL/myaZJPGI1xg4LoFuBmFcYS9XQdH0=;
+        b=P9PARyzTBEVhQRH4ITessIiEI6BK2r2AF83wxsmcSXhujQpJ02oRAp0eCOn7i3oe5k
+         le/6+glfUahYyyXe80UY6ZNQrC3RdBHxoQoaBB78PuLvUCG8a1OdFPHJiaxSKvbIlcSP
+         QnpFBx2y61o9TLDV/W+blU9b1hN2rpXusGdGsLcjlpgXhUN2KY/qmy/9vDvPZUcsEhu8
+         RmVLivnw4eYGsIlEG1e7v0M0vA2ShEOArPL+iCnG9mhWcBynNWrBtoKKrp3sm2YReixh
+         H9tgfMMBr0iSwTvjeXV38uqs44/3pTRmybMjhcxp/IxMljvkw4G0hZEewpveNxu/2LGv
+         0UfA==
+X-Gm-Message-State: APjAAAVlGASb2dgKvjUtS7vcvkpSvjQypuftCt0+KJVAjMXM1/I3flRf
+        hDogMLmNoLce4ZDAAnSxNdJrlFlKbwQ=
+X-Google-Smtp-Source: APXvYqzqqYfhE6x0NPia/Zz0jh/9Ps6rpxtzicFFVmcm4qTAE8b4SoDJe0qZ3pnBAjcSqaHCxRNglQ==
+X-Received: by 2002:a63:5848:: with SMTP id i8mr1873378pgm.438.1582849973837;
+        Thu, 27 Feb 2020 16:32:53 -0800 (PST)
+Received: from [10.0.9.4] ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id q6sm8324219pfh.127.2020.02.27.16.32.52
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 27 Feb 2020 16:32:52 -0800 (PST)
+Message-ID: <5e585fb4.1c69fb81.8f778.7149@mx.google.com>
+Date:   Thu, 27 Feb 2020 16:32:52 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-In-Reply-To: <20200214154854.6746-406-sashal@kernel.org>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.9.214-166-gb8e4943d6bee
+X-Kernelci-Report-Type: boot
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-4.9.y
+Subject: stable-rc/linux-4.9.y boot: 64 boots: 3 failed,
+ 60 passed with 1 untried/unknown (v4.9.214-166-gb8e4943d6bee)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Sasha,
+stable-rc/linux-4.9.y boot: 64 boots: 3 failed, 60 passed with 1 untried/un=
+known (v4.9.214-166-gb8e4943d6bee)
 
-On 2/14/20 9:46 AM, Sasha Levin wrote:
-> From: Cezary Rojewski <cezary.rojewski@intel.com>
-> 
-> [ Upstream commit a6947c9d86bcfd61b758b5693eba58defe7fd2ae ]
-> 
-> With fourth pin added for iDisp for skl_dai, update SOF_SKL_DAI_NUM to
-> account for the change. Without this, dais from the bottom of the list
-> are skipped. In current state that's the case for 'Alt Analog CPU DAI'.
-> 
-> Fixes: ac42b142cd76 ("ASoC: SOF: Intel: hda: Add iDisp4 DAI")
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.9.y/kernel/v4.9.214-166-gb8e4943d6bee/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.9.y=
+/kernel/v4.9.214-166-gb8e4943d6bee/
 
-This patch generates a kernel oops with v5.5.6 - mainly because the 
-initial commit ac42b142cd76 is missing, which ends-up creating an empty 
-entry in the skl_dai[] array.
+Tree: stable-rc
+Branch: linux-4.9.y
+Git Describe: v4.9.214-166-gb8e4943d6bee
+Git Commit: b8e4943d6bee55c8a2c077fc7639d0b8e8127e1a
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 33 unique boards, 14 SoC families, 13 builds out of 197
 
-This was just reported to us, see logs at
-https://github.com/thesofproject/sof/issues/2418
+Boot Regressions Detected:
 
-the same problem is likely to happen with 5.4-stable
-[PATCH AUTOSEL 5.4 349/459] ASoC: SOF: Intel: hda: Fix SKL dai count
+arm:
 
-Since the initial commit to be fixed was not included, the -stable 
-branches should probably revert this patch? Adding ac42b142cd76 should 
-also not generate any problems, I tested it on top of v5.5.6
+    multi_v7_defconfig:
+        gcc-8:
+          omap3-beagle-xm:
+              lab-baylibre: failing since 3 days (last pass: v4.9.214-15-g4=
+d9c5d6bb1c1 - first fail: v4.9.214)
 
-The 'right' fix should be to use ARRAY_SIZE instead of hard-coded 
-defines, but there are multiple dependencies so we'd probably need to 
-refactor the code to so so.
+    omap2plus_defconfig:
+        gcc-8:
+          omap3-beagle-xm:
+              lab-baylibre: new failure (last pass: v4.9.214)
 
-Let me know if you want more details or additional help,
--Pierre
+Boot Failures Detected:
 
-> Signed-off-by: Cezary Rojewski <cezary.rojewski@intel.com>
-> Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-> Link: https://lore.kernel.org/r/20200113114054.9716-1-cezary.rojewski@intel.com
-> Signed-off-by: Mark Brown <broonie@kernel.org>
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
-> ---
->   sound/soc/sof/intel/hda.h | 2 +-
->   1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/sound/soc/sof/intel/hda.h b/sound/soc/sof/intel/hda.h
-> index 63df888dddb6c..de0115294c74e 100644
-> --- a/sound/soc/sof/intel/hda.h
-> +++ b/sound/soc/sof/intel/hda.h
-> @@ -348,7 +348,7 @@
->   
->   /* Number of DAIs */
->   #if IS_ENABLED(CONFIG_SND_SOC_SOF_HDA)
-> -#define SOF_SKL_NUM_DAIS		14
-> +#define SOF_SKL_NUM_DAIS		15
->   #else
->   #define SOF_SKL_NUM_DAIS		8
->   #endif
-> 
+arm:
+    sama5_defconfig:
+        gcc-8:
+            at91-sama5d4_xplained: 1 failed lab
+
+    multi_v7_defconfig:
+        gcc-8:
+            omap3-beagle-xm: 1 failed lab
+
+    omap2plus_defconfig:
+        gcc-8:
+            omap3-beagle-xm: 1 failed lab
+
+---
+For more info write to <info@kernelci.org>
