@@ -2,88 +2,121 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B0C7D174538
-	for <lists+stable@lfdr.de>; Sat, 29 Feb 2020 06:28:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D5D9174540
+	for <lists+stable@lfdr.de>; Sat, 29 Feb 2020 06:32:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726418AbgB2F2b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 29 Feb 2020 00:28:31 -0500
-Received: from userp2130.oracle.com ([156.151.31.86]:49546 "EHLO
-        userp2130.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725747AbgB2F2b (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 29 Feb 2020 00:28:31 -0500
-Received: from pps.filterd (userp2130.oracle.com [127.0.0.1])
-        by userp2130.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 01T5SRC6082863;
-        Sat, 29 Feb 2020 05:28:27 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=to : cc : subject :
- from : references : date : in-reply-to : message-id : mime-version :
- content-type; s=corp-2020-01-29;
- bh=6VapVng/jtzoDQPMgdcK8bwRNBxxrgyEhGau0mbGViI=;
- b=ccp5IsqX7mGbdC2dkj9IYTM/goL+uPqohBcvoezWQJRSedd22btzbndCqUjTGTM2JDEP
- q6WotnvzEYoovelAaOVO9fNfwjYg0nfznMjZvX8Z0JNxgHsSZBGTne0h3xmMQjY4T6wS
- s9Xpk8tO+Oh35yt1j7rot1U/EGO6o8Mc7fogdfaagTy49800fCk+GTuNhmQJSbnGa08A
- 80nju6YQla/4D+3lkt4hf5ryEN1ku0/qp0ueG/7AqZM1Fva2TccQzoOicXizeWcqtZc8
- KxZ43vxktFjzRLtL4BcsOXBtct/kIp8n8+bQHrdSaENEzg2/gVneEruTJnUwIV7VI92g Sg== 
-Received: from userp3020.oracle.com (userp3020.oracle.com [156.151.31.79])
-        by userp2130.oracle.com with ESMTP id 2yffcu07uu-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Sat, 29 Feb 2020 05:28:27 +0000
-Received: from pps.filterd (userp3020.oracle.com [127.0.0.1])
-        by userp3020.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 01T5IYJW075190;
-        Sat, 29 Feb 2020 05:26:27 GMT
-Received: from aserv0122.oracle.com (aserv0122.oracle.com [141.146.126.236])
-        by userp3020.oracle.com with ESMTP id 2yff9ngyyq-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Sat, 29 Feb 2020 05:26:27 +0000
-Received: from abhmp0008.oracle.com (abhmp0008.oracle.com [141.146.116.14])
-        by aserv0122.oracle.com (8.14.4/8.14.4) with ESMTP id 01T5QPsX029330;
-        Sat, 29 Feb 2020 05:26:25 GMT
-Received: from ca-mkp.ca.oracle.com (/10.159.214.123)
-        by default (Oracle Beehive Gateway v4.0)
-        with ESMTP ; Fri, 28 Feb 2020 21:26:25 -0800
-To:     Sagar Biradar <Sagar.Biradar@microchip.com>
-Cc:     "Martin K. Petersen" <martin.petersen@oracle.com>,
-        James Bottomley <jejb@linux.vnet.ibm.com>,
-        linux-scsi <linux-scsi@vger.kernel.org>, <aacraid@microsemi.com>,
-        Scott Benesh <scott.benesh@microsemi.com>,
-        Brian King <brking@linux.vnet.ibm.com>,
-        <stable@vger.kernel.org>, Balsundar P <balsundar.p@microsemi.com>
-Subject: Re: [PATCH] aacraid: Disabling TM path and only processing IOP reset
-From:   "Martin K. Petersen" <martin.petersen@oracle.com>
-Organization: Oracle Corporation
-References: <1581553771-25796-1-git-send-email-Sagar.Biradar@microchip.com>
-Date:   Sat, 29 Feb 2020 00:26:22 -0500
-In-Reply-To: <1581553771-25796-1-git-send-email-Sagar.Biradar@microchip.com>
-        (Sagar Biradar's message of "Wed, 12 Feb 2020 16:29:31 -0800")
-Message-ID: <yq1sgiu3qwx.fsf@oracle.com>
-User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/26.1.92 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9545 signatures=668685
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 bulkscore=0 spamscore=0 suspectscore=0
- malwarescore=0 phishscore=0 mlxscore=0 mlxlogscore=973 adultscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2001150001
- definitions=main-2002290037
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9545 signatures=668685
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 phishscore=0 mlxscore=0 bulkscore=0
- adultscore=0 suspectscore=0 spamscore=0 malwarescore=0 impostorscore=0
- priorityscore=1501 mlxlogscore=999 lowpriorityscore=0 clxscore=1011
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2001150001
- definitions=main-2002290037
+        id S1725787AbgB2Fc0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 29 Feb 2020 00:32:26 -0500
+Received: from nwk-aaemail-lapp01.apple.com ([17.151.62.66]:56684 "EHLO
+        nwk-aaemail-lapp01.apple.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725747AbgB2Fc0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 29 Feb 2020 00:32:26 -0500
+X-Greylist: delayed 33510 seconds by postgrey-1.27 at vger.kernel.org; Sat, 29 Feb 2020 00:32:25 EST
+Received: from pps.filterd (nwk-aaemail-lapp01.apple.com [127.0.0.1])
+        by nwk-aaemail-lapp01.apple.com (8.16.0.27/8.16.0.27) with SMTP id 01SKCEcm039535;
+        Fri, 28 Feb 2020 12:13:55 -0800
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=apple.com; h=sender : from :
+ content-type : content-transfer-encoding : mime-version : subject :
+ message-id : date : cc : to; s=20180706;
+ bh=GtN6g2I8C+yMxGFwx0O1X7XaKFL4fhIHZsN4zVKXgqo=;
+ b=QsBdDO/p3X6Lsmqbwxhl1H7HWKZ63LSFtAYyW8LgzbqtgC5LGKEBl9Xcb7IQxnHdTvYf
+ jNC/xwA7f9BlYZDq3KhAO6q5vI6Yjowu9YviupSZzBj+SGjVzL8mSBhm9Z8kN9mczICH
+ a+StnPalv3/bfq6jVzW1RHPuPbS5RXdgiZobr2TDuCsK8bM9D/eOXmX39VRg6IejwZEm
+ Iil7hLK3WQCKxXOQjj1UxuccVQpYygDnofQSuUrxPLcOI7PYdxh+oD06SsezkyLMnGur
+ v8I4F1NHU6X+m6EPMRZlLmJIFioSwERKxyKXzjLrYUJB9/Xd2XEXYYKqpRZ1V0vsrxPn 4A== 
+Received: from rn-mailsvcp-mta-lapp01.rno.apple.com (rn-mailsvcp-mta-lapp01.rno.apple.com [10.225.203.149])
+        by nwk-aaemail-lapp01.apple.com with ESMTP id 2yeptvd3w5-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=NO);
+        Fri, 28 Feb 2020 12:13:54 -0800
+Received: from rn-mailsvcp-mmp-lapp01.rno.apple.com
+ (rn-mailsvcp-mmp-lapp01.rno.apple.com [17.179.253.14])
+ by rn-mailsvcp-mta-lapp01.rno.apple.com
+ (Oracle Communications Messaging Server 8.1.0.1.20190704 64bit (built Jul  4
+ 2019)) with ESMTPS id <0Q6F00JDZHJ662C0@rn-mailsvcp-mta-lapp01.rno.apple.com>;
+ Fri, 28 Feb 2020 12:13:54 -0800 (PST)
+Received: from process_milters-daemon.rn-mailsvcp-mmp-lapp01.rno.apple.com by
+ rn-mailsvcp-mmp-lapp01.rno.apple.com
+ (Oracle Communications Messaging Server 8.1.0.1.20190704 64bit (built Jul  4
+ 2019)) id <0Q6F00400H4DCI00@rn-mailsvcp-mmp-lapp01.rno.apple.com>; Fri,
+ 28 Feb 2020 12:13:54 -0800 (PST)
+X-Va-A: 
+X-Va-T-CD: e53dd95f2bfcdd4f3c9680ea5ad3fd94
+X-Va-E-CD: 2d2068a9adf44f6654702d8ea314f551
+X-Va-R-CD: 626fd568ec4e6f5aa3d08e31fc5dcc98
+X-Va-CD: 0
+X-Va-ID: e266933f-0635-4dff-add6-526355287bc4
+X-V-A:  
+X-V-T-CD: e53dd95f2bfcdd4f3c9680ea5ad3fd94
+X-V-E-CD: 2d2068a9adf44f6654702d8ea314f551
+X-V-R-CD: 626fd568ec4e6f5aa3d08e31fc5dcc98
+X-V-CD: 0
+X-V-ID: 2b3aea5d-76c9-4816-acc5-1d4018417b38
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.138,18.0.572
+ definitions=2020-02-28_07:2020-02-28,2020-02-28 signatures=0
+Received: from [17.149.214.249] (unknown [17.149.214.249])
+ by rn-mailsvcp-mmp-lapp01.rno.apple.com
+ (Oracle Communications Messaging Server 8.1.0.1.20190704 64bit (built Jul  4
+ 2019))
+ with ESMTPSA id <0Q6F00VCZHJ6Z660@rn-mailsvcp-mmp-lapp01.rno.apple.com>; Fri,
+ 28 Feb 2020 12:13:54 -0800 (PST)
+From:   Vishnu Rangayyan <vishnu.rangayyan@apple.com>
+Content-type: text/plain; charset=utf-8
+Content-transfer-encoding: quoted-printable
+MIME-version: 1.0 (Mac OS X Mail 13.0 \(3608.60.0.2.5\))
+Subject: Fixes for 4.19 stable
+Message-id: <6CF798B4-B68B-4729-A496-2152FC032ABC@apple.com>
+Date:   Fri, 28 Feb 2020 12:13:54 -0800
+Cc:     gregkh@linuxfoundation.org, Andrew Forgue <andrewf@apple.com>
+To:     stable@vger.kernel.org
+X-Mailer: Apple Mail (2.3608.60.0.2.5)
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.138,18.0.572
+ definitions=2020-02-28_07:2020-02-28,2020-02-28 signatures=0
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Hi,
 
-Sagar,
+I still see high (upto 30%) ksoftirqd cpu use with 4.19.101+ after these =
+2 back ports went in for 4.19.101
+(had all 4 backports applied earlier to our tree):
 
-> Fixes the occasional adapter panic when sg_reset is issued with -d,
-> -t, -b and -H flags.  Removal of command type HBA_IU_TYPE_SCSI_TM_REQ
-> in aac_hba_send since iu_type, request_id and fib_flags are not
-> populated.  Device and target reset handlers made to send TMF commands
-> only when reset_state is 0.
+commit f6783319737f28e4436a69611853a5a098cbe974 sched/fair: Fix =
+insertion in rq->leaf_cfs_rq_list
+commit 5d299eabea5a251fbf66e8277704b874bbba92dc sched/fair: Add =
+tmp_alone_branch assertion
 
-Applied to 5.7/scsi-queue. Thanks!
+perf shows for any given ksoftirqd, with 20k-30k processes on the system =
+with high scheduler load:
+  58.88%  ksoftirqd/0  [kernel.kallsyms]  [k] update_blocked_averages
 
--- 
-Martin K. Petersen	Oracle Linux Engineering
+Can we backport these 2 also, confirmed that it fixes this behavior of =
+ksoftirqd.
+
+commit 039ae8bcf7a5f4476f4487e6bf816885fb3fb617 upstream
+commit 31bc6aeaab1d1de8959b67edbed5c7a4b3cdbe7c upstream
+
+The second one doesn=E2=80=99t apply cleanly, there=E2=80=99s a small =
+change for the last diff, where pelt needs renaming to task =
+(cfg_rq_clock_pelt was cfs_rq_clock_task in 4.19.y) in that unchanged =
+part of the diff:
+
+@@ -7700,10 +7720,6 @@ static void update_blocked_averages(int cpu)
+ 	for_each_leaf_cfs_rq(rq, cfs_rq) {
+ 		struct sched_entity *se;
+=20
+-		/* throttled entities do not contribute to load */
+-		if (throttled_hierarchy(cfs_rq))
+-			continue;
+-
+ 		if (update_cfs_rq_load_avg(cfs_rq_clock_pelt(cfs_rq), =
+cfs_rq))
+ 			update_tg_load_avg(cfs_rq, 0);
+
+
+I can post that patch with that rename if required.
+
+Thanks=20
+Vishnu
+
