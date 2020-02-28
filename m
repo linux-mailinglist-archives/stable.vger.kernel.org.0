@@ -2,288 +2,210 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6E3F6172F09
-	for <lists+stable@lfdr.de>; Fri, 28 Feb 2020 04:01:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A9604172F28
+	for <lists+stable@lfdr.de>; Fri, 28 Feb 2020 04:09:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730540AbgB1DBO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 22:01:14 -0500
-Received: from szxga06-in.huawei.com ([45.249.212.32]:34306 "EHLO huawei.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1730445AbgB1DBO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 22:01:14 -0500
-Received: from DGGEMS401-HUB.china.huawei.com (unknown [172.30.72.60])
-        by Forcepoint Email with ESMTP id F062346E2200175944E4;
-        Fri, 28 Feb 2020 11:01:11 +0800 (CST)
-Received: from [127.0.0.1] (10.74.219.194) by DGGEMS401-HUB.china.huawei.com
- (10.3.19.201) with Microsoft SMTP Server id 14.3.439.0; Fri, 28 Feb 2020
- 11:01:05 +0800
-Subject: Re: [PATCH] mtd: spi-nor: Fixup page size and map selection for
- S25FS-S
-To:     Alexander A Sverdlin <alexander.sverdlin@nokia.com>,
-        <linux-mtd@lists.infradead.org>
-References: <20200227123657.26030-1-alexander.sverdlin@nokia.com>
-CC:     Tudor Ambarus <tudor.ambarus@microchip.com>,
-        Richard Weinberger <richard@nod.at>,
-        John Garry <john.garry@huawei.com>, <stable@vger.kernel.org>,
-        Marek Vasut <marek.vasut@gmail.com>,
-        Brian Norris <computersforpeace@gmail.com>,
-        David Woodhouse <dwmw2@infradead.org>,
-        "Boris Brezillon" <bbrezillon@kernel.org>
-From:   "chenxiang (M)" <chenxiang66@hisilicon.com>
-Message-ID: <18cdef63-75e3-97c3-2a22-4969d4997af9@hisilicon.com>
-Date:   Fri, 28 Feb 2020 11:01:04 +0800
-User-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64; rv:45.0) Gecko/20100101
- Thunderbird/45.2.0
+        id S1730664AbgB1DJR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 22:09:17 -0500
+Received: from mail-lj1-f194.google.com ([209.85.208.194]:36969 "EHLO
+        mail-lj1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730545AbgB1DJR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 27 Feb 2020 22:09:17 -0500
+Received: by mail-lj1-f194.google.com with SMTP id q23so1666838ljm.4
+        for <stable@vger.kernel.org>; Thu, 27 Feb 2020 19:09:16 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=TjCzG5NSP6eI0dKZwneA+fl8/Ikexg52Y5QCjmtem24=;
+        b=tjPyr+q5fKYfhIxa/2RR8Jz7ZxB5Bh/V850E5RpGRzI6sj2Q6Y0R5bJO3+5R9dAiUk
+         e2irt2I6htBM519JDf2PzRkRFAdpjO9NBZ/k95/IsqVWFkSCOpXaNANrM4WMl6AYuDeS
+         FXJdsUuDIATid68YhPENzTo0BUndVZm5OdKdkCOATfOF4B8jsfjxrHgaZdkpKMUOSurB
+         v6hl8pdhD5OjXnceNWEDsMKJST4ry6dsbt4db2pm+VxnBEn8GNSdYbhsHDSWPO9Pb26H
+         cYMyxJjH2imihojFuSnWHAPWK1L3kzXK08HpxsdoAtRxUuU+HHOLKBYfLJlKMTaA3Z+k
+         rljw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=TjCzG5NSP6eI0dKZwneA+fl8/Ikexg52Y5QCjmtem24=;
+        b=tY1yb22+Hl4B1M3hxFJcNOPKC2PMjtM/LOrgRs5o7+Oc3qTJ325e7l4MtCHIgMJ3jY
+         snXwndeZrHt0HyElJqZfvWTk5YyOWNYMW+gZAFKWUQrQurN0gp7knZp6eRc7zbM49BMz
+         V5IE8ywYO9po3rpQ5YCXoXKLPHhOjEyB68wN02eYG2Xcvar2eahapr3/OVsw3SzTRhPV
+         rBOtDkAu24CqI5UtlDf7fjU25MGKGo9/XLrhAmun5N3K22HxuXTz6UevZEoIjw/1IK9n
+         YydEvS9anaDC02w2lBmcHYRtQmLsO6vroxL1jIOZM1ekSTCA/URmSRobE6QaV8anLCoq
+         rzTw==
+X-Gm-Message-State: ANhLgQ1X9kbHdUeOBlDBGnndbaEAsKqorcUtWEenHbgACTVcqZpSr1J7
+        dnjEn3p5Kt0QctwOYW5iFwcWXEom2OUQqSXKbTelww==
+X-Google-Smtp-Source: ADFU+vuSuY09khfpVx6XU3P6ALa1B0C+2ZslGsbVTOuskabM2UZA4frYa4LaFtE66juTafnLjXoXPUM8u7VL4x9ku9U=
+X-Received: by 2002:a05:651c:1072:: with SMTP id y18mr1383581ljm.243.1582859355487;
+ Thu, 27 Feb 2020 19:09:15 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <20200227123657.26030-1-alexander.sverdlin@nokia.com>
-Content-Type: text/plain; charset="UTF-8"; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Originating-IP: [10.74.219.194]
-X-CFilter-Loop: Reflected
+References: <20200227132230.840899170@linuxfoundation.org>
+In-Reply-To: <20200227132230.840899170@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Fri, 28 Feb 2020 08:39:04 +0530
+Message-ID: <CA+G9fYsrUorARUDsqR__uMKNjxZa-jGe8AEro66wNhO3Ea0Lig@mail.gmail.com>
+Subject: Re: [PATCH 4.9 000/165] 4.9.215-stable review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        lkft-triage@lists.linaro.org,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        linux- stable <stable@vger.kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi，
+On Thu, 27 Feb 2020 at 19:15, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 4.9.215 release.
+> There are 165 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Sat, 29 Feb 2020 13:21:24 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
+4.9.215-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-4.9.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-在 2020/2/27 20:36, Alexander A Sverdlin 写道:
-> From: Alexander Sverdlin <alexander.sverdlin@nokia.com>
->
-> Spansion S25FS-S family has an issue in Basic Flash Parameter Table:
-> DWORD-11 bits 7-4 specify write page size 512 bytes. In reality this
-> is configurable in the non-volatile CR3NV register and even factory
-> default configuration is "wrap at 256 bytes". So blind relying on BFPT
-> breaks write operation on these Flashes.
->
-> All this story is vendor-specific, so add the corresponding fixup hook
-> which first restores the safe page size of 256 bytes from
-> struct flash_info but checks is more performant 512 bytes configuration
-> is active and adjusts the page_size accordingly.
->
-> To read CR3V RDAR command is required which in turn requires addr width
-> and read latency to be configured, which was not the case before. Setting
-> these parameters is also later required for sector map selection, because:
->
-> JESD216 allows "variable address length" and "variable latency" in
-> Configuration Detection Command Descriptors, in other words "as-is".
-> And they are still unset during Sector Map Parameter Table parsing,
-> which led to "map_id" determined erroneously as 0 for, e.g. S25FS128S.
->
-> New warning is added to catch the potential misconfiguration with other
-> chips.
->
-> Link: http://lists.infradead.org/pipermail/linux-mtd/2020-February/093950.html
-> Link: http://lists.infradead.org/pipermail/linux-mtd/2018-December/085956.html
-> Fixes: f384b352cbf0 ("mtd: spi-nor: parse Serial Flash Discoverable Parameters (SFDP) tables")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Alexander Sverdlin <alexander.sverdlin@nokia.com>
-> ---
-> Yes, this is a combination of two previously sent patches as it turned out,
-> width/dummy quirk is necessary even earlier, during post_bfpt fixup.
->
->   drivers/mtd/spi-nor/spi-nor.c | 132 +++++++++++++++++++++++++++++++++++++++++-
->   include/linux/mtd/spi-nor.h   |  11 ++++
->   2 files changed, 141 insertions(+), 2 deletions(-)
->
-> diff --git a/drivers/mtd/spi-nor/spi-nor.c b/drivers/mtd/spi-nor/spi-nor.c
-> index 1224247..1d0e2ef 100644
-> --- a/drivers/mtd/spi-nor/spi-nor.c
-> +++ b/drivers/mtd/spi-nor/spi-nor.c
-> @@ -2326,6 +2326,122 @@ static struct spi_nor_fixups gd25q256_fixups = {
->   	.default_init = gd25q256_default_init,
->   };
->   
-> +/*
-> + * Return true if it was possible to read something known and non-zero with
-> + * the probed parameters. struct spi_nor is updated in this case as well.
-> + */
-> +static bool spi_nor_probe_width_and_dummy(struct spi_nor *nor, u8 width,
-> +					  u8 dummy)
-> +{
-> +	u8 read_opcode = nor->read_opcode;
-> +	u8 savedw = nor->addr_width;
-> +	u8 savedd = nor->read_dummy;
-> +	int ret;
-> +	u8 buf;
-> +
-> +	nor->addr_width = width;
-> +	nor->read_dummy = dummy;
-> +	nor->read_opcode = SPINOR_OP_RDAR;
-> +	ret = spi_nor_read_data(nor, SPINOR_REG_CR2V, 1, &buf);
-> +	nor->read_opcode = read_opcode;
-> +
-> +	if (ret == 1 && (CR2V_RL(buf) == dummy) &&
-> +	    (!!(buf & CR2V_AL) == (width == 4)))
-> +		return true;
-> +
-> +	nor->addr_width = savedw;
-> +	nor->read_dummy = savedd;
-> +
-> +	return false;
-> +}
-> +
-> +/*
-> + * JESD216 allows to omit particular address length or latency specification in
-> + * the header and at this point they are still unset, so we need some
-> + * heuristics. One example is S25FS128S.
-> + *
-> + * It was observed that RDAR with incorrect parameters result in all-zeroes or
-> + * all-ones reads. That's why probed dummy is limited to 14 and loops are built
-> + * in a way to probe width 3 and 0 dummy bits last to avoid false-positive
-> + * (refer to CR2 mapping). 8 dummy bits are probed on the first iteration.
-> + */
-> +static void spi_nor_fixup_width_and_dummy(struct spi_nor *nor)
-> +{
-> +	u8 width_min = 3;
-> +	u8 width_max = 4;
-> +	u8 dummy_min = 0;
-> +	u8 dummy_max = 14;
-> +	u8 w, d;
-> +
-> +	if (nor->addr_width && nor->read_dummy)
-> +		return;
-> +
-> +	if (nor->addr_width) {
-> +		width_min = nor->addr_width;
-> +		width_max = nor->addr_width;
-> +	}
-> +	if (nor->read_dummy) {
-> +		dummy_min = nor->read_dummy;
-> +		dummy_max = nor->read_dummy;
-> +	}
-> +
-> +	for (w = width_min; w <= width_max; ++w)
-> +		for (d = 8; d <= dummy_max; ++d)
-> +			if (d >= dummy_min &&
-> +			    spi_nor_probe_width_and_dummy(nor, w, d))
-> +				return;
-> +	for (w = width_max; w >= width_min; --w)
-> +		for (d = 7; d >= dummy_min; --d)
-> +			if (d <= dummy_max &&
-> +			    spi_nor_probe_width_and_dummy(nor, w, d))
-> +				return;
-> +}
-> +
-> +/* Spansion S25FS-S SFDP workarounds */
-> +static int s25fs_s_post_bfpt_fixups(struct spi_nor *nor,
-> +	const struct sfdp_parameter_header *bfpt_header,
-> +	const struct sfdp_bfpt *bfpt,
-> +	struct spi_nor_flash_parameter *params)
-> +{
-> +	const struct flash_info *info = nor->info;
-> +	u8 read_opcode, buf;
-> +	int ret;
-> +
-> +	/*
-> +	 * RDAR command below requires nor->addr_width and nor->dummy correctly
-> +	 * set. spi_nor_get_map_in_use() later requires them as well.
-> +	 */
-> +	spi_nor_fixup_width_and_dummy(nor);
-> +
-> +	/* Default is safe */
-> +	params->page_size = info->page_size;
-> +
-> +	/*
-> +	 * But is the chip configured for more performant 512 bytes write page
-> +	 * size?
-> +	 */
-> +	read_opcode = nor->read_opcode;
-> +
-> +	nor->read_opcode = SPINOR_OP_RDAR;
-> +	ret = spi_nor_read_data(nor, SPINOR_REG_CR3V, 1, &buf);
-> +	nor->read_opcode = read_opcode;
-> +
-> +	switch (ret) {
-> +	case 0:
-> +		return -EIO;
-> +	case 1:
-> +		if (buf & CR3V_02H_V)
-> +			params->page_size = 512;
-> +		return 0;
-> +	}
-> +
-> +	return ret;
-> +}
-> +
-> +static const struct spi_nor_fixups s25fs_s_fixups = {
-> +	.post_bfpt = s25fs_s_post_bfpt_fixups,
-> +};
-> +
->   /* NOTE: double check command sets and memory organization when you add
->    * more nor chips.  This current list focusses on newer chips, which
->    * have been converging on command sets which including JEDEC ID.
-> @@ -2560,7 +2676,8 @@ static const struct flash_info spi_nor_ids[] = {
->   			SPI_NOR_DUAL_READ | SPI_NOR_QUAD_READ | USE_CLSR) },
->   	{ "s25fl128s1", INFO6(0x012018, 0x4d0180, 64 * 1024, 256,
->   			SPI_NOR_DUAL_READ | SPI_NOR_QUAD_READ | USE_CLSR) },
-> -	{ "s25fl256s0", INFO(0x010219, 0x4d00, 256 * 1024, 128, USE_CLSR) },
-> +	{ "s25fl256s0", INFO(0x010219, 0x4d00, 256 * 1024, 128, USE_CLSR)
-> +			.fixups = &s25fs_s_fixups, },
->   	{ "s25fl256s1", INFO(0x010219, 0x4d01,  64 * 1024, 512, SPI_NOR_DUAL_READ | SPI_NOR_QUAD_READ | USE_CLSR) },
->   	{ "s25fl512s",  INFO6(0x010220, 0x4d0080, 256 * 1024, 256,
->   			SPI_NOR_DUAL_READ | SPI_NOR_QUAD_READ |
-> @@ -2570,7 +2687,8 @@ static const struct flash_info spi_nor_ids[] = {
->   	{ "s25sl12800", INFO(0x012018, 0x0300, 256 * 1024,  64, 0) },
->   	{ "s25sl12801", INFO(0x012018, 0x0301,  64 * 1024, 256, 0) },
->   	{ "s25fl129p0", INFO(0x012018, 0x4d00, 256 * 1024,  64, SPI_NOR_DUAL_READ | SPI_NOR_QUAD_READ | USE_CLSR) },
-> -	{ "s25fl129p1", INFO(0x012018, 0x4d01,  64 * 1024, 256, SPI_NOR_DUAL_READ | SPI_NOR_QUAD_READ | USE_CLSR) },
-> +	{ "s25fl129p1", INFO(0x012018, 0x4d01,  64 * 1024, 256, SPI_NOR_DUAL_READ | SPI_NOR_QUAD_READ | USE_CLSR)
-> +			.fixups = &s25fs_s_fixups, },
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-It seems SFDP is not supported on s25fl129p (you can check it on 
-https://www.cypress.com/file/400586/download), so is it necessary to add 
-this for this type flash?
+Summary
+------------------------------------------------------------------------
 
+kernel: 4.9.215-rc1
+git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
+le-rc.git
+git branch: linux-4.9.y
+git commit: b8e4943d6bee55c8a2c077fc7639d0b8e8127e1a
+git describe: v4.9.214-166-gb8e4943d6bee
+Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-4.9-oe/bui=
+ld/v4.9.214-166-gb8e4943d6bee
 
->   	{ "s25sl004a",  INFO(0x010212,      0,  64 * 1024,   8, 0) },
->   	{ "s25sl008a",  INFO(0x010213,      0,  64 * 1024,  16, 0) },
->   	{ "s25sl016a",  INFO(0x010214,      0,  64 * 1024,  32, 0) },
-> @@ -3897,6 +4015,16 @@ static const u32 *spi_nor_get_map_in_use(struct spi_nor *nor, const u32 *smpt,
->   		nor->read_opcode = SMPT_CMD_OPCODE(smpt[i]);
->   		addr = smpt[i + 1];
->   
-> +		switch (nor->read_opcode) {
-> +		case SPINOR_OP_RDAR:
-> +			if (nor->read_dummy && nor->addr_width)
-> +				break;
-> +			dev_warn(nor->dev, "OP 0x%02x width %u dummy %u\n",
-> +				 nor->read_opcode, nor->addr_width,
-> +				 nor->read_dummy);
-> +			break;
-> +		}
-> +
->   		err = spi_nor_read_raw(nor, addr, 1, buf);
->   		if (err) {
->   			ret = ERR_PTR(err);
-> diff --git a/include/linux/mtd/spi-nor.h b/include/linux/mtd/spi-nor.h
-> index de90724..1e21592 100644
-> --- a/include/linux/mtd/spi-nor.h
-> +++ b/include/linux/mtd/spi-nor.h
-> @@ -116,6 +116,7 @@
->   /* Used for Spansion flashes only. */
->   #define SPINOR_OP_BRWR		0x17	/* Bank register write */
->   #define SPINOR_OP_CLSR		0x30	/* Clear status register 1 */
-> +#define SPINOR_OP_RDAR		0x65	/* Read Any Register */
->   
->   /* Used for Micron flashes only. */
->   #define SPINOR_OP_RD_EVCR      0x65    /* Read EVCR register */
-> @@ -152,6 +153,16 @@
->   #define SR2_QUAD_EN_BIT1	BIT(1)
->   #define SR2_QUAD_EN_BIT7	BIT(7)
->   
-> +/* Used for Spansion flashes RDAR command only. */
-> +#define SPINOR_REG_CR2V		0x800003
-> +#define CR2V_AL			BIT(7)	/* Address Length */
-> +/* Read Latency */
-> +#define CR2V_RL_MASK		GENMASK(3, 0)
-> +#define CR2V_RL(_nbits)		((_nbits) & CR2V_RL_MASK)
-> +
-> +#define SPINOR_REG_CR3V		0x800004
-> +#define CR3V_02H_V		BIT(4)	/* Page Buffer Wrap */
-> +
->   /* Supported SPI protocols */
->   #define SNOR_PROTO_INST_MASK	GENMASK(23, 16)
->   #define SNOR_PROTO_INST_SHIFT	16
+No regressions (compared to build v4.9.214)
 
+No fixes (compared to build v4.9.214)
 
+Ran 26738 total tests in the following environments and test suites.
+
+Environments
+--------------
+- dragonboard-410c - arm64
+- hi6220-hikey - arm64
+- i386
+- juno-r2 - arm64
+- qemu_arm
+- qemu_arm64
+- qemu_i386
+- qemu_x86_64
+- x15 - arm
+- x86_64
+
+Test Suites
+-----------
+* build
+* install-android-platform-tools-r2600
+* kselftest
+* libhugetlbfs
+* linux-log-parser
+* ltp-cap_bounds-tests
+* ltp-commands-tests
+* ltp-containers-tests
+* ltp-cpuhotplug-tests
+* ltp-dio-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-hugetlb-tests
+* ltp-io-tests
+* ltp-ipc-tests
+* ltp-math-tests
+* ltp-mm-tests
+* ltp-nptl-tests
+* ltp-pty-tests
+* ltp-sched-tests
+* ltp-securebits-tests
+* ltp-syscalls-tests
+* perf
+* v4l2-compliance
+* ltp-cve-tests
+* network-basic-tests
+* spectre-meltdown-checker-test
+* ltp-open-posix-tests
+* kvm-unit-tests
+* ltp-cap_bounds-64k-page_size-tests
+* ltp-cap_bounds-kasan-tests
+* ltp-commands-64k-page_size-tests
+* ltp-commands-kasan-tests
+* ltp-containers-64k-page_size-tests
+* ltp-containers-kasan-tests
+* ltp-cpuhotplug-64k-page_size-tests
+* ltp-cpuhotplug-kasan-tests
+* ltp-crypto-64k-page_size-tests
+* ltp-crypto-kasan-tests
+* ltp-crypto-tests
+* ltp-cve-64k-page_size-tests
+* ltp-cve-kasan-tests
+* ltp-dio-64k-page_size-tests
+* ltp-dio-kasan-tests
+* ltp-fcntl-locktests-64k-page_size-tests
+* ltp-fcntl-locktests-kasan-tests
+* ltp-filecaps-64k-page_size-tests
+* ltp-filecaps-kasan-tests
+* ltp-fs-64k-page_size-tests
+* ltp-fs-kasan-tests
+* ltp-fs_bind-64k-page_size-tests
+* ltp-fs_bind-kasan-tests
+* ltp-fs_perms_simple-64k-page_size-tests
+* ltp-fs_perms_simple-kasan-tests
+* ltp-fsx-64k-page_size-tests
+* ltp-fsx-kasan-tests
+* ltp-hugetlb-64k-page_size-tests
+* ltp-hugetlb-kasan-tests
+* ltp-io-64k-page_size-tests
+* ltp-io-kasan-tests
+* ltp-ipc-64k-page_size-tests
+* ltp-ipc-kasan-tests
+* ltp-math-64k-page_size-tests
+* ltp-math-kasan-tests
+* ltp-mm-64k-page_size-tests
+* ltp-mm-kasan-tests
+* ltp-nptl-64k-page_size-tests
+* ltp-nptl-kasan-tests
+* ltp-pty-64k-page_size-tests
+* ltp-pty-kasan-tests
+* ltp-sched-64k-page_size-tests
+* ltp-sched-kasan-tests
+* ltp-securebits-64k-page_size-tests
+* ltp-securebits-kasan-tests
+* ltp-syscalls-64k-page_size-tests
+* ltp-syscalls-compat-tests
+* ltp-syscalls-kasan-tests
+* prep-tmp-disk
+* ssuite
+
+--=20
+Linaro LKFT
+https://lkft.linaro.org
