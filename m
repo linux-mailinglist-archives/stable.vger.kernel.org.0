@@ -2,112 +2,138 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6ADD4172D68
-	for <lists+stable@lfdr.de>; Fri, 28 Feb 2020 01:32:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 17BAE172DBF
+	for <lists+stable@lfdr.de>; Fri, 28 Feb 2020 01:58:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730306AbgB1Ac4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 19:32:56 -0500
-Received: from mail-pg1-f196.google.com ([209.85.215.196]:39646 "EHLO
-        mail-pg1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730250AbgB1Ac4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 27 Feb 2020 19:32:56 -0500
-Received: by mail-pg1-f196.google.com with SMTP id j15so553322pgm.6
-        for <stable@vger.kernel.org>; Thu, 27 Feb 2020 16:32:54 -0800 (PST)
+        id S1730233AbgB1A6P (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 19:58:15 -0500
+Received: from smtp-fw-9101.amazon.com ([207.171.184.25]:32476 "EHLO
+        smtp-fw-9101.amazon.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730155AbgB1A6P (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 27 Feb 2020 19:58:15 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=qE8v00JBZ+QlDL/myaZJPGI1xg4LoFuBmFcYS9XQdH0=;
-        b=Yt55gpzWJnAIierZ3Z5QPB3r0o2gbvbc15w7wiihd8FwhBhb5xH8si7o9HiXlMErrr
-         e99oSffmQJFpbULK3zsilXTcaiw66SSnIYwg6Rugsn3ZgL/oMlpo2suhYhbrU/mh4bZs
-         dQ0RsWh5DNop+K0MQcnSfquDmfyxAWD4uNjUuMLqY0cRdSiRTxMytCY46fmQLp1wSJRg
-         QISUVbzi7ud2GfqDsd6Ca5CE0COqN6jnOtAW66Z3LObGNOXEPIwfndBRgBDWUASajA4l
-         xrl9p1S10RtOG9gyq7qFagjdgfaaYBwG2tj56fHhkA2DCFltP08h6c0wcPF/bn8SPflh
-         Ig+g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=qE8v00JBZ+QlDL/myaZJPGI1xg4LoFuBmFcYS9XQdH0=;
-        b=P9PARyzTBEVhQRH4ITessIiEI6BK2r2AF83wxsmcSXhujQpJ02oRAp0eCOn7i3oe5k
-         le/6+glfUahYyyXe80UY6ZNQrC3RdBHxoQoaBB78PuLvUCG8a1OdFPHJiaxSKvbIlcSP
-         QnpFBx2y61o9TLDV/W+blU9b1hN2rpXusGdGsLcjlpgXhUN2KY/qmy/9vDvPZUcsEhu8
-         RmVLivnw4eYGsIlEG1e7v0M0vA2ShEOArPL+iCnG9mhWcBynNWrBtoKKrp3sm2YReixh
-         H9tgfMMBr0iSwTvjeXV38uqs44/3pTRmybMjhcxp/IxMljvkw4G0hZEewpveNxu/2LGv
-         0UfA==
-X-Gm-Message-State: APjAAAVlGASb2dgKvjUtS7vcvkpSvjQypuftCt0+KJVAjMXM1/I3flRf
-        hDogMLmNoLce4ZDAAnSxNdJrlFlKbwQ=
-X-Google-Smtp-Source: APXvYqzqqYfhE6x0NPia/Zz0jh/9Ps6rpxtzicFFVmcm4qTAE8b4SoDJe0qZ3pnBAjcSqaHCxRNglQ==
-X-Received: by 2002:a63:5848:: with SMTP id i8mr1873378pgm.438.1582849973837;
-        Thu, 27 Feb 2020 16:32:53 -0800 (PST)
-Received: from [10.0.9.4] ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id q6sm8324219pfh.127.2020.02.27.16.32.52
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 27 Feb 2020 16:32:52 -0800 (PST)
-Message-ID: <5e585fb4.1c69fb81.8f778.7149@mx.google.com>
-Date:   Thu, 27 Feb 2020 16:32:52 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
+  t=1582851494; x=1614387494;
+  h=from:to:cc:subject:date:message-id:mime-version;
+  bh=+26UKzxlUN4EVAyF/OYB/8RCGqTKNyic6tJjp8D1FfE=;
+  b=tAkhLslfULoWwapgBa8Yg9eys64O8oJ0dPhJxDCMmn1EEI4Ljrn7UDEu
+   /I2EFvxtUmAU21ROqBZRRxw469Y4xxEuhHI2I5Oir8KADjPFcQWZc7zdy
+   rcnypZL2moY1kfsEZt79eL1MiacWOxlHrXmwC00HlfIWZWnu81ptu4X6w
+   A=;
+IronPort-SDR: NpQ6RmQf4Ok3PHd0ta/c6LIKP7ry6ftsxewilpBIX0vtEKRMXAOaECNbn8VOSIWItiBkt1kgl3
+ uiGjBiJ8gukQ==
+X-IronPort-AV: E=Sophos;i="5.70,493,1574121600"; 
+   d="scan'208";a="19629493"
+Received: from sea32-co-svc-lb4-vlan3.sea.corp.amazon.com (HELO email-inbound-relay-2b-55156cd4.us-west-2.amazon.com) ([10.47.23.38])
+  by smtp-border-fw-out-9101.sea19.amazon.com with ESMTP; 28 Feb 2020 00:58:12 +0000
+Received: from EX13MTAUWB001.ant.amazon.com (pdx4-ws-svc-p6-lb7-vlan2.pdx.amazon.com [10.170.41.162])
+        by email-inbound-relay-2b-55156cd4.us-west-2.amazon.com (Postfix) with ESMTPS id B7436A3096;
+        Fri, 28 Feb 2020 00:58:11 +0000 (UTC)
+Received: from EX13D35UWB004.ant.amazon.com (10.43.161.230) by
+ EX13MTAUWB001.ant.amazon.com (10.43.161.207) with Microsoft SMTP Server (TLS)
+ id 15.0.1367.3; Fri, 28 Feb 2020 00:58:11 +0000
+Received: from EX13MTAUEB002.ant.amazon.com (10.43.60.12) by
+ EX13D35UWB004.ant.amazon.com (10.43.161.230) with Microsoft SMTP Server (TLS)
+ id 15.0.1497.2; Fri, 28 Feb 2020 00:58:11 +0000
+Received: from dev-dsk-astroh-2c-c797f0e8.us-west-2.amazon.com (172.22.47.82)
+ by mail-relay.amazon.com (10.43.60.234) with Microsoft SMTP Server id
+ 15.0.1367.3 via Frontend Transport; Fri, 28 Feb 2020 00:58:03 +0000
+Received: by dev-dsk-astroh-2c-c797f0e8.us-west-2.amazon.com (Postfix, from userid 11196724)
+        id 99F8926905; Fri, 28 Feb 2020 00:58:03 +0000 (UTC)
+From:   Andy Strohman <astroh@amazon.com>
+CC:     <stable@vger.kernel.org>, <davem@davemloft.net>,
+        Martynas Pumputis <martynas@weave.works>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
+        "Andy Strohman" <astroh@amazon.com>
+Subject: [PATCH 4.14] netfilter: nf_conntrack: resolve clash for matching conntracks
+Date:   Fri, 28 Feb 2020 00:57:38 +0000
+Message-ID: <20200228005738.26667-1-astroh@amazon.com>
+X-Mailer: git-send-email 2.16.6
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.9.214-166-gb8e4943d6bee
-X-Kernelci-Report-Type: boot
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-4.9.y
-Subject: stable-rc/linux-4.9.y boot: 64 boots: 3 failed,
- 60 passed with 1 untried/unknown (v4.9.214-166-gb8e4943d6bee)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain
+To:     unlisted-recipients:; (no To-header on input)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.9.y boot: 64 boots: 3 failed, 60 passed with 1 untried/un=
-known (v4.9.214-166-gb8e4943d6bee)
+From: Martynas Pumputis <martynas@weave.works>
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.9.y/kernel/v4.9.214-166-gb8e4943d6bee/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.9.y=
-/kernel/v4.9.214-166-gb8e4943d6bee/
+[ Upstream commit ed07d9a021df6da53456663a76999189badc432a ]
 
-Tree: stable-rc
-Branch: linux-4.9.y
-Git Describe: v4.9.214-166-gb8e4943d6bee
-Git Commit: b8e4943d6bee55c8a2c077fc7639d0b8e8127e1a
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 33 unique boards, 14 SoC families, 13 builds out of 197
+This patch enables the clash resolution for NAT (disabled in
+"590b52e10d41") if clashing conntracks match (i.e. both tuples are equal)
+and a protocol allows it.
 
-Boot Regressions Detected:
+The clash might happen for a connections-less protocol (e.g. UDP) when
+two threads in parallel writes to the same socket and consequent calls
+to "get_unique_tuple" return the same tuples (incl. reply tuples).
 
-arm:
+In this case it is safe to perform the resolution, as the losing CT
+describes the same mangling as the winning CT, so no modifications to
+the packet are needed, and the result of rules traversal for the loser's
+packet stays valid.
 
-    multi_v7_defconfig:
-        gcc-8:
-          omap3-beagle-xm:
-              lab-baylibre: failing since 3 days (last pass: v4.9.214-15-g4=
-d9c5d6bb1c1 - first fail: v4.9.214)
-
-    omap2plus_defconfig:
-        gcc-8:
-          omap3-beagle-xm:
-              lab-baylibre: new failure (last pass: v4.9.214)
-
-Boot Failures Detected:
-
-arm:
-    sama5_defconfig:
-        gcc-8:
-            at91-sama5d4_xplained: 1 failed lab
-
-    multi_v7_defconfig:
-        gcc-8:
-            omap3-beagle-xm: 1 failed lab
-
-    omap2plus_defconfig:
-        gcc-8:
-            omap3-beagle-xm: 1 failed lab
-
+Signed-off-by: Martynas Pumputis <martynas@weave.works>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Signed-off-by: Andy Strohman <astroh@amazon.com>
 ---
-For more info write to <info@kernelci.org>
+ net/netfilter/nf_conntrack_core.c | 30 ++++++++++++++++++++++--------
+ 1 file changed, 22 insertions(+), 8 deletions(-)
+
+diff --git a/net/netfilter/nf_conntrack_core.c b/net/netfilter/nf_conntrack_core.c
+index 5123e91b1982..4ced7c7102b6 100644
+--- a/net/netfilter/nf_conntrack_core.c
++++ b/net/netfilter/nf_conntrack_core.c
+@@ -632,6 +632,18 @@ nf_ct_key_equal(struct nf_conntrack_tuple_hash *h,
+ 	       net_eq(net, nf_ct_net(ct));
+ }
+ 
++static inline bool
++nf_ct_match(const struct nf_conn *ct1, const struct nf_conn *ct2)
++{
++	return nf_ct_tuple_equal(&ct1->tuplehash[IP_CT_DIR_ORIGINAL].tuple,
++				 &ct2->tuplehash[IP_CT_DIR_ORIGINAL].tuple) &&
++	       nf_ct_tuple_equal(&ct1->tuplehash[IP_CT_DIR_REPLY].tuple,
++				 &ct2->tuplehash[IP_CT_DIR_REPLY].tuple) &&
++	       nf_ct_zone_equal(ct1, nf_ct_zone(ct2), IP_CT_DIR_ORIGINAL) &&
++	       nf_ct_zone_equal(ct1, nf_ct_zone(ct2), IP_CT_DIR_REPLY) &&
++	       net_eq(nf_ct_net(ct1), nf_ct_net(ct2));
++}
++
+ /* caller must hold rcu readlock and none of the nf_conntrack_locks */
+ static void nf_ct_gc_expired(struct nf_conn *ct)
+ {
+@@ -825,19 +837,21 @@ static int nf_ct_resolve_clash(struct net *net, struct sk_buff *skb,
+ 	/* This is the conntrack entry already in hashes that won race. */
+ 	struct nf_conn *ct = nf_ct_tuplehash_to_ctrack(h);
+ 	const struct nf_conntrack_l4proto *l4proto;
++	enum ip_conntrack_info oldinfo;
++	struct nf_conn *loser_ct = nf_ct_get(skb, &oldinfo);
+ 
+ 	l4proto = __nf_ct_l4proto_find(nf_ct_l3num(ct), nf_ct_protonum(ct));
+ 	if (l4proto->allow_clash &&
+-	    ((ct->status & IPS_NAT_DONE_MASK) == 0) &&
+ 	    !nf_ct_is_dying(ct) &&
+ 	    atomic_inc_not_zero(&ct->ct_general.use)) {
+-		enum ip_conntrack_info oldinfo;
+-		struct nf_conn *loser_ct = nf_ct_get(skb, &oldinfo);
+-
+-		nf_ct_acct_merge(ct, ctinfo, loser_ct);
+-		nf_conntrack_put(&loser_ct->ct_general);
+-		nf_ct_set(skb, ct, oldinfo);
+-		return NF_ACCEPT;
++		if (((ct->status & IPS_NAT_DONE_MASK) == 0) ||
++		    nf_ct_match(ct, loser_ct)) {
++			nf_ct_acct_merge(ct, ctinfo, loser_ct);
++			nf_conntrack_put(&loser_ct->ct_general);
++			nf_ct_set(skb, ct, oldinfo);
++			return NF_ACCEPT;
++		}
++		nf_ct_put(ct);
+ 	}
+ 	NF_CT_STAT_INC(net, drop);
+ 	return NF_DROP;
+-- 
+2.16.6
+
