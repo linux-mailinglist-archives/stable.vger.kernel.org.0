@@ -2,108 +2,137 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 33840173339
-	for <lists+stable@lfdr.de>; Fri, 28 Feb 2020 09:47:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 87468173526
+	for <lists+stable@lfdr.de>; Fri, 28 Feb 2020 11:19:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726378AbgB1Irb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 28 Feb 2020 03:47:31 -0500
-Received: from Galois.linutronix.de ([193.142.43.55]:36105 "EHLO
-        Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726005AbgB1Irb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 28 Feb 2020 03:47:31 -0500
-Received: from p5b06da28.dip0.t-ipconnect.de ([91.6.218.40] helo=kurt)
-        by Galois.linutronix.de with esmtpsa (TLS1.2:RSA_AES_256_CBC_SHA1:256)
-        (Exim 4.80)
-        (envelope-from <kurt@linutronix.de>)
-        id 1j7bIt-0003sR-EZ; Fri, 28 Feb 2020 09:47:27 +0100
-From:   Kurt Kanzenbach <kurt@linutronix.de>
-To:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Cc:     gregkh@linuxfoundation.org, lirongqing@baidu.com,
-        stable@vger.kernel.org, vikram.pandita@ti.com
-Subject: Re: FAILED: patch "[PATCH] serial: 8250: Check UPF_IRQ_SHARED in advance" failed to apply to 4.14-stable tree
-In-Reply-To: <20200227095908.GC1224808@smile.fi.intel.com>
-References: <158271336456142@kroah.com> <20200226233949.GC22178@sasha-vm> <20200227095908.GC1224808@smile.fi.intel.com>
-Date:   Fri, 28 Feb 2020 09:47:16 +0100
-Message-ID: <87r1yf2j57.fsf@kurt>
+        id S1726583AbgB1KTE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 28 Feb 2020 05:19:04 -0500
+Received: from mail-eopbgr150050.outbound.protection.outlook.com ([40.107.15.50]:8259
+        "EHLO EUR01-DB5-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1726063AbgB1KTD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 28 Feb 2020 05:19:03 -0500
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=VqTQa5EyZSOxdSnETnePshv5w8Pk+01S/qPRCc0O1APOsml5YvLO4LhCc3wClpaYr5dO6D5jwuwB/nyZNYWTck+E8fkJ/Ul0nSFiljnFJchHwH+iNuJYNb9FOAAMP6ko03mhx4Coyd0szpnTDJ9XqAwpE8+tPGjX5/upGXkk4lqp5PnTNBSfYClWKa3X+eCdj1clYzwEtkLEuoZqmO3rxZFTDt7O2MFUafjFeAx2uxReg37RlvycOl/QZgTCcoQ3JnYvdDEqdd/okCBJWhTnmsRVCidaQu6DmZzTKrdpSyWZsWvD8QyfDeuSyX2yRduCmafIaYlC7/I4ZKBTS2vFbA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=5Nr+2VCHsEOwlIHi+VzD9JqAt1P+CglbjrOcW8Tl1uI=;
+ b=JSfXtT217voBNMQRddAVSHDckRV0/8oqJshi2svPC2Dhinnbj87RkX/IEnoWJXkC+8LPs2tw2LLKHm+Oyd5WmGLfISFbHqeXGYtu/2QjCuyBLu0COyTx/GUe/4FAupWUkwlkK6/C96XyE0YZsWMKiJiaNZuAP65d5PBJvgqMrhqeEXLbRnYhwNxUhbPZbV71A8BvWrdJFClmyQYu1rsZPiE7h1RGmAs1cVuo6A9YU4Gu/Q+SaixWO8qbBCRnxpp8SzjWEhZppL1Lc3rVZBPDlCWXm49i7S1/2liM8Jlnn8jzb1kbE3fUpYmGl+3SRDLXZGCP5c5GXqZ/Bng0hj2bWA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=oss.nxp.com; dmarc=pass action=none header.from=oss.nxp.com;
+ dkim=pass header.d=oss.nxp.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=NXP1.onmicrosoft.com;
+ s=selector2-NXP1-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=5Nr+2VCHsEOwlIHi+VzD9JqAt1P+CglbjrOcW8Tl1uI=;
+ b=alqIH6+buvtSmauPlj2wHAr781uTfZh/GAaWeFiyhzD9ZaH2l4g2dpCIhNxE3cNokNcHy2GfNYMogf4JHy8xuXYWxc40W+vE6LPUON53jo+EjJPERgSizsUrRUvGUQYd+KXlf+cSXGEUxrPBovPPuqpnDTArXzH6tMM5+3NThmE=
+Authentication-Results: spf=none (sender IP is )
+ smtp.mailfrom=andrei.botila@oss.nxp.com; 
+Received: from AM6PR04MB5430.eurprd04.prod.outlook.com (20.178.92.210) by
+ AM6PR04MB5094.eurprd04.prod.outlook.com (20.177.32.148) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.2750.22; Fri, 28 Feb 2020 10:19:00 +0000
+Received: from AM6PR04MB5430.eurprd04.prod.outlook.com
+ ([fe80::79f3:d09c:ee2d:396e]) by AM6PR04MB5430.eurprd04.prod.outlook.com
+ ([fe80::79f3:d09c:ee2d:396e%3]) with mapi id 15.20.2772.012; Fri, 28 Feb 2020
+ 10:19:00 +0000
+From:   Andrei Botila <andrei.botila@oss.nxp.com>
+To:     Andrei Botila <andrei.botila@nxp.com>
+Cc:     stable@vger.kernel.org
+Subject: [PATCH] crypto: caam - update xts sector size for large input length
+Date:   Fri, 28 Feb 2020 12:18:38 +0200
+Message-Id: <20200228101838.17215-1-andrei.botila@oss.nxp.com>
+X-Mailer: git-send-email 2.17.1
+Content-Type: text/plain
+X-ClientProxiedBy: AM0PR05CA0093.eurprd05.prod.outlook.com
+ (2603:10a6:208:136::33) To AM6PR04MB5430.eurprd04.prod.outlook.com
+ (2603:10a6:20b:94::18)
 MIME-Version: 1.0
-Content-Type: multipart/signed; boundary="=-=-=";
-        micalg=pgp-sha512; protocol="application/pgp-signature"
-X-Linutronix-Spam-Score: -1.0
-X-Linutronix-Spam-Level: -
-X-Linutronix-Spam-Status: No , -1.0 points, 5.0 required,  ALL_TRUSTED=-1,SHORTCIRCUIT=-0.0001
+X-MS-Exchange-MessageSentRepresentingType: 1
+Received: from lsv15007.swis.ro-buh01.nxp.com (212.146.100.6) by AM0PR05CA0093.eurprd05.prod.outlook.com (2603:10a6:208:136::33) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.2750.18 via Frontend Transport; Fri, 28 Feb 2020 10:19:00 +0000
+X-Mailer: git-send-email 2.17.1
+X-Originating-IP: [212.146.100.6]
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-HT: Tenant
+X-MS-Office365-Filtering-Correlation-Id: 188b9cee-3a7b-4f38-bfef-08d7bc37a0b5
+X-MS-TrafficTypeDiagnostic: AM6PR04MB5094:|AM6PR04MB5094:
+X-MS-Exchange-SharedMailbox-RoutingAgent-Processed: True
+X-MS-Exchange-Transport-Forked: True
+X-Microsoft-Antispam-PRVS: <AM6PR04MB5094DE53652D5F531DD80823B4E80@AM6PR04MB5094.eurprd04.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:6790;
+X-Forefront-PRVS: 0327618309
+X-Forefront-Antispam-Report: SFV:NSPM;SFS:(10009020)(4636009)(39860400002)(366004)(376002)(346002)(136003)(396003)(199004)(189003)(6506007)(186003)(6512007)(6862004)(478600001)(8676002)(2616005)(66556008)(26005)(66476007)(66946007)(6666004)(2906002)(1076003)(956004)(44832011)(81156014)(6486002)(86362001)(8936002)(5660300002)(316002)(52116002)(81166006)(4326008)(16526019);DIR:OUT;SFP:1101;SCL:1;SRVR:AM6PR04MB5094;H:AM6PR04MB5430.eurprd04.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;A:0;MX:1;
+Received-SPF: None (protection.outlook.com: oss.nxp.com does not designate
+ permitted sender hosts)
+X-MS-Exchange-SenderADCheck: 1
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: 9clo0r8Ww1wSbjcyi332rFqAOofvRVfUPrpYgQ4tlCG4pDmLDn79N8gbO8QLTrNsF4nEt4LEWDMzzCIqp3ayccXgmdl7RdpnTth1b9nNpbg9Y8vHQGGzvHKVNmkAg65nbr+M/ZAC3BfcTL9xnQTu7PWVJ9bah5gTcE9LxeXcZ6IuqWFlPg7pozda9DOWPjsqpQi0lMFjhBwe0DAMqUX9sbqLR8B/oO4AcDDSKGtMObxj44yKQxIyv1rHUqZa8oGMSFvri1jJLI0t6I4bxq0Bh+8zWazuOEl87Qbm3o/QLlzw4k79nL0asrN5Ti6sw+AWy4q/q0D6XWspL9+aKDoMn896nbb5uO/0s9WN5i3u5fHkQLZF2GpcklDpYyXmwa8Do87l15wq4+0wxROuDmarQKMYQqiFD8aIZZsU9yLboZURzGz0QrBUMSJOdYmUwp86
+X-MS-Exchange-AntiSpam-MessageData: xmeJmCYVIvmro4dZMYBgIyocs2MUVJR5qTQaAldnkJZiB6tAcgBd+XpwbqsZ3W60103XCoquotM/fSfYUOqZqXD7b/WmpPhtr+tQwe0cLQycB08m7e+1is8FiKufnLUE581AjCbx0qGPtIR2atHM7Q==
+X-OriginatorOrg: oss.nxp.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 188b9cee-3a7b-4f38-bfef-08d7bc37a0b5
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 28 Feb 2020 10:19:00.4411
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 686ea1d3-bc2b-4c6f-a92c-d99c5c301635
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: 6J5zCztc5l/7HGZ2AgnZ+yy9npyQYPXylVnb6OV86AchcZSv+gLDYRDp1nhPMAilu4jKljqBdeb9oen/He6Z0Q==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: AM6PR04MB5094
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
---=-=-=
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+From: Andrei Botila <andrei.botila@nxp.com>
 
-Hi,
+Since in the software implementation of XTS-AES there is
+no notion of sector every input length is processed the same way.
+CAAM implementation has the notion of sector which causes different
+results between the software implementation and the one in CAAM
+for input lengths bigger than 512 bytes.
+Increase sector size to maximum value on 16 bits.
 
-On Thu Feb 27 2020, Andy Shevchenko wrote:
-> On Wed, Feb 26, 2020 at 06:39:49PM -0500, Sasha Levin wrote:
->> On Wed, Feb 26, 2020 at 11:36:04AM +0100, gregkh@linuxfoundation.org wro=
-te:
->
-> ...
->
->> > Since this change we don't need to have custom solutions in 8250_aspee=
-d_vuart
->> > and 8250_of drivers, thus, drop them.
->> >=20
->> > Fixes: 1c2f04937b3e ("serial: 8250: add IRQ trigger support")
->> > Reported-by: Li RongQing <lirongqing@baidu.com>
->> > Cc: Kurt Kanzenbach <kurt@linutronix.de>
->> > Cc: Vikram Pandita <vikram.pandita@ti.com>
->> > Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
->> > Cc: stable <stable@vger.kernel.org>
->> > Acked-by: Kurt Kanzenbach <kurt@linutronix.de>
->> > Link: https://lore.kernel.org/r/20200211135559.85960-1-andriy.shevchen=
-ko@linux.intel.com
->> > Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
->>=20
->> For 4.14, I've worked around these missing commits:
->>=20
->> 5909c0bf9c7a ("serial/aspeed-vuart: Implement quick throttle mechanism")
->> 989983ea849d ("serial/aspeed-vuart: Implement rx throttling")
->> 54e53b2e8081 ("tty: serial: 8250: pass IRQ shared flag to UART ports")
->
-> Thanks!
->
->> And queued up a backport. Older kernels are a bit trickier than that.
+Fixes: c6415a6016bf ("crypto: caam - add support for acipher xts(aes)")
+Cc: <stable@vger.kernel.org> # v4.12+
+Signed-off-by: Andrei Botila <andrei.botila@nxp.com>
+---
+ drivers/crypto/caam/caamalg_desc.c | 16 ++++++++++++++--
+ 1 file changed, 14 insertions(+), 2 deletions(-)
 
-Thanks for backporting. Why is it trickier?
+diff --git a/drivers/crypto/caam/caamalg_desc.c b/drivers/crypto/caam/caamalg_desc.c
+index aa9ccca67045..8ebbbd28b1f7 100644
+--- a/drivers/crypto/caam/caamalg_desc.c
++++ b/drivers/crypto/caam/caamalg_desc.c
+@@ -1518,7 +1518,13 @@ EXPORT_SYMBOL(cnstr_shdsc_skcipher_decap);
+  */
+ void cnstr_shdsc_xts_skcipher_encap(u32 * const desc, struct alginfo *cdata)
+ {
+-	__be64 sector_size = cpu_to_be64(512);
++	/*
++	 * Set sector size to a big value, practically disabling
++	 * sector size segmentation in xts implementation. We cannot
++	 * take full advantage of this HW feature with existing
++	 * crypto API / dm-crypt SW architecture.
++	 */
++	__be64 sector_size = cpu_to_be64(BIT(15));
+ 	u32 *key_jump_cmd;
+ 
+ 	init_sh_desc(desc, HDR_SHARE_SERIAL | HDR_SAVECTX);
+@@ -1571,7 +1577,13 @@ EXPORT_SYMBOL(cnstr_shdsc_xts_skcipher_encap);
+  */
+ void cnstr_shdsc_xts_skcipher_decap(u32 * const desc, struct alginfo *cdata)
+ {
+-	__be64 sector_size = cpu_to_be64(512);
++	/*
++	 * Set sector size to a big value, practically disabling
++	 * sector size segmentation in xts implementation. We cannot
++	 * take full advantage of this HW feature with existing
++	 * crypto API / dm-crypt SW architecture.
++	 */
++	__be64 sector_size = cpu_to_be64(BIT(15));
+ 	u32 *key_jump_cmd;
+ 
+ 	init_sh_desc(desc, HDR_SHARE_SERIAL | HDR_SAVECTX);
+-- 
+2.17.1
 
->
-> Since it's quite old bug and not many reports so far I guess we are not in
-> hurry to fix that old kernels.
-
-It would be quite nice to have that in v4.9 as well. My original patch
-was made against that tree and tested.
-
-Thanks,
-Kurt
-
---=-=-=
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAEBCgAdFiEEooWgvezyxHPhdEojeSpbgcuY8KYFAl5Y05QACgkQeSpbgcuY
-8Kapzw/9HdjYJfUyxclUHQSFQDN8AifUZH87pbf2hwGAd/DlWYtmdwyim039E8S0
-RpQx9TKTEobf57dT26m5cJV6FrjfTM81jNX8MMANcghYqKiVgZIDFXkO0kt6FHqb
-YBBKUDh17lsh8N/NduQjb7js4y50h307JzsrghRGCJEkbhjyycYafnvrHEGDIdAD
-XqRS3MAXKECYZhQBq0g+HYclHA+1tdcJjHtJ/YyvVIrr1K48HzV8/tSUVUYTIzod
-TwF2SM8BTobJLS4uyBmFc87EwLXuRXDCJibi+ozQ8qJf7PRtNj0FNLDYOeueIE3k
-XjEFp0oxipb/B3260moT5qxi+pmoXw+fDk9+/gL2NAYVx3zRlsqz9zB+0MENT0Pb
-UXSiELXa6o/GoyEqJ0WWXcJQC3NXeMrpoZLGPICqHJy+2e2qtNHoNlGwJ0GclgCK
-27lgGDa0drW6kXa8qQmtNLK3NzZDuhxcDWig/WeofAHv+OCxR0Sks0of9mEuXBY3
-FxOaywCF0Bu3BnvgBmVp8MW9wsCZw30FFcn9KNr0DP6kckH+8xpDZlBxaFkCUavk
-JgLqfeihDd03vQTAvqqBEwlBKkUZGkKIdzuWSLWJrgcO5fzvKbRi/HegVsp6sL0m
-AvvbeiKqR73E5RR7sbXrTxRahgUvfNbjR59qY1Kj9azxD9YLi9w=
-=SVA4
------END PGP SIGNATURE-----
---=-=-=--
