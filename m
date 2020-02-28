@@ -2,210 +2,122 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A9604172F28
-	for <lists+stable@lfdr.de>; Fri, 28 Feb 2020 04:09:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A6D70172F2B
+	for <lists+stable@lfdr.de>; Fri, 28 Feb 2020 04:09:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730664AbgB1DJR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 22:09:17 -0500
-Received: from mail-lj1-f194.google.com ([209.85.208.194]:36969 "EHLO
-        mail-lj1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730545AbgB1DJR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 27 Feb 2020 22:09:17 -0500
-Received: by mail-lj1-f194.google.com with SMTP id q23so1666838ljm.4
-        for <stable@vger.kernel.org>; Thu, 27 Feb 2020 19:09:16 -0800 (PST)
+        id S1730586AbgB1DJk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 22:09:40 -0500
+Received: from mail-pj1-f68.google.com ([209.85.216.68]:54496 "EHLO
+        mail-pj1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730569AbgB1DJk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 27 Feb 2020 22:09:40 -0500
+Received: by mail-pj1-f68.google.com with SMTP id dw13so657198pjb.4
+        for <stable@vger.kernel.org>; Thu, 27 Feb 2020 19:09:38 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=TjCzG5NSP6eI0dKZwneA+fl8/Ikexg52Y5QCjmtem24=;
-        b=tjPyr+q5fKYfhIxa/2RR8Jz7ZxB5Bh/V850E5RpGRzI6sj2Q6Y0R5bJO3+5R9dAiUk
-         e2irt2I6htBM519JDf2PzRkRFAdpjO9NBZ/k95/IsqVWFkSCOpXaNANrM4WMl6AYuDeS
-         FXJdsUuDIATid68YhPENzTo0BUndVZm5OdKdkCOATfOF4B8jsfjxrHgaZdkpKMUOSurB
-         v6hl8pdhD5OjXnceNWEDsMKJST4ry6dsbt4db2pm+VxnBEn8GNSdYbhsHDSWPO9Pb26H
-         cYMyxJjH2imihojFuSnWHAPWK1L3kzXK08HpxsdoAtRxUuU+HHOLKBYfLJlKMTaA3Z+k
-         rljw==
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=UdNxwyBMB27VcsjBffe7DebgpdR0ZuyznsrDdiWi1og=;
+        b=aPmMCmy+JMSfWh9eU+MMHOOQRMesC8rFl7K5HlEsaJ4Oemy6N/NQT7bhnCSLPGNgm+
+         +iKU3KA1uRNbfRlFAm0uJ5GmvyBHXQfvEpPwST1m0q5KnNQeeL87tRgDH+wEq/NVSoIx
+         Nf1pwiRDiXhHQDUeAF3YtBPDnVOSfKiG5lNn/UT4SfeiCFmYWptaynTMhwS9xe3AXoqb
+         ONuW6/vM6KK97M5tQCPHSq10jII7+nlYTUofqJAAcmagm4vilolNa1RgqYU25+0pFiVx
+         gLH0b3nd/7tV2+mrLNXKJ4T/dJz5NEfY2F7wRh+cQA0xDWWmJz6iauqQBy3Bf1DBNE/b
+         zhmA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=TjCzG5NSP6eI0dKZwneA+fl8/Ikexg52Y5QCjmtem24=;
-        b=tY1yb22+Hl4B1M3hxFJcNOPKC2PMjtM/LOrgRs5o7+Oc3qTJ325e7l4MtCHIgMJ3jY
-         snXwndeZrHt0HyElJqZfvWTk5YyOWNYMW+gZAFKWUQrQurN0gp7knZp6eRc7zbM49BMz
-         V5IE8ywYO9po3rpQ5YCXoXKLPHhOjEyB68wN02eYG2Xcvar2eahapr3/OVsw3SzTRhPV
-         rBOtDkAu24CqI5UtlDf7fjU25MGKGo9/XLrhAmun5N3K22HxuXTz6UevZEoIjw/1IK9n
-         YydEvS9anaDC02w2lBmcHYRtQmLsO6vroxL1jIOZM1ekSTCA/URmSRobE6QaV8anLCoq
-         rzTw==
-X-Gm-Message-State: ANhLgQ1X9kbHdUeOBlDBGnndbaEAsKqorcUtWEenHbgACTVcqZpSr1J7
-        dnjEn3p5Kt0QctwOYW5iFwcWXEom2OUQqSXKbTelww==
-X-Google-Smtp-Source: ADFU+vuSuY09khfpVx6XU3P6ALa1B0C+2ZslGsbVTOuskabM2UZA4frYa4LaFtE66juTafnLjXoXPUM8u7VL4x9ku9U=
-X-Received: by 2002:a05:651c:1072:: with SMTP id y18mr1383581ljm.243.1582859355487;
- Thu, 27 Feb 2020 19:09:15 -0800 (PST)
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=UdNxwyBMB27VcsjBffe7DebgpdR0ZuyznsrDdiWi1og=;
+        b=awFTKYTwNdNGpXoEOIMId8UPoPL4Rzgd2y5fyAkQyLW43pvwN6ye21cTze6jiUMBq/
+         kXJSA+7o2LPPDN7zDDFMFd2YkszFcPOdanVCkaxeqinfpheLRQBw64TRsu0DBFFBJAl3
+         8qGwv1B/OdEjR69uENIB/tys0+KfxqbRMbNe5JxAKNlaBCuIeAV0HhIt8x6wIkufY6hZ
+         T1VQM98QzTY8u77pRYeUTPJJQpUlEU2chqYbm3EtQ13eI/O5MTDk0DdTG2M8q7m1UdbN
+         qMRHuy6dU72npQnWxrjRZR7tLXpJRvtlWM4m8x5ekse/nxg8DGbTxuAWtRpCpSOJ3qy8
+         NIAg==
+X-Gm-Message-State: APjAAAUo+f89NdcOhioK0xXRTAECRI7l5F/5/o22wbmKYjLwuj3Nrf6a
+        44pMBLuJVpBdEgmpooOyuI/rVh6GI9w=
+X-Google-Smtp-Source: APXvYqwhRY4PcRnXmlTASUlp1f2DpeIYsES7KyV7soZM0QYUIj2PSfDhL58fg36eLS8U9U20lYbwZg==
+X-Received: by 2002:a17:902:343:: with SMTP id 61mr1991222pld.332.1582859378063;
+        Thu, 27 Feb 2020 19:09:38 -0800 (PST)
+Received: from [10.0.9.4] ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id f8sm8560336pfn.2.2020.02.27.19.09.36
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 27 Feb 2020 19:09:37 -0800 (PST)
+Message-ID: <5e588471.1c69fb81.7f0b.7d96@mx.google.com>
+Date:   Thu, 27 Feb 2020 19:09:37 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-References: <20200227132230.840899170@linuxfoundation.org>
-In-Reply-To: <20200227132230.840899170@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Fri, 28 Feb 2020 08:39:04 +0530
-Message-ID: <CA+G9fYsrUorARUDsqR__uMKNjxZa-jGe8AEro66wNhO3Ea0Lig@mail.gmail.com>
-Subject: Re: [PATCH 4.9 000/165] 4.9.215-stable review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        lkft-triage@lists.linaro.org,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>,
-        linux- stable <stable@vger.kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>
-Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v5.4.22-136-g8550aa6c7855
+X-Kernelci-Report-Type: boot
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-5.4.y
+Subject: stable-rc/linux-5.4.y boot: 106 boots: 4 failed,
+ 101 passed with 1 untried/unknown (v5.4.22-136-g8550aa6c7855)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 27 Feb 2020 at 19:15, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 4.9.215 release.
-> There are 165 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Sat, 29 Feb 2020 13:21:24 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
-4.9.215-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-4.9.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+stable-rc/linux-5.4.y boot: 106 boots: 4 failed, 101 passed with 1 untried/=
+unknown (v5.4.22-136-g8550aa6c7855)
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-5.4.y/kernel/v5.4.22-136-g8550aa6c7855/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-5.4.y=
+/kernel/v5.4.22-136-g8550aa6c7855/
 
-Summary
-------------------------------------------------------------------------
+Tree: stable-rc
+Branch: linux-5.4.y
+Git Describe: v5.4.22-136-g8550aa6c7855
+Git Commit: 8550aa6c78553db799becfc53c7e7890602862d6
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 65 unique boards, 18 SoC families, 15 builds out of 200
 
-kernel: 4.9.215-rc1
-git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
-le-rc.git
-git branch: linux-4.9.y
-git commit: b8e4943d6bee55c8a2c077fc7639d0b8e8127e1a
-git describe: v4.9.214-166-gb8e4943d6bee
-Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-4.9-oe/bui=
-ld/v4.9.214-166-gb8e4943d6bee
+Boot Regressions Detected:
 
-No regressions (compared to build v4.9.214)
+arm:
 
-No fixes (compared to build v4.9.214)
+    multi_v7_defconfig:
+        gcc-8:
+          omap3-beagle-xm:
+              lab-baylibre: new failure (last pass: v5.4.22)
 
-Ran 26738 total tests in the following environments and test suites.
+    versatile_defconfig:
+        gcc-8:
+          versatile-pb:
+              lab-collabora: new failure (last pass: v5.4.22)
 
-Environments
---------------
-- dragonboard-410c - arm64
-- hi6220-hikey - arm64
-- i386
-- juno-r2 - arm64
-- qemu_arm
-- qemu_arm64
-- qemu_i386
-- qemu_x86_64
-- x15 - arm
-- x86_64
+arm64:
 
-Test Suites
------------
-* build
-* install-android-platform-tools-r2600
-* kselftest
-* libhugetlbfs
-* linux-log-parser
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-cpuhotplug-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* perf
-* v4l2-compliance
-* ltp-cve-tests
-* network-basic-tests
-* spectre-meltdown-checker-test
-* ltp-open-posix-tests
-* kvm-unit-tests
-* ltp-cap_bounds-64k-page_size-tests
-* ltp-cap_bounds-kasan-tests
-* ltp-commands-64k-page_size-tests
-* ltp-commands-kasan-tests
-* ltp-containers-64k-page_size-tests
-* ltp-containers-kasan-tests
-* ltp-cpuhotplug-64k-page_size-tests
-* ltp-cpuhotplug-kasan-tests
-* ltp-crypto-64k-page_size-tests
-* ltp-crypto-kasan-tests
-* ltp-crypto-tests
-* ltp-cve-64k-page_size-tests
-* ltp-cve-kasan-tests
-* ltp-dio-64k-page_size-tests
-* ltp-dio-kasan-tests
-* ltp-fcntl-locktests-64k-page_size-tests
-* ltp-fcntl-locktests-kasan-tests
-* ltp-filecaps-64k-page_size-tests
-* ltp-filecaps-kasan-tests
-* ltp-fs-64k-page_size-tests
-* ltp-fs-kasan-tests
-* ltp-fs_bind-64k-page_size-tests
-* ltp-fs_bind-kasan-tests
-* ltp-fs_perms_simple-64k-page_size-tests
-* ltp-fs_perms_simple-kasan-tests
-* ltp-fsx-64k-page_size-tests
-* ltp-fsx-kasan-tests
-* ltp-hugetlb-64k-page_size-tests
-* ltp-hugetlb-kasan-tests
-* ltp-io-64k-page_size-tests
-* ltp-io-kasan-tests
-* ltp-ipc-64k-page_size-tests
-* ltp-ipc-kasan-tests
-* ltp-math-64k-page_size-tests
-* ltp-math-kasan-tests
-* ltp-mm-64k-page_size-tests
-* ltp-mm-kasan-tests
-* ltp-nptl-64k-page_size-tests
-* ltp-nptl-kasan-tests
-* ltp-pty-64k-page_size-tests
-* ltp-pty-kasan-tests
-* ltp-sched-64k-page_size-tests
-* ltp-sched-kasan-tests
-* ltp-securebits-64k-page_size-tests
-* ltp-securebits-kasan-tests
-* ltp-syscalls-64k-page_size-tests
-* ltp-syscalls-compat-tests
-* ltp-syscalls-kasan-tests
-* prep-tmp-disk
-* ssuite
+    defconfig:
+        gcc-8:
+          meson-g12b-a311d-khadas-vim3:
+              lab-baylibre: new failure (last pass: v5.4.22)
+          meson-gxl-s805x-libretech-ac:
+              lab-baylibre: new failure (last pass: v5.4.22)
 
---=20
-Linaro LKFT
-https://lkft.linaro.org
+Boot Failures Detected:
+
+arm:
+    multi_v7_defconfig:
+        gcc-8:
+            omap3-beagle-xm: 1 failed lab
+
+    sama5_defconfig:
+        gcc-8:
+            at91-sama5d4_xplained: 1 failed lab
+
+arm64:
+    defconfig:
+        gcc-8:
+            meson-g12b-a311d-khadas-vim3: 1 failed lab
+            meson-gxl-s805x-libretech-ac: 1 failed lab
+
+---
+For more info write to <info@kernelci.org>
