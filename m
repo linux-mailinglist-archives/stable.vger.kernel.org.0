@@ -2,138 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 17BAE172DBF
-	for <lists+stable@lfdr.de>; Fri, 28 Feb 2020 01:58:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 47BDF172E5A
+	for <lists+stable@lfdr.de>; Fri, 28 Feb 2020 02:35:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730233AbgB1A6P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 19:58:15 -0500
-Received: from smtp-fw-9101.amazon.com ([207.171.184.25]:32476 "EHLO
-        smtp-fw-9101.amazon.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730155AbgB1A6P (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 27 Feb 2020 19:58:15 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
-  t=1582851494; x=1614387494;
-  h=from:to:cc:subject:date:message-id:mime-version;
-  bh=+26UKzxlUN4EVAyF/OYB/8RCGqTKNyic6tJjp8D1FfE=;
-  b=tAkhLslfULoWwapgBa8Yg9eys64O8oJ0dPhJxDCMmn1EEI4Ljrn7UDEu
-   /I2EFvxtUmAU21ROqBZRRxw469Y4xxEuhHI2I5Oir8KADjPFcQWZc7zdy
-   rcnypZL2moY1kfsEZt79eL1MiacWOxlHrXmwC00HlfIWZWnu81ptu4X6w
-   A=;
-IronPort-SDR: NpQ6RmQf4Ok3PHd0ta/c6LIKP7ry6ftsxewilpBIX0vtEKRMXAOaECNbn8VOSIWItiBkt1kgl3
- uiGjBiJ8gukQ==
-X-IronPort-AV: E=Sophos;i="5.70,493,1574121600"; 
-   d="scan'208";a="19629493"
-Received: from sea32-co-svc-lb4-vlan3.sea.corp.amazon.com (HELO email-inbound-relay-2b-55156cd4.us-west-2.amazon.com) ([10.47.23.38])
-  by smtp-border-fw-out-9101.sea19.amazon.com with ESMTP; 28 Feb 2020 00:58:12 +0000
-Received: from EX13MTAUWB001.ant.amazon.com (pdx4-ws-svc-p6-lb7-vlan2.pdx.amazon.com [10.170.41.162])
-        by email-inbound-relay-2b-55156cd4.us-west-2.amazon.com (Postfix) with ESMTPS id B7436A3096;
-        Fri, 28 Feb 2020 00:58:11 +0000 (UTC)
-Received: from EX13D35UWB004.ant.amazon.com (10.43.161.230) by
- EX13MTAUWB001.ant.amazon.com (10.43.161.207) with Microsoft SMTP Server (TLS)
- id 15.0.1367.3; Fri, 28 Feb 2020 00:58:11 +0000
-Received: from EX13MTAUEB002.ant.amazon.com (10.43.60.12) by
- EX13D35UWB004.ant.amazon.com (10.43.161.230) with Microsoft SMTP Server (TLS)
- id 15.0.1497.2; Fri, 28 Feb 2020 00:58:11 +0000
-Received: from dev-dsk-astroh-2c-c797f0e8.us-west-2.amazon.com (172.22.47.82)
- by mail-relay.amazon.com (10.43.60.234) with Microsoft SMTP Server id
- 15.0.1367.3 via Frontend Transport; Fri, 28 Feb 2020 00:58:03 +0000
-Received: by dev-dsk-astroh-2c-c797f0e8.us-west-2.amazon.com (Postfix, from userid 11196724)
-        id 99F8926905; Fri, 28 Feb 2020 00:58:03 +0000 (UTC)
-From:   Andy Strohman <astroh@amazon.com>
-CC:     <stable@vger.kernel.org>, <davem@davemloft.net>,
-        Martynas Pumputis <martynas@weave.works>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
-        "Andy Strohman" <astroh@amazon.com>
-Subject: [PATCH 4.14] netfilter: nf_conntrack: resolve clash for matching conntracks
-Date:   Fri, 28 Feb 2020 00:57:38 +0000
-Message-ID: <20200228005738.26667-1-astroh@amazon.com>
-X-Mailer: git-send-email 2.16.6
+        id S1730508AbgB1Bfo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 20:35:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56116 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1730504AbgB1Bfo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 20:35:44 -0500
+Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9B2E724695;
+        Fri, 28 Feb 2020 01:35:43 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1582853743;
+        bh=3c7y53TBz8CoRcBHPa47xfths3DIyspvtqjQbhAV/WA=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=Cb8txwtpNtfGZlUgMlY1+oUahx3WwpA6j5dzL/C+rn4eZ1LYX/m57Jk3AtOk6BhQ5
+         UF5WaQLcj7w3siZb5hnG0AxScSJdJTDbWqQjv8OG32RiVp8cq9lCig/L1Az6u8WWMt
+         fiRCjgSTUz02v521ZZfETdz+KV5KYRg2Xor+SGAA=
+Date:   Thu, 27 Feb 2020 20:35:42 -0500
+From:   Sasha Levin <sashal@kernel.org>
+To:     Zubin Mithra <zsm@chromium.org>
+Cc:     stable@vger.kernel.org, gregkh@linuxfoundation.org,
+        groeck@chromium.org, jannh@google.com, pablo@netfilter.org
+Subject: Re: [v4.9.y, v4.4.y] netfilter: xt_bpf: add overflow checks
+Message-ID: <20200228013542.GH22178@sasha-vm>
+References: <20200226213501.113484-1-zsm@chromium.org>
 MIME-Version: 1.0
-Content-Type: text/plain
-To:     unlisted-recipients:; (no To-header on input)
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <20200226213501.113484-1-zsm@chromium.org>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martynas Pumputis <martynas@weave.works>
+On Wed, Feb 26, 2020 at 01:35:01PM -0800, Zubin Mithra wrote:
+>From: Jann Horn <jannh@google.com>
+>
+>[ Upstream commit 6ab405114b0b229151ef06f4e31c7834dd09d0c0 ]
+>
+>Check whether inputs from userspace are too long (explicit length field too
+>big or string not null-terminated) to avoid out-of-bounds reads.
+>
+>As far as I can tell, this can at worst lead to very limited kernel heap
+>memory disclosure or oopses.
+>
+>This bug can be triggered by an unprivileged user even if the xt_bpf module
+>is not loaded: iptables is available in network namespaces, and the xt_bpf
+>module can be autoloaded.
+>
+>Triggering the bug with a classic BPF filter with fake length 0x1000 causes
+>the following KASAN report:
+>
+>==================================================================
+>BUG: KASAN: slab-out-of-bounds in bpf_prog_create+0x84/0xf0
+>Read of size 32768 at addr ffff8801eff2c494 by task test/4627
+>
+>CPU: 0 PID: 4627 Comm: test Not tainted 4.15.0-rc1+ #1
+>[...]
+>Call Trace:
+> dump_stack+0x5c/0x85
+> print_address_description+0x6a/0x260
+> kasan_report+0x254/0x370
+> ? bpf_prog_create+0x84/0xf0
+> memcpy+0x1f/0x50
+> bpf_prog_create+0x84/0xf0
+> bpf_mt_check+0x90/0xd6 [xt_bpf]
+>[...]
+>Allocated by task 4627:
+> kasan_kmalloc+0xa0/0xd0
+> __kmalloc_node+0x47/0x60
+> xt_alloc_table_info+0x41/0x70 [x_tables]
+>[...]
+>The buggy address belongs to the object at ffff8801eff2c3c0
+>                which belongs to the cache kmalloc-2048 of size 2048
+>The buggy address is located 212 bytes inside of
+>                2048-byte region [ffff8801eff2c3c0, ffff8801eff2cbc0)
+>[...]
+>==================================================================
+>
+>Fixes: e6f30c731718 ("netfilter: x_tables: add xt_bpf match")
+>Signed-off-by: Jann Horn <jannh@google.com>
+>Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+>Signed-off-by: Zubin Mithra <zsm@chromium.org>
 
-[ Upstream commit ed07d9a021df6da53456663a76999189badc432a ]
+Queued up for 4.9 and 4.4, thanks!
 
-This patch enables the clash resolution for NAT (disabled in
-"590b52e10d41") if clashing conntracks match (i.e. both tuples are equal)
-and a protocol allows it.
-
-The clash might happen for a connections-less protocol (e.g. UDP) when
-two threads in parallel writes to the same socket and consequent calls
-to "get_unique_tuple" return the same tuples (incl. reply tuples).
-
-In this case it is safe to perform the resolution, as the losing CT
-describes the same mangling as the winning CT, so no modifications to
-the packet are needed, and the result of rules traversal for the loser's
-packet stays valid.
-
-Signed-off-by: Martynas Pumputis <martynas@weave.works>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
-Signed-off-by: Andy Strohman <astroh@amazon.com>
----
- net/netfilter/nf_conntrack_core.c | 30 ++++++++++++++++++++++--------
- 1 file changed, 22 insertions(+), 8 deletions(-)
-
-diff --git a/net/netfilter/nf_conntrack_core.c b/net/netfilter/nf_conntrack_core.c
-index 5123e91b1982..4ced7c7102b6 100644
---- a/net/netfilter/nf_conntrack_core.c
-+++ b/net/netfilter/nf_conntrack_core.c
-@@ -632,6 +632,18 @@ nf_ct_key_equal(struct nf_conntrack_tuple_hash *h,
- 	       net_eq(net, nf_ct_net(ct));
- }
- 
-+static inline bool
-+nf_ct_match(const struct nf_conn *ct1, const struct nf_conn *ct2)
-+{
-+	return nf_ct_tuple_equal(&ct1->tuplehash[IP_CT_DIR_ORIGINAL].tuple,
-+				 &ct2->tuplehash[IP_CT_DIR_ORIGINAL].tuple) &&
-+	       nf_ct_tuple_equal(&ct1->tuplehash[IP_CT_DIR_REPLY].tuple,
-+				 &ct2->tuplehash[IP_CT_DIR_REPLY].tuple) &&
-+	       nf_ct_zone_equal(ct1, nf_ct_zone(ct2), IP_CT_DIR_ORIGINAL) &&
-+	       nf_ct_zone_equal(ct1, nf_ct_zone(ct2), IP_CT_DIR_REPLY) &&
-+	       net_eq(nf_ct_net(ct1), nf_ct_net(ct2));
-+}
-+
- /* caller must hold rcu readlock and none of the nf_conntrack_locks */
- static void nf_ct_gc_expired(struct nf_conn *ct)
- {
-@@ -825,19 +837,21 @@ static int nf_ct_resolve_clash(struct net *net, struct sk_buff *skb,
- 	/* This is the conntrack entry already in hashes that won race. */
- 	struct nf_conn *ct = nf_ct_tuplehash_to_ctrack(h);
- 	const struct nf_conntrack_l4proto *l4proto;
-+	enum ip_conntrack_info oldinfo;
-+	struct nf_conn *loser_ct = nf_ct_get(skb, &oldinfo);
- 
- 	l4proto = __nf_ct_l4proto_find(nf_ct_l3num(ct), nf_ct_protonum(ct));
- 	if (l4proto->allow_clash &&
--	    ((ct->status & IPS_NAT_DONE_MASK) == 0) &&
- 	    !nf_ct_is_dying(ct) &&
- 	    atomic_inc_not_zero(&ct->ct_general.use)) {
--		enum ip_conntrack_info oldinfo;
--		struct nf_conn *loser_ct = nf_ct_get(skb, &oldinfo);
--
--		nf_ct_acct_merge(ct, ctinfo, loser_ct);
--		nf_conntrack_put(&loser_ct->ct_general);
--		nf_ct_set(skb, ct, oldinfo);
--		return NF_ACCEPT;
-+		if (((ct->status & IPS_NAT_DONE_MASK) == 0) ||
-+		    nf_ct_match(ct, loser_ct)) {
-+			nf_ct_acct_merge(ct, ctinfo, loser_ct);
-+			nf_conntrack_put(&loser_ct->ct_general);
-+			nf_ct_set(skb, ct, oldinfo);
-+			return NF_ACCEPT;
-+		}
-+		nf_ct_put(ct);
- 	}
- 	NF_CT_STAT_INC(net, drop);
- 	return NF_DROP;
 -- 
-2.16.6
-
+Thanks,
+Sasha
