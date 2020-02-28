@@ -2,218 +2,121 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D1EFE172FDD
-	for <lists+stable@lfdr.de>; Fri, 28 Feb 2020 05:38:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 22D84173146
+	for <lists+stable@lfdr.de>; Fri, 28 Feb 2020 07:46:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730849AbgB1EiZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 23:38:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56048 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730802AbgB1EiZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Feb 2020 23:38:25 -0500
-Received: from localhost (unknown [104.132.1.66])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EA19D2469D;
-        Fri, 28 Feb 2020 04:38:23 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582864704;
-        bh=HQ7hmvfvnb2OGkhjZtbAEIeMVAGbeP6z+iDoaV29xGg=;
-        h=From:To:Cc:Subject:Date:From;
-        b=R1JdH66yUYP82IgWNwYtnKp6TJ80AtmtFaMnGZ/ppt73Dd0sHeSZcyQZPOvif2NWz
-         M61C7KNWhgVQXHzTz7HTskXmFQftQZOqgAI6oXDzHObSziAc4JpOPqh9tRwgd8kl5G
-         1MaKi+uZlnDK4is2WTFDpTdQf+02p7X4EdifKWd4=
-From:   Jaegeuk Kim <jaegeuk@kernel.org>
-To:     linux-kernel@vger.kernel.org,
-        linux-f2fs-devel@lists.sourceforge.net
-Cc:     Jaegeuk Kim <jaegeuk@kernel.org>, stable@vger.kernel.org,
-        Jens Axboe <axboe@kernel.dk>, linux-block@vger.kernel.org,
-        Bart Van Assche <bvanassche@acm.org>,
-        Gwendal Grignou <gwendal@chromium.org>,
-        grygorii tertychnyi <gtertych@cisco.com>
-Subject: [PATCH] loop: avoid EAGAIN, if offset or block_size are changed
-Date:   Thu, 27 Feb 2020 20:38:20 -0800
-Message-Id: <20200228043820.169288-1-jaegeuk@kernel.org>
-X-Mailer: git-send-email 2.25.1.481.gfbce0eb801-goog
-MIME-Version: 1.0
+        id S1726880AbgB1GqS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 28 Feb 2020 01:46:18 -0500
+Received: from mail-eopbgr80108.outbound.protection.outlook.com ([40.107.8.108]:45732
+        "EHLO EUR04-VI1-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1726785AbgB1GqR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 28 Feb 2020 01:46:17 -0500
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=D5f4b38SKBV1KU6ucy/E4h6FQKd61IuTAlaAeD/CJE20Jimoqgne4soVEP71Y2WNlo5gSFBJ69egXknJhG5xbflakN+GB1cpE1KrSF0P2SmhQ1VfZqEtzKas++mg/jMMSElnilwlvctqMJX2imwK9NL9+Ylhv1zwx4Kex6yiScdzlaHqjSgbtwNjiIK7+tf+NC39xRNr5rOZanaUTEFzQzwV8FT90+lcCCbVYe+9KWrNKWaODvvLfhGvqSsCRa1YTt8EkvBZSCs1J0JOsb73QDFfrL3ZZcOCVGndTeZSDmDoxTKJfQXqaxaWSZfVEWMt6hyXptwvkabktU5rKw9XLg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=EV9Axk5gqWSfJp/klgutHTSYhdHwZnK5WYbv0YHcanc=;
+ b=gEoL8mCepyydbmyGV39m2cYTdqB38+O6HBrUsZGzUIwe2/EIje7SdN7WgAbbW1LTZWy/jyL07O6BQfsB9ndViP4rrudOt8sz3VM12TRtcyR2qRgtqCff5Mn9CZpdV0MRA9oc6zDbzl7987D8aMiF7X5/QiIwYAmvPf/LO0N5vXZV1R+3D8rakuFplORNIjorQSfvIPR6mXR09ONtAUyKHKDZCjxKSzEiStfgI/cqFXHXDUqDrEyWepRplos4aHa2TBH10I2JZAAYdrBqsByjodgg1oSFz7E9t/bvzlyI55wZwjm9HTAxSrBouVD33pmAujgySc1LaJgVZLARUs1ilQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nokia.com; dmarc=pass action=none header.from=nokia.com;
+ dkim=pass header.d=nokia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nokia.onmicrosoft.com;
+ s=selector1-nokia-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=EV9Axk5gqWSfJp/klgutHTSYhdHwZnK5WYbv0YHcanc=;
+ b=tKEdVUpfvJynLiml0KHepRFMw+6Y7crR/3brslAU5CToDL6zV1Z32gEbpG0T6kABtQX5zM1zvnCl8x++Q+QvATF0p+kYVRkf3jpoADcjN2u/CWEY82+RSgql21+Y/KPkvK2XUQ5PEq4tTlLxOvdUZEp1K1XZJtXJyyPKz/rPxt4=
+Authentication-Results: spf=none (sender IP is )
+ smtp.mailfrom=alexander.sverdlin@nokia.com; 
+Received: from VI1PR07MB5040.eurprd07.prod.outlook.com (20.177.203.20) by
+ VI1PR07MB4912.eurprd07.prod.outlook.com (20.177.200.212) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.2772.9; Fri, 28 Feb 2020 06:46:14 +0000
+Received: from VI1PR07MB5040.eurprd07.prod.outlook.com
+ ([fe80::f5f9:e89:3fef:2ffd]) by VI1PR07MB5040.eurprd07.prod.outlook.com
+ ([fe80::f5f9:e89:3fef:2ffd%7]) with mapi id 15.20.2772.012; Fri, 28 Feb 2020
+ 06:46:14 +0000
+Subject: Re: [PATCH] mtd: spi-nor: Fixup page size and map selection for
+ S25FS-S
+To:     "chenxiang (M)" <chenxiang66@hisilicon.com>,
+        linux-mtd@lists.infradead.org
+Cc:     Tudor Ambarus <tudor.ambarus@microchip.com>,
+        Richard Weinberger <richard@nod.at>,
+        John Garry <john.garry@huawei.com>, stable@vger.kernel.org,
+        Marek Vasut <marek.vasut@gmail.com>,
+        Brian Norris <computersforpeace@gmail.com>,
+        David Woodhouse <dwmw2@infradead.org>,
+        Boris Brezillon <bbrezillon@kernel.org>
+References: <20200227123657.26030-1-alexander.sverdlin@nokia.com>
+ <18cdef63-75e3-97c3-2a22-4969d4997af9@hisilicon.com>
+From:   Alexander Sverdlin <alexander.sverdlin@nokia.com>
+Message-ID: <60b272c1-ab6a-7a7a-6f56-03d7c7daf8bc@nokia.com>
+Date:   Fri, 28 Feb 2020 07:45:58 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.9.1
+In-Reply-To: <18cdef63-75e3-97c3-2a22-4969d4997af9@hisilicon.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
 Content-Transfer-Encoding: 8bit
+X-ClientProxiedBy: HE1PR09CA0046.eurprd09.prod.outlook.com
+ (2603:10a6:7:3c::14) To VI1PR07MB5040.eurprd07.prod.outlook.com
+ (2603:10a6:803:9c::20)
+MIME-Version: 1.0
+X-MS-Exchange-MessageSentRepresentingType: 1
+Received: from ulegcpsvhp1.emea.nsn-net.net (131.228.32.167) by HE1PR09CA0046.eurprd09.prod.outlook.com (2603:10a6:7:3c::14) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.2772.14 via Frontend Transport; Fri, 28 Feb 2020 06:46:09 +0000
+X-Originating-IP: [131.228.32.167]
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-HT: Tenant
+X-MS-Office365-Filtering-Correlation-Id: 7aefbff8-cc4a-491f-66b7-08d7bc19e7cd
+X-MS-TrafficTypeDiagnostic: VI1PR07MB4912:
+X-Microsoft-Antispam-PRVS: <VI1PR07MB49120E1FD34453C4C1D24DE288E80@VI1PR07MB4912.eurprd07.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:10000;
+X-Forefront-PRVS: 0327618309
+X-Forefront-Antispam-Report: SFV:NSPM;SFS:(10019020)(4636009)(366004)(376002)(346002)(396003)(39860400002)(136003)(189003)(199004)(6486002)(8676002)(81166006)(8936002)(52116002)(966005)(956004)(6666004)(26005)(44832011)(81156014)(5660300002)(6512007)(53546011)(36756003)(2616005)(7416002)(16526019)(6506007)(66476007)(66556008)(66946007)(54906003)(31696002)(2906002)(478600001)(186003)(86362001)(4326008)(316002)(31686004);DIR:OUT;SFP:1102;SCL:1;SRVR:VI1PR07MB4912;H:VI1PR07MB5040.eurprd07.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;MX:1;A:1;
+Received-SPF: None (protection.outlook.com: nokia.com does not designate
+ permitted sender hosts)
+X-MS-Exchange-SenderADCheck: 1
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: SmXJA+P715+++PuEjnPUEEwpzB3dWrlr6RuCdDHT/nBiPBewGc7IH3o3rO58YFvWE1PClLkPUUSpAwPxpJHjrMCE/AEwlj8iz++qvnc6BMez1c7ymRjcdHq5kzds+LD/CuOzzoswdcxtYQkCP+ZPdQx2numR4sCMXY8EM9ItJOLEGtCclL/vSp3r52Rz+K18QS9nqnhXT7mk7nka/EqEKeedsRin2swyI9N+aUNaEeKlUQ9eZ5J957RtJwSBmZWHQSPHZegaum3u51xy9xw+yarLDVDP3MCPBpUNaFNG+8wJwhshZKSNS96TyVWMHS2G6ilGY4SYFGL5LlDVXR5P6yAehgfX70XnKIRQZL9So9HTQ98+PFpKN6dzlD07dfYxAzWmH/QgKfQD7CIS/J3orn+97584hOo5l5k6hs/WRpeuw/G7zelcSSei8R1AB46u8FUk3vfZd+dDfoSqaHukXFtVuil0QPD4ivWkxK2b8WLlw+GsufRc351gDgG8+0gZn2EwsDGEHchvGgm/7JOGvw==
+X-MS-Exchange-AntiSpam-MessageData: 0O57UeFA3OCtjRo/0xGYZTfVrB97KQdfg/SM8CvY5ADMQY+zTIUR71uzgGD2fD1LrbcGXl5hnGfdb5B3o0wVU8myvBMWFszgnh2V+PM9YBg88Mwek/VuCFfy17nYeLGjL4UekTRQkE/YOJkyLIrufg==
+X-OriginatorOrg: nokia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 7aefbff8-cc4a-491f-66b7-08d7bc19e7cd
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 28 Feb 2020 06:46:14.6716
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 5d471751-9675-428d-917b-70f44f9630b0
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: /QSE5EJynjEsHOUKZvOJh7F5m1HA8pL461JujW1CozU7sxUEsEmWIgDpUbUs3qXkF3dUjBrfFv6y947UaH0xU4q8x2jAA9RwcIe3Qs53EAA=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: VI1PR07MB4912
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Previously, there was a bug where user could see stale buffer cache (e.g, 512B)
-attached in the 4KB-sized pager cache, when the block size was changed from
-512B to 4KB. That was fixed by:
-commit 5db470e229e2 ("loop: drop caches if offset or block_size are changed")
+Hi!
 
-But, there were some regression reports saying the fix returns EAGAIN easily.
-So, this patch removes previously added EAGAIN condition, nrpages != 0.
+On 28/02/2020 04:01, chenxiang (M) wrote:
+>> JESD216 allows "variable address length" and "variable latency" in
+>> Configuration Detection Command Descriptors, in other words "as-is".
+>> And they are still unset during Sector Map Parameter Table parsing,
+>> which led to "map_id" determined erroneously as 0 for, e.g. S25FS128S.
 
-Instead, it changes the flow like this:
-- sync_blockdev()
-- blk_mq_freeze_queue()
- : change the loop configuration
-- blk_mq_unfreeze_queue()
-- sync_blockdev()
-- invalidate_bdev()
+[...]
 
-After invalidating the buffer cache, we must see the full valid 4KB page.
+>> @@ -2570,7 +2687,8 @@ static const struct flash_info spi_nor_ids[] = {
+>>       { "s25sl12800", INFO(0x012018, 0x0300, 256 * 1024,  64, 0) },
+>>       { "s25sl12801", INFO(0x012018, 0x0301,  64 * 1024, 256, 0) },
+>>       { "s25fl129p0", INFO(0x012018, 0x4d00, 256 * 1024,  64, SPI_NOR_DUAL_READ | SPI_NOR_QUAD_READ | USE_CLSR) },
+>> -    { "s25fl129p1", INFO(0x012018, 0x4d01,  64 * 1024, 256, SPI_NOR_DUAL_READ | SPI_NOR_QUAD_READ | USE_CLSR) },
+>> +    { "s25fl129p1", INFO(0x012018, 0x4d01,  64 * 1024, 256, SPI_NOR_DUAL_READ | SPI_NOR_QUAD_READ | USE_CLSR)
+>> +            .fixups = &s25fs_s_fixups, },
+> 
+> It seems SFDP is not supported on s25fl129p (you can check it on https://www.cypress.com/file/400586/download), so is it necessary to add this for this type flash?
 
-Additional concern came from Bart in which we can lose some data when
-changing the lo_offset. In that case, this patch adds:
-- sync_blockdev()
-- blk_set_queue_dying
-- blk_mq_freeze_queue()
- : change the loop configuration
-- blk_mq_unfreeze_queue()
-- blk_queue_flag_clear(QUEUE_FLAG_DYING);
-- sync_blockdev()
-- invalidate_bdev()
+Yes, all of the above is necessary to repair S25FS128S, which supports SFDP and lands
+in the above table entry.
 
-Report: https://bugs.chromium.org/p/chromium/issues/detail?id=938958#c38
-
-Cc: <stable@vger.kernel.org>
-Cc: Jens Axboe <axboe@kernel.dk>
-Cc: linux-block@vger.kernel.org
-Cc: Bart Van Assche <bvanassche@acm.org>
-Fixes: 5db470e229e2 ("loop: drop caches if offset or block_size are changed")
-Reported-by: Gwendal Grignou <gwendal@chromium.org>
-Reported-by: grygorii tertychnyi <gtertych@cisco.com>
-Reviewed-by: Bart Van Assche <bvanassche@acm.org>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
----
- drivers/block/loop.c | 65 ++++++++++++++++++++++----------------------
- 1 file changed, 33 insertions(+), 32 deletions(-)
-
-diff --git a/drivers/block/loop.c b/drivers/block/loop.c
-index 739b372a5112..8c9da7f9b1f6 100644
---- a/drivers/block/loop.c
-+++ b/drivers/block/loop.c
-@@ -1245,6 +1245,8 @@ loop_set_status(struct loop_device *lo, const struct loop_info64 *info)
- 	kuid_t uid = current_uid();
- 	struct block_device *bdev;
- 	bool partscan = false;
-+	bool drop_request = false;
-+	bool drop_cache = false;
- 
- 	err = mutex_lock_killable(&loop_ctl_mutex);
- 	if (err)
-@@ -1264,14 +1266,21 @@ loop_set_status(struct loop_device *lo, const struct loop_info64 *info)
- 		goto out_unlock;
- 	}
- 
-+	if (lo->lo_offset != info->lo_offset)
-+		drop_request = true;
- 	if (lo->lo_offset != info->lo_offset ||
--	    lo->lo_sizelimit != info->lo_sizelimit) {
--		sync_blockdev(lo->lo_device);
--		kill_bdev(lo->lo_device);
--	}
-+	    lo->lo_sizelimit != info->lo_sizelimit)
-+		drop_cache = true;
- 
--	/* I/O need to be drained during transfer transition */
--	blk_mq_freeze_queue(lo->lo_queue);
-+	sync_blockdev(lo->lo_device);
-+
-+	if (drop_request) {
-+		blk_set_queue_dying(lo->lo_queue);
-+		blk_mq_freeze_queue_wait(lo->lo_queue);
-+	} else {
-+		/* I/O need to be drained during transfer transition */
-+		blk_mq_freeze_queue(lo->lo_queue);
-+	}
- 
- 	err = loop_release_xfer(lo);
- 	if (err)
-@@ -1298,14 +1307,6 @@ loop_set_status(struct loop_device *lo, const struct loop_info64 *info)
- 
- 	if (lo->lo_offset != info->lo_offset ||
- 	    lo->lo_sizelimit != info->lo_sizelimit) {
--		/* kill_bdev should have truncated all the pages */
--		if (lo->lo_device->bd_inode->i_mapping->nrpages) {
--			err = -EAGAIN;
--			pr_warn("%s: loop%d (%s) has still dirty pages (nrpages=%lu)\n",
--				__func__, lo->lo_number, lo->lo_file_name,
--				lo->lo_device->bd_inode->i_mapping->nrpages);
--			goto out_unfreeze;
--		}
- 		if (figure_loop_size(lo, info->lo_offset, info->lo_sizelimit)) {
- 			err = -EFBIG;
- 			goto out_unfreeze;
-@@ -1342,6 +1343,8 @@ loop_set_status(struct loop_device *lo, const struct loop_info64 *info)
- 
- out_unfreeze:
- 	blk_mq_unfreeze_queue(lo->lo_queue);
-+	if (drop_request)
-+		blk_queue_flag_clear(QUEUE_FLAG_DYING, lo->lo_queue);
- 
- 	if (!err && (info->lo_flags & LO_FLAGS_PARTSCAN) &&
- 	     !(lo->lo_flags & LO_FLAGS_PARTSCAN)) {
-@@ -1350,6 +1353,12 @@ loop_set_status(struct loop_device *lo, const struct loop_info64 *info)
- 		bdev = lo->lo_device;
- 		partscan = true;
- 	}
-+
-+	/* truncate stale pages cached by previous operations */
-+	if (!err && drop_cache) {
-+		sync_blockdev(lo->lo_device);
-+		invalidate_bdev(lo->lo_device);
-+	}
- out_unlock:
- 	mutex_unlock(&loop_ctl_mutex);
- 	if (partscan)
-@@ -1531,7 +1540,7 @@ static int loop_set_dio(struct loop_device *lo, unsigned long arg)
- 
- static int loop_set_block_size(struct loop_device *lo, unsigned long arg)
- {
--	int err = 0;
-+	bool drop_cache = false;
- 
- 	if (lo->lo_state != Lo_bound)
- 		return -ENXIO;
-@@ -1539,31 +1548,23 @@ static int loop_set_block_size(struct loop_device *lo, unsigned long arg)
- 	if (arg < 512 || arg > PAGE_SIZE || !is_power_of_2(arg))
- 		return -EINVAL;
- 
--	if (lo->lo_queue->limits.logical_block_size != arg) {
--		sync_blockdev(lo->lo_device);
--		kill_bdev(lo->lo_device);
--	}
-+	if (lo->lo_queue->limits.logical_block_size != arg)
-+		drop_cache = true;
- 
-+	sync_blockdev(lo->lo_device);
- 	blk_mq_freeze_queue(lo->lo_queue);
--
--	/* kill_bdev should have truncated all the pages */
--	if (lo->lo_queue->limits.logical_block_size != arg &&
--			lo->lo_device->bd_inode->i_mapping->nrpages) {
--		err = -EAGAIN;
--		pr_warn("%s: loop%d (%s) has still dirty pages (nrpages=%lu)\n",
--			__func__, lo->lo_number, lo->lo_file_name,
--			lo->lo_device->bd_inode->i_mapping->nrpages);
--		goto out_unfreeze;
--	}
--
- 	blk_queue_logical_block_size(lo->lo_queue, arg);
- 	blk_queue_physical_block_size(lo->lo_queue, arg);
- 	blk_queue_io_min(lo->lo_queue, arg);
- 	loop_update_dio(lo);
--out_unfreeze:
- 	blk_mq_unfreeze_queue(lo->lo_queue);
- 
--	return err;
-+	/* truncate stale pages cached by previous operations */
-+	if (drop_cache) {
-+		sync_blockdev(lo->lo_device);
-+		invalidate_bdev(lo->lo_device);
-+	}
-+	return 0;
- }
- 
- static int lo_simple_ioctl(struct loop_device *lo, unsigned int cmd,
 -- 
-2.25.1.481.gfbce0eb801-goog
-
+Best regards,
+Alexander Sverdlin.
