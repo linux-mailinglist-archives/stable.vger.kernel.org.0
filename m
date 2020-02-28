@@ -2,219 +2,218 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A76B4172FA7
-	for <lists+stable@lfdr.de>; Fri, 28 Feb 2020 05:08:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D1EFE172FDD
+	for <lists+stable@lfdr.de>; Fri, 28 Feb 2020 05:38:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730736AbgB1EIi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Feb 2020 23:08:38 -0500
-Received: from mail-wr1-f68.google.com ([209.85.221.68]:33056 "EHLO
-        mail-wr1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730314AbgB1EIi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 27 Feb 2020 23:08:38 -0500
-Received: by mail-wr1-f68.google.com with SMTP id x7so1442947wrr.0
-        for <stable@vger.kernel.org>; Thu, 27 Feb 2020 20:08:36 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=brainfault-org.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=E6J9poe7L3fgO6iROGjXXzLpbZbZiJ8HzNPUuKbvpBQ=;
-        b=hQDPlPu8i3UJQcAlFtZ1KPi0aDhVdJkeXxLsguGG1Tc7naaWqI5ah5b3ihvxIkto2b
-         v6ZDujFuWr7KLdEUBiPLR5GDTrZe7oaUjM1RagyK1zH8LOZr1GU6/dvq9T+uSzwHdN1Z
-         Ue0SfVA36T0pT+6Xz6egXnsKigQzLufF7186+OZW6SCax5kzWrCGeasoLAgnTWc0sxVa
-         bI/ObTs5zwg1QTdM2cBtvTT35DvEURwJtsCq/amrCqwqKttX2fvrOrPOTj9i0qHsbUBN
-         zCSAewl8rQbz27h73V2kSzxvnQ2pteIdNNAmxk4u9r1TvbC3ExHRbz+DO/BOWTPY8yYB
-         GdwA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=E6J9poe7L3fgO6iROGjXXzLpbZbZiJ8HzNPUuKbvpBQ=;
-        b=mfmoxNS6vAVRVc0ZXl1fBS7QVIwPfQUsWJxMyXpeNZuahxRy0SOgbWoU/b0B+EY+tq
-         Rg8rfRTJle3N0YR73Nc69p5XFPNUl0dIF+iTu5AUZBiegCQZlUHIVyyxhW2aG7l+e4im
-         LsqL7t6wJqcvgG3V9Twa1RYzN/yfLaVTk/MCZ8FkF28W+cu3uQtbg1Tvl37vpS3Rh6ST
-         QkuRUnQRiBd52XL+Z+cWXddQ2XM9KCjsPS+/TKjJ8pd6GMwq57B/GygMxG9eKsUbVck4
-         AlnfDCXhYH26FnZ2hHd2V7Pv5YDr425HNLrBE4w/cntQgvE66VCP9VJZNedrbU+qLbWo
-         vXPg==
-X-Gm-Message-State: APjAAAUgz6p8G2xlBNOT5wqTCcjmCb9gwWVIIzplIBYxPU9mSvPuiMWn
-        keBVPvZt9XJvPNzVb+qqJnhZuzqlZX76efel0Wbp+g==
-X-Google-Smtp-Source: APXvYqzGY7zbGE/wiCP2QlLt8CfEyzYl9aJdIcOxadwj5rJwYC+4s4ClgXEgopjqCgej2/koq6sQoObqltMWBHF9Tr8=
-X-Received: by 2002:adf:ec84:: with SMTP id z4mr2481605wrn.61.1582862915813;
- Thu, 27 Feb 2020 20:08:35 -0800 (PST)
+        id S1730849AbgB1EiZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Feb 2020 23:38:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56048 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1730802AbgB1EiZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Feb 2020 23:38:25 -0500
+Received: from localhost (unknown [104.132.1.66])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id EA19D2469D;
+        Fri, 28 Feb 2020 04:38:23 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1582864704;
+        bh=HQ7hmvfvnb2OGkhjZtbAEIeMVAGbeP6z+iDoaV29xGg=;
+        h=From:To:Cc:Subject:Date:From;
+        b=R1JdH66yUYP82IgWNwYtnKp6TJ80AtmtFaMnGZ/ppt73Dd0sHeSZcyQZPOvif2NWz
+         M61C7KNWhgVQXHzTz7HTskXmFQftQZOqgAI6oXDzHObSziAc4JpOPqh9tRwgd8kl5G
+         1MaKi+uZlnDK4is2WTFDpTdQf+02p7X4EdifKWd4=
+From:   Jaegeuk Kim <jaegeuk@kernel.org>
+To:     linux-kernel@vger.kernel.org,
+        linux-f2fs-devel@lists.sourceforge.net
+Cc:     Jaegeuk Kim <jaegeuk@kernel.org>, stable@vger.kernel.org,
+        Jens Axboe <axboe@kernel.dk>, linux-block@vger.kernel.org,
+        Bart Van Assche <bvanassche@acm.org>,
+        Gwendal Grignou <gwendal@chromium.org>,
+        grygorii tertychnyi <gtertych@cisco.com>
+Subject: [PATCH] loop: avoid EAGAIN, if offset or block_size are changed
+Date:   Thu, 27 Feb 2020 20:38:20 -0800
+Message-Id: <20200228043820.169288-1-jaegeuk@kernel.org>
+X-Mailer: git-send-email 2.25.1.481.gfbce0eb801-goog
 MIME-Version: 1.0
-References: <20200224193436.26860-1-atish.patra@wdc.com>
-In-Reply-To: <20200224193436.26860-1-atish.patra@wdc.com>
-From:   Anup Patel <anup@brainfault.org>
-Date:   Fri, 28 Feb 2020 09:38:23 +0530
-Message-ID: <CAAhSdy0FH_89dQhWbLJmLsMQV6Lyd8+WE=Ks13Nx88j_dy_b7g@mail.gmail.com>
-Subject: Re: [PATCH] RISC-V: Move all address space definition macros to one place
-To:     Atish Patra <atish.patra@wdc.com>
-Cc:     "linux-kernel@vger.kernel.org List" <linux-kernel@vger.kernel.org>,
-        stable@vger.kernel.org, Albert Ou <aou@eecs.berkeley.edu>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Anup Patel <Anup.Patel@wdc.com>,
-        =?UTF-8?B?QmrDtnJuIFTDtnBlbA==?= <bjorn.topel@gmail.com>,
-        David Abdurachmanov <david.abdurachmanov@gmail.com>,
-        Greentime Hu <greentime.hu@sifive.com>,
-        linux-riscv <linux-riscv@lists.infradead.org>,
-        Mike Rapoport <rppt@linux.ibm.com>,
-        Nick Hu <nickhu@andestech.com>,
-        Palmer Dabbelt <palmerdabbelt@google.com>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Thomas Gleixner <tglx@linutronix.de>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Feb 25, 2020 at 1:04 AM Atish Patra <atish.patra@wdc.com> wrote:
->
-> If both CONFIG_KASAN and CONFIG_SPARSEMEM_VMEMMAP are set, we get the
-> following compilation error.
->
-> ---------------------------------------------------------------
-> ./arch/riscv/include/asm/pgtable-64.h: In function =E2=80=98pud_page=E2=
-=80=99:
-> ./include/asm-generic/memory_model.h:54:29: error: =E2=80=98vmemmap=E2=80=
-=99 undeclared
-> (first use in this function); did you mean =E2=80=98mem_map=E2=80=99?
->  #define __pfn_to_page(pfn) (vmemmap + (pfn))
->                              ^~~~~~~
-> ./include/asm-generic/memory_model.h:82:21: note: in expansion of
-> macro =E2=80=98__pfn_to_page=E2=80=99
->
->  #define pfn_to_page __pfn_to_page
->                      ^~~~~~~~~~~~~
-> ./arch/riscv/include/asm/pgtable-64.h:70:9: note: in expansion of macro
-> =E2=80=98pfn_to_page=E2=80=99
->   return pfn_to_page(pud_val(pud) >> _PAGE_PFN_SHIFT);
-> ---------------------------------------------------------------
->
-> Fix the compliation errors by moving all the address space definition
-> macros before including pgtable-64.h.
->
-> Cc: stable@vger.kernel.org
-> Fixes: 8ad8b72721d0 (riscv: Add KASAN support)
->
-> Signed-off-by: Atish Patra <atish.patra@wdc.com>
-> ---
->  arch/riscv/include/asm/pgtable.h | 78 +++++++++++++++++---------------
->  1 file changed, 41 insertions(+), 37 deletions(-)
->
-> diff --git a/arch/riscv/include/asm/pgtable.h b/arch/riscv/include/asm/pg=
-table.h
-> index 453afb0a570a..4f6ee48a42e8 100644
-> --- a/arch/riscv/include/asm/pgtable.h
-> +++ b/arch/riscv/include/asm/pgtable.h
-> @@ -19,6 +19,47 @@
->  #include <asm/tlbflush.h>
->  #include <linux/mm_types.h>
->
-> +#ifdef CONFIG_MMU
-> +
-> +#define VMALLOC_SIZE     (KERN_VIRT_SIZE >> 1)
-> +#define VMALLOC_END      (PAGE_OFFSET - 1)
-> +#define VMALLOC_START    (PAGE_OFFSET - VMALLOC_SIZE)
-> +
-> +#define BPF_JIT_REGION_SIZE    (SZ_128M)
-> +#define BPF_JIT_REGION_START   (PAGE_OFFSET - BPF_JIT_REGION_SIZE)
-> +#define BPF_JIT_REGION_END     (VMALLOC_END)
-> +
-> +/*
-> + * Roughly size the vmemmap space to be large enough to fit enough
-> + * struct pages to map half the virtual address space. Then
-> + * position vmemmap directly below the VMALLOC region.
-> + */
-> +#define VMEMMAP_SHIFT \
-> +       (CONFIG_VA_BITS - PAGE_SHIFT - 1 + STRUCT_PAGE_MAX_SHIFT)
-> +#define VMEMMAP_SIZE   BIT(VMEMMAP_SHIFT)
-> +#define VMEMMAP_END    (VMALLOC_START - 1)
-> +#define VMEMMAP_START  (VMALLOC_START - VMEMMAP_SIZE)
-> +
-> +/*
-> + * Define vmemmap for pfn_to_page & page_to_pfn calls. Needed if kernel
-> + * is configured with CONFIG_SPARSEMEM_VMEMMAP enabled.
-> + */
-> +#define vmemmap                ((struct page *)VMEMMAP_START)
-> +
-> +#define PCI_IO_SIZE      SZ_16M
-> +#define PCI_IO_END       VMEMMAP_START
-> +#define PCI_IO_START     (PCI_IO_END - PCI_IO_SIZE)
-> +
-> +#define FIXADDR_TOP      PCI_IO_START
-> +#ifdef CONFIG_64BIT
-> +#define FIXADDR_SIZE     PMD_SIZE
-> +#else
-> +#define FIXADDR_SIZE     PGDIR_SIZE
-> +#endif
-> +#define FIXADDR_START    (FIXADDR_TOP - FIXADDR_SIZE)
-> +
-> +#endif
-> +
->  #ifdef CONFIG_64BIT
->  #include <asm/pgtable-64.h>
->  #else
-> @@ -90,31 +131,6 @@ extern pgd_t swapper_pg_dir[];
->  #define __S110 PAGE_SHARED_EXEC
->  #define __S111 PAGE_SHARED_EXEC
->
-> -#define VMALLOC_SIZE     (KERN_VIRT_SIZE >> 1)
-> -#define VMALLOC_END      (PAGE_OFFSET - 1)
-> -#define VMALLOC_START    (PAGE_OFFSET - VMALLOC_SIZE)
-> -
-> -#define BPF_JIT_REGION_SIZE    (SZ_128M)
-> -#define BPF_JIT_REGION_START   (PAGE_OFFSET - BPF_JIT_REGION_SIZE)
-> -#define BPF_JIT_REGION_END     (VMALLOC_END)
-> -
-> -/*
-> - * Roughly size the vmemmap space to be large enough to fit enough
-> - * struct pages to map half the virtual address space. Then
-> - * position vmemmap directly below the VMALLOC region.
-> - */
-> -#define VMEMMAP_SHIFT \
-> -       (CONFIG_VA_BITS - PAGE_SHIFT - 1 + STRUCT_PAGE_MAX_SHIFT)
-> -#define VMEMMAP_SIZE   BIT(VMEMMAP_SHIFT)
-> -#define VMEMMAP_END    (VMALLOC_START - 1)
-> -#define VMEMMAP_START  (VMALLOC_START - VMEMMAP_SIZE)
-> -
-> -/*
-> - * Define vmemmap for pfn_to_page & page_to_pfn calls. Needed if kernel
-> - * is configured with CONFIG_SPARSEMEM_VMEMMAP enabled.
-> - */
-> -#define vmemmap                ((struct page *)VMEMMAP_START)
-> -
->  static inline int pmd_present(pmd_t pmd)
->  {
->         return (pmd_val(pmd) & (_PAGE_PRESENT | _PAGE_PROT_NONE));
-> @@ -452,18 +468,6 @@ static inline int ptep_clear_flush_young(struct vm_a=
-rea_struct *vma,
->  #define __pte_to_swp_entry(pte)        ((swp_entry_t) { pte_val(pte) })
->  #define __swp_entry_to_pte(x)  ((pte_t) { (x).val })
->
-> -#define PCI_IO_SIZE      SZ_16M
-> -#define PCI_IO_END       VMEMMAP_START
-> -#define PCI_IO_START     (PCI_IO_END - PCI_IO_SIZE)
-> -
-> -#define FIXADDR_TOP      PCI_IO_START
-> -#ifdef CONFIG_64BIT
-> -#define FIXADDR_SIZE     PMD_SIZE
-> -#else
-> -#define FIXADDR_SIZE     PGDIR_SIZE
-> -#endif
-> -#define FIXADDR_START    (FIXADDR_TOP - FIXADDR_SIZE)
-> -
->  /*
->   * Task size is 0x4000000000 for RV64 or 0x9fc00000 for RV32.
->   * Note that PGDIR_SIZE must evenly divide TASK_SIZE.
-> --
-> 2.25.0
->
+Previously, there was a bug where user could see stale buffer cache (e.g, 512B)
+attached in the 4KB-sized pager cache, when the block size was changed from
+512B to 4KB. That was fixed by:
+commit 5db470e229e2 ("loop: drop caches if offset or block_size are changed")
 
-Looks good to me. At least now all virtual memory layout related
-defines are in one place.
+But, there were some regression reports saying the fix returns EAGAIN easily.
+So, this patch removes previously added EAGAIN condition, nrpages != 0.
 
-Reviewed-by: Anup Patel <anup@brainfault.org>
+Instead, it changes the flow like this:
+- sync_blockdev()
+- blk_mq_freeze_queue()
+ : change the loop configuration
+- blk_mq_unfreeze_queue()
+- sync_blockdev()
+- invalidate_bdev()
 
-Regards,
-Anup
+After invalidating the buffer cache, we must see the full valid 4KB page.
+
+Additional concern came from Bart in which we can lose some data when
+changing the lo_offset. In that case, this patch adds:
+- sync_blockdev()
+- blk_set_queue_dying
+- blk_mq_freeze_queue()
+ : change the loop configuration
+- blk_mq_unfreeze_queue()
+- blk_queue_flag_clear(QUEUE_FLAG_DYING);
+- sync_blockdev()
+- invalidate_bdev()
+
+Report: https://bugs.chromium.org/p/chromium/issues/detail?id=938958#c38
+
+Cc: <stable@vger.kernel.org>
+Cc: Jens Axboe <axboe@kernel.dk>
+Cc: linux-block@vger.kernel.org
+Cc: Bart Van Assche <bvanassche@acm.org>
+Fixes: 5db470e229e2 ("loop: drop caches if offset or block_size are changed")
+Reported-by: Gwendal Grignou <gwendal@chromium.org>
+Reported-by: grygorii tertychnyi <gtertych@cisco.com>
+Reviewed-by: Bart Van Assche <bvanassche@acm.org>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+---
+ drivers/block/loop.c | 65 ++++++++++++++++++++++----------------------
+ 1 file changed, 33 insertions(+), 32 deletions(-)
+
+diff --git a/drivers/block/loop.c b/drivers/block/loop.c
+index 739b372a5112..8c9da7f9b1f6 100644
+--- a/drivers/block/loop.c
++++ b/drivers/block/loop.c
+@@ -1245,6 +1245,8 @@ loop_set_status(struct loop_device *lo, const struct loop_info64 *info)
+ 	kuid_t uid = current_uid();
+ 	struct block_device *bdev;
+ 	bool partscan = false;
++	bool drop_request = false;
++	bool drop_cache = false;
+ 
+ 	err = mutex_lock_killable(&loop_ctl_mutex);
+ 	if (err)
+@@ -1264,14 +1266,21 @@ loop_set_status(struct loop_device *lo, const struct loop_info64 *info)
+ 		goto out_unlock;
+ 	}
+ 
++	if (lo->lo_offset != info->lo_offset)
++		drop_request = true;
+ 	if (lo->lo_offset != info->lo_offset ||
+-	    lo->lo_sizelimit != info->lo_sizelimit) {
+-		sync_blockdev(lo->lo_device);
+-		kill_bdev(lo->lo_device);
+-	}
++	    lo->lo_sizelimit != info->lo_sizelimit)
++		drop_cache = true;
+ 
+-	/* I/O need to be drained during transfer transition */
+-	blk_mq_freeze_queue(lo->lo_queue);
++	sync_blockdev(lo->lo_device);
++
++	if (drop_request) {
++		blk_set_queue_dying(lo->lo_queue);
++		blk_mq_freeze_queue_wait(lo->lo_queue);
++	} else {
++		/* I/O need to be drained during transfer transition */
++		blk_mq_freeze_queue(lo->lo_queue);
++	}
+ 
+ 	err = loop_release_xfer(lo);
+ 	if (err)
+@@ -1298,14 +1307,6 @@ loop_set_status(struct loop_device *lo, const struct loop_info64 *info)
+ 
+ 	if (lo->lo_offset != info->lo_offset ||
+ 	    lo->lo_sizelimit != info->lo_sizelimit) {
+-		/* kill_bdev should have truncated all the pages */
+-		if (lo->lo_device->bd_inode->i_mapping->nrpages) {
+-			err = -EAGAIN;
+-			pr_warn("%s: loop%d (%s) has still dirty pages (nrpages=%lu)\n",
+-				__func__, lo->lo_number, lo->lo_file_name,
+-				lo->lo_device->bd_inode->i_mapping->nrpages);
+-			goto out_unfreeze;
+-		}
+ 		if (figure_loop_size(lo, info->lo_offset, info->lo_sizelimit)) {
+ 			err = -EFBIG;
+ 			goto out_unfreeze;
+@@ -1342,6 +1343,8 @@ loop_set_status(struct loop_device *lo, const struct loop_info64 *info)
+ 
+ out_unfreeze:
+ 	blk_mq_unfreeze_queue(lo->lo_queue);
++	if (drop_request)
++		blk_queue_flag_clear(QUEUE_FLAG_DYING, lo->lo_queue);
+ 
+ 	if (!err && (info->lo_flags & LO_FLAGS_PARTSCAN) &&
+ 	     !(lo->lo_flags & LO_FLAGS_PARTSCAN)) {
+@@ -1350,6 +1353,12 @@ loop_set_status(struct loop_device *lo, const struct loop_info64 *info)
+ 		bdev = lo->lo_device;
+ 		partscan = true;
+ 	}
++
++	/* truncate stale pages cached by previous operations */
++	if (!err && drop_cache) {
++		sync_blockdev(lo->lo_device);
++		invalidate_bdev(lo->lo_device);
++	}
+ out_unlock:
+ 	mutex_unlock(&loop_ctl_mutex);
+ 	if (partscan)
+@@ -1531,7 +1540,7 @@ static int loop_set_dio(struct loop_device *lo, unsigned long arg)
+ 
+ static int loop_set_block_size(struct loop_device *lo, unsigned long arg)
+ {
+-	int err = 0;
++	bool drop_cache = false;
+ 
+ 	if (lo->lo_state != Lo_bound)
+ 		return -ENXIO;
+@@ -1539,31 +1548,23 @@ static int loop_set_block_size(struct loop_device *lo, unsigned long arg)
+ 	if (arg < 512 || arg > PAGE_SIZE || !is_power_of_2(arg))
+ 		return -EINVAL;
+ 
+-	if (lo->lo_queue->limits.logical_block_size != arg) {
+-		sync_blockdev(lo->lo_device);
+-		kill_bdev(lo->lo_device);
+-	}
++	if (lo->lo_queue->limits.logical_block_size != arg)
++		drop_cache = true;
+ 
++	sync_blockdev(lo->lo_device);
+ 	blk_mq_freeze_queue(lo->lo_queue);
+-
+-	/* kill_bdev should have truncated all the pages */
+-	if (lo->lo_queue->limits.logical_block_size != arg &&
+-			lo->lo_device->bd_inode->i_mapping->nrpages) {
+-		err = -EAGAIN;
+-		pr_warn("%s: loop%d (%s) has still dirty pages (nrpages=%lu)\n",
+-			__func__, lo->lo_number, lo->lo_file_name,
+-			lo->lo_device->bd_inode->i_mapping->nrpages);
+-		goto out_unfreeze;
+-	}
+-
+ 	blk_queue_logical_block_size(lo->lo_queue, arg);
+ 	blk_queue_physical_block_size(lo->lo_queue, arg);
+ 	blk_queue_io_min(lo->lo_queue, arg);
+ 	loop_update_dio(lo);
+-out_unfreeze:
+ 	blk_mq_unfreeze_queue(lo->lo_queue);
+ 
+-	return err;
++	/* truncate stale pages cached by previous operations */
++	if (drop_cache) {
++		sync_blockdev(lo->lo_device);
++		invalidate_bdev(lo->lo_device);
++	}
++	return 0;
+ }
+ 
+ static int lo_simple_ioctl(struct loop_device *lo, unsigned int cmd,
+-- 
+2.25.1.481.gfbce0eb801-goog
+
