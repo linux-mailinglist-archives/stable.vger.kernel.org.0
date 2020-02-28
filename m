@@ -2,201 +2,77 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 049E0173B13
-	for <lists+stable@lfdr.de>; Fri, 28 Feb 2020 16:11:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 24A4B173B15
+	for <lists+stable@lfdr.de>; Fri, 28 Feb 2020 16:12:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726905AbgB1PLl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 28 Feb 2020 10:11:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47390 "EHLO mail.kernel.org"
+        id S1726970AbgB1PMh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 28 Feb 2020 10:12:37 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47578 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727066AbgB1PLl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 28 Feb 2020 10:11:41 -0500
+        id S1726720AbgB1PMh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 28 Feb 2020 10:12:37 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7152D2469F;
-        Fri, 28 Feb 2020 15:11:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0270624699;
+        Fri, 28 Feb 2020 15:12:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582902699;
-        bh=rQlLrdvpnoRB72axDXsGW9+HVQW342rriz/DlblRy18=;
-        h=Subject:To:From:Date:From;
-        b=dG612feaiAxeNoLw3uqKI1EoTTISkMvx2xk5APyeEiNvRRdydSuCmvIhym6IQvkMI
-         JKtbOLvuewkYxNg/+KgMyc8ft8Y9De+cteecXlwQRVmOu8J3huMycnpVhzAhk/k+/n
-         DSoF0kT46xC53UDUbwfexjH50FPz0xfVd5VDdGtU=
-Subject: patch "vt: selection, push sel_lock up" added to tty-linus
-To:     jslaby@suse.cz, gregkh@linuxfoundation.org, stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 28 Feb 2020 16:11:29 +0100
-Message-ID: <1582902689215183@kroah.com>
+        s=default; t=1582902756;
+        bh=fY6Rmei2EuhvgzIyAwnOSvyfTyjQYRh6rM/zrQJ1n4Q=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=M9CZE0wxLfCmineUNQdBju90sGGwnWPWKOOWVsmIoPeU5KNlGjppDbJGL+5AMPu94
+         RlP9Kl5BSnlPCcBAA6QVhHYvBOBOZqZ3mBuCIu04JyZDXQSIOz2UX8+hm9BfCr81S/
+         8uo1TcRttUYygYp1aa7s5BT+V5hzuTeIe9rrRwZI=
+Date:   Fri, 28 Feb 2020 16:12:33 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Naresh Kamboju <naresh.kamboju@linaro.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        lkft-triage@lists.linaro.org,
+        linux- stable <stable@vger.kernel.org>
+Subject: Re: [PATCH 5.5 000/150] 5.5.7-stable review
+Message-ID: <20200228151233.GB3136847@kroah.com>
+References: <20200227132232.815448360@linuxfoundation.org>
+ <CA+G9fYsJyqW95UU-KKNqQOQVSVNaBF9ZyNps+vbxHUtJ1S==gg@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <CA+G9fYsJyqW95UU-KKNqQOQVSVNaBF9ZyNps+vbxHUtJ1S==gg@mail.gmail.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Fri, Feb 28, 2020 at 09:20:18AM +0530, Naresh Kamboju wrote:
+> On Thu, 27 Feb 2020 at 19:53, Greg Kroah-Hartman
+> <gregkh@linuxfoundation.org> wrote:
+> >
+> > This is the start of the stable review cycle for the 5.5.7 release.
+> > There are 150 patches in this series, all will be posted as a response
+> > to this one.  If anyone has any issues with these being applied, please
+> > let me know.
+> >
+> > Responses should be made by Sat, 29 Feb 2020 13:21:24 +0000.
+> > Anything received after that time might be too late.
+> >
+> > The whole patch series can be found in one patch at:
+> >         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.5.7-rc1.gz
+> > or in the git tree and branch at:
+> >         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.5.y
+> > and the diffstat can be found below.
+> >
+> > thanks,
+> >
+> > greg k-h
+> 
+> Results from Linaro’s test farm.
+> No regressions on arm64, arm, x86_64, and i386.
 
-This is a note to let you know that I've just added the patch titled
+Wonderful, thanks for testing all of these and letting me know.
 
-    vt: selection, push sel_lock up
-
-to my tty git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/tty.git
-in the tty-linus branch.
-
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
-
-The patch will hopefully also be merged in Linus's tree for the
-next -rc kernel release.
-
-If you have any questions about this process, please let me know.
-
-
-From e8c75a30a23c6ba63f4ef6895cbf41fd42f21aa2 Mon Sep 17 00:00:00 2001
-From: Jiri Slaby <jslaby@suse.cz>
-Date: Fri, 28 Feb 2020 12:54:06 +0100
-Subject: vt: selection, push sel_lock up
-
-sel_lock cannot nest in the console lock. Thanks to syzkaller, the
-kernel states firmly:
-
-> WARNING: possible circular locking dependency detected
-> 5.6.0-rc3-syzkaller #0 Not tainted
-> ------------------------------------------------------
-> syz-executor.4/20336 is trying to acquire lock:
-> ffff8880a2e952a0 (&tty->termios_rwsem){++++}, at: tty_unthrottle+0x22/0x100 drivers/tty/tty_ioctl.c:136
->
-> but task is already holding lock:
-> ffffffff89462e70 (sel_lock){+.+.}, at: paste_selection+0x118/0x470 drivers/tty/vt/selection.c:374
->
-> which lock already depends on the new lock.
->
-> the existing dependency chain (in reverse order) is:
->
-> -> #2 (sel_lock){+.+.}:
->        mutex_lock_nested+0x1b/0x30 kernel/locking/mutex.c:1118
->        set_selection_kernel+0x3b8/0x18a0 drivers/tty/vt/selection.c:217
->        set_selection_user+0x63/0x80 drivers/tty/vt/selection.c:181
->        tioclinux+0x103/0x530 drivers/tty/vt/vt.c:3050
->        vt_ioctl+0x3f1/0x3a30 drivers/tty/vt/vt_ioctl.c:364
-
-This is ioctl(TIOCL_SETSEL).
-Locks held on the path: console_lock -> sel_lock
-
-> -> #1 (console_lock){+.+.}:
->        console_lock+0x46/0x70 kernel/printk/printk.c:2289
->        con_flush_chars+0x50/0x650 drivers/tty/vt/vt.c:3223
->        n_tty_write+0xeae/0x1200 drivers/tty/n_tty.c:2350
->        do_tty_write drivers/tty/tty_io.c:962 [inline]
->        tty_write+0x5a1/0x950 drivers/tty/tty_io.c:1046
-
-This is write().
-Locks held on the path: termios_rwsem -> console_lock
-
-> -> #0 (&tty->termios_rwsem){++++}:
->        down_write+0x57/0x140 kernel/locking/rwsem.c:1534
->        tty_unthrottle+0x22/0x100 drivers/tty/tty_ioctl.c:136
->        mkiss_receive_buf+0x12aa/0x1340 drivers/net/hamradio/mkiss.c:902
->        tty_ldisc_receive_buf+0x12f/0x170 drivers/tty/tty_buffer.c:465
->        paste_selection+0x346/0x470 drivers/tty/vt/selection.c:389
->        tioclinux+0x121/0x530 drivers/tty/vt/vt.c:3055
->        vt_ioctl+0x3f1/0x3a30 drivers/tty/vt/vt_ioctl.c:364
-
-This is ioctl(TIOCL_PASTESEL).
-Locks held on the path: sel_lock -> termios_rwsem
-
-> other info that might help us debug this:
->
-> Chain exists of:
->   &tty->termios_rwsem --> console_lock --> sel_lock
-
-Clearly. From the above, we have:
- console_lock -> sel_lock
- sel_lock -> termios_rwsem
- termios_rwsem -> console_lock
-
-Fix this by reversing the console_lock -> sel_lock dependency in
-ioctl(TIOCL_SETSEL). First, lock sel_lock, then console_lock.
-
-Signed-off-by: Jiri Slaby <jslaby@suse.cz>
-Reported-by: syzbot+26183d9746e62da329b8@syzkaller.appspotmail.com
-Fixes: 07e6124a1a46 ("vt: selection, close sel_buffer race")
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200228115406.5735-2-jslaby@suse.cz
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/tty/vt/selection.c | 16 +++++++---------
- 1 file changed, 7 insertions(+), 9 deletions(-)
-
-diff --git a/drivers/tty/vt/selection.c b/drivers/tty/vt/selection.c
-index 9126a01290ea..d7d2e4b844bc 100644
---- a/drivers/tty/vt/selection.c
-+++ b/drivers/tty/vt/selection.c
-@@ -214,7 +214,6 @@ static int __set_selection_kernel(struct tiocl_selection *v, struct tty_struct *
- 	if (ps > pe)	/* make sel_start <= sel_end */
- 		swap(ps, pe);
- 
--	mutex_lock(&sel_lock);
- 	if (sel_cons != vc_cons[fg_console].d) {
- 		clear_selection();
- 		sel_cons = vc_cons[fg_console].d;
-@@ -260,10 +259,9 @@ static int __set_selection_kernel(struct tiocl_selection *v, struct tty_struct *
- 			break;
- 		case TIOCL_SELPOINTER:
- 			highlight_pointer(pe);
--			goto unlock;
-+			return 0;
- 		default:
--			ret = -EINVAL;
--			goto unlock;
-+			return -EINVAL;
- 	}
- 
- 	/* remove the pointer */
-@@ -285,7 +283,7 @@ static int __set_selection_kernel(struct tiocl_selection *v, struct tty_struct *
- 	else if (new_sel_start == sel_start)
- 	{
- 		if (new_sel_end == sel_end)	/* no action required */
--			goto unlock;
-+			return 0;
- 		else if (new_sel_end > sel_end)	/* extend to right */
- 			highlight(sel_end + 2, new_sel_end);
- 		else				/* contract from right */
-@@ -313,8 +311,7 @@ static int __set_selection_kernel(struct tiocl_selection *v, struct tty_struct *
- 	if (!bp) {
- 		printk(KERN_WARNING "selection: kmalloc() failed\n");
- 		clear_selection();
--		ret = -ENOMEM;
--		goto unlock;
-+		return -ENOMEM;
- 	}
- 	kfree(sel_buffer);
- 	sel_buffer = bp;
-@@ -339,8 +336,7 @@ static int __set_selection_kernel(struct tiocl_selection *v, struct tty_struct *
- 		}
- 	}
- 	sel_buffer_lth = bp - sel_buffer;
--unlock:
--	mutex_unlock(&sel_lock);
-+
- 	return ret;
- }
- 
-@@ -348,9 +344,11 @@ int set_selection_kernel(struct tiocl_selection *v, struct tty_struct *tty)
- {
- 	int ret;
- 
-+	mutex_lock(&sel_lock);
- 	console_lock();
- 	ret = __set_selection_kernel(v, tty);
- 	console_unlock();
-+	mutex_unlock(&sel_lock);
- 
- 	return ret;
- }
--- 
-2.25.1
-
-
+greg k-h
