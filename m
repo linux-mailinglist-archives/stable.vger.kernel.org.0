@@ -2,59 +2,59 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 101C917449D
-	for <lists+stable@lfdr.de>; Sat, 29 Feb 2020 04:04:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 68ABB1744A8
+	for <lists+stable@lfdr.de>; Sat, 29 Feb 2020 04:08:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726733AbgB2DEW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 28 Feb 2020 22:04:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52760 "EHLO mail.kernel.org"
+        id S1726366AbgB2DIk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 28 Feb 2020 22:08:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54576 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726046AbgB2DEW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 28 Feb 2020 22:04:22 -0500
+        id S1726046AbgB2DIk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 28 Feb 2020 22:08:40 -0500
 Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3C35D246A2;
-        Sat, 29 Feb 2020 03:04:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DF6C92467B;
+        Sat, 29 Feb 2020 03:08:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582945461;
-        bh=kZyVBjKpCu11e3yXvbPtA25/6YkWt0Z7eioOCA6VA/Q=;
+        s=default; t=1582945720;
+        bh=hOyEpxPRQGrilqK673TIYfny8ywUcM8JlVlW3ODrXDY=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=MCULOtk+GEWu2HTjGEJGw3Hec3tkpo99td0xNUyx6fI9VLJVtT1hmmHBOJExWk4mi
-         GzIC40qJBm1FYtB5IO39c8o2HvaAx8pOz6LPIUEPEqYrlXdiLu1Gy0XielVnbwK9KI
-         khrItXHumjl0lJgjFu3qLKy/hNmrtYFskZsnatvw=
-Date:   Fri, 28 Feb 2020 22:04:20 -0500
+        b=wHfvRTUkcmnmEdSeEYFMkUvL5GfRYvFCdgi5Lh1HBXY6YzspfFScWxMmhJ+G8yqfb
+         AjC5U41ZNOXq+ctIYim6cvFTRrAOGBWire96+9p84G8tRtl5jx+ZOCCaiE4jGS+wfq
+         jyF4AADlIW1N5dMCFLT4wInT7c4tsV8D1a8X1KMY=
+Date:   Fri, 28 Feb 2020 22:08:38 -0500
 From:   Sasha Levin <sashal@kernel.org>
-To:     Jens Axboe <axboe@kernel.dk>
-Cc:     stable@vger.kernel.org, Jann Horn <jannh@google.com>
-Subject: Re: 5.4 backport of io_uring/io-wq fix
-Message-ID: <20200229030420.GD21491@sasha-vm>
-References: <48a01733-c0cb-e738-8c18-1abc3de1dcfb@kernel.dk>
+To:     Zenghui Yu <yuzenghui@huawei.com>
+Cc:     gregkh@linuxfoundation.org, stable@vger.kernel.org,
+        joe@perches.com, tglx@linutronix.de, Marc Zyngier <maz@kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Request to backport "irqchip/gic-v3-its: Fix misuse of GENMASK
+ macro"
+Message-ID: <20200229030838.GE21491@sasha-vm>
+References: <47617046-53ba-ed7f-ccbb-5c7c09426552@huawei.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
-In-Reply-To: <48a01733-c0cb-e738-8c18-1abc3de1dcfb@kernel.dk>
+In-Reply-To: <47617046-53ba-ed7f-ccbb-5c7c09426552@huawei.com>
 User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Feb 28, 2020 at 03:27:17PM -0700, Jens Axboe wrote:
->Hi,
+On Fri, Feb 28, 2020 at 02:50:51PM +0800, Zenghui Yu wrote:
+>Hi Greg, Sasha,
 >
->We don't have these two commits in 5.4-stable:
+>Could you please help to backport the upstream commit
+>20faba848752901de23a4d45a1174d64d2069dde ("irqchip/gic-v3-its: Fix
+>misuse of GENMASK macro") to the stable linux-4.19 tree since it's
+>definitely a fix for 4.19. Note that it's not needed for other stable
+>trees.
 >
->ff002b30181d30cdfbca316dadd099c3ca0d739c
->9392a27d88b9707145d713654eb26f0c29789e50
->
->because they don't apply with the rework that was done in how io_uring
->handles offload. Since there's no io-wq in 5.4, it doesn't make sense to
->do two patches. I'm attaching my port of the two for 5.4-stable, it's
->been tested. Please queue it up for the next 5.4-stable, thanks!
+>I've tried and it can be applied to 4.19.106 cleanly.
 
-I've copied this explanation into the commit message and queued it for
-5.4, thanks Jens!
+Queued up, thanks!
 
 -- 
 Thanks,
