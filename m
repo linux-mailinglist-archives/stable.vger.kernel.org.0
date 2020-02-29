@@ -2,102 +2,69 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CE9731747B2
-	for <lists+stable@lfdr.de>; Sat, 29 Feb 2020 16:37:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F6111747D6
+	for <lists+stable@lfdr.de>; Sat, 29 Feb 2020 17:04:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727103AbgB2Phe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 29 Feb 2020 10:37:34 -0500
-Received: from mail-pg1-f196.google.com ([209.85.215.196]:33160 "EHLO
-        mail-pg1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727070AbgB2Phe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 29 Feb 2020 10:37:34 -0500
-Received: by mail-pg1-f196.google.com with SMTP id 6so3127736pgk.0
-        for <stable@vger.kernel.org>; Sat, 29 Feb 2020 07:37:33 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=Y39QbgGZuvXDWevRqTV4vlmUlBgQHBo8qm4AcIiuTPU=;
-        b=jfapLRElrzPHVkN/Js7X20+LRhWmZXzEt+xOECM3WVsJRgiTnyXxAbs4Uh7UMkhhLW
-         n9WAMb/YOiFBZLtsvShklUo75r7MJ3aGS7M9u7wGIk3E84+5SzssUYT/flJvg1Bu/BTK
-         Mb1rvHzcDf1HY4fbp52bq48XLjh0Qj7WLpoO889+VXT0jaH+0fK6RpzXcbEFPHP9dwHM
-         pXTUIfh3dAZbiPn6kLdt7CdPnF2Ta2XG3laEQuNiXyldIzVyOofCd/Ryvd4AhWxJno3G
-         D2JxNwoQ/6O/jySritdAo1yEzqYMcwfpqWOLaDh+nD0oOYYVph25i/CcgrAGKX++TtHH
-         wqyw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=Y39QbgGZuvXDWevRqTV4vlmUlBgQHBo8qm4AcIiuTPU=;
-        b=tnXo949f4VqxZ4pGNx23I73eXt8B90Ao9V3etEVpUvn6PwpCia4d8vP+aguhLwQ60d
-         GP3f591HIzfHgSOu0Az9tzuY6RBmSHCGMwTGzSuGxP6ubuJoornUvQUTWYk2ZF+ePJDC
-         +53cX+rUc0jSebDvUlu2SgZww76RvUhywTMdydrqPFmN1AYDSD4LyiVpEMY2EMXh27aR
-         w6cYPioeShGwKPsp3CUJN5fjJf53gfbWsNLDWtEDYZnRWeZAr/koqJrd1XqexwdQai/M
-         r66NSKtO9qKKdva+9Ch/t/dRS5KpBH0vcSjgZPwsUn5Sjvd3CLS/PnehYJYVJadmx+tr
-         zBTg==
-X-Gm-Message-State: APjAAAX4lN2gZll5Iw5sAFxGHuoc94r1Dvvja6omwQ+zcS/flUaMnyyj
-        yFSxR4+i+K7zUuCyEthiwvFM494cdgU=
-X-Google-Smtp-Source: APXvYqzv6s8AoerjKt+fob3XDhqmhOtTQ5WbStGA2owKjJgdNNI9tUybAeSjAkItHAChRwp4TqDnEQ==
-X-Received: by 2002:a62:6414:: with SMTP id y20mr7720735pfb.161.1582990653041;
-        Sat, 29 Feb 2020 07:37:33 -0800 (PST)
-Received: from [10.0.9.4] ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id y197sm16230741pfc.79.2020.02.29.07.37.32
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 29 Feb 2020 07:37:32 -0800 (PST)
-Message-ID: <5e5a853c.1c69fb81.15e02.9066@mx.google.com>
-Date:   Sat, 29 Feb 2020 07:37:32 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S1727191AbgB2QE4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 29 Feb 2020 11:04:56 -0500
+Received: from outils.crapouillou.net ([89.234.176.41]:60514 "EHLO
+        crapouillou.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727164AbgB2QEz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 29 Feb 2020 11:04:55 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=crapouillou.net;
+        s=mail; t=1582992293; h=from:from:sender:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:references; bh=U+bTaqw3ChcPXdwAu0239Q0g38tlXUK/Pg8FxcX6kas=;
+        b=pIeEPB4OqTEnN5H7AVgAqjPxxHNLHLAyDjL3waCtxnnfexnXd3HoWD+rtrT9K02lW2k/Ps
+        kvTmt55RSCj2s/WrU8evemxBsmEm3rjaZDa67x/z8VNznIY9dS1zK3YxUMZ34OXfrrqCmY
+        +JdRg/W5CZmTdUPjH1HBydyJ6eliCLQ=
+From:   Paul Cercueil <paul@crapouillou.net>
+To:     Harvey Hunt <harveyhuntnexus@gmail.com>,
+        Miquel Raynal <miquel.raynal@bootlin.com>,
+        Richard Weinberger <richard@nod.at>
+Cc:     Vignesh Raghavendra <vigneshr@ti.com>, od@zcrc.me,
+        linux-mtd@lists.infradead.org, linux-kernel@vger.kernel.org,
+        Paul Cercueil <paul@crapouillou.net>, stable@vger.kernel.org
+Subject: [PATCH] mtd: rawnand: ingenic: Fix unmet dependency if COMPILE_TEST
+Date:   Sat, 29 Feb 2020 13:04:43 -0300
+Message-Id: <20200229160443.11208-1-paul@crapouillou.net>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-4.14.y
-X-Kernelci-Kernel: v4.14.172
-X-Kernelci-Report-Type: boot
-X-Kernelci-Tree: stable
-Subject: stable/linux-4.14.y boot: 30 boots: 2 failed, 28 passed (v4.14.172)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable/linux-4.14.y boot: 30 boots: 2 failed, 28 passed (v4.14.172)
+Commit 7c779cf7c1f7 ("mtd: rawnand: ingenic: Allow to compile test the
+new Ingenic driver") dropped the dependency on JZ4780_NEMC when
+COMPILE_TEST was set, which is wrong, as the driver requires symbols
+provided by the jz4780-nemc driver.
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable/branch/linux-4.=
-14.y/kernel/v4.14.172/
-Full Build Summary: https://kernelci.org/build/stable/branch/linux-4.14.y/k=
-ernel/v4.14.172/
+Change the dependency to (MIPS || COMPILE_TEST) && JZ4780_NEMC to
+address the issue.
 
-Tree: stable
-Branch: linux-4.14.y
-Git Describe: v4.14.172
-Git Commit: 78d697fc93f98054e36a3ab76dca1a88802ba7be
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e.git
-Tested: 29 unique boards, 11 SoC families, 11 builds out of 201
-
-Boot Regressions Detected:
-
-arm:
-
-    sama5_defconfig:
-        gcc-8:
-          at91-sama5d4_xplained:
-              lab-baylibre: failing since 36 days (last pass: v4.14.166 - f=
-irst fail: v4.14.167)
-
-Boot Failures Detected:
-
-arm:
-    sama5_defconfig:
-        gcc-8:
-            at91-sama5d4_xplained: 1 failed lab
-
-arm64:
-    defconfig:
-        gcc-8:
-            meson-gxm-q200: 1 failed lab
-
+Fixes: 7c779cf7c1f7 ("mtd: rawnand: ingenic: Allow to compile test the new Ingenic driver")
+Cc: stable@vger.kernel.org
+Signed-off-by: Paul Cercueil <paul@crapouillou.net>
 ---
-For more info write to <info@kernelci.org>
+ drivers/mtd/nand/raw/ingenic/Kconfig | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/mtd/nand/raw/ingenic/Kconfig b/drivers/mtd/nand/raw/ingenic/Kconfig
+index 485abfa3f80b..96c5ae8b1bbc 100644
+--- a/drivers/mtd/nand/raw/ingenic/Kconfig
++++ b/drivers/mtd/nand/raw/ingenic/Kconfig
+@@ -1,7 +1,8 @@
+ # SPDX-License-Identifier: GPL-2.0-only
+ config MTD_NAND_JZ4780
+ 	tristate "JZ4780 NAND controller"
+-	depends on JZ4780_NEMC || COMPILE_TEST
++	depends on MIPS || COMPILE_TEST
++	depends on JZ4780_NEMC
+ 	help
+ 	  Enables support for NAND Flash connected to the NEMC on JZ4780 SoC
+ 	  based boards, using the BCH controller for hardware error correction.
+-- 
+2.25.1
+
