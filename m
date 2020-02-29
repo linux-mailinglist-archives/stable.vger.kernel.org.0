@@ -2,82 +2,111 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 706AC1748D1
-	for <lists+stable@lfdr.de>; Sat, 29 Feb 2020 20:01:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BF66E1748D3
+	for <lists+stable@lfdr.de>; Sat, 29 Feb 2020 20:02:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727579AbgB2TA6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 29 Feb 2020 14:00:58 -0500
-Received: from mail-il1-f193.google.com ([209.85.166.193]:39607 "EHLO
-        mail-il1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727218AbgB2TA6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 29 Feb 2020 14:00:58 -0500
-Received: by mail-il1-f193.google.com with SMTP id w69so5822997ilk.6
-        for <stable@vger.kernel.org>; Sat, 29 Feb 2020 11:00:56 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=OPm3hrGauL8biCEinhFnHGuE8NuHgMpT90ceO6W2+s4=;
-        b=QJRcbgBgFWGY+IrI2mhQ7YcO+C450KRWfGWjarnZjMkLID6dMBo3yjnc+lQd0ydDFn
-         Klpp6Lriyv205JzqPsR25dMpi5rZ4lQ2RpeJeqCd19TrmhuTHzLDDTb5Nq/8PMZMN9Wn
-         ugiLU+5PnffMZMQ26oBpkrsEmuM5q72VpN9VNh4jrHvx7liqcf5GMjVURgiRgRjV5FA2
-         4ZXZKXSKZQnNOBnvBSiF0uqAwELvZbZjFgLwrwfB6WvEmoZGbcqZQGaotUqc1I0tMNOK
-         3golkHykUqQeytTOq9wxrN+T+s2keqAK8gMUmLBCp9A8HSp6ARkP+5O0d0I3bDPu+sMM
-         C0Zg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=OPm3hrGauL8biCEinhFnHGuE8NuHgMpT90ceO6W2+s4=;
-        b=beNf3YwFfVOUNi440QDCxfLf3CCKLGxr7FUMPMjzn9wyx3GJN844x26uSgDd6y6ZjO
-         vvt23oayposkWIpSNSCSr2a7RPNpjy+946hRH6Jx6zQg0AhdNVU7naj7x5LVx02myjeI
-         d9Ohw6g3DhZ4lqnM4EM4NF80p6kTeczJg89kh9CpUYC8ptOluFktDorNqBwaGaxWdG0o
-         c9+EceJqcg4fmqvqOH+mWluAXdvCjkub9m97m9C4t9HRKEVmTEeOUuV9S4EJrz9jcAx3
-         lkDqzxIzVI6UI2bc5Krx9l0gAILf3OtcyoU0qNgJYi6pbPsEmKgJXbfixJPhC3e0DbVI
-         /j/w==
-X-Gm-Message-State: APjAAAU9rQ/eryg4mdNbecUISIPRfkEKtDKcS2/8WKoEbuI0DzoRqKzC
-        Z6yYc4YS4PVnXXp6EtO9aokIAVUflH5c7pJXXQufbA==
-X-Google-Smtp-Source: APXvYqzrtg94iuKISLZUq15kVQq0EevQ7IO9b8IvdausgoC11wtDjBdvYeDl00RI2xRJ3xxCbc1E/KnknBPk4DBeVq8=
-X-Received: by 2002:a92:981b:: with SMTP id l27mr9968372ili.118.1583002855957;
- Sat, 29 Feb 2020 11:00:55 -0800 (PST)
+        id S1727386AbgB2TCo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 29 Feb 2020 14:02:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41444 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727341AbgB2TCo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 29 Feb 2020 14:02:44 -0500
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 82AEB2467D;
+        Sat, 29 Feb 2020 19:02:41 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1583002962;
+        bh=v/dxdUzMi5BClO84askTDLqpiG52LyTh0c5NKk9qtfE=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=y9C2W3o9s2rZc5/yf3FQD10PIYSBtS3kkn635kUER/NjdBk1sn1R//j3YtjDZ1GU9
+         jP1Iu9X994V18yD3+S8Dr3dLv/WXaN1trJLbfDq4BcC8AZaAr/c/llKSWkNs9ZAsuD
+         7DZ02C9FiNbF7HWLf65cMMSxSi8gez6uqomPBLJA=
+Date:   Sat, 29 Feb 2020 20:02:39 +0100
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Vikash Bansal <bvikas@vmware.com>
+Cc:     "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        Srivatsa Bhat <srivatsab@vmware.com>,
+        "srivatsa@csail.mit.edu" <srivatsa@csail.mit.edu>,
+        Alexey Makhalov <amakhalov@vmware.com>,
+        Srinidhi Rao <srinidhir@vmware.com>,
+        Anish Swaminathan <anishs@vmware.com>,
+        Vasavi Sirnapalli <vsirnapalli@vmware.com>,
+        Sharath George <sharathg@vmware.com>,
+        Steven Rostedt <srostedt@vmware.com>,
+        Ajay Kaher <akaher@vmware.com>,
+        "rostedt@goodmis.org" <rostedt@goodmis.org>,
+        Stephan Mueller <smueller@chronox.de>,
+        Yann Droneaud <ydroneaud@opteya.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Subject: Re: [PATCH v4.19.y, v4.14.y, v4.9.y] crypto: drbg - add FIPS 140-2
+ CTRNG for noise source
+Message-ID: <20200229190239.GB832132@kroah.com>
+References: <20200227055805.3011-1-bvikas@vmware.com>
+ <20200227070030.GA290231@kroah.com>
+ <87EC78FF-21EE-4921-B819-CBA4D328E159@vmware.com>
 MIME-Version: 1.0
-References: <1582570596-45387-1-git-send-email-pbonzini@redhat.com>
- <1582570596-45387-2-git-send-email-pbonzini@redhat.com> <41d80479-7dbc-d912-ff0e-acd48746de0f@web.de>
- <CAOQ_QshE7SMX2cO7H+21Fkdpg53oE2D3xrHPJHR_MCfH4r9QCQ@mail.gmail.com>
-In-Reply-To: <CAOQ_QshE7SMX2cO7H+21Fkdpg53oE2D3xrHPJHR_MCfH4r9QCQ@mail.gmail.com>
-From:   Jim Mattson <jmattson@google.com>
-Date:   Sat, 29 Feb 2020 11:00:44 -0800
-Message-ID: <CALMp9eRETy1RLWHWKtFHqpcpFHbQKtPgJHDD_N+LPzaUPx-Jvg@mail.gmail.com>
-Subject: Re: [FYI PATCH 1/3] KVM: nVMX: Don't emulate instructions in guest mode
-To:     Oliver Upton <oupton@google.com>
-Cc:     Jan Kiszka <jan.kiszka@web.de>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        kvm list <kvm@vger.kernel.org>, stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <87EC78FF-21EE-4921-B819-CBA4D328E159@vmware.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, Feb 29, 2020 at 10:33 AM Oliver Upton <oupton@google.com> wrote:
->
-> Hi Jan,
->
-> On Sat, Feb 29, 2020 at 10:00 AM Jan Kiszka <jan.kiszka@web.de> wrote:
-> > Is this expected to cause regressions on less common workloads?
-> > Jailhouse as L1 now fails when Linux as L2 tries to boot a CPU: L2-Linux
-> > gets a triple fault on load_current_idt() in start_secondary(). Only
-> > bisected so far, didn't debug further.
->
-> I'm guessing that Jailhouse doesn't use 'descriptor table exiting', so
-> when KVM gets the corresponding exit from L2 the emulation burden is
-> on L0. We now refuse the emulation, which kicks a #UD back to L2. I
-> can get a patch out quickly to address this case (like the PIO exiting
-> one that came in this series) but the eventual solution is to map
-> emulator intercept checks into VM-exits + call into the
-> nested_vmx_exit_reflected() plumbing.
+On Sat, Feb 29, 2020 at 10:01:49AM +0000, Vikash Bansal wrote:
+> 
+> On 27/02/20, 12:30 PM, "Greg KH" <gregkh@linuxfoundation.org> wrote:
+> 
+>     
+> > On Thu, Feb 27, 2020 at 05:58:05AM +0000, Vikash Bansal wrote:
+> >> From: Stephan Mueller <smueller@chronox.de>
+> >>
+> >> commit db07cd26ac6a418dc2823187958edcfdb415fa83 upstream
+> >>
+> >> FIPS 140-2 section 4.9.2 requires a continuous self test of the noise
+> >> source. Up to kernel 4.8 drivers/char/random.c provided this continuous
+> >> self test. Afterwards it was moved to a location that is inconsistent
+> >> with the FIPS 140-2 requirements. The relevant patch was
+> >> e192be9d9a30555aae2ca1dc3aad37cba484cd4a .
+> >>
+> >> Thus, the FIPS 140-2 CTRNG is added to the DRBG when it obtains the
+> >> seed. This patch resurrects the function drbg_fips_continous_test that
+> >> existed some time ago and applies it to the noise sources. The patch
+> >> that removed the drbg_fips_continous_test was
+> >> b3614763059b82c26bdd02ffcb1c016c1132aad0 .
+> >>
+> >> The Jitter RNG implements its own FIPS 140-2 self test and thus does not
+> >> need to be subjected to the test in the DRBG.
+> >>
+> >> The patch contains a tiny fix to ensure proper zeroization in case of an
+> >> error during the Jitter RNG data gathering.
+> >>
+> >> Signed-off-by: Stephan Mueller <smueller@chronox.de>
+> >> Reviewed-by: Yann Droneaud <ydroneaud@opteya.com>
+> >> Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+> >> Signed-off-by: Vikash Bansal <bvikas@vmware.com>
+> >> ---
+> >>  crypto/drbg.c         | 94 +++++++++++++++++++++++++++++++++++++++++--
+> >>  include/crypto/drbg.h |  2 +
+> >>  2 files changed, 93 insertions(+), 3 deletions(-)
+> >    
+> > This looks like a new feature to me, why is it needed in the stable
+> > kernel trees?  What bug does it fix?
+> 
+> In 4.19.y, 4.14.y & 4.9.y, DRBG implementation is as per NIST recommendation
+> defined in NIST SP800-9A and it designed to be ready for FIPS certification.
+> But it has missed one of the NIST test requirement define in FIPS 140-2(4.9.2),
+> so it is not ready for NIST FIPS certification.
+> With this patch FIPS 140-2(4.9.2) continuous test requirement will be fulfilled.
 
-If Jailhouse doesn't use descriptor table exiting, why is L0
-intercepting descriptor table instructions? Is this just so that L0
-can partially emulate UMIP on hardware that doesn't support it?
+Then use 5.4 or newer kernels if you need such a certification.  Adding
+this new feature to older kernels is just that, a new feature.
+
+What is preventing you from using 5.4?  It's much better security wise
+than older kernels for a whole load of reasons.
+
+thanks,
+
+greg k-h
