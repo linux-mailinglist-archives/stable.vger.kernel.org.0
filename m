@@ -2,86 +2,83 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CABD3174D7C
-	for <lists+stable@lfdr.de>; Sun,  1 Mar 2020 14:15:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B364D174DA4
+	for <lists+stable@lfdr.de>; Sun,  1 Mar 2020 15:24:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725812AbgCANPa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 1 Mar 2020 08:15:30 -0500
-Received: from mail-oi1-f194.google.com ([209.85.167.194]:40383 "EHLO
-        mail-oi1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725787AbgCANPa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 1 Mar 2020 08:15:30 -0500
-Received: by mail-oi1-f194.google.com with SMTP id j80so5664476oih.7
-        for <stable@vger.kernel.org>; Sun, 01 Mar 2020 05:15:30 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=EC9CVyOxUazC8I0eUae6TLqCWShBR8lxMKjcia//sN4=;
-        b=rV1yzqrdJXil4ze9sc9QBmW2ioaSE7pq2WJZucrFGXnKAkPNjtQHJNR2UWmr8vnEFs
-         vWrFurRjVjTg3oIU5GZB8uPc+2oe+vbyjC1jKHfZz6JQ6JjzZcDP34mqUkBaTMAuq2aM
-         yWvLUty2PUdLNFr8dWDiMn2LbXr50EgqwlFOAA7MPU4zG78M2lgnzaJiVar0U4WLG23q
-         OMwZNJab/RxXhQfW/mP8O8+1+d6UrKR/zMY47rgWCDxBhhoKuFB+KR51D+u0Nt3xyoE2
-         7WtYCqCBxhAMwH300/U23g8ty7Gzv67hRwgDWgQOTJQb2GMn1vqejWh7QHFx4fOqMUT5
-         KMow==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=EC9CVyOxUazC8I0eUae6TLqCWShBR8lxMKjcia//sN4=;
-        b=ZBVjA5T0HmdpfCiC1Hw9leLEiczSeWKCQ4J7CZ0F27D0tI+XKpx6i05Ec+s1JyK1zP
-         dD3qqjUdsPC6F9ytuBE2E0iMHRz1fB+LpL52/43A4Jbd/imSsgvCNsk4P8Aeu7ts2FWM
-         Xh8yPJZmg21wvYQ9M7wYJjjyDef47t6qLct2R0FjEA0TlPQDqMLPRDnAY0MHwMPNCz0T
-         za8iHkbv9Xtia8ehX5i8H4RGmribfwbtWis1Auf27uQxYzMzOKh+idPcLMaXTc/+XSJH
-         ZLt0KS7LFcZfxvIs2pb2/nroLGy5oCkc727B/H1dIEN3w012alLdIhqnyM67Kg4T8m+W
-         Y11w==
-X-Gm-Message-State: APjAAAWTZMjeVxcIdM0IsmYBYFlMxtB7tJpD7vk6G7hkuF72njt0mm16
-        HMOP/ArDEZCDupm1sZGVeJKqQdreyhRFB41bMw==
-X-Google-Smtp-Source: APXvYqycdaUPLMpMkuDkdf5Xls7Rhy73qrWIcUNDdh1/KNye32JaqLJVrkt71rtnQ30p0MIyHQUSjfX306uOvQYsIKY=
-X-Received: by 2002:aca:e146:: with SMTP id y67mr8303096oig.93.1583068529670;
- Sun, 01 Mar 2020 05:15:29 -0800 (PST)
+        id S1726204AbgCAOYP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 1 Mar 2020 09:24:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49162 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725887AbgCAOYP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 1 Mar 2020 09:24:15 -0500
+Received: from archlinux (cpc149474-cmbg20-2-0-cust94.5-4.cable.virginm.net [82.4.196.95])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id BABA2214DB;
+        Sun,  1 Mar 2020 14:24:12 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1583072654;
+        bh=R0f7aWVxkB1VclGcflnTl+GpVS4uJevvWw/NgoP2MdY=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+        b=oNQKRYiVUa6RtuajN/EogC9xb2mRbz1jJUxpjVl31syYK5YqWCqgx+W+HegjD8FoH
+         peQUe1y2gKuJCaxjwalg5dMnpDyvPU5papopFsfCVN/vAnofvNTMSnOMaS10Wrz1NR
+         9kvQHyUtPbZbsXgAwHBYTWw7wapMYI0x0F+2yMRU=
+Date:   Sun, 1 Mar 2020 14:24:07 +0000
+From:   Jonathan Cameron <jic23@kernel.org>
+To:     Petr =?UTF-8?B?xaB0ZXRpYXI=?= <ynezz@true.cz>
+Cc:     Hartmut Knaack <knaack.h@gmx.de>,
+        Lars-Peter Clausen <lars@metafoo.de>,
+        Peter Meerwald-Stadler <pmeerw@pmeerw.net>,
+        Tomasz Duszynski <tduszyns@gmail.com>, stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] iio: chemical: sps30: fix missing triggered buffer
+ dependency
+Message-ID: <20200301142407.0e63f6dc@archlinux>
+In-Reply-To: <20200227162734.604-1-ynezz@true.cz>
+References: <20200227162734.604-1-ynezz@true.cz>
+X-Mailer: Claws Mail 3.17.4 (GTK+ 2.24.32; x86_64-pc-linux-gnu)
 MIME-Version: 1.0
-Received: by 2002:a9d:5e8b:0:0:0:0:0 with HTTP; Sun, 1 Mar 2020 05:15:29 -0800 (PST)
-Reply-To: dhlcourier653@gmail.com
-From:   Patrick David <moneygramoffice450@gmail.com>
-Date:   Sun, 1 Mar 2020 05:15:29 -0800
-Message-ID: <CAHxm69q=21A-KVTjmkrS1NPcS_NZ4-kGR2T7rSghX+1gjX0tYg@mail.gmail.com>
-Subject: CONTACT DHL COURIER FOR YOUR PACKAGE
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Attention the ATM CARD owner
+On Thu, 27 Feb 2020 17:27:34 +0100
+Petr =C5=A0tetiar <ynezz@true.cz> wrote:
 
-This is to inform you that we have agreed to release your fund valued
-at USD $3.500,000 Million which will come to you via ATM Cards so
-contacting DHL COMPANY for your package.Please do re-confirm your
-information as below to avoid wrong delivery. Forward your information
-to the delivery office here: ( dhlcourier653@gmail.com ) and instruct
-them to send the card to you immediately.please the conduct which is
-(( Code-0411)) to avoid delivery your package to wrong person i am
-wait to hear good news
+> SPS30 uses triggered buffer, but the dependency is not specified in the
+> Kconfig file.  Fix this by selecting IIO_BUFFER and IIO_TRIGGERED_BUFFER
+> config symbols.
+>=20
+> Cc: stable@vger.kernel.org
+> Fixes: 232e0f6ddeae ("iio: chemical: add support for Sensirion SPS30 sens=
+or")
+> Signed-off-by: Petr =C5=A0tetiar <ynezz@true.cz>
 
-YOUR ATM CARD PACKAGE $3,5MILLION IS READY
+Applied to the fixes-togreg branch of iio.git.
 
-Full Name (Receiver):.....
-Country of Resident:.....
-Office/Home Street Address:.....
+Thanks,
 
-Mobile Phone Number:...
-Identification papers (Passport copy or ID card) which you will
-present it before delivery is made:
+Jonathan
 
-Thank you for understanding and may God bless you.
+> ---
+>  drivers/iio/chemical/Kconfig | 2 ++
+>  1 file changed, 2 insertions(+)
+>=20
+> diff --git a/drivers/iio/chemical/Kconfig b/drivers/iio/chemical/Kconfig
+> index 0b91de4df8f4..a7e65a59bf42 100644
+> --- a/drivers/iio/chemical/Kconfig
+> +++ b/drivers/iio/chemical/Kconfig
+> @@ -91,6 +91,8 @@ config SPS30
+>  	tristate "SPS30 particulate matter sensor"
+>  	depends on I2C
+>  	select CRC8
+> +	select IIO_BUFFER
+> +	select IIO_TRIGGERED_BUFFER
+>  	help
+>  	  Say Y here to build support for the Sensirion SPS30 particulate
+>  	  matter sensor.
 
-Yours faithfully,
- JOHN PAUL
-+229 60 845 606
-Email: ((( dhlcourier653@gmail.com ))))
-
-Regards
-Ministry Of
-Finance Agent
-Patrick David
