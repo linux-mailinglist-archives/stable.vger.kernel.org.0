@@ -2,55 +2,58 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 752F61762D2
-	for <lists+stable@lfdr.de>; Mon,  2 Mar 2020 19:37:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E62F917638B
+	for <lists+stable@lfdr.de>; Mon,  2 Mar 2020 20:12:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727255AbgCBShD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Mar 2020 13:37:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55304 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727234AbgCBShD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Mar 2020 13:37:03 -0500
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C51EB2166E;
-        Mon,  2 Mar 2020 18:37:02 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583174223;
-        bh=6VdW9GUf3ECxIVHNsXlXX91SuwGmgf0I9cmx7/LzW9I=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=xBNSd3Q3Ivn+/xDQQlEXGU5dmFsRG2ZaoZHmgYoV9HZD+FYpvA1kBC7jFvKJpzm8T
-         n969sFt/cqJQ/NReTQ4UXcI+rT7jx9cmhKSxVjbVO9N+ORPiH6Fy5DRjl3O7KoqwWH
-         dl3Ye1cz/K1T3zSWM74uJjpTogfjKYKXVAc6jp2g=
-Date:   Mon, 2 Mar 2020 19:37:00 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Jens Axboe <axboe@kernel.dk>
-Cc:     stable@vger.kernel.org
-Subject: Re: FAILED: patch "[PATCH] io_uring: fix 32-bit compatability with
- sendmsg/recvmsg" failed to apply to 5.4-stable tree
-Message-ID: <20200302183700.GA159822@kroah.com>
-References: <158317278525473@kroah.com>
- <344856f5-2da1-7019-fc64-f3d26b6f8962@kernel.dk>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <344856f5-2da1-7019-fc64-f3d26b6f8962@kernel.dk>
+        id S1727388AbgCBTMv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Mar 2020 14:12:51 -0500
+Received: from shards.monkeyblade.net ([23.128.96.9]:52426 "EHLO
+        shards.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727126AbgCBTMu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 2 Mar 2020 14:12:50 -0500
+Received: from localhost (unknown [IPv6:2601:601:9f00:477::3d5])
+        (using TLSv1 with cipher AES256-SHA (256/256 bits))
+        (Client did not present a certificate)
+        (Authenticated sender: davem-davemloft)
+        by shards.monkeyblade.net (Postfix) with ESMTPSA id D19491457E372;
+        Mon,  2 Mar 2020 11:12:49 -0800 (PST)
+Date:   Mon, 02 Mar 2020 11:12:49 -0800 (PST)
+Message-Id: <20200302.111249.471862054833131096.davem@davemloft.net>
+To:     socketcan@hartkopp.net
+Cc:     mkl@pengutronix.de, linux-can@vger.kernel.org,
+        netdev@vger.kernel.org,
+        syzbot+c3ea30e1e2485573f953@syzkaller.appspotmail.com,
+        dvyukov@google.com, j.vosburgh@gmail.com, vfalico@gmail.com,
+        andy@greyhouse.net, stable@vger.kernel.org
+Subject: Re: [PATCH] bonding: do not enslave CAN devices
+From:   David Miller <davem@davemloft.net>
+In-Reply-To: <d6d9368d-b468-3946-ac63-abedf6758154@hartkopp.net>
+References: <767580d8-1c93-907b-609c-4c1c049b7c42@pengutronix.de>
+        <20200226.202326.295871777946911500.davem@davemloft.net>
+        <d6d9368d-b468-3946-ac63-abedf6758154@hartkopp.net>
+X-Mailer: Mew version 6.8 on Emacs 26.1
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-Greylist: Sender succeeded SMTP AUTH, not delayed by milter-greylist-4.5.12 (shards.monkeyblade.net [149.20.54.216]); Mon, 02 Mar 2020 11:12:50 -0800 (PST)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Mar 02, 2020 at 11:22:26AM -0700, Jens Axboe wrote:
-> On 3/2/20 11:13 AM, gregkh@linuxfoundation.org wrote:
-> > 
-> > The patch below does not apply to the 5.4-stable tree.
-> > If someone wants it applied there, or to any other stable or longterm
-> > tree, then please email the backport, including the original git commit
-> > id to <stable@vger.kernel.org>.
-> 
-> Here's a 5.4 version.
+From: Oliver Hartkopp <socketcan@hartkopp.net>
+Date: Mon, 2 Mar 2020 09:45:41 +0100
 
-Thanks for this and the 5.5 version, both now queued up.
+> I don't know yet whether it makes sense to have CAN bonding/team
+> devices. But if so we would need some more investigation. For now
+> disabling CAN interfaces for bonding/team devices seems to be
+> reasonable.
 
-greg k-h
+Every single interesting device that falls into a special use case
+like CAN is going to be tempted to add a similar check.
+
+I don't want to set this precedence.
+
+Check that the devices you get passed are actually CAN devices, it's
+easy, just compare the netdev_ops and make sure they equal the CAN
+ones.
