@@ -2,90 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C483E1756D1
-	for <lists+stable@lfdr.de>; Mon,  2 Mar 2020 10:20:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C2531756FC
+	for <lists+stable@lfdr.de>; Mon,  2 Mar 2020 10:26:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727076AbgCBJUp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Mar 2020 04:20:45 -0500
-Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:51915 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726390AbgCBJUp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 2 Mar 2020 04:20:45 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1583140844;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=ZJFxdajhUjFzdrLxSpnS9/s8iz/FeaFiOGrLtEOmsgI=;
-        b=HzF60C8cZ1b1DCgxmiX1JpNKyBE+2YiJB0RYNhZrX3zadT9do/D8L0e6jd1tmplaulGHIX
-        /CsU5pbNLinMmSojg3tBUmgJC+mM9Jyzo5PoD4DvIlY5AQeHtTbXVZqichWxA3rt4ixks0
-        iIfE2N1R+Bh5qGJeDmLZ+vi9QyLns/o=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-295-mnSEhPCwNjSTOH0xBNql0Q-1; Mon, 02 Mar 2020 04:20:40 -0500
-X-MC-Unique: mnSEhPCwNjSTOH0xBNql0Q-1
-Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 59FED189F760;
-        Mon,  2 Mar 2020 09:20:39 +0000 (UTC)
-Received: from laptop.redhat.com (ovpn-116-59.ams2.redhat.com [10.36.116.59])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 2EAE860BF3;
-        Mon,  2 Mar 2020 09:20:34 +0000 (UTC)
-From:   Eric Auger <eric.auger@redhat.com>
-To:     eric.auger.pro@gmail.com, eric.auger@redhat.com,
-        stable@vger.kernel.org, maz@kernel.org,
-        linux-kernel@vger.kernel.org, kvmarm@lists.cs.columbia.edu
-Subject: [PATCH] KVM: arm64: pmu: Don't increment SW_INCR if PMCR.E is unset
-Date:   Mon,  2 Mar 2020 10:20:25 +0100
-Message-Id: <20200302092025.22321-1-eric.auger@redhat.com>
+        id S1726654AbgCBJ0p convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Mon, 2 Mar 2020 04:26:45 -0500
+Received: from relay11.mail.gandi.net ([217.70.178.231]:33871 "EHLO
+        relay11.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726382AbgCBJ0p (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 2 Mar 2020 04:26:45 -0500
+Received: from xps13 (lfbn-tou-1-1473-158.w90-89.abo.wanadoo.fr [90.89.41.158])
+        (Authenticated sender: miquel.raynal@bootlin.com)
+        by relay11.mail.gandi.net (Postfix) with ESMTPSA id 0E16D10000F;
+        Mon,  2 Mar 2020 09:26:42 +0000 (UTC)
+Date:   Mon, 2 Mar 2020 10:26:42 +0100
+From:   Miquel Raynal <miquel.raynal@bootlin.com>
+To:     Paul Cercueil <paul@crapouillou.net>
+Cc:     Harvey Hunt <harveyhuntnexus@gmail.com>,
+        Richard Weinberger <richard@nod.at>,
+        Vignesh Raghavendra <vigneshr@ti.com>, od@zcrc.me,
+        linux-mtd@lists.infradead.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH] mtd: rawnand: ingenic: Fix unmet dependency if
+ COMPILE_TEST
+Message-ID: <20200302102642.1191e8b1@xps13>
+In-Reply-To: <20200229160443.11208-1-paul@crapouillou.net>
+References: <20200229160443.11208-1-paul@crapouillou.net>
+Organization: Bootlin
+X-Mailer: Claws Mail 3.17.4 (GTK+ 2.24.32; x86_64-pc-linux-gnu)
 MIME-Version: 1.0
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit 3837407c1aa1 upstream.
+Hi Paul,
 
-The specification says PMSWINC increments PMEVCNTR<n>_EL1 by 1
-if PMEVCNTR<n>_EL0 is enabled and configured to count SW_INCR.
+Paul Cercueil <paul@crapouillou.net> wrote on Sat, 29 Feb 2020 13:04:43
+-0300:
 
-For PMEVCNTR<n>_EL0 to be enabled, we need both PMCNTENSET to
-be set for the corresponding event counter but we also need
-the PMCR.E bit to be set.
+> Commit 7c779cf7c1f7 ("mtd: rawnand: ingenic: Allow to compile test the
+> new Ingenic driver") dropped the dependency on JZ4780_NEMC when
+> COMPILE_TEST was set, which is wrong, as the driver requires symbols
+> provided by the jz4780-nemc driver.
+> 
+> Change the dependency to (MIPS || COMPILE_TEST) && JZ4780_NEMC to
+> address the issue.
 
-Fixes: 7a0adc7064b8 ("arm64: KVM: Add access handler for PMSWINC register=
-")
-Signed-off-by: Eric Auger <eric.auger@redhat.com>
-Cc: <stable@vger.kernel.org> # 4.14 only
+That was simple actually, thanks for finding the solution. Actually I
+don't think I mergeg my own patch as it was creating this build issue
+(unless I messed with something :) ) so can you please send a patch
+just adding COMPILE_TEST support without any Fixes mention?
 
----
+> 
+> Fixes: 7c779cf7c1f7 ("mtd: rawnand: ingenic: Allow to compile test the new Ingenic driver")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+> ---
+>  drivers/mtd/nand/raw/ingenic/Kconfig | 3 ++-
+>  1 file changed, 2 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/mtd/nand/raw/ingenic/Kconfig b/drivers/mtd/nand/raw/ingenic/Kconfig
+> index 485abfa3f80b..96c5ae8b1bbc 100644
+> --- a/drivers/mtd/nand/raw/ingenic/Kconfig
+> +++ b/drivers/mtd/nand/raw/ingenic/Kconfig
+> @@ -1,7 +1,8 @@
+>  # SPDX-License-Identifier: GPL-2.0-only
+>  config MTD_NAND_JZ4780
+>  	tristate "JZ4780 NAND controller"
+> -	depends on JZ4780_NEMC || COMPILE_TEST
+> +	depends on MIPS || COMPILE_TEST
+> +	depends on JZ4780_NEMC
+>  	help
+>  	  Enables support for NAND Flash connected to the NEMC on JZ4780 SoC
+>  	  based boards, using the BCH controller for hardware error correction.
 
-This is a backport of 3837407c1aa1 ("KVM: arm64: pmu: Don't
-increment SW_INCR if PMCR.E is unset") which did not apply on
-4.14-stable. Compared to the original patch
-__vcpu_sys_reg() is replaced by vcpu_sys_reg().
----
- virt/kvm/arm/pmu.c | 3 +++
- 1 file changed, 3 insertions(+)
-
-diff --git a/virt/kvm/arm/pmu.c b/virt/kvm/arm/pmu.c
-index 8a9c42366db7..3998add436da 100644
---- a/virt/kvm/arm/pmu.c
-+++ b/virt/kvm/arm/pmu.c
-@@ -316,6 +316,9 @@ void kvm_pmu_software_increment(struct kvm_vcpu *vcpu=
-, u64 val)
- 	if (val =3D=3D 0)
- 		return;
-=20
-+	if (!(vcpu_sys_reg(vcpu, PMCR_EL0) & ARMV8_PMU_PMCR_E))
-+		return;
-+
- 	enable =3D vcpu_sys_reg(vcpu, PMCNTENSET_EL0);
- 	for (i =3D 0; i < ARMV8_PMU_CYCLE_IDX; i++) {
- 		if (!(val & BIT(i)))
---=20
-2.20.1
-
+Thanks,
+Miquèl
