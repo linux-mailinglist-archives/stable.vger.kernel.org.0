@@ -2,111 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 84D2417563D
-	for <lists+stable@lfdr.de>; Mon,  2 Mar 2020 09:45:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C483E1756D1
+	for <lists+stable@lfdr.de>; Mon,  2 Mar 2020 10:20:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727115AbgCBIpv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Mar 2020 03:45:51 -0500
-Received: from mo4-p01-ob.smtp.rzone.de ([81.169.146.165]:25169 "EHLO
-        mo4-p01-ob.smtp.rzone.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726887AbgCBIpu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 2 Mar 2020 03:45:50 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; t=1583138748;
-        s=strato-dkim-0002; d=hartkopp.net;
-        h=In-Reply-To:Date:Message-ID:From:References:Cc:To:Subject:
-        X-RZG-CLASS-ID:X-RZG-AUTH:From:Subject:Sender;
-        bh=i6p9takFexSOT22m46ceOwKe8WY7h5G2l56FIqviAtA=;
-        b=qGKAj/4tM54AZMKYBr8pPEuqO62tFP20adXro6V6a953IFBJ0rDpPKcyx98abw2KHw
-        Oym8mdrUpp33svWWu5IYAygWMQaw6X0dax8FPMU9jJp84kl9upQF0BhGFpciTayQoaEA
-        8gPXPyp8vf8PYHoN8K2ndQvC8+F586mzfvJxUiBFo1p1KL39Glvfiu4Rl/FrA6okLvgU
-        3QGPlVqnmvffxEvtfzC7fInghLXLPMaH9IByZ4TU61W8IEj66PchqskOrOkpLUcOd3mp
-        IV3rIKOWLNFeTxqFfO07WTcZG2B2ogZHTDxuO6jxQIM5L5IfdWE8LfSu1C2K9gBxBAn3
-        86bg==
-X-RZG-AUTH: ":P2MHfkW8eP4Mre39l357AZT/I7AY/7nT2yrDxb8mjG14FZxedJy6qgO1o3PMaViOoLMJVMh6kEtw"
-X-RZG-CLASS-ID: mo00
-Received: from [192.168.1.177]
-        by smtp.strato.de (RZmta 46.2.0 DYNA|AUTH)
-        with ESMTPSA id e0a4ffw228jf5Af
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256 bits))
-        (Client did not present a certificate);
-        Mon, 2 Mar 2020 09:45:41 +0100 (CET)
-Subject: Re: [PATCH] bonding: do not enslave CAN devices
-To:     David Miller <davem@davemloft.net>, mkl@pengutronix.de
-Cc:     linux-can@vger.kernel.org, netdev@vger.kernel.org,
-        syzbot+c3ea30e1e2485573f953@syzkaller.appspotmail.com,
-        dvyukov@google.com, j.vosburgh@gmail.com, vfalico@gmail.com,
-        andy@greyhouse.net, stable@vger.kernel.org
-References: <20200130133046.2047-1-socketcan@hartkopp.net>
- <767580d8-1c93-907b-609c-4c1c049b7c42@pengutronix.de>
- <20200226.202326.295871777946911500.davem@davemloft.net>
-From:   Oliver Hartkopp <socketcan@hartkopp.net>
-Message-ID: <d6d9368d-b468-3946-ac63-abedf6758154@hartkopp.net>
-Date:   Mon, 2 Mar 2020 09:45:41 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.5.0
+        id S1727076AbgCBJUp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Mar 2020 04:20:45 -0500
+Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:51915 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1726390AbgCBJUp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 2 Mar 2020 04:20:45 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1583140844;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=ZJFxdajhUjFzdrLxSpnS9/s8iz/FeaFiOGrLtEOmsgI=;
+        b=HzF60C8cZ1b1DCgxmiX1JpNKyBE+2YiJB0RYNhZrX3zadT9do/D8L0e6jd1tmplaulGHIX
+        /CsU5pbNLinMmSojg3tBUmgJC+mM9Jyzo5PoD4DvIlY5AQeHtTbXVZqichWxA3rt4ixks0
+        iIfE2N1R+Bh5qGJeDmLZ+vi9QyLns/o=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-295-mnSEhPCwNjSTOH0xBNql0Q-1; Mon, 02 Mar 2020 04:20:40 -0500
+X-MC-Unique: mnSEhPCwNjSTOH0xBNql0Q-1
+Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 59FED189F760;
+        Mon,  2 Mar 2020 09:20:39 +0000 (UTC)
+Received: from laptop.redhat.com (ovpn-116-59.ams2.redhat.com [10.36.116.59])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 2EAE860BF3;
+        Mon,  2 Mar 2020 09:20:34 +0000 (UTC)
+From:   Eric Auger <eric.auger@redhat.com>
+To:     eric.auger.pro@gmail.com, eric.auger@redhat.com,
+        stable@vger.kernel.org, maz@kernel.org,
+        linux-kernel@vger.kernel.org, kvmarm@lists.cs.columbia.edu
+Subject: [PATCH] KVM: arm64: pmu: Don't increment SW_INCR if PMCR.E is unset
+Date:   Mon,  2 Mar 2020 10:20:25 +0100
+Message-Id: <20200302092025.22321-1-eric.auger@redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <20200226.202326.295871777946911500.davem@davemloft.net>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+commit 3837407c1aa1 upstream.
 
+The specification says PMSWINC increments PMEVCNTR<n>_EL1 by 1
+if PMEVCNTR<n>_EL0 is enabled and configured to count SW_INCR.
 
-On 27/02/2020 05.23, David Miller wrote:
-> From: Marc Kleine-Budde <mkl@pengutronix.de>
-> Date: Tue, 25 Feb 2020 21:32:41 +0100
-> 
->> On 1/30/20 2:30 PM, Oliver Hartkopp wrote:
->>> Since commit 8df9ffb888c ("can: make use of preallocated can_ml_priv for per
->>> device struct can_dev_rcv_lists") the device specific CAN receive filter lists
->>> are stored in netdev_priv() and dev->ml_priv points to these filters.
->>>
->>> In the bug report Syzkaller enslaved a vxcan1 CAN device and accessed the
->>> bonding device with a PF_CAN socket which lead to a crash due to an access of
->>> an unhandled bond_dev->ml_priv pointer.
->>>
->>> Deny to enslave CAN devices by the bonding driver as the resulting bond_dev
->>> pretends to be a CAN device by copying dev->type without really being one.
->>>
->>> Reported-by: syzbot+c3ea30e1e2485573f953@syzkaller.appspotmail.com
->>> Fixes: 8df9ffb888c ("can: make use of preallocated can_ml_priv for per
->>> device struct can_dev_rcv_lists")
->>> Cc: linux-stable <stable@vger.kernel.org> # >= v5.4
->>> Signed-off-by: Oliver Hartkopp <socketcan@hartkopp.net>
->> Acked-by: Marc Kleine-Budde <mkl@pengutronix.de>
->>
->> What's the preferred to upstream this? I could take this via the
->> linux-can tree.
-> 
-> What I don't get is why the PF_CAN is blindly dereferencing a device
-> assuming what is behind bond_dev->ml_priv.
-> 
-> If it assumes a device it access is CAN then it should check the
-> device by comparing the netdev_ops or via some other means.
+For PMEVCNTR<n>_EL0 to be enabled, we need both PMCNTENSET to
+be set for the corresponding event counter but we also need
+the PMCR.E bit to be set.
 
-Yes we do.
+Fixes: 7a0adc7064b8 ("arm64: KVM: Add access handler for PMSWINC register=
+")
+Signed-off-by: Eric Auger <eric.auger@redhat.com>
+Cc: <stable@vger.kernel.org> # 4.14 only
 
-> This restriction seems arbitrary.
+---
 
-Since commit 8df9ffb888c the data structures for the CAN filters have 
-been moved from net/can/af_can.c into netdev->ml_priv.
+This is a backport of 3837407c1aa1 ("KVM: arm64: pmu: Don't
+increment SW_INCR if PMCR.E is unset") which did not apply on
+4.14-stable. Compared to the original patch
+__vcpu_sys_reg() is replaced by vcpu_sys_reg().
+---
+ virt/kvm/arm/pmu.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-PF_CAN only works with CAN interfaces and therefore always checks 
-dev->type to be ARPHRD_CAN before accessing netdev->ml_priv.
+diff --git a/virt/kvm/arm/pmu.c b/virt/kvm/arm/pmu.c
+index 8a9c42366db7..3998add436da 100644
+--- a/virt/kvm/arm/pmu.c
++++ b/virt/kvm/arm/pmu.c
+@@ -316,6 +316,9 @@ void kvm_pmu_software_increment(struct kvm_vcpu *vcpu=
+, u64 val)
+ 	if (val =3D=3D 0)
+ 		return;
+=20
++	if (!(vcpu_sys_reg(vcpu, PMCR_EL0) & ARMV8_PMU_PMCR_E))
++		return;
++
+ 	enable =3D vcpu_sys_reg(vcpu, PMCNTENSET_EL0);
+ 	for (i =3D 0; i < ARMV8_PMU_CYCLE_IDX; i++) {
+ 		if (!(val & BIT(i)))
+--=20
+2.20.1
 
-Bonding and Team driver copy most of the device data structures to 
-create bonding/team devices.
-They copy dev->type but *not* dev->ml_priv.
-That leads to the problematic ml_priv access after passing the dev->type 
-check ...
-
-I don't know yet whether it makes sense to have CAN bonding/team 
-devices. But if so we would need some more investigation. For now 
-disabling CAN interfaces for bonding/team devices seems to be reasonable.
-
-Regards,
-Oliver
