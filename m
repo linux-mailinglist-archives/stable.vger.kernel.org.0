@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0AA11176260
-	for <lists+stable@lfdr.de>; Mon,  2 Mar 2020 19:21:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7CE93176262
+	for <lists+stable@lfdr.de>; Mon,  2 Mar 2020 19:21:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727362AbgCBSVY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Mar 2020 13:21:24 -0500
-Received: from wout3-smtp.messagingengine.com ([64.147.123.19]:37215 "EHLO
+        id S1727388AbgCBSV1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Mar 2020 13:21:27 -0500
+Received: from wout3-smtp.messagingengine.com ([64.147.123.19]:41445 "EHLO
         wout3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726997AbgCBSVY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 2 Mar 2020 13:21:24 -0500
+        by vger.kernel.org with ESMTP id S1726997AbgCBSV1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 2 Mar 2020 13:21:27 -0500
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailout.west.internal (Postfix) with ESMTP id CABD376F;
-        Mon,  2 Mar 2020 13:21:23 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Mon, 02 Mar 2020 13:21:23 -0500
+        by mailout.west.internal (Postfix) with ESMTP id CEB847C6;
+        Mon,  2 Mar 2020 13:21:26 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute1.internal (MEProxy); Mon, 02 Mar 2020 13:21:26 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=q49PFZ
-        NIUl2//ZYI7gqsJ7ejGLVKAwsPfxZ1gcc5HKA=; b=vzAp/L9CqXgfaSOTCU4Mho
-        w9yrQ3nk+CkvQNnI6ybwxq+gLSG+5rrtnSWxwYpabmrSrK22OeF2WqiI5vQMURy4
-        UIOGbM0SU4wGEX8/GSzvTQIeQPb97X3+dWJWKo5WcBrlRNKNd+V9VKKXnJ3JN8qm
-        iFGRx04i1A5QyHaPE1fi/JbenCne0pzRNOO6xbppfXAeubhBiwCzR2W12X/xh++g
-        pjt96wmWzxPJoBJD4AGnkGujngjupcXRLEPo3bG8U3oCTrSgdFUPHGJFS9H6iE5s
-        vQswRWgYHQ9gDhbyfUGSBl/W6Yuzl8O0K+qiGW0BZpHJwwvsGRWU/nwABehMU75w
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=Rsivni
+        v1BlmHLqJ2Z+Ec206q/u8X21h6kYrCL/8douQ=; b=ubOacIioDF3Y0e8gMzrCev
+        HSiE0Ula0mtOLZZdCfgyaVQer6HXd6WhTRvI80bb2YKsNPgRU2Cr+ws4D0RIgMPo
+        4e7haRr2uxghhkBeHHAmJI0xdPwYz9XWrLysOuxwyaROkA9PM+r9MM7MCjXlzm+X
+        d2UCtH9i9vU0bS7J3pgN9L23O2e8yrCtr+GMkp0xjZAf4+qeY91ODBmvEwM8hfa9
+        j0XdmjWAdtOeJdarugEeiquQ5kxZhwlk4cGUlVrqMHK+V71q+YW2ByD6Vnw8URdB
+        N87FLCHxk58IROZMnT/Suvqixxcj6KaBk+RvKKLFcZm9Gml448UR1W1UixieR4yg
         ==
-X-ME-Sender: <xms:o05dXj11ySCwGD9enXgEumPi7xQkR-q-p31NQg1olbk_ClpEFJorEA>
+X-ME-Sender: <xms:pk5dXsdsjDvcqh-HtQ7z9d0k03fYgx9DD071gqkR1yN62_w6pzIbCg>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedugedruddtgedgudduvdcutefuodetggdotefrod
     ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
     necuuegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertd
     dttdflnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdho
-    rhhgqeenucfkphepkeefrdekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivgepud
+    rhhgqeenucfkphepkeefrdekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivgepfe
     enucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:o05dXnFo6RB5PQnIqJTHwzzPeOzBODipMBqa7APKm7ERR5Zool9z1A>
-    <xmx:o05dXuxI3EbPvIdgZTmWq5I_-e6HL710c_9jsUrDWn_5e08h9hHhHw>
-    <xmx:o05dXtFY3r66cxttvuYKqKSIOM-5QQC5Qd1_OGa9MJ5vs3e6UJXL1Q>
-    <xmx:o05dXifHJG_EKEAiaQ0bohgGeR2o_pjCbBZKFh1yKaY1tDrjsxqtnw>
+X-ME-Proxy: <xmx:pk5dXqHt3VRrtlZbqySSSIgW6QBE2GpdtbkRI9Se5XjaJQ2SDJzAmg>
+    <xmx:pk5dXqjuMwSbaSTei0QwDaIaTi73pdZ3ifjwE0-UjUqvuThVE_6XKA>
+    <xmx:pk5dXm34mOLd0Jcbz-it_dQIKH8QG45Z6FEAQg8nONFiXob3Jj5h4Q>
+    <xmx:pk5dXu1w7zxPHzn-pxE-mU_cC21foieOEbEaB_M0E5SFQArqSXapeA>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 1E34E328005D;
-        Mon,  2 Mar 2020 13:21:23 -0500 (EST)
-Subject: FAILED: patch "[PATCH] audit: always check the netlink payload length in" failed to apply to 4.14-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 20F64306130A;
+        Mon,  2 Mar 2020 13:21:26 -0500 (EST)
+Subject: FAILED: patch "[PATCH] audit: always check the netlink payload length in" failed to apply to 4.4-stable tree
 To:     paul@paul-moore.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 02 Mar 2020 19:21:12 +0100
-Message-ID: <158317327212544@kroah.com>
+Date:   Mon, 02 Mar 2020 19:21:13 +0100
+Message-ID: <158317327312250@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -56,7 +56,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
