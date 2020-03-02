@@ -2,103 +2,109 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DCE8A1758A5
-	for <lists+stable@lfdr.de>; Mon,  2 Mar 2020 11:50:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E9463175A7D
+	for <lists+stable@lfdr.de>; Mon,  2 Mar 2020 13:28:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727030AbgCBKuS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Mar 2020 05:50:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38580 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726874AbgCBKuS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Mar 2020 05:50:18 -0500
-Received: from disco-boy.misterjones.org (disco-boy.misterjones.org [51.254.78.96])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        id S1727865AbgCBM2q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Mar 2020 07:28:46 -0500
+Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:56975 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1727557AbgCBM2p (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 2 Mar 2020 07:28:45 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1583152124;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=5DG/vW6TCeCX771cIMr5N8VanNi7DmSktqX7A9P5Lf4=;
+        b=VsJemNTsTuZC8xC8GcYvGTsNDuny4AfTVE+m+JgYgUCFwjOMh2BZbr0HoOo/epysYKo11R
+        4cCktcYhLAMpTZKJp87jzhO6aWFvM/Tapx5mutTE9jo8CwgILyAEF3LGzhGf6dSBbV8Ljp
+        iDxBD9K3wKFKQbDkBfGpmwwRAW0jcr8=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-359-GBOwynXFNxyRVY2vU-jPUQ-1; Mon, 02 Mar 2020 07:28:40 -0500
+X-MC-Unique: GBOwynXFNxyRVY2vU-jPUQ-1
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C040621D56;
-        Mon,  2 Mar 2020 10:50:17 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583146217;
-        bh=QKkxS8WJjpnmKv55PdXHGXEQzRWU0qw/v6LjAUUYwkc=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=apw35yfzM2zjjkMW9To2es0BRLYBHJkMuR74KOS1gavu46sF8VomI0v9ERJ1AdxEf
-         z9cq7bbSp3IHagBY9cF40MsPOULuh8Mk25sHzsBUSkltrEu1cL3xhZH8r0au7VoJkD
-         MS0xUlrCLV7UOzug/UkAQCqFyQ7Vqggwt3QOllK0=
-Received: from disco-boy.misterjones.org ([51.254.78.96] helo=www.loen.fr)
-        by disco-boy.misterjones.org with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        (Exim 4.92)
-        (envelope-from <maz@kernel.org>)
-        id 1j8ieO-009M1L-3I; Mon, 02 Mar 2020 10:50:16 +0000
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 622221B2C988;
+        Mon,  2 Mar 2020 12:28:36 +0000 (UTC)
+Received: from dhcp-27-174.brq.redhat.com (unknown [10.43.17.70])
+        by smtp.corp.redhat.com (Postfix) with SMTP id DA8D99051B;
+        Mon,  2 Mar 2020 12:28:29 +0000 (UTC)
+Received: by dhcp-27-174.brq.redhat.com (nbSMTP-1.00) for uid 1000
+        oleg@redhat.com; Mon,  2 Mar 2020 13:28:36 +0100 (CET)
+Date:   Mon, 2 Mar 2020 13:28:29 +0100
+From:   Oleg Nesterov <oleg@redhat.com>
+To:     Bernd Edlinger <bernd.edlinger@hotmail.de>
+Cc:     Jann Horn <jannh@google.com>,
+        Christian Brauner <christian.brauner@ubuntu.com>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Alexey Dobriyan <adobriyan@gmail.com>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Frederic Weisbecker <frederic@kernel.org>,
+        Andrei Vagin <avagin@gmail.com>,
+        Ingo Molnar <mingo@kernel.org>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Yuyang Du <duyuyang@gmail.com>,
+        David Hildenbrand <david@redhat.com>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Anshuman Khandual <anshuman.khandual@arm.com>,
+        David Howells <dhowells@redhat.com>,
+        James Morris <jamorris@linux.microsoft.com>,
+        Kees Cook <keescook@chromium.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Shakeel Butt <shakeelb@google.com>,
+        Jason Gunthorpe <jgg@ziepe.ca>,
+        Christian Kellner <christian@kellner.me>,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        Aleksa Sarai <cyphar@cyphar.com>,
+        "Dmitry V. Levin" <ldv@altlinux.org>,
+        "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>,
+        "linux-mm@kvack.org" <linux-mm@kvack.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: Re: [PATCHv2] exec: Fix a deadlock in ptrace
+Message-ID: <20200302122828.GA9769@redhat.com>
+References: <AM6PR03MB5170B06F3A2B75EFB98D071AE4E60@AM6PR03MB5170.eurprd03.prod.outlook.com>
+ <CAG48ez3QHVpMJ9Rb_Q4LEE6uAqQJeS1Myu82U=fgvUfoeiscgw@mail.gmail.com>
+ <20200301185244.zkofjus6xtgkx4s3@wittgenstein>
+ <CAG48ez3mnYc84iFCA25-rbJdSBi3jh9hkp569XZTbFc_9WYbZw@mail.gmail.com>
+ <AM6PR03MB5170EB4427BF5C67EE98FF09E4E60@AM6PR03MB5170.eurprd03.prod.outlook.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
- format=flowed
-Content-Transfer-Encoding: 7bit
-Date:   Mon, 02 Mar 2020 10:50:16 +0000
-From:   Marc Zyngier <maz@kernel.org>
-To:     Eric Auger <eric.auger@redhat.com>
-Cc:     eric.auger.pro@gmail.com, stable@vger.kernel.org,
-        linux-kernel@vger.kernel.org, kvmarm@lists.cs.columbia.edu
-Subject: Re: [PATCH v2] KVM: arm64: pmu: Don't increment SW_INCR if PMCR.E is
- unset
-In-Reply-To: <20200302104830.5593-1-eric.auger@redhat.com>
-References: <20200302104830.5593-1-eric.auger@redhat.com>
-Message-ID: <50e04eb9bcd607c6729919d70ae7e82f@kernel.org>
-X-Sender: maz@kernel.org
-User-Agent: Roundcube Webmail/1.3.10
-X-SA-Exim-Connect-IP: 51.254.78.96
-X-SA-Exim-Rcpt-To: eric.auger@redhat.com, eric.auger.pro@gmail.com, stable@vger.kernel.org, linux-kernel@vger.kernel.org, kvmarm@lists.cs.columbia.edu
-X-SA-Exim-Mail-From: maz@kernel.org
-X-SA-Exim-Scanned: No (on disco-boy.misterjones.org); SAEximRunCond expanded to false
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <AM6PR03MB5170EB4427BF5C67EE98FF09E4E60@AM6PR03MB5170.eurprd03.prod.outlook.com>
+User-Agent: Mutt/1.5.24 (2015-08-30)
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2020-03-02 10:48, Eric Auger wrote:
-> commit 3837407c1aa1 upstream.
-> 
-> The specification says PMSWINC increments PMEVCNTR<n>_EL1 by 1
-> if PMEVCNTR<n>_EL0 is enabled and configured to count SW_INCR.
-> 
-> For PMEVCNTR<n>_EL0 to be enabled, we need both PMCNTENSET to
-> be set for the corresponding event counter but we also need
-> the PMCR.E bit to be set.
-> 
-> Fixes: 7a0adc7064b8 ("arm64: KVM: Add access handler for PMSWINC 
-> register")
-> Signed-off-by: Eric Auger <eric.auger@redhat.com>
-> Cc: <stable@vger.kernel.org> # 4.9 and 4.14 only
+On 03/01, Bernd Edlinger wrote:
+>
+> This fixes a deadlock in the tracer when tracing a multi-threaded
+> application that calls execve while more than one thread are running.
 
-Reviewed-by: Marc Zyngier <maz@kernel.org>
+Heh. Yes, known problem. See my attempt to fix it:
+https://lore.kernel.org/lkml/20170213141452.GA30203@redhat.com/
 
-> 
-> ---
-> 
-> This is a backport of 3837407c1aa1 ("KVM: arm64: pmu: Don't
-> increment SW_INCR if PMCR.E is unset") which did not apply on
-> 4.9-stable and 4.14-stable trees. Compared to the original patch
-> __vcpu_sys_reg() is replaced by vcpu_sys_reg().
-> 
-> v1 -> v2:
-> - this patch also is candidate for 4.9-stable
-> ---
->  virt/kvm/arm/pmu.c | 3 +++
->  1 file changed, 3 insertions(+)
-> 
-> diff --git a/virt/kvm/arm/pmu.c b/virt/kvm/arm/pmu.c
-> index 69ccce308458..9a47b0cfb01d 100644
-> --- a/virt/kvm/arm/pmu.c
-> +++ b/virt/kvm/arm/pmu.c
-> @@ -299,6 +299,9 @@ void kvm_pmu_software_increment(struct kvm_vcpu
-> *vcpu, u64 val)
->  	if (val == 0)
->  		return;
-> 
-> +	if (!(vcpu_sys_reg(vcpu, PMCR_EL0) & ARMV8_PMU_PMCR_E))
-> +		return;
-> +
->  	enable = vcpu_sys_reg(vcpu, PMCNTENSET_EL0);
->  	for (i = 0; i < ARMV8_PMU_CYCLE_IDX; i++) {
->  		if (!(val & BIT(i)))
+> @@ -1224,7 +1224,7 @@ struct mm_struct *mm_access(struct task_struct *task, unsigned int mode)
+>  	struct mm_struct *mm;
+>  	int err;
+>  
+> -	err =  mutex_lock_killable(&task->signal->cred_guard_mutex);
+> +	err =  mutex_lock_killable(&task->signal->cred_change_mutex);
 
--- 
-Jazz is not dead. It just smells funny...
+So if I understand correctly your patch doesn't fix other problems
+with debugger waiting for cred_guard_mutex.
+
+I too do not think this can justify the new mutex in signal_struct...
+
+Oleg.
+
