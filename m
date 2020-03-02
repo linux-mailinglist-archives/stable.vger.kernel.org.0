@@ -2,136 +2,168 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 501F0175BF5
-	for <lists+stable@lfdr.de>; Mon,  2 Mar 2020 14:42:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 35652175C02
+	for <lists+stable@lfdr.de>; Mon,  2 Mar 2020 14:45:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727799AbgCBNmH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Mar 2020 08:42:07 -0500
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:49344 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727768AbgCBNmH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 2 Mar 2020 08:42:07 -0500
-Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 022Da5Ug016346
-        for <stable@vger.kernel.org>; Mon, 2 Mar 2020 08:42:06 -0500
-Received: from e06smtp04.uk.ibm.com (e06smtp04.uk.ibm.com [195.75.94.100])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2yfmg00e4v-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <stable@vger.kernel.org>; Mon, 02 Mar 2020 08:42:02 -0500
-Received: from localhost
-        by e06smtp04.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <stable@vger.kernel.org> from <zohar@linux.ibm.com>;
-        Mon, 2 Mar 2020 13:41:53 -0000
-Received: from b06cxnps3075.portsmouth.uk.ibm.com (9.149.109.195)
-        by e06smtp04.uk.ibm.com (192.168.101.134) with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted;
-        (version=TLSv1/SSLv3 cipher=AES256-GCM-SHA384 bits=256/256)
-        Mon, 2 Mar 2020 13:41:49 -0000
-Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
-        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 022Dfm5K59572276
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 2 Mar 2020 13:41:48 GMT
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 9644D11C04A;
-        Mon,  2 Mar 2020 13:41:48 +0000 (GMT)
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 87F6B11C050;
-        Mon,  2 Mar 2020 13:41:47 +0000 (GMT)
-Received: from localhost.localdomain (unknown [9.80.229.179])
-        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Mon,  2 Mar 2020 13:41:47 +0000 (GMT)
-Subject: Re: [PATCH v3 2/8] ima: Switch to ima_hash_algo for boot aggregate
-From:   Mimi Zohar <zohar@linux.ibm.com>
-To:     Roberto Sassu <roberto.sassu@huawei.com>,
-        "James.Bottomley@HansenPartnership.com" 
-        <James.Bottomley@HansenPartnership.com>,
-        "jarkko.sakkinen@linux.intel.com" <jarkko.sakkinen@linux.intel.com>,
-        Dmitry Kasatkin <dmitry.kasatkin@gmail.com>
-Cc:     "linux-integrity@vger.kernel.org" <linux-integrity@vger.kernel.org>,
-        "linux-security-module@vger.kernel.org" 
-        <linux-security-module@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Silviu Vlasceanu <Silviu.Vlasceanu@huawei.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Date:   Mon, 02 Mar 2020 08:41:46 -0500
-In-Reply-To: <6955307747034265bd282bf68c368f34@huawei.com>
-References: <20200210100048.21448-1-roberto.sassu@huawei.com>
-         <20200210100048.21448-3-roberto.sassu@huawei.com>
-         <1581373420.5585.920.camel@linux.ibm.com>
-         <6955307747034265bd282bf68c368f34@huawei.com>
-Content-Type: text/plain; charset="UTF-8"
-X-Mailer: Evolution 3.20.5 (3.20.5-1.fc24) 
-Mime-Version: 1.0
+        id S1727779AbgCBNpD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Mar 2020 08:45:03 -0500
+Received: from mail.fireflyinternet.com ([109.228.58.192]:56021 "EHLO
+        fireflyinternet.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1727769AbgCBNpD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 2 Mar 2020 08:45:03 -0500
+X-Default-Received-SPF: pass (skip=forwardok (res=PASS)) x-ip-name=78.156.65.138;
+Received: from haswell.alporthouse.com (unverified [78.156.65.138]) 
+        by fireflyinternet.com (Firefly Internet (M1)) with ESMTP id 20413386-1500050 
+        for multiple; Mon, 02 Mar 2020 13:44:57 +0000
+From:   Chris Wilson <chris@chris-wilson.co.uk>
+To:     linux-rtc@vger.kernel.org
+Cc:     linux-kernel@vger.kernel.org,
+        Chris Wilson <chris@chris-wilson.co.uk>,
+        Zhang Rui <rui.zhang@intel.com>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Alessandro Zummo <a.zummo@towertech.it>, stable@vger.kernel.org
+Subject: [PATCH] rtc/cmos: Protect rtc_lock from interrupts
+Date:   Mon,  2 Mar 2020 13:44:55 +0000
+Message-Id: <20200302134455.318328-1-chris@chris-wilson.co.uk>
+X-Mailer: git-send-email 2.25.1
+MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-x-cbid: 20030213-0016-0000-0000-000002EC466F
-X-IBM-AV-DETECTION: SAVI=unused REMOTE=unused XFE=unused
-x-cbparentid: 20030213-0017-0000-0000-0000334F8904
-Message-Id: <1583156506.8544.60.camel@linux.ibm.com>
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.138,18.0.572
- definitions=2020-03-02_04:2020-03-02,2020-03-02 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=999 clxscore=1015
- lowpriorityscore=0 malwarescore=0 adultscore=0 suspectscore=0
- priorityscore=1501 spamscore=0 mlxscore=0 bulkscore=0 phishscore=0
- impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2001150001 definitions=main-2003020101
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 2020-02-11 at 10:09 +0000, Roberto Sassu wrote:
-> > -----Original Message-----
+cmos_interrrupt() is called directly on resume paths, and by the
+irqhandler. It currently assumes that it can only be invoked directly
+from a hardirq, and so leads to the lockdep splat:
 
-Please find/use a mailer that doesn't include this junk.
+<4>[  259.166718] WARNING: inconsistent lock state
+<4>[  259.166725] 5.6.0-rc3-CI-CI_DRM_8038+ #1 Tainted: G     U
+<4>[  259.166727] --------------------------------
+<4>[  259.166731] inconsistent {IN-HARDIRQ-W} -> {HARDIRQ-ON-W} usage.
+<4>[  259.166741] rtcwake/4221 [HC0[0]:SC0[0]:HE1:SE1] takes:
+<4>[  259.166745] ffffffff82635198 (rtc_lock){?...}, at: cmos_interrupt+0x18/0x100
+<4>[  259.166768] {IN-HARDIRQ-W} state was registered at:
+<4>[  259.166780]   lock_acquire+0xa7/0x1c0
+<4>[  259.166790]   _raw_spin_lock+0x2a/0x40
+<4>[  259.166799]   cmos_interrupt+0x18/0x100
+<4>[  259.166808]   rtc_handler+0x75/0xc0
+<4>[  259.166822]   acpi_ev_fixed_event_detect+0xf9/0x132
+<4>[  259.166829]   acpi_ev_sci_xrupt_handler+0xb/0x28
+<4>[  259.166838]   acpi_irq+0x13/0x30
+<4>[  259.166849]   __handle_irq_event_percpu+0x41/0x2c0
+<4>[  259.166859]   handle_irq_event_percpu+0x2b/0x70
+<4>[  259.166868]   handle_irq_event+0x2f/0x50
+<4>[  259.166875]   handle_fasteoi_irq+0x8e/0x150
+<4>[  259.166883]   do_IRQ+0x7e/0x160
+<4>[  259.166891]   ret_from_intr+0x0/0x35
+<4>[  259.166898]   mwait_idle+0x7e/0x200
+<4>[  259.166905]   do_idle+0x1bb/0x260
+<4>[  259.166912]   cpu_startup_entry+0x14/0x20
+<4>[  259.166921]   start_secondary+0x15f/0x1b0
+<4>[  259.166929]   secondary_startup_64+0xa4/0xb0
+<4>[  259.167264] irq event stamp: 41593
+<4>[  259.167275] hardirqs last  enabled at (41593): [<ffffffff81a394e7>] _raw_spin_unlock_irqrestore+0x47/0x60
+<4>[  259.167285] hardirqs last disabled at (41592): [<ffffffff81a3926d>] _raw_spin_lock_irqsave+0xd/0x50
+<4>[  259.167296] softirqs last  enabled at (41568): [<ffffffff81e00385>] __do_softirq+0x385/0x47f
+<4>[  259.167306] softirqs last disabled at (41561): [<ffffffff810babaa>] irq_exit+0xba/0xc0
+<4>[  259.167309]
+                  other info that might help us debug this:
+<4>[  259.167312]  Possible unsafe locking scenario:
 
-> > On Mon, 2020-02-10 at 11:00 +0100, Roberto Sassu wrote:
-> > > boot_aggregate is the first entry of IMA measurement list. Its purpose is
-> > > to link pre-boot measurements to IMA measurements. As IMA was
-> > designed to
-> > > work with a TPM 1.2, the SHA1 PCR bank was always selected.
-> > >
-> > > Currently, even if a TPM 2.0 is used, the SHA1 PCR bank is selected.
-> > > However, the assumption that the SHA1 PCR bank is always available is not
-> > > correct, as PCR banks can be selected with the PCR_Allocate() TPM
-> > command.
-> > >
-> > > This patch tries to use ima_hash_algo as hash algorithm for
-> > boot_aggregate.
-> > > If no PCR bank uses that algorithm, the patch tries to find the SHA256 PCR
-> > > bank (which is mandatory in the TCG PC Client specification).
-> > 
-> > Up to here, the patch description matches the code.
-> > > If also this
-> > > bank is not found, the patch selects the first one. If the TPM algorithm
-> > > of that bank is not mapped to a crypto ID, boot_aggregate is set to zero.
-> > 
-> > This comment and the one inline are left over from previous version.
-> 
-> Hi Mimi
-> 
-> actually the code does what is described above. bank_idx is initially
-> set to zero and remains as it is if there is no PCR bank for the default
-> IMA algorithm or SHA256.
+<4>[  259.167314]        CPU0
+<4>[  259.167316]        ----
+<4>[  259.167319]   lock(rtc_lock);
+<4>[  259.167324]   <Interrupt>
+<4>[  259.167326]     lock(rtc_lock);
+<4>[  259.167332]
+                   *** DEADLOCK ***
 
-Sorry for the delay in continuing to review this patch set.  It took a
-while to write ima-evm-utils regression tests for it.
+<4>[  259.167337] 6 locks held by rtcwake/4221:
+<4>[  259.167665]  #0: ffff888175e89408 (sb_writers#5){.+.+}, at: vfs_write+0x1a4/0x1d0
+<4>[  259.167687]  #1: ffff88816e112080 (&of->mutex){+.+.}, at: kernfs_fop_write+0xdd/0x1b0
+<4>[  259.167706]  #2: ffff888179be85e0 (kn->count#236){.+.+}, at: kernfs_fop_write+0xe6/0x1b0
+<4>[  259.167728]  #3: ffffffff82641e00 (system_transition_mutex){+.+.}, at: pm_suspend+0xb3/0x3b0
+<4>[  259.167748]  #4: ffffffff826b3ea0 (acpi_scan_lock){+.+.}, at: acpi_suspend_begin+0x47/0x80
+<4>[  259.167763]  #5: ffff888178f6b960 (&dev->mutex){....}, at: device_resume+0x92/0x1c0
+<4>[  259.167778]
+                  stack backtrace:
+<4>[  259.167788] CPU: 1 PID: 4221 Comm: rtcwake Tainted: G     U            5.6.0-rc3-CI-CI_DRM_8038+ #1
+<4>[  259.168106] Hardware name: Google Soraka/Soraka, BIOS MrChromebox-4.10 08/25/2019
+<4>[  259.168110] Call Trace:
+<4>[  259.168123]  dump_stack+0x71/0x9b
+<4>[  259.168133]  mark_lock+0x49a/0x500
+<4>[  259.168457]  ? print_shortest_lock_dependencies+0x200/0x200
+<4>[  259.168469]  __lock_acquire+0x6d4/0x15d0
+<4>[  259.168479]  ? __lock_acquire+0x460/0x15d0
+<4>[  259.168490]  lock_acquire+0xa7/0x1c0
+<4>[  259.168500]  ? cmos_interrupt+0x18/0x100
+<4>[  259.168824]  _raw_spin_lock+0x2a/0x40
+<4>[  259.168834]  ? cmos_interrupt+0x18/0x100
+<4>[  259.168843]  cmos_interrupt+0x18/0x100
+<4>[  259.169159]  cmos_resume+0x1fd/0x290
+<4>[  259.169174]  ? __acpi_pm_set_device_wakeup+0x24/0x100
+<4>[  259.169498]  pnp_bus_resume+0x5e/0x90
+<4>[  259.169509]  ? pnp_bus_suspend+0x10/0x10
+<4>[  259.169518]  dpm_run_callback+0x64/0x280
+<4>[  259.169530]  device_resume+0xd4/0x1c0
+<4>[  259.169540]  ? dpm_watchdog_set+0x60/0x60
+<4>[  259.169860]  dpm_resume+0x106/0x410
+<4>[  259.169870]  ? dpm_resume_early+0x38c/0x3e0
+<4>[  259.169881]  dpm_resume_end+0x8/0x10
+<4>[  259.170195]  suspend_devices_and_enter+0x16f/0xbe0
+<4>[  259.170211]  ? rcu_read_lock_sched_held+0x4d/0x80
+<4>[  259.170528]  pm_suspend+0x344/0x3b0
+<4>[  259.170542]  state_store+0x78/0xe0
+<4>[  259.170559]  kernfs_fop_write+0x112/0x1b0
+<4>[  259.170579]  vfs_write+0xb9/0x1d0
+<4>[  259.170896]  ksys_write+0x9f/0xe0
+<4>[  259.170907]  do_syscall_64+0x4f/0x220
+<4>[  259.170918]  entry_SYSCALL_64_after_hwframe+0x49/0xbe
+<4>[  259.171229] RIP: 0033:0x7f9b4f3cb154
+<4>[  259.171240] Code: 89 02 48 c7 c0 ff ff ff ff c3 66 2e 0f 1f 84 00 00 00 00 00 66 90 48 8d 05 b1 07 2e 00 8b 00 85 c0 75 13 b8 01 00 00 00 0f 05 <48> 3d 00 f0 ff ff 77 54 f3 c3 66 90 41 54 55 49 89 d4 53 48 89 f5
+<4>[  259.171245] RSP: 002b:00007ffc057ce438 EFLAGS: 00000246 ORIG_RAX: 0000000000000001
+<4>[  259.171253] RAX: ffffffffffffffda RBX: 0000000000000004 RCX: 00007f9b4f3cb154
+<4>[  259.171257] RDX: 0000000000000004 RSI: 000055f4b3d185a0 RDI: 000000000000000a
+<4>[  259.171572] RBP: 000055f4b3d185a0 R08: 000055f4b3d165e0 R09: 00007f9b4fab7740
+<4>[  259.171576] R10: 000055f4b3d14010 R11: 0000000000000246 R12: 000055f4b3d16500
+<4>[  259.171580] R13: 0000000000000004 R14: 00007f9b4f6a32a0 R15: 00007f9b4f6a2760
 
-Dmitry and you were the ones that initiated ima-evm-utils, saying
-there should a single package for signing files and integrity testing.
- The features in ima-evm-utils should reflect what is actually
-upstreamed in the kernel.  (Currently there are a few experimental
-features which were never upstreamed.  I'd like to remove them, but am
-a bit concerned that they are being used.)  I'd appreciate your help
-in keeping ima-evm-utils up to date.  It will help simplify
-upstreaming new kernel features.
+Fixes: c6d3a278cc12 ("rtc: cmos: acknowledge ACPI driven wake alarms upon resume")
+Fixes: 311ee9c151ad ("rtc: cmos: allow using ACPI for RTC alarm instead of HPET")
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: Zhang Rui <rui.zhang@intel.com>
+Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>
+Cc: <stable@vger.kernel.org> # v4.18+
+---
+ drivers/rtc/rtc-cmos.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-My initial patch attempted to use any common TPM and kernel hash
-algorithm to calculate the boot_aggregate.  The discussion with James
-was pretty clear, which you even stated in the Changelog.  Either we
-use the IMA default hash algorithm, SHA256 for TPM 2.0 or SHA1 for TPM
-1.2 for the boot-aggregate.
-
-thanks,
-
-Mimi
+diff --git a/drivers/rtc/rtc-cmos.c b/drivers/rtc/rtc-cmos.c
+index b795fe4cbd2e..7754225c6f9d 100644
+--- a/drivers/rtc/rtc-cmos.c
++++ b/drivers/rtc/rtc-cmos.c
+@@ -651,8 +651,9 @@ static irqreturn_t cmos_interrupt(int irq, void *p)
+ {
+ 	u8		irqstat;
+ 	u8		rtc_control;
++	unsigned long	flags;
+ 
+-	spin_lock(&rtc_lock);
++	spin_lock_irqsave(&rtc_lock, flags);
+ 
+ 	/* When the HPET interrupt handler calls us, the interrupt
+ 	 * status is passed as arg1 instead of the irq number.  But
+@@ -686,7 +687,7 @@ static irqreturn_t cmos_interrupt(int irq, void *p)
+ 			hpet_mask_rtc_irq_bit(RTC_AIE);
+ 		CMOS_READ(RTC_INTR_FLAGS);
+ 	}
+-	spin_unlock(&rtc_lock);
++	spin_unlock_irqrestore(&rtc_lock, flags);
+ 
+ 	if (is_intr(irqstat)) {
+ 		rtc_update_irq(p, 1, irqstat);
+-- 
+2.25.1
 
