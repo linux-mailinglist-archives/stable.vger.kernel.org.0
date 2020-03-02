@@ -2,93 +2,93 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C3DFA175822
-	for <lists+stable@lfdr.de>; Mon,  2 Mar 2020 11:17:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 58B8A1758A2
+	for <lists+stable@lfdr.de>; Mon,  2 Mar 2020 11:48:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727384AbgCBKRW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Mar 2020 05:17:22 -0500
-Received: from mail-ed1-f68.google.com ([209.85.208.68]:45341 "EHLO
-        mail-ed1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727027AbgCBKRW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 2 Mar 2020 05:17:22 -0500
-Received: by mail-ed1-f68.google.com with SMTP id h62so10698127edd.12
-        for <stable@vger.kernel.org>; Mon, 02 Mar 2020 02:17:21 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:sender:from:date:message-id:subject:to
-         :content-transfer-encoding;
-        bh=3WwOcfvgemmr5i/cZA/DzK+3Qq8QC62Si7isLBGEmjA=;
-        b=o9MF5VVRN/T8rzmTpQKkfG/7ju63V2jTwsX+jga4yZiNMnOG2L9QgMSpMXRCgUpuV0
-         G9S03lg8M7YBVN9YU4yO7t6w6httoaEuyRGyhutrnRH0zD54wH/5F7fMIklClhsAoKOe
-         aY0evyzBbun6NXdbdV+/i2jyLNAwAvAzYqhzK7MnK9XFVp/UfN/C7iN15Pt4K57jjdhY
-         cb9lFpIeJ2QPnoq6JhY9s1uXP4bkIb2fCF7UrFQSo8gTdU8xHR1Dlo58p0Og30K7HdZb
-         bZceLiS5+a66mkqrwLg86a6qaL3LweseHMoIThgh1f7GmG0jjRiDskJhHz6+Gweuxtz2
-         2MHw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:sender:from:date
-         :message-id:subject:to:content-transfer-encoding;
-        bh=3WwOcfvgemmr5i/cZA/DzK+3Qq8QC62Si7isLBGEmjA=;
-        b=K6d8Xg2vLojxoWkGxWz5EvXsj7+CckeLt4UrXHwxEtcObEbEkm9/QkixAmn/Z2sDYe
-         cKZ6PWJaJTBP9WwoP6yanK/5CQxjq8btGCDNAqbUv1sxno+wy7PAIWvl59ZxWdletjRh
-         R9+Alx+Z5ui3+or9l2BlYYpyQ9wq1OjCplKH3SiZjHyqzHR+zhd4rXr3Re3jc9mh3bnB
-         PEMnGFeqshco1KQC1fN1SJypiqiMj+/hITqySefT5ZnBFUBs7nTmmdDxN3axCseBGta/
-         uAGCbo8SG5rUeuB2MXIbrW+y8Ho2IzNKiOPz+4URsFry59m2BbLVwANn5i8VqF7OUpPD
-         FKiA==
-X-Gm-Message-State: APjAAAWe5BIY0+Y17/UdUmGTYIjok1seUkqNrHDBYcdzVmD7agCvtGYQ
-        JV5y6eSkv3UsaJNrhehDuuDXkfM/NfzCwTSp9Is=
-X-Google-Smtp-Source: APXvYqy1EpDWMAaZJMy7JPO1SwNM7nrAI60saLmYpko3WZ0+Wh4DvZfmiMaIVl0+WkL8WEJCngjnOpH/eEcEROLR7NE=
-X-Received: by 2002:aa7:c552:: with SMTP id s18mr16021479edr.331.1583144240068;
- Mon, 02 Mar 2020 02:17:20 -0800 (PST)
+        id S1727027AbgCBKso (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Mar 2020 05:48:44 -0500
+Received: from us-smtp-2.mimecast.com ([205.139.110.61]:37515 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726874AbgCBKso (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 2 Mar 2020 05:48:44 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1583146123;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=LKsrmNzxqIzdyp2H8w3HthUMw0Kf4oXWhCVBR9yqA/w=;
+        b=HqIfkHLK2Urw8TamWlekd7dFMMk4YhNxKo7IFZzEQPEfUUpjc9KOFApptM8uLC+Lqlrza8
+        NuZ8wwWm/OmMMiTTMfQLi6E98b0YiTF2E4vR7BX4Yykmm4oINMc5RiOqJ1Q5LINCY5RQMQ
+        UhOf7iFRgB1F29HVOHtqQtgTsghnQog=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-50-AqM1G4mmMVmDG4hR-B1wxA-1; Mon, 02 Mar 2020 05:48:40 -0500
+X-MC-Unique: AqM1G4mmMVmDG4hR-B1wxA-1
+Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id E49AA1005513;
+        Mon,  2 Mar 2020 10:48:38 +0000 (UTC)
+Received: from laptop.redhat.com (ovpn-116-59.ams2.redhat.com [10.36.116.59])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id C7A008D561;
+        Mon,  2 Mar 2020 10:48:34 +0000 (UTC)
+From:   Eric Auger <eric.auger@redhat.com>
+To:     eric.auger.pro@gmail.com, eric.auger@redhat.com,
+        stable@vger.kernel.org, maz@kernel.org,
+        linux-kernel@vger.kernel.org, kvmarm@lists.cs.columbia.edu
+Subject: [PATCH v2] KVM: arm64: pmu: Don't increment SW_INCR if PMCR.E is unset
+Date:   Mon,  2 Mar 2020 11:48:30 +0100
+Message-Id: <20200302104830.5593-1-eric.auger@redhat.com>
 MIME-Version: 1.0
-Reply-To: sebastient766@gmail.com
-Received: by 2002:a17:906:a84f:0:0:0:0 with HTTP; Mon, 2 Mar 2020 02:17:18
- -0800 (PST)
-From:   =?UTF-8?B?TXIuU8OpYmFzdGllbiBUb25p?= <sebastient766@gmail.com>
-Date:   Mon, 2 Mar 2020 02:17:18 -0800
-X-Google-Sender-Auth: 34TXYdcjZk82V67g2dF6jMC-z4o
-Message-ID: <CAHdUPYHths9hu=p9oJGBz8z6cfZpye7B8N1QV0WtY4YGEHV_xg@mail.gmail.com>
-Subject: Attention:My Dear Friend.
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
 Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Attention:My Dear Friend.
+commit 3837407c1aa1 upstream.
 
-I=E2=80=99m sorry but happy to inform you about my success in getting those
-funds transfer under the cooperation of a new partner from India,
-though I tried my best to involve you in the business but God decided
-the whole situations.
+The specification says PMSWINC increments PMEVCNTR<n>_EL1 by 1
+if PMEVCNTR<n>_EL0 is enabled and configured to count SW_INCR.
 
-Presently I=E2=80=99m in India for investment projects with my own share of
-the total sum; I decided to load your compensation fund of US1.860 000.
-one million eight hundred and sixty thoundsand dollars in an atm
-payment card and
-register it with Sonapost Courier Company here in Burkina Faso with
-registration code of (Shipment Code awb33xzs)
+For PMEVCNTR<n>_EL0 to be enabled, we need both PMCNTENSET to
+be set for the corresponding event counter but we also need
+the PMCR.E bit to be set.
 
-Please Contact the delivery manager of Sonapost Courier Company
-through his email address for more update on how to receive your
-compensation fund on ATM PAYMENT VISA CARD,
+Fixes: 7a0adc7064b8 ("arm64: KVM: Add access handler for PMSWINC register=
+")
+Signed-off-by: Eric Auger <eric.auger@redhat.com>
+Cc: <stable@vger.kernel.org> # 4.9 and 4.14 only
 
-Contact them with the reconfirmation of your information below,
+---
 
-1. Your full names.
-2. Your full contact address/country
-3. Your mobile or office phone numbers
-SONAPOST EMAIL ADDRESS BELOW
+This is a backport of 3837407c1aa1 ("KVM: arm64: pmu: Don't
+increment SW_INCR if PMCR.E is unset") which did not apply on
+4.9-stable and 4.14-stable trees. Compared to the original patch
+__vcpu_sys_reg() is replaced by vcpu_sys_reg().
 
-**************************************************************
+v1 -> v2:
+- this patch also is candidate for 4.9-stable
+---
+ virt/kvm/arm/pmu.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-Name of the Director.
-Mr. Salam Ander
-of Sonapost Courier Company
-EMAIL ADDRESS BELOW:
-andermrsalam@gmail.com
+diff --git a/virt/kvm/arm/pmu.c b/virt/kvm/arm/pmu.c
+index 69ccce308458..9a47b0cfb01d 100644
+--- a/virt/kvm/arm/pmu.c
++++ b/virt/kvm/arm/pmu.c
+@@ -299,6 +299,9 @@ void kvm_pmu_software_increment(struct kvm_vcpu *vcpu=
+, u64 val)
+ 	if (val =3D=3D 0)
+ 		return;
+=20
++	if (!(vcpu_sys_reg(vcpu, PMCR_EL0) & ARMV8_PMU_PMCR_E))
++		return;
++
+ 	enable =3D vcpu_sys_reg(vcpu, PMCNTENSET_EL0);
+ 	for (i =3D 0; i < ARMV8_PMU_CYCLE_IDX; i++) {
+ 		if (!(val & BIT(i)))
+--=20
+2.20.1
 
-Best Regards
-Mr.S=C3=A9bastien Toni,
