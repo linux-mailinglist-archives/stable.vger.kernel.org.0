@@ -2,118 +2,172 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 13558175F5E
-	for <lists+stable@lfdr.de>; Mon,  2 Mar 2020 17:19:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 55303176037
+	for <lists+stable@lfdr.de>; Mon,  2 Mar 2020 17:43:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727053AbgCBQTg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Mar 2020 11:19:36 -0500
-Received: from foss.arm.com ([217.140.110.172]:34872 "EHLO foss.arm.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726988AbgCBQTg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Mar 2020 11:19:36 -0500
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 771D72F;
-        Mon,  2 Mar 2020 08:19:35 -0800 (PST)
-Received: from C02TF0J2HF1T.cambridge.arm.com (C02TF0J2HF1T.cambridge.arm.com [10.1.38.135])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id EFD083F534;
-        Mon,  2 Mar 2020 08:19:31 -0800 (PST)
-Date:   Mon, 2 Mar 2020 16:19:29 +0000
-From:   Catalin Marinas <catalin.marinas@arm.com>
-To:     Macpaul Lin <macpaul.lin@mediatek.com>
-Cc:     Sasha Levin <sashal@kernel.org>, Shen Jing <jingx.shen@intel.com>,
-        CC Hwang <cc.hwang@mediatek.com>,
-        Peter Chen <peter.chen@nxp.com>,
-        Mediatek WSD Upstream <wsd_upstream@mediatek.com>,
-        Jerry Zhang <zhangjerry@google.com>, andreyknvl@google.com,
-        linux-usb@vger.kernel.org, Loda Chou <loda.chou@mediatek.com>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Andrzej Pietrasiewicz <andrzej.p@collabora.com>,
-        Miles Chen <miles.chen@mediatek.com>, eugenis@google.com,
-        John Stultz <john.stultz@linaro.org>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        Vincent Pelletier <plr.vincent@gmail.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        linux-mediatek@lists.infradead.org,
-        linux-arm-kernel@lists.infradead.org
-Subject: Re: [PATCH v4] usb: gadget: f_fs: try to fix AIO issue under ARM 64
- bit TAGGED mode
-Message-ID: <20200302161929.GA48767@C02TF0J2HF1T.cambridge.arm.com>
-References: <1582627315-21123-1-git-send-email-macpaul.lin@mediatek.com>
- <1582718512-28923-1-git-send-email-macpaul.lin@mediatek.com>
- <20200228164848.GH4019108@arrakis.emea.arm.com>
- <1583032843.12083.24.camel@mtkswgap22>
+        id S1727304AbgCBQne (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Mar 2020 11:43:34 -0500
+Received: from mail-oi1-f195.google.com ([209.85.167.195]:37396 "EHLO
+        mail-oi1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727192AbgCBQne (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 2 Mar 2020 11:43:34 -0500
+Received: by mail-oi1-f195.google.com with SMTP id 5so5343520oiy.4
+        for <stable@vger.kernel.org>; Mon, 02 Mar 2020 08:43:32 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=7kNUg6jrLRYXBxRwxs+v6id6LKMnX/sXkRxwLGsubN8=;
+        b=G85budQaXfEQvDNWIalbDXyWPGbmN1VgzYIvybMkE6FjzEE9OQ06bKVGmxbSFZLDeZ
+         NCG1SEAjzWEvnPaBKjkeXOiCbefYDCeZuZT/wMi0k0Z8lRMg1ptUkwT9yyguQl1/2S+o
+         jfJxI20+jwJY/A2UlJ9u9Qil4ApszAgT38+jjcvSvG9xoofpBq921uBU19jjtE1+amxO
+         hwunfbFnfCp0nj6pojNjexPVGNkT+8IQLC8KySny/q03clG9aJQnNSB7rlhWMZOdoDcs
+         Tlc1qt9VorvqgYNwFtqnCnSE57RGtJfTiH7WPMYBRl0+W5TnUTvBhMda5uGFAqYj+Yii
+         VzMw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=7kNUg6jrLRYXBxRwxs+v6id6LKMnX/sXkRxwLGsubN8=;
+        b=ufViofOL/4ngmn7Veire/H6Cju/jUPgVjZ8HyEgvjEraQncNooK9DLEBchRPXrqeKh
+         UqHlXsg3U2kkme13ojnKI6TCgAlZocA3ZCwyIK+DplmVRrOwhAPUYeGY85Ef1EbWwdbs
+         V3qS5LlJYenuBiJZ0xE2+YM/LIwJ5eeaQA6jIXxjaz6mDPlmkFoAGPUrICujQj/G/FTD
+         pwJh7lEKnoVWDHx41Fms+AqTG0QhTyJGlZDgrzOllRVqEUAxeP3vTn7sJC4yHJVonfNs
+         0MU6/3MR9o6IecNiXnYjQBBcd2kwZcsTeQtfHfh9ccRo6x4V1OEqffJ3BemRP0fXOnqU
+         nV8A==
+X-Gm-Message-State: ANhLgQ3fkM2GZPkw5TziKDj/lOYOpDKVyRS67UtmQTwXZkvtfGzDJOW9
+        7QS0qZBh+9kGf1EbstNuMlnN8tJWa89nH9PLnWyGww==
+X-Google-Smtp-Source: ADFU+vtCTAmOxkVME2G4uhIibjer5xiSuOaaEPJPm0R3+yIEc30FvCfm1FJmjYEn5prQfE7J5MaCm+kNmricQKurjnA=
+X-Received: by 2002:a05:6808:8d0:: with SMTP id k16mr12043oij.68.1583167412109;
+ Mon, 02 Mar 2020 08:43:32 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1583032843.12083.24.camel@mtkswgap22>
+References: <AM6PR03MB5170B06F3A2B75EFB98D071AE4E60@AM6PR03MB5170.eurprd03.prod.outlook.com>
+ <CAG48ez3QHVpMJ9Rb_Q4LEE6uAqQJeS1Myu82U=fgvUfoeiscgw@mail.gmail.com>
+ <20200301185244.zkofjus6xtgkx4s3@wittgenstein> <CAG48ez3mnYc84iFCA25-rbJdSBi3jh9hkp569XZTbFc_9WYbZw@mail.gmail.com>
+ <AM6PR03MB5170EB4427BF5C67EE98FF09E4E60@AM6PR03MB5170.eurprd03.prod.outlook.com>
+ <87a74zmfc9.fsf@x220.int.ebiederm.org> <AM6PR03MB517071DEF894C3D72D2B4AE2E4E70@AM6PR03MB5170.eurprd03.prod.outlook.com>
+ <87k142lpfz.fsf@x220.int.ebiederm.org> <AM6PR03MB51704206634C009500A8080DE4E70@AM6PR03MB5170.eurprd03.prod.outlook.com>
+ <875zfmloir.fsf@x220.int.ebiederm.org>
+In-Reply-To: <875zfmloir.fsf@x220.int.ebiederm.org>
+From:   Jann Horn <jannh@google.com>
+Date:   Mon, 2 Mar 2020 17:43:05 +0100
+Message-ID: <CAG48ez0iXMD0mduKWHG6GZZoR+s2jXy776zwiRd+tFADCEiBEw@mail.gmail.com>
+Subject: Re: [PATCHv2] exec: Fix a deadlock in ptrace
+To:     "Eric W. Biederman" <ebiederm@xmission.com>,
+        James Morris <jamorris@linux.microsoft.com>
+Cc:     Bernd Edlinger <bernd.edlinger@hotmail.de>,
+        Christian Brauner <christian.brauner@ubuntu.com>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Alexey Dobriyan <adobriyan@gmail.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Oleg Nesterov <oleg@redhat.com>,
+        Frederic Weisbecker <frederic@kernel.org>,
+        Andrei Vagin <avagin@gmail.com>,
+        Ingo Molnar <mingo@kernel.org>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Yuyang Du <duyuyang@gmail.com>,
+        David Hildenbrand <david@redhat.com>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Anshuman Khandual <anshuman.khandual@arm.com>,
+        David Howells <dhowells@redhat.com>,
+        Kees Cook <keescook@chromium.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Shakeel Butt <shakeelb@google.com>,
+        Jason Gunthorpe <jgg@ziepe.ca>,
+        Christian Kellner <christian@kellner.me>,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        Aleksa Sarai <cyphar@cyphar.com>,
+        "Dmitry V. Levin" <ldv@altlinux.org>,
+        "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>,
+        "linux-mm@kvack.org" <linux-mm@kvack.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        linux-security-module <linux-security-module@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Mar 01, 2020 at 11:20:43AM +0800, Macpaul Lin wrote:
-> On Fri, 2020-02-28 at 16:48 +0000, Catalin Marinas wrote:
-> > On Wed, Feb 26, 2020 at 08:01:52PM +0800, Macpaul Lin wrote:
-> > > diff --git a/drivers/usb/gadget/function/f_fs.c b/drivers/usb/gadget/function/f_fs.c
-> > > index ce1d023..192935f 100644
-> > > --- a/drivers/usb/gadget/function/f_fs.c
-> > > +++ b/drivers/usb/gadget/function/f_fs.c
-> > > @@ -715,7 +715,20 @@ static void ffs_epfile_io_complete(struct usb_ep *_ep, struct usb_request *req)
-> > >  
-> > >  static ssize_t ffs_copy_to_iter(void *data, int data_len, struct iov_iter *iter)
-> > >  {
-> > > -	ssize_t ret = copy_to_iter(data, data_len, iter);
-> > > +	ssize_t ret;
-> > > +
-> > > +#if defined(CONFIG_ARM64)
-> > > +	/*
-> > > +	 * Replace tagged address passed by user space application before
-> > > +	 * copying.
-> > > +	 */
-> > > +	if (IS_ENABLED(CONFIG_ARM64_TAGGED_ADDR_ABI) &&
-> > > +		(iter->type == ITER_IOVEC)) {
-> > > +		*(unsigned long *)&iter->iov->iov_base =
-> > > +			(unsigned long)untagged_addr(iter->iov->iov_base);
-> > > +	}
-> > > +#endif
-> > > +	ret = copy_to_iter(data, data_len, iter);
-> > >  	if (likely(ret == data_len))
-> > >  		return ret;
-> > 
-> > I had forgotten that we discussed a similar case already a few months
-> > ago (thanks to Evgenii for pointing out). Do you have this commit
-> > applied to your tree: df325e05a682 ("arm64: Validate tagged addresses in
-> > access_ok() called from kernel threads")?
-> > 
-> 
-> Yes! We have that patch. I've also got Google's reply about referencing
-> this patch in android kernel tree.
-> https://android-review.googlesource.com/c/kernel/common/+/1186615
-> 
-> However, during my debugging process, I've dumped specific length (e.g.,
-> 24 bytes for the first request) AIO request buffer address both in adbd
-> and in __range_ok(). Then I've found __range_ok() still always return
-> false on address begin with "0x3c". Since untagged_addr() already called
-> in __range_ok(), to set "TIF_TAGGED_ADDR" with adbd's user space buffer
-> should be the possible solution. Hence I've send the v3 patch.
+On Mon, Mar 2, 2020 at 5:19 PM Eric W. Biederman <ebiederm@xmission.com> wrote:
+>
+> Bernd Edlinger <bernd.edlinger@hotmail.de> writes:
+>
+> > On 3/2/20 4:57 PM, Eric W. Biederman wrote:
+> >> Bernd Edlinger <bernd.edlinger@hotmail.de> writes:
+> >>
+> >>>
+> >>> I tried this with s/EACCESS/EACCES/.
+> >>>
+> >>> The test case in this patch is not fixed, but strace does not freeze,
+> >>> at least with my setup where it did freeze repeatable.
+> >>
+> >> Thanks, That is what I was aiming at.
+> >>
+> >> So we have one method we can pursue to fix this in practice.
+> >>
+> >>> That is
+> >>> obviously because it bypasses the cred_guard_mutex.  But all other
+> >>> process that access this file still freeze, and cannot be
+> >>> interrupted except with kill -9.
+> >>>
+> >>> However that smells like a denial of service, that this
+> >>> simple test case which can be executed by guest, creates a /proc/$pid/mem
+> >>> that freezes any process, even root, when it looks at it.
+> >>> I mean: "ln -s README /proc/$pid/mem" would be a nice bomb.
+> >>
+> >> Yes.  Your the test case in your patch a variant of the original
+> >> problem.
+> >>
+> >>
+> >> I have been staring at this trying to understand the fundamentals of the
+> >> original deeper problem.
+> >>
+> >> The current scope of cred_guard_mutex in exec is because being ptraced
+> >> causes suid exec to act differently.  So we need to know early if we are
+> >> ptraced.
+> >>
+> >
+> > It has a second use, that it prevents two threads entering execve,
+> > which would probably result in disaster.
+>
+> Exec can fail with an error code up until de_thread.  de_thread causes
+> exec to fail with the error code -EAGAIN for the second thread to get
+> into de_thread.
+>
+> So no.  The cred_guard_mutex is not needed for that case at all.
+>
+> >> If that case did not exist we could reduce the scope of the
+> >> cred_guard_mutex in exec to where your patch puts the cred_change_mutex.
+> >>
+> >> I am starting to think reworking how we deal with ptrace and exec is the
+> >> way to solve this problem.
+>
+>
+> I am 99% convinced that the fix is to move cred_guard_mutex down.
 
-ffs_copy_to_iter() is called from a workqueue (ffs_user_copy_worker()).
-That's still in a kernel thread context but it doesn't have PF_KTHREAD
-set, hence __range_ok() rejects the tagged address. Can you try the diff
-below:
+"move cred_guard_mutex down" as in "take it once we've already set up
+the new process, past the point of no return"?
 
-diff --git a/arch/arm64/include/asm/uaccess.h b/arch/arm64/include/asm/uaccess.h
-index 32fc8061aa76..2803143cad1f 100644
---- a/arch/arm64/include/asm/uaccess.h
-+++ b/arch/arm64/include/asm/uaccess.h
-@@ -68,7 +68,8 @@ static inline unsigned long __range_ok(const void __user *addr, unsigned long si
- 	 * the user address before checking.
- 	 */
- 	if (IS_ENABLED(CONFIG_ARM64_TAGGED_ADDR_ABI) &&
--	    (current->flags & PF_KTHREAD || test_thread_flag(TIF_TAGGED_ADDR)))
-+	    (current->flags & (PF_KTHREAD | PF_WQ_WORKER) ||
-+	     test_thread_flag(TIF_TAGGED_ADDR)))
- 		addr = untagged_addr(addr);
- 
- 	__chk_user_ptr(addr);
--
+> Then right after we take cred_guard_mutex do:
+>         if (ptraced) {
+>                 use_original_creds();
+>         }
+>
+> And call it a day.
+>
+> The details suck but I am 99% certain that would solve everyones
+> problems, and not be too bad to audit either.
+
+Ah, hmm, that sounds like it'll work fine at least when no LSMs are involved.
+
+SELinux normally doesn't do the execution-degrading thing, it just
+blocks the execution completely - see their selinux_bprm_set_creds()
+hook. So I think they'd still need to set some state on the task that
+says "we're currently in the middle of an execution where the target
+task will run in context X", and then check against that in the
+ptrace_may_access hook. Or I suppose they could just kill the task
+near the end of execve, although that'd be kinda ugly.
