@@ -2,54 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A394D174F97
-	for <lists+stable@lfdr.de>; Sun,  1 Mar 2020 21:34:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DBF6A1753F0
+	for <lists+stable@lfdr.de>; Mon,  2 Mar 2020 07:40:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726418AbgCAUeX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 1 Mar 2020 15:34:23 -0500
-Received: from mail-oln040092073043.outbound.protection.outlook.com ([40.92.73.43]:4548
-        "EHLO EUR04-HE1-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1725945AbgCAUeX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 1 Mar 2020 15:34:23 -0500
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=DKViFawXLvf9qaJxEdWd/6tJtHRrLdshqlza/rZWOs3IxmDPGU5WzdLaT0//+/+SigsSx9rbOUfVZW+qqyP5kIZHd4O8AAyWdxw3C1bAHYq0HSqc21Oofy05U2GkNfSAZlLoqGQ3UfjIDN/+PqKAGZ8B8qVgAQ4xu0w8NDjHGpstd+TyUPVshJFgPHaH8mSivWvH4HlSEEatWZYi1iFJiJvX3Dey0pzSqExMzfDG2VPl5PtOv5vDlgdXJo3N3awN/EmN2YapD6UMaHcrApg4QPffJbVaY09X4+OOaXmr/nMzBSIbcef6X24k1Eb6Egip+U161yN3KSRXYbbNTqunWA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=GPdiW8w8JXaj5n8tNG0+e21yw8CsXvCoaSkrbP4ln5A=;
- b=cfBO6jufL6NfSbkUk3cuXFFbamVhcve1MhPfRPCPePC5haHIoC3uF5I/ZQt0SvGMfTnHVuC9dm6/89NgSm3i2MtEggN7Ielz2g4WYLaU155l0fzsfaf7jZoTHiqxg1CULiADclnJ2lNNRQbKdjpVgCDrvFjE8i/Q1wvn8v1lPIa/BuQXiee6gBP3ejtZkt5Fa3J9Y0NKsMUt542B07cxe8Zd/+OAVyNeAw/N08jw5zisUx7ayMmkzVFLKMpHA8i89KtfYlkrxM/HCsIU6wRJvAR24IFslp+sQD4+ySTVs6OshxKZOQOjDPEJZf2VsQLFgJlV8aSWjF2rFVHnMcRICQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=none; dmarc=none;
- dkim=none; arc=none
-Received: from DB3EUR04FT041.eop-eur04.prod.protection.outlook.com
- (2a01:111:e400:7e0c::3c) by
- DB3EUR04HT003.eop-eur04.prod.protection.outlook.com (2a01:111:e400:7e0c::298)
- with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.2772.15; Sun, 1 Mar
- 2020 20:34:16 +0000
-Received: from AM6PR03MB5170.eurprd03.prod.outlook.com (10.152.24.54) by
- DB3EUR04FT041.mail.protection.outlook.com (10.152.25.32) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.2772.15 via Frontend Transport; Sun, 1 Mar 2020 20:34:16 +0000
-Received: from AM6PR03MB5170.eurprd03.prod.outlook.com
- ([fe80::1956:d274:cab3:b4dd]) by AM6PR03MB5170.eurprd03.prod.outlook.com
- ([fe80::1956:d274:cab3:b4dd%6]) with mapi id 15.20.2772.019; Sun, 1 Mar 2020
- 20:34:16 +0000
-Received: from [192.168.1.101] (92.77.140.102) by FRYP281CA0013.DEUP281.PROD.OUTLOOK.COM (2603:10a6:d10::23) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.2772.14 via Frontend Transport; Sun, 1 Mar 2020 20:34:14 +0000
-From:   Bernd Edlinger <bernd.edlinger@hotmail.de>
-To:     Jann Horn <jannh@google.com>,
-        Christian Brauner <christian.brauner@ubuntu.com>
-CC:     Jonathan Corbet <corbet@lwn.net>,
+        id S1726926AbgCBGkf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Mar 2020 01:40:35 -0500
+Received: from out03.mta.xmission.com ([166.70.13.233]:36176 "EHLO
+        out03.mta.xmission.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726204AbgCBGke (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 2 Mar 2020 01:40:34 -0500
+Received: from in01.mta.xmission.com ([166.70.13.51])
+        by out03.mta.xmission.com with esmtps (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        (Exim 4.90_1)
+        (envelope-from <ebiederm@xmission.com>)
+        id 1j8ekd-0001Co-C0; Sun, 01 Mar 2020 23:40:27 -0700
+Received: from ip68-227-160-95.om.om.cox.net ([68.227.160.95] helo=x220.xmission.com)
+        by in01.mta.xmission.com with esmtpsa (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.87)
+        (envelope-from <ebiederm@xmission.com>)
+        id 1j8ekZ-0007Je-VK; Sun, 01 Mar 2020 23:40:26 -0700
+From:   ebiederm@xmission.com (Eric W. Biederman)
+To:     Bernd Edlinger <bernd.edlinger@hotmail.de>
+Cc:     Jann Horn <jannh@google.com>,
+        Christian Brauner <christian.brauner@ubuntu.com>,
+        Jonathan Corbet <corbet@lwn.net>,
         Alexander Viro <viro@zeniv.linux.org.uk>,
         Andrew Morton <akpm@linux-foundation.org>,
         Alexey Dobriyan <adobriyan@gmail.com>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
         Thomas Gleixner <tglx@linutronix.de>,
         Oleg Nesterov <oleg@redhat.com>,
         Frederic Weisbecker <frederic@kernel.org>,
         Andrei Vagin <avagin@gmail.com>,
         Ingo Molnar <mingo@kernel.org>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        "Peter Zijlstra \(Intel\)" <peterz@infradead.org>,
         Yuyang Du <duyuyang@gmail.com>,
         David Hildenbrand <david@redhat.com>,
         Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
@@ -64,248 +49,417 @@ CC:     Jonathan Corbet <corbet@lwn.net>,
         Andrea Arcangeli <aarcange@redhat.com>,
         Aleksa Sarai <cyphar@cyphar.com>,
         "Dmitry V. Levin" <ldv@altlinux.org>,
-        "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>,
-        "linux-mm@kvack.org" <linux-mm@kvack.org>,
-        Aleksa Sarai <cyphar@cyphar.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: [PATCHv2] exec: Fix a deadlock in ptrace
-Thread-Topic: [PATCHv2] exec: Fix a deadlock in ptrace
-Thread-Index: AQHV8AjGwZG4WijWc0+aQpdADP+q6g==
-Date:   Sun, 1 Mar 2020 20:34:16 +0000
-Message-ID: <AM6PR03MB5170EB4427BF5C67EE98FF09E4E60@AM6PR03MB5170.eurprd03.prod.outlook.com>
+        "linux-doc\@vger.kernel.org" <linux-doc@vger.kernel.org>,
+        "linux-kernel\@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "linux-fsdevel\@vger.kernel.org" <linux-fsdevel@vger.kernel.org>,
+        "linux-mm\@kvack.org" <linux-mm@kvack.org>,
+        "stable\@vger.kernel.org" <stable@vger.kernel.org>
 References: <AM6PR03MB5170B06F3A2B75EFB98D071AE4E60@AM6PR03MB5170.eurprd03.prod.outlook.com>
- <CAG48ez3QHVpMJ9Rb_Q4LEE6uAqQJeS1Myu82U=fgvUfoeiscgw@mail.gmail.com>
- <20200301185244.zkofjus6xtgkx4s3@wittgenstein>
- <CAG48ez3mnYc84iFCA25-rbJdSBi3jh9hkp569XZTbFc_9WYbZw@mail.gmail.com>
-In-Reply-To: <CAG48ez3mnYc84iFCA25-rbJdSBi3jh9hkp569XZTbFc_9WYbZw@mail.gmail.com>
-Accept-Language: en-US, en-GB, de-DE
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-clientproxiedby: FRYP281CA0013.DEUP281.PROD.OUTLOOK.COM (2603:10a6:d10::23)
- To AM6PR03MB5170.eurprd03.prod.outlook.com (2603:10a6:20b:ca::23)
-x-incomingtopheadermarker: OriginalChecksum:C56D792F49214D1511F61546F3F9611CB6F02AD676CD591E34F382FBF82C386F;UpperCasedChecksum:56D79049FA5A818742FBC6C94A6B2753413DCC47862A56F18FA6315FE913F781;SizeAsReceived:9119;Count:50
-x-ms-exchange-messagesentrepresentingtype: 1
-x-tmn:  [t+JWDGIw2yhxJ/dQ0BuUULYZoRt0KdeB]
-x-microsoft-original-message-id: <be0f0af1-1682-4580-d060-2b5ded070971@hotmail.de>
-x-ms-publictraffictype: Email
-x-incomingheadercount: 50
-x-eopattributedmessage: 0
-x-ms-office365-filtering-correlation-id: b0d7055d-f0a7-4df7-1290-08d7be1fe8ea
-x-ms-traffictypediagnostic: DB3EUR04HT003:
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: 1Is2QYkIlwX3HtTzffdQYzl9XK6IAaznCOI+sTN0Vsgjc6X1ifoUrlajKOLT3i0RsQ1qbeTfSYArDlDstsrz4GWQYoZC8r8GqQzvCSfh9O/vTKR8cDtdL8U5L0O1Xb/+fpLr1Pssdr+0C9rjXbl319SECJc5EL0qPc/V7LYbcxY1mnTgPZ5Jfn1RCUuxrQSS
-x-ms-exchange-antispam-messagedata: zdtR2BNwkpQncY+8cS6A2FNNKXCDjfD2f5UfpLoIf7N49yubl+kivM+AB8JSX6taIeTyp6iZSMfLdOdmvXgn+wHSY1enb/fDBhwU+grOfxUFN65m3WQFTJUFIDILcojf8C2k8LHms15YfvlZLLasdQ==
-x-ms-exchange-transport-forked: True
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <785CAA66EB60C94A8AE9A1CFDDAA6EE5@eurprd03.prod.outlook.com>
-Content-Transfer-Encoding: base64
+        <CAG48ez3QHVpMJ9Rb_Q4LEE6uAqQJeS1Myu82U=fgvUfoeiscgw@mail.gmail.com>
+        <20200301185244.zkofjus6xtgkx4s3@wittgenstein>
+        <CAG48ez3mnYc84iFCA25-rbJdSBi3jh9hkp569XZTbFc_9WYbZw@mail.gmail.com>
+        <AM6PR03MB5170EB4427BF5C67EE98FF09E4E60@AM6PR03MB5170.eurprd03.prod.outlook.com>
+Date:   Mon, 02 Mar 2020 00:38:14 -0600
+In-Reply-To: <AM6PR03MB5170EB4427BF5C67EE98FF09E4E60@AM6PR03MB5170.eurprd03.prod.outlook.com>
+        (Bernd Edlinger's message of "Sun, 1 Mar 2020 20:34:16 +0000")
+Message-ID: <87a74zmfc9.fsf@x220.int.ebiederm.org>
+User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/26.1 (gnu/linux)
 MIME-Version: 1.0
-X-OriginatorOrg: outlook.com
-X-MS-Exchange-CrossTenant-RMS-PersistedConsumerOrg: 00000000-0000-0000-0000-000000000000
-X-MS-Exchange-CrossTenant-Network-Message-Id: b0d7055d-f0a7-4df7-1290-08d7be1fe8ea
-X-MS-Exchange-CrossTenant-rms-persistedconsumerorg: 00000000-0000-0000-0000-000000000000
-X-MS-Exchange-CrossTenant-originalarrivaltime: 01 Mar 2020 20:34:16.1210
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Internet
-X-MS-Exchange-CrossTenant-id: 84df9e7f-e9f6-40af-b435-aaaaaaaaaaaa
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DB3EUR04HT003
+Content-Type: text/plain
+X-XM-SPF: eid=1j8ekZ-0007Je-VK;;;mid=<87a74zmfc9.fsf@x220.int.ebiederm.org>;;;hst=in01.mta.xmission.com;;;ip=68.227.160.95;;;frm=ebiederm@xmission.com;;;spf=neutral
+X-XM-AID: U2FsdGVkX1//e7nTlsRN0fvWenFVh7U2fAMKCnUdZyE=
+X-SA-Exim-Connect-IP: 68.227.160.95
+X-SA-Exim-Mail-From: ebiederm@xmission.com
+X-Spam-Checker-Version: SpamAssassin 3.4.2 (2018-09-13) on sa02.xmission.com
+X-Spam-Level: 
+X-Spam-Status: No, score=0.8 required=8.0 tests=ALL_TRUSTED,BAYES_50,
+        DCC_CHECK_NEGATIVE,T_TM2_M_HEADER_IN_MSG,T_XMDrugObfuBody_00
+        autolearn=disabled version=3.4.2
+X-Spam-Virus: No
+X-Spam-Report: * -1.0 ALL_TRUSTED Passed through trusted hosts only via SMTP
+        *  0.8 BAYES_50 BODY: Bayes spam probability is 40 to 60%
+        *      [score: 0.5000]
+        *  0.0 T_TM2_M_HEADER_IN_MSG BODY: No description available.
+        * -0.0 DCC_CHECK_NEGATIVE Not listed in DCC
+        *      [sa02 1397; Body=1 Fuz1=1 Fuz2=1]
+        *  1.0 T_XMDrugObfuBody_00 obfuscated drug references
+X-Spam-DCC: XMission; sa02 1397; Body=1 Fuz1=1 Fuz2=1 
+X-Spam-Combo: ;Bernd Edlinger <bernd.edlinger@hotmail.de>
+X-Spam-Relay-Country: 
+X-Spam-Timing: total 2479 ms - load_scoreonly_sql: 0.02 (0.0%),
+        signal_user_changed: 2.8 (0.1%), b_tie_ro: 1.94 (0.1%), parse: 1.11
+        (0.0%), extract_message_metadata: 16 (0.6%), get_uri_detail_list: 5
+        (0.2%), tests_pri_-1000: 14 (0.6%), tests_pri_-950: 1.01 (0.0%),
+        tests_pri_-900: 0.84 (0.0%), tests_pri_-90: 53 (2.2%), check_bayes: 52
+        (2.1%), b_tokenize: 21 (0.9%), b_tok_get_all: 18 (0.7%), b_comp_prob:
+        3.6 (0.1%), b_tok_touch_all: 7 (0.3%), b_finish: 0.58 (0.0%),
+        tests_pri_0: 671 (27.1%), check_dkim_signature: 0.55 (0.0%),
+        check_dkim_adsp: 2.5 (0.1%), poll_dns_idle: 1706 (68.8%),
+        tests_pri_10: 1.49 (0.1%), tests_pri_500: 1715 (69.1%), rewrite_mail:
+        0.00 (0.0%)
+Subject: Re: [PATCHv2] exec: Fix a deadlock in ptrace
+X-Spam-Flag: No
+X-SA-Exim-Version: 4.2.1 (built Thu, 05 May 2016 13:38:54 -0600)
+X-SA-Exim-Scanned: Yes (on in01.mta.xmission.com)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-VGhpcyBmaXhlcyBhIGRlYWRsb2NrIGluIHRoZSB0cmFjZXIgd2hlbiB0cmFjaW5nIGEgbXVsdGkt
-dGhyZWFkZWQNCmFwcGxpY2F0aW9uIHRoYXQgY2FsbHMgZXhlY3ZlIHdoaWxlIG1vcmUgdGhhbiBv
-bmUgdGhyZWFkIGFyZSBydW5uaW5nLg0KDQpJIG9ic2VydmVkIHRoYXQgd2hlbiBydW5uaW5nIHN0
-cmFjZSBvbiB0aGUgZ2NjIHRlc3Qgc3VpdGUsIGl0IGFsd2F5cw0KYmxvY2tzIGFmdGVyIGEgd2hp
-bGUsIHdoZW4gZXhwZWN0IGNhbGxzIGV4ZWN2ZSwgYmVjYXVzZSBvdGhlciB0aHJlYWRzDQpoYXZl
-IHRvIGJlIHRlcm1pbmF0ZWQuICBUaGV5IHNlbmQgcHRyYWNlIGV2ZW50cywgYnV0IHRoZSBzdHJh
-Y2UgaXMgbm8NCmxvbmdlciBhYmxlIHRvIHJlc3BvbmQsIHNpbmNlIGl0IGlzIGJsb2NrZWQgaW4g
-dm1fYWNjZXNzLg0KDQpUaGUgZGVhZGxvY2sgaXMgYWx3YXlzIGhhcHBlbmluZyB3aGVuIHN0cmFj
-ZSBuZWVkcyB0byBhY2Nlc3MgdGhlDQp0cmFjZWVzIHByb2Nlc3MgbW1hcCwgd2hpbGUgYW5vdGhl
-ciB0aHJlYWQgaW4gdGhlIHRyYWNlZSBzdGFydHMgdG8NCmV4ZWN2ZSBhIGNoaWxkIHByb2Nlc3Ms
-IGJ1dCB0aGF0IGNhbm5vdCBjb250aW51ZSB1bnRpbCB0aGUNClBUUkFDRV9FVkVOVF9FWElUIGlz
-IGhhbmRsZWQgYW5kIHRoZSBXSUZFWElURUQgZXZlbnQgaXMgcmVjZWl2ZWQ6DQoNCnN0cmFjZSAg
-ICAgICAgICBEICAgIDAgMzA2MTQgIDMwNTg0IDB4MDAwMDAwMDANCkNhbGwgVHJhY2U6DQpfX3Nj
-aGVkdWxlKzB4M2NlLzB4NmUwDQpzY2hlZHVsZSsweDVjLzB4ZDANCnNjaGVkdWxlX3ByZWVtcHRf
-ZGlzYWJsZWQrMHgxNS8weDIwDQpfX211dGV4X2xvY2suaXNyYS4xMysweDFlYy8weDUyMA0KX19t
-dXRleF9sb2NrX2tpbGxhYmxlX3Nsb3dwYXRoKzB4MTMvMHgyMA0KbXV0ZXhfbG9ja19raWxsYWJs
-ZSsweDI4LzB4MzANCm1tX2FjY2VzcysweDI3LzB4YTANCnByb2Nlc3Nfdm1fcndfY29yZS5pc3Jh
-LjMrMHhmZi8weDU1MA0KcHJvY2Vzc192bV9ydysweGRkLzB4ZjANCl9feDY0X3N5c19wcm9jZXNz
-X3ZtX3JlYWR2KzB4MzEvMHg0MA0KZG9fc3lzY2FsbF82NCsweDY0LzB4MjIwDQplbnRyeV9TWVND
-QUxMXzY0X2FmdGVyX2h3ZnJhbWUrMHg0NC8weGE5DQoNCmV4cGVjdCAgICAgICAgICBEICAgIDAg
-MzE5MzMgIDMwODc2IDB4ODAwMDQwMDMNCkNhbGwgVHJhY2U6DQpfX3NjaGVkdWxlKzB4M2NlLzB4
-NmUwDQpzY2hlZHVsZSsweDVjLzB4ZDANCmZsdXNoX29sZF9leGVjKzB4YzQvMHg3NzANCmxvYWRf
-ZWxmX2JpbmFyeSsweDM1YS8weDE2YzANCnNlYXJjaF9iaW5hcnlfaGFuZGxlcisweDk3LzB4MWQw
-DQpfX2RvX2V4ZWN2ZV9maWxlLmlzcmEuNDArMHg1ZDQvMHg4YTANCl9feDY0X3N5c19leGVjdmUr
-MHg0OS8weDYwDQpkb19zeXNjYWxsXzY0KzB4NjQvMHgyMjANCmVudHJ5X1NZU0NBTExfNjRfYWZ0
-ZXJfaHdmcmFtZSsweDQ0LzB4YTkNCg0KVGhlIHByb3Bvc2VkIHNvbHV0aW9uIGlzIHRvIGhhdmUg
-YSBzZWNvbmQgbXV0ZXggdGhhdCBpcw0KdXNlZCBpbiBtbV9hY2Nlc3MsIHNvIGl0IGlzIGFsbG93
-ZWQgdG8gY29udGludWUgd2hpbGUgdGhlDQpkeWluZyB0aHJlYWRzIGFyZSBub3QgeWV0IHRlcm1p
-bmF0ZWQuDQoNCkkgYWxzbyB0b29rIHRoZSBvcHBvcnR1bml0eSB0byBpbXByb3ZlIHRoZSBkb2N1
-bWVudGF0aW9uDQpvZiBwcmVwYXJlX2NyZWRzLCB3aGljaCBpcyBvYnZpb3VzbHkgb3V0IG9mIHN5
-bmMuDQoNClNpZ25lZC1vZmYtYnk6IEJlcm5kIEVkbGluZ2VyIDxiZXJuZC5lZGxpbmdlckBob3Rt
-YWlsLmRlPg0KLS0tDQogRG9jdW1lbnRhdGlvbi9zZWN1cml0eS9jcmVkZW50aWFscy5yc3QgICAg
-fCAxOCArKysrKystLS0tLS0NCiBmcy9leGVjLmMgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICB8ICA5ICsrKysrKw0KIGluY2x1ZGUvbGludXgvYmluZm10cy5oICAgICAgICAgICAgICAg
-ICAgIHwgIDYgKysrLQ0KIGluY2x1ZGUvbGludXgvc2NoZWQvc2lnbmFsLmggICAgICAgICAgICAg
-IHwgIDEgKw0KIGluaXQvaW5pdF90YXNrLmMgICAgICAgICAgICAgICAgICAgICAgICAgIHwgIDEg
-Kw0KIGtlcm5lbC9jcmVkLmMgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHwgIDIgKy0NCiBr
-ZXJuZWwvZm9yay5jICAgICAgICAgICAgICAgICAgICAgICAgICAgICB8ICA1ICsrLS0NCiBtbS9w
-cm9jZXNzX3ZtX2FjY2Vzcy5jICAgICAgICAgICAgICAgICAgICB8ICAyICstDQogdG9vbHMvdGVz
-dGluZy9zZWxmdGVzdHMvcHRyYWNlL01ha2VmaWxlICAgfCAgNCArLS0NCiB0b29scy90ZXN0aW5n
-L3NlbGZ0ZXN0cy9wdHJhY2Uvdm1hY2Nlc3MuYyB8IDQ2ICsrKysrKysrKysrKysrKysrKysrKysr
-KysrKysrKysNCiAxMCBmaWxlcyBjaGFuZ2VkLCA3OSBpbnNlcnRpb25zKCspLCAxNSBkZWxldGlv
-bnMoLSkNCiBjcmVhdGUgbW9kZSAxMDA2NDQgdG9vbHMvdGVzdGluZy9zZWxmdGVzdHMvcHRyYWNl
-L3ZtYWNjZXNzLmMNCg0KdjI6IGFkZHMgYSB0ZXN0IGNhc2Ugd2hpY2ggcGFzc2VzIHdoZW4gdGhp
-cyBwYXRjaCBpcyBhcHBsaWVkLg0KDQoNCmRpZmYgLS1naXQgYS9Eb2N1bWVudGF0aW9uL3NlY3Vy
-aXR5L2NyZWRlbnRpYWxzLnJzdCBiL0RvY3VtZW50YXRpb24vc2VjdXJpdHkvY3JlZGVudGlhbHMu
-cnN0DQppbmRleCAyODJlNzlmLi5jOThlMGE4IDEwMDY0NA0KLS0tIGEvRG9jdW1lbnRhdGlvbi9z
-ZWN1cml0eS9jcmVkZW50aWFscy5yc3QNCisrKyBiL0RvY3VtZW50YXRpb24vc2VjdXJpdHkvY3Jl
-ZGVudGlhbHMucnN0DQpAQCAtNDM3LDkgKzQzNywxMyBAQCBuZXcgc2V0IG9mIGNyZWRlbnRpYWxz
-IGJ5IGNhbGxpbmc6Og0KIA0KIAlzdHJ1Y3QgY3JlZCAqcHJlcGFyZV9jcmVkcyh2b2lkKTsNCiAN
-Ci10aGlzIGxvY2tzIGN1cnJlbnQtPmNyZWRfcmVwbGFjZV9tdXRleCBhbmQgdGhlbiBhbGxvY2F0
-ZXMgYW5kIGNvbnN0cnVjdHMgYQ0KLWR1cGxpY2F0ZSBvZiB0aGUgY3VycmVudCBwcm9jZXNzJ3Mg
-Y3JlZGVudGlhbHMsIHJldHVybmluZyB3aXRoIHRoZSBtdXRleCBzdGlsbA0KLWhlbGQgaWYgc3Vj
-Y2Vzc2Z1bC4gIEl0IHJldHVybnMgTlVMTCBpZiBub3Qgc3VjY2Vzc2Z1bCAob3V0IG9mIG1lbW9y
-eSkuDQordGhpcyBhbGxvY2F0ZXMgYW5kIGNvbnN0cnVjdHMgYSBkdXBsaWNhdGUgb2YgdGhlIGN1
-cnJlbnQgcHJvY2VzcydzIGNyZWRlbnRpYWxzLg0KK0l0IHJldHVybnMgTlVMTCBpZiBub3Qgc3Vj
-Y2Vzc2Z1bCAob3V0IG9mIG1lbW9yeSkuDQorDQorSWYgY2FsbGVkIGZyb20gX19kb19leGVjdmVf
-ZmlsZSwgdGhlIG11dGV4IGN1cnJlbnQtPnNpZ25hbC0+Y3JlZF9ndWFyZF9tdXRleA0KK2lzIGFj
-cXVpcmVkIGJlZm9yZSB0aGlzIGZ1bmN0aW9uIGdldHMgY2FsbGVkLCBhbmQgdGhlIG11dGV4DQor
-Y3VycmVudC0+c2lnbmFsLT5jcmVkX2NoYW5nZV9tdXRleCBpcyBhY3F1aXJlZCBsYXRlciwgd2hp
-bGUgdGhlIGNyZWRlbnRpYWxzDQorYW5kIHRoZSBwcm9jZXNzIG1tYXAgYXJlIGFjdHVhbGx5IGNo
-YW5nZWQuDQogDQogVGhlIG11dGV4IHByZXZlbnRzIGBgcHRyYWNlKClgYCBmcm9tIGFsdGVyaW5n
-IHRoZSBwdHJhY2Ugc3RhdGUgb2YgYSBwcm9jZXNzDQogd2hpbGUgc2VjdXJpdHkgY2hlY2tzIG9u
-IGNyZWRlbnRpYWxzIGNvbnN0cnVjdGlvbiBhbmQgY2hhbmdpbmcgaXMgdGFraW5nIHBsYWNlDQpA
-QCAtNDY2LDkgKzQ3MCw4IEBAIGJ5IGNhbGxpbmc6Og0KIA0KIFRoaXMgd2lsbCBhbHRlciB2YXJp
-b3VzIGFzcGVjdHMgb2YgdGhlIGNyZWRlbnRpYWxzIGFuZCB0aGUgcHJvY2VzcywgZ2l2aW5nIHRo
-ZQ0KIExTTSBhIGNoYW5jZSB0byBkbyBsaWtld2lzZSwgdGhlbiBpdCB3aWxsIHVzZSBgYHJjdV9h
-c3NpZ25fcG9pbnRlcigpYGAgdG8NCi1hY3R1YWxseSBjb21taXQgdGhlIG5ldyBjcmVkZW50aWFs
-cyB0byBgYGN1cnJlbnQtPmNyZWRgYCwgaXQgd2lsbCByZWxlYXNlDQotYGBjdXJyZW50LT5jcmVk
-X3JlcGxhY2VfbXV0ZXhgYCB0byBhbGxvdyBgYHB0cmFjZSgpYGAgdG8gdGFrZSBwbGFjZSwgYW5k
-IGl0DQotd2lsbCBub3RpZnkgdGhlIHNjaGVkdWxlciBhbmQgb3RoZXJzIG9mIHRoZSBjaGFuZ2Vz
-Lg0KK2FjdHVhbGx5IGNvbW1pdCB0aGUgbmV3IGNyZWRlbnRpYWxzIHRvIGBgY3VycmVudC0+Y3Jl
-ZGBgLCBhbmQgaXQgd2lsbCBub3RpZnkNCit0aGUgc2NoZWR1bGVyIGFuZCBvdGhlcnMgb2YgdGhl
-IGNoYW5nZXMuDQogDQogVGhpcyBmdW5jdGlvbiBpcyBndWFyYW50ZWVkIHRvIHJldHVybiAwLCBz
-byB0aGF0IGl0IGNhbiBiZSB0YWlsLWNhbGxlZCBhdCB0aGUNCiBlbmQgb2Ygc3VjaCBmdW5jdGlv
-bnMgYXMgYGBzeXNfc2V0cmVzdWlkKClgYC4NCkBAIC00ODYsOCArNDg5LDcgQEAgaW52b2tlZDo6
-DQogDQogCXZvaWQgYWJvcnRfY3JlZHMoc3RydWN0IGNyZWQgKm5ldyk7DQogDQotVGhpcyByZWxl
-YXNlcyB0aGUgbG9jayBvbiBgYGN1cnJlbnQtPmNyZWRfcmVwbGFjZV9tdXRleGBgIHRoYXQNCi1g
-YHByZXBhcmVfY3JlZHMoKWBgIGdvdCBhbmQgdGhlbiByZWxlYXNlcyB0aGUgbmV3IGNyZWRlbnRp
-YWxzLg0KK1RoaXMgcmVsZWFzZXMgdGhlIG5ldyBjcmVkZW50aWFscy4NCiANCiANCiBBIHR5cGlj
-YWwgY3JlZGVudGlhbHMgYWx0ZXJhdGlvbiBmdW5jdGlvbiB3b3VsZCBsb29rIHNvbWV0aGluZyBs
-aWtlIHRoaXM6Og0KZGlmZiAtLWdpdCBhL2ZzL2V4ZWMuYyBiL2ZzL2V4ZWMuYw0KaW5kZXggNzRk
-ODhkYS4uYTY4ODRlNCAxMDA2NDQNCi0tLSBhL2ZzL2V4ZWMuYw0KKysrIGIvZnMvZXhlYy5jDQpA
-QCAtMTI2Niw2ICsxMjY2LDEyIEBAIGludCBmbHVzaF9vbGRfZXhlYyhzdHJ1Y3QgbGludXhfYmlu
-cHJtICogYnBybSkNCiAJaWYgKHJldHZhbCkNCiAJCWdvdG8gb3V0Ow0KIA0KKwlyZXR2YWwgPSBt
-dXRleF9sb2NrX2tpbGxhYmxlKCZjdXJyZW50LT5zaWduYWwtPmNyZWRfY2hhbmdlX211dGV4KTsN
-CisJaWYgKHJldHZhbCkNCisJCWdvdG8gb3V0Ow0KKw0KKwlicHJtLT5jYWxsZWRfZmx1c2hfb2xk
-X2V4ZWMgPSAxOw0KKw0KIAkvKg0KIAkgKiBNdXN0IGJlIGNhbGxlZCBfYmVmb3JlXyBleGVjX21t
-YXAoKSBhcyBicHJtLT5tbSBpcw0KIAkgKiBub3QgdmlzaWJpbGUgdW50aWwgdGhlbi4gVGhpcyBh
-bHNvIGVuYWJsZXMgdGhlIHVwZGF0ZQ0KQEAgLTE0MjAsNiArMTQyNiw4IEBAIHN0YXRpYyB2b2lk
-IGZyZWVfYnBybShzdHJ1Y3QgbGludXhfYmlucHJtICpicHJtKQ0KIHsNCiAJZnJlZV9hcmdfcGFn
-ZXMoYnBybSk7DQogCWlmIChicHJtLT5jcmVkKSB7DQorCQlpZiAoYnBybS0+Y2FsbGVkX2ZsdXNo
-X29sZF9leGVjKQ0KKwkJCW11dGV4X3VubG9jaygmY3VycmVudC0+c2lnbmFsLT5jcmVkX2NoYW5n
-ZV9tdXRleCk7DQogCQltdXRleF91bmxvY2soJmN1cnJlbnQtPnNpZ25hbC0+Y3JlZF9ndWFyZF9t
-dXRleCk7DQogCQlhYm9ydF9jcmVkcyhicHJtLT5jcmVkKTsNCiAJfQ0KQEAgLTE0NjksNiArMTQ3
-Nyw3IEBAIHZvaWQgaW5zdGFsbF9leGVjX2NyZWRzKHN0cnVjdCBsaW51eF9iaW5wcm0gKmJwcm0p
-DQogCSAqIGNyZWRlbnRpYWxzOyBhbnkgdGltZSBhZnRlciB0aGlzIGl0IG1heSBiZSB1bmxvY2tl
-ZC4NCiAJICovDQogCXNlY3VyaXR5X2Jwcm1fY29tbWl0dGVkX2NyZWRzKGJwcm0pOw0KKwltdXRl
-eF91bmxvY2soJmN1cnJlbnQtPnNpZ25hbC0+Y3JlZF9jaGFuZ2VfbXV0ZXgpOw0KIAltdXRleF91
-bmxvY2soJmN1cnJlbnQtPnNpZ25hbC0+Y3JlZF9ndWFyZF9tdXRleCk7DQogfQ0KIEVYUE9SVF9T
-WU1CT0woaW5zdGFsbF9leGVjX2NyZWRzKTsNCmRpZmYgLS1naXQgYS9pbmNsdWRlL2xpbnV4L2Jp
-bmZtdHMuaCBiL2luY2x1ZGUvbGludXgvYmluZm10cy5oDQppbmRleCBiNDBmYzYzLi4yZTEzMThi
-IDEwMDY0NA0KLS0tIGEvaW5jbHVkZS9saW51eC9iaW5mbXRzLmgNCisrKyBiL2luY2x1ZGUvbGlu
-dXgvYmluZm10cy5oDQpAQCAtNDQsNyArNDQsMTEgQEAgc3RydWN0IGxpbnV4X2JpbnBybSB7DQog
-CQkgKiBleGVjIGhhcyBoYXBwZW5lZC4gVXNlZCB0byBzYW5pdGl6ZSBleGVjdXRpb24gZW52aXJv
-bm1lbnQNCiAJCSAqIGFuZCB0byBzZXQgQVRfU0VDVVJFIGF1eHYgZm9yIGdsaWJjLg0KIAkJICov
-DQotCQlzZWN1cmVleGVjOjE7DQorCQlzZWN1cmVleGVjOjEsDQorCQkvKg0KKwkJICogU2V0IGJ5
-IGZsdXNoX29sZF9leGVjLCB3aGVuIHRoZSBjcmVkX2NoYW5nZV9tdXRleCBpcyB0YWtlbi4NCisJ
-CSAqLw0KKwkJY2FsbGVkX2ZsdXNoX29sZF9leGVjOjE7DQogI2lmZGVmIF9fYWxwaGFfXw0KIAl1
-bnNpZ25lZCBpbnQgdGFzbzoxOw0KICNlbmRpZg0KZGlmZiAtLWdpdCBhL2luY2x1ZGUvbGludXgv
-c2NoZWQvc2lnbmFsLmggYi9pbmNsdWRlL2xpbnV4L3NjaGVkL3NpZ25hbC5oDQppbmRleCA4ODA1
-MDI1Li4zN2VlYWJlIDEwMDY0NA0KLS0tIGEvaW5jbHVkZS9saW51eC9zY2hlZC9zaWduYWwuaA0K
-KysrIGIvaW5jbHVkZS9saW51eC9zY2hlZC9zaWduYWwuaA0KQEAgLTIyNSw2ICsyMjUsNyBAQCBz
-dHJ1Y3Qgc2lnbmFsX3N0cnVjdCB7DQogCXN0cnVjdCBtdXRleCBjcmVkX2d1YXJkX211dGV4Owkv
-KiBndWFyZCBhZ2FpbnN0IGZvcmVpZ24gaW5mbHVlbmNlcyBvbg0KIAkJCQkJICogY3JlZGVudGlh
-bCBjYWxjdWxhdGlvbnMNCiAJCQkJCSAqIChub3RhYmx5LiBwdHJhY2UpICovDQorCXN0cnVjdCBt
-dXRleCBjcmVkX2NoYW5nZV9tdXRleDsgLyogZ3VhcmQgYWdhaW5zdCBjcmVkZW50aWFscyBjaGFu
-Z2UgKi8NCiB9IF9fcmFuZG9taXplX2xheW91dDsNCiANCiAvKg0KZGlmZiAtLWdpdCBhL2luaXQv
-aW5pdF90YXNrLmMgYi9pbml0L2luaXRfdGFzay5jDQppbmRleCA5ZTVjYmU1Li42Y2Q5YTBmIDEw
-MDY0NA0KLS0tIGEvaW5pdC9pbml0X3Rhc2suYw0KKysrIGIvaW5pdC9pbml0X3Rhc2suYw0KQEAg
-LTI2LDYgKzI2LDcgQEANCiAJLm11bHRpcHJvY2Vzcwk9IEhMSVNUX0hFQURfSU5JVCwNCiAJLnJs
-aW0JCT0gSU5JVF9STElNSVRTLA0KIAkuY3JlZF9ndWFyZF9tdXRleCA9IF9fTVVURVhfSU5JVElB
-TElaRVIoaW5pdF9zaWduYWxzLmNyZWRfZ3VhcmRfbXV0ZXgpLA0KKwkuY3JlZF9jaGFuZ2VfbXV0
-ZXggPSBfX01VVEVYX0lOSVRJQUxJWkVSKGluaXRfc2lnbmFscy5jcmVkX2NoYW5nZV9tdXRleCks
-DQogI2lmZGVmIENPTkZJR19QT1NJWF9USU1FUlMNCiAJLnBvc2l4X3RpbWVycyA9IExJU1RfSEVB
-RF9JTklUKGluaXRfc2lnbmFscy5wb3NpeF90aW1lcnMpLA0KIAkuY3B1dGltZXIJPSB7DQpkaWZm
-IC0tZ2l0IGEva2VybmVsL2NyZWQuYyBiL2tlcm5lbC9jcmVkLmMNCmluZGV4IDgwOWE5ODUuLmU0
-Yzc4ZGUgMTAwNjQ0DQotLS0gYS9rZXJuZWwvY3JlZC5jDQorKysgYi9rZXJuZWwvY3JlZC5jDQpA
-QCAtNjc2LDcgKzY3Niw3IEBAIHZvaWQgX19pbml0IGNyZWRfaW5pdCh2b2lkKQ0KICAqDQogICog
-UmV0dXJucyB0aGUgbmV3IGNyZWRlbnRpYWxzIG9yIE5VTEwgaWYgb3V0IG9mIG1lbW9yeS4NCiAg
-Kg0KLSAqIERvZXMgbm90IHRha2UsIGFuZCBkb2VzIG5vdCByZXR1cm4gaG9sZGluZyBjdXJyZW50
-LT5jcmVkX3JlcGxhY2VfbXV0ZXguDQorICogRG9lcyBub3QgdGFrZSwgYW5kIGRvZXMgbm90IHJl
-dHVybiBob2xkaW5nIC0+Y3JlZF9ndWFyZF9tdXRleC4NCiAgKi8NCiBzdHJ1Y3QgY3JlZCAqcHJl
-cGFyZV9rZXJuZWxfY3JlZChzdHJ1Y3QgdGFza19zdHJ1Y3QgKmRhZW1vbikNCiB7DQpkaWZmIC0t
-Z2l0IGEva2VybmVsL2ZvcmsuYyBiL2tlcm5lbC9mb3JrLmMNCmluZGV4IDA4MDgwOTUuLjAzOTUx
-NTQgMTAwNjQ0DQotLS0gYS9rZXJuZWwvZm9yay5jDQorKysgYi9rZXJuZWwvZm9yay5jDQpAQCAt
-MTIyNCw3ICsxMjI0LDcgQEAgc3RydWN0IG1tX3N0cnVjdCAqbW1fYWNjZXNzKHN0cnVjdCB0YXNr
-X3N0cnVjdCAqdGFzaywgdW5zaWduZWQgaW50IG1vZGUpDQogCXN0cnVjdCBtbV9zdHJ1Y3QgKm1t
-Ow0KIAlpbnQgZXJyOw0KIA0KLQllcnIgPSAgbXV0ZXhfbG9ja19raWxsYWJsZSgmdGFzay0+c2ln
-bmFsLT5jcmVkX2d1YXJkX211dGV4KTsNCisJZXJyID0gIG11dGV4X2xvY2tfa2lsbGFibGUoJnRh
-c2stPnNpZ25hbC0+Y3JlZF9jaGFuZ2VfbXV0ZXgpOw0KIAlpZiAoZXJyKQ0KIAkJcmV0dXJuIEVS
-Ul9QVFIoZXJyKTsNCiANCkBAIC0xMjM0LDcgKzEyMzQsNyBAQCBzdHJ1Y3QgbW1fc3RydWN0ICpt
-bV9hY2Nlc3Moc3RydWN0IHRhc2tfc3RydWN0ICp0YXNrLCB1bnNpZ25lZCBpbnQgbW9kZSkNCiAJ
-CW1tcHV0KG1tKTsNCiAJCW1tID0gRVJSX1BUUigtRUFDQ0VTKTsNCiAJfQ0KLQltdXRleF91bmxv
-Y2soJnRhc2stPnNpZ25hbC0+Y3JlZF9ndWFyZF9tdXRleCk7DQorCW11dGV4X3VubG9jaygmdGFz
-ay0+c2lnbmFsLT5jcmVkX2NoYW5nZV9tdXRleCk7DQogDQogCXJldHVybiBtbTsNCiB9DQpAQCAt
-MTU5NCw2ICsxNTk0LDcgQEAgc3RhdGljIGludCBjb3B5X3NpZ25hbCh1bnNpZ25lZCBsb25nIGNs
-b25lX2ZsYWdzLCBzdHJ1Y3QgdGFza19zdHJ1Y3QgKnRzaykNCiAJc2lnLT5vb21fc2NvcmVfYWRq
-X21pbiA9IGN1cnJlbnQtPnNpZ25hbC0+b29tX3Njb3JlX2Fkal9taW47DQogDQogCW11dGV4X2lu
-aXQoJnNpZy0+Y3JlZF9ndWFyZF9tdXRleCk7DQorCW11dGV4X2luaXQoJnNpZy0+Y3JlZF9jaGFu
-Z2VfbXV0ZXgpOw0KIA0KIAlyZXR1cm4gMDsNCiB9DQpkaWZmIC0tZ2l0IGEvbW0vcHJvY2Vzc192
-bV9hY2Nlc3MuYyBiL21tL3Byb2Nlc3Nfdm1fYWNjZXNzLmMNCmluZGV4IDM1N2FhN2IuLmIzZTZl
-YjUgMTAwNjQ0DQotLS0gYS9tbS9wcm9jZXNzX3ZtX2FjY2Vzcy5jDQorKysgYi9tbS9wcm9jZXNz
-X3ZtX2FjY2Vzcy5jDQpAQCAtMjA0LDcgKzIwNCw3IEBAIHN0YXRpYyBzc2l6ZV90IHByb2Nlc3Nf
-dm1fcndfY29yZShwaWRfdCBwaWQsIHN0cnVjdCBpb3ZfaXRlciAqaXRlciwNCiAJaWYgKCFtbSB8
-fCBJU19FUlIobW0pKSB7DQogCQlyYyA9IElTX0VSUihtbSkgPyBQVFJfRVJSKG1tKSA6IC1FU1JD
-SDsNCiAJCS8qDQotCQkgKiBFeHBsaWNpdGx5IG1hcCBFQUNDRVMgdG8gRVBFUk0gYXMgRVBFUk0g
-aXMgYSBtb3JlIGENCisJCSAqIEV4cGxpY2l0bHkgbWFwIEVBQ0NFUyB0byBFUEVSTSBhcyBFUEVS
-TSBpcyBhIG1vcmUNCiAJCSAqIGFwcHJvcHJpYXRlIGVycm9yIGNvZGUgZm9yIHByb2Nlc3Nfdndf
-cmVhZHYvd3JpdGV2DQogCQkgKi8NCiAJCWlmIChyYyA9PSAtRUFDQ0VTKQ0KZGlmZiAtLWdpdCBh
-L3Rvb2xzL3Rlc3Rpbmcvc2VsZnRlc3RzL3B0cmFjZS9NYWtlZmlsZSBiL3Rvb2xzL3Rlc3Rpbmcv
-c2VsZnRlc3RzL3B0cmFjZS9NYWtlZmlsZQ0KaW5kZXggYzBiN2Y4OS4uMmYxZjUzMiAxMDA2NDQN
-Ci0tLSBhL3Rvb2xzL3Rlc3Rpbmcvc2VsZnRlc3RzL3B0cmFjZS9NYWtlZmlsZQ0KKysrIGIvdG9v
-bHMvdGVzdGluZy9zZWxmdGVzdHMvcHRyYWNlL01ha2VmaWxlDQpAQCAtMSw2ICsxLDYgQEANCiAj
-IFNQRFgtTGljZW5zZS1JZGVudGlmaWVyOiBHUEwtMi4wLW9ubHkNCi1DRkxBR1MgKz0gLWlxdW90
-ZS4uLy4uLy4uLy4uL2luY2x1ZGUvdWFwaSAtV2FsbA0KK0NGTEFHUyArPSAtc3RkPWM5OSAtcHRo
-cmVhZCAtaXF1b3RlLi4vLi4vLi4vLi4vaW5jbHVkZS91YXBpIC1XYWxsDQogDQotVEVTVF9HRU5f
-UFJPR1MgOj0gZ2V0X3N5c2NhbGxfaW5mbyBwZWVrc2lnaW5mbw0KK1RFU1RfR0VOX1BST0dTIDo9
-IGdldF9zeXNjYWxsX2luZm8gcGVla3NpZ2luZm8gdm1hY2Nlc3MNCiANCiBpbmNsdWRlIC4uL2xp
-Yi5taw0KZGlmZiAtLWdpdCBhL3Rvb2xzL3Rlc3Rpbmcvc2VsZnRlc3RzL3B0cmFjZS92bWFjY2Vz
-cy5jIGIvdG9vbHMvdGVzdGluZy9zZWxmdGVzdHMvcHRyYWNlL3ZtYWNjZXNzLmMNCm5ldyBmaWxl
-IG1vZGUgMTAwNjQ0DQppbmRleCAwMDAwMDAwLi5lZjA4YzlmDQotLS0gL2Rldi9udWxsDQorKysg
-Yi90b29scy90ZXN0aW5nL3NlbGZ0ZXN0cy9wdHJhY2Uvdm1hY2Nlc3MuYw0KQEAgLTAsMCArMSw0
-NiBAQA0KKy8vIFNQRFgtTGljZW5zZS1JZGVudGlmaWVyOiBHUEwtMi4wKw0KKy8qDQorICogQ29w
-eXJpZ2h0IChjKSAyMDIwIEJlcm5kIEVkbGluZ2VyIDxiZXJuZC5lZGxpbmdlckBob3RtYWlsLmRl
-Pg0KKyAqIEFsbCByaWdodHMgcmVzZXJ2ZWQuDQorICoNCisgKiBDaGVjayB3aGV0aGVyIC9wcm9j
-LyRwaWQvbWVtIGNhbiBiZSBhY2Nlc3NlZCB3aXRob3V0IGNhdXNpbmcgZGVhZGxvY2tzDQorICog
-d2hlbiBkZV90aHJlYWQgaXMgYmxvY2tlZCB3aXRoIC0+Y3JlZF9ndWFyZF9tdXRleCBoZWxkLg0K
-KyAqLw0KKw0KKyNpbmNsdWRlICIuLi9rc2VsZnRlc3RfaGFybmVzcy5oIg0KKyNpbmNsdWRlIDxz
-dGRpby5oPg0KKyNpbmNsdWRlIDxmY250bC5oPg0KKyNpbmNsdWRlIDxwdGhyZWFkLmg+DQorI2lu
-Y2x1ZGUgPHNpZ25hbC5oPg0KKyNpbmNsdWRlIDx1bmlzdGQuaD4NCisjaW5jbHVkZSA8c3lzL3B0
-cmFjZS5oPg0KKw0KK3N0YXRpYyB2b2lkICp0aHJlYWQodm9pZCAqYXJnKQ0KK3sNCisJcHRyYWNl
-KFBUUkFDRV9UUkFDRU1FLCAwLCAwLCAwKTsNCisJcmV0dXJuIE5VTEw7DQorfQ0KKw0KK1RFU1Qo
-dm1hY2Nlc3MpDQorew0KKwlpbnQgZiwgcGlkID0gZm9yaygpOw0KKwljaGFyIG1tWzY0XTsNCisN
-CisJaWYgKCFwaWQpIHsNCisJCXB0aHJlYWRfdCBwdDsNCisJCXB0aHJlYWRfY3JlYXRlKCZwdCwg
-TlVMTCwgdGhyZWFkLCBOVUxMKTsNCisJCXB0aHJlYWRfam9pbihwdCwgTlVMTCk7DQorCQlleGVj
-bHAoInRydWUiLCAidHJ1ZSIsIE5VTEwpOw0KKwl9DQorDQorCXNsZWVwKDEpOw0KKwlzcHJpbnRm
-KG1tLCAiL3Byb2MvJWQvbWVtIiwgcGlkKTsNCisJZiA9IG9wZW4obW0sIE9fUkRPTkxZKTsNCisJ
-QVNTRVJUX0xFKDAsIGYpDQorCQljbG9zZShmKTsNCisJLyogdGhpcyBpcyBub3QgZml4ZWQhIHB0
-cmFjZShQVFJBQ0VfQVRUQUNILCBwaWQsIDAsMCk7ICovDQorCWYgPSBraWxsKHBpZCwgU0lHQ09O
-VCk7DQorCUFTU0VSVF9FUSgwLCBmKTsNCit9DQorDQorVEVTVF9IQVJORVNTX01BSU4NCi0tIA0K
-MS45LjENCg==
+Bernd Edlinger <bernd.edlinger@hotmail.de> writes:
+
+> This fixes a deadlock in the tracer when tracing a multi-threaded
+> application that calls execve while more than one thread are running.
+>
+> I observed that when running strace on the gcc test suite, it always
+> blocks after a while, when expect calls execve, because other threads
+> have to be terminated.  They send ptrace events, but the strace is no
+> longer able to respond, since it is blocked in vm_access.
+>
+> The deadlock is always happening when strace needs to access the
+> tracees process mmap, while another thread in the tracee starts to
+> execve a child process, but that cannot continue until the
+> PTRACE_EVENT_EXIT is handled and the WIFEXITED event is received:
+
+I think your patch works, but I don't think to solve your case another
+mutex is necessary.  Possibly it is justified, but I hesitate to
+introduce yet another concept in the code.
+
+Having read elsewhere in the thread that this does not solve the problem
+Oleg has mentioned I am really hesitant to add more complexity to the
+situation.
+
+
+For your case there is a straight forward and local workaround.
+
+When the current task is ptracing the target task don't bother with
+cred_gaurd_mutex and ptrace_may_access in access_mm as those tests
+have already passed.  Instead just confirm the ptrace status. AKA
+the permission check in ptraces_access_vm.
+
+I think something like this is all we need.
+
+diff --git a/kernel/fork.c b/kernel/fork.c
+index cee89229606a..b0ab98c84589 100644
+--- a/kernel/fork.c
++++ b/kernel/fork.c
+@@ -1224,6 +1224,16 @@ struct mm_struct *mm_access(struct task_struct *task, unsigned int mode)
+ 	struct mm_struct *mm;
+ 	int err;
+ 
++	if (task->ptrace && (current == task->parent)) {
++		mm = get_task_mm(task);
++		if ((get_dumpable(mm) != SUID_DUMP_USER) &&
++		    !ptracer_capable(task, mm->user_ns)) {
++			mmput(mm);
++			mm = ERR_PTR(-EACCESS);
++		}
++		return mm;
++	}
++
+ 	err =  mutex_lock_killable(&task->signal->cred_guard_mutex);
+ 	if (err)
+ 		return ERR_PTR(err);
+
+Does this solve your test case?
+
+The patch above is short the approriate locking for the ptrace attached
+check.  (tasklist_lock I think).  But is enough to illustrate the idea,
+and it is probably a check we want in any event so that if the tracer
+starts dropping privileges process_vm_readv and process_vm_writev will
+still be usable by the tracer.
+
+Eric
+
+
+> strace          D    0 30614  30584 0x00000000
+> Call Trace:
+> __schedule+0x3ce/0x6e0
+> schedule+0x5c/0xd0
+> schedule_preempt_disabled+0x15/0x20
+> __mutex_lock.isra.13+0x1ec/0x520
+> __mutex_lock_killable_slowpath+0x13/0x20
+> mutex_lock_killable+0x28/0x30
+> mm_access+0x27/0xa0
+> process_vm_rw_core.isra.3+0xff/0x550
+> process_vm_rw+0xdd/0xf0
+> __x64_sys_process_vm_readv+0x31/0x40
+> do_syscall_64+0x64/0x220
+> entry_SYSCALL_64_after_hwframe+0x44/0xa9
+>
+> expect          D    0 31933  30876 0x80004003
+> Call Trace:
+> __schedule+0x3ce/0x6e0
+> schedule+0x5c/0xd0
+> flush_old_exec+0xc4/0x770
+> load_elf_binary+0x35a/0x16c0
+> search_binary_handler+0x97/0x1d0
+> __do_execve_file.isra.40+0x5d4/0x8a0
+> __x64_sys_execve+0x49/0x60
+> do_syscall_64+0x64/0x220
+> entry_SYSCALL_64_after_hwframe+0x44/0xa9
+>
+> The proposed solution is to have a second mutex that is
+> used in mm_access, so it is allowed to continue while the
+> dying threads are not yet terminated.
+>
+> I also took the opportunity to improve the documentation
+> of prepare_creds, which is obviously out of sync.
+>
+> Signed-off-by: Bernd Edlinger <bernd.edlinger@hotmail.de>
+> ---
+>  Documentation/security/credentials.rst    | 18 ++++++------
+>  fs/exec.c                                 |  9 ++++++
+>  include/linux/binfmts.h                   |  6 +++-
+>  include/linux/sched/signal.h              |  1 +
+>  init/init_task.c                          |  1 +
+>  kernel/cred.c                             |  2 +-
+>  kernel/fork.c                             |  5 ++--
+>  mm/process_vm_access.c                    |  2 +-
+>  tools/testing/selftests/ptrace/Makefile   |  4 +--
+>  tools/testing/selftests/ptrace/vmaccess.c | 46 +++++++++++++++++++++++++++++++
+>  10 files changed, 79 insertions(+), 15 deletions(-)
+>  create mode 100644 tools/testing/selftests/ptrace/vmaccess.c
+>
+> v2: adds a test case which passes when this patch is applied.
+>
+>
+> diff --git a/Documentation/security/credentials.rst b/Documentation/security/credentials.rst
+> index 282e79f..c98e0a8 100644
+> --- a/Documentation/security/credentials.rst
+> +++ b/Documentation/security/credentials.rst
+> @@ -437,9 +437,13 @@ new set of credentials by calling::
+>  
+>  	struct cred *prepare_creds(void);
+>  
+> -this locks current->cred_replace_mutex and then allocates and constructs a
+> -duplicate of the current process's credentials, returning with the mutex still
+> -held if successful.  It returns NULL if not successful (out of memory).
+> +this allocates and constructs a duplicate of the current process's credentials.
+> +It returns NULL if not successful (out of memory).
+> +
+> +If called from __do_execve_file, the mutex current->signal->cred_guard_mutex
+> +is acquired before this function gets called, and the mutex
+> +current->signal->cred_change_mutex is acquired later, while the credentials
+> +and the process mmap are actually changed.
+>  
+>  The mutex prevents ``ptrace()`` from altering the ptrace state of a process
+>  while security checks on credentials construction and changing is taking place
+> @@ -466,9 +470,8 @@ by calling::
+>  
+>  This will alter various aspects of the credentials and the process, giving the
+>  LSM a chance to do likewise, then it will use ``rcu_assign_pointer()`` to
+> -actually commit the new credentials to ``current->cred``, it will release
+> -``current->cred_replace_mutex`` to allow ``ptrace()`` to take place, and it
+> -will notify the scheduler and others of the changes.
+> +actually commit the new credentials to ``current->cred``, and it will notify
+> +the scheduler and others of the changes.
+>  
+>  This function is guaranteed to return 0, so that it can be tail-called at the
+>  end of such functions as ``sys_setresuid()``.
+> @@ -486,8 +489,7 @@ invoked::
+>  
+>  	void abort_creds(struct cred *new);
+>  
+> -This releases the lock on ``current->cred_replace_mutex`` that
+> -``prepare_creds()`` got and then releases the new credentials.
+> +This releases the new credentials.
+>  
+>  
+>  A typical credentials alteration function would look something like this::
+> diff --git a/fs/exec.c b/fs/exec.c
+> index 74d88da..a6884e4 100644
+> --- a/fs/exec.c
+> +++ b/fs/exec.c
+> @@ -1266,6 +1266,12 @@ int flush_old_exec(struct linux_binprm * bprm)
+>  	if (retval)
+>  		goto out;
+>  
+> +	retval = mutex_lock_killable(&current->signal->cred_change_mutex);
+> +	if (retval)
+> +		goto out;
+> +
+> +	bprm->called_flush_old_exec = 1;
+> +
+>  	/*
+>  	 * Must be called _before_ exec_mmap() as bprm->mm is
+>  	 * not visibile until then. This also enables the update
+> @@ -1420,6 +1426,8 @@ static void free_bprm(struct linux_binprm *bprm)
+>  {
+>  	free_arg_pages(bprm);
+>  	if (bprm->cred) {
+> +		if (bprm->called_flush_old_exec)
+> +			mutex_unlock(&current->signal->cred_change_mutex);
+>  		mutex_unlock(&current->signal->cred_guard_mutex);
+>  		abort_creds(bprm->cred);
+>  	}
+> @@ -1469,6 +1477,7 @@ void install_exec_creds(struct linux_binprm *bprm)
+>  	 * credentials; any time after this it may be unlocked.
+>  	 */
+>  	security_bprm_committed_creds(bprm);
+> +	mutex_unlock(&current->signal->cred_change_mutex);
+>  	mutex_unlock(&current->signal->cred_guard_mutex);
+>  }
+>  EXPORT_SYMBOL(install_exec_creds);
+> diff --git a/include/linux/binfmts.h b/include/linux/binfmts.h
+> index b40fc63..2e1318b 100644
+> --- a/include/linux/binfmts.h
+> +++ b/include/linux/binfmts.h
+> @@ -44,7 +44,11 @@ struct linux_binprm {
+>  		 * exec has happened. Used to sanitize execution environment
+>  		 * and to set AT_SECURE auxv for glibc.
+>  		 */
+> -		secureexec:1;
+> +		secureexec:1,
+> +		/*
+> +		 * Set by flush_old_exec, when the cred_change_mutex is taken.
+> +		 */
+> +		called_flush_old_exec:1;
+>  #ifdef __alpha__
+>  	unsigned int taso:1;
+>  #endif
+> diff --git a/include/linux/sched/signal.h b/include/linux/sched/signal.h
+> index 8805025..37eeabe 100644
+> --- a/include/linux/sched/signal.h
+> +++ b/include/linux/sched/signal.h
+> @@ -225,6 +225,7 @@ struct signal_struct {
+>  	struct mutex cred_guard_mutex;	/* guard against foreign influences on
+>  					 * credential calculations
+>  					 * (notably. ptrace) */
+> +	struct mutex cred_change_mutex; /* guard against credentials change */
+>  } __randomize_layout;
+>  
+>  /*
+> diff --git a/init/init_task.c b/init/init_task.c
+> index 9e5cbe5..6cd9a0f 100644
+> --- a/init/init_task.c
+> +++ b/init/init_task.c
+> @@ -26,6 +26,7 @@
+>  	.multiprocess	= HLIST_HEAD_INIT,
+>  	.rlim		= INIT_RLIMITS,
+>  	.cred_guard_mutex = __MUTEX_INITIALIZER(init_signals.cred_guard_mutex),
+> +	.cred_change_mutex = __MUTEX_INITIALIZER(init_signals.cred_change_mutex),
+>  #ifdef CONFIG_POSIX_TIMERS
+>  	.posix_timers = LIST_HEAD_INIT(init_signals.posix_timers),
+>  	.cputimer	= {
+> diff --git a/kernel/cred.c b/kernel/cred.c
+> index 809a985..e4c78de 100644
+> --- a/kernel/cred.c
+> +++ b/kernel/cred.c
+> @@ -676,7 +676,7 @@ void __init cred_init(void)
+>   *
+>   * Returns the new credentials or NULL if out of memory.
+>   *
+> - * Does not take, and does not return holding current->cred_replace_mutex.
+> + * Does not take, and does not return holding ->cred_guard_mutex.
+>   */
+>  struct cred *prepare_kernel_cred(struct task_struct *daemon)
+>  {
+> diff --git a/kernel/fork.c b/kernel/fork.c
+> index 0808095..0395154 100644
+> --- a/kernel/fork.c
+> +++ b/kernel/fork.c
+> @@ -1224,7 +1224,7 @@ struct mm_struct *mm_access(struct task_struct *task, unsigned int mode)
+>  	struct mm_struct *mm;
+>  	int err;
+>  
+> -	err =  mutex_lock_killable(&task->signal->cred_guard_mutex);
+> +	err =  mutex_lock_killable(&task->signal->cred_change_mutex);
+>  	if (err)
+>  		return ERR_PTR(err);
+>  
+> @@ -1234,7 +1234,7 @@ struct mm_struct *mm_access(struct task_struct *task, unsigned int mode)
+>  		mmput(mm);
+>  		mm = ERR_PTR(-EACCES);
+>  	}
+> -	mutex_unlock(&task->signal->cred_guard_mutex);
+> +	mutex_unlock(&task->signal->cred_change_mutex);
+>  
+>  	return mm;
+>  }
+> @@ -1594,6 +1594,7 @@ static int copy_signal(unsigned long clone_flags, struct task_struct *tsk)
+>  	sig->oom_score_adj_min = current->signal->oom_score_adj_min;
+>  
+>  	mutex_init(&sig->cred_guard_mutex);
+> +	mutex_init(&sig->cred_change_mutex);
+>  
+>  	return 0;
+>  }
+> diff --git a/mm/process_vm_access.c b/mm/process_vm_access.c
+> index 357aa7b..b3e6eb5 100644
+> --- a/mm/process_vm_access.c
+> +++ b/mm/process_vm_access.c
+> @@ -204,7 +204,7 @@ static ssize_t process_vm_rw_core(pid_t pid, struct iov_iter *iter,
+>  	if (!mm || IS_ERR(mm)) {
+>  		rc = IS_ERR(mm) ? PTR_ERR(mm) : -ESRCH;
+>  		/*
+> -		 * Explicitly map EACCES to EPERM as EPERM is a more a
+> +		 * Explicitly map EACCES to EPERM as EPERM is a more
+>  		 * appropriate error code for process_vw_readv/writev
+>  		 */
+>  		if (rc == -EACCES)
+> diff --git a/tools/testing/selftests/ptrace/Makefile b/tools/testing/selftests/ptrace/Makefile
+> index c0b7f89..2f1f532 100644
+> --- a/tools/testing/selftests/ptrace/Makefile
+> +++ b/tools/testing/selftests/ptrace/Makefile
+> @@ -1,6 +1,6 @@
+>  # SPDX-License-Identifier: GPL-2.0-only
+> -CFLAGS += -iquote../../../../include/uapi -Wall
+> +CFLAGS += -std=c99 -pthread -iquote../../../../include/uapi -Wall
+>  
+> -TEST_GEN_PROGS := get_syscall_info peeksiginfo
+> +TEST_GEN_PROGS := get_syscall_info peeksiginfo vmaccess
+>  
+>  include ../lib.mk
+> diff --git a/tools/testing/selftests/ptrace/vmaccess.c b/tools/testing/selftests/ptrace/vmaccess.c
+> new file mode 100644
+> index 0000000..ef08c9f
+> --- /dev/null
+> +++ b/tools/testing/selftests/ptrace/vmaccess.c
+> @@ -0,0 +1,46 @@
+> +// SPDX-License-Identifier: GPL-2.0+
+> +/*
+> + * Copyright (c) 2020 Bernd Edlinger <bernd.edlinger@hotmail.de>
+> + * All rights reserved.
+> + *
+> + * Check whether /proc/$pid/mem can be accessed without causing deadlocks
+> + * when de_thread is blocked with ->cred_guard_mutex held.
+> + */
+> +
+> +#include "../kselftest_harness.h"
+> +#include <stdio.h>
+> +#include <fcntl.h>
+> +#include <pthread.h>
+> +#include <signal.h>
+> +#include <unistd.h>
+> +#include <sys/ptrace.h>
+> +
+> +static void *thread(void *arg)
+> +{
+> +	ptrace(PTRACE_TRACEME, 0, 0, 0);
+> +	return NULL;
+> +}
+> +
+> +TEST(vmaccess)
+> +{
+> +	int f, pid = fork();
+> +	char mm[64];
+> +
+> +	if (!pid) {
+> +		pthread_t pt;
+> +		pthread_create(&pt, NULL, thread, NULL);
+> +		pthread_join(pt, NULL);
+> +		execlp("true", "true", NULL);
+> +	}
+> +
+> +	sleep(1);
+> +	sprintf(mm, "/proc/%d/mem", pid);
+> +	f = open(mm, O_RDONLY);
+> +	ASSERT_LE(0, f)
+> +		close(f);
+> +	/* this is not fixed! ptrace(PTRACE_ATTACH, pid, 0,0); */
+> +	f = kill(pid, SIGCONT);
+> +	ASSERT_EQ(0, f);
+> +}
+> +
+> +TEST_HARNESS_MAIN
