@@ -2,83 +2,140 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 43A0A176523
-	for <lists+stable@lfdr.de>; Mon,  2 Mar 2020 21:37:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 08CE5176528
+	for <lists+stable@lfdr.de>; Mon,  2 Mar 2020 21:39:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726690AbgCBUha (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Mar 2020 15:37:30 -0500
-Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:32820 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726579AbgCBUha (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 2 Mar 2020 15:37:30 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1583181448;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=zqvrLEQk5BMgju+RSyn/5B7EOYMlf2EShnIdivH2s10=;
-        b=Yl5HypZrKlE0rx4vA0MIlHd9jpbKtx0WSODSkywbA9sRr2DmHYtBkFXY7Pg+dkaNPSMWgs
-        fky8bNdTkqyBI2auRgC1BDulw0tVTCjRAXlEy/hSA6X6u/Oy5WiAgCs/tsPdEeZOVWQ9/l
-        KStTqxDuOWvIfbAAzz0iuqCQw012Too=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-342-bC9Ty_ouO8GLgdEtXWVwHg-1; Mon, 02 Mar 2020 15:37:27 -0500
-X-MC-Unique: bC9Ty_ouO8GLgdEtXWVwHg-1
-Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 6328D13E5;
-        Mon,  2 Mar 2020 20:37:26 +0000 (UTC)
-Received: from laptop.redhat.com (ovpn-116-59.ams2.redhat.com [10.36.116.59])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 4B5045DD73;
-        Mon,  2 Mar 2020 20:37:19 +0000 (UTC)
-From:   Eric Auger <eric.auger@redhat.com>
-To:     eric.auger.pro@gmail.com, eric.auger@redhat.com,
-        linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
-        alex.williamson@redhat.com
-Cc:     andre.przywara@arm.com, stable@vger.kernel.org, cohuck@redhat.com
-Subject: [PATCH] vfio: platform: Switch to platform_get_irq_optional()
-Date:   Mon,  2 Mar 2020 21:37:15 +0100
-Message-Id: <20200302203715.13889-1-eric.auger@redhat.com>
+        id S1726579AbgCBUjz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Mar 2020 15:39:55 -0500
+Received: from mail-ot1-f68.google.com ([209.85.210.68]:42975 "EHLO
+        mail-ot1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726561AbgCBUjy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 2 Mar 2020 15:39:54 -0500
+Received: by mail-ot1-f68.google.com with SMTP id 66so653000otd.9;
+        Mon, 02 Mar 2020 12:39:54 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=nQSJKFMpudEkDgORa/bI52Ik/PzQSEhHhX35JY9xHZo=;
+        b=u4WD9eg8ytFPpaPhfAMEIM916kDvSALf72mS70PDCl4Q+7PeugYmbAeodB/Yqy9xNH
+         BoP+96nbpeLboSlNa5DIhKCemPkUoA9IvQe7FphPrZRObg+jFOVk9qMuGFZYXu4k5dV6
+         bQTqfSIj4GzBUUWN5r+IXjaiE4fGH2rWknDaCx2dOwYczvzzgPqVFQyD0ds5wPIgzLfX
+         MqAsA9BTw7bZohGMphPzKwh6KME8x8qSpO5KNNLn9zoAKOteKK3/6gnTW0htW/6CgYho
+         pxB6xf5q1LQIKp0/M0yxWXeAQ1qoIxRcrT6q8CtykiRN3YJDZLowgrvwPMJm4IAikj0T
+         ocEQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=nQSJKFMpudEkDgORa/bI52Ik/PzQSEhHhX35JY9xHZo=;
+        b=MIkg1Z4njDPwkkB1J1ge94YvZm5LmVfTo9atufeEatRqNYifNPb8Uc2fSucBL6Ecr7
+         U/VZEV2HQ0bCWrmahmjvvE2Gtm2ToQSC6/nPkejIp+jgMTAIGNgnTQO8Cxb/OhN9cSJM
+         TYG34id2CNrnTkhLxob9zQapWz8MS0yAn8w6AuGJXoDw52w8qmNB7CJNFukJr6/gnFn0
+         GPHwCG5XGyJiMZ9ytO838pA42LT+ipOyx2okEbWyJywiWMx0ve5aO7frEKqeIqk/CT3v
+         /6mWfglESqNPI+7y5lWro/dXGG8ylmPpfJDGQ9ELYkTD6XS8Tav6FAW/icMri+ODIJST
+         FPEw==
+X-Gm-Message-State: ANhLgQ1ZdDY35gYzKoT2SusbJJ0bh0guFQAq448kKVr7jKBrc9KbwH4U
+        DUFkzge3ohfDC84tod0YY0g=
+X-Google-Smtp-Source: ADFU+vvF6tKoiRAWDPyUKTJmMh0rgvkVcVi/gjwKaH/KBT5LmnA/a5WfUwGNlbqqym6OrFjJ63cmaw==
+X-Received: by 2002:a05:6830:612:: with SMTP id w18mr825548oti.160.1583181593979;
+        Mon, 02 Mar 2020 12:39:53 -0800 (PST)
+Received: from localhost.localdomain ([2604:1380:4111:8b00::1])
+        by smtp.gmail.com with ESMTPSA id n2sm6686251oia.58.2020.03.02.12.39.53
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 02 Mar 2020 12:39:53 -0800 (PST)
+From:   Nathan Chancellor <natechancellor@gmail.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Cc:     stable@vger.kernel.org, ecryptfs@vger.kernel.org,
+        Wenwen Wang <wenwen@cs.uga.edu>,
+        Tyler Hicks <tyhicks@canonical.com>,
+        Nathan Chancellor <natechancellor@gmail.com>
+Subject: [PATCH 4.4, 4.9, 4.14] ecryptfs: Fix up bad backport of fe2e082f5da5b4a0a92ae32978f81507ef37ec66
+Date:   Mon,  2 Mar 2020 13:39:13 -0700
+Message-Id: <20200302203912.27370-1-natechancellor@gmail.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
-Content-Transfer-Encoding: quoted-printable
+X-Patchwork-Bot: notify
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Since commit 7723f4c5ecdb ("driver core: platform: Add an error
-message to platform_get_irq*()"), platform_get_irq() calls dev_err()
-on an error. As we enumerate all interrupts until platform_get_irq()
-fails, we now systematically get a message such as:
-"vfio-platform fff51000.ethernet: IRQ index 3 not found" which is
-a false positive.
+When doing the 4.9 merge into certain Android trees, I noticed a warning
+from Android's deprecated GCC 4.9.4, which causes a build failure in
+those trees due to basically -Werror:
 
-Let's use platform_get_irq_optional() instead.
+fs/ecryptfs/keystore.c: In function 'ecryptfs_parse_packet_set':
+fs/ecryptfs/keystore.c:1357:2: warning: 'auth_tok_list_item' may be used
+uninitialized in this function [-Wmaybe-uninitialized]
+  memset(auth_tok_list_item, 0,
+  ^
+fs/ecryptfs/keystore.c:1260:38: note: 'auth_tok_list_item' was declared
+here
+  struct ecryptfs_auth_tok_list_item *auth_tok_list_item;
+                                      ^
 
-Signed-off-by: Eric Auger <eric.auger@redhat.com>
-Cc: stable@vger.kernel.org # v5.3+
+GCC 9.2.0 was not able to pick up this warning when I tested it.
+
+Turns out that Clang warns as well when -Wuninitialized is used, which
+is not the case in older stable trees at the moment (but shows value in
+potentially backporting the various warning fixes currently in upstream
+to get more coverage).
+
+fs/ecryptfs/keystore.c:1284:6: warning: variable 'auth_tok_list_item' is
+used uninitialized whenever 'if' condition is true
+[-Wsometimes-uninitialized]
+        if (data[(*packet_size)++] != ECRYPTFS_TAG_1_PACKET_TYPE) {
+            ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+fs/ecryptfs/keystore.c:1360:4: note: uninitialized use occurs here
+                        auth_tok_list_item);
+                        ^~~~~~~~~~~~~~~~~~
+fs/ecryptfs/keystore.c:1284:2: note: remove the 'if' if its condition is
+always false
+        if (data[(*packet_size)++] != ECRYPTFS_TAG_1_PACKET_TYPE) {
+        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+fs/ecryptfs/keystore.c:1260:56: note: initialize the variable
+'auth_tok_list_item' to silence this warning
+        struct ecryptfs_auth_tok_list_item *auth_tok_list_item;
+                                                              ^
+                                                               = NULL
+1 warning generated.
+
+Somehow, commit fe2e082f5da5 ("ecryptfs: fix a memory leak bug in
+parse_tag_1_packet()") upstream was not applied in the correct if block
+in 4.4.215, 4.9.215, and 4.14.172, which will indeed lead to use of
+uninitialized memory. Fix it up by undoing the bad backport in those
+trees then reapplying the patch in the proper location.
+
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
 ---
- drivers/vfio/platform/vfio_platform.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/ecryptfs/keystore.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/vfio/platform/vfio_platform.c b/drivers/vfio/platfor=
-m/vfio_platform.c
-index ae1a5eb98620..1e2769010089 100644
---- a/drivers/vfio/platform/vfio_platform.c
-+++ b/drivers/vfio/platform/vfio_platform.c
-@@ -44,7 +44,7 @@ static int get_platform_irq(struct vfio_platform_device=
- *vdev, int i)
- {
- 	struct platform_device *pdev =3D (struct platform_device *) vdev->opaqu=
-e;
-=20
--	return platform_get_irq(pdev, i);
-+	return platform_get_irq_optional(pdev, i);
- }
-=20
- static int vfio_platform_probe(struct platform_device *pdev)
---=20
-2.20.1
+diff --git a/fs/ecryptfs/keystore.c b/fs/ecryptfs/keystore.c
+index 3f3ec50bf773..b134315fb69d 100644
+--- a/fs/ecryptfs/keystore.c
++++ b/fs/ecryptfs/keystore.c
+@@ -1285,7 +1285,7 @@ parse_tag_1_packet(struct ecryptfs_crypt_stat *crypt_stat,
+ 		printk(KERN_ERR "Enter w/ first byte != 0x%.2x\n",
+ 		       ECRYPTFS_TAG_1_PACKET_TYPE);
+ 		rc = -EINVAL;
+-		goto out_free;
++		goto out;
+ 	}
+ 	/* Released: wipe_auth_tok_list called in ecryptfs_parse_packet_set or
+ 	 * at end of function upon failure */
+@@ -1335,7 +1335,7 @@ parse_tag_1_packet(struct ecryptfs_crypt_stat *crypt_stat,
+ 		printk(KERN_WARNING "Tag 1 packet contains key larger "
+ 		       "than ECRYPTFS_MAX_ENCRYPTED_KEY_BYTES");
+ 		rc = -EINVAL;
+-		goto out;
++		goto out_free;
+ 	}
+ 	memcpy((*new_auth_tok)->session_key.encrypted_key,
+ 	       &data[(*packet_size)], (body_size - (ECRYPTFS_SIG_SIZE + 2)));
+-- 
+2.25.1
 
