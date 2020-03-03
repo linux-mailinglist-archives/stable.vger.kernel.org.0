@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B05CF1780F3
-	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 20:01:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2149F1781D6
+	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 20:02:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387653AbgCCR7q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Mar 2020 12:59:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43202 "EHLO mail.kernel.org"
+        id S1730877AbgCCSG7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Mar 2020 13:06:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37124 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387650AbgCCR7p (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Mar 2020 12:59:45 -0500
+        id S1732718AbgCCRz3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Mar 2020 12:55:29 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DF94320CC7;
-        Tue,  3 Mar 2020 17:59:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 719C4206D5;
+        Tue,  3 Mar 2020 17:55:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583258385;
-        bh=XScb1HpWRssczpAA1YStAmkjyi8I91uCzovYRdXowjM=;
+        s=default; t=1583258128;
+        bh=toAKJpVcK8AmIRqax8RohZ3VZLNcWfijpolDJB41s/I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xNvvQ5nmxjIYKFw1Eiu5DqVbJbW/J+3u4FKdS9pxARxLbtV3CFYaPzdFOppUGMU5p
-         tKQnrc3Vm/Jytw6FIr9gntKLw5LyyVGfvdGdpCwPSS7tPyLv8V5FNBx4Fb3wHEKCQ9
-         X3hL0M8ABOt5edpJmouYPggBPKLUJaVHq4dmvsco=
+        b=pfdfi5MtK4ALywCP3kNrMbclBpy292C6gzMPcySN59ehouukPE3T2hVG8LK4i1ZaI
+         UkDaeWB7oTtWuENMFN80GUyvDgQUMXxhw+qe41BDQsshTJ9mmV8vrl2ELNTGxXQJaS
+         g+S8KEjnCSEH4qdOiqHQ9TAK1gT37Tk3LK5Fjkgw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
-        Luca Coelho <luciano.coelho@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 07/87] mac80211: consider more elements in parsing CRC
-Date:   Tue,  3 Mar 2020 18:42:58 +0100
-Message-Id: <20200303174349.640533833@linuxfoundation.org>
+        stable@vger.kernel.org, Erhard Furtner <erhard_f@mailbox.org>,
+        Wolfram Sang <wsa@the-dreams.de>,
+        Michael Ellerman <mpe@ellerman.id.au>, stable@kernel.org
+Subject: [PATCH 5.4 081/152] macintosh: therm_windtunnel: fix regression when instantiating devices
+Date:   Tue,  3 Mar 2020 18:42:59 +0100
+Message-Id: <20200303174311.753116244@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200303174349.075101355@linuxfoundation.org>
-References: <20200303174349.075101355@linuxfoundation.org>
+In-Reply-To: <20200303174302.523080016@linuxfoundation.org>
+References: <20200303174302.523080016@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,68 +44,136 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Wolfram Sang <wsa@the-dreams.de>
 
-[ Upstream commit a04564c99bb4a92f805a58e56b2d22cc4978f152 ]
+commit 38b17afb0ebb9ecd41418d3c08bcf9198af4349d upstream.
 
-We only use the parsing CRC for checking if a beacon changed,
-and elements with an ID > 63 cannot be represented in the
-filter. Thus, like we did before with WMM and Cisco vendor
-elements, just statically add these forgotten items to the
-CRC:
- - WLAN_EID_VHT_OPERATION
- - WLAN_EID_OPMODE_NOTIF
+Removing attach_adapter from this driver caused a regression for at
+least some machines. Those machines had the sensors described in their
+DT, too, so they didn't need manual creation of the sensor devices. The
+old code worked, though, because manual creation came first. Creation of
+DT devices then failed later and caused error logs, but the sensors
+worked nonetheless because of the manually created devices.
 
-I guess that in most cases when VHT/HE operation change, the HT
-operation also changed, and so the change was picked up, but we
-did notice that pure operating mode notification changes were
-ignored.
+When removing attach_adaper, manual creation now comes later and loses
+the race. The sensor devices were already registered via DT, yet with
+another binding, so the driver could not be bound to it.
 
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-Link: https://lore.kernel.org/r/20200131111300.891737-22-luca@coelho.fi
-[restrict to VHT for the mac80211 branch]
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This fix refactors the code to remove the race and only manually creates
+devices if there are no DT nodes present. Also, the DT binding is updated
+to match both, the DT and manually created devices. Because we don't
+know which device creation will be used at runtime, the code to start
+the kthread is moved to do_probe() which will be called by both methods.
+
+Fixes: 3e7bed52719d ("macintosh: therm_windtunnel: drop using attach_adapter")
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=201723
+Reported-by: Erhard Furtner <erhard_f@mailbox.org>
+Tested-by: Erhard Furtner <erhard_f@mailbox.org>
+Acked-by: Michael Ellerman <mpe@ellerman.id.au> (powerpc)
+Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+Cc: stable@kernel.org # v4.19+
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- net/mac80211/util.c | 18 ++++++++++++------
- 1 file changed, 12 insertions(+), 6 deletions(-)
+ drivers/macintosh/therm_windtunnel.c |   52 ++++++++++++++++++++---------------
+ 1 file changed, 31 insertions(+), 21 deletions(-)
 
-diff --git a/net/mac80211/util.c b/net/mac80211/util.c
-index f101a6460b44b..7fa9871b1db9f 100644
---- a/net/mac80211/util.c
-+++ b/net/mac80211/util.c
-@@ -945,16 +945,22 @@ u32 ieee802_11_parse_elems_crc(const u8 *start, size_t len, bool action,
- 				elem_parse_failed = true;
- 			break;
- 		case WLAN_EID_VHT_OPERATION:
--			if (elen >= sizeof(struct ieee80211_vht_operation))
-+			if (elen >= sizeof(struct ieee80211_vht_operation)) {
- 				elems->vht_operation = (void *)pos;
--			else
--				elem_parse_failed = true;
-+				if (calc_crc)
-+					crc = crc32_be(crc, pos - 2, elen + 2);
-+				break;
-+			}
-+			elem_parse_failed = true;
- 			break;
- 		case WLAN_EID_OPMODE_NOTIF:
--			if (elen > 0)
-+			if (elen > 0) {
- 				elems->opmode_notif = pos;
--			else
--				elem_parse_failed = true;
-+				if (calc_crc)
-+					crc = crc32_be(crc, pos - 2, elen + 2);
-+				break;
-+			}
-+			elem_parse_failed = true;
- 			break;
- 		case WLAN_EID_MESH_ID:
- 			elems->mesh_id = pos;
--- 
-2.20.1
-
+--- a/drivers/macintosh/therm_windtunnel.c
++++ b/drivers/macintosh/therm_windtunnel.c
+@@ -300,9 +300,11 @@ static int control_loop(void *dummy)
+ /*	i2c probing and setup						*/
+ /************************************************************************/
+ 
+-static int
+-do_attach( struct i2c_adapter *adapter )
++static void do_attach(struct i2c_adapter *adapter)
+ {
++	struct i2c_board_info info = { };
++	struct device_node *np;
++
+ 	/* scan 0x48-0x4f (DS1775) and 0x2c-2x2f (ADM1030) */
+ 	static const unsigned short scan_ds1775[] = {
+ 		0x48, 0x49, 0x4a, 0x4b, 0x4c, 0x4d, 0x4e, 0x4f,
+@@ -313,25 +315,24 @@ do_attach( struct i2c_adapter *adapter )
+ 		I2C_CLIENT_END
+ 	};
+ 
+-	if( strncmp(adapter->name, "uni-n", 5) )
+-		return 0;
+-
+-	if( !x.running ) {
+-		struct i2c_board_info info;
++	if (x.running || strncmp(adapter->name, "uni-n", 5))
++		return;
+ 
+-		memset(&info, 0, sizeof(struct i2c_board_info));
+-		strlcpy(info.type, "therm_ds1775", I2C_NAME_SIZE);
++	np = of_find_compatible_node(adapter->dev.of_node, NULL, "MAC,ds1775");
++	if (np) {
++		of_node_put(np);
++	} else {
++		strlcpy(info.type, "MAC,ds1775", I2C_NAME_SIZE);
+ 		i2c_new_probed_device(adapter, &info, scan_ds1775, NULL);
++	}
+ 
+-		strlcpy(info.type, "therm_adm1030", I2C_NAME_SIZE);
++	np = of_find_compatible_node(adapter->dev.of_node, NULL, "MAC,adm1030");
++	if (np) {
++		of_node_put(np);
++	} else {
++		strlcpy(info.type, "MAC,adm1030", I2C_NAME_SIZE);
+ 		i2c_new_probed_device(adapter, &info, scan_adm1030, NULL);
+-
+-		if( x.thermostat && x.fan ) {
+-			x.running = 1;
+-			x.poll_task = kthread_run(control_loop, NULL, "g4fand");
+-		}
+ 	}
+-	return 0;
+ }
+ 
+ static int
+@@ -404,8 +405,8 @@ out:
+ enum chip { ds1775, adm1030 };
+ 
+ static const struct i2c_device_id therm_windtunnel_id[] = {
+-	{ "therm_ds1775", ds1775 },
+-	{ "therm_adm1030", adm1030 },
++	{ "MAC,ds1775", ds1775 },
++	{ "MAC,adm1030", adm1030 },
+ 	{ }
+ };
+ MODULE_DEVICE_TABLE(i2c, therm_windtunnel_id);
+@@ -414,6 +415,7 @@ static int
+ do_probe(struct i2c_client *cl, const struct i2c_device_id *id)
+ {
+ 	struct i2c_adapter *adapter = cl->adapter;
++	int ret = 0;
+ 
+ 	if( !i2c_check_functionality(adapter, I2C_FUNC_SMBUS_WORD_DATA
+ 				     | I2C_FUNC_SMBUS_WRITE_BYTE) )
+@@ -421,11 +423,19 @@ do_probe(struct i2c_client *cl, const st
+ 
+ 	switch (id->driver_data) {
+ 	case adm1030:
+-		return attach_fan( cl );
++		ret = attach_fan(cl);
++		break;
+ 	case ds1775:
+-		return attach_thermostat(cl);
++		ret = attach_thermostat(cl);
++		break;
+ 	}
+-	return 0;
++
++	if (!x.running && x.thermostat && x.fan) {
++		x.running = 1;
++		x.poll_task = kthread_run(control_loop, NULL, "g4fand");
++	}
++
++	return ret;
+ }
+ 
+ static struct i2c_driver g4fan_driver = {
 
 
