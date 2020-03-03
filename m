@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3EDCF176C5B
-	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 03:56:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 66F69176C54
+	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 03:56:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728579AbgCCCsv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Mar 2020 21:48:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44732 "EHLO mail.kernel.org"
+        id S1728687AbgCCC4D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Mar 2020 21:56:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44818 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728571AbgCCCsu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Mar 2020 21:48:50 -0500
+        id S1728594AbgCCCsy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Mar 2020 21:48:54 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 19C2E24699;
-        Tue,  3 Mar 2020 02:48:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B9E8D24680;
+        Tue,  3 Mar 2020 02:48:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583203729;
-        bh=vOSBD3sjHzK6riGbNN96CcuhfOs6Oto3eXhPhUlUcHs=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wUPWWxIVr8Im0SifjCUsvyYX5x1+HBoMauyeZvn9xo8yOCNJ/0aOUAFJJ+zOmgz7s
-         uLJBgpHBY7qLS2qVEtexQwLNTBqZA+xHMxFb903voiPRz0bcRTALKqnCw5F5eFQ63C
-         rihPkAk8FhkxzCpS361sL1y9lx/BVADJDfXfViHQ=
+        s=default; t=1583203733;
+        bh=ssKvFUgnI1L6vedipqOf+KiYAXpk4XNBlD8QG1x3TBg=;
+        h=From:To:Cc:Subject:Date:From;
+        b=OZfSeyrUqh8nAz5gSywhf8iRItSkPMcuOTmr/8nRhqgxh9+hg6TsYjzxplCrurT2f
+         aacSXVwGxZ1N5kLlbzOD8EpttTpBKApl6Dq+n31CXzTIGM8Y90uktf8Up7p3+MOhgH
+         34XYGxydM/h2S+eVbqrB/B+f5RryTyWPf8m+xY6M=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hangbin Liu <liuhangbin@gmail.com>,
-        Petr Machata <petrm@mellanox.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
-        linux-kselftest@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 58/58] selftests: forwarding: vxlan_bridge_1d: use more proper tos value
-Date:   Mon,  2 Mar 2020 21:47:40 -0500
-Message-Id: <20200303024740.9511-58-sashal@kernel.org>
+Cc:     Kai Vehmanen <kai.vehmanen@linux.intel.com>,
+        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Takashi Iwai <tiwai@suse.de>, Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 4.19 01/32] ALSA: hda: do not override bus codec_mask in link_get()
+Date:   Mon,  2 Mar 2020 21:48:20 -0500
+Message-Id: <20200303024851.10054-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20200303024740.9511-1-sashal@kernel.org>
-References: <20200303024740.9511-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -45,39 +43,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hangbin Liu <liuhangbin@gmail.com>
+From: Kai Vehmanen <kai.vehmanen@linux.intel.com>
 
-[ Upstream commit 9b64208f74fbd0e920475ecfe9326f8443fdc3a5 ]
+[ Upstream commit 43bcb1c0507858cdc95e425017dcc33f8105df39 ]
 
-0x11 and 0x12 set the ECN bits based on RFC2474, it would be better to avoid
-that. 0x14 and 0x18 would be better and works as well.
+snd_hdac_ext_bus_link_get() does not work correctly in case
+there are multiple codecs on the bus. It unconditionally
+resets the bus->codec_mask value. As per documentation in
+hdaudio.h and existing use in client code, this field should
+be used to store bit flag of detected codecs on the bus.
 
-Reported-by: Petr Machata <petrm@mellanox.com>
-Fixes: 4e867c9a50ff ("selftests: forwarding: vxlan_bridge_1d: fix tos value")
-Signed-off-by: Hangbin Liu <liuhangbin@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+By overwriting value of the codec_mask, information on all
+detected codecs is lost. No current user of hdac is impacted,
+but use of bus->codec_mask is planned in future patches
+for SOF.
+
+Signed-off-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
+Reviewed-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
+Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Reviewed-by: Takashi Iwai <tiwai@suse.de>
+Link: https://lore.kernel.org/r/20200206200223.7715-1-kai.vehmanen@linux.intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/net/forwarding/vxlan_bridge_1d.sh | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ sound/hda/ext/hdac_ext_controller.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/tools/testing/selftests/net/forwarding/vxlan_bridge_1d.sh b/tools/testing/selftests/net/forwarding/vxlan_bridge_1d.sh
-index 353613fc19475..ce6bea9675c07 100755
---- a/tools/testing/selftests/net/forwarding/vxlan_bridge_1d.sh
-+++ b/tools/testing/selftests/net/forwarding/vxlan_bridge_1d.sh
-@@ -516,9 +516,9 @@ test_tos()
- 	RET=0
+diff --git a/sound/hda/ext/hdac_ext_controller.c b/sound/hda/ext/hdac_ext_controller.c
+index 60cb00fd0c693..84b44cdae28a1 100644
+--- a/sound/hda/ext/hdac_ext_controller.c
++++ b/sound/hda/ext/hdac_ext_controller.c
+@@ -262,6 +262,7 @@ EXPORT_SYMBOL_GPL(snd_hdac_ext_bus_link_power_down_all);
+ int snd_hdac_ext_bus_link_get(struct hdac_bus *bus,
+ 				struct hdac_ext_link *link)
+ {
++	unsigned long codec_mask;
+ 	int ret = 0;
  
- 	tc filter add dev v1 egress pref 77 prot ip \
--		flower ip_tos 0x11 action pass
--	vxlan_ping_test $h1 192.0.2.3 "-Q 0x11" v1 egress 77 10
--	vxlan_ping_test $h1 192.0.2.3 "-Q 0x12" v1 egress 77 0
-+		flower ip_tos 0x14 action pass
-+	vxlan_ping_test $h1 192.0.2.3 "-Q 0x14" v1 egress 77 10
-+	vxlan_ping_test $h1 192.0.2.3 "-Q 0x18" v1 egress 77 0
- 	tc filter del dev v1 egress pref 77 prot ip
+ 	mutex_lock(&bus->lock);
+@@ -283,9 +284,11 @@ int snd_hdac_ext_bus_link_get(struct hdac_bus *bus,
+ 		 *  HDA spec section 4.3 - Codec Discovery
+ 		 */
+ 		udelay(521);
+-		bus->codec_mask = snd_hdac_chip_readw(bus, STATESTS);
+-		dev_dbg(bus->dev, "codec_mask = 0x%lx\n", bus->codec_mask);
+-		snd_hdac_chip_writew(bus, STATESTS, bus->codec_mask);
++		codec_mask = snd_hdac_chip_readw(bus, STATESTS);
++		dev_dbg(bus->dev, "codec_mask = 0x%lx\n", codec_mask);
++		snd_hdac_chip_writew(bus, STATESTS, codec_mask);
++		if (!bus->codec_mask)
++			bus->codec_mask = codec_mask;
+ 	}
  
- 	log_test "VXLAN: envelope TOS inheritance"
+ 	mutex_unlock(&bus->lock);
 -- 
 2.20.1
 
