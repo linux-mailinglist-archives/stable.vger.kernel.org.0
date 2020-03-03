@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4BBBB176D57
-	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 04:03:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ED695176D52
+	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 04:03:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726876AbgCCDDC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Mar 2020 22:03:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40944 "EHLO mail.kernel.org"
+        id S1727571AbgCCCqj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Mar 2020 21:46:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41138 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727509AbgCCCqe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Mar 2020 21:46:34 -0500
+        id S1727551AbgCCCqi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Mar 2020 21:46:38 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5A97224677;
-        Tue,  3 Mar 2020 02:46:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3539324677;
+        Tue,  3 Mar 2020 02:46:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583203593;
-        bh=AFLhECNdQynG25OAfG50zgqOns9HClcAwKK6FJTao+o=;
+        s=default; t=1583203598;
+        bh=5KKM57E/6i1ezCg+qBrkEvzBJzmv+cHuBS7GbTFfXtc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xJjHOBD47LcgyomUacrzezbv0DBFJGYl2T2W7Q5rcGbB9AulGFxkG7G1ju9WuaE8z
-         ofLmzFAKkQmpaMr2KfFUyIcOeMjMMi9nX3yB7gk3ZpvhB76NFnykojgFwSzeFWcQD/
-         ZRjm3kpUjGgoI7ZwUMo7iK3e+MxsXZwbUJxLXnk4=
+        b=sMiFyZL9vrxoXOWGiIhX80qSfHkZ2n+cR5QkB4RjKqlkRlmsDNabNgn0uiLf1/hZa
+         xY4pUA4kU8JLsEchgRPF9rKWWynYcn9zw3WDyIYqyhoPt/MdQzu8eMLjpE9t4tSbsN
+         T41E5ydHMsmnS1/tqnn2DW1SW491YZ5rwN/f7BEM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Stephan Gerhold <stephan@gerhold.net>,
-        Maxime Ripard <maxime@cerno.tech>,
-        Sasha Levin <sashal@kernel.org>,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.5 14/66] drm/modes: Make sure to parse valid rotation value from cmdline
-Date:   Mon,  2 Mar 2020 21:45:23 -0500
-Message-Id: <20200303024615.8889-14-sashal@kernel.org>
+Cc:     Harigovindan P <harigovi@codeaurora.org>,
+        Jeffrey Hugo <jeffrey.l.hugo@gmail.com>,
+        Rob Clark <robdclark@chromium.org>,
+        Sasha Levin <sashal@kernel.org>, linux-arm-msm@vger.kernel.org,
+        dri-devel@lists.freedesktop.org, freedreno@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.5 18/66] drm/msm/dsi/pll: call vco set rate explicitly
+Date:   Mon,  2 Mar 2020 21:45:27 -0500
+Message-Id: <20200303024615.8889-18-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200303024615.8889-1-sashal@kernel.org>
 References: <20200303024615.8889-1-sashal@kernel.org>
@@ -44,101 +45,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephan Gerhold <stephan@gerhold.net>
+From: Harigovindan P <harigovi@codeaurora.org>
 
-[ Upstream commit e6980a727154b793adb218fbc7b4d6af52a7e364 ]
+[ Upstream commit c6659785dfb3f8d75f1fe637e4222ff8178f5280 ]
 
-A rotation value should have exactly one rotation angle.
-At the moment there is no validation for this when parsing video=
-parameters from the command line. This causes problems later on
-when we try to combine the command line rotation with the panel
-orientation.
+For a given byte clock, if VCO recalc value is exactly same as
+vco set rate value, vco_set_rate does not get called assuming
+VCO is already set to required value. But Due to GDSC toggle,
+VCO values are erased in the HW. To make sure VCO is programmed
+correctly, we forcefully call set_rate from vco_prepare.
 
-To make sure that we generate a valid rotation value:
-  - Set DRM_MODE_ROTATE_0 by default (if no rotate= option is set)
-  - Validate that there is exactly one rotation angle set
-    (i.e. specifying the rotate= option multiple times is invalid)
-
-Signed-off-by: Stephan Gerhold <stephan@gerhold.net>
-Signed-off-by: Maxime Ripard <maxime@cerno.tech>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200117153429.54700-2-stephan@gerhold.net
+Signed-off-by: Harigovindan P <harigovi@codeaurora.org>
+Reviewed-by: Jeffrey Hugo <jeffrey.l.hugo@gmail.com>
+Signed-off-by: Rob Clark <robdclark@chromium.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/drm_modes.c                       |  7 +++++++
- drivers/gpu/drm/selftests/drm_cmdline_selftests.h |  1 +
- .../gpu/drm/selftests/test-drm_cmdline_parser.c   | 15 +++++++++++++--
- 3 files changed, 21 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/msm/dsi/pll/dsi_pll_10nm.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/gpu/drm/drm_modes.c b/drivers/gpu/drm/drm_modes.c
-index 88232698d7a00..3fd35e6b9d535 100644
---- a/drivers/gpu/drm/drm_modes.c
-+++ b/drivers/gpu/drm/drm_modes.c
-@@ -1672,6 +1672,13 @@ static int drm_mode_parse_cmdline_options(char *str, size_t len,
- 		}
- 	}
+diff --git a/drivers/gpu/drm/msm/dsi/pll/dsi_pll_10nm.c b/drivers/gpu/drm/msm/dsi/pll/dsi_pll_10nm.c
+index 8f6100db90ed4..aa9385d5bfff9 100644
+--- a/drivers/gpu/drm/msm/dsi/pll/dsi_pll_10nm.c
++++ b/drivers/gpu/drm/msm/dsi/pll/dsi_pll_10nm.c
+@@ -411,6 +411,12 @@ static int dsi_pll_10nm_vco_prepare(struct clk_hw *hw)
+ 	if (pll_10nm->slave)
+ 		dsi_pll_enable_pll_bias(pll_10nm->slave);
  
-+	if (!(rotation & DRM_MODE_ROTATE_MASK))
-+		rotation |= DRM_MODE_ROTATE_0;
++	rc = dsi_pll_10nm_vco_set_rate(hw,pll_10nm->vco_current_rate, 0);
++	if (rc) {
++		pr_err("vco_set_rate failed, rc=%d\n", rc);
++		return rc;
++	}
 +
-+	/* Make sure there is exactly one rotation defined */
-+	if (!is_power_of_2(rotation & DRM_MODE_ROTATE_MASK))
-+		return -EINVAL;
-+
- 	mode->rotation_reflection = rotation;
- 
- 	return 0;
-diff --git a/drivers/gpu/drm/selftests/drm_cmdline_selftests.h b/drivers/gpu/drm/selftests/drm_cmdline_selftests.h
-index 6d61a0eb5d64f..84e6bc050bf2c 100644
---- a/drivers/gpu/drm/selftests/drm_cmdline_selftests.h
-+++ b/drivers/gpu/drm/selftests/drm_cmdline_selftests.h
-@@ -53,6 +53,7 @@ cmdline_test(drm_cmdline_test_rotate_0)
- cmdline_test(drm_cmdline_test_rotate_90)
- cmdline_test(drm_cmdline_test_rotate_180)
- cmdline_test(drm_cmdline_test_rotate_270)
-+cmdline_test(drm_cmdline_test_rotate_multiple)
- cmdline_test(drm_cmdline_test_rotate_invalid_val)
- cmdline_test(drm_cmdline_test_rotate_truncated)
- cmdline_test(drm_cmdline_test_hmirror)
-diff --git a/drivers/gpu/drm/selftests/test-drm_cmdline_parser.c b/drivers/gpu/drm/selftests/test-drm_cmdline_parser.c
-index 013de9d27c35d..035f86c5d6482 100644
---- a/drivers/gpu/drm/selftests/test-drm_cmdline_parser.c
-+++ b/drivers/gpu/drm/selftests/test-drm_cmdline_parser.c
-@@ -856,6 +856,17 @@ static int drm_cmdline_test_rotate_270(void *ignored)
- 	return 0;
- }
- 
-+static int drm_cmdline_test_rotate_multiple(void *ignored)
-+{
-+	struct drm_cmdline_mode mode = { };
-+
-+	FAIL_ON(drm_mode_parse_command_line_for_connector("720x480,rotate=0,rotate=90",
-+							  &no_connector,
-+							  &mode));
-+
-+	return 0;
-+}
-+
- static int drm_cmdline_test_rotate_invalid_val(void *ignored)
- {
- 	struct drm_cmdline_mode mode = { };
-@@ -888,7 +899,7 @@ static int drm_cmdline_test_hmirror(void *ignored)
- 	FAIL_ON(!mode.specified);
- 	FAIL_ON(mode.xres != 720);
- 	FAIL_ON(mode.yres != 480);
--	FAIL_ON(mode.rotation_reflection != DRM_MODE_REFLECT_X);
-+	FAIL_ON(mode.rotation_reflection != (DRM_MODE_ROTATE_0 | DRM_MODE_REFLECT_X));
- 
- 	FAIL_ON(mode.refresh_specified);
- 
-@@ -913,7 +924,7 @@ static int drm_cmdline_test_vmirror(void *ignored)
- 	FAIL_ON(!mode.specified);
- 	FAIL_ON(mode.xres != 720);
- 	FAIL_ON(mode.yres != 480);
--	FAIL_ON(mode.rotation_reflection != DRM_MODE_REFLECT_Y);
-+	FAIL_ON(mode.rotation_reflection != (DRM_MODE_ROTATE_0 | DRM_MODE_REFLECT_Y));
- 
- 	FAIL_ON(mode.refresh_specified);
- 
+ 	/* Start PLL */
+ 	pll_write(pll_10nm->phy_cmn_mmio + REG_DSI_10nm_PHY_CMN_PLL_CNTRL,
+ 		  0x01);
 -- 
 2.20.1
 
