@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 31D02177FF4
-	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 19:59:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C01F3177F12
+	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 19:57:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732428AbgCCRxw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Mar 2020 12:53:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34462 "EHLO mail.kernel.org"
+        id S1731551AbgCCRse (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Mar 2020 12:48:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55720 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732088AbgCCRxq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Mar 2020 12:53:46 -0500
+        id S1731527AbgCCRsd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Mar 2020 12:48:33 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CE2FF20CC7;
-        Tue,  3 Mar 2020 17:53:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B1D3D20870;
+        Tue,  3 Mar 2020 17:48:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583258026;
-        bh=g9RnykzEodxfWrp1WVCnoI0ktr7vw50NZU8MMja7NyI=;
+        s=default; t=1583257713;
+        bh=uaI06Q+VT+zupIXMyse4ElXQfxh08km6yMMEEHSyq+o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1gfX0jCb6sH13naQ/yKCwXn8KkOpN544mPARLA38PzPaqzv4yZfP1hcHa8Rbncd2k
-         K2CRBU220RibBuuqBn+VQ/FmQ1/n+ahTi/XwTHGl2LWToyQLTSyMBXFn5kp9E64346
-         mGaOoSgbcUeQyuJi/duJy8ujD4aWoWnCs7nVajp0=
+        b=cw03c+UxYReLX6x9gCDbiuW13PYo4uUraenBaEIu2hXOz8IAOCv/cbl33CJRqhkK/
+         Z3EtezM/ZygbSxe9KIk74SrfqL2kWfuPCV/LNIlzCtHkx6wqRvS1FaKMe8hUqZ2Y44
+         TUr2s2s8erl3smz/p6bw8+m7nm3lNTZAauJOE4Jk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sung Lee <sung.lee@amd.com>,
-        Tony Cheng <Tony.Cheng@amd.com>,
-        Bhawanpreet Lakha <Bhawanpreet.Lakha@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org, Yufeng Mo <moyufeng@huawei.com>,
+        Huazhong Tan <tanhuazhong@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 041/152] drm/amd/display: Do not set optimized_require to false after plane disable
+Subject: [PATCH 5.5 075/176] net: hns3: add management table after IMP reset
 Date:   Tue,  3 Mar 2020 18:42:19 +0100
-Message-Id: <20200303174307.070810752@linuxfoundation.org>
+Message-Id: <20200303174313.320196547@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200303174302.523080016@linuxfoundation.org>
-References: <20200303174302.523080016@linuxfoundation.org>
+In-Reply-To: <20200303174304.593872177@linuxfoundation.org>
+References: <20200303174304.593872177@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,39 +45,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sung Lee <sung.lee@amd.com>
+From: Yufeng Mo <moyufeng@huawei.com>
 
-[ Upstream commit df36f6cf23ada812930afa8ee76681d4ad307c61 ]
+[ Upstream commit d0db7ed397517c8b2be24a0d1abfa15df776908e ]
 
-[WHY]
-The optimized_require flag is needed to set watermarks and clocks lower
-in certain conditions. This flag is set to true and then set to false
-while programming front end in dcn20.
+In the current process, the management table is missing after the
+IMP reset. This patch adds the management table to the reset process.
 
-[HOW]
-Do not set the flag to false while disabling plane.
-
-Signed-off-by: Sung Lee <sung.lee@amd.com>
-Reviewed-by: Tony Cheng <Tony.Cheng@amd.com>
-Acked-by: Bhawanpreet Lakha <Bhawanpreet.Lakha@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Fixes: f5aac71c0327 ("net: hns3: add manager table initialization for hardware")
+Signed-off-by: Yufeng Mo <moyufeng@huawei.com>
+Signed-off-by: Huazhong Tan <tanhuazhong@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c b/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c
-index 937a8ba811603..e933f6a369f92 100644
---- a/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c
-+++ b/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c
-@@ -493,7 +493,6 @@ static void dcn20_plane_atomic_disable(struct dc *dc, struct pipe_ctx *pipe_ctx)
- 	dpp->funcs->dpp_dppclk_control(dpp, false, false);
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+index 13dbd249f35fa..bfdb08572f0cc 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+@@ -9821,6 +9821,13 @@ static int hclge_reset_ae_dev(struct hnae3_ae_dev *ae_dev)
+ 		return ret;
+ 	}
  
- 	hubp->power_gated = true;
--	dc->optimized_required = false; /* We're powering off, no need to optimize */
- 
- 	dc->hwss.plane_atomic_power_down(dc,
- 			pipe_ctx->plane_res.dpp,
++	ret = init_mgr_tbl(hdev);
++	if (ret) {
++		dev_err(&pdev->dev,
++			"failed to reinit manager table, ret = %d\n", ret);
++		return ret;
++	}
++
+ 	ret = hclge_init_fd_config(hdev);
+ 	if (ret) {
+ 		dev_err(&pdev->dev, "fd table init fail, ret=%d\n", ret);
 -- 
 2.20.1
 
