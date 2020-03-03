@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AA7E117814D
+	by mail.lfdr.de (Postfix) with ESMTP id 38B4C17814C
 	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 20:01:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388044AbgCCSBo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Mar 2020 13:01:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45936 "EHLO mail.kernel.org"
+        id S2387689AbgCCSBn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Mar 2020 13:01:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45970 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388034AbgCCSBk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Mar 2020 13:01:40 -0500
+        id S2387634AbgCCSBn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Mar 2020 13:01:43 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 34F9D2072D;
-        Tue,  3 Mar 2020 18:01:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B1A5720656;
+        Tue,  3 Mar 2020 18:01:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583258499;
-        bh=uVF9Hhhe0uNmt+VdBVe8UzNmmAax9OOOWGcDcal7yGI=;
+        s=default; t=1583258502;
+        bh=pzGm8eK7SpJZs6fNIB004VSlto+LmlEKyxHVCC01dDE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Id4OKFa3rrKkJGzmJyTteJwC2h8/eHnIXWwjn2ShW9JYNT1kFCtI5wD2jQ+JRmhkD
-         Bw/4WXE6ej7qyE+s209Z1sgprx3TBQELILkSlDiaOY62a+w//Pk0ervuYuZo+6dmjE
-         MX/hhGtPEfypfAix/hcTdmp49cKBac9zSjTTY1pA=
+        b=QKTZfJH1gAXFQv4ipzZzpZQ85OM/AI8DCrK9SNLzsrwR0bq5od1z0pQTB7TvC7w23
+         J8VmqCeBTUpxbBK2fJw/f0UtyhfneyRpUWgqjHgrXx4iVjYziSXHF4QMbz6MoOXip7
+         mQMzONO0VQI8JwijnwII2eO9oGFn6/LKBwTJQ1aw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dmitry Osipenko <digetx@gmail.com>,
+        stable@vger.kernel.org, Hangbin Liu <liuhangbin@gmail.com>,
+        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
+        Xin Long <lucien.xin@gmail.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 33/87] nfc: pn544: Fix occasional HW initialization failure
-Date:   Tue,  3 Mar 2020 18:43:24 +0100
-Message-Id: <20200303174353.618937840@linuxfoundation.org>
+Subject: [PATCH 4.19 34/87] sctp: move the format error check out of __sctp_sf_do_9_1_abort
+Date:   Tue,  3 Mar 2020 18:43:25 +0100
+Message-Id: <20200303174353.676123773@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200303174349.075101355@linuxfoundation.org>
 References: <20200303174349.075101355@linuxfoundation.org>
@@ -43,43 +45,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Osipenko <digetx@gmail.com>
+From: Xin Long <lucien.xin@gmail.com>
 
-[ Upstream commit c3331d2fe3fd4d5e321f2467d01f72de7edfb5d0 ]
+[ Upstream commit 245709ec8be89af46ea7ef0444c9c80913999d99 ]
 
-The PN544 driver checks the "enable" polarity during of driver's probe and
-it's doing that by turning ON and OFF NFC with different polarities until
-enabling succeeds. It takes some time for the hardware to power-down, and
-thus, to deassert the IRQ that is raised by turning ON the hardware.
-Since the delay after last power-down of the polarity-checking process is
-missed in the code, the interrupt may trigger immediately after installing
-the IRQ handler (right after the checking is done), which results in IRQ
-handler trying to touch the disabled HW and ends with marking NFC as
-'DEAD' during of the driver's probe:
+When T2 timer is to be stopped, the asoc should also be deleted,
+otherwise, there will be no chance to call sctp_association_free
+and the asoc could last in memory forever.
 
-  pn544_hci_i2c 1-002a: NFC: nfc_en polarity : active high
-  pn544_hci_i2c 1-002a: NFC: invalid len byte
-  shdlc: llc_shdlc_recv_frame: NULL Frame -> link is dead
+However, in sctp_sf_shutdown_sent_abort(), after adding the cmd
+SCTP_CMD_TIMER_STOP for T2 timer, it may return error due to the
+format error from __sctp_sf_do_9_1_abort() and miss adding
+SCTP_CMD_ASSOC_FAILED where the asoc will be deleted.
 
-This patch fixes the occasional NFC initialization failure on Nexus 7
-device.
+This patch is to fix it by moving the format error check out of
+__sctp_sf_do_9_1_abort(), and do it before adding the cmd
+SCTP_CMD_TIMER_STOP for T2 timer.
 
-Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
+Thanks Hangbin for reporting this issue by the fuzz testing.
+
+v1->v2:
+  - improve the comment in the code as Marcelo's suggestion.
+
+Fixes: 96ca468b86b0 ("sctp: check invalid value of length parameter in error cause")
+Reported-by: Hangbin Liu <liuhangbin@gmail.com>
+Acked-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/nfc/pn544/i2c.c |    1 +
- 1 file changed, 1 insertion(+)
+ net/sctp/sm_statefuns.c |   29 ++++++++++++++++++++---------
+ 1 file changed, 20 insertions(+), 9 deletions(-)
 
---- a/drivers/nfc/pn544/i2c.c
-+++ b/drivers/nfc/pn544/i2c.c
-@@ -236,6 +236,7 @@ static void pn544_hci_i2c_platform_init(
- 
- out:
- 	gpiod_set_value_cansleep(phy->gpiod_en, !phy->en_polarity);
-+	usleep_range(10000, 15000);
+--- a/net/sctp/sm_statefuns.c
++++ b/net/sctp/sm_statefuns.c
+@@ -185,6 +185,16 @@ static inline bool sctp_chunk_length_val
+ 	return true;
  }
  
- static void pn544_hci_i2c_enable_mode(struct pn544_i2c_phy *phy, int run_mode)
++/* Check for format error in an ABORT chunk */
++static inline bool sctp_err_chunk_valid(struct sctp_chunk *chunk)
++{
++	struct sctp_errhdr *err;
++
++	sctp_walk_errors(err, chunk->chunk_hdr);
++
++	return (void *)err == (void *)chunk->chunk_end;
++}
++
+ /**********************************************************
+  * These are the state functions for handling chunk events.
+  **********************************************************/
+@@ -2270,6 +2280,9 @@ enum sctp_disposition sctp_sf_shutdown_p
+ 		    sctp_bind_addr_state(&asoc->base.bind_addr, &chunk->dest))
+ 		return sctp_sf_discard_chunk(net, ep, asoc, type, arg, commands);
+ 
++	if (!sctp_err_chunk_valid(chunk))
++		return sctp_sf_pdiscard(net, ep, asoc, type, arg, commands);
++
+ 	return __sctp_sf_do_9_1_abort(net, ep, asoc, type, arg, commands);
+ }
+ 
+@@ -2313,6 +2326,9 @@ enum sctp_disposition sctp_sf_shutdown_s
+ 		    sctp_bind_addr_state(&asoc->base.bind_addr, &chunk->dest))
+ 		return sctp_sf_discard_chunk(net, ep, asoc, type, arg, commands);
+ 
++	if (!sctp_err_chunk_valid(chunk))
++		return sctp_sf_pdiscard(net, ep, asoc, type, arg, commands);
++
+ 	/* Stop the T2-shutdown timer. */
+ 	sctp_add_cmd_sf(commands, SCTP_CMD_TIMER_STOP,
+ 			SCTP_TO(SCTP_EVENT_TIMEOUT_T2_SHUTDOWN));
+@@ -2580,6 +2596,9 @@ enum sctp_disposition sctp_sf_do_9_1_abo
+ 		    sctp_bind_addr_state(&asoc->base.bind_addr, &chunk->dest))
+ 		return sctp_sf_discard_chunk(net, ep, asoc, type, arg, commands);
+ 
++	if (!sctp_err_chunk_valid(chunk))
++		return sctp_sf_pdiscard(net, ep, asoc, type, arg, commands);
++
+ 	return __sctp_sf_do_9_1_abort(net, ep, asoc, type, arg, commands);
+ }
+ 
+@@ -2597,16 +2616,8 @@ static enum sctp_disposition __sctp_sf_d
+ 
+ 	/* See if we have an error cause code in the chunk.  */
+ 	len = ntohs(chunk->chunk_hdr->length);
+-	if (len >= sizeof(struct sctp_chunkhdr) + sizeof(struct sctp_errhdr)) {
+-		struct sctp_errhdr *err;
+-
+-		sctp_walk_errors(err, chunk->chunk_hdr);
+-		if ((void *)err != (void *)chunk->chunk_end)
+-			return sctp_sf_pdiscard(net, ep, asoc, type, arg,
+-						commands);
+-
++	if (len >= sizeof(struct sctp_chunkhdr) + sizeof(struct sctp_errhdr))
+ 		error = ((struct sctp_errhdr *)chunk->skb->data)->cause;
+-	}
+ 
+ 	sctp_add_cmd_sf(commands, SCTP_CMD_SET_SK_ERR, SCTP_ERROR(ECONNRESET));
+ 	/* ASSOC_FAILED will DELETE_TCB. */
 
 
