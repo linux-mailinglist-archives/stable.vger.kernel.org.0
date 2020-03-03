@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 21A171780C1
-	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 20:00:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4CA48178135
+	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 20:01:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732805AbgCCR6h (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Mar 2020 12:58:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41476 "EHLO mail.kernel.org"
+        id S1731765AbgCCSBO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Mar 2020 13:01:14 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45288 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387427AbgCCR6g (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Mar 2020 12:58:36 -0500
+        id S2387924AbgCCSBO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Mar 2020 13:01:14 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E0769206D5;
-        Tue,  3 Mar 2020 17:58:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B1A0220728;
+        Tue,  3 Mar 2020 18:01:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583258316;
-        bh=ID/GXQTXuDAQaPABtNm17V4BJtPBQdU0jqhKUuDlYp4=;
+        s=default; t=1583258473;
+        bh=pyYAQ7Ukp6jHLPMKraIWgN3EfHGIcluYjHn3fBKD4tg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DkQk+5pH5AuPO9X6O9Zn5utPE4BYYldpNs/IXJJZdaj/g+b0IKC6+aeEBDLlIF91T
-         ZAE/jVuabYs7L8QtOAWsiabQVJqyiuy4hkMKvtm4Wo0kpbnwdCDvlAeCbpnaTepKsc
-         1gfp99k+SD7YneyoUoAAErsgR1mnJ9ZFG0wZm82g=
+        b=WfvV70jsHloXjgJUeIJ+aaf30y1M/oqFqTl98dJ+m4XCXbTVj8VpCMMnI1N+Y80K9
+         PPAk7NKlSVTh0ZYTLiiYiMXLnb7Q1OxFGO6T4R0Wh/kv1b3ezVLqDO3TeKgFoHf5/R
+         ncceB0zIEXu546H/D4WyV1T4uCraox+RR9SKKDMc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiaochen Shen <xiaochen.shen@intel.com>,
-        Borislav Petkov <bp@suse.de>
-Subject: [PATCH 5.4 134/152] x86/resctrl: Check monitoring static key in the MBM overflow handler
+        stable@vger.kernel.org, Alexandra Winter <wintera@linux.ibm.com>,
+        Julian Wiedmann <jwi@linux.ibm.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 61/87] s390/qeth: vnicc Fix EOPNOTSUPP precedence
 Date:   Tue,  3 Mar 2020 18:43:52 +0100
-Message-Id: <20200303174318.046809835@linuxfoundation.org>
+Message-Id: <20200303174355.834827506@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200303174302.523080016@linuxfoundation.org>
-References: <20200303174302.523080016@linuxfoundation.org>
+In-Reply-To: <20200303174349.075101355@linuxfoundation.org>
+References: <20200303174349.075101355@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,69 +44,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiaochen Shen <xiaochen.shen@intel.com>
+From: Alexandra Winter <wintera@linux.ibm.com>
 
-commit 536a0d8e79fb928f2735db37dda95682b6754f9a upstream.
+commit 6f3846f0955308b6d1b219419da42b8de2c08845 upstream.
 
-Currently, there are three static keys in the resctrl file system:
-rdt_mon_enable_key and rdt_alloc_enable_key indicate if the monitoring
-feature and the allocation feature are enabled, respectively. The
-rdt_enable_key is enabled when either the monitoring feature or the
-allocation feature is enabled.
+When getting or setting VNICC parameters, the error code EOPNOTSUPP
+should have precedence over EBUSY.
 
-If no monitoring feature is present (either hardware doesn't support a
-monitoring feature or the feature is disabled by the kernel command line
-option "rdt="), rdt_enable_key is still enabled but rdt_mon_enable_key
-is disabled.
+EBUSY is used because vnicc feature and bridgeport feature are mutually
+exclusive, which is a temporary condition.
+Whereas EOPNOTSUPP indicates that the HW does not support all or parts of
+the vnicc feature.
+This issue causes the vnicc sysfs params to show 'blocked by bridgeport'
+for HW that does not support VNICC at all.
 
-MBM is a monitoring feature. The MBM overflow handler intends to
-check if the monitoring feature is not enabled for fast return.
-
-So check the rdt_mon_enable_key in it instead of the rdt_enable_key as
-former is the more accurate check.
-
- [ bp: Massage commit message. ]
-
-Fixes: e33026831bdb ("x86/intel_rdt/mbm: Handle counter overflow")
-Signed-off-by: Xiaochen Shen <xiaochen.shen@intel.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Link: https://lkml.kernel.org/r/1576094705-13660-1-git-send-email-xiaochen.shen@intel.com
+Fixes: caa1f0b10d18 ("s390/qeth: add VNICC enable/disable support")
+Signed-off-by: Alexandra Winter <wintera@linux.ibm.com>
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/kernel/cpu/resctrl/internal.h |    1 +
- arch/x86/kernel/cpu/resctrl/monitor.c  |    4 ++--
- 2 files changed, 3 insertions(+), 2 deletions(-)
+ drivers/s390/net/qeth_l2_main.c |   29 +++++++++++++----------------
+ 1 file changed, 13 insertions(+), 16 deletions(-)
 
---- a/arch/x86/kernel/cpu/resctrl/internal.h
-+++ b/arch/x86/kernel/cpu/resctrl/internal.h
-@@ -57,6 +57,7 @@ static inline struct rdt_fs_context *rdt
- }
+--- a/drivers/s390/net/qeth_l2_main.c
++++ b/drivers/s390/net/qeth_l2_main.c
+@@ -2148,15 +2148,14 @@ int qeth_l2_vnicc_set_state(struct qeth_
  
- DECLARE_STATIC_KEY_FALSE(rdt_enable_key);
-+DECLARE_STATIC_KEY_FALSE(rdt_mon_enable_key);
+ 	QETH_CARD_TEXT(card, 2, "vniccsch");
  
- /**
-  * struct mon_evt - Entry in the event list of a resource
---- a/arch/x86/kernel/cpu/resctrl/monitor.c
-+++ b/arch/x86/kernel/cpu/resctrl/monitor.c
-@@ -514,7 +514,7 @@ void mbm_handle_overflow(struct work_str
+-	/* do not change anything if BridgePort is enabled */
+-	if (qeth_bridgeport_is_in_use(card))
+-		return -EBUSY;
+-
+ 	/* check if characteristic and enable/disable are supported */
+ 	if (!(card->options.vnicc.sup_chars & vnicc) ||
+ 	    !(card->options.vnicc.set_char_sup & vnicc))
+ 		return -EOPNOTSUPP;
  
- 	mutex_lock(&rdtgroup_mutex);
++	if (qeth_bridgeport_is_in_use(card))
++		return -EBUSY;
++
+ 	/* set enable/disable command and store wanted characteristic */
+ 	if (state) {
+ 		cmd = IPA_VNICC_ENABLE;
+@@ -2202,14 +2201,13 @@ int qeth_l2_vnicc_get_state(struct qeth_
  
--	if (!static_branch_likely(&rdt_enable_key))
-+	if (!static_branch_likely(&rdt_mon_enable_key))
- 		goto out_unlock;
+ 	QETH_CARD_TEXT(card, 2, "vniccgch");
  
- 	d = get_domain_from_cpu(cpu, &rdt_resources_all[RDT_RESOURCE_L3]);
-@@ -543,7 +543,7 @@ void mbm_setup_overflow_handler(struct r
- 	unsigned long delay = msecs_to_jiffies(delay_ms);
- 	int cpu;
+-	/* do not get anything if BridgePort is enabled */
+-	if (qeth_bridgeport_is_in_use(card))
+-		return -EBUSY;
+-
+ 	/* check if characteristic is supported */
+ 	if (!(card->options.vnicc.sup_chars & vnicc))
+ 		return -EOPNOTSUPP;
  
--	if (!static_branch_likely(&rdt_enable_key))
-+	if (!static_branch_likely(&rdt_mon_enable_key))
- 		return;
- 	cpu = cpumask_any(&dom->cpu_mask);
- 	dom->mbm_work_cpu = cpu;
++	if (qeth_bridgeport_is_in_use(card))
++		return -EBUSY;
++
+ 	/* if card is ready, query current VNICC state */
+ 	if (qeth_card_hw_is_reachable(card))
+ 		rc = qeth_l2_vnicc_query_chars(card);
+@@ -2227,15 +2225,14 @@ int qeth_l2_vnicc_set_timeout(struct qet
+ 
+ 	QETH_CARD_TEXT(card, 2, "vniccsto");
+ 
+-	/* do not change anything if BridgePort is enabled */
+-	if (qeth_bridgeport_is_in_use(card))
+-		return -EBUSY;
+-
+ 	/* check if characteristic and set_timeout are supported */
+ 	if (!(card->options.vnicc.sup_chars & QETH_VNICC_LEARNING) ||
+ 	    !(card->options.vnicc.getset_timeout_sup & QETH_VNICC_LEARNING))
+ 		return -EOPNOTSUPP;
+ 
++	if (qeth_bridgeport_is_in_use(card))
++		return -EBUSY;
++
+ 	/* do we need to do anything? */
+ 	if (card->options.vnicc.learning_timeout == timeout)
+ 		return rc;
+@@ -2264,14 +2261,14 @@ int qeth_l2_vnicc_get_timeout(struct qet
+ 
+ 	QETH_CARD_TEXT(card, 2, "vniccgto");
+ 
+-	/* do not get anything if BridgePort is enabled */
+-	if (qeth_bridgeport_is_in_use(card))
+-		return -EBUSY;
+-
+ 	/* check if characteristic and get_timeout are supported */
+ 	if (!(card->options.vnicc.sup_chars & QETH_VNICC_LEARNING) ||
+ 	    !(card->options.vnicc.getset_timeout_sup & QETH_VNICC_LEARNING))
+ 		return -EOPNOTSUPP;
++
++	if (qeth_bridgeport_is_in_use(card))
++		return -EBUSY;
++
+ 	/* if card is ready, get timeout. Otherwise, just return stored value */
+ 	*timeout = card->options.vnicc.learning_timeout;
+ 	if (qeth_card_hw_is_reachable(card))
 
 
