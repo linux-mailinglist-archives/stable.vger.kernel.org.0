@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4827B17808A
-	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 20:00:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 55626177F82
+	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 19:58:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732211AbgCCR52 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Mar 2020 12:57:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40000 "EHLO mail.kernel.org"
+        id S1731649AbgCCRvR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Mar 2020 12:51:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59234 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733075AbgCCR52 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Mar 2020 12:57:28 -0500
+        id S1729788AbgCCRvO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Mar 2020 12:51:14 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 882DB20656;
-        Tue,  3 Mar 2020 17:57:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A791820728;
+        Tue,  3 Mar 2020 17:51:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583258248;
-        bh=bAUUKb7tQmovY2KCpkljFtcy/HITx7HxuDONJh7/nAw=;
+        s=default; t=1583257873;
+        bh=emN2YqhmaWQTC1ham4gaISlsVWsP0a+LgTJnYCtT0ks=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yC8s1D3SdTITmEWqvqtoTONuXyxUAHLxPlWgol8p9DdfFLmmsy3hlJ7xeHXJZ3T7q
-         rzrSJkZI42yUHWPaskvK37XbcuxkyUCOYMB7EAxVUyO63f0SJUuaZkABGSUNLLcSY+
-         jaCBPzwFngUCo93RlDqmPx8saHxqEbMWmWOc8xbs=
+        b=aTBl6YTYhU3U9w4RfxcsDOO7IiQa2D2CbVSMl5t3Yc9nk1Tr0lqMY7j+t/ll3qKjR
+         njANXWCk2ub1ca3HlC4/hty8ZsXZ2mAz6BNr+66j5W/SljDIOX582/diphOPde5RAN
+         Hq0+szowHI1jjmGrYIcOjQInpkyohUYwN4BFKcqg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Casey Schaufler <casey@schaufler-ca.com>,
-        Mimi Zohar <zohar@linux.ibm.com>,
-        Janne Karhunen <janne.karhunen@gmail.com>,
-        Konsta Karsisto <konsta.karsisto@gmail.com>
-Subject: [PATCH 5.4 127/152] ima: ima/lsm policy rule loading logic bug fixes
+        stable@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>,
+        Richard Weinberger <richard@nod.at>
+Subject: [PATCH 5.5 161/176] ubifs: Fix ino_t format warnings in orphan_delete()
 Date:   Tue,  3 Mar 2020 18:43:45 +0100
-Message-Id: <20200303174317.233730377@linuxfoundation.org>
+Message-Id: <20200303174322.914285494@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200303174302.523080016@linuxfoundation.org>
-References: <20200303174302.523080016@linuxfoundation.org>
+In-Reply-To: <20200303174304.593872177@linuxfoundation.org>
+References: <20200303174304.593872177@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,140 +43,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Janne Karhunen <janne.karhunen@gmail.com>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
 
-commit 483ec26eed42bf050931d9a5c5f9f0b5f2ad5f3b upstream.
+commit 155fc6ba488a8bdfd1d3be3d7ba98c9cec2b2429 upstream.
 
-Keep the ima policy rules around from the beginning even if they appear
-invalid at the time of loading, as they may become active after an lsm
-policy load.  However, loading a custom IMA policy with unknown LSM
-labels is only safe after we have transitioned from the "built-in"
-policy rules to a custom IMA policy.
+On alpha and s390x:
 
-Patch also fixes the rule re-use during the lsm policy reload and makes
-some prints a bit more human readable.
+    fs/ubifs/debug.h:158:11: warning: format ‘%lu’ expects argument of type ‘long unsigned int’, but argument 4 has type ‘ino_t {aka unsigned int}’ [-Wformat=]
+    ...
+    fs/ubifs/orphan.c:132:3: note: in expansion of macro ‘dbg_gen’
+       dbg_gen("deleted twice ino %lu", orph->inum);
+    ...
+    fs/ubifs/orphan.c:140:3: note: in expansion of macro ‘dbg_gen’
+       dbg_gen("delete later ino %lu", orph->inum);
 
-Changelog:
-v4:
-- Do not allow the initial policy load refer to non-existing lsm rules.
-v3:
-- Fix too wide policy rule matching for non-initialized LSMs
-v2:
-- Fix log prints
+__kernel_ino_t is "unsigned long" on most architectures, but not on
+alpha and s390x, where it is "unsigned int".  Hence when printing an
+ino_t, it should always be cast to "unsigned long" first.
 
-Fixes: b16942455193 ("ima: use the lsm policy update notifier")
-Cc: Casey Schaufler <casey@schaufler-ca.com>
-Reported-by: Mimi Zohar <zohar@linux.ibm.com>
-Signed-off-by: Janne Karhunen <janne.karhunen@gmail.com>
-Signed-off-by: Konsta Karsisto <konsta.karsisto@gmail.com>
-Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
+Fix this by re-adding the recently removed casts.
+
+Fixes: 8009ce956c3d2802 ("ubifs: Don't leak orphans on memory during commit")
+Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- security/integrity/ima/ima_policy.c |   44 +++++++++++++++++++++---------------
- 1 file changed, 26 insertions(+), 18 deletions(-)
+ fs/ubifs/orphan.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/security/integrity/ima/ima_policy.c
-+++ b/security/integrity/ima/ima_policy.c
-@@ -263,7 +263,7 @@ static void ima_lsm_free_rule(struct ima
- static struct ima_rule_entry *ima_lsm_copy_rule(struct ima_rule_entry *entry)
+--- a/fs/ubifs/orphan.c
++++ b/fs/ubifs/orphan.c
+@@ -129,7 +129,7 @@ static void __orphan_drop(struct ubifs_i
+ static void orphan_delete(struct ubifs_info *c, struct ubifs_orphan *orph)
  {
- 	struct ima_rule_entry *nentry;
--	int i, result;
-+	int i;
- 
- 	nentry = kmalloc(sizeof(*nentry), GFP_KERNEL);
- 	if (!nentry)
-@@ -277,7 +277,7 @@ static struct ima_rule_entry *ima_lsm_co
- 	memset(nentry->lsm, 0, FIELD_SIZEOF(struct ima_rule_entry, lsm));
- 
- 	for (i = 0; i < MAX_LSM_RULES; i++) {
--		if (!entry->lsm[i].rule)
-+		if (!entry->lsm[i].args_p)
- 			continue;
- 
- 		nentry->lsm[i].type = entry->lsm[i].type;
-@@ -286,13 +286,13 @@ static struct ima_rule_entry *ima_lsm_co
- 		if (!nentry->lsm[i].args_p)
- 			goto out_err;
- 
--		result = security_filter_rule_init(nentry->lsm[i].type,
--						   Audit_equal,
--						   nentry->lsm[i].args_p,
--						   &nentry->lsm[i].rule);
--		if (result == -EINVAL)
--			pr_warn("ima: rule for LSM \'%d\' is undefined\n",
--				entry->lsm[i].type);
-+		security_filter_rule_init(nentry->lsm[i].type,
-+					  Audit_equal,
-+					  nentry->lsm[i].args_p,
-+					  &nentry->lsm[i].rule);
-+		if (!nentry->lsm[i].rule)
-+			pr_warn("rule for LSM \'%s\' is undefined\n",
-+				(char *)entry->lsm[i].args_p);
- 	}
- 	return nentry;
- 
-@@ -329,7 +329,7 @@ static void ima_lsm_update_rules(void)
- 	list_for_each_entry_safe(entry, e, &ima_policy_rules, list) {
- 		needs_update = 0;
- 		for (i = 0; i < MAX_LSM_RULES; i++) {
--			if (entry->lsm[i].rule) {
-+			if (entry->lsm[i].args_p) {
- 				needs_update = 1;
- 				break;
- 			}
-@@ -339,8 +339,7 @@ static void ima_lsm_update_rules(void)
- 
- 		result = ima_lsm_update_rule(entry);
- 		if (result) {
--			pr_err("ima: lsm rule update error %d\n",
--				result);
-+			pr_err("lsm rule update error %d\n", result);
- 			return;
- 		}
- 	}
-@@ -357,7 +356,7 @@ int ima_lsm_policy_change(struct notifie
- }
- 
- /**
-- * ima_match_rules - determine whether an inode matches the measure rule.
-+ * ima_match_rules - determine whether an inode matches the policy rule.
-  * @rule: a pointer to a rule
-  * @inode: a pointer to an inode
-  * @cred: a pointer to a credentials structure for user validation
-@@ -415,9 +414,12 @@ static bool ima_match_rules(struct ima_r
- 		int rc = 0;
- 		u32 osid;
- 
--		if (!rule->lsm[i].rule)
--			continue;
--
-+		if (!rule->lsm[i].rule) {
-+			if (!rule->lsm[i].args_p)
-+				continue;
-+			else
-+				return false;
-+		}
- 		switch (i) {
- 		case LSM_OBJ_USER:
- 		case LSM_OBJ_ROLE:
-@@ -822,8 +824,14 @@ static int ima_lsm_rule_init(struct ima_
- 					   entry->lsm[lsm_rule].args_p,
- 					   &entry->lsm[lsm_rule].rule);
- 	if (!entry->lsm[lsm_rule].rule) {
--		kfree(entry->lsm[lsm_rule].args_p);
--		return -EINVAL;
-+		pr_warn("rule for LSM \'%s\' is undefined\n",
-+			(char *)entry->lsm[lsm_rule].args_p);
-+
-+		if (ima_rules == &ima_default_rules) {
-+			kfree(entry->lsm[lsm_rule].args_p);
-+			result = -EINVAL;
-+		} else
-+			result = 0;
+ 	if (orph->del) {
+-		dbg_gen("deleted twice ino %lu", orph->inum);
++		dbg_gen("deleted twice ino %lu", (unsigned long)orph->inum);
+ 		return;
  	}
  
- 	return result;
+@@ -137,7 +137,7 @@ static void orphan_delete(struct ubifs_i
+ 		orph->del = 1;
+ 		orph->dnext = c->orph_dnext;
+ 		c->orph_dnext = orph;
+-		dbg_gen("delete later ino %lu", orph->inum);
++		dbg_gen("delete later ino %lu", (unsigned long)orph->inum);
+ 		return;
+ 	}
+ 
 
 
