@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 79CAA178233
-	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 20:03:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C302F1780CB
+	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 20:00:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731425AbgCCSJd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Mar 2020 13:09:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60538 "EHLO mail.kernel.org"
+        id S2387477AbgCCR6v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Mar 2020 12:58:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41776 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730562AbgCCRwO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Mar 2020 12:52:14 -0500
+        id S1732865AbgCCR6u (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Mar 2020 12:58:50 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3AA4120CC7;
-        Tue,  3 Mar 2020 17:52:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E7DCA2146E;
+        Tue,  3 Mar 2020 17:58:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583257932;
-        bh=nSQ2JwEEUlpH+KtDNU/5jZzofFq9d1NFcnnlpJQLjAI=;
+        s=default; t=1583258329;
+        bh=wjZjliCB0YycaHItryHeRcw/Tg+G+OVyHSQRssSpdD8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lHootr17igh5pkxxq6dbgJ78HSWt2vWf7YIVrjkeDwKYsC/K6jQyn94raJzWNGnaj
-         IFXJEJz11uCYNtgUh1UmVTLIs3Bwipl/RxfTeya3yFsdKDKRc9ZK/6y+zQ1+LHSImQ
-         HSxsQ6/UQo4/bRcq0a6CblvtkW7HJIa1juOFg+YM=
+        b=p9w6GOZKxwNgJWgzlviRFMyi3hS0WxDEH4J5lT4yglg/ywMRcj/BW1AS8u7GVwP7F
+         mP3Yh5I1IU39SdnYYgDIH4OCcEeSHJ6nujN6kBu1n+gobanKv6NSMy16JVPdzzCZW/
+         SnajivopeZbsZDo3xX8xFfeaanHpXlFVQeI8gTVA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
-        Amit Kucheria <amit.kucheria@linaro.org>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>
-Subject: [PATCH 5.5 163/176] thermal: brcmstb_thermal: Do not use DT coefficients
+        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>
+Subject: [PATCH 5.4 129/152] lib/vdso: Make __arch_update_vdso_data() logic understandable
 Date:   Tue,  3 Mar 2020 18:43:47 +0100
-Message-Id: <20200303174323.076645343@linuxfoundation.org>
+Message-Id: <20200303174317.468813340@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200303174304.593872177@linuxfoundation.org>
-References: <20200303174304.593872177@linuxfoundation.org>
+In-Reply-To: <20200303174302.523080016@linuxfoundation.org>
+References: <20200303174302.523080016@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,100 +42,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Fainelli <f.fainelli@gmail.com>
+From: Thomas Gleixner <tglx@linutronix.de>
 
-commit e1ff6fc22f19e2af8adbad618526b80067911d40 upstream.
+commit 9a6b55ac4a44060bcb782baf002859b2a2c63267 upstream.
 
-At the time the brcmstb_thermal driver and its binding were merged, the
-DT binding did not make the coefficients properties a mandatory one,
-therefore all users of the brcmstb_thermal driver out there have a non
-functional implementation with zero coefficients. Even if these
-properties were provided, the formula used for computation is incorrect.
+The function name suggests that this is a boolean checking whether the
+architecture asks for an update of the VDSO data, but it works the other
+way round. To spare further confusion invert the logic.
 
-The coefficients are entirely process specific (right now, only 28nm is
-supported) and not board or SoC specific, it is therefore appropriate to
-hard code them in the driver given the compatibility string we are
-probed with which has to be updated whenever a new process is
-introduced.
-
-We remove the existing coefficients definition since subsequent patches
-are going to add support for a new process and will introduce new
-coefficients as well.
-
-Fixes: 9e03cf1b2dd5 ("thermal: add brcmstb AVS TMON driver")
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
-Reviewed-by: Amit Kucheria <amit.kucheria@linaro.org>
-Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
-Link: https://lore.kernel.org/r/20200114190607.29339-2-f.fainelli@gmail.com
+Fixes: 44f57d788e7d ("timekeeping: Provide a generic update_vsyscall() implementation")
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Link: https://lore.kernel.org/r/20200114185946.656652824@linutronix.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/thermal/broadcom/brcmstb_thermal.c |   31 ++++++++---------------------
- 1 file changed, 9 insertions(+), 22 deletions(-)
+ include/asm-generic/vdso/vsyscall.h |    4 ++--
+ kernel/time/vsyscall.c              |    2 +-
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/thermal/broadcom/brcmstb_thermal.c
-+++ b/drivers/thermal/broadcom/brcmstb_thermal.c
-@@ -49,7 +49,7 @@
- #define AVS_TMON_TP_TEST_ENABLE		0x20
+--- a/include/asm-generic/vdso/vsyscall.h
++++ b/include/asm-generic/vdso/vsyscall.h
+@@ -12,9 +12,9 @@ static __always_inline struct vdso_data
+ #endif /* __arch_get_k_vdso_data */
  
- /* Default coefficients */
--#define AVS_TMON_TEMP_SLOPE		-487
-+#define AVS_TMON_TEMP_SLOPE		487
- #define AVS_TMON_TEMP_OFFSET		410040
- 
- /* HW related temperature constants */
-@@ -108,23 +108,12 @@ struct brcmstb_thermal_priv {
- 	struct thermal_zone_device *thermal;
- };
- 
--static void avs_tmon_get_coeffs(struct thermal_zone_device *tz, int *slope,
--				int *offset)
--{
--	*slope = thermal_zone_get_slope(tz);
--	*offset = thermal_zone_get_offset(tz);
--}
--
- /* Convert a HW code to a temperature reading (millidegree celsius) */
- static inline int avs_tmon_code_to_temp(struct thermal_zone_device *tz,
- 					u32 code)
+ #ifndef __arch_update_vdso_data
+-static __always_inline int __arch_update_vdso_data(void)
++static __always_inline bool __arch_update_vdso_data(void)
  {
--	const int val = code & AVS_TMON_TEMP_MASK;
--	int slope, offset;
--
--	avs_tmon_get_coeffs(tz, &slope, &offset);
--
--	return slope * val + offset;
-+	return (AVS_TMON_TEMP_OFFSET -
-+		(int)((code & AVS_TMON_TEMP_MAX) * AVS_TMON_TEMP_SLOPE));
+-	return 0;
++	return true;
  }
+ #endif /* __arch_update_vdso_data */
  
- /*
-@@ -136,20 +125,18 @@ static inline int avs_tmon_code_to_temp(
- static inline u32 avs_tmon_temp_to_code(struct thermal_zone_device *tz,
- 					int temp, bool low)
- {
--	int slope, offset;
--
- 	if (temp < AVS_TMON_TEMP_MIN)
--		return AVS_TMON_TEMP_MAX; /* Maximum code value */
--
--	avs_tmon_get_coeffs(tz, &slope, &offset);
-+		return AVS_TMON_TEMP_MAX;	/* Maximum code value */
+--- a/kernel/time/vsyscall.c
++++ b/kernel/time/vsyscall.c
+@@ -84,7 +84,7 @@ void update_vsyscall(struct timekeeper *
+ 	struct vdso_timestamp *vdso_ts;
+ 	u64 nsec;
  
--	if (temp >= offset)
-+	if (temp >= AVS_TMON_TEMP_OFFSET)
- 		return 0;	/* Minimum code value */
- 
- 	if (low)
--		return (u32)(DIV_ROUND_UP(offset - temp, abs(slope)));
-+		return (u32)(DIV_ROUND_UP(AVS_TMON_TEMP_OFFSET - temp,
-+					  AVS_TMON_TEMP_SLOPE));
- 	else
--		return (u32)((offset - temp) / abs(slope));
-+		return (u32)((AVS_TMON_TEMP_OFFSET - temp) /
-+			      AVS_TMON_TEMP_SLOPE);
- }
- 
- static int brcmstb_get_temp(void *data, int *temp)
+-	if (__arch_update_vdso_data()) {
++	if (!__arch_update_vdso_data()) {
+ 		/*
+ 		 * Some architectures might want to skip the update of the
+ 		 * data page.
 
 
