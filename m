@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E92B1781DB
-	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 20:02:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 774471780E2
+	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 20:00:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732257AbgCCSHO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Mar 2020 13:07:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36590 "EHLO mail.kernel.org"
+        id S2387586AbgCCR7U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Mar 2020 12:59:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42588 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732662AbgCCRzL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Mar 2020 12:55:11 -0500
+        id S1731109AbgCCR7U (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Mar 2020 12:59:20 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8D538206D5;
-        Tue,  3 Mar 2020 17:55:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 86CEE214D8;
+        Tue,  3 Mar 2020 17:59:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583258111;
-        bh=+mchgu3W1Zhiq9EjAEp+MD9MvnwX3VIu2UILJKHK1ww=;
+        s=default; t=1583258360;
+        bh=CObFl1cb5UvCfomOI018fcjAEGpaCccIR6+DPEZK/Do=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zl9UwJG+Z40Cce0RHVFglY1L3X7wl6ioSdUyg7nvaqJBHi1Udhfu7i48wkXLNKOQ3
-         ydrkRSbMaX0xuHRRYXK3cpdnF6MaDPyZEoxveWsowCn06rbCnu0eNwIA7/cpcBQxe5
-         Nm5Lb/9MnSLkBPHGs7WSngU+P3vp9G5zJ+oz0DMU=
+        b=VWKQKGO7pLNFg5S1uSR/jcmdENzXUukeauIeFc5rVFNH3yAEHmOT+jwBu6WcYfMR9
+         8SFpuepMGzka7TvHApJcpMOIsazWBtGHXAXMvMXpAz/DAOgHDT9ozVtajxEMs7d1/y
+         bbsXEVY7OZqnfL1yPYV3C63Srfz4UMaq0vTqpfO4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jan Kiszka <jan.kiszka@web.de>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Jim Mattson <jmattson@google.com>,
-        Oliver Upton <oupton@google.com>
-Subject: [PATCH 5.4 075/152] KVM: VMX: check descriptor table exits on instruction emulation
+        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
+        Luca Coelho <luciano.coelho@intel.com>,
+        Ajay Kaher <akaher@vmware.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 02/87] iwlwifi: pcie: fix rb_allocator workqueue allocation
 Date:   Tue,  3 Mar 2020 18:42:53 +0100
-Message-Id: <20200303174311.022080640@linuxfoundation.org>
+Message-Id: <20200303174349.250817378@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200303174302.523080016@linuxfoundation.org>
-References: <20200303174302.523080016@linuxfoundation.org>
+In-Reply-To: <20200303174349.075101355@linuxfoundation.org>
+References: <20200303174349.075101355@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,61 +44,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oliver Upton <oupton@google.com>
+From: Johannes Berg <johannes.berg@intel.com>
 
-commit 86f7e90ce840aa1db407d3ea6e9b3a52b2ce923c upstream.
+commit 8188a18ee2e48c9a7461139838048363bfce3fef upstream
 
-KVM emulates UMIP on hardware that doesn't support it by setting the
-'descriptor table exiting' VM-execution control and performing
-instruction emulation. When running nested, this emulation is broken as
-KVM refuses to emulate L2 instructions by default.
+We don't handle failures in the rb_allocator workqueue allocation
+correctly. To fix that, move the code earlier so the cleanup is
+easier and we don't have to undo all the interrupt allocations in
+this case.
 
-Correct this regression by allowing the emulation of descriptor table
-instructions if L1 hasn't requested 'descriptor table exiting'.
-
-Fixes: 07721feee46b ("KVM: nVMX: Don't emulate instructions in guest mode")
-Reported-by: Jan Kiszka <jan.kiszka@web.de>
-Cc: stable@vger.kernel.org
-Cc: Paolo Bonzini <pbonzini@redhat.com>
-Cc: Jim Mattson <jmattson@google.com>
-Signed-off-by: Oliver Upton <oupton@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+[Ajay: Modified to apply on v4.19.y and v4.14.y]
+Signed-off-by: Ajay Kaher <akaher@vmware.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/vmx/vmx.c |   15 +++++++++++++++
- 1 file changed, 15 insertions(+)
+ drivers/net/wireless/intel/iwlwifi/pcie/trans.c | 15 +++++++++++----
+ 1 file changed, 11 insertions(+), 4 deletions(-)
 
---- a/arch/x86/kvm/vmx/vmx.c
-+++ b/arch/x86/kvm/vmx/vmx.c
-@@ -7165,6 +7165,7 @@ static int vmx_check_intercept_io(struct
- 	else
- 		intercept = nested_vmx_check_io_bitmaps(vcpu, port, size);
+diff --git a/drivers/net/wireless/intel/iwlwifi/pcie/trans.c b/drivers/net/wireless/intel/iwlwifi/pcie/trans.c
+index 4f5571123f70a..24da496151353 100644
+--- a/drivers/net/wireless/intel/iwlwifi/pcie/trans.c
++++ b/drivers/net/wireless/intel/iwlwifi/pcie/trans.c
+@@ -3283,6 +3283,15 @@ struct iwl_trans *iwl_trans_pcie_alloc(struct pci_dev *pdev,
+ 	spin_lock_init(&trans_pcie->reg_lock);
+ 	mutex_init(&trans_pcie->mutex);
+ 	init_waitqueue_head(&trans_pcie->ucode_write_waitq);
++
++	trans_pcie->rba.alloc_wq = alloc_workqueue("rb_allocator",
++						   WQ_HIGHPRI | WQ_UNBOUND, 1);
++	if (!trans_pcie->rba.alloc_wq) {
++		ret = -ENOMEM;
++		goto out_free_trans;
++	}
++	INIT_WORK(&trans_pcie->rba.rx_alloc, iwl_pcie_rx_allocator_work);
++
+ 	trans_pcie->tso_hdr_page = alloc_percpu(struct iwl_tso_hdr_page);
+ 	if (!trans_pcie->tso_hdr_page) {
+ 		ret = -ENOMEM;
+@@ -3485,10 +3494,6 @@ struct iwl_trans *iwl_trans_pcie_alloc(struct pci_dev *pdev,
+ 		trans_pcie->inta_mask = CSR_INI_SET_MASK;
+ 	 }
  
-+	/* FIXME: produce nested vmexit and return X86EMUL_INTERCEPTED.  */
- 	return intercept ? X86EMUL_UNHANDLEABLE : X86EMUL_CONTINUE;
+-	trans_pcie->rba.alloc_wq = alloc_workqueue("rb_allocator",
+-						   WQ_HIGHPRI | WQ_UNBOUND, 1);
+-	INIT_WORK(&trans_pcie->rba.rx_alloc, iwl_pcie_rx_allocator_work);
+-
+ #ifdef CONFIG_IWLWIFI_PCIE_RTPM
+ 	trans->runtime_pm_mode = IWL_PLAT_PM_MODE_D0I3;
+ #else
+@@ -3501,6 +3506,8 @@ out_free_ict:
+ 	iwl_pcie_free_ict(trans);
+ out_no_pci:
+ 	free_percpu(trans_pcie->tso_hdr_page);
++	destroy_workqueue(trans_pcie->rba.alloc_wq);
++out_free_trans:
+ 	iwl_trans_free(trans);
+ 	return ERR_PTR(ret);
  }
- 
-@@ -7194,6 +7195,20 @@ static int vmx_check_intercept(struct kv
- 	case x86_intercept_outs:
- 		return vmx_check_intercept_io(vcpu, info);
- 
-+	case x86_intercept_lgdt:
-+	case x86_intercept_lidt:
-+	case x86_intercept_lldt:
-+	case x86_intercept_ltr:
-+	case x86_intercept_sgdt:
-+	case x86_intercept_sidt:
-+	case x86_intercept_sldt:
-+	case x86_intercept_str:
-+		if (!nested_cpu_has2(vmcs12, SECONDARY_EXEC_DESC))
-+			return X86EMUL_CONTINUE;
-+
-+		/* FIXME: produce nested vmexit and return X86EMUL_INTERCEPTED.  */
-+		break;
-+
- 	/* TODO: check more intercepts... */
- 	default:
- 		break;
+-- 
+2.20.1
+
 
 
