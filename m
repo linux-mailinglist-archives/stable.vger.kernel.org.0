@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1CE98177EDD
-	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 19:56:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 36B9E177FE5
+	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 19:58:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731348AbgCCRr2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Mar 2020 12:47:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54142 "EHLO mail.kernel.org"
+        id S1730553AbgCCRxc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Mar 2020 12:53:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34082 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731315AbgCCRrQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Mar 2020 12:47:16 -0500
+        id S1731615AbgCCRxa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Mar 2020 12:53:30 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CEBE820870;
-        Tue,  3 Mar 2020 17:47:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F28D02072D;
+        Tue,  3 Mar 2020 17:53:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583257636;
-        bh=wJ2KCp01KlNHuZcLWsvwY7KPtFEgX8jQ/ItsVEsLmVc=;
+        s=default; t=1583258010;
+        bh=b7jTCnKwpg6483OPdvoS6UKKcbgT6fOfGV8ctSFzzqw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FTT/y2UQdiGwC9YOCeu2Ug4AmQIL4B8yzFUaT20N7fFSZFHKe+9zuE7v9giUNqMOD
-         xZ8faux3uXQjx4/XlI2neIxCvjQRBPDx88CyYEWmsuVumeg754v4di/JWnrf8UgZ7M
-         Y44Wsu9+V5j2NnEngx2YJbE4HeKZjZfIFUGTCMak=
+        b=ZtWimVtQjHNXZrYPD9wqyi9JZnDaoTaYhrZ/lPyE29nju4V+60xsFX03tYyX03KJc
+         cpHKD9lrRnz01oxv57xeBnObPst/UZcAp9Ati+JyuPOJTLWeZDNY+0tsEgbE4CM2cu
+         EpxULGKKFo11aTMPGw8abQIQW/OZCmSR/oh3R/t0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ben Shelton <benjamin.h.shelton@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Andrew Bowers <andrewx.bowers@intel.com>,
-        Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
+        stable@vger.kernel.org, Kan Liang <kan.liang@linux.intel.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Ingo Molnar <mingo@kernel.org>,
+        Andi Kleen <ak@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 069/176] ice: Use correct netif error function
-Date:   Tue,  3 Mar 2020 18:42:13 +0100
-Message-Id: <20200303174312.632986231@linuxfoundation.org>
+Subject: [PATCH 5.4 036/152] perf/x86/intel: Add Elkhart Lake support
+Date:   Tue,  3 Mar 2020 18:42:14 +0100
+Message-Id: <20200303174306.534289155@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200303174304.593872177@linuxfoundation.org>
-References: <20200303174304.593872177@linuxfoundation.org>
+In-Reply-To: <20200303174302.523080016@linuxfoundation.org>
+References: <20200303174302.523080016@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,35 +46,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ben Shelton <benjamin.h.shelton@intel.com>
+From: Kan Liang <kan.liang@linux.intel.com>
 
-[ Upstream commit 1d8bd9927234081db15a1d42a7f99505244e3703 ]
+[ Upstream commit eda23b387f6c4bb2971ac7e874a09913f533b22c ]
 
-Use the correct netif_msg_[tx,rx]_error() function to determine whether to
-print the MDD event type.
+Elkhart Lake also uses Tremont CPU. From the perspective of Intel PMU,
+there is nothing changed compared with Jacobsville.
+Share the perf code with Jacobsville.
 
-Signed-off-by: Ben Shelton <benjamin.h.shelton@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
-Tested-by: Andrew Bowers <andrewx.bowers@intel.com>
-Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
+Signed-off-by: Kan Liang <kan.liang@linux.intel.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Reviewed-by: Andi Kleen <ak@linux.intel.com>
+Link: https://lkml.kernel.org/r/1580236279-35492-1-git-send-email-kan.liang@linux.intel.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/ice/ice_main.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/events/intel/core.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/ethernet/intel/ice/ice_main.c b/drivers/net/ethernet/intel/ice/ice_main.c
-index c9b35b202639d..7f71f06fa819c 100644
---- a/drivers/net/ethernet/intel/ice/ice_main.c
-+++ b/drivers/net/ethernet/intel/ice/ice_main.c
-@@ -1235,7 +1235,7 @@ static void ice_handle_mdd_event(struct ice_pf *pf)
- 		u16 queue = ((reg & GL_MDET_TX_TCLAN_QNUM_M) >>
- 				GL_MDET_TX_TCLAN_QNUM_S);
+diff --git a/arch/x86/events/intel/core.c b/arch/x86/events/intel/core.c
+index fcef678c34230..c531e3f3269ed 100644
+--- a/arch/x86/events/intel/core.c
++++ b/arch/x86/events/intel/core.c
+@@ -4746,6 +4746,7 @@ __init int intel_pmu_init(void)
+ 		break;
  
--		if (netif_msg_rx_err(pf))
-+		if (netif_msg_tx_err(pf))
- 			dev_info(dev, "Malicious Driver Detection event %d on TX queue %d PF# %d VF# %d\n",
- 				 event, queue, pf_num, vf_num);
- 		wr32(hw, GL_MDET_TX_TCLAN, 0xffffffff);
+ 	case INTEL_FAM6_ATOM_TREMONT_D:
++	case INTEL_FAM6_ATOM_TREMONT:
+ 		x86_pmu.late_ack = true;
+ 		memcpy(hw_cache_event_ids, glp_hw_cache_event_ids,
+ 		       sizeof(hw_cache_event_ids));
 -- 
 2.20.1
 
