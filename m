@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AA201176C58
-	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 03:56:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3EDCF176C5B
+	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 03:56:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728568AbgCCCsu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Mar 2020 21:48:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44696 "EHLO mail.kernel.org"
+        id S1728579AbgCCCsv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Mar 2020 21:48:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44732 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728565AbgCCCst (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Mar 2020 21:48:49 -0500
+        id S1728571AbgCCCsu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Mar 2020 21:48:50 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E55DC24684;
-        Tue,  3 Mar 2020 02:48:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 19C2E24699;
+        Tue,  3 Mar 2020 02:48:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583203728;
-        bh=vGUOX+Fc8v/Nw6WwDblSI4csNM6cyIMB9lzoBuNt5d0=;
+        s=default; t=1583203729;
+        bh=vOSBD3sjHzK6riGbNN96CcuhfOs6Oto3eXhPhUlUcHs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G8y3ay/MIPXr6b2OfZidn1jIRou1JAa4kgLCJVbVwUzqDZCLmga0cGNka4tqszCvk
-         WEydxVzetcJY2aeXvoZE+UTfXowz1hL7Jr04UOU9NgZlZbR8SQU2IUPUBa8joUqvXm
-         qoj+g0R7iFNzlnWR6Trz0q8lbz+CYejNp71pPiHs=
+        b=wUPWWxIVr8Im0SifjCUsvyYX5x1+HBoMauyeZvn9xo8yOCNJ/0aOUAFJJ+zOmgz7s
+         uLJBgpHBY7qLS2qVEtexQwLNTBqZA+xHMxFb903voiPRz0bcRTALKqnCw5F5eFQ63C
+         rihPkAk8FhkxzCpS361sL1y9lx/BVADJDfXfViHQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Randy Dunlap <rdunlap@infradead.org>, Guo Ren <guoren@kernel.org>,
-        Guo Ren <guoren@linux.alibaba.com>,
-        Sasha Levin <sashal@kernel.org>, linux-csky@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 57/58] arch/csky: fix some Kconfig typos
-Date:   Mon,  2 Mar 2020 21:47:39 -0500
-Message-Id: <20200303024740.9511-57-sashal@kernel.org>
+Cc:     Hangbin Liu <liuhangbin@gmail.com>,
+        Petr Machata <petrm@mellanox.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
+        linux-kselftest@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 58/58] selftests: forwarding: vxlan_bridge_1d: use more proper tos value
+Date:   Mon,  2 Mar 2020 21:47:40 -0500
+Message-Id: <20200303024740.9511-58-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200303024740.9511-1-sashal@kernel.org>
 References: <20200303024740.9511-1-sashal@kernel.org>
@@ -43,33 +45,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Hangbin Liu <liuhangbin@gmail.com>
 
-[ Upstream commit bebd26ab623616728d6e72b5c74a47bfff5287d8 ]
+[ Upstream commit 9b64208f74fbd0e920475ecfe9326f8443fdc3a5 ]
 
-Fix wording in help text for the CPU_HAS_LDSTEX symbol.
+0x11 and 0x12 set the ECN bits based on RFC2474, it would be better to avoid
+that. 0x14 and 0x18 would be better and works as well.
 
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Signed-off-by: Guo Ren <guoren@kernel.org>
-Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
+Reported-by: Petr Machata <petrm@mellanox.com>
+Fixes: 4e867c9a50ff ("selftests: forwarding: vxlan_bridge_1d: fix tos value")
+Signed-off-by: Hangbin Liu <liuhangbin@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/csky/Kconfig | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/testing/selftests/net/forwarding/vxlan_bridge_1d.sh | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/arch/csky/Kconfig b/arch/csky/Kconfig
-index 3973847b5f42e..25de20e526e50 100644
---- a/arch/csky/Kconfig
-+++ b/arch/csky/Kconfig
-@@ -74,7 +74,7 @@ config CPU_HAS_TLBI
- config CPU_HAS_LDSTEX
- 	bool
- 	help
--	  For SMP, CPU needs "ldex&stex" instrcutions to atomic operations.
-+	  For SMP, CPU needs "ldex&stex" instructions for atomic operations.
+diff --git a/tools/testing/selftests/net/forwarding/vxlan_bridge_1d.sh b/tools/testing/selftests/net/forwarding/vxlan_bridge_1d.sh
+index 353613fc19475..ce6bea9675c07 100755
+--- a/tools/testing/selftests/net/forwarding/vxlan_bridge_1d.sh
++++ b/tools/testing/selftests/net/forwarding/vxlan_bridge_1d.sh
+@@ -516,9 +516,9 @@ test_tos()
+ 	RET=0
  
- config CPU_NEED_TLBSYNC
- 	bool
+ 	tc filter add dev v1 egress pref 77 prot ip \
+-		flower ip_tos 0x11 action pass
+-	vxlan_ping_test $h1 192.0.2.3 "-Q 0x11" v1 egress 77 10
+-	vxlan_ping_test $h1 192.0.2.3 "-Q 0x12" v1 egress 77 0
++		flower ip_tos 0x14 action pass
++	vxlan_ping_test $h1 192.0.2.3 "-Q 0x14" v1 egress 77 10
++	vxlan_ping_test $h1 192.0.2.3 "-Q 0x18" v1 egress 77 0
+ 	tc filter del dev v1 egress pref 77 prot ip
+ 
+ 	log_test "VXLAN: envelope TOS inheritance"
 -- 
 2.20.1
 
