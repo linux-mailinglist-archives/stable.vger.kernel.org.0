@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 301B41781D4
-	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 20:02:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 539B2178212
+	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 20:03:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732851AbgCCSGy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Mar 2020 13:06:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37706 "EHLO mail.kernel.org"
+        id S1731569AbgCCSMe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Mar 2020 13:12:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55396 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730877AbgCCRzs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Mar 2020 12:55:48 -0500
+        id S1731616AbgCCRsU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Mar 2020 12:48:20 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2F22720728;
-        Tue,  3 Mar 2020 17:55:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A0BA4208C3;
+        Tue,  3 Mar 2020 17:48:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583258147;
-        bh=DrogBba9msTbngHtLmWtxQahOenWiF9iZhri+C8iWa0=;
+        s=default; t=1583257698;
+        bh=RoFfNCxuyBJAaBUVqc+Mkp2CuQkPRSxXZ6tfduI7cOw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WanNwfAm1LmUdDDybiS9QOat0XAqeJwPyvU2mq4zKKmzsgiUQqdyfZxR/tgjSLoSu
-         RDhQW4DhZ8I2uPr4t8OnTvJadQnIJskm5eiEVA2nEe0lQ4WRwdWEioq9O2Ucpg7a1a
-         CBKWAC4zAN5r62Nl7MCNQHzibLDPOJLrbn5bgiyU=
+        b=v1L/fDFDy1hiWv7OzrhEDKSIbZLIheI1vnlFzjVBJ8ToJ+YwcdwaLcHtctZ1kbWbO
+         ynozGn0nMgFAJruBqzHlR3P6ZHa8uNezv4IHe0/hqWNARXMjgS2q239eMcmQtrrRb4
+         hm60NW8OEzK+wRxUXfq11OIIJhVYBtPHRAOC1JuQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sameeh Jubran <sameehj@amazon.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 053/152] net: ena: rss: do not allocate key when not supported
-Date:   Tue,  3 Mar 2020 18:42:31 +0100
-Message-Id: <20200303174308.456949614@linuxfoundation.org>
+        stable@vger.kernel.org, Daniel Vetter <daniel.vetter@intel.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        "David (ChunMing) Zhou" <David1.Zhou@amd.com>,
+        amd-gfx@lists.freedesktop.org,
+        Emil Velikov <emil.velikov@collabora.com>
+Subject: [PATCH 5.5 094/176] drm/radeon: Inline drm_get_pci_dev
+Date:   Tue,  3 Mar 2020 18:42:38 +0100
+Message-Id: <20200303174315.693227994@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200303174302.523080016@linuxfoundation.org>
-References: <20200303174302.523080016@linuxfoundation.org>
+In-Reply-To: <20200303174304.593872177@linuxfoundation.org>
+References: <20200303174304.593872177@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,68 +47,132 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sameeh Jubran <sameehj@amazon.com>
+From: Daniel Vetter <daniel.vetter@ffwll.ch>
 
-[ Upstream commit 6a4f7dc82d1e3abd3feb0c60b5041056fcd9880c ]
+commit eb12c957735b582607e5842a06d1f4c62e185c1d upstream.
 
-Currently we allocate the key whether the device supports setting the
-key or not. This commit adds a check to the allocation function and
-handles the error accordingly.
+It's the last user, and more importantly, it's the last non-legacy
+user of anything in drm_pci.c.
 
-Fixes: 1738cd3ed342 ("net: ena: Add a driver for Amazon Elastic Network Adapters (ENA)")
-Signed-off-by: Sameeh Jubran <sameehj@amazon.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The only tricky bit is the agp initialization. But a close look shows
+that radeon does not use the drm_agp midlayer (the main use of that is
+drm_bufs for legacy drivers), and instead could use the agp subsystem
+directly (like nouveau does already). Hence we can just pull this in
+too.
+
+A further step would be to entirely drop the use of drm_device->agp,
+but feels like too much churn just for this patch.
+
+Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
+Cc: Alex Deucher <alexander.deucher@amd.com>
+Cc: "Christian König" <christian.koenig@amd.com>
+Cc: "David (ChunMing) Zhou" <David1.Zhou@amd.com>
+Cc: amd-gfx@lists.freedesktop.org
+Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
+Reviewed-by: Emil Velikov <emil.velikov@collabora.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/net/ethernet/amazon/ena/ena_com.c | 24 ++++++++++++++++++++---
- 1 file changed, 21 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/radeon/radeon_drv.c |   43 ++++++++++++++++++++++++++++++++++--
+ drivers/gpu/drm/radeon/radeon_kms.c |    6 +++++
+ 2 files changed, 47 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/amazon/ena/ena_com.c b/drivers/net/ethernet/amazon/ena/ena_com.c
-index d6b894b06fa30..6f758ece86f60 100644
---- a/drivers/net/ethernet/amazon/ena/ena_com.c
-+++ b/drivers/net/ethernet/amazon/ena/ena_com.c
-@@ -1057,6 +1057,20 @@ static void ena_com_hash_key_fill_default_key(struct ena_com_dev *ena_dev)
- static int ena_com_hash_key_allocate(struct ena_com_dev *ena_dev)
+--- a/drivers/gpu/drm/radeon/radeon_drv.c
++++ b/drivers/gpu/drm/radeon/radeon_drv.c
+@@ -37,6 +37,7 @@
+ #include <linux/vga_switcheroo.h>
+ #include <linux/mmu_notifier.h>
+ 
++#include <drm/drm_agpsupport.h>
+ #include <drm/drm_crtc_helper.h>
+ #include <drm/drm_drv.h>
+ #include <drm/drm_fb_helper.h>
+@@ -325,6 +326,7 @@ static int radeon_pci_probe(struct pci_d
+ 			    const struct pci_device_id *ent)
  {
- 	struct ena_rss *rss = &ena_dev->rss;
-+	struct ena_admin_feature_rss_flow_hash_control *hash_key;
-+	struct ena_admin_get_feat_resp get_resp;
-+	int rc;
+ 	unsigned long flags = 0;
++	struct drm_device *dev;
+ 	int ret;
+ 
+ 	if (!ent)
+@@ -365,7 +367,44 @@ static int radeon_pci_probe(struct pci_d
+ 	if (ret)
+ 		return ret;
+ 
+-	return drm_get_pci_dev(pdev, ent, &kms_driver);
++	dev = drm_dev_alloc(&kms_driver, &pdev->dev);
++	if (IS_ERR(dev))
++		return PTR_ERR(dev);
 +
-+	hash_key = (ena_dev->rss).hash_key;
++	ret = pci_enable_device(pdev);
++	if (ret)
++		goto err_free;
 +
-+	rc = ena_com_get_feature_ex(ena_dev, &get_resp,
-+				    ENA_ADMIN_RSS_HASH_FUNCTION,
-+				    ena_dev->rss.hash_key_dma_addr,
-+				    sizeof(ena_dev->rss.hash_key), 0);
-+	if (unlikely(rc)) {
-+		hash_key = NULL;
-+		return -EOPNOTSUPP;
++	dev->pdev = pdev;
++#ifdef __alpha__
++	dev->hose = pdev->sysdata;
++#endif
++
++	pci_set_drvdata(pdev, dev);
++
++	if (pci_find_capability(dev->pdev, PCI_CAP_ID_AGP))
++		dev->agp = drm_agp_init(dev);
++	if (dev->agp) {
++		dev->agp->agp_mtrr = arch_phys_wc_add(
++			dev->agp->agp_info.aper_base,
++			dev->agp->agp_info.aper_size *
++			1024 * 1024);
 +	}
++
++	ret = drm_dev_register(dev, ent->driver_data);
++	if (ret)
++		goto err_agp;
++
++	return 0;
++
++err_agp:
++	if (dev->agp)
++		arch_phys_wc_del(dev->agp->agp_mtrr);
++	kfree(dev->agp);
++	pci_disable_device(pdev);
++err_free:
++	drm_dev_put(dev);
++	return ret;
+ }
  
- 	rss->hash_key =
- 		dma_alloc_coherent(ena_dev->dmadev, sizeof(*rss->hash_key),
-@@ -2640,11 +2654,15 @@ int ena_com_rss_init(struct ena_com_dev *ena_dev, u16 indr_tbl_log_size)
- 	if (unlikely(rc))
- 		goto err_indr_tbl;
+ static void
+@@ -575,7 +614,7 @@ radeon_get_crtc_scanout_position(struct
  
-+	/* The following function might return unsupported in case the
-+	 * device doesn't support setting the key / hash function. We can safely
-+	 * ignore this error and have indirection table support only.
-+	 */
- 	rc = ena_com_hash_key_allocate(ena_dev);
--	if (unlikely(rc))
-+	if (unlikely(rc) && rc != -EOPNOTSUPP)
- 		goto err_hash_key;
--
--	ena_com_hash_key_fill_default_key(ena_dev);
-+	else if (rc != -EOPNOTSUPP)
-+		ena_com_hash_key_fill_default_key(ena_dev);
+ static struct drm_driver kms_driver = {
+ 	.driver_features =
+-	    DRIVER_USE_AGP | DRIVER_GEM | DRIVER_RENDER,
++	    DRIVER_GEM | DRIVER_RENDER,
+ 	.load = radeon_driver_load_kms,
+ 	.open = radeon_driver_open_kms,
+ 	.postclose = radeon_driver_postclose_kms,
+--- a/drivers/gpu/drm/radeon/radeon_kms.c
++++ b/drivers/gpu/drm/radeon/radeon_kms.c
+@@ -31,6 +31,7 @@
+ #include <linux/uaccess.h>
+ #include <linux/vga_switcheroo.h>
  
- 	rc = ena_com_hash_ctrl_init(ena_dev);
- 	if (unlikely(rc))
--- 
-2.20.1
-
++#include <drm/drm_agpsupport.h>
+ #include <drm/drm_fb_helper.h>
+ #include <drm/drm_file.h>
+ #include <drm/drm_ioctl.h>
+@@ -77,6 +78,11 @@ void radeon_driver_unload_kms(struct drm
+ 	radeon_modeset_fini(rdev);
+ 	radeon_device_fini(rdev);
+ 
++	if (dev->agp)
++		arch_phys_wc_del(dev->agp->agp_mtrr);
++	kfree(dev->agp);
++	dev->agp = NULL;
++
+ done_free:
+ 	kfree(rdev);
+ 	dev->dev_private = NULL;
 
 
