@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 067FA176AB8
-	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 03:46:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B6DA176AC4
+	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 03:46:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727097AbgCCCqT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Mar 2020 21:46:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40556 "EHLO mail.kernel.org"
+        id S1727461AbgCCCq1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Mar 2020 21:46:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40682 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727053AbgCCCqT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Mar 2020 21:46:19 -0500
+        id S1727450AbgCCCq0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Mar 2020 21:46:26 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3572D2467B;
-        Tue,  3 Mar 2020 02:46:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0A83C2465E;
+        Tue,  3 Mar 2020 02:46:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583203578;
-        bh=UkPhDA+l+1mOszkHMydsWpIQS6JRfI56n/Wm5/1EY48=;
+        s=default; t=1583203585;
+        bh=FvBTo3UkqZq2iW0czPeO5xCooCJoFfWcEZh66gx8an4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MmyvsYuM5sWxwDHXe+GxevTAn4H/sHGYekTa052zRuBti+PBv6+9wJzygGM/nValG
-         K2v+nJzhm7KCOol2O1cscaIyrz+OoGhvu/D2TZIvDsFp0KoEu6+Yar0RFtsLXLt8tT
-         XLoMFVSZhdJNuxgMtnuLR91DRGdNo6VWeRQ3jo9A=
+        b=VIkxkMdtmHkTFTqDrV8tfvAVT4ks6dwwvlzJaUvsTs+ILbb8eegCyRe/hhPwHPZAL
+         YQjdTGyxen24B7Ht0BmpWUJ0z88HmnTDuhWhMTCiCEppAIjsTnOvIJDa7/jjDW+PXX
+         t4S3+LP11QGAqVYM0CPugxwVXAaAZu0/btMhlapU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Peter Chen <peter.chen@nxp.com>,
-        Greg KH <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.5 02/66] usb: charger: assign specific number for enum value
-Date:   Mon,  2 Mar 2020 21:45:11 -0500
-Message-Id: <20200303024615.8889-2-sashal@kernel.org>
+Cc:     Sergey Organov <sorganov@gmail.com>,
+        =?UTF-8?q?Micha=C5=82=20Miros=C5=82aw?= <mirq-linux@rere.qmqm.pl>,
+        Felipe Balbi <balbi@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.5 08/66] usb: gadget: serial: fix Tx stall after buffer overflow
+Date:   Mon,  2 Mar 2020 21:45:17 -0500
+Message-Id: <20200303024615.8889-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200303024615.8889-1-sashal@kernel.org>
 References: <20200303024615.8889-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -43,53 +45,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Chen <peter.chen@nxp.com>
+From: Sergey Organov <sorganov@gmail.com>
 
-[ Upstream commit ca4b43c14cd88d28cfc6467d2fa075aad6818f1d ]
+[ Upstream commit e4bfded56cf39b8d02733c1e6ef546b97961e18a ]
 
-To work properly on every architectures and compilers, the enum value
-needs to be specific numbers.
+Symptom: application opens /dev/ttyGS0 and starts sending (writing) to
+it while either USB cable is not connected, or nobody listens on the
+other side of the cable. If driver circular buffer overflows before
+connection is established, no data will be written to the USB layer
+until/unless /dev/ttyGS0 is closed and re-opened again by the
+application (the latter besides having no means of being notified about
+the event of establishing of the connection.)
 
-Suggested-by: Greg KH <gregkh@linuxfoundation.org>
-Signed-off-by: Peter Chen <peter.chen@nxp.com>
-Link: https://lore.kernel.org/r/1580537624-10179-1-git-send-email-peter.chen@nxp.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fix: on open and/or connect, kick Tx to flush circular buffer data to
+USB layer.
+
+Signed-off-by: Sergey Organov <sorganov@gmail.com>
+Reviewed-by: Michał Mirosław <mirq-linux@rere.qmqm.pl>
+Signed-off-by: Felipe Balbi <balbi@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/uapi/linux/usb/charger.h | 16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ drivers/usb/gadget/function/u_serial.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/include/uapi/linux/usb/charger.h b/include/uapi/linux/usb/charger.h
-index 5f72af35b3ed7..ad22079125bff 100644
---- a/include/uapi/linux/usb/charger.h
-+++ b/include/uapi/linux/usb/charger.h
-@@ -14,18 +14,18 @@
-  * ACA (Accessory Charger Adapters)
-  */
- enum usb_charger_type {
--	UNKNOWN_TYPE,
--	SDP_TYPE,
--	DCP_TYPE,
--	CDP_TYPE,
--	ACA_TYPE,
-+	UNKNOWN_TYPE = 0,
-+	SDP_TYPE = 1,
-+	DCP_TYPE = 2,
-+	CDP_TYPE = 3,
-+	ACA_TYPE = 4,
- };
+diff --git a/drivers/usb/gadget/function/u_serial.c b/drivers/usb/gadget/function/u_serial.c
+index f986e5c559748..8167d379e115b 100644
+--- a/drivers/usb/gadget/function/u_serial.c
++++ b/drivers/usb/gadget/function/u_serial.c
+@@ -561,8 +561,10 @@ static int gs_start_io(struct gs_port *port)
+ 	port->n_read = 0;
+ 	started = gs_start_rx(port);
  
- /* USB charger state */
- enum usb_charger_state {
--	USB_CHARGER_DEFAULT,
--	USB_CHARGER_PRESENT,
--	USB_CHARGER_ABSENT,
-+	USB_CHARGER_DEFAULT = 0,
-+	USB_CHARGER_PRESENT = 1,
-+	USB_CHARGER_ABSENT = 2,
- };
- 
- #endif /* _UAPI__LINUX_USB_CHARGER_H */
+-	/* unblock any pending writes into our circular buffer */
+ 	if (started) {
++		gs_start_tx(port);
++		/* Unblock any pending writes into our circular buffer, in case
++		 * we didn't in gs_start_tx() */
+ 		tty_wakeup(port->port.tty);
+ 	} else {
+ 		gs_free_requests(ep, head, &port->read_allocated);
 -- 
 2.20.1
 
