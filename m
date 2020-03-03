@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C03A4176C6D
-	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 03:56:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 714D7176B21
+	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 03:48:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728470AbgCCCsh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Mar 2020 21:48:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44464 "EHLO mail.kernel.org"
+        id S1728486AbgCCCsj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Mar 2020 21:48:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44472 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728467AbgCCCsh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Mar 2020 21:48:37 -0500
+        id S1728409AbgCCCsi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Mar 2020 21:48:38 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A0214246D5;
-        Tue,  3 Mar 2020 02:48:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DEF81246A1;
+        Tue,  3 Mar 2020 02:48:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583203716;
-        bh=ujHYlmvzzmARpzykN3UJl7tQFXD5glbjjzu9OoZqoc4=;
+        s=default; t=1583203717;
+        bh=QylDUZK3QTKd3//3nJslpmnCls/OiFTo4MnS8zfcwbA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mCbK/NiQMUcFcCo7Fg383r9rVy27soXJ4BKpunCau8qKalfceY/WWAZNDBBonOJla
-         z7FLjKQmgA0DFEMaUQpji9ovgzX1jjPGd5XYLIs3hDdNSlw45GDEowLBOR+fRuDryA
-         tLYMzOWfXh0zqgyEn+6LWMOt+hmkkiQ/ynra2YTI=
+        b=2ARjvncwPq8cRLXN7zBdPxDK2tctsr+3XV3TKKs2tWtxWrTOjmYEfO8nGQKWAdvos
+         HfPEa0uyNpN28eWh4x8KuUdJAlxGQvt5qEQtAJbbdYjXakcmJ6Xw0IxetSEks24IME
+         uQy+55tVfWO6TZsMDtuGgMg7LZTZy9xvK2hr1s44=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Michal Swiatkowski <michal.swiatkowski@intel.com>,
-        Andrew Bowers <andrewx.bowers@intel.com>,
-        Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
+Cc:     Kees Cook <keescook@chromium.org>, Juergen Gross <jgross@suse.com>,
+        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
         Sasha Levin <sashal@kernel.org>,
-        intel-wired-lan@lists.osuosl.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 46/58] ice: Don't tell the OS that link is going down
-Date:   Mon,  2 Mar 2020 21:47:28 -0500
-Message-Id: <20200303024740.9511-46-sashal@kernel.org>
+        xen-devel@lists.xenproject.org, clang-built-linux@googlegroups.com
+Subject: [PATCH AUTOSEL 5.4 47/58] x86/xen: Distribute switch variables for initialization
+Date:   Mon,  2 Mar 2020 21:47:29 -0500
+Message-Id: <20200303024740.9511-47-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200303024740.9511-1-sashal@kernel.org>
 References: <20200303024740.9511-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -45,46 +45,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michal Swiatkowski <michal.swiatkowski@intel.com>
+From: Kees Cook <keescook@chromium.org>
 
-[ Upstream commit 8a55c08d3bbc9ffc9639f69f742e59ebd99f913b ]
+[ Upstream commit 9038ec99ceb94fb8d93ade5e236b2928f0792c7c ]
 
-Remove code that tell the OS that link is going down when user
-change flow control via ethtool. When link is up it isn't certain
-that link goes down after 0x0605 aq command. If link doesn't go
-down, OS thinks that link is down, but physical link is up. To
-reset this state user have to take interface down and up.
+Variables declared in a switch statement before any case statements
+cannot be automatically initialized with compiler instrumentation (as
+they are not part of any execution flow). With GCC's proposed automatic
+stack variable initialization feature, this triggers a warning (and they
+don't get initialized). Clang's automatic stack variable initialization
+(via CONFIG_INIT_STACK_ALL=y) doesn't throw a warning, but it also
+doesn't initialize such variables[1]. Note that these warnings (or silent
+skipping) happen before the dead-store elimination optimization phase,
+so even when the automatic initializations are later elided in favor of
+direct initializations, the warnings remain.
 
-If link goes down after 0x0605 command, FW send information
-about that and after that driver tells the OS that the link goes
-down. So this code in ethtool is unnecessary.
+To avoid these problems, move such variables into the "case" where
+they're used or lift them up into the main function body.
 
-Signed-off-by: Michal Swiatkowski <michal.swiatkowski@intel.com>
-Tested-by: Andrew Bowers <andrewx.bowers@intel.com>
-Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
+arch/x86/xen/enlighten_pv.c: In function ‘xen_write_msr_safe’:
+arch/x86/xen/enlighten_pv.c:904:12: warning: statement will never be executed [-Wswitch-unreachable]
+  904 |   unsigned which;
+      |            ^~~~~
+
+[1] https://bugs.llvm.org/show_bug.cgi?id=44916
+
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Link: https://lore.kernel.org/r/20200220062318.69299-1-keescook@chromium.org
+Reviewed-by: Juergen Gross <jgross@suse.com>
+[boris: made @which an 'unsigned int']
+Signed-off-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/ice/ice_ethtool.c | 7 -------
- 1 file changed, 7 deletions(-)
+ arch/x86/xen/enlighten_pv.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/ice/ice_ethtool.c b/drivers/net/ethernet/intel/ice/ice_ethtool.c
-index 1fe9f6050635d..62673e27af0e8 100644
---- a/drivers/net/ethernet/intel/ice/ice_ethtool.c
-+++ b/drivers/net/ethernet/intel/ice/ice_ethtool.c
-@@ -2916,13 +2916,6 @@ ice_set_pauseparam(struct net_device *netdev, struct ethtool_pauseparam *pause)
- 	else
- 		return -EINVAL;
+diff --git a/arch/x86/xen/enlighten_pv.c b/arch/x86/xen/enlighten_pv.c
+index 6ea215cdeadac..6d4d8a5700b71 100644
+--- a/arch/x86/xen/enlighten_pv.c
++++ b/arch/x86/xen/enlighten_pv.c
+@@ -905,14 +905,15 @@ static u64 xen_read_msr_safe(unsigned int msr, int *err)
+ static int xen_write_msr_safe(unsigned int msr, unsigned low, unsigned high)
+ {
+ 	int ret;
++#ifdef CONFIG_X86_64
++	unsigned int which;
++	u64 base;
++#endif
  
--	/* Tell the OS link is going down, the link will go back up when fw
--	 * says it is ready asynchronously
--	 */
--	ice_print_link_msg(vsi, false);
--	netif_carrier_off(netdev);
--	netif_tx_stop_all_queues(netdev);
+ 	ret = 0;
+ 
+ 	switch (msr) {
+ #ifdef CONFIG_X86_64
+-		unsigned which;
+-		u64 base;
 -
- 	/* Set the FC mode and only restart AN if link is up */
- 	status = ice_set_fc(pi, &aq_failures, link_up);
- 
+ 	case MSR_FS_BASE:		which = SEGBASE_FS; goto set;
+ 	case MSR_KERNEL_GS_BASE:	which = SEGBASE_GS_USER; goto set;
+ 	case MSR_GS_BASE:		which = SEGBASE_GS_KERNEL; goto set;
 -- 
 2.20.1
 
