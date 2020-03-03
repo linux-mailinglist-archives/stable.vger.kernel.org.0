@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 80D2A176B87
-	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 03:51:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C1E8176B8B
+	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 03:51:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729211AbgCCCuf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Mar 2020 21:50:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47576 "EHLO mail.kernel.org"
+        id S1727447AbgCCCvB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Mar 2020 21:51:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47608 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729202AbgCCCue (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Mar 2020 21:50:34 -0500
+        id S1729207AbgCCCuf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Mar 2020 21:50:35 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 23248246DD;
-        Tue,  3 Mar 2020 02:50:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 764C2246E2;
+        Tue,  3 Mar 2020 02:50:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583203834;
-        bh=JWZ9FwWt1KKnILBTWu7vLkJhY59MMHT8tRRn+QvVnhs=;
+        s=default; t=1583203835;
+        bh=PeHBr6dPrD0S0NEiWd3wlD5q13RzmQoY6W7P6aRl6YY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D1yc3m6UGhu+EgkElVLLBAhd7I6Cmg29F8sxaZjVYbAmgTB1Y0fWlmU7xCI+gy1MT
-         om0ve+plIAFT9pFXVHYIvVl2Wwtg0IG45OerYexBlLdkPyHOd3ZdbSNxBGDRZALIHV
-         TnUmornTzEgQ/JlbIMINIq/UFh5DsF7xaus0BRSE=
+        b=qem8bvag+x1QfHwjq4pcgnzVjGWJ2x2Q7RdvaPeYwD702Ds7M3MwIdoBxPfu8lrLm
+         p8dYJhG6izdx1VdpMVFjgSGDwyWHc8HrlrzJ9wHBxK4PDiRVx0cNN/aBzOMTnTeIRB
+         DLM8JdW0w4PTvDk7eY97chB5tWXfZuum+fhjAtuw=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Marek Vasut <marex@denx.de>,
-        "David S . Miller" <davem@davemloft.net>,
-        Lukas Wunner <lukas@wunner.de>, Petr Stetiar <ynezz@true.cz>,
-        YueHaibing <yuehaibing@huawei.com>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 09/11] net: ks8851-ml: Fix 16-bit IO operation
-Date:   Mon,  2 Mar 2020 21:50:19 -0500
-Message-Id: <20200303025021.10754-9-sashal@kernel.org>
+Cc:     Marco Felsch <m.felsch@pengutronix.de>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Sasha Levin <sashal@kernel.org>, linux-watchdog@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 10/11] watchdog: da9062: do not ping the hw during stop()
+Date:   Mon,  2 Mar 2020 21:50:20 -0500
+Message-Id: <20200303025021.10754-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200303025021.10754-1-sashal@kernel.org>
 References: <20200303025021.10754-1-sashal@kernel.org>
@@ -45,49 +44,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Vasut <marex@denx.de>
+From: Marco Felsch <m.felsch@pengutronix.de>
 
-[ Upstream commit 58292104832fef6cb4a89f736012c0e0724c3442 ]
+[ Upstream commit e9a0e65eda3f78d0b04ec6136c591c000cbc3b76 ]
 
-The Micrel KSZ8851-16MLLI datasheet DS00002357B page 12 states that
-BE[3:0] signals are active high. This contradicts the measurements
-of the behavior of the actual chip, where these signals behave as
-active low. For example, to read the CIDER register, the bus must
-expose 0xc0c0 during the address phase, which means BE[3:0]=4'b1100.
+The da9062 hw has a minimum ping cool down phase of at least 200ms. The
+driver takes that into account by setting the min_hw_heartbeat_ms to
+300ms and the core guarantees that the hw limit is observed for the
+ping() calls. But the core can't guarantee the required minimum ping
+cool down phase if a stop() command is send immediately after the ping()
+command. So it is not allowed to ping the watchdog within the stop()
+command as the driver does. Remove the ping can be done without doubts
+because the watchdog gets disabled anyway and a (re)start resets the
+watchdog counter too.
 
-Signed-off-by: Marek Vasut <marex@denx.de>
-Cc: David S. Miller <davem@davemloft.net>
-Cc: Lukas Wunner <lukas@wunner.de>
-Cc: Petr Stetiar <ynezz@true.cz>
-Cc: YueHaibing <yuehaibing@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Marco Felsch <m.felsch@pengutronix.de>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Link: https://lore.kernel.org/r/20200120091729.16256-1-m.felsch@pengutronix.de
+[groeck: Updated description]
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/micrel/ks8851_mll.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/watchdog/da9062_wdt.c | 7 -------
+ 1 file changed, 7 deletions(-)
 
-diff --git a/drivers/net/ethernet/micrel/ks8851_mll.c b/drivers/net/ethernet/micrel/ks8851_mll.c
-index 20356976b9772..d94e151cff12b 100644
---- a/drivers/net/ethernet/micrel/ks8851_mll.c
-+++ b/drivers/net/ethernet/micrel/ks8851_mll.c
-@@ -484,7 +484,7 @@ static int msg_enable;
+diff --git a/drivers/watchdog/da9062_wdt.c b/drivers/watchdog/da9062_wdt.c
+index 7386111220d58..daeb645fcea8a 100644
+--- a/drivers/watchdog/da9062_wdt.c
++++ b/drivers/watchdog/da9062_wdt.c
+@@ -126,13 +126,6 @@ static int da9062_wdt_stop(struct watchdog_device *wdd)
+ 	struct da9062_watchdog *wdt = watchdog_get_drvdata(wdd);
+ 	int ret;
  
- static u16 ks_rdreg16(struct ks_net *ks, int offset)
- {
--	ks->cmd_reg_cache = (u16)offset | ((BE1 | BE0) << (offset & 0x02));
-+	ks->cmd_reg_cache = (u16)offset | ((BE3 | BE2) >> (offset & 0x02));
- 	iowrite16(ks->cmd_reg_cache, ks->hw_addr_cmd);
- 	return ioread16(ks->hw_addr);
- }
-@@ -499,7 +499,7 @@ static u16 ks_rdreg16(struct ks_net *ks, int offset)
- 
- static void ks_wrreg16(struct ks_net *ks, int offset, u16 value)
- {
--	ks->cmd_reg_cache = (u16)offset | ((BE1 | BE0) << (offset & 0x02));
-+	ks->cmd_reg_cache = (u16)offset | ((BE3 | BE2) >> (offset & 0x02));
- 	iowrite16(ks->cmd_reg_cache, ks->hw_addr_cmd);
- 	iowrite16(value, ks->hw_addr);
- }
+-	ret = da9062_reset_watchdog_timer(wdt);
+-	if (ret) {
+-		dev_err(wdt->hw->dev, "Failed to ping the watchdog (err = %d)\n",
+-			ret);
+-		return ret;
+-	}
+-
+ 	ret = regmap_update_bits(wdt->hw->regmap,
+ 				 DA9062AA_CONTROL_D,
+ 				 DA9062AA_TWDSCALE_MASK,
 -- 
 2.20.1
 
