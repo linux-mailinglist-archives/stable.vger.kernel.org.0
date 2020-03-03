@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 774471780E2
-	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 20:00:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F0F91781D9
+	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 20:02:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387586AbgCCR7U (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Mar 2020 12:59:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42588 "EHLO mail.kernel.org"
+        id S2387461AbgCCSHK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Mar 2020 13:07:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36668 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731109AbgCCR7U (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Mar 2020 12:59:20 -0500
+        id S1732653AbgCCRzO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Mar 2020 12:55:14 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 86CEE214D8;
-        Tue,  3 Mar 2020 17:59:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F21C32072D;
+        Tue,  3 Mar 2020 17:55:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583258360;
-        bh=CObFl1cb5UvCfomOI018fcjAEGpaCccIR6+DPEZK/Do=;
+        s=default; t=1583258113;
+        bh=t0ILfPI1THySAeKMScXdX+yW20YuVW1b/Uuz9HQq564=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VWKQKGO7pLNFg5S1uSR/jcmdENzXUukeauIeFc5rVFNH3yAEHmOT+jwBu6WcYfMR9
-         8SFpuepMGzka7TvHApJcpMOIsazWBtGHXAXMvMXpAz/DAOgHDT9ozVtajxEMs7d1/y
-         bbsXEVY7OZqnfL1yPYV3C63Srfz4UMaq0vTqpfO4=
+        b=qbjnqB7BUQKm//bsTsZd7TLHiedMVNh8z+Wl3pSXRgoNQEEurRjAZLh4J+p9brjO6
+         cZ7y45YUfob0rKqYwWyrpvo/VLYrzTTFzO18cyJO5LofZFgv9nVuEUD6ev8Zj5eqtZ
+         Vf7vyeIIb13jzOb1Ow04NiGdi+l3LXGcr77xEuzg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
-        Luca Coelho <luciano.coelho@intel.com>,
-        Ajay Kaher <akaher@vmware.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 02/87] iwlwifi: pcie: fix rb_allocator workqueue allocation
-Date:   Tue,  3 Mar 2020 18:42:53 +0100
-Message-Id: <20200303174349.250817378@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Zden=C4=9Bk=20Rampas?= <zdenda.rampas@gmail.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: [PATCH 5.4 076/152] HID: ite: Only bind to keyboard USB interface on Acer SW5-012 keyboard dock
+Date:   Tue,  3 Mar 2020 18:42:54 +0100
+Message-Id: <20200303174311.156521538@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200303174349.075101355@linuxfoundation.org>
-References: <20200303174349.075101355@linuxfoundation.org>
+In-Reply-To: <20200303174302.523080016@linuxfoundation.org>
+References: <20200303174302.523080016@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,66 +45,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-commit 8188a18ee2e48c9a7461139838048363bfce3fef upstream
+commit beae56192a2570578ae45050e73c5ff9254f63e6 upstream.
 
-We don't handle failures in the rb_allocator workqueue allocation
-correctly. To fix that, move the code earlier so the cleanup is
-easier and we don't have to undo all the interrupt allocations in
-this case.
+Commit 8f18eca9ebc5 ("HID: ite: Add USB id match for Acer SW5-012 keyboard
+dock") added the USB id for the Acer SW5-012's keyboard dock to the
+hid-ite driver to fix the rfkill driver not working.
 
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-[Ajay: Modified to apply on v4.19.y and v4.14.y]
-Signed-off-by: Ajay Kaher <akaher@vmware.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Most keyboard docks with an ITE 8595 keyboard/touchpad controller have the
+"Wireless Radio Control" bits which need the special hid-ite driver on the
+second USB interface (the mouse interface) and their touchpad only supports
+mouse emulation, so using generic hid-input handling for anything but
+the "Wireless Radio Control" bits is fine. On these devices we simply bind
+to all USB interfaces.
+
+But unlike other ITE8595 using keyboard docks, the Acer Aspire Switch 10
+(SW5-012)'s touchpad not only does mouse emulation it also supports
+HID-multitouch and all the keys including the "Wireless Radio Control"
+bits have been moved to the first USB interface (the keyboard intf).
+
+So we need hid-ite to handle the first (keyboard) USB interface and have
+it NOT bind to the second (mouse) USB interface so that that can be
+handled by hid-multitouch.c and we get proper multi-touch support.
+
+This commit changes the hid_device_id for the SW5-012 keyboard dock to
+only match on hid devices from the HID_GROUP_GENERIC group, this way
+hid-ite will not bind the the mouse/multi-touch interface which has
+HID_GROUP_MULTITOUCH_WIN_8 as group.
+This fixes the regression to mouse-emulation mode introduced by adding
+the keyboard dock USB id.
+
+Cc: stable@vger.kernel.org
+Fixes: 8f18eca9ebc5 ("HID: ite: Add USB id match for Acer SW5-012 keyboard dock")
+Reported-by: Zdeněk Rampas <zdenda.rampas@gmail.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/net/wireless/intel/iwlwifi/pcie/trans.c | 15 +++++++++++----
- 1 file changed, 11 insertions(+), 4 deletions(-)
+ drivers/hid/hid-ite.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/wireless/intel/iwlwifi/pcie/trans.c b/drivers/net/wireless/intel/iwlwifi/pcie/trans.c
-index 4f5571123f70a..24da496151353 100644
---- a/drivers/net/wireless/intel/iwlwifi/pcie/trans.c
-+++ b/drivers/net/wireless/intel/iwlwifi/pcie/trans.c
-@@ -3283,6 +3283,15 @@ struct iwl_trans *iwl_trans_pcie_alloc(struct pci_dev *pdev,
- 	spin_lock_init(&trans_pcie->reg_lock);
- 	mutex_init(&trans_pcie->mutex);
- 	init_waitqueue_head(&trans_pcie->ucode_write_waitq);
-+
-+	trans_pcie->rba.alloc_wq = alloc_workqueue("rb_allocator",
-+						   WQ_HIGHPRI | WQ_UNBOUND, 1);
-+	if (!trans_pcie->rba.alloc_wq) {
-+		ret = -ENOMEM;
-+		goto out_free_trans;
-+	}
-+	INIT_WORK(&trans_pcie->rba.rx_alloc, iwl_pcie_rx_allocator_work);
-+
- 	trans_pcie->tso_hdr_page = alloc_percpu(struct iwl_tso_hdr_page);
- 	if (!trans_pcie->tso_hdr_page) {
- 		ret = -ENOMEM;
-@@ -3485,10 +3494,6 @@ struct iwl_trans *iwl_trans_pcie_alloc(struct pci_dev *pdev,
- 		trans_pcie->inta_mask = CSR_INI_SET_MASK;
- 	 }
- 
--	trans_pcie->rba.alloc_wq = alloc_workqueue("rb_allocator",
--						   WQ_HIGHPRI | WQ_UNBOUND, 1);
--	INIT_WORK(&trans_pcie->rba.rx_alloc, iwl_pcie_rx_allocator_work);
--
- #ifdef CONFIG_IWLWIFI_PCIE_RTPM
- 	trans->runtime_pm_mode = IWL_PLAT_PM_MODE_D0I3;
- #else
-@@ -3501,6 +3506,8 @@ out_free_ict:
- 	iwl_pcie_free_ict(trans);
- out_no_pci:
- 	free_percpu(trans_pcie->tso_hdr_page);
-+	destroy_workqueue(trans_pcie->rba.alloc_wq);
-+out_free_trans:
- 	iwl_trans_free(trans);
- 	return ERR_PTR(ret);
- }
--- 
-2.20.1
-
+--- a/drivers/hid/hid-ite.c
++++ b/drivers/hid/hid-ite.c
+@@ -41,8 +41,9 @@ static const struct hid_device_id ite_de
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ITE, USB_DEVICE_ID_ITE8595) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_258A, USB_DEVICE_ID_258A_6A88) },
+ 	/* ITE8595 USB kbd ctlr, with Synaptics touchpad connected to it. */
+-	{ HID_USB_DEVICE(USB_VENDOR_ID_SYNAPTICS,
+-			 USB_DEVICE_ID_SYNAPTICS_ACER_SWITCH5_012) },
++	{ HID_DEVICE(BUS_USB, HID_GROUP_GENERIC,
++		     USB_VENDOR_ID_SYNAPTICS,
++		     USB_DEVICE_ID_SYNAPTICS_ACER_SWITCH5_012) },
+ 	{ }
+ };
+ MODULE_DEVICE_TABLE(hid, ite_devices);
 
 
