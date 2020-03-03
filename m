@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0DAE9176C63
-	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 03:56:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E52E9176B24
+	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 03:48:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728313AbgCCC4U (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Mar 2020 21:56:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44566 "EHLO mail.kernel.org"
+        id S1728538AbgCCCsp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Mar 2020 21:48:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44586 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728516AbgCCCsn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Mar 2020 21:48:43 -0500
+        id S1728527AbgCCCso (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Mar 2020 21:48:44 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BB250246A1;
-        Tue,  3 Mar 2020 02:48:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D8598246D5;
+        Tue,  3 Mar 2020 02:48:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583203722;
-        bh=wvIZGTrfVEJX+/h/0jYTc6W39qvqgiRTacB6jjgXu9c=;
+        s=default; t=1583203723;
+        bh=wy9W+fQwofwFUAdAK7CWRsY2cm5mGzcAMji3HmIrySs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CD8yD6WCNdyAVZvkGuFRuJ5j9FTEcH11DoFzfjvM+xL1XvM5RZGiF8UWlde1JswuA
-         LzqpUFIUW4P/PU8C9GGijpOrZ9e8r/Ir3vBGSZ9byg5tXvFzgEl4ir8TF3iNbCooGW
-         wUWfjWCo6G37IZW85g32ljG/q4qn8usMZIxN4Odk=
+        b=GTltTELmIXG/BObiEvMTL6CZ6fVorX0lDOXbL88UMJly3TfoXjfl2MNubqKqBRCk1
+         qE2A92JJJPXeWS7SVGXbqxbNCxLFzSOBrN11hPJpXTnT1/aEYCzpUygkSIo+1usqIR
+         jI5rbOJZHUNHSiky32uh65oKMmLxGLiTdN17skuE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Vasundhara Volam <vasundhara-v.volam@broadcom.com>,
-        Michael Chan <michael.chan@broadcom.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 51/58] bnxt_en: Issue PCIe FLR in kdump kernel to cleanup pending DMAs.
-Date:   Mon,  2 Mar 2020 21:47:33 -0500
-Message-Id: <20200303024740.9511-51-sashal@kernel.org>
+Cc:     Guo Ren <guoren@linux.alibaba.com>,
+        Mo Qihui <qihui.mo@verisilicon.com>,
+        Zhange Jian <zhang_jian5@dahuatech.com>,
+        Sasha Levin <sashal@kernel.org>, linux-csky@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 52/58] csky/mm: Fixup export invalid_pte_table symbol
+Date:   Mon,  2 Mar 2020 21:47:34 -0500
+Message-Id: <20200303024740.9511-52-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200303024740.9511-1-sashal@kernel.org>
 References: <20200303024740.9511-1-sashal@kernel.org>
@@ -44,42 +44,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasundhara Volam <vasundhara-v.volam@broadcom.com>
+From: Guo Ren <guoren@linux.alibaba.com>
 
-[ Upstream commit 8743db4a9acfd51f805ac0c87bcaae92c42d1061 ]
+[ Upstream commit 7f4a567332f035ab16b29010fbd04a0f10183c77 ]
 
-If crashed kernel does not shutdown the NIC properly, PCIe FLR
-is required in the kdump kernel in order to initialize all the
-functions properly.
+There is no present bit in csky pmd hardware, so we need to prepare invalid_pte_table
+for empty pmd entry and the functions (pmd_none & pmd_present) in pgtable.h need
+invalid_pte_talbe to get result. If a module use these functions, we need export the
+symbol for it.
 
-Fixes: d629522e1d66 ("bnxt_en: Reduce memory usage when running in kdump kernel.")
-Signed-off-by: Vasundhara Volam <vasundhara-v.volam@broadcom.com>
-Signed-off-by: Michael Chan <michael.chan@broadcom.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
+Cc: Mo Qihui <qihui.mo@verisilicon.com>
+Cc: Zhange Jian <zhang_jian5@dahuatech.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/broadcom/bnxt/bnxt.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ arch/csky/mm/init.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt.c b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-index e03e610dd1831..374e11a91790b 100644
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-@@ -11712,6 +11712,14 @@ static int bnxt_init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
- 	if (version_printed++ == 0)
- 		pr_info("%s", version);
+diff --git a/arch/csky/mm/init.c b/arch/csky/mm/init.c
+index d4c2292ea46bc..00e96278b3776 100644
+--- a/arch/csky/mm/init.c
++++ b/arch/csky/mm/init.c
+@@ -31,6 +31,7 @@
  
-+	/* Clear any pending DMA transactions from crash kernel
-+	 * while loading driver in capture kernel.
-+	 */
-+	if (is_kdump_kernel()) {
-+		pci_clear_master(pdev);
-+		pcie_flr(pdev);
-+	}
-+
- 	max_irqs = bnxt_get_max_irq(pdev);
- 	dev = alloc_etherdev_mq(sizeof(*bp), max_irqs);
- 	if (!dev)
+ pgd_t swapper_pg_dir[PTRS_PER_PGD] __page_aligned_bss;
+ pte_t invalid_pte_table[PTRS_PER_PTE] __page_aligned_bss;
++EXPORT_SYMBOL(invalid_pte_table);
+ unsigned long empty_zero_page[PAGE_SIZE / sizeof(unsigned long)]
+ 						__page_aligned_bss;
+ EXPORT_SYMBOL(empty_zero_page);
 -- 
 2.20.1
 
