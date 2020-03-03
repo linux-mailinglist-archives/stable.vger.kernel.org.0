@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B6E2177EDF
-	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 19:56:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 050D2177FBD
+	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 19:58:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730934AbgCCRr3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Mar 2020 12:47:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54432 "EHLO mail.kernel.org"
+        id S1732191AbgCCRwj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Mar 2020 12:52:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:32948 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731351AbgCCRr3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Mar 2020 12:47:29 -0500
+        id S1732178AbgCCRwj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Mar 2020 12:52:39 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 32B3A208C3;
-        Tue,  3 Mar 2020 17:47:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A5FBC20728;
+        Tue,  3 Mar 2020 17:52:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583257648;
-        bh=+0DCorTTN4tjWO1sG8JADOF2c+tIaEeqv2Mh+42zHBw=;
+        s=default; t=1583257959;
+        bh=YJBfCqSByjSFxgGWmbPxYXFHCKKUp9aukC1dgwZBS04=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0TpKIjLNGmBHfa6LcDfinnag6Jo4P7P/TnlsJkEzUwmP+xTccwnbs4U5DFM0XD4/T
-         uZWMn+VpOT7HlW8nODikc0Q9HvXH1zUARqNq/49ApO3r+ElFh6QSKCDwKWD/C/s3SI
-         Gdx7Z2OfZCYmVqybKvGexLG6b3Yaq87iHoeyhlH4=
+        b=Or/KiS3Eqx7fpoSv+WG6K6GdwKh9a5HnH05XtiY66ytQxm6167knty2VYdP5d0JQ2
+         ZJsCJABwCdZJSIOQyeJZzrwFwkRijc/b1sRmD4xfKikUAvslJi0zzby5WbWzxANdYm
+         01ibqKozKVIX3Q3vODi3P2Qa6/ywZdA1Y05tSULo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiubo Li <xiubli@redhat.com>,
-        Jeff Layton <jlayton@kernel.org>,
-        Ilya Dryomov <idryomov@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 043/176] ceph: do not execute direct write in parallel if O_APPEND is specified
-Date:   Tue,  3 Mar 2020 18:41:47 +0100
-Message-Id: <20200303174309.514277525@linuxfoundation.org>
+        stable@vger.kernel.org, Dmitry Osipenko <digetx@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.4 010/152] nfc: pn544: Fix occasional HW initialization failure
+Date:   Tue,  3 Mar 2020 18:41:48 +0100
+Message-Id: <20200303174303.693587076@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200303174304.593872177@linuxfoundation.org>
-References: <20200303174304.593872177@linuxfoundation.org>
+In-Reply-To: <20200303174302.523080016@linuxfoundation.org>
+References: <20200303174302.523080016@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,94 +43,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiubo Li <xiubli@redhat.com>
+From: Dmitry Osipenko <digetx@gmail.com>
 
-[ Upstream commit 8e4473bb50a1796c9c32b244e5dbc5ee24ead937 ]
+[ Upstream commit c3331d2fe3fd4d5e321f2467d01f72de7edfb5d0 ]
 
-In O_APPEND & O_DIRECT mode, the data from different writers will
-be possibly overlapping each other since they take the shared lock.
+The PN544 driver checks the "enable" polarity during of driver's probe and
+it's doing that by turning ON and OFF NFC with different polarities until
+enabling succeeds. It takes some time for the hardware to power-down, and
+thus, to deassert the IRQ that is raised by turning ON the hardware.
+Since the delay after last power-down of the polarity-checking process is
+missed in the code, the interrupt may trigger immediately after installing
+the IRQ handler (right after the checking is done), which results in IRQ
+handler trying to touch the disabled HW and ends with marking NFC as
+'DEAD' during of the driver's probe:
 
-For example, both Writer1 and Writer2 are in O_APPEND and O_DIRECT
-mode:
+  pn544_hci_i2c 1-002a: NFC: nfc_en polarity : active high
+  pn544_hci_i2c 1-002a: NFC: invalid len byte
+  shdlc: llc_shdlc_recv_frame: NULL Frame -> link is dead
 
-          Writer1                         Writer2
+This patch fixes the occasional NFC initialization failure on Nexus 7
+device.
 
-     shared_lock()                   shared_lock()
-     getattr(CAP_SIZE)               getattr(CAP_SIZE)
-     iocb->ki_pos = EOF              iocb->ki_pos = EOF
-     write(data1)
-                                     write(data2)
-     shared_unlock()                 shared_unlock()
-
-The data2 will overlap the data1 from the same file offset, the
-old EOF.
-
-Switch to exclusive lock instead when O_APPEND is specified.
-
-Signed-off-by: Xiubo Li <xiubli@redhat.com>
-Reviewed-by: Jeff Layton <jlayton@kernel.org>
-Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ceph/file.c | 17 +++++++++++------
- 1 file changed, 11 insertions(+), 6 deletions(-)
+ drivers/nfc/pn544/i2c.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/fs/ceph/file.c b/fs/ceph/file.c
-index 11929d2bb594c..cd09e63d682b7 100644
---- a/fs/ceph/file.c
-+++ b/fs/ceph/file.c
-@@ -1418,6 +1418,7 @@ static ssize_t ceph_write_iter(struct kiocb *iocb, struct iov_iter *from)
- 	struct ceph_cap_flush *prealloc_cf;
- 	ssize_t count, written = 0;
- 	int err, want, got;
-+	bool direct_lock = false;
- 	loff_t pos;
- 	loff_t limit = max(i_size_read(inode), fsc->max_file_size);
+--- a/drivers/nfc/pn544/i2c.c
++++ b/drivers/nfc/pn544/i2c.c
+@@ -225,6 +225,7 @@ static void pn544_hci_i2c_platform_init(
  
-@@ -1428,8 +1429,11 @@ static ssize_t ceph_write_iter(struct kiocb *iocb, struct iov_iter *from)
- 	if (!prealloc_cf)
- 		return -ENOMEM;
- 
-+	if ((iocb->ki_flags & (IOCB_DIRECT | IOCB_APPEND)) == IOCB_DIRECT)
-+		direct_lock = true;
-+
- retry_snap:
--	if (iocb->ki_flags & IOCB_DIRECT)
-+	if (direct_lock)
- 		ceph_start_io_direct(inode);
- 	else
- 		ceph_start_io_write(inode);
-@@ -1519,14 +1523,15 @@ static ssize_t ceph_write_iter(struct kiocb *iocb, struct iov_iter *from)
- 
- 		/* we might need to revert back to that point */
- 		data = *from;
--		if (iocb->ki_flags & IOCB_DIRECT) {
-+		if (iocb->ki_flags & IOCB_DIRECT)
- 			written = ceph_direct_read_write(iocb, &data, snapc,
- 							 &prealloc_cf);
--			ceph_end_io_direct(inode);
--		} else {
-+		else
- 			written = ceph_sync_write(iocb, &data, pos, snapc);
-+		if (direct_lock)
-+			ceph_end_io_direct(inode);
-+		else
- 			ceph_end_io_write(inode);
--		}
- 		if (written > 0)
- 			iov_iter_advance(from, written);
- 		ceph_put_snap_context(snapc);
-@@ -1577,7 +1582,7 @@ static ssize_t ceph_write_iter(struct kiocb *iocb, struct iov_iter *from)
- 
- 	goto out_unlocked;
  out:
--	if (iocb->ki_flags & IOCB_DIRECT)
-+	if (direct_lock)
- 		ceph_end_io_direct(inode);
- 	else
- 		ceph_end_io_write(inode);
--- 
-2.20.1
-
+ 	gpiod_set_value_cansleep(phy->gpiod_en, !phy->en_polarity);
++	usleep_range(10000, 15000);
+ }
+ 
+ static void pn544_hci_i2c_enable_mode(struct pn544_i2c_phy *phy, int run_mode)
 
 
