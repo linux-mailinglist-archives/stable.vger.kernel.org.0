@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1609217801A
-	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 19:59:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4EE14177F11
+	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 19:57:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732573AbgCCRym (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Mar 2020 12:54:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35986 "EHLO mail.kernel.org"
+        id S1731529AbgCCRse (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Mar 2020 12:48:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55674 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732208AbgCCRym (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Mar 2020 12:54:42 -0500
+        id S1731522AbgCCRsc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Mar 2020 12:48:32 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B0C372467F;
-        Tue,  3 Mar 2020 17:54:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 48AFB214DB;
+        Tue,  3 Mar 2020 17:48:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583258082;
-        bh=fsPvjRYgB4pv7V5kfZoupwdYyArfFebXqtBGXqlzQ+o=;
+        s=default; t=1583257710;
+        bh=RT8k7oH6EC+25L6UM2op71QHRy3yxsAYGAHgVFgIIf4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0aCOdhXnLDPwLFc1UvBB7QbpEphmvnHDBSz+i5/ypzfWydbfciGVNPGjqzkUWqyYl
-         EXzXYcTOrgBWgYhGW0j3wlpFVLQ/YGq3yGN7ZWONn1/RNKV1Vqx9FyN6DajTH/josA
-         GyW3kYCPZR+pq7ilDxCMBYKxuuOE6D1bP2meM5/k=
+        b=wzePPiwDieN1KXgH/9qz95Km27n5xTr0OuVUw3Y0MnW20VzIRxSoZVf6C9Pe7Jo3H
+         ukpKrwVuCyC771Gu0cPLYXpJ83JHg9d4QQEzuzxwP1+yYgc7qIeqN1i1/JHCeu0RtC
+         fhrsApHAsUhej/Cg0/K0+K9fbFcoBWnGsSX9v91o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yufeng Mo <moyufeng@huawei.com>,
-        Huazhong Tan <tanhuazhong@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 065/152] net: hns3: add management table after IMP reset
+        stable@vger.kernel.org, Alex Deucher <alexander.deucher@amd.com>,
+        Shirish S <shirish.s@amd.com>
+Subject: [PATCH 5.5 099/176] amdgpu/gmc_v9: save/restore sdpif regs during S3
 Date:   Tue,  3 Mar 2020 18:42:43 +0100
-Message-Id: <20200303174309.837237957@linuxfoundation.org>
+Message-Id: <20200303174316.291399930@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200303174302.523080016@linuxfoundation.org>
-References: <20200303174302.523080016@linuxfoundation.org>
+In-Reply-To: <20200303174304.593872177@linuxfoundation.org>
+References: <20200303174304.593872177@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,42 +43,114 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yufeng Mo <moyufeng@huawei.com>
+From: Shirish S <shirish.s@amd.com>
 
-[ Upstream commit d0db7ed397517c8b2be24a0d1abfa15df776908e ]
+commit a3ed353cf8015ba84a0407a5dc3ffee038166ab0 upstream.
 
-In the current process, the management table is missing after the
-IMP reset. This patch adds the management table to the reset process.
+fixes S3 issue with IOMMU + S/G  enabled @ 64M VRAM.
 
-Fixes: f5aac71c0327 ("net: hns3: add manager table initialization for hardware")
-Signed-off-by: Yufeng Mo <moyufeng@huawei.com>
-Signed-off-by: Huazhong Tan <tanhuazhong@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Suggested-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Shirish S <shirish.s@amd.com>
+Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_gmc.h                    |    1 
+ drivers/gpu/drm/amd/amdgpu/gmc_v9_0.c                      |   37 ++++++++++++-
+ drivers/gpu/drm/amd/include/asic_reg/dce/dce_12_0_offset.h |    2 
+ 3 files changed, 39 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
-index 162881005a6df..0c3c63aed2c06 100644
---- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
-+++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
-@@ -9437,6 +9437,13 @@ static int hclge_reset_ae_dev(struct hnae3_ae_dev *ae_dev)
- 		return ret;
- 	}
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_gmc.h
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_gmc.h
+@@ -192,6 +192,7 @@ struct amdgpu_gmc {
+ 	uint32_t                srbm_soft_reset;
+ 	bool			prt_warning;
+ 	uint64_t		stolen_size;
++	uint32_t		sdpif_register;
+ 	/* apertures */
+ 	u64			shared_aperture_start;
+ 	u64			shared_aperture_end;
+--- a/drivers/gpu/drm/amd/amdgpu/gmc_v9_0.c
++++ b/drivers/gpu/drm/amd/amdgpu/gmc_v9_0.c
+@@ -1204,6 +1204,19 @@ static void gmc_v9_0_init_golden_registe
+ }
  
-+	ret = init_mgr_tbl(hdev);
-+	if (ret) {
-+		dev_err(&pdev->dev,
-+			"failed to reinit manager table, ret = %d\n", ret);
-+		return ret;
-+	}
+ /**
++ * gmc_v9_0_restore_registers - restores regs
++ *
++ * @adev: amdgpu_device pointer
++ *
++ * This restores register values, saved at suspend.
++ */
++static void gmc_v9_0_restore_registers(struct amdgpu_device *adev)
++{
++	if (adev->asic_type == CHIP_RAVEN)
++		WREG32(mmDCHUBBUB_SDPIF_MMIO_CNTRL_0, adev->gmc.sdpif_register);
++}
 +
- 	ret = hclge_init_fd_config(hdev);
- 	if (ret) {
- 		dev_err(&pdev->dev, "fd table init fail, ret=%d\n", ret);
--- 
-2.20.1
-
++/**
+  * gmc_v9_0_gart_enable - gart enable
+  *
+  * @adev: amdgpu_device pointer
+@@ -1308,6 +1321,20 @@ static int gmc_v9_0_hw_init(void *handle
+ }
+ 
+ /**
++ * gmc_v9_0_save_registers - saves regs
++ *
++ * @adev: amdgpu_device pointer
++ *
++ * This saves potential register values that should be
++ * restored upon resume
++ */
++static void gmc_v9_0_save_registers(struct amdgpu_device *adev)
++{
++	if (adev->asic_type == CHIP_RAVEN)
++		adev->gmc.sdpif_register = RREG32(mmDCHUBBUB_SDPIF_MMIO_CNTRL_0);
++}
++
++/**
+  * gmc_v9_0_gart_disable - gart disable
+  *
+  * @adev: amdgpu_device pointer
+@@ -1343,9 +1370,16 @@ static int gmc_v9_0_hw_fini(void *handle
+ 
+ static int gmc_v9_0_suspend(void *handle)
+ {
++	int r;
+ 	struct amdgpu_device *adev = (struct amdgpu_device *)handle;
+ 
+-	return gmc_v9_0_hw_fini(adev);
++	r = gmc_v9_0_hw_fini(adev);
++	if (r)
++		return r;
++
++	gmc_v9_0_save_registers(adev);
++
++	return 0;
+ }
+ 
+ static int gmc_v9_0_resume(void *handle)
+@@ -1353,6 +1387,7 @@ static int gmc_v9_0_resume(void *handle)
+ 	int r;
+ 	struct amdgpu_device *adev = (struct amdgpu_device *)handle;
+ 
++	gmc_v9_0_restore_registers(adev);
+ 	r = gmc_v9_0_hw_init(adev);
+ 	if (r)
+ 		return r;
+--- a/drivers/gpu/drm/amd/include/asic_reg/dce/dce_12_0_offset.h
++++ b/drivers/gpu/drm/amd/include/asic_reg/dce/dce_12_0_offset.h
+@@ -7376,6 +7376,8 @@
+ #define mmCRTC4_CRTC_DRR_CONTROL                                                                       0x0f3e
+ #define mmCRTC4_CRTC_DRR_CONTROL_BASE_IDX                                                              2
+ 
++#define mmDCHUBBUB_SDPIF_MMIO_CNTRL_0                                                                  0x395d
++#define mmDCHUBBUB_SDPIF_MMIO_CNTRL_0_BASE_IDX                                                         2
+ 
+ // addressBlock: dce_dc_fmt4_dispdec
+ // base address: 0x2000
 
 
