@@ -2,111 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E8543177D48
-	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 18:22:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BBD66177D93
+	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 18:34:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729695AbgCCRWM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Mar 2020 12:22:12 -0500
-Received: from lelv0143.ext.ti.com ([198.47.23.248]:35948 "EHLO
-        lelv0143.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729570AbgCCRWM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 Mar 2020 12:22:12 -0500
-Received: from fllv0034.itg.ti.com ([10.64.40.246])
-        by lelv0143.ext.ti.com (8.15.2/8.15.2) with ESMTP id 023HMBTi113154;
-        Tue, 3 Mar 2020 11:22:11 -0600
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ti.com;
-        s=ti-com-17Q1; t=1583256131;
-        bh=SBRUU+j3XyFM6R2K8Qs7x9a1C38P7C+RT5tCbBFb0hI=;
-        h=From:To:CC:Subject:Date;
-        b=v7cg1KPn7IPdLZAVsY8/27/RR2l/nN/JHJRMrmyrf+EvYnjV8LHzuUAqDypAq5NQ+
-         U5M37Me3JuTQ+RqasRWnfiGIJJei/PY1n0I2SrZIT19bIbPQ0afRfGFO3Apd6e4KN/
-         oLSJ87u3nPajtUs3837qNK5DNjfYtJDlXqpYWiGs=
-Received: from DLEE100.ent.ti.com (dlee100.ent.ti.com [157.170.170.30])
-        by fllv0034.itg.ti.com (8.15.2/8.15.2) with ESMTPS id 023HMBKj077381
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=FAIL);
-        Tue, 3 Mar 2020 11:22:11 -0600
-Received: from DLEE107.ent.ti.com (157.170.170.37) by DLEE100.ent.ti.com
- (157.170.170.30) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.1847.3; Tue, 3 Mar
- 2020 11:22:10 -0600
-Received: from fllv0040.itg.ti.com (10.64.41.20) by DLEE107.ent.ti.com
- (157.170.170.37) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.1847.3 via
- Frontend Transport; Tue, 3 Mar 2020 11:22:10 -0600
-Received: from uda0869644b.dal.design.ti.com (ileax41-snat.itg.ti.com [10.172.224.153])
-        by fllv0040.itg.ti.com (8.15.2/8.15.2) with ESMTP id 023HMAq0014433;
-        Tue, 3 Mar 2020 11:22:10 -0600
-From:   Benoit Parrot <bparrot@ti.com>
-To:     Hans Verkuil <hverkuil@xs4all.nl>
-CC:     Tomi Valkeinen <tomi.valkeinen@ti.com>,
-        <linux-media@vger.kernel.org>, <devicetree@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>, Benoit Parrot <bparrot@ti.com>,
-        <stable@vger.kernel.org>
-Subject: [Patch] media: ti-vpe: cal: fix a kernel oops when unloading module
-Date:   Tue, 3 Mar 2020 11:26:29 -0600
-Message-ID: <20200303172629.21339-1-bparrot@ti.com>
-X-Mailer: git-send-email 2.17.1
+        id S1730453AbgCCReB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Mar 2020 12:34:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47176 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1730440AbgCCReB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Mar 2020 12:34:01 -0500
+Received: from disco-boy.misterjones.org (disco-boy.misterjones.org [51.254.78.96])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id BA97A2146E;
+        Tue,  3 Mar 2020 17:33:59 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1583256839;
+        bh=iPOYluEY+ZO1uyD5kIymeUNRinPpcpWzEsgkKtWHXKk=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+        b=PssTJb+5WAlQiBvvTwCxPLcnNVAQWPTDSLFFFkPWblU0Tw3d2NnBnuKJhMGo2iJ4/
+         udmQSQKATNt7HuovAY5BY+JsaxblFdHhEW6mvR8mZgogCM+29GHHS7gJeFvKnHGXD+
+         WvRlzPNtr7KjGCMKufGhmxLDK4SNmIVSspxzoR48=
+Received: from disco-boy.misterjones.org ([51.254.78.96] helo=www.loen.fr)
+        by disco-boy.misterjones.org with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        (Exim 4.92)
+        (envelope-from <maz@kernel.org>)
+        id 1j9BQc-009jyt-0c; Tue, 03 Mar 2020 17:33:58 +0000
 MIME-Version: 1.0
-Content-Type: text/plain
-X-EXCLAIMER-MD-CONFIG: e1e8a2fd-e40a-4ac6-ac9b-f7e9cc9ee180
+Content-Type: text/plain; charset=US-ASCII;
+ format=flowed
+Content-Transfer-Encoding: 7bit
+Date:   Tue, 03 Mar 2020 17:33:57 +0000
+From:   Marc Zyngier <maz@kernel.org>
+To:     Robin Murphy <robin.murphy@arm.com>
+Cc:     linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        Joerg Roedel <jroedel@suse.de>,
+        Eric Auger <eric.auger@redhat.com>,
+        Will Deacon <will@kernel.org>, stable@vger.kernel.org
+Subject: Re: [PATCH] iommu/dma: Fix MSI reservation allocation
+In-Reply-To: <f0fc18a5-17a9-4c53-052b-00272bbd2691@arm.com>
+References: <20200303115154.32263-1-maz@kernel.org>
+ <f0fc18a5-17a9-4c53-052b-00272bbd2691@arm.com>
+Message-ID: <dd29d82badfa11f7c0c80563d1b38804@kernel.org>
+X-Sender: maz@kernel.org
+User-Agent: Roundcube Webmail/1.3.10
+X-SA-Exim-Connect-IP: 51.254.78.96
+X-SA-Exim-Rcpt-To: robin.murphy@arm.com, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, jroedel@suse.de, eric.auger@redhat.com, will@kernel.org, stable@vger.kernel.org
+X-SA-Exim-Mail-From: maz@kernel.org
+X-SA-Exim-Scanned: No (on disco-boy.misterjones.org); SAEximRunCond expanded to false
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-After the switch to use v4l2_async_notifier_add_subdev() and
-v4l2_async_notifier_cleanup(), unloading the ti_cal module would casue a
-kernel oops.
+On 2020-03-03 17:23, Robin Murphy wrote:
+> On 03/03/2020 11:51 am, Marc Zyngier wrote:
+>> The way cookie_init_hw_msi_region() allocates the iommu_dma_msi_page
+>> structures doesn't match the way iommu_put_dma_cookie() frees them.
+>> 
+>> The former performs a single allocation of all the required 
+>> structures,
+>> while the latter tries to free them one at a time. It doesn't quite
+>> work for the main use case (the GICv3 ITS where the range is 64kB)
+>> when the base ganule size is 4kB.
+>> 
+>> This leads to a nice slab corruption on teardown, which is easily
+>> observable by simply creating a VF on a SRIOV-capable device, and
+>> tearing it down immediately (no need to even make use of it).
+>> 
+>> Fix it by allocating iommu_dma_msi_page structures one at a time.
+> 
+> Bleh, you know you're supposed to be using 64K pages on those things, 
+> right? :P
 
-This was root cause to the fact that v4l2_async_notifier_cleanup() tries
-to kfree the asd pointer passed into v4l2_async_notifier_add_subdev().
+lalalala... ;-)
 
-In our case the asd reference was from a statically allocated struct.
-So in effect v4l2_async_notifier_cleanup() was trying to free a pointer
-that was not kalloc.
+[...]
 
-So here we switch to using a kzalloc struct instead of a static one.
+>> +		if (!msi_page) {
+>> +			ret = -ENOMEM;
+> 
+> I think we can just return here and skip the cleanup below - by the
+> time we get here the cookie itself has already been allocated and
+> initialised, so even if iommu_dma_init_domain() fails someone else has
+> already accepted the responsibility of calling iommu_put_dma_cookie()
+> at some point later, which will clean up properly.
 
-Fixes: d079f94c9046 ("media: platform: Switch to v4l2_async_notifier_add_subdev")
+Ah, that's a very good point. I'll refresh the patch with a simplified
+error handling.
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Benoit Parrot <bparrot@ti.com>
----
- drivers/media/platform/ti-vpe/cal.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+Thanks,
 
-diff --git a/drivers/media/platform/ti-vpe/cal.c b/drivers/media/platform/ti-vpe/cal.c
-index 6d4cbb8782ed..18fe2cb9dd17 100644
---- a/drivers/media/platform/ti-vpe/cal.c
-+++ b/drivers/media/platform/ti-vpe/cal.c
-@@ -372,8 +372,6 @@ struct cal_ctx {
- 	struct v4l2_subdev	*sensor;
- 	struct v4l2_fwnode_endpoint	endpoint;
- 
--	struct v4l2_async_subdev asd;
--
- 	struct v4l2_fh		fh;
- 	struct cal_dev		*dev;
- 	struct cc_data		*cc;
-@@ -2032,7 +2030,6 @@ static int of_cal_create_instance(struct cal_ctx *ctx, int inst)
- 
- 	parent = pdev->dev.of_node;
- 
--	asd = &ctx->asd;
- 	endpoint = &ctx->endpoint;
- 
- 	ep_node = NULL;
-@@ -2040,6 +2037,10 @@ static int of_cal_create_instance(struct cal_ctx *ctx, int inst)
- 	sensor_node = NULL;
- 	ret = -EINVAL;
- 
-+	asd = kzalloc(sizeof(*asd), GFP_KERNEL);
-+	if (!asd)
-+		goto cleanup_exit;
-+
- 	ctx_dbg(3, ctx, "Scanning Port node for csi2 port: %d\n", inst);
- 	for (index = 0; index < CAL_NUM_CSI2_PORTS; index++) {
- 		port = of_get_next_port(parent, port);
+         M.
 -- 
-2.17.1
-
+Jazz is not dead. It just smells funny...
