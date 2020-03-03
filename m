@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 83E68177ED1
-	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 19:56:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 378F7177FB7
+	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 19:58:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731290AbgCCRrI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Mar 2020 12:47:08 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53964 "EHLO mail.kernel.org"
+        id S1732166AbgCCRwc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Mar 2020 12:52:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60944 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731287AbgCCRrI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Mar 2020 12:47:08 -0500
+        id S1731387AbgCCRwc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Mar 2020 12:52:32 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 32294214D8;
-        Tue,  3 Mar 2020 17:47:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C468820CC7;
+        Tue,  3 Mar 2020 17:52:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583257627;
-        bh=F0bnm1NLtK71H1aDOAoi9ykCnmiTb2Z+2jqTPWmo9bk=;
+        s=default; t=1583257951;
+        bh=23q8wOej2CGk3XczCcVwpa2g7hpc7dm7DZVNhrIvC0A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=guMaV9zDF3uI0vkNdoa+LVcCDAVEjBYyOHaWxAbg8NlxMhLksTQFtCUwSnGe+lGEf
-         NCnkHI7Guttp+HNZJsDZaZJ1QHAgpRZFvbtJiKlgXouvX5fCh4edenAckbc0u5shTh
-         r1EdduQTUno03y4j++2ZYOEFguJp5VjchMjMjNxY=
+        b=SSfsAJGuz5iSjb2NNMvlvAE+pc41mgE0N+vF22bBRiqpgYV7sjohXSgnKn634DCJB
+         4HK6Z9tgVEWI6F7qQJX57HUDmTa/hu1XhyYgdpiar5ZZSwovUoAmLeJe6cuth1xDm9
+         KckKVlsrGni9VqX6c9V+QQar99xJOwydmkLjtp/w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kan Liang <kan.liang@linux.intel.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Ingo Molnar <mingo@kernel.org>,
-        Andi Kleen <ak@linux.intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 040/176] perf/x86/intel: Add Elkhart Lake support
-Date:   Tue,  3 Mar 2020 18:41:44 +0100
-Message-Id: <20200303174309.143275741@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Arun Parameswaran <arun.parameswaran@broadcom.com>,
+        Scott Branden <scott.branden@broadcom.com>,
+        Andrew Lunn <andrew@lunn.ch>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.4 007/152] net: phy: restore mdio regs in the iproc mdio driver
+Date:   Tue,  3 Mar 2020 18:41:45 +0100
+Message-Id: <20200303174303.333828110@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200303174304.593872177@linuxfoundation.org>
-References: <20200303174304.593872177@linuxfoundation.org>
+In-Reply-To: <20200303174302.523080016@linuxfoundation.org>
+References: <20200303174302.523080016@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,38 +47,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kan Liang <kan.liang@linux.intel.com>
+From: Arun Parameswaran <arun.parameswaran@broadcom.com>
 
-[ Upstream commit eda23b387f6c4bb2971ac7e874a09913f533b22c ]
+commit 6f08e98d62799e53c89dbf2c9a49d77e20ca648c upstream.
 
-Elkhart Lake also uses Tremont CPU. From the perspective of Intel PMU,
-there is nothing changed compared with Jacobsville.
-Share the perf code with Jacobsville.
+The mii management register in iproc mdio block
+does not have a retention register so it is lost on suspend.
+Save and restore value of register while resuming from suspend.
 
-Signed-off-by: Kan Liang <kan.liang@linux.intel.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Reviewed-by: Andi Kleen <ak@linux.intel.com>
-Link: https://lkml.kernel.org/r/1580236279-35492-1-git-send-email-kan.liang@linux.intel.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: bb1a619735b4 ("net: phy: Initialize mdio clock at probe function")
+Signed-off-by: Arun Parameswaran <arun.parameswaran@broadcom.com>
+Signed-off-by: Scott Branden <scott.branden@broadcom.com>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/events/intel/core.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/phy/mdio-bcm-iproc.c |   20 ++++++++++++++++++++
+ 1 file changed, 20 insertions(+)
 
-diff --git a/arch/x86/events/intel/core.c b/arch/x86/events/intel/core.c
-index 3be51aa06e67e..dff6623804c28 100644
---- a/arch/x86/events/intel/core.c
-+++ b/arch/x86/events/intel/core.c
-@@ -4765,6 +4765,7 @@ __init int intel_pmu_init(void)
- 		break;
+--- a/drivers/net/phy/mdio-bcm-iproc.c
++++ b/drivers/net/phy/mdio-bcm-iproc.c
+@@ -178,6 +178,23 @@ static int iproc_mdio_remove(struct plat
+ 	return 0;
+ }
  
- 	case INTEL_FAM6_ATOM_TREMONT_D:
-+	case INTEL_FAM6_ATOM_TREMONT:
- 		x86_pmu.late_ack = true;
- 		memcpy(hw_cache_event_ids, glp_hw_cache_event_ids,
- 		       sizeof(hw_cache_event_ids));
--- 
-2.20.1
-
++#ifdef CONFIG_PM_SLEEP
++int iproc_mdio_resume(struct device *dev)
++{
++	struct platform_device *pdev = to_platform_device(dev);
++	struct iproc_mdio_priv *priv = platform_get_drvdata(pdev);
++
++	/* restore the mii clock configuration */
++	iproc_mdio_config_clk(priv->base);
++
++	return 0;
++}
++
++static const struct dev_pm_ops iproc_mdio_pm_ops = {
++	.resume = iproc_mdio_resume
++};
++#endif /* CONFIG_PM_SLEEP */
++
+ static const struct of_device_id iproc_mdio_of_match[] = {
+ 	{ .compatible = "brcm,iproc-mdio", },
+ 	{ /* sentinel */ },
+@@ -188,6 +205,9 @@ static struct platform_driver iproc_mdio
+ 	.driver = {
+ 		.name = "iproc-mdio",
+ 		.of_match_table = iproc_mdio_of_match,
++#ifdef CONFIG_PM_SLEEP
++		.pm = &iproc_mdio_pm_ops,
++#endif
+ 	},
+ 	.probe = iproc_mdio_probe,
+ 	.remove = iproc_mdio_remove,
 
 
