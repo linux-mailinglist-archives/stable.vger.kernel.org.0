@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id ABA96176B67
-	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 03:50:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CE4FE176BC5
+	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 03:52:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729044AbgCCCuE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Mar 2020 21:50:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46600 "EHLO mail.kernel.org"
+        id S1728273AbgCCCwS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Mar 2020 21:52:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46680 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729041AbgCCCuC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Mar 2020 21:50:02 -0500
+        id S1729051AbgCCCuE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Mar 2020 21:50:04 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F300824697;
-        Tue,  3 Mar 2020 02:50:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B238E246D5;
+        Tue,  3 Mar 2020 02:50:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583203801;
-        bh=oJoqOQ4BbWtGKqisHz8bxiAzotj6AUweKI0WNX4ssm0=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eGwQzInG+xdb9DY9E6I0W7tAxLo7iUC5EQSnifOfjQ268FlxDRUfCA96V72taB4nY
-         VnVoharFJd912gFZX01vk7b0DDavPK0Oi5twHyzlUDsoBuJ35RzHtGMbyXxSnAMly4
-         EbKmMyqmSHMGB3OOjwvIrp4yQU5mQ988YT/vC+Mk=
+        s=default; t=1583203804;
+        bh=mQi+kJKCA4XsCXfQOnNrS/gSe+ZGvNiadlAQOyB6ZBM=;
+        h=From:To:Cc:Subject:Date:From;
+        b=zNVQ1QPdO4MZATr8RVADQWjstKYSxcP5jFsP+TiAg7sGnCSmX/XLRPB/MjE5fkWwt
+         wKLRaEUKwE6PHUGfPWs0plD34bDiwGG4KG9zUwuzRw+tgze5gR1dvy6+GV/bqpGXY8
+         L0Z2bXfM+gzWKBWKegmm94AjCp9Kk4tp1NWZ64Os=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Tim Harvey <tharvey@gateworks.com>,
-        Robert Jones <rjones@gateworks.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-arm-kernel@lists.infradead.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 22/22] net: thunderx: workaround BGX TX Underflow issue
-Date:   Mon,  2 Mar 2020 21:49:33 -0500
-Message-Id: <20200303024933.10371-22-sashal@kernel.org>
+Cc:     Daniel Golle <daniel@makrotopia.org>,
+        Chuanhong Guo <gch981213@gmail.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, linux-serial@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 01/13] serial: ar933x_uart: set UART_CS_{RX,TX}_READY_ORIDE
+Date:   Mon,  2 Mar 2020 21:49:50 -0500
+Message-Id: <20200303025002.10600-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20200303024933.10371-1-sashal@kernel.org>
-References: <20200303024933.10371-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -45,153 +42,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tim Harvey <tharvey@gateworks.com>
+From: Daniel Golle <daniel@makrotopia.org>
 
-[ Upstream commit 971617c3b761c876d686a2188220a33898c90e99 ]
+[ Upstream commit 87c5cbf71ecbb9e289d60a2df22eb686c70bf196 ]
 
-While it is not yet understood why a TX underflow can easily occur
-for SGMII interfaces resulting in a TX wedge. It has been found that
-disabling/re-enabling the LMAC resolves the issue.
+On AR934x this UART is usually not initialized by the bootloader
+as it is only used as a secondary serial port while the primary
+UART is a newly introduced NS16550-compatible.
+In order to make use of the ar933x-uart on AR934x without RTS/CTS
+hardware flow control, one needs to set the
+UART_CS_{RX,TX}_READY_ORIDE bits as other than on AR933x where this
+UART is used as primary/console, the bootloader on AR934x typically
+doesn't set those bits.
+Setting them explicitely on AR933x should not do any harm, so just
+set them unconditionally.
 
-Signed-off-by: Tim Harvey <tharvey@gateworks.com>
-Reviewed-by: Robert Jones <rjones@gateworks.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Tested-by: Chuanhong Guo <gch981213@gmail.com>
+Signed-off-by: Daniel Golle <daniel@makrotopia.org>
+Link: https://lore.kernel.org/r/20200207095335.GA179836@makrotopia.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/ethernet/cavium/thunder/thunder_bgx.c | 62 ++++++++++++++++++-
- .../net/ethernet/cavium/thunder/thunder_bgx.h |  9 +++
- 2 files changed, 68 insertions(+), 3 deletions(-)
+ drivers/tty/serial/ar933x_uart.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/drivers/net/ethernet/cavium/thunder/thunder_bgx.c b/drivers/net/ethernet/cavium/thunder/thunder_bgx.c
-index 586e355933108..d678f088925c6 100644
---- a/drivers/net/ethernet/cavium/thunder/thunder_bgx.c
-+++ b/drivers/net/ethernet/cavium/thunder/thunder_bgx.c
-@@ -234,10 +234,19 @@ void bgx_lmac_rx_tx_enable(int node, int bgx_idx, int lmacid, bool enable)
- 	lmac = &bgx->lmac[lmacid];
+diff --git a/drivers/tty/serial/ar933x_uart.c b/drivers/tty/serial/ar933x_uart.c
+index d4462512605b5..246f4aab74075 100644
+--- a/drivers/tty/serial/ar933x_uart.c
++++ b/drivers/tty/serial/ar933x_uart.c
+@@ -289,6 +289,10 @@ static void ar933x_uart_set_termios(struct uart_port *port,
+ 	ar933x_uart_rmw_set(up, AR933X_UART_CS_REG,
+ 			    AR933X_UART_CS_HOST_INT_EN);
  
- 	cfg = bgx_reg_read(bgx, lmacid, BGX_CMRX_CFG);
--	if (enable)
-+	if (enable) {
- 		cfg |= CMR_PKT_RX_EN | CMR_PKT_TX_EN;
--	else
++	/* enable RX and TX ready overide */
++	ar933x_uart_rmw_set(up, AR933X_UART_CS_REG,
++		AR933X_UART_CS_TX_READY_ORIDE | AR933X_UART_CS_RX_READY_ORIDE);
 +
-+		/* enable TX FIFO Underflow interrupt */
-+		bgx_reg_modify(bgx, lmacid, BGX_GMP_GMI_TXX_INT_ENA_W1S,
-+			       GMI_TXX_INT_UNDFLW);
-+	} else {
- 		cfg &= ~(CMR_PKT_RX_EN | CMR_PKT_TX_EN);
+ 	/* reenable the UART */
+ 	ar933x_uart_rmw(up, AR933X_UART_CS_REG,
+ 			AR933X_UART_CS_IF_MODE_M << AR933X_UART_CS_IF_MODE_S,
+@@ -421,6 +425,10 @@ static int ar933x_uart_startup(struct uart_port *port)
+ 	ar933x_uart_rmw_set(up, AR933X_UART_CS_REG,
+ 			    AR933X_UART_CS_HOST_INT_EN);
+ 
++	/* enable RX and TX ready overide */
++	ar933x_uart_rmw_set(up, AR933X_UART_CS_REG,
++		AR933X_UART_CS_TX_READY_ORIDE | AR933X_UART_CS_RX_READY_ORIDE);
 +
-+		/* Disable TX FIFO Underflow interrupt */
-+		bgx_reg_modify(bgx, lmacid, BGX_GMP_GMI_TXX_INT_ENA_W1C,
-+			       GMI_TXX_INT_UNDFLW);
-+	}
- 	bgx_reg_write(bgx, lmacid, BGX_CMRX_CFG, cfg);
- 
- 	if (bgx->is_rgx)
-@@ -1340,6 +1349,48 @@ static int bgx_init_phy(struct bgx *bgx)
- 	return bgx_init_of_phy(bgx);
- }
- 
-+static irqreturn_t bgx_intr_handler(int irq, void *data)
-+{
-+	struct bgx *bgx = (struct bgx *)data;
-+	u64 status, val;
-+	int lmac;
-+
-+	for (lmac = 0; lmac < bgx->lmac_count; lmac++) {
-+		status = bgx_reg_read(bgx, lmac, BGX_GMP_GMI_TXX_INT);
-+		if (status & GMI_TXX_INT_UNDFLW) {
-+			pci_err(bgx->pdev, "BGX%d lmac%d UNDFLW\n",
-+				bgx->bgx_id, lmac);
-+			val = bgx_reg_read(bgx, lmac, BGX_CMRX_CFG);
-+			val &= ~CMR_EN;
-+			bgx_reg_write(bgx, lmac, BGX_CMRX_CFG, val);
-+			val |= CMR_EN;
-+			bgx_reg_write(bgx, lmac, BGX_CMRX_CFG, val);
-+		}
-+		/* clear interrupts */
-+		bgx_reg_write(bgx, lmac, BGX_GMP_GMI_TXX_INT, status);
-+	}
-+
-+	return IRQ_HANDLED;
-+}
-+
-+static void bgx_register_intr(struct pci_dev *pdev)
-+{
-+	struct bgx *bgx = pci_get_drvdata(pdev);
-+	int ret;
-+
-+	ret = pci_alloc_irq_vectors(pdev, BGX_LMAC_VEC_OFFSET,
-+				    BGX_LMAC_VEC_OFFSET, PCI_IRQ_ALL_TYPES);
-+	if (ret < 0) {
-+		pci_err(pdev, "Req for #%d msix vectors failed\n",
-+			BGX_LMAC_VEC_OFFSET);
-+		return;
-+	}
-+	ret = pci_request_irq(pdev, GMPX_GMI_TX_INT, bgx_intr_handler, NULL,
-+			      bgx, "BGX%d", bgx->bgx_id);
-+	if (ret)
-+		pci_free_irq(pdev, GMPX_GMI_TX_INT, bgx);
-+}
-+
- static int bgx_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
- {
- 	int err;
-@@ -1355,7 +1406,7 @@ static int bgx_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
- 
- 	pci_set_drvdata(pdev, bgx);
- 
--	err = pci_enable_device(pdev);
-+	err = pcim_enable_device(pdev);
- 	if (err) {
- 		dev_err(dev, "Failed to enable PCI device\n");
- 		pci_set_drvdata(pdev, NULL);
-@@ -1409,6 +1460,8 @@ static int bgx_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
- 
- 	bgx_init_hw(bgx);
- 
-+	bgx_register_intr(pdev);
-+
- 	/* Enable all LMACs */
- 	for (lmac = 0; lmac < bgx->lmac_count; lmac++) {
- 		err = bgx_lmac_enable(bgx, lmac);
-@@ -1425,6 +1478,7 @@ static int bgx_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
- 
- err_enable:
- 	bgx_vnic[bgx->bgx_id] = NULL;
-+	pci_free_irq(pdev, GMPX_GMI_TX_INT, bgx);
- err_release_regions:
- 	pci_release_regions(pdev);
- err_disable_device:
-@@ -1442,6 +1496,8 @@ static void bgx_remove(struct pci_dev *pdev)
- 	for (lmac = 0; lmac < bgx->lmac_count; lmac++)
- 		bgx_lmac_disable(bgx, lmac);
- 
-+	pci_free_irq(pdev, GMPX_GMI_TX_INT, bgx);
-+
- 	bgx_vnic[bgx->bgx_id] = NULL;
- 	pci_release_regions(pdev);
- 	pci_disable_device(pdev);
-diff --git a/drivers/net/ethernet/cavium/thunder/thunder_bgx.h b/drivers/net/ethernet/cavium/thunder/thunder_bgx.h
-index 23acdc5ab8963..adaa3bfa5f6cb 100644
---- a/drivers/net/ethernet/cavium/thunder/thunder_bgx.h
-+++ b/drivers/net/ethernet/cavium/thunder/thunder_bgx.h
-@@ -179,6 +179,15 @@
- #define BGX_GMP_GMI_TXX_BURST		0x38228
- #define BGX_GMP_GMI_TXX_MIN_PKT		0x38240
- #define BGX_GMP_GMI_TXX_SGMII_CTL	0x38300
-+#define BGX_GMP_GMI_TXX_INT		0x38500
-+#define BGX_GMP_GMI_TXX_INT_W1S		0x38508
-+#define BGX_GMP_GMI_TXX_INT_ENA_W1C	0x38510
-+#define BGX_GMP_GMI_TXX_INT_ENA_W1S	0x38518
-+#define  GMI_TXX_INT_PTP_LOST			BIT_ULL(4)
-+#define  GMI_TXX_INT_LATE_COL			BIT_ULL(3)
-+#define  GMI_TXX_INT_XSDEF			BIT_ULL(2)
-+#define  GMI_TXX_INT_XSCOL			BIT_ULL(1)
-+#define  GMI_TXX_INT_UNDFLW			BIT_ULL(0)
- 
- #define BGX_MSIX_VEC_0_29_ADDR		0x400000 /* +(0..29) << 4 */
- #define BGX_MSIX_VEC_0_29_CTL		0x400008
+ 	/* Enable RX interrupts */
+ 	up->ier = AR933X_UART_INT_RX_VALID;
+ 	ar933x_uart_write(up, AR933X_UART_INT_EN_REG, up->ier);
 -- 
 2.20.1
 
