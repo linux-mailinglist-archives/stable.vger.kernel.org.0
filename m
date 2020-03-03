@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 945B1176D37
+	by mail.lfdr.de (Postfix) with ESMTP id 0EA79176D36
 	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 04:02:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727725AbgCCCqv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Mar 2020 21:46:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41508 "EHLO mail.kernel.org"
+        id S1727080AbgCCDBz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Mar 2020 22:01:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41520 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727719AbgCCCqv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Mar 2020 21:46:51 -0500
+        id S1727728AbgCCCqw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Mar 2020 21:46:52 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E8B6C2468E;
-        Tue,  3 Mar 2020 02:46:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4D8AC24681;
+        Tue,  3 Mar 2020 02:46:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583203610;
-        bh=KXETZx78W1nFg7fzMxEN8ZOIA2q1bMHNCQ9ZoIq4xdo=;
+        s=default; t=1583203612;
+        bh=UNt/cP3q92jdQdpCC9/32s/ARZH/cVn4Qk99rO27Qj0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p25opntsV63i0A8Oht+jM/YyD5TKLrX5r93z4r6aD03lBRLXX5i5+QUrI6AyCNNCX
-         YdjwuTXlPF8yy8O8LcjqexFzNSGphC0wbvQ9zeAiD2oj5ol44hURooiybUa/1MYReY
-         5vtOkmX/47NwxTHKmf0ss+ERvbKNHkU9+9xR/3VY=
+        b=BLjPIHarCfV9e9sssUl8Tb/DQ7EqbNEtN7GrHbJd/A/JvsffccPozRqz6fdt88vhr
+         LCnSMeZfNOFnStq8yvcFqFoP0NBTRNEE3fXlTGSJKLVAjr3Hkb/OP2rQx1UWCBCVaD
+         +FnqloDDk9DmYnacmktgzwpH2jPOFb4zOu/nK+xs=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Pavel Belous <pbelous@marvell.com>,
-        Nikita Danilov <ndanilov@marvell.com>,
-        Igor Russkikh <irusskikh@marvell.com>,
-        Dmitry Bogdanov <dbogdanov@marvell.com>,
+Cc:     Dmitry Bogdanov <dbogdanov@marvell.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
         "David S . Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.5 28/66] net: atlantic: possible fault in transition to hibernation
-Date:   Mon,  2 Mar 2020 21:45:37 -0500
-Message-Id: <20200303024615.8889-28-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.5 29/66] net: atlantic: fix out of range usage of active_vlans array
+Date:   Mon,  2 Mar 2020 21:45:38 -0500
+Message-Id: <20200303024615.8889-29-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200303024615.8889-1-sashal@kernel.org>
 References: <20200303024615.8889-1-sashal@kernel.org>
@@ -46,72 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Belous <pbelous@marvell.com>
+From: Dmitry Bogdanov <dbogdanov@marvell.com>
 
-[ Upstream commit 52a22f4d6ff95e8bdca557765c04893eb5dd83fd ]
+[ Upstream commit 5a292c89a84d49b598f8978f154bdda48b1072c0 ]
 
-during hibernation freeze, aq_nic_stop could be invoked
-on a stopped device. That may cause panic on access to
-not yet allocated vector/ring structures.
+fix static checker warning:
+ drivers/net/ethernet/aquantia/atlantic/aq_filters.c:166 aq_check_approve_fvlan()
+ error: passing untrusted data to 'test_bit()'
 
-Add a check to stop device if it is not yet stopped.
-
-Similiarly after freeze in hibernation thaw, aq_nic_start
-could be invoked on a not initialized net device.
-Result will be the same.
-
-Add a check to start device if it is initialized.
-In our case, this is the same as started.
-
-Fixes: 8aaa112a57c1 ("net: atlantic: refactoring pm logic")
-Signed-off-by: Pavel Belous <pbelous@marvell.com>
-Signed-off-by: Nikita Danilov <ndanilov@marvell.com>
-Signed-off-by: Igor Russkikh <irusskikh@marvell.com>
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Fixes: 7975d2aff5af: ("net: aquantia: add support of rx-vlan-filter offload")
 Signed-off-by: Dmitry Bogdanov <dbogdanov@marvell.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/ethernet/aquantia/atlantic/aq_pci_func.c    | 13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
+ drivers/net/ethernet/aquantia/atlantic/aq_filters.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/aquantia/atlantic/aq_pci_func.c b/drivers/net/ethernet/aquantia/atlantic/aq_pci_func.c
-index 2bb329606794b..f74952674084d 100644
---- a/drivers/net/ethernet/aquantia/atlantic/aq_pci_func.c
-+++ b/drivers/net/ethernet/aquantia/atlantic/aq_pci_func.c
-@@ -359,7 +359,8 @@ static int aq_suspend_common(struct device *dev, bool deep)
- 	netif_device_detach(nic->ndev);
- 	netif_tx_stop_all_queues(nic->ndev);
- 
--	aq_nic_stop(nic);
-+	if (netif_running(nic->ndev))
-+		aq_nic_stop(nic);
- 
- 	if (deep) {
- 		aq_nic_deinit(nic, !nic->aq_hw->aq_nic_cfg->wol);
-@@ -375,7 +376,7 @@ static int atl_resume_common(struct device *dev, bool deep)
- {
- 	struct pci_dev *pdev = to_pci_dev(dev);
- 	struct aq_nic_s *nic;
--	int ret;
-+	int ret = 0;
- 
- 	nic = pci_get_drvdata(pdev);
- 
-@@ -390,9 +391,11 @@ static int atl_resume_common(struct device *dev, bool deep)
- 			goto err_exit;
+diff --git a/drivers/net/ethernet/aquantia/atlantic/aq_filters.c b/drivers/net/ethernet/aquantia/atlantic/aq_filters.c
+index 6102251bb909b..03ff92bc4a7fb 100644
+--- a/drivers/net/ethernet/aquantia/atlantic/aq_filters.c
++++ b/drivers/net/ethernet/aquantia/atlantic/aq_filters.c
+@@ -163,7 +163,7 @@ aq_check_approve_fvlan(struct aq_nic_s *aq_nic,
  	}
  
--	ret = aq_nic_start(nic);
--	if (ret)
--		goto err_exit;
-+	if (netif_running(nic->ndev)) {
-+		ret = aq_nic_start(nic);
-+		if (ret)
-+			goto err_exit;
-+	}
- 
- 	netif_device_attach(nic->ndev);
- 	netif_tx_start_all_queues(nic->ndev);
+ 	if ((aq_nic->ndev->features & NETIF_F_HW_VLAN_CTAG_FILTER) &&
+-	    (!test_bit(be16_to_cpu(fsp->h_ext.vlan_tci),
++	    (!test_bit(be16_to_cpu(fsp->h_ext.vlan_tci) & VLAN_VID_MASK,
+ 		       aq_nic->active_vlans))) {
+ 		netdev_err(aq_nic->ndev,
+ 			   "ethtool: unknown vlan-id specified");
 -- 
 2.20.1
 
