@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CEFBF177FD3
-	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 19:58:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 56CE8177EC8
+	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 19:56:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732276AbgCCRxE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Mar 2020 12:53:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33488 "EHLO mail.kernel.org"
+        id S1731252AbgCCRqx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Mar 2020 12:46:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53630 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731343AbgCCRxD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Mar 2020 12:53:03 -0500
+        id S1731249AbgCCRqw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Mar 2020 12:46:52 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BF0BF2072D;
-        Tue,  3 Mar 2020 17:53:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 930FB20870;
+        Tue,  3 Mar 2020 17:46:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583257983;
-        bh=7/tLskozrg4ixBT/OquLc2xq33BKnTZdZEOZh32dCUw=;
+        s=default; t=1583257612;
+        bh=/wvHWtSABa6XrGoPvgU/g74uNC1TiUDqH775k+bJX6s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zuRUinfxXMHz0L8eeWtZJp7PR9ZLwHNnMigI32t7ZpCRPU1zemt46g2iV7YrEC0Yw
-         NcyM0mJmn20J84hl2ojNRDY/CGobGZfR2uaulsYdGiOdOFQPeAkFVfjm0iF/zn5mgn
-         9WcLLBn5LhOd5bfxUDJ6BVy1YJK1B1qnYV9guefQ=
+        b=y/Vt2wRk9bopVW4wxixvtlWgsU+cuemeBCK/bnvRtJSxG1FHHl5UHfuTOcFDtV9x/
+         Fc42y78N5dENGRzG02vVvKtijTjzBzeZLCxklm3xMjSmuasxd8RZbfYFz++KnC6hd1
+         w9AfCNHZQFJn/J3B/EcEa8vRYhLUcK9bdt1yUdxI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jeff Moyer <jmoyer@redhat.com>,
-        Christoph Hellwig <hch@lst.de>, Jan Kara <jack@suse.cz>,
-        Dan Williams <dan.j.williams@intel.com>,
+        stable@vger.kernel.org, Sameeh Jubran <sameehj@amazon.com>,
+        Arthur Kiyanovski <akiyano@amazon.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 027/152] dax: pass NOWAIT flag to iomap_apply
+Subject: [PATCH 5.5 061/176] net: ena: fix corruption of dev_idx_to_host_tbl
 Date:   Tue,  3 Mar 2020 18:42:05 +0100
-Message-Id: <20200303174305.537006772@linuxfoundation.org>
+Message-Id: <20200303174311.676580695@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200303174302.523080016@linuxfoundation.org>
-References: <20200303174302.523080016@linuxfoundation.org>
+In-Reply-To: <20200303174304.593872177@linuxfoundation.org>
+References: <20200303174304.593872177@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,41 +45,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeff Moyer <jmoyer@redhat.com>
+From: Arthur Kiyanovski <akiyano@amazon.com>
 
-[ Upstream commit 96222d53842dfe54869ec4e1b9d4856daf9105a2 ]
+[ Upstream commit e3f89f91e98ce07dc0f121a3b70d21aca749ba39 ]
 
-fstests generic/471 reports a failure when run with MOUNT_OPTIONS="-o
-dax".  The reason is that the initial pwrite to an empty file with the
-RWF_NOWAIT flag set does not return -EAGAIN.  It turns out that
-dax_iomap_rw doesn't pass that flag through to iomap_apply.
+The function ena_com_ind_tbl_convert_from_device() has an overflow
+bug as explained below. Either way, this function is not needed at
+all since we don't retrieve the indirection table from the device
+at any point which means that this conversion is not needed.
 
-With this patch applied, generic/471 passes for me.
+The bug:
+The for loop iterates over all io_sq_queues, when passing the actual
+number of used queues the io_sq_queues[i].idx equals 0 since they are
+uninitialized which results in the following code to be executed till
+the end of the loop:
 
-Signed-off-by: Jeff Moyer <jmoyer@redhat.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/x49r1z86e1d.fsf@segfault.boston.devel.redhat.com
-Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+dev_idx_to_host_tbl[0] = i;
+
+This results dev_idx_to_host_tbl[0] in being equal to
+ENA_TOTAL_NUM_QUEUES - 1.
+
+Fixes: 1738cd3ed342 ("net: ena: Add a driver for Amazon Elastic Network Adapters (ENA)")
+Signed-off-by: Sameeh Jubran <sameehj@amazon.com>
+Signed-off-by: Arthur Kiyanovski <akiyano@amazon.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/dax.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/net/ethernet/amazon/ena/ena_com.c | 28 -----------------------
+ 1 file changed, 28 deletions(-)
 
-diff --git a/fs/dax.c b/fs/dax.c
-index 2cc43cd914eb8..cc56313c6b3b9 100644
---- a/fs/dax.c
-+++ b/fs/dax.c
-@@ -1207,6 +1207,9 @@ dax_iomap_rw(struct kiocb *iocb, struct iov_iter *iter,
- 		lockdep_assert_held(&inode->i_rwsem);
- 	}
+diff --git a/drivers/net/ethernet/amazon/ena/ena_com.c b/drivers/net/ethernet/amazon/ena/ena_com.c
+index 8ab192cb26b74..74743fd8a1e0a 100644
+--- a/drivers/net/ethernet/amazon/ena/ena_com.c
++++ b/drivers/net/ethernet/amazon/ena/ena_com.c
+@@ -1281,30 +1281,6 @@ static int ena_com_ind_tbl_convert_to_device(struct ena_com_dev *ena_dev)
+ 	return 0;
+ }
  
-+	if (iocb->ki_flags & IOCB_NOWAIT)
-+		flags |= IOMAP_NOWAIT;
-+
- 	while (iov_iter_count(iter)) {
- 		ret = iomap_apply(inode, pos, iov_iter_count(iter), flags, ops,
- 				iter, dax_iomap_actor);
+-static int ena_com_ind_tbl_convert_from_device(struct ena_com_dev *ena_dev)
+-{
+-	u16 dev_idx_to_host_tbl[ENA_TOTAL_NUM_QUEUES] = { (u16)-1 };
+-	struct ena_rss *rss = &ena_dev->rss;
+-	u8 idx;
+-	u16 i;
+-
+-	for (i = 0; i < ENA_TOTAL_NUM_QUEUES; i++)
+-		dev_idx_to_host_tbl[ena_dev->io_sq_queues[i].idx] = i;
+-
+-	for (i = 0; i < 1 << rss->tbl_log_size; i++) {
+-		if (rss->rss_ind_tbl[i].cq_idx > ENA_TOTAL_NUM_QUEUES)
+-			return -EINVAL;
+-		idx = (u8)rss->rss_ind_tbl[i].cq_idx;
+-
+-		if (dev_idx_to_host_tbl[idx] > ENA_TOTAL_NUM_QUEUES)
+-			return -EINVAL;
+-
+-		rss->host_rss_ind_tbl[i] = dev_idx_to_host_tbl[idx];
+-	}
+-
+-	return 0;
+-}
+-
+ static void ena_com_update_intr_delay_resolution(struct ena_com_dev *ena_dev,
+ 						 u16 intr_delay_resolution)
+ {
+@@ -2638,10 +2614,6 @@ int ena_com_indirect_table_get(struct ena_com_dev *ena_dev, u32 *ind_tbl)
+ 	if (!ind_tbl)
+ 		return 0;
+ 
+-	rc = ena_com_ind_tbl_convert_from_device(ena_dev);
+-	if (unlikely(rc))
+-		return rc;
+-
+ 	for (i = 0; i < (1 << rss->tbl_log_size); i++)
+ 		ind_tbl[i] = rss->host_rss_ind_tbl[i];
+ 
 -- 
 2.20.1
 
