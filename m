@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A7C01177F5C
-	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 19:57:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A629E178058
+	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 19:59:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731871AbgCCRuT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Mar 2020 12:50:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57938 "EHLO mail.kernel.org"
+        id S1732853AbgCCR4M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Mar 2020 12:56:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38242 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731118AbgCCRuS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Mar 2020 12:50:18 -0500
+        id S1732851AbgCCR4M (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Mar 2020 12:56:12 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1490420CC7;
-        Tue,  3 Mar 2020 17:50:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5E94B20728;
+        Tue,  3 Mar 2020 17:56:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583257817;
-        bh=E3YVgtsw6Ht4SRsv2+bJ31Iqon7r6QazEhUVanUXS3Q=;
+        s=default; t=1583258171;
+        bh=Vu/gLe8H56HTwlLVNxZAMJGHzRJSkOYWMG21ZUvVoEw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PleMDdzS/8ySrfKkqnOecbIg7+StsyVUTCdCH+ITCprnSZffyT05+XoNOqVpbgWuw
-         nW1g3IxL+jvn6Fri7+dRhJZ1ceg34ioyuCL2hA7oAOweZDWGZ4oBM36XLd49k6ajRb
-         BmQAd3yHj/kvpdqP+wNh9Dy52P/dkClrxHL/AvMU=
+        b=nFC5mZoFdWQV9lJCGnuOuz28rFLPPxcMdkTgQCfYR00pbVf+ovoGwIcE0sWFGMyTj
+         L1j4YNWGo7Azu2HFr1GQ0a3QlwSNPh5z/t/HXYMKvoAiRkJIQvTkzsdqPibQsvRrAS
+         wDxdPVPPd+jOgduVAXsu+U1t32JA7sB72o/WtY2o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>,
-        Shuah Khan <skhan@linuxfoundation.org>
-Subject: [PATCH 5.5 133/176] selftests: Install settings files to fix TIMEOUT failures
+        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>
+Subject: [PATCH 5.4 099/152] nl80211: fix potential leak in AP start
 Date:   Tue,  3 Mar 2020 18:43:17 +0100
-Message-Id: <20200303174320.136453781@linuxfoundation.org>
+Message-Id: <20200303174313.848383566@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200303174304.593872177@linuxfoundation.org>
-References: <20200303174304.593872177@linuxfoundation.org>
+In-Reply-To: <20200303174302.523080016@linuxfoundation.org>
+References: <20200303174302.523080016@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,79 +42,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Ellerman <mpe@ellerman.id.au>
+From: Johannes Berg <johannes.berg@intel.com>
 
-commit b9167c8078c3527de6da241c8a1a75a9224ed90a upstream.
+commit 9951ebfcdf2b97dbb28a5d930458424341e61aa2 upstream.
 
-Commit 852c8cbf34d3 ("selftests/kselftest/runner.sh: Add 45 second
-timeout per test") added a 45 second timeout for tests, and also added
-a way for tests to customise the timeout via a settings file.
+If nl80211_parse_he_obss_pd() fails, we leak the previously
+allocated ACL memory. Free it in this case.
 
-For example the ftrace tests take multiple minutes to run, so they
-were given longer in commit b43e78f65b1d ("tracing/selftests: Turn off
-timeout setting").
-
-This works when the tests are run from the source tree. However if the
-tests are installed with "make -C tools/testing/selftests install",
-the settings files are not copied into the install directory. When the
-tests are then run from the install directory the longer timeouts are
-not applied and the tests timeout incorrectly.
-
-So add the settings files to TEST_FILES of the appropriate Makefiles
-to cause the settings files to be installed using the existing install
-logic.
-
-Fixes: 852c8cbf34d3 ("selftests/kselftest/runner.sh: Add 45 second timeout per test")
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Fixes: 796e90f42b7e ("cfg80211: add support for parsing OBBS_PD attributes")
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Link: https://lore.kernel.org/r/20200221104142.835aba4cdd14.I1923b55ba9989c57e13978f91f40bfdc45e60cbd@changeid
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- tools/testing/selftests/ftrace/Makefile    |    2 +-
- tools/testing/selftests/livepatch/Makefile |    2 ++
- tools/testing/selftests/rseq/Makefile      |    2 ++
- tools/testing/selftests/rtc/Makefile       |    2 ++
- 4 files changed, 7 insertions(+), 1 deletion(-)
+ net/wireless/nl80211.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/tools/testing/selftests/ftrace/Makefile
-+++ b/tools/testing/selftests/ftrace/Makefile
-@@ -2,7 +2,7 @@
- all:
+--- a/net/wireless/nl80211.c
++++ b/net/wireless/nl80211.c
+@@ -4795,8 +4795,7 @@ static int nl80211_start_ap(struct sk_bu
+ 		err = nl80211_parse_he_obss_pd(
+ 					info->attrs[NL80211_ATTR_HE_OBSS_PD],
+ 					&params.he_obss_pd);
+-		if (err)
+-			return err;
++		goto out;
+ 	}
  
- TEST_PROGS := ftracetest
--TEST_FILES := test.d
-+TEST_FILES := test.d settings
- EXTRA_CLEAN := $(OUTPUT)/logs/*
+ 	nl80211_calculate_ap_params(&params);
+@@ -4818,6 +4817,7 @@ static int nl80211_start_ap(struct sk_bu
+ 	}
+ 	wdev_unlock(wdev);
  
- include ../lib.mk
---- a/tools/testing/selftests/livepatch/Makefile
-+++ b/tools/testing/selftests/livepatch/Makefile
-@@ -8,4 +8,6 @@ TEST_PROGS := \
- 	test-state.sh \
- 	test-ftrace.sh
++out:
+ 	kfree(params.acl);
  
-+TEST_FILES := settings
-+
- include ../lib.mk
---- a/tools/testing/selftests/rseq/Makefile
-+++ b/tools/testing/selftests/rseq/Makefile
-@@ -19,6 +19,8 @@ TEST_GEN_PROGS_EXTENDED = librseq.so
- 
- TEST_PROGS = run_param_test.sh
- 
-+TEST_FILES := settings
-+
- include ../lib.mk
- 
- $(OUTPUT)/librseq.so: rseq.c rseq.h rseq-*.h
---- a/tools/testing/selftests/rtc/Makefile
-+++ b/tools/testing/selftests/rtc/Makefile
-@@ -6,4 +6,6 @@ TEST_GEN_PROGS = rtctest
- 
- TEST_GEN_PROGS_EXTENDED = setdate
- 
-+TEST_FILES := settings
-+
- include ../lib.mk
+ 	return err;
 
 
