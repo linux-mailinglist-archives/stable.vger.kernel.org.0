@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A9F017819D
-	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 20:02:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9755A1781C4
+	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 20:02:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732690AbgCCSEH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Mar 2020 13:04:07 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44114 "EHLO mail.kernel.org"
+        id S1733248AbgCCSGS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Mar 2020 13:06:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39524 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733268AbgCCSAW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Mar 2020 13:00:22 -0500
+        id S1732684AbgCCR5H (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Mar 2020 12:57:07 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DC6EF206D5;
-        Tue,  3 Mar 2020 18:00:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 34AEE214DB;
+        Tue,  3 Mar 2020 17:57:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583258422;
-        bh=WzlYHJe57erTHa7c4Ow9Tj26lAx2Kg/MFEhS3xdvflY=;
+        s=default; t=1583258225;
+        bh=wTcF9WEoEKpJZpatL6EVhWOfkZuQtSgt2tCvKj6VhhY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N0IucV67cE9KY8o+V48biGeh+OOP1eQ+cgmTNSRksVss3U++AdEQvAFPGnLBlbRwn
-         LJSOq4RoWAm9QqtO0td10Ytu12Hs02GkOlTDfoAgQjVa7+LKrM/J4gzCbSQALRaDpq
-         8n4EKiPqBP3Rfp49f5vAJgk+IH2i9rf2qRx22D1M=
+        b=t8QIcqt8TbCYEkwDCL3AYA57dHi2EZyyGkUwZHMQ38p5ciuZjCb9zTn/7Atkhr2e0
+         cJRmptMuhDJFNCFCx7GTNy73E+X2CgOe/90jUnPHydlWftHMZsilxGslFT5NHfN3ei
+         3X/oekOkDiDbv2ToMZz8QWsibUETvIj1Ix71Fc48=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Zden=C4=9Bk=20Rampas?= <zdenda.rampas@gmail.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH 4.19 44/87] HID: ite: Only bind to keyboard USB interface on Acer SW5-012 keyboard dock
-Date:   Tue,  3 Mar 2020 18:43:35 +0100
-Message-Id: <20200303174354.315990476@linuxfoundation.org>
+        stable@vger.kernel.org, Brian Norris <briannorris@chromium.org>,
+        Kalle Valo <kvalo@codeaurora.org>
+Subject: [PATCH 5.4 118/152] mwifiex: drop most magic numbers from mwifiex_process_tdls_action_frame()
+Date:   Tue,  3 Mar 2020 18:43:36 +0100
+Message-Id: <20200303174316.178066107@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200303174349.075101355@linuxfoundation.org>
-References: <20200303174349.075101355@linuxfoundation.org>
+In-Reply-To: <20200303174302.523080016@linuxfoundation.org>
+References: <20200303174302.523080016@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,61 +43,225 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Brian Norris <briannorris@chromium.org>
 
-commit beae56192a2570578ae45050e73c5ff9254f63e6 upstream.
+commit 70e5b8f445fd27fde0c5583460e82539a7242424 upstream.
 
-Commit 8f18eca9ebc5 ("HID: ite: Add USB id match for Acer SW5-012 keyboard
-dock") added the USB id for the Acer SW5-012's keyboard dock to the
-hid-ite driver to fix the rfkill driver not working.
+Before commit 1e58252e334d ("mwifiex: Fix heap overflow in
+mmwifiex_process_tdls_action_frame()"),
+mwifiex_process_tdls_action_frame() already had too many magic numbers.
+But this commit just added a ton more, in the name of checking for
+buffer overflows. That seems like a really bad idea.
 
-Most keyboard docks with an ITE 8595 keyboard/touchpad controller have the
-"Wireless Radio Control" bits which need the special hid-ite driver on the
-second USB interface (the mouse interface) and their touchpad only supports
-mouse emulation, so using generic hid-input handling for anything but
-the "Wireless Radio Control" bits is fine. On these devices we simply bind
-to all USB interfaces.
+Let's make these magic numbers a little less magic, by
+(a) factoring out 'pos[1]' as 'ie_len'
+(b) using 'sizeof' on the appropriate source or destination fields where
+    possible, instead of bare numbers
+(c) dropping redundant checks, per below.
 
-But unlike other ITE8595 using keyboard docks, the Acer Aspire Switch 10
-(SW5-012)'s touchpad not only does mouse emulation it also supports
-HID-multitouch and all the keys including the "Wireless Radio Control"
-bits have been moved to the first USB interface (the keyboard intf).
+Regarding redundant checks: the beginning of the loop has this:
 
-So we need hid-ite to handle the first (keyboard) USB interface and have
-it NOT bind to the second (mouse) USB interface so that that can be
-handled by hid-multitouch.c and we get proper multi-touch support.
+                if (pos + 2 + pos[1] > end)
+                        break;
 
-This commit changes the hid_device_id for the SW5-012 keyboard dock to
-only match on hid devices from the HID_GROUP_GENERIC group, this way
-hid-ite will not bind the the mouse/multi-touch interface which has
-HID_GROUP_MULTITOUCH_WIN_8 as group.
-This fixes the regression to mouse-emulation mode introduced by adding
-the keyboard dock USB id.
+but then individual 'case's include stuff like this:
 
-Cc: stable@vger.kernel.org
-Fixes: 8f18eca9ebc5 ("HID: ite: Add USB id match for Acer SW5-012 keyboard dock")
-Reported-by: Zdeněk Rampas <zdenda.rampas@gmail.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+ 			if (pos > end - 3)
+ 				return;
+ 			if (pos[1] != 1)
+				return;
+
+Note that the second 'return' (validating the length, pos[1]) combined
+with the above condition (ensuring 'pos + 2 + length' doesn't exceed
+'end'), makes the first 'return' (whose 'if' can be reworded as 'pos >
+end - pos[1] - 2') redundant. Rather than unwind the magic numbers
+there, just drop those conditions.
+
+Fixes: 1e58252e334d ("mwifiex: Fix heap overflow in mmwifiex_process_tdls_action_frame()")
+Signed-off-by: Brian Norris <briannorris@chromium.org>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/hid/hid-ite.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/net/wireless/marvell/mwifiex/tdls.c |   75 ++++++++++------------------
+ 1 file changed, 28 insertions(+), 47 deletions(-)
 
---- a/drivers/hid/hid-ite.c
-+++ b/drivers/hid/hid-ite.c
-@@ -44,8 +44,9 @@ static const struct hid_device_id ite_de
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_ITE, USB_DEVICE_ID_ITE8595) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_258A, USB_DEVICE_ID_258A_6A88) },
- 	/* ITE8595 USB kbd ctlr, with Synaptics touchpad connected to it. */
--	{ HID_USB_DEVICE(USB_VENDOR_ID_SYNAPTICS,
--			 USB_DEVICE_ID_SYNAPTICS_ACER_SWITCH5_012) },
-+	{ HID_DEVICE(BUS_USB, HID_GROUP_GENERIC,
-+		     USB_VENDOR_ID_SYNAPTICS,
-+		     USB_DEVICE_ID_SYNAPTICS_ACER_SWITCH5_012) },
- 	{ }
- };
- MODULE_DEVICE_TABLE(hid, ite_devices);
+--- a/drivers/net/wireless/marvell/mwifiex/tdls.c
++++ b/drivers/net/wireless/marvell/mwifiex/tdls.c
+@@ -894,7 +894,7 @@ void mwifiex_process_tdls_action_frame(s
+ 	u8 *peer, *pos, *end;
+ 	u8 i, action, basic;
+ 	u16 cap = 0;
+-	int ie_len = 0;
++	int ies_len = 0;
+ 
+ 	if (len < (sizeof(struct ethhdr) + 3))
+ 		return;
+@@ -916,7 +916,7 @@ void mwifiex_process_tdls_action_frame(s
+ 		pos = buf + sizeof(struct ethhdr) + 4;
+ 		/* payload 1+ category 1 + action 1 + dialog 1 */
+ 		cap = get_unaligned_le16(pos);
+-		ie_len = len - sizeof(struct ethhdr) - TDLS_REQ_FIX_LEN;
++		ies_len = len - sizeof(struct ethhdr) - TDLS_REQ_FIX_LEN;
+ 		pos += 2;
+ 		break;
+ 
+@@ -926,7 +926,7 @@ void mwifiex_process_tdls_action_frame(s
+ 		/* payload 1+ category 1 + action 1 + dialog 1 + status code 2*/
+ 		pos = buf + sizeof(struct ethhdr) + 6;
+ 		cap = get_unaligned_le16(pos);
+-		ie_len = len - sizeof(struct ethhdr) - TDLS_RESP_FIX_LEN;
++		ies_len = len - sizeof(struct ethhdr) - TDLS_RESP_FIX_LEN;
+ 		pos += 2;
+ 		break;
+ 
+@@ -934,7 +934,7 @@ void mwifiex_process_tdls_action_frame(s
+ 		if (len < (sizeof(struct ethhdr) + TDLS_CONFIRM_FIX_LEN))
+ 			return;
+ 		pos = buf + sizeof(struct ethhdr) + TDLS_CONFIRM_FIX_LEN;
+-		ie_len = len - sizeof(struct ethhdr) - TDLS_CONFIRM_FIX_LEN;
++		ies_len = len - sizeof(struct ethhdr) - TDLS_CONFIRM_FIX_LEN;
+ 		break;
+ 	default:
+ 		mwifiex_dbg(priv->adapter, ERROR, "Unknown TDLS frame type.\n");
+@@ -947,33 +947,33 @@ void mwifiex_process_tdls_action_frame(s
+ 
+ 	sta_ptr->tdls_cap.capab = cpu_to_le16(cap);
+ 
+-	for (end = pos + ie_len; pos + 1 < end; pos += 2 + pos[1]) {
+-		if (pos + 2 + pos[1] > end)
++	for (end = pos + ies_len; pos + 1 < end; pos += 2 + pos[1]) {
++		u8 ie_len = pos[1];
++
++		if (pos + 2 + ie_len > end)
+ 			break;
+ 
+ 		switch (*pos) {
+ 		case WLAN_EID_SUPP_RATES:
+-			if (pos[1] > 32)
++			if (ie_len > sizeof(sta_ptr->tdls_cap.rates))
+ 				return;
+-			sta_ptr->tdls_cap.rates_len = pos[1];
+-			for (i = 0; i < pos[1]; i++)
++			sta_ptr->tdls_cap.rates_len = ie_len;
++			for (i = 0; i < ie_len; i++)
+ 				sta_ptr->tdls_cap.rates[i] = pos[i + 2];
+ 			break;
+ 
+ 		case WLAN_EID_EXT_SUPP_RATES:
+-			if (pos[1] > 32)
++			if (ie_len > sizeof(sta_ptr->tdls_cap.rates))
+ 				return;
+ 			basic = sta_ptr->tdls_cap.rates_len;
+-			if (pos[1] > 32 - basic)
++			if (ie_len > sizeof(sta_ptr->tdls_cap.rates) - basic)
+ 				return;
+-			for (i = 0; i < pos[1]; i++)
++			for (i = 0; i < ie_len; i++)
+ 				sta_ptr->tdls_cap.rates[basic + i] = pos[i + 2];
+-			sta_ptr->tdls_cap.rates_len += pos[1];
++			sta_ptr->tdls_cap.rates_len += ie_len;
+ 			break;
+ 		case WLAN_EID_HT_CAPABILITY:
+-			if (pos > end - sizeof(struct ieee80211_ht_cap) - 2)
+-				return;
+-			if (pos[1] != sizeof(struct ieee80211_ht_cap))
++			if (ie_len != sizeof(struct ieee80211_ht_cap))
+ 				return;
+ 			/* copy the ie's value into ht_capb*/
+ 			memcpy((u8 *)&sta_ptr->tdls_cap.ht_capb, pos + 2,
+@@ -981,59 +981,45 @@ void mwifiex_process_tdls_action_frame(s
+ 			sta_ptr->is_11n_enabled = 1;
+ 			break;
+ 		case WLAN_EID_HT_OPERATION:
+-			if (pos > end -
+-			    sizeof(struct ieee80211_ht_operation) - 2)
+-				return;
+-			if (pos[1] != sizeof(struct ieee80211_ht_operation))
++			if (ie_len != sizeof(struct ieee80211_ht_operation))
+ 				return;
+ 			/* copy the ie's value into ht_oper*/
+ 			memcpy(&sta_ptr->tdls_cap.ht_oper, pos + 2,
+ 			       sizeof(struct ieee80211_ht_operation));
+ 			break;
+ 		case WLAN_EID_BSS_COEX_2040:
+-			if (pos > end - 3)
+-				return;
+-			if (pos[1] != 1)
++			if (ie_len != sizeof(pos[2]))
+ 				return;
+ 			sta_ptr->tdls_cap.coex_2040 = pos[2];
+ 			break;
+ 		case WLAN_EID_EXT_CAPABILITY:
+-			if (pos > end - sizeof(struct ieee_types_header))
+-				return;
+-			if (pos[1] < sizeof(struct ieee_types_header))
++			if (ie_len < sizeof(struct ieee_types_header))
+ 				return;
+-			if (pos[1] > 8)
++			if (ie_len > 8)
+ 				return;
+ 			memcpy((u8 *)&sta_ptr->tdls_cap.extcap, pos,
+ 			       sizeof(struct ieee_types_header) +
+-			       min_t(u8, pos[1], 8));
++			       min_t(u8, ie_len, 8));
+ 			break;
+ 		case WLAN_EID_RSN:
+-			if (pos > end - sizeof(struct ieee_types_header))
++			if (ie_len < sizeof(struct ieee_types_header))
+ 				return;
+-			if (pos[1] < sizeof(struct ieee_types_header))
+-				return;
+-			if (pos[1] > IEEE_MAX_IE_SIZE -
++			if (ie_len > IEEE_MAX_IE_SIZE -
+ 			    sizeof(struct ieee_types_header))
+ 				return;
+ 			memcpy((u8 *)&sta_ptr->tdls_cap.rsn_ie, pos,
+ 			       sizeof(struct ieee_types_header) +
+-			       min_t(u8, pos[1], IEEE_MAX_IE_SIZE -
++			       min_t(u8, ie_len, IEEE_MAX_IE_SIZE -
+ 				     sizeof(struct ieee_types_header)));
+ 			break;
+ 		case WLAN_EID_QOS_CAPA:
+-			if (pos > end - 3)
+-				return;
+-			if (pos[1] != 1)
++			if (ie_len != sizeof(pos[2]))
+ 				return;
+ 			sta_ptr->tdls_cap.qos_info = pos[2];
+ 			break;
+ 		case WLAN_EID_VHT_OPERATION:
+ 			if (priv->adapter->is_hw_11ac_capable) {
+-				if (pos > end -
+-				    sizeof(struct ieee80211_vht_operation) - 2)
+-					return;
+-				if (pos[1] !=
++				if (ie_len !=
+ 				    sizeof(struct ieee80211_vht_operation))
+ 					return;
+ 				/* copy the ie's value into vhtoper*/
+@@ -1043,10 +1029,7 @@ void mwifiex_process_tdls_action_frame(s
+ 			break;
+ 		case WLAN_EID_VHT_CAPABILITY:
+ 			if (priv->adapter->is_hw_11ac_capable) {
+-				if (pos > end -
+-				    sizeof(struct ieee80211_vht_cap) - 2)
+-					return;
+-				if (pos[1] != sizeof(struct ieee80211_vht_cap))
++				if (ie_len != sizeof(struct ieee80211_vht_cap))
+ 					return;
+ 				/* copy the ie's value into vhtcap*/
+ 				memcpy((u8 *)&sta_ptr->tdls_cap.vhtcap, pos + 2,
+@@ -1056,9 +1039,7 @@ void mwifiex_process_tdls_action_frame(s
+ 			break;
+ 		case WLAN_EID_AID:
+ 			if (priv->adapter->is_hw_11ac_capable) {
+-				if (pos > end - 4)
+-					return;
+-				if (pos[1] != 2)
++				if (ie_len != sizeof(u16))
+ 					return;
+ 				sta_ptr->tdls_cap.aid =
+ 					get_unaligned_le16((pos + 2));
 
 
