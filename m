@@ -2,71 +2,65 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C3C09177ADE
-	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 16:47:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E621B177AED
+	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 16:48:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727369AbgCCPq7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Mar 2020 10:46:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58810 "EHLO mail.kernel.org"
+        id S1729789AbgCCPsR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Mar 2020 10:48:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59146 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726079AbgCCPq7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Mar 2020 10:46:59 -0500
+        id S1728291AbgCCPsQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Mar 2020 10:48:16 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 865AB20863;
-        Tue,  3 Mar 2020 15:46:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DA36520870;
+        Tue,  3 Mar 2020 15:48:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583250419;
-        bh=fAQdGJUTHfenkFjY5EY4IkekGQXc8jAE7JffWrzy3Bw=;
+        s=default; t=1583250496;
+        bh=tqIdCK44HCwZ7SB3/ZCasst08E8YpC0L6JiNkZ/wwmA=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=UTSJj1dBJ3EXiiMRXOwXIMu/JnjlAGKG874nqk/ykA8f77OSM478hjpP0sbUT9QpU
-         kUqOPgyThTJEyJlpnRmqfNMpsk849tkcvUrDl/2R6vmK7peaA0oqoqmvOTz4lFTN8i
-         dUGuF46DJXNrKTkEJgCsK9QBRn5bhVnzMktttEr0=
-Date:   Tue, 3 Mar 2020 16:46:56 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Tommi Rantala <tommi.t.rantala@nokia.com>
-Cc:     stable@vger.kernel.org, Jason Wang <jasowang@redhat.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 4.14] tuntap: correctly set SOCKWQ_ASYNC_NOSPACE
-Message-ID: <20200303154656.GD372992@kroah.com>
-References: <20200228084216.15816-1-tommi.t.rantala@nokia.com>
+        b=rN6StGaaqkT2huHDDUKxU70wo/U2D5HKZH77SBmiRj02fYE9eA2JKLAeAE+o3sZtR
+         SjerAMpTIDxZhgK/iPQEwBUQRyJ6n3j27Laa6l2zQ4zjEUmVVjMfTNZQc4GWPjq0y6
+         g7hHpFUzXf717X8bwQkLscbNQlY0IP4wW/bWQF8Q=
+Date:   Tue, 3 Mar 2020 16:48:14 +0100
+From:   "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>
+To:     "Rantala, Tommi T. (Nokia - FI/Espoo)" <tommi.t.rantala@nokia.com>
+Cc:     "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "ravi.bangoria@linux.ibm.com" <ravi.bangoria@linux.ibm.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: 4.19 "perf stat: Fix shadow stats for clock events"
+Message-ID: <20200303154814.GE372992@kroah.com>
+References: <191de78a6356926ed080b67be0b79398c5f57915.camel@nokia.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20200228084216.15816-1-tommi.t.rantala@nokia.com>
+In-Reply-To: <191de78a6356926ed080b67be0b79398c5f57915.camel@nokia.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Feb 28, 2020 at 10:42:16AM +0200, Tommi Rantala wrote:
-> From: Jason Wang <jasowang@redhat.com>
+On Fri, Feb 28, 2020 at 07:47:04AM +0000, Rantala, Tommi T. (Nokia - FI/Espoo) wrote:
+> Hi Greg, Sasha,
 > 
-> [ Upstream commit 2f3ab6221e4c87960347d65c7cab9bd917d1f637 ]
+> Can you please include this perf stat fix to 4.19?
+> These two commits needed:
 > 
-> When link is down, writes to the device might fail with
-> -EIO. Userspace needs an indication when the status is resolved.  As a
-> fix, tun_net_open() attempts to wake up writers - but that is only
-> effective if SOCKWQ_ASYNC_NOSPACE has been set in the past. This is
-> not the case of vhost_net which only poll for EPOLLOUT after it meets
-> errors during sendmsg().
 > 
-> This patch fixes this by making sure SOCKWQ_ASYNC_NOSPACE is set when
-> socket is not writable or device is down to guarantee EPOLLOUT will be
-> raised in either tun_chr_poll() or tun_sock_write_space() after device
-> is up.
+> commit eb08d006054e7e374592068919e32579988602d4
+> Author: Ravi Bangoria <ravi.bangoria@linux.ibm.com>
+> Date:   Thu Nov 15 15:25:32 2018 +0530
 > 
-> Cc: Hannes Frederic Sowa <hannes@stressinduktion.org>
-> Cc: Eric Dumazet <edumazet@google.com>
-> Fixes: 1bd4978a88ac2 ("tun: honor IFF_UP in tun_get_user()")
-> Signed-off-by: Jason Wang <jasowang@redhat.com>
-> Signed-off-by: David S. Miller <davem@davemloft.net>
-> Signed-off-by: Tommi Rantala <tommi.t.rantala@nokia.com>
-> ---
->  drivers/net/tun.c | 19 +++++++++++++++----
->  1 file changed, 15 insertions(+), 4 deletions(-)
+>     perf stat: Use perf_evsel__is_clocki() for clock events
+> 
+> 
+> commit 57ddf09173c1e7d0511ead8924675c7198e56545
+> Author: Ravi Bangoria <ravi.bangoria@linux.ibm.com>
+> Date:   Fri Nov 16 09:58:43 2018 +0530
+> 
+>     perf stat: Fix shadow stats for clock events
 
-Thanks for the backport, now queued up to 4.9.y and 4.14.y.
+Both now queued up, thanks.
 
 greg k-h
