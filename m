@@ -2,67 +2,71 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 343B0177ADB
-	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 16:46:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C3C09177ADE
+	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 16:47:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728922AbgCCPps (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Mar 2020 10:45:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58446 "EHLO mail.kernel.org"
+        id S1727369AbgCCPq7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Mar 2020 10:46:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58810 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726079AbgCCPps (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Mar 2020 10:45:48 -0500
+        id S1726079AbgCCPq7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Mar 2020 10:46:59 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1E05920866;
-        Tue,  3 Mar 2020 15:45:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 865AB20863;
+        Tue,  3 Mar 2020 15:46:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583250347;
-        bh=z5nWKuS/khPhliMHj8TpNY3sQbtrknIN7DQujN39tZU=;
+        s=default; t=1583250419;
+        bh=fAQdGJUTHfenkFjY5EY4IkekGQXc8jAE7JffWrzy3Bw=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=P7wXwy2Bz4x0RvuzC/DhA4EJpLvVXX2PXb8Xixn51bGROSb4aa1trnHIJJRIQkIme
-         ZcCkcCnUin0SUXPe9u0eeJyVEO3z0/LgFOfGvWQuOhdV6c2z6ytx3osCVFsmN5AeoI
-         cgcfFt9n1taTxnAzB+UuXifUkL5rAynZKAFLT5VM=
-Date:   Tue, 3 Mar 2020 16:45:45 +0100
+        b=UTSJj1dBJ3EXiiMRXOwXIMu/JnjlAGKG874nqk/ykA8f77OSM478hjpP0sbUT9QpU
+         kUqOPgyThTJEyJlpnRmqfNMpsk849tkcvUrDl/2R6vmK7peaA0oqoqmvOTz4lFTN8i
+         dUGuF46DJXNrKTkEJgCsK9QBRn5bhVnzMktttEr0=
+Date:   Tue, 3 Mar 2020 16:46:56 +0100
 From:   Greg KH <gregkh@linuxfoundation.org>
-To:     yangerkun <yangerkun@huawei.com>
-Cc:     stable@vger.kernel.org, davem@davemloft.net, netdev@vger.kernel.org
-Subject: Re: [PATCH linux-4.4.y/linux-4.9.y v2] slip: stop double free
- sl->dev in slip_open
-Message-ID: <20200303154545.GC372992@kroah.com>
-References: <20200228134048.19675-1-yangerkun@huawei.com>
+To:     Tommi Rantala <tommi.t.rantala@nokia.com>
+Cc:     stable@vger.kernel.org, Jason Wang <jasowang@redhat.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 4.14] tuntap: correctly set SOCKWQ_ASYNC_NOSPACE
+Message-ID: <20200303154656.GD372992@kroah.com>
+References: <20200228084216.15816-1-tommi.t.rantala@nokia.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20200228134048.19675-1-yangerkun@huawei.com>
+In-Reply-To: <20200228084216.15816-1-tommi.t.rantala@nokia.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Feb 28, 2020 at 09:40:48PM +0800, yangerkun wrote:
-> After include 3b5a39979daf ("slip: Fix memory leak in slip_open error path")
-> and e58c19124189 ("slip: Fix use-after-free Read in slip_open") with 4.4.y/4.9.y.
-> We will trigger a bug since we can double free sl->dev in slip_open. Actually,
-> we should backport cf124db566e6 ("net: Fix inconsistent teardown and release
-> of private netdev state.") too since it has delete free_netdev from sl_free_netdev.
-> Fix it by delete free_netdev from slip_open.
+On Fri, Feb 28, 2020 at 10:42:16AM +0200, Tommi Rantala wrote:
+> From: Jason Wang <jasowang@redhat.com>
 > 
-> Signed-off-by: yangerkun <yangerkun@huawei.com>
+> [ Upstream commit 2f3ab6221e4c87960347d65c7cab9bd917d1f637 ]
+> 
+> When link is down, writes to the device might fail with
+> -EIO. Userspace needs an indication when the status is resolved.  As a
+> fix, tun_net_open() attempts to wake up writers - but that is only
+> effective if SOCKWQ_ASYNC_NOSPACE has been set in the past. This is
+> not the case of vhost_net which only poll for EPOLLOUT after it meets
+> errors during sendmsg().
+> 
+> This patch fixes this by making sure SOCKWQ_ASYNC_NOSPACE is set when
+> socket is not writable or device is down to guarantee EPOLLOUT will be
+> raised in either tun_chr_poll() or tun_sock_write_space() after device
+> is up.
+> 
+> Cc: Hannes Frederic Sowa <hannes@stressinduktion.org>
+> Cc: Eric Dumazet <edumazet@google.com>
+> Fixes: 1bd4978a88ac2 ("tun: honor IFF_UP in tun_get_user()")
+> Signed-off-by: Jason Wang <jasowang@redhat.com>
+> Signed-off-by: David S. Miller <davem@davemloft.net>
+> Signed-off-by: Tommi Rantala <tommi.t.rantala@nokia.com>
 > ---
->  drivers/net/slip/slip.c | 1 -
->  1 file changed, 1 deletion(-)
-> 
-> diff --git a/drivers/net/slip/slip.c b/drivers/net/slip/slip.c
-> index 0f8d5609ed51..d4a33baa33b6 100644
-> --- a/drivers/net/slip/slip.c
-> +++ b/drivers/net/slip/slip.c
-> @@ -868,7 +868,6 @@ err_free_chan:
->  	tty->disc_data = NULL;
->  	clear_bit(SLF_INUSE, &sl->flags);
->  	sl_free_netdev(sl->dev);
-> -	free_netdev(sl->dev);
+>  drivers/net/tun.c | 19 +++++++++++++++----
+>  1 file changed, 15 insertions(+), 4 deletions(-)
 
-Thanks for this, now queued up.
+Thanks for the backport, now queued up to 4.9.y and 4.14.y.
 
 greg k-h
