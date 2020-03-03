@@ -2,38 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F0638178130
-	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 20:01:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 333F31780BF
+	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 20:00:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387913AbgCCSBI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Mar 2020 13:01:08 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45196 "EHLO mail.kernel.org"
+        id S2387422AbgCCR6f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Mar 2020 12:58:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41414 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387879AbgCCSBI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Mar 2020 13:01:08 -0500
+        id S1732871AbgCCR6e (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Mar 2020 12:58:34 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9263C206E6;
-        Tue,  3 Mar 2020 18:01:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 73ABB20728;
+        Tue,  3 Mar 2020 17:58:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583258468;
-        bh=CipgCvMOadAXeyMQ8M9jPx0Fsefy/L4eliHKRLT/zQQ=;
+        s=default; t=1583258313;
+        bh=7tV0NVotmzh0q+KwNJ3XzdXzL+Cvualt8ZjzXVFz42E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=n4Mzdbgyom5tRCZeOXlQ47VwU8CfI9v9Xd6gee1uv3phXdlND8isSYU6lXD+PSVfS
-         08fFWTC4q2UZjBypAikmehzQWHMH9qqJRTRPR+L/DuTGmbR2J7VZy1pSZ3Csjomvw9
-         cfR27gM9RFpMQi9rRSe6TLjI8xCx/u4NEqxdugMU=
+        b=zylpXeisxOBxR0NQlx9S2GDPruXkDhv7rGroAF6nnYWflaIlFd7eAPYS/arGeY5oD
+         JlgnJKWDWGOkbkha9JJGKSM5RBX35es7BrmeiRocPd9MzegygTikk9H6dLXPp2JzJX
+         fHnIj5osg+zcqF9gWZoMM+GSIPVqwFBrg8OhMCQI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Haiyang Zhang <haiyangz@microsoft.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 59/87] hv_netvsc: Fix unwanted wakeup in netvsc_attach()
-Date:   Tue,  3 Mar 2020 18:43:50 +0100
-Message-Id: <20200303174355.668124144@linuxfoundation.org>
+        stable@vger.kernel.org, Jiri Olsa <jolsa@kernel.org>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Jelle van der Waa <jelle@vdwaa.nl>,
+        Michael Petlan <mpetlan@redhat.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>
+Subject: [PATCH 5.4 133/152] perf ui gtk: Add missing zalloc object
+Date:   Tue,  3 Mar 2020 18:43:51 +0100
+Message-Id: <20200303174317.931341457@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200303174349.075101355@linuxfoundation.org>
-References: <20200303174349.075101355@linuxfoundation.org>
+In-Reply-To: <20200303174302.523080016@linuxfoundation.org>
+References: <20200303174302.523080016@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,64 +48,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Haiyang Zhang <haiyangz@microsoft.com>
+From: Jiri Olsa <jolsa@kernel.org>
 
-commit f6f13c125e05603f68f5bf31f045b95e6d493598 upstream.
+commit 604e2139a1026793b8c2172bd92c7e9d039a5cf0 upstream.
 
-When netvsc_attach() is called by operations like changing MTU, etc.,
-an extra wakeup may happen while netvsc_attach() calling
-rndis_filter_device_add() which sends rndis messages when queue is
-stopped in netvsc_detach(). The completion message will wake up queue 0.
+When we moved zalloc.o to the library we missed gtk library which needs
+it compiled in, otherwise the missing __zfree symbol will cause the
+library to fail to load.
 
-We can reproduce the issue by changing MTU etc., then the wake_queue
-counter from "ethtool -S" will increase beyond stop_queue counter:
-     stop_queue: 0
-     wake_queue: 1
-The issue causes queue wake up, and counter increment, no other ill
-effects in current code. So we didn't see any network problem for now.
+Adding the zalloc object to the gtk library build.
 
-To fix this, initialize tx_disable to true, and set it to false when
-the NIC is ready to be attached or registered.
-
-Fixes: 7b2ee50c0cd5 ("hv_netvsc: common detach logic")
-Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 7f7c536f23e6 ("tools lib: Adopt zalloc()/zfree() from tools/perf")
+Signed-off-by: Jiri Olsa <jolsa@kernel.org>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Jelle van der Waa <jelle@vdwaa.nl>
+Cc: Michael Petlan <mpetlan@redhat.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Link: http://lore.kernel.org/lkml/20200113104358.123511-1-jolsa@kernel.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/hyperv/netvsc.c     |    2 +-
- drivers/net/hyperv/netvsc_drv.c |    3 +++
- 2 files changed, 4 insertions(+), 1 deletion(-)
+ tools/perf/ui/gtk/Build |    5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/drivers/net/hyperv/netvsc.c
-+++ b/drivers/net/hyperv/netvsc.c
-@@ -110,7 +110,7 @@ static struct netvsc_device *alloc_net_d
- 
- 	init_waitqueue_head(&net_device->wait_drain);
- 	net_device->destroy = false;
--	net_device->tx_disable = false;
-+	net_device->tx_disable = true;
- 
- 	net_device->max_pkt = RNDIS_MAX_PKT_DEFAULT;
- 	net_device->pkt_align = RNDIS_PKT_ALIGN_DEFAULT;
---- a/drivers/net/hyperv/netvsc_drv.c
-+++ b/drivers/net/hyperv/netvsc_drv.c
-@@ -984,6 +984,7 @@ static int netvsc_attach(struct net_devi
- 	}
- 
- 	/* In any case device is now ready */
-+	nvdev->tx_disable = false;
- 	netif_device_attach(ndev);
- 
- 	/* Note: enable and attach happen when sub-channels setup */
-@@ -2336,6 +2337,8 @@ static int netvsc_probe(struct hv_device
- 	else
- 		net->max_mtu = ETH_DATA_LEN;
- 
-+	nvdev->tx_disable = false;
+--- a/tools/perf/ui/gtk/Build
++++ b/tools/perf/ui/gtk/Build
+@@ -7,3 +7,8 @@ gtk-y += util.o
+ gtk-y += helpline.o
+ gtk-y += progress.o
+ gtk-y += annotate.o
++gtk-y += zalloc.o
 +
- 	ret = register_netdevice(net);
- 	if (ret != 0) {
- 		pr_err("Unable to register netdev.\n");
++$(OUTPUT)ui/gtk/zalloc.o: ../lib/zalloc.c FORCE
++	$(call rule_mkdir)
++	$(call if_changed_dep,cc_o_c)
 
 
