@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4075F178064
-	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 19:59:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A07EC178067
+	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 19:59:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732486AbgCCR4b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Mar 2020 12:56:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38704 "EHLO mail.kernel.org"
+        id S1732926AbgCCR4g (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Mar 2020 12:56:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38780 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732913AbgCCR4a (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Mar 2020 12:56:30 -0500
+        id S1732616AbgCCR4c (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Mar 2020 12:56:32 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7C3F7206D5;
-        Tue,  3 Mar 2020 17:56:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EF12C20656;
+        Tue,  3 Mar 2020 17:56:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583258189;
-        bh=WqXLuGPjE0OeTW1ZYyh7Wc01TSayOhNRxj7vwyTBiOE=;
+        s=default; t=1583258192;
+        bh=cb8y8QAIKJEZ/s6kUey14C4RaZL75F8O2HRemztVjCA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Bsoiq2Y8ObKgGbnftHhkPMjKrEed4TjxmbAu4yl7YSzlhcYED3dJc33X0IyVgkp23
-         jLfHAYKXIG+tLFKg1e7ZVB/SKEK82fM1uF5LUDLNjCS4M/YH+wzSYhuk2hyenLRBJf
-         k5z01vb3+B6tpQDzpOEmXFvnXVtLDqw8q9C4DHLY=
+        b=fytTEX8kT1OFHiAzrtulqM37QxMdqdTLzub/bwzh9fZtzscJU1NNvAAVEiAiv0cac
+         SPXrdAD+3NnziBcbUVG8Isrqeeho4+BmMuNFiEDsJ5JVzRsNTtcOwcVy/uHToLSiOu
+         IiIPRk7uPZjk4wfNSndhRtJg/PQSx/2foIPR/AXU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christophe Leroy <christophe.leroy@c-s.fr>,
-        Richard Guy Briggs <rgb@redhat.com>,
-        "Erhard F." <erhard_f@mailbox.org>,
-        Nikolay Aleksandrov <nikolay@cumulusnetworks.com>,
+        stable@vger.kernel.org,
+        Christophe Vu-Brugier <cvubrugier@fastmail.fm>,
+        Igor Russkikh <irusskikh@marvell.com>,
+        Pavel Belous <pbelous@marvell.com>,
+        Dmitry Bogdanov <dbogdanov@marvell.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 106/152] net: netlink: cap max groups which will be considered in netlink_bind()
-Date:   Tue,  3 Mar 2020 18:43:24 +0100
-Message-Id: <20200303174314.675204257@linuxfoundation.org>
+Subject: [PATCH 5.4 107/152] net: atlantic: fix use after free kasan warn
+Date:   Tue,  3 Mar 2020 18:43:25 +0100
+Message-Id: <20200303174314.806720778@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200303174302.523080016@linuxfoundation.org>
 References: <20200303174302.523080016@linuxfoundation.org>
@@ -46,53 +47,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+From: Pavel Belous <pbelous@marvell.com>
 
-commit 3a20773beeeeadec41477a5ba872175b778ff752 upstream.
+commit a4980919ad6a7be548d499bc5338015e1a9191c6 upstream.
 
-Since nl_groups is a u32 we can't bind more groups via ->bind
-(netlink_bind) call, but netlink has supported more groups via
-setsockopt() for a long time and thus nlk->ngroups could be over 32.
-Recently I added support for per-vlan notifications and increased the
-groups to 33 for NETLINK_ROUTE which exposed an old bug in the
-netlink_bind() code causing out-of-bounds access on archs where unsigned
-long is 32 bits via test_bit() on a local variable. Fix this by capping the
-maximum groups in netlink_bind() to BITS_PER_TYPE(u32), effectively
-capping them at 32 which is the minimum of allocated groups and the
-maximum groups which can be bound via netlink_bind().
+skb->len is used to calculate statistics after xmit invocation.
 
-CC: Christophe Leroy <christophe.leroy@c-s.fr>
-CC: Richard Guy Briggs <rgb@redhat.com>
-Fixes: 4f520900522f ("netlink: have netlink per-protocol bind function return an error code.")
-Reported-by: Erhard F. <erhard_f@mailbox.org>
-Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+Under a stress load it may happen that skb will be xmited,
+rx interrupt will come and skb will be freed, all before xmit function
+is even returned.
+
+Eventually, skb->len will access unallocated area.
+
+Moving stats calculation into tx_clean routine.
+
+Fixes: 018423e90bee ("net: ethernet: aquantia: Add ring support code")
+Reported-by: Christophe Vu-Brugier <cvubrugier@fastmail.fm>
+Signed-off-by: Igor Russkikh <irusskikh@marvell.com>
+Signed-off-by: Pavel Belous <pbelous@marvell.com>
+Signed-off-by: Dmitry Bogdanov <dbogdanov@marvell.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/netlink/af_netlink.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/aquantia/atlantic/aq_nic.c  |    4 ----
+ drivers/net/ethernet/aquantia/atlantic/aq_ring.c |    7 +++++--
+ 2 files changed, 5 insertions(+), 6 deletions(-)
 
---- a/net/netlink/af_netlink.c
-+++ b/net/netlink/af_netlink.c
-@@ -1014,7 +1014,8 @@ static int netlink_bind(struct socket *s
- 	if (nlk->netlink_bind && groups) {
- 		int group;
- 
--		for (group = 0; group < nlk->ngroups; group++) {
-+		/* nl_groups is a u32, so cap the maximum groups we can bind */
-+		for (group = 0; group < BITS_PER_TYPE(u32); group++) {
- 			if (!test_bit(group, &groups))
- 				continue;
- 			err = nlk->netlink_bind(net, group + 1);
-@@ -1033,7 +1034,7 @@ static int netlink_bind(struct socket *s
- 			netlink_insert(sk, nladdr->nl_pid) :
- 			netlink_autobind(sock);
- 		if (err) {
--			netlink_undo_bind(nlk->ngroups, groups, sk);
-+			netlink_undo_bind(BITS_PER_TYPE(u32), groups, sk);
- 			goto unlock;
- 		}
+--- a/drivers/net/ethernet/aquantia/atlantic/aq_nic.c
++++ b/drivers/net/ethernet/aquantia/atlantic/aq_nic.c
+@@ -598,10 +598,6 @@ int aq_nic_xmit(struct aq_nic_s *self, s
+ 	if (likely(frags)) {
+ 		err = self->aq_hw_ops->hw_ring_tx_xmit(self->aq_hw,
+ 						       ring, frags);
+-		if (err >= 0) {
+-			++ring->stats.tx.packets;
+-			ring->stats.tx.bytes += skb->len;
+-		}
+ 	} else {
+ 		err = NETDEV_TX_BUSY;
  	}
+--- a/drivers/net/ethernet/aquantia/atlantic/aq_ring.c
++++ b/drivers/net/ethernet/aquantia/atlantic/aq_ring.c
+@@ -243,9 +243,12 @@ bool aq_ring_tx_clean(struct aq_ring_s *
+ 			}
+ 		}
+ 
+-		if (unlikely(buff->is_eop))
+-			dev_kfree_skb_any(buff->skb);
++		if (unlikely(buff->is_eop)) {
++			++self->stats.rx.packets;
++			self->stats.tx.bytes += buff->skb->len;
+ 
++			dev_kfree_skb_any(buff->skb);
++		}
+ 		buff->pa = 0U;
+ 		buff->eop_index = 0xffffU;
+ 		self->sw_head = aq_ring_next_dx(self, self->sw_head);
 
 
