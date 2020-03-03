@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D8D1178079
-	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 20:00:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 012FD177F45
+	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 19:57:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733011AbgCCR5H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Mar 2020 12:57:07 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39472 "EHLO mail.kernel.org"
+        id S1729993AbgCCRtm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Mar 2020 12:49:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57028 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733002AbgCCR5D (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Mar 2020 12:57:03 -0500
+        id S1730096AbgCCRtl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Mar 2020 12:49:41 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BF39420656;
-        Tue,  3 Mar 2020 17:57:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 94ACC20CC7;
+        Tue,  3 Mar 2020 17:49:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583258223;
-        bh=eroNwEbXR2gs16J1JOIuR9JCnEkWWNCI256UXJQXHsI=;
+        s=default; t=1583257781;
+        bh=WqXLuGPjE0OeTW1ZYyh7Wc01TSayOhNRxj7vwyTBiOE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ta+EQeID1Ea04OZ0GUuQx7SNHEn1vo6eXsfhwVtTEL+YY9dbQhiErjfUUb1kYyVu7
-         fm2QVQGsNhVQYiFMktbVuFcezR5oPZXRuyZs+7W3YgglwAqYWeH6GyL0XeFlJKJkt8
-         7JkJA7YI5oYP7GalT46vqpvTmISdDdB+rUhbG0w4=
+        b=opLPk/a+A22muGYAqTA9+/Oz/KzvJsIJeP6LkZkyKG31LxVv972quanLqTYyNDCQL
+         KkOp8Us/gH2PnpiAaeb/dGdjdyh8BJZerYw2Yhjq8mO08oJarRqTNOJgR6snaDhlmE
+         V8DbysAuwKDu7rnmcdhfBV1bja4aHywI5Qr6zAXc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Westphal <fw@strlen.de>,
-        Cong Wang <xiyou.wangcong@gmail.com>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
-        syzbot+adf6c6c2be1c3a718121@syzkaller.appspotmail.com
-Subject: [PATCH 5.4 091/152] netfilter: xt_hashlimit: reduce hashlimit_mutex scope for htable_put()
-Date:   Tue,  3 Mar 2020 18:43:09 +0100
-Message-Id: <20200303174312.916450565@linuxfoundation.org>
+        stable@vger.kernel.org, Christophe Leroy <christophe.leroy@c-s.fr>,
+        Richard Guy Briggs <rgb@redhat.com>,
+        "Erhard F." <erhard_f@mailbox.org>,
+        Nikolay Aleksandrov <nikolay@cumulusnetworks.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.5 126/176] net: netlink: cap max groups which will be considered in netlink_bind()
+Date:   Tue,  3 Mar 2020 18:43:10 +0100
+Message-Id: <20200303174319.345137823@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200303174302.523080016@linuxfoundation.org>
-References: <20200303174302.523080016@linuxfoundation.org>
+In-Reply-To: <20200303174304.593872177@linuxfoundation.org>
+References: <20200303174304.593872177@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,78 +46,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cong Wang <xiyou.wangcong@gmail.com>
+From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
 
-commit c4a3922d2d20c710f827d3a115ee338e8d0467df upstream.
+commit 3a20773beeeeadec41477a5ba872175b778ff752 upstream.
 
-It is unnecessary to hold hashlimit_mutex for htable_destroy()
-as it is already removed from the global hashtable and its
-refcount is already zero.
+Since nl_groups is a u32 we can't bind more groups via ->bind
+(netlink_bind) call, but netlink has supported more groups via
+setsockopt() for a long time and thus nlk->ngroups could be over 32.
+Recently I added support for per-vlan notifications and increased the
+groups to 33 for NETLINK_ROUTE which exposed an old bug in the
+netlink_bind() code causing out-of-bounds access on archs where unsigned
+long is 32 bits via test_bit() on a local variable. Fix this by capping the
+maximum groups in netlink_bind() to BITS_PER_TYPE(u32), effectively
+capping them at 32 which is the minimum of allocated groups and the
+maximum groups which can be bound via netlink_bind().
 
-Also, switch hinfo->use to refcount_t so that we don't have
-to hold the mutex until it reaches zero in htable_put().
-
-Reported-and-tested-by: syzbot+adf6c6c2be1c3a718121@syzkaller.appspotmail.com
-Acked-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Cong Wang <xiyou.wangcong@gmail.com>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+CC: Christophe Leroy <christophe.leroy@c-s.fr>
+CC: Richard Guy Briggs <rgb@redhat.com>
+Fixes: 4f520900522f ("netlink: have netlink per-protocol bind function return an error code.")
+Reported-by: Erhard F. <erhard_f@mailbox.org>
+Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/netfilter/xt_hashlimit.c |   12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ net/netlink/af_netlink.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/net/netfilter/xt_hashlimit.c
-+++ b/net/netfilter/xt_hashlimit.c
-@@ -36,6 +36,7 @@
- #include <linux/netfilter_ipv6/ip6_tables.h>
- #include <linux/mutex.h>
- #include <linux/kernel.h>
-+#include <linux/refcount.h>
- #include <uapi/linux/netfilter/xt_hashlimit.h>
+--- a/net/netlink/af_netlink.c
++++ b/net/netlink/af_netlink.c
+@@ -1014,7 +1014,8 @@ static int netlink_bind(struct socket *s
+ 	if (nlk->netlink_bind && groups) {
+ 		int group;
  
- #define XT_HASHLIMIT_ALL (XT_HASHLIMIT_HASH_DIP | XT_HASHLIMIT_HASH_DPT | \
-@@ -114,7 +115,7 @@ struct dsthash_ent {
- 
- struct xt_hashlimit_htable {
- 	struct hlist_node node;		/* global list of all htables */
--	int use;
-+	refcount_t use;
- 	u_int8_t family;
- 	bool rnd_initialized;
- 
-@@ -315,7 +316,7 @@ static int htable_create(struct net *net
- 	for (i = 0; i < hinfo->cfg.size; i++)
- 		INIT_HLIST_HEAD(&hinfo->hash[i]);
- 
--	hinfo->use = 1;
-+	refcount_set(&hinfo->use, 1);
- 	hinfo->count = 0;
- 	hinfo->family = family;
- 	hinfo->rnd_initialized = false;
-@@ -434,7 +435,7 @@ static struct xt_hashlimit_htable *htabl
- 	hlist_for_each_entry(hinfo, &hashlimit_net->htables, node) {
- 		if (!strcmp(name, hinfo->name) &&
- 		    hinfo->family == family) {
--			hinfo->use++;
-+			refcount_inc(&hinfo->use);
- 			return hinfo;
+-		for (group = 0; group < nlk->ngroups; group++) {
++		/* nl_groups is a u32, so cap the maximum groups we can bind */
++		for (group = 0; group < BITS_PER_TYPE(u32); group++) {
+ 			if (!test_bit(group, &groups))
+ 				continue;
+ 			err = nlk->netlink_bind(net, group + 1);
+@@ -1033,7 +1034,7 @@ static int netlink_bind(struct socket *s
+ 			netlink_insert(sk, nladdr->nl_pid) :
+ 			netlink_autobind(sock);
+ 		if (err) {
+-			netlink_undo_bind(nlk->ngroups, groups, sk);
++			netlink_undo_bind(BITS_PER_TYPE(u32), groups, sk);
+ 			goto unlock;
  		}
  	}
-@@ -443,12 +444,11 @@ static struct xt_hashlimit_htable *htabl
- 
- static void htable_put(struct xt_hashlimit_htable *hinfo)
- {
--	mutex_lock(&hashlimit_mutex);
--	if (--hinfo->use == 0) {
-+	if (refcount_dec_and_mutex_lock(&hinfo->use, &hashlimit_mutex)) {
- 		hlist_del(&hinfo->node);
-+		mutex_unlock(&hashlimit_mutex);
- 		htable_destroy(hinfo);
- 	}
--	mutex_unlock(&hashlimit_mutex);
- }
- 
- /* The algorithm used is the Simple Token Bucket Filter (TBF)
 
 
