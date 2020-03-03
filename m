@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E261176C8D
-	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 03:57:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B2AD5176C84
+	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 03:57:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727767AbgCCC5U (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Mar 2020 21:57:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44086 "EHLO mail.kernel.org"
+        id S1727834AbgCCCsY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Mar 2020 21:48:24 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44144 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728394AbgCCCsW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Mar 2020 21:48:22 -0500
+        id S1728397AbgCCCsY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Mar 2020 21:48:24 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9E6982468D;
-        Tue,  3 Mar 2020 02:48:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AC24F246D6;
+        Tue,  3 Mar 2020 02:48:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583203702;
-        bh=I1vp/dVFTDkMuXFTV4A2BeZttnnjPVskMh8RwV7Gi6E=;
+        s=default; t=1583203703;
+        bh=xqt4H5Ll6dhRS4CH7JG/NGQN2sDa4HiwBAcvJr7uI2k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GAkANi7PpJ+kQHrBxf+GyJ380o5esAFzFr8Aj2uTwO04HBMBZ0sbveDveHDCYRvNk
-         7vJ5sfsZ0Now44HIRXX22MyI9dbxQT6IJrXNCKJCmcWp1OURpfv4PrbrhiZXWMFJow
-         k+mwEHQti7eP17VEUEYL/DYFXKkT0jviblA3BM7Q=
+        b=YAPLcXOw99TrMRdv4OtfIGcew+r3tO+GVt3VbhUyf5zAZisrmUdnah7Mrl2wPAr0G
+         Jz7ttAqTyD0C2ysezYAxEHBlfFb+L7HOfYB+6s2PnTqBES+Z2Cw9P0WP0rgB/q0Ceh
+         TAv6NhM6SwayIdHnmt9abP8PkasX0Yx3yU4vuNSA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Masahiro Yamada <masahiroy@kernel.org>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 34/58] s390: make 'install' not depend on vmlinux
-Date:   Mon,  2 Mar 2020 21:47:16 -0500
-Message-Id: <20200303024740.9511-34-sashal@kernel.org>
+Cc:     Horatiu Vultur <horatiu.vultur@microchip.com>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 35/58] net: mscc: fix in frame extraction
+Date:   Mon,  2 Mar 2020 21:47:17 -0500
+Message-Id: <20200303024740.9511-35-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200303024740.9511-1-sashal@kernel.org>
 References: <20200303024740.9511-1-sashal@kernel.org>
@@ -43,51 +44,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masahiro Yamada <masahiroy@kernel.org>
+From: Horatiu Vultur <horatiu.vultur@microchip.com>
 
-[ Upstream commit 94e90f727f7424d827256023cace829cad6896f4 ]
+[ Upstream commit a81541041ceb55bcec9a8bb8ad3482263f0a205a ]
 
-For the same reason as commit 19514fc665ff ("arm, kbuild: make "make
-install" not depend on vmlinux"), the install targets should never
-trigger the rebuild of the kernel.
+Each extracted frame on Ocelot has an IFH. The frame and IFH are extracted
+by reading chuncks of 4 bytes from a register.
 
-The variable, CONFIGURE, is not set by anyone. Remove it as well.
+In case the IFH and frames were read corretly it would try to read the next
+frame. In case there are no more frames in the queue, it checks if there
+were any previous errors and in that case clear the queue. But this check
+will always succeed also when there are no errors. Because when extracting
+the IFH the error is checked against 4(number of bytes read) and then the
+error is set only if the extraction of the frame failed. So in a happy case
+where there are no errors the err variable is still 4. So it could be
+a case where after the check that there are no more frames in the queue, a
+frame will arrive in the queue but because the error is not reseted, it
+would try to flush the queue. So the frame will be lost.
 
-Link: https://lkml.kernel.org/r/20200216144829.27023-1-masahiroy@kernel.org
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+The fix consist in resetting the error after reading the IFH.
+
+Signed-off-by: Horatiu Vultur <horatiu.vultur@microchip.com>
+Acked-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/Makefile      | 2 +-
- arch/s390/boot/Makefile | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/mscc/ocelot_board.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/arch/s390/Makefile b/arch/s390/Makefile
-index 9ce1baeac2b25..2faaf456956a6 100644
---- a/arch/s390/Makefile
-+++ b/arch/s390/Makefile
-@@ -146,7 +146,7 @@ all: bzImage
- #KBUILD_IMAGE is necessary for packaging targets like rpm-pkg, deb-pkg...
- KBUILD_IMAGE	:= $(boot)/bzImage
+diff --git a/drivers/net/ethernet/mscc/ocelot_board.c b/drivers/net/ethernet/mscc/ocelot_board.c
+index aac115136720f..3371562325013 100644
+--- a/drivers/net/ethernet/mscc/ocelot_board.c
++++ b/drivers/net/ethernet/mscc/ocelot_board.c
+@@ -112,6 +112,14 @@ static irqreturn_t ocelot_xtr_irq_handler(int irq, void *arg)
+ 		if (err != 4)
+ 			break;
  
--install: vmlinux
-+install:
- 	$(Q)$(MAKE) $(build)=$(boot) $@
++		/* At this point the IFH was read correctly, so it is safe to
++		 * presume that there is no error. The err needs to be reset
++		 * otherwise a frame could come in CPU queue between the while
++		 * condition and the check for error later on. And in that case
++		 * the new frame is just removed and not processed.
++		 */
++		err = 0;
++
+ 		ocelot_parse_ifh(ifh, &info);
  
- bzImage: vmlinux
-diff --git a/arch/s390/boot/Makefile b/arch/s390/boot/Makefile
-index e2c47d3a1c891..0ff9261c915e3 100644
---- a/arch/s390/boot/Makefile
-+++ b/arch/s390/boot/Makefile
-@@ -70,7 +70,7 @@ $(obj)/compressed/vmlinux: $(obj)/startup.a FORCE
- $(obj)/startup.a: $(OBJECTS) FORCE
- 	$(call if_changed,ar)
- 
--install: $(CONFIGURE) $(obj)/bzImage
-+install:
- 	sh -x  $(srctree)/$(obj)/install.sh $(KERNELRELEASE) $(obj)/bzImage \
- 	      System.map "$(INSTALL_PATH)"
- 
+ 		dev = ocelot->ports[info.port]->dev;
 -- 
 2.20.1
 
