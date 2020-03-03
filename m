@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 53D18178117
-	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 20:01:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A8D5F1781C2
+	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 20:02:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387789AbgCCSAf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Mar 2020 13:00:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44382 "EHLO mail.kernel.org"
+        id S1731677AbgCCSGM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Mar 2020 13:06:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39684 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387795AbgCCSAf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Mar 2020 13:00:35 -0500
+        id S1733029AbgCCR5O (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Mar 2020 12:57:14 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3310020656;
-        Tue,  3 Mar 2020 18:00:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AA01220656;
+        Tue,  3 Mar 2020 17:57:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583258433;
-        bh=toAKJpVcK8AmIRqax8RohZ3VZLNcWfijpolDJB41s/I=;
+        s=default; t=1583258233;
+        bh=gpikvpddbqae2gPURe5GT/qh2Ex9KhFH7h4ggeLOnDg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WbQrGivbtaBzrfG7n4TFEUlS0tpg3jZiBZLdTLl34Edgc3sObqnwwSlCNKB26Y+EK
-         7yp+yQk0Ed5Fie5dzYzbiUGkSJZJ+UJbkI2/L8IyMn8Jd/FXJ1nWSVYIfSsRzPUtz6
-         hIhcSVLd9xrZKm4469Ve9C0UqwOgFLTWcZ5DH9Vw=
+        b=G12YCjZHVmeBozpPepVZyUlPa7dwa+VmxHLdCvLkLrzrjfYZPbrG+hpk1/8HIa9XY
+         ECPLgVHPH5/IznNT31+B9dX3PnfBPXWcH10IkXVA5baq/femxS2t/dApR6DwvYUIH0
+         5pOKFDd55S78r98ahAuXAQGqzxajhYEnn/KqWWdo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Erhard Furtner <erhard_f@mailbox.org>,
-        Wolfram Sang <wsa@the-dreams.de>,
-        Michael Ellerman <mpe@ellerman.id.au>, stable@kernel.org
-Subject: [PATCH 4.19 47/87] macintosh: therm_windtunnel: fix regression when instantiating devices
-Date:   Tue,  3 Mar 2020 18:43:38 +0100
-Message-Id: <20200303174354.576969823@linuxfoundation.org>
+        stable@vger.kernel.org, Jim Mattson <jmattson@google.com>,
+        Andrew Honig <ahonig@google.com>,
+        Sean Christopherson <sean.j.christopherson@intel.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.4 121/152] KVM: Check for a bad hva before dropping into the ghc slow path
+Date:   Tue,  3 Mar 2020 18:43:39 +0100
+Message-Id: <20200303174316.530248562@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200303174349.075101355@linuxfoundation.org>
-References: <20200303174349.075101355@linuxfoundation.org>
+In-Reply-To: <20200303174302.523080016@linuxfoundation.org>
+References: <20200303174302.523080016@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,136 +45,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wolfram Sang <wsa@the-dreams.de>
+From: Sean Christopherson <sean.j.christopherson@intel.com>
 
-commit 38b17afb0ebb9ecd41418d3c08bcf9198af4349d upstream.
+commit fcfbc617547fc6d9552cb6c1c563b6a90ee98085 upstream.
 
-Removing attach_adapter from this driver caused a regression for at
-least some machines. Those machines had the sensors described in their
-DT, too, so they didn't need manual creation of the sensor devices. The
-old code worked, though, because manual creation came first. Creation of
-DT devices then failed later and caused error logs, but the sensors
-worked nonetheless because of the manually created devices.
+When reading/writing using the guest/host cache, check for a bad hva
+before checking for a NULL memslot, which triggers the slow path for
+handing cross-page accesses.  Because the memslot is nullified on error
+by __kvm_gfn_to_hva_cache_init(), if the bad hva is encountered after
+crossing into a new page, then the kvm_{read,write}_guest() slow path
+could potentially write/access the first chunk prior to detecting the
+bad hva.
 
-When removing attach_adaper, manual creation now comes later and loses
-the race. The sensor devices were already registered via DT, yet with
-another binding, so the driver could not be bound to it.
+Arguably, performing a partial access is semantically correct from an
+architectural perspective, but that behavior is certainly not intended.
+In the original implementation, memslot was not explicitly nullified
+and therefore the partial access behavior varied based on whether the
+memslot itself was null, or if the hva was simply bad.  The current
+behavior was introduced as a seemingly unintentional side effect in
+commit f1b9dd5eb86c ("kvm: Disallow wraparound in
+kvm_gfn_to_hva_cache_init"), which justified the change with "since some
+callers don't check the return code from this function, it sit seems
+prudent to clear ghc->memslot in the event of an error".
 
-This fix refactors the code to remove the race and only manually creates
-devices if there are no DT nodes present. Also, the DT binding is updated
-to match both, the DT and manually created devices. Because we don't
-know which device creation will be used at runtime, the code to start
-the kthread is moved to do_probe() which will be called by both methods.
+Regardless of intent, the partial access is dependent on _not_ checking
+the result of the cache initialization, which is arguably a bug in its
+own right, at best simply weird.
 
-Fixes: 3e7bed52719d ("macintosh: therm_windtunnel: drop using attach_adapter")
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=201723
-Reported-by: Erhard Furtner <erhard_f@mailbox.org>
-Tested-by: Erhard Furtner <erhard_f@mailbox.org>
-Acked-by: Michael Ellerman <mpe@ellerman.id.au> (powerpc)
-Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
-Cc: stable@kernel.org # v4.19+
+Fixes: 8f964525a121 ("KVM: Allow cross page reads and writes from cached translations.")
+Cc: Jim Mattson <jmattson@google.com>
+Cc: Andrew Honig <ahonig@google.com>
+Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/macintosh/therm_windtunnel.c |   52 ++++++++++++++++++++---------------
- 1 file changed, 31 insertions(+), 21 deletions(-)
+ virt/kvm/kvm_main.c |   12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
---- a/drivers/macintosh/therm_windtunnel.c
-+++ b/drivers/macintosh/therm_windtunnel.c
-@@ -300,9 +300,11 @@ static int control_loop(void *dummy)
- /*	i2c probing and setup						*/
- /************************************************************************/
+--- a/virt/kvm/kvm_main.c
++++ b/virt/kvm/kvm_main.c
+@@ -2275,12 +2275,12 @@ int kvm_write_guest_offset_cached(struct
+ 	if (slots->generation != ghc->generation)
+ 		__kvm_gfn_to_hva_cache_init(slots, ghc, ghc->gpa, ghc->len);
  
--static int
--do_attach( struct i2c_adapter *adapter )
-+static void do_attach(struct i2c_adapter *adapter)
- {
-+	struct i2c_board_info info = { };
-+	struct device_node *np;
-+
- 	/* scan 0x48-0x4f (DS1775) and 0x2c-2x2f (ADM1030) */
- 	static const unsigned short scan_ds1775[] = {
- 		0x48, 0x49, 0x4a, 0x4b, 0x4c, 0x4d, 0x4e, 0x4f,
-@@ -313,25 +315,24 @@ do_attach( struct i2c_adapter *adapter )
- 		I2C_CLIENT_END
- 	};
- 
--	if( strncmp(adapter->name, "uni-n", 5) )
--		return 0;
+-	if (unlikely(!ghc->memslot))
+-		return kvm_write_guest(kvm, gpa, data, len);
 -
--	if( !x.running ) {
--		struct i2c_board_info info;
-+	if (x.running || strncmp(adapter->name, "uni-n", 5))
-+		return;
+ 	if (kvm_is_error_hva(ghc->hva))
+ 		return -EFAULT;
  
--		memset(&info, 0, sizeof(struct i2c_board_info));
--		strlcpy(info.type, "therm_ds1775", I2C_NAME_SIZE);
-+	np = of_find_compatible_node(adapter->dev.of_node, NULL, "MAC,ds1775");
-+	if (np) {
-+		of_node_put(np);
-+	} else {
-+		strlcpy(info.type, "MAC,ds1775", I2C_NAME_SIZE);
- 		i2c_new_probed_device(adapter, &info, scan_ds1775, NULL);
-+	}
++	if (unlikely(!ghc->memslot))
++		return kvm_write_guest(kvm, gpa, data, len);
++
+ 	r = __copy_to_user((void __user *)ghc->hva + offset, data, len);
+ 	if (r)
+ 		return -EFAULT;
+@@ -2308,12 +2308,12 @@ int kvm_read_guest_cached(struct kvm *kv
+ 	if (slots->generation != ghc->generation)
+ 		__kvm_gfn_to_hva_cache_init(slots, ghc, ghc->gpa, ghc->len);
  
--		strlcpy(info.type, "therm_adm1030", I2C_NAME_SIZE);
-+	np = of_find_compatible_node(adapter->dev.of_node, NULL, "MAC,adm1030");
-+	if (np) {
-+		of_node_put(np);
-+	} else {
-+		strlcpy(info.type, "MAC,adm1030", I2C_NAME_SIZE);
- 		i2c_new_probed_device(adapter, &info, scan_adm1030, NULL);
+-	if (unlikely(!ghc->memslot))
+-		return kvm_read_guest(kvm, ghc->gpa, data, len);
 -
--		if( x.thermostat && x.fan ) {
--			x.running = 1;
--			x.poll_task = kthread_run(control_loop, NULL, "g4fand");
--		}
- 	}
--	return 0;
- }
+ 	if (kvm_is_error_hva(ghc->hva))
+ 		return -EFAULT;
  
- static int
-@@ -404,8 +405,8 @@ out:
- enum chip { ds1775, adm1030 };
- 
- static const struct i2c_device_id therm_windtunnel_id[] = {
--	{ "therm_ds1775", ds1775 },
--	{ "therm_adm1030", adm1030 },
-+	{ "MAC,ds1775", ds1775 },
-+	{ "MAC,adm1030", adm1030 },
- 	{ }
- };
- MODULE_DEVICE_TABLE(i2c, therm_windtunnel_id);
-@@ -414,6 +415,7 @@ static int
- do_probe(struct i2c_client *cl, const struct i2c_device_id *id)
- {
- 	struct i2c_adapter *adapter = cl->adapter;
-+	int ret = 0;
- 
- 	if( !i2c_check_functionality(adapter, I2C_FUNC_SMBUS_WORD_DATA
- 				     | I2C_FUNC_SMBUS_WRITE_BYTE) )
-@@ -421,11 +423,19 @@ do_probe(struct i2c_client *cl, const st
- 
- 	switch (id->driver_data) {
- 	case adm1030:
--		return attach_fan( cl );
-+		ret = attach_fan(cl);
-+		break;
- 	case ds1775:
--		return attach_thermostat(cl);
-+		ret = attach_thermostat(cl);
-+		break;
- 	}
--	return 0;
++	if (unlikely(!ghc->memslot))
++		return kvm_read_guest(kvm, ghc->gpa, data, len);
 +
-+	if (!x.running && x.thermostat && x.fan) {
-+		x.running = 1;
-+		x.poll_task = kthread_run(control_loop, NULL, "g4fand");
-+	}
-+
-+	return ret;
- }
- 
- static struct i2c_driver g4fan_driver = {
+ 	r = __copy_from_user(data, (void __user *)ghc->hva, len);
+ 	if (r)
+ 		return -EFAULT;
 
 
