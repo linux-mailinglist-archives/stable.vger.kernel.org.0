@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BB520178015
-	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 19:59:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 72666177F0D
+	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 19:57:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732535AbgCCRyg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Mar 2020 12:54:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35778 "EHLO mail.kernel.org"
+        id S1730480AbgCCRs1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Mar 2020 12:48:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55558 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732544AbgCCRyf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Mar 2020 12:54:35 -0500
+        id S1731657AbgCCRs1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Mar 2020 12:48:27 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 501B62146E;
-        Tue,  3 Mar 2020 17:54:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 38767208C3;
+        Tue,  3 Mar 2020 17:48:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583258074;
-        bh=lFkez4BwPFZEiyY8daJsLPtmtS941mquHO3XEQQhqyU=;
+        s=default; t=1583257705;
+        bh=/fUNwf/vztwTSEohLnloV9eTLI537OBCYIVodXwIu6Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rT093dUEA/GipTrfTlF9L2oN1k7bPVB/KjOQw84tnQj6xaVrmOZu3Z3Q+8ZsxvKmG
-         PzTMMh1zIUY0YxqbudfXhjKs3drAtOgHgzErdjo05jG0B40VX6VJoQUBXvDwWTMChX
-         7tOZ1aU2H396jLDjHMd/sU7mug3FkXUVYOUF1iU8=
+        b=SMPuKDTNZTR9o+IXEIcVcUXx06DdoKL4iKr3Tz4ld2fhGqCQKJLM5Xaqy+Z7WkKSR
+         zJo7sfA8Wxkapkz5v5COv/TQ7hxurlNX7OpCjng7DvmBjazTfMyy6JIzzbyrZ1dRee
+         YMz5fNeXDjmHX44kNymiJ7vXlFbTmJQfSzhVtbhg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Coly Li <colyli@suse.de>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 062/152] bcache: ignore pending signals when creating gc and allocator thread
-Date:   Tue,  3 Mar 2020 18:42:40 +0100
-Message-Id: <20200303174309.501274295@linuxfoundation.org>
+        stable@vger.kernel.org,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+Subject: [PATCH 5.5 097/176] tracing: Disable trace_printk() on post poned tests
+Date:   Tue,  3 Mar 2020 18:42:41 +0100
+Message-Id: <20200303174316.051529563@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200303174302.523080016@linuxfoundation.org>
-References: <20200303174302.523080016@linuxfoundation.org>
+In-Reply-To: <20200303174304.593872177@linuxfoundation.org>
+References: <20200303174304.593872177@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,102 +43,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Coly Li <colyli@suse.de>
+From: Steven Rostedt (VMware) <rostedt@goodmis.org>
 
-[ Upstream commit 0b96da639a4874311e9b5156405f69ef9fc3bef8 ]
+commit 78041c0c9e935d9ce4086feeff6c569ed88ddfd4 upstream.
 
-When run a cache set, all the bcache btree node of this cache set will
-be checked by bch_btree_check(). If the bcache btree is very large,
-iterating all the btree nodes will occupy too much system memory and
-the bcache registering process might be selected and killed by system
-OOM killer. kthread_run() will fail if current process has pending
-signal, therefore the kthread creating in run_cache_set() for gc and
-allocator kernel threads are very probably failed for a very large
-bcache btree.
+The tracing seftests checks various aspects of the tracing infrastructure,
+and one is filtering. If trace_printk() is active during a self test, it can
+cause the filtering to fail, which will disable that part of the trace.
 
-Indeed such OOM is safe and the registering process will exit after
-the registration done. Therefore this patch flushes pending signals
-during the cache set start up, specificly in bch_cache_allocator_start()
-and bch_gc_thread_start(), to make sure run_cache_set() won't fail for
-large cahced data set.
+To keep the selftests from failing because of trace_printk() calls,
+trace_printk() checks the variable tracing_selftest_running, and if set, it
+does not write to the tracing buffer.
 
-Signed-off-by: Coly Li <colyli@suse.de>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+As some tracers were registered earlier in boot, the selftest they triggered
+would fail because not all the infrastructure was set up for the full
+selftest. Thus, some of the tests were post poned to when their
+infrastructure was ready (namely file system code). The postpone code did
+not set the tracing_seftest_running variable, and could fail if a
+trace_printk() was added and executed during their run.
+
+Cc: stable@vger.kernel.org
+Fixes: 9afecfbb95198 ("tracing: Postpone tracer start-up tests till the system is more robust")
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/md/bcache/alloc.c | 18 ++++++++++++++++--
- drivers/md/bcache/btree.c | 13 +++++++++++++
- 2 files changed, 29 insertions(+), 2 deletions(-)
+ kernel/trace/trace.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/md/bcache/alloc.c b/drivers/md/bcache/alloc.c
-index a1df0d95151c6..8bc1faf71ff2f 100644
---- a/drivers/md/bcache/alloc.c
-+++ b/drivers/md/bcache/alloc.c
-@@ -67,6 +67,7 @@
- #include <linux/blkdev.h>
- #include <linux/kthread.h>
- #include <linux/random.h>
-+#include <linux/sched/signal.h>
- #include <trace/events/bcache.h>
+--- a/kernel/trace/trace.c
++++ b/kernel/trace/trace.c
+@@ -1827,6 +1827,7 @@ static __init int init_trace_selftests(v
  
- #define MAX_OPEN_BUCKETS 128
-@@ -733,8 +734,21 @@ int bch_open_buckets_alloc(struct cache_set *c)
+ 	pr_info("Running postponed tracer tests:\n");
  
- int bch_cache_allocator_start(struct cache *ca)
- {
--	struct task_struct *k = kthread_run(bch_allocator_thread,
--					    ca, "bcache_allocator");
-+	struct task_struct *k;
-+
-+	/*
-+	 * In case previous btree check operation occupies too many
-+	 * system memory for bcache btree node cache, and the
-+	 * registering process is selected by OOM killer. Here just
-+	 * ignore the SIGKILL sent by OOM killer if there is, to
-+	 * avoid kthread_run() being failed by pending signals. The
-+	 * bcache registering process will exit after the registration
-+	 * done.
-+	 */
-+	if (signal_pending(current))
-+		flush_signals(current);
-+
-+	k = kthread_run(bch_allocator_thread, ca, "bcache_allocator");
- 	if (IS_ERR(k))
- 		return PTR_ERR(k);
++	tracing_selftest_running = true;
+ 	list_for_each_entry_safe(p, n, &postponed_selftests, list) {
+ 		/* This loop can take minutes when sanitizers are enabled, so
+ 		 * lets make sure we allow RCU processing.
+@@ -1849,6 +1850,7 @@ static __init int init_trace_selftests(v
+ 		list_del(&p->list);
+ 		kfree(p);
+ 	}
++	tracing_selftest_running = false;
  
-diff --git a/drivers/md/bcache/btree.c b/drivers/md/bcache/btree.c
-index 46a8b5a91c386..a6e05503b7723 100644
---- a/drivers/md/bcache/btree.c
-+++ b/drivers/md/bcache/btree.c
-@@ -34,6 +34,7 @@
- #include <linux/random.h>
- #include <linux/rcupdate.h>
- #include <linux/sched/clock.h>
-+#include <linux/sched/signal.h>
- #include <linux/rculist.h>
- #include <linux/delay.h>
- #include <trace/events/bcache.h>
-@@ -1908,6 +1909,18 @@ static int bch_gc_thread(void *arg)
- 
- int bch_gc_thread_start(struct cache_set *c)
- {
-+	/*
-+	 * In case previous btree check operation occupies too many
-+	 * system memory for bcache btree node cache, and the
-+	 * registering process is selected by OOM killer. Here just
-+	 * ignore the SIGKILL sent by OOM killer if there is, to
-+	 * avoid kthread_run() being failed by pending signals. The
-+	 * bcache registering process will exit after the registration
-+	 * done.
-+	 */
-+	if (signal_pending(current))
-+		flush_signals(current);
-+
- 	c->gc_thread = kthread_run(bch_gc_thread, c, "bcache_gc");
- 	return PTR_ERR_OR_ZERO(c->gc_thread);
- }
--- 
-2.20.1
-
+  out:
+ 	mutex_unlock(&trace_types_lock);
 
 
