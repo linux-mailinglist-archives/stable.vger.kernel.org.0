@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 74796178207
-	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 20:03:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 19AFC1781F7
+	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 20:03:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729318AbgCCSI2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Mar 2020 13:08:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34138 "EHLO mail.kernel.org"
+        id S1732373AbgCCSIM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Mar 2020 13:08:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34670 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730695AbgCCRxd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Mar 2020 12:53:33 -0500
+        id S1732440AbgCCRx5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Mar 2020 12:53:57 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 708D620870;
-        Tue,  3 Mar 2020 17:53:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 19B45206D5;
+        Tue,  3 Mar 2020 17:53:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583258012;
-        bh=oTYgoWQTfmOG7ZN0sUeME2E5uZ6h8jH+epj1i8hWPwQ=;
+        s=default; t=1583258036;
+        bh=PhncEhRCTKBC5B1M7UkmrcPOnOXpB7zh+aV1dws/UrY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QmjIPtAB2r1NKB0teRbDECG6THTjsVSfgbt64tGMQdCrZu+lvv8P0OrdcnJRIZtQP
-         eETzVQFwk6CurGaijq+X9BxV2M0wiuOqhqBaT1nS2fYzCFozfnncwcrVXPVFKzpCjF
-         aiNuBpkCSB2Rz0BRem+hWYUaDIoE+bzIjrhDFlmw=
+        b=ekvGdYREdQBsRwKtbtWzlITQz+rGWnf3i6RMEH1n6qr/VWKAzapXyzt8zMrXVwauy
+         8PXVeuWL2GCq6UlMIUJ6/+1O+AIU7B+/k79OGo3PgNru4MUbLkrGIdvr2SeBF8/j0y
+         T+EjG3cjKmZl2K/Xz5V9gU7KX+wLLHQIleaa8Y+o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kan Liang <kan.liang@linux.intel.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Ingo Molnar <mingo@kernel.org>,
-        Andi Kleen <ak@linux.intel.com>,
+        stable@vger.kernel.org, Isabel Zhang <isabel.zhang@amd.com>,
+        Eric Yang <eric.yang2@amd.com>,
+        Bhawanpreet Lakha <Bhawanpreet.Lakha@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 037/152] perf/x86/cstate: Add Tremont support
-Date:   Tue,  3 Mar 2020 18:42:15 +0100
-Message-Id: <20200303174306.647549639@linuxfoundation.org>
+Subject: [PATCH 5.4 045/152] drm/amd/display: Add initialitions for PLL2 clock source
+Date:   Tue,  3 Mar 2020 18:42:23 +0100
+Message-Id: <20200303174307.528235584@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200303174302.523080016@linuxfoundation.org>
 References: <20200303174302.523080016@linuxfoundation.org>
@@ -46,97 +46,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kan Liang <kan.liang@linux.intel.com>
+From: Isabel Zhang <isabel.zhang@amd.com>
 
-[ Upstream commit ecf71fbccb9ac5cb964eb7de59bb9da3755b7885 ]
+[ Upstream commit c134c3cabae46a56ab2e1f5e5fa49405e1758838 ]
 
-Tremont is Intel's successor to Goldmont Plus. From the perspective of
-Intel cstate residency counters, there is nothing changed compared with
-Goldmont Plus and Goldmont.
+[Why]
+Starting from 14nm, the PLL is built into the PHY and the PLL is mapped
+to PHY on 1 to 1 basis. In the code, the DP port is mapped to a PLL that was not
+initialized. This causes DP to HDMI dongle to not light up the display.
 
-Share glm_cstates with Goldmont Plus and Goldmont.
-Update the comments for Tremont.
+[How]
+Initializations added for PLL2 when creating resources.
 
-Signed-off-by: Kan Liang <kan.liang@linux.intel.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Reviewed-by: Andi Kleen <ak@linux.intel.com>
-Link: https://lkml.kernel.org/r/1580236279-35492-2-git-send-email-kan.liang@linux.intel.com
+Signed-off-by: Isabel Zhang <isabel.zhang@amd.com>
+Reviewed-by: Eric Yang <eric.yang2@amd.com>
+Acked-by: Bhawanpreet Lakha <Bhawanpreet.Lakha@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/events/intel/cstate.c | 22 +++++++++++++---------
- 1 file changed, 13 insertions(+), 9 deletions(-)
+ drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/arch/x86/events/intel/cstate.c b/arch/x86/events/intel/cstate.c
-index e1daf4151e116..4814c964692cb 100644
---- a/arch/x86/events/intel/cstate.c
-+++ b/arch/x86/events/intel/cstate.c
-@@ -40,17 +40,18 @@
-  * Model specific counters:
-  *	MSR_CORE_C1_RES: CORE C1 Residency Counter
-  *			 perf code: 0x00
-- *			 Available model: SLM,AMT,GLM,CNL
-+ *			 Available model: SLM,AMT,GLM,CNL,TNT
-  *			 Scope: Core (each processor core has a MSR)
-  *	MSR_CORE_C3_RESIDENCY: CORE C3 Residency Counter
-  *			       perf code: 0x01
-  *			       Available model: NHM,WSM,SNB,IVB,HSW,BDW,SKL,GLM,
-- *						CNL,KBL,CML
-+ *						CNL,KBL,CML,TNT
-  *			       Scope: Core
-  *	MSR_CORE_C6_RESIDENCY: CORE C6 Residency Counter
-  *			       perf code: 0x02
-  *			       Available model: SLM,AMT,NHM,WSM,SNB,IVB,HSW,BDW,
-- *						SKL,KNL,GLM,CNL,KBL,CML,ICL,TGL
-+ *						SKL,KNL,GLM,CNL,KBL,CML,ICL,TGL,
-+ *						TNT
-  *			       Scope: Core
-  *	MSR_CORE_C7_RESIDENCY: CORE C7 Residency Counter
-  *			       perf code: 0x03
-@@ -60,17 +61,18 @@
-  *	MSR_PKG_C2_RESIDENCY:  Package C2 Residency Counter.
-  *			       perf code: 0x00
-  *			       Available model: SNB,IVB,HSW,BDW,SKL,KNL,GLM,CNL,
-- *						KBL,CML,ICL,TGL
-+ *						KBL,CML,ICL,TGL,TNT
-  *			       Scope: Package (physical package)
-  *	MSR_PKG_C3_RESIDENCY:  Package C3 Residency Counter.
-  *			       perf code: 0x01
-  *			       Available model: NHM,WSM,SNB,IVB,HSW,BDW,SKL,KNL,
-- *						GLM,CNL,KBL,CML,ICL,TGL
-+ *						GLM,CNL,KBL,CML,ICL,TGL,TNT
-  *			       Scope: Package (physical package)
-  *	MSR_PKG_C6_RESIDENCY:  Package C6 Residency Counter.
-  *			       perf code: 0x02
-- *			       Available model: SLM,AMT,NHM,WSM,SNB,IVB,HSW,BDW
-- *						SKL,KNL,GLM,CNL,KBL,CML,ICL,TGL
-+ *			       Available model: SLM,AMT,NHM,WSM,SNB,IVB,HSW,BDW,
-+ *						SKL,KNL,GLM,CNL,KBL,CML,ICL,TGL,
-+ *						TNT
-  *			       Scope: Package (physical package)
-  *	MSR_PKG_C7_RESIDENCY:  Package C7 Residency Counter.
-  *			       perf code: 0x03
-@@ -87,7 +89,8 @@
-  *			       Scope: Package (physical package)
-  *	MSR_PKG_C10_RESIDENCY: Package C10 Residency Counter.
-  *			       perf code: 0x06
-- *			       Available model: HSW ULT,KBL,GLM,CNL,CML,ICL,TGL
-+ *			       Available model: HSW ULT,KBL,GLM,CNL,CML,ICL,TGL,
-+ *						TNT
-  *			       Scope: Package (physical package)
-  *
-  */
-@@ -640,8 +643,9 @@ static const struct x86_cpu_id intel_cstates_match[] __initconst = {
+diff --git a/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c b/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c
+index b0e5e64df2127..161bf7caf3ae0 100644
+--- a/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c
+@@ -57,6 +57,7 @@
+ #include "dcn20/dcn20_dccg.h"
+ #include "dcn21_hubbub.h"
+ #include "dcn10/dcn10_resource.h"
++#include "dce110/dce110_resource.h"
  
- 	X86_CSTATES_MODEL(INTEL_FAM6_ATOM_GOLDMONT,   glm_cstates),
- 	X86_CSTATES_MODEL(INTEL_FAM6_ATOM_GOLDMONT_D, glm_cstates),
--
- 	X86_CSTATES_MODEL(INTEL_FAM6_ATOM_GOLDMONT_PLUS, glm_cstates),
-+	X86_CSTATES_MODEL(INTEL_FAM6_ATOM_TREMONT_D, glm_cstates),
-+	X86_CSTATES_MODEL(INTEL_FAM6_ATOM_TREMONT, glm_cstates),
+ #include "dcn20/dcn20_dwb.h"
+ #include "dcn20/dcn20_mmhubbub.h"
+@@ -824,6 +825,7 @@ static const struct dc_debug_options debug_defaults_diags = {
+ enum dcn20_clk_src_array_id {
+ 	DCN20_CLK_SRC_PLL0,
+ 	DCN20_CLK_SRC_PLL1,
++	DCN20_CLK_SRC_PLL2,
+ 	DCN20_CLK_SRC_TOTAL_DCN21
+ };
  
- 	X86_CSTATES_MODEL(INTEL_FAM6_ICELAKE_L, icl_cstates),
- 	X86_CSTATES_MODEL(INTEL_FAM6_ICELAKE,   icl_cstates),
+@@ -1492,6 +1494,10 @@ static bool construct(
+ 			dcn21_clock_source_create(ctx, ctx->dc_bios,
+ 				CLOCK_SOURCE_COMBO_PHY_PLL1,
+ 				&clk_src_regs[1], false);
++	pool->base.clock_sources[DCN20_CLK_SRC_PLL2] =
++			dcn21_clock_source_create(ctx, ctx->dc_bios,
++				CLOCK_SOURCE_COMBO_PHY_PLL2,
++				&clk_src_regs[2], false);
+ 
+ 	pool->base.clk_src_count = DCN20_CLK_SRC_TOTAL_DCN21;
+ 
 -- 
 2.20.1
 
