@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E849F17801E
-	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 19:59:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A7380177F23
+	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 19:57:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732590AbgCCRys (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Mar 2020 12:54:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36066 "EHLO mail.kernel.org"
+        id S1730739AbgCCRs4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Mar 2020 12:48:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56138 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732587AbgCCRys (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Mar 2020 12:54:48 -0500
+        id S1731696AbgCCRs4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Mar 2020 12:48:56 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 364BC21739;
-        Tue,  3 Mar 2020 17:54:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 84D2F20870;
+        Tue,  3 Mar 2020 17:48:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583258087;
-        bh=cACRJLPYJUGqekbbL6xWCecdMYb50zkd2HoNIw//Oyc=;
+        s=default; t=1583257735;
+        bh=06zphrd16BCYMlWwmetBuNSFfj4P02ROA5ONAvY8z00=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=op1s4v6QAcFMXnis8cLSiUexdkXLa8FeQE8YVqFLFddUtvdchzcLAo13sL6s3T0VZ
-         W64P+4C5Xzno40f+C1eXhWtLbP8RHmDorkP8Jdm0dQSPFJh5riH/FQV6yP1fy2aQXb
-         M1sJBWK4x1Yzx7bPaOnea0/sVpLFDdUpEaR4Vr64=
+        b=QqrFOUzvOgh/3WHHni6OsQpnuu5+5to1yRqxJQL4XSXxhPX9Kx1N9+kCIbVPDi5px
+         UI13658hCrKzH5PAH60KqSNCDsA9vhCeKZbHci8lAOnnSlWxFiTroeodLMKWEcDHUp
+         SvtJYIHhVfLTEtHTMc/7tOUQJA3yhRzoF4zq0LYo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Anton Eidelman <anton@lightbitslabs.com>,
-        Sagi Grimberg <sagi@grimberg.me>,
-        Keith Busch <kbusch@kernel.org>, Jens Axboe <axboe@kernel.dk>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 067/152] nvme/tcp: fix bug on double requeue when send fails
+        stable@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.5 101/176] io_uring: fix 32-bit compatability with sendmsg/recvmsg
 Date:   Tue,  3 Mar 2020 18:42:45 +0100
-Message-Id: <20200303174310.083118138@linuxfoundation.org>
+Message-Id: <20200303174316.529389059@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200303174302.523080016@linuxfoundation.org>
-References: <20200303174302.523080016@linuxfoundation.org>
+In-Reply-To: <20200303174304.593872177@linuxfoundation.org>
+References: <20200303174304.593872177@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,54 +42,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anton Eidelman <anton@lightbitslabs.com>
+From: Jens Axboe <axboe@kernel.dk>
 
-[ Upstream commit 2d570a7c0251c594489a2c16b82b14ae30345c03 ]
+commit d876836204897b6d7d911f942084f69a1e9d5c4d upstream.
 
-When nvme_tcp_io_work() fails to send to socket due to
-connection close/reset, error_recovery work is triggered
-from nvme_tcp_state_change() socket callback.
-This cancels all the active requests in the tagset,
-which requeues them.
+We must set MSG_CMSG_COMPAT if we're in compatability mode, otherwise
+the iovec import for these commands will not do the right thing and fail
+the command with -EINVAL.
 
-The failed request, however, was ended and thus requeued
-individually as well unless send returned -EPIPE.
-Another return code to be treated the same way is -ECONNRESET.
+Found by running the test suite compiled as 32-bit.
 
-Double requeue caused BUG_ON(blk_queued_rq(rq))
-in blk_mq_requeue_request() from either the individual requeue
-of the failed request or the bulk requeue from
-blk_mq_tagset_busy_iter(, nvme_cancel_request, );
-
-Signed-off-by: Anton Eidelman <anton@lightbitslabs.com>
-Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
-Signed-off-by: Keith Busch <kbusch@kernel.org>
+Cc: stable@vger.kernel.org
+Fixes: aa1fa28fc73e ("io_uring: add support for recvmsg()")
+Fixes: 0fa03c624d8f ("io_uring: add support for sendmsg()")
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/nvme/host/tcp.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ fs/io_uring.c |   10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/drivers/nvme/host/tcp.c b/drivers/nvme/host/tcp.c
-index 7544be84ab358..a870144542159 100644
---- a/drivers/nvme/host/tcp.c
-+++ b/drivers/nvme/host/tcp.c
-@@ -1054,7 +1054,12 @@ static void nvme_tcp_io_work(struct work_struct *w)
- 		} else if (unlikely(result < 0)) {
- 			dev_err(queue->ctrl->ctrl.device,
- 				"failed to send request %d\n", result);
--			if (result != -EPIPE)
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -2166,6 +2166,11 @@ static int io_sendmsg_prep(struct io_kio
+ 	sr->msg_flags = READ_ONCE(sqe->msg_flags);
+ 	sr->msg = u64_to_user_ptr(READ_ONCE(sqe->addr));
+ 
++#ifdef CONFIG_COMPAT
++	if (req->ctx->compat)
++		sr->msg_flags |= MSG_CMSG_COMPAT;
++#endif
 +
-+			/*
-+			 * Fail the request unless peer closed the connection,
-+			 * in which case error recovery flow will complete all.
-+			 */
-+			if ((result != -EPIPE) && (result != -ECONNRESET))
- 				nvme_tcp_fail_request(queue->request);
- 			nvme_tcp_done_send_req(queue);
- 			return;
--- 
-2.20.1
-
+ 	if (!io)
+ 		return 0;
+ 
+@@ -2258,6 +2263,11 @@ static int io_recvmsg_prep(struct io_kio
+ 	sr->msg_flags = READ_ONCE(sqe->msg_flags);
+ 	sr->msg = u64_to_user_ptr(READ_ONCE(sqe->addr));
+ 
++#ifdef CONFIG_COMPAT
++	if (req->ctx->compat)
++		sr->msg_flags |= MSG_CMSG_COMPAT;
++#endif
++
+ 	if (!io)
+ 		return 0;
+ 
 
 
