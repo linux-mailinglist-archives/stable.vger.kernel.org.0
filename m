@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7655A177F2D
+	by mail.lfdr.de (Postfix) with ESMTP id E780D177F2E
 	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 19:57:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731737AbgCCRtJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1730761AbgCCRtJ (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 3 Mar 2020 12:49:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56354 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:56380 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731719AbgCCRtF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Mar 2020 12:49:05 -0500
+        id S1730830AbgCCRtI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Mar 2020 12:49:08 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 521DB20870;
-        Tue,  3 Mar 2020 17:49:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 138E1208C3;
+        Tue,  3 Mar 2020 17:49:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583257744;
-        bh=M0CjjTmG0IKFpBkEYG84Jv79xfXbJMIzIS/SxLzWllE=;
+        s=default; t=1583257747;
+        bh=2iJwWasVf+CDL+1GCCg+dC8safmJqLUpKJYeW7tEWz8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mGBNfUWjDlhuullnSGsY6AyVHRKtjAtLefH3cbPs/TaIFTOWvbzKwn/IPmH9vedaL
-         q5ma6+67Z1q7+yVni8+pN63ukeiQ6CLyw20T//IEO7IAq9rgLKy38UXlkFIctNhURD
-         JM4+Rtw85sYbibGxLS1juWGPy49ymMMLKDvWzmww=
+        b=eZslrvy0Ba4gQV2SbhU4DRKilc+eQqDArk8aqPVs5+6wI4UFKWsfcmpoBjbO7kknX
+         flXF+RX4z6qiYsa3oA4JoR4PPaRFHwhNxP77VQhHOR+6VNtB+n2uiFWejSsg70lXRD
+         XhthIfxzzuiOPUmsKWhYx2VumXf3WQJ1YilkmOjw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "H. Nikolaus Schaller" <hns@goldelico.com>,
-        Wolfram Sang <wsa@the-dreams.de>
-Subject: [PATCH 5.5 113/176] i2c: jz4780: silence log flood on txabrt
-Date:   Tue,  3 Mar 2020 18:42:57 +0100
-Message-Id: <20200303174317.902833335@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Mark Tomlinson <mark.tomlinson@alliedtelesis.co.nz>,
+        Chris Packham <chris.packham@alliedtelesis.co.nz>,
+        Paul Burton <paulburton@kernel.org>, linux-mips@vger.kernel.org
+Subject: [PATCH 5.5 114/176] MIPS: cavium_octeon: Fix syncw generation.
+Date:   Tue,  3 Mar 2020 18:42:58 +0100
+Message-Id: <20200303174318.020233777@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200303174304.593872177@linuxfoundation.org>
 References: <20200303174304.593872177@linuxfoundation.org>
@@ -43,76 +45,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wolfram Sang <wsa@the-dreams.de>
+From: Mark Tomlinson <mark.tomlinson@alliedtelesis.co.nz>
 
-commit 9e661cedcc0a072d91a32cb88e0515ea26e35711 upstream.
+commit 97e914b7de3c943011779b979b8093fdc0d85722 upstream.
 
-The printout for txabrt is way too talkative and is highly annoying with
-scanning programs like 'i2cdetect'. Reduce it to the minimum, the rest
-can be gained by I2C core debugging and datasheet information. Also,
-make it a debug printout, it won't help the regular user.
+The Cavium Octeon CPU uses a special sync instruction for implementing
+wmb, and due to a CPU bug, the instruction must appear twice. A macro
+had been defined to hide this:
 
-Fixes: ba92222ed63a ("i2c: jz4780: Add i2c bus controller driver for Ingenic JZ4780")
-Reported-by: H. Nikolaus Schaller <hns@goldelico.com>
-Tested-by: H. Nikolaus Schaller <hns@goldelico.com>
-Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+ #define __SYNC_rpt(type)     (1 + (type == __SYNC_wmb))
+
+which was intended to evaluate to 2 for __SYNC_wmb, and 1 for any other
+type of sync. However, this expression is evaluated by the assembler,
+and not the compiler, and the result of '==' in the assembler is 0 or
+-1, not 0 or 1 as it is in C. The net result was wmb() producing no code
+at all. The simple fix in this patch is to change the '+' to '-'.
+
+Fixes: bf92927251b3 ("MIPS: barrier: Add __SYNC() infrastructure")
+Signed-off-by: Mark Tomlinson <mark.tomlinson@alliedtelesis.co.nz>
+Tested-by: Chris Packham <chris.packham@alliedtelesis.co.nz>
+Signed-off-by: Paul Burton <paulburton@kernel.org>
+Cc: linux-mips@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/i2c/busses/i2c-jz4780.c |   36 ++----------------------------------
- 1 file changed, 2 insertions(+), 34 deletions(-)
+ arch/mips/include/asm/sync.h |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/i2c/busses/i2c-jz4780.c
-+++ b/drivers/i2c/busses/i2c-jz4780.c
-@@ -73,25 +73,6 @@
- #define JZ4780_I2C_STA_TFNF		BIT(1)
- #define JZ4780_I2C_STA_ACT		BIT(0)
- 
--static const char * const jz4780_i2c_abrt_src[] = {
--	"ABRT_7B_ADDR_NOACK",
--	"ABRT_10ADDR1_NOACK",
--	"ABRT_10ADDR2_NOACK",
--	"ABRT_XDATA_NOACK",
--	"ABRT_GCALL_NOACK",
--	"ABRT_GCALL_READ",
--	"ABRT_HS_ACKD",
--	"SBYTE_ACKDET",
--	"ABRT_HS_NORSTRT",
--	"SBYTE_NORSTRT",
--	"ABRT_10B_RD_NORSTRT",
--	"ABRT_MASTER_DIS",
--	"ARB_LOST",
--	"SLVFLUSH_TXFIFO",
--	"SLV_ARBLOST",
--	"SLVRD_INTX",
--};
--
- #define JZ4780_I2C_INTST_IGC		BIT(11)
- #define JZ4780_I2C_INTST_ISTT		BIT(10)
- #define JZ4780_I2C_INTST_ISTP		BIT(9)
-@@ -529,21 +510,8 @@ done:
- 
- static void jz4780_i2c_txabrt(struct jz4780_i2c *i2c, int src)
- {
--	int i;
--
--	dev_err(&i2c->adap.dev, "txabrt: 0x%08x\n", src);
--	dev_err(&i2c->adap.dev, "device addr=%x\n",
--		jz4780_i2c_readw(i2c, JZ4780_I2C_TAR));
--	dev_err(&i2c->adap.dev, "send cmd count:%d  %d\n",
--		i2c->cmd, i2c->cmd_buf[i2c->cmd]);
--	dev_err(&i2c->adap.dev, "receive data count:%d  %d\n",
--		i2c->cmd, i2c->data_buf[i2c->cmd]);
--
--	for (i = 0; i < 16; i++) {
--		if (src & BIT(i))
--			dev_dbg(&i2c->adap.dev, "I2C TXABRT[%d]=%s\n",
--				i, jz4780_i2c_abrt_src[i]);
--	}
-+	dev_dbg(&i2c->adap.dev, "txabrt: 0x%08x, cmd: %d, send: %d, recv: %d\n",
-+		src, i2c->cmd, i2c->cmd_buf[i2c->cmd], i2c->data_buf[i2c->cmd]);
- }
- 
- static inline int jz4780_i2c_xfer_read(struct jz4780_i2c *i2c,
+--- a/arch/mips/include/asm/sync.h
++++ b/arch/mips/include/asm/sync.h
+@@ -155,9 +155,11 @@
+  * effective barrier as noted by commit 6b07d38aaa52 ("MIPS: Octeon: Use
+  * optimized memory barrier primitives."). Here we specify that the affected
+  * sync instructions should be emitted twice.
++ * Note that this expression is evaluated by the assembler (not the compiler),
++ * and that the assembler evaluates '==' as 0 or -1, not 0 or 1.
+  */
+ #ifdef CONFIG_CPU_CAVIUM_OCTEON
+-# define __SYNC_rpt(type)	(1 + (type == __SYNC_wmb))
++# define __SYNC_rpt(type)	(1 - (type == __SYNC_wmb))
+ #else
+ # define __SYNC_rpt(type)	1
+ #endif
 
 
