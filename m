@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2B9A5177E11
-	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 18:46:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8BEE8177E14
+	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 18:46:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731083AbgCCRqO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Mar 2020 12:46:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52718 "EHLO mail.kernel.org"
+        id S1731120AbgCCRqW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Mar 2020 12:46:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52866 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729854AbgCCRqN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Mar 2020 12:46:13 -0500
+        id S1731107AbgCCRqV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Mar 2020 12:46:21 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CBD6820842;
-        Tue,  3 Mar 2020 17:46:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 60CD62146E;
+        Tue,  3 Mar 2020 17:46:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583257573;
-        bh=r4h0h0vNmAe26MlCqgqj9TQfWY49lPNNCtdDgv9Pe6k=;
+        s=default; t=1583257580;
+        bh=nu12upa2YBED248NaTn+dMF9VDPyyAVLRlkgIW0kpbc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y2JkjPpmkgAhZvtL+8F7ICZDCmNg2O+21Tg/e16wJajr2kXvgx1EZSB7KbbAnrODM
-         p+oet5HqYdszW34DiSa/RZCKsgwCdM1MWDjj1vG2C6giX28bfQLgBDH3cMuZT2Cn48
-         OvAHoohhCh7EDnIulPokzImx+p5DaQDgoFgHgEhI=
+        b=bYmRi8ndlE2yLsdeJJQLEVyV8R54+9SBtj0Mj9mI9BjPPppZ8XfmNZ7faDkp6zTuh
+         d5mZdK3LLBSs8o77V+g3dSi57tG+NBAViNqCeNJpG2IQS/ctkaBgEUXB+WP+igPdIY
+         A3qL2DobUZi68CXmxoAToCa/0y7WUaNlsxKBAA0Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aric Cyr <aric.cyr@amd.com>,
-        Harry Wentland <harry.wentland@amd.com>,
-        Bhawanpreet Lakha <Bhawanpreet.Lakha@amd.com>,
+        stable@vger.kernel.org, Daniel Kolesa <daniel@octaforge.org>,
         Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 047/176] drm/amd/display: Check engine is not NULL before acquiring
-Date:   Tue,  3 Mar 2020 18:41:51 +0100
-Message-Id: <20200303174309.993512910@linuxfoundation.org>
+Subject: [PATCH 5.5 050/176] amdgpu: Prevent build errors regarding soft/hard-float FP ABI tags
+Date:   Tue,  3 Mar 2020 18:41:54 +0100
+Message-Id: <20200303174310.330447064@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200303174304.593872177@linuxfoundation.org>
 References: <20200303174304.593872177@linuxfoundation.org>
@@ -46,38 +44,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aric Cyr <aric.cyr@amd.com>
+From: Daniel Kolesa <daniel@octaforge.org>
 
-[ Upstream commit 2b63d0ec0daf79ba503fa8bfa25e07dc3da274f3 ]
+[ Upstream commit 416611d9b6eebaeae58ed26cc7d23131c69126b1 ]
 
-[Why]
-Engine can be NULL in some cases, so we must not acquire it.
+On PowerPC, the compiler will tag object files with whether they
+use hard or soft float FP ABI and whether they use 64 or 128-bit
+long double ABI. On systems with 64-bit long double ABI, a tag
+will get emitted whenever a double is used, as on those systems
+a long double is the same as a double. This will prevent linkage
+as other files are being compiled with hard-float.
 
-[How]
-Check for NULL engine before acquiring.
+On ppc64, this code will never actually get used for the time
+being, as the only currently existing hardware using it are the
+Renoir APUs. Therefore, until this is testable and can be fixed
+properly, at least make sure the build will not fail.
 
-Signed-off-by: Aric Cyr <aric.cyr@amd.com>
-Reviewed-by: Harry Wentland <harry.wentland@amd.com>
-Acked-by: Bhawanpreet Lakha <Bhawanpreet.Lakha@amd.com>
+Signed-off-by: Daniel Kolesa <daniel@octaforge.org>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/dce/dce_aux.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/amd/display/dc/clk_mgr/Makefile | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dce/dce_aux.c b/drivers/gpu/drm/amd/display/dc/dce/dce_aux.c
-index 793c0cec407f9..5fcffb29317e3 100644
---- a/drivers/gpu/drm/amd/display/dc/dce/dce_aux.c
-+++ b/drivers/gpu/drm/amd/display/dc/dce/dce_aux.c
-@@ -398,7 +398,7 @@ static bool acquire(
- {
- 	enum gpio_result result;
+diff --git a/drivers/gpu/drm/amd/display/dc/clk_mgr/Makefile b/drivers/gpu/drm/amd/display/dc/clk_mgr/Makefile
+index b864869cc7e3e..6fa7422c51da5 100644
+--- a/drivers/gpu/drm/amd/display/dc/clk_mgr/Makefile
++++ b/drivers/gpu/drm/amd/display/dc/clk_mgr/Makefile
+@@ -91,6 +91,12 @@ ifdef CONFIG_DRM_AMD_DC_DCN2_1
+ ###############################################################################
+ CLK_MGR_DCN21 = rn_clk_mgr.o rn_clk_mgr_vbios_smu.o
  
--	if (!is_engine_available(engine))
-+	if ((engine == NULL) || !is_engine_available(engine))
- 		return false;
++# prevent build errors regarding soft-float vs hard-float FP ABI tags
++# this code is currently unused on ppc64, as it applies to Renoir APUs only
++ifdef CONFIG_PPC64
++CFLAGS_$(AMDDALPATH)/dc/clk_mgr/dcn21/rn_clk_mgr.o := $(call cc-option,-mno-gnu-attribute)
++endif
++
+ AMD_DAL_CLK_MGR_DCN21 = $(addprefix $(AMDDALPATH)/dc/clk_mgr/dcn21/,$(CLK_MGR_DCN21))
  
- 	result = dal_ddc_open(ddc, GPIO_MODE_HARDWARE,
+ AMD_DISPLAY_FILES += $(AMD_DAL_CLK_MGR_DCN21)
 -- 
 2.20.1
 
