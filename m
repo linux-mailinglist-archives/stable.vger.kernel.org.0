@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B5579177EA8
-	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 19:56:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9624A177EAE
+	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 19:56:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730938AbgCCRpb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Mar 2020 12:45:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51592 "EHLO mail.kernel.org"
+        id S1730710AbgCCRpz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Mar 2020 12:45:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52162 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730935AbgCCRpa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Mar 2020 12:45:30 -0500
+        id S1731014AbgCCRpw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Mar 2020 12:45:52 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F3C1A208C3;
-        Tue,  3 Mar 2020 17:45:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0A4BD2146E;
+        Tue,  3 Mar 2020 17:45:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583257530;
-        bh=Rqp/ARyYPO2zu40G6KAp2PLfdRwHjZ7O81/4Wjtotyk=;
+        s=default; t=1583257552;
+        bh=YMgHlrtuiwKldkGHm/KTntARREeMaVQs7JX9vfA0P9U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H78A7KgTSyLwzX1XPWrprnqSGRg+T+DlDTrXuR7lJRMVQHNUhKTAbP3ypijE8kPlh
-         UH/aMWatdOVSyDdFgQoTgAFv6+rW4X+WIu5qfd9Iqs1BuXVb0ldwi6afKvRS4Pg0+q
-         ZbsJvdSNJCo5ygNm3jsNNCjnUGrqhsVmWU9d0734=
+        b=Uk2Tuz8AlMV4T4dl8o/kvL4Uosh8qggTYhK5Pa/O31w3GAr9FrRTVJ8LiZLaoDUQ3
+         ovpADg16jQ6aPV1/VKBg44KSMaTTmFZWNSJwTbzrI8HmKe+C8Ke6ztXYpHdsirXrXE
+         5VyLZeV50VoiflD9/hLnBmrxraH+rApStQm7jRyI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jethro Beekman <jethro@fortanix.com>,
+        stable@vger.kernel.org,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Claudiu Beznea <claudiu.beznea@microchip.com>,
+        Nicolas Ferre <nicolas.ferre@microchip.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.5 003/176] net: fib_rules: Correctly set table field when table number exceeds 8 bits
-Date:   Tue,  3 Mar 2020 18:41:07 +0100
-Message-Id: <20200303174304.979054909@linuxfoundation.org>
+Subject: [PATCH 5.5 004/176] net: macb: ensure interface is not suspended on at91rm9200
+Date:   Tue,  3 Mar 2020 18:41:08 +0100
+Message-Id: <20200303174305.086161039@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200303174304.593872177@linuxfoundation.org>
 References: <20200303174304.593872177@linuxfoundation.org>
@@ -43,31 +46,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jethro Beekman <jethro@fortanix.com>
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
 
-[ Upstream commit 540e585a79e9d643ede077b73bcc7aa2d7b4d919 ]
+[ Upstream commit e6a41c23df0d5da01540d2abef41591589c0b4be ]
 
-In 709772e6e06564ed94ba740de70185ac3d792773, RT_TABLE_COMPAT was added to
-allow legacy software to deal with routing table numbers >= 256, but the
-same change to FIB rule queries was overlooked.
+Because of autosuspend, at91ether_start is called with clocks disabled.
+Ensure that pm_runtime doesn't suspend the interface as soon as it is
+opened as there is no pm_runtime support is the other relevant parts of the
+platform support for at91rm9200.
 
-Signed-off-by: Jethro Beekman <jethro@fortanix.com>
+Fixes: d54f89af6cc4 ("net: macb: Add pm runtime support")
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Reviewed-by: Claudiu Beznea <claudiu.beznea@microchip.com>
+Acked-by: Nicolas Ferre <nicolas.ferre@microchip.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/core/fib_rules.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/cadence/macb_main.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/net/core/fib_rules.c
-+++ b/net/core/fib_rules.c
-@@ -974,7 +974,7 @@ static int fib_nl_fill_rule(struct sk_bu
+--- a/drivers/net/ethernet/cadence/macb_main.c
++++ b/drivers/net/ethernet/cadence/macb_main.c
+@@ -3751,6 +3751,10 @@ static int at91ether_open(struct net_dev
+ 	u32 ctl;
+ 	int ret;
  
- 	frh = nlmsg_data(nlh);
- 	frh->family = ops->family;
--	frh->table = rule->table;
-+	frh->table = rule->table < 256 ? rule->table : RT_TABLE_COMPAT;
- 	if (nla_put_u32(skb, FRA_TABLE, rule->table))
- 		goto nla_put_failure;
- 	if (nla_put_u32(skb, FRA_SUPPRESS_PREFIXLEN, rule->suppress_prefixlen))
++	ret = pm_runtime_get_sync(&lp->pdev->dev);
++	if (ret < 0)
++		return ret;
++
+ 	/* Clear internal statistics */
+ 	ctl = macb_readl(lp, NCR);
+ 	macb_writel(lp, NCR, ctl | MACB_BIT(CLRSTAT));
+@@ -3815,7 +3819,7 @@ static int at91ether_close(struct net_de
+ 			  q->rx_buffers, q->rx_buffers_dma);
+ 	q->rx_buffers = NULL;
+ 
+-	return 0;
++	return pm_runtime_put(&lp->pdev->dev);
+ }
+ 
+ /* Transmit packet */
 
 
