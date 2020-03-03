@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 88EE6178208
-	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 20:03:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8DB921780F7
+	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 20:01:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729625AbgCCSLy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Mar 2020 13:11:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56468 "EHLO mail.kernel.org"
+        id S2387670AbgCCR7w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Mar 2020 12:59:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43334 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731743AbgCCRtN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Mar 2020 12:49:13 -0500
+        id S2387667AbgCCR7w (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Mar 2020 12:59:52 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E339F214D8;
-        Tue,  3 Mar 2020 17:49:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C5F4A20656;
+        Tue,  3 Mar 2020 17:59:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583257752;
-        bh=hi2YvfoQlcBQq7bi3vtsjrIKcqdT+5CigMVX5uC+INs=;
+        s=default; t=1583258391;
+        bh=aB3TXAkzTHdlcxoRAps//aXWMLGnkW/Qazh6jB3T+1U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VOcCkMrwjIbtVI1Nao8NzIE5pSensCeBqo9AYZqwm+Xts+OQ/i7o95J8jq0BLhY3l
-         Zz0gCVw5NpOPSPZuwAi3UC8mloL+uR/InO5Z2JAuI/vZlSQyu5+mt2jDtZZTBn45f4
-         ur/N1X0jz/f0k9iw+v+6u3lIFPtoz4rdUDHHlvm4=
+        b=AdZVyfoC7cSxLVJYq9k0+tlo/wvKYZoo3lPXZzLBlzgf2G7RYcnil2UIJTrxWROQy
+         LkdGJGk/lEbJNwQxQ28kDlhIqKK6n1zlVENpkhEgzaNL+uf1PGhDmpUUBXzWxeeAIa
+         132y4duIbXPrewphU98j4eH0mWo+h0ragZ27iZAQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chris Wilson <chris@chris-wilson.co.uk>,
-        Tvrtko Ursulin <tvrtko.ursulin@intel.com>,
-        Jani Nikula <jani.nikula@intel.com>
-Subject: [PATCH 5.5 116/176] drm/i915: Avoid recursing onto active vma from the shrinker
+        stable@vger.kernel.org,
+        Harald Freudenberger <freude@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 09/87] s390/zcrypt: fix card and queue total counter wrap
 Date:   Tue,  3 Mar 2020 18:43:00 +0100
-Message-Id: <20200303174318.245919059@linuxfoundation.org>
+Message-Id: <20200303174349.864204285@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200303174304.593872177@linuxfoundation.org>
-References: <20200303174304.593872177@linuxfoundation.org>
+In-Reply-To: <20200303174349.075101355@linuxfoundation.org>
+References: <20200303174349.075101355@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,78 +45,173 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Wilson <chris@chris-wilson.co.uk>
+From: Harald Freudenberger <freude@linux.ibm.com>
 
-commit 238734262142075056653b4de091458e0ca858f2 upstream.
+[ Upstream commit fcd98d4002539f1e381916fc1b6648938c1eac76 ]
 
-We mark the vma as active while binding it in order to protect outselves
-from being shrunk under mempressure. This only works if we are strict in
-not attempting to shrink active objects.
+The internal statistic counters for the total number of
+requests processed per card and per queue used integers. So they do
+wrap after a rather huge amount of crypto requests processed. This
+patch introduces uint64 counters which should hold much longer but
+still may wrap. The sysfs attributes request_count for card and queue
+also used only %ld and now display the counter value with %llu.
 
-<6> [472.618968] Workqueue: events_unbound fence_work [i915]
-<4> [472.618970] Call Trace:
-<4> [472.618974]  ? __schedule+0x2e5/0x810
-<4> [472.618978]  schedule+0x37/0xe0
-<4> [472.618982]  schedule_preempt_disabled+0xf/0x20
-<4> [472.618984]  __mutex_lock+0x281/0x9c0
-<4> [472.618987]  ? mark_held_locks+0x49/0x70
-<4> [472.618989]  ? _raw_spin_unlock_irqrestore+0x47/0x60
-<4> [472.619038]  ? i915_vma_unbind+0xae/0x110 [i915]
-<4> [472.619084]  ? i915_vma_unbind+0xae/0x110 [i915]
-<4> [472.619122]  i915_vma_unbind+0xae/0x110 [i915]
-<4> [472.619165]  i915_gem_object_unbind+0x1dc/0x400 [i915]
-<4> [472.619208]  i915_gem_shrink+0x328/0x660 [i915]
-<4> [472.619250]  ? i915_gem_shrink_all+0x38/0x60 [i915]
-<4> [472.619282]  i915_gem_shrink_all+0x38/0x60 [i915]
-<4> [472.619325]  vm_alloc_page.constprop.25+0x1aa/0x240 [i915]
-<4> [472.619330]  ? rcu_read_lock_sched_held+0x4d/0x80
-<4> [472.619363]  ? __alloc_pd+0xb/0x30 [i915]
-<4> [472.619366]  ? module_assert_mutex_or_preempt+0xf/0x30
-<4> [472.619368]  ? __module_address+0x23/0xe0
-<4> [472.619371]  ? is_module_address+0x26/0x40
-<4> [472.619374]  ? static_obj+0x34/0x50
-<4> [472.619376]  ? lockdep_init_map+0x4d/0x1e0
-<4> [472.619407]  setup_page_dma+0xd/0x90 [i915]
-<4> [472.619437]  alloc_pd+0x29/0x50 [i915]
-<4> [472.619470]  __gen8_ppgtt_alloc+0x443/0x6b0 [i915]
-<4> [472.619503]  gen8_ppgtt_alloc+0xd7/0x300 [i915]
-<4> [472.619535]  ppgtt_bind_vma+0x2a/0xe0 [i915]
-<4> [472.619577]  __vma_bind+0x26/0x40 [i915]
-<4> [472.619611]  fence_work+0x1c/0x90 [i915]
-<4> [472.619617]  process_one_work+0x26a/0x620
+This is not a security relevant fix. The int overflow which happened
+is not in any way exploitable as a security breach.
 
-Fixes: 2850748ef876 ("drm/i915: Pull i915_vma_pin under the vm->mutex")
-Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Cc: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-Reviewed-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200221221818.2861432-1-chris@chris-wilson.co.uk
-(cherry picked from commit 6f24e41022f28061368776ea1514db0a6e67a9b1)
-Signed-off-by: Jani Nikula <jani.nikula@intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/i915/gem/i915_gem_shrinker.c |    4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ drivers/s390/crypto/ap_bus.h     |  4 ++--
+ drivers/s390/crypto/ap_card.c    |  8 ++++----
+ drivers/s390/crypto/ap_queue.c   |  6 +++---
+ drivers/s390/crypto/zcrypt_api.c | 16 +++++++++-------
+ 4 files changed, 18 insertions(+), 16 deletions(-)
 
---- a/drivers/gpu/drm/i915/gem/i915_gem_shrinker.c
-+++ b/drivers/gpu/drm/i915/gem/i915_gem_shrinker.c
-@@ -257,8 +257,7 @@ unsigned long i915_gem_shrink_all(struct
- 	with_intel_runtime_pm(&i915->runtime_pm, wakeref) {
- 		freed = i915_gem_shrink(i915, -1UL, NULL,
- 					I915_SHRINK_BOUND |
--					I915_SHRINK_UNBOUND |
--					I915_SHRINK_ACTIVE);
-+					I915_SHRINK_UNBOUND);
- 	}
+diff --git a/drivers/s390/crypto/ap_bus.h b/drivers/s390/crypto/ap_bus.h
+index 7e85d238767ba..1c799ddd97092 100644
+--- a/drivers/s390/crypto/ap_bus.h
++++ b/drivers/s390/crypto/ap_bus.h
+@@ -158,7 +158,7 @@ struct ap_card {
+ 	unsigned int functions;		/* AP device function bitfield. */
+ 	int queue_depth;		/* AP queue depth.*/
+ 	int id;				/* AP card number. */
+-	atomic_t total_request_count;	/* # requests ever for this AP device.*/
++	atomic64_t total_request_count;	/* # requests ever for this AP device.*/
+ };
  
- 	return freed;
-@@ -337,7 +336,6 @@ i915_gem_shrinker_oom(struct notifier_bl
- 	freed_pages = 0;
- 	with_intel_runtime_pm(&i915->runtime_pm, wakeref)
- 		freed_pages += i915_gem_shrink(i915, -1UL, NULL,
--					       I915_SHRINK_ACTIVE |
- 					       I915_SHRINK_BOUND |
- 					       I915_SHRINK_UNBOUND |
- 					       I915_SHRINK_WRITEBACK);
+ #define to_ap_card(x) container_of((x), struct ap_card, ap_dev.device)
+@@ -175,7 +175,7 @@ struct ap_queue {
+ 	enum ap_state state;		/* State of the AP device. */
+ 	int pendingq_count;		/* # requests on pendingq list. */
+ 	int requestq_count;		/* # requests on requestq list. */
+-	int total_request_count;	/* # requests ever for this AP device.*/
++	u64 total_request_count;	/* # requests ever for this AP device.*/
+ 	int request_timeout;		/* Request timeout in jiffies. */
+ 	struct timer_list timeout;	/* Timer for request timeouts. */
+ 	struct list_head pendingq;	/* List of message sent to AP queue. */
+diff --git a/drivers/s390/crypto/ap_card.c b/drivers/s390/crypto/ap_card.c
+index 63b4cc6cd7e59..e85bfca1ed163 100644
+--- a/drivers/s390/crypto/ap_card.c
++++ b/drivers/s390/crypto/ap_card.c
+@@ -63,13 +63,13 @@ static ssize_t request_count_show(struct device *dev,
+ 				  char *buf)
+ {
+ 	struct ap_card *ac = to_ap_card(dev);
+-	unsigned int req_cnt;
++	u64 req_cnt;
+ 
+ 	req_cnt = 0;
+ 	spin_lock_bh(&ap_list_lock);
+-	req_cnt = atomic_read(&ac->total_request_count);
++	req_cnt = atomic64_read(&ac->total_request_count);
+ 	spin_unlock_bh(&ap_list_lock);
+-	return snprintf(buf, PAGE_SIZE, "%d\n", req_cnt);
++	return snprintf(buf, PAGE_SIZE, "%llu\n", req_cnt);
+ }
+ 
+ static ssize_t request_count_store(struct device *dev,
+@@ -83,7 +83,7 @@ static ssize_t request_count_store(struct device *dev,
+ 	for_each_ap_queue(aq, ac)
+ 		aq->total_request_count = 0;
+ 	spin_unlock_bh(&ap_list_lock);
+-	atomic_set(&ac->total_request_count, 0);
++	atomic64_set(&ac->total_request_count, 0);
+ 
+ 	return count;
+ }
+diff --git a/drivers/s390/crypto/ap_queue.c b/drivers/s390/crypto/ap_queue.c
+index 576ac08777c50..e1647da122f7f 100644
+--- a/drivers/s390/crypto/ap_queue.c
++++ b/drivers/s390/crypto/ap_queue.c
+@@ -470,12 +470,12 @@ static ssize_t request_count_show(struct device *dev,
+ 				  char *buf)
+ {
+ 	struct ap_queue *aq = to_ap_queue(dev);
+-	unsigned int req_cnt;
++	u64 req_cnt;
+ 
+ 	spin_lock_bh(&aq->lock);
+ 	req_cnt = aq->total_request_count;
+ 	spin_unlock_bh(&aq->lock);
+-	return snprintf(buf, PAGE_SIZE, "%d\n", req_cnt);
++	return snprintf(buf, PAGE_SIZE, "%llu\n", req_cnt);
+ }
+ 
+ static ssize_t request_count_store(struct device *dev,
+@@ -667,7 +667,7 @@ void ap_queue_message(struct ap_queue *aq, struct ap_message *ap_msg)
+ 	list_add_tail(&ap_msg->list, &aq->requestq);
+ 	aq->requestq_count++;
+ 	aq->total_request_count++;
+-	atomic_inc(&aq->card->total_request_count);
++	atomic64_inc(&aq->card->total_request_count);
+ 	/* Send/receive as many request from the queue as possible. */
+ 	ap_wait(ap_sm_event_loop(aq, AP_EVENT_POLL));
+ 	spin_unlock_bh(&aq->lock);
+diff --git a/drivers/s390/crypto/zcrypt_api.c b/drivers/s390/crypto/zcrypt_api.c
+index b2737bfeb8bb6..23c24a699cefe 100644
+--- a/drivers/s390/crypto/zcrypt_api.c
++++ b/drivers/s390/crypto/zcrypt_api.c
+@@ -190,8 +190,8 @@ static inline bool zcrypt_card_compare(struct zcrypt_card *zc,
+ 	weight += atomic_read(&zc->load);
+ 	pref_weight += atomic_read(&pref_zc->load);
+ 	if (weight == pref_weight)
+-		return atomic_read(&zc->card->total_request_count) >
+-			atomic_read(&pref_zc->card->total_request_count);
++		return atomic64_read(&zc->card->total_request_count) >
++			atomic64_read(&pref_zc->card->total_request_count);
+ 	return weight > pref_weight;
+ }
+ 
+@@ -719,11 +719,12 @@ static void zcrypt_qdepth_mask(char qdepth[], size_t max_adapters)
+ 	spin_unlock(&zcrypt_list_lock);
+ }
+ 
+-static void zcrypt_perdev_reqcnt(int reqcnt[], size_t max_adapters)
++static void zcrypt_perdev_reqcnt(u32 reqcnt[], size_t max_adapters)
+ {
+ 	struct zcrypt_card *zc;
+ 	struct zcrypt_queue *zq;
+ 	int card;
++	u64 cnt;
+ 
+ 	memset(reqcnt, 0, sizeof(int) * max_adapters);
+ 	spin_lock(&zcrypt_list_lock);
+@@ -735,8 +736,9 @@ static void zcrypt_perdev_reqcnt(int reqcnt[], size_t max_adapters)
+ 			    || card >= max_adapters)
+ 				continue;
+ 			spin_lock(&zq->queue->lock);
+-			reqcnt[card] = zq->queue->total_request_count;
++			cnt = zq->queue->total_request_count;
+ 			spin_unlock(&zq->queue->lock);
++			reqcnt[card] = (cnt < UINT_MAX) ? (u32) cnt : UINT_MAX;
+ 		}
+ 	}
+ 	local_bh_enable();
+@@ -907,9 +909,9 @@ static long zcrypt_unlocked_ioctl(struct file *filp, unsigned int cmd,
+ 		return 0;
+ 	}
+ 	case ZCRYPT_PERDEV_REQCNT: {
+-		int *reqcnt;
++		u32 *reqcnt;
+ 
+-		reqcnt = kcalloc(AP_DEVICES, sizeof(int), GFP_KERNEL);
++		reqcnt = kcalloc(AP_DEVICES, sizeof(u32), GFP_KERNEL);
+ 		if (!reqcnt)
+ 			return -ENOMEM;
+ 		zcrypt_perdev_reqcnt(reqcnt, AP_DEVICES);
+@@ -966,7 +968,7 @@ static long zcrypt_unlocked_ioctl(struct file *filp, unsigned int cmd,
+ 	}
+ 	case Z90STAT_PERDEV_REQCNT: {
+ 		/* the old ioctl supports only 64 adapters */
+-		int reqcnt[MAX_ZDEV_CARDIDS];
++		u32 reqcnt[MAX_ZDEV_CARDIDS];
+ 
+ 		zcrypt_perdev_reqcnt(reqcnt, MAX_ZDEV_CARDIDS);
+ 		if (copy_to_user((int __user *) arg, reqcnt, sizeof(reqcnt)))
+-- 
+2.20.1
+
 
 
