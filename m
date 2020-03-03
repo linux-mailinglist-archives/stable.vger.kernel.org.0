@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A07EC178067
-	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 19:59:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1DC19177F8E
+	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 19:58:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732926AbgCCR4g (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Mar 2020 12:56:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38780 "EHLO mail.kernel.org"
+        id S1731735AbgCCRvg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Mar 2020 12:51:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59692 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732616AbgCCR4c (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Mar 2020 12:56:32 -0500
+        id S1731511AbgCCRvf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Mar 2020 12:51:35 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EF12C20656;
-        Tue,  3 Mar 2020 17:56:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D962820728;
+        Tue,  3 Mar 2020 17:51:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583258192;
-        bh=cb8y8QAIKJEZ/s6kUey14C4RaZL75F8O2HRemztVjCA=;
+        s=default; t=1583257894;
+        bh=TWaHQuaX+udslyLnLdBDaWL8PltVKCSg+RqVLp2g4R8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fytTEX8kT1OFHiAzrtulqM37QxMdqdTLzub/bwzh9fZtzscJU1NNvAAVEiAiv0cac
-         SPXrdAD+3NnziBcbUVG8Isrqeeho4+BmMuNFiEDsJ5JVzRsNTtcOwcVy/uHToLSiOu
-         IiIPRk7uPZjk4wfNSndhRtJg/PQSx/2foIPR/AXU=
+        b=OchWDomYLscnVZNWQHHKP3rDG+Vu18ic93epn4Tfjq9RMjTuZe5U1R2SprX9PrkKM
+         3f1NW5B+eZniHz3vVTp1DzzUA6x6On++LzyhnU8DqbOSrJiI1xjsaE9O17VUTpdOG/
+         EJzVfE27QFDxEsXzVe8hWKqzF2bFGHd7wx90x6sw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Christophe Vu-Brugier <cvubrugier@fastmail.fm>,
-        Igor Russkikh <irusskikh@marvell.com>,
-        Pavel Belous <pbelous@marvell.com>,
-        Dmitry Bogdanov <dbogdanov@marvell.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 107/152] net: atlantic: fix use after free kasan warn
+        Sean Christopherson <sean.j.christopherson@intel.com>,
+        Tom Lendacky <thomas.lendacky@amd.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.5 141/176] KVM: SVM: Override default MMIO mask if memory encryption is enabled
 Date:   Tue,  3 Mar 2020 18:43:25 +0100
-Message-Id: <20200303174314.806720778@linuxfoundation.org>
+Message-Id: <20200303174321.097546108@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200303174302.523080016@linuxfoundation.org>
-References: <20200303174302.523080016@linuxfoundation.org>
+In-Reply-To: <20200303174304.593872177@linuxfoundation.org>
+References: <20200303174304.593872177@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,62 +45,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Belous <pbelous@marvell.com>
+From: Tom Lendacky <thomas.lendacky@amd.com>
 
-commit a4980919ad6a7be548d499bc5338015e1a9191c6 upstream.
+commit 52918ed5fcf05d97d257f4131e19479da18f5d16 upstream.
 
-skb->len is used to calculate statistics after xmit invocation.
+The KVM MMIO support uses bit 51 as the reserved bit to cause nested page
+faults when a guest performs MMIO. The AMD memory encryption support uses
+a CPUID function to define the encryption bit position. Given this, it is
+possible that these bits can conflict.
 
-Under a stress load it may happen that skb will be xmited,
-rx interrupt will come and skb will be freed, all before xmit function
-is even returned.
+Use svm_hardware_setup() to override the MMIO mask if memory encryption
+support is enabled. Various checks are performed to ensure that the mask
+is properly defined and rsvd_bits() is used to generate the new mask (as
+was done prior to the change that necessitated this patch).
 
-Eventually, skb->len will access unallocated area.
-
-Moving stats calculation into tx_clean routine.
-
-Fixes: 018423e90bee ("net: ethernet: aquantia: Add ring support code")
-Reported-by: Christophe Vu-Brugier <cvubrugier@fastmail.fm>
-Signed-off-by: Igor Russkikh <irusskikh@marvell.com>
-Signed-off-by: Pavel Belous <pbelous@marvell.com>
-Signed-off-by: Dmitry Bogdanov <dbogdanov@marvell.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 28a1f3ac1d0c ("kvm: x86: Set highest physical address bits in non-present/reserved SPTEs")
+Suggested-by: Sean Christopherson <sean.j.christopherson@intel.com>
+Reviewed-by: Sean Christopherson <sean.j.christopherson@intel.com>
+Signed-off-by: Tom Lendacky <thomas.lendacky@amd.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/ethernet/aquantia/atlantic/aq_nic.c  |    4 ----
- drivers/net/ethernet/aquantia/atlantic/aq_ring.c |    7 +++++--
- 2 files changed, 5 insertions(+), 6 deletions(-)
+ arch/x86/kvm/svm.c |   43 +++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 43 insertions(+)
 
---- a/drivers/net/ethernet/aquantia/atlantic/aq_nic.c
-+++ b/drivers/net/ethernet/aquantia/atlantic/aq_nic.c
-@@ -598,10 +598,6 @@ int aq_nic_xmit(struct aq_nic_s *self, s
- 	if (likely(frags)) {
- 		err = self->aq_hw_ops->hw_ring_tx_xmit(self->aq_hw,
- 						       ring, frags);
--		if (err >= 0) {
--			++ring->stats.tx.packets;
--			ring->stats.tx.bytes += skb->len;
--		}
- 	} else {
- 		err = NETDEV_TX_BUSY;
+--- a/arch/x86/kvm/svm.c
++++ b/arch/x86/kvm/svm.c
+@@ -1307,6 +1307,47 @@ static void shrink_ple_window(struct kvm
  	}
---- a/drivers/net/ethernet/aquantia/atlantic/aq_ring.c
-+++ b/drivers/net/ethernet/aquantia/atlantic/aq_ring.c
-@@ -243,9 +243,12 @@ bool aq_ring_tx_clean(struct aq_ring_s *
- 			}
+ }
+ 
++/*
++ * The default MMIO mask is a single bit (excluding the present bit),
++ * which could conflict with the memory encryption bit. Check for
++ * memory encryption support and override the default MMIO mask if
++ * memory encryption is enabled.
++ */
++static __init void svm_adjust_mmio_mask(void)
++{
++	unsigned int enc_bit, mask_bit;
++	u64 msr, mask;
++
++	/* If there is no memory encryption support, use existing mask */
++	if (cpuid_eax(0x80000000) < 0x8000001f)
++		return;
++
++	/* If memory encryption is not enabled, use existing mask */
++	rdmsrl(MSR_K8_SYSCFG, msr);
++	if (!(msr & MSR_K8_SYSCFG_MEM_ENCRYPT))
++		return;
++
++	enc_bit = cpuid_ebx(0x8000001f) & 0x3f;
++	mask_bit = boot_cpu_data.x86_phys_bits;
++
++	/* Increment the mask bit if it is the same as the encryption bit */
++	if (enc_bit == mask_bit)
++		mask_bit++;
++
++	/*
++	 * If the mask bit location is below 52, then some bits above the
++	 * physical addressing limit will always be reserved, so use the
++	 * rsvd_bits() function to generate the mask. This mask, along with
++	 * the present bit, will be used to generate a page fault with
++	 * PFER.RSV = 1.
++	 *
++	 * If the mask bit location is 52 (or above), then clear the mask.
++	 */
++	mask = (mask_bit < 52) ? rsvd_bits(mask_bit, 51) | PT_PRESENT_MASK : 0;
++
++	kvm_mmu_set_mmio_spte_mask(mask, mask, PT_WRITABLE_MASK | PT_USER_MASK);
++}
++
+ static __init int svm_hardware_setup(void)
+ {
+ 	int cpu;
+@@ -1361,6 +1402,8 @@ static __init int svm_hardware_setup(voi
  		}
+ 	}
  
--		if (unlikely(buff->is_eop))
--			dev_kfree_skb_any(buff->skb);
-+		if (unlikely(buff->is_eop)) {
-+			++self->stats.rx.packets;
-+			self->stats.tx.bytes += buff->skb->len;
- 
-+			dev_kfree_skb_any(buff->skb);
-+		}
- 		buff->pa = 0U;
- 		buff->eop_index = 0xffffU;
- 		self->sw_head = aq_ring_next_dx(self, self->sw_head);
++	svm_adjust_mmio_mask();
++
+ 	for_each_possible_cpu(cpu) {
+ 		r = svm_cpu_init(cpu);
+ 		if (r)
 
 
