@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 05CED1780E1
-	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 20:00:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D73F21780E5
+	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 20:00:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387565AbgCCR7T (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Mar 2020 12:59:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42524 "EHLO mail.kernel.org"
+        id S2387598AbgCCR7X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Mar 2020 12:59:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42640 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732663AbgCCR7S (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Mar 2020 12:59:18 -0500
+        id S1731109AbgCCR7X (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Mar 2020 12:59:23 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C950220CC7;
-        Tue,  3 Mar 2020 17:59:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0114B20870;
+        Tue,  3 Mar 2020 17:59:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583258357;
-        bh=osVklB8pscuOnNSyEep2Q6rChRj+SW+wKvUMrT7fdAw=;
+        s=default; t=1583258362;
+        bh=zGGFlC45Ss+kUat2WZSaxY+SC7iXu20FUF8Aw8wQ1Yo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ma7dcFOXg9aUCRk4znsnDEtpkl5Na547GGkMdfLxx36TRxVgPIzoIO7ixdnkJ6VH9
-         jK3tXfXlUZMxv6NVTRw7oo7N0h1sGaXWTSu/mO+TqXiWKyvPU/rjYOBLk3YtRNBQ6l
-         szK3eGkUmOlIyU6jr9+PrwzSJEm/aXkNYM/Yfb0M=
+        b=VgVP9jCspfIWRyJoQSGh3Z7R00gOQoufN9IFzXJ0KsW2xf5t/vmPLy51ezju5z5kG
+         p4ftwUiEG1e54boXJNnida+DL3/x7prESJO36BddH2OSYEiL4lCq42L1/ZbE5C1gKV
+         0h16fDwYTE9ZWL9bALOYUTU/i8eEsbL7y5m/HdxQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Sameeh Jubran <sameehj@amazon.com>,
+        Arthur Kiyanovski <akiyano@amazon.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 19/87] net: ena: rss: fix failure to get indirection table
-Date:   Tue,  3 Mar 2020 18:43:10 +0100
-Message-Id: <20200303174351.814793624@linuxfoundation.org>
+Subject: [PATCH 4.19 20/87] net: ena: rss: store hash function as values and not bits
+Date:   Tue,  3 Mar 2020 18:43:11 +0100
+Message-Id: <20200303174351.885129454@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200303174349.075101355@linuxfoundation.org>
 References: <20200303174349.075101355@linuxfoundation.org>
@@ -44,49 +45,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sameeh Jubran <sameehj@amazon.com>
+From: Arthur Kiyanovski <akiyano@amazon.com>
 
-[ Upstream commit 0c8923c0a64fb5d14bebb9a9065d2dc25ac5e600 ]
+[ Upstream commit 4844470d472d660c26149ad764da2406adb13423 ]
 
-On old hardware, getting / setting the hash function is not supported while
-gettting / setting the indirection table is.
+The device receives, stores and retrieves the hash function value as bits
+and not as their enum value.
 
-This commit enables us to still show the indirection table on older
-hardwares by setting the hash function and key to NULL.
+The bug:
+* In ena_com_set_hash_function() we set
+  cmd.u.flow_hash_func.selected_func to the bit value of rss->hash_func.
+ (1 << rss->hash_func)
+* In ena_com_get_hash_function() we retrieve the hash function and store
+  it's bit value in rss->hash_func. (Now the bit value of rss->hash_func
+  is stored in rss->hash_func instead of it's enum value)
+
+The fix:
+This commit fixes the issue by converting the retrieved hash function
+values from the device to the matching enum value of the set bit using
+ffs(). ffs() finds the first set bit's index in a word. Since the function
+returns 1 for the LSB's index, we need to subtract 1 from the returned
+value (note that BIT(0) is 1).
 
 Fixes: 1738cd3ed342 ("net: ena: Add a driver for Amazon Elastic Network Adapters (ENA)")
 Signed-off-by: Sameeh Jubran <sameehj@amazon.com>
+Signed-off-by: Arthur Kiyanovski <akiyano@amazon.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/amazon/ena/ena_ethtool.c | 14 ++++++++++++++
- 1 file changed, 14 insertions(+)
+ drivers/net/ethernet/amazon/ena/ena_com.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/amazon/ena/ena_ethtool.c b/drivers/net/ethernet/amazon/ena/ena_ethtool.c
-index 237fbcac734f5..dc63aa912aebb 100644
---- a/drivers/net/ethernet/amazon/ena/ena_ethtool.c
-+++ b/drivers/net/ethernet/amazon/ena/ena_ethtool.c
-@@ -661,7 +661,21 @@ static int ena_get_rxfh(struct net_device *netdev, u32 *indir, u8 *key,
- 	if (rc)
+diff --git a/drivers/net/ethernet/amazon/ena/ena_com.c b/drivers/net/ethernet/amazon/ena/ena_com.c
+index ebc36d15441ce..397fb49156a9a 100644
+--- a/drivers/net/ethernet/amazon/ena/ena_com.c
++++ b/drivers/net/ethernet/amazon/ena/ena_com.c
+@@ -2134,7 +2134,11 @@ int ena_com_get_hash_function(struct ena_com_dev *ena_dev,
+ 	if (unlikely(rc))
  		return rc;
  
-+	/* We call this function in order to check if the device
-+	 * supports getting/setting the hash function.
-+	 */
- 	rc = ena_com_get_hash_function(adapter->ena_dev, &ena_func, key);
+-	rss->hash_func = get_resp.u.flow_hash_func.selected_func;
++	/* ffs() returns 1 in case the lsb is set */
++	rss->hash_func = ffs(get_resp.u.flow_hash_func.selected_func);
++	if (rss->hash_func)
++		rss->hash_func--;
 +
-+	if (rc) {
-+		if (rc == -EOPNOTSUPP) {
-+			key = NULL;
-+			hfunc = NULL;
-+			rc = 0;
-+		}
-+
-+		return rc;
-+	}
-+
- 	if (rc)
- 		return rc;
+ 	if (func)
+ 		*func = rss->hash_func;
  
 -- 
 2.20.1
