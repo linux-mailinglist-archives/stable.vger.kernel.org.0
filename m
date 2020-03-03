@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 30007176D33
-	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 04:01:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C4633176D30
+	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 04:01:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727744AbgCCCqy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Mar 2020 21:46:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41554 "EHLO mail.kernel.org"
+        id S1727306AbgCCDBl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Mar 2020 22:01:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41578 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727741AbgCCCqy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Mar 2020 21:46:54 -0500
+        id S1727756AbgCCCqz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Mar 2020 21:46:55 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8193D2468E;
-        Tue,  3 Mar 2020 02:46:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0CE262467B;
+        Tue,  3 Mar 2020 02:46:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583203613;
-        bh=Mjr8p/amJM9wauP7cjfYWFgUdhkwPRVjWxmuUOITXDE=;
+        s=default; t=1583203614;
+        bh=Bw5L/N+y1E8YonaSDSIpIm8OIL8FvHcVgakmX9TxtIo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Tx6GGr7wlio3vtf6o665i1hRZskn39tfdP3ueCk6NgiHMPNlgPF+3zweUqMQFkp48
-         MPiFm88zhOg4mHjAVqRId74NaVMwcwElJiaMiVtzG3Z60jtFH3zO2+Qej8xoPx1rgo
-         gLQGiR11im/ysCcxEFIaSszS2DVzU2zoXQsw+sxI=
+        b=hv1BlH57cDBKjdhyltbHn4ATKa/m8TAuqOHTvuojBMclal2iCsvoG8zO2cr9/TJ4Z
+         B25VYSRiVhGQDAJr5MXKFP0ITdXKqFPGAs6mBzXZiasxt+kwFkcZCsJCcM06oh+1co
+         +mscwKzwr2Ch++/Eydx5kDEsix/j81XrkezZSXxU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Arun Parameswaran <arun.parameswaran@broadcom.com>,
-        Scott Branden <scott.branden@broadcom.com>,
-        Andrew Lunn <andrew@lunn.ch>,
-        Florian Fainelli <f.fainelli@gmail.com>,
+Cc:     Florian Fainelli <f.fainelli@gmail.com>,
         "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.5 30/66] net: phy: restore mdio regs in the iproc mdio driver
-Date:   Mon,  2 Mar 2020 21:45:39 -0500
-Message-Id: <20200303024615.8889-30-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.5 31/66] net: dsa: b53: Ensure the default VID is untagged
+Date:   Mon,  2 Mar 2020 21:45:40 -0500
+Message-Id: <20200303024615.8889-31-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200303024615.8889-1-sashal@kernel.org>
 References: <20200303024615.8889-1-sashal@kernel.org>
@@ -47,63 +43,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arun Parameswaran <arun.parameswaran@broadcom.com>
+From: Florian Fainelli <f.fainelli@gmail.com>
 
-[ Upstream commit 6f08e98d62799e53c89dbf2c9a49d77e20ca648c ]
+[ Upstream commit d965a5432d4c3e6b9c3d2bc1d4a800013bbf76f6 ]
 
-The mii management register in iproc mdio block
-does not have a retention register so it is lost on suspend.
-Save and restore value of register while resuming from suspend.
+We need to ensure that the default VID is untagged otherwise the switch
+will be sending tagged frames and the results can be problematic. This
+is especially true with b53 switches that use VID 0 as their default
+VLAN since VID 0 has a special meaning.
 
-Fixes: bb1a619735b4 ("net: phy: Initialize mdio clock at probe function")
-Signed-off-by: Arun Parameswaran <arun.parameswaran@broadcom.com>
-Signed-off-by: Scott Branden <scott.branden@broadcom.com>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Fixes: fea83353177a ("net: dsa: b53: Fix default VLAN ID")
+Fixes: 061f6a505ac3 ("net: dsa: Add ndo_vlan_rx_{add, kill}_vid implementation")
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/phy/mdio-bcm-iproc.c | 20 ++++++++++++++++++++
- 1 file changed, 20 insertions(+)
+ drivers/net/dsa/b53/b53_common.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/net/phy/mdio-bcm-iproc.c b/drivers/net/phy/mdio-bcm-iproc.c
-index 7e9975d250669..f1ded03f0229b 100644
---- a/drivers/net/phy/mdio-bcm-iproc.c
-+++ b/drivers/net/phy/mdio-bcm-iproc.c
-@@ -178,6 +178,23 @@ static int iproc_mdio_remove(struct platform_device *pdev)
- 	return 0;
- }
+diff --git a/drivers/net/dsa/b53/b53_common.c b/drivers/net/dsa/b53/b53_common.c
+index 6a1ff4d43e3a6..38b16efda4a9f 100644
+--- a/drivers/net/dsa/b53/b53_common.c
++++ b/drivers/net/dsa/b53/b53_common.c
+@@ -1353,6 +1353,9 @@ void b53_vlan_add(struct dsa_switch *ds, int port,
  
-+#ifdef CONFIG_PM_SLEEP
-+int iproc_mdio_resume(struct device *dev)
-+{
-+	struct platform_device *pdev = to_platform_device(dev);
-+	struct iproc_mdio_priv *priv = platform_get_drvdata(pdev);
+ 		b53_get_vlan_entry(dev, vid, vl);
+ 
++		if (vid == 0 && vid == b53_default_pvid(dev))
++			untagged = true;
 +
-+	/* restore the mii clock configuration */
-+	iproc_mdio_config_clk(priv->base);
-+
-+	return 0;
-+}
-+
-+static const struct dev_pm_ops iproc_mdio_pm_ops = {
-+	.resume = iproc_mdio_resume
-+};
-+#endif /* CONFIG_PM_SLEEP */
-+
- static const struct of_device_id iproc_mdio_of_match[] = {
- 	{ .compatible = "brcm,iproc-mdio", },
- 	{ /* sentinel */ },
-@@ -188,6 +205,9 @@ static struct platform_driver iproc_mdio_driver = {
- 	.driver = {
- 		.name = "iproc-mdio",
- 		.of_match_table = iproc_mdio_of_match,
-+#ifdef CONFIG_PM_SLEEP
-+		.pm = &iproc_mdio_pm_ops,
-+#endif
- 	},
- 	.probe = iproc_mdio_probe,
- 	.remove = iproc_mdio_remove,
+ 		vl->members |= BIT(port);
+ 		if (untagged && !dsa_is_cpu_port(ds, port))
+ 			vl->untag |= BIT(port);
 -- 
 2.20.1
 
