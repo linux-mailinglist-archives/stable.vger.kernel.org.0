@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F1644178076
+	by mail.lfdr.de (Postfix) with ESMTP id 7FAD6178075
 	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 20:00:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732991AbgCCR5A (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1732987AbgCCR5A (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 3 Mar 2020 12:57:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39266 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:39314 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732684AbgCCR4x (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Mar 2020 12:56:53 -0500
+        id S1732476AbgCCR4z (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Mar 2020 12:56:55 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 46BC3206D5;
-        Tue,  3 Mar 2020 17:56:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A8F4020728;
+        Tue,  3 Mar 2020 17:56:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583258212;
-        bh=9FKswDVtYEDyso0kvaoRSlcSlgbB0d/jtyAbq574GS4=;
+        s=default; t=1583258215;
+        bh=EymZWotPYr6FBHlO5nj0ypqTyji9ieLjSv7CM3vEsQw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R5UBDYbGjUzJggUvaQxV2MA/uWdOK0m+SWS0YZC2oBv0HggTKY0gzjxnr3+bm7sVA
-         4ycSEqXQORo1VDy6LDdZFMsSt7cAgUvGz569JhCgqkirDb/XOqHYJl+STtqIupFrAb
-         vKyKXTkR36kDngWEntSTfWSYLqSwPlWAih0k2Ifg=
+        b=rPP751jdISImQSBAp/0mjjshKgiE+Su8IyDHU07lJmr8upf7oLQ0zLV9uWUtb30TF
+         0onHo7hsjeBZQFwDELelW9wG5wGD05G0utRW+leBj21Dsic8BO1txw6ZDZlvJCAr0P
+         2RvqiwcSAN69oEgRWrpnJRwM1+2FK3iZ7NKJOOg8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         Masahiro Yamada <yamada.masahiro@socionext.com>
-Subject: [PATCH 5.4 114/152] kbuild: move headers_check rule to usr/include/Makefile
-Date:   Tue,  3 Mar 2020 18:43:32 +0100
-Message-Id: <20200303174315.704945660@linuxfoundation.org>
+Subject: [PATCH 5.4 115/152] kbuild: remove unneeded variable, single-all
+Date:   Tue,  3 Mar 2020 18:43:33 +0100
+Message-Id: <20200303174315.827055828@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200303174302.523080016@linuxfoundation.org>
 References: <20200303174302.523080016@linuxfoundation.org>
@@ -45,133 +45,33 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Masahiro Yamada <yamada.masahiro@socionext.com>
 
-commit 7ecaf069da52e472d393f03e79d721aabd724166 upstream.
+commit 35e046a203ee3bc8ba9ae3561b50de02646dfb81 upstream.
 
-Currently, some sanity checks for uapi headers are done by
-scripts/headers_check.pl, which is wired up to the 'headers_check'
-target in the top Makefile.
-
-It is true compiling headers has better test coverage, but there
-are still several headers excluded from the compile test. I like
-to keep headers_check.pl for a while, but we can delete a lot of
-code by moving the build rule to usr/include/Makefile.
+When single-build is set, everything in $(MAKECMDGOALS) is a single
+target. You can use $(MAKECMDGOALS) to list out the single targets.
 
 Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- Makefile                     |   11 +++--------
- lib/Kconfig.debug            |   11 -----------
- scripts/Makefile.headersinst |   18 ------------------
- usr/include/Makefile         |    9 ++++++---
- 4 files changed, 9 insertions(+), 40 deletions(-)
+ Makefile |    6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
 --- a/Makefile
 +++ b/Makefile
-@@ -1195,19 +1195,15 @@ headers: $(version_h) scripts_unifdef ua
- 	$(Q)$(MAKE) $(hdr-inst)=include/uapi
- 	$(Q)$(MAKE) $(hdr-inst)=arch/$(SRCARCH)/include/uapi
+@@ -1761,11 +1761,9 @@ tools/%: FORCE
  
-+# Deprecated. It is no-op now.
- PHONY += headers_check
--headers_check: headers
--	$(Q)$(MAKE) $(hdr-inst)=include/uapi HDRCHECK=1
--	$(Q)$(MAKE) $(hdr-inst)=arch/$(SRCARCH)/include/uapi HDRCHECK=1
-+headers_check:
-+	@:
+ ifdef single-build
  
- ifdef CONFIG_HEADERS_INSTALL
- prepare: headers
- endif
- 
--ifdef CONFIG_HEADERS_CHECK
--all: headers_check
--endif
+-single-all := $(filter $(single-targets), $(MAKECMDGOALS))
 -
- PHONY += scripts_unifdef
- scripts_unifdef: scripts_basic
- 	$(Q)$(MAKE) $(build)=scripts scripts/unifdef
-@@ -1475,7 +1471,6 @@ help:
- 	@echo  '  versioncheck    - Sanity check on version.h usage'
- 	@echo  '  includecheck    - Check for duplicate included header files'
- 	@echo  '  export_report   - List the usages of all exported symbols'
--	@echo  '  headers_check   - Sanity check on exported headers'
- 	@echo  '  headerdep       - Detect inclusion cycles in headers'
- 	@echo  '  coccicheck      - Check with Coccinelle'
- 	@echo  ''
---- a/lib/Kconfig.debug
-+++ b/lib/Kconfig.debug
-@@ -299,17 +299,6 @@ config HEADERS_INSTALL
- 	  user-space program samples. It is also needed by some features such
- 	  as uapi header sanity checks.
+ # .ko is special because modpost is needed
+-single-ko := $(sort $(filter %.ko, $(single-all)))
+-single-no-ko := $(sort $(patsubst %.ko,%.mod, $(single-all)))
++single-ko := $(sort $(filter %.ko, $(MAKECMDGOALS)))
++single-no-ko := $(sort $(patsubst %.ko,%.mod, $(MAKECMDGOALS)))
  
--config HEADERS_CHECK
--	bool "Run sanity checks on uapi headers when building 'all'"
--	depends on HEADERS_INSTALL
--	help
--	  This option will run basic sanity checks on uapi headers when
--	  building the 'all' target, for example, ensure that they do not
--	  attempt to include files which were not exported, etc.
--
--	  If you're making modifications to header files which are
--	  relevant for userspace, say 'Y'.
--
- config OPTIMIZE_INLINING
- 	def_bool y
- 	help
---- a/scripts/Makefile.headersinst
-+++ b/scripts/Makefile.headersinst
-@@ -56,9 +56,6 @@ new-dirs      := $(filter-out $(existing
- $(if $(new-dirs), $(shell mkdir -p $(new-dirs)))
- 
- # Rules
--
--ifndef HDRCHECK
--
- quiet_cmd_install = HDRINST $@
-       cmd_install = $(CONFIG_SHELL) $(srctree)/scripts/headers_install.sh $< $@
- 
-@@ -81,21 +78,6 @@ existing-headers := $(filter $(old-heade
- 
- -include $(foreach f,$(existing-headers),$(dir $(f)).$(notdir $(f)).cmd)
- 
--else
--
--quiet_cmd_check = HDRCHK  $<
--      cmd_check = $(PERL) $(srctree)/scripts/headers_check.pl $(dst) $(SRCARCH) $<; touch $@
--
--check-files := $(addsuffix .chk, $(all-headers))
--
--$(check-files): $(dst)/%.chk : $(dst)/% $(srctree)/scripts/headers_check.pl
--	$(call cmd,check)
--
--__headers: $(check-files)
--	@:
--
--endif
--
- PHONY += FORCE
- FORCE:
- 
---- a/usr/include/Makefile
-+++ b/usr/include/Makefile
-@@ -99,11 +99,14 @@ endif
- # asm-generic/*.h is used by asm/*.h, and should not be included directly
- header-test- += asm-generic/%
- 
--extra-y := $(patsubst %.h,%.hdrtest, $(filter-out $(header-test-), \
--		$(patsubst $(obj)/%,%, $(shell find $(obj) -name '*.h'))))
-+extra-y := $(patsubst $(obj)/%.h,%.hdrtest, $(shell find $(obj) -name '*.h'))
- 
- quiet_cmd_hdrtest = HDRTEST $<
--      cmd_hdrtest = $(CC) $(c_flags) -S -o /dev/null -x c /dev/null -include $<; touch $@
-+      cmd_hdrtest = \
-+		$(CC) $(c_flags) -S -o /dev/null -x c /dev/null \
-+			$(if $(filter-out $(header-test-), $*.h), -include $<); \
-+		$(PERL) $(srctree)/scripts/headers_check.pl $(obj) $(SRCARCH) $<; \
-+		touch $@
- 
- $(obj)/%.hdrtest: $(obj)/%.h FORCE
- 	$(call if_changed_dep,hdrtest)
+ $(single-ko): single_modpost
+ 	@:
 
 
