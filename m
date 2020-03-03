@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E6472178114
-	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 20:01:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D68B5178116
+	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 20:01:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387786AbgCCSAa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Mar 2020 13:00:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44264 "EHLO mail.kernel.org"
+        id S1732698AbgCCSAd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Mar 2020 13:00:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44336 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732698AbgCCSA3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Mar 2020 13:00:29 -0500
+        id S2387789AbgCCSAb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Mar 2020 13:00:31 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0CB3720656;
-        Tue,  3 Mar 2020 18:00:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 554612072D;
+        Tue,  3 Mar 2020 18:00:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583258428;
-        bh=CR9I7QqwC+/oTnOtOn4grW4kEncNNrCbaKIoCs6NObY=;
+        s=default; t=1583258430;
+        bh=U6piOsv9XrOS3+z/bq10x+o93s3Fm6OzMZ8TBxCjG9s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EnIQ+EBvpPp3JFLRmgrfEYYkhkfdMXA+5/EnOlBDS4ENrr8S1mHlZcuzOiPzXTfVq
-         ClepWaV2MuXGKZrpb0VG6mpBJVUBVUH/cTsFB83uc650yh7b3ftbH1V2Lvs6BvmU0F
-         2Rc3rESb7Ea9qNQ3MwNW3+UsStZQR8NqDAC96wYE=
+        b=1+n5rT9IZUER7MgjS92PNNBPfZjT+l6WAP8zTibW0fbHwadw7GUyuAgziNRAuiNnS
+         eD2wd3mxsh6WHaCd1h50C67Oh0Ofp9A2DAGfbjYceCDj6Z+h4LubdopBJpwx9koOyf
+         wOM3VTvQSH9wNJsxrgMnE7rFZQXONwmdBsN9qvpU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Johan Korsnes <jkorsnes@cisco.com>,
+        Alan Stern <stern@rowland.harvard.edu>,
         Armando Visconti <armando.visconti@st.com>,
-        Jiri Kosina <jkosina@suse.cz>,
-        Alan Stern <stern@rowland.harvard.edu>
-Subject: [PATCH 4.19 45/87] HID: core: fix off-by-one memset in hid_report_raw_event()
-Date:   Tue,  3 Mar 2020 18:43:36 +0100
-Message-Id: <20200303174354.393268242@linuxfoundation.org>
+        Jiri Kosina <jkosina@suse.cz>
+Subject: [PATCH 4.19 46/87] HID: core: increase HID report buffer size to 8KiB
+Date:   Tue,  3 Mar 2020 18:43:37 +0100
+Message-Id: <20200303174354.490164257@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200303174349.075101355@linuxfoundation.org>
 References: <20200303174349.075101355@linuxfoundation.org>
@@ -47,44 +47,35 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Johan Korsnes <jkorsnes@cisco.com>
 
-commit 5ebdffd25098898aff1249ae2f7dbfddd76d8f8f upstream.
+commit 84a4062632462c4320704fcdf8e99e89e94c0aba upstream.
 
-In case a report is greater than HID_MAX_BUFFER_SIZE, it is truncated,
-but the report-number byte is not correctly handled. This results in a
-off-by-one in the following memset, causing a kernel Oops and ensuing
-system crash.
+We have a HID touch device that reports its opens and shorts test
+results in HID buffers of size 8184 bytes. The maximum size of the HID
+buffer is currently set to 4096 bytes, causing probe of this device to
+fail. With this patch we increase the maximum size of the HID buffer to
+8192 bytes, making device probe and acquisition of said buffers succeed.
 
-Note: With commit 8ec321e96e05 ("HID: Fix slab-out-of-bounds read in
-hid_field_extract") I no longer hit the kernel Oops as we instead fail
-"controlled" at probe if there is a report too long in the HID
-report-descriptor. hid_report_raw_event() is an exported symbol, so
-presumabely we cannot always rely on this being the case.
-
-Fixes: 966922f26c7f ("HID: fix a crash in hid_report_raw_event()
-                     function.")
 Signed-off-by: Johan Korsnes <jkorsnes@cisco.com>
+Cc: Alan Stern <stern@rowland.harvard.edu>
 Cc: Armando Visconti <armando.visconti@st.com>
 Cc: Jiri Kosina <jkosina@suse.cz>
-Cc: Alan Stern <stern@rowland.harvard.edu>
 Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/hid/hid-core.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ include/linux/hid.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -1566,7 +1566,9 @@ int hid_report_raw_event(struct hid_devi
+--- a/include/linux/hid.h
++++ b/include/linux/hid.h
+@@ -495,7 +495,7 @@ struct hid_report_enum {
+ };
  
- 	rsize = ((report->size - 1) >> 3) + 1;
+ #define HID_MIN_BUFFER_SIZE	64		/* make sure there is at least a packet size of space */
+-#define HID_MAX_BUFFER_SIZE	4096		/* 4kb */
++#define HID_MAX_BUFFER_SIZE	8192		/* 8kb */
+ #define HID_CONTROL_FIFO_SIZE	256		/* to init devices with >100 reports */
+ #define HID_OUTPUT_FIFO_SIZE	64
  
--	if (rsize > HID_MAX_BUFFER_SIZE)
-+	if (report_enum->numbered && rsize >= HID_MAX_BUFFER_SIZE)
-+		rsize = HID_MAX_BUFFER_SIZE - 1;
-+	else if (rsize > HID_MAX_BUFFER_SIZE)
- 		rsize = HID_MAX_BUFFER_SIZE;
- 
- 	if (csize < rsize) {
 
 
