@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8BBA4177F18
-	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 19:57:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A3125177FF5
+	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 19:59:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729787AbgCCRsn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Mar 2020 12:48:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55880 "EHLO mail.kernel.org"
+        id S1732434AbgCCRxy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Mar 2020 12:53:54 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34592 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730348AbgCCRsm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Mar 2020 12:48:42 -0500
+        id S1732431AbgCCRxx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Mar 2020 12:53:53 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1ADC720870;
-        Tue,  3 Mar 2020 17:48:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 243092146E;
+        Tue,  3 Mar 2020 17:53:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583257721;
-        bh=YX1TBuFdUVCTm0Ixl1Y81X3tEt1dG0LsEV4R/yy7HiI=;
+        s=default; t=1583258033;
+        bh=DRIj/511LI9YCCerkUGQuQURMrZ2X0geKBW/bOYrSwk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t4U2guOPx6p54Wbph/43IDFh+8pQuWMC2+vm5k9R/T6auNFB8tuKMcBIyp44H2lHX
-         GEieB3EncfKsX+HaxYoJ/MrpkYNEC+6QeEnnczXvNgI3cxQdvyG1s02Z2ltieOFWV+
-         fIdqw1plcbFp1VCy9oiGU7DCdVySB+PkbWhfGqoE=
+        b=nNSkFHdmnvFEd9dPcb/FDGvOw9gG/Qn034rPTs45n/FdtimMqc+zvXObEVyuiRzs0
+         3lV+vA3B8gBMFKbwxSMVs2x23FKUZzUzAb762G2bDCprWDlXwu3of4TMftx32FRljt
+         U2UMzpoyCh1647JSwSmFYa0QO3AuYnZXejBD6kB8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Anton Eidelman <anton@lightbitslabs.com>,
-        Sagi Grimberg <sagi@grimberg.me>,
-        Keith Busch <kbusch@kernel.org>, Jens Axboe <axboe@kernel.dk>,
+        stable@vger.kernel.org, Yongqiang Sun <yongqiang.sun@amd.com>,
+        Eric Yang <eric.yang2@amd.com>,
+        Bhawanpreet Lakha <Bhawanpreet.Lakha@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 078/176] nvme/tcp: fix bug on double requeue when send fails
+Subject: [PATCH 5.4 044/152] drm/amd/display: Limit minimum DPPCLK to 100MHz.
 Date:   Tue,  3 Mar 2020 18:42:22 +0100
-Message-Id: <20200303174313.656931332@linuxfoundation.org>
+Message-Id: <20200303174307.397662650@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200303174304.593872177@linuxfoundation.org>
-References: <20200303174304.593872177@linuxfoundation.org>
+In-Reply-To: <20200303174302.523080016@linuxfoundation.org>
+References: <20200303174302.523080016@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,52 +46,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anton Eidelman <anton@lightbitslabs.com>
+From: Yongqiang Sun <yongqiang.sun@amd.com>
 
-[ Upstream commit 2d570a7c0251c594489a2c16b82b14ae30345c03 ]
+[ Upstream commit 6c81917a0485ee2a1be0dc23321ac10ecfd9578b ]
 
-When nvme_tcp_io_work() fails to send to socket due to
-connection close/reset, error_recovery work is triggered
-from nvme_tcp_state_change() socket callback.
-This cancels all the active requests in the tagset,
-which requeues them.
+[Why]
+Underflow is observed when plug in a 4K@60 monitor with
+1366x768 eDP due to DPPCLK is too low.
 
-The failed request, however, was ended and thus requeued
-individually as well unless send returned -EPIPE.
-Another return code to be treated the same way is -ECONNRESET.
+[How]
+Limit minimum DPPCLK to 100MHz.
 
-Double requeue caused BUG_ON(blk_queued_rq(rq))
-in blk_mq_requeue_request() from either the individual requeue
-of the failed request or the bulk requeue from
-blk_mq_tagset_busy_iter(, nvme_cancel_request, );
-
-Signed-off-by: Anton Eidelman <anton@lightbitslabs.com>
-Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
-Signed-off-by: Keith Busch <kbusch@kernel.org>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Yongqiang Sun <yongqiang.sun@amd.com>
+Reviewed-by: Eric Yang <eric.yang2@amd.com>
+Acked-by: Bhawanpreet Lakha <Bhawanpreet.Lakha@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/tcp.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/amd/display/dc/clk_mgr/dcn21/rn_clk_mgr.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/nvme/host/tcp.c b/drivers/nvme/host/tcp.c
-index 6d43b23a0fc8b..f8fa5c5b79f17 100644
---- a/drivers/nvme/host/tcp.c
-+++ b/drivers/nvme/host/tcp.c
-@@ -1054,7 +1054,12 @@ static void nvme_tcp_io_work(struct work_struct *w)
- 		} else if (unlikely(result < 0)) {
- 			dev_err(queue->ctrl->ctrl.device,
- 				"failed to send request %d\n", result);
--			if (result != -EPIPE)
+diff --git a/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn21/rn_clk_mgr.c b/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn21/rn_clk_mgr.c
+index 787f94d815f42..dd92f9c295b45 100644
+--- a/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn21/rn_clk_mgr.c
++++ b/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn21/rn_clk_mgr.c
+@@ -91,6 +91,12 @@ void rn_update_clocks(struct clk_mgr *clk_mgr_base,
+ 		rn_vbios_smu_set_min_deep_sleep_dcfclk(clk_mgr, clk_mgr_base->clks.dcfclk_deep_sleep_khz);
+ 	}
+ 
++	// workaround: Limit dppclk to 100Mhz to avoid lower eDP panel switch to plus 4K monitor underflow.
++	if (!IS_DIAG_DC(dc->ctx->dce_environment)) {
++		if (new_clocks->dppclk_khz < 100000)
++			new_clocks->dppclk_khz = 100000;
++	}
 +
-+			/*
-+			 * Fail the request unless peer closed the connection,
-+			 * in which case error recovery flow will complete all.
-+			 */
-+			if ((result != -EPIPE) && (result != -ECONNRESET))
- 				nvme_tcp_fail_request(queue->request);
- 			nvme_tcp_done_send_req(queue);
- 			return;
+ 	if (should_set_clock(safe_to_lower, new_clocks->dppclk_khz, clk_mgr->base.clks.dppclk_khz)) {
+ 		if (clk_mgr->base.clks.dppclk_khz > new_clocks->dppclk_khz)
+ 			dpp_clock_lowered = true;
 -- 
 2.20.1
 
