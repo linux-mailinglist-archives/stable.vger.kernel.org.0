@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7296E17802C
-	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 19:59:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 47843177F59
+	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 19:57:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732656AbgCCRzJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Mar 2020 12:55:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36560 "EHLO mail.kernel.org"
+        id S1731863AbgCCRuN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Mar 2020 12:50:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57808 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732653AbgCCRzI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Mar 2020 12:55:08 -0500
+        id S1731256AbgCCRuM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Mar 2020 12:50:12 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 12456206D5;
-        Tue,  3 Mar 2020 17:55:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6FD8E21556;
+        Tue,  3 Mar 2020 17:50:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583258108;
-        bh=KiKF8TsnroZnGB6+WEfKkZ89hpEo9HMRTUDu1XfFWu0=;
+        s=default; t=1583257811;
+        bh=icjx1nfYvX+1hOO+Y5IzkEJ3RQYFaw/dvsLTD1cUB0c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dXG/oD2pZ58MOkHxr08B5d4eJJWeSf4rRNi3zCJl2fj9VompEPCVcZSGuZ6N5ASOV
-         nsrBzQ89PAhfu2RsMKkX3sJ2ADvsi6l7LrAyuVDCA/+ZXMYUazRPWGNIScntc99RJA
-         TVja5UklUDoQwb59Mvlhnwnxtzl2o5A9wADtTUsc=
+        b=b7yJFcZrIOr0cLA1y/IEuJzLefhYsEe5tXXqOpJQtcXlfUHjVYFcl2H5m6evwkZww
+         qgZnIK491dRamX8cFwaiT91nYHt5vEIj8zVN1iftdzqznVE/lS+cg8TFJaiaLhTNVd
+         7RwBSC2QS3S2Gj8ZyudMvmxKo3GVFbTozURxv1YY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jean Delvare <jdelvare@suse.de>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 5.4 074/152] ACPI: watchdog: Fix gas->access_width usage
-Date:   Tue,  3 Mar 2020 18:42:52 +0100
-Message-Id: <20200303174310.892274458@linuxfoundation.org>
+        stable@vger.kernel.org, Anup Patel <anup.patel@wdc.com>,
+        Atish Patra <atish.patra@wdc.com>,
+        Palmer Dabbelt <palmerdabbelt@google.com>
+Subject: [PATCH 5.5 109/176] RISC-V: Dont enable all interrupts in trap_init()
+Date:   Tue,  3 Mar 2020 18:42:53 +0100
+Message-Id: <20200303174317.441494377@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200303174302.523080016@linuxfoundation.org>
-References: <20200303174302.523080016@linuxfoundation.org>
+In-Reply-To: <20200303174304.593872177@linuxfoundation.org>
+References: <20200303174304.593872177@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,54 +44,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
+From: Anup Patel <anup.patel@wdc.com>
 
-commit 2ba33a4e9e22ac4dda928d3e9b5978a3a2ded4e0 upstream.
+commit 6a1ce99dc4bde564e4a072936f9d41f4a439140e upstream.
 
-ACPI Generic Address Structure (GAS) access_width field is not in bytes
-as the driver seems to expect in few places so fix this by using the
-newly introduced macro ACPI_ACCESS_BYTE_WIDTH().
+Historically, we have been enabling all interrupts for each
+HART in trap_init(). Ideally, we should only enable M-mode
+interrupts for M-mode kernel and S-mode interrupts for S-mode
+kernel in trap_init().
 
-Fixes: b1abf6fc4982 ("ACPI / watchdog: Fix off-by-one error at resource assignment")
-Fixes: 058dfc767008 ("ACPI / watchdog: Add support for WDAT hardware watchdog")
-Reported-by: Jean Delvare <jdelvare@suse.de>
-Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-Reviewed-by: Jean Delvare <jdelvare@suse.de>
-Cc: 4.16+ <stable@vger.kernel.org> # 4.16+
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Currently, we get suprious S-mode interrupts on Kendryte K210
+board running M-mode NO-MMU kernel because we are enabling all
+interrupts in trap_init(). To fix this, we only enable software
+and external interrupt in trap_init(). In future, trap_init()
+will only enable software interrupt and PLIC driver will enable
+external interrupt using CPU notifiers.
+
+Fixes: a4c3733d32a7 ("riscv: abstract out CSR names for supervisor vs machine mode")
+Signed-off-by: Anup Patel <anup.patel@wdc.com>
+Reviewed-by: Atish Patra <atish.patra@wdc.com>
+Tested-by: Palmer Dabbelt <palmerdabbelt@google.com> [QMEU virt machine with SMP]
+[Palmer: Move the Fixes up to a newer commit]
+Reviewed-by: Palmer Dabbelt <palmerdabbelt@google.com>
+Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/acpi/acpi_watchdog.c |    3 +--
- drivers/watchdog/wdat_wdt.c  |    2 +-
- 2 files changed, 2 insertions(+), 3 deletions(-)
+ arch/riscv/kernel/traps.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/acpi/acpi_watchdog.c
-+++ b/drivers/acpi/acpi_watchdog.c
-@@ -126,12 +126,11 @@ void __init acpi_watchdog_init(void)
- 		gas = &entries[i].register_region;
- 
- 		res.start = gas->address;
-+		res.end = res.start + ACPI_ACCESS_BYTE_WIDTH(gas->access_width) - 1;
- 		if (gas->space_id == ACPI_ADR_SPACE_SYSTEM_MEMORY) {
- 			res.flags = IORESOURCE_MEM;
--			res.end = res.start + ALIGN(gas->access_width, 4) - 1;
- 		} else if (gas->space_id == ACPI_ADR_SPACE_SYSTEM_IO) {
- 			res.flags = IORESOURCE_IO;
--			res.end = res.start + gas->access_width - 1;
- 		} else {
- 			pr_warn("Unsupported address space: %u\n",
- 				gas->space_id);
---- a/drivers/watchdog/wdat_wdt.c
-+++ b/drivers/watchdog/wdat_wdt.c
-@@ -389,7 +389,7 @@ static int wdat_wdt_probe(struct platfor
- 
- 		memset(&r, 0, sizeof(r));
- 		r.start = gas->address;
--		r.end = r.start + gas->access_width - 1;
-+		r.end = r.start + ACPI_ACCESS_BYTE_WIDTH(gas->access_width) - 1;
- 		if (gas->space_id == ACPI_ADR_SPACE_SYSTEM_MEMORY) {
- 			r.flags = IORESOURCE_MEM;
- 		} else if (gas->space_id == ACPI_ADR_SPACE_SYSTEM_IO) {
+--- a/arch/riscv/kernel/traps.c
++++ b/arch/riscv/kernel/traps.c
+@@ -156,6 +156,6 @@ void __init trap_init(void)
+ 	csr_write(CSR_SCRATCH, 0);
+ 	/* Set the exception vector address */
+ 	csr_write(CSR_TVEC, &handle_exception);
+-	/* Enable all interrupts */
+-	csr_write(CSR_IE, -1);
++	/* Enable interrupts */
++	csr_write(CSR_IE, IE_SIE | IE_EIE);
+ }
 
 
