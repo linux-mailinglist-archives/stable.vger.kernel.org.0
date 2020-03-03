@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 57DCF177F1E
-	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 19:57:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 04F23177EEE
+	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 19:57:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730766AbgCCRsu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Mar 2020 12:48:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56050 "EHLO mail.kernel.org"
+        id S1731415AbgCCRrr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Mar 2020 12:47:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54702 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731677AbgCCRsu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Mar 2020 12:48:50 -0500
+        id S1731418AbgCCRro (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Mar 2020 12:47:44 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D210D20CC7;
-        Tue,  3 Mar 2020 17:48:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D43CD208C3;
+        Tue,  3 Mar 2020 17:47:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583257729;
-        bh=suz0D/D2dzRGQclTwBiN+1zSd0FQxwwst2MdgJCDEqg=;
+        s=default; t=1583257664;
+        bh=RHF07HH/10+qbB+CsSVVFZKfwr43HSrnCB+OSo7B0FI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m6vgX3H7cDr39XItKhflLeof5Bw8ueWont1WZcHwIScv3MoXJ8G3fPhE0QV91QWng
-         KywaqOot+qpjYXu34t1eeBbAM9S60kRqZgW9V6zlU/tWpvAFHqc0QSTdo297ZvMDuL
-         MvXzCy5+oMilAPWlQrSRd6nNdZE8pKNNViTOkHlc=
+        b=SqHlIjlQhTyq0Fd+Nxyqi7k7rx8DvAzcWlBS6TFEvaI3HXGGzzaRGgbpot4Kn6hW6
+         k8m8qne9RF5wo8rNhFiH6ailIl5Daj5tEzx3YdH1BcuH8KnhzTPsrkP+QvH3tpbxwT
+         ook123pWKbqD0UPC26YJc7R/FUtWChMAMyJpXmco=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
-        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
-        Damien Le Moal <damien.lemoal@wdc.com>,
+        stable@vger.kernel.org, Jens Remus <jremus@linux.ibm.com>,
+        Fedor Loshakov <loshakov@linux.ibm.com>,
+        Steffen Maier <maier@linux.ibm.com>,
+        Benjamin Block <bblock@linux.ibm.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.5 081/176] scsi: sd_sbc: Fix sd_zbc_report_zones()
-Date:   Tue,  3 Mar 2020 18:42:25 +0100
-Message-Id: <20200303174314.030529780@linuxfoundation.org>
+Subject: [PATCH 5.5 082/176] scsi: zfcp: fix wrong data and display format of SFP+ temperature
+Date:   Tue,  3 Mar 2020 18:42:26 +0100
+Message-Id: <20200303174314.133709004@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200303174304.593872177@linuxfoundation.org>
 References: <20200303174304.593872177@linuxfoundation.org>
@@ -45,76 +46,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Damien Le Moal <damien.lemoal@wdc.com>
+From: Benjamin Block <bblock@linux.ibm.com>
 
-commit 51fdaa0490241e8cd41b40cbf43a336d1a014460 upstream.
+commit a3fd4bfe85fbb67cf4ec1232d0af625ece3c508b upstream.
 
-The block layer generic blk_revalidate_disk_zones() checks the validity of
-zone descriptors reported by a disk using the blk_revalidate_zone_cb()
-callback function executed for each zone descriptor. If a ZBC disk reports
-invalid zone descriptors, blk_revalidate_disk_zones() returns an error and
-sd_zbc_read_zones() changes the disk capacity to 0, which in turn results
-in the gendisk structure capacity to be set to 0. This all works well for
-the first revalidate pass on a disk and the block layer detects the
-capactiy change.
+When implementing support for retrieval of local diagnostic data from the
+FCP channel, the wrong data format was assumed for the temperature of the
+local SFP+ connector. The Fibre Channel Link Services (FC-LS-3)
+specification is not clear on the format of the stored integer, and only
+after consulting the SNIA specification SFF-8472 did we realize it is
+stored as two's complement. Thus, the used data and display format is
+wrong, and highly misleading for users when the temperature should drop
+below 0°C (however unlikely that may be).
 
-On the second revalidate pass, blk_revalidate_disk_zones() is called again
-and sd_zbc_report_zones() executed to check the zones a second time.
-However, for this second pass, the gendisk capacity is now 0, which results
-in sd_zbc_report_zones() to do nothing and to report success and no
-zones. blk_revalidate_disk_zones() in turn returns success and sets the
-disk queue chunk_sectors limit with zero as no zones were checked, causing
-a oops to trigger on the BUG_ON(!is_power_of_2(chunk_sectors)) in
-blk_queue_chunk_sectors().
+To fix this, change the data format in `struct fsf_qtcb_bottom_port` from
+unsigned to signed, and change the printf format string used to generate
+`zfcp_sysfs_adapter_diag_sfp_temperature_show()` from `%hu` to `%hd`.
 
-Fix this by using the sdkp capacity field rather than the gendisk capacity
-for the report zones loop in sd_zbc_report_zones(). Also add a check to
-return immediately an error if the sdkp capacity is 0.  With this fix,
-invalid/buggy ZBC disk scan does not trigger a oops and are exposed with a
-0 capacity. This change also preserve the chance for the disk to be
-correctly revalidated on the second revalidate pass as the scsi disk
-structure capacity field is always set to the disk reported value when
-sd_zbc_report_zones() is called.
-
-Link: https://lore.kernel.org/r/20200219063800.880834-1-damien.lemoal@wdc.com
-Fixes: d41003513e61 ("block: rework zone reporting")
-Cc: Cc: <stable@vger.kernel.org> # v5.5
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
-Signed-off-by: Damien Le Moal <damien.lemoal@wdc.com>
+Link: https://lore.kernel.org/r/d6e3be5428da5c9490cfff4df7cae868bc9f1a7e.1582039501.git.bblock@linux.ibm.com
+Fixes: a10a61e807b0 ("scsi: zfcp: support retrieval of SFP Data via Exchange Port Data")
+Fixes: 6028f7c4cd87 ("scsi: zfcp: introduce sysfs interface for diagnostics of local SFP transceiver")
+Cc: <stable@vger.kernel.org> # 5.5+
+Reviewed-by: Jens Remus <jremus@linux.ibm.com>
+Reviewed-by: Fedor Loshakov <loshakov@linux.ibm.com>
+Reviewed-by: Steffen Maier <maier@linux.ibm.com>
+Signed-off-by: Benjamin Block <bblock@linux.ibm.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/scsi/sd_zbc.c |    7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/s390/scsi/zfcp_fsf.h   |    2 +-
+ drivers/s390/scsi/zfcp_sysfs.c |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/scsi/sd_zbc.c
-+++ b/drivers/scsi/sd_zbc.c
-@@ -161,6 +161,7 @@ int sd_zbc_report_zones(struct gendisk *
- 			unsigned int nr_zones, report_zones_cb cb, void *data)
- {
- 	struct scsi_disk *sdkp = scsi_disk(disk);
-+	sector_t capacity = logical_to_sectors(sdkp->device, sdkp->capacity);
- 	unsigned int nr, i;
- 	unsigned char *buf;
- 	size_t offset, buflen = 0;
-@@ -171,11 +172,15 @@ int sd_zbc_report_zones(struct gendisk *
- 		/* Not a zoned device */
- 		return -EOPNOTSUPP;
+--- a/drivers/s390/scsi/zfcp_fsf.h
++++ b/drivers/s390/scsi/zfcp_fsf.h
+@@ -410,7 +410,7 @@ struct fsf_qtcb_bottom_port {
+ 	u8 cb_util;
+ 	u8 a_util;
+ 	u8 res2;
+-	u16 temperature;
++	s16 temperature;
+ 	u16 vcc;
+ 	u16 tx_bias;
+ 	u16 tx_power;
+--- a/drivers/s390/scsi/zfcp_sysfs.c
++++ b/drivers/s390/scsi/zfcp_sysfs.c
+@@ -800,7 +800,7 @@ static ZFCP_DEV_ATTR(adapter_diag, b2b_c
+ 	static ZFCP_DEV_ATTR(adapter_diag_sfp, _name, 0400,		       \
+ 			     zfcp_sysfs_adapter_diag_sfp_##_name##_show, NULL)
  
-+	if (!capacity)
-+		/* Device gone or invalid */
-+		return -ENODEV;
-+
- 	buf = sd_zbc_alloc_report_buffer(sdkp, nr_zones, &buflen);
- 	if (!buf)
- 		return -ENOMEM;
- 
--	while (zone_idx < nr_zones && sector < get_capacity(disk)) {
-+	while (zone_idx < nr_zones && sector < capacity) {
- 		ret = sd_zbc_do_report_zones(sdkp, buf, buflen,
- 				sectors_to_logical(sdkp->device, sector), true);
- 		if (ret)
+-ZFCP_DEFINE_DIAG_SFP_ATTR(temperature, temperature, 5, "%hu");
++ZFCP_DEFINE_DIAG_SFP_ATTR(temperature, temperature, 6, "%hd");
+ ZFCP_DEFINE_DIAG_SFP_ATTR(vcc, vcc, 5, "%hu");
+ ZFCP_DEFINE_DIAG_SFP_ATTR(tx_bias, tx_bias, 5, "%hu");
+ ZFCP_DEFINE_DIAG_SFP_ATTR(tx_power, tx_power, 5, "%hu");
 
 
