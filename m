@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D2199177F49
-	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 19:57:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D82A7178099
+	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 20:00:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731037AbgCCRts (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Mar 2020 12:49:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57146 "EHLO mail.kernel.org"
+        id S1733132AbgCCR5m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Mar 2020 12:57:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40296 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730880AbgCCRtr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Mar 2020 12:49:47 -0500
+        id S1733129AbgCCR5l (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Mar 2020 12:57:41 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 31EF0214D8;
-        Tue,  3 Mar 2020 17:49:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7977D20728;
+        Tue,  3 Mar 2020 17:57:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583257786;
-        bh=r4NGeJpo9n1jEBQWdQe7fvt6gNYjq7LXsVhijfIB5e4=;
+        s=default; t=1583258260;
+        bh=LqAP0KvMGc8JzE6uGuZp/y4BiDKlH9TptkED8OV5tJI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t0MsQQikn9CkfXtnq8poP5KofnWPx8Nc9rt9sRb/CVWQ4M2IDpGdM2mYJCUqh+iMX
-         pmxfU9/w4vC++xXOY5hLvOP9BWaHQ207vXOKK+z6oMJfGyfS8ckTzupaXAgk/PMEmQ
-         XgdTK1U93fhRj/OeExsbErVzz9OKa4HxrPdxUy2Y=
+        b=R60MHtzR8cg07w4ruAxEVR/+/4XdbSUgP9cz0PMmPhcPGziyW7Sxf2gKrjUPymgpG
+         ltnKstsUYkBfHpfbTKrKmAHaIFkY7kpoTnKsStnwCBm7mEDTeUqRxhsOBqIUOHV1TG
+         YhlTitfJotn259qlWQf6ijM5HiFcrLJ7QK2UJbnk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nikita Danilov <ndanilov@marvell.com>,
-        Igor Russkikh <irusskikh@marvell.com>,
-        Dmitry Bogdanov <dbogdanov@marvell.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.5 128/176] net: atlantic: better loopback mode handling
-Date:   Tue,  3 Mar 2020 18:43:12 +0100
-Message-Id: <20200303174319.545640380@linuxfoundation.org>
+        stable@vger.kernel.org, David Laight <David.Laight@ACULAB.COM>,
+        "Gustavo A. R. Silva" <gustavo@embeddedor.com>,
+        Thor Thayer <thor.thayer@linux.intel.com>,
+        Wolfram Sang <wsa@the-dreams.de>
+Subject: [PATCH 5.4 095/152] i2c: altera: Fix potential integer overflow
+Date:   Tue,  3 Mar 2020 18:43:13 +0100
+Message-Id: <20200303174313.371203832@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200303174304.593872177@linuxfoundation.org>
-References: <20200303174304.593872177@linuxfoundation.org>
+In-Reply-To: <20200303174302.523080016@linuxfoundation.org>
+References: <20200303174302.523080016@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,63 +45,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nikita Danilov <ndanilov@marvell.com>
+From: Gustavo A. R. Silva <gustavo@embeddedor.com>
 
-commit b42726fcf76e9367e524392e0ead7e672cc0791c upstream.
+commit 54498e8070e19e74498a72c7331348143e7e1f8c upstream.
 
-Add checks to not enable multiple loopback modes simultaneously,
-It was also discovered that for dma loopback to function correctly
-promisc mode should be enabled on device.
+Factor out 100 from the equation and do 32-bit arithmetic (3 * clk_mhz / 10)
+instead of 64-bit.
 
-Fixes: ea4b4d7fc106 ("net: atlantic: loopback tests via private flags")
-Signed-off-by: Nikita Danilov <ndanilov@marvell.com>
-Signed-off-by: Igor Russkikh <irusskikh@marvell.com>
-Signed-off-by: Dmitry Bogdanov <dbogdanov@marvell.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Notice that clk_mhz is MHz, so the multiplication will never wrap 32 bits
+and there is no need for div_u64().
+
+Addresses-Coverity: 1458369 ("Unintentional integer overflow")
+Fixes: 0560ad576268 ("i2c: altera: Add Altera I2C Controller driver")
+Suggested-by: David Laight <David.Laight@ACULAB.COM>
+Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
+Reviewed-by: Thor Thayer <thor.thayer@linux.intel.com>
+Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/ethernet/aquantia/atlantic/aq_ethtool.c       |    5 +++++
- drivers/net/ethernet/aquantia/atlantic/hw_atl/hw_atl_b0.c |   13 ++++++++-----
- 2 files changed, 13 insertions(+), 5 deletions(-)
+ drivers/i2c/busses/i2c-altera.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/aquantia/atlantic/aq_ethtool.c
-+++ b/drivers/net/ethernet/aquantia/atlantic/aq_ethtool.c
-@@ -722,6 +722,11 @@ static int aq_ethtool_set_priv_flags(str
- 	if (flags & ~AQ_PRIV_FLAGS_MASK)
- 		return -EOPNOTSUPP;
+--- a/drivers/i2c/busses/i2c-altera.c
++++ b/drivers/i2c/busses/i2c-altera.c
+@@ -171,7 +171,7 @@ static void altr_i2c_init(struct altr_i2
+ 	/* SCL Low Time */
+ 	writel(t_low, idev->base + ALTR_I2C_SCL_LOW);
+ 	/* SDA Hold Time, 300ns */
+-	writel(div_u64(300 * clk_mhz, 1000), idev->base + ALTR_I2C_SDA_HOLD);
++	writel(3 * clk_mhz / 10, idev->base + ALTR_I2C_SDA_HOLD);
  
-+	if (hweight32((flags | priv_flags) & AQ_HW_LOOPBACK_MASK) > 1) {
-+		netdev_info(ndev, "Can't enable more than one loopback simultaneously\n");
-+		return -EINVAL;
-+	}
-+
- 	cfg->priv_flags = flags;
- 
- 	if ((priv_flags ^ flags) & BIT(AQ_HW_LOOPBACK_DMA_NET)) {
---- a/drivers/net/ethernet/aquantia/atlantic/hw_atl/hw_atl_b0.c
-+++ b/drivers/net/ethernet/aquantia/atlantic/hw_atl/hw_atl_b0.c
-@@ -885,13 +885,16 @@ static int hw_atl_b0_hw_packet_filter_se
- {
- 	struct aq_nic_cfg_s *cfg = self->aq_nic_cfg;
- 	unsigned int i = 0U;
-+	u32 vlan_promisc;
-+	u32 l2_promisc;
- 
--	hw_atl_rpfl2promiscuous_mode_en_set(self,
--					    IS_FILTER_ENABLED(IFF_PROMISC));
-+	l2_promisc = IS_FILTER_ENABLED(IFF_PROMISC) ||
-+		     !!(cfg->priv_flags & BIT(AQ_HW_LOOPBACK_DMA_NET));
-+	vlan_promisc = l2_promisc || cfg->is_vlan_force_promisc;
- 
--	hw_atl_rpf_vlan_prom_mode_en_set(self,
--				     IS_FILTER_ENABLED(IFF_PROMISC) ||
--				     cfg->is_vlan_force_promisc);
-+	hw_atl_rpfl2promiscuous_mode_en_set(self, l2_promisc);
-+
-+	hw_atl_rpf_vlan_prom_mode_en_set(self, vlan_promisc);
- 
- 	hw_atl_rpfl2multicast_flr_en_set(self,
- 					 IS_FILTER_ENABLED(IFF_ALLMULTI) &&
+ 	/* Mask all master interrupt bits */
+ 	altr_i2c_int_enable(idev, ALTR_I2C_ALL_IRQ, false);
 
 
