@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2441A177F08
-	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 19:57:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BB520178015
+	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 19:59:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731633AbgCCRsW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Mar 2020 12:48:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55420 "EHLO mail.kernel.org"
+        id S1732535AbgCCRyg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Mar 2020 12:54:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35778 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730480AbgCCRsV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Mar 2020 12:48:21 -0500
+        id S1732544AbgCCRyf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Mar 2020 12:54:35 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 23C2D20CC7;
-        Tue,  3 Mar 2020 17:48:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 501B62146E;
+        Tue,  3 Mar 2020 17:54:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583257700;
-        bh=toAKJpVcK8AmIRqax8RohZ3VZLNcWfijpolDJB41s/I=;
+        s=default; t=1583258074;
+        bh=lFkez4BwPFZEiyY8daJsLPtmtS941mquHO3XEQQhqyU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ICo6JoUBb5EyRM72kL+541cwCPinzK7VfzrJi1Ch4QHhrcF+VYqzdTRG6OdTeJbmS
-         YhDHQVADBgXsVcZ3CBjlYO6DuCQXWMw0hQeFXEyWnTZ57ghOABm1fFWRE2Yy3vXKBf
-         N4tJm63veI+cygQi0WUtMMoqBLMnlCbML0DZDtU4=
+        b=rT093dUEA/GipTrfTlF9L2oN1k7bPVB/KjOQw84tnQj6xaVrmOZu3Z3Q+8ZsxvKmG
+         PzTMMh1zIUY0YxqbudfXhjKs3drAtOgHgzErdjo05jG0B40VX6VJoQUBXvDwWTMChX
+         7tOZ1aU2H396jLDjHMd/sU7mug3FkXUVYOUF1iU8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Erhard Furtner <erhard_f@mailbox.org>,
-        Wolfram Sang <wsa@the-dreams.de>,
-        Michael Ellerman <mpe@ellerman.id.au>, stable@kernel.org
-Subject: [PATCH 5.5 095/176] macintosh: therm_windtunnel: fix regression when instantiating devices
-Date:   Tue,  3 Mar 2020 18:42:39 +0100
-Message-Id: <20200303174315.807135274@linuxfoundation.org>
+        stable@vger.kernel.org, Coly Li <colyli@suse.de>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 062/152] bcache: ignore pending signals when creating gc and allocator thread
+Date:   Tue,  3 Mar 2020 18:42:40 +0100
+Message-Id: <20200303174309.501274295@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200303174304.593872177@linuxfoundation.org>
-References: <20200303174304.593872177@linuxfoundation.org>
+In-Reply-To: <20200303174302.523080016@linuxfoundation.org>
+References: <20200303174302.523080016@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,136 +43,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wolfram Sang <wsa@the-dreams.de>
+From: Coly Li <colyli@suse.de>
 
-commit 38b17afb0ebb9ecd41418d3c08bcf9198af4349d upstream.
+[ Upstream commit 0b96da639a4874311e9b5156405f69ef9fc3bef8 ]
 
-Removing attach_adapter from this driver caused a regression for at
-least some machines. Those machines had the sensors described in their
-DT, too, so they didn't need manual creation of the sensor devices. The
-old code worked, though, because manual creation came first. Creation of
-DT devices then failed later and caused error logs, but the sensors
-worked nonetheless because of the manually created devices.
+When run a cache set, all the bcache btree node of this cache set will
+be checked by bch_btree_check(). If the bcache btree is very large,
+iterating all the btree nodes will occupy too much system memory and
+the bcache registering process might be selected and killed by system
+OOM killer. kthread_run() will fail if current process has pending
+signal, therefore the kthread creating in run_cache_set() for gc and
+allocator kernel threads are very probably failed for a very large
+bcache btree.
 
-When removing attach_adaper, manual creation now comes later and loses
-the race. The sensor devices were already registered via DT, yet with
-another binding, so the driver could not be bound to it.
+Indeed such OOM is safe and the registering process will exit after
+the registration done. Therefore this patch flushes pending signals
+during the cache set start up, specificly in bch_cache_allocator_start()
+and bch_gc_thread_start(), to make sure run_cache_set() won't fail for
+large cahced data set.
 
-This fix refactors the code to remove the race and only manually creates
-devices if there are no DT nodes present. Also, the DT binding is updated
-to match both, the DT and manually created devices. Because we don't
-know which device creation will be used at runtime, the code to start
-the kthread is moved to do_probe() which will be called by both methods.
-
-Fixes: 3e7bed52719d ("macintosh: therm_windtunnel: drop using attach_adapter")
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=201723
-Reported-by: Erhard Furtner <erhard_f@mailbox.org>
-Tested-by: Erhard Furtner <erhard_f@mailbox.org>
-Acked-by: Michael Ellerman <mpe@ellerman.id.au> (powerpc)
-Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
-Cc: stable@kernel.org # v4.19+
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Coly Li <colyli@suse.de>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/macintosh/therm_windtunnel.c |   52 ++++++++++++++++++++---------------
- 1 file changed, 31 insertions(+), 21 deletions(-)
+ drivers/md/bcache/alloc.c | 18 ++++++++++++++++--
+ drivers/md/bcache/btree.c | 13 +++++++++++++
+ 2 files changed, 29 insertions(+), 2 deletions(-)
 
---- a/drivers/macintosh/therm_windtunnel.c
-+++ b/drivers/macintosh/therm_windtunnel.c
-@@ -300,9 +300,11 @@ static int control_loop(void *dummy)
- /*	i2c probing and setup						*/
- /************************************************************************/
+diff --git a/drivers/md/bcache/alloc.c b/drivers/md/bcache/alloc.c
+index a1df0d95151c6..8bc1faf71ff2f 100644
+--- a/drivers/md/bcache/alloc.c
++++ b/drivers/md/bcache/alloc.c
+@@ -67,6 +67,7 @@
+ #include <linux/blkdev.h>
+ #include <linux/kthread.h>
+ #include <linux/random.h>
++#include <linux/sched/signal.h>
+ #include <trace/events/bcache.h>
  
--static int
--do_attach( struct i2c_adapter *adapter )
-+static void do_attach(struct i2c_adapter *adapter)
+ #define MAX_OPEN_BUCKETS 128
+@@ -733,8 +734,21 @@ int bch_open_buckets_alloc(struct cache_set *c)
+ 
+ int bch_cache_allocator_start(struct cache *ca)
  {
-+	struct i2c_board_info info = { };
-+	struct device_node *np;
+-	struct task_struct *k = kthread_run(bch_allocator_thread,
+-					    ca, "bcache_allocator");
++	struct task_struct *k;
 +
- 	/* scan 0x48-0x4f (DS1775) and 0x2c-2x2f (ADM1030) */
- 	static const unsigned short scan_ds1775[] = {
- 		0x48, 0x49, 0x4a, 0x4b, 0x4c, 0x4d, 0x4e, 0x4f,
-@@ -313,25 +315,24 @@ do_attach( struct i2c_adapter *adapter )
- 		I2C_CLIENT_END
- 	};
++	/*
++	 * In case previous btree check operation occupies too many
++	 * system memory for bcache btree node cache, and the
++	 * registering process is selected by OOM killer. Here just
++	 * ignore the SIGKILL sent by OOM killer if there is, to
++	 * avoid kthread_run() being failed by pending signals. The
++	 * bcache registering process will exit after the registration
++	 * done.
++	 */
++	if (signal_pending(current))
++		flush_signals(current);
++
++	k = kthread_run(bch_allocator_thread, ca, "bcache_allocator");
+ 	if (IS_ERR(k))
+ 		return PTR_ERR(k);
  
--	if( strncmp(adapter->name, "uni-n", 5) )
--		return 0;
--
--	if( !x.running ) {
--		struct i2c_board_info info;
-+	if (x.running || strncmp(adapter->name, "uni-n", 5))
-+		return;
+diff --git a/drivers/md/bcache/btree.c b/drivers/md/bcache/btree.c
+index 46a8b5a91c386..a6e05503b7723 100644
+--- a/drivers/md/bcache/btree.c
++++ b/drivers/md/bcache/btree.c
+@@ -34,6 +34,7 @@
+ #include <linux/random.h>
+ #include <linux/rcupdate.h>
+ #include <linux/sched/clock.h>
++#include <linux/sched/signal.h>
+ #include <linux/rculist.h>
+ #include <linux/delay.h>
+ #include <trace/events/bcache.h>
+@@ -1908,6 +1909,18 @@ static int bch_gc_thread(void *arg)
  
--		memset(&info, 0, sizeof(struct i2c_board_info));
--		strlcpy(info.type, "therm_ds1775", I2C_NAME_SIZE);
-+	np = of_find_compatible_node(adapter->dev.of_node, NULL, "MAC,ds1775");
-+	if (np) {
-+		of_node_put(np);
-+	} else {
-+		strlcpy(info.type, "MAC,ds1775", I2C_NAME_SIZE);
- 		i2c_new_probed_device(adapter, &info, scan_ds1775, NULL);
-+	}
- 
--		strlcpy(info.type, "therm_adm1030", I2C_NAME_SIZE);
-+	np = of_find_compatible_node(adapter->dev.of_node, NULL, "MAC,adm1030");
-+	if (np) {
-+		of_node_put(np);
-+	} else {
-+		strlcpy(info.type, "MAC,adm1030", I2C_NAME_SIZE);
- 		i2c_new_probed_device(adapter, &info, scan_adm1030, NULL);
--
--		if( x.thermostat && x.fan ) {
--			x.running = 1;
--			x.poll_task = kthread_run(control_loop, NULL, "g4fand");
--		}
- 	}
--	return 0;
- }
- 
- static int
-@@ -404,8 +405,8 @@ out:
- enum chip { ds1775, adm1030 };
- 
- static const struct i2c_device_id therm_windtunnel_id[] = {
--	{ "therm_ds1775", ds1775 },
--	{ "therm_adm1030", adm1030 },
-+	{ "MAC,ds1775", ds1775 },
-+	{ "MAC,adm1030", adm1030 },
- 	{ }
- };
- MODULE_DEVICE_TABLE(i2c, therm_windtunnel_id);
-@@ -414,6 +415,7 @@ static int
- do_probe(struct i2c_client *cl, const struct i2c_device_id *id)
+ int bch_gc_thread_start(struct cache_set *c)
  {
- 	struct i2c_adapter *adapter = cl->adapter;
-+	int ret = 0;
- 
- 	if( !i2c_check_functionality(adapter, I2C_FUNC_SMBUS_WORD_DATA
- 				     | I2C_FUNC_SMBUS_WRITE_BYTE) )
-@@ -421,11 +423,19 @@ do_probe(struct i2c_client *cl, const st
- 
- 	switch (id->driver_data) {
- 	case adm1030:
--		return attach_fan( cl );
-+		ret = attach_fan(cl);
-+		break;
- 	case ds1775:
--		return attach_thermostat(cl);
-+		ret = attach_thermostat(cl);
-+		break;
- 	}
--	return 0;
++	/*
++	 * In case previous btree check operation occupies too many
++	 * system memory for bcache btree node cache, and the
++	 * registering process is selected by OOM killer. Here just
++	 * ignore the SIGKILL sent by OOM killer if there is, to
++	 * avoid kthread_run() being failed by pending signals. The
++	 * bcache registering process will exit after the registration
++	 * done.
++	 */
++	if (signal_pending(current))
++		flush_signals(current);
 +
-+	if (!x.running && x.thermostat && x.fan) {
-+		x.running = 1;
-+		x.poll_task = kthread_run(control_loop, NULL, "g4fand");
-+	}
-+
-+	return ret;
+ 	c->gc_thread = kthread_run(bch_gc_thread, c, "bcache_gc");
+ 	return PTR_ERR_OR_ZERO(c->gc_thread);
  }
- 
- static struct i2c_driver g4fan_driver = {
+-- 
+2.20.1
+
 
 
