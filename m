@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E1B1177DDB
-	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 18:46:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E46B0177E0A
+	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 18:46:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727972AbgCCRob (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Mar 2020 12:44:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50044 "EHLO mail.kernel.org"
+        id S1730728AbgCCRp7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Mar 2020 12:45:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52292 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726988AbgCCRob (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Mar 2020 12:44:31 -0500
+        id S1731031AbgCCRp5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Mar 2020 12:45:57 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1AD1C20870;
-        Tue,  3 Mar 2020 17:44:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E0A102187F;
+        Tue,  3 Mar 2020 17:45:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583257470;
-        bh=xJaPOEMtNwqvbSQdzQQceUOZ4lUwtok76L2WrtwFr6o=;
+        s=default; t=1583257557;
+        bh=23q8wOej2CGk3XczCcVwpa2g7hpc7dm7DZVNhrIvC0A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cNTc93C9ESTHapz8tgC8R1CPQNusxIRcAqTvfgpcAY7XffBbTJGzaGwxShiuae+NU
-         disn7pWHbeBIfWjmaB82av2PJRV4tIDGC9GEW7tQUYRcSMdXRkE6NYtIIlghBd9fR8
-         9J6sJhvrLpKV9q1mEzL0tLqtzgAZnaICTA8aQV3M=
+        b=w7SlO17Zto8OFSOYI0BMcJcbXlUZ9p4K90TjfG2l+hEHSHUfqOUCkT0WKEVK9SaGi
+         +i4nnkPaDFZsLHf4CIEGoVtM2KwDyCTo4WsYhX6VqTBA89S6OA9IJLNVmXdaS9GwG/
+         knRv5qjA1BET9DbvVJHbvXj5ETMgnMIuUICKXZ1Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aristeu Rozanski <aris@redhat.com>,
-        Tony Luck <tony.luck@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 001/176] EDAC: skx_common: downgrade message importance on missing PCI device
-Date:   Tue,  3 Mar 2020 18:41:05 +0100
-Message-Id: <20200303174304.758365569@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Arun Parameswaran <arun.parameswaran@broadcom.com>,
+        Scott Branden <scott.branden@broadcom.com>,
+        Andrew Lunn <andrew@lunn.ch>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.5 006/176] net: phy: restore mdio regs in the iproc mdio driver
+Date:   Tue,  3 Mar 2020 18:41:10 +0100
+Message-Id: <20200303174305.290156569@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200303174304.593872177@linuxfoundation.org>
 References: <20200303174304.593872177@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -46,42 +47,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aristeu Rozanski <aris@redhat.com>
+From: Arun Parameswaran <arun.parameswaran@broadcom.com>
 
-[ Upstream commit 854bb48018d5da261d438b2232fa683bdb553979 ]
+commit 6f08e98d62799e53c89dbf2c9a49d77e20ca648c upstream.
 
-Both skx_edac and i10nm_edac drivers are loaded based on the matching CPU being
-available which leads the module to be automatically loaded in virtual machines
-as well. That will fail due the missing PCI devices. In both drivers the first
-function to make use of the PCI devices is skx_get_hi_lo() will simply print
+The mii management register in iproc mdio block
+does not have a retention register so it is lost on suspend.
+Save and restore value of register while resuming from suspend.
 
-	EDAC skx: Can't get tolm/tohm
-
-for each CPU core, which is noisy. This patch makes it a debug message.
-
-Signed-off-by: Aristeu Rozanski <aris@redhat.com>
-Signed-off-by: Tony Luck <tony.luck@intel.com>
-Link: https://lore.kernel.org/r/20191204212325.c4k47p5hrnn3vpb5@redhat.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: bb1a619735b4 ("net: phy: Initialize mdio clock at probe function")
+Signed-off-by: Arun Parameswaran <arun.parameswaran@broadcom.com>
+Signed-off-by: Scott Branden <scott.branden@broadcom.com>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/edac/skx_common.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/phy/mdio-bcm-iproc.c |   20 ++++++++++++++++++++
+ 1 file changed, 20 insertions(+)
 
-diff --git a/drivers/edac/skx_common.c b/drivers/edac/skx_common.c
-index 95662a4ff4c4f..99bbaf629b8d9 100644
---- a/drivers/edac/skx_common.c
-+++ b/drivers/edac/skx_common.c
-@@ -256,7 +256,7 @@ int skx_get_hi_lo(unsigned int did, int off[], u64 *tolm, u64 *tohm)
+--- a/drivers/net/phy/mdio-bcm-iproc.c
++++ b/drivers/net/phy/mdio-bcm-iproc.c
+@@ -178,6 +178,23 @@ static int iproc_mdio_remove(struct plat
+ 	return 0;
+ }
  
- 	pdev = pci_get_device(PCI_VENDOR_ID_INTEL, did, NULL);
- 	if (!pdev) {
--		skx_printk(KERN_ERR, "Can't get tolm/tohm\n");
-+		edac_dbg(2, "Can't get tolm/tohm\n");
- 		return -ENODEV;
- 	}
- 
--- 
-2.20.1
-
++#ifdef CONFIG_PM_SLEEP
++int iproc_mdio_resume(struct device *dev)
++{
++	struct platform_device *pdev = to_platform_device(dev);
++	struct iproc_mdio_priv *priv = platform_get_drvdata(pdev);
++
++	/* restore the mii clock configuration */
++	iproc_mdio_config_clk(priv->base);
++
++	return 0;
++}
++
++static const struct dev_pm_ops iproc_mdio_pm_ops = {
++	.resume = iproc_mdio_resume
++};
++#endif /* CONFIG_PM_SLEEP */
++
+ static const struct of_device_id iproc_mdio_of_match[] = {
+ 	{ .compatible = "brcm,iproc-mdio", },
+ 	{ /* sentinel */ },
+@@ -188,6 +205,9 @@ static struct platform_driver iproc_mdio
+ 	.driver = {
+ 		.name = "iproc-mdio",
+ 		.of_match_table = iproc_mdio_of_match,
++#ifdef CONFIG_PM_SLEEP
++		.pm = &iproc_mdio_pm_ops,
++#endif
+ 	},
+ 	.probe = iproc_mdio_probe,
+ 	.remove = iproc_mdio_remove,
 
 
