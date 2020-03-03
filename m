@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 378F7177FB7
-	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 19:58:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E326177EDE
+	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 19:56:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732166AbgCCRwc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Mar 2020 12:52:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60944 "EHLO mail.kernel.org"
+        id S1731345AbgCCRr2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Mar 2020 12:47:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54264 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731387AbgCCRwc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Mar 2020 12:52:32 -0500
+        id S1729240AbgCCRrY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Mar 2020 12:47:24 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C468820CC7;
-        Tue,  3 Mar 2020 17:52:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 40B83208C3;
+        Tue,  3 Mar 2020 17:47:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583257951;
-        bh=23q8wOej2CGk3XczCcVwpa2g7hpc7dm7DZVNhrIvC0A=;
+        s=default; t=1583257643;
+        bh=oTYgoWQTfmOG7ZN0sUeME2E5uZ6h8jH+epj1i8hWPwQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SSfsAJGuz5iSjb2NNMvlvAE+pc41mgE0N+vF22bBRiqpgYV7sjohXSgnKn634DCJB
-         4HK6Z9tgVEWI6F7qQJX57HUDmTa/hu1XhyYgdpiar5ZZSwovUoAmLeJe6cuth1xDm9
-         KckKVlsrGni9VqX6c9V+QQar99xJOwydmkLjtp/w=
+        b=wNwHoBx/l1HnU1nu+auc4TFOmdf7h/R5pUyvtanzxQkALUVk6Xo2uP6k0oR4ISBQC
+         i1vV+N5VbyuOLh9CGilF9Y72ruP69JwIowy+xHGFlSwZgG4KUaM+5iTlNcmWoPKZDQ
+         eJoQxlnlKfnxdGukDk3Jg8Aw0C4VsoLY3U58Dq78=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Arun Parameswaran <arun.parameswaran@broadcom.com>,
-        Scott Branden <scott.branden@broadcom.com>,
-        Andrew Lunn <andrew@lunn.ch>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 007/152] net: phy: restore mdio regs in the iproc mdio driver
+        stable@vger.kernel.org, Kan Liang <kan.liang@linux.intel.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Ingo Molnar <mingo@kernel.org>,
+        Andi Kleen <ak@linux.intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.5 041/176] perf/x86/cstate: Add Tremont support
 Date:   Tue,  3 Mar 2020 18:41:45 +0100
-Message-Id: <20200303174303.333828110@linuxfoundation.org>
+Message-Id: <20200303174309.272474748@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200303174302.523080016@linuxfoundation.org>
-References: <20200303174302.523080016@linuxfoundation.org>
+In-Reply-To: <20200303174304.593872177@linuxfoundation.org>
+References: <20200303174304.593872177@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,60 +46,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arun Parameswaran <arun.parameswaran@broadcom.com>
+From: Kan Liang <kan.liang@linux.intel.com>
 
-commit 6f08e98d62799e53c89dbf2c9a49d77e20ca648c upstream.
+[ Upstream commit ecf71fbccb9ac5cb964eb7de59bb9da3755b7885 ]
 
-The mii management register in iproc mdio block
-does not have a retention register so it is lost on suspend.
-Save and restore value of register while resuming from suspend.
+Tremont is Intel's successor to Goldmont Plus. From the perspective of
+Intel cstate residency counters, there is nothing changed compared with
+Goldmont Plus and Goldmont.
 
-Fixes: bb1a619735b4 ("net: phy: Initialize mdio clock at probe function")
-Signed-off-by: Arun Parameswaran <arun.parameswaran@broadcom.com>
-Signed-off-by: Scott Branden <scott.branden@broadcom.com>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Share glm_cstates with Goldmont Plus and Goldmont.
+Update the comments for Tremont.
+
+Signed-off-by: Kan Liang <kan.liang@linux.intel.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Reviewed-by: Andi Kleen <ak@linux.intel.com>
+Link: https://lkml.kernel.org/r/1580236279-35492-2-git-send-email-kan.liang@linux.intel.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/phy/mdio-bcm-iproc.c |   20 ++++++++++++++++++++
- 1 file changed, 20 insertions(+)
+ arch/x86/events/intel/cstate.c | 22 +++++++++++++---------
+ 1 file changed, 13 insertions(+), 9 deletions(-)
 
---- a/drivers/net/phy/mdio-bcm-iproc.c
-+++ b/drivers/net/phy/mdio-bcm-iproc.c
-@@ -178,6 +178,23 @@ static int iproc_mdio_remove(struct plat
- 	return 0;
- }
+diff --git a/arch/x86/events/intel/cstate.c b/arch/x86/events/intel/cstate.c
+index e1daf4151e116..4814c964692cb 100644
+--- a/arch/x86/events/intel/cstate.c
++++ b/arch/x86/events/intel/cstate.c
+@@ -40,17 +40,18 @@
+  * Model specific counters:
+  *	MSR_CORE_C1_RES: CORE C1 Residency Counter
+  *			 perf code: 0x00
+- *			 Available model: SLM,AMT,GLM,CNL
++ *			 Available model: SLM,AMT,GLM,CNL,TNT
+  *			 Scope: Core (each processor core has a MSR)
+  *	MSR_CORE_C3_RESIDENCY: CORE C3 Residency Counter
+  *			       perf code: 0x01
+  *			       Available model: NHM,WSM,SNB,IVB,HSW,BDW,SKL,GLM,
+- *						CNL,KBL,CML
++ *						CNL,KBL,CML,TNT
+  *			       Scope: Core
+  *	MSR_CORE_C6_RESIDENCY: CORE C6 Residency Counter
+  *			       perf code: 0x02
+  *			       Available model: SLM,AMT,NHM,WSM,SNB,IVB,HSW,BDW,
+- *						SKL,KNL,GLM,CNL,KBL,CML,ICL,TGL
++ *						SKL,KNL,GLM,CNL,KBL,CML,ICL,TGL,
++ *						TNT
+  *			       Scope: Core
+  *	MSR_CORE_C7_RESIDENCY: CORE C7 Residency Counter
+  *			       perf code: 0x03
+@@ -60,17 +61,18 @@
+  *	MSR_PKG_C2_RESIDENCY:  Package C2 Residency Counter.
+  *			       perf code: 0x00
+  *			       Available model: SNB,IVB,HSW,BDW,SKL,KNL,GLM,CNL,
+- *						KBL,CML,ICL,TGL
++ *						KBL,CML,ICL,TGL,TNT
+  *			       Scope: Package (physical package)
+  *	MSR_PKG_C3_RESIDENCY:  Package C3 Residency Counter.
+  *			       perf code: 0x01
+  *			       Available model: NHM,WSM,SNB,IVB,HSW,BDW,SKL,KNL,
+- *						GLM,CNL,KBL,CML,ICL,TGL
++ *						GLM,CNL,KBL,CML,ICL,TGL,TNT
+  *			       Scope: Package (physical package)
+  *	MSR_PKG_C6_RESIDENCY:  Package C6 Residency Counter.
+  *			       perf code: 0x02
+- *			       Available model: SLM,AMT,NHM,WSM,SNB,IVB,HSW,BDW
+- *						SKL,KNL,GLM,CNL,KBL,CML,ICL,TGL
++ *			       Available model: SLM,AMT,NHM,WSM,SNB,IVB,HSW,BDW,
++ *						SKL,KNL,GLM,CNL,KBL,CML,ICL,TGL,
++ *						TNT
+  *			       Scope: Package (physical package)
+  *	MSR_PKG_C7_RESIDENCY:  Package C7 Residency Counter.
+  *			       perf code: 0x03
+@@ -87,7 +89,8 @@
+  *			       Scope: Package (physical package)
+  *	MSR_PKG_C10_RESIDENCY: Package C10 Residency Counter.
+  *			       perf code: 0x06
+- *			       Available model: HSW ULT,KBL,GLM,CNL,CML,ICL,TGL
++ *			       Available model: HSW ULT,KBL,GLM,CNL,CML,ICL,TGL,
++ *						TNT
+  *			       Scope: Package (physical package)
+  *
+  */
+@@ -640,8 +643,9 @@ static const struct x86_cpu_id intel_cstates_match[] __initconst = {
  
-+#ifdef CONFIG_PM_SLEEP
-+int iproc_mdio_resume(struct device *dev)
-+{
-+	struct platform_device *pdev = to_platform_device(dev);
-+	struct iproc_mdio_priv *priv = platform_get_drvdata(pdev);
-+
-+	/* restore the mii clock configuration */
-+	iproc_mdio_config_clk(priv->base);
-+
-+	return 0;
-+}
-+
-+static const struct dev_pm_ops iproc_mdio_pm_ops = {
-+	.resume = iproc_mdio_resume
-+};
-+#endif /* CONFIG_PM_SLEEP */
-+
- static const struct of_device_id iproc_mdio_of_match[] = {
- 	{ .compatible = "brcm,iproc-mdio", },
- 	{ /* sentinel */ },
-@@ -188,6 +205,9 @@ static struct platform_driver iproc_mdio
- 	.driver = {
- 		.name = "iproc-mdio",
- 		.of_match_table = iproc_mdio_of_match,
-+#ifdef CONFIG_PM_SLEEP
-+		.pm = &iproc_mdio_pm_ops,
-+#endif
- 	},
- 	.probe = iproc_mdio_probe,
- 	.remove = iproc_mdio_remove,
+ 	X86_CSTATES_MODEL(INTEL_FAM6_ATOM_GOLDMONT,   glm_cstates),
+ 	X86_CSTATES_MODEL(INTEL_FAM6_ATOM_GOLDMONT_D, glm_cstates),
+-
+ 	X86_CSTATES_MODEL(INTEL_FAM6_ATOM_GOLDMONT_PLUS, glm_cstates),
++	X86_CSTATES_MODEL(INTEL_FAM6_ATOM_TREMONT_D, glm_cstates),
++	X86_CSTATES_MODEL(INTEL_FAM6_ATOM_TREMONT, glm_cstates),
+ 
+ 	X86_CSTATES_MODEL(INTEL_FAM6_ICELAKE_L, icl_cstates),
+ 	X86_CSTATES_MODEL(INTEL_FAM6_ICELAKE,   icl_cstates),
+-- 
+2.20.1
+
 
 
