@@ -2,37 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 93FB2176B1E
-	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 03:48:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 485D5176C7A
+	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 03:57:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728454AbgCCCsb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Mar 2020 21:48:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44370 "EHLO mail.kernel.org"
+        id S1728456AbgCCCsd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Mar 2020 21:48:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44390 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728449AbgCCCsb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Mar 2020 21:48:31 -0500
+        id S1728453AbgCCCsc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Mar 2020 21:48:32 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D799E24680;
-        Tue,  3 Mar 2020 02:48:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 191E0246D5;
+        Tue,  3 Mar 2020 02:48:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583203710;
-        bh=CWEtkoDz7AAcoaT1SOeJLtCyrIg9HCHGi9wZwmIhtwY=;
+        s=default; t=1583203711;
+        bh=w4Vph8L0Job0JGTl/V9A4ULdLn1PgStBJDbEJ0KONhI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mQdyIADm6ZfVghfLtNESl1venYawusPYXn7gyAAu1zGNAQZCh+6ncghXvVeTDuNnc
-         uKLQwfX8NsB7L+C3+KM+v9RUO7p+lErSi2nkHzyIt7q66G2OjUU6y4RZ5b6yZcQg7I
-         EaF3PMrndd0u/Ze/NQninMdP81Lsq852jFJKBZCE=
+        b=aPmJBGKfUjXo9qtCnO3jl/AX9v2seky/HTlGYuEc6Obj2PxBs3uYevGXTlLNHiImE
+         2dnl0y27czkMsKTc9K2XGnH6Fd4IOGDNtCm6heGdiRfRER5d0Qa6if0A/butE5u4dk
+         8g4ePc0aLK68c5tPabHxu9vEmsI0TjFUVjbHJ5PQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Leif Liddy <leif.liddy@gmail.com>,
-        Keith Busch <kbusch@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-nvme@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.4 41/58] nvme-pci: Use single IRQ vector for old Apple models
-Date:   Mon,  2 Mar 2020 21:47:23 -0500
-Message-Id: <20200303024740.9511-41-sashal@kernel.org>
+Cc:     "H.J. Lu" <hjl.tools@gmail.com>, Borislav Petkov <bp@suse.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 42/58] x86/boot/compressed: Don't declare __force_order in kaslr_64.c
+Date:   Mon,  2 Mar 2020 21:47:24 -0500
+Message-Id: <20200303024740.9511-42-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200303024740.9511-1-sashal@kernel.org>
 References: <20200303024740.9511-1-sashal@kernel.org>
@@ -45,41 +42,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: "H.J. Lu" <hjl.tools@gmail.com>
 
-[ Upstream commit 98f7b86a0becc1154b1a6df6e75c9695dfd87e0d ]
+[ Upstream commit df6d4f9db79c1a5d6f48b59db35ccd1e9ff9adfc ]
 
-People reported that old Apple machines are not working properly
-if the non-first IRQ vector is in use.
+GCC 10 changed the default to -fno-common, which leads to
 
-Set quirk for that models to limit IRQ to use first vector only.
+    LD      arch/x86/boot/compressed/vmlinux
+  ld: arch/x86/boot/compressed/pgtable_64.o:(.bss+0x0): multiple definition of `__force_order'; \
+    arch/x86/boot/compressed/kaslr_64.o:(.bss+0x0): first defined here
+  make[2]: *** [arch/x86/boot/compressed/Makefile:119: arch/x86/boot/compressed/vmlinux] Error 1
 
-Based on original patch by GitHub user npx001.
+Since __force_order is already provided in pgtable_64.c, there is no
+need to declare __force_order in kaslr_64.c.
 
-Link: https://github.com/Dunedan/mbp-2016-linux/issues/9
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Leif Liddy <leif.liddy@gmail.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: Keith Busch <kbusch@kernel.org>
+Signed-off-by: H.J. Lu <hjl.tools@gmail.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Link: https://lkml.kernel.org/r/20200124181811.4780-1-hjl.tools@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/pci.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/x86/boot/compressed/kaslr_64.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
-diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
-index 944f89fc15946..654f14cef9d2a 100644
---- a/drivers/nvme/host/pci.c
-+++ b/drivers/nvme/host/pci.c
-@@ -3113,7 +3113,8 @@ static const struct pci_device_id nvme_id_table[] = {
- 		.driver_data = NVME_QUIRK_NO_DEEPEST_PS |
- 				NVME_QUIRK_IGNORE_DEV_SUBNQN, },
- 	{ PCI_DEVICE_CLASS(PCI_CLASS_STORAGE_EXPRESS, 0xffffff) },
--	{ PCI_DEVICE(PCI_VENDOR_ID_APPLE, 0x2001) },
-+	{ PCI_DEVICE(PCI_VENDOR_ID_APPLE, 0x2001),
-+		.driver_data = NVME_QUIRK_SINGLE_VECTOR },
- 	{ PCI_DEVICE(PCI_VENDOR_ID_APPLE, 0x2003) },
- 	{ PCI_DEVICE(PCI_VENDOR_ID_APPLE, 0x2005),
- 		.driver_data = NVME_QUIRK_SINGLE_VECTOR |
+diff --git a/arch/x86/boot/compressed/kaslr_64.c b/arch/x86/boot/compressed/kaslr_64.c
+index 748456c365f46..9557c5a15b91e 100644
+--- a/arch/x86/boot/compressed/kaslr_64.c
++++ b/arch/x86/boot/compressed/kaslr_64.c
+@@ -29,9 +29,6 @@
+ #define __PAGE_OFFSET __PAGE_OFFSET_BASE
+ #include "../../mm/ident_map.c"
+ 
+-/* Used by pgtable.h asm code to force instruction serialization. */
+-unsigned long __force_order;
+-
+ /* Used to track our page table allocation area. */
+ struct alloc_pgt_data {
+ 	unsigned char *pgt_buf;
 -- 
 2.20.1
 
