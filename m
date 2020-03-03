@@ -2,44 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F0D1177F8F
-	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 19:58:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4075F178064
+	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 19:59:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730954AbgCCRvg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Mar 2020 12:51:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59622 "EHLO mail.kernel.org"
+        id S1732486AbgCCR4b (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Mar 2020 12:56:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38704 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731998AbgCCRvb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Mar 2020 12:51:31 -0500
+        id S1732913AbgCCR4a (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Mar 2020 12:56:30 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B7FFA20870;
-        Tue,  3 Mar 2020 17:51:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7C3F7206D5;
+        Tue,  3 Mar 2020 17:56:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583257891;
-        bh=dYY2nfybQa9fso0nwr0Pvip/Pef4msplkJ7pnFd76jo=;
+        s=default; t=1583258189;
+        bh=WqXLuGPjE0OeTW1ZYyh7Wc01TSayOhNRxj7vwyTBiOE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YFa4f23j2CskE8y4Z0VjyPPun1VSNrJymLBTfhETc0tQ7HBbt2TVVN/qgiq258FNZ
-         i3VN5xQg9t65h0hAPzkwf88BxMHErGthwES/tPSMSvWSCuBQUBb8tz6/lD4ghyxVti
-         2quHHZ/dpWtnv4tYduZYSCNsh+0NAfiBMvcDR43U=
+        b=Bsoiq2Y8ObKgGbnftHhkPMjKrEed4TjxmbAu4yl7YSzlhcYED3dJc33X0IyVgkp23
+         jLfHAYKXIG+tLFKg1e7ZVB/SKEK82fM1uF5LUDLNjCS4M/YH+wzSYhuk2hyenLRBJf
+         k5z01vb3+B6tpQDzpOEmXFvnXVtLDqw8q9C4DHLY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jin Yao <yao.jin@linux.intel.com>,
-        Thomas Richter <tmricht@linux.ibm.com>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Andi Kleen <ak@linux.intel.com>, Jin Yao <yao.jin@intel.com>,
-        Kan Liang <kan.liang@linux.intel.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>
-Subject: [PATCH 5.5 140/176] perf report: Fix no libunwind compiled warning break s390 issue
+        stable@vger.kernel.org, Christophe Leroy <christophe.leroy@c-s.fr>,
+        Richard Guy Briggs <rgb@redhat.com>,
+        "Erhard F." <erhard_f@mailbox.org>,
+        Nikolay Aleksandrov <nikolay@cumulusnetworks.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.4 106/152] net: netlink: cap max groups which will be considered in netlink_bind()
 Date:   Tue,  3 Mar 2020 18:43:24 +0100
-Message-Id: <20200303174320.976028884@linuxfoundation.org>
+Message-Id: <20200303174314.675204257@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200303174304.593872177@linuxfoundation.org>
-References: <20200303174304.593872177@linuxfoundation.org>
+In-Reply-To: <20200303174302.523080016@linuxfoundation.org>
+References: <20200303174302.523080016@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,54 +46,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jin Yao <yao.jin@linux.intel.com>
+From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
 
-commit c3314a74f86dc00827e0945c8e5039fc3aebaa3c upstream.
+commit 3a20773beeeeadec41477a5ba872175b778ff752 upstream.
 
-Commit 800d3f561659 ("perf report: Add warning when libunwind not
-compiled in") breaks the s390 platform. S390 uses libdw-dwarf-unwind for
-call chain unwinding and had no support for libunwind.
+Since nl_groups is a u32 we can't bind more groups via ->bind
+(netlink_bind) call, but netlink has supported more groups via
+setsockopt() for a long time and thus nlk->ngroups could be over 32.
+Recently I added support for per-vlan notifications and increased the
+groups to 33 for NETLINK_ROUTE which exposed an old bug in the
+netlink_bind() code causing out-of-bounds access on archs where unsigned
+long is 32 bits via test_bit() on a local variable. Fix this by capping the
+maximum groups in netlink_bind() to BITS_PER_TYPE(u32), effectively
+capping them at 32 which is the minimum of allocated groups and the
+maximum groups which can be bound via netlink_bind().
 
-So the warning "Please install libunwind development packages during the
-perf build." caused the confusion even if the call-graph is displayed
-correctly.
-
-This patch adds checking for HAVE_DWARF_SUPPORT, which is set when
-libdw-dwarf-unwind is compiled in.
-
-Fixes: 800d3f561659 ("perf report: Add warning when libunwind not compiled in")
-Signed-off-by: Jin Yao <yao.jin@linux.intel.com>
-Reviewed-by: Thomas Richter <tmricht@linux.ibm.com>
-Tested-by: Thomas Richter <tmricht@linux.ibm.com>
-Acked-by: Jiri Olsa <jolsa@redhat.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Andi Kleen <ak@linux.intel.com>
-Cc: Jin Yao <yao.jin@intel.com>
-Cc: Kan Liang <kan.liang@linux.intel.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Link: http://lore.kernel.org/lkml/20200107191745.18415-1-yao.jin@linux.intel.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+CC: Christophe Leroy <christophe.leroy@c-s.fr>
+CC: Richard Guy Briggs <rgb@redhat.com>
+Fixes: 4f520900522f ("netlink: have netlink per-protocol bind function return an error code.")
+Reported-by: Erhard F. <erhard_f@mailbox.org>
+Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- tools/perf/builtin-report.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ net/netlink/af_netlink.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/tools/perf/builtin-report.c
-+++ b/tools/perf/builtin-report.c
-@@ -412,10 +412,10 @@ static int report__setup_sample_type(str
- 				PERF_SAMPLE_BRANCH_ANY))
- 		rep->nonany_branch_mode = true;
+--- a/net/netlink/af_netlink.c
++++ b/net/netlink/af_netlink.c
+@@ -1014,7 +1014,8 @@ static int netlink_bind(struct socket *s
+ 	if (nlk->netlink_bind && groups) {
+ 		int group;
  
--#ifndef HAVE_LIBUNWIND_SUPPORT
-+#if !defined(HAVE_LIBUNWIND_SUPPORT) && !defined(HAVE_DWARF_SUPPORT)
- 	if (dwarf_callchain_users) {
--		ui__warning("Please install libunwind development packages "
--			    "during the perf build.\n");
-+		ui__warning("Please install libunwind or libdw "
-+			    "development packages during the perf build.\n");
+-		for (group = 0; group < nlk->ngroups; group++) {
++		/* nl_groups is a u32, so cap the maximum groups we can bind */
++		for (group = 0; group < BITS_PER_TYPE(u32); group++) {
+ 			if (!test_bit(group, &groups))
+ 				continue;
+ 			err = nlk->netlink_bind(net, group + 1);
+@@ -1033,7 +1034,7 @@ static int netlink_bind(struct socket *s
+ 			netlink_insert(sk, nladdr->nl_pid) :
+ 			netlink_autobind(sock);
+ 		if (err) {
+-			netlink_undo_bind(nlk->ngroups, groups, sk);
++			netlink_undo_bind(BITS_PER_TYPE(u32), groups, sk);
+ 			goto unlock;
+ 		}
  	}
- #endif
- 
 
 
