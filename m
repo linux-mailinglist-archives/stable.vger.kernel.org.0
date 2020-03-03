@@ -2,37 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6954A176D61
-	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 04:03:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 938F3176D6C
+	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 04:03:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727445AbgCCCqZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Mar 2020 21:46:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40658 "EHLO mail.kernel.org"
+        id S1727126AbgCCDDP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Mar 2020 22:03:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40696 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727425AbgCCCqZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Mar 2020 21:46:25 -0500
+        id S1727456AbgCCCq1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Mar 2020 21:46:27 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C703224682;
-        Tue,  3 Mar 2020 02:46:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3473E2467B;
+        Tue,  3 Mar 2020 02:46:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583203584;
-        bh=XPgDphCG7o8+2DsQtg+A8h+zRYGpfJPdC/2PvdX86VQ=;
+        s=default; t=1583203586;
+        bh=3Bx8udfb9FnxnWAt+F7PsFFjq1j/IIjT9fNxerbjN54=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r7q6xY4pw2kjz4HuWXkBTGB+u1cqCDq4P7OFOpHAFlNvy3h28UAyRC0TIfmwL84Tl
-         FdnQzNrd1askHL+B5gg9T9bJUIvGdwXhyOKnibCrDziHZ6iSCe0u2KYAifKJf4DOAD
-         ZiaekaIKGXnZ/F3igxfCcZglnVJaf6AnmSAsiTwc=
+        b=hUZIsnW/IJmcnPuF+Bn3dMiSE4cqtnwYegbuk+j4NeRTVxE/nlMbRqVwqyij66Rlk
+         bsH42Z+LoLFasd/44Igy4wpiwtBtO4/hmyrgsKzOOcrhpXG89X9EH/vTZs9NsNsxb3
+         /1AsPzhH/pm6VOGcLumiqUKnSV0nBDY+wi6VvioQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Lars-Peter Clausen <lars@metafoo.de>,
-        Michal Nazarewicz <mina86@mina86.com>,
-        Alexandru Ardelean <alexandru.ardelean@analog.com>,
-        Felipe Balbi <balbi@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.5 07/66] usb: gadget: ffs: ffs_aio_cancel(): Save/restore IRQ flags
-Date:   Mon,  2 Mar 2020 21:45:16 -0500
-Message-Id: <20200303024615.8889-7-sashal@kernel.org>
+Cc:     Oded Gabbay <oded.gabbay@gmail.com>,
+        Tomer Tayar <ttayar@habana.ai>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.5 09/66] habanalabs: halt the engines before hard-reset
+Date:   Mon,  2 Mar 2020 21:45:18 -0500
+Message-Id: <20200303024615.8889-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200303024615.8889-1-sashal@kernel.org>
 References: <20200303024615.8889-1-sashal@kernel.org>
@@ -45,51 +42,141 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lars-Peter Clausen <lars@metafoo.de>
+From: Oded Gabbay <oded.gabbay@gmail.com>
 
-[ Upstream commit 43d565727a3a6fd24e37c7c2116475106af71806 ]
+[ Upstream commit 908087ffbe896c100ed73d5f0ce11a5b7264af4a ]
 
-ffs_aio_cancel() can be called from both interrupt and thread context. Make
-sure that the current IRQ state is saved and restored by using
-spin_{un,}lock_irq{save,restore}().
+The driver must halt the engines before doing hard-reset, otherwise the
+device can go into undefined state. There is a place where the driver
+didn't do that and this patch fixes it.
 
-Otherwise undefined behavior might occur.
-
-Acked-by: Michal Nazarewicz <mina86@mina86.com>
-Signed-off-by: Lars-Peter Clausen <lars@metafoo.de>
-Signed-off-by: Alexandru Ardelean <alexandru.ardelean@analog.com>
-Signed-off-by: Felipe Balbi <balbi@kernel.org>
+Reviewed-by: Tomer Tayar <ttayar@habana.ai>
+Signed-off-by: Oded Gabbay <oded.gabbay@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/function/f_fs.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/misc/habanalabs/device.c    |  1 +
+ drivers/misc/habanalabs/goya/goya.c | 42 +++++++++++++++++++++++++++++
+ 2 files changed, 43 insertions(+)
 
-diff --git a/drivers/usb/gadget/function/f_fs.c b/drivers/usb/gadget/function/f_fs.c
-index 6f8b67e617716..bdac92d3a8d0c 100644
---- a/drivers/usb/gadget/function/f_fs.c
-+++ b/drivers/usb/gadget/function/f_fs.c
-@@ -1162,18 +1162,19 @@ static int ffs_aio_cancel(struct kiocb *kiocb)
+diff --git a/drivers/misc/habanalabs/device.c b/drivers/misc/habanalabs/device.c
+index b155e95490761..166883b647252 100644
+--- a/drivers/misc/habanalabs/device.c
++++ b/drivers/misc/habanalabs/device.c
+@@ -1189,6 +1189,7 @@ int hl_device_init(struct hl_device *hdev, struct class *hclass)
+ 	if (hdev->asic_funcs->get_hw_state(hdev) == HL_DEVICE_HW_STATE_DIRTY) {
+ 		dev_info(hdev->dev,
+ 			"H/W state is dirty, must reset before initializing\n");
++		hdev->asic_funcs->halt_engines(hdev, true);
+ 		hdev->asic_funcs->hw_fini(hdev, true);
+ 	}
+ 
+diff --git a/drivers/misc/habanalabs/goya/goya.c b/drivers/misc/habanalabs/goya/goya.c
+index 7344e8a222ae5..f24fe909b88d8 100644
+--- a/drivers/misc/habanalabs/goya/goya.c
++++ b/drivers/misc/habanalabs/goya/goya.c
+@@ -895,6 +895,11 @@ void goya_init_dma_qmans(struct hl_device *hdev)
+  */
+ static void goya_disable_external_queues(struct hl_device *hdev)
  {
- 	struct ffs_io_data *io_data = kiocb->private;
- 	struct ffs_epfile *epfile = kiocb->ki_filp->private_data;
-+	unsigned long flags;
- 	int value;
++	struct goya_device *goya = hdev->asic_specific;
++
++	if (!(goya->hw_cap_initialized & HW_CAP_DMA))
++		return;
++
+ 	WREG32(mmDMA_QM_0_GLBL_CFG0, 0);
+ 	WREG32(mmDMA_QM_1_GLBL_CFG0, 0);
+ 	WREG32(mmDMA_QM_2_GLBL_CFG0, 0);
+@@ -956,6 +961,11 @@ static int goya_stop_external_queues(struct hl_device *hdev)
+ {
+ 	int rc, retval = 0;
  
- 	ENTER();
++	struct goya_device *goya = hdev->asic_specific;
++
++	if (!(goya->hw_cap_initialized & HW_CAP_DMA))
++		return retval;
++
+ 	rc = goya_stop_queue(hdev,
+ 			mmDMA_QM_0_GLBL_CFG1,
+ 			mmDMA_QM_0_CP_STS,
+@@ -1744,9 +1754,18 @@ void goya_init_tpc_qmans(struct hl_device *hdev)
+  */
+ static void goya_disable_internal_queues(struct hl_device *hdev)
+ {
++	struct goya_device *goya = hdev->asic_specific;
++
++	if (!(goya->hw_cap_initialized & HW_CAP_MME))
++		goto disable_tpc;
++
+ 	WREG32(mmMME_QM_GLBL_CFG0, 0);
+ 	WREG32(mmMME_CMDQ_GLBL_CFG0, 0);
  
--	spin_lock_irq(&epfile->ffs->eps_lock);
-+	spin_lock_irqsave(&epfile->ffs->eps_lock, flags);
++disable_tpc:
++	if (!(goya->hw_cap_initialized & HW_CAP_TPC))
++		return;
++
+ 	WREG32(mmTPC0_QM_GLBL_CFG0, 0);
+ 	WREG32(mmTPC0_CMDQ_GLBL_CFG0, 0);
  
- 	if (likely(io_data && io_data->ep && io_data->req))
- 		value = usb_ep_dequeue(io_data->ep, io_data->req);
- 	else
- 		value = -EINVAL;
+@@ -1782,8 +1801,12 @@ static void goya_disable_internal_queues(struct hl_device *hdev)
+  */
+ static int goya_stop_internal_queues(struct hl_device *hdev)
+ {
++	struct goya_device *goya = hdev->asic_specific;
+ 	int rc, retval = 0;
  
--	spin_unlock_irq(&epfile->ffs->eps_lock);
-+	spin_unlock_irqrestore(&epfile->ffs->eps_lock, flags);
++	if (!(goya->hw_cap_initialized & HW_CAP_MME))
++		goto stop_tpc;
++
+ 	/*
+ 	 * Each queue (QMAN) is a separate H/W logic. That means that each
+ 	 * QMAN can be stopped independently and failure to stop one does NOT
+@@ -1810,6 +1833,10 @@ static int goya_stop_internal_queues(struct hl_device *hdev)
+ 		retval = -EIO;
+ 	}
  
- 	return value;
++stop_tpc:
++	if (!(goya->hw_cap_initialized & HW_CAP_TPC))
++		return retval;
++
+ 	rc = goya_stop_queue(hdev,
+ 			mmTPC0_QM_GLBL_CFG1,
+ 			mmTPC0_QM_CP_STS,
+@@ -1975,6 +2002,11 @@ static int goya_stop_internal_queues(struct hl_device *hdev)
+ 
+ static void goya_dma_stall(struct hl_device *hdev)
+ {
++	struct goya_device *goya = hdev->asic_specific;
++
++	if (!(goya->hw_cap_initialized & HW_CAP_DMA))
++		return;
++
+ 	WREG32(mmDMA_QM_0_GLBL_CFG1, 1 << DMA_QM_0_GLBL_CFG1_DMA_STOP_SHIFT);
+ 	WREG32(mmDMA_QM_1_GLBL_CFG1, 1 << DMA_QM_1_GLBL_CFG1_DMA_STOP_SHIFT);
+ 	WREG32(mmDMA_QM_2_GLBL_CFG1, 1 << DMA_QM_2_GLBL_CFG1_DMA_STOP_SHIFT);
+@@ -1984,6 +2016,11 @@ static void goya_dma_stall(struct hl_device *hdev)
+ 
+ static void goya_tpc_stall(struct hl_device *hdev)
+ {
++	struct goya_device *goya = hdev->asic_specific;
++
++	if (!(goya->hw_cap_initialized & HW_CAP_TPC))
++		return;
++
+ 	WREG32(mmTPC0_CFG_TPC_STALL, 1 << TPC0_CFG_TPC_STALL_V_SHIFT);
+ 	WREG32(mmTPC1_CFG_TPC_STALL, 1 << TPC1_CFG_TPC_STALL_V_SHIFT);
+ 	WREG32(mmTPC2_CFG_TPC_STALL, 1 << TPC2_CFG_TPC_STALL_V_SHIFT);
+@@ -1996,6 +2033,11 @@ static void goya_tpc_stall(struct hl_device *hdev)
+ 
+ static void goya_mme_stall(struct hl_device *hdev)
+ {
++	struct goya_device *goya = hdev->asic_specific;
++
++	if (!(goya->hw_cap_initialized & HW_CAP_MME))
++		return;
++
+ 	WREG32(mmMME_STALL, 0xFFFFFFFF);
  }
+ 
 -- 
 2.20.1
 
