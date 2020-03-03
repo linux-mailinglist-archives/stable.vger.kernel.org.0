@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B589C177EF6
-	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 19:57:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2DD3D178034
+	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 19:59:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731445AbgCCRr6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Mar 2020 12:47:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54930 "EHLO mail.kernel.org"
+        id S1732694AbgCCRzX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Mar 2020 12:55:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36946 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730257AbgCCRr5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Mar 2020 12:47:57 -0500
+        id S1732090AbgCCRzW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Mar 2020 12:55:22 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D6D0B20870;
-        Tue,  3 Mar 2020 17:47:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EAC95206D5;
+        Tue,  3 Mar 2020 17:55:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583257675;
-        bh=lLXV8zXFcoeh5vspB0Dmm2DndBeHVgQLc1e/L5frTEo=;
+        s=default; t=1583258121;
+        bh=e1SKCZPdGa2avM3Ux/3r2Ge8S6FtgQ3cCJFYoRw0Vzs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BnL+P3yX21xjiLq/brkXizgCjR+vaFi4SLSsybvLR2/AGKvzej+p1kESw/A69bIx/
-         np2msSvWv4hdRReHpglnQVnyMPVja6h33+HArC0+AXa+HXcZYVE+9E8ut8eEJajZwL
-         vnUtbf9mL8kAcbIfq8r1jiwiTOKlT5MVkaJQj9iw=
+        b=L041XZ+5lGmnP5b26A5GGktLNSP88tWbGPKihONYyvdLrxa8yuk/X/GHXHb0we81u
+         7w/QMFrhaYbbZkNoQ83Gs4Z3mRa7zvSPhZwdVjOrhjuEcArZbnnT8WcEucAxLTj4MM
+         7mj8hvbuxYEEEDtZvgLsZ9jCONL+skwDiE/FM/28=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+399c44bf1f43b8747403@syzkaller.appspotmail.com,
-        syzbot+e4b12d8d202701f08b6d@syzkaller.appspotmail.com,
-        Paul Moore <paul@paul-moore.com>
-Subject: [PATCH 5.5 086/176] audit: always check the netlink payload length in audit_receive_msg()
+        stable@vger.kernel.org, Sameeh Jubran <sameehj@amazon.com>,
+        Arthur Kiyanovski <akiyano@amazon.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 052/152] net: ena: fix incorrect default RSS key
 Date:   Tue,  3 Mar 2020 18:42:30 +0100
-Message-Id: <20200303174314.645746047@linuxfoundation.org>
+Message-Id: <20200303174308.333750993@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200303174304.593872177@linuxfoundation.org>
-References: <20200303174304.593872177@linuxfoundation.org>
+In-Reply-To: <20200303174302.523080016@linuxfoundation.org>
+References: <20200303174302.523080016@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,148 +45,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Moore <paul@paul-moore.com>
+From: Arthur Kiyanovski <akiyano@amazon.com>
 
-commit 756125289285f6e55a03861bf4b6257aa3d19a93 upstream.
+[ Upstream commit 0d1c3de7b8c78a5e44b74b62ede4a63629f5d811 ]
 
-This patch ensures that we always check the netlink payload length
-in audit_receive_msg() before we take any action on the payload
-itself.
+Bug description:
+When running "ethtool -x <if_name>" the key shows up as all zeros.
 
-Cc: stable@vger.kernel.org
-Reported-by: syzbot+399c44bf1f43b8747403@syzkaller.appspotmail.com
-Reported-by: syzbot+e4b12d8d202701f08b6d@syzkaller.appspotmail.com
-Signed-off-by: Paul Moore <paul@paul-moore.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+When we use "ethtool -X <if_name> hfunc toeplitz hkey <some:random:key>" to
+set the key and then try to retrieve it using "ethtool -x <if_name>" then
+we return the correct key because we return the one we saved.
 
+Bug cause:
+We don't fetch the key from the device but instead return the key
+that we have saved internally which is by default set to zero upon
+allocation.
+
+Fix:
+This commit fixes the issue by initializing the key to a random value
+using netdev_rss_key_fill().
+
+Fixes: 1738cd3ed342 ("net: ena: Add a driver for Amazon Elastic Network Adapters (ENA)")
+Signed-off-by: Sameeh Jubran <sameehj@amazon.com>
+Signed-off-by: Arthur Kiyanovski <akiyano@amazon.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/audit.c |   40 +++++++++++++++++++++-------------------
- 1 file changed, 21 insertions(+), 19 deletions(-)
+ drivers/net/ethernet/amazon/ena/ena_com.c | 15 +++++++++++++++
+ drivers/net/ethernet/amazon/ena/ena_com.h |  1 +
+ 2 files changed, 16 insertions(+)
 
---- a/kernel/audit.c
-+++ b/kernel/audit.c
-@@ -1100,13 +1100,11 @@ static void audit_log_feature_change(int
- 	audit_log_end(ab);
+diff --git a/drivers/net/ethernet/amazon/ena/ena_com.c b/drivers/net/ethernet/amazon/ena/ena_com.c
+index e54c44fdcaa73..d6b894b06fa30 100644
+--- a/drivers/net/ethernet/amazon/ena/ena_com.c
++++ b/drivers/net/ethernet/amazon/ena/ena_com.c
+@@ -1041,6 +1041,19 @@ static int ena_com_get_feature(struct ena_com_dev *ena_dev,
+ 				      feature_ver);
  }
  
--static int audit_set_feature(struct sk_buff *skb)
-+static int audit_set_feature(struct audit_features *uaf)
- {
--	struct audit_features *uaf;
- 	int i;
- 
- 	BUILD_BUG_ON(AUDIT_LAST_FEATURE + 1 > ARRAY_SIZE(audit_feature_names));
--	uaf = nlmsg_data(nlmsg_hdr(skb));
- 
- 	/* if there is ever a version 2 we should handle that here */
- 
-@@ -1174,6 +1172,7 @@ static int audit_receive_msg(struct sk_b
- {
- 	u32			seq;
- 	void			*data;
-+	int			data_len;
- 	int			err;
- 	struct audit_buffer	*ab;
- 	u16			msg_type = nlh->nlmsg_type;
-@@ -1187,6 +1186,7 @@ static int audit_receive_msg(struct sk_b
- 
- 	seq  = nlh->nlmsg_seq;
- 	data = nlmsg_data(nlh);
-+	data_len = nlmsg_len(nlh);
- 
- 	switch (msg_type) {
- 	case AUDIT_GET: {
-@@ -1210,7 +1210,7 @@ static int audit_receive_msg(struct sk_b
- 		struct audit_status	s;
- 		memset(&s, 0, sizeof(s));
- 		/* guard against past and future API changes */
--		memcpy(&s, data, min_t(size_t, sizeof(s), nlmsg_len(nlh)));
-+		memcpy(&s, data, min_t(size_t, sizeof(s), data_len));
- 		if (s.mask & AUDIT_STATUS_ENABLED) {
- 			err = audit_set_enabled(s.enabled);
- 			if (err < 0)
-@@ -1314,7 +1314,9 @@ static int audit_receive_msg(struct sk_b
- 			return err;
- 		break;
- 	case AUDIT_SET_FEATURE:
--		err = audit_set_feature(skb);
-+		if (data_len < sizeof(struct audit_features))
-+			return -EINVAL;
-+		err = audit_set_feature(data);
- 		if (err)
- 			return err;
- 		break;
-@@ -1326,6 +1328,8 @@ static int audit_receive_msg(struct sk_b
- 
- 		err = audit_filter(msg_type, AUDIT_FILTER_USER);
- 		if (err == 1) { /* match or error */
-+			char *str = data;
++static void ena_com_hash_key_fill_default_key(struct ena_com_dev *ena_dev)
++{
++	struct ena_admin_feature_rss_flow_hash_control *hash_key =
++		(ena_dev->rss).hash_key;
 +
- 			err = 0;
- 			if (msg_type == AUDIT_USER_TTY) {
- 				err = tty_audit_push();
-@@ -1333,26 +1337,24 @@ static int audit_receive_msg(struct sk_b
- 					break;
- 			}
- 			audit_log_user_recv_msg(&ab, msg_type);
--			if (msg_type != AUDIT_USER_TTY)
-+			if (msg_type != AUDIT_USER_TTY) {
-+				/* ensure NULL termination */
-+				str[data_len - 1] = '\0';
- 				audit_log_format(ab, " msg='%.*s'",
- 						 AUDIT_MESSAGE_TEXT_MAX,
--						 (char *)data);
--			else {
--				int size;
--
-+						 str);
-+			} else {
- 				audit_log_format(ab, " data=");
--				size = nlmsg_len(nlh);
--				if (size > 0 &&
--				    ((unsigned char *)data)[size - 1] == '\0')
--					size--;
--				audit_log_n_untrustedstring(ab, data, size);
-+				if (data_len > 0 && str[data_len - 1] == '\0')
-+					data_len--;
-+				audit_log_n_untrustedstring(ab, str, data_len);
- 			}
- 			audit_log_end(ab);
- 		}
- 		break;
- 	case AUDIT_ADD_RULE:
- 	case AUDIT_DEL_RULE:
--		if (nlmsg_len(nlh) < sizeof(struct audit_rule_data))
-+		if (data_len < sizeof(struct audit_rule_data))
- 			return -EINVAL;
- 		if (audit_enabled == AUDIT_LOCKED) {
- 			audit_log_common_recv_msg(audit_context(), &ab,
-@@ -1364,7 +1366,7 @@ static int audit_receive_msg(struct sk_b
- 			audit_log_end(ab);
- 			return -EPERM;
- 		}
--		err = audit_rule_change(msg_type, seq, data, nlmsg_len(nlh));
-+		err = audit_rule_change(msg_type, seq, data, data_len);
- 		break;
- 	case AUDIT_LIST_RULES:
- 		err = audit_list_rules_send(skb, seq);
-@@ -1379,7 +1381,7 @@ static int audit_receive_msg(struct sk_b
- 	case AUDIT_MAKE_EQUIV: {
- 		void *bufp = data;
- 		u32 sizes[2];
--		size_t msglen = nlmsg_len(nlh);
-+		size_t msglen = data_len;
- 		char *old, *new;
++	netdev_rss_key_fill(&hash_key->key, sizeof(hash_key->key));
++	/* The key is stored in the device in u32 array
++	 * as well as the API requires the key to be passed in this
++	 * format. Thus the size of our array should be divided by 4
++	 */
++	hash_key->keys_num = sizeof(hash_key->key) / sizeof(u32);
++}
++
+ static int ena_com_hash_key_allocate(struct ena_com_dev *ena_dev)
+ {
+ 	struct ena_rss *rss = &ena_dev->rss;
+@@ -2631,6 +2644,8 @@ int ena_com_rss_init(struct ena_com_dev *ena_dev, u16 indr_tbl_log_size)
+ 	if (unlikely(rc))
+ 		goto err_hash_key;
  
- 		err = -EINVAL;
-@@ -1455,7 +1457,7 @@ static int audit_receive_msg(struct sk_b
++	ena_com_hash_key_fill_default_key(ena_dev);
++
+ 	rc = ena_com_hash_ctrl_init(ena_dev);
+ 	if (unlikely(rc))
+ 		goto err_hash_ctrl;
+diff --git a/drivers/net/ethernet/amazon/ena/ena_com.h b/drivers/net/ethernet/amazon/ena/ena_com.h
+index 0ce37d54ed108..9b5bd28ed0ac6 100644
+--- a/drivers/net/ethernet/amazon/ena/ena_com.h
++++ b/drivers/net/ethernet/amazon/ena/ena_com.h
+@@ -44,6 +44,7 @@
+ #include <linux/spinlock.h>
+ #include <linux/types.h>
+ #include <linux/wait.h>
++#include <linux/netdevice.h>
  
- 		memset(&s, 0, sizeof(s));
- 		/* guard against past and future API changes */
--		memcpy(&s, data, min_t(size_t, sizeof(s), nlmsg_len(nlh)));
-+		memcpy(&s, data, min_t(size_t, sizeof(s), data_len));
- 		/* check if new data is valid */
- 		if ((s.enabled != 0 && s.enabled != 1) ||
- 		    (s.log_passwd != 0 && s.log_passwd != 1))
+ #include "ena_common_defs.h"
+ #include "ena_admin_defs.h"
+-- 
+2.20.1
+
 
 
