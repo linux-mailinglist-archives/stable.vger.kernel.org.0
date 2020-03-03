@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 19AFC1781F7
-	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 20:03:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B3591781F3
+	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 20:03:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732373AbgCCSIM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Mar 2020 13:08:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34670 "EHLO mail.kernel.org"
+        id S1732346AbgCCSIF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Mar 2020 13:08:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34826 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732440AbgCCRx5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Mar 2020 12:53:57 -0500
+        id S1732458AbgCCRyC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Mar 2020 12:54:02 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 19B45206D5;
-        Tue,  3 Mar 2020 17:53:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3B020206D5;
+        Tue,  3 Mar 2020 17:54:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583258036;
-        bh=PhncEhRCTKBC5B1M7UkmrcPOnOXpB7zh+aV1dws/UrY=;
+        s=default; t=1583258041;
+        bh=QaUmGOs6VeR87aE8yHZMtpxIbTBHgOfdmQpPxvkOCs0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ekvGdYREdQBsRwKtbtWzlITQz+rGWnf3i6RMEH1n6qr/VWKAzapXyzt8zMrXVwauy
-         8PXVeuWL2GCq6UlMIUJ6/+1O+AIU7B+/k79OGo3PgNru4MUbLkrGIdvr2SeBF8/j0y
-         T+EjG3cjKmZl2K/Xz5V9gU7KX+wLLHQIleaa8Y+o=
+        b=1gUg39SuoDncn5VPOloYOeMRKpwDt9kFadBPww0j9UIvBCBdQS3j8cttRA0PVmHta
+         bUEM8bXmC4Lw11F43KLUhrhJpQsU/kLL70HjSoLAR87yDm+EUZaQbLiDah4DjHjYq9
+         oK5AKNmSYZhYjCdgAlY/XU7HyCvmHlWqdxUDB9+k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Isabel Zhang <isabel.zhang@amd.com>,
-        Eric Yang <eric.yang2@amd.com>,
-        Bhawanpreet Lakha <Bhawanpreet.Lakha@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org, kbuild test robot <lkp@intel.com>,
+        Thierry Reding <treding@nvidia.com>,
+        Olof Johansson <olof@lixom.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 045/152] drm/amd/display: Add initialitions for PLL2 clock source
-Date:   Tue,  3 Mar 2020 18:42:23 +0100
-Message-Id: <20200303174307.528235584@linuxfoundation.org>
+Subject: [PATCH 5.4 047/152] soc/tegra: fuse: Fix build with Tegra194 configuration
+Date:   Tue,  3 Mar 2020 18:42:25 +0100
+Message-Id: <20200303174307.765802208@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200303174302.523080016@linuxfoundation.org>
 References: <20200303174302.523080016@linuxfoundation.org>
@@ -46,58 +45,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Isabel Zhang <isabel.zhang@amd.com>
+From: Thierry Reding <treding@nvidia.com>
 
-[ Upstream commit c134c3cabae46a56ab2e1f5e5fa49405e1758838 ]
+[ Upstream commit 6f4ecbe284df5f22e386a640d9a4b32cede62030 ]
 
-[Why]
-Starting from 14nm, the PLL is built into the PHY and the PLL is mapped
-to PHY on 1 to 1 basis. In the code, the DP port is mapped to a PLL that was not
-initialized. This causes DP to HDMI dongle to not light up the display.
+If only Tegra194 support is enabled, the tegra30_fuse_read() and
+tegra30_fuse_init() function are not declared and cause a build failure.
+Add Tegra194 to the preprocessor guard to make sure these functions are
+available for Tegra194-only builds as well.
 
-[How]
-Initializations added for PLL2 when creating resources.
-
-Signed-off-by: Isabel Zhang <isabel.zhang@amd.com>
-Reviewed-by: Eric Yang <eric.yang2@amd.com>
-Acked-by: Bhawanpreet Lakha <Bhawanpreet.Lakha@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Link: https://lore.kernel.org/r/20200203143114.3967295-1-thierry.reding@gmail.com
+Reported-by: kbuild test robot <lkp@intel.com>
+Signed-off-by: Thierry Reding <treding@nvidia.com>
+Signed-off-by: Olof Johansson <olof@lixom.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/soc/tegra/fuse/fuse-tegra30.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c b/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c
-index b0e5e64df2127..161bf7caf3ae0 100644
---- a/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c
-+++ b/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c
-@@ -57,6 +57,7 @@
- #include "dcn20/dcn20_dccg.h"
- #include "dcn21_hubbub.h"
- #include "dcn10/dcn10_resource.h"
-+#include "dce110/dce110_resource.h"
- 
- #include "dcn20/dcn20_dwb.h"
- #include "dcn20/dcn20_mmhubbub.h"
-@@ -824,6 +825,7 @@ static const struct dc_debug_options debug_defaults_diags = {
- enum dcn20_clk_src_array_id {
- 	DCN20_CLK_SRC_PLL0,
- 	DCN20_CLK_SRC_PLL1,
-+	DCN20_CLK_SRC_PLL2,
- 	DCN20_CLK_SRC_TOTAL_DCN21
- };
- 
-@@ -1492,6 +1494,10 @@ static bool construct(
- 			dcn21_clock_source_create(ctx, ctx->dc_bios,
- 				CLOCK_SOURCE_COMBO_PHY_PLL1,
- 				&clk_src_regs[1], false);
-+	pool->base.clock_sources[DCN20_CLK_SRC_PLL2] =
-+			dcn21_clock_source_create(ctx, ctx->dc_bios,
-+				CLOCK_SOURCE_COMBO_PHY_PLL2,
-+				&clk_src_regs[2], false);
- 
- 	pool->base.clk_src_count = DCN20_CLK_SRC_TOTAL_DCN21;
- 
+diff --git a/drivers/soc/tegra/fuse/fuse-tegra30.c b/drivers/soc/tegra/fuse/fuse-tegra30.c
+index be9424a871734..9c3ef0a02fd4e 100644
+--- a/drivers/soc/tegra/fuse/fuse-tegra30.c
++++ b/drivers/soc/tegra/fuse/fuse-tegra30.c
+@@ -35,7 +35,8 @@
+     defined(CONFIG_ARCH_TEGRA_124_SOC) || \
+     defined(CONFIG_ARCH_TEGRA_132_SOC) || \
+     defined(CONFIG_ARCH_TEGRA_210_SOC) || \
+-    defined(CONFIG_ARCH_TEGRA_186_SOC)
++    defined(CONFIG_ARCH_TEGRA_186_SOC) || \
++    defined(CONFIG_ARCH_TEGRA_194_SOC)
+ static u32 tegra30_fuse_read_early(struct tegra_fuse *fuse, unsigned int offset)
+ {
+ 	if (WARN_ON(!fuse->base))
 -- 
 2.20.1
 
