@@ -2,203 +2,109 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3CCE41770A2
-	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 09:01:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D72F91770AD
+	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 09:03:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727668AbgCCIBk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Mar 2020 03:01:40 -0500
-Received: from Galois.linutronix.de ([193.142.43.55]:43687 "EHLO
-        Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727552AbgCCIBk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 Mar 2020 03:01:40 -0500
-Received: from [5.158.153.52] (helo=kurt)
-        by Galois.linutronix.de with esmtpsa (TLS1.2:RSA_AES_256_CBC_SHA1:256)
-        (Exim 4.80)
-        (envelope-from <kurt@linutronix.de>)
-        id 1j92Ue-0001yk-Jk; Tue, 03 Mar 2020 09:01:32 +0100
-From:   Kurt Kanzenbach <kurt@linutronix.de>
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        gregkh@linuxfoundation.org, lirongqing@baidu.com,
-        stable@vger.kernel.org, vikram.pandita@ti.com
-Subject: Re: FAILED: patch "[PATCH] serial: 8250: Check UPF_IRQ_SHARED in advance" failed to apply to 4.14-stable tree
-In-Reply-To: <20200228183643.GB21491@sasha-vm>
-References: <158271336456142@kroah.com> <20200226233949.GC22178@sasha-vm> <20200227095908.GC1224808@smile.fi.intel.com> <87r1yf2j57.fsf@kurt> <20200228183643.GB21491@sasha-vm>
-Date:   Tue, 03 Mar 2020 09:01:23 +0100
-Message-ID: <87wo81c1f0.fsf@kurt>
+        id S1727565AbgCCID3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Mar 2020 03:03:29 -0500
+Received: from mail-lj1-f193.google.com ([209.85.208.193]:40329 "EHLO
+        mail-lj1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727594AbgCCID2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 Mar 2020 03:03:28 -0500
+Received: by mail-lj1-f193.google.com with SMTP id 143so2427345ljj.7
+        for <stable@vger.kernel.org>; Tue, 03 Mar 2020 00:03:27 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=KqbIKcbs836wG6Yo6y8EZd9rbyi6kC17rHMJ5qkNUd0=;
+        b=z8yRqL8AxErgkwMitPy14bX7MB/os/974SQCYJw77/bz+T5pL4OkURYeGAc407dJJf
+         DThVxE/N2WYyP8GTVS4ecDIpJ/r/ERmC9vhJalGJunef4LYEsKCNd0uWZ17Fg8P5R4hf
+         wgnR1qwEmAXxMW9vYfjJuI/2yq8i/xJCy2Y5gtv9/J+xkorHnNjTBl4ZtZ3i3iKZ5Uc0
+         TH7++J2bebb9Nr7+W+rkX5cwqL2tev2uYDiYwsBHoy3FFFSRrN4MEyDIurpoNMLHNd+w
+         JVoMbkxAg5MKp88pcQ/sPiuMl2gXrrlvFV/NlWgri+YgJqutmiF9RNjukTWUGGVntFS7
+         sPVQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=KqbIKcbs836wG6Yo6y8EZd9rbyi6kC17rHMJ5qkNUd0=;
+        b=kZvSnvSJo5RE8LnMyZ4dMLiWkyOB23UI4xPUlRRmtDaaN+pY1SvcMBM15upCv5fX/L
+         nmRjuM2WBFybxfYV2ZbTOxZB9c8okW3MRcWCxH8yCfve3YLn7vXkIXoBmcJ35MBE8qq8
+         BJVcRI3ZUbVSwSanrA78Csjw4+fWaKTGsjGvQuywPf3D6bCxgVLf0B2hwZqCtu63Qxgu
+         eltrbizHoqkY+vw+m7gmii4Qrd9JBGMlI+axNZ/dGGSWJfEe00Avkfrj8sCqZJMTpFQ7
+         J48GkXuydyr6dTnvye4JlZKF9R/GxwivJSuj82/PY/Xq2/AtXi6UpR2iHhdLoTs+yj3h
+         taSQ==
+X-Gm-Message-State: ANhLgQ1RUrMAkuaaXjITgUI5gvjcEccIjk/o/VI/mrFYZ6e56sezEb6t
+        6GGE80qARuWIuWmxkUrFBcrtl0dd6CPU9sVuLLAMJg==
+X-Google-Smtp-Source: ADFU+vvzJ/cjCzm1guynTnQn7rdNgauoTGbH+2fVcr5Y8zj9LcIfCI1rC2H/5GERmJmKWuc2xxQMxTcpLRu6XbZUw9A=
+X-Received: by 2002:a2e:8546:: with SMTP id u6mr1622427ljj.21.1583222606658;
+ Tue, 03 Mar 2020 00:03:26 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: multipart/signed; boundary="=-=-=";
-        micalg=pgp-sha512; protocol="application/pgp-signature"
+References: <6CF798B4-B68B-4729-A496-2152FC032ABC@apple.com>
+ <20200301031128.GK21491@sasha-vm> <2f569b8a-329f-8259-d91c-7e526e0d768c@apple.com>
+In-Reply-To: <2f569b8a-329f-8259-d91c-7e526e0d768c@apple.com>
+From:   Vincent Guittot <vincent.guittot@linaro.org>
+Date:   Tue, 3 Mar 2020 09:03:15 +0100
+Message-ID: <CAKfTPtAHpJmEXzBtaeFA+PHDEzZq+0DfG+LABcTRnXCVz=6adQ@mail.gmail.com>
+Subject: Re: Fixes for 4.19 stable
+To:     Vishnu Rangayyan <vishnu.rangayyan@apple.com>
+Cc:     Sasha Levin <sashal@kernel.org>,
+        "# v4 . 16+" <stable@vger.kernel.org>,
+        "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>,
+        Andrew Forgue <andrewf@apple.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Dietmar Eggemann <dietmar.eggemann@arm.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
---=-=-=
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
-
-Hi Sasha,
-
-On Fri Feb 28 2020, Sasha Levin wrote:
-> Hm, yes, looking at it now it doesn't look too tricky, I'm not sure what
-> happened a few days ago :)
+On Tue, 3 Mar 2020 at 00:13, Vishnu Rangayyan
+<vishnu.rangayyan@apple.com> wrote:
 >
-> If you want to send me a backport I'll be happy to queue it up.
+> Hi Sasha,
+>
+> Not sure of this, looks relevant but I'm no expert on this code.
+> This particular change bef69dd87828 doesn't apply cleanly, need to
+> backport it. I'll do that now and retest on the failing setup and report
+> back.
+>
+> Best
+> Vishnu
+>
+> On 2/29/20 7:11 PM, Sasha Levin wrote:
+> > On Fri, Feb 28, 2020 at 12:13:54PM -0800, Vishnu Rangayyan wrote:
+> >> Hi,
+> >>
+> >> I still see high (upto 30%) ksoftirqd cpu use with 4.19.101+ after
+> >> these 2 back ports went in for 4.19.101
+> >> (had all 4 backports applied earlier to our tree):
+> >>
+> >> commit f6783319737f28e4436a69611853a5a098cbe974 sched/fair: Fix
+> >> insertion in rq->leaf_cfs_rq_list
+> >> commit 5d299eabea5a251fbf66e8277704b874bbba92dc sched/fair: Add
+> >> tmp_alone_branch assertion
+> >>
+> >> perf shows for any given ksoftirqd, with 20k-30k processes on the
+> >> system with high scheduler load:
+> >>  58.88%  ksoftirqd/0  [kernel.kallsyms]  [k] update_blocked_averages
+> >>
+> >> Can we backport these 2 also, confirmed that it fixes this behavior of
+> >> ksoftirqd.
+> >>
+> >> commit 039ae8bcf7a5f4476f4487e6bf816885fb3fb617 upstream
+> >> commit 31bc6aeaab1d1de8959b67edbed5c7a4b3cdbe7c upstream
+> >
+> > Do we also need bef69dd87828 ("sched/cpufreq: Move the
+> > cfs_rq_util_change() call to cpufreq_update_util()") then?
 
-Sure. In v4.9 and older kernels the bug exists, but the workarounds
-aren't applied. So, Andy's patch becomes shorter.
+This patch is not related to the 2 patches above. It removes some
+spurious call to cfs_rq_util_change() and some wrong ordering but this
+is a fixed overhead which is not impacted by the number of cgroups
+unlike the 2 patches above. This patch will not help with the high
+load of update_blocked_averages
 
-Here's a backport for v4.9 (compile tested only):
-
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-From=20e819a733cc31d0a6b598aafafc8230fefa37f34a Mon Sep 17 00:00:00 2001
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Date: Tue, 3 Mar 2020 08:49:55 +0100
-Subject: [PATCH] serial: 8250: Check UPF_IRQ_SHARED in advance
-
-The commit 54e53b2e8081
-  ("tty: serial: 8250: pass IRQ shared flag to UART ports")
-nicely explained the problem:
-
-=2D--8<---8<---
-
-On some systems IRQ lines between multiple UARTs might be shared. If so, the
-irqflags have to be configured accordingly. The reason is: The 8250 port st=
-artup
-code performs IRQ tests *before* the IRQ handler for that particular port is
-registered. This is performed in serial8250_do_startup(). This function che=
-cks
-whether IRQF_SHARED is configured and only then disables the IRQ line while
-testing.
-
-This test is performed upon each open() of the UART device. Imagine two UAR=
-Ts
-share the same IRQ line: On is already opened and the IRQ is active. When t=
-he
-second UART is opened, the IRQ line has to be disabled while performing IRQ
-tests. Otherwise an IRQ might handler might be invoked, but the IRQ itself
-cannot be handled, because the corresponding handler isn't registered,
-yet. That's because the 8250 code uses a chain-handler and invokes the
-corresponding port's IRQ handling routines himself.
-
-Unfortunately this IRQF_SHARED flag isn't configured for UARTs probed via d=
-evice
-tree even if the IRQs are shared. This way, the actual and shared IRQ line =
-isn't
-disabled while performing tests and the kernel correctly detects a spurious
-IRQ. So, adding this flag to the DT probe solves the issue.
-
-Note: The UPF_SHARE_IRQ flag is configured unconditionally. Therefore, the
-IRQF_SHARED flag can be set unconditionally as well.
-
-Example stack trace by performing `echo 1 > /dev/ttyS2` on a non-patched sy=
-stem:
-
-|irq 85: nobody cared (try booting with the "irqpoll" option)
-| [...]
-|handlers:
-|[<ffff0000080fc628>] irq_default_primary_handler threaded [<ffff00000855fb=
-b8>] serial8250_interrupt
-|Disabling IRQ #85
-
-=2D--8<---8<---
-
-But unfortunately didn't fix the root cause. Let's try again here by moving
-IRQ flag assignment from serial_link_irq_chain() to serial8250_do_startup().
-
-This should fix the similar issue reported for 8250_pnp case.
-
-Since this change we don't need to have custom solutions in 8250_aspeed_vua=
-rt
-and 8250_of drivers, thus, drop them.
-
-Fixes: 1c2f04937b3e ("serial: 8250: add IRQ trigger support")
-Reported-by: Li RongQing <lirongqing@baidu.com>
-Cc: Kurt Kanzenbach <kurt@linutronix.de>
-Cc: Vikram Pandita <vikram.pandita@ti.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-[Kurt: Backport to v4.9]
-Signed-off-by: Kurt Kanzenbach <kurt@linutronix.de>
-=2D--
- drivers/tty/serial/8250/8250_core.c | 5 ++---
- drivers/tty/serial/8250/8250_port.c | 4 ++++
- 2 files changed, 6 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/tty/serial/8250/8250_core.c b/drivers/tty/serial/8250/=
-8250_core.c
-index e8819aa20415..c4e9eba36023 100644
-=2D-- a/drivers/tty/serial/8250/8250_core.c
-+++ b/drivers/tty/serial/8250/8250_core.c
-@@ -181,7 +181,7 @@ static int serial_link_irq_chain(struct uart_8250_port =
-*up)
- 	struct hlist_head *h;
- 	struct hlist_node *n;
- 	struct irq_info *i;
-=2D	int ret, irq_flags =3D up->port.flags & UPF_SHARE_IRQ ? IRQF_SHARED : 0;
-+	int ret;
-=20
- 	mutex_lock(&hash_mutex);
-=20
-@@ -216,9 +216,8 @@ static int serial_link_irq_chain(struct uart_8250_port =
-*up)
- 		INIT_LIST_HEAD(&up->list);
- 		i->head =3D &up->list;
- 		spin_unlock_irq(&i->lock);
-=2D		irq_flags |=3D up->port.irqflags;
- 		ret =3D request_irq(up->port.irq, serial8250_interrupt,
-=2D				  irq_flags, "serial", i);
-+				  up->port.irqflags, "serial", i);
- 		if (ret < 0)
- 			serial_do_unlink(i, up);
- 	}
-diff --git a/drivers/tty/serial/8250/8250_port.c b/drivers/tty/serial/8250/=
-8250_port.c
-index 8f1233324586..c7a7574172fa 100644
-=2D-- a/drivers/tty/serial/8250/8250_port.c
-+++ b/drivers/tty/serial/8250/8250_port.c
-@@ -2199,6 +2199,10 @@ int serial8250_do_startup(struct uart_port *port)
- 		}
- 	}
-=20
-+	/* Check if we need to have shared IRQs */
-+	if (port->irq && (up->port.flags & UPF_SHARE_IRQ))
-+		up->port.irqflags |=3D IRQF_SHARED;
-+
- 	if (port->irq) {
- 		unsigned char iir1;
- 		/*
-=2D-=20
-2.20.1
-
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-
-What do you think?
-
-Thanks,
-Kurt
-
---=-=-=
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAEBCgAdFiEEooWgvezyxHPhdEojeSpbgcuY8KYFAl5eDtMACgkQeSpbgcuY
-8KZrdg/+KKlVOAh8kFolQsOaPLDdjhI2xV3cw+hKr52bY3AaZ/FR7al3zLVPvlfV
-pAQoTtBCFwoj4rQafv9bRPXodJY3WCmsrWKvsIMwpUcVZfXDJSR6rtKKL51ECFNu
-ZJ1ZcnoYXhNVnGJaXaiiAAYv5T3pZEoMXqxE1QVpqV+9pGWAVoLWmDKDOVCXjwbT
-4QE/n3eki4fKwR98+6CrJzLp+VQsEnbKz4Bmqb644N/s6WMwJo8ZQTs7TIoSLQA3
-ZsVCYS7gmKId+T026xQ8moTNm8kXhyuKxOKOpC4hf0mg6AGA/BAZZoHlmIu6i4kX
-Zz/s5zPSyaPGFqAJmclubVjYgL5anXE48nda87/487bPwj2RWHbEfTD8L9jepkDN
-qJvevA5Ct8S4t5CbNLdNgSAtRnMiagJb9kx3P15S06RDgOgDy22pD+pGYbvkaFwy
-OYwtxuIc+ondjfE1ApUfRL0HNZxr6EYUvXiliXrFqNs1ZB4VdosUvQES7SRx3ajQ
-w0pG82UwdP20VgIukwWl/CSjS3+THtYnHD0ujk/CUm1sCZCo4qo32sYWuj9A4f95
-WCikC9nFzIbGekG+6fvTdBS+1gaaTcP+Ffpk3AwavY+UoAvJjfng+BPSP+WVuCPW
-NbDsS0yJIdw6/481W5EWV8SiDjgKg/e2wcJxXy7vzQDvrNaSinA=
-=YJXa
------END PGP SIGNATURE-----
---=-=-=--
+> >
