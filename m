@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B60E177F8A
-	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 19:58:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 60E39178060
+	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 19:59:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731996AbgCCRva (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Mar 2020 12:51:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59496 "EHLO mail.kernel.org"
+        id S1732892AbgCCR4Z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Mar 2020 12:56:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38566 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731987AbgCCRv0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Mar 2020 12:51:26 -0500
+        id S1732863AbgCCR4Y (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Mar 2020 12:56:24 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F0B9420870;
-        Tue,  3 Mar 2020 17:51:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C2DDA20656;
+        Tue,  3 Mar 2020 17:56:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583257886;
-        bh=wTcF9WEoEKpJZpatL6EVhWOfkZuQtSgt2tCvKj6VhhY=;
+        s=default; t=1583258184;
+        bh=17gVuyQ1l3tn5XxQiYJeWbGZ1+R3HWDG6NBZT0iJcxg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CUJlVcxqlra060bqkl7pVdLH8euGh9u1BTD0e3FfDog0SlU02B/jeUUlTPHadJ5pB
-         Px28IzwnVYQ0q4ijbuQW0OLfW+9vDKjXIrOk7PhuqKnnQ7oJcnrNYSaPD3t/rTTNBq
-         MAXsIgv4RQehZouDkCMeaJmBIcWwuTAqtEUwyvdk=
+        b=WfeIO7hj3gm3jN4E5I84Ufru1xbYH6/nOtxDuWgdG97yK6LFkaXQePi5AKXL421GJ
+         GDs5IgDJ2POaljJEc5GZTHP1PLhZHTN2bCEbdbA6lm0rbHkHWwB2+VNKtZjaxTVwwI
+         O3qg0pTg3wA8ij2ODl563xzy+PMvMLlPBaT4Rbss=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Brian Norris <briannorris@chromium.org>,
-        Kalle Valo <kvalo@codeaurora.org>
-Subject: [PATCH 5.5 138/176] mwifiex: drop most magic numbers from mwifiex_process_tdls_action_frame()
+        stable@vger.kernel.org,
+        Bijan Mottahedeh <bijan.mottahedeh@oracle.com>,
+        Sagi Grimberg <sagi@grimberg.me>, Jens Axboe <axboe@kernel.dk>,
+        Keith Busch <kbusch@kernel.org>
+Subject: [PATCH 5.4 104/152] nvme-pci: Hold cq_poll_lock while completing CQEs
 Date:   Tue,  3 Mar 2020 18:43:22 +0100
-Message-Id: <20200303174320.736209478@linuxfoundation.org>
+Message-Id: <20200303174314.420132252@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200303174304.593872177@linuxfoundation.org>
-References: <20200303174304.593872177@linuxfoundation.org>
+In-Reply-To: <20200303174302.523080016@linuxfoundation.org>
+References: <20200303174302.523080016@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,225 +45,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brian Norris <briannorris@chromium.org>
+From: Bijan Mottahedeh <bijan.mottahedeh@oracle.com>
 
-commit 70e5b8f445fd27fde0c5583460e82539a7242424 upstream.
+commit 9515743bfb39c61aaf3d4f3219a645c8d1fe9a0e upstream.
 
-Before commit 1e58252e334d ("mwifiex: Fix heap overflow in
-mmwifiex_process_tdls_action_frame()"),
-mwifiex_process_tdls_action_frame() already had too many magic numbers.
-But this commit just added a ton more, in the name of checking for
-buffer overflows. That seems like a really bad idea.
+Completions need to consumed in the same order the controller submitted
+them, otherwise future completion entries may overwrite ones we haven't
+handled yet. Hold the nvme queue's poll lock while completing new CQEs to
+prevent another thread from freeing command tags for reuse out-of-order.
 
-Let's make these magic numbers a little less magic, by
-(a) factoring out 'pos[1]' as 'ie_len'
-(b) using 'sizeof' on the appropriate source or destination fields where
-    possible, instead of bare numbers
-(c) dropping redundant checks, per below.
-
-Regarding redundant checks: the beginning of the loop has this:
-
-                if (pos + 2 + pos[1] > end)
-                        break;
-
-but then individual 'case's include stuff like this:
-
- 			if (pos > end - 3)
- 				return;
- 			if (pos[1] != 1)
-				return;
-
-Note that the second 'return' (validating the length, pos[1]) combined
-with the above condition (ensuring 'pos + 2 + length' doesn't exceed
-'end'), makes the first 'return' (whose 'if' can be reworded as 'pos >
-end - pos[1] - 2') redundant. Rather than unwind the magic numbers
-there, just drop those conditions.
-
-Fixes: 1e58252e334d ("mwifiex: Fix heap overflow in mmwifiex_process_tdls_action_frame()")
-Signed-off-by: Brian Norris <briannorris@chromium.org>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Fixes: dabcefab45d3 ("nvme: provide optimized poll function for separate poll queues")
+Signed-off-by: Bijan Mottahedeh <bijan.mottahedeh@oracle.com>
+Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
+Reviewed-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Keith Busch <kbusch@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/wireless/marvell/mwifiex/tdls.c |   75 ++++++++++------------------
- 1 file changed, 28 insertions(+), 47 deletions(-)
+ drivers/nvme/host/pci.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/wireless/marvell/mwifiex/tdls.c
-+++ b/drivers/net/wireless/marvell/mwifiex/tdls.c
-@@ -894,7 +894,7 @@ void mwifiex_process_tdls_action_frame(s
- 	u8 *peer, *pos, *end;
- 	u8 i, action, basic;
- 	u16 cap = 0;
--	int ie_len = 0;
-+	int ies_len = 0;
+--- a/drivers/nvme/host/pci.c
++++ b/drivers/nvme/host/pci.c
+@@ -1084,9 +1084,9 @@ static int nvme_poll(struct blk_mq_hw_ct
  
- 	if (len < (sizeof(struct ethhdr) + 3))
- 		return;
-@@ -916,7 +916,7 @@ void mwifiex_process_tdls_action_frame(s
- 		pos = buf + sizeof(struct ethhdr) + 4;
- 		/* payload 1+ category 1 + action 1 + dialog 1 */
- 		cap = get_unaligned_le16(pos);
--		ie_len = len - sizeof(struct ethhdr) - TDLS_REQ_FIX_LEN;
-+		ies_len = len - sizeof(struct ethhdr) - TDLS_REQ_FIX_LEN;
- 		pos += 2;
- 		break;
+ 	spin_lock(&nvmeq->cq_poll_lock);
+ 	found = nvme_process_cq(nvmeq, &start, &end, -1);
++	nvme_complete_cqes(nvmeq, start, end);
+ 	spin_unlock(&nvmeq->cq_poll_lock);
  
-@@ -926,7 +926,7 @@ void mwifiex_process_tdls_action_frame(s
- 		/* payload 1+ category 1 + action 1 + dialog 1 + status code 2*/
- 		pos = buf + sizeof(struct ethhdr) + 6;
- 		cap = get_unaligned_le16(pos);
--		ie_len = len - sizeof(struct ethhdr) - TDLS_RESP_FIX_LEN;
-+		ies_len = len - sizeof(struct ethhdr) - TDLS_RESP_FIX_LEN;
- 		pos += 2;
- 		break;
+-	nvme_complete_cqes(nvmeq, start, end);
+ 	return found;
+ }
  
-@@ -934,7 +934,7 @@ void mwifiex_process_tdls_action_frame(s
- 		if (len < (sizeof(struct ethhdr) + TDLS_CONFIRM_FIX_LEN))
- 			return;
- 		pos = buf + sizeof(struct ethhdr) + TDLS_CONFIRM_FIX_LEN;
--		ie_len = len - sizeof(struct ethhdr) - TDLS_CONFIRM_FIX_LEN;
-+		ies_len = len - sizeof(struct ethhdr) - TDLS_CONFIRM_FIX_LEN;
- 		break;
- 	default:
- 		mwifiex_dbg(priv->adapter, ERROR, "Unknown TDLS frame type.\n");
-@@ -947,33 +947,33 @@ void mwifiex_process_tdls_action_frame(s
- 
- 	sta_ptr->tdls_cap.capab = cpu_to_le16(cap);
- 
--	for (end = pos + ie_len; pos + 1 < end; pos += 2 + pos[1]) {
--		if (pos + 2 + pos[1] > end)
-+	for (end = pos + ies_len; pos + 1 < end; pos += 2 + pos[1]) {
-+		u8 ie_len = pos[1];
-+
-+		if (pos + 2 + ie_len > end)
- 			break;
- 
- 		switch (*pos) {
- 		case WLAN_EID_SUPP_RATES:
--			if (pos[1] > 32)
-+			if (ie_len > sizeof(sta_ptr->tdls_cap.rates))
- 				return;
--			sta_ptr->tdls_cap.rates_len = pos[1];
--			for (i = 0; i < pos[1]; i++)
-+			sta_ptr->tdls_cap.rates_len = ie_len;
-+			for (i = 0; i < ie_len; i++)
- 				sta_ptr->tdls_cap.rates[i] = pos[i + 2];
- 			break;
- 
- 		case WLAN_EID_EXT_SUPP_RATES:
--			if (pos[1] > 32)
-+			if (ie_len > sizeof(sta_ptr->tdls_cap.rates))
- 				return;
- 			basic = sta_ptr->tdls_cap.rates_len;
--			if (pos[1] > 32 - basic)
-+			if (ie_len > sizeof(sta_ptr->tdls_cap.rates) - basic)
- 				return;
--			for (i = 0; i < pos[1]; i++)
-+			for (i = 0; i < ie_len; i++)
- 				sta_ptr->tdls_cap.rates[basic + i] = pos[i + 2];
--			sta_ptr->tdls_cap.rates_len += pos[1];
-+			sta_ptr->tdls_cap.rates_len += ie_len;
- 			break;
- 		case WLAN_EID_HT_CAPABILITY:
--			if (pos > end - sizeof(struct ieee80211_ht_cap) - 2)
--				return;
--			if (pos[1] != sizeof(struct ieee80211_ht_cap))
-+			if (ie_len != sizeof(struct ieee80211_ht_cap))
- 				return;
- 			/* copy the ie's value into ht_capb*/
- 			memcpy((u8 *)&sta_ptr->tdls_cap.ht_capb, pos + 2,
-@@ -981,59 +981,45 @@ void mwifiex_process_tdls_action_frame(s
- 			sta_ptr->is_11n_enabled = 1;
- 			break;
- 		case WLAN_EID_HT_OPERATION:
--			if (pos > end -
--			    sizeof(struct ieee80211_ht_operation) - 2)
--				return;
--			if (pos[1] != sizeof(struct ieee80211_ht_operation))
-+			if (ie_len != sizeof(struct ieee80211_ht_operation))
- 				return;
- 			/* copy the ie's value into ht_oper*/
- 			memcpy(&sta_ptr->tdls_cap.ht_oper, pos + 2,
- 			       sizeof(struct ieee80211_ht_operation));
- 			break;
- 		case WLAN_EID_BSS_COEX_2040:
--			if (pos > end - 3)
--				return;
--			if (pos[1] != 1)
-+			if (ie_len != sizeof(pos[2]))
- 				return;
- 			sta_ptr->tdls_cap.coex_2040 = pos[2];
- 			break;
- 		case WLAN_EID_EXT_CAPABILITY:
--			if (pos > end - sizeof(struct ieee_types_header))
--				return;
--			if (pos[1] < sizeof(struct ieee_types_header))
-+			if (ie_len < sizeof(struct ieee_types_header))
- 				return;
--			if (pos[1] > 8)
-+			if (ie_len > 8)
- 				return;
- 			memcpy((u8 *)&sta_ptr->tdls_cap.extcap, pos,
- 			       sizeof(struct ieee_types_header) +
--			       min_t(u8, pos[1], 8));
-+			       min_t(u8, ie_len, 8));
- 			break;
- 		case WLAN_EID_RSN:
--			if (pos > end - sizeof(struct ieee_types_header))
-+			if (ie_len < sizeof(struct ieee_types_header))
- 				return;
--			if (pos[1] < sizeof(struct ieee_types_header))
--				return;
--			if (pos[1] > IEEE_MAX_IE_SIZE -
-+			if (ie_len > IEEE_MAX_IE_SIZE -
- 			    sizeof(struct ieee_types_header))
- 				return;
- 			memcpy((u8 *)&sta_ptr->tdls_cap.rsn_ie, pos,
- 			       sizeof(struct ieee_types_header) +
--			       min_t(u8, pos[1], IEEE_MAX_IE_SIZE -
-+			       min_t(u8, ie_len, IEEE_MAX_IE_SIZE -
- 				     sizeof(struct ieee_types_header)));
- 			break;
- 		case WLAN_EID_QOS_CAPA:
--			if (pos > end - 3)
--				return;
--			if (pos[1] != 1)
-+			if (ie_len != sizeof(pos[2]))
- 				return;
- 			sta_ptr->tdls_cap.qos_info = pos[2];
- 			break;
- 		case WLAN_EID_VHT_OPERATION:
- 			if (priv->adapter->is_hw_11ac_capable) {
--				if (pos > end -
--				    sizeof(struct ieee80211_vht_operation) - 2)
--					return;
--				if (pos[1] !=
-+				if (ie_len !=
- 				    sizeof(struct ieee80211_vht_operation))
- 					return;
- 				/* copy the ie's value into vhtoper*/
-@@ -1043,10 +1029,7 @@ void mwifiex_process_tdls_action_frame(s
- 			break;
- 		case WLAN_EID_VHT_CAPABILITY:
- 			if (priv->adapter->is_hw_11ac_capable) {
--				if (pos > end -
--				    sizeof(struct ieee80211_vht_cap) - 2)
--					return;
--				if (pos[1] != sizeof(struct ieee80211_vht_cap))
-+				if (ie_len != sizeof(struct ieee80211_vht_cap))
- 					return;
- 				/* copy the ie's value into vhtcap*/
- 				memcpy((u8 *)&sta_ptr->tdls_cap.vhtcap, pos + 2,
-@@ -1056,9 +1039,7 @@ void mwifiex_process_tdls_action_frame(s
- 			break;
- 		case WLAN_EID_AID:
- 			if (priv->adapter->is_hw_11ac_capable) {
--				if (pos > end - 4)
--					return;
--				if (pos[1] != 2)
-+				if (ie_len != sizeof(u16))
- 					return;
- 				sta_ptr->tdls_cap.aid =
- 					get_unaligned_le16((pos + 2));
 
 
