@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D3C4177FAD
-	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 19:58:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7C3CC177FAF
+	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 19:58:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726368AbgCCRwR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Mar 2020 12:52:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60596 "EHLO mail.kernel.org"
+        id S1732129AbgCCRwT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Mar 2020 12:52:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60672 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731876AbgCCRwP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Mar 2020 12:52:15 -0500
+        id S1731275AbgCCRwS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Mar 2020 12:52:18 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ADD9D2146E;
-        Tue,  3 Mar 2020 17:52:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9046424671;
+        Tue,  3 Mar 2020 17:52:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583257935;
-        bh=242ju/f1UL0RmgOXdz4af0lNK8ENlCQQx6rAW3hkU6s=;
+        s=default; t=1583257938;
+        bh=KjgFi/6YT/H1W0J/f5IdJMe0Gr2e1J10/BXIEZG8s0Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GN3byUCTlLsELEx6H2hmA73HRYTHBZcNdnk8ktlPDqRapVagXwynzFSNfkFhyXZZm
-         sLf3tgMlWYHy/U9gOYhfGMDuKrPxdwYNQiYhZtIptW1CsJanlVrOcvq3be4He4a1pi
-         wFtLm16XonqDNEQoNricspapdRmIX1lqp8MEdB4Y=
+        b=hplU/+RD1uJExG3C52rhkMI3Efj2yD7VUcFiC9CQvKK3Wym9F6GKPHYPxP5LErMhQ
+         vl3RIi3C1VPutxsJgyjiCtT5AKFA7xNRzHgxJjlONcC+duwMQagSDlk8gMtDyaec3B
+         1GBkX/jFlzMJ12/5flwu02d1oUslIPycdR4bJbPY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
+        stable@vger.kernel.org, Aristeu Rozanski <aris@redhat.com>,
+        Tony Luck <tony.luck@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 001/152] io_uring: grab ->fs as part of async offload
-Date:   Tue,  3 Mar 2020 18:41:39 +0100
-Message-Id: <20200303174302.711223909@linuxfoundation.org>
+Subject: [PATCH 5.4 002/152] EDAC: skx_common: downgrade message importance on missing PCI device
+Date:   Tue,  3 Mar 2020 18:41:40 +0100
+Message-Id: <20200303174302.813659020@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200303174302.523080016@linuxfoundation.org>
 References: <20200303174302.523080016@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -45,135 +44,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Axboe <axboe@kernel.dk>
+From: Aristeu Rozanski <aris@redhat.com>
 
-[ Upstream commits 9392a27d88b9 and ff002b30181d ]
+[ Upstream commit 854bb48018d5da261d438b2232fa683bdb553979 ]
 
-Ensure that the async work grabs ->fs from the queueing task if the
-punted commands needs to do lookups.
+Both skx_edac and i10nm_edac drivers are loaded based on the matching CPU being
+available which leads the module to be automatically loaded in virtual machines
+as well. That will fail due the missing PCI devices. In both drivers the first
+function to make use of the PCI devices is skx_get_hi_lo() will simply print
 
-We don't have these two commits in 5.4-stable:
+	EDAC skx: Can't get tolm/tohm
 
-ff002b30181d30cdfbca316dadd099c3ca0d739c
-9392a27d88b9707145d713654eb26f0c29789e50
+for each CPU core, which is noisy. This patch makes it a debug message.
 
-because they don't apply with the rework that was done in how io_uring
-handles offload. Since there's no io-wq in 5.4, it doesn't make sense to
-do two patches. I'm attaching my port of the two for 5.4-stable, it's
-been tested. Please queue it up for the next 5.4-stable, thanks!
-
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Aristeu Rozanski <aris@redhat.com>
+Signed-off-by: Tony Luck <tony.luck@intel.com>
+Link: https://lore.kernel.org/r/20191204212325.c4k47p5hrnn3vpb5@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/io_uring.c | 46 ++++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 46 insertions(+)
+ drivers/edac/skx_common.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index ed9a551882cf3..f34a8f7eee5d1 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -71,6 +71,7 @@
- #include <linux/sizes.h>
- #include <linux/hugetlb.h>
- #include <linux/highmem.h>
-+#include <linux/fs_struct.h>
+diff --git a/drivers/edac/skx_common.c b/drivers/edac/skx_common.c
+index d8ff63d91b860..a04349c6d17ef 100644
+--- a/drivers/edac/skx_common.c
++++ b/drivers/edac/skx_common.c
+@@ -235,7 +235,7 @@ int skx_get_hi_lo(unsigned int did, int off[], u64 *tolm, u64 *tohm)
  
- #include <uapi/linux/io_uring.h>
- 
-@@ -334,6 +335,8 @@ struct io_kiocb {
- 	u32			result;
- 	u32			sequence;
- 
-+	struct fs_struct	*fs;
-+
- 	struct work_struct	work;
- };
- 
-@@ -651,6 +654,7 @@ static struct io_kiocb *io_get_req(struct io_ring_ctx *ctx,
- 	/* one is dropped after submission, the other at completion */
- 	refcount_set(&req->refs, 2);
- 	req->result = 0;
-+	req->fs = NULL;
- 	return req;
- out:
- 	percpu_ref_put(&ctx->refs);
-@@ -1663,6 +1667,16 @@ static int io_send_recvmsg(struct io_kiocb *req, const struct io_uring_sqe *sqe,
- 			ret = -EINTR;
+ 	pdev = pci_get_device(PCI_VENDOR_ID_INTEL, did, NULL);
+ 	if (!pdev) {
+-		skx_printk(KERN_ERR, "Can't get tolm/tohm\n");
++		edac_dbg(2, "Can't get tolm/tohm\n");
+ 		return -ENODEV;
  	}
  
-+	if (req->fs) {
-+		struct fs_struct *fs = req->fs;
-+
-+		spin_lock(&req->fs->lock);
-+		if (--fs->users)
-+			fs = NULL;
-+		spin_unlock(&req->fs->lock);
-+		if (fs)
-+			free_fs_struct(fs);
-+	}
- 	io_cqring_add_event(req->ctx, sqe->user_data, ret);
- 	io_put_req(req);
- 	return 0;
-@@ -2159,6 +2173,7 @@ static inline bool io_sqe_needs_user(const struct io_uring_sqe *sqe)
- static void io_sq_wq_submit_work(struct work_struct *work)
- {
- 	struct io_kiocb *req = container_of(work, struct io_kiocb, work);
-+	struct fs_struct *old_fs_struct = current->fs;
- 	struct io_ring_ctx *ctx = req->ctx;
- 	struct mm_struct *cur_mm = NULL;
- 	struct async_list *async_list;
-@@ -2178,6 +2193,15 @@ restart:
- 		/* Ensure we clear previously set non-block flag */
- 		req->rw.ki_flags &= ~IOCB_NOWAIT;
- 
-+		if (req->fs != current->fs && current->fs != old_fs_struct) {
-+			task_lock(current);
-+			if (req->fs)
-+				current->fs = req->fs;
-+			else
-+				current->fs = old_fs_struct;
-+			task_unlock(current);
-+		}
-+
- 		ret = 0;
- 		if (io_sqe_needs_user(sqe) && !cur_mm) {
- 			if (!mmget_not_zero(ctx->sqo_mm)) {
-@@ -2276,6 +2300,11 @@ out:
- 		mmput(cur_mm);
- 	}
- 	revert_creds(old_cred);
-+	if (old_fs_struct) {
-+		task_lock(current);
-+		current->fs = old_fs_struct;
-+		task_unlock(current);
-+	}
- }
- 
- /*
-@@ -2503,6 +2532,23 @@ err:
- 
- 	req->user_data = s->sqe->user_data;
- 
-+#if defined(CONFIG_NET)
-+	switch (READ_ONCE(s->sqe->opcode)) {
-+	case IORING_OP_SENDMSG:
-+	case IORING_OP_RECVMSG:
-+		spin_lock(&current->fs->lock);
-+		if (!current->fs->in_exec) {
-+			req->fs = current->fs;
-+			req->fs->users++;
-+		}
-+		spin_unlock(&current->fs->lock);
-+		if (!req->fs) {
-+			ret = -EAGAIN;
-+			goto err_req;
-+		}
-+	}
-+#endif
-+
- 	/*
- 	 * If we already have a head request, queue this one for async
- 	 * submittal once the head completes. If we don't have a head but
 -- 
 2.20.1
 
