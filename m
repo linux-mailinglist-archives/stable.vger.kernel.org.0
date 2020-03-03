@@ -2,45 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A3DD7176D6A
-	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 04:03:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4BBBB176D57
+	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 04:03:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727716AbgCCDDI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Mar 2020 22:03:08 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40898 "EHLO mail.kernel.org"
+        id S1726876AbgCCDDC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Mar 2020 22:03:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40944 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727500AbgCCCqc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Mar 2020 21:46:32 -0500
+        id S1727509AbgCCCqe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Mar 2020 21:46:34 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 469A424680;
-        Tue,  3 Mar 2020 02:46:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5A97224677;
+        Tue,  3 Mar 2020 02:46:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583203591;
-        bh=8NYG1n3xKdhO8T2dlTDUokQeG2/YXy4P9DT44E3uIK8=;
+        s=default; t=1583203593;
+        bh=AFLhECNdQynG25OAfG50zgqOns9HClcAwKK6FJTao+o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oJM65QX7LBM9gJ28TgMnBSPXTeOUaXzyo61qPmQHwkPnyAvHOskwMHqD/9TyXSeT6
-         kT81Bz/JNes9N/RIt+p3EyHbj8FVTGtMwa3UyEyCKPEEGqxscS9YxMEbzl4b+xbUqu
-         88AIyVXrkZeH8d8B3whBXp017UetKhsPwnpf+88c=
+        b=xJjHOBD47LcgyomUacrzezbv0DBFJGYl2T2W7Q5rcGbB9AulGFxkG7G1ju9WuaE8z
+         ofLmzFAKkQmpaMr2KfFUyIcOeMjMMi9nX3yB7gk3ZpvhB76NFnykojgFwSzeFWcQD/
+         ZRjm3kpUjGgoI7ZwUMo7iK3e+MxsXZwbUJxLXnk4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     John Stultz <john.stultz@linaro.org>,
-        Rob Clark <robdclark@gmail.com>, Sean Paul <sean@poorly.run>,
-        Sami Tolvanen <samitolvanen@google.com>,
-        Todd Kjos <tkjos@google.com>,
-        Alistair Delva <adelva@google.com>,
-        Amit Pundir <amit.pundir@linaro.org>,
-        Sumit Semwal <sumit.semwal@linaro.org>,
-        freedreno@lists.freedesktop.org,
-        clang-built-linux@googlegroups.com,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Rob Clark <robdclark@chromium.org>,
-        Sasha Levin <sashal@kernel.org>, linux-arm-msm@vger.kernel.org,
+Cc:     Stephan Gerhold <stephan@gerhold.net>,
+        Maxime Ripard <maxime@cerno.tech>,
+        Sasha Levin <sashal@kernel.org>,
         dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.5 13/66] drm: msm: Fix return type of dsi_mgr_connector_mode_valid for kCFI
-Date:   Mon,  2 Mar 2020 21:45:22 -0500
-Message-Id: <20200303024615.8889-13-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.5 14/66] drm/modes: Make sure to parse valid rotation value from cmdline
+Date:   Mon,  2 Mar 2020 21:45:23 -0500
+Message-Id: <20200303024615.8889-14-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200303024615.8889-1-sashal@kernel.org>
 References: <20200303024615.8889-1-sashal@kernel.org>
@@ -53,53 +44,101 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Stultz <john.stultz@linaro.org>
+From: Stephan Gerhold <stephan@gerhold.net>
 
-[ Upstream commit 7fd2dfc3694922eb7ace4801b7208cf9f62ebc7d ]
+[ Upstream commit e6980a727154b793adb218fbc7b4d6af52a7e364 ]
 
-I was hitting kCFI crashes when building with clang, and after
-some digging finally narrowed it down to the
-dsi_mgr_connector_mode_valid() function being implemented as
-returning an int, instead of an enum drm_mode_status.
+A rotation value should have exactly one rotation angle.
+At the moment there is no validation for this when parsing video=
+parameters from the command line. This causes problems later on
+when we try to combine the command line rotation with the panel
+orientation.
 
-This patch fixes it, and appeases the opaque word of the kCFI
-gods (seriously, clang inlining everything makes the kCFI
-backtraces only really rough estimates of where things went
-wrong).
+To make sure that we generate a valid rotation value:
+  - Set DRM_MODE_ROTATE_0 by default (if no rotate= option is set)
+  - Validate that there is exactly one rotation angle set
+    (i.e. specifying the rotate= option multiple times is invalid)
 
-Thanks as always to Sami for his help narrowing this down.
-
-Cc: Rob Clark <robdclark@gmail.com>
-Cc: Sean Paul <sean@poorly.run>
-Cc: Sami Tolvanen <samitolvanen@google.com>
-Cc: Todd Kjos <tkjos@google.com>
-Cc: Alistair Delva <adelva@google.com>
-Cc: Amit Pundir <amit.pundir@linaro.org>
-Cc: Sumit Semwal <sumit.semwal@linaro.org>
-Cc: freedreno@lists.freedesktop.org
-Cc: clang-built-linux@googlegroups.com
-Signed-off-by: John Stultz <john.stultz@linaro.org>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Tested-by: Amit Pundir <amit.pundir@linaro.org>
-Signed-off-by: Rob Clark <robdclark@chromium.org>
+Signed-off-by: Stephan Gerhold <stephan@gerhold.net>
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200117153429.54700-2-stephan@gerhold.net
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/dsi/dsi_manager.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/drm_modes.c                       |  7 +++++++
+ drivers/gpu/drm/selftests/drm_cmdline_selftests.h |  1 +
+ .../gpu/drm/selftests/test-drm_cmdline_parser.c   | 15 +++++++++++++--
+ 3 files changed, 21 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/msm/dsi/dsi_manager.c b/drivers/gpu/drm/msm/dsi/dsi_manager.c
-index 271aa7bbca925..355a60b4a536f 100644
---- a/drivers/gpu/drm/msm/dsi/dsi_manager.c
-+++ b/drivers/gpu/drm/msm/dsi/dsi_manager.c
-@@ -336,7 +336,7 @@ static int dsi_mgr_connector_get_modes(struct drm_connector *connector)
- 	return num;
+diff --git a/drivers/gpu/drm/drm_modes.c b/drivers/gpu/drm/drm_modes.c
+index 88232698d7a00..3fd35e6b9d535 100644
+--- a/drivers/gpu/drm/drm_modes.c
++++ b/drivers/gpu/drm/drm_modes.c
+@@ -1672,6 +1672,13 @@ static int drm_mode_parse_cmdline_options(char *str, size_t len,
+ 		}
+ 	}
+ 
++	if (!(rotation & DRM_MODE_ROTATE_MASK))
++		rotation |= DRM_MODE_ROTATE_0;
++
++	/* Make sure there is exactly one rotation defined */
++	if (!is_power_of_2(rotation & DRM_MODE_ROTATE_MASK))
++		return -EINVAL;
++
+ 	mode->rotation_reflection = rotation;
+ 
+ 	return 0;
+diff --git a/drivers/gpu/drm/selftests/drm_cmdline_selftests.h b/drivers/gpu/drm/selftests/drm_cmdline_selftests.h
+index 6d61a0eb5d64f..84e6bc050bf2c 100644
+--- a/drivers/gpu/drm/selftests/drm_cmdline_selftests.h
++++ b/drivers/gpu/drm/selftests/drm_cmdline_selftests.h
+@@ -53,6 +53,7 @@ cmdline_test(drm_cmdline_test_rotate_0)
+ cmdline_test(drm_cmdline_test_rotate_90)
+ cmdline_test(drm_cmdline_test_rotate_180)
+ cmdline_test(drm_cmdline_test_rotate_270)
++cmdline_test(drm_cmdline_test_rotate_multiple)
+ cmdline_test(drm_cmdline_test_rotate_invalid_val)
+ cmdline_test(drm_cmdline_test_rotate_truncated)
+ cmdline_test(drm_cmdline_test_hmirror)
+diff --git a/drivers/gpu/drm/selftests/test-drm_cmdline_parser.c b/drivers/gpu/drm/selftests/test-drm_cmdline_parser.c
+index 013de9d27c35d..035f86c5d6482 100644
+--- a/drivers/gpu/drm/selftests/test-drm_cmdline_parser.c
++++ b/drivers/gpu/drm/selftests/test-drm_cmdline_parser.c
+@@ -856,6 +856,17 @@ static int drm_cmdline_test_rotate_270(void *ignored)
+ 	return 0;
  }
  
--static int dsi_mgr_connector_mode_valid(struct drm_connector *connector,
-+static enum drm_mode_status dsi_mgr_connector_mode_valid(struct drm_connector *connector,
- 				struct drm_display_mode *mode)
++static int drm_cmdline_test_rotate_multiple(void *ignored)
++{
++	struct drm_cmdline_mode mode = { };
++
++	FAIL_ON(drm_mode_parse_command_line_for_connector("720x480,rotate=0,rotate=90",
++							  &no_connector,
++							  &mode));
++
++	return 0;
++}
++
+ static int drm_cmdline_test_rotate_invalid_val(void *ignored)
  {
- 	int id = dsi_mgr_connector_get_id(connector);
+ 	struct drm_cmdline_mode mode = { };
+@@ -888,7 +899,7 @@ static int drm_cmdline_test_hmirror(void *ignored)
+ 	FAIL_ON(!mode.specified);
+ 	FAIL_ON(mode.xres != 720);
+ 	FAIL_ON(mode.yres != 480);
+-	FAIL_ON(mode.rotation_reflection != DRM_MODE_REFLECT_X);
++	FAIL_ON(mode.rotation_reflection != (DRM_MODE_ROTATE_0 | DRM_MODE_REFLECT_X));
+ 
+ 	FAIL_ON(mode.refresh_specified);
+ 
+@@ -913,7 +924,7 @@ static int drm_cmdline_test_vmirror(void *ignored)
+ 	FAIL_ON(!mode.specified);
+ 	FAIL_ON(mode.xres != 720);
+ 	FAIL_ON(mode.yres != 480);
+-	FAIL_ON(mode.rotation_reflection != DRM_MODE_REFLECT_Y);
++	FAIL_ON(mode.rotation_reflection != (DRM_MODE_ROTATE_0 | DRM_MODE_REFLECT_Y));
+ 
+ 	FAIL_ON(mode.refresh_specified);
+ 
 -- 
 2.20.1
 
