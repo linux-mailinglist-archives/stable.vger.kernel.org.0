@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2149F1781D6
-	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 20:02:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F1E41780F5
+	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 20:01:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730877AbgCCSG7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Mar 2020 13:06:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37124 "EHLO mail.kernel.org"
+        id S1733282AbgCCR7t (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Mar 2020 12:59:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43252 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732718AbgCCRz3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Mar 2020 12:55:29 -0500
+        id S2387660AbgCCR7s (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Mar 2020 12:59:48 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 719C4206D5;
-        Tue,  3 Mar 2020 17:55:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5D6AF20656;
+        Tue,  3 Mar 2020 17:59:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583258128;
-        bh=toAKJpVcK8AmIRqax8RohZ3VZLNcWfijpolDJB41s/I=;
+        s=default; t=1583258387;
+        bh=9O5ymUWpNt3jhqdPiucuIYgwSShPohd5ByDTUrD1C6E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pfdfi5MtK4ALywCP3kNrMbclBpy292C6gzMPcySN59ehouukPE3T2hVG8LK4i1ZaI
-         UkDaeWB7oTtWuENMFN80GUyvDgQUMXxhw+qe41BDQsshTJ9mmV8vrl2ELNTGxXQJaS
-         g+S8KEjnCSEH4qdOiqHQ9TAK1gT37Tk3LK5Fjkgw=
+        b=pti5NW1ZFAK/AvhYEXfhq8sdF/qwXJVxxBhdO7Z44+Hj3KLgQlE7miar8bzJ8mHRR
+         jAGUTuUGVANWCKYOE5gEsgRbBEIRvYdR+le8qiokLoHrom8Ofqtv+6oWXC2e5FFo9l
+         zNGLatVZASkTE8jPZN6I42I//PXh7iskdTyQYAwE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Erhard Furtner <erhard_f@mailbox.org>,
-        Wolfram Sang <wsa@the-dreams.de>,
-        Michael Ellerman <mpe@ellerman.id.au>, stable@kernel.org
-Subject: [PATCH 5.4 081/152] macintosh: therm_windtunnel: fix regression when instantiating devices
+        stable@vger.kernel.org,
+        Sergey Matyukevich <sergey.matyukevich.os@quantenna.com>,
+        Johannes Berg <johannes.berg@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 08/87] cfg80211: check wiphy driver existence for drvinfo report
 Date:   Tue,  3 Mar 2020 18:42:59 +0100
-Message-Id: <20200303174311.753116244@linuxfoundation.org>
+Message-Id: <20200303174349.718650585@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200303174302.523080016@linuxfoundation.org>
-References: <20200303174302.523080016@linuxfoundation.org>
+In-Reply-To: <20200303174349.075101355@linuxfoundation.org>
+References: <20200303174349.075101355@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,136 +45,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wolfram Sang <wsa@the-dreams.de>
+From: Sergey Matyukevich <sergey.matyukevich.os@quantenna.com>
 
-commit 38b17afb0ebb9ecd41418d3c08bcf9198af4349d upstream.
+[ Upstream commit bfb7bac3a8f47100ebe7961bd14e924c96e21ca7 ]
 
-Removing attach_adapter from this driver caused a regression for at
-least some machines. Those machines had the sensors described in their
-DT, too, so they didn't need manual creation of the sensor devices. The
-old code worked, though, because manual creation came first. Creation of
-DT devices then failed later and caused error logs, but the sensors
-worked nonetheless because of the manually created devices.
+When preparing ethtool drvinfo, check if wiphy driver is defined
+before dereferencing it. Driver may not exist, e.g. if wiphy is
+attached to a virtual platform device.
 
-When removing attach_adaper, manual creation now comes later and loses
-the race. The sensor devices were already registered via DT, yet with
-another binding, so the driver could not be bound to it.
-
-This fix refactors the code to remove the race and only manually creates
-devices if there are no DT nodes present. Also, the DT binding is updated
-to match both, the DT and manually created devices. Because we don't
-know which device creation will be used at runtime, the code to start
-the kthread is moved to do_probe() which will be called by both methods.
-
-Fixes: 3e7bed52719d ("macintosh: therm_windtunnel: drop using attach_adapter")
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=201723
-Reported-by: Erhard Furtner <erhard_f@mailbox.org>
-Tested-by: Erhard Furtner <erhard_f@mailbox.org>
-Acked-by: Michael Ellerman <mpe@ellerman.id.au> (powerpc)
-Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
-Cc: stable@kernel.org # v4.19+
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Sergey Matyukevich <sergey.matyukevich.os@quantenna.com>
+Link: https://lore.kernel.org/r/20200203105644.28875-1-sergey.matyukevich.os@quantenna.com
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/macintosh/therm_windtunnel.c |   52 ++++++++++++++++++++---------------
- 1 file changed, 31 insertions(+), 21 deletions(-)
+ net/wireless/ethtool.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
---- a/drivers/macintosh/therm_windtunnel.c
-+++ b/drivers/macintosh/therm_windtunnel.c
-@@ -300,9 +300,11 @@ static int control_loop(void *dummy)
- /*	i2c probing and setup						*/
- /************************************************************************/
- 
--static int
--do_attach( struct i2c_adapter *adapter )
-+static void do_attach(struct i2c_adapter *adapter)
+diff --git a/net/wireless/ethtool.c b/net/wireless/ethtool.c
+index a9c0f368db5d2..24e18405cdb48 100644
+--- a/net/wireless/ethtool.c
++++ b/net/wireless/ethtool.c
+@@ -7,9 +7,13 @@
+ void cfg80211_get_drvinfo(struct net_device *dev, struct ethtool_drvinfo *info)
  {
-+	struct i2c_board_info info = { };
-+	struct device_node *np;
-+
- 	/* scan 0x48-0x4f (DS1775) and 0x2c-2x2f (ADM1030) */
- 	static const unsigned short scan_ds1775[] = {
- 		0x48, 0x49, 0x4a, 0x4b, 0x4c, 0x4d, 0x4e, 0x4f,
-@@ -313,25 +315,24 @@ do_attach( struct i2c_adapter *adapter )
- 		I2C_CLIENT_END
- 	};
+ 	struct wireless_dev *wdev = dev->ieee80211_ptr;
++	struct device *pdev = wiphy_dev(wdev->wiphy);
  
--	if( strncmp(adapter->name, "uni-n", 5) )
--		return 0;
--
--	if( !x.running ) {
--		struct i2c_board_info info;
-+	if (x.running || strncmp(adapter->name, "uni-n", 5))
-+		return;
+-	strlcpy(info->driver, wiphy_dev(wdev->wiphy)->driver->name,
+-		sizeof(info->driver));
++	if (pdev->driver)
++		strlcpy(info->driver, pdev->driver->name,
++			sizeof(info->driver));
++	else
++		strlcpy(info->driver, "N/A", sizeof(info->driver));
  
--		memset(&info, 0, sizeof(struct i2c_board_info));
--		strlcpy(info.type, "therm_ds1775", I2C_NAME_SIZE);
-+	np = of_find_compatible_node(adapter->dev.of_node, NULL, "MAC,ds1775");
-+	if (np) {
-+		of_node_put(np);
-+	} else {
-+		strlcpy(info.type, "MAC,ds1775", I2C_NAME_SIZE);
- 		i2c_new_probed_device(adapter, &info, scan_ds1775, NULL);
-+	}
+ 	strlcpy(info->version, init_utsname()->release, sizeof(info->version));
  
--		strlcpy(info.type, "therm_adm1030", I2C_NAME_SIZE);
-+	np = of_find_compatible_node(adapter->dev.of_node, NULL, "MAC,adm1030");
-+	if (np) {
-+		of_node_put(np);
-+	} else {
-+		strlcpy(info.type, "MAC,adm1030", I2C_NAME_SIZE);
- 		i2c_new_probed_device(adapter, &info, scan_adm1030, NULL);
--
--		if( x.thermostat && x.fan ) {
--			x.running = 1;
--			x.poll_task = kthread_run(control_loop, NULL, "g4fand");
--		}
- 	}
--	return 0;
- }
- 
- static int
-@@ -404,8 +405,8 @@ out:
- enum chip { ds1775, adm1030 };
- 
- static const struct i2c_device_id therm_windtunnel_id[] = {
--	{ "therm_ds1775", ds1775 },
--	{ "therm_adm1030", adm1030 },
-+	{ "MAC,ds1775", ds1775 },
-+	{ "MAC,adm1030", adm1030 },
- 	{ }
- };
- MODULE_DEVICE_TABLE(i2c, therm_windtunnel_id);
-@@ -414,6 +415,7 @@ static int
- do_probe(struct i2c_client *cl, const struct i2c_device_id *id)
- {
- 	struct i2c_adapter *adapter = cl->adapter;
-+	int ret = 0;
- 
- 	if( !i2c_check_functionality(adapter, I2C_FUNC_SMBUS_WORD_DATA
- 				     | I2C_FUNC_SMBUS_WRITE_BYTE) )
-@@ -421,11 +423,19 @@ do_probe(struct i2c_client *cl, const st
- 
- 	switch (id->driver_data) {
- 	case adm1030:
--		return attach_fan( cl );
-+		ret = attach_fan(cl);
-+		break;
- 	case ds1775:
--		return attach_thermostat(cl);
-+		ret = attach_thermostat(cl);
-+		break;
- 	}
--	return 0;
-+
-+	if (!x.running && x.thermostat && x.fan) {
-+		x.running = 1;
-+		x.poll_task = kthread_run(control_loop, NULL, "g4fand");
-+	}
-+
-+	return ret;
- }
- 
- static struct i2c_driver g4fan_driver = {
+-- 
+2.20.1
+
 
 
