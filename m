@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E08E4177EB8
-	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 19:56:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3FF55178007
+	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 19:59:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731110AbgCCRqT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Mar 2020 12:46:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52810 "EHLO mail.kernel.org"
+        id S1732334AbgCCRyP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Mar 2020 12:54:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35330 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731107AbgCCRqT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Mar 2020 12:46:19 -0500
+        id S1732331AbgCCRyP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Mar 2020 12:54:15 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CD5A8208C3;
-        Tue,  3 Mar 2020 17:46:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6C0532146E;
+        Tue,  3 Mar 2020 17:54:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583257578;
-        bh=asF50YmxmVvBTjjxslIoZh8Ys9XKNKByc/zswz4yy1o=;
+        s=default; t=1583258054;
+        bh=OozF0n4biiFo40h+gvtJt74tu01cqRvrmfum7rt5Q3A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=n5XKfGz7jSGG34p5N6yGaIMDSYveKnOeL+bWx4By6GIgyMbjlYvtUFh8mVCndQ77r
-         /uP2/rWHDprz/fD4jgSUSXaam63YC7n4iiS3C3H1UOTSKStJ1FqQ9eUvQfO9p6jaIb
-         n/71SvwWjDUC5YnsbV2dS3B6k2595dWoDgAL4D7o=
+        b=1toMsWJUG0o9ZntDbKB7b3mTzyca0e2262QSobW+ypIpBH5w7jVHcvj5Bl1dZbfw+
+         2UmPXaEX8hi0VzMR1/QeHNBPWpFrCRVLZdEbyAbwkkc1nh6QDNJJxDhVtigFWeopTp
+         6fUakvi3N+ify0DiFxvVp5mkw7Fx1isc3EhnnGXg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Isabel Zhang <isabel.zhang@amd.com>,
-        Eric Yang <eric.yang2@amd.com>,
-        Bhawanpreet Lakha <Bhawanpreet.Lakha@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 049/176] drm/amd/display: Add initialitions for PLL2 clock source
-Date:   Tue,  3 Mar 2020 18:41:53 +0100
-Message-Id: <20200303174310.216405809@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Vasundhara Volam <vasundhara-v.volam@broadcom.com>,
+        Michael Chan <michael.chan@broadcom.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.4 016/152] bnxt_en: Issue PCIe FLR in kdump kernel to cleanup pending DMAs.
+Date:   Tue,  3 Mar 2020 18:41:54 +0100
+Message-Id: <20200303174304.335852104@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200303174304.593872177@linuxfoundation.org>
-References: <20200303174304.593872177@linuxfoundation.org>
+In-Reply-To: <20200303174302.523080016@linuxfoundation.org>
+References: <20200303174302.523080016@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,60 +45,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Isabel Zhang <isabel.zhang@amd.com>
+From: Vasundhara Volam <vasundhara-v.volam@broadcom.com>
 
-[ Upstream commit c134c3cabae46a56ab2e1f5e5fa49405e1758838 ]
+[ Upstream commit 8743db4a9acfd51f805ac0c87bcaae92c42d1061 ]
 
-[Why]
-Starting from 14nm, the PLL is built into the PHY and the PLL is mapped
-to PHY on 1 to 1 basis. In the code, the DP port is mapped to a PLL that was not
-initialized. This causes DP to HDMI dongle to not light up the display.
+If crashed kernel does not shutdown the NIC properly, PCIe FLR
+is required in the kdump kernel in order to initialize all the
+functions properly.
 
-[How]
-Initializations added for PLL2 when creating resources.
-
-Signed-off-by: Isabel Zhang <isabel.zhang@amd.com>
-Reviewed-by: Eric Yang <eric.yang2@amd.com>
-Acked-by: Bhawanpreet Lakha <Bhawanpreet.Lakha@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: d629522e1d66 ("bnxt_en: Reduce memory usage when running in kdump kernel.")
+Signed-off-by: Vasundhara Volam <vasundhara-v.volam@broadcom.com>
+Signed-off-by: Michael Chan <michael.chan@broadcom.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/net/ethernet/broadcom/bnxt/bnxt.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c b/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c
-index 83cda43a1b6b3..77741b18c85b0 100644
---- a/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c
-+++ b/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c
-@@ -57,6 +57,7 @@
- #include "dcn20/dcn20_dccg.h"
- #include "dcn21_hubbub.h"
- #include "dcn10/dcn10_resource.h"
-+#include "dce110/dce110_resource.h"
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
+@@ -11712,6 +11712,14 @@ static int bnxt_init_one(struct pci_dev
+ 	if (version_printed++ == 0)
+ 		pr_info("%s", version);
  
- #include "dcn20/dcn20_dwb.h"
- #include "dcn20/dcn20_mmhubbub.h"
-@@ -867,6 +868,7 @@ static const struct dc_debug_options debug_defaults_diags = {
- enum dcn20_clk_src_array_id {
- 	DCN20_CLK_SRC_PLL0,
- 	DCN20_CLK_SRC_PLL1,
-+	DCN20_CLK_SRC_PLL2,
- 	DCN20_CLK_SRC_TOTAL_DCN21
- };
- 
-@@ -1730,6 +1732,10 @@ static bool construct(
- 			dcn21_clock_source_create(ctx, ctx->dc_bios,
- 				CLOCK_SOURCE_COMBO_PHY_PLL1,
- 				&clk_src_regs[1], false);
-+	pool->base.clock_sources[DCN20_CLK_SRC_PLL2] =
-+			dcn21_clock_source_create(ctx, ctx->dc_bios,
-+				CLOCK_SOURCE_COMBO_PHY_PLL2,
-+				&clk_src_regs[2], false);
- 
- 	pool->base.clk_src_count = DCN20_CLK_SRC_TOTAL_DCN21;
- 
--- 
-2.20.1
-
++	/* Clear any pending DMA transactions from crash kernel
++	 * while loading driver in capture kernel.
++	 */
++	if (is_kdump_kernel()) {
++		pci_clear_master(pdev);
++		pcie_flr(pdev);
++	}
++
+ 	max_irqs = bnxt_get_max_irq(pdev);
+ 	dev = alloc_etherdev_mq(sizeof(*bp), max_irqs);
+ 	if (!dev)
 
 
