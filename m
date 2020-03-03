@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 892F1176D15
-	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 04:01:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BE1DB176D18
+	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 04:01:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727900AbgCCCrJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Mar 2020 21:47:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41924 "EHLO mail.kernel.org"
+        id S1727131AbgCCDBD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Mar 2020 22:01:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41996 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727883AbgCCCrI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Mar 2020 21:47:08 -0500
+        id S1727893AbgCCCrJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Mar 2020 21:47:09 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 73C1924684;
-        Tue,  3 Mar 2020 02:47:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C2438246D5;
+        Tue,  3 Mar 2020 02:47:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583203627;
-        bh=k1YJFRpqWZr/RQKoQR1pqK8QgRDaZ/e+DAJMuHQUrEw=;
+        s=default; t=1583203628;
+        bh=QLQy8wlt2AqZ0CRoJLgZFN+jBg/hHItbk3IGsNcoL+0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FT4yvANRzMFJcIggJZLoVuUWSMb8xUoggphYVQlTEv4oKjBWwE87rRz6Q8nZUWgIY
-         qiWISGoY+L/JFtUHHOlouRCz0sDoWswPo1V2AbAwsIsM4qPUgsoLlpx3PHU2oMFmOF
-         75eYiTWVRDZMnU6KlBr1b/emL6pESYb2e31/5wYU=
+        b=EtXOlabxhRy7b6U5FSmZC5zuPp8AN5LIF12FP5w6UQQuHsTmKJN4cnussTBzaDr9g
+         QP+ojNocdFTFU2Zh4c7hjku8P7UM8GqNFIKM8mnkIzGHjXv8ReUdcbJqkwscXp1MGC
+         aQcCGzN0OwC3yN3/YcoFCYVoFWtZmQ/Tqxf0dXco=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Javier Martinez Canillas <javierm@redhat.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Mimi Zohar <zohar@linux.ibm.com>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-security-module@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.5 41/66] efi: Only print errors about failing to get certs if EFI vars are found
-Date:   Mon,  2 Mar 2020 21:45:50 -0500
-Message-Id: <20200303024615.8889-41-sashal@kernel.org>
+Cc:     Michal Kalderon <michal.kalderon@marvell.com>,
+        Ariel Elior <ariel.elior@marvell.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.5 42/66] qede: Fix race between rdma destroy workqueue and link change event
+Date:   Mon,  2 Mar 2020 21:45:51 -0500
+Message-Id: <20200303024615.8889-42-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200303024615.8889-1-sashal@kernel.org>
 References: <20200303024615.8889-1-sashal@kernel.org>
@@ -46,132 +44,111 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Javier Martinez Canillas <javierm@redhat.com>
+From: Michal Kalderon <michal.kalderon@marvell.com>
 
-[ Upstream commit 3be54d558c75562e42bc83d665df024bd79d399b ]
+[ Upstream commit af6565adb02d3129d3fae4d9d5da945abaf4417a ]
 
-If CONFIG_LOAD_UEFI_KEYS is enabled, the kernel attempts to load the certs
-from the db, dbx and MokListRT EFI variables into the appropriate keyrings.
+If an event is added while the rdma workqueue is being destroyed
+it could lead to several races, list corruption, null pointer
+dereference during queue_work or init_queue.
+This fixes the race between the two flows which can occur during
+shutdown.
 
-But it just assumes that the variables will be present and prints an error
-if the certs can't be loaded, even when is possible that the variables may
-not exist. For example the MokListRT variable will only be present if shim
-is used.
+A kref object and a completion object are added to the rdma_dev
+structure, these are initialized before the workqueue is created.
+The refcnt is used to indicate work is being added to the
+workqueue and ensures the cleanup flow won't start while we're in
+the middle of adding the event.
+Once the work is added, the refcnt is decreased and the cleanup flow
+is safe to run.
 
-So only print an error message about failing to get the certs list from an
-EFI variable if this is found. Otherwise these printed errors just pollute
-the kernel log ring buffer with confusing messages like the following:
-
-[    5.427251] Couldn't get size: 0x800000000000000e
-[    5.427261] MODSIGN: Couldn't get UEFI db list
-[    5.428012] Couldn't get size: 0x800000000000000e
-[    5.428023] Couldn't get UEFI MokListRT
-
-Reported-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Javier Martinez Canillas <javierm@redhat.com>
-Tested-by: Hans de Goede <hdegoede@redhat.com>
-Acked-by: Ard Biesheuvel <ardb@kernel.org>
-Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
+Fixes: cee9fbd8e2e ("qede: Add qedr framework")
+Signed-off-by: Ariel Elior <ariel.elior@marvell.com>
+Signed-off-by: Michal Kalderon <michal.kalderon@marvell.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/integrity/platform_certs/load_uefi.c | 40 ++++++++++++-------
- 1 file changed, 26 insertions(+), 14 deletions(-)
+ drivers/net/ethernet/qlogic/qede/qede.h      |  2 ++
+ drivers/net/ethernet/qlogic/qede/qede_rdma.c | 29 +++++++++++++++++++-
+ 2 files changed, 30 insertions(+), 1 deletion(-)
 
-diff --git a/security/integrity/platform_certs/load_uefi.c b/security/integrity/platform_certs/load_uefi.c
-index 111898aad56e4..f0c908241966a 100644
---- a/security/integrity/platform_certs/load_uefi.c
-+++ b/security/integrity/platform_certs/load_uefi.c
-@@ -35,16 +35,18 @@ static __init bool uefi_check_ignore_db(void)
-  * Get a certificate list blob from the named EFI variable.
-  */
- static __init void *get_cert_list(efi_char16_t *name, efi_guid_t *guid,
--				  unsigned long *size)
-+				  unsigned long *size, efi_status_t *status)
+diff --git a/drivers/net/ethernet/qlogic/qede/qede.h b/drivers/net/ethernet/qlogic/qede/qede.h
+index e8a1b27db84de..234c6f30effb7 100644
+--- a/drivers/net/ethernet/qlogic/qede/qede.h
++++ b/drivers/net/ethernet/qlogic/qede/qede.h
+@@ -163,6 +163,8 @@ struct qede_rdma_dev {
+ 	struct list_head entry;
+ 	struct list_head rdma_event_list;
+ 	struct workqueue_struct *rdma_wq;
++	struct kref refcnt;
++	struct completion event_comp;
+ 	bool exp_recovery;
+ };
+ 
+diff --git a/drivers/net/ethernet/qlogic/qede/qede_rdma.c b/drivers/net/ethernet/qlogic/qede/qede_rdma.c
+index ffabc2d2f0824..2d873ae8a234d 100644
+--- a/drivers/net/ethernet/qlogic/qede/qede_rdma.c
++++ b/drivers/net/ethernet/qlogic/qede/qede_rdma.c
+@@ -59,6 +59,9 @@ static void _qede_rdma_dev_add(struct qede_dev *edev)
+ static int qede_rdma_create_wq(struct qede_dev *edev)
  {
--	efi_status_t status;
- 	unsigned long lsize = 4;
- 	unsigned long tmpdb[4];
- 	void *db;
- 
--	status = efi.get_variable(name, guid, NULL, &lsize, &tmpdb);
--	if (status != EFI_BUFFER_TOO_SMALL) {
--		pr_err("Couldn't get size: 0x%lx\n", status);
-+	*status = efi.get_variable(name, guid, NULL, &lsize, &tmpdb);
-+	if (*status == EFI_NOT_FOUND)
-+		return NULL;
+ 	INIT_LIST_HEAD(&edev->rdma_info.rdma_event_list);
++	kref_init(&edev->rdma_info.refcnt);
++	init_completion(&edev->rdma_info.event_comp);
 +
-+	if (*status != EFI_BUFFER_TOO_SMALL) {
-+		pr_err("Couldn't get size: 0x%lx\n", *status);
- 		return NULL;
+ 	edev->rdma_info.rdma_wq = create_singlethread_workqueue("rdma_wq");
+ 	if (!edev->rdma_info.rdma_wq) {
+ 		DP_NOTICE(edev, "qedr: Could not create workqueue\n");
+@@ -83,8 +86,23 @@ static void qede_rdma_cleanup_event(struct qede_dev *edev)
  	}
+ }
  
-@@ -52,10 +54,10 @@ static __init void *get_cert_list(efi_char16_t *name, efi_guid_t *guid,
- 	if (!db)
- 		return NULL;
++static void qede_rdma_complete_event(struct kref *ref)
++{
++	struct qede_rdma_dev *rdma_dev =
++		container_of(ref, struct qede_rdma_dev, refcnt);
++
++	/* no more events will be added after this */
++	complete(&rdma_dev->event_comp);
++}
++
+ static void qede_rdma_destroy_wq(struct qede_dev *edev)
+ {
++	/* Avoid race with add_event flow, make sure it finishes before
++	 * we start accessing the list and cleaning up the work
++	 */
++	kref_put(&edev->rdma_info.refcnt, qede_rdma_complete_event);
++	wait_for_completion(&edev->rdma_info.event_comp);
++
+ 	qede_rdma_cleanup_event(edev);
+ 	destroy_workqueue(edev->rdma_info.rdma_wq);
+ }
+@@ -310,15 +328,24 @@ static void qede_rdma_add_event(struct qede_dev *edev,
+ 	if (!edev->rdma_info.qedr_dev)
+ 		return;
  
--	status = efi.get_variable(name, guid, NULL, &lsize, db);
--	if (status != EFI_SUCCESS) {
-+	*status = efi.get_variable(name, guid, NULL, &lsize, db);
-+	if (*status != EFI_SUCCESS) {
- 		kfree(db);
--		pr_err("Error reading db var: 0x%lx\n", status);
-+		pr_err("Error reading db var: 0x%lx\n", *status);
- 		return NULL;
- 	}
++	/* We don't want the cleanup flow to start while we're allocating and
++	 * scheduling the work
++	 */
++	if (!kref_get_unless_zero(&edev->rdma_info.refcnt))
++		return; /* already being destroyed */
++
+ 	event_node = qede_rdma_get_free_event_node(edev);
+ 	if (!event_node)
+-		return;
++		goto out;
  
-@@ -74,6 +76,7 @@ static int __init load_uefi_certs(void)
- 	efi_guid_t mok_var = EFI_SHIM_LOCK_GUID;
- 	void *db = NULL, *dbx = NULL, *mok = NULL;
- 	unsigned long dbsize = 0, dbxsize = 0, moksize = 0;
-+	efi_status_t status;
- 	int rc = 0;
+ 	event_node->event = event;
+ 	event_node->ptr = edev;
  
- 	if (!efi.get_variable)
-@@ -83,9 +86,12 @@ static int __init load_uefi_certs(void)
- 	 * an error if we can't get them.
- 	 */
- 	if (!uefi_check_ignore_db()) {
--		db = get_cert_list(L"db", &secure_var, &dbsize);
-+		db = get_cert_list(L"db", &secure_var, &dbsize, &status);
- 		if (!db) {
--			pr_err("MODSIGN: Couldn't get UEFI db list\n");
-+			if (status == EFI_NOT_FOUND)
-+				pr_debug("MODSIGN: db variable wasn't found\n");
-+			else
-+				pr_err("MODSIGN: Couldn't get UEFI db list\n");
- 		} else {
- 			rc = parse_efi_signature_list("UEFI:db",
- 					db, dbsize, get_handler_for_db);
-@@ -96,9 +102,12 @@ static int __init load_uefi_certs(void)
- 		}
- 	}
+ 	INIT_WORK(&event_node->work, qede_rdma_handle_event);
+ 	queue_work(edev->rdma_info.rdma_wq, &event_node->work);
++
++out:
++	kref_put(&edev->rdma_info.refcnt, qede_rdma_complete_event);
+ }
  
--	mok = get_cert_list(L"MokListRT", &mok_var, &moksize);
-+	mok = get_cert_list(L"MokListRT", &mok_var, &moksize, &status);
- 	if (!mok) {
--		pr_info("Couldn't get UEFI MokListRT\n");
-+		if (status == EFI_NOT_FOUND)
-+			pr_debug("MokListRT variable wasn't found\n");
-+		else
-+			pr_info("Couldn't get UEFI MokListRT\n");
- 	} else {
- 		rc = parse_efi_signature_list("UEFI:MokListRT",
- 					      mok, moksize, get_handler_for_db);
-@@ -107,9 +116,12 @@ static int __init load_uefi_certs(void)
- 		kfree(mok);
- 	}
- 
--	dbx = get_cert_list(L"dbx", &secure_var, &dbxsize);
-+	dbx = get_cert_list(L"dbx", &secure_var, &dbxsize, &status);
- 	if (!dbx) {
--		pr_info("Couldn't get UEFI dbx list\n");
-+		if (status == EFI_NOT_FOUND)
-+			pr_debug("dbx variable wasn't found\n");
-+		else
-+			pr_info("Couldn't get UEFI dbx list\n");
- 	} else {
- 		rc = parse_efi_signature_list("UEFI:dbx",
- 					      dbx, dbxsize,
+ void qede_rdma_dev_event_open(struct qede_dev *edev)
 -- 
 2.20.1
 
