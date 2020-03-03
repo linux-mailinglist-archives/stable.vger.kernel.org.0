@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3FF55178007
-	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 19:59:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F76817800A
+	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 19:59:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732334AbgCCRyP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Mar 2020 12:54:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35330 "EHLO mail.kernel.org"
+        id S1732317AbgCCRyV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Mar 2020 12:54:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35386 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732331AbgCCRyP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Mar 2020 12:54:15 -0500
+        id S1732314AbgCCRyS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Mar 2020 12:54:18 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6C0532146E;
-        Tue,  3 Mar 2020 17:54:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E29C8206D5;
+        Tue,  3 Mar 2020 17:54:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583258054;
-        bh=OozF0n4biiFo40h+gvtJt74tu01cqRvrmfum7rt5Q3A=;
+        s=default; t=1583258057;
+        bh=fnZMFuWpokuRvogZ+lYmg4QbzM8qrsoqsY/yQazYVe0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1toMsWJUG0o9ZntDbKB7b3mTzyca0e2262QSobW+ypIpBH5w7jVHcvj5Bl1dZbfw+
-         2UmPXaEX8hi0VzMR1/QeHNBPWpFrCRVLZdEbyAbwkkc1nh6QDNJJxDhVtigFWeopTp
-         6fUakvi3N+ify0DiFxvVp5mkw7Fx1isc3EhnnGXg=
+        b=tahXwLj8Jfama9apTm0rsY9j1ZovSWhF8Y/TTvpd/+tUfo1+LfmDOVkGW0TvSO2eq
+         ct/pQ+QnJhw85bVtNGlwomC0oukxOfADMgwe/Aq3Dq/wVOjaqpuzk/OUzozednVZIZ
+         BWg+YP9u8tRqPEwekMzguq6jWHExg9TZKcJYwoc4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Vasundhara Volam <vasundhara-v.volam@broadcom.com>,
-        Michael Chan <michael.chan@broadcom.com>,
+        stable@vger.kernel.org, Taehee Yoo <ap420073@gmail.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 016/152] bnxt_en: Issue PCIe FLR in kdump kernel to cleanup pending DMAs.
-Date:   Tue,  3 Mar 2020 18:41:54 +0100
-Message-Id: <20200303174304.335852104@linuxfoundation.org>
+Subject: [PATCH 5.4 017/152] bonding: add missing netdev_update_lockdep_key()
+Date:   Tue,  3 Mar 2020 18:41:55 +0100
+Message-Id: <20200303174304.444600850@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200303174302.523080016@linuxfoundation.org>
 References: <20200303174302.523080016@linuxfoundation.org>
@@ -45,39 +43,150 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasundhara Volam <vasundhara-v.volam@broadcom.com>
+From: Taehee Yoo <ap420073@gmail.com>
 
-[ Upstream commit 8743db4a9acfd51f805ac0c87bcaae92c42d1061 ]
+[ Upstream commit 064ff66e2bef84f1153087612032b5b9eab005bd ]
 
-If crashed kernel does not shutdown the NIC properly, PCIe FLR
-is required in the kdump kernel in order to initialize all the
-functions properly.
+After bond_release(), netdev_update_lockdep_key() should be called.
+But both ioctl path and attribute path don't call
+netdev_update_lockdep_key().
+This patch adds missing netdev_update_lockdep_key().
 
-Fixes: d629522e1d66 ("bnxt_en: Reduce memory usage when running in kdump kernel.")
-Signed-off-by: Vasundhara Volam <vasundhara-v.volam@broadcom.com>
-Signed-off-by: Michael Chan <michael.chan@broadcom.com>
+Test commands:
+    ip link add bond0 type bond
+    ip link add bond1 type bond
+    ifenslave bond0 bond1
+    ifenslave -d bond0 bond1
+    ifenslave bond1 bond0
+
+Splat looks like:
+[   29.501182][ T1046] WARNING: possible circular locking dependency detected
+[   29.501945][ T1039] hardirqs last disabled at (1962): [<ffffffffac6c807f>] handle_mm_fault+0x13f/0x700
+[   29.503442][ T1046] 5.5.0+ #322 Not tainted
+[   29.503447][ T1046] ------------------------------------------------------
+[   29.504277][ T1039] softirqs last  enabled at (1180): [<ffffffffade00678>] __do_softirq+0x678/0x981
+[   29.505443][ T1046] ifenslave/1046 is trying to acquire lock:
+[   29.505886][ T1039] softirqs last disabled at (1169): [<ffffffffac19c18a>] irq_exit+0x17a/0x1a0
+[   29.509997][ T1046] ffff88805d5da280 (&dev->addr_list_lock_key#3){+...}, at: dev_mc_sync_multiple+0x95/0x120
+[   29.511243][ T1046]
+[   29.511243][ T1046] but task is already holding lock:
+[   29.512192][ T1046] ffff8880460f2280 (&dev->addr_list_lock_key#4){+...}, at: bond_enslave+0x4482/0x47b0 [bonding]
+[   29.514124][ T1046]
+[   29.514124][ T1046] which lock already depends on the new lock.
+[   29.514124][ T1046]
+[   29.517297][ T1046]
+[   29.517297][ T1046] the existing dependency chain (in reverse order) is:
+[   29.518231][ T1046]
+[   29.518231][ T1046] -> #1 (&dev->addr_list_lock_key#4){+...}:
+[   29.519076][ T1046]        _raw_spin_lock+0x30/0x70
+[   29.519588][ T1046]        dev_mc_sync_multiple+0x95/0x120
+[   29.520208][ T1046]        bond_enslave+0x448d/0x47b0 [bonding]
+[   29.520862][ T1046]        bond_option_slaves_set+0x1a3/0x370 [bonding]
+[   29.521640][ T1046]        __bond_opt_set+0x1ff/0xbb0 [bonding]
+[   29.522438][ T1046]        __bond_opt_set_notify+0x2b/0xf0 [bonding]
+[   29.523251][ T1046]        bond_opt_tryset_rtnl+0x92/0xf0 [bonding]
+[   29.524082][ T1046]        bonding_sysfs_store_option+0x8a/0xf0 [bonding]
+[   29.524959][ T1046]        kernfs_fop_write+0x276/0x410
+[   29.525620][ T1046]        vfs_write+0x197/0x4a0
+[   29.526218][ T1046]        ksys_write+0x141/0x1d0
+[   29.526818][ T1046]        do_syscall_64+0x99/0x4f0
+[   29.527430][ T1046]        entry_SYSCALL_64_after_hwframe+0x49/0xbe
+[   29.528265][ T1046]
+[   29.528265][ T1046] -> #0 (&dev->addr_list_lock_key#3){+...}:
+[   29.529272][ T1046]        __lock_acquire+0x2d8d/0x3de0
+[   29.529935][ T1046]        lock_acquire+0x164/0x3b0
+[   29.530638][ T1046]        _raw_spin_lock+0x30/0x70
+[   29.531187][ T1046]        dev_mc_sync_multiple+0x95/0x120
+[   29.531790][ T1046]        bond_enslave+0x448d/0x47b0 [bonding]
+[   29.532451][ T1046]        bond_option_slaves_set+0x1a3/0x370 [bonding]
+[   29.533163][ T1046]        __bond_opt_set+0x1ff/0xbb0 [bonding]
+[   29.533789][ T1046]        __bond_opt_set_notify+0x2b/0xf0 [bonding]
+[   29.534595][ T1046]        bond_opt_tryset_rtnl+0x92/0xf0 [bonding]
+[   29.535500][ T1046]        bonding_sysfs_store_option+0x8a/0xf0 [bonding]
+[   29.536379][ T1046]        kernfs_fop_write+0x276/0x410
+[   29.537057][ T1046]        vfs_write+0x197/0x4a0
+[   29.537640][ T1046]        ksys_write+0x141/0x1d0
+[   29.538251][ T1046]        do_syscall_64+0x99/0x4f0
+[   29.538870][ T1046]        entry_SYSCALL_64_after_hwframe+0x49/0xbe
+[   29.539659][ T1046]
+[   29.539659][ T1046] other info that might help us debug this:
+[   29.539659][ T1046]
+[   29.540953][ T1046]  Possible unsafe locking scenario:
+[   29.540953][ T1046]
+[   29.541883][ T1046]        CPU0                    CPU1
+[   29.542540][ T1046]        ----                    ----
+[   29.543209][ T1046]   lock(&dev->addr_list_lock_key#4);
+[   29.543880][ T1046]                                lock(&dev->addr_list_lock_key#3);
+[   29.544873][ T1046]                                lock(&dev->addr_list_lock_key#4);
+[   29.545863][ T1046]   lock(&dev->addr_list_lock_key#3);
+[   29.546525][ T1046]
+[   29.546525][ T1046]  *** DEADLOCK ***
+[   29.546525][ T1046]
+[   29.547542][ T1046] 5 locks held by ifenslave/1046:
+[   29.548196][ T1046]  #0: ffff88806044c478 (sb_writers#5){.+.+}, at: vfs_write+0x3bb/0x4a0
+[   29.549248][ T1046]  #1: ffff88805af00890 (&of->mutex){+.+.}, at: kernfs_fop_write+0x1cf/0x410
+[   29.550343][ T1046]  #2: ffff88805b8b54b0 (kn->count#157){.+.+}, at: kernfs_fop_write+0x1f2/0x410
+[   29.551575][ T1046]  #3: ffffffffaecf4cf0 (rtnl_mutex){+.+.}, at: bond_opt_tryset_rtnl+0x5f/0xf0 [bonding]
+[   29.552819][ T1046]  #4: ffff8880460f2280 (&dev->addr_list_lock_key#4){+...}, at: bond_enslave+0x4482/0x47b0 [bonding]
+[   29.554175][ T1046]
+[   29.554175][ T1046] stack backtrace:
+[   29.554907][ T1046] CPU: 0 PID: 1046 Comm: ifenslave Not tainted 5.5.0+ #322
+[   29.555854][ T1046] Hardware name: innotek GmbH VirtualBox/VirtualBox, BIOS VirtualBox 12/01/2006
+[   29.557064][ T1046] Call Trace:
+[   29.557504][ T1046]  dump_stack+0x96/0xdb
+[   29.558054][ T1046]  check_noncircular+0x371/0x450
+[   29.558723][ T1046]  ? print_circular_bug.isra.35+0x310/0x310
+[   29.559486][ T1046]  ? hlock_class+0x130/0x130
+[   29.560100][ T1046]  ? __lock_acquire+0x2d8d/0x3de0
+[   29.560761][ T1046]  __lock_acquire+0x2d8d/0x3de0
+[   29.561366][ T1046]  ? register_lock_class+0x14d0/0x14d0
+[   29.562045][ T1046]  ? find_held_lock+0x39/0x1d0
+[   29.562641][ T1046]  lock_acquire+0x164/0x3b0
+[   29.563199][ T1046]  ? dev_mc_sync_multiple+0x95/0x120
+[   29.563872][ T1046]  _raw_spin_lock+0x30/0x70
+[   29.564464][ T1046]  ? dev_mc_sync_multiple+0x95/0x120
+[   29.565146][ T1046]  dev_mc_sync_multiple+0x95/0x120
+[   29.565793][ T1046]  bond_enslave+0x448d/0x47b0 [bonding]
+[   29.566487][ T1046]  ? bond_update_slave_arr+0x940/0x940 [bonding]
+[   29.567279][ T1046]  ? bstr_printf+0xc20/0xc20
+[   29.567857][ T1046]  ? stack_trace_consume_entry+0x160/0x160
+[   29.568614][ T1046]  ? deactivate_slab.isra.77+0x2c5/0x800
+[   29.569320][ T1046]  ? check_chain_key+0x236/0x5d0
+[   29.569939][ T1046]  ? sscanf+0x93/0xc0
+[   29.570442][ T1046]  ? vsscanf+0x1e20/0x1e20
+[   29.571003][ T1046]  bond_option_slaves_set+0x1a3/0x370 [bonding]
+[ ... ]
+
+Fixes: ab92d68fc22f ("net: core: add generic lockdep keys")
+Signed-off-by: Taehee Yoo <ap420073@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/broadcom/bnxt/bnxt.c |    8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/net/bonding/bond_main.c    |    2 ++
+ drivers/net/bonding/bond_options.c |    2 ++
+ 2 files changed, 4 insertions(+)
 
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-@@ -11712,6 +11712,14 @@ static int bnxt_init_one(struct pci_dev
- 	if (version_printed++ == 0)
- 		pr_info("%s", version);
+--- a/drivers/net/bonding/bond_main.c
++++ b/drivers/net/bonding/bond_main.c
+@@ -3550,6 +3550,8 @@ static int bond_do_ioctl(struct net_devi
+ 	case BOND_RELEASE_OLD:
+ 	case SIOCBONDRELEASE:
+ 		res = bond_release(bond_dev, slave_dev);
++		if (!res)
++			netdev_update_lockdep_key(slave_dev);
+ 		break;
+ 	case BOND_SETHWADDR_OLD:
+ 	case SIOCBONDSETHWADDR:
+--- a/drivers/net/bonding/bond_options.c
++++ b/drivers/net/bonding/bond_options.c
+@@ -1398,6 +1398,8 @@ static int bond_option_slaves_set(struct
+ 	case '-':
+ 		slave_dbg(bond->dev, dev, "Releasing interface\n");
+ 		ret = bond_release(bond->dev, dev);
++		if (!ret)
++			netdev_update_lockdep_key(dev);
+ 		break;
  
-+	/* Clear any pending DMA transactions from crash kernel
-+	 * while loading driver in capture kernel.
-+	 */
-+	if (is_kdump_kernel()) {
-+		pci_clear_master(pdev);
-+		pcie_flr(pdev);
-+	}
-+
- 	max_irqs = bnxt_get_max_irq(pdev);
- 	dev = alloc_etherdev_mq(sizeof(*bp), max_irqs);
- 	if (!dev)
+ 	default:
 
 
