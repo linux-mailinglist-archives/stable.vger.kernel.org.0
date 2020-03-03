@@ -2,55 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 62A1C1781B4
-	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 20:02:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 07E9F178178
+	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 20:02:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387984AbgCCSFa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Mar 2020 13:05:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41040 "EHLO mail.kernel.org"
+        id S2388247AbgCCSCf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Mar 2020 13:02:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47244 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732433AbgCCR6Q (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Mar 2020 12:58:16 -0500
+        id S2388244AbgCCSCe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Mar 2020 13:02:34 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E4EFA20656;
-        Tue,  3 Mar 2020 17:58:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2269B20866;
+        Tue,  3 Mar 2020 18:02:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583258296;
-        bh=aritVFXyYQEP/EoJwiebMs2HRyqo/h29Dc6/FkABBBo=;
+        s=default; t=1583258552;
+        bh=v1IbuT4NWyYic0LgpWGCsYhxjF2QjGfkvO9EqvZrVtQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RUNldSignPiF3yNfCFGIDoGoyb5cwb4O4BN0F5lKNxmJ7ZgH9j7ZAr5wL4pcMPGrq
-         0Y5zso7tK6L6nTkORokOs0e6PsIGP3GApBujwvsDFQXBO4rdtqVL2PPYAM4/Fgcuf3
-         eJkzwrLSWdsY5KzzJA+lp4dWblqpMwU8gQWZV6hE=
+        b=TvSEryAWZzOjJBZsXgyjDOxQr+41BncYB5dXHmLn2Sg+E6klGOUzvNVKMKxc+38sR
+         zoHK4vA0PdJahSHyzt0jQjbNVlZX9XRguPXyZE++3wQ/tBa9p+yj1qytTY7JH0URBK
+         +Palot3G6jBhdOfxGBHOrSmuggJP5JKIIxgwVT7k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, John Hubbard <jhubbard@nvidia.com>,
-        Leon Romanovsky <leonro@mellanox.com>, Jan Kara <jack@suse.cz>,
-        Christoph Hellwig <hch@lst.de>,
-        Alex Williamson <alex.williamson@redhat.com>,
-        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
-        =?UTF-8?q?Bj=C3=B6rn=20T=C3=B6pel?= <bjorn.topel@intel.com>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Ira Weiny <ira.weiny@intel.com>,
-        Jason Gunthorpe <jgg@mellanox.com>,
-        Jason Gunthorpe <jgg@ziepe.ca>, Jens Axboe <axboe@kernel.dk>,
-        Jerome Glisse <jglisse@redhat.com>,
-        Jonathan Corbet <corbet@lwn.net>,
-        "Kirill A. Shutemov" <kirill@shutemov.name>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Mike Rapoport <rppt@linux.ibm.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.4 148/152] mm/gup: allow FOLL_FORCE for get_user_pages_fast()
+        stable@vger.kernel.org, Jiri Olsa <jolsa@redhat.com>,
+        Anton Blanchard <anton@samba.org>,
+        Ravi Bangoria <ravi.bangoria@linux.ibm.com>,
+        Jiri Olsa <jolsa@kernel.org>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Jin Yao <yao.jin@linux.intel.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Thomas Richter <tmricht@linux.vnet.ibm.com>,
+        yuzhoujian@didichuxing.com,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Tommi Rantala <tommi.t.rantala@nokia.com>
+Subject: [PATCH 4.19 75/87] perf stat: Fix shadow stats for clock events
 Date:   Tue,  3 Mar 2020 18:44:06 +0100
-Message-Id: <20200303174319.624614911@linuxfoundation.org>
+Message-Id: <20200303174356.997103456@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200303174302.523080016@linuxfoundation.org>
-References: <20200303174302.523080016@linuxfoundation.org>
+In-Reply-To: <20200303174349.075101355@linuxfoundation.org>
+References: <20200303174349.075101355@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -60,62 +52,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Hubbard <jhubbard@nvidia.com>
+From: Ravi Bangoria <ravi.bangoria@linux.ibm.com>
 
-commit f4000fdf435b8301a11cf85237c561047f8c4c72 upstream.
+commit 57ddf09173c1e7d0511ead8924675c7198e56545 upstream.
 
-Commit 817be129e6f2 ("mm: validate get_user_pages_fast flags") allowed
-only FOLL_WRITE and FOLL_LONGTERM to be passed to get_user_pages_fast().
-This, combined with the fact that get_user_pages_fast() falls back to
-"slow gup", which *does* accept FOLL_FORCE, leads to an odd situation:
-if you need FOLL_FORCE, you cannot call get_user_pages_fast().
+Commit 0aa802a79469 ("perf stat: Get rid of extra clock display
+function") introduced scale and unit for clock events. Thus,
+perf_stat__update_shadow_stats() now saves scaled values of clock events
+in msecs, instead of original nsecs. But while calculating values of
+shadow stats we still consider clock event values in nsecs. This results
+in a wrong shadow stat values. Ex,
 
-There does not appear to be any reason for filtering out FOLL_FORCE.
-There is nothing in the _fast() implementation that requires that we
-avoid writing to the pages.  So it appears to have been an oversight.
+  # ./perf stat -e task-clock,cycles ls
+    <SNIP>
+              2.60 msec task-clock:u    #    0.877 CPUs utilized
+         2,430,564      cycles:u        # 1215282.000 GHz
 
-Fix by allowing FOLL_FORCE to be set for get_user_pages_fast().
+Fix this by saving original nsec values for clock events in
+perf_stat__update_shadow_stats(). After patch:
 
-Link: http://lkml.kernel.org/r/20200107224558.2362728-9-jhubbard@nvidia.com
-Fixes: 817be129e6f2 ("mm: validate get_user_pages_fast flags")
-Signed-off-by: John Hubbard <jhubbard@nvidia.com>
-Reviewed-by: Leon Romanovsky <leonro@mellanox.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Cc: Christoph Hellwig <hch@lst.de>
-Cc: Alex Williamson <alex.williamson@redhat.com>
-Cc: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
-Cc: Björn Töpel <bjorn.topel@intel.com>
-Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
-Cc: Dan Williams <dan.j.williams@intel.com>
-Cc: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Cc: Ira Weiny <ira.weiny@intel.com>
-Cc: Jason Gunthorpe <jgg@mellanox.com>
-Cc: Jason Gunthorpe <jgg@ziepe.ca>
-Cc: Jens Axboe <axboe@kernel.dk>
-Cc: Jerome Glisse <jglisse@redhat.com>
-Cc: Jonathan Corbet <corbet@lwn.net>
-Cc: Kirill A. Shutemov <kirill@shutemov.name>
-Cc: Mauro Carvalho Chehab <mchehab@kernel.org>
-Cc: Mike Rapoport <rppt@linux.ibm.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+  # ./perf stat -e task-clock,cycles ls
+    <SNIP>
+              3.14 msec task-clock:u    #    0.839 CPUs utilized
+         3,094,528      cycles:u        #    0.985 GHz
+
+Suggested-by: Jiri Olsa <jolsa@redhat.com>
+Reported-by: Anton Blanchard <anton@samba.org>
+Signed-off-by: Ravi Bangoria <ravi.bangoria@linux.ibm.com>
+Reviewed-by: Jiri Olsa <jolsa@kernel.org>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Jin Yao <yao.jin@linux.intel.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Thomas Richter <tmricht@linux.vnet.ibm.com>
+Cc: yuzhoujian@didichuxing.com
+Fixes: 0aa802a79469 ("perf stat: Get rid of extra clock display function")
+Link: http://lkml.kernel.org/r/20181116042843.24067-1-ravi.bangoria@linux.ibm.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Cc: Tommi Rantala <tommi.t.rantala@nokia.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- mm/gup.c |    3 ++-
+ tools/perf/util/stat-shadow.c |    3 ++-
  1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/mm/gup.c
-+++ b/mm/gup.c
-@@ -2401,7 +2401,8 @@ int get_user_pages_fast(unsigned long st
- 	unsigned long addr, len, end;
- 	int nr = 0, ret = 0;
+--- a/tools/perf/util/stat-shadow.c
++++ b/tools/perf/util/stat-shadow.c
+@@ -209,11 +209,12 @@ void perf_stat__update_shadow_stats(stru
+ 				    int cpu, struct runtime_stat *st)
+ {
+ 	int ctx = evsel_context(counter);
++	u64 count_ns = count;
  
--	if (WARN_ON_ONCE(gup_flags & ~(FOLL_WRITE | FOLL_LONGTERM)))
-+	if (WARN_ON_ONCE(gup_flags & ~(FOLL_WRITE | FOLL_LONGTERM |
-+				       FOLL_FORCE)))
- 		return -EINVAL;
+ 	count *= counter->scale;
  
- 	start = untagged_addr(start) & PAGE_MASK;
+ 	if (perf_evsel__is_clock(counter))
+-		update_runtime_stat(st, STAT_NSECS, 0, cpu, count);
++		update_runtime_stat(st, STAT_NSECS, 0, cpu, count_ns);
+ 	else if (perf_evsel__match(counter, HARDWARE, HW_CPU_CYCLES))
+ 		update_runtime_stat(st, STAT_CYCLES, ctx, cpu, count);
+ 	else if (perf_stat_evsel__is(counter, CYCLES_IN_TX))
 
 
