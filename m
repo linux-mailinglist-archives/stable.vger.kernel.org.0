@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 308BB17821A
-	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 20:03:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D28717820D
+	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 20:03:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731208AbgCCSNH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Mar 2020 13:13:07 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53728 "EHLO mail.kernel.org"
+        id S1730394AbgCCSIk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Mar 2020 13:08:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33906 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729578AbgCCRq6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Mar 2020 12:46:58 -0500
+        id S1731773AbgCCRxX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Mar 2020 12:53:23 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4E41020870;
-        Tue,  3 Mar 2020 17:46:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E80D520CC7;
+        Tue,  3 Mar 2020 17:53:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583257617;
-        bh=YHXFE6QN7HtiBj1Mkt+G80ciFeW6QQPn2fBKaykZeQ0=;
+        s=default; t=1583258002;
+        bh=yHzv1T7w5XflZfTdu0V4RPQ231BUuBe0kt/RYKK4i94=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dmWeXrUM3Wvg+NAp82RwR5WPUJ1LGbbRkicEQrUB7pHOUYRom7KTLnf8UMsqS/fws
-         XCLno+LXxRg6vKHOs2Jj29GBIifemtHlhljVupOgBtB5OakGp2RO8tHxl8OD7wsUiW
-         roNbgfHwFijIsArfdEyKvmr7H0TQpIelcBgVMBO4=
+        b=fwhBTcg03lGtVAGYH3t41KQj796fEvo23pKDAiixtOb6QU4OH4WyM9Do/9KRzCBGG
+         PPPIw6R0OD6xhg3VXxpkgBkLhyhoxYvgRV76+afgGtJ4Ve7HtvH844+snvr0SXembQ
+         VlC1CBJS1eQ6FYgqzntNlP0iczIDcmVZIExew5q8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sameeh Jubran <sameehj@amazon.com>,
-        Arthur Kiyanovski <akiyano@amazon.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Benjamin Coddington <bcodding@gmail.com>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 063/176] net: ena: ena-com.c: prevent NULL pointer dereference
-Date:   Tue,  3 Mar 2020 18:42:07 +0100
-Message-Id: <20200303174311.916368094@linuxfoundation.org>
+Subject: [PATCH 5.4 033/152] NFSv4: Fix races between open and dentry revalidation
+Date:   Tue,  3 Mar 2020 18:42:11 +0100
+Message-Id: <20200303174306.211969204@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200303174304.593872177@linuxfoundation.org>
-References: <20200303174304.593872177@linuxfoundation.org>
+In-Reply-To: <20200303174302.523080016@linuxfoundation.org>
+References: <20200303174302.523080016@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,50 +46,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arthur Kiyanovski <akiyano@amazon.com>
+From: Trond Myklebust <trondmy@gmail.com>
 
-[ Upstream commit c207979f5ae10ed70aff1bb13f39f0736973de99 ]
+[ Upstream commit cf5b4059ba7197d6cef9c0e024979d178ed8c8ec ]
 
-comp_ctx can be NULL in a very rare case when an admin command is executed
-during the execution of ena_remove().
+We want to make sure that we revalidate the dentry if and only if
+we've done an OPEN by filename.
+In order to avoid races with remote changes to the directory on the
+server, we want to save the verifier before calling OPEN. The exception
+is if the server returned a delegation with our OPEN, as we then
+know that the filename can't have changed on the server.
 
-The bug scenario is as follows:
-
-* ena_destroy_device() sets the comp_ctx to be NULL
-* An admin command is executed before executing unregister_netdev(),
-  this can still happen because our device can still receive callbacks
-  from the netdev infrastructure such as ethtool commands.
-* When attempting to access the comp_ctx, the bug occurs since it's set
-  to NULL
-
-Fix:
-Added a check that comp_ctx is not NULL
-
-Fixes: 1738cd3ed342 ("net: ena: Add a driver for Amazon Elastic Network Adapters (ENA)")
-Signed-off-by: Sameeh Jubran <sameehj@amazon.com>
-Signed-off-by: Arthur Kiyanovski <akiyano@amazon.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Reviewed-by: Benjamin Coddington <bcodding@gmail.com>
+Tested-by: Benjamin Coddington <bcodding@gmail.com>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/amazon/ena/ena_com.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ fs/nfs/nfs4file.c |  1 -
+ fs/nfs/nfs4proc.c | 18 ++++++++++++++++--
+ 2 files changed, 16 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/amazon/ena/ena_com.c b/drivers/net/ethernet/amazon/ena/ena_com.c
-index 74743fd8a1e0a..304531332e70a 100644
---- a/drivers/net/ethernet/amazon/ena/ena_com.c
-+++ b/drivers/net/ethernet/amazon/ena/ena_com.c
-@@ -200,6 +200,11 @@ static void comp_ctxt_release(struct ena_com_admin_queue *queue,
- static struct ena_comp_ctx *get_comp_ctxt(struct ena_com_admin_queue *queue,
- 					  u16 command_id, bool capture)
- {
-+	if (unlikely(!queue->comp_ctx)) {
-+		pr_err("Completion context is NULL\n");
-+		return NULL;
+diff --git a/fs/nfs/nfs4file.c b/fs/nfs/nfs4file.c
+index 339663d04bf83..54f1c1f626fc5 100644
+--- a/fs/nfs/nfs4file.c
++++ b/fs/nfs/nfs4file.c
+@@ -86,7 +86,6 @@ nfs4_file_open(struct inode *inode, struct file *filp)
+ 	if (inode != d_inode(dentry))
+ 		goto out_drop;
+ 
+-	nfs_set_verifier(dentry, nfs_save_change_attribute(dir));
+ 	nfs_file_set_open_context(filp, ctx);
+ 	nfs_fscache_open_file(inode, filp);
+ 	err = 0;
+diff --git a/fs/nfs/nfs4proc.c b/fs/nfs/nfs4proc.c
+index f808fb34b1101..6b29703d2fe1e 100644
+--- a/fs/nfs/nfs4proc.c
++++ b/fs/nfs/nfs4proc.c
+@@ -2962,10 +2962,13 @@ static int _nfs4_open_and_get_state(struct nfs4_opendata *opendata,
+ 	struct dentry *dentry;
+ 	struct nfs4_state *state;
+ 	fmode_t acc_mode = _nfs4_ctx_to_accessmode(ctx);
++	struct inode *dir = d_inode(opendata->dir);
++	unsigned long dir_verifier;
+ 	unsigned int seq;
+ 	int ret;
+ 
+ 	seq = raw_seqcount_begin(&sp->so_reclaim_seqcount);
++	dir_verifier = nfs_save_change_attribute(dir);
+ 
+ 	ret = _nfs4_proc_open(opendata, ctx);
+ 	if (ret != 0)
+@@ -2993,8 +2996,19 @@ static int _nfs4_open_and_get_state(struct nfs4_opendata *opendata,
+ 			dput(ctx->dentry);
+ 			ctx->dentry = dentry = alias;
+ 		}
+-		nfs_set_verifier(dentry,
+-				nfs_save_change_attribute(d_inode(opendata->dir)));
 +	}
 +
- 	if (unlikely(command_id >= queue->q_depth)) {
- 		pr_err("command id is larger than the queue size. cmd_id: %u queue size %d\n",
- 		       command_id, queue->q_depth);
++	switch(opendata->o_arg.claim) {
++	default:
++		break;
++	case NFS4_OPEN_CLAIM_NULL:
++	case NFS4_OPEN_CLAIM_DELEGATE_CUR:
++	case NFS4_OPEN_CLAIM_DELEGATE_PREV:
++		if (!opendata->rpc_done)
++			break;
++		if (opendata->o_res.delegation_type != 0)
++			dir_verifier = nfs_save_change_attribute(dir);
++		nfs_set_verifier(dentry, dir_verifier);
+ 	}
+ 
+ 	/* Parse layoutget results before we check for access */
 -- 
 2.20.1
 
