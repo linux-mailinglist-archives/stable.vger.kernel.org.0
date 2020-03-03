@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BDAF4176C7F
-	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 03:57:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 93FB2176B1E
+	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 03:48:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727890AbgCCC5C (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Mar 2020 21:57:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44326 "EHLO mail.kernel.org"
+        id S1728454AbgCCCsb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Mar 2020 21:48:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44370 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728441AbgCCCs3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Mar 2020 21:48:29 -0500
+        id S1728449AbgCCCsb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Mar 2020 21:48:31 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9E91C24697;
-        Tue,  3 Mar 2020 02:48:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D799E24680;
+        Tue,  3 Mar 2020 02:48:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583203709;
-        bh=EcXmh/sViq3cjX+kT2vA7ywCjsgkFY/MvcXJvo0fHBQ=;
+        s=default; t=1583203710;
+        bh=CWEtkoDz7AAcoaT1SOeJLtCyrIg9HCHGi9wZwmIhtwY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cDMmJwWEceWeru+Zs8KI0eQvBx7BVTCIrT5UCNNB/H/aPXMtIpETfzKcibAG1cK4U
-         podRZ7iknZvtWWzswK+WNBmqgsgdMlpLheK8+tc30vIFgetCmvLDCudIqETxbpXYes
-         x/FQ125lE5i/hBDLIRtgK05b4vJpTBb76y6BeYw4=
+        b=mQdyIADm6ZfVghfLtNESl1venYawusPYXn7gyAAu1zGNAQZCh+6ncghXvVeTDuNnc
+         uKLQwfX8NsB7L+C3+KM+v9RUO7p+lErSi2nkHzyIt7q66G2OjUU6y4RZ5b6yZcQg7I
+         EaF3PMrndd0u/Ze/NQninMdP81Lsq852jFJKBZCE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Shyjumon N <shyjumon.n@intel.com>,
-        Jon Derrick <jonathan.derrick@intel.com>,
-        Christoph Hellwig <hch@lst.de>,
+Cc:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Leif Liddy <leif.liddy@gmail.com>,
         Keith Busch <kbusch@kernel.org>,
         Sasha Levin <sashal@kernel.org>, linux-nvme@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.4 40/58] nvme/pci: Add sleep quirk for Samsung and Toshiba drives
-Date:   Mon,  2 Mar 2020 21:47:22 -0500
-Message-Id: <20200303024740.9511-40-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 41/58] nvme-pci: Use single IRQ vector for old Apple models
+Date:   Mon,  2 Mar 2020 21:47:23 -0500
+Message-Id: <20200303024740.9511-41-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200303024740.9511-1-sashal@kernel.org>
 References: <20200303024740.9511-1-sashal@kernel.org>
@@ -45,49 +45,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shyjumon N <shyjumon.n@intel.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-[ Upstream commit 1fae37accfc5872af3905d4ba71dc6ab15829be7 ]
+[ Upstream commit 98f7b86a0becc1154b1a6df6e75c9695dfd87e0d ]
 
-The Samsung SSD SM981/PM981 and Toshiba SSD KBG40ZNT256G on the Lenovo
-C640 platform experience runtime resume issues when the SSDs are kept in
-sleep/suspend mode for long time.
+People reported that old Apple machines are not working properly
+if the non-first IRQ vector is in use.
 
-This patch applies the 'Simple Suspend' quirk to these configurations.
-With this patch, the issue had not been observed in a 1+ day test.
+Set quirk for that models to limit IRQ to use first vector only.
 
-Reviewed-by: Jon Derrick <jonathan.derrick@intel.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Shyjumon N <shyjumon.n@intel.com>
+Based on original patch by GitHub user npx001.
+
+Link: https://github.com/Dunedan/mbp-2016-linux/issues/9
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Leif Liddy <leif.liddy@gmail.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Signed-off-by: Keith Busch <kbusch@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/pci.c | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ drivers/nvme/host/pci.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
-index f34a56d588d31..944f89fc15946 100644
+index 944f89fc15946..654f14cef9d2a 100644
 --- a/drivers/nvme/host/pci.c
 +++ b/drivers/nvme/host/pci.c
-@@ -2740,6 +2740,18 @@ static unsigned long check_vendor_combination_bug(struct pci_dev *pdev)
- 		    (dmi_match(DMI_BOARD_NAME, "PRIME B350M-A") ||
- 		     dmi_match(DMI_BOARD_NAME, "PRIME Z370-A")))
- 			return NVME_QUIRK_NO_APST;
-+	} else if ((pdev->vendor == 0x144d && (pdev->device == 0xa801 ||
-+		    pdev->device == 0xa808 || pdev->device == 0xa809)) ||
-+		   (pdev->vendor == 0x1e0f && pdev->device == 0x0001)) {
-+		/*
-+		 * Forcing to use host managed nvme power settings for
-+		 * lowest idle power with quick resume latency on
-+		 * Samsung and Toshiba SSDs based on suspend behavior
-+		 * on Coffee Lake board for LENOVO C640
-+		 */
-+		if ((dmi_match(DMI_BOARD_VENDOR, "LENOVO")) &&
-+		     dmi_match(DMI_BOARD_NAME, "LNVNB161216"))
-+			return NVME_QUIRK_SIMPLE_SUSPEND;
- 	}
- 
- 	return 0;
+@@ -3113,7 +3113,8 @@ static const struct pci_device_id nvme_id_table[] = {
+ 		.driver_data = NVME_QUIRK_NO_DEEPEST_PS |
+ 				NVME_QUIRK_IGNORE_DEV_SUBNQN, },
+ 	{ PCI_DEVICE_CLASS(PCI_CLASS_STORAGE_EXPRESS, 0xffffff) },
+-	{ PCI_DEVICE(PCI_VENDOR_ID_APPLE, 0x2001) },
++	{ PCI_DEVICE(PCI_VENDOR_ID_APPLE, 0x2001),
++		.driver_data = NVME_QUIRK_SINGLE_VECTOR },
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_APPLE, 0x2003) },
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_APPLE, 0x2005),
+ 		.driver_data = NVME_QUIRK_SINGLE_VECTOR |
 -- 
 2.20.1
 
