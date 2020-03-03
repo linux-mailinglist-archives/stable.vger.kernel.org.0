@@ -2,89 +2,77 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 76E53177A3A
-	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 16:19:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A0115177A75
+	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 16:30:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729021AbgCCPTi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Mar 2020 10:19:38 -0500
-Received: from lhrrgout.huawei.com ([185.176.76.210]:2505 "EHLO huawei.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1728330AbgCCPTi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Mar 2020 10:19:38 -0500
-Received: from lhreml703-cah.china.huawei.com (unknown [172.18.7.108])
-        by Forcepoint Email with ESMTP id A8D7073E6D8D73F92C0F;
-        Tue,  3 Mar 2020 15:19:36 +0000 (GMT)
-Received: from lhreml724-chm.china.huawei.com (10.201.108.75) by
- lhreml703-cah.china.huawei.com (10.201.108.44) with Microsoft SMTP Server
- (TLS) id 14.3.408.0; Tue, 3 Mar 2020 15:19:32 +0000
-Received: from [127.0.0.1] (10.202.226.45) by lhreml724-chm.china.huawei.com
- (10.201.108.75) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.1713.5; Tue, 3 Mar 2020
- 15:19:32 +0000
-Subject: Re: [PATCH] mtd: spi-nor: Fixup page size and map selection for
- S25FS-S
-To:     Alexander Sverdlin <alexander.sverdlin@nokia.com>,
-        "chenxiang (M)" <chenxiang66@hisilicon.com>,
-        <linux-mtd@lists.infradead.org>
-CC:     Tudor Ambarus <tudor.ambarus@microchip.com>,
-        Richard Weinberger <richard@nod.at>, <stable@vger.kernel.org>,
-        Marek Vasut <marek.vasut@gmail.com>,
-        Brian Norris <computersforpeace@gmail.com>,
-        "David Woodhouse" <dwmw2@infradead.org>,
-        Boris Brezillon <bbrezillon@kernel.org>
-References: <20200227123657.26030-1-alexander.sverdlin@nokia.com>
- <18cdef63-75e3-97c3-2a22-4969d4997af9@hisilicon.com>
- <60b272c1-ab6a-7a7a-6f56-03d7c7daf8bc@nokia.com>
- <43ae2554-06c8-59f9-153e-094a326166c2@huawei.com>
- <5d6f3062-677f-3d0d-b0d7-7c97c658ed89@nokia.com>
-From:   John Garry <john.garry@huawei.com>
-Message-ID: <1f87b621-5c6e-3ac2-9559-d5b4ba9b0067@huawei.com>
-Date:   Tue, 3 Mar 2020 15:19:31 +0000
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:68.0) Gecko/20100101
- Thunderbird/68.1.2
+        id S1729912AbgCCPa5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Mar 2020 10:30:57 -0500
+Received: from mail26.static.mailgun.info ([104.130.122.26]:45235 "EHLO
+        mail26.static.mailgun.info" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728330AbgCCPa5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 Mar 2020 10:30:57 -0500
+DKIM-Signature: a=rsa-sha256; v=1; c=relaxed/relaxed; d=mg.codeaurora.org; q=dns/txt;
+ s=smtp; t=1583249456; h=Date: Message-Id: Cc: To: References:
+ In-Reply-To: From: Subject: Content-Transfer-Encoding: MIME-Version:
+ Content-Type: Sender; bh=3BxebRKEMOAjMUrBvm+Lh7nAfMlbm486WARWBwD2ECo=;
+ b=FfJK5yGDPJxpDaZEsiUBprcN4XxTMu7gkaD2NUXbvrQSiEeL77H0ftijRvaQA36rM5s0uqKy
+ YtBeHiZZbpnsjWY6KjMrNrBIAeTY6gbVvFHpZTJQgs1sqxL4nk2zDHg0Dmz3O4XRSMxxqoPb
+ 8OUyB6fJGHRdWCTHlHOA7sickSw=
+X-Mailgun-Sending-Ip: 104.130.122.26
+X-Mailgun-Sid: WyI1ZjI4MyIsICJzdGFibGVAdmdlci5rZXJuZWwub3JnIiwgImJlOWU0YSJd
+Received: from smtp.codeaurora.org (ec2-35-166-182-171.us-west-2.compute.amazonaws.com [35.166.182.171])
+ by mxa.mailgun.org with ESMTP id 5e5e7828.7f4a201e8848-smtp-out-n01;
+ Tue, 03 Mar 2020 15:30:48 -0000 (UTC)
+Received: by smtp.codeaurora.org (Postfix, from userid 1001)
+        id 15991C4479D; Tue,  3 Mar 2020 15:30:48 +0000 (UTC)
+X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
+        aws-us-west-2-caf-mail-1.web.codeaurora.org
+X-Spam-Level: 
+X-Spam-Status: No, score=0.5 required=2.0 tests=ALL_TRUSTED,MISSING_DATE,
+        MISSING_MID,SPF_NONE,URIBL_BLOCKED autolearn=no autolearn_force=no
+        version=3.4.0
+Received: from potku.adurom.net (88-114-240-156.elisa-laajakaista.fi [88.114.240.156])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        (Authenticated sender: kvalo)
+        by smtp.codeaurora.org (Postfix) with ESMTPSA id E8CEBC43383;
+        Tue,  3 Mar 2020 15:30:46 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 smtp.codeaurora.org E8CEBC43383
+Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; dmarc=none (p=none dis=none) header.from=codeaurora.org
+Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; spf=none smtp.mailfrom=kvalo@codeaurora.org
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-In-Reply-To: <5d6f3062-677f-3d0d-b0d7-7c97c658ed89@nokia.com>
-Content-Type: text/plain; charset="utf-8"; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
-X-Originating-IP: [10.202.226.45]
-X-ClientProxiedBy: lhreml725-chm.china.huawei.com (10.201.108.76) To
- lhreml724-chm.china.huawei.com (10.201.108.75)
-X-CFilter-Loop: Reflected
+Content-Transfer-Encoding: 7bit
+Subject: Re: [PATCH 5.6] mt76: fix array overflow on receiving too many
+ fragments for a packet
+From:   Kalle Valo <kvalo@codeaurora.org>
+In-Reply-To: <20200220114139.46508-1-nbd@nbd.name>
+References: <20200220114139.46508-1-nbd@nbd.name>
+To:     Felix Fietkau <nbd@nbd.name>
+Cc:     linux-wireless@vger.kernel.org, stable@vger.kernel.org
+User-Agent: pwcli/0.0.0-git (https://github.com/kvalo/pwcli/) Python/2.7.12
+Message-Id: <20200303153048.15991C4479D@smtp.codeaurora.org>
+Date:   Tue,  3 Mar 2020 15:30:48 +0000 (UTC)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 03/03/2020 14:27, Alexander Sverdlin wrote:
+Felix Fietkau <nbd@nbd.name> wrote:
 
-Hi Alexander,
-
+> If the hardware receives an oversized packet with too many rx fragments,
+> skb_shinfo(skb)->frags can overflow and corrupt memory of adjacent pages.
+> This becomes especially visible if it corrupts the freelist pointer of
+> a slab page.
 > 
-> On 02/03/2020 19:25, John Garry wrote:
->>>>> -    { "s25fl129p1", INFO(0x012018, 0x4d01,  64 * 1024, 256, SPI_NOR_DUAL_READ | SPI_NOR_QUAD_READ | USE_CLSR) },
->>>>> +    { "s25fl129p1", INFO(0x012018, 0x4d01,  64 * 1024, 256, SPI_NOR_DUAL_READ | SPI_NOR_QUAD_READ | USE_CLSR)
->>>>> +            .fixups = &s25fs_s_fixups, },
->>>>
->>>> It seems SFDP is not supported on s25fl129p (you can check it on https://www.cypress.com/file/400586/download), so is it necessary to add this for this type flash?
->>>
->>> Yes, all of the above is necessary to repair S25FS128S, which supports SFDP and lands
->>> in the above table entry.
->>
->> So do you know how we can tell if the part is s25fl129p1 or S25FS128S? Is it based on family id? For the part of my board, it has the same id according to "s25fl129p1" entry in the spi-nor driver, yet the SFDP signature is not present (signature reads as 0x4d182001 vs expected 0x50444653). I printed the family id, and it is 81h, which seems to align with S25FS (which should support SFDP). Confused.
->>
->> What's more, the spi-nor probe is failing for this part since I enabled quad spi. So I am interested to know if there is some differences between these part families for that.
-> 
-> I'd say, one can distinguish them by the fact one does support SFDP and another doesn't.
-> Is it really necessary to distinguish them?
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Felix Fietkau <nbd@nbd.name>
 
-Well it would help me to know for sure which part is on my board :)
+Patch applied to wireless-drivers.git, thanks.
 
-As an example of a relevant difference, S25FS128S datasheet has CR1V and 
-CR1NV, but S25FL129 only has a single configuration register, and this 
-is related to quad mode enable, which I am debugging.
+b102f0c522cf mt76: fix array overflow on receiving too many fragments for a packet
 
-BTW, Have you tried to enable quad mode for your S25FS-S part?
+-- 
+https://patchwork.kernel.org/patch/11393869/
 
-Thanks,
-John
+https://wireless.wiki.kernel.org/en/developers/documentation/submittingpatches
