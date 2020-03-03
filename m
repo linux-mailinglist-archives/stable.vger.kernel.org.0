@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4EE14177F11
-	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 19:57:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 052BF17801C
+	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 19:59:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731529AbgCCRse (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Mar 2020 12:48:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55674 "EHLO mail.kernel.org"
+        id S1732583AbgCCRyq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Mar 2020 12:54:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36042 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731522AbgCCRsc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Mar 2020 12:48:32 -0500
+        id S1729117AbgCCRyq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Mar 2020 12:54:46 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 48AFB214DB;
-        Tue,  3 Mar 2020 17:48:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C59C82146E;
+        Tue,  3 Mar 2020 17:54:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583257710;
-        bh=RT8k7oH6EC+25L6UM2op71QHRy3yxsAYGAHgVFgIIf4=;
+        s=default; t=1583258085;
+        bh=fcYWeqZ+NvVYPuQOwjSEMDHOVle4+rOHXv1FIZXYU70=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wzePPiwDieN1KXgH/9qz95Km27n5xTr0OuVUw3Y0MnW20VzIRxSoZVf6C9Pe7Jo3H
-         ukpKrwVuCyC771Gu0cPLYXpJ83JHg9d4QQEzuzxwP1+yYgc7qIeqN1i1/JHCeu0RtC
-         fhrsApHAsUhej/Cg0/K0+K9fbFcoBWnGsSX9v91o=
+        b=FFWDVibzdsn87oMx0K7Gj4yB8MDtwQ8Ck6J0l0nDMkcrVgXSl12VnkkeAM41fEqLz
+         U055J+nnVgfuEQdK/z0xI8eR3GrN38F1tWw1siH7qFdMZa0ahYSrDeIfRcSUwzcf5Y
+         +wafjFHoRSRnnGH+Infm7kZuLgA5140DKSYSMIXo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alex Deucher <alexander.deucher@amd.com>,
-        Shirish S <shirish.s@amd.com>
-Subject: [PATCH 5.5 099/176] amdgpu/gmc_v9: save/restore sdpif regs during S3
-Date:   Tue,  3 Mar 2020 18:42:43 +0100
-Message-Id: <20200303174316.291399930@linuxfoundation.org>
+        stable@vger.kernel.org, Guangbin Huang <huangguangbin2@huawei.com>,
+        Huazhong Tan <tanhuazhong@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 066/152] net: hns3: fix a copying IPv6 address error in hclge_fd_get_flow_tuples()
+Date:   Tue,  3 Mar 2020 18:42:44 +0100
+Message-Id: <20200303174309.965336387@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200303174304.593872177@linuxfoundation.org>
-References: <20200303174304.593872177@linuxfoundation.org>
+In-Reply-To: <20200303174302.523080016@linuxfoundation.org>
+References: <20200303174302.523080016@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,114 +45,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shirish S <shirish.s@amd.com>
+From: Guangbin Huang <huangguangbin2@huawei.com>
 
-commit a3ed353cf8015ba84a0407a5dc3ffee038166ab0 upstream.
+[ Upstream commit 47327c9315b2f3ae4ab659457977a26669631f20 ]
 
-fixes S3 issue with IOMMU + S/G  enabled @ 64M VRAM.
+The IPv6 address defined in struct in6_addr is specified as
+big endian, but there is no specified endian in struct
+hclge_fd_rule_tuples, so it  will cause a problem if directly
+use memcpy() to copy ipv6 address between these two structures
+since this field in struct hclge_fd_rule_tuples is little endian.
 
-Suggested-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Shirish S <shirish.s@amd.com>
-Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This patch fixes this problem by using be32_to_cpu() to convert
+endian of IPv6 address of struct in6_addr before copying.
 
+Fixes: d93ed94fbeaf ("net: hns3: add aRFS support for PF")
+Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
+Signed-off-by: Huazhong Tan <tanhuazhong@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_gmc.h                    |    1 
- drivers/gpu/drm/amd/amdgpu/gmc_v9_0.c                      |   37 ++++++++++++-
- drivers/gpu/drm/amd/include/asic_reg/dce/dce_12_0_offset.h |    2 
- 3 files changed, 39 insertions(+), 1 deletion(-)
+ .../ethernet/hisilicon/hns3/hns3pf/hclge_main.c   | 15 +++++++++------
+ 1 file changed, 9 insertions(+), 6 deletions(-)
 
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_gmc.h
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_gmc.h
-@@ -192,6 +192,7 @@ struct amdgpu_gmc {
- 	uint32_t                srbm_soft_reset;
- 	bool			prt_warning;
- 	uint64_t		stolen_size;
-+	uint32_t		sdpif_register;
- 	/* apertures */
- 	u64			shared_aperture_start;
- 	u64			shared_aperture_end;
---- a/drivers/gpu/drm/amd/amdgpu/gmc_v9_0.c
-+++ b/drivers/gpu/drm/amd/amdgpu/gmc_v9_0.c
-@@ -1204,6 +1204,19 @@ static void gmc_v9_0_init_golden_registe
- }
- 
- /**
-+ * gmc_v9_0_restore_registers - restores regs
-+ *
-+ * @adev: amdgpu_device pointer
-+ *
-+ * This restores register values, saved at suspend.
-+ */
-+static void gmc_v9_0_restore_registers(struct amdgpu_device *adev)
-+{
-+	if (adev->asic_type == CHIP_RAVEN)
-+		WREG32(mmDCHUBBUB_SDPIF_MMIO_CNTRL_0, adev->gmc.sdpif_register);
-+}
-+
-+/**
-  * gmc_v9_0_gart_enable - gart enable
-  *
-  * @adev: amdgpu_device pointer
-@@ -1308,6 +1321,20 @@ static int gmc_v9_0_hw_init(void *handle
- }
- 
- /**
-+ * gmc_v9_0_save_registers - saves regs
-+ *
-+ * @adev: amdgpu_device pointer
-+ *
-+ * This saves potential register values that should be
-+ * restored upon resume
-+ */
-+static void gmc_v9_0_save_registers(struct amdgpu_device *adev)
-+{
-+	if (adev->asic_type == CHIP_RAVEN)
-+		adev->gmc.sdpif_register = RREG32(mmDCHUBBUB_SDPIF_MMIO_CNTRL_0);
-+}
-+
-+/**
-  * gmc_v9_0_gart_disable - gart disable
-  *
-  * @adev: amdgpu_device pointer
-@@ -1343,9 +1370,16 @@ static int gmc_v9_0_hw_fini(void *handle
- 
- static int gmc_v9_0_suspend(void *handle)
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+index 0c3c63aed2c06..c01cf8ef69df9 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+@@ -6003,6 +6003,9 @@ static int hclge_get_all_rules(struct hnae3_handle *handle,
+ static void hclge_fd_get_flow_tuples(const struct flow_keys *fkeys,
+ 				     struct hclge_fd_rule_tuples *tuples)
  {
-+	int r;
- 	struct amdgpu_device *adev = (struct amdgpu_device *)handle;
- 
--	return gmc_v9_0_hw_fini(adev);
-+	r = gmc_v9_0_hw_fini(adev);
-+	if (r)
-+		return r;
++#define flow_ip6_src fkeys->addrs.v6addrs.src.in6_u.u6_addr32
++#define flow_ip6_dst fkeys->addrs.v6addrs.dst.in6_u.u6_addr32
 +
-+	gmc_v9_0_save_registers(adev);
+ 	tuples->ether_proto = be16_to_cpu(fkeys->basic.n_proto);
+ 	tuples->ip_proto = fkeys->basic.ip_proto;
+ 	tuples->dst_port = be16_to_cpu(fkeys->ports.dst);
+@@ -6011,12 +6014,12 @@ static void hclge_fd_get_flow_tuples(const struct flow_keys *fkeys,
+ 		tuples->src_ip[3] = be32_to_cpu(fkeys->addrs.v4addrs.src);
+ 		tuples->dst_ip[3] = be32_to_cpu(fkeys->addrs.v4addrs.dst);
+ 	} else {
+-		memcpy(tuples->src_ip,
+-		       fkeys->addrs.v6addrs.src.in6_u.u6_addr32,
+-		       sizeof(tuples->src_ip));
+-		memcpy(tuples->dst_ip,
+-		       fkeys->addrs.v6addrs.dst.in6_u.u6_addr32,
+-		       sizeof(tuples->dst_ip));
++		int i;
 +
-+	return 0;
++		for (i = 0; i < IPV6_SIZE; i++) {
++			tuples->src_ip[i] = be32_to_cpu(flow_ip6_src[i]);
++			tuples->dst_ip[i] = be32_to_cpu(flow_ip6_dst[i]);
++		}
+ 	}
  }
  
- static int gmc_v9_0_resume(void *handle)
-@@ -1353,6 +1387,7 @@ static int gmc_v9_0_resume(void *handle)
- 	int r;
- 	struct amdgpu_device *adev = (struct amdgpu_device *)handle;
- 
-+	gmc_v9_0_restore_registers(adev);
- 	r = gmc_v9_0_hw_init(adev);
- 	if (r)
- 		return r;
---- a/drivers/gpu/drm/amd/include/asic_reg/dce/dce_12_0_offset.h
-+++ b/drivers/gpu/drm/amd/include/asic_reg/dce/dce_12_0_offset.h
-@@ -7376,6 +7376,8 @@
- #define mmCRTC4_CRTC_DRR_CONTROL                                                                       0x0f3e
- #define mmCRTC4_CRTC_DRR_CONTROL_BASE_IDX                                                              2
- 
-+#define mmDCHUBBUB_SDPIF_MMIO_CNTRL_0                                                                  0x395d
-+#define mmDCHUBBUB_SDPIF_MMIO_CNTRL_0_BASE_IDX                                                         2
- 
- // addressBlock: dce_dc_fmt4_dispdec
- // base address: 0x2000
+-- 
+2.20.1
+
 
 
