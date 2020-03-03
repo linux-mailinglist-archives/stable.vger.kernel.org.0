@@ -2,43 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 333F31780BF
-	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 20:00:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D223178133
+	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 20:01:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387422AbgCCR6f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Mar 2020 12:58:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41414 "EHLO mail.kernel.org"
+        id S2387621AbgCCSBM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Mar 2020 13:01:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45238 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732871AbgCCR6e (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Mar 2020 12:58:34 -0500
+        id S2387451AbgCCSBL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Mar 2020 13:01:11 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 73ABB20728;
-        Tue,  3 Mar 2020 17:58:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 395FC206E6;
+        Tue,  3 Mar 2020 18:01:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583258313;
-        bh=7tV0NVotmzh0q+KwNJ3XzdXzL+Cvualt8ZjzXVFz42E=;
+        s=default; t=1583258470;
+        bh=FnzoUfbU4XGvURm4/EiVNcLjZo35WEklWlICANhp3AI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zylpXeisxOBxR0NQlx9S2GDPruXkDhv7rGroAF6nnYWflaIlFd7eAPYS/arGeY5oD
-         JlgnJKWDWGOkbkha9JJGKSM5RBX35es7BrmeiRocPd9MzegygTikk9H6dLXPp2JzJX
-         fHnIj5osg+zcqF9gWZoMM+GSIPVqwFBrg8OhMCQI=
+        b=RHs82jPzkpIA/761SC77ytpZIoeyh9Eo9ssbCwag2Xgg7Hmr/ifpDKW7KggzshzVn
+         tXdux65sGqkBrZLQTYr/LrT8A+30OmbIn+dB4/5X+W5KUQtoXdCYRZryrNQs1JgWyV
+         utRCPgsY7S7ezDPDIGiXbSpL0c20wJ5AD5HuQBtU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiri Olsa <jolsa@kernel.org>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Jelle van der Waa <jelle@vdwaa.nl>,
-        Michael Petlan <mpetlan@redhat.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>
-Subject: [PATCH 5.4 133/152] perf ui gtk: Add missing zalloc object
+        stable@vger.kernel.org, Peter Chen <peter.chen@nxp.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 60/87] usb: charger: assign specific number for enum value
 Date:   Tue,  3 Mar 2020 18:43:51 +0100
-Message-Id: <20200303174317.931341457@linuxfoundation.org>
+Message-Id: <20200303174355.750234821@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200303174302.523080016@linuxfoundation.org>
-References: <20200303174302.523080016@linuxfoundation.org>
+In-Reply-To: <20200303174349.075101355@linuxfoundation.org>
+References: <20200303174349.075101355@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,41 +43,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Olsa <jolsa@kernel.org>
+From: Peter Chen <peter.chen@nxp.com>
 
-commit 604e2139a1026793b8c2172bd92c7e9d039a5cf0 upstream.
+commit ca4b43c14cd88d28cfc6467d2fa075aad6818f1d upstream.
 
-When we moved zalloc.o to the library we missed gtk library which needs
-it compiled in, otherwise the missing __zfree symbol will cause the
-library to fail to load.
+To work properly on every architectures and compilers, the enum value
+needs to be specific numbers.
 
-Adding the zalloc object to the gtk library build.
-
-Fixes: 7f7c536f23e6 ("tools lib: Adopt zalloc()/zfree() from tools/perf")
-Signed-off-by: Jiri Olsa <jolsa@kernel.org>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Jelle van der Waa <jelle@vdwaa.nl>
-Cc: Michael Petlan <mpetlan@redhat.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Link: http://lore.kernel.org/lkml/20200113104358.123511-1-jolsa@kernel.org
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Suggested-by: Greg KH <gregkh@linuxfoundation.org>
+Signed-off-by: Peter Chen <peter.chen@nxp.com>
+Link: https://lore.kernel.org/r/1580537624-10179-1-git-send-email-peter.chen@nxp.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- tools/perf/ui/gtk/Build |    5 +++++
- 1 file changed, 5 insertions(+)
+ include/uapi/linux/usb/charger.h |   16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
---- a/tools/perf/ui/gtk/Build
-+++ b/tools/perf/ui/gtk/Build
-@@ -7,3 +7,8 @@ gtk-y += util.o
- gtk-y += helpline.o
- gtk-y += progress.o
- gtk-y += annotate.o
-+gtk-y += zalloc.o
-+
-+$(OUTPUT)ui/gtk/zalloc.o: ../lib/zalloc.c FORCE
-+	$(call rule_mkdir)
-+	$(call if_changed_dep,cc_o_c)
+--- a/include/uapi/linux/usb/charger.h
++++ b/include/uapi/linux/usb/charger.h
+@@ -14,18 +14,18 @@
+  * ACA (Accessory Charger Adapters)
+  */
+ enum usb_charger_type {
+-	UNKNOWN_TYPE,
+-	SDP_TYPE,
+-	DCP_TYPE,
+-	CDP_TYPE,
+-	ACA_TYPE,
++	UNKNOWN_TYPE = 0,
++	SDP_TYPE = 1,
++	DCP_TYPE = 2,
++	CDP_TYPE = 3,
++	ACA_TYPE = 4,
+ };
+ 
+ /* USB charger state */
+ enum usb_charger_state {
+-	USB_CHARGER_DEFAULT,
+-	USB_CHARGER_PRESENT,
+-	USB_CHARGER_ABSENT,
++	USB_CHARGER_DEFAULT = 0,
++	USB_CHARGER_PRESENT = 1,
++	USB_CHARGER_ABSENT = 2,
+ };
+ 
+ #endif /* _UAPI__LINUX_USB_CHARGER_H */
 
 
