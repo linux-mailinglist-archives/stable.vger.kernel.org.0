@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E764A176AE9
-	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 03:47:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9DE1D176CF6
+	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 04:00:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727619AbgCCCrV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Mar 2020 21:47:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42310 "EHLO mail.kernel.org"
+        id S1727073AbgCCDAJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Mar 2020 22:00:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42408 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727983AbgCCCrV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Mar 2020 21:47:21 -0500
+        id S1728016AbgCCCrZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Mar 2020 21:47:25 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CEBBF246A1;
-        Tue,  3 Mar 2020 02:47:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 873CF2468D;
+        Tue,  3 Mar 2020 02:47:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583203640;
-        bh=Ijmq/i5PFf8y/H7vXVaSKWPVJgkUToA6JgRLsQDTu7M=;
+        s=default; t=1583203645;
+        bh=jYY9onVjt5nIJMEtgE+UH1baq7Rw12q18+wK0cv1hhc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sPTg+ULhZ1Q68IJVHqyvOCxzETa9b555+K7DFNVCnoEj98cDP+NG0bd92iSC0zUW+
-         2a8MIYzyP888DHf/1WOpdHaQFjLa8h0uuDgV1mEO3SsEnqCsGEM+Fy4AeFCLsImiiP
-         0lSQGzGZf81NmpgtAEty6Z8ZzPL3IBz1rF5IUex0=
+        b=XDWV8kwAS1Tfsxs2Zuc8CzmZXvGJHqiTij5oZvpv2KvtnQmA7bsoUncbZ2HmkG7C7
+         2YDR8qLWLstsqkxz0Lh4lpqkFiH+3cVj9thm2Z6oiSvynhRP6YIaZLO6LTbj5AdTqZ
+         pcNAvfDGZ61U7u+pIXMInoCJSTV4BqtQlBV8VrgY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Kees Cook <keescook@chromium.org>, Juergen Gross <jgross@suse.com>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-        Sasha Levin <sashal@kernel.org>,
-        xen-devel@lists.xenproject.org, clang-built-linux@googlegroups.com
-Subject: [PATCH AUTOSEL 5.5 52/66] x86/xen: Distribute switch variables for initialization
-Date:   Mon,  2 Mar 2020 21:46:01 -0500
-Message-Id: <20200303024615.8889-52-sashal@kernel.org>
+Cc:     Shannon Nelson <snelson@pensando.io>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.5 56/66] ionic: fix fw_status read
+Date:   Mon,  2 Mar 2020 21:46:05 -0500
+Message-Id: <20200303024615.8889-56-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200303024615.8889-1-sashal@kernel.org>
 References: <20200303024615.8889-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -45,64 +43,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Shannon Nelson <snelson@pensando.io>
 
-[ Upstream commit 9038ec99ceb94fb8d93ade5e236b2928f0792c7c ]
+[ Upstream commit 68b759a75d6257759d1e37ff13f2d0659baf1112 ]
 
-Variables declared in a switch statement before any case statements
-cannot be automatically initialized with compiler instrumentation (as
-they are not part of any execution flow). With GCC's proposed automatic
-stack variable initialization feature, this triggers a warning (and they
-don't get initialized). Clang's automatic stack variable initialization
-(via CONFIG_INIT_STACK_ALL=y) doesn't throw a warning, but it also
-doesn't initialize such variables[1]. Note that these warnings (or silent
-skipping) happen before the dead-store elimination optimization phase,
-so even when the automatic initializations are later elided in favor of
-direct initializations, the warnings remain.
+The fw_status field is only 8 bits, so fix the read.  Also,
+we only want to look at the one status bit, to allow for future
+use of the other bits, and watch for a bad PCI read.
 
-To avoid these problems, move such variables into the "case" where
-they're used or lift them up into the main function body.
-
-arch/x86/xen/enlighten_pv.c: In function ‘xen_write_msr_safe’:
-arch/x86/xen/enlighten_pv.c:904:12: warning: statement will never be executed [-Wswitch-unreachable]
-  904 |   unsigned which;
-      |            ^~~~~
-
-[1] https://bugs.llvm.org/show_bug.cgi?id=44916
-
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Link: https://lore.kernel.org/r/20200220062318.69299-1-keescook@chromium.org
-Reviewed-by: Juergen Gross <jgross@suse.com>
-[boris: made @which an 'unsigned int']
-Signed-off-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Fixes: 97ca486592c0 ("ionic: add heartbeat check")
+Signed-off-by: Shannon Nelson <snelson@pensando.io>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/xen/enlighten_pv.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/pensando/ionic/ionic_dev.c | 11 +++++++----
+ drivers/net/ethernet/pensando/ionic/ionic_if.h  |  1 +
+ 2 files changed, 8 insertions(+), 4 deletions(-)
 
-diff --git a/arch/x86/xen/enlighten_pv.c b/arch/x86/xen/enlighten_pv.c
-index 1f756ffffe8b3..79409120a6036 100644
---- a/arch/x86/xen/enlighten_pv.c
-+++ b/arch/x86/xen/enlighten_pv.c
-@@ -896,14 +896,15 @@ static u64 xen_read_msr_safe(unsigned int msr, int *err)
- static int xen_write_msr_safe(unsigned int msr, unsigned low, unsigned high)
+diff --git a/drivers/net/ethernet/pensando/ionic/ionic_dev.c b/drivers/net/ethernet/pensando/ionic/ionic_dev.c
+index 5f9d2ec70446f..61c06fbe10dbb 100644
+--- a/drivers/net/ethernet/pensando/ionic/ionic_dev.c
++++ b/drivers/net/ethernet/pensando/ionic/ionic_dev.c
+@@ -103,7 +103,7 @@ int ionic_heartbeat_check(struct ionic *ionic)
  {
- 	int ret;
-+#ifdef CONFIG_X86_64
-+	unsigned int which;
-+	u64 base;
-+#endif
+ 	struct ionic_dev *idev = &ionic->idev;
+ 	unsigned long hb_time;
+-	u32 fw_status;
++	u8 fw_status;
+ 	u32 hb;
  
- 	ret = 0;
+ 	/* wait a little more than one second before testing again */
+@@ -111,9 +111,12 @@ int ionic_heartbeat_check(struct ionic *ionic)
+ 	if (time_before(hb_time, (idev->last_hb_time + ionic->watchdog_period)))
+ 		return 0;
  
- 	switch (msr) {
- #ifdef CONFIG_X86_64
--		unsigned which;
--		u64 base;
--
- 	case MSR_FS_BASE:		which = SEGBASE_FS; goto set;
- 	case MSR_KERNEL_GS_BASE:	which = SEGBASE_GS_USER; goto set;
- 	case MSR_GS_BASE:		which = SEGBASE_GS_KERNEL; goto set;
+-	/* firmware is useful only if fw_status is non-zero */
+-	fw_status = ioread32(&idev->dev_info_regs->fw_status);
+-	if (!fw_status)
++	/* firmware is useful only if the running bit is set and
++	 * fw_status != 0xff (bad PCI read)
++	 */
++	fw_status = ioread8(&idev->dev_info_regs->fw_status);
++	if (fw_status == 0xff ||
++	    !(fw_status & IONIC_FW_STS_F_RUNNING))
+ 		return -ENXIO;
+ 
+ 	/* early FW has no heartbeat, else FW will return non-zero */
+diff --git a/drivers/net/ethernet/pensando/ionic/ionic_if.h b/drivers/net/ethernet/pensando/ionic/ionic_if.h
+index ed23a05f2642f..d5e8b4e2a96e0 100644
+--- a/drivers/net/ethernet/pensando/ionic/ionic_if.h
++++ b/drivers/net/ethernet/pensando/ionic/ionic_if.h
+@@ -2348,6 +2348,7 @@ union ionic_dev_info_regs {
+ 		u8     version;
+ 		u8     asic_type;
+ 		u8     asic_rev;
++#define IONIC_FW_STS_F_RUNNING	0x1
+ 		u8     fw_status;
+ 		u32    fw_heartbeat;
+ 		char   fw_version[IONIC_DEVINFO_FWVERS_BUFLEN];
 -- 
 2.20.1
 
