@@ -2,147 +2,133 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 98400177D43
-	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 18:22:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 89779177D50
+	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 18:23:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730042AbgCCRV3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Mar 2020 12:21:29 -0500
-Received: from youngberry.canonical.com ([91.189.89.112]:50095 "EHLO
-        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729786AbgCCRV2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 Mar 2020 12:21:28 -0500
-Received: from ip5f5bf7ec.dynamic.kabel-deutschland.de ([95.91.247.236] helo=wittgenstein)
-        by youngberry.canonical.com with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        (Exim 4.86_2)
-        (envelope-from <christian.brauner@ubuntu.com>)
-        id 1j9BDx-0006cR-KJ; Tue, 03 Mar 2020 17:20:53 +0000
-Date:   Tue, 3 Mar 2020 18:20:52 +0100
-From:   Christian Brauner <christian.brauner@ubuntu.com>
-To:     Bernd Edlinger <bernd.edlinger@hotmail.de>
-Cc:     "Eric W. Biederman" <ebiederm@xmission.com>,
-        Kees Cook <keescook@chromium.org>,
-        Jann Horn <jannh@google.com>, Jonathan Corbet <corbet@lwn.net>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Alexey Dobriyan <adobriyan@gmail.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Oleg Nesterov <oleg@redhat.com>,
-        Frederic Weisbecker <frederic@kernel.org>,
-        Andrei Vagin <avagin@gmail.com>,
-        Ingo Molnar <mingo@kernel.org>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Yuyang Du <duyuyang@gmail.com>,
-        David Hildenbrand <david@redhat.com>,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        Anshuman Khandual <anshuman.khandual@arm.com>,
-        David Howells <dhowells@redhat.com>,
-        James Morris <jamorris@linux.microsoft.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Shakeel Butt <shakeelb@google.com>,
-        Jason Gunthorpe <jgg@ziepe.ca>,
-        Christian Kellner <christian@kellner.me>,
-        Andrea Arcangeli <aarcange@redhat.com>,
-        Aleksa Sarai <cyphar@cyphar.com>,
-        "Dmitry V. Levin" <ldv@altlinux.org>,
-        "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>,
-        "linux-mm@kvack.org" <linux-mm@kvack.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "linux-api@vger.kernel.org" <linux-api@vger.kernel.org>
-Subject: Re: [PATCHv5] exec: Fix a deadlock in ptrace
-Message-ID: <20200303172052.fvqk4r7vbtxwo3ig@wittgenstein>
-References: <875zfmloir.fsf@x220.int.ebiederm.org>
- <AM6PR03MB51707ABF20B6CBBECC34865FE4E70@AM6PR03MB5170.eurprd03.prod.outlook.com>
- <87v9nmjulm.fsf@x220.int.ebiederm.org>
- <AM6PR03MB5170B976E6387FDDAD59A118E4E70@AM6PR03MB5170.eurprd03.prod.outlook.com>
- <202003021531.C77EF10@keescook>
- <20200303085802.eqn6jbhwxtmz4j2x@wittgenstein>
- <AM6PR03MB5170285B336790D3450E2644E4E40@AM6PR03MB5170.eurprd03.prod.outlook.com>
- <87v9nlii0b.fsf@x220.int.ebiederm.org>
- <AM6PR03MB5170609D44967E044FD1BE40E4E40@AM6PR03MB5170.eurprd03.prod.outlook.com>
- <20200303170109.y6q2acgydyzuh3mp@wittgenstein>
+        id S1727851AbgCCRXV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Mar 2020 12:23:21 -0500
+Received: from foss.arm.com ([217.140.110.172]:50200 "EHLO foss.arm.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727198AbgCCRXV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Mar 2020 12:23:21 -0500
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id BC5852F;
+        Tue,  3 Mar 2020 09:23:20 -0800 (PST)
+Received: from [10.1.196.37] (e121345-lin.cambridge.arm.com [10.1.196.37])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id D2C7F3F534;
+        Tue,  3 Mar 2020 09:23:19 -0800 (PST)
+Subject: Re: [PATCH] iommu/dma: Fix MSI reservation allocation
+To:     Marc Zyngier <maz@kernel.org>,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Cc:     Joerg Roedel <jroedel@suse.de>, Eric Auger <eric.auger@redhat.com>,
+        Will Deacon <will@kernel.org>, stable@vger.kernel.org
+References: <20200303115154.32263-1-maz@kernel.org>
+From:   Robin Murphy <robin.murphy@arm.com>
+Message-ID: <f0fc18a5-17a9-4c53-052b-00272bbd2691@arm.com>
+Date:   Tue, 3 Mar 2020 17:23:14 +0000
+User-Agent: Mozilla/5.0 (X11; Linux aarch64; rv:60.0) Gecko/20100101
+ Thunderbird/60.9.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20200303170109.y6q2acgydyzuh3mp@wittgenstein>
+In-Reply-To: <20200303115154.32263-1-maz@kernel.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-GB
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Mar 03, 2020 at 06:01:11PM +0100, Christian Brauner wrote:
-> On Tue, Mar 03, 2020 at 04:48:01PM +0000, Bernd Edlinger wrote:
-> > On 3/3/20 4:18 PM, Eric W. Biederman wrote:
-> > > Bernd Edlinger <bernd.edlinger@hotmail.de> writes:
-> > > 
-> > >> This fixes a deadlock in the tracer when tracing a multi-threaded
-> > >> application that calls execve while more than one thread are running.
-> > >>
-> > >> I observed that when running strace on the gcc test suite, it always
-> > >> blocks after a while, when expect calls execve, because other threads
-> > >> have to be terminated.  They send ptrace events, but the strace is no
-> > >> longer able to respond, since it is blocked in vm_access.
-> > >>
-> > >> The deadlock is always happening when strace needs to access the
-> > >> tracees process mmap, while another thread in the tracee starts to
-> > >> execve a child process, but that cannot continue until the
-> > >> PTRACE_EVENT_EXIT is handled and the WIFEXITED event is received:
-> > > 
-> > > A couple of things.
-> > > 
-> > > Why do we think it is safe to change the behavior exposed to userspace?
-> > > Not the deadlock but all of the times the current code would not
-> > > deadlock?
-> > > 
-> > > Especially given that this is a small window it might be hard for people
-> > > to track down and report so we need a strong argument that this won't
-> > > break existing userspace before we just change things.
-> > > 
-> > 
-> > Hmm, I tend to agree.
-> > 
-> > > Usually surveying all of the users of a system call that we can find
-> > > and checking to see if they might be affected by the change in behavior
-> > > is difficult enough that we usually opt for not being lazy and
-> > > preserving the behavior.
-> > > 
-> > > This patch is up to two changes in behavior now, that could potentially
-> > > affect a whole array of programs.  Adding linux-api so that this change
-> > > in behavior can be documented if/when this change goes through.
-> > > 
-> > 
-> > One is PTRACE_ACCESS possibly returning EAGAIN, yes.
-> > 
-> > We could try to restrict that behavior change to when any
-> > thread is ptraced when execve starts, can't be too complicated.
-> > 
-> > 
-> > But the other is only SYS_seccomp returning EAGAIN, when a different
-> > thread of the current process is calling execve at the same time.
-> > 
-> > I would consider it completely impossible to have any user-visual effect,
-> > since de_thread is just terminating all threads, including the thread
-> > where the -EAGAIN was returned, so we will never know what happened.
+On 03/03/2020 11:51 am, Marc Zyngier wrote:
+> The way cookie_init_hw_msi_region() allocates the iommu_dma_msi_page
+> structures doesn't match the way iommu_put_dma_cookie() frees them.
 > 
-> I think if we risk a user-space facing change we should try the simple
-> thing first before making the fix more convoluted? But it's a tough
-> call...
+> The former performs a single allocation of all the required structures,
+> while the latter tries to free them one at a time. It doesn't quite
+> work for the main use case (the GICv3 ITS where the range is 64kB)
+> when the base ganule size is 4kB.
+> 
+> This leads to a nice slab corruption on teardown, which is easily
+> observable by simply creating a VF on a SRIOV-capable device, and
+> tearing it down immediately (no need to even make use of it).
+> 
+> Fix it by allocating iommu_dma_msi_page structures one at a time.
 
-Actually, to get a _rough_ estimate of the possible impact I would
-recommend you run the criu test suite (and possible the strace
-test-suite) on a kernel with and without your fix. That's what I tend to
-do when I touch code I fear will have impact on APIs that very deeply
-touch core kernel. Criu's test-suite makes heavy use of ptrace and
-usually runs into a bunch of interesting (exec) races too, and does have
-tests for handling zombies processes etc. pp.
+Bleh, you know you're supposed to be using 64K pages on those things, 
+right? :P
 
-Should be relatively simple: create a vm and then criu build-dependencies,
-git clone criu; cd criu; make; cd test; ./zdtm.py run -a --keep-going
-If your system doesn't support Selinux properly, you need to disable it
-when running the tests and you also need to make sure that you're using
-python3 or change the shebang in zdtm.py to python3.
+> Fixes: 7c1b058c8b5a3 ("iommu/dma: Handle IOMMU API reserved regions")
+> Signed-off-by: Marc Zyngier <maz@kernel.org>
+> Cc: Robin Murphy <robin.murphy@arm.com>
+> Cc: Joerg Roedel <jroedel@suse.de>
+> Cc: Eric Auger <eric.auger@redhat.com>
+> Cc: Will Deacon <will@kernel.org>
+> Cc: stable@vger.kernel.org
+> ---
+>   drivers/iommu/dma-iommu.c | 36 ++++++++++++++++++++++++------------
+>   1 file changed, 24 insertions(+), 12 deletions(-)
+> 
+> diff --git a/drivers/iommu/dma-iommu.c b/drivers/iommu/dma-iommu.c
+> index a2e96a5fd9a7..01fa64856c12 100644
+> --- a/drivers/iommu/dma-iommu.c
+> +++ b/drivers/iommu/dma-iommu.c
+> @@ -171,25 +171,37 @@ static int cookie_init_hw_msi_region(struct iommu_dma_cookie *cookie,
+>   		phys_addr_t start, phys_addr_t end)
+>   {
+>   	struct iova_domain *iovad = &cookie->iovad;
+> -	struct iommu_dma_msi_page *msi_page;
+> -	int i, num_pages;
+> +	struct iommu_dma_msi_page *msi_page, *tmp;
+> +	int i, num_pages, ret = 0;
+> +	phys_addr_t base;
+>   
+> -	start -= iova_offset(iovad, start);
+> +	base = start -= iova_offset(iovad, start);
+>   	num_pages = iova_align(iovad, end - start) >> iova_shift(iovad);
+>   
+> -	msi_page = kcalloc(num_pages, sizeof(*msi_page), GFP_KERNEL);
+> -	if (!msi_page)
+> -		return -ENOMEM;
+> -
+>   	for (i = 0; i < num_pages; i++) {
+> -		msi_page[i].phys = start;
+> -		msi_page[i].iova = start;
+> -		INIT_LIST_HEAD(&msi_page[i].list);
+> -		list_add(&msi_page[i].list, &cookie->msi_page_list);
+> +		msi_page = kmalloc(sizeof(*msi_page), GFP_KERNEL);
+> +		if (!msi_page) {
+> +			ret = -ENOMEM;
 
-Just a recommendation.
+I think we can just return here and skip the cleanup below - by the time 
+we get here the cookie itself has already been allocated and 
+initialised, so even if iommu_dma_init_domain() fails someone else has 
+already accepted the responsibility of calling iommu_put_dma_cookie() at 
+some point later, which will clean up properly.
 
-Christian
+Cheers,
+Robin.
+
+> +			break;
+> +		}
+> +		msi_page->phys = start;
+> +		msi_page->iova = start;
+> +		INIT_LIST_HEAD(&msi_page->list);
+> +		list_add(&msi_page->list, &cookie->msi_page_list);
+>   		start += iovad->granule;
+>   	}
+>   
+> -	return 0;
+> +	if (ret) {
+> +		list_for_each_entry_safe(msi_page, tmp,
+> +					 &cookie->msi_page_list, list) {
+> +			if (msi_page->phys >= base && msi_page->phys < start) {
+> +				list_del(&msi_page->list);
+> +				kfree(msi_page);
+> +			}
+> +		}
+> +	}
+> +
+> +	return ret;
+>   }
+>   
+>   static int iova_reserve_pci_windows(struct pci_dev *dev,
+> 
