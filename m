@@ -2,81 +2,74 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 789711775CC
-	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 13:17:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3DCDE1775EE
+	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 13:32:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727796AbgCCMRq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Mar 2020 07:17:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39590 "EHLO mail.kernel.org"
+        id S1729193AbgCCMcf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Mar 2020 07:32:35 -0500
+Received: from elvis.franken.de ([193.175.24.41]:49595 "EHLO elvis.franken.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727175AbgCCMRq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Mar 2020 07:17:46 -0500
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DE48D20857;
-        Tue,  3 Mar 2020 12:17:43 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583237864;
-        bh=bGDhSMpentb/CS0Z5q0Vy2Srh3hd9Nhsd7cOo4HUUGk=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=vWlwnhpJP4pIASHyHiZEQHUXCfZuyK9QsH/xDvUWz12jN5xqXIVYEk78Sw7hnFVbd
-         78Eqil+1qQg9bU96pArvTLT7/EA9cfFRrxxCDFrq3qlINzYoUQJjU30T/uNTtgJQes
-         enfbi37Bq6i5uY5kzIo5tRLA+9KEPB87CPLF29So=
-Date:   Tue, 3 Mar 2020 13:17:41 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Cengiz Can <cengiz@kernel.wtf>
-Cc:     kbusch@kernel.org, Chaitanya.Kulkarni@wdc.com, axboe@kernel.dk,
-        helgaas@kernel.org, jack@suse.cz, linux-block@vger.kernel.org,
-        stable@vger.kernel.org, tristmd@gmail.com
-Subject: Re: [PATCH] blktrace: Protect q->blk_trace with RCU
-Message-ID: <20200303121741.GA2021063@kroah.com>
-References: <20200302220639.GA2393@dhcp-10-100-145-180.wdl.wdc.com>
- <20200303110731.65552-1-cengiz@kernel.wtf>
+        id S1727121AbgCCMcf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Mar 2020 07:32:35 -0500
+Received: from uucp (helo=alpha)
+        by elvis.franken.de with local-bsmtp (Exim 3.36 #1)
+        id 1j96iu-0003ir-00; Tue, 03 Mar 2020 13:32:32 +0100
+Received: by alpha.franken.de (Postfix, from userid 1000)
+        id 43958C0EC5; Tue,  3 Mar 2020 13:32:14 +0100 (CET)
+Date:   Tue, 3 Mar 2020 13:32:14 +0100
+From:   Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+To:     "H. Nikolaus Schaller" <hns@goldelico.com>
+Cc:     Paul Boddie <paul@boddie.org.uk>,
+        Paul Cercueil <paul@crapouillou.net>,
+        Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Ralf Baechle <ralf@linux-mips.org>,
+        Paul Burton <paulburton@kernel.org>,
+        Miquel Raynal <miquel.raynal@bootlin.com>,
+        Andi Kleen <ak@linux.intel.com>,
+        Kees Cook <keescook@chromium.org>,
+        Krzysztof Kozlowski <krzk@kernel.org>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" 
+        <devicetree@vger.kernel.org>, linux-mips@vger.kernel.org,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Discussions about the Letux Kernel 
+        <letux-kernel@openphoenux.org>, stable <stable@vger.kernel.org>
+Subject: Re: [PATCH v5 2/5] MIPS: DTS: CI20: fix PMU definitions for ACT8600
+Message-ID: <20200303123214.GA15333@alpha.franken.de>
+References: <cover.1583005548.git.hns@goldelico.com>
+ <02f18080fa0e0c214b40431749ca1ce514c53d37.1583005548.git.hns@goldelico.com>
+ <20200303101818.GA12103@alpha.franken.de>
+ <85F9D066-EAF6-4840-8F54-24E6D8A534DC@goldelico.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20200303110731.65552-1-cengiz@kernel.wtf>
+In-Reply-To: <85F9D066-EAF6-4840-8F54-24E6D8A534DC@goldelico.com>
+User-Agent: Mutt/1.5.23 (2014-03-12)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Mar 03, 2020 at 02:07:32PM +0300, Cengiz Can wrote:
-> Added a reassignment into the NULL check block to fix the issue.
+On Tue, Mar 03, 2020 at 01:10:22PM +0100, H. Nikolaus Schaller wrote:
+> > And please seperate fixes from improvments, thank you.
 > 
-> Fixes: c780e86dd48 ("blktrace: Protect q->blk_trace with RCU")
-> 
-> Signed-off-by: Cengiz Can <cengiz@kernel.wtf>
-> ---
->  kernel/trace/blktrace.c | 4 +++-
->  1 file changed, 3 insertions(+), 1 deletion(-)
-> 
-> diff --git a/kernel/trace/blktrace.c b/kernel/trace/blktrace.c
-> index 4560878f0bac..29ea88f10b87 100644
-> --- a/kernel/trace/blktrace.c
-> +++ b/kernel/trace/blktrace.c
-> @@ -1896,8 +1896,10 @@ static ssize_t sysfs_blk_trace_attr_store(struct device *dev,
->  	}
-> 
->  	ret = 0;
-> -	if (bt == NULL)
-> +	if (bt == NULL) {
->  		ret = blk_trace_setup_queue(q, bdev);
-> +		bt = q->blk_trace;
-> +	}
-> 
->  	if (ret == 0) {
->  		if (attr == &dev_attr_act_mask)
-> --
-> 2.25.1
->
+> What do you mean by "separate"? Two separate patches?
+> This patch only contains fixes (which I would consider
+> all of them to be improvements).
 
-<formletter>
+There are two patches with Fixes tag, which IMHO should go
+into 5.6 via mips-fixes branch. All others are going
+via mips-next into 5.7. So it helps me, if they come in different
+patch series (or as single patches).
 
-This is not the correct way to submit patches for inclusion in the
-stable kernel tree.  Please read:
-    https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
-for how to do this properly.
+I see other DT changes in your other patch series. Are the changes
+there independent from each other or do they require correct order
+when appling them ?
 
-</formletter>
+Thomas.
+
+-- 
+Crap can work. Given enough thrust pigs will fly, but it's not necessarily a
+good idea.                                                [ RFC1925, 2.3 ]
