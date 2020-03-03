@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D9E117812E
-	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 20:01:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E7EB17812C
+	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 20:01:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387896AbgCCSBF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S2387893AbgCCSBF (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 3 Mar 2020 13:01:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44998 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:45054 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387879AbgCCSBA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Mar 2020 13:01:00 -0500
+        id S2387871AbgCCSBD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Mar 2020 13:01:03 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9E9DD20870;
-        Tue,  3 Mar 2020 18:00:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D23CD206D5;
+        Tue,  3 Mar 2020 18:01:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583258460;
-        bh=qd721I88vNXch3ZqPReQwf2cEtykqf23s69glri4oKA=;
+        s=default; t=1583258463;
+        bh=mS3NzTj/wGe/utVr3qRFvWIQqqxdgLTCV8BCqRPCDtA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QoaI3vGsA/MKYlHTE7x3ANS0CaZtiBAO0ojN17NwCFCqlzi6f8otFAL59Ib5NWrx0
-         l0Y7eBzl/EcdUkMQFAM/AQt5KMn7vv2zCcRHBBIIZi2UoCAcWrtKji18vY2SR3A3tG
-         50bhVTvJDE7MGL5fy+YMV6R5IMf8DEXEy1EQOKsA=
+        b=Cw3R4cj9JCtnesdL4zIU56dXEwjG6UKzu/qx8pkGC37HvLf9i2sjv5YU06srrviEW
+         weWFd3B5iX/SNFG4KUOakS1lzMayVM/RQiW1dKQWUKwqv/zFasoDLGXP3jpZNhPIwG
+         wJ91EkwiVh2L6kOqczwx0J24tLxYJwUKrgqmBpqU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "H. Nikolaus Schaller" <hns@goldelico.com>,
-        Wolfram Sang <wsa@the-dreams.de>
-Subject: [PATCH 4.19 56/87] i2c: jz4780: silence log flood on txabrt
-Date:   Tue,  3 Mar 2020 18:43:47 +0100
-Message-Id: <20200303174355.386521618@linuxfoundation.org>
+        stable@vger.kernel.org, Tina Zhang <tina.zhang@intel.com>,
+        Zhenyu Wang <zhenyuw@linux.intel.com>
+Subject: [PATCH 4.19 57/87] drm/i915/gvt: Fix orphan vgpu dmabuf_objs lifetime
+Date:   Tue,  3 Mar 2020 18:43:48 +0100
+Message-Id: <20200303174355.470594194@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200303174349.075101355@linuxfoundation.org>
 References: <20200303174349.075101355@linuxfoundation.org>
@@ -43,76 +43,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wolfram Sang <wsa@the-dreams.de>
+From: Tina Zhang <tina.zhang@intel.com>
 
-commit 9e661cedcc0a072d91a32cb88e0515ea26e35711 upstream.
+commit b549c252b1292aea959cd9b83537fcb9384a6112 upstream.
 
-The printout for txabrt is way too talkative and is highly annoying with
-scanning programs like 'i2cdetect'. Reduce it to the minimum, the rest
-can be gained by I2C core debugging and datasheet information. Also,
-make it a debug printout, it won't help the regular user.
+Deleting dmabuf item's list head after releasing its container can lead
+to KASAN-reported issue:
 
-Fixes: ba92222ed63a ("i2c: jz4780: Add i2c bus controller driver for Ingenic JZ4780")
-Reported-by: H. Nikolaus Schaller <hns@goldelico.com>
-Tested-by: H. Nikolaus Schaller <hns@goldelico.com>
-Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+  BUG: KASAN: use-after-free in __list_del_entry_valid+0x15/0xf0
+  Read of size 8 at addr ffff88818a4598a8 by task kworker/u8:3/13119
+
+So fix this issue by puting deleting dmabuf_objs ahead of releasing its
+container.
+
+Fixes: dfb6ae4e14bd6 ("drm/i915/gvt: Handle orphan dmabuf_objs")
+Signed-off-by: Tina Zhang <tina.zhang@intel.com>
+Reviewed-by: Zhenyu Wang <zhenyuw@linux.intel.com>
+Signed-off-by: Zhenyu Wang <zhenyuw@linux.intel.com>
+Link: http://patchwork.freedesktop.org/patch/msgid/20200225053527.8336-2-tina.zhang@intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/i2c/busses/i2c-jz4780.c |   36 ++----------------------------------
- 1 file changed, 2 insertions(+), 34 deletions(-)
+ drivers/gpu/drm/i915/gvt/dmabuf.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/i2c/busses/i2c-jz4780.c
-+++ b/drivers/i2c/busses/i2c-jz4780.c
-@@ -82,25 +82,6 @@
- #define JZ4780_I2C_STA_TFNF		BIT(1)
- #define JZ4780_I2C_STA_ACT		BIT(0)
- 
--static const char * const jz4780_i2c_abrt_src[] = {
--	"ABRT_7B_ADDR_NOACK",
--	"ABRT_10ADDR1_NOACK",
--	"ABRT_10ADDR2_NOACK",
--	"ABRT_XDATA_NOACK",
--	"ABRT_GCALL_NOACK",
--	"ABRT_GCALL_READ",
--	"ABRT_HS_ACKD",
--	"SBYTE_ACKDET",
--	"ABRT_HS_NORSTRT",
--	"SBYTE_NORSTRT",
--	"ABRT_10B_RD_NORSTRT",
--	"ABRT_MASTER_DIS",
--	"ARB_LOST",
--	"SLVFLUSH_TXFIFO",
--	"SLV_ARBLOST",
--	"SLVRD_INTX",
--};
--
- #define JZ4780_I2C_INTST_IGC		BIT(11)
- #define JZ4780_I2C_INTST_ISTT		BIT(10)
- #define JZ4780_I2C_INTST_ISTP		BIT(9)
-@@ -538,21 +519,8 @@ done:
- 
- static void jz4780_i2c_txabrt(struct jz4780_i2c *i2c, int src)
- {
--	int i;
--
--	dev_err(&i2c->adap.dev, "txabrt: 0x%08x\n", src);
--	dev_err(&i2c->adap.dev, "device addr=%x\n",
--		jz4780_i2c_readw(i2c, JZ4780_I2C_TAR));
--	dev_err(&i2c->adap.dev, "send cmd count:%d  %d\n",
--		i2c->cmd, i2c->cmd_buf[i2c->cmd]);
--	dev_err(&i2c->adap.dev, "receive data count:%d  %d\n",
--		i2c->cmd, i2c->data_buf[i2c->cmd]);
--
--	for (i = 0; i < 16; i++) {
--		if (src & BIT(i))
--			dev_dbg(&i2c->adap.dev, "I2C TXABRT[%d]=%s\n",
--				i, jz4780_i2c_abrt_src[i]);
--	}
-+	dev_dbg(&i2c->adap.dev, "txabrt: 0x%08x, cmd: %d, send: %d, recv: %d\n",
-+		src, i2c->cmd, i2c->cmd_buf[i2c->cmd], i2c->data_buf[i2c->cmd]);
- }
- 
- static inline int jz4780_i2c_xfer_read(struct jz4780_i2c *i2c,
+--- a/drivers/gpu/drm/i915/gvt/dmabuf.c
++++ b/drivers/gpu/drm/i915/gvt/dmabuf.c
+@@ -95,12 +95,12 @@ static void dmabuf_gem_object_free(struc
+ 			dmabuf_obj = container_of(pos,
+ 					struct intel_vgpu_dmabuf_obj, list);
+ 			if (dmabuf_obj == obj) {
++				list_del(pos);
+ 				intel_gvt_hypervisor_put_vfio_device(vgpu);
+ 				idr_remove(&vgpu->object_idr,
+ 					   dmabuf_obj->dmabuf_id);
+ 				kfree(dmabuf_obj->info);
+ 				kfree(dmabuf_obj);
+-				list_del(pos);
+ 				break;
+ 			}
+ 		}
 
 
