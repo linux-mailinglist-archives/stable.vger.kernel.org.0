@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 366FA17809E
-	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 20:00:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1FBFB177F41
+	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 19:57:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733157AbgCCR5u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Mar 2020 12:57:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40456 "EHLO mail.kernel.org"
+        id S1730910AbgCCRte (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Mar 2020 12:49:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56882 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733138AbgCCR5t (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Mar 2020 12:57:49 -0500
+        id S1731796AbgCCRte (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Mar 2020 12:49:34 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 40AA220870;
-        Tue,  3 Mar 2020 17:57:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E49D020CC7;
+        Tue,  3 Mar 2020 17:49:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583258268;
-        bh=oYsBVkWhjO1Ft4lbRAgaWtSyXy9bZf8lJSwTPVyvDJI=;
+        s=default; t=1583257773;
+        bh=LmL5IQBeypXgesntFYQKh5sWIvUcHxZNKZSbikfsc0I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fCPt7QT6EsPcqkz+SXPpcrtacCAJur2EYrQj4PLProUbLE2Ze8CzZkhLXJ3buv0eS
-         P0mXblHls7YgARynQ0u37QubazpJDLAadQBKToGS6CotxEf2CXTQUbe/7ZXaalbZj7
-         17l4Jw+jA1Ujes+AcDNYsycObvOxNdTHfkj6Jc2o=
+        b=ks6IA1mpWXBowY17CfGxNGGnT6Gb0w96XClH6xlR7ZDQ2T8FBLxWQHnWrBpFx3ZPU
+         9xb1nvQVF9xXmbl4h9W5Afe7FXup99B/tMM4Vw5KtNyC66o5Ya9kFndtzvnrBb3oiC
+         lZlAPW2owCtiiNeQIDxNsFHjSCqzMNpniB0212U0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+4b1fe8105f8044a26162@syzkaller.appspotmail.com,
-        Ursula Braun <ubraun@linux.ibm.com>,
-        Karsten Graul <kgraul@linux.ibm.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 088/152] net/smc: transfer fasync_list in case of fallback
-Date:   Tue,  3 Mar 2020 18:43:06 +0100
-Message-Id: <20200303174312.576825417@linuxfoundation.org>
+        Bijan Mottahedeh <bijan.mottahedeh@oracle.com>,
+        Sagi Grimberg <sagi@grimberg.me>, Jens Axboe <axboe@kernel.dk>,
+        Keith Busch <kbusch@kernel.org>
+Subject: [PATCH 5.5 123/176] nvme-pci: Hold cq_poll_lock while completing CQEs
+Date:   Tue,  3 Mar 2020 18:43:07 +0100
+Message-Id: <20200303174319.029189064@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200303174302.523080016@linuxfoundation.org>
-References: <20200303174302.523080016@linuxfoundation.org>
+In-Reply-To: <20200303174304.593872177@linuxfoundation.org>
+References: <20200303174304.593872177@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,36 +45,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ursula Braun <ubraun@linux.ibm.com>
+From: Bijan Mottahedeh <bijan.mottahedeh@oracle.com>
 
-commit 67f562e3e147750a02b2a91d21a163fc44a1d13e upstream.
+commit 9515743bfb39c61aaf3d4f3219a645c8d1fe9a0e upstream.
 
-SMC does not work together with FASTOPEN. If sendmsg() is called with
-flag MSG_FASTOPEN in SMC_INIT state, the SMC-socket switches to
-fallback mode. To handle the previous ioctl FIOASYNC call correctly
-in this case, it is necessary to transfer the socket wait queue
-fasync_list to the internal TCP socket.
+Completions need to consumed in the same order the controller submitted
+them, otherwise future completion entries may overwrite ones we haven't
+handled yet. Hold the nvme queue's poll lock while completing new CQEs to
+prevent another thread from freeing command tags for reuse out-of-order.
 
-Reported-by: syzbot+4b1fe8105f8044a26162@syzkaller.appspotmail.com
-Fixes: ee9dfbef02d18 ("net/smc: handle sockopts forcing fallback")
-Signed-off-by: Ursula Braun <ubraun@linux.ibm.com>
-Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: dabcefab45d3 ("nvme: provide optimized poll function for separate poll queues")
+Signed-off-by: Bijan Mottahedeh <bijan.mottahedeh@oracle.com>
+Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
+Reviewed-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Keith Busch <kbusch@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/smc/af_smc.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/nvme/host/pci.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -467,6 +467,8 @@ static void smc_switch_to_fallback(struc
- 	if (smc->sk.sk_socket && smc->sk.sk_socket->file) {
- 		smc->clcsock->file = smc->sk.sk_socket->file;
- 		smc->clcsock->file->private_data = smc->clcsock;
-+		smc->clcsock->wq.fasync_list =
-+			smc->sk.sk_socket->wq.fasync_list;
- 	}
+--- a/drivers/nvme/host/pci.c
++++ b/drivers/nvme/host/pci.c
+@@ -1078,9 +1078,9 @@ static int nvme_poll(struct blk_mq_hw_ct
+ 
+ 	spin_lock(&nvmeq->cq_poll_lock);
+ 	found = nvme_process_cq(nvmeq, &start, &end, -1);
++	nvme_complete_cqes(nvmeq, start, end);
+ 	spin_unlock(&nvmeq->cq_poll_lock);
+ 
+-	nvme_complete_cqes(nvmeq, start, end);
+ 	return found;
  }
  
 
