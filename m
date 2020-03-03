@@ -2,98 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 243D1178544
-	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 23:11:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 687451785B0
+	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 23:34:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727422AbgCCWLZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Mar 2020 17:11:25 -0500
-Received: from hqnvemgate24.nvidia.com ([216.228.121.143]:2008 "EHLO
-        hqnvemgate24.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727026AbgCCWLZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 Mar 2020 17:11:25 -0500
-Received: from hqpgpgate101.nvidia.com (Not Verified[216.228.121.13]) by hqnvemgate24.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
-        id <B5e5ed5b80000>; Tue, 03 Mar 2020 14:10:01 -0800
-Received: from hqmail.nvidia.com ([172.20.161.6])
-  by hqpgpgate101.nvidia.com (PGP Universal service);
-  Tue, 03 Mar 2020 14:11:24 -0800
-X-PGP-Universal: processed;
-        by hqpgpgate101.nvidia.com on Tue, 03 Mar 2020 14:11:24 -0800
-Received: from [10.26.11.142] (172.20.13.39) by HQMAIL107.nvidia.com
- (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Tue, 3 Mar
- 2020 22:11:21 +0000
-Subject: Re: [PATCH 5.5 000/176] 5.5.8-stable review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        <linux-kernel@vger.kernel.org>
-CC:     <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
-        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
-        <ben.hutchings@codethink.co.uk>, <lkft-triage@lists.linaro.org>,
-        <stable@vger.kernel.org>, linux-tegra <linux-tegra@vger.kernel.org>
-References: <20200303174304.593872177@linuxfoundation.org>
-From:   Jon Hunter <jonathanh@nvidia.com>
-Message-ID: <f109bb1e-1520-893b-ae48-70a80fc3f29b@nvidia.com>
-Date:   Tue, 3 Mar 2020 22:11:19 +0000
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.4.1
-MIME-Version: 1.0
-In-Reply-To: <20200303174304.593872177@linuxfoundation.org>
-X-Originating-IP: [172.20.13.39]
-X-ClientProxiedBy: HQMAIL107.nvidia.com (172.20.187.13) To
- HQMAIL107.nvidia.com (172.20.187.13)
+        id S1727304AbgCCWeY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Mar 2020 17:34:24 -0500
+Received: from mail-pf1-f194.google.com ([209.85.210.194]:37660 "EHLO
+        mail-pf1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726004AbgCCWeY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 Mar 2020 17:34:24 -0500
+Received: by mail-pf1-f194.google.com with SMTP id p14so2237085pfn.4
+        for <stable@vger.kernel.org>; Tue, 03 Mar 2020 14:34:24 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=37NPOvf4CIrzkEknI3/AHazlAOBjzcYVugZSr5qpMyU=;
+        b=UoQOgB6+EqJ8iSvodbaVAUyvkgAUTWN9I4mf37XQqGnc0wZ18GoIYWhuJiSPfndXco
+         H5ZDaxPdZACfk/RBMo/UhyqAaGNzU5Nl26TEhGlFp9VnXkkq/eftH01vHVbVo96TpYwr
+         IVePb6hvZy4scTIxqG1/uEarVo07MFpOkurpmPdadK4HtsCGtKRKBYAhaqitWiqBKrUB
+         14+iiz8SNwDrG69Qv8T4NQX1JBONsknz4wVTr/ZyyRj3D7pZY/QnJZ2rkP1RknIIqaPx
+         HLzMhjrm9wSlcXLb0DeYy7tUKhltw7yASZbawmgyk+wVdJ4aSQNYFzKKVQ/Rgn2e4IOz
+         A+7w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=37NPOvf4CIrzkEknI3/AHazlAOBjzcYVugZSr5qpMyU=;
+        b=L4UJLQIQFfecAgFnPToLDUoLuVFcHOzYHx9uASoivVH5hIjPkpdhntAL4S4xF490rx
+         BHhKonnjG4F6MWGnQGZ08rI5vbucul2edzQT9WnICbb7shiqpKVyrULK/3/aZylEciqh
+         r7LWGykNlU04mwovL+kaH7ffaTV/fLcIf3MpAAGrvjAul1clzaOkudrViZSTHt9hNWDQ
+         qHR0SwNCI4CAjPIpFcf5sptc0aBaZj1DYZPv4brNUyXugrcn5Q495ox7R/w5Bd0oiSwb
+         g4sUvEzhT/Sexg2To8xl1knJ/K1eBf8Ey56Qbxj5Rnffm4uzb/HsRMZZ1FyvsTXJ/Hhy
+         2dzQ==
+X-Gm-Message-State: ANhLgQ2zOwdhJmqNODP2nvuD7yHEhtUrl4X8RY4ACs0LxC1JzbCZaRij
+        0IWe3ld4XwDVl5ssTfOvdifk3ZEz5Ic=
+X-Google-Smtp-Source: ADFU+vvRNNjhId8zMj39VfrUeKv4YWgzxeDKD4UfGjOTyur/ATE/MiPPlR4tH0NlYPvuycIl+VKpXQ==
+X-Received: by 2002:a63:4a58:: with SMTP id j24mr6133411pgl.166.1583274863293;
+        Tue, 03 Mar 2020 14:34:23 -0800 (PST)
+Received: from [10.0.9.4] ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id q7sm11200320pfs.17.2020.03.03.14.34.22
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 03 Mar 2020 14:34:22 -0800 (PST)
+Message-ID: <5e5edb6e.1c69fb81.fc20b.f144@mx.google.com>
+Date:   Tue, 03 Mar 2020 14:34:22 -0800 (PST)
 Content-Type: text/plain; charset="utf-8"
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
-        t=1583273401; bh=urPkfjnlN9JykNtKvapn5x7KVuAEh5vM83mwv5Guhl8=;
-        h=X-PGP-Universal:Subject:To:CC:References:From:Message-ID:Date:
-         User-Agent:MIME-Version:In-Reply-To:X-Originating-IP:
-         X-ClientProxiedBy:Content-Type:Content-Language:
-         Content-Transfer-Encoding;
-        b=MpQ5o3KcAMESBSBMdxRENifD39PsIhGCYZo+rNBI5uHyozFqdOTn5JwOVdIexZrTg
-         VcN0NEhkAbFhgUYn23sRg8wTdL4xM/4hC+qFsQ768oaLCBWz7NAINXMGiRasCyNWRZ
-         wRQwv73sAwnMkxZYQ+rIi+/w+QopBb9EMdiDjmfWxiuAsy1m9gRUToVgUlYrtPpPD5
-         5ouN2p7y3J1B3RreMBCkLUD3Sb+IUjwLRLUbt9qDuBUGzeFxvKUQfYcG4cENVEW6YT
-         hDED0FiNeGbMz5RRE0IMvoxcMTwLU7w1/NKUsjEKyxcYg6FmbTDN8wlyOzeXSaszeJ
-         48sEq3D9hsVPA==
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: linux-4.19.y
+X-Kernelci-Kernel: v4.19.107-88-g619f84afab6a
+X-Kernelci-Report-Type: boot
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/linux-4.19.y boot: 60 boots: 1 failed,
+ 57 passed with 2 untried/unknown (v4.19.107-88-g619f84afab6a)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable-rc/linux-4.19.y boot: 60 boots: 1 failed, 57 passed with 2 untried/u=
+nknown (v4.19.107-88-g619f84afab6a)
 
-On 03/03/2020 17:41, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.5.8 release.
-> There are 176 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Thu, 05 Mar 2020 17:42:06 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.5.8-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.5.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.19.y/kernel/v4.19.107-88-g619f84afab6a/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.19.=
+y/kernel/v4.19.107-88-g619f84afab6a/
 
-All tests passing for Tegra ...
+Tree: stable-rc
+Branch: linux-4.19.y
+Git Describe: v4.19.107-88-g619f84afab6a
+Git Commit: 619f84afab6af6b99d65c2e2c76cf7b899fca40e
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 47 unique boards, 13 SoC families, 13 builds out of 206
 
-Test results for stable-v5.5:
-    13 builds:	13 pass, 0 fail
-    22 boots:	22 pass, 0 fail
-    40 tests:	40 pass, 0 fail
+Boot Regressions Detected:
 
-Linux version:	5.5.8-rc1-g3517b32c0774
-Boards tested:	tegra124-jetson-tk1, tegra186-p2771-0000,
-                tegra194-p2972-0000, tegra20-ventana,
-                tegra210-p2371-2180, tegra210-p3450-0000,
-                tegra30-cardhu-a04
+arm:
 
-Cheers
-Jon
+    versatile_defconfig:
+        gcc-8:
+          versatile-pb:
+              lab-collabora: new failure (last pass: v4.19.107)
 
--- 
-nvpublic
+arm64:
+
+    defconfig:
+        gcc-8:
+          r8a7796-m3ulcb:
+              lab-baylibre: new failure (last pass: v4.19.107)
+
+Boot Failure Detected:
+
+arm:
+    sama5_defconfig:
+        gcc-8:
+            at91-sama5d4_xplained: 1 failed lab
+
+---
+For more info write to <info@kernelci.org>
