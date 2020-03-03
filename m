@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 23FB4176CDD
-	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 03:59:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 551A3176CE9
+	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 03:59:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728054AbgCCCrd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Mar 2020 21:47:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42566 "EHLO mail.kernel.org"
+        id S1726859AbgCCC7q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Mar 2020 21:59:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42630 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728072AbgCCCrc (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1728077AbgCCCrc (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 2 Mar 2020 21:47:32 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BFB022468D;
-        Tue,  3 Mar 2020 02:47:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BCA6424699;
+        Tue,  3 Mar 2020 02:47:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583203651;
-        bh=nRO455Vq+s6RfjtfOB2yl+aWuz2EYmxn6affqv+/Knc=;
+        s=default; t=1583203652;
+        bh=F4Lhoeop5jyc/HLHpAGZSESF9WLzwH4clZlIidY28eo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qsrHc/lvdd8GKUo6PI20vJyUGlDfPZhPIpcq4TAylaRo+iIm/xnEFE9qXJQiZJaA6
-         qBur56tJ+6/p7j0v1pg50QUcQAi4TJG4NFxZ9UaIex0X6TtIbdj09i1JarBmst1pFa
-         +GWLcS7DGGGVsALAbT5yXQKqLL42S5cvbaWeI72Q=
+        b=XVR1pFlAh99VGizwwRnbMGIgJvOQAiCyNyHLB9NWEWEJ4oijwv8koqYjEymDK9CI8
+         JmVM+B/n7y3ZrXfX+Hm+cJ5cUI57GfWPL9Z/bovhhm9V2MdalK3HOnoj8BDuFqKopg
+         64CTAsRC0uZbY6tWq+r1y8XodPjZjMvx0OpYPnC8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Guo Ren <guoren@linux.alibaba.com>,
         Sasha Levin <sashal@kernel.org>, linux-csky@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.5 61/66] csky: Set regs->usp to kernel sp, when the exception is from kernel
-Date:   Mon,  2 Mar 2020 21:46:10 -0500
-Message-Id: <20200303024615.8889-61-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.5 62/66] csky/smp: Fixup boot failed when CONFIG_SMP
+Date:   Mon,  2 Mar 2020 21:46:11 -0500
+Message-Id: <20200303024615.8889-62-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200303024615.8889-1-sashal@kernel.org>
 References: <20200303024615.8889-1-sashal@kernel.org>
@@ -44,151 +44,30 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Guo Ren <guoren@linux.alibaba.com>
 
-[ Upstream commit f8e17c17b81070f38062dce79ca7f4541851dadd ]
+[ Upstream commit c9492737b25ca32679ba3163609d938c9abfd508 ]
 
-In the past, we didn't care about kernel sp when saving pt_reg. But in some
-cases, we still need pt_reg->usp to represent the kernel stack before enter
-exception.
-
-For cmpxhg in atomic.S, we need save and restore usp for above.
+If we use a non-ipi-support interrupt controller, it will cause panic here.
+We should let cpu up and work with CONFIG_SMP, when we use a non-ipi intc.
 
 Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/csky/abiv1/inc/abi/entry.h | 19 ++++++++++++++-----
- arch/csky/abiv2/inc/abi/entry.h | 11 +++++++++++
- arch/csky/kernel/atomic.S       |  8 ++++++--
- 3 files changed, 31 insertions(+), 7 deletions(-)
+ arch/csky/kernel/smp.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/csky/abiv1/inc/abi/entry.h b/arch/csky/abiv1/inc/abi/entry.h
-index 7ab78bd0f3b13..f35a9f3315ee6 100644
---- a/arch/csky/abiv1/inc/abi/entry.h
-+++ b/arch/csky/abiv1/inc/abi/entry.h
-@@ -16,14 +16,16 @@
- #define LSAVE_A4	40
- #define LSAVE_A5	44
+diff --git a/arch/csky/kernel/smp.c b/arch/csky/kernel/smp.c
+index b753d382e4cef..0bb0954d55709 100644
+--- a/arch/csky/kernel/smp.c
++++ b/arch/csky/kernel/smp.c
+@@ -120,7 +120,7 @@ void __init setup_smp_ipi(void)
+ 	int rc;
  
-+#define usp ss1
-+
- .macro USPTOKSP
--	mtcr	sp, ss1
-+	mtcr	sp, usp
- 	mfcr	sp, ss0
- .endm
+ 	if (ipi_irq == 0)
+-		panic("%s IRQ mapping failed\n", __func__);
++		return;
  
- .macro KSPTOUSP
- 	mtcr	sp, ss0
--	mfcr	sp, ss1
-+	mfcr	sp, usp
- .endm
- 
- .macro	SAVE_ALL epc_inc
-@@ -45,7 +47,13 @@
- 	add	lr, r13
- 	stw     lr, (sp, 8)
- 
-+	mov	lr, sp
-+	addi	lr, 32
-+	addi	lr, 32
-+	addi	lr, 16
-+	bt	2f
- 	mfcr	lr, ss1
-+2:
- 	stw     lr, (sp, 16)
- 
- 	stw     a0, (sp, 20)
-@@ -79,9 +87,10 @@
- 	ldw     a0, (sp, 12)
- 	mtcr    a0, epsr
- 	btsti   a0, 31
-+	bt      1f
- 	ldw     a0, (sp, 16)
- 	mtcr	a0, ss1
--
-+1:
- 	ldw     a0, (sp, 24)
- 	ldw     a1, (sp, 28)
- 	ldw     a2, (sp, 32)
-@@ -102,9 +111,9 @@
- 	addi	sp, 32
- 	addi	sp, 8
- 
--	bt      1f
-+	bt      2f
- 	KSPTOUSP
--1:
-+2:
- 	rte
- .endm
- 
-diff --git a/arch/csky/abiv2/inc/abi/entry.h b/arch/csky/abiv2/inc/abi/entry.h
-index 9897a16b45e5d..94a7a58765dff 100644
---- a/arch/csky/abiv2/inc/abi/entry.h
-+++ b/arch/csky/abiv2/inc/abi/entry.h
-@@ -31,7 +31,13 @@
- 
- 	mfcr	lr, epsr
- 	stw	lr, (sp, 12)
-+	btsti   lr, 31
-+	bf      1f
-+	addi    lr, sp, 152
-+	br	2f
-+1:
- 	mfcr	lr, usp
-+2:
- 	stw	lr, (sp, 16)
- 
- 	stw     a0, (sp, 20)
-@@ -64,8 +70,10 @@
- 	mtcr	a0, epc
- 	ldw	a0, (sp, 12)
- 	mtcr	a0, epsr
-+	btsti   a0, 31
- 	ldw	a0, (sp, 16)
- 	mtcr	a0, usp
-+	mtcr	a0, ss0
- 
- #ifdef CONFIG_CPU_HAS_HILO
- 	ldw	a0, (sp, 140)
-@@ -86,6 +94,9 @@
- 	addi    sp, 40
- 	ldm     r16-r30, (sp)
- 	addi    sp, 72
-+	bf	1f
-+	mfcr	sp, ss0
-+1:
- 	rte
- .endm
- 
-diff --git a/arch/csky/kernel/atomic.S b/arch/csky/kernel/atomic.S
-index 5b84f11485aeb..3821ef9b75672 100644
---- a/arch/csky/kernel/atomic.S
-+++ b/arch/csky/kernel/atomic.S
-@@ -17,10 +17,12 @@ ENTRY(csky_cmpxchg)
- 	mfcr	a3, epc
- 	addi	a3, TRAP0_SIZE
- 
--	subi    sp, 8
-+	subi    sp, 16
- 	stw     a3, (sp, 0)
- 	mfcr    a3, epsr
- 	stw     a3, (sp, 4)
-+	mfcr	a3, usp
-+	stw     a3, (sp, 8)
- 
- 	psrset	ee
- #ifdef CONFIG_CPU_HAS_LDSTEX
-@@ -47,7 +49,9 @@ ENTRY(csky_cmpxchg)
- 	mtcr	a3, epc
- 	ldw     a3, (sp, 4)
- 	mtcr	a3, epsr
--	addi	sp, 8
-+	ldw     a3, (sp, 8)
-+	mtcr	a3, usp
-+	addi	sp, 16
- 	KSPTOUSP
- 	rte
- END(csky_cmpxchg)
+ 	rc = request_percpu_irq(ipi_irq, handle_ipi, "IPI Interrupt",
+ 				&ipi_dummy_dev);
 -- 
 2.20.1
 
