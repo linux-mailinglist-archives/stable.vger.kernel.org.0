@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3815C177EE8
-	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 19:57:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7410C178001
+	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 19:59:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731396AbgCCRrj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Mar 2020 12:47:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54554 "EHLO mail.kernel.org"
+        id S1732481AbgCCRyI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Mar 2020 12:54:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35104 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731386AbgCCRri (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Mar 2020 12:47:38 -0500
+        id S1732478AbgCCRyH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Mar 2020 12:54:07 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 86B51208C3;
-        Tue,  3 Mar 2020 17:47:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0C2A62146E;
+        Tue,  3 Mar 2020 17:54:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583257657;
-        bh=debaHDpQh9zHC+jRrxSqoxKPc5OHTt1KzMpfkCF+MGE=;
+        s=default; t=1583258046;
+        bh=RBkE2p+p1wkYJ94iTvM47rJcXwsX+MC8/AcJdXC+qCU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wmmUOsSWa2xjA1Y8TWXRHQNkkjbWGDByvcaPFwkyWlMIbghISXJGpDorVRwIVo39b
-         1TF9Xl0DlbnfI3t9eDgANUXKz5K0bzm3swgr0ZVOhM+G1LFq7YjLSebWiP9UXlYBZw
-         NvjACTdSynx3P/mtlSdqZ4rrMqmW8WEBitopBwwQ=
+        b=rvfc2I6yxx6pAKIXUzAanC4HzDGz+Wqm8cAJlwlzFB5M0/nQ7KN/WX8haHPzHZoue
+         omTmJg0zBCsL4jJzNqyMBL7tNWapsBvLfiRsy8UexfKPqVmjCiyQmpmYX6J6KS4SMc
+         0m8TNsrBkmqH8/kN6GNcZ0fqD9gdAlP34pYGzmjE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Krishnamraju Eraparaju <krishna2@chelsio.com>,
-        Jason Gunthorpe <jgg@mellanox.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 046/176] RDMA/siw: Remove unwanted WARN_ON in siw_cm_llp_data_ready()
-Date:   Tue,  3 Mar 2020 18:41:50 +0100
-Message-Id: <20200303174309.885892242@linuxfoundation.org>
+        stable@vger.kernel.org, Pavel Roskin <plroskin@gmail.com>,
+        Willem de Bruijn <willemb@google.com>,
+        Eric Dumazet <edumazet@google.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.4 013/152] udp: rehash on disconnect
+Date:   Tue,  3 Mar 2020 18:41:51 +0100
+Message-Id: <20200303174304.011342222@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200303174304.593872177@linuxfoundation.org>
-References: <20200303174304.593872177@linuxfoundation.org>
+In-Reply-To: <20200303174302.523080016@linuxfoundation.org>
+References: <20200303174302.523080016@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,65 +45,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krishnamraju Eraparaju <krishna2@chelsio.com>
+From: Willem de Bruijn <willemb@google.com>
 
-[ Upstream commit 663218a3e715fd9339d143a3e10088316b180f4f ]
+[ Upstream commit 303d0403b8c25e994e4a6e45389e173cf8706fb5 ]
 
-Warnings like below can fill up the dmesg while disconnecting RDMA
-connections.
-Hence, remove the unwanted WARN_ON.
+As of the below commit, udp sockets bound to a specific address can
+coexist with one bound to the any addr for the same port.
 
-  WARNING: CPU: 6 PID: 0 at drivers/infiniband/sw/siw/siw_cm.c:1229 siw_cm_llp_data_ready+0xc1/0xd0 [siw]
-  RIP: 0010:siw_cm_llp_data_ready+0xc1/0xd0 [siw]
-  Call Trace:
-   <IRQ>
-   tcp_data_queue+0x226/0xb40
-   tcp_rcv_established+0x220/0x620
-   tcp_v4_do_rcv+0x12a/0x1e0
-   tcp_v4_rcv+0xb05/0xc00
-   ip_local_deliver_finish+0x69/0x210
-   ip_local_deliver+0x6b/0xe0
-   ip_rcv+0x273/0x362
-   __netif_receive_skb_core+0xb35/0xc30
-   netif_receive_skb_internal+0x3d/0xb0
-   napi_gro_frags+0x13b/0x200
-   t4_ethrx_handler+0x433/0x7d0 [cxgb4]
-   process_responses+0x318/0x580 [cxgb4]
-   napi_rx_handler+0x14/0x100 [cxgb4]
-   net_rx_action+0x149/0x3b0
-   __do_softirq+0xe3/0x30a
-   irq_exit+0x100/0x110
-   do_IRQ+0x7f/0xe0
-   common_interrupt+0xf/0xf
-   </IRQ>
+The commit also phased out the use of socket hashing based only on
+port (hslot), in favor of always hashing on {addr, port} (hslot2).
 
-Link: https://lore.kernel.org/r/20200207141429.27927-1-krishna2@chelsio.com
-Signed-off-by: Krishnamraju Eraparaju <krishna2@chelsio.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The change broke the following behavior with disconnect (AF_UNSPEC):
+
+    server binds to 0.0.0.0:1337
+    server connects to 127.0.0.1:80
+    server disconnects
+    client connects to 127.0.0.1:1337
+    client sends "hello"
+    server reads "hello"	// times out, packet did not find sk
+
+On connect the server acquires a specific source addr suitable for
+routing to its destination. On disconnect it reverts to the any addr.
+
+The connect call triggers a rehash to a different hslot2. On
+disconnect, add the same to return to the original hslot2.
+
+Skip this step if the socket is going to be unhashed completely.
+
+Fixes: 4cdeeee9252a ("net: udp: prefer listeners bound to an address")
+Reported-by: Pavel Roskin <plroskin@gmail.com>
+Signed-off-by: Willem de Bruijn <willemb@google.com>
+Reviewed-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/infiniband/sw/siw/siw_cm.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ net/ipv4/udp.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/infiniband/sw/siw/siw_cm.c b/drivers/infiniband/sw/siw/siw_cm.c
-index 3bccfef40e7e1..ac86363ce1a24 100644
---- a/drivers/infiniband/sw/siw/siw_cm.c
-+++ b/drivers/infiniband/sw/siw/siw_cm.c
-@@ -1225,10 +1225,9 @@ static void siw_cm_llp_data_ready(struct sock *sk)
- 	read_lock(&sk->sk_callback_lock);
+--- a/net/ipv4/udp.c
++++ b/net/ipv4/udp.c
+@@ -1856,8 +1856,12 @@ int __udp_disconnect(struct sock *sk, in
+ 	inet->inet_dport = 0;
+ 	sock_rps_reset_rxhash(sk);
+ 	sk->sk_bound_dev_if = 0;
+-	if (!(sk->sk_userlocks & SOCK_BINDADDR_LOCK))
++	if (!(sk->sk_userlocks & SOCK_BINDADDR_LOCK)) {
+ 		inet_reset_saddr(sk);
++		if (sk->sk_prot->rehash &&
++		    (sk->sk_userlocks & SOCK_BINDPORT_LOCK))
++			sk->sk_prot->rehash(sk);
++	}
  
- 	cep = sk_to_cep(sk);
--	if (!cep) {
--		WARN_ON(1);
-+	if (!cep)
- 		goto out;
--	}
-+
- 	siw_dbg_cep(cep, "state: %d\n", cep->state);
- 
- 	switch (cep->state) {
--- 
-2.20.1
-
+ 	if (!(sk->sk_userlocks & SOCK_BINDPORT_LOCK)) {
+ 		sk->sk_prot->unhash(sk);
 
 
