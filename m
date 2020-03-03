@@ -2,46 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F27D178035
-	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 19:59:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7655A177F2D
+	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 19:57:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732700AbgCCRzY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Mar 2020 12:55:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37024 "EHLO mail.kernel.org"
+        id S1731737AbgCCRtJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Mar 2020 12:49:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56354 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732697AbgCCRzY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Mar 2020 12:55:24 -0500
+        id S1731719AbgCCRtF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Mar 2020 12:49:05 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 36FB8206D5;
-        Tue,  3 Mar 2020 17:55:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 521DB20870;
+        Tue,  3 Mar 2020 17:49:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583258123;
-        bh=2/KUVOIHXpR6PaTRaKSVLZOJx88iqvjR1GFeETai+4I=;
+        s=default; t=1583257744;
+        bh=M0CjjTmG0IKFpBkEYG84Jv79xfXbJMIzIS/SxLzWllE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yYMclx6WQscBElvYTl3qhiJ/Sy46x0F1VfMhvh96CVTC+ZfYGjZrg6o9jhCN7bWTU
-         tLWoUUjDX482xsC/hXVXbdFU76/x10IEVwdnZuatpy8hO22yYJk/jAvfVP1A303JzM
-         y35nSRsnFDtvMKQaRhvnXPUKGcgwpcyg7/YMeYqM=
+        b=mGBNfUWjDlhuullnSGsY6AyVHRKtjAtLefH3cbPs/TaIFTOWvbzKwn/IPmH9vedaL
+         q5ma6+67Z1q7+yVni8+pN63ukeiQ6CLyw20T//IEO7IAq9rgLKy38UXlkFIctNhURD
+         JM4+Rtw85sYbibGxLS1juWGPy49ymMMLKDvWzmww=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alex Deucher <alexander.deucher@amd.com>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Hawking Zhang <Hawking.Zhang@amd.com>,
-        Xiaojie Yuan <xiaojie.yuan@amd.com>,
-        Evan Quan <evan.quan@amd.com>,
-        "Tianci.Yin" <tianci.yin@amd.com>,
-        =?UTF-8?q?Marek=20Ol=C5=A1=C3=A1k?= <marek.olsak@amd.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Emil Velikov <emil.velikov@collabora.com>,
-        Daniel Vetter <daniel.vetter@intel.com>
-Subject: [PATCH 5.4 079/152] drm/amdgpu: Drop DRIVER_USE_AGP
+        stable@vger.kernel.org, "H. Nikolaus Schaller" <hns@goldelico.com>,
+        Wolfram Sang <wsa@the-dreams.de>
+Subject: [PATCH 5.5 113/176] i2c: jz4780: silence log flood on txabrt
 Date:   Tue,  3 Mar 2020 18:42:57 +0100
-Message-Id: <20200303174311.499834820@linuxfoundation.org>
+Message-Id: <20200303174317.902833335@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200303174302.523080016@linuxfoundation.org>
-References: <20200303174302.523080016@linuxfoundation.org>
+In-Reply-To: <20200303174304.593872177@linuxfoundation.org>
+References: <20200303174304.593872177@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,53 +43,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Vetter <daniel.vetter@ffwll.ch>
+From: Wolfram Sang <wsa@the-dreams.de>
 
-commit 8a3bddf67ce88b96531fb22c5a75d7f4dc41d155 upstream.
+commit 9e661cedcc0a072d91a32cb88e0515ea26e35711 upstream.
 
-This doesn't do anything except auto-init drm_agp support when you
-call drm_get_pci_dev(). Which amdgpu stopped doing with
+The printout for txabrt is way too talkative and is highly annoying with
+scanning programs like 'i2cdetect'. Reduce it to the minimum, the rest
+can be gained by I2C core debugging and datasheet information. Also,
+make it a debug printout, it won't help the regular user.
 
-commit b58c11314a1706bf094c489ef5cb28f76478c704
-Author: Alex Deucher <alexander.deucher@amd.com>
-Date:   Fri Jun 2 17:16:31 2017 -0400
-
-    drm/amdgpu: drop deprecated drm_get_pci_dev and drm_put_dev
-
-No idea whether this was intentional or accidental breakage, but I
-guess anyone who manages to boot a this modern gpu behind an agp
-bridge deserves a price. A price I never expect anyone to ever collect
-:-)
-
-Cc: Alex Deucher <alexander.deucher@amd.com>
-Cc: "Christian König" <christian.koenig@amd.com>
-Cc: Hawking Zhang <Hawking.Zhang@amd.com>
-Cc: Xiaojie Yuan <xiaojie.yuan@amd.com>
-Cc: Evan Quan <evan.quan@amd.com>
-Cc: "Tianci.Yin" <tianci.yin@amd.com>
-Cc: "Marek Olšák" <marek.olsak@amd.com>
-Cc: Hans de Goede <hdegoede@redhat.com>
-Reviewed-by: Emil Velikov <emil.velikov@collabora.com>
-Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org
+Fixes: ba92222ed63a ("i2c: jz4780: Add i2c bus controller driver for Ingenic JZ4780")
+Reported-by: H. Nikolaus Schaller <hns@goldelico.com>
+Tested-by: H. Nikolaus Schaller <hns@goldelico.com>
+Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/i2c/busses/i2c-jz4780.c |   36 ++----------------------------------
+ 1 file changed, 2 insertions(+), 34 deletions(-)
 
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
-@@ -1421,7 +1421,7 @@ amdgpu_get_crtc_scanout_position(struct
+--- a/drivers/i2c/busses/i2c-jz4780.c
++++ b/drivers/i2c/busses/i2c-jz4780.c
+@@ -73,25 +73,6 @@
+ #define JZ4780_I2C_STA_TFNF		BIT(1)
+ #define JZ4780_I2C_STA_ACT		BIT(0)
  
- static struct drm_driver kms_driver = {
- 	.driver_features =
--	    DRIVER_USE_AGP | DRIVER_ATOMIC |
-+	    DRIVER_ATOMIC |
- 	    DRIVER_GEM |
- 	    DRIVER_RENDER | DRIVER_MODESET | DRIVER_SYNCOBJ,
- 	.load = amdgpu_driver_load_kms,
+-static const char * const jz4780_i2c_abrt_src[] = {
+-	"ABRT_7B_ADDR_NOACK",
+-	"ABRT_10ADDR1_NOACK",
+-	"ABRT_10ADDR2_NOACK",
+-	"ABRT_XDATA_NOACK",
+-	"ABRT_GCALL_NOACK",
+-	"ABRT_GCALL_READ",
+-	"ABRT_HS_ACKD",
+-	"SBYTE_ACKDET",
+-	"ABRT_HS_NORSTRT",
+-	"SBYTE_NORSTRT",
+-	"ABRT_10B_RD_NORSTRT",
+-	"ABRT_MASTER_DIS",
+-	"ARB_LOST",
+-	"SLVFLUSH_TXFIFO",
+-	"SLV_ARBLOST",
+-	"SLVRD_INTX",
+-};
+-
+ #define JZ4780_I2C_INTST_IGC		BIT(11)
+ #define JZ4780_I2C_INTST_ISTT		BIT(10)
+ #define JZ4780_I2C_INTST_ISTP		BIT(9)
+@@ -529,21 +510,8 @@ done:
+ 
+ static void jz4780_i2c_txabrt(struct jz4780_i2c *i2c, int src)
+ {
+-	int i;
+-
+-	dev_err(&i2c->adap.dev, "txabrt: 0x%08x\n", src);
+-	dev_err(&i2c->adap.dev, "device addr=%x\n",
+-		jz4780_i2c_readw(i2c, JZ4780_I2C_TAR));
+-	dev_err(&i2c->adap.dev, "send cmd count:%d  %d\n",
+-		i2c->cmd, i2c->cmd_buf[i2c->cmd]);
+-	dev_err(&i2c->adap.dev, "receive data count:%d  %d\n",
+-		i2c->cmd, i2c->data_buf[i2c->cmd]);
+-
+-	for (i = 0; i < 16; i++) {
+-		if (src & BIT(i))
+-			dev_dbg(&i2c->adap.dev, "I2C TXABRT[%d]=%s\n",
+-				i, jz4780_i2c_abrt_src[i]);
+-	}
++	dev_dbg(&i2c->adap.dev, "txabrt: 0x%08x, cmd: %d, send: %d, recv: %d\n",
++		src, i2c->cmd, i2c->cmd_buf[i2c->cmd], i2c->data_buf[i2c->cmd]);
+ }
+ 
+ static inline int jz4780_i2c_xfer_read(struct jz4780_i2c *i2c,
 
 
