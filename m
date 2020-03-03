@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 012FD177F45
-	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 19:57:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 389CD17808C
+	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 20:00:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729993AbgCCRtm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Mar 2020 12:49:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57028 "EHLO mail.kernel.org"
+        id S1731599AbgCCR5c (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Mar 2020 12:57:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40102 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730096AbgCCRtl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Mar 2020 12:49:41 -0500
+        id S1732772AbgCCR5b (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Mar 2020 12:57:31 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 94ACC20CC7;
-        Tue,  3 Mar 2020 17:49:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F0EAC206D5;
+        Tue,  3 Mar 2020 17:57:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583257781;
-        bh=WqXLuGPjE0OeTW1ZYyh7Wc01TSayOhNRxj7vwyTBiOE=;
+        s=default; t=1583258251;
+        bh=p7OhjitPqPkZxr0MXCzNjNv1tyl0e5vLJ5xugonGZCQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=opLPk/a+A22muGYAqTA9+/Oz/KzvJsIJeP6LkZkyKG31LxVv972quanLqTYyNDCQL
-         KkOp8Us/gH2PnpiAaeb/dGdjdyh8BJZerYw2Yhjq8mO08oJarRqTNOJgR6snaDhlmE
-         V8DbysAuwKDu7rnmcdhfBV1bja4aHywI5Qr6zAXc=
+        b=QOF+FserQLXMOM76j9UQg9IA/GkP3BOu0ibnRAmMJK6PXOnjKJaeBF9t2/Z4DzeB8
+         R1mTPosg3Q9ncujm5pb+8pNl6fTrV/kNyY+HasnrT729H0wu0O38Ra6byU735nmqwr
+         7vftFvXjLEMpu5L/k8EbWfCzEIovRozrlfgGD3tM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christophe Leroy <christophe.leroy@c-s.fr>,
-        Richard Guy Briggs <rgb@redhat.com>,
-        "Erhard F." <erhard_f@mailbox.org>,
-        Nikolay Aleksandrov <nikolay@cumulusnetworks.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.5 126/176] net: netlink: cap max groups which will be considered in netlink_bind()
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Jiri Kosina <jkosina@suse.cz>
+Subject: [PATCH 5.4 092/152] HID: alps: Fix an error handling path in alps_input_configured()
 Date:   Tue,  3 Mar 2020 18:43:10 +0100
-Message-Id: <20200303174319.345137823@linuxfoundation.org>
+Message-Id: <20200303174313.039780753@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200303174304.593872177@linuxfoundation.org>
-References: <20200303174304.593872177@linuxfoundation.org>
+In-Reply-To: <20200303174302.523080016@linuxfoundation.org>
+References: <20200303174302.523080016@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,53 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-commit 3a20773beeeeadec41477a5ba872175b778ff752 upstream.
+commit 8d2e77b39b8fecb794e19cd006a12f90b14dd077 upstream.
 
-Since nl_groups is a u32 we can't bind more groups via ->bind
-(netlink_bind) call, but netlink has supported more groups via
-setsockopt() for a long time and thus nlk->ngroups could be over 32.
-Recently I added support for per-vlan notifications and increased the
-groups to 33 for NETLINK_ROUTE which exposed an old bug in the
-netlink_bind() code causing out-of-bounds access on archs where unsigned
-long is 32 bits via test_bit() on a local variable. Fix this by capping the
-maximum groups in netlink_bind() to BITS_PER_TYPE(u32), effectively
-capping them at 32 which is the minimum of allocated groups and the
-maximum groups which can be bound via netlink_bind().
+They are issues:
+   - if 'input_allocate_device()' fails and return NULL, there is no need
+     to free anything and 'input_free_device()' call is a no-op. It can
+     be axed.
+   - 'ret' is known to be 0 at this point, so we must set it to a
+     meaningful value before returning
 
-CC: Christophe Leroy <christophe.leroy@c-s.fr>
-CC: Richard Guy Briggs <rgb@redhat.com>
-Fixes: 4f520900522f ("netlink: have netlink per-protocol bind function return an error code.")
-Reported-by: Erhard F. <erhard_f@mailbox.org>
-Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 2562756dde55 ("HID: add Alps I2C HID Touchpad-Stick support")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/netlink/af_netlink.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/hid/hid-alps.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/netlink/af_netlink.c
-+++ b/net/netlink/af_netlink.c
-@@ -1014,7 +1014,8 @@ static int netlink_bind(struct socket *s
- 	if (nlk->netlink_bind && groups) {
- 		int group;
- 
--		for (group = 0; group < nlk->ngroups; group++) {
-+		/* nl_groups is a u32, so cap the maximum groups we can bind */
-+		for (group = 0; group < BITS_PER_TYPE(u32); group++) {
- 			if (!test_bit(group, &groups))
- 				continue;
- 			err = nlk->netlink_bind(net, group + 1);
-@@ -1033,7 +1034,7 @@ static int netlink_bind(struct socket *s
- 			netlink_insert(sk, nladdr->nl_pid) :
- 			netlink_autobind(sock);
- 		if (err) {
--			netlink_undo_bind(nlk->ngroups, groups, sk);
-+			netlink_undo_bind(BITS_PER_TYPE(u32), groups, sk);
- 			goto unlock;
+--- a/drivers/hid/hid-alps.c
++++ b/drivers/hid/hid-alps.c
+@@ -730,7 +730,7 @@ static int alps_input_configured(struct
+ 	if (data->has_sp) {
+ 		input2 = input_allocate_device();
+ 		if (!input2) {
+-			input_free_device(input2);
++			ret = -ENOMEM;
+ 			goto exit;
  		}
- 	}
+ 
 
 
