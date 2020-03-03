@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2526C177F5D
-	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 19:57:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 02FF8177F61
+	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 19:57:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731882AbgCCRuV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Mar 2020 12:50:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57992 "EHLO mail.kernel.org"
+        id S1731897AbgCCRuY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Mar 2020 12:50:24 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58020 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731877AbgCCRuV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Mar 2020 12:50:21 -0500
+        id S1731893AbgCCRuX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Mar 2020 12:50:23 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4426F20870;
-        Tue,  3 Mar 2020 17:50:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BE641208C3;
+        Tue,  3 Mar 2020 17:50:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583257820;
-        bh=l9CFylLqPON1mile2tiWuTqeLDK0DsuxtM5g8bUvRt4=;
+        s=default; t=1583257823;
+        bh=mUqj1wUk/cnaZs6KUcmNgyIVNiPw2nm7mH9rZ9Vfw/Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ccj2JU3ygEuH2UKaoKJbjJ3qmPkXAev9TM/ebZMf+xTRG31qe2l6rQ0YS3wdzkk+p
-         iqbdorihLec98qkdk5BNL0J/B7RccvS1WTLHhDBsqt4r9rgKDPb3kas4x4mpzmbiPK
-         BlVKv7CPDGT4cYrpflUEOtObTa1T7QohDQoMZlkA=
+        b=FlxDtlVFjVZ/4bzJUVOzeqs+2W1UVhocl32KPCSWDLIlTHnfiA2s7cGniby0SgYXc
+         p7hJDi9DQRcDDGYVNqcBovWDgKnPAgbyEYP/Zvz0M/8Ses6bfTFA4ppQL8/sC5r5JO
+         jIj7yeJ6FKlx8i59EjwTrwe02Ci4urtGePiRpIu4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jim Mattson <jmattson@google.com>,
-        Andrew Honig <ahonig@google.com>,
-        Sean Christopherson <sean.j.christopherson@intel.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.5 142/176] KVM: Check for a bad hva before dropping into the ghc slow path
-Date:   Tue,  3 Mar 2020 18:43:26 +0100
-Message-Id: <20200303174321.201234613@linuxfoundation.org>
+        stable@vger.kernel.org, Cheng Jian <cj.chengjian@huawei.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Srikar Dronamraju <srikar@linux.vnet.ibm.com>,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        Valentin Schneider <valentin.schneider@arm.com>
+Subject: [PATCH 5.5 143/176] sched/fair: Optimize select_idle_cpu
+Date:   Tue,  3 Mar 2020 18:43:27 +0100
+Message-Id: <20200303174321.300181988@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200303174304.593872177@linuxfoundation.org>
 References: <20200303174304.593872177@linuxfoundation.org>
@@ -45,77 +46,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <sean.j.christopherson@intel.com>
+From: Cheng Jian <cj.chengjian@huawei.com>
 
-commit fcfbc617547fc6d9552cb6c1c563b6a90ee98085 upstream.
+commit 60588bfa223ff675b95f866249f90616613fbe31 upstream.
 
-When reading/writing using the guest/host cache, check for a bad hva
-before checking for a NULL memslot, which triggers the slow path for
-handing cross-page accesses.  Because the memslot is nullified on error
-by __kvm_gfn_to_hva_cache_init(), if the bad hva is encountered after
-crossing into a new page, then the kvm_{read,write}_guest() slow path
-could potentially write/access the first chunk prior to detecting the
-bad hva.
+select_idle_cpu() will scan the LLC domain for idle CPUs,
+it's always expensive. so the next commit :
 
-Arguably, performing a partial access is semantically correct from an
-architectural perspective, but that behavior is certainly not intended.
-In the original implementation, memslot was not explicitly nullified
-and therefore the partial access behavior varied based on whether the
-memslot itself was null, or if the hva was simply bad.  The current
-behavior was introduced as a seemingly unintentional side effect in
-commit f1b9dd5eb86c ("kvm: Disallow wraparound in
-kvm_gfn_to_hva_cache_init"), which justified the change with "since some
-callers don't check the return code from this function, it sit seems
-prudent to clear ghc->memslot in the event of an error".
+	1ad3aaf3fcd2 ("sched/core: Implement new approach to scale select_idle_cpu()")
 
-Regardless of intent, the partial access is dependent on _not_ checking
-the result of the cache initialization, which is arguably a bug in its
-own right, at best simply weird.
+introduces a way to limit how many CPUs we scan.
 
-Fixes: 8f964525a121 ("KVM: Allow cross page reads and writes from cached translations.")
-Cc: Jim Mattson <jmattson@google.com>
-Cc: Andrew Honig <ahonig@google.com>
-Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+But it consume some CPUs out of 'nr' that are not allowed
+for the task and thus waste our attempts. The function
+always return nr_cpumask_bits, and we can't find a CPU
+which our task is allowed to run.
+
+Cpumask may be too big, similar to select_idle_core(), use
+per_cpu_ptr 'select_idle_mask' to prevent stack overflow.
+
+Fixes: 1ad3aaf3fcd2 ("sched/core: Implement new approach to scale select_idle_cpu()")
+Signed-off-by: Cheng Jian <cj.chengjian@huawei.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Srikar Dronamraju <srikar@linux.vnet.ibm.com>
+Reviewed-by: Vincent Guittot <vincent.guittot@linaro.org>
+Reviewed-by: Valentin Schneider <valentin.schneider@arm.com>
+Link: https://lkml.kernel.org/r/20191213024530.28052-1-cj.chengjian@huawei.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- virt/kvm/kvm_main.c |   12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ kernel/sched/fair.c |    7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
---- a/virt/kvm/kvm_main.c
-+++ b/virt/kvm/kvm_main.c
-@@ -2287,12 +2287,12 @@ int kvm_write_guest_offset_cached(struct
- 	if (slots->generation != ghc->generation)
- 		__kvm_gfn_to_hva_cache_init(slots, ghc, ghc->gpa, ghc->len);
+--- a/kernel/sched/fair.c
++++ b/kernel/sched/fair.c
+@@ -5828,6 +5828,7 @@ static inline int select_idle_smt(struct
+  */
+ static int select_idle_cpu(struct task_struct *p, struct sched_domain *sd, int target)
+ {
++	struct cpumask *cpus = this_cpu_cpumask_var_ptr(select_idle_mask);
+ 	struct sched_domain *this_sd;
+ 	u64 avg_cost, avg_idle;
+ 	u64 time, cost;
+@@ -5859,11 +5860,11 @@ static int select_idle_cpu(struct task_s
  
--	if (unlikely(!ghc->memslot))
--		return kvm_write_guest(kvm, gpa, data, len);
--
- 	if (kvm_is_error_hva(ghc->hva))
- 		return -EFAULT;
+ 	time = cpu_clock(this);
  
-+	if (unlikely(!ghc->memslot))
-+		return kvm_write_guest(kvm, gpa, data, len);
+-	for_each_cpu_wrap(cpu, sched_domain_span(sd), target) {
++	cpumask_and(cpus, sched_domain_span(sd), p->cpus_ptr);
 +
- 	r = __copy_to_user((void __user *)ghc->hva + offset, data, len);
- 	if (r)
- 		return -EFAULT;
-@@ -2320,12 +2320,12 @@ int kvm_read_guest_cached(struct kvm *kv
- 	if (slots->generation != ghc->generation)
- 		__kvm_gfn_to_hva_cache_init(slots, ghc, ghc->gpa, ghc->len);
- 
--	if (unlikely(!ghc->memslot))
--		return kvm_read_guest(kvm, ghc->gpa, data, len);
--
- 	if (kvm_is_error_hva(ghc->hva))
- 		return -EFAULT;
- 
-+	if (unlikely(!ghc->memslot))
-+		return kvm_read_guest(kvm, ghc->gpa, data, len);
-+
- 	r = __copy_from_user(data, (void __user *)ghc->hva, len);
- 	if (r)
- 		return -EFAULT;
++	for_each_cpu_wrap(cpu, cpus, target) {
+ 		if (!--nr)
+ 			return si_cpu;
+-		if (!cpumask_test_cpu(cpu, p->cpus_ptr))
+-			continue;
+ 		if (available_idle_cpu(cpu))
+ 			break;
+ 		if (si_cpu == -1 && sched_idle_cpu(cpu))
 
 
