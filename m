@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 72666177F0D
-	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 19:57:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AA439178017
+	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 19:59:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730480AbgCCRs1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Mar 2020 12:48:27 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55558 "EHLO mail.kernel.org"
+        id S1732544AbgCCRyi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Mar 2020 12:54:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35828 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731657AbgCCRs1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Mar 2020 12:48:27 -0500
+        id S1732178AbgCCRyh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Mar 2020 12:54:37 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 38767208C3;
-        Tue,  3 Mar 2020 17:48:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B7EF52146E;
+        Tue,  3 Mar 2020 17:54:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583257705;
-        bh=/fUNwf/vztwTSEohLnloV9eTLI537OBCYIVodXwIu6Y=;
+        s=default; t=1583258077;
+        bh=8ITaZFZgUihDSQO1mZwt+UkaagCefQ1Nx1g4etIaBuU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SMPuKDTNZTR9o+IXEIcVcUXx06DdoKL4iKr3Tz4ld2fhGqCQKJLM5Xaqy+Z7WkKSR
-         zJo7sfA8Wxkapkz5v5COv/TQ7hxurlNX7OpCjng7DvmBjazTfMyy6JIzzbyrZ1dRee
-         YMz5fNeXDjmHX44kNymiJ7vXlFbTmJQfSzhVtbhg=
+        b=vlGkQbCGU4GAV1dQHsWquTdafzp36tHZsb30ppOrRI3lidqjWDYSAZXGC8x+jbZ3a
+         ponVCealLZ4kegCfZXb7KQQ7D8FN5RkUe0/H6Ts9MeZ5qGFqmav9kG2BCJJdhuZY/K
+         ondn0Z1Qe8NgZMLf5CGiXcKXipANU9X7a2BrDJpY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 5.5 097/176] tracing: Disable trace_printk() on post poned tests
+        Sergey Matyukevich <sergey.matyukevich.os@quantenna.com>,
+        Johannes Berg <johannes.berg@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 063/152] cfg80211: add missing policy for NL80211_ATTR_STATUS_CODE
 Date:   Tue,  3 Mar 2020 18:42:41 +0100
-Message-Id: <20200303174316.051529563@linuxfoundation.org>
+Message-Id: <20200303174309.611895497@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200303174304.593872177@linuxfoundation.org>
-References: <20200303174304.593872177@linuxfoundation.org>
+In-Reply-To: <20200303174302.523080016@linuxfoundation.org>
+References: <20200303174302.523080016@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,51 +45,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Rostedt (VMware) <rostedt@goodmis.org>
+From: Sergey Matyukevich <sergey.matyukevich.os@quantenna.com>
 
-commit 78041c0c9e935d9ce4086feeff6c569ed88ddfd4 upstream.
+[ Upstream commit ea75080110a4c1fa011b0a73cb8f42227143ee3e ]
 
-The tracing seftests checks various aspects of the tracing infrastructure,
-and one is filtering. If trace_printk() is active during a self test, it can
-cause the filtering to fail, which will disable that part of the trace.
+The nl80211_policy is missing for NL80211_ATTR_STATUS_CODE attribute.
+As a result, for strictly validated commands, it's assumed to not be
+supported.
 
-To keep the selftests from failing because of trace_printk() calls,
-trace_printk() checks the variable tracing_selftest_running, and if set, it
-does not write to the tracing buffer.
-
-As some tracers were registered earlier in boot, the selftest they triggered
-would fail because not all the infrastructure was set up for the full
-selftest. Thus, some of the tests were post poned to when their
-infrastructure was ready (namely file system code). The postpone code did
-not set the tracing_seftest_running variable, and could fail if a
-trace_printk() was added and executed during their run.
-
-Cc: stable@vger.kernel.org
-Fixes: 9afecfbb95198 ("tracing: Postpone tracer start-up tests till the system is more robust")
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Sergey Matyukevich <sergey.matyukevich.os@quantenna.com>
+Link: https://lore.kernel.org/r/20200213131608.10541-2-sergey.matyukevich.os@quantenna.com
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/trace/trace.c |    2 ++
- 1 file changed, 2 insertions(+)
+ net/wireless/nl80211.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/kernel/trace/trace.c
-+++ b/kernel/trace/trace.c
-@@ -1827,6 +1827,7 @@ static __init int init_trace_selftests(v
- 
- 	pr_info("Running postponed tracer tests:\n");
- 
-+	tracing_selftest_running = true;
- 	list_for_each_entry_safe(p, n, &postponed_selftests, list) {
- 		/* This loop can take minutes when sanitizers are enabled, so
- 		 * lets make sure we allow RCU processing.
-@@ -1849,6 +1850,7 @@ static __init int init_trace_selftests(v
- 		list_del(&p->list);
- 		kfree(p);
- 	}
-+	tracing_selftest_running = false;
- 
-  out:
- 	mutex_unlock(&trace_types_lock);
+diff --git a/net/wireless/nl80211.c b/net/wireless/nl80211.c
+index c74646b7a751f..1930513f541e1 100644
+--- a/net/wireless/nl80211.c
++++ b/net/wireless/nl80211.c
+@@ -437,6 +437,7 @@ const struct nla_policy nl80211_policy[NUM_NL80211_ATTR] = {
+ 	[NL80211_ATTR_CONTROL_PORT_NO_ENCRYPT] = { .type = NLA_FLAG },
+ 	[NL80211_ATTR_CONTROL_PORT_OVER_NL80211] = { .type = NLA_FLAG },
+ 	[NL80211_ATTR_PRIVACY] = { .type = NLA_FLAG },
++	[NL80211_ATTR_STATUS_CODE] = { .type = NLA_U16 },
+ 	[NL80211_ATTR_CIPHER_SUITE_GROUP] = { .type = NLA_U32 },
+ 	[NL80211_ATTR_WPA_VERSIONS] = { .type = NLA_U32 },
+ 	[NL80211_ATTR_PID] = { .type = NLA_U32 },
+-- 
+2.20.1
+
 
 
