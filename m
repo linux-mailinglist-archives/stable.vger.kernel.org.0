@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 05CE9176D1A
-	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 04:01:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 892F1176D15
+	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 04:01:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727882AbgCCCrH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Mar 2020 21:47:07 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41908 "EHLO mail.kernel.org"
+        id S1727900AbgCCCrJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Mar 2020 21:47:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41924 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727877AbgCCCrG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Mar 2020 21:47:06 -0500
+        id S1727883AbgCCCrI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Mar 2020 21:47:08 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4CBA6246E6;
-        Tue,  3 Mar 2020 02:47:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 73C1924684;
+        Tue,  3 Mar 2020 02:47:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583203626;
-        bh=nX5bWBPqLt3t+hgTg/LTALr6uiPwfRRzf47WjUvO1uo=;
+        s=default; t=1583203627;
+        bh=k1YJFRpqWZr/RQKoQR1pqK8QgRDaZ/e+DAJMuHQUrEw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gxmPc87nzB98WE/4Rgvuk8l8WaMLpJfg6turTWTo7rI1lBsbcf/GZieTEKDSVuXVv
-         MgIfmmXnaNMI1ERxre2glv8gLqz3IIQKauN+jinyKu99nnPHcD0uXyHE1youVhEQLR
-         YIXYFoG2Hwgfx397SCch7HBjaAPtyDvpUqqWf1yw=
+        b=FT4yvANRzMFJcIggJZLoVuUWSMb8xUoggphYVQlTEv4oKjBWwE87rRz6Q8nZUWgIY
+         qiWISGoY+L/JFtUHHOlouRCz0sDoWswPo1V2AbAwsIsM4qPUgsoLlpx3PHU2oMFmOF
+         75eYiTWVRDZMnU6KlBr1b/emL6pESYb2e31/5wYU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Horatiu Vultur <horatiu.vultur@microchip.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.5 40/66] net: mscc: fix in frame extraction
-Date:   Mon,  2 Mar 2020 21:45:49 -0500
-Message-Id: <20200303024615.8889-40-sashal@kernel.org>
+Cc:     Javier Martinez Canillas <javierm@redhat.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Mimi Zohar <zohar@linux.ibm.com>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-security-module@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.5 41/66] efi: Only print errors about failing to get certs if EFI vars are found
+Date:   Mon,  2 Mar 2020 21:45:50 -0500
+Message-Id: <20200303024615.8889-41-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200303024615.8889-1-sashal@kernel.org>
 References: <20200303024615.8889-1-sashal@kernel.org>
@@ -44,53 +46,132 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Horatiu Vultur <horatiu.vultur@microchip.com>
+From: Javier Martinez Canillas <javierm@redhat.com>
 
-[ Upstream commit a81541041ceb55bcec9a8bb8ad3482263f0a205a ]
+[ Upstream commit 3be54d558c75562e42bc83d665df024bd79d399b ]
 
-Each extracted frame on Ocelot has an IFH. The frame and IFH are extracted
-by reading chuncks of 4 bytes from a register.
+If CONFIG_LOAD_UEFI_KEYS is enabled, the kernel attempts to load the certs
+from the db, dbx and MokListRT EFI variables into the appropriate keyrings.
 
-In case the IFH and frames were read corretly it would try to read the next
-frame. In case there are no more frames in the queue, it checks if there
-were any previous errors and in that case clear the queue. But this check
-will always succeed also when there are no errors. Because when extracting
-the IFH the error is checked against 4(number of bytes read) and then the
-error is set only if the extraction of the frame failed. So in a happy case
-where there are no errors the err variable is still 4. So it could be
-a case where after the check that there are no more frames in the queue, a
-frame will arrive in the queue but because the error is not reseted, it
-would try to flush the queue. So the frame will be lost.
+But it just assumes that the variables will be present and prints an error
+if the certs can't be loaded, even when is possible that the variables may
+not exist. For example the MokListRT variable will only be present if shim
+is used.
 
-The fix consist in resetting the error after reading the IFH.
+So only print an error message about failing to get the certs list from an
+EFI variable if this is found. Otherwise these printed errors just pollute
+the kernel log ring buffer with confusing messages like the following:
 
-Signed-off-by: Horatiu Vultur <horatiu.vultur@microchip.com>
-Acked-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+[    5.427251] Couldn't get size: 0x800000000000000e
+[    5.427261] MODSIGN: Couldn't get UEFI db list
+[    5.428012] Couldn't get size: 0x800000000000000e
+[    5.428023] Couldn't get UEFI MokListRT
+
+Reported-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Javier Martinez Canillas <javierm@redhat.com>
+Tested-by: Hans de Goede <hdegoede@redhat.com>
+Acked-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mscc/ocelot_board.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ security/integrity/platform_certs/load_uefi.c | 40 ++++++++++++-------
+ 1 file changed, 26 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/net/ethernet/mscc/ocelot_board.c b/drivers/net/ethernet/mscc/ocelot_board.c
-index 2da8eee27e985..ecbd4be145b85 100644
---- a/drivers/net/ethernet/mscc/ocelot_board.c
-+++ b/drivers/net/ethernet/mscc/ocelot_board.c
-@@ -114,6 +114,14 @@ static irqreturn_t ocelot_xtr_irq_handler(int irq, void *arg)
- 		if (err != 4)
- 			break;
+diff --git a/security/integrity/platform_certs/load_uefi.c b/security/integrity/platform_certs/load_uefi.c
+index 111898aad56e4..f0c908241966a 100644
+--- a/security/integrity/platform_certs/load_uefi.c
++++ b/security/integrity/platform_certs/load_uefi.c
+@@ -35,16 +35,18 @@ static __init bool uefi_check_ignore_db(void)
+  * Get a certificate list blob from the named EFI variable.
+  */
+ static __init void *get_cert_list(efi_char16_t *name, efi_guid_t *guid,
+-				  unsigned long *size)
++				  unsigned long *size, efi_status_t *status)
+ {
+-	efi_status_t status;
+ 	unsigned long lsize = 4;
+ 	unsigned long tmpdb[4];
+ 	void *db;
  
-+		/* At this point the IFH was read correctly, so it is safe to
-+		 * presume that there is no error. The err needs to be reset
-+		 * otherwise a frame could come in CPU queue between the while
-+		 * condition and the check for error later on. And in that case
-+		 * the new frame is just removed and not processed.
-+		 */
-+		err = 0;
+-	status = efi.get_variable(name, guid, NULL, &lsize, &tmpdb);
+-	if (status != EFI_BUFFER_TOO_SMALL) {
+-		pr_err("Couldn't get size: 0x%lx\n", status);
++	*status = efi.get_variable(name, guid, NULL, &lsize, &tmpdb);
++	if (*status == EFI_NOT_FOUND)
++		return NULL;
 +
- 		ocelot_parse_ifh(ifh, &info);
++	if (*status != EFI_BUFFER_TOO_SMALL) {
++		pr_err("Couldn't get size: 0x%lx\n", *status);
+ 		return NULL;
+ 	}
  
- 		ocelot_port = ocelot->ports[info.port];
+@@ -52,10 +54,10 @@ static __init void *get_cert_list(efi_char16_t *name, efi_guid_t *guid,
+ 	if (!db)
+ 		return NULL;
+ 
+-	status = efi.get_variable(name, guid, NULL, &lsize, db);
+-	if (status != EFI_SUCCESS) {
++	*status = efi.get_variable(name, guid, NULL, &lsize, db);
++	if (*status != EFI_SUCCESS) {
+ 		kfree(db);
+-		pr_err("Error reading db var: 0x%lx\n", status);
++		pr_err("Error reading db var: 0x%lx\n", *status);
+ 		return NULL;
+ 	}
+ 
+@@ -74,6 +76,7 @@ static int __init load_uefi_certs(void)
+ 	efi_guid_t mok_var = EFI_SHIM_LOCK_GUID;
+ 	void *db = NULL, *dbx = NULL, *mok = NULL;
+ 	unsigned long dbsize = 0, dbxsize = 0, moksize = 0;
++	efi_status_t status;
+ 	int rc = 0;
+ 
+ 	if (!efi.get_variable)
+@@ -83,9 +86,12 @@ static int __init load_uefi_certs(void)
+ 	 * an error if we can't get them.
+ 	 */
+ 	if (!uefi_check_ignore_db()) {
+-		db = get_cert_list(L"db", &secure_var, &dbsize);
++		db = get_cert_list(L"db", &secure_var, &dbsize, &status);
+ 		if (!db) {
+-			pr_err("MODSIGN: Couldn't get UEFI db list\n");
++			if (status == EFI_NOT_FOUND)
++				pr_debug("MODSIGN: db variable wasn't found\n");
++			else
++				pr_err("MODSIGN: Couldn't get UEFI db list\n");
+ 		} else {
+ 			rc = parse_efi_signature_list("UEFI:db",
+ 					db, dbsize, get_handler_for_db);
+@@ -96,9 +102,12 @@ static int __init load_uefi_certs(void)
+ 		}
+ 	}
+ 
+-	mok = get_cert_list(L"MokListRT", &mok_var, &moksize);
++	mok = get_cert_list(L"MokListRT", &mok_var, &moksize, &status);
+ 	if (!mok) {
+-		pr_info("Couldn't get UEFI MokListRT\n");
++		if (status == EFI_NOT_FOUND)
++			pr_debug("MokListRT variable wasn't found\n");
++		else
++			pr_info("Couldn't get UEFI MokListRT\n");
+ 	} else {
+ 		rc = parse_efi_signature_list("UEFI:MokListRT",
+ 					      mok, moksize, get_handler_for_db);
+@@ -107,9 +116,12 @@ static int __init load_uefi_certs(void)
+ 		kfree(mok);
+ 	}
+ 
+-	dbx = get_cert_list(L"dbx", &secure_var, &dbxsize);
++	dbx = get_cert_list(L"dbx", &secure_var, &dbxsize, &status);
+ 	if (!dbx) {
+-		pr_info("Couldn't get UEFI dbx list\n");
++		if (status == EFI_NOT_FOUND)
++			pr_debug("dbx variable wasn't found\n");
++		else
++			pr_info("Couldn't get UEFI dbx list\n");
+ 	} else {
+ 		rc = parse_efi_signature_list("UEFI:dbx",
+ 					      dbx, dbxsize,
 -- 
 2.20.1
 
