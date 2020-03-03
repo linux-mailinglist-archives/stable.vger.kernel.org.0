@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1087A177EFB
-	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 19:57:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C0B817804A
+	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 19:59:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731472AbgCCRsD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Mar 2020 12:48:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55086 "EHLO mail.kernel.org"
+        id S1732793AbgCCRzy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Mar 2020 12:55:54 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37830 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731467AbgCCRsD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Mar 2020 12:48:03 -0500
+        id S1732791AbgCCRzx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Mar 2020 12:55:53 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 58356208C3;
-        Tue,  3 Mar 2020 17:48:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BCF2B20728;
+        Tue,  3 Mar 2020 17:55:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583257682;
-        bh=Hy9PLlmZMMPadw1NsN8OeCnjgORIV/x3n6mrO8Osh3c=;
+        s=default; t=1583258153;
+        bh=0H7zd2fm3yBoPSOT5TXSvbCR26pgmFzavbvMTKWqxQA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wLrRBJ04DhEgI7anEOo+j9yt90/SE0cyUZEqVUCTanV48PCav44guH3miEBiPjLNj
-         wugUat/DOSK2yJY7uM8g0yqQvvB6mVQqKp4Y15ZvfhGg5+8zkeZhWNwE88Hn1p1LNs
-         7wgKmCaFOXBXhWiZfHvgb7G4bDkfwsfxX9HnrbA8=
+        b=EpdOOyKoIZ0Ms64nP0Kii3z6OO5wgzu87mEos/dLN+S/U6asak8lcRySgYoytzz5B
+         mx8/J+NlMbxCnnoi3gfYaqeOKoucSciJJCjrPii/8RExCB7FgcWVGhqAq1lm0FdgrX
+         sN0NtugYe2xgKeoHxzrrFWynpit3ExKifaSG19qA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jan Kiszka <jan.kiszka@web.de>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Jim Mattson <jmattson@google.com>,
-        Oliver Upton <oupton@google.com>
-Subject: [PATCH 5.5 089/176] KVM: VMX: check descriptor table exits on instruction emulation
+        stable@vger.kernel.org, Sameeh Jubran <sameehj@amazon.com>,
+        Arthur Kiyanovski <akiyano@amazon.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 055/152] net: ena: rss: store hash function as values and not bits
 Date:   Tue,  3 Mar 2020 18:42:33 +0100
-Message-Id: <20200303174315.073238909@linuxfoundation.org>
+Message-Id: <20200303174308.695700387@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200303174304.593872177@linuxfoundation.org>
-References: <20200303174304.593872177@linuxfoundation.org>
+In-Reply-To: <20200303174302.523080016@linuxfoundation.org>
+References: <20200303174302.523080016@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,61 +45,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oliver Upton <oupton@google.com>
+From: Arthur Kiyanovski <akiyano@amazon.com>
 
-commit 86f7e90ce840aa1db407d3ea6e9b3a52b2ce923c upstream.
+[ Upstream commit 4844470d472d660c26149ad764da2406adb13423 ]
 
-KVM emulates UMIP on hardware that doesn't support it by setting the
-'descriptor table exiting' VM-execution control and performing
-instruction emulation. When running nested, this emulation is broken as
-KVM refuses to emulate L2 instructions by default.
+The device receives, stores and retrieves the hash function value as bits
+and not as their enum value.
 
-Correct this regression by allowing the emulation of descriptor table
-instructions if L1 hasn't requested 'descriptor table exiting'.
+The bug:
+* In ena_com_set_hash_function() we set
+  cmd.u.flow_hash_func.selected_func to the bit value of rss->hash_func.
+ (1 << rss->hash_func)
+* In ena_com_get_hash_function() we retrieve the hash function and store
+  it's bit value in rss->hash_func. (Now the bit value of rss->hash_func
+  is stored in rss->hash_func instead of it's enum value)
 
-Fixes: 07721feee46b ("KVM: nVMX: Don't emulate instructions in guest mode")
-Reported-by: Jan Kiszka <jan.kiszka@web.de>
-Cc: stable@vger.kernel.org
-Cc: Paolo Bonzini <pbonzini@redhat.com>
-Cc: Jim Mattson <jmattson@google.com>
-Signed-off-by: Oliver Upton <oupton@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+The fix:
+This commit fixes the issue by converting the retrieved hash function
+values from the device to the matching enum value of the set bit using
+ffs(). ffs() finds the first set bit's index in a word. Since the function
+returns 1 for the LSB's index, we need to subtract 1 from the returned
+value (note that BIT(0) is 1).
 
+Fixes: 1738cd3ed342 ("net: ena: Add a driver for Amazon Elastic Network Adapters (ENA)")
+Signed-off-by: Sameeh Jubran <sameehj@amazon.com>
+Signed-off-by: Arthur Kiyanovski <akiyano@amazon.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/vmx/vmx.c |   15 +++++++++++++++
- 1 file changed, 15 insertions(+)
+ drivers/net/ethernet/amazon/ena/ena_com.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/arch/x86/kvm/vmx/vmx.c
-+++ b/arch/x86/kvm/vmx/vmx.c
-@@ -7179,6 +7179,7 @@ static int vmx_check_intercept_io(struct
- 	else
- 		intercept = nested_vmx_check_io_bitmaps(vcpu, port, size);
+diff --git a/drivers/net/ethernet/amazon/ena/ena_com.c b/drivers/net/ethernet/amazon/ena/ena_com.c
+index 6f758ece86f60..8ab192cb26b74 100644
+--- a/drivers/net/ethernet/amazon/ena/ena_com.c
++++ b/drivers/net/ethernet/amazon/ena/ena_com.c
+@@ -2370,7 +2370,11 @@ int ena_com_get_hash_function(struct ena_com_dev *ena_dev,
+ 	if (unlikely(rc))
+ 		return rc;
  
-+	/* FIXME: produce nested vmexit and return X86EMUL_INTERCEPTED.  */
- 	return intercept ? X86EMUL_UNHANDLEABLE : X86EMUL_CONTINUE;
- }
- 
-@@ -7208,6 +7209,20 @@ static int vmx_check_intercept(struct kv
- 	case x86_intercept_outs:
- 		return vmx_check_intercept_io(vcpu, info);
- 
-+	case x86_intercept_lgdt:
-+	case x86_intercept_lidt:
-+	case x86_intercept_lldt:
-+	case x86_intercept_ltr:
-+	case x86_intercept_sgdt:
-+	case x86_intercept_sidt:
-+	case x86_intercept_sldt:
-+	case x86_intercept_str:
-+		if (!nested_cpu_has2(vmcs12, SECONDARY_EXEC_DESC))
-+			return X86EMUL_CONTINUE;
+-	rss->hash_func = get_resp.u.flow_hash_func.selected_func;
++	/* ffs() returns 1 in case the lsb is set */
++	rss->hash_func = ffs(get_resp.u.flow_hash_func.selected_func);
++	if (rss->hash_func)
++		rss->hash_func--;
 +
-+		/* FIXME: produce nested vmexit and return X86EMUL_INTERCEPTED.  */
-+		break;
-+
- 	/* TODO: check more intercepts... */
- 	default:
- 		break;
+ 	if (func)
+ 		*func = rss->hash_func;
+ 
+-- 
+2.20.1
+
 
 
