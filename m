@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EC304176B55
-	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 03:50:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0FFDB176BF0
+	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 03:54:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728300AbgCCCta (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Mar 2020 21:49:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45730 "EHLO mail.kernel.org"
+        id S1728902AbgCCCtf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Mar 2020 21:49:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45756 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728895AbgCCCta (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Mar 2020 21:49:30 -0500
+        id S1727411AbgCCCtb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Mar 2020 21:49:31 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DC64E24684;
-        Tue,  3 Mar 2020 02:49:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2DAB8246D9;
+        Tue,  3 Mar 2020 02:49:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583203769;
-        bh=gEpI/WZAhYT91gRr4vJsYerumiMWnUy/i4/TlfwAmcY=;
+        s=default; t=1583203770;
+        bh=tC+0mgyKlaDMK7CzaUFh/QCiLjvwuX5zo5jMipSCH+Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oDuVka1+F6KegRBwepafRVOZkgCK05HOBXr7yeXHhWk4tdHkmOH/KywqRb2x/kmUx
-         n3zYItt9QCmpwOI79NO3fY6fLku4jYMwZFj1ELYCEb5r0sdbNeiV+O/18FBoAxujX0
-         hQQ3qCbZ68oQVoyf3LBIiPXmya/p1DYDm52PRKA0=
+        b=uli42UocBv7U56sPIcjxz7JF/AaaTUZDPOumzyhgMdkDEm2P78V0+vJePC3Xz0w+D
+         vwAh+chdZSenolL/RK+EASihmNl3jiaZk89N0L3GsuVHB0oHt9/WU6OyWiDbpy+aQS
+         k7sIZsOQo5a55yi4pWkwy36lr4jp7jp6E+7gCsis=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Kees Cook <keescook@chromium.org>, Juergen Gross <jgross@suse.com>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-        Sasha Levin <sashal@kernel.org>,
-        xen-devel@lists.xenproject.org, clang-built-linux@googlegroups.com
-Subject: [PATCH AUTOSEL 4.19 30/32] x86/xen: Distribute switch variables for initialization
-Date:   Mon,  2 Mar 2020 21:48:49 -0500
-Message-Id: <20200303024851.10054-30-sashal@kernel.org>
+Cc:     Alexandra Winter <wintera@linux.ibm.com>,
+        Julian Wiedmann <jwi@linux.ibm.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 31/32] s390/qeth: vnicc Fix EOPNOTSUPP precedence
+Date:   Mon,  2 Mar 2020 21:48:50 -0500
+Message-Id: <20200303024851.10054-31-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200303024851.10054-1-sashal@kernel.org>
 References: <20200303024851.10054-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -45,64 +44,108 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Alexandra Winter <wintera@linux.ibm.com>
 
-[ Upstream commit 9038ec99ceb94fb8d93ade5e236b2928f0792c7c ]
+[ Upstream commit 6f3846f0955308b6d1b219419da42b8de2c08845 ]
 
-Variables declared in a switch statement before any case statements
-cannot be automatically initialized with compiler instrumentation (as
-they are not part of any execution flow). With GCC's proposed automatic
-stack variable initialization feature, this triggers a warning (and they
-don't get initialized). Clang's automatic stack variable initialization
-(via CONFIG_INIT_STACK_ALL=y) doesn't throw a warning, but it also
-doesn't initialize such variables[1]. Note that these warnings (or silent
-skipping) happen before the dead-store elimination optimization phase,
-so even when the automatic initializations are later elided in favor of
-direct initializations, the warnings remain.
+When getting or setting VNICC parameters, the error code EOPNOTSUPP
+should have precedence over EBUSY.
 
-To avoid these problems, move such variables into the "case" where
-they're used or lift them up into the main function body.
+EBUSY is used because vnicc feature and bridgeport feature are mutually
+exclusive, which is a temporary condition.
+Whereas EOPNOTSUPP indicates that the HW does not support all or parts of
+the vnicc feature.
+This issue causes the vnicc sysfs params to show 'blocked by bridgeport'
+for HW that does not support VNICC at all.
 
-arch/x86/xen/enlighten_pv.c: In function ‘xen_write_msr_safe’:
-arch/x86/xen/enlighten_pv.c:904:12: warning: statement will never be executed [-Wswitch-unreachable]
-  904 |   unsigned which;
-      |            ^~~~~
-
-[1] https://bugs.llvm.org/show_bug.cgi?id=44916
-
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Link: https://lore.kernel.org/r/20200220062318.69299-1-keescook@chromium.org
-Reviewed-by: Juergen Gross <jgross@suse.com>
-[boris: made @which an 'unsigned int']
-Signed-off-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Fixes: caa1f0b10d18 ("s390/qeth: add VNICC enable/disable support")
+Signed-off-by: Alexandra Winter <wintera@linux.ibm.com>
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/xen/enlighten_pv.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/s390/net/qeth_l2_main.c | 29 +++++++++++++----------------
+ 1 file changed, 13 insertions(+), 16 deletions(-)
 
-diff --git a/arch/x86/xen/enlighten_pv.c b/arch/x86/xen/enlighten_pv.c
-index 1730a26ff6abc..76864ea591605 100644
---- a/arch/x86/xen/enlighten_pv.c
-+++ b/arch/x86/xen/enlighten_pv.c
-@@ -908,14 +908,15 @@ static u64 xen_read_msr_safe(unsigned int msr, int *err)
- static int xen_write_msr_safe(unsigned int msr, unsigned low, unsigned high)
- {
- 	int ret;
-+#ifdef CONFIG_X86_64
-+	unsigned int which;
-+	u64 base;
-+#endif
+diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
+index aa90004f49e28..eb917e93fa72f 100644
+--- a/drivers/s390/net/qeth_l2_main.c
++++ b/drivers/s390/net/qeth_l2_main.c
+@@ -2148,15 +2148,14 @@ int qeth_l2_vnicc_set_state(struct qeth_card *card, u32 vnicc, bool state)
  
- 	ret = 0;
+ 	QETH_CARD_TEXT(card, 2, "vniccsch");
  
- 	switch (msr) {
- #ifdef CONFIG_X86_64
--		unsigned which;
--		u64 base;
+-	/* do not change anything if BridgePort is enabled */
+-	if (qeth_bridgeport_is_in_use(card))
+-		return -EBUSY;
 -
- 	case MSR_FS_BASE:		which = SEGBASE_FS; goto set;
- 	case MSR_KERNEL_GS_BASE:	which = SEGBASE_GS_USER; goto set;
- 	case MSR_GS_BASE:		which = SEGBASE_GS_KERNEL; goto set;
+ 	/* check if characteristic and enable/disable are supported */
+ 	if (!(card->options.vnicc.sup_chars & vnicc) ||
+ 	    !(card->options.vnicc.set_char_sup & vnicc))
+ 		return -EOPNOTSUPP;
+ 
++	if (qeth_bridgeport_is_in_use(card))
++		return -EBUSY;
++
+ 	/* set enable/disable command and store wanted characteristic */
+ 	if (state) {
+ 		cmd = IPA_VNICC_ENABLE;
+@@ -2202,14 +2201,13 @@ int qeth_l2_vnicc_get_state(struct qeth_card *card, u32 vnicc, bool *state)
+ 
+ 	QETH_CARD_TEXT(card, 2, "vniccgch");
+ 
+-	/* do not get anything if BridgePort is enabled */
+-	if (qeth_bridgeport_is_in_use(card))
+-		return -EBUSY;
+-
+ 	/* check if characteristic is supported */
+ 	if (!(card->options.vnicc.sup_chars & vnicc))
+ 		return -EOPNOTSUPP;
+ 
++	if (qeth_bridgeport_is_in_use(card))
++		return -EBUSY;
++
+ 	/* if card is ready, query current VNICC state */
+ 	if (qeth_card_hw_is_reachable(card))
+ 		rc = qeth_l2_vnicc_query_chars(card);
+@@ -2227,15 +2225,14 @@ int qeth_l2_vnicc_set_timeout(struct qeth_card *card, u32 timeout)
+ 
+ 	QETH_CARD_TEXT(card, 2, "vniccsto");
+ 
+-	/* do not change anything if BridgePort is enabled */
+-	if (qeth_bridgeport_is_in_use(card))
+-		return -EBUSY;
+-
+ 	/* check if characteristic and set_timeout are supported */
+ 	if (!(card->options.vnicc.sup_chars & QETH_VNICC_LEARNING) ||
+ 	    !(card->options.vnicc.getset_timeout_sup & QETH_VNICC_LEARNING))
+ 		return -EOPNOTSUPP;
+ 
++	if (qeth_bridgeport_is_in_use(card))
++		return -EBUSY;
++
+ 	/* do we need to do anything? */
+ 	if (card->options.vnicc.learning_timeout == timeout)
+ 		return rc;
+@@ -2264,14 +2261,14 @@ int qeth_l2_vnicc_get_timeout(struct qeth_card *card, u32 *timeout)
+ 
+ 	QETH_CARD_TEXT(card, 2, "vniccgto");
+ 
+-	/* do not get anything if BridgePort is enabled */
+-	if (qeth_bridgeport_is_in_use(card))
+-		return -EBUSY;
+-
+ 	/* check if characteristic and get_timeout are supported */
+ 	if (!(card->options.vnicc.sup_chars & QETH_VNICC_LEARNING) ||
+ 	    !(card->options.vnicc.getset_timeout_sup & QETH_VNICC_LEARNING))
+ 		return -EOPNOTSUPP;
++
++	if (qeth_bridgeport_is_in_use(card))
++		return -EBUSY;
++
+ 	/* if card is ready, get timeout. Otherwise, just return stored value */
+ 	*timeout = card->options.vnicc.learning_timeout;
+ 	if (qeth_card_hw_is_reachable(card))
 -- 
 2.20.1
 
