@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 48CF5176C82
-	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 03:57:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 34327176C89
+	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 03:57:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728427AbgCCCs2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Mar 2020 21:48:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44260 "EHLO mail.kernel.org"
+        id S1728177AbgCCC5L (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Mar 2020 21:57:11 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44266 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728419AbgCCCs1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Mar 2020 21:48:27 -0500
+        id S1728426AbgCCCs2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Mar 2020 21:48:28 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 470252468D;
-        Tue,  3 Mar 2020 02:48:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7CC4624680;
+        Tue,  3 Mar 2020 02:48:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583203707;
-        bh=UrxAyspyyacTQv+bvn17scVrUXsw8Wvec21zX9DJ9Dg=;
+        s=default; t=1583203708;
+        bh=h8EAJl19Wp0HALYjFidwI9cUFJDeGchtkcXLkJUuArs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mZlJF5pZdf747R3120iKoL8J7zY1KQsuLUAOAH4u6nqQtxc5ULuK2DuJDSmzUk2AR
-         MC9sVsGuXlOtRNimxrX8gWWUqL7e5C2Mt7oiHXjBmtjx5bo4bglbo+Agv8kqP44f0v
-         XRdPjWUh5K8mPXV6zzkpJqSgg9nQJt4Jgfv8tnbo=
+        b=BlBeneV3vp6Xjgc+i1hsUdP+h1505g1QE2Ek2sInORlFdpuEb7+aBOt2XPh4bYsAl
+         G6pYz9lEQvQSYKh4ZNhbFkEJhw1rBskifToC73x6qHvR+4ZNEKHAp4yLOMRK3liY8S
+         i2M94Oo8pKfDOqJjfrQvxq1AMqeuok04RusO7YlM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hamdan Igbaria <hamdani@mellanox.com>,
-        Alex Vesker <valex@mellanox.com>,
-        Saeed Mahameed <saeedm@mellanox.com>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
-        linux-rdma@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 38/58] net/mlx5: DR, Fix matching on vport gvmi
-Date:   Mon,  2 Mar 2020 21:47:20 -0500
-Message-Id: <20200303024740.9511-38-sashal@kernel.org>
+Cc:     Kai-Heng Feng <kai.heng.feng@canonical.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Joerg Roedel <jroedel@suse.de>,
+        Sasha Levin <sashal@kernel.org>,
+        iommu@lists.linux-foundation.org
+Subject: [PATCH AUTOSEL 5.4 39/58] iommu/amd: Disable IOMMU on Stoney Ridge systems
+Date:   Mon,  2 Mar 2020 21:47:21 -0500
+Message-Id: <20200303024740.9511-39-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200303024740.9511-1-sashal@kernel.org>
 References: <20200303024740.9511-1-sashal@kernel.org>
@@ -45,45 +45,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hamdan Igbaria <hamdani@mellanox.com>
+From: Kai-Heng Feng <kai.heng.feng@canonical.com>
 
-[ Upstream commit 52d214976d4f64504c1bbb52d47b46a5a3d5ee42 ]
+[ Upstream commit 3dfee47b215e49788cfc80e474820ea2e948c031 ]
 
-Set vport gvmi in the tag, only when source gvmi is set in the bit mask.
+Serious screen flickering when Stoney Ridge outputs to a 4K monitor.
 
-Fixes: 26d688e3 ("net/mlx5: DR, Add Steering entry (STE) utilities")
-Signed-off-by: Hamdan Igbaria <hamdani@mellanox.com>
-Reviewed-by: Alex Vesker <valex@mellanox.com>
-Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
+Use identity-mapping and PCI ATS doesn't help this issue.
+
+According to Alex Deucher, IOMMU isn't enabled on Windows, so let's do
+the same here to avoid screen flickering on 4K monitor.
+
+Cc: Alex Deucher <alexander.deucher@amd.com>
+Bug: https://gitlab.freedesktop.org/drm/amd/issues/961
+Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Acked-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/steering/dr_ste.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/iommu/amd_iommu_init.c | 13 ++++++++++++-
+ 1 file changed, 12 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/steering/dr_ste.c b/drivers/net/ethernet/mellanox/mlx5/core/steering/dr_ste.c
-index 2739ed2a29111..841abe75652c9 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/steering/dr_ste.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/steering/dr_ste.c
-@@ -2257,7 +2257,9 @@ static int dr_ste_build_src_gvmi_qpn_tag(struct mlx5dr_match_param *value,
- 	struct mlx5dr_cmd_vport_cap *vport_cap;
- 	struct mlx5dr_domain *dmn = sb->dmn;
- 	struct mlx5dr_cmd_caps *caps;
-+	u8 *bit_mask = sb->bit_mask;
- 	u8 *tag = hw_ste->tag;
-+	bool source_gvmi_set;
+diff --git a/drivers/iommu/amd_iommu_init.c b/drivers/iommu/amd_iommu_init.c
+index d7cbca8bf2cd4..b5ae9f7c0510b 100644
+--- a/drivers/iommu/amd_iommu_init.c
++++ b/drivers/iommu/amd_iommu_init.c
+@@ -2533,6 +2533,7 @@ static int __init early_amd_iommu_init(void)
+ 	struct acpi_table_header *ivrs_base;
+ 	acpi_status status;
+ 	int i, remap_cache_sz, ret = 0;
++	u32 pci_id;
  
- 	DR_STE_SET_TAG(src_gvmi_qp, tag, source_qp, misc, source_sqn);
+ 	if (!amd_iommu_detected)
+ 		return -ENODEV;
+@@ -2620,6 +2621,16 @@ static int __init early_amd_iommu_init(void)
+ 	if (ret)
+ 		goto out;
  
-@@ -2278,7 +2280,8 @@ static int dr_ste_build_src_gvmi_qpn_tag(struct mlx5dr_match_param *value,
- 	if (!vport_cap)
- 		return -EINVAL;
- 
--	if (vport_cap->vport_gvmi)
-+	source_gvmi_set = MLX5_GET(ste_src_gvmi_qp, bit_mask, source_gvmi);
-+	if (vport_cap->vport_gvmi && source_gvmi_set)
- 		MLX5_SET(ste_src_gvmi_qp, tag, source_gvmi, vport_cap->vport_gvmi);
- 
- 	misc->source_eswitch_owner_vhca_id = 0;
++	/* Disable IOMMU if there's Stoney Ridge graphics */
++	for (i = 0; i < 32; i++) {
++		pci_id = read_pci_config(0, i, 0, 0);
++		if ((pci_id & 0xffff) == 0x1002 && (pci_id >> 16) == 0x98e4) {
++			pr_info("Disable IOMMU on Stoney Ridge\n");
++			amd_iommu_disabled = true;
++			break;
++		}
++	}
++
+ 	/* Disable any previously enabled IOMMUs */
+ 	if (!is_kdump_kernel() || amd_iommu_disabled)
+ 		disable_iommus();
+@@ -2728,7 +2739,7 @@ static int __init state_next(void)
+ 		ret = early_amd_iommu_init();
+ 		init_state = ret ? IOMMU_INIT_ERROR : IOMMU_ACPI_FINISHED;
+ 		if (init_state == IOMMU_ACPI_FINISHED && amd_iommu_disabled) {
+-			pr_info("AMD IOMMU disabled on kernel command-line\n");
++			pr_info("AMD IOMMU disabled\n");
+ 			init_state = IOMMU_CMDLINE_DISABLED;
+ 			ret = -EINVAL;
+ 		}
 -- 
 2.20.1
 
