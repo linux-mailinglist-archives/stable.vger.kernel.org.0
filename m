@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0EA79176D36
-	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 04:02:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 30007176D33
+	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 04:01:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727080AbgCCDBz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Mar 2020 22:01:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41520 "EHLO mail.kernel.org"
+        id S1727744AbgCCCqy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Mar 2020 21:46:54 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41554 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727728AbgCCCqw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Mar 2020 21:46:52 -0500
+        id S1727741AbgCCCqy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Mar 2020 21:46:54 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4D8AC24681;
-        Tue,  3 Mar 2020 02:46:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8193D2468E;
+        Tue,  3 Mar 2020 02:46:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583203612;
-        bh=UNt/cP3q92jdQdpCC9/32s/ARZH/cVn4Qk99rO27Qj0=;
+        s=default; t=1583203613;
+        bh=Mjr8p/amJM9wauP7cjfYWFgUdhkwPRVjWxmuUOITXDE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BLjPIHarCfV9e9sssUl8Tb/DQ7EqbNEtN7GrHbJd/A/JvsffccPozRqz6fdt88vhr
-         LCnSMeZfNOFnStq8yvcFqFoP0NBTRNEE3fXlTGSJKLVAjr3Hkb/OP2rQx1UWCBCVaD
-         +FnqloDDk9DmYnacmktgzwpH2jPOFb4zOu/nK+xs=
+        b=Tx6GGr7wlio3vtf6o665i1hRZskn39tfdP3ueCk6NgiHMPNlgPF+3zweUqMQFkp48
+         MPiFm88zhOg4mHjAVqRId74NaVMwcwElJiaMiVtzG3Z60jtFH3zO2+Qej8xoPx1rgo
+         gLQGiR11im/ysCcxEFIaSszS2DVzU2zoXQsw+sxI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dmitry Bogdanov <dbogdanov@marvell.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
+Cc:     Arun Parameswaran <arun.parameswaran@broadcom.com>,
+        Scott Branden <scott.branden@broadcom.com>,
+        Andrew Lunn <andrew@lunn.ch>,
+        Florian Fainelli <f.fainelli@gmail.com>,
         "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.5 29/66] net: atlantic: fix out of range usage of active_vlans array
-Date:   Mon,  2 Mar 2020 21:45:38 -0500
-Message-Id: <20200303024615.8889-29-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.5 30/66] net: phy: restore mdio regs in the iproc mdio driver
+Date:   Mon,  2 Mar 2020 21:45:39 -0500
+Message-Id: <20200303024615.8889-30-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200303024615.8889-1-sashal@kernel.org>
 References: <20200303024615.8889-1-sashal@kernel.org>
@@ -44,36 +47,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Bogdanov <dbogdanov@marvell.com>
+From: Arun Parameswaran <arun.parameswaran@broadcom.com>
 
-[ Upstream commit 5a292c89a84d49b598f8978f154bdda48b1072c0 ]
+[ Upstream commit 6f08e98d62799e53c89dbf2c9a49d77e20ca648c ]
 
-fix static checker warning:
- drivers/net/ethernet/aquantia/atlantic/aq_filters.c:166 aq_check_approve_fvlan()
- error: passing untrusted data to 'test_bit()'
+The mii management register in iproc mdio block
+does not have a retention register so it is lost on suspend.
+Save and restore value of register while resuming from suspend.
 
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Fixes: 7975d2aff5af: ("net: aquantia: add support of rx-vlan-filter offload")
-Signed-off-by: Dmitry Bogdanov <dbogdanov@marvell.com>
+Fixes: bb1a619735b4 ("net: phy: Initialize mdio clock at probe function")
+Signed-off-by: Arun Parameswaran <arun.parameswaran@broadcom.com>
+Signed-off-by: Scott Branden <scott.branden@broadcom.com>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/aquantia/atlantic/aq_filters.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/phy/mdio-bcm-iproc.c | 20 ++++++++++++++++++++
+ 1 file changed, 20 insertions(+)
 
-diff --git a/drivers/net/ethernet/aquantia/atlantic/aq_filters.c b/drivers/net/ethernet/aquantia/atlantic/aq_filters.c
-index 6102251bb909b..03ff92bc4a7fb 100644
---- a/drivers/net/ethernet/aquantia/atlantic/aq_filters.c
-+++ b/drivers/net/ethernet/aquantia/atlantic/aq_filters.c
-@@ -163,7 +163,7 @@ aq_check_approve_fvlan(struct aq_nic_s *aq_nic,
- 	}
+diff --git a/drivers/net/phy/mdio-bcm-iproc.c b/drivers/net/phy/mdio-bcm-iproc.c
+index 7e9975d250669..f1ded03f0229b 100644
+--- a/drivers/net/phy/mdio-bcm-iproc.c
++++ b/drivers/net/phy/mdio-bcm-iproc.c
+@@ -178,6 +178,23 @@ static int iproc_mdio_remove(struct platform_device *pdev)
+ 	return 0;
+ }
  
- 	if ((aq_nic->ndev->features & NETIF_F_HW_VLAN_CTAG_FILTER) &&
--	    (!test_bit(be16_to_cpu(fsp->h_ext.vlan_tci),
-+	    (!test_bit(be16_to_cpu(fsp->h_ext.vlan_tci) & VLAN_VID_MASK,
- 		       aq_nic->active_vlans))) {
- 		netdev_err(aq_nic->ndev,
- 			   "ethtool: unknown vlan-id specified");
++#ifdef CONFIG_PM_SLEEP
++int iproc_mdio_resume(struct device *dev)
++{
++	struct platform_device *pdev = to_platform_device(dev);
++	struct iproc_mdio_priv *priv = platform_get_drvdata(pdev);
++
++	/* restore the mii clock configuration */
++	iproc_mdio_config_clk(priv->base);
++
++	return 0;
++}
++
++static const struct dev_pm_ops iproc_mdio_pm_ops = {
++	.resume = iproc_mdio_resume
++};
++#endif /* CONFIG_PM_SLEEP */
++
+ static const struct of_device_id iproc_mdio_of_match[] = {
+ 	{ .compatible = "brcm,iproc-mdio", },
+ 	{ /* sentinel */ },
+@@ -188,6 +205,9 @@ static struct platform_driver iproc_mdio_driver = {
+ 	.driver = {
+ 		.name = "iproc-mdio",
+ 		.of_match_table = iproc_mdio_of_match,
++#ifdef CONFIG_PM_SLEEP
++		.pm = &iproc_mdio_pm_ops,
++#endif
+ 	},
+ 	.probe = iproc_mdio_probe,
+ 	.remove = iproc_mdio_remove,
 -- 
 2.20.1
 
