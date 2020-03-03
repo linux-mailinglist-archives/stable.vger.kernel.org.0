@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A66B81780AF
-	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 20:00:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9589C1780B1
+	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 20:00:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733199AbgCCR6K (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Mar 2020 12:58:10 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40838 "EHLO mail.kernel.org"
+        id S1733279AbgCCR6M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Mar 2020 12:58:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40920 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733257AbgCCR6J (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Mar 2020 12:58:09 -0500
+        id S1732661AbgCCR6L (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Mar 2020 12:58:11 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 572A3206D5;
-        Tue,  3 Mar 2020 17:58:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C29C020656;
+        Tue,  3 Mar 2020 17:58:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583258288;
-        bh=nekBzOBwg7MSUfjgB1WlnAg8CmwfUXUhpErEo3+ryck=;
+        s=default; t=1583258291;
+        bh=cnid36DS5aI6TzXGB8aHNni9i5ItBK61vhrHUwmm3Cc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ytkWWe1RIYQ5kQgiLS5l6dnBFv2v3UfcPXdJ4Oo4RWiihDy/E7KNa87hLEvfZ4XjC
-         Wpa4o+fJlNk5IEpBJZ5onyJdANKmR+H84+1kIeeUSHjqueLJ73tDtHPJJ05Gcb/ZxX
-         BpR0tfGoxdtR4JGpOYTamC+jdVIurvAjVwkvnVhE=
+        b=L+6QXM8JW/PKvuo9ImyMst5zg26XL/96qB2opFPL27xMatBUYrKZpF0hw+ryr6Ji8
+         Fxfv1T+2I6Bxxasfks1XUtWklRu5vw2LS29k36qFbXmA4kaE0CFAe/t05fuZ6ufkx9
+         fUkNsUdtQIKwqPoLvJT7osAWqWCj7vji70qk3S4w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Jordan <daniel.m.jordan@oracle.com>,
-        Eric Biggers <ebiggers@kernel.org>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Steffen Klassert <steffen.klassert@secunet.com>,
-        linux-crypto@vger.kernel.org
-Subject: [PATCH 5.4 145/152] padata: always acquire cpu_hotplug_lock before pinst->lock
-Date:   Tue,  3 Mar 2020 18:44:03 +0100
-Message-Id: <20200303174319.278666121@linuxfoundation.org>
+        stable@vger.kernel.org, Waiman Long <longman@redhat.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Bart Van Assche <bvanassche@acm.org>
+Subject: [PATCH 5.4 146/152] locking/lockdep: Fix lockdep_stats indentation problem
+Date:   Tue,  3 Mar 2020 18:44:04 +0100
+Message-Id: <20200303174319.397527559@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200303174302.523080016@linuxfoundation.org>
 References: <20200303174302.523080016@linuxfoundation.org>
@@ -46,67 +44,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Jordan <daniel.m.jordan@oracle.com>
+From: Waiman Long <longman@redhat.com>
 
-commit 38228e8848cd7dd86ccb90406af32de0cad24be3 upstream.
+commit a030f9767da1a6bbcec840fc54770eb11c2414b6 upstream.
 
-lockdep complains when padata's paths to update cpumasks via CPU hotplug
-and sysfs are both taken:
+It was found that two lines in the output of /proc/lockdep_stats have
+indentation problem:
 
-  # echo 0 > /sys/devices/system/cpu/cpu1/online
-  # echo ff > /sys/kernel/pcrypt/pencrypt/parallel_cpumask
+  # cat /proc/lockdep_stats
+     :
+   in-process chains:                   25057
+   stack-trace entries:                137827 [max: 524288]
+   number of stack traces:        7973
+   number of stack hash chains:   6355
+   combined max dependencies:      1356414598
+   hardirq-safe locks:                     57
+   hardirq-unsafe locks:                 1286
+     :
 
-  ======================================================
-  WARNING: possible circular locking dependency detected
-  5.4.0-rc8-padata-cpuhp-v3+ #1 Not tainted
-  ------------------------------------------------------
-  bash/205 is trying to acquire lock:
-  ffffffff8286bcd0 (cpu_hotplug_lock.rw_sem){++++}, at: padata_set_cpumask+0x2b/0x120
+All the numbers displayed in /proc/lockdep_stats except the two stack
+trace numbers are formatted with a field with of 11. To properly align
+all the numbers, a field width of 11 is now added to the two stack
+trace numbers.
 
-  but task is already holding lock:
-  ffff8880001abfa0 (&pinst->lock){+.+.}, at: padata_set_cpumask+0x26/0x120
-
-  which lock already depends on the new lock.
-
-padata doesn't take cpu_hotplug_lock and pinst->lock in a consistent
-order.  Which should be first?  CPU hotplug calls into padata with
-cpu_hotplug_lock already held, so it should have priority.
-
-Fixes: 6751fb3c0e0c ("padata: Use get_online_cpus/put_online_cpus")
-Signed-off-by: Daniel Jordan <daniel.m.jordan@oracle.com>
-Cc: Eric Biggers <ebiggers@kernel.org>
-Cc: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: Steffen Klassert <steffen.klassert@secunet.com>
-Cc: linux-crypto@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Fixes: 8c779229d0f4 ("locking/lockdep: Report more stack trace statistics")
+Signed-off-by: Waiman Long <longman@redhat.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Bart Van Assche <bvanassche@acm.org>
+Link: https://lkml.kernel.org/r/20191211213139.29934-1-longman@redhat.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/padata.c |    4 ++--
+ kernel/locking/lockdep_proc.c |    4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/kernel/padata.c
-+++ b/kernel/padata.c
-@@ -643,8 +643,8 @@ int padata_set_cpumask(struct padata_ins
- 	struct cpumask *serial_mask, *parallel_mask;
- 	int err = -EINVAL;
- 
--	mutex_lock(&pinst->lock);
- 	get_online_cpus();
-+	mutex_lock(&pinst->lock);
- 
- 	switch (cpumask_type) {
- 	case PADATA_CPU_PARALLEL:
-@@ -662,8 +662,8 @@ int padata_set_cpumask(struct padata_ins
- 	err =  __padata_set_cpumasks(pinst, parallel_mask, serial_mask);
- 
- out:
--	put_online_cpus();
- 	mutex_unlock(&pinst->lock);
-+	put_online_cpus();
- 
- 	return err;
- }
+--- a/kernel/locking/lockdep_proc.c
++++ b/kernel/locking/lockdep_proc.c
+@@ -286,9 +286,9 @@ static int lockdep_stats_show(struct seq
+ 	seq_printf(m, " stack-trace entries:           %11lu [max: %lu]\n",
+ 			nr_stack_trace_entries, MAX_STACK_TRACE_ENTRIES);
+ #if defined(CONFIG_TRACE_IRQFLAGS) && defined(CONFIG_PROVE_LOCKING)
+-	seq_printf(m, " number of stack traces:        %llu\n",
++	seq_printf(m, " number of stack traces:        %11llu\n",
+ 		   lockdep_stack_trace_count());
+-	seq_printf(m, " number of stack hash chains:   %llu\n",
++	seq_printf(m, " number of stack hash chains:   %11llu\n",
+ 		   lockdep_stack_hash_count());
+ #endif
+ 	seq_printf(m, " combined max dependencies:     %11u\n",
 
 
