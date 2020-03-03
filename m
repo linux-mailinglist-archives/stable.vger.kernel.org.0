@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 802F5177FCE
-	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 19:58:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 18B55177EC1
+	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 19:56:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732256AbgCCRw5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Mar 2020 12:52:57 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33322 "EHLO mail.kernel.org"
+        id S1731225AbgCCRqp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Mar 2020 12:46:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53426 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732253AbgCCRw5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Mar 2020 12:52:57 -0500
+        id S1731222AbgCCRqo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Mar 2020 12:46:44 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C683320728;
-        Tue,  3 Mar 2020 17:52:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EB17B20870;
+        Tue,  3 Mar 2020 17:46:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583257975;
-        bh=04bLf5ZF+iT/s2pbQBzlAHsRKIocpNNdPK6H9ClI+ag=;
+        s=default; t=1583257604;
+        bh=t3RTH/1EKJs2kaKk4nsQZy3sCwlomYb2ILJy2SmbQ94=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vDfz2D3aMvfx2PLyOQJ6zSZkXwbUge5AWW9CeaJOxUirN+hc1FMH1RHJYSkFBVwgN
-         iVr5hdhcdHewyiDpGC7a05AJjHfcVK03M/he9Ie5svdFyR6TRLRPFACN7Q9yeiuJNw
-         nbIiCOKTKZUrdrj9hPJwZL2/+/+E+3itpL7GYtpg=
+        b=NIY0BI02ifxctRPI/XjSpsOmGu2St6Lxo4SNw7a6thBnX9lKZ9GdZUHT2OogcM65Z
+         0f3B2E/Hhv5He5C1ulZOW4kTXhrMjZqPo2x44G1fvR1ozH0jMTS7PrjJR4rjxThKy7
+         Mgu3ato0pFvZ14s2HwOQX0aN0rRXhfnp+akmTZKE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Scott Wood <swood@redhat.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 024/152] sched/core: Dont skip remote tick for idle CPUs
+        stable@vger.kernel.org, Sameeh Jubran <sameehj@amazon.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.5 058/176] net: ena: rss: fix failure to get indirection table
 Date:   Tue,  3 Mar 2020 18:42:02 +0100
-Message-Id: <20200303174305.197468611@linuxfoundation.org>
+Message-Id: <20200303174311.293027134@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200303174302.523080016@linuxfoundation.org>
-References: <20200303174302.523080016@linuxfoundation.org>
+In-Reply-To: <20200303174304.593872177@linuxfoundation.org>
+References: <20200303174304.593872177@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,57 +44,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Scott Wood <swood@redhat.com>
+From: Sameeh Jubran <sameehj@amazon.com>
 
-[ Upstream commit 488603b815a7514c7009e6fc339d74ed4a30f343 ]
+[ Upstream commit 0c8923c0a64fb5d14bebb9a9065d2dc25ac5e600 ]
 
-This will be used in the next patch to get a loadavg update from
-nohz cpus.  The delta check is skipped because idle_sched_class
-doesn't update se.exec_start.
+On old hardware, getting / setting the hash function is not supported while
+gettting / setting the indirection table is.
 
-Signed-off-by: Scott Wood <swood@redhat.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Link: https://lkml.kernel.org/r/1578736419-14628-2-git-send-email-swood@redhat.com
+This commit enables us to still show the indirection table on older
+hardwares by setting the hash function and key to NULL.
+
+Fixes: 1738cd3ed342 ("net: ena: Add a driver for Amazon Elastic Network Adapters (ENA)")
+Signed-off-by: Sameeh Jubran <sameehj@amazon.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sched/core.c |   18 ++++++++++--------
- 1 file changed, 10 insertions(+), 8 deletions(-)
+ drivers/net/ethernet/amazon/ena/ena_ethtool.c | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
---- a/kernel/sched/core.c
-+++ b/kernel/sched/core.c
-@@ -3668,22 +3668,24 @@ static void sched_tick_remote(struct wor
- 	 * statistics and checks timeslices in a time-independent way, regardless
- 	 * of when exactly it is running.
- 	 */
--	if (idle_cpu(cpu) || !tick_nohz_tick_stopped_cpu(cpu))
-+	if (!tick_nohz_tick_stopped_cpu(cpu))
- 		goto out_requeue;
+diff --git a/drivers/net/ethernet/amazon/ena/ena_ethtool.c b/drivers/net/ethernet/amazon/ena/ena_ethtool.c
+index 8b56383b64aea..8be9df885bf4f 100644
+--- a/drivers/net/ethernet/amazon/ena/ena_ethtool.c
++++ b/drivers/net/ethernet/amazon/ena/ena_ethtool.c
+@@ -648,7 +648,21 @@ static int ena_get_rxfh(struct net_device *netdev, u32 *indir, u8 *key,
+ 	if (rc)
+ 		return rc;
  
- 	rq_lock_irq(rq, &rf);
- 	curr = rq->curr;
--	if (is_idle_task(curr) || cpu_is_offline(cpu))
-+	if (cpu_is_offline(cpu))
- 		goto out_unlock;
- 
- 	update_rq_clock(rq);
--	delta = rq_clock_task(rq) - curr->se.exec_start;
- 
--	/*
--	 * Make sure the next tick runs within a reasonable
--	 * amount of time.
--	 */
--	WARN_ON_ONCE(delta > (u64)NSEC_PER_SEC * 3);
-+	if (!is_idle_task(curr)) {
-+		/*
-+		 * Make sure the next tick runs within a reasonable
-+		 * amount of time.
-+		 */
-+		delta = rq_clock_task(rq) - curr->se.exec_start;
-+		WARN_ON_ONCE(delta > (u64)NSEC_PER_SEC * 3);
++	/* We call this function in order to check if the device
++	 * supports getting/setting the hash function.
++	 */
+ 	rc = ena_com_get_hash_function(adapter->ena_dev, &ena_func, key);
++
++	if (rc) {
++		if (rc == -EOPNOTSUPP) {
++			key = NULL;
++			hfunc = NULL;
++			rc = 0;
++		}
++
++		return rc;
 +	}
- 	curr->sched_class->task_tick(rq, curr, 0);
++
+ 	if (rc)
+ 		return rc;
  
- out_unlock:
+-- 
+2.20.1
+
 
 
