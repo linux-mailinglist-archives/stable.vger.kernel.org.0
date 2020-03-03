@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id ACF77176AC9
-	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 03:46:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8AC86176AD2
+	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 03:46:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727558AbgCCCqi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Mar 2020 21:46:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41080 "EHLO mail.kernel.org"
+        id S1727635AbgCCCqo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Mar 2020 21:46:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41294 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727541AbgCCCqh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Mar 2020 21:46:37 -0500
+        id S1727541AbgCCCqo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Mar 2020 21:46:44 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EC9682467B;
-        Tue,  3 Mar 2020 02:46:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4851F2465E;
+        Tue,  3 Mar 2020 02:46:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583203596;
-        bh=UKem77v3AKngJTCiKKqmdNySz2FCD1k2poQmhztolg4=;
+        s=default; t=1583203603;
+        bh=+ulgleQGKupvS73skI++NZZypImUuGJBnWowRPLRgBI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FVbIOifNQjxrDxrCz/NG+2ejSqvKsv2/xU1Jk1BtO7bhKBZ0nW/uAJXU5+uE5kvXx
-         S0hdlAOeSz3gXFG8h99U5B1QvxxtIK+HCNlX1tlLXsydTvp1JD731c1ZT1dvQMcUrA
-         p4r52djNnBn55wvCK0sc3/HFUNLbVTFkkzCmwJm0=
+        b=OWqiICR6S3rVp7iVL1kclXcFCNRMj3lzzKX8MrzgwxYmTVSax2ckuRLDCKUNjx4n6
+         v5ZSFyebfJW8TiET7GpCFYJftuuxgvUIb9ULodAUSz2Kwzh6FuUbQ3IDaOatl39Wc6
+         RRasaTSbcuUTqyveILURvRWj0EqHhYwz3kCuGjOs=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Harigovindan P <harigovi@codeaurora.org>,
-        Rob Clark <robdclark@chromium.org>,
-        Sasha Levin <sashal@kernel.org>, linux-arm-msm@vger.kernel.org,
-        dri-devel@lists.freedesktop.org, freedreno@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.5 17/66] drm/msm/dsi: save pll state before dsi host is powered off
-Date:   Mon,  2 Mar 2020 21:45:26 -0500
-Message-Id: <20200303024615.8889-17-sashal@kernel.org>
+Cc:     Dmitry Bezrukov <dbezrukov@marvell.com>,
+        Igor Russkikh <irusskikh@marvell.com>,
+        Dmitry Bogdanov <dbogdanov@marvell.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.5 22/66] net: atlantic: checksum compat issue
+Date:   Mon,  2 Mar 2020 21:45:31 -0500
+Message-Id: <20200303024615.8889-22-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200303024615.8889-1-sashal@kernel.org>
 References: <20200303024615.8889-1-sashal@kernel.org>
@@ -44,59 +45,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Harigovindan P <harigovi@codeaurora.org>
+From: Dmitry Bezrukov <dbezrukov@marvell.com>
 
-[ Upstream commit a1028dcfd0dd97884072288d0c8ed7f30399b528 ]
+[ Upstream commit 15beab0a9d797be1b7c67458da007a62269be29a ]
 
-Save pll state before dsi host is powered off. Without this change
-some register values gets resetted.
+Yet another checksum offload compatibility issue was found.
 
-Signed-off-by: Harigovindan P <harigovi@codeaurora.org>
-Signed-off-by: Rob Clark <robdclark@chromium.org>
+The known issue is that AQC HW marks tcp packets with 0xFFFF checksum
+as invalid (1). This is workarounded in driver, passing all the suspicious
+packets up to the stack for further csum validation.
+
+Another HW problem (2) is that it hides invalid csum of LRO aggregated
+packets inside of the individual descriptors. That was workarounded
+by forced scan of all LRO descriptors for checksum errors.
+
+However the scan logic was joint for both LRO and multi-descriptor
+packets (jumbos). And this causes the issue.
+
+We have to drop LRO packets with the detected bad checksum
+because of (2), but we have to pass jumbo packets to stack because of (1).
+
+When using windows tcp partner with jumbo frames but with LSO disabled
+driver discards such frames as bad checksummed. But only LRO frames
+should be dropped, not jumbos.
+
+On such a configurations tcp stream have a chance of drops and stucks.
+
+(1) 76f254d4afe2 ("net: aquantia: tcp checksum 0xffff being handled incorrectly")
+(2) d08b9a0a3ebd ("net: aquantia: do not pass lro session with invalid tcp checksum")
+
+Fixes: d08b9a0a3ebd ("net: aquantia: do not pass lro session with invalid tcp checksum")
+Signed-off-by: Dmitry Bezrukov <dbezrukov@marvell.com>
+Signed-off-by: Igor Russkikh <irusskikh@marvell.com>
+Signed-off-by: Dmitry Bogdanov <dbogdanov@marvell.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/dsi/dsi_manager.c | 5 +++++
- drivers/gpu/drm/msm/dsi/phy/dsi_phy.c | 4 ----
- 2 files changed, 5 insertions(+), 4 deletions(-)
+ drivers/net/ethernet/aquantia/atlantic/aq_ring.c          | 3 ++-
+ drivers/net/ethernet/aquantia/atlantic/aq_ring.h          | 3 ++-
+ drivers/net/ethernet/aquantia/atlantic/hw_atl/hw_atl_b0.c | 5 +++--
+ 3 files changed, 7 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/gpu/drm/msm/dsi/dsi_manager.c b/drivers/gpu/drm/msm/dsi/dsi_manager.c
-index 355a60b4a536f..73127948f54d9 100644
---- a/drivers/gpu/drm/msm/dsi/dsi_manager.c
-+++ b/drivers/gpu/drm/msm/dsi/dsi_manager.c
-@@ -479,6 +479,7 @@ static void dsi_mgr_bridge_post_disable(struct drm_bridge *bridge)
- 	struct msm_dsi *msm_dsi1 = dsi_mgr_get_dsi(DSI_1);
- 	struct mipi_dsi_host *host = msm_dsi->host;
- 	struct drm_panel *panel = msm_dsi->panel;
-+	struct msm_dsi_pll *src_pll;
- 	bool is_dual_dsi = IS_DUAL_DSI();
- 	int ret;
+diff --git a/drivers/net/ethernet/aquantia/atlantic/aq_ring.c b/drivers/net/ethernet/aquantia/atlantic/aq_ring.c
+index 951d86f8b66e8..6941999ae845d 100644
+--- a/drivers/net/ethernet/aquantia/atlantic/aq_ring.c
++++ b/drivers/net/ethernet/aquantia/atlantic/aq_ring.c
+@@ -351,7 +351,8 @@ int aq_ring_rx_clean(struct aq_ring_s *self,
+ 				err = 0;
+ 				goto err_exit;
+ 			}
+-			if (buff->is_error || buff->is_cso_err) {
++			if (buff->is_error ||
++			    (buff->is_lro && buff->is_cso_err)) {
+ 				buff_ = buff;
+ 				do {
+ 					next_ = buff_->next,
+diff --git a/drivers/net/ethernet/aquantia/atlantic/aq_ring.h b/drivers/net/ethernet/aquantia/atlantic/aq_ring.h
+index 991e4d31b0948..2c96f20f62891 100644
+--- a/drivers/net/ethernet/aquantia/atlantic/aq_ring.h
++++ b/drivers/net/ethernet/aquantia/atlantic/aq_ring.h
+@@ -78,7 +78,8 @@ struct __packed aq_ring_buff_s {
+ 			u32 is_cleaned:1;
+ 			u32 is_error:1;
+ 			u32 is_vlan:1;
+-			u32 rsvd3:4;
++			u32 is_lro:1;
++			u32 rsvd3:3;
+ 			u16 eop_index;
+ 			u16 rsvd4;
+ 		};
+diff --git a/drivers/net/ethernet/aquantia/atlantic/hw_atl/hw_atl_b0.c b/drivers/net/ethernet/aquantia/atlantic/hw_atl/hw_atl_b0.c
+index ec041f78d0634..5784da26f8683 100644
+--- a/drivers/net/ethernet/aquantia/atlantic/hw_atl/hw_atl_b0.c
++++ b/drivers/net/ethernet/aquantia/atlantic/hw_atl/hw_atl_b0.c
+@@ -823,6 +823,8 @@ static int hw_atl_b0_hw_ring_rx_receive(struct aq_hw_s *self,
+ 			}
+ 		}
  
-@@ -519,6 +520,10 @@ static void dsi_mgr_bridge_post_disable(struct drm_bridge *bridge)
- 								id, ret);
- 	}
++		buff->is_lro = !!(HW_ATL_B0_RXD_WB_STAT2_RSCCNT &
++				  rxd_wb->status);
+ 		if (HW_ATL_B0_RXD_WB_STAT2_EOP & rxd_wb->status) {
+ 			buff->len = rxd_wb->pkt_len %
+ 				AQ_CFG_RX_FRAME_MAX;
+@@ -835,8 +837,7 @@ static int hw_atl_b0_hw_ring_rx_receive(struct aq_hw_s *self,
+ 				rxd_wb->pkt_len > AQ_CFG_RX_FRAME_MAX ?
+ 				AQ_CFG_RX_FRAME_MAX : rxd_wb->pkt_len;
  
-+	/* Save PLL status if it is a clock source */
-+	src_pll = msm_dsi_phy_get_pll(msm_dsi->phy);
-+	msm_dsi_pll_save_state(src_pll);
-+
- 	ret = msm_dsi_host_power_off(host);
- 	if (ret)
- 		pr_err("%s: host %d power off failed,%d\n", __func__, id, ret);
-diff --git a/drivers/gpu/drm/msm/dsi/phy/dsi_phy.c b/drivers/gpu/drm/msm/dsi/phy/dsi_phy.c
-index b0cfa67d2a578..f509ebd77500f 100644
---- a/drivers/gpu/drm/msm/dsi/phy/dsi_phy.c
-+++ b/drivers/gpu/drm/msm/dsi/phy/dsi_phy.c
-@@ -724,10 +724,6 @@ void msm_dsi_phy_disable(struct msm_dsi_phy *phy)
- 	if (!phy || !phy->cfg->ops.disable)
- 		return;
- 
--	/* Save PLL status if it is a clock source */
--	if (phy->usecase != MSM_DSI_PHY_SLAVE)
--		msm_dsi_pll_save_state(phy->pll);
--
- 	phy->cfg->ops.disable(phy);
- 
- 	dsi_phy_regulator_disable(phy);
+-			if (HW_ATL_B0_RXD_WB_STAT2_RSCCNT &
+-				rxd_wb->status) {
++			if (buff->is_lro) {
+ 				/* LRO */
+ 				buff->next = rxd_wb->next_desc_ptr;
+ 				++ring->stats.rx.lro_packets;
 -- 
 2.20.1
 
