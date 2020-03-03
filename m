@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CC25A178013
-	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 19:59:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2441A177F08
+	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 19:57:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732540AbgCCRyd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Mar 2020 12:54:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35710 "EHLO mail.kernel.org"
+        id S1731633AbgCCRsW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Mar 2020 12:48:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55420 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732535AbgCCRyd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Mar 2020 12:54:33 -0500
+        id S1730480AbgCCRsV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Mar 2020 12:48:21 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D8D7020870;
-        Tue,  3 Mar 2020 17:54:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 23C2D20CC7;
+        Tue,  3 Mar 2020 17:48:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583258072;
-        bh=VLksU6hkppqE603K3tVh3puBW3q6ChwtG1nI2PsGlBk=;
+        s=default; t=1583257700;
+        bh=toAKJpVcK8AmIRqax8RohZ3VZLNcWfijpolDJB41s/I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ufaWM9jrvztynBvdPY5zlueR93pTixcjTG4VhbTNVy9Hhngxci8EkopQFvU5Tf77K
-         5b/KcMMt2fWkuB2Cr2/YDRManQhDiQ+zI8ygEFTITZgsjUt3zxx4uWe5j9XzRgMgR5
-         uxuQhzdJFh6uvmgP1w7j2AnXLNtVB61uiTzYQrW4=
+        b=ICo6JoUBb5EyRM72kL+541cwCPinzK7VfzrJi1Ch4QHhrcF+VYqzdTRG6OdTeJbmS
+         YhDHQVADBgXsVcZ3CBjlYO6DuCQXWMw0hQeFXEyWnTZ57ghOABm1fFWRE2Yy3vXKBf
+         N4tJm63veI+cygQi0WUtMMoqBLMnlCbML0DZDtU4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Frank Sorenson <sorenson@redhat.com>,
-        Steve French <stfrench@microsoft.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 061/152] cifs: Fix mode output in debugging statements
+        stable@vger.kernel.org, Erhard Furtner <erhard_f@mailbox.org>,
+        Wolfram Sang <wsa@the-dreams.de>,
+        Michael Ellerman <mpe@ellerman.id.au>, stable@kernel.org
+Subject: [PATCH 5.5 095/176] macintosh: therm_windtunnel: fix regression when instantiating devices
 Date:   Tue,  3 Mar 2020 18:42:39 +0100
-Message-Id: <20200303174309.382999361@linuxfoundation.org>
+Message-Id: <20200303174315.807135274@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200303174302.523080016@linuxfoundation.org>
-References: <20200303174302.523080016@linuxfoundation.org>
+In-Reply-To: <20200303174304.593872177@linuxfoundation.org>
+References: <20200303174304.593872177@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,72 +44,136 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Frank Sorenson <sorenson@redhat.com>
+From: Wolfram Sang <wsa@the-dreams.de>
 
-[ Upstream commit f52aa79df43c4509146140de0241bc21a4a3b4c7 ]
+commit 38b17afb0ebb9ecd41418d3c08bcf9198af4349d upstream.
 
-A number of the debug statements output file or directory mode
-in hex.  Change these to print using octal.
+Removing attach_adapter from this driver caused a regression for at
+least some machines. Those machines had the sensors described in their
+DT, too, so they didn't need manual creation of the sensor devices. The
+old code worked, though, because manual creation came first. Creation of
+DT devices then failed later and caused error logs, but the sensors
+worked nonetheless because of the manually created devices.
 
-Signed-off-by: Frank Sorenson <sorenson@redhat.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+When removing attach_adaper, manual creation now comes later and loses
+the race. The sensor devices were already registered via DT, yet with
+another binding, so the driver could not be bound to it.
+
+This fix refactors the code to remove the race and only manually creates
+devices if there are no DT nodes present. Also, the DT binding is updated
+to match both, the DT and manually created devices. Because we don't
+know which device creation will be used at runtime, the code to start
+the kthread is moved to do_probe() which will be called by both methods.
+
+Fixes: 3e7bed52719d ("macintosh: therm_windtunnel: drop using attach_adapter")
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=201723
+Reported-by: Erhard Furtner <erhard_f@mailbox.org>
+Tested-by: Erhard Furtner <erhard_f@mailbox.org>
+Acked-by: Michael Ellerman <mpe@ellerman.id.au> (powerpc)
+Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+Cc: stable@kernel.org # v4.19+
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- fs/cifs/cifsacl.c | 4 ++--
- fs/cifs/connect.c | 2 +-
- fs/cifs/inode.c   | 2 +-
- 3 files changed, 4 insertions(+), 4 deletions(-)
+ drivers/macintosh/therm_windtunnel.c |   52 ++++++++++++++++++++---------------
+ 1 file changed, 31 insertions(+), 21 deletions(-)
 
-diff --git a/fs/cifs/cifsacl.c b/fs/cifs/cifsacl.c
-index f842944a5c76a..1619af216677c 100644
---- a/fs/cifs/cifsacl.c
-+++ b/fs/cifs/cifsacl.c
-@@ -603,7 +603,7 @@ static void access_flags_to_mode(__le32 ace_flags, int type, umode_t *pmode,
- 			((flags & FILE_EXEC_RIGHTS) == FILE_EXEC_RIGHTS))
- 		*pmode |= (S_IXUGO & (*pbits_to_set));
+--- a/drivers/macintosh/therm_windtunnel.c
++++ b/drivers/macintosh/therm_windtunnel.c
+@@ -300,9 +300,11 @@ static int control_loop(void *dummy)
+ /*	i2c probing and setup						*/
+ /************************************************************************/
  
--	cifs_dbg(NOISY, "access flags 0x%x mode now 0x%x\n", flags, *pmode);
-+	cifs_dbg(NOISY, "access flags 0x%x mode now %04o\n", flags, *pmode);
- 	return;
+-static int
+-do_attach( struct i2c_adapter *adapter )
++static void do_attach(struct i2c_adapter *adapter)
+ {
++	struct i2c_board_info info = { };
++	struct device_node *np;
++
+ 	/* scan 0x48-0x4f (DS1775) and 0x2c-2x2f (ADM1030) */
+ 	static const unsigned short scan_ds1775[] = {
+ 		0x48, 0x49, 0x4a, 0x4b, 0x4c, 0x4d, 0x4e, 0x4f,
+@@ -313,25 +315,24 @@ do_attach( struct i2c_adapter *adapter )
+ 		I2C_CLIENT_END
+ 	};
+ 
+-	if( strncmp(adapter->name, "uni-n", 5) )
+-		return 0;
+-
+-	if( !x.running ) {
+-		struct i2c_board_info info;
++	if (x.running || strncmp(adapter->name, "uni-n", 5))
++		return;
+ 
+-		memset(&info, 0, sizeof(struct i2c_board_info));
+-		strlcpy(info.type, "therm_ds1775", I2C_NAME_SIZE);
++	np = of_find_compatible_node(adapter->dev.of_node, NULL, "MAC,ds1775");
++	if (np) {
++		of_node_put(np);
++	} else {
++		strlcpy(info.type, "MAC,ds1775", I2C_NAME_SIZE);
+ 		i2c_new_probed_device(adapter, &info, scan_ds1775, NULL);
++	}
+ 
+-		strlcpy(info.type, "therm_adm1030", I2C_NAME_SIZE);
++	np = of_find_compatible_node(adapter->dev.of_node, NULL, "MAC,adm1030");
++	if (np) {
++		of_node_put(np);
++	} else {
++		strlcpy(info.type, "MAC,adm1030", I2C_NAME_SIZE);
+ 		i2c_new_probed_device(adapter, &info, scan_adm1030, NULL);
+-
+-		if( x.thermostat && x.fan ) {
+-			x.running = 1;
+-			x.poll_task = kthread_run(control_loop, NULL, "g4fand");
+-		}
+ 	}
+-	return 0;
  }
  
-@@ -632,7 +632,7 @@ static void mode_to_access_flags(umode_t mode, umode_t bits_to_use,
- 	if (mode & S_IXUGO)
- 		*pace_flags |= SET_FILE_EXEC_RIGHTS;
+ static int
+@@ -404,8 +405,8 @@ out:
+ enum chip { ds1775, adm1030 };
  
--	cifs_dbg(NOISY, "mode: 0x%x, access flags now 0x%x\n",
-+	cifs_dbg(NOISY, "mode: %04o, access flags now 0x%x\n",
- 		 mode, *pace_flags);
- 	return;
+ static const struct i2c_device_id therm_windtunnel_id[] = {
+-	{ "therm_ds1775", ds1775 },
+-	{ "therm_adm1030", adm1030 },
++	{ "MAC,ds1775", ds1775 },
++	{ "MAC,adm1030", adm1030 },
+ 	{ }
+ };
+ MODULE_DEVICE_TABLE(i2c, therm_windtunnel_id);
+@@ -414,6 +415,7 @@ static int
+ do_probe(struct i2c_client *cl, const struct i2c_device_id *id)
+ {
+ 	struct i2c_adapter *adapter = cl->adapter;
++	int ret = 0;
+ 
+ 	if( !i2c_check_functionality(adapter, I2C_FUNC_SMBUS_WORD_DATA
+ 				     | I2C_FUNC_SMBUS_WRITE_BYTE) )
+@@ -421,11 +423,19 @@ do_probe(struct i2c_client *cl, const st
+ 
+ 	switch (id->driver_data) {
+ 	case adm1030:
+-		return attach_fan( cl );
++		ret = attach_fan(cl);
++		break;
+ 	case ds1775:
+-		return attach_thermostat(cl);
++		ret = attach_thermostat(cl);
++		break;
+ 	}
+-	return 0;
++
++	if (!x.running && x.thermostat && x.fan) {
++		x.running = 1;
++		x.poll_task = kthread_run(control_loop, NULL, "g4fand");
++	}
++
++	return ret;
  }
-diff --git a/fs/cifs/connect.c b/fs/cifs/connect.c
-index 5d3c867bdc808..bcda48c038821 100644
---- a/fs/cifs/connect.c
-+++ b/fs/cifs/connect.c
-@@ -4094,7 +4094,7 @@ int cifs_setup_cifs_sb(struct smb_vol *pvolume_info,
- 	cifs_sb->mnt_gid = pvolume_info->linux_gid;
- 	cifs_sb->mnt_file_mode = pvolume_info->file_mode;
- 	cifs_sb->mnt_dir_mode = pvolume_info->dir_mode;
--	cifs_dbg(FYI, "file mode: 0x%hx  dir mode: 0x%hx\n",
-+	cifs_dbg(FYI, "file mode: %04ho  dir mode: %04ho\n",
- 		 cifs_sb->mnt_file_mode, cifs_sb->mnt_dir_mode);
  
- 	cifs_sb->actimeo = pvolume_info->actimeo;
-diff --git a/fs/cifs/inode.c b/fs/cifs/inode.c
-index ed59e4a8db598..aafcd79c47722 100644
---- a/fs/cifs/inode.c
-+++ b/fs/cifs/inode.c
-@@ -1586,7 +1586,7 @@ int cifs_mkdir(struct inode *inode, struct dentry *direntry, umode_t mode)
- 	struct TCP_Server_Info *server;
- 	char *full_path;
- 
--	cifs_dbg(FYI, "In cifs_mkdir, mode = 0x%hx inode = 0x%p\n",
-+	cifs_dbg(FYI, "In cifs_mkdir, mode = %04ho inode = 0x%p\n",
- 		 mode, inode);
- 
- 	cifs_sb = CIFS_SB(inode->i_sb);
--- 
-2.20.1
-
+ static struct i2c_driver g4fan_driver = {
 
 
