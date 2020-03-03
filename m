@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 45DAD177ECA
-	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 19:56:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AE8D0177FD7
+	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 19:58:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731249AbgCCRq6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Mar 2020 12:46:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53668 "EHLO mail.kernel.org"
+        id S1731343AbgCCRxK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Mar 2020 12:53:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33528 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731258AbgCCRqz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Mar 2020 12:46:55 -0500
+        id S1731966AbgCCRxG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Mar 2020 12:53:06 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1399C2146E;
-        Tue,  3 Mar 2020 17:46:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 416C220728;
+        Tue,  3 Mar 2020 17:53:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583257614;
-        bh=kAmeCMn1hi+tsY9/6rwz8rAJRjGcHO2DvZ5YLO9aTio=;
+        s=default; t=1583257985;
+        bh=fh/0xdOoh175PJRRkgF0SxozxLY14ZyoQVxKq3XrrVU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CZrW4osmq7leyYFsC8Xe3F+SoHiGFm89M0ppSa9qvw83m9sqqqTXH62tfRqZGm/SG
-         gDrG9IzE7zfESPAMZTGEeX0aOc2LnkcnMPs8MRtRmmwM0W7yggksvyH6ekBadyYOYf
-         3vxsa3+smP7qZz4dGjBVevVcZhyMi+tH2hKtR8Mc=
+        b=p9SlwZccehFoPgXhX76ZLTAuO3fNW4V7iI5Wy/C98N17pjOmrPEajuvlT2jEcsFMC
+         ay13sTgAVxsJ7n+jSWRy0cUCxdWOfyIEdgRepxtj3S8QFfj8mWY7yAfHR6Cd9mMQ9V
+         g43BuC+6oM+cKetRTdAOvFhmdnpeaLBJBGUCy5zU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sameeh Jubran <sameehj@amazon.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
+        Luca Coelho <luciano.coelho@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 062/176] net: ena: ethtool: use correct value for crc32 hash
+Subject: [PATCH 5.4 028/152] mac80211: consider more elements in parsing CRC
 Date:   Tue,  3 Mar 2020 18:42:06 +0100
-Message-Id: <20200303174311.798500355@linuxfoundation.org>
+Message-Id: <20200303174305.640729129@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200303174304.593872177@linuxfoundation.org>
-References: <20200303174304.593872177@linuxfoundation.org>
+In-Reply-To: <20200303174302.523080016@linuxfoundation.org>
+References: <20200303174302.523080016@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,43 +44,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sameeh Jubran <sameehj@amazon.com>
+From: Johannes Berg <johannes.berg@intel.com>
 
-[ Upstream commit 886d2089276e40d460731765083a741c5c762461 ]
+[ Upstream commit a04564c99bb4a92f805a58e56b2d22cc4978f152 ]
 
-Up till kernel 4.11 there was no enum defined for crc32 hash in ethtool,
-thus the xor enum was used for supporting crc32.
+We only use the parsing CRC for checking if a beacon changed,
+and elements with an ID > 63 cannot be represented in the
+filter. Thus, like we did before with WMM and Cisco vendor
+elements, just statically add these forgotten items to the
+CRC:
+ - WLAN_EID_VHT_OPERATION
+ - WLAN_EID_OPMODE_NOTIF
 
-Fixes: 1738cd3ed342 ("net: ena: Add a driver for Amazon Elastic Network Adapters (ENA)")
-Signed-off-by: Sameeh Jubran <sameehj@amazon.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+I guess that in most cases when VHT/HE operation change, the HT
+operation also changed, and so the change was picked up, but we
+did notice that pure operating mode notification changes were
+ignored.
+
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Link: https://lore.kernel.org/r/20200131111300.891737-22-luca@coelho.fi
+[restrict to VHT for the mac80211 branch]
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/amazon/ena/ena_ethtool.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/mac80211/util.c | 18 ++++++++++++------
+ 1 file changed, 12 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/net/ethernet/amazon/ena/ena_ethtool.c b/drivers/net/ethernet/amazon/ena/ena_ethtool.c
-index 610a7c63e1742..4ad69066e7846 100644
---- a/drivers/net/ethernet/amazon/ena/ena_ethtool.c
-+++ b/drivers/net/ethernet/amazon/ena/ena_ethtool.c
-@@ -693,7 +693,7 @@ static int ena_get_rxfh(struct net_device *netdev, u32 *indir, u8 *key,
- 		func = ETH_RSS_HASH_TOP;
- 		break;
- 	case ENA_ADMIN_CRC32:
--		func = ETH_RSS_HASH_XOR;
-+		func = ETH_RSS_HASH_CRC32;
- 		break;
- 	default:
- 		netif_err(adapter, drv, netdev,
-@@ -739,7 +739,7 @@ static int ena_set_rxfh(struct net_device *netdev, const u32 *indir,
- 	case ETH_RSS_HASH_TOP:
- 		func = ENA_ADMIN_TOEPLITZ;
- 		break;
--	case ETH_RSS_HASH_XOR:
-+	case ETH_RSS_HASH_CRC32:
- 		func = ENA_ADMIN_CRC32;
- 		break;
- 	default:
+diff --git a/net/mac80211/util.c b/net/mac80211/util.c
+index 32a7a53833c01..739e90555d8b9 100644
+--- a/net/mac80211/util.c
++++ b/net/mac80211/util.c
+@@ -1063,16 +1063,22 @@ _ieee802_11_parse_elems_crc(const u8 *start, size_t len, bool action,
+ 				elem_parse_failed = true;
+ 			break;
+ 		case WLAN_EID_VHT_OPERATION:
+-			if (elen >= sizeof(struct ieee80211_vht_operation))
++			if (elen >= sizeof(struct ieee80211_vht_operation)) {
+ 				elems->vht_operation = (void *)pos;
+-			else
+-				elem_parse_failed = true;
++				if (calc_crc)
++					crc = crc32_be(crc, pos - 2, elen + 2);
++				break;
++			}
++			elem_parse_failed = true;
+ 			break;
+ 		case WLAN_EID_OPMODE_NOTIF:
+-			if (elen > 0)
++			if (elen > 0) {
+ 				elems->opmode_notif = pos;
+-			else
+-				elem_parse_failed = true;
++				if (calc_crc)
++					crc = crc32_be(crc, pos - 2, elen + 2);
++				break;
++			}
++			elem_parse_failed = true;
+ 			break;
+ 		case WLAN_EID_MESH_ID:
+ 			elems->mesh_id = pos;
 -- 
 2.20.1
 
