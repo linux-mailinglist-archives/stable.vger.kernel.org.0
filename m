@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 554301780AA
-	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 20:00:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B86817816E
+	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 20:02:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733207AbgCCR6F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Mar 2020 12:58:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40770 "EHLO mail.kernel.org"
+        id S2388207AbgCCSCZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Mar 2020 13:02:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46962 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733202AbgCCR6E (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Mar 2020 12:58:04 -0500
+        id S2388202AbgCCSCZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Mar 2020 13:02:25 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6E0982072D;
-        Tue,  3 Mar 2020 17:58:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BA14120836;
+        Tue,  3 Mar 2020 18:02:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583258283;
-        bh=x8n96SRLqp4fokeJXdqU687T8MK3HtqEw58DRydIEiw=;
+        s=default; t=1583258543;
+        bh=0Q53lTt8WEN/YkJpYY+XsdCaId8103a3xFhEzMLRWdo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P1n7OChDvilBT+PbKfLxzWAowA959mmLkIYebrGQZe/U0QkgypvEkfDOyXMYiWHD1
-         +QKgNzpv+DZkWatMYRcikyCKuB1cbAgdvBhK0PtiDx3j6h5FqP8zWkM4IuprdNndHU
-         jLsHCEgMkvO7v4lrhh4AE8SYGQyt7lPZJpfLl9YY=
+        b=q4AgNQYzwVVp8WsIWXVQGQ1jiV3Dx7WYSZS2RfHyy+2of4c4EaKDzNo4Fn0AI9sK2
+         v9EMM8V3Kdgj5gQp//YD0qb3XjwlHZJnor5JO62j0nppiV8MYETYJA9fJ0jPOZ7D/w
+         u8Mgxh9RiGeCMA5GlveB6PWucQkO6keTu8NoJWWY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sameer Pujar <spujar@nvidia.com>,
-        Jon Hunter <jonathanh@nvidia.com>,
-        Thierry Reding <treding@nvidia.com>
-Subject: [PATCH 5.4 143/152] bus: tegra-aconnect: Remove PM_CLK dependency
-Date:   Tue,  3 Mar 2020 18:44:01 +0100
-Message-Id: <20200303174319.044754943@linuxfoundation.org>
+        stable@vger.kernel.org, Jim Mattson <jmattson@google.com>,
+        Andrew Honig <ahonig@google.com>,
+        Sean Christopherson <sean.j.christopherson@intel.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 4.19 71/87] KVM: Check for a bad hva before dropping into the ghc slow path
+Date:   Tue,  3 Mar 2020 18:44:02 +0100
+Message-Id: <20200303174356.652072494@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200303174302.523080016@linuxfoundation.org>
-References: <20200303174302.523080016@linuxfoundation.org>
+In-Reply-To: <20200303174349.075101355@linuxfoundation.org>
+References: <20200303174349.075101355@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,32 +45,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sameer Pujar <spujar@nvidia.com>
+From: Sean Christopherson <sean.j.christopherson@intel.com>
 
-commit 2f56acf818a08a9187ac8ec6e3d994fc13dc368d upstream.
+commit fcfbc617547fc6d9552cb6c1c563b6a90ee98085 upstream.
 
-The ACONNECT bus driver does not use pm-clk interface anymore and hence
-the dependency can be removed from its Kconfig option.
+When reading/writing using the guest/host cache, check for a bad hva
+before checking for a NULL memslot, which triggers the slow path for
+handing cross-page accesses.  Because the memslot is nullified on error
+by __kvm_gfn_to_hva_cache_init(), if the bad hva is encountered after
+crossing into a new page, then the kvm_{read,write}_guest() slow path
+could potentially write/access the first chunk prior to detecting the
+bad hva.
 
-Fixes: 0d7dab926130 ("bus: tegra-aconnect: use devm_clk_*() helpers")
-Signed-off-by: Sameer Pujar <spujar@nvidia.com>
-Acked-by: Jon Hunter <jonathanh@nvidia.com>
-Signed-off-by: Thierry Reding <treding@nvidia.com>
+Arguably, performing a partial access is semantically correct from an
+architectural perspective, but that behavior is certainly not intended.
+In the original implementation, memslot was not explicitly nullified
+and therefore the partial access behavior varied based on whether the
+memslot itself was null, or if the hva was simply bad.  The current
+behavior was introduced as a seemingly unintentional side effect in
+commit f1b9dd5eb86c ("kvm: Disallow wraparound in
+kvm_gfn_to_hva_cache_init"), which justified the change with "since some
+callers don't check the return code from this function, it sit seems
+prudent to clear ghc->memslot in the event of an error".
+
+Regardless of intent, the partial access is dependent on _not_ checking
+the result of the cache initialization, which is arguably a bug in its
+own right, at best simply weird.
+
+Fixes: 8f964525a121 ("KVM: Allow cross page reads and writes from cached translations.")
+Cc: Jim Mattson <jmattson@google.com>
+Cc: Andrew Honig <ahonig@google.com>
+Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/bus/Kconfig |    1 -
- 1 file changed, 1 deletion(-)
+ virt/kvm/kvm_main.c |   12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
---- a/drivers/bus/Kconfig
-+++ b/drivers/bus/Kconfig
-@@ -138,7 +138,6 @@ config TEGRA_ACONNECT
- 	tristate "Tegra ACONNECT Bus Driver"
- 	depends on ARCH_TEGRA_210_SOC
- 	depends on OF && PM
--	select PM_CLK
- 	help
- 	  Driver for the Tegra ACONNECT bus which is used to interface with
- 	  the devices inside the Audio Processing Engine (APE) for Tegra210.
+--- a/virt/kvm/kvm_main.c
++++ b/virt/kvm/kvm_main.c
+@@ -2024,12 +2024,12 @@ int kvm_write_guest_offset_cached(struct
+ 	if (slots->generation != ghc->generation)
+ 		__kvm_gfn_to_hva_cache_init(slots, ghc, ghc->gpa, ghc->len);
+ 
+-	if (unlikely(!ghc->memslot))
+-		return kvm_write_guest(kvm, gpa, data, len);
+-
+ 	if (kvm_is_error_hva(ghc->hva))
+ 		return -EFAULT;
+ 
++	if (unlikely(!ghc->memslot))
++		return kvm_write_guest(kvm, gpa, data, len);
++
+ 	r = __copy_to_user((void __user *)ghc->hva + offset, data, len);
+ 	if (r)
+ 		return -EFAULT;
+@@ -2057,12 +2057,12 @@ int kvm_read_guest_cached(struct kvm *kv
+ 	if (slots->generation != ghc->generation)
+ 		__kvm_gfn_to_hva_cache_init(slots, ghc, ghc->gpa, ghc->len);
+ 
+-	if (unlikely(!ghc->memslot))
+-		return kvm_read_guest(kvm, ghc->gpa, data, len);
+-
+ 	if (kvm_is_error_hva(ghc->hva))
+ 		return -EFAULT;
+ 
++	if (unlikely(!ghc->memslot))
++		return kvm_read_guest(kvm, ghc->gpa, data, len);
++
+ 	r = __copy_from_user(data, (void __user *)ghc->hva, len);
+ 	if (r)
+ 		return -EFAULT;
 
 
