@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7550A176C12
-	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 03:54:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8005C176C10
+	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 03:54:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728843AbgCCCtX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Mar 2020 21:49:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45618 "EHLO mail.kernel.org"
+        id S1728018AbgCCCyK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Mar 2020 21:54:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45634 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728782AbgCCCtX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Mar 2020 21:49:23 -0500
+        id S1728846AbgCCCtY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Mar 2020 21:49:24 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F2062246D5;
-        Tue,  3 Mar 2020 02:49:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 21F4D246DD;
+        Tue,  3 Mar 2020 02:49:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583203762;
-        bh=OfJcAaeI/nrPc7oVnN+bhGLA3fcflJ33ohKgSQKGv7s=;
+        s=default; t=1583203763;
+        bh=w4Vph8L0Job0JGTl/V9A4ULdLn1PgStBJDbEJ0KONhI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v+ip1od6TI+ZfqEl0pnKQUrklWjmyhTQ0Y6NdmLNSpBIFAfEY83oCINZFffjT1GXp
-         fBsde/30bdGaQ+HgMCuJ0jc5Su9/nTJoG2ziDpcmbD6MpMBc/ZZhkMfoUcONplFqt9
-         N3Bmrwge1lXMdcCbgkHXoInNB5GI9WoUcgNCxt3E=
+        b=gJrt6plEaxc8v5eK6wAIDbuC0vl20xoG3DQlNDmg5CJO7bloP7sLuZK8U7/DWpG2R
+         qoVXnU52zRc+g35sDddmX78cym0jwchf/4ttGJ98jdfJN1lwbkFRPD5uaba2FdBZU5
+         EcGNCaxIYl83GHshH3vNCmkwStRrSkCGyA85hVGM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Horatiu Vultur <horatiu.vultur@microchip.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 24/32] net: mscc: fix in frame extraction
-Date:   Mon,  2 Mar 2020 21:48:43 -0500
-Message-Id: <20200303024851.10054-24-sashal@kernel.org>
+Cc:     "H.J. Lu" <hjl.tools@gmail.com>, Borislav Petkov <bp@suse.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 25/32] x86/boot/compressed: Don't declare __force_order in kaslr_64.c
+Date:   Mon,  2 Mar 2020 21:48:44 -0500
+Message-Id: <20200303024851.10054-25-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200303024851.10054-1-sashal@kernel.org>
 References: <20200303024851.10054-1-sashal@kernel.org>
@@ -44,53 +42,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Horatiu Vultur <horatiu.vultur@microchip.com>
+From: "H.J. Lu" <hjl.tools@gmail.com>
 
-[ Upstream commit a81541041ceb55bcec9a8bb8ad3482263f0a205a ]
+[ Upstream commit df6d4f9db79c1a5d6f48b59db35ccd1e9ff9adfc ]
 
-Each extracted frame on Ocelot has an IFH. The frame and IFH are extracted
-by reading chuncks of 4 bytes from a register.
+GCC 10 changed the default to -fno-common, which leads to
 
-In case the IFH and frames were read corretly it would try to read the next
-frame. In case there are no more frames in the queue, it checks if there
-were any previous errors and in that case clear the queue. But this check
-will always succeed also when there are no errors. Because when extracting
-the IFH the error is checked against 4(number of bytes read) and then the
-error is set only if the extraction of the frame failed. So in a happy case
-where there are no errors the err variable is still 4. So it could be
-a case where after the check that there are no more frames in the queue, a
-frame will arrive in the queue but because the error is not reseted, it
-would try to flush the queue. So the frame will be lost.
+    LD      arch/x86/boot/compressed/vmlinux
+  ld: arch/x86/boot/compressed/pgtable_64.o:(.bss+0x0): multiple definition of `__force_order'; \
+    arch/x86/boot/compressed/kaslr_64.o:(.bss+0x0): first defined here
+  make[2]: *** [arch/x86/boot/compressed/Makefile:119: arch/x86/boot/compressed/vmlinux] Error 1
 
-The fix consist in resetting the error after reading the IFH.
+Since __force_order is already provided in pgtable_64.c, there is no
+need to declare __force_order in kaslr_64.c.
 
-Signed-off-by: Horatiu Vultur <horatiu.vultur@microchip.com>
-Acked-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: H.J. Lu <hjl.tools@gmail.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Link: https://lkml.kernel.org/r/20200124181811.4780-1-hjl.tools@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mscc/ocelot_board.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ arch/x86/boot/compressed/kaslr_64.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/mscc/ocelot_board.c b/drivers/net/ethernet/mscc/ocelot_board.c
-index 3cdf63e35b53b..4054cf9db8181 100644
---- a/drivers/net/ethernet/mscc/ocelot_board.c
-+++ b/drivers/net/ethernet/mscc/ocelot_board.c
-@@ -105,6 +105,14 @@ static irqreturn_t ocelot_xtr_irq_handler(int irq, void *arg)
- 		if (err != 4)
- 			break;
+diff --git a/arch/x86/boot/compressed/kaslr_64.c b/arch/x86/boot/compressed/kaslr_64.c
+index 748456c365f46..9557c5a15b91e 100644
+--- a/arch/x86/boot/compressed/kaslr_64.c
++++ b/arch/x86/boot/compressed/kaslr_64.c
+@@ -29,9 +29,6 @@
+ #define __PAGE_OFFSET __PAGE_OFFSET_BASE
+ #include "../../mm/ident_map.c"
  
-+		/* At this point the IFH was read correctly, so it is safe to
-+		 * presume that there is no error. The err needs to be reset
-+		 * otherwise a frame could come in CPU queue between the while
-+		 * condition and the check for error later on. And in that case
-+		 * the new frame is just removed and not processed.
-+		 */
-+		err = 0;
-+
- 		ocelot_parse_ifh(ifh, &info);
- 
- 		dev = ocelot->ports[info.port]->dev;
+-/* Used by pgtable.h asm code to force instruction serialization. */
+-unsigned long __force_order;
+-
+ /* Used to track our page table allocation area. */
+ struct alloc_pgt_data {
+ 	unsigned char *pgt_buf;
 -- 
 2.20.1
 
