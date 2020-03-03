@@ -2,73 +2,103 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D412177694
-	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 14:05:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E3B61778B2
+	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 15:22:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729201AbgCCNDB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Mar 2020 08:03:01 -0500
-Received: from sonic302-2.consmr.mail.bf2.yahoo.com ([74.6.135.41]:46681 "EHLO
-        sonic302-2.consmr.mail.bf2.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729157AbgCCNDB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 Mar 2020 08:03:01 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1583240578; bh=6u3qDl6yXWBH9oVBF6VmNFaXPPfmaUEmS0LDo6+oXlw=; h=Date:From:Reply-To:Subject:References:From:Subject; b=aFgTCMfoZTL530RNdww+G999yvlc5uMrmgviNF3OolnkUNrFf278IJhG0f6d220d9/hw7JTz6bs0nCmgCmiJVecBE33+1DDiUT45SQeS4FxcOsE6eXtPx6xahGUSzZ2sRAvRDNg1cHLZ5GESqknzzUHTVY69Eejthc+O54AHIsGc3Kg5DdiAIn+SJAkyQJYK89dp6voGSL7trlXeTajoKOPArC//jI/ksGxDKPaVO7nKy+2oohHWi1b+CsmfHExn9T2T+71WxyzKRhlXob44s/mxvrxGgvwTvWihMCgfaFGgdwNtBCuuc1I36+z2F8T6RSUZWdQNc2btXc+pGnMzAw==
-X-YMail-OSG: wPZFc80VM1kkSLCbzuTZNOsHwL2Lv86F7iyC2WlWPAfZX_BgQyY4AXTa7Ehzp1s
- 2vO3wvKkqkOJHpWxdgboMG4iKEhOkEedekLMWYCyO6l3PeXyp7TA3ywPQpoJucu6i7o33lkaOYsN
- DfyNZzOFX4PysuY1.pPNAWuNASxj3w8TN7ioEWp6FO2qvzwwZdnP3HOLamtoV46W56MXIg2mwlfR
- 6seaTBCUaL.ugsd40cVqyil2DU66F8CZIUwrrtY9Tcz5IinzDr.suUoalGn95DaKKfbeU9cKKs4W
- NuHk1Oyq6.VZU4DbGJXblVwleDAPFfqV9XTLb7TEF_PT01O3JunIUkYxnNsS7PBMRwCrfFSVrsVJ
- WQsMbsprGBrZ.gp7TK0pER4pIGOR02c4EOGdWiJjrwtZVHcucjvXom4SR0MYGS63A21IAT89HMGO
- IVV4dK3w3uqZT6EzMdm4Q60BVmNpSjBfNXw6jkX2kQ3wlwfg18iXNdhF1pDf1hc7cjUA2iJ2_dL0
- qFsT.mYWQ9zHueGJjewRjB_giC01wdNGSH9GbxjKhgSZsY5bvNTcXlS4mxIBFE4e_8ew9S2A808E
- PJCPKzFx8qwEQIHFbPOUn_GynoFFofLDpnmRow.QuvYQhCjkxAWc4TBHDdQ2OENAgBDyyTXPkPzE
- 1u7YgJmb0Bx66pPBgkII7b49GXPenxphhdn7AHvIfkQ1bFId_utfwduqKu9quaAkPqmVZ.EP2qSM
- aD97342CeUH06i4Rf22aUdR79efwhl3.zMZcI9MXPVAhOtTE.1ooRhLQzndSH1sVFlOugZzCjxG4
- OmxPZ1aCArbpqGTHHnKZ9jHtmv9S6vxRB2IzUqNAjJryJSGdkSa3Lup6NhqcbdGmQ1yP8e7rIwPH
- k0Iv9oIq4CXK3t7YdhBbWY8f82qyGH_oYHVSchwWYU31_7HkZXcJqyfQ5cbvQLTZwlC1TeCCAix_
- 8qRNjugr1tyOcQbdM1eEA30_RZkYrf6nOeySvJTcKyCCuUdvsNWHsuh53EgqtafjxP2um0009LKl
- VIMusuLTQb4_fqdPbJXRCK0I.UIHlbAs9MAdli7nL_PE03d0kYUyDv2OO8a7V_3zYb7g5W6x4LWN
- MsoUIsSDWf.gq_2jaXMFcW9j2ADXwcJYRtrlDFRk1Q_zerEBVtr1I1MwhRwktH2ze9NXgkQ6wQxy
- GmjgDm2Rv.9RUryAB.2.BvG_mIhf6.lEr2pEx8uYw9gwnzXa_kvPvfz9fBnfbjA0DkDaVstjZQ2Y
- cePN.YzZNwm.1wR8G4.5C2VsuUWS9PJsP0RYMibVxbIUaOj56WPka.hPqwCzj6MGR8oBgvF1UcA-
- -
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic302.consmr.mail.bf2.yahoo.com with HTTP; Tue, 3 Mar 2020 13:02:58 +0000
-Date:   Tue, 3 Mar 2020 13:02:57 +0000 (UTC)
-From:   Ms Lisa Hugh <lisa.hugh222@gmail.com>
-Reply-To: ms.lisahugh000@gmail.com
-Message-ID: <1855020851.2510146.1583240577164@mail.yahoo.com>
-Subject: BUSINESS CO-OPERATION.
+        id S1728374AbgCCOVY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Mar 2020 09:21:24 -0500
+Received: from youngberry.canonical.com ([91.189.89.112]:44158 "EHLO
+        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728113AbgCCOVY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 Mar 2020 09:21:24 -0500
+Received: from ip5f5bf7ec.dynamic.kabel-deutschland.de ([95.91.247.236] helo=wittgenstein)
+        by youngberry.canonical.com with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        (Exim 4.86_2)
+        (envelope-from <christian.brauner@ubuntu.com>)
+        id 1j98Pg-0002Id-SV; Tue, 03 Mar 2020 14:20:49 +0000
+Date:   Tue, 3 Mar 2020 15:20:47 +0100
+From:   Christian Brauner <christian.brauner@ubuntu.com>
+To:     Bernd Edlinger <bernd.edlinger@hotmail.de>
+Cc:     Kees Cook <keescook@chromium.org>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        Jann Horn <jannh@google.com>, Jonathan Corbet <corbet@lwn.net>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Alexey Dobriyan <adobriyan@gmail.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Oleg Nesterov <oleg@redhat.com>,
+        Frederic Weisbecker <frederic@kernel.org>,
+        Andrei Vagin <avagin@gmail.com>,
+        Ingo Molnar <mingo@kernel.org>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Yuyang Du <duyuyang@gmail.com>,
+        David Hildenbrand <david@redhat.com>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Anshuman Khandual <anshuman.khandual@arm.com>,
+        David Howells <dhowells@redhat.com>,
+        James Morris <jamorris@linux.microsoft.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Shakeel Butt <shakeelb@google.com>,
+        Jason Gunthorpe <jgg@ziepe.ca>,
+        Christian Kellner <christian@kellner.me>,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        Aleksa Sarai <cyphar@cyphar.com>,
+        "Dmitry V. Levin" <ldv@altlinux.org>,
+        "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>,
+        "linux-mm@kvack.org" <linux-mm@kvack.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: Re: [PATCHv4] exec: Fix a deadlock in ptrace
+Message-ID: <20200303142047.mrenhvhihe5sm5wv@wittgenstein>
+References: <87k142lpfz.fsf@x220.int.ebiederm.org>
+ <AM6PR03MB51704206634C009500A8080DE4E70@AM6PR03MB5170.eurprd03.prod.outlook.com>
+ <875zfmloir.fsf@x220.int.ebiederm.org>
+ <AM6PR03MB51707ABF20B6CBBECC34865FE4E70@AM6PR03MB5170.eurprd03.prod.outlook.com>
+ <87v9nmjulm.fsf@x220.int.ebiederm.org>
+ <AM6PR03MB5170B976E6387FDDAD59A118E4E70@AM6PR03MB5170.eurprd03.prod.outlook.com>
+ <202003021531.C77EF10@keescook>
+ <20200303085802.eqn6jbhwxtmz4j2x@wittgenstein>
+ <AM6PR03MB5170E03613104B2ACE32F057E4E40@AM6PR03MB5170.eurprd03.prod.outlook.com>
+ <AM6PR03MB51706AE0FE7DA0F3F507F6BAE4E40@AM6PR03MB5170.eurprd03.prod.outlook.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-References: <1855020851.2510146.1583240577164.ref@mail.yahoo.com>
-X-Mailer: WebService/1.1.15302 YMailNodin Mozilla/5.0 (Windows NT 6.1; rv:73.0) Gecko/20100101 Firefox/73.0
-To:     unlisted-recipients:; (no To-header on input)
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <AM6PR03MB51706AE0FE7DA0F3F507F6BAE4E40@AM6PR03MB5170.eurprd03.prod.outlook.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Tue, Mar 03, 2020 at 11:23:31AM +0000, Bernd Edlinger wrote:
+> On 3/3/20 11:34 AM, Bernd Edlinger wrote:
+> > On 3/3/20 9:58 AM, Christian Brauner wrote:
+> >> So one issue I see with having to reacquire the cred_guard_mutex might
+> >> be that this would allow tasks holding the cred_guard_mutex to block a
+> >> killed exec'ing task from exiting, right?
+> >>
+> > 
+> > Yes maybe, but I think it will not be worse than it is now.
+> > Since the second time the mutex is acquired it is done with
+> > mutex_lock_killable, so at least kill -9 should get it terminated.
+> > 
+> 
+> 
+> 
+> >  static void free_bprm(struct linux_binprm *bprm)
+> >  {
+> >  	free_arg_pages(bprm);
+> >  	if (bprm->cred) {
+> > +		if (!bprm->called_flush_old_exec)
+> > +			mutex_lock(&current->signal->cred_guard_mutex);
+> > +		current->signal->cred_locked_for_ptrace = false;
+> >  		mutex_unlock(&current->signal->cred_guard_mutex);
+> 
+> 
+> Hmm, cough...
+> actually when the mutex_lock_killable fails, due to kill -9, in flush_old_exec
+> free_bprm locks the same mutex, this time unkillable, but I should better do
+> mutex_lock_killable here, and if that fails, I can leave cred_locked_for_ptrace,
+> it shouldn't matter, since this is a fatal signal anyway, right?
 
-
-Dear Friend,
-
-I am Ms Lisa Hugh work with the department of Audit and accounting manager here in the Bank(B.O.A).
-
-Please i need your assistance for the transferring of thIs fund to your bank account for both of us benefit for life time investment and the amount is (US$4.5M DOLLARS).
-
-I have every inquiry details to make the bank believe you and release the fund in within 5 banking working days with your full co-operation with me after success.
-
-Note/ 50% for you why 50% for me after success of the transfer to your bank account.
-
-Below information is what i need from you so will can be reaching each other .
-
-1)Full name ...
-2)Private telephone number...
-3)Age...
-4)Nationality...
-5)Occupation ...
-
-
-Thanks.
-
-Ms Lisa Hugh
+I think so, yes.
