@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D9CE177FD2
-	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 19:58:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E0742177FD1
+	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 19:58:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732272AbgCCRxD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1731946AbgCCRxD (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 3 Mar 2020 12:53:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33358 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:33430 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732260AbgCCRxA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Mar 2020 12:53:00 -0500
+        id S1731028AbgCCRxC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Mar 2020 12:53:02 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 32D4B206D5;
-        Tue,  3 Mar 2020 17:52:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 49D8C20728;
+        Tue,  3 Mar 2020 17:53:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583257977;
-        bh=l50NZA9oJ0p6Gllzz/XT7sP8w5HvfBl6UrumDnSHawA=;
+        s=default; t=1583257980;
+        bh=6ZdR+j7W/1OYrpvBOqvO9W3YcYR2SMwtDCKXi/fmZFY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HrOU7Bo9XnemMxeGwoAGqSmG0C2vcDvv2gVQGUvDNQyQGlezODw1wLmUKlrbLFwEN
-         HwtMYEOh5670jaKVJzMymv8HZN6fKDqyC752yFPd+1BsRHdcOby5SimOPfw7oOwGWH
-         t7ujIOZbLYE1OSGkYtDvokl4CDyBPM/eMVowKSlk=
+        b=ewzsqmxpz41i7adSUKPSE1S4wPfHhF/er0HnDIs5HZ9iquA3ofaGxL/V+oz8jNt6/
+         5EPkl4LuMKJwNP3+Y3yk1GjiRSo8UNx9AP6Zr47NHh7VKsFyBaLmjIKewiPRJHO5fe
+         j80ktS1xmdN6zQVm1JIUBVdVSt5Q+lRH76E31bK4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
+        Vincent Guittot <vincent.guittot@linaro.org>,
         "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Scott Wood <swood@redhat.com>, Ingo Molnar <mingo@kernel.org>,
+        Ingo Molnar <mingo@kernel.org>,
+        Ben Segall <bsegall@google.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 025/152] timers/nohz: Update NOHZ load in remote tick
-Date:   Tue,  3 Mar 2020 18:42:03 +0100
-Message-Id: <20200303174305.307542139@linuxfoundation.org>
+Subject: [PATCH 5.4 026/152] sched/fair: Prevent unlimited runtime on throttled group
+Date:   Tue,  3 Mar 2020 18:42:04 +0100
+Message-Id: <20200303174305.422479067@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200303174302.523080016@linuxfoundation.org>
 References: <20200303174302.523080016@linuxfoundation.org>
@@ -45,148 +47,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra (Intel) <peterz@infradead.org>
+From: Vincent Guittot <vincent.guittot@linaro.org>
 
-[ Upstream commit ebc0f83c78a2d26384401ecf2d2fa48063c0ee27 ]
+[ Upstream commit 2a4b03ffc69f2dedc6388e9a6438b5f4c133a40d ]
 
-The way loadavg is tracked during nohz only pays attention to the load
-upon entering nohz.  This can be particularly noticeable if full nohz is
-entered while non-idle, and then the cpu goes idle and stays that way for
-a long time.
+When a running task is moved on a throttled task group and there is no
+other task enqueued on the CPU, the task can keep running using 100% CPU
+whatever the allocated bandwidth for the group and although its cfs rq is
+throttled. Furthermore, the group entity of the cfs_rq and its parents are
+not enqueued but only set as curr on their respective cfs_rqs.
 
-Use the remote tick to ensure that full nohz cpus report their deltas
-within a reasonable time.
+We have the following sequence:
 
-[ swood: Added changelog and removed recheck of stopped tick. ]
+sched_move_task
+  -dequeue_task: dequeue task and group_entities.
+  -put_prev_task: put task and group entities.
+  -sched_change_group: move task to new group.
+  -enqueue_task: enqueue only task but not group entities because cfs_rq is
+    throttled.
+  -set_next_task : set task and group_entities as current sched_entity of
+    their cfs_rq.
 
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Signed-off-by: Scott Wood <swood@redhat.com>
+Another impact is that the root cfs_rq runnable_load_avg at root rq stays
+null because the group_entities are not enqueued. This situation will stay
+the same until an "external" event triggers a reschedule. Let trigger it
+immediately instead.
+
+Signed-off-by: Vincent Guittot <vincent.guittot@linaro.org>
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Link: https://lkml.kernel.org/r/1578736419-14628-3-git-send-email-swood@redhat.com
+Acked-by: Ben Segall <bsegall@google.com>
+Link: https://lkml.kernel.org/r/1579011236-31256-1-git-send-email-vincent.guittot@linaro.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/sched/nohz.h |  2 ++
- kernel/sched/core.c        |  4 +++-
- kernel/sched/loadavg.c     | 33 +++++++++++++++++++++++----------
- 3 files changed, 28 insertions(+), 11 deletions(-)
+ kernel/sched/core.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/include/linux/sched/nohz.h b/include/linux/sched/nohz.h
-index 1abe91ff6e4a2..6d67e9a5af6bb 100644
---- a/include/linux/sched/nohz.h
-+++ b/include/linux/sched/nohz.h
-@@ -15,9 +15,11 @@ static inline void nohz_balance_enter_idle(int cpu) { }
- 
- #ifdef CONFIG_NO_HZ_COMMON
- void calc_load_nohz_start(void);
-+void calc_load_nohz_remote(struct rq *rq);
- void calc_load_nohz_stop(void);
- #else
- static inline void calc_load_nohz_start(void) { }
-+static inline void calc_load_nohz_remote(struct rq *rq) { }
- static inline void calc_load_nohz_stop(void) { }
- #endif /* CONFIG_NO_HZ_COMMON */
- 
 diff --git a/kernel/sched/core.c b/kernel/sched/core.c
-index 067ac465a4b25..8c89c893078af 100644
+index 8c89c893078af..e921126aec84b 100644
 --- a/kernel/sched/core.c
 +++ b/kernel/sched/core.c
-@@ -3676,6 +3676,7 @@ static void sched_tick_remote(struct work_struct *work)
- 	if (cpu_is_offline(cpu))
- 		goto out_unlock;
+@@ -7058,8 +7058,15 @@ void sched_move_task(struct task_struct *tsk)
  
-+	curr = rq->curr;
- 	update_rq_clock(rq);
+ 	if (queued)
+ 		enqueue_task(rq, tsk, queue_flags);
+-	if (running)
++	if (running) {
+ 		set_next_task(rq, tsk);
++		/*
++		 * After changing group, the running task may have joined a
++		 * throttled one but it's still the running task. Trigger a
++		 * resched to make sure that task can still run.
++		 */
++		resched_curr(rq);
++	}
  
- 	if (!is_idle_task(curr)) {
-@@ -3688,10 +3689,11 @@ static void sched_tick_remote(struct work_struct *work)
- 	}
- 	curr->sched_class->task_tick(rq, curr, 0);
- 
-+	calc_load_nohz_remote(rq);
- out_unlock:
- 	rq_unlock_irq(rq, &rf);
--
- out_requeue:
-+
- 	/*
- 	 * Run the remote tick once per second (1Hz). This arbitrary
- 	 * frequency is large enough to avoid overload but short enough
-diff --git a/kernel/sched/loadavg.c b/kernel/sched/loadavg.c
-index 28a516575c181..de22da666ac73 100644
---- a/kernel/sched/loadavg.c
-+++ b/kernel/sched/loadavg.c
-@@ -231,16 +231,11 @@ static inline int calc_load_read_idx(void)
- 	return calc_load_idx & 1;
+ 	task_rq_unlock(rq, tsk, &rf);
  }
- 
--void calc_load_nohz_start(void)
-+static void calc_load_nohz_fold(struct rq *rq)
- {
--	struct rq *this_rq = this_rq();
- 	long delta;
- 
--	/*
--	 * We're going into NO_HZ mode, if there's any pending delta, fold it
--	 * into the pending NO_HZ delta.
--	 */
--	delta = calc_load_fold_active(this_rq, 0);
-+	delta = calc_load_fold_active(rq, 0);
- 	if (delta) {
- 		int idx = calc_load_write_idx();
- 
-@@ -248,6 +243,24 @@ void calc_load_nohz_start(void)
- 	}
- }
- 
-+void calc_load_nohz_start(void)
-+{
-+	/*
-+	 * We're going into NO_HZ mode, if there's any pending delta, fold it
-+	 * into the pending NO_HZ delta.
-+	 */
-+	calc_load_nohz_fold(this_rq());
-+}
-+
-+/*
-+ * Keep track of the load for NOHZ_FULL, must be called between
-+ * calc_load_nohz_{start,stop}().
-+ */
-+void calc_load_nohz_remote(struct rq *rq)
-+{
-+	calc_load_nohz_fold(rq);
-+}
-+
- void calc_load_nohz_stop(void)
- {
- 	struct rq *this_rq = this_rq();
-@@ -268,7 +281,7 @@ void calc_load_nohz_stop(void)
- 		this_rq->calc_load_update += LOAD_FREQ;
- }
- 
--static long calc_load_nohz_fold(void)
-+static long calc_load_nohz_read(void)
- {
- 	int idx = calc_load_read_idx();
- 	long delta = 0;
-@@ -323,7 +336,7 @@ static void calc_global_nohz(void)
- }
- #else /* !CONFIG_NO_HZ_COMMON */
- 
--static inline long calc_load_nohz_fold(void) { return 0; }
-+static inline long calc_load_nohz_read(void) { return 0; }
- static inline void calc_global_nohz(void) { }
- 
- #endif /* CONFIG_NO_HZ_COMMON */
-@@ -346,7 +359,7 @@ void calc_global_load(unsigned long ticks)
- 	/*
- 	 * Fold the 'old' NO_HZ-delta to include all NO_HZ CPUs.
- 	 */
--	delta = calc_load_nohz_fold();
-+	delta = calc_load_nohz_read();
- 	if (delta)
- 		atomic_long_add(delta, &calc_load_tasks);
- 
 -- 
 2.20.1
 
