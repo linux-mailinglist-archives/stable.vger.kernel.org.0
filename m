@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A72D17813D
-	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 20:01:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 560C7178144
+	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 20:01:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387529AbgCCSB0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Mar 2020 13:01:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45508 "EHLO mail.kernel.org"
+        id S1731544AbgCCSBc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Mar 2020 13:01:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45670 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387969AbgCCSBZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Mar 2020 13:01:25 -0500
+        id S2387993AbgCCSBb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Mar 2020 13:01:31 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7FE8F214D8;
-        Tue,  3 Mar 2020 18:01:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E016320836;
+        Tue,  3 Mar 2020 18:01:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583258484;
-        bh=z8llpFI1TTIUbxH5xEANZp3ZNVwFmd5EhqYsxvB0SqM=;
+        s=default; t=1583258491;
+        bh=5XFHckxjy6Hnk7i+dseR4uft0gsRbCy8DyDOHd1HOaQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gNydjSSy+xC/cs7c0djJgDiFFzhcKBjGVcMgq1wIXASwu1ysi+puB36dzQBVTzCGV
-         xAg8+3jZfkcqegc/8LZuzXdkwnr6A2TelILiucRHtKi/77p02bFfkNTgkKsUWinDsx
-         C9cEnSADOI/ScUIAhNjRpy5yauLOtimtrt7XWJik=
+        b=pql4/BHpEYsauSQkT4o9zCy6L00bIvkPi9E4NGcXnqYbGrMN8EP8w5vBU37ndMM8V
+         HGSqwHkwjlDJ4nVi2cybnn9TyxtA7JXpVwX3OpXH2a8bwx3++ql9I9xSv8i5xzROwp
+         XWYKhAI5R49K/Bfk86DKOA6sSgpo58r2lRrm52CY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jethro Beekman <jethro@fortanix.com>,
+        stable@vger.kernel.org,
+        Horatiu Vultur <horatiu.vultur@microchip.com>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 29/87] net: fib_rules: Correctly set table field when table number exceeds 8 bits
-Date:   Tue,  3 Mar 2020 18:43:20 +0100
-Message-Id: <20200303174353.373399455@linuxfoundation.org>
+Subject: [PATCH 4.19 30/87] net: mscc: fix in frame extraction
+Date:   Tue,  3 Mar 2020 18:43:21 +0100
+Message-Id: <20200303174353.436641100@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200303174349.075101355@linuxfoundation.org>
 References: <20200303174349.075101355@linuxfoundation.org>
@@ -43,31 +45,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jethro Beekman <jethro@fortanix.com>
+From: Horatiu Vultur <horatiu.vultur@microchip.com>
 
-[ Upstream commit 540e585a79e9d643ede077b73bcc7aa2d7b4d919 ]
+[ Upstream commit a81541041ceb55bcec9a8bb8ad3482263f0a205a ]
 
-In 709772e6e06564ed94ba740de70185ac3d792773, RT_TABLE_COMPAT was added to
-allow legacy software to deal with routing table numbers >= 256, but the
-same change to FIB rule queries was overlooked.
+Each extracted frame on Ocelot has an IFH. The frame and IFH are extracted
+by reading chuncks of 4 bytes from a register.
 
-Signed-off-by: Jethro Beekman <jethro@fortanix.com>
+In case the IFH and frames were read corretly it would try to read the next
+frame. In case there are no more frames in the queue, it checks if there
+were any previous errors and in that case clear the queue. But this check
+will always succeed also when there are no errors. Because when extracting
+the IFH the error is checked against 4(number of bytes read) and then the
+error is set only if the extraction of the frame failed. So in a happy case
+where there are no errors the err variable is still 4. So it could be
+a case where after the check that there are no more frames in the queue, a
+frame will arrive in the queue but because the error is not reseted, it
+would try to flush the queue. So the frame will be lost.
+
+The fix consist in resetting the error after reading the IFH.
+
+Signed-off-by: Horatiu Vultur <horatiu.vultur@microchip.com>
+Acked-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/core/fib_rules.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/mscc/ocelot_board.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
---- a/net/core/fib_rules.c
-+++ b/net/core/fib_rules.c
-@@ -968,7 +968,7 @@ static int fib_nl_fill_rule(struct sk_bu
+--- a/drivers/net/ethernet/mscc/ocelot_board.c
++++ b/drivers/net/ethernet/mscc/ocelot_board.c
+@@ -105,6 +105,14 @@ static irqreturn_t ocelot_xtr_irq_handle
+ 		if (err != 4)
+ 			break;
  
- 	frh = nlmsg_data(nlh);
- 	frh->family = ops->family;
--	frh->table = rule->table;
-+	frh->table = rule->table < 256 ? rule->table : RT_TABLE_COMPAT;
- 	if (nla_put_u32(skb, FRA_TABLE, rule->table))
- 		goto nla_put_failure;
- 	if (nla_put_u32(skb, FRA_SUPPRESS_PREFIXLEN, rule->suppress_prefixlen))
++		/* At this point the IFH was read correctly, so it is safe to
++		 * presume that there is no error. The err needs to be reset
++		 * otherwise a frame could come in CPU queue between the while
++		 * condition and the check for error later on. And in that case
++		 * the new frame is just removed and not processed.
++		 */
++		err = 0;
++
+ 		ocelot_parse_ifh(ifh, &info);
+ 
+ 		dev = ocelot->ports[info.port]->dev;
 
 
