@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DB34617817C
-	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 20:02:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 757421780A6
+	for <lists+stable@lfdr.de>; Tue,  3 Mar 2020 20:00:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388264AbgCCSCi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Mar 2020 13:02:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47364 "EHLO mail.kernel.org"
+        id S1733188AbgCCR56 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Mar 2020 12:57:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40622 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388261AbgCCSCi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Mar 2020 13:02:38 -0500
+        id S1733184AbgCCR55 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Mar 2020 12:57:57 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 09A0D20836;
-        Tue,  3 Mar 2020 18:02:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9221320870;
+        Tue,  3 Mar 2020 17:57:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583258557;
-        bh=UOJy3pLs5Fs1mlGGncBPdJXTbv+3LRVXAKJbhH46Fm0=;
+        s=default; t=1583258276;
+        bh=nSQ2JwEEUlpH+KtDNU/5jZzofFq9d1NFcnnlpJQLjAI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sKN+Pq5mxPNK65EI0L0OLGOiPo9qYlR4909ffLUGv3cQ1BbORAnghyqrbH11Ty1jm
-         iyh8hwdUfCFmbdN6AEMZIy2JBFm9lXt0I3hM207IiYa5IlGL7UdzG0ZXtIhCPjkPom
-         +SRfeIpOfyGzKMbqpdUypzZkbsXXa8xwQ8NWZS2I=
+        b=Wpb1PQl0/m2ZpLXxzWyuY4NTIrPnnVTO9e1MIONAJYACgJ6p97b3lpbk2BNr1n2B/
+         x8DxHwqgXzUv3uxHNN+LibiyDRrPC35AXfs+B8TAoOIgxDGdEkl3qcnXUyjoYphwJU
+         3U4+jWgOTaCOeny0mffXvPGeIdJB/ccGm4JySvTE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        Aleksa Sarai <cyphar@cyphar.com>
-Subject: [PATCH 4.19 67/87] namei: only return -ECHILD from follow_dotdot_rcu()
+        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
+        Amit Kucheria <amit.kucheria@linaro.org>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>
+Subject: [PATCH 5.4 140/152] thermal: brcmstb_thermal: Do not use DT coefficients
 Date:   Tue,  3 Mar 2020 18:43:58 +0100
-Message-Id: <20200303174356.329220763@linuxfoundation.org>
+Message-Id: <20200303174318.708582648@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200303174349.075101355@linuxfoundation.org>
-References: <20200303174349.075101355@linuxfoundation.org>
+In-Reply-To: <20200303174302.523080016@linuxfoundation.org>
+References: <20200303174302.523080016@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,41 +44,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aleksa Sarai <cyphar@cyphar.com>
+From: Florian Fainelli <f.fainelli@gmail.com>
 
-commit 2b98149c2377bff12be5dd3ce02ae0506e2dd613 upstream.
+commit e1ff6fc22f19e2af8adbad618526b80067911d40 upstream.
 
-It's over-zealous to return hard errors under RCU-walk here, given that
-a REF-walk will be triggered for all other cases handling ".." under
-RCU.
+At the time the brcmstb_thermal driver and its binding were merged, the
+DT binding did not make the coefficients properties a mandatory one,
+therefore all users of the brcmstb_thermal driver out there have a non
+functional implementation with zero coefficients. Even if these
+properties were provided, the formula used for computation is incorrect.
 
-The original purpose of this check was to ensure that if a rename occurs
-such that a directory is moved outside of the bind-mount which the
-resolution started in, it would be detected and blocked to avoid being
-able to mess with paths outside of the bind-mount. However, triggering a
-new REF-walk is just as effective a solution.
+The coefficients are entirely process specific (right now, only 28nm is
+supported) and not board or SoC specific, it is therefore appropriate to
+hard code them in the driver given the compatibility string we are
+probed with which has to be updated whenever a new process is
+introduced.
 
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>
-Fixes: 397d425dc26d ("vfs: Test for and handle paths that are unreachable from their mnt_root")
-Suggested-by: Al Viro <viro@zeniv.linux.org.uk>
-Signed-off-by: Aleksa Sarai <cyphar@cyphar.com>
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+We remove the existing coefficients definition since subsequent patches
+are going to add support for a new process and will introduce new
+coefficients as well.
+
+Fixes: 9e03cf1b2dd5 ("thermal: add brcmstb AVS TMON driver")
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Reviewed-by: Amit Kucheria <amit.kucheria@linaro.org>
+Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
+Link: https://lore.kernel.org/r/20200114190607.29339-2-f.fainelli@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/namei.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/thermal/broadcom/brcmstb_thermal.c |   31 ++++++++---------------------
+ 1 file changed, 9 insertions(+), 22 deletions(-)
 
---- a/fs/namei.c
-+++ b/fs/namei.c
-@@ -1368,7 +1368,7 @@ static int follow_dotdot_rcu(struct name
- 			nd->path.dentry = parent;
- 			nd->seq = seq;
- 			if (unlikely(!path_connected(&nd->path)))
--				return -ENOENT;
-+				return -ECHILD;
- 			break;
- 		} else {
- 			struct mount *mnt = real_mount(nd->path.mnt);
+--- a/drivers/thermal/broadcom/brcmstb_thermal.c
++++ b/drivers/thermal/broadcom/brcmstb_thermal.c
+@@ -49,7 +49,7 @@
+ #define AVS_TMON_TP_TEST_ENABLE		0x20
+ 
+ /* Default coefficients */
+-#define AVS_TMON_TEMP_SLOPE		-487
++#define AVS_TMON_TEMP_SLOPE		487
+ #define AVS_TMON_TEMP_OFFSET		410040
+ 
+ /* HW related temperature constants */
+@@ -108,23 +108,12 @@ struct brcmstb_thermal_priv {
+ 	struct thermal_zone_device *thermal;
+ };
+ 
+-static void avs_tmon_get_coeffs(struct thermal_zone_device *tz, int *slope,
+-				int *offset)
+-{
+-	*slope = thermal_zone_get_slope(tz);
+-	*offset = thermal_zone_get_offset(tz);
+-}
+-
+ /* Convert a HW code to a temperature reading (millidegree celsius) */
+ static inline int avs_tmon_code_to_temp(struct thermal_zone_device *tz,
+ 					u32 code)
+ {
+-	const int val = code & AVS_TMON_TEMP_MASK;
+-	int slope, offset;
+-
+-	avs_tmon_get_coeffs(tz, &slope, &offset);
+-
+-	return slope * val + offset;
++	return (AVS_TMON_TEMP_OFFSET -
++		(int)((code & AVS_TMON_TEMP_MAX) * AVS_TMON_TEMP_SLOPE));
+ }
+ 
+ /*
+@@ -136,20 +125,18 @@ static inline int avs_tmon_code_to_temp(
+ static inline u32 avs_tmon_temp_to_code(struct thermal_zone_device *tz,
+ 					int temp, bool low)
+ {
+-	int slope, offset;
+-
+ 	if (temp < AVS_TMON_TEMP_MIN)
+-		return AVS_TMON_TEMP_MAX; /* Maximum code value */
+-
+-	avs_tmon_get_coeffs(tz, &slope, &offset);
++		return AVS_TMON_TEMP_MAX;	/* Maximum code value */
+ 
+-	if (temp >= offset)
++	if (temp >= AVS_TMON_TEMP_OFFSET)
+ 		return 0;	/* Minimum code value */
+ 
+ 	if (low)
+-		return (u32)(DIV_ROUND_UP(offset - temp, abs(slope)));
++		return (u32)(DIV_ROUND_UP(AVS_TMON_TEMP_OFFSET - temp,
++					  AVS_TMON_TEMP_SLOPE));
+ 	else
+-		return (u32)((offset - temp) / abs(slope));
++		return (u32)((AVS_TMON_TEMP_OFFSET - temp) /
++			      AVS_TMON_TEMP_SLOPE);
+ }
+ 
+ static int brcmstb_get_temp(void *data, int *temp)
 
 
