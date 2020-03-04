@@ -2,113 +2,91 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B04CE179B95
-	for <lists+stable@lfdr.de>; Wed,  4 Mar 2020 23:14:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 485A6179C3B
+	for <lists+stable@lfdr.de>; Thu,  5 Mar 2020 00:16:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388541AbgCDWOi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Mar 2020 17:14:38 -0500
-Received: from smtp03.smtpout.orange.fr ([80.12.242.125]:53266 "EHLO
-        smtp.smtpout.orange.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2388422AbgCDWOi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Mar 2020 17:14:38 -0500
-Received: from [192.168.42.210] ([93.22.132.175])
-        by mwinf5d06 with ME
-        id ANEZ2200C3nCjhH03NEZnp; Wed, 04 Mar 2020 23:14:34 +0100
-X-ME-Helo: [192.168.42.210]
-X-ME-Auth: Y2hyaXN0b3BoZS5qYWlsbGV0QHdhbmFkb28uZnI=
-X-ME-Date: Wed, 04 Mar 2020 23:14:34 +0100
-X-ME-IP: 93.22.132.175
-Subject: Re: AW: [PATCH 5.5 110/176] MIPS: VPE: Fix a double free and a memory
- leak in release_vpe()
-To:     Walter Harms <wharms@bfs.de>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Cc:     "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        Paul Burton <paulburton@kernel.org>,
-        "ralf@linux-mips.org" <ralf@linux-mips.org>,
-        "linux-mips@vger.kernel.org" <linux-mips@vger.kernel.org>,
-        "kernel-janitors@vger.kernel.org" <kernel-janitors@vger.kernel.org>
-References: <20200303174304.593872177@linuxfoundation.org>
- <20200303174317.555620066@linuxfoundation.org>
- <adf1859b4dcc497285ebbda017ece22d@bfs.de>
-From:   Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Message-ID: <33446ca8-0ace-e081-47fa-ceddf7fe80df@wanadoo.fr>
-Date:   Wed, 4 Mar 2020 23:14:30 +0100
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:68.0) Gecko/20100101
- Thunderbird/68.5.0
-MIME-Version: 1.0
-In-Reply-To: <adf1859b4dcc497285ebbda017ece22d@bfs.de>
+        id S2388473AbgCDXQc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Mar 2020 18:16:32 -0500
+Received: from mail-pl1-f196.google.com ([209.85.214.196]:37045 "EHLO
+        mail-pl1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2388468AbgCDXQc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Mar 2020 18:16:32 -0500
+Received: by mail-pl1-f196.google.com with SMTP id b8so1741754plx.4
+        for <stable@vger.kernel.org>; Wed, 04 Mar 2020 15:16:32 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=dabbelt-com.20150623.gappssmtp.com; s=20150623;
+        h=date:subject:in-reply-to:cc:from:to:message-id:mime-version
+         :content-transfer-encoding;
+        bh=fLuBSubRkGwc0et1lSwg/yOrJz68JCULXi64QxtD9L4=;
+        b=Zfx3aZDHOKJv/xTct7dFMPFiJ5RG5nooZwf3B1Md2rdmwylu/vxshgKBxR/JXzh0tD
+         ILxZPjvmXfQO/SuH/N0qK07KCfDtfALyxDCCZFxc2B5oaT8B5uCN1n5MIE8fM8Pw8OYT
+         fyBlEUvLtcv7XvQQPzrsehVW9nxkUUlJnBnnBg4nPiFsqZpRmv0BIeAtS5xWy3bAUkK7
+         EKOTDIA9tusMsoUyU23lmsiRUAutFyFaC9sPkiymBzoqkhA8m2XNEP5ACMQ87Dr1K9L7
+         UhONoltdyIcJ0bCTJjQ6f3GbWTkvgcWNwd2jDPQLNNTAck6BZB9ffrWTJncrYXc7y5EN
+         rk3g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:subject:in-reply-to:cc:from:to:message-id
+         :mime-version:content-transfer-encoding;
+        bh=fLuBSubRkGwc0et1lSwg/yOrJz68JCULXi64QxtD9L4=;
+        b=NxfuMAoW8O1s/jJbtaLKiGpFZyXOxLlBM677NAmO66lAzA5LeJZmWNBynjR6mGE8gU
+         7zF2XA+eHmC/Nhu6oPLNvl365EGGB8jhPoPEbbGxa0xTY3/PXofeoFBC3bQCdGgXjGpk
+         CgplecEZVkJ3HySE1BYnIb+uSpIrIaGzmO3wPe9seKeU1SjXkTMfmFauwVNRCBsYlVmq
+         /JXiAYUU0h5pgGmRN0+ZRenF5ibAFusgUPMZlXjMXGHjBezge49pkIP0iS+EbodxJUc3
+         w3D5XdoT1MsWwIAVxecsQ1B5QeChsT3kN6jamgmfDz6YN9Uxn/cpG1g38xUYnGEcvItQ
+         fu+Q==
+X-Gm-Message-State: ANhLgQ3JsPT6rX/Kg4xJrCcqZXN55IYYkfGjYoicK6SzRJWHsrdK4Xz2
+        HSY61AMaJOa2Ha7YpGYHhyA48w==
+X-Google-Smtp-Source: ADFU+vs16bwXQpjbdGTb2gdRF0APKsg86dgJcOqt7o9kJ87t5Lecc5fFkxXvGGtSwPqdwC/b2hv4bg==
+X-Received: by 2002:a17:90a:1f45:: with SMTP id y5mr5271710pjy.170.1583363791341;
+        Wed, 04 Mar 2020 15:16:31 -0800 (PST)
+Received: from localhost ([2620:0:1000:2514:23a5:d584:6a92:3e3c])
+        by smtp.gmail.com with ESMTPSA id c5sm29203530pfi.10.2020.03.04.15.16.30
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 04 Mar 2020 15:16:30 -0800 (PST)
+Date:   Wed, 04 Mar 2020 15:16:30 -0800 (PST)
+X-Google-Original-Date: Wed, 04 Mar 2020 15:10:33 PST (-0800)
+Subject:     Re: [PATCH] riscv: Fix range looking for kernel image memblock
+In-Reply-To: <20200217052847.3174-1-alex@ghiti.fr>
+CC:     Paul Walmsley <paul.walmsley@sifive.com>, anup@brainfault.org,
+        jan.kiszka@web.de, stable@vger.kernel.org,
+        linux-riscv@lists.infradead.org, linux-kernel@vger.kernel.org,
+        alex@ghiti.fr
+From:   Palmer Dabbelt <palmer@dabbelt.com>
+To:     alex@ghiti.fr
+Message-ID: <mhng-2ab0d9dd-182f-4c81-8432-5d510cd3dd51@palmerdabbelt-glaptop1>
+Mime-Version: 1.0 (MHng)
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 8bit
-Content-Language: en-US
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Le 04/03/2020 à 22:28, Walter Harms a écrit :
-> ________________________________________
-> Von: kernel-janitors-owner@vger.kernel.org <kernel-janitors-owner@vger.kernel.org> im Auftrag von Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> Gesendet: Dienstag, 3. März 2020 18:42
-> An: linux-kernel@vger.kernel.org
-> Cc: Greg Kroah-Hartman; stable@vger.kernel.org; Christophe JAILLET; Paul Burton; ralf@linux-mips.org; linux-mips@vger.kernel.org; kernel-janitors@vger.kernel.org
-> Betreff: [PATCH 5.5 110/176] MIPS: VPE: Fix a double free and a memory leak in release_vpe()
+On Sun, 16 Feb 2020 21:28:47 PST (-0800), alex@ghiti.fr wrote:
+> When looking for the memblock where the kernel lives, we should check
+> that the memory range associated to the memblock entirely comprises the
+> kernel image and not only intersects with it.
 >
-> From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
->
-> commit bef8e2dfceed6daeb6ca3e8d33f9c9d43b926580 upstream.
->
-> Pointer on the memory allocated by 'alloc_progmem()' is stored in
-> 'v->load_addr'. So this is this memory that should be freed by
-> 'release_progmem()'.
->
-> 'release_progmem()' is only a call to 'kfree()'.
->
-> With the current code, there is both a double free and a memory leak.
-> Fix it by passing the correct pointer to 'release_progmem()'.
->
-> Fixes: e01402b115ccc ("More AP / SP bits for the 34K, the Malta bits and things. Still wants")
-> Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-> Signed-off-by: Paul Burton <paulburton@kernel.org>
-> Cc: ralf@linux-mips.org
-> Cc: linux-mips@vger.kernel.org
-> Cc: linux-kernel@vger.kernel.org
-> Cc: kernel-janitors@vger.kernel.org
-> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
->
+> Signed-off-by: Alexandre Ghiti <alex@ghiti.fr>
 > ---
->   arch/mips/kernel/vpe.c |    2 +-
->   1 file changed, 1 insertion(+), 1 deletion(-)
+>  arch/riscv/mm/init.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 >
-> --- a/arch/mips/kernel/vpe.c
-> +++ b/arch/mips/kernel/vpe.c
-> @@ -134,7 +134,7 @@ void release_vpe(struct vpe *v)
->   {
->          list_del(&v->list);
->          if (v->load_addr)
-> -               release_progmem(v);
-> +               release_progmem(v->load_addr);
->          kfree(v);
->   }
+> diff --git a/arch/riscv/mm/init.c b/arch/riscv/mm/init.c
+> index 965a8cf4829c..fab855963c73 100644
+> --- a/arch/riscv/mm/init.c
+> +++ b/arch/riscv/mm/init.c
+> @@ -131,7 +131,7 @@ void __init setup_bootmem(void)
+>  	for_each_memblock(memory, reg) {
+>  		phys_addr_t end = reg->base + reg->size;
 >
+> -		if (reg->base <= vmlinux_end && vmlinux_end <= end) {
+> +		if (reg->base <= vmlinux_start && vmlinux_end <= end) {
+>  			mem_size = min(reg->size, (phys_addr_t)-PAGE_OFFSET);
 >
-> since release_progmem() is kfree() it is also possible to drop "if (v->load_addr)"
->
-> jm2c
->
-> re,
->   wh
+>  			/*
 
-Agreed.
+Reviewed-by: Palmer Dabbelt <palmerdabbelt@google.com>
 
-My patch had the following comment after the patch description:
----
-The 'if (v->load_addr)' looks also redundant, but, well, the code is old
-and I feel lazy tonight to send another patch for only that.
----
-
-git log shows nearly no update since end of 2015, so I kept my proposal 
-as minimal :)
-
-CJ
-
+Thanks.  I'm going to target this for the next RC.
