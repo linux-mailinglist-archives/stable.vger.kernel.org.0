@@ -2,66 +2,79 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5FE8817939A
-	for <lists+stable@lfdr.de>; Wed,  4 Mar 2020 16:36:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E2151793D5
+	for <lists+stable@lfdr.de>; Wed,  4 Mar 2020 16:44:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388271AbgCDPgA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Mar 2020 10:36:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37986 "EHLO mail.kernel.org"
+        id S1729568AbgCDPox (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Mar 2020 10:44:53 -0500
+Received: from foss.arm.com ([217.140.110.172]:35994 "EHLO foss.arm.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388151AbgCDPgA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Mar 2020 10:36:00 -0500
-Received: from localhost (unknown [137.135.114.1])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4F76D21741;
-        Wed,  4 Mar 2020 15:35:59 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583336159;
-        bh=xrHg6a6gcAx1kZXMHV9BB7FHa0jzGDwxjARU5ukTksg=;
-        h=Date:From:To:To:To:CC:Cc:Cc:Subject:In-Reply-To:References:From;
-        b=fwQ6HI6YyeO5m6pEtD8iLmuOByf5PXSfJLuV4dlKVzp1biFTN9sW1UxU0u5YuCI1V
-         faqyNC0oYVNBu1297ktVfxj2MaY77QO25UheSvz3Nt/L+OuJoHuFfXtS59IyHYzrPX
-         cmDcNYkXaNxUTMzT4eiWT+sNFx3XW/Qsg9opUBEo=
-Date:   Wed, 04 Mar 2020 15:35:58 +0000
-From:   Sasha Levin <sashal@kernel.org>
-To:     Sasha Levin <sashal@kernel.org>
-To:     Benoit Parrot <bparrot@ti.com>
-To:     Hans Verkuil <hverkuil@xs4all.nl>
-CC:     <linux-media@vger.kernel.org>, <devicetree@vger.kernel.org>
-Cc:     stable <stable@vger.kernel.org>
-Cc:     stable@vger.kernel.org
-Subject: Re: [Patch 1/1] media: ti-vpe: cal: fix disable_irqs to only the intended target
-In-Reply-To: <20200302135652.9365-1-bparrot@ti.com>
-References: <20200302135652.9365-1-bparrot@ti.com>
-Message-Id: <20200304153559.4F76D21741@mail.kernel.org>
+        id S1729538AbgCDPox (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Mar 2020 10:44:53 -0500
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id EBA0D31B;
+        Wed,  4 Mar 2020 07:44:52 -0800 (PST)
+Received: from localhost (unknown [10.37.6.21])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 6CFE93F6CF;
+        Wed,  4 Mar 2020 07:44:52 -0800 (PST)
+Date:   Wed, 4 Mar 2020 15:44:50 +0000
+From:   Mark Brown <broonie@kernel.org>
+To:     Jaroslav Kysela <perex@perex.cz>
+Cc:     stable@vger.kernel.org, Sasha Levin <sashal@kernel.org>,
+        Pierre-louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Takashi Iwai <tiwai@suse.de>,
+        ALSA development <alsa-devel@alsa-project.org>
+Subject: Re: 5.5.y - apply "ASoC: intel/skl/hda - export number of digital
+ microphones via control components"
+Message-ID: <20200304154450.GB5646@sirena.org.uk>
+References: <147efa37-eb57-7f17-b9eb-84a9fe5ad475@perex.cz>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="NMuMz9nt05w80d4+"
+Content-Disposition: inline
+In-Reply-To: <147efa37-eb57-7f17-b9eb-84a9fe5ad475@perex.cz>
+X-Cookie: Tomorrow, you can be anywhere.
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi
 
-[This is an automated email]
+--NMuMz9nt05w80d4+
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-This commit has been processed because it contains a -stable tag.
-The stable tag indicates that it's relevant for the following trees: all
+On Wed, Mar 04, 2020 at 04:25:54PM +0100, Jaroslav Kysela wrote:
+> Hi,
+>=20
+>   could we cherry-pick patch 8cd9956f61c65022209ce6d1e55ed12aea12357d to =
+the
+> 5.5 stable tree?
+>=20
+> 8cd9956f61c65022209ce6d1e55ed12aea12357d :
+>  "ASoC: intel/skl/hda - export number of digital microphones via control
+> components"
 
-The bot has tested the following trees: v5.5.7, v5.4.23, v4.19.107, v4.14.172, v4.9.215, v4.4.215.
+This looks more like a new feature than a bug fix and I've been trying
+to get the stable people to calm down with the backports, there's been
+*far* too many regressions introduced recently in just the x86 stuff
+found after the fact.  Does this fix systems that used to work?
 
-v5.5.7: Build OK!
-v5.4.23: Build OK!
-v4.19.107: Build OK!
-v4.14.172: Build OK!
-v4.9.215: Build OK!
-v4.4.215: Failed to apply! Possible dependencies:
-    343e89a792a5 ("[media] media: ti-vpe: Add CAL v4l2 camera capture driver")
+--NMuMz9nt05w80d4+
+Content-Type: application/pgp-signature; name="signature.asc"
 
+-----BEGIN PGP SIGNATURE-----
 
-NOTE: The patch will not be queued to stable trees until it is upstream.
+iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAl5fzPIACgkQJNaLcl1U
+h9Dv9gf/Zo6deZO28PePM4ljeLF17V7sBRWBsvSmjroL09kiUjDOofrckNa+ndnD
+EN5nJq4x2nJn8+9cP1OJnZ8byZOj3Pz1PIGJvb1o92KoJgNCIE0vaWoRzP/5WwS6
+RHBiXIA5TYfQ95VTNiCQblTS6cQ+zFh3xkTNTN1K6pRUik1UPtcXvgItXwH4TCY5
+KC2xkTguF72fOodW7LYGtarqs6M2oGZMVozPgE4ePP4LOo9TuIYNKis6NcAn0nHV
+Z4joo3Xz+2pr23cErldqtTKoamyHfCt5KKo3PExkxcxIp4Nf/ikau7AkfGaCLXE6
+EJwvXHeIFjec4f7+dh+wlCxDLUgvGA==
+=exwD
+-----END PGP SIGNATURE-----
 
-How should we proceed with this patch?
-
--- 
-Thanks
-Sasha
+--NMuMz9nt05w80d4+--
