@@ -2,143 +2,150 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 80FFA178CC6
-	for <lists+stable@lfdr.de>; Wed,  4 Mar 2020 09:49:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4AF2B178CC8
+	for <lists+stable@lfdr.de>; Wed,  4 Mar 2020 09:50:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728944AbgCDItu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Mar 2020 03:49:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56778 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725271AbgCDItt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Mar 2020 03:49:49 -0500
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A754F2166E;
-        Wed,  4 Mar 2020 08:49:48 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583311789;
-        bh=42+lF99vxgLst4sZuC1LxXvVtp7nX+zCrtrak2Bngw0=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=yaKcWw/4pvF/wZ8OYOF0n7AK0GQoFZ8VZANQqcYtPlrq9Hqcp5488eXgPTxoaStHp
-         ZcpF/QXL/B6ZMnyE7tVDk0p/EeVJ48w9R1liWMFKJZXsKx2EKgnf9HiL/6N0tzfV5o
-         TyxS4OEGxikqto8SSEOw08F/CyPA6iRfj+xR+FLs=
-Date:   Wed, 4 Mar 2020 09:49:46 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Naresh Kamboju <naresh.kamboju@linaro.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        lkft-triage@lists.linaro.org,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>,
-        linux- stable <stable@vger.kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>
-Subject: Re: [PATCH 5.5 000/176] 5.5.8-stable review
-Message-ID: <20200304084946.GB1416015@kroah.com>
-References: <20200303174304.593872177@linuxfoundation.org>
- <CA+G9fYtNKXBOQKE_AD6qLoRo4TeaBYOc9Ce3kBxdLap1av4v=Q@mail.gmail.com>
- <20200304081128.GC1401372@kroah.com>
- <20200304084702.GA1416015@kroah.com>
+        id S1729024AbgCDIt7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Mar 2020 03:49:59 -0500
+Received: from lelv0143.ext.ti.com ([198.47.23.248]:46652 "EHLO
+        lelv0143.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725271AbgCDIt7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Mar 2020 03:49:59 -0500
+Received: from lelv0265.itg.ti.com ([10.180.67.224])
+        by lelv0143.ext.ti.com (8.15.2/8.15.2) with ESMTP id 0248nw7H078347;
+        Wed, 4 Mar 2020 02:49:58 -0600
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ti.com;
+        s=ti-com-17Q1; t=1583311798;
+        bh=0JcGB+sYExQaFDZtjuC7bhrD3uXfF+I4qmWNu5FYtd4=;
+        h=Subject:To:CC:References:From:Date:In-Reply-To;
+        b=WCIUYoHdET3ZvnYO4hTmE0npbgepCGNOICZagrx+WL27oSvGeuT2yfSFeXC6XXcdZ
+         PLfqJJ8+FHRiSz4ZVxRFHh6e0dzDWCHwpjKL7Ivk1OIMfD9CFD6aFcFloA7edUUIgn
+         E3czcYeAvtI6XwEOTOq3MJfCSVR1MlY4VEzbcrIY=
+Received: from DFLE108.ent.ti.com (dfle108.ent.ti.com [10.64.6.29])
+        by lelv0265.itg.ti.com (8.15.2/8.15.2) with ESMTPS id 0248nwtX093196
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=FAIL);
+        Wed, 4 Mar 2020 02:49:58 -0600
+Received: from DFLE109.ent.ti.com (10.64.6.30) by DFLE108.ent.ti.com
+ (10.64.6.29) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.1847.3; Wed, 4 Mar
+ 2020 02:49:57 -0600
+Received: from fllv0040.itg.ti.com (10.64.41.20) by DFLE109.ent.ti.com
+ (10.64.6.30) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.1847.3 via
+ Frontend Transport; Wed, 4 Mar 2020 02:49:57 -0600
+Received: from [192.168.2.6] (ileax41-snat.itg.ti.com [10.172.224.153])
+        by fllv0040.itg.ti.com (8.15.2/8.15.2) with ESMTP id 0248nu2i052181;
+        Wed, 4 Mar 2020 02:49:56 -0600
+Subject: Re: [Patch 1/1] media: ti-vpe: cal: fix disable_irqs to only the
+ intended target
+To:     Benoit Parrot <bparrot@ti.com>, Hans Verkuil <hverkuil@xs4all.nl>
+CC:     <linux-media@vger.kernel.org>, <devicetree@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>, stable <stable@vger.kernel.org>
+References: <20200302135652.9365-1-bparrot@ti.com>
+From:   Tomi Valkeinen <tomi.valkeinen@ti.com>
+Message-ID: <678cb62a-4fdf-3b57-2fe5-699c6bf02b2f@ti.com>
+Date:   Wed, 4 Mar 2020 10:49:55 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.4.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20200304084702.GA1416015@kroah.com>
+In-Reply-To: <20200302135652.9365-1-bparrot@ti.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-EXCLAIMER-MD-CONFIG: e1e8a2fd-e40a-4ac6-ac9b-f7e9cc9ee180
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Mar 04, 2020 at 09:47:02AM +0100, Greg Kroah-Hartman wrote:
-> On Wed, Mar 04, 2020 at 09:11:28AM +0100, Greg Kroah-Hartman wrote:
-> > On Wed, Mar 04, 2020 at 12:43:42PM +0530, Naresh Kamboju wrote:
-> > > On Tue, 3 Mar 2020 at 23:16, Greg Kroah-Hartman
-> > > <gregkh@linuxfoundation.org> wrote:
-> > > >
-> > > > This is the start of the stable review cycle for the 5.5.8 release.
-> > > > There are 176 patches in this series, all will be posted as a response
-> > > > to this one.  If anyone has any issues with these being applied, please
-> > > > let me know.
-> > > >
-> > > > Responses should be made by Thu, 05 Mar 2020 17:42:06 +0000.
-> > > > Anything received after that time might be too late.
-> > > >
-> > > > The whole patch series can be found in one patch at:
-> > > >         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.5.8-rc1.gz
-> > > > or in the git tree and branch at:
-> > > >         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.5.y
-> > > > and the diffstat can be found below.
-> > > >
-> > > > thanks,
-> > > >
-> > > > greg k-h
-> > > >
-> > > 
-> > > Results from Linaro’s test farm.
-> > > Regressions detected on x86_64 and i386.
-> > > 
-> > > Test failure output:
-> > > CVE-2017-5715: VULN (IBRS+IBPB or retpoline+IBPB+RSB filling, is
-> > > needed to mitigate the vulnerability)
-> > > 
-> > > Test description:
-> > > CVE-2017-5715 branch target injection (Spectre Variant 2)
-> > > 
-> > > Impact: Kernel
-> > > Mitigation 1: new opcode via microcode update that should be used by
-> > > up to date compilers to protect the BTB (by flushing indirect branch
-> > > predictors)
-> > > Mitigation 2: introducing "retpoline" into compilers, and recompile
-> > > software/OS with it
-> > > Performance impact of the mitigation: high for mitigation 1, medium
-> > > for mitigation 2, depending on your CPU
-> > 
-> > So these are regressions or just new tests?
-> > 
-> > If regressions, can you do 'git bisect' to find the offending commit?
-> > 
-> > Also, are you sure you have an updated microcode on these machines and a
-> > proper compiler for retpoline?
+On 02/03/2020 15:56, Benoit Parrot wrote:
+> disable_irqs() was mistakenly disabling all interrupts when called.
+> This cause all port stream to stop even if only stopping one of them.
 > 
-> As an example of just how crazy that script is, here's the output of my
-> machine for that first CVE issue:
+> Cc: stable <stable@vger.kernel.org>
+> Signed-off-by: Benoit Parrot <bparrot@ti.com>
+> ---
+>   drivers/media/platform/ti-vpe/cal.c | 16 ++++++++--------
+>   1 file changed, 8 insertions(+), 8 deletions(-)
 > 
-> CVE-2017-5715 aka 'Spectre Variant 2, branch target injection'
-> * Mitigated according to the /sys interface:  YES  (Mitigation: Full generic retpoline, IBPB: conditional, IBRS_FW, STIBP: conditional, RSB filling)
-> * Mitigation 1
->   * Kernel is compiled with IBRS support:  YES
->     * IBRS enabled and active:  YES  (for firmware code only)
->   * Kernel is compiled with IBPB support:  YES
->     * IBPB enabled and active:  YES
-> * Mitigation 2
->   * Kernel has branch predictor hardening (arm):  NO
->   * Kernel compiled with retpoline option:  YES
->     * Kernel compiled with a retpoline-aware compiler:  YES  (kernel reports full retpoline compilation)
->   * Kernel supports RSB filling:  UNKNOWN  (couldn't check (couldn't find your kernel image in /boot, if you used netboot, this is normal))
-> > STATUS:  VULNERABLE  (IBRS+IBPB or retpoline+IBPB+RSB filling, is needed to mitigate
+> diff --git a/drivers/media/platform/ti-vpe/cal.c b/drivers/media/platform/ti-vpe/cal.c
+> index 6e009e479be3..6d4cbb8782ed 100644
+> --- a/drivers/media/platform/ti-vpe/cal.c
+> +++ b/drivers/media/platform/ti-vpe/cal.c
+> @@ -722,16 +722,16 @@ static void enable_irqs(struct cal_ctx *ctx)
+>   
+>   static void disable_irqs(struct cal_ctx *ctx)
+>   {
+> +	u32 val;
+> +
+>   	/* Disable IRQ_WDMA_END 0/1 */
+> -	reg_write_field(ctx->dev,
+> -			CAL_HL_IRQENABLE_CLR(2),
+> -			CAL_HL_IRQ_CLEAR,
+> -			CAL_HL_IRQ_MASK(ctx->csi2_port));
+> +	val = 0;
+> +	set_field(&val, CAL_HL_IRQ_CLEAR, CAL_HL_IRQ_MASK(ctx->csi2_port));
+> +	reg_write(ctx->dev, CAL_HL_IRQENABLE_CLR(2), val);
+>   	/* Disable IRQ_WDMA_START 0/1 */
+> -	reg_write_field(ctx->dev,
+> -			CAL_HL_IRQENABLE_CLR(3),
+> -			CAL_HL_IRQ_CLEAR,
+> -			CAL_HL_IRQ_MASK(ctx->csi2_port));
+> +	val = 0;
+> +	set_field(&val, CAL_HL_IRQ_CLEAR, CAL_HL_IRQ_MASK(ctx->csi2_port));
+> +	reg_write(ctx->dev, CAL_HL_IRQENABLE_CLR(3), val);
+>   	/* Todo: Add VC_IRQ and CSI2_COMPLEXIO_IRQ handling */
+>   	reg_write(ctx->dev, CAL_CSI2_VC_IRQENABLE(1), 0);
+>   }
 > 
-> So why is this "Vulnerable"?  Because it didn't think it could find my
-> kernel image for some odd reason, despite it really being in /boot/ (I
-> don't use netboot)
-> 
-> So please verify that this really is a real issue, and not just the
-> script doing foolish things.
 
-And, if I tell the script where my kernel image is, suddenly all is
-good:
+I think the above works. But the enable_irqs is broken too, even if it doesn't cause any issues. Both IRQ_SET and IRQ_CLR are not supposed to be "modified" by a read-mod-write operation, but just written to.
 
-CVE-2017-5715 aka 'Spectre Variant 2, branch target injection'
-* Mitigation 1
-  * Kernel is compiled with IBRS support:  YES
-    * IBRS enabled and active:  N/A  (not testable in offline mode)
-  * Kernel is compiled with IBPB support:  YES
-    * IBPB enabled and active:  N/A  (not testable in offline mode)
-* Mitigation 2
-  * Kernel has branch predictor hardening (arm):  UNKNOWN
-  * Kernel compiled with retpoline option:  UNKNOWN  (couldn't read your kernel configuration)
-  * Kernel supports RSB filling:  YES
-> STATUS:  NOT VULNERABLE  (offline mode: kernel supports IBRS + IBPB to mitigate the vulnerability)
+The macros used also make the code very difficult to read. Something like this fixes both irq enable and disable, and makes it readable:
 
+diff --git a/drivers/media/platform/ti-vpe/cal.c b/drivers/media/platform/ti-vpe/cal.c
+index c8b1290c9e2b..660653031a0b 100644
+--- a/drivers/media/platform/ti-vpe/cal.c
++++ b/drivers/media/platform/ti-vpe/cal.c
+@@ -707,15 +707,9 @@ static void cal_quickdump_regs(struct cal_dev *dev)
+ static void enable_irqs(struct cal_ctx *ctx)
+ {
+ 	/* Enable IRQ_WDMA_END 0/1 */
+-	reg_write_field(ctx->dev,
+-			CAL_HL_IRQENABLE_SET(2),
+-			CAL_HL_IRQ_ENABLE,
+-			CAL_HL_IRQ_MASK(ctx->csi2_port));
++	reg_write(ctx->dev, CAL_HL_IRQENABLE_SET(2), 1 << (ctx->csi2_port - 1));
+ 	/* Enable IRQ_WDMA_START 0/1 */
+-	reg_write_field(ctx->dev,
+-			CAL_HL_IRQENABLE_SET(3),
+-			CAL_HL_IRQ_ENABLE,
+-			CAL_HL_IRQ_MASK(ctx->csi2_port));
++	reg_write(ctx->dev, CAL_HL_IRQENABLE_SET(3), 1 << (ctx->csi2_port - 1));
+ 	/* Todo: Add VC_IRQ and CSI2_COMPLEXIO_IRQ handling */
+ 	reg_write(ctx->dev, CAL_CSI2_VC_IRQENABLE(1), 0xFF000000);
+ }
+@@ -723,15 +717,9 @@ static void enable_irqs(struct cal_ctx *ctx)
+ static void disable_irqs(struct cal_ctx *ctx)
+ {
+ 	/* Disable IRQ_WDMA_END 0/1 */
+-	reg_write_field(ctx->dev,
+-			CAL_HL_IRQENABLE_CLR(2),
+-			CAL_HL_IRQ_CLEAR,
+-			CAL_HL_IRQ_MASK(ctx->csi2_port));
++	reg_write(ctx->dev, CAL_HL_IRQENABLE_CLR(2), 1 << (ctx->csi2_port - 1));
+ 	/* Disable IRQ_WDMA_START 0/1 */
+-	reg_write_field(ctx->dev,
+-			CAL_HL_IRQENABLE_CLR(3),
+-			CAL_HL_IRQ_CLEAR,
+-			CAL_HL_IRQ_MASK(ctx->csi2_port));
++	reg_write(ctx->dev, CAL_HL_IRQENABLE_CLR(3), 1 << (ctx->csi2_port - 1));
+ 	/* Todo: Add VC_IRQ and CSI2_COMPLEXIO_IRQ handling */
+ 	reg_write(ctx->dev, CAL_CSI2_VC_IRQENABLE(1), 0);
+ }
 
+ Tomi
 
+-- 
+Texas Instruments Finland Oy, Porkkalankatu 22, 00180 Helsinki.
+Y-tunnus/Business ID: 0615521-4. Kotipaikka/Domicile: Helsinki
