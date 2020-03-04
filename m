@@ -2,131 +2,261 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 29F76179275
-	for <lists+stable@lfdr.de>; Wed,  4 Mar 2020 15:38:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E3B217926F
+	for <lists+stable@lfdr.de>; Wed,  4 Mar 2020 15:37:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729651AbgCDOh6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Mar 2020 09:37:58 -0500
-Received: from mailout2.w1.samsung.com ([210.118.77.12]:44143 "EHLO
-        mailout2.w1.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726579AbgCDOh6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Mar 2020 09:37:58 -0500
-Received: from eucas1p2.samsung.com (unknown [182.198.249.207])
-        by mailout2.w1.samsung.com (KnoxPortal) with ESMTP id 20200304143756euoutp02fff958f1ebde2d7192cf358ae8debe1c~5IK41M_lU2524525245euoutp026
-        for <stable@vger.kernel.org>; Wed,  4 Mar 2020 14:37:56 +0000 (GMT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mailout2.w1.samsung.com 20200304143756euoutp02fff958f1ebde2d7192cf358ae8debe1c~5IK41M_lU2524525245euoutp026
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
-        s=mail20170921; t=1583332676;
-        bh=99b9/nqKXyV4JwNnoUH49XBGlIXWBdmlcza0HtOWdQg=;
-        h=From:To:Cc:Subject:Date:References:From;
-        b=ZSbYbOsJ8j/n6Exv6eZ2MOyfRT0H1KWGATgOSk/cjuhzJES2laik/OZ5EKSPYXodD
-         vE+5l5Jz+T5neUL/fVpXlzthQWoNcS4MBdBLCDDd83BrbiQhFlP0wrecrO6sJFsOjF
-         Z5iIpksp4Jk9qG9fPsUAUVMg0FK9IfsEyblcfEiw=
-Received: from eusmges2new.samsung.com (unknown [203.254.199.244]) by
-        eucas1p1.samsung.com (KnoxPortal) with ESMTP id
-        20200304143756eucas1p1dc39ee2b972cd168590e723976959900~5IK4mwQkj3115131151eucas1p1Y;
-        Wed,  4 Mar 2020 14:37:56 +0000 (GMT)
-Received: from eucas1p2.samsung.com ( [182.198.249.207]) by
-        eusmges2new.samsung.com (EUCPMTA) with SMTP id 57.C9.60679.44DBF5E5; Wed,  4
-        Mar 2020 14:37:56 +0000 (GMT)
-Received: from eusmtrp1.samsung.com (unknown [182.198.249.138]) by
-        eucas1p1.samsung.com (KnoxPortal) with ESMTPA id
-        20200304143756eucas1p1557bba245d3b9878cd2adc970e6d58f6~5IK4V9MeV3243032430eucas1p1u;
-        Wed,  4 Mar 2020 14:37:56 +0000 (GMT)
-Received: from eusmgms1.samsung.com (unknown [182.198.249.179]) by
-        eusmtrp1.samsung.com (KnoxPortal) with ESMTP id
-        20200304143756eusmtrp10d13cac3efe57838f04e6eab767dae1f~5IK4VW-Wg1965119651eusmtrp1S;
-        Wed,  4 Mar 2020 14:37:56 +0000 (GMT)
-X-AuditID: cbfec7f4-0cbff7000001ed07-68-5e5fbd447a04
-Received: from eusmtip2.samsung.com ( [203.254.199.222]) by
-        eusmgms1.samsung.com (EUCPMTA) with SMTP id 8A.16.08375.34DBF5E5; Wed,  4
-        Mar 2020 14:37:56 +0000 (GMT)
-Received: from AMDC2765.digital.local (unknown [106.120.51.73]) by
-        eusmtip2.samsung.com (KnoxPortal) with ESMTPA id
-        20200304143755eusmtip245b66475e741a3f2cf49bf10e06d1a82~5IK4BU9Pt2804428044eusmtip26;
-        Wed,  4 Mar 2020 14:37:55 +0000 (GMT)
-From:   Marek Szyprowski <m.szyprowski@samsung.com>
-To:     linux-samsung-soc@vger.kernel.org
-Cc:     Marek Szyprowski <m.szyprowski@samsung.com>,
-        Krzysztof Kozlowski <krzk@kernel.org>,
-        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
-        stable@vger.kernel.org
-Subject: [PATCH] ARM: dts: exynos: Fix polarity of the LCD SPI bus on
- UniversalC210 board
-Date:   Wed,  4 Mar 2020 15:37:26 +0100
-Message-Id: <20200304143726.15826-1-m.szyprowski@samsung.com>
-X-Mailer: git-send-email 2.17.1
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFrrNIsWRmVeSWpSXmKPExsWy7djP87oue+PjDM78FrbYOGM9q8X58xvY
-        LWac38dksfbIXXaLBRsfMTqwemxa1cnm0bdlFaPH501yAcxRXDYpqTmZZalF+nYJXBkXWxrZ
-        ChZwVfye2cXSwLiVo4uRk0NCwESis2UXWxcjF4eQwApGiY9XW9hAEkICXxglHt3ygLA/M0qs
-        +OkL07D12EN2iIbljBLHp71igXCAGu6c2s4EUsUmYCjR9bYLbJKIgKrE57YFYB3MICs69y4H
-        KxIWiJb42LOBFcRmASr6d/EbWJxXwFbi8fUGRoh18hKrNxxgBmmWENjCJnF97h82iISLxN0p
-        S1kgbGGJV8e3sEPYMhKnJ/ewQDQ0M0o8PLeWHcLpYZS43DQDaqy1xJ1zv4AmcQDdpCmxfpc+
-        RNhR4svtZmaQsIQAn8SNt4IgYWYgc9K26VBhXomONiGIajWJWcfXwa09eOESM4TtIXFt0Ut2
-        SNDFSize0806gVFuFsKuBYyMqxjFU0uLc9NTi43yUsv1ihNzi0vz0vWS83M3MQKj/PS/4192
-        MO76k3SIUYCDUYmH98XU+Dgh1sSy4srcQ4wSHMxKIrzCpkAh3pTEyqrUovz4otKc1OJDjNIc
-        LErivMaLXsYKCaQnlqRmp6YWpBbBZJk4OKUaGDmqcsQzum6HXg3rvhjYekfxcevkblEze9XU
-        eastn9t8SM1bmfCK5aTfyvSZvavfWsnOy9xnHc2Yvfpz/imroymiHN1KZsbyKQ8vxhZcUTbP
-        iE3x67eX/LLyTsZb3XA121k9BYEcns/XLTu8ecbagmdrdvWUL1zbdcfAhTPWx0Lw/mtb3ocW
-        SizFGYmGWsxFxYkAIm4Dhe4CAAA=
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFtrALMWRmVeSWpSXmKPExsVy+t/xe7oue+PjDP4HWGycsZ7V4vz5DewW
-        M87vY7JYe+Quu8WCjY8YHVg9Nq3qZPPo27KK0ePzJrkA5ig9m6L80pJUhYz84hJbpWhDCyM9
-        Q0sLPSMTSz1DY/NYKyNTJX07m5TUnMyy1CJ9uwS9jIstjWwFC7gqfs/sYmlg3MrRxcjJISFg
-        IrH12EP2LkYuDiGBpYwSH5pfskMkZCROTmtghbCFJf5c62KDKPrEKHHp4kKwBJuAoUTXW5AE
-        J4eIgKrE57YFYM3MAqsYJb7dcQexhQUiJa5dW8kCYrMA1fy7+I0JxOYVsJV4fL2BEWKBvMTq
-        DQeYJzDyLGBkWMUoklpanJueW2yoV5yYW1yal66XnJ+7iREYWtuO/dy8g/HSxuBDjAIcjEo8
-        vC+mxscJsSaWFVfmHmKU4GBWEuEVNgUK8aYkVlalFuXHF5XmpBYfYjQFWj6RWUo0OR8Y9nkl
-        8YamhuYWlobmxubGZhZK4rwdAgdjhATSE0tSs1NTC1KLYPqYODilGhjbXBw/lR9m7Z+40lv1
-        AoOmb9IZlZ/sb4RfLt3zL86b9/19nsJdJ9nPWakYJekdF126erbyt8kNj180TQm++dlOmcGv
-        csaSeXPnVl528j96LkD+71bp0EPxr+4dZRPf9upbkbvex8bpTyU0zXdmsJy7n6lbOCFHWCV3
-        GVtHyuSaK5+ulCT4X+lQYinOSDTUYi4qTgQAWeHcSkMCAAA=
-X-CMS-MailID: 20200304143756eucas1p1557bba245d3b9878cd2adc970e6d58f6
-X-Msg-Generator: CA
-Content-Type: text/plain; charset="utf-8"
-X-RootMTR: 20200304143756eucas1p1557bba245d3b9878cd2adc970e6d58f6
-X-EPHeader: CA
-CMS-TYPE: 201P
-X-CMS-RootMailID: 20200304143756eucas1p1557bba245d3b9878cd2adc970e6d58f6
-References: <CGME20200304143756eucas1p1557bba245d3b9878cd2adc970e6d58f6@eucas1p1.samsung.com>
+        id S1729489AbgCDOhw convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Wed, 4 Mar 2020 09:37:52 -0500
+Received: from mail-oln040092072016.outbound.protection.outlook.com ([40.92.72.16]:23299
+        "EHLO EUR03-VE1-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1726579AbgCDOhw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Mar 2020 09:37:52 -0500
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=WPM7oXtuh2PQX/o2c/awB8JgMzyPXI1GqQfLmPPQWvnCLzld5FhuhlDi+bPO/OfrLc+jTT+uzjVFtUnk9UlEjnmfw8cG+/YV5EMM71W6A+KIfwxk8RMcLTttTaqZJ8D7GOAaVvGTDryQa+J8NkIM6DTqPkOw0jFac+p3TP5bzQDTMy3ObjaKHqiRp/wMa0ITuRTQXa5c2qrgilIBEvYcTKHWZ8atLxjufLxxEJ8AwFfFgwd8LXTLDgWS0BX7b9K0Xta1181NuvioWdyU6SkBanPTv7Z38NphNvSJxs0WU8rfHwtx+2/dwFABEXI4tQIKhsiDzUa1JApEU+A4wW2m5w==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=QcXQPedkhnNFfILIej2nx8/wTn4g9uUg8LLYl2MjqTA=;
+ b=boVa9SH309ngrPYevhQ03HXpzQjwgGd+LxtBywBfb9KyCnaNci/7foGrcHZFkfj6TFchDqXht7htIDnJJ8EEK1vJEW4RkqqXeRhEDpOb92pmyBFDlGM6XNMEQK1E0BrF3ec7KsVRZ7DhXCLC3CvboluC5D1m28bhxxKBViQpW6jy9QRCbOC7X68wudVtwC4EaBRl04oDuLiXlC4hVmcyMReTewPt0bxSZty3OGuInv69C8jVeG0tBBOshMoN3omSDZvFvG4lTF51+0UDcozPgaOqdDNT8/EZ4n9g/sDrgG8vW6SXHd1XZnWSTOid7squVKoiFlmz7iSNnD9JWzv7og==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=none; dmarc=none;
+ dkim=none; arc=none
+Received: from DB5EUR03FT008.eop-EUR03.prod.protection.outlook.com
+ (2a01:111:e400:7e0a::3c) by
+ DB5EUR03HT151.eop-EUR03.prod.protection.outlook.com (2a01:111:e400:7e0a::501)
+ with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.2793.11; Wed, 4 Mar
+ 2020 14:37:46 +0000
+Received: from AM6PR03MB5170.eurprd03.prod.outlook.com (10.152.20.52) by
+ DB5EUR03FT008.mail.protection.outlook.com (10.152.20.98) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.2793.11 via Frontend Transport; Wed, 4 Mar 2020 14:37:46 +0000
+Received: from AM6PR03MB5170.eurprd03.prod.outlook.com
+ ([fe80::1956:d274:cab3:b4dd]) by AM6PR03MB5170.eurprd03.prod.outlook.com
+ ([fe80::1956:d274:cab3:b4dd%6]) with mapi id 15.20.2772.019; Wed, 4 Mar 2020
+ 14:37:46 +0000
+Received: from [192.168.1.101] (92.77.140.102) by ZRAP278CA0015.CHEP278.PROD.OUTLOOK.COM (2603:10a6:910:10::25) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.2772.15 via Frontend Transport; Wed, 4 Mar 2020 14:37:44 +0000
+From:   Bernd Edlinger <bernd.edlinger@hotmail.de>
+To:     "Eric W. Biederman" <ebiederm@xmission.com>
+CC:     Christian Brauner <christian.brauner@ubuntu.com>,
+        Kees Cook <keescook@chromium.org>,
+        Jann Horn <jannh@google.com>, Jonathan Corbet <corbet@lwn.net>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Alexey Dobriyan <adobriyan@gmail.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Oleg Nesterov <oleg@redhat.com>,
+        Frederic Weisbecker <frederic@kernel.org>,
+        Andrei Vagin <avagin@gmail.com>,
+        Ingo Molnar <mingo@kernel.org>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Yuyang Du <duyuyang@gmail.com>,
+        David Hildenbrand <david@redhat.com>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Anshuman Khandual <anshuman.khandual@arm.com>,
+        David Howells <dhowells@redhat.com>,
+        James Morris <jamorris@linux.microsoft.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Shakeel Butt <shakeelb@google.com>,
+        Jason Gunthorpe <jgg@ziepe.ca>,
+        Christian Kellner <christian@kellner.me>,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        Aleksa Sarai <cyphar@cyphar.com>,
+        "Dmitry V. Levin" <ldv@altlinux.org>,
+        "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>,
+        "linux-mm@kvack.org" <linux-mm@kvack.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "linux-api@vger.kernel.org" <linux-api@vger.kernel.org>
+Subject: Re: [PATCHv5] exec: Fix a deadlock in ptrace
+Thread-Topic: [PATCHv5] exec: Fix a deadlock in ptrace
+Thread-Index: AQHV8VwLHjttz8YuA0eRTVSvUK/ceqg2/AiMgAAYPYCAAFh/v4ABFW8A
+Date:   Wed, 4 Mar 2020 14:37:46 +0000
+Message-ID: <AM6PR03MB51705AA3009B4986BB6EF92FE4E50@AM6PR03MB5170.eurprd03.prod.outlook.com>
+References: <AM6PR03MB5170EB4427BF5C67EE98FF09E4E60@AM6PR03MB5170.eurprd03.prod.outlook.com>
+ <87a74zmfc9.fsf@x220.int.ebiederm.org>
+ <AM6PR03MB517071DEF894C3D72D2B4AE2E4E70@AM6PR03MB5170.eurprd03.prod.outlook.com>
+ <87k142lpfz.fsf@x220.int.ebiederm.org>
+ <AM6PR03MB51704206634C009500A8080DE4E70@AM6PR03MB5170.eurprd03.prod.outlook.com>
+ <875zfmloir.fsf@x220.int.ebiederm.org>
+ <AM6PR03MB51707ABF20B6CBBECC34865FE4E70@AM6PR03MB5170.eurprd03.prod.outlook.com>
+ <87v9nmjulm.fsf@x220.int.ebiederm.org>
+ <AM6PR03MB5170B976E6387FDDAD59A118E4E70@AM6PR03MB5170.eurprd03.prod.outlook.com>
+ <202003021531.C77EF10@keescook>
+ <20200303085802.eqn6jbhwxtmz4j2x@wittgenstein>
+ <AM6PR03MB5170285B336790D3450E2644E4E40@AM6PR03MB5170.eurprd03.prod.outlook.com>
+ <87v9nlii0b.fsf@x220.int.ebiederm.org>
+ <AM6PR03MB5170609D44967E044FD1BE40E4E40@AM6PR03MB5170.eurprd03.prod.outlook.com>
+ <87a74xi4kz.fsf@x220.int.ebiederm.org>
+In-Reply-To: <87a74xi4kz.fsf@x220.int.ebiederm.org>
+Accept-Language: en-US, en-GB, de-DE
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-clientproxiedby: ZRAP278CA0015.CHEP278.PROD.OUTLOOK.COM
+ (2603:10a6:910:10::25) To AM6PR03MB5170.eurprd03.prod.outlook.com
+ (2603:10a6:20b:ca::23)
+x-incomingtopheadermarker: OriginalChecksum:8814B95B07A5B0B59BE91785DDCE9E40209FCCC148AD5BC9662A74C4C04787B2;UpperCasedChecksum:E3AEDB6651F319D354AF4BA117D37D3DD92C011E561AB11076661740AC6D35FB;SizeAsReceived:9784;Count:50
+x-ms-exchange-messagesentrepresentingtype: 1
+x-tmn:  [lNZ/pEmcA9wn5CLL9LaN1KSCnE9NpNc5]
+x-microsoft-original-message-id: <6fab002c-2888-531a-f70d-4d7149bca60d@hotmail.de>
+x-ms-publictraffictype: Email
+x-incomingheadercount: 50
+x-eopattributedmessage: 0
+x-ms-office365-filtering-correlation-id: 681f5db9-d17b-49c9-2eda-08d7c0499aea
+x-ms-traffictypediagnostic: DB5EUR03HT151:
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: cFUTlXWU0emzpD7yJZ7X/AcOPA6PfI2sjK95LBS1HxgdeALb/3UPEd2zHG6fLJEEij3lW3xDG7SBzT7CBkau8yT6avuneGDRujNzPD896TCxxrxNUnFhKD78GJMmbMFM72XR4liH8jRNuG6krkqtf0ONT91P3Vra39RYCX0pvY2wi49zGnfsW5Q5WNstNBwK
+x-ms-exchange-antispam-messagedata: ql3ua4jqqanbhJSXEGSaZ/qbkSvNDWS8sTVT6aaCR3VYN8evbDUAxOi416yuLFcbgaFn5tm7/70/nc5Mb/iwISypeynwDNGWWyCd5rKNtPZ1/yCMnKFUPTc/oWHFufVCZ/iGS3ErpxWhdba+5HWLoA==
+x-ms-exchange-transport-forked: True
+Content-Type: text/plain; charset="Windows-1252"
+Content-ID: <730E5A674ABEB245ADB99ECE0FDD8B86@eurprd03.prod.outlook.com>
+Content-Transfer-Encoding: 8BIT
+MIME-Version: 1.0
+X-OriginatorOrg: outlook.com
+X-MS-Exchange-CrossTenant-RMS-PersistedConsumerOrg: 00000000-0000-0000-0000-000000000000
+X-MS-Exchange-CrossTenant-Network-Message-Id: 681f5db9-d17b-49c9-2eda-08d7c0499aea
+X-MS-Exchange-CrossTenant-rms-persistedconsumerorg: 00000000-0000-0000-0000-000000000000
+X-MS-Exchange-CrossTenant-originalarrivaltime: 04 Mar 2020 14:37:46.5136
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Internet
+X-MS-Exchange-CrossTenant-id: 84df9e7f-e9f6-40af-b435-aaaaaaaaaaaa
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DB5EUR03HT151
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Recent changes in the SPI core and the SPI-GPIO driver revealed that the
-GPIO lines for the LD9040 LCD controller on the UniversalC210 board are
-defined incorrectly. Fix the polarity for those lines to match the old
-behavior and hardware requirements to fix LCD panel operation with
-recent kernels.
+On 3/3/20 9:08 PM, Eric W. Biederman wrote:
+> Bernd Edlinger <bernd.edlinger@hotmail.de> writes:
+> 
+>> On 3/3/20 4:18 PM, Eric W. Biederman wrote:
+>>> Bernd Edlinger <bernd.edlinger@hotmail.de> writes:
+>>>> diff --git a/tools/testing/selftests/ptrace/vmaccess.c b/tools/testing/selftests/ptrace/vmaccess.c
+>>>> new file mode 100644
+>>>> index 0000000..6d8a048
+>>>> --- /dev/null
+>>>> +++ b/tools/testing/selftests/ptrace/vmaccess.c
+>>>> @@ -0,0 +1,66 @@
+>>>> +// SPDX-License-Identifier: GPL-2.0+
+>>>> +/*
+>>>> + * Copyright (c) 2020 Bernd Edlinger <bernd.edlinger@hotmail.de>
+>>>> + * All rights reserved.
+>>>> + *
+>>>> + * Check whether /proc/$pid/mem can be accessed without causing deadlocks
+>>>> + * when de_thread is blocked with ->cred_guard_mutex held.
+>>>> + */
+>>>> +
+>>>> +#include "../kselftest_harness.h"
+>>>> +#include <stdio.h>
+>>>> +#include <fcntl.h>
+>>>> +#include <pthread.h>
+>>>> +#include <signal.h>
+>>>> +#include <unistd.h>
+>>>> +#include <sys/ptrace.h>
+>>>> +
+>>>> +static void *thread(void *arg)
+>>>> +{
+>>>> +	ptrace(PTRACE_TRACEME, 0, 0L, 0L);
+>>>> +	return NULL;
+>>>> +}
+>>>> +
+>>>> +TEST(vmaccess)
+>>>> +{
+>>>> +	int f, pid = fork();
+>>>> +	char mm[64];
+>>>> +
+>>>> +	if (!pid) {
+>>>> +		pthread_t pt;
+>>>> +
+>>>> +		pthread_create(&pt, NULL, thread, NULL);
+>>>> +		pthread_join(pt, NULL);
+>>>> +		execlp("true", "true", NULL);
+>>>> +	}
+>>>> +
+>>>> +	sleep(1);
+>>>> +	sprintf(mm, "/proc/%d/mem", pid);
+>>>> +	f = open(mm, O_RDONLY);
+>>>> +	ASSERT_LE(0, f);
+>>>> +	close(f);
+>>>> +	f = kill(pid, SIGCONT);
+>>>> +	ASSERT_EQ(0, f);
+>>>> +}
+>>>> +
+>>>> +TEST(attach)
+>>>> +{
+>>>> +	int f, pid = fork();
+>>>> +
+>>>> +	if (!pid) {
+>>>> +		pthread_t pt;
+>>>> +
+>>>> +		pthread_create(&pt, NULL, thread, NULL);
+>>>> +		pthread_join(pt, NULL);
+>>>> +		execlp("true", "true", NULL);
+>>>> +	}
+>>>> +
+>>>> +	sleep(1);
+>>>> +	f = ptrace(PTRACE_ATTACH, pid, 0L, 0L);
+>>>
+>>> To be meaningful this code needs to learn to loop when
+>>> ptrace returns -EAGAIN.
+>>>
+>>> Because that is pretty much what any self respecting user space
+>>> process will do.
+>>>
+>>> At which point I am not certain we can say that the behavior has
+>>> sufficiently improved not to be a deadlock.
+>>>
+>>
+>> In this special dead-duck test it won't work, but it would
+>> still be lots more transparent what is going on, since previously
+>> you had two zombie process, and no way to even output debug
+>> messages, which also all self respecting user space processes
+>> should do.
+> 
+> Agreed it is more transparent.  So if you are going to deadlock
+> it is better.
+> 
+> My previous proposal (which I admit is more work to implement) would
+> actually allow succeeding in this case and so it would not be subject to
+> a dead lock (even via -EGAIN) at this point.
+> 
+>> So yes, I can at least give a good example and re-try it several
+>> times together with wait4 which a tracer is expected to do.
+> 
+> Thank you,
+> 
+> Eric
+> 
 
-CC: stable@vger.kernel.org # 5.0+
-Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
----
- arch/arm/boot/dts/exynos4210-universal_c210.dts | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+Okay, I think it can be done with minimal API changes,
+but it needs two mutexes, one that guards the execve,
+and one that guards only the credentials.
 
-diff --git a/arch/arm/boot/dts/exynos4210-universal_c210.dts b/arch/arm/boot/dts/exynos4210-universal_c210.dts
-index a1bdf7830a87..9dda6bdb9253 100644
---- a/arch/arm/boot/dts/exynos4210-universal_c210.dts
-+++ b/arch/arm/boot/dts/exynos4210-universal_c210.dts
-@@ -115,7 +115,7 @@
- 		gpio-sck = <&gpy3 1 GPIO_ACTIVE_HIGH>;
- 		gpio-mosi = <&gpy3 3 GPIO_ACTIVE_HIGH>;
- 		num-chipselects = <1>;
--		cs-gpios = <&gpy4 3 GPIO_ACTIVE_HIGH>;
-+		cs-gpios = <&gpy4 3 GPIO_ACTIVE_LOW>;
- 
- 		lcd@0 {
- 			compatible = "samsung,ld9040";
-@@ -124,8 +124,6 @@
- 			vci-supply = <&ldo17_reg>;
- 			reset-gpios = <&gpy4 5 GPIO_ACTIVE_HIGH>;
- 			spi-max-frequency = <1200000>;
--			spi-cpol;
--			spi-cpha;
- 			power-on-delay = <10>;
- 			reset-delay = <10>;
- 			panel-width-mm = <90>;
--- 
-2.17.1
+If no traced sibling thread exists, the mutexes are used this way:
+lock(exec_guard_mutex)
+cred_locked_in_execve = true;
+de_thread()
+lock(cred_guard_mutex)
+unlock(cred_guard_mutex)
+cred_locked_in_execve = false;
+unlock(exec_guard_mutex)
 
+so effectively no API change at all.
+
+If a traced sibling thread exists, the mutexes are used differently:
+lock(exec_guard_mutex)
+cred_locked_in_execve = true;
+unlock(exec_guard_mutex)
+de_thread()
+lock(cred_guard_mutex)
+unlock(cred_guard_mutex)
+lock(exec_guard_mutex)
+cred_locked_in_execve = false;
+unlock(exec_guard_mutex)
+
+Only the case changes that would deadlock anyway.
+
+
+Bernd.
