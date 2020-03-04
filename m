@@ -2,101 +2,103 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C2EFA178C5B
-	for <lists+stable@lfdr.de>; Wed,  4 Mar 2020 09:11:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2949A178C79
+	for <lists+stable@lfdr.de>; Wed,  4 Mar 2020 09:19:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725825AbgCDILb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Mar 2020 03:11:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50858 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725283AbgCDILb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Mar 2020 03:11:31 -0500
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F408D2166E;
-        Wed,  4 Mar 2020 08:11:29 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583309490;
-        bh=w96FJLfkzr8JilQIZUTQAJsDJd9ZgFl/LK4eeVwZFIY=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=VpaaCSJNRBLV4noydn2vaZqPfOkRg9eImCQLX78lOgC/PB2YrIn6tTQs5pjsq58CB
-         yuWT5s1dG/arCGfmap8JKAR8gI+6f+YAGKeWwvvCAB+UXk584sRcVHhbwMI+SYe3Km
-         9AN0M7OdMyb30UDfPOsxlqzBpQHMKhw1ZXnmrxyg=
-Date:   Wed, 4 Mar 2020 09:11:28 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Naresh Kamboju <naresh.kamboju@linaro.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        lkft-triage@lists.linaro.org,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>,
-        linux- stable <stable@vger.kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>
-Subject: Re: [PATCH 5.5 000/176] 5.5.8-stable review
-Message-ID: <20200304081128.GC1401372@kroah.com>
+        id S1728216AbgCDITO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Mar 2020 03:19:14 -0500
+Received: from us-smtp-2.mimecast.com ([205.139.110.61]:58040 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1727026AbgCDITO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Mar 2020 03:19:14 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1583309953;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=dgO+g7kPKWUvsxGYHTS6aWvz7ghd8eWFm2MFdikGWgo=;
+        b=J9NQAFw0Y/JbzXX8gkwAkhf25gWvmXsz1a2VCqkJHgz3Yj0Y/K3zCMA3Ag5/KY+pd8XA/8
+        fUczp7SxHBLvFtnfvTGCayOrYhrs5T/AQey8BEOgXkZGR9uwfW+icM3dcZc3bHRzQ10s3A
+        WEltM7SMQLhpjqDGW+jrjPLQ6W0W/bw=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-150-gaMOzecJOle0wdhqNRcqQw-1; Wed, 04 Mar 2020 03:19:12 -0500
+X-MC-Unique: gaMOzecJOle0wdhqNRcqQw-1
+Received: by mail-wm1-f69.google.com with SMTP id k65so252476wmf.7
+        for <stable@vger.kernel.org>; Wed, 04 Mar 2020 00:19:11 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=dgO+g7kPKWUvsxGYHTS6aWvz7ghd8eWFm2MFdikGWgo=;
+        b=T9VEaXi0bVlR1tuYQwjkCR0fQ/o7jlE32FS3uM2Wl+esST6TUohfnRV8nUSdhkdcVe
+         chTbN64ZDAVtnZhkU6MGu8IhYJfXe8JPTr30NufrwdbiFBDigYl0W4up45K7SyAW7KpY
+         45qcvkERXDuzPIZ9iEiEJFtTqQf9UDt2ToEWrXyXTjUHv0WEc1G/u9NsAF6NdM9MyJVp
+         y5S5catPCHRBV2j/qmdnbCevHICy73Df+gfjCzRM8lItGJAnEEo5zbbuNTntwm6FUZuF
+         CG6Tu6YP3ADPQ58iynTiZIDCGClNpr307bRUF9Sd4ClwNWE3VjRU1guox/RscuiyRQTd
+         uO6w==
+X-Gm-Message-State: ANhLgQ0eHo8F0VUul5cgO43zFwZS2AeNTuS2x0QsOK/FN/bLrRFTm4Ss
+        bFjyhEwPmt8VoNItlJnEuQiFpwhOWExan2WQfs3JCrzGxO8A2GR6UlNPmflSbvGNmx13mxf5+Qh
+        Bx9Wm8KwNzJBV2oOc
+X-Received: by 2002:a5d:6a04:: with SMTP id m4mr2784412wru.127.1583309950568;
+        Wed, 04 Mar 2020 00:19:10 -0800 (PST)
+X-Google-Smtp-Source: ADFU+vvWM0YMttMCvWUxAmUh8oJK0y5y58OOD1R2KEZ5cnRGfBWoZG4nfaGGBkT9opRHGblJnTvo8g==
+X-Received: by 2002:a5d:6a04:: with SMTP id m4mr2784382wru.127.1583309950325;
+        Wed, 04 Mar 2020 00:19:10 -0800 (PST)
+Received: from ?IPv6:2001:b07:6468:f312:9def:34a0:b68d:9993? ([2001:b07:6468:f312:9def:34a0:b68d:9993])
+        by smtp.gmail.com with ESMTPSA id o5sm3051643wmb.8.2020.03.04.00.19.09
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 04 Mar 2020 00:19:09 -0800 (PST)
+Subject: Re: [PATCH 5.5 111/176] KVM: nVMX: Emulate MTF when performing
+ instruction emulation
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Oliver Upton <oupton@google.com>
+Cc:     Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        stable@vger.kernel.org
 References: <20200303174304.593872177@linuxfoundation.org>
- <CA+G9fYtNKXBOQKE_AD6qLoRo4TeaBYOc9Ce3kBxdLap1av4v=Q@mail.gmail.com>
+ <20200303174317.670749078@linuxfoundation.org>
+ <8780cf08-374b-da06-0047-0fe8eeec0113@redhat.com>
+ <CAOQ_QsjG32KrG6hVMaMenUYk1+Z+jhcCsGOk=t9i+-9oZRGWeA@mail.gmail.com>
+ <20200304081001.GB1401372@kroah.com>
+From:   Paolo Bonzini <pbonzini@redhat.com>
+Message-ID: <04e51276-1759-2793-3b45-168284cbaf67@redhat.com>
+Date:   Wed, 4 Mar 2020 09:19:09 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.4.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <CA+G9fYtNKXBOQKE_AD6qLoRo4TeaBYOc9Ce3kBxdLap1av4v=Q@mail.gmail.com>
+In-Reply-To: <20200304081001.GB1401372@kroah.com>
+Content-Type: text/plain; charset=windows-1252
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Mar 04, 2020 at 12:43:42PM +0530, Naresh Kamboju wrote:
-> On Tue, 3 Mar 2020 at 23:16, Greg Kroah-Hartman
-> <gregkh@linuxfoundation.org> wrote:
-> >
-> > This is the start of the stable review cycle for the 5.5.8 release.
-> > There are 176 patches in this series, all will be posted as a response
-> > to this one.  If anyone has any issues with these being applied, please
-> > let me know.
-> >
-> > Responses should be made by Thu, 05 Mar 2020 17:42:06 +0000.
-> > Anything received after that time might be too late.
-> >
-> > The whole patch series can be found in one patch at:
-> >         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.5.8-rc1.gz
-> > or in the git tree and branch at:
-> >         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.5.y
-> > and the diffstat can be found below.
-> >
-> > thanks,
-> >
-> > greg k-h
-> >
+On 04/03/20 09:10, Greg Kroah-Hartman wrote:
+> I'll be glad to just put KVM into the "never apply any patches to
+> stable unless you explicitly mark it as such", but the sad fact is that
+> many recent KVM fixes for reported CVEs never had any "Cc: stable@vger"
+> markings.
+
+Hmm, I did miss it in 433f4ba1904100da65a311033f17a9bf586b287e and
+acff78477b9b4f26ecdf65733a4ed77fe837e9dc, but that's going back to
+August 2018, so I can do better but it's not too shabby a record. :)
+
+> They only had "Fixes:" tags and so I have had to dig them out
+> of the tree and backport them myself in order to resolve those very
+> public issues.
 > 
-> Results from Linaro’s test farm.
-> Regressions detected on x86_64 and i386.
+> So can I ask that you always properly tag things for stable?  If so, I
+> will be glad to ignore Fixes: tags for KVM patches in the future.
 > 
-> Test failure output:
-> CVE-2017-5715: VULN (IBRS+IBPB or retpoline+IBPB+RSB filling, is
-> needed to mitigate the vulnerability)
-> 
-> Test description:
-> CVE-2017-5715 branch target injection (Spectre Variant 2)
-> 
-> Impact: Kernel
-> Mitigation 1: new opcode via microcode update that should be used by
-> up to date compilers to protect the BTB (by flushing indirect branch
-> predictors)
-> Mitigation 2: introducing "retpoline" into compilers, and recompile
-> software/OS with it
-> Performance impact of the mitigation: high for mitigation 1, medium
-> for mitigation 2, depending on your CPU
+> I'll go drop this patch as well.  Note, there are other KVM patches in
+> this release cycle also, can someone verify that I did not overreach for
+> them as well?
 
-So these are regressions or just new tests?
+I checked them and they are fine.
 
-If regressions, can you do 'git bisect' to find the offending commit?
+Paolo
 
-Also, are you sure you have an updated microcode on these machines and a
-proper compiler for retpoline?
-
-thanks,
-
-greg k-h
