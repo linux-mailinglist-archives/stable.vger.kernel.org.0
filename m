@@ -2,167 +2,131 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 22F51179100
-	for <lists+stable@lfdr.de>; Wed,  4 Mar 2020 14:12:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 29F76179275
+	for <lists+stable@lfdr.de>; Wed,  4 Mar 2020 15:38:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388093AbgCDNMk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Mar 2020 08:12:40 -0500
-Received: from fllv0015.ext.ti.com ([198.47.19.141]:50584 "EHLO
-        fllv0015.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2388091AbgCDNMk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Mar 2020 08:12:40 -0500
-Received: from lelv0266.itg.ti.com ([10.180.67.225])
-        by fllv0015.ext.ti.com (8.15.2/8.15.2) with ESMTP id 024DCdEa075120;
-        Wed, 4 Mar 2020 07:12:39 -0600
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ti.com;
-        s=ti-com-17Q1; t=1583327559;
-        bh=5xGBvCCNbOxlYfM2cTKcfGoxokVXH8qQTRieJmYkdlg=;
-        h=Date:From:To:CC:Subject:References:In-Reply-To;
-        b=DubHYOaBXGOe56OgUD+HfTAcAgbMAcRmFrTqEGeg3Or0Ad+oKwXhnILlkcYiAsUgX
-         EUCPwA9HajZR39olpcWoh+6Md8snf3mG+Mkth8EZkLMrvnv0uWMvNlmaAAfQeeYH9U
-         yZYTLnSe/OiZIGPgy9IjSFSGxMcjUUakemAcwiBk=
-Received: from DFLE104.ent.ti.com (dfle104.ent.ti.com [10.64.6.25])
-        by lelv0266.itg.ti.com (8.15.2/8.15.2) with ESMTPS id 024DCdSZ005491
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=FAIL);
-        Wed, 4 Mar 2020 07:12:39 -0600
-Received: from DFLE102.ent.ti.com (10.64.6.23) by DFLE104.ent.ti.com
- (10.64.6.25) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.1847.3; Wed, 4 Mar
- 2020 07:12:39 -0600
-Received: from lelv0327.itg.ti.com (10.180.67.183) by DFLE102.ent.ti.com
- (10.64.6.23) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.1847.3 via
- Frontend Transport; Wed, 4 Mar 2020 07:12:39 -0600
-Received: from ti.com (ileax41-snat.itg.ti.com [10.172.224.153])
-        by lelv0327.itg.ti.com (8.15.2/8.15.2) with SMTP id 024DCdxK092569;
-        Wed, 4 Mar 2020 07:12:39 -0600
-Date:   Wed, 4 Mar 2020 07:17:14 -0600
-From:   Benoit Parrot <bparrot@ti.com>
-To:     Tomi Valkeinen <tomi.valkeinen@ti.com>
-CC:     Hans Verkuil <hverkuil@xs4all.nl>, <linux-media@vger.kernel.org>,
-        <devicetree@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-        stable <stable@vger.kernel.org>
-Subject: Re: [Patch 1/1] media: ti-vpe: cal: fix disable_irqs to only the
- intended target
-Message-ID: <20200304131714.rpykdxhgqxmaxyx5@ti.com>
-References: <20200302135652.9365-1-bparrot@ti.com>
- <678cb62a-4fdf-3b57-2fe5-699c6bf02b2f@ti.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Disposition: inline
-In-Reply-To: <678cb62a-4fdf-3b57-2fe5-699c6bf02b2f@ti.com>
-User-Agent: NeoMutt/20171215
-X-EXCLAIMER-MD-CONFIG: e1e8a2fd-e40a-4ac6-ac9b-f7e9cc9ee180
+        id S1729651AbgCDOh6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Mar 2020 09:37:58 -0500
+Received: from mailout2.w1.samsung.com ([210.118.77.12]:44143 "EHLO
+        mailout2.w1.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726579AbgCDOh6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Mar 2020 09:37:58 -0500
+Received: from eucas1p2.samsung.com (unknown [182.198.249.207])
+        by mailout2.w1.samsung.com (KnoxPortal) with ESMTP id 20200304143756euoutp02fff958f1ebde2d7192cf358ae8debe1c~5IK41M_lU2524525245euoutp026
+        for <stable@vger.kernel.org>; Wed,  4 Mar 2020 14:37:56 +0000 (GMT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mailout2.w1.samsung.com 20200304143756euoutp02fff958f1ebde2d7192cf358ae8debe1c~5IK41M_lU2524525245euoutp026
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
+        s=mail20170921; t=1583332676;
+        bh=99b9/nqKXyV4JwNnoUH49XBGlIXWBdmlcza0HtOWdQg=;
+        h=From:To:Cc:Subject:Date:References:From;
+        b=ZSbYbOsJ8j/n6Exv6eZ2MOyfRT0H1KWGATgOSk/cjuhzJES2laik/OZ5EKSPYXodD
+         vE+5l5Jz+T5neUL/fVpXlzthQWoNcS4MBdBLCDDd83BrbiQhFlP0wrecrO6sJFsOjF
+         Z5iIpksp4Jk9qG9fPsUAUVMg0FK9IfsEyblcfEiw=
+Received: from eusmges2new.samsung.com (unknown [203.254.199.244]) by
+        eucas1p1.samsung.com (KnoxPortal) with ESMTP id
+        20200304143756eucas1p1dc39ee2b972cd168590e723976959900~5IK4mwQkj3115131151eucas1p1Y;
+        Wed,  4 Mar 2020 14:37:56 +0000 (GMT)
+Received: from eucas1p2.samsung.com ( [182.198.249.207]) by
+        eusmges2new.samsung.com (EUCPMTA) with SMTP id 57.C9.60679.44DBF5E5; Wed,  4
+        Mar 2020 14:37:56 +0000 (GMT)
+Received: from eusmtrp1.samsung.com (unknown [182.198.249.138]) by
+        eucas1p1.samsung.com (KnoxPortal) with ESMTPA id
+        20200304143756eucas1p1557bba245d3b9878cd2adc970e6d58f6~5IK4V9MeV3243032430eucas1p1u;
+        Wed,  4 Mar 2020 14:37:56 +0000 (GMT)
+Received: from eusmgms1.samsung.com (unknown [182.198.249.179]) by
+        eusmtrp1.samsung.com (KnoxPortal) with ESMTP id
+        20200304143756eusmtrp10d13cac3efe57838f04e6eab767dae1f~5IK4VW-Wg1965119651eusmtrp1S;
+        Wed,  4 Mar 2020 14:37:56 +0000 (GMT)
+X-AuditID: cbfec7f4-0cbff7000001ed07-68-5e5fbd447a04
+Received: from eusmtip2.samsung.com ( [203.254.199.222]) by
+        eusmgms1.samsung.com (EUCPMTA) with SMTP id 8A.16.08375.34DBF5E5; Wed,  4
+        Mar 2020 14:37:56 +0000 (GMT)
+Received: from AMDC2765.digital.local (unknown [106.120.51.73]) by
+        eusmtip2.samsung.com (KnoxPortal) with ESMTPA id
+        20200304143755eusmtip245b66475e741a3f2cf49bf10e06d1a82~5IK4BU9Pt2804428044eusmtip26;
+        Wed,  4 Mar 2020 14:37:55 +0000 (GMT)
+From:   Marek Szyprowski <m.szyprowski@samsung.com>
+To:     linux-samsung-soc@vger.kernel.org
+Cc:     Marek Szyprowski <m.szyprowski@samsung.com>,
+        Krzysztof Kozlowski <krzk@kernel.org>,
+        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
+        stable@vger.kernel.org
+Subject: [PATCH] ARM: dts: exynos: Fix polarity of the LCD SPI bus on
+ UniversalC210 board
+Date:   Wed,  4 Mar 2020 15:37:26 +0100
+Message-Id: <20200304143726.15826-1-m.szyprowski@samsung.com>
+X-Mailer: git-send-email 2.17.1
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFrrNIsWRmVeSWpSXmKPExsWy7djP87oue+PjDM78FrbYOGM9q8X58xvY
+        LWac38dksfbIXXaLBRsfMTqwemxa1cnm0bdlFaPH501yAcxRXDYpqTmZZalF+nYJXBkXWxrZ
+        ChZwVfye2cXSwLiVo4uRk0NCwESis2UXWxcjF4eQwApGiY9XW9hAEkICXxglHt3ygLA/M0qs
+        +OkL07D12EN2iIbljBLHp71igXCAGu6c2s4EUsUmYCjR9bYLbJKIgKrE57YFYB3MICs69y4H
+        KxIWiJb42LOBFcRmASr6d/EbWJxXwFbi8fUGRoh18hKrNxxgBmmWENjCJnF97h82iISLxN0p
+        S1kgbGGJV8e3sEPYMhKnJ/ewQDQ0M0o8PLeWHcLpYZS43DQDaqy1xJ1zv4AmcQDdpCmxfpc+
+        RNhR4svtZmaQsIQAn8SNt4IgYWYgc9K26VBhXomONiGIajWJWcfXwa09eOESM4TtIXFt0Ut2
+        SNDFSize0806gVFuFsKuBYyMqxjFU0uLc9NTi43yUsv1ihNzi0vz0vWS83M3MQKj/PS/4192
+        MO76k3SIUYCDUYmH98XU+Dgh1sSy4srcQ4wSHMxKIrzCpkAh3pTEyqrUovz4otKc1OJDjNIc
+        LErivMaLXsYKCaQnlqRmp6YWpBbBZJk4OKUaGDmqcsQzum6HXg3rvhjYekfxcevkblEze9XU
+        eastn9t8SM1bmfCK5aTfyvSZvavfWsnOy9xnHc2Yvfpz/imroymiHN1KZsbyKQ8vxhZcUTbP
+        iE3x67eX/LLyTsZb3XA121k9BYEcns/XLTu8ecbagmdrdvWUL1zbdcfAhTPWx0Lw/mtb3ocW
+        SizFGYmGWsxFxYkAIm4Dhe4CAAA=
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFtrALMWRmVeSWpSXmKPExsVy+t/xe7oue+PjDP4HWGycsZ7V4vz5DewW
+        M87vY7JYe+Quu8WCjY8YHVg9Nq3qZPPo27KK0ePzJrkA5ig9m6L80pJUhYz84hJbpWhDCyM9
+        Q0sLPSMTSz1DY/NYKyNTJX07m5TUnMyy1CJ9uwS9jIstjWwFC7gqfs/sYmlg3MrRxcjJISFg
+        IrH12EP2LkYuDiGBpYwSH5pfskMkZCROTmtghbCFJf5c62KDKPrEKHHp4kKwBJuAoUTXW5AE
+        J4eIgKrE57YFYM3MAqsYJb7dcQexhQUiJa5dW8kCYrMA1fy7+I0JxOYVsJV4fL2BEWKBvMTq
+        DQeYJzDyLGBkWMUoklpanJueW2yoV5yYW1yal66XnJ+7iREYWtuO/dy8g/HSxuBDjAIcjEo8
+        vC+mxscJsSaWFVfmHmKU4GBWEuEVNgUK8aYkVlalFuXHF5XmpBYfYjQFWj6RWUo0OR8Y9nkl
+        8YamhuYWlobmxubGZhZK4rwdAgdjhATSE0tSs1NTC1KLYPqYODilGhjbXBw/lR9m7Z+40lv1
+        AoOmb9IZlZ/sb4RfLt3zL86b9/19nsJdJ9nPWakYJekdF126erbyt8kNj180TQm++dlOmcGv
+        csaSeXPnVl528j96LkD+71bp0EPxr+4dZRPf9upbkbvex8bpTyU0zXdmsJy7n6lbOCFHWCV3
+        GVtHyuSaK5+ulCT4X+lQYinOSDTUYi4qTgQAWeHcSkMCAAA=
+X-CMS-MailID: 20200304143756eucas1p1557bba245d3b9878cd2adc970e6d58f6
+X-Msg-Generator: CA
+Content-Type: text/plain; charset="utf-8"
+X-RootMTR: 20200304143756eucas1p1557bba245d3b9878cd2adc970e6d58f6
+X-EPHeader: CA
+CMS-TYPE: 201P
+X-CMS-RootMailID: 20200304143756eucas1p1557bba245d3b9878cd2adc970e6d58f6
+References: <CGME20200304143756eucas1p1557bba245d3b9878cd2adc970e6d58f6@eucas1p1.samsung.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Tomi,
+Recent changes in the SPI core and the SPI-GPIO driver revealed that the
+GPIO lines for the LD9040 LCD controller on the UniversalC210 board are
+defined incorrectly. Fix the polarity for those lines to match the old
+behavior and hardware requirements to fix LCD panel operation with
+recent kernels.
 
-Thanks for the review.
+CC: stable@vger.kernel.org # 5.0+
+Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
+---
+ arch/arm/boot/dts/exynos4210-universal_c210.dts | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-Tomi Valkeinen <tomi.valkeinen@ti.com> wrote on Wed [2020-Mar-04 10:49:55 +0200]:
-> On 02/03/2020 15:56, Benoit Parrot wrote:
-> > disable_irqs() was mistakenly disabling all interrupts when called.
-> > This cause all port stream to stop even if only stopping one of them.
-> > 
-> > Cc: stable <stable@vger.kernel.org>
-> > Signed-off-by: Benoit Parrot <bparrot@ti.com>
-> > ---
-> >   drivers/media/platform/ti-vpe/cal.c | 16 ++++++++--------
-> >   1 file changed, 8 insertions(+), 8 deletions(-)
-> > 
-> > diff --git a/drivers/media/platform/ti-vpe/cal.c b/drivers/media/platform/ti-vpe/cal.c
-> > index 6e009e479be3..6d4cbb8782ed 100644
-> > --- a/drivers/media/platform/ti-vpe/cal.c
-> > +++ b/drivers/media/platform/ti-vpe/cal.c
-> > @@ -722,16 +722,16 @@ static void enable_irqs(struct cal_ctx *ctx)
-> >   
-> >   static void disable_irqs(struct cal_ctx *ctx)
-> >   {
-> > +	u32 val;
-> > +
-> >   	/* Disable IRQ_WDMA_END 0/1 */
-> > -	reg_write_field(ctx->dev,
-> > -			CAL_HL_IRQENABLE_CLR(2),
-> > -			CAL_HL_IRQ_CLEAR,
-> > -			CAL_HL_IRQ_MASK(ctx->csi2_port));
-> > +	val = 0;
-> > +	set_field(&val, CAL_HL_IRQ_CLEAR, CAL_HL_IRQ_MASK(ctx->csi2_port));
-> > +	reg_write(ctx->dev, CAL_HL_IRQENABLE_CLR(2), val);
-> >   	/* Disable IRQ_WDMA_START 0/1 */
-> > -	reg_write_field(ctx->dev,
-> > -			CAL_HL_IRQENABLE_CLR(3),
-> > -			CAL_HL_IRQ_CLEAR,
-> > -			CAL_HL_IRQ_MASK(ctx->csi2_port));
-> > +	val = 0;
-> > +	set_field(&val, CAL_HL_IRQ_CLEAR, CAL_HL_IRQ_MASK(ctx->csi2_port));
-> > +	reg_write(ctx->dev, CAL_HL_IRQENABLE_CLR(3), val);
-> >   	/* Todo: Add VC_IRQ and CSI2_COMPLEXIO_IRQ handling */
-> >   	reg_write(ctx->dev, CAL_CSI2_VC_IRQENABLE(1), 0);
-> >   }
-> > 
-> 
-> I think the above works. But the enable_irqs is broken too, even if it doesn't cause any issues. Both IRQ_SET and IRQ_CLR are not supposed to be "modified" by a read-mod-write operation, but just written to.
->
+diff --git a/arch/arm/boot/dts/exynos4210-universal_c210.dts b/arch/arm/boot/dts/exynos4210-universal_c210.dts
+index a1bdf7830a87..9dda6bdb9253 100644
+--- a/arch/arm/boot/dts/exynos4210-universal_c210.dts
++++ b/arch/arm/boot/dts/exynos4210-universal_c210.dts
+@@ -115,7 +115,7 @@
+ 		gpio-sck = <&gpy3 1 GPIO_ACTIVE_HIGH>;
+ 		gpio-mosi = <&gpy3 3 GPIO_ACTIVE_HIGH>;
+ 		num-chipselects = <1>;
+-		cs-gpios = <&gpy4 3 GPIO_ACTIVE_HIGH>;
++		cs-gpios = <&gpy4 3 GPIO_ACTIVE_LOW>;
+ 
+ 		lcd@0 {
+ 			compatible = "samsung,ld9040";
+@@ -124,8 +124,6 @@
+ 			vci-supply = <&ldo17_reg>;
+ 			reset-gpios = <&gpy4 5 GPIO_ACTIVE_HIGH>;
+ 			spi-max-frequency = <1200000>;
+-			spi-cpol;
+-			spi-cpha;
+ 			power-on-delay = <10>;
+ 			reset-delay = <10>;
+ 			panel-width-mm = <90>;
+-- 
+2.17.1
 
-Well maybe not consistent now, that disable_irqs has been modified but not
-broken per se.
-
-> The macros used also make the code very difficult to read. Something like this fixes both irq enable and disable, and makes it readable:
-
-Ah but the mask macro are all consistent with each other, whether that
-create one too many level of abstraction is a different subject. This setup
-was oroginally requested by the maintainer. So I'll "fix" enable_irqs also
-but I'll keep the macro as is.
-
-Benoit
-
-> 
-> diff --git a/drivers/media/platform/ti-vpe/cal.c b/drivers/media/platform/ti-vpe/cal.c
-> index c8b1290c9e2b..660653031a0b 100644
-> --- a/drivers/media/platform/ti-vpe/cal.c
-> +++ b/drivers/media/platform/ti-vpe/cal.c
-> @@ -707,15 +707,9 @@ static void cal_quickdump_regs(struct cal_dev *dev)
->  static void enable_irqs(struct cal_ctx *ctx)
->  {
->  	/* Enable IRQ_WDMA_END 0/1 */
-> -	reg_write_field(ctx->dev,
-> -			CAL_HL_IRQENABLE_SET(2),
-> -			CAL_HL_IRQ_ENABLE,
-> -			CAL_HL_IRQ_MASK(ctx->csi2_port));
-> +	reg_write(ctx->dev, CAL_HL_IRQENABLE_SET(2), 1 << (ctx->csi2_port - 1));
->  	/* Enable IRQ_WDMA_START 0/1 */
-> -	reg_write_field(ctx->dev,
-> -			CAL_HL_IRQENABLE_SET(3),
-> -			CAL_HL_IRQ_ENABLE,
-> -			CAL_HL_IRQ_MASK(ctx->csi2_port));
-> +	reg_write(ctx->dev, CAL_HL_IRQENABLE_SET(3), 1 << (ctx->csi2_port - 1));
->  	/* Todo: Add VC_IRQ and CSI2_COMPLEXIO_IRQ handling */
->  	reg_write(ctx->dev, CAL_CSI2_VC_IRQENABLE(1), 0xFF000000);
->  }
-> @@ -723,15 +717,9 @@ static void enable_irqs(struct cal_ctx *ctx)
->  static void disable_irqs(struct cal_ctx *ctx)
->  {
->  	/* Disable IRQ_WDMA_END 0/1 */
-> -	reg_write_field(ctx->dev,
-> -			CAL_HL_IRQENABLE_CLR(2),
-> -			CAL_HL_IRQ_CLEAR,
-> -			CAL_HL_IRQ_MASK(ctx->csi2_port));
-> +	reg_write(ctx->dev, CAL_HL_IRQENABLE_CLR(2), 1 << (ctx->csi2_port - 1));
->  	/* Disable IRQ_WDMA_START 0/1 */
-> -	reg_write_field(ctx->dev,
-> -			CAL_HL_IRQENABLE_CLR(3),
-> -			CAL_HL_IRQ_CLEAR,
-> -			CAL_HL_IRQ_MASK(ctx->csi2_port));
-> +	reg_write(ctx->dev, CAL_HL_IRQENABLE_CLR(3), 1 << (ctx->csi2_port - 1));
->  	/* Todo: Add VC_IRQ and CSI2_COMPLEXIO_IRQ handling */
->  	reg_write(ctx->dev, CAL_CSI2_VC_IRQENABLE(1), 0);
->  }
-> 
->  Tomi
-> 
-> -- 
-> Texas Instruments Finland Oy, Porkkalankatu 22, 00180 Helsinki.
-> Y-tunnus/Business ID: 0615521-4. Kotipaikka/Domicile: Helsinki
