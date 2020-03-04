@@ -2,62 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 03183179685
-	for <lists+stable@lfdr.de>; Wed,  4 Mar 2020 18:17:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E54CF179687
+	for <lists+stable@lfdr.de>; Wed,  4 Mar 2020 18:17:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727023AbgCDRRS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Mar 2020 12:17:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44874 "EHLO mail.kernel.org"
+        id S1726764AbgCDRRn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Mar 2020 12:17:43 -0500
+Received: from mga07.intel.com ([134.134.136.100]:53019 "EHLO mga07.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726561AbgCDRRS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Mar 2020 12:17:18 -0500
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 34E9121775;
-        Wed,  4 Mar 2020 17:17:17 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583342237;
-        bh=9SOwh6tiXke4ADGABVHNeMcWR2SB1NZku+zHX5kktoY=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=sINCAxI9TCk0yNSFmOWYAZrCSU61w759KFN+oLnuvWTIDLSx6s36vY1zMl2luMWHU
-         n8JTP+7Dzu+ufOIbWj8k7r5dhAd5HcQk/vsGAKfWoj5AOZ19BRq0tnl/Gx560HLvd+
-         jvql+5Bc+3ZIckpEKSZBqBaAIXkpgdt3f8gS7oog=
-Date:   Wed, 4 Mar 2020 18:17:15 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Pavel Machek <pavel@denx.de>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Scott Wood <swood@redhat.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 4.19 05/87] sched/core: Dont skip remote tick for idle
- CPUs
-Message-ID: <20200304171715.GB1852712@kroah.com>
-References: <20200303174349.075101355@linuxfoundation.org>
- <20200303174349.478213998@linuxfoundation.org>
- <20200304151559.GB2367@duo.ucw.cz>
+        id S1726561AbgCDRRn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Mar 2020 12:17:43 -0500
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from orsmga004.jf.intel.com ([10.7.209.38])
+  by orsmga105.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 04 Mar 2020 09:17:42 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.70,514,1574150400"; 
+   d="scan'208";a="387225105"
+Received: from hhartana-mobl3.amr.corp.intel.com (HELO [10.251.140.18]) ([10.251.140.18])
+  by orsmga004.jf.intel.com with ESMTP; 04 Mar 2020 09:17:41 -0800
+Subject: Re: 5.5.y - apply "ASoC: intel/skl/hda - export number of digital
+ microphones via control components"
+To:     Mark Brown <broonie@kernel.org>, Jaroslav Kysela <perex@perex.cz>
+Cc:     Sasha Levin <sashal@kernel.org>, Takashi Iwai <tiwai@suse.de>,
+        ALSA development <alsa-devel@alsa-project.org>,
+        stable@vger.kernel.org
+References: <147efa37-eb57-7f17-b9eb-84a9fe5ad475@perex.cz>
+ <20200304154450.GB5646@sirena.org.uk>
+ <a6d57c14-0794-77d0-5c6f-c0c897d254b5@perex.cz>
+ <20200304160916.GC5646@sirena.org.uk>
+From:   Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Message-ID: <44cf4ff8-120f-79fd-8801-47807b03f912@linux.intel.com>
+Date:   Wed, 4 Mar 2020 11:17:41 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.4.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200304151559.GB2367@duo.ucw.cz>
+In-Reply-To: <20200304160916.GC5646@sirena.org.uk>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Mar 04, 2020 at 04:15:59PM +0100, Pavel Machek wrote:
-> Hi!
-> 
-> > [ Upstream commit 488603b815a7514c7009e6fc339d74ed4a30f343 ]
-> > 
-> > This will be used in the next patch to get a loadavg update from
-> > nohz cpus.  The delta check is skipped because idle_sched_class
-> > doesn't update se.exec_start.
-> 
-> I don't see the next patch queued for 4.19-stable. AFAICT this does
-> not fix anything without the subsequent patch?
 
-Ah, good catch, that patch only made it into 5.4.y and 5.5.y, I'll drop
-this from the 4.19 queue, thanks.
+>>> This looks more like a new feature than a bug fix and I've been trying
+>>> to get the stable people to calm down with the backports, there's been
+>>> *far* too many regressions introduced recently in just the x86 stuff
+>>> found after the fact.  Does this fix systems that used to work?
+> 
+>> The released ALSA UCM does not work correctly for some platforms without
+>> this information (the number of digital microphones is not identified
+>> correctly).
+> 
+> That's not the question I asked - have these platforms ever worked with
+> older kernel versions?
 
-greg k-h
+Yes in that digital microphones have been enabled for a very long time 
+(5.2 if I am not mistaken).
+
+No in that the automatic selection of the SOF driver was only enabled 
+for v5.5. In other words before 5.5 the user or distro needed to 
+blacklist the legacy snd-hda-intel HDAudio driver to get DMICs to work.
+
+This patch also removes the need for userspace configuration, pulseaudio 
+now directly receives the information on the number of microphones. It 
+was provided days after the merge window was opened, but the intent was 
+that v5.5 was the first release where users don't need to muck with 
+configuration files.
+
+>> The regression probability is really low for this one and we're using it in
+>> Fedora kernels for months without issues (in this code).
+> 
+> It's partly the principle of the thing, if it were just patches that
+> had individually been identified as being good for stable by someone
+> with some understanding of the code (like this one :/ ) that were being
+> backported I'd be a lot less concerned but the automated selections are
+> missing dependencies or other context and people are reporting problems
+> with them so I'm inclined to push back on things.
+
+You are correct that the process can appear confusing, mainly since the 
+initial patch was contributed after the merge window on November 26.
+
+Looking back at the emails, I didn't see any objections but somehow the 
+patch never landed in 5.5 updates. Jaroslav's intentions and work are 
+not without merit, we really appreciate his ucm2 work, and I support 
+this integration on v5.5-y to make the life of downstream distros simpler.
+
+Would it help if we provide a Tested-by tag with 5.5-y + this patch applied?
+
+Thanks
+-Pierre
