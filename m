@@ -2,56 +2,126 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C336178D76
-	for <lists+stable@lfdr.de>; Wed,  4 Mar 2020 10:32:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4CD32178DE3
+	for <lists+stable@lfdr.de>; Wed,  4 Mar 2020 10:58:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728909AbgCDJcP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Mar 2020 04:32:15 -0500
-Received: from mail-lf1-f68.google.com ([209.85.167.68]:39757 "EHLO
-        mail-lf1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728767AbgCDJcP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Mar 2020 04:32:15 -0500
-Received: by mail-lf1-f68.google.com with SMTP id n30so915888lfh.6
-        for <stable@vger.kernel.org>; Wed, 04 Mar 2020 01:32:14 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=WlHYJpV9LDx+Kwr6eflFKbZEkhaqyVolWhtkZZvo7vI=;
-        b=nrf3FuZ3V1eesUTdIiCXeP747EVwurUg469rH0T0yKb2zsY78mvUsE6XGKtUraHmIK
-         hTs0awmIrif8QonEmGUg5kMDOBTvmqkYSZREAUDvtjfv1szSpTRg4iHwKHEr9wfS6Y6J
-         whj58plAZl4IQy7jHDS+LJyEwq9IlrlAZN8RfbU0z+nYQ3CZKJ+lufsUta/CI2onGCvg
-         SgAON2wmM4O9/CPuKF6XoXZQoqIdZHymERhpptuuRTT+Z2g/q2/D4nyqGRrp1EPzshVs
-         KkKndNfAr8GmqUuBSmYSaaM6kj7C8vT1RZFegZHm0MR91XmKEdNUnBkKet0QL28qR+c+
-         9nzg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=WlHYJpV9LDx+Kwr6eflFKbZEkhaqyVolWhtkZZvo7vI=;
-        b=pls7nCwG8tIXhfP6f5bMlCFfZLqIYYU5pbUN3j9OuIKRaoBKMtGH1QIHbUSI/2+96p
-         +6rVL2jmPNwpqWrD7jHollsJIrbuvTWXI05woJJotZLK2y7pxw7wm9lDjE53mfWf+miG
-         CO85siT8TBOnzTxdiCJtWm6KRm5B3K+3ImNOqJJtJpE0gqTPgjop6e1XFb3XBlaWHr15
-         nXPLMYsHQqTX25DNqfE6jaaRx1oQ3ew2OY7J50StNOXiFRGnm4BdRt60sXUf9qM8AGS6
-         8lb2lK0zs8sW7z5P5eKOKGfrHRpJDsfxegzklLGvKfjpo0qDgcDyf1R2yGWS37KR+J0E
-         B4LQ==
-X-Gm-Message-State: ANhLgQ31u7FTF8XFyEOQS5tTOSvsAjco2Gm/1OEPJ3921K0Bihr9t6Kk
-        LAegFA0NWiIclh085P5Rdbddi6adBcsR/aQZ0ak=
-X-Google-Smtp-Source: ADFU+vsTSFE1tNg9A8TqKxrCse7faDNjof7q+cWrNcqtA6VvIPR+/TEFljs6NBdIZonQTrfrnq3SmxsHNn0BL1YFc30=
-X-Received: by 2002:ac2:568a:: with SMTP id 10mr1392243lfr.123.1583314333537;
- Wed, 04 Mar 2020 01:32:13 -0800 (PST)
+        id S1729059AbgCDJ6C (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Mar 2020 04:58:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50636 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728387AbgCDJ6C (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Mar 2020 04:58:02 -0500
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 67EE52072D;
+        Wed,  4 Mar 2020 09:58:01 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1583315881;
+        bh=SEeKMPdVGSgdWdSwDFrf0OgL9xypumSLmDutdFwOLS4=;
+        h=Subject:To:From:Date:From;
+        b=H/NJLgzfIzzUWEWbHWidHlgd/t+IMTwBsSolY0jrq/eXoVHtK9pPyVzPO/CUceuQn
+         behOMTJCRJC20h5Jtd+OO2mjQmFUAZL17EUlJuB8xPZjSTo3rqSSkoAlFZaFz2jVTB
+         OTLjDW+WylFMkU4Wd/kUHLk9TzazeeHwgaOT730I=
+Subject: patch "usb: cdns3: gadget: toggle cycle bit before reset endpoint" added to usb-linus
+To:     peter.chen@nxp.com, gregkh@linuxfoundation.org,
+        stable@vger.kernel.org
+From:   <gregkh@linuxfoundation.org>
+Date:   Wed, 04 Mar 2020 10:57:51 +0100
+Message-ID: <1583315871189249@kroah.com>
 MIME-Version: 1.0
-Received: by 2002:ab3:71c4:0:0:0:0:0 with HTTP; Wed, 4 Mar 2020 01:32:12 -0800 (PST)
-Reply-To: cyeden1@gmail.com
-From:   CY Eden <am7873664@gmail.com>
-Date:   Wed, 4 Mar 2020 09:32:12 +0000
-Message-ID: <CANWQiGpFKz_9YXs+TG7ZvXhy4CbsrONNWF_3EqFz2P4ydzqt3g@mail.gmail.com>
-Subject: 
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello I have an important information from UNITED NATIONS for
-you,reply for more details
+
+This is a note to let you know that I've just added the patch titled
+
+    usb: cdns3: gadget: toggle cycle bit before reset endpoint
+
+to my usb git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
+in the usb-linus branch.
+
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
+
+The patch will hopefully also be merged in Linus's tree for the
+next -rc kernel release.
+
+If you have any questions about this process, please let me know.
+
+
+From 4bf2dd65135a2d7fe202f7c10d65b51bcf645ac6 Mon Sep 17 00:00:00 2001
+From: Peter Chen <peter.chen@nxp.com>
+Date: Wed, 19 Feb 2020 22:14:55 +0800
+Subject: usb: cdns3: gadget: toggle cycle bit before reset endpoint
+
+If there are TRBs pending during reset endpoint operation, the
+DMA will advance after reset operation, but it isn't expected,
+since the data is not yet available (For OUT, the data is not
+yet available). After the data is ready, there won't be any
+interrupt since the EP_TRADDR already points to next TRB entry
+and doorbell is not set.
+
+To fix it, it toggles cycle bit before reset operation, and restores
+it after reset, it could avoid unexpected DMA advance due to
+cycle bit is for software during the endpoint reset operation.
+
+Fixes: 7733f6c32e36 ("usb: cdns3: Add Cadence USB3 DRD Driver")
+Signed-off-by: Peter Chen <peter.chen@nxp.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200219141455.23257-3-peter.chen@nxp.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/usb/cdns3/gadget.c | 17 ++++++++++++++---
+ 1 file changed, 14 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/usb/cdns3/gadget.c b/drivers/usb/cdns3/gadget.c
+index 1d8a2af35bb0..3574dbb09366 100644
+--- a/drivers/usb/cdns3/gadget.c
++++ b/drivers/usb/cdns3/gadget.c
+@@ -2595,11 +2595,21 @@ int __cdns3_gadget_ep_clear_halt(struct cdns3_endpoint *priv_ep)
+ {
+ 	struct cdns3_device *priv_dev = priv_ep->cdns3_dev;
+ 	struct usb_request *request;
++	struct cdns3_request *priv_req;
++	struct cdns3_trb *trb = NULL;
+ 	int ret;
+ 	int val;
+ 
+ 	trace_cdns3_halt(priv_ep, 0, 0);
+ 
++	request = cdns3_next_request(&priv_ep->pending_req_list);
++	if (request) {
++		priv_req = to_cdns3_request(request);
++		trb = priv_req->trb;
++		if (trb)
++			trb->control = trb->control ^ TRB_CYCLE;
++	}
++
+ 	writel(EP_CMD_CSTALL | EP_CMD_EPRST, &priv_dev->regs->ep_cmd);
+ 
+ 	/* wait for EPRST cleared */
+@@ -2610,10 +2620,11 @@ int __cdns3_gadget_ep_clear_halt(struct cdns3_endpoint *priv_ep)
+ 
+ 	priv_ep->flags &= ~(EP_STALLED | EP_STALL_PENDING);
+ 
+-	request = cdns3_next_request(&priv_ep->pending_req_list);
+-
+-	if (request)
++	if (request) {
++		if (trb)
++			trb->control = trb->control ^ TRB_CYCLE;
+ 		cdns3_rearm_transfer(priv_ep, 1);
++	}
+ 
+ 	cdns3_start_all_request(priv_dev, priv_ep);
+ 	return ret;
+-- 
+2.25.1
+
+
