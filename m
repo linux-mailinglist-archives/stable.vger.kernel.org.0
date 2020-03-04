@@ -2,88 +2,127 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 132E7178CD2
-	for <lists+stable@lfdr.de>; Wed,  4 Mar 2020 09:51:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 885EF178D54
+	for <lists+stable@lfdr.de>; Wed,  4 Mar 2020 10:22:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727026AbgCDIvQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Mar 2020 03:51:16 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57256 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725271AbgCDIvQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Mar 2020 03:51:16 -0500
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6893220732;
-        Wed,  4 Mar 2020 08:51:15 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583311875;
-        bh=lc8ZcrxfTb7ziZCP6ve86LRFQyF/mtfu4M4IYApuctQ=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=0EPbFPXmlJMC09ZrudEBw1DFLptEzQWrJkwffIcbT2InFZnVfTKtxckc2SINK8V3t
-         ZEk6kf93chQD5mgbqN72G3VD2KPHczTsErUgQn//ZeVIJRl8YK3khNP98vZrkD9/6o
-         0MBUjZ63PcolvfboDVLiw3Hf7YM1hqRv2l/GbA1c=
-Date:   Wed, 4 Mar 2020 09:51:13 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Paolo Bonzini <pbonzini@redhat.com>
-Cc:     Oliver Upton <oupton@google.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        stable@vger.kernel.org
-Subject: Re: [PATCH 5.5 111/176] KVM: nVMX: Emulate MTF when performing
- instruction emulation
-Message-ID: <20200304085113.GA1419475@kroah.com>
-References: <20200303174304.593872177@linuxfoundation.org>
- <20200303174317.670749078@linuxfoundation.org>
- <8780cf08-374b-da06-0047-0fe8eeec0113@redhat.com>
- <CAOQ_QsjG32KrG6hVMaMenUYk1+Z+jhcCsGOk=t9i+-9oZRGWeA@mail.gmail.com>
- <20200304081001.GB1401372@kroah.com>
- <04e51276-1759-2793-3b45-168284cbaf67@redhat.com>
- <20200304082613.GA1407851@kroah.com>
- <cf7c6b2d-64eb-8d13-3e9a-09c40d2ecf95@redhat.com>
+        id S1727176AbgCDJWd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Mar 2020 04:22:33 -0500
+Received: from fllv0015.ext.ti.com ([198.47.19.141]:56776 "EHLO
+        fllv0015.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2387644AbgCDJWd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Mar 2020 04:22:33 -0500
+Received: from fllv0035.itg.ti.com ([10.64.41.0])
+        by fllv0015.ext.ti.com (8.15.2/8.15.2) with ESMTP id 0249MVVd021446;
+        Wed, 4 Mar 2020 03:22:31 -0600
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ti.com;
+        s=ti-com-17Q1; t=1583313751;
+        bh=2d9mOhOZdqG8REHoaeHfSFUIKR7jOmqd2Qz00FQ0jJE=;
+        h=Subject:From:To:CC:References:Date:In-Reply-To;
+        b=aQSKRBoJaka7PthutzerBCcYwSqMPCyIAkRlyUA5H5ZTkNVvr5JAjg04o0qQw8R+b
+         k4yBrVBRu3DbxFxE9EYR60+C52NubKXBqewWc1V8X4YQ3a7on3xD8vuBvM5PZdAvCM
+         qplNtgS9gG57XCSEgxIA1mZBNR5kbCV8lTazCXew=
+Received: from DLEE113.ent.ti.com (dlee113.ent.ti.com [157.170.170.24])
+        by fllv0035.itg.ti.com (8.15.2/8.15.2) with ESMTP id 0249MVlA123075;
+        Wed, 4 Mar 2020 03:22:31 -0600
+Received: from DLEE106.ent.ti.com (157.170.170.36) by DLEE113.ent.ti.com
+ (157.170.170.24) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.1847.3; Wed, 4 Mar
+ 2020 03:22:31 -0600
+Received: from lelv0326.itg.ti.com (10.180.67.84) by DLEE106.ent.ti.com
+ (157.170.170.36) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.1847.3 via
+ Frontend Transport; Wed, 4 Mar 2020 03:22:31 -0600
+Received: from [192.168.2.6] (ileax41-snat.itg.ti.com [10.172.224.153])
+        by lelv0326.itg.ti.com (8.15.2/8.15.2) with ESMTP id 0249MRMo067256;
+        Wed, 4 Mar 2020 03:22:28 -0600
+Subject: Re: [Patch] media: ti-vpe: cal: fix a kernel oops when unloading
+ module
+From:   Tomi Valkeinen <tomi.valkeinen@ti.com>
+To:     Benoit Parrot <bparrot@ti.com>, Hans Verkuil <hverkuil@xs4all.nl>
+CC:     <linux-media@vger.kernel.org>, <devicetree@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>, <stable@vger.kernel.org>
+References: <20200303172629.21339-1-bparrot@ti.com>
+ <4010c13f-6a32-f3c3-5b6d-62a4e3782c64@ti.com>
+ <f7f6dd87-147f-b9e9-aaa7-c063a8f3c11e@ti.com>
+Message-ID: <a2e6510f-ffd9-060e-ab03-cdc261ecc778@ti.com>
+Date:   Wed, 4 Mar 2020 11:22:26 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.4.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <cf7c6b2d-64eb-8d13-3e9a-09c40d2ecf95@redhat.com>
+In-Reply-To: <f7f6dd87-147f-b9e9-aaa7-c063a8f3c11e@ti.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-EXCLAIMER-MD-CONFIG: e1e8a2fd-e40a-4ac6-ac9b-f7e9cc9ee180
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Mar 04, 2020 at 09:43:18AM +0100, Paolo Bonzini wrote:
-> On 04/03/20 09:26, Greg Kroah-Hartman wrote:
-> > On Wed, Mar 04, 2020 at 09:19:09AM +0100, Paolo Bonzini wrote:
-> >> On 04/03/20 09:10, Greg Kroah-Hartman wrote:
-> >>> I'll be glad to just put KVM into the "never apply any patches to
-> >>> stable unless you explicitly mark it as such", but the sad fact is that
-> >>> many recent KVM fixes for reported CVEs never had any "Cc: stable@vger"
-> >>> markings.
-> >>
-> >> Hmm, I did miss it in 433f4ba1904100da65a311033f17a9bf586b287e and
-> >> acff78477b9b4f26ecdf65733a4ed77fe837e9dc, but that's going back to
-> >> August 2018, so I can do better but it's not too shabby a record. :)
-> > 
-> > 35a571346a94 ("KVM: nVMX: Check IO instruction VM-exit conditions")
-> > e71237d3ff1a ("KVM: nVMX: Refactor IO bitmap checks into helper function")
-> > 
-> > Were both from a few weeks ago and needed to resolve CVE-2020-2732 :(
+On 04/03/2020 10:41, Tomi Valkeinen wrote:
+
+>> Thanks, this fixes the crash for me.
+>>
+>> It does look a bit odd that something is allocated with kzalloc, and then it's freed somewhere 
+>> inside v4l2_async_notifier_cleanup, though. But if that's how it supposed to be used, looks fine 
+>> to me.
 > 
-> No, they weren't, only the patch that was CCed stable was needed to
-> resolve the CVE.
+> Well, sent that a few seconds too early... With this patch, I see kmemleaks.
 
-Ah, that's not what was posted to oss-security :(
+This is caused by allocating asd for all ports, even if the port is not used, causing the allocated asd to be forgotten. Also, any error there would cause leak too.
 
-> Remember that at this point a lot of bugfixes or vulnerabilities in KVM
-> exploit corner cases of the architecture and don't show up with the
-> usual guests (Linux, Windows, BSDs).  Since we didn't have full
-> information on the impact on guests that people do run, we started with
-> the bare minimum (the two patches above) but only for 5.6.  The idea was
-> to collect follow-up patches for 2-4 weeks, decide which subset was
-> stable-worthy, and only then post them as stable backport subsets.
+I think something like this fixes both the unused port case and error paths:
 
-Ok, that's fine, but it would be good if someone told me about this so
-that I knew what was going on when people asked me about this type of
-thing :)
+diff --git a/drivers/media/platform/ti-vpe/cal.c b/drivers/media/platform/ti-vpe/cal.c
+index a928c9d66d5d..4b89dd53d2b4 100644
+--- a/drivers/media/platform/ti-vpe/cal.c
++++ b/drivers/media/platform/ti-vpe/cal.c
+@@ -372,8 +372,6 @@ struct cal_ctx {
+ 	struct v4l2_subdev	*sensor;
+ 	struct v4l2_fwnode_endpoint	endpoint;
+ 
+-	struct v4l2_async_subdev asd;
+-
+ 	struct v4l2_fh		fh;
+ 	struct cal_dev		*dev;
+ 	struct cc_data		*cc;
+@@ -2020,7 +2018,6 @@ static int of_cal_create_instance(struct cal_ctx *ctx, int inst)
+ 
+ 	parent = pdev->dev.of_node;
+ 
+-	asd = &ctx->asd;
+ 	endpoint = &ctx->endpoint;
+ 
+ 	ep_node = NULL;
+@@ -2067,8 +2064,6 @@ static int of_cal_create_instance(struct cal_ctx *ctx, int inst)
+ 		ctx_dbg(3, ctx, "can't get remote parent\n");
+ 		goto cleanup_exit;
+ 	}
+-	asd->match_type = V4L2_ASYNC_MATCH_FWNODE;
+-	asd->match.fwnode = of_fwnode_handle(sensor_node);
+ 
+ 	v4l2_fwnode_endpoint_parse(of_fwnode_handle(ep_node), endpoint);
+ 
+@@ -2098,9 +2093,17 @@ static int of_cal_create_instance(struct cal_ctx *ctx, int inst)
+ 
+ 	v4l2_async_notifier_init(&ctx->notifier);
+ 
++	asd = kzalloc(sizeof(*asd), GFP_KERNEL);
++	if (!asd)
++		goto cleanup_exit;
++
++	asd->match_type = V4L2_ASYNC_MATCH_FWNODE;
++	asd->match.fwnode = of_fwnode_handle(sensor_node);
++
+ 	ret = v4l2_async_notifier_add_subdev(&ctx->notifier, asd);
+ 	if (ret) {
+ 		ctx_err(ctx, "Error adding asd\n");
++		kfree(asd);
+ 		goto cleanup_exit;
+ 	}
+ 
+ Tomi
 
-thanks,
-
-greg k-h
+-- 
+Texas Instruments Finland Oy, Porkkalankatu 22, 00180 Helsinki.
+Y-tunnus/Business ID: 0615521-4. Kotipaikka/Domicile: Helsinki
