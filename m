@@ -2,76 +2,145 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A750179AB8
-	for <lists+stable@lfdr.de>; Wed,  4 Mar 2020 22:14:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ECB0C179B33
+	for <lists+stable@lfdr.de>; Wed,  4 Mar 2020 22:45:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388280AbgCDVOX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Mar 2020 16:14:23 -0500
-Received: from mail-pf1-f194.google.com ([209.85.210.194]:40065 "EHLO
-        mail-pf1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2388053AbgCDVOX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Mar 2020 16:14:23 -0500
-Received: by mail-pf1-f194.google.com with SMTP id l184so1594526pfl.7
-        for <stable@vger.kernel.org>; Wed, 04 Mar 2020 13:14:22 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:date:from:to:cc:subject:message-id:mime-version
-         :content-disposition:user-agent;
-        bh=5k9zbA2HFeIWJl4CKnN5cb/akw51xDynAb4nzArsnT0=;
-        b=r/zes34KOwUV0ExVsKtljXF37vtqWfgKmKe7uuUDYiVgp6EeQq2aQcDvkvTpF26lNd
-         ZoXO9AtQmi5G542WjhOn3p5i9RLl/xklP+9Aouwphe+bIMpo3ok2IdRGGhCDHNrN943N
-         Nl1JUtpm8E4+gzNjTDu0sJo/XLgcEbp8slsK0jPGO3wIEYawSCauxRqIDD0jNAoWzlbU
-         lg2WvwD3DWv2oiIM93/gCRYKwJ9Pf1ho6bQ84ThwxyLYqsSU7bWJu6caZYt7S2fL17Uf
-         dZ+PlCkhwUvXMb1iyje7a6Ja/mFu+IY5GuW3Pwy4AKT1j2woGjfHcveeOjalRC9Ag0mI
-         m8Gg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :mime-version:content-disposition:user-agent;
-        bh=5k9zbA2HFeIWJl4CKnN5cb/akw51xDynAb4nzArsnT0=;
-        b=GNstoizLYG61vALKc5F2ESrhTfVZM/6J75jLArlKpIElDMRS+cIl7tMabdpC6kINDX
-         Hx29fIAGrY2o0WM2pjNHcEHNQAPEB6M+Hoo0p8V7DvDurgxMN5v4uV4MdElVyeb6Gqtf
-         JJG+EREW9LTv+z1EwYu7o9sP/Ke6UlzDpfE4i/ZDcbps/IPcwoH0YNAHH7pbGQ6WQ03a
-         jUoqhuZhWmxKbeNr5/QI1sIw5ClW+jFEguaI9fCm3kJSq//HZX8cFERz9euXL73+mAf5
-         uhxWZIrja7+iuAMu/43LZLAwUMldDPHuA/kqq7wtS0Ig9i8l6Zdd1OJiRlXBPCimuVsN
-         Y6tw==
-X-Gm-Message-State: ANhLgQ0iU9pd9kI47Mm4Oa11lfQnjCBkQjc9Ax11yxDnhC8NdI071PX4
-        pRk95bDCZODLTBBK3XjAcO9VP+7c
-X-Google-Smtp-Source: ADFU+vvbXzaPlvTEya0cw0dyxlagDD8mBRj0mE9bNarT3iKoIxvFAJ2zMNpHsXpN0HI0RZNOOvQekg==
-X-Received: by 2002:a63:1404:: with SMTP id u4mr4195620pgl.172.1583356461931;
-        Wed, 04 Mar 2020 13:14:21 -0800 (PST)
-Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id gx18sm3676228pjb.8.2020.03.04.13.14.20
-        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Wed, 04 Mar 2020 13:14:20 -0800 (PST)
-Date:   Wed, 4 Mar 2020 13:14:19 -0800
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     stable@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, Theodore Ts'o <tytso@mit.edu>,
-        Qian Cai <cai@lca.pw>,
-        Lech Perczak <l.perczak@camlintechnologies.com>
-Subject: Regression in v4.14.172 - please revert commit 28820c5802f9
-Message-ID: <20200304211419.GA30249@roeck-us.net>
+        id S1729175AbgCDVpy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Mar 2020 16:45:54 -0500
+Received: from mx01-sz.bfs.de ([194.94.69.67]:45608 "EHLO mx01-sz.bfs.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728955AbgCDVpx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Mar 2020 16:45:53 -0500
+X-Greylist: delayed 439 seconds by postgrey-1.27 at vger.kernel.org; Wed, 04 Mar 2020 16:45:52 EST
+Received: from SRVEX01-SZ.bfs.intern (exchange-sz.bfs.de [10.129.90.31])
+        by mx01-sz.bfs.de (Postfix) with ESMTPS id 94AF520371;
+        Wed,  4 Mar 2020 22:38:32 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bfs.de; s=dkim201901;
+        t=1583357912; h=from:from:sender:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=QkLnH+NE8c3qkE/LnlNQPG4USM8MtcA/4B/Z5q7MV94=;
+        b=ox2a1lRVK9fnzc4iDIFh+2Xs0zIRwBsojXkNVowJNH0DwpX0/bc50gOOC5+uK2qfJH/AZ3
+        Tar6sQOvFZvIf9dUqNYqROoKSEAVxMnsUhJeEImDzuPnkITX/7YTiIBm8SkTtLAKVhw3F7
+        alPNFEjEwZpqP9jhEaoK2PZFXke8M/MTtToYdgL3atOVa0G6JF2Zkt1p1mgZES94xbobin
+        96CgPo5uO1m3gvMgVHgAT9pE1zEGrsRYwJ2nbTe9nG+Tz50oSs/7zxJCOFN5E1i0lmOH0g
+        gGzu/+tQni4Mj8k+TtJdQC/rqpIKRwnIKkqHgTUX1J+rFHeIdYoinVBRa7cuHQ==
+Received: from SRVEX01-SZ.bfs.intern (10.129.90.31) by SRVEX01-SZ.bfs.intern
+ (10.129.90.31) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.1.1913.5; Wed, 4 Mar 2020
+ 22:28:31 +0100
+Received: from SRVEX01-SZ.bfs.intern ([fe80::7d2d:f9cb:2761:d24a]) by
+ SRVEX01-SZ.bfs.intern ([fe80::7d2d:f9cb:2761:d24a%6]) with mapi id
+ 15.01.1913.005; Wed, 4 Mar 2020 22:28:31 +0100
+From:   Walter Harms <wharms@bfs.de>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+CC:     "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Paul Burton <paulburton@kernel.org>,
+        "ralf@linux-mips.org" <ralf@linux-mips.org>,
+        "linux-mips@vger.kernel.org" <linux-mips@vger.kernel.org>,
+        "kernel-janitors@vger.kernel.org" <kernel-janitors@vger.kernel.org>
+Subject: AW: [PATCH 5.5 110/176] MIPS: VPE: Fix a double free and a memory
+ leak in release_vpe()
+Thread-Topic: [PATCH 5.5 110/176] MIPS: VPE: Fix a double free and a memory
+ leak in release_vpe()
+Thread-Index: AQHV8Y196lGPcYxjR0WoJuuadsBv/Kg49D8A
+Date:   Wed, 4 Mar 2020 21:28:31 +0000
+Message-ID: <adf1859b4dcc497285ebbda017ece22d@bfs.de>
+References: <20200303174304.593872177@linuxfoundation.org>,<20200303174317.555620066@linuxfoundation.org>
+In-Reply-To: <20200303174317.555620066@linuxfoundation.org>
+Accept-Language: de-DE, en-US
+Content-Language: de-DE
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-originating-ip: [10.137.16.40]
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.9.4 (2018-02-28)
+X-Spam-Status: No, score=-0.33
+Authentication-Results: mx01-sz.bfs.de;
+        none
+X-Spamd-Result: default: False [-0.33 / 7.00];
+         ARC_NA(0.00)[];
+         TO_DN_EQ_ADDR_SOME(0.00)[];
+         HAS_XOIP(0.00)[];
+         FROM_HAS_DN(0.00)[];
+         TO_DN_SOME(0.00)[];
+         TO_MATCH_ENVRCPT_ALL(0.00)[];
+         FREEMAIL_ENVRCPT(0.00)[wanadoo.fr];
+         MIME_GOOD(-0.10)[text/plain];
+         DKIM_SIGNED(0.00)[];
+         RCPT_COUNT_SEVEN(0.00)[8];
+         NEURAL_HAM(-0.00)[-0.980,0];
+         RCVD_NO_TLS_LAST(0.10)[];
+         FROM_EQ_ENVFROM(0.00)[];
+         MIME_TRACE(0.00)[0:+];
+         RCVD_COUNT_TWO(0.00)[2];
+         MID_RHS_MATCH_FROM(0.00)[];
+         BAYES_HAM(-0.33)[75.84%]
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
 
-We see a regression in v4.14.172, caused by commit 28820c5802f9
-("char/random: silence a lockdep splat with printk()"). I could try
-to explain it, but as it turns out it was already reported for v4.19.y,
-and the commit has already been reverted there. See commit cfc30449bbc50
-("Revert "char/random: silence a lockdep splat with printk()") in v4.19.y
-for a detailed description of the problem.
+________________________________________
+Von: kernel-janitors-owner@vger.kernel.org <kernel-janitors-owner@vger.kern=
+el.org> im Auftrag von Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Gesendet: Dienstag, 3. M=E4rz 2020 18:42
+An: linux-kernel@vger.kernel.org
+Cc: Greg Kroah-Hartman; stable@vger.kernel.org; Christophe JAILLET; Paul Bu=
+rton; ralf@linux-mips.org; linux-mips@vger.kernel.org; kernel-janitors@vger=
+.kernel.org
+Betreff: [PATCH 5.5 110/176] MIPS: VPE: Fix a double free and a memory leak=
+ in release_vpe()
 
-Please revert this commit in v4.14.y as well.
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-Thanks,
-Guenter
+commit bef8e2dfceed6daeb6ca3e8d33f9c9d43b926580 upstream.
+
+Pointer on the memory allocated by 'alloc_progmem()' is stored in
+'v->load_addr'. So this is this memory that should be freed by
+'release_progmem()'.
+
+'release_progmem()' is only a call to 'kfree()'.
+
+With the current code, there is both a double free and a memory leak.
+Fix it by passing the correct pointer to 'release_progmem()'.
+
+Fixes: e01402b115ccc ("More AP / SP bits for the 34K, the Malta bits and th=
+ings. Still wants")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Signed-off-by: Paul Burton <paulburton@kernel.org>
+Cc: ralf@linux-mips.org
+Cc: linux-mips@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Cc: kernel-janitors@vger.kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+---
+ arch/mips/kernel/vpe.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- a/arch/mips/kernel/vpe.c
++++ b/arch/mips/kernel/vpe.c
+@@ -134,7 +134,7 @@ void release_vpe(struct vpe *v)
+ {
+        list_del(&v->list);
+        if (v->load_addr)
+-               release_progmem(v);
++               release_progmem(v->load_addr);
+        kfree(v);
+ }
+
+
+since release_progmem() is kfree() it is also possible to drop "if (v->load=
+_addr)"
+
+jm2c
+
+re,
+ wh=
