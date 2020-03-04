@@ -2,120 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 255F2178C46
-	for <lists+stable@lfdr.de>; Wed,  4 Mar 2020 09:10:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C2EFA178C5B
+	for <lists+stable@lfdr.de>; Wed,  4 Mar 2020 09:11:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728554AbgCDIKG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Mar 2020 03:10:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50044 "EHLO mail.kernel.org"
+        id S1725825AbgCDILb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Mar 2020 03:11:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50858 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726957AbgCDIKF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Mar 2020 03:10:05 -0500
+        id S1725283AbgCDILb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Mar 2020 03:11:31 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 164502166E;
-        Wed,  4 Mar 2020 08:10:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F408D2166E;
+        Wed,  4 Mar 2020 08:11:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583309403;
-        bh=1YrwTCj3XBWbFrhCAMXtkFQ1x10evEuvmD/owQ7q17A=;
+        s=default; t=1583309490;
+        bh=w96FJLfkzr8JilQIZUTQAJsDJd9ZgFl/LK4eeVwZFIY=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=D4PdvpzxhaRLCz25gwPPpfHUHtEjNdHB+jSF/ktZlEQVqWSuei9rdcT0NQo1GP+Mt
-         z4kEYk+KJpIywFAoh1bPhwOro3DuRvOzCbO2PxDDPS6gTfMdWRSYEMCfN9QsWd3V9o
-         jsDKVAH6G3bfWXwGLHPh8txEFcNoItskBrA9L4uM=
-Date:   Wed, 4 Mar 2020 09:10:01 +0100
+        b=VpaaCSJNRBLV4noydn2vaZqPfOkRg9eImCQLX78lOgC/PB2YrIn6tTQs5pjsq58CB
+         yuWT5s1dG/arCGfmap8JKAR8gI+6f+YAGKeWwvvCAB+UXk584sRcVHhbwMI+SYe3Km
+         9AN0M7OdMyb30UDfPOsxlqzBpQHMKhw1ZXnmrxyg=
+Date:   Wed, 4 Mar 2020 09:11:28 +0100
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Oliver Upton <oupton@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Cc:     Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        stable@vger.kernel.org
-Subject: Re: [PATCH 5.5 111/176] KVM: nVMX: Emulate MTF when performing
- instruction emulation
-Message-ID: <20200304081001.GB1401372@kroah.com>
+To:     Naresh Kamboju <naresh.kamboju@linaro.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        lkft-triage@lists.linaro.org,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        linux- stable <stable@vger.kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>
+Subject: Re: [PATCH 5.5 000/176] 5.5.8-stable review
+Message-ID: <20200304081128.GC1401372@kroah.com>
 References: <20200303174304.593872177@linuxfoundation.org>
- <20200303174317.670749078@linuxfoundation.org>
- <8780cf08-374b-da06-0047-0fe8eeec0113@redhat.com>
- <CAOQ_QsjG32KrG6hVMaMenUYk1+Z+jhcCsGOk=t9i+-9oZRGWeA@mail.gmail.com>
+ <CA+G9fYtNKXBOQKE_AD6qLoRo4TeaBYOc9Ce3kBxdLap1av4v=Q@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <CAOQ_QsjG32KrG6hVMaMenUYk1+Z+jhcCsGOk=t9i+-9oZRGWeA@mail.gmail.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <CA+G9fYtNKXBOQKE_AD6qLoRo4TeaBYOc9Ce3kBxdLap1av4v=Q@mail.gmail.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Mar 03, 2020 at 11:39:35PM -0800, Oliver Upton wrote:
-> On Tue, Mar 3, 2020 at 11:23 PM Paolo Bonzini <pbonzini@redhat.com> wrote:
+On Wed, Mar 04, 2020 at 12:43:42PM +0530, Naresh Kamboju wrote:
+> On Tue, 3 Mar 2020 at 23:16, Greg Kroah-Hartman
+> <gregkh@linuxfoundation.org> wrote:
 > >
-> > On 03/03/20 18:42, Greg Kroah-Hartman wrote:
-> > > From: Oliver Upton <oupton@google.com>
-> > >
-> > > commit 5ef8acbdd687c9d72582e2c05c0b9756efb37863 upstream.
-> > >
-> > > Since commit 5f3d45e7f282 ("kvm/x86: add support for
-> > > MONITOR_TRAP_FLAG"), KVM has allowed an L1 guest to use the monitor trap
-> > > flag processor-based execution control for its L2 guest. KVM simply
-> > > forwards any MTF VM-exits to the L1 guest, which works for normal
-> > > instruction execution.
-> > >
-> > > However, when KVM needs to emulate an instruction on the behalf of an L2
-> > > guest, the monitor trap flag is not emulated. Add the necessary logic to
-> > > kvm_skip_emulated_instruction() to synthesize an MTF VM-exit to L1 upon
-> > > instruction emulation for L2.
-> > >
-> > > Fixes: 5f3d45e7f282 ("kvm/x86: add support for MONITOR_TRAP_FLAG")
-> > > Signed-off-by: Oliver Upton <oupton@google.com>
-> > > Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-> > > Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> > This is the start of the stable review cycle for the 5.5.8 release.
+> > There are 176 patches in this series, all will be posted as a response
+> > to this one.  If anyone has any issues with these being applied, please
+> > let me know.
 > >
-> > Why is this included in a stable release?  It was part of a series of
-> > four patches and the prerequisites as far as I can see are not part of 5.5.
+> > Responses should be made by Thu, 05 Mar 2020 17:42:06 +0000.
+> > Anything received after that time might be too late.
+> >
+> > The whole patch series can be found in one patch at:
+> >         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.5.8-rc1.gz
+> > or in the git tree and branch at:
+> >         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.5.y
+> > and the diffstat can be found below.
+> >
+> > thanks,
+> >
+> > greg k-h
+> >
 > 
-> It looks like these commits were already picked from upstream:
+> Results from Linaro’s test farm.
+> Regressions detected on x86_64 and i386.
 > 
-> 684c0422da71 ("KVM: nVMX: Handle pending #DB when injecting INIT VM-exit")
-> 307f1cfa2696 ("KVM: x86: Mask off reserved bit from #DB exception payload")
+> Test failure output:
+> CVE-2017-5715: VULN (IBRS+IBPB or retpoline+IBPB+RSB filling, is
+> needed to mitigate the vulnerability)
 > 
-> Which were bug fixes in their own right and were sensible for
-> backporting (though I didn't cc stable if I'm not mistaken).
+> Test description:
+> CVE-2017-5715 branch target injection (Spectre Variant 2)
 > 
-> but not:
-> 
-> a06230b62b89 ("KVM: x86: Deliver exception payload on KVM_GET_VCPU_EVENTS")
-> 
-> which this patch absolutely depends on.
-> 
-> Otherwise, I'll defer discussions regarding the suitability of this
-> patch for stable to Paolo.
+> Impact: Kernel
+> Mitigation 1: new opcode via microcode update that should be used by
+> up to date compilers to protect the BTB (by flushing indirect branch
+> predictors)
+> Mitigation 2: introducing "retpoline" into compilers, and recompile
+> software/OS with it
+> Performance impact of the mitigation: high for mitigation 1, medium
+> for mitigation 2, depending on your CPU
 
-I picked this patch up solely because of the Fixes: tag showed that this
-ommit resolved something from a previous commit.  The interdependancies
-were not obvious, especially as it all seemed to build just fine here.
+So these are regressions or just new tests?
 
-> > I have already said half a dozen times that I don't want any of the
-> > autopick stuff for KVM.  Is a Fixes tag sufficient to get patches into
-> > stable now?
+If regressions, can you do 'git bisect' to find the offending commit?
 
-Yes, it can happen that a Fixes tag does cause a patch to get into
-stable because I look out for that.  I do that because a number of
-maintainers/developers only put that tag in there, and also to catch
-patches for when we backport stuff and then need to take a fix for that
-backport (not the case here though).
-
-I'll be glad to just put KVM into the "never apply any patches to
-stable unless you explicitly mark it as such", but the sad fact is that
-many recent KVM fixes for reported CVEs never had any "Cc: stable@vger"
-markings.  They only had "Fixes:" tags and so I have had to dig them out
-of the tree and backport them myself in order to resolve those very
-public issues.
-
-So can I ask that you always properly tag things for stable?  If so, I
-will be glad to ignore Fixes: tags for KVM patches in the future.
-
-I'll go drop this patch as well.  Note, there are other KVM patches in
-this release cycle also, can someone verify that I did not overreach for
-them as well?
+Also, are you sure you have an updated microcode on these machines and a
+proper compiler for retpoline?
 
 thanks,
 
