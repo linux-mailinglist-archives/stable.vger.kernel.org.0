@@ -2,151 +2,139 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B23151790A0
-	for <lists+stable@lfdr.de>; Wed,  4 Mar 2020 13:49:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DA5931790D3
+	for <lists+stable@lfdr.de>; Wed,  4 Mar 2020 14:06:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729426AbgCDMtH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Mar 2020 07:49:07 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36430 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728953AbgCDMtH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Mar 2020 07:49:07 -0500
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2872520848;
-        Wed,  4 Mar 2020 12:49:05 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583326145;
-        bh=UOoUJBuVsOHDAbBH3gx+vSxU7Kdhl5abeobUtN6QlX0=;
-        h=Subject:To:From:Date:From;
-        b=UYLYbuYWvHHNXoCG3bQdDaBm64u8jLyDGM8nhSyv2Bj6KzCIcWB4xutBsrNc6tSNZ
-         mlIOmt9EbahqmuyMEchthJesiY6baHFhtzRjcAqGZNKJTi7dYZKRdc8YsjdSLJLypu
-         aP1uedlIB0zrPB4nQwdibJn9gjnO8kQ8fQbBX9u8=
-Subject: patch "driver core: Call sync_state() even if supplier has no consumers" added to driver-core-linus
-To:     saravanak@google.com, gregkh@linuxfoundation.org,
-        stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 04 Mar 2020 13:49:02 +0100
-Message-ID: <1583326142153148@kroah.com>
+        id S2388096AbgCDNGU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Mar 2020 08:06:20 -0500
+Received: from lelv0142.ext.ti.com ([198.47.23.249]:53820 "EHLO
+        lelv0142.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2388048AbgCDNGT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Mar 2020 08:06:19 -0500
+Received: from lelv0265.itg.ti.com ([10.180.67.224])
+        by lelv0142.ext.ti.com (8.15.2/8.15.2) with ESMTP id 024D6IhF011908;
+        Wed, 4 Mar 2020 07:06:18 -0600
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ti.com;
+        s=ti-com-17Q1; t=1583327178;
+        bh=YXzQppbglr+xPKbiEaDdJH1kY4n3UhI0W2ajY77vJNE=;
+        h=Date:From:To:CC:Subject:References:In-Reply-To;
+        b=yJiakj4S7Opplp7tEymkkymcUSmZfZgIn20p0umYvd2cAWhubn2acqBd/7yfIh5sv
+         dfer8+oCOgvgRkJsXOrGGk2VUQHwvskVj+ZVM3cBn5csRRpUV7exL/AXez2Qf+DW3h
+         4e5u4m5SAtUN1H/dGJE8CBVJbgJ7CIHoZ48Itx/4=
+Received: from DFLE101.ent.ti.com (dfle101.ent.ti.com [10.64.6.22])
+        by lelv0265.itg.ti.com (8.15.2/8.15.2) with ESMTPS id 024D6IWQ070658
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=FAIL);
+        Wed, 4 Mar 2020 07:06:18 -0600
+Received: from DFLE104.ent.ti.com (10.64.6.25) by DFLE101.ent.ti.com
+ (10.64.6.22) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.1847.3; Wed, 4 Mar
+ 2020 07:06:18 -0600
+Received: from fllv0040.itg.ti.com (10.64.41.20) by DFLE104.ent.ti.com
+ (10.64.6.25) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.1847.3 via
+ Frontend Transport; Wed, 4 Mar 2020 07:06:18 -0600
+Received: from ti.com (ileax41-snat.itg.ti.com [10.172.224.153])
+        by fllv0040.itg.ti.com (8.15.2/8.15.2) with SMTP id 024D6Icj099558;
+        Wed, 4 Mar 2020 07:06:18 -0600
+Date:   Wed, 4 Mar 2020 07:10:53 -0600
+From:   Benoit Parrot <bparrot@ti.com>
+To:     Tomi Valkeinen <tomi.valkeinen@ti.com>
+CC:     Hans Verkuil <hverkuil@xs4all.nl>, <linux-media@vger.kernel.org>,
+        <devicetree@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+        <stable@vger.kernel.org>
+Subject: Re: [Patch] media: ti-vpe: cal: fix a kernel oops when unloading
+ module
+Message-ID: <20200304131053.k76vivpwv3tvr52d@ti.com>
+References: <20200303172629.21339-1-bparrot@ti.com>
+ <4010c13f-6a32-f3c3-5b6d-62a4e3782c64@ti.com>
+ <f7f6dd87-147f-b9e9-aaa7-c063a8f3c11e@ti.com>
+ <a2e6510f-ffd9-060e-ab03-cdc261ecc778@ti.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="us-ascii"
+Content-Disposition: inline
+In-Reply-To: <a2e6510f-ffd9-060e-ab03-cdc261ecc778@ti.com>
+User-Agent: NeoMutt/20171215
+X-EXCLAIMER-MD-CONFIG: e1e8a2fd-e40a-4ac6-ac9b-f7e9cc9ee180
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Tomi,
 
-This is a note to let you know that I've just added the patch titled
+Thanks for the review, and fix!
 
-    driver core: Call sync_state() even if supplier has no consumers
+Tomi Valkeinen <tomi.valkeinen@ti.com> wrote on Wed [2020-Mar-04 11:22:26 +0200]:
+> On 04/03/2020 10:41, Tomi Valkeinen wrote:
+> 
+> >> Thanks, this fixes the crash for me.
+> >>
+> >> It does look a bit odd that something is allocated with kzalloc, and then it's freed somewhere 
+> >> inside v4l2_async_notifier_cleanup, though. But if that's how it supposed to be used, looks fine 
+> >> to me.
+> > 
+> > Well, sent that a few seconds too early... With this patch, I see kmemleaks.
+> 
+> This is caused by allocating asd for all ports, even if the port is not used, causing the allocated asd to be forgotten. Also, any error there would cause leak too.
+> 
+> I think something like this fixes both the unused port case and error paths:
+> 
 
-to my driver-core git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/driver-core.git
-in the driver-core-linus branch.
+Yes I see that now. Good catch.
+I'll fix it in v2.
 
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
+Benoit
 
-The patch will hopefully also be merged in Linus's tree for the
-next -rc kernel release.
-
-If you have any questions about this process, please let me know.
-
-
-From 21eb93f432b1a785df193df1a56a59e9eb3a985f Mon Sep 17 00:00:00 2001
-From: Saravana Kannan <saravanak@google.com>
-Date: Fri, 21 Feb 2020 00:05:08 -0800
-Subject: driver core: Call sync_state() even if supplier has no consumers
-
-The initial patch that added sync_state() support didn't handle the case
-where a supplier has no consumers. This was because when a device is
-successfully bound with a driver, only its suppliers were checked to see
-if they are eligible to get a sync_state(). This is not sufficient for
-devices that have no consumers but still need to do device state clean
-up. So fix this.
-
-Fixes: fc5a251d0fd7ca90 (driver core: Add sync_state driver/bus callback)
-Signed-off-by: Saravana Kannan <saravanak@google.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200221080510.197337-2-saravanak@google.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/base/core.c | 23 +++++++++++++++++------
- 1 file changed, 17 insertions(+), 6 deletions(-)
-
-diff --git a/drivers/base/core.c b/drivers/base/core.c
-index 42a672456432..3306d5ae92a6 100644
---- a/drivers/base/core.c
-+++ b/drivers/base/core.c
-@@ -745,25 +745,31 @@ static void __device_links_queue_sync_state(struct device *dev,
- /**
-  * device_links_flush_sync_list - Call sync_state() on a list of devices
-  * @list: List of devices to call sync_state() on
-+ * @dont_lock_dev: Device for which lock is already held by the caller
-  *
-  * Calls sync_state() on all the devices that have been queued for it. This
-- * function is used in conjunction with __device_links_queue_sync_state().
-+ * function is used in conjunction with __device_links_queue_sync_state(). The
-+ * @dont_lock_dev parameter is useful when this function is called from a
-+ * context where a device lock is already held.
-  */
--static void device_links_flush_sync_list(struct list_head *list)
-+static void device_links_flush_sync_list(struct list_head *list,
-+					 struct device *dont_lock_dev)
- {
- 	struct device *dev, *tmp;
- 
- 	list_for_each_entry_safe(dev, tmp, list, links.defer_sync) {
- 		list_del_init(&dev->links.defer_sync);
- 
--		device_lock(dev);
-+		if (dev != dont_lock_dev)
-+			device_lock(dev);
- 
- 		if (dev->bus->sync_state)
- 			dev->bus->sync_state(dev);
- 		else if (dev->driver && dev->driver->sync_state)
- 			dev->driver->sync_state(dev);
- 
--		device_unlock(dev);
-+		if (dev != dont_lock_dev)
-+			device_unlock(dev);
- 
- 		put_device(dev);
- 	}
-@@ -801,7 +807,7 @@ void device_links_supplier_sync_state_resume(void)
- out:
- 	device_links_write_unlock();
- 
--	device_links_flush_sync_list(&sync_list);
-+	device_links_flush_sync_list(&sync_list, NULL);
- }
- 
- static int sync_state_resume_initcall(void)
-@@ -865,6 +871,11 @@ void device_links_driver_bound(struct device *dev)
- 			driver_deferred_probe_add(link->consumer);
- 	}
- 
-+	if (defer_sync_state_count)
-+		__device_links_supplier_defer_sync(dev);
-+	else
-+		__device_links_queue_sync_state(dev, &sync_list);
-+
- 	list_for_each_entry(link, &dev->links.suppliers, c_node) {
- 		if (!(link->flags & DL_FLAG_MANAGED))
- 			continue;
-@@ -883,7 +894,7 @@ void device_links_driver_bound(struct device *dev)
- 
- 	device_links_write_unlock();
- 
--	device_links_flush_sync_list(&sync_list);
-+	device_links_flush_sync_list(&sync_list, dev);
- }
- 
- static void device_link_drop_managed(struct device_link *link)
--- 
-2.25.1
-
-
+> diff --git a/drivers/media/platform/ti-vpe/cal.c b/drivers/media/platform/ti-vpe/cal.c
+> index a928c9d66d5d..4b89dd53d2b4 100644
+> --- a/drivers/media/platform/ti-vpe/cal.c
+> +++ b/drivers/media/platform/ti-vpe/cal.c
+> @@ -372,8 +372,6 @@ struct cal_ctx {
+>  	struct v4l2_subdev	*sensor;
+>  	struct v4l2_fwnode_endpoint	endpoint;
+>  
+> -	struct v4l2_async_subdev asd;
+> -
+>  	struct v4l2_fh		fh;
+>  	struct cal_dev		*dev;
+>  	struct cc_data		*cc;
+> @@ -2020,7 +2018,6 @@ static int of_cal_create_instance(struct cal_ctx *ctx, int inst)
+>  
+>  	parent = pdev->dev.of_node;
+>  
+> -	asd = &ctx->asd;
+>  	endpoint = &ctx->endpoint;
+>  
+>  	ep_node = NULL;
+> @@ -2067,8 +2064,6 @@ static int of_cal_create_instance(struct cal_ctx *ctx, int inst)
+>  		ctx_dbg(3, ctx, "can't get remote parent\n");
+>  		goto cleanup_exit;
+>  	}
+> -	asd->match_type = V4L2_ASYNC_MATCH_FWNODE;
+> -	asd->match.fwnode = of_fwnode_handle(sensor_node);
+>  
+>  	v4l2_fwnode_endpoint_parse(of_fwnode_handle(ep_node), endpoint);
+>  
+> @@ -2098,9 +2093,17 @@ static int of_cal_create_instance(struct cal_ctx *ctx, int inst)
+>  
+>  	v4l2_async_notifier_init(&ctx->notifier);
+>  
+> +	asd = kzalloc(sizeof(*asd), GFP_KERNEL);
+> +	if (!asd)
+> +		goto cleanup_exit;
+> +
+> +	asd->match_type = V4L2_ASYNC_MATCH_FWNODE;
+> +	asd->match.fwnode = of_fwnode_handle(sensor_node);
+> +
+>  	ret = v4l2_async_notifier_add_subdev(&ctx->notifier, asd);
+>  	if (ret) {
+>  		ctx_err(ctx, "Error adding asd\n");
+> +		kfree(asd);
+>  		goto cleanup_exit;
+>  	}
+>  
+>  Tomi
+> 
+> -- 
+> Texas Instruments Finland Oy, Porkkalankatu 22, 00180 Helsinki.
+> Y-tunnus/Business ID: 0615521-4. Kotipaikka/Domicile: Helsinki
