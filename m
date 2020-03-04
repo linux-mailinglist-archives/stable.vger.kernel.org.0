@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DAB25178DE2
-	for <lists+stable@lfdr.de>; Wed,  4 Mar 2020 10:57:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E48C3178DE5
+	for <lists+stable@lfdr.de>; Wed,  4 Mar 2020 10:58:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728744AbgCDJ54 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Mar 2020 04:57:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50582 "EHLO mail.kernel.org"
+        id S1729158AbgCDJ6H (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Mar 2020 04:58:07 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50740 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727734AbgCDJ54 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Mar 2020 04:57:56 -0500
+        id S1728387AbgCDJ6H (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Mar 2020 04:58:07 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9648F2072D;
-        Wed,  4 Mar 2020 09:57:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3D2A82072D;
+        Wed,  4 Mar 2020 09:58:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583315874;
-        bh=EPFSTeZcdLqBhWnXummteQtG6aNJ1Rq/CrA+ZHQTfBQ=;
+        s=default; t=1583315886;
+        bh=3I91OHf0nE3LaiF7Rms0webWoel/5jTcYb2/ruCQVsE=;
         h=Subject:To:From:Date:From;
-        b=WzySfWxAYXUdoomzGfYc1uZ2zEmGbvsEagivsWN/snj1azsfqgQCnOfdduGsJbwT5
-         FxejUDAup0bQ1vmPK5b/I9fRj9uhEOS2NQ9/M+KjmSlWxWYuKc8eLnQnEmhjbL+UHA
-         N45QDwn7Ph8R/wGkL0ZRJm3c3b2tQdp4IajzDix8=
-Subject: patch "usb: cdns3: gadget: link trb should point to next request" added to usb-linus
-To:     peter.chen@nxp.com, gregkh@linuxfoundation.org,
-        stable@vger.kernel.org
+        b=pk/q87d5J4y5Hdu0IiQm7N3eMbwVYlnC3CIEBnu9vr2yI6ZKv+eX7Bv5D4R3iqBA4
+         baRthr6IoL9NEGKMNnb+JxZqTpRUmOm1uC5Py7wnM0i5kmOJQDvMlpoZr4xYDGIgYQ
+         FEZTijB+nwHSaqSEiHSKJOGdXndmdXX+9BTZyMhI=
+Subject: patch "usb: quirks: add NO_LPM quirk for Logitech Screen Share" added to usb-linus
+To:     dlaz@chromium.org, gregkh@linuxfoundation.org,
+        gustavo.padovan@collabora.com, stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 04 Mar 2020 10:57:51 +0100
-Message-ID: <1583315871150194@kroah.com>
+Date:   Wed, 04 Mar 2020 10:57:52 +0100
+Message-ID: <158331587240147@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -40,7 +40,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    usb: cdns3: gadget: link trb should point to next request
+    usb: quirks: add NO_LPM quirk for Logitech Screen Share
 
 to my usb git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
@@ -55,36 +55,36 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From 8a7c47fb7285b23ca259c888016513d5566fa9e8 Mon Sep 17 00:00:00 2001
-From: Peter Chen <peter.chen@nxp.com>
-Date: Wed, 19 Feb 2020 22:14:54 +0800
-Subject: usb: cdns3: gadget: link trb should point to next request
+From b96ed52d781a2026d0c0daa5787c6f3d45415862 Mon Sep 17 00:00:00 2001
+From: Dan Lazewatsky <dlaz@chromium.org>
+Date: Wed, 26 Feb 2020 14:34:38 +0000
+Subject: usb: quirks: add NO_LPM quirk for Logitech Screen Share
 
-It has marked the dequeue trb as link trb, but its next segment
-pointer is still itself, it causes the transfer can't go on. Fix
-it by set its pointer as the trb address for the next request.
+LPM on the device appears to cause xHCI host controllers to claim
+that there isn't enough bandwidth to support additional devices.
 
-Fixes: f616c3bda47e ("usb: cdns3: Fix dequeue implementation")
-Signed-off-by: Peter Chen <peter.chen@nxp.com>
+Signed-off-by: Dan Lazewatsky <dlaz@chromium.org>
 Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200219141455.23257-2-peter.chen@nxp.com
+Signed-off-by: Gustavo Padovan <gustavo.padovan@collabora.com>
+Link: https://lore.kernel.org/r/20200226143438.1445-1-gustavo.padovan@collabora.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/cdns3/gadget.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/core/quirks.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/usb/cdns3/gadget.c b/drivers/usb/cdns3/gadget.c
-index 736b0c6e27fe..1d8a2af35bb0 100644
---- a/drivers/usb/cdns3/gadget.c
-+++ b/drivers/usb/cdns3/gadget.c
-@@ -2550,7 +2550,7 @@ int cdns3_gadget_ep_dequeue(struct usb_ep *ep,
- 	/* Update ring only if removed request is on pending_req_list list */
- 	if (req_on_hw_ring) {
- 		link_trb->buffer = TRB_BUFFER(priv_ep->trb_pool_dma +
--					      (priv_req->start_trb * TRB_SIZE));
-+			((priv_req->end_trb + 1) * TRB_SIZE));
- 		link_trb->control = (link_trb->control & TRB_CYCLE) |
- 				    TRB_TYPE(TRB_LINK) | TRB_CHAIN;
+diff --git a/drivers/usb/core/quirks.c b/drivers/usb/core/quirks.c
+index 2b24336a72e5..2dac3e7cdd97 100644
+--- a/drivers/usb/core/quirks.c
++++ b/drivers/usb/core/quirks.c
+@@ -231,6 +231,9 @@ static const struct usb_device_id usb_quirk_list[] = {
+ 	/* Logitech PTZ Pro Camera */
+ 	{ USB_DEVICE(0x046d, 0x0853), .driver_info = USB_QUIRK_DELAY_INIT },
+ 
++	/* Logitech Screen Share */
++	{ USB_DEVICE(0x046d, 0x086c), .driver_info = USB_QUIRK_NO_LPM },
++
+ 	/* Logitech Quickcam Fusion */
+ 	{ USB_DEVICE(0x046d, 0x08c1), .driver_info = USB_QUIRK_RESET_RESUME },
  
 -- 
 2.25.1
