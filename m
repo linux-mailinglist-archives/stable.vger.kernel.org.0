@@ -2,94 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E54CF179687
-	for <lists+stable@lfdr.de>; Wed,  4 Mar 2020 18:17:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E373E179688
+	for <lists+stable@lfdr.de>; Wed,  4 Mar 2020 18:18:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726764AbgCDRRn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Mar 2020 12:17:43 -0500
-Received: from mga07.intel.com ([134.134.136.100]:53019 "EHLO mga07.intel.com"
+        id S1726694AbgCDRSU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Mar 2020 12:18:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45238 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726561AbgCDRRn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Mar 2020 12:17:43 -0500
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga004.jf.intel.com ([10.7.209.38])
-  by orsmga105.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 04 Mar 2020 09:17:42 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.70,514,1574150400"; 
-   d="scan'208";a="387225105"
-Received: from hhartana-mobl3.amr.corp.intel.com (HELO [10.251.140.18]) ([10.251.140.18])
-  by orsmga004.jf.intel.com with ESMTP; 04 Mar 2020 09:17:41 -0800
-Subject: Re: 5.5.y - apply "ASoC: intel/skl/hda - export number of digital
- microphones via control components"
-To:     Mark Brown <broonie@kernel.org>, Jaroslav Kysela <perex@perex.cz>
-Cc:     Sasha Levin <sashal@kernel.org>, Takashi Iwai <tiwai@suse.de>,
-        ALSA development <alsa-devel@alsa-project.org>,
-        stable@vger.kernel.org
-References: <147efa37-eb57-7f17-b9eb-84a9fe5ad475@perex.cz>
- <20200304154450.GB5646@sirena.org.uk>
- <a6d57c14-0794-77d0-5c6f-c0c897d254b5@perex.cz>
- <20200304160916.GC5646@sirena.org.uk>
-From:   Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Message-ID: <44cf4ff8-120f-79fd-8801-47807b03f912@linux.intel.com>
-Date:   Wed, 4 Mar 2020 11:17:41 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.4.1
+        id S1726561AbgCDRST (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Mar 2020 12:18:19 -0500
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id D446F22B48;
+        Wed,  4 Mar 2020 17:18:18 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1583342299;
+        bh=MUbhpaPxtsmIxbxMQKKGkxYQ5ffHIsrSQGT8xxkgWIg=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=nA/NS7xr+r9Gf2v19TrGeKMDS0uIKF5sHkAAdYdey463HUKAaDyH4gka9R5JPLeJR
+         hN+ysmVb9Bj04mXnzzctc2ESDEW197wwzEGd26TvfFev0+P/IFgWEd++DIYezV5+cB
+         5tgAkHKC9jKZ73suIBR2WDBp/XBXLUIS0eliR+M4=
+Date:   Wed, 4 Mar 2020 18:18:17 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Pavel Machek <pavel@denx.de>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Stephen Boyd <swboyd@chromium.org>,
+        Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>,
+        Rob Clark <robdclark@gmail.com>,
+        Sean Paul <seanpaul@chromium.org>,
+        Douglas Anderson <dianders@chromium.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH 4.19 04/87] drm/msm: Set dma maximum segment size for mdss
+Message-ID: <20200304171817.GC1852712@kroah.com>
+References: <20200303174349.075101355@linuxfoundation.org>
+ <20200303174349.401386271@linuxfoundation.org>
+ <20200304151316.GA2367@duo.ucw.cz>
 MIME-Version: 1.0
-In-Reply-To: <20200304160916.GC5646@sirena.org.uk>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200304151316.GA2367@duo.ucw.cz>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
->>> This looks more like a new feature than a bug fix and I've been trying
->>> to get the stable people to calm down with the backports, there's been
->>> *far* too many regressions introduced recently in just the x86 stuff
->>> found after the fact.  Does this fix systems that used to work?
+On Wed, Mar 04, 2020 at 04:13:16PM +0100, Pavel Machek wrote:
+> Hi!
 > 
->> The released ALSA UCM does not work correctly for some platforms without
->> this information (the number of digital microphones is not identified
->> correctly).
+> > Turning on CONFIG_DMA_API_DEBUG_SG results in the following error:
+> > 
+> > [   12.078665] msm ae00000.mdss: DMA-API: mapping sg segment longer than device claims to support [len=3526656] [max=65536]
+> > [   12.089870] WARNING: CPU: 6 PID: 334 at
+> > /mnt/host/source/src/third_party/kernel/v4.19/kernel/dma/debug.c:1301
+> > debug_dma_map_sg+0x1dc/0x318
 > 
-> That's not the question I asked - have these platforms ever worked with
-> older kernel versions?
-
-Yes in that digital microphones have been enabled for a very long time 
-(5.2 if I am not mistaken).
-
-No in that the automatic selection of the SOF driver was only enabled 
-for v5.5. In other words before 5.5 the user or distro needed to 
-blacklist the legacy snd-hda-intel HDAudio driver to get DMICs to work.
-
-This patch also removes the need for userspace configuration, pulseaudio 
-now directly receives the information on the number of microphones. It 
-was provided days after the merge window was opened, but the intent was 
-that v5.5 was the first release where users don't need to muck with 
-configuration files.
-
->> The regression probability is really low for this one and we're using it in
->> Fedora kernels for months without issues (in this code).
+> This one leaks resources in the (very improbable) case of error; it
+> needs to goto cleanup instead of simply returning.
 > 
-> It's partly the principle of the thing, if it were just patches that
-> had individually been identified as being good for stable by someone
-> with some understanding of the code (like this one :/ ) that were being
-> backported I'd be a lot less concerned but the automated selections are
-> missing dependencies or other context and people are reporting problems
-> with them so I'm inclined to push back on things.
+> > +++ b/drivers/gpu/drm/msm/msm_drv.c
+> > @@ -492,6 +492,14 @@ static int msm_drm_init(struct device *dev, struct drm_driver *drv)
+> >  	if (ret)
+> >  		goto err_msm_uninit;
+> >  
+> > +	if (!dev->dma_parms) {
+> > +		dev->dma_parms = devm_kzalloc(dev, sizeof(*dev->dma_parms),
+> > +					      GFP_KERNEL);
+> > +		if (!dev->dma_parms)
+> > +			return -ENOMEM;
+> > +	}
+> > +	dma_set_max_seg_size(dev, DMA_BIT_MASK(32));
+> > +
+> >  	msm_gem_shrinker_init(ddev);
+> >  
 
-You are correct that the process can appear confusing, mainly since the 
-initial patch was contributed after the merge window on November 26.
+Can you submit a patch to fix it?
 
-Looking back at the emails, I didn't see any objections but somehow the 
-patch never landed in 5.5 updates. Jaroslav's intentions and work are 
-not without merit, we really appreciate his ucm2 work, and I support 
-this integration on v5.5-y to make the life of downstream distros simpler.
+thanks,
 
-Would it help if we provide a Tested-by tag with 5.5-y + this patch applied?
-
-Thanks
--Pierre
+greg k-h
