@@ -2,120 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 35773178CCC
-	for <lists+stable@lfdr.de>; Wed,  4 Mar 2020 09:50:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 132E7178CD2
+	for <lists+stable@lfdr.de>; Wed,  4 Mar 2020 09:51:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728923AbgCDIuY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Mar 2020 03:50:24 -0500
-Received: from out30-42.freemail.mail.aliyun.com ([115.124.30.42]:36459 "EHLO
-        out30-42.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725271AbgCDIuY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Mar 2020 03:50:24 -0500
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R131e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01f04428;MF=wenyang@linux.alibaba.com;NM=1;PH=DS;RN=8;SR=0;TI=SMTPD_---0TrdATuG_1583311812;
-Received: from IT-C02W23QPG8WN.local(mailfrom:wenyang@linux.alibaba.com fp:SMTPD_---0TrdATuG_1583311812)
-          by smtp.aliyun-inc.com(127.0.0.1);
-          Wed, 04 Mar 2020 16:50:12 +0800
-Subject: Re: [PATCH] efi: Make efi_rts_work accessible to efi page fault
- handler
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Sasha Levin <sashal@kernel.org>,
-        Sai Praneeth <sai.praneeth.prakhya@intel.com>,
-        Bhupesh Sharma <bhsharma@redhat.com>,
-        Matt Fleming <matt@codeblueprint.co.uk>,
-        Ard Biesheuvel <ard.biesheuvel@linaro.org>,
-        Caspar Zhang <caspar@linux.alibaba.com>, stable@vger.kernel.org
-References: <20200304074444.7849-1-wenyang@linux.alibaba.com>
- <20200304080428.GA1401372@kroah.com>
-From:   Wen Yang <wenyang@linux.alibaba.com>
-Message-ID: <bc443f24-f6b4-717a-555a-b32128da330c@linux.alibaba.com>
-Date:   Wed, 4 Mar 2020 16:50:11 +0800
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.14; rv:68.0)
- Gecko/20100101 Thunderbird/68.1.1
+        id S1727026AbgCDIvQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Mar 2020 03:51:16 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57256 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725271AbgCDIvQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Mar 2020 03:51:16 -0500
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6893220732;
+        Wed,  4 Mar 2020 08:51:15 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1583311875;
+        bh=lc8ZcrxfTb7ziZCP6ve86LRFQyF/mtfu4M4IYApuctQ=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=0EPbFPXmlJMC09ZrudEBw1DFLptEzQWrJkwffIcbT2InFZnVfTKtxckc2SINK8V3t
+         ZEk6kf93chQD5mgbqN72G3VD2KPHczTsErUgQn//ZeVIJRl8YK3khNP98vZrkD9/6o
+         0MBUjZ63PcolvfboDVLiw3Hf7YM1hqRv2l/GbA1c=
+Date:   Wed, 4 Mar 2020 09:51:13 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Paolo Bonzini <pbonzini@redhat.com>
+Cc:     Oliver Upton <oupton@google.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        stable@vger.kernel.org
+Subject: Re: [PATCH 5.5 111/176] KVM: nVMX: Emulate MTF when performing
+ instruction emulation
+Message-ID: <20200304085113.GA1419475@kroah.com>
+References: <20200303174304.593872177@linuxfoundation.org>
+ <20200303174317.670749078@linuxfoundation.org>
+ <8780cf08-374b-da06-0047-0fe8eeec0113@redhat.com>
+ <CAOQ_QsjG32KrG6hVMaMenUYk1+Z+jhcCsGOk=t9i+-9oZRGWeA@mail.gmail.com>
+ <20200304081001.GB1401372@kroah.com>
+ <04e51276-1759-2793-3b45-168284cbaf67@redhat.com>
+ <20200304082613.GA1407851@kroah.com>
+ <cf7c6b2d-64eb-8d13-3e9a-09c40d2ecf95@redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <20200304080428.GA1401372@kroah.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <cf7c6b2d-64eb-8d13-3e9a-09c40d2ecf95@redhat.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
-
-On 2020/3/4 4:04 下午, Greg Kroah-Hartman wrote:
-> On Wed, Mar 04, 2020 at 03:44:44PM +0800, Wen Yang wrote:
->> From: Sai Praneeth <sai.praneeth.prakhya@intel.com>
->>
->> [ Upstream commit 9dbbedaa6171247c4c7c40b83f05b200a117c2e0 ]
->>
->> After the kernel has booted, if any accesses by firmware causes a page
->> fault, the efi page fault handler would freeze efi_rts_wq and schedules
->> a new process. To do this, the efi page fault handler needs
->> efi_rts_work. Hence, make it accessible.
->>
->> There will be no race conditions in accessing this structure, because
->> all the calls to efi runtime services are already serialized.
->>
->> [ Wen: This patch also fixes a memory corruption:
->>         #define efi_queue_work(_rts, _arg1, _arg2, _arg3, _arg4, _arg5)\
->>         ({                                                             \
->>          struct efi_runtime_work efi_rts_work;                           \
->>         …
->>          init_completion(&efi_rts_work.efi_rts_comp);                    \
->>          INIT_WORK(&efi_rts_work.work, efi_call_rts);                    \
->>         …
->>
->>         efi_rts_work is on the stack, registering it to workqueue will cause
->>         the following error:
->>
->>         ODEBUG: object (____ptrval____) is on stack (____ptrval____),
->>         but NOT annotated.
->>         ------------[ cut here ]------------
->>         WARNING: CPU: 6 PID: 1 at lib/debugobjects.c:368
->>         __debug_object_init+0x218/0x538
->>         Modules linked in:
->>         CPU: 6 PID: 1 Comm: swapper/0 Tainted: G        W         4.19.91 #19
->>         …
->>         Call trace:
->>         __debug_object_init+0x218/0x538
->>         debug_object_init+0x20/0x28
->>         __init_work+0x34/0x58
->>         virt_efi_get_time.part.5+0x6c/0x12c
->>         virt_efi_get_time+0x4c/0x58
->>         efi_read_time+0x40/0x9c
->>         __rtc_read_time+0x50/0x118
->>         rtc_read_time+0x60/0x1f0
->>         rtc_hctosys+0x74/0x124
->>         do_one_initcall+0xac/0x3d4
->>         kernel_init_freeable+0x49c/0x59c
->>         kernel_init+0x18/0x110 ]
->>
->> Tested-by: Bhupesh Sharma <bhsharma@redhat.com>
->> Suggested-by: Matt Fleming <matt@codeblueprint.co.uk>
->> Based-on-code-from: Ricardo Neri <ricardo.neri@intel.com>
->> Signed-off-by: Sai Praneeth Prakhya <sai.praneeth.prakhya@intel.com>
->> Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
->> Fixes: 3eb420e70d87 (“efi: Use a work queue to invoke EFI Runtime Services”)
->> Signed-off-by: Wen Yang <wenyang@linux.alibaba.com>
->> Cc: Caspar Zhang <caspar@linux.alibaba.com>
->> Cc: Sasha Levin <sashal@kernel.org>
->> Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
->> Cc: stable@vger.kernel.org
->> ---
->>   drivers/firmware/efi/runtime-wrappers.c | 53 +++++--------------------
->>   include/linux/efi.h                     | 36 +++++++++++++++++
->>   2 files changed, 45 insertions(+), 44 deletions(-)
+On Wed, Mar 04, 2020 at 09:43:18AM +0100, Paolo Bonzini wrote:
+> On 04/03/20 09:26, Greg Kroah-Hartman wrote:
+> > On Wed, Mar 04, 2020 at 09:19:09AM +0100, Paolo Bonzini wrote:
+> >> On 04/03/20 09:10, Greg Kroah-Hartman wrote:
+> >>> I'll be glad to just put KVM into the "never apply any patches to
+> >>> stable unless you explicitly mark it as such", but the sad fact is that
+> >>> many recent KVM fixes for reported CVEs never had any "Cc: stable@vger"
+> >>> markings.
+> >>
+> >> Hmm, I did miss it in 433f4ba1904100da65a311033f17a9bf586b287e and
+> >> acff78477b9b4f26ecdf65733a4ed77fe837e9dc, but that's going back to
+> >> August 2018, so I can do better but it's not too shabby a record. :)
+> > 
+> > 35a571346a94 ("KVM: nVMX: Check IO instruction VM-exit conditions")
+> > e71237d3ff1a ("KVM: nVMX: Refactor IO bitmap checks into helper function")
+> > 
+> > Were both from a few weeks ago and needed to resolve CVE-2020-2732 :(
 > 
-> What stable tree(s) do you wish to see this patch applied to?
->
+> No, they weren't, only the patch that was CCed stable was needed to
+> resolve the CVE.
 
-Thank you very much.
-We hope it could be applied to 4.19.
+Ah, that's not what was posted to oss-security :(
 
-Best wishes,
+> Remember that at this point a lot of bugfixes or vulnerabilities in KVM
+> exploit corner cases of the architecture and don't show up with the
+> usual guests (Linux, Windows, BSDs).  Since we didn't have full
+> information on the impact on guests that people do run, we started with
+> the bare minimum (the two patches above) but only for 5.6.  The idea was
+> to collect follow-up patches for 2-4 weeks, decide which subset was
+> stable-worthy, and only then post them as stable backport subsets.
 
---
-Wen
+Ok, that's fine, but it would be good if someone told me about this so
+that I knew what was going on when people asked me about this type of
+thing :)
 
+thanks,
 
+greg k-h
