@@ -2,155 +2,150 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 95E2117AE7B
-	for <lists+stable@lfdr.de>; Thu,  5 Mar 2020 19:51:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B88F17AEBC
+	for <lists+stable@lfdr.de>; Thu,  5 Mar 2020 20:07:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725974AbgCESvM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 5 Mar 2020 13:51:12 -0500
-Received: from mail-pg1-f194.google.com ([209.85.215.194]:44843 "EHLO
-        mail-pg1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725963AbgCESvM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 5 Mar 2020 13:51:12 -0500
-Received: by mail-pg1-f194.google.com with SMTP id n24so2170324pgk.11
-        for <stable@vger.kernel.org>; Thu, 05 Mar 2020 10:51:10 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=dabbelt-com.20150623.gappssmtp.com; s=20150623;
-        h=date:subject:in-reply-to:cc:from:to:message-id:mime-version
-         :content-transfer-encoding;
-        bh=IYzjB2dKqFRo7lIX50VavsZ/v5imYzKa/DmD2cTl4TU=;
-        b=OZOfBJM4XPrMHk8DXLhGfSp0ONxSgSaKDBDmZT6D9DZf55zZlOlkRCjtYnN9ZyZixB
-         vQnOoLcZ85Yt1ZY6IpdO3yR/0xhbYRcIQyGUkqxnrAp2qhx8BOFL8J498btZ6N9HJ+IQ
-         zZLRv8vE/rJLMlHsNsWAmmXgHEzjYQ+srKeEDxWAS+WKTRtP+7H6mU5vJCCtV2wSVS9P
-         otNwL+TgGU0kQWJC0fUOQZ8o+vQPXoNgH3tnhT5qR1fa0kKRRqbYRHWiS4wpS8yHbf3f
-         qiZLLUYaNnFrBrnSiYS9iVTTO+hvB91vFdZFbmFXbhQYsaWH/Y70Gqoo658Qac85ifi4
-         1UEg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:subject:in-reply-to:cc:from:to:message-id
-         :mime-version:content-transfer-encoding;
-        bh=IYzjB2dKqFRo7lIX50VavsZ/v5imYzKa/DmD2cTl4TU=;
-        b=mYst5r6I9yq47tmghwtbpNPl1Hu03kF1WgAkdTqXPM09KpuWxd3m0h8LolRBYfLR4P
-         RVarIKWoyfG+wnz4ro/2bQ3Cz8xLn4UBrOEdOjfa5kxl44FbxT74YKQcpAyAsZqbLMDx
-         zVAKotGk/dNCj74RXoU+4MBd+ANPcNW6sYX0xS1D65LRtOYtRBJmkRsNzf22uh2wzyuA
-         /ZGtlqN/w9DW1E979XPWNpBTCmS8vlWTX/bKUHMbHoZHTH4jL5xVyeQghIY3QbmOa45T
-         igxEMBJveBAybDWQJgqCQgt294K6oCWSJ7+lCmMYEq1Xvn2tnjfxouMLYti+0vP9zJQ8
-         jHoQ==
-X-Gm-Message-State: ANhLgQ3x7sv5dhpKoKW5s241xCgtAWfRyfrKEd6uPKM3NZqJu+rKljc0
-        tvh5kGAHeHxvKYjhyNd2pWYPiw==
-X-Google-Smtp-Source: ADFU+vto1ZaDTJT9k8CN/nl5L7l6QT75MXqh6PBzmrL+xd+PwCclOFjsCOg/xavV+59vlVOyg70qKw==
-X-Received: by 2002:a62:fc07:: with SMTP id e7mr9859565pfh.51.1583434269741;
-        Thu, 05 Mar 2020 10:51:09 -0800 (PST)
-Received: from localhost ([2620:0:1000:2514:23a5:d584:6a92:3e3c])
-        by smtp.gmail.com with ESMTPSA id m128sm33766981pfm.183.2020.03.05.10.51.08
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 05 Mar 2020 10:51:09 -0800 (PST)
-Date:   Thu, 05 Mar 2020 10:51:09 -0800 (PST)
-X-Google-Original-Date: Thu, 05 Mar 2020 10:51:04 PST (-0800)
-Subject:     Re: [PATCH] RISC-V: Don't enable all interrupts in trap_init()
-In-Reply-To: <CAAhSdy15mLGz3Xtu_Q7vOCP5Y2hQjWEosU1v8o8FxKfiLDx4qQ@mail.gmail.com>
-CC:     atishp@atishpatra.org, Anup Patel <Anup.Patel@wdc.com>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Damien Le Moal <Damien.LeMoal@wdc.com>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Atish Patra <Atish.Patra@wdc.com>,
-        Alistair Francis <Alistair.Francis@wdc.com>,
-        linux-riscv@lists.infradead.org, Christoph Hellwig <hch@lst.de>
-From:   Palmer Dabbelt <palmer@dabbelt.com>
-To:     anup@brainfault.org
-Message-ID: <mhng-3ad99841-64b9-49f9-acd6-2ff2001a315a@palmerdabbelt-glaptop1>
-Mime-Version: 1.0 (MHng)
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
+        id S1725948AbgCETHO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 5 Mar 2020 14:07:14 -0500
+Received: from foss.arm.com ([217.140.110.172]:52704 "EHLO foss.arm.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725944AbgCETHN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 5 Mar 2020 14:07:13 -0500
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 5AF7030E;
+        Thu,  5 Mar 2020 11:07:13 -0800 (PST)
+Received: from [192.168.0.7] (unknown [172.31.20.19])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 2E3B13F6CF;
+        Thu,  5 Mar 2020 11:07:11 -0800 (PST)
+Subject: Re: [PATCH] sched/fair: fix enqueue_task_fair warning
+To:     Vincent Guittot <vincent.guittot@linaro.org>, mingo@redhat.com,
+        peterz@infradead.org, juri.lelli@redhat.com, rostedt@goodmis.org,
+        bsegall@google.com, mgorman@suse.de, linux-kernel@vger.kernel.org,
+        borntraeger@de.ibm.com
+Cc:     stable@vger.kernel.org
+References: <20200305172921.22743-1-vincent.guittot@linaro.org>
+From:   Dietmar Eggemann <dietmar.eggemann@arm.com>
+Message-ID: <e31aa232-bc7e-a7b9-5b6a-a1131ac88164@arm.com>
+Date:   Thu, 5 Mar 2020 20:07:09 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.4.1
+MIME-Version: 1.0
+In-Reply-To: <20200305172921.22743-1-vincent.guittot@linaro.org>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 18 Feb 2020 19:28:38 PST (-0800), anup@brainfault.org wrote:
-> On Wed, Feb 19, 2020 at 12:06 AM Palmer Dabbelt <palmer@dabbelt.com> wrote:
->>
->> On Sun, 02 Feb 2020 03:48:18 PST (-0800), atishp@atishpatra.org wrote:
->> > On Sun, Feb 2, 2020 at 3:06 AM Anup Patel <anup.patel@wdc.com> wrote:
->> >>
->> >> Historically, we have been enabling all interrupts for each
->> >> HART in trap_init(). Ideally, we should only enable M-mode
->> >> interrupts for M-mode kernel and S-mode interrupts for S-mode
->> >> kernel in trap_init().
->> >>
->> >> Currently, we get suprious S-mode interrupts on Kendryte K210
->> >> board running M-mode NO-MMU kernel because we are enabling all
->> >> interrupts in trap_init(). To fix this, we only enable software
->> >> and external interrupt in trap_init(). In future, trap_init()
->> >> will only enable software interrupt and PLIC driver will enable
->> >> external interrupt using CPU notifiers.
->>
->> I think we should add a proper interrupt controller driver for the per-hart
->> interrupt controllers, as doing this within the other drivers is ugly -- for
->> example, there's no reason an MMIO timer or interrupt controller driver should
->> be toggling these bits.
->
-> I have always been in support of having per-hart interrupt controller driver.
->
-> I will rebase my RISC-V INTC driver upon latest kernel and send it again.
-> Of course, now the situation has changed the RISC-V INTC driver will
-> have to consider NOMMU kernel as well.
->
-> The last version of RISC-V INTC driver can be found in riscv_intc_v2
-> branch of https://github.com/avpatel/linux.git
+On 05/03/2020 18:29, Vincent Guittot wrote:
+> When a cfs rq is throttled, the latter and its child are removed from the
+> leaf list but their nr_running is not changed which includes staying higher
+> than 1. When a task is enqueued in this throttled branch, the cfs rqs must
+> be added back in order to ensure correct ordering in the list but this can
+> only happens if nr_running == 1.
+> When cfs bandwidth is used, we call unconditionnaly list_add_leaf_cfs_rq()
+> when enqueuing an entity to make sure that the complete branch will be
+> added.
+> 
+> Reported-by: Christian Borntraeger <borntraeger@de.ibm.com>
+> Tested-by: Christian Borntraeger <borntraeger@de.ibm.com>
+> Cc: stable@vger.kernel.org #v5.1+
+> Signed-off-by: Vincent Guittot <vincent.guittot@linaro.org>
+> ---
+>  kernel/sched/fair.c | 11 +++++++++--
+>  1 file changed, 9 insertions(+), 2 deletions(-)
+> 
+> diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
+> index fcc968669aea..bdc5bb72ab31 100644
+> --- a/kernel/sched/fair.c
+> +++ b/kernel/sched/fair.c
+> @@ -4117,6 +4117,7 @@ static inline void check_schedstat_required(void)
+>  #endif
+>  }
+>  
+> +static inline bool cfs_bandwidth_used(void);
+>  
+>  /*
+>   * MIGRATION
+> @@ -4195,10 +4196,16 @@ enqueue_entity(struct cfs_rq *cfs_rq, struct sched_entity *se, int flags)
+>  		__enqueue_entity(cfs_rq, se);
+>  	se->on_rq = 1;
+>  
+> -	if (cfs_rq->nr_running == 1) {
+> +	/*
+> +	 * When bandwidth control is enabled, cfs might have been removed because of
+> +	 * a parent been throttled but cfs->nr_running > 1. Try to add it
+> +	 * unconditionnally.
+> +	 */
+> +	if (cfs_rq->nr_running == 1 || cfs_bandwidth_used())
+>  		list_add_leaf_cfs_rq(cfs_rq);
+> +
+> +	if (cfs_rq->nr_running == 1)
+>  		check_enqueue_throttle(cfs_rq);
+> -	}
+>  }
+>  
+>  static void __clear_buddies_last(struct sched_entity *se)
 
-Thanks.  I think I saw some patches go by, so let's talk over there.
+I experimented with an rt-app based setup on Arm64 Juno (6 CPUs):
 
->
->>
->> >> Cc: stable@vger.kernel.org
->> >> Fixes: 76d2a0493a17 ("RISC-V: Init and Halt Code)
->>
->> I'd argue this actually fixes the M-mode stuff, since that's the first place
->> this issue shows up.  I've queued this with
->>
->> Fixes: a4c3733d32a7 ("riscv: abstract out CSR names for supervisor vs machine mode")
->>
->> instead, as that's the first commit that will actually write to MIE and
->> therefor the first commit that will actually exhibit bad behavior.  It also has
->> the advantage of making the patch apply on older trees, which should make life
->> easier for the stable folks.
->
-> Sure, no problem.
->
->>
->> >> Signed-off-by: Anup Patel <anup.patel@wdc.com>
->> >> ---
->> >>  arch/riscv/kernel/traps.c | 4 ++--
->> >>  1 file changed, 2 insertions(+), 2 deletions(-)
->> >>
->> >> diff --git a/arch/riscv/kernel/traps.c b/arch/riscv/kernel/traps.c
->> >> index f4cad5163bf2..ffb3d94bf0cc 100644
->> >> --- a/arch/riscv/kernel/traps.c
->> >> +++ b/arch/riscv/kernel/traps.c
->> >> @@ -156,6 +156,6 @@ void __init trap_init(void)
->> >>         csr_write(CSR_SCRATCH, 0);
->> >>         /* Set the exception vector address */
->> >>         csr_write(CSR_TVEC, &handle_exception);
->> >> -       /* Enable all interrupts */
->> >> -       csr_write(CSR_IE, -1);
->> >> +       /* Enable interrupts */
->> >> +       csr_write(CSR_IE, IE_SIE | IE_EIE);
->> >>  }
->> >> --
->> >> 2.17.1
->> >>
->> >>
->> >
->> > Looks good.
->> > Reviewed-by: Atish Patra <atish.patra@wdc.com>
->>
->> Tested-by: Palmer Dabbelt <palmerdabbelt@google.com> [QMEU virt machine with SMP]
->> Reviewed-by: Palmer Dabbelt <palmerdabbelt@google.com>
->>
->> I consider this a bugfix, so I'm targeting it for RCs.  It's on fixes and
->> should go up this week.
->>
->> Thanks!
->
-> Thanks,
-> Anup
+cgroupv1 hierarchy A/B/C, all CFS bw controlled (30,000/100,000)
+
+I create A/B/C outside rt-app so I can have rt-app runs with an already
+existing taskgroup hierarchy. There is a 4 secs gap between consecutive
+rt-app runs.
+
+The rt-app files contains 6 periodic CFS tasks (25,000/100,000) running
+in /A/B/C, /A/B, /A (3 rt-app task phases).
+
+I get w/ the patch (and the debug patch applied to unthrottle_cfs_rq()):
+
+root@juno:~#
+[  409.236925] CPU1 path=/A/B on_list=1 nr_running=1 throttled=1
+[  409.242682] CPU1 path=/A on_list=0 nr_running=0 throttled=1
+[  409.248260] CPU1 path=/ on_list=1 nr_running=0 throttled=0
+[  409.253748] ------------[ cut here ]------------
+[  409.258365] rq->tmp_alone_branch != &rq->leaf_cfs_rq_list
+[  409.258382] WARNING: CPU: 1 PID: 0 at kernel/sched/fair.c:380
+unthrottle_cfs_rq+0x21c/0x2a8
+...
+[  409.275196] CPU: 1 PID: 0 Comm: swapper/1 Not tainted 5.6.0-rc3-dirty #62
+[  409.281990] Hardware name: ARM Juno development board (r0) (DT)
+...
+[  409.384644] Call trace:
+[  409.387089]  unthrottle_cfs_rq+0x21c/0x2a8
+[  409.391188]  distribute_cfs_runtime+0xf4/0x198
+[  409.395634]  sched_cfs_period_timer+0x134/0x240
+[  409.400168]  __hrtimer_run_queues+0x10c/0x3c0
+[  409.404527]  hrtimer_interrupt+0xd4/0x250
+[  409.408539]  tick_handle_oneshot_broadcast+0x17c/0x208
+[  409.413683]  sp804_timer_interrupt+0x30/0x40
+
+If I add the following snippet the issue goes away:
+
+diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
+index e9fd5379bb7e..5e03be046aba 100644
+--- a/kernel/sched/fair.c
++++ b/kernel/sched/fair.c
+@@ -4627,11 +4627,17 @@ void unthrottle_cfs_rq(struct cfs_rq *cfs_rq)
+ 			break;
+ 	}
+
+-	assert_list_leaf_cfs_rq(rq);
+-
+ 	if (!se)
+ 		add_nr_running(rq, task_delta);
+
++	for_each_sched_entity(se) {
++		cfs_rq = cfs_rq_of(se);
++
++		list_add_leaf_cfs_rq(cfs_rq);
++	}
++
++	assert_list_leaf_cfs_rq(rq);
++
+ 	/* Determine whether we need to wake up potentially idle CPU: */
+ 	if (rq->curr == rq->idle && rq->cfs.nr_running)
+ 		resched_curr(rq);
