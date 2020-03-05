@@ -2,143 +2,110 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CBC0A17ABE6
-	for <lists+stable@lfdr.de>; Thu,  5 Mar 2020 18:19:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 55F2217AD42
+	for <lists+stable@lfdr.de>; Thu,  5 Mar 2020 18:29:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728469AbgCERQT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 5 Mar 2020 12:16:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43434 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728462AbgCERQS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 5 Mar 2020 12:16:18 -0500
-Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5B6DD21775;
-        Thu,  5 Mar 2020 17:16:17 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583428578;
-        bh=fnujKJ1/4oO0PNPwquSQpLSJH6HeF+U1tw4Tv1etEbM=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YwybFLoavLaEze7LSNcWtQcf9bSzxpIBpMUEdBdav2lOKdiobwgltTVfEExBDhekO
-         4ZeG2EflfdarCWajA9PbL2YU4kET93hNgztwXAvdlkqg4dxBpdTx/XcvbwkgS7hf0P
-         Zmm5TSfzZeyjU7Qghg/wjwIEl4U1/BLHUz2tIz6Y=
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Marek Vasut <marex@denx.de>,
-        "David S . Miller" <davem@davemloft.net>,
-        Lukas Wunner <lukas@wunner.de>, Petr Stetiar <ynezz@true.cz>,
-        YueHaibing <yuehaibing@huawei.com>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 4/7] net: ks8851-ml: Fix IRQ handling and locking
-Date:   Thu,  5 Mar 2020 12:16:09 -0500
-Message-Id: <20200305171612.30555-4-sashal@kernel.org>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20200305171612.30555-1-sashal@kernel.org>
-References: <20200305171612.30555-1-sashal@kernel.org>
-MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
-Content-Transfer-Encoding: 8bit
+        id S1725946AbgCER3f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 5 Mar 2020 12:29:35 -0500
+Received: from mail-wm1-f68.google.com ([209.85.128.68]:39060 "EHLO
+        mail-wm1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726524AbgCER3e (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 5 Mar 2020 12:29:34 -0500
+Received: by mail-wm1-f68.google.com with SMTP id j1so6618059wmi.4
+        for <stable@vger.kernel.org>; Thu, 05 Mar 2020 09:29:32 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=from:to:cc:subject:date:message-id;
+        bh=mSTmAp0rfR9J7Hed09IG7hx2tP1xp0jyfIKXVq+ZwgE=;
+        b=sUWKVYQ40eLJIHnPchTFldewVKQFE3f8yjOdp9kDqduM2qpYf0aXWRJO5yopu+keCa
+         kTKI+og9iuRbk3GSwj9NZRwU5rJc2hrFkZDajJMQ5EUZT3SDwR5a5jlnq+Yek/Dv5dC1
+         qEJSbc6/o8kuDIXe87VDBT5YPj0OgLSsH9Io7JdnXmFLVf8Q4G7bXbCa0PL9DOihE0tf
+         xiP+kQOsavuUC9vxOdwJN4ZCNdxbDT334H2YL/2ujL4L5hrZwWnGgx+9lc9rYKIAXut/
+         RYkZv6FhdNBsxQ2HjLIFFtd0yucezhM/cobHYyAqjZEm84277DuvngCQ9pPrID190LYU
+         MVEQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id;
+        bh=mSTmAp0rfR9J7Hed09IG7hx2tP1xp0jyfIKXVq+ZwgE=;
+        b=DEPuvvR1+AXn7Qa+lnD3gWFNu4kxyVqrIocngFlk5LvvM9SrNvnJqA41Ifj52U+vDd
+         +mG8vjqY8O2L8RjB77FxGusq7OrADDZ1daQVb+UZO5ha3Uayobr9r4dutudEJ1+s6pYi
+         /4o/c9mYl0jBbLhxZOdvyP3W3ICdrvp/wIsN5kkQxoA0N+caQKJSyZWetQBpVrEErAMa
+         pMy5zO84ENGsMDfbTrDDkMbXHACmWDY7PJhBgPuQnW+pKpcPRkuCbOOUHX3lWTNRho0B
+         BilfeNj2d+Z0sqJzym60wXugflFkxIP5Y94t84nGgDrFSTwkPdcAbMsa2IIkNAwcAgv6
+         6zOg==
+X-Gm-Message-State: ANhLgQ3awKfDMUtCqjJWtBVi0uFiAOQpxian1rWHQVS+MYcxl7zsW40j
+        fj04bwztcuQj3KPZSE6ZGNQ9kw==
+X-Google-Smtp-Source: ADFU+vschCTogHqskxov+/kO32sj0Aak29Vzr+6W6mJMwbg79afXY6NZsPxeNXwXTIavWV9v6Dxdyg==
+X-Received: by 2002:a05:600c:351:: with SMTP id u17mr10521999wmd.22.1583429371284;
+        Thu, 05 Mar 2020 09:29:31 -0800 (PST)
+Received: from localhost.localdomain ([2a01:e0a:f:6020:d5d0:80d7:4f6f:54be])
+        by smtp.gmail.com with ESMTPSA id q16sm30120305wrj.73.2020.03.05.09.29.29
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 05 Mar 2020 09:29:30 -0800 (PST)
+From:   Vincent Guittot <vincent.guittot@linaro.org>
+To:     mingo@redhat.com, peterz@infradead.org, juri.lelli@redhat.com,
+        dietmar.eggemann@arm.com, rostedt@goodmis.org, bsegall@google.com,
+        mgorman@suse.de, linux-kernel@vger.kernel.org,
+        borntraeger@de.ibm.com
+Cc:     Vincent Guittot <vincent.guittot@linaro.org>,
+        stable@vger.kernel.org
+Subject: [PATCH] sched/fair: fix enqueue_task_fair warning
+Date:   Thu,  5 Mar 2020 18:29:21 +0100
+Message-Id: <20200305172921.22743-1-vincent.guittot@linaro.org>
+X-Mailer: git-send-email 2.17.1
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Vasut <marex@denx.de>
+When a cfs rq is throttled, the latter and its child are removed from the
+leaf list but their nr_running is not changed which includes staying higher
+than 1. When a task is enqueued in this throttled branch, the cfs rqs must
+be added back in order to ensure correct ordering in the list but this can
+only happens if nr_running == 1.
+When cfs bandwidth is used, we call unconditionnaly list_add_leaf_cfs_rq()
+when enqueuing an entity to make sure that the complete branch will be
+added.
 
-[ Upstream commit 44343418d0f2f623cb9da6f5000df793131cbe3b ]
-
-The KS8851 requires that packet RX and TX are mutually exclusive.
-Currently, the driver hopes to achieve this by disabling interrupt
-from the card by writing the card registers and by disabling the
-interrupt on the interrupt controller. This however is racy on SMP.
-
-Replace this approach by expanding the spinlock used around the
-ks_start_xmit() TX path to ks_irq() RX path to assure true mutual
-exclusion and remove the interrupt enabling/disabling, which is
-now not needed anymore. Furthermore, disable interrupts also in
-ks_net_stop(), which was missing before.
-
-Note that a massive improvement here would be to re-use the KS8851
-driver approach, which is to move the TX path into a worker thread,
-interrupt handling to threaded interrupt, and synchronize everything
-with mutexes, but that would be a much bigger rework, for a separate
-patch.
-
-Signed-off-by: Marek Vasut <marex@denx.de>
-Cc: David S. Miller <davem@davemloft.net>
-Cc: Lukas Wunner <lukas@wunner.de>
-Cc: Petr Stetiar <ynezz@true.cz>
-Cc: YueHaibing <yuehaibing@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reported-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Tested-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: stable@vger.kernel.org #v5.1+
+Signed-off-by: Vincent Guittot <vincent.guittot@linaro.org>
 ---
- drivers/net/ethernet/micrel/ks8851_mll.c | 14 ++++++++------
- 1 file changed, 8 insertions(+), 6 deletions(-)
+ kernel/sched/fair.c | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/micrel/ks8851_mll.c b/drivers/net/ethernet/micrel/ks8851_mll.c
-index 8dc1f0277117d..cc44143f86a5e 100644
---- a/drivers/net/ethernet/micrel/ks8851_mll.c
-+++ b/drivers/net/ethernet/micrel/ks8851_mll.c
-@@ -866,14 +866,17 @@ static irqreturn_t ks_irq(int irq, void *pw)
- {
- 	struct net_device *netdev = pw;
- 	struct ks_net *ks = netdev_priv(netdev);
-+	unsigned long flags;
- 	u16 status;
- 
-+	spin_lock_irqsave(&ks->statelock, flags);
- 	/*this should be the first in IRQ handler */
- 	ks_save_cmd_reg(ks);
- 
- 	status = ks_rdreg16(ks, KS_ISR);
- 	if (unlikely(!status)) {
- 		ks_restore_cmd_reg(ks);
-+		spin_unlock_irqrestore(&ks->statelock, flags);
- 		return IRQ_NONE;
- 	}
- 
-@@ -899,6 +902,7 @@ static irqreturn_t ks_irq(int irq, void *pw)
- 		ks->netdev->stats.rx_over_errors++;
- 	/* this should be the last in IRQ handler*/
- 	ks_restore_cmd_reg(ks);
-+	spin_unlock_irqrestore(&ks->statelock, flags);
- 	return IRQ_HANDLED;
+diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
+index fcc968669aea..bdc5bb72ab31 100644
+--- a/kernel/sched/fair.c
++++ b/kernel/sched/fair.c
+@@ -4117,6 +4117,7 @@ static inline void check_schedstat_required(void)
+ #endif
  }
  
-@@ -968,6 +972,7 @@ static int ks_net_stop(struct net_device *netdev)
++static inline bool cfs_bandwidth_used(void);
  
- 	/* shutdown RX/TX QMU */
- 	ks_disable_qmu(ks);
-+	ks_disable_int(ks);
+ /*
+  * MIGRATION
+@@ -4195,10 +4196,16 @@ enqueue_entity(struct cfs_rq *cfs_rq, struct sched_entity *se, int flags)
+ 		__enqueue_entity(cfs_rq, se);
+ 	se->on_rq = 1;
  
- 	/* set powermode to soft power down to save power */
- 	ks_set_powermode(ks, PMECR_PM_SOFTDOWN);
-@@ -1024,10 +1029,9 @@ static netdev_tx_t ks_start_xmit(struct sk_buff *skb, struct net_device *netdev)
- {
- 	netdev_tx_t retv = NETDEV_TX_OK;
- 	struct ks_net *ks = netdev_priv(netdev);
-+	unsigned long flags;
- 
--	disable_irq(netdev->irq);
--	ks_disable_int(ks);
--	spin_lock(&ks->statelock);
-+	spin_lock_irqsave(&ks->statelock, flags);
- 
- 	/* Extra space are required:
- 	*  4 byte for alignment, 4 for status/length, 4 for CRC
-@@ -1041,9 +1045,7 @@ static netdev_tx_t ks_start_xmit(struct sk_buff *skb, struct net_device *netdev)
- 		dev_kfree_skb(skb);
- 	} else
- 		retv = NETDEV_TX_BUSY;
--	spin_unlock(&ks->statelock);
--	ks_enable_int(ks);
--	enable_irq(netdev->irq);
-+	spin_unlock_irqrestore(&ks->statelock, flags);
- 	return retv;
+-	if (cfs_rq->nr_running == 1) {
++	/*
++	 * When bandwidth control is enabled, cfs might have been removed because of
++	 * a parent been throttled but cfs->nr_running > 1. Try to add it
++	 * unconditionnally.
++	 */
++	if (cfs_rq->nr_running == 1 || cfs_bandwidth_used())
+ 		list_add_leaf_cfs_rq(cfs_rq);
++
++	if (cfs_rq->nr_running == 1)
+ 		check_enqueue_throttle(cfs_rq);
+-	}
  }
  
+ static void __clear_buddies_last(struct sched_entity *se)
 -- 
-2.20.1
+2.17.1
 
