@@ -2,129 +2,91 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0947917AF70
-	for <lists+stable@lfdr.de>; Thu,  5 Mar 2020 21:12:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9778617AFBA
+	for <lists+stable@lfdr.de>; Thu,  5 Mar 2020 21:31:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726145AbgCEUMl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 5 Mar 2020 15:12:41 -0500
-Received: from mail-yw1-f66.google.com ([209.85.161.66]:41499 "EHLO
-        mail-yw1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726007AbgCEUMl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 5 Mar 2020 15:12:41 -0500
-Received: by mail-yw1-f66.google.com with SMTP id p124so2997448ywc.8
-        for <stable@vger.kernel.org>; Thu, 05 Mar 2020 12:12:40 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=poorly.run; s=google;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=EZBU9lNaaKWJIFCfIMlE6F5L+6SWhe44fgINKq+20lU=;
-        b=PEU0cdtDAyE63dYwom18/q/fwtmGA9ETIJ0oP8JikqO9fn1wFGq74y6UUN58H/nVtb
-         +z8CSAKdzsHVseCf4FvYGM7ckS1uvD/cdFpwoMHNOPJUGwh2q3K0tzShWItzUFkIo2KE
-         Rhrw3hyxcugo7e27s7UEuZ3qSWi9OG5lXM5DPZBk5TmOTAQyA0mIYIOD/h56QU92R+hI
-         +CyVLwDFusstTR1f5JLbWRr3GHmcYfXBnO9S3In0SiN0uiwhaG1GLCejBk51d/CAMukN
-         CjpSpv/z7ezTVXHlBL2UPZLPvohvmXpySIGXa5d/+ax5JGe3rQ4wzwOlHE7nNWY6f6Mx
-         j8QQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=EZBU9lNaaKWJIFCfIMlE6F5L+6SWhe44fgINKq+20lU=;
-        b=DTssVKKTcHYrxsQim3FLKPIBl9SayczOb6A5n5hJv2jHlDk+RgxGDnNOKf83cu/HtK
-         01TYi+xzjVUy6HLPa9kmC4x3t8xpcijPTRc7AFmMO51kGg28XkeAN+vmZLUQ7KKc+OBG
-         BFbHviLWXnb9F4M0lrzpuBS/bVUSTmi06OYlvdEBSeu9dsMapW1M+Yfgp/c7LPm555Wb
-         9mM8JCclOWDqiKyGLYtgBTH6QZwzp72eq58UTCkD9F4sWcyPSeDoKLbpvqo8O0tqRoFl
-         KmmjdUdJ61TQUjgtblZeXv7Cw8LoPO2K/gggg5c4BwLtdY5BQiQajMo3+p6lwx9hxtOI
-         9THA==
-X-Gm-Message-State: ANhLgQ1opgyjS7B+u8ZR2XaEgN3RPnxQrQYkAECt3OejspSJZapX6epy
-        gb5lKxljUVs92ttg96thJEIFig==
-X-Google-Smtp-Source: ADFU+vumRJx+hQFYjxZ5VbMX5PZgjLdnEl4dRwuIP5dFlmQnaoFwapOGtkGMpZsvloq4uuvkKcdS4A==
-X-Received: by 2002:a0d:d757:: with SMTP id z84mr84657ywd.273.1583439160155;
-        Thu, 05 Mar 2020 12:12:40 -0800 (PST)
-Received: from localhost ([2620:0:1013:11:1e1:4760:6ce4:fc64])
-        by smtp.gmail.com with ESMTPSA id j142sm8314972ywg.87.2020.03.05.12.12.39
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 05 Mar 2020 12:12:39 -0800 (PST)
-From:   Sean Paul <sean@poorly.run>
-To:     dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org
-Cc:     juston.li@intel.com, ramalingam.c@intel.com,
-        ville.syrjala@linux.intel.com, jani.nikula@linux.intel.com,
-        joonas.lahtinen@linux.intel.com, rodrigo.vivi@intel.com,
-        daniel.vetter@ffwll.ch, Sean Paul <seanpaul@chromium.org>,
-        Chris Wilson <chris@chris-wilson.co.uk>, stable@vger.kernel.org
-Subject: [PATCH v5 02/16] drm/i915: Clear the repeater bit on HDCP disable
-Date:   Thu,  5 Mar 2020 15:12:22 -0500
-Message-Id: <20200305201236.152307-3-sean@poorly.run>
-X-Mailer: git-send-email 2.25.1.481.gfbce0eb801-goog
-In-Reply-To: <20200305201236.152307-1-sean@poorly.run>
-References: <20200305201236.152307-1-sean@poorly.run>
+        id S1726087AbgCEUbB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 5 Mar 2020 15:31:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48896 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726080AbgCEUbB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 5 Mar 2020 15:31:01 -0500
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id DBA6D207FD;
+        Thu,  5 Mar 2020 20:30:59 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1583440260;
+        bh=B5RwAxCDpuFi5v3T3KrrV0JsAZRWkmeSkuEyybQvpIg=;
+        h=Subject:To:From:Date:From;
+        b=uTqXpBJTsWdD7918WIb7OcCmChgQKMwkuar6fPLqZ+5JaHWUNEEB7gNsIjsEzSr1E
+         /vLceiIMGTZ23QVg3wLIqtcR4tIP7TnOpPU9lvKdsEI6NQ/sls7o5O5i/M2UtX4LXW
+         LXYZV1oZrA8a8OcUI0ciPDfmfUQuUICvU3xpO374=
+Subject: patch "tty:serial:mvebu-uart:fix a wrong return" added to tty-linus
+To:     tangbin@cmss.chinamobile.com, gregkh@linuxfoundation.org,
+        jslaby@suse.cz, stable@vger.kernel.org
+From:   <gregkh@linuxfoundation.org>
+Date:   Thu, 05 Mar 2020 21:30:57 +0100
+Message-ID: <158344025716912@kroah.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Paul <seanpaul@chromium.org>
 
-On HDCP disable, clear the repeater bit. This ensures if we connect a
-non-repeater sink after a repeater, the bit is in the state we expect.
+This is a note to let you know that I've just added the patch titled
 
-Fixes: ee5e5e7a5e0f (drm/i915: Add HDCP framework + base implementation)
-Cc: Chris Wilson <chris@chris-wilson.co.uk>
-Cc: Ramalingam C <ramalingam.c@intel.com>
-Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
-Cc: Sean Paul <seanpaul@chromium.org>
-Cc: Jani Nikula <jani.nikula@linux.intel.com>
-Cc: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
-Cc: Rodrigo Vivi <rodrigo.vivi@intel.com>
-Cc: intel-gfx@lists.freedesktop.org
-Cc: <stable@vger.kernel.org> # v4.17+
-Reviewed-by: Ramalingam C <ramalingam.c@intel.com>
-Signed-off-by: Sean Paul <seanpaul@chromium.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20191212190230.188505-3-sean@poorly.run #v2
-Link: https://patchwork.freedesktop.org/patch/msgid/20200117193103.156821-3-sean@poorly.run #v3
-Link: https://patchwork.freedesktop.org/patch/msgid/20200218220242.107265-3-sean@poorly.run #v4
+    tty:serial:mvebu-uart:fix a wrong return
 
-Changes in v2:
--Added to the set
-Changes in v3:
--None
-  I had previously agreed that clearing the rep_ctl bits on enable would
-  also be a good idea. However when I committed that idea to code, it
-  didn't look right. So let's rely on enables and disables being paired
-  and everything outside of that will be considered a bug
-Changes in v4:
--s/I915_(READ|WRITE)/intel_de_(read|write)/
-Changes in v5:
--None
+to my tty git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/tty.git
+in the tty-linus branch.
+
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
+
+The patch will hopefully also be merged in Linus's tree for the
+next -rc kernel release.
+
+If you have any questions about this process, please let me know.
+
+
+From 4a3e208474204e879d22a310b244cb2f39e5b1f8 Mon Sep 17 00:00:00 2001
+From: tangbin <tangbin@cmss.chinamobile.com>
+Date: Thu, 5 Mar 2020 09:38:23 +0800
+Subject: tty:serial:mvebu-uart:fix a wrong return
+
+in this place, the function should return a
+negative value and the PTR_ERR already returns
+a negative,so return -PTR_ERR() is wrong.
+
+Signed-off-by: tangbin <tangbin@cmss.chinamobile.com>
+Cc: stable <stable@vger.kernel.org>
+Acked-by: Jiri Slaby <jslaby@suse.cz>
+Link: https://lore.kernel.org/r/20200305013823.20976-1-tangbin@cmss.chinamobile.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/i915/display/intel_hdcp.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/tty/serial/mvebu-uart.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/i915/display/intel_hdcp.c b/drivers/gpu/drm/i915/display/intel_hdcp.c
-index defa8654e7ac5..553f5ff617a15 100644
---- a/drivers/gpu/drm/i915/display/intel_hdcp.c
-+++ b/drivers/gpu/drm/i915/display/intel_hdcp.c
-@@ -797,6 +797,7 @@ static int _intel_hdcp_disable(struct intel_connector *connector)
- 	struct intel_hdcp *hdcp = &connector->hdcp;
- 	enum port port = intel_dig_port->base.port;
- 	enum transcoder cpu_transcoder = hdcp->cpu_transcoder;
-+	u32 repeater_ctl;
- 	int ret;
+diff --git a/drivers/tty/serial/mvebu-uart.c b/drivers/tty/serial/mvebu-uart.c
+index c12a12556339..4e9a590712cb 100644
+--- a/drivers/tty/serial/mvebu-uart.c
++++ b/drivers/tty/serial/mvebu-uart.c
+@@ -851,7 +851,7 @@ static int mvebu_uart_probe(struct platform_device *pdev)
  
- 	drm_dbg_kms(&dev_priv->drm, "[%s:%d] HDCP is being disabled...\n",
-@@ -812,6 +813,11 @@ static int _intel_hdcp_disable(struct intel_connector *connector)
- 		return -ETIMEDOUT;
- 	}
+ 	port->membase = devm_ioremap_resource(&pdev->dev, reg);
+ 	if (IS_ERR(port->membase))
+-		return -PTR_ERR(port->membase);
++		return PTR_ERR(port->membase);
  
-+	repeater_ctl = intel_hdcp_get_repeater_ctl(dev_priv, cpu_transcoder,
-+						   port);
-+	intel_de_write(dev_priv, HDCP_REP_CTL,
-+		       intel_de_read(dev_priv, HDCP_REP_CTL) & ~repeater_ctl);
-+
- 	ret = hdcp->shim->toggle_signalling(intel_dig_port, false);
- 	if (ret) {
- 		drm_err(&dev_priv->drm, "Failed to disable HDCP signalling\n");
+ 	mvuart = devm_kzalloc(&pdev->dev, sizeof(struct mvebu_uart),
+ 			      GFP_KERNEL);
 -- 
-Sean Paul, Software Engineer, Google / Chromium OS
+2.25.1
+
 
