@@ -2,55 +2,60 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 41CD017AA80
+	by mail.lfdr.de (Postfix) with ESMTP id ADDB317AA81
 	for <lists+stable@lfdr.de>; Thu,  5 Mar 2020 17:30:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725977AbgCEQaK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 5 Mar 2020 11:30:10 -0500
-Received: from mail-ed1-f65.google.com ([209.85.208.65]:40181 "EHLO
+        id S1725989AbgCEQaL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 5 Mar 2020 11:30:11 -0500
+Received: from mail-ed1-f65.google.com ([209.85.208.65]:40186 "EHLO
         mail-ed1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725963AbgCEQaK (ORCPT
+        with ESMTP id S1725974AbgCEQaK (ORCPT
         <rfc822;stable@vger.kernel.org>); Thu, 5 Mar 2020 11:30:10 -0500
-Received: by mail-ed1-f65.google.com with SMTP id a13so7522088edu.7
+Received: by mail-ed1-f65.google.com with SMTP id a13so7522164edu.7
         for <stable@vger.kernel.org>; Thu, 05 Mar 2020 08:30:09 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=from:to:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=d3O4qVPC7P+tM6D12k3RrdjZGaW4VfInZ7uNVih+wmY=;
-        b=WWdMnbsfDQiG4oHd1bsCOg69QuV7waSYieotXC8hzYL+al0Q/lWI86vhFEtb/WmOHR
-         nCPkCPCDZzkRabSYRvfwhMQfAGdFe8gBNi7OEOi6f1tK4DOOVjLlaxUqDaXfThfXfo7O
-         DEpGzMrAPjS3Do54Uww7lJ+fghC28DeS/0D5frpQvUBMfWsS/zUWuOmqAyDY6VYhn5Uj
-         5fBNOO31hrH4JcGgIwupgmduX2dJAe/8CusgDPei3A6lplGjV3mjApcIn8xBrsI4HGb3
-         t2uNQRK+jgIpUcLDVQ9FBeZmyC+UuygEL8j40SnByIXOjLdQb3sjGQIegrbnrx3qOmoL
-         YYug==
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=/+zqQclKUiPOxDf9bmBm73rCAC1WKMa2SzoJYpByfBU=;
+        b=aanvPBPnU6nRimN+8HFckTLGPWFGHn6Zo0R4D3CZBUwnurXw2COlpSHyfdduYkuRL5
+         cGSoBhpRd2kn2rhq95Hkm5ILe4baXl2kvVGBp977VSPj5JIghGLN+ohBXFVK4cTV5dsE
+         ia0e6nUKbUb06CTOhJ1qU9z+VZBj/H3vtE9DpQxJQIYURZ2NTWpDVFOwlRU8Ozfum24r
+         V49DdY5d87kKO6HRZN0C2qNP4sS6SRi9tF0TUr9WPqRi/wiqwLbZu1JSDxzc2KOqBiD2
+         g5KRr9X0jNEwJjqTJOPPI1HOOen1dqB6w0mZaLXRM4nK0dabE9nRDfD/RTyWx/Jl1tUC
+         8I2A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=d3O4qVPC7P+tM6D12k3RrdjZGaW4VfInZ7uNVih+wmY=;
-        b=qYnktxaofNLq4zDst21lsJ7Z6Sl1yui6tU/95o0XM0FPg908cM/x/ihr4jwM0iJTOm
-         EqI/rDcS1hyvuVeOMkraKHXDq2OgYyyt6YA2NRptvme+66bstWN+qfpvGGSYobx8ZP+S
-         KJ0S5H1EwovJDcZAvxemU/Nz6iqre46BuspED+5cncZJTBSW8dcuw/Eal2s8dSfVqBOW
-         ZYuBqgmuCGPP98gwG/ARINJbBsFj2lKo21E/GNhT9j5ZMIL5RKJr4jfaX6k6bz+LRu0S
-         vkztmuWgP9gAickZ//HWTM60AjC5dQ6eY0nBdt3tJveOgN2PK8KG0FJ6N8Gbva5Xm37x
-         rFcQ==
-X-Gm-Message-State: ANhLgQ0O8RXYXD2H6l+kHFr2cHF7XdFKFI4FCWo++otLqDCdx/LZApiC
-        fT8jFE0m/V0LIVstHxdPnjw6FB0x
-X-Google-Smtp-Source: ADFU+vuIQ4nZQDr7h1+dRRhJor7WfF7qK2bRJ4jY3lBE5gQDrZ5BEwZ0KcJUHwCKjCX4pGh10YTv8A==
-X-Received: by 2002:a17:906:14d6:: with SMTP id y22mr8175946ejc.289.1583425808272;
-        Thu, 05 Mar 2020 08:30:08 -0800 (PST)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=/+zqQclKUiPOxDf9bmBm73rCAC1WKMa2SzoJYpByfBU=;
+        b=BHc59HXc/0sRbmRh00BUyIIhend8Qj7G7zY+wPz21WbGYTr0Q8xC2N6AxX/HvLWpls
+         XIwkJvId7TxJD/za6vpq8yWeaf4/TjT1V7CCwCz9kl/0nIBT8x6UQcswNuJNqTxdbPV5
+         fmqVxyhW2oNl79o8H4zD0ap1j3drcR3B9FZxVsz8Ew+YqQmpIAjOa7cUMXoIlWwJS60v
+         tyuWBtvnCj8NcvgIbFwzE14matp3Ye8gI7vCUmTRSiSR1wpfOAxYtYohUIqrzm1yv/yY
+         4U1bczCyNYsVBNb3ixt9csYyT58BGz4DWSWjmyzrlIHpeV6/esispqMsAMApFl1s6MGu
+         ZtDA==
+X-Gm-Message-State: ANhLgQ0YBbLNgvKzkfavTiKSOvC+DmXbbOLdjh5CdyYPxUEu3wDWjxET
+        dVLsc6X5XEwe/9Tw4aVlCSBhipY9
+X-Google-Smtp-Source: ADFU+vvF74HhtvbK0c3Zrcm1gHGPO6DZtw2Q3D+WISyOSQgfwtEadpYRprH9/ytvvmfxsAZXvfTawg==
+X-Received: by 2002:a50:f686:: with SMTP id d6mr9492006edn.285.1583425809177;
+        Thu, 05 Mar 2020 08:30:09 -0800 (PST)
 Received: from jwang-Latitude-5491.pb.local ([2001:1438:4010:2558:d8ec:cf8e:d7de:fb22])
-        by smtp.gmail.com with ESMTPSA id h22sm293651edq.28.2020.03.05.08.30.07
+        by smtp.gmail.com with ESMTPSA id h22sm293651edq.28.2020.03.05.08.30.08
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 05 Mar 2020 08:30:07 -0800 (PST)
+        Thu, 05 Mar 2020 08:30:08 -0800 (PST)
 From:   Jack Wang <jinpuwang@gmail.com>
 To:     gregkh@linuxfoundation.org, sashal@kernel.org,
         stable@vger.kernel.org
-Subject: [stable-4.14 0/3] some backport for stable
-Date:   Thu,  5 Mar 2020 17:30:04 +0100
-Message-Id: <20200305163007.25659-1-jinpuwang@gmail.com>
+Cc:     =?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Jack Wang <jinpu.wang@cloud.ionos.com>
+Subject: [stable-4.14 1/3] vhost: Check docket sk_family instead of call getname
+Date:   Thu,  5 Mar 2020 17:30:05 +0100
+Message-Id: <20200305163007.25659-2-jinpuwang@gmail.com>
 X-Mailer: git-send-email 2.17.1
+In-Reply-To: <20200305163007.25659-1-jinpuwang@gmail.com>
+References: <20200305163007.25659-1-jinpuwang@gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -59,35 +64,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Greg, hi Sasha,
+From: Eugenio Pérez <eperezma@redhat.com>
 
-Please consider following backport for next stable release.
+commit 42d84c8490f9f0931786f1623191fcab397c3d64 upstream.
 
-First patch for vhost_net has been tested with our in house regression tests
-with VM migration with kernel 4.14.171, but should be also applied to older
-stable tree.
+Doing so, we save one call to get data we already have in the struct.
 
-mce patch is to fix a call trace in EPYC Rome server during boot.
+Also, since there is no guarantee that getname use sockaddr_ll
+parameter beyond its size, we add a little bit of security here.
+It should do not do beyond MAX_ADDR_LEN, but syzbot found that
+ax25_getname writes more (72 bytes, the size of full_sockaddr_ax25,
+versus 20 + 32 bytes of sockaddr_ll + MAX_ADDR_LEN in syzbot repro).
 
-EDAC one is to fix a regression backported to at least 4.14 and 4.19, should be
-applied to both tree, kernel 5.4/5.5 already have the patch.
+Fixes: 3a4d5c94e9593 ("vhost_net: a kernel-level virtio server")
+Reported-by: syzbot+f2a62d07a5198c819c7b@syzkaller.appspotmail.com
+Signed-off-by: Eugenio Pérez <eperezma@redhat.com>
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+[jwang: backport to 4.14]
+Signed-off-by: Jack Wang <jinpu.wang@cloud.ionos.com>
+---
+ drivers/vhost/net.c | 13 ++-----------
+ 1 file changed, 2 insertions(+), 11 deletions(-)
 
-Regards,
-Jack Wang from IONOS SE.
-
-Eugenio Pérez (1):
-  vhost: Check docket sk_family instead of call getname
-
-Yazen Ghannam (2):
-  x86/mce: Handle varying MCA bank counts
-  EDAC/amd64: Set grain per DIMM
-
- arch/x86/kernel/cpu/mcheck/mce-inject.c | 14 +++++++-------
- arch/x86/kernel/cpu/mcheck/mce.c        | 22 +++++++---------------
- drivers/edac/amd64_edac.c               |  1 +
- drivers/vhost/net.c                     | 13 ++-----------
- 4 files changed, 17 insertions(+), 33 deletions(-)
-
+diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+index 4d11152e60c1..8fe07622ae59 100644
+--- a/drivers/vhost/net.c
++++ b/drivers/vhost/net.c
+@@ -1025,11 +1025,7 @@ static int vhost_net_release(struct inode *inode, struct file *f)
+ 
+ static struct socket *get_raw_socket(int fd)
+ {
+-	struct {
+-		struct sockaddr_ll sa;
+-		char  buf[MAX_ADDR_LEN];
+-	} uaddr;
+-	int uaddr_len = sizeof uaddr, r;
++	int r;
+ 	struct socket *sock = sockfd_lookup(fd, &r);
+ 
+ 	if (!sock)
+@@ -1041,12 +1037,7 @@ static struct socket *get_raw_socket(int fd)
+ 		goto err;
+ 	}
+ 
+-	r = sock->ops->getname(sock, (struct sockaddr *)&uaddr.sa,
+-			       &uaddr_len, 0);
+-	if (r)
+-		goto err;
+-
+-	if (uaddr.sa.sll_family != AF_PACKET) {
++	if (sock->sk->sk_family != AF_PACKET) {
+ 		r = -EPFNOSUPPORT;
+ 		goto err;
+ 	}
 -- 
 2.17.1
 
