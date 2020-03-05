@@ -2,133 +2,75 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B35317AFBB
-	for <lists+stable@lfdr.de>; Thu,  5 Mar 2020 21:31:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 918B217AFDA
+	for <lists+stable@lfdr.de>; Thu,  5 Mar 2020 21:39:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726092AbgCEUbJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 5 Mar 2020 15:31:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48938 "EHLO mail.kernel.org"
+        id S1726080AbgCEUjq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 5 Mar 2020 15:39:46 -0500
+Received: from mga12.intel.com ([192.55.52.136]:62773 "EHLO mga12.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726080AbgCEUbJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 5 Mar 2020 15:31:09 -0500
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5CCB1207FD;
-        Thu,  5 Mar 2020 20:31:08 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583440268;
-        bh=l7wGo1d9ELDxDKVdvCqKLvvi+AEgoSjeSeAC/FQ5FW8=;
-        h=Subject:To:From:Date:From;
-        b=Nyxc9gWCy+rvAmsuKKbG3cw3ugS3plPed+KkOOB8OTQ0GdMUy7IIZWsAjtM4eHVvt
-         +6XVLIJVkLJGWs5dqH+pPtFq8B9IpA66mQ2OqcOG1KAuB3Ie9H72IrvMbaaOr5luKr
-         DzvUvm6BHe/0IwPyI3ISA0KQp0OCg1Ff+qhgdS/w=
-Subject: patch "serial: 8250_exar: add support for ACCES cards" added to tty-linus
-To:     jay.dolan@accesio.com, gregkh@linuxfoundation.org,
-        stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 05 Mar 2020 21:30:58 +0100
-Message-ID: <158344025819438@kroah.com>
+        id S1725991AbgCEUjp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 5 Mar 2020 15:39:45 -0500
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from orsmga005.jf.intel.com ([10.7.209.41])
+  by fmsmga106.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 05 Mar 2020 12:39:45 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.70,519,1574150400"; 
+   d="scan'208";a="413649952"
+Received: from josouza-mobl2.jf.intel.com (HELO josouza-MOBL2.intel.com) ([10.24.14.241])
+  by orsmga005.jf.intel.com with ESMTP; 05 Mar 2020 12:39:44 -0800
+From:   =?UTF-8?q?Jos=C3=A9=20Roberto=20de=20Souza?= <jose.souza@intel.com>
+To:     gfx-internal-devel@eclists.intel.com
+Cc:     Lyude Paul <lyude@redhat.com>, Sean Paul <sean@poorly.run>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Jos=C3=A9=20Roberto=20de=20Souza?= <jose.souza@intel.com>
+Subject: [PATCH 1/2] drm/mst: Fix possible NULL pointer dereference in drm_dp_mst_process_up_req()
+Date:   Thu,  5 Mar 2020 12:40:40 -0800
+Message-Id: <20200305204041.37564-2-jose.souza@intel.com>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20200305204041.37564-1-jose.souza@intel.com>
+References: <20200305204041.37564-1-jose.souza@intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+According to DP specification, DP_SINK_EVENT_NOTIFY is also a
+broadcast message but as this function only handles
+DP_CONNECTION_STATUS_NOTIFY I will only make the static
+analyzer that caught this issue happy by not calling
+drm_dp_get_mst_branch_device_by_guid() with a NULL guid, causing
+drm_dp_mst_process_up_req() to return in the "if (!mstb)" right
+bellow.
 
-This is a note to let you know that I've just added the patch titled
-
-    serial: 8250_exar: add support for ACCES cards
-
-to my tty git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/tty.git
-in the tty-linus branch.
-
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
-
-The patch will hopefully also be merged in Linus's tree for the
-next -rc kernel release.
-
-If you have any questions about this process, please let me know.
-
-
-From 10c5ccc3c6d32f3d7d6c07de1d3f0f4b52f3e3ab Mon Sep 17 00:00:00 2001
-From: Jay Dolan <jay.dolan@accesio.com>
-Date: Thu, 5 Mar 2020 06:05:04 -0800
-Subject: serial: 8250_exar: add support for ACCES cards
-
-Add ACCES VIDs and PIDs that use the Exar chips
-
-Signed-off-by: Jay Dolan <jay.dolan@accesio.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200305140504.22237-1-jay.dolan@accesio.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 9408cc94eb04 ("drm/dp_mst: Handle UP requests asynchronously")
+Cc: Lyude Paul <lyude@redhat.com>
+Cc: Sean Paul <sean@poorly.run>
+Cc: <stable@vger.kernel.org> # v5.5+
+Signed-off-by: José Roberto de Souza <jose.souza@intel.com>
+[added cc to stable]
+Signed-off-by: Lyude Paul <lyude@redhat.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200129232448.84704-1-jose.souza@intel.com
+(cherry picked from commit 8ccb5bf7619c6523e7a4384a84b72e7be804298c)
 ---
- drivers/tty/serial/8250/8250_exar.c | 33 +++++++++++++++++++++++++++++
- 1 file changed, 33 insertions(+)
+ drivers/gpu/drm/drm_dp_mst_topology.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/tty/serial/8250/8250_exar.c b/drivers/tty/serial/8250/8250_exar.c
-index 91e9b070d36d..d330da76d6b6 100644
---- a/drivers/tty/serial/8250/8250_exar.c
-+++ b/drivers/tty/serial/8250/8250_exar.c
-@@ -25,6 +25,14 @@
+diff --git a/drivers/gpu/drm/drm_dp_mst_topology.c b/drivers/gpu/drm/drm_dp_mst_topology.c
+index cf6cf186e3c6..c9c43371c33c 100644
+--- a/drivers/gpu/drm/drm_dp_mst_topology.c
++++ b/drivers/gpu/drm/drm_dp_mst_topology.c
+@@ -3810,7 +3810,8 @@ drm_dp_mst_process_up_req(struct drm_dp_mst_topology_mgr *mgr,
+ 		else if (msg->req_type == DP_RESOURCE_STATUS_NOTIFY)
+ 			guid = msg->u.resource_stat.guid;
  
- #include "8250.h"
- 
-+#define PCI_DEVICE_ID_ACCES_COM_2S		0x1052
-+#define PCI_DEVICE_ID_ACCES_COM_4S		0x105d
-+#define PCI_DEVICE_ID_ACCES_COM_8S		0x106c
-+#define PCI_DEVICE_ID_ACCES_COM232_8		0x10a8
-+#define PCI_DEVICE_ID_ACCES_COM_2SM		0x10d2
-+#define PCI_DEVICE_ID_ACCES_COM_4SM		0x10db
-+#define PCI_DEVICE_ID_ACCES_COM_8SM		0x10ea
-+
- #define PCI_DEVICE_ID_COMMTECH_4224PCI335	0x0002
- #define PCI_DEVICE_ID_COMMTECH_4222PCI335	0x0004
- #define PCI_DEVICE_ID_COMMTECH_2324PCI335	0x000a
-@@ -677,6 +685,22 @@ static int __maybe_unused exar_resume(struct device *dev)
- 
- static SIMPLE_DEV_PM_OPS(exar_pci_pm, exar_suspend, exar_resume);
- 
-+static const struct exar8250_board acces_com_2x = {
-+	.num_ports	= 2,
-+	.setup		= pci_xr17c154_setup,
-+};
-+
-+static const struct exar8250_board acces_com_4x = {
-+	.num_ports	= 4,
-+	.setup		= pci_xr17c154_setup,
-+};
-+
-+static const struct exar8250_board acces_com_8x = {
-+	.num_ports	= 8,
-+	.setup		= pci_xr17c154_setup,
-+};
-+
-+
- static const struct exar8250_board pbn_fastcom335_2 = {
- 	.num_ports	= 2,
- 	.setup		= pci_fastcom335_setup,
-@@ -745,6 +769,15 @@ static const struct exar8250_board pbn_exar_XR17V8358 = {
+-		mstb = drm_dp_get_mst_branch_device_by_guid(mgr, guid);
++		if (guid)
++			mstb = drm_dp_get_mst_branch_device_by_guid(mgr, guid);
+ 	} else {
+ 		mstb = drm_dp_get_mst_branch_device(mgr, hdr->lct, hdr->rad);
  	}
- 
- static const struct pci_device_id exar_pci_tbl[] = {
-+	EXAR_DEVICE(ACCESSIO, ACCES_COM_2S, acces_com_2x),
-+	EXAR_DEVICE(ACCESSIO, ACCES_COM_4S, acces_com_4x),
-+	EXAR_DEVICE(ACCESSIO, ACCES_COM_8S, acces_com_8x),
-+	EXAR_DEVICE(ACCESSIO, ACCES_COM232_8, acces_com_8x),
-+	EXAR_DEVICE(ACCESSIO, ACCES_COM_2SM, acces_com_2x),
-+	EXAR_DEVICE(ACCESSIO, ACCES_COM_4SM, acces_com_4x),
-+	EXAR_DEVICE(ACCESSIO, ACCES_COM_8SM, acces_com_8x),
-+
-+
- 	CONNECT_DEVICE(XR17C152, UART_2_232, pbn_connect),
- 	CONNECT_DEVICE(XR17C154, UART_4_232, pbn_connect),
- 	CONNECT_DEVICE(XR17C158, UART_8_232, pbn_connect),
--- 
-2.25.1
-
-
