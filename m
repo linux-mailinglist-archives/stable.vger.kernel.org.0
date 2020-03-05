@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4FFD817ABD5
-	for <lists+stable@lfdr.de>; Thu,  5 Mar 2020 18:19:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2EE8517ABD9
+	for <lists+stable@lfdr.de>; Thu,  5 Mar 2020 18:19:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728379AbgCERQI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 5 Mar 2020 12:16:08 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43140 "EHLO mail.kernel.org"
+        id S1728385AbgCERQJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 5 Mar 2020 12:16:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43150 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728374AbgCERQH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 5 Mar 2020 12:16:07 -0500
+        id S1728373AbgCERQI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 5 Mar 2020 12:16:08 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 66B86207FD;
-        Thu,  5 Mar 2020 17:16:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A6A0A21556;
+        Thu,  5 Mar 2020 17:16:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583428567;
-        bh=Pzf1MkSml5YmZY6I4hu+dYYyY4imHt4Wugtalc0T77Y=;
+        s=default; t=1583428568;
+        bh=L0JnuaTB60PR88JIXOZ7LLqFNSyYGED8y7o/iOHkEWs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RAEBGCWpziykMrwx18G4HRssb3m4cz63EGqHYkhhC9MN0QkhlaAuU3nZH3dEE2gtS
-         H0bcCR09bPPZXGRyz/wTY0qP4ubJ6DMcrdlgimIoBwYU/xPrtJaG3sZOcZ6ykiTyD1
-         1ReFQGVCHvtW4QCdxtF4cIw/XG8mpNItwD8oyVxs=
+        b=GewPzAc3HuoN45IWKMeC19ARfGoC2z/2ATpsi2a7bLvMgBA1cGYcm8hzCUkmK4ODY
+         VvF5FYCWSKUo/Uz/ws9/Q5OzMQr/NA9KThiLXYp51979kZfDVPde8jNIXYtCS7T6D7
+         uEcvwee3DC8GQ72jGKoB/G8R6AIdNfAHttgAp3Ho=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Paul Burton <paulburton@kernel.org>, ralf@linux-mips.org,
-        linux-mips@vger.kernel.org, kernel-janitors@vger.kernel.org,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.9 06/12] MIPS: VPE: Fix a double free and a memory leak in 'release_vpe()'
-Date:   Thu,  5 Mar 2020 12:15:53 -0500
-Message-Id: <20200305171559.30422-6-sashal@kernel.org>
+Cc:     Johannes Berg <johannes.berg@intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 07/12] cfg80211: check reg_rule for NULL in handle_channel_custom()
+Date:   Thu,  5 Mar 2020 12:15:54 -0500
+Message-Id: <20200305171559.30422-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200305171559.30422-1-sashal@kernel.org>
 References: <20200305171559.30422-1-sashal@kernel.org>
@@ -44,44 +43,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Johannes Berg <johannes.berg@intel.com>
 
-[ Upstream commit bef8e2dfceed6daeb6ca3e8d33f9c9d43b926580 ]
+[ Upstream commit a7ee7d44b57c9ae174088e53a668852b7f4f452d ]
 
-Pointer on the memory allocated by 'alloc_progmem()' is stored in
-'v->load_addr'. So this is this memory that should be freed by
-'release_progmem()'.
+We may end up with a NULL reg_rule after the loop in
+handle_channel_custom() if the bandwidth didn't fit,
+check if this is the case and bail out if so.
 
-'release_progmem()' is only a call to 'kfree()'.
-
-With the current code, there is both a double free and a memory leak.
-Fix it by passing the correct pointer to 'release_progmem()'.
-
-Fixes: e01402b115ccc ("More AP / SP bits for the 34K, the Malta bits and things. Still wants")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Signed-off-by: Paul Burton <paulburton@kernel.org>
-Cc: ralf@linux-mips.org
-Cc: linux-mips@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Cc: kernel-janitors@vger.kernel.org
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Link: https://lore.kernel.org/r/20200221104449.3b558a50201c.I4ad3725c4dacaefd2d18d3cc65ba6d18acd5dbfe@changeid
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/kernel/vpe.c | 2 +-
+ net/wireless/reg.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/mips/kernel/vpe.c b/arch/mips/kernel/vpe.c
-index 544ea21bfef9c..b2683aca401f6 100644
---- a/arch/mips/kernel/vpe.c
-+++ b/arch/mips/kernel/vpe.c
-@@ -134,7 +134,7 @@ void release_vpe(struct vpe *v)
- {
- 	list_del(&v->list);
- 	if (v->load_addr)
--		release_progmem(v);
-+		release_progmem(v->load_addr);
- 	kfree(v);
- }
+diff --git a/net/wireless/reg.c b/net/wireless/reg.c
+index 0e66768427ba7..6d5f3f737207d 100644
+--- a/net/wireless/reg.c
++++ b/net/wireless/reg.c
+@@ -1730,7 +1730,7 @@ static void handle_channel_custom(struct wiphy *wiphy,
+ 			break;
+ 	}
  
+-	if (IS_ERR(reg_rule)) {
++	if (IS_ERR_OR_NULL(reg_rule)) {
+ 		pr_debug("Disabling freq %d MHz as custom regd has no rule that fits it\n",
+ 			 chan->center_freq);
+ 		if (wiphy->regulatory_flags & REGULATORY_WIPHY_SELF_MANAGED) {
 -- 
 2.20.1
 
