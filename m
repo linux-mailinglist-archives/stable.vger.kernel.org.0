@@ -2,63 +2,119 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B47317A6A8
-	for <lists+stable@lfdr.de>; Thu,  5 Mar 2020 14:48:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A5C717A6B7
+	for <lists+stable@lfdr.de>; Thu,  5 Mar 2020 14:50:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726092AbgCENs0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 5 Mar 2020 08:48:26 -0500
-Received: from mail.fireflyinternet.com ([109.228.58.192]:54141 "EHLO
-        fireflyinternet.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1725990AbgCENs0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 5 Mar 2020 08:48:26 -0500
-X-Default-Received-SPF: pass (skip=forwardok (res=PASS)) x-ip-name=78.156.65.138;
-Received: from haswell.alporthouse.com (unverified [78.156.65.138]) 
-        by fireflyinternet.com (Firefly Internet (M1)) with ESMTP id 20454530-1500050 
-        for multiple; Thu, 05 Mar 2020 13:48:22 +0000
-From:   Chris Wilson <chris@chris-wilson.co.uk>
-To:     intel-gfx@lists.freedesktop.org
-Cc:     Chris Wilson <chris@chris-wilson.co.uk>,
-        Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
-        stable@vger.kernel.org
-Subject: [PATCH] drm/i915: Return early for await_start on same timeline
-Date:   Thu,  5 Mar 2020 13:48:22 +0000
-Message-Id: <20200305134822.2750496-1-chris@chris-wilson.co.uk>
-X-Mailer: git-send-email 2.25.1
+        id S1726164AbgCENt7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 5 Mar 2020 08:49:59 -0500
+Received: from jabberwock.ucw.cz ([46.255.230.98]:49398 "EHLO
+        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726087AbgCENt7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 5 Mar 2020 08:49:59 -0500
+Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
+        id D09F01C032D; Thu,  5 Mar 2020 14:49:57 +0100 (CET)
+Date:   Thu, 5 Mar 2020 14:49:57 +0100
+From:   Pavel Machek <pavel@denx.de>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Dmitry Osipenko <digetx@gmail.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH 4.19 12/87] arm/ftrace: Fix BE text poking
+Message-ID: <20200305134956.GD2367@duo.ucw.cz>
+References: <20200303174349.075101355@linuxfoundation.org>
+ <20200303174350.172336594@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="2Z2K0IlrPCVsbNpk"
+Content-Disposition: inline
+In-Reply-To: <20200303174350.172336594@linuxfoundation.org>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Requests within a timeline are ordered by that timeline, so awaiting for
-the start of a request within the timeline is a no-op. This used to work
-by falling out of the mutex_trylock() as the signaler and waiter had the
-same timeline and not returning an error.
 
-Fixes: 6a79d848403d ("drm/i915: Lock signaler timeline while navigating")
-Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Cc: Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>
-Cc: <stable@vger.kernel.org> # v5.5+
----
- drivers/gpu/drm/i915/i915_request.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+--2Z2K0IlrPCVsbNpk
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-diff --git a/drivers/gpu/drm/i915/i915_request.c b/drivers/gpu/drm/i915/i915_request.c
-index 46dae33c1a20..ca5361eb1f0b 100644
---- a/drivers/gpu/drm/i915/i915_request.c
-+++ b/drivers/gpu/drm/i915/i915_request.c
-@@ -837,8 +837,8 @@ i915_request_await_start(struct i915_request *rq, struct i915_request *signal)
- 	struct dma_fence *fence;
- 	int err;
- 
--	GEM_BUG_ON(i915_request_timeline(rq) ==
--		   rcu_access_pointer(signal->timeline));
-+	if (i915_request_timeline(rq) == rcu_access_pointer(signal->timeline))
-+		return 0;
- 
- 	if (i915_request_started(signal))
- 		return 0;
--- 
-2.25.1
+Hi!
 
+> From: Peter Zijlstra <peterz@infradead.org>
+>=20
+> [ Upstream commit be993e44badc448add6a18d6f12b20615692c4c3 ]
+>=20
+> The __patch_text() function already applies __opcode_to_mem_*(), so
+> when __opcode_to_mem_*() is not the identity (BE*), it is applied
+> twice, wrecking the instruction.
+>=20
+> Fixes: 42e51f187f86 ("arm/ftrace: Use __patch_text()")
+
+I don't see 42e51f187f86 anywhere. Mainline contains
+
+commit 5a735583b764750726621b0396d03e4782911b77
+Author: Peter Zijlstra <peterz@infradead.org>
+Date:   Tue Oct 15 21:07:35 2019 +0200
+
+    arm/ftrace: Use __patch_text()
+
+But that one is not present in 4.19, so perhaps we should not need
+this?
+
+Best regards,
+								Pavel
+
+> Reported-by: Dmitry Osipenko <digetx@gmail.com>
+> Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+> Signed-off-by: Ingo Molnar <mingo@kernel.org>
+> Tested-by: Dmitry Osipenko <digetx@gmail.com>
+> Signed-off-by: Sasha Levin <sashal@kernel.org>
+> ---
+>  arch/arm/kernel/ftrace.c | 7 ++-----
+>  1 file changed, 2 insertions(+), 5 deletions(-)
+>=20
+> diff --git a/arch/arm/kernel/ftrace.c b/arch/arm/kernel/ftrace.c
+> index ee673c09aa6c0..dd0215fb6fe23 100644
+> --- a/arch/arm/kernel/ftrace.c
+> +++ b/arch/arm/kernel/ftrace.c
+> @@ -106,13 +106,10 @@ static int ftrace_modify_code(unsigned long pc, uns=
+igned long old,
+>  {
+>  	unsigned long replaced;
+> =20
+> -	if (IS_ENABLED(CONFIG_THUMB2_KERNEL)) {
+> +	if (IS_ENABLED(CONFIG_THUMB2_KERNEL))
+>  		old =3D __opcode_to_mem_thumb32(old);
+> -		new =3D __opcode_to_mem_thumb32(new);
+> -	} else {
+> +	else
+>  		old =3D __opcode_to_mem_arm(old);
+> -		new =3D __opcode_to_mem_arm(new);
+> -	}
+> =20
+>  	if (validate) {
+>  		if (probe_kernel_read(&replaced, (void *)pc, MCOUNT_INSN_SIZE))
+> --=20
+> 2.20.1
+>=20
+>=20
+
+--=20
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
+g.html
+
+--2Z2K0IlrPCVsbNpk
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCXmEDgwAKCRAw5/Bqldv6
+8nSOAKCSRVNfm8M9KqXZY/UIoN+oE8kDagCbBOglnH+Ev4iU4/iQOq7jO+O3TOQ=
+=QGDc
+-----END PGP SIGNATURE-----
+
+--2Z2K0IlrPCVsbNpk--
