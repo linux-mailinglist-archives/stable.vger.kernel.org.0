@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C3F6B17ABC4
-	for <lists+stable@lfdr.de>; Thu,  5 Mar 2020 18:18:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A1E7417ABC8
+	for <lists+stable@lfdr.de>; Thu,  5 Mar 2020 18:18:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728290AbgCERPx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 5 Mar 2020 12:15:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42738 "EHLO mail.kernel.org"
+        id S1728303AbgCERPz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 5 Mar 2020 12:15:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42766 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728285AbgCERPw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 5 Mar 2020 12:15:52 -0500
+        id S1728289AbgCERPy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 5 Mar 2020 12:15:54 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B9D23217F4;
-        Thu,  5 Mar 2020 17:15:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C484E2146E;
+        Thu,  5 Mar 2020 17:15:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583428552;
-        bh=mwst+dBFMWQvD2GtYzncPLfCVIHE0q3HaiZ5TbF0oAg=;
+        s=default; t=1583428553;
+        bh=rQtpOupHwYghPhu9ux5RH9W43MapO5C+KildPvDQBqQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1p33aI0IDhFrBrftyfXtug8/stUqCikbS/miVAlrotiQtaLlL2nR9Re13kehDDxTu
-         Qj7mG04AH1MWvEn+y3Sxedu+6hRAdafXMR36/42uNKp8RTVX4l/pjnuLM+CuG+e+n6
-         4yY06ecGW54aNbE6Wp82VmAuE9CoGGM02NPucT0U=
+        b=x2z3SBLNM8HobRstAUAriSD5qzukeHmpNNAQvj+CYqf5Wc0/L5W5iO6Kt20M0TBc6
+         vFhi5U2t7i76HQN7f5wOmePMky2PJHtOOUa6oVgRavrF9YBvDaUOHnegXQeLPL705Y
+         6Dpslf55a+ajNnyJD4saxH4watRDnfAL5lWhPles=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Johannes Berg <johannes.berg@intel.com>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 09/19] cfg80211: check reg_rule for NULL in handle_channel_custom()
-Date:   Thu,  5 Mar 2020 12:15:30 -0500
-Message-Id: <20200305171540.30250-9-sashal@kernel.org>
+Cc:     Igor Druzhinin <igor.druzhinin@citrix.com>,
+        Hannes Reinecke <hare@suse.de>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 10/19] scsi: libfc: free response frame from GPN_ID
+Date:   Thu,  5 Mar 2020 12:15:31 -0500
+Message-Id: <20200305171540.30250-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200305171540.30250-1-sashal@kernel.org>
 References: <20200305171540.30250-1-sashal@kernel.org>
@@ -43,35 +44,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Igor Druzhinin <igor.druzhinin@citrix.com>
 
-[ Upstream commit a7ee7d44b57c9ae174088e53a668852b7f4f452d ]
+[ Upstream commit ff6993bb79b9f99bdac0b5378169052931b65432 ]
 
-We may end up with a NULL reg_rule after the loop in
-handle_channel_custom() if the bandwidth didn't fit,
-check if this is the case and bail out if so.
+fc_disc_gpn_id_resp() should be the last function using it so free it here
+to avoid memory leak.
 
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Link: https://lore.kernel.org/r/20200221104449.3b558a50201c.I4ad3725c4dacaefd2d18d3cc65ba6d18acd5dbfe@changeid
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Link: https://lore.kernel.org/r/1579013000-14570-2-git-send-email-igor.druzhinin@citrix.com
+Reviewed-by: Hannes Reinecke <hare@suse.de>
+Signed-off-by: Igor Druzhinin <igor.druzhinin@citrix.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/wireless/reg.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/scsi/libfc/fc_disc.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/net/wireless/reg.c b/net/wireless/reg.c
-index a520f433d4765..b95d1c2bdef7e 100644
---- a/net/wireless/reg.c
-+++ b/net/wireless/reg.c
-@@ -1733,7 +1733,7 @@ static void handle_channel_custom(struct wiphy *wiphy,
- 			break;
+diff --git a/drivers/scsi/libfc/fc_disc.c b/drivers/scsi/libfc/fc_disc.c
+index bb9c1c0166439..28b50ab2fbb01 100644
+--- a/drivers/scsi/libfc/fc_disc.c
++++ b/drivers/scsi/libfc/fc_disc.c
+@@ -652,6 +652,8 @@ static void fc_disc_gpn_id_resp(struct fc_seq *sp, struct fc_frame *fp,
  	}
+ out:
+ 	kref_put(&rdata->kref, fc_rport_destroy);
++	if (!IS_ERR(fp))
++		fc_frame_free(fp);
+ }
  
--	if (IS_ERR(reg_rule)) {
-+	if (IS_ERR_OR_NULL(reg_rule)) {
- 		pr_debug("Disabling freq %d MHz as custom regd has no rule that fits it\n",
- 			 chan->center_freq);
- 		if (wiphy->regulatory_flags & REGULATORY_WIPHY_SELF_MANAGED) {
+ /**
 -- 
 2.20.1
 
