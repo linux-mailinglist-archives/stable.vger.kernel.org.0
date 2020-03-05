@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6BF5A17ABE3
-	for <lists+stable@lfdr.de>; Thu,  5 Mar 2020 18:19:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CBC0A17ABE6
+	for <lists+stable@lfdr.de>; Thu,  5 Mar 2020 18:19:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727385AbgCERQS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 5 Mar 2020 12:16:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43394 "EHLO mail.kernel.org"
+        id S1728469AbgCERQT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 5 Mar 2020 12:16:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43434 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728454AbgCERQR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 5 Mar 2020 12:16:17 -0500
+        id S1728462AbgCERQS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 5 Mar 2020 12:16:18 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1A14D217F4;
-        Thu,  5 Mar 2020 17:16:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5B6DD21775;
+        Thu,  5 Mar 2020 17:16:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583428576;
-        bh=LKbbffO9ItVyVnrlxk5Wi92h9onN24gBUTkqBtQKHLU=;
+        s=default; t=1583428578;
+        bh=fnujKJ1/4oO0PNPwquSQpLSJH6HeF+U1tw4Tv1etEbM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=thCP0+WxBVrsp3tnnHKL7asjpCm2hIJ9YWXG0lwM72x2UYy0z5xVXAn8i3tS5eR2f
-         rvAowZecSadmeJQUdoyFMhI0Ng/+K7HKSyUKDV1v5/DM4jiRiO8ASSHu//MomPGBoB
-         aWpZWVC2ML1jgzqnu4MKPFC21CpmxxbzrFjAxyjc=
+        b=YwybFLoavLaEze7LSNcWtQcf9bSzxpIBpMUEdBdav2lOKdiobwgltTVfEExBDhekO
+         4ZeG2EflfdarCWajA9PbL2YU4kET93hNgztwXAvdlkqg4dxBpdTx/XcvbwkgS7hf0P
+         Zmm5TSfzZeyjU7Qghg/wjwIEl4U1/BLHUz2tIz6Y=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Paul Burton <paulburton@kernel.org>, ralf@linux-mips.org,
-        linux-mips@vger.kernel.org, kernel-janitors@vger.kernel.org,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.4 3/7] MIPS: VPE: Fix a double free and a memory leak in 'release_vpe()'
-Date:   Thu,  5 Mar 2020 12:16:08 -0500
-Message-Id: <20200305171612.30555-3-sashal@kernel.org>
+Cc:     Marek Vasut <marex@denx.de>,
+        "David S . Miller" <davem@davemloft.net>,
+        Lukas Wunner <lukas@wunner.de>, Petr Stetiar <ynezz@true.cz>,
+        YueHaibing <yuehaibing@huawei.com>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 4/7] net: ks8851-ml: Fix IRQ handling and locking
+Date:   Thu,  5 Mar 2020 12:16:09 -0500
+Message-Id: <20200305171612.30555-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200305171612.30555-1-sashal@kernel.org>
 References: <20200305171612.30555-1-sashal@kernel.org>
@@ -44,42 +45,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Marek Vasut <marex@denx.de>
 
-[ Upstream commit bef8e2dfceed6daeb6ca3e8d33f9c9d43b926580 ]
+[ Upstream commit 44343418d0f2f623cb9da6f5000df793131cbe3b ]
 
-Pointer on the memory allocated by 'alloc_progmem()' is stored in
-'v->load_addr'. So this is this memory that should be freed by
-'release_progmem()'.
+The KS8851 requires that packet RX and TX are mutually exclusive.
+Currently, the driver hopes to achieve this by disabling interrupt
+from the card by writing the card registers and by disabling the
+interrupt on the interrupt controller. This however is racy on SMP.
 
-'release_progmem()' is only a call to 'kfree()'.
+Replace this approach by expanding the spinlock used around the
+ks_start_xmit() TX path to ks_irq() RX path to assure true mutual
+exclusion and remove the interrupt enabling/disabling, which is
+now not needed anymore. Furthermore, disable interrupts also in
+ks_net_stop(), which was missing before.
 
-With the current code, there is both a double free and a memory leak.
-Fix it by passing the correct pointer to 'release_progmem()'.
+Note that a massive improvement here would be to re-use the KS8851
+driver approach, which is to move the TX path into a worker thread,
+interrupt handling to threaded interrupt, and synchronize everything
+with mutexes, but that would be a much bigger rework, for a separate
+patch.
 
-Fixes: e01402b115ccc ("More AP / SP bits for the 34K, the Malta bits and things. Still wants")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Signed-off-by: Paul Burton <paulburton@kernel.org>
-Cc: ralf@linux-mips.org
-Cc: linux-mips@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Cc: kernel-janitors@vger.kernel.org
+Signed-off-by: Marek Vasut <marex@denx.de>
+Cc: David S. Miller <davem@davemloft.net>
+Cc: Lukas Wunner <lukas@wunner.de>
+Cc: Petr Stetiar <ynezz@true.cz>
+Cc: YueHaibing <yuehaibing@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/kernel/vpe.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/micrel/ks8851_mll.c | 14 ++++++++------
+ 1 file changed, 8 insertions(+), 6 deletions(-)
 
-diff --git a/arch/mips/kernel/vpe.c b/arch/mips/kernel/vpe.c
-index 9067b651c7a2d..ca93984ff5a6e 100644
---- a/arch/mips/kernel/vpe.c
-+++ b/arch/mips/kernel/vpe.c
-@@ -134,7 +134,7 @@ void release_vpe(struct vpe *v)
+diff --git a/drivers/net/ethernet/micrel/ks8851_mll.c b/drivers/net/ethernet/micrel/ks8851_mll.c
+index 8dc1f0277117d..cc44143f86a5e 100644
+--- a/drivers/net/ethernet/micrel/ks8851_mll.c
++++ b/drivers/net/ethernet/micrel/ks8851_mll.c
+@@ -866,14 +866,17 @@ static irqreturn_t ks_irq(int irq, void *pw)
  {
- 	list_del(&v->list);
- 	if (v->load_addr)
--		release_progmem(v);
-+		release_progmem(v->load_addr);
- 	kfree(v);
+ 	struct net_device *netdev = pw;
+ 	struct ks_net *ks = netdev_priv(netdev);
++	unsigned long flags;
+ 	u16 status;
+ 
++	spin_lock_irqsave(&ks->statelock, flags);
+ 	/*this should be the first in IRQ handler */
+ 	ks_save_cmd_reg(ks);
+ 
+ 	status = ks_rdreg16(ks, KS_ISR);
+ 	if (unlikely(!status)) {
+ 		ks_restore_cmd_reg(ks);
++		spin_unlock_irqrestore(&ks->statelock, flags);
+ 		return IRQ_NONE;
+ 	}
+ 
+@@ -899,6 +902,7 @@ static irqreturn_t ks_irq(int irq, void *pw)
+ 		ks->netdev->stats.rx_over_errors++;
+ 	/* this should be the last in IRQ handler*/
+ 	ks_restore_cmd_reg(ks);
++	spin_unlock_irqrestore(&ks->statelock, flags);
+ 	return IRQ_HANDLED;
+ }
+ 
+@@ -968,6 +972,7 @@ static int ks_net_stop(struct net_device *netdev)
+ 
+ 	/* shutdown RX/TX QMU */
+ 	ks_disable_qmu(ks);
++	ks_disable_int(ks);
+ 
+ 	/* set powermode to soft power down to save power */
+ 	ks_set_powermode(ks, PMECR_PM_SOFTDOWN);
+@@ -1024,10 +1029,9 @@ static netdev_tx_t ks_start_xmit(struct sk_buff *skb, struct net_device *netdev)
+ {
+ 	netdev_tx_t retv = NETDEV_TX_OK;
+ 	struct ks_net *ks = netdev_priv(netdev);
++	unsigned long flags;
+ 
+-	disable_irq(netdev->irq);
+-	ks_disable_int(ks);
+-	spin_lock(&ks->statelock);
++	spin_lock_irqsave(&ks->statelock, flags);
+ 
+ 	/* Extra space are required:
+ 	*  4 byte for alignment, 4 for status/length, 4 for CRC
+@@ -1041,9 +1045,7 @@ static netdev_tx_t ks_start_xmit(struct sk_buff *skb, struct net_device *netdev)
+ 		dev_kfree_skb(skb);
+ 	} else
+ 		retv = NETDEV_TX_BUSY;
+-	spin_unlock(&ks->statelock);
+-	ks_enable_int(ks);
+-	enable_irq(netdev->irq);
++	spin_unlock_irqrestore(&ks->statelock, flags);
+ 	return retv;
  }
  
 -- 
