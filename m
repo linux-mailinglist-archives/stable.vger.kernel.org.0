@@ -2,95 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E94D17A8AE
-	for <lists+stable@lfdr.de>; Thu,  5 Mar 2020 16:18:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1AAEF17A9DE
+	for <lists+stable@lfdr.de>; Thu,  5 Mar 2020 17:00:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726769AbgCEPSc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 5 Mar 2020 10:18:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51730 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726131AbgCEPSc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 5 Mar 2020 10:18:32 -0500
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C6034208CD;
-        Thu,  5 Mar 2020 15:18:31 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583421512;
-        bh=fqQ46PXm4WvMNC7v+D/rKNKV58ebLmFlgE1rS5hFuUA=;
-        h=Subject:To:From:Date:From;
-        b=YUo0gOAZcmMx/smoHxNIChWbmyaV9chUkpiDMOn21tQgvwKpmNXV/o0BPAO+CHY5Y
-         M2C6MQGVKU/i98vvOI5nfw5uFguDuafSkjDAAVqoVocx+G5Lk/MwjJoj6Vikbxuogd
-         ueFgWWJW9Mm3KmB0E0RjcWqO5Gc/uhUpI9OqVHkU=
-Subject: patch "staging: kpc2000: prevent underflow in cpld_reconfigure()" added to staging-next
-To:     dan.carpenter@oracle.com, gregkh@linuxfoundation.org,
-        stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 05 Mar 2020 16:18:17 +0100
-Message-ID: <158342149718094@kroah.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+        id S1726485AbgCEQAp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 5 Mar 2020 11:00:45 -0500
+Received: from mail-wm1-f43.google.com ([209.85.128.43]:35928 "EHLO
+        mail-wm1-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726183AbgCEQAo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 5 Mar 2020 11:00:44 -0500
+Received: by mail-wm1-f43.google.com with SMTP id g83so6320708wme.1
+        for <stable@vger.kernel.org>; Thu, 05 Mar 2020 08:00:44 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:subject:from:in-reply-to:date:cc
+         :content-transfer-encoding:message-id:references:to;
+        bh=6xfq0K8177xsWCl9plOt1tnwCuIMEmEs58dKB27aHKg=;
+        b=uD0gYUNPENn7OaGoVIXF7QfozzuTuR4fDzYMTam0oqh4zYsXPWzwOTC2zxsEB8lf/D
+         /pU55PeEhiSTte+epQCbXA0NebrZ9VhyagMdtWK/THEdIhrsGtg0Vikp8iOEzlES0RaJ
+         UctyZQbMKpSY+dR37D1rLyGIPyRI6oisH1SUyR7IGseUnxUAn31fao8RDNkDnE1RIy9C
+         WPKayaDE05aHmuEcidjjy6rqO3vfGMsxAN1qRdyX7VOTppwarbtvCVlF5yFujGnfiwA8
+         +5Mfik7QHss4osply/cQaEQEvaFT5OtI5mBSFpq5k1r2i3ChyfxVlo8GPzq5Iu6QXbVO
+         crCw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:subject:from:in-reply-to:date:cc
+         :content-transfer-encoding:message-id:references:to;
+        bh=6xfq0K8177xsWCl9plOt1tnwCuIMEmEs58dKB27aHKg=;
+        b=U3XfuBb1+POSLyxTY4M01Ub2ZWBJKeqXSXup/OCIu6cpujjLhx8Iho+qC4q5EtIHnx
+         DuYtsteUwjf3pcrZ5UzpoZd6hnHaxXl2yvAJVJ7vPkQydOae6oOeIQvoIWFr4vcFykp7
+         UmGww53m/PABFdwS45NVBKLTrXTmhZef8wYPEeLkg3BFewQZkURV/AcsoEzNNq5upL/N
+         eFd8rjkoTp0dnzpGjivreqvXXh7UNwQgPXdq7A6/MqZixbc6Qi+9p8OkySKSloNoyhfL
+         ejICTPxnz/nfv5XBjVtPi4Qz6Z7wxujvkftQWZRn3KVJsAM7qPNNfOWq94pWh50Ny4/2
+         EQdQ==
+X-Gm-Message-State: ANhLgQ2UO0O1AI8GuxTpRTRPnfxcFvKyufJhy1sp2rhMNu+O9rf8+qN2
+        MOPyW/QkD+kWQ/VcfgTK2vrevA==
+X-Google-Smtp-Source: ADFU+vvfr6/n9eYShC2B2BJoJWUnNL1wZWFYR8CQNGLLHyu2CmV1Zowvs3BeRliZAL7U9VRtHDJmoA==
+X-Received: by 2002:a7b:cb10:: with SMTP id u16mr9708384wmj.96.1583424043308;
+        Thu, 05 Mar 2020 08:00:43 -0800 (PST)
+Received: from [192.168.0.104] (84-33-64-1.dyn.eolo.it. [84.33.64.1])
+        by smtp.gmail.com with ESMTPSA id n13sm9743493wmd.21.2020.03.05.08.00.42
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 05 Mar 2020 08:00:42 -0800 (PST)
+Content-Type: text/plain;
+        charset=us-ascii
+Mime-Version: 1.0 (Mac OS X Mail 12.4 \(3445.104.11\))
+Subject: Re: block, bfq: port of a series of fix commits to 5.4 and 5.5
+From:   Paolo Valente <paolo.valente@linaro.org>
+In-Reply-To: <e1c874e8-3cc8-7827-447f-b197e7192755@mageia.org>
+Date:   Thu, 5 Mar 2020 17:00:52 +0100
+Cc:     stable@vger.kernel.org, Chris Evich <cevich@redhat.com>
+Content-Transfer-Encoding: quoted-printable
+Message-Id: <4BB9B11C-C4EF-482C-9DDD-DF8A9B71CD2A@linaro.org>
+References: <543B99A1-B872-4F06-9A0F-EFFB9CAD5E14@linaro.org>
+ <e1c874e8-3cc8-7827-447f-b197e7192755@mageia.org>
+To:     Thomas Backlund <tmb@mageia.org>
+X-Mailer: Apple Mail (2.3445.104.11)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-This is a note to let you know that I've just added the patch titled
 
-    staging: kpc2000: prevent underflow in cpld_reconfigure()
+> Il giorno 5 mar 2020, alle ore 13:35, Thomas Backlund <tmb@mageia.org> =
+ha scritto:
+>=20
+> Den 05-03-2020 kl. 08:49, skrev Paolo Valente:
+>> Hi,
+>> Fedora requested the following fix commits, currently available in
+>> 5.6-rc4, to be ported to 5.4 and 5.5 [1]:
+>> db37a34c563b block, bfq: get a ref to a group when adding it to a =
+service tree
+>> 4d8340d0d4d9 block, bfq: remove ifdefs from around gets/puts of bfq =
+groups
+>> 33a16a980468 block, bfq: extend incomplete name of field on_st
+>> ecedd3d7e199 block, bfq: get extra ref to prevent a queue from being =
+freed during a group move
+>> 32c59e3a9a5a block, bfq: do not insert oom queue into position tree
+>> f718b093277d block, bfq: do not plug I/O for bfq_queues with no proc =
+refs
+>> No change is needed for these commits to apply cleanly in 5.4 and =
+5.5.
+>=20
+> The last one is already in 5.5.6.
+>=20
 
-to my staging git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
-in the staging-next branch.
+Ok, thanks.
 
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
+Chris,
+is 5.5.6 fine for RedHat?
 
-The patch will also be merged in the next major kernel release
-during the merge window.
+THanks,
+Paolo
 
-If you have any questions about this process, please let me know.
-
-
-From 72db61d7d17a475d3cc9de1a7c871d518fcd82f0 Mon Sep 17 00:00:00 2001
-From: Dan Carpenter <dan.carpenter@oracle.com>
-Date: Mon, 24 Feb 2020 13:33:25 +0300
-Subject: staging: kpc2000: prevent underflow in cpld_reconfigure()
-
-This function should not allow negative values of "wr_val".  If
-negatives are allowed then capping the upper bound at 7 is
-meaningless.  Let's make it unsigned.
-
-Fixes: 7dc7967fc39a ("staging: kpc2000: add initial set of Daktronics drivers")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200224103325.hrxdnaeqsthplu42@kili.mountain
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/staging/kpc2000/kpc2000/core.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/staging/kpc2000/kpc2000/core.c b/drivers/staging/kpc2000/kpc2000/core.c
-index 93cf28febdf6..7b00d7069e21 100644
---- a/drivers/staging/kpc2000/kpc2000/core.c
-+++ b/drivers/staging/kpc2000/kpc2000/core.c
-@@ -110,10 +110,10 @@ static ssize_t cpld_reconfigure(struct device *dev,
- 				const char *buf, size_t count)
- {
- 	struct kp2000_device *pcard = dev_get_drvdata(dev);
--	long wr_val;
-+	unsigned long wr_val;
- 	int rv;
- 
--	rv = kstrtol(buf, 0, &wr_val);
-+	rv = kstrtoul(buf, 0, &wr_val);
- 	if (rv < 0)
- 		return rv;
- 	if (wr_val > 7)
--- 
-2.25.1
-
+> --
+> Thomas
 
