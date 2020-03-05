@@ -2,119 +2,107 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CB0A017AE53
-	for <lists+stable@lfdr.de>; Thu,  5 Mar 2020 19:41:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 075CE17AE79
+	for <lists+stable@lfdr.de>; Thu,  5 Mar 2020 19:50:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726145AbgCESlN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 5 Mar 2020 13:41:13 -0500
-Received: from mail-lj1-f193.google.com ([209.85.208.193]:43337 "EHLO
-        mail-lj1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725989AbgCESlM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 5 Mar 2020 13:41:12 -0500
-Received: by mail-lj1-f193.google.com with SMTP id e3so7229381lja.10
-        for <stable@vger.kernel.org>; Thu, 05 Mar 2020 10:41:11 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linux-foundation.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=GyFYtqx37jEduc84+d5pwBxcfH/mxsB1MriBNxAX86U=;
-        b=RHIX8oyd/XhxPGVZ1D8Gc7950WIw8PdXBWEEFQBGahK8v+TiZSToq8FzyieSsSUgZL
-         LyrLSR6LXPvkeaUzuRnALL+vrw927bPnQhlbOm7VzIawQuLGpIw9vXotbZKKexGzj51P
-         wyQEn8I3s2PxzDqma64uA7+QmDlRvDZZy4RaE=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=GyFYtqx37jEduc84+d5pwBxcfH/mxsB1MriBNxAX86U=;
-        b=lVZofZo7QxnBhFhpnBblwpmtp94aISJ4MivkbEnuLo6bzYVPjPJZ4ly4MJve1Mok1s
-         RvYUexvSlM4DASde8IUhsQhPkU2rNuUku1A6a3RuKglwzkycd0tkBbnAZH85/2z3EFq7
-         dJnGFSmKYfI/eHkwzyTQxj5CjHUAbEmwA8lRvtu/SkIATo4rEtc+aZSY15CJA6TrCO3K
-         z9Mlbbnc9H85kcE5nSUGhfJ4cTWIHQ41L9mPeJjbnAF7lDLrjNfEWdMAmFjPJNYKd7uc
-         meiH8y0cwyvkPB4fJYdMUpNCtxbDku4hReqrKuJ3VZGDR+laX+V8KUzBEjPDjDSsv+FO
-         ZIlw==
-X-Gm-Message-State: ANhLgQ3tKovMWHOGOciEP+YQYTOZxhOuq0joi2Qb5zsMblusfSFzEDnz
-        X7wss8IAHgjCiwPwQzMFbBND1OhnXvPCqA==
-X-Google-Smtp-Source: ADFU+vvi3T/c4cq2GdaCQ6G1cdzpqNuEKlwYd/rnm4IRoP7tC++tgH/GtWPPTQy25ozIj3fZYXJIUg==
-X-Received: by 2002:a05:651c:2c8:: with SMTP id f8mr5716014ljo.30.1583433669302;
-        Thu, 05 Mar 2020 10:41:09 -0800 (PST)
-Received: from mail-lj1-f170.google.com (mail-lj1-f170.google.com. [209.85.208.170])
-        by smtp.gmail.com with ESMTPSA id t13sm4931336lfc.68.2020.03.05.10.41.07
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 05 Mar 2020 10:41:08 -0800 (PST)
-Received: by mail-lj1-f170.google.com with SMTP id u26so7237080ljd.8
-        for <stable@vger.kernel.org>; Thu, 05 Mar 2020 10:41:07 -0800 (PST)
-X-Received: by 2002:a05:651c:502:: with SMTP id o2mr6169123ljp.150.1583433667474;
- Thu, 05 Mar 2020 10:41:07 -0800 (PST)
-MIME-Version: 1.0
-References: <20200214154854.6746-1-sashal@kernel.org> <20200214154854.6746-542-sashal@kernel.org>
- <CANaxB-zjYecWpjMoX6dXY3B5HtVu8+G9npRnaX2FnTvp9XucTw@mail.gmail.com>
- <CAHk-=wjd6BKXEpU0MfEaHuOEK-StRToEcYuu6NpVfR0tR5d6xw@mail.gmail.com>
- <CAHk-=wgs8E4JYVJHaRV2hMn3dxUnM8i0Kn2mA1SjzJdsbB9tXw@mail.gmail.com>
- <CAHk-=wiaDvYHBt8oyZGOp2XwJW4wNXVAchqTFuVBvASTFx_KfA@mail.gmail.com>
- <20200218182041.GB24185@bombadil.infradead.org> <CAHk-=wi8Q8xtZt1iKcqSaV1demDnyixXT+GyDZi-Lk61K3+9rw@mail.gmail.com>
- <20200218223325.GA143300@gmail.com> <CAHk-=wgKHFB9-XggwOmBCJde3V35Mw9g+vGnt0JGjfGbSgtWhQ@mail.gmail.com>
- <CANaxB-xTTDcshttGnVMgDLm96CC8FYsQT4LpobvCWSQym2=8qA@mail.gmail.com>
-In-Reply-To: <CANaxB-xTTDcshttGnVMgDLm96CC8FYsQT4LpobvCWSQym2=8qA@mail.gmail.com>
-From:   Linus Torvalds <torvalds@linux-foundation.org>
-Date:   Thu, 5 Mar 2020 12:40:51 -0600
-X-Gmail-Original-Message-ID: <CAHk-=wgpHbbOhYtxC1rrZ4xjm1GSfZk6_roKU4++3TQVFDMXiw@mail.gmail.com>
-Message-ID: <CAHk-=wgpHbbOhYtxC1rrZ4xjm1GSfZk6_roKU4++3TQVFDMXiw@mail.gmail.com>
-Subject: Re: [PATCH AUTOSEL 5.5 542/542] pipe: use exclusive waits when
- reading or writing
-To:     Andrei Vagin <avagin@gmail.com>
-Cc:     Matthew Wilcox <willy@infradead.org>,
+        id S1725989AbgCESup (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 5 Mar 2020 13:50:45 -0500
+Received: from bombadil.infradead.org ([198.137.202.133]:43846 "EHLO
+        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725977AbgCESuo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 5 Mar 2020 13:50:44 -0500
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=bombadil.20170209; h=Content-Transfer-Encoding:
+        Content-Type:In-Reply-To:MIME-Version:Date:Message-ID:From:References:Cc:To:
+        Subject:Sender:Reply-To:Content-ID:Content-Description;
+        bh=wqxio9WXZl+G+8MbRfj3iMUWCTujYWhZhOujlPzqiog=; b=tQ1/jAatMLXrSIlwgtOkNKQg5I
+        ex7q4/HjA3X0jiNR3B8tR2Jxjb34/XwPnqIe6jMRc2Uv7Z2hKE1L2qfLdBe7nfLUH++yTSaXAvkyh
+        HOBvBHbUzTwUjVj2aw8G20NumoCvgTJ7DhVQRjihUWS6bx0bBwYef8DcWhgmlEDyYtTNAEKBZGUK5
+        kPem85zZxaA/E2gtlsjUSKnk5IuEaR6NGbdWXRRrdu1+d9A4NqP9LzlMrXAQs6Fa/hMv76cGRga+2
+        RYK/7KwpnyR/okdKXUXmVPHA+aQt64LbhfXJ0khOdQYW0y8mVVXCeXZb8oU2hVIAjgTMTcS16FSmf
+        tSz2zUPg==;
+Received: from [2601:1c0:6280:3f0:897c:6038:c71d:ecac]
+        by bombadil.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
+        id 1j9vZz-0005Ti-U7; Thu, 05 Mar 2020 18:50:43 +0000
+Subject: Re: [BUGFIX PATCH] tools: Let O= makes handle a relative path with -C
+ option
+To:     Masami Hiramatsu <mhiramat@kernel.org>,
+        Steven Rostedt <rostedt@goodmis.org>
+Cc:     Geert Uytterhoeven <geert@linux-m68k.org>,
+        Borislav Petkov <bp@alien8.de>,
         LKML <linux-kernel@vger.kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        stable <stable@vger.kernel.org>,
-        Josh Triplett <josh@joshtriplett.org>,
-        linux-fsdevel <linux-fsdevel@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+        Ingo Molnar <mingo@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Peter Zijlstra <peterz@infradead.org>, stable@vger.kernel.org,
+        Sasha Levin <sashal@kernel.org>
+References: <9e7beb31-b41f-9e95-c92b-1829e420af77@infradead.org>
+ <158338818292.25448.7161196505598269976.stgit@devnote2>
+From:   Randy Dunlap <rdunlap@infradead.org>
+Message-ID: <5d572db0-c603-aef1-220f-b26f89ba947a@infradead.org>
+Date:   Thu, 5 Mar 2020 10:50:43 -0800
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.5.0
+MIME-Version: 1.0
+In-Reply-To: <158338818292.25448.7161196505598269976.stgit@devnote2>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Mar 5, 2020 at 12:20 PM Andrei Vagin <avagin@gmail.com> wrote:
->
-> After this change, one more criu test became flaky. This is due to one
-> of corner cases, so I am not sure that we need to fix something in the
-> kernel. I have fixed this issue in the test. I am not sure that this
-> will affect any real applications.
+On 3/4/20 10:03 PM, Masami Hiramatsu wrote:
+> When I compiled tools/bootconfig from top directory with
+> -C option, the O= option didn't work correctly if I passed
+> a relative path.
+> 
+>   $ make O=./builddir/ -C tools/bootconfig/
+>   make: Entering directory '/home/mhiramat/ksrc/linux/tools/bootconfig'
+>   ../scripts/Makefile.include:4: *** O=./builddir/ does not exist.  Stop.
+>   make: Leaving directory '/home/mhiramat/ksrc/linux/tools/bootconfig'
+> 
+> The O= directory existence check failed because the check
+> script ran in the build target directory instead of the
+> directory where I ran the make command.
+> 
+> To fix that, once change directory to $(PWD) and check O=
+> directory, since the PWD is set to where the make command
+> runs.
+> 
+> Fixes: c883122acc0d ("perf tools: Let O= makes handle relative paths")
+> Reported-by: Randy Dunlap <rdunlap@infradead.org>
+> Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
 
-It's an interesting test-case, but it's really not doing anything you
-should rely on.
+Hi Masami,
 
-The code basically expects a pipe write() to be "atomic" for something
-bigger than PIPE_BUF. We've never really guaranteed that (and POSIX
-doesn't), but we had this special case where readers would continue to
-read as long as there was an active writer, which kind of approximated
-that for some cases (and your test-case in particular).
+This patch doesn't fix anything AFAICT.
+Didn't help in my testing.
 
-A reader that wants to read everything should do multiple read() calls
-until it gets an EOF (or gets the expected buffer size). A regular
-read() on a pipe can simply always return a partial buffer (it will
-always do so in the case of signals, but what you're seeing is that it
-will also now do it if the kernel buffers emptied even when there was
-a writer that was ready to fill them again).
+Thanks.
 
-And I suspect it wasn't actually the commit you point to that changes
-the behavior, I think it's actually the "pipe: remove
-'waiting_writers' merging logic" that changed behavior for your test
+> ---
+>  tools/scripts/Makefile.include |    4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+> 
+> diff --git a/tools/scripts/Makefile.include b/tools/scripts/Makefile.include
+> index ded7a950dc40..6d2f3a1b2249 100644
+> --- a/tools/scripts/Makefile.include
+> +++ b/tools/scripts/Makefile.include
+> @@ -1,8 +1,8 @@
+>  # SPDX-License-Identifier: GPL-2.0
+>  ifneq ($(O),)
+>  ifeq ($(origin O), command line)
+> -	dummy := $(if $(shell test -d $(O) || echo $(O)),$(error O=$(O) does not exist),)
+> -	ABSOLUTE_O := $(shell cd $(O) ; pwd)
+> +	dummy := $(if $(shell cd $(PWD); test -d $(O) || echo $(O)),$(error O=$(O) does not exist),)
+> +	ABSOLUTE_O := $(shell cd $(PWD); cd $(O) ; pwd)
+>  	OUTPUT := $(ABSOLUTE_O)/$(if $(subdir),$(subdir)/)
+>  	COMMAND_O := O=$(ABSOLUTE_O)
+>  ifeq ($(objtree),)
+> 
 
-But because it's then timing-dependent on whether the reader gets all
-the data or not, it might bisect to any commit after that point.
-Particularly since some of the other commits change timing too..
 
-We could re-introduce the "continue reading while there are active
-writers" logic, but if this is the only test that triggers that, I'd
-prefer to wait until some real user notices...
-
-But if CRIU itself depends on this behavior (rather than just a test),
-then I guess we need to.
-
-So is it just a test-case, or does CRIU itself depend on that "reads
-get full buffers"? As mentioned, that really _is_ fundamentally broken
-if there is any chance of signals..
-
-                Linus
+-- 
+~Randy
+Reported-by: Randy Dunlap <rdunlap@infradead.org>
