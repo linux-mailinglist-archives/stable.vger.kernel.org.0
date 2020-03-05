@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 83D8E17AD0C
-	for <lists+stable@lfdr.de>; Thu,  5 Mar 2020 18:24:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B504A17AD06
+	for <lists+stable@lfdr.de>; Thu,  5 Mar 2020 18:24:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726898AbgCERN2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 5 Mar 2020 12:13:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38908 "EHLO mail.kernel.org"
+        id S1726954AbgCERN3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 5 Mar 2020 12:13:29 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38964 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726650AbgCERN1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 5 Mar 2020 12:13:27 -0500
+        id S1726920AbgCERN3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 5 Mar 2020 12:13:29 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 016EC20870;
-        Thu,  5 Mar 2020 17:13:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F1D9E21556;
+        Thu,  5 Mar 2020 17:13:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583428407;
-        bh=5iPR7XCLsazQnaDrcx+zT2BH4J3il51Isf+Aw05JtG4=;
+        s=default; t=1583428408;
+        bh=HGhLDtQYFxY08JXW4Ft/KL+dTQ8RtbcoOb3raUrOpP8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PI8C1xyCw6UrWmS9ffswNMbPa4dKTI4bKgFUYA8nNOnxn+70/Y6WAiw43AcBm2aUb
-         ljHX5rAUPLAI8EHHfU4NVPoVlkBUG56w3OSmv+s3mRVODN77o5exRm3iOE3X0inLOw
-         2FGQX4isncVOy9OpOEgm4hRkYbt1eh3tK8Pez8mE=
+        b=FNls6EzuFwmsX7O1XayB37TiyWwoJByvq+Jo0gvARAhoAbVn2baMK4IVpV9XDCrMV
+         mkBTAI78JsCA9AQWogzwh3yz9S0MqU8ge9eOQ5gB7SzoN2zAUYU5OEzCx7IIjMpUqs
+         Cz9zHUYJFrO1kpa/KI6qF22EXMgpxXqQwDy3K5Ys=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Victor Kamensky <kamensky@cisco.com>,
+Cc:     Mark Tomlinson <mark.tomlinson@alliedtelesis.co.nz>,
+        Chris Packham <chris.packham@alliedtelesis.co.nz>,
         Paul Burton <paulburton@kernel.org>,
-        linux-mips@vger.kernel.org, Ralf Baechle <ralf@linux-mips.org>,
-        James Hogan <jhogan@kernel.org>,
-        Vincenzo Frascino <vincenzo.frascino@arm.com>,
-        bruce.ashfield@gmail.com, richard.purdie@linuxfoundation.org,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.5 12/67] mips: vdso: add build time check that no 'jalr t9' calls left
-Date:   Thu,  5 Mar 2020 12:12:13 -0500
-Message-Id: <20200305171309.29118-12-sashal@kernel.org>
+        linux-mips@vger.kernel.org, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.5 13/67] MIPS: cavium_octeon: Fix syncw generation.
+Date:   Thu,  5 Mar 2020 12:12:14 -0500
+Message-Id: <20200305171309.29118-13-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200305171309.29118-1-sashal@kernel.org>
 References: <20200305171309.29118-1-sashal@kernel.org>
@@ -47,65 +44,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Victor Kamensky <kamensky@cisco.com>
+From: Mark Tomlinson <mark.tomlinson@alliedtelesis.co.nz>
 
-[ Upstream commit 976c23af3ee5bd3447a7bfb6c356ceb4acf264a6 ]
+[ Upstream commit 97e914b7de3c943011779b979b8093fdc0d85722 ]
 
-vdso shared object cannot have GOT based PIC 'jalr t9' calls
-because nobody set GOT table in vdso. Contributing into vdso
-.o files are compiled in PIC mode and as result for internal
-static functions calls compiler will generate 'jalr t9'
-instructions. Those are supposed to be converted into PC
-relative 'bal' calls by linker when relocation are processed.
+The Cavium Octeon CPU uses a special sync instruction for implementing
+wmb, and due to a CPU bug, the instruction must appear twice. A macro
+had been defined to hide this:
 
-Mips global GOT entries do have dynamic relocations and they
-will be caught by cmd_vdso_check Makefile rule. Static PIC
-calls go through mips local GOT entries that do not have
-dynamic relocations. For those 'jalr t9' calls could be present
-but without dynamic relocations and they need to be converted
-to 'bal' calls by linker.
+ #define __SYNC_rpt(type)     (1 + (type == __SYNC_wmb))
 
-Add additional build time check to make sure that no 'jalr t9'
-slip through because of some toolchain misconfiguration that
-prevents 'jalr t9' to 'bal' conversion.
+which was intended to evaluate to 2 for __SYNC_wmb, and 1 for any other
+type of sync. However, this expression is evaluated by the assembler,
+and not the compiler, and the result of '==' in the assembler is 0 or
+-1, not 0 or 1 as it is in C. The net result was wmb() producing no code
+at all. The simple fix in this patch is to change the '+' to '-'.
 
-Signed-off-by: Victor Kamensky <kamensky@cisco.com>
+Fixes: bf92927251b3 ("MIPS: barrier: Add __SYNC() infrastructure")
+Signed-off-by: Mark Tomlinson <mark.tomlinson@alliedtelesis.co.nz>
+Tested-by: Chris Packham <chris.packham@alliedtelesis.co.nz>
 Signed-off-by: Paul Burton <paulburton@kernel.org>
 Cc: linux-mips@vger.kernel.org
-Cc: Ralf Baechle <ralf@linux-mips.org>
-Cc: James Hogan <jhogan@kernel.org>
-Cc: Vincenzo Frascino <vincenzo.frascino@arm.com>
-Cc: bruce.ashfield@gmail.com
-Cc: richard.purdie@linuxfoundation.org
+Cc: linux-kernel@vger.kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/vdso/Makefile | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ arch/mips/include/asm/sync.h | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/arch/mips/vdso/Makefile b/arch/mips/vdso/Makefile
-index e8585a22b925c..bfb65b2d57c7f 100644
---- a/arch/mips/vdso/Makefile
-+++ b/arch/mips/vdso/Makefile
-@@ -93,12 +93,18 @@ GCOV_PROFILE := n
- UBSAN_SANITIZE := n
- KCOV_INSTRUMENT := n
- 
-+# Check that we don't have PIC 'jalr t9' calls left
-+quiet_cmd_vdso_mips_check = VDSOCHK $@
-+      cmd_vdso_mips_check = if $(OBJDUMP) --disassemble $@ | egrep -h "jalr.*t9" > /dev/null; \
-+		       then (echo >&2 "$@: PIC 'jalr t9' calls are not supported"; \
-+			     rm -f $@; /bin/false); fi
-+
- #
- # Shared build commands.
- #
- 
- quiet_cmd_vdsold_and_vdso_check = LD      $@
--      cmd_vdsold_and_vdso_check = $(cmd_vdsold); $(cmd_vdso_check)
-+      cmd_vdsold_and_vdso_check = $(cmd_vdsold); $(cmd_vdso_check); $(cmd_vdso_mips_check)
- 
- quiet_cmd_vdsold = VDSO    $@
-       cmd_vdsold = $(CC) $(c_flags) $(VDSO_LDFLAGS) \
+diff --git a/arch/mips/include/asm/sync.h b/arch/mips/include/asm/sync.h
+index 7c6a1095f5562..aabd097933fe9 100644
+--- a/arch/mips/include/asm/sync.h
++++ b/arch/mips/include/asm/sync.h
+@@ -155,9 +155,11 @@
+  * effective barrier as noted by commit 6b07d38aaa52 ("MIPS: Octeon: Use
+  * optimized memory barrier primitives."). Here we specify that the affected
+  * sync instructions should be emitted twice.
++ * Note that this expression is evaluated by the assembler (not the compiler),
++ * and that the assembler evaluates '==' as 0 or -1, not 0 or 1.
+  */
+ #ifdef CONFIG_CPU_CAVIUM_OCTEON
+-# define __SYNC_rpt(type)	(1 + (type == __SYNC_wmb))
++# define __SYNC_rpt(type)	(1 - (type == __SYNC_wmb))
+ #else
+ # define __SYNC_rpt(type)	1
+ #endif
 -- 
 2.20.1
 
