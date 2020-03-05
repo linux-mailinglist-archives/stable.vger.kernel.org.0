@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DC67417AD03
-	for <lists+stable@lfdr.de>; Thu,  5 Mar 2020 18:24:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4380817ACFF
+	for <lists+stable@lfdr.de>; Thu,  5 Mar 2020 18:23:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727425AbgCERXx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 5 Mar 2020 12:23:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39038 "EHLO mail.kernel.org"
+        id S1727070AbgCERNe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 5 Mar 2020 12:13:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39052 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727050AbgCERNd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 5 Mar 2020 12:13:33 -0500
+        id S1727067AbgCERNe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 5 Mar 2020 12:13:34 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C08DB20848;
-        Thu,  5 Mar 2020 17:13:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D762E2166E;
+        Thu,  5 Mar 2020 17:13:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583428412;
-        bh=1hBIVFpHKaOoRiF23bBVj2jf5aYyVhOa1BFzrADUCNs=;
+        s=default; t=1583428413;
+        bh=MdM4dmvB1NrI3FG6lrkvPkf35G6mA0uFNk6ScnH/2ew=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CLCRcV7UF3qZcgu9neI0a1daA40jYC7xGqS4niEvfD3tIopOwVlslyASBknezGIy4
-         jN1stX8rpp2uVcZR95ovyaXJ4nSF0EizWJbBDHgGPAo8hILcqfc+2YOnmFw0rRlcli
-         M7OA3lzLKbJDYqsDPcV9dODB7tXwS4KaWidkImHw=
+        b=lkKXHbfyqHNpun8Hj4B/2+Hu9S+jzvQZtxIIk2wkFsOOs5Z5SpcIyFqwW1g/33f8s
+         NgoIggrGZb1nzZh4YXL6Rws1RWOtrWabKMyCv1MLLxqqNcUHBnwpUOji7HxoifGLau
+         Wxgzi77yeVpB0TlYp+2+sxCoctM3HuC7N4fPEGMo=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Hanno Zulla <kontakt@hanno.de>,
         Benjamin Tissoires <benjamin.tissoires@redhat.com>,
         Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.5 16/67] HID: hid-bigbenff: call hid_hw_stop() in case of error
-Date:   Thu,  5 Mar 2020 12:12:17 -0500
-Message-Id: <20200305171309.29118-16-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.5 17/67] HID: hid-bigbenff: fix race condition for scheduled work during removal
+Date:   Thu,  5 Mar 2020 12:12:18 -0500
+Message-Id: <20200305171309.29118-17-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200305171309.29118-1-sashal@kernel.org>
 References: <20200305171309.29118-1-sashal@kernel.org>
@@ -45,73 +45,57 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Hanno Zulla <kontakt@hanno.de>
 
-[ Upstream commit 976a54d0f4202cb412a3b1fc7f117e1d97db35f3 ]
+[ Upstream commit 4eb1b01de5b9d8596d6c103efcf1a15cfc1bedf7 ]
 
-It's required to call hid_hw_stop() once hid_hw_start() was called
-previously, so error cases need to handle this. Also, hid_hw_close() is
-not necessary during removal.
+It's possible that there is scheduled work left while the device is
+already being removed, which can cause a kernel crash. Adding a flag
+will avoid this.
 
 Signed-off-by: Hanno Zulla <kontakt@hanno.de>
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-bigbenff.c | 15 ++++++++++-----
- 1 file changed, 10 insertions(+), 5 deletions(-)
+ drivers/hid/hid-bigbenff.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
 diff --git a/drivers/hid/hid-bigbenff.c b/drivers/hid/hid-bigbenff.c
-index f7e85bacb6889..f8c552b64a899 100644
+index f8c552b64a899..db6da21ade063 100644
 --- a/drivers/hid/hid-bigbenff.c
 +++ b/drivers/hid/hid-bigbenff.c
-@@ -305,7 +305,6 @@ static void bigben_remove(struct hid_device *hid)
+@@ -174,6 +174,7 @@ static __u8 pid0902_rdesc_fixed[] = {
+ struct bigben_device {
+ 	struct hid_device *hid;
+ 	struct hid_report *report;
++	bool removed;
+ 	u8 led_state;         /* LED1 = 1 .. LED4 = 8 */
+ 	u8 right_motor_on;    /* right motor off/on 0/1 */
+ 	u8 left_motor_force;  /* left motor force 0-255 */
+@@ -190,6 +191,9 @@ static void bigben_worker(struct work_struct *work)
+ 		struct bigben_device, worker);
+ 	struct hid_field *report_field = bigben->report->field[0];
+ 
++	if (bigben->removed)
++		return;
++
+ 	if (bigben->work_led) {
+ 		bigben->work_led = false;
+ 		report_field->value[0] = 0x01; /* 1 = led message */
+@@ -304,6 +308,7 @@ static void bigben_remove(struct hid_device *hid)
+ {
  	struct bigben_device *bigben = hid_get_drvdata(hid);
  
++	bigben->removed = true;
  	cancel_work_sync(&bigben->worker);
--	hid_hw_close(hid);
  	hid_hw_stop(hid);
  }
+@@ -324,6 +329,7 @@ static int bigben_probe(struct hid_device *hid,
+ 		return -ENOMEM;
+ 	hid_set_drvdata(hid, bigben);
+ 	bigben->hid = hid;
++	bigben->removed = false;
  
-@@ -350,7 +349,7 @@ static int bigben_probe(struct hid_device *hid,
- 	error = input_ff_create_memless(hidinput->input, NULL,
- 		hid_bigben_play_effect);
- 	if (error)
--		return error;
-+		goto error_hw_stop;
- 
- 	name_sz = strlen(dev_name(&hid->dev)) + strlen(":red:bigben#") + 1;
- 
-@@ -360,8 +359,10 @@ static int bigben_probe(struct hid_device *hid,
- 			sizeof(struct led_classdev) + name_sz,
- 			GFP_KERNEL
- 		);
--		if (!led)
--			return -ENOMEM;
-+		if (!led) {
-+			error = -ENOMEM;
-+			goto error_hw_stop;
-+		}
- 		name = (void *)(&led[1]);
- 		snprintf(name, name_sz,
- 			"%s:red:bigben%d",
-@@ -375,7 +376,7 @@ static int bigben_probe(struct hid_device *hid,
- 		bigben->leds[n] = led;
- 		error = devm_led_classdev_register(&hid->dev, led);
- 		if (error)
--			return error;
-+			goto error_hw_stop;
- 	}
- 
- 	/* initial state: LED1 is on, no rumble effect */
-@@ -389,6 +390,10 @@ static int bigben_probe(struct hid_device *hid,
- 	hid_info(hid, "LED and force feedback support for BigBen gamepad\n");
- 
- 	return 0;
-+
-+error_hw_stop:
-+	hid_hw_stop(hid);
-+	return error;
- }
- 
- static __u8 *bigben_report_fixup(struct hid_device *hid, __u8 *rdesc,
+ 	error = hid_parse(hid);
+ 	if (error) {
 -- 
 2.20.1
 
