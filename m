@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B488417B187
-	for <lists+stable@lfdr.de>; Thu,  5 Mar 2020 23:34:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 30DF817B1F3
+	for <lists+stable@lfdr.de>; Thu,  5 Mar 2020 23:56:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726413AbgCEWeN convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Thu, 5 Mar 2020 17:34:13 -0500
-Received: from mail-oln040092070073.outbound.protection.outlook.com ([40.92.70.73]:56324
-        "EHLO EUR03-AM5-obe.outbound.protection.outlook.com"
+        id S1726608AbgCEW4H convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Thu, 5 Mar 2020 17:56:07 -0500
+Received: from mail-vi1eur05olkn2104.outbound.protection.outlook.com ([40.92.90.104]:45153
+        "EHLO EUR05-VI1-obe.outbound.protection.outlook.com"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726080AbgCEWeM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 5 Mar 2020 17:34:12 -0500
+        id S1726128AbgCEW4H (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 5 Mar 2020 17:56:07 -0500
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=VGpbywGoFzHzbs9ir1+VRFeIy5+DAa/OpVMljU2ag48FVLN5jUEwkQXSkR5dsugU0Z2AUw1HSqqf4++sL0a/HUppwTPHk0kp5n9urYiA2fwBpA8G6AcPi9rCPICyBrxPS0Z76POTu+hyO9jTTg65WJGgMpi16ft2A/LgGw5wnMvMEi1EC2QaglAm0eXwFdm5YhzkVvbFGg4xn/R6B2TlFxXiwhgVR6sus4/ewWbQ7Oi2OKRRjbF+CkFX0IeyYgE8uzFok8vWTXmuoyreDDzt7Twtn/cHDOjAkskxhvS/ZAgofVrgvuhZKr+s++5wWXPmFqx4cLzvqwpLu7irsCwIgQ==
+ b=U6A4qZbNCfGWsXeIvdr6kqJ/amkE8yIxfPp3e2pQ9jrWrDXGD5SLIa9j0eh4tvKHLu8YZb+elX5+wPMD5IsFZuky3cVz0ZZfgh0THuB5S/uIH+HVcVvfzzRrav232g1fI8F7H5EgSXyjZ7v0/Ib7eSYFCrl3G82Uezl661X42JrCF9o0LS3f2E8+2xoGsltT9SnQIHGPAmKLaG9O4caS2bskoBQ+a1adORZpDIkK2Olmeb1Td2PqgZSsCJC8yiy3fQaBCPjgjuhyKK0Canhqw8gF2ZrD+oqavYJpm1BBRZUgqsfUi6c+6cZ/qs1gW+Om7ojr6FZA5yahbShqvC2ENQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=mAbBUDDRbDZ4qsQaox7Pp4Gerv8/WBoPaST2I4kuh1k=;
- b=c+X4d2Rhf4I7sO+RcpkKMVfMgTKTBOzjbpuoijcX5hW0K+UMWEW6repXj4n5cIjAO1Ag/K2QbjPVDjhwYoCAPA9rhk3dnQ+5hNHNShMvKhCqW7P6G95xg7J6t7nF3UrzibItNpRlDm3NZE8n3MpSE3ZR8XcDqskUkReUOJV01OVnvcx/B8QyG0Tgc35X47PYRHbMGq6NJOYDrQuxVx6SAT+IyI5L3WpbWzMmgnaA8JiDUglAw2pVn5UahIoRWdMMh6Pjed/7aaFGjGPTSDzoclKr/4z8wb0CiSv9L537IHoowGMroZI4vcSFq72bvMrAqSX+anlk9sNG01i5mMjSjA==
+ bh=KDdC9hvKRliCZOl6sjx6IJBf9FDU4elCX2xh61mM2Vk=;
+ b=L459/foOwKYign+QhAvjUFqlnJ8D6ng4ORV7GqRO3T3Cy2vNwQzs14fZeVl6CZ868B3NGhiTNxsIBfCnJVO2mfCojlue7FMN2gvCUVSg9avuFzDb3GRGFQwn2ITJMa/R30AZLPp/OMMBMsvOzj276OX3tmBTXn5meqJMK01I09FRVgMZMi3g341etIn5jghAEbbFpe9IxidDELm3lXjrZVCnjliNVlmiNoXKEmUyFykTVNpSu+MmN48GS0nxzp+ICH+vGThai8LOyb+LfZZ1BAE1KCfriAe/87UupRyTh3HskvSJ8P1Z2oiYwF0dQ3b56ewzq/X2/xhOi2Bua4iR+g==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=none; dmarc=none;
  dkim=none; arc=none
-Received: from DB5EUR03FT051.eop-EUR03.prod.protection.outlook.com
- (2a01:111:e400:7e0a::37) by
- DB5EUR03HT082.eop-EUR03.prod.protection.outlook.com (2a01:111:e400:7e0a::280)
+Received: from AM6EUR05FT004.eop-eur05.prod.protection.outlook.com
+ (2a01:111:e400:fc11::39) by
+ AM6EUR05HT175.eop-eur05.prod.protection.outlook.com (2a01:111:e400:fc11::267)
  with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.2793.11; Thu, 5 Mar
- 2020 22:34:07 +0000
-Received: from AM6PR03MB5170.eurprd03.prod.outlook.com (10.152.20.54) by
- DB5EUR03FT051.mail.protection.outlook.com (10.152.21.19) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.2793.11 via Frontend Transport; Thu, 5 Mar 2020 22:34:07 +0000
+ 2020 22:56:01 +0000
+Received: from AM6PR03MB5170.eurprd03.prod.outlook.com (10.233.240.53) by
+ AM6EUR05FT004.mail.protection.outlook.com (10.233.240.227) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.2793.11 via Frontend Transport; Thu, 5 Mar 2020 22:56:01 +0000
 Received: from AM6PR03MB5170.eurprd03.prod.outlook.com
  ([fe80::1956:d274:cab3:b4dd]) by AM6PR03MB5170.eurprd03.prod.outlook.com
  ([fe80::1956:d274:cab3:b4dd%6]) with mapi id 15.20.2772.019; Thu, 5 Mar 2020
- 22:34:07 +0000
-Received: from [192.168.1.101] (92.77.140.102) by AM0PR10CA0009.EURPRD10.PROD.OUTLOOK.COM (2603:10a6:208:17c::19) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.2793.11 via Frontend Transport; Thu, 5 Mar 2020 22:34:06 +0000
+ 22:56:01 +0000
+Received: from [192.168.1.101] (92.77.140.102) by AM0PR05CA0063.eurprd05.prod.outlook.com (2603:10a6:208:be::40) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.2793.15 via Frontend Transport; Thu, 5 Mar 2020 22:56:00 +0000
 From:   Bernd Edlinger <bernd.edlinger@hotmail.de>
 To:     "Eric W. Biederman" <ebiederm@xmission.com>
 CC:     Christian Brauner <christian.brauner@ubuntu.com>,
@@ -71,9 +71,9 @@ CC:     Christian Brauner <christian.brauner@ubuntu.com>,
         "linux-api@vger.kernel.org" <linux-api@vger.kernel.org>
 Subject: Re: [PATCH 1/2] exec: Properly mark the point of no return
 Thread-Topic: [PATCH 1/2] exec: Properly mark the point of no return
-Thread-Index: AQHV8zOIDtdt4OHpy0WII6Z+9AZegqg6lfOA
-Date:   Thu, 5 Mar 2020 22:34:07 +0000
-Message-ID: <AM6PR03MB51705EB9A5E911295BDF8D2FE4E20@AM6PR03MB5170.eurprd03.prod.outlook.com>
+Thread-Index: AQHV8zOIDtdt4OHpy0WII6Z+9AZegqg6nBAA
+Date:   Thu, 5 Mar 2020 22:56:01 +0000
+Message-ID: <AM6PR03MB5170B05CFDAF21D8A99B7E48E4E20@AM6PR03MB5170.eurprd03.prod.outlook.com>
 References: <AM6PR03MB5170EB4427BF5C67EE98FF09E4E60@AM6PR03MB5170.eurprd03.prod.outlook.com>
  <AM6PR03MB51707ABF20B6CBBECC34865FE4E70@AM6PR03MB5170.eurprd03.prod.outlook.com>
  <87v9nmjulm.fsf@x220.int.ebiederm.org>
@@ -95,35 +95,35 @@ Accept-Language: en-US, en-GB, de-DE
 Content-Language: en-US
 X-MS-Has-Attach: 
 X-MS-TNEF-Correlator: 
-x-clientproxiedby: AM0PR10CA0009.EURPRD10.PROD.OUTLOOK.COM
- (2603:10a6:208:17c::19) To AM6PR03MB5170.eurprd03.prod.outlook.com
+x-clientproxiedby: AM0PR05CA0063.eurprd05.prod.outlook.com
+ (2603:10a6:208:be::40) To AM6PR03MB5170.eurprd03.prod.outlook.com
  (2603:10a6:20b:ca::23)
-x-incomingtopheadermarker: OriginalChecksum:3A2024B693D837F0DDF00450EF97460F989C55BC560D36A82223C7327DE4B9DF;UpperCasedChecksum:30E2E8EDDCEECF202DC6196C1344B6BCE54C72E512381711DBCACEA067A57BFD;SizeAsReceived:9889;Count:50
+x-incomingtopheadermarker: OriginalChecksum:272380709DEB80306E9009F61E2997677429D2C3BDF0FBC3F0F15DDDC349B10F;UpperCasedChecksum:21F0A5716B0852942E038A9075DF8A415A4691F0A163A0DD201B056A0DF548A6;SizeAsReceived:9890;Count:50
 x-ms-exchange-messagesentrepresentingtype: 1
-x-tmn:  [7ThvNKeMPS8rFbz+ZGcilnCRipef2B6V]
-x-microsoft-original-message-id: <0fd70238-96ea-8ca3-9120-d7ac3b285243@hotmail.de>
+x-tmn:  [izdHMbh3bnDYSfTpdS4ROrLapHN4x4DX]
+x-microsoft-original-message-id: <d4003229-394f-e962-109c-875fbdd1198e@hotmail.de>
 x-ms-publictraffictype: Email
 x-incomingheadercount: 50
 x-eopattributedmessage: 0
-x-ms-office365-filtering-correlation-id: df93928b-fec8-411e-cfbb-08d7c1555131
-x-ms-traffictypediagnostic: DB5EUR03HT082:
+x-ms-office365-filtering-correlation-id: 11b256b2-15fb-4537-cef8-08d7c158604b
+x-ms-traffictypediagnostic: AM6EUR05HT175:
 x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: a9XiLOCdhT6SQA6ZLHosYGHi2LnNRNkBugxh2IuKma7oDsfjSzOJg6+pqOnDqCZxuyHFGoxQYUwu0pnT7ptjgU7ausYKaFkemsjRWQJuyM6i8QOm0Xj6DfQAMWuFcwu1MmEyPetVcHsgqG6ECoYB08tJ4QsWRtPK+MPvX1umuPNe0kSRGyfPTxV7fPm5IYYE
-x-ms-exchange-antispam-messagedata: JHs6ZHbAidGAz7xCkoReUz1nz7fEBTKGiUdci1D6atfPaqkVbNvAqYvPhJaqkG6JunshcWs5RbB+MFyT8kTnhyD7ju+6b3sQAdXePqT55IJGCyo4SYFBVZHME0jcVkx2MmJ26xqlKReHCSlWJ2mJpw==
+x-microsoft-antispam-message-info: 0hjSR8sFoP5pZfY+2ji5Jjh2SJ5FnTvekp7+oWOwi4CDGhi8CryMEW/7/hNAwR6I85x1Xj2/KfPJb/moNfZYh4vzurGzhyYqSfE2rTb1IYqqUSRYIIujq7CiTvJavuJRvEgMn1O91dXTDtuVUWSw4VZb+0etlV+bZwWQR+V5UxVN2SOPH/gQFX/RGVyw3p5l
+x-ms-exchange-antispam-messagedata: 3ENPk+OnLtZ3ZFws88q3ivvo8YLOSnhbyGhaUDLajUerqrTkxEHXStoKK9P3fZ+W7UaHkq/2qrGZfxF9FqXJ+0bHEF/9RLX/0xYz/cO/KHe31mtPREQ29BoL6HkY4g0GyjBqrrUzxB1CB8DVN71OxQ==
 x-ms-exchange-transport-forked: True
 Content-Type: text/plain; charset="Windows-1252"
-Content-ID: <9939E79739A7134CBF5C66C88E3959AD@eurprd03.prod.outlook.com>
+Content-ID: <0B2ECCD68E9FD54C97C2891C56840623@eurprd03.prod.outlook.com>
 Content-Transfer-Encoding: 8BIT
 MIME-Version: 1.0
 X-OriginatorOrg: outlook.com
 X-MS-Exchange-CrossTenant-RMS-PersistedConsumerOrg: 00000000-0000-0000-0000-000000000000
-X-MS-Exchange-CrossTenant-Network-Message-Id: df93928b-fec8-411e-cfbb-08d7c1555131
+X-MS-Exchange-CrossTenant-Network-Message-Id: 11b256b2-15fb-4537-cef8-08d7c158604b
 X-MS-Exchange-CrossTenant-rms-persistedconsumerorg: 00000000-0000-0000-0000-000000000000
-X-MS-Exchange-CrossTenant-originalarrivaltime: 05 Mar 2020 22:34:07.8152
+X-MS-Exchange-CrossTenant-originalarrivaltime: 05 Mar 2020 22:56:01.7235
  (UTC)
 X-MS-Exchange-CrossTenant-fromentityheader: Internet
 X-MS-Exchange-CrossTenant-id: 84df9e7f-e9f6-40af-b435-aaaaaaaaaaaa
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DB5EUR03HT082
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: AM6EUR05HT175
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -174,18 +174,29 @@ On 3/5/20 10:15 PM, Eric W. Biederman wrote:
 >  	sig->group_exit_task = NULL;
 >  	sig->notify_count = 0;
 >  
+
+ah, sorry, 
+        if (thread_group_empty(tsk))
+                goto no_thread_group;
+will skip this:
+
+        sig->group_exit_task = NULL;
+        sig->notify_count = 0;
+
+no_thread_group:
+        /* we have changed execution domain */
+        tsk->exit_signal = SIGCHLD;
+
+so I think the bprm->unrecoverable = true; should be here?
+
+
+Bernd.
 > @@ -1266,7 +1267,7 @@ int flush_old_exec(struct linux_binprm * bprm)
 >  	 * Make sure we have a private signal table and that
 >  	 * we are unassociated from the previous thread group.
 >  	 */
 > -	retval = de_thread(current);
 > +	retval = de_thread(bprm, current);
-
-can we get rid of passing current as parameter here?
-
-Thanks
-Bernd.
-
 >  	if (retval)
 >  		goto out;
 >  
