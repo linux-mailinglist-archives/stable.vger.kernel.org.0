@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7585F17ACF1
-	for <lists+stable@lfdr.de>; Thu,  5 Mar 2020 18:23:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C0D317AB52
+	for <lists+stable@lfdr.de>; Thu,  5 Mar 2020 18:13:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727483AbgCERXe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 5 Mar 2020 12:23:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39278 "EHLO mail.kernel.org"
+        id S1727268AbgCERNm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 5 Mar 2020 12:13:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39322 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727195AbgCERNk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 5 Mar 2020 12:13:40 -0500
+        id S1727206AbgCERNm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 5 Mar 2020 12:13:42 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 827FA21556;
-        Thu,  5 Mar 2020 17:13:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B054024654;
+        Thu,  5 Mar 2020 17:13:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583428420;
-        bh=IUgSQBIgrx3acAIdWwuai6U1vJC+ObOnP/PsZf5UV9g=;
+        s=default; t=1583428421;
+        bh=Gkbskkt5Gyu5DT0af7NouvEBc3hpmFpLfbbZiBpS7EM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ng1lynTsrk+X6mYwsrXYvUfmseBAmhMUVgPBqrG6+EAVRZMMzfeNgN9RdjV/+tta5
-         gXgcvMe7JXSXAyLNvB0NcyK5RwKxGGmQDwrXRE40f6pMqZflw2/M+kBCo9Tj/EoZSW
-         OxrJ/Oz9T2Wv5X4lwBW5/oH6EYw4Y1ytl+71PLMM=
+        b=EaKwHA2i98COnPD4Sb2xViCAVQkYWnjeT5onjVkQTdDTce3xUnBIRX04vmH+C8AbY
+         Bjz8Yw1pV1bsbfGrtGHuY4RrB/OkPYxRuSfTnNZkCYu1V+FYCeDcTwrrylUpp/GGYt
+         GjW30expYHN+pTS45sLnUz3pBt/+qTm1uTg6I0Sg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Michael Ellerman <mpe@ellerman.id.au>,
-        Shuah Khan <skhan@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-kselftest@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.5 22/67] selftests/rseq: Fix out-of-tree compilation
-Date:   Thu,  5 Mar 2020 12:12:23 -0500
-Message-Id: <20200305171309.29118-22-sashal@kernel.org>
+Cc:     Tom Zanussi <zanussi@kernel.org>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.5 23/67] tracing: Fix number printing bug in print_synth_event()
+Date:   Thu,  5 Mar 2020 12:12:24 -0500
+Message-Id: <20200305171309.29118-23-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200305171309.29118-1-sashal@kernel.org>
 References: <20200305171309.29118-1-sashal@kernel.org>
@@ -44,46 +43,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Ellerman <mpe@ellerman.id.au>
+From: Tom Zanussi <zanussi@kernel.org>
 
-[ Upstream commit ef89d0545132d685f73da6f58b7e7fe002536f91 ]
+[ Upstream commit 784bd0847eda032ed2f3522f87250655a18c0190 ]
 
-Currently if you build with O=... the rseq tests don't build:
+Fix a varargs-related bug in print_synth_event() which resulted in
+strange output and oopses on 32-bit x86 systems. The problem is that
+trace_seq_printf() expects the varargs to match the format string, but
+print_synth_event() was always passing u64 values regardless.  This
+results in unspecified behavior when unpacking with va_arg() in
+trace_seq_printf().
 
-  $ make O=$PWD/output -C tools/testing/selftests/ TARGETS=rseq
-  make: Entering directory '/linux/tools/testing/selftests'
-  ...
-  make[1]: Entering directory '/linux/tools/testing/selftests/rseq'
-  gcc -O2 -Wall -g -I./ -I../../../../usr/include/ -L./ -Wl,-rpath=./  -shared -fPIC rseq.c -lpthread -o /linux/output/rseq/librseq.so
-  gcc -O2 -Wall -g -I./ -I../../../../usr/include/ -L./ -Wl,-rpath=./  basic_test.c -lpthread -lrseq -o /linux/output/rseq/basic_test
-  /usr/bin/ld: cannot find -lrseq
-  collect2: error: ld returned 1 exit status
+Add a function that takes the size into account when calling
+trace_seq_printf().
 
-This is because the library search path points to the source
-directory, not the output.
+Before:
 
-We can fix it by changing the library search path to $(OUTPUT).
+  modprobe-1731  [003] ....   919.039758: gen_synth_test: next_pid_field=777(null)next_comm_field=hula hoops ts_ns=1000000 ts_ms=1000 cpu=3(null)my_string_field=thneed my_int_field=598(null)
 
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+After:
+
+ insmod-1136  [001] ....    36.634590: gen_synth_test: next_pid_field=777 next_comm_field=hula hoops ts_ns=1000000 ts_ms=1000 cpu=1 my_string_field=thneed my_int_field=598
+
+Link: http://lkml.kernel.org/r/a9b59eb515dbbd7d4abe53b347dccf7a8e285657.1581720155.git.zanussi@kernel.org
+
+Reported-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Signed-off-by: Tom Zanussi <zanussi@kernel.org>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/rseq/Makefile | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/trace/trace_events_hist.c | 32 +++++++++++++++++++++++++++++---
+ 1 file changed, 29 insertions(+), 3 deletions(-)
 
-diff --git a/tools/testing/selftests/rseq/Makefile b/tools/testing/selftests/rseq/Makefile
-index d6469535630af..708c1b3452454 100644
---- a/tools/testing/selftests/rseq/Makefile
-+++ b/tools/testing/selftests/rseq/Makefile
-@@ -4,7 +4,7 @@ ifneq ($(shell $(CC) --version 2>&1 | head -n 1 | grep clang),)
- CLANG_FLAGS += -no-integrated-as
- endif
+diff --git a/kernel/trace/trace_events_hist.c b/kernel/trace/trace_events_hist.c
+index e10585ef00e15..862fb6d16edb8 100644
+--- a/kernel/trace/trace_events_hist.c
++++ b/kernel/trace/trace_events_hist.c
+@@ -811,6 +811,29 @@ static const char *synth_field_fmt(char *type)
+ 	return fmt;
+ }
  
--CFLAGS += -O2 -Wall -g -I./ -I../../../../usr/include/ -L./ -Wl,-rpath=./ \
-+CFLAGS += -O2 -Wall -g -I./ -I../../../../usr/include/ -L$(OUTPUT) -Wl,-rpath=./ \
- 	  $(CLANG_FLAGS)
- LDLIBS += -lpthread
++static void print_synth_event_num_val(struct trace_seq *s,
++				      char *print_fmt, char *name,
++				      int size, u64 val, char *space)
++{
++	switch (size) {
++	case 1:
++		trace_seq_printf(s, print_fmt, name, (u8)val, space);
++		break;
++
++	case 2:
++		trace_seq_printf(s, print_fmt, name, (u16)val, space);
++		break;
++
++	case 4:
++		trace_seq_printf(s, print_fmt, name, (u32)val, space);
++		break;
++
++	default:
++		trace_seq_printf(s, print_fmt, name, val, space);
++		break;
++	}
++}
++
+ static enum print_line_t print_synth_event(struct trace_iterator *iter,
+ 					   int flags,
+ 					   struct trace_event *event)
+@@ -849,10 +872,13 @@ static enum print_line_t print_synth_event(struct trace_iterator *iter,
+ 		} else {
+ 			struct trace_print_flags __flags[] = {
+ 			    __def_gfpflag_names, {-1, NULL} };
++			char *space = (i == se->n_fields - 1 ? "" : " ");
  
+-			trace_seq_printf(s, print_fmt, se->fields[i]->name,
+-					 entry->fields[n_u64],
+-					 i == se->n_fields - 1 ? "" : " ");
++			print_synth_event_num_val(s, print_fmt,
++						  se->fields[i]->name,
++						  se->fields[i]->size,
++						  entry->fields[n_u64],
++						  space);
+ 
+ 			if (strcmp(se->fields[i]->type, "gfp_t") == 0) {
+ 				trace_seq_puts(s, " (");
 -- 
 2.20.1
 
