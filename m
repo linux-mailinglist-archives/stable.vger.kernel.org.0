@@ -2,27 +2,28 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1FB9B17A12B
-	for <lists+stable@lfdr.de>; Thu,  5 Mar 2020 09:23:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 147B117A12D
+	for <lists+stable@lfdr.de>; Thu,  5 Mar 2020 09:23:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726048AbgCEIWU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 5 Mar 2020 03:22:20 -0500
-Received: from szxga04-in.huawei.com ([45.249.212.190]:11148 "EHLO huawei.com"
+        id S1725990AbgCEIWu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 5 Mar 2020 03:22:50 -0500
+Received: from szxga06-in.huawei.com ([45.249.212.32]:38530 "EHLO huawei.com"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1725816AbgCEIWU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 5 Mar 2020 03:22:20 -0500
-Received: from DGGEMS410-HUB.china.huawei.com (unknown [172.30.72.60])
-        by Forcepoint Email with ESMTP id DAD5F85F05C65E426F96;
-        Thu,  5 Mar 2020 16:22:12 +0800 (CST)
+        id S1725816AbgCEIWu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 5 Mar 2020 03:22:50 -0500
+Received: from DGGEMS401-HUB.china.huawei.com (unknown [172.30.72.59])
+        by Forcepoint Email with ESMTP id 2A51EF1B93CA484CD08B;
+        Thu,  5 Mar 2020 16:22:45 +0800 (CST)
 Received: from fedora-aep.huawei.cmm (10.175.113.49) by
- DGGEMS410-HUB.china.huawei.com (10.3.19.210) with Microsoft SMTP Server id
- 14.3.439.0; Thu, 5 Mar 2020 16:22:07 +0800
+ DGGEMS401-HUB.china.huawei.com (10.3.19.201) with Microsoft SMTP Server id
+ 14.3.439.0; Thu, 5 Mar 2020 16:22:36 +0800
 From:   yangerkun <yangerkun@huawei.com>
 To:     <gregkh@linuxfoundation.org>, <herbert@gondor.apana.org.au>
-CC:     <stable@vger.kernel.org>, <linux-crypto@vger.kernel.org>
+CC:     <stable@vger.kernel.org>, <linux-crypto@vger.kernel.org>,
+        <yangerkun@huawei.com>
 Subject: [PATCH 4.4.y] crypto: algif_skcipher - use ZERO_OR_NULL_PTR in skcipher_recvmsg_async
-Date:   Thu, 5 Mar 2020 16:50:10 +0800
-Message-ID: <20200305085010.21324-1-yangerkun@huawei.com>
+Date:   Thu, 5 Mar 2020 16:50:40 +0800
+Message-ID: <20200305085040.21551-1-yangerkun@huawei.com>
 X-Mailer: git-send-email 2.17.2
 MIME-Version: 1.0
 Content-Type: text/plain
