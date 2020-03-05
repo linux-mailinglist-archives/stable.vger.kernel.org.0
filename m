@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7917717AB91
-	for <lists+stable@lfdr.de>; Thu,  5 Mar 2020 18:18:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7168217AC7D
+	for <lists+stable@lfdr.de>; Thu,  5 Mar 2020 18:21:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727785AbgCEROp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 5 Mar 2020 12:14:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41092 "EHLO mail.kernel.org"
+        id S1727796AbgCEROq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 5 Mar 2020 12:14:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41130 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727774AbgCEROo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 5 Mar 2020 12:14:44 -0500
+        id S1727788AbgCEROp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 5 Mar 2020 12:14:45 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5F23F24679;
-        Thu,  5 Mar 2020 17:14:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 648CD2465D;
+        Thu,  5 Mar 2020 17:14:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583428484;
-        bh=/sOLfcB78ooPON9tkDzlMoGzEbOGHBf9o0sHqQL4E74=;
+        s=default; t=1583428485;
+        bh=fVEhOtjzIRXLblm9Oehoq5s64cEfH6JyaAg+jP4d8oA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lIa2Uofiw+7xACOskNAWADNzmI69JwYUzX5tiKPgEib/7u0IEULcNv7tqslC8RCvj
-         7kiRa9QYRaBEurh9nPYG2xkv/co7chM9v35ACgwtRUAc9yR09UvHhnngXhdCA5bwfH
-         F+HHkETdD7LhAAH3yM2TvIErPvLJ2A6ABeNVtpfI=
+        b=ctNo/RhSeb6zpCeyH+TU+zsEMiuMDc/8nT8oQ7wvX2AH6HuEy6zmZ1JEAboiow2el
+         zCSQp7F4iA8npn6SBdjXbxy3HMYqjewBpE0iYgd2NDp1IVJ8og0J8WkyihduXVTXjI
+         D8vf/rjU3rbaFpCn6f5JEUlIDPAixER1T7e1hJak=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Tom Zanussi <zanussi@kernel.org>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.4 19/58] tracing: Fix number printing bug in print_synth_event()
-Date:   Thu,  5 Mar 2020 12:13:40 -0500
-Message-Id: <20200305171420.29595-19-sashal@kernel.org>
+Cc:     Johannes Berg <johannes.berg@intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 20/58] nl80211: fix potential leak in AP start
+Date:   Thu,  5 Mar 2020 12:13:41 -0500
+Message-Id: <20200305171420.29595-20-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200305171420.29595-1-sashal@kernel.org>
 References: <20200305171420.29595-1-sashal@kernel.org>
@@ -43,89 +43,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tom Zanussi <zanussi@kernel.org>
+From: Johannes Berg <johannes.berg@intel.com>
 
-[ Upstream commit 784bd0847eda032ed2f3522f87250655a18c0190 ]
+[ Upstream commit 9951ebfcdf2b97dbb28a5d930458424341e61aa2 ]
 
-Fix a varargs-related bug in print_synth_event() which resulted in
-strange output and oopses on 32-bit x86 systems. The problem is that
-trace_seq_printf() expects the varargs to match the format string, but
-print_synth_event() was always passing u64 values regardless.  This
-results in unspecified behavior when unpacking with va_arg() in
-trace_seq_printf().
+If nl80211_parse_he_obss_pd() fails, we leak the previously
+allocated ACL memory. Free it in this case.
 
-Add a function that takes the size into account when calling
-trace_seq_printf().
-
-Before:
-
-  modprobe-1731  [003] ....   919.039758: gen_synth_test: next_pid_field=777(null)next_comm_field=hula hoops ts_ns=1000000 ts_ms=1000 cpu=3(null)my_string_field=thneed my_int_field=598(null)
-
-After:
-
- insmod-1136  [001] ....    36.634590: gen_synth_test: next_pid_field=777 next_comm_field=hula hoops ts_ns=1000000 ts_ms=1000 cpu=1 my_string_field=thneed my_int_field=598
-
-Link: http://lkml.kernel.org/r/a9b59eb515dbbd7d4abe53b347dccf7a8e285657.1581720155.git.zanussi@kernel.org
-
-Reported-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
-Signed-off-by: Tom Zanussi <zanussi@kernel.org>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Fixes: 796e90f42b7e ("cfg80211: add support for parsing OBBS_PD attributes")
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Link: https://lore.kernel.org/r/20200221104142.835aba4cdd14.I1923b55ba9989c57e13978f91f40bfdc45e60cbd@changeid
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/trace/trace_events_hist.c | 32 +++++++++++++++++++++++++++++---
- 1 file changed, 29 insertions(+), 3 deletions(-)
+ net/wireless/nl80211.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/kernel/trace/trace_events_hist.c b/kernel/trace/trace_events_hist.c
-index a31be3fce3e8e..6495800fb92a1 100644
---- a/kernel/trace/trace_events_hist.c
-+++ b/kernel/trace/trace_events_hist.c
-@@ -811,6 +811,29 @@ static const char *synth_field_fmt(char *type)
- 	return fmt;
- }
+diff --git a/net/wireless/nl80211.c b/net/wireless/nl80211.c
+index c74646b7a751f..78c2d9359fc72 100644
+--- a/net/wireless/nl80211.c
++++ b/net/wireless/nl80211.c
+@@ -4794,8 +4794,7 @@ static int nl80211_start_ap(struct sk_buff *skb, struct genl_info *info)
+ 		err = nl80211_parse_he_obss_pd(
+ 					info->attrs[NL80211_ATTR_HE_OBSS_PD],
+ 					&params.he_obss_pd);
+-		if (err)
+-			return err;
++		goto out;
+ 	}
  
-+static void print_synth_event_num_val(struct trace_seq *s,
-+				      char *print_fmt, char *name,
-+				      int size, u64 val, char *space)
-+{
-+	switch (size) {
-+	case 1:
-+		trace_seq_printf(s, print_fmt, name, (u8)val, space);
-+		break;
-+
-+	case 2:
-+		trace_seq_printf(s, print_fmt, name, (u16)val, space);
-+		break;
-+
-+	case 4:
-+		trace_seq_printf(s, print_fmt, name, (u32)val, space);
-+		break;
-+
-+	default:
-+		trace_seq_printf(s, print_fmt, name, val, space);
-+		break;
-+	}
-+}
-+
- static enum print_line_t print_synth_event(struct trace_iterator *iter,
- 					   int flags,
- 					   struct trace_event *event)
-@@ -849,10 +872,13 @@ static enum print_line_t print_synth_event(struct trace_iterator *iter,
- 		} else {
- 			struct trace_print_flags __flags[] = {
- 			    __def_gfpflag_names, {-1, NULL} };
-+			char *space = (i == se->n_fields - 1 ? "" : " ");
+ 	nl80211_calculate_ap_params(&params);
+@@ -4817,6 +4816,7 @@ static int nl80211_start_ap(struct sk_buff *skb, struct genl_info *info)
+ 	}
+ 	wdev_unlock(wdev);
  
--			trace_seq_printf(s, print_fmt, se->fields[i]->name,
--					 entry->fields[n_u64],
--					 i == se->n_fields - 1 ? "" : " ");
-+			print_synth_event_num_val(s, print_fmt,
-+						  se->fields[i]->name,
-+						  se->fields[i]->size,
-+						  entry->fields[n_u64],
-+						  space);
++out:
+ 	kfree(params.acl);
  
- 			if (strcmp(se->fields[i]->type, "gfp_t") == 0) {
- 				trace_seq_puts(s, " (");
+ 	return err;
 -- 
 2.20.1
 
