@@ -2,77 +2,120 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2FCA917C1F6
-	for <lists+stable@lfdr.de>; Fri,  6 Mar 2020 16:38:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D9E0B17C25E
+	for <lists+stable@lfdr.de>; Fri,  6 Mar 2020 17:00:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726979AbgCFPil (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 6 Mar 2020 10:38:41 -0500
-Received: from 8.mo177.mail-out.ovh.net ([46.105.61.98]:41265 "EHLO
-        8.mo177.mail-out.ovh.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726178AbgCFPil (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 6 Mar 2020 10:38:41 -0500
-X-Greylist: delayed 2197 seconds by postgrey-1.27 at vger.kernel.org; Fri, 06 Mar 2020 10:38:40 EST
-Received: from player758.ha.ovh.net (unknown [10.108.42.228])
-        by mo177.mail-out.ovh.net (Postfix) with ESMTP id E576D127791
-        for <stable@vger.kernel.org>; Fri,  6 Mar 2020 16:02:01 +0100 (CET)
-Received: from kaod.org (82-64-250-170.subs.proxad.net [82.64.250.170])
-        (Authenticated sender: clg@kaod.org)
-        by player758.ha.ovh.net (Postfix) with ESMTPSA id 5EBB1102B4F93;
-        Fri,  6 Mar 2020 15:01:56 +0000 (UTC)
-From:   =?UTF-8?q?C=C3=A9dric=20Le=20Goater?= <clg@kaod.org>
-To:     Michael Ellerman <mpe@ellerman.id.au>
-Cc:     Greg Kurz <groug@kaod.org>, linuxppc-dev@lists.ozlabs.org,
-        =?UTF-8?q?C=C3=A9dric=20Le=20Goater?= <clg@kaod.org>,
-        stable@vger.kernel.org
-Subject: [PATCH 2/4] powerpc/xive: Fix xmon support on the PowerNV platform
-Date:   Fri,  6 Mar 2020 16:01:41 +0100
-Message-Id: <20200306150143.5551-3-clg@kaod.org>
-X-Mailer: git-send-email 2.21.1
-In-Reply-To: <20200306150143.5551-1-clg@kaod.org>
-References: <20200306150143.5551-1-clg@kaod.org>
+        id S1726740AbgCFQAv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 6 Mar 2020 11:00:51 -0500
+Received: from youngberry.canonical.com ([91.189.89.112]:59320 "EHLO
+        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725935AbgCFQAu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 6 Mar 2020 11:00:50 -0500
+Received: from [88.128.88.76] (helo=wittgenstein)
+        by youngberry.canonical.com with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        (Exim 4.86_2)
+        (envelope-from <christian.brauner@ubuntu.com>)
+        id 1jAFP0-0005xk-KP; Fri, 06 Mar 2020 16:00:47 +0000
+Date:   Fri, 6 Mar 2020 17:00:20 +0100
+From:   Christian Brauner <christian.brauner@ubuntu.com>
+To:     minyard@acm.org
+Cc:     linux-kernel@vger.kernel.org, Corey Minyard <cminyard@mvista.com>,
+        stable@vger.kernel.org, Adrian Reber <areber@redhat.com>,
+        Oleg Nesterov <oleg@redhat.com>,
+        Dmitry Safonov <0x7f454c46@gmail.com>,
+        Andrei Vagin <avagin@gmail.com>
+Subject: Re: [PATCH] pid: Fix error return value in some cases
+Message-ID: <20200306160020.orvb3frtsu2yvfe3@wittgenstein>
+References: <20200306152001.30442-1-minyard@acm.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Ovh-Tracer-Id: 7343400669491530673
-X-VR-SPAMSTATE: OK
-X-VR-SPAMSCORE: 0
-X-VR-SPAMCAUSE: gggruggvucftvghtrhhoucdtuddrgedugedrudduvddgjeegucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuqfggjfdpvefjgfevmfevgfenuceurghilhhouhhtmecuhedttdenucenucfjughrpefhvffufffkofgjfhggtgfgsehtkeertdertdejnecuhfhrohhmpeevrogurhhitgcunfgvucfiohgrthgvrhcuoegtlhhgsehkrghougdrohhrgheqnecukfhppedtrddtrddtrddtpdekvddrieegrddvhedtrddujedtnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmohguvgepshhmthhpqdhouhhtpdhhvghlohepphhlrgihvghrjeehkedrhhgrrdhovhhhrdhnvghtpdhinhgvtheptddrtddrtddrtddpmhgrihhlfhhrohhmpegtlhhgsehkrghougdrohhrghdprhgtphhtthhopehsthgrsghlvgesvhhgvghrrdhkvghrnhgvlhdrohhrgh
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20200306152001.30442-1-minyard@acm.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The PowerNV platform has multiple IRQ chips and the xmon command
-dumping the state of the XIVE interrupt should only operate on the
-XIVE IRQ chip.
+On Fri, Mar 06, 2020 at 09:20:01AM -0600, minyard@acm.org wrote:
+> From: Corey Minyard <cminyard@mvista.com>
+> 
+> Recent changes to alloc_pid() allow the pid number to be specified on
+> the command line.  If set_tid_size is set, then the code scanning the
+> levels will hard-set retval to -EPERM, overriding it's previous -ENOMEM
+> value.
+> 
+> After the code scanning the levels, there are error returns that do not
+> set retval, assuming it is still set to -ENOMEM.
+> 
+> In the first place, pid_ns_prepare_proc() returns its own error, just
+> use that.
+> 
+> In the second place:
+> 
+> 	if (!(ns->pid_allocated & PIDNS_ADDING))
+> 		goto out_unlock;
+> 
+> a return value of -ENOMEM is probably wrong, since that means that the
+> namespace is in deletion while this happened.  -EINVAL is probably a
+> better choice.
+> 
+> Fixes: 49cb2fc42ce4 "fork: extend clone3() to support setting a PID"
+> Signed-off-by: Corey Minyard <cminyard@mvista.com>
+> Cc: <stable@vger.kernel.org> # 5.5
+> Cc: Adrian Reber <areber@redhat.com>
+> Cc: Christian Brauner <christian.brauner@ubuntu.com>
+> Cc: Oleg Nesterov <oleg@redhat.com>
+> Cc: Dmitry Safonov <0x7f454c46@gmail.com>
+> Cc: Andrei Vagin <avagin@gmail.com>
+> Cc: Christian Brauner <christian.brauner@ubuntu.com>
+> ---
+>  kernel/pid.c | 7 +++++--
+>  1 file changed, 5 insertions(+), 2 deletions(-)
+> 
+> diff --git a/kernel/pid.c b/kernel/pid.c
+> index 0f4ecb57214c..1921f7f4b236 100644
+> --- a/kernel/pid.c
+> +++ b/kernel/pid.c
+> @@ -248,7 +248,8 @@ struct pid *alloc_pid(struct pid_namespace *ns, pid_t *set_tid,
+>  	}
+>  
+>  	if (unlikely(is_child_reaper(pid))) {
+> -		if (pid_ns_prepare_proc(ns))
+> +		retval = pid_ns_prepare_proc(ns);
+> +		if (retval)
+>  			goto out_free;
+>  	}
+>  
+> @@ -261,8 +262,10 @@ struct pid *alloc_pid(struct pid_namespace *ns, pid_t *set_tid,
+>  
+>  	upid = pid->numbers + ns->level;
+>  	spin_lock_irq(&pidmap_lock);
+> -	if (!(ns->pid_allocated & PIDNS_ADDING))
+> +	if (!(ns->pid_allocated & PIDNS_ADDING)) {
+> +		retval = -EINVAL;
+>  		goto out_unlock;
+> +	}
+>  	for ( ; upid >= pid->numbers; --upid) {
+>  		/* Make the PID visible to find_pid_ns. */
+>  		idr_replace(&upid->ns->idr, pid, upid->nr);
 
-Fixes: 5896163f7f91 ("powerpc/xmon: Improve output of XIVE interrupts")
-Cc: stable@vger.kernel.org # v5.4+
-Signed-off-by: Cédric Le Goater <clg@kaod.org>
----
- arch/powerpc/sysdev/xive/common.c | 4 ++++
- 1 file changed, 4 insertions(+)
+Thanks for the patch.
 
-diff --git a/arch/powerpc/sysdev/xive/common.c b/arch/powerpc/sysdev/xive/common.c
-index 550baba98ec9..8155adc2225a 100644
---- a/arch/powerpc/sysdev/xive/common.c
-+++ b/arch/powerpc/sysdev/xive/common.c
-@@ -261,11 +261,15 @@ notrace void xmon_xive_do_dump(int cpu)
- 
- int xmon_xive_get_irq_config(u32 hw_irq, struct irq_data *d)
- {
-+	struct irq_chip *chip = irq_data_get_irq_chip(d);
- 	int rc;
- 	u32 target;
- 	u8 prio;
- 	u32 lirq;
- 
-+	if (!is_xive_irq(chip))
-+		return -EINVAL;
-+
- 	rc = xive_ops->get_irq_config(hw_irq, &target, &prio, &lirq);
- 	if (rc) {
- 		xmon_printf("IRQ 0x%08x : no config rc=%d\n", hw_irq, rc);
--- 
-2.21.1
+We definitely regressed the ENOMEM return value case. But both of the
+changes here are userspace visible and break assumptions. So I'd rather
+just ensure that ENOMEM is returned in both cases like it was before.
+In fact, ENOMEM is documented on the pid_namespace man page so we can't
+really change it.
+Btw, this is the same problem as we had with:
 
+commit 35f71bc0a09a45924bed268d8ccd0d3407bc476f
+Author: Michal Hocko <mhocko@suse.cz>
+Date:   Thu Apr 16 12:47:38 2015 -0700
+
+    fork: report pid reservation failure properly
+
+So please restore just restore the old behavior. Can you add --base to
+your next commit, please? Makes it easier for me to pick up.
+
+Thanks!
+Christian
