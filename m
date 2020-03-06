@@ -2,193 +2,158 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 38BE317BC4F
-	for <lists+stable@lfdr.de>; Fri,  6 Mar 2020 13:07:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 61A2517BC5F
+	for <lists+stable@lfdr.de>; Fri,  6 Mar 2020 13:10:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726171AbgCFMHT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 6 Mar 2020 07:07:19 -0500
-Received: from mail-lf1-f66.google.com ([209.85.167.66]:40783 "EHLO
-        mail-lf1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726185AbgCFMHT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 6 Mar 2020 07:07:19 -0500
-Received: by mail-lf1-f66.google.com with SMTP id p5so1707714lfc.7
-        for <stable@vger.kernel.org>; Fri, 06 Mar 2020 04:07:16 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=4KPUPSTkugtYA0PbEeoVta4pOw/ai16ArIKK838lBEU=;
-        b=CqMIIU6OgUcYfP+nO15DqV4Gn+28U4l0XKINHu7YR8cz06yd1dTfyQOySiqK8perVe
-         q9cBlZ2hKQbb6Y6/ajVOTatYAlb8vOP2A+OXF4OW7VofwPUW8se8+6H3YntUcm9i03X0
-         dhmQuNmiKWxKSbFtmu3Dise3GGTlB0YOpqwp7veoFIANAJ/YXBAnSy0VfnbTKvbDT1un
-         de/8n7Nsne1PBues3q5A7DLVutU3rmafGrzSpvI7sWUzRtt1FntXj7ANmZRArJrX4P6N
-         v3sBy6cEI8TxFNCkLrLgmFRuuUUbivLim/IAEzmhkO9x3QDAIpTgcMcIbIzsGSY+zlbK
-         L3Wg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=4KPUPSTkugtYA0PbEeoVta4pOw/ai16ArIKK838lBEU=;
-        b=n8S/MW67AS3wsZcY3owBcNtkylw0mddmiymW7noFiXTz7GJYCHRdrS6LZzTR+bjUlG
-         u1cbRRMLMXSnhK7MyVDEPKQ6DeK+gJDQa2DXcWaBTV3FL/L/sX1E9trx0QepQuAgAlFU
-         WjWFScBstD1r/t+hZzMEJKNr0uqWE/+Z0MzKBVLjo5NLXp2kXkO1CsjyqvCeKYzs6ffD
-         gLKCnhW2Yg8Pqoq6Z3M/FTfnQW7iHWOcUOBSwG3ykUM0N7XJIvM4Owfy6WgzCoihWSrh
-         1sRazXyEbG83vJRzez390doPKbMFc9sYA2yXJtiVwlBJvOH5lHyNR3bs5n6trQJnSVn4
-         GwWA==
-X-Gm-Message-State: ANhLgQ3h4lP/br124lTpqnSMB7Vvz1X+b8/pRrKcQaFnU1md1GVRnp7g
-        YsjsKPAnm3rh61JoIYgFnmQPC9zvM7eYQTEPnqoU4A==
-X-Google-Smtp-Source: ADFU+vvQ1aR+zpKusZ09dVvP7kf4bC66fgMS07Kbjp8L2S6t2eYS+496jT2rtl2R7T0gZJhh4p4P35QHGaUh8yls+jk=
-X-Received: by 2002:a19:c215:: with SMTP id l21mr1732735lfc.95.1583496435711;
- Fri, 06 Mar 2020 04:07:15 -0800 (PST)
+        id S1726251AbgCFMKI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 6 Mar 2020 07:10:08 -0500
+Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:25397 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1726185AbgCFMKI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 6 Mar 2020 07:10:08 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1583496607;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=9mZXSxOC6R3nHgWWUI6Q0x9r2qUZeyh7+6zlwl+sJKA=;
+        b=iwkmCD2jxN41zrIi4yjhvwubS+qdaXde0SSsBuypGjq8srvJhWPmmjYS1vM440hkuBVolU
+        8cdxG06Wc1ienoZZfRo7v7FMuNbSQOjVh5RH36bSTL+wrBFMLU8mREZI3rC4oWYT3cGyVw
+        KL94y2ut5Q9MBjzN8jeqwvEEpE2zEwk=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-249-zAXhmHtKOOOUQJAOlWa6lw-1; Fri, 06 Mar 2020 07:10:00 -0500
+X-MC-Unique: zAXhmHtKOOOUQJAOlWa6lw-1
+Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id F21E4800D50;
+        Fri,  6 Mar 2020 12:09:58 +0000 (UTC)
+Received: from colo-mx.corp.redhat.com (colo-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.21])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id E89AC46;
+        Fri,  6 Mar 2020 12:09:58 +0000 (UTC)
+Received: from zmail19.collab.prod.int.phx2.redhat.com (zmail19.collab.prod.int.phx2.redhat.com [10.5.83.22])
+        by colo-mx.corp.redhat.com (Postfix) with ESMTP id DA30186A04;
+        Fri,  6 Mar 2020 12:09:58 +0000 (UTC)
+Date:   Fri, 6 Mar 2020 07:09:58 -0500 (EST)
+From:   Veronika Kabatova <vkabatov@redhat.com>
+To:     Petr Vorel <pvorel@suse.cz>
+Cc:     CKI Project <cki-project@redhat.com>,
+        Linux Stable maillist <stable@vger.kernel.org>,
+        LTP Mailing List <ltp@lists.linux.it>,
+        Nikolai Kondrashov <spbnick@gmail.com>,
+        Inaki Malerba <imalerba@redhat.com>
+Message-ID: <1680169507.12167032.1583496598731.JavaMail.zimbra@redhat.com>
+In-Reply-To: <20200306080838.GB14808@dell5510>
+References: <cki.AEA99E5519.SMAFL9TDK6@redhat.com> <20200306080838.GB14808@dell5510>
+Subject: =?utf-8?Q?Re:_[LTP]_=E2=9D=8C_FAIL:_Test_report_for?=
+ =?utf-8?Q?=09kernel_5.5.8-97453d9.cki_(stable)?=
 MIME-Version: 1.0
-References: <20200305172921.22743-1-vincent.guittot@linaro.org>
- <e31aa232-bc7e-a7b9-5b6a-a1131ac88164@arm.com> <CAKfTPtAqg+CGNBHF53dXp4BcmtucgW4k4skQ1x1jxuyo0PDaMg@mail.gmail.com>
-In-Reply-To: <CAKfTPtAqg+CGNBHF53dXp4BcmtucgW4k4skQ1x1jxuyo0PDaMg@mail.gmail.com>
-From:   Vincent Guittot <vincent.guittot@linaro.org>
-Date:   Fri, 6 Mar 2020 13:07:04 +0100
-Message-ID: <CAKfTPtB8YrVd=DjPXCs589wCJWT_Jo_dyLQ4WMdEKPTAt5GRvw@mail.gmail.com>
-Subject: Re: [PATCH] sched/fair: fix enqueue_task_fair warning
-To:     Dietmar Eggemann <dietmar.eggemann@arm.com>
-Cc:     Ingo Molnar <mingo@redhat.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Juri Lelli <juri.lelli@redhat.com>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Ben Segall <bsegall@google.com>, Mel Gorman <mgorman@suse.de>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        "# v4 . 16+" <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+X-Originating-IP: [10.40.204.182, 10.4.195.4]
+Thread-Topic: =?utf-8?B?4p2MIEZBSUw6?= Test report for kernel 5.5.8-97453d9.cki (stable)
+Thread-Index: WRh379kE2ZSfHWEbe2FjFUkY8TU74g==
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, 6 Mar 2020 at 10:12, Vincent Guittot <vincent.guittot@linaro.org> wrote:
->
-> On Thu, 5 Mar 2020 at 20:07, Dietmar Eggemann <dietmar.eggemann@arm.com> wrote:
-> >
-> > On 05/03/2020 18:29, Vincent Guittot wrote:
-> > > When a cfs rq is throttled, the latter and its child are removed from the
-> > > leaf list but their nr_running is not changed which includes staying higher
-> > > than 1. When a task is enqueued in this throttled branch, the cfs rqs must
-> > > be added back in order to ensure correct ordering in the list but this can
-> > > only happens if nr_running == 1.
-> > > When cfs bandwidth is used, we call unconditionnaly list_add_leaf_cfs_rq()
-> > > when enqueuing an entity to make sure that the complete branch will be
-> > > added.
-> > >
-> > > Reported-by: Christian Borntraeger <borntraeger@de.ibm.com>
-> > > Tested-by: Christian Borntraeger <borntraeger@de.ibm.com>
-> > > Cc: stable@vger.kernel.org #v5.1+
-> > > Signed-off-by: Vincent Guittot <vincent.guittot@linaro.org>
-> > > ---
-> > >  kernel/sched/fair.c | 11 +++++++++--
-> > >  1 file changed, 9 insertions(+), 2 deletions(-)
-> > >
-> > > diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
-> > > index fcc968669aea..bdc5bb72ab31 100644
-> > > --- a/kernel/sched/fair.c
-> > > +++ b/kernel/sched/fair.c
-> > > @@ -4117,6 +4117,7 @@ static inline void check_schedstat_required(void)
-> > >  #endif
-> > >  }
-> > >
-> > > +static inline bool cfs_bandwidth_used(void);
-> > >
-> > >  /*
-> > >   * MIGRATION
-> > > @@ -4195,10 +4196,16 @@ enqueue_entity(struct cfs_rq *cfs_rq, struct sched_entity *se, int flags)
-> > >               __enqueue_entity(cfs_rq, se);
-> > >       se->on_rq = 1;
-> > >
-> > > -     if (cfs_rq->nr_running == 1) {
-> > > +     /*
-> > > +      * When bandwidth control is enabled, cfs might have been removed because of
-> > > +      * a parent been throttled but cfs->nr_running > 1. Try to add it
-> > > +      * unconditionnally.
-> > > +      */
-> > > +     if (cfs_rq->nr_running == 1 || cfs_bandwidth_used())
-> > >               list_add_leaf_cfs_rq(cfs_rq);
-> > > +
-> > > +     if (cfs_rq->nr_running == 1)
-> > >               check_enqueue_throttle(cfs_rq);
-> > > -     }
-> > >  }
-> > >
-> > >  static void __clear_buddies_last(struct sched_entity *se)
-> >
-> > I experimented with an rt-app based setup on Arm64 Juno (6 CPUs):
-> >
-> > cgroupv1 hierarchy A/B/C, all CFS bw controlled (30,000/100,000)
-> >
-> > I create A/B/C outside rt-app so I can have rt-app runs with an already
-> > existing taskgroup hierarchy. There is a 4 secs gap between consecutive
-> > rt-app runs.
-> >
-> > The rt-app files contains 6 periodic CFS tasks (25,000/100,000) running
-> > in /A/B/C, /A/B, /A (3 rt-app task phases).
-> >
-> > I get w/ the patch (and the debug patch applied to unthrottle_cfs_rq()):
-> >
-> > root@juno:~#
-> > [  409.236925] CPU1 path=/A/B on_list=1 nr_running=1 throttled=1
-> > [  409.242682] CPU1 path=/A on_list=0 nr_running=0 throttled=1
-> > [  409.248260] CPU1 path=/ on_list=1 nr_running=0 throttled=0
-> > [  409.253748] ------------[ cut here ]------------
-> > [  409.258365] rq->tmp_alone_branch != &rq->leaf_cfs_rq_list
-> > [  409.258382] WARNING: CPU: 1 PID: 0 at kernel/sched/fair.c:380
-> > unthrottle_cfs_rq+0x21c/0x2a8
-> > ...
-> > [  409.275196] CPU: 1 PID: 0 Comm: swapper/1 Not tainted 5.6.0-rc3-dirty #62
-> > [  409.281990] Hardware name: ARM Juno development board (r0) (DT)
-> > ...
-> > [  409.384644] Call trace:
-> > [  409.387089]  unthrottle_cfs_rq+0x21c/0x2a8
-> > [  409.391188]  distribute_cfs_runtime+0xf4/0x198
-> > [  409.395634]  sched_cfs_period_timer+0x134/0x240
-> > [  409.400168]  __hrtimer_run_queues+0x10c/0x3c0
-> > [  409.404527]  hrtimer_interrupt+0xd4/0x250
-> > [  409.408539]  tick_handle_oneshot_broadcast+0x17c/0x208
-> > [  409.413683]  sp804_timer_interrupt+0x30/0x40
-> >
-> > If I add the following snippet the issue goes away:
 
-If it's fine for you, I'm going to add this in a new version of the patch
 
-> >
-> > diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
-> > index e9fd5379bb7e..5e03be046aba 100644
-> > --- a/kernel/sched/fair.c
-> > +++ b/kernel/sched/fair.c
-> > @@ -4627,11 +4627,17 @@ void unthrottle_cfs_rq(struct cfs_rq *cfs_rq)
-> >                         break;
-> >         }
-> >
-> > -       assert_list_leaf_cfs_rq(rq);
-> > -
-> >         if (!se)
-> >                 add_nr_running(rq, task_delta);
-> >
+----- Original Message -----
+> From: "Petr Vorel" <pvorel@suse.cz>
+> To: "CKI Project" <cki-project@redhat.com>
+> Cc: "Linux Stable maillist" <stable@vger.kernel.org>, "LTP Mailing List" =
+<ltp@lists.linux.it>, "Nikolai Kondrashov"
+> <spbnick@gmail.com>
+> Sent: Friday, March 6, 2020 9:08:38 AM
+> Subject: Re: [LTP] =E2=9D=8C FAIL: Test report for=09kernel 5.5.8-97453d9=
+.cki (stable)
+>=20
+> Hi,
+>=20
+> > We ran automated tests on a recent commit from this kernel tree:
+>=20
+> >        Kernel repo:
+> >        https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-sta=
+ble-rc.git
+> >             Commit: 97453d9b9b2b - Linux 5.5.8
+>=20
+> > The results of these automated tests are provided below.
+>=20
+> >     Overall result: FAILED (see details below)
+> >              Merge: OK
+> >            Compile: OK
+> >              Tests: FAILED
+>=20
+> > All kernel binaries, config files, and logs are available for download
+> > here:
+>=20
+> >   https://cki-artifacts.s3.us-east-2.amazonaws.com/index.html?prefix=3D=
+datawarehouse/2020/03/05/473513
+>=20
+> > One or more kernel tests failed:
+>=20
+> >     s390x:
+> >      =E2=9D=8C stress: stress-ng
+> >      =E2=9D=8C LTP
+> Here it's 9 syscalls failed for "slept for too long" [1]
+>     28=09tst_timer_test.c:310: FAIL: clock_nanosleep() slept for too long
+>     12=09tst_timer_test.c:310: FAIL: nanosleep() slept for too long
+>     27=09tst_timer_test.c:310: FAIL: poll() slept for too long
+>     22=09tst_timer_test.c:310: FAIL: prctl() slept for too long
+>     25=09tst_timer_test.c:310: FAIL: select() slept for too long
+>     76=09tst_timer_test.c:310: FAIL: select() slept for too long
+>    126=09tst_timer_test.c:310: FAIL: select() slept for too long
+>     22=09tst_timer_test.c:310: FAIL: futex_wait() slept for too long
+>     53=09tst_timer_test.c:310: FAIL: futex_wait() slept for too long
+>=20
+> BTW it'd be interesting to see previous build. I searched for stable in j=
+obs
+> [2], but there is no linux-5.5.y (I see linux-5.4.y).
+>=20
 
-will add similar comment  as for enqueue_task_fair
+We're not on the main kernelci.org page just yet. There's a staging grafana
+instance with a limited set of data:
 
-+ /*
-+ * The cfs_rq_throttled() breaks in the above iteration can result in
-+ * incomplete leaf list maintenance, resulting in triggering the assertion
-+ * below.
-+ */
+https://staging.kernelci.org:3000/d/home/home?orgId=3D1&var-origin=3Dredhat=
+&var-git_repository_url=3DAll
 
-> > +       for_each_sched_entity(se) {
-> > +               cfs_rq = cfs_rq_of(se);
-> > +
-> > +               list_add_leaf_cfs_rq(cfs_rq);
-> > +       }
->
-> Yes make sense.
->
-> > +
-> > +       assert_list_leaf_cfs_rq(rq);
-> > +
-> >         /* Determine whether we need to wake up potentially idle CPU: */
-> >         if (rq->curr == rq->idle && rq->cfs.nr_running)
-> >                 resched_curr(rq);
+We're planning the dashboard I mentioned in the previous email which should
+make the discovery easier, as well as working on getting on the main
+Kernel CI page. The best way right now is to check previous stable emails
+by CKI Project in the archives:
+
+https://lists.linaro.org/pipermail/linux-stable-mirror/2020-March/
+
+These are two 5.5.y test runs from the list:
+
+https://lists.linaro.org/pipermail/linux-stable-mirror/2020-March/174716.ht=
+ml
+https://lists.linaro.org/pipermail/linux-stable-mirror/2020-March/174715.ht=
+ml
+
+jstancek also already seems to be looking into some s390x issues which migh=
+t
+be related:
+
+https://lists.linaro.org/pipermail/linux-stable-mirror/2020-March/174549.ht=
+ml
+
+
+Veronika
+
+> Kind regards,
+> Petr
+>=20
+> [1]
+> https://cki-artifacts.s3.us-east-2.amazonaws.com/datawarehouse/2020/03/05=
+/473513/s390x_2_LTP_syscalls.fail.log
+> [2] https://kernelci.org/job/
+>=20
+>=20
+>=20
+
