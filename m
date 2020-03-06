@@ -2,93 +2,146 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E55317BF67
-	for <lists+stable@lfdr.de>; Fri,  6 Mar 2020 14:43:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7BB8517BF96
+	for <lists+stable@lfdr.de>; Fri,  6 Mar 2020 14:53:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726307AbgCFNn1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 6 Mar 2020 08:43:27 -0500
-Received: from mail-lj1-f193.google.com ([209.85.208.193]:35227 "EHLO
-        mail-lj1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726704AbgCFNn1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 6 Mar 2020 08:43:27 -0500
-Received: by mail-lj1-f193.google.com with SMTP id a12so2271090ljj.2
-        for <stable@vger.kernel.org>; Fri, 06 Mar 2020 05:43:26 -0800 (PST)
+        id S1726740AbgCFNxH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 6 Mar 2020 08:53:07 -0500
+Received: from mail-wr1-f65.google.com ([209.85.221.65]:39859 "EHLO
+        mail-wr1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726251AbgCFNxH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 6 Mar 2020 08:53:07 -0500
+Received: by mail-wr1-f65.google.com with SMTP id y17so2453596wrn.6
+        for <stable@vger.kernel.org>; Fri, 06 Mar 2020 05:53:05 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=zb2TTsi0V/WK3nQTc1Yis0dTQ/eZrvkVEovvn7cohJk=;
-        b=ZRPCnB6gB2icTUcLEGf/QfTE6829diowNo1PYDn9Np7inEPSwC2tWuTp2fZEb1OiLh
-         lktsBsxe/fYfmSHXfVc3V7TvWaskkSztIxXt9UiRDxZZ6a0YOKwS8G+S/MWbJCgFbI5v
-         +Klpzvmz1FDqFsBSu2lAOGTL63LqHZ7iieQsE7Pub763BbHPPUytzgXTGPjX1mMDtDD+
-         ncFg8x/9ABUicNp/k7NQvGJCfHLYbOgHEOzfd+oQo3+TDnUM9gQQR4/K9omOkBcmuS+s
-         IfeBdp0yoS2oZsyg4PKLy0G+Cax9qhglDjkYJO3TxAumovhGv9ivyF31krNwNrLu7hWn
-         SBDg==
+        h=from:to:cc:subject:date:message-id;
+        bh=HiH2M0/3yuQ9rG6qTjCXMrsrRmxTDtobqQj41AdBpaY=;
+        b=w1pq0bevIwABf32a6S1sqk9llhRXEfhWU5wIyAMyzvKuA71aydmiWR/E6MBhh/V9bx
+         GTGdz1ZZDn/tdpRnZfvMNGaXer8eFF+Wqix1fzIdssTZ+3QTeHfhE0BSYHCF7QGCoVhm
+         iEe1v8YR3y8GmxW9AyUnKbYi3oORaeibV2It+xgiMsbNFZRmASnlwBgRTKjeUW8NwhDf
+         xEyhn4M2w2CRW8JBpCodcnYlPgiP9hO8BiZnVf2VuH1WegdzEZ7Us8ngVKf40QoTmt3f
+         JRkrb12DGh3B5YZtriDKzOk3c0f54beZAOlI6ooN1ZK0MdGQVaQosZNyPMtKrB8bg8vT
+         Xn9A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=zb2TTsi0V/WK3nQTc1Yis0dTQ/eZrvkVEovvn7cohJk=;
-        b=SdVOuPHYsphFgCtJNvJEBT5XooS7iWLkQ8FFWNSf4bWe+js7eabpdqKtoI/O2nwhIB
-         ouFmy4eu3RhaeFchS9JSyHrVN9BC35yO6eRbjBDmr2WzDGZakf6ubf0Ng1Vl1JH9bel3
-         G5Zz72H7ZBGvKdXiAVBI9avtp9/C7mibBwLX2dMLcH+crPo6AWZi8qIOnmHTo25o9A0T
-         kz7YZIcuOWv/2OKjSyLBCYuMvFK1egpou+1DRNYhEHYa++opjF/ZK+H7qPwLP4Bi2txH
-         9+6ji5BOp90oMpEqPofnmAzfQO/SAWc9v0RrLf0yRMF2gEhsikjfHV4uiiMrjhdjawtb
-         PH7A==
-X-Gm-Message-State: ANhLgQ2wTsa+2wdsgBw7HNb0PJ1l/BSj00ToUaiiQOEefYquqOJmnLdl
-        CFPmNKA2GfDwDGYvYfodJ6Kh2BpMB5vWPxTSeB8dgg==
-X-Google-Smtp-Source: ADFU+vtF/x1al2/6PrB3XuIDiJLvtaydKKZye9VdfRaEqnHdO8AJrJYADGUDTVFvLXh/xCxVUBPho141tXnr3CVSzDE=
-X-Received: by 2002:a05:651c:44b:: with SMTP id g11mr2051727ljg.168.1583502205236;
- Fri, 06 Mar 2020 05:43:25 -0800 (PST)
-MIME-Version: 1.0
-References: <20200306121221.1231296-1-linus.walleij@linaro.org> <bf5be11de00a4d32c31bfc122704c5b0@kernel.org>
-In-Reply-To: <bf5be11de00a4d32c31bfc122704c5b0@kernel.org>
-From:   Linus Walleij <linus.walleij@linaro.org>
-Date:   Fri, 6 Mar 2020 14:43:13 +0100
-Message-ID: <CACRpkdb4_QN35=GYuOfBWMEv=sZX95bQsoNgux0zruZEj2-7BA@mail.gmail.com>
-Subject: Re: [PATCH] pinctrl: qcom: Guard irq_eoi()
-To:     Marc Zyngier <maz@kernel.org>
-Cc:     "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Lina Iyer <ilina@codeaurora.org>,
-        Stephen Boyd <swboyd@chromium.org>,
-        stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+        h=x-gm-message-state:from:to:cc:subject:date:message-id;
+        bh=HiH2M0/3yuQ9rG6qTjCXMrsrRmxTDtobqQj41AdBpaY=;
+        b=JCqBN4O5DDmz5FmTBBI65hNeEL82n0L/PA1Q1LnVbOxkmk4dNtG7pVMtNGjp38HcZL
+         Rf+pu4ft3WK8RIoALfelPiVhvvolWQn8xoZglDTy8FZ7t6WNmeE4pkrj982MumVjwO2t
+         xVRACLgwpzrYN4RzvpreNYuAhcIIMrsmkrvuItvvV492n0/u/c63v6oR/QWyFWoJDd49
+         jud4i0ABrNal4jObAHcRWMD7bI10KNiy9AQ5UAyUJpGh9CJVgo2Ju73v4yA9aymUOO+9
+         AOMpOyRNqcmiPzJa8gTvepYkvkpa8Qc5gMmqXMNXkmXjGT3pMRoc4QouUKc5cM4hNkHp
+         UjSg==
+X-Gm-Message-State: ANhLgQ3YxBVoXOKzJNgJRTS0S1BZNC09eDwQK8XkZYTa+7jwFrxM4w5f
+        BclAKSx8u/XDUjLZH4DJlzxPDA==
+X-Google-Smtp-Source: ADFU+vskPHbfBYO1Gqp7RRQsustG07yhjUpepm4EJH0p0WzHlPSUjnZCU2aMRz391ZXKfrPKyrunWw==
+X-Received: by 2002:adf:a555:: with SMTP id j21mr4259019wrb.409.1583502785069;
+        Fri, 06 Mar 2020 05:53:05 -0800 (PST)
+Received: from localhost.localdomain ([2a01:e0a:f:6020:d5d0:80d7:4f6f:54be])
+        by smtp.gmail.com with ESMTPSA id s5sm47546636wru.39.2020.03.06.05.53.03
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 06 Mar 2020 05:53:03 -0800 (PST)
+From:   Vincent Guittot <vincent.guittot@linaro.org>
+To:     mingo@redhat.com, peterz@infradead.org, juri.lelli@redhat.com,
+        dietmar.eggemann@arm.com, rostedt@goodmis.org, bsegall@google.com,
+        mgorman@suse.de, linux-kernel@vger.kernel.org,
+        borntraeger@de.ibm.com
+Cc:     Vincent Guittot <vincent.guittot@linaro.org>,
+        stable@vger.kernel.org
+Subject: [PATCH v2] sched/fair: fix enqueue_task_fair warning
+Date:   Fri,  6 Mar 2020 14:52:57 +0100
+Message-Id: <20200306135257.25044-1-vincent.guittot@linaro.org>
+X-Mailer: git-send-email 2.17.1
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Mar 6, 2020 at 1:18 PM Marc Zyngier <maz@kernel.org> wrote:
-> On 2020-03-06 12:12, Linus Walleij wrote:
+When a cfs rq is throttled, the latter and its child are removed from the
+leaf list but their nr_running is not changed which includes staying higher
+than 1. When a task is enqueued in this throttled branch, the cfs rqs must
+be added back in order to ensure correct ordering in the list but this can
+only happens if nr_running == 1.
+When cfs bandwidth is used, we call unconditionnaly list_add_leaf_cfs_rq()
+when enqueuing an entity to make sure that the complete branch will be
+added.
 
-> > +static void msm_gpio_irq_eoi(struct irq_data *d)
-> > +{
-> > +     if (d->parent_data)
-> > +             irq_chip_eoi_parent(d);
-> > +}
-> > +
-(...)
-> > -     pctrl->irq_chip.irq_eoi = irq_chip_eoi_parent;
-> > +     pctrl->irq_chip.irq_eoi = msm_gpio_irq_eoi;
-> >       pctrl->irq_chip.irq_set_type = msm_gpio_irq_set_type;
-> >       pctrl->irq_chip.irq_set_wake = msm_gpio_irq_set_wake;
-> >       pctrl->irq_chip.irq_request_resources = msm_gpio_irq_reqres;
->
-> Long term, it may me better to offer a different set of callbacks
-> for interrupts that are terminated at the pinctrl level.
+Similarly unthrottle_cfs_rq() can stop adding cfs in the list when a parent
+is throttled. Iterate the remaining entity to ensure that the complete
+branch will be added in the list.
 
-Yeah, it's gpiolib here actually. Pin control is pretty much innocent,
-it's just that the driver doubles as a GPIO driver with an irqchip
-inside it.
+Reported-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Tested-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Reviewed-by: Dietmar Eggemann <dietmar.eggemann@arm.com>
+Tested-by: Dietmar Eggemann <dietmar.eggemann@arm.com>
+Cc: stable@vger.kernel.org #v5.1+
+Signed-off-by: Vincent Guittot <vincent.guittot@linaro.org>
+---
 
-> In the meantime, and as a fix:
->
-> Acked-by: Marc Zyngier <maz@kernel.org>
->
-> I assume you'll take this via the pinctrl tree?
+Change since v1:
+- added the iteration at the end of unthrottle_cfs_rq() as Dietmar
+  reported use case which triggered assert_list_leaf_cfs_rq()
 
-Yeps, thanks Marc!
+ kernel/sched/fair.c | 26 ++++++++++++++++++++++----
+ 1 file changed, 22 insertions(+), 4 deletions(-)
 
-Yours,
-Linus Walleij
+diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
+index fcc968669aea..ae50a09cbead 100644
+--- a/kernel/sched/fair.c
++++ b/kernel/sched/fair.c
+@@ -4117,6 +4117,7 @@ static inline void check_schedstat_required(void)
+ #endif
+ }
+ 
++static inline bool cfs_bandwidth_used(void);
+ 
+ /*
+  * MIGRATION
+@@ -4195,10 +4196,16 @@ enqueue_entity(struct cfs_rq *cfs_rq, struct sched_entity *se, int flags)
+ 		__enqueue_entity(cfs_rq, se);
+ 	se->on_rq = 1;
+ 
+-	if (cfs_rq->nr_running == 1) {
++	/*
++	 * When bandwidth control is enabled, cfs might have been removed
++	 * because of a parent been throttled but cfs->nr_running > 1. Try to
++	 * add it unconditionnally.
++	 */
++	if (cfs_rq->nr_running == 1 || cfs_bandwidth_used())
+ 		list_add_leaf_cfs_rq(cfs_rq);
++
++	if (cfs_rq->nr_running == 1)
+ 		check_enqueue_throttle(cfs_rq);
+-	}
+ }
+ 
+ static void __clear_buddies_last(struct sched_entity *se)
+@@ -4779,11 +4786,22 @@ void unthrottle_cfs_rq(struct cfs_rq *cfs_rq)
+ 			break;
+ 	}
+ 
+-	assert_list_leaf_cfs_rq(rq);
+-
+ 	if (!se)
+ 		add_nr_running(rq, task_delta);
+ 
++	/*
++	 * The cfs_rq_throttled() breaks in the above iteration can result in
++	 * incomplete leaf list maintenance, resulting in triggering the
++	 * assertion below.
++	 */
++	for_each_sched_entity(se) {
++		cfs_rq = cfs_rq_of(se);
++
++		list_add_leaf_cfs_rq(cfs_rq);
++	}
++
++	assert_list_leaf_cfs_rq(rq);
++
+ 	/* Determine whether we need to wake up potentially idle CPU: */
+ 	if (rq->curr == rq->idle && rq->cfs.nr_running)
+ 		resched_curr(rq);
+-- 
+2.17.1
+
