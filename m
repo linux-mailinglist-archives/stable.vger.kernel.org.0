@@ -2,87 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A22F17C455
-	for <lists+stable@lfdr.de>; Fri,  6 Mar 2020 18:28:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 85ED617C484
+	for <lists+stable@lfdr.de>; Fri,  6 Mar 2020 18:34:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726083AbgCFR2e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 6 Mar 2020 12:28:34 -0500
-Received: from mo4-p01-ob.smtp.rzone.de ([81.169.146.167]:26418 "EHLO
-        mo4-p01-ob.smtp.rzone.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725835AbgCFR2e (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 6 Mar 2020 12:28:34 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; t=1583515712;
-        s=strato-dkim-0002; d=goldelico.com;
-        h=Message-Id:Date:Subject:Cc:To:From:X-RZG-CLASS-ID:X-RZG-AUTH:From:
-        Subject:Sender;
-        bh=tVQAslT/TFNnxCSyYl7NIy3Si2ivti62femj/MqcD0s=;
-        b=N+kkYKvxfdiH6Q6+drkdap0WPnB5Oqvcjq4gvIF5vW7T5vX0Y9H6ON+eIqm19cPOOA
-        n1cXWTycFUF7x6jPbOaHZNhoevAAs4KMDsqWh05em99MZITunt2IqQBtRz0NGiBCXosi
-        x8EaqFAuDo2h+t8XvN/Hx6+UTc0bHDnD44L6U3L2P2j/mFG1bQC/1OFSH1z1rlTStIiD
-        gOHIuonenn/kvV2/hp3/dkGc1oQnwVoWtXRvYt/+4Ci+srXKvPqXMiSt/drVA8f0TcjJ
-        o4VUBIFa17xZ/5mwUQZE8P9RI8PBpdl64HAsYOQmLkpo518Nxt4s2ykZH7dz9rLxdW9X
-        hVQg==
-X-RZG-AUTH: ":JGIXVUS7cutRB/49FwqZ7WcJeFKiMhflhwDubTJ9o1mfYzBGHXH6GQjzrz4="
-X-RZG-CLASS-ID: mo00
-Received: from iMac.fritz.box
-        by smtp.strato.de (RZmta 46.2.0 DYNA|AUTH)
-        with ESMTPSA id y0a02cw26HSVZtT
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256 bits))
-        (Client did not present a certificate);
-        Fri, 6 Mar 2020 18:28:31 +0100 (CET)
-From:   "H. Nikolaus Schaller" <hns@goldelico.com>
-To:     Paul Cercueil <paul@crapouillou.net>,
-        Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Cc:     devicetree@vger.kernel.org, linux-mips@vger.kernel.org,
-        linux-kernel@vger.kernel.org, letux-kernel@openphoenux.org,
-        "H. Nikolaus Schaller" <hns@goldelico.com>, stable@vger.kernel.org
-Subject: [PATCH v6] MIPS: DTS: CI20: fix interrupt for pcf8563 RTC
-Date:   Fri,  6 Mar 2020 18:28:30 +0100
-Message-Id: <7fbde64be07dc3c78343890e6597c1b2636d4815.1583515710.git.hns@goldelico.com>
-X-Mailer: git-send-email 2.23.0
+        id S1726251AbgCFReU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 6 Mar 2020 12:34:20 -0500
+Received: from mail-qk1-f195.google.com ([209.85.222.195]:41735 "EHLO
+        mail-qk1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726162AbgCFReT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 6 Mar 2020 12:34:19 -0500
+Received: by mail-qk1-f195.google.com with SMTP id b5so3037934qkh.8
+        for <stable@vger.kernel.org>; Fri, 06 Mar 2020 09:34:18 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=j9iXnTXkoGFhQUol/W+rdWLl/5ChlK9yt0cmxdRBJ3c=;
+        b=Xh/fN/i5kGVcaw/0azSplxmG8yxkacb+P9xpOnwDuZCr1P3fV2uNpvEPPn0H9SoZG4
+         ao+Z9EUl06XfzOpzdv7RpAAJ0wosszU8ASQtvuZM2k+2aZ4FMyRpGdvSsb4gfD9yicFS
+         q2QNFLiPdlVZla0bFhUo9APW6bFs+FSvyeNrbGlgNMbDnIGRlyR1KWiN8xj813cUP8xD
+         hithzXtUwbJYRxTt1u6L7BjUoFzcGRissfTIqiN1OsKr3/YFnrSk4A2W1xGyr6uaroZk
+         OrurUWobG/fRF5N9pMbZO0thIMP2n9JpQUJVTK/LX42hCpNfCZ7nUsTqkWm6OGtNraHQ
+         zDPw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=j9iXnTXkoGFhQUol/W+rdWLl/5ChlK9yt0cmxdRBJ3c=;
+        b=rJ2hBWRpxuGFM24PTo6N2GxCMvLvv3FrU3DZrfme7oHsMfVKg6Svf/6OQ9whc+dV/I
+         OQK85cWp8zH/2Sjf+fMp57j3AtdVPvfOZxYnsEy0YBJDJl74k6PO1vORxS+YxkBnQuMJ
+         8nOCYSHndH/h+l3bh5vLagZzuGaAiCIAzV0hy6UEv9K90OmDwuapowLAX0aXpRVeOw0T
+         th/Dfnq/fLE9ztsvy5rEUKbfyfze/R/vSpBDCctdFXr054vQcw3iYk9faoYSMloCV87X
+         zhcF2Hy+z0bDgVje519mxG2G3dnAX42EIkG0SKKnuSCF3uSGEOhJUebb3miItgUXvCU8
+         lplQ==
+X-Gm-Message-State: ANhLgQ3vLIswVriGIbyHr49L/mwN2i9xXMvT+9xVlA0HvGaCamoHVu3u
+        hk+ut3Sg9yDC0KKRWKCY2UXGUd0ylnsBPWfhj7IGBg==
+X-Google-Smtp-Source: ADFU+vuK25acNQDMR/FrwH8IkK14YR6EkiTNaDdtt/wnFZxnOyPoNNt8JWSN/fCUgW6hb35+vemPuzC/LB/f8HDfLHo=
+X-Received: by 2002:a37:ef14:: with SMTP id j20mr2795259qkk.43.1583516057510;
+ Fri, 06 Mar 2020 09:34:17 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <767580d8-1c93-907b-609c-4c1c049b7c42@pengutronix.de>
+ <20200226.202326.295871777946911500.davem@davemloft.net> <d6d9368d-b468-3946-ac63-abedf6758154@hartkopp.net>
+ <20200302.111249.471862054833131096.davem@davemloft.net> <03ff979e-a621-c9a3-9be3-13677c147f91@pengutronix.de>
+In-Reply-To: <03ff979e-a621-c9a3-9be3-13677c147f91@pengutronix.de>
+From:   Dmitry Vyukov <dvyukov@google.com>
+Date:   Fri, 6 Mar 2020 18:34:05 +0100
+Message-ID: <CACT4Y+brat=HBcptYy_=13ny40TuM=Y2XNUXja_zH4Z1Mwen4w@mail.gmail.com>
+Subject: Re: [PATCH] bonding: do not enslave CAN devices
+To:     Marc Kleine-Budde <mkl@pengutronix.de>
+Cc:     David Miller <davem@davemloft.net>,
+        Oliver Hartkopp <socketcan@hartkopp.net>,
+        linux-can@vger.kernel.org, netdev <netdev@vger.kernel.org>,
+        syzbot <syzbot+c3ea30e1e2485573f953@syzkaller.appspotmail.com>,
+        j.vosburgh@gmail.com, vfalico@gmail.com,
+        Andy Gospodarek <andy@greyhouse.net>,
+        stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Interrupts should not be specified by interrupt line but by
-gpio parent and reference.
+On Fri, Mar 6, 2020 at 3:12 PM Marc Kleine-Budde <mkl@pengutronix.de> wrote:
+>
+> On 3/2/20 8:12 PM, David Miller wrote:
+> > From: Oliver Hartkopp <socketcan@hartkopp.net>
+> > Date: Mon, 2 Mar 2020 09:45:41 +0100
+> >
+> >> I don't know yet whether it makes sense to have CAN bonding/team
+> >> devices. But if so we would need some more investigation. For now
+> >> disabling CAN interfaces for bonding/team devices seems to be
+> >> reasonable.
+> >
+> > Every single interesting device that falls into a special use case
+> > like CAN is going to be tempted to add a similar check.
+> >
+> > I don't want to set this precedence.
+> >
+> > Check that the devices you get passed are actually CAN devices, it's
+> > easy, just compare the netdev_ops and make sure they equal the CAN
+> > ones.
+>
+> Sorry, I'm not really sure how to implement this check.
+>
+> Should I maintain a list of all netdev_ops of all the CAN devices (=
+> whitelist) and the compare against that list? Having a global list of
+> pointers to network devices remind me of the old days of kernel-2.4.
 
-Fixes: 73f2b940474d ("MIPS: CI20: DTS: Add I2C nodes")
-Cc: stable@vger.kernel.org
-Signed-off-by: H. Nikolaus Schaller <hns@goldelico.com>
-Reviewed-by: Paul Cercueil <paul@crapouillou.net>
----
- arch/mips/boot/dts/ingenic/ci20.dts | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+I think Dave means something like this:
 
-diff --git a/arch/mips/boot/dts/ingenic/ci20.dts b/arch/mips/boot/dts/ingenic/ci20.dts
-index 8b5fb635c66f..c340f947baa0 100644
---- a/arch/mips/boot/dts/ingenic/ci20.dts
-+++ b/arch/mips/boot/dts/ingenic/ci20.dts
-@@ -4,6 +4,7 @@
- #include "jz4780.dtsi"
- #include <dt-bindings/clock/ingenic,tcu.h>
- #include <dt-bindings/gpio/gpio.h>
-+#include <dt-bindings/interrupt-controller/irq.h>
- #include <dt-bindings/regulator/active-semi,8865-regulator.h>
- 
- / {
-@@ -270,7 +271,9 @@
- 		rtc@51 {
- 			compatible = "nxp,pcf8563";
- 			reg = <0x51>;
--			interrupts = <110>;
-+
-+			interrupt-parent = <&gpf>;
-+			interrupts = <30 IRQ_TYPE_LEVEL_LOW>;
- 		};
- };
- 
--- 
-2.23.0
-
+$ grep "netdev_ops == " drivers/net/*/*.c net/*/*.c
+drivers/net/hyperv/netvsc_drv.c: if (event_dev->netdev_ops == &device_ops)
+drivers/net/ppp/ppp_generic.c: if (dev->netdev_ops == &ppp_netdev_ops)
+net/dsa/slave.c: return dev->netdev_ops == &dsa_slave_netdev_ops;
+net/openvswitch/vport-internal_dev.c: return netdev->netdev_ops ==
+&internal_dev_netdev_ops;
