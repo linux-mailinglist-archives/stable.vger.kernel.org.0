@@ -2,98 +2,93 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E320217BF39
-	for <lists+stable@lfdr.de>; Fri,  6 Mar 2020 14:39:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E55317BF67
+	for <lists+stable@lfdr.de>; Fri,  6 Mar 2020 14:43:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726307AbgCFNjn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 6 Mar 2020 08:39:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57336 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726090AbgCFNjn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 6 Mar 2020 08:39:43 -0500
-Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7E6CA2072D;
-        Fri,  6 Mar 2020 13:39:42 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583501982;
-        bh=DSzVN77wc9UBW6xxS8MhVz43+mLB9HuADYFSIrfj9Pc=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=XDUlPD2INaUHFrx3pmh15B0gffkx5LXpn2S/2JXylCnTFn3ivok8nDnfCJlfWRG4W
-         YHN1MxbjA6sYgczgs/YS2hsXiSnM9WN93iCpx1WBBgdfjJ0W6jnXGrH9vwXBzrQUsQ
-         e4kgTUfIcOSKxg8dRiqG94jIrqtcRUI16Ep37lvk=
-Date:   Fri, 6 Mar 2020 08:39:41 -0500
-From:   Sasha Levin <sashal@kernel.org>
-To:     yangerkun <yangerkun@huawei.com>
-Cc:     gregkh@linuxfoundation.org, herbert@gondor.apana.org.au,
-        stable@vger.kernel.org, linux-crypto@vger.kernel.org
-Subject: Re: [PATCH 4.4.y v2] crypto: algif_skcipher - use ZERO_OR_NULL_PTR
- in skcipher_recvmsg_async
-Message-ID: <20200306133941.GQ21491@sasha-vm>
-References: <20200305085755.22730-1-yangerkun@huawei.com>
+        id S1726307AbgCFNn1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 6 Mar 2020 08:43:27 -0500
+Received: from mail-lj1-f193.google.com ([209.85.208.193]:35227 "EHLO
+        mail-lj1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726704AbgCFNn1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 6 Mar 2020 08:43:27 -0500
+Received: by mail-lj1-f193.google.com with SMTP id a12so2271090ljj.2
+        for <stable@vger.kernel.org>; Fri, 06 Mar 2020 05:43:26 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=zb2TTsi0V/WK3nQTc1Yis0dTQ/eZrvkVEovvn7cohJk=;
+        b=ZRPCnB6gB2icTUcLEGf/QfTE6829diowNo1PYDn9Np7inEPSwC2tWuTp2fZEb1OiLh
+         lktsBsxe/fYfmSHXfVc3V7TvWaskkSztIxXt9UiRDxZZ6a0YOKwS8G+S/MWbJCgFbI5v
+         +Klpzvmz1FDqFsBSu2lAOGTL63LqHZ7iieQsE7Pub763BbHPPUytzgXTGPjX1mMDtDD+
+         ncFg8x/9ABUicNp/k7NQvGJCfHLYbOgHEOzfd+oQo3+TDnUM9gQQR4/K9omOkBcmuS+s
+         IfeBdp0yoS2oZsyg4PKLy0G+Cax9qhglDjkYJO3TxAumovhGv9ivyF31krNwNrLu7hWn
+         SBDg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=zb2TTsi0V/WK3nQTc1Yis0dTQ/eZrvkVEovvn7cohJk=;
+        b=SdVOuPHYsphFgCtJNvJEBT5XooS7iWLkQ8FFWNSf4bWe+js7eabpdqKtoI/O2nwhIB
+         ouFmy4eu3RhaeFchS9JSyHrVN9BC35yO6eRbjBDmr2WzDGZakf6ubf0Ng1Vl1JH9bel3
+         G5Zz72H7ZBGvKdXiAVBI9avtp9/C7mibBwLX2dMLcH+crPo6AWZi8qIOnmHTo25o9A0T
+         kz7YZIcuOWv/2OKjSyLBCYuMvFK1egpou+1DRNYhEHYa++opjF/ZK+H7qPwLP4Bi2txH
+         9+6ji5BOp90oMpEqPofnmAzfQO/SAWc9v0RrLf0yRMF2gEhsikjfHV4uiiMrjhdjawtb
+         PH7A==
+X-Gm-Message-State: ANhLgQ2wTsa+2wdsgBw7HNb0PJ1l/BSj00ToUaiiQOEefYquqOJmnLdl
+        CFPmNKA2GfDwDGYvYfodJ6Kh2BpMB5vWPxTSeB8dgg==
+X-Google-Smtp-Source: ADFU+vtF/x1al2/6PrB3XuIDiJLvtaydKKZye9VdfRaEqnHdO8AJrJYADGUDTVFvLXh/xCxVUBPho141tXnr3CVSzDE=
+X-Received: by 2002:a05:651c:44b:: with SMTP id g11mr2051727ljg.168.1583502205236;
+ Fri, 06 Mar 2020 05:43:25 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <20200305085755.22730-1-yangerkun@huawei.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+References: <20200306121221.1231296-1-linus.walleij@linaro.org> <bf5be11de00a4d32c31bfc122704c5b0@kernel.org>
+In-Reply-To: <bf5be11de00a4d32c31bfc122704c5b0@kernel.org>
+From:   Linus Walleij <linus.walleij@linaro.org>
+Date:   Fri, 6 Mar 2020 14:43:13 +0100
+Message-ID: <CACRpkdb4_QN35=GYuOfBWMEv=sZX95bQsoNgux0zruZEj2-7BA@mail.gmail.com>
+Subject: Re: [PATCH] pinctrl: qcom: Guard irq_eoi()
+To:     Marc Zyngier <maz@kernel.org>
+Cc:     "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Lina Iyer <ilina@codeaurora.org>,
+        Stephen Boyd <swboyd@chromium.org>,
+        stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Mar 05, 2020 at 04:57:55PM +0800, yangerkun wrote:
->Nowdays, we trigger a oops:
->...
->kasan: GPF could be caused by NULL-ptr deref or user memory accessgeneral protection fault: 0000 [#1] SMP KASAN
->...
->Call Trace:
-> [<ffffffff81a26fb1>] skcipher_recvmsg_async+0x3f1/0x1400 x86/../crypto/algif_skcipher.c:543
-> [<ffffffff81a28053>] skcipher_recvmsg+0x93/0x7f0 x86/../crypto/algif_skcipher.c:723
-> [<ffffffff823e43a4>] sock_recvmsg_nosec x86/../net/socket.c:702 [inline]
-> [<ffffffff823e43a4>] sock_recvmsg x86/../net/socket.c:710 [inline]
-> [<ffffffff823e43a4>] sock_recvmsg+0x94/0xc0 x86/../net/socket.c:705
-> [<ffffffff823e464b>] sock_read_iter+0x27b/0x3a0 x86/../net/socket.c:787
-> [<ffffffff817f479b>] aio_run_iocb+0x21b/0x7a0 x86/../fs/aio.c:1520
-> [<ffffffff817f57c9>] io_submit_one x86/../fs/aio.c:1630 [inline]
-> [<ffffffff817f57c9>] do_io_submit+0x6b9/0x10b0 x86/../fs/aio.c:1688
-> [<ffffffff817f902d>] SYSC_io_submit x86/../fs/aio.c:1713 [inline]
-> [<ffffffff817f902d>] SyS_io_submit+0x2d/0x40 x86/../fs/aio.c:1710
-> [<ffffffff828b33c3>] tracesys_phase2+0x90/0x95
->
->In skcipher_recvmsg_async, we use '!sreq->tsg' to determine does we
->calloc fail. However, kcalloc may return ZERO_SIZE_PTR, and with this,
->the latter sg_init_table will trigger the bug. Fix it be use ZERO_OF_NULL_PTR.
->
->This function was introduced with ' commit a596999b7ddf ("crypto:
->algif - change algif_skcipher to be asynchronous")', and has been removed
->with 'commit e870456d8e7c ("crypto: algif_skcipher - overhaul memory
->management")'.
->
->Reported-by: Hulk Robot <hulkci@huawei.com>
->Signed-off-by: yangerkun <yangerkun@huawei.com>
->---
-> crypto/algif_skcipher.c | 2 +-
-> 1 file changed, 1 insertion(+), 1 deletion(-)
->
->v1->v2:
->update the commit message
->
->diff --git a/crypto/algif_skcipher.c b/crypto/algif_skcipher.c
->index d12782dc9683..9bd4691cc5c5 100644
->--- a/crypto/algif_skcipher.c
->+++ b/crypto/algif_skcipher.c
->@@ -538,7 +538,7 @@ static int skcipher_recvmsg_async(struct socket *sock, struct msghdr *msg,
-> 	lock_sock(sk);
-> 	tx_nents = skcipher_all_sg_nents(ctx);
-> 	sreq->tsg = kcalloc(tx_nents, sizeof(*sg), GFP_KERNEL);
->-	if (unlikely(!sreq->tsg))
->+	if (unlikely(ZERO_OR_NULL_PTR(sreq->tsg)))
+On Fri, Mar 6, 2020 at 1:18 PM Marc Zyngier <maz@kernel.org> wrote:
+> On 2020-03-06 12:12, Linus Walleij wrote:
 
-I'm a bit confused: kcalloc() will return ZERO_SIZE_PTR for allocations
-that ask for 0 bytes, but here we ask for "sizeof(*sg)" bytes, which is
-guaranteed to be more than 0, no?
+> > +static void msm_gpio_irq_eoi(struct irq_data *d)
+> > +{
+> > +     if (d->parent_data)
+> > +             irq_chip_eoi_parent(d);
+> > +}
+> > +
+(...)
+> > -     pctrl->irq_chip.irq_eoi = irq_chip_eoi_parent;
+> > +     pctrl->irq_chip.irq_eoi = msm_gpio_irq_eoi;
+> >       pctrl->irq_chip.irq_set_type = msm_gpio_irq_set_type;
+> >       pctrl->irq_chip.irq_set_wake = msm_gpio_irq_set_wake;
+> >       pctrl->irq_chip.irq_request_resources = msm_gpio_irq_reqres;
+>
+> Long term, it may me better to offer a different set of callbacks
+> for interrupts that are terminated at the pinctrl level.
 
--- 
-Thanks,
-Sasha
+Yeah, it's gpiolib here actually. Pin control is pretty much innocent,
+it's just that the driver doubles as a GPIO driver with an irqchip
+inside it.
+
+> In the meantime, and as a fix:
+>
+> Acked-by: Marc Zyngier <maz@kernel.org>
+>
+> I assume you'll take this via the pinctrl tree?
+
+Yeps, thanks Marc!
+
+Yours,
+Linus Walleij
