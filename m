@@ -2,143 +2,87 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E644217B6B9
-	for <lists+stable@lfdr.de>; Fri,  6 Mar 2020 07:28:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7119117B745
+	for <lists+stable@lfdr.de>; Fri,  6 Mar 2020 08:21:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726524AbgCFG2p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 6 Mar 2020 01:28:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36500 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726047AbgCFG2o (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 6 Mar 2020 01:28:44 -0500
-Received: from localhost.localdomain (c-73-231-172-41.hsd1.ca.comcast.net [73.231.172.41])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 135BB208C3;
-        Fri,  6 Mar 2020 06:28:43 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583476123;
-        bh=bjq4/F+Z4moZn47UiwukQHfjzuH0Bpbcf8r4qDFW29s=;
-        h=Date:From:To:Subject:In-Reply-To:From;
-        b=C1Dtq9nZMeSodvZ4Z9pU+sDeTuaNZ5r2go+zV0h/ya8iVNQXapX1UNIuhBhjvBrmb
-         0+eVcZA3lyKBbzMHUxP2rcD1UiFMaz6eX93i6FpvI0M3wrdB/5B19ekNdqd051IL+E
-         U/Wl3R56FVCmNt4A2Lj6BGV+qyzjmp6ixnx/9Rr0=
-Date:   Thu, 05 Mar 2020 22:28:42 -0800
-From:   Andrew Morton <akpm@linux-foundation.org>
-To:     akpm@linux-foundation.org, cai@lca.pw, david@redhat.com,
-        gerald.schaefer@de.ibm.com, iamjoonsoo.kim@lge.com,
-        linux-mm@kvack.org, mm-commits@vger.kernel.org,
-        stable@vger.kernel.org, torvalds@linux-foundation.org,
-        vbabka@suse.cz
-Subject:  [patch 6/7] mm, hotplug: fix page online with
- DEBUG_PAGEALLOC compiled but not enabled
-Message-ID: <20200306062842.L4W64MQjq%akpm@linux-foundation.org>
-In-Reply-To: <20200305222751.6d781a3f2802d79510941e4e@linux-foundation.org>
-User-Agent: s-nail v14.8.16
+        id S1725853AbgCFHVw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 6 Mar 2020 02:21:52 -0500
+Received: from forward104o.mail.yandex.net ([37.140.190.179]:49002 "EHLO
+        forward104o.mail.yandex.net" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725829AbgCFHVw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 6 Mar 2020 02:21:52 -0500
+X-Greylist: delayed 367 seconds by postgrey-1.27 at vger.kernel.org; Fri, 06 Mar 2020 02:21:50 EST
+Received: from mxback7g.mail.yandex.net (mxback7g.mail.yandex.net [IPv6:2a02:6b8:0:1472:2741:0:8b7:168])
+        by forward104o.mail.yandex.net (Yandex) with ESMTP id EB4DB9424EE;
+        Fri,  6 Mar 2020 10:15:41 +0300 (MSK)
+Received: from iva3-dd2bb2ff2b5f.qloud-c.yandex.net (iva3-dd2bb2ff2b5f.qloud-c.yandex.net [2a02:6b8:c0c:7611:0:640:dd2b:b2ff])
+        by mxback7g.mail.yandex.net (mxback/Yandex) with ESMTP id 4QcmWVIbaF-Ffd0Ohkn;
+        Fri, 06 Mar 2020 10:15:41 +0300
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=maquefel.me; s=mail; t=1583478941;
+        bh=dFOJ8HxcJHuVEanjCBZpIwYRShDEHi2Qbibs/FbE4bs=;
+        h=In-Reply-To:Subject:To:From:Cc:References:Date:Message-Id;
+        b=mihW1Tmq1N5c3RD1C2q1WMfdqBP/6lQmzukxiIy0Ffen0zJ9LTkziBcIUnX+G/suw
+         LC7YUP9goExtyVRjKL0618yWfvJx4sH9hGstU7rsIhiSmU+/ATOMvjUWeCzf8cngEl
+         KOy11Y3bOMg0EL0aJJfr78Bu51osyHK7cugbXvHA=
+Authentication-Results: mxback7g.mail.yandex.net; dkim=pass header.i=@maquefel.me
+Received: by iva3-dd2bb2ff2b5f.qloud-c.yandex.net (smtp/Yandex) with ESMTPSA id WFGP46aMDd-FeWi6ntj;
+        Fri, 06 Mar 2020 10:15:40 +0300
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
+        (Client certificate not present)
+From:   Nikita Shubin <NShubin@topcon.com>
+Cc:     Nikita Shubin <NShubin@topcon.com>, stable@vger.kernel.org,
+        Ohad Ben-Cohen <ohad@wizery.com>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        linux-remoteproc@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH v4] remoteproc: Fix NULL pointer dereference in rproc_virtio_notify
+Date:   Fri,  6 Mar 2020 10:03:25 +0300
+Message-Id: <20200306070325.15232-1-NShubin@topcon.com>
+X-Mailer: git-send-email 2.24.1
+In-Reply-To: <20200305110218.8799-2-NShubin@topcon.com>
+References: <20200305110218.8799-2-NShubin@topcon.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+To:     unlisted-recipients:; (no To-header on input)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vlastimil Babka <vbabka@suse.cz>
-Subject: mm, hotplug: fix page online with DEBUG_PAGEALLOC compiled but not enabled
+Undefined rproc_ops .kick method in remoteproc driver will result in
+"Unable to handle kernel NULL pointer dereference" in rproc_virtio_notify, 
+after firmware loading if:
 
-Commit cd02cf1aceea ("mm/hotplug: fix an imbalance with DEBUG_PAGEALLOC")
-fixed memory hotplug with debug_pagealloc enabled, where onlining a page
-goes through page freeing, which removes the direct mapping.  Some arches
-don't like when the page is not mapped in the first place, so
-generic_online_page() maps it first.  This is somewhat wasteful, but
-better than special casing page freeing fast paths.
+ 1) .kick method wasn't defined in driver
+ 2) resource_table exists in firmware and has "Virtio device entry" defined
 
-The commit however missed that DEBUG_PAGEALLOC configured doesn't mean
-it's actually enabled.  One has to test debug_pagealloc_enabled() since
-031bc5743f15 ("mm/debug-pagealloc: make debug-pagealloc boottime
-configurable"), or alternatively debug_pagealloc_enabled_static() since
-8e57f8acbbd1 ("mm, debug_pagealloc: don't rely on static keys too early"),
-but this is not done.
+Let's refuse to register an rproc-induced virtio device if no kick method was
+defined for rproc.
 
-As a result, a s390 kernel with DEBUG_PAGEALLOC configured but not enabled
-will crash:
-
-Unable to handle kernel pointer dereference in virtual kernel address space
-Failing address: 0000000000000000 TEID: 0000000000000483
-Fault in home space mode while using kernel ASCE.
-AS:0000001ece13400b R2:000003fff7fd000b R3:000003fff7fcc007 S:000003fff7fd7000 P:000000000000013d
-Oops: 0004 ilc:2 [#1] SMP
-CPU: 1 PID: 26015 Comm: chmem Kdump: loaded Tainted: GX 5.3.18-5-default #1 SLE15-SP2 (unreleased)
-Krnl PSW : 0704e00180000000 0000001ecd281b9e (__kernel_map_pages+0x166/0x188)
-R:0 T:1 IO:1 EX:1 Key:0 M:1 W:0 P:0 AS:3 CC:2 PM:0 RI:0 EA:3
-Krnl GPRS: 0000000000000000 0000000000000800 0000400b00000000 0000000000000100
-0000000000000001 0000000000000000 0000000000000002 0000000000000100
-0000001ece139230 0000001ecdd98d40 0000400b00000100 0000000000000000
-000003ffa17e4000 001fffe0114f7d08 0000001ecd4d93ea 001fffe0114f7b20
-Krnl Code: 0000001ecd281b8e: ec17ffff00d8 ahik %r1,%r7,-1
-0000001ecd281b94: ec111dbc0355 risbg %r1,%r1,29,188,3
->0000001ecd281b9e: 94fb5006 ni 6(%r5),251
-0000001ecd281ba2: 41505008 la %r5,8(%r5)
-0000001ecd281ba6: ec51fffc6064 cgrj %r5,%r1,6,1ecd281b9e
-0000001ecd281bac: 1a07 ar %r0,%r7
-0000001ecd281bae: ec03ff584076 crj %r0,%r3,4,1ecd281a5e
-Call Trace:
-[<0000001ecd281b9e>] __kernel_map_pages+0x166/0x188
-[<0000001ecd4d9516>] online_pages_range+0xf6/0x128
-[<0000001ecd2a8186>] walk_system_ram_range+0x7e/0xd8
-[<0000001ecda28aae>] online_pages+0x2fe/0x3f0
-[<0000001ecd7d02a6>] memory_subsys_online+0x8e/0xc0
-[<0000001ecd7add42>] device_online+0x5a/0xc8
-[<0000001ecd7d0430>] state_store+0x88/0x118
-[<0000001ecd5b9f62>] kernfs_fop_write+0xc2/0x200
-[<0000001ecd5064b6>] vfs_write+0x176/0x1e0
-[<0000001ecd50676a>] ksys_write+0xa2/0x100
-[<0000001ecda315d4>] system_call+0xd8/0x2c8
-
-Fix this by checking debug_pagealloc_enabled_static() before calling
-kernel_map_pages(). Backports for kernel before 5.5 should use
-debug_pagealloc_enabled() instead. Also add comments.
-
-Link: http://lkml.kernel.org/r/20200224094651.18257-1-vbabka@suse.cz
-Fixes: cd02cf1aceea ("mm/hotplug: fix an imbalance with DEBUG_PAGEALLOC")
-Signed-off-by: Vlastimil Babka <vbabka@suse.cz>
-Reported-by: Gerald Schaefer <gerald.schaefer@de.ibm.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-Cc: Qian Cai <cai@lca.pw>
-Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Nikita Shubin <NShubin@topcon.com>
+Fixes: 7a186941626d ("remoteproc: remove the single rpmsg vdev limitation")
+Cc: stable@vger.kernel.org
 ---
+ drivers/remoteproc/remoteproc_virtio.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
- include/linux/mm.h  |    4 ++++
- mm/memory_hotplug.c |    8 +++++++-
- 2 files changed, 11 insertions(+), 1 deletion(-)
+diff --git a/drivers/remoteproc/remoteproc_virtio.c b/drivers/remoteproc/remoteproc_virtio.c
+index 8c07cb2ca8ba..31a62a0b470e 100644
+--- a/drivers/remoteproc/remoteproc_virtio.c
++++ b/drivers/remoteproc/remoteproc_virtio.c
+@@ -334,6 +334,13 @@ int rproc_add_virtio_dev(struct rproc_vdev *rvdev, int id)
+ 	struct rproc_mem_entry *mem;
+ 	int ret;
+ 
++	if (rproc->ops->kick == NULL) {
++		ret = -EINVAL;
++		dev_err(dev, ".kick method not defined for %s",
++				rproc->name);
++		goto out;
++	}
++
+ 	/* Try to find dedicated vdev buffer carveout */
+ 	mem = rproc_find_carveout_by_name(rproc, "vdev%dbuffer", rvdev->index);
+ 	if (mem) {
+-- 
+2.24.1
 
---- a/include/linux/mm.h~mm-hotplug-fix-page-online-with-debug_pagealloc-compiled-but-not-enabled
-+++ a/include/linux/mm.h
-@@ -2715,6 +2715,10 @@ static inline bool debug_pagealloc_enabl
- #if defined(CONFIG_DEBUG_PAGEALLOC) || defined(CONFIG_ARCH_HAS_SET_DIRECT_MAP)
- extern void __kernel_map_pages(struct page *page, int numpages, int enable);
- 
-+/*
-+ * When called in DEBUG_PAGEALLOC context, the call should most likely be
-+ * guarded by debug_pagealloc_enabled() or debug_pagealloc_enabled_static()
-+ */
- static inline void
- kernel_map_pages(struct page *page, int numpages, int enable)
- {
---- a/mm/memory_hotplug.c~mm-hotplug-fix-page-online-with-debug_pagealloc-compiled-but-not-enabled
-+++ a/mm/memory_hotplug.c
-@@ -574,7 +574,13 @@ EXPORT_SYMBOL_GPL(restore_online_page_ca
- 
- void generic_online_page(struct page *page, unsigned int order)
- {
--	kernel_map_pages(page, 1 << order, 1);
-+	/*
-+	 * Freeing the page with debug_pagealloc enabled will try to unmap it,
-+	 * so we should map it first. This is better than introducing a special
-+	 * case in page freeing fast path.
-+	 */
-+	if (debug_pagealloc_enabled_static())
-+		kernel_map_pages(page, 1 << order, 1);
- 	__free_pages_core(page, order);
- 	totalram_pages_add(1UL << order);
- #ifdef CONFIG_HIGHMEM
-_
