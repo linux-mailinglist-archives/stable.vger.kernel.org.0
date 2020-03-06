@@ -2,158 +2,128 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 61A2517BC5F
-	for <lists+stable@lfdr.de>; Fri,  6 Mar 2020 13:10:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4541417BC66
+	for <lists+stable@lfdr.de>; Fri,  6 Mar 2020 13:11:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726251AbgCFMKI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 6 Mar 2020 07:10:08 -0500
-Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:25397 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726185AbgCFMKI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 6 Mar 2020 07:10:08 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1583496607;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=9mZXSxOC6R3nHgWWUI6Q0x9r2qUZeyh7+6zlwl+sJKA=;
-        b=iwkmCD2jxN41zrIi4yjhvwubS+qdaXde0SSsBuypGjq8srvJhWPmmjYS1vM440hkuBVolU
-        8cdxG06Wc1ienoZZfRo7v7FMuNbSQOjVh5RH36bSTL+wrBFMLU8mREZI3rC4oWYT3cGyVw
-        KL94y2ut5Q9MBjzN8jeqwvEEpE2zEwk=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-249-zAXhmHtKOOOUQJAOlWa6lw-1; Fri, 06 Mar 2020 07:10:00 -0500
-X-MC-Unique: zAXhmHtKOOOUQJAOlWa6lw-1
-Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id F21E4800D50;
-        Fri,  6 Mar 2020 12:09:58 +0000 (UTC)
-Received: from colo-mx.corp.redhat.com (colo-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.21])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id E89AC46;
-        Fri,  6 Mar 2020 12:09:58 +0000 (UTC)
-Received: from zmail19.collab.prod.int.phx2.redhat.com (zmail19.collab.prod.int.phx2.redhat.com [10.5.83.22])
-        by colo-mx.corp.redhat.com (Postfix) with ESMTP id DA30186A04;
-        Fri,  6 Mar 2020 12:09:58 +0000 (UTC)
-Date:   Fri, 6 Mar 2020 07:09:58 -0500 (EST)
-From:   Veronika Kabatova <vkabatov@redhat.com>
-To:     Petr Vorel <pvorel@suse.cz>
-Cc:     CKI Project <cki-project@redhat.com>,
-        Linux Stable maillist <stable@vger.kernel.org>,
-        LTP Mailing List <ltp@lists.linux.it>,
-        Nikolai Kondrashov <spbnick@gmail.com>,
-        Inaki Malerba <imalerba@redhat.com>
-Message-ID: <1680169507.12167032.1583496598731.JavaMail.zimbra@redhat.com>
-In-Reply-To: <20200306080838.GB14808@dell5510>
-References: <cki.AEA99E5519.SMAFL9TDK6@redhat.com> <20200306080838.GB14808@dell5510>
-Subject: =?utf-8?Q?Re:_[LTP]_=E2=9D=8C_FAIL:_Test_report_for?=
- =?utf-8?Q?=09kernel_5.5.8-97453d9.cki_(stable)?=
+        id S1726524AbgCFMLi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 6 Mar 2020 07:11:38 -0500
+Received: from mail-lf1-f65.google.com ([209.85.167.65]:39501 "EHLO
+        mail-lf1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726498AbgCFMLi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 6 Mar 2020 07:11:38 -0500
+Received: by mail-lf1-f65.google.com with SMTP id j15so1725235lfk.6
+        for <stable@vger.kernel.org>; Fri, 06 Mar 2020 04:11:37 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=VEqsZXiHi8Vzu3E0Qtt3LIyZX6LwUkCnc30Vn2vU9Ak=;
+        b=zFzQtOSjjltDX5jVktEU59kiyFn9FNMw9kPaMuvIeQSuE1/pSTIGxkEUj1l+uWxbmA
+         vOAdR6z/PwAp3hDJe5Ei9H6LmApPc2mJX0ZqOhdJwk8gUyAdbk9IHBZlQL1evSk/7yo2
+         /QZoiJdAUyrmyj0h+IBf41cet/T/YGQNeg55i1KHKjNDUzvc9Vi7xg1X5AOgLMfE2s5F
+         UCw4rGDarFv/1Bh4+LCL+PWtCc6f96F9g0q4yaOpKO7PDW5sUS23V2rdRgBiBLFDgakv
+         El8iV9dXC2jtFgPpsfggeY/p3g+3ihL7B8Q3tZOZt2ihNo757ETaZimIWeckb1ugxLT0
+         jBYA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=VEqsZXiHi8Vzu3E0Qtt3LIyZX6LwUkCnc30Vn2vU9Ak=;
+        b=R0fypwaAxOkO6vUNKqbj9IpzXtCpI4tuKFavXOmEVY1a2KYU4hIuQe32G1JOjLtWnD
+         4Lj1bOvFTHJN44gtav1Ny/HRdAaihUeptrJexpDId8kByc0IE8IBSbdgSe8kikTFrlmF
+         jyS+Z8SddbaXJEEzk0uiyod74ftI8K0rN8zRg+DXm7jfvSUxmwve/jzkjyiuYQSruv/z
+         pCC9VE1k+2ykwELE1Biwrn8fNhCwglFXd1c81KSpfeuIY5LyJaNBFMDbPNOJTh7Al3zi
+         Gmy72tK5XvZVXo229yaYPrmaQSA2HxgXRTrrW933hX6SXbC9ai+d3tHzrQ1tVLJxN6sd
+         unFw==
+X-Gm-Message-State: ANhLgQ0Xw/+YDFlPHsGF9FRRPKUSWNSQgx1NtZiyzd6UYvkWsdKgU/K9
+        6cEglRC6U3ftxMamQeO4rMy1Qg==
+X-Google-Smtp-Source: ADFU+vusWHxWM2090L+QurVMnY/Ly7V8ZOTLsBWN8+l/yUDFL+8P6FUZWAbES3kVGO6/Xp3Rz8IRgg==
+X-Received: by 2002:ac2:5468:: with SMTP id e8mr1738377lfn.193.1583496695868;
+        Fri, 06 Mar 2020 04:11:35 -0800 (PST)
+Received: from genomnajs.ideon.se ([85.235.10.227])
+        by smtp.gmail.com with ESMTPSA id m15sm5178759ljo.52.2020.03.06.04.11.34
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 06 Mar 2020 04:11:35 -0800 (PST)
+From:   Linus Walleij <linus.walleij@linaro.org>
+To:     linux-gpio@vger.kernel.org
+Cc:     Linus Walleij <linus.walleij@linaro.org>,
+        Lina Iyer <ilina@codeaurora.org>,
+        Marc Zyngier <maz@kernel.org>,
+        Stephen Boyd <swboyd@chromium.org>, stable@vger.kernel.org
+Subject: [PATCH] pinctrl: qcom: Guard irq_eoi()
+Date:   Fri,  6 Mar 2020 13:11:29 +0100
+Message-Id: <20200306121129.1231159-1-linus.walleij@linaro.org>
+X-Mailer: git-send-email 2.24.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-X-Originating-IP: [10.40.204.182, 10.4.195.4]
-Thread-Topic: =?utf-8?B?4p2MIEZBSUw6?= Test report for kernel 5.5.8-97453d9.cki (stable)
-Thread-Index: WRh379kE2ZSfHWEbe2FjFUkY8TU74g==
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+In the commit setting up the qcom/msm pin controller to
+be hierarchical some callbacks were careful to check that
+d->parent_data on irq_data was valid before calling the
+parent function, however irq_chip_eoi_parent() was called
+unconditionally which doesn't work with elder Qualcomm
+platforms such as APQ8060.
 
+When the drivers/mfd/qcom-pm8xxx.c driver calls
+chained_irq_exit() that call will in turn call chip->irq_eoi()
+which is set to irq_chip_eoi_parent() by default on a
+hierachical IRQ chip, and the parent is pinctrl-msm.c
+so that will in turn unconditionally call
+irq_chip_eoi_parent() again, but its parent is invalid
+so we get the following crash:
 
------ Original Message -----
-> From: "Petr Vorel" <pvorel@suse.cz>
-> To: "CKI Project" <cki-project@redhat.com>
-> Cc: "Linux Stable maillist" <stable@vger.kernel.org>, "LTP Mailing List" =
-<ltp@lists.linux.it>, "Nikolai Kondrashov"
-> <spbnick@gmail.com>
-> Sent: Friday, March 6, 2020 9:08:38 AM
-> Subject: Re: [LTP] =E2=9D=8C FAIL: Test report for=09kernel 5.5.8-97453d9=
-.cki (stable)
->=20
-> Hi,
->=20
-> > We ran automated tests on a recent commit from this kernel tree:
->=20
-> >        Kernel repo:
-> >        https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-sta=
-ble-rc.git
-> >             Commit: 97453d9b9b2b - Linux 5.5.8
->=20
-> > The results of these automated tests are provided below.
->=20
-> >     Overall result: FAILED (see details below)
-> >              Merge: OK
-> >            Compile: OK
-> >              Tests: FAILED
->=20
-> > All kernel binaries, config files, and logs are available for download
-> > here:
->=20
-> >   https://cki-artifacts.s3.us-east-2.amazonaws.com/index.html?prefix=3D=
-datawarehouse/2020/03/05/473513
->=20
-> > One or more kernel tests failed:
->=20
-> >     s390x:
-> >      =E2=9D=8C stress: stress-ng
-> >      =E2=9D=8C LTP
-> Here it's 9 syscalls failed for "slept for too long" [1]
->     28=09tst_timer_test.c:310: FAIL: clock_nanosleep() slept for too long
->     12=09tst_timer_test.c:310: FAIL: nanosleep() slept for too long
->     27=09tst_timer_test.c:310: FAIL: poll() slept for too long
->     22=09tst_timer_test.c:310: FAIL: prctl() slept for too long
->     25=09tst_timer_test.c:310: FAIL: select() slept for too long
->     76=09tst_timer_test.c:310: FAIL: select() slept for too long
->    126=09tst_timer_test.c:310: FAIL: select() slept for too long
->     22=09tst_timer_test.c:310: FAIL: futex_wait() slept for too long
->     53=09tst_timer_test.c:310: FAIL: futex_wait() slept for too long
->=20
-> BTW it'd be interesting to see previous build. I searched for stable in j=
-obs
-> [2], but there is no linux-5.5.y (I see linux-5.4.y).
->=20
+ Unnable to handle kernel NULL pointer dereference at
+ virtual address 00000010
+ pgd = (ptrval)
+ [00000010] *pgd=00000000
+ Internal error: Oops: 5 [#1] PREEMPT SMP ARM
+ (...)
+ PC is at irq_chip_eoi_parent+0x4/0x10
+ LR is at pm8xxx_irq_handler+0x1b4/0x2d8
 
-We're not on the main kernelci.org page just yet. There's a staging grafana
-instance with a limited set of data:
+Implement a local stub just avoiding to call down to
+irq_chip_eoi_parent() if d->parent_data is not set.
 
-https://staging.kernelci.org:3000/d/home/home?orgId=3D1&var-origin=3Dredhat=
-&var-git_repository_url=3DAll
+Cc: Lina Iyer <ilina@codeaurora.org>
+Cc: Marc Zyngier <maz@kernel.org>
+Cc: Stephen Boyd <swboyd@chromium.org>
+Cc: stable@vger.kernel.org
+Fixes: e35a6ae0eb3a ("pinctrl/msm: Setup GPIO chip in hierarchy")
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+---
+ drivers/pinctrl/qcom/pinctrl-msm.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-We're planning the dashboard I mentioned in the previous email which should
-make the discovery easier, as well as working on getting on the main
-Kernel CI page. The best way right now is to check previous stable emails
-by CKI Project in the archives:
-
-https://lists.linaro.org/pipermail/linux-stable-mirror/2020-March/
-
-These are two 5.5.y test runs from the list:
-
-https://lists.linaro.org/pipermail/linux-stable-mirror/2020-March/174716.ht=
-ml
-https://lists.linaro.org/pipermail/linux-stable-mirror/2020-March/174715.ht=
-ml
-
-jstancek also already seems to be looking into some s390x issues which migh=
-t
-be related:
-
-https://lists.linaro.org/pipermail/linux-stable-mirror/2020-March/174549.ht=
-ml
-
-
-Veronika
-
-> Kind regards,
-> Petr
->=20
-> [1]
-> https://cki-artifacts.s3.us-east-2.amazonaws.com/datawarehouse/2020/03/05=
-/473513/s390x_2_LTP_syscalls.fail.log
-> [2] https://kernelci.org/job/
->=20
->=20
->=20
+diff --git a/drivers/pinctrl/qcom/pinctrl-msm.c b/drivers/pinctrl/qcom/pinctrl-msm.c
+index 9a8daa256a32..511f596cf2c3 100644
+--- a/drivers/pinctrl/qcom/pinctrl-msm.c
++++ b/drivers/pinctrl/qcom/pinctrl-msm.c
+@@ -828,6 +828,12 @@ static void msm_gpio_irq_unmask(struct irq_data *d)
+ 	msm_gpio_irq_clear_unmask(d, false);
+ }
+ 
++static void msm_gpio_irq_eoi(struct irq_data *d)
++{
++	if (d->parent_data)
++		irq_chip_eoi_parent(d);
++}
++
+ static void msm_gpio_irq_ack(struct irq_data *d)
+ {
+ 	struct gpio_chip *gc = irq_data_get_irq_chip_data(d);
+@@ -1104,7 +1110,7 @@ static int msm_gpio_init(struct msm_pinctrl *pctrl)
+ 	pctrl->irq_chip.irq_mask = msm_gpio_irq_mask;
+ 	pctrl->irq_chip.irq_unmask = msm_gpio_irq_unmask;
+ 	pctrl->irq_chip.irq_ack = msm_gpio_irq_ack;
+-	pctrl->irq_chip.irq_eoi = irq_chip_eoi_parent;
++	pctrl->irq_chip.irq_eoi = msm_gpio_irq_eoi;
+ 	pctrl->irq_chip.irq_set_type = msm_gpio_irq_set_type;
+ 	pctrl->irq_chip.irq_set_wake = msm_gpio_irq_set_wake;
+ 	pctrl->irq_chip.irq_request_resources = msm_gpio_irq_reqres;
+-- 
+2.24.1
 
