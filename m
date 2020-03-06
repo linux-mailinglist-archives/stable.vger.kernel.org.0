@@ -2,110 +2,66 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8137C17BD5F
-	for <lists+stable@lfdr.de>; Fri,  6 Mar 2020 13:59:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C3D9417BE14
+	for <lists+stable@lfdr.de>; Fri,  6 Mar 2020 14:17:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726300AbgCFM72 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 6 Mar 2020 07:59:28 -0500
-Received: from mail-pl1-f195.google.com ([209.85.214.195]:37675 "EHLO
-        mail-pl1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726240AbgCFM71 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 6 Mar 2020 07:59:27 -0500
-Received: by mail-pl1-f195.google.com with SMTP id b8so838447plx.4
-        for <stable@vger.kernel.org>; Fri, 06 Mar 2020 04:59:27 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=eJULMdO/mLnfNEq9uTcv+BvD08WumaLejnUd0qO2YNA=;
-        b=DsKRWbUuJEuHhUTYuiFNK7vfUtb3SZZ3sEeeoEc/jmarQksgh5aimpv02O6ynV7/QP
-         zlq3+cAoMp2qEpYZx85EFq/bNtMu01Q0PalQgI2FwBecd8RZsCl5KysIXyRarqQpnei8
-         KXyvjynJzPV4e44j+e+066PYdAQd4dqs/RztMyjBgexUTbJoUiVmqGAMnUMS1BtWOmoq
-         Y1P2TjJIzkuASenOSdTlJpSMnOfTeFVjAC/W2vaG2mCAEisehEeeCSiiLm0S7XYoJ4Tf
-         CZjTVaYUM8avl3EUveXLIP7KpFqxnlz9aGMF4Lkqie9ZXvR5WUtI3A7aIgX/UeYJrtFI
-         Q/Gw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=eJULMdO/mLnfNEq9uTcv+BvD08WumaLejnUd0qO2YNA=;
-        b=B0HUrlDJWa/NvCH3oGeOB05a8OW0eUe0QpwHZBDMRM4GkPzX4NecDtzQhwLn9b56p9
-         Lc+is0j0AqGZTm4HS/z+HM/4oFFPyYyImb33NMW9dxZc7zO0WlNlzvFG4FDmzY2vA9/N
-         3Akh+LQ8FGKDqAvXz/q7uSoJ/VFmKA6Y2vIG7bZrmTNjy1IiME9UGSnl8LQgcA7QZ4R9
-         sO7mJnJkvHaPZ5CCWxYIy8BSxVQ3itI6mW64KnwqiQP0p49QWgmo0TONm2a1qoDTmUHv
-         KKe/nnBTjp4V4sCV2buD/Lg+GY5Ktx96F/4qHaQNPqVevSST5d3rkmjFpGG40w70Kwg/
-         QJ2w==
-X-Gm-Message-State: ANhLgQ1TcE3W4zsY5t4s1EYT0r/0JNzmEhYey5W6F6UdZs8NK3ZyeqKq
-        ZXkMffCPgX626tNQfdF+yxpx0LJ/Xfo=
-X-Google-Smtp-Source: ADFU+vvPj7qI/y3wPo133REAdBVPXBAxTFVsm9S0Bq8NieSsXQbtkVAu4Lzwe7CPxn3S51E71bdePQ==
-X-Received: by 2002:a17:90a:3ee5:: with SMTP id k92mr1947365pjc.81.1583499566544;
-        Fri, 06 Mar 2020 04:59:26 -0800 (PST)
-Received: from [10.0.9.4] ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id g9sm36366374pfm.150.2020.03.06.04.59.25
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 06 Mar 2020 04:59:25 -0800 (PST)
-Message-ID: <5e62492d.1c69fb81.d4e67.0367@mx.google.com>
-Date:   Fri, 06 Mar 2020 04:59:25 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S1726769AbgCFNRL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 6 Mar 2020 08:17:11 -0500
+Received: from mail.ampi.com.tw ([211.22.54.232]:42174 "EHLO
+        HQIMSVA.ampi.com.tw" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1726054AbgCFNRK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 6 Mar 2020 08:17:10 -0500
+X-Greylist: delayed 1372 seconds by postgrey-1.27 at vger.kernel.org; Fri, 06 Mar 2020 08:17:09 EST
+Received: from HQIMSVA.ampi.com.tw (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id DD0C6FC7BC;
+        Fri,  6 Mar 2020 20:54:16 +0800 (CST)
+Received: from HQIMSVA.ampi.com.tw (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id BCE4DFC7AC;
+        Fri,  6 Mar 2020 20:54:16 +0800 (CST)
+Received: from mail.ampi.com.tw (unknown [192.168.1.248])
+        by HQIMSVA.ampi.com.tw (Postfix) with ESMTPS;
+        Fri,  6 Mar 2020 20:54:16 +0800 (CST)
+Received: from ampi.com.tw (localhost [127.0.0.1])
+        by mail.ampi.com.tw (8.14.4/8.14.4) with ESMTP id 026D0iIg026541;
+        Fri, 6 Mar 2020 21:00:44 +0800
+From:   "=?UTF-8?Q?PMB_=EF=BF=BD?=\=?UTF-8?Q?=EF=BF=BD?=}=?UTF-8?Q?=EF=BF=BDa?=" 
+        <re_shu@ampi.com.tw>
+Reply-To: margaritlouisdreyfus402@gmail.com
+Subject: Greetings
+Date:   Fri, 6 Mar 2020 21:00:44 +0800
+Message-Id: <20200306130030.M10991@ampi.com.tw>
+X-Mailer: OpenWebMail 3.00_beta4 20140806 79bb7cc
+X-OriginatingIP: 105.112.98.163 (re_shu)
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-4.14.y
-X-Kernelci-Kernel: v4.14.172
-X-Kernelci-Report-Type: boot
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/linux-4.14.y boot: 52 boots: 2 failed,
- 49 passed with 1 untried/unknown (v4.14.172)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=utf-8
+To:     undisclosed-recipients:;
+X-TM-AS-GCONF: 00
+X-TM-AS-Product-Ver: IMSVA-9.1.0.1600-8.5.0.1020-25272.007
+X-TM-AS-Result: No-1.876-5.0-31-10
+X-imss-scan-details: No-1.876-5.0-31-10
+X-TMASE-Version: IMSVA-9.1.0.1600-8.5.1020-25272.007
+X-TMASE-Result: 10-1.875700-10.000000
+X-TMASE-MatchedRID: hhOSuvkWiUhDfz/5WactQfQajs/Ywumppnx3aOUcbhfBzPli8mk6+iHz
+        vqYKd/egb4b0aOFlLSzd9XGF28xPmNNfhIP7TA2Df8dNT84FpMbB9eXEq1hUvuOjezwlfd8eo8W
+        MkQWv6iVPF1RaZs9plWdwhBvpFq/brHEFvjQmpqKfu3hNq8UwX47SjorJpyrt0C1sQRfQzEHEQd
+        G7H66TyHEqm8QYBtMOM3bznZNVcah3xBaDdHqqJmVtfTG4Duz+/XLvIqT1L+AwtjJ/n5g2QYFpd
+        pKW0UkRF8iRqE0Fh8oJ4cJiOypl8quUeWG2qHOblExlQIQeRG0=
+X-TMASE-SNAP-Result: 1.821001.0001-0-1-12:0,22:0,33:0,34:0-0
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.14.y boot: 52 boots: 2 failed, 49 passed with 1 untried/u=
-nknown (v4.14.172)
+Greetings,
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.14.y/kernel/v4.14.172/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.14.=
-y/kernel/v4.14.172/
+I tried reaching you earlier on but was unsuccessful which made me to 
+initiate this email conversation again with good faith hoping that you will 
+respond. Kindly get back to me in reply if you will allow me to trust you
+as my humanitarian project manager.
 
-Tree: stable-rc
-Branch: linux-4.14.y
-Git Describe: v4.14.172
-Git Commit: 78d697fc93f98054e36a3ab76dca1a88802ba7be
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 39 unique boards, 13 SoC families, 12 builds out of 201
+Kind Regards,
 
-Boot Regressions Detected:
+Mrs. Margarita Louis-Dreyfus.
+Chairperson of Louis-Dreyfus Commodities,
+Zurich, Switzerland.  
 
-arm:
-
-    sama5_defconfig:
-        gcc-8:
-          at91-sama5d4_xplained:
-              lab-baylibre: failing since 9 days (last pass: v4.14.170-141-=
-g00a0113414f7 - first fail: v4.14.171-29-g9cfe30e85240)
-
-    sunxi_defconfig:
-        gcc-8:
-          sun8i-a33-olinuxino:
-              lab-clabbe: new failure (last pass: v4.14.171-235-g7184e90f61=
-c3)
-
-Boot Failures Detected:
-
-arm:
-    sama5_defconfig:
-        gcc-8:
-            at91-sama5d4_xplained: 1 failed lab
-
-arm64:
-    defconfig:
-        gcc-8:
-            meson-gxm-q200: 1 failed lab
-
----
-For more info write to <info@kernelci.org>
