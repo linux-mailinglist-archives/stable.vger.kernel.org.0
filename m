@@ -2,84 +2,110 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A01B17BC9E
-	for <lists+stable@lfdr.de>; Fri,  6 Mar 2020 13:19:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8137C17BD5F
+	for <lists+stable@lfdr.de>; Fri,  6 Mar 2020 13:59:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726788AbgCFMTZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 6 Mar 2020 07:19:25 -0500
-Received: from foss.arm.com ([217.140.110.172]:60510 "EHLO foss.arm.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726498AbgCFMTZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 6 Mar 2020 07:19:25 -0500
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 93F6D31B;
-        Fri,  6 Mar 2020 04:19:24 -0800 (PST)
-Received: from [192.168.0.7] (unknown [172.31.20.19])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 7D1943F6C4;
-        Fri,  6 Mar 2020 04:19:22 -0800 (PST)
-Subject: Re: [PATCH] sched/fair: fix enqueue_task_fair warning
-To:     Vincent Guittot <vincent.guittot@linaro.org>
-Cc:     Ingo Molnar <mingo@redhat.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Juri Lelli <juri.lelli@redhat.com>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Ben Segall <bsegall@google.com>, Mel Gorman <mgorman@suse.de>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        "# v4 . 16+" <stable@vger.kernel.org>
-References: <20200305172921.22743-1-vincent.guittot@linaro.org>
- <e31aa232-bc7e-a7b9-5b6a-a1131ac88164@arm.com>
- <CAKfTPtAqg+CGNBHF53dXp4BcmtucgW4k4skQ1x1jxuyo0PDaMg@mail.gmail.com>
- <CAKfTPtB8YrVd=DjPXCs589wCJWT_Jo_dyLQ4WMdEKPTAt5GRvw@mail.gmail.com>
-From:   Dietmar Eggemann <dietmar.eggemann@arm.com>
-Message-ID: <73cc2b4b-9803-32ff-dc01-adbe4f8ba149@arm.com>
-Date:   Fri, 6 Mar 2020 13:19:21 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.4.1
+        id S1726300AbgCFM72 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 6 Mar 2020 07:59:28 -0500
+Received: from mail-pl1-f195.google.com ([209.85.214.195]:37675 "EHLO
+        mail-pl1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726240AbgCFM71 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 6 Mar 2020 07:59:27 -0500
+Received: by mail-pl1-f195.google.com with SMTP id b8so838447plx.4
+        for <stable@vger.kernel.org>; Fri, 06 Mar 2020 04:59:27 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=eJULMdO/mLnfNEq9uTcv+BvD08WumaLejnUd0qO2YNA=;
+        b=DsKRWbUuJEuHhUTYuiFNK7vfUtb3SZZ3sEeeoEc/jmarQksgh5aimpv02O6ynV7/QP
+         zlq3+cAoMp2qEpYZx85EFq/bNtMu01Q0PalQgI2FwBecd8RZsCl5KysIXyRarqQpnei8
+         KXyvjynJzPV4e44j+e+066PYdAQd4dqs/RztMyjBgexUTbJoUiVmqGAMnUMS1BtWOmoq
+         Y1P2TjJIzkuASenOSdTlJpSMnOfTeFVjAC/W2vaG2mCAEisehEeeCSiiLm0S7XYoJ4Tf
+         CZjTVaYUM8avl3EUveXLIP7KpFqxnlz9aGMF4Lkqie9ZXvR5WUtI3A7aIgX/UeYJrtFI
+         Q/Gw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=eJULMdO/mLnfNEq9uTcv+BvD08WumaLejnUd0qO2YNA=;
+        b=B0HUrlDJWa/NvCH3oGeOB05a8OW0eUe0QpwHZBDMRM4GkPzX4NecDtzQhwLn9b56p9
+         Lc+is0j0AqGZTm4HS/z+HM/4oFFPyYyImb33NMW9dxZc7zO0WlNlzvFG4FDmzY2vA9/N
+         3Akh+LQ8FGKDqAvXz/q7uSoJ/VFmKA6Y2vIG7bZrmTNjy1IiME9UGSnl8LQgcA7QZ4R9
+         sO7mJnJkvHaPZ5CCWxYIy8BSxVQ3itI6mW64KnwqiQP0p49QWgmo0TONm2a1qoDTmUHv
+         KKe/nnBTjp4V4sCV2buD/Lg+GY5Ktx96F/4qHaQNPqVevSST5d3rkmjFpGG40w70Kwg/
+         QJ2w==
+X-Gm-Message-State: ANhLgQ1TcE3W4zsY5t4s1EYT0r/0JNzmEhYey5W6F6UdZs8NK3ZyeqKq
+        ZXkMffCPgX626tNQfdF+yxpx0LJ/Xfo=
+X-Google-Smtp-Source: ADFU+vvPj7qI/y3wPo133REAdBVPXBAxTFVsm9S0Bq8NieSsXQbtkVAu4Lzwe7CPxn3S51E71bdePQ==
+X-Received: by 2002:a17:90a:3ee5:: with SMTP id k92mr1947365pjc.81.1583499566544;
+        Fri, 06 Mar 2020 04:59:26 -0800 (PST)
+Received: from [10.0.9.4] ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id g9sm36366374pfm.150.2020.03.06.04.59.25
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 06 Mar 2020 04:59:25 -0800 (PST)
+Message-ID: <5e62492d.1c69fb81.d4e67.0367@mx.google.com>
+Date:   Fri, 06 Mar 2020 04:59:25 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-In-Reply-To: <CAKfTPtB8YrVd=DjPXCs589wCJWT_Jo_dyLQ4WMdEKPTAt5GRvw@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: linux-4.14.y
+X-Kernelci-Kernel: v4.14.172
+X-Kernelci-Report-Type: boot
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/linux-4.14.y boot: 52 boots: 2 failed,
+ 49 passed with 1 untried/unknown (v4.14.172)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 06/03/2020 13:07, Vincent Guittot wrote:
-> On Fri, 6 Mar 2020 at 10:12, Vincent Guittot <vincent.guittot@linaro.org> wrote:
->>
->> On Thu, 5 Mar 2020 at 20:07, Dietmar Eggemann <dietmar.eggemann@arm.com> wrote:
->>>
->>> On 05/03/2020 18:29, Vincent Guittot wrote:
+stable-rc/linux-4.14.y boot: 52 boots: 2 failed, 49 passed with 1 untried/u=
+nknown (v4.14.172)
 
-[...]
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.14.y/kernel/v4.14.172/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.14.=
+y/kernel/v4.14.172/
 
-> If it's fine for you, I'm going to add this in a new version of the patch
+Tree: stable-rc
+Branch: linux-4.14.y
+Git Describe: v4.14.172
+Git Commit: 78d697fc93f98054e36a3ab76dca1a88802ba7be
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 39 unique boards, 13 SoC families, 12 builds out of 201
 
-Yes, please do.
+Boot Regressions Detected:
 
-Reviewed-by: Dietmar Eggemann <dietmar.eggemann@arm.com>
-Tested-by: Dietmar Eggemann <dietmar.eggemann@arm.com>
+arm:
 
-[...]
+    sama5_defconfig:
+        gcc-8:
+          at91-sama5d4_xplained:
+              lab-baylibre: failing since 9 days (last pass: v4.14.170-141-=
+g00a0113414f7 - first fail: v4.14.171-29-g9cfe30e85240)
 
->>> diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
->>> index e9fd5379bb7e..5e03be046aba 100644
->>> --- a/kernel/sched/fair.c
->>> +++ b/kernel/sched/fair.c
->>> @@ -4627,11 +4627,17 @@ void unthrottle_cfs_rq(struct cfs_rq *cfs_rq)
->>>                         break;
->>>         }
->>>
->>> -       assert_list_leaf_cfs_rq(rq);
->>> -
->>>         if (!se)
->>>                 add_nr_running(rq, task_delta);
->>>
-> 
-> will add similar comment  as for enqueue_task_fair
+    sunxi_defconfig:
+        gcc-8:
+          sun8i-a33-olinuxino:
+              lab-clabbe: new failure (last pass: v4.14.171-235-g7184e90f61=
+c3)
 
-Sounds good.
+Boot Failures Detected:
 
-[...]
+arm:
+    sama5_defconfig:
+        gcc-8:
+            at91-sama5d4_xplained: 1 failed lab
+
+arm64:
+    defconfig:
+        gcc-8:
+            meson-gxm-q200: 1 failed lab
+
+---
+For more info write to <info@kernelci.org>
