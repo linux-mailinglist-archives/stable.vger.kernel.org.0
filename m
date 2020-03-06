@@ -2,100 +2,115 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 150CF17BDF6
-	for <lists+stable@lfdr.de>; Fri,  6 Mar 2020 14:16:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 92C8E17BE31
+	for <lists+stable@lfdr.de>; Fri,  6 Mar 2020 14:23:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727065AbgCFNQB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 6 Mar 2020 08:16:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42228 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726781AbgCFNQB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 6 Mar 2020 08:16:01 -0500
-Received: from disco-boy.misterjones.org (disco-boy.misterjones.org [51.254.78.96])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C2757206E2;
-        Fri,  6 Mar 2020 13:16:00 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583500560;
-        bh=O7DyGs5X6WqiUvbbNzIrGmdLmE4umMZW5A0duTxIafY=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=lr9PiGlc4n4rCWo1HRZm5j2i4lLL0ZFcAeP+tJp17RVsKiWz3s8ZsK4MMyEgz8iRQ
-         z5taC+sqbOnEcE1UKcQ++5hi+Qm1fAeXtMW1JRKXnn73XyPnmU8iDDmeLPYuvtfj+c
-         oiVldnxvdr/fW5BXBLl73DP1MBwgzvP3K+9zPw1Q=
-Received: from disco-boy.misterjones.org ([51.254.78.96] helo=www.loen.fr)
-        by disco-boy.misterjones.org with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        (Exim 4.92)
-        (envelope-from <maz@kernel.org>)
-        id 1jACpb-00AZkS-1a; Fri, 06 Mar 2020 13:15:59 +0000
+        id S1726988AbgCFNXd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 6 Mar 2020 08:23:33 -0500
+Received: from mail-lj1-f194.google.com ([209.85.208.194]:42049 "EHLO
+        mail-lj1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726974AbgCFNXd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 6 Mar 2020 08:23:33 -0500
+Received: by mail-lj1-f194.google.com with SMTP id q19so2182016ljp.9
+        for <stable@vger.kernel.org>; Fri, 06 Mar 2020 05:23:31 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=5p0q249kQ19apNNwnIykCR+Ljj6bkbqNaaZmDhFryY8=;
+        b=IVAxe5fhzLMkLefAx0pA5KLVPKga9qnDuKoT/TDmDXX2u4lRV4sosbO/OTfcKY6tKt
+         L4x08JKs3RDhU9vZqz7AcLe1MiKEVEeX+XgSB2PLpa6OWj38j/1JGgzprP1MQDH03HSl
+         vOemNL3oJE5Lm5dVFgoQ/hymLaQeC2OPvlbiTLU52a78TWcxg+eFHt1vtFlhoOhEwxtL
+         3X3Wl2iGzyWeWhOwqtUwoI+WhRPJxpI06pEKNPBij/hQov8/Qz870uiUKRQ6YQ2crsSl
+         7Y3ewIkxJgWWYdb1JrWXnSu+8TlgnLQEonOUr0jJSUBwqAlcNXEGA4pzvCDx5PXGgh2Y
+         LrGw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=5p0q249kQ19apNNwnIykCR+Ljj6bkbqNaaZmDhFryY8=;
+        b=ZWg2RJjJ7We9TZI+wo956pJ6FHg9X9ys44ghVN/66T32dSMBVI9gs62v0PXe1ZM/s/
+         VB0e+fgZfk7rbwr+BGvJK9p8xORMBzMnce/Psbgs1+vDX5he24E6B2Cq2r05OngeZO6M
+         zcle8BJ+tGcaBQsZAGhxA5iKHHfOr3RjxOJq0zUfn213YCwfFv1RdFh57FFFtkSaHbe9
+         84sz3swXi10aZs3x8nx5t3SPx9XeJI3WVPSUlrFBhyKM/RKh/hHg9q5fNDGMMmfaymmL
+         59Dje3XhEW4GcpAEyP/CO7uQtTebvRdg7EVtNJvfEVK+1zhXHXEuqtvbNLxTB/C4Byt9
+         mX8w==
+X-Gm-Message-State: ANhLgQ2CMglIaMEOd68tWRr8JFX6xARtYMVAapnRDiMRgxUZrRp0COIK
+        Na+//pg/fVx8gmfBsbRCjCIl0w==
+X-Google-Smtp-Source: ADFU+vtU2DcIUl8Tn5aTldmW2bk4FA94y/+pSMtaZMZ4MkDMZsTWGt7/umdWHZuBTugukgCq1xP+0g==
+X-Received: by 2002:a05:651c:326:: with SMTP id b6mr2129317ljp.289.1583501010817;
+        Fri, 06 Mar 2020 05:23:30 -0800 (PST)
+Received: from genomnajs.ideon.se ([85.235.10.227])
+        by smtp.gmail.com with ESMTPSA id o20sm20132808lfg.45.2020.03.06.05.23.29
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 06 Mar 2020 05:23:30 -0800 (PST)
+From:   Linus Walleij <linus.walleij@linaro.org>
+To:     linux-gpio@vger.kernel.org
+Cc:     Bartosz Golaszewski <bgolaszewski@baylibre.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Brian Masney <masneyb@onstation.org>,
+        Hans Verkuil <hans.verkuil@cisco.com>, stable@vger.kernel.org
+Subject: [PATCH] gpiolib: Fix irq_disable() semantics
+Date:   Fri,  6 Mar 2020 14:23:26 +0100
+Message-Id: <20200306132326.1329640-1-linus.walleij@linaro.org>
+X-Mailer: git-send-email 2.24.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
- format=flowed
-Content-Transfer-Encoding: 7bit
-Date:   Fri, 06 Mar 2020 13:15:59 +0000
-From:   Marc Zyngier <maz@kernel.org>
-To:     Thomas Gleixner <tglx@linutronix.de>
-Cc:     LKML <linux-kernel@vger.kernel.org>, x86@kernel.org,
-        Bjorn Helgaas <bhelgaas@google.com>, linux-pci@vger.kernel.org,
-        Keith Busch <kbusch@kernel.org>,
-        Kuppuswamy Sathyanarayanan 
-        <sathyanarayanan.kuppuswamy@linux.intel.com>,
-        stable@vger.kernel.org
-Subject: Re: [patch 1/7] genirq/debugfs: Add missing sanity checks to
- interrupt injection
-In-Reply-To: <20200306130623.500019114@linutronix.de>
-References: <20200306130341.199467200@linutronix.de>
- <20200306130623.500019114@linutronix.de>
-Message-ID: <8eaa5507e4cf77042d39688465c2b989@kernel.org>
-X-Sender: maz@kernel.org
-User-Agent: Roundcube Webmail/1.3.10
-X-SA-Exim-Connect-IP: 51.254.78.96
-X-SA-Exim-Rcpt-To: tglx@linutronix.de, linux-kernel@vger.kernel.org, x86@kernel.org, bhelgaas@google.com, linux-pci@vger.kernel.org, kbusch@kernel.org, sathyanarayanan.kuppuswamy@linux.intel.com, stable@vger.kernel.org
-X-SA-Exim-Mail-From: maz@kernel.org
-X-SA-Exim-Scanned: No (on disco-boy.misterjones.org); SAEximRunCond expanded to false
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2020-03-06 13:03, Thomas Gleixner wrote:
-> Interrupts cannot be injected when the interrupt is not activated and 
-> when
-> a replay is already in progress.
-> 
-> Fixes: 536e2e34bd00 ("genirq/debugfs: Triggering of interrupts from 
-> userspace")
-> Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-> Cc: stable@vger.kernel.org
-> ---
->  kernel/irq/debugfs.c |   11 +++++++++--
->  1 file changed, 9 insertions(+), 2 deletions(-)
-> 
-> --- a/kernel/irq/debugfs.c
-> +++ b/kernel/irq/debugfs.c
-> @@ -206,8 +206,15 @@ static ssize_t irq_debug_write(struct fi
->  		chip_bus_lock(desc);
->  		raw_spin_lock_irqsave(&desc->lock, flags);
-> 
-> -		if (irq_settings_is_level(desc) || desc->istate & IRQS_NMI) {
-> -			/* Can't do level nor NMIs, sorry */
-> +		/*
-> +		 * Don't allow injection when the interrupt is:
-> +		 *  - Level or NMI type
-> +		 *  - not activated
-> +		 *  - replaying already
-> +		 */
-> +		if (irq_settings_is_level(desc) ||
-> +		    !irqd_is_activated(&desc->irq_data) ||
-> +		    (desc->istate & (IRQS_NMI | IRQS_REPLAY)) {
->  			err = -EINVAL;
->  		} else {
->  			desc->istate |= IRQS_PENDING;
+The implementation if .irq_disable() which kicks in between
+the gpiolib and the driver is not properly mimicking the
+expected semantics of the irqchip core: the irqchip will
+call .irq_disable() if that exists, else it will call
+mask_irq() which first checks if .irq_mask() is defined
+before calling it.
 
-Huh, nice catch.
+Since we are calling it unconditionally, we get this bug
+from drivers/pinctrl/qcom/pinctrl-ssbi-gpio.c, as it only
+defines .irq_mask_ack and not .irq_mask:
 
-Acked-by: Marc Zyngier <maz@kernel.org>
+Unable to handle kernel NULL pointer dereference at virtual address 00000000
+pgd = (ptrval)
+(...)
+PC is at 0x0
+LR is at gpiochip_irq_disable+0x20/0x30
 
-         M.
+Fix this by only calling .irq_mask() if it exists.
+
+Cc: Brian Masney <masneyb@onstation.org>
+Cc: Hans Verkuil <hans.verkuil@cisco.com>
+Cc: stable@vger.kernel.org
+Fixes: 461c1a7d4733 ("gpiolib: override irq_enable/disable")
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+---
+ drivers/gpio/gpiolib.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/gpio/gpiolib.c b/drivers/gpio/gpiolib.c
+index bdbc1649eafa..d0bb962f42d5 100644
+--- a/drivers/gpio/gpiolib.c
++++ b/drivers/gpio/gpiolib.c
+@@ -2169,9 +2169,16 @@ static void gpiochip_irq_disable(struct irq_data *d)
+ {
+ 	struct gpio_chip *chip = irq_data_get_irq_chip_data(d);
+ 
++	/*
++	 * Since we override .irq_disable() we need to mimic the
++	 * behaviour of __irq_disable() in irq/chip.c.
++	 * First call .irq_disable() if it exists, else mimic the
++	 * behaviour of mask_irq() which calls .irq_mask() if
++	 * it exists.
++	 */
+ 	if (chip->irq.irq_disable)
+ 		chip->irq.irq_disable(d);
+-	else
++	else if (chip->irq.chip->irq_mask)
+ 		chip->irq.chip->irq_mask(d);
+ 	gpiochip_disable_irq(chip, d->hwirq);
+ }
 -- 
-Jazz is not dead. It just smells funny...
+2.24.1
+
