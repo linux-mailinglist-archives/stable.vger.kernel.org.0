@@ -2,185 +2,193 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A1BB17BC03
-	for <lists+stable@lfdr.de>; Fri,  6 Mar 2020 12:46:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 38BE317BC4F
+	for <lists+stable@lfdr.de>; Fri,  6 Mar 2020 13:07:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726054AbgCFLqF convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Fri, 6 Mar 2020 06:46:05 -0500
-Received: from mail-db8eur05olkn2106.outbound.protection.outlook.com ([40.92.89.106]:22182
-        "EHLO EUR05-DB8-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1725827AbgCFLqF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 6 Mar 2020 06:46:05 -0500
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=lq29nZ0GrCm5ZBsRuzmUtTjNF9NMOGpbhQTgfihWLuP45FdBkK6qHNnOoOGvHEDDQKSvWY3wtZ86cjHmBYtEyipol+a4P98e0/g3aex7NbZdkcFMvnYVge2uEX74TZG6R1QMso4amIZNpTTiY3veCzWAXK5IDvMUMgJEBKS6i4cNsOGy6/cMaPS1vAeCpnuxmdAw39yt5Bdwzn+km/P0up5rKPTyZqD0eOOi6+Yz5WUgBS5oJlTJNy9vZshVUtBE6GDCuhapr5sJz1xhcAi98dkVBlX8FoxUX6M+ac7hzKhH3jMEN3mNun+N4WR8z0DeYmAo27sIAsxtUfJmSGwpUw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=wtc5L0L14OZEoSj3a0yc699cWCHD/8WO21mqeEtzBLM=;
- b=WpSskQj3jIEhQRZ4b8Ev6mTE91zMmNrE8Vd/5iziU2nduAs/7qXPsWTR7R0ViFDLbm9HLY9B5n8Hd2ZTEhfB0X1mTMxITGbzIy+1FMWH8t+s4HvqnLTD01jRHIAZ3/Cjj/SDn9yDG3nAp9x7FVGL4Yy/lRhTAwY8w96M3UCbqbmdET/3bE/lVYRqvvlXRFrdc5BrEQYiW281FNqhStpzkshFj1VvQ0NAF8HJeS1Yi9Iq6u0qBAG1Ltrwa263If4yi3S2hWqLQjEvaZnKLtN1L+l0SFNGiTFGBXHxdRwlBqFQMlxzW6SsdOLztmSELjMwwP5Pzhaww1UP230gXMEuKw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=none; dmarc=none;
- dkim=none; arc=none
-Received: from DB8EUR05FT060.eop-eur05.prod.protection.outlook.com
- (2a01:111:e400:fc0f::37) by
- DB8EUR05HT100.eop-eur05.prod.protection.outlook.com (2a01:111:e400:fc0f::330)
- with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.2793.11; Fri, 6 Mar
- 2020 11:46:01 +0000
-Received: from AM6PR03MB5170.eurprd03.prod.outlook.com (10.233.238.53) by
- DB8EUR05FT060.mail.protection.outlook.com (10.233.238.218) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.2793.11 via Frontend Transport; Fri, 6 Mar 2020 11:46:01 +0000
-Received: from AM6PR03MB5170.eurprd03.prod.outlook.com
- ([fe80::1956:d274:cab3:b4dd]) by AM6PR03MB5170.eurprd03.prod.outlook.com
- ([fe80::1956:d274:cab3:b4dd%6]) with mapi id 15.20.2772.019; Fri, 6 Mar 2020
- 11:46:01 +0000
-Received: from [192.168.1.101] (92.77.140.102) by AM0PR01CA0078.eurprd01.prod.exchangelabs.com (2603:10a6:208:10e::19) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.2793.16 via Frontend Transport; Fri, 6 Mar 2020 11:45:59 +0000
-From:   Bernd Edlinger <bernd.edlinger@hotmail.de>
-To:     "Eric W. Biederman" <ebiederm@xmission.com>
-CC:     Christian Brauner <christian.brauner@ubuntu.com>,
-        Kees Cook <keescook@chromium.org>,
-        Jann Horn <jannh@google.com>, Jonathan Corbet <corbet@lwn.net>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Alexey Dobriyan <adobriyan@gmail.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Oleg Nesterov <oleg@redhat.com>,
-        Frederic Weisbecker <frederic@kernel.org>,
-        Andrei Vagin <avagin@gmail.com>,
-        Ingo Molnar <mingo@kernel.org>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Yuyang Du <duyuyang@gmail.com>,
-        David Hildenbrand <david@redhat.com>,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        Anshuman Khandual <anshuman.khandual@arm.com>,
-        David Howells <dhowells@redhat.com>,
-        James Morris <jamorris@linux.microsoft.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Shakeel Butt <shakeelb@google.com>,
-        Jason Gunthorpe <jgg@ziepe.ca>,
-        Christian Kellner <christian@kellner.me>,
-        Andrea Arcangeli <aarcange@redhat.com>,
-        Aleksa Sarai <cyphar@cyphar.com>,
-        "Dmitry V. Levin" <ldv@altlinux.org>,
-        "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>,
-        "linux-mm@kvack.org" <linux-mm@kvack.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "linux-api@vger.kernel.org" <linux-api@vger.kernel.org>
-Subject: Re: [PATCH 2/2] exec: Add a exec_update_mutex to replace
- cred_guard_mutex
-Thread-Topic: [PATCH 2/2] exec: Add a exec_update_mutex to replace
- cred_guard_mutex
-Thread-Index: AQHV8zOjiaOX92PFsUy1cOGGFJ5V7ag6ihsAgAB9KjCAAGvuAA==
-Date:   Fri, 6 Mar 2020 11:46:01 +0000
-Message-ID: <AM6PR03MB5170FC44E102D4F8C1B2E854E4E30@AM6PR03MB5170.eurprd03.prod.outlook.com>
-References: <AM6PR03MB5170EB4427BF5C67EE98FF09E4E60@AM6PR03MB5170.eurprd03.prod.outlook.com>
- <AM6PR03MB5170B976E6387FDDAD59A118E4E70@AM6PR03MB5170.eurprd03.prod.outlook.com>
- <202003021531.C77EF10@keescook>
- <20200303085802.eqn6jbhwxtmz4j2x@wittgenstein>
- <AM6PR03MB5170285B336790D3450E2644E4E40@AM6PR03MB5170.eurprd03.prod.outlook.com>
- <87v9nlii0b.fsf@x220.int.ebiederm.org>
- <AM6PR03MB5170609D44967E044FD1BE40E4E40@AM6PR03MB5170.eurprd03.prod.outlook.com>
- <87a74xi4kz.fsf@x220.int.ebiederm.org>
- <AM6PR03MB51705AA3009B4986BB6EF92FE4E50@AM6PR03MB5170.eurprd03.prod.outlook.com>
- <87r1y8dqqz.fsf@x220.int.ebiederm.org>
- <AM6PR03MB517053AED7DC89F7C0704B7DE4E50@AM6PR03MB5170.eurprd03.prod.outlook.com>
- <AM6PR03MB51703B44170EAB4626C9B2CAE4E20@AM6PR03MB5170.eurprd03.prod.outlook.com>
- <87tv32cxmf.fsf_-_@x220.int.ebiederm.org>
- <87imjicxjw.fsf_-_@x220.int.ebiederm.org>
- <AM6PR03MB5170375DBF699D4F3DC7A08DE4E20@AM6PR03MB5170.eurprd03.prod.outlook.com>
- <87k13yawpp.fsf@x220.int.ebiederm.org>
-In-Reply-To: <87k13yawpp.fsf@x220.int.ebiederm.org>
-Accept-Language: en-US, en-GB, de-DE
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-clientproxiedby: AM0PR01CA0078.eurprd01.prod.exchangelabs.com
- (2603:10a6:208:10e::19) To AM6PR03MB5170.eurprd03.prod.outlook.com
- (2603:10a6:20b:ca::23)
-x-incomingtopheadermarker: OriginalChecksum:6A374852C01B3EF613757ABDC991B772716A76AF96AB389077CE5FA1ADE7F350;UpperCasedChecksum:A8F3CBDF8F5B3300EA6AFB7DAB9F6A9E9C28E2440B1F75B24AF0AA33A89505CC;SizeAsReceived:9962;Count:50
-x-ms-exchange-messagesentrepresentingtype: 1
-x-tmn:  [Dq0iUjElK8FhGRtZy48KKV7ZMjH4c9jK]
-x-microsoft-original-message-id: <503bf661-9426-f9ea-5c1f-a1a9762f89c3@hotmail.de>
-x-ms-publictraffictype: Email
-x-incomingheadercount: 50
-x-eopattributedmessage: 0
-x-ms-office365-filtering-correlation-id: 6ba5ec6f-ba76-4802-fac4-08d7c1c3f101
-x-ms-traffictypediagnostic: DB8EUR05HT100:
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: ccWyuF+3K79hahWw5nqZBFdxKADIvjDYt9BhFhOlnYoAXTfBMBvQBsyh5knnwHo+WpwBPWHf+dozFWjZT38kIXZA076X9TBK0ITYEEphnO/gZCXHPBfk1NhTHsVqWLF9g+dRgUHhX9dMTvQ20TMmYONoh6fTQRluGtoJhVxXXsjpkX69+X453rFA1BeaE24qfafvFDis0Wd3FeebYoJhk1d709lnnCJ4728JuiLgMlY=
-x-ms-exchange-antispam-messagedata: joD90TpJxkAgvVm47IEsGXTTY+KcTvtpuerVZVWtSC/5TAyM5h/sAKp5hJQBlAyIcbdhfLE2Dri55KJWxH9Rp3Jq9y18JZOxAr5TRPlrUbkxYdwY+ZXx/2G8cnq1elXojxrdBUDi2HEgBVV44Pr9iA==
-x-ms-exchange-transport-forked: True
-Content-Type: text/plain; charset="Windows-1252"
-Content-ID: <1C556EFF0DB20147A68F62658B55FF00@eurprd03.prod.outlook.com>
-Content-Transfer-Encoding: 8BIT
+        id S1726171AbgCFMHT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 6 Mar 2020 07:07:19 -0500
+Received: from mail-lf1-f66.google.com ([209.85.167.66]:40783 "EHLO
+        mail-lf1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726185AbgCFMHT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 6 Mar 2020 07:07:19 -0500
+Received: by mail-lf1-f66.google.com with SMTP id p5so1707714lfc.7
+        for <stable@vger.kernel.org>; Fri, 06 Mar 2020 04:07:16 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=4KPUPSTkugtYA0PbEeoVta4pOw/ai16ArIKK838lBEU=;
+        b=CqMIIU6OgUcYfP+nO15DqV4Gn+28U4l0XKINHu7YR8cz06yd1dTfyQOySiqK8perVe
+         q9cBlZ2hKQbb6Y6/ajVOTatYAlb8vOP2A+OXF4OW7VofwPUW8se8+6H3YntUcm9i03X0
+         dhmQuNmiKWxKSbFtmu3Dise3GGTlB0YOpqwp7veoFIANAJ/YXBAnSy0VfnbTKvbDT1un
+         de/8n7Nsne1PBues3q5A7DLVutU3rmafGrzSpvI7sWUzRtt1FntXj7ANmZRArJrX4P6N
+         v3sBy6cEI8TxFNCkLrLgmFRuuUUbivLim/IAEzmhkO9x3QDAIpTgcMcIbIzsGSY+zlbK
+         L3Wg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=4KPUPSTkugtYA0PbEeoVta4pOw/ai16ArIKK838lBEU=;
+        b=n8S/MW67AS3wsZcY3owBcNtkylw0mddmiymW7noFiXTz7GJYCHRdrS6LZzTR+bjUlG
+         u1cbRRMLMXSnhK7MyVDEPKQ6DeK+gJDQa2DXcWaBTV3FL/L/sX1E9trx0QepQuAgAlFU
+         WjWFScBstD1r/t+hZzMEJKNr0uqWE/+Z0MzKBVLjo5NLXp2kXkO1CsjyqvCeKYzs6ffD
+         gLKCnhW2Yg8Pqoq6Z3M/FTfnQW7iHWOcUOBSwG3ykUM0N7XJIvM4Owfy6WgzCoihWSrh
+         1sRazXyEbG83vJRzez390doPKbMFc9sYA2yXJtiVwlBJvOH5lHyNR3bs5n6trQJnSVn4
+         GwWA==
+X-Gm-Message-State: ANhLgQ3h4lP/br124lTpqnSMB7Vvz1X+b8/pRrKcQaFnU1md1GVRnp7g
+        YsjsKPAnm3rh61JoIYgFnmQPC9zvM7eYQTEPnqoU4A==
+X-Google-Smtp-Source: ADFU+vvQ1aR+zpKusZ09dVvP7kf4bC66fgMS07Kbjp8L2S6t2eYS+496jT2rtl2R7T0gZJhh4p4P35QHGaUh8yls+jk=
+X-Received: by 2002:a19:c215:: with SMTP id l21mr1732735lfc.95.1583496435711;
+ Fri, 06 Mar 2020 04:07:15 -0800 (PST)
 MIME-Version: 1.0
-X-OriginatorOrg: outlook.com
-X-MS-Exchange-CrossTenant-RMS-PersistedConsumerOrg: 00000000-0000-0000-0000-000000000000
-X-MS-Exchange-CrossTenant-Network-Message-Id: 6ba5ec6f-ba76-4802-fac4-08d7c1c3f101
-X-MS-Exchange-CrossTenant-rms-persistedconsumerorg: 00000000-0000-0000-0000-000000000000
-X-MS-Exchange-CrossTenant-originalarrivaltime: 06 Mar 2020 11:46:01.1281
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Internet
-X-MS-Exchange-CrossTenant-id: 84df9e7f-e9f6-40af-b435-aaaaaaaaaaaa
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DB8EUR05HT100
+References: <20200305172921.22743-1-vincent.guittot@linaro.org>
+ <e31aa232-bc7e-a7b9-5b6a-a1131ac88164@arm.com> <CAKfTPtAqg+CGNBHF53dXp4BcmtucgW4k4skQ1x1jxuyo0PDaMg@mail.gmail.com>
+In-Reply-To: <CAKfTPtAqg+CGNBHF53dXp4BcmtucgW4k4skQ1x1jxuyo0PDaMg@mail.gmail.com>
+From:   Vincent Guittot <vincent.guittot@linaro.org>
+Date:   Fri, 6 Mar 2020 13:07:04 +0100
+Message-ID: <CAKfTPtB8YrVd=DjPXCs589wCJWT_Jo_dyLQ4WMdEKPTAt5GRvw@mail.gmail.com>
+Subject: Re: [PATCH] sched/fair: fix enqueue_task_fair warning
+To:     Dietmar Eggemann <dietmar.eggemann@arm.com>
+Cc:     Ingo Molnar <mingo@redhat.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Juri Lelli <juri.lelli@redhat.com>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Ben Segall <bsegall@google.com>, Mel Gorman <mgorman@suse.de>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        "# v4 . 16+" <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Fri, 6 Mar 2020 at 10:12, Vincent Guittot <vincent.guittot@linaro.org> wrote:
+>
+> On Thu, 5 Mar 2020 at 20:07, Dietmar Eggemann <dietmar.eggemann@arm.com> wrote:
+> >
+> > On 05/03/2020 18:29, Vincent Guittot wrote:
+> > > When a cfs rq is throttled, the latter and its child are removed from the
+> > > leaf list but their nr_running is not changed which includes staying higher
+> > > than 1. When a task is enqueued in this throttled branch, the cfs rqs must
+> > > be added back in order to ensure correct ordering in the list but this can
+> > > only happens if nr_running == 1.
+> > > When cfs bandwidth is used, we call unconditionnaly list_add_leaf_cfs_rq()
+> > > when enqueuing an entity to make sure that the complete branch will be
+> > > added.
+> > >
+> > > Reported-by: Christian Borntraeger <borntraeger@de.ibm.com>
+> > > Tested-by: Christian Borntraeger <borntraeger@de.ibm.com>
+> > > Cc: stable@vger.kernel.org #v5.1+
+> > > Signed-off-by: Vincent Guittot <vincent.guittot@linaro.org>
+> > > ---
+> > >  kernel/sched/fair.c | 11 +++++++++--
+> > >  1 file changed, 9 insertions(+), 2 deletions(-)
+> > >
+> > > diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
+> > > index fcc968669aea..bdc5bb72ab31 100644
+> > > --- a/kernel/sched/fair.c
+> > > +++ b/kernel/sched/fair.c
+> > > @@ -4117,6 +4117,7 @@ static inline void check_schedstat_required(void)
+> > >  #endif
+> > >  }
+> > >
+> > > +static inline bool cfs_bandwidth_used(void);
+> > >
+> > >  /*
+> > >   * MIGRATION
+> > > @@ -4195,10 +4196,16 @@ enqueue_entity(struct cfs_rq *cfs_rq, struct sched_entity *se, int flags)
+> > >               __enqueue_entity(cfs_rq, se);
+> > >       se->on_rq = 1;
+> > >
+> > > -     if (cfs_rq->nr_running == 1) {
+> > > +     /*
+> > > +      * When bandwidth control is enabled, cfs might have been removed because of
+> > > +      * a parent been throttled but cfs->nr_running > 1. Try to add it
+> > > +      * unconditionnally.
+> > > +      */
+> > > +     if (cfs_rq->nr_running == 1 || cfs_bandwidth_used())
+> > >               list_add_leaf_cfs_rq(cfs_rq);
+> > > +
+> > > +     if (cfs_rq->nr_running == 1)
+> > >               check_enqueue_throttle(cfs_rq);
+> > > -     }
+> > >  }
+> > >
+> > >  static void __clear_buddies_last(struct sched_entity *se)
+> >
+> > I experimented with an rt-app based setup on Arm64 Juno (6 CPUs):
+> >
+> > cgroupv1 hierarchy A/B/C, all CFS bw controlled (30,000/100,000)
+> >
+> > I create A/B/C outside rt-app so I can have rt-app runs with an already
+> > existing taskgroup hierarchy. There is a 4 secs gap between consecutive
+> > rt-app runs.
+> >
+> > The rt-app files contains 6 periodic CFS tasks (25,000/100,000) running
+> > in /A/B/C, /A/B, /A (3 rt-app task phases).
+> >
+> > I get w/ the patch (and the debug patch applied to unthrottle_cfs_rq()):
+> >
+> > root@juno:~#
+> > [  409.236925] CPU1 path=/A/B on_list=1 nr_running=1 throttled=1
+> > [  409.242682] CPU1 path=/A on_list=0 nr_running=0 throttled=1
+> > [  409.248260] CPU1 path=/ on_list=1 nr_running=0 throttled=0
+> > [  409.253748] ------------[ cut here ]------------
+> > [  409.258365] rq->tmp_alone_branch != &rq->leaf_cfs_rq_list
+> > [  409.258382] WARNING: CPU: 1 PID: 0 at kernel/sched/fair.c:380
+> > unthrottle_cfs_rq+0x21c/0x2a8
+> > ...
+> > [  409.275196] CPU: 1 PID: 0 Comm: swapper/1 Not tainted 5.6.0-rc3-dirty #62
+> > [  409.281990] Hardware name: ARM Juno development board (r0) (DT)
+> > ...
+> > [  409.384644] Call trace:
+> > [  409.387089]  unthrottle_cfs_rq+0x21c/0x2a8
+> > [  409.391188]  distribute_cfs_runtime+0xf4/0x198
+> > [  409.395634]  sched_cfs_period_timer+0x134/0x240
+> > [  409.400168]  __hrtimer_run_queues+0x10c/0x3c0
+> > [  409.404527]  hrtimer_interrupt+0xd4/0x250
+> > [  409.408539]  tick_handle_oneshot_broadcast+0x17c/0x208
+> > [  409.413683]  sp804_timer_interrupt+0x30/0x40
+> >
+> > If I add the following snippet the issue goes away:
 
+If it's fine for you, I'm going to add this in a new version of the patch
 
-Am 06.03.20 um 06:17 schrieb Eric W. Biederman:
-> Bernd Edlinger <bernd.edlinger@hotmail.de> writes:
-> 
->> On 3/5/20 10:16 PM, Eric W. Biederman wrote:
->>>
->>> The cred_guard_mutex is problematic.  The cred_guard_mutex is held
->>> over the userspace accesses as the arguments from userspace are read.
->>> The cred_guard_mutex is held of PTRACE_EVENT_EXIT as the the other
->>> threads are killed.  The cred_guard_mutex is held over
->>> "put_user(0, tsk->clear_child_tid)" in exit_mm().
->>>
->>> Any of those can result in deadlock, as the cred_guard_mutex is held
->>> over a possible indefinite userspace waits for userspace.
->>>
->>> Add exec_update_mutex that is only held over exec updating process
->>> with the new contents of exec, so that code that needs not to be
->>> confused by exec changing the mm and the cred in ways that can not
->>> happen during ordinary execution of a process can take.
->>>
->>> The plan is to switch the users of cred_guard_mutex to
->>> exed_udpate_mutex one by one.  This lets us move forward while still
->>> being careful and not introducing any regressions.
->>>
->>> Link: https://lore.kernel.org/lkml/20160921152946.GA24210@dhcp22.suse.cz/
->>> Link: https://lore.kernel.org/lkml/AM6PR03MB5170B06F3A2B75EFB98D071AE4E60@AM6PR03MB5170.eurprd03.prod.outlook.com/
->>> Link: https://lore.kernel.org/linux-fsdevel/20161102181806.GB1112@redhat.com/
->>> Link: https://lore.kernel.org/lkml/20160923095031.GA14923@redhat.com/
->>> Link: https://lore.kernel.org/lkml/20170213141452.GA30203@redhat.com/
->>> Ref: 45c1a159b85b ("Add PTRACE_O_TRACEVFORKDONE and PTRACE_O_TRACEEXIT facilities.")
->>> Ref: 456f17cd1a28 ("[PATCH] user-vm-unlock-2.5.31-A2")
->>> Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
->>> ---
->>>  fs/exec.c                    | 4 ++++
->>>  include/linux/sched/signal.h | 9 ++++++++-
->>>  kernel/fork.c                | 1 +
->>>  3 files changed, 13 insertions(+), 1 deletion(-)
->>>
->>> diff --git a/fs/exec.c b/fs/exec.c
->>> index c243f9660d46..ad7b518f906d 100644
->>> --- a/fs/exec.c
->>> +++ b/fs/exec.c
->>> @@ -1182,6 +1182,7 @@ static int de_thread(struct linux_binprm *bprm, struct task_struct *tsk)
->>>  		release_task(leader);
->>>  	}
->>>  
->>> +	mutex_lock(&current->signal->exec_update_mutex);
+> >
+> > diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
+> > index e9fd5379bb7e..5e03be046aba 100644
+> > --- a/kernel/sched/fair.c
+> > +++ b/kernel/sched/fair.c
+> > @@ -4627,11 +4627,17 @@ void unthrottle_cfs_rq(struct cfs_rq *cfs_rq)
+> >                         break;
+> >         }
+> >
+> > -       assert_list_leaf_cfs_rq(rq);
+> > -
+> >         if (!se)
+> >                 add_nr_running(rq, task_delta);
+> >
 
-And by the way, could you make this mutex_lock_killable?
+will add similar comment  as for enqueue_task_fair
 
++ /*
++ * The cfs_rq_throttled() breaks in the above iteration can result in
++ * incomplete leaf list maintenance, resulting in triggering the assertion
++ * below.
++ */
 
-Bernd.
+> > +       for_each_sched_entity(se) {
+> > +               cfs_rq = cfs_rq_of(se);
+> > +
+> > +               list_add_leaf_cfs_rq(cfs_rq);
+> > +       }
+>
+> Yes make sense.
+>
+> > +
+> > +       assert_list_leaf_cfs_rq(rq);
+> > +
+> >         /* Determine whether we need to wake up potentially idle CPU: */
+> >         if (rq->curr == rq->idle && rq->cfs.nr_running)
+> >                 resched_curr(rq);
