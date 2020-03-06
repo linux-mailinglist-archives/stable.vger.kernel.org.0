@@ -2,80 +2,114 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F73317BEDB
-	for <lists+stable@lfdr.de>; Fri,  6 Mar 2020 14:34:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D8ABF17BF26
+	for <lists+stable@lfdr.de>; Fri,  6 Mar 2020 14:39:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727556AbgCFNdq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 6 Mar 2020 08:33:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54136 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726490AbgCFNdp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 6 Mar 2020 08:33:45 -0500
-Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 076D2206D5;
-        Fri,  6 Mar 2020 13:33:44 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583501625;
-        bh=7oNeaBEcLBJTlFLElD/YGwtOn6D5hzP860pjWY8f/ew=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=KaVM1osOWw8y0P54D1DPMM/0p2uh33fDRZYm86EZibf7gD5HZ+ZR5xpo3KKmd4cUD
-         zK+YT/+jgdAIEddSGGLbEjw3khomaoDB3MXpykTbXhpkLGFm2HeWOa1+2muLugtfqE
-         iCOdURjWdjFlZNqF22w/WD34hJSRPmjQ5nykP8mg=
-Date:   Fri, 6 Mar 2020 08:33:43 -0500
-From:   Sasha Levin <sashal@kernel.org>
-To:     Paolo Valente <paolo.valente@linaro.org>
-Cc:     stable@vger.kernel.org, Chris Evich <cevich@redhat.com>
-Subject: Re: block, bfq: port of a series of fix commits to 5.4 and 5.5
-Message-ID: <20200306133343.GP21491@sasha-vm>
-References: <543B99A1-B872-4F06-9A0F-EFFB9CAD5E14@linaro.org>
+        id S1726990AbgCFNi7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 6 Mar 2020 08:38:59 -0500
+Received: from mail.fireflyinternet.com ([109.228.58.192]:55759 "EHLO
+        fireflyinternet.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1726090AbgCFNi7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 6 Mar 2020 08:38:59 -0500
+X-Default-Received-SPF: pass (skip=forwardok (res=PASS)) x-ip-name=78.156.65.138;
+Received: from haswell.alporthouse.com (unverified [78.156.65.138]) 
+        by fireflyinternet.com (Firefly Internet (M1)) with ESMTP id 20467737-1500050 
+        for multiple; Fri, 06 Mar 2020 13:38:52 +0000
+From:   Chris Wilson <chris@chris-wilson.co.uk>
+To:     intel-gfx@lists.freedesktop.org
+Cc:     mika.kuoppala@linux.intel.com, tvrtko.ursulin@intel.com,
+        Chris Wilson <chris@chris-wilson.co.uk>, stable@vger.kernel.org
+Subject: [PATCH 02/17] drm/i915/execlists: Enable timeslice on partial virtual engine dequeue
+Date:   Fri,  6 Mar 2020 13:38:37 +0000
+Message-Id: <20200306133852.3420322-2-chris@chris-wilson.co.uk>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20200306133852.3420322-1-chris@chris-wilson.co.uk>
+References: <20200306133852.3420322-1-chris@chris-wilson.co.uk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <543B99A1-B872-4F06-9A0F-EFFB9CAD5E14@linaro.org>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Paolo,
+If we stop filling the ELSP due to an incompatible virtual engine
+request, check if we should enable the timeslice on behalf of the queue.
 
-On Thu, Mar 05, 2020 at 07:49:29AM +0100, Paolo Valente wrote:
->Hi,
->Fedora requested the following fix commits, currently available in
->5.6-rc4, to be ported to 5.4 and 5.5 [1]:
->db37a34c563b block, bfq: get a ref to a group when adding it to a service tree
+This fixes the case where we are inspecting the last->next element when
+we know that the last element is the last request in the execution queue,
+and so decided we did not need to enable timeslicing despite the intent
+to do so!
 
-I took this one.
+Fixes: 8ee36e048c98 ("drm/i915/execlists: Minimalistic timeslicing")
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: Mika Kuoppala <mika.kuoppala@linux.intel.com>
+Cc: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+Cc: <stable@vger.kernel.org> # v5.4+
+---
+ drivers/gpu/drm/i915/gt/intel_lrc.c | 29 ++++++++++++++++++-----------
+ 1 file changed, 18 insertions(+), 11 deletions(-)
 
->4d8340d0d4d9 block, bfq: remove ifdefs from around gets/puts of bfq groups
-
-But not this one, it looks like a cleanup that isn't needed by the
-following patches.
-
->33a16a980468 block, bfq: extend incomplete name of field on_st
-
-Same as above.
-
->ecedd3d7e199 block, bfq: get extra ref to prevent a queue from being freed during a group move
-
-I took this one.
-
->32c59e3a9a5a block, bfq: do not insert oom queue into position tree
-
-And this one.
-
->f718b093277d block, bfq: do not plug I/O for bfq_queues with no proc refs
-
-This patch seems to be already in.
-
->This is the first time I submit something for stable branches, I hope
->I did everything right (I'm following option 2 in [2]).
-
-You did, thank you :)
-
+diff --git a/drivers/gpu/drm/i915/gt/intel_lrc.c b/drivers/gpu/drm/i915/gt/intel_lrc.c
+index 13941d1c0a4a..a1d268880cfe 100644
+--- a/drivers/gpu/drm/i915/gt/intel_lrc.c
++++ b/drivers/gpu/drm/i915/gt/intel_lrc.c
+@@ -1757,11 +1757,9 @@ need_timeslice(struct intel_engine_cs *engine, const struct i915_request *rq)
+ 	if (!intel_engine_has_timeslices(engine))
+ 		return false;
+ 
+-	if (list_is_last(&rq->sched.link, &engine->active.requests))
+-		return false;
+-
+-	hint = max(rq_prio(list_next_entry(rq, sched.link)),
+-		   engine->execlists.queue_priority_hint);
++	hint = engine->execlists.queue_priority_hint;
++	if (!list_is_last(&rq->sched.link, &engine->active.requests))
++		hint = max(hint, rq_prio(list_next_entry(rq, sched.link)));
+ 
+ 	return hint >= effective_prio(rq);
+ }
+@@ -1803,6 +1801,18 @@ static void set_timeslice(struct intel_engine_cs *engine)
+ 	set_timer_ms(&engine->execlists.timer, active_timeslice(engine));
+ }
+ 
++static void start_timeslice(struct intel_engine_cs *engine)
++{
++	struct intel_engine_execlists *execlists = &engine->execlists;
++
++	execlists->switch_priority_hint = execlists->queue_priority_hint;
++
++	if (timer_pending(&execlists->timer))
++		return;
++
++	set_timer_ms(&execlists->timer, timeslice(engine));
++}
++
+ static void record_preemption(struct intel_engine_execlists *execlists)
+ {
+ 	(void)I915_SELFTEST_ONLY(execlists->preempt_hang.count++);
+@@ -1966,11 +1976,7 @@ static void execlists_dequeue(struct intel_engine_cs *engine)
+ 				 * Even if ELSP[1] is occupied and not worthy
+ 				 * of timeslices, our queue might be.
+ 				 */
+-				if (!execlists->timer.expires &&
+-				    need_timeslice(engine, last))
+-					set_timer_ms(&execlists->timer,
+-						     timeslice(engine));
+-
++				start_timeslice(engine);
+ 				return;
+ 			}
+ 		}
+@@ -2005,7 +2011,8 @@ static void execlists_dequeue(struct intel_engine_cs *engine)
+ 
+ 			if (last && !can_merge_rq(last, rq)) {
+ 				spin_unlock(&ve->base.active.lock);
+-				return; /* leave this for another */
++				start_timeslice(engine);
++				return; /* leave this for another sibling */
+ 			}
+ 
+ 			ENGINE_TRACE(engine,
 -- 
-Thanks,
-Sasha
+2.25.1
+
