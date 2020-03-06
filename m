@@ -2,150 +2,173 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A81617C2DE
-	for <lists+stable@lfdr.de>; Fri,  6 Mar 2020 17:26:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B0E6B17C44D
+	for <lists+stable@lfdr.de>; Fri,  6 Mar 2020 18:27:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726766AbgCFQ0k convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Fri, 6 Mar 2020 11:26:40 -0500
-Received: from mail-oln040092074103.outbound.protection.outlook.com ([40.92.74.103]:51330
-        "EHLO EUR04-DB3-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726166AbgCFQ0j (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 6 Mar 2020 11:26:39 -0500
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=mndLkuF/4+ZA8pg23sQ9BVkOtGDP0VE5c+lpIaJUjY5YySiJ2Avseh8fQonLow2E+UilVMoEs2iHF8hIC3VRAYouAh7Vwqg1H2dkuzyrrUc+cEH0xzOtpEo6ph2m6pjj2PkW4o7NLJ3jmEFjinyknuVti1ODKfTi0Q/5XGP42GPICaX422J4muvDnUTzaSwmamuwyiclT/DWWLH0OYvY333u8b8OfKvt4OvVtw+uJ6ppL3cuMjOLsUnp2tnf0za8aONfin53ImrsJhDV5Q4R0OhBK+wOPG8b8nTBqAF4mI3CGFtrdq+D1ckftSU/1lPT8YgVvWW8G07TBEKtQTZ+sg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=8Io7E+Ui2qIzTcTCR72QAGn67K2nLZUYLahWMx2SMUc=;
- b=X57kxxxfGDnewALInZkbNePdMoLa4oQkduU6T3p6vZKjlh/r2O+Qk9EXP4RKbWDVVWYK+V3jnggakzBFmAsyFgHXAite5gAeq3akrWpdaplqaLetAlV1Zqayc3zIByJoFTBT1LTkHtMVoOxWTr6hr5MAej6Wgo+CAqi+RRpPuKSWIe651eQirSas0L+RVXN1Y3Yh/qR1DBJlJpTD0QYoMuJVo2m4fU+i+IZ7D/LdoXOP4t5UGgMaW2MAyC51gUo5hmsYNoUXOkT5CsVesO3q953423vsUXE2AA9+cj1gTghAMUpjJKIPlwZ+s2kD5Usi/175kxzmB/xtrbL9M+OvUA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=none; dmarc=none;
- dkim=none; arc=none
-Received: from VI1EUR04FT058.eop-eur04.prod.protection.outlook.com
- (2a01:111:e400:7e0e::36) by
- VI1EUR04HT180.eop-eur04.prod.protection.outlook.com (2a01:111:e400:7e0e::66)
- with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.2793.11; Fri, 6 Mar
- 2020 16:26:35 +0000
-Received: from AM6PR03MB5170.eurprd03.prod.outlook.com (10.152.28.57) by
- VI1EUR04FT058.mail.protection.outlook.com (10.152.29.71) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.2793.11 via Frontend Transport; Fri, 6 Mar 2020 16:26:35 +0000
-Received: from AM6PR03MB5170.eurprd03.prod.outlook.com
- ([fe80::1956:d274:cab3:b4dd]) by AM6PR03MB5170.eurprd03.prod.outlook.com
- ([fe80::1956:d274:cab3:b4dd%6]) with mapi id 15.20.2772.019; Fri, 6 Mar 2020
- 16:26:35 +0000
-Received: from [192.168.1.101] (92.77.140.102) by ZRAP278CA0014.CHEP278.PROD.OUTLOOK.COM (2603:10a6:910:10::24) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.2793.16 via Frontend Transport; Fri, 6 Mar 2020 16:26:33 +0000
-From:   Bernd Edlinger <bernd.edlinger@hotmail.de>
-To:     "Eric W. Biederman" <ebiederm@xmission.com>
-CC:     Christian Brauner <christian.brauner@ubuntu.com>,
-        Kees Cook <keescook@chromium.org>,
-        Jann Horn <jannh@google.com>, Jonathan Corbet <corbet@lwn.net>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Alexey Dobriyan <adobriyan@gmail.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Oleg Nesterov <oleg@redhat.com>,
-        Frederic Weisbecker <frederic@kernel.org>,
-        Andrei Vagin <avagin@gmail.com>,
-        Ingo Molnar <mingo@kernel.org>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Yuyang Du <duyuyang@gmail.com>,
-        David Hildenbrand <david@redhat.com>,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        Anshuman Khandual <anshuman.khandual@arm.com>,
-        David Howells <dhowells@redhat.com>,
-        James Morris <jamorris@linux.microsoft.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Shakeel Butt <shakeelb@google.com>,
-        Jason Gunthorpe <jgg@ziepe.ca>,
-        Christian Kellner <christian@kellner.me>,
-        Andrea Arcangeli <aarcange@redhat.com>,
-        Aleksa Sarai <cyphar@cyphar.com>,
-        "Dmitry V. Levin" <ldv@altlinux.org>,
-        "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>,
-        "linux-mm@kvack.org" <linux-mm@kvack.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "linux-api@vger.kernel.org" <linux-api@vger.kernel.org>
-Subject: Re: [PATCH 1/2] exec: Properly mark the point of no return
-Thread-Topic: [PATCH 1/2] exec: Properly mark the point of no return
-Thread-Index: AQHV8zOIDtdt4OHpy0WII6Z+9AZegqg6nBAAgABo5giAALyfgA==
-Date:   Fri, 6 Mar 2020 16:26:34 +0000
-Message-ID: <AM6PR03MB5170688693E4114CA9367211E4E30@AM6PR03MB5170.eurprd03.prod.outlook.com>
-References: <AM6PR03MB5170EB4427BF5C67EE98FF09E4E60@AM6PR03MB5170.eurprd03.prod.outlook.com>
- <AM6PR03MB5170B976E6387FDDAD59A118E4E70@AM6PR03MB5170.eurprd03.prod.outlook.com>
- <202003021531.C77EF10@keescook>
- <20200303085802.eqn6jbhwxtmz4j2x@wittgenstein>
- <AM6PR03MB5170285B336790D3450E2644E4E40@AM6PR03MB5170.eurprd03.prod.outlook.com>
- <87v9nlii0b.fsf@x220.int.ebiederm.org>
- <AM6PR03MB5170609D44967E044FD1BE40E4E40@AM6PR03MB5170.eurprd03.prod.outlook.com>
- <87a74xi4kz.fsf@x220.int.ebiederm.org>
- <AM6PR03MB51705AA3009B4986BB6EF92FE4E50@AM6PR03MB5170.eurprd03.prod.outlook.com>
- <87r1y8dqqz.fsf@x220.int.ebiederm.org>
- <AM6PR03MB517053AED7DC89F7C0704B7DE4E50@AM6PR03MB5170.eurprd03.prod.outlook.com>
- <AM6PR03MB51703B44170EAB4626C9B2CAE4E20@AM6PR03MB5170.eurprd03.prod.outlook.com>
- <87tv32cxmf.fsf_-_@x220.int.ebiederm.org>
- <87o8tacxl3.fsf_-_@x220.int.ebiederm.org>
- <AM6PR03MB5170B05CFDAF21D8A99B7E48E4E20@AM6PR03MB5170.eurprd03.prod.outlook.com>
- <87pndqax3j.fsf@x220.int.ebiederm.org>
-In-Reply-To: <87pndqax3j.fsf@x220.int.ebiederm.org>
-Accept-Language: en-US, en-GB, de-DE
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-clientproxiedby: ZRAP278CA0014.CHEP278.PROD.OUTLOOK.COM
- (2603:10a6:910:10::24) To AM6PR03MB5170.eurprd03.prod.outlook.com
- (2603:10a6:20b:ca::23)
-x-incomingtopheadermarker: OriginalChecksum:DA816E1DEDC4BA9DF9DBBBF2CC39CA4E2C4664A595A9424824BFDAF23294FBD6;UpperCasedChecksum:E1114A9E9CF3C62F1A20B426AF6762161E7A0FAD8694E8A5FE36B25F189AB47F;SizeAsReceived:9897;Count:50
-x-ms-exchange-messagesentrepresentingtype: 1
-x-tmn:  [w3tKcLr0mKFaBaS1K/cxK7beXyXo0iyJ]
-x-microsoft-original-message-id: <4fe01e54-2f0f-3381-ed4c-e90f63741717@hotmail.de>
-x-ms-publictraffictype: Email
-x-incomingheadercount: 50
-x-eopattributedmessage: 0
-x-ms-office365-filtering-correlation-id: ec1878a5-305e-44f8-082d-08d7c1eb2307
-x-ms-traffictypediagnostic: VI1EUR04HT180:
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: V3jE/pm2bdQm0TxXo+FfbjDhjLWDPgMmRhMVcgCeHk/31mvdiWIA/DuG/043D396eT0QhFXCyL7dSirFLnZdhQ6U12OdMjsWMC+kR0KRZ3jsaIHXyNtRD30l2bWbKtgFn8hQJZ/5gNNJH9yux7NmmfgrO0/veRe2FrUNcfobzZSqwf+29d8me5/Go+45oAnG
-x-ms-exchange-antispam-messagedata: k+uC5fcaLM7rehNPDQoZeMxt3OfEGzH7p2/ZRbCOhIoecExfA2Ouq1x+euM5xUOFLKbkSJ2wIMD5//t/wWfpdjfvSV3a+CYfh5EKJWqtpiDWQu8cFt0i+4gka2bxuT4/7Yh5+doi7cT4MnQZBcmZtg==
-x-ms-exchange-transport-forked: True
-Content-Type: text/plain; charset="Windows-1252"
-Content-ID: <7C09FD473FD1FA4FA82AF05D172951FF@eurprd03.prod.outlook.com>
-Content-Transfer-Encoding: 8BIT
+        id S1725873AbgCFR1l (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 6 Mar 2020 12:27:41 -0500
+Received: from 10.mo179.mail-out.ovh.net ([46.105.79.46]:55137 "EHLO
+        10.mo179.mail-out.ovh.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725835AbgCFR1l (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 6 Mar 2020 12:27:41 -0500
+X-Greylist: delayed 8741 seconds by postgrey-1.27 at vger.kernel.org; Fri, 06 Mar 2020 12:27:39 EST
+Received: from player758.ha.ovh.net (unknown [10.110.103.115])
+        by mo179.mail-out.ovh.net (Postfix) with ESMTP id 96E9915E539
+        for <stable@vger.kernel.org>; Fri,  6 Mar 2020 16:01:56 +0100 (CET)
+Received: from kaod.org (82-64-250-170.subs.proxad.net [82.64.250.170])
+        (Authenticated sender: clg@kaod.org)
+        by player758.ha.ovh.net (Postfix) with ESMTPSA id 0DE06102B4F2F;
+        Fri,  6 Mar 2020 15:01:49 +0000 (UTC)
+From:   =?UTF-8?q?C=C3=A9dric=20Le=20Goater?= <clg@kaod.org>
+To:     Michael Ellerman <mpe@ellerman.id.au>
+Cc:     Greg Kurz <groug@kaod.org>, linuxppc-dev@lists.ozlabs.org,
+        =?UTF-8?q?C=C3=A9dric=20Le=20Goater?= <clg@kaod.org>,
+        David Gibson <david@gibson.dropbear.id.au>,
+        stable@vger.kernel.org
+Subject: [PATCH 1/4] powerpc/xive: Use XIVE_BAD_IRQ instead of zero to catch non configured IPIs
+Date:   Fri,  6 Mar 2020 16:01:40 +0100
+Message-Id: <20200306150143.5551-2-clg@kaod.org>
+X-Mailer: git-send-email 2.21.1
+In-Reply-To: <20200306150143.5551-1-clg@kaod.org>
+References: <20200306150143.5551-1-clg@kaod.org>
 MIME-Version: 1.0
-X-OriginatorOrg: outlook.com
-X-MS-Exchange-CrossTenant-RMS-PersistedConsumerOrg: 00000000-0000-0000-0000-000000000000
-X-MS-Exchange-CrossTenant-Network-Message-Id: ec1878a5-305e-44f8-082d-08d7c1eb2307
-X-MS-Exchange-CrossTenant-rms-persistedconsumerorg: 00000000-0000-0000-0000-000000000000
-X-MS-Exchange-CrossTenant-originalarrivaltime: 06 Mar 2020 16:26:34.9940
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Internet
-X-MS-Exchange-CrossTenant-id: 84df9e7f-e9f6-40af-b435-aaaaaaaaaaaa
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: VI1EUR04HT180
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Ovh-Tracer-Id: 7341993296681339825
+X-VR-SPAMSTATE: OK
+X-VR-SPAMSCORE: -100
+X-VR-SPAMCAUSE: gggruggvucftvghtrhhoucdtuddrgedugedrudduvddgjeegucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuqfggjfdpvefjgfevmfevgfenuceurghilhhouhhtmecuhedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujfgurhephffvufffkffojghfgggtgfesthekredtredtjeenucfhrhhomhepveorughrihgtucfnvgcuifhorghtvghruceotghlgheskhgrohgurdhorhhgqeenucfkpheptddrtddrtddrtddpkedvrdeigedrvdehtddrudejtdenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhhouggvpehsmhhtphdqohhuthdphhgvlhhopehplhgrhigvrhejheekrdhhrgdrohhvhhdrnhgvthdpihhnvghtpedtrddtrddtrddtpdhmrghilhhfrhhomheptghlgheskhgrohgurdhorhhgpdhrtghpthhtohepshhtrggslhgvsehvghgvrhdrkhgvrhhnvghlrdhorhhg
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 3/6/20 6:09 AM, Eric W. Biederman wrote:
-> Bernd Edlinger <bernd.edlinger@hotmail.de> writes:
-> 
->> On 3/5/20 10:15 PM, Eric W. Biederman wrote:
->>>
->>> Add a flag binfmt->unrecoverable to mark when execution has gotten to
->>> the point where it is impossible to return to userspace with the
->>> calling process unchanged.
->>>
->>> While techinically this state starts as soon as de_thread starts
+When a CPU is brought up, an IPI number is allocated and recorded
+under the XIVE CPU structure. Invalid IPI numbers are tracked with
+interrupt number 0x0.
 
-typo: s/techinically/technically/
+On the PowerNV platform, the interrupt number space starts at 0x10 and
+this works fine. However, on the sPAPR platform, it is possible to
+allocate the interrupt number 0x0 and this raises an issue when CPU 0
+is unplugged. The XIVE spapr driver tracks allocated interrupt numbers
+in a bitmask and it is not correctly updated when interrupt number 0x0
+is freed. It stays allocated and it is then impossible to reallocate.
 
->>> killing threads, the only return path at that point is if there is a
->>> fatal signal pending.  I have choosen instead to set unrecoverable
+Fix by using the XIVE_BAD_IRQ value instead of zero on both platforms.
 
-I'm not good at english, is this chosen ?
+Reported-by: David Gibson <david@gibson.dropbear.id.au>
+Fixes: eac1e731b59e ("powerpc/xive: guest exploitation of the XIVE interrupt controller")
+Cc: stable@vger.kernel.org # v4.14+
+Signed-off-by: Cédric Le Goater <clg@kaod.org>
+---
+ arch/powerpc/sysdev/xive/xive-internal.h |  7 +++++++
+ arch/powerpc/sysdev/xive/common.c        | 12 +++---------
+ arch/powerpc/sysdev/xive/native.c        |  4 ++--
+ arch/powerpc/sysdev/xive/spapr.c         |  4 ++--
+ 4 files changed, 14 insertions(+), 13 deletions(-)
 
+diff --git a/arch/powerpc/sysdev/xive/xive-internal.h b/arch/powerpc/sysdev/xive/xive-internal.h
+index 59cd366e7933..382980f4de2d 100644
+--- a/arch/powerpc/sysdev/xive/xive-internal.h
++++ b/arch/powerpc/sysdev/xive/xive-internal.h
+@@ -5,6 +5,13 @@
+ #ifndef __XIVE_INTERNAL_H
+ #define __XIVE_INTERNAL_H
+ 
++/*
++ * A "disabled" interrupt should never fire, to catch problems
++ * we set its logical number to this
++ */
++#define XIVE_BAD_IRQ		0x7fffffff
++#define XIVE_MAX_IRQ		(XIVE_BAD_IRQ - 1)
++
+ /* Each CPU carry one of these with various per-CPU state */
+ struct xive_cpu {
+ #ifdef CONFIG_SMP
+diff --git a/arch/powerpc/sysdev/xive/common.c b/arch/powerpc/sysdev/xive/common.c
+index fa49193206b6..550baba98ec9 100644
+--- a/arch/powerpc/sysdev/xive/common.c
++++ b/arch/powerpc/sysdev/xive/common.c
+@@ -68,13 +68,6 @@ static u32 xive_ipi_irq;
+ /* Xive state for each CPU */
+ static DEFINE_PER_CPU(struct xive_cpu *, xive_cpu);
+ 
+-/*
+- * A "disabled" interrupt should never fire, to catch problems
+- * we set its logical number to this
+- */
+-#define XIVE_BAD_IRQ		0x7fffffff
+-#define XIVE_MAX_IRQ		(XIVE_BAD_IRQ - 1)
+-
+ /* An invalid CPU target */
+ #define XIVE_INVALID_TARGET	(-1)
+ 
+@@ -1153,7 +1146,7 @@ static int xive_setup_cpu_ipi(unsigned int cpu)
+ 	xc = per_cpu(xive_cpu, cpu);
+ 
+ 	/* Check if we are already setup */
+-	if (xc->hw_ipi != 0)
++	if (xc->hw_ipi != XIVE_BAD_IRQ)
+ 		return 0;
+ 
+ 	/* Grab an IPI from the backend, this will populate xc->hw_ipi */
+@@ -1190,7 +1183,7 @@ static void xive_cleanup_cpu_ipi(unsigned int cpu, struct xive_cpu *xc)
+ 	/* Disable the IPI and free the IRQ data */
+ 
+ 	/* Already cleaned up ? */
+-	if (xc->hw_ipi == 0)
++	if (xc->hw_ipi == XIVE_BAD_IRQ)
+ 		return;
+ 
+ 	/* Mask the IPI */
+@@ -1346,6 +1339,7 @@ static int xive_prepare_cpu(unsigned int cpu)
+ 		if (np)
+ 			xc->chip_id = of_get_ibm_chip_id(np);
+ 		of_node_put(np);
++		xc->hw_ipi = XIVE_BAD_IRQ;
+ 
+ 		per_cpu(xive_cpu, cpu) = xc;
+ 	}
+diff --git a/arch/powerpc/sysdev/xive/native.c b/arch/powerpc/sysdev/xive/native.c
+index 0ff6b739052c..50e1a8e02497 100644
+--- a/arch/powerpc/sysdev/xive/native.c
++++ b/arch/powerpc/sysdev/xive/native.c
+@@ -312,7 +312,7 @@ static void xive_native_put_ipi(unsigned int cpu, struct xive_cpu *xc)
+ 	s64 rc;
+ 
+ 	/* Free the IPI */
+-	if (!xc->hw_ipi)
++	if (xc->hw_ipi == XIVE_BAD_IRQ)
+ 		return;
+ 	for (;;) {
+ 		rc = opal_xive_free_irq(xc->hw_ipi);
+@@ -320,7 +320,7 @@ static void xive_native_put_ipi(unsigned int cpu, struct xive_cpu *xc)
+ 			msleep(OPAL_BUSY_DELAY_MS);
+ 			continue;
+ 		}
+-		xc->hw_ipi = 0;
++		xc->hw_ipi = XIVE_BAD_IRQ;
+ 		break;
+ 	}
+ }
+diff --git a/arch/powerpc/sysdev/xive/spapr.c b/arch/powerpc/sysdev/xive/spapr.c
+index 55dc61cb4867..3f15615712b5 100644
+--- a/arch/powerpc/sysdev/xive/spapr.c
++++ b/arch/powerpc/sysdev/xive/spapr.c
+@@ -560,11 +560,11 @@ static int xive_spapr_get_ipi(unsigned int cpu, struct xive_cpu *xc)
+ 
+ static void xive_spapr_put_ipi(unsigned int cpu, struct xive_cpu *xc)
+ {
+-	if (!xc->hw_ipi)
++	if (xc->hw_ipi == XIVE_BAD_IRQ)
+ 		return;
+ 
+ 	xive_irq_bitmap_free(xc->hw_ipi);
+-	xc->hw_ipi = 0;
++	xc->hw_ipi = XIVE_BAD_IRQ;
+ }
+ #endif /* CONFIG_SMP */
+ 
+-- 
+2.21.1
 
-Bernd.
