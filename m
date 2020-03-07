@@ -2,116 +2,156 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4049217CFD8
-	for <lists+stable@lfdr.de>; Sat,  7 Mar 2020 20:35:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 20B2217D01D
+	for <lists+stable@lfdr.de>; Sat,  7 Mar 2020 21:58:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726246AbgCGTfL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 7 Mar 2020 14:35:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58632 "EHLO mail.kernel.org"
+        id S1726109AbgCGU6o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 7 Mar 2020 15:58:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53460 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726180AbgCGTfL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 7 Mar 2020 14:35:11 -0500
-Received: from mail-wr1-f41.google.com (mail-wr1-f41.google.com [209.85.221.41])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        id S1726098AbgCGU6o (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 7 Mar 2020 15:58:44 -0500
+Received: from localhost.localdomain (c-73-231-172-41.hsd1.ca.comcast.net [73.231.172.41])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DE79F20684
-        for <stable@vger.kernel.org>; Sat,  7 Mar 2020 19:35:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BD99620684;
+        Sat,  7 Mar 2020 20:58:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583609710;
-        bh=JDv7bMpMvn1QXvUKWn3wky5CJY+BxT3OIOtmyrSEU1A=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=Lk/iUN9lj+kHJKWKb7GJZsjdZ6gVAKJWr5tXpmu734LhckBUJn2JQEwjDyRn04lT0
-         Rg1tw+7kaGYu+cs0IIU2bMJKqM6YQI8MGGruitvSdOSIcp0xxUAcbc5ATppuScCZbN
-         bIIOyh5Ld+wDxxxD5/qfJd6MZhvbeplFfxGZtiSA=
-Received: by mail-wr1-f41.google.com with SMTP id r15so1204913wrx.6
-        for <stable@vger.kernel.org>; Sat, 07 Mar 2020 11:35:09 -0800 (PST)
-X-Gm-Message-State: ANhLgQ0NZ+OZD53QIE/6jFscy5sh2ugTlNlWds2EGOYB9aBCeERTY6Mu
-        31na9g2xQJ7QBj0c7+WR6XKVit4WsXimioXzi/du+Q==
-X-Google-Smtp-Source: ADFU+vvoVxsDoBUJSLN0ucEQEhaJOf9rQ/drwaYYv/hzOKbUpezceg0sYt7Id+wlZriB7/mtoGrbIlxwwqECFzDhtnQ=
-X-Received: by 2002:adf:b641:: with SMTP id i1mr10938601wre.18.1583609708391;
- Sat, 07 Mar 2020 11:35:08 -0800 (PST)
-MIME-Version: 1.0
-References: <ed71d0967113a35f670a9625a058b8e6e0b2f104.1583547991.git.luto@kernel.org>
- <CALCETrVmsF9JSMLSd44-3GGWEz6siJQxudeaYiVnvv__YDT1BQ@mail.gmail.com>
- <87ftek9ngq.fsf@nanos.tec.linutronix.de> <CALCETrVsc-t=tDRPbCg5dWHDY0NFv2zjz12ahD-vnGPn8T+RXA@mail.gmail.com>
- <87a74s9ehb.fsf@nanos.tec.linutronix.de>
-In-Reply-To: <87a74s9ehb.fsf@nanos.tec.linutronix.de>
-From:   Andy Lutomirski <luto@kernel.org>
-Date:   Sat, 7 Mar 2020 11:34:57 -0800
-X-Gmail-Original-Message-ID: <CALCETrXGiZQG-h3nuXL4HZJyTJ4T2mjJhSvcqpVy8B9hr+qjNA@mail.gmail.com>
-Message-ID: <CALCETrXGiZQG-h3nuXL4HZJyTJ4T2mjJhSvcqpVy8B9hr+qjNA@mail.gmail.com>
-Subject: Re: [PATCH v2] x86/kvm: Disable KVM_ASYNC_PF_SEND_ALWAYS
-To:     Thomas Gleixner <tglx@linutronix.de>
-Cc:     Andy Lutomirski <luto@kernel.org>,
-        LKML <linux-kernel@vger.kernel.org>, X86 ML <x86@kernel.org>,
-        kvm list <kvm@vger.kernel.org>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+        s=default; t=1583614723;
+        bh=zjJ//aCNs/vtEA6bY7bkmMnuDHhAMPNcMoGqO6sDy18=;
+        h=Date:From:To:Subject:In-Reply-To:From;
+        b=QYatskmdK8AygpwrR7Pgq3e2vJG1f0StM1+FE6F0pZwIiKeanrmmfHEl311PyCRaZ
+         3ccO7hSJ4ajJfOn4mQ8qY3oEp+mERzID3Hilh9J+ZfEcyYtZB8+zl+pbHh84FRT0Vk
+         2hzH5cMMhuWDemyVK2XEhrrhV/+ZRebIO/5UJYMk=
+Date:   Sat, 07 Mar 2020 12:58:42 -0800
+From:   Andrew Morton <akpm@linux-foundation.org>
+To:     bhe@redhat.com, david@redhat.com, mhocko@suse.com,
+        mm-commits@vger.kernel.org, osalvador@suse.de,
+        richardw.yang@linux.intel.com, rppt@linux.ibm.com,
+        stable@vger.kernel.org
+Subject:  +
+ mm-hotplug-fix-hot-remove-failure-in-sparsememvmemmap-case.patch added to
+ -mm tree
+Message-ID: <20200307205842.m2xK7JlGC%akpm@linux-foundation.org>
+In-Reply-To: <20200305222751.6d781a3f2802d79510941e4e@linux-foundation.org>
+User-Agent: s-nail v14.8.16
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, Mar 7, 2020 at 11:01 AM Thomas Gleixner <tglx@linutronix.de> wrote:
->
-> Andy Lutomirski <luto@kernel.org> writes:
-> > On Sat, Mar 7, 2020 at 7:47 AM Thomas Gleixner <tglx@linutronix.de> wrote:
-> >> The host knows exactly when it injects a async PF and it can store CR2
-> >> and reason of that async PF in flight.
-> >>
-> >> On the next VMEXIT it checks whether apf_reason is 0. If apf_reason is 0
-> >> then it knows that the guest has read CR2 and apf_reason. All good
-> >> nothing to worry about.
-> >>
-> >> If not it needs to be careful.
-> >>
-> >> As long as the apf_reason of the last async #PF is not cleared by the
-> >> guest no new async #PF can be injected. That's already correct because
-> >> in that case IF==0 which prevents a nested async #PF.
-> >>
-> >> If MCE, NMI trigger a real pagefault then the #PF injection needs to
-> >> clear apf_reason and set the correct CR2. When that #PF returns then the
-> >> old CR2 and apf_reason need to be restored.
-> >
-> > How is the host supposed to know when the #PF returns?  Intercepting
-> > IRET sounds like a bad idea and, in any case, is not actually a
-> > reliable indication that #PF returned.
->
-> The host does not care about the IRET. It solely has to check whether
-> apf_reason is 0 or not. That way it knows that the guest has read CR2
-> and apf_reason.
 
-/me needs actual details
+The patch titled
+     Subject: mm/hotplug: fix hot remove failure in SPARSEMEM|!VMEMMAP case
+has been added to the -mm tree.  Its filename is
+     mm-hotplug-fix-hot-remove-failure-in-sparsememvmemmap-case.patch
 
-Suppose the host delivers an async #PF.  apf_reason != 0 and CR2
-contains something meaningful.  Host resumes the guest.
+This patch should soon appear at
+    http://ozlabs.org/~akpm/mmots/broken-out/mm-hotplug-fix-hot-remove-failure-in-sparsememvmemmap-case.patch
+and later at
+    http://ozlabs.org/~akpm/mmotm/broken-out/mm-hotplug-fix-hot-remove-failure-in-sparsememvmemmap-case.patch
 
-The guest does whatever (gets NMI, and does perf stuff, for example).
-The guest gets a normal #PF.  Somehow the host needs to do:
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
 
-if (apf_reason != 0) {
-  prev_apf_reason = apf_reason;
-  prev_cr2 = cr2;
-  apf_reason = 0;
-  cr2 = actual fault address;
-}
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
 
-resume guest;
+The -mm tree is included into linux-next and is updated
+there every 3-4 working days
 
-Obviously this can only happen if the host intercepts #PF.  Let's
-pretend for now that this is even possible on SEV-ES (it may well be,
-but I would also believe that it's not.  SEV-ES intercepts are weird
-and I don't have the whole manual in my head.  I'm not sure the host
-has any way to read CR2 for a SEV-ES guest.)  So now the guest runs
-some more and finishes handling the inner #PF.  Some time between
-doing that and running the outer #PF code that reads apf_reason, the
-host needs to do:
+------------------------------------------------------
+From: Baoquan He <bhe@redhat.com>
+Subject: mm/hotplug: fix hot remove failure in SPARSEMEM|!VMEMMAP case
 
-apf_reason = prev_apf_reason;
-cr2 = prev_cr2;
-prev_apf_reason = 0;
+In section_deactivate(), pfn_to_page() doesn't work any more after
+ms->section_mem_map is resetting to NULL in SPARSEMEM|!VMEMMAP case.  It
+caused hot remove failure:
 
-How is the host supposed to know when to do that?
+kernel BUG at mm/page_alloc.c:4806!
+invalid opcode: 0000 [#1] SMP PTI
+CPU: 3 PID: 8 Comm: kworker/u16:0 Tainted: G        W         5.5.0-next-20200205+ #340
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 0.0.0 02/06/2015
+Workqueue: kacpi_hotplug acpi_hotplug_work_fn
+RIP: 0010:free_pages+0x85/0xa0
+Call Trace:
+ __remove_pages+0x99/0xc0
+ arch_remove_memory+0x23/0x4d
+ try_remove_memory+0xc8/0x130
+ ? walk_memory_blocks+0x72/0xa0
+ __remove_memory+0xa/0x11
+ acpi_memory_device_remove+0x72/0x100
+ acpi_bus_trim+0x55/0x90
+ acpi_device_hotplug+0x2eb/0x3d0
+ acpi_hotplug_work_fn+0x1a/0x30
+ process_one_work+0x1a7/0x370
+ worker_thread+0x30/0x380
+ ? flush_rcu_work+0x30/0x30
+ kthread+0x112/0x130
+ ? kthread_create_on_node+0x60/0x60
+ ret_from_fork+0x35/0x40
 
---Andy
+Let's move the ->section_mem_map resetting after
+depopulate_section_memmap() to fix it.
+
+Link: http://lkml.kernel.org/r/20200307084229.28251-2-bhe@redhat.com
+Fixes: ba72b4c8cf60 ("mm/sparsemem: support sub-section hotplug")
+Signed-off-by: Baoquan He <bhe@redhat.com>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: David Hildenbrand <david@redhat.com>
+Cc: Wei Yang <richardw.yang@linux.intel.com>
+Cc: Oscar Salvador <osalvador@suse.de>
+Cc: Mike Rapoport <rppt@linux.ibm.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
+
+ mm/sparse.c |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
+
+--- a/mm/sparse.c~mm-hotplug-fix-hot-remove-failure-in-sparsememvmemmap-case
++++ a/mm/sparse.c
+@@ -734,6 +734,7 @@ static void section_deactivate(unsigned
+ 	struct mem_section *ms = __pfn_to_section(pfn);
+ 	bool section_is_early = early_section(ms);
+ 	struct page *memmap = NULL;
++	bool empty = false;
+ 	unsigned long *subsection_map = ms->usage
+ 		? &ms->usage->subsection_map[0] : NULL;
+ 
+@@ -764,7 +765,8 @@ static void section_deactivate(unsigned
+ 	 * For 2/ and 3/ the SPARSEMEM_VMEMMAP={y,n} cases are unified
+ 	 */
+ 	bitmap_xor(subsection_map, map, subsection_map, SUBSECTIONS_PER_SECTION);
+-	if (bitmap_empty(subsection_map, SUBSECTIONS_PER_SECTION)) {
++	empty = bitmap_empty(subsection_map, SUBSECTIONS_PER_SECTION);
++	if (empty) {
+ 		unsigned long section_nr = pfn_to_section_nr(pfn);
+ 
+ 		/*
+@@ -779,13 +781,15 @@ static void section_deactivate(unsigned
+ 			ms->usage = NULL;
+ 		}
+ 		memmap = sparse_decode_mem_map(ms->section_mem_map, section_nr);
+-		ms->section_mem_map = (unsigned long)NULL;
+ 	}
+ 
+ 	if (section_is_early && memmap)
+ 		free_map_bootmem(memmap);
+ 	else
+ 		depopulate_section_memmap(pfn, nr_pages, altmap);
++
++	if (empty)
++		ms->section_mem_map = (unsigned long)NULL;
+ }
+ 
+ static struct page * __meminit section_activate(int nid, unsigned long pfn,
+_
+
+Patches currently in -mm which might be from bhe@redhat.com are
+
+mm-hotplug-fix-hot-remove-failure-in-sparsememvmemmap-case.patch
+mm-hotplug-only-respect-mem=-parameter-during-boot-stage.patch
+
