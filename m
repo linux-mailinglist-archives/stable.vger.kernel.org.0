@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E94E517D094
-	for <lists+stable@lfdr.de>; Sun,  8 Mar 2020 00:20:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7011F17D095
+	for <lists+stable@lfdr.de>; Sun,  8 Mar 2020 00:20:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726283AbgCGXUd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 7 Mar 2020 18:20:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40970 "EHLO mail.kernel.org"
+        id S1726314AbgCGXUe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 7 Mar 2020 18:20:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41058 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726139AbgCGXUd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 7 Mar 2020 18:20:33 -0500
+        id S1726139AbgCGXUe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 7 Mar 2020 18:20:34 -0500
 Received: from localhost (unknown [137.135.114.1])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9E390207FD;
-        Sat,  7 Mar 2020 23:20:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BA32720836;
+        Sat,  7 Mar 2020 23:20:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583623232;
-        bh=htgCQAkgNYZAuywRNyGvUv8lYSBVI2oe1k0h0pz24ss=;
+        s=default; t=1583623234;
+        bh=CLeIWBGceh4oLqFKnzEDp3/irmSDoOGXQZd4OOB4OrY=;
         h=Date:From:To:To:To:Cc:Cc:Cc:Subject:In-Reply-To:References:From;
-        b=x91JjQPAAOcX0HpbS4xInwUaxYNpCPK7FFsax6IcSlXELUR87AWxD016BJ2+6qtrg
-         Z+juBBfPVmJFBDIrWeSrD0JfQU0zEuTaq2aVawghg6rnlHF6QjIQIU3bYEM/qEsnNk
-         ESWZ0ekUme7TgC4VZc2jZCz5VRZx9p+DYDHhgKkQ=
-Date:   Sat, 07 Mar 2020 23:20:31 +0000
+        b=nM0tEAGagcyXW1ZF4vCpVo/BAKwntC7borNua5PpDgzLZLyaM/dj8LAvWc/NQbk3L
+         VuuHNAnPO1v5mHrCWbYnPeD2rSt9jT93YwUyGUmFi/Pz7ZHUjgrscgRIyylLdbWEUo
+         EwUtkAC//fH4dd1XaPt3v6QeC+Fq+LA+MH/hEV+Q=
+Date:   Sat, 07 Mar 2020 23:20:33 +0000
 From:   Sasha Levin <sashal@kernel.org>
 To:     Sasha Levin <sashal@kernel.org>
-To:     Sibi Sankar <sibis@codeaurora.org>
-To:     bjorn.andersson@linaro.org, mathieu.poirier@linaro.org
-Cc:     agross@kernel.org, ohad@wizery.com, linux-arm-msm@vger.kernel.org
+To:     Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+To:     linuxtv-commits@linuxtv.org
+Cc:     Benoit Parrot <bparrot@ti.com>, stable <stable@vger.kernel.org>
+Cc:     stable <stable@vger.kernel.org>
 Cc:     stable@vger.kernel.org
-Cc:     stable@vger.kernel.org
-Subject: Re: [PATCH v4 3/3] remoteproc: qcom_q6v5_mss: Reload the mba region on coredump
-In-Reply-To: <20200304194729.27979-4-sibis@codeaurora.org>
-References: <20200304194729.27979-4-sibis@codeaurora.org>
-Message-Id: <20200307232032.9E390207FD@mail.kernel.org>
+Subject: Re: [git:media_tree/master] media: ti-vpe: cal: fix disable_irqs to only the intended target
+In-Reply-To: <E1j9yLB-004Dps-EQ@www.linuxtv.org>
+References: <E1j9yLB-004Dps-EQ@www.linuxtv.org>
+Message-Id: <20200307232033.BA32720836@mail.kernel.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -44,17 +44,18 @@ Hi
 
 [This is an automated email]
 
-This commit has been processed because it contains a "Fixes:" tag
-fixing commit: 6c5a9dc2481b ("remoteproc: qcom: Make secure world call for mem ownership switch").
+This commit has been processed because it contains a -stable tag.
+The stable tag indicates that it's relevant for the following trees: all
 
-The bot has tested the following trees: v5.5.7, v5.4.23, v4.19.107.
+The bot has tested the following trees: v5.5.8, v5.4.24, v4.19.108, v4.14.172, v4.9.215, v4.4.215.
 
-v5.5.7: Build OK!
-v5.4.23: Build OK!
-v4.19.107: Failed to apply! Possible dependencies:
-    0304530ddd29 ("remoteproc: qcom: q6v5-mss: Refactor mba load/unload sequence")
-    7dd8ade24dc2 ("remoteproc: qcom: q6v5-mss: Add custom dump function for modem")
-    e9ad659019a6 ("remoteproc: qcom_q6v5_mss: Don't reassign mpss region on shutdown")
+v5.5.8: Build OK!
+v5.4.24: Build OK!
+v4.19.108: Build OK!
+v4.14.172: Build OK!
+v4.9.215: Build OK!
+v4.4.215: Failed to apply! Possible dependencies:
+    343e89a792a5 ("[media] media: ti-vpe: Add CAL v4l2 camera capture driver")
 
 
 NOTE: The patch will not be queued to stable trees until it is upstream.
