@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AD04117D08B
-	for <lists+stable@lfdr.de>; Sun,  8 Mar 2020 00:20:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B58DE17D08C
+	for <lists+stable@lfdr.de>; Sun,  8 Mar 2020 00:20:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726174AbgCGXU1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 7 Mar 2020 18:20:27 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40778 "EHLO mail.kernel.org"
+        id S1726180AbgCGXU2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 7 Mar 2020 18:20:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40812 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726139AbgCGXU1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 7 Mar 2020 18:20:27 -0500
+        id S1726139AbgCGXU2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 7 Mar 2020 18:20:28 -0500
 Received: from localhost (unknown [137.135.114.1])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0CDFC2073D;
-        Sat,  7 Mar 2020 23:20:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 268C52075A;
+        Sat,  7 Mar 2020 23:20:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583623227;
-        bh=XhMk/XnNHsDbDy5lxDWDVGY09IrfM7hjHdn2sdMzPJE=;
-        h=Date:From:To:To:Cc:Cc:Cc:Subject:In-Reply-To:References:From;
-        b=PA1brXeBHhQ+NDs6s+i/QwJLb3gM0XlqGDGa3KBvfa1k3Yh/3wb25Ldq6B0Frj2b4
-         QbqUkfVcUtZjlLDXX6iiDHbpnRk3yfCfKJUa1xOx+mwYcgqZOUXdd9ly+eq9Or+gEZ
-         r7IdWqERPqSM4guSIFPAsNS2wybyuZjVWd4ABcVY=
-Date:   Sat, 07 Mar 2020 23:20:26 +0000
+        s=default; t=1583623228;
+        bh=4fuwdMLIHd//6XWMuWv2AC9Lv1VQaSgrcXZByjYo2d4=;
+        h=Date:From:To:To:To:Cc:Cc:Cc:Subject:In-Reply-To:References:From;
+        b=q/OXaQ6hPxDsoHlWTU6lr2eyZCYsERuQXkZ5nIbcUPRqft2o0Yi83OETqWeQ9LpG3
+         /UXZhW4UM6K56x40wWyze8Ln3Nn1KCQxg3XKWJNdEdUNbK4IhB3pj06yM6lfSUgMXf
+         7kHZqSsQCkEvHaQs6AwnxxlGuObuDOeR8g0PFa4A=
+Date:   Sat, 07 Mar 2020 23:20:27 +0000
 From:   Sasha Levin <sashal@kernel.org>
 To:     Sasha Levin <sashal@kernel.org>
-To:     Nikita Shubin <NShubin@topcon.com>
-Cc:     Nikita Shubin <NShubin@topcon.com>, stable@vger.kernel.org
+To:     Thomas Gleixner <tglx@linutronix.de>
+To:     LKML <linux-kernel@vger.kernel.org>
+Cc:     Marc Zyngier <maz@kernel.org>, x86@kernel.org
 Cc:     stable@vger.kernel.org
 Cc:     stable@vger.kernel.org
-Subject: Re: [PATCH v3 1/1] remoteproc: Fix NULL pointer dereference in rproc_virtio_notify
-In-Reply-To: <20200305110218.8799-2-NShubin@topcon.com>
-References: <20200305110218.8799-2-NShubin@topcon.com>
-Message-Id: <20200307232027.0CDFC2073D@mail.kernel.org>
+Subject: Re: [patch 1/7] genirq/debugfs: Add missing sanity checks to interrupt injection
+In-Reply-To: <20200306130623.500019114@linutronix.de>
+References: <20200306130623.500019114@linutronix.de>
+Message-Id: <20200307232028.268C52075A@mail.kernel.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -44,41 +45,25 @@ Hi
 [This is an automated email]
 
 This commit has been processed because it contains a "Fixes:" tag
-fixing commit: 7a186941626d ("remoteproc: remove the single rpmsg vdev limitation").
+fixing commit: 536e2e34bd00 ("genirq/debugfs: Triggering of interrupts from userspace").
 
-The bot has tested the following trees: v5.5.8, v5.4.24, v4.19.108, v4.14.172, v4.9.215, v4.4.215.
+The bot has tested the following trees: v5.5.8, v5.4.24, v4.19.108, v4.14.172.
 
-v5.5.8: Build OK!
-v5.4.24: Build OK!
+v5.5.8: Build failed! Errors:
+    kernel/irq/debugfs.c:217:48: error: expected ‘)’ before ‘{’ token
+    kernel/irq/debugfs.c:229:2: error: expected expression before ‘}’ token
+
+v5.4.24: Build failed! Errors:
+    kernel/irq/debugfs.c:217:48: error: expected ‘)’ before ‘{’ token
+    kernel/irq/debugfs.c:229:2: error: expected expression before ‘}’ token
+
 v4.19.108: Failed to apply! Possible dependencies:
-    086d08725d34 ("remoteproc: create vdev subdevice with specific dma memory pool")
-    eb30596eae94 ("remoteproc: add rproc_va_to_pa function")
+    b525903c254d ("genirq: Provide basic NMI management for interrupt lines")
 
 v4.14.172: Failed to apply! Possible dependencies:
-    086d08725d34 ("remoteproc: create vdev subdevice with specific dma memory pool")
-    eb30596eae94 ("remoteproc: add rproc_va_to_pa function")
-
-v4.9.215: Failed to apply! Possible dependencies:
-    086d08725d34 ("remoteproc: create vdev subdevice with specific dma memory pool")
-    2b45cef5868a ("remoteproc: Further extend the vdev life cycle")
-    a863af5d4193 ("remoteproc: virtio: Anchor vring life cycle in vdev")
-    aab8d8022304 ("remoteproc: Assign kref to rproc_vdev")
-    eb30596eae94 ("remoteproc: add rproc_va_to_pa function")
-    f5bcb35387ef ("remoteproc: Decouple vdev resources and devices")
-
-v4.4.215: Failed to apply! Possible dependencies:
-    086d08725d34 ("remoteproc: create vdev subdevice with specific dma memory pool")
-    2b45cef5868a ("remoteproc: Further extend the vdev life cycle")
-    353861660aa2 ("remoteproc: core: Trivial: Improve error checking, spelling and debug prints")
-    3d87fa1d47c1 ("remoteproc: core: Task sync during rproc_fw_boot()")
-    9c219b2337b8 ("remoteproc: core: Ensure error message is clear")
-    a863af5d4193 ("remoteproc: virtio: Anchor vring life cycle in vdev")
-    aab8d8022304 ("remoteproc: Assign kref to rproc_vdev")
-    b35d7afc3ba9 ("remoteproc: Calculate max_notifyid during load")
-    d81fb32f3da6 ("remoteproc: Move vdev handling to boot/shutdown")
-    ddf711872c9d ("remoteproc: Introduce auto-boot flag")
-    eb30596eae94 ("remoteproc: add rproc_va_to_pa function")
-    f5bcb35387ef ("remoteproc: Decouple vdev resources and devices")
+    6988e0e0d283 ("genirq/msi: Limit level-triggered MSI to platform devices")
+    72a8edc2d913 ("genirq/debugfs: Add missing IRQCHIP_SUPPORTS_LEVEL_MSI debug")
+    b525903c254d ("genirq: Provide basic NMI management for interrupt lines")
 
 
 NOTE: The patch will not be queued to stable trees until it is upstream.
