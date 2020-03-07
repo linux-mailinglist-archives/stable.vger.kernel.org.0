@@ -2,73 +2,71 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 045E317CF45
-	for <lists+stable@lfdr.de>; Sat,  7 Mar 2020 17:15:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0BC9B17CFB9
+	for <lists+stable@lfdr.de>; Sat,  7 Mar 2020 20:01:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726109AbgCGQPi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 7 Mar 2020 11:15:38 -0500
-Received: from mail-pg1-f196.google.com ([209.85.215.196]:42689 "EHLO
-        mail-pg1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726065AbgCGQPi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 7 Mar 2020 11:15:38 -0500
-Received: by mail-pg1-f196.google.com with SMTP id h8so2584505pgs.9
-        for <stable@vger.kernel.org>; Sat, 07 Mar 2020 08:15:37 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=3UqRrXR93FQdctcONgP71/bIILS55BPNGX70vasGTx4=;
-        b=f5F2wp0z1skUFo1qv9/PGhhby7KY0boQp4i2vlrphsgXUOivI2nwOWHd2QB95X/Bol
-         8QRqzhAZMpus2D+DAW6tGbFshIRpsFyf1YWr0L8Oyj4RLjkJ5kva6jGJ2kLcGByi3hxu
-         http33ajO9plBKl9RJSn7agmxeWvt1e/tBCdnNxohtX81nr8XDtH1Bpcc8aZI0o7z9JU
-         +s4vrpPapgMQgPySnbLgPABZxRPQuIan/aFwBOX146lLz39Lv+cnb/atnQpsb7yHg7NJ
-         j+rKBdnz8w3MjlWZr2jYBzFphWdw/TADupz6oLtOPx9/9ATnil5vCNv79py+UZDW4LRc
-         B5pA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=3UqRrXR93FQdctcONgP71/bIILS55BPNGX70vasGTx4=;
-        b=b9XMm3JXG3ZkqpEswTewFQ46bHUHrxvXq2CNSmuTWk1PjtVzu4P2odWpXEOEVhfw9k
-         6QIRqD5cjCw5iq0H9TIoTbqX31KW9rV6DJuSJA+QPl2I0GIWnvg6vfKU2Xknev6Rhic9
-         YydKhYa++8Pgiw+ftg4P5jid5415LVQ8CJx5kLuQP9IasEb4WHGGxYwdTHNvKc1/GRbI
-         a10Gzr1kTVqu1Budsxzf2WOiouPWnTHaWTqEkRRfrTE/W/tWlVrtwYdDKG3jcnbzKGax
-         8Tf8ZKS9YiFhzweZaNk8pgqK5l4n8Q/VKuUsfqAl1VTWvH+bClomB7+7nHVfopLn/cab
-         xwfA==
-X-Gm-Message-State: ANhLgQ2fkeybX69hzetC3wRV0TJCULOI/E9zGBrODtM5W4EjtgLTmwYW
-        +WS8tl8MTDSlQlBcOZWWvyGuJmMs8xjP3mTd1AU=
-X-Google-Smtp-Source: ADFU+vupBZoWtNZYZaryMMphIIQIkrmgMvgfoWgV0MKsntY0T9+PMOnDWJ7W7YiTmnZLj8pj64bpJQCXoU9i/sjd8TQ=
-X-Received: by 2002:aa7:858a:: with SMTP id w10mr8947574pfn.210.1583597737339;
- Sat, 07 Mar 2020 08:15:37 -0800 (PST)
+        id S1726283AbgCGTBK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 7 Mar 2020 14:01:10 -0500
+Received: from Galois.linutronix.de ([193.142.43.55]:55794 "EHLO
+        Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726114AbgCGTBJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 7 Mar 2020 14:01:09 -0500
+Received: from p5de0bf0b.dip0.t-ipconnect.de ([93.224.191.11] helo=nanos.tec.linutronix.de)
+        by Galois.linutronix.de with esmtpsa (TLS1.2:DHE_RSA_AES_256_CBC_SHA256:256)
+        (Exim 4.80)
+        (envelope-from <tglx@linutronix.de>)
+        id 1jAeh7-0007da-F2; Sat, 07 Mar 2020 20:01:05 +0100
+Received: by nanos.tec.linutronix.de (Postfix, from userid 1000)
+        id 81EDA104088; Sat,  7 Mar 2020 20:01:04 +0100 (CET)
+From:   Thomas Gleixner <tglx@linutronix.de>
+To:     Andy Lutomirski <luto@kernel.org>
+Cc:     Andy Lutomirski <luto@kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>, X86 ML <x86@kernel.org>,
+        kvm list <kvm@vger.kernel.org>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        stable <stable@vger.kernel.org>
+Subject: Re: [PATCH v2] x86/kvm: Disable KVM_ASYNC_PF_SEND_ALWAYS
+In-Reply-To: <CALCETrVsc-t=tDRPbCg5dWHDY0NFv2zjz12ahD-vnGPn8T+RXA@mail.gmail.com>
+References: <ed71d0967113a35f670a9625a058b8e6e0b2f104.1583547991.git.luto@kernel.org> <CALCETrVmsF9JSMLSd44-3GGWEz6siJQxudeaYiVnvv__YDT1BQ@mail.gmail.com> <87ftek9ngq.fsf@nanos.tec.linutronix.de> <CALCETrVsc-t=tDRPbCg5dWHDY0NFv2zjz12ahD-vnGPn8T+RXA@mail.gmail.com>
+Date:   Sat, 07 Mar 2020 20:01:04 +0100
+Message-ID: <87a74s9ehb.fsf@nanos.tec.linutronix.de>
 MIME-Version: 1.0
-Received: by 2002:a17:90a:2405:0:0:0:0 with HTTP; Sat, 7 Mar 2020 08:15:36
- -0800 (PST)
-Reply-To: atmdepartment1940@gmail.com
-From:   "Mr.kavian amiri" <ikennaubochi9@gmail.com>
-Date:   Sat, 7 Mar 2020 16:15:36 +0000
-Message-ID: <CACFJyUB8xbT6YMk7ZjO6VKyG08yJ2YQFtxgEfLSKKhUgBUCvSg@mail.gmail.com>
-Subject: Dear Beneficiary
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain
+X-Linutronix-Spam-Score: -1.0
+X-Linutronix-Spam-Level: -
+X-Linutronix-Spam-Status: No , -1.0 points, 5.0 required,  ALL_TRUSTED=-1,SHORTCIRCUIT=-0.0001
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Dear Beneficiary,
+Andy Lutomirski <luto@kernel.org> writes:
+> On Sat, Mar 7, 2020 at 7:47 AM Thomas Gleixner <tglx@linutronix.de> wrote:
+>> The host knows exactly when it injects a async PF and it can store CR2
+>> and reason of that async PF in flight.
+>>
+>> On the next VMEXIT it checks whether apf_reason is 0. If apf_reason is 0
+>> then it knows that the guest has read CR2 and apf_reason. All good
+>> nothing to worry about.
+>>
+>> If not it needs to be careful.
+>>
+>> As long as the apf_reason of the last async #PF is not cleared by the
+>> guest no new async #PF can be injected. That's already correct because
+>> in that case IF==0 which prevents a nested async #PF.
+>>
+>> If MCE, NMI trigger a real pagefault then the #PF injection needs to
+>> clear apf_reason and set the correct CR2. When that #PF returns then the
+>> old CR2 and apf_reason need to be restored.
+>
+> How is the host supposed to know when the #PF returns?  Intercepting
+> IRET sounds like a bad idea and, in any case, is not actually a
+> reliable indication that #PF returned.
 
-Your Over-due ATM Card Payment Compensation fund from United Nations
-Compensation Commission valued US$17,750.000.00 has been deposited
-here in the Bank on your behalf. Therefore, re-confirm your
-information such as,full Name, Address and Telephone Numbers. Also
-state categorically your age, occupations and marital status.
+The host does not care about the IRET. It solely has to check whether
+apf_reason is 0 or not. That way it knows that the guest has read CR2
+and apf_reason.
 
-Immediately contact the Coordinator Compensation Unite Mr.kavian
-amiri,, who is in position to release your ATM Card to you.
+Thanks,
 
-Mr.Kavian.Amir,
-Coordinator
-(atmdepartment1940@gmail.com)
-(United Nations Compensation Commission, MAKING THE WORLD A BETTER PLACE).
-
-yours sincerely,
-Mr.Kavian.Amir,
+        tglx
