@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id ECC6E17CBDA
-	for <lists+stable@lfdr.de>; Sat,  7 Mar 2020 05:01:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DA64117CBDB
+	for <lists+stable@lfdr.de>; Sat,  7 Mar 2020 05:01:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726704AbgCGEBY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 6 Mar 2020 23:01:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50344 "EHLO mail.kernel.org"
+        id S1726307AbgCGEB3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 6 Mar 2020 23:01:29 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50422 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726368AbgCGEBX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 6 Mar 2020 23:01:23 -0500
+        id S1726368AbgCGEB3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 6 Mar 2020 23:01:29 -0500
 Received: from localhost.localdomain (c-71-198-47-131.hsd1.ca.comcast.net [71.198.47.131])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5FE70206D5;
-        Sat,  7 Mar 2020 04:01:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B819C206D7;
+        Sat,  7 Mar 2020 04:01:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583553683;
-        bh=B21Pu0Ryc2/0PXHYkY+HC/Vai/qxkHvM+ukG59mumWc=;
+        s=default; t=1583553688;
+        bh=A2Cjg8P4WBNg5SLcuVpmhWt7w3rr7eVfzaJYu0iLeNc=;
         h=Date:From:To:Subject:From;
-        b=gQdTZTzOT5yzbOoZ6OaWxNmYr3O6io+63NJ8w1B19j2acBBMXp27o5IexO5omh8YO
-         HC+duHGOedul+LLUB9oj7/MRFS1pj5HXCeBA2bCFhDg/ExMdxeU9gy1ySbEquMyvOg
-         jkPtFMgB0ccQvXAZh+i/uPGlj2PDzXdMuo3lQ4IE=
-Date:   Fri, 06 Mar 2020 20:01:23 -0800
+        b=TjeTHDwViK5cJV49MqnIMABjX7sQLDvMnXlQ9N4IQvLCDw0hyig+rMVGr6HHRHFQj
+         r+CMlqB6EyQZmqeX8KKI3MC6OjJuVTFNRWFxwhD0Y5v9Hi9yhKd3azmUmD8rBunWOc
+         CcUxGxEWsgJtBTS+IF5csCjUt/zU91HVRoCM6oTI=
+Date:   Fri, 06 Mar 2020 20:01:27 -0800
 From:   akpm@linux-foundation.org
-To:     hirofumi@mail.parknet.co.jp, mm-commits@vger.kernel.org,
-        stable@vger.kernel.org
+To:     cai@lca.pw, david@redhat.com, gerald.schaefer@de.ibm.com,
+        iamjoonsoo.kim@lge.com, mm-commits@vger.kernel.org,
+        stable@vger.kernel.org, vbabka@suse.cz
 Subject:  [merged]
- fat-fix-uninit-memory-access-for-partial-initialized-inode.patch removed
- from -mm tree
-Message-ID: <20200307040123.dgX5RB-O8%akpm@linux-foundation.org>
+ =?US-ASCII?Q?mm-hotplug-fix-page-online-with-debug=5Fpagealloc-compiled-b?=
+ =?US-ASCII?Q?ut-not-enabled.patch?= removed from -mm tree
+Message-ID: <20200307040127.-XBKYhyRp%akpm@linux-foundation.org>
 User-Agent: s-nail v14.8.16
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -39,81 +42,117 @@ X-Mailing-List: stable@vger.kernel.org
 
 
 The patch titled
-     Subject: fat: fix uninit-memory access for partial initialized inode
+     Subject: mm, hotplug: fix page online with DEBUG_PAGEALLOC compiled but not enabled
 has been removed from the -mm tree.  Its filename was
-     fat-fix-uninit-memory-access-for-partial-initialized-inode.patch
+     mm-hotplug-fix-page-online-with-debug_pagealloc-compiled-but-not-enabled.patch
 
 This patch was dropped because it was merged into mainline or a subsystem tree
 
 ------------------------------------------------------
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Subject: fat: fix uninit-memory access for partial initialized inode
+From: Vlastimil Babka <vbabka@suse.cz>
+Subject: mm, hotplug: fix page online with DEBUG_PAGEALLOC compiled but not enabled
 
-When get an error in the middle of reading an inode, some fields in the
-inode might be still not initialized.  And then the evict_inode path may
-access those fields via iput().
+Commit cd02cf1aceea ("mm/hotplug: fix an imbalance with DEBUG_PAGEALLOC")
+fixed memory hotplug with debug_pagealloc enabled, where onlining a page
+goes through page freeing, which removes the direct mapping.  Some arches
+don't like when the page is not mapped in the first place, so
+generic_online_page() maps it first.  This is somewhat wasteful, but
+better than special casing page freeing fast paths.
 
-To fix, this makes sure that inode fields are initialized.
+The commit however missed that DEBUG_PAGEALLOC configured doesn't mean
+it's actually enabled.  One has to test debug_pagealloc_enabled() since
+031bc5743f15 ("mm/debug-pagealloc: make debug-pagealloc boottime
+configurable"), or alternatively debug_pagealloc_enabled_static() since
+8e57f8acbbd1 ("mm, debug_pagealloc: don't rely on static keys too early"),
+but this is not done.
 
-Link: http://lkml.kernel.org/r/871rqnreqx.fsf@mail.parknet.co.jp
-Reported-by: syzbot+9d82b8de2992579da5d0@syzkaller.appspotmail.com
-Signed-off-by: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+As a result, a s390 kernel with DEBUG_PAGEALLOC configured but not enabled
+will crash:
+
+Unable to handle kernel pointer dereference in virtual kernel address space
+Failing address: 0000000000000000 TEID: 0000000000000483
+Fault in home space mode while using kernel ASCE.
+AS:0000001ece13400b R2:000003fff7fd000b R3:000003fff7fcc007 S:000003fff7fd7000 P:000000000000013d
+Oops: 0004 ilc:2 [#1] SMP
+CPU: 1 PID: 26015 Comm: chmem Kdump: loaded Tainted: GX 5.3.18-5-default #1 SLE15-SP2 (unreleased)
+Krnl PSW : 0704e00180000000 0000001ecd281b9e (__kernel_map_pages+0x166/0x188)
+R:0 T:1 IO:1 EX:1 Key:0 M:1 W:0 P:0 AS:3 CC:2 PM:0 RI:0 EA:3
+Krnl GPRS: 0000000000000000 0000000000000800 0000400b00000000 0000000000000100
+0000000000000001 0000000000000000 0000000000000002 0000000000000100
+0000001ece139230 0000001ecdd98d40 0000400b00000100 0000000000000000
+000003ffa17e4000 001fffe0114f7d08 0000001ecd4d93ea 001fffe0114f7b20
+Krnl Code: 0000001ecd281b8e: ec17ffff00d8 ahik %r1,%r7,-1
+0000001ecd281b94: ec111dbc0355 risbg %r1,%r1,29,188,3
+>0000001ecd281b9e: 94fb5006 ni 6(%r5),251
+0000001ecd281ba2: 41505008 la %r5,8(%r5)
+0000001ecd281ba6: ec51fffc6064 cgrj %r5,%r1,6,1ecd281b9e
+0000001ecd281bac: 1a07 ar %r0,%r7
+0000001ecd281bae: ec03ff584076 crj %r0,%r3,4,1ecd281a5e
+Call Trace:
+[<0000001ecd281b9e>] __kernel_map_pages+0x166/0x188
+[<0000001ecd4d9516>] online_pages_range+0xf6/0x128
+[<0000001ecd2a8186>] walk_system_ram_range+0x7e/0xd8
+[<0000001ecda28aae>] online_pages+0x2fe/0x3f0
+[<0000001ecd7d02a6>] memory_subsys_online+0x8e/0xc0
+[<0000001ecd7add42>] device_online+0x5a/0xc8
+[<0000001ecd7d0430>] state_store+0x88/0x118
+[<0000001ecd5b9f62>] kernfs_fop_write+0xc2/0x200
+[<0000001ecd5064b6>] vfs_write+0x176/0x1e0
+[<0000001ecd50676a>] ksys_write+0xa2/0x100
+[<0000001ecda315d4>] system_call+0xd8/0x2c8
+
+Fix this by checking debug_pagealloc_enabled_static() before calling
+kernel_map_pages(). Backports for kernel before 5.5 should use
+debug_pagealloc_enabled() instead. Also add comments.
+
+Link: http://lkml.kernel.org/r/20200224094651.18257-1-vbabka@suse.cz
+Fixes: cd02cf1aceea ("mm/hotplug: fix an imbalance with DEBUG_PAGEALLOC")
+Signed-off-by: Vlastimil Babka <vbabka@suse.cz>
+Reported-by: Gerald Schaefer <gerald.schaefer@de.ibm.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
+Cc: Qian Cai <cai@lca.pw>
+Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- fs/fat/inode.c |   19 +++++++------------
- 1 file changed, 7 insertions(+), 12 deletions(-)
+ include/linux/mm.h  |    4 ++++
+ mm/memory_hotplug.c |    8 +++++++-
+ 2 files changed, 11 insertions(+), 1 deletion(-)
 
---- a/fs/fat/inode.c~fat-fix-uninit-memory-access-for-partial-initialized-inode
-+++ a/fs/fat/inode.c
-@@ -750,6 +750,13 @@ static struct inode *fat_alloc_inode(str
- 		return NULL;
+--- a/include/linux/mm.h~mm-hotplug-fix-page-online-with-debug_pagealloc-compiled-but-not-enabled
++++ a/include/linux/mm.h
+@@ -2715,6 +2715,10 @@ static inline bool debug_pagealloc_enabl
+ #if defined(CONFIG_DEBUG_PAGEALLOC) || defined(CONFIG_ARCH_HAS_SET_DIRECT_MAP)
+ extern void __kernel_map_pages(struct page *page, int numpages, int enable);
  
- 	init_rwsem(&ei->truncate_lock);
-+	/* Zeroing to allow iput() even if partial initialized inode. */
-+	ei->mmu_private = 0;
-+	ei->i_start = 0;
-+	ei->i_logstart = 0;
-+	ei->i_attrs = 0;
-+	ei->i_pos = 0;
-+
- 	return &ei->vfs_inode;
- }
- 
-@@ -1374,16 +1381,6 @@ out:
- 	return 0;
- }
- 
--static void fat_dummy_inode_init(struct inode *inode)
--{
--	/* Initialize this dummy inode to work as no-op. */
--	MSDOS_I(inode)->mmu_private = 0;
--	MSDOS_I(inode)->i_start = 0;
--	MSDOS_I(inode)->i_logstart = 0;
--	MSDOS_I(inode)->i_attrs = 0;
--	MSDOS_I(inode)->i_pos = 0;
--}
--
- static int fat_read_root(struct inode *inode)
++/*
++ * When called in DEBUG_PAGEALLOC context, the call should most likely be
++ * guarded by debug_pagealloc_enabled() or debug_pagealloc_enabled_static()
++ */
+ static inline void
+ kernel_map_pages(struct page *page, int numpages, int enable)
  {
- 	struct msdos_sb_info *sbi = MSDOS_SB(inode->i_sb);
-@@ -1844,13 +1841,11 @@ int fat_fill_super(struct super_block *s
- 	fat_inode = new_inode(sb);
- 	if (!fat_inode)
- 		goto out_fail;
--	fat_dummy_inode_init(fat_inode);
- 	sbi->fat_inode = fat_inode;
+--- a/mm/memory_hotplug.c~mm-hotplug-fix-page-online-with-debug_pagealloc-compiled-but-not-enabled
++++ a/mm/memory_hotplug.c
+@@ -574,7 +574,13 @@ EXPORT_SYMBOL_GPL(restore_online_page_ca
  
- 	fsinfo_inode = new_inode(sb);
- 	if (!fsinfo_inode)
- 		goto out_fail;
--	fat_dummy_inode_init(fsinfo_inode);
- 	fsinfo_inode->i_ino = MSDOS_FSINFO_INO;
- 	sbi->fsinfo_inode = fsinfo_inode;
- 	insert_inode_hash(fsinfo_inode);
+ void generic_online_page(struct page *page, unsigned int order)
+ {
+-	kernel_map_pages(page, 1 << order, 1);
++	/*
++	 * Freeing the page with debug_pagealloc enabled will try to unmap it,
++	 * so we should map it first. This is better than introducing a special
++	 * case in page freeing fast path.
++	 */
++	if (debug_pagealloc_enabled_static())
++		kernel_map_pages(page, 1 << order, 1);
+ 	__free_pages_core(page, order);
+ 	totalram_pages_add(1UL << order);
+ #ifdef CONFIG_HIGHMEM
 _
 
-Patches currently in -mm which might be from hirofumi@mail.parknet.co.jp are
+Patches currently in -mm which might be from vbabka@suse.cz are
 
+mm-compaction-fully-assume-capture-is-not-null-in-compact_zone_order.patch
 
