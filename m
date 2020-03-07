@@ -2,58 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E36017CD2A
-	for <lists+stable@lfdr.de>; Sat,  7 Mar 2020 10:14:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F0F1117CD73
+	for <lists+stable@lfdr.de>; Sat,  7 Mar 2020 11:09:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726360AbgCGJOC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 7 Mar 2020 04:14:02 -0500
-Received: from elvis.franken.de ([193.175.24.41]:54707 "EHLO elvis.franken.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726104AbgCGJOB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 7 Mar 2020 04:14:01 -0500
-Received: from uucp (helo=alpha)
-        by elvis.franken.de with local-bsmtp (Exim 3.36 #1)
-        id 1jAVWw-0000pd-01; Sat, 07 Mar 2020 10:13:58 +0100
-Received: by alpha.franken.de (Postfix, from userid 1000)
-        id 7989AC0FA3; Sat,  7 Mar 2020 10:06:36 +0100 (CET)
-Date:   Sat, 7 Mar 2020 10:06:36 +0100
-From:   Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-To:     "H. Nikolaus Schaller" <hns@goldelico.com>
-Cc:     Paul Cercueil <paul@crapouillou.net>,
-        Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        devicetree@vger.kernel.org, linux-mips@vger.kernel.org,
-        linux-kernel@vger.kernel.org, letux-kernel@openphoenux.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH v6] MIPS: DTS: CI20: fix interrupt for pcf8563 RTC
-Message-ID: <20200307090636.GB4570@alpha.franken.de>
-References: <7fbde64be07dc3c78343890e6597c1b2636d4815.1583515710.git.hns@goldelico.com>
+        id S1726017AbgCGKJP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 7 Mar 2020 05:09:15 -0500
+Received: from Galois.linutronix.de ([193.142.43.55]:55353 "EHLO
+        Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725878AbgCGKJP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 7 Mar 2020 05:09:15 -0500
+Received: from p5de0bf0b.dip0.t-ipconnect.de ([93.224.191.11] helo=nanos.tec.linutronix.de)
+        by Galois.linutronix.de with esmtpsa (TLS1.2:DHE_RSA_AES_256_CBC_SHA256:256)
+        (Exim 4.80)
+        (envelope-from <tglx@linutronix.de>)
+        id 1jAWOM-000531-Gg; Sat, 07 Mar 2020 11:09:10 +0100
+Received: by nanos.tec.linutronix.de (Postfix, from userid 1000)
+        id D9EB8104088; Sat,  7 Mar 2020 11:09:09 +0100 (CET)
+From:   Thomas Gleixner <tglx@linutronix.de>
+To:     Andy Lutomirski <luto@kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>, x86@kernel.org,
+        kvm list <kvm@vger.kernel.org>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Cc:     Andy Lutomirski <luto@kernel.org>, stable@vger.kernel.org
+Subject: Re: [PATCH] x86/kvm: Disable KVM_ASYNC_PF_SEND_ALWAYS
+In-Reply-To: <25d5c6de22cabf6a4ecb44ce077f33aa5f10b4d4.1583547371.git.luto@kernel.org>
+References: <25d5c6de22cabf6a4ecb44ce077f33aa5f10b4d4.1583547371.git.luto@kernel.org>
+Date:   Sat, 07 Mar 2020 11:09:09 +0100
+Message-ID: <87o8t8a33u.fsf@nanos.tec.linutronix.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <7fbde64be07dc3c78343890e6597c1b2636d4815.1583515710.git.hns@goldelico.com>
-User-Agent: Mutt/1.5.23 (2014-03-12)
+Content-Type: text/plain
+X-Linutronix-Spam-Score: -1.0
+X-Linutronix-Spam-Level: -
+X-Linutronix-Spam-Status: No , -1.0 points, 5.0 required,  ALL_TRUSTED=-1,SHORTCIRCUIT=-0.0001
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Mar 06, 2020 at 06:28:30PM +0100, H. Nikolaus Schaller wrote:
-> Interrupts should not be specified by interrupt line but by
-> gpio parent and reference.
-> 
-> Fixes: 73f2b940474d ("MIPS: CI20: DTS: Add I2C nodes")
+Andy Lutomirski <luto@kernel.org> writes:
+
+> The ABI is broken and we cannot support it properly.  Turn it off.
+>
+> If this causes a meaningful performance regression for someone, KVM
+> can introduce an improved ABI that is supportable.
+>
 > Cc: stable@vger.kernel.org
-> Signed-off-by: H. Nikolaus Schaller <hns@goldelico.com>
-> Reviewed-by: Paul Cercueil <paul@crapouillou.net>
+> Signed-off-by: Andy Lutomirski <luto@kernel.org>
 > ---
->  arch/mips/boot/dts/ingenic/ci20.dts | 5 ++++-
->  1 file changed, 4 insertions(+), 1 deletion(-)
+>  arch/x86/kernel/kvm.c | 11 ++++++++---
+>  1 file changed, 8 insertions(+), 3 deletions(-)
+>
+> diff --git a/arch/x86/kernel/kvm.c b/arch/x86/kernel/kvm.c
+> index 93ab0cbd304e..71f9f39f93da 100644
+> --- a/arch/x86/kernel/kvm.c
+> +++ b/arch/x86/kernel/kvm.c
+> @@ -318,11 +318,16 @@ static void kvm_guest_cpu_init(void)
+>  
+>  		pa = slow_virt_to_phys(this_cpu_ptr(&apf_reason));
+>  
+> -#ifdef CONFIG_PREEMPTION
+> -		pa |= KVM_ASYNC_PF_SEND_ALWAYS;
+> -#endif
+>  		pa |= KVM_ASYNC_PF_ENABLED;
+>  
+> +		/*
+> +		 * We do not set KVM_ASYNC_PF_SEND_ALWAYS.  With the current
+> +		 * KVM paravirt ABI, if an async page fault occurs on an early
+> +		 * memory access in the normal (sync) #PF path or in an NMI
+> +		 * that happens early in the #PF code, the combination of CR2
+> +		 * and the APF reason field will be corrupted.
 
-applied to mips-fixes.
+I don't think this can happen. In both cases IF == 0 and that async
+(think host side) page fault will be completely handled on the
+host. There is no injection happening in such a case ever. If it does,
+then yes the host side implementation is buggered, but AFAICT this is
+not the case.
 
-Thomas.
+See also my reply in the other thread:
 
--- 
-Crap can work. Given enough thrust pigs will fly, but it's not necessarily a
-good idea.                                                [ RFC1925, 2.3 ]
+  https://lore.kernel.org/r/87r1y4a3gw.fsf@nanos.tec.linutronix.de
+
+Thanks,
+
+        tglx
