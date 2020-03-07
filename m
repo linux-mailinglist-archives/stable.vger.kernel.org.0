@@ -2,106 +2,120 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AE62E17CE55
-	for <lists+stable@lfdr.de>; Sat,  7 Mar 2020 14:11:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A0E4117CEC2
+	for <lists+stable@lfdr.de>; Sat,  7 Mar 2020 15:36:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726105AbgCGNLl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 7 Mar 2020 08:11:41 -0500
-Received: from mail-ot1-f65.google.com ([209.85.210.65]:40668 "EHLO
-        mail-ot1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726114AbgCGNLl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 7 Mar 2020 08:11:41 -0500
-Received: by mail-ot1-f65.google.com with SMTP id x19so5227669otp.7
-        for <stable@vger.kernel.org>; Sat, 07 Mar 2020 05:11:40 -0800 (PST)
+        id S1726403AbgCGOgl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 7 Mar 2020 09:36:41 -0500
+Received: from mail-pg1-f194.google.com ([209.85.215.194]:44854 "EHLO
+        mail-pg1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726382AbgCGOgk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 7 Mar 2020 09:36:40 -0500
+Received: by mail-pg1-f194.google.com with SMTP id n24so2495551pgk.11
+        for <stable@vger.kernel.org>; Sat, 07 Mar 2020 06:36:39 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=mvista-com.20150623.gappssmtp.com; s=20150623;
-        h=date:from:to:cc:subject:message-id:reply-to:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=J4p6CveRCCmA2UOrY+JX/CiuZIW93/gthzgtABNAuu0=;
-        b=1/8MHk1O7FLY17YfXkC+nkMhj/pCDJQDaSXUX3nfjZ1VOTf+nyTAaJ94as4sPG+vXr
-         zJ9Si1xqkRV0mX+f5k4aUstJVHiepuZEySL0zb5J9DL637dw+n2a7ESC4rZQExO6JHvv
-         pX9L9QK2ZK/RH2ifCDy6iDNFzjzJlATTZggA0B7XFPGtGJeZwfx+k2O3dDCLsTmb1BcO
-         Ouu5GQfqwz1hrDPc49OJedXO6nX5k1FkMHOHRe4VSUBxtC7ZU77g9hqsjqbL1FmVt0fz
-         9QvSntzQky3OydY0/jyw4KxCShAH+cCEBY+af6bHZvkfiIVI6sR9iMG0W2kdv5WB+GhO
-         jk5Q==
+        d=amacapital-net.20150623.gappssmtp.com; s=20150623;
+        h=content-transfer-encoding:subject:mime-version:from:in-reply-to:cc
+         :date:message-id:references:to;
+        bh=Z4Rg6QQ2ek1P6NQe6NBeu8rqSQu6+SNlYnv1B6QopIc=;
+        b=dL+a1XBn1NBkBQn11dVvHkoe9wJzQTRlgGfOLYVH54wkX8+kxpekJ6PEWKd10YxEBD
+         /aAw1+vak/IHgDPlcP2znSwk2qM2SO0z3KrYWs+vObzzkBCankh/wiskH1Lg6bhBao+E
+         +ue7Tnc4sEF0tzodkgAB7WyJ7ayUriP2GrPVBOmLJMPerA8aJrXMigX40/RB+V3woqJb
+         64XrAP5ftztYO97114EXMDVxjCSTH+hPw+sU9ELcTmKPZikE683k/WkeZg2g4idb6snl
+         hyNR5IOsBy2pu1mE7wr6AK87EIm/3i3yrUQsOcdLorcVVmQ7nquttoRdFSZfZLzvSZkJ
+         90pQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:reply-to
-         :references:mime-version:content-disposition:in-reply-to:user-agent;
-        bh=J4p6CveRCCmA2UOrY+JX/CiuZIW93/gthzgtABNAuu0=;
-        b=NyAZmrZ4izL6z0LZhrAvn7kG9N7cfg8XsU0hi4CHYup64yP0BST57ez8mLb0izSfxo
-         vl9Hjno5avGOhMQgIxo3TCn+e/N9iesAQ+JN7tCdtLLEv4brooYfhR1mRnGPiQnMAW+E
-         9DSiAwJAkMCysGi4CYuSJycDgEFKGz0CpliyHJ19jGSmw8Wpy+NX15lxe1Btis6ht9ZK
-         tmfHLpVoNqhn2MXN23PvNDQIk3G/gQpMqhe3lxGdfNDzkptpeWKI/xqh/qA0orj7Es5P
-         u19ZLEgCG8gwt0kla6GYAfrcXe+sOlCVBpQKxD19vDGFe8fvSVBShLMc5MXucKjHItAw
-         FtjQ==
-X-Gm-Message-State: ANhLgQ0mJ6HQa0l7XJXgr8tPmFkzMSGSyL7fU6vsp4EQJ9gfQJ9a6+K9
-        pkisJvp9CqvprDFk0lKcY9msyQ==
-X-Google-Smtp-Source: ADFU+vvVyZPXSmAxtQpvvaio/rX9SrEtO/27S7Qk9r3r3pkTzRT5RxNkJ+ip1g+0uhhEcY4rhK06VA==
-X-Received: by 2002:a9d:7cd4:: with SMTP id r20mr6434214otn.148.1583586699738;
-        Sat, 07 Mar 2020 05:11:39 -0800 (PST)
-Received: from minyard.net ([2001:470:b8f6:1b:a549:b51b:bece:c41b])
-        by smtp.gmail.com with ESMTPSA id o1sm12475012otl.49.2020.03.07.05.11.38
-        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Sat, 07 Mar 2020 05:11:38 -0800 (PST)
-Date:   Sat, 7 Mar 2020 07:11:36 -0600
-From:   Corey Minyard <cminyard@mvista.com>
-To:     Christian Brauner <christian.brauner@ubuntu.com>
-Cc:     minyard@acm.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, Adrian Reber <areber@redhat.com>,
-        Oleg Nesterov <oleg@redhat.com>,
-        Dmitry Safonov <0x7f454c46@gmail.com>,
-        Andrei Vagin <avagin@gmail.com>
-Subject: Re: [PATCH v2] pid: Fix error return value in some cases
-Message-ID: <20200307131136.GD2847@minyard.net>
-Reply-To: cminyard@mvista.com
-References: <20200306172314.12232-1-minyard@acm.org>
- <20200307110007.fmtaaqt2udsgohtp@wittgenstein>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200307110007.fmtaaqt2udsgohtp@wittgenstein>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+        h=x-gm-message-state:content-transfer-encoding:subject:mime-version
+         :from:in-reply-to:cc:date:message-id:references:to;
+        bh=Z4Rg6QQ2ek1P6NQe6NBeu8rqSQu6+SNlYnv1B6QopIc=;
+        b=pJqYBUyF80pooZDYXom9Ct/W9IKT6WV+V+ISjTXhzZiH+p1wPgtBP6cGuu3D8oqFXM
+         Krif/l1D514Eli/HsTDlYDtpW8TGoP4jiVaq9vT8k4qPNNKYPaEV/YcciIgtXwLgKf3B
+         myBsW6YvHudbqV3cQRW3BdW7aHsD3T3bZRXrjQFyfIVWszhFSIuwIQBQOjs4u14kcGPu
+         JWiOS8b815DvCzTReOv4B95ml2Bg8Sr1n1H2yMt7veZyvTXFDPcmHj2HORHDN+ci9sM7
+         STP7BJXjG0UyLyzyWjUeYAfWDikBdt8kqLAVmkGOcAAQX4xUu6uHbIZYNozgEJwvNcXq
+         D5ZQ==
+X-Gm-Message-State: ANhLgQ2yi2amGFeWZE2k4vg4+gu6JzBnAZmZj8d/qwDHs4HpfbSMChnK
+        WPL7YCkQlQ+vu4guorFeiYRSlaFT48U=
+X-Google-Smtp-Source: ADFU+vvxyQrbPQrEaD8iDphaCtnuOGoxneoimZDLHsHgIW7njCbrr/AC7dPXlC3QZEOsGkT36xLSLA==
+X-Received: by 2002:a63:7c54:: with SMTP id l20mr8087166pgn.158.1583591798787;
+        Sat, 07 Mar 2020 06:36:38 -0800 (PST)
+Received: from ?IPv6:2601:646:c200:1ef2:1892:9979:287d:69f2? ([2601:646:c200:1ef2:1892:9979:287d:69f2])
+        by smtp.gmail.com with ESMTPSA id b9sm10044706pgi.75.2020.03.07.06.36.37
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sat, 07 Mar 2020 06:36:37 -0800 (PST)
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Subject: Re: [PATCH] x86/kvm: Disable KVM_ASYNC_PF_SEND_ALWAYS
+Mime-Version: 1.0 (1.0)
+X-Apple-Notify-Thread: NO
+X-Universally-Unique-Identifier: 366B8C02-5F63-478A-9EA9-F534EFF91F53
+From:   Andy Lutomirski <luto@amacapital.net>
+In-Reply-To: <87o8t8a33u.fsf@nanos.tec.linutronix.de>
+Cc:     Andy Lutomirski <luto@kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>, x86@kernel.org,
+        kvm list <kvm@vger.kernel.org>,
+        Paolo Bonzini <pbonzini@redhat.com>, stable@vger.kernel.org
+Date:   Sat, 7 Mar 2020 06:36:35 -0800
+X-Apple-Message-Smime-Encrypt: NO
+Message-Id: <DECFB367-7468-43A8-A6FE-4086D9FF601A@amacapital.net>
+References: <87o8t8a33u.fsf@nanos.tec.linutronix.de>
+To:     Thomas Gleixner <tglx@linutronix.de>
+X-Mailer: iPhone Mail (17D50)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, Mar 07, 2020 at 12:00:07PM +0100, Christian Brauner wrote:
-> On Fri, Mar 06, 2020 at 11:23:14AM -0600, minyard@acm.org wrote:
-> > From: Corey Minyard <cminyard@mvista.com>
-> > 
-> > Recent changes to alloc_pid() allow the pid number to be specified on
-> > the command line.  If set_tid_size is set, then the code scanning the
-> > levels will hard-set retval to -EPERM, overriding it's previous -ENOMEM
-> > value.
-> > 
-> > After the code scanning the levels, there are error returns that do not
-> > set retval, assuming it is still set to -ENOMEM.
-> > 
-> > So set retval back to -ENOMEM after scanning the levels.
-> > 
-> > Fixes: 49cb2fc42ce4 "fork: extend clone3() to support setting a PID"
-> > Signed-off-by: Corey Minyard <cminyard@mvista.com>
-> > Cc: <stable@vger.kernel.org> # 5.5
-> > Cc: Adrian Reber <areber@redhat.com>
-> > Cc: Christian Brauner <christian.brauner@ubuntu.com>
-> > Cc: Oleg Nesterov <oleg@redhat.com>
-> > Cc: Dmitry Safonov <0x7f454c46@gmail.com>
-> > Cc: Andrei Vagin <avagin@gmail.com>
-> 
-> Thanks! I've pulled the patch now and applied.
-> 
-> I think that restores the old behavior. If you don't mind, I'll add a
-> comment on top of it saying something like:
-> "ENOMEM is not the most obvious choice but it's the what we've been
->  exposing to userspace for a long time and it's also documented
->  behavior. So we can't easily change it to something more sensible."
 
-That's great.  I was just looking through the code for another reason
-and noticed the issue.  Every little thing counts for quality.
+> On Mar 7, 2020, at 2:09 AM, Thomas Gleixner <tglx@linutronix.de> wrote:
+>=20
+> =EF=BB=BFAndy Lutomirski <luto@kernel.org> writes:
+>=20
+>> The ABI is broken and we cannot support it properly.  Turn it off.
+>>=20
+>> If this causes a meaningful performance regression for someone, KVM
+>> can introduce an improved ABI that is supportable.
+>>=20
+>> Cc: stable@vger.kernel.org
+>> Signed-off-by: Andy Lutomirski <luto@kernel.org>
+>> ---
+>> arch/x86/kernel/kvm.c | 11 ++++++++---
+>> 1 file changed, 8 insertions(+), 3 deletions(-)
+>>=20
+>> diff --git a/arch/x86/kernel/kvm.c b/arch/x86/kernel/kvm.c
+>> index 93ab0cbd304e..71f9f39f93da 100644
+>> --- a/arch/x86/kernel/kvm.c
+>> +++ b/arch/x86/kernel/kvm.c
+>> @@ -318,11 +318,16 @@ static void kvm_guest_cpu_init(void)
+>>=20
+>>        pa =3D slow_virt_to_phys(this_cpu_ptr(&apf_reason));
+>>=20
+>> -#ifdef CONFIG_PREEMPTION
+>> -        pa |=3D KVM_ASYNC_PF_SEND_ALWAYS;
+>> -#endif
+>>        pa |=3D KVM_ASYNC_PF_ENABLED;
+>>=20
+>> +        /*
+>> +         * We do not set KVM_ASYNC_PF_SEND_ALWAYS.  With the current
+>> +         * KVM paravirt ABI, if an async page fault occurs on an early
+>> +         * memory access in the normal (sync) #PF path or in an NMI
+>> +         * that happens early in the #PF code, the combination of CR2
+>> +         * and the APF reason field will be corrupted.
+>=20
+> I don't think this can happen. In both cases IF =3D=3D 0 and that async
+> (think host side) page fault will be completely handled on the
+> host. There is no injection happening in such a case ever. If it does,
+> then yes the host side implementation is buggered, but AFAICT this is
+> not the case.
 
--corey
+Indeed. But read v2 please.
 
-> 
-> Acked-by: Christian Brauner <christian.brauner@ubuntu.com>
+>=20
+> See also my reply in the other thread:
+>=20
+>  https://lore.kernel.org/r/87r1y4a3gw.fsf@nanos.tec.linutronix.de
+>=20
+> Thanks,
+>=20
+>        tglx
