@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 68EEC17CBD8
-	for <lists+stable@lfdr.de>; Sat,  7 Mar 2020 05:01:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8AB3017CBD9
+	for <lists+stable@lfdr.de>; Sat,  7 Mar 2020 05:01:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726674AbgCGEBT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 6 Mar 2020 23:01:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50194 "EHLO mail.kernel.org"
+        id S1726702AbgCGEBW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 6 Mar 2020 23:01:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50280 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726368AbgCGEBT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 6 Mar 2020 23:01:19 -0500
+        id S1726368AbgCGEBW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 6 Mar 2020 23:01:22 -0500
 Received: from localhost.localdomain (c-71-198-47-131.hsd1.ca.comcast.net [71.198.47.131])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9456C2073C;
-        Sat,  7 Mar 2020 04:01:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9B7A72073D;
+        Sat,  7 Mar 2020 04:01:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583553677;
-        bh=RnxBwlbQvj+rCS+1Vri+UgdK14LOGSGzRpfwPEGbK6E=;
+        s=default; t=1583553680;
+        bh=ZdSVe9l/2C83mtxJfy2o5sX7V8M7uJAgJwVxLyJaXgk=;
         h=Date:From:To:Subject:From;
-        b=hPZO10KG2muDTvmk3opYOslh/gL/bgeMhYgL0OBBmGkpoODAR1XgEtZz/5y5Z7QKg
-         /v3QBYmcvTt9QlZ1KId/0sg1EIUHuJl5SnhyGt7pTEFI2+hZggT4i9so30HdWNzzbm
-         uFiqeMYHNdUKCF5Gwh71tGr646tk4AlDesO9/rlE=
-Date:   Fri, 06 Mar 2020 20:01:17 -0800
+        b=txfOkik7JzTIfHHXaA9u8HEfKEFPoKiOoSY5gSNrlb5vl5bCxuk+6DvMyHGvuM7cS
+         3qjButk60ICxv4jGtrUQJG2+cLg1ufEY3zufv5Sg+U9xKiDCjD54+Cy8j716CxIAf6
+         SYX1A3SPohKLhtooCzaQx5df0O5Mhm3+AcGpKWuc=
+Date:   Fri, 06 Mar 2020 20:01:20 -0800
 From:   akpm@linux-foundation.org
-To:     aarcange@redhat.com, kirill.shutemov@linux.intel.com,
-        mhocko@kernel.org, mm-commits@vger.kernel.org,
-        stable@vger.kernel.org, vbabka@suse.cz,
-        william.kucharski@oracle.com, ying.huang@intel.com, ziy@nvidia.com
+To:     dan.j.williams@intel.com, jmoyer@redhat.com, Justin.He@arm.com,
+        kirill.shutemov@linux.intel.com, kirill@shutemov.name,
+        mm-commits@vger.kernel.org, stable@vger.kernel.org
 Subject:  [merged]
- mm-fix-possible-pmd-dirty-bit-lost-in-set_pmd_migration_entry.patch removed
+ mm-avoid-data-corruption-on-cow-fault-into-pfn-mapped-vma.patch removed
  from -mm tree
-Message-ID: <20200307040117.u9Y2Kxoru%akpm@linux-foundation.org>
+Message-ID: <20200307040120.ZTrx62j2k%akpm@linux-foundation.org>
 User-Agent: s-nail v14.8.16
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
@@ -41,63 +40,139 @@ X-Mailing-List: stable@vger.kernel.org
 
 
 The patch titled
-     Subject: mm: fix possible PMD dirty bit lost in set_pmd_migration_entry()
+     Subject: mm: avoid data corruption on CoW fault into PFN-mapped VMA
 has been removed from the -mm tree.  Its filename was
-     mm-fix-possible-pmd-dirty-bit-lost-in-set_pmd_migration_entry.patch
+     mm-avoid-data-corruption-on-cow-fault-into-pfn-mapped-vma.patch
 
 This patch was dropped because it was merged into mainline or a subsystem tree
 
 ------------------------------------------------------
-From: Huang Ying <ying.huang@intel.com>
-Subject: mm: fix possible PMD dirty bit lost in set_pmd_migration_entry()
+From: "Kirill A. Shutemov" <kirill@shutemov.name>
+Subject: mm: avoid data corruption on CoW fault into PFN-mapped VMA
 
-In set_pmd_migration_entry(), pmdp_invalidate() is used to change PMD
-atomically.  But the PMD is read before that with an ordinary memory
-reading.  If the THP (transparent huge page) is written between the PMD
-reading and pmdp_invalidate(), the PMD dirty bit may be lost, and cause
-data corruption.  The race window is quite small, but still possible in
-theory, so need to be fixed.
+Jeff Moyer has reported that one of xfstests triggers a warning when run
+on DAX-enabled filesystem:
 
-The race is fixed via using the return value of pmdp_invalidate() to get
-the original content of PMD, which is a read/modify/write atomic
-operation.  So no THP writing can occur in between.
+	WARNING: CPU: 76 PID: 51024 at mm/memory.c:2317 wp_page_copy+0xc40/0xd50
+	...
+	wp_page_copy+0x98c/0xd50 (unreliable)
+	do_wp_page+0xd8/0xad0
+	__handle_mm_fault+0x748/0x1b90
+	handle_mm_fault+0x120/0x1f0
+	__do_page_fault+0x240/0xd70
+	do_page_fault+0x38/0xd0
+	handle_page_fault+0x10/0x30
 
-The race has been introduced when the THP migration support is added in
-the commit 616b8371539a ("mm: thp: enable thp migration in generic path").
-But this fix depends on the commit d52605d7cb30 ("mm: do not lose dirty
-and accessed bits in pmdp_invalidate()").  So it's easy to be backported
-after v4.16.  But the race window is really small, so it may be fine not
-to backport the fix at all.
+The warning happens on failed __copy_from_user_inatomic() which tries to
+copy data into a CoW page.
 
-Link: http://lkml.kernel.org/r/20200220075220.2327056-1-ying.huang@intel.com
-Signed-off-by: "Huang, Ying" <ying.huang@intel.com>
-Reviewed-by: William Kucharski <william.kucharski@oracle.com>
-Acked-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
-Reviewed-by: Zi Yan <ziy@nvidia.com>
-Cc: Andrea Arcangeli <aarcange@redhat.com>
-Cc: Michal Hocko <mhocko@kernel.org>
-Cc: Vlastimil Babka <vbabka@suse.cz>
+This happens because of race between MADV_DONTNEED and CoW page fault:
+
+	CPU0					CPU1
+ handle_mm_fault()
+   do_wp_page()
+     wp_page_copy()
+       do_wp_page()
+					madvise(MADV_DONTNEED)
+					  zap_page_range()
+					    zap_pte_range()
+					      ptep_get_and_clear_full()
+					      <TLB flush>
+	 __copy_from_user_inatomic()
+	 sees empty PTE and fails
+	 WARN_ON_ONCE(1)
+	 clear_page()
+
+The solution is to re-try __copy_from_user_inatomic() under PTL after
+checking that PTE is matches the orig_pte.
+
+The second copy attempt can still fail, like due to non-readable PTE, but
+there's nothing reasonable we can do about, except clearing the CoW page.
+
+Link: http://lkml.kernel.org/r/20200218154151.13349-1-kirill.shutemov@linux.intel.com
+Signed-off-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Reported-by: Jeff Moyer <jmoyer@redhat.com>
+Tested-by: Jeff Moyer <jmoyer@redhat.com>
+Cc: Dan Williams <dan.j.williams@intel.com>
+Cc: Justin He <Justin.He@arm.com>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- mm/huge_memory.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ mm/memory.c |   35 +++++++++++++++++++++++++++--------
+ 1 file changed, 27 insertions(+), 8 deletions(-)
 
---- a/mm/huge_memory.c~mm-fix-possible-pmd-dirty-bit-lost-in-set_pmd_migration_entry
-+++ a/mm/huge_memory.c
-@@ -3043,8 +3043,7 @@ void set_pmd_migration_entry(struct page
- 		return;
+--- a/mm/memory.c~mm-avoid-data-corruption-on-cow-fault-into-pfn-mapped-vma
++++ a/mm/memory.c
+@@ -2257,7 +2257,7 @@ static inline bool cow_user_page(struct
+ 	bool ret;
+ 	void *kaddr;
+ 	void __user *uaddr;
+-	bool force_mkyoung;
++	bool locked = false;
+ 	struct vm_area_struct *vma = vmf->vma;
+ 	struct mm_struct *mm = vma->vm_mm;
+ 	unsigned long addr = vmf->address;
+@@ -2282,11 +2282,11 @@ static inline bool cow_user_page(struct
+ 	 * On architectures with software "accessed" bits, we would
+ 	 * take a double page fault, so mark it accessed here.
+ 	 */
+-	force_mkyoung = arch_faults_on_old_pte() && !pte_young(vmf->orig_pte);
+-	if (force_mkyoung) {
++	if (arch_faults_on_old_pte() && !pte_young(vmf->orig_pte)) {
+ 		pte_t entry;
  
- 	flush_cache_range(vma, address, address + HPAGE_PMD_SIZE);
--	pmdval = *pvmw->pmd;
--	pmdp_invalidate(vma, address, pvmw->pmd);
-+	pmdval = pmdp_invalidate(vma, address, pvmw->pmd);
- 	if (pmd_dirty(pmdval))
- 		set_page_dirty(page);
- 	entry = make_migration_entry(page, pmd_write(pmdval));
+ 		vmf->pte = pte_offset_map_lock(mm, vmf->pmd, addr, &vmf->ptl);
++		locked = true;
+ 		if (!likely(pte_same(*vmf->pte, vmf->orig_pte))) {
+ 			/*
+ 			 * Other thread has already handled the fault
+@@ -2310,18 +2310,37 @@ static inline bool cow_user_page(struct
+ 	 * zeroes.
+ 	 */
+ 	if (__copy_from_user_inatomic(kaddr, uaddr, PAGE_SIZE)) {
++		if (locked)
++			goto warn;
++
++		/* Re-validate under PTL if the page is still mapped */
++		vmf->pte = pte_offset_map_lock(mm, vmf->pmd, addr, &vmf->ptl);
++		locked = true;
++		if (!likely(pte_same(*vmf->pte, vmf->orig_pte))) {
++			/* The PTE changed under us. Retry page fault. */
++			ret = false;
++			goto pte_unlock;
++		}
++
+ 		/*
+-		 * Give a warn in case there can be some obscure
+-		 * use-case
++		 * The same page can be mapped back since last copy attampt.
++		 * Try to copy again under PTL.
+ 		 */
+-		WARN_ON_ONCE(1);
+-		clear_page(kaddr);
++		if (__copy_from_user_inatomic(kaddr, uaddr, PAGE_SIZE)) {
++			/*
++			 * Give a warn in case there can be some obscure
++			 * use-case
++			 */
++warn:
++			WARN_ON_ONCE(1);
++			clear_page(kaddr);
++		}
+ 	}
+ 
+ 	ret = true;
+ 
+ pte_unlock:
+-	if (force_mkyoung)
++	if (locked)
+ 		pte_unmap_unlock(vmf->pte, vmf->ptl);
+ 	kunmap_atomic(kaddr);
+ 	flush_dcache_page(dst);
 _
 
-Patches currently in -mm which might be from ying.huang@intel.com are
+Patches currently in -mm which might be from kirill@shutemov.name are
 
+mm-filemap-fix-a-data-race-in-filemap_fault.patch
 
