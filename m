@@ -2,66 +2,115 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2984017D09A
-	for <lists+stable@lfdr.de>; Sun,  8 Mar 2020 00:20:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5EBFC17D0BD
+	for <lists+stable@lfdr.de>; Sun,  8 Mar 2020 01:19:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726330AbgCGXUl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 7 Mar 2020 18:20:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41334 "EHLO mail.kernel.org"
+        id S1726174AbgCHATr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 7 Mar 2020 19:19:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50188 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726327AbgCGXUl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 7 Mar 2020 18:20:41 -0500
-Received: from localhost (unknown [137.135.114.1])
+        id S1726138AbgCHATr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 7 Mar 2020 19:19:47 -0500
+Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6826A2075E;
-        Sat,  7 Mar 2020 23:20:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 87AD9206D5;
+        Sun,  8 Mar 2020 00:19:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583623240;
-        bh=NJ2J6G2KLoUghazQv6pzRoMOjD48/PyB87BX6fUfYQk=;
-        h=Date:From:To:To:To:To:Cc:Cc:Cc:Subject:In-Reply-To:References:
-         From;
-        b=0eFH7poqVAlUQhadFYTvLMZPySw7w0KYkioyJtWxhx0ak9y+o9A3avxANsMKtoTV1
-         GqDCTeKz12NZn1wO8C5WB0HztO9WUgM5BU3QQV738iSUlHkldhNnTjGSP/pZp28Asp
-         NYEDL5NiAERL3Mr80kkbJut7Ix/qtHY3EaS7lmjM=
-Date:   Sat, 07 Mar 2020 23:20:39 +0000
+        s=default; t=1583626786;
+        bh=VhVlmA3DQga8whdjad67k1pSSTvT73verQ6N+GbCugA=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=uOt4NJwxk4EdsVAl1sEK9XuUVA453aTRIw3z4SaWOQvinTdrrIVdzTbE5kKGuPVLD
+         2KADUGE9h6p+AMdsNTP98W7wwo/RY8b3ReCkNR+oS4OFuLm1SGPqdVyQ4TL0+0a0Sb
+         +2G/W/9ehwcByKxbKFaktXr2C9f2/XR6br8Xb/Z8=
+Date:   Sat, 7 Mar 2020 19:19:45 -0500
 From:   Sasha Levin <sashal@kernel.org>
-To:     Sasha Levin <sashal@kernel.org>
-To:     Sibi Sankar <sibis@codeaurora.org>
-To:     Bjorn Andersson <bjorn.andersson@linaro.org>
-To:     bjorn.andersson@linaro.org, mathieu.poirier@linaro.org
-Cc:     agross@kernel.org, ohad@wizery.com, linux-arm-msm@vger.kernel.org
-Cc:     stable@vger.kernel.org
-Cc:     stable@vger.kernel.org
-Subject: Re: [PATCH v4 1/3] remoteproc: qcom_q6v5_mss: Don't reassign mpss region on shutdown
-In-Reply-To: <20200304194729.27979-2-sibis@codeaurora.org>
-References: <20200304194729.27979-2-sibis@codeaurora.org>
-Message-Id: <20200307232040.6826A2075E@mail.kernel.org>
+To:     yangerkun <yangerkun@huawei.com>
+Cc:     gregkh@linuxfoundation.org, herbert@gondor.apana.org.au,
+        stable@vger.kernel.org, linux-crypto@vger.kernel.org
+Subject: Re: [PATCH 4.4.y v2] crypto: algif_skcipher - use ZERO_OR_NULL_PTR
+ in skcipher_recvmsg_async
+Message-ID: <20200308001945.GT21491@sasha-vm>
+References: <20200305085755.22730-1-yangerkun@huawei.com>
+ <20200306133941.GQ21491@sasha-vm>
+ <8bb5b0d7-4232-14cb-49c7-a3cc348645ae@huawei.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1; format=flowed
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <8bb5b0d7-4232-14cb-49c7-a3cc348645ae@huawei.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi
+On Sat, Mar 07, 2020 at 09:49:25AM +0800, yangerkun wrote:
+>
+>
+>On 2020/3/6 21:39, Sasha Levin wrote:
+>>On Thu, Mar 05, 2020 at 04:57:55PM +0800, yangerkun wrote:
+>>>Nowdays, we trigger a oops:
+>>>...
+>>>kasan: GPF could be caused by NULL-ptr deref or user memory 
+>>>accessgeneral protection fault: 0000 [#1] SMP KASAN
+>>>...
+>>>Call Trace:
+>>>[<ffffffff81a26fb1>] skcipher_recvmsg_async+0x3f1/0x1400 
+>>>x86/../crypto/algif_skcipher.c:543
+>>>[<ffffffff81a28053>] skcipher_recvmsg+0x93/0x7f0 
+>>>x86/../crypto/algif_skcipher.c:723
+>>>[<ffffffff823e43a4>] sock_recvmsg_nosec x86/../net/socket.c:702 [inline]
+>>>[<ffffffff823e43a4>] sock_recvmsg x86/../net/socket.c:710 [inline]
+>>>[<ffffffff823e43a4>] sock_recvmsg+0x94/0xc0 x86/../net/socket.c:705
+>>>[<ffffffff823e464b>] sock_read_iter+0x27b/0x3a0 x86/../net/socket.c:787
+>>>[<ffffffff817f479b>] aio_run_iocb+0x21b/0x7a0 x86/../fs/aio.c:1520
+>>>[<ffffffff817f57c9>] io_submit_one x86/../fs/aio.c:1630 [inline]
+>>>[<ffffffff817f57c9>] do_io_submit+0x6b9/0x10b0 x86/../fs/aio.c:1688
+>>>[<ffffffff817f902d>] SYSC_io_submit x86/../fs/aio.c:1713 [inline]
+>>>[<ffffffff817f902d>] SyS_io_submit+0x2d/0x40 x86/../fs/aio.c:1710
+>>>[<ffffffff828b33c3>] tracesys_phase2+0x90/0x95
+>>>
+>>>In skcipher_recvmsg_async, we use '!sreq->tsg' to determine does we
+>>>calloc fail. However, kcalloc may return ZERO_SIZE_PTR, and with this,
+>>>the latter sg_init_table will trigger the bug. Fix it be use 
+>>>ZERO_OF_NULL_PTR.
+>>>
+>>>This function was introduced with ' commit a596999b7ddf ("crypto:
+>>>algif - change algif_skcipher to be asynchronous")', and has been removed
+>>>with 'commit e870456d8e7c ("crypto: algif_skcipher - overhaul memory
+>>>management")'.
+>>>
+>>>Reported-by: Hulk Robot <hulkci@huawei.com>
+>>>Signed-off-by: yangerkun <yangerkun@huawei.com>
+>>>---
+>>>crypto/algif_skcipher.c | 2 +-
+>>>1 file changed, 1 insertion(+), 1 deletion(-)
+>>>
+>>>v1->v2:
+>>>update the commit message
+>>>
+>>>diff --git a/crypto/algif_skcipher.c b/crypto/algif_skcipher.c
+>>>index d12782dc9683..9bd4691cc5c5 100644
+>>>--- a/crypto/algif_skcipher.c
+>>>+++ b/crypto/algif_skcipher.c
+>>>@@ -538,7 +538,7 @@ static int skcipher_recvmsg_async(struct 
+>>>socket *sock, struct msghdr *msg,
+>>>    lock_sock(sk);
+>>>    tx_nents = skcipher_all_sg_nents(ctx);
+>>>    sreq->tsg = kcalloc(tx_nents, sizeof(*sg), GFP_KERNEL);
+>>>-    if (unlikely(!sreq->tsg))
+>>>+    if (unlikely(ZERO_OR_NULL_PTR(sreq->tsg)))
+>>
+>>I'm a bit confused: kcalloc() will return ZERO_SIZE_PTR for allocations
+>>that ask for 0 bytes, but here we ask for "sizeof(*sg)" bytes, which is
+>>guaranteed to be more than 0, no?
+>
+>Actually, the size need to calloc is (tx_nents * sizeof(*sg)), and 
+>tx_nents is 0.
 
-[This is an automated email]
-
-This commit has been processed because it contains a "Fixes:" tag
-fixing commit: 6c5a9dc2481b ("remoteproc: qcom: Make secure world call for mem ownership switch").
-
-The bot has tested the following trees: v5.5.7, v5.4.23, v4.19.107.
-
-v5.5.7: Build OK!
-v5.4.23: Build OK!
-v4.19.107: Failed to apply! Possible dependencies:
-    0304530ddd29 ("remoteproc: qcom: q6v5-mss: Refactor mba load/unload sequence")
-    7dd8ade24dc2 ("remoteproc: qcom: q6v5-mss: Add custom dump function for modem")
-
-
-NOTE: The patch will not be queued to stable trees until it is upstream.
-
-How should we proceed with this patch?
+Makes sense. This is also needed on 4.9, right?
 
 -- 
-Thanks
+Thanks,
 Sasha
