@@ -2,151 +2,124 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CD06B17E2C6
-	for <lists+stable@lfdr.de>; Mon,  9 Mar 2020 15:54:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7489B17E2F6
+	for <lists+stable@lfdr.de>; Mon,  9 Mar 2020 16:01:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726810AbgCIOy1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Mar 2020 10:54:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43522 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726695AbgCIOy0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Mar 2020 10:54:26 -0400
-Received: from disco-boy.misterjones.org (disco-boy.misterjones.org [51.254.78.96])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C8206222D9;
-        Mon,  9 Mar 2020 14:54:25 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583765665;
-        bh=C1cXE+shbxK5n3fyrkPtztfK5LTlFOl3pAD64gHyFSA=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=i/DOvxuINdxlUMAZeNCWHguF45SpZBNMymonF3jKcRtH//+hgoHtRcGF4nAjahxLz
-         dzLX+V39ZRwypZsbr0esNBmDk5h0A0iH1ebaQibZ05vziD6pWaS2LKb4ANHJosWT09
-         BfDHO3yEeGC7qh/ECZxnf0eErvGt0hMDUeuxAFJg=
-Received: from disco-boy.misterjones.org ([51.254.78.96] helo=www.loen.fr)
-        by disco-boy.misterjones.org with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        (Exim 4.92)
-        (envelope-from <maz@kernel.org>)
-        id 1jBJnU-00BJ8t-3t; Mon, 09 Mar 2020 14:54:24 +0000
+        id S1726780AbgCIPBP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Mar 2020 11:01:15 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:25218 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726772AbgCIPBP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 9 Mar 2020 11:01:15 -0400
+Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 029EwqPo013602;
+        Mon, 9 Mar 2020 11:01:14 -0400
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2ym8n7c3eq-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 09 Mar 2020 11:01:11 -0400
+Received: from m0098399.ppops.net (m0098399.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 029F0JxR024513;
+        Mon, 9 Mar 2020 11:00:51 -0400
+Received: from ppma03wdc.us.ibm.com (ba.79.3fa9.ip4.static.sl-reverse.com [169.63.121.186])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2ym8n7c2yu-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 09 Mar 2020 11:00:51 -0400
+Received: from pps.filterd (ppma03wdc.us.ibm.com [127.0.0.1])
+        by ppma03wdc.us.ibm.com (8.16.0.27/8.16.0.27) with SMTP id 029F0WRH024797;
+        Mon, 9 Mar 2020 15:00:35 GMT
+Received: from b01cxnp23033.gho.pok.ibm.com (b01cxnp23033.gho.pok.ibm.com [9.57.198.28])
+        by ppma03wdc.us.ibm.com with ESMTP id 2ym38635ds-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 09 Mar 2020 15:00:35 +0000
+Received: from b01ledav001.gho.pok.ibm.com (b01ledav001.gho.pok.ibm.com [9.57.199.106])
+        by b01cxnp23033.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 029F0ZgN53346704
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 9 Mar 2020 15:00:35 GMT
+Received: from b01ledav001.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id CFA8928077;
+        Mon,  9 Mar 2020 15:00:34 +0000 (GMT)
+Received: from b01ledav001.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id C86EE2805A;
+        Mon,  9 Mar 2020 15:00:34 +0000 (GMT)
+Received: from localhost.localdomain (unknown [9.114.17.106])
+        by b01ledav001.gho.pok.ibm.com (Postfix) with ESMTP;
+        Mon,  9 Mar 2020 15:00:34 +0000 (GMT)
+From:   Christian Borntraeger <borntraeger@de.ibm.com>
+To:     Christian Borntraeger <borntraeger@de.ibm.com>,
+        Janosch Frank <frankja@linux.vnet.ibm.com>
+Cc:     KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>,
+        David Hildenbrand <david@redhat.com>,
+        Thomas Huth <thuth@redhat.com>,
+        linux-s390 <linux-s390@vger.kernel.org>, stable@vger.kernel.org
+Subject: [PATCH 3/4] KVM: s390: Also reset registers in sync regs for initial cpu reset
+Date:   Mon,  9 Mar 2020 11:00:25 -0400
+Message-Id: <20200309150026.4329-4-borntraeger@de.ibm.com>
+X-Mailer: git-send-email 2.25.0
+In-Reply-To: <20200309150026.4329-1-borntraeger@de.ibm.com>
+References: <20200309150026.4329-1-borntraeger@de.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
- format=flowed
-Content-Transfer-Encoding: 7bit
-Date:   Mon, 09 Mar 2020 14:54:24 +0000
-From:   Marc Zyngier <maz@kernel.org>
-To:     Linus Walleij <linus.walleij@linaro.org>
-Cc:     linux-gpio@vger.kernel.org,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Lina Iyer <ilina@codeaurora.org>,
-        Stephen Boyd <swboyd@chromium.org>, stable@vger.kernel.org
-Subject: Re: [PATCH v2] pinctrl: qcom: Assign irq_disable/eoi conditionally
-In-Reply-To: <20200309125207.571840-1-linus.walleij@linaro.org>
-References: <20200309125207.571840-1-linus.walleij@linaro.org>
-Message-ID: <1be9151d00160ef26a3900e0e6a5fd14@kernel.org>
-X-Sender: maz@kernel.org
-User-Agent: Roundcube Webmail/1.3.10
-X-SA-Exim-Connect-IP: 51.254.78.96
-X-SA-Exim-Rcpt-To: linus.walleij@linaro.org, linux-gpio@vger.kernel.org, bjorn.andersson@linaro.org, ilina@codeaurora.org, swboyd@chromium.org, stable@vger.kernel.org
-X-SA-Exim-Mail-From: maz@kernel.org
-X-SA-Exim-Scanned: No (on disco-boy.misterjones.org); SAEximRunCond expanded to false
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.138,18.0.572
+ definitions=2020-03-09_06:2020-03-09,2020-03-09 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ adultscore=0 mlxlogscore=999 mlxscore=0 suspectscore=0 spamscore=0
+ phishscore=0 bulkscore=0 malwarescore=0 clxscore=1011 impostorscore=0
+ priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2001150001 definitions=main-2003090104
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Linus,
+When we do the initial CPU reset we must not only clear the registers
+in the internal data structures but also in kvm_run sync_regs. For
+modern userspace sync_regs is the only place that it looks at.
 
-On 2020-03-09 12:52, Linus Walleij wrote:
-> The hierarchical parts of MSM pinctrl/GPIO is only
-> used when the device tree has a "wakeup-parent" as
-> a phandle, but the .irq_disable and .irq_eoi are anyway
-> assigned leading to semantic problems on elder
-> Qualcomm chipsets.
-> 
-> When the drivers/mfd/qcom-pm8xxx.c driver calls
-> chained_irq_exit() that call will in turn call chip->irq_eoi()
-> which is set to irq_chip_eoi_parent() by default on a
-> hierachical IRQ chip, and the parent is pinctrl-msm.c
-> so that will in turn unconditionally call
-> irq_chip_eoi_parent() again, but its parent is invalid
-> so we get the following crash:
-> 
->  Unnable to handle kernel NULL pointer dereference at
->  virtual address 00000010
->  pgd = (ptrval)
->  [00000010] *pgd=00000000
->  Internal error: Oops: 5 [#1] PREEMPT SMP ARM
->  (...)
->  PC is at irq_chip_eoi_parent+0x4/0x10
->  LR is at pm8xxx_irq_handler+0x1b4/0x2d8
-> 
-> If we solve this crash by avoiding to call up to
-> irq_chip_eoi_parent(), the machine will hang and get
-> reset by the watchdog, because of semantic issues,
-> probably inside irq_chip.
-> 
-> As a solution, just assign the .irq_disable and .irq_eoi
-> condtionally if we are actually using a wakeup parent.
-> 
-> Cc: Bjorn Andersson <bjorn.andersson@linaro.org>
-> Cc: Lina Iyer <ilina@codeaurora.org>
-> Cc: Marc Zyngier <maz@kernel.org>
-> Cc: Stephen Boyd <swboyd@chromium.org>
-> Cc: stable@vger.kernel.org
-> Fixes: e35a6ae0eb3a ("pinctrl/msm: Setup GPIO chip in hierarchy")
-> Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-> ---
-> ChangeLog v1->v2:
-> - Noticed that the previous solution doesn't actually work,
->   the machine hangs and reboots intead (even if it got rid of
->   the most obvious crash). Make a more thorough solution that
->   completely avoids using these callbacks if we don't have
->   a parent.
+Cc: stable@vger.kernel.org
+Fixes: 7de3f1423ff943 ("KVM: s390: Add new reset vcpu API")
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+---
+ arch/s390/kvm/kvm-s390.c | 18 +++++++++++++++++-
+ 1 file changed, 17 insertions(+), 1 deletion(-)
 
-What is the problem with disable exactly?
-
-> - v1 was called "Guard irq_eoi()"
-> ---
->  drivers/pinctrl/qcom/pinctrl-msm.c | 5 ++---
->  1 file changed, 2 insertions(+), 3 deletions(-)
-> 
-> diff --git a/drivers/pinctrl/qcom/pinctrl-msm.c
-> b/drivers/pinctrl/qcom/pinctrl-msm.c
-> index 9a8daa256a32..fe3c53ae25f4 100644
-> --- a/drivers/pinctrl/qcom/pinctrl-msm.c
-> +++ b/drivers/pinctrl/qcom/pinctrl-msm.c
-> @@ -1100,11 +1100,9 @@ static int msm_gpio_init(struct msm_pinctrl 
-> *pctrl)
-> 
->  	pctrl->irq_chip.name = "msmgpio";
->  	pctrl->irq_chip.irq_enable = msm_gpio_irq_enable;
-> -	pctrl->irq_chip.irq_disable = msm_gpio_irq_disable;
-
-I find it really odd to have the enable callback, but not the disable.
-What is the rational for that? Can we drop the enable as well for old
-platforms and only use mask/unmask instead?
-
->  	pctrl->irq_chip.irq_mask = msm_gpio_irq_mask;
->  	pctrl->irq_chip.irq_unmask = msm_gpio_irq_unmask;
->  	pctrl->irq_chip.irq_ack = msm_gpio_irq_ack;
-> -	pctrl->irq_chip.irq_eoi = irq_chip_eoi_parent;
->  	pctrl->irq_chip.irq_set_type = msm_gpio_irq_set_type;
->  	pctrl->irq_chip.irq_set_wake = msm_gpio_irq_set_wake;
->  	pctrl->irq_chip.irq_request_resources = msm_gpio_irq_reqres;
-> @@ -1118,7 +1116,8 @@ static int msm_gpio_init(struct msm_pinctrl 
-> *pctrl)
->  		if (!chip->irq.parent_domain)
->  			return -EPROBE_DEFER;
->  		chip->irq.child_to_parent_hwirq = msm_gpio_wakeirq;
-> -
-> +		pctrl->irq_chip.irq_disable = msm_gpio_irq_disable;
-> +		pctrl->irq_chip.irq_eoi = irq_chip_eoi_parent;
->  		/*
->  		 * Let's skip handling the GPIOs, if the parent irqchip
->  		 * is handling the direct connect IRQ of the GPIO.
-
-Thanks,
-
-         M.
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index 6b1842a9feed..81f54ddedb3d 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -3529,7 +3529,10 @@ static void kvm_arch_vcpu_ioctl_initial_reset(struct kvm_vcpu *vcpu)
+ 	/* Initial reset is a superset of the normal reset */
+ 	kvm_arch_vcpu_ioctl_normal_reset(vcpu);
+ 
+-	/* this equals initial cpu reset in pop, but we don't switch to ESA */
++	/*
++	 * This equals initial cpu reset in pop, but we don't switch to ESA.
++	 * We do not even reset the internal data, but also ...
++	 */
+ 	vcpu->arch.sie_block->gpsw.mask = 0;
+ 	vcpu->arch.sie_block->gpsw.addr = 0;
+ 	kvm_s390_set_prefix(vcpu, 0);
+@@ -3538,6 +3541,19 @@ static void kvm_arch_vcpu_ioctl_initial_reset(struct kvm_vcpu *vcpu)
+ 	memset(vcpu->arch.sie_block->gcr, 0, sizeof(vcpu->arch.sie_block->gcr));
+ 	vcpu->arch.sie_block->gcr[0] = CR0_INITIAL_MASK;
+ 	vcpu->arch.sie_block->gcr[14] = CR14_INITIAL_MASK;
++
++	/* ... the data in sync regs */
++	memset(vcpu->run->s.regs.crs, 0, sizeof(vcpu->run->s.regs.crs));
++	vcpu->run->s.regs.ckc = 0;
++	vcpu->run->s.regs.crs[0] = CR0_INITIAL_MASK;
++	vcpu->run->s.regs.crs[14] = CR14_INITIAL_MASK;
++	vcpu->run->psw_addr = 0;
++	vcpu->run->psw_mask = 0;
++	vcpu->run->s.regs.todpr = 0;
++	vcpu->run->s.regs.cputm = 0;
++	vcpu->run->s.regs.ckc = 0;
++	vcpu->run->s.regs.pp = 0;
++	vcpu->run->s.regs.gbea = 1;
+ 	vcpu->run->s.regs.fpc = 0;
+ 	/*
+ 	 * Do not reset these registers in the protected case, as some of
 -- 
-Jazz is not dead. It just smells funny...
+2.25.0
+
