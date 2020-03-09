@@ -2,90 +2,132 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A43C817EB94
-	for <lists+stable@lfdr.de>; Mon,  9 Mar 2020 22:58:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 867A317EBA6
+	for <lists+stable@lfdr.de>; Mon,  9 Mar 2020 23:04:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727126AbgCIV61 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Mar 2020 17:58:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48632 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726439AbgCIV61 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Mar 2020 17:58:27 -0400
-Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C1D1F2253D;
-        Mon,  9 Mar 2020 21:58:26 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583791107;
-        bh=29KSn/6fVHHENEBQvirhiLc58yhaT3CC78KGsKZTYLQ=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=RdU9NXA/8HZ5WZUHGIrJhSobpt2yTYDt3dmgB0z43XHHnRYmclrV9/oT7+U2osFHQ
-         HOGnXC7eAtZ6M/glwBBC5tQr60VoXe5yxpxuOi0x2JGrnJaXmShK07ahjwkUBciNsr
-         qR10bIIyoABlUyNgcK7jYKvQczfb1099mNwUd48c=
-Date:   Mon, 9 Mar 2020 17:58:25 -0400
-From:   Sasha Levin <sashal@kernel.org>
-To:     gregkh@linuxfoundation.org
-Cc:     ying.huang@intel.com, aarcange@redhat.com,
-        akpm@linux-foundation.org, kirill.shutemov@linux.intel.com,
-        mhocko@kernel.org, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, vbabka@suse.cz,
-        william.kucharski@oracle.com, ziy@nvidia.com
-Subject: Re: FAILED: patch "[PATCH] mm: fix possible PMD dirty bit lost in"
- failed to apply to 4.14-stable tree
-Message-ID: <20200309215825.GA24841@sasha-vm>
-References: <158378131510638@kroah.com>
+        id S1726536AbgCIWEV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Mar 2020 18:04:21 -0400
+Received: from us-smtp-1.mimecast.com ([205.139.110.61]:23030 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726439AbgCIWEV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 9 Mar 2020 18:04:21 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1583791460;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=yvJTacKjNVOztH256dZHpNYhzX5dRhKvlA341VjdCi8=;
+        b=Uf816iHzFdgRt9B1h54EOGetWFZaeDFW45+cNWSPl4A4kayeiBf8XtWyV13gCAs0IcX4Zv
+        IThN6A1tlCsw3tGPyqlNZquZT9PNGmCytKD+23EU6hKKq1IaGou4oQ+VKMmyBJuzes4vFO
+        sV08UFakar/9pMql7dTVpvm+9GYnY1s=
+Received: from mail-ot1-f72.google.com (mail-ot1-f72.google.com
+ [209.85.210.72]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-162-2kytYYPVP9OU195X2NJTfw-1; Mon, 09 Mar 2020 18:04:10 -0400
+X-MC-Unique: 2kytYYPVP9OU195X2NJTfw-1
+Received: by mail-ot1-f72.google.com with SMTP id s15so7412504otk.7
+        for <stable@vger.kernel.org>; Mon, 09 Mar 2020 15:04:09 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=yvJTacKjNVOztH256dZHpNYhzX5dRhKvlA341VjdCi8=;
+        b=qF+k2fujwh3shuQNdHMEATzsZinietQa3ih0PvUfmILeX+vcA+IjpDjeYmc+5v4JsU
+         RpzNsOVfYrBfoZ4RNm+winNGudqqBTWspLOTOPbhkOGfHWG3adktAeZb23UANC2rNpYM
+         fa3vztM9jMz0COPCT7T8hNOW+M7UseBWzpTzAm0JBnh76nJc9kXKmL9Ze/VjJSlwJBLf
+         qqgDoeCO0Lod7SSGK8tJbtsp8Hy+EsSFJCI6TeIEnOXoefBrhBL5dd3rKYi2hPzlfUFG
+         6i3H8w0hmH8AZWDP+d2Um5jDreMFMbgHoYzE0NFYqtDNgEB9OyoGe4FWUg1OZTSFcIOG
+         cY+Q==
+X-Gm-Message-State: ANhLgQ0ffG/cMAxjXhf02mZAsZ6erCAUtg+OlqFI/sdQvam4NTLiSkkU
+        4EP+o8lEir3ZRvC4iRZnABj+HoSvFWVAM2nGPZqna6JQ1DlGBkphC3K0Fcc5PIEHa9zMkftNMm9
+        DCYGO0acgZTBNZ5aPCwiyuws+HYjDy2Hq
+X-Received: by 2002:a9d:7458:: with SMTP id p24mr2890848otk.197.1583791448703;
+        Mon, 09 Mar 2020 15:04:08 -0700 (PDT)
+X-Google-Smtp-Source: ADFU+vsFE8SXSJ8i3wT/MUNuNnTpNxro53ctEUbxx3P0T+4oUrP1CSaaaAbP5OdDtfFhAVMUywBT7KEphLu8efKRKdk=
+X-Received: by 2002:a9d:7458:: with SMTP id p24mr2890827otk.197.1583791448361;
+ Mon, 09 Mar 2020 15:04:08 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <158378131510638@kroah.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+References: <cki.411617A928.D7E40QQCW6@redhat.com> <20200309215305.GV21491@sasha-vm>
+In-Reply-To: <20200309215305.GV21491@sasha-vm>
+From:   Ondrej Mosnacek <omosnace@redhat.com>
+Date:   Mon, 9 Mar 2020 23:03:57 +0100
+Message-ID: <CAFqZXNugDTJ8MQePK1Cyz2TOJiPcPrq3ohmNZngJjaTCq1Y6mQ@mail.gmail.com>
+Subject: =?UTF-8?Q?Re=3A_=E2=9D=8C_PANICKED=3A_Test_report_for_kernel_5=2E5=2E8=2Dc30f3?=
+        =?UTF-8?Q?3b=2Ecki_=28stable=2Dqueue=29?=
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     CKI Project <cki-project@redhat.com>,
+        Linux Stable maillist <stable@vger.kernel.org>,
+        Memory Management <mm-qe@redhat.com>,
+        Jan Stancek <jstancek@redhat.com>,
+        LTP Mailing List <ltp@lists.linux.it>,
+        Ondrej Moris <omoris@redhat.com>,
+        William Gomeringer <wgomeringer@redhat.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Mar 09, 2020 at 08:15:15PM +0100, gregkh@linuxfoundation.org wrote:
->
->The patch below does not apply to the 4.14-stable tree.
->If someone wants it applied there, or to any other stable or longterm
->tree, then please email the backport, including the original git commit
->id to <stable@vger.kernel.org>.
->
->thanks,
->
->greg k-h
->
->------------------ original commit in Linus's tree ------------------
->
->From 8a8683ad9ba48b4b52a57f013513d1635c1ca5c4 Mon Sep 17 00:00:00 2001
->From: Huang Ying <ying.huang@intel.com>
->Date: Thu, 5 Mar 2020 22:28:29 -0800
->Subject: [PATCH] mm: fix possible PMD dirty bit lost in
-> set_pmd_migration_entry()
->
->In set_pmd_migration_entry(), pmdp_invalidate() is used to change PMD
->atomically.  But the PMD is read before that with an ordinary memory
->reading.  If the THP (transparent huge page) is written between the PMD
->reading and pmdp_invalidate(), the PMD dirty bit may be lost, and cause
->data corruption.  The race window is quite small, but still possible in
->theory, so need to be fixed.
->
->The race is fixed via using the return value of pmdp_invalidate() to get
->the original content of PMD, which is a read/modify/write atomic
->operation.  So no THP writing can occur in between.
->
->The race has been introduced when the THP migration support is added in
->the commit 616b8371539a ("mm: thp: enable thp migration in generic path").
->But this fix depends on the commit d52605d7cb30 ("mm: do not lose dirty
->and accessed bits in pmdp_invalidate()").  So it's easy to be backported
->after v4.16.  But the race window is really small, so it may be fine not
->to backport the fix at all.
+Hi Sasha,
 
-As d52605d7cb30 ("mm: do not lose dirty and accessed bits in
-pmdp_invalidate()") has an explicit note asking not to backport it, we
-won't backport it or this patch to 4.14.
+On Mon, Mar 9, 2020 at 10:53 PM Sasha Levin <sashal@kernel.org> wrote:
+>
+> On Mon, Mar 09, 2020 at 09:24:35PM -0000, CKI Project wrote:
+> >
+> >Hello,
+> >
+> >We ran automated tests on a recent commit from this kernel tree:
+> >
+> >       Kernel repo: https://git.kernel.org/pub/scm/linux/kernel/git/stab=
+le/linux-stable-rc.git
+> >            Commit: c30f33bfb014 - selftests: forwarding: vxlan_bridge_1=
+d: use more proper tos value
+> >
+> >The results of these automated tests are provided below.
+> >
+> >    Overall result: FAILED (see details below)
+> >             Merge: OK
+> >           Compile: OK
+> >             Tests: PANICKED
+> >
+> >All kernel binaries, config files, and logs are available for download h=
+ere:
+> >
+> >  https://cki-artifacts.s3.us-east-2.amazonaws.com/index.html?prefix=3Dd=
+atawarehouse/2020/03/09/480158
+> >
+> >One or more kernel tests failed:
+> >
+> >    s390x:
+> >     =E2=9D=8C LTP
+> >
+> >    ppc64le:
+> >     =E2=9D=8C LTP
+> >
+> >    aarch64:
+> >     =E2=9D=8C audit: audit testsuite test
+> >
+> >    x86_64:
+> >     =E2=9D=8C audit: audit testsuite test
+>
+> Following the link above I got to
+> https://cki-artifacts.s3.us-east-2.amazonaws.com/index.html?prefix=3Ddata=
+warehouse/2020/03/09/480158/audit__audit_testsuite_test/,
+> but it shows that all tests are passing? The console log looks fine too:
+> https://cki-artifacts.s3.us-east-2.amazonaws.com/datawarehouse/2020/03/09=
+/480158/x86_64_5_console.log.
+> Where's the panic?
 
--- 
-Thanks,
-Sasha
+The panic happened during the LTP test on s390x (note the lightning
+symbols under s390x, Host 1). The backtrace is at the end of
+https://cki-artifacts.s3.us-east-2.amazonaws.com/datawarehouse/2020/03/09/4=
+80158/s390x_1_console.log
+
+Cheers,
+
+--=20
+Ondrej Mosnacek <omosnace at redhat dot com>
+Software Engineer, Security Technologies
+Red Hat, Inc.
+
