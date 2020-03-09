@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A33CC17E854
-	for <lists+stable@lfdr.de>; Mon,  9 Mar 2020 20:25:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DC8A217E85E
+	for <lists+stable@lfdr.de>; Mon,  9 Mar 2020 20:27:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726415AbgCITZD convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Mon, 9 Mar 2020 15:25:03 -0400
-Received: from mail-oln040092074084.outbound.protection.outlook.com ([40.92.74.84]:21838
+        id S1726118AbgCIT1N convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Mon, 9 Mar 2020 15:27:13 -0400
+Received: from mail-oln040092074079.outbound.protection.outlook.com ([40.92.74.79]:25813
         "EHLO EUR04-DB3-obe.outbound.protection.outlook.com"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1725956AbgCITZD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Mar 2020 15:25:03 -0400
+        id S1725992AbgCIT1N (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Mar 2020 15:27:13 -0400
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=P5fR3R6NRmtmYFXf90r1KviiRMR7E1L7qiV+TTXxEk2OZaJScmjYKT1+bdO8wsFAj98rWUpgLjUSYChGM98RgOr+jqcAekTSHIfm0hoDrwELnFNfCWERtepNkT0qCCtWI40uOuPQ5jn6cBEhVS6eq8P3+kvpOf9kAmxyRo7VPrSN5VD+OfDynNG2uhNl0Pt1Hxlqy4JUSlzNgrPgsmrBe0LfDtBdiF3n5YHiKMvEubCEFhbaKk75KgseWQYtlbKzWx9xgoL6xJba3MkfeTA+uaGDRk45DEBKOkXeLxrGL1qicLyHa9XGHAGqacotRR6a2s6orLmIml72x+i8fL6+Qg==
+ b=VQ67fH9gpW1qd/9XtnGUsZzxnLCp8kFPh/NnOGCAzZ8ZFNTYPvOJ2Ij22dURElGsjpgg4L/skOHGczm/stWQVUy7Bvl2hDdImr+gBSx9Wu5tyOV3/b2c9n1YbLukH1F1s8e2FXs0cMu3LpbI3EdRNPFLEdHvbv5YFCdusRMze3rTEfng6gqkHSSzndE5kYYdmQod/4GSugv4vtzkteUKv07a6yFPulUs1uJUz7cl6nRnYRKFgIdLwYsQu8Da4e+GZe/mX5O/Z8FIM73/7xD7Ggp8j8hgyFCGStI5fRrLuwwcX4B0vQa+7NfWd9Gib4SDNEf0c/F4I0gTdg8ad3EIwg==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=LtVsWtk2lDzAfqdQxqczErsKzeZfKoLfMiXjfWi5gyI=;
- b=ClyikgLAz2iIcV0Nk8UDJPBK4wy4xDUTlBecsqwpwTh1rT1og5FK2nkaboV3DmCS/OBQEl2QJRRH3sgveVZ/KIgh8kQH+uG9jZbOlaKMZpXINQmlKKJrFbrJavtLg67Pfw8qT/btpXfxhbw6ItVdGHwHlFJpusuWTDYz3zYZlSYlGhj6gKLCZ4RMAzBIEAbuc1ESNzPG04W70WEVkG/QJarEeLU5q5//zYeBPOsJWdPSxAlEJkUF7+VaKdGUNkVFiMaD72z1/ymLj7EvhXITr7banpy73duSHyfqpcbcq2d0OaqEVd7tprvQHmCtMakFs+iR6GoHf4oTDSmJCEBMaQ==
+ bh=qV+f3ezPIzB/u0ub2WCLVwnugNFFo6iQr9wWg3ERqBg=;
+ b=F3opbmMqJQudRrtCQ2kXIDHj4M2LyXh2too0TaLD+7+b9damptesA5vF4BzVMKgkFiLGipJwQdKZJ3h7uhIc08htG3ql0A03UJGd9cYSh72B6MVScvIEx+DJZVriZOtna2/xA5R8Go6B8MmdGx6kpn/ikHDS+ccZevwZoYps+DEHPFhk8fGLvneOOYvIDAU2R/tY4kwaZXUKAaTNyPlsQsu3T9tDMZvpNF6QxfUhKtpdNuM/x2jvsFt04HJ8f0PjddyodeckucQi00B1ui/OMoLGHfJF7HG7xHtZ7AFYbf63k69tNk9nBsVJgc3TlEepIs+3m8lQxvsiZCczoysEqg==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=none; dmarc=none;
  dkim=none; arc=none
 Received: from HE1EUR04FT025.eop-eur04.prod.protection.outlook.com
  (2a01:111:e400:7e0d::35) by
- HE1EUR04HT225.eop-eur04.prod.protection.outlook.com (2a01:111:e400:7e0d::410)
+ HE1EUR04HT242.eop-eur04.prod.protection.outlook.com (2a01:111:e400:7e0d::185)
  with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.2793.11; Mon, 9 Mar
- 2020 19:24:58 +0000
+ 2020 19:27:07 +0000
 Received: from AM6PR03MB5170.eurprd03.prod.outlook.com (10.152.26.60) by
  HE1EUR04FT025.mail.protection.outlook.com (10.152.27.28) with Microsoft SMTP
  Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.2793.11 via Frontend Transport; Mon, 9 Mar 2020 19:24:58 +0000
+ 15.20.2793.11 via Frontend Transport; Mon, 9 Mar 2020 19:27:07 +0000
 Received: from AM6PR03MB5170.eurprd03.prod.outlook.com
  ([fe80::1956:d274:cab3:b4dd]) by AM6PR03MB5170.eurprd03.prod.outlook.com
  ([fe80::1956:d274:cab3:b4dd%6]) with mapi id 15.20.2772.019; Mon, 9 Mar 2020
- 19:24:58 +0000
-Received: from [192.168.1.101] (92.77.140.102) by AM0PR0102CA0029.eurprd01.prod.exchangelabs.com (2603:10a6:208:14::42) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.2793.16 via Frontend Transport; Mon, 9 Mar 2020 19:24:56 +0000
+ 19:27:07 +0000
+Received: from [192.168.1.101] (92.77.140.102) by ZR0P278CA0051.CHEP278.PROD.OUTLOOK.COM (2603:10a6:910:1d::20) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.2793.16 via Frontend Transport; Mon, 9 Mar 2020 19:27:04 +0000
 From:   Bernd Edlinger <bernd.edlinger@hotmail.de>
 To:     "Eric W. Biederman" <ebiederm@xmission.com>
 CC:     Christian Brauner <christian.brauner@ubuntu.com>,
@@ -69,14 +69,16 @@ CC:     Christian Brauner <christian.brauner@ubuntu.com>,
         "linux-mm@kvack.org" <linux-mm@kvack.org>,
         "stable@vger.kernel.org" <stable@vger.kernel.org>,
         "linux-api@vger.kernel.org" <linux-api@vger.kernel.org>
-Subject: Re: [PATCH v2 5/5] exec: Add a exec_update_mutex to replace
- cred_guard_mutex
-Thread-Topic: [PATCH v2 5/5] exec: Add a exec_update_mutex to replace
- cred_guard_mutex
-Thread-Index: AQHV9ZJHYfsGvDLnM0SksOJ5MpqOZahARvEAgABCQ42AAAUtgIAAA0/bgAADytmAAANO2YAAAnOAgAAE4zCAAAWQgA==
-Date:   Mon, 9 Mar 2020 19:24:58 +0000
-Message-ID: <AM6PR03MB5170DF45E3245F55B95CCD91E4FE0@AM6PR03MB5170.eurprd03.prod.outlook.com>
+Subject: Re: [PATCH v2 1/5] exec: Only compute current once in flush_old_exec
+Thread-Topic: [PATCH v2 1/5] exec: Only compute current once in flush_old_exec
+Thread-Index: AQHV9ZHPFX16pJkAgEa5cakb87d5R6hASgaAgAA9eBuAAAV1gIAAGVQA
+Date:   Mon, 9 Mar 2020 19:27:06 +0000
+Message-ID: <AM6PR03MB5170051D0E2FF2B6772189F6E4FE0@AM6PR03MB5170.eurprd03.prod.outlook.com>
 References: <AM6PR03MB5170EB4427BF5C67EE98FF09E4E60@AM6PR03MB5170.eurprd03.prod.outlook.com>
+ <20200303085802.eqn6jbhwxtmz4j2x@wittgenstein>
+ <AM6PR03MB5170285B336790D3450E2644E4E40@AM6PR03MB5170.eurprd03.prod.outlook.com>
+ <87v9nlii0b.fsf@x220.int.ebiederm.org>
+ <AM6PR03MB5170609D44967E044FD1BE40E4E40@AM6PR03MB5170.eurprd03.prod.outlook.com>
  <87a74xi4kz.fsf@x220.int.ebiederm.org>
  <AM6PR03MB51705AA3009B4986BB6EF92FE4E50@AM6PR03MB5170.eurprd03.prod.outlook.com>
  <87r1y8dqqz.fsf@x220.int.ebiederm.org>
@@ -84,130 +86,110 @@ References: <AM6PR03MB5170EB4427BF5C67EE98FF09E4E60@AM6PR03MB5170.eurprd03.prod.
  <AM6PR03MB51703B44170EAB4626C9B2CAE4E20@AM6PR03MB5170.eurprd03.prod.outlook.com>
  <87tv32cxmf.fsf_-_@x220.int.ebiederm.org>
  <87v9ne5y4y.fsf_-_@x220.int.ebiederm.org>
- <87zhcq4jdj.fsf_-_@x220.int.ebiederm.org>
- <AM6PR03MB5170BC58D90BAD80CDEF3F8BE4FE0@AM6PR03MB5170.eurprd03.prod.outlook.com>
- <878sk94eay.fsf@x220.int.ebiederm.org>
- <AM6PR03MB517086003BD2C32E199690A3E4FE0@AM6PR03MB5170.eurprd03.prod.outlook.com>
- <87r1y12yc7.fsf@x220.int.ebiederm.org> <87k13t2xpd.fsf@x220.int.ebiederm.org>
- <87d09l2x5n.fsf@x220.int.ebiederm.org>
- <AM6PR03MB5170F0F9DC18F5EA77C9A857E4FE0@AM6PR03MB5170.eurprd03.prod.outlook.com>
- <871rq12vxu.fsf@x220.int.ebiederm.org>
-In-Reply-To: <871rq12vxu.fsf@x220.int.ebiederm.org>
+ <87pndm5y3l.fsf_-_@x220.int.ebiederm.org>
+ <AM6PR03MB5170FBDA2F0F19ECF2906703E4FE0@AM6PR03MB5170.eurprd03.prod.outlook.com>
+ <87mu8p4elb.fsf@x220.int.ebiederm.org>
+ <AM6PR03MB51700E6A252CA1E3093B3ED8E4FE0@AM6PR03MB5170.eurprd03.prod.outlook.com>
+In-Reply-To: <AM6PR03MB51700E6A252CA1E3093B3ED8E4FE0@AM6PR03MB5170.eurprd03.prod.outlook.com>
 Accept-Language: en-US, en-GB, de-DE
 Content-Language: en-US
 X-MS-Has-Attach: 
 X-MS-TNEF-Correlator: 
-x-clientproxiedby: AM0PR0102CA0029.eurprd01.prod.exchangelabs.com
- (2603:10a6:208:14::42) To AM6PR03MB5170.eurprd03.prod.outlook.com
+x-clientproxiedby: ZR0P278CA0051.CHEP278.PROD.OUTLOOK.COM
+ (2603:10a6:910:1d::20) To AM6PR03MB5170.eurprd03.prod.outlook.com
  (2603:10a6:20b:ca::23)
-x-incomingtopheadermarker: OriginalChecksum:71A99711ADA16EC1C24CC5F8D4E994C5C61558DC91E28170A71D7A2DE7384D8B;UpperCasedChecksum:138B6000CDB757DAF3D086CF6285744E3811657112A8F186F10221148F6207F1;SizeAsReceived:9999;Count:50
+x-incomingtopheadermarker: OriginalChecksum:BBD5AB725885809191725ED86FF2795C5D228C0C94C44F429CAC1C5471B58054;UpperCasedChecksum:554CDE560CC1A53740F55DA4E0690775688176AD61F0B5C7B7E9AE58ACC25E50;SizeAsReceived:9989;Count:50
 x-ms-exchange-messagesentrepresentingtype: 1
-x-tmn:  [B/29M+tTQ8jZwO8bBX+aFjHrnBQUzxaI]
-x-microsoft-original-message-id: <8bc15c6d-2811-5965-cf3a-0dee5d3ef4a7@hotmail.de>
+x-tmn:  [A6bJYUQbLM4Tyu3Vck1oLGye8YGMUiax]
+x-microsoft-original-message-id: <ac137e26-34c5-0ace-9e99-6b7447802a99@hotmail.de>
 x-ms-publictraffictype: Email
 x-incomingheadercount: 50
 x-eopattributedmessage: 0
-x-ms-office365-filtering-correlation-id: 5b640f5a-1970-4e2f-2a79-08d7c45f8e32
-x-ms-traffictypediagnostic: HE1EUR04HT225:
+x-ms-office365-filtering-correlation-id: 48f02d6a-a849-4537-5e8c-08d7c45fdab1
+x-ms-traffictypediagnostic: HE1EUR04HT242:
 x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: yRwriaax4luQh2eE4Kv/5gl1xgtV+JhFn3r4omhcZdQLtpEnZ5wArAUY4QNOr9h2IZIMedZxh+rethkj8ygU0pcUw/1z20Mmt+DeKfEBy6dVNVB9GGIRS0wJwO0n+/dU/4JSft9BH+xomh1RItAhwsuXYvw9U3slEuQRKa89/6j+UP2Oh6AidizbkcozgOSgMI2zIDI+G18wMkpMWz2COa8Mq1fFnGz9kBwFiCRCBe4=
-x-ms-exchange-antispam-messagedata: ihJ0a1uBNLzETZ0EmKa6rky1cWiaSkYyOGteR6EOKC18aVBNv+NQojy58E5NM24js9Phk+70KCAHX1D/k7WThPHE2uRSy6XlGK8SCQCnVBeuJlHfU+++kQzGOumEGPWBhsUPpC6BDlGBMcqv1aoohQ==
+x-microsoft-antispam-message-info: /Ub1ITtPpsoHh3oIsE6eM577SKl1VSH402Qiy9rN+wkLzHQL/abTL32qpbjYvBF8OlyZrrpqKi4wYijN9wbHYuT0AyUTEXK21KRajkKLoFiggKKaRZG8vL+rYaeNlGXtMj7kRQ9NI8R7UKNkz4cjYl5+NZO0wcssA+m3LgP28AshRLVaVEqGILwceUoBUz9C
+x-ms-exchange-antispam-messagedata: D4sD6C0tRl3FbqRkJWniBTCI4db8FbZ5L9MzUGb14pVGdE5YMWal/8zaTiN9FInDYX28cKOEHpE895zrcN3bJHobbpHzXRgD4Kjpb5q+pjAtUxuAwHIMOpo5VO/7cHrEnww1DQDzWrYwJIT3BbvttQ==
 x-ms-exchange-transport-forked: True
 Content-Type: text/plain; charset="Windows-1252"
-Content-ID: <D977AB8180FC5246BAA1C16ED22CAA18@eurprd03.prod.outlook.com>
+Content-ID: <E0967702A2E3524C95DB0C9796E6FFA2@eurprd03.prod.outlook.com>
 Content-Transfer-Encoding: 8BIT
 MIME-Version: 1.0
 X-OriginatorOrg: outlook.com
 X-MS-Exchange-CrossTenant-RMS-PersistedConsumerOrg: 00000000-0000-0000-0000-000000000000
-X-MS-Exchange-CrossTenant-Network-Message-Id: 5b640f5a-1970-4e2f-2a79-08d7c45f8e32
+X-MS-Exchange-CrossTenant-Network-Message-Id: 48f02d6a-a849-4537-5e8c-08d7c45fdab1
 X-MS-Exchange-CrossTenant-rms-persistedconsumerorg: 00000000-0000-0000-0000-000000000000
-X-MS-Exchange-CrossTenant-originalarrivaltime: 09 Mar 2020 19:24:58.6072
+X-MS-Exchange-CrossTenant-originalarrivaltime: 09 Mar 2020 19:27:06.9207
  (UTC)
 X-MS-Exchange-CrossTenant-fromentityheader: Internet
 X-MS-Exchange-CrossTenant-id: 84df9e7f-e9f6-40af-b435-aaaaaaaaaaaa
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: HE1EUR04HT225
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: HE1EUR04HT242
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
-
-On 3/9/20 8:02 PM, Eric W. Biederman wrote:
-> Bernd Edlinger <bernd.edlinger@hotmail.de> writes:
-> 
->> On 3/9/20 7:36 PM, Eric W. Biederman wrote:
->>>
->>>
->>> Does that sound better?
->>>
+On 3/9/20 6:56 PM, Bernd Edlinger wrote:
+> On 3/9/20 6:34 PM, Eric W. Biederman wrote:
+>> Bernd Edlinger <bernd.edlinger@hotmail.de> writes:
 >>
->> almost done.
+>>> On 3/8/20 10:35 PM, Eric W. Biederman wrote:
+>>>>
+>>>> Make it clear that current only needs to be computed once in
+>>>> flush_old_exec.  This may have some efficiency improvements and it
+>>>> makes the code easier to change.
+>>>>
+>>>> Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
+>>>> ---
+>>>>  fs/exec.c | 9 +++++----
+>>>>  1 file changed, 5 insertions(+), 4 deletions(-)
+>>>>
+>>>> diff --git a/fs/exec.c b/fs/exec.c
+>>>> index db17be51b112..c3f34791f2f0 100644
+>>>> --- a/fs/exec.c
+>>>> +++ b/fs/exec.c
+>>>> @@ -1260,13 +1260,14 @@ void __set_task_comm(struct task_struct *tsk, const char *buf, bool exec)
+>>>>   */
+>>>>  int flush_old_exec(struct linux_binprm * bprm)
+>>>>  {
+>>>> +	struct task_struct *me = current;
+>>>>  	int retval;
+>>>>  
+>>>>  	/*
+>>>>  	 * Make sure we have a private signal table and that
+>>>>  	 * we are unassociated from the previous thread group.
+>>>>  	 */
+>>>> -	retval = de_thread(current);
+>>>> +	retval = de_thread(me);
+>>>>  	if (retval)
+>>>>  		goto out;
+>>>>  
+>>>> @@ -1294,10 +1295,10 @@ int flush_old_exec(struct linux_binprm * bprm)
+>>>>  	bprm->mm = NULL;
+>>>>  
+>>>>  	set_fs(USER_DS);
+>>>> -	current->flags &= ~(PF_RANDOMIZE | PF_FORKNOEXEC | PF_KTHREAD |
+>>>> +	me->flags &= ~(PF_RANDOMIZE | PF_FORKNOEXEC | PF_KTHREAD |
+>>>>  					PF_NOFREEZE | PF_NO_SETAFFINITY);
+>>>
+>>> I wonder if this line should be aligned with the previous?
+>>
+>> In this case I don't think so.  The style used for second line is indent
+>> with tabs as much as possible to the right.  I haven't changed that.
+>>
+>> Further mixing a change in indentation style with just a variable rename
+>> will make the patch confusing to read because two things have to be
+>> verified at the same time.
+>>
+>> So while I see why you ask I think this bit needs to stay as is.
+>>
 > 
-> I think this text is finally clean.
+> Ah, okay, I see.
+> Thanks for explaining this rule, I was not aware of it,
+> but I am still new here :)
 > 
->     exec: Add exec_update_mutex to replace cred_guard_mutex
->     
->     The cred_guard_mutex is problematic as it is held over possibly
->     indefinite waits for userspace.  The possilbe indefinite waits for
->     userspace that I have identified are: The cred_guard_mutex is held in
->     PTRACE_EVENT_EXIT waiting for the tracer.  The cred_guard_mutex is
->     held over "put_user(0, tsk->clear_child_tid)" in exit_mm().  The
->     cred_guard_mutex is held over "get_user(futex_offset, ...")  in
->     exit_robust_list.  The cred_guard_mutex held over copy_strings.
->     
->     The functions get_user and put_user can trigger a page fault which can
->     potentially wait indefinitely in the case of userfaultfd or if
->     userspace implements part of the page fault path.
->     
->     In any of those cases the userspace process that the kernel is waiting
->     for might make a different system call that winds up taking the
->     cred_guard_mutex and result in deadlock.
->     
->     Holding a mutex over any of those possibly indefinite waits for
->     userspace does not appear necessary.  Add exec_update_mutex that will
->     just cover updating the process during exec where the permissions and
->     the objects pointed to by the task struct may be out of sync.
->     
->     The plan is to switch the users of cred_guard_mutex to
->     exec_update_mutex one by one.  This lets us move forward while still
->     being careful and not introducing any regressions.
->     
->     Link: https://lore.kernel.org/lkml/20160921152946.GA24210@dhcp22.suse.cz/
->     Link: https://lore.kernel.org/lkml/AM6PR03MB5170B06F3A2B75EFB98D071AE4E60@AM6PR03MB5170.eurprd03.prod.outlook.com/
->     Link: https://lore.kernel.org/linux-fsdevel/20161102181806.GB1112@redhat.com/
->     Link: https://lore.kernel.org/lkml/20160923095031.GA14923@redhat.com/
->     Link: https://lore.kernel.org/lkml/20170213141452.GA30203@redhat.com/
->     Ref: 45c1a159b85b ("Add PTRACE_O_TRACEVFORKDONE and PTRACE_O_TRACEEXIT facilities.")
->     Ref: 456f17cd1a28 ("[PATCH] user-vm-unlock-2.5.31-A2")
-
-I checked the urls they all work.
-Just one last question, are these git references?
-I can't find them in my linux git tree (cloned from linus' git)?
-
-Sorry for being pedantically.
-
-
->     Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
-> 
-> 
-> Bernd do you want to give me your Reviewed-by for this part of the
-> series?
-> 
-
-Sure also the other parts of course.
 
 Reviewed-by: Bernd Edlinger <bernd.edlinger@hotmail.de>
 
-> After that do you think you can write the obvious patch for mm_access?
-> 
 
-Yes, I can do that.
-I also have some typos in comments, will make them extra patches as well.
-
-I wonder if the test case is okay to include the ptrace_attach altough
-that is not yet passing?
-
-
-Thanks
 Bernd.
