@@ -2,141 +2,166 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C51917E194
-	for <lists+stable@lfdr.de>; Mon,  9 Mar 2020 14:44:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D7D7F17E19A
+	for <lists+stable@lfdr.de>; Mon,  9 Mar 2020 14:45:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726569AbgCINof (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Mar 2020 09:44:35 -0400
-Received: from mail-qt1-f196.google.com ([209.85.160.196]:37144 "EHLO
-        mail-qt1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726427AbgCINof (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 9 Mar 2020 09:44:35 -0400
-Received: by mail-qt1-f196.google.com with SMTP id l20so5324584qtp.4;
-        Mon, 09 Mar 2020 06:44:34 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:date:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=D6cXat42hj47od4O3YYRkfc6ydOCCt1WIPX2GeSiPA8=;
-        b=dQx67vi8EfXyUq0/64+oIGZy1P1ALvt/9kWj65TgZKzXxjwlrJS06mGtVtqi0bNUdx
-         m9dObpOjMO8fJZOkiURuyB6adPlF56NUdElmMnLryNrN3V+4klanIP6tGEvADSDk0x1t
-         sG2sWJDJ4zMIvesErqzpU+Xt+ZLQepyjR71GJ3DdRrWtyKuP/RDgBg4GHlVMG5WWuk66
-         tCTXsD5xv5hmR2GRpgW5AvuRnNGd/fUhzKupuyfLtupuHRdfcegA22F7+8PbIxQtHx6V
-         VHl2Lv2EZIDLbl2ct3/FblQOhYXfWgryPWh0dY04u5IKO9I3adQz//9XWlLyamoC5eFO
-         CCgQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:date:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=D6cXat42hj47od4O3YYRkfc6ydOCCt1WIPX2GeSiPA8=;
-        b=cI1S30es62037TwV0bjgv34f1tZss4oM4B1LHF/QY43cpw7qjmxDFJVour2glvFm7R
-         ghcLzaPlxbIwxdnQLb86jrmBDvmtVvtYyyWm+uOLNIxqIQwZvSnHsfXHzlG85ab3ZQ6x
-         TU74GYSo012xN5n5dcIfM1kq2l4tvtudfQlSRYrJdkQpGqjziNtDtQKNrsZBZyMxq+fv
-         D3y0zVqdU02d8lgvAHovuLMqMu3wiQn4mCNGXNgB3PHUryEZWbvdvM1C1FwUOKk3xlvD
-         B40euHDNxLacpcFfgsKtm0FFccnQEd/q1e5P5GcvAeX4hESbxiPPaQWtfMHbvQe2NX2M
-         UPTQ==
-X-Gm-Message-State: ANhLgQ0hmp19kXLVgn7MjZreGfsqcAqulsv+TC8+ykdrti1WNGdtmxyd
-        +DI9WC4LnCL0wJfdD1CjwhQ=
-X-Google-Smtp-Source: ADFU+vvJLunTyPwIkpuxQglgVQSjM8WsdfHHO4oWoKh+k9FOa6zpm2+G2He/3R9IklZN3wpAHqotxQ==
-X-Received: by 2002:ac8:4e2e:: with SMTP id d14mr11937429qtw.179.1583761474284;
-        Mon, 09 Mar 2020 06:44:34 -0700 (PDT)
-Received: from quaco.ghostprotocols.net ([179.97.37.151])
-        by smtp.gmail.com with ESMTPSA id m65sm2098791qke.109.2020.03.09.06.44.33
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 09 Mar 2020 06:44:33 -0700 (PDT)
-From:   Arnaldo Carvalho de Melo <arnaldo.melo@gmail.com>
-X-Google-Original-From: Arnaldo Carvalho de Melo <acme@kernel.org>
-Received: by quaco.ghostprotocols.net (Postfix, from userid 1000)
-        id F3CEC40009; Mon,  9 Mar 2020 10:44:30 -0300 (-03)
-Date:   Mon, 9 Mar 2020 10:44:30 -0300
-To:     Masami Hiramatsu <mhiramat@kernel.org>
-Cc:     Alexandre Ghiti <alex@ghiti.fr>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Ingo Molnar <mingo@redhat.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
+        id S1726623AbgCINp6 convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Mon, 9 Mar 2020 09:45:58 -0400
+Received: from mail-oln040092069109.outbound.protection.outlook.com ([40.92.69.109]:15648
+        "EHLO EUR02-VE1-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1726720AbgCINp6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Mar 2020 09:45:58 -0400
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=T9IScGzvU8L67rmtAj/zc/nOJEnDxtAYddUn8VD0DZnhAkwtq6CsZzABhwFPbRV8G8sAHC8ElrTO6Y2nYaTIKmyxzb/AqCs1HVEoxTlmGqmo/SZw7LBVjrrzqAYyhghQ/kbI2AD6KEKIc/mWXhv876FLtxpnBtqjrxJW2Pnmyn7X9yDVjwObumvauRNuTX9psXkkBmY/ZlwxOe8363UynQvn0RmWhDAUX6oiC+kWUtx0pWJtFLQhAznqdfk+WRkAgWS8w6ob2x7r4zYVA4JO+Rrt+9bFgjQhIwM381R5YCYZgsWAA5PUS7gA/oxUQrbRdzp7p/nin2ZSSQ8OZ9IcBw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=7HXds6Q+11jQaIEKLExMVNC1Wx7+1+Af0RzE8zZ+hBY=;
+ b=jgTSASowan6dUKioXtc7z6mpkUFJq0tcZLGm1cLka/HCVN/ORRuOtdajQAkF0jgwL6UPFfSRQjx+fQugpfr9iphCj3cQmKn/AWFGD+K1zepRhBedJIhuNwZTAUAgpxM/uqfSF7eNZGc8vaat+jUxHJPLwR1RLnQhBiSNgKN61dSKEOtLO8yKEVDI0rB7FGjz8g8D0pUrW3ODFcnIpWOgPSVBvmqKa91pBx7QucGLCA5FIorSYTPKaEuxO5WB8XvmwWgctv204UeyBUcNmgd5ZUncFfRVbSn5VmR1DruamUQ0HSt4NSYxj+V31sFlf8hH91agTAUO6PWYv7dmYvylFA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=none; dmarc=none;
+ dkim=none; arc=none
+Received: from HE1EUR02FT038.eop-EUR02.prod.protection.outlook.com
+ (2a01:111:e400:7e1d::36) by
+ HE1EUR02HT174.eop-EUR02.prod.protection.outlook.com (2a01:111:e400:7e1d::490)
+ with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.2793.11; Mon, 9 Mar
+ 2020 13:45:52 +0000
+Received: from AM6PR03MB5170.eurprd03.prod.outlook.com (10.152.10.54) by
+ HE1EUR02FT038.mail.protection.outlook.com (10.152.11.30) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.2793.11 via Frontend Transport; Mon, 9 Mar 2020 13:45:52 +0000
+Received: from AM6PR03MB5170.eurprd03.prod.outlook.com
+ ([fe80::1956:d274:cab3:b4dd]) by AM6PR03MB5170.eurprd03.prod.outlook.com
+ ([fe80::1956:d274:cab3:b4dd%6]) with mapi id 15.20.2772.019; Mon, 9 Mar 2020
+ 13:45:52 +0000
+Received: from [192.168.1.101] (92.77.140.102) by FR2P281CA0022.DEUP281.PROD.OUTLOOK.COM (2603:10a6:d10:14::9) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.2793.15 via Frontend Transport; Mon, 9 Mar 2020 13:45:51 +0000
+From:   Bernd Edlinger <bernd.edlinger@hotmail.de>
+To:     "Eric W. Biederman" <ebiederm@xmission.com>
+CC:     Christian Brauner <christian.brauner@ubuntu.com>,
+        Kees Cook <keescook@chromium.org>,
+        Jann Horn <jannh@google.com>, Jonathan Corbet <corbet@lwn.net>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Alexey Dobriyan <adobriyan@gmail.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Oleg Nesterov <oleg@redhat.com>,
+        Frederic Weisbecker <frederic@kernel.org>,
+        Andrei Vagin <avagin@gmail.com>,
+        Ingo Molnar <mingo@kernel.org>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Yuyang Du <duyuyang@gmail.com>,
+        David Hildenbrand <david@redhat.com>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Anshuman Khandual <anshuman.khandual@arm.com>,
+        David Howells <dhowells@redhat.com>,
+        James Morris <jamorris@linux.microsoft.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [BUGFIX PATCH] perf probe: Do not depend on dwfl_module_addrsym()
-Message-ID: <20200309134430.GE477@kernel.org>
-References: <20200228002553.31b82876b705aaabbd717131@kernel.org>
- <158281812176.476.14164573830975116234.stgit@devnote2>
- <787c2915-c868-358a-481d-1ffd355d92db@ghiti.fr>
- <20200228085238.84d53d6b753efb4cc18d20cb@kernel.org>
+        Shakeel Butt <shakeelb@google.com>,
+        Jason Gunthorpe <jgg@ziepe.ca>,
+        Christian Kellner <christian@kellner.me>,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        Aleksa Sarai <cyphar@cyphar.com>,
+        "Dmitry V. Levin" <ldv@altlinux.org>,
+        "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>,
+        "linux-mm@kvack.org" <linux-mm@kvack.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "linux-api@vger.kernel.org" <linux-api@vger.kernel.org>
+Subject: Re: [PATCH v2 5/5] exec: Add a exec_update_mutex to replace
+ cred_guard_mutex
+Thread-Topic: [PATCH v2 5/5] exec: Add a exec_update_mutex to replace
+ cred_guard_mutex
+Thread-Index: AQHV9ZJHYfsGvDLnM0SksOJ5MpqOZahARvEA
+Date:   Mon, 9 Mar 2020 13:45:52 +0000
+Message-ID: <AM6PR03MB5170BC58D90BAD80CDEF3F8BE4FE0@AM6PR03MB5170.eurprd03.prod.outlook.com>
+References: <AM6PR03MB5170EB4427BF5C67EE98FF09E4E60@AM6PR03MB5170.eurprd03.prod.outlook.com>
+ <87v9nmjulm.fsf@x220.int.ebiederm.org>
+ <AM6PR03MB5170B976E6387FDDAD59A118E4E70@AM6PR03MB5170.eurprd03.prod.outlook.com>
+ <202003021531.C77EF10@keescook>
+ <20200303085802.eqn6jbhwxtmz4j2x@wittgenstein>
+ <AM6PR03MB5170285B336790D3450E2644E4E40@AM6PR03MB5170.eurprd03.prod.outlook.com>
+ <87v9nlii0b.fsf@x220.int.ebiederm.org>
+ <AM6PR03MB5170609D44967E044FD1BE40E4E40@AM6PR03MB5170.eurprd03.prod.outlook.com>
+ <87a74xi4kz.fsf@x220.int.ebiederm.org>
+ <AM6PR03MB51705AA3009B4986BB6EF92FE4E50@AM6PR03MB5170.eurprd03.prod.outlook.com>
+ <87r1y8dqqz.fsf@x220.int.ebiederm.org>
+ <AM6PR03MB517053AED7DC89F7C0704B7DE4E50@AM6PR03MB5170.eurprd03.prod.outlook.com>
+ <AM6PR03MB51703B44170EAB4626C9B2CAE4E20@AM6PR03MB5170.eurprd03.prod.outlook.com>
+ <87tv32cxmf.fsf_-_@x220.int.ebiederm.org>
+ <87v9ne5y4y.fsf_-_@x220.int.ebiederm.org>
+ <87zhcq4jdj.fsf_-_@x220.int.ebiederm.org>
+In-Reply-To: <87zhcq4jdj.fsf_-_@x220.int.ebiederm.org>
+Accept-Language: en-US, en-GB, de-DE
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-clientproxiedby: FR2P281CA0022.DEUP281.PROD.OUTLOOK.COM
+ (2603:10a6:d10:14::9) To AM6PR03MB5170.eurprd03.prod.outlook.com
+ (2603:10a6:20b:ca::23)
+x-incomingtopheadermarker: OriginalChecksum:C8EDBA1F05C561CF3BB4B45B988EA7AC398CC95AA926D55BE60041CF42968EBF;UpperCasedChecksum:4C0B955CC6DA8074080DD2C8D8152A121E3344CFA53DB0EFC92D14C6A0F32C00;SizeAsReceived:9871;Count:50
+x-ms-exchange-messagesentrepresentingtype: 1
+x-tmn:  [7tYKb0jPB66M7v/f58HxmMHbKML6mDV9]
+x-microsoft-original-message-id: <3576ca27-c68a-308a-9ddd-f76d163f81e8@hotmail.de>
+x-ms-publictraffictype: Email
+x-incomingheadercount: 50
+x-eopattributedmessage: 0
+x-ms-office365-filtering-correlation-id: 44b748a1-c14c-42f9-5846-08d7c4302ef5
+x-ms-traffictypediagnostic: HE1EUR02HT174:
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: VJu1xTPVWop4UxIZDKT10eupaGw0QfN3FCeMSQ0LKXismnUscAXRHbGFZcI381sxu9FXdDbHNVVd9rbpIZamsO1/tZhd3nrG9fxo/onm72SYdfFtsuP+CCDi12EsyGs6BCRX8UfcTxv6T66AVnP5xGlLGVL4PCjg4l5IEqGqiZbw1o02zO+wGPDu9eI7lok6
+x-ms-exchange-antispam-messagedata: CNDUBxT8GpIyfrFfVgTyBSIObU39JrZ7PuzGPfd+dOM9ToJwic7uL2ep5Sf1VZu8xw0txeZaQLvpLnhUEuDzN3Yu45nL6vGPwrww8CfbgB0SJrXeuYFj5m9P9uzF2g1IvMCECBnTCuFNZ243vSfFPg==
+x-ms-exchange-transport-forked: True
+Content-Type: text/plain; charset="Windows-1252"
+Content-ID: <25EC084D81A12142B470F4D19192D000@eurprd03.prod.outlook.com>
+Content-Transfer-Encoding: 8BIT
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200228085238.84d53d6b753efb4cc18d20cb@kernel.org>
-X-Url:  http://acmel.wordpress.com
+X-OriginatorOrg: outlook.com
+X-MS-Exchange-CrossTenant-RMS-PersistedConsumerOrg: 00000000-0000-0000-0000-000000000000
+X-MS-Exchange-CrossTenant-Network-Message-Id: 44b748a1-c14c-42f9-5846-08d7c4302ef5
+X-MS-Exchange-CrossTenant-rms-persistedconsumerorg: 00000000-0000-0000-0000-000000000000
+X-MS-Exchange-CrossTenant-originalarrivaltime: 09 Mar 2020 13:45:52.5307
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Internet
+X-MS-Exchange-CrossTenant-id: 84df9e7f-e9f6-40af-b435-aaaaaaaaaaaa
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: HE1EUR02HT174
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Em Fri, Feb 28, 2020 at 08:52:38AM +0900, Masami Hiramatsu escreveu:
-> On Thu, 27 Feb 2020 17:20:39 +0100
-> Alexandre Ghiti <alex@ghiti.fr> wrote:
+On 3/8/20 10:38 PM, Eric W. Biederman wrote:
 > 
-> > On 2/27/20 4:42 PM, Masami Hiramatsu wrote:
-> > > Do not depend on dwfl_module_addrsym() because it can fail
-> > > on user-space shared libraries.
-> > > 
-> > > Actually, same bug was fixed by commit 664fee3dc379 ("perf
-> > > probe: Do not use dwfl_module_addrsym if dwarf_diename finds
-> > > symbol name"), but commit 07d369857808 ("perf probe: Fix
-> > > wrong address verification) reverted to get actual symbol
-> > > address from symtab.
-> > > 
-> > > This fixes it again by getting symbol address from DIE,
-> > > and only if the DIE has only address range, it uses
-> > > dwfl_module_addrsym().
-> > > 
-> > > Fixes: 07d369857808 ("perf probe: Fix wrong address verification)
-> > > Reported-by: Alexandre Ghiti <alex@ghiti.fr>
-> > > Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
-> > > ---
-> > >   tools/perf/util/probe-finder.c |   11 ++++++++---
-> > >   1 file changed, 8 insertions(+), 3 deletions(-)
-> > > 
-> > > diff --git a/tools/perf/util/probe-finder.c b/tools/perf/util/probe-finder.c
-> > > index 1c817add6ca4..e4cff49384f4 100644
-> > > --- a/tools/perf/util/probe-finder.c
-> > > +++ b/tools/perf/util/probe-finder.c
-> > > @@ -637,14 +637,19 @@ static int convert_to_trace_point(Dwarf_Die *sp_die, Dwfl_Module *mod,
-> > >   		return -EINVAL;
-> > >   	}
-> > >   
-> > > -	/* Try to get actual symbol name from symtab */
-> > > -	symbol = dwfl_module_addrsym(mod, paddr, &sym, NULL);
-> > > +	if (dwarf_entrypc(sp_die, &eaddr) == 0) {
-> > > +		/* If the DIE has entrypc, use it. */
-> > > +		symbol = dwarf_diename(sp_die);
-> > > +	} else {
-> > > +		/* Try to get actual symbol name and address from symtab */
-> > > +		symbol = dwfl_module_addrsym(mod, paddr, &sym, NULL);
-> > > +		eaddr = sym.st_value;
-> > > +	}
-> > >   	if (!symbol) {
-> > >   		pr_warning("Failed to find symbol at 0x%lx\n",
-> > >   			   (unsigned long)paddr);
-> > >   		return -ENOENT;
-> > >   	}
-> > > -	eaddr = sym.st_value;
-> > >   
-> > >   	tp->offset = (unsigned long)(paddr - eaddr);
-> > >   	tp->address = (unsigned long)paddr;
-> > > 
-> > 
-> > I have just tested your patch, that fixes the issue, so you can add:
-> > 
-> > Tested-by: Alexandre Ghiti <alex@ghiti.fr>
+> The cred_guard_mutex is problematic.  The cred_guard_mutex is held
+> over the userspace accesses as the arguments from userspace are read.
+> The cred_guard_mutex is held of PTRACE_EVENT_EXIT as the the other
+
+... is held while waiting for the trace parent to handle PTRACE_EVENT_EXIT
+or something?
+
+I wonder if we also should mention that
+it is held while waiting for the trace parent to
+receive the exit code with "wait"?
+
+> threads are killed.  The cred_guard_mutex is held over
+> "put_user(0, tsk->clear_child_tid)" in exit_mm().
 > 
-> Thanks Alexandre,
-> Arnaldo, could you also pick this for fix?
+> Any of those can result in deadlock, as the cred_guard_mutex is held
+> over a possible indefinite userspace waits for userspace.
+> 
+> Add exec_update_mutex that is only held over exec updating process
+
+Add ?
+
+> with the new contents of exec, so that code that needs not to be
+> confused by exec changing the mm and the cred in ways that can not
+> happen during ordinary execution of a process.
+> 
+> The plan is to switch the users of cred_guard_mutex to
+> exec_udpate_mutex one by one.  This lets us move forward while still
+
+s/udpate/update/
 
 
-Thanks, applied.
-
-- Arnaldo
+Bernd.
