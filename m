@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EC88E17E9AA
-	for <lists+stable@lfdr.de>; Mon,  9 Mar 2020 21:05:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C4C917E9AB
+	for <lists+stable@lfdr.de>; Mon,  9 Mar 2020 21:05:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726106AbgCIUF2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Mar 2020 16:05:28 -0400
-Received: from out2-smtp.messagingengine.com ([66.111.4.26]:46859 "EHLO
+        id S1726118AbgCIUFf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Mar 2020 16:05:35 -0400
+Received: from out2-smtp.messagingengine.com ([66.111.4.26]:49483 "EHLO
         out2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725992AbgCIUF1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 9 Mar 2020 16:05:27 -0400
+        by vger.kernel.org with ESMTP id S1725992AbgCIUFf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 9 Mar 2020 16:05:35 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailout.nyi.internal (Postfix) with ESMTP id 41FCC21FC5;
-        Mon,  9 Mar 2020 16:05:27 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Mon, 09 Mar 2020 16:05:27 -0400
+        by mailout.nyi.internal (Postfix) with ESMTP id CAC3D22008;
+        Mon,  9 Mar 2020 16:05:34 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute1.internal (MEProxy); Mon, 09 Mar 2020 16:05:34 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=uykTtV
-        nbomnkr3yKTLzjrMq1rynfPMnW6C/36yYzkao=; b=FmHIAVUEGB+vacSoZf+6Dj
-        xHDq0poxAWKRlifhPwgB417EjQ2UUS/k+GZELdZhwS5q31OBaaRUhp5mDxkaouv7
-        U3UlJekkd+Nkw3hNgNkCBkCqJ44Xbwek1HvhkanqAsvYqJsYvu2aZKO663krHRlx
-        Md41KDy/U/45RxkRe3z4LAy64zJQyLeaK2sGPkoHSvJT+ckJnkff/gItyjwAgrR/
-        HArsI931LQcpnyXaHFrzBTexzpIMj5fGeObBSyHIRTYlMkaLKeiYfl17KZf7HGXi
-        KIcsMAOHTOxC+GwuBDAkSx5tpNGFul+ABg9Zh1egRo5j0GmIu9/fk9m4QdQMdX3Q
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=8P3fIA
+        xX9tQfDKkZ3PYT0WClKKZJwMQCJdeGl3eWhcE=; b=k7KeydsRBr7N/+tdI0ziqm
+        O5VEo9tMMzOK6KtCaLMcNt70KdAMNJr0FP919a4yuj1cl0Uf92ICYoI2Gp1Q/5vA
+        4YF3sYqwR159OkYed8Fl1NPosALNlPpfxxo1I6bQe6ZHms7TDoFIKh0tqcE03DyS
+        4tswiYIBTaqFkDuKvpat4IhLpOo950jaF1vFBj9wM3LxkAjcuXwShkO7vLcM7Xfj
+        +LFXPF7KvPefLRxhbXOpr2ueBddrv4RH8Y2IAMezTulPFkU8Lt0kI1jBnjKurK0K
+        3+m3gjiTDGL8mK85SQGpLB/gZd6yMTdERvCO5lp+T98WwJSUFpo7iFSY1banQ/Wg
         ==
-X-ME-Sender: <xms:hqFmXj3R98G6bXfDEGigE-zaCk1Iy_f6xTi2SdtCkz4RWFh9IyrFMQ>
+X-ME-Sender: <xms:jqFmXjKNfMl2Bj9dU2Hi7D3N9invHnmfYpGFK3DXlKvfXGarFlJ3GA>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedugedruddukedgudefvdcutefuodetggdotefrod
     ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
     necuuegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertd
     dttdflnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdho
-    rhhgqeenucfkphepkeefrdekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivgeptd
+    rhhgqeenucfkphepkeefrdekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivgepud
     enucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:hqFmXmXa4afKhzujrl9SmE8LTNS3YvVC4Wc2K9R83qHrTTEdyG5EdA>
-    <xmx:hqFmXu6nJxKWSUFP5lXO-bKsHPVh81qAC6ySgYGn_lFP8uDwRgxfCQ>
-    <xmx:hqFmXtJdKZ5y9VFRHXLglszbR-TESe7JA8dSFdG8SNbzeVCIZdPqCg>
-    <xmx:h6FmXmmpd5dDwPkFnVP65iOIL6-JwIT8A9zmW64eueMX2MKHk3-9Tg>
+X-ME-Proxy: <xmx:jqFmXlqfW3Vht0R-ty2do-4hWC7rplUZGslJu66Vju4f8lhUeTJMZg>
+    <xmx:jqFmXh7uFtgxWGzURycD9Qto5bCllYS9ITHNu9d1DPwcZ2IkTj0YLQ>
+    <xmx:jqFmXhIDnyDiSxNu0NHVm4D1RXnFKOQvsunW-y04m13O5w2qbF-KUQ>
+    <xmx:jqFmXoGmQr69YegPOr5PwOmb0Cfqcg-PlsjVZjXkGEOX2-p_mYKaZA>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 890D4328005E;
-        Mon,  9 Mar 2020 16:05:26 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] dm integrity: fix a deadlock due to offloading to an" failed to apply to 4.19-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 668E8306189E;
+        Mon,  9 Mar 2020 16:05:34 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] dm integrity: fix a deadlock due to offloading to an" failed to apply to 4.14-stable tree
 To:     mpatocka@redhat.com, heinzm@redhat.com, snitzer@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 09 Mar 2020 21:05:24 +0100
-Message-ID: <158378432418151@kroah.com>
+Date:   Mon, 09 Mar 2020 21:05:25 +0100
+Message-ID: <158378432520624@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -56,7 +56,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
