@@ -2,177 +2,152 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 03C4517E876
-	for <lists+stable@lfdr.de>; Mon,  9 Mar 2020 20:30:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E920D17E87C
+	for <lists+stable@lfdr.de>; Mon,  9 Mar 2020 20:31:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725956AbgCITa6 convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Mon, 9 Mar 2020 15:30:58 -0400
-Received: from mail-oln040092073073.outbound.protection.outlook.com ([40.92.73.73]:43971
-        "EHLO EUR04-HE1-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726106AbgCITa5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Mar 2020 15:30:57 -0400
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=WQS9JVkpHcFeZxqgH/0JGbj5Cds27H8qPYwSn1Tl1ZxWhWOyD2xr7uNRDfarncOaQc9JL1lrPyvpwpdiT9GvufZHIXYQoEpK8JQ/0UGQJDQI6rJc5X9Pw7DiwFCp275Ax+UpEbalu1I0SzrdLGPwJGiAMks7kWxuMhQpnVm9lXcAfUu6Z+Vze7XkFgZZRFxpoYTFD9ySodW+0tK3u+LhRP4jHhgOGQoQ7h+ol/3M9JO9NZeyPOKUKLuxPYgCg8RbkfYtgBhTgvfWfH0rpqUQBA7R8mcZz+YGWSsjSOgP8Au3BNyQMMl077GdZ3C9gSMZ9N/shlNBXoh2HjQTaZ6Sqg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=jxx6MlQD/1BAFg8WI2pnsDjsoz3s+EOs2w5Pc/bBL/4=;
- b=gdqKrYKZ9HZWUqGjiVoL5N87BcFyZurhBCVcW7VQLqJ2Yaft2N4ZE8+3cCTPZJVWDltR2XCYgUYSxEIve/I+CYqWX3f7msLefXNjPcKxFFbnf1GwCjom2MSoSZiODMXPtCiRHc/kdUNrqVXnFytCkxHjG9RyBUqKVkzAEJPHkFGomWbHdGeuIC0F+GXeUrMaxPjmgungJ9JO4+XwAH4q7kPVReaCY7Ew6j8V80Df00JiF2s+kOxg2a1za9tKrrZQ+NfkG3u+KEIK3QMaGopdmWtnaziNKRuMbx9RtRJuURihdzKaRb3srDfojs0ystLcjYaEG//V8m0/ik8b29TzLg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=none; dmarc=none;
- dkim=none; arc=none
-Received: from HE1EUR04FT025.eop-eur04.prod.protection.outlook.com
- (2a01:111:e400:7e0d::33) by
- HE1EUR04HT222.eop-eur04.prod.protection.outlook.com (2a01:111:e400:7e0d::105)
- with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.2793.11; Mon, 9 Mar
- 2020 19:30:13 +0000
-Received: from AM6PR03MB5170.eurprd03.prod.outlook.com (10.152.26.60) by
- HE1EUR04FT025.mail.protection.outlook.com (10.152.27.28) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.2793.11 via Frontend Transport; Mon, 9 Mar 2020 19:30:13 +0000
-Received: from AM6PR03MB5170.eurprd03.prod.outlook.com
- ([fe80::1956:d274:cab3:b4dd]) by AM6PR03MB5170.eurprd03.prod.outlook.com
- ([fe80::1956:d274:cab3:b4dd%6]) with mapi id 15.20.2772.019; Mon, 9 Mar 2020
- 19:30:13 +0000
-Received: from [192.168.1.101] (92.77.140.102) by AM0PR01CA0025.eurprd01.prod.exchangelabs.com (2603:10a6:208:69::38) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.2793.15 via Frontend Transport; Mon, 9 Mar 2020 19:30:07 +0000
-From:   Bernd Edlinger <bernd.edlinger@hotmail.de>
-To:     "Eric W. Biederman" <ebiederm@xmission.com>
-CC:     Christian Brauner <christian.brauner@ubuntu.com>,
-        Kees Cook <keescook@chromium.org>,
-        Jann Horn <jannh@google.com>, Jonathan Corbet <corbet@lwn.net>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Alexey Dobriyan <adobriyan@gmail.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Oleg Nesterov <oleg@redhat.com>,
-        Frederic Weisbecker <frederic@kernel.org>,
-        Andrei Vagin <avagin@gmail.com>,
-        Ingo Molnar <mingo@kernel.org>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Yuyang Du <duyuyang@gmail.com>,
-        David Hildenbrand <david@redhat.com>,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        Anshuman Khandual <anshuman.khandual@arm.com>,
-        David Howells <dhowells@redhat.com>,
-        James Morris <jamorris@linux.microsoft.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Shakeel Butt <shakeelb@google.com>,
-        Jason Gunthorpe <jgg@ziepe.ca>,
-        Christian Kellner <christian@kellner.me>,
-        Andrea Arcangeli <aarcange@redhat.com>,
-        Aleksa Sarai <cyphar@cyphar.com>,
-        "Dmitry V. Levin" <ldv@altlinux.org>,
-        "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>,
-        "linux-mm@kvack.org" <linux-mm@kvack.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "linux-api@vger.kernel.org" <linux-api@vger.kernel.org>
-Subject: Re: [PATCH v2 3/5] exec: Move cleanup of posix timers on exec out of
- de_thread
-Thread-Topic: [PATCH v2 3/5] exec: Move cleanup of posix timers on exec out of
- de_thread
-Thread-Index: AQHV9ZIEZxv0OjAlrUW8EbkPvU5OCqhApyIA
-Date:   Mon, 9 Mar 2020 19:30:13 +0000
-Message-ID: <AM6PR03MB5170B4D58F3FA5D33FE7657AE4FE0@AM6PR03MB5170.eurprd03.prod.outlook.com>
-References: <AM6PR03MB5170EB4427BF5C67EE98FF09E4E60@AM6PR03MB5170.eurprd03.prod.outlook.com>
- <87v9nmjulm.fsf@x220.int.ebiederm.org>
- <AM6PR03MB5170B976E6387FDDAD59A118E4E70@AM6PR03MB5170.eurprd03.prod.outlook.com>
- <202003021531.C77EF10@keescook>
- <20200303085802.eqn6jbhwxtmz4j2x@wittgenstein>
- <AM6PR03MB5170285B336790D3450E2644E4E40@AM6PR03MB5170.eurprd03.prod.outlook.com>
- <87v9nlii0b.fsf@x220.int.ebiederm.org>
- <AM6PR03MB5170609D44967E044FD1BE40E4E40@AM6PR03MB5170.eurprd03.prod.outlook.com>
- <87a74xi4kz.fsf@x220.int.ebiederm.org>
- <AM6PR03MB51705AA3009B4986BB6EF92FE4E50@AM6PR03MB5170.eurprd03.prod.outlook.com>
- <87r1y8dqqz.fsf@x220.int.ebiederm.org>
- <AM6PR03MB517053AED7DC89F7C0704B7DE4E50@AM6PR03MB5170.eurprd03.prod.outlook.com>
- <AM6PR03MB51703B44170EAB4626C9B2CAE4E20@AM6PR03MB5170.eurprd03.prod.outlook.com>
- <87tv32cxmf.fsf_-_@x220.int.ebiederm.org>
- <87v9ne5y4y.fsf_-_@x220.int.ebiederm.org>
- <87eeu25y14.fsf_-_@x220.int.ebiederm.org>
-In-Reply-To: <87eeu25y14.fsf_-_@x220.int.ebiederm.org>
-Accept-Language: en-US, en-GB, de-DE
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-clientproxiedby: AM0PR01CA0025.eurprd01.prod.exchangelabs.com
- (2603:10a6:208:69::38) To AM6PR03MB5170.eurprd03.prod.outlook.com
- (2603:10a6:20b:ca::23)
-x-incomingtopheadermarker: OriginalChecksum:1D11F3C52AA20EBC430DB346C09A4699A65F93F93FDB2F1ABAF13885F9D9B20A;UpperCasedChecksum:F65111DBCA5A0AC806A7EA7BA1E0E4446D647E0342302557EC34E3FF14B48D07;SizeAsReceived:9916;Count:50
-x-ms-exchange-messagesentrepresentingtype: 1
-x-tmn:  [OcD0NgGcG0JZG4F3xK7jxWsbdT9smler]
-x-microsoft-original-message-id: <49c40113-05fa-e31d-478a-d01915ed0059@hotmail.de>
-x-ms-publictraffictype: Email
-x-incomingheadercount: 50
-x-eopattributedmessage: 0
-x-ms-office365-filtering-correlation-id: d7a4e64a-a427-4c0e-b75b-08d7c4604967
-x-ms-traffictypediagnostic: HE1EUR04HT222:
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: sNkwfI6O9nw/LbblTEqNANU0FcxXdbSkAk5YU+vMggTkwlweJGhwZuLThErFUiRkCtAyW+7xoxZAPX5JRxdR1b56GRqLIhB979M4xDYKdOEqJvBN7tCzaV9jVpEF0Z2laBH/nECodfbIvF69rmQJtsrnW3B3IovHZsAqIxayr9xQ/uen3I3y6Dc73o/rsdk5
-x-ms-exchange-antispam-messagedata: vwHuoFtHtZ6FSlkk/P+IIWY5p10IbcCxjKqwOho3gWhDGBLd6Ucr1iC3EMUbdtgN2mhPOAmzdno8TicB5PfqWRF/DsPrOqoMf5zHy3rh/no/ppzQCjMfzjK5je2i2ca/SgVJSWHDHKOioh4pPaS2JQ==
-x-ms-exchange-transport-forked: True
-Content-Type: text/plain; charset="Windows-1252"
-Content-ID: <3386F6868CEAF14D9BF18D15F4701AD9@eurprd03.prod.outlook.com>
-Content-Transfer-Encoding: 8BIT
+        id S1726118AbgCITbj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Mar 2020 15:31:39 -0400
+Received: from out2-smtp.messagingengine.com ([66.111.4.26]:37951 "EHLO
+        out2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726106AbgCITbi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 9 Mar 2020 15:31:38 -0400
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+        by mailout.nyi.internal (Postfix) with ESMTP id AE23E21FF3;
+        Mon,  9 Mar 2020 15:31:37 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute1.internal (MEProxy); Mon, 09 Mar 2020 15:31:37 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=2f0HdX
+        OGTUt0nmR9vpJvDdkDcQzf/+HOk3IksvAdLCs=; b=3Nv5nMN2UwN6VLOhH0QL+Q
+        HI41O3u+cg+6h2gtnBPH9HCEoJX/GlChwZSLkWW0OL7i4SZRNFEyqkrkPLsfqoPR
+        GmySHtM50Efvks5WW2sAP5tq3R0MIedpFvPqLbFkZ815xS7E1bjyaEi0bB26Jijd
+        Vd95Y8FwGQ4XAWr5tU1LXEVGhbTRB/nsyEmrZ5xArI12UxnK9zd/NN0elVbbLCLu
+        KKK9+9Xyd6Mxvfg0l10JSB/9/UI//+iIbVQeGCg9QPgAdrVYF1DTf7hW/LqO7tV4
+        ckGn/zQTmgJebZPj1iLdvcDI1Mu7adBoPwM6WvkxtCM8xqlsTw2CXO3Uw+5TPLkA
+        ==
+X-ME-Sender: <xms:mZlmXhCaVfpxL3D8yGkf2N8vvpsL5_gK30aZ1TIaFr1uhZQpanKljw>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedugedruddukedguddviecutefuodetggdotefrod
+    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
+    necuuegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertd
+    dttdflnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdho
+    rhhgqeenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeekfedrkeeirdekle
+    druddtjeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhm
+    pehgrhgvgheskhhrohgrhhdrtghomh
+X-ME-Proxy: <xmx:mZlmXnJxVF13r1Ju1qqlTWxSANNfDNfTyqVA3_cTSTQsKu_mvd6agA>
+    <xmx:mZlmXszAwSH5mCe_zXL554qeOcjNG8H_jY_l4spDbvSulNLTW3HnuQ>
+    <xmx:mZlmXjxEiH1wW7YGFsWFqTV5NiamU-a8Y989gHlYKojbhQdY5lj34Q>
+    <xmx:mZlmXmv1vpsgrLX_W3py8v8-HG56ZvO6XfNtMesy34MEaqqrAhTz5Q>
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 015B630611FB;
+        Mon,  9 Mar 2020 15:31:36 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] powerpc/mm: Fix missing KUAP disable in" failed to apply to 5.4-stable tree
+To:     mpe@ellerman.id.au, stefanb@linux.ibm.com
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 09 Mar 2020 20:31:33 +0100
+Message-ID: <15837822939038@kroah.com>
 MIME-Version: 1.0
-X-OriginatorOrg: outlook.com
-X-MS-Exchange-CrossTenant-RMS-PersistedConsumerOrg: 00000000-0000-0000-0000-000000000000
-X-MS-Exchange-CrossTenant-Network-Message-Id: d7a4e64a-a427-4c0e-b75b-08d7c4604967
-X-MS-Exchange-CrossTenant-rms-persistedconsumerorg: 00000000-0000-0000-0000-000000000000
-X-MS-Exchange-CrossTenant-originalarrivaltime: 09 Mar 2020 19:30:13.2687
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Internet
-X-MS-Exchange-CrossTenant-id: 84df9e7f-e9f6-40af-b435-aaaaaaaaaaaa
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: HE1EUR04HT222
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 3/8/20 10:36 PM, Eric W. Biederman wrote:
-> 
-> These functions have very little to do with de_thread move them out
-> of de_thread an into flush_old_exec proper so it can be more clearly
-> seen what flush_old_exec is doing.
-> 
-> Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
 
-Reviewed-by: Bernd Edlinger <bernd.edlinger@hotmail.de>
+The patch below does not apply to the 5.4-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
+thanks,
 
-Bernd.
-> ---
->  fs/exec.c | 10 +++++-----
->  1 file changed, 5 insertions(+), 5 deletions(-)
-> 
-> diff --git a/fs/exec.c b/fs/exec.c
-> index ff74b9a74d34..215d86f77b63 100644
-> --- a/fs/exec.c
-> +++ b/fs/exec.c
-> @@ -1189,11 +1189,6 @@ static int de_thread(struct task_struct *tsk)
->  	/* we have changed execution domain */
->  	tsk->exit_signal = SIGCHLD;
->  
-> -#ifdef CONFIG_POSIX_TIMERS
-> -	exit_itimers(sig);
-> -	flush_itimer_signals();
-> -#endif
-> -
->  	BUG_ON(!thread_group_leader(tsk));
->  	return 0;
->  
-> @@ -1277,6 +1272,11 @@ int flush_old_exec(struct linux_binprm * bprm)
->  	if (retval)
->  		goto out;
->  
-> +#ifdef CONFIG_POSIX_TIMERS
-> +	exit_itimers(me->signal);
-> +	flush_itimer_signals();
-> +#endif
-> +
->  	/*
->  	 * Make the signal table private.
->  	 */
-> 
+greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From 59bee45b9712c759ea4d3dcc4eff1752f3a66558 Mon Sep 17 00:00:00 2001
+From: Michael Ellerman <mpe@ellerman.id.au>
+Date: Tue, 3 Mar 2020 23:28:47 +1100
+Subject: [PATCH] powerpc/mm: Fix missing KUAP disable in
+ flush_coherent_icache()
+
+Stefan reported a strange kernel fault which turned out to be due to a
+missing KUAP disable in flush_coherent_icache() called from
+flush_icache_range().
+
+The fault looks like:
+
+  Kernel attempted to access user page (7fffc30d9c00) - exploit attempt? (uid: 1009)
+  BUG: Unable to handle kernel data access on read at 0x7fffc30d9c00
+  Faulting instruction address: 0xc00000000007232c
+  Oops: Kernel access of bad area, sig: 11 [#1]
+  LE PAGE_SIZE=64K MMU=Radix SMP NR_CPUS=2048 NUMA PowerNV
+  CPU: 35 PID: 5886 Comm: sigtramp Not tainted 5.6.0-rc2-gcc-8.2.0-00003-gfc37a1632d40 #79
+  NIP:  c00000000007232c LR: c00000000003b7fc CTR: 0000000000000000
+  REGS: c000001e11093940 TRAP: 0300   Not tainted  (5.6.0-rc2-gcc-8.2.0-00003-gfc37a1632d40)
+  MSR:  900000000280b033 <SF,HV,VEC,VSX,EE,FP,ME,IR,DR,RI,LE>  CR: 28000884  XER: 00000000
+  CFAR: c0000000000722fc DAR: 00007fffc30d9c00 DSISR: 08000000 IRQMASK: 0
+  GPR00: c00000000003b7fc c000001e11093bd0 c0000000023ac200 00007fffc30d9c00
+  GPR04: 00007fffc30d9c18 0000000000000000 c000001e11093bd4 0000000000000000
+  GPR08: 0000000000000000 0000000000000001 0000000000000000 c000001e1104ed80
+  GPR12: 0000000000000000 c000001fff6ab380 c0000000016be2d0 4000000000000000
+  GPR16: c000000000000000 bfffffffffffffff 0000000000000000 0000000000000000
+  GPR20: 00007fffc30d9c00 00007fffc30d8f58 00007fffc30d9c18 00007fffc30d9c20
+  GPR24: 00007fffc30d9c18 0000000000000000 c000001e11093d90 c000001e1104ed80
+  GPR28: c000001e11093e90 0000000000000000 c0000000023d9d18 00007fffc30d9c00
+  NIP flush_icache_range+0x5c/0x80
+  LR  handle_rt_signal64+0x95c/0xc2c
+  Call Trace:
+    0xc000001e11093d90 (unreliable)
+    handle_rt_signal64+0x93c/0xc2c
+    do_notify_resume+0x310/0x430
+    ret_from_except_lite+0x70/0x74
+  Instruction dump:
+  409e002c 7c0802a6 3c62ff31 3863f6a0 f8010080 48195fed 60000000 48fe4c8d
+  60000000 e8010080 7c0803a6 7c0004ac <7c00ffac> 7c0004ac 4c00012c 38210070
+
+This path through handle_rt_signal64() to setup_trampoline() and
+flush_icache_range() is only triggered by 64-bit processes that have
+unmapped their VDSO, which is rare.
+
+flush_icache_range() takes a range of addresses to flush. In
+flush_coherent_icache() we implement an optimisation for CPUs where we
+know we don't actually have to flush the whole range, we just need to
+do a single icbi.
+
+However we still execute the icbi on the user address of the start of
+the range we're flushing. On CPUs that also implement KUAP (Power9)
+that leads to the spurious fault above.
+
+We should be able to pass any address, including a kernel address, to
+the icbi on these CPUs, which would avoid any interaction with KUAP.
+But I don't want to make that change in a bug fix, just in case it
+surfaces some strange behaviour on some CPU.
+
+So for now just disable KUAP around the icbi. Note the icbi is treated
+as a load, so we allow read access, not write as you'd expect.
+
+Fixes: 890274c2dc4c ("powerpc/64s: Implement KUAP for Radix MMU")
+Cc: stable@vger.kernel.org # v5.2+
+Reported-by: Stefan Berger <stefanb@linux.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20200303235708.26004-1-mpe@ellerman.id.au
+
+diff --git a/arch/powerpc/mm/mem.c b/arch/powerpc/mm/mem.c
+index ef7b1119b2e2..1c07d5a3f543 100644
+--- a/arch/powerpc/mm/mem.c
++++ b/arch/powerpc/mm/mem.c
+@@ -373,7 +373,9 @@ static inline bool flush_coherent_icache(unsigned long addr)
+ 	 */
+ 	if (cpu_has_feature(CPU_FTR_COHERENT_ICACHE)) {
+ 		mb(); /* sync */
++		allow_read_from_user((const void __user *)addr, L1_CACHE_BYTES);
+ 		icbi((void *)addr);
++		prevent_read_from_user((const void __user *)addr, L1_CACHE_BYTES);
+ 		mb(); /* sync */
+ 		isync();
+ 		return true;
+
