@@ -2,148 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E0B9517E421
-	for <lists+stable@lfdr.de>; Mon,  9 Mar 2020 16:57:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B7E3317E42F
+	for <lists+stable@lfdr.de>; Mon,  9 Mar 2020 17:01:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726932AbgCIP5X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Mar 2020 11:57:23 -0400
-Received: from mail-qv1-f65.google.com ([209.85.219.65]:34652 "EHLO
-        mail-qv1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726926AbgCIP5X (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 9 Mar 2020 11:57:23 -0400
-Received: by mail-qv1-f65.google.com with SMTP id o18so4601235qvf.1
-        for <stable@vger.kernel.org>; Mon, 09 Mar 2020 08:57:22 -0700 (PDT)
+        id S1726788AbgCIQBL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Mar 2020 12:01:11 -0400
+Received: from mail-pl1-f195.google.com ([209.85.214.195]:39087 "EHLO
+        mail-pl1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726758AbgCIQBL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 9 Mar 2020 12:01:11 -0400
+Received: by mail-pl1-f195.google.com with SMTP id j20so4145021pll.6
+        for <stable@vger.kernel.org>; Mon, 09 Mar 2020 09:01:11 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=ZwlGBThLg6m2J4heng9VwkAEtMMbntP9HQZ+BUWeE3E=;
-        b=RictAJutNC5oHXiHm6VVPOmDBEujuzX4s9WUAcsdPVpzbrT4yECNcFl8vV6LAP1akG
-         20KH/AXspCjIMvM6ElXN0c8wA7G1t+mrFUXTjijj3wbYOILnGk+tu7AXsMGcN0mwWz03
-         56zSefE+TrieiUEWXly+kiVnu4aOEAZQOV+lymSL1lmNOoVDlaiUmb49f1cdea+HiPc5
-         +vwAm1/NNhSdgugANUEzwf1Lxb5QSeK3w7kv+SXUNb1Gw3qSx+YCU1NlG/8Nt2lnh//H
-         1OqmDp39OsMvMQb8YynsVYT6ozR7Q3FHwZ0C2FDNsLjJy5E1Z38SK6IkKO1D12y341RN
-         +B4Q==
+        d=chromium.org; s=google;
+        h=mime-version:content-transfer-encoding:in-reply-to:references
+         :subject:from:cc:to:date:message-id:user-agent;
+        bh=KTZj+3STjVcCT5OSqKRIMYkDmtaQOdfMWMC8L9BMTr8=;
+        b=bHsmE79Nzwu6P6aYukHgkrewK0wrD2YTkan9k9YUmOAQjk+QsR19+pm2EXr8LB+42d
+         29lLDIpmq9gN5lou9H7VaEjh1OJK4NNXSLWkbQRLBYxkoh9j3kKnfz+v7BLYPCZFnOeX
+         4ZjhZw5SEaBBq2e73KtcXTWRkqLdRSfO4fsDU=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=ZwlGBThLg6m2J4heng9VwkAEtMMbntP9HQZ+BUWeE3E=;
-        b=krLXYXGxBCNckYxXU2AFxnjcVr4TdcfZhwlNVjFyHIKCKJsbtL25E1vaQCM24toCld
-         gHkY5XLy5nqe/BwtULE6GlKoVBC4bb8aWeEocfVoSV/yrrEC8/n+1Mv6pHxlYxEWcPD+
-         q6CP6OZuTW0GlE5m8uX5iE8zGlBtjECW8kQOnkK26BVQ21sPVpHKkFOjLUCS96pmguc/
-         INkeyC6T2GxurEtbJgUiDR6stnGO34gAnl+Qbrp+FLhdM/o2DGTChiYm3+iROQPMBy58
-         w0o0AdTnDB77UQS1fAUvTWfWxeCiQCpdDeA4Uw51XLwi1rB5KKh229NmmOX14VveFY9C
-         16+g==
-X-Gm-Message-State: ANhLgQ2LleSFYGtgMIRhk5Q7N9od0jjXdmQIQc3bmaQqHCGvCEE6XMBq
-        gYzYDnEQ5WAy/ZyMPmioBaOqeH/doio=
-X-Google-Smtp-Source: ADFU+vvnO2WHn6sffTAW3hxWsQyvoQ8mt/jRKIMvufo0HM41LJU+zRT1CTFD97COTD95ayDRHgxhfQ==
-X-Received: by 2002:a0c:db05:: with SMTP id d5mr14829681qvk.226.1583769441612;
-        Mon, 09 Mar 2020 08:57:21 -0700 (PDT)
-Received: from [192.168.1.10] (c-66-30-119-151.hsd1.ma.comcast.net. [66.30.119.151])
-        by smtp.gmail.com with ESMTPSA id h25sm1752902qkg.87.2020.03.09.08.57.20
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 09 Mar 2020 08:57:21 -0700 (PDT)
-Subject: Re: [PATCH 2/2] iommu/vt-d: dmar_parse_one_rmrr: replace WARN_TAINT
- with pr_warn + add_taint
-To:     Hans de Goede <hdegoede@redhat.com>,
-        David Woodhouse <dwmw2@infradead.org>,
-        Lu Baolu <baolu.lu@linux.intel.com>,
-        Joerg Roedel <joro@8bytes.org>
-Cc:     iommu@lists.linux-foundation.org, stable@vger.kernel.org
-References: <20200309140138.3753-1-hdegoede@redhat.com>
- <20200309140138.3753-3-hdegoede@redhat.com>
-From:   Barret Rhoden <brho@google.com>
-Message-ID: <34b13929-cbea-9906-0169-8f274bd40377@google.com>
-Date:   Mon, 9 Mar 2020 11:57:19 -0400
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.2.2
+        h=x-gm-message-state:mime-version:content-transfer-encoding
+         :in-reply-to:references:subject:from:cc:to:date:message-id
+         :user-agent;
+        bh=KTZj+3STjVcCT5OSqKRIMYkDmtaQOdfMWMC8L9BMTr8=;
+        b=f0Luwtt3WPLpDpyMjYFTkt3+NsNFGn+5k2+EZMEQGJwyiEPtznslidlcsJGhNO/nvV
+         LgqtScoy71FUW6fjhDfJzNl0F+6HZ+8Oh9WY2l5qntqrR3Z82CCaTgj9PKMCUtcLzM+h
+         rBaHtEhtIy35CMAwGhwTQ2ir/uFFsSjMYjhGmogbrhG8TfQGeJch0nnltjs5OEMSYpAF
+         ENZNL5Jft4u7eOeQL746ie4YzKQjSc1GPY8d5aK1DNDazwn7ccZUT525ofie3xyXLrvE
+         LhrbqhYRtWxAXs5NI0UHg4TRMg6eEASVbqKa8B+xPHWLoOIugrXfSshAN/+nZfmrmH6k
+         F8JA==
+X-Gm-Message-State: ANhLgQ1I5sksvHc2fneLptBY68BUtUVLL/k6VVHPUHvQYOnHuAzhfvUA
+        5cFh9Wo3eI3sgn0F1tIUMnDucQ==
+X-Google-Smtp-Source: ADFU+vvSMYysEWRr1RfuoGw7m/AMvOmgItQrC3FgLhMknEsbo8o0KhshDFjyBhxBKbbaVGwT/hH23Q==
+X-Received: by 2002:a17:90a:3270:: with SMTP id k103mr36241pjb.30.1583769670742;
+        Mon, 09 Mar 2020 09:01:10 -0700 (PDT)
+Received: from chromium.org ([2620:15c:202:1:fa53:7765:582b:82b9])
+        by smtp.gmail.com with ESMTPSA id 127sm25920016pfb.130.2020.03.09.09.01.10
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 09 Mar 2020 09:01:10 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-In-Reply-To: <20200309140138.3753-3-hdegoede@redhat.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20200309152604.585112-1-linus.walleij@linaro.org>
+References: <20200309152604.585112-1-linus.walleij@linaro.org>
+Subject: Re: [PATCH v4] pinctrl: qcom: Assign irq_eoi conditionally
+From:   Stephen Boyd <swboyd@chromium.org>
+Cc:     Linus Walleij <linus.walleij@linaro.org>,
+        David Heidelberg <david@ixit.cz>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Lina Iyer <ilina@codeaurora.org>,
+        Marc Zyngier <maz@kernel.org>, stable@vger.kernel.org
+To:     Linus Walleij <linus.walleij@linaro.org>,
+        linux-gpio@vger.kernel.org
+Date:   Mon, 09 Mar 2020 09:01:09 -0700
+Message-ID: <158376966926.66766.8061505915424061056@swboyd.mtv.corp.google.com>
+User-Agent: alot/0.9
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 3/9/20 10:01 AM, Hans de Goede wrote:
-> Quoting from the comment describing the WARN functions in
-> include/asm-generic/bug.h:
-> 
->   * WARN(), WARN_ON(), WARN_ON_ONCE, and so on can be used to report
->   * significant kernel issues that need prompt attention if they should ever
->   * appear at runtime.
->   *
->   * Do not use these macros when checking for invalid external inputs
-> 
-> The (buggy) firmware tables which the dmar code was calling WARN_TAINT
-> for really are invalid external inputs. They are not under the kernel's
-> control and the issues in them cannot be fixed by a kernel update.
-
-This patch sounds good to me.
-
-Given the rules with WARN and external inputs, it sounds like *all* uses 
-of WARN_TAINT with TAINT_FIRMWARE_WORKAROUND are bad: WARNs that are 
-likely based on invalid external input.  Presumably we're working around 
-FW bugs.
-
-While we're on the subject, is WARN_TAINT() ever worth the backtrace + 
-bug report?  Given the criteria is "prompt attention", it should be 
-something like "nice to know about when debugging."
-
-Thanks,
-
-Barret
-
-
-> So logging a backtrace, which invites bug reports to be filed about this,
-> is not helpful.
-> 
-> Some distros, e.g. Fedora, have tools watching for the kernel backtraces
-> logged by the WARN macros and offer the user an option to file a bug for
-> this when these are encountered. The WARN_TAINT in dmar_parse_one_rmrr
-> + another iommu WARN_TAINT, addressed in another patch, have lead to over
-> a 100 bugs being filed this way.
-> 
-> This commit replaces the WARN_TAINT("...") call, with a
-> pr_warn(FW_BUG "...") + add_taint(TAINT_FIRMWARE_WORKAROUND, ...) call
-> avoiding the backtrace and thus also avoiding bug-reports being filed
-> about this against the kernel.
-> 
-> BugLink: https://bugzilla.redhat.com/show_bug.cgi?id=1808874
-> Fixes: f5a68bb0752e ("iommu/vt-d: Mark firmware tainted if RMRR fails sanity check")
-> Cc: Barret Rhoden <brho@google.com>
+Quoting Linus Walleij (2020-03-09 08:26:04)
+> The hierarchical parts of MSM pinctrl/GPIO is only
+> used when the device tree has a "wakeup-parent" as
+> a phandle, but the .irq_eoi is anyway assigned leading
+> to semantic problems on elder Qualcomm chipsets.
+>=20
+> When the drivers/mfd/qcom-pm8xxx.c driver calls
+> chained_irq_exit() that call will in turn call chip->irq_eoi()
+> which is set to irq_chip_eoi_parent() by default on a
+> hierachical IRQ chip, and the parent is pinctrl-msm.c
+> so that will in turn unconditionally call
+> irq_chip_eoi_parent() again, but its parent is invalid
+> so we get the following crash:
+>=20
+>  Unnable to handle kernel NULL pointer dereference at
+>  virtual address 00000010
+>  pgd =3D (ptrval)
+>  [00000010] *pgd=3D00000000
+>  Internal error: Oops: 5 [#1] PREEMPT SMP ARM
+>  (...)
+>  PC is at irq_chip_eoi_parent+0x4/0x10
+>  LR is at pm8xxx_irq_handler+0x1b4/0x2d8
+>=20
+> If we solve this crash by avoiding to call up to
+> irq_chip_eoi_parent(), the machine will hang and get
+> reset by the watchdog, because of semantic issues,
+> probably inside irq_chip.
+>=20
+> As a solution, just assign the .irq_eoi conditionally if
+> we are actually using a wakeup parent.
+>=20
+> Cc: David Heidelberg <david@ixit.cz>
+> Cc: Bjorn Andersson <bjorn.andersson@linaro.org>
+> Cc: Lina Iyer <ilina@codeaurora.org>
+> Cc: Marc Zyngier <maz@kernel.org>
+> Cc: Stephen Boyd <swboyd@chromium.org>
 > Cc: stable@vger.kernel.org
-> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+> Fixes: e35a6ae0eb3a ("pinctrl/msm: Setup GPIO chip in hierarchy")
+> Link: https://lore.kernel.org/r/20200306121221.1231296-1-linus.walleij@li=
+naro.org
+> Link: https://lore.kernel.org/r/20200309125207.571840-1-linus.walleij@lin=
+aro.org
+> Tested-by: David Heidelberg <david@ixit.cz>
+> Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 > ---
->   drivers/iommu/intel-iommu.c | 6 ++++--
->   1 file changed, 4 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/iommu/intel-iommu.c b/drivers/iommu/intel-iommu.c
-> index 6fa6de2b6ad5..3857a5cd1a75 100644
-> --- a/drivers/iommu/intel-iommu.c
-> +++ b/drivers/iommu/intel-iommu.c
-> @@ -4460,14 +4460,16 @@ int __init dmar_parse_one_rmrr(struct acpi_dmar_header *header, void *arg)
->   	struct dmar_rmrr_unit *rmrru;
->   
->   	rmrr = (struct acpi_dmar_reserved_memory *)header;
-> -	if (rmrr_sanity_check(rmrr))
-> -		WARN_TAINT(1, TAINT_FIRMWARE_WORKAROUND,
-> +	if (rmrr_sanity_check(rmrr)) {
-> +		pr_warn(FW_BUG
->   			   "Your BIOS is broken; bad RMRR [%#018Lx-%#018Lx]\n"
->   			   "BIOS vendor: %s; Ver: %s; Product Version: %s\n",
->   			   rmrr->base_address, rmrr->end_address,
->   			   dmi_get_system_info(DMI_BIOS_VENDOR),
->   			   dmi_get_system_info(DMI_BIOS_VERSION),
->   			   dmi_get_system_info(DMI_PRODUCT_VERSION));
-> +		add_taint(TAINT_FIRMWARE_WORKAROUND, LOCKDEP_STILL_OK);
-> +	}
->   
->   	rmrru = kzalloc(sizeof(*rmrru), GFP_KERNEL);
->   	if (!rmrru)
-> 
 
+Reviewed-by: Stephen Boyd <swboyd@chromium.org>
