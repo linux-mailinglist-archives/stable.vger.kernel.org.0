@@ -2,43 +2,28 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E57C17E88D
-	for <lists+stable@lfdr.de>; Mon,  9 Mar 2020 20:35:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B782A17E8C2
+	for <lists+stable@lfdr.de>; Mon,  9 Mar 2020 20:38:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726295AbgCITfF convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Mon, 9 Mar 2020 15:35:05 -0400
-Received: from mail-oln040092068083.outbound.protection.outlook.com ([40.92.68.83]:54531
-        "EHLO EUR02-HE1-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1725992AbgCITfF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Mar 2020 15:35:05 -0400
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=g3rQAArBPqovEB66sv7k0plhWBS1hQDLOp3nCvw3dSoVEMx+FZgpqxW3wsI0zxQrgPv/IOzSWmRFxslxhUS+nCYY4ro/E5kdq6kI/s4QfdeJzyATkCt8BQYd6KZeNBa9xtO7Gqce5qNEXRDT6PItgUDOMKY3bJY6d+CHs63P2qE6TcUj4KV0zzE3fv+L49SPeJk7xOVFrWTHwqlMmQTK+6lUcjuiLrGuI8mXtH6pc8FXmvfxRdJ3lI+Sex6J5j707Np5NbA5xOxRhzarSBfHSAHV80IuzW9jI0A+YHqgHG5btU7MwHG9+5qVZBfH8oAr3MJf0XUMF20oxUiXJBuQ9A==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=TNF+ypRjnXNodGw7+eEn6FxwMgQlbpZjkBUCLzykMlY=;
- b=IUBTPXhnmfRoEopqrb2jp8hZjUE9JzRHXzOJg7VTN+e26Ftvda3vHP4ypYLiTj1qcsB9ztB0r/OD37wnAJva9Ovs8EbqtJLLwQMOOlG+1EN1XsGSCN41qWt2yI21dsYrAOOs9cBt0YGEp1o8h28aKMoQCMhPTxuqAYJ9ST3bBvuzpp7RWSaYvaw1hePOhktRrp41nU1D+kUwLpHtEsyOCyDG9V1FQcKBENZd8Q+aKbvf7Wq9SfHJTYwQEqU2sYnRQs4U3+Vq4Ubprd6OKU2xDdo9gA9SLJgGxH162eVC8hb7jfGyp41agcc7bedgSTEKFe8g0/7ifSa28BLJVdsfJg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=none; dmarc=none;
- dkim=none; arc=none
-Received: from VE1EUR02FT019.eop-EUR02.prod.protection.outlook.com
- (2a01:111:e400:7e1e::35) by
- VE1EUR02HT202.eop-EUR02.prod.protection.outlook.com (2a01:111:e400:7e1e::342)
- with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.2793.11; Mon, 9 Mar
- 2020 19:34:59 +0000
-Received: from AM6PR03MB5170.eurprd03.prod.outlook.com (10.152.12.60) by
- VE1EUR02FT019.mail.protection.outlook.com (10.152.12.107) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.2793.11 via Frontend Transport; Mon, 9 Mar 2020 19:34:59 +0000
-Received: from AM6PR03MB5170.eurprd03.prod.outlook.com
- ([fe80::1956:d274:cab3:b4dd]) by AM6PR03MB5170.eurprd03.prod.outlook.com
- ([fe80::1956:d274:cab3:b4dd%6]) with mapi id 15.20.2772.019; Mon, 9 Mar 2020
- 19:34:59 +0000
-Received: from [192.168.1.101] (92.77.140.102) by AM0PR06CA0072.eurprd06.prod.outlook.com (2603:10a6:208:aa::49) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.2793.16 via Frontend Transport; Mon, 9 Mar 2020 19:34:58 +0000
-From:   Bernd Edlinger <bernd.edlinger@hotmail.de>
-To:     "Eric W. Biederman" <ebiederm@xmission.com>
-CC:     Christian Brauner <christian.brauner@ubuntu.com>,
+        id S1726353AbgCIThw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Mar 2020 15:37:52 -0400
+Received: from out03.mta.xmission.com ([166.70.13.233]:57330 "EHLO
+        out03.mta.xmission.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726156AbgCIThv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 9 Mar 2020 15:37:51 -0400
+Received: from in01.mta.xmission.com ([166.70.13.51])
+        by out03.mta.xmission.com with esmtps (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        (Exim 4.90_1)
+        (envelope-from <ebiederm@xmission.com>)
+        id 1jBODe-00015d-OU; Mon, 09 Mar 2020 13:37:42 -0600
+Received: from ip68-227-160-95.om.om.cox.net ([68.227.160.95] helo=x220.xmission.com)
+        by in01.mta.xmission.com with esmtpsa (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.87)
+        (envelope-from <ebiederm@xmission.com>)
+        id 1jBODd-0004Wy-QQ; Mon, 09 Mar 2020 13:37:42 -0600
+From:   ebiederm@xmission.com (Eric W. Biederman)
+To:     Bernd Edlinger <bernd.edlinger@hotmail.de>
+Cc:     Christian Brauner <christian.brauner@ubuntu.com>,
         Kees Cook <keescook@chromium.org>,
         Jann Horn <jannh@google.com>, Jonathan Corbet <corbet@lwn.net>,
         Alexander Viro <viro@zeniv.linux.org.uk>,
@@ -49,7 +34,7 @@ CC:     Christian Brauner <christian.brauner@ubuntu.com>,
         Frederic Weisbecker <frederic@kernel.org>,
         Andrei Vagin <avagin@gmail.com>,
         Ingo Molnar <mingo@kernel.org>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        "Peter Zijlstra \(Intel\)" <peterz@infradead.org>,
         Yuyang Du <duyuyang@gmail.com>,
         David Hildenbrand <david@redhat.com>,
         Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
@@ -63,99 +48,162 @@ CC:     Christian Brauner <christian.brauner@ubuntu.com>,
         Andrea Arcangeli <aarcange@redhat.com>,
         Aleksa Sarai <cyphar@cyphar.com>,
         "Dmitry V. Levin" <ldv@altlinux.org>,
-        "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>,
-        "linux-mm@kvack.org" <linux-mm@kvack.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "linux-api@vger.kernel.org" <linux-api@vger.kernel.org>
-Subject: Re: [PATCH v2 4/5] exec: Move exec_mmap right after de_thread in
- flush_old_exec
-Thread-Topic: [PATCH v2 4/5] exec: Move exec_mmap right after de_thread in
- flush_old_exec
-Thread-Index: AQHV9ZIq8LqSeoOzkk+o9CTpCnOInKhAqHsA
-Date:   Mon, 9 Mar 2020 19:34:59 +0000
-Message-ID: <AM6PR03MB5170C3A4319BA6A057C3CCACE4FE0@AM6PR03MB5170.eurprd03.prod.outlook.com>
+        "linux-doc\@vger.kernel.org" <linux-doc@vger.kernel.org>,
+        "linux-kernel\@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "linux-fsdevel\@vger.kernel.org" <linux-fsdevel@vger.kernel.org>,
+        "linux-mm\@kvack.org" <linux-mm@kvack.org>,
+        "stable\@vger.kernel.org" <stable@vger.kernel.org>,
+        "linux-api\@vger.kernel.org" <linux-api@vger.kernel.org>
 References: <AM6PR03MB5170EB4427BF5C67EE98FF09E4E60@AM6PR03MB5170.eurprd03.prod.outlook.com>
- <87v9nmjulm.fsf@x220.int.ebiederm.org>
- <AM6PR03MB5170B976E6387FDDAD59A118E4E70@AM6PR03MB5170.eurprd03.prod.outlook.com>
- <202003021531.C77EF10@keescook>
- <20200303085802.eqn6jbhwxtmz4j2x@wittgenstein>
- <AM6PR03MB5170285B336790D3450E2644E4E40@AM6PR03MB5170.eurprd03.prod.outlook.com>
- <87v9nlii0b.fsf@x220.int.ebiederm.org>
- <AM6PR03MB5170609D44967E044FD1BE40E4E40@AM6PR03MB5170.eurprd03.prod.outlook.com>
- <87a74xi4kz.fsf@x220.int.ebiederm.org>
- <AM6PR03MB51705AA3009B4986BB6EF92FE4E50@AM6PR03MB5170.eurprd03.prod.outlook.com>
- <87r1y8dqqz.fsf@x220.int.ebiederm.org>
- <AM6PR03MB517053AED7DC89F7C0704B7DE4E50@AM6PR03MB5170.eurprd03.prod.outlook.com>
- <AM6PR03MB51703B44170EAB4626C9B2CAE4E20@AM6PR03MB5170.eurprd03.prod.outlook.com>
- <87tv32cxmf.fsf_-_@x220.int.ebiederm.org>
- <87v9ne5y4y.fsf_-_@x220.int.ebiederm.org>
- <875zfe5xzb.fsf_-_@x220.int.ebiederm.org>
-In-Reply-To: <875zfe5xzb.fsf_-_@x220.int.ebiederm.org>
-Accept-Language: en-US, en-GB, de-DE
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-clientproxiedby: AM0PR06CA0072.eurprd06.prod.outlook.com
- (2603:10a6:208:aa::49) To AM6PR03MB5170.eurprd03.prod.outlook.com
- (2603:10a6:20b:ca::23)
-x-incomingtopheadermarker: OriginalChecksum:79C496411C7C971373B50F97092B52D602659E5707CEC701B2124EABB1337BFE;UpperCasedChecksum:67F7095DB63B9127FCCACBBA6A9CA42499F1591C5E46C3069ADC0B8C0E291EE4;SizeAsReceived:9883;Count:50
-x-ms-exchange-messagesentrepresentingtype: 1
-x-tmn:  [L/99uBRPV/LyRVM1VSZjAibKvfuULYqn]
-x-microsoft-original-message-id: <4ec7b6c3-da81-bbcd-214f-d12978145288@hotmail.de>
-x-ms-publictraffictype: Email
-x-incomingheadercount: 50
-x-eopattributedmessage: 0
-x-ms-office365-filtering-correlation-id: 159ed0df-750b-4023-81ac-08d7c460f435
-x-ms-traffictypediagnostic: VE1EUR02HT202:
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: hdZNzwc6pLT+2ViQ6odqvXNOXUghN906xwKz7gKotZHXwtZ84GBG37ZaQ5MfMRMFX0Bp1hipJLqjJ5vayQGpYGd3co0jNqtL35Ee9UUptvl8j3aws7GjxqJu2rA9COHOUD4HIVWIjmXe6ZCi2MVuGDoLxYMs9Vnfh5uuP0++vgvematv3RWW9vMxUlEEsL1B
-x-ms-exchange-antispam-messagedata: z84Cpt8/RbEwCJyUJXIKMHrcP50YynlkojBX/rYwVXrlVV7nyCVK+CVnt9b8d+gl19kcMEHMZe/SzH3YeFY7vj4hApKiOoDWjozs3rQJEIy/lYfbXHWd8BPpPUDAhvKhVC1q9NrWzfsCYWqqLePjdQ==
-x-ms-exchange-transport-forked: True
-Content-Type: text/plain; charset="Windows-1252"
-Content-ID: <9E086A324F4FE14290E8EA9DD6C880C2@eurprd03.prod.outlook.com>
-Content-Transfer-Encoding: 8BIT
+        <87a74xi4kz.fsf@x220.int.ebiederm.org>
+        <AM6PR03MB51705AA3009B4986BB6EF92FE4E50@AM6PR03MB5170.eurprd03.prod.outlook.com>
+        <87r1y8dqqz.fsf@x220.int.ebiederm.org>
+        <AM6PR03MB517053AED7DC89F7C0704B7DE4E50@AM6PR03MB5170.eurprd03.prod.outlook.com>
+        <AM6PR03MB51703B44170EAB4626C9B2CAE4E20@AM6PR03MB5170.eurprd03.prod.outlook.com>
+        <87tv32cxmf.fsf_-_@x220.int.ebiederm.org>
+        <87v9ne5y4y.fsf_-_@x220.int.ebiederm.org>
+        <87zhcq4jdj.fsf_-_@x220.int.ebiederm.org>
+        <AM6PR03MB5170BC58D90BAD80CDEF3F8BE4FE0@AM6PR03MB5170.eurprd03.prod.outlook.com>
+        <878sk94eay.fsf@x220.int.ebiederm.org>
+        <AM6PR03MB517086003BD2C32E199690A3E4FE0@AM6PR03MB5170.eurprd03.prod.outlook.com>
+        <87r1y12yc7.fsf@x220.int.ebiederm.org>
+        <87k13t2xpd.fsf@x220.int.ebiederm.org>
+        <87d09l2x5n.fsf@x220.int.ebiederm.org>
+        <AM6PR03MB5170F0F9DC18F5EA77C9A857E4FE0@AM6PR03MB5170.eurprd03.prod.outlook.com>
+        <871rq12vxu.fsf@x220.int.ebiederm.org>
+        <AM6PR03MB5170DF45E3245F55B95CCD91E4FE0@AM6PR03MB5170.eurprd03.prod.outlook.com>
+Date:   Mon, 09 Mar 2020 14:35:24 -0500
+In-Reply-To: <AM6PR03MB5170DF45E3245F55B95CCD91E4FE0@AM6PR03MB5170.eurprd03.prod.outlook.com>
+        (Bernd Edlinger's message of "Mon, 9 Mar 2020 19:24:58 +0000")
+Message-ID: <87fteh1fur.fsf@x220.int.ebiederm.org>
+User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/26.1 (gnu/linux)
 MIME-Version: 1.0
-X-OriginatorOrg: outlook.com
-X-MS-Exchange-CrossTenant-RMS-PersistedConsumerOrg: 00000000-0000-0000-0000-000000000000
-X-MS-Exchange-CrossTenant-Network-Message-Id: 159ed0df-750b-4023-81ac-08d7c460f435
-X-MS-Exchange-CrossTenant-rms-persistedconsumerorg: 00000000-0000-0000-0000-000000000000
-X-MS-Exchange-CrossTenant-originalarrivaltime: 09 Mar 2020 19:34:59.2994
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Internet
-X-MS-Exchange-CrossTenant-id: 84df9e7f-e9f6-40af-b435-aaaaaaaaaaaa
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: VE1EUR02HT202
+Content-Type: text/plain
+X-XM-SPF: eid=1jBODd-0004Wy-QQ;;;mid=<87fteh1fur.fsf@x220.int.ebiederm.org>;;;hst=in01.mta.xmission.com;;;ip=68.227.160.95;;;frm=ebiederm@xmission.com;;;spf=neutral
+X-XM-AID: U2FsdGVkX1+DDWQI5cjwElTn1n4Tvz89F0vLYf/zGAA=
+X-SA-Exim-Connect-IP: 68.227.160.95
+X-SA-Exim-Mail-From: ebiederm@xmission.com
+X-Spam-Checker-Version: SpamAssassin 3.4.2 (2018-09-13) on sa07.xmission.com
+X-Spam-Level: 
+X-Spam-Status: No, score=0.5 required=8.0 tests=ALL_TRUSTED,BAYES_50,
+        DCC_CHECK_NEGATIVE,T_TM2_M_HEADER_IN_MSG,T_TooManySym_01,XMSubLong
+        autolearn=disabled version=3.4.2
+X-Spam-Report: * -1.0 ALL_TRUSTED Passed through trusted hosts only via SMTP
+        *  0.8 BAYES_50 BODY: Bayes spam probability is 40 to 60%
+        *      [score: 0.5000]
+        *  0.7 XMSubLong Long Subject
+        *  0.0 T_TM2_M_HEADER_IN_MSG BODY: No description available.
+        * -0.0 DCC_CHECK_NEGATIVE Not listed in DCC
+        *      [sa07 1397; Body=1 Fuz1=1 Fuz2=1]
+        *  0.0 T_TooManySym_01 4+ unique symbols in subject
+X-Spam-DCC: XMission; sa07 1397; Body=1 Fuz1=1 Fuz2=1 
+X-Spam-Combo: ;Bernd Edlinger <bernd.edlinger@hotmail.de>
+X-Spam-Relay-Country: 
+X-Spam-Timing: total 460 ms - load_scoreonly_sql: 0.03 (0.0%),
+        signal_user_changed: 2.9 (0.6%), b_tie_ro: 2.1 (0.5%), parse: 1.07
+        (0.2%), extract_message_metadata: 16 (3.4%), get_uri_detail_list: 3.1
+        (0.7%), tests_pri_-1000: 26 (5.7%), tests_pri_-950: 1.17 (0.3%),
+        tests_pri_-900: 1.04 (0.2%), tests_pri_-90: 40 (8.6%), check_bayes: 38
+        (8.2%), b_tokenize: 16 (3.5%), b_tok_get_all: 11 (2.4%), b_comp_prob:
+        3.4 (0.7%), b_tok_touch_all: 4.2 (0.9%), b_finish: 0.67 (0.1%),
+        tests_pri_0: 358 (77.9%), check_dkim_signature: 0.62 (0.1%),
+        check_dkim_adsp: 2.7 (0.6%), poll_dns_idle: 0.73 (0.2%), tests_pri_10:
+        3.1 (0.7%), tests_pri_500: 8 (1.7%), rewrite_mail: 0.00 (0.0%)
+Subject: Re: [PATCH v2 5/5] exec: Add a exec_update_mutex to replace cred_guard_mutex
+X-Spam-Flag: No
+X-SA-Exim-Version: 4.2.1 (built Thu, 05 May 2016 13:38:54 -0600)
+X-SA-Exim-Scanned: Yes (on in01.mta.xmission.com)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 3/8/20 10:38 PM, Eric W. Biederman wrote:
-> 
-> I have read through the code in exec_mmap and I do not see anything
-> that depends on sighand or the sighand lock, or on signals in anyway
-> so this should be safe.
-> 
-> This rearrangement of code has two siginficant benefits.  It makes
-                                        ^ typo: significant
+Bernd Edlinger <bernd.edlinger@hotmail.de> writes:
 
-> the determination of passing the point of no return by testing bprm->mm
-> accurate.  All failures prior to that point in flush_old_exec are
-> either truly recoverable or they are fatal.
-> 
-> Futher this consolidates all of the possible indefinite waits for   ^ typo: Further
+> On 3/9/20 8:02 PM, Eric W. Biederman wrote:
+>> Bernd Edlinger <bernd.edlinger@hotmail.de> writes:
+>> 
+>>> On 3/9/20 7:36 PM, Eric W. Biederman wrote:
+>>>>
+>>>>
+>>>> Does that sound better?
+>>>>
+>>>
+>>> almost done.
+>> 
+>> I think this text is finally clean.
+>> 
+>>     exec: Add exec_update_mutex to replace cred_guard_mutex
+>>     
+>>     The cred_guard_mutex is problematic as it is held over possibly
+>>     indefinite waits for userspace.  The possilbe indefinite waits for
+>>     userspace that I have identified are: The cred_guard_mutex is held in
+>>     PTRACE_EVENT_EXIT waiting for the tracer.  The cred_guard_mutex is
+>>     held over "put_user(0, tsk->clear_child_tid)" in exit_mm().  The
+>>     cred_guard_mutex is held over "get_user(futex_offset, ...")  in
+>>     exit_robust_list.  The cred_guard_mutex held over copy_strings.
+>>     
+>>     The functions get_user and put_user can trigger a page fault which can
+>>     potentially wait indefinitely in the case of userfaultfd or if
+>>     userspace implements part of the page fault path.
+>>     
+>>     In any of those cases the userspace process that the kernel is waiting
+>>     for might make a different system call that winds up taking the
+>>     cred_guard_mutex and result in deadlock.
+>>     
+>>     Holding a mutex over any of those possibly indefinite waits for
+>>     userspace does not appear necessary.  Add exec_update_mutex that will
+>>     just cover updating the process during exec where the permissions and
+>>     the objects pointed to by the task struct may be out of sync.
+>>     
+>>     The plan is to switch the users of cred_guard_mutex to
+>>     exec_update_mutex one by one.  This lets us move forward while still
+>>     being careful and not introducing any regressions.
+>>     
+>>     Link: https://lore.kernel.org/lkml/20160921152946.GA24210@dhcp22.suse.cz/
+>>     Link: https://lore.kernel.org/lkml/AM6PR03MB5170B06F3A2B75EFB98D071AE4E60@AM6PR03MB5170.eurprd03.prod.outlook.com/
+>>     Link: https://lore.kernel.org/linux-fsdevel/20161102181806.GB1112@redhat.com/
+>>     Link: https://lore.kernel.org/lkml/20160923095031.GA14923@redhat.com/
+>>     Link: https://lore.kernel.org/lkml/20170213141452.GA30203@redhat.com/
+>>     Ref: 45c1a159b85b ("Add PTRACE_O_TRACEVFORKDONE and PTRACE_O_TRACEEXIT facilities.")
+>>     Ref: 456f17cd1a28 ("[PATCH] user-vm-unlock-2.5.31-A2")
+>
+> I checked the urls they all work.
+> Just one last question, are these git references?
+> I can't find them in my linux git tree (cloned from linus' git)?
+>
+> Sorry for being pedantically.
 
-> userspace together at the top of flush_old_exec.  The possible wait
-> for a ptracer on PTRACE_EVENT_EXIT, the possible wait for a page fault
-> to be resolved in clear_child_tid, and the possible wait for a page
-> fault in exit_robust_list.
-> 
-> This consolidation allows the creation of a mutex to replace
-> cred_guard_mutex that is not held of possible indefinite userspace
+You have to track down tglx's historicaly git tree from when everything
+was in bitkeeper.
 
-can you also reword this "held of" thing here as well?
+But yes they are git references and yes they work.  Just that part
+of the history is not in linux.git.
 
+>>     Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
+>> 
+>> 
+>> Bernd do you want to give me your Reviewed-by for this part of the
+>> series?
+>> 
+>
+> Sure also the other parts of course.
+>
+> Reviewed-by: Bernd Edlinger <bernd.edlinger@hotmail.de>
+>
+>> After that do you think you can write the obvious patch for mm_access?
+>> 
+>
+> Yes, I can do that.
+> I also have some typos in comments, will make them extra patches as well.
+>
+> I wonder if the test case is okay to include the ptrace_attach altough
+> that is not yet passing?
 
-Thanks
-Bernd.
+It is an existing kernel but that it doesn't pass.
+
+My sense is that if you include it as a separate patch if it is a
+problem for someone we can identify it easily via bisect and we do
+whatever is appropriate.
+
+Eric
