@@ -2,134 +2,119 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id ACCC317DD43
-	for <lists+stable@lfdr.de>; Mon,  9 Mar 2020 11:17:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A9B417DD75
+	for <lists+stable@lfdr.de>; Mon,  9 Mar 2020 11:26:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726571AbgCIKRp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Mar 2020 06:17:45 -0400
-Received: from mail-ed1-f65.google.com ([209.85.208.65]:42728 "EHLO
-        mail-ed1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726488AbgCIKRp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 9 Mar 2020 06:17:45 -0400
-Received: by mail-ed1-f65.google.com with SMTP id n18so11328800edw.9
-        for <stable@vger.kernel.org>; Mon, 09 Mar 2020 03:17:43 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=cloud.ionos.com; s=google;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references;
-        bh=OxJ9nVIBPnktLaS7KTQtbSI87soZw/fzkRft+9BGw8M=;
-        b=V3nU2InK5oUN/oz9AIbk0LRizslVPPa7IWiU9dHmunxbCHgAk+FcrYMN5kG47/oU6z
-         3nbmX5pSTaiXW8CQ7EdYa+41y3RTDfiz6rVAVmacMJC1vlFRIVrtE+21HFTLN6AfzgvD
-         VwSNb7Iu5BZ79ZQUeMm+0gW+Y5eRvd8/P2ul4XXQEg7N1a1hkkRU1wB/9w4+08WJbBKg
-         uN8LrpNzjyOrMz+ianclVhQAh3Xz7GycZkM2vd5xPfMJORvsoHO/CH89Cona9PqB6gUg
-         icL+3GN9Q0WTnN9QvSBG8xy7xlFjmyaJXzWOUpeyis+/Ppiwi9Xox/dmLKKtVZSpbE1E
-         i2bg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references;
-        bh=OxJ9nVIBPnktLaS7KTQtbSI87soZw/fzkRft+9BGw8M=;
-        b=LKriqyWjhlAqrFJNElJ3fF9HTKjfUMM6XAgeOc1byxWIT4W9C2YowD2pEfDnUpTMIk
-         0I9zhXl3pO/o++eTj/CBjqi96IsPAZnp44mMOSVexmGhMCKmzmaZ0AeyRHC3TgOcyV0T
-         /nD+lGEgp//VUEeGEXtA4VVgS5vwTzvFLvZbr8sJ6CWsgJMxT8NWaBIDCOlbVXB4Lkw+
-         5MvAcNWDlmeHCpOyrw2uWRshOn858NOmhueO4fC+J+n9JyF0OS0Y1/2xps9PXhP7Ys4+
-         rUlq03Cc8ZqRRWMmprmxXOxDl2MXto5rwZkQXm2Ea3XkFMIMpDcLURu6P3GP4MEn7q2N
-         juBw==
-X-Gm-Message-State: ANhLgQ0s943v6V3ID74o/qSqWipa4yGxDqYwQGP136u27LIk6t0CKur3
-        wy4GGfSrjE1HveXRTRj7TR4LUHnVxaA=
-X-Google-Smtp-Source: ADFU+vsRIBBCPSWBV8MNjVmFZInbT8ljezHqoHuvCtRKkAfx35fBfu3TeHXyiOWPUvUzm1hKidEuPQ==
-X-Received: by 2002:a50:c043:: with SMTP id u3mr14707837edd.253.1583749062429;
-        Mon, 09 Mar 2020 03:17:42 -0700 (PDT)
-Received: from jwang-Latitude-5491.pb.local ([2001:1438:4010:2558:1934:edf1:9b2c:8a6c])
-        by smtp.gmail.com with ESMTPSA id p20sm1317409ejf.6.2020.03.09.03.17.41
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 09 Mar 2020 03:17:41 -0700 (PDT)
-From:   Jack Wang <jinpu.wang@cloud.ionos.com>
-To:     gregkh@linuxfoundation.org, sashal@kernel.org,
-        stable@vger.kernel.org
-Cc:     Deepak Ukey <deepak.ukey@microchip.com>,
-        Viswas G <Viswas.G@microchip.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>
-Subject: [stable-4.19 2/2] scsi: pm80xx: Fixed kernel panic during error recovery for SATA drive
-Date:   Mon,  9 Mar 2020 11:17:39 +0100
-Message-Id: <20200309101739.32483-3-jinpu.wang@cloud.ionos.com>
-X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20200309101739.32483-1-jinpu.wang@cloud.ionos.com>
-References: <20200309101739.32483-1-jinpu.wang@cloud.ionos.com>
+        id S1726415AbgCIK0F (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Mar 2020 06:26:05 -0400
+Received: from metis.ext.pengutronix.de ([85.220.165.71]:51857 "EHLO
+        metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726512AbgCIK0D (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 9 Mar 2020 06:26:03 -0400
+Received: from gallifrey.ext.pengutronix.de ([2001:67c:670:201:5054:ff:fe8d:eefb] helo=bjornoya.blackshift.org)
+        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <mkl@pengutronix.de>)
+        id 1jBFbi-00061G-Q2; Mon, 09 Mar 2020 11:25:58 +0100
+Received: from [IPv6:2a03:f580:87bc:d400:124:7ee3:e89c:2c00] (unknown [IPv6:2a03:f580:87bc:d400:124:7ee3:e89c:2c00])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange ECDHE (P-384) server-signature RSA-PSS (4096 bits) server-digest SHA256
+         client-signature RSA-PSS (4096 bits) client-digest SHA256)
+        (Client CN "mkl@blackshift.org", Issuer "StartCom Class 1 Client CA" (not verified))
+        (Authenticated sender: mkl@blackshift.org)
+        by smtp.blackshift.org (Postfix) with ESMTPSA id BD53D4C951D;
+        Mon,  9 Mar 2020 10:25:55 +0000 (UTC)
+Subject: Re: [PATCH] bonding: do not enslave CAN devices
+To:     David Miller <davem@davemloft.net>
+Cc:     socketcan@hartkopp.net, linux-can@vger.kernel.org,
+        netdev@vger.kernel.org,
+        syzbot+c3ea30e1e2485573f953@syzkaller.appspotmail.com,
+        dvyukov@google.com, j.vosburgh@gmail.com, vfalico@gmail.com,
+        andy@greyhouse.net, stable@vger.kernel.org
+References: <d6d9368d-b468-3946-ac63-abedf6758154@hartkopp.net>
+ <20200302.111249.471862054833131096.davem@davemloft.net>
+ <03ff979e-a621-c9a3-9be3-13677c147f91@pengutronix.de>
+ <20200306.211320.1410615421373955488.davem@davemloft.net>
+From:   Marc Kleine-Budde <mkl@pengutronix.de>
+Openpgp: preference=signencrypt
+Autocrypt: addr=mkl@pengutronix.de; prefer-encrypt=mutual; keydata=
+ mQINBFFVq30BEACtnSvtXHoeHJxG6nRULcvlkW6RuNwHKmrqoksispp43X8+nwqIFYgb8UaX
+ zu8T6kZP2wEIpM9RjEL3jdBjZNCsjSS6x1qzpc2+2ivjdiJsqeaagIgvy2JWy7vUa4/PyGfx
+ QyUeXOxdj59DvLwAx8I6hOgeHx2X/ntKAMUxwawYfPZpP3gwTNKc27dJWSomOLgp+gbmOmgc
+ 6U5KwhAxPTEb3CsT5RicsC+uQQFumdl5I6XS+pbeXZndXwnj5t84M+HEj7RN6bUfV2WZO/AB
+ Xt5+qFkC/AVUcj/dcHvZwQJlGeZxoi4veCoOT2MYqfR0ax1MmN+LVRvKm29oSyD4Ts/97cbs
+ XsZDRxnEG3z/7Winiv0ZanclA7v7CQwrzsbpCv+oj+zokGuKasofzKdpywkjAfSE1zTyF+8K
+ nxBAmzwEqeQ3iKqBc3AcCseqSPX53mPqmwvNVS2GqBpnOfY7Mxr1AEmxdEcRYbhG6Xdn+ACq
+ Dq0Db3A++3PhMSaOu125uIAIwMXRJIzCXYSqXo8NIeo9tobk0C/9w3fUfMTrBDtSviLHqlp8
+ eQEP8+TDSmRP/CwmFHv36jd+XGmBHzW5I7qw0OORRwNFYBeEuiOIgxAfjjbLGHh9SRwEqXAL
+ kw+WVTwh0MN1k7I9/CDVlGvc3yIKS0sA+wudYiselXzgLuP5cQARAQABtCZNYXJjIEtsZWlu
+ ZS1CdWRkZSA8bWtsQHBlbmd1dHJvbml4LmRlPokCVAQTAQoAPgIbAwIeAQIXgAULCQgHAwUV
+ CgkICwUWAgMBABYhBMFAC6CzmJ5vvH1bXCte4hHFiupUBQJcUsSbBQkM366zAAoJECte4hHF
+ iupUgkAP/2RdxKPZ3GMqag33jKwKAbn/fRqAFWqUH9TCsRH3h6+/uEPnZdzhkL4a9p/6OeJn
+ Z6NXqgsyRAOTZsSFcwlfxLNHVxBWm8pMwrBecdt4lzrjSt/3ws2GqxPsmza1Gs61lEdYvLST
+ Ix2vPbB4FAfE0kizKAjRZzlwOyuHOr2ilujDsKTpFtd8lV1nBNNn6HBIBR5ShvJnwyUdzuby
+ tOsSt7qJEvF1x3y49bHCy3uy+MmYuoEyG6zo9udUzhVsKe3hHYC2kfB16ZOBjFC3lH2U5An+
+ yQYIIPZrSWXUeKjeMaKGvbg6W9Oi4XEtrwpzUGhbewxCZZCIrzAH2hz0dUhacxB201Y/faY6
+ BdTS75SPs+zjTYo8yE9Y9eG7x/lB60nQjJiZVNvZ88QDfVuLl/heuIq+fyNajBbqbtBT5CWf
+ mOP4Dh4xjm3Vwlz8imWW/drEVJZJrPYqv0HdPbY8jVMpqoe5jDloyVn3prfLdXSbKPexlJaW
+ 5tnPd4lj8rqOFShRnLFCibpeHWIumqrIqIkiRA9kFW3XMgtU6JkIrQzhJb6Tc6mZg2wuYW0d
+ Wo2qvdziMgPkMFiWJpsxM9xPk9BBVwR+uojNq5LzdCsXQ2seG0dhaOTaaIDWVS8U/V8Nqjrl
+ 6bGG2quo5YzJuXKjtKjZ4R6k762pHJ3tnzI/jnlc1sXz
+Message-ID: <d69b4a32-5d3e-d100-78d3-d713b97eb2ff@pengutronix.de>
+Date:   Mon, 9 Mar 2020 11:25:50 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.9.0
+MIME-Version: 1.0
+In-Reply-To: <20200306.211320.1410615421373955488.davem@davemloft.net>
+Content-Type: text/plain; charset=utf-8
+Content-Language: de-DE
+Content-Transfer-Encoding: 8bit
+X-SA-Exim-Connect-IP: 2001:67c:670:201:5054:ff:fe8d:eefb
+X-SA-Exim-Mail-From: mkl@pengutronix.de
+X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
+X-PTX-Original-Recipient: stable@vger.kernel.org
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Deepak Ukey <deepak.ukey@microchip.com>
+On 3/7/20 6:13 AM, David Miller wrote:
+> From: Marc Kleine-Budde <mkl@pengutronix.de>
+> Date: Fri, 6 Mar 2020 15:12:48 +0100
+> 
+>> On 3/2/20 8:12 PM, David Miller wrote:
+>>> From: Oliver Hartkopp <socketcan@hartkopp.net>
+>>> Date: Mon, 2 Mar 2020 09:45:41 +0100
+>>>
+>>>> I don't know yet whether it makes sense to have CAN bonding/team
+>>>> devices. But if so we would need some more investigation. For now
+>>>> disabling CAN interfaces for bonding/team devices seems to be
+>>>> reasonable.
+>>>
+>>> Every single interesting device that falls into a special use case
+>>> like CAN is going to be tempted to add a similar check.
+>>>
+>>> I don't want to set this precedence.
+>>>
+>>> Check that the devices you get passed are actually CAN devices, it's
+>>> easy, just compare the netdev_ops and make sure they equal the CAN
+>>> ones.
+>>
+>> Sorry, I'm not really sure how to implement this check.
+> 
+> Like this:
+> 
+> if (netdev->ops != &can_netdev_ops)
+> 	return;
 
-commit 196ba6629cf95e51403337235d09742fcdc3febd upstream
+There is no single can_netdev_ops. The netdev_ops are per CAN-network
+driver. But the ml_priv is used in the generic CAN code.
 
-Disabling the SATA drive interface cause kernel panic. When the drive
-Interface is disabled, device should be deregistered after aborting all
-pending I/Os. Also changed the port recovery timeout to 10000 ms for
-PM8006 controller.
+regards,
+Marc
 
-Signed-off-by: Deepak Ukey <deepak.ukey@microchip.com>
-Signed-off-by: Viswas G <Viswas.G@microchip.com>
-Reviewed-by: Jack Wang <jinpu.wang@cloud.ionos.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
----
- drivers/scsi/pm8001/pm8001_sas.c | 6 +++++-
- drivers/scsi/pm8001/pm80xx_hwi.c | 2 +-
- drivers/scsi/pm8001/pm80xx_hwi.h | 2 ++
- 3 files changed, 8 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/scsi/pm8001/pm8001_sas.c b/drivers/scsi/pm8001/pm8001_sas.c
-index 59feda261e08..5be4212312cb 100644
---- a/drivers/scsi/pm8001/pm8001_sas.c
-+++ b/drivers/scsi/pm8001/pm8001_sas.c
-@@ -866,6 +866,8 @@ static void pm8001_dev_gone_notify(struct domain_device *dev)
- 			spin_unlock_irqrestore(&pm8001_ha->lock, flags);
- 			pm8001_exec_internal_task_abort(pm8001_ha, pm8001_dev ,
- 				dev, 1, 0);
-+			while (pm8001_dev->running_req)
-+				msleep(20);
- 			spin_lock_irqsave(&pm8001_ha->lock, flags);
- 		}
- 		PM8001_CHIP_DISP->dereg_dev_req(pm8001_ha, device_id);
-@@ -1238,8 +1240,10 @@ int pm8001_abort_task(struct sas_task *task)
- 			PM8001_MSG_DBG(pm8001_ha,
- 				pm8001_printk("Waiting for Port reset\n"));
- 			wait_for_completion(&completion_reset);
--			if (phy->port_reset_status)
-+			if (phy->port_reset_status) {
-+				pm8001_dev_gone_notify(dev);
- 				goto out;
-+			}
- 
- 			/*
- 			 * 4. SATA Abort ALL
-diff --git a/drivers/scsi/pm8001/pm80xx_hwi.c b/drivers/scsi/pm8001/pm80xx_hwi.c
-index bd945d832eb8..fd5f9892f3ac 100644
---- a/drivers/scsi/pm8001/pm80xx_hwi.c
-+++ b/drivers/scsi/pm8001/pm80xx_hwi.c
-@@ -604,7 +604,7 @@ static void update_main_config_table(struct pm8001_hba_info *pm8001_ha)
- 		pm8001_ha->main_cfg_tbl.pm80xx_tbl.port_recovery_timer &=
- 					0x0000ffff;
- 		pm8001_ha->main_cfg_tbl.pm80xx_tbl.port_recovery_timer |=
--					0x140000;
-+					CHIP_8006_PORT_RECOVERY_TIMEOUT;
- 	}
- 	pm8001_mw32(address, MAIN_PORT_RECOVERY_TIMER,
- 			pm8001_ha->main_cfg_tbl.pm80xx_tbl.port_recovery_timer);
-diff --git a/drivers/scsi/pm8001/pm80xx_hwi.h b/drivers/scsi/pm8001/pm80xx_hwi.h
-index 7dd2699d0efb..bbe1747234ff 100644
---- a/drivers/scsi/pm8001/pm80xx_hwi.h
-+++ b/drivers/scsi/pm8001/pm80xx_hwi.h
-@@ -228,6 +228,8 @@
- #define SAS_MAX_AIP                     0x200000
- #define IT_NEXUS_TIMEOUT       0x7D0
- #define PORT_RECOVERY_TIMEOUT  ((IT_NEXUS_TIMEOUT/100) + 30)
-+/* Port recovery timeout, 10000 ms for PM8006 controller */
-+#define CHIP_8006_PORT_RECOVERY_TIMEOUT 0x640000
- 
- #ifdef __LITTLE_ENDIAN_BITFIELD
- struct sas_identify_frame_local {
 -- 
-2.17.1
-
+Pengutronix e.K.                 | Marc Kleine-Budde           |
+Embedded Linux                   | https://www.pengutronix.de  |
+Vertretung West/Dortmund         | Phone: +49-231-2826-924     |
+Amtsgericht Hildesheim, HRA 2686 | Fax:   +49-5121-206917-5555 |
