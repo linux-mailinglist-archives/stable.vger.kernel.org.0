@@ -2,122 +2,146 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0411C17DB3C
-	for <lists+stable@lfdr.de>; Mon,  9 Mar 2020 09:40:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F37BB17DB41
+	for <lists+stable@lfdr.de>; Mon,  9 Mar 2020 09:40:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726411AbgCIIkN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Mar 2020 04:40:13 -0400
-Received: from us-smtp-2.mimecast.com ([205.139.110.61]:44771 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726217AbgCIIkN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 9 Mar 2020 04:40:13 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1583743212;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=zJSpyr7luHC5gmOgZtB7q0gqS7e3sos2ucW8TuRhnqw=;
-        b=KusXA8ZO1MKGhzEEykL09XneeOA96SgbSujOx91WvKnqVW5/kD7Ld6ctZZmtifCHhfKREz
-        kAqiPcT4j80pWCCMiMv+LIFfNNb6oZ/wMzyOs3LiRyJhaxcho2gJKC91qGDuRAAtOtzxR2
-        2EQBKXX7fmgccQ25MYy5uZUGSXh+LQg=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-30-g9eugpXlMPSUc-zomaP32Q-1; Mon, 09 Mar 2020 04:40:10 -0400
-X-MC-Unique: g9eugpXlMPSUc-zomaP32Q-1
-Received: by mail-wm1-f70.google.com with SMTP id p4so5820240wmp.0
-        for <stable@vger.kernel.org>; Mon, 09 Mar 2020 01:40:10 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=zJSpyr7luHC5gmOgZtB7q0gqS7e3sos2ucW8TuRhnqw=;
-        b=otWEt79MdX/JOPlqUJ/j5IQBpQxuMPZViaJXkt6GAnZ9e1Ii4YDaQtH/3Ryg9uuRw0
-         IxPrpQrbl+qV20X3R9A1jt8pWVSwIiGcoaoQFpaAIIeHSnOr9Gp2g1qdmreADvuQB4Rv
-         lXTqlLzLTu7Baa1QCdjMDFWlasvNDPfwYl0I8WqyFuGro7X5PfJ0fTlcFExA8GWx6NEy
-         J+OvK4TAUMKTXWdM/odLf5J/f7iuq5+buIUAa3Dzr7a2LhvMu7zsFJ6i0dLXO2lTXs75
-         ctN2vAWno/ebUE7P0/M/B4+vigfo9CYthVtrrshBNUt6c6H1fxjJVKhgYjQVdjYS+A7f
-         2bjw==
-X-Gm-Message-State: ANhLgQ2DMunbj/eX7tgmIC+O74/A7eDJ0X9j9Xy8oaHP0qIsmD5u9Tsd
-        LNxkfr9EhjFBvrqa++DjqWSsxgMiXy6GnoFoa9prBFhjV50GymIUxJaCh27ta5Ydot803rl52j3
-        SWNvm3qbraoGFy+rb
-X-Received: by 2002:a1c:a9d5:: with SMTP id s204mr15876278wme.172.1583743209084;
-        Mon, 09 Mar 2020 01:40:09 -0700 (PDT)
-X-Google-Smtp-Source: ADFU+vsXM2dy9yL7nesp7zcPCTzXD1JQsxvHew299Rlk430F8GQGQJUvV3VoV5en67YytjGcWtt50A==
-X-Received: by 2002:a1c:a9d5:: with SMTP id s204mr15876245wme.172.1583743208779;
-        Mon, 09 Mar 2020 01:40:08 -0700 (PDT)
-Received: from ?IPv6:2001:b07:6468:f312:4887:2313:c0bc:e3a8? ([2001:b07:6468:f312:4887:2313:c0bc:e3a8])
-        by smtp.gmail.com with ESMTPSA id k2sm29528088wrn.57.2020.03.09.01.40.07
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 09 Mar 2020 01:40:08 -0700 (PDT)
-Subject: Re: [PATCH v2] x86/kvm: Disable KVM_ASYNC_PF_SEND_ALWAYS
-To:     Thomas Gleixner <tglx@linutronix.de>,
-        Andy Lutomirski <luto@kernel.org>
-Cc:     LKML <linux-kernel@vger.kernel.org>, X86 ML <x86@kernel.org>,
-        kvm list <kvm@vger.kernel.org>, stable <stable@vger.kernel.org>
-References: <ed71d0967113a35f670a9625a058b8e6e0b2f104.1583547991.git.luto@kernel.org>
- <CALCETrVmsF9JSMLSd44-3GGWEz6siJQxudeaYiVnvv__YDT1BQ@mail.gmail.com>
- <87ftek9ngq.fsf@nanos.tec.linutronix.de>
- <CALCETrVsc-t=tDRPbCg5dWHDY0NFv2zjz12ahD-vnGPn8T+RXA@mail.gmail.com>
- <87a74s9ehb.fsf@nanos.tec.linutronix.de>
- <87wo7v8g4j.fsf@nanos.tec.linutronix.de>
- <877dzu8178.fsf@nanos.tec.linutronix.de>
-From:   Paolo Bonzini <pbonzini@redhat.com>
-Message-ID: <37440ade-1657-648b-bf72-2b8ca4ac21ce@redhat.com>
-Date:   Mon, 9 Mar 2020 09:40:11 +0100
+        id S1726446AbgCIIkf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Mar 2020 04:40:35 -0400
+Received: from mailout1.w1.samsung.com ([210.118.77.11]:34263 "EHLO
+        mailout1.w1.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726415AbgCIIkf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 9 Mar 2020 04:40:35 -0400
+Received: from eucas1p2.samsung.com (unknown [182.198.249.207])
+        by mailout1.w1.samsung.com (KnoxPortal) with ESMTP id 20200309084033euoutp016c4b89fc04ba83dfd438b659acc4b44e~6lhRylwsA1936419364euoutp01u
+        for <stable@vger.kernel.org>; Mon,  9 Mar 2020 08:40:33 +0000 (GMT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mailout1.w1.samsung.com 20200309084033euoutp016c4b89fc04ba83dfd438b659acc4b44e~6lhRylwsA1936419364euoutp01u
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
+        s=mail20170921; t=1583743233;
+        bh=NGg3GV4wcJ669e6wjVEE564nwN09ctwPFgrI9ZV8yyE=;
+        h=Subject:To:Cc:From:Date:In-Reply-To:References:From;
+        b=CxWtsmQPu9ntXhxQS25QJ2cugGopEu9SsHUlX0JDGvqj9p8TsN4mGusIOkYCMCc50
+         11597v15hnuLrF7FwJ8wEOFkJiKFdSMdSnKBemoEq0XZ1G62BcfF1QtU/4lioNk5S3
+         g9mdpPhIaCheo7Io6UYZ2Gvoz8S5WMejlUpg4Klk=
+Received: from eusmges3new.samsung.com (unknown [203.254.199.245]) by
+        eucas1p1.samsung.com (KnoxPortal) with ESMTP id
+        20200309084033eucas1p1940610d27375f391fb1db13a02e8a1ba~6lhRnPdsR1711217112eucas1p1Z;
+        Mon,  9 Mar 2020 08:40:33 +0000 (GMT)
+Received: from eucas1p2.samsung.com ( [182.198.249.207]) by
+        eusmges3new.samsung.com (EUCPMTA) with SMTP id A5.D1.60698.101066E5; Mon,  9
+        Mar 2020 08:40:33 +0000 (GMT)
+Received: from eusmtrp1.samsung.com (unknown [182.198.249.138]) by
+        eucas1p2.samsung.com (KnoxPortal) with ESMTPA id
+        20200309084032eucas1p24c1602c831e38195b9f939c3f343607c~6lhRFBkmH2702927029eucas1p2B;
+        Mon,  9 Mar 2020 08:40:32 +0000 (GMT)
+Received: from eusmgms1.samsung.com (unknown [182.198.249.179]) by
+        eusmtrp1.samsung.com (KnoxPortal) with ESMTP id
+        20200309084032eusmtrp1f84aa979348266420d702d9fef809c73~6lhRDu_gL2157121571eusmtrp1E;
+        Mon,  9 Mar 2020 08:40:32 +0000 (GMT)
+X-AuditID: cbfec7f5-a0fff7000001ed1a-b5-5e6601014b38
+Received: from eusmtip2.samsung.com ( [203.254.199.222]) by
+        eusmgms1.samsung.com (EUCPMTA) with SMTP id 41.F9.08375.001066E5; Mon,  9
+        Mar 2020 08:40:32 +0000 (GMT)
+Received: from [106.120.51.74] (unknown [106.120.51.74]) by
+        eusmtip2.samsung.com (KnoxPortal) with ESMTPA id
+        20200309084032eusmtip20aa3b7f1792aaeef80aa9f24847f1668~6lhQutZ4Y0673306733eusmtip2P;
+        Mon,  9 Mar 2020 08:40:32 +0000 (GMT)
+Subject: Re: [PATCH] ARM: dts: exynos: Fix polarity of the LCD SPI bus on
+ UniversalC210 board
+To:     Marek Szyprowski <m.szyprowski@samsung.com>,
+        linux-samsung-soc@vger.kernel.org
+Cc:     Krzysztof Kozlowski <krzk@kernel.org>,
+        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
+        stable@vger.kernel.org
+From:   Andrzej Hajda <a.hajda@samsung.com>
+Message-ID: <39ad90c3-0ad1-ad7f-5002-52eb2440dd38@samsung.com>
+Date:   Mon, 9 Mar 2020 09:40:30 +0100
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.5.0
+        Thunderbird/68.4.1
 MIME-Version: 1.0
-In-Reply-To: <877dzu8178.fsf@nanos.tec.linutronix.de>
-Content-Type: text/plain; charset=windows-1252
+In-Reply-To: <20200304143726.15826-1-m.szyprowski@samsung.com>
+Content-Transfer-Encoding: 8bit
 Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFprGKsWRmVeSWpSXmKPExsWy7djP87qMjGlxBn3POS02zljPanH+/AZ2
+        ixnn9zFZrD1yl91iwcZHjA6sHptWdbJ59G1ZxejxeZNcAHMUl01Kak5mWWqRvl0CV8ai9ifM
+        Bde5K56ua2JtYNzK2cXIySEhYCLx/NwMVhBbSGAFo8TN9UxdjFxA9hdGieam9+wQzmdGifvX
+        2tlhOm6sbWOGSCxnlNh86iyU85ZR4vXuU2wgVcIC8RJvF20G6xARCJG4//QF2A5mgUqJ6dum
+        soDYbAKaEn833wSr5xWwk5jYuJ0JxGYRUJH4cugkM4gtKhAhMW37P0aIGkGJkzOfgPVyAtW/
+        eXeNHWKmvETz1tnMELa4xK0n88F+kBCYzC4xa+8+FoizXSR+321jgrCFJV4d3wL1jozE6ck9
+        UDX1EvdXtDBDNHcwSmzdsJMZImEtcefcL6BLOYA2aEqs36UPEXaU+HK7mRkkLCHAJ3HjrSDE
+        DXwSk7ZNhwrzSnS0CUFUK0rcP7sVaqC4xNILX9kmMCrNQvLZLCTfzELyzSyEvQsYWVYxiqeW
+        FuempxYb56WW6xUn5haX5qXrJefnbmIEppbT/45/3cG470/SIUYBDkYlHt4H8qlxQqyJZcWV
+        uYcYJTiYlUR4G7WS44R4UxIrq1KL8uOLSnNSiw8xSnOwKInzGi96GSskkJ5YkpqdmlqQWgST
+        ZeLglGpgnNX9JP7kgneb3qo8v/os8fuTVvvE7t+foy2n/zmQwavjevqZ1aqmvg+h104VVvAk
+        LxFZqXIutH+BYTjDc7cnU/JOGMqJFgedif/duXffFzdDWRZBgw3bZ7lcCDyh0dQnnbNvT+n2
+        qB/O7/b4LTjqGnTrsHuRgqf9GQnDdjbZFYv4XgWf15cVU2Ipzkg01GIuKk4EAE3nSJIpAwAA
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFlrJIsWRmVeSWpSXmKPExsVy+t/xe7oMjGlxBmeva1lsnLGe1eL8+Q3s
+        FjPO72OyWHvkLrvFgo2PGB1YPTat6mTz6NuyitHj8ya5AOYoPZui/NKSVIWM/OISW6VoQwsj
+        PUNLCz0jE0s9Q2PzWCsjUyV9O5uU1JzMstQifbsEvYxF7U+YC65zVzxd18TawLiVs4uRk0NC
+        wETixto25i5GLg4hgaWMEgsPLGGDSIhL7J7/lhnCFpb4c62LDaLoNaPEq1drmUASwgLxEm8X
+        bWbvYuTgEBEIkVj4Xg8kzCxQKbF+ykQmiPqJjBI9U5vAhrIJaEr83XwTzOYVsJOY2LgdbA6L
+        gIrEl0MnwZaJCkRIPJ7YzghRIyhxcuYTFhCbE6j+zbtr7BAL1CX+zLvEDGHLSzRvnQ1li0vc
+        ejKfaQKj0Cwk7bOQtMxC0jILScsCRpZVjCKppcW56bnFhnrFibnFpXnpesn5uZsYgdG07djP
+        zTsYL20MPsQowMGoxMP7QD41Tog1say4MvcQowQHs5IIb6NWcpwQb0piZVVqUX58UWlOavEh
+        RlOg5yYyS4km5wMjPa8k3tDU0NzC0tDc2NzYzEJJnLdD4GCMkEB6YklqdmpqQWoRTB8TB6dU
+        A+NE1hcrfl5OUJj4coXCy37dppMxtlqvz3Gxd25+ekPnygLL1+ZPMnw19zzcbODyh60jzevE
+        +Ui9pNeMXtcr5vJoWSaqeX6XKV7Zmrckpim59EaahFH+vRlszZsilvWr/bVdVXCsXrI1a4Il
+        e0zLosBDrwymRH498WdydqNx8sOkhzrtSyM/symxFGckGmoxFxUnAgC4fvEUvAIAAA==
+X-CMS-MailID: 20200309084032eucas1p24c1602c831e38195b9f939c3f343607c
+X-Msg-Generator: CA
+Content-Type: text/plain; charset="utf-8"
+X-RootMTR: 20200304143756eucas1p1557bba245d3b9878cd2adc970e6d58f6
+X-EPHeader: CA
+CMS-TYPE: 201P
+X-CMS-RootMailID: 20200304143756eucas1p1557bba245d3b9878cd2adc970e6d58f6
+References: <CGME20200304143756eucas1p1557bba245d3b9878cd2adc970e6d58f6@eucas1p1.samsung.com>
+        <20200304143726.15826-1-m.szyprowski@samsung.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 09/03/20 07:57, Thomas Gleixner wrote:
-> Thomas Gleixner <tglx@linutronix.de> writes:
->> Thomas Gleixner <tglx@linutronix.de> writes:
->>> Andy Lutomirski <luto@kernel.org> writes:
->>>> On Sat, Mar 7, 2020 at 7:47 AM Thomas Gleixner <tglx@linutronix.de> wrote:
->>>>> If MCE, NMI trigger a real pagefault then the #PF injection needs to
->>>>> clear apf_reason and set the correct CR2. When that #PF returns then the
->>>>> old CR2 and apf_reason need to be restored.
->>>>
->>> The host does not care about the IRET. It solely has to check whether
->>> apf_reason is 0 or not. That way it knows that the guest has read CR2
->>> and apf_reason.
-> 
-> Some hours or sleep and not staring at this meess later and while
-> reading the leaves of my morning tea:
-> 
-> guest side:
-> 
->    nmi()/mce() ...
->    
->         stash_crs();
-> 
-> +       stash_and_clear_apf_reason();
-> 
->         ....
-> 
-> +       restore_apf_reason();
-> 
-> 	restore_cr2();
-> 
-> Too obvious, isn't it?
+On 04.03.2020 15:37, Marek Szyprowski wrote:
+> Recent changes in the SPI core and the SPI-GPIO driver revealed that the
+> GPIO lines for the LD9040 LCD controller on the UniversalC210 board are
+> defined incorrectly. Fix the polarity for those lines to match the old
+> behavior and hardware requirements to fix LCD panel operation with
+> recent kernels.
+>
+> CC: stable@vger.kernel.org # 5.0+
+> Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
 
-Yes, this works but Andy was not happy about adding more
-save-and-restore to NMIs.  If you do not want to do that, I'm okay with
-disabling async page fault support for now.
+Reviewed-by: Andrzej Hajda <a.hajda@samsung.com>
 
-Storing the page fault reason in memory was not a good idea.  Better
-options would be to co-opt the page fault error code (e.g. store the
-reason in bits 31:16, mark bits 15:0 with the invalid error code
-RSVD=1/P=0), or to use the virtualization exception area.
 
-Paolo
+ --
+Regards
+Andrzej
+
+> ---
+>  arch/arm/boot/dts/exynos4210-universal_c210.dts | 4 +---
+>  1 file changed, 1 insertion(+), 3 deletions(-)
+>
+> diff --git a/arch/arm/boot/dts/exynos4210-universal_c210.dts b/arch/arm/boot/dts/exynos4210-universal_c210.dts
+> index a1bdf7830a87..9dda6bdb9253 100644
+> --- a/arch/arm/boot/dts/exynos4210-universal_c210.dts
+> +++ b/arch/arm/boot/dts/exynos4210-universal_c210.dts
+> @@ -115,7 +115,7 @@
+>  		gpio-sck = <&gpy3 1 GPIO_ACTIVE_HIGH>;
+>  		gpio-mosi = <&gpy3 3 GPIO_ACTIVE_HIGH>;
+>  		num-chipselects = <1>;
+> -		cs-gpios = <&gpy4 3 GPIO_ACTIVE_HIGH>;
+> +		cs-gpios = <&gpy4 3 GPIO_ACTIVE_LOW>;
+>  
+>  		lcd@0 {
+>  			compatible = "samsung,ld9040";
+> @@ -124,8 +124,6 @@
+>  			vci-supply = <&ldo17_reg>;
+>  			reset-gpios = <&gpy4 5 GPIO_ACTIVE_HIGH>;
+>  			spi-max-frequency = <1200000>;
+> -			spi-cpol;
+> -			spi-cpha;
+>  			power-on-delay = <10>;
+>  			reset-delay = <10>;
+>  			panel-width-mm = <90>;
+
 
