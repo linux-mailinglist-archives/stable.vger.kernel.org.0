@@ -2,142 +2,130 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4FD5417E09B
-	for <lists+stable@lfdr.de>; Mon,  9 Mar 2020 13:52:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B32C317E18C
+	for <lists+stable@lfdr.de>; Mon,  9 Mar 2020 14:43:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726445AbgCIMwN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Mar 2020 08:52:13 -0400
-Received: from mail-lj1-f195.google.com ([209.85.208.195]:39013 "EHLO
-        mail-lj1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726368AbgCIMwN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 9 Mar 2020 08:52:13 -0400
-Received: by mail-lj1-f195.google.com with SMTP id f10so9781605ljn.6
-        for <stable@vger.kernel.org>; Mon, 09 Mar 2020 05:52:11 -0700 (PDT)
+        id S1726617AbgCINn1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Mar 2020 09:43:27 -0400
+Received: from mail-qv1-f68.google.com ([209.85.219.68]:35531 "EHLO
+        mail-qv1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726616AbgCINn1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 9 Mar 2020 09:43:27 -0400
+Received: by mail-qv1-f68.google.com with SMTP id u10so4360127qvi.2;
+        Mon, 09 Mar 2020 06:43:26 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=8jYBuqb72AK3TYTrpjzcg5ppPY/IO7sFjcVnsEoUJUs=;
-        b=u0L8Y1dkuQof2IQS0cJbbgpuEDPnAhllOQrrD4TX1NmbRjv8aJ2gsymPzjuFZjRxYj
-         oxz1LVWqxSF4QhVMK8X8S7Npkt5idEIRYNDx/BvEFz+GVcqyNPi1P2xaxfmBBS8cCCkQ
-         +xYNgr0K61EANA6R+4lrfB19k7BMdO+6ETuZx5ecVoqSSazYcWWzZg1fRcXFFWYZGw6N
-         68y+1jdPc+S0QI7CAUbdi5Wl/VjdJ/xb0hyLmZ6giJH7C4YpRL22/Z3YhRCG+Ld2ULWp
-         NBQizi2sKA+R/U9MZX1fLqajpR9ymuKmGwCFY9edZ+OiGlG10BubQa7ypTuSzt9f9SkX
-         GTKw==
+        d=gmail.com; s=20161025;
+        h=from:date:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=tD+3aLmpuKugr7D1U6Ul4mtBXGeYELcsGZqijeWjbw4=;
+        b=dviCAozL0GbrixkSV0iv0PBU/nc7WSJPAEmJFMkHyN0DqaIzxdKUeWc2SMo2qnMOKn
+         jc+hVkUtMijgCFejkfEHRX0vlaHKUIHdp2WHYBFhRYiuVlghfYPOr5kD10dBcOm4LG49
+         XbJctoDpXp7gBkErqx68HuZ44ZrsKa+R7V6efUP/V3EN045IOcOVFhffviUrSpqv/EKo
+         3kiI+tJqhmcyd4QDGBL3uqcU1vcj7uNk+58BbdWAZeDZrOSolgiMBHLrfkUJayftdOn5
+         ycW2ge8hNE1zBMkwMxvpqGi3V/2nr6pq+d/Obysu095suuwkHEVyEbKZA4JzMMYjg6VQ
+         DLhg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=8jYBuqb72AK3TYTrpjzcg5ppPY/IO7sFjcVnsEoUJUs=;
-        b=QV2L1iVL6rvU95RQSsB3kqPGjyFRXyMdF5dh88C9GWjglY/jkmWuMb+G15MDW3f8/J
-         7dp4tHix/XDgyCZn2C71ZsnC0/t6jYl6Iuuw74bIoLidLZtNFlQo8QkzSkLMYRQV1QeH
-         rUVErQ6nalM+zznRLwwQNCNwXJf6NdJtCsew9faEM27Y8shH4n+vJXlBEWcvDSNI7Vm6
-         KCzyF7k7gSbkmE2sURO/ZGJTwz06w4Uujv150/XIRwWjl1fnEdxZ8OxScOCWwvApYla7
-         HGiTIh+UMOjGjMHznB5XSJLTAOyeel6CXOVHwv5p7lFK0XkX0Pu2vRiBnBUoSv9HJhg3
-         p7Mw==
-X-Gm-Message-State: ANhLgQ3AhktmzqKhXYtQmDqCuhsI73p3hxuB5XwR8WqCtJHlESC4GPpa
-        4ydd2rB46ZfBRjgZpiw+AIslTA==
-X-Google-Smtp-Source: ADFU+vu/HK0rkNYZal/GmZ0rmHgzPK1yezejj8bxI79CUI04kMjtXjxPmfi3xnEhFcK/mo4kIegmVA==
-X-Received: by 2002:a2e:3210:: with SMTP id y16mr5093105ljy.49.1583758330651;
-        Mon, 09 Mar 2020 05:52:10 -0700 (PDT)
-Received: from genomnajs.ideon.se ([85.235.10.227])
-        by smtp.gmail.com with ESMTPSA id 133sm3122755ljj.91.2020.03.09.05.52.09
+        h=x-gm-message-state:from:date:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=tD+3aLmpuKugr7D1U6Ul4mtBXGeYELcsGZqijeWjbw4=;
+        b=NVl7BSrUB1nNqRDfULUcA47VpGpeYeRRwoj9pFVM1avOTTszRvYZvaNNvsxmIddNQw
+         RwOi1qNd6amy5nZcmAhw6E9f8AkNY0pNu7j+aLPMZ9RwabmDboi3QgedF4MTyFJ/HzMt
+         /tfkSa1XG1mvMoyZv3tlItOzsPjXkRGNXh5raeewrJt4554234BwJjqCvejHsAqcv2cc
+         kNUK1Eln/K6v88uk0X4F6KGcQ6wP0MP/qqqQ36qBgazdXBSrAeSJYBPEENYbyvrC9BpP
+         F6HbWMWfSdrdwSQOh+TY93mBXu/JOkpVtPTFoBq+CmUulWLv3z2mff743OEgLHZE/C0m
+         9dyg==
+X-Gm-Message-State: ANhLgQ0GE9+DITIkS9CipZSRIV7/iptsy+5FWKOy6bHYx22F5/822Ch4
+        lQb8KZnUkUYMqdh1ng0i03M=
+X-Google-Smtp-Source: ADFU+vvNyjFdDvSIHgzjDRbVuld9Pd9x2EmV9w3X/BQOQOTUj2ZiIw69Td2qllggEDV9zATKlDHIvA==
+X-Received: by 2002:a0c:e891:: with SMTP id b17mr9166682qvo.235.1583761405878;
+        Mon, 09 Mar 2020 06:43:25 -0700 (PDT)
+Received: from quaco.ghostprotocols.net ([179.97.37.151])
+        by smtp.gmail.com with ESMTPSA id f3sm5714248qkk.48.2020.03.09.06.43.24
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 09 Mar 2020 05:52:10 -0700 (PDT)
-From:   Linus Walleij <linus.walleij@linaro.org>
-To:     linux-gpio@vger.kernel.org
-Cc:     Linus Walleij <linus.walleij@linaro.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Lina Iyer <ilina@codeaurora.org>,
-        Marc Zyngier <maz@kernel.org>,
-        Stephen Boyd <swboyd@chromium.org>, stable@vger.kernel.org
-Subject: [PATCH v2] pinctrl: qcom: Assign irq_disable/eoi conditionally
-Date:   Mon,  9 Mar 2020 13:52:07 +0100
-Message-Id: <20200309125207.571840-1-linus.walleij@linaro.org>
-X-Mailer: git-send-email 2.24.1
+        Mon, 09 Mar 2020 06:43:24 -0700 (PDT)
+From:   Arnaldo Carvalho de Melo <arnaldo.melo@gmail.com>
+X-Google-Original-From: Arnaldo Carvalho de Melo <acme@kernel.org>
+Received: by quaco.ghostprotocols.net (Postfix, from userid 1000)
+        id C28C740009; Mon,  9 Mar 2020 10:43:22 -0300 (-03)
+Date:   Mon, 9 Mar 2020 10:43:22 -0300
+To:     Masami Hiramatsu <mhiramat@kernel.org>
+Cc:     Adrian Hunter <adrian.hunter@intel.com>,
+        Jiri Olsa <jolsa@kernel.org>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        He Zhe <zhe.he@windriver.com>, stable@vger.kernel.org
+Subject: Re: [PATCH v2] perf probe: Fix to delete multiple probe event
+Message-ID: <20200309134322.GD477@kernel.org>
+References: <158287666197.16697.7514373548551863562.stgit@devnote2>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <158287666197.16697.7514373548551863562.stgit@devnote2>
+X-Url:  http://acmel.wordpress.com
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The hierarchical parts of MSM pinctrl/GPIO is only
-used when the device tree has a "wakeup-parent" as
-a phandle, but the .irq_disable and .irq_eoi are anyway
-assigned leading to semantic problems on elder
-Qualcomm chipsets.
+Em Fri, Feb 28, 2020 at 04:57:42PM +0900, Masami Hiramatsu escreveu:
+> Fix to delete multiple probe event with filter correctly.
+> 
+> When we put an event with multiple probes, perf-probe fails
+> to delete with filters. This comes from a failure to list
+> up the event name because of overwrapping its name.
+> 
+> To fix this issue, skip to list up the event which has
+> same name.
+> 
+> Without this patch:
+>   # perf probe -l \*
+>     probe_perf:map__map_ip (on perf_sample__fprintf_brstackoff:21@
+>     probe_perf:map__map_ip (on perf_sample__fprintf_brstackoff:25@
+>     probe_perf:map__map_ip (on append_inlines:12@util/machine.c in
+>     probe_perf:map__map_ip (on unwind_entry:19@util/machine.c in /
+>     probe_perf:map__map_ip (on map__map_ip@util/map.h in /home/mhi
+>     probe_perf:map__map_ip (on map__map_ip@util/map.h in /home/mhi
+>   # perf probe -d \*
+>   "*" does not hit any event.
+>     Error: Failed to delete events. Reason: No such file or directory (Code: -2)
+> 
+> With this:
+>   # perf probe -d \*
+>   Removed event: probe_perf:map__map_ip
 
-When the drivers/mfd/qcom-pm8xxx.c driver calls
-chained_irq_exit() that call will in turn call chip->irq_eoi()
-which is set to irq_chip_eoi_parent() by default on a
-hierachical IRQ chip, and the parent is pinctrl-msm.c
-so that will in turn unconditionally call
-irq_chip_eoi_parent() again, but its parent is invalid
-so we get the following crash:
+Thanks, tested and applied to perf/urgent.
 
- Unnable to handle kernel NULL pointer dereference at
- virtual address 00000010
- pgd = (ptrval)
- [00000010] *pgd=00000000
- Internal error: Oops: 5 [#1] PREEMPT SMP ARM
- (...)
- PC is at irq_chip_eoi_parent+0x4/0x10
- LR is at pm8xxx_irq_handler+0x1b4/0x2d8
-
-If we solve this crash by avoiding to call up to
-irq_chip_eoi_parent(), the machine will hang and get
-reset by the watchdog, because of semantic issues,
-probably inside irq_chip.
-
-As a solution, just assign the .irq_disable and .irq_eoi
-condtionally if we are actually using a wakeup parent.
-
-Cc: Bjorn Andersson <bjorn.andersson@linaro.org>
-Cc: Lina Iyer <ilina@codeaurora.org>
-Cc: Marc Zyngier <maz@kernel.org>
-Cc: Stephen Boyd <swboyd@chromium.org>
-Cc: stable@vger.kernel.org
-Fixes: e35a6ae0eb3a ("pinctrl/msm: Setup GPIO chip in hierarchy")
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
----
-ChangeLog v1->v2:
-- Noticed that the previous solution doesn't actually work,
-  the machine hangs and reboots intead (even if it got rid of
-  the most obvious crash). Make a more thorough solution that
-  completely avoids using these callbacks if we don't have
-  a parent.
-- v1 was called "Guard irq_eoi()"
----
- drivers/pinctrl/qcom/pinctrl-msm.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/pinctrl/qcom/pinctrl-msm.c b/drivers/pinctrl/qcom/pinctrl-msm.c
-index 9a8daa256a32..fe3c53ae25f4 100644
---- a/drivers/pinctrl/qcom/pinctrl-msm.c
-+++ b/drivers/pinctrl/qcom/pinctrl-msm.c
-@@ -1100,11 +1100,9 @@ static int msm_gpio_init(struct msm_pinctrl *pctrl)
+- Arnaldo
  
- 	pctrl->irq_chip.name = "msmgpio";
- 	pctrl->irq_chip.irq_enable = msm_gpio_irq_enable;
--	pctrl->irq_chip.irq_disable = msm_gpio_irq_disable;
- 	pctrl->irq_chip.irq_mask = msm_gpio_irq_mask;
- 	pctrl->irq_chip.irq_unmask = msm_gpio_irq_unmask;
- 	pctrl->irq_chip.irq_ack = msm_gpio_irq_ack;
--	pctrl->irq_chip.irq_eoi = irq_chip_eoi_parent;
- 	pctrl->irq_chip.irq_set_type = msm_gpio_irq_set_type;
- 	pctrl->irq_chip.irq_set_wake = msm_gpio_irq_set_wake;
- 	pctrl->irq_chip.irq_request_resources = msm_gpio_irq_reqres;
-@@ -1118,7 +1116,8 @@ static int msm_gpio_init(struct msm_pinctrl *pctrl)
- 		if (!chip->irq.parent_domain)
- 			return -EPROBE_DEFER;
- 		chip->irq.child_to_parent_hwirq = msm_gpio_wakeirq;
--
-+		pctrl->irq_chip.irq_disable = msm_gpio_irq_disable;
-+		pctrl->irq_chip.irq_eoi = irq_chip_eoi_parent;
- 		/*
- 		 * Let's skip handling the GPIOs, if the parent irqchip
- 		 * is handling the direct connect IRQ of the GPIO.
--- 
-2.24.1
+> Fixes: 72363540c009 ("perf probe: Support multiprobe event")
+> Reported-by: Arnaldo Carvalho de Melo <acme@kernel.org>
+> Reported-by: He Zhe <zhe.he@windriver.com>
+> Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
+> ---
+>  v2:
+>   - Forward port on the latest perf/urgent tree.
+>   - Add Fixes and Reporters.
+> ---
+>  tools/perf/util/probe-file.c |    3 +++
+>  1 file changed, 3 insertions(+)
+> 
+> diff --git a/tools/perf/util/probe-file.c b/tools/perf/util/probe-file.c
+> index 0f5fda11675f..8c852948513e 100644
+> --- a/tools/perf/util/probe-file.c
+> +++ b/tools/perf/util/probe-file.c
+> @@ -206,6 +206,9 @@ static struct strlist *__probe_file__get_namelist(int fd, bool include_group)
+>  		} else
+>  			ret = strlist__add(sl, tev.event);
+>  		clear_probe_trace_event(&tev);
+> +		/* Skip if there is same name multi-probe event in the list */
+> +		if (ret == -EEXIST)
+> +			ret = 0;
+>  		if (ret < 0)
+>  			break;
+>  	}
+> 
 
+-- 
+
+- Arnaldo
