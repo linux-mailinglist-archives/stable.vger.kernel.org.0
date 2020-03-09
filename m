@@ -2,79 +2,70 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A551D17DC27
-	for <lists+stable@lfdr.de>; Mon,  9 Mar 2020 10:09:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B76617DC67
+	for <lists+stable@lfdr.de>; Mon,  9 Mar 2020 10:29:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726518AbgCIJJF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Mar 2020 05:09:05 -0400
-Received: from Galois.linutronix.de ([193.142.43.55]:58275 "EHLO
-        Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726383AbgCIJJF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 9 Mar 2020 05:09:05 -0400
-Received: from p5de0bf0b.dip0.t-ipconnect.de ([93.224.191.11] helo=nanos.tec.linutronix.de)
-        by Galois.linutronix.de with esmtpsa (TLS1.2:DHE_RSA_AES_256_CBC_SHA256:256)
-        (Exim 4.80)
-        (envelope-from <tglx@linutronix.de>)
-        id 1jBEPF-0004Dh-IA; Mon, 09 Mar 2020 10:09:01 +0100
-Received: by nanos.tec.linutronix.de (Postfix, from userid 1000)
-        id A737310408A; Mon,  9 Mar 2020 10:09:00 +0100 (CET)
-From:   Thomas Gleixner <tglx@linutronix.de>
-To:     Paolo Bonzini <pbonzini@redhat.com>,
-        Andy Lutomirski <luto@kernel.org>
-Cc:     LKML <linux-kernel@vger.kernel.org>, X86 ML <x86@kernel.org>,
-        kvm list <kvm@vger.kernel.org>, stable <stable@vger.kernel.org>
-Subject: Re: [PATCH v2] x86/kvm: Disable KVM_ASYNC_PF_SEND_ALWAYS
-In-Reply-To: <37440ade-1657-648b-bf72-2b8ca4ac21ce@redhat.com>
-References: <ed71d0967113a35f670a9625a058b8e6e0b2f104.1583547991.git.luto@kernel.org> <CALCETrVmsF9JSMLSd44-3GGWEz6siJQxudeaYiVnvv__YDT1BQ@mail.gmail.com> <87ftek9ngq.fsf@nanos.tec.linutronix.de> <CALCETrVsc-t=tDRPbCg5dWHDY0NFv2zjz12ahD-vnGPn8T+RXA@mail.gmail.com> <87a74s9ehb.fsf@nanos.tec.linutronix.de> <87wo7v8g4j.fsf@nanos.tec.linutronix.de> <877dzu8178.fsf@nanos.tec.linutronix.de> <37440ade-1657-648b-bf72-2b8ca4ac21ce@redhat.com>
-Date:   Mon, 09 Mar 2020 10:09:00 +0100
-Message-ID: <871rq199oz.fsf@nanos.tec.linutronix.de>
+        id S1725962AbgCIJ3J (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Mar 2020 05:29:09 -0400
+Received: from mail-lf1-f68.google.com ([209.85.167.68]:39723 "EHLO
+        mail-lf1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725956AbgCIJ3I (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 9 Mar 2020 05:29:08 -0400
+Received: by mail-lf1-f68.google.com with SMTP id j15so7070010lfk.6
+        for <stable@vger.kernel.org>; Mon, 09 Mar 2020 02:29:07 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=/x3bOS8+EQ730wvwzViwYAyxSIAy+Gqe4DlDcCBFmac=;
+        b=e7eCoXwJn2Jq3avlPXDgQK9Rx/D9sv6dMMc8asjsu4JqGIdjFQ3+Tvma1SXSOhr7YI
+         gQznjl6GdDgBkjgwCtHbuqrUoNwW+q1mYBZlXjqVLNH9OtaWlHwrTydkv/lBF9uMCHLo
+         /2D0ERQdHCCCHUQ8MgMPH6ocbKoE0iD+vAgs4Feiu2PU4KEU/Lk8dU3I0jDfk4fnsdP7
+         Cc88vNqxKVhDyZP8ACw+iid8ZvAxTgEioqBRlvDYEi633fqtmjmvJxUgjkvwm4+Maftd
+         otTV8ue5JmmtIS4Es8BgpsbROdUrHq0Fe7jt2BevM2NF16Ty6aktOTSgqE+GGnH73Dt2
+         Z3Mg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=/x3bOS8+EQ730wvwzViwYAyxSIAy+Gqe4DlDcCBFmac=;
+        b=QSTki3Z/KlBYq0b5Stjxz6V5hTvPI7pW0R2G2ejF8r+bHyRK8KX7kBg8h7GwuQTGdW
+         lmEeWglEYODhTB3Nv5lGA0CI+W2n9Z2z1u/o0zV7DPUTrgaYMP69FIB9cnhEaf+pF0CH
+         uJpTNNERO1p3UFwD8K7R8YdywMJouAcfIdzpe/KddqKp53qjmFNOx1WVSPMK99+hautU
+         xGtaxlro6wPkLBVrE1O4O8QwHUkkD+AZRxKO+z/eFmZvfbdb9i1uaR+IF6YyVzLay5Bq
+         nmO9Q5yQG4D+MZu25uzjr8idWQFAi+2I9A9kLGlcrVULF4TPRfTwanx490JeCkxK3vCK
+         xSyg==
+X-Gm-Message-State: ANhLgQ2mgX4Ix4SNA/2zSY047QQ5HTQBOG9usqK9wZ6vBBEymKp4pAi3
+        p2h2vs0TzS9nVZbAFzO8AW/QmzI6QfBti5Yu/Z96vQ==
+X-Google-Smtp-Source: ADFU+vsM0JTR3ANUQQsabsuZJsGRykwEGIjqSJXt/IVH98XX9FTs6BBkjNP3H6lsmBa6je9qc6mHr1lZrLe8Agh2tcQ=
+X-Received: by 2002:a19:f503:: with SMTP id j3mr8990215lfb.77.1583746146910;
+ Mon, 09 Mar 2020 02:29:06 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Linutronix-Spam-Score: -1.0
-X-Linutronix-Spam-Level: -
-X-Linutronix-Spam-Status: No , -1.0 points, 5.0 required,  ALL_TRUSTED=-1,SHORTCIRCUIT=-0.0001
+References: <20200305182245.9636-1-dev@kresin.me>
+In-Reply-To: <20200305182245.9636-1-dev@kresin.me>
+From:   Linus Walleij <linus.walleij@linaro.org>
+Date:   Mon, 9 Mar 2020 10:28:55 +0100
+Message-ID: <CACRpkdbBao6ij4SNDJso2X0q0gbU38PQu0DUtWk+QyV7KW4njA@mail.gmail.com>
+Subject: Re: [PATCH] pinctrl: falcon: fix syntax error
+To:     Mathias Kresin <dev@kresin.me>
+Cc:     "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Paolo Bonzini <pbonzini@redhat.com> writes:
-> On 09/03/20 07:57, Thomas Gleixner wrote:
->> Thomas Gleixner <tglx@linutronix.de> writes:
->>
->> guest side:
->> 
->>    nmi()/mce() ...
->>    
->>         stash_crs();
->> 
->> +       stash_and_clear_apf_reason();
->> 
->>         ....
->> 
->> +       restore_apf_reason();
->> 
->> 	restore_cr2();
->> 
->> Too obvious, isn't it?
+On Thu, Mar 5, 2020 at 7:22 PM Mathias Kresin <dev@kresin.me> wrote:
+
+> Add the missing semicolon after of_node_put to get the file compiled.
 >
-> Yes, this works but Andy was not happy about adding more
-> save-and-restore to NMIs.  If you do not want to do that, I'm okay with
-> disabling async page fault support for now.
+> Fixes: f17d2f54d36d ("pinctrl: falcon: Add of_node_put() before return")
+> Cc: stable@vger.kernel.org # v5.4+
+> Signed-off-by: Mathias Kresin <dev@kresin.me>
 
-I'm fine with doing that save/restore dance, but I have no strong
-opinion either.
+Patch applied for fixes with Thomas Ack.
 
-> Storing the page fault reason in memory was not a good idea.  Better
-> options would be to co-opt the page fault error code (e.g. store the
-> reason in bits 31:16, mark bits 15:0 with the invalid error code
-> RSVD=1/P=0), or to use the virtualization exception area.
-
-Memory store is not the problem. The real problem is hijacking #PF.
-
-If you'd have just used a separate VECTOR_ASYNC_PF then none of these
-problems would exist at all.
-
-Thanks,
-
-        tglx
+Yours,
+Linus Walleij
