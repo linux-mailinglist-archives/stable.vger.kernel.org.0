@@ -2,179 +2,178 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C1AD217E9BA
-	for <lists+stable@lfdr.de>; Mon,  9 Mar 2020 21:09:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5DEE117E9C0
+	for <lists+stable@lfdr.de>; Mon,  9 Mar 2020 21:11:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726384AbgCIUJI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Mar 2020 16:09:08 -0400
-Received: from out03.mta.xmission.com ([166.70.13.233]:37580 "EHLO
-        out03.mta.xmission.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726096AbgCIUJI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 9 Mar 2020 16:09:08 -0400
-Received: from in01.mta.xmission.com ([166.70.13.51])
-        by out03.mta.xmission.com with esmtps (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        (Exim 4.90_1)
-        (envelope-from <ebiederm@xmission.com>)
-        id 1jBOi1-0004Kc-Kg; Mon, 09 Mar 2020 14:09:05 -0600
-Received: from ip68-227-160-95.om.om.cox.net ([68.227.160.95] helo=x220.xmission.com)
-        by in01.mta.xmission.com with esmtpsa (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.87)
-        (envelope-from <ebiederm@xmission.com>)
-        id 1jBOi0-0003E4-PF; Mon, 09 Mar 2020 14:09:05 -0600
-From:   ebiederm@xmission.com (Eric W. Biederman)
-To:     Christian Brauner <christian.brauner@ubuntu.com>
-Cc:     Bernd Edlinger <bernd.edlinger@hotmail.de>,
-        Kees Cook <keescook@chromium.org>,
-        Jann Horn <jannh@google.com>, Jonathan Corbet <corbet@lwn.net>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Alexey Dobriyan <adobriyan@gmail.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Oleg Nesterov <oleg@redhat.com>,
-        Frederic Weisbecker <frederic@kernel.org>,
-        Andrei Vagin <avagin@gmail.com>,
-        Ingo Molnar <mingo@kernel.org>,
-        "Peter Zijlstra \(Intel\)" <peterz@infradead.org>,
-        Yuyang Du <duyuyang@gmail.com>,
-        David Hildenbrand <david@redhat.com>,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        Anshuman Khandual <anshuman.khandual@arm.com>,
-        David Howells <dhowells@redhat.com>,
-        James Morris <jamorris@linux.microsoft.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Shakeel Butt <shakeelb@google.com>,
-        Jason Gunthorpe <jgg@ziepe.ca>,
-        Christian Kellner <christian@kellner.me>,
-        Andrea Arcangeli <aarcange@redhat.com>,
-        Aleksa Sarai <cyphar@cyphar.com>,
-        "Dmitry V. Levin" <ldv@altlinux.org>,
-        "linux-doc\@vger.kernel.org" <linux-doc@vger.kernel.org>,
-        "linux-kernel\@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "linux-fsdevel\@vger.kernel.org" <linux-fsdevel@vger.kernel.org>,
-        "linux-mm\@kvack.org" <linux-mm@kvack.org>,
-        "stable\@vger.kernel.org" <stable@vger.kernel.org>,
-        "linux-api\@vger.kernel.org" <linux-api@vger.kernel.org>
-References: <87v9nlii0b.fsf@x220.int.ebiederm.org>
-        <AM6PR03MB5170609D44967E044FD1BE40E4E40@AM6PR03MB5170.eurprd03.prod.outlook.com>
-        <87a74xi4kz.fsf@x220.int.ebiederm.org>
-        <AM6PR03MB51705AA3009B4986BB6EF92FE4E50@AM6PR03MB5170.eurprd03.prod.outlook.com>
-        <87r1y8dqqz.fsf@x220.int.ebiederm.org>
-        <AM6PR03MB517053AED7DC89F7C0704B7DE4E50@AM6PR03MB5170.eurprd03.prod.outlook.com>
-        <AM6PR03MB51703B44170EAB4626C9B2CAE4E20@AM6PR03MB5170.eurprd03.prod.outlook.com>
-        <87tv32cxmf.fsf_-_@x220.int.ebiederm.org>
-        <87v9ne5y4y.fsf_-_@x220.int.ebiederm.org>
-        <87eeu25y14.fsf_-_@x220.int.ebiederm.org>
-        <20200309195909.h2lv5uawce5wgryx@wittgenstein>
-Date:   Mon, 09 Mar 2020 15:06:46 -0500
-In-Reply-To: <20200309195909.h2lv5uawce5wgryx@wittgenstein> (Christian
-        Brauner's message of "Mon, 9 Mar 2020 20:59:09 +0100")
-Message-ID: <877dztz415.fsf@x220.int.ebiederm.org>
-User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/26.1 (gnu/linux)
+        id S1726482AbgCIULk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Mar 2020 16:11:40 -0400
+Received: from mx2.suse.de ([195.135.220.15]:41190 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726134AbgCIULj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Mar 2020 16:11:39 -0400
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.220.254])
+        by mx2.suse.de (Postfix) with ESMTP id 3E749AE59;
+        Mon,  9 Mar 2020 20:11:36 +0000 (UTC)
+Subject: Re: Patch "mm, hotplug: fix page online with DEBUG_PAGEALLOC compiled
+ but not enabled" has been added to the 5.4-stable tree
+To:     gregkh@linuxfoundation.org, stable@vger.kernel.org,
+        akpm@linux-foundation.org, cai@lca.pw, david@redhat.com,
+        gerald.schaefer@de.ibm.com, iamjoonsoo.kim@lge.com,
+        torvalds@linux-foundation.org
+Cc:     stable-commits@vger.kernel.org
+References: <1583781746100221@kroah.com>
+From:   Vlastimil Babka <vbabka@suse.cz>
+Message-ID: <4e806950-6fbc-9898-32a4-0309cc37bf7e@suse.cz>
+Date:   Mon, 9 Mar 2020 21:11:25 +0100
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:68.0) Gecko/20100101
+ Thunderbird/68.5.0
 MIME-Version: 1.0
-Content-Type: text/plain
-X-XM-SPF: eid=1jBOi0-0003E4-PF;;;mid=<877dztz415.fsf@x220.int.ebiederm.org>;;;hst=in01.mta.xmission.com;;;ip=68.227.160.95;;;frm=ebiederm@xmission.com;;;spf=neutral
-X-XM-AID: U2FsdGVkX1+JmhoWzou28F0cqQMkczpEMh7LfXR8OL4=
-X-SA-Exim-Connect-IP: 68.227.160.95
-X-SA-Exim-Mail-From: ebiederm@xmission.com
-X-Spam-Checker-Version: SpamAssassin 3.4.2 (2018-09-13) on sa03.xmission.com
-X-Spam-Level: 
-X-Spam-Status: No, score=0.5 required=8.0 tests=ALL_TRUSTED,BAYES_50,
-        DCC_CHECK_NEGATIVE,T_TM2_M_HEADER_IN_MSG,T_TooManySym_01,XMSubLong
-        autolearn=disabled version=3.4.2
-X-Spam-Virus: No
-X-Spam-Report: * -1.0 ALL_TRUSTED Passed through trusted hosts only via SMTP
-        *  0.8 BAYES_50 BODY: Bayes spam probability is 40 to 60%
-        *      [score: 0.5000]
-        *  0.7 XMSubLong Long Subject
-        *  0.0 T_TM2_M_HEADER_IN_MSG BODY: No description available.
-        * -0.0 DCC_CHECK_NEGATIVE Not listed in DCC
-        *      [sa03 1397; Body=1 Fuz1=1 Fuz2=1]
-        *  0.0 T_TooManySym_01 4+ unique symbols in subject
-X-Spam-DCC: XMission; sa03 1397; Body=1 Fuz1=1 Fuz2=1 
-X-Spam-Combo: ;Christian Brauner <christian.brauner@ubuntu.com>
-X-Spam-Relay-Country: 
-X-Spam-Timing: total 356 ms - load_scoreonly_sql: 0.03 (0.0%),
-        signal_user_changed: 2.3 (0.7%), b_tie_ro: 1.68 (0.5%), parse: 0.77
-        (0.2%), extract_message_metadata: 11 (3.1%), get_uri_detail_list: 1.37
-        (0.4%), tests_pri_-1000: 23 (6.4%), tests_pri_-950: 1.06 (0.3%),
-        tests_pri_-900: 0.86 (0.2%), tests_pri_-90: 28 (7.9%), check_bayes: 27
-        (7.6%), b_tokenize: 9 (2.6%), b_tok_get_all: 9 (2.6%), b_comp_prob:
-        2.1 (0.6%), b_tok_touch_all: 4.3 (1.2%), b_finish: 0.49 (0.1%),
-        tests_pri_0: 278 (77.9%), check_dkim_signature: 0.40 (0.1%),
-        check_dkim_adsp: 2.2 (0.6%), poll_dns_idle: 0.78 (0.2%), tests_pri_10:
-        2.6 (0.7%), tests_pri_500: 7 (1.8%), rewrite_mail: 0.00 (0.0%)
-Subject: Re: [PATCH v2 3/5] exec: Move cleanup of posix timers on exec out of de_thread
-X-Spam-Flag: No
-X-SA-Exim-Version: 4.2.1 (built Thu, 05 May 2016 13:38:54 -0600)
-X-SA-Exim-Scanned: Yes (on in01.mta.xmission.com)
+In-Reply-To: <1583781746100221@kroah.com>
+Content-Type: text/plain; charset=windows-1252
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Christian Brauner <christian.brauner@ubuntu.com> writes:
-
-> On Sun, Mar 08, 2020 at 04:36:55PM -0500, Eric W. Biederman wrote:
->> 
->> These functions have very little to do with de_thread move them out
->> of de_thread an into flush_old_exec proper so it can be more clearly
->> seen what flush_old_exec is doing.
->> 
->> Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
->> ---
->>  fs/exec.c | 10 +++++-----
->>  1 file changed, 5 insertions(+), 5 deletions(-)
->> 
->> diff --git a/fs/exec.c b/fs/exec.c
->> index ff74b9a74d34..215d86f77b63 100644
->> --- a/fs/exec.c
->> +++ b/fs/exec.c
->> @@ -1189,11 +1189,6 @@ static int de_thread(struct task_struct *tsk)
->
-> While you're cleaning up de_thread() wouldn't it be good to also take
-> the opportunity and remove the task argument from de_thread(). It's only
-> ever used with current. Could be done in one of your patches or as a
-> separate patch.
-
-How does that affect the code generation?
-
-My sense is that computing current once in flush_old_exec is much
-better than computing it in each function flush_old_exec calls.
-I remember that computing current used to be not expensive but
-noticable.
-
-For clarity I can see renaming tsk to me.  So that it is clear we are
-talking about the current process, and not some arbitrary process.
-
-And for clarity my goal here is not to clean up de_thread.  Though
-I don't mind that result.  My goal is to get the extra work out of
-de_thread so we can do process tear down cleanups that are safe
-according to the ordinary process rules, before taking a mutex that
-protects exec mucking with all of the state in exec.
-
-Eric
-
-
-> diff --git a/fs/exec.c b/fs/exec.c
-> index db17be51b112..ee108707e4b0 100644
-> --- a/fs/exec.c
-> +++ b/fs/exec.c
-> @@ -1061,8 +1061,9 @@ static int exec_mmap(struct mm_struct *mm)
->   * disturbing other processes.  (Other processes might share the signal
->   * table via the CLONE_SIGHAND option to clone().)
->   */
-> -static int de_thread(struct task_struct *tsk)
-> +static int de_thread(void)
+On 3/9/2020 8:22 PM, gregkh@linuxfoundation.org wrote:
+> 
+> This is a note to let you know that I've just added the patch titled
+> 
+>     mm, hotplug: fix page online with DEBUG_PAGEALLOC compiled but not enabled
+> 
+> to the 5.4-stable tree which can be found at:
+>     http://www.kernel.org/git/?p=linux/kernel/git/stable/stable-queue.git;a=summary
+> 
+> The filename of the patch is:
+>      mm-hotplug-fix-page-online-with-debug_pagealloc-compiled-but-not-enabled.patch
+> and it can be found in the queue-5.4 subdirectory.
+> 
+> If you, or anyone else, feels it should not be added to the stable tree,
+> please let <stable@vger.kernel.org> know about it.
+> 
+> 
+> From c87cbc1f007c4b46165f05ceca04e1973cda0b9c Mon Sep 17 00:00:00 2001
+> From: Vlastimil Babka <vbabka@suse.cz>
+> Date: Thu, 5 Mar 2020 22:28:42 -0800
+> Subject: mm, hotplug: fix page online with DEBUG_PAGEALLOC compiled but not enabled
+> 
+> From: Vlastimil Babka <vbabka@suse.cz>
+> 
+> commit c87cbc1f007c4b46165f05ceca04e1973cda0b9c upstream.
+> 
+> Commit cd02cf1aceea ("mm/hotplug: fix an imbalance with DEBUG_PAGEALLOC")
+> fixed memory hotplug with debug_pagealloc enabled, where onlining a page
+> goes through page freeing, which removes the direct mapping.  Some arches
+> don't like when the page is not mapped in the first place, so
+> generic_online_page() maps it first.  This is somewhat wasteful, but
+> better than special casing page freeing fast paths.
+> 
+> The commit however missed that DEBUG_PAGEALLOC configured doesn't mean
+> it's actually enabled.  One has to test debug_pagealloc_enabled() since
+> 031bc5743f15 ("mm/debug-pagealloc: make debug-pagealloc boottime
+> configurable"), or alternatively debug_pagealloc_enabled_static() since
+> 8e57f8acbbd1 ("mm, debug_pagealloc: don't rely on static keys too early"),
+> but this is not done.
+> 
+> As a result, a s390 kernel with DEBUG_PAGEALLOC configured but not enabled
+> will crash:
+> 
+> Unable to handle kernel pointer dereference in virtual kernel address space
+> Failing address: 0000000000000000 TEID: 0000000000000483
+> Fault in home space mode while using kernel ASCE.
+> AS:0000001ece13400b R2:000003fff7fd000b R3:000003fff7fcc007 S:000003fff7fd7000 P:000000000000013d
+> Oops: 0004 ilc:2 [#1] SMP
+> CPU: 1 PID: 26015 Comm: chmem Kdump: loaded Tainted: GX 5.3.18-5-default #1 SLE15-SP2 (unreleased)
+> Krnl PSW : 0704e00180000000 0000001ecd281b9e (__kernel_map_pages+0x166/0x188)
+> R:0 T:1 IO:1 EX:1 Key:0 M:1 W:0 P:0 AS:3 CC:2 PM:0 RI:0 EA:3
+> Krnl GPRS: 0000000000000000 0000000000000800 0000400b00000000 0000000000000100
+> 0000000000000001 0000000000000000 0000000000000002 0000000000000100
+> 0000001ece139230 0000001ecdd98d40 0000400b00000100 0000000000000000
+> 000003ffa17e4000 001fffe0114f7d08 0000001ecd4d93ea 001fffe0114f7b20
+> Krnl Code: 0000001ecd281b8e: ec17ffff00d8 ahik %r1,%r7,-1
+> 0000001ecd281b94: ec111dbc0355 risbg %r1,%r1,29,188,3
+>> 0000001ecd281b9e: 94fb5006 ni 6(%r5),251
+> 0000001ecd281ba2: 41505008 la %r5,8(%r5)
+> 0000001ecd281ba6: ec51fffc6064 cgrj %r5,%r1,6,1ecd281b9e
+> 0000001ecd281bac: 1a07 ar %r0,%r7
+> 0000001ecd281bae: ec03ff584076 crj %r0,%r3,4,1ecd281a5e
+> Call Trace:
+> [<0000001ecd281b9e>] __kernel_map_pages+0x166/0x188
+> [<0000001ecd4d9516>] online_pages_range+0xf6/0x128
+> [<0000001ecd2a8186>] walk_system_ram_range+0x7e/0xd8
+> [<0000001ecda28aae>] online_pages+0x2fe/0x3f0
+> [<0000001ecd7d02a6>] memory_subsys_online+0x8e/0xc0
+> [<0000001ecd7add42>] device_online+0x5a/0xc8
+> [<0000001ecd7d0430>] state_store+0x88/0x118
+> [<0000001ecd5b9f62>] kernfs_fop_write+0xc2/0x200
+> [<0000001ecd5064b6>] vfs_write+0x176/0x1e0
+> [<0000001ecd50676a>] ksys_write+0xa2/0x100
+> [<0000001ecda315d4>] system_call+0xd8/0x2c8
+> 
+> Fix this by checking debug_pagealloc_enabled_static() before calling
+> kernel_map_pages(). Backports for kernel before 5.5 should use
+> debug_pagealloc_enabled() instead. Also add comments.
+> 
+> Fixes: cd02cf1aceea ("mm/hotplug: fix an imbalance with DEBUG_PAGEALLOC")
+> Reported-by: Gerald Schaefer <gerald.schaefer@de.ibm.com>
+> Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+> Signed-off-by: Vlastimil Babka <vbabka@suse.cz>
+> Reviewed-by: David Hildenbrand <david@redhat.com>
+> Cc: <stable@vger.kernel.org>
+> Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
+> Cc: Qian Cai <cai@lca.pw>
+> Link: http://lkml.kernel.org/r/20200224094651.18257-1-vbabka@suse.cz
+> Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> 
+> ---
+>  include/linux/mm.h  |    4 ++++
+>  mm/memory_hotplug.c |    8 +++++++-
+>  2 files changed, 11 insertions(+), 1 deletion(-)
+> 
+> --- a/include/linux/mm.h
+> +++ b/include/linux/mm.h
+> @@ -2695,6 +2695,10 @@ static inline bool debug_pagealloc_enabl
+>  #if defined(CONFIG_DEBUG_PAGEALLOC) || defined(CONFIG_ARCH_HAS_SET_DIRECT_MAP)
+>  extern void __kernel_map_pages(struct page *page, int numpages, int enable);
+>  
+> +/*
+> + * When called in DEBUG_PAGEALLOC context, the call should most likely be
+> + * guarded by debug_pagealloc_enabled() or debug_pagealloc_enabled_static()
+> + */
+>  static inline void
+>  kernel_map_pages(struct page *page, int numpages, int enable)
 >  {
-> +       struct task_struct *tsk = current;
->         struct signal_struct *sig = tsk->signal;
->         struct sighand_struct *oldsighand = tsk->sighand;
->         spinlock_t *lock = &oldsighand->siglock;
-> @@ -1266,7 +1267,7 @@ int flush_old_exec(struct linux_binprm * bprm)
->          * Make sure we have a private signal table and that
->          * we are unassociated from the previous thread group.
->          */
-> -       retval = de_thread(current);
-> +       retval = de_thread();
->         if (retval)
->                 goto out;
+> --- a/mm/memory_hotplug.c
+> +++ b/mm/memory_hotplug.c
+> @@ -598,7 +598,13 @@ EXPORT_SYMBOL_GPL(__online_page_free);
+>  
+>  static void generic_online_page(struct page *page, unsigned int order)
+>  {
+> -	kernel_map_pages(page, 1 << order, 1);
+> +	/*
+> +	 * Freeing the page with debug_pagealloc enabled will try to unmap it,
+> +	 * so we should map it first. This is better than introducing a special
+> +	 * case in page freeing fast path.
+> +	 */
+> +	if (debug_pagealloc_enabled_static())
+
+Won't build on 5.4, see in changelog "Backports for kernel before 5.5 should use
+debug_pagealloc_enabled() instead."
+
+> +		kernel_map_pages(page, 1 << order, 1);
+>  	__free_pages_core(page, order);
+>  	totalram_pages_add(1UL << order);
+>  #ifdef CONFIG_HIGHMEM
+> 
+> 
+> Patches currently in stable-queue which might be from vbabka@suse.cz are
+> 
+> queue-5.4/mm-numa-fix-bad-pmd-by-atomically-check-for-pmd_trans_huge-when-marking-page-tables-prot_numa.patch
+> queue-5.4/mm-hotplug-fix-page-online-with-debug_pagealloc-compiled-but-not-enabled.patch
+> queue-5.4/mm-fix-possible-pmd-dirty-bit-lost-in-set_pmd_migration_entry.patch
+> 
+
