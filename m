@@ -2,14 +2,14 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E99917E1F4
-	for <lists+stable@lfdr.de>; Mon,  9 Mar 2020 15:02:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 747BD17E1F6
+	for <lists+stable@lfdr.de>; Mon,  9 Mar 2020 15:02:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727000AbgCIOBv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Mar 2020 10:01:51 -0400
-Received: from us-smtp-2.mimecast.com ([205.139.110.61]:34889 "EHLO
+        id S1726997AbgCIOBw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Mar 2020 10:01:52 -0400
+Received: from us-smtp-2.mimecast.com ([207.211.31.81]:56196 "EHLO
         us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726666AbgCIOBv (ORCPT
+        by vger.kernel.org with ESMTP id S1726998AbgCIOBv (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 9 Mar 2020 10:01:51 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
         s=mimecast20190719; t=1583762510;
@@ -17,31 +17,32 @@ DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
          to:to:cc:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=gmrIgOpC5xCUrW/eGnewrWRJsVzMqiKXr2pMquelru0=;
-        b=JA1ItilYzetbNw4oJsGdf4azifBbjZ5hrIZq7p5p8BZzKhy2AjrYDfrMusMC4NHrOr9Hge
-        vxOe1AcbqXdti8TtPSogDc5opjfn0BXLYicsSOxbpbTmHk/93puiaeoQPvNfd3Pd5cjLIw
-        naqErTXKThW/qZzLa2+R7gadWVR1XPY=
+        bh=dwNeQ2bGQI9YeQt7X0VtkLkJtoPfZRFbqYALX2APQi4=;
+        b=J0zZHAnr2MVy8YLcGZEVRmPLS/oqMyVTFFYPTfXnVsREe2UntKZoTm2xIIMUKhy2RAX7xV
+        4WzQytjO4Naq4PIW80g9Zz/U6zJRJt5XTmvUq0AjAdglUhLww5v3+SxrUCMOG/omLqX0ov
+        5Top3XTOXHILj1O2b69mmHD3KNTmzfg=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-250-RMiKwbBMMEaQpN1NK9CkOA-1; Mon, 09 Mar 2020 10:01:46 -0400
-X-MC-Unique: RMiKwbBMMEaQpN1NK9CkOA-1
+ us-mta-207-uUEhLOoRPJSOV2WNfFkmqA-1; Mon, 09 Mar 2020 10:01:49 -0400
+X-MC-Unique: uUEhLOoRPJSOV2WNfFkmqA-1
 Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id ACE6C107ACC9;
-        Mon,  9 Mar 2020 14:01:44 +0000 (UTC)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id C6AF5CF98C;
+        Mon,  9 Mar 2020 14:01:47 +0000 (UTC)
 Received: from x1.localdomain.com (unknown [10.36.118.63])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id C530A60C87;
-        Mon,  9 Mar 2020 14:01:41 +0000 (UTC)
+        by smtp.corp.redhat.com (Postfix) with ESMTP id EEFA960C05;
+        Mon,  9 Mar 2020 14:01:44 +0000 (UTC)
 From:   Hans de Goede <hdegoede@redhat.com>
 To:     David Woodhouse <dwmw2@infradead.org>,
         Lu Baolu <baolu.lu@linux.intel.com>,
         Joerg Roedel <joro@8bytes.org>
 Cc:     Hans de Goede <hdegoede@redhat.com>,
-        iommu@lists.linux-foundation.org, stable@vger.kernel.org
-Subject: [PATCH 1/2] iommu/vt-d: dmar: replace WARN_TAINT with pr_warn + add_taint
-Date:   Mon,  9 Mar 2020 15:01:37 +0100
-Message-Id: <20200309140138.3753-2-hdegoede@redhat.com>
+        iommu@lists.linux-foundation.org, Barret Rhoden <brho@google.com>,
+        stable@vger.kernel.org
+Subject: [PATCH 2/2] iommu/vt-d: dmar_parse_one_rmrr: replace WARN_TAINT with pr_warn + add_taint
+Date:   Mon,  9 Mar 2020 15:01:38 +0100
+Message-Id: <20200309140138.3753-3-hdegoede@redhat.com>
 In-Reply-To: <20200309140138.3753-1-hdegoede@redhat.com>
 References: <20200309140138.3753-1-hdegoede@redhat.com>
 MIME-Version: 1.0
@@ -70,81 +71,49 @@ is not helpful.
 
 Some distros, e.g. Fedora, have tools watching for the kernel backtraces
 logged by the WARN macros and offer the user an option to file a bug for
-this when these are encountered. The WARN_TAINT in warn_invalid_dmar()
+this when these are encountered. The WARN_TAINT in dmar_parse_one_rmrr
 + another iommu WARN_TAINT, addressed in another patch, have lead to over
 a 100 bugs being filed this way.
 
-This commit replaces the WARN_TAINT("...") calls, with
-pr_warn(FW_BUG "...") + add_taint(TAINT_FIRMWARE_WORKAROUND, ...) calls
+This commit replaces the WARN_TAINT("...") call, with a
+pr_warn(FW_BUG "...") + add_taint(TAINT_FIRMWARE_WORKAROUND, ...) call
 avoiding the backtrace and thus also avoiding bug-reports being filed
 about this against the kernel.
 
-BugLink: https://bugzilla.redhat.com/show_bug.cgi?id=3D1564895
-Fixes: e625b4a95d50 ("iommu/vt-d: Parse ANDD records")
-Fixes: fd0c8894893c ("intel-iommu: Set a more specific taint flag for inv=
-alid BI
+BugLink: https://bugzilla.redhat.com/show_bug.cgi?id=3D1808874
+Fixes: f5a68bb0752e ("iommu/vt-d: Mark firmware tainted if RMRR fails san=
+ity check")
+Cc: Barret Rhoden <brho@google.com>
 Cc: stable@vger.kernel.org
 Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 ---
- drivers/iommu/dmar.c | 11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+ drivers/iommu/intel-iommu.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/iommu/dmar.c b/drivers/iommu/dmar.c
-index 071bb42bbbc5..87194a46cb0b 100644
---- a/drivers/iommu/dmar.c
-+++ b/drivers/iommu/dmar.c
-@@ -440,12 +440,13 @@ static int __init dmar_parse_one_andd(struct acpi_d=
-mar_header *header,
+diff --git a/drivers/iommu/intel-iommu.c b/drivers/iommu/intel-iommu.c
+index 6fa6de2b6ad5..3857a5cd1a75 100644
+--- a/drivers/iommu/intel-iommu.c
++++ b/drivers/iommu/intel-iommu.c
+@@ -4460,14 +4460,16 @@ int __init dmar_parse_one_rmrr(struct acpi_dmar_h=
+eader *header, void *arg)
+ 	struct dmar_rmrr_unit *rmrru;
 =20
- 	/* Check for NUL termination within the designated length */
- 	if (strnlen(andd->device_name, header->length - 8) =3D=3D header->lengt=
-h - 8) {
+ 	rmrr =3D (struct acpi_dmar_reserved_memory *)header;
+-	if (rmrr_sanity_check(rmrr))
 -		WARN_TAINT(1, TAINT_FIRMWARE_WORKAROUND,
++	if (rmrr_sanity_check(rmrr)) {
 +		pr_warn(FW_BUG
- 			   "Your BIOS is broken; ANDD object name is not NUL-terminated\n"
+ 			   "Your BIOS is broken; bad RMRR [%#018Lx-%#018Lx]\n"
  			   "BIOS vendor: %s; Ver: %s; Product Version: %s\n",
+ 			   rmrr->base_address, rmrr->end_address,
  			   dmi_get_system_info(DMI_BIOS_VENDOR),
  			   dmi_get_system_info(DMI_BIOS_VERSION),
  			   dmi_get_system_info(DMI_PRODUCT_VERSION));
 +		add_taint(TAINT_FIRMWARE_WORKAROUND, LOCKDEP_STILL_OK);
- 		return -EINVAL;
- 	}
- 	pr_info("ANDD device: %x name: %s\n", andd->device_number,
-@@ -471,14 +472,14 @@ static int dmar_parse_one_rhsa(struct acpi_dmar_hea=
-der *header, void *arg)
- 			return 0;
- 		}
- 	}
--	WARN_TAINT(
--		1, TAINT_FIRMWARE_WORKAROUND,
-+	pr_warn(FW_BUG
- 		"Your BIOS is broken; RHSA refers to non-existent DMAR unit at %llx\n"
- 		"BIOS vendor: %s; Ver: %s; Product Version: %s\n",
- 		drhd->reg_base_addr,
- 		dmi_get_system_info(DMI_BIOS_VENDOR),
- 		dmi_get_system_info(DMI_BIOS_VERSION),
- 		dmi_get_system_info(DMI_PRODUCT_VERSION));
-+	add_taint(TAINT_FIRMWARE_WORKAROUND, LOCKDEP_STILL_OK);
++	}
 =20
- 	return 0;
- }
-@@ -827,14 +828,14 @@ int __init dmar_table_init(void)
-=20
- static void warn_invalid_dmar(u64 addr, const char *message)
- {
--	WARN_TAINT_ONCE(
--		1, TAINT_FIRMWARE_WORKAROUND,
-+	pr_warn_once(FW_BUG
- 		"Your BIOS is broken; DMAR reported at address %llx%s!\n"
- 		"BIOS vendor: %s; Ver: %s; Product Version: %s\n",
- 		addr, message,
- 		dmi_get_system_info(DMI_BIOS_VENDOR),
- 		dmi_get_system_info(DMI_BIOS_VERSION),
- 		dmi_get_system_info(DMI_PRODUCT_VERSION));
-+	add_taint(TAINT_FIRMWARE_WORKAROUND, LOCKDEP_STILL_OK);
- }
-=20
- static int __ref
+ 	rmrru =3D kzalloc(sizeof(*rmrru), GFP_KERNEL);
+ 	if (!rmrru)
 --=20
 2.25.1
 
