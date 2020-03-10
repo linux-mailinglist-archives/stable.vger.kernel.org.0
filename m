@@ -2,74 +2,131 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6740217F35E
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 10:20:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 28AA017F2B7
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 10:06:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726391AbgCJJUT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 05:20:19 -0400
-Received: from mail.11d01.mspz7.gob.ec ([190.152.145.91]:47894 "EHLO
-        mail.11d01.mspz7.gob.ec" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726258AbgCJJUT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Mar 2020 05:20:19 -0400
-Received: from localhost (localhost [127.0.0.1])
-        by mail.11d01.mspz7.gob.ec (Postfix) with ESMTP id AFB622F62F2E;
-        Tue, 10 Mar 2020 00:43:20 -0500 (-05)
-Received: from mail.11d01.mspz7.gob.ec ([127.0.0.1])
-        by localhost (mail.11d01.mspz7.gob.ec [127.0.0.1]) (amavisd-new, port 10032)
-        with ESMTP id 4Ba5LKQXOaSO; Tue, 10 Mar 2020 00:43:19 -0500 (-05)
-Received: from localhost (localhost [127.0.0.1])
-        by mail.11d01.mspz7.gob.ec (Postfix) with ESMTP id 417712F61B9A;
-        Tue, 10 Mar 2020 00:40:13 -0500 (-05)
-DKIM-Filter: OpenDKIM Filter v2.9.2 mail.11d01.mspz7.gob.ec 417712F61B9A
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=11d01.mspz7.gob.ec;
-        s=50CBC7E4-8BED-11E9-AF6C-F1A741A224D3; t=1583818813;
-        bh=o+H3O7n1+zJcXo0FhJs7spyf8HmE4ClnBa/Y2Gk0DL0=;
-        h=Content-Type:MIME-Version:Content-Transfer-Encoding:Subject:To:
-         From:Date:Reply-To:Message-Id;
-        b=mgGeatLbtgc7jIhasW8k8+cpkLU3Ydw2txJxUsaBd/vvBfHN1yR4ukpkfF7hjmxEF
-         olFF97E1gj3TgI7wTszdGusZsSqDT/H70yOiv+BK90B8u09VVqOSNYYgTy4Kx4wvAc
-         z+gG1K+EQx7CgUU0gYgFUj5GGRD8R48Bys8euPqg=
-X-Virus-Scanned: amavisd-new at 11d01.mspz7.gob.ec
-Received: from mail.11d01.mspz7.gob.ec ([127.0.0.1])
-        by localhost (mail.11d01.mspz7.gob.ec [127.0.0.1]) (amavisd-new, port 10026)
-        with ESMTP id Q3Ii0bcwKmhN; Tue, 10 Mar 2020 00:40:12 -0500 (-05)
-Received: from [10.19.167.32] (unknown [105.0.4.171])
-        by mail.11d01.mspz7.gob.ec (Postfix) with ESMTPSA id E54362F62881;
-        Tue, 10 Mar 2020 00:38:01 -0500 (-05)
-Content-Type: text/plain; charset="utf-8"
+        id S1726224AbgCJJGv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 05:06:51 -0400
+Received: from us-smtp-1.mimecast.com ([207.211.31.81]:57304 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726199AbgCJJGv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Mar 2020 05:06:51 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1583831210;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=xSmK9z6pWruyLFXiyy4vOPrb+SMZGU/lI1Jxx2/jwjY=;
+        b=RxmbwA0R6nmk82pZh7vjW7m2JsECHftEYaaxNv1a0DIi7PoY5mkkUpW01CPfBgKUxHvxer
+        0Tx4NF2p3wvaO4RgfunpQOeHVVJSNC4LeuHdnOP/aV20zzY3TwXFFmNzuCG6w6NFLkXX10
+        vhO/7wV3e8zA9sZD2EY9ntvsEfvLIOY=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-247-70btbhFaO2C4xwelThq4YA-1; Tue, 10 Mar 2020 05:06:46 -0400
+X-MC-Unique: 70btbhFaO2C4xwelThq4YA-1
+Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 1F9E58010D9;
+        Tue, 10 Mar 2020 09:06:45 +0000 (UTC)
+Received: from file01.intranet.prod.int.rdu2.redhat.com (file01.intranet.prod.int.rdu2.redhat.com [10.11.5.7])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 88D955D9C5;
+        Tue, 10 Mar 2020 09:06:40 +0000 (UTC)
+Received: from file01.intranet.prod.int.rdu2.redhat.com (localhost [127.0.0.1])
+        by file01.intranet.prod.int.rdu2.redhat.com (8.14.4/8.14.4) with ESMTP id 02A96emJ008529;
+        Tue, 10 Mar 2020 05:06:40 -0400
+Received: from localhost (mpatocka@localhost)
+        by file01.intranet.prod.int.rdu2.redhat.com (8.14.4/8.14.4/Submit) with ESMTP id 02A96doe008525;
+        Tue, 10 Mar 2020 05:06:39 -0400
+X-Authentication-Warning: file01.intranet.prod.int.rdu2.redhat.com: mpatocka owned process doing -bs
+Date:   Tue, 10 Mar 2020 05:06:39 -0400 (EDT)
+From:   Mikulas Patocka <mpatocka@redhat.com>
+X-X-Sender: mpatocka@file01.intranet.prod.int.rdu2.redhat.com
+To:     gregkh@linuxfoundation.org
+cc:     snitzer@redhat.com, stable@vger.kernel.org
+Subject: [PATCH v4.4 v4.9] dm cache: fix a crash due to incorrect work item
+ cancelling
+In-Reply-To: <158378436239197@kroah.com>
+Message-ID: <alpine.LRH.2.02.2003100505050.7499@file01.intranet.prod.int.rdu2.redhat.com>
+References: <158378436239197@kroah.com>
+User-Agent: Alpine 2.02 (LRH 1266 2009-07-14)
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Content-Description: Mail message body
-Subject: =?utf-8?q?Wohlt=C3=A4tigkeitsspende_von_2=2E000=2E000_Millionen_Euro?=
-To:     Recipients <ronald.pena@11d01.mspz7.gob.ec>
-From:   ''Michael weirsky'' <ronald.pena@11d01.mspz7.gob.ec>
-Date:   Tue, 10 Mar 2020 08:07:29 +0200
-Reply-To: mikeweirskyspende@gmail.com
-Message-Id: <20200310053801.E54362F62881@mail.11d01.mspz7.gob.ec>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Lieber Freund,
-
-Ich bin Herr Mike Weirsky, New Jersey, Vereinigte Staaten von Amerika, der =
-Mega-Gewinner von $ 273million In Mega Millions Jackpot, spende ich an 5 zu=
-f=C3=A4llige Personen, wenn Sie diese E-Mail erhalten, dann wurde Ihre E-Ma=
-il nach einem Spinball ausgew=C3=A4hlt.Ich habe den gr=C3=B6=C3=9Ften Teil =
-meines Verm=C3=B6gens auf eine Reihe von Wohlt=C3=A4tigkeitsorganisationen =
-und Organisationen verteilt.Ich habe mich freiwillig dazu entschieden, die =
-Summe von =E2=82=AC 2.000.000,00 an Sie als eine der ausgew=C3=A4hlten 5 zu=
- spenden, um meine Gewinne zu =C3=BCberpr=C3=BCfen.
-Das ist dein Spendencode: [MW530342019]
-www.youtube.com/watch?v=3Dun8yRTmrYMY
-
-Antworten Sie mit dem SPENDE-CODE an diese =
 
 
-E-Mail:mikeweirskyspende@gmail.com
+On Mon, 9 Mar 2020, gregkh@linuxfoundation.org wrote:
 
-Ich hoffe, Sie und Ihre Familie gl=C3=BCcklich zu machen.
+> 
+> The patch below does not apply to the 4.9-stable tree.
+> If someone wants it applied there, or to any other stable or longterm
+> tree, then please email the backport, including the original git commit
+> id to <stable@vger.kernel.org>.
+> 
+> thanks,
+> 
+> greg k-h
 
-Gr=C3=BC=C3=9Fe
-Herr Mike Weirsky
+Hi
+
+Here I'm sending the patch for the stable branches 4.4 and 4.9.
+
+Mikulas
+
+
+------------------ original commit in Linus's tree ------------------
+
+>From 7cdf6a0aae1cccf5167f3f04ecddcf648b78e289 Mon Sep 17 00:00:00 2001
+From: Mikulas Patocka <mpatocka@redhat.com>
+Date: Wed, 19 Feb 2020 10:25:45 -0500
+Subject: [PATCH] dm cache: fix a crash due to incorrect work item cancelling
+
+The crash can be reproduced by running the lvm2 testsuite test
+lvconvert-thin-external-cache.sh for several minutes, e.g.:
+  while :; do make check T=shell/lvconvert-thin-external-cache.sh; done
+
+The crash happens in this call chain:
+do_waker -> policy_tick -> smq_tick -> end_hotspot_period -> clear_bitset
+-> memset -> __memset -- which accesses an invalid pointer in the vmalloc
+area.
+
+The work entry on the workqueue is executed even after the bitmap was
+freed. The problem is that cancel_delayed_work doesn't wait for the
+running work item to finish, so the work item can continue running and
+re-submitting itself even after cache_postsuspend. In order to make sure
+that the work item won't be running, we must use cancel_delayed_work_sync.
+
+Also, change flush_workqueue to drain_workqueue, so that if some work item
+submits itself or another work item, we are properly waiting for both of
+them.
+
+Fixes: c6b4fcbad044 ("dm: add cache target")
+Cc: stable@vger.kernel.org # v3.9
+Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+
+---
+ drivers/md/dm-cache-target.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+Index: linux-stable/drivers/md/dm-cache-target.c
+===================================================================
+--- linux-stable.orig/drivers/md/dm-cache-target.c	2020-03-10 10:03:40.000000000 +0100
++++ linux-stable/drivers/md/dm-cache-target.c	2020-03-10 10:03:58.000000000 +0100
+@@ -2192,8 +2192,8 @@ static void wait_for_migrations(struct c
+ 
+ static void stop_worker(struct cache *cache)
+ {
+-	cancel_delayed_work(&cache->waker);
+-	flush_workqueue(cache->wq);
++	cancel_delayed_work_sync(&cache->waker);
++	drain_workqueue(cache->wq);
+ }
+ 
+ static void requeue_deferred_cells(struct cache *cache)
+
