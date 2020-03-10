@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E8B7C17FD6A
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:29:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 47DE717FC8F
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:22:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729307AbgCJMyI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 08:54:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60542 "EHLO mail.kernel.org"
+        id S1730346AbgCJNVt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 09:21:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45190 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728894AbgCJMyH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 08:54:07 -0400
+        id S1730388AbgCJNCY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 09:02:24 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8F8522253D;
-        Tue, 10 Mar 2020 12:54:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E68112468D;
+        Tue, 10 Mar 2020 13:02:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583844847;
-        bh=BOycNQ3hu9z5TKmz+nFLfEl5WjjEGkeMuxukdNWX07A=;
+        s=default; t=1583845344;
+        bh=Gi2HCx1YofuYMRCXOfa14WQHjbGNP+q62w86WcmCKYo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xTAiownthVje3YrDFgnNdbh30iu01ZPqcUGydmCNy2RWkbDC4x8K4oRa+cd7mwNHC
-         c3fxjlEWRTVwgKEYjsEB2ZHOowZQjjI30bFtUK5cu0Jc3VqvNxUZ+XYqoSod2mA0ki
-         R0Aj5HkQTi/2BB5dHGmZaJNp9L7QXOYXRj54kGA4=
+        b=nMSb1O704GrS5Y2NJhgDLJKVgNwSxHOWENSsBmw4ymxUnU84nTtQ8wpENA3+1MAIt
+         Paz4w7YFwrEb9RSGKp5wyv40LDNOYkjcWStYv3fjaqG8MrF/8NCbj5fji0j6cH8mYW
+         lUOCj/eiTXF5dGWrq1YMQyD5oGR8BojRBbFV9E78=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marco Felsch <m.felsch@pengutronix.de>,
-        Shawn Guo <shawnguo@kernel.org>
-Subject: [PATCH 5.4 139/168] ARM: dts: imx6: phycore-som: fix emmc supply
+        stable@vger.kernel.org,
+        Stanislav Lisovskiy <stanislav.lisovskiy@intel.com>,
+        Matt Roper <matthew.d.roper@intel.com>,
+        Matt Atwood <matthew.s.atwood@intel.com>,
+        Jani Nikula <jani.nikula@intel.com>
+Subject: [PATCH 5.5 148/189] drm/i915: Program MBUS with rmw during initialization
 Date:   Tue, 10 Mar 2020 13:39:45 +0100
-Message-Id: <20200310123649.563525286@linuxfoundation.org>
+Message-Id: <20200310123654.808776227@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200310123635.322799692@linuxfoundation.org>
-References: <20200310123635.322799692@linuxfoundation.org>
+In-Reply-To: <20200310123639.608886314@linuxfoundation.org>
+References: <20200310123639.608886314@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,33 +46,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marco Felsch <m.felsch@pengutronix.de>
+From: Matt Roper <matthew.d.roper@intel.com>
 
-commit eb0bbba7636b9fc81939d6087a5fe575e150c95a upstream.
+commit c725161924f9a5872a3e53b73345a6026a5c170e upstream.
 
-Currently the vmmc is supplied by the 1.8V pmic rail but this is wrong.
-The default module behaviour is to power VCCQ and VCC by the 3.3V power
-rail. Optional the user can connect the VCCQ to the pmic 1.8V emmc
-power rail using a solder jumper.
+It wasn't terribly clear from the bspec's wording, but after discussion
+with the hardware folks, it turns out that we need to preserve the
+pre-existing contents of the MBUS ABOX control register when
+initializing a few specific bits.
 
-Fixes: ddec5d1c0047 ("ARM: dts: imx6: Add initial support for phyCORE-i.MX 6 SOM")
-Signed-off-by: Marco Felsch <m.felsch@pengutronix.de>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Bspec: 49213
+Bspec: 50096
+Fixes: 4cb4585e5a7f ("drm/i915/icl: initialize MBus during display init")
+Cc: Stanislav Lisovskiy <stanislav.lisovskiy@intel.com>
+Signed-off-by: Matt Roper <matthew.d.roper@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200204011032.582737-1-matthew.d.roper@intel.com
+Reviewed-by: Matt Atwood <matthew.s.atwood@intel.com>
+(cherry picked from commit 837b63e6087838d0f1e612d448405419199d8033)
+Signed-off-by: Jani Nikula <jani.nikula@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200228004320.127142-1-matthew.d.roper@intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm/boot/dts/imx6qdl-phytec-phycore-som.dtsi |    1 -
- 1 file changed, 1 deletion(-)
+ drivers/gpu/drm/i915/display/intel_display_power.c |   16 +++++++++++-----
+ 1 file changed, 11 insertions(+), 5 deletions(-)
 
---- a/arch/arm/boot/dts/imx6qdl-phytec-phycore-som.dtsi
-+++ b/arch/arm/boot/dts/imx6qdl-phytec-phycore-som.dtsi
-@@ -183,7 +183,6 @@
- 	pinctrl-0 = <&pinctrl_usdhc4>;
- 	bus-width = <8>;
- 	non-removable;
--	vmmc-supply = <&vdd_emmc_1p8>;
- 	status = "disabled";
- };
+--- a/drivers/gpu/drm/i915/display/intel_display_power.c
++++ b/drivers/gpu/drm/i915/display/intel_display_power.c
+@@ -4471,13 +4471,19 @@ static void icl_dbuf_disable(struct drm_
+ 
+ static void icl_mbus_init(struct drm_i915_private *dev_priv)
+ {
+-	u32 val;
++	u32 mask, val;
+ 
+-	val = MBUS_ABOX_BT_CREDIT_POOL1(16) |
+-	      MBUS_ABOX_BT_CREDIT_POOL2(16) |
+-	      MBUS_ABOX_B_CREDIT(1) |
+-	      MBUS_ABOX_BW_CREDIT(1);
++	mask = MBUS_ABOX_BT_CREDIT_POOL1_MASK |
++		MBUS_ABOX_BT_CREDIT_POOL2_MASK |
++		MBUS_ABOX_B_CREDIT_MASK |
++		MBUS_ABOX_BW_CREDIT_MASK;
+ 
++	val = I915_READ(MBUS_ABOX_CTL);
++	val &= ~mask;
++	val |= MBUS_ABOX_BT_CREDIT_POOL1(16) |
++		MBUS_ABOX_BT_CREDIT_POOL2(16) |
++		MBUS_ABOX_B_CREDIT(1) |
++		MBUS_ABOX_BW_CREDIT(1);
+ 	I915_WRITE(MBUS_ABOX_CTL, val);
+ }
  
 
 
