@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B22217FB38
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:11:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 935EB17FB37
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:11:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731476AbgCJNLw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1730479AbgCJNLw (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 10 Mar 2020 09:11:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33576 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:33672 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731472AbgCJNLt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 09:11:49 -0400
+        id S1728630AbgCJNLv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 09:11:51 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A463E208E4;
-        Tue, 10 Mar 2020 13:11:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9751220409;
+        Tue, 10 Mar 2020 13:11:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583845908;
-        bh=3VYHnFW9xuaaqOe/hIphKKB4MipCxChBwxd5IRK5Rbs=;
+        s=default; t=1583845911;
+        bh=e5BxQUvwtKpoy8dVgoesU1wA5L+9SWslk6w8zeHqf44=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0OUed2/ENu32jr+ePk2CCbFJh6ChNXYHiEg4pHo0s00nySa1sS3LPdceSEQtW95ap
-         r/xpI1Zkibnm7s0RQIHXYMy4fidCnwVLLmgNUfmb/PT58jwiBDVEmCONi9kpAnpUCa
-         9KUOyLRyz5RXRMFtj4wldvStzd6FHBheN1YBBYkU=
+        b=LFW5s5nwkocSEW+weROnR2jOQgR7kEci/zT+2OMKVIFDGOFJb+1QU6q55tOALarHl
+         R1fY3XWuISOWJdcndDDp+K+XsRuk6AYGMotAfwnxtjOuFkkRPm6li5P+4OC5i4/VZ4
+         wKax+xItYDoWZc6GeWrQwvcB1jGvnQ4pe9vp3Jf0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hangbin Liu <liuhangbin@gmail.com>,
-        Petr Machata <pmachata@gmail.com>,
+        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 18/86] selftests: forwarding: use proto icmp for {gretap, ip6gretap}_mac testing
-Date:   Tue, 10 Mar 2020 13:44:42 +0100
-Message-Id: <20200310124531.769768138@linuxfoundation.org>
+Subject: [PATCH 4.19 19/86] net: dsa: b53: Ensure the default VID is untagged
+Date:   Tue, 10 Mar 2020 13:44:43 +0100
+Message-Id: <20200310124531.821550110@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200310124530.808338541@linuxfoundation.org>
 References: <20200310124530.808338541@linuxfoundation.org>
@@ -45,116 +44,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hangbin Liu <liuhangbin@gmail.com>
+From: Florian Fainelli <f.fainelli@gmail.com>
 
-[ Upstream commit e8023b030ce1748930e2dc76353a262fe47d4745 ]
+[ Upstream commit d965a5432d4c3e6b9c3d2bc1d4a800013bbf76f6 ]
 
-For tc ip_proto filter, when we extract the flow via __skb_flow_dissect()
-without flag FLOW_DISSECTOR_F_STOP_AT_ENCAP, we will continue extract to
-the inner proto.
+We need to ensure that the default VID is untagged otherwise the switch
+will be sending tagged frames and the results can be problematic. This
+is especially true with b53 switches that use VID 0 as their default
+VLAN since VID 0 has a special meaning.
 
-So for GRE + ICMP messages, we should not track GRE proto, but inner ICMP
-proto.
-
-For test mirror_gre.sh, it may make user confused if we capture ICMP
-message on $h3(since the flow is GRE message). So I move the capture
-dev to h3-gt{4,6}, and only capture ICMP message.
-
-Before the fix:
-]# ./mirror_gre.sh
-TEST: ingress mirror to gretap (skip_hw)                            [ OK ]
-TEST: egress mirror to gretap (skip_hw)                             [ OK ]
-TEST: ingress mirror to ip6gretap (skip_hw)                         [ OK ]
-TEST: egress mirror to ip6gretap (skip_hw)                          [ OK ]
-TEST: ingress mirror to gretap: envelope MAC (skip_hw)              [FAIL]
- Expected to capture 10 packets, got 0.
-TEST: egress mirror to gretap: envelope MAC (skip_hw)               [FAIL]
- Expected to capture 10 packets, got 0.
-TEST: ingress mirror to ip6gretap: envelope MAC (skip_hw)           [FAIL]
- Expected to capture 10 packets, got 0.
-TEST: egress mirror to ip6gretap: envelope MAC (skip_hw)            [FAIL]
- Expected to capture 10 packets, got 0.
-TEST: two simultaneously configured mirrors (skip_hw)               [ OK ]
-WARN: Could not test offloaded functionality
-
-After fix:
-]# ./mirror_gre.sh
-TEST: ingress mirror to gretap (skip_hw)                            [ OK ]
-TEST: egress mirror to gretap (skip_hw)                             [ OK ]
-TEST: ingress mirror to ip6gretap (skip_hw)                         [ OK ]
-TEST: egress mirror to ip6gretap (skip_hw)                          [ OK ]
-TEST: ingress mirror to gretap: envelope MAC (skip_hw)              [ OK ]
-TEST: egress mirror to gretap: envelope MAC (skip_hw)               [ OK ]
-TEST: ingress mirror to ip6gretap: envelope MAC (skip_hw)           [ OK ]
-TEST: egress mirror to ip6gretap: envelope MAC (skip_hw)            [ OK ]
-TEST: two simultaneously configured mirrors (skip_hw)               [ OK ]
-WARN: Could not test offloaded functionality
-
-Fixes: ba8d39871a10 ("selftests: forwarding: Add test for mirror to gretap")
-Signed-off-by: Hangbin Liu <liuhangbin@gmail.com>
-Reviewed-by: Petr Machata <pmachata@gmail.com>
-Tested-by: Petr Machata <pmachata@gmail.com>
+Fixes: fea83353177a ("net: dsa: b53: Fix default VLAN ID")
+Fixes: 061f6a505ac3 ("net: dsa: Add ndo_vlan_rx_{add, kill}_vid implementation")
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../selftests/net/forwarding/mirror_gre.sh    | 25 ++++++++++---------
- 1 file changed, 13 insertions(+), 12 deletions(-)
+ drivers/net/dsa/b53/b53_common.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/tools/testing/selftests/net/forwarding/mirror_gre.sh b/tools/testing/selftests/net/forwarding/mirror_gre.sh
-index e6fd7a18c655f..0266443601bc0 100755
---- a/tools/testing/selftests/net/forwarding/mirror_gre.sh
-+++ b/tools/testing/selftests/net/forwarding/mirror_gre.sh
-@@ -63,22 +63,23 @@ test_span_gre_mac()
- {
- 	local tundev=$1; shift
- 	local direction=$1; shift
--	local prot=$1; shift
- 	local what=$1; shift
+diff --git a/drivers/net/dsa/b53/b53_common.c b/drivers/net/dsa/b53/b53_common.c
+index 51436e7eae103..ac5d945b934a0 100644
+--- a/drivers/net/dsa/b53/b53_common.c
++++ b/drivers/net/dsa/b53/b53_common.c
+@@ -1165,6 +1165,9 @@ void b53_vlan_add(struct dsa_switch *ds, int port,
  
--	local swp3mac=$(mac_get $swp3)
--	local h3mac=$(mac_get $h3)
-+	case "$direction" in
-+	ingress) local src_mac=$(mac_get $h1); local dst_mac=$(mac_get $h2)
-+		;;
-+	egress) local src_mac=$(mac_get $h2); local dst_mac=$(mac_get $h1)
-+		;;
-+	esac
+ 		b53_get_vlan_entry(dev, vid, vl);
  
- 	RET=0
- 
- 	mirror_install $swp1 $direction $tundev "matchall $tcflags"
--	tc filter add dev $h3 ingress pref 77 prot $prot \
--		flower ip_proto 0x2f src_mac $swp3mac dst_mac $h3mac \
--		action pass
-+	icmp_capture_install h3-${tundev} "src_mac $src_mac dst_mac $dst_mac"
- 
--	mirror_test v$h1 192.0.2.1 192.0.2.2 $h3 77 10
-+	mirror_test v$h1 192.0.2.1 192.0.2.2 h3-${tundev} 100 10
- 
--	tc filter del dev $h3 ingress pref 77
-+	icmp_capture_uninstall h3-${tundev}
- 	mirror_uninstall $swp1 $direction
- 
- 	log_test "$direction $what: envelope MAC ($tcflags)"
-@@ -120,14 +121,14 @@ test_ip6gretap()
- 
- test_gretap_mac()
- {
--	test_span_gre_mac gt4 ingress ip "mirror to gretap"
--	test_span_gre_mac gt4 egress ip "mirror to gretap"
-+	test_span_gre_mac gt4 ingress "mirror to gretap"
-+	test_span_gre_mac gt4 egress "mirror to gretap"
- }
- 
- test_ip6gretap_mac()
- {
--	test_span_gre_mac gt6 ingress ipv6 "mirror to ip6gretap"
--	test_span_gre_mac gt6 egress ipv6 "mirror to ip6gretap"
-+	test_span_gre_mac gt6 ingress "mirror to ip6gretap"
-+	test_span_gre_mac gt6 egress "mirror to ip6gretap"
- }
- 
- test_all()
++		if (vid == 0 && vid == b53_default_pvid(dev))
++			untagged = true;
++
+ 		vl->members |= BIT(port);
+ 		if (untagged && !dsa_is_cpu_port(ds, port))
+ 			vl->untag |= BIT(port);
 -- 
 2.20.1
 
