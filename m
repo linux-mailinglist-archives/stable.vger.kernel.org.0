@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B13517F7D6
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 13:43:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B3D6E17F8EA
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 13:52:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727401AbgCJMmh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 08:42:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42666 "EHLO mail.kernel.org"
+        id S1727850AbgCJMwR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 08:52:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57878 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726729AbgCJMmh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 08:42:37 -0400
+        id S1729024AbgCJMwQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 08:52:16 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 723E224691;
-        Tue, 10 Mar 2020 12:42:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 232FA20674;
+        Tue, 10 Mar 2020 12:52:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583844157;
-        bh=SQ2MaxiEeeggYa8Al9n/ttmWC3FChj2NL+dGYfBYCuY=;
+        s=default; t=1583844733;
+        bh=Hv/zFigUtWuyvjMe+xMgpy36FHJ+5DjFT0Oop1pwdqY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YsYjpZ6MD3mXXJwXz99lIpwxCn2blAhxl+48XbtJ+DNTKt8Djwu3S0IsZzyBeRGJe
-         30y2X7zN6017r4tY5ecgpikqKH3e+B6upw5/8urQP3OJ/0sW4jiAm9zpImWrwSu0XH
-         UbTjwjUezHHdE84aDdZcRj0MXEPWB1wRYsWUn7jo=
+        b=IOe1Sqtw8EI77wSW5CMqM/UVblBiVXzqn0S64KzGtDwAbp/XcIAeBuGp23eJ+nz5N
+         4BmrHjXP5V8AoVUe9PwBvRdji5/JcCywJIRiStZGBuvCLHW5xhOhKo9UzvYky+TgKM
+         g2rnAvjDAN+blceyYlSiLx6R6sDZ94gXdpj/t/RY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ronnie Sahlberg <lsahlber@redhat.com>,
-        Steve French <stfrench@microsoft.com>,
-        Pavel Shilovsky <pshilov@microsoft.com>,
-        Aurelien Aptel <aaptel@suse.com>
-Subject: [PATCH 4.4 50/72] cifs: dont leak -EAGAIN for stat() during reconnect
-Date:   Tue, 10 Mar 2020 13:39:03 +0100
-Message-Id: <20200310123613.706021327@linuxfoundation.org>
+        stable@vger.kernel.org, Niklas Schnelle <schnelle@linux.ibm.com>,
+        Pierre Morel <pmorel@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>
+Subject: [PATCH 5.4 098/168] s390/pci: Fix unexpected write combine on resource
+Date:   Tue, 10 Mar 2020 13:39:04 +0100
+Message-Id: <20200310123645.304199904@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200310123601.053680753@linuxfoundation.org>
-References: <20200310123601.053680753@linuxfoundation.org>
+In-Reply-To: <20200310123635.322799692@linuxfoundation.org>
+References: <20200310123635.322799692@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,61 +44,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ronnie Sahlberg <lsahlber@redhat.com>
+From: Niklas Schnelle <schnelle@linux.ibm.com>
 
-commit fc513fac56e1b626ae48a74d7551d9c35c50129e upstream.
+commit df057c914a9c219ac8b8ed22caf7da2f80c1fe26 upstream.
 
-If from cifs_revalidate_dentry_attr() the SMB2/QUERY_INFO call fails with an
-error, such as STATUS_SESSION_EXPIRED, causing the session to be reconnected
-it is possible we will leak -EAGAIN back to the application even for
-system calls such as stat() where this is not a valid error.
+In the initial MIO support introduced in
 
-Fix this by re-trying the operation from within cifs_revalidate_dentry_attr()
-if cifs_get_inode_info*() returns -EAGAIN.
+commit 71ba41c9b1d9 ("s390/pci: provide support for MIO instructions")
 
-This fixes stat() and possibly also other system calls that uses
-cifs_revalidate_dentry*().
+zpci_map_resource() and zpci_setup_resources() default to using the
+mio_wb address as the resource's start address. This means users of the
+mapping, which includes most drivers, will get write combining on PCI
+Stores. This may lead to problems when drivers expect write through
+behavior when not using an explicit ioremap_wc().
 
-Signed-off-by: Ronnie Sahlberg <lsahlber@redhat.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
-Reviewed-by: Pavel Shilovsky <pshilov@microsoft.com>
-Reviewed-by: Aurelien Aptel <aaptel@suse.com>
-CC: Stable <stable@vger.kernel.org>
+Cc: stable@vger.kernel.org
+Fixes: 71ba41c9b1d9 ("s390/pci: provide support for MIO instructions")
+Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
+Reviewed-by: Pierre Morel <pmorel@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/cifs/inode.c |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ arch/s390/pci/pci.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/fs/cifs/inode.c
-+++ b/fs/cifs/inode.c
-@@ -1957,6 +1957,7 @@ int cifs_revalidate_dentry_attr(struct d
- 	struct inode *inode = d_inode(dentry);
- 	struct super_block *sb = dentry->d_sb;
- 	char *full_path = NULL;
-+	int count = 0;
+--- a/arch/s390/pci/pci.c
++++ b/arch/s390/pci/pci.c
+@@ -423,7 +423,7 @@ static void zpci_map_resources(struct pc
  
- 	if (inode == NULL)
- 		return -ENOENT;
-@@ -1978,15 +1979,18 @@ int cifs_revalidate_dentry_attr(struct d
- 		 full_path, inode, inode->i_count.counter,
- 		 dentry, dentry->d_time, jiffies);
+ 		if (zpci_use_mio(zdev))
+ 			pdev->resource[i].start =
+-				(resource_size_t __force) zdev->bars[i].mio_wb;
++				(resource_size_t __force) zdev->bars[i].mio_wt;
+ 		else
+ 			pdev->resource[i].start = (resource_size_t __force)
+ 				pci_iomap_range_fh(pdev, i, 0, 0);
+@@ -530,7 +530,7 @@ static int zpci_setup_bus_resources(stru
+ 			flags |= IORESOURCE_MEM_64;
  
-+again:
- 	if (cifs_sb_master_tcon(CIFS_SB(sb))->unix_ext)
- 		rc = cifs_get_inode_info_unix(&inode, full_path, sb, xid);
- 	else
- 		rc = cifs_get_inode_info(&inode, full_path, NULL, sb,
- 					 xid, NULL);
--
-+	if (rc == -EAGAIN && count++ < 10)
-+		goto again;
- out:
- 	kfree(full_path);
- 	free_xid(xid);
-+
- 	return rc;
- }
- 
+ 		if (zpci_use_mio(zdev))
+-			addr = (unsigned long) zdev->bars[i].mio_wb;
++			addr = (unsigned long) zdev->bars[i].mio_wt;
+ 		else
+ 			addr = ZPCI_ADDR(entry);
+ 		size = 1UL << zdev->bars[i].size;
 
 
