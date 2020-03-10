@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F8BF17FE4C
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:34:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A03B817FE94
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:36:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727697AbgCJMqo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 08:46:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50092 "EHLO mail.kernel.org"
+        id S1726271AbgCJNgP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 09:36:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43386 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726548AbgCJMqn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 08:46:43 -0400
+        id S1727505AbgCJMnG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 08:43:06 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F128F20674;
-        Tue, 10 Mar 2020 12:46:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C93A524686;
+        Tue, 10 Mar 2020 12:43:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583844402;
-        bh=aQyOo51tJXpfdWYbk8rtLOh1ur5fSsFP40lAEGRT9CI=;
+        s=default; t=1583844186;
+        bh=iFBAE3jHL+j4tT2G+1lpn9sKSf0sZiOsg8eifKMzM3c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2UH33dAb3vxB8u4Fsi8qtzed+lbimkOqDvJG7beaPPsqB2VtmTvAXmhPYosCRwmPq
-         xntWw6rvwlHCeuNo0dluJvzug++g7R13qtMBYPldZKN0xvM92/rFIHLxihlQ1BP4/w
-         YkQzLcDvHkmE8wnFFcQfF4hF2//WgbCgW/oq2fNE=
+        b=ARtNzP6waO+YSjXSNaHmRoNiDsoQBHe9Vo/4FwGbjA33TgP3rKGDC0CMD/f91ex7h
+         Rk6d2CNwbBbRyp9JVoS/XxjynpoBmuPCkE+QukIfNT79pZ127eRnGh6j3528EwZ5lP
+         Q0ZT18vg+TWxQQk9NHzqarCLqwaxc1lTDxUL4VWY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
-        Eugeniu Rosca <erosca@de.adit-jv.com>
-Subject: [PATCH 4.9 67/88] usb: core: port: do error out if usb_autopm_get_interface() fails
-Date:   Tue, 10 Mar 2020 13:39:15 +0100
-Message-Id: <20200310123622.817577268@linuxfoundation.org>
+        stable@vger.kernel.org, Matthias Reichl <hias@horus.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 4.4 63/72] ASoC: pcm512x: Fix unbalanced regulator enable call in probe error path
+Date:   Tue, 10 Mar 2020 13:39:16 +0100
+Message-Id: <20200310123617.082260261@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200310123606.543939933@linuxfoundation.org>
-References: <20200310123606.543939933@linuxfoundation.org>
+In-Reply-To: <20200310123601.053680753@linuxfoundation.org>
+References: <20200310123601.053680753@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,62 +44,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eugeniu Rosca <erosca@de.adit-jv.com>
+From: Matthias Reichl <hias@horus.com>
 
-commit 1f8b39bc99a31759e97a0428a5c3f64802c1e61d upstream.
+commit ac0a68997935c4acb92eaae5ad8982e0bb432d56 upstream.
 
-Reviewing a fresh portion of coverity defects in USB core
-(specifically CID 1458999), Alan Stern noted below in [1]:
+When we get a clock error during probe we have to call
+regulator_bulk_disable before bailing out, otherwise we trigger
+a warning in regulator_put.
 
-On Tue, Feb 25, 2020 at 02:39:23PM -0500, Alan Stern wrote:
- > A revised search finds line 997 in drivers/usb/core/hub.c and lines
- > 216, 269 in drivers/usb/core/port.c.  (I didn't try looking in any
- > other directories.)  AFAICT all three of these should check the
- > return value, although a error message in the kernel log probably
- > isn't needed.
+Fix this by using "goto err" like in the error cases above.
 
-Factor out the usb_port_runtime_{resume,suspend}() changes into a
-standalone patch to allow conflict-free porting on top of stable v3.9+.
-
-[1] https://lore.kernel.org/lkml/Pine.LNX.4.44L0.2002251419120.1485-100000@iolanthe.rowland.org
-
-Fixes: 971fcd492cebf5 ("usb: add runtime pm support for usb port device")
-Cc: stable@vger.kernel.org # v3.9+
-Suggested-by: Alan Stern <stern@rowland.harvard.edu>
-Signed-off-by: Eugeniu Rosca <erosca@de.adit-jv.com>
-Acked-by: Alan Stern <stern@rowland.harvard.edu>
-Link: https://lore.kernel.org/r/20200226175036.14946-3-erosca@de.adit-jv.com
+Fixes: 5a3af1293194d ("ASoC: pcm512x: Add PCM512x driver")
+Signed-off-by: Matthias Reichl <hias@horus.com>
+Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Link: https://lore.kernel.org/r/20200220202956.29233-1-hias@horus.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/core/port.c |   10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ sound/soc/codecs/pcm512x.c |    8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
---- a/drivers/usb/core/port.c
-+++ b/drivers/usb/core/port.c
-@@ -179,7 +179,10 @@ static int usb_port_runtime_resume(struc
- 	if (!port_dev->is_superspeed && peer)
- 		pm_runtime_get_sync(&peer->dev);
+--- a/sound/soc/codecs/pcm512x.c
++++ b/sound/soc/codecs/pcm512x.c
+@@ -1439,13 +1439,15 @@ int pcm512x_probe(struct device *dev, st
+ 	}
  
--	usb_autopm_get_interface(intf);
-+	retval = usb_autopm_get_interface(intf);
-+	if (retval < 0)
-+		return retval;
-+
- 	retval = usb_hub_set_port_power(hdev, hub, port1, true);
- 	msleep(hub_power_on_good_delay(hub));
- 	if (udev && !retval) {
-@@ -232,7 +235,10 @@ static int usb_port_runtime_suspend(stru
- 	if (usb_port_block_power_off)
- 		return -EBUSY;
+ 	pcm512x->sclk = devm_clk_get(dev, NULL);
+-	if (PTR_ERR(pcm512x->sclk) == -EPROBE_DEFER)
+-		return -EPROBE_DEFER;
++	if (PTR_ERR(pcm512x->sclk) == -EPROBE_DEFER) {
++		ret = -EPROBE_DEFER;
++		goto err;
++	}
+ 	if (!IS_ERR(pcm512x->sclk)) {
+ 		ret = clk_prepare_enable(pcm512x->sclk);
+ 		if (ret != 0) {
+ 			dev_err(dev, "Failed to enable SCLK: %d\n", ret);
+-			return ret;
++			goto err;
+ 		}
+ 	}
  
--	usb_autopm_get_interface(intf);
-+	retval = usb_autopm_get_interface(intf);
-+	if (retval < 0)
-+		return retval;
-+
- 	retval = usb_hub_set_port_power(hdev, hub, port1, false);
- 	usb_clear_port_feature(hdev, port1, USB_PORT_FEAT_C_CONNECTION);
- 	if (!port_dev->is_superspeed)
 
 
