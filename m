@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B9BF317FA3E
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:04:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4DA2317FA64
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:05:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728547AbgCJNDw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 09:03:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48666 "EHLO mail.kernel.org"
+        id S1730662AbgCJNDx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 09:03:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48746 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728581AbgCJNDu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 09:03:50 -0400
+        id S1730659AbgCJNDx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 09:03:53 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3C37820409;
-        Tue, 10 Mar 2020 13:03:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BACB1208E4;
+        Tue, 10 Mar 2020 13:03:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583845429;
-        bh=boie7kjDXkrMgYA2kRh557Gzikic9mujKoVkRXup9ow=;
+        s=default; t=1583845432;
+        bh=WT1CUfg1qElEb8x9nr6gHgJArDA6hGpqVjQJywTOviU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sgUqaEibi53ZQ6Suf2yOo8ZSOwFH3pun5Uneo9OwPQhVewZzlOZKAxwnwAIS2BUDd
-         /Ub544ehoRvcuwYmCLSSd0PVXv65h2HNpsDEZntEwAQM9puA6zWorLzS9RsHm6Szr9
-         FFC5iABsjXji4VNaJuJtmaydSC2tUBey98TLDOWc=
+        b=fyIjbkCbJPKqszskHSr+20Kk6GHs1ciAtVl+J/nKjMYiIQg1zq1TNTU1hbWTb7uJS
+         CaKzOAVR/E0aYAREwYzn4+S/cK0xDWQWkAFwDBzlgg8Pk83noE3oF2slaDn1lLSyQC
+         l5QDtvamXHQJ3uYOFJQykjvBPZhU7EojzOI6Y/Ww=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Vinod Koul <vkoul@kernel.org>
-Subject: [PATCH 5.5 179/189] dmaengine: coh901318: Fix a double lock bug in dma_tc_handle()
-Date:   Tue, 10 Mar 2020 13:40:16 +0100
-Message-Id: <20200310123657.728086134@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        Ingo Molnar <mingo@kernel.org>,
+        Peter Zijlstra <a.p.zijlstra@chello.nl>,
+        Mel Gorman <mgorman@techsingularity.net>
+Subject: [PATCH 5.5 180/189] sched/fair: Fix statistics for find_idlest_group()
+Date:   Tue, 10 Mar 2020 13:40:17 +0100
+Message-Id: <20200310123657.801985824@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200310123639.608886314@linuxfoundation.org>
 References: <20200310123639.608886314@linuxfoundation.org>
@@ -43,41 +46,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Vincent Guittot <vincent.guittot@linaro.org>
 
-commit 36d5d22090d13fd3a7a8c9663a711cbe6970aac8 upstream.
+commit 289de35984815576793f579ec27248609e75976e upstream.
 
-The caller is already holding the lock so this will deadlock.
+sgs->group_weight is not set while gathering statistics in
+update_sg_wakeup_stats(). This means that a group can be classified as
+fully busy with 0 running tasks if utilization is high enough.
 
-Fixes: 0b58828c923e ("DMAENGINE: COH 901 318 remove irq counting")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Link: https://lore.kernel.org/r/20200217144050.3i4ymbytogod4ijn@kili.mountain
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+This path is mainly used for fork and exec.
+
+Fixes: 57abff067a08 ("sched/fair: Rework find_idlest_group()")
+Signed-off-by: Vincent Guittot <vincent.guittot@linaro.org>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Acked-by: Peter Zijlstra <a.p.zijlstra@chello.nl>
+Acked-by: Mel Gorman <mgorman@techsingularity.net>
+Link: https://lore.kernel.org/r/20200218144534.4564-1-vincent.guittot@linaro.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/dma/coh901318.c |    4 ----
- 1 file changed, 4 deletions(-)
+ kernel/sched/fair.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/dma/coh901318.c
-+++ b/drivers/dma/coh901318.c
-@@ -1947,8 +1947,6 @@ static void dma_tc_handle(struct coh9013
- 		return;
- 	}
+--- a/kernel/sched/fair.c
++++ b/kernel/sched/fair.c
+@@ -8315,6 +8315,8 @@ static inline void update_sg_wakeup_stat
  
--	spin_lock(&cohc->lock);
--
- 	/*
- 	 * When we reach this point, at least one queue item
- 	 * should have been moved over from cohc->queue to
-@@ -1969,8 +1967,6 @@ static void dma_tc_handle(struct coh9013
- 	if (coh901318_queue_start(cohc) == NULL)
- 		cohc->busy = 0;
+ 	sgs->group_capacity = group->sgc->capacity;
  
--	spin_unlock(&cohc->lock);
--
++	sgs->group_weight = group->group_weight;
++
+ 	sgs->group_type = group_classify(sd->imbalance_pct, group, sgs);
+ 
  	/*
- 	 * This tasklet will remove items from cohc->active
- 	 * and thus terminates them.
 
 
