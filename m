@@ -2,82 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 74A70180414
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 17:56:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ABB241803B5
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 17:39:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726571AbgCJQ4i convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Tue, 10 Mar 2020 12:56:38 -0400
-Received: from 12.mo6.mail-out.ovh.net ([178.32.125.228]:39841 "EHLO
-        12.mo6.mail-out.ovh.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726442AbgCJQ4h (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Mar 2020 12:56:37 -0400
-X-Greylist: delayed 2399 seconds by postgrey-1.27 at vger.kernel.org; Tue, 10 Mar 2020 12:56:36 EDT
-Received: from player159.ha.ovh.net (unknown [10.108.57.139])
-        by mo6.mail-out.ovh.net (Postfix) with ESMTP id 32068202FEC
-        for <stable@vger.kernel.org>; Tue, 10 Mar 2020 16:38:46 +0100 (CET)
-Received: from kaod.org (lns-bzn-46-82-253-208-248.adsl.proxad.net [82.253.208.248])
-        (Authenticated sender: groug@kaod.org)
-        by player159.ha.ovh.net (Postfix) with ESMTPSA id B692E103FFFED;
-        Tue, 10 Mar 2020 15:38:42 +0000 (UTC)
-Date:   Tue, 10 Mar 2020 16:38:40 +0100
-From:   Greg Kurz <groug@kaod.org>
-To:     =?UTF-8?B?Q8OpZHJpYw==?= Le Goater <clg@kaod.org>
-Cc:     Michael Ellerman <mpe@ellerman.id.au>,
-        linuxppc-dev@lists.ozlabs.org, stable@vger.kernel.org
-Subject: Re: [PATCH 2/4] powerpc/xive: Fix xmon support on the PowerNV
- platform
-Message-ID: <20200310163840.063cd1b3@bahia.home>
-In-Reply-To: <20200306150143.5551-3-clg@kaod.org>
-References: <20200306150143.5551-1-clg@kaod.org>
-        <20200306150143.5551-3-clg@kaod.org>
-X-Mailer: Claws Mail 3.17.4 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
+        id S1726752AbgCJQjl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 12:39:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48782 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726647AbgCJQjl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 12:39:41 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 996F2222C3;
+        Tue, 10 Mar 2020 16:39:38 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1583858379;
+        bh=DAW7xTUed0FfcyKkaoTCpHE55I+ixoL7o21Jj1lUqZA=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=CPMiHDgw4e/BVbFl+DIYaq0q+o+/Q1tF9JzU/U68B1NHU7qvT748iN3MQmm6B1yP8
+         bObq+88sQqBKI+A0M6cCkbQnV5qGVwejvs3SvqlM41yDIxLjTaWUaiAe9hTzwkHz7j
+         kU1Ignb00T9aZuUn0oAEaFLRPFxtDi5S/wy7+4Vg=
+Date:   Tue, 10 Mar 2020 17:39:35 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Johan Hovold <johan@kernel.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Sanchayan Maity <maitysanchayan@gmail.com>,
+        Marcel Ziswiler <marcel.ziswiler@toradex.com>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Oleksandr Suvorov <oleksandr.suvorov@toradex.com>
+Subject: Re: [PATCH 5.5 175/189] ARM: dts: imx6dl-colibri-eval-v3: fix sram
+ compatible properties
+Message-ID: <20200310163935.GA3430367@kroah.com>
+References: <20200310123639.608886314@linuxfoundation.org>
+ <20200310123657.443556491@linuxfoundation.org>
+ <20200310150512.GC14211@localhost>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
-X-Ovh-Tracer-Id: 13008084576087677323
-X-VR-SPAMSTATE: OK
-X-VR-SPAMSCORE: 0
-X-VR-SPAMCAUSE: gggruggvucftvghtrhhoucdtuddrgedugedruddvtddgjeegucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuqfggjfdpvefjgfevmfevgfenuceurghilhhouhhtmecuhedttdenucenucfjughrpeffhffvuffkjghfofggtgfgsehtqhertdertdejnecuhfhrohhmpefirhgvghcumfhurhiiuceoghhrohhugheskhgrohgurdhorhhgqeenucfkpheptddrtddrtddrtddpkedvrddvheefrddvtdekrddvgeeknecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmohguvgepshhmthhpqdhouhhtpdhhvghlohepphhlrgihvghrudehledrhhgrrdhovhhhrdhnvghtpdhinhgvtheptddrtddrtddrtddpmhgrihhlfhhrohhmpehgrhhouhhgsehkrghougdrohhrghdprhgtphhtthhopehsthgrsghlvgesvhhgvghrrdhkvghrnhgvlhdrohhrgh
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200310150512.GC14211@localhost>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri,  6 Mar 2020 16:01:41 +0100
-Cédric Le Goater <clg@kaod.org> wrote:
-
-> The PowerNV platform has multiple IRQ chips and the xmon command
-> dumping the state of the XIVE interrupt should only operate on the
-> XIVE IRQ chip.
+On Tue, Mar 10, 2020 at 04:05:12PM +0100, Johan Hovold wrote:
+> On Tue, Mar 10, 2020 at 01:40:12PM +0100, Greg Kroah-Hartman wrote:
+> > From: Johan Hovold <johan@kernel.org>
+> > 
+> > commit bcbf53a0dab50980867476994f6079c1ec5bb3a3 upstream.
+> > 
+> > The sram-node compatible properties have mistakingly combined the
+> > model-specific string with the generic "mtd-ram" string.
+> > 
+> > Note that neither "cy7c1019dv33-10zsxi, mtd-ram" or
+> > "cy7c1019dv33-10zsxi" are used by any in-kernel driver and they are
+> > not present in any binding.
+> > 
+> > The physmap driver will however bind to platform devices that specify
+> > "mtd-ram".
+> > 
+> > Fixes: fc48e76489fd ("ARM: dts: imx6: Add support for Toradex Colibri iMX6 module")
+> > Cc: Sanchayan Maity <maitysanchayan@gmail.com>
+> > Cc: Marcel Ziswiler <marcel.ziswiler@toradex.com>
+> > Cc: Shawn Guo <shawnguo@kernel.org>
+> > Signed-off-by: Johan Hovold <johan@kernel.org>
+> > Reviewed-by: Oleksandr Suvorov <oleksandr.suvorov@toradex.com>
+> > Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+> > Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 > 
-> Fixes: 5896163f7f91 ("powerpc/xmon: Improve output of XIVE interrupts")
-> Cc: stable@vger.kernel.org # v5.4+
-> Signed-off-by: Cédric Le Goater <clg@kaod.org>
-> ---
-
-Reviewed-by: Greg Kurz <groug@kaod.org>
-
->  arch/powerpc/sysdev/xive/common.c | 4 ++++
->  1 file changed, 4 insertions(+)
+> This was never meant to go into stable so I didn't add a stable CC-tag.
 > 
-> diff --git a/arch/powerpc/sysdev/xive/common.c b/arch/powerpc/sysdev/xive/common.c
-> index 550baba98ec9..8155adc2225a 100644
-> --- a/arch/powerpc/sysdev/xive/common.c
-> +++ b/arch/powerpc/sysdev/xive/common.c
-> @@ -261,11 +261,15 @@ notrace void xmon_xive_do_dump(int cpu)
->  
->  int xmon_xive_get_irq_config(u32 hw_irq, struct irq_data *d)
->  {
-> +	struct irq_chip *chip = irq_data_get_irq_chip(d);
->  	int rc;
->  	u32 target;
->  	u8 prio;
->  	u32 lirq;
->  
-> +	if (!is_xive_irq(chip))
-> +		return -EINVAL;
-> +
->  	rc = xive_ops->get_irq_config(hw_irq, &target, &prio, &lirq);
->  	if (rc) {
->  		xmon_printf("IRQ 0x%08x : no config rc=%d\n", hw_irq, rc);
+> It causes a driver to bind to the corresponding platform devices, which
+> have so far been unbound and may therefore have unwanted side-effects.
+> 
+> I don't think it's stable material either way.
 
+Thanks, now dropped from all kernel trees.
+
+greg k-h
