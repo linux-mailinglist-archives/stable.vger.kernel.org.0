@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 08F1217FBAB
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:16:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7168817FB86
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:14:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731684AbgCJNOf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 09:14:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38446 "EHLO mail.kernel.org"
+        id S1730152AbgCJNOi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 09:14:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38522 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730352AbgCJNOf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 09:14:35 -0400
+        id S1730352AbgCJNOh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 09:14:37 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1DE56208E4;
-        Tue, 10 Mar 2020 13:14:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 89E45208E4;
+        Tue, 10 Mar 2020 13:14:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583846074;
-        bh=pa4rtIdt+J/KPSGDNPxCrNJY9q9sv5d3ABtemL83ATg=;
+        s=default; t=1583846077;
+        bh=llynbQKbK6n+wI4aDXwNHYl+NblAb+NHlVsftpKe+UM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QkGfie9oNFBYsvIROJiQcQu9Yib+uzG0M1pbba42TWmYfn7M9N4C4hTaC5M41xalO
-         c+ArevEBx2T91wWLCmVrQQcRh17JIVnpVG9QaB8UVYKJCwaWjHbukXQqt+mlh4UE1r
-         9K+FQ27oCZ5IjG/IYdJp2ubU/L362iYfM174FqW4=
+        b=D3lwFSP06ZQZtzisUHqTH66ft5oBsmn4HCLdcXGFN1UUqaQfPn34o/SFMu85Hyoat
+         O+ZdCl1KxgKfYygymwNKBsK2puy4eaUUtx7rfLPEIKZIrcBn8OC6rEuJQ14Y4IQxd/
+         Sj2hVLH7VMpdQsAlUQoSh6c+dUMZENqEHhOFWZ20=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sanchayan Maity <maitysanchayan@gmail.com>,
-        Marcel Ziswiler <marcel.ziswiler@toradex.com>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Johan Hovold <johan@kernel.org>,
-        Oleksandr Suvorov <oleksandr.suvorov@toradex.com>
-Subject: [PATCH 4.19 78/86] ARM: dts: imx6dl-colibri-eval-v3: fix sram compatible properties
-Date:   Tue, 10 Mar 2020 13:45:42 +0100
-Message-Id: <20200310124534.972425085@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Oleksandr Suvorov <oleksandr.suvorov@toradex.com>,
+        Fabio Estevam <festevam@gmail.com>,
+        Shawn Guo <shawnguo@kernel.org>
+Subject: [PATCH 4.19 79/86] ARM: dts: imx7-colibri: Fix frequency for sd/mmc
+Date:   Tue, 10 Mar 2020 13:45:43 +0100
+Message-Id: <20200310124535.023776273@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200310124530.808338541@linuxfoundation.org>
 References: <20200310124530.808338541@linuxfoundation.org>
@@ -46,52 +45,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Oleksandr Suvorov <oleksandr.suvorov@toradex.com>
 
-commit bcbf53a0dab50980867476994f6079c1ec5bb3a3 upstream.
+commit 2773fe1d31c42ffae2a9cb9a6055d99dd86e2fee upstream.
 
-The sram-node compatible properties have mistakingly combined the
-model-specific string with the generic "mtd-ram" string.
+SD/MMC on Colibri iMX7S/D modules successfully support
+200Mhz frequency in HS200 mode.
 
-Note that neither "cy7c1019dv33-10zsxi, mtd-ram" or
-"cy7c1019dv33-10zsxi" are used by any in-kernel driver and they are
-not present in any binding.
+Removing the unnecessary max-frequency limit significantly
+increases the performance:
 
-The physmap driver will however bind to platform devices that specify
-"mtd-ram".
+== before fix ====
+root@colibri-imx7-emmc:~# hdparm -t /dev/mmcblk0
+/dev/mmcblk0:
+ Timing buffered disk reads: 252 MB in  3.02 seconds =  83.54 MB/sec
+==================
 
-Fixes: fc48e76489fd ("ARM: dts: imx6: Add support for Toradex Colibri iMX6 module")
-Cc: Sanchayan Maity <maitysanchayan@gmail.com>
-Cc: Marcel Ziswiler <marcel.ziswiler@toradex.com>
-Cc: Shawn Guo <shawnguo@kernel.org>
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Reviewed-by: Oleksandr Suvorov <oleksandr.suvorov@toradex.com>
+=== after fix ====
+root@colibri-imx7-emmc:~# hdparm -t /dev/mmcblk0
+/dev/mmcblk0:
+ Timing buffered disk reads: 408 MB in  3.00 seconds = 135.94 MB/sec
+==================
+
+Fixes: f928a4a377e4 ("ARM: dts: imx7: add Toradex Colibri iMX7D 1GB (eMMC) support")
+Signed-off-by: Oleksandr Suvorov <oleksandr.suvorov@toradex.com>
+Reviewed-by: Fabio Estevam <festevam@gmail.com>
 Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm/boot/dts/imx6dl-colibri-eval-v3.dts |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/arm/boot/dts/imx7-colibri.dtsi |    1 -
+ 1 file changed, 1 deletion(-)
 
---- a/arch/arm/boot/dts/imx6dl-colibri-eval-v3.dts
-+++ b/arch/arm/boot/dts/imx6dl-colibri-eval-v3.dts
-@@ -234,7 +234,7 @@
- 
- 	/* SRAM on Colibri nEXT_CS0 */
- 	sram@0,0 {
--		compatible = "cypress,cy7c1019dv33-10zsxi, mtd-ram";
-+		compatible = "cypress,cy7c1019dv33-10zsxi", "mtd-ram";
- 		reg = <0 0 0x00010000>;
- 		#address-cells = <1>;
- 		#size-cells = <1>;
-@@ -245,7 +245,7 @@
- 
- 	/* SRAM on Colibri nEXT_CS1 */
- 	sram@1,0 {
--		compatible = "cypress,cy7c1019dv33-10zsxi, mtd-ram";
-+		compatible = "cypress,cy7c1019dv33-10zsxi", "mtd-ram";
- 		reg = <1 0 0x00010000>;
- 		#address-cells = <1>;
- 		#size-cells = <1>;
+--- a/arch/arm/boot/dts/imx7-colibri.dtsi
++++ b/arch/arm/boot/dts/imx7-colibri.dtsi
+@@ -319,7 +319,6 @@
+ 	assigned-clock-rates = <400000000>;
+ 	bus-width = <8>;
+ 	fsl,tuning-step = <2>;
+-	max-frequency = <100000000>;
+ 	vmmc-supply = <&reg_module_3v3>;
+ 	vqmmc-supply = <&reg_DCDC3>;
+ 	non-removable;
 
 
