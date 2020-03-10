@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A72FE17F9C9
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:00:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5696717F829
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 13:45:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729662AbgCJM77 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 08:59:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40508 "EHLO mail.kernel.org"
+        id S1727384AbgCJMpl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 08:45:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48430 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726703AbgCJM75 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 08:59:57 -0400
+        id S1727691AbgCJMpl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 08:45:41 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2B92C2468C;
-        Tue, 10 Mar 2020 12:59:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1DAB4246A3;
+        Tue, 10 Mar 2020 12:45:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583845195;
-        bh=5SN7HBIx7S/iolfgVHveQ4pUn7G7+gnmiMjM+m1Zmmw=;
+        s=default; t=1583844340;
+        bh=/SdVvABjZMbhpCatfBfYl/CVRlV9dxUaLRllt1nFvB8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AqHPck/9/VSnxZhI/lGB883yvZ7KmEDRJ4x0SoHRHfLR6HCWLc2ed4ToTJ+pImh56
-         f+wq8M06TDwe18lgZSclxxYiGbuHAqpRZD1rcX8/aVMm7UzNqXLmzmN4CWY3TkKp+5
-         UI7w/P8fmEz2U1PSkLK9PPz2wEEPz0P1jEV/MsKI=
+        b=plL+pplXLHoyQRWAetymaErJPQKvbanKOKC8UASd0+bYWUkLUbENz+L0OYLDScmfv
+         tPIFQrnpvbR160eKcVIrLhGGuqStPqQUdRndZQuLCaJg87JS75krXEj8m48+E5djb1
+         ofrmceZE8QelSIRKUY97kazbPkUsh7Y6uixD9FMk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Subject: [PATCH 5.5 096/189] media: mc-entity.c: use & to check pad flags, not ==
-Date:   Tue, 10 Mar 2020 13:38:53 +0100
-Message-Id: <20200310123649.412455503@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.9 46/88] drivers: net: xgene: Fix the order of the arguments of alloc_etherdev_mqs()
+Date:   Tue, 10 Mar 2020 13:38:54 +0100
+Message-Id: <20200310123617.440477082@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200310123639.608886314@linuxfoundation.org>
-References: <20200310123639.608886314@linuxfoundation.org>
+In-Reply-To: <20200310123606.543939933@linuxfoundation.org>
+References: <20200310123606.543939933@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,39 +44,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-commit 044041cd5227ec9ccf969f4bf1cc08bffe13b9d3 upstream.
+commit 5a44c71ccda60a50073c5d7fe3f694cdfa3ab0c2 upstream.
 
-These are bits so to test if a pad is a sink you use & but not ==.
+'alloc_etherdev_mqs()' expects first 'tx', then 'rx'. The semantic here
+looks reversed.
 
-It looks like the only reason this hasn't caused problems before is that
-media_get_pad_index() is currently only used with pads that do not set the
-MEDIA_PAD_FL_MUST_CONNECT flag. So a pad really had only the SINK or SOURCE
-flag set and nothing else.
+Reorder the arguments passed to 'alloc_etherdev_mqs()' in order to keep
+the correct semantic.
 
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Cc: <stable@vger.kernel.org>      # for v5.3 and up
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+In fact, this is a no-op because both XGENE_NUM_[RT]X_RING are 8.
+
+Fixes: 107dec2749fe ("drivers: net: xgene: Add support for multiple queues")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/media/mc/mc-entity.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/apm/xgene/xgene_enet_main.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/media/mc/mc-entity.c
-+++ b/drivers/media/mc/mc-entity.c
-@@ -639,9 +639,9 @@ int media_get_pad_index(struct media_ent
- 		return -EINVAL;
+--- a/drivers/net/ethernet/apm/xgene/xgene_enet_main.c
++++ b/drivers/net/ethernet/apm/xgene/xgene_enet_main.c
+@@ -1711,7 +1711,7 @@ static int xgene_enet_probe(struct platf
+ 	int ret;
  
- 	for (i = 0; i < entity->num_pads; i++) {
--		if (entity->pads[i].flags == MEDIA_PAD_FL_SINK)
-+		if (entity->pads[i].flags & MEDIA_PAD_FL_SINK)
- 			pad_is_sink = true;
--		else if (entity->pads[i].flags == MEDIA_PAD_FL_SOURCE)
-+		else if (entity->pads[i].flags & MEDIA_PAD_FL_SOURCE)
- 			pad_is_sink = false;
- 		else
- 			continue;	/* This is an error! */
+ 	ndev = alloc_etherdev_mqs(sizeof(struct xgene_enet_pdata),
+-				  XGENE_NUM_RX_RING, XGENE_NUM_TX_RING);
++				  XGENE_NUM_TX_RING, XGENE_NUM_RX_RING);
+ 	if (!ndev)
+ 		return -ENOMEM;
+ 
 
 
