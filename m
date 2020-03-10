@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CCD8F17FC3D
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:20:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 45CA117FAC3
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:08:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731045AbgCJNIA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 09:08:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54076 "EHLO mail.kernel.org"
+        id S1731059AbgCJNIE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 09:08:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54156 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731041AbgCJNH7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 09:07:59 -0400
+        id S1730505AbgCJNID (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 09:08:03 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7D69C2071B;
-        Tue, 10 Mar 2020 13:07:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 449D42071B;
+        Tue, 10 Mar 2020 13:08:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583845679;
-        bh=H90vFTsgDPdrsCvAeNtiElugPFNI4njS2SrR+/PyRYk=;
+        s=default; t=1583845682;
+        bh=uFdWLIgjpzmshCtxR4Ka3GpzLU0OPRdAVw6evjzpn7M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VNzUG+16PUHx7X7KF51CBWdkYfZ35dkWS1YRYyI8tIsYN6SdGYj/NLBfjzm89O5Hr
-         dwP9ZOh4hRYomRetsygh/CT3eefGHdr5mXy8qWwM6evkarGmyRk5J53yj3IUj4PMen
-         jer4diLz7/XcPjtEGOuqQyyocYV6P5Nf7sGqb/fQ=
+        b=gHEVTGRUXAk0DX9g5AwDEs+hfRAP0qpqTZ+Hs98eVQqelaz8Y1Pxws+XK8qcmCr4V
+         pr0u6DIdd92WcBJ8C7fFTYia+DQlcfMKp5UpwqWKYzvFYXqdgpdUDG0N5zBD6MBBcq
+         BlX7yLIlaxb4/nAD3v5xd99DzoTsgRBBcaoF6MdQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiri Olsa <jolsa@kernel.org>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>
-Subject: [PATCH 4.14 062/126] perf hists browser: Restore ESC as "Zoom out" of DSO/thread/etc
-Date:   Tue, 10 Mar 2020 13:41:23 +0100
-Message-Id: <20200310124208.083902324@linuxfoundation.org>
+        stable@vger.kernel.org, Wei Yang <richardw.yang@linux.intel.com>,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.14 063/126] mm/huge_memory.c: use head to check huge zero page
+Date:   Tue, 10 Mar 2020 13:41:24 +0100
+Message-Id: <20200310124208.135241459@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200310124203.704193207@linuxfoundation.org>
 References: <20200310124203.704193207@linuxfoundation.org>
@@ -45,35 +45,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnaldo Carvalho de Melo <acme@redhat.com>
+From: Wei Yang <richardw.yang@linux.intel.com>
 
-commit 3f7774033e6820d25beee5cf7aefa11d4968b951 upstream.
+commit cb829624867b5ab10bc6a7036d183b1b82bfe9f8 upstream.
 
-We need to set actions->ms.map since 599a2f38a989 ("perf hists browser:
-Check sort keys before hot key actions"), as in that patch we bail out
-if map is NULL.
+The page could be a tail page, if this is the case, this BUG_ON will
+never be triggered.
 
-Reviewed-by: Jiri Olsa <jolsa@kernel.org>
-Cc: Adrian Hunter <adrian.hunter@intel.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Fixes: 599a2f38a989 ("perf hists browser: Check sort keys before hot key actions")
-Link: https://lkml.kernel.org/n/tip-wp1ssoewy6zihwwexqpohv0j@git.kernel.org
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Link: http://lkml.kernel.org/r/20200110032610.26499-1-richardw.yang@linux.intel.com
+Fixes: e9b61f19858a ("thp: reintroduce split_huge_page()")
+
+Signed-off-by: Wei Yang <richardw.yang@linux.intel.com>
+Acked-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- tools/perf/ui/browsers/hists.c |    1 +
- 1 file changed, 1 insertion(+)
+ mm/huge_memory.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/tools/perf/ui/browsers/hists.c
-+++ b/tools/perf/ui/browsers/hists.c
-@@ -3142,6 +3142,7 @@ static int perf_evsel__hists_browse(stru
+--- a/mm/huge_memory.c
++++ b/mm/huge_memory.c
+@@ -2561,7 +2561,7 @@ int split_huge_page_to_list(struct page
+ 	unsigned long flags;
+ 	pgoff_t end;
  
- 				continue;
- 			}
-+			actions->ms.map = map;
- 			top = pstack__peek(browser->pstack);
- 			if (top == &browser->hists->dso_filter) {
- 				/*
+-	VM_BUG_ON_PAGE(is_huge_zero_page(page), page);
++	VM_BUG_ON_PAGE(is_huge_zero_page(head), head);
+ 	VM_BUG_ON_PAGE(!PageLocked(page), page);
+ 	VM_BUG_ON_PAGE(!PageCompound(page), page);
+ 
 
 
