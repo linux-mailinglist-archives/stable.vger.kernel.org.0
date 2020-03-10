@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 895A117FD99
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:29:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C6D0E17F9F8
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:01:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729623AbgCJN2e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 09:28:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59146 "EHLO mail.kernel.org"
+        id S1730073AbgCJNBd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 09:01:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42778 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728760AbgCJMxP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 08:53:15 -0400
+        id S1730269AbgCJNBa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 09:01:30 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2D15E2469D;
-        Tue, 10 Mar 2020 12:53:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B640324649;
+        Tue, 10 Mar 2020 13:01:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583844794;
-        bh=3tNMU60XprKBxNN/4NIwRJhgpOF0fvOSbMzUIaiajjM=;
+        s=default; t=1583845290;
+        bh=TCnicF+IulriJkqk77wcgKGaA9yvCkJFj5VIQHJujAE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KaXpLoljTk983T7xhOSPjJvQjaOnal7GDn27kGmxDLxGjbFh4zABgCLqnxEyEvjSe
-         /CZNW2BWKmJQNHrIWNWy/reU/gZMQpvxFwoXkgszz/kUwY+nFSvzDyRYrU5RR4hNhD
-         FvY3sSccdo1BLW8KO5WPlSSgdrRngdLiSH1+3gSA=
+        b=nMDPxwWINuwGmDm+ddn6/Kom31LBjQ28jsVStW2guZTJoWNME613fL+cO5cwF1sNY
+         pXim7lZkhS915GoaXeZme6FtypKKW1cYUOo9aiPHYgBxb0E50Ug2VCASD6KLYEfdcw
+         EN31TV6jgmSEq4BAX1oFXUOvzh8KYi0njuc9nqqw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alastair DSilva <alastair@d-silva.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 122/168] powerpc: define helpers to get L1 icache sizes
+        stable@vger.kernel.org, Dragos Tarcatu <dragos_tarcatu@mentor.com>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.5 131/189] ASoC: topology: Fix memleak in soc_tplg_manifest_load()
 Date:   Tue, 10 Mar 2020 13:39:28 +0100
-Message-Id: <20200310123647.792962275@linuxfoundation.org>
+Message-Id: <20200310123653.062370320@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200310123635.322799692@linuxfoundation.org>
-References: <20200310123635.322799692@linuxfoundation.org>
+In-Reply-To: <20200310123639.608886314@linuxfoundation.org>
+References: <20200310123639.608886314@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,116 +43,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alastair D'Silva <alastair@d-silva.org>
+From: Dragos Tarcatu <dragos_tarcatu@mentor.com>
 
-[ Upstream commit 7a0745c5e03ff1129864bc6d80f5c4417e8d7893 ]
+commit 242c46c023610dbc0213fc8fb6b71eb836bc5d95 upstream.
 
-This patch adds helpers to retrieve icache sizes, and renames the existing
-helpers to make it clear that they are for dcache.
+In case of ABI version mismatch, _manifest needs to be freed as
+it is just a copy of the original topology manifest. However, if
+a driver manifest handler is defined, that would get executed and
+the cleanup is never reached. Fix that by getting the return status
+of manifest() instead of returning directly.
 
-Signed-off-by: Alastair D'Silva <alastair@d-silva.org>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20191104023305.9581-4-alastair@au1.ibm.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 583958fa2e52 ("ASoC: topology: Make manifest backward compatible from ABI v4")
+Signed-off-by: Dragos Tarcatu <dragos_tarcatu@mentor.com>
+Link: https://lore.kernel.org/r/20200207185325.22320-3-dragos_tarcatu@mentor.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- arch/powerpc/include/asm/cache.h      | 29 +++++++++++++++++++++++----
- arch/powerpc/include/asm/cacheflush.h | 12 +++++------
- 2 files changed, 31 insertions(+), 10 deletions(-)
+ sound/soc/soc-topology.c |   12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/arch/powerpc/include/asm/cache.h b/arch/powerpc/include/asm/cache.h
-index 45e3137ccd71c..afb88754e0e07 100644
---- a/arch/powerpc/include/asm/cache.h
-+++ b/arch/powerpc/include/asm/cache.h
-@@ -55,25 +55,46 @@ struct ppc64_caches {
- 
- extern struct ppc64_caches ppc64_caches;
- 
--static inline u32 l1_cache_shift(void)
-+static inline u32 l1_dcache_shift(void)
+--- a/sound/soc/soc-topology.c
++++ b/sound/soc/soc-topology.c
+@@ -2503,7 +2503,7 @@ static int soc_tplg_manifest_load(struct
  {
- 	return ppc64_caches.l1d.log_block_size;
+ 	struct snd_soc_tplg_manifest *manifest, *_manifest;
+ 	bool abi_match;
+-	int err;
++	int ret = 0;
+ 
+ 	if (tplg->pass != SOC_TPLG_PASS_MANIFEST)
+ 		return 0;
+@@ -2516,19 +2516,19 @@ static int soc_tplg_manifest_load(struct
+ 		_manifest = manifest;
+ 	} else {
+ 		abi_match = false;
+-		err = manifest_new_ver(tplg, manifest, &_manifest);
+-		if (err < 0)
+-			return err;
++		ret = manifest_new_ver(tplg, manifest, &_manifest);
++		if (ret < 0)
++			return ret;
+ 	}
+ 
+ 	/* pass control to component driver for optional further init */
+ 	if (tplg->comp && tplg->ops && tplg->ops->manifest)
+-		return tplg->ops->manifest(tplg->comp, tplg->index, _manifest);
++		ret = tplg->ops->manifest(tplg->comp, tplg->index, _manifest);
+ 
+ 	if (!abi_match)	/* free the duplicated one */
+ 		kfree(_manifest);
+ 
+-	return 0;
++	return ret;
  }
  
--static inline u32 l1_cache_bytes(void)
-+static inline u32 l1_dcache_bytes(void)
- {
- 	return ppc64_caches.l1d.block_size;
- }
-+
-+static inline u32 l1_icache_shift(void)
-+{
-+	return ppc64_caches.l1i.log_block_size;
-+}
-+
-+static inline u32 l1_icache_bytes(void)
-+{
-+	return ppc64_caches.l1i.block_size;
-+}
- #else
--static inline u32 l1_cache_shift(void)
-+static inline u32 l1_dcache_shift(void)
- {
- 	return L1_CACHE_SHIFT;
- }
- 
--static inline u32 l1_cache_bytes(void)
-+static inline u32 l1_dcache_bytes(void)
- {
- 	return L1_CACHE_BYTES;
- }
-+
-+static inline u32 l1_icache_shift(void)
-+{
-+	return L1_CACHE_SHIFT;
-+}
-+
-+static inline u32 l1_icache_bytes(void)
-+{
-+	return L1_CACHE_BYTES;
-+}
-+
- #endif
- #endif /* ! __ASSEMBLY__ */
- 
-diff --git a/arch/powerpc/include/asm/cacheflush.h b/arch/powerpc/include/asm/cacheflush.h
-index eef388f2659f4..ed57843ef4524 100644
---- a/arch/powerpc/include/asm/cacheflush.h
-+++ b/arch/powerpc/include/asm/cacheflush.h
-@@ -63,8 +63,8 @@ static inline void __flush_dcache_icache_phys(unsigned long physaddr)
-  */
- static inline void flush_dcache_range(unsigned long start, unsigned long stop)
- {
--	unsigned long shift = l1_cache_shift();
--	unsigned long bytes = l1_cache_bytes();
-+	unsigned long shift = l1_dcache_shift();
-+	unsigned long bytes = l1_dcache_bytes();
- 	void *addr = (void *)(start & ~(bytes - 1));
- 	unsigned long size = stop - (unsigned long)addr + (bytes - 1);
- 	unsigned long i;
-@@ -89,8 +89,8 @@ static inline void flush_dcache_range(unsigned long start, unsigned long stop)
-  */
- static inline void clean_dcache_range(unsigned long start, unsigned long stop)
- {
--	unsigned long shift = l1_cache_shift();
--	unsigned long bytes = l1_cache_bytes();
-+	unsigned long shift = l1_dcache_shift();
-+	unsigned long bytes = l1_dcache_bytes();
- 	void *addr = (void *)(start & ~(bytes - 1));
- 	unsigned long size = stop - (unsigned long)addr + (bytes - 1);
- 	unsigned long i;
-@@ -108,8 +108,8 @@ static inline void clean_dcache_range(unsigned long start, unsigned long stop)
- static inline void invalidate_dcache_range(unsigned long start,
- 					   unsigned long stop)
- {
--	unsigned long shift = l1_cache_shift();
--	unsigned long bytes = l1_cache_bytes();
-+	unsigned long shift = l1_dcache_shift();
-+	unsigned long bytes = l1_dcache_bytes();
- 	void *addr = (void *)(start & ~(bytes - 1));
- 	unsigned long size = stop - (unsigned long)addr + (bytes - 1);
- 	unsigned long i;
--- 
-2.20.1
-
+ /* validate header magic, size and type */
 
 
