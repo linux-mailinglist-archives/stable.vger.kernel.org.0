@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BA92217FBEC
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:17:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B24117FB7E
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:14:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731273AbgCJNMA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 09:12:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33912 "EHLO mail.kernel.org"
+        id S1731868AbgCJNOY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 09:14:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38088 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730686AbgCJNL7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 09:11:59 -0400
+        id S1731867AbgCJNOY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 09:14:24 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4F0CD208E4;
-        Tue, 10 Mar 2020 13:11:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0851220409;
+        Tue, 10 Mar 2020 13:14:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583845918;
-        bh=cL2fOTR9lDl8T86jwlyjwUWXFLCQSVdO5sD5yjxagm0=;
+        s=default; t=1583846063;
+        bh=fERsDUe64ag3rRBlFOK8qlkJoh2Bnqtp8Cox5nzveJc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lHZ4FYsEh9MtbMugOWpNslCA58eAiH2202KhMSHYaqQJhNiCZoZ/9/60cLJXloMjm
-         8XhqSmh0qNctKzLavDmAHInSu9Zu4Sj4foLxv0P2TpnIOxWHi42TCiYHg2ROJ2ofph
-         cEnR1oXxoo8idHpDDo6uJLu0THNABNHHvVH+/+Cg=
+        b=ujsVJtnfLqFiDKJzd8b/D/lP6PeiNx29dNs4zJWVFVZbAKWbE734YLsmtnqjU9q88
+         HEWWf5QC+WNMvpI6vlk9q/3mwSor2MYw2NQ/++B5rmB+chGsrSUr8gu3yqtDI3ZeMM
+         x0qRyK9RQHlclG5Gt+9hsdJ0EJtcpZB/HMUxbo4A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -31,9 +31,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Lukas Wunner <lukas@wunner.de>, Petr Stetiar <ynezz@true.cz>,
         YueHaibing <yuehaibing@huawei.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 21/86] net: ks8851-ml: Fix 16-bit data access
-Date:   Tue, 10 Mar 2020 13:44:45 +0100
-Message-Id: <20200310124531.927166438@linuxfoundation.org>
+Subject: [PATCH 4.19 22/86] net: ks8851-ml: Fix 16-bit IO operation
+Date:   Tue, 10 Mar 2020 13:44:46 +0100
+Message-Id: <20200310124531.980660280@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200310124530.808338541@linuxfoundation.org>
 References: <20200310124530.808338541@linuxfoundation.org>
@@ -48,10 +48,13 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Marek Vasut <marex@denx.de>
 
-[ Upstream commit edacb098ea9c31589276152f09b4439052c0f2b1 ]
+[ Upstream commit 58292104832fef6cb4a89f736012c0e0724c3442 ]
 
-The packet data written to and read from Micrel KSZ8851-16MLLI must be
-byte-swapped in 16-bit mode, add this byte-swapping.
+The Micrel KSZ8851-16MLLI datasheet DS00002357B page 12 states that
+BE[3:0] signals are active high. This contradicts the measurements
+of the behavior of the actual chip, where these signals behave as
+active low. For example, to read the CIDER register, the bus must
+expose 0xc0c0 during the address phase, which means BE[3:0]=4'b1100.
 
 Signed-off-by: Marek Vasut <marex@denx.de>
 Cc: David S. Miller <davem@davemloft.net>
@@ -65,27 +68,27 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/net/ethernet/micrel/ks8851_mll.c b/drivers/net/ethernet/micrel/ks8851_mll.c
-index 29ac83f4683a6..aff1619fb0e0e 100644
+index aff1619fb0e0e..9de59facec218 100644
 --- a/drivers/net/ethernet/micrel/ks8851_mll.c
 +++ b/drivers/net/ethernet/micrel/ks8851_mll.c
-@@ -516,7 +516,7 @@ static inline void ks_inblk(struct ks_net *ks, u16 *wptr, u32 len)
- {
- 	len >>= 1;
- 	while (len--)
--		*wptr++ = (u16)ioread16(ks->hw_addr);
-+		*wptr++ = be16_to_cpu(ioread16(ks->hw_addr));
- }
+@@ -485,7 +485,7 @@ static int msg_enable;
  
- /**
-@@ -530,7 +530,7 @@ static inline void ks_outblk(struct ks_net *ks, u16 *wptr, u32 len)
+ static u16 ks_rdreg16(struct ks_net *ks, int offset)
  {
- 	len >>= 1;
- 	while (len--)
--		iowrite16(*wptr++, ks->hw_addr);
-+		iowrite16(cpu_to_be16(*wptr++), ks->hw_addr);
+-	ks->cmd_reg_cache = (u16)offset | ((BE1 | BE0) << (offset & 0x02));
++	ks->cmd_reg_cache = (u16)offset | ((BE3 | BE2) >> (offset & 0x02));
+ 	iowrite16(ks->cmd_reg_cache, ks->hw_addr_cmd);
+ 	return ioread16(ks->hw_addr);
  }
+@@ -500,7 +500,7 @@ static u16 ks_rdreg16(struct ks_net *ks, int offset)
  
- static void ks_disable_int(struct ks_net *ks)
+ static void ks_wrreg16(struct ks_net *ks, int offset, u16 value)
+ {
+-	ks->cmd_reg_cache = (u16)offset | ((BE1 | BE0) << (offset & 0x02));
++	ks->cmd_reg_cache = (u16)offset | ((BE3 | BE2) >> (offset & 0x02));
+ 	iowrite16(ks->cmd_reg_cache, ks->hw_addr_cmd);
+ 	iowrite16(value, ks->hw_addr);
+ }
 -- 
 2.20.1
 
