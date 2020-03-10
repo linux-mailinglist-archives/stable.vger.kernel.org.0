@@ -2,40 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6CF6B17F91D
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 13:54:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CEA0617F922
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 13:54:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727518AbgCJMyC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 08:54:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60336 "EHLO mail.kernel.org"
+        id S1729316AbgCJMyK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 08:54:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60620 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729289AbgCJMyB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 08:54:01 -0400
+        id S1729314AbgCJMyJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 08:54:09 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B026320674;
-        Tue, 10 Mar 2020 12:54:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 137D120674;
+        Tue, 10 Mar 2020 12:54:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583844841;
-        bh=u1tL22Oa8Lt3kR4tVCpS9TqfnburU/QugzCbNdKVgIw=;
+        s=default; t=1583844849;
+        bh=CLL7T+YiC1fWFLnmvzohg0ZeFuSTWM7U9KxIUt33uq8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m6+jCOu0bQy4qdASIrBXlRZvETF9jDDssCLRdtIudgPU5D+88hAo7xuYDE5MUSwDB
-         Ak3t3h9dgRPCRo+izneglXZBUZltrDPvgYVbuwGl2h/fR7WUYEL/xnPPBcMP/03vKP
-         4Fa/UeGPI0z5sjLzk0rlOYzmT5lBrQ4V2lAV/RzU=
+        b=gviqwx/6x7pv6W21yx+A7t2tYulqbZD278KVsktzbftA8svu2w0un/ombB0bV/EvF
+         FDTvqk4q8gfgSgdBKgoK+7p/Imcai2sl2Vv1oDj+/5qG3mAQ25wnRu1LDk7dIAJK38
+         1QWGIhdgR1Tk8Kqsdm+bE9TRbtCNANswARVwCFho=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marcel Partap <mpartap@gmx.net>,
-        Merlijn Wajer <merlijn@wizzup.org>,
-        Michael Scott <hashcode0f@gmail.com>,
-        NeKit <nekit1000@gmail.com>, Pavel Machek <pavel@ucw.cz>,
-        Sebastian Reichel <sre@kernel.org>,
-        Tony Lindgren <tony@atomide.com>,
-        Kishon Vijay Abraham I <kishon@ti.com>
-Subject: [PATCH 5.4 137/168] phy: mapphone-mdm6600: Fix timeouts by adding wake-up handling
-Date:   Tue, 10 Mar 2020 13:39:43 +0100
-Message-Id: <20200310123649.365414852@linuxfoundation.org>
+        stable@vger.kernel.org, Fabio Estevam <festevam@gmail.com>,
+        Leonard Crestez <leonard.crestez@nxp.com>,
+        Shawn Guo <shawnguo@kernel.org>
+Subject: [PATCH 5.4 140/168] arm64: dts: imx8qxp-mek: Remove unexisting Ethernet PHY
+Date:   Tue, 10 Mar 2020 13:39:46 +0100
+Message-Id: <20200310123649.673662567@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200310123635.322799692@linuxfoundation.org>
 References: <20200310123635.322799692@linuxfoundation.org>
@@ -48,60 +44,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tony Lindgren <tony@atomide.com>
+From: Fabio Estevam <festevam@gmail.com>
 
-commit be4e3c737eebd75815633f4b8fd766defaf0f1fc upstream.
+commit 26c4b4758fce8f0ae744335e1762213be29db441 upstream.
 
-We have an interrupt handler for the wake-up GPIO pin, but we're missing
-the code to wake-up the system. This can cause timeouts receiving data
-for the UART that shares the wake-up GPIO pin with the USB PHY.
+There is only on Ethernet port and one Ethernet PHY on imx8qxp-mek.
 
-All we need to do is just wake the system and kick the autosuspend
-timeout to fix the issue.
+Remove the unexisting ethphy1 port.
 
-Fixes: 5d1ebbda0318 ("phy: mapphone-mdm6600: Add USB PHY driver for MDM6600 on Droid 4")
-Cc: Marcel Partap <mpartap@gmx.net>
-Cc: Merlijn Wajer <merlijn@wizzup.org>
-Cc: Michael Scott <hashcode0f@gmail.com>
-Cc: NeKit <nekit1000@gmail.com>
-Cc: Pavel Machek <pavel@ucw.cz>
-Cc: Sebastian Reichel <sre@kernel.org>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
-Signed-off-by: Kishon Vijay Abraham I <kishon@ti.com>
+This fixes a run-time warning:
+
+mdio_bus 5b040000.ethernet-1: MDIO device at address 1 is missing.
+
+Fixes: fdea904e85e1 ("arm64: dts: imx: add imx8qxp mek support")
+Signed-off-by: Fabio Estevam <festevam@gmail.com>
+Reviewed-by: Leonard Crestez <leonard.crestez@nxp.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/phy/motorola/phy-mapphone-mdm6600.c |   18 ++++++++++++++++--
- 1 file changed, 16 insertions(+), 2 deletions(-)
+ arch/arm64/boot/dts/freescale/imx8qxp-mek.dts |    5 -----
+ 1 file changed, 5 deletions(-)
 
---- a/drivers/phy/motorola/phy-mapphone-mdm6600.c
-+++ b/drivers/phy/motorola/phy-mapphone-mdm6600.c
-@@ -243,10 +243,24 @@ static irqreturn_t phy_mdm6600_wakeirq_t
- {
- 	struct phy_mdm6600 *ddata = data;
- 	struct gpio_desc *mode_gpio1;
-+	int error, wakeup;
+--- a/arch/arm64/boot/dts/freescale/imx8qxp-mek.dts
++++ b/arch/arm64/boot/dts/freescale/imx8qxp-mek.dts
+@@ -52,11 +52,6 @@
+ 			compatible = "ethernet-phy-ieee802.3-c22";
+ 			reg = <0>;
+ 		};
+-
+-		ethphy1: ethernet-phy@1 {
+-			compatible = "ethernet-phy-ieee802.3-c22";
+-			reg = <1>;
+-		};
+ 	};
+ };
  
- 	mode_gpio1 = ddata->mode_gpios->desc[PHY_MDM6600_MODE1];
--	dev_dbg(ddata->dev, "OOB wake on mode_gpio1: %i\n",
--		gpiod_get_value(mode_gpio1));
-+	wakeup = gpiod_get_value(mode_gpio1);
-+	if (!wakeup)
-+		return IRQ_NONE;
-+
-+	dev_dbg(ddata->dev, "OOB wake on mode_gpio1: %i\n", wakeup);
-+	error = pm_runtime_get_sync(ddata->dev);
-+	if (error < 0) {
-+		pm_runtime_put_noidle(ddata->dev);
-+
-+		return IRQ_NONE;
-+	}
-+
-+	/* Just wake-up and kick the autosuspend timer */
-+	pm_runtime_mark_last_busy(ddata->dev);
-+	pm_runtime_put_autosuspend(ddata->dev);
- 
- 	return IRQ_HANDLED;
- }
 
 
