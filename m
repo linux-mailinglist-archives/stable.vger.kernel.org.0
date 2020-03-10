@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DD1CE17FD37
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:26:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F3DCB17FD2B
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:26:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729579AbgCJMzx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 08:55:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34846 "EHLO mail.kernel.org"
+        id S1729596AbgCJMz6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 08:55:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34936 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729576AbgCJMzx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 08:55:53 -0400
+        id S1729591AbgCJMz4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 08:55:56 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5CD862467D;
-        Tue, 10 Mar 2020 12:55:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D52952467D;
+        Tue, 10 Mar 2020 12:55:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583844952;
-        bh=9uebQZjFeWi3MCS3tSW9iUkH5yUcXXi5PjERCzdWf7M=;
+        s=default; t=1583844955;
+        bh=8zSyvj3eyDdfA65LUCwZBtK20UW9f3gErYuT4Yv70vQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p10Ohr7mnG+SpXe/4+I+A9mbrHSp6ssX4gaJDdhr9s624cdut8sWFWjYNV3oNfNHf
-         Fs6i9wHdREYFY5A/p64yWUR3Bb7xzdgLIQuHLN4dUN1Fz6O10OUGPVbpqYMJm1WOmp
-         rE3O+Vb4Eh6K/FxHXKZTcDaiZrlgGCBDzd3zp1DE=
+        b=TESnLAE3BfBDMfJXXuyZUG04d6hPdTr3y3NGn7JIVg+UETDD0FmXTELp7+1yFRKRI
+         hhP00zg34e+Dj+2n7I3gkEfEcoT0hzSj5Wx6uFct+pZitGPTyPAbpFI7aIqyXQqjBg
+         r53qWwYULxFTi6X54/RSfNypuYuHwLShLPA/xPzM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Cong Wang <xiyou.wangcong@gmail.com>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
-        Sasha Levin <sashal@kernel.org>,
-        syzbot+d195fd3b9a364ddd6731@syzkaller.appspotmail.com
-Subject: [PATCH 5.5 011/189] netfilter: xt_hashlimit: unregister proc file before releasing mutex
-Date:   Tue, 10 Mar 2020 13:37:28 +0100
-Message-Id: <20200310123640.671681502@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
+        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Takashi Iwai <tiwai@suse.de>, Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.5 012/189] ALSA: hda: do not override bus codec_mask in link_get()
+Date:   Tue, 10 Mar 2020 13:37:29 +0100
+Message-Id: <20200310123640.773665662@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200310123639.608886314@linuxfoundation.org>
 References: <20200310123639.608886314@linuxfoundation.org>
@@ -45,64 +47,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cong Wang <xiyou.wangcong@gmail.com>
+From: Kai Vehmanen <kai.vehmanen@linux.intel.com>
 
-[ Upstream commit 99b79c3900d4627672c85d9f344b5b0f06bc2a4d ]
+[ Upstream commit 43bcb1c0507858cdc95e425017dcc33f8105df39 ]
 
-Before releasing the global mutex, we only unlink the hashtable
-from the hash list, its proc file is still not unregistered at
-this point. So syzbot could trigger a race condition where a
-parallel htable_create() could register the same file immediately
-after the mutex is released.
+snd_hdac_ext_bus_link_get() does not work correctly in case
+there are multiple codecs on the bus. It unconditionally
+resets the bus->codec_mask value. As per documentation in
+hdaudio.h and existing use in client code, this field should
+be used to store bit flag of detected codecs on the bus.
 
-Move htable_remove_proc_entry() back to mutex protection to
-fix this. And, fold htable_destroy() into htable_put() to make
-the code slightly easier to understand.
+By overwriting value of the codec_mask, information on all
+detected codecs is lost. No current user of hdac is impacted,
+but use of bus->codec_mask is planned in future patches
+for SOF.
 
-Reported-and-tested-by: syzbot+d195fd3b9a364ddd6731@syzkaller.appspotmail.com
-Fixes: c4a3922d2d20 ("netfilter: xt_hashlimit: reduce hashlimit_mutex scope for htable_put()")
-Signed-off-by: Cong Wang <xiyou.wangcong@gmail.com>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Signed-off-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
+Reviewed-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
+Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Reviewed-by: Takashi Iwai <tiwai@suse.de>
+Link: https://lore.kernel.org/r/20200206200223.7715-1-kai.vehmanen@linux.intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/xt_hashlimit.c | 16 ++++++----------
- 1 file changed, 6 insertions(+), 10 deletions(-)
+ sound/hda/ext/hdac_ext_controller.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/net/netfilter/xt_hashlimit.c b/net/netfilter/xt_hashlimit.c
-index 7a2c4b8408c49..8c835ad637290 100644
---- a/net/netfilter/xt_hashlimit.c
-+++ b/net/netfilter/xt_hashlimit.c
-@@ -402,15 +402,6 @@ static void htable_remove_proc_entry(struct xt_hashlimit_htable *hinfo)
- 		remove_proc_entry(hinfo->name, parent);
- }
- 
--static void htable_destroy(struct xt_hashlimit_htable *hinfo)
--{
--	cancel_delayed_work_sync(&hinfo->gc_work);
--	htable_remove_proc_entry(hinfo);
--	htable_selective_cleanup(hinfo, true);
--	kfree(hinfo->name);
--	vfree(hinfo);
--}
--
- static struct xt_hashlimit_htable *htable_find_get(struct net *net,
- 						   const char *name,
- 						   u_int8_t family)
-@@ -432,8 +423,13 @@ static void htable_put(struct xt_hashlimit_htable *hinfo)
+diff --git a/sound/hda/ext/hdac_ext_controller.c b/sound/hda/ext/hdac_ext_controller.c
+index cfab60d88c921..09ff209df4a30 100644
+--- a/sound/hda/ext/hdac_ext_controller.c
++++ b/sound/hda/ext/hdac_ext_controller.c
+@@ -254,6 +254,7 @@ EXPORT_SYMBOL_GPL(snd_hdac_ext_bus_link_power_down_all);
+ int snd_hdac_ext_bus_link_get(struct hdac_bus *bus,
+ 				struct hdac_ext_link *link)
  {
- 	if (refcount_dec_and_mutex_lock(&hinfo->use, &hashlimit_mutex)) {
- 		hlist_del(&hinfo->node);
-+		htable_remove_proc_entry(hinfo);
- 		mutex_unlock(&hashlimit_mutex);
--		htable_destroy(hinfo);
-+
-+		cancel_delayed_work_sync(&hinfo->gc_work);
-+		htable_selective_cleanup(hinfo, true);
-+		kfree(hinfo->name);
-+		vfree(hinfo);
- 	}
- }
++	unsigned long codec_mask;
+ 	int ret = 0;
  
+ 	mutex_lock(&bus->lock);
+@@ -280,9 +281,11 @@ int snd_hdac_ext_bus_link_get(struct hdac_bus *bus,
+ 		 *  HDA spec section 4.3 - Codec Discovery
+ 		 */
+ 		udelay(521);
+-		bus->codec_mask = snd_hdac_chip_readw(bus, STATESTS);
+-		dev_dbg(bus->dev, "codec_mask = 0x%lx\n", bus->codec_mask);
+-		snd_hdac_chip_writew(bus, STATESTS, bus->codec_mask);
++		codec_mask = snd_hdac_chip_readw(bus, STATESTS);
++		dev_dbg(bus->dev, "codec_mask = 0x%lx\n", codec_mask);
++		snd_hdac_chip_writew(bus, STATESTS, codec_mask);
++		if (!bus->codec_mask)
++			bus->codec_mask = codec_mask;
+ 	}
+ 
+ 	mutex_unlock(&bus->lock);
 -- 
 2.20.1
 
