@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 086E717F806
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 13:44:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D25DE17F9A3
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 13:58:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727202AbgCJMoY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 08:44:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46636 "EHLO mail.kernel.org"
+        id S1729749AbgCJM6q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 08:58:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38944 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727241AbgCJMoW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 08:44:22 -0400
+        id S1729947AbgCJM6q (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 08:58:46 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EA5ED24695;
-        Tue, 10 Mar 2020 12:44:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 83D302468F;
+        Tue, 10 Mar 2020 12:58:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583844262;
-        bh=A2foWvc9jrT5bSCjJRdsWFm8MIww1d4V6xIALYzfqq8=;
+        s=default; t=1583845126;
+        bh=mwjN8hfsJ70iYo/DqdT0bhvapEsZyom0oKwlV59xZoU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b51urLQXTq1/y5BjF4HSU07ePckFstOVd3Mp2UUjtVTBXlkiqYIvt3q4p4EwAnNS9
-         PxIEqbloEi9gGzPWFqbgdF7SFCv4w8L+9HD7E9W1zsQBeEAmUM38ejtvaKRz+hPq/k
-         vi+2Oifr+ntl5ytHimhSCgdaMxOGeUXn6QtQj5Os=
+        b=B5eD/Re+aAFaBhOU2XoPw0aQrkM/6sPUjBy4TtuQsb2NTh8BpIFIFiQw4aoD3E95Y
+         qcuPzPDLfwXBquuSQUsmESyIV0I+vLnmyHVcUpPm+LPSwtotKNFJVL5ldk56uU2/l2
+         NYsfuvBq/Q10nNkl4x24kSSF60b83jWyPRZsHXkw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sergey Matyukevich <sergey.matyukevich.os@quantenna.com>,
-        Johannes Berg <johannes.berg@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 18/88] cfg80211: add missing policy for NL80211_ATTR_STATUS_CODE
-Date:   Tue, 10 Mar 2020 13:38:26 +0100
-Message-Id: <20200310123610.726142764@linuxfoundation.org>
+        stable@vger.kernel.org, Marco Felsch <m.felsch@pengutronix.de>,
+        Richard Leitner <richard.leitner@skidata.com>
+Subject: [PATCH 5.5 070/189] usb: usb251xb: fix regulator probe and error handling
+Date:   Tue, 10 Mar 2020 13:38:27 +0100
+Message-Id: <20200310123646.671236399@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200310123606.543939933@linuxfoundation.org>
-References: <20200310123606.543939933@linuxfoundation.org>
+In-Reply-To: <20200310123639.608886314@linuxfoundation.org>
+References: <20200310123639.608886314@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,36 +43,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sergey Matyukevich <sergey.matyukevich.os@quantenna.com>
+From: Marco Felsch <m.felsch@pengutronix.de>
 
-[ Upstream commit ea75080110a4c1fa011b0a73cb8f42227143ee3e ]
+commit f06947f275f1838586792c17b6ab70da82ed7b43 upstream.
 
-The nl80211_policy is missing for NL80211_ATTR_STATUS_CODE attribute.
-As a result, for strictly validated commands, it's assumed to not be
-supported.
+Commit 4d7201cda226 ("usb: usb251xb: add vdd supply support") didn't
+covered the non-DT use-case and so the regualtor_enable() call during
+probe will fail on those platforms. Also the commit didn't handled the
+error case correctly.
 
-Signed-off-by: Sergey Matyukevich <sergey.matyukevich.os@quantenna.com>
-Link: https://lore.kernel.org/r/20200213131608.10541-2-sergey.matyukevich.os@quantenna.com
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Move devm_regulator_get() out of usb251xb_get_ofdata() to address the
+1st issue. This can be done without worries because devm_regulator_get()
+handles the non-DT use-case too. Add devm_add_action_or_reset() to
+address the 2nd bug.
+
+Fixes: 4d7201cda226 ("usb: usb251xb: add vdd supply support")
+Signed-off-by: Marco Felsch <m.felsch@pengutronix.de>
+Cc: stable <stable@vger.kernel.org>
+Acked-by: Richard Leitner <richard.leitner@skidata.com>
+Link: https://lore.kernel.org/r/20200226072644.18490-1-m.felsch@pengutronix.de
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- net/wireless/nl80211.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/usb/misc/usb251xb.c |   20 ++++++++++++++++----
+ 1 file changed, 16 insertions(+), 4 deletions(-)
 
-diff --git a/net/wireless/nl80211.c b/net/wireless/nl80211.c
-index bb19be78aed70..9823bef65e5ec 100644
---- a/net/wireless/nl80211.c
-+++ b/net/wireless/nl80211.c
-@@ -333,6 +333,7 @@ static const struct nla_policy nl80211_policy[NUM_NL80211_ATTR] = {
- 	[NL80211_ATTR_CONTROL_PORT_ETHERTYPE] = { .type = NLA_U16 },
- 	[NL80211_ATTR_CONTROL_PORT_NO_ENCRYPT] = { .type = NLA_FLAG },
- 	[NL80211_ATTR_PRIVACY] = { .type = NLA_FLAG },
-+	[NL80211_ATTR_STATUS_CODE] = { .type = NLA_U16 },
- 	[NL80211_ATTR_CIPHER_SUITE_GROUP] = { .type = NLA_U32 },
- 	[NL80211_ATTR_WPA_VERSIONS] = { .type = NLA_U32 },
- 	[NL80211_ATTR_PID] = { .type = NLA_U32 },
--- 
-2.20.1
-
+--- a/drivers/usb/misc/usb251xb.c
++++ b/drivers/usb/misc/usb251xb.c
+@@ -424,10 +424,6 @@ static int usb251xb_get_ofdata(struct us
+ 		return err;
+ 	}
+ 
+-	hub->vdd = devm_regulator_get(dev, "vdd");
+-	if (IS_ERR(hub->vdd))
+-		return PTR_ERR(hub->vdd);
+-
+ 	if (of_property_read_u16_array(np, "vendor-id", &hub->vendor_id, 1))
+ 		hub->vendor_id = USB251XB_DEF_VENDOR_ID;
+ 
+@@ -640,6 +636,13 @@ static int usb251xb_get_ofdata(struct us
+ }
+ #endif /* CONFIG_OF */
+ 
++static void usb251xb_regulator_disable_action(void *data)
++{
++	struct usb251xb *hub = data;
++
++	regulator_disable(hub->vdd);
++}
++
+ static int usb251xb_probe(struct usb251xb *hub)
+ {
+ 	struct device *dev = hub->dev;
+@@ -676,10 +679,19 @@ static int usb251xb_probe(struct usb251x
+ 	if (err)
+ 		return err;
+ 
++	hub->vdd = devm_regulator_get(dev, "vdd");
++	if (IS_ERR(hub->vdd))
++		return PTR_ERR(hub->vdd);
++
+ 	err = regulator_enable(hub->vdd);
+ 	if (err)
+ 		return err;
+ 
++	err = devm_add_action_or_reset(dev,
++				       usb251xb_regulator_disable_action, hub);
++	if (err)
++		return err;
++
+ 	err = usb251xb_connect(hub);
+ 	if (err) {
+ 		dev_err(dev, "Failed to connect hub (%d)\n", err);
 
 
