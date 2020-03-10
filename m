@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 37EBE17FD1E
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:26:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ACFDC17FD1D
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:26:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728582AbgCJM4O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1729197AbgCJM4O (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 10 Mar 2020 08:56:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35318 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:35416 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729635AbgCJM4K (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 08:56:10 -0400
+        id S1728475AbgCJM4O (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 08:56:14 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5C93A2253D;
-        Tue, 10 Mar 2020 12:56:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7D4632467D;
+        Tue, 10 Mar 2020 12:56:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583844969;
-        bh=XPgDphCG7o8+2DsQtg+A8h+zRYGpfJPdC/2PvdX86VQ=;
+        s=default; t=1583844973;
+        bh=FvBTo3UkqZq2iW0czPeO5xCooCJoFfWcEZh66gx8an4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QUmx71KR5RVcm3rn9vds3EIaX8Z3O5xm+8tC39gyImLSavPoyNJ8hBdd6MwoBZ/Wt
-         JwsMGffOf95op3CTqmraz1zkVo2zc4n4MSCaP2NxmoOp974INtm/oNCoelqdCt5Jnv
-         laPQ18bLyW6jPNWNcOMzQTD8GOpTksjADSpGH6Uo=
+        b=ReOQQCITh/KjDDhiDLzW7xheO7hZ9VMd2TzVuTdFtN9TBeMAHmppq4+8+Y0GLY4Ut
+         4pL49eAyqixJ2k0svGg0oBIQEjYnzAyrNEXoHVvaXyUpa7+Z2li1zx8r4+8qXntx7v
+         3/6jPa0kwSYTzNcoraMoh2CC37AiN/9z+fxaESqo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michal Nazarewicz <mina86@mina86.com>,
-        Lars-Peter Clausen <lars@metafoo.de>,
-        Alexandru Ardelean <alexandru.ardelean@analog.com>,
+        stable@vger.kernel.org, Sergey Organov <sorganov@gmail.com>,
+        =?UTF-8?q?Micha=C5=82=20Miros=C5=82aw?= <mirq-linux@rere.qmqm.pl>,
         Felipe Balbi <balbi@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 017/189] usb: gadget: ffs: ffs_aio_cancel(): Save/restore IRQ flags
-Date:   Tue, 10 Mar 2020 13:37:34 +0100
-Message-Id: <20200310123641.244040601@linuxfoundation.org>
+Subject: [PATCH 5.5 018/189] usb: gadget: serial: fix Tx stall after buffer overflow
+Date:   Tue, 10 Mar 2020 13:37:35 +0100
+Message-Id: <20200310123641.330917540@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200310123639.608886314@linuxfoundation.org>
 References: <20200310123639.608886314@linuxfoundation.org>
@@ -46,51 +45,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lars-Peter Clausen <lars@metafoo.de>
+From: Sergey Organov <sorganov@gmail.com>
 
-[ Upstream commit 43d565727a3a6fd24e37c7c2116475106af71806 ]
+[ Upstream commit e4bfded56cf39b8d02733c1e6ef546b97961e18a ]
 
-ffs_aio_cancel() can be called from both interrupt and thread context. Make
-sure that the current IRQ state is saved and restored by using
-spin_{un,}lock_irq{save,restore}().
+Symptom: application opens /dev/ttyGS0 and starts sending (writing) to
+it while either USB cable is not connected, or nobody listens on the
+other side of the cable. If driver circular buffer overflows before
+connection is established, no data will be written to the USB layer
+until/unless /dev/ttyGS0 is closed and re-opened again by the
+application (the latter besides having no means of being notified about
+the event of establishing of the connection.)
 
-Otherwise undefined behavior might occur.
+Fix: on open and/or connect, kick Tx to flush circular buffer data to
+USB layer.
 
-Acked-by: Michal Nazarewicz <mina86@mina86.com>
-Signed-off-by: Lars-Peter Clausen <lars@metafoo.de>
-Signed-off-by: Alexandru Ardelean <alexandru.ardelean@analog.com>
+Signed-off-by: Sergey Organov <sorganov@gmail.com>
+Reviewed-by: Michał Mirosław <mirq-linux@rere.qmqm.pl>
 Signed-off-by: Felipe Balbi <balbi@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/function/f_fs.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/usb/gadget/function/u_serial.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/usb/gadget/function/f_fs.c b/drivers/usb/gadget/function/f_fs.c
-index 6f8b67e617716..bdac92d3a8d0c 100644
---- a/drivers/usb/gadget/function/f_fs.c
-+++ b/drivers/usb/gadget/function/f_fs.c
-@@ -1162,18 +1162,19 @@ static int ffs_aio_cancel(struct kiocb *kiocb)
- {
- 	struct ffs_io_data *io_data = kiocb->private;
- 	struct ffs_epfile *epfile = kiocb->ki_filp->private_data;
-+	unsigned long flags;
- 	int value;
+diff --git a/drivers/usb/gadget/function/u_serial.c b/drivers/usb/gadget/function/u_serial.c
+index f986e5c559748..8167d379e115b 100644
+--- a/drivers/usb/gadget/function/u_serial.c
++++ b/drivers/usb/gadget/function/u_serial.c
+@@ -561,8 +561,10 @@ static int gs_start_io(struct gs_port *port)
+ 	port->n_read = 0;
+ 	started = gs_start_rx(port);
  
- 	ENTER();
- 
--	spin_lock_irq(&epfile->ffs->eps_lock);
-+	spin_lock_irqsave(&epfile->ffs->eps_lock, flags);
- 
- 	if (likely(io_data && io_data->ep && io_data->req))
- 		value = usb_ep_dequeue(io_data->ep, io_data->req);
- 	else
- 		value = -EINVAL;
- 
--	spin_unlock_irq(&epfile->ffs->eps_lock);
-+	spin_unlock_irqrestore(&epfile->ffs->eps_lock, flags);
- 
- 	return value;
- }
+-	/* unblock any pending writes into our circular buffer */
+ 	if (started) {
++		gs_start_tx(port);
++		/* Unblock any pending writes into our circular buffer, in case
++		 * we didn't in gs_start_tx() */
+ 		tty_wakeup(port->port.tty);
+ 	} else {
+ 		gs_free_requests(ep, head, &port->read_allocated);
 -- 
 2.20.1
 
