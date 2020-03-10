@@ -2,756 +2,377 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5936B180072
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 15:42:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 19DBE180073
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 15:42:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727453AbgCJOmJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 10:42:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32960 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726469AbgCJOmJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 10:42:09 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        id S1726557AbgCJOm3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 10:42:29 -0400
+Received: from us-smtp-1.mimecast.com ([205.139.110.61]:58781 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726469AbgCJOm3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Mar 2020 10:42:29 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1583851347;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=wsQ+S0UmxXrAXNxoGPtJlv1JPIcOYiJCKrYeGOpWx/s=;
+        b=HwLRZXnbwe6nLNhVaCG6D9k4060mjQ3BFtUiTiNOdTxXxzRTioKFqdFiBpY7K9GppAyWqq
+        /zdylkxzCq+TfoSbmpjDFHVgtgOtMqBJjB/Pqa82ZkfLXp3cOqs5TFxawPrLUEix3+bPRG
+        jR1C39h00SgGIG7/HTMGA58CnfzZYF0=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-98-dBzCq2ZUNpC2UMF5pv4daQ-1; Tue, 10 Mar 2020 10:42:23 -0400
+X-MC-Unique: dBzCq2ZUNpC2UMF5pv4daQ-1
+Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 62922208E4;
-        Tue, 10 Mar 2020 14:42:06 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583851327;
-        bh=hc+gcS9UVKgeOypYfQ84ufFXI01blk9pmUdc3uWv8zM=;
-        h=From:To:Cc:Subject:Date:From;
-        b=qfNJq/b+t/wXe+2+wWJ37lssMebBbQMzN/YVqbfRb1mOWLuEPXF5NvRBEBqrvJhQz
-         lLOykrihLJb+JdHHAllOTw/Yq6VXJi6NdwpeL7PB/tdeKe0f8gKR3q2XnPgkut83m/
-         fvQ8HVbi3kyVm061cx6EqbWNqkO4MTinAyGX483c=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org
-Subject: [PATCH 5.4 000/167] 5.4.25-stable review
-Date:   Tue, 10 Mar 2020 15:42:01 +0100
-Message-Id: <20200310144113.973994620@linuxfoundation.org>
-X-Mailer: git-send-email 2.25.1
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id F3995DB6C;
+        Tue, 10 Mar 2020 14:42:22 +0000 (UTC)
+Received: from [172.54.102.53] (cpt-1044.paas.prod.upshift.rdu2.redhat.com [10.0.19.66])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 571DA73874;
+        Tue, 10 Mar 2020 14:42:17 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-5.4.25-rc2.gz
-X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-5.4.y
-X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 5.4.25-rc2
-X-KernelTest-Deadline: 2020-03-12T14:41+00:00
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+From:   CKI Project <cki-project@redhat.com>
+To:     Linux Stable maillist <stable@vger.kernel.org>
+Subject: =?utf-8?q?=F0=9F=92=A5?= PANICKED: Test report for kernel
+ 5.5.8-d907b3e.cki (stable-queue)
+Date:   Tue, 10 Mar 2020 14:42:16 -0000
+CC:     Memory Management <mm-qe@redhat.com>,
+        Jan Stancek <jstancek@redhat.com>,
+        LTP Mailing List <ltp@lists.linux.it>,
+        Ondrej Moris <omoris@redhat.com>,
+        Ondrej Mosnacek <omosnace@redhat.com>
+Message-ID: <cki.E096250EEB.E8FSMV1K0G@redhat.com>
+X-Gitlab-Pipeline-ID: 481486
+X-Gitlab-Url: https://xci32.lab.eng.rdu2.redhat.com
+X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/481486
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 5.4.25 release.
-There are 167 patches in this series, all will be posted as a response
-to this one.  If anyone has any issues with these being applied, please
-let me know.
 
-Responses should be made by Thu, 12 Mar 2020 14:40:27 +0000.
-Anything received after that time might be too late.
+Hello,
 
-The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.25-rc2.gz
-or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
-and the diffstat can be found below.
+We ran automated tests on a recent commit from this kernel tree:
 
-thanks,
+       Kernel repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/li=
+nux-stable-rc.git
+            Commit: d907b3e6c735 - ASoC: intel: skl: Fix possible buffer over=
+flow in debug outputs
 
-greg k-h
+The results of these automated tests are provided below.
 
+    Overall result: FAILED (see details below)
+             Merge: OK
+           Compile: OK
+             Tests: PANICKED
+
+All kernel binaries, config files, and logs are available for download here:
+
+  https://cki-artifacts.s3.us-east-2.amazonaws.com/index.html?prefix=3Ddatawa=
+rehouse/2020/03/10/481486
+
+One or more kernel tests failed:
+
+    s390x:
+     =F0=9F=92=A5 LTP
+
+    ppc64le:
+     =E2=9D=8C audit: audit testsuite test
+
+    aarch64:
+     =E2=9D=8C audit: audit testsuite test
+
+    x86_64:
+     =E2=9D=8C audit: audit testsuite test
+
+We hope that these logs can help you find the problem quickly. For the full
+detail on our testing procedures, please scroll to the bottom of this message.
+
+Please reply to this email if you have any questions about the tests that we
+ran or if you have any suggestions on how to make future tests more effective.
+
+        ,-.   ,-.
+       ( C ) ( K )  Continuous
+        `-',-.`-'   Kernel
+          ( I )     Integration
+           `-'
+______________________________________________________________________________
+
+Compile testing
+---------------
+
+We compiled the kernel for 4 architectures:
+
+    aarch64:
+      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
+
+    ppc64le:
+      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
+
+    s390x:
+      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
+
+    x86_64:
+      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
+
+
+Hardware testing
+----------------
+We booted each kernel and ran the following tests:
+
+  aarch64:
+    Host 1:
+       =E2=9C=85 Boot test
+       =E2=9C=85 xfstests - ext4
+       =E2=9C=85 xfstests - xfs
+       =E2=9C=85 selinux-policy: serge-testsuite
+       =E2=9C=85 lvm thinp sanity
+       =E2=9C=85 storage: software RAID testing
+       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
+
+    Host 2:
+       =E2=9C=85 Boot test
+       =E2=9C=85 Podman system integration test - as root
+       =E2=9C=85 Podman system integration test - as user
+       =E2=9C=85 LTP
+       =E2=9C=85 Loopdev Sanity
+       =E2=9C=85 Memory function: memfd_create
+       =E2=9C=85 AMTU (Abstract Machine Test Utility)
+       =E2=9C=85 Networking bridge: sanity
+       =E2=9C=85 Ethernet drivers sanity
+       =E2=9C=85 Networking MACsec: sanity
+       =E2=9C=85 Networking socket: fuzz
+       =E2=9C=85 Networking sctp-auth: sockopts test
+       =E2=9C=85 Networking: igmp conformance test
+       =E2=9C=85 Networking route: pmtu
+       =E2=9C=85 Networking route_func - local
+       =E2=9C=85 Networking route_func - forward
+       =E2=9C=85 Networking TCP: keepalive test
+       =E2=9C=85 Networking UDP: socket
+       =E2=9C=85 Networking tunnel: geneve basic test
+       =E2=9C=85 Networking tunnel: gre basic
+       =E2=9C=85 L2TP basic test
+       =E2=9C=85 Networking tunnel: vxlan basic
+       =E2=9C=85 Networking ipsec: basic netns - transport
+       =E2=9C=85 Networking ipsec: basic netns - tunnel
+       =E2=9D=8C audit: audit testsuite test
+       =E2=9C=85 httpd: mod_ssl smoke sanity
+       =E2=9C=85 tuned: tune-processes-through-perf
+       =E2=9C=85 ALSA PCM loopback test
+       =E2=9C=85 ALSA Control (mixer) Userspace Element test
+       =E2=9C=85 storage: SCSI VPD
+       =E2=9C=85 trace: ftrace/tracer
+       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
+       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
+       =F0=9F=9A=A7 =E2=9C=85 jvm - DaCapo Benchmark Suite
+       =F0=9F=9A=A7 =E2=9C=85 jvm - jcstress tests
+       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
+       =F0=9F=9A=A7 =E2=9C=85 LTP: openposix test suite
+       =F0=9F=9A=A7 =E2=9C=85 Networking vnic: ipvlan/basic
+       =F0=9F=9A=A7 =E2=9C=85 iotop: sanity
+       =F0=9F=9A=A7 =E2=9C=85 Usex - version 1.9-29
+       =F0=9F=9A=A7 =E2=9C=85 storage: dm/common
+
+  ppc64le:
+    Host 1:
+       =E2=9C=85 Boot test
+       =E2=9C=85 xfstests - ext4
+       =E2=9C=85 xfstests - xfs
+       =E2=9C=85 selinux-policy: serge-testsuite
+       =E2=9C=85 lvm thinp sanity
+       =E2=9C=85 storage: software RAID testing
+       =F0=9F=9A=A7 =E2=9C=85 IPMI driver test
+       =F0=9F=9A=A7 =E2=9C=85 IPMItool loop stress test
+       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
+
+    Host 2:
+       =E2=9C=85 Boot test
+       =E2=9C=85 Podman system integration test - as root
+       =E2=9C=85 Podman system integration test - as user
+       =E2=9C=85 LTP
+       =E2=9C=85 Loopdev Sanity
+       =E2=9C=85 Memory function: memfd_create
+       =E2=9C=85 AMTU (Abstract Machine Test Utility)
+       =E2=9C=85 Networking bridge: sanity
+       =E2=9C=85 Ethernet drivers sanity
+       =E2=9C=85 Networking MACsec: sanity
+       =E2=9C=85 Networking socket: fuzz
+       =E2=9C=85 Networking sctp-auth: sockopts test
+       =E2=9C=85 Networking route: pmtu
+       =E2=9C=85 Networking route_func - local
+       =E2=9C=85 Networking route_func - forward
+       =E2=9C=85 Networking TCP: keepalive test
+       =E2=9C=85 Networking UDP: socket
+       =E2=9C=85 Networking tunnel: geneve basic test
+       =E2=9C=85 Networking tunnel: gre basic
+       =E2=9C=85 L2TP basic test
+       =E2=9C=85 Networking tunnel: vxlan basic
+       =E2=9C=85 Networking ipsec: basic netns - tunnel
+       =E2=9D=8C audit: audit testsuite test
+       =E2=9C=85 httpd: mod_ssl smoke sanity
+       =E2=9C=85 tuned: tune-processes-through-perf
+       =E2=9C=85 ALSA PCM loopback test
+       =E2=9C=85 ALSA Control (mixer) Userspace Element test
+       =E2=9C=85 trace: ftrace/tracer
+       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
+       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
+       =F0=9F=9A=A7 =E2=9C=85 jvm - DaCapo Benchmark Suite
+       =F0=9F=9A=A7 =E2=9C=85 jvm - jcstress tests
+       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
+       =F0=9F=9A=A7 =E2=9C=85 LTP: openposix test suite
+       =F0=9F=9A=A7 =E2=9C=85 Networking vnic: ipvlan/basic
+       =F0=9F=9A=A7 =E2=9C=85 iotop: sanity
+       =F0=9F=9A=A7 =E2=9C=85 Usex - version 1.9-29
+       =F0=9F=9A=A7 =E2=9C=85 storage: dm/common
+
+  s390x:
+    Host 1:
+       =E2=9C=85 Boot test
+       =E2=9C=85 selinux-policy: serge-testsuite
+       =E2=9C=85 stress: stress-ng
+       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
+
+    Host 2:
+
+       =E2=9A=A1 Internal infrastructure issues prevented one or more tests (=
+marked
+       with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
+       This is not the fault of the kernel that was tested.
+
+       =E2=9C=85 Boot test
+       =E2=9C=85 Podman system integration test - as root
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Podman system integration test - as user
+       =F0=9F=92=A5 LTP
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Loopdev Sanity
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Memory function: memfd_create
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking bridge: sanity
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Ethernet drivers sanity
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking MACsec: sanity
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking sctp-auth: sockopts test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking route: pmtu
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking route_func - local
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking route_func - forward
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking TCP: keepalive test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking UDP: socket
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking tunnel: geneve basic test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking tunnel: gre basic
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 L2TP basic test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking tunnel: vxlan basic
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking ipsec: basic netns - transport
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking ipsec: basic netns - tunnel
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 audit: audit testsuite test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 httpd: mod_ssl smoke sanity
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 tuned: tune-processes-through-perf
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 trace: ftrace/tracer
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 CIFS Connectathon
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 POSIX pjd-fstest suites
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 jvm - DaCapo Benchmark Suite
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 jvm - jcstress tests
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Memory function: kaslr
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 LTP: openposix test suite
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking vnic: ipvlan/basic
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 iotop: sanity
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Usex - version 1.9-29
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 storage: dm/common
+
+  x86_64:
+    Host 1:
+       =E2=9C=85 Boot test
+       =E2=9C=85 xfstests - ext4
+       =E2=9C=85 xfstests - xfs
+       =E2=9C=85 selinux-policy: serge-testsuite
+       =E2=9C=85 lvm thinp sanity
+       =E2=9C=85 storage: software RAID testing
+       =E2=9C=85 stress: stress-ng
+       =F0=9F=9A=A7 =E2=9C=85 IOMMU boot test
+       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
+
+    Host 2:
+       =E2=9C=85 Boot test
+       =E2=9C=85 Storage SAN device stress - mpt3sas driver
+
+    Host 3:
+       =E2=9C=85 Boot test
+       =E2=9C=85 Storage SAN device stress - megaraid_sas
+
+    Host 4:
+
+       =E2=9A=A1 Internal infrastructure issues prevented one or more tests (=
+marked
+       with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
+       This is not the fault of the kernel that was tested.
+
+       =E2=9C=85 Boot test
+       =E2=9C=85 Podman system integration test - as root
+       =E2=9C=85 Podman system integration test - as user
+       =E2=9C=85 LTP
+       =E2=9C=85 Loopdev Sanity
+       =E2=9C=85 Memory function: memfd_create
+       =E2=9C=85 AMTU (Abstract Machine Test Utility)
+       =E2=9C=85 Networking bridge: sanity
+       =E2=9C=85 Ethernet drivers sanity
+       =E2=9C=85 Networking MACsec: sanity
+       =E2=9C=85 Networking socket: fuzz
+       =E2=9C=85 Networking sctp-auth: sockopts test
+       =E2=9C=85 Networking: igmp conformance test
+       =E2=9C=85 Networking route: pmtu
+       =E2=9C=85 Networking route_func - local
+       =E2=9C=85 Networking route_func - forward
+       =E2=9C=85 Networking TCP: keepalive test
+       =E2=9C=85 Networking UDP: socket
+       =E2=9C=85 Networking tunnel: geneve basic test
+       =E2=9C=85 Networking tunnel: gre basic
+       =E2=9C=85 L2TP basic test
+       =E2=9C=85 Networking tunnel: vxlan basic
+       =E2=9C=85 Networking ipsec: basic netns - transport
+       =E2=9C=85 Networking ipsec: basic netns - tunnel
+       =E2=9D=8C audit: audit testsuite test
+       =E2=9C=85 httpd: mod_ssl smoke sanity
+       =E2=9C=85 tuned: tune-processes-through-perf
+       =E2=9C=85 pciutils: sanity smoke test
+       =E2=9C=85 ALSA PCM loopback test
+       =E2=9C=85 ALSA Control (mixer) Userspace Element test
+       =E2=9C=85 storage: SCSI VPD
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 trace: ftrace/tracer
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 CIFS Connectathon
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 POSIX pjd-fstest suites
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 jvm - DaCapo Benchmark Suite
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 jvm - jcstress tests
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Memory function: kaslr
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 LTP: openposix test suite
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking vnic: ipvlan/basic
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 iotop: sanity
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Usex - version 1.9-29
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 storage: dm/common
+
+  Test sources: https://github.com/CKI-project/tests-beaker
+    =F0=9F=92=9A Pull requests are welcome for new tests or improvements to e=
+xisting tests!
+
+Aborted tests
 -------------
-Pseudo-Shortlog of commits:
-
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 5.4.25-rc2
-
-Jason A. Donenfeld <Jason@zx2c4.com>
-    efi: READ_ONCE rng seed size before munmap
-
-Ard Biesheuvel <ardb@kernel.org>
-    efi/x86: Handle by-ref arguments covering multiple pages in mixed mode
-
-Ard Biesheuvel <ardb@kernel.org>
-    efi/x86: Align GUIDs to their size in the mixed mode runtime wrapper
-
-Desnes A. Nunes do Rosario <desnesn@linux.ibm.com>
-    powerpc: fix hardware PMU exception bug on PowerVM compatibility mode systems
-
-Sherry Sun <sherry.sun@nxp.com>
-    EDAC/synopsys: Do not print an error with back-to-back snprintf() calls
-
-Tony Lindgren <tony@atomide.com>
-    bus: ti-sysc: Fix 1-wire reset quirk
-
-Christian Hewitt <christianshewitt@gmail.com>
-    arm64: dts: meson: fix gxm-khadas-vim2 wifi
-
-Dan Carpenter <dan.carpenter@oracle.com>
-    dmaengine: coh901318: Fix a double lock bug in dma_tc_handle()
-
-Cong Wang <xiyou.wangcong@gmail.com>
-    dma-buf: free dmabuf->name in dma_buf_release()
-
-Dan Carpenter <dan.carpenter@oracle.com>
-    hwmon: (adt7462) Fix an error return in ADT7462_REG_VOLT()
-
-Oleksandr Suvorov <oleksandr.suvorov@toradex.com>
-    ARM: dts: imx7-colibri: Fix frequency for sd/mmc
-
-Johan Hovold <johan@kernel.org>
-    ARM: dts: imx6dl-colibri-eval-v3: fix sram compatible properties
-
-Suman Anna <s-anna@ti.com>
-    ARM: dts: dra7xx-clocks: Fixup IPU1 mux clock parent source
-
-Suman Anna <s-anna@ti.com>
-    ARM: dts: am437x-idk-evm: Fix incorrect OPP node names
-
-Ahmad Fatoum <a.fatoum@pengutronix.de>
-    ARM: imx: build v7_cpu_resume() unconditionally
-
-Dennis Dalessandro <dennis.dalessandro@intel.com>
-    IB/hfi1, qib: Ensure RCU is locked when accessing list
-
-Jason Gunthorpe <jgg@ziepe.ca>
-    RMDA/cm: Fix missing ib_cm_destroy_id() in ib_cm_insert_listen()
-
-Fabrice Gasnier <fabrice.gasnier@st.com>
-    regulator: stm32-vrefbuf: fix a possible overshoot when re-enabling
-
-Maor Gottlieb <maorg@mellanox.com>
-    RDMA/core: Fix protection fault in ib_mr_pool_destroy
-
-Bernard Metzler <bmt@zurich.ibm.com>
-    RDMA/iwcm: Fix iwcm work deallocation
-
-Bernard Metzler <bmt@zurich.ibm.com>
-    RDMA/siw: Fix failure handling during device creation
-
-Mark Zhang <markz@mellanox.com>
-    RDMA/nldev: Fix crash when set a QP to a new counter but QPN is missing
-
-Max Gurtovoy <maxg@mellanox.com>
-    RDMA/rw: Fix error flow during RDMA context initialization
-
-Parav Pandit <parav@mellanox.com>
-    Revert "RDMA/cma: Simplify rdma_resolve_addr() error flow"
-
-Leonard Crestez <leonard.crestez@nxp.com>
-    soc: imx-scu: Align imx sc msg structs to 4
-
-Leonard Crestez <leonard.crestez@nxp.com>
-    firmware: imx: Align imx_sc_msg_req_cpu_start to 4
-
-Leonard Crestez <leonard.crestez@nxp.com>
-    firmware: imx: scu-pd: Align imx sc msg structs to 4
-
-Leonard Crestez <leonard.crestez@nxp.com>
-    firmware: imx: misc: Align imx sc msg structs to 4
-
-Fabio Estevam <festevam@gmail.com>
-    arm64: dts: imx8qxp-mek: Remove unexisting Ethernet PHY
-
-Marco Felsch <m.felsch@pengutronix.de>
-    ARM: dts: imx6: phycore-som: fix emmc supply
-
-Tony Lindgren <tony@atomide.com>
-    phy: mapphone-mdm6600: Fix write timeouts with shorter GPIO toggle interval
-
-Tony Lindgren <tony@atomide.com>
-    phy: mapphone-mdm6600: Fix timeouts by adding wake-up handling
-
-Dan Carpenter <dan.carpenter@oracle.com>
-    drm/i915/selftests: Fix return in assert_mmap_offset()
-
-Matt Roper <matthew.d.roper@intel.com>
-    drm/i915: Program MBUS with rmw during initialization
-
-Jernej Skrabec <jernej.skrabec@siol.net>
-    drm/sun4i: de2/de3: Remove unsupported VI layer formats
-
-Jernej Skrabec <jernej.skrabec@siol.net>
-    drm/sun4i: Fix DE2 VI layer format support
-
-Jernej Skrabec <jernej.skrabec@siol.net>
-    drm/sun4i: Add separate DE3 VI layer formats
-
-John Stultz <john.stultz@linaro.org>
-    drm: kirin: Revert "Fix for hikey620 display offset problem"
-
-Tomeu Vizoso <tomeu.vizoso@collabora.com>
-    drm/panfrost: Don't try to map on error faults
-
-Tudor Ambarus <tudor.ambarus@microchip.com>
-    spi: atmel-quadspi: fix possible MMIO window size overrun
-
-Charles Keepax <ckeepax@opensource.cirrus.com>
-    ASoC: dapm: Correct DAPM handling of active widgets during shutdown
-
-Amadeusz Sławiński <amadeuszx.slawinski@linux.intel.com>
-    ASoC: Intel: Skylake: Fix available clock counter incrementation
-
-Matthias Reichl <hias@horus.com>
-    ASoC: pcm512x: Fix unbalanced regulator enable call in probe error path
-
-Takashi Iwai <tiwai@suse.de>
-    ASoC: pcm: Fix possible buffer overflow in dpcm state sysfs output
-
-Michael Ellerman <mpe@ellerman.id.au>
-    powerpc/mm: Fix missing KUAP disable in flush_coherent_icache()
-
-Alastair D'Silva <alastair@d-silva.org>
-    powerpc: Convert flush_icache_range & friends to C
-
-Alastair D'Silva <alastair@d-silva.org>
-    powerpc: define helpers to get L1 icache sizes
-
-Takashi Iwai <tiwai@suse.de>
-    ASoC: intel: skl: Fix possible buffer overflow in debug outputs
-
-Takashi Iwai <tiwai@suse.de>
-    ASoC: intel: skl: Fix pin debug prints
-
-Dan Carpenter <dan.carpenter@oracle.com>
-    ASoC: SOF: Fix snd_sof_ipc_stream_posn()
-
-Dragos Tarcatu <dragos_tarcatu@mentor.com>
-    ASoC: topology: Fix memleak in soc_tplg_manifest_load()
-
-Dragos Tarcatu <dragos_tarcatu@mentor.com>
-    ASoC: topology: Fix memleak in soc_tplg_link_elems_load()
-
-John Bates <jbates@chromium.org>
-    drm/virtio: fix resource id creation race
-
-Gerd Hoffmann <kraxel@redhat.com>
-    drm/virtio: make resource id workaround runtime switchable.
-
-Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-    spi: bcm63xx-hsspi: Really keep pll clk enabled
-
-Vladimir Oltean <olteanv@gmail.com>
-    ARM: dts: ls1021a: Restore MDIO compatible to gianfar
-
-Guillaume La Roque <glaroque@baylibre.com>
-    arm64: dts: meson-sm1-sei610: add missing interrupt-names
-
-Hou Tao <houtao1@huawei.com>
-    dm: fix congested_fn for request-based device
-
-Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-    dm zoned: Fix reference counter initial value of chunk works
-
-Mikulas Patocka <mpatocka@redhat.com>
-    dm writecache: verify watermark during resume
-
-Mikulas Patocka <mpatocka@redhat.com>
-    dm: report suspended device during destroy
-
-Mikulas Patocka <mpatocka@redhat.com>
-    dm cache: fix a crash due to incorrect work item cancelling
-
-Mikulas Patocka <mpatocka@redhat.com>
-    dm integrity: fix invalid table returned due to argument count mismatch
-
-Mikulas Patocka <mpatocka@redhat.com>
-    dm integrity: fix a deadlock due to offloading to an incorrect workqueue
-
-Mikulas Patocka <mpatocka@redhat.com>
-    dm integrity: fix recalculation when moving from journal mode to bitmap mode
-
-Dmitry Osipenko <digetx@gmail.com>
-    dmaengine: tegra-apb: Prevent race conditions of tasklet vs free list
-
-Dmitry Osipenko <digetx@gmail.com>
-    dmaengine: tegra-apb: Fix use-after-free
-
-Frieder Schrempf <frieder.schrempf@kontron.de>
-    dmaengine: imx-sdma: Fix the event id check to include RX event for UART6
-
-Martin Fuzzey <martin.fuzzey@flowbird.group>
-    dmaengine: imx-sdma: fix context cache
-
-Gerald Schaefer <gerald.schaefer@de.ibm.com>
-    s390/mm: fix panic in gup_fast on large pud
-
-Niklas Schnelle <schnelle@linux.ibm.com>
-    s390/pci: Fix unexpected write combine on resource
-
-Sean Christopherson <sean.j.christopherson@intel.com>
-    x86/pkeys: Manually set X86_FEATURE_OSPKE to preserve existing changes
-
-Lukas Wunner <lukas@wunner.de>
-    spi: spidev: Fix CS polarity if GPIO descriptors are used
-
-Adrian Hunter <adrian.hunter@intel.com>
-    perf arm-spe: Fix endless record after being terminated
-
-Wei Li <liwei391@huawei.com>
-    perf cs-etm: Fix endless record after being terminated
-
-Wei Li <liwei391@huawei.com>
-    perf intel-bts: Fix endless record after being terminated
-
-Wei Li <liwei391@huawei.com>
-    perf intel-pt: Fix endless record after being terminated
-
-Hans Verkuil <hverkuil-cisco@xs4all.nl>
-    media: v4l2-mem2mem.c: fix broken links
-
-Hans Verkuil <hverkuil-cisco@xs4all.nl>
-    media: vicodec: process all 4 components for RGB32 formats
-
-Hans Verkuil <hverkuil-cisco@xs4all.nl>
-    media: mc-entity.c: use & to check pad flags, not ==
-
-Ezequiel Garcia <ezequiel@collabora.com>
-    media: hantro: Fix broken media controller links
-
-Jiri Slaby <jslaby@suse.cz>
-    vt: selection, push sel_lock up
-
-Jiri Slaby <jslaby@suse.cz>
-    vt: selection, push console lock down
-
-Jiri Slaby <jslaby@suse.cz>
-    vt: selection, close sel_buffer race
-
-Jay Dolan <jay.dolan@accesio.com>
-    serial: 8250_exar: add support for ACCES cards
-
-Michael Walle <michael@walle.cc>
-    tty: serial: fsl_lpuart: free IDs allocated by IDA
-
-tangbin <tangbin@cmss.chinamobile.com>
-    tty:serial:mvebu-uart:fix a wrong return
-
-Faiz Abbas <faiz_abbas@ti.com>
-    arm: dts: dra76x: Fix mmc3 max-frequency
-
-Ley Foon Tan <ley.foon.tan@intel.com>
-    arm64: dts: socfpga: agilex: Fix gmac compatible
-
-Omar Sandoval <osandov@fb.com>
-    btrfs: fix RAID direct I/O reads with alternate csums
-
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-    fat: fix uninit-memory access for partial initialized inode
-
-Vlastimil Babka <vbabka@suse.cz>
-    mm, hotplug: fix page online with DEBUG_PAGEALLOC compiled but not enabled
-
-Huang Ying <ying.huang@intel.com>
-    mm: fix possible PMD dirty bit lost in set_pmd_migration_entry()
-
-Mel Gorman <mgorman@techsingularity.net>
-    mm, numa: fix bad pmd by atomically check for pmd_trans_huge when marking page tables prot_numa
-
-Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
-    vgacon: Fix a UAF in vgacon_invert_region
-
-Eugeniu Rosca <erosca@de.adit-jv.com>
-    usb: core: port: do error out if usb_autopm_get_interface() fails
-
-Eugeniu Rosca <erosca@de.adit-jv.com>
-    usb: core: hub: do error out if usb_autopm_get_interface() fails
-
-Eugeniu Rosca <erosca@de.adit-jv.com>
-    usb: core: hub: fix unhandled return by employing a void function
-
-Peter Chen <peter.chen@nxp.com>
-    usb: cdns3: gadget: toggle cycle bit before reset endpoint
-
-Peter Chen <peter.chen@nxp.com>
-    usb: cdns3: gadget: link trb should point to next request
-
-Pratham Pratap <prathampratap@codeaurora.org>
-    usb: dwc3: gadget: Update chain bit correctly when using sg list
-
-Dan Lazewatsky <dlaz@chromium.org>
-    usb: quirks: add NO_LPM quirk for Logitech Screen Share
-
-Jim Lin <jilin@nvidia.com>
-    usb: storage: Add quirk for Samsung Fit flash
-
-Aurelien Aptel <aaptel@suse.com>
-    cifs: fix rename() by ensuring source handle opened with DELETE bit
-
-Ronnie Sahlberg <lsahlber@redhat.com>
-    cifs: don't leak -EAGAIN for stat() during reconnect
-
-Jian-Hong Pan <jian-hong@endlessm.com>
-    ALSA: hda/realtek - Enable the headset of ASUS B9450FA with ALC294
-
-Christian Lachner <gladiac@gmail.com>
-    ALSA: hda/realtek - Fix silent output on Gigabyte X570 Aorus Master
-
-Kailang Yang <kailang@realtek.com>
-    ALSA: hda/realtek - Add Headset Button supported for ThinkPad X1
-
-Kailang Yang <kailang@realtek.com>
-    ALSA: hda/realtek - Add Headset Mic supported
-
-Christian Brauner <christian.brauner@ubuntu.com>
-    binder: prevent UAF for binderfs devices II
-
-Christian Brauner <christian.brauner@ubuntu.com>
-    binder: prevent UAF for binderfs devices
-
-Leonard Crestez <leonard.crestez@nxp.com>
-    firmware: imx: scu: Ensure sequential TX
-
-Hangbin Liu <liuhangbin@gmail.com>
-    selftests: forwarding: vxlan_bridge_1d: use more proper tos value
-
-Randy Dunlap <rdunlap@infradead.org>
-    arch/csky: fix some Kconfig typos
-
-Guo Ren <guoren@linux.alibaba.com>
-    csky: Fixup compile warning for three unimplemented syscalls
-
-Guo Ren <guoren@linux.alibaba.com>
-    csky: Fixup ftrace modify panic
-
-Guo Ren <guoren@linux.alibaba.com>
-    csky/smp: Fixup boot failed when CONFIG_SMP
-
-Guo Ren <guoren@linux.alibaba.com>
-    csky: Set regs->usp to kernel sp, when the exception is from kernel
-
-Guo Ren <guoren@linux.alibaba.com>
-    csky/mm: Fixup export invalid_pte_table symbol
-
-Tim Harvey <tharvey@gateworks.com>
-    net: thunderx: workaround BGX TX Underflow issue
-
-Kees Cook <keescook@chromium.org>
-    x86/xen: Distribute switch variables for initialization
-
-Michal Swiatkowski <michal.swiatkowski@intel.com>
-    ice: Don't tell the OS that link is going down
-
-Keith Busch <kbusch@kernel.org>
-    nvme: Fix uninitialized-variable warning
-
-Julian Wiedmann <jwi@linux.ibm.com>
-    s390/qdio: fill SL with absolute addresses
-
-H.J. Lu <hjl.tools@gmail.com>
-    x86/boot/compressed: Don't declare __force_order in kaslr_64.c
-
-Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-    nvme-pci: Use single IRQ vector for old Apple models
-
-Shyjumon N <shyjumon.n@intel.com>
-    nvme/pci: Add sleep quirk for Samsung and Toshiba drives
-
-Kai-Heng Feng <kai.heng.feng@canonical.com>
-    iommu/amd: Disable IOMMU on Stoney Ridge systems
-
-Hamdan Igbaria <hamdani@mellanox.com>
-    net/mlx5: DR, Fix matching on vport gvmi
-
-Javier Martinez Canillas <javierm@redhat.com>
-    efi: Only print errors about failing to get certs if EFI vars are found
-
-Masahiro Yamada <masahiroy@kernel.org>
-    s390: make 'install' not depend on vmlinux
-
-Vasily Averin <vvs@virtuozzo.com>
-    s390/cio: cio_ignore_proc_seq_next should increase position index
-
-Marco Felsch <m.felsch@pengutronix.de>
-    watchdog: da9062: do not ping the hw during stop()
-
-Paul Cercueil <paul@crapouillou.net>
-    net: ethernet: dm9000: Handle -EPROBE_DEFER in dm9000_parse_dt()
-
-Marek Vasut <marex@denx.de>
-    net: ks8851-ml: Fix 16-bit IO operation
-
-Marek Vasut <marex@denx.de>
-    net: ks8851-ml: Fix 16-bit data access
-
-Marek Vasut <marex@denx.de>
-    net: ks8851-ml: Remove 8-bit bus accessors
-
-Igor Russkikh <irusskikh@marvell.com>
-    net: atlantic: check rpc result and wait for rpc address
-
-Hangbin Liu <liuhangbin@gmail.com>
-    selftests: forwarding: vxlan_bridge_1d: fix tos value
-
-Hangbin Liu <liuhangbin@gmail.com>
-    selftests: forwarding: use proto icmp for {gretap, ip6gretap}_mac testing
-
-Harigovindan P <harigovi@codeaurora.org>
-    drm/msm/dsi/pll: call vco set rate explicitly
-
-Harigovindan P <harigovi@codeaurora.org>
-    drm/msm/dsi: save pll state before dsi host is powered off
-
-Tomas Henzl <thenzl@redhat.com>
-    scsi: megaraid_sas: silence a warning
-
-Stephan Gerhold <stephan@gerhold.net>
-    drm/modes: Allow DRM_MODE_ROTATE_0 when applying video mode parameters
-
-Stephan Gerhold <stephan@gerhold.net>
-    drm/modes: Make sure to parse valid rotation value from cmdline
-
-John Stultz <john.stultz@linaro.org>
-    drm: msm: Fix return type of dsi_mgr_connector_mode_valid for kCFI
-
-Brian Masney <masneyb@onstation.org>
-    drm/msm/mdp5: rate limit pp done timeout warnings
-
-Oded Gabbay <oded.gabbay@gmail.com>
-    habanalabs: patched cb equals user cb in device memset
-
-Omer Shpigelman <oshpigelman@habana.ai>
-    habanalabs: do not halt CoreSight during hard reset
-
-Oded Gabbay <oded.gabbay@gmail.com>
-    habanalabs: halt the engines before hard-reset
-
-Sergey Organov <sorganov@gmail.com>
-    usb: gadget: serial: fix Tx stall after buffer overflow
-
-Lars-Peter Clausen <lars@metafoo.de>
-    usb: gadget: ffs: ffs_aio_cancel(): Save/restore IRQ flags
-
-Jack Pham <jackp@codeaurora.org>
-    usb: gadget: composite: Support more than 500mA MaxPower
-
-Jiri Benc <jbenc@redhat.com>
-    selftests: fix too long argument
-
-Daniel Golle <daniel@makrotopia.org>
-    serial: ar933x_uart: set UART_CS_{RX,TX}_READY_ORIDE
-
-Kai Vehmanen <kai.vehmanen@linux.intel.com>
-    ALSA: hda: do not override bus codec_mask in link_get()
-
-Cengiz Can <cengiz@kernel.wtf>
-    blktrace: fix dereference after null check
-
-Masami Hiramatsu <mhiramat@kernel.org>
-    kprobes: Fix optimize_kprobe()/unoptimize_kprobe() cancellation logic
-
-Masahiro Yamada <masahiroy@kernel.org>
-    kbuild: fix 'No such file or directory' warning when cleaning
-
-Nathan Chancellor <natechancellor@gmail.com>
-    RDMA/core: Fix use of logical OR in get_new_pps
-
-Maor Gottlieb <maorg@mellanox.com>
-    RDMA/core: Fix pkey and port assignment in get_new_pps
-
-Theodore Ts'o <tytso@mit.edu>
-    dm thin metadata: fix lockdep complaint
-
-Aaro Koskinen <aaro.koskinen@nokia.com>
-    net: stmmac: fix notifier registration
-
-Florian Fainelli <f.fainelli@gmail.com>
-    net: dsa: bcm_sf2: Forcibly configure IMP port for 1Gb/sec
-
-Hui Wang <hui.wang@canonical.com>
-    ALSA: hda/realtek - Fix a regression for mute led on Lenovo Carbon X1
-
-Paolo Valente <paolo.valente@linaro.org>
-    block, bfq: do not insert oom queue into position tree
-
-Paolo Valente <paolo.valente@linaro.org>
-    block, bfq: get extra ref to prevent a queue from being freed during a group move
-
-
--------------
-
-Diffstat:
-
- Makefile                                           |   4 +-
- arch/arm/boot/dts/am437x-idk-evm.dts               |   4 +-
- arch/arm/boot/dts/dra76x.dtsi                      |   5 +
- arch/arm/boot/dts/dra7xx-clocks.dtsi               |  12 +-
- arch/arm/boot/dts/imx6dl-colibri-eval-v3.dts       |   4 +-
- arch/arm/boot/dts/imx6qdl-phytec-phycore-som.dtsi  |   1 -
- arch/arm/boot/dts/imx7-colibri.dtsi                |   1 -
- arch/arm/boot/dts/ls1021a.dtsi                     |   4 +-
- arch/arm/mach-imx/Makefile                         |   2 +
- arch/arm/mach-imx/common.h                         |   4 +-
- arch/arm/mach-imx/resume-imx6.S                    |  24 ++++
- arch/arm/mach-imx/suspend-imx6.S                   |  14 --
- .../boot/dts/amlogic/meson-gxm-khadas-vim2.dts     |   2 +-
- arch/arm64/boot/dts/amlogic/meson-sm1-sei610.dts   |   1 +
- arch/arm64/boot/dts/freescale/imx8qxp-mek.dts      |   5 -
- arch/arm64/boot/dts/intel/socfpga_agilex.dtsi      |   6 +-
- arch/csky/Kconfig                                  |   2 +-
- arch/csky/abiv1/inc/abi/entry.h                    |  19 ++-
- arch/csky/abiv2/inc/abi/entry.h                    |  11 ++
- arch/csky/include/uapi/asm/unistd.h                |   3 +
- arch/csky/kernel/atomic.S                          |   8 +-
- arch/csky/kernel/smp.c                             |   2 +-
- arch/csky/mm/Makefile                              |   2 +
- arch/csky/mm/init.c                                |   1 +
- arch/powerpc/include/asm/cache.h                   |  55 +++++---
- arch/powerpc/include/asm/cacheflush.h              |  36 +++--
- arch/powerpc/kernel/cputable.c                     |   4 +-
- arch/powerpc/kernel/misc_32.S                      | 120 ----------------
- arch/powerpc/kernel/misc_64.S                      | 102 --------------
- arch/powerpc/mm/mem.c                              | 152 ++++++++++++++++++++-
- arch/s390/Makefile                                 |   2 +-
- arch/s390/boot/Makefile                            |   2 +-
- arch/s390/include/asm/pgtable.h                    |   6 +
- arch/s390/include/asm/qdio.h                       |   2 +-
- arch/s390/pci/pci.c                                |   4 +-
- arch/x86/boot/compressed/kaslr_64.c                |   3 -
- arch/x86/kernel/cpu/common.c                       |   2 +-
- arch/x86/platform/efi/efi_64.c                     |  70 ++++++----
- arch/x86/xen/enlighten_pv.c                        |   7 +-
- block/bfq-cgroup.c                                 |   8 ++
- block/bfq-iosched.c                                |   4 +
- drivers/android/binder.c                           |   9 ++
- drivers/android/binder_internal.h                  |   2 +
- drivers/android/binderfs.c                         |   7 +-
- drivers/bus/ti-sysc.c                              |   4 +-
- drivers/dma-buf/dma-buf.c                          |   1 +
- drivers/dma/coh901318.c                            |   4 -
- drivers/dma/imx-sdma.c                             |   5 +-
- drivers/dma/tegra20-apb-dma.c                      |   6 +-
- drivers/edac/synopsys_edac.c                       |  22 +--
- drivers/firmware/efi/efi.c                         |   4 +-
- drivers/firmware/imx/imx-scu.c                     |  27 ++++
- drivers/firmware/imx/misc.c                        |   8 +-
- drivers/firmware/imx/scu-pd.c                      |   2 +-
- drivers/gpu/drm/drm_client_modeset.c               |   3 +-
- drivers/gpu/drm/drm_modes.c                        |   7 +
- drivers/gpu/drm/hisilicon/kirin/kirin_ade_reg.h    |   1 -
- drivers/gpu/drm/hisilicon/kirin/kirin_drm_ade.c    |  20 ---
- drivers/gpu/drm/i915/display/intel_display_power.c |  16 ++-
- drivers/gpu/drm/i915/gem/selftests/i915_gem_mman.c |   2 +-
- drivers/gpu/drm/msm/disp/mdp5/mdp5_crtc.c          |   4 +-
- drivers/gpu/drm/msm/dsi/dsi_manager.c              |   7 +-
- drivers/gpu/drm/msm/dsi/phy/dsi_phy.c              |   4 -
- drivers/gpu/drm/msm/dsi/pll/dsi_pll_10nm.c         |   6 +
- drivers/gpu/drm/panfrost/panfrost_mmu.c            |  44 +++---
- drivers/gpu/drm/selftests/drm_cmdline_selftests.h  |   1 +
- .../gpu/drm/selftests/test-drm_cmdline_parser.c    |  15 +-
- drivers/gpu/drm/sun4i/sun8i_mixer.c                | 104 ++++++++++++--
- drivers/gpu/drm/sun4i/sun8i_mixer.h                |  11 ++
- drivers/gpu/drm/sun4i/sun8i_vi_layer.c             |  66 +++++++--
- drivers/gpu/drm/virtio/virtgpu_object.c            |  44 +++---
- drivers/hwmon/adt7462.c                            |   2 +-
- drivers/infiniband/core/cm.c                       |   1 +
- drivers/infiniband/core/cma.c                      |  15 +-
- drivers/infiniband/core/core_priv.h                |  15 ++
- drivers/infiniband/core/iwcm.c                     |   4 +-
- drivers/infiniband/core/nldev.c                    |   2 +
- drivers/infiniband/core/rw.c                       |  31 +++--
- drivers/infiniband/core/security.c                 |  14 +-
- drivers/infiniband/core/uverbs_cmd.c               |  10 --
- drivers/infiniband/core/verbs.c                    |  10 --
- drivers/infiniband/hw/hfi1/verbs.c                 |   4 +-
- drivers/infiniband/hw/qib/qib_verbs.c              |   2 +
- drivers/infiniband/sw/siw/siw_main.c               |   6 +-
- drivers/iommu/amd_iommu_init.c                     |  13 +-
- drivers/md/dm-cache-target.c                       |   4 +-
- drivers/md/dm-integrity.c                          |  50 ++++---
- drivers/md/dm-thin-metadata.c                      |   2 +-
- drivers/md/dm-writecache.c                         |  14 +-
- drivers/md/dm-zoned-target.c                       |   8 +-
- drivers/md/dm.c                                    |  22 +--
- drivers/media/mc/mc-entity.c                       |   4 +-
- drivers/media/platform/vicodec/codec-v4l2-fwht.c   |  34 ++---
- drivers/media/v4l2-core/v4l2-mem2mem.c             |   4 +-
- drivers/misc/habanalabs/device.c                   |   5 +-
- drivers/misc/habanalabs/goya/goya.c                |  44 +++++-
- drivers/net/dsa/bcm_sf2.c                          |   3 +-
- .../aquantia/atlantic/hw_atl/hw_atl_utils.c        |  19 ++-
- drivers/net/ethernet/cavium/thunder/thunder_bgx.c  |  62 ++++++++-
- drivers/net/ethernet/cavium/thunder/thunder_bgx.h  |   9 ++
- drivers/net/ethernet/davicom/dm9000.c              |   2 +
- drivers/net/ethernet/intel/ice/ice_ethtool.c       |   7 -
- .../ethernet/mellanox/mlx5/core/steering/dr_ste.c  |   5 +-
- drivers/net/ethernet/micrel/ks8851_mll.c           |  53 ++-----
- drivers/net/ethernet/stmicro/stmmac/stmmac_main.c  |  13 +-
- drivers/nvme/host/core.c                           |   2 +-
- drivers/nvme/host/pci.c                            |  15 +-
- drivers/phy/motorola/phy-mapphone-mdm6600.c        |  27 +++-
- drivers/regulator/stm32-vrefbuf.c                  |   3 +-
- drivers/s390/cio/blacklist.c                       |   5 +-
- drivers/s390/cio/qdio_setup.c                      |   3 +-
- drivers/s390/net/qeth_core_main.c                  |  23 ++--
- drivers/scsi/megaraid/megaraid_sas_fusion.c        |   5 +-
- drivers/soc/imx/soc-imx-scu.c                      |   2 +-
- drivers/spi/atmel-quadspi.c                        |  11 ++
- drivers/spi/spi-bcm63xx-hsspi.c                    |   1 -
- drivers/spi/spidev.c                               |   5 +
- drivers/staging/media/hantro/hantro_drv.c          |   4 +-
- drivers/staging/speakup/selection.c                |   2 -
- drivers/tty/serial/8250/8250_exar.c                |  33 +++++
- drivers/tty/serial/ar933x_uart.c                   |   8 ++
- drivers/tty/serial/fsl_lpuart.c                    |  39 ++++--
- drivers/tty/serial/mvebu-uart.c                    |   2 +-
- drivers/tty/vt/selection.c                         |  26 +++-
- drivers/tty/vt/vt.c                                |   2 -
- drivers/usb/cdns3/gadget.c                         |  19 ++-
- drivers/usb/core/hub.c                             |   8 +-
- drivers/usb/core/port.c                            |  10 +-
- drivers/usb/core/quirks.c                          |   3 +
- drivers/usb/dwc3/gadget.c                          |   9 +-
- drivers/usb/gadget/composite.c                     |  24 +++-
- drivers/usb/gadget/function/f_fs.c                 |   5 +-
- drivers/usb/gadget/function/u_serial.c             |   4 +-
- drivers/usb/storage/unusual_devs.h                 |   6 +
- drivers/video/console/vgacon.c                     |   3 +
- drivers/watchdog/da9062_wdt.c                      |   7 -
- fs/btrfs/inode.c                                   |   4 +-
- fs/cifs/cifsglob.h                                 |   7 +
- fs/cifs/cifsproto.h                                |   5 +-
- fs/cifs/cifssmb.c                                  |   3 +-
- fs/cifs/file.c                                     |  19 ++-
- fs/cifs/inode.c                                    |  12 +-
- fs/cifs/smb1ops.c                                  |   2 +-
- fs/cifs/smb2inode.c                                |   4 +-
- fs/cifs/smb2ops.c                                  |   3 +-
- fs/cifs/smb2pdu.c                                  |   1 +
- fs/fat/inode.c                                     |  19 +--
- include/linux/mm.h                                 |   4 +
- kernel/kprobes.c                                   |  67 +++++----
- kernel/trace/blktrace.c                            |   5 +-
- mm/huge_memory.c                                   |   3 +-
- mm/memory_hotplug.c                                |   8 +-
- mm/mprotect.c                                      |  38 +++++-
- security/integrity/platform_certs/load_uefi.c      |  40 ++++--
- sound/hda/ext/hdac_ext_controller.c                |   9 +-
- sound/pci/hda/patch_realtek.c                      |  31 ++++-
- sound/soc/codecs/pcm512x.c                         |   8 +-
- sound/soc/intel/skylake/skl-debug.c                |  32 +++--
- sound/soc/intel/skylake/skl-ssp-clk.c              |   4 +-
- sound/soc/soc-dapm.c                               |   2 +-
- sound/soc/soc-pcm.c                                |  16 +--
- sound/soc/soc-topology.c                           |  17 ++-
- sound/soc/sof/ipc.c                                |   2 +-
- tools/perf/arch/arm/util/cs-etm.c                  |   5 +-
- tools/perf/arch/arm64/util/arm-spe.c               |   5 +-
- tools/perf/arch/x86/util/intel-bts.c               |   5 +-
- tools/perf/arch/x86/util/intel-pt.c                |   5 +-
- tools/testing/selftests/lib.mk                     |  23 ++--
- .../testing/selftests/net/forwarding/mirror_gre.sh |  25 ++--
- .../selftests/net/forwarding/vxlan_bridge_1d.sh    |   6 +-
- usr/include/Makefile                               |   2 +-
- 171 files changed, 1531 insertions(+), 895 deletions(-)
-
+Tests that didn't complete running successfully are marked with =E2=9A=A1=E2=
+=9A=A1=E2=9A=A1.
+If this was caused by an infrastructure issue, we try to mark that
+explicitly in the report.
+
+Waived tests
+------------
+If the test run included waived tests, they are marked with =F0=9F=9A=A7. Suc=
+h tests are
+executed but their results are not taken into account. Tests are waived when
+their results are not reliable enough, e.g. when they're just introduced or a=
+re
+being fixed.
+
+Testing timeout
+---------------
+We aim to provide a report within reasonable timeframe. Tests that haven't
+finished running yet are marked with =E2=8F=B1.
 
