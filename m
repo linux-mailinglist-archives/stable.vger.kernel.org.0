@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3818717FA4F
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:04:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1DE3917FA81
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:05:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729719AbgCJNEM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 09:04:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49182 "EHLO mail.kernel.org"
+        id S1729552AbgCJNFg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 09:05:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50780 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729456AbgCJNEL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 09:04:11 -0400
+        id S1727721AbgCJNFe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 09:05:34 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C9C672468C;
-        Tue, 10 Mar 2020 13:04:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8543724693;
+        Tue, 10 Mar 2020 13:05:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583845451;
-        bh=khnnaXEotQCDVtCSFvYA545nYovW0yzZNDRL37GEq3c=;
+        s=default; t=1583845534;
+        bh=jZwp9oI17+t2+5P+loI5tsUoPSq83EYLbtUqSb/Eugc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GsymGbLMZrPf3FmTFK8zaM4gjDfghU++dg8zgq6VcjACXHlXDHTmZaMVSzM2VLls6
-         oobDDX3xWG3NLT5nVjQoOEZ3KqYBHij3pZkrd5B0UR2z2AW73pUwU4QoNdPbiAgvIw
-         R8HFYLPiwOgjG9fXglA8R5lT+hd8d4JUkr2iepOE=
+        b=KoaWwCH+JpH+pFjXe4ny+Kf1dXkHHL5DUemf4FdnuJzjSxkZ98SMOF/dpoZuFmyxy
+         yzVzOBzlBZhqhsUU+nxBnhoMUaQawqb0mASJOGPiOW4rBsreKo1M0vmI4Rj0DG8RbK
+         PaxxcSQ0nyHsOBK2sHR0tANcPSCqM5XBcy5sp81Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Ingo Molnar <mingo@kernel.org>, linux-efi@vger.kernel.org,
-        Thomas Gleixner <tglx@linutronix.de>
-Subject: [PATCH 5.5 186/189] efi/x86: Align GUIDs to their size in the mixed mode runtime wrapper
+        stable@vger.kernel.org, Martynas Pumputis <martynas@weave.works>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
+        Andy Strohman <astroh@amazon.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 002/126] netfilter: nf_conntrack: resolve clash for matching conntracks
 Date:   Tue, 10 Mar 2020 13:40:23 +0100
-Message-Id: <20200310123658.257035725@linuxfoundation.org>
+Message-Id: <20200310124203.853827816@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200310123639.608886314@linuxfoundation.org>
-References: <20200310123639.608886314@linuxfoundation.org>
+In-Reply-To: <20200310124203.704193207@linuxfoundation.org>
+References: <20200310124203.704193207@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,129 +45,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ard Biesheuvel <ardb@kernel.org>
+From: Martynas Pumputis <martynas@weave.works>
 
-commit 63056e8b5ebf41d52170e9f5ba1fc83d1855278c upstream.
+[ Upstream commit ed07d9a021df6da53456663a76999189badc432a ]
 
-Hans reports that his mixed mode systems running v5.6-rc1 kernels hit
-the WARN_ON() in virt_to_phys_or_null_size(), caused by the fact that
-efi_guid_t objects on the vmap'ed stack happen to be misaligned with
-respect to their sizes. As a quick (i.e., backportable) fix, copy GUID
-pointer arguments to the local stack into a buffer that is naturally
-aligned to its size, so that it is guaranteed to cover only one
-physical page.
+This patch enables the clash resolution for NAT (disabled in
+"590b52e10d41") if clashing conntracks match (i.e. both tuples are equal)
+and a protocol allows it.
 
-Note that on x86, we cannot rely on the stack pointer being aligned
-the way the compiler expects, so we need to allocate an 8-byte aligned
-buffer of sufficient size, and copy the GUID into that buffer at an
-offset that is aligned to 16 bytes.
+The clash might happen for a connections-less protocol (e.g. UDP) when
+two threads in parallel writes to the same socket and consequent calls
+to "get_unique_tuple" return the same tuples (incl. reply tuples).
 
-Fixes: f6697df36bdf0bf7 ("x86/efi: Prevent mixed mode boot corruption with CONFIG_VMAP_STACK=y")
-Reported-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Tested-by: Hans de Goede <hdegoede@redhat.com>
-Cc: linux-efi@vger.kernel.org
-Cc: Ingo Molnar <mingo@kernel.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Link: https://lore.kernel.org/r/20200221084849.26878-2-ardb@kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+In this case it is safe to perform the resolution, as the losing CT
+describes the same mangling as the winning CT, so no modifications to
+the packet are needed, and the result of rules traversal for the loser's
+packet stays valid.
 
+Signed-off-by: Martynas Pumputis <martynas@weave.works>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Signed-off-by: Andy Strohman <astroh@amazon.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/platform/efi/efi_64.c |   25 +++++++++++++++++++++----
- 1 file changed, 21 insertions(+), 4 deletions(-)
+ net/netfilter/nf_conntrack_core.c | 30 ++++++++++++++++++++++--------
+ 1 file changed, 22 insertions(+), 8 deletions(-)
 
---- a/arch/x86/platform/efi/efi_64.c
-+++ b/arch/x86/platform/efi/efi_64.c
-@@ -791,6 +791,8 @@ static efi_status_t
- efi_thunk_get_variable(efi_char16_t *name, efi_guid_t *vendor,
- 		       u32 *attr, unsigned long *data_size, void *data)
- {
-+	u8 buf[24] __aligned(8);
-+	efi_guid_t *vnd = PTR_ALIGN((efi_guid_t *)buf, sizeof(*vnd));
- 	efi_status_t status;
- 	u32 phys_name, phys_vendor, phys_attr;
- 	u32 phys_data_size, phys_data;
-@@ -798,8 +800,10 @@ efi_thunk_get_variable(efi_char16_t *nam
- 
- 	spin_lock_irqsave(&efi_runtime_lock, flags);
- 
-+	*vnd = *vendor;
-+
- 	phys_data_size = virt_to_phys_or_null(data_size);
--	phys_vendor = virt_to_phys_or_null(vendor);
-+	phys_vendor = virt_to_phys_or_null(vnd);
- 	phys_name = virt_to_phys_or_null_size(name, efi_name_size(name));
- 	phys_attr = virt_to_phys_or_null(attr);
- 	phys_data = virt_to_phys_or_null_size(data, *data_size);
-@@ -816,14 +820,18 @@ static efi_status_t
- efi_thunk_set_variable(efi_char16_t *name, efi_guid_t *vendor,
- 		       u32 attr, unsigned long data_size, void *data)
- {
-+	u8 buf[24] __aligned(8);
-+	efi_guid_t *vnd = PTR_ALIGN((efi_guid_t *)buf, sizeof(*vnd));
- 	u32 phys_name, phys_vendor, phys_data;
- 	efi_status_t status;
- 	unsigned long flags;
- 
- 	spin_lock_irqsave(&efi_runtime_lock, flags);
- 
-+	*vnd = *vendor;
-+
- 	phys_name = virt_to_phys_or_null_size(name, efi_name_size(name));
--	phys_vendor = virt_to_phys_or_null(vendor);
-+	phys_vendor = virt_to_phys_or_null(vnd);
- 	phys_data = virt_to_phys_or_null_size(data, data_size);
- 
- 	/* If data_size is > sizeof(u32) we've got problems */
-@@ -840,6 +848,8 @@ efi_thunk_set_variable_nonblocking(efi_c
- 				   u32 attr, unsigned long data_size,
- 				   void *data)
- {
-+	u8 buf[24] __aligned(8);
-+	efi_guid_t *vnd = PTR_ALIGN((efi_guid_t *)buf, sizeof(*vnd));
- 	u32 phys_name, phys_vendor, phys_data;
- 	efi_status_t status;
- 	unsigned long flags;
-@@ -847,8 +857,10 @@ efi_thunk_set_variable_nonblocking(efi_c
- 	if (!spin_trylock_irqsave(&efi_runtime_lock, flags))
- 		return EFI_NOT_READY;
- 
-+	*vnd = *vendor;
-+
- 	phys_name = virt_to_phys_or_null_size(name, efi_name_size(name));
--	phys_vendor = virt_to_phys_or_null(vendor);
-+	phys_vendor = virt_to_phys_or_null(vnd);
- 	phys_data = virt_to_phys_or_null_size(data, data_size);
- 
- 	/* If data_size is > sizeof(u32) we've got problems */
-@@ -865,14 +877,18 @@ efi_thunk_get_next_variable(unsigned lon
- 			    efi_char16_t *name,
- 			    efi_guid_t *vendor)
- {
-+	u8 buf[24] __aligned(8);
-+	efi_guid_t *vnd = PTR_ALIGN((efi_guid_t *)buf, sizeof(*vnd));
- 	efi_status_t status;
- 	u32 phys_name_size, phys_name, phys_vendor;
- 	unsigned long flags;
- 
- 	spin_lock_irqsave(&efi_runtime_lock, flags);
- 
-+	*vnd = *vendor;
-+
- 	phys_name_size = virt_to_phys_or_null(name_size);
--	phys_vendor = virt_to_phys_or_null(vendor);
-+	phys_vendor = virt_to_phys_or_null(vnd);
- 	phys_name = virt_to_phys_or_null_size(name, *name_size);
- 
- 	status = efi_thunk(get_next_variable, phys_name_size,
-@@ -880,6 +896,7 @@ efi_thunk_get_next_variable(unsigned lon
- 
- 	spin_unlock_irqrestore(&efi_runtime_lock, flags);
- 
-+	*vendor = *vnd;
- 	return status;
+diff --git a/net/netfilter/nf_conntrack_core.c b/net/netfilter/nf_conntrack_core.c
+index 2e65271bed01f..a79f5a89cab14 100644
+--- a/net/netfilter/nf_conntrack_core.c
++++ b/net/netfilter/nf_conntrack_core.c
+@@ -543,6 +543,18 @@ nf_ct_key_equal(struct nf_conntrack_tuple_hash *h,
+ 	       net_eq(net, nf_ct_net(ct));
  }
  
++static inline bool
++nf_ct_match(const struct nf_conn *ct1, const struct nf_conn *ct2)
++{
++	return nf_ct_tuple_equal(&ct1->tuplehash[IP_CT_DIR_ORIGINAL].tuple,
++				 &ct2->tuplehash[IP_CT_DIR_ORIGINAL].tuple) &&
++	       nf_ct_tuple_equal(&ct1->tuplehash[IP_CT_DIR_REPLY].tuple,
++				 &ct2->tuplehash[IP_CT_DIR_REPLY].tuple) &&
++	       nf_ct_zone_equal(ct1, nf_ct_zone(ct2), IP_CT_DIR_ORIGINAL) &&
++	       nf_ct_zone_equal(ct1, nf_ct_zone(ct2), IP_CT_DIR_REPLY) &&
++	       net_eq(nf_ct_net(ct1), nf_ct_net(ct2));
++}
++
+ /* caller must hold rcu readlock and none of the nf_conntrack_locks */
+ static void nf_ct_gc_expired(struct nf_conn *ct)
+ {
+@@ -736,19 +748,21 @@ static int nf_ct_resolve_clash(struct net *net, struct sk_buff *skb,
+ 	/* This is the conntrack entry already in hashes that won race. */
+ 	struct nf_conn *ct = nf_ct_tuplehash_to_ctrack(h);
+ 	const struct nf_conntrack_l4proto *l4proto;
++	enum ip_conntrack_info oldinfo;
++	struct nf_conn *loser_ct = nf_ct_get(skb, &oldinfo);
+ 
+ 	l4proto = __nf_ct_l4proto_find(nf_ct_l3num(ct), nf_ct_protonum(ct));
+ 	if (l4proto->allow_clash &&
+-	    ((ct->status & IPS_NAT_DONE_MASK) == 0) &&
+ 	    !nf_ct_is_dying(ct) &&
+ 	    atomic_inc_not_zero(&ct->ct_general.use)) {
+-		enum ip_conntrack_info oldinfo;
+-		struct nf_conn *loser_ct = nf_ct_get(skb, &oldinfo);
+-
+-		nf_ct_acct_merge(ct, ctinfo, loser_ct);
+-		nf_conntrack_put(&loser_ct->ct_general);
+-		nf_ct_set(skb, ct, oldinfo);
+-		return NF_ACCEPT;
++		if (((ct->status & IPS_NAT_DONE_MASK) == 0) ||
++		    nf_ct_match(ct, loser_ct)) {
++			nf_ct_acct_merge(ct, ctinfo, loser_ct);
++			nf_conntrack_put(&loser_ct->ct_general);
++			nf_ct_set(skb, ct, oldinfo);
++			return NF_ACCEPT;
++		}
++		nf_ct_put(ct);
+ 	}
+ 	NF_CT_STAT_INC(net, drop);
+ 	return NF_DROP;
+-- 
+2.20.1
+
 
 
