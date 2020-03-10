@@ -2,36 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CA1D417FBC5
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:16:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 921B217FB56
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:13:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729383AbgCJNMw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 09:12:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35278 "EHLO mail.kernel.org"
+        id S1731646AbgCJNM6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 09:12:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35418 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731229AbgCJNMv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 09:12:51 -0400
+        id S1731644AbgCJNM5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 09:12:57 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 59A212467D;
-        Tue, 10 Mar 2020 13:12:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9522124649;
+        Tue, 10 Mar 2020 13:12:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583845970;
-        bh=/4ABY4o8TTdcJwj6+fijhNuT5dju9meI2BmNsWpfIck=;
+        s=default; t=1583845977;
+        bh=R8vE/HQbsw6NEjOEHkfs7O8exYutmFhXEiMxHyJJSvc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=deLqrseobMM9PnZIrec2y2yhCR53Ns8u7DhxV8uUpsxPAUk5EzhfALJTdzDL+aiO1
-         HLGC4axPnXH5IAo/2AXx66I1TOp9UazMCCAh2aC6atwg0cul1KssXz8yt5YdKg76E8
-         /CQLaQYfEOku6Hqh9eU18MAWWDWz0JPeI5FJIBmg=
+        b=lsVOlJ/LjIZ5y+G7KBX8lPGkCyr75BFhI3QEdWTx6/KvxfHuq2DFTRXHuf0VLKQBB
+         KCiARfKO+FjkYQG7uEOy+w6wsA4otILeAUpiCwbww6zPTxEESfrJ2n9Cdq/3t9BSVW
+         pLr8b+IZ3AnLYUIeMlMJvrNEi8UPPZ8CHRfOOsSs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Zhang Xiaoxu <zhangxiaoxu5@huawei.com>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>
-Subject: [PATCH 4.19 41/86] vgacon: Fix a UAF in vgacon_invert_region
-Date:   Tue, 10 Mar 2020 13:45:05 +0100
-Message-Id: <20200310124533.006407683@linuxfoundation.org>
+        stable@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>,
+        Rafael Aquini <aquini@redhat.com>,
+        Mel Gorman <mgorman@techsingularity.net>,
+        Zi Yan <zi.yan@cs.rutgers.edu>,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        Michal Hocko <mhocko@suse.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.19 42/86] mm, numa: fix bad pmd by atomically check for pmd_trans_huge when marking page tables prot_numa
+Date:   Tue, 10 Mar 2020 13:45:06 +0100
+Message-Id: <20200310124533.061379355@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200310124530.808338541@linuxfoundation.org>
 References: <20200310124530.808338541@linuxfoundation.org>
@@ -44,130 +49,134 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
+From: Mel Gorman <mgorman@techsingularity.net>
 
-commit 513dc792d6060d5ef572e43852683097a8420f56 upstream.
+commit 8b272b3cbbb50a6a8e62d8a15affd473a788e184 upstream.
 
-When syzkaller tests, there is a UAF:
-  BUG: KASan: use after free in vgacon_invert_region+0x9d/0x110 at addr
-    ffff880000100000
-  Read of size 2 by task syz-executor.1/16489
-  page:ffffea0000004000 count:0 mapcount:-127 mapping:          (null)
-  index:0x0
-  page flags: 0xfffff00000000()
-  page dumped because: kasan: bad access detected
-  CPU: 1 PID: 16489 Comm: syz-executor.1 Not tainted
-  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS
-  rel-1.9.3-0-ge2fc41e-prebuilt.qemu-project.org 04/01/2014
-  Call Trace:
-    [<ffffffffb119f309>] dump_stack+0x1e/0x20
-    [<ffffffffb04af957>] kasan_report+0x577/0x950
-    [<ffffffffb04ae652>] __asan_load2+0x62/0x80
-    [<ffffffffb090f26d>] vgacon_invert_region+0x9d/0x110
-    [<ffffffffb0a39d95>] invert_screen+0xe5/0x470
-    [<ffffffffb0a21dcb>] set_selection+0x44b/0x12f0
-    [<ffffffffb0a3bfae>] tioclinux+0xee/0x490
-    [<ffffffffb0a1d114>] vt_ioctl+0xff4/0x2670
-    [<ffffffffb0a0089a>] tty_ioctl+0x46a/0x1a10
-    [<ffffffffb052db3d>] do_vfs_ioctl+0x5bd/0xc40
-    [<ffffffffb052e2f2>] SyS_ioctl+0x132/0x170
-    [<ffffffffb11c9b1b>] system_call_fastpath+0x22/0x27
-    Memory state around the buggy address:
-     ffff8800000fff00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-     00 00
-     ffff8800000fff80: 00 00 00 00 00 00 00 00 00 00 00 00 00
-     00 00 00
-    >ffff880000100000: ff ff ff ff ff ff ff ff ff ff ff ff ff
-     ff ff ff
+: A user reported a bug against a distribution kernel while running a
+: proprietary workload described as "memory intensive that is not swapping"
+: that is expected to apply to mainline kernels.  The workload is
+: read/write/modifying ranges of memory and checking the contents.  They
+: reported that within a few hours that a bad PMD would be reported followed
+: by a memory corruption where expected data was all zeros.  A partial
+: report of the bad PMD looked like
+:
+:   [ 5195.338482] ../mm/pgtable-generic.c:33: bad pmd ffff8888157ba008(000002e0396009e2)
+:   [ 5195.341184] ------------[ cut here ]------------
+:   [ 5195.356880] kernel BUG at ../mm/pgtable-generic.c:35!
+:   ....
+:   [ 5195.410033] Call Trace:
+:   [ 5195.410471]  [<ffffffff811bc75d>] change_protection_range+0x7dd/0x930
+:   [ 5195.410716]  [<ffffffff811d4be8>] change_prot_numa+0x18/0x30
+:   [ 5195.410918]  [<ffffffff810adefe>] task_numa_work+0x1fe/0x310
+:   [ 5195.411200]  [<ffffffff81098322>] task_work_run+0x72/0x90
+:   [ 5195.411246]  [<ffffffff81077139>] exit_to_usermode_loop+0x91/0xc2
+:   [ 5195.411494]  [<ffffffff81003a51>] prepare_exit_to_usermode+0x31/0x40
+:   [ 5195.411739]  [<ffffffff815e56af>] retint_user+0x8/0x10
+:
+: Decoding revealed that the PMD was a valid prot_numa PMD and the bad PMD
+: was a false detection.  The bug does not trigger if automatic NUMA
+: balancing or transparent huge pages is disabled.
+:
+: The bug is due a race in change_pmd_range between a pmd_trans_huge and
+: pmd_nond_or_clear_bad check without any locks held.  During the
+: pmd_trans_huge check, a parallel protection update under lock can have
+: cleared the PMD and filled it with a prot_numa entry between the transhuge
+: check and the pmd_none_or_clear_bad check.
+:
+: While this could be fixed with heavy locking, it's only necessary to make
+: a copy of the PMD on the stack during change_pmd_range and avoid races.  A
+: new helper is created for this as the check if quite subtle and the
+: existing similar helpful is not suitable.  This passed 154 hours of
+: testing (usually triggers between 20 minutes and 24 hours) without
+: detecting bad PMDs or corruption.  A basic test of an autonuma-intensive
+: workload showed no significant change in behaviour.
 
-It can be reproduce in the linux mainline by the program:
-  #include <stdio.h>
-  #include <stdlib.h>
-  #include <unistd.h>
-  #include <fcntl.h>
-  #include <sys/types.h>
-  #include <sys/stat.h>
-  #include <sys/ioctl.h>
-  #include <linux/vt.h>
+Although Mel withdrew the patch on the face of LKML comment
+https://lkml.org/lkml/2017/4/10/922 the race window aforementioned is
+still open, and we have reports of Linpack test reporting bad residuals
+after the bad PMD warning is observed.  In addition to that, bad
+rss-counter and non-zero pgtables assertions are triggered on mm teardown
+for the task hitting the bad PMD.
 
-  struct tiocl_selection {
-    unsigned short xs;      /* X start */
-    unsigned short ys;      /* Y start */
-    unsigned short xe;      /* X end */
-    unsigned short ye;      /* Y end */
-    unsigned short sel_mode; /* selection mode */
-  };
+ host kernel: mm/pgtable-generic.c:40: bad pmd 00000000b3152f68(8000000d2d2008e7)
+ ....
+ host kernel: BUG: Bad rss-counter state mm:00000000b583043d idx:1 val:512
+ host kernel: BUG: non-zero pgtables_bytes on freeing mm: 4096
 
-  #define TIOCL_SETSEL    2
-  struct tiocl {
-    unsigned char type;
-    unsigned char pad;
-    struct tiocl_selection sel;
-  };
+The issue is observed on a v4.18-based distribution kernel, but the race
+window is expected to be applicable to mainline kernels, as well.
 
-  int main()
-  {
-    int fd = 0;
-    const char *dev = "/dev/char/4:1";
-
-    struct vt_consize v = {0};
-    struct tiocl tioc = {0};
-
-    fd = open(dev, O_RDWR, 0);
-
-    v.v_rows = 3346;
-    ioctl(fd, VT_RESIZEX, &v);
-
-    tioc.type = TIOCL_SETSEL;
-    ioctl(fd, TIOCLINUX, &tioc);
-
-    return 0;
-  }
-
-When resize the screen, update the 'vc->vc_size_row' to the new_row_size,
-but when 'set_origin' in 'vgacon_set_origin', vgacon use 'vga_vram_base'
-for 'vc_origin' and 'vc_visible_origin', not 'vc_screenbuf'. It maybe
-smaller than 'vc_screenbuf'. When TIOCLINUX, use the new_row_size to calc
-the offset, it maybe larger than the vga_vram_size in vgacon driver, then
-bad access.
-Also, if set an larger screenbuf firstly, then set an more larger
-screenbuf, when copy old_origin to new_origin, a bad access may happen.
-
-So, If the screen size larger than vga_vram, resize screen should be
-failed. This alse fix CVE-2020-8649 and CVE-2020-8647.
-
-Linus pointed out that overflow checking seems absent. We're saved by
-the existing bounds checks in vc_do_resize() with rather strict
-limits:
-
-	if (cols > VC_RESIZE_MAXCOL || lines > VC_RESIZE_MAXROW)
-		return -EINVAL;
-
-Fixes: 0aec4867dca14 ("[PATCH] SVGATextMode fix")
-Reference: CVE-2020-8647 and CVE-2020-8649
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
-[danvet: augment commit message to point out overflow safety]
-Cc: stable@vger.kernel.org
-Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200304022429.37738-1-zhangxiaoxu5@huawei.com
+[akpm@linux-foundation.org: fix comment typo, per Rafael]
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Rafael Aquini <aquini@redhat.com>
+Signed-off-by: Mel Gorman <mgorman@techsingularity.net>
+Cc: <stable@vger.kernel.org>
+Cc: Zi Yan <zi.yan@cs.rutgers.edu>
+Cc: "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>
+Cc: Vlastimil Babka <vbabka@suse.cz>
+Cc: Michal Hocko <mhocko@suse.com>
+Link: http://lkml.kernel.org/r/20200216191800.22423-1-aquini@redhat.com
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/video/console/vgacon.c |    3 +++
- 1 file changed, 3 insertions(+)
+ mm/mprotect.c |   38 ++++++++++++++++++++++++++++++++++++--
+ 1 file changed, 36 insertions(+), 2 deletions(-)
 
---- a/drivers/video/console/vgacon.c
-+++ b/drivers/video/console/vgacon.c
-@@ -1316,6 +1316,9 @@ static int vgacon_font_get(struct vc_dat
- static int vgacon_resize(struct vc_data *c, unsigned int width,
- 			 unsigned int height, unsigned int user)
- {
-+	if ((width << 1) * height > vga_vram_size)
-+		return -EINVAL;
+--- a/mm/mprotect.c
++++ b/mm/mprotect.c
+@@ -162,6 +162,31 @@ static unsigned long change_pte_range(st
+ 	return pages;
+ }
+ 
++/*
++ * Used when setting automatic NUMA hinting protection where it is
++ * critical that a numa hinting PMD is not confused with a bad PMD.
++ */
++static inline int pmd_none_or_clear_bad_unless_trans_huge(pmd_t *pmd)
++{
++	pmd_t pmdval = pmd_read_atomic(pmd);
 +
- 	if (width % 2 || width > screen_info.orig_video_cols ||
- 	    height > (screen_info.orig_video_lines * vga_default_font_height)/
- 	    c->vc_font.height)
++	/* See pmd_none_or_trans_huge_or_clear_bad for info on barrier */
++#ifdef CONFIG_TRANSPARENT_HUGEPAGE
++	barrier();
++#endif
++
++	if (pmd_none(pmdval))
++		return 1;
++	if (pmd_trans_huge(pmdval))
++		return 0;
++	if (unlikely(pmd_bad(pmdval))) {
++		pmd_clear_bad(pmd);
++		return 1;
++	}
++
++	return 0;
++}
++
+ static inline unsigned long change_pmd_range(struct vm_area_struct *vma,
+ 		pud_t *pud, unsigned long addr, unsigned long end,
+ 		pgprot_t newprot, int dirty_accountable, int prot_numa)
+@@ -178,8 +203,17 @@ static inline unsigned long change_pmd_r
+ 		unsigned long this_pages;
+ 
+ 		next = pmd_addr_end(addr, end);
+-		if (!is_swap_pmd(*pmd) && !pmd_trans_huge(*pmd) && !pmd_devmap(*pmd)
+-				&& pmd_none_or_clear_bad(pmd))
++
++		/*
++		 * Automatic NUMA balancing walks the tables with mmap_sem
++		 * held for read. It's possible a parallel update to occur
++		 * between pmd_trans_huge() and a pmd_none_or_clear_bad()
++		 * check leading to a false positive and clearing.
++		 * Hence, it's necessary to atomically read the PMD value
++		 * for all the checks.
++		 */
++		if (!is_swap_pmd(*pmd) && !pmd_devmap(*pmd) &&
++		     pmd_none_or_clear_bad_unless_trans_huge(pmd))
+ 			goto next;
+ 
+ 		/* invoke the mmu notifier if the pmd is populated */
 
 
