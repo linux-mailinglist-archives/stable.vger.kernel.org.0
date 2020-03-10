@@ -2,37 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D14D17FE5E
+	by mail.lfdr.de (Postfix) with ESMTP id E28EF17FE5F
 	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:35:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727461AbgCJMpf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 08:45:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48224 "EHLO mail.kernel.org"
+        id S1727937AbgCJMpg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 08:45:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48304 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726467AbgCJMpe (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1727933AbgCJMpe (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 10 Mar 2020 08:45:34 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A5F4A246A3;
-        Tue, 10 Mar 2020 12:45:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2102B246A6;
+        Tue, 10 Mar 2020 12:45:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583844332;
-        bh=R/zGEolGnPlEGStoqy6gLJgc0DAcbDMYhZgkJHp8sEU=;
+        s=default; t=1583844334;
+        bh=/kRuxcuHOYsDociFLkbeQUfdfObngkhGQ3sS+2p7z/s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tAOJpzqPeP5faAwTfdMzbZAll4K0vCOD5qud8boGrONouhzQUZmUqmlM/FQcLkiVl
-         QSfKVrqym3laMuuZrulJedehNdvP2inUX2dZIxYKJ2Xj8ajZNkn65n70bq1fzJhOgv
-         E0rumsrRXEYje5pnMISTWsbJPAKgirJ8PFYcuEhw=
+        b=KU2y/LE7Z+M3HV30u1oaslEz6DJYM4Saq9kPW6VuZjjpfR15ZwIZbXohfE9TE+8Di
+         tCUwYJpY+3k1C8c7XjV9g9ik5u7mAvhthIOQ29EgqF/idFSIK4OyuBIcNyMf5Jg03l
+         1YY/j0kHNZmrxrxfxIwi6BlC+FRcXHKH/zJTY7KE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jim Mattson <jmattson@google.com>,
-        Andrew Honig <ahonig@google.com>,
-        Sean Christopherson <sean.j.christopherson@intel.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 4.9 43/88] KVM: Check for a bad hva before dropping into the ghc slow path
-Date:   Tue, 10 Mar 2020 13:38:51 +0100
-Message-Id: <20200310123616.607819931@linuxfoundation.org>
+        stable@vger.kernel.org, yangerkun <yangerkun@huawei.com>
+Subject: [PATCH 4.9 44/88] slip: stop double free sl->dev in slip_open
+Date:   Tue, 10 Mar 2020 13:38:52 +0100
+Message-Id: <20200310123616.884028679@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200310123606.543939933@linuxfoundation.org>
 References: <20200310123606.543939933@linuxfoundation.org>
@@ -45,77 +42,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <sean.j.christopherson@intel.com>
+From: yangerkun <yangerkun@huawei.com>
 
-commit fcfbc617547fc6d9552cb6c1c563b6a90ee98085 upstream.
+After include 3b5a39979daf ("slip: Fix memory leak in slip_open error path")
+and e58c19124189 ("slip: Fix use-after-free Read in slip_open") with 4.4.y/4.9.y.
+We will trigger a bug since we can double free sl->dev in slip_open. Actually,
+we should backport cf124db566e6 ("net: Fix inconsistent teardown and release
+of private netdev state.") too since it has delete free_netdev from sl_free_netdev.
+Fix it by delete free_netdev from slip_open.
 
-When reading/writing using the guest/host cache, check for a bad hva
-before checking for a NULL memslot, which triggers the slow path for
-handing cross-page accesses.  Because the memslot is nullified on error
-by __kvm_gfn_to_hva_cache_init(), if the bad hva is encountered after
-crossing into a new page, then the kvm_{read,write}_guest() slow path
-could potentially write/access the first chunk prior to detecting the
-bad hva.
-
-Arguably, performing a partial access is semantically correct from an
-architectural perspective, but that behavior is certainly not intended.
-In the original implementation, memslot was not explicitly nullified
-and therefore the partial access behavior varied based on whether the
-memslot itself was null, or if the hva was simply bad.  The current
-behavior was introduced as a seemingly unintentional side effect in
-commit f1b9dd5eb86c ("kvm: Disallow wraparound in
-kvm_gfn_to_hva_cache_init"), which justified the change with "since some
-callers don't check the return code from this function, it sit seems
-prudent to clear ghc->memslot in the event of an error".
-
-Regardless of intent, the partial access is dependent on _not_ checking
-the result of the cache initialization, which is arguably a bug in its
-own right, at best simply weird.
-
-Fixes: 8f964525a121 ("KVM: Allow cross page reads and writes from cached translations.")
-Cc: Jim Mattson <jmattson@google.com>
-Cc: Andrew Honig <ahonig@google.com>
-Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: yangerkun <yangerkun@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- virt/kvm/kvm_main.c |   12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ drivers/net/slip/slip.c |    1 -
+ 1 file changed, 1 deletion(-)
 
---- a/virt/kvm/kvm_main.c
-+++ b/virt/kvm/kvm_main.c
-@@ -2045,12 +2045,12 @@ int kvm_write_guest_cached(struct kvm *k
- 	if (slots->generation != ghc->generation)
- 		kvm_gfn_to_hva_cache_init(kvm, ghc, ghc->gpa, ghc->len);
+--- a/drivers/net/slip/slip.c
++++ b/drivers/net/slip/slip.c
+@@ -868,7 +868,6 @@ err_free_chan:
+ 	tty->disc_data = NULL;
+ 	clear_bit(SLF_INUSE, &sl->flags);
+ 	sl_free_netdev(sl->dev);
+-	free_netdev(sl->dev);
  
--	if (unlikely(!ghc->memslot))
--		return kvm_write_guest(kvm, ghc->gpa, data, len);
--
- 	if (kvm_is_error_hva(ghc->hva))
- 		return -EFAULT;
- 
-+	if (unlikely(!ghc->memslot))
-+		return kvm_write_guest(kvm, ghc->gpa, data, len);
-+
- 	r = __copy_to_user((void __user *)ghc->hva, data, len);
- 	if (r)
- 		return -EFAULT;
-@@ -2071,12 +2071,12 @@ int kvm_read_guest_cached(struct kvm *kv
- 	if (slots->generation != ghc->generation)
- 		kvm_gfn_to_hva_cache_init(kvm, ghc, ghc->gpa, ghc->len);
- 
--	if (unlikely(!ghc->memslot))
--		return kvm_read_guest(kvm, ghc->gpa, data, len);
--
- 	if (kvm_is_error_hva(ghc->hva))
- 		return -EFAULT;
- 
-+	if (unlikely(!ghc->memslot))
-+		return kvm_read_guest(kvm, ghc->gpa, data, len);
-+
- 	r = __copy_from_user(data, (void __user *)ghc->hva, len);
- 	if (r)
- 		return -EFAULT;
+ err_exit:
+ 	rtnl_unlock();
 
 
