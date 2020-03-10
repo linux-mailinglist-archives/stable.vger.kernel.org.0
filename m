@@ -2,81 +2,129 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7CC2F17FFE4
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 15:12:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B35DB17FFE0
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 15:12:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727361AbgCJOMT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 10:12:19 -0400
-Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:24719 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726761AbgCJOMS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Mar 2020 10:12:18 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1583849537;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:in-reply-to:in-reply-to:references:references;
-        bh=gnhQmTAqEc+aNjZCijFVs1ugGLdqmBHMWeVgZresAf8=;
-        b=fMRoqQsXbNzot9IBBKPV4J5VSQshYmkPfPUdCQJd+HDkmpYN23cSpu4MGXZJNTUhFurIe5
-        o3BTKcWW+wSGd+Os6WS0M2PqovCff6MWqaMOVPF/NpUNApl09X5AbkakjZWRAKsIFH/dVZ
-        ApdG42Y0+BgJpLvyEkn5Z07BFvcjp8I=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-400-DvafcLjBPFyDlNcLvcmI9Q-1; Tue, 10 Mar 2020 10:12:16 -0400
-X-MC-Unique: DvafcLjBPFyDlNcLvcmI9Q-1
-Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 5268913F9;
-        Tue, 10 Mar 2020 14:12:15 +0000 (UTC)
-Received: from jmaloy.com (ovpn-125-109.rdu2.redhat.com [10.10.125.109])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 5178160BEE;
-        Tue, 10 Mar 2020 14:12:14 +0000 (UTC)
-From:   Jon Maloy <jmaloy@redhat.com>
-To:     jmaloy@redhat.com, rhkernel-list@redhat.com
-Cc:     Paolo Bonzini <pbonzini@redhat.com>, Paul Lai <plai@redhat.com>,
-        Vitaly Kuznetsov <vkuznets@redhat.com>, stable@vger.kernel.org,
-        Oliver Upton <oupton@google.com>
-Subject: [RHEL 8.2 virt PATCH 1/3] KVM: nVMX: Don't emulate instructions in guest mode
-Date:   Tue, 10 Mar 2020 10:11:50 -0400
-Message-Id: <20200310141152.29029-2-jmaloy@redhat.com>
-In-Reply-To: <20200310141152.29029-1-jmaloy@redhat.com>
-References: <20200310141152.29029-1-jmaloy@redhat.com>
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
+        id S1726766AbgCJOMO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 10:12:14 -0400
+Received: from mail-lj1-f195.google.com ([209.85.208.195]:37309 "EHLO
+        mail-lj1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726622AbgCJOMN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Mar 2020 10:12:13 -0400
+Received: by mail-lj1-f195.google.com with SMTP id r24so681359ljd.4
+        for <stable@vger.kernel.org>; Tue, 10 Mar 2020 07:12:12 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=semihalf-com.20150623.gappssmtp.com; s=20150623;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=4QhA/j02FBxntBJRQBcss8svsZrEfLANO9BT4LL3iCU=;
+        b=RcBB6uSziFObfQh7F40JgIh9KQqUgYDwVustVXGRIPKq5nbuKDZAMkThEJVGtYXtmC
+         0gEjWZXupu/bjDHLhO3bDgP8Jai3e2Z2HPKRFnxW66BCqrmOGyFY/wtlV5fZsccTuwFX
+         UmPKp0oCjsJDT3K7zOj3RS/DMRdaAVrCSFfZONmcFzs850WYw8P+2+yeYHC/H5QHiIXL
+         yboqgrnJHVFHAaT7au0i6hkcUAemScwhj8pHIRGvNPzFrVp7jftLPaWXmWpjh0jt/Zm1
+         rGUFN2EhWYkgauQQgZAh6Z8zUxIBW95qtYNbBQBZmxLOLJzh3/ledsuZMFKEOvYoTxxb
+         wsAg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=4QhA/j02FBxntBJRQBcss8svsZrEfLANO9BT4LL3iCU=;
+        b=uaiw70K+3Hm8n5eh2oo1B7UnyP6p8p6HmJd+oS2MCwhkRQ7GtcmNsD04yYGVA6FuUD
+         SlzbstWs8m1RsaqJ9jZm6pTRM0Ikx0zzgq/ExEyVwVNnZOGZtaCD86va0rY5593Ma44v
+         sMGGCdWw5KJzxkBAMQNoulmhuJ7x60BrVZfNXtsd2LcLQjOgLMWusZoxQ3nP8gMyQDVM
+         8+qfTBFHNJOrSCJv5eomveXoodiX+Ln2XJ+LrrmAYmM+vIHiJ6g38557jWqW0xJjrDP3
+         z6W7K7cdErTnY/wqX/af0EyNEOh4ELsf6Kuw76Oupcninbgkofpyq15TMEDBbecYQ0xV
+         7TpA==
+X-Gm-Message-State: ANhLgQ3UYxadJT6AsWEGwEH8fJawzSIlchPPwco8C+VB0dMu2hT9rXx2
+        k4JNtlZ+e8MiaM2iGMfiRslp1cPzs4M+GsBDlurE2g==
+X-Google-Smtp-Source: ADFU+vsZjGe47Suk3ijAD4oBo8DcgUhtsIlZsoQp4eX5n+pgXggGbZV8FREk09m/qnaQ5xTBa9ZjBcN17IUu/qd8ZRc=
+X-Received: by 2002:a2e:8105:: with SMTP id d5mr7218437ljg.172.1583849531956;
+ Tue, 10 Mar 2020 07:12:11 -0700 (PDT)
+MIME-Version: 1.0
+References: <20200205194804.1647-1-mst@semihalf.com> <20200206083149.GK2667@lahna.fi.intel.com>
+ <CAMiGqYi2rVAc=hepkY-4S1U_3dJdbR4pOoB0f8tbBL4pzWLdxA@mail.gmail.com>
+ <20200207075654.GB2667@lahna.fi.intel.com> <CAMiGqYjmd2edUezEXsX4JBSyOozzks1Pu8miPEviGsx=x59nZQ@mail.gmail.com>
+ <20200210101414.GN2667@lahna.fi.intel.com>
+In-Reply-To: <20200210101414.GN2667@lahna.fi.intel.com>
+From:   =?UTF-8?Q?Micha=C5=82_Stanek?= <mst@semihalf.com>
+Date:   Tue, 10 Mar 2020 15:12:00 +0100
+Message-ID: <CAMiGqYiYp=aSgW-4ro5ceUEaB7g0XhepFg+HZgfPvtvQL9Z1jA@mail.gmail.com>
+Subject: Re: [PATCH] pinctrl: cherryview: Add quirk with custom translation of
+ ACPI GPIO numbers
+To:     Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc:     linux-gpio@vger.kernel.org, linux-acpi@vger.kernel.org,
+        linux-kernel@vger.kernel.org, stanekm@google.com,
+        stable@vger.kernel.org, Marcin Wojtas <mw@semihalf.com>,
+        levinale@chromium.org, andriy.shevchenko@linux.intel.com,
+        Linus Walleij <linus.walleij@linaro.org>,
+        bgolaszewski@baylibre.com, rafael.j.wysocki@intel.com,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paolo Bonzini <pbonzini@redhat.com>
+On Mon, Feb 10, 2020 at 11:14 AM Mika Westerberg
+<mika.westerberg@linux.intel.com> wrote:
+>
+> On Sat, Feb 08, 2020 at 07:43:24PM +0100, Micha=C5=82 Stanek wrote:
+> > > >
+> > > > Hi Mika,
+> > > >
+> > > > The previous patches from Dmitry handled IRQ numbering, here we hav=
+e a
+> > > > similar issue with GPIO to pin translation - hardcoded values in FW
+> > > > which do not agree with the (non-consecutive) numbering in newer
+> > > > kernels.
+> > >
+> > > Hmm, so instead of passing GpioIo/GpioInt resources to devices the
+> > > firmware uses some hard-coded Linux GPIO numbering scheme? Would you
+> > > able to share the exact firmware description where this happens?
+> >
+> > Actually it is a GPIO offset in ACPI tables for Braswell that was
+> > hardcoded in the old firmware to match the previous (consecutive)
+> > Linux GPIO numbering.
+>
+> Can you share the ACPI tables and point me to the GPIO that is using
+> Linux number?
 
-vmx_check_intercept is not yet fully implemented. To avoid emulating
-instructions disallowed by the L1 hypervisor, refuse to emulate
-instructions by default.
+I think this is the one:
+https://chromium-review.googlesource.com/c/chromiumos/third_party/coreboot/=
+%2B/286534/2/src/mainboard/google/cyan/acpi/chromeos.asl
 
-Cc: stable@vger.kernel.org
-[Made commit, added commit msg - Oliver]
-Signed-off-by: Oliver Upton <oupton@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+On Kefka the sysfs GPIO number for wpsw_cur was gpio392 before the
+translation change occurred in Linux.
 
-(cherry picked from commit 07721feee46b4b248402133228235318199b05ec)
-Signed-off-by: Jon Maloy <jmaloy@redhat.com>
----
- arch/x86/kvm/vmx/vmx.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+> > > > > What GPIO(s) we are talking about and how does it show up to the =
+user?
+> > > >
+> > > > As an example, the issue manifests itself when you run 'crossystem
+> > > > wpsw_cur'. On my Kefka it incorrectly reports the value as 1 instea=
+d
+> > > > of 0 when the write protect screw is removed.
+> > >
+> > > Is it poking GPIOs directly through sysfs relying the Linux GPIO
+> > > numbering (which can change and is fragile anyway)?
+> >
+> > I believe so, yes.
+>
+> This is something that should be fixed in userspace. Using global Linux
+> GPIO or IRQ numbers is fragile and source of issues like this. There are
+> correct ways of using GPIOs from userspace: in case of sysfs, you can
+> find the base of the chip and then user relative numbering against it or
+> switch to use libgpiod that does the same but uses the newer char
+> device. Both cases the GPIO number are relative against the GPIO chip so
+> they work even if global Linux GPIO numbering changes.
 
-diff --git a/arch/x86/kvm/vmx/vmx.c b/arch/x86/kvm/vmx/vmx.c
-index f6f98f7895bf..5e9c77c818a7 100644
---- a/arch/x86/kvm/vmx/vmx.c
-+++ b/arch/x86/kvm/vmx/vmx.c
-@@ -7199,7 +7199,7 @@ static int vmx_check_intercept(struct kvm_vcpu *vcpu,
- 	}
- 
- 	/* TODO: check more intercepts... */
--	return X86EMUL_CONTINUE;
-+	return X86EMUL_UNHANDLEABLE;
- }
- 
- #ifdef CONFIG_X86_64
--- 
-2.18.1
+I analyzed crossystem source code and it looks like it is doing
+exactly what you're saying without any hardcoded assumptions. It gets
+the absolute offset of the GPIO pin from sysfs using its ACPI
+identifier, then it subtracts the base offset of the GPIO bank from it
+and the result is added to the bank's gpiochip%d number as it shows up
+in sysfs. The result is what is used to export and read the state of
+the pin.
 
+With the newer kernel the gpiochip%d number is different so crossystem
+ends up reading the wrong pin.
