@@ -2,42 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E1EAD17F912
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 13:53:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 68A4617F913
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 13:53:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728258AbgCJMxp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1729230AbgCJMxp (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 10 Mar 2020 08:53:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59842 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:59970 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729235AbgCJMxm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 08:53:42 -0400
+        id S1728543AbgCJMxp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 08:53:45 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A6A9920674;
-        Tue, 10 Mar 2020 12:53:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3B28A2468F;
+        Tue, 10 Mar 2020 12:53:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583844822;
-        bh=AVzm+BISmI/wJXjIKEQkgYUROhyHeNW4UtDhWxsdGk0=;
+        s=default; t=1583844824;
+        bh=hYvlEhsu2VBzrFXY5oOYRyECZtpv8QkOW6M+2w6acDk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p1NLp69p1pR9Y69BJm3Vj4RQ9AZGbbwA9K9rA4cGmdxMgqvpesx/5FW1EBj4hQgso
-         jsnAltn6ABCs3PuxhRNhHomUXMimBOn1klze5ZhWnwRjXXkf9KsGiMnP8pLKB1Br3c
-         iK8NMJunI+m5RZrPx8GyQxp7uhwXnW0ZLPnfxME0=
+        b=pH6mXguBdBcjUHu0+aqf1fB8BN1bTwW37rN9dLZbZogq8WcwGnmJ4NszFrUs2GrgU
+         awfLsBtGfUwDFGKFUVZcQDCP9qRJ3Q+AXsuIsH6d/e3H0PVh5FTgf/MlGjI4u02qfQ
+         6Uwlux0QMcw68/oOWX9AQJCGZaqgpfutYFNDWAiI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xinliang Liu <xinliang.liu@linaro.org>,
-        Rongrong Zou <zourongrong@gmail.com>,
-        Xinwei Kong <kong.kongxinwei@hisilicon.com>,
-        Chen Feng <puck.chen@hisilicon.com>,
-        Sam Ravnborg <sam@ravnborg.org>,
-        David Airlie <airlied@linux.ie>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        dri-devel <dri-devel@lists.freedesktop.org>,
-        John Stultz <john.stultz@linaro.org>
-Subject: [PATCH 5.4 131/168] drm: kirin: Revert "Fix for hikey620 display offset problem"
-Date:   Tue, 10 Mar 2020 13:39:37 +0100
-Message-Id: <20200310123648.764344482@linuxfoundation.org>
+        stable@vger.kernel.org, Maxime Ripard <mripard@kernel.org>,
+        Jernej Skrabec <jernej.skrabec@siol.net>
+Subject: [PATCH 5.4 132/168] drm/sun4i: Add separate DE3 VI layer formats
+Date:   Tue, 10 Mar 2020 13:39:38 +0100
+Message-Id: <20200310123648.881698368@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200310123635.322799692@linuxfoundation.org>
 References: <20200310123635.322799692@linuxfoundation.org>
@@ -50,112 +43,187 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Stultz <john.stultz@linaro.org>
+From: Jernej Skrabec <jernej.skrabec@siol.net>
 
-commit 1b79cfd99ff5127e6a143767b51694a527b3ea38 upstream.
+commit 169ca4b38932112e8b2ee8baef9cea44678625b3 upstream.
 
-This reverts commit ff57c6513820efe945b61863cf4a51b79f18b592.
+DE3 VI layers support alpha blending, but DE2 VI layers do not.
+Additionally, DE3 VI layers support 10-bit RGB and YUV formats.
 
-With the commit ff57c6513820 ("drm: kirin: Fix for hikey620
-display offset problem") we added support for handling LDI
-overflows by resetting the hardware.
+Make a separate list for DE3.
 
-However, its been observed that when we do hit the LDI overflow
-condition, the irq seems to be screaming, and we do nothing but
-stream:
-  [drm:ade_irq_handler [kirin_drm]] *ERROR* LDI underflow!
-over and over to the screen
-
-I've tried a few appraoches to avoid this, but none has yet
-been successful and the cure here is worse then the original
-disease, so revert this for now.
-
-Cc: Xinliang Liu <xinliang.liu@linaro.org>
-Cc: Rongrong Zou <zourongrong@gmail.com>
-Cc: Xinwei Kong <kong.kongxinwei@hisilicon.com>
-Cc: Chen Feng <puck.chen@hisilicon.com>
-Cc: Sam Ravnborg <sam@ravnborg.org>
-Cc: David Airlie <airlied@linux.ie>
-Cc: Daniel Vetter <daniel@ffwll.ch>
-Cc: dri-devel <dri-devel@lists.freedesktop.org>
-Fixes: ff57c6513820 ("drm: kirin: Fix for hikey620 display offset problem")
-Signed-off-by: John Stultz <john.stultz@linaro.org>
-Acked-by: Xinliang Liu <xinliang.liu@linaro.org>
-Signed-off-by: Xinliang Liu <xinliang.liu@linaro.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200303163228.52741-1-john.stultz@linaro.org
+Fixes: c50519e6db4d ("drm/sun4i: Add basic support for DE3")
+Acked-by: Maxime Ripard <mripard@kernel.org>
+Signed-off-by: Jernej Skrabec <jernej.skrabec@siol.net>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200224173901.174016-3-jernej.skrabec@siol.net
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/hisilicon/kirin/kirin_ade_reg.h |    1 -
- drivers/gpu/drm/hisilicon/kirin/kirin_drm_ade.c |   20 --------------------
- 2 files changed, 21 deletions(-)
+ drivers/gpu/drm/sun4i/sun8i_mixer.c    |   36 ++++++++++++++++++++
+ drivers/gpu/drm/sun4i/sun8i_mixer.h    |   11 ++++++
+ drivers/gpu/drm/sun4i/sun8i_vi_layer.c |   58 +++++++++++++++++++++++++++++++--
+ 3 files changed, 102 insertions(+), 3 deletions(-)
 
---- a/drivers/gpu/drm/hisilicon/kirin/kirin_ade_reg.h
-+++ b/drivers/gpu/drm/hisilicon/kirin/kirin_ade_reg.h
-@@ -83,7 +83,6 @@
- #define VSIZE_OFST			20
- #define LDI_INT_EN			0x741C
- #define FRAME_END_INT_EN_OFST		1
--#define UNDERFLOW_INT_EN_OFST		2
- #define LDI_CTRL			0x7420
- #define BPP_OFST			3
- #define DATA_GATE_EN			BIT(2)
---- a/drivers/gpu/drm/hisilicon/kirin/kirin_drm_ade.c
-+++ b/drivers/gpu/drm/hisilicon/kirin/kirin_drm_ade.c
-@@ -46,7 +46,6 @@ struct ade_hw_ctx {
- 	struct clk *media_noc_clk;
- 	struct clk *ade_pix_clk;
- 	struct reset_control *reset;
--	struct work_struct display_reset_wq;
- 	bool power_on;
- 	int irq;
+--- a/drivers/gpu/drm/sun4i/sun8i_mixer.c
++++ b/drivers/gpu/drm/sun4i/sun8i_mixer.c
+@@ -149,6 +149,30 @@ static const struct de2_fmt_info de2_for
+ 		.csc = SUN8I_CSC_MODE_OFF,
+ 	},
+ 	{
++		.drm_fmt = DRM_FORMAT_ARGB2101010,
++		.de2_fmt = SUN8I_MIXER_FBFMT_ARGB2101010,
++		.rgb = true,
++		.csc = SUN8I_CSC_MODE_OFF,
++	},
++	{
++		.drm_fmt = DRM_FORMAT_ABGR2101010,
++		.de2_fmt = SUN8I_MIXER_FBFMT_ABGR2101010,
++		.rgb = true,
++		.csc = SUN8I_CSC_MODE_OFF,
++	},
++	{
++		.drm_fmt = DRM_FORMAT_RGBA1010102,
++		.de2_fmt = SUN8I_MIXER_FBFMT_RGBA1010102,
++		.rgb = true,
++		.csc = SUN8I_CSC_MODE_OFF,
++	},
++	{
++		.drm_fmt = DRM_FORMAT_BGRA1010102,
++		.de2_fmt = SUN8I_MIXER_FBFMT_BGRA1010102,
++		.rgb = true,
++		.csc = SUN8I_CSC_MODE_OFF,
++	},
++	{
+ 		.drm_fmt = DRM_FORMAT_UYVY,
+ 		.de2_fmt = SUN8I_MIXER_FBFMT_UYVY,
+ 		.rgb = false,
+@@ -244,6 +268,18 @@ static const struct de2_fmt_info de2_for
+ 		.rgb = false,
+ 		.csc = SUN8I_CSC_MODE_YVU2RGB,
+ 	},
++	{
++		.drm_fmt = DRM_FORMAT_P010,
++		.de2_fmt = SUN8I_MIXER_FBFMT_P010_YUV,
++		.rgb = false,
++		.csc = SUN8I_CSC_MODE_YUV2RGB,
++	},
++	{
++		.drm_fmt = DRM_FORMAT_P210,
++		.de2_fmt = SUN8I_MIXER_FBFMT_P210_YUV,
++		.rgb = false,
++		.csc = SUN8I_CSC_MODE_YUV2RGB,
++	},
+ };
  
-@@ -136,7 +135,6 @@ static void ade_init(struct ade_hw_ctx *
- 	 */
- 	ade_update_bits(base + ADE_CTRL, FRM_END_START_OFST,
- 			FRM_END_START_MASK, REG_EFFECTIVE_IN_ADEEN_FRMEND);
--	ade_update_bits(base + LDI_INT_EN, UNDERFLOW_INT_EN_OFST, MASK(1), 1);
- }
+ const struct de2_fmt_info *sun8i_mixer_format_info(u32 format)
+--- a/drivers/gpu/drm/sun4i/sun8i_mixer.h
++++ b/drivers/gpu/drm/sun4i/sun8i_mixer.h
+@@ -93,6 +93,10 @@
+ #define SUN8I_MIXER_FBFMT_ABGR1555	17
+ #define SUN8I_MIXER_FBFMT_RGBA5551	18
+ #define SUN8I_MIXER_FBFMT_BGRA5551	19
++#define SUN8I_MIXER_FBFMT_ARGB2101010	20
++#define SUN8I_MIXER_FBFMT_ABGR2101010	21
++#define SUN8I_MIXER_FBFMT_RGBA1010102	22
++#define SUN8I_MIXER_FBFMT_BGRA1010102	23
  
- static bool ade_crtc_mode_fixup(struct drm_crtc *crtc,
-@@ -304,17 +302,6 @@ static void ade_crtc_disable_vblank(stru
- 			MASK(1), 0);
- }
+ #define SUN8I_MIXER_FBFMT_YUYV		0
+ #define SUN8I_MIXER_FBFMT_UYVY		1
+@@ -109,6 +113,13 @@
+ /* format 12 is semi-planar YUV411 UVUV */
+ /* format 13 is semi-planar YUV411 VUVU */
+ #define SUN8I_MIXER_FBFMT_YUV411	14
++/* format 15 doesn't exist */
++/* format 16 is P010 YVU */
++#define SUN8I_MIXER_FBFMT_P010_YUV	17
++/* format 18 is P210 YVU */
++#define SUN8I_MIXER_FBFMT_P210_YUV	19
++/* format 20 is packed YVU444 10-bit */
++/* format 21 is packed YUV444 10-bit */
  
--static void drm_underflow_wq(struct work_struct *work)
--{
--	struct ade_hw_ctx *ctx = container_of(work, struct ade_hw_ctx,
--					      display_reset_wq);
--	struct drm_device *drm_dev = ctx->crtc->dev;
--	struct drm_atomic_state *state;
--
--	state = drm_atomic_helper_suspend(drm_dev);
--	drm_atomic_helper_resume(drm_dev, state);
--}
--
- static irqreturn_t ade_irq_handler(int irq, void *data)
+ /*
+  * Sub-engines listed bellow are unused for now. The EN registers are here only
+--- a/drivers/gpu/drm/sun4i/sun8i_vi_layer.c
++++ b/drivers/gpu/drm/sun4i/sun8i_vi_layer.c
+@@ -438,24 +438,76 @@ static const u32 sun8i_vi_layer_formats[
+ 	DRM_FORMAT_YVU444,
+ };
+ 
++static const u32 sun8i_vi_layer_de3_formats[] = {
++	DRM_FORMAT_ABGR1555,
++	DRM_FORMAT_ABGR2101010,
++	DRM_FORMAT_ABGR4444,
++	DRM_FORMAT_ABGR8888,
++	DRM_FORMAT_ARGB1555,
++	DRM_FORMAT_ARGB2101010,
++	DRM_FORMAT_ARGB4444,
++	DRM_FORMAT_ARGB8888,
++	DRM_FORMAT_BGR565,
++	DRM_FORMAT_BGR888,
++	DRM_FORMAT_BGRA1010102,
++	DRM_FORMAT_BGRA5551,
++	DRM_FORMAT_BGRA4444,
++	DRM_FORMAT_BGRA8888,
++	DRM_FORMAT_BGRX8888,
++	DRM_FORMAT_RGB565,
++	DRM_FORMAT_RGB888,
++	DRM_FORMAT_RGBA1010102,
++	DRM_FORMAT_RGBA4444,
++	DRM_FORMAT_RGBA5551,
++	DRM_FORMAT_RGBA8888,
++	DRM_FORMAT_RGBX8888,
++	DRM_FORMAT_XBGR8888,
++	DRM_FORMAT_XRGB8888,
++
++	DRM_FORMAT_NV16,
++	DRM_FORMAT_NV12,
++	DRM_FORMAT_NV21,
++	DRM_FORMAT_NV61,
++	DRM_FORMAT_P010,
++	DRM_FORMAT_P210,
++	DRM_FORMAT_UYVY,
++	DRM_FORMAT_VYUY,
++	DRM_FORMAT_YUYV,
++	DRM_FORMAT_YVYU,
++	DRM_FORMAT_YUV411,
++	DRM_FORMAT_YUV420,
++	DRM_FORMAT_YUV422,
++	DRM_FORMAT_YVU411,
++	DRM_FORMAT_YVU420,
++	DRM_FORMAT_YVU422,
++};
++
+ struct sun8i_vi_layer *sun8i_vi_layer_init_one(struct drm_device *drm,
+ 					       struct sun8i_mixer *mixer,
+ 					       int index)
  {
- 	struct ade_hw_ctx *ctx = data;
-@@ -331,12 +318,6 @@ static irqreturn_t ade_irq_handler(int i
- 				MASK(1), 1);
- 		drm_crtc_handle_vblank(crtc);
- 	}
--	if (status & BIT(UNDERFLOW_INT_EN_OFST)) {
--		ade_update_bits(base + LDI_INT_CLR, UNDERFLOW_INT_EN_OFST,
--				MASK(1), 1);
--		DRM_ERROR("LDI underflow!");
--		schedule_work(&ctx->display_reset_wq);
--	}
+ 	u32 supported_encodings, supported_ranges;
++	unsigned int plane_cnt, format_count;
+ 	struct sun8i_vi_layer *layer;
+-	unsigned int plane_cnt;
++	const u32 *formats;
+ 	int ret;
  
- 	return IRQ_HANDLED;
- }
-@@ -919,7 +900,6 @@ static void *ade_hw_ctx_alloc(struct pla
- 	if (ret)
- 		return ERR_PTR(-EIO);
+ 	layer = devm_kzalloc(drm->dev, sizeof(*layer), GFP_KERNEL);
+ 	if (!layer)
+ 		return ERR_PTR(-ENOMEM);
  
--	INIT_WORK(&ctx->display_reset_wq, drm_underflow_wq);
- 	ctx->crtc = crtc;
- 
- 	return ctx;
++	if (mixer->cfg->is_de3) {
++		formats = sun8i_vi_layer_de3_formats;
++		format_count = ARRAY_SIZE(sun8i_vi_layer_de3_formats);
++	} else {
++		formats = sun8i_vi_layer_formats;
++		format_count = ARRAY_SIZE(sun8i_vi_layer_formats);
++	}
++
+ 	/* possible crtcs are set later */
+ 	ret = drm_universal_plane_init(drm, &layer->plane, 0,
+ 				       &sun8i_vi_layer_funcs,
+-				       sun8i_vi_layer_formats,
+-				       ARRAY_SIZE(sun8i_vi_layer_formats),
++				       formats, format_count,
+ 				       NULL, DRM_PLANE_TYPE_OVERLAY, NULL);
+ 	if (ret) {
+ 		dev_err(drm->dev, "Couldn't initialize layer\n");
 
 
