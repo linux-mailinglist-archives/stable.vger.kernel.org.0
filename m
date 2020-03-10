@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3BAB717FCFC
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:25:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BA73217FCFB
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:25:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729684AbgCJM6K (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 08:58:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38034 "EHLO mail.kernel.org"
+        id S1727631AbgCJNZG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 09:25:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38088 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729075AbgCJM6I (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 08:58:08 -0400
+        id S1728185AbgCJM6L (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 08:58:11 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2A2A32467D;
-        Tue, 10 Mar 2020 12:58:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B900E20674;
+        Tue, 10 Mar 2020 12:58:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583845087;
-        bh=vOSBD3sjHzK6riGbNN96CcuhfOs6Oto3eXhPhUlUcHs=;
+        s=default; t=1583845090;
+        bh=d++i2rxskDMNAcTw7Q5XEt6x9MQycNx2Ds0IINKJFzA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EdAXt/ScTHS34pZUdY4H071cdBIpTJozA8dg+DUjbAY35wd6iJAQhePFIGD1LNe8R
-         o+KMWJQZAXd4OrCXZKiHa88GbvSqPvHO+M44KG905kAnadHjOH0D4DFryGHMWAEO4o
-         V/1zO5nzJ3d099NMQ6z4FuS988npTn1AOGxmacys=
+        b=MeJSP2HUHkVlNVKW40HgECkMVGCSxZMphobV2sMQ1xo/OycuuWw1fmwW8Amxu4025
+         fc6ouoW8Wa4cNcxNVrhs3/ozSl6AjZOjE83hSmEnSxn3B/1gGxeLF/fJYj/OWK4VIG
+         HL+m+BEF1FtnyX3qZPVUVbNeV4IMX0IzSXpLUgOk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Petr Machata <petrm@mellanox.com>,
-        Hangbin Liu <liuhangbin@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 057/189] selftests: forwarding: vxlan_bridge_1d: use more proper tos value
-Date:   Tue, 10 Mar 2020 13:38:14 +0100
-Message-Id: <20200310123645.342473819@linuxfoundation.org>
+        stable@vger.kernel.org, Leonard Crestez <leonard.crestez@nxp.com>,
+        Peng Fan <peng.fan@nxp.com>,
+        ": Oleksij Rempel" <o.rempel@pengutronix.de>,
+        Shawn Guo <shawnguo@kernel.org>
+Subject: [PATCH 5.5 058/189] firmware: imx: scu: Ensure sequential TX
+Date:   Tue, 10 Mar 2020 13:38:15 +0100
+Message-Id: <20200310123645.453176342@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200310123639.608886314@linuxfoundation.org>
 References: <20200310123639.608886314@linuxfoundation.org>
@@ -45,41 +45,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hangbin Liu <liuhangbin@gmail.com>
+From: Leonard Crestez <leonard.crestez@nxp.com>
 
-[ Upstream commit 9b64208f74fbd0e920475ecfe9326f8443fdc3a5 ]
+commit 26d0fba29c96241de8a9d16f045b1de49875884c upstream.
 
-0x11 and 0x12 set the ECN bits based on RFC2474, it would be better to avoid
-that. 0x14 and 0x18 would be better and works as well.
+SCU requires that all messages words are written sequentially but linux MU
+driver implements multiple independent channels for each register so ordering
+between different channels must be ensured by SCU API interface.
 
-Reported-by: Petr Machata <petrm@mellanox.com>
-Fixes: 4e867c9a50ff ("selftests: forwarding: vxlan_bridge_1d: fix tos value")
-Signed-off-by: Hangbin Liu <liuhangbin@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Wait for tx_done before every send to ensure that no queueing happens at the
+mailbox channel level.
+
+Fixes: edbee095fafb ("firmware: imx: add SCU firmware driver support")
+Signed-off-by: Leonard Crestez <leonard.crestez@nxp.com>
+Cc: <stable@vger.kernel.org>
+Reviewed-by: Peng Fan <peng.fan@nxp.com>
+Reviewed-by:: Oleksij Rempel <o.rempel@pengutronix.de>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- tools/testing/selftests/net/forwarding/vxlan_bridge_1d.sh | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/firmware/imx/imx-scu.c |   27 +++++++++++++++++++++++++++
+ 1 file changed, 27 insertions(+)
 
-diff --git a/tools/testing/selftests/net/forwarding/vxlan_bridge_1d.sh b/tools/testing/selftests/net/forwarding/vxlan_bridge_1d.sh
-index 353613fc19475..ce6bea9675c07 100755
---- a/tools/testing/selftests/net/forwarding/vxlan_bridge_1d.sh
-+++ b/tools/testing/selftests/net/forwarding/vxlan_bridge_1d.sh
-@@ -516,9 +516,9 @@ test_tos()
- 	RET=0
+--- a/drivers/firmware/imx/imx-scu.c
++++ b/drivers/firmware/imx/imx-scu.c
+@@ -29,6 +29,7 @@ struct imx_sc_chan {
+ 	struct mbox_client cl;
+ 	struct mbox_chan *ch;
+ 	int idx;
++	struct completion tx_done;
+ };
  
- 	tc filter add dev v1 egress pref 77 prot ip \
--		flower ip_tos 0x11 action pass
--	vxlan_ping_test $h1 192.0.2.3 "-Q 0x11" v1 egress 77 10
--	vxlan_ping_test $h1 192.0.2.3 "-Q 0x12" v1 egress 77 0
-+		flower ip_tos 0x14 action pass
-+	vxlan_ping_test $h1 192.0.2.3 "-Q 0x14" v1 egress 77 10
-+	vxlan_ping_test $h1 192.0.2.3 "-Q 0x18" v1 egress 77 0
- 	tc filter del dev v1 egress pref 77 prot ip
+ struct imx_sc_ipc {
+@@ -100,6 +101,14 @@ int imx_scu_get_handle(struct imx_sc_ipc
+ }
+ EXPORT_SYMBOL(imx_scu_get_handle);
  
- 	log_test "VXLAN: envelope TOS inheritance"
--- 
-2.20.1
-
++/* Callback called when the word of a message is ack-ed, eg read by SCU */
++static void imx_scu_tx_done(struct mbox_client *cl, void *mssg, int r)
++{
++	struct imx_sc_chan *sc_chan = container_of(cl, struct imx_sc_chan, cl);
++
++	complete(&sc_chan->tx_done);
++}
++
+ static void imx_scu_rx_callback(struct mbox_client *c, void *msg)
+ {
+ 	struct imx_sc_chan *sc_chan = container_of(c, struct imx_sc_chan, cl);
+@@ -149,6 +158,19 @@ static int imx_scu_ipc_write(struct imx_
+ 
+ 	for (i = 0; i < hdr->size; i++) {
+ 		sc_chan = &sc_ipc->chans[i % 4];
++
++		/*
++		 * SCU requires that all messages words are written
++		 * sequentially but linux MU driver implements multiple
++		 * independent channels for each register so ordering between
++		 * different channels must be ensured by SCU API interface.
++		 *
++		 * Wait for tx_done before every send to ensure that no
++		 * queueing happens at the mailbox channel level.
++		 */
++		wait_for_completion(&sc_chan->tx_done);
++		reinit_completion(&sc_chan->tx_done);
++
+ 		ret = mbox_send_message(sc_chan->ch, &data[i]);
+ 		if (ret < 0)
+ 			return ret;
+@@ -247,6 +269,11 @@ static int imx_scu_probe(struct platform
+ 		cl->knows_txdone = true;
+ 		cl->rx_callback = imx_scu_rx_callback;
+ 
++		/* Initial tx_done completion as "done" */
++		cl->tx_done = imx_scu_tx_done;
++		init_completion(&sc_chan->tx_done);
++		complete(&sc_chan->tx_done);
++
+ 		sc_chan->sc_ipc = sc_ipc;
+ 		sc_chan->idx = i % 4;
+ 		sc_chan->ch = mbox_request_channel_byname(cl, chan_name);
 
 
