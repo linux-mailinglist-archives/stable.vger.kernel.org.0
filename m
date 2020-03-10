@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D487217FC75
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:21:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C73B317FC6B
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:21:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730822AbgCJNGQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 09:06:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51798 "EHLO mail.kernel.org"
+        id S1730833AbgCJNGT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 09:06:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51826 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730818AbgCJNGQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 09:06:16 -0400
+        id S1727952AbgCJNGS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 09:06:18 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9AC362468C;
-        Tue, 10 Mar 2020 13:06:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2556A20409;
+        Tue, 10 Mar 2020 13:06:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583845575;
-        bh=9JmEJ2YdNjH06+Nkw7LEfU4DK0/6CZECh7HT7bkrXC0=;
+        s=default; t=1583845577;
+        bh=/VWnBrb88bZfoa2jzLM0+U4/QMNa4LpqynxHm8gInQY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wJZ25dRGO7snbXtgBJ/2paonDePu1fGUM+voaCL1ARd9Hjql6HBLr+2JaFb/RWjdm
-         iqNbWfHWivX78uJJV3OGBQuF+gMp+bwv/gFAVSvFcuWX1gjSwfX7yqPNnuKqrJmFjB
-         V2355BXdOxdFDbpKinZYhSDiss7tacOZN7FBhE88=
+        b=sFngzy02zS0wilBqAk4yeWD1wrHnS9pKVxcSYZOHiw32127nGKragCFk88MpUMOdg
+         y4LmTzOEDCrrRuNgFtMvBzeQaLIk3erH1YnWRVHesDONZnFQ5TFtxotcayRyqmHghr
+         +KM8EoY/+siPYR2WjJxQ51pkrUNzcRd12/XzSwj4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Petr Mladek <pmladek@suse.com>,
-        Sergey Senozhatsky <sergey.senozhatsky@gmail.com>,
-        Tommi Rantala <tommi.t.rantala@nokia.com>
-Subject: [PATCH 4.14 025/126] sysrq: Remove duplicated sysrq message
-Date:   Tue, 10 Mar 2020 13:40:46 +0100
-Message-Id: <20200310124206.108074625@linuxfoundation.org>
+        stable@vger.kernel.org, Jethro Beekman <jethro@fortanix.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.14 026/126] net: fib_rules: Correctly set table field when table number exceeds 8 bits
+Date:   Tue, 10 Mar 2020 13:40:47 +0100
+Message-Id: <20200310124206.160219813@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200310124203.704193207@linuxfoundation.org>
 References: <20200310124203.704193207@linuxfoundation.org>
@@ -44,55 +43,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Petr Mladek <pmladek@suse.com>
+From: Jethro Beekman <jethro@fortanix.com>
 
-commit c3fee60908db4a8594f2e4a2131998384b8fa006 upstream.
+[ Upstream commit 540e585a79e9d643ede077b73bcc7aa2d7b4d919 ]
 
-The commit 97f5f0cd8cd0a0544 ("Input: implement SysRq as a separate input
-handler") added pr_fmt() definition. It caused a duplicated message
-prefix in the sysrq header messages, for example:
+In 709772e6e06564ed94ba740de70185ac3d792773, RT_TABLE_COMPAT was added to
+allow legacy software to deal with routing table numbers >= 256, but the
+same change to FIB rule queries was overlooked.
 
-[  177.053931] sysrq: SysRq : Show backtrace of all active CPUs
-[  742.864776] sysrq: SysRq : HELP : loglevel(0-9) reboot(b) crash(c)
-
-Fixes: 97f5f0cd8cd0a05 ("Input: implement SysRq as a separate input handler")
-Signed-off-by: Petr Mladek <pmladek@suse.com>
-Reviewed-by: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
-Cc: Tommi Rantala  <tommi.t.rantala@nokia.com>
+Signed-off-by: Jethro Beekman <jethro@fortanix.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/tty/sysrq.c |    7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+ net/core/fib_rules.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/tty/sysrq.c
-+++ b/drivers/tty/sysrq.c
-@@ -546,7 +546,6 @@ void __handle_sysrq(int key, bool check_
- 	 */
- 	orig_log_level = console_loglevel;
- 	console_loglevel = CONSOLE_LOGLEVEL_DEFAULT;
--	pr_info("SysRq : ");
+--- a/net/core/fib_rules.c
++++ b/net/core/fib_rules.c
+@@ -799,7 +799,7 @@ static int fib_nl_fill_rule(struct sk_bu
  
-         op_p = __sysrq_get_key_op(key);
-         if (op_p) {
-@@ -555,15 +554,15 @@ void __handle_sysrq(int key, bool check_
- 		 * should not) and is the invoked operation enabled?
- 		 */
- 		if (!check_mask || sysrq_on_mask(op_p->enable_mask)) {
--			pr_cont("%s\n", op_p->action_msg);
-+			pr_info("%s\n", op_p->action_msg);
- 			console_loglevel = orig_log_level;
- 			op_p->handler(key);
- 		} else {
--			pr_cont("This sysrq operation is disabled.\n");
-+			pr_info("This sysrq operation is disabled.\n");
- 			console_loglevel = orig_log_level;
- 		}
- 	} else {
--		pr_cont("HELP : ");
-+		pr_info("HELP : ");
- 		/* Only print the help msg once per handler */
- 		for (i = 0; i < ARRAY_SIZE(sysrq_key_table); i++) {
- 			if (sysrq_key_table[i]) {
+ 	frh = nlmsg_data(nlh);
+ 	frh->family = ops->family;
+-	frh->table = rule->table;
++	frh->table = rule->table < 256 ? rule->table : RT_TABLE_COMPAT;
+ 	if (nla_put_u32(skb, FRA_TABLE, rule->table))
+ 		goto nla_put_failure;
+ 	if (nla_put_u32(skb, FRA_SUPPRESS_PREFIXLEN, rule->suppress_prefixlen))
 
 
