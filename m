@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2590017F976
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 13:57:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A67517F97A
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 13:57:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729047AbgCJM5C (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 08:57:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36312 "EHLO mail.kernel.org"
+        id S1728775AbgCJM5M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 08:57:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36654 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729719AbgCJM5A (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 08:57:00 -0400
+        id S1729280AbgCJM5L (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 08:57:11 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ECB2520674;
-        Tue, 10 Mar 2020 12:56:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 940EB20674;
+        Tue, 10 Mar 2020 12:57:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583845020;
-        bh=qMh9/b7Wjjh4p1I6eLg+fOXx59WbAGqj5JBNVoj8QCU=;
+        s=default; t=1583845031;
+        bh=kFPwuE5ZqLxEVxKWnapOEi+Fe0RnV174k4NEdaYdxBc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Rr2koHGGT2sf93aNdPbxUgls0AqZN8eG1gFxJp0aV9wGtxSpu1U6yCx5J6kLpNNRx
-         95MIIG+ZiYaqsT2y9qxB5aI0iJTlCPuufbpcdt1CgrFk9z0LteYusrftARLyfdGJON
-         5b8US/Jc8wNEcgSReypzTBZMHcLEGsv9EG5D0gNE=
+        b=NHPgumxJ67P/wMOwASwa4Je3KOqEHN6VvfiM1Q3M9d8MwHU2V41Z6pqf9y0uIU9fS
+         fXbqiSFS3b9h3SmZGK7faUUPNJvQCbGlJRvGoMjn4cQEfGTDrlaBkfDZe6D+XL6TRf
+         u70JM8prJVfR4FivNdt+SB9CDQnIvwY5VMfKHvoE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Patrick Dung <patdung100@gmail.com>,
-        Oleksandr Natalenko <oleksandr@natalenko.name>,
-        Paolo Valente <paolo.valente@linaro.org>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 004/189] block, bfq: do not insert oom queue into position tree
-Date:   Tue, 10 Mar 2020 13:37:21 +0100
-Message-Id: <20200310123640.011975709@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Leon Romanovsky <leonro@mellanox.com>,
+        Jason Gunthorpe <jgg@mellanox.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.5 008/189] RDMA/core: Fix use of logical OR in get_new_pps
+Date:   Tue, 10 Mar 2020 13:37:25 +0100
+Message-Id: <20200310123640.402771499@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200310123639.608886314@linuxfoundation.org>
 References: <20200310123639.608886314@linuxfoundation.org>
@@ -45,47 +46,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paolo Valente <paolo.valente@linaro.org>
+From: Nathan Chancellor <natechancellor@gmail.com>
 
-[ Upstream commit 32c59e3a9a5a0b180dd015755d6d18ca31e55935 ]
+[ Upstream commit 4ca501d6aaf21de31541deac35128bbea8427aa6 ]
 
-BFQ maintains an ordered list, implemented with an RB tree, of
-head-request positions of non-empty bfq_queues. This position tree,
-inherited from CFQ, is used to find bfq_queues that contain I/O close
-to each other. BFQ merges these bfq_queues into a single shared queue,
-if this boosts throughput on the device at hand.
+Clang warns:
 
-There is however a special-purpose bfq_queue that does not participate
-in queue merging, the oom bfq_queue. Yet, also this bfq_queue could be
-wrongly added to the position tree. So bfqq_find_close() could return
-the oom bfq_queue, which is a source of further troubles in an
-out-of-memory situation. This commit prevents the oom bfq_queue from
-being inserted into the position tree.
+../drivers/infiniband/core/security.c:351:41: warning: converting the
+enum constant to a boolean [-Wint-in-bool-context]
+        if (!(qp_attr_mask & (IB_QP_PKEY_INDEX || IB_QP_PORT)) && qp_pps) {
+                                               ^
+1 warning generated.
 
-Tested-by: Patrick Dung <patdung100@gmail.com>
-Tested-by: Oleksandr Natalenko <oleksandr@natalenko.name>
-Signed-off-by: Paolo Valente <paolo.valente@linaro.org>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+A bitwise OR should have been used instead.
+
+Fixes: 1dd017882e01 ("RDMA/core: Fix protection fault in get_pkey_idx_qp_list")
+Link: https://lore.kernel.org/r/20200217204318.13609-1-natechancellor@gmail.com
+Link: https://github.com/ClangBuiltLinux/linux/issues/889
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+Reviewed-by: Leon Romanovsky <leonro@mellanox.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/bfq-iosched.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/infiniband/core/security.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/block/bfq-iosched.c b/block/bfq-iosched.c
-index 5c239c540c47a..3dbd0666fec1b 100644
---- a/block/bfq-iosched.c
-+++ b/block/bfq-iosched.c
-@@ -614,6 +614,10 @@ bfq_pos_tree_add_move(struct bfq_data *bfqd, struct bfq_queue *bfqq)
- 		bfqq->pos_root = NULL;
- 	}
+diff --git a/drivers/infiniband/core/security.c b/drivers/infiniband/core/security.c
+index 9e27ca18d3270..2d5608315dc80 100644
+--- a/drivers/infiniband/core/security.c
++++ b/drivers/infiniband/core/security.c
+@@ -352,7 +352,7 @@ static struct ib_ports_pkeys *get_new_pps(const struct ib_qp *qp,
+ 	if ((qp_attr_mask & IB_QP_PKEY_INDEX) && (qp_attr_mask & IB_QP_PORT))
+ 		new_pps->main.state = IB_PORT_PKEY_VALID;
  
-+	/* oom_bfqq does not participate in queue merging */
-+	if (bfqq == &bfqd->oom_bfqq)
-+		return;
-+
- 	/*
- 	 * bfqq cannot be merged any longer (see comments in
- 	 * bfq_setup_cooperator): no point in adding bfqq into the
+-	if (!(qp_attr_mask & (IB_QP_PKEY_INDEX || IB_QP_PORT)) && qp_pps) {
++	if (!(qp_attr_mask & (IB_QP_PKEY_INDEX | IB_QP_PORT)) && qp_pps) {
+ 		new_pps->main.port_num = qp_pps->main.port_num;
+ 		new_pps->main.pkey_index = qp_pps->main.pkey_index;
+ 		if (qp_pps->main.state != IB_PORT_PKEY_NOT_VALID)
 -- 
 2.20.1
 
