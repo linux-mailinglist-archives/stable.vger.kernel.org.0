@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C2E6F17FA4E
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:04:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 202FC17FC86
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:21:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728176AbgCJNEX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 09:04:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49416 "EHLO mail.kernel.org"
+        id S1730526AbgCJNFp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 09:05:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51042 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728334AbgCJNEW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 09:04:22 -0400
+        id S1730362AbgCJNFn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 09:05:43 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0223A246AA;
-        Tue, 10 Mar 2020 13:04:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8285720409;
+        Tue, 10 Mar 2020 13:05:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583845461;
-        bh=KJoKLhjYPFyRWD4d0UPL8yDXl4UR0+scisZD6bxeLpY=;
+        s=default; t=1583845543;
+        bh=Xu+0x46z+TMykDwIjVuv4R0qLWv/64ldHyKMxrrzxnU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AMFxedS33TPownaWMRCMO2chcfyPx2ogwHvH8BI1ctTUTNpCMNVM9seaULOrB8dS4
-         dZsFQ9uaFRa5q5qrOMU9aCADTgE8Q9R0SEa94P2YKPTlRJrDIum/arUcxDWUKhrPYb
-         NiyEnLSk5qoYLuo52mWoDfNEdsKK1wUCWs5yqVRE=
+        b=hmiyJ5OA5brYJ/z7d/GO5nZNqItwgxXJzKlxm7y5THFbiNffXvV2lqLWyxoxI1WoL
+         qZbogar12Hv0BmISnCRTHRo0EkpEvxeTzfwXEpo3k5eOMok9sJLhtmVOVx23A+KelW
+         cHLdUlqFDrB5lXr6piRfmLHzBzt/4Ug5GRwVszFg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aaro Koskinen <aaro.koskinen@nokia.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.5 189/189] net: stmmac: fix notifier registration
+        stable@vger.kernel.org, Suraj Jitindar Singh <surajjs@amazon.com>,
+        Theodore Tso <tytso@mit.edu>, Balbir Singh <sblbir@amazon.com>,
+        stable@kernel.org, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 005/126] ext4: fix potential race between s_group_info online resizing and access
 Date:   Tue, 10 Mar 2020 13:40:26 +0100
-Message-Id: <20200310123658.506018546@linuxfoundation.org>
+Message-Id: <20200310124204.161646705@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200310123639.608886314@linuxfoundation.org>
-References: <20200310123639.608886314@linuxfoundation.org>
+In-Reply-To: <20200310124203.704193207@linuxfoundation.org>
+References: <20200310124203.704193207@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,83 +44,186 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aaro Koskinen <aaro.koskinen@nokia.com>
+From: Suraj Jitindar Singh <surajjs@amazon.com>
 
-commit 474a31e13a4e9749fb3ee55794d69d0f17ee0998 upstream.
+[ Upstream commit df3da4ea5a0fc5d115c90d5aa6caa4dd433750a7 ]
 
-We cannot register the same netdev notifier multiple times when probing
-stmmac devices. Register the notifier only once in module init, and also
-make debugfs creation/deletion safe against simultaneous notifier call.
+During an online resize an array of pointers to s_group_info gets replaced
+so it can get enlarged. If there is a concurrent access to the array in
+ext4_get_group_info() and this memory has been reused then this can lead to
+an invalid memory access.
 
-Fixes: 481a7d154cbb ("stmmac: debugfs entry name is not be changed when udev rename device name.")
-Signed-off-by: Aaro Koskinen <aaro.koskinen@nokia.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=206443
+Link: https://lore.kernel.org/r/20200221053458.730016-3-tytso@mit.edu
+Signed-off-by: Suraj Jitindar Singh <surajjs@amazon.com>
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Reviewed-by: Balbir Singh <sblbir@amazon.com>
+Cc: stable@kernel.org
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/stmmac_main.c |   13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
+ fs/ext4/ext4.h    |  8 ++++----
+ fs/ext4/mballoc.c | 52 +++++++++++++++++++++++++++++++----------------
+ 2 files changed, 39 insertions(+), 21 deletions(-)
 
---- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-@@ -4289,6 +4289,8 @@ static void stmmac_init_fs(struct net_de
- {
- 	struct stmmac_priv *priv = netdev_priv(dev);
- 
-+	rtnl_lock();
-+
- 	/* Create per netdev entries */
- 	priv->dbgfs_dir = debugfs_create_dir(dev->name, stmmac_fs_dir);
- 
-@@ -4300,14 +4302,13 @@ static void stmmac_init_fs(struct net_de
- 	debugfs_create_file("dma_cap", 0444, priv->dbgfs_dir, dev,
- 			    &stmmac_dma_cap_fops);
- 
--	register_netdevice_notifier(&stmmac_notifier);
-+	rtnl_unlock();
- }
- 
- static void stmmac_exit_fs(struct net_device *dev)
- {
- 	struct stmmac_priv *priv = netdev_priv(dev);
- 
--	unregister_netdevice_notifier(&stmmac_notifier);
- 	debugfs_remove_recursive(priv->dbgfs_dir);
- }
- #endif /* CONFIG_DEBUG_FS */
-@@ -4825,14 +4826,14 @@ int stmmac_dvr_remove(struct device *dev
- 
- 	netdev_info(priv->dev, "%s: removing driver", __func__);
- 
--#ifdef CONFIG_DEBUG_FS
--	stmmac_exit_fs(ndev);
--#endif
- 	stmmac_stop_all_dma(priv);
- 
- 	stmmac_mac_set(priv, priv->ioaddr, false);
- 	netif_carrier_off(ndev);
- 	unregister_netdev(ndev);
-+#ifdef CONFIG_DEBUG_FS
-+	stmmac_exit_fs(ndev);
-+#endif
- 	phylink_destroy(priv->phylink);
- 	if (priv->plat->stmmac_rst)
- 		reset_control_assert(priv->plat->stmmac_rst);
-@@ -5052,6 +5053,7 @@ static int __init stmmac_init(void)
- 	/* Create debugfs main directory if it doesn't exist yet */
- 	if (!stmmac_fs_dir)
- 		stmmac_fs_dir = debugfs_create_dir(STMMAC_RESOURCE_NAME, NULL);
-+	register_netdevice_notifier(&stmmac_notifier);
+diff --git a/fs/ext4/ext4.h b/fs/ext4/ext4.h
+index 8b55abdd7249a..4aa0f8f7d9a0e 100644
+--- a/fs/ext4/ext4.h
++++ b/fs/ext4/ext4.h
+@@ -1442,7 +1442,7 @@ struct ext4_sb_info {
  #endif
  
+ 	/* for buddy allocator */
+-	struct ext4_group_info ***s_group_info;
++	struct ext4_group_info ** __rcu *s_group_info;
+ 	struct inode *s_buddy_cache;
+ 	spinlock_t s_md_lock;
+ 	unsigned short *s_mb_offsets;
+@@ -2832,13 +2832,13 @@ static inline
+ struct ext4_group_info *ext4_get_group_info(struct super_block *sb,
+ 					    ext4_group_t group)
+ {
+-	 struct ext4_group_info ***grp_info;
++	 struct ext4_group_info **grp_info;
+ 	 long indexv, indexh;
+ 	 BUG_ON(group >= EXT4_SB(sb)->s_groups_count);
+-	 grp_info = EXT4_SB(sb)->s_group_info;
+ 	 indexv = group >> (EXT4_DESC_PER_BLOCK_BITS(sb));
+ 	 indexh = group & ((EXT4_DESC_PER_BLOCK(sb)) - 1);
+-	 return grp_info[indexv][indexh];
++	 grp_info = sbi_array_rcu_deref(EXT4_SB(sb), s_group_info, indexv);
++	 return grp_info[indexh];
+ }
+ 
+ /*
+diff --git a/fs/ext4/mballoc.c b/fs/ext4/mballoc.c
+index fb865216edb9b..745a89d30a57a 100644
+--- a/fs/ext4/mballoc.c
++++ b/fs/ext4/mballoc.c
+@@ -2389,7 +2389,7 @@ int ext4_mb_alloc_groupinfo(struct super_block *sb, ext4_group_t ngroups)
+ {
+ 	struct ext4_sb_info *sbi = EXT4_SB(sb);
+ 	unsigned size;
+-	struct ext4_group_info ***new_groupinfo;
++	struct ext4_group_info ***old_groupinfo, ***new_groupinfo;
+ 
+ 	size = (ngroups + EXT4_DESC_PER_BLOCK(sb) - 1) >>
+ 		EXT4_DESC_PER_BLOCK_BITS(sb);
+@@ -2402,13 +2402,16 @@ int ext4_mb_alloc_groupinfo(struct super_block *sb, ext4_group_t ngroups)
+ 		ext4_msg(sb, KERN_ERR, "can't allocate buddy meta group");
+ 		return -ENOMEM;
+ 	}
+-	if (sbi->s_group_info) {
+-		memcpy(new_groupinfo, sbi->s_group_info,
++	rcu_read_lock();
++	old_groupinfo = rcu_dereference(sbi->s_group_info);
++	if (old_groupinfo)
++		memcpy(new_groupinfo, old_groupinfo,
+ 		       sbi->s_group_info_size * sizeof(*sbi->s_group_info));
+-		kvfree(sbi->s_group_info);
+-	}
+-	sbi->s_group_info = new_groupinfo;
++	rcu_read_unlock();
++	rcu_assign_pointer(sbi->s_group_info, new_groupinfo);
+ 	sbi->s_group_info_size = size / sizeof(*sbi->s_group_info);
++	if (old_groupinfo)
++		ext4_kvfree_array_rcu(old_groupinfo);
+ 	ext4_debug("allocated s_groupinfo array for %d meta_bg's\n", 
+ 		   sbi->s_group_info_size);
  	return 0;
-@@ -5060,6 +5062,7 @@ static int __init stmmac_init(void)
- static void __exit stmmac_exit(void)
+@@ -2420,6 +2423,7 @@ int ext4_mb_add_groupinfo(struct super_block *sb, ext4_group_t group,
  {
- #ifdef CONFIG_DEBUG_FS
-+	unregister_netdevice_notifier(&stmmac_notifier);
- 	debugfs_remove_recursive(stmmac_fs_dir);
- #endif
+ 	int i;
+ 	int metalen = 0;
++	int idx = group >> EXT4_DESC_PER_BLOCK_BITS(sb);
+ 	struct ext4_sb_info *sbi = EXT4_SB(sb);
+ 	struct ext4_group_info **meta_group_info;
+ 	struct kmem_cache *cachep = get_groupinfo_cache(sb->s_blocksize_bits);
+@@ -2438,12 +2442,12 @@ int ext4_mb_add_groupinfo(struct super_block *sb, ext4_group_t group,
+ 				 "for a buddy group");
+ 			goto exit_meta_group_info;
+ 		}
+-		sbi->s_group_info[group >> EXT4_DESC_PER_BLOCK_BITS(sb)] =
+-			meta_group_info;
++		rcu_read_lock();
++		rcu_dereference(sbi->s_group_info)[idx] = meta_group_info;
++		rcu_read_unlock();
+ 	}
+ 
+-	meta_group_info =
+-		sbi->s_group_info[group >> EXT4_DESC_PER_BLOCK_BITS(sb)];
++	meta_group_info = sbi_array_rcu_deref(sbi, s_group_info, idx);
+ 	i = group & (EXT4_DESC_PER_BLOCK(sb) - 1);
+ 
+ 	meta_group_info[i] = kmem_cache_zalloc(cachep, GFP_NOFS);
+@@ -2491,8 +2495,13 @@ int ext4_mb_add_groupinfo(struct super_block *sb, ext4_group_t group,
+ exit_group_info:
+ 	/* If a meta_group_info table has been allocated, release it now */
+ 	if (group % EXT4_DESC_PER_BLOCK(sb) == 0) {
+-		kfree(sbi->s_group_info[group >> EXT4_DESC_PER_BLOCK_BITS(sb)]);
+-		sbi->s_group_info[group >> EXT4_DESC_PER_BLOCK_BITS(sb)] = NULL;
++		struct ext4_group_info ***group_info;
++
++		rcu_read_lock();
++		group_info = rcu_dereference(sbi->s_group_info);
++		kfree(group_info[idx]);
++		group_info[idx] = NULL;
++		rcu_read_unlock();
+ 	}
+ exit_meta_group_info:
+ 	return -ENOMEM;
+@@ -2505,6 +2514,7 @@ static int ext4_mb_init_backend(struct super_block *sb)
+ 	struct ext4_sb_info *sbi = EXT4_SB(sb);
+ 	int err;
+ 	struct ext4_group_desc *desc;
++	struct ext4_group_info ***group_info;
+ 	struct kmem_cache *cachep;
+ 
+ 	err = ext4_mb_alloc_groupinfo(sb, ngroups);
+@@ -2539,11 +2549,16 @@ err_freebuddy:
+ 	while (i-- > 0)
+ 		kmem_cache_free(cachep, ext4_get_group_info(sb, i));
+ 	i = sbi->s_group_info_size;
++	rcu_read_lock();
++	group_info = rcu_dereference(sbi->s_group_info);
+ 	while (i-- > 0)
+-		kfree(sbi->s_group_info[i]);
++		kfree(group_info[i]);
++	rcu_read_unlock();
+ 	iput(sbi->s_buddy_cache);
+ err_freesgi:
+-	kvfree(sbi->s_group_info);
++	rcu_read_lock();
++	kvfree(rcu_dereference(sbi->s_group_info));
++	rcu_read_unlock();
+ 	return -ENOMEM;
  }
+ 
+@@ -2733,7 +2748,7 @@ int ext4_mb_release(struct super_block *sb)
+ 	ext4_group_t ngroups = ext4_get_groups_count(sb);
+ 	ext4_group_t i;
+ 	int num_meta_group_infos;
+-	struct ext4_group_info *grinfo;
++	struct ext4_group_info *grinfo, ***group_info;
+ 	struct ext4_sb_info *sbi = EXT4_SB(sb);
+ 	struct kmem_cache *cachep = get_groupinfo_cache(sb->s_blocksize_bits);
+ 
+@@ -2751,9 +2766,12 @@ int ext4_mb_release(struct super_block *sb)
+ 		num_meta_group_infos = (ngroups +
+ 				EXT4_DESC_PER_BLOCK(sb) - 1) >>
+ 			EXT4_DESC_PER_BLOCK_BITS(sb);
++		rcu_read_lock();
++		group_info = rcu_dereference(sbi->s_group_info);
+ 		for (i = 0; i < num_meta_group_infos; i++)
+-			kfree(sbi->s_group_info[i]);
+-		kvfree(sbi->s_group_info);
++			kfree(group_info[i]);
++		kvfree(group_info);
++		rcu_read_unlock();
+ 	}
+ 	kfree(sbi->s_mb_offsets);
+ 	kfree(sbi->s_mb_maxs);
+-- 
+2.20.1
+
 
 
