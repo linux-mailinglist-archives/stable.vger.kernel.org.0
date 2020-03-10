@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B0BC417F80F
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 13:44:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 99C9817F811
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 13:44:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727817AbgCJMos (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 08:44:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47150 "EHLO mail.kernel.org"
+        id S1727816AbgCJMou (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 08:44:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47216 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727816AbgCJMor (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 08:44:47 -0400
+        id S1727510AbgCJMou (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 08:44:50 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B09F124691;
-        Tue, 10 Mar 2020 12:44:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4AB052469C;
+        Tue, 10 Mar 2020 12:44:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583844287;
-        bh=KHti8o2FYwSj12hzyxan72hJVGTpJLY+UTule31FX9g=;
+        s=default; t=1583844289;
+        bh=6f4CC+7DtzfHuMV7HiHoLiTh2Xkc0Zf5JXFBByFdpKs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W3R/XDH3aEqKDOgVvYYyCEYlUxWjicAq+AoJkl+KZgqzSIvAROpc3fvMyMduDi5q3
-         g7mtlUz9pP8lXS8XdN/pWt6/1mh3eZhyccNArgTMGdysgyxzrywAxCwTqvv4AzOiO9
-         78ongb7W0HD6Kjo5Qiy/aFym0WbTsWjVAhVKofuk=
+        b=SzhdjOwj5rMdmaO1rGZ0SiQmnBlPACSIYM9IOxCs4rg0aqIDbVyK5uN8S2fMvFno7
+         VGAhu/CIlLOJBrRZfYl88BJs9KMozhhBr/61Qz50LwLjZjWk9798fvS76N+bU45Tur
+         qq761qnJtuyI+cYG5i6JFFV6WTLJPYlC+58b8Uh8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dmitry Osipenko <digetx@gmail.com>,
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        Cong Wang <xiyou.wangcong@gmail.com>,
+        Jason Baron <jbaron@akamai.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 26/88] nfc: pn544: Fix occasional HW initialization failure
-Date:   Tue, 10 Mar 2020 13:38:34 +0100
-Message-Id: <20200310123612.246938207@linuxfoundation.org>
+Subject: [PATCH 4.9 27/88] net: sched: correct flower port blocking
+Date:   Tue, 10 Mar 2020 13:38:35 +0100
+Message-Id: <20200310123612.459015874@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200310123606.543939933@linuxfoundation.org>
 References: <20200310123606.543939933@linuxfoundation.org>
@@ -43,43 +45,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Osipenko <digetx@gmail.com>
+From: Jason Baron <jbaron@akamai.com>
 
-[ Upstream commit c3331d2fe3fd4d5e321f2467d01f72de7edfb5d0 ]
+[ Upstream commit 8a9093c79863b58cc2f9874d7ae788f0d622a596 ]
 
-The PN544 driver checks the "enable" polarity during of driver's probe and
-it's doing that by turning ON and OFF NFC with different polarities until
-enabling succeeds. It takes some time for the hardware to power-down, and
-thus, to deassert the IRQ that is raised by turning ON the hardware.
-Since the delay after last power-down of the polarity-checking process is
-missed in the code, the interrupt may trigger immediately after installing
-the IRQ handler (right after the checking is done), which results in IRQ
-handler trying to touch the disabled HW and ends with marking NFC as
-'DEAD' during of the driver's probe:
+tc flower rules that are based on src or dst port blocking are sometimes
+ineffective due to uninitialized stack data. __skb_flow_dissect() extracts
+ports from the skb for tc flower to match against. However, the port
+dissection is not done when when the FLOW_DIS_IS_FRAGMENT bit is set in
+key_control->flags. All callers of __skb_flow_dissect(), zero-out the
+key_control field except for fl_classify() as used by the flower
+classifier. Thus, the FLOW_DIS_IS_FRAGMENT may be set on entry to
+__skb_flow_dissect(), since key_control is allocated on the stack
+and may not be initialized.
 
-  pn544_hci_i2c 1-002a: NFC: nfc_en polarity : active high
-  pn544_hci_i2c 1-002a: NFC: invalid len byte
-  shdlc: llc_shdlc_recv_frame: NULL Frame -> link is dead
+Since key_basic and key_control are present for all flow keys, let's
+make sure they are initialized.
 
-This patch fixes the occasional NFC initialization failure on Nexus 7
-device.
-
-Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
+Fixes: 62230715fd24 ("flow_dissector: do not dissect l4 ports for fragments")
+Co-developed-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Acked-by: Cong Wang <xiyou.wangcong@gmail.com>
+Signed-off-by: Jason Baron <jbaron@akamai.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/nfc/pn544/i2c.c |    1 +
- 1 file changed, 1 insertion(+)
+ include/net/flow_dissector.h |    9 +++++++++
+ net/sched/cls_flower.c       |    1 +
+ 2 files changed, 10 insertions(+)
 
---- a/drivers/nfc/pn544/i2c.c
-+++ b/drivers/nfc/pn544/i2c.c
-@@ -240,6 +240,7 @@ static void pn544_hci_i2c_platform_init(
+--- a/include/net/flow_dissector.h
++++ b/include/net/flow_dissector.h
+@@ -4,6 +4,7 @@
+ #include <linux/types.h>
+ #include <linux/in6.h>
+ #include <linux/siphash.h>
++#include <linux/string.h>
+ #include <uapi/linux/if_ether.h>
  
- out:
- 	gpio_set_value_cansleep(phy->gpio_en, !phy->en_polarity);
-+	usleep_range(10000, 15000);
+ /**
+@@ -204,4 +205,12 @@ static inline void *skb_flow_dissector_t
+ 	return ((char *)target_container) + flow_dissector->offset[key_id];
  }
  
- static void pn544_hci_i2c_enable_mode(struct pn544_i2c_phy *phy, int run_mode)
++static inline void
++flow_dissector_init_keys(struct flow_dissector_key_control *key_control,
++			 struct flow_dissector_key_basic *key_basic)
++{
++	memset(key_control, 0, sizeof(*key_control));
++	memset(key_basic, 0, sizeof(*key_basic));
++}
++
+ #endif
+--- a/net/sched/cls_flower.c
++++ b/net/sched/cls_flower.c
+@@ -141,6 +141,7 @@ static int fl_classify(struct sk_buff *s
+ 	if (!atomic_read(&head->ht.nelems))
+ 		return -1;
+ 
++	flow_dissector_init_keys(&skb_key.control, &skb_key.basic);
+ 	fl_clear_masked_range(&skb_key, &head->mask);
+ 
+ 	info = skb_tunnel_info(skb);
 
 
