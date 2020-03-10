@@ -2,140 +2,215 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D6E4117EFBC
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 05:43:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ED3A117EFF2
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 06:19:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725999AbgCJEnH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 00:43:07 -0400
-Received: from bilbo.ozlabs.org ([203.11.71.1]:37561 "EHLO ozlabs.org"
+        id S1726088AbgCJFT6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 01:19:58 -0400
+Received: from bilbo.ozlabs.org ([203.11.71.1]:43585 "EHLO ozlabs.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725947AbgCJEnH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 00:43:07 -0400
-Received: from authenticated.ozlabs.org (localhost [127.0.0.1])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange ECDHE (P-256) server-signature RSA-PSS (4096 bits) server-digest SHA256)
-        (No client certificate requested)
-        by mail.ozlabs.org (Postfix) with ESMTPSA id 48c2X95Y4Mz9sRN;
-        Tue, 10 Mar 2020 15:43:05 +1100 (AEDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=ellerman.id.au;
-        s=201909; t=1583815385;
-        bh=qmq9D3n5l8PTP5jQX3gS5CLZLQI/cN5JYYU8ZLTw0KY=;
-        h=From:To:Cc:Subject:In-Reply-To:References:Date:From;
-        b=qiWV7fjlfokz4bg3TOgqXz66gToyiFkA4G6dipx8hdOfUi+SPTdYLZKtpW2RNkQwc
-         UKa9huqSDkdLJPo26bUZvcmVJ+6McdiW0j1gZjHRHLcXEopx3JHFStQiQ4jd6FlryF
-         uVF1T3LEr4P5W8nqxzDeNK77TOCA3+zWEdpO//xDfHuRhQz9Q2+vB6H4dcX8GcqyyY
-         Wp/RgARZI0W0EfzhWY7RRgi9IT5e3Ra3eImJ15HhjgtBnmPWFKbc1H8FhbWvsUthq8
-         yMlWfIZQUgzlLbhRgXjEIzKWYZy3W64aKtInyGkOXLzBbGlJEVttAko/FMOPMa4nDH
-         MkUzzd3DZDssg==
-From:   Michael Ellerman <mpe@ellerman.id.au>
-To:     Sasha Levin <sashal@kernel.org>, gregkh@linuxfoundation.org
-Cc:     stefanb@linux.ibm.com, stable@vger.kernel.org
-Subject: Re: FAILED: patch "[PATCH] powerpc/mm: Fix missing KUAP disable in" failed to apply to 5.4-stable tree
-In-Reply-To: <20200310002432.GB24841@sasha-vm>
-References: <15837822939038@kroah.com> <20200310002432.GB24841@sasha-vm>
-Date:   Tue, 10 Mar 2020 15:43:05 +1100
-Message-ID: <878sk8keg6.fsf@mpe.ellerman.id.au>
+        id S1725999AbgCJFT6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 01:19:58 -0400
+Received: by ozlabs.org (Postfix, from userid 1007)
+        id 48c3Lg4hqCz9sRY; Tue, 10 Mar 2020 16:19:55 +1100 (AEDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+        d=gibson.dropbear.id.au; s=201602; t=1583817595;
+        bh=aN8E5yfBh5IMVaMorLM/md1F+PZSq6h0d7mwcFx6YlA=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=UN1oPECFxFl1Coib8FMtJIQ6eDaS6OZrjdNjEI/n2zR1zOSqPKfeEod2IXgjP9Sv3
+         C1ekGz1IK0GmqlXHBVtN+QW76Ek2Y20KqItgrqe10exHzaUf9a2LqG2/3wfYn+RAHt
+         rJqE75JCHj9gcyJakpswv7r0nD3R25Z2Z8e7OCLU=
+Date:   Tue, 10 Mar 2020 16:17:01 +1100
+From:   David Gibson <david@gibson.dropbear.id.au>
+To:     =?iso-8859-1?Q?C=E9dric?= Le Goater <clg@kaod.org>
+Cc:     Michael Ellerman <mpe@ellerman.id.au>, Greg Kurz <groug@kaod.org>,
+        linuxppc-dev@lists.ozlabs.org, stable@vger.kernel.org
+Subject: Re: [PATCH 1/4] powerpc/xive: Use XIVE_BAD_IRQ instead of zero to
+ catch non configured IPIs
+Message-ID: <20200310051701.GO660117@umbus.fritz.box>
+References: <20200306150143.5551-1-clg@kaod.org>
+ <20200306150143.5551-2-clg@kaod.org>
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="GPOl6LAGMgeiWDic"
+Content-Disposition: inline
+In-Reply-To: <20200306150143.5551-2-clg@kaod.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Sasha Levin <sashal@kernel.org> writes:
-> On Mon, Mar 09, 2020 at 08:31:33PM +0100, gregkh@linuxfoundation.org wrote:
->>
->>The patch below does not apply to the 5.4-stable tree.
->>If someone wants it applied there, or to any other stable or longterm
->>tree, then please email the backport, including the original git commit
->>id to <stable@vger.kernel.org>.
->>
->>thanks,
->>
->>greg k-h
->>
->>------------------ original commit in Linus's tree ------------------
->>
->>From 59bee45b9712c759ea4d3dcc4eff1752f3a66558 Mon Sep 17 00:00:00 2001
->>From: Michael Ellerman <mpe@ellerman.id.au>
->>Date: Tue, 3 Mar 2020 23:28:47 +1100
->>Subject: [PATCH] powerpc/mm: Fix missing KUAP disable in
->> flush_coherent_icache()
->>
->>Stefan reported a strange kernel fault which turned out to be due to a
->>missing KUAP disable in flush_coherent_icache() called from
->>flush_icache_range().
->>
->>The fault looks like:
->>
->>  Kernel attempted to access user page (7fffc30d9c00) - exploit attempt? (uid: 1009)
->>  BUG: Unable to handle kernel data access on read at 0x7fffc30d9c00
->>  Faulting instruction address: 0xc00000000007232c
->>  Oops: Kernel access of bad area, sig: 11 [#1]
->>  LE PAGE_SIZE=64K MMU=Radix SMP NR_CPUS=2048 NUMA PowerNV
->>  CPU: 35 PID: 5886 Comm: sigtramp Not tainted 5.6.0-rc2-gcc-8.2.0-00003-gfc37a1632d40 #79
->>  NIP:  c00000000007232c LR: c00000000003b7fc CTR: 0000000000000000
->>  REGS: c000001e11093940 TRAP: 0300   Not tainted  (5.6.0-rc2-gcc-8.2.0-00003-gfc37a1632d40)
->>  MSR:  900000000280b033 <SF,HV,VEC,VSX,EE,FP,ME,IR,DR,RI,LE>  CR: 28000884  XER: 00000000
->>  CFAR: c0000000000722fc DAR: 00007fffc30d9c00 DSISR: 08000000 IRQMASK: 0
->>  GPR00: c00000000003b7fc c000001e11093bd0 c0000000023ac200 00007fffc30d9c00
->>  GPR04: 00007fffc30d9c18 0000000000000000 c000001e11093bd4 0000000000000000
->>  GPR08: 0000000000000000 0000000000000001 0000000000000000 c000001e1104ed80
->>  GPR12: 0000000000000000 c000001fff6ab380 c0000000016be2d0 4000000000000000
->>  GPR16: c000000000000000 bfffffffffffffff 0000000000000000 0000000000000000
->>  GPR20: 00007fffc30d9c00 00007fffc30d8f58 00007fffc30d9c18 00007fffc30d9c20
->>  GPR24: 00007fffc30d9c18 0000000000000000 c000001e11093d90 c000001e1104ed80
->>  GPR28: c000001e11093e90 0000000000000000 c0000000023d9d18 00007fffc30d9c00
->>  NIP flush_icache_range+0x5c/0x80
->>  LR  handle_rt_signal64+0x95c/0xc2c
->>  Call Trace:
->>    0xc000001e11093d90 (unreliable)
->>    handle_rt_signal64+0x93c/0xc2c
->>    do_notify_resume+0x310/0x430
->>    ret_from_except_lite+0x70/0x74
->>  Instruction dump:
->>  409e002c 7c0802a6 3c62ff31 3863f6a0 f8010080 48195fed 60000000 48fe4c8d
->>  60000000 e8010080 7c0803a6 7c0004ac <7c00ffac> 7c0004ac 4c00012c 38210070
->>
->>This path through handle_rt_signal64() to setup_trampoline() and
->>flush_icache_range() is only triggered by 64-bit processes that have
->>unmapped their VDSO, which is rare.
->>
->>flush_icache_range() takes a range of addresses to flush. In
->>flush_coherent_icache() we implement an optimisation for CPUs where we
->>know we don't actually have to flush the whole range, we just need to
->>do a single icbi.
->>
->>However we still execute the icbi on the user address of the start of
->>the range we're flushing. On CPUs that also implement KUAP (Power9)
->>that leads to the spurious fault above.
->>
->>We should be able to pass any address, including a kernel address, to
->>the icbi on these CPUs, which would avoid any interaction with KUAP.
->>But I don't want to make that change in a bug fix, just in case it
->>surfaces some strange behaviour on some CPU.
->>
->>So for now just disable KUAP around the icbi. Note the icbi is treated
->>as a load, so we allow read access, not write as you'd expect.
->>
->>Fixes: 890274c2dc4c ("powerpc/64s: Implement KUAP for Radix MMU")
->>Cc: stable@vger.kernel.org # v5.2+
->>Reported-by: Stefan Berger <stefanb@linux.ibm.com>
->>Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
->>Link: https://lore.kernel.org/r/20200303235708.26004-1-mpe@ellerman.id.au
->
-> I think I've resolved this by also taking:
->
-> 23eb7f560a2a ("powerpc: Convert flush_icache_range & friends to C")
-> 7a0745c5e03f ("powerpc: define helpers to get L1 icache sizes")
 
-Yeah that's probably best.
+--GPOl6LAGMgeiWDic
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I started looking at doing a manual backport and it's non-trivial
-because the old version of flush_icache_range() was in asm and we don't
-have asm wrappers for the allow_read_from_user() etc. routines.
+On Fri, Mar 06, 2020 at 04:01:40PM +0100, C=E9dric Le Goater wrote:
+> When a CPU is brought up, an IPI number is allocated and recorded
+> under the XIVE CPU structure. Invalid IPI numbers are tracked with
+> interrupt number 0x0.
+>=20
+> On the PowerNV platform, the interrupt number space starts at 0x10 and
+> this works fine. However, on the sPAPR platform, it is possible to
+> allocate the interrupt number 0x0 and this raises an issue when CPU 0
+> is unplugged. The XIVE spapr driver tracks allocated interrupt numbers
+> in a bitmask and it is not correctly updated when interrupt number 0x0
+> is freed. It stays allocated and it is then impossible to reallocate.
+>=20
+> Fix by using the XIVE_BAD_IRQ value instead of zero on both platforms.
+>=20
+> Reported-by: David Gibson <david@gibson.dropbear.id.au>
+> Fixes: eac1e731b59e ("powerpc/xive: guest exploitation of the XIVE interr=
+upt controller")
+> Cc: stable@vger.kernel.org # v4.14+
+> Signed-off-by: C=E9dric Le Goater <clg@kaod.org>
 
-So we'd either need to write those asm wrappers or move the
-allow_read_from_user() etc. into all callers of flush_icache_range().
+Reviewed-by: David Gibson <david@gibson.dropbear.id.au>
+Tested-by: David Gibson <david@gibson.dropbear.id.au>
 
-cheers
+> ---
+>  arch/powerpc/sysdev/xive/xive-internal.h |  7 +++++++
+>  arch/powerpc/sysdev/xive/common.c        | 12 +++---------
+>  arch/powerpc/sysdev/xive/native.c        |  4 ++--
+>  arch/powerpc/sysdev/xive/spapr.c         |  4 ++--
+>  4 files changed, 14 insertions(+), 13 deletions(-)
+>=20
+> diff --git a/arch/powerpc/sysdev/xive/xive-internal.h b/arch/powerpc/sysd=
+ev/xive/xive-internal.h
+> index 59cd366e7933..382980f4de2d 100644
+> --- a/arch/powerpc/sysdev/xive/xive-internal.h
+> +++ b/arch/powerpc/sysdev/xive/xive-internal.h
+> @@ -5,6 +5,13 @@
+>  #ifndef __XIVE_INTERNAL_H
+>  #define __XIVE_INTERNAL_H
+> =20
+> +/*
+> + * A "disabled" interrupt should never fire, to catch problems
+> + * we set its logical number to this
+> + */
+> +#define XIVE_BAD_IRQ		0x7fffffff
+> +#define XIVE_MAX_IRQ		(XIVE_BAD_IRQ - 1)
+> +
+>  /* Each CPU carry one of these with various per-CPU state */
+>  struct xive_cpu {
+>  #ifdef CONFIG_SMP
+> diff --git a/arch/powerpc/sysdev/xive/common.c b/arch/powerpc/sysdev/xive=
+/common.c
+> index fa49193206b6..550baba98ec9 100644
+> --- a/arch/powerpc/sysdev/xive/common.c
+> +++ b/arch/powerpc/sysdev/xive/common.c
+> @@ -68,13 +68,6 @@ static u32 xive_ipi_irq;
+>  /* Xive state for each CPU */
+>  static DEFINE_PER_CPU(struct xive_cpu *, xive_cpu);
+> =20
+> -/*
+> - * A "disabled" interrupt should never fire, to catch problems
+> - * we set its logical number to this
+> - */
+> -#define XIVE_BAD_IRQ		0x7fffffff
+> -#define XIVE_MAX_IRQ		(XIVE_BAD_IRQ - 1)
+> -
+>  /* An invalid CPU target */
+>  #define XIVE_INVALID_TARGET	(-1)
+> =20
+> @@ -1153,7 +1146,7 @@ static int xive_setup_cpu_ipi(unsigned int cpu)
+>  	xc =3D per_cpu(xive_cpu, cpu);
+> =20
+>  	/* Check if we are already setup */
+> -	if (xc->hw_ipi !=3D 0)
+> +	if (xc->hw_ipi !=3D XIVE_BAD_IRQ)
+>  		return 0;
+> =20
+>  	/* Grab an IPI from the backend, this will populate xc->hw_ipi */
+> @@ -1190,7 +1183,7 @@ static void xive_cleanup_cpu_ipi(unsigned int cpu, =
+struct xive_cpu *xc)
+>  	/* Disable the IPI and free the IRQ data */
+> =20
+>  	/* Already cleaned up ? */
+> -	if (xc->hw_ipi =3D=3D 0)
+> +	if (xc->hw_ipi =3D=3D XIVE_BAD_IRQ)
+>  		return;
+> =20
+>  	/* Mask the IPI */
+> @@ -1346,6 +1339,7 @@ static int xive_prepare_cpu(unsigned int cpu)
+>  		if (np)
+>  			xc->chip_id =3D of_get_ibm_chip_id(np);
+>  		of_node_put(np);
+> +		xc->hw_ipi =3D XIVE_BAD_IRQ;
+> =20
+>  		per_cpu(xive_cpu, cpu) =3D xc;
+>  	}
+> diff --git a/arch/powerpc/sysdev/xive/native.c b/arch/powerpc/sysdev/xive=
+/native.c
+> index 0ff6b739052c..50e1a8e02497 100644
+> --- a/arch/powerpc/sysdev/xive/native.c
+> +++ b/arch/powerpc/sysdev/xive/native.c
+> @@ -312,7 +312,7 @@ static void xive_native_put_ipi(unsigned int cpu, str=
+uct xive_cpu *xc)
+>  	s64 rc;
+> =20
+>  	/* Free the IPI */
+> -	if (!xc->hw_ipi)
+> +	if (xc->hw_ipi =3D=3D XIVE_BAD_IRQ)
+>  		return;
+>  	for (;;) {
+>  		rc =3D opal_xive_free_irq(xc->hw_ipi);
+> @@ -320,7 +320,7 @@ static void xive_native_put_ipi(unsigned int cpu, str=
+uct xive_cpu *xc)
+>  			msleep(OPAL_BUSY_DELAY_MS);
+>  			continue;
+>  		}
+> -		xc->hw_ipi =3D 0;
+> +		xc->hw_ipi =3D XIVE_BAD_IRQ;
+>  		break;
+>  	}
+>  }
+> diff --git a/arch/powerpc/sysdev/xive/spapr.c b/arch/powerpc/sysdev/xive/=
+spapr.c
+> index 55dc61cb4867..3f15615712b5 100644
+> --- a/arch/powerpc/sysdev/xive/spapr.c
+> +++ b/arch/powerpc/sysdev/xive/spapr.c
+> @@ -560,11 +560,11 @@ static int xive_spapr_get_ipi(unsigned int cpu, str=
+uct xive_cpu *xc)
+> =20
+>  static void xive_spapr_put_ipi(unsigned int cpu, struct xive_cpu *xc)
+>  {
+> -	if (!xc->hw_ipi)
+> +	if (xc->hw_ipi =3D=3D XIVE_BAD_IRQ)
+>  		return;
+> =20
+>  	xive_irq_bitmap_free(xc->hw_ipi);
+> -	xc->hw_ipi =3D 0;
+> +	xc->hw_ipi =3D XIVE_BAD_IRQ;
+>  }
+>  #endif /* CONFIG_SMP */
+> =20
+
+--=20
+David Gibson			| I'll have my music baroque, and my code
+david AT gibson.dropbear.id.au	| minimalist, thank you.  NOT _the_ _other_
+				| _way_ _around_!
+http://www.ozlabs.org/~dgibson
+
+--GPOl6LAGMgeiWDic
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAEBCAAdFiEEdfRlhq5hpmzETofcbDjKyiDZs5IFAl5nIscACgkQbDjKyiDZ
+s5IfJg//TVb2COM4VBjygVw+JHH45auKanzXa4SQmbn+9pMhNqU7ngh85y6hfTh7
+tfNsmMNqpXYpp+zc0+2qSgCWaLBKegtQXRGCvfdbQqXSscRkwiaC7ywSX24yQ0v/
+YDP2SRbazQsB+Xjos0Mpj23xYqrlloGL6yvLtEPGXwNcu98bGODqAy61Ah5rQT7L
++Gn6raTwe6U2uaEpJz/qvTslBAZD12Ytqo5O3e46NCAzPAsxV65pOEoP0Feyev/i
+gx2MqSuUTgSmhiMPH7utf9ZLy3aMFIQUiL58QbjmLtSRdibIJNdxTGpvcWB/n+nq
+oIprQg4Zkr+PL8b80H/BQVZlm3RUlRtIqdAJxWY4rspu8gJgmI6QHvwPnoqfZWLk
+6w/Fbr9rTWgUq4SrIWI5wCy2CRMRrbnlzw93G8HFGkvmkVM8IAk8TlwY/c6+ZA53
+sp0w68ipPL2L99zZqLtvgxYX/v9rEqKkvc9hxPZ+FgnSV2nsHEXn6hqNk6jRoHFW
+GYacbVXUryjlhd9xyasi6RGwITfMF57WIYdD4kR7VUe+bLwHJRV/jiDT7oF1xwz8
+5ROulY4eVtuU+XxzeCG8e4ue1ItRUsv3ntWCaqEyg6Yp1zIr9KSZYFHcTJxXJcP5
+QGUpjFhc6epwY9NjshEwotEzVNGd20vy/V7qqJlIDwY2Ht3mMko=
+=nzVK
+-----END PGP SIGNATURE-----
+
+--GPOl6LAGMgeiWDic--
