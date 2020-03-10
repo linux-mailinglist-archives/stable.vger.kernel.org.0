@@ -2,128 +2,156 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EC84C17FDC7
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:31:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A98417FEE8
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:43:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728604AbgCJMud (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 08:50:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55262 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728368AbgCJMuc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 08:50:32 -0400
-Received: from paulmck-ThinkPad-P72.home (50-39-105-78.bvtn.or.frontiernet.net [50.39.105.78])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AA3A12468D;
-        Tue, 10 Mar 2020 12:50:31 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583844631;
-        bh=4nXPnykUsacARlS2dVosm+pERhdkOACkmujynfGKPDc=;
-        h=Date:From:To:Cc:Subject:Reply-To:References:In-Reply-To:From;
-        b=LxJaWEYOLamJTgK85rUm0S/gisC6gK1qb5rPeeF4ZttSvr+VX0xdaDonSnclURJVU
-         Oy2hFi/tprPB5V1gzSnp2yfjyegJUdbpT81qPOYJlhED/knyJfBTC/PU3PI7ZVMup4
-         dhN3oqm5xBXAa4kcjPbXcmCra5t10+x/VnV3oK6c=
-Received: by paulmck-ThinkPad-P72.home (Postfix, from userid 1000)
-        id 5558E35226CF; Tue, 10 Mar 2020 05:50:31 -0700 (PDT)
-Date:   Tue, 10 Mar 2020 05:50:31 -0700
-From:   "Paul E. McKenney" <paulmck@kernel.org>
-To:     David Laight <David.Laight@ACULAB.COM>
-Cc:     'Chris Wilson' <chris@chris-wilson.co.uk>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
+        id S1727664AbgCJNn2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 09:43:28 -0400
+Received: from mail-oln040092065090.outbound.protection.outlook.com ([40.92.65.90]:30183
+        "EHLO EUR01-HE1-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1727312AbgCJNn1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 09:43:27 -0400
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=bMN6w/Qr/aS+HIOfZPZ5/HS/kEaZhWvScWGYXuxjLY9WPXvIlNnaRl2RxRBJkYp9LsVyZ5h2jRsUwI6i7IoMvi1bRiafxWezUycxxBDBtBY2427+Q+cfBK2/yPcNAfBxaQ21trd3Kbc8KYnwkNAqXKEbj7oPV7FV4VIUku2HQmBh2eBs+xKzUjx9gc3utBJbDeU/+3eDCCujn9dD+6tzRiBfqUJyA74cP3nMCkqXDmIoQNLakQdgNdcuORh9N9rtkCOx4goGZzsm8/fIoLw4WkDh32o3whyYGtkXKEA2dpwRfp+BC/DaAYBHOylwXBB7McYM/VrsHGSWJln0JKbv4g==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=XTIzbf6Kcu4NlVyKdTF/2JwkVBkFSzRIiCGYzIWzx7U=;
+ b=h9QF3UhrzTj4e/81LMmX0Ji/eLV2aiCo+nL7CpLUd/qLUdR9H/fsmLHQZDBFIbmrWctZlBTOto4mqvLUwkCGkQ2xoD1TCjbMuiaaAFAhVc5/abY99YEfEMRYkUvOVgzrqfzhw3kYc9YKJXenNf2LiGvLgZJzKzDFHXg8YkubiPWzxXFH6EcmBBrDZiAx2gWnfkE1ta77q4HVQT5khORC9s1V9UpUkmhB/OQscEd8xuET45BLJKrLjh/fFUbFTTFS2a8x1ZsEujHao6kkZIxctxStZkXJx/R8riT1M99Ri6a36kPed5b6WzNXAW3+So0Qg+zZhSEMM8w5KmV0Q0GnfA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=hotmail.de; dmarc=pass action=none header.from=hotmail.de;
+ dkim=pass header.d=hotmail.de; arc=none
+Received: from HE1EUR01FT023.eop-EUR01.prod.protection.outlook.com
+ (2a01:111:e400:7e18::3a) by
+ HE1EUR01HT009.eop-EUR01.prod.protection.outlook.com (2a01:111:e400:7e18::488)
+ with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.2793.11; Tue, 10 Mar
+ 2020 13:43:23 +0000
+Received: from AM6PR03MB5170.eurprd03.prod.outlook.com (10.152.0.52) by
+ HE1EUR01FT023.mail.protection.outlook.com (10.152.0.162) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.2793.11 via Frontend Transport; Tue, 10 Mar 2020 13:43:23 +0000
+X-IncomingTopHeaderMarker: OriginalChecksum:BC32DD4A261A6B8205E6ADF6EAB85B37EC990743ABB9F94782C126A987649264;UpperCasedChecksum:35D01622DF07921CB9D4DB6EBAE8AA9A4EC44BD275AB2ADAEE31F947CB5AF6DD;SizeAsReceived:10306;Count:50
+Received: from AM6PR03MB5170.eurprd03.prod.outlook.com
+ ([fe80::1956:d274:cab3:b4dd]) by AM6PR03MB5170.eurprd03.prod.outlook.com
+ ([fe80::1956:d274:cab3:b4dd%6]) with mapi id 15.20.2793.013; Tue, 10 Mar 2020
+ 13:43:23 +0000
+From:   Bernd Edlinger <bernd.edlinger@hotmail.de>
+Subject: [PATCH 0/4] Use new infrastructure to fix deadlocks in execve
+To:     "Eric W. Biederman" <ebiederm@xmission.com>
+Cc:     Christian Brauner <christian.brauner@ubuntu.com>,
+        Kees Cook <keescook@chromium.org>,
+        Jann Horn <jannh@google.com>, Jonathan Corbet <corbet@lwn.net>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
         Andrew Morton <akpm@linux-foundation.org>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>, elver@google.com
-Subject: Re: [PATCH] list: Prevent compiler reloads inside 'safe' list
- iteration
-Message-ID: <20200310125031.GY2935@paulmck-ThinkPad-P72>
-Reply-To: paulmck@kernel.org
-References: <20200310092119.14965-1-chris@chris-wilson.co.uk>
- <2e936d8fd2c445beb08e6dd3ee1f3891@AcuMS.aculab.com>
- <158384100886.16414.15741589015363013386@build.alporthouse.com>
- <723d527a4ad349b78bf11d52eba97c0e@AcuMS.aculab.com>
+        Alexey Dobriyan <adobriyan@gmail.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Oleg Nesterov <oleg@redhat.com>,
+        Frederic Weisbecker <frederic@kernel.org>,
+        Andrei Vagin <avagin@gmail.com>,
+        Ingo Molnar <mingo@kernel.org>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Yuyang Du <duyuyang@gmail.com>,
+        David Hildenbrand <david@redhat.com>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Anshuman Khandual <anshuman.khandual@arm.com>,
+        David Howells <dhowells@redhat.com>,
+        James Morris <jamorris@linux.microsoft.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Shakeel Butt <shakeelb@google.com>,
+        Jason Gunthorpe <jgg@ziepe.ca>,
+        Christian Kellner <christian@kellner.me>,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        Aleksa Sarai <cyphar@cyphar.com>,
+        "Dmitry V. Levin" <ldv@altlinux.org>,
+        "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>,
+        "linux-mm@kvack.org" <linux-mm@kvack.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "linux-api@vger.kernel.org" <linux-api@vger.kernel.org>
+References: <AM6PR03MB5170EB4427BF5C67EE98FF09E4E60@AM6PR03MB5170.eurprd03.prod.outlook.com>
+ <87r1y8dqqz.fsf@x220.int.ebiederm.org>
+ <AM6PR03MB517053AED7DC89F7C0704B7DE4E50@AM6PR03MB5170.eurprd03.prod.outlook.com>
+ <AM6PR03MB51703B44170EAB4626C9B2CAE4E20@AM6PR03MB5170.eurprd03.prod.outlook.com>
+ <87tv32cxmf.fsf_-_@x220.int.ebiederm.org>
+ <87v9ne5y4y.fsf_-_@x220.int.ebiederm.org>
+ <87zhcq4jdj.fsf_-_@x220.int.ebiederm.org>
+ <AM6PR03MB5170BC58D90BAD80CDEF3F8BE4FE0@AM6PR03MB5170.eurprd03.prod.outlook.com>
+ <878sk94eay.fsf@x220.int.ebiederm.org>
+ <AM6PR03MB517086003BD2C32E199690A3E4FE0@AM6PR03MB5170.eurprd03.prod.outlook.com>
+ <87r1y12yc7.fsf@x220.int.ebiederm.org> <87k13t2xpd.fsf@x220.int.ebiederm.org>
+ <87d09l2x5n.fsf@x220.int.ebiederm.org>
+ <AM6PR03MB5170F0F9DC18F5EA77C9A857E4FE0@AM6PR03MB5170.eurprd03.prod.outlook.com>
+ <871rq12vxu.fsf@x220.int.ebiederm.org>
+ <AM6PR03MB5170DF45E3245F55B95CCD91E4FE0@AM6PR03MB5170.eurprd03.prod.outlook.com>
+ <877dzt1fnf.fsf@x220.int.ebiederm.org>
+Message-ID: <AM6PR03MB51701C6F60699F99C5C67E0BE4FF0@AM6PR03MB5170.eurprd03.prod.outlook.com>
+Date:   Tue, 10 Mar 2020 14:43:21 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.6.1
+In-Reply-To: <877dzt1fnf.fsf@x220.int.ebiederm.org>
+Content-Type: text/plain; charset=windows-1252
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: AM0PR06CA0101.eurprd06.prod.outlook.com
+ (2603:10a6:208:fa::42) To AM6PR03MB5170.eurprd03.prod.outlook.com
+ (2603:10a6:20b:ca::23)
+X-Microsoft-Original-Message-ID: <c7315cf7-713e-5b1d-38f7-20f77d3babea@hotmail.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <723d527a4ad349b78bf11d52eba97c0e@AcuMS.aculab.com>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+X-MS-Exchange-MessageSentRepresentingType: 1
+Received: from [192.168.1.101] (92.77.140.102) by AM0PR06CA0101.eurprd06.prod.outlook.com (2603:10a6:208:fa::42) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.2793.16 via Frontend Transport; Tue, 10 Mar 2020 13:43:21 +0000
+X-Microsoft-Original-Message-ID: <c7315cf7-713e-5b1d-38f7-20f77d3babea@hotmail.de>
+X-TMN:  [brG/2mTCvyYYudno6HDU6fhBD8F14Y7+]
+X-MS-PublicTrafficType: Email
+X-IncomingHeaderCount: 50
+X-EOPAttributedMessage: 0
+X-MS-Office365-Filtering-Correlation-Id: 10d9e532-7fd0-4b56-d300-08d7c4f9006b
+X-MS-TrafficTypeDiagnostic: HE1EUR01HT009:
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: KpfFSpSqKmus4lGNhEHdz7J7tlMiA/tSubeDZRFzX52cevNYsjMTr1uWuT8AbioUTZkwNOO4/GJPHzZYVcI2TAl5cWNaqLHSfnwgIxMORe7Svl1uJd8HFmgKr7IiZpbiHIpUQQ4tbkU8BhwpTwFq7DUi1rgPN1CR9ESMpMMRhORTn7MGYLayQTTXqv1C0zdz
+X-MS-Exchange-AntiSpam-MessageData: HovD+oKudL+zDQeiwb8n73p9ytIxhfk+yzOEkn0mybXKdEQbxNrH6ctVE3knvAgLYmSqR2tvFNxsbDWZrrPu+frQIKPfS3UDRTETi4Nfq1EApXmHeGw5lZX1aV5oM0cXbi2AlwRkL41XCTZrRjAMjg==
+X-OriginatorOrg: outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 10d9e532-7fd0-4b56-d300-08d7c4f9006b
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 10 Mar 2020 13:43:23.3299
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 84df9e7f-e9f6-40af-b435-aaaaaaaaaaaa
+X-MS-Exchange-CrossTenant-FromEntityHeader: Internet
+X-MS-Exchange-CrossTenant-RMS-PersistedConsumerOrg: 00000000-0000-0000-0000-000000000000
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: HE1EUR01HT009
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Mar 10, 2020 at 12:23:34PM +0000, David Laight wrote:
-> From: Chris Wilson
-> > Sent: 10 March 2020 11:50
-> > 
-> > Quoting David Laight (2020-03-10 11:36:41)
-> > > From: Chris Wilson
-> > > > Sent: 10 March 2020 09:21
-> > > > Instruct the compiler to read the next element in the list iteration
-> > > > once, and that it is not allowed to reload the value from the stale
-> > > > element later. This is important as during the course of the safe
-> > > > iteration, the stale element may be poisoned (unbeknownst to the
-> > > > compiler).
-> > >
-> > > Eh?
-> > > I thought any function call will stop the compiler being allowed
-> > > to reload the value.
-> > > The 'safe' loop iterators are only 'safe' against called
-> > > code removing the current item from the list.
-> > >
-> > > > This helps prevent kcsan warnings over 'unsafe' conduct in releasing the
-> > > > list elements during list_for_each_entry_safe() and friends.
-> > >
-> > > Sounds like kcsan is buggy ????
+This is a follow up on Eric's patch series to
+fix the deadlocks observed with ptracing when execve
+in multi-threaded applications.
 
-Adding Marco on CC for his thoughts.
+This fixes the simple and most important case where
+the cred_guard_mutex causes strace to deadlock.
 
-> > The warning kcsan gave made sense (a strange case where the emptying the
-> > list from inside the safe iterator would allow that list to be taken
-> > under a global mutex and have one extra request added to it. The
-> > list_for_each_entry_safe() should be ok in this scenario, so long as the
-> > next element is read before this element is dropped, and the compiler is
-> > instructed not to reload the element.
-> 
-> Normally the loop iteration code has to hold the mutex.
-> I guess it can be released inside the loop provided no other
-> code can ever delete entries.
-> 
-> > kcsan is a little more insistent on having that annotation :)
-> > 
-> > In this instance I would say it was a false positive from kcsan, but I
-> > can see why it would complain and suspect that given a sufficiently
-> > aggressive compiler, we may be caught out by a late reload of the next
-> > element.
-> 
-> If you have:
-> 	for (; p; p = next) {
-> 		next = p->next;
-> 		external_function_call(void);
-> 	}
-> the compiler must assume that the function call
-> can change 'p->next' and read it before the call.
+This also adds a test case (which is only partially
+fixed so far, the rest of the fixes will follow
+soon).
 
-That "must assume" is a statement of current compiler technology.
-Given the progress over the past forty years, I would not expect this
-restriction to hold forever.  Yes, we can and probably will get the
-compiler implementers to give us command-line flags to suppress global
-analysis.  But given the progress in compilers that I have seen over
-the past 4+ decades, I would expect that the day will come when we won't
-want to be using those command-line flags.
+Two trivial comment fixes are also included.
 
-But if you want to ignore KCSAN's warnings, you are free to do so.
+Bernd Edlinger (4):
+  exec: Fix a deadlock in ptrace
+  selftests/ptrace: add test cases for dead-locks
+  mm: docs: Fix a comment in process_vm_rw_core
+  kernel: doc: remove outdated comment in prepare_kernel_cred
 
-> Is this a list with strange locking rules?
-> The only deletes are from within the loop.
-> Adds and deletes are locked.
-> The list traversal isn't locked.
-> 
-> I suspect kcsan bleats because it doesn't assume the compiler
-> will use a single instruction/memory operation to read p->next.
-> That is just stupid.
+ kernel/cred.c                             |  2 -
+ kernel/fork.c                             |  4 +-
+ mm/process_vm_access.c                    |  2 +-
+ tools/testing/selftests/ptrace/Makefile   |  4 +-
+ tools/testing/selftests/ptrace/vmaccess.c | 86 +++++++++++++++++++++++++++++++
+ 5 files changed, 91 insertions(+), 7 deletions(-)
+ create mode 100644 tools/testing/selftests/ptrace/vmaccess.c
 
-Heh!  If I am still around, I will ask you for your evaluation of the
-above statement in 40 years.  Actually, 10 years will likely suffice.  ;-)
-
-							Thanx, Paul
+-- 
+1.9.1
