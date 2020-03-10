@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D879317F9BA
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 13:59:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 56A2017F8D1
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 13:51:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726756AbgCJM7b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 08:59:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40008 "EHLO mail.kernel.org"
+        id S1728337AbgCJMvU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 08:51:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56418 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726841AbgCJM7a (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 08:59:30 -0400
+        id S1728876AbgCJMvT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 08:51:19 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ACF85246A1;
-        Tue, 10 Mar 2020 12:59:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AE13C2468E;
+        Tue, 10 Mar 2020 12:51:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583845170;
-        bh=sY5bfK+8ITb+dpGrs5Z9/t0hnwNG9E2OWdcwrAl2K48=;
+        s=default; t=1583844679;
+        bh=ZYVkyMqGgYhlO0BtJ+tooypGJCOKVDmmHomUeIHmEeM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BUaHJCKH0SHMZJLpz+LlWDmJE95u1gCsQPxfWc/xrQmIDFTWtYJVYHvyaoAM1ZOHL
-         NQ0Dy0aWhnK7ykUd8gsaYG0NVy82SF+eUyvjX7mLWj2GofWMIlws/FCjHcFKk0Ifgt
-         WhAuhacn/h9+zIlT3qD3TW0ZyRcmAV23RFjw2wmk=
+        b=shFgYCOdhGau/PygsCNjPOM6II+peN8OUG4FNKQnWPvejVs8RtcGcfrxi34qr84B8
+         Bs9OFKW27Mqs2iR7kaAxzcumJDnPVv0NIJH2koAbi+D2choB6hdwqE3m5e49diJW4T
+         OLiS8Lc2tr1j7NKxscBPYCHLdoS3o7HV05CV2xf0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, tangbin <tangbin@cmss.chinamobile.com>,
-        Jiri Slaby <jslaby@suse.cz>
-Subject: [PATCH 5.5 088/189] tty:serial:mvebu-uart:fix a wrong return
-Date:   Tue, 10 Mar 2020 13:38:45 +0100
-Message-Id: <20200310123648.596582094@linuxfoundation.org>
+        stable@vger.kernel.org, Ley Foon Tan <ley.foon.tan@intel.com>,
+        Dinh Nguyen <dinguyen@kernel.org>
+Subject: [PATCH 5.4 080/168] arm64: dts: socfpga: agilex: Fix gmac compatible
+Date:   Tue, 10 Mar 2020 13:38:46 +0100
+Message-Id: <20200310123643.391916006@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200310123639.608886314@linuxfoundation.org>
-References: <20200310123639.608886314@linuxfoundation.org>
+In-Reply-To: <20200310123635.322799692@linuxfoundation.org>
+References: <20200310123635.322799692@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,34 +43,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: tangbin <tangbin@cmss.chinamobile.com>
+From: Ley Foon Tan <ley.foon.tan@intel.com>
 
-commit 4a3e208474204e879d22a310b244cb2f39e5b1f8 upstream.
+commit 8c867387160e89c9ffd12459f38e56844312a7a7 upstream.
 
-in this place, the function should return a
-negative value and the PTR_ERR already returns
-a negative,so return -PTR_ERR() is wrong.
+Fix gmac compatible string to "altr,socfpga-stmmac-a10-s10". Gmac for
+Agilex should use same compatible as Stratix 10.
 
-Signed-off-by: tangbin <tangbin@cmss.chinamobile.com>
-Cc: stable <stable@vger.kernel.org>
-Acked-by: Jiri Slaby <jslaby@suse.cz>
-Link: https://lore.kernel.org/r/20200305013823.20976-1-tangbin@cmss.chinamobile.com
+Fixes: 4b36daf9ada3 ("arm64: dts: agilex: Add initial support for Intel's Agilex SoCFPGA")
+Cc: stable@vger.kernel.org
+Signed-off-by: Ley Foon Tan <ley.foon.tan@intel.com>
+Signed-off-by: Dinh Nguyen <dinguyen@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/tty/serial/mvebu-uart.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm64/boot/dts/intel/socfpga_agilex.dtsi |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/tty/serial/mvebu-uart.c
-+++ b/drivers/tty/serial/mvebu-uart.c
-@@ -851,7 +851,7 @@ static int mvebu_uart_probe(struct platf
+--- a/arch/arm64/boot/dts/intel/socfpga_agilex.dtsi
++++ b/arch/arm64/boot/dts/intel/socfpga_agilex.dtsi
+@@ -82,7 +82,7 @@
+ 		ranges = <0 0 0 0xffffffff>;
  
- 	port->membase = devm_ioremap_resource(&pdev->dev, reg);
- 	if (IS_ERR(port->membase))
--		return -PTR_ERR(port->membase);
-+		return PTR_ERR(port->membase);
+ 		gmac0: ethernet@ff800000 {
+-			compatible = "altr,socfpga-stmmac", "snps,dwmac-3.74a", "snps,dwmac";
++			compatible = "altr,socfpga-stmmac-a10-s10", "snps,dwmac-3.74a", "snps,dwmac";
+ 			reg = <0xff800000 0x2000>;
+ 			interrupts = <0 90 4>;
+ 			interrupt-names = "macirq";
+@@ -97,7 +97,7 @@
+ 		};
  
- 	mvuart = devm_kzalloc(&pdev->dev, sizeof(struct mvebu_uart),
- 			      GFP_KERNEL);
+ 		gmac1: ethernet@ff802000 {
+-			compatible = "altr,socfpga-stmmac", "snps,dwmac-3.74a", "snps,dwmac";
++			compatible = "altr,socfpga-stmmac-a10-s10", "snps,dwmac-3.74a", "snps,dwmac";
+ 			reg = <0xff802000 0x2000>;
+ 			interrupts = <0 91 4>;
+ 			interrupt-names = "macirq";
+@@ -112,7 +112,7 @@
+ 		};
+ 
+ 		gmac2: ethernet@ff804000 {
+-			compatible = "altr,socfpga-stmmac", "snps,dwmac-3.74a", "snps,dwmac";
++			compatible = "altr,socfpga-stmmac-a10-s10", "snps,dwmac-3.74a", "snps,dwmac";
+ 			reg = <0xff804000 0x2000>;
+ 			interrupts = <0 92 4>;
+ 			interrupt-names = "macirq";
 
 
