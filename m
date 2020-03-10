@@ -2,41 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5048917F7B2
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 13:41:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 591D517F8FA
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 13:52:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726986AbgCJMlc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 08:41:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41112 "EHLO mail.kernel.org"
+        id S1729098AbgCJMwz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 08:52:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58664 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726977AbgCJMlc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 08:41:32 -0400
+        id S1729094AbgCJMwx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 08:52:53 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 12CEF24691;
-        Tue, 10 Mar 2020 12:41:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DB90E24692;
+        Tue, 10 Mar 2020 12:52:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583844091;
-        bh=lH07DyGfCpn7Umrw/EPCa6h0VuEhaCMiaDb8h6et0cI=;
+        s=default; t=1583844773;
+        bh=57BNidfkCgyHGp2V2pvqDx8ODcuDKUnpR4jy10Hregk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wBwn9OFPyBs6B9hZQNcxyKvYkihzXqFAObiGESqF3o1/57u6A94hk4sLVMLnEPCdG
-         Q3wT4fs9bAcwsSCK2csb+fuJU7r4JvsWsOAHgDY7OTDY6cLBd3YNPFBwnZLoNaAC9u
-         VL2MMoMNcCv/DeV55p5sSL2DOYkc/CDA5kGOq1fo=
+        b=iQPBBGYcO1mx8BYggxwX2S2DP9ya7ZGE61VCgQVJVmLXQ0F4QDJ2bKEICcIGaMfiB
+         EFyfmbafkV88dhYuBcF5La8AEOS2uUr34OWUZe+mjpkgDG33b50Aq9sFkYFIqilSpO
+         2QSNHw/no2v8OWamXSFjiSIRJkHzL+ZZN7uBK/y0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christophe Leroy <christophe.leroy@c-s.fr>,
-        Richard Guy Briggs <rgb@redhat.com>,
-        "Erhard F." <erhard_f@mailbox.org>,
-        Nikolay Aleksandrov <nikolay@cumulusnetworks.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.4 28/72] net: netlink: cap max groups which will be considered in netlink_bind()
+        stable@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>,
+        Rafael Aquini <aquini@redhat.com>,
+        Mel Gorman <mgorman@techsingularity.net>,
+        Zi Yan <zi.yan@cs.rutgers.edu>,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        Michal Hocko <mhocko@suse.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.4 075/168] mm, numa: fix bad pmd by atomically check for pmd_trans_huge when marking page tables prot_numa
 Date:   Tue, 10 Mar 2020 13:38:41 +0100
-Message-Id: <20200310123608.604232620@linuxfoundation.org>
+Message-Id: <20200310123642.883309155@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200310123601.053680753@linuxfoundation.org>
-References: <20200310123601.053680753@linuxfoundation.org>
+In-Reply-To: <20200310123635.322799692@linuxfoundation.org>
+References: <20200310123635.322799692@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,53 +49,134 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+From: Mel Gorman <mgorman@techsingularity.net>
 
-commit 3a20773beeeeadec41477a5ba872175b778ff752 upstream.
+commit 8b272b3cbbb50a6a8e62d8a15affd473a788e184 upstream.
 
-Since nl_groups is a u32 we can't bind more groups via ->bind
-(netlink_bind) call, but netlink has supported more groups via
-setsockopt() for a long time and thus nlk->ngroups could be over 32.
-Recently I added support for per-vlan notifications and increased the
-groups to 33 for NETLINK_ROUTE which exposed an old bug in the
-netlink_bind() code causing out-of-bounds access on archs where unsigned
-long is 32 bits via test_bit() on a local variable. Fix this by capping the
-maximum groups in netlink_bind() to BITS_PER_TYPE(u32), effectively
-capping them at 32 which is the minimum of allocated groups and the
-maximum groups which can be bound via netlink_bind().
+: A user reported a bug against a distribution kernel while running a
+: proprietary workload described as "memory intensive that is not swapping"
+: that is expected to apply to mainline kernels.  The workload is
+: read/write/modifying ranges of memory and checking the contents.  They
+: reported that within a few hours that a bad PMD would be reported followed
+: by a memory corruption where expected data was all zeros.  A partial
+: report of the bad PMD looked like
+:
+:   [ 5195.338482] ../mm/pgtable-generic.c:33: bad pmd ffff8888157ba008(000002e0396009e2)
+:   [ 5195.341184] ------------[ cut here ]------------
+:   [ 5195.356880] kernel BUG at ../mm/pgtable-generic.c:35!
+:   ....
+:   [ 5195.410033] Call Trace:
+:   [ 5195.410471]  [<ffffffff811bc75d>] change_protection_range+0x7dd/0x930
+:   [ 5195.410716]  [<ffffffff811d4be8>] change_prot_numa+0x18/0x30
+:   [ 5195.410918]  [<ffffffff810adefe>] task_numa_work+0x1fe/0x310
+:   [ 5195.411200]  [<ffffffff81098322>] task_work_run+0x72/0x90
+:   [ 5195.411246]  [<ffffffff81077139>] exit_to_usermode_loop+0x91/0xc2
+:   [ 5195.411494]  [<ffffffff81003a51>] prepare_exit_to_usermode+0x31/0x40
+:   [ 5195.411739]  [<ffffffff815e56af>] retint_user+0x8/0x10
+:
+: Decoding revealed that the PMD was a valid prot_numa PMD and the bad PMD
+: was a false detection.  The bug does not trigger if automatic NUMA
+: balancing or transparent huge pages is disabled.
+:
+: The bug is due a race in change_pmd_range between a pmd_trans_huge and
+: pmd_nond_or_clear_bad check without any locks held.  During the
+: pmd_trans_huge check, a parallel protection update under lock can have
+: cleared the PMD and filled it with a prot_numa entry between the transhuge
+: check and the pmd_none_or_clear_bad check.
+:
+: While this could be fixed with heavy locking, it's only necessary to make
+: a copy of the PMD on the stack during change_pmd_range and avoid races.  A
+: new helper is created for this as the check if quite subtle and the
+: existing similar helpful is not suitable.  This passed 154 hours of
+: testing (usually triggers between 20 minutes and 24 hours) without
+: detecting bad PMDs or corruption.  A basic test of an autonuma-intensive
+: workload showed no significant change in behaviour.
 
-CC: Christophe Leroy <christophe.leroy@c-s.fr>
-CC: Richard Guy Briggs <rgb@redhat.com>
-Fixes: 4f520900522f ("netlink: have netlink per-protocol bind function return an error code.")
-Reported-by: Erhard F. <erhard_f@mailbox.org>
-Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Although Mel withdrew the patch on the face of LKML comment
+https://lkml.org/lkml/2017/4/10/922 the race window aforementioned is
+still open, and we have reports of Linpack test reporting bad residuals
+after the bad PMD warning is observed.  In addition to that, bad
+rss-counter and non-zero pgtables assertions are triggered on mm teardown
+for the task hitting the bad PMD.
+
+ host kernel: mm/pgtable-generic.c:40: bad pmd 00000000b3152f68(8000000d2d2008e7)
+ ....
+ host kernel: BUG: Bad rss-counter state mm:00000000b583043d idx:1 val:512
+ host kernel: BUG: non-zero pgtables_bytes on freeing mm: 4096
+
+The issue is observed on a v4.18-based distribution kernel, but the race
+window is expected to be applicable to mainline kernels, as well.
+
+[akpm@linux-foundation.org: fix comment typo, per Rafael]
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Rafael Aquini <aquini@redhat.com>
+Signed-off-by: Mel Gorman <mgorman@techsingularity.net>
+Cc: <stable@vger.kernel.org>
+Cc: Zi Yan <zi.yan@cs.rutgers.edu>
+Cc: "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>
+Cc: Vlastimil Babka <vbabka@suse.cz>
+Cc: Michal Hocko <mhocko@suse.com>
+Link: http://lkml.kernel.org/r/20200216191800.22423-1-aquini@redhat.com
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/netlink/af_netlink.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ mm/mprotect.c |   38 ++++++++++++++++++++++++++++++++++++--
+ 1 file changed, 36 insertions(+), 2 deletions(-)
 
---- a/net/netlink/af_netlink.c
-+++ b/net/netlink/af_netlink.c
-@@ -1003,7 +1003,8 @@ static int netlink_bind(struct socket *s
- 	if (nlk->netlink_bind && groups) {
- 		int group;
+--- a/mm/mprotect.c
++++ b/mm/mprotect.c
+@@ -161,6 +161,31 @@ static unsigned long change_pte_range(st
+ 	return pages;
+ }
  
--		for (group = 0; group < nlk->ngroups; group++) {
-+		/* nl_groups is a u32, so cap the maximum groups we can bind */
-+		for (group = 0; group < BITS_PER_TYPE(u32); group++) {
- 			if (!test_bit(group, &groups))
- 				continue;
- 			err = nlk->netlink_bind(net, group + 1);
-@@ -1022,7 +1023,7 @@ static int netlink_bind(struct socket *s
- 			netlink_insert(sk, nladdr->nl_pid) :
- 			netlink_autobind(sock);
- 		if (err) {
--			netlink_undo_bind(nlk->ngroups, groups, sk);
-+			netlink_undo_bind(BITS_PER_TYPE(u32), groups, sk);
- 			return err;
- 		}
- 	}
++/*
++ * Used when setting automatic NUMA hinting protection where it is
++ * critical that a numa hinting PMD is not confused with a bad PMD.
++ */
++static inline int pmd_none_or_clear_bad_unless_trans_huge(pmd_t *pmd)
++{
++	pmd_t pmdval = pmd_read_atomic(pmd);
++
++	/* See pmd_none_or_trans_huge_or_clear_bad for info on barrier */
++#ifdef CONFIG_TRANSPARENT_HUGEPAGE
++	barrier();
++#endif
++
++	if (pmd_none(pmdval))
++		return 1;
++	if (pmd_trans_huge(pmdval))
++		return 0;
++	if (unlikely(pmd_bad(pmdval))) {
++		pmd_clear_bad(pmd);
++		return 1;
++	}
++
++	return 0;
++}
++
+ static inline unsigned long change_pmd_range(struct vm_area_struct *vma,
+ 		pud_t *pud, unsigned long addr, unsigned long end,
+ 		pgprot_t newprot, int dirty_accountable, int prot_numa)
+@@ -178,8 +203,17 @@ static inline unsigned long change_pmd_r
+ 		unsigned long this_pages;
+ 
+ 		next = pmd_addr_end(addr, end);
+-		if (!is_swap_pmd(*pmd) && !pmd_trans_huge(*pmd) && !pmd_devmap(*pmd)
+-				&& pmd_none_or_clear_bad(pmd))
++
++		/*
++		 * Automatic NUMA balancing walks the tables with mmap_sem
++		 * held for read. It's possible a parallel update to occur
++		 * between pmd_trans_huge() and a pmd_none_or_clear_bad()
++		 * check leading to a false positive and clearing.
++		 * Hence, it's necessary to atomically read the PMD value
++		 * for all the checks.
++		 */
++		if (!is_swap_pmd(*pmd) && !pmd_devmap(*pmd) &&
++		     pmd_none_or_clear_bad_unless_trans_huge(pmd))
+ 			goto next;
+ 
+ 		/* invoke the mmu notifier if the pmd is populated */
 
 
