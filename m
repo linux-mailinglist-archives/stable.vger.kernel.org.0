@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F3E0017FBA2
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:15:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0366D17FB9F
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:15:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730661AbgCJNO4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 09:14:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39052 "EHLO mail.kernel.org"
+        id S1728182AbgCJNPB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 09:15:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39212 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731938AbgCJNOx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 09:14:53 -0400
+        id S1731956AbgCJNO6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 09:14:58 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 823CD2467D;
-        Tue, 10 Mar 2020 13:14:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B6A47208E4;
+        Tue, 10 Mar 2020 13:14:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583846093;
-        bh=LOH85/x3D4YpyOFgIuC3ZBsEchD+aCjhnBXoY9/o9eM=;
+        s=default; t=1583846098;
+        bh=u5+Vg2yfAlzpgILsxMkOEolNoK2PS64jZe6xICgGDfI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0avQhl6GkJaqRx3muiZdJfzqlT+QeRfhZDsQ6JDeg3FQNSfb+ZQv1ovDMz0BjxUvI
-         E+uOjW7eXnNd9rHSP6MFN8zlUjtUPNluKvhfMnlJY2lXl7a5SIdt5zUjrn6zOzCrNf
-         kmU1FG0Rh/6jE64A+mol6Y2OO7L+ih9iAJKIP+KI=
+        b=SLrJJPese5Ry0URLKJ/xF/gkFwoHVJ2nXQuA5QVMVziqFiSt+4r8prwWqrIIEd5Z6
+         T5KPSeaOB2wTUw7Vjzg3L19I1avqsX7ICLHB1S0BDaKs579rZxgVgDszJKgnsEpcTk
+         gFm/L1fbUg5lcmdC1ajjoC85aOIiJpnPgI5WgPS0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Heinz Mauelshagen <heinzm@redhat.com>,
-        Mikulas Patocka <mpatocka@redhat.com>,
-        Mike Snitzer <snitzer@redhat.com>
-Subject: [PATCH 4.19 85/86] dm integrity: fix a deadlock due to offloading to an incorrect workqueue
-Date:   Tue, 10 Mar 2020 13:45:49 +0100
-Message-Id: <20200310124535.461145996@linuxfoundation.org>
+        stable@vger.kernel.org, Deepak Ukey <deepak.ukey@microchip.com>,
+        Viswas G <Viswas.G@microchip.com>,
+        Jack Wang <jinpu.wang@cloud.ionos.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 4.19 86/86] scsi: pm80xx: Fixed kernel panic during error recovery for SATA drive
+Date:   Tue, 10 Mar 2020 13:45:50 +0100
+Message-Id: <20200310124535.513334751@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200310124530.808338541@linuxfoundation.org>
 References: <20200310124530.808338541@linuxfoundation.org>
@@ -44,95 +45,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mikulas Patocka <mpatocka@redhat.com>
+From: Deepak Ukey <deepak.ukey@microchip.com>
 
-commit 53770f0ec5fd417429775ba006bc4abe14002335 upstream.
+commit 196ba6629cf95e51403337235d09742fcdc3febd upstream.
 
-If we need to perform synchronous I/O in dm_integrity_map_continue(),
-we must make sure that we are not in the map function - in order to
-avoid the deadlock due to bio queuing in generic_make_request. To
-avoid the deadlock, we offload the request to metadata_wq.
+Disabling the SATA drive interface cause kernel panic. When the drive
+Interface is disabled, device should be deregistered after aborting all
+pending I/Os. Also changed the port recovery timeout to 10000 ms for
+PM8006 controller.
 
-However, metadata_wq also processes metadata updates for write requests.
-If there are too many requests that get offloaded to metadata_wq at the
-beginning of dm_integrity_map_continue, the workqueue metadata_wq
-becomes clogged and the system is incapable of processing any metadata
-updates.
-
-This causes a deadlock because all the requests that need to do metadata
-updates wait for metadata_wq to proceed and metadata_wq waits inside
-wait_and_add_new_range until some existing request releases its range
-lock (which doesn't happen because the range lock is released after
-metadata update).
-
-In order to fix the deadlock, we create a new workqueue offload_wq and
-offload requests to it - so that processing of offload_wq is independent
-from processing of metadata_wq.
-
-Fixes: 7eada909bfd7 ("dm: add integrity target")
-Cc: stable@vger.kernel.org # v4.12+
-Reported-by: Heinz Mauelshagen <heinzm@redhat.com>
-Tested-by: Heinz Mauelshagen <heinzm@redhat.com>
-Signed-off-by: Heinz Mauelshagen <heinzm@redhat.com>
-Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+Signed-off-by: Deepak Ukey <deepak.ukey@microchip.com>
+Signed-off-by: Viswas G <Viswas.G@microchip.com>
+Reviewed-by: Jack Wang <jinpu.wang@cloud.ionos.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/md/dm-integrity.c |   15 +++++++++++++--
- 1 file changed, 13 insertions(+), 2 deletions(-)
+ drivers/scsi/pm8001/pm8001_sas.c |    6 +++++-
+ drivers/scsi/pm8001/pm80xx_hwi.c |    2 +-
+ drivers/scsi/pm8001/pm80xx_hwi.h |    2 ++
+ 3 files changed, 8 insertions(+), 2 deletions(-)
 
---- a/drivers/md/dm-integrity.c
-+++ b/drivers/md/dm-integrity.c
-@@ -198,6 +198,7 @@ struct dm_integrity_c {
- 	struct list_head wait_list;
- 	wait_queue_head_t endio_wait;
- 	struct workqueue_struct *wait_wq;
-+	struct workqueue_struct *offload_wq;
- 
- 	unsigned char commit_seq;
- 	commit_id_t commit_ids[N_COMMIT_IDS];
-@@ -1237,7 +1238,7 @@ static void dec_in_flight(struct dm_inte
- 			dio->range.logical_sector += dio->range.n_sectors;
- 			bio_advance(bio, dio->range.n_sectors << SECTOR_SHIFT);
- 			INIT_WORK(&dio->work, integrity_bio_wait);
--			queue_work(ic->wait_wq, &dio->work);
-+			queue_work(ic->offload_wq, &dio->work);
- 			return;
+--- a/drivers/scsi/pm8001/pm8001_sas.c
++++ b/drivers/scsi/pm8001/pm8001_sas.c
+@@ -866,6 +866,8 @@ static void pm8001_dev_gone_notify(struc
+ 			spin_unlock_irqrestore(&pm8001_ha->lock, flags);
+ 			pm8001_exec_internal_task_abort(pm8001_ha, pm8001_dev ,
+ 				dev, 1, 0);
++			while (pm8001_dev->running_req)
++				msleep(20);
+ 			spin_lock_irqsave(&pm8001_ha->lock, flags);
  		}
- 		do_endio_flush(ic, dio);
-@@ -1657,7 +1658,7 @@ static void dm_integrity_map_continue(st
+ 		PM8001_CHIP_DISP->dereg_dev_req(pm8001_ha, device_id);
+@@ -1238,8 +1240,10 @@ int pm8001_abort_task(struct sas_task *t
+ 			PM8001_MSG_DBG(pm8001_ha,
+ 				pm8001_printk("Waiting for Port reset\n"));
+ 			wait_for_completion(&completion_reset);
+-			if (phy->port_reset_status)
++			if (phy->port_reset_status) {
++				pm8001_dev_gone_notify(dev);
+ 				goto out;
++			}
  
- 	if (need_sync_io && from_map) {
- 		INIT_WORK(&dio->work, integrity_bio_wait);
--		queue_work(ic->metadata_wq, &dio->work);
-+		queue_work(ic->offload_wq, &dio->work);
- 		return;
+ 			/*
+ 			 * 4. SATA Abort ALL
+--- a/drivers/scsi/pm8001/pm80xx_hwi.c
++++ b/drivers/scsi/pm8001/pm80xx_hwi.c
+@@ -604,7 +604,7 @@ static void update_main_config_table(str
+ 		pm8001_ha->main_cfg_tbl.pm80xx_tbl.port_recovery_timer &=
+ 					0x0000ffff;
+ 		pm8001_ha->main_cfg_tbl.pm80xx_tbl.port_recovery_timer |=
+-					0x140000;
++					CHIP_8006_PORT_RECOVERY_TIMEOUT;
  	}
+ 	pm8001_mw32(address, MAIN_PORT_RECOVERY_TIMER,
+ 			pm8001_ha->main_cfg_tbl.pm80xx_tbl.port_recovery_timer);
+--- a/drivers/scsi/pm8001/pm80xx_hwi.h
++++ b/drivers/scsi/pm8001/pm80xx_hwi.h
+@@ -228,6 +228,8 @@
+ #define SAS_MAX_AIP                     0x200000
+ #define IT_NEXUS_TIMEOUT       0x7D0
+ #define PORT_RECOVERY_TIMEOUT  ((IT_NEXUS_TIMEOUT/100) + 30)
++/* Port recovery timeout, 10000 ms for PM8006 controller */
++#define CHIP_8006_PORT_RECOVERY_TIMEOUT 0x640000
  
-@@ -3308,6 +3309,14 @@ static int dm_integrity_ctr(struct dm_ta
- 		goto bad;
- 	}
- 
-+	ic->offload_wq = alloc_workqueue("dm-integrity-offload", WQ_MEM_RECLAIM,
-+					  METADATA_WORKQUEUE_MAX_ACTIVE);
-+	if (!ic->offload_wq) {
-+		ti->error = "Cannot allocate workqueue";
-+		r = -ENOMEM;
-+		goto bad;
-+	}
-+
- 	ic->commit_wq = alloc_workqueue("dm-integrity-commit", WQ_MEM_RECLAIM, 1);
- 	if (!ic->commit_wq) {
- 		ti->error = "Cannot allocate workqueue";
-@@ -3544,6 +3553,8 @@ static void dm_integrity_dtr(struct dm_t
- 		destroy_workqueue(ic->metadata_wq);
- 	if (ic->wait_wq)
- 		destroy_workqueue(ic->wait_wq);
-+	if (ic->offload_wq)
-+		destroy_workqueue(ic->offload_wq);
- 	if (ic->commit_wq)
- 		destroy_workqueue(ic->commit_wq);
- 	if (ic->writer_wq)
+ #ifdef __LITTLE_ENDIAN_BITFIELD
+ struct sas_identify_frame_local {
 
 
