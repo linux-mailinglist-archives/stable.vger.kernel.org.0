@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D703217F91A
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 13:54:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 534EB17F84E
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 13:47:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728886AbgCJMyA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 08:54:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60286 "EHLO mail.kernel.org"
+        id S1727870AbgCJMqq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 08:46:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50158 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729284AbgCJMx6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 08:53:58 -0400
+        id S1726973AbgCJMqq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 08:46:46 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3631824693;
-        Tue, 10 Mar 2020 12:53:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A62342468D;
+        Tue, 10 Mar 2020 12:46:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583844837;
-        bh=Hdj9Xj4OjgQMShoUBLeSfokjxn4D5YsJdsBsM0BdGsU=;
+        s=default; t=1583844405;
+        bh=o/7OTxr076neJTurwlNNeJoH1a95ZFaAcomIRNurVc8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ml2plmj0JzQaUEab19U7CckWHIGp48YV4fQR/VvcvSxkDsgThqhwlHve/BDHKukcI
-         sxhOK20XujcolP3FrSa9ImfAEPFh79sRhtHbIzwCWRvQe9fIYGN7G2azsiRH73PaU+
-         XOprz5DCNJASokrCVPAemkaWOV7xoYs9yTqx5RKA=
+        b=AEOBzZLudezP/uqKlBg27cISenKc9fx/vwRdO8bTqTCmi0AZEXrLoHfdWkucAg1Dv
+         52q8EwpMp2uaH+FrAbloELznnfXiG6VgzNz/Gpm84qzqfWk0p7rPwOyg/Z/+jnjgQ3
+         hN9mxpZnpWcMaXd5hbHNahp+P0NPVcyNEKnDZMbk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>,
-        Damien Le Moal <damien.lemoal@wdc.com>,
-        Mike Snitzer <snitzer@redhat.com>
-Subject: [PATCH 5.4 110/168] dm zoned: Fix reference counter initial value of chunk works
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Zhang Xiaoxu <zhangxiaoxu5@huawei.com>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>
+Subject: [PATCH 4.9 68/88] vgacon: Fix a UAF in vgacon_invert_region
 Date:   Tue, 10 Mar 2020 13:39:16 +0100
-Message-Id: <20200310123646.534986078@linuxfoundation.org>
+Message-Id: <20200310123622.967111519@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200310123635.322799692@linuxfoundation.org>
-References: <20200310123635.322799692@linuxfoundation.org>
+In-Reply-To: <20200310123606.543939933@linuxfoundation.org>
+References: <20200310123606.543939933@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,107 +44,130 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+From: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
 
-commit ee63634bae02e13c8c0df1209a6a0ca5326f3189 upstream.
+commit 513dc792d6060d5ef572e43852683097a8420f56 upstream.
 
-Dm-zoned initializes reference counters of new chunk works with zero
-value and refcount_inc() is called to increment the counter. However, the
-refcount_inc() function handles the addition to zero value as an error
-and triggers the warning as follows:
+When syzkaller tests, there is a UAF:
+  BUG: KASan: use after free in vgacon_invert_region+0x9d/0x110 at addr
+    ffff880000100000
+  Read of size 2 by task syz-executor.1/16489
+  page:ffffea0000004000 count:0 mapcount:-127 mapping:          (null)
+  index:0x0
+  page flags: 0xfffff00000000()
+  page dumped because: kasan: bad access detected
+  CPU: 1 PID: 16489 Comm: syz-executor.1 Not tainted
+  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS
+  rel-1.9.3-0-ge2fc41e-prebuilt.qemu-project.org 04/01/2014
+  Call Trace:
+    [<ffffffffb119f309>] dump_stack+0x1e/0x20
+    [<ffffffffb04af957>] kasan_report+0x577/0x950
+    [<ffffffffb04ae652>] __asan_load2+0x62/0x80
+    [<ffffffffb090f26d>] vgacon_invert_region+0x9d/0x110
+    [<ffffffffb0a39d95>] invert_screen+0xe5/0x470
+    [<ffffffffb0a21dcb>] set_selection+0x44b/0x12f0
+    [<ffffffffb0a3bfae>] tioclinux+0xee/0x490
+    [<ffffffffb0a1d114>] vt_ioctl+0xff4/0x2670
+    [<ffffffffb0a0089a>] tty_ioctl+0x46a/0x1a10
+    [<ffffffffb052db3d>] do_vfs_ioctl+0x5bd/0xc40
+    [<ffffffffb052e2f2>] SyS_ioctl+0x132/0x170
+    [<ffffffffb11c9b1b>] system_call_fastpath+0x22/0x27
+    Memory state around the buggy address:
+     ffff8800000fff00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+     00 00
+     ffff8800000fff80: 00 00 00 00 00 00 00 00 00 00 00 00 00
+     00 00 00
+    >ffff880000100000: ff ff ff ff ff ff ff ff ff ff ff ff ff
+     ff ff ff
 
-refcount_t: addition on 0; use-after-free.
-WARNING: CPU: 7 PID: 1506 at lib/refcount.c:25 refcount_warn_saturate+0x68/0xf0
-...
-CPU: 7 PID: 1506 Comm: systemd-udevd Not tainted 5.4.0+ #134
-...
-Call Trace:
- dmz_map+0x2d2/0x350 [dm_zoned]
- __map_bio+0x42/0x1a0
- __split_and_process_non_flush+0x14a/0x1b0
- __split_and_process_bio+0x83/0x240
- ? kmem_cache_alloc+0x165/0x220
- dm_process_bio+0x90/0x230
- ? generic_make_request_checks+0x2e7/0x680
- dm_make_request+0x3e/0xb0
- generic_make_request+0xcf/0x320
- ? memcg_drain_all_list_lrus+0x1c0/0x1c0
- submit_bio+0x3c/0x160
- ? guard_bio_eod+0x2c/0x130
- mpage_readpages+0x182/0x1d0
- ? bdev_evict_inode+0xf0/0xf0
- read_pages+0x6b/0x1b0
- __do_page_cache_readahead+0x1ba/0x1d0
- force_page_cache_readahead+0x93/0x100
- generic_file_read_iter+0x83a/0xe40
- ? __seccomp_filter+0x7b/0x670
- new_sync_read+0x12a/0x1c0
- vfs_read+0x9d/0x150
- ksys_read+0x5f/0xe0
- do_syscall_64+0x5b/0x180
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
-...
+It can be reproduce in the linux mainline by the program:
+  #include <stdio.h>
+  #include <stdlib.h>
+  #include <unistd.h>
+  #include <fcntl.h>
+  #include <sys/types.h>
+  #include <sys/stat.h>
+  #include <sys/ioctl.h>
+  #include <linux/vt.h>
 
-After this warning, following refcount API calls for the counter all fail
-to change the counter value.
+  struct tiocl_selection {
+    unsigned short xs;      /* X start */
+    unsigned short ys;      /* Y start */
+    unsigned short xe;      /* X end */
+    unsigned short ye;      /* Y end */
+    unsigned short sel_mode; /* selection mode */
+  };
 
-Fix this by setting the initial reference counter value not zero but one
-for the new chunk works. Instead, do not call refcount_inc() via
-dmz_get_chunk_work() for the new chunks works.
+  #define TIOCL_SETSEL    2
+  struct tiocl {
+    unsigned char type;
+    unsigned char pad;
+    struct tiocl_selection sel;
+  };
 
-The failure was observed with linux version 5.4 with CONFIG_REFCOUNT_FULL
-enabled. Refcount rework was merged to linux version 5.5 by the
-commit 168829ad09ca ("Merge branch 'locking-core-for-linus' of
-git://git.kernel.org/pub/scm/linux/kernel/git/tip/tip"). After this
-commit, CONFIG_REFCOUNT_FULL was removed and the failure was observed
-regardless of kernel configuration.
+  int main()
+  {
+    int fd = 0;
+    const char *dev = "/dev/char/4:1";
 
-Linux version 4.20 merged the commit 092b5648760a ("dm zoned: target: use
-refcount_t for dm zoned reference counters"). Before this commit, dm
-zoned used atomic_t APIs which does not check addition to zero, then this
-fix is not necessary.
+    struct vt_consize v = {0};
+    struct tiocl tioc = {0};
 
-Fixes: 092b5648760a ("dm zoned: target: use refcount_t for dm zoned reference counters")
-Cc: stable@vger.kernel.org # 5.4+
-Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Reviewed-by: Damien Le Moal <damien.lemoal@wdc.com>
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+    fd = open(dev, O_RDWR, 0);
+
+    v.v_rows = 3346;
+    ioctl(fd, VT_RESIZEX, &v);
+
+    tioc.type = TIOCL_SETSEL;
+    ioctl(fd, TIOCLINUX, &tioc);
+
+    return 0;
+  }
+
+When resize the screen, update the 'vc->vc_size_row' to the new_row_size,
+but when 'set_origin' in 'vgacon_set_origin', vgacon use 'vga_vram_base'
+for 'vc_origin' and 'vc_visible_origin', not 'vc_screenbuf'. It maybe
+smaller than 'vc_screenbuf'. When TIOCLINUX, use the new_row_size to calc
+the offset, it maybe larger than the vga_vram_size in vgacon driver, then
+bad access.
+Also, if set an larger screenbuf firstly, then set an more larger
+screenbuf, when copy old_origin to new_origin, a bad access may happen.
+
+So, If the screen size larger than vga_vram, resize screen should be
+failed. This alse fix CVE-2020-8649 and CVE-2020-8647.
+
+Linus pointed out that overflow checking seems absent. We're saved by
+the existing bounds checks in vc_do_resize() with rather strict
+limits:
+
+	if (cols > VC_RESIZE_MAXCOL || lines > VC_RESIZE_MAXROW)
+		return -EINVAL;
+
+Fixes: 0aec4867dca14 ("[PATCH] SVGATextMode fix")
+Reference: CVE-2020-8647 and CVE-2020-8649
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
+[danvet: augment commit message to point out overflow safety]
+Cc: stable@vger.kernel.org
+Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200304022429.37738-1-zhangxiaoxu5@huawei.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/md/dm-zoned-target.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/video/console/vgacon.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/md/dm-zoned-target.c
-+++ b/drivers/md/dm-zoned-target.c
-@@ -533,8 +533,9 @@ static int dmz_queue_chunk_work(struct d
- 
- 	/* Get the BIO chunk work. If one is not active yet, create one */
- 	cw = radix_tree_lookup(&dmz->chunk_rxtree, chunk);
--	if (!cw) {
--
-+	if (cw) {
-+		dmz_get_chunk_work(cw);
-+	} else {
- 		/* Create a new chunk work */
- 		cw = kmalloc(sizeof(struct dm_chunk_work), GFP_NOIO);
- 		if (unlikely(!cw)) {
-@@ -543,7 +544,7 @@ static int dmz_queue_chunk_work(struct d
- 		}
- 
- 		INIT_WORK(&cw->work, dmz_chunk_work);
--		refcount_set(&cw->refcount, 0);
-+		refcount_set(&cw->refcount, 1);
- 		cw->target = dmz;
- 		cw->chunk = chunk;
- 		bio_list_init(&cw->bio_list);
-@@ -556,7 +557,6 @@ static int dmz_queue_chunk_work(struct d
- 	}
- 
- 	bio_list_add(&cw->bio_list, bio);
--	dmz_get_chunk_work(cw);
- 
- 	dmz_reclaim_bio_acc(dmz->reclaim);
- 	if (queue_work(dmz->chunk_wq, &cw->work))
+--- a/drivers/video/console/vgacon.c
++++ b/drivers/video/console/vgacon.c
+@@ -1323,6 +1323,9 @@ static int vgacon_font_get(struct vc_dat
+ static int vgacon_resize(struct vc_data *c, unsigned int width,
+ 			 unsigned int height, unsigned int user)
+ {
++	if ((width << 1) * height > vga_vram_size)
++		return -EINVAL;
++
+ 	if (width % 2 || width > screen_info.orig_video_cols ||
+ 	    height > (screen_info.orig_video_lines * vga_default_font_height)/
+ 	    c->vc_font.height)
 
 
