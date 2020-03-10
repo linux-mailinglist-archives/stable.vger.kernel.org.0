@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B787017FB25
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:11:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E867217FC00
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:18:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731401AbgCJNLQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 09:11:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60894 "EHLO mail.kernel.org"
+        id S1731083AbgCJNLW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 09:11:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60954 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730529AbgCJNLP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 09:11:15 -0400
+        id S1728513AbgCJNLT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 09:11:19 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EE3C120409;
-        Tue, 10 Mar 2020 13:11:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D1EF6208E4;
+        Tue, 10 Mar 2020 13:11:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583845875;
-        bh=QNdpxQLf/YTwAiU0dauCMyC00+ScKCC4tI0BFeqz4C0=;
+        s=default; t=1583845878;
+        bh=F+0TqD+X8sIsI6owgc1H/U6SPBKg/yevNWDS2WQHKNA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kWFca/tKT4H1haHFzsr86ma2iTBaClHos4Oj5MGcDNhyDWPoFS21B9lD4zhNmSHlR
-         /u22ude7qmFDr+4bWEkhhfANA5JNjNxMbsTIFMjed8VcRHlxYIAnWSHgJuxPnzeYo8
-         9FrxZTkizGxeJDIj+yyxOdMVdrkUqt7BnMAqcAo8=
+        b=Fr+6V9u+20cFzZOxvSoH+AQGb/Utc8ze+2vC+paHgadEXbqQJSJINE7UrTcW1zHLS
+         EmFsyOy8/Z2WDEIUk7VBjq73z1p4VxoF6BGaFfQ2iquW9qHvoN1BeJkFcwZpCyJDDK
+         DtFt0FzhASlQBd59mF/RiwKvK1gpzLkFh3kB8ZMI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Faiz Abbas <faiz_abbas@ti.com>,
-        Tony Lindgren <tony@atomide.com>
-Subject: [PATCH 4.14 100/126] arm: dts: dra76x: Fix mmc3 max-frequency
-Date:   Tue, 10 Mar 2020 13:42:01 +0100
-Message-Id: <20200310124210.073545434@linuxfoundation.org>
+        stable@vger.kernel.org, tangbin <tangbin@cmss.chinamobile.com>,
+        Jiri Slaby <jslaby@suse.cz>
+Subject: [PATCH 4.14 101/126] tty:serial:mvebu-uart:fix a wrong return
+Date:   Tue, 10 Mar 2020 13:42:02 +0100
+Message-Id: <20200310124210.125553802@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200310124203.704193207@linuxfoundation.org>
 References: <20200310124203.704193207@linuxfoundation.org>
@@ -43,34 +43,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Faiz Abbas <faiz_abbas@ti.com>
+From: tangbin <tangbin@cmss.chinamobile.com>
 
-commit fa63c0039787b8fbacf4d6a51e3ff44288f5b90b upstream.
+commit 4a3e208474204e879d22a310b244cb2f39e5b1f8 upstream.
 
-dra76x is not affected by i887 which requires mmc3 node to be limited to
-a max frequency of 64 MHz. Fix this by overwriting the correct value in
-the the dra76 specific dtsi.
+in this place, the function should return a
+negative value and the PTR_ERR already returns
+a negative,so return -PTR_ERR() is wrong.
 
-Fixes: 895bd4b3e5ec ("ARM: dts: Add support for dra76-evm")
-Cc: stable@vger.kernel.org
-Signed-off-by: Faiz Abbas <faiz_abbas@ti.com>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
+Signed-off-by: tangbin <tangbin@cmss.chinamobile.com>
+Cc: stable <stable@vger.kernel.org>
+Acked-by: Jiri Slaby <jslaby@suse.cz>
+Link: https://lore.kernel.org/r/20200305013823.20976-1-tangbin@cmss.chinamobile.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm/boot/dts/dra76x.dtsi |    5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/tty/serial/mvebu-uart.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/arm/boot/dts/dra76x.dtsi
-+++ b/arch/arm/boot/dts/dra76x.dtsi
-@@ -17,3 +17,8 @@
- &crossbar_mpu {
- 	ti,irqs-skip = <10 67 68 133 139 140>;
- };
-+
-+&mmc3 {
-+	/* dra76x is not affected by i887 */
-+	max-frequency = <96000000>;
-+};
+--- a/drivers/tty/serial/mvebu-uart.c
++++ b/drivers/tty/serial/mvebu-uart.c
+@@ -581,7 +581,7 @@ static int mvebu_uart_probe(struct platf
+ 
+ 	port->membase = devm_ioremap_resource(&pdev->dev, reg);
+ 	if (IS_ERR(port->membase))
+-		return -PTR_ERR(port->membase);
++		return PTR_ERR(port->membase);
+ 
+ 	data = devm_kzalloc(&pdev->dev, sizeof(struct mvebu_uart_data),
+ 			    GFP_KERNEL);
 
 
