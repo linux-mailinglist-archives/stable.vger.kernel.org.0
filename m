@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7AD8E17F9F3
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:01:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EA25F17FD9C
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:29:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728280AbgCJNBZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 09:01:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42604 "EHLO mail.kernel.org"
+        id S1726861AbgCJN2m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 09:28:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59028 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730262AbgCJNBY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 09:01:24 -0400
+        id S1728905AbgCJMxK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 08:53:10 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B200B208E4;
-        Tue, 10 Mar 2020 13:01:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3B51720674;
+        Tue, 10 Mar 2020 12:53:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583845284;
-        bh=uE2tZ0cXXEfqiy3UNn8FOMrI+JRdn0gH0gv8NGuJsVM=;
+        s=default; t=1583844789;
+        bh=Cg/CqJDhL5vBLVPwq3kwxrK1hEijNk3vd2jgYBFSC7k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xOqx37Yo9k0+d3Yee/+I5tryhBHAoikGIKE2+h8K+CsL05YUPGPoBLlLhFGbneyzU
-         ZuYlJU5C+DNgsnBs5835Wjk+nd9pLkbxBc7UZ1I8xLOKM8Al/39VQpeL9d+YBPItxW
-         FzM4EkNL84sGtRGrfnGeAMhq2f0KNuYrUh9WgMhU=
+        b=fnmN55uk5bhQTSF9X0brXJenD/PF7oa22+DUOfCKEqfRUFKfBHavt+qLv4ftTkh+2
+         fUi9D+qnjmZmczH8zbWtsARlj/vU21qWDQ+ly9REPxXbLo+BUob5JRo//O0yjxwL7j
+         NSMo/eK/m47Kx86SbzlhGEBiHr50akYb4s44mBEs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, John Bates <jbates@chromium.org>,
-        Chia-I Wu <olvaffe@gmail.com>,
-        Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH 5.5 129/189] drm/virtio: fix resource id creation race
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
+        Cezary Rojewski <cezary.rojewski@intel.com>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.4 120/168] ASoC: intel: skl: Fix pin debug prints
 Date:   Tue, 10 Mar 2020 13:39:26 +0100
-Message-Id: <20200310123652.826628465@linuxfoundation.org>
+Message-Id: <20200310123647.572678362@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200310123639.608886314@linuxfoundation.org>
-References: <20200310123639.608886314@linuxfoundation.org>
+In-Reply-To: <20200310123635.322799692@linuxfoundation.org>
+References: <20200310123635.322799692@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,38 +44,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Bates <jbates@chromium.org>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit fbb30168c7395b9cfeb9e6f7b0c0bca854a6552d upstream.
+commit 64bbacc5f08c01954890981c63de744df1f29a30 upstream.
 
-The previous code was not thread safe and caused
-undefined behavior from spurious duplicate resource IDs.
-In this patch, an atomic_t is used instead. We no longer
-see any duplicate IDs in tests with this change.
+skl_print_pins() loops over all given pins but it overwrites the text
+at the very same position while increasing the returned length.
+Fix this to show the all pin contents properly.
 
-Fixes: 16065fcdd19d ("drm/virtio: do NOT reuse resource ids")
-Signed-off-by: John Bates <jbates@chromium.org>
-Reviewed-by: Chia-I Wu <olvaffe@gmail.com>
-Link: http://patchwork.freedesktop.org/patch/msgid/20200220225319.45621-1-jbates@chromium.org
-Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+Fixes: d14700a01f91 ("ASoC: Intel: Skylake: Debugfs facility to dump module config")
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Acked-by: Cezary Rojewski <cezary.rojewski@intel.com>
+Link: https://lore.kernel.org/r/20200218111737.14193-2-tiwai@suse.de
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/virtio/virtgpu_object.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ sound/soc/intel/skylake/skl-debug.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/virtio/virtgpu_object.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_object.c
-@@ -42,8 +42,8 @@ static int virtio_gpu_resource_id_get(st
- 		 * "f91a9dd35715 Fix unlinking resources from hash
- 		 * table." (Feb 2019) fixes the bug.
- 		 */
--		static int handle;
--		handle++;
-+		static atomic_t seqno = ATOMIC_INIT(0);
-+		int handle = atomic_inc_return(&seqno);
- 		*resid = handle + 1;
- 	} else {
- 		int handle = ida_alloc(&vgdev->resource_ida, GFP_KERNEL);
+--- a/sound/soc/intel/skylake/skl-debug.c
++++ b/sound/soc/intel/skylake/skl-debug.c
+@@ -34,7 +34,7 @@ static ssize_t skl_print_pins(struct skl
+ 	int i;
+ 	ssize_t ret = 0;
+ 
+-	for (i = 0; i < max_pin; i++)
++	for (i = 0; i < max_pin; i++) {
+ 		ret += snprintf(buf + size, MOD_BUF - size,
+ 				"%s %d\n\tModule %d\n\tInstance %d\n\t"
+ 				"In-used %s\n\tType %s\n"
+@@ -45,6 +45,8 @@ static ssize_t skl_print_pins(struct skl
+ 				m_pin[i].in_use ? "Used" : "Unused",
+ 				m_pin[i].is_dynamic ? "Dynamic" : "Static",
+ 				m_pin[i].pin_state, i);
++		size += ret;
++	}
+ 	return ret;
+ }
+ 
 
 
