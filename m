@@ -2,38 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F9CB17F867
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 13:48:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E1EAD17F912
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 13:53:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726705AbgCJMri (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 08:47:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51428 "EHLO mail.kernel.org"
+        id S1728258AbgCJMxp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 08:53:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59842 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727901AbgCJMrf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 08:47:35 -0400
+        id S1729235AbgCJMxm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 08:53:42 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 62BBE2467D;
-        Tue, 10 Mar 2020 12:47:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A6A9920674;
+        Tue, 10 Mar 2020 12:53:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583844454;
-        bh=m2VMjPdP7Tghk64h+YiyaAAmIOugxKZ/W6szpaKD2Vs=;
+        s=default; t=1583844822;
+        bh=AVzm+BISmI/wJXjIKEQkgYUROhyHeNW4UtDhWxsdGk0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d9PsmU+QooTm+JrJJ2bNw3tmITheplZFsDLuQMVVnpS8RLnKhUJuyC32kaD/awuQI
-         eSHmOeBupEzC/lLsBLFDtpabG+gAxKzppwN4R67HhzrLroYcxcVmphyBxFEQ05NTYl
-         tH6YNNyxNwZVP+QbJJWtB8b0hLWHVOv8CNN+xVlQ=
+        b=p1NLp69p1pR9Y69BJm3Vj4RQ9AZGbbwA9K9rA4cGmdxMgqvpesx/5FW1EBj4hQgso
+         jsnAltn6ABCs3PuxhRNhHomUXMimBOn1klze5ZhWnwRjXXkf9KsGiMnP8pLKB1Br3c
+         iK8NMJunI+m5RZrPx8GyQxp7uhwXnW0ZLPnfxME0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        yangerkun <yangerkun@huawei.com>
-Subject: [PATCH 4.9 88/88] crypto: algif_skcipher - use ZERO_OR_NULL_PTR in skcipher_recvmsg_async
-Date:   Tue, 10 Mar 2020 13:39:36 +0100
-Message-Id: <20200310123625.434168321@linuxfoundation.org>
+        stable@vger.kernel.org, Xinliang Liu <xinliang.liu@linaro.org>,
+        Rongrong Zou <zourongrong@gmail.com>,
+        Xinwei Kong <kong.kongxinwei@hisilicon.com>,
+        Chen Feng <puck.chen@hisilicon.com>,
+        Sam Ravnborg <sam@ravnborg.org>,
+        David Airlie <airlied@linux.ie>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        dri-devel <dri-devel@lists.freedesktop.org>,
+        John Stultz <john.stultz@linaro.org>
+Subject: [PATCH 5.4 131/168] drm: kirin: Revert "Fix for hikey620 display offset problem"
+Date:   Tue, 10 Mar 2020 13:39:37 +0100
+Message-Id: <20200310123648.764344482@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200310123606.543939933@linuxfoundation.org>
-References: <20200310123606.543939933@linuxfoundation.org>
+In-Reply-To: <20200310123635.322799692@linuxfoundation.org>
+References: <20200310123635.322799692@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,55 +50,112 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: yangerkun <yangerkun@huawei.com>
+From: John Stultz <john.stultz@linaro.org>
 
-Nowdays, we trigger a oops:
-...
-kasan: GPF could be caused by NULL-ptr deref or user memory accessgeneral protection fault: 0000 [#1] SMP KASAN
-...
-Call Trace:
- [<ffffffff81a26fb1>] skcipher_recvmsg_async+0x3f1/0x1400 x86/../crypto/algif_skcipher.c:543
- [<ffffffff81a28053>] skcipher_recvmsg+0x93/0x7f0 x86/../crypto/algif_skcipher.c:723
- [<ffffffff823e43a4>] sock_recvmsg_nosec x86/../net/socket.c:702 [inline]
- [<ffffffff823e43a4>] sock_recvmsg x86/../net/socket.c:710 [inline]
- [<ffffffff823e43a4>] sock_recvmsg+0x94/0xc0 x86/../net/socket.c:705
- [<ffffffff823e464b>] sock_read_iter+0x27b/0x3a0 x86/../net/socket.c:787
- [<ffffffff817f479b>] aio_run_iocb+0x21b/0x7a0 x86/../fs/aio.c:1520
- [<ffffffff817f57c9>] io_submit_one x86/../fs/aio.c:1630 [inline]
- [<ffffffff817f57c9>] do_io_submit+0x6b9/0x10b0 x86/../fs/aio.c:1688
- [<ffffffff817f902d>] SYSC_io_submit x86/../fs/aio.c:1713 [inline]
- [<ffffffff817f902d>] SyS_io_submit+0x2d/0x40 x86/../fs/aio.c:1710
- [<ffffffff828b33c3>] tracesys_phase2+0x90/0x95
+commit 1b79cfd99ff5127e6a143767b51694a527b3ea38 upstream.
 
-In skcipher_recvmsg_async, we use '!sreq->tsg' to determine does we
-calloc fail. However, kcalloc may return ZERO_SIZE_PTR, and with this,
-the latter sg_init_table will trigger the bug. Fix it be use ZERO_OF_NULL_PTR.
+This reverts commit ff57c6513820efe945b61863cf4a51b79f18b592.
 
-This function was introduced with ' commit a596999b7ddf ("crypto:
-algif - change algif_skcipher to be asynchronous")', and has been removed
-with 'commit e870456d8e7c ("crypto: algif_skcipher - overhaul memory
-management")'.
+With the commit ff57c6513820 ("drm: kirin: Fix for hikey620
+display offset problem") we added support for handling LDI
+overflows by resetting the hardware.
 
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: yangerkun <yangerkun@huawei.com>
+However, its been observed that when we do hit the LDI overflow
+condition, the irq seems to be screaming, and we do nothing but
+stream:
+  [drm:ade_irq_handler [kirin_drm]] *ERROR* LDI underflow!
+over and over to the screen
+
+I've tried a few appraoches to avoid this, but none has yet
+been successful and the cure here is worse then the original
+disease, so revert this for now.
+
+Cc: Xinliang Liu <xinliang.liu@linaro.org>
+Cc: Rongrong Zou <zourongrong@gmail.com>
+Cc: Xinwei Kong <kong.kongxinwei@hisilicon.com>
+Cc: Chen Feng <puck.chen@hisilicon.com>
+Cc: Sam Ravnborg <sam@ravnborg.org>
+Cc: David Airlie <airlied@linux.ie>
+Cc: Daniel Vetter <daniel@ffwll.ch>
+Cc: dri-devel <dri-devel@lists.freedesktop.org>
+Fixes: ff57c6513820 ("drm: kirin: Fix for hikey620 display offset problem")
+Signed-off-by: John Stultz <john.stultz@linaro.org>
+Acked-by: Xinliang Liu <xinliang.liu@linaro.org>
+Signed-off-by: Xinliang Liu <xinliang.liu@linaro.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200303163228.52741-1-john.stultz@linaro.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- crypto/algif_skcipher.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/hisilicon/kirin/kirin_ade_reg.h |    1 -
+ drivers/gpu/drm/hisilicon/kirin/kirin_drm_ade.c |   20 --------------------
+ 2 files changed, 21 deletions(-)
 
-v1->v2:
-update the commit message
-
---- a/crypto/algif_skcipher.c
-+++ b/crypto/algif_skcipher.c
-@@ -538,7 +538,7 @@ static int skcipher_recvmsg_async(struct
- 	lock_sock(sk);
- 	tx_nents = skcipher_all_sg_nents(ctx);
- 	sreq->tsg = kcalloc(tx_nents, sizeof(*sg), GFP_KERNEL);
--	if (unlikely(!sreq->tsg))
-+	if (unlikely(ZERO_OR_NULL_PTR(sreq->tsg)))
- 		goto unlock;
- 	sg_init_table(sreq->tsg, tx_nents);
- 	memcpy(iv, ctx->iv, ivsize);
+--- a/drivers/gpu/drm/hisilicon/kirin/kirin_ade_reg.h
++++ b/drivers/gpu/drm/hisilicon/kirin/kirin_ade_reg.h
+@@ -83,7 +83,6 @@
+ #define VSIZE_OFST			20
+ #define LDI_INT_EN			0x741C
+ #define FRAME_END_INT_EN_OFST		1
+-#define UNDERFLOW_INT_EN_OFST		2
+ #define LDI_CTRL			0x7420
+ #define BPP_OFST			3
+ #define DATA_GATE_EN			BIT(2)
+--- a/drivers/gpu/drm/hisilicon/kirin/kirin_drm_ade.c
++++ b/drivers/gpu/drm/hisilicon/kirin/kirin_drm_ade.c
+@@ -46,7 +46,6 @@ struct ade_hw_ctx {
+ 	struct clk *media_noc_clk;
+ 	struct clk *ade_pix_clk;
+ 	struct reset_control *reset;
+-	struct work_struct display_reset_wq;
+ 	bool power_on;
+ 	int irq;
+ 
+@@ -136,7 +135,6 @@ static void ade_init(struct ade_hw_ctx *
+ 	 */
+ 	ade_update_bits(base + ADE_CTRL, FRM_END_START_OFST,
+ 			FRM_END_START_MASK, REG_EFFECTIVE_IN_ADEEN_FRMEND);
+-	ade_update_bits(base + LDI_INT_EN, UNDERFLOW_INT_EN_OFST, MASK(1), 1);
+ }
+ 
+ static bool ade_crtc_mode_fixup(struct drm_crtc *crtc,
+@@ -304,17 +302,6 @@ static void ade_crtc_disable_vblank(stru
+ 			MASK(1), 0);
+ }
+ 
+-static void drm_underflow_wq(struct work_struct *work)
+-{
+-	struct ade_hw_ctx *ctx = container_of(work, struct ade_hw_ctx,
+-					      display_reset_wq);
+-	struct drm_device *drm_dev = ctx->crtc->dev;
+-	struct drm_atomic_state *state;
+-
+-	state = drm_atomic_helper_suspend(drm_dev);
+-	drm_atomic_helper_resume(drm_dev, state);
+-}
+-
+ static irqreturn_t ade_irq_handler(int irq, void *data)
+ {
+ 	struct ade_hw_ctx *ctx = data;
+@@ -331,12 +318,6 @@ static irqreturn_t ade_irq_handler(int i
+ 				MASK(1), 1);
+ 		drm_crtc_handle_vblank(crtc);
+ 	}
+-	if (status & BIT(UNDERFLOW_INT_EN_OFST)) {
+-		ade_update_bits(base + LDI_INT_CLR, UNDERFLOW_INT_EN_OFST,
+-				MASK(1), 1);
+-		DRM_ERROR("LDI underflow!");
+-		schedule_work(&ctx->display_reset_wq);
+-	}
+ 
+ 	return IRQ_HANDLED;
+ }
+@@ -919,7 +900,6 @@ static void *ade_hw_ctx_alloc(struct pla
+ 	if (ret)
+ 		return ERR_PTR(-EIO);
+ 
+-	INIT_WORK(&ctx->display_reset_wq, drm_underflow_wq);
+ 	ctx->crtc = crtc;
+ 
+ 	return ctx;
 
 
