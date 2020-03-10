@@ -2,112 +2,81 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 95BEF17FF86
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:52:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A2C717FF99
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:57:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726442AbgCJNwd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 09:52:33 -0400
-Received: from foss.arm.com ([217.140.110.172]:37482 "EHLO foss.arm.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726390AbgCJNwd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 09:52:33 -0400
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 5D9E130E;
-        Tue, 10 Mar 2020 06:52:32 -0700 (PDT)
-Received: from lakrids.cambridge.arm.com (usa-sjc-imap-foss1.foss.arm.com [10.121.207.14])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 26C433F6CF;
-        Tue, 10 Mar 2020 06:52:31 -0700 (PDT)
-Date:   Tue, 10 Mar 2020 13:52:24 +0000
-From:   Mark Rutland <mark.rutland@arm.com>
-To:     "Paul E. McKenney" <paulmck@kernel.org>
-Cc:     David Laight <David.Laight@ACULAB.COM>,
-        'Chris Wilson' <chris@chris-wilson.co.uk>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>, elver@google.com
-Subject: Re: [PATCH] list: Prevent compiler reloads inside 'safe' list
- iteration
-Message-ID: <20200310135224.GA54660@lakrids.cambridge.arm.com>
-References: <20200310092119.14965-1-chris@chris-wilson.co.uk>
- <2e936d8fd2c445beb08e6dd3ee1f3891@AcuMS.aculab.com>
- <158384100886.16414.15741589015363013386@build.alporthouse.com>
- <723d527a4ad349b78bf11d52eba97c0e@AcuMS.aculab.com>
- <20200310125031.GY2935@paulmck-ThinkPad-P72>
+        id S1726772AbgCJN5C (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 09:57:02 -0400
+Received: from iolanthe.rowland.org ([192.131.102.54]:37852 "HELO
+        iolanthe.rowland.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with SMTP id S1726770AbgCJN5B (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Mar 2020 09:57:01 -0400
+Received: (qmail 1774 invoked by uid 2102); 10 Mar 2020 09:57:00 -0400
+Received: from localhost (sendmail-bs@127.0.0.1)
+  by localhost with SMTP; 10 Mar 2020 09:57:00 -0400
+Date:   Tue, 10 Mar 2020 09:57:00 -0400 (EDT)
+From:   Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@iolanthe.rowland.org
+To:     Peter Chen <peter.chen@kernel.org>
+cc:     gregkh@linuxfoundation.org, <linux-usb@vger.kernel.org>,
+        Peter Chen <peter.chen@nxp.com>, <stable@vger.kernel.org>
+Subject: Re: [PATCH 1/1] usb: chipidea: udc: fix sleeping function called
+ from invalid context
+In-Reply-To: <20200310065926.17746-2-peter.chen@kernel.org>
+Message-ID: <Pine.LNX.4.44L0.2003100952060.1651-100000@iolanthe.rowland.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200310125031.GY2935@paulmck-ThinkPad-P72>
-User-Agent: Mutt/1.11.1+11 (2f07cb52) (2018-12-01)
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Mar 10, 2020 at 05:50:31AM -0700, Paul E. McKenney wrote:
-> On Tue, Mar 10, 2020 at 12:23:34PM +0000, David Laight wrote:
-> > From: Chris Wilson
-> > > Sent: 10 March 2020 11:50
-> > > 
-> > > Quoting David Laight (2020-03-10 11:36:41)
-> > > > From: Chris Wilson
-> > > > > Sent: 10 March 2020 09:21
-> > > > > Instruct the compiler to read the next element in the list iteration
-> > > > > once, and that it is not allowed to reload the value from the stale
-> > > > > element later. This is important as during the course of the safe
-> > > > > iteration, the stale element may be poisoned (unbeknownst to the
-> > > > > compiler).
-> > > >
-> > > > Eh?
-> > > > I thought any function call will stop the compiler being allowed
-> > > > to reload the value.
-> > > > The 'safe' loop iterators are only 'safe' against called
-> > > > code removing the current item from the list.
-> > > >
-> > > > > This helps prevent kcsan warnings over 'unsafe' conduct in releasing the
-> > > > > list elements during list_for_each_entry_safe() and friends.
-> > > >
-> > > > Sounds like kcsan is buggy ????
-> 
-> Adding Marco on CC for his thoughts.
-> 
-> > > The warning kcsan gave made sense (a strange case where the emptying the
-> > > list from inside the safe iterator would allow that list to be taken
-> > > under a global mutex and have one extra request added to it. The
-> > > list_for_each_entry_safe() should be ok in this scenario, so long as the
-> > > next element is read before this element is dropped, and the compiler is
-> > > instructed not to reload the element.
-> > 
-> > Normally the loop iteration code has to hold the mutex.
-> > I guess it can be released inside the loop provided no other
-> > code can ever delete entries.
-> > 
-> > > kcsan is a little more insistent on having that annotation :)
-> > > 
-> > > In this instance I would say it was a false positive from kcsan, but I
-> > > can see why it would complain and suspect that given a sufficiently
-> > > aggressive compiler, we may be caught out by a late reload of the next
-> > > element.
-> > 
-> > If you have:
-> > 	for (; p; p = next) {
-> > 		next = p->next;
-> > 		external_function_call(void);
-> > 	}
-> > the compiler must assume that the function call
-> > can change 'p->next' and read it before the call.
-> 
-> That "must assume" is a statement of current compiler technology.
-> Given the progress over the past forty years, I would not expect this
-> restriction to hold forever. 
+On Tue, 10 Mar 2020, Peter Chen wrote:
 
-FWIW, this is exactly the sort of assumption that link time optimization
-is likely to render invalid going forward, and LTO is starting to be
-used today (e.g. to enable SW CFI stuff with clang).
+> From: Peter Chen <peter.chen@nxp.com>
+> 
+> The code calls pm_runtime_get_sync with irq disabled, it causes below
+> warning:
+> 
+> BUG: sleeping function called from invalid context at
+> wer/runtime.c:1075
+> in_atomic(): 1, irqs_disabled(): 128, non_block: 0, pid:
+> er/u8:1
 
-Given that, I don't think that core kernel primitives can rely on this
-assumption.
+...
 
-Thanks,
-Mark.
+> Tested-by: Dmitry Osipenko <digetx@gmail.com>
+> Cc: <stable@vger.kernel.org> #v5.5
+> Fixes: 72dc8df7920f ("usb: chipidea: udc: protect usb interrupt enable")
+> Reported-by: Dmitry Osipenko <digetx@gmail.com>
+> Signed-off-by: Peter Chen <peter.chen@nxp.com>
+> ---
+>  drivers/usb/chipidea/udc.c | 4 +++-
+>  1 file changed, 3 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/usb/chipidea/udc.c b/drivers/usb/chipidea/udc.c
+> index ffaf46f5d062..1fa587ec52fc 100644
+> --- a/drivers/usb/chipidea/udc.c
+> +++ b/drivers/usb/chipidea/udc.c
+> @@ -1539,9 +1539,11 @@ static void ci_hdrc_gadget_connect(struct usb_gadget *_gadget, int is_active)
+>  		if (ci->driver) {
+>  			hw_device_state(ci, ci->ep0out->qh.dma);
+>  			usb_gadget_set_state(_gadget, USB_STATE_POWERED);
+> +			spin_unlock_irqrestore(&ci->lock, flags);
+>  			usb_udc_vbus_handler(_gadget, true);
+> +		} else {
+> +			spin_unlock_irqrestore(&ci->lock, flags);
+>  		}
+> -		spin_unlock_irqrestore(&ci->lock, flags);
+
+There's something strange about this patch.
+
+Do you really know that interrupts will be enabled following the 
+spin_unlock_irqrestore()?  In other words, do you know that interrupts 
+were enabled upon entry to this routine?
+
+If they were, then why use spin_lock_irqsave/spin_unlock_irqrestore?  
+Why not use spin_lock_irq and spin_unlock_irq?
+
+Alan Stern
+
