@@ -2,129 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B35DB17FFE0
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 15:12:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 528A118006F
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 15:42:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726766AbgCJOMO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 10:12:14 -0400
-Received: from mail-lj1-f195.google.com ([209.85.208.195]:37309 "EHLO
-        mail-lj1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726622AbgCJOMN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Mar 2020 10:12:13 -0400
-Received: by mail-lj1-f195.google.com with SMTP id r24so681359ljd.4
-        for <stable@vger.kernel.org>; Tue, 10 Mar 2020 07:12:12 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=semihalf-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=4QhA/j02FBxntBJRQBcss8svsZrEfLANO9BT4LL3iCU=;
-        b=RcBB6uSziFObfQh7F40JgIh9KQqUgYDwVustVXGRIPKq5nbuKDZAMkThEJVGtYXtmC
-         0gEjWZXupu/bjDHLhO3bDgP8Jai3e2Z2HPKRFnxW66BCqrmOGyFY/wtlV5fZsccTuwFX
-         UmPKp0oCjsJDT3K7zOj3RS/DMRdaAVrCSFfZONmcFzs850WYw8P+2+yeYHC/H5QHiIXL
-         yboqgrnJHVFHAaT7au0i6hkcUAemScwhj8pHIRGvNPzFrVp7jftLPaWXmWpjh0jt/Zm1
-         rGUFN2EhWYkgauQQgZAh6Z8zUxIBW95qtYNbBQBZmxLOLJzh3/ledsuZMFKEOvYoTxxb
-         wsAg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=4QhA/j02FBxntBJRQBcss8svsZrEfLANO9BT4LL3iCU=;
-        b=uaiw70K+3Hm8n5eh2oo1B7UnyP6p8p6HmJd+oS2MCwhkRQ7GtcmNsD04yYGVA6FuUD
-         SlzbstWs8m1RsaqJ9jZm6pTRM0Ikx0zzgq/ExEyVwVNnZOGZtaCD86va0rY5593Ma44v
-         sMGGCdWw5KJzxkBAMQNoulmhuJ7x60BrVZfNXtsd2LcLQjOgLMWusZoxQ3nP8gMyQDVM
-         8+qfTBFHNJOrSCJv5eomveXoodiX+Ln2XJ+LrrmAYmM+vIHiJ6g38557jWqW0xJjrDP3
-         z6W7K7cdErTnY/wqX/af0EyNEOh4ELsf6Kuw76Oupcninbgkofpyq15TMEDBbecYQ0xV
-         7TpA==
-X-Gm-Message-State: ANhLgQ3UYxadJT6AsWEGwEH8fJawzSIlchPPwco8C+VB0dMu2hT9rXx2
-        k4JNtlZ+e8MiaM2iGMfiRslp1cPzs4M+GsBDlurE2g==
-X-Google-Smtp-Source: ADFU+vsZjGe47Suk3ijAD4oBo8DcgUhtsIlZsoQp4eX5n+pgXggGbZV8FREk09m/qnaQ5xTBa9ZjBcN17IUu/qd8ZRc=
-X-Received: by 2002:a2e:8105:: with SMTP id d5mr7218437ljg.172.1583849531956;
- Tue, 10 Mar 2020 07:12:11 -0700 (PDT)
+        id S1727326AbgCJOmH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 10:42:07 -0400
+Received: from er-systems.de ([148.251.68.21]:44986 "EHLO er-systems.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726391AbgCJOmH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 10:42:07 -0400
+X-Greylist: delayed 486 seconds by postgrey-1.27 at vger.kernel.org; Tue, 10 Mar 2020 10:42:06 EDT
+Received: from localhost.localdomain (localhost [127.0.0.1])
+        by er-systems.de (Postfix) with ESMTP id BD688D6006F;
+        Tue, 10 Mar 2020 15:33:58 +0100 (CET)
+X-Spam-Checker-Version: SpamAssassin 3.4.2 (2018-09-13) on er-systems.de
+X-Spam-Level: 
+X-Spam-Status: No, score=-2.9 required=5.0 tests=ALL_TRUSTED,BAYES_00
+        autolearn=ham autolearn_force=no version=3.4.2
+Received: from localhost (localhost [127.0.0.1])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by er-systems.de (Postfix) with ESMTPS id 9DF71D6006D;
+        Tue, 10 Mar 2020 15:33:58 +0100 (CET)
+Date:   Tue, 10 Mar 2020 15:33:57 +0100 (CET)
+From:   Thomas Voegtle <tv@lio96.de>
+X-X-Sender: thomas@er-systems.de
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        "H.J. Lu" <hjl.tools@gmail.com>, Borislav Petkov <bp@suse.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH 4.9 62/88] x86/boot/compressed: Dont declare __force_order
+ in kaslr_64.c
+In-Reply-To: <20200310123621.868809541@linuxfoundation.org>
+Message-ID: <alpine.LSU.2.21.2003101522120.20206@er-systems.de>
+References: <20200310123606.543939933@linuxfoundation.org> <20200310123621.868809541@linuxfoundation.org>
+User-Agent: Alpine 2.21 (LSU 202 2017-01-01)
 MIME-Version: 1.0
-References: <20200205194804.1647-1-mst@semihalf.com> <20200206083149.GK2667@lahna.fi.intel.com>
- <CAMiGqYi2rVAc=hepkY-4S1U_3dJdbR4pOoB0f8tbBL4pzWLdxA@mail.gmail.com>
- <20200207075654.GB2667@lahna.fi.intel.com> <CAMiGqYjmd2edUezEXsX4JBSyOozzks1Pu8miPEviGsx=x59nZQ@mail.gmail.com>
- <20200210101414.GN2667@lahna.fi.intel.com>
-In-Reply-To: <20200210101414.GN2667@lahna.fi.intel.com>
-From:   =?UTF-8?Q?Micha=C5=82_Stanek?= <mst@semihalf.com>
-Date:   Tue, 10 Mar 2020 15:12:00 +0100
-Message-ID: <CAMiGqYiYp=aSgW-4ro5ceUEaB7g0XhepFg+HZgfPvtvQL9Z1jA@mail.gmail.com>
-Subject: Re: [PATCH] pinctrl: cherryview: Add quirk with custom translation of
- ACPI GPIO numbers
-To:     Mika Westerberg <mika.westerberg@linux.intel.com>
-Cc:     linux-gpio@vger.kernel.org, linux-acpi@vger.kernel.org,
-        linux-kernel@vger.kernel.org, stanekm@google.com,
-        stable@vger.kernel.org, Marcin Wojtas <mw@semihalf.com>,
-        levinale@chromium.org, andriy.shevchenko@linux.intel.com,
-        Linus Walleij <linus.walleij@linaro.org>,
-        bgolaszewski@baylibre.com, rafael.j.wysocki@intel.com,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+X-Virus-Status: No
+X-Virus-Checker-Version: clamassassin 1.2.4 with clamdscan / ClamAV 0.102.2/25747/Tue Mar 10 12:06:29 2020 signatures .
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Feb 10, 2020 at 11:14 AM Mika Westerberg
-<mika.westerberg@linux.intel.com> wrote:
+On Tue, 10 Mar 2020, Greg Kroah-Hartman wrote:
+
+> From: H.J. Lu <hjl.tools@gmail.com>
 >
-> On Sat, Feb 08, 2020 at 07:43:24PM +0100, Micha=C5=82 Stanek wrote:
-> > > >
-> > > > Hi Mika,
-> > > >
-> > > > The previous patches from Dmitry handled IRQ numbering, here we hav=
-e a
-> > > > similar issue with GPIO to pin translation - hardcoded values in FW
-> > > > which do not agree with the (non-consecutive) numbering in newer
-> > > > kernels.
-> > >
-> > > Hmm, so instead of passing GpioIo/GpioInt resources to devices the
-> > > firmware uses some hard-coded Linux GPIO numbering scheme? Would you
-> > > able to share the exact firmware description where this happens?
-> >
-> > Actually it is a GPIO offset in ACPI tables for Braswell that was
-> > hardcoded in the old firmware to match the previous (consecutive)
-> > Linux GPIO numbering.
+> [ Upstream commit df6d4f9db79c1a5d6f48b59db35ccd1e9ff9adfc ]
 >
-> Can you share the ACPI tables and point me to the GPIO that is using
-> Linux number?
-
-I think this is the one:
-https://chromium-review.googlesource.com/c/chromiumos/third_party/coreboot/=
-%2B/286534/2/src/mainboard/google/cyan/acpi/chromeos.asl
-
-On Kefka the sysfs GPIO number for wpsw_cur was gpio392 before the
-translation change occurred in Linux.
-
-> > > > > What GPIO(s) we are talking about and how does it show up to the =
-user?
-> > > >
-> > > > As an example, the issue manifests itself when you run 'crossystem
-> > > > wpsw_cur'. On my Kefka it incorrectly reports the value as 1 instea=
-d
-> > > > of 0 when the write protect screw is removed.
-> > >
-> > > Is it poking GPIOs directly through sysfs relying the Linux GPIO
-> > > numbering (which can change and is fragile anyway)?
-> >
-> > I believe so, yes.
+> GCC 10 changed the default to -fno-common, which leads to
 >
-> This is something that should be fixed in userspace. Using global Linux
-> GPIO or IRQ numbers is fragile and source of issues like this. There are
-> correct ways of using GPIOs from userspace: in case of sysfs, you can
-> find the base of the chip and then user relative numbering against it or
-> switch to use libgpiod that does the same but uses the newer char
-> device. Both cases the GPIO number are relative against the GPIO chip so
-> they work even if global Linux GPIO numbering changes.
+>    LD      arch/x86/boot/compressed/vmlinux
+>  ld: arch/x86/boot/compressed/pgtable_64.o:(.bss+0x0): multiple definition of `__force_order'; \
+>    arch/x86/boot/compressed/kaslr_64.o:(.bss+0x0): first defined here
+>  make[2]: *** [arch/x86/boot/compressed/Makefile:119: arch/x86/boot/compressed/vmlinux] Error 1
+>
+> Since __force_order is already provided in pgtable_64.c, there is no
+> need to declare __force_order in kaslr_64.c.
+>
+> Signed-off-by: H.J. Lu <hjl.tools@gmail.com>
+> Signed-off-by: Borislav Petkov <bp@suse.de>
+> Link: https://lkml.kernel.org/r/20200124181811.4780-1-hjl.tools@gmail.com
+> Signed-off-by: Sasha Levin <sashal@kernel.org>
+> ---
+> arch/x86/boot/compressed/pagetable.c | 3 ---
+> 1 file changed, 3 deletions(-)
+>
+> diff --git a/arch/x86/boot/compressed/pagetable.c b/arch/x86/boot/compressed/pagetable.c
+> index 56589d0a804b1..2591f8f6d45f2 100644
+> --- a/arch/x86/boot/compressed/pagetable.c
+> +++ b/arch/x86/boot/compressed/pagetable.c
+> @@ -25,9 +25,6 @@
+> #define __PAGE_OFFSET __PAGE_OFFSET_BASE
+> #include "../../mm/ident_map.c"
+>
+> -/* Used by pgtable.h asm code to force instruction serialization. */
+> -unsigned long __force_order;
+> -
+> /* Used to track our page table allocation area. */
+> struct alloc_pgt_data {
+> 	unsigned char *pgt_buf;
+>
 
-I analyzed crossystem source code and it looks like it is doing
-exactly what you're saying without any hardcoded assumptions. It gets
-the absolute offset of the GPIO pin from sysfs using its ACPI
-identifier, then it subtracts the base offset of the GPIO bank from it
-and the result is added to the bank's gpiochip%d number as it shows up
-in sysfs. The result is what is used to export and read the state of
-the pin.
 
-With the newer kernel the gpiochip%d number is different so crossystem
-ends up reading the wrong pin.
+This ends up for me in:
+
+arch/x86/boot/compressed/pagetable.o: In function 
+`initialize_identity_maps':
+pagetable.c:(.text+0x309): undefined reference to `__force_order'
+arch/x86/boot/compressed/pagetable.o: In function 
+`finalize_identity_maps':
+pagetable.c:(.text+0x41a): undefined reference to `__force_order'
+
+
+pgtable_64.c doesn't exist in v4.9 for x86.
+
+So I guess it's not correct to remove __force_order from pagetable.c?
+
+
+    Thomas
+
