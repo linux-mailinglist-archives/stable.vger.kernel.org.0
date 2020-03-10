@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5696717F829
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 13:45:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4DBA717F7CA
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 13:42:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727384AbgCJMpl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 08:45:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48430 "EHLO mail.kernel.org"
+        id S1727299AbgCJMmQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 08:42:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42120 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727691AbgCJMpl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 08:45:41 -0400
+        id S1727286AbgCJMmP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 08:42:15 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1DAB4246A3;
-        Tue, 10 Mar 2020 12:45:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 72AAA246A1;
+        Tue, 10 Mar 2020 12:42:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583844340;
-        bh=/SdVvABjZMbhpCatfBfYl/CVRlV9dxUaLRllt1nFvB8=;
+        s=default; t=1583844134;
+        bh=3tsSw4jgessdiPGEVOtj2pNmUIlDeuL0uPmLRPFww7w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=plL+pplXLHoyQRWAetymaErJPQKvbanKOKC8UASd0+bYWUkLUbENz+L0OYLDScmfv
-         tPIFQrnpvbR160eKcVIrLhGGuqStPqQUdRndZQuLCaJg87JS75krXEj8m48+E5djb1
-         ofrmceZE8QelSIRKUY97kazbPkUsh7Y6uixD9FMk=
+        b=Rb79BpEd/wPbldgMUinSakA5Hpn33xo2exOf/mRviUJY3BRZMMexn+SZns7lBfU9K
+         874nHmI8uZfUgpjfWsEviJoHmqDlvaSrvh+CUPMOBR3JG9CHbcuLVbIl0WizHpVsZa
+         4uT6J6U+ejdMZNv60obvDAnD4WriS2JMizNsCBq4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 46/88] drivers: net: xgene: Fix the order of the arguments of alloc_etherdev_mqs()
-Date:   Tue, 10 Mar 2020 13:38:54 +0100
-Message-Id: <20200310123617.440477082@linuxfoundation.org>
+        stable@vger.kernel.org, Sergey Organov <sorganov@gmail.com>,
+        =?UTF-8?q?Micha=C5=82=20Miros=C5=82aw?= <mirq-linux@rere.qmqm.pl>,
+        Felipe Balbi <balbi@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 42/72] usb: gadget: serial: fix Tx stall after buffer overflow
+Date:   Tue, 10 Mar 2020 13:38:55 +0100
+Message-Id: <20200310123611.870381032@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200310123606.543939933@linuxfoundation.org>
-References: <20200310123606.543939933@linuxfoundation.org>
+In-Reply-To: <20200310123601.053680753@linuxfoundation.org>
+References: <20200310123601.053680753@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,37 +45,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Sergey Organov <sorganov@gmail.com>
 
-commit 5a44c71ccda60a50073c5d7fe3f694cdfa3ab0c2 upstream.
+[ Upstream commit e4bfded56cf39b8d02733c1e6ef546b97961e18a ]
 
-'alloc_etherdev_mqs()' expects first 'tx', then 'rx'. The semantic here
-looks reversed.
+Symptom: application opens /dev/ttyGS0 and starts sending (writing) to
+it while either USB cable is not connected, or nobody listens on the
+other side of the cable. If driver circular buffer overflows before
+connection is established, no data will be written to the USB layer
+until/unless /dev/ttyGS0 is closed and re-opened again by the
+application (the latter besides having no means of being notified about
+the event of establishing of the connection.)
 
-Reorder the arguments passed to 'alloc_etherdev_mqs()' in order to keep
-the correct semantic.
+Fix: on open and/or connect, kick Tx to flush circular buffer data to
+USB layer.
 
-In fact, this is a no-op because both XGENE_NUM_[RT]X_RING are 8.
-
-Fixes: 107dec2749fe ("drivers: net: xgene: Add support for multiple queues")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Sergey Organov <sorganov@gmail.com>
+Reviewed-by: Michał Mirosław <mirq-linux@rere.qmqm.pl>
+Signed-off-by: Felipe Balbi <balbi@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/apm/xgene/xgene_enet_main.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/gadget/function/u_serial.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/apm/xgene/xgene_enet_main.c
-+++ b/drivers/net/ethernet/apm/xgene/xgene_enet_main.c
-@@ -1711,7 +1711,7 @@ static int xgene_enet_probe(struct platf
- 	int ret;
+diff --git a/drivers/usb/gadget/function/u_serial.c b/drivers/usb/gadget/function/u_serial.c
+index 31e08bb3cb41e..58a699cfa4582 100644
+--- a/drivers/usb/gadget/function/u_serial.c
++++ b/drivers/usb/gadget/function/u_serial.c
+@@ -701,8 +701,10 @@ static int gs_start_io(struct gs_port *port)
+ 	port->n_read = 0;
+ 	started = gs_start_rx(port);
  
- 	ndev = alloc_etherdev_mqs(sizeof(struct xgene_enet_pdata),
--				  XGENE_NUM_RX_RING, XGENE_NUM_TX_RING);
-+				  XGENE_NUM_TX_RING, XGENE_NUM_RX_RING);
- 	if (!ndev)
- 		return -ENOMEM;
- 
+-	/* unblock any pending writes into our circular buffer */
+ 	if (started) {
++		gs_start_tx(port);
++		/* Unblock any pending writes into our circular buffer, in case
++		 * we didn't in gs_start_tx() */
+ 		tty_wakeup(port->port.tty);
+ 	} else {
+ 		gs_free_requests(ep, head, &port->read_allocated);
+-- 
+2.20.1
+
 
 
