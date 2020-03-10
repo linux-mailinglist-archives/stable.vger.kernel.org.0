@@ -2,129 +2,110 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 21BEF17F0C2
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 07:49:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B638A17F0CA
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 07:59:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726220AbgCJGta (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 02:49:30 -0400
-Received: from mail-pg1-f196.google.com ([209.85.215.196]:40334 "EHLO
-        mail-pg1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725919AbgCJGta (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Mar 2020 02:49:30 -0400
-Received: by mail-pg1-f196.google.com with SMTP id t24so5882641pgj.7
-        for <stable@vger.kernel.org>; Mon, 09 Mar 2020 23:49:28 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=jbH6xRdOX8dHubxzlGA2hLGPEMz1wek009x1ElXWMXU=;
-        b=IGG2ferCueV9nt0bOHPi5XTe4zpeDSBlKmUtb95/2YoRVc7cIowfFcSolklZnji/Yb
-         gDl5FhvxP0/SctSnShN5WHBsNLmyVSKOT8BJFd12rLEGYp+phe9R7m/amnZWhrCuV6Sw
-         HiJ9d9+R5blRq/8H6X5NnQYUbPpvj7EFLc7i4eWQ7u3e74Te/N3iG4YY/B6J/vAPf+uc
-         2QKYVmDu6UdJeIzaWB/JgRlINrt2pySWkK65km4g8ZKg3wdc9o+D7s42Li++zl+RwfKQ
-         41L3P8JdSTWU920BRCkTgk2MZwKuwmQc2UZv583gsABME5JzIzChknxHNC/TVO1Q3/9H
-         xorA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=jbH6xRdOX8dHubxzlGA2hLGPEMz1wek009x1ElXWMXU=;
-        b=gFfMKmKg3tX59sAsGlk62XYJiK9Sz0MauACAjJ3iEhEnIU/vG6GTxw4LL80gSUCJQD
-         CRV80U5Nyl9r2OGoIqI6tMNIFIzC8xy588/uXu3APWwiEhUZeaAWye+Aqajc1tWlpkjl
-         HgFFCqm90ErUNHdo4LtsEhiQUj2zZUHcz1tQoT9PSRiyd5wOrsslHY4503qmiVeaKldi
-         TNPDP+sMGiTHCfWj5FJR8mImedF+SpN0J852ddi/Hv6lGNCJRAf8C8SBoF0QZh6sS3GQ
-         k4GcRnU2npwokRw//eeghPSTA+Ue2COYrL7f9gbcK7cRC4T2hj/rajT27itcaEziqS5m
-         446A==
-X-Gm-Message-State: ANhLgQ0mtKix5KOzdTtKgH/EvOkEQk/EpZp8Jb5qlczrQsqNj3RaSdfJ
-        0PMrAm8FG8PVYm1v+AtuBzKFC/TBYwY=
-X-Google-Smtp-Source: ADFU+vtz8sBWK3DQLdm1P9DQknMWMrV8z9SfTl2Enfk4RKjVg+plvjbSPPC/7z8DzkmI+kaJ5xKuww==
-X-Received: by 2002:a63:fc1c:: with SMTP id j28mr19954740pgi.289.1583822967530;
-        Mon, 09 Mar 2020 23:49:27 -0700 (PDT)
-Received: from [10.0.9.4] ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id b21sm48706618pfp.0.2020.03.09.23.49.26
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 09 Mar 2020 23:49:26 -0700 (PDT)
-Message-ID: <5e673876.1c69fb81.45a63.56bf@mx.google.com>
-Date:   Mon, 09 Mar 2020 23:49:26 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-5.4.y
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v5.4.24-123-g6201d69ba49e
-X-Kernelci-Report-Type: boot
-Subject: stable-rc/linux-5.4.y boot: 122 boots: 1 failed,
- 117 passed with 3 offline, 1 untried/unknown (v5.4.24-123-g6201d69ba49e)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+        id S1726199AbgCJG7n (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 02:59:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35812 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725919AbgCJG7m (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 02:59:42 -0400
+Received: from localhost.localdomain (unknown [180.171.74.255])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7E20A2467C;
+        Tue, 10 Mar 2020 06:59:41 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1583823582;
+        bh=cmbgetZfb6P+3CdH0q8rIWefP0yljF8X4Bt3d4dAjCc=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=K2P5OD7b8gjsTNi5sZjdMR0Ih/opDfViJrh9b5F0LfuOCUFdpD6rJfplp88aClsjt
+         X/YQUWfu1/V7M+BJG+9GrGJSS+YwzUK3/ByR1brMlprTAPGxtyDZdcvkMwapBTjjuO
+         LzZBspAmactf8uA/OzwcDtvyBjoG+m23J59mYAb4=
+From:   Peter Chen <peter.chen@kernel.org>
+To:     gregkh@linuxfoundation.org
+Cc:     linux-usb@vger.kernel.org, Peter Chen <peter.chen@nxp.com>,
+        stable@vger.kernel.org
+Subject: [PATCH 1/1] usb: chipidea: udc: fix sleeping function called from invalid context
+Date:   Tue, 10 Mar 2020 14:59:26 +0800
+Message-Id: <20200310065926.17746-2-peter.chen@kernel.org>
+X-Mailer: git-send-email 2.17.1
+In-Reply-To: <20200310065926.17746-1-peter.chen@kernel.org>
+References: <20200310065926.17746-1-peter.chen@kernel.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.4.y boot: 122 boots: 1 failed, 117 passed with 3 offline,=
- 1 untried/unknown (v5.4.24-123-g6201d69ba49e)
+From: Peter Chen <peter.chen@nxp.com>
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--5.4.y/kernel/v5.4.24-123-g6201d69ba49e/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-5.4.y=
-/kernel/v5.4.24-123-g6201d69ba49e/
+The code calls pm_runtime_get_sync with irq disabled, it causes below
+warning:
 
-Tree: stable-rc
-Branch: linux-5.4.y
-Git Describe: v5.4.24-123-g6201d69ba49e
-Git Commit: 6201d69ba49e810a10a557a4f41fd95c55a61983
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 90 unique boards, 23 SoC families, 18 builds out of 200
+BUG: sleeping function called from invalid context at
+wer/runtime.c:1075
+in_atomic(): 1, irqs_disabled(): 128, non_block: 0, pid:
+er/u8:1
+CPU: 1 PID: 37 Comm: kworker/u8:1 Not tainted
+20200304-00181-gbebfd2a5be98 #1588
+Hardware name: NVIDIA Tegra SoC (Flattened Device Tree)
+Workqueue: ci_otg ci_otg_work
+[<c010e8bd>] (unwind_backtrace) from [<c010a315>]
+1/0x14)
+[<c010a315>] (show_stack) from [<c0987d29>]
+5/0x94)
+[<c0987d29>] (dump_stack) from [<c013e77f>]
++0xeb/0x118)
+[<c013e77f>] (___might_sleep) from [<c052fa1d>]
+esume+0x75/0x78)
+[<c052fa1d>] (__pm_runtime_resume) from [<c0627a33>]
+0x23/0x74)
+[<c0627a33>] (ci_udc_pullup) from [<c062fb93>]
+nect+0x2b/0xcc)
+[<c062fb93>] (usb_gadget_connect) from [<c062769d>]
+_connect+0x59/0x104)
+[<c062769d>] (ci_hdrc_gadget_connect) from [<c062778b>]
+ssion+0x43/0x48)
+[<c062778b>] (ci_udc_vbus_session) from [<c062f997>]
+s_connect+0x17/0x9c)
+[<c062f997>] (usb_gadget_vbus_connect) from [<c062634d>]
+bd/0x128)
+[<c062634d>] (ci_otg_work) from [<c0134719>]
+rk+0x149/0x404)
+[<c0134719>] (process_one_work) from [<c0134acb>]
+0xf7/0x3bc)
+[<c0134acb>] (worker_thread) from [<c0139433>]
+x118)
+[<c0139433>] (kthread) from [<c01010bd>]
+(ret_from_fork+0x11/0x34)
 
-Boot Regressions Detected:
-
-arm:
-
-    qcom_defconfig:
-        gcc-8:
-          qcom-apq8064-cm-qs600:
-              lab-baylibre-seattle: failing since 30 days (last pass: v5.4.=
-17-99-gbd0c6624a110 - first fail: v5.4.17-238-gbffcaa93483d)
-
-    versatile_defconfig:
-        gcc-8:
-          versatile-pb:
-              lab-collabora: new failure (last pass: v5.4.24)
-
-arm64:
-
-    defconfig:
-        gcc-8:
-          meson-axg-s400:
-              lab-baylibre-seattle: new failure (last pass: v5.4.24)
-
-Boot Failure Detected:
-
-arm:
-    sama5_defconfig:
-        gcc-8:
-            at91-sama5d4_xplained: 1 failed lab
-
-Offline Platforms:
-
-arm:
-
-    multi_v7_defconfig:
-        gcc-8
-            qcom-apq8064-cm-qs600: 1 offline lab
-
-    qcom_defconfig:
-        gcc-8
-            qcom-apq8064-cm-qs600: 1 offline lab
-
-arm64:
-
-    defconfig:
-        gcc-8
-            meson-axg-s400: 1 offline lab
-
+Tested-by: Dmitry Osipenko <digetx@gmail.com>
+Cc: <stable@vger.kernel.org> #v5.5
+Fixes: 72dc8df7920f ("usb: chipidea: udc: protect usb interrupt enable")
+Reported-by: Dmitry Osipenko <digetx@gmail.com>
+Signed-off-by: Peter Chen <peter.chen@nxp.com>
 ---
-For more info write to <info@kernelci.org>
+ drivers/usb/chipidea/udc.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/usb/chipidea/udc.c b/drivers/usb/chipidea/udc.c
+index ffaf46f5d062..1fa587ec52fc 100644
+--- a/drivers/usb/chipidea/udc.c
++++ b/drivers/usb/chipidea/udc.c
+@@ -1539,9 +1539,11 @@ static void ci_hdrc_gadget_connect(struct usb_gadget *_gadget, int is_active)
+ 		if (ci->driver) {
+ 			hw_device_state(ci, ci->ep0out->qh.dma);
+ 			usb_gadget_set_state(_gadget, USB_STATE_POWERED);
++			spin_unlock_irqrestore(&ci->lock, flags);
+ 			usb_udc_vbus_handler(_gadget, true);
++		} else {
++			spin_unlock_irqrestore(&ci->lock, flags);
+ 		}
+-		spin_unlock_irqrestore(&ci->lock, flags);
+ 	} else {
+ 		usb_udc_vbus_handler(_gadget, false);
+ 		if (ci->driver)
+-- 
+2.17.1
+
