@@ -2,108 +2,153 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E69F01801ED
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 16:33:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 929F2180200
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 16:38:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726546AbgCJPd4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 11:33:56 -0400
-Received: from mail-lj1-f193.google.com ([209.85.208.193]:38256 "EHLO
-        mail-lj1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726382AbgCJPd4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Mar 2020 11:33:56 -0400
-Received: by mail-lj1-f193.google.com with SMTP id w1so14648606ljh.5
-        for <stable@vger.kernel.org>; Tue, 10 Mar 2020 08:33:54 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=zXfY+hm6nAyuD/AmdMy4F6zgsNBRxXYSqgTSrNob95Q=;
-        b=evewDF+wTbM0lLqZStPAgQrySHKOjDHSrTd0D3LYXi3Hs1GFNSR2WKOt5NSBLo8RIp
-         LxOIXvlUl3s7CuyOoTRhBAfyHxGwEtKkv0VIU1R7vqrvkTlLg9qrbqES+G6AwX0c89Gz
-         A0dmrhmJ/vNNCaOjDh2a1J++41kzdyq0wzhbk/qe+/NGoCdog6ZJ9BhLi5F2vygH/2r8
-         muK7CKqK/LHc8xNMcwbBlDDoC69aDJYHbJ9JJ0e5MO/szgUP5RsFkn/IrdTv2ZueelUS
-         9vukUF7mTkIb2upmvxx/cqXFl6PlKA5UnMs25tKaAvlBRbydEx3XD0EfYAayl45jYRkO
-         Qx5g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=zXfY+hm6nAyuD/AmdMy4F6zgsNBRxXYSqgTSrNob95Q=;
-        b=EhxfcppQd8iKjVMkLghueEuE/1iglK5I4R6+fbW+OykT4GaSEGJbgaD+VBypFVMXdV
-         DaTzufdwUUH7TdtJR1jSyrwuogawBJD/eqCinZAytvP8BBPSgJ6CI0icEKZBDoNg6dNL
-         nt42U2ER55PF+Dzy7tDilHG/uisAnBwFizKP0uZyGycB0a5n+FeuDYkjVa+R4ljHAXPN
-         ZDtYVO/c3a4VDlnjMbKYGCraJveqesH8ORnE6WOKTv2HQfdOtuuPntnCH3NYFPTBzgml
-         t5Cbnv0KAEWuURGcXtDK/uod5kNpyUrk5d2e6O/N85SNPigjzdEkn3eqR4qg7JM9iKHS
-         OhdA==
-X-Gm-Message-State: ANhLgQ0ocb1ss1rfiONxafXHAZexG8LhXEKTO8Q6XuME12b7ibNmBxuX
-        mb2+7aEbQAwhG1QxXLp0ia1nqw==
-X-Google-Smtp-Source: ADFU+vu0tIjfpP50RQbzS8Z+nzh45tErRu3mPFdaEIEBUL9uWfO0Z5/yv52Cb1ks+dOCE2AuCLaiKA==
-X-Received: by 2002:a2e:3608:: with SMTP id d8mr12867272lja.52.1583854434100;
-        Tue, 10 Mar 2020 08:33:54 -0700 (PDT)
-Received: from localhost.localdomain (h-158-174-22-210.NA.cust.bahnhof.se. [158.174.22.210])
-        by smtp.gmail.com with ESMTPSA id c22sm17283776lfi.41.2020.03.10.08.33.52
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 10 Mar 2020 08:33:53 -0700 (PDT)
-From:   Ulf Hansson <ulf.hansson@linaro.org>
-To:     linux-mmc@vger.kernel.org, Ulf Hansson <ulf.hansson@linaro.org>
-Cc:     Adrian Hunter <adrian.hunter@intel.com>,
-        Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        Ludovic Barre <ludovic.barre@st.com>,
-        Baolin Wang <baolin.wang7@gmail.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Chaotian Jing <chaotian.jing@mediatek.com>,
-        Shawn Lin <shawn.lin@rock-chips.com>, mirq-linux@rere.qmqm.pl,
-        Bitan Biswas <bbiswas@nvidia.com>,
-        Peter Geis <pgwipeout@gmail.com>,
-        Sowjanya Komatineni <skomatineni@nvidia.com>,
-        Faiz Abbas <faiz_abbas@ti.com>,
-        Anders Roxell <anders.roxell@linaro.org>,
-        Naresh Kamboju <naresh.kamboju@linaro.org>,
-        Jon Hunter <jonathanh@nvidia.com>, stable@vger.kernel.org
-Subject: [PATCH 4/4] mmc: sdhci-tegra: Fix busy detection by enabling MMC_CAP_NEED_RSP_BUSY
-Date:   Tue, 10 Mar 2020 16:33:40 +0100
-Message-Id: <20200310153340.5593-5-ulf.hansson@linaro.org>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20200310153340.5593-1-ulf.hansson@linaro.org>
-References: <20200310153340.5593-1-ulf.hansson@linaro.org>
+        id S1726526AbgCJPiF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 11:38:05 -0400
+Received: from out03.mta.xmission.com ([166.70.13.233]:44554 "EHLO
+        out03.mta.xmission.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726380AbgCJPiF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Mar 2020 11:38:05 -0400
+Received: from in01.mta.xmission.com ([166.70.13.51])
+        by out03.mta.xmission.com with esmtps (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        (Exim 4.90_1)
+        (envelope-from <ebiederm@xmission.com>)
+        id 1jBgxE-0001AS-RF; Tue, 10 Mar 2020 09:38:00 -0600
+Received: from ip68-227-160-95.om.om.cox.net ([68.227.160.95] helo=x220.xmission.com)
+        by in01.mta.xmission.com with esmtpsa (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.87)
+        (envelope-from <ebiederm@xmission.com>)
+        id 1jBgxD-0000sr-Jr; Tue, 10 Mar 2020 09:38:00 -0600
+From:   ebiederm@xmission.com (Eric W. Biederman)
+To:     Bernd Edlinger <bernd.edlinger@hotmail.de>
+Cc:     Christian Brauner <christian.brauner@ubuntu.com>,
+        Kees Cook <keescook@chromium.org>,
+        Jann Horn <jannh@google.com>, Jonathan Corbet <corbet@lwn.net>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Alexey Dobriyan <adobriyan@gmail.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Oleg Nesterov <oleg@redhat.com>,
+        Frederic Weisbecker <frederic@kernel.org>,
+        Andrei Vagin <avagin@gmail.com>,
+        Ingo Molnar <mingo@kernel.org>,
+        "Peter Zijlstra \(Intel\)" <peterz@infradead.org>,
+        Yuyang Du <duyuyang@gmail.com>,
+        David Hildenbrand <david@redhat.com>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Anshuman Khandual <anshuman.khandual@arm.com>,
+        David Howells <dhowells@redhat.com>,
+        James Morris <jamorris@linux.microsoft.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Shakeel Butt <shakeelb@google.com>,
+        Jason Gunthorpe <jgg@ziepe.ca>,
+        Christian Kellner <christian@kellner.me>,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        Aleksa Sarai <cyphar@cyphar.com>,
+        "Dmitry V. Levin" <ldv@altlinux.org>,
+        "linux-doc\@vger.kernel.org" <linux-doc@vger.kernel.org>,
+        "linux-kernel\@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "linux-fsdevel\@vger.kernel.org" <linux-fsdevel@vger.kernel.org>,
+        "linux-mm\@kvack.org" <linux-mm@kvack.org>,
+        "stable\@vger.kernel.org" <stable@vger.kernel.org>,
+        "linux-api\@vger.kernel.org" <linux-api@vger.kernel.org>
+References: <AM6PR03MB5170EB4427BF5C67EE98FF09E4E60@AM6PR03MB5170.eurprd03.prod.outlook.com>
+        <87r1y8dqqz.fsf@x220.int.ebiederm.org>
+        <AM6PR03MB517053AED7DC89F7C0704B7DE4E50@AM6PR03MB5170.eurprd03.prod.outlook.com>
+        <AM6PR03MB51703B44170EAB4626C9B2CAE4E20@AM6PR03MB5170.eurprd03.prod.outlook.com>
+        <87tv32cxmf.fsf_-_@x220.int.ebiederm.org>
+        <87v9ne5y4y.fsf_-_@x220.int.ebiederm.org>
+        <87zhcq4jdj.fsf_-_@x220.int.ebiederm.org>
+        <AM6PR03MB5170BC58D90BAD80CDEF3F8BE4FE0@AM6PR03MB5170.eurprd03.prod.outlook.com>
+        <878sk94eay.fsf@x220.int.ebiederm.org>
+        <AM6PR03MB517086003BD2C32E199690A3E4FE0@AM6PR03MB5170.eurprd03.prod.outlook.com>
+        <87r1y12yc7.fsf@x220.int.ebiederm.org>
+        <87k13t2xpd.fsf@x220.int.ebiederm.org>
+        <87d09l2x5n.fsf@x220.int.ebiederm.org>
+        <AM6PR03MB5170F0F9DC18F5EA77C9A857E4FE0@AM6PR03MB5170.eurprd03.prod.outlook.com>
+        <871rq12vxu.fsf@x220.int.ebiederm.org>
+        <AM6PR03MB5170DF45E3245F55B95CCD91E4FE0@AM6PR03MB5170.eurprd03.prod.outlook.com>
+        <877dzt1fnf.fsf@x220.int.ebiederm.org>
+        <AM6PR03MB51701C6F60699F99C5C67E0BE4FF0@AM6PR03MB5170.eurprd03.prod.outlook.com>
+Date:   Tue, 10 Mar 2020 10:35:41 -0500
+In-Reply-To: <AM6PR03MB51701C6F60699F99C5C67E0BE4FF0@AM6PR03MB5170.eurprd03.prod.outlook.com>
+        (Bernd Edlinger's message of "Tue, 10 Mar 2020 14:43:21 +0100")
+Message-ID: <875zfcxlwy.fsf@x220.int.ebiederm.org>
+User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/26.1 (gnu/linux)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-XM-SPF: eid=1jBgxD-0000sr-Jr;;;mid=<875zfcxlwy.fsf@x220.int.ebiederm.org>;;;hst=in01.mta.xmission.com;;;ip=68.227.160.95;;;frm=ebiederm@xmission.com;;;spf=neutral
+X-XM-AID: U2FsdGVkX18NOUXxtLcovq85kyfc0MbvMJLCG3mnAmU=
+X-SA-Exim-Connect-IP: 68.227.160.95
+X-SA-Exim-Mail-From: ebiederm@xmission.com
+X-Spam-Checker-Version: SpamAssassin 3.4.2 (2018-09-13) on sa07.xmission.com
+X-Spam-Level: **
+X-Spam-Status: No, score=2.0 required=8.0 tests=ALL_TRUSTED,BAYES_50,
+        DCC_CHECK_NEGATIVE,T_TM2_M_HEADER_IN_MSG,XMNoVowels,XMSubLong
+        autolearn=disabled version=3.4.2
+X-Spam-Report: * -1.0 ALL_TRUSTED Passed through trusted hosts only via SMTP
+        *  0.8 BAYES_50 BODY: Bayes spam probability is 40 to 60%
+        *      [score: 0.4887]
+        *  1.5 XMNoVowels Alpha-numberic number with no vowels
+        *  0.7 XMSubLong Long Subject
+        *  0.0 T_TM2_M_HEADER_IN_MSG BODY: No description available.
+        * -0.0 DCC_CHECK_NEGATIVE Not listed in DCC
+        *      [sa07 1397; Body=1 Fuz1=1 Fuz2=1]
+X-Spam-DCC: XMission; sa07 1397; Body=1 Fuz1=1 Fuz2=1 
+X-Spam-Combo: **;Bernd Edlinger <bernd.edlinger@hotmail.de>
+X-Spam-Relay-Country: 
+X-Spam-Timing: total 698 ms - load_scoreonly_sql: 0.05 (0.0%),
+        signal_user_changed: 6 (0.8%), b_tie_ro: 3.6 (0.5%), parse: 0.98
+        (0.1%), extract_message_metadata: 11 (1.5%), get_uri_detail_list: 0.89
+        (0.1%), tests_pri_-1000: 8 (1.2%), tests_pri_-950: 1.24 (0.2%),
+        tests_pri_-900: 1.05 (0.2%), tests_pri_-90: 32 (4.5%), check_bayes: 30
+        (4.2%), b_tokenize: 12 (1.7%), b_tok_get_all: 8 (1.1%), b_comp_prob:
+        3.6 (0.5%), b_tok_touch_all: 3.8 (0.5%), b_finish: 0.66 (0.1%),
+        tests_pri_0: 627 (89.8%), check_dkim_signature: 0.50 (0.1%),
+        check_dkim_adsp: 2.1 (0.3%), poll_dns_idle: 0.30 (0.0%), tests_pri_10:
+        2.0 (0.3%), tests_pri_500: 6 (0.8%), rewrite_mail: 0.00 (0.0%)
+Subject: Re: [PATCH 0/4] Use new infrastructure to fix deadlocks in execve
+X-Spam-Flag: No
+X-SA-Exim-Version: 4.2.1 (built Thu, 05 May 2016 13:38:54 -0600)
+X-SA-Exim-Scanned: Yes (on in01.mta.xmission.com)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-It has turned out that the sdhci-tegra controller requires the R1B response,
-for commands that has this response associated with them. So, converting
-from an R1B to an R1 response for a CMD6 for example, leads to problems
-with the HW busy detection support.
+Bernd Edlinger <bernd.edlinger@hotmail.de> writes:
 
-Fix this by informing the mmc core about the requirement, via setting the
-host cap, MMC_CAP_NEED_RSP_BUSY.
+> This is a follow up on Eric's patch series to
+> fix the deadlocks observed with ptracing when execve
+> in multi-threaded applications.
+>
+> This fixes the simple and most important case where
+> the cred_guard_mutex causes strace to deadlock.
+>
+> This also adds a test case (which is only partially
+> fixed so far, the rest of the fixes will follow
+> soon).
+>
+> Two trivial comment fixes are also included.
+>
+> Bernd Edlinger (4):
+>   exec: Fix a deadlock in ptrace
+>   selftests/ptrace: add test cases for dead-locks
+>   mm: docs: Fix a comment in process_vm_rw_core
+>   kernel: doc: remove outdated comment in prepare_kernel_cred
+>
+>  kernel/cred.c                             |  2 -
+>  kernel/fork.c                             |  4 +-
+>  mm/process_vm_access.c                    |  2 +-
+>  tools/testing/selftests/ptrace/Makefile   |  4 +-
+>  tools/testing/selftests/ptrace/vmaccess.c | 86 +++++++++++++++++++++++++++++++
+>  5 files changed, 91 insertions(+), 7 deletions(-)
+>  create mode 100644 tools/testing/selftests/ptrace/vmaccess.c
 
-Reported-by: Bitan Biswas <bbiswas@nvidia.com>
-Reported-by: Peter Geis <pgwipeout@gmail.com>
-Suggested-by: Sowjanya Komatineni <skomatineni@nvidia.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
----
- drivers/mmc/host/sdhci-tegra.c | 3 +++
- 1 file changed, 3 insertions(+)
+Applied.
 
-diff --git a/drivers/mmc/host/sdhci-tegra.c b/drivers/mmc/host/sdhci-tegra.c
-index 403ac44a7378..a25c3a4d3f6c 100644
---- a/drivers/mmc/host/sdhci-tegra.c
-+++ b/drivers/mmc/host/sdhci-tegra.c
-@@ -1552,6 +1552,9 @@ static int sdhci_tegra_probe(struct platform_device *pdev)
- 	if (tegra_host->soc_data->nvquirks & NVQUIRK_ENABLE_DDR50)
- 		host->mmc->caps |= MMC_CAP_1_8V_DDR;
- 
-+	/* R1B responses is required to properly manage HW busy detection. */
-+	host->mmc->caps |= MMC_CAP_NEED_RSP_BUSY;
-+
- 	tegra_sdhci_parse_dt(host);
- 
- 	tegra_host->power_gpio = devm_gpiod_get_optional(&pdev->dev, "power",
--- 
-2.20.1
+Thank you,
+Eric
 
