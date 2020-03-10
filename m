@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CA17A17F7C3
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 13:42:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A72FE17F9C9
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:00:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727250AbgCJMmH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 08:42:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41936 "EHLO mail.kernel.org"
+        id S1729662AbgCJM77 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 08:59:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40508 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727241AbgCJMmG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 08:42:06 -0400
+        id S1726703AbgCJM75 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 08:59:57 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C78E624686;
-        Tue, 10 Mar 2020 12:42:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2B92C2468C;
+        Tue, 10 Mar 2020 12:59:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583844126;
-        bh=sOAGFuQmdWeLvsjXjqeTg71nvzmjKCDHQHCRceyd3eA=;
+        s=default; t=1583845195;
+        bh=5SN7HBIx7S/iolfgVHveQ4pUn7G7+gnmiMjM+m1Zmmw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hwfVoCWzBNL/BAKV1RA1w3/8Ugoy86OyqatWBsrMXchRxBDj56Xv5mdNl2/A49dns
-         2cNgnEUwtEeBb0IcJfffptt7qtf8IGRF9WqFtobShwhJN4P+j3NVqnIkEqJPM8DZlg
-         OxJucODUNr7hDzyVj6+NYQtJIDzIWsSpYfQovN08=
+        b=AqHPck/9/VSnxZhI/lGB883yvZ7KmEDRJ4x0SoHRHfLR6HCWLc2ed4ToTJ+pImh56
+         f+wq8M06TDwe18lgZSclxxYiGbuHAqpRZD1rcX8/aVMm7UzNqXLmzmN4CWY3TkKp+5
+         UI7w/P8fmEz2U1PSkLK9PPz2wEEPz0P1jEV/MsKI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chuanhong Guo <gch981213@gmail.com>,
-        Daniel Golle <daniel@makrotopia.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 40/72] serial: ar933x_uart: set UART_CS_{RX,TX}_READY_ORIDE
+        stable@vger.kernel.org, Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Subject: [PATCH 5.5 096/189] media: mc-entity.c: use & to check pad flags, not ==
 Date:   Tue, 10 Mar 2020 13:38:53 +0100
-Message-Id: <20200310123611.483812673@linuxfoundation.org>
+Message-Id: <20200310123649.412455503@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200310123601.053680753@linuxfoundation.org>
-References: <20200310123601.053680753@linuxfoundation.org>
+In-Reply-To: <20200310123639.608886314@linuxfoundation.org>
+References: <20200310123639.608886314@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,58 +43,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Golle <daniel@makrotopia.org>
+From: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 
-[ Upstream commit 87c5cbf71ecbb9e289d60a2df22eb686c70bf196 ]
+commit 044041cd5227ec9ccf969f4bf1cc08bffe13b9d3 upstream.
 
-On AR934x this UART is usually not initialized by the bootloader
-as it is only used as a secondary serial port while the primary
-UART is a newly introduced NS16550-compatible.
-In order to make use of the ar933x-uart on AR934x without RTS/CTS
-hardware flow control, one needs to set the
-UART_CS_{RX,TX}_READY_ORIDE bits as other than on AR933x where this
-UART is used as primary/console, the bootloader on AR934x typically
-doesn't set those bits.
-Setting them explicitely on AR933x should not do any harm, so just
-set them unconditionally.
+These are bits so to test if a pad is a sink you use & but not ==.
 
-Tested-by: Chuanhong Guo <gch981213@gmail.com>
-Signed-off-by: Daniel Golle <daniel@makrotopia.org>
-Link: https://lore.kernel.org/r/20200207095335.GA179836@makrotopia.org
+It looks like the only reason this hasn't caused problems before is that
+media_get_pad_index() is currently only used with pads that do not set the
+MEDIA_PAD_FL_MUST_CONNECT flag. So a pad really had only the SINK or SOURCE
+flag set and nothing else.
+
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Cc: <stable@vger.kernel.org>      # for v5.3 and up
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+
 ---
- drivers/tty/serial/ar933x_uart.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/media/mc/mc-entity.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/tty/serial/ar933x_uart.c b/drivers/tty/serial/ar933x_uart.c
-index 1519d2ca7705f..40194791cde0b 100644
---- a/drivers/tty/serial/ar933x_uart.c
-+++ b/drivers/tty/serial/ar933x_uart.c
-@@ -294,6 +294,10 @@ static void ar933x_uart_set_termios(struct uart_port *port,
- 	ar933x_uart_rmw_set(up, AR933X_UART_CS_REG,
- 			    AR933X_UART_CS_HOST_INT_EN);
+--- a/drivers/media/mc/mc-entity.c
++++ b/drivers/media/mc/mc-entity.c
+@@ -639,9 +639,9 @@ int media_get_pad_index(struct media_ent
+ 		return -EINVAL;
  
-+	/* enable RX and TX ready overide */
-+	ar933x_uart_rmw_set(up, AR933X_UART_CS_REG,
-+		AR933X_UART_CS_TX_READY_ORIDE | AR933X_UART_CS_RX_READY_ORIDE);
-+
- 	/* reenable the UART */
- 	ar933x_uart_rmw(up, AR933X_UART_CS_REG,
- 			AR933X_UART_CS_IF_MODE_M << AR933X_UART_CS_IF_MODE_S,
-@@ -426,6 +430,10 @@ static int ar933x_uart_startup(struct uart_port *port)
- 	ar933x_uart_rmw_set(up, AR933X_UART_CS_REG,
- 			    AR933X_UART_CS_HOST_INT_EN);
- 
-+	/* enable RX and TX ready overide */
-+	ar933x_uart_rmw_set(up, AR933X_UART_CS_REG,
-+		AR933X_UART_CS_TX_READY_ORIDE | AR933X_UART_CS_RX_READY_ORIDE);
-+
- 	/* Enable RX interrupts */
- 	up->ier = AR933X_UART_INT_RX_VALID;
- 	ar933x_uart_write(up, AR933X_UART_INT_EN_REG, up->ier);
--- 
-2.20.1
-
+ 	for (i = 0; i < entity->num_pads; i++) {
+-		if (entity->pads[i].flags == MEDIA_PAD_FL_SINK)
++		if (entity->pads[i].flags & MEDIA_PAD_FL_SINK)
+ 			pad_is_sink = true;
+-		else if (entity->pads[i].flags == MEDIA_PAD_FL_SOURCE)
++		else if (entity->pads[i].flags & MEDIA_PAD_FL_SOURCE)
+ 			pad_is_sink = false;
+ 		else
+ 			continue;	/* This is an error! */
 
 
