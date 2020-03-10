@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D52B617FE1A
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:33:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 391C817FE26
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:33:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728398AbgCJMtG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 08:49:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53404 "EHLO mail.kernel.org"
+        id S1728267AbgCJMsG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 08:48:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52098 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728394AbgCJMtE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 08:49:04 -0400
+        id S1728263AbgCJMsG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 08:48:06 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3B7572468E;
-        Tue, 10 Mar 2020 12:49:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EB13920674;
+        Tue, 10 Mar 2020 12:48:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583844543;
-        bh=kFPwuE5ZqLxEVxKWnapOEi+Fe0RnV174k4NEdaYdxBc=;
+        s=default; t=1583844485;
+        bh=E7HA8Tb6z/fR4TEQUjmrtS8FF/XCbRmKlwiBpuiJBeY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xv1Siim9gXC+jZm43+zFS3YAK60C1JsWO1vsueGUhUH5GNXxLlxee0QyB5FOeKY2V
-         DDCrj35qKSV8T4cbQQF1HIB6I9+1hFDhwMzQ3+dc+2FsLHQ4vzNXUS9sQlD/M/ZRQX
-         +9CQKB0ouNvxKxZWfH9c0gyliljrhaMI4+p78ZZ8=
+        b=CP3fb0N5unX1QFWmLw6OOj+M6Ru6qbL/Jj3Ur056pdSnmp5Zsz1Mq8XfeXbF+hUu+
+         qYR2zFyGp83kjdC7QDE+NnZlFeydC/md92j329gF/o3LRY07tbkyg+hHP0Uxb+AJ67
+         M2B+xmcug0HyqQwaowKirRKzMVl/iwYy9o1Mvze4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Leon Romanovsky <leonro@mellanox.com>,
-        Jason Gunthorpe <jgg@mellanox.com>,
+        stable@vger.kernel.org, kbuild test robot <lkp@intel.com>,
+        Masahiro Yamada <masahiroy@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 009/168] RDMA/core: Fix use of logical OR in get_new_pps
-Date:   Tue, 10 Mar 2020 13:37:35 +0100
-Message-Id: <20200310123636.744134940@linuxfoundation.org>
+Subject: [PATCH 5.4 010/168] kbuild: fix No such file or directory warning when cleaning
+Date:   Tue, 10 Mar 2020 13:37:36 +0100
+Message-Id: <20200310123636.818007750@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200310123635.322799692@linuxfoundation.org>
 References: <20200310123635.322799692@linuxfoundation.org>
@@ -46,45 +44,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <natechancellor@gmail.com>
+From: Masahiro Yamada <masahiroy@kernel.org>
 
-[ Upstream commit 4ca501d6aaf21de31541deac35128bbea8427aa6 ]
+[ Upstream commit cf6b58ab2d55f5a143c88c219c8e66ff0720fa69 ]
 
-Clang warns:
+Since commit fcbb8461fd23 ("kbuild: remove header compile test"),
+'make clean' with O= option in the pristine source tree emits
+'No such file or directory' warning.
 
-../drivers/infiniband/core/security.c:351:41: warning: converting the
-enum constant to a boolean [-Wint-in-bool-context]
-        if (!(qp_attr_mask & (IB_QP_PKEY_INDEX || IB_QP_PORT)) && qp_pps) {
-                                               ^
-1 warning generated.
+$ git clean -d -f -x
+$ make O=foo clean
+make[1]: Entering directory '/home/masahiro/linux/foo'
+find: ‘usr/include’: No such file or directory
+make[1]: Leaving directory '/home/masahiro/linux/foo'
 
-A bitwise OR should have been used instead.
-
-Fixes: 1dd017882e01 ("RDMA/core: Fix protection fault in get_pkey_idx_qp_list")
-Link: https://lore.kernel.org/r/20200217204318.13609-1-natechancellor@gmail.com
-Link: https://github.com/ClangBuiltLinux/linux/issues/889
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-Reviewed-by: Leon Romanovsky <leonro@mellanox.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+Fixes: fcbb8461fd23 ("kbuild: remove header compile test")
+Reported-by: kbuild test robot <lkp@intel.com>
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/core/security.c | 2 +-
+ usr/include/Makefile | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/infiniband/core/security.c b/drivers/infiniband/core/security.c
-index 9e27ca18d3270..2d5608315dc80 100644
---- a/drivers/infiniband/core/security.c
-+++ b/drivers/infiniband/core/security.c
-@@ -352,7 +352,7 @@ static struct ib_ports_pkeys *get_new_pps(const struct ib_qp *qp,
- 	if ((qp_attr_mask & IB_QP_PKEY_INDEX) && (qp_attr_mask & IB_QP_PORT))
- 		new_pps->main.state = IB_PORT_PKEY_VALID;
+diff --git a/usr/include/Makefile b/usr/include/Makefile
+index 47cb91d3a51d2..e2840579156a9 100644
+--- a/usr/include/Makefile
++++ b/usr/include/Makefile
+@@ -99,7 +99,7 @@ endif
+ # asm-generic/*.h is used by asm/*.h, and should not be included directly
+ header-test- += asm-generic/%
  
--	if (!(qp_attr_mask & (IB_QP_PKEY_INDEX || IB_QP_PORT)) && qp_pps) {
-+	if (!(qp_attr_mask & (IB_QP_PKEY_INDEX | IB_QP_PORT)) && qp_pps) {
- 		new_pps->main.port_num = qp_pps->main.port_num;
- 		new_pps->main.pkey_index = qp_pps->main.pkey_index;
- 		if (qp_pps->main.state != IB_PORT_PKEY_NOT_VALID)
+-extra-y := $(patsubst $(obj)/%.h,%.hdrtest, $(shell find $(obj) -name '*.h'))
++extra-y := $(patsubst $(obj)/%.h,%.hdrtest, $(shell find $(obj) -name '*.h' 2>/dev/null))
+ 
+ quiet_cmd_hdrtest = HDRTEST $<
+       cmd_hdrtest = \
 -- 
 2.20.1
 
