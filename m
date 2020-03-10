@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 78BC317F7E2
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 13:43:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D703217F91A
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 13:54:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727492AbgCJMnF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 08:43:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43292 "EHLO mail.kernel.org"
+        id S1728886AbgCJMyA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 08:54:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60286 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727020AbgCJMnE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 08:43:04 -0400
+        id S1729284AbgCJMx6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 08:53:58 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D867F24691;
-        Tue, 10 Mar 2020 12:43:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3631824693;
+        Tue, 10 Mar 2020 12:53:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583844183;
-        bh=/m9J5AjHPmkxdv/mxTTAUj/YwiT+0U/ccx6qmEo4Vpo=;
+        s=default; t=1583844837;
+        bh=Hdj9Xj4OjgQMShoUBLeSfokjxn4D5YsJdsBsM0BdGsU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2H7/Of6txKB00VTw/AYhMJmvpi0IoouZx9WCJ0poftyjV6Rtrb581HC5YlE6gbxRt
-         QOED5gkK1vCYxyFg5HTxvkkxPYyGX5kdZiqM9hxbhB1KyxU2ml7MUaCFoS7bGd8pBD
-         cD2X6bv5v6dq3qWy3kXGBxEnsOV4zGQfMH5hsG9E=
+        b=Ml2plmj0JzQaUEab19U7CckWHIGp48YV4fQR/VvcvSxkDsgThqhwlHve/BDHKukcI
+         sxhOK20XujcolP3FrSa9ImfAEPFh79sRhtHbIzwCWRvQe9fIYGN7G2azsiRH73PaU+
+         XOprz5DCNJASokrCVPAemkaWOV7xoYs9yTqx5RKA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
-        Cezary Rojewski <cezary.rojewski@intel.com>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 4.4 62/72] ASoC: pcm: Fix possible buffer overflow in dpcm state sysfs output
-Date:   Tue, 10 Mar 2020 13:39:15 +0100
-Message-Id: <20200310123616.767422404@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>,
+        Damien Le Moal <damien.lemoal@wdc.com>,
+        Mike Snitzer <snitzer@redhat.com>
+Subject: [PATCH 5.4 110/168] dm zoned: Fix reference counter initial value of chunk works
+Date:   Tue, 10 Mar 2020 13:39:16 +0100
+Message-Id: <20200310123646.534986078@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200310123601.053680753@linuxfoundation.org>
-References: <20200310123601.053680753@linuxfoundation.org>
+In-Reply-To: <20200310123635.322799692@linuxfoundation.org>
+References: <20200310123635.322799692@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,84 +45,107 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
 
-commit 6c89ffea60aa3b2a33ae7987de1e84bfb89e4c9e upstream.
+commit ee63634bae02e13c8c0df1209a6a0ca5326f3189 upstream.
 
-dpcm_show_state() invokes multiple snprintf() calls to concatenate
-formatted strings on the fixed size buffer.  The usage of snprintf()
-is supposed for avoiding the buffer overflow, but it doesn't work as
-expected because snprintf() doesn't return the actual output size but
-the size to be written.
+Dm-zoned initializes reference counters of new chunk works with zero
+value and refcount_inc() is called to increment the counter. However, the
+refcount_inc() function handles the addition to zero value as an error
+and triggers the warning as follows:
 
-Fix this bug by replacing all snprintf() calls with scnprintf()
-calls.
+refcount_t: addition on 0; use-after-free.
+WARNING: CPU: 7 PID: 1506 at lib/refcount.c:25 refcount_warn_saturate+0x68/0xf0
+...
+CPU: 7 PID: 1506 Comm: systemd-udevd Not tainted 5.4.0+ #134
+...
+Call Trace:
+ dmz_map+0x2d2/0x350 [dm_zoned]
+ __map_bio+0x42/0x1a0
+ __split_and_process_non_flush+0x14a/0x1b0
+ __split_and_process_bio+0x83/0x240
+ ? kmem_cache_alloc+0x165/0x220
+ dm_process_bio+0x90/0x230
+ ? generic_make_request_checks+0x2e7/0x680
+ dm_make_request+0x3e/0xb0
+ generic_make_request+0xcf/0x320
+ ? memcg_drain_all_list_lrus+0x1c0/0x1c0
+ submit_bio+0x3c/0x160
+ ? guard_bio_eod+0x2c/0x130
+ mpage_readpages+0x182/0x1d0
+ ? bdev_evict_inode+0xf0/0xf0
+ read_pages+0x6b/0x1b0
+ __do_page_cache_readahead+0x1ba/0x1d0
+ force_page_cache_readahead+0x93/0x100
+ generic_file_read_iter+0x83a/0xe40
+ ? __seccomp_filter+0x7b/0x670
+ new_sync_read+0x12a/0x1c0
+ vfs_read+0x9d/0x150
+ ksys_read+0x5f/0xe0
+ do_syscall_64+0x5b/0x180
+ entry_SYSCALL_64_after_hwframe+0x44/0xa9
+...
 
-Fixes: f86dcef87b77 ("ASoC: dpcm: Add debugFS support for DPCM")
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Acked-by: Cezary Rojewski <cezary.rojewski@intel.com>
-Link: https://lore.kernel.org/r/20200218111737.14193-4-tiwai@suse.de
-Signed-off-by: Mark Brown <broonie@kernel.org>
+After this warning, following refcount API calls for the counter all fail
+to change the counter value.
+
+Fix this by setting the initial reference counter value not zero but one
+for the new chunk works. Instead, do not call refcount_inc() via
+dmz_get_chunk_work() for the new chunks works.
+
+The failure was observed with linux version 5.4 with CONFIG_REFCOUNT_FULL
+enabled. Refcount rework was merged to linux version 5.5 by the
+commit 168829ad09ca ("Merge branch 'locking-core-for-linus' of
+git://git.kernel.org/pub/scm/linux/kernel/git/tip/tip"). After this
+commit, CONFIG_REFCOUNT_FULL was removed and the failure was observed
+regardless of kernel configuration.
+
+Linux version 4.20 merged the commit 092b5648760a ("dm zoned: target: use
+refcount_t for dm zoned reference counters"). Before this commit, dm
+zoned used atomic_t APIs which does not check addition to zero, then this
+fix is not necessary.
+
+Fixes: 092b5648760a ("dm zoned: target: use refcount_t for dm zoned reference counters")
+Cc: stable@vger.kernel.org # 5.4+
+Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+Reviewed-by: Damien Le Moal <damien.lemoal@wdc.com>
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/soc/soc-pcm.c |   16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ drivers/md/dm-zoned-target.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/sound/soc/soc-pcm.c
-+++ b/sound/soc/soc-pcm.c
-@@ -2866,16 +2866,16 @@ static ssize_t dpcm_show_state(struct sn
- 	ssize_t offset = 0;
+--- a/drivers/md/dm-zoned-target.c
++++ b/drivers/md/dm-zoned-target.c
+@@ -533,8 +533,9 @@ static int dmz_queue_chunk_work(struct d
  
- 	/* FE state */
--	offset += snprintf(buf + offset, size - offset,
-+	offset += scnprintf(buf + offset, size - offset,
- 			"[%s - %s]\n", fe->dai_link->name,
- 			stream ? "Capture" : "Playback");
+ 	/* Get the BIO chunk work. If one is not active yet, create one */
+ 	cw = radix_tree_lookup(&dmz->chunk_rxtree, chunk);
+-	if (!cw) {
+-
++	if (cw) {
++		dmz_get_chunk_work(cw);
++	} else {
+ 		/* Create a new chunk work */
+ 		cw = kmalloc(sizeof(struct dm_chunk_work), GFP_NOIO);
+ 		if (unlikely(!cw)) {
+@@ -543,7 +544,7 @@ static int dmz_queue_chunk_work(struct d
+ 		}
  
--	offset += snprintf(buf + offset, size - offset, "State: %s\n",
-+	offset += scnprintf(buf + offset, size - offset, "State: %s\n",
- 	                dpcm_state_string(fe->dpcm[stream].state));
- 
- 	if ((fe->dpcm[stream].state >= SND_SOC_DPCM_STATE_HW_PARAMS) &&
- 	    (fe->dpcm[stream].state <= SND_SOC_DPCM_STATE_STOP))
--		offset += snprintf(buf + offset, size - offset,
-+		offset += scnprintf(buf + offset, size - offset,
- 				"Hardware Params: "
- 				"Format = %s, Channels = %d, Rate = %d\n",
- 				snd_pcm_format_name(params_format(params)),
-@@ -2883,10 +2883,10 @@ static ssize_t dpcm_show_state(struct sn
- 				params_rate(params));
- 
- 	/* BEs state */
--	offset += snprintf(buf + offset, size - offset, "Backends:\n");
-+	offset += scnprintf(buf + offset, size - offset, "Backends:\n");
- 
- 	if (list_empty(&fe->dpcm[stream].be_clients)) {
--		offset += snprintf(buf + offset, size - offset,
-+		offset += scnprintf(buf + offset, size - offset,
- 				" No active DSP links\n");
- 		goto out;
+ 		INIT_WORK(&cw->work, dmz_chunk_work);
+-		refcount_set(&cw->refcount, 0);
++		refcount_set(&cw->refcount, 1);
+ 		cw->target = dmz;
+ 		cw->chunk = chunk;
+ 		bio_list_init(&cw->bio_list);
+@@ -556,7 +557,6 @@ static int dmz_queue_chunk_work(struct d
  	}
-@@ -2895,16 +2895,16 @@ static ssize_t dpcm_show_state(struct sn
- 		struct snd_soc_pcm_runtime *be = dpcm->be;
- 		params = &dpcm->hw_params;
  
--		offset += snprintf(buf + offset, size - offset,
-+		offset += scnprintf(buf + offset, size - offset,
- 				"- %s\n", be->dai_link->name);
+ 	bio_list_add(&cw->bio_list, bio);
+-	dmz_get_chunk_work(cw);
  
--		offset += snprintf(buf + offset, size - offset,
-+		offset += scnprintf(buf + offset, size - offset,
- 				"   State: %s\n",
- 				dpcm_state_string(be->dpcm[stream].state));
- 
- 		if ((be->dpcm[stream].state >= SND_SOC_DPCM_STATE_HW_PARAMS) &&
- 		    (be->dpcm[stream].state <= SND_SOC_DPCM_STATE_STOP))
--			offset += snprintf(buf + offset, size - offset,
-+			offset += scnprintf(buf + offset, size - offset,
- 				"   Hardware Params: "
- 				"Format = %s, Channels = %d, Rate = %d\n",
- 				snd_pcm_format_name(params_format(params)),
+ 	dmz_reclaim_bio_acc(dmz->reclaim);
+ 	if (queue_work(dmz->chunk_wq, &cw->work))
 
 
