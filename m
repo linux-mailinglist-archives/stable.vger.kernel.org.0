@@ -2,80 +2,76 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BBE4717F663
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 12:36:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6588B17F66E
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 12:37:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726224AbgCJLgq convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Tue, 10 Mar 2020 07:36:46 -0400
-Received: from eu-smtp-delivery-151.mimecast.com ([146.101.78.151]:21422 "EHLO
-        eu-smtp-delivery-151.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726205AbgCJLgq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Mar 2020 07:36:46 -0400
-Received: from AcuMS.aculab.com (156.67.243.126 [156.67.243.126]) (Using
- TLS) by relay.mimecast.com with ESMTP id
- uk-mta-59-qJx50LcXOruXxnxninM0kQ-1; Tue, 10 Mar 2020 11:36:42 +0000
-X-MC-Unique: qJx50LcXOruXxnxninM0kQ-1
-Received: from AcuMS.Aculab.com (fd9f:af1c:a25b:0:43c:695e:880f:8750) by
- AcuMS.aculab.com (fd9f:af1c:a25b:0:43c:695e:880f:8750) with Microsoft SMTP
- Server (TLS) id 15.0.1347.2; Tue, 10 Mar 2020 11:36:41 +0000
-Received: from AcuMS.Aculab.com ([fe80::43c:695e:880f:8750]) by
- AcuMS.aculab.com ([fe80::43c:695e:880f:8750%12]) with mapi id 15.00.1347.000;
- Tue, 10 Mar 2020 11:36:41 +0000
-From:   David Laight <David.Laight@ACULAB.COM>
-To:     'Chris Wilson' <chris@chris-wilson.co.uk>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-CC:     "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        "Paul E. McKenney" <paulmck@kernel.org>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: RE: [PATCH] list: Prevent compiler reloads inside 'safe' list
- iteration
-Thread-Topic: [PATCH] list: Prevent compiler reloads inside 'safe' list
- iteration
-Thread-Index: AQHV9r1KBrT+D4Vo2U+Op9v/Nv0od6hBsdzw
-Date:   Tue, 10 Mar 2020 11:36:41 +0000
-Message-ID: <2e936d8fd2c445beb08e6dd3ee1f3891@AcuMS.aculab.com>
-References: <20200310092119.14965-1-chris@chris-wilson.co.uk>
-In-Reply-To: <20200310092119.14965-1-chris@chris-wilson.co.uk>
-Accept-Language: en-GB, en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-ms-exchange-transport-fromentityheader: Hosted
-x-originating-ip: [10.202.205.107]
+        id S1726307AbgCJLh4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 07:37:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36428 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726268AbgCJLh4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 07:37:56 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5A23024655;
+        Tue, 10 Mar 2020 11:37:55 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1583840275;
+        bh=Cx2LRnFxdyWMsx83KnJim7N0cA4g5Eqn+DXRBSQizuQ=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=WJR+e7zoYWePMgjkaTYbUroZ2eHMIpOOfQfot1RK5iffhtHGcix1K2v9381Qs4wEI
+         56YMlfN9o9f8yr/4lK7MZUsrt0aZgVv+7Ghej3hyU/DwTGsCPIMdwFAaSvt1RSL9cv
+         IP8E9Sbq9wBBxz8NgfKmhqa2QOT053W87Mg6C7b8=
+Date:   Tue, 10 Mar 2020 12:37:53 +0100
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     yangerkun <yangerkun@huawei.com>
+Cc:     sashal@kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH 4.4.y/4.9.y] NFS: fix highmem leak exist in
+ nfs_readdir_xdr_to_array
+Message-ID: <20200310113753.GA3106483@kroah.com>
+References: <20200310100219.5421-1-yangerkun@huawei.com>
 MIME-Version: 1.0
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: aculab.com
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200310100219.5421-1-yangerkun@huawei.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Wilson
-> Sent: 10 March 2020 09:21
-> Instruct the compiler to read the next element in the list iteration
-> once, and that it is not allowed to reload the value from the stale
-> element later. This is important as during the course of the safe
-> iteration, the stale element may be poisoned (unbeknownst to the
-> compiler).
+On Tue, Mar 10, 2020 at 06:02:19PM +0800, yangerkun wrote:
+> The patch 'e22dea67d2f7 ("NFS: Fix memory leaks and corruption in
+> readdir")' in 4.4.y/4.9.y will introduce a highmem leak.
+> Actually, nfs_readdir_get_array has did what we want to do. No need to
+> call kmap again.
+> 
+> Signed-off-by: yangerkun <yangerkun@huawei.com>
+> ---
+>  fs/nfs/dir.c | 2 --
+>  1 file changed, 2 deletions(-)
+> 
+> diff --git a/fs/nfs/dir.c b/fs/nfs/dir.c
+> index c2665d920cf8..2517fcd423b6 100644
+> --- a/fs/nfs/dir.c
+> +++ b/fs/nfs/dir.c
+> @@ -678,8 +678,6 @@ int nfs_readdir_xdr_to_array(nfs_readdir_descriptor_t *desc, struct page *page,
+>  		goto out_label_free;
+>  	}
+>  
+> -	array = kmap(page);
+> -
+>  	status = nfs_readdir_alloc_pages(pages, array_size);
+>  	if (status < 0)
+>  		goto out_release_array;
+> -- 
+> 2.17.2
+> 
 
-Eh?
-I thought any function call will stop the compiler being allowed
-to reload the value.
-The 'safe' loop iterators are only 'safe' against called
-code removing the current item from the list.
+Can you resend and cc: the NFS developers and maintainers on this
+change?  I need their ack to be able to apply it.
 
-> This helps prevent kcsan warnings over 'unsafe' conduct in releasing the
-> list elements during list_for_each_entry_safe() and friends.
+thanks,
 
-Sounds like kcsan is buggy ????
-
-	David
-
--
-Registered Address Lakeside, Bramley Road, Mount Farm, Milton Keynes, MK1 1PT, UK
-Registration No: 1397386 (Wales)
+greg k-h
 
