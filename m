@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F6FB17F7A6
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 13:41:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 086E717F806
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 13:44:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726760AbgCJMlO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 08:41:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40460 "EHLO mail.kernel.org"
+        id S1727202AbgCJMoY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 08:44:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46636 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726702AbgCJMlN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 08:41:13 -0400
+        id S1727241AbgCJMoW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 08:44:22 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5E28724695;
-        Tue, 10 Mar 2020 12:41:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EA5ED24695;
+        Tue, 10 Mar 2020 12:44:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583844072;
-        bh=XAUzqqs/iFZqXjyiC3BTwxXkC+Ct1BC8ORsE7GURgB4=;
+        s=default; t=1583844262;
+        bh=A2foWvc9jrT5bSCjJRdsWFm8MIww1d4V6xIALYzfqq8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m/envlqGHz0/PDce9pqodADpJOuwri72Ls5N4qN6g8DzWNh33l2qeLgwpsnbRjJh2
-         bMid+2DdjnQXHRixfzP3T0eMbbP7PtdTt/5sIqamoWpIySsdgEBG/ISHg4Z42yk3qg
-         IJ6TKHyvcACmFdv0Lrm0bJCXItuE9XjjZ8ShT0ho=
+        b=b51urLQXTq1/y5BjF4HSU07ePckFstOVd3Mp2UUjtVTBXlkiqYIvt3q4p4EwAnNS9
+         PxIEqbloEi9gGzPWFqbgdF7SFCv4w8L+9HD7E9W1zsQBeEAmUM38ejtvaKRz+hPq/k
+         vi+2Oifr+ntl5ytHimhSCgdaMxOGeUXn6QtQj5Os=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Arun Parameswaran <arun.parameswaran@broadcom.com>,
-        Scott Branden <scott.branden@broadcom.com>,
-        Andrew Lunn <andrew@lunn.ch>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.4 13/72] net: phy: restore mdio regs in the iproc mdio driver
+        Sergey Matyukevich <sergey.matyukevich.os@quantenna.com>,
+        Johannes Berg <johannes.berg@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 18/88] cfg80211: add missing policy for NL80211_ATTR_STATUS_CODE
 Date:   Tue, 10 Mar 2020 13:38:26 +0100
-Message-Id: <20200310123604.879039891@linuxfoundation.org>
+Message-Id: <20200310123610.726142764@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200310123601.053680753@linuxfoundation.org>
-References: <20200310123601.053680753@linuxfoundation.org>
+In-Reply-To: <20200310123606.543939933@linuxfoundation.org>
+References: <20200310123606.543939933@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,60 +45,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arun Parameswaran <arun.parameswaran@broadcom.com>
+From: Sergey Matyukevich <sergey.matyukevich.os@quantenna.com>
 
-commit 6f08e98d62799e53c89dbf2c9a49d77e20ca648c upstream.
+[ Upstream commit ea75080110a4c1fa011b0a73cb8f42227143ee3e ]
 
-The mii management register in iproc mdio block
-does not have a retention register so it is lost on suspend.
-Save and restore value of register while resuming from suspend.
+The nl80211_policy is missing for NL80211_ATTR_STATUS_CODE attribute.
+As a result, for strictly validated commands, it's assumed to not be
+supported.
 
-Fixes: bb1a619735b4 ("net: phy: Initialize mdio clock at probe function")
-Signed-off-by: Arun Parameswaran <arun.parameswaran@broadcom.com>
-Signed-off-by: Scott Branden <scott.branden@broadcom.com>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sergey Matyukevich <sergey.matyukevich.os@quantenna.com>
+Link: https://lore.kernel.org/r/20200213131608.10541-2-sergey.matyukevich.os@quantenna.com
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/phy/mdio-bcm-iproc.c |   20 ++++++++++++++++++++
- 1 file changed, 20 insertions(+)
+ net/wireless/nl80211.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/net/phy/mdio-bcm-iproc.c
-+++ b/drivers/net/phy/mdio-bcm-iproc.c
-@@ -188,6 +188,23 @@ static int iproc_mdio_remove(struct plat
- 	return 0;
- }
- 
-+#ifdef CONFIG_PM_SLEEP
-+int iproc_mdio_resume(struct device *dev)
-+{
-+	struct platform_device *pdev = to_platform_device(dev);
-+	struct iproc_mdio_priv *priv = platform_get_drvdata(pdev);
-+
-+	/* restore the mii clock configuration */
-+	iproc_mdio_config_clk(priv->base);
-+
-+	return 0;
-+}
-+
-+static const struct dev_pm_ops iproc_mdio_pm_ops = {
-+	.resume = iproc_mdio_resume
-+};
-+#endif /* CONFIG_PM_SLEEP */
-+
- static const struct of_device_id iproc_mdio_of_match[] = {
- 	{ .compatible = "brcm,iproc-mdio", },
- 	{ /* sentinel */ },
-@@ -198,6 +215,9 @@ static struct platform_driver iproc_mdio
- 	.driver = {
- 		.name = "iproc-mdio",
- 		.of_match_table = iproc_mdio_of_match,
-+#ifdef CONFIG_PM_SLEEP
-+		.pm = &iproc_mdio_pm_ops,
-+#endif
- 	},
- 	.probe = iproc_mdio_probe,
- 	.remove = iproc_mdio_remove,
+diff --git a/net/wireless/nl80211.c b/net/wireless/nl80211.c
+index bb19be78aed70..9823bef65e5ec 100644
+--- a/net/wireless/nl80211.c
++++ b/net/wireless/nl80211.c
+@@ -333,6 +333,7 @@ static const struct nla_policy nl80211_policy[NUM_NL80211_ATTR] = {
+ 	[NL80211_ATTR_CONTROL_PORT_ETHERTYPE] = { .type = NLA_U16 },
+ 	[NL80211_ATTR_CONTROL_PORT_NO_ENCRYPT] = { .type = NLA_FLAG },
+ 	[NL80211_ATTR_PRIVACY] = { .type = NLA_FLAG },
++	[NL80211_ATTR_STATUS_CODE] = { .type = NLA_U16 },
+ 	[NL80211_ATTR_CIPHER_SUITE_GROUP] = { .type = NLA_U32 },
+ 	[NL80211_ATTR_WPA_VERSIONS] = { .type = NLA_U32 },
+ 	[NL80211_ATTR_PID] = { .type = NLA_U32 },
+-- 
+2.20.1
+
 
 
