@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 02F6617F8CE
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 13:51:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 575AE17F855
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 13:47:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728849AbgCJMvO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 08:51:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56264 "EHLO mail.kernel.org"
+        id S1727740AbgCJMrE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 08:47:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50588 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728337AbgCJMvO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 08:51:14 -0400
+        id S1728112AbgCJMq6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 08:46:58 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9E8B52468E;
-        Tue, 10 Mar 2020 12:51:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 767B324695;
+        Tue, 10 Mar 2020 12:46:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583844674;
-        bh=zHbdShaZV+XM7ds1MbyGEf0M0GeteJZlB32nh7R+jx8=;
+        s=default; t=1583844417;
+        bh=qd721I88vNXch3ZqPReQwf2cEtykqf23s69glri4oKA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=baE8aQMT1CoBH76vViC/X3G61ISE4xzMcFXBcvZ9Nrggmdcu6RSL3j1yyU5/8gjcZ
-         IimCXAQkdgrTVkVvL+7HkXUxdcKvSCRz2pTft/1QGc/mcWw9ocoafsJZlj/5N8IBf3
-         xY+P9PrWzEqzlsuaYmZ+QC+PiW+iBgiJZoHA60cc=
+        b=F1qgQeXzV1eWnl+XSiYTG+ss7eQfpNuVfq63ckYY6LW9SfEtaskhhSC7STkmRW4Zu
+         6N6D0CJ+jLi3QsvV3ITBJpVZrBI70GjToMftgeXIrlZ8Fdznv8Gc/9mbr2shP4856v
+         UmxTgUYNtXwQDQJWWDeDNUDMZmJOvMjzlIsEF+S8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+9d82b8de2992579da5d0@syzkaller.appspotmail.com,
-        Andrew Morton <akpm@linux-foundation.org>,
-        OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.4 078/168] fat: fix uninit-memory access for partial initialized inode
+        stable@vger.kernel.org, "H. Nikolaus Schaller" <hns@goldelico.com>,
+        Wolfram Sang <wsa@the-dreams.de>
+Subject: [PATCH 4.9 36/88] i2c: jz4780: silence log flood on txabrt
 Date:   Tue, 10 Mar 2020 13:38:44 +0100
-Message-Id: <20200310123643.187715152@linuxfoundation.org>
+Message-Id: <20200310123614.711766821@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200310123635.322799692@linuxfoundation.org>
-References: <20200310123635.322799692@linuxfoundation.org>
+In-Reply-To: <20200310123606.543939933@linuxfoundation.org>
+References: <20200310123606.543939933@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,74 +43,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+From: Wolfram Sang <wsa@the-dreams.de>
 
-commit bc87302a093f0eab45cd4e250c2021299f712ec6 upstream.
+commit 9e661cedcc0a072d91a32cb88e0515ea26e35711 upstream.
 
-When get an error in the middle of reading an inode, some fields in the
-inode might be still not initialized.  And then the evict_inode path may
-access those fields via iput().
+The printout for txabrt is way too talkative and is highly annoying with
+scanning programs like 'i2cdetect'. Reduce it to the minimum, the rest
+can be gained by I2C core debugging and datasheet information. Also,
+make it a debug printout, it won't help the regular user.
 
-To fix, this makes sure that inode fields are initialized.
-
-Reported-by: syzbot+9d82b8de2992579da5d0@syzkaller.appspotmail.com
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Cc: <stable@vger.kernel.org>
-Link: http://lkml.kernel.org/r/871rqnreqx.fsf@mail.parknet.co.jp
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: ba92222ed63a ("i2c: jz4780: Add i2c bus controller driver for Ingenic JZ4780")
+Reported-by: H. Nikolaus Schaller <hns@goldelico.com>
+Tested-by: H. Nikolaus Schaller <hns@goldelico.com>
+Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/fat/inode.c |   19 +++++++------------
- 1 file changed, 7 insertions(+), 12 deletions(-)
+ drivers/i2c/busses/i2c-jz4780.c |   36 ++----------------------------------
+ 1 file changed, 2 insertions(+), 34 deletions(-)
 
---- a/fs/fat/inode.c
-+++ b/fs/fat/inode.c
-@@ -749,6 +749,13 @@ static struct inode *fat_alloc_inode(str
- 		return NULL;
+--- a/drivers/i2c/busses/i2c-jz4780.c
++++ b/drivers/i2c/busses/i2c-jz4780.c
+@@ -82,25 +82,6 @@
+ #define JZ4780_I2C_STA_TFNF		BIT(1)
+ #define JZ4780_I2C_STA_ACT		BIT(0)
  
- 	init_rwsem(&ei->truncate_lock);
-+	/* Zeroing to allow iput() even if partial initialized inode. */
-+	ei->mmu_private = 0;
-+	ei->i_start = 0;
-+	ei->i_logstart = 0;
-+	ei->i_attrs = 0;
-+	ei->i_pos = 0;
-+
- 	return &ei->vfs_inode;
- }
- 
-@@ -1373,16 +1380,6 @@ out:
- 	return 0;
- }
- 
--static void fat_dummy_inode_init(struct inode *inode)
--{
--	/* Initialize this dummy inode to work as no-op. */
--	MSDOS_I(inode)->mmu_private = 0;
--	MSDOS_I(inode)->i_start = 0;
--	MSDOS_I(inode)->i_logstart = 0;
--	MSDOS_I(inode)->i_attrs = 0;
--	MSDOS_I(inode)->i_pos = 0;
--}
+-static const char * const jz4780_i2c_abrt_src[] = {
+-	"ABRT_7B_ADDR_NOACK",
+-	"ABRT_10ADDR1_NOACK",
+-	"ABRT_10ADDR2_NOACK",
+-	"ABRT_XDATA_NOACK",
+-	"ABRT_GCALL_NOACK",
+-	"ABRT_GCALL_READ",
+-	"ABRT_HS_ACKD",
+-	"SBYTE_ACKDET",
+-	"ABRT_HS_NORSTRT",
+-	"SBYTE_NORSTRT",
+-	"ABRT_10B_RD_NORSTRT",
+-	"ABRT_MASTER_DIS",
+-	"ARB_LOST",
+-	"SLVFLUSH_TXFIFO",
+-	"SLV_ARBLOST",
+-	"SLVRD_INTX",
+-};
 -
- static int fat_read_root(struct inode *inode)
- {
- 	struct msdos_sb_info *sbi = MSDOS_SB(inode->i_sb);
-@@ -1843,13 +1840,11 @@ int fat_fill_super(struct super_block *s
- 	fat_inode = new_inode(sb);
- 	if (!fat_inode)
- 		goto out_fail;
--	fat_dummy_inode_init(fat_inode);
- 	sbi->fat_inode = fat_inode;
+ #define JZ4780_I2C_INTST_IGC		BIT(11)
+ #define JZ4780_I2C_INTST_ISTT		BIT(10)
+ #define JZ4780_I2C_INTST_ISTP		BIT(9)
+@@ -538,21 +519,8 @@ done:
  
- 	fsinfo_inode = new_inode(sb);
- 	if (!fsinfo_inode)
- 		goto out_fail;
--	fat_dummy_inode_init(fsinfo_inode);
- 	fsinfo_inode->i_ino = MSDOS_FSINFO_INO;
- 	sbi->fsinfo_inode = fsinfo_inode;
- 	insert_inode_hash(fsinfo_inode);
+ static void jz4780_i2c_txabrt(struct jz4780_i2c *i2c, int src)
+ {
+-	int i;
+-
+-	dev_err(&i2c->adap.dev, "txabrt: 0x%08x\n", src);
+-	dev_err(&i2c->adap.dev, "device addr=%x\n",
+-		jz4780_i2c_readw(i2c, JZ4780_I2C_TAR));
+-	dev_err(&i2c->adap.dev, "send cmd count:%d  %d\n",
+-		i2c->cmd, i2c->cmd_buf[i2c->cmd]);
+-	dev_err(&i2c->adap.dev, "receive data count:%d  %d\n",
+-		i2c->cmd, i2c->data_buf[i2c->cmd]);
+-
+-	for (i = 0; i < 16; i++) {
+-		if (src & BIT(i))
+-			dev_dbg(&i2c->adap.dev, "I2C TXABRT[%d]=%s\n",
+-				i, jz4780_i2c_abrt_src[i]);
+-	}
++	dev_dbg(&i2c->adap.dev, "txabrt: 0x%08x, cmd: %d, send: %d, recv: %d\n",
++		src, i2c->cmd, i2c->cmd_buf[i2c->cmd], i2c->data_buf[i2c->cmd]);
+ }
+ 
+ static inline int jz4780_i2c_xfer_read(struct jz4780_i2c *i2c,
 
 
