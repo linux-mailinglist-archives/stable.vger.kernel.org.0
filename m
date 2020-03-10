@@ -2,47 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7275518090E
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 21:22:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9953C180924
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 21:29:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726307AbgCJUWv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 16:22:51 -0400
-Received: from mail-oln040092064048.outbound.protection.outlook.com ([40.92.64.48]:13873
-        "EHLO EUR01-DB5-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726271AbgCJUWv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 16:22:51 -0400
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=fyy9rVWfIi0ZLcOh9NP/2Ybi87RgWVxqCAtHekZYcw/EpIRXxsK4Vx/ZyuBpwv6Cg/Et1fZakQZLPVHn6mNVE2vNixNQreP6Oe4Ja5YIaA4NtK7XtmL/1+i4EIcSVcF4ohNszp00VViA5NScEYCIhZNA/maWDABc0bMctHgH1qNTLjo24MogI02wOdPwDb4Q7YaJJlMeLGw6kIYz+7jV59ZdfIKEgIeWr+IZmlDr/LUO9XVHLNV0G3LlDMJdclbvo7tCQto8nRDo5+/v6lvhfazi25vwVPjyyTsrVYBGJrPb6yBbnaa6tRyiucTeTZNs1B47WMGgx2qEkur9HDMM5Q==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=mcXB5XtDW/edbdTpwusVzq1L82skS1gFXqVS9psypK0=;
- b=c3O6kSTUW3rwRjrFu3HMlDxTTrOOlrF5NJX63RX37YMyfK03e+k9+xYxcYz2QSxQ0jrUJ+THmuhnS9np2Xu9peqnBrzo7Xww8RAMYUIXBEsxb1Pjn8u/EXEVsOhWV9N9JSV1wPDSjiqMN9zq1qQAJru+h+4haEXzdXnuELB1DM4bs4aYn5L12OKRrVoTShdB6Kdu7tPS92svuB8V9HJztNw3NBqrhFvc44brLI+4JOe8e5BChe9OEi5m8wms7EGRe9J5mqqzWPOdfAEBVmTZz/Fbk5FJk18J4ru/M6O6hkqlJsIFWbD3EXCRVcTx+6fOHpL1CI2INaXpXUMKm6NwEA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=hotmail.de; dmarc=pass action=none header.from=hotmail.de;
- dkim=pass header.d=hotmail.de; arc=none
-Received: from VE1EUR01FT006.eop-EUR01.prod.protection.outlook.com
- (2a01:111:e400:7e19::35) by
- VE1EUR01HT071.eop-EUR01.prod.protection.outlook.com (2a01:111:e400:7e19::152)
- with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.2793.11; Tue, 10 Mar
- 2020 20:22:44 +0000
-Received: from AM6PR03MB5170.eurprd03.prod.outlook.com (10.152.2.60) by
- VE1EUR01FT006.mail.protection.outlook.com (10.152.2.127) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.2793.11 via Frontend Transport; Tue, 10 Mar 2020 20:22:44 +0000
-X-IncomingTopHeaderMarker: OriginalChecksum:3CE61C4B30ED919C1D3E3EDD324DF5C05B73CCFB3F236699179013E6DD687BDC;UpperCasedChecksum:AEDC134E5B3D3B2925787B5CF20DB733AC0D6676C08BC3BB6EF68BC4ACE0E56D;SizeAsReceived:11076;Count:50
-Received: from AM6PR03MB5170.eurprd03.prod.outlook.com
- ([fe80::1956:d274:cab3:b4dd]) by AM6PR03MB5170.eurprd03.prod.outlook.com
- ([fe80::1956:d274:cab3:b4dd%6]) with mapi id 15.20.2793.013; Tue, 10 Mar 2020
- 20:22:43 +0000
-Subject: Re: [PATCH] pidfd: Stop taking cred_guard_mutex
-To:     Jann Horn <jannh@google.com>,
-        "Eric W. Biederman" <ebiederm@xmission.com>
-Cc:     Christian Brauner <christian.brauner@ubuntu.com>,
-        Kees Cook <keescook@chromium.org>,
-        Jonathan Corbet <corbet@lwn.net>,
+        id S1726480AbgCJU32 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 16:29:28 -0400
+Received: from mail-pg1-f194.google.com ([209.85.215.194]:33140 "EHLO
+        mail-pg1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726293AbgCJU32 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Mar 2020 16:29:28 -0400
+Received: by mail-pg1-f194.google.com with SMTP id m5so6846085pgg.0
+        for <stable@vger.kernel.org>; Tue, 10 Mar 2020 13:29:27 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=dsBrIU5gUV1pckyA8GSxROnnJLAsyLmC/ypr4CZES9w=;
+        b=aVfJW5cxRWyiGAhHyjizHuTpIP1CVGeiD5PpVOAX8E13XOV2zio+KZuEB352+Nm2aP
+         Llx5rft1lxfSQ6IyZMXJ54Wa89MxWC2kb8lpY1CeaItXOQO8e4J60iuFcsOvf/0Lj9YI
+         lmf6stuUg2ygsiOeBvjwo8agJiJGT80VmqQCo=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=dsBrIU5gUV1pckyA8GSxROnnJLAsyLmC/ypr4CZES9w=;
+        b=f3m4jYdz5kUOIkyslrPbzuCRTPcbkShPuu7GcQx8PDd7DIvI8Frrku4VKWg/Jn5Z0u
+         TDVcFtXQnYHNnAZYP6KB24eNAk9xQKKT0vdFXX2jOCyH2VlQVtvzYdw8ft5UYq+BnD/T
+         gcMa1hLZNNYMWL22KpUTKbk+i6/4w6s+N0xM2ImiMfEFuTdjGg9f3rqP2e2WK4xb1iaX
+         lY0+9Mw5aeOLwIJ9GTPf9kUauulijeNwOY0NkDvF9qVV5gRPV/jwIZ5+7rChcOaVq12V
+         +BBhnN1ng4QSfyjCrhYWyHD1mlQSaT8JPKrWyasYZapIltmisoRy8PlfADSzquqfRK4e
+         UZKA==
+X-Gm-Message-State: ANhLgQ0caowqNfzA5oRIGRaGEYtstB3dlDHrz87RxwpyIdvyrkKDzlq5
+        663F/P9eMX0SKB0K8QpDPRs3IQ==
+X-Google-Smtp-Source: ADFU+vtvXImBX+SYYOzRy21wWe3GqfJUMiYo6Vi8Qk8uuP81efgz5a4jBX0nQr4DVT8wDqrCYZcPwg==
+X-Received: by 2002:a63:7f05:: with SMTP id a5mr22593983pgd.327.1583872166829;
+        Tue, 10 Mar 2020 13:29:26 -0700 (PDT)
+Received: from www.outflux.net (smtp.outflux.net. [198.145.64.163])
+        by smtp.gmail.com with ESMTPSA id f4sm13279103pfn.116.2020.03.10.13.29.25
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 10 Mar 2020 13:29:25 -0700 (PDT)
+Date:   Tue, 10 Mar 2020 13:29:25 -0700
+From:   Kees Cook <keescook@chromium.org>
+To:     "Eric W. Biederman" <ebiederm@xmission.com>
+Cc:     Bernd Edlinger <bernd.edlinger@hotmail.de>,
+        Christian Brauner <christian.brauner@ubuntu.com>,
+        Jann Horn <jannh@google.com>, Jonathan Corbet <corbet@lwn.net>,
         Alexander Viro <viro@zeniv.linux.org.uk>,
         Andrew Morton <akpm@linux-foundation.org>,
         Alexey Dobriyan <adobriyan@gmail.com>,
@@ -70,110 +74,142 @@ Cc:     Christian Brauner <christian.brauner@ubuntu.com>,
         "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>,
         "linux-mm@kvack.org" <linux-mm@kvack.org>,
         "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "linux-api@vger.kernel.org" <linux-api@vger.kernel.org>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Sargun Dhillon <sargun@sargun.me>
-References: <87r1y8dqqz.fsf@x220.int.ebiederm.org>
+        "linux-api@vger.kernel.org" <linux-api@vger.kernel.org>
+Subject: Re: [PATCH v2 2/5] exec: Factor unshare_sighand out of de_thread and
+ call it separately
+Message-ID: <202003101319.BAE7B535A@keescook>
+References: <87v9nlii0b.fsf@x220.int.ebiederm.org>
+ <AM6PR03MB5170609D44967E044FD1BE40E4E40@AM6PR03MB5170.eurprd03.prod.outlook.com>
+ <87a74xi4kz.fsf@x220.int.ebiederm.org>
+ <AM6PR03MB51705AA3009B4986BB6EF92FE4E50@AM6PR03MB5170.eurprd03.prod.outlook.com>
+ <87r1y8dqqz.fsf@x220.int.ebiederm.org>
  <AM6PR03MB517053AED7DC89F7C0704B7DE4E50@AM6PR03MB5170.eurprd03.prod.outlook.com>
  <AM6PR03MB51703B44170EAB4626C9B2CAE4E20@AM6PR03MB5170.eurprd03.prod.outlook.com>
  <87tv32cxmf.fsf_-_@x220.int.ebiederm.org>
  <87v9ne5y4y.fsf_-_@x220.int.ebiederm.org>
- <87eeu25y14.fsf_-_@x220.int.ebiederm.org>
- <20200309195909.h2lv5uawce5wgryx@wittgenstein>
- <877dztz415.fsf@x220.int.ebiederm.org>
- <20200309201729.yk5sd26v4bz4gtou@wittgenstein>
- <87k13txnig.fsf@x220.int.ebiederm.org>
- <20200310085540.pztaty2mj62xt2nm@wittgenstein>
- <87wo7svy96.fsf_-_@x220.int.ebiederm.org>
- <CAG48ez2cUZMVOAXfHPNjKjYsMSaWkjUjOCHo0KYZ+oXQUW4viA@mail.gmail.com>
- <87k13sui1p.fsf@x220.int.ebiederm.org>
- <CAG48ez2vRgaEVJ=Rs8gn6HkGO6syL8MpSOUq7BNN+OUE1uYxCA@mail.gmail.com>
- <CAG48ez1LjW1xAGe-5tNtstCWxG2bkiHaQUMOcJNjx=z-2Wc2Jw@mail.gmail.com>
-From:   Bernd Edlinger <bernd.edlinger@hotmail.de>
-Message-ID: <AM6PR03MB5170AF454A8A9C37891B12B2E4FF0@AM6PR03MB5170.eurprd03.prod.outlook.com>
-Date:   Tue, 10 Mar 2020 21:22:41 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.6.1
-In-Reply-To: <CAG48ez1LjW1xAGe-5tNtstCWxG2bkiHaQUMOcJNjx=z-2Wc2Jw@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: AM0PR0202CA0033.eurprd02.prod.outlook.com
- (2603:10a6:208:1::46) To AM6PR03MB5170.eurprd03.prod.outlook.com
- (2603:10a6:20b:ca::23)
-X-Microsoft-Original-Message-ID: <7fec923a-0c06-b3c6-4d1c-8ffb3519eb0b@hotmail.de>
+ <87k13u5y26.fsf_-_@x220.int.ebiederm.org>
 MIME-Version: 1.0
-X-MS-Exchange-MessageSentRepresentingType: 1
-Received: from [192.168.1.101] (92.77.140.102) by AM0PR0202CA0033.eurprd02.prod.outlook.com (2603:10a6:208:1::46) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.2793.16 via Frontend Transport; Tue, 10 Mar 2020 20:22:41 +0000
-X-Microsoft-Original-Message-ID: <7fec923a-0c06-b3c6-4d1c-8ffb3519eb0b@hotmail.de>
-X-TMN:  [aY89ty6Xt9qP2QHF2IaNBexmBBz8dkRA]
-X-MS-PublicTrafficType: Email
-X-IncomingHeaderCount: 50
-X-EOPAttributedMessage: 0
-X-MS-Office365-Filtering-Correlation-Id: 13e8903e-ea6c-4526-8199-08d7c530c98e
-X-MS-TrafficTypeDiagnostic: VE1EUR01HT071:
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: QkxE4mMk6tSDP+UWD5iUrYlrTJ3Aeue0iIsK0QsbJikWLq6nnBzlcQg0c/llesJ24sM93h45h5LMTPmqO7IP3Q+Z7pw3Dp18QWaz4FM+0fyn1kw0FB9TtxuI8NxD6Qtz9GrWfAK3mW8BhXxlAy9S6CSWYlJYKOpAT5qbBLIFPdKVAHMVCkmVH1gfu7qAH5nE
-X-MS-Exchange-AntiSpam-MessageData: 1DCOQLrn/aCJKAHLqkDJxKluroCpBT5TS5sYnA87kM+ObmAi+rYw8oDyKMmreKgDYrqsTgvUmOBySYjxyZSna52y01KtUgSRp62aayhGWHbzyJoR7ZzM4jHY0UjyTLDdDYJe8OKXCONrB6HDW7xweA==
-X-OriginatorOrg: outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 13e8903e-ea6c-4526-8199-08d7c530c98e
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 10 Mar 2020 20:22:42.9684
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 84df9e7f-e9f6-40af-b435-aaaaaaaaaaaa
-X-MS-Exchange-CrossTenant-FromEntityHeader: Internet
-X-MS-Exchange-CrossTenant-RMS-PersistedConsumerOrg: 00000000-0000-0000-0000-000000000000
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: VE1EUR01HT071
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <87k13u5y26.fsf_-_@x220.int.ebiederm.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 3/10/20 9:10 PM, Jann Horn wrote:
-> On Tue, Mar 10, 2020 at 9:00 PM Jann Horn <jannh@google.com> wrote:
->> On Tue, Mar 10, 2020 at 8:29 PM Eric W. Biederman <ebiederm@xmission.com> wrote:
->>> Jann Horn <jannh@google.com> writes:
->>>> On Tue, Mar 10, 2020 at 7:54 PM Eric W. Biederman <ebiederm@xmission.com> wrote:
->>>>> During exec some file descriptors are closed and the files struct is
->>>>> unshared.  But all of that can happen at other times and it has the
->>>>> same protections during exec as at ordinary times.  So stop taking the
->>>>> cred_guard_mutex as it is useless.
->>>>>
->>>>> Furthermore he cred_guard_mutex is a bad idea because it is deadlock
->>>>> prone, as it is held in serveral while waiting possibly indefinitely
->>>>> for userspace to do something.
-> [...]
->>>> If you make this change, then if this races with execution of a setuid
->>>> program that afterwards e.g. opens a unix domain socket, an attacker
->>>> will be able to steal that socket and inject messages into
->>>> communication with things like DBus. procfs currently has the same
->>>> race, and that still needs to be fixed, but at least procfs doesn't
->>>> let you open things like sockets because they don't have a working
->>>> ->open handler, and it enforces the normal permission check for
->>>> opening files.
->>>
->>> It isn't only exec that can change credentials.  Do we need a lock for
->>> changing credentials?
-> [...]
->>> If we need a lock around credential change let's design and build that.
->>> Having a mismatch between what a lock is designed to do, and what
->>> people use it for can only result in other bugs as people get confused.
->>
->> Hmm... what benefits do we get from making it a separate lock? I guess
->> it would allow us to make it a per-task lock instead of a
->> signal_struct-wide one? That might be helpful...
+On Sun, Mar 08, 2020 at 04:36:17PM -0500, Eric W. Biederman wrote:
 > 
-> But actually, isn't the core purpose of the cred_guard_mutex to guard
-> against concurrent credential changes anyway? That's what almost
-> everyone uses it for, and it's in the name...
+> This makes the code clearer and makes it easier to implement a mutex
+> that is not taken over any locations that may block indefinitely waiting
+> for userspace.
 > 
+> Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
+> ---
+>  fs/exec.c | 39 ++++++++++++++++++++++++++-------------
+>  1 file changed, 26 insertions(+), 13 deletions(-)
+> 
+> diff --git a/fs/exec.c b/fs/exec.c
+> index c3f34791f2f0..ff74b9a74d34 100644
+> --- a/fs/exec.c
+> +++ b/fs/exec.c
+> @@ -1194,6 +1194,23 @@ static int de_thread(struct task_struct *tsk)
+>  	flush_itimer_signals();
+>  #endif
 
-The main reason d'etre of exec_update_mutex is to get a consitent
-view of task->mm and task credentials.
+Semi-related (existing behavior): in de_thread(), what keeps the thread
+group from changing? i.e.:
 
-The reason why you want the cred_guard_mutex, is that some action
-is changing the resulting credentials that the execve is about
-to install, and that is the data flow in the opposite direction.
+        if (thread_group_empty(tsk))
+                goto no_thread_group;
 
+        /*
+         * Kill all other threads in the thread group.
+         */
+        spin_lock_irq(lock);
+	... kill other threads under lock ...
 
-Bernd.
+Why is the thread_group_emtpy() test not under lock?
+
+>  
+> +	BUG_ON(!thread_group_leader(tsk));
+> +	return 0;
+> +
+> +killed:
+> +	/* protects against exit_notify() and __exit_signal() */
+
+I wonder if include/linux/sched/task.h's definition of tasklist_lock
+should explicitly gain note about group_exit_task and notify_count,
+or, alternatively, signal.h's section on these fields should gain a
+comment? tasklist_lock is unmentioned in signal.h... :(
+
+> +	read_lock(&tasklist_lock);
+> +	sig->group_exit_task = NULL;
+> +	sig->notify_count = 0;
+> +	read_unlock(&tasklist_lock);
+> +	return -EAGAIN;
+> +}
+> +
+> +
+> +static int unshare_sighand(struct task_struct *me)
+> +{
+> +	struct sighand_struct *oldsighand = me->sighand;
+> +
+>  	if (refcount_read(&oldsighand->count) != 1) {
+>  		struct sighand_struct *newsighand;
+>  		/*
+> @@ -1210,23 +1227,13 @@ static int de_thread(struct task_struct *tsk)
+>  
+>  		write_lock_irq(&tasklist_lock);
+>  		spin_lock(&oldsighand->siglock);
+> -		rcu_assign_pointer(tsk->sighand, newsighand);
+> +		rcu_assign_pointer(me->sighand, newsighand);
+>  		spin_unlock(&oldsighand->siglock);
+>  		write_unlock_irq(&tasklist_lock);
+>  
+>  		__cleanup_sighand(oldsighand);
+>  	}
+> -
+> -	BUG_ON(!thread_group_leader(tsk));
+>  	return 0;
+> -
+> -killed:
+> -	/* protects against exit_notify() and __exit_signal() */
+> -	read_lock(&tasklist_lock);
+> -	sig->group_exit_task = NULL;
+> -	sig->notify_count = 0;
+> -	read_unlock(&tasklist_lock);
+> -	return -EAGAIN;
+>  }
+>  
+>  char *__get_task_comm(char *buf, size_t buf_size, struct task_struct *tsk)
+> @@ -1264,13 +1271,19 @@ int flush_old_exec(struct linux_binprm * bprm)
+>  	int retval;
+>  
+>  	/*
+> -	 * Make sure we have a private signal table and that
+> -	 * we are unassociated from the previous thread group.
+> +	 * Make this the only thread in the thread group.
+>  	 */
+>  	retval = de_thread(me);
+>  	if (retval)
+>  		goto out;
+>  
+> +	/*
+> +	 * Make the signal table private.
+> +	 */
+> +	retval = unshare_sighand(me);
+> +	if (retval)
+> +		goto out;
+> +
+>  	/*
+>  	 * Must be called _before_ exec_mmap() as bprm->mm is
+>  	 * not visibile until then. This also enables the update
+> -- 
+> 2.25.0
+
+Otherwise, yes, sensible separation.
+
+Reviewed-by: Kees Cook <keescook@chromium.org>
+
+-- 
+Kees Cook
