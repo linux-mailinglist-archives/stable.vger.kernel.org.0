@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 48C5417FE7B
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:35:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EC3DC17FE9A
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:36:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727716AbgCJMoR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 08:44:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46538 "EHLO mail.kernel.org"
+        id S1726946AbgCJMm7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 08:42:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43196 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727264AbgCJMoR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 08:44:17 -0400
+        id S1727456AbgCJMm6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 08:42:58 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 67F32246A3;
-        Tue, 10 Mar 2020 12:44:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C99A224691;
+        Tue, 10 Mar 2020 12:42:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583844256;
-        bh=1UG6/K0ZXbloJbcRrJtGl0di2YcCGVylYoLcKEsDLJc=;
+        s=default; t=1583844178;
+        bh=oKBiYwoPDh1EbtQU3J1/l+Dl4A914nTfJRjp2mZn0oo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qqW1o0FeVBC9KqCZSM8mPTk5NF1mzaozCbfpRlf7uQI+1mJ4fup9et/AMimKkeklE
-         oM6c91w1J6AzgCA4NQ80VGSULGq4aX1w0SaiQfmMOmVZd8FlRG7OrffVtqbFngVMSb
-         5U6YOEyST4KFV9wUk1uYy0dc7RabmFDsZdSEceKM=
+        b=hLjyTZUdoE4IrUDbAyoJiH1h8IXXZSwygzGqvppWYcSravrpsusNlj53Ems/pMP/I
+         YAm2iWytKTCdz12VptBRcmhPT2Bgwyxe8E8rVFgwb9pQR8VPHmAI7UbYoLOJ01UWS+
+         LirCFYedItDLlt/nTHPivaECWnPEvPI/nsQo+5Go=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sameeh Jubran <sameehj@amazon.com>,
-        Arthur Kiyanovski <akiyano@amazon.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 16/88] net: ena: ena-com.c: prevent NULL pointer dereference
-Date:   Tue, 10 Mar 2020 13:38:24 +0100
-Message-Id: <20200310123610.229239968@linuxfoundation.org>
+        stable@vger.kernel.org, Jethro Beekman <jethro@fortanix.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.4 12/72] net: fib_rules: Correctly set table field when table number exceeds 8 bits
+Date:   Tue, 10 Mar 2020 13:38:25 +0100
+Message-Id: <20200310123604.656709747@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200310123606.543939933@linuxfoundation.org>
-References: <20200310123606.543939933@linuxfoundation.org>
+In-Reply-To: <20200310123601.053680753@linuxfoundation.org>
+References: <20200310123601.053680753@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,52 +43,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arthur Kiyanovski <akiyano@amazon.com>
+From: Jethro Beekman <jethro@fortanix.com>
 
-[ Upstream commit c207979f5ae10ed70aff1bb13f39f0736973de99 ]
+[ Upstream commit 540e585a79e9d643ede077b73bcc7aa2d7b4d919 ]
 
-comp_ctx can be NULL in a very rare case when an admin command is executed
-during the execution of ena_remove().
+In 709772e6e06564ed94ba740de70185ac3d792773, RT_TABLE_COMPAT was added to
+allow legacy software to deal with routing table numbers >= 256, but the
+same change to FIB rule queries was overlooked.
 
-The bug scenario is as follows:
-
-* ena_destroy_device() sets the comp_ctx to be NULL
-* An admin command is executed before executing unregister_netdev(),
-  this can still happen because our device can still receive callbacks
-  from the netdev infrastructure such as ethtool commands.
-* When attempting to access the comp_ctx, the bug occurs since it's set
-  to NULL
-
-Fix:
-Added a check that comp_ctx is not NULL
-
-Fixes: 1738cd3ed342 ("net: ena: Add a driver for Amazon Elastic Network Adapters (ENA)")
-Signed-off-by: Sameeh Jubran <sameehj@amazon.com>
-Signed-off-by: Arthur Kiyanovski <akiyano@amazon.com>
+Signed-off-by: Jethro Beekman <jethro@fortanix.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/amazon/ena/ena_com.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ net/core/fib_rules.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/amazon/ena/ena_com.c b/drivers/net/ethernet/amazon/ena/ena_com.c
-index e1f694322e41a..9bd2a7a5b5a78 100644
---- a/drivers/net/ethernet/amazon/ena/ena_com.c
-+++ b/drivers/net/ethernet/amazon/ena/ena_com.c
-@@ -199,6 +199,11 @@ static inline void comp_ctxt_release(struct ena_com_admin_queue *queue,
- static struct ena_comp_ctx *get_comp_ctxt(struct ena_com_admin_queue *queue,
- 					  u16 command_id, bool capture)
- {
-+	if (unlikely(!queue->comp_ctx)) {
-+		pr_err("Completion context is NULL\n");
-+		return NULL;
-+	}
-+
- 	if (unlikely(command_id >= queue->q_depth)) {
- 		pr_err("command id is larger than the queue size. cmd_id: %u queue size %d\n",
- 		       command_id, queue->q_depth);
--- 
-2.20.1
-
+--- a/net/core/fib_rules.c
++++ b/net/core/fib_rules.c
+@@ -570,7 +570,7 @@ static int fib_nl_fill_rule(struct sk_bu
+ 
+ 	frh = nlmsg_data(nlh);
+ 	frh->family = ops->family;
+-	frh->table = rule->table;
++	frh->table = rule->table < 256 ? rule->table : RT_TABLE_COMPAT;
+ 	if (nla_put_u32(skb, FRA_TABLE, rule->table))
+ 		goto nla_put_failure;
+ 	if (nla_put_u32(skb, FRA_SUPPRESS_PREFIXLEN, rule->suppress_prefixlen))
 
 
