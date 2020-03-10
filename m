@@ -2,37 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 23AF117F9BF
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 13:59:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3615817F857
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 13:47:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729742AbgCJM7h (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 08:59:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40132 "EHLO mail.kernel.org"
+        id S1727440AbgCJMrI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 08:47:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50750 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730033AbgCJM7g (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 08:59:36 -0400
+        id S1727938AbgCJMrH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 08:47:07 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 030A324694;
-        Tue, 10 Mar 2020 12:59:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4D90A20674;
+        Tue, 10 Mar 2020 12:47:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583845176;
-        bh=gS7enNgW0pwEG5MbC1p+uuguDBIOtjYIhdJFMPv0zvQ=;
+        s=default; t=1583844426;
+        bh=iYoThNzsN9sLo4BBTBPvBQeaRYlI3YW5q55/Nq573as=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YHTdeLWJhqmgQ4DrfhFhCkqWnkFPJJd0ejKD1jK9QzxjYd8jQaxZnTAD7bkq+oZ6K
-         hTl6984prFH5L8FWGKd2kLgCCpRIsp7pFRqI74dbOmm7kcTVf23wncdfcnovOIsZZ1
-         3PbJ6RsVEZ3OQSVYYJTFmv0RSD+2ms9jepUiwRVw=
+        b=skvQ1tfApCtlhdhzdVzZf9G4Xi9zZuwDZ44DiUlxkf87Q034MDTY7kLm6TILt+/z2
+         602CN6JqoQ1RDnejQQlj4aaH3a43T8rD29lBeJ/f48vlqXguNwl66V/kr+gmXByUYG
+         A7VwPmKPF9iNBFu/5zXC+37HxFEnWXCw3uCQxheY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jay Dolan <jay.dolan@accesio.com>
-Subject: [PATCH 5.5 090/189] serial: 8250_exar: add support for ACCES cards
+        stable@vger.kernel.org, Chris Wilson <chris@chris-wilson.co.uk>,
+        Jani Nikula <jani.nikula@intel.com>,
+        Randy Dunlap <rdunlap@infradead.org>,
+        Andy Gospodarek <gospo@broadcom.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.9 39/88] include/linux/bitops.h: introduce BITS_PER_TYPE
 Date:   Tue, 10 Mar 2020 13:38:47 +0100
-Message-Id: <20200310123648.821024972@linuxfoundation.org>
+Message-Id: <20200310123615.448719347@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200310123639.608886314@linuxfoundation.org>
-References: <20200310123639.608886314@linuxfoundation.org>
+In-Reply-To: <20200310123606.543939933@linuxfoundation.org>
+References: <20200310123606.543939933@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,76 +50,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jay Dolan <jay.dolan@accesio.com>
+From: Chris Wilson <chris@chris-wilson.co.uk>
 
-commit 10c5ccc3c6d32f3d7d6c07de1d3f0f4b52f3e3ab upstream.
+commit 9144d75e22cad3c89e6b2ccab551db9ee28d250a upstream.
 
-Add ACCES VIDs and PIDs that use the Exar chips
+net_dim.h has a rather useful extension to BITS_PER_BYTE to compute the
+number of bits in a type (BITS_PER_BYTE * sizeof(T)), so promote the macro
+to bitops.h, alongside BITS_PER_BYTE, for wider usage.
 
-Signed-off-by: Jay Dolan <jay.dolan@accesio.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200305140504.22237-1-jay.dolan@accesio.com
+Link: http://lkml.kernel.org/r/20180706094458.14116-1-chris@chris-wilson.co.uk
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Reviewed-by: Jani Nikula <jani.nikula@intel.com>
+Cc: Randy Dunlap <rdunlap@infradead.org>
+Cc: Andy Gospodarek <gospo@broadcom.com>
+Cc: David S. Miller <davem@davemloft.net>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Ingo Molnar <mingo@kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+[only take the bitops.h portion for stable kernels - gregkh]
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/tty/serial/8250/8250_exar.c |   33 +++++++++++++++++++++++++++++++++
- 1 file changed, 33 insertions(+)
+ include/linux/bitops.h |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/tty/serial/8250/8250_exar.c
-+++ b/drivers/tty/serial/8250/8250_exar.c
-@@ -25,6 +25,14 @@
+--- a/include/linux/bitops.h
++++ b/include/linux/bitops.h
+@@ -3,7 +3,8 @@
+ #include <asm/types.h>
+ #include <linux/bits.h>
  
- #include "8250.h"
+-#define BITS_TO_LONGS(nr)	DIV_ROUND_UP(nr, BITS_PER_BYTE * sizeof(long))
++#define BITS_PER_TYPE(type) (sizeof(type) * BITS_PER_BYTE)
++#define BITS_TO_LONGS(nr)	DIV_ROUND_UP(nr, BITS_PER_TYPE(long))
  
-+#define PCI_DEVICE_ID_ACCES_COM_2S		0x1052
-+#define PCI_DEVICE_ID_ACCES_COM_4S		0x105d
-+#define PCI_DEVICE_ID_ACCES_COM_8S		0x106c
-+#define PCI_DEVICE_ID_ACCES_COM232_8		0x10a8
-+#define PCI_DEVICE_ID_ACCES_COM_2SM		0x10d2
-+#define PCI_DEVICE_ID_ACCES_COM_4SM		0x10db
-+#define PCI_DEVICE_ID_ACCES_COM_8SM		0x10ea
-+
- #define PCI_DEVICE_ID_COMMTECH_4224PCI335	0x0002
- #define PCI_DEVICE_ID_COMMTECH_4222PCI335	0x0004
- #define PCI_DEVICE_ID_COMMTECH_2324PCI335	0x000a
-@@ -677,6 +685,22 @@ static int __maybe_unused exar_resume(st
- 
- static SIMPLE_DEV_PM_OPS(exar_pci_pm, exar_suspend, exar_resume);
- 
-+static const struct exar8250_board acces_com_2x = {
-+	.num_ports	= 2,
-+	.setup		= pci_xr17c154_setup,
-+};
-+
-+static const struct exar8250_board acces_com_4x = {
-+	.num_ports	= 4,
-+	.setup		= pci_xr17c154_setup,
-+};
-+
-+static const struct exar8250_board acces_com_8x = {
-+	.num_ports	= 8,
-+	.setup		= pci_xr17c154_setup,
-+};
-+
-+
- static const struct exar8250_board pbn_fastcom335_2 = {
- 	.num_ports	= 2,
- 	.setup		= pci_fastcom335_setup,
-@@ -745,6 +769,15 @@ static const struct exar8250_board pbn_e
- 	}
- 
- static const struct pci_device_id exar_pci_tbl[] = {
-+	EXAR_DEVICE(ACCESSIO, ACCES_COM_2S, acces_com_2x),
-+	EXAR_DEVICE(ACCESSIO, ACCES_COM_4S, acces_com_4x),
-+	EXAR_DEVICE(ACCESSIO, ACCES_COM_8S, acces_com_8x),
-+	EXAR_DEVICE(ACCESSIO, ACCES_COM232_8, acces_com_8x),
-+	EXAR_DEVICE(ACCESSIO, ACCES_COM_2SM, acces_com_2x),
-+	EXAR_DEVICE(ACCESSIO, ACCES_COM_4SM, acces_com_4x),
-+	EXAR_DEVICE(ACCESSIO, ACCES_COM_8SM, acces_com_8x),
-+
-+
- 	CONNECT_DEVICE(XR17C152, UART_2_232, pbn_connect),
- 	CONNECT_DEVICE(XR17C154, UART_4_232, pbn_connect),
- 	CONNECT_DEVICE(XR17C158, UART_8_232, pbn_connect),
+ extern unsigned int __sw_hweight8(unsigned int w);
+ extern unsigned int __sw_hweight16(unsigned int w);
 
 
