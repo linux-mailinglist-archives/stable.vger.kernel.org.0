@@ -2,43 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BA12717F9E8
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:01:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EFD4B17FD54
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:29:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729005AbgCJNBD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 09:01:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42078 "EHLO mail.kernel.org"
+        id S1729086AbgCJMww (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 08:52:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58594 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730219AbgCJNBD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 09:01:03 -0400
+        id S1728750AbgCJMwv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 08:52:51 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EA61820409;
-        Tue, 10 Mar 2020 13:01:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 57CE820674;
+        Tue, 10 Mar 2020 12:52:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583845262;
-        bh=hLVPD/xwaIxpskZ9bkmW5JfIjz/vNlkr4UQHuL9vOpk=;
+        s=default; t=1583844770;
+        bh=/4ABY4o8TTdcJwj6+fijhNuT5dju9meI2BmNsWpfIck=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W55TCU7MJfNWuGz0apdcHS6WS07R6gmvqgDx3em4QmfoWyVe3HKfucVAm2aI00H7I
-         geBVNYTHpMaLkycaOkbACJj5B8Ca6bStUj9MsgyPfSahqXBwOx+z/5nwqpgltpoeva
-         cCFRvR68iEILCljLDLA0bdm6t5ZsMZWygezqacds=
+        b=OLvbw//DtxbQ//ocHmIHaLDw659EKuYGmwofcYh9qNznyB2ma1lPNxBNOFoGcfExW
+         i2QjWTqN//epeuFNZUZ3R0Tv2lNMjV6mZ62uy2SwMu/rUqIFx/dFRNjn1LSMkSVeSw
+         Za4azZzBEyX6zdMGPiq+kWaXUlVpyPiPMWt3pYAU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Gerald Schaefer <gerald.schaefer@de.ibm.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        David Hildenbrand <david@redhat.com>,
-        Joonsoo Kim <iamjoonsoo.kim@lge.com>, Qian Cai <cai@lca.pw>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.5 082/189] mm, hotplug: fix page online with DEBUG_PAGEALLOC compiled but not enabled
-Date:   Tue, 10 Mar 2020 13:38:39 +0100
-Message-Id: <20200310123647.957581981@linuxfoundation.org>
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Zhang Xiaoxu <zhangxiaoxu5@huawei.com>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>
+Subject: [PATCH 5.4 074/168] vgacon: Fix a UAF in vgacon_invert_region
+Date:   Tue, 10 Mar 2020 13:38:40 +0100
+Message-Id: <20200310123642.769339659@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200310123639.608886314@linuxfoundation.org>
-References: <20200310123639.608886314@linuxfoundation.org>
+In-Reply-To: <20200310123635.322799692@linuxfoundation.org>
+References: <20200310123635.322799692@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,109 +44,130 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vlastimil Babka <vbabka@suse.cz>
+From: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
 
-commit c87cbc1f007c4b46165f05ceca04e1973cda0b9c upstream.
+commit 513dc792d6060d5ef572e43852683097a8420f56 upstream.
 
-Commit cd02cf1aceea ("mm/hotplug: fix an imbalance with DEBUG_PAGEALLOC")
-fixed memory hotplug with debug_pagealloc enabled, where onlining a page
-goes through page freeing, which removes the direct mapping.  Some arches
-don't like when the page is not mapped in the first place, so
-generic_online_page() maps it first.  This is somewhat wasteful, but
-better than special casing page freeing fast paths.
+When syzkaller tests, there is a UAF:
+  BUG: KASan: use after free in vgacon_invert_region+0x9d/0x110 at addr
+    ffff880000100000
+  Read of size 2 by task syz-executor.1/16489
+  page:ffffea0000004000 count:0 mapcount:-127 mapping:          (null)
+  index:0x0
+  page flags: 0xfffff00000000()
+  page dumped because: kasan: bad access detected
+  CPU: 1 PID: 16489 Comm: syz-executor.1 Not tainted
+  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS
+  rel-1.9.3-0-ge2fc41e-prebuilt.qemu-project.org 04/01/2014
+  Call Trace:
+    [<ffffffffb119f309>] dump_stack+0x1e/0x20
+    [<ffffffffb04af957>] kasan_report+0x577/0x950
+    [<ffffffffb04ae652>] __asan_load2+0x62/0x80
+    [<ffffffffb090f26d>] vgacon_invert_region+0x9d/0x110
+    [<ffffffffb0a39d95>] invert_screen+0xe5/0x470
+    [<ffffffffb0a21dcb>] set_selection+0x44b/0x12f0
+    [<ffffffffb0a3bfae>] tioclinux+0xee/0x490
+    [<ffffffffb0a1d114>] vt_ioctl+0xff4/0x2670
+    [<ffffffffb0a0089a>] tty_ioctl+0x46a/0x1a10
+    [<ffffffffb052db3d>] do_vfs_ioctl+0x5bd/0xc40
+    [<ffffffffb052e2f2>] SyS_ioctl+0x132/0x170
+    [<ffffffffb11c9b1b>] system_call_fastpath+0x22/0x27
+    Memory state around the buggy address:
+     ffff8800000fff00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+     00 00
+     ffff8800000fff80: 00 00 00 00 00 00 00 00 00 00 00 00 00
+     00 00 00
+    >ffff880000100000: ff ff ff ff ff ff ff ff ff ff ff ff ff
+     ff ff ff
 
-The commit however missed that DEBUG_PAGEALLOC configured doesn't mean
-it's actually enabled.  One has to test debug_pagealloc_enabled() since
-031bc5743f15 ("mm/debug-pagealloc: make debug-pagealloc boottime
-configurable"), or alternatively debug_pagealloc_enabled_static() since
-8e57f8acbbd1 ("mm, debug_pagealloc: don't rely on static keys too early"),
-but this is not done.
+It can be reproduce in the linux mainline by the program:
+  #include <stdio.h>
+  #include <stdlib.h>
+  #include <unistd.h>
+  #include <fcntl.h>
+  #include <sys/types.h>
+  #include <sys/stat.h>
+  #include <sys/ioctl.h>
+  #include <linux/vt.h>
 
-As a result, a s390 kernel with DEBUG_PAGEALLOC configured but not enabled
-will crash:
+  struct tiocl_selection {
+    unsigned short xs;      /* X start */
+    unsigned short ys;      /* Y start */
+    unsigned short xe;      /* X end */
+    unsigned short ye;      /* Y end */
+    unsigned short sel_mode; /* selection mode */
+  };
 
-Unable to handle kernel pointer dereference in virtual kernel address space
-Failing address: 0000000000000000 TEID: 0000000000000483
-Fault in home space mode while using kernel ASCE.
-AS:0000001ece13400b R2:000003fff7fd000b R3:000003fff7fcc007 S:000003fff7fd7000 P:000000000000013d
-Oops: 0004 ilc:2 [#1] SMP
-CPU: 1 PID: 26015 Comm: chmem Kdump: loaded Tainted: GX 5.3.18-5-default #1 SLE15-SP2 (unreleased)
-Krnl PSW : 0704e00180000000 0000001ecd281b9e (__kernel_map_pages+0x166/0x188)
-R:0 T:1 IO:1 EX:1 Key:0 M:1 W:0 P:0 AS:3 CC:2 PM:0 RI:0 EA:3
-Krnl GPRS: 0000000000000000 0000000000000800 0000400b00000000 0000000000000100
-0000000000000001 0000000000000000 0000000000000002 0000000000000100
-0000001ece139230 0000001ecdd98d40 0000400b00000100 0000000000000000
-000003ffa17e4000 001fffe0114f7d08 0000001ecd4d93ea 001fffe0114f7b20
-Krnl Code: 0000001ecd281b8e: ec17ffff00d8 ahik %r1,%r7,-1
-0000001ecd281b94: ec111dbc0355 risbg %r1,%r1,29,188,3
->0000001ecd281b9e: 94fb5006 ni 6(%r5),251
-0000001ecd281ba2: 41505008 la %r5,8(%r5)
-0000001ecd281ba6: ec51fffc6064 cgrj %r5,%r1,6,1ecd281b9e
-0000001ecd281bac: 1a07 ar %r0,%r7
-0000001ecd281bae: ec03ff584076 crj %r0,%r3,4,1ecd281a5e
-Call Trace:
-[<0000001ecd281b9e>] __kernel_map_pages+0x166/0x188
-[<0000001ecd4d9516>] online_pages_range+0xf6/0x128
-[<0000001ecd2a8186>] walk_system_ram_range+0x7e/0xd8
-[<0000001ecda28aae>] online_pages+0x2fe/0x3f0
-[<0000001ecd7d02a6>] memory_subsys_online+0x8e/0xc0
-[<0000001ecd7add42>] device_online+0x5a/0xc8
-[<0000001ecd7d0430>] state_store+0x88/0x118
-[<0000001ecd5b9f62>] kernfs_fop_write+0xc2/0x200
-[<0000001ecd5064b6>] vfs_write+0x176/0x1e0
-[<0000001ecd50676a>] ksys_write+0xa2/0x100
-[<0000001ecda315d4>] system_call+0xd8/0x2c8
+  #define TIOCL_SETSEL    2
+  struct tiocl {
+    unsigned char type;
+    unsigned char pad;
+    struct tiocl_selection sel;
+  };
 
-Fix this by checking debug_pagealloc_enabled_static() before calling
-kernel_map_pages(). Backports for kernel before 5.5 should use
-debug_pagealloc_enabled() instead. Also add comments.
+  int main()
+  {
+    int fd = 0;
+    const char *dev = "/dev/char/4:1";
 
-Fixes: cd02cf1aceea ("mm/hotplug: fix an imbalance with DEBUG_PAGEALLOC")
-Reported-by: Gerald Schaefer <gerald.schaefer@de.ibm.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Vlastimil Babka <vbabka@suse.cz>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-Cc: <stable@vger.kernel.org>
-Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
-Cc: Qian Cai <cai@lca.pw>
-Link: http://lkml.kernel.org/r/20200224094651.18257-1-vbabka@suse.cz
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+    struct vt_consize v = {0};
+    struct tiocl tioc = {0};
+
+    fd = open(dev, O_RDWR, 0);
+
+    v.v_rows = 3346;
+    ioctl(fd, VT_RESIZEX, &v);
+
+    tioc.type = TIOCL_SETSEL;
+    ioctl(fd, TIOCLINUX, &tioc);
+
+    return 0;
+  }
+
+When resize the screen, update the 'vc->vc_size_row' to the new_row_size,
+but when 'set_origin' in 'vgacon_set_origin', vgacon use 'vga_vram_base'
+for 'vc_origin' and 'vc_visible_origin', not 'vc_screenbuf'. It maybe
+smaller than 'vc_screenbuf'. When TIOCLINUX, use the new_row_size to calc
+the offset, it maybe larger than the vga_vram_size in vgacon driver, then
+bad access.
+Also, if set an larger screenbuf firstly, then set an more larger
+screenbuf, when copy old_origin to new_origin, a bad access may happen.
+
+So, If the screen size larger than vga_vram, resize screen should be
+failed. This alse fix CVE-2020-8649 and CVE-2020-8647.
+
+Linus pointed out that overflow checking seems absent. We're saved by
+the existing bounds checks in vc_do_resize() with rather strict
+limits:
+
+	if (cols > VC_RESIZE_MAXCOL || lines > VC_RESIZE_MAXROW)
+		return -EINVAL;
+
+Fixes: 0aec4867dca14 ("[PATCH] SVGATextMode fix")
+Reference: CVE-2020-8647 and CVE-2020-8649
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
+[danvet: augment commit message to point out overflow safety]
+Cc: stable@vger.kernel.org
+Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200304022429.37738-1-zhangxiaoxu5@huawei.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- include/linux/mm.h  |    4 ++++
- mm/memory_hotplug.c |    8 +++++++-
- 2 files changed, 11 insertions(+), 1 deletion(-)
+ drivers/video/console/vgacon.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/include/linux/mm.h
-+++ b/include/linux/mm.h
-@@ -2687,6 +2687,10 @@ static inline bool debug_pagealloc_enabl
- #if defined(CONFIG_DEBUG_PAGEALLOC) || defined(CONFIG_ARCH_HAS_SET_DIRECT_MAP)
- extern void __kernel_map_pages(struct page *page, int numpages, int enable);
- 
-+/*
-+ * When called in DEBUG_PAGEALLOC context, the call should most likely be
-+ * guarded by debug_pagealloc_enabled() or debug_pagealloc_enabled_static()
-+ */
- static inline void
- kernel_map_pages(struct page *page, int numpages, int enable)
+--- a/drivers/video/console/vgacon.c
++++ b/drivers/video/console/vgacon.c
+@@ -1316,6 +1316,9 @@ static int vgacon_font_get(struct vc_dat
+ static int vgacon_resize(struct vc_data *c, unsigned int width,
+ 			 unsigned int height, unsigned int user)
  {
---- a/mm/memory_hotplug.c
-+++ b/mm/memory_hotplug.c
-@@ -599,7 +599,13 @@ EXPORT_SYMBOL_GPL(restore_online_page_ca
- 
- void generic_online_page(struct page *page, unsigned int order)
- {
--	kernel_map_pages(page, 1 << order, 1);
-+	/*
-+	 * Freeing the page with debug_pagealloc enabled will try to unmap it,
-+	 * so we should map it first. This is better than introducing a special
-+	 * case in page freeing fast path.
-+	 */
-+	if (debug_pagealloc_enabled_static())
-+		kernel_map_pages(page, 1 << order, 1);
- 	__free_pages_core(page, order);
- 	totalram_pages_add(1UL << order);
- #ifdef CONFIG_HIGHMEM
++	if ((width << 1) * height > vga_vram_size)
++		return -EINVAL;
++
+ 	if (width % 2 || width > screen_info.orig_video_cols ||
+ 	    height > (screen_info.orig_video_lines * vga_default_font_height)/
+ 	    c->vc_font.height)
 
 
