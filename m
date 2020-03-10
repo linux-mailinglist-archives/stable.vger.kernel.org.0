@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F1FEE17F9AF
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 13:59:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3179017F8C5
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 13:51:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729810AbgCJM7H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 08:59:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39432 "EHLO mail.kernel.org"
+        id S1728365AbgCJMu5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 08:50:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55842 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729990AbgCJM7G (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 08:59:06 -0400
+        id S1727368AbgCJMu5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 08:50:57 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6D1ED2468E;
-        Tue, 10 Mar 2020 12:59:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 317B124691;
+        Tue, 10 Mar 2020 12:50:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583845144;
-        bh=k1YJFRpqWZr/RQKoQR1pqK8QgRDaZ/e+DAJMuHQUrEw=;
+        s=default; t=1583844655;
+        bh=oF0xEUGHLnM5+Uc5nUYYEJU5ATFGGvoruCj46yHPjcw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pcfPNmLGkMkh+PTZ96laoAJPDV+LA353wDVAmwcj35aMtnnPfUr+Jhri5e3mZQgvh
-         quGCiRSPMGCErVA9Zy2PE9eMxsQiEZG7IswqVhVU9STO19i8f2dYmRi5iUKomI8HQ2
-         j6ZdL8rewI+K81Pw4mjKZC/gZ+VXFM1K0y6RRAss=
+        b=ivhCgWId1p4w3JplCDw1VMefr8Hp2tLPAM+0IhofK7YXDKadljfiABxMxfulNqifp
+         pJaad7PVaDJ7A9Zv9ui5y5viXXx79IpJkMjr/S4kRgsf7DwafmYcUb/SojhZ4Ujhjb
+         hulLyZ+xXg7VqLpbtUDsxeVnbHkXUARNIaeWHN+I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Javier Martinez Canillas <javierm@redhat.com>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Mimi Zohar <zohar@linux.ibm.com>,
+        stable@vger.kernel.org, Dmitry Bogdanov <dbogdanov@marvell.com>,
+        Igor Russkikh <irusskikh@marvell.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 040/189] efi: Only print errors about failing to get certs if EFI vars are found
+Subject: [PATCH 5.4 031/168] net: atlantic: check rpc result and wait for rpc address
 Date:   Tue, 10 Mar 2020 13:37:57 +0100
-Message-Id: <20200310123643.531757740@linuxfoundation.org>
+Message-Id: <20200310123638.718323939@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200310123639.608886314@linuxfoundation.org>
-References: <20200310123639.608886314@linuxfoundation.org>
+In-Reply-To: <20200310123635.322799692@linuxfoundation.org>
+References: <20200310123635.322799692@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,132 +45,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Javier Martinez Canillas <javierm@redhat.com>
+From: Igor Russkikh <irusskikh@marvell.com>
 
-[ Upstream commit 3be54d558c75562e42bc83d665df024bd79d399b ]
+[ Upstream commit e7b5f97e6574dc4918e375d5f8d24ec31653cd6d ]
 
-If CONFIG_LOAD_UEFI_KEYS is enabled, the kernel attempts to load the certs
-from the db, dbx and MokListRT EFI variables into the appropriate keyrings.
+Artificial HW reliability tests revealed a possible hangup in
+the driver. Normally, when device disappears from bus, all
+register reads returns 0xFFFFFFFF.
 
-But it just assumes that the variables will be present and prints an error
-if the certs can't be loaded, even when is possible that the variables may
-not exist. For example the MokListRT variable will only be present if shim
-is used.
+At remote procedure invocation towards FW there is a logic
+where result is compared with -1 in a loop.
+That caused an infinite loop if hardware due to some issues
+disappears from bus.
 
-So only print an error message about failing to get the certs list from an
-EFI variable if this is found. Otherwise these printed errors just pollute
-the kernel log ring buffer with confusing messages like the following:
+Add extra result checks to prevent this.
 
-[    5.427251] Couldn't get size: 0x800000000000000e
-[    5.427261] MODSIGN: Couldn't get UEFI db list
-[    5.428012] Couldn't get size: 0x800000000000000e
-[    5.428023] Couldn't get UEFI MokListRT
-
-Reported-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Javier Martinez Canillas <javierm@redhat.com>
-Tested-by: Hans de Goede <hdegoede@redhat.com>
-Acked-by: Ard Biesheuvel <ardb@kernel.org>
-Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
+Signed-off-by: Dmitry Bogdanov <dbogdanov@marvell.com>
+Signed-off-by: Igor Russkikh <irusskikh@marvell.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/integrity/platform_certs/load_uefi.c | 40 ++++++++++++-------
- 1 file changed, 26 insertions(+), 14 deletions(-)
+ .../aquantia/atlantic/hw_atl/hw_atl_utils.c   | 19 +++++++++++++++++--
+ 1 file changed, 17 insertions(+), 2 deletions(-)
 
-diff --git a/security/integrity/platform_certs/load_uefi.c b/security/integrity/platform_certs/load_uefi.c
-index 111898aad56e4..f0c908241966a 100644
---- a/security/integrity/platform_certs/load_uefi.c
-+++ b/security/integrity/platform_certs/load_uefi.c
-@@ -35,16 +35,18 @@ static __init bool uefi_check_ignore_db(void)
-  * Get a certificate list blob from the named EFI variable.
-  */
- static __init void *get_cert_list(efi_char16_t *name, efi_guid_t *guid,
--				  unsigned long *size)
-+				  unsigned long *size, efi_status_t *status)
+diff --git a/drivers/net/ethernet/aquantia/atlantic/hw_atl/hw_atl_utils.c b/drivers/net/ethernet/aquantia/atlantic/hw_atl/hw_atl_utils.c
+index 52646855495ed..873f9865f0d15 100644
+--- a/drivers/net/ethernet/aquantia/atlantic/hw_atl/hw_atl_utils.c
++++ b/drivers/net/ethernet/aquantia/atlantic/hw_atl/hw_atl_utils.c
+@@ -22,6 +22,7 @@
+ #define HW_ATL_MIF_ADDR         0x0208U
+ #define HW_ATL_MIF_VAL          0x020CU
+ 
++#define HW_ATL_MPI_RPC_ADDR     0x0334U
+ #define HW_ATL_RPC_CONTROL_ADR  0x0338U
+ #define HW_ATL_RPC_STATE_ADR    0x033CU
+ 
+@@ -48,15 +49,14 @@
+ #define FORCE_FLASHLESS 0
+ 
+ static int hw_atl_utils_ver_match(u32 ver_expected, u32 ver_actual);
+-
+ static int hw_atl_utils_mpi_set_state(struct aq_hw_s *self,
+ 				      enum hal_atl_utils_fw_state_e state);
+-
+ static u32 hw_atl_utils_get_mpi_mbox_tid(struct aq_hw_s *self);
+ static u32 hw_atl_utils_mpi_get_state(struct aq_hw_s *self);
+ static u32 hw_atl_utils_mif_cmd_get(struct aq_hw_s *self);
+ static u32 hw_atl_utils_mif_addr_get(struct aq_hw_s *self);
+ static u32 hw_atl_utils_rpc_state_get(struct aq_hw_s *self);
++static u32 aq_fw1x_rpc_get(struct aq_hw_s *self);
+ 
+ int hw_atl_utils_initfw(struct aq_hw_s *self, const struct aq_fw_ops **fw_ops)
  {
--	efi_status_t status;
- 	unsigned long lsize = 4;
- 	unsigned long tmpdb[4];
- 	void *db;
+@@ -413,6 +413,10 @@ static int hw_atl_utils_init_ucp(struct aq_hw_s *self,
+ 					self, self->mbox_addr,
+ 					self->mbox_addr != 0U,
+ 					1000U, 10000U);
++	err = readx_poll_timeout_atomic(aq_fw1x_rpc_get, self,
++					self->rpc_addr,
++					self->rpc_addr != 0U,
++					1000U, 100000U);
  
--	status = efi.get_variable(name, guid, NULL, &lsize, &tmpdb);
--	if (status != EFI_BUFFER_TOO_SMALL) {
--		pr_err("Couldn't get size: 0x%lx\n", status);
-+	*status = efi.get_variable(name, guid, NULL, &lsize, &tmpdb);
-+	if (*status == EFI_NOT_FOUND)
-+		return NULL;
+ 	return err;
+ }
+@@ -469,6 +473,12 @@ int hw_atl_utils_fw_rpc_wait(struct aq_hw_s *self,
+ 						self, fw.val,
+ 						sw.tid == fw.tid,
+ 						1000U, 100000U);
++		if (err < 0)
++			goto err_exit;
 +
-+	if (*status != EFI_BUFFER_TOO_SMALL) {
-+		pr_err("Couldn't get size: 0x%lx\n", *status);
- 		return NULL;
- 	}
++		err = aq_hw_err_from_flags(self);
++		if (err < 0)
++			goto err_exit;
  
-@@ -52,10 +54,10 @@ static __init void *get_cert_list(efi_char16_t *name, efi_guid_t *guid,
- 	if (!db)
- 		return NULL;
+ 		if (fw.len == 0xFFFFU) {
+ 			err = hw_atl_utils_fw_rpc_call(self, sw.len);
+@@ -950,6 +960,11 @@ static u32 hw_atl_utils_rpc_state_get(struct aq_hw_s *self)
+ 	return aq_hw_read_reg(self, HW_ATL_RPC_STATE_ADR);
+ }
  
--	status = efi.get_variable(name, guid, NULL, &lsize, db);
--	if (status != EFI_SUCCESS) {
-+	*status = efi.get_variable(name, guid, NULL, &lsize, db);
-+	if (*status != EFI_SUCCESS) {
- 		kfree(db);
--		pr_err("Error reading db var: 0x%lx\n", status);
-+		pr_err("Error reading db var: 0x%lx\n", *status);
- 		return NULL;
- 	}
- 
-@@ -74,6 +76,7 @@ static int __init load_uefi_certs(void)
- 	efi_guid_t mok_var = EFI_SHIM_LOCK_GUID;
- 	void *db = NULL, *dbx = NULL, *mok = NULL;
- 	unsigned long dbsize = 0, dbxsize = 0, moksize = 0;
-+	efi_status_t status;
- 	int rc = 0;
- 
- 	if (!efi.get_variable)
-@@ -83,9 +86,12 @@ static int __init load_uefi_certs(void)
- 	 * an error if we can't get them.
- 	 */
- 	if (!uefi_check_ignore_db()) {
--		db = get_cert_list(L"db", &secure_var, &dbsize);
-+		db = get_cert_list(L"db", &secure_var, &dbsize, &status);
- 		if (!db) {
--			pr_err("MODSIGN: Couldn't get UEFI db list\n");
-+			if (status == EFI_NOT_FOUND)
-+				pr_debug("MODSIGN: db variable wasn't found\n");
-+			else
-+				pr_err("MODSIGN: Couldn't get UEFI db list\n");
- 		} else {
- 			rc = parse_efi_signature_list("UEFI:db",
- 					db, dbsize, get_handler_for_db);
-@@ -96,9 +102,12 @@ static int __init load_uefi_certs(void)
- 		}
- 	}
- 
--	mok = get_cert_list(L"MokListRT", &mok_var, &moksize);
-+	mok = get_cert_list(L"MokListRT", &mok_var, &moksize, &status);
- 	if (!mok) {
--		pr_info("Couldn't get UEFI MokListRT\n");
-+		if (status == EFI_NOT_FOUND)
-+			pr_debug("MokListRT variable wasn't found\n");
-+		else
-+			pr_info("Couldn't get UEFI MokListRT\n");
- 	} else {
- 		rc = parse_efi_signature_list("UEFI:MokListRT",
- 					      mok, moksize, get_handler_for_db);
-@@ -107,9 +116,12 @@ static int __init load_uefi_certs(void)
- 		kfree(mok);
- 	}
- 
--	dbx = get_cert_list(L"dbx", &secure_var, &dbxsize);
-+	dbx = get_cert_list(L"dbx", &secure_var, &dbxsize, &status);
- 	if (!dbx) {
--		pr_info("Couldn't get UEFI dbx list\n");
-+		if (status == EFI_NOT_FOUND)
-+			pr_debug("dbx variable wasn't found\n");
-+		else
-+			pr_info("Couldn't get UEFI dbx list\n");
- 	} else {
- 		rc = parse_efi_signature_list("UEFI:dbx",
- 					      dbx, dbxsize,
++static u32 aq_fw1x_rpc_get(struct aq_hw_s *self)
++{
++	return aq_hw_read_reg(self, HW_ATL_MPI_RPC_ADDR);
++}
++
+ const struct aq_fw_ops aq_fw_1x_ops = {
+ 	.init = hw_atl_utils_mpi_create,
+ 	.deinit = hw_atl_fw1x_deinit,
 -- 
 2.20.1
 
