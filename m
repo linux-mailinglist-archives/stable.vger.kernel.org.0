@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A64C217F4EE
+	by mail.lfdr.de (Postfix) with ESMTP id 3173917F4ED
 	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 11:20:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726437AbgCJKUA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 06:20:00 -0400
-Received: from out1-smtp.messagingengine.com ([66.111.4.25]:55575 "EHLO
+        id S1726444AbgCJKT7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 06:19:59 -0400
+Received: from out1-smtp.messagingengine.com ([66.111.4.25]:54985 "EHLO
         out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726443AbgCJKUA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Mar 2020 06:20:00 -0400
+        by vger.kernel.org with ESMTP id S1726437AbgCJKT7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Mar 2020 06:19:59 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailout.nyi.internal (Postfix) with ESMTP id 33995220A3;
-        Tue, 10 Mar 2020 06:19:59 -0400 (EDT)
+        by mailout.nyi.internal (Postfix) with ESMTP id 8826821F16;
+        Tue, 10 Mar 2020 06:19:57 -0400 (EDT)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Tue, 10 Mar 2020 06:19:59 -0400
+  by compute1.internal (MEProxy); Tue, 10 Mar 2020 06:19:57 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=IoTK9Y
-        k2uIgbuyDG2DFJszvyCE0ly+rRfezB66xOnDI=; b=QzfkIoacAj1FfuwrdhDYzB
-        XtYqu+Px++i7HtpBoc9lg2Xr49zNlcyCrmn0zUlBqo2XEWSudDGBqelJcs9NXrLC
-        iVcKdoJIXmEuemiB3nkdR1kCpFrSxRzjzKnBMB6kh4C64J2Zc4iyw80AR2EsUHW4
-        5itSKOApupzOV9UrNokIqILvHuFNqcg+zbbVxh+dgUF/EDe2f3hCTInpzqgM1nPT
-        ekqBrz1We99+PSKlG3YhqlmjMmK/nFD2Jei1dhq0LBnULC3PGmFtLarplgudoyZw
-        gmuosdOyfPP3xCtNBGwnZIYV/PtArmNN8zNZZ3+/oqivcW34Fo7PHS7YmNyALYSw
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=FOIayj
+        kFVk7xdCRlyQ42pNKjltwuBqQCsK20WIN4IVY=; b=FW7Yl9/QajXruu3Z/n2XlL
+        br5nGQxQAPdEOY9r4YIvZ2xy/jtdABAjH98SEi4RnPU/Z/zVSrHlUCv4V+7wgo6N
+        9Z+ZNM9pp3WThwmmZmJ/qIeU2EzuvCf4RJm4LqnixUqWuDMPI3POhGo9rPW0XAen
+        wK5IJ27j5i0QsfNodOdbNhB5B2W3XbfjnmaC1KBa9L5OIGpM4VXFbNd5D46e8Cgr
+        iWHHn8Q63u26pys85oeqGdSl9bioHm8LVolFEG9g3C/qpMmATle4+Gf7W8PwYJ5i
+        sfbJlLHcbOL/qrX3Nakvtu0Wxo9GLGf1dJ6Y23sNNPaUSDRpBzlIReLiEkPwPmAA
         ==
-X-ME-Sender: <xms:z2lnXqCCPVRlDuyYMkNa2kcrm3kxM5TVe9ZoOC4bJtKRyfJ5rmAVVQ>
+X-ME-Sender: <xms:zWlnXm80R0qtxCLbqYbuqxdLzqoE11VXW19xtL8D_Kj5gfVosLMUMA>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedugedruddvtddgudefucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecukfhppeekfedrkeeirdekledruddtjeenucevlhhushhtvghrufhiiigvpeefne
     curfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:z2lnXlzf5ejB79l2EUfvoiP4nwCK7Q3nzwX-3YCUM4uXB9FJIbsK-g>
-    <xmx:z2lnXi59_K5tcH2fty4leOGnkccgjvJYxWauR7YpbmPdYdrhfDPhXg>
-    <xmx:z2lnXmsymXMin8eIZoFI5taRmHskh4DRlKQyzcm7s_CI1L2JqM8vWA>
-    <xmx:z2lnXvNBcVhGlNCvuPWUXG_TKzxYBhSokXW1B4vclkKq9tzk_s_-NA>
+X-ME-Proxy: <xmx:zWlnXgVFo_dESPu5EEjgc917KtyzrTDG4mcuIjoKnqDZVmgbZZ1GNw>
+    <xmx:zWlnXou05qZYPC_GzzUQ-17WZHsh-pr7QgGKVE1GFR_NCYGFcfxfLw>
+    <xmx:zWlnXv-AxJNMrXEqOgB2W1xFav0eNhvg8AqTNYXgNO1dmcqjuSR1JA>
+    <xmx:zWlnXgsvci4RoghVLh36vVkcsXD5D3KrLxuMc5_mxr-w6djCqotSIg>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 88E633060F09;
-        Tue, 10 Mar 2020 06:19:58 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] phy: brcm-sata: Correct MDIO operations for 40nm platforms" failed to apply to 4.14-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 0A8F930614B1;
+        Tue, 10 Mar 2020 06:19:56 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] phy: brcm-sata: Correct MDIO operations for 40nm platforms" failed to apply to 4.9-stable tree
 To:     f.fainelli@gmail.com, kishon@ti.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Tue, 10 Mar 2020 11:19:51 +0100
-Message-ID: <1583835591176168@kroah.com>
+Message-ID: <15838355912749@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -56,7 +56,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
