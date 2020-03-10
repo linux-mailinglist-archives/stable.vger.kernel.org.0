@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C7F8D17FBE0
+	by mail.lfdr.de (Postfix) with ESMTP id 5419917FBDF
 	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:17:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731541AbgCJNMN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 09:12:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34300 "EHLO mail.kernel.org"
+        id S1731374AbgCJNMQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 09:12:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34368 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731539AbgCJNMM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 09:12:12 -0400
+        id S1731246AbgCJNMP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 09:12:15 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CFF7520409;
-        Tue, 10 Mar 2020 13:12:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5456120409;
+        Tue, 10 Mar 2020 13:12:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583845932;
-        bh=ssKvFUgnI1L6vedipqOf+KiYAXpk4XNBlD8QG1x3TBg=;
+        s=default; t=1583845934;
+        bh=YKfdWWef2XAP+GCkkOxxFSr7TtbFVlNDiZybrdw5O7M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EptAk6H63AjxDHLj+KxiIhWzC1cBnoz133pt2Hp+kH8itHvEFpxiIjtDP2MQyPhWL
-         Jr+GBwExJ2zpF2xyEhJAAqZ+2AXmU9yhzsr5YM8g1miSOe1gQ3ppcu8qJ8DVhe+So6
-         JvTmkkU62HSv/M3bSj1go0d2XfZT/FnNUgGTmoFM=
+        b=tH34B4OiG/i0HiatTSzNQfGwTmCbzhHDwmHQRPgz3Jg05V80sHVbyFsu2wIkO79OQ
+         r8iuv03Q7ylex74RkQXhbQlRLgdsDmK9bFwwgcYyLkH1LArPCbF0Esfum/fLPyzx/o
+         LI6nq0i+cj6AFxUh2VUtbRW9/lYOowTvq09CKraI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
-        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Takashi Iwai <tiwai@suse.de>, Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Chuanhong Guo <gch981213@gmail.com>,
+        Daniel Golle <daniel@makrotopia.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 07/86] ALSA: hda: do not override bus codec_mask in link_get()
-Date:   Tue, 10 Mar 2020 13:44:31 +0100
-Message-Id: <20200310124531.200272158@linuxfoundation.org>
+Subject: [PATCH 4.19 08/86] serial: ar933x_uart: set UART_CS_{RX,TX}_READY_ORIDE
+Date:   Tue, 10 Mar 2020 13:44:32 +0100
+Message-Id: <20200310124531.251694738@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200310124530.808338541@linuxfoundation.org>
 References: <20200310124530.808338541@linuxfoundation.org>
@@ -47,59 +44,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai Vehmanen <kai.vehmanen@linux.intel.com>
+From: Daniel Golle <daniel@makrotopia.org>
 
-[ Upstream commit 43bcb1c0507858cdc95e425017dcc33f8105df39 ]
+[ Upstream commit 87c5cbf71ecbb9e289d60a2df22eb686c70bf196 ]
 
-snd_hdac_ext_bus_link_get() does not work correctly in case
-there are multiple codecs on the bus. It unconditionally
-resets the bus->codec_mask value. As per documentation in
-hdaudio.h and existing use in client code, this field should
-be used to store bit flag of detected codecs on the bus.
+On AR934x this UART is usually not initialized by the bootloader
+as it is only used as a secondary serial port while the primary
+UART is a newly introduced NS16550-compatible.
+In order to make use of the ar933x-uart on AR934x without RTS/CTS
+hardware flow control, one needs to set the
+UART_CS_{RX,TX}_READY_ORIDE bits as other than on AR933x where this
+UART is used as primary/console, the bootloader on AR934x typically
+doesn't set those bits.
+Setting them explicitely on AR933x should not do any harm, so just
+set them unconditionally.
 
-By overwriting value of the codec_mask, information on all
-detected codecs is lost. No current user of hdac is impacted,
-but use of bus->codec_mask is planned in future patches
-for SOF.
-
-Signed-off-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
-Reviewed-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
-Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Reviewed-by: Takashi Iwai <tiwai@suse.de>
-Link: https://lore.kernel.org/r/20200206200223.7715-1-kai.vehmanen@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Tested-by: Chuanhong Guo <gch981213@gmail.com>
+Signed-off-by: Daniel Golle <daniel@makrotopia.org>
+Link: https://lore.kernel.org/r/20200207095335.GA179836@makrotopia.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/hda/ext/hdac_ext_controller.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ drivers/tty/serial/ar933x_uart.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/sound/hda/ext/hdac_ext_controller.c b/sound/hda/ext/hdac_ext_controller.c
-index 60cb00fd0c693..84b44cdae28a1 100644
---- a/sound/hda/ext/hdac_ext_controller.c
-+++ b/sound/hda/ext/hdac_ext_controller.c
-@@ -262,6 +262,7 @@ EXPORT_SYMBOL_GPL(snd_hdac_ext_bus_link_power_down_all);
- int snd_hdac_ext_bus_link_get(struct hdac_bus *bus,
- 				struct hdac_ext_link *link)
- {
-+	unsigned long codec_mask;
- 	int ret = 0;
+diff --git a/drivers/tty/serial/ar933x_uart.c b/drivers/tty/serial/ar933x_uart.c
+index 3bdd56a1021b2..ea12f10610b64 100644
+--- a/drivers/tty/serial/ar933x_uart.c
++++ b/drivers/tty/serial/ar933x_uart.c
+@@ -286,6 +286,10 @@ static void ar933x_uart_set_termios(struct uart_port *port,
+ 	ar933x_uart_rmw_set(up, AR933X_UART_CS_REG,
+ 			    AR933X_UART_CS_HOST_INT_EN);
  
- 	mutex_lock(&bus->lock);
-@@ -283,9 +284,11 @@ int snd_hdac_ext_bus_link_get(struct hdac_bus *bus,
- 		 *  HDA spec section 4.3 - Codec Discovery
- 		 */
- 		udelay(521);
--		bus->codec_mask = snd_hdac_chip_readw(bus, STATESTS);
--		dev_dbg(bus->dev, "codec_mask = 0x%lx\n", bus->codec_mask);
--		snd_hdac_chip_writew(bus, STATESTS, bus->codec_mask);
-+		codec_mask = snd_hdac_chip_readw(bus, STATESTS);
-+		dev_dbg(bus->dev, "codec_mask = 0x%lx\n", codec_mask);
-+		snd_hdac_chip_writew(bus, STATESTS, codec_mask);
-+		if (!bus->codec_mask)
-+			bus->codec_mask = codec_mask;
- 	}
++	/* enable RX and TX ready overide */
++	ar933x_uart_rmw_set(up, AR933X_UART_CS_REG,
++		AR933X_UART_CS_TX_READY_ORIDE | AR933X_UART_CS_RX_READY_ORIDE);
++
+ 	/* reenable the UART */
+ 	ar933x_uart_rmw(up, AR933X_UART_CS_REG,
+ 			AR933X_UART_CS_IF_MODE_M << AR933X_UART_CS_IF_MODE_S,
+@@ -418,6 +422,10 @@ static int ar933x_uart_startup(struct uart_port *port)
+ 	ar933x_uart_rmw_set(up, AR933X_UART_CS_REG,
+ 			    AR933X_UART_CS_HOST_INT_EN);
  
- 	mutex_unlock(&bus->lock);
++	/* enable RX and TX ready overide */
++	ar933x_uart_rmw_set(up, AR933X_UART_CS_REG,
++		AR933X_UART_CS_TX_READY_ORIDE | AR933X_UART_CS_RX_READY_ORIDE);
++
+ 	/* Enable RX interrupts */
+ 	up->ier = AR933X_UART_INT_RX_VALID;
+ 	ar933x_uart_write(up, AR933X_UART_INT_EN_REG, up->ier);
 -- 
 2.20.1
 
