@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4CC6817F9ED
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:01:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DE6BE17FD56
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:29:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730240AbgCJNBO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 09:01:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42338 "EHLO mail.kernel.org"
+        id S1728382AbgCJMxE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 08:53:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58874 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729942AbgCJNBO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 09:01:14 -0400
+        id S1727952AbgCJMxB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 08:53:01 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3CADE2467D;
-        Tue, 10 Mar 2020 13:01:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AFE7120674;
+        Tue, 10 Mar 2020 12:53:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583845273;
-        bh=TgijbQx+j8pF/MwcM2OHeiCApkANqraS0PDS4F8Ts9o=;
+        s=default; t=1583844781;
+        bh=RUb0YOqHYOHlRRcJrr7TNAMVJsnIqoIrk9pzaoOBF9M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LDki9ND7dXtOm30Lvozyc047LzdDAHIXDctTkLoTJbjy1yks6UPtded3fLPEOEnoV
-         Yi/xHcTD0yech74t/dz9xp2s8zfyWkWOsthoOHh/ecfa8sObatxYwYqNniNtNak18n
-         TiV622CaefpRVWFWG2nbGneIhlKkz7lsCkQSOOEw=
+        b=PyqXz9g3GxikMeEU0c55iuvrJ+HhRgAO+a7LkQijKXWM0XtBkgSYKcvFjbl4S7kC5
+         n3qukpeW9OZN5qmJNpEHZLJbsvfoh2SQ5U0Vqgj+sj4myV4UntBBcqvaaG/rZnjeNH
+         NsCUVu8OgbkTI+sN1wLp/Z+wxff+4YXoniZ2TcZE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hou Tao <houtao1@huawei.com>,
-        Mike Snitzer <snitzer@redhat.com>
-Subject: [PATCH 5.5 125/189] dm: fix congested_fn for request-based device
-Date:   Tue, 10 Mar 2020 13:39:22 +0100
-Message-Id: <20200310123652.402156432@linuxfoundation.org>
+        stable@vger.kernel.org, Dragos Tarcatu <dragos_tarcatu@mentor.com>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.4 117/168] ASoC: topology: Fix memleak in soc_tplg_link_elems_load()
+Date:   Tue, 10 Mar 2020 13:39:23 +0100
+Message-Id: <20200310123647.251499097@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200310123639.608886314@linuxfoundation.org>
-References: <20200310123639.608886314@linuxfoundation.org>
+In-Reply-To: <20200310123635.322799692@linuxfoundation.org>
+References: <20200310123635.322799692@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,80 +43,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hou Tao <houtao1@huawei.com>
+From: Dragos Tarcatu <dragos_tarcatu@mentor.com>
 
-commit 974f51e8633f0f3f33e8f86bbb5ae66758aa63c7 upstream.
+commit 2b2d5c4db732c027a14987cfccf767dac1b45170 upstream.
 
-We neither assign congested_fn for requested-based blk-mq device nor
-implement it correctly. So fix both.
+If soc_tplg_link_config() fails, _link needs to be freed in case of
+topology ABI version mismatch. However the current code is returning
+directly and ends up leaking memory in this case.
+This patch fixes that.
 
-Also, remove incorrect comment from dm_init_normal_md_queue and rename
-it to dm_init_congested_fn.
-
-Fixes: 4aa9c692e052 ("bdi: separate out congested state into a separate struct")
-Cc: stable@vger.kernel.org
-Signed-off-by: Hou Tao <houtao1@huawei.com>
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+Fixes: 593d9e52f9bb ("ASoC: topology: Add support to configure existing physical DAI links")
+Signed-off-by: Dragos Tarcatu <dragos_tarcatu@mentor.com>
+Link: https://lore.kernel.org/r/20200207185325.22320-2-dragos_tarcatu@mentor.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/md/dm.c |   21 ++++++++++-----------
- 1 file changed, 10 insertions(+), 11 deletions(-)
+ sound/soc/soc-topology.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/drivers/md/dm.c
-+++ b/drivers/md/dm.c
-@@ -1788,7 +1788,8 @@ static int dm_any_congested(void *conges
- 			 * With request-based DM we only need to check the
- 			 * top-level queue for congestion.
- 			 */
--			r = md->queue->backing_dev_info->wb.state & bdi_bits;
-+			struct backing_dev_info *bdi = md->queue->backing_dev_info;
-+			r = bdi->wb.congested->state & bdi_bits;
- 		} else {
- 			map = dm_get_live_table_fast(md);
- 			if (map)
-@@ -1854,15 +1855,6 @@ static const struct dax_operations dm_da
- 
- static void dm_wq_work(struct work_struct *work);
- 
--static void dm_init_normal_md_queue(struct mapped_device *md)
--{
--	/*
--	 * Initialize aspects of queue that aren't relevant for blk-mq
--	 */
--	md->queue->backing_dev_info->congested_data = md;
--	md->queue->backing_dev_info->congested_fn = dm_any_congested;
--}
--
- static void cleanup_mapped_device(struct mapped_device *md)
- {
- 	if (md->wq)
-@@ -2249,6 +2241,12 @@ struct queue_limits *dm_get_queue_limits
- }
- EXPORT_SYMBOL_GPL(dm_get_queue_limits);
- 
-+static void dm_init_congested_fn(struct mapped_device *md)
-+{
-+	md->queue->backing_dev_info->congested_data = md;
-+	md->queue->backing_dev_info->congested_fn = dm_any_congested;
-+}
-+
- /*
-  * Setup the DM device's queue based on md's type
-  */
-@@ -2265,11 +2263,12 @@ int dm_setup_md_queue(struct mapped_devi
- 			DMERR("Cannot initialize queue for request-based dm-mq mapped device");
- 			return r;
+--- a/sound/soc/soc-topology.c
++++ b/sound/soc/soc-topology.c
+@@ -2320,8 +2320,11 @@ static int soc_tplg_link_elems_load(stru
  		}
-+		dm_init_congested_fn(md);
- 		break;
- 	case DM_TYPE_BIO_BASED:
- 	case DM_TYPE_DAX_BIO_BASED:
- 	case DM_TYPE_NVME_BIO_BASED:
--		dm_init_normal_md_queue(md);
-+		dm_init_congested_fn(md);
- 		break;
- 	case DM_TYPE_NONE:
- 		WARN_ON_ONCE(true);
+ 
+ 		ret = soc_tplg_link_config(tplg, _link);
+-		if (ret < 0)
++		if (ret < 0) {
++			if (!abi_match)
++				kfree(_link);
+ 			return ret;
++		}
+ 
+ 		/* offset by version-specific struct size and
+ 		 * real priv data size
 
 
