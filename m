@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F97D17F823
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 13:45:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E005B17F9B3
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 13:59:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727915AbgCJMp0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 08:45:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48032 "EHLO mail.kernel.org"
+        id S1729507AbgCJM7R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 08:59:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39664 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727911AbgCJMpY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 08:45:24 -0400
+        id S1726526AbgCJM7R (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 08:59:17 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 36468246A2;
-        Tue, 10 Mar 2020 12:45:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 03A7E24694;
+        Tue, 10 Mar 2020 12:59:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583844323;
-        bh=h85u4VUgbh0W1itZlCmB2tRcbwF02+Qx+y1dJNGdyKc=;
+        s=default; t=1583845156;
+        bh=zHbdShaZV+XM7ds1MbyGEf0M0GeteJZlB32nh7R+jx8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y6mBQyCmQVDg1rz1ziAQJ4EsiSf43BzM32zHULjgphmivQAe7IjuKY6qP06F5vSY8
-         LR7FShCVMyPvbxUyjJ0FbpG0Kf6FxAGgalGN2vdYRH5mOZV6vXpdY+eECcip6MzWd3
-         1o/63Hd90I2HORvRW4UC2Wx3k5HYxrqpW8aII0lY=
+        b=WfItBJgJSmutL7fHNea7Yip2sZBXYnPnj3zVm1HcBoZcNP8sEfY1nSKTvxXXxXico
+         yUixyWLpzrDQXOtdgW2cUR8E1+RSRTM0l2rNsndy+g0k78j6p4/EiIFFvyrTO81k7c
+         r88uXnZ35RyfDiJwY6TiKbrEjpy9XRvjuOh+ZzMs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Korsnes <jkorsnes@cisco.com>,
-        Armando Visconti <armando.visconti@st.com>,
-        Jiri Kosina <jkosina@suse.cz>,
-        Alan Stern <stern@rowland.harvard.edu>
-Subject: [PATCH 4.9 32/88] HID: core: fix off-by-one memset in hid_report_raw_event()
+        stable@vger.kernel.org,
+        syzbot+9d82b8de2992579da5d0@syzkaller.appspotmail.com,
+        Andrew Morton <akpm@linux-foundation.org>,
+        OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.5 083/189] fat: fix uninit-memory access for partial initialized inode
 Date:   Tue, 10 Mar 2020 13:38:40 +0100
-Message-Id: <20200310123613.773411658@linuxfoundation.org>
+Message-Id: <20200310123648.078279873@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200310123606.543939933@linuxfoundation.org>
-References: <20200310123606.543939933@linuxfoundation.org>
+In-Reply-To: <20200310123639.608886314@linuxfoundation.org>
+References: <20200310123639.608886314@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,46 +46,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Korsnes <jkorsnes@cisco.com>
+From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
 
-commit 5ebdffd25098898aff1249ae2f7dbfddd76d8f8f upstream.
+commit bc87302a093f0eab45cd4e250c2021299f712ec6 upstream.
 
-In case a report is greater than HID_MAX_BUFFER_SIZE, it is truncated,
-but the report-number byte is not correctly handled. This results in a
-off-by-one in the following memset, causing a kernel Oops and ensuing
-system crash.
+When get an error in the middle of reading an inode, some fields in the
+inode might be still not initialized.  And then the evict_inode path may
+access those fields via iput().
 
-Note: With commit 8ec321e96e05 ("HID: Fix slab-out-of-bounds read in
-hid_field_extract") I no longer hit the kernel Oops as we instead fail
-"controlled" at probe if there is a report too long in the HID
-report-descriptor. hid_report_raw_event() is an exported symbol, so
-presumabely we cannot always rely on this being the case.
+To fix, this makes sure that inode fields are initialized.
 
-Fixes: 966922f26c7f ("HID: fix a crash in hid_report_raw_event()
-                     function.")
-Signed-off-by: Johan Korsnes <jkorsnes@cisco.com>
-Cc: Armando Visconti <armando.visconti@st.com>
-Cc: Jiri Kosina <jkosina@suse.cz>
-Cc: Alan Stern <stern@rowland.harvard.edu>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Reported-by: syzbot+9d82b8de2992579da5d0@syzkaller.appspotmail.com
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Cc: <stable@vger.kernel.org>
+Link: http://lkml.kernel.org/r/871rqnreqx.fsf@mail.parknet.co.jp
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/hid/hid-core.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ fs/fat/inode.c |   19 +++++++------------
+ 1 file changed, 7 insertions(+), 12 deletions(-)
 
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -1547,7 +1547,9 @@ int hid_report_raw_event(struct hid_devi
+--- a/fs/fat/inode.c
++++ b/fs/fat/inode.c
+@@ -749,6 +749,13 @@ static struct inode *fat_alloc_inode(str
+ 		return NULL;
  
- 	rsize = ((report->size - 1) >> 3) + 1;
+ 	init_rwsem(&ei->truncate_lock);
++	/* Zeroing to allow iput() even if partial initialized inode. */
++	ei->mmu_private = 0;
++	ei->i_start = 0;
++	ei->i_logstart = 0;
++	ei->i_attrs = 0;
++	ei->i_pos = 0;
++
+ 	return &ei->vfs_inode;
+ }
  
--	if (rsize > HID_MAX_BUFFER_SIZE)
-+	if (report_enum->numbered && rsize >= HID_MAX_BUFFER_SIZE)
-+		rsize = HID_MAX_BUFFER_SIZE - 1;
-+	else if (rsize > HID_MAX_BUFFER_SIZE)
- 		rsize = HID_MAX_BUFFER_SIZE;
+@@ -1373,16 +1380,6 @@ out:
+ 	return 0;
+ }
  
- 	if (csize < rsize) {
+-static void fat_dummy_inode_init(struct inode *inode)
+-{
+-	/* Initialize this dummy inode to work as no-op. */
+-	MSDOS_I(inode)->mmu_private = 0;
+-	MSDOS_I(inode)->i_start = 0;
+-	MSDOS_I(inode)->i_logstart = 0;
+-	MSDOS_I(inode)->i_attrs = 0;
+-	MSDOS_I(inode)->i_pos = 0;
+-}
+-
+ static int fat_read_root(struct inode *inode)
+ {
+ 	struct msdos_sb_info *sbi = MSDOS_SB(inode->i_sb);
+@@ -1843,13 +1840,11 @@ int fat_fill_super(struct super_block *s
+ 	fat_inode = new_inode(sb);
+ 	if (!fat_inode)
+ 		goto out_fail;
+-	fat_dummy_inode_init(fat_inode);
+ 	sbi->fat_inode = fat_inode;
+ 
+ 	fsinfo_inode = new_inode(sb);
+ 	if (!fsinfo_inode)
+ 		goto out_fail;
+-	fat_dummy_inode_init(fsinfo_inode);
+ 	fsinfo_inode->i_ino = MSDOS_FSINFO_INO;
+ 	sbi->fsinfo_inode = fsinfo_inode;
+ 	insert_inode_hash(fsinfo_inode);
 
 
