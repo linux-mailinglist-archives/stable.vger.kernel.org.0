@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A2A617FA79
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:05:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 68B0017FD7A
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:29:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728408AbgCJNFF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 09:05:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48290 "EHLO mail.kernel.org"
+        id S1728102AbgCJN1K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 09:27:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33986 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730607AbgCJNDd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 09:03:33 -0400
+        id S1729099AbgCJMzO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 08:55:14 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 546E520409;
-        Tue, 10 Mar 2020 13:03:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 794192253D;
+        Tue, 10 Mar 2020 12:55:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583845412;
-        bh=ag3c6GVTu3Y1a+XFsrgA2806COetS2Xnz2jc0AH61aw=;
+        s=default; t=1583844913;
+        bh=khnnaXEotQCDVtCSFvYA545nYovW0yzZNDRL37GEq3c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=btCuE0Jm5ghw3OcAEe81a5o9cGn4HuwZabymgPPSBtAIEvvxdXQXFU1HVnM4wo0es
-         yQD5xIXdO//KtoZntdMwwEuAA5NTHzotj4luuVRrjAzj3rtsUP9QitBBWqi7Bg5PL3
-         dzPvcb74Fiur8yG9usXPk2zjk6+YYAxfKtsoOqIA=
+        b=a4c7gZI7EYoTumsbsqKin6y0uDL3tnZVDnmRWdqwhVT1zYs8bihXXHFHy9dChwyQ0
+         GCcidswKfTVDVa9VwN7R5wKqFrkSJPu4vfOin6haF+qXECZ3Oo1pLoBvbrG5upYi3x
+         N5YYTClawZfGxHyx/E+Z1a62LTxaoP9p9fDauOyY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Suman Anna <s-anna@ti.com>,
-        Tony Lindgren <tony@atomide.com>
-Subject: [PATCH 5.5 174/189] ARM: dts: dra7xx-clocks: Fixup IPU1 mux clock parent source
-Date:   Tue, 10 Mar 2020 13:40:11 +0100
-Message-Id: <20200310123657.372725099@linuxfoundation.org>
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Ingo Molnar <mingo@kernel.org>, linux-efi@vger.kernel.org,
+        Thomas Gleixner <tglx@linutronix.de>
+Subject: [PATCH 5.4 166/168] efi/x86: Align GUIDs to their size in the mixed mode runtime wrapper
+Date:   Tue, 10 Mar 2020 13:40:12 +0100
+Message-Id: <20200310123652.363028853@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200310123639.608886314@linuxfoundation.org>
-References: <20200310123639.608886314@linuxfoundation.org>
+In-Reply-To: <20200310123635.322799692@linuxfoundation.org>
+References: <20200310123635.322799692@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,59 +45,129 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Suman Anna <s-anna@ti.com>
+From: Ard Biesheuvel <ardb@kernel.org>
 
-commit 78722d37b2b4cf9178295e2aa5510880e6135fd7 upstream.
+commit 63056e8b5ebf41d52170e9f5ba1fc83d1855278c upstream.
 
-The IPU1 functional clock is the output of a mux clock (represented
-by ipu1_gfclk_mux previously) and the clock source for this has been
-updated to be sourced from dpll_core_h22x2_ck in commit 39879c7d963e
-("ARM: dts: dra7xx-clocks: Source IPU1 functional clock from CORE DPLL").
-ipu1_gfclk_mux is an obsolete clock now with the clkctrl conversion,
-and this clock source parenting is lost during the new clkctrl layout
-conversion.
+Hans reports that his mixed mode systems running v5.6-rc1 kernels hit
+the WARN_ON() in virt_to_phys_or_null_size(), caused by the fact that
+efi_guid_t objects on the vmap'ed stack happen to be misaligned with
+respect to their sizes. As a quick (i.e., backportable) fix, copy GUID
+pointer arguments to the local stack into a buffer that is naturally
+aligned to its size, so that it is guaranteed to cover only one
+physical page.
 
-Remove this stale clock and fix up the clock source for this mux
-clock using the latest equivalent clkctrl clock. This restores the
-previous logic and ensures that the IPU1 continues to run at the
-same frequency of IPU2 and independent of the ABE DPLL.
+Note that on x86, we cannot rely on the stack pointer being aligned
+the way the compiler expects, so we need to allocate an 8-byte aligned
+buffer of sufficient size, and copy the GUID into that buffer at an
+offset that is aligned to 16 bytes.
 
-Fixes: b5f8ffbb6fad ("ARM: dts: dra7: convert to use new clkctrl layout")
-Signed-off-by: Suman Anna <s-anna@ti.com>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
+Fixes: f6697df36bdf0bf7 ("x86/efi: Prevent mixed mode boot corruption with CONFIG_VMAP_STACK=y")
+Reported-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Tested-by: Hans de Goede <hdegoede@redhat.com>
+Cc: linux-efi@vger.kernel.org
+Cc: Ingo Molnar <mingo@kernel.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Link: https://lore.kernel.org/r/20200221084849.26878-2-ardb@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm/boot/dts/dra7xx-clocks.dtsi |   12 ++----------
- 1 file changed, 2 insertions(+), 10 deletions(-)
+ arch/x86/platform/efi/efi_64.c |   25 +++++++++++++++++++++----
+ 1 file changed, 21 insertions(+), 4 deletions(-)
 
---- a/arch/arm/boot/dts/dra7xx-clocks.dtsi
-+++ b/arch/arm/boot/dts/dra7xx-clocks.dtsi
-@@ -796,16 +796,6 @@
- 		clock-div = <1>;
- 	};
+--- a/arch/x86/platform/efi/efi_64.c
++++ b/arch/x86/platform/efi/efi_64.c
+@@ -791,6 +791,8 @@ static efi_status_t
+ efi_thunk_get_variable(efi_char16_t *name, efi_guid_t *vendor,
+ 		       u32 *attr, unsigned long *data_size, void *data)
+ {
++	u8 buf[24] __aligned(8);
++	efi_guid_t *vnd = PTR_ALIGN((efi_guid_t *)buf, sizeof(*vnd));
+ 	efi_status_t status;
+ 	u32 phys_name, phys_vendor, phys_attr;
+ 	u32 phys_data_size, phys_data;
+@@ -798,8 +800,10 @@ efi_thunk_get_variable(efi_char16_t *nam
  
--	ipu1_gfclk_mux: ipu1_gfclk_mux@520 {
--		#clock-cells = <0>;
--		compatible = "ti,mux-clock";
--		clocks = <&dpll_abe_m2x2_ck>, <&dpll_core_h22x2_ck>;
--		ti,bit-shift = <24>;
--		reg = <0x0520>;
--		assigned-clocks = <&ipu1_gfclk_mux>;
--		assigned-clock-parents = <&dpll_core_h22x2_ck>;
--	};
--
- 	dummy_ck: dummy_ck {
- 		#clock-cells = <0>;
- 		compatible = "fixed-clock";
-@@ -1564,6 +1554,8 @@
- 			compatible = "ti,clkctrl";
- 			reg = <0x20 0x4>;
- 			#clock-cells = <2>;
-+			assigned-clocks = <&ipu1_clkctrl DRA7_IPU1_MMU_IPU1_CLKCTRL 24>;
-+			assigned-clock-parents = <&dpll_core_h22x2_ck>;
- 		};
+ 	spin_lock_irqsave(&efi_runtime_lock, flags);
  
- 		ipu_clkctrl: ipu-clkctrl@50 {
++	*vnd = *vendor;
++
+ 	phys_data_size = virt_to_phys_or_null(data_size);
+-	phys_vendor = virt_to_phys_or_null(vendor);
++	phys_vendor = virt_to_phys_or_null(vnd);
+ 	phys_name = virt_to_phys_or_null_size(name, efi_name_size(name));
+ 	phys_attr = virt_to_phys_or_null(attr);
+ 	phys_data = virt_to_phys_or_null_size(data, *data_size);
+@@ -816,14 +820,18 @@ static efi_status_t
+ efi_thunk_set_variable(efi_char16_t *name, efi_guid_t *vendor,
+ 		       u32 attr, unsigned long data_size, void *data)
+ {
++	u8 buf[24] __aligned(8);
++	efi_guid_t *vnd = PTR_ALIGN((efi_guid_t *)buf, sizeof(*vnd));
+ 	u32 phys_name, phys_vendor, phys_data;
+ 	efi_status_t status;
+ 	unsigned long flags;
+ 
+ 	spin_lock_irqsave(&efi_runtime_lock, flags);
+ 
++	*vnd = *vendor;
++
+ 	phys_name = virt_to_phys_or_null_size(name, efi_name_size(name));
+-	phys_vendor = virt_to_phys_or_null(vendor);
++	phys_vendor = virt_to_phys_or_null(vnd);
+ 	phys_data = virt_to_phys_or_null_size(data, data_size);
+ 
+ 	/* If data_size is > sizeof(u32) we've got problems */
+@@ -840,6 +848,8 @@ efi_thunk_set_variable_nonblocking(efi_c
+ 				   u32 attr, unsigned long data_size,
+ 				   void *data)
+ {
++	u8 buf[24] __aligned(8);
++	efi_guid_t *vnd = PTR_ALIGN((efi_guid_t *)buf, sizeof(*vnd));
+ 	u32 phys_name, phys_vendor, phys_data;
+ 	efi_status_t status;
+ 	unsigned long flags;
+@@ -847,8 +857,10 @@ efi_thunk_set_variable_nonblocking(efi_c
+ 	if (!spin_trylock_irqsave(&efi_runtime_lock, flags))
+ 		return EFI_NOT_READY;
+ 
++	*vnd = *vendor;
++
+ 	phys_name = virt_to_phys_or_null_size(name, efi_name_size(name));
+-	phys_vendor = virt_to_phys_or_null(vendor);
++	phys_vendor = virt_to_phys_or_null(vnd);
+ 	phys_data = virt_to_phys_or_null_size(data, data_size);
+ 
+ 	/* If data_size is > sizeof(u32) we've got problems */
+@@ -865,14 +877,18 @@ efi_thunk_get_next_variable(unsigned lon
+ 			    efi_char16_t *name,
+ 			    efi_guid_t *vendor)
+ {
++	u8 buf[24] __aligned(8);
++	efi_guid_t *vnd = PTR_ALIGN((efi_guid_t *)buf, sizeof(*vnd));
+ 	efi_status_t status;
+ 	u32 phys_name_size, phys_name, phys_vendor;
+ 	unsigned long flags;
+ 
+ 	spin_lock_irqsave(&efi_runtime_lock, flags);
+ 
++	*vnd = *vendor;
++
+ 	phys_name_size = virt_to_phys_or_null(name_size);
+-	phys_vendor = virt_to_phys_or_null(vendor);
++	phys_vendor = virt_to_phys_or_null(vnd);
+ 	phys_name = virt_to_phys_or_null_size(name, *name_size);
+ 
+ 	status = efi_thunk(get_next_variable, phys_name_size,
+@@ -880,6 +896,7 @@ efi_thunk_get_next_variable(unsigned lon
+ 
+ 	spin_unlock_irqrestore(&efi_runtime_lock, flags);
+ 
++	*vendor = *vnd;
+ 	return status;
+ }
+ 
 
 
