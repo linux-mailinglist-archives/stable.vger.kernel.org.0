@@ -2,147 +2,123 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E83D61801DE
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 16:31:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E63E1801E7
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 16:33:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726594AbgCJPbj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 11:31:39 -0400
-Received: from conssluserg-02.nifty.com ([210.131.2.81]:46015 "EHLO
-        conssluserg-02.nifty.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726420AbgCJPbj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Mar 2020 11:31:39 -0400
-Received: from mail-vk1-f181.google.com (mail-vk1-f181.google.com [209.85.221.181]) (authenticated)
-        by conssluserg-02.nifty.com with ESMTP id 02AFVYF4029019;
-        Wed, 11 Mar 2020 00:31:34 +0900
-DKIM-Filter: OpenDKIM Filter v2.10.3 conssluserg-02.nifty.com 02AFVYF4029019
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nifty.com;
-        s=dec2015msa; t=1583854295;
-        bh=cU9zGQWEYLmKu3ABbJP9fWNhvET72vVMMuEoK2xZbeA=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=uBFbZowblEtMMMtmmPl1g2DHYesZd0O3dcspp/C1j7pYuuZiW7+A/50a8OxAD9sGX
-         3LR/6esVVadbdu8bba9C/iyNdz3dcV1XCPR8GGy8utGuvugcaQ3MEfylMfUIJDhMlc
-         NG5vO76Han+PqEgbLSWPcOmKIEPTutMTSJ6dyhq7dpIkAXIgNcot9dq/L918KUFXBu
-         q9NuQO9PRXoSuGMXGCJbNN9TfnWlWmC97te5FfbTjQxdYauJy0Gw7S/20R3mgtEzV3
-         16OaLPqNErNEHNFQgVtuKtUqoV+aSA0TJIcw56ttliWlmuWvG/pJxx/tbqL5XKtYis
-         myG5OlrsN218A==
-X-Nifty-SrcIP: [209.85.221.181]
-Received: by mail-vk1-f181.google.com with SMTP id i78so3679380vke.0;
-        Tue, 10 Mar 2020 08:31:34 -0700 (PDT)
-X-Gm-Message-State: ANhLgQ3vCFmusR8luwcYaMMcsI3mZ2mG7fV4UiJqXUPY8wbCJC5dlOnf
-        zMTXqPz5XlTk+nd2QFV2Ims2XOVspzBgT7y5L3k=
-X-Google-Smtp-Source: ADFU+vshzsYrewZL9/qV8QBmAcUvMQcoFa4yNoeetgkikl+9ovLz5Pmn2O39v6n04YVWO2hgbFnjooVJIw0mOh6UFtA=
-X-Received: by 2002:a1f:900c:: with SMTP id s12mr2563486vkd.96.1583854293448;
- Tue, 10 Mar 2020 08:31:33 -0700 (PDT)
+        id S1726315AbgCJPdu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 11:33:50 -0400
+Received: from mail-lj1-f195.google.com ([209.85.208.195]:42145 "EHLO
+        mail-lj1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726380AbgCJPdu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Mar 2020 11:33:50 -0400
+Received: by mail-lj1-f195.google.com with SMTP id q19so14618918ljp.9
+        for <stable@vger.kernel.org>; Tue, 10 Mar 2020 08:33:49 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=0AS4iD/EqLgDWiA/Em9kdqcmCXIvsjkX4pJSBWor6Nk=;
+        b=d3gT/cV7yOBnJzdr1xBBXMnSAnWAFLDvl7xcHlspC0LOGFpsE72iS1YE9y9y1hng/8
+         sVSc2dRPuFLTwq5AA5GAA4NjVCYrvI4spfy6YFz9qV6Bkufx+syjQ/YfV09B0Hw8grLz
+         scrjQBrAxtPZsDpMoTyYsktdNQ9Dw5JtGWltX2b05iZX01gTZ84NVjkd0NQd5efjTm5D
+         0jg3uvhnLV4DfctHeY6npC1Klk3gdFU5zG+79f9ngEBV4TGe8vvilXAi7NKk1XBCnUDA
+         ASRWW/gH6EKTbIsc9nX+RY5S3+YDYQPBYp9pk307/CS9FDalkm0EFzDtt65dofgKd3TV
+         eQqg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=0AS4iD/EqLgDWiA/Em9kdqcmCXIvsjkX4pJSBWor6Nk=;
+        b=AIPXUbL9PjzeYOaS57pEpId5P5gm8LocJAElXXwIXiy3/0KwEV+CNLHYy+s4MKa0IG
+         LOvy0amj6UYl9SJcG8Y6O2O1Jelqf/CMoaQ6SkgBtWTwq8lT8ABG8bPmX85DAaO+EQIy
+         4vhpQcSEtoB80vbWIjxDr7IwQgZlQYyjEqxTzMhjhcxp9fFzgxGKMSlun1VnRCt3exSB
+         cVHlYJLw/jViDNTV0gYn30mS4ubPsdwqDjEVofC7nxYYs06XjBd8WZM6fui2zBPSXgp7
+         Vd4FPpe/bDMJ93zB315c9yf8DcSr51fuxarMAN2v+JWBD/vJkUWllei0m/Hnfm17NfN3
+         M6PQ==
+X-Gm-Message-State: ANhLgQ23dswwRxjf+nHnwMU9iVDV+UjFBDxa4q4qr31Scp/ljcj9orxw
+        BzXR+2rtxFiZeTY5LUc1DUL6uw==
+X-Google-Smtp-Source: ADFU+vvDpOfAMYNpRyOb2/6Q/jBOsY7V3AOt4HZMfeH3/3M38eXJsrZFEEpUT+38SSIr+2kEgT0qCg==
+X-Received: by 2002:a05:651c:414:: with SMTP id 20mr12234008lja.165.1583854427939;
+        Tue, 10 Mar 2020 08:33:47 -0700 (PDT)
+Received: from localhost.localdomain (h-158-174-22-210.NA.cust.bahnhof.se. [158.174.22.210])
+        by smtp.gmail.com with ESMTPSA id c22sm17283776lfi.41.2020.03.10.08.33.46
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 10 Mar 2020 08:33:46 -0700 (PDT)
+From:   Ulf Hansson <ulf.hansson@linaro.org>
+To:     linux-mmc@vger.kernel.org, Ulf Hansson <ulf.hansson@linaro.org>
+Cc:     Adrian Hunter <adrian.hunter@intel.com>,
+        Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        Ludovic Barre <ludovic.barre@st.com>,
+        Baolin Wang <baolin.wang7@gmail.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Chaotian Jing <chaotian.jing@mediatek.com>,
+        Shawn Lin <shawn.lin@rock-chips.com>, mirq-linux@rere.qmqm.pl,
+        Bitan Biswas <bbiswas@nvidia.com>,
+        Peter Geis <pgwipeout@gmail.com>,
+        Sowjanya Komatineni <skomatineni@nvidia.com>,
+        Faiz Abbas <faiz_abbas@ti.com>,
+        Anders Roxell <anders.roxell@linaro.org>,
+        Naresh Kamboju <naresh.kamboju@linaro.org>,
+        Jon Hunter <jonathanh@nvidia.com>, stable@vger.kernel.org
+Subject: [PATCH 1/4] mmc: core: Allow host controllers to require R1B for CMD6
+Date:   Tue, 10 Mar 2020 16:33:37 +0100
+Message-Id: <20200310153340.5593-2-ulf.hansson@linaro.org>
+X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20200310153340.5593-1-ulf.hansson@linaro.org>
+References: <20200310153340.5593-1-ulf.hansson@linaro.org>
 MIME-Version: 1.0
-References: <20200308073400.23398-1-natechancellor@gmail.com>
- <CAK7LNARcTHpd8fzrAhFVB_AR7NoBgenX64de0eS2uN8g0by9PQ@mail.gmail.com>
- <20200310012545.GA16822@ubuntu-m2-xlarge-x86> <c2a687d065c1463d8eea9947687b3b05@AcuMS.aculab.com>
-In-Reply-To: <c2a687d065c1463d8eea9947687b3b05@AcuMS.aculab.com>
-From:   Masahiro Yamada <masahiroy@kernel.org>
-Date:   Wed, 11 Mar 2020 00:30:57 +0900
-X-Gmail-Original-Message-ID: <CAK7LNARMsO0AeO8-kH4czMuW0Y_=dN+ZhtXNdRE7CWGvU2PNvA@mail.gmail.com>
-Message-ID: <CAK7LNARMsO0AeO8-kH4czMuW0Y_=dN+ZhtXNdRE7CWGvU2PNvA@mail.gmail.com>
-Subject: Re: [PATCH] kbuild: Disable -Wpointer-to-enum-cast
-To:     David Laight <David.Laight@aculab.com>
-Cc:     Nathan Chancellor <natechancellor@gmail.com>,
-        Michal Marek <michal.lkml@markovi.net>,
-        Linux Kbuild mailing list <linux-kbuild@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        clang-built-linux <clang-built-linux@googlegroups.com>,
-        stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Mar 10, 2020 at 8:31 PM David Laight <David.Laight@aculab.com> wrote:
->
-> From: Nathan Chancellor
-> > Sent: 10 March 2020 01:26
-> ...
-> > Sure, I can send v2 to do that but I think that sending 97 patches just
-> > casting the small values (usually less than twenty) to unsigned long
-> > then to the enum is rather frivolous. I audited at least ten to fifteen
-> > of these call sites when creating the clang patch and they are all
-> > basically false positives.
->
-> Such casts just make the code hard to read.
-> If misused casts can hide horrid bugs.
-> IMHO sprinkling the code with casts just to remove
-> compiler warnings will bite back one day.
->
+It has turned out that some host controllers can't use R1B for CMD6 and
+other commands that have R1B associated with them. Therefore invent a new
+host cap, MMC_CAP_NEED_RSP_BUSY to let them specify this.
 
-I agree that too much casts make the code hard to read,
-but irrespective of this patch, there is no difference
-in the fact that we need a cast to convert
-(const void *) to a non-pointer value.
+In __mmc_switch(), let's check the flag and use it to prevent R1B responses
+from being converted into R1. Note that, this also means that the host are
+on its own, when it comes to manage the busy timeout.
 
-The difference is whether we use
-(uintptr_t) or (enum foo).
+Suggested-by: Sowjanya Komatineni <skomatineni@nvidia.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+---
+ drivers/mmc/core/mmc_ops.c | 6 ++++--
+ include/linux/mmc/host.h   | 1 +
+ 2 files changed, 5 insertions(+), 2 deletions(-)
 
-
-
-
-If we want to avoid casts completely,
-we could use union in struct of_device_id
-although this might be rejected.
-
-
-FWIW:
-
-diff --git a/drivers/ata/ahci_brcm.c b/drivers/ata/ahci_brcm.c
-index 6853dbb4131d..534170bea134 100644
---- a/drivers/ata/ahci_brcm.c
-+++ b/drivers/ata/ahci_brcm.c
-@@ -415,11 +415,11 @@ static struct scsi_host_template ahci_platform_sht = {
- };
-
- static const struct of_device_id ahci_of_match[] = {
--       {.compatible = "brcm,bcm7425-ahci", .data = (void *)BRCM_SATA_BCM7425},
--       {.compatible = "brcm,bcm7445-ahci", .data = (void *)BRCM_SATA_BCM7445},
--       {.compatible = "brcm,bcm63138-ahci", .data = (void *)BRCM_SATA_BCM7445},
--       {.compatible = "brcm,bcm-nsp-ahci", .data = (void *)BRCM_SATA_NSP},
--       {.compatible = "brcm,bcm7216-ahci", .data = (void *)BRCM_SATA_BCM7216},
-+       {.compatible = "brcm,bcm7425-ahci", .data2 = BRCM_SATA_BCM7425},
-+       {.compatible = "brcm,bcm7445-ahci", .data2 = BRCM_SATA_BCM7445},
-+       {.compatible = "brcm,bcm63138-ahci", .data2 = BRCM_SATA_BCM7445},
-+       {.compatible = "brcm,bcm-nsp-ahci", .data2 = BRCM_SATA_NSP},
-+       {.compatible = "brcm,bcm7216-ahci", .data2 = BRCM_SATA_BCM7216},
-        {},
- };
- MODULE_DEVICE_TABLE(of, ahci_of_match);
-@@ -442,7 +442,7 @@ static int brcm_ahci_probe(struct platform_device *pdev)
-        if (!of_id)
-                return -ENODEV;
-
--       priv->version = (enum brcm_ahci_version)of_id->data;
-+       priv->version = of_id->data2;
-        priv->dev = dev;
-
-        res = platform_get_resource_byname(pdev, IORESOURCE_MEM, "top-ctrl");
-diff --git a/include/linux/mod_devicetable.h b/include/linux/mod_devicetable.h
-index e3596db077dc..98d44ebf146a 100644
---- a/include/linux/mod_devicetable.h
-+++ b/include/linux/mod_devicetable.h
-@@ -261,7 +261,10 @@ struct of_device_id {
-        char    name[32];
-        char    type[32];
-        char    compatible[128];
--       const void *data;
-+       union {
-+               const void *data;
-+               unsigned long data2;
-+       };
- };
-
- /* VIO */
-
-
-
-
-
-
+diff --git a/drivers/mmc/core/mmc_ops.c b/drivers/mmc/core/mmc_ops.c
+index da425ee2d9bf..e025604e17d4 100644
+--- a/drivers/mmc/core/mmc_ops.c
++++ b/drivers/mmc/core/mmc_ops.c
+@@ -542,9 +542,11 @@ int __mmc_switch(struct mmc_card *card, u8 set, u8 index, u8 value,
+ 	 * If the max_busy_timeout of the host is specified, make sure it's
+ 	 * enough to fit the used timeout_ms. In case it's not, let's instruct
+ 	 * the host to avoid HW busy detection, by converting to a R1 response
+-	 * instead of a R1B.
++	 * instead of a R1B. Note, some hosts requires R1B, which also means
++	 * they are on their own when it comes to deal with the busy timeout.
+ 	 */
+-	if (host->max_busy_timeout && (timeout_ms > host->max_busy_timeout))
++	if (!(host->caps & MMC_CAP_NEED_RSP_BUSY) && host->max_busy_timeout &&
++	    (timeout_ms > host->max_busy_timeout))
+ 		use_r1b_resp = false;
+ 
+ 	cmd.opcode = MMC_SWITCH;
+diff --git a/include/linux/mmc/host.h b/include/linux/mmc/host.h
+index ba703384bea0..4c5eb3aa8e72 100644
+--- a/include/linux/mmc/host.h
++++ b/include/linux/mmc/host.h
+@@ -333,6 +333,7 @@ struct mmc_host {
+ 				 MMC_CAP_UHS_SDR50 | MMC_CAP_UHS_SDR104 | \
+ 				 MMC_CAP_UHS_DDR50)
+ #define MMC_CAP_SYNC_RUNTIME_PM	(1 << 21)	/* Synced runtime PM suspends. */
++#define MMC_CAP_NEED_RSP_BUSY	(1 << 22)	/* Commands with R1B can't use R1. */
+ #define MMC_CAP_DRIVER_TYPE_A	(1 << 23)	/* Host supports Driver Type A */
+ #define MMC_CAP_DRIVER_TYPE_C	(1 << 24)	/* Host supports Driver Type C */
+ #define MMC_CAP_DRIVER_TYPE_D	(1 << 25)	/* Host supports Driver Type D */
 -- 
-Best Regards
-Masahiro Yamada
+2.20.1
+
