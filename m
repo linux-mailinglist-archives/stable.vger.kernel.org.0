@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4AADB17FCAE
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:22:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4CC6817F9ED
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:01:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729641AbgCJNBM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 09:01:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42316 "EHLO mail.kernel.org"
+        id S1730240AbgCJNBO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 09:01:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42338 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730232AbgCJNBL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 09:01:11 -0400
+        id S1729942AbgCJNBO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 09:01:14 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A79052468D;
-        Tue, 10 Mar 2020 13:01:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3CADE2467D;
+        Tue, 10 Mar 2020 13:01:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583845271;
-        bh=Hdj9Xj4OjgQMShoUBLeSfokjxn4D5YsJdsBsM0BdGsU=;
+        s=default; t=1583845273;
+        bh=TgijbQx+j8pF/MwcM2OHeiCApkANqraS0PDS4F8Ts9o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xY3KD+hhcDib8mF/KJt3WQ+EQOQIVWPcNN77wl1Y8q8PUUL6eOCOioyY2/YZ/hWHX
-         rj20lp0PR2YbSkg+oGcDeHd4kPnVzG6VqqBqvmz3/rFspfO3rVDSMrmoD9SXHqbaWy
-         VD9shU0XOW3xuUxmytb9v2Xqr8sNeo3g4syA0glc=
+        b=LDki9ND7dXtOm30Lvozyc047LzdDAHIXDctTkLoTJbjy1yks6UPtded3fLPEOEnoV
+         Yi/xHcTD0yech74t/dz9xp2s8zfyWkWOsthoOHh/ecfa8sObatxYwYqNniNtNak18n
+         TiV622CaefpRVWFWG2nbGneIhlKkz7lsCkQSOOEw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>,
-        Damien Le Moal <damien.lemoal@wdc.com>,
+        stable@vger.kernel.org, Hou Tao <houtao1@huawei.com>,
         Mike Snitzer <snitzer@redhat.com>
-Subject: [PATCH 5.5 124/189] dm zoned: Fix reference counter initial value of chunk works
-Date:   Tue, 10 Mar 2020 13:39:21 +0100
-Message-Id: <20200310123652.305679609@linuxfoundation.org>
+Subject: [PATCH 5.5 125/189] dm: fix congested_fn for request-based device
+Date:   Tue, 10 Mar 2020 13:39:22 +0100
+Message-Id: <20200310123652.402156432@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200310123639.608886314@linuxfoundation.org>
 References: <20200310123639.608886314@linuxfoundation.org>
@@ -45,107 +43,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+From: Hou Tao <houtao1@huawei.com>
 
-commit ee63634bae02e13c8c0df1209a6a0ca5326f3189 upstream.
+commit 974f51e8633f0f3f33e8f86bbb5ae66758aa63c7 upstream.
 
-Dm-zoned initializes reference counters of new chunk works with zero
-value and refcount_inc() is called to increment the counter. However, the
-refcount_inc() function handles the addition to zero value as an error
-and triggers the warning as follows:
+We neither assign congested_fn for requested-based blk-mq device nor
+implement it correctly. So fix both.
 
-refcount_t: addition on 0; use-after-free.
-WARNING: CPU: 7 PID: 1506 at lib/refcount.c:25 refcount_warn_saturate+0x68/0xf0
-...
-CPU: 7 PID: 1506 Comm: systemd-udevd Not tainted 5.4.0+ #134
-...
-Call Trace:
- dmz_map+0x2d2/0x350 [dm_zoned]
- __map_bio+0x42/0x1a0
- __split_and_process_non_flush+0x14a/0x1b0
- __split_and_process_bio+0x83/0x240
- ? kmem_cache_alloc+0x165/0x220
- dm_process_bio+0x90/0x230
- ? generic_make_request_checks+0x2e7/0x680
- dm_make_request+0x3e/0xb0
- generic_make_request+0xcf/0x320
- ? memcg_drain_all_list_lrus+0x1c0/0x1c0
- submit_bio+0x3c/0x160
- ? guard_bio_eod+0x2c/0x130
- mpage_readpages+0x182/0x1d0
- ? bdev_evict_inode+0xf0/0xf0
- read_pages+0x6b/0x1b0
- __do_page_cache_readahead+0x1ba/0x1d0
- force_page_cache_readahead+0x93/0x100
- generic_file_read_iter+0x83a/0xe40
- ? __seccomp_filter+0x7b/0x670
- new_sync_read+0x12a/0x1c0
- vfs_read+0x9d/0x150
- ksys_read+0x5f/0xe0
- do_syscall_64+0x5b/0x180
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
-...
+Also, remove incorrect comment from dm_init_normal_md_queue and rename
+it to dm_init_congested_fn.
 
-After this warning, following refcount API calls for the counter all fail
-to change the counter value.
-
-Fix this by setting the initial reference counter value not zero but one
-for the new chunk works. Instead, do not call refcount_inc() via
-dmz_get_chunk_work() for the new chunks works.
-
-The failure was observed with linux version 5.4 with CONFIG_REFCOUNT_FULL
-enabled. Refcount rework was merged to linux version 5.5 by the
-commit 168829ad09ca ("Merge branch 'locking-core-for-linus' of
-git://git.kernel.org/pub/scm/linux/kernel/git/tip/tip"). After this
-commit, CONFIG_REFCOUNT_FULL was removed and the failure was observed
-regardless of kernel configuration.
-
-Linux version 4.20 merged the commit 092b5648760a ("dm zoned: target: use
-refcount_t for dm zoned reference counters"). Before this commit, dm
-zoned used atomic_t APIs which does not check addition to zero, then this
-fix is not necessary.
-
-Fixes: 092b5648760a ("dm zoned: target: use refcount_t for dm zoned reference counters")
-Cc: stable@vger.kernel.org # 5.4+
-Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Reviewed-by: Damien Le Moal <damien.lemoal@wdc.com>
+Fixes: 4aa9c692e052 ("bdi: separate out congested state into a separate struct")
+Cc: stable@vger.kernel.org
+Signed-off-by: Hou Tao <houtao1@huawei.com>
 Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/md/dm-zoned-target.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/md/dm.c |   21 ++++++++++-----------
+ 1 file changed, 10 insertions(+), 11 deletions(-)
 
---- a/drivers/md/dm-zoned-target.c
-+++ b/drivers/md/dm-zoned-target.c
-@@ -533,8 +533,9 @@ static int dmz_queue_chunk_work(struct d
+--- a/drivers/md/dm.c
++++ b/drivers/md/dm.c
+@@ -1788,7 +1788,8 @@ static int dm_any_congested(void *conges
+ 			 * With request-based DM we only need to check the
+ 			 * top-level queue for congestion.
+ 			 */
+-			r = md->queue->backing_dev_info->wb.state & bdi_bits;
++			struct backing_dev_info *bdi = md->queue->backing_dev_info;
++			r = bdi->wb.congested->state & bdi_bits;
+ 		} else {
+ 			map = dm_get_live_table_fast(md);
+ 			if (map)
+@@ -1854,15 +1855,6 @@ static const struct dax_operations dm_da
  
- 	/* Get the BIO chunk work. If one is not active yet, create one */
- 	cw = radix_tree_lookup(&dmz->chunk_rxtree, chunk);
--	if (!cw) {
+ static void dm_wq_work(struct work_struct *work);
+ 
+-static void dm_init_normal_md_queue(struct mapped_device *md)
+-{
+-	/*
+-	 * Initialize aspects of queue that aren't relevant for blk-mq
+-	 */
+-	md->queue->backing_dev_info->congested_data = md;
+-	md->queue->backing_dev_info->congested_fn = dm_any_congested;
+-}
 -
-+	if (cw) {
-+		dmz_get_chunk_work(cw);
-+	} else {
- 		/* Create a new chunk work */
- 		cw = kmalloc(sizeof(struct dm_chunk_work), GFP_NOIO);
- 		if (unlikely(!cw)) {
-@@ -543,7 +544,7 @@ static int dmz_queue_chunk_work(struct d
+ static void cleanup_mapped_device(struct mapped_device *md)
+ {
+ 	if (md->wq)
+@@ -2249,6 +2241,12 @@ struct queue_limits *dm_get_queue_limits
+ }
+ EXPORT_SYMBOL_GPL(dm_get_queue_limits);
+ 
++static void dm_init_congested_fn(struct mapped_device *md)
++{
++	md->queue->backing_dev_info->congested_data = md;
++	md->queue->backing_dev_info->congested_fn = dm_any_congested;
++}
++
+ /*
+  * Setup the DM device's queue based on md's type
+  */
+@@ -2265,11 +2263,12 @@ int dm_setup_md_queue(struct mapped_devi
+ 			DMERR("Cannot initialize queue for request-based dm-mq mapped device");
+ 			return r;
  		}
- 
- 		INIT_WORK(&cw->work, dmz_chunk_work);
--		refcount_set(&cw->refcount, 0);
-+		refcount_set(&cw->refcount, 1);
- 		cw->target = dmz;
- 		cw->chunk = chunk;
- 		bio_list_init(&cw->bio_list);
-@@ -556,7 +557,6 @@ static int dmz_queue_chunk_work(struct d
- 	}
- 
- 	bio_list_add(&cw->bio_list, bio);
--	dmz_get_chunk_work(cw);
- 
- 	dmz_reclaim_bio_acc(dmz->reclaim);
- 	if (queue_work(dmz->chunk_wq, &cw->work))
++		dm_init_congested_fn(md);
+ 		break;
+ 	case DM_TYPE_BIO_BASED:
+ 	case DM_TYPE_DAX_BIO_BASED:
+ 	case DM_TYPE_NVME_BIO_BASED:
+-		dm_init_normal_md_queue(md);
++		dm_init_congested_fn(md);
+ 		break;
+ 	case DM_TYPE_NONE:
+ 		WARN_ON_ONCE(true);
 
 
