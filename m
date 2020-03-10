@@ -2,44 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 591D517F8FA
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 13:52:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5789417F9B4
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 13:59:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729098AbgCJMwz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 08:52:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58664 "EHLO mail.kernel.org"
+        id S1730006AbgCJM7U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 08:59:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39714 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729094AbgCJMwx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 08:52:53 -0400
+        id S1726632AbgCJM7T (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 08:59:19 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DB90E24692;
-        Tue, 10 Mar 2020 12:52:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7D17F2253D;
+        Tue, 10 Mar 2020 12:59:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583844773;
-        bh=57BNidfkCgyHGp2V2pvqDx8ODcuDKUnpR4jy10Hregk=;
+        s=default; t=1583845159;
+        bh=b6GGZTOuGD4Z4VZmHbTlQCD+5uTvAchfnra/Zg+5ig4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iQPBBGYcO1mx8BYggxwX2S2DP9ya7ZGE61VCgQVJVmLXQ0F4QDJ2bKEICcIGaMfiB
-         EFyfmbafkV88dhYuBcF5La8AEOS2uUr34OWUZe+mjpkgDG33b50Aq9sFkYFIqilSpO
-         2QSNHw/no2v8OWamXSFjiSIRJkHzL+ZZN7uBK/y0=
+        b=zC3rqHUbiKJVrPnt7ija+2tFnNhbwitULJ24ryD5SSaAmWSVmJMSJu7fCYECivC5B
+         iPLwTTmqccpbB21ple/z4AU5PmL+gDcXovdNDk8uWcAvnsALn+5c+LkNqKdW0/9vQd
+         bg62aZVDDcSzQjL0UuE3xgkpwvx1qT97C+i47N1Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>,
-        Rafael Aquini <aquini@redhat.com>,
-        Mel Gorman <mgorman@techsingularity.net>,
-        Zi Yan <zi.yan@cs.rutgers.edu>,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Michal Hocko <mhocko@suse.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.4 075/168] mm, numa: fix bad pmd by atomically check for pmd_trans_huge when marking page tables prot_numa
+        stable@vger.kernel.org,
+        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
+        Omar Sandoval <osandov@fb.com>, David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.5 084/189] btrfs: fix RAID direct I/O reads with alternate csums
 Date:   Tue, 10 Mar 2020 13:38:41 +0100
-Message-Id: <20200310123642.883309155@linuxfoundation.org>
+Message-Id: <20200310123648.166936372@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200310123635.322799692@linuxfoundation.org>
-References: <20200310123635.322799692@linuxfoundation.org>
+In-Reply-To: <20200310123639.608886314@linuxfoundation.org>
+References: <20200310123639.608886314@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,134 +44,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mel Gorman <mgorman@techsingularity.net>
+From: Omar Sandoval <osandov@fb.com>
 
-commit 8b272b3cbbb50a6a8e62d8a15affd473a788e184 upstream.
+commit e7a04894c766daa4248cb736efee93550f2d5872 upstream.
 
-: A user reported a bug against a distribution kernel while running a
-: proprietary workload described as "memory intensive that is not swapping"
-: that is expected to apply to mainline kernels.  The workload is
-: read/write/modifying ranges of memory and checking the contents.  They
-: reported that within a few hours that a bad PMD would be reported followed
-: by a memory corruption where expected data was all zeros.  A partial
-: report of the bad PMD looked like
-:
-:   [ 5195.338482] ../mm/pgtable-generic.c:33: bad pmd ffff8888157ba008(000002e0396009e2)
-:   [ 5195.341184] ------------[ cut here ]------------
-:   [ 5195.356880] kernel BUG at ../mm/pgtable-generic.c:35!
-:   ....
-:   [ 5195.410033] Call Trace:
-:   [ 5195.410471]  [<ffffffff811bc75d>] change_protection_range+0x7dd/0x930
-:   [ 5195.410716]  [<ffffffff811d4be8>] change_prot_numa+0x18/0x30
-:   [ 5195.410918]  [<ffffffff810adefe>] task_numa_work+0x1fe/0x310
-:   [ 5195.411200]  [<ffffffff81098322>] task_work_run+0x72/0x90
-:   [ 5195.411246]  [<ffffffff81077139>] exit_to_usermode_loop+0x91/0xc2
-:   [ 5195.411494]  [<ffffffff81003a51>] prepare_exit_to_usermode+0x31/0x40
-:   [ 5195.411739]  [<ffffffff815e56af>] retint_user+0x8/0x10
-:
-: Decoding revealed that the PMD was a valid prot_numa PMD and the bad PMD
-: was a false detection.  The bug does not trigger if automatic NUMA
-: balancing or transparent huge pages is disabled.
-:
-: The bug is due a race in change_pmd_range between a pmd_trans_huge and
-: pmd_nond_or_clear_bad check without any locks held.  During the
-: pmd_trans_huge check, a parallel protection update under lock can have
-: cleared the PMD and filled it with a prot_numa entry between the transhuge
-: check and the pmd_none_or_clear_bad check.
-:
-: While this could be fixed with heavy locking, it's only necessary to make
-: a copy of the PMD on the stack during change_pmd_range and avoid races.  A
-: new helper is created for this as the check if quite subtle and the
-: existing similar helpful is not suitable.  This passed 154 hours of
-: testing (usually triggers between 20 minutes and 24 hours) without
-: detecting bad PMDs or corruption.  A basic test of an autonuma-intensive
-: workload showed no significant change in behaviour.
+btrfs_lookup_and_bind_dio_csum() does pointer arithmetic which assumes
+32-bit checksums. If using a larger checksum, this leads to spurious
+failures when a direct I/O read crosses a stripe. This is easy
+to reproduce:
 
-Although Mel withdrew the patch on the face of LKML comment
-https://lkml.org/lkml/2017/4/10/922 the race window aforementioned is
-still open, and we have reports of Linpack test reporting bad residuals
-after the bad PMD warning is observed.  In addition to that, bad
-rss-counter and non-zero pgtables assertions are triggered on mm teardown
-for the task hitting the bad PMD.
+  # mkfs.btrfs -f --checksum blake2 -d raid0 /dev/vdc /dev/vdd
+  ...
+  # mount /dev/vdc /mnt
+  # cd /mnt
+  # dd if=/dev/urandom of=foo bs=1M count=1 status=none
+  # dd if=foo of=/dev/null bs=1M iflag=direct status=none
+  dd: error reading 'foo': Input/output error
+  # dmesg | tail -1
+  [  135.821568] BTRFS warning (device vdc): csum failed root 5 ino 257 off 421888 ...
 
- host kernel: mm/pgtable-generic.c:40: bad pmd 00000000b3152f68(8000000d2d2008e7)
- ....
- host kernel: BUG: Bad rss-counter state mm:00000000b583043d idx:1 val:512
- host kernel: BUG: non-zero pgtables_bytes on freeing mm: 4096
+Fix it by using the actual checksum size.
 
-The issue is observed on a v4.18-based distribution kernel, but the race
-window is expected to be applicable to mainline kernels, as well.
-
-[akpm@linux-foundation.org: fix comment typo, per Rafael]
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Rafael Aquini <aquini@redhat.com>
-Signed-off-by: Mel Gorman <mgorman@techsingularity.net>
-Cc: <stable@vger.kernel.org>
-Cc: Zi Yan <zi.yan@cs.rutgers.edu>
-Cc: "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>
-Cc: Vlastimil Babka <vbabka@suse.cz>
-Cc: Michal Hocko <mhocko@suse.com>
-Link: http://lkml.kernel.org/r/20200216191800.22423-1-aquini@redhat.com
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: 1e25a2e3ca0d ("btrfs: don't assume ordered sums to be 4 bytes")
+CC: stable@vger.kernel.org # 5.4+
+Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+Signed-off-by: Omar Sandoval <osandov@fb.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- mm/mprotect.c |   38 ++++++++++++++++++++++++++++++++++++--
- 1 file changed, 36 insertions(+), 2 deletions(-)
+ fs/btrfs/inode.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/mm/mprotect.c
-+++ b/mm/mprotect.c
-@@ -161,6 +161,31 @@ static unsigned long change_pte_range(st
- 	return pages;
+--- a/fs/btrfs/inode.c
++++ b/fs/btrfs/inode.c
+@@ -8444,6 +8444,7 @@ static inline blk_status_t btrfs_lookup_
+ {
+ 	struct btrfs_io_bio *io_bio = btrfs_io_bio(bio);
+ 	struct btrfs_io_bio *orig_io_bio = btrfs_io_bio(dip->orig_bio);
++	u16 csum_size;
+ 	blk_status_t ret;
+ 
+ 	/*
+@@ -8463,7 +8464,8 @@ static inline blk_status_t btrfs_lookup_
+ 
+ 	file_offset -= dip->logical_offset;
+ 	file_offset >>= inode->i_sb->s_blocksize_bits;
+-	io_bio->csum = (u8 *)(((u32 *)orig_io_bio->csum) + file_offset);
++	csum_size = btrfs_super_csum_size(btrfs_sb(inode->i_sb)->super_copy);
++	io_bio->csum = orig_io_bio->csum + csum_size * file_offset;
+ 
+ 	return 0;
  }
- 
-+/*
-+ * Used when setting automatic NUMA hinting protection where it is
-+ * critical that a numa hinting PMD is not confused with a bad PMD.
-+ */
-+static inline int pmd_none_or_clear_bad_unless_trans_huge(pmd_t *pmd)
-+{
-+	pmd_t pmdval = pmd_read_atomic(pmd);
-+
-+	/* See pmd_none_or_trans_huge_or_clear_bad for info on barrier */
-+#ifdef CONFIG_TRANSPARENT_HUGEPAGE
-+	barrier();
-+#endif
-+
-+	if (pmd_none(pmdval))
-+		return 1;
-+	if (pmd_trans_huge(pmdval))
-+		return 0;
-+	if (unlikely(pmd_bad(pmdval))) {
-+		pmd_clear_bad(pmd);
-+		return 1;
-+	}
-+
-+	return 0;
-+}
-+
- static inline unsigned long change_pmd_range(struct vm_area_struct *vma,
- 		pud_t *pud, unsigned long addr, unsigned long end,
- 		pgprot_t newprot, int dirty_accountable, int prot_numa)
-@@ -178,8 +203,17 @@ static inline unsigned long change_pmd_r
- 		unsigned long this_pages;
- 
- 		next = pmd_addr_end(addr, end);
--		if (!is_swap_pmd(*pmd) && !pmd_trans_huge(*pmd) && !pmd_devmap(*pmd)
--				&& pmd_none_or_clear_bad(pmd))
-+
-+		/*
-+		 * Automatic NUMA balancing walks the tables with mmap_sem
-+		 * held for read. It's possible a parallel update to occur
-+		 * between pmd_trans_huge() and a pmd_none_or_clear_bad()
-+		 * check leading to a false positive and clearing.
-+		 * Hence, it's necessary to atomically read the PMD value
-+		 * for all the checks.
-+		 */
-+		if (!is_swap_pmd(*pmd) && !pmd_devmap(*pmd) &&
-+		     pmd_none_or_clear_bad_unless_trans_huge(pmd))
- 			goto next;
- 
- 		/* invoke the mmu notifier if the pmd is populated */
 
 
