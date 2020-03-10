@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A06817FD65
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:29:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5400217FC93
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:22:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728496AbgCJMxk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 08:53:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59778 "EHLO mail.kernel.org"
+        id S1728661AbgCJNB5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 09:01:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43602 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729188AbgCJMxj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 08:53:39 -0400
+        id S1728387AbgCJNBz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 09:01:55 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 40BE220674;
-        Tue, 10 Mar 2020 12:53:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C6D8324693;
+        Tue, 10 Mar 2020 13:01:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583844818;
-        bh=naQVtRPDRLNxY6J0+1oRvdmUjT0QrCmqOH2sSU55jpY=;
+        s=default; t=1583845315;
+        bh=EhjIXFcU/NEoGOcn/vLlzLLVAbERpWFtTV+W1py1Wo4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nOduWI8+LgWhWuUCa2ALQ5KkTOTY0NMVgIcRmJo+ilO9FEdHOWAGsrM7e+BJM45ug
-         oTwz5sssRzDxW6AsRX/K5StrmYs7b8SGxdx4y19sZ53ylhtIy3WjM6/75yTgGdbTd2
-         o38OnGU5VsQEMi7CZR6K57SaTlWthNu67ltEy71E=
+        b=zk4k4Dkq54r9MIVEryDzoGaZ8LsaHVpUHxfDstxJUmmt3JUZN1lBlrJ2Mszyo5wQT
+         NJ7Ozrf0PVS6YZ3q3a13555/C82fBySTkMhahbFBvD7ji80bgfYN0qMiHelw8cwDWR
+         vJuaENJ/jHeLyHHCUB6HIHw9hkL/WAzPT4tl6xFc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rob Herring <robh@kernel.org>,
-        Tomeu Vizoso <tomeu.vizoso@collabora.com>,
-        Steven Price <steven.price@arm.com>,
-        Alyssa Rosenzweig <alyssa.rosenzweig@collabora.com>
-Subject: [PATCH 5.4 130/168] drm/panfrost: Dont try to map on error faults
+        stable@vger.kernel.org,
+        Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>,
+        Takashi Iwai <tiwai@suse.de>, Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.5 139/189] ASoC: soc-component: tidyup snd_soc_pcm_component_sync_stop()
 Date:   Tue, 10 Mar 2020 13:39:36 +0100
-Message-Id: <20200310123648.652336880@linuxfoundation.org>
+Message-Id: <20200310123653.880021980@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200310123635.322799692@linuxfoundation.org>
-References: <20200310123635.322799692@linuxfoundation.org>
+In-Reply-To: <20200310123639.608886314@linuxfoundation.org>
+References: <20200310123639.608886314@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,82 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tomeu Vizoso <tomeu.vizoso@collabora.com>
+From: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
 
-commit eb9d8ddbc107d02e489681f9dcbf93949e1a99a4 upstream.
+commit f1861a7c58ba1ba43c7adff6909d9a920338e4a8 upstream.
 
-If the exception type isn't a translation fault, don't try to map and
-instead go straight to a terminal fault.
+commit 1e5ddb6ba73894 ("ASoC: component: Add sync_stop PCM ops")
+added snd_soc_pcm_component_sync_stop(), but it is checking
+ioctrl instead of sync_stop. This is bug.
+This patch fixup it.
 
-Otherwise, we can get flooded by kernel warnings and further faults.
-
-Fixes: 187d2929206e ("drm/panfrost: Add support for GPU heap allocations")
-Signed-off-by: Rob Herring <robh@kernel.org>
-Signed-off-by: Tomeu Vizoso <tomeu.vizoso@collabora.com>
-Reviewed-by: Steven Price <steven.price@arm.com>
-Reviewed-by: Tomeu Vizoso <tomeu.vizoso@collabora.com>
-Acked-by: Alyssa Rosenzweig <alyssa.rosenzweig@collabora.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200212202236.13095-1-robh@kernel.org
+Fixes: commit 1e5ddb6ba73894 ("ASoC: component: Add sync_stop PCM ops")
+Signed-off-by: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
+Cc: Takashi Iwai <tiwai@suse.de>
+Link: https://lore.kernel.org/r/8736av7a8c.wl-kuninori.morimoto.gx@renesas.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/panfrost/panfrost_mmu.c |   44 +++++++++++++-------------------
- 1 file changed, 19 insertions(+), 25 deletions(-)
+ sound/soc/soc-component.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/panfrost/panfrost_mmu.c
-+++ b/drivers/gpu/drm/panfrost/panfrost_mmu.c
-@@ -601,33 +601,27 @@ static irqreturn_t panfrost_mmu_irq_hand
- 		source_id = (fault_status >> 16);
+--- a/sound/soc/soc-component.c
++++ b/sound/soc/soc-component.c
+@@ -452,7 +452,7 @@ int snd_soc_pcm_component_sync_stop(stru
+ 	int ret;
  
- 		/* Page fault only */
--		if ((status & mask) == BIT(i)) {
--			WARN_ON(exception_type < 0xC1 || exception_type > 0xC4);
--
-+		ret = -1;
-+		if ((status & mask) == BIT(i) && (exception_type & 0xF8) == 0xC0)
- 			ret = panfrost_mmu_map_fault_addr(pfdev, i, addr);
--			if (!ret) {
--				mmu_write(pfdev, MMU_INT_CLEAR, BIT(i));
--				status &= ~mask;
--				continue;
--			}
--		}
- 
--		/* terminal fault, print info about the fault */
--		dev_err(pfdev->dev,
--			"Unhandled Page fault in AS%d at VA 0x%016llX\n"
--			"Reason: %s\n"
--			"raw fault status: 0x%X\n"
--			"decoded fault status: %s\n"
--			"exception type 0x%X: %s\n"
--			"access type 0x%X: %s\n"
--			"source id 0x%X\n",
--			i, addr,
--			"TODO",
--			fault_status,
--			(fault_status & (1 << 10) ? "DECODER FAULT" : "SLAVE FAULT"),
--			exception_type, panfrost_exception_name(pfdev, exception_type),
--			access_type, access_type_name(pfdev, fault_status),
--			source_id);
-+		if (ret)
-+			/* terminal fault, print info about the fault */
-+			dev_err(pfdev->dev,
-+				"Unhandled Page fault in AS%d at VA 0x%016llX\n"
-+				"Reason: %s\n"
-+				"raw fault status: 0x%X\n"
-+				"decoded fault status: %s\n"
-+				"exception type 0x%X: %s\n"
-+				"access type 0x%X: %s\n"
-+				"source id 0x%X\n",
-+				i, addr,
-+				"TODO",
-+				fault_status,
-+				(fault_status & (1 << 10) ? "DECODER FAULT" : "SLAVE FAULT"),
-+				exception_type, panfrost_exception_name(pfdev, exception_type),
-+				access_type, access_type_name(pfdev, fault_status),
-+				source_id);
- 
- 		mmu_write(pfdev, MMU_INT_CLEAR, mask);
- 
+ 	for_each_rtd_components(rtd, rtdcom, component) {
+-		if (component->driver->ioctl) {
++		if (component->driver->sync_stop) {
+ 			ret = component->driver->sync_stop(component,
+ 							   substream);
+ 			if (ret < 0)
 
 
