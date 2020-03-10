@@ -2,58 +2,58 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B369180B1C
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 23:02:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B7FCA180B29
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 23:06:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726293AbgCJWCn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 18:02:43 -0400
-Received: from mail-pl1-f195.google.com ([209.85.214.195]:42202 "EHLO
-        mail-pl1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726283AbgCJWCm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Mar 2020 18:02:42 -0400
-Received: by mail-pl1-f195.google.com with SMTP id t3so66855plz.9;
-        Tue, 10 Mar 2020 15:02:42 -0700 (PDT)
+        id S1726293AbgCJWGE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 18:06:04 -0400
+Received: from mail-pg1-f195.google.com ([209.85.215.195]:42961 "EHLO
+        mail-pg1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726273AbgCJWGE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Mar 2020 18:06:04 -0400
+Received: by mail-pg1-f195.google.com with SMTP id h8so33402pgs.9;
+        Tue, 10 Mar 2020 15:06:01 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=sender:subject:to:cc:references:from:autocrypt:message-id:date
          :user-agent:mime-version:in-reply-to:content-language
          :content-transfer-encoding;
-        bh=fOenCzVCIEgQPm4jqYWG2XEfrH3DBsvydiPOY5tUcm8=;
-        b=uCeDL9bWgmqwec8o1mMKaXAe/NbGfA9opRoCTq8WH27+lDLXsqsjnlIZWHV39Z3Nwr
-         zBnAKbeRB2bs6Sj/gFWxjNGyEfm+xTDYEMG2tPI4RVNXcd+f9vmAA1B5dyG5lNzy8YQC
-         BOcIe2KY1MoLOCg+08eJBPSzgCcX0MK0ddnsxcMbPdfysaxrOSaPoNh30buBQRR0On+S
-         tX22/N9VenQs0IRjPjiLjQu+e4Nneim+1S1K1SxABMT2QWEoZ1/yVPDioxBe4DnWSPWF
-         8mSt3XinnUQ6W5OPCY/kSUVqXtvpy5T3SurorDUs2BIrhkvOAzyM3IWt+l9Vt6VmYU34
-         dq+w==
+        bh=vw7q3wO5xHFp8C4lHbH3aXHNFZTBELzWX+v0PT+gCmY=;
+        b=eEBd8fQ32tavv+Tw03Q/4eyjuZtF3iAyeXxulJzHCxO5RbxFaF32VQ3MQUPvPQX6sP
+         GMqL5xgtddEmFGlBzgHSKVhqvaaxyTru8CmbHzMh61TR3XhD+R1Sz4K+QrGmTLDUt1hS
+         FIzpM8YOQd5JOwju0/VuB2XcuQtBkJnhu5E3awJLox0Wgn5Tp7JgLH4EhMjd1ADloK2o
+         Ul7EjCbiBi64xO4Qy71r6+a8rcWbZn4hC5/zbY4+xnDrzKdK5/iZRFZ4vqhwflY4uUCX
+         DNYIPyhxniADqMiaJgYYoYlUB6ZUBfbVeFhX9SJYqo0TgWLkI9aLM5tcy7jZ5rmnlr5q
+         /rJw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:sender:subject:to:cc:references:from:autocrypt
          :message-id:date:user-agent:mime-version:in-reply-to
          :content-language:content-transfer-encoding;
-        bh=fOenCzVCIEgQPm4jqYWG2XEfrH3DBsvydiPOY5tUcm8=;
-        b=f+V1/LA6Eg/rd7x7fUHXfqIGQ/Hugzufb4pH7T1mIqv8vKqIzjLuWA3PUKb9oIGVU1
-         guTo8jPIf3s/jS9PkQ1Z2TMWB4EH1MoYbWn2ajBsNIm8w1EXWFGbseo3VdmccQFYGb3C
-         hTj3TJg678zDmAVxbZAWVrCPPeJtfFHhkAkILKA/6o3GAgKPpkp/JV6KH3Wdh+DWYKoU
-         WZeSAFCWGYKbBPeS3ISKBwtfacAP2B/7RW3SWJw8AC8XwzVVPbmseyEjB/DSTah2FWjC
-         JFk8qDonrg/ms8/3H5up+Ztu7ESZ3247fA+D9dke3+QKpu3NdXl6cguuU5l2PCRSvDdg
-         yQWQ==
-X-Gm-Message-State: ANhLgQ0ByP7ojLIQR/8GNqT8LeWHRWqwWPtMzDBzDBHjyjX2tZcBy2QV
-        fUX+/RAQsS1LqMwitYrGLzViXWi0
-X-Google-Smtp-Source: ADFU+vuBeHBNtfds/ayoEQTCZree8v5V8/ZfRAEgs4YvwePItWhgAKnZ8+6+q+sXyBp/REn8e/l5/Q==
-X-Received: by 2002:a17:90b:2290:: with SMTP id kx16mr76203pjb.152.1583877761310;
-        Tue, 10 Mar 2020 15:02:41 -0700 (PDT)
+        bh=vw7q3wO5xHFp8C4lHbH3aXHNFZTBELzWX+v0PT+gCmY=;
+        b=qxD9bj5hz/bXXZZNRpQmwvdGuEc7RX03oRs03JZhSOXs6IFVk0XpXQ/ULJotiGg60N
+         jgOd36+1+4yj5QFKcBUv3eTTUKin1R4ffzNRh1kIMEofQ+8L25y77Lnd4DcTW1vIAO8g
+         chb6RlN/GST8bnPyD3WVMVB7PEi1MyzB0adhGnpI744nKvxiZI5OkaD+OEEzeCKdp0yp
+         faGRmQbu5ZDp1f97DovY43GNU0O7eovzTbce0E+dqZ1YMA9BjMQvYSkLB1lEHYbARAKy
+         kb5VUuFo6iWJ+w1X/NdNrgTWx1861WTNTDxpW9uz2UDUi5DjFbzpLVqozhymg1kl5AfR
+         pMXQ==
+X-Gm-Message-State: ANhLgQ2BQ6PQ0gLZ/u1qlBjWeE7W12ej4lLbC8T/a2TtBNOJJtGnCmZH
+        fqKCwXXFKouJamnyavi1X2B+vR0S
+X-Google-Smtp-Source: ADFU+vvNfyTEAFpNwA4gmC130f6QOgd+jQjAZ9Ojmo6Gen6c+Fo+J/nD+zh9qLIvPLLHVBoGznYW1w==
+X-Received: by 2002:a63:f752:: with SMTP id f18mr22782784pgk.196.1583877960847;
+        Tue, 10 Mar 2020 15:06:00 -0700 (PDT)
 Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id x9sm23895673pfa.60.2020.03.10.15.02.39
+        by smtp.gmail.com with ESMTPSA id n14sm3358908pjt.36.2020.03.10.15.05.59
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 10 Mar 2020 15:02:40 -0700 (PDT)
-Subject: Re: [PATCH 5.4 000/167] 5.4.25-stable review
+        Tue, 10 Mar 2020 15:06:00 -0700 (PDT)
+Subject: Re: [PATCH 5.5 000/189] 5.5.9-stable review
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         linux-kernel@vger.kernel.org
 Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
         shuah@kernel.org, patches@kernelci.org,
         ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
         stable@vger.kernel.org
-References: <20200310144113.973994620@linuxfoundation.org>
+References: <20200310123639.608886314@linuxfoundation.org>
 From:   Guenter Roeck <linux@roeck-us.net>
 Autocrypt: addr=linux@roeck-us.net; keydata=
  xsFNBE6H1WcBEACu6jIcw5kZ5dGeJ7E7B2uweQR/4FGxH10/H1O1+ApmcQ9i87XdZQiB9cpN
@@ -98,61 +98,58 @@ Autocrypt: addr=linux@roeck-us.net; keydata=
  WkRwrSuCn7UG+qVWZeKEsFKFOkynOs3pVbcbq1pxbhk3TRWCGRU5JolI4ohy/7JV1TVbjiDI
  HP/aVnm6NC8of26P40Pg8EdAhajZnHHjA7FrJXsy3cyIGqvg9os4rNkUWmrCfLLsZDHD8FnU
  mDW4+i+XlNFUPUYMrIKi9joBhu18ssf5i5Q=
-Message-ID: <7cb23142-9e68-a4a7-8b4d-25f5268e230e@roeck-us.net>
-Date:   Tue, 10 Mar 2020 15:02:39 -0700
+Message-ID: <a98e88fd-8e52-4f27-5e06-878241d65d4e@roeck-us.net>
+Date:   Tue, 10 Mar 2020 15:05:59 -0700
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.4.1
 MIME-Version: 1.0
-In-Reply-To: <20200310144113.973994620@linuxfoundation.org>
+In-Reply-To: <20200310123639.608886314@linuxfoundation.org>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 3/10/20 7:42 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.4.25 release.
-> There are 167 patches in this series, all will be posted as a response
+On 3/10/20 5:37 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.5.9 release.
+> There are 189 patches in this series, all will be posted as a response
 > to this one.  If anyone has any issues with these being applied, please
 > let me know.
 > 
-> Responses should be made by Thu, 12 Mar 2020 14:40:27 +0000.
+> Responses should be made by Thu, 12 Mar 2020 12:34:10 +0000.
 > Anything received after that time might be too late.
 > 
 
-For v5.4.24-168-g877097a6286a:
+For v5.5.8-190-g11e07aec0780:
+
 
 Build results:
-	total: 158 pass: 143 fail: 15
+	total: 157 pass: 152 fail: 5
 Failed builds:
-	alpha:allmodconfig
-	arm:allmodconfig
-	arm64:allmodconfig
 	csky:defconfig
 	csky:allnoconfig
 	csky:tinyconfig
-	m68k:allmodconfig
-	mips:allmodconfig
-	nds32:allmodconfig
-	parisc:allmodconfig
-	powerpc:allmodconfig
-	riscv:defconfig
-	s390:allmodconfig
-	sparc64:allmodconfig
-	xtensa:allmodconfig
+	m68k:defconfig
+	m68k:sun3_defconfig
 Qemu test results:
-	total: 422 pass: 405 fail: 17
+	total: 423 pass: 418 fail: 5
 Failed tests:
-	<all riscv>
+	arm:sx1:sx1_defconfig:initrd
+	arm:sx1:sx1_defconfig:sd:rootfs
+	arm:sx1:sx1_defconfig:flash32,26,3:rootfs
+	q800:m68040:mac_defconfig:initrd
+	q800:m68040:mac_defconfig:rootfs
 
-Failures as already reported.
+csky:
 
-drivers/gpu/drm/virtio/virtgpu_object.c:31:68: error: expected ‘)’ before ‘int’
- module_param_named(virglhack, virtio_gpu_virglrenderer_workaround, int, 0400);
+kernel/fork.c:2588:2: error: #error clone3 requires copy_thread_tls support in arch
+ 2588 | #error clone3 requires copy_thread_tls support in arch
 
-kernel/fork.c:2523:2: error: #error clone3 requires copy_thread_tls support in arch
- 2523 | #error clone3 requires copy_thread_tls support in arch
+m68k, arm:
+
+block/bfq-wf2q.c: In function 'bfq_get_entity':
+include/linux/kernel.h:987:51: error: 'struct bfq_group' has no member named 'entity'
 
 Guenter
