@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 035D017F9C1
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 13:59:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B01817F8D3
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 13:51:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730033AbgCJM7m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 08:59:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40174 "EHLO mail.kernel.org"
+        id S1728891AbgCJMvZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 08:51:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56532 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727001AbgCJM7j (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 08:59:39 -0400
+        id S1728900AbgCJMvZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 08:51:25 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8590520674;
-        Tue, 10 Mar 2020 12:59:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4F0C724686;
+        Tue, 10 Mar 2020 12:51:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583845179;
-        bh=JU/E6Hyc3lT/mzdd3OXkf1eaDqIKOPhrJqDCJo67chE=;
+        s=default; t=1583844684;
+        bh=sY5bfK+8ITb+dpGrs5Z9/t0hnwNG9E2OWdcwrAl2K48=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Bss3sntZ3MR+AEM0Jd9VMSkyTuR6avggC0iMUR2wJeLqZ26KXpSZb+FJQdkvwgTFL
-         HIxfVupD4cfBwDVgYjI3+M64RwhIwzOPGSBmPiR/56IXZ3dyDQG6HeLbJgESvrCAXs
-         86HJF13nqDDx8uFP4qWjK7SCiu4qcQe5J0UE/Z7U=
+        b=2VViqOXme7r1PCpRE9ahNVpLD1Bqs3OTGB1HQA27MMk606mmSYcTByrNwDpma6n8p
+         XrsH7t4pcPUCrzXx5/JPB7JfN63rmJ/pwkfNptULaG9UJ10PdJVMUhgclhZTLtPHWI
+         dIOghBIIP2HQIKAE2CIm+s2gJDCAI1EqCNNNmG0c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Ronald=20Tschal=C3=A4r?= <ronald@innovation.ch>
-Subject: [PATCH 5.5 091/189] serdev: Fix detection of UART devices on Apple machines.
+        stable@vger.kernel.org, tangbin <tangbin@cmss.chinamobile.com>,
+        Jiri Slaby <jslaby@suse.cz>
+Subject: [PATCH 5.4 082/168] tty:serial:mvebu-uart:fix a wrong return
 Date:   Tue, 10 Mar 2020 13:38:48 +0100
-Message-Id: <20200310123648.924250076@linuxfoundation.org>
+Message-Id: <20200310123643.585056004@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200310123639.608886314@linuxfoundation.org>
-References: <20200310123639.608886314@linuxfoundation.org>
+In-Reply-To: <20200310123635.322799692@linuxfoundation.org>
+References: <20200310123635.322799692@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,56 +43,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ronald Tschalär <ronald@innovation.ch>
+From: tangbin <tangbin@cmss.chinamobile.com>
 
-commit 35d4670aaec7206b5ef19c842ca33076bde562e4 upstream.
+commit 4a3e208474204e879d22a310b244cb2f39e5b1f8 upstream.
 
-On Apple devices the _CRS method returns an empty resource template, and
-the resource settings are instead provided by the _DSM method. But
-commit 33364d63c75d6182fa369cea80315cf1bb0ee38e (serdev: Add ACPI
-devices by ResourceSource field) changed the search for serdev devices
-to require valid, non-empty resource template, thereby breaking Apple
-devices and causing bluetooth devices to not be found.
+in this place, the function should return a
+negative value and the PTR_ERR already returns
+a negative,so return -PTR_ERR() is wrong.
 
-This expands the check so that if we don't find a valid template, and
-we're on an Apple machine, then just check for the device being an
-immediate child of the controller and having a "baud" property.
-
-Cc: <stable@vger.kernel.org> # 5.5
-Fixes: 33364d63c75d ("serdev: Add ACPI devices by ResourceSource field")
-Signed-off-by: Ronald Tschalär <ronald@innovation.ch>
-Link: https://lore.kernel.org/r/20200211194723.486217-1-ronald@innovation.ch
+Signed-off-by: tangbin <tangbin@cmss.chinamobile.com>
+Cc: stable <stable@vger.kernel.org>
+Acked-by: Jiri Slaby <jslaby@suse.cz>
+Link: https://lore.kernel.org/r/20200305013823.20976-1-tangbin@cmss.chinamobile.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/tty/serdev/core.c |   10 ++++++++++
- 1 file changed, 10 insertions(+)
+ drivers/tty/serial/mvebu-uart.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/tty/serdev/core.c
-+++ b/drivers/tty/serdev/core.c
-@@ -18,6 +18,7 @@
- #include <linux/sched.h>
- #include <linux/serdev.h>
- #include <linux/slab.h>
-+#include <linux/platform_data/x86/apple.h>
+--- a/drivers/tty/serial/mvebu-uart.c
++++ b/drivers/tty/serial/mvebu-uart.c
+@@ -851,7 +851,7 @@ static int mvebu_uart_probe(struct platf
  
- static bool is_registered;
- static DEFINE_IDA(ctrl_ida);
-@@ -630,6 +631,15 @@ static int acpi_serdev_check_resources(s
- 	if (ret)
- 		return ret;
+ 	port->membase = devm_ioremap_resource(&pdev->dev, reg);
+ 	if (IS_ERR(port->membase))
+-		return -PTR_ERR(port->membase);
++		return PTR_ERR(port->membase);
  
-+	/*
-+	 * Apple machines provide an empty resource template, so on those
-+	 * machines just look for immediate children with a "baud" property
-+	 * (from the _DSM method) instead.
-+	 */
-+	if (!lookup.controller_handle && x86_apple_machine &&
-+	    !acpi_dev_get_property(adev, "baud", ACPI_TYPE_BUFFER, NULL))
-+		acpi_get_parent(adev->handle, &lookup.controller_handle);
-+
- 	/* Make sure controller and ResourceSource handle match */
- 	if (ACPI_HANDLE(ctrl->dev.parent) != lookup.controller_handle)
- 		return -ENODEV;
+ 	mvuart = devm_kzalloc(&pdev->dev, sizeof(struct mvebu_uart),
+ 			      GFP_KERNEL);
 
 
