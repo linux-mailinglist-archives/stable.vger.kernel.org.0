@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 76E3F17F7F8
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 13:43:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0BACC17F84B
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 13:47:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726382AbgCJMnx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 08:43:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44284 "EHLO mail.kernel.org"
+        id S1728057AbgCJMqi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 08:46:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49948 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727653AbgCJMnu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 08:43:50 -0400
+        id S1726548AbgCJMqh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 08:46:37 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 96F7924691;
-        Tue, 10 Mar 2020 12:43:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EAF8A2468D;
+        Tue, 10 Mar 2020 12:46:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583844230;
-        bh=UME+zBzZ4+DeYzvAR9NRjH5T7ejvAFqHIy4ks/HWLbs=;
+        s=default; t=1583844397;
+        bh=Vn8MA2JWAlQXOEu/9651uZO4QlqIhBvCV5/tHIIYK8w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pR2wfJQLiN9QG3rZFypGl7Q1a9rZSA1LcdppfriFFIp2ZL3kES4SY+j+knndh3zvo
-         R1VdaYKkzUBVqNE7DZnkzV0G6sG845y3POcZFmu5cAV2OPudtI8LkIW6VLPXIzBGrU
-         6T1nr1mhioT3B/Y9wEgubOJnuqXngcl405YnwKr8=
+        b=n4fN8yEFdxivOM8AZXhQ7Sc2L2lnr6Waw/bDeO52lPoRdBRnnhn8nXxY7/2EHuSkG
+         JGoR9topHOWKJtXaPxSXBzVEHOHYHyrpi8OsDkTRQYJAd+gjGZbGOx9m6KARApVwZ3
+         zJzRvJwt4clomjpjFPF2Zw/9nwNwe+atTR6QgUhg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dmitry Osipenko <digetx@gmail.com>,
-        Jon Hunter <jonathanh@nvidia.com>,
-        Vinod Koul <vkoul@kernel.org>
-Subject: [PATCH 4.4 60/72] dmaengine: tegra-apb: Fix use-after-free
+        stable@vger.kernel.org, Dan Lazewatsky <dlaz@chromium.org>,
+        Gustavo Padovan <gustavo.padovan@collabora.com>
+Subject: [PATCH 4.9 65/88] usb: quirks: add NO_LPM quirk for Logitech Screen Share
 Date:   Tue, 10 Mar 2020 13:39:13 +0100
-Message-Id: <20200310123616.202833278@linuxfoundation.org>
+Message-Id: <20200310123622.481998487@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200310123601.053680753@linuxfoundation.org>
-References: <20200310123601.053680753@linuxfoundation.org>
+In-Reply-To: <20200310123606.543939933@linuxfoundation.org>
+References: <20200310123606.543939933@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,62 +43,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Osipenko <digetx@gmail.com>
+From: Dan Lazewatsky <dlaz@chromium.org>
 
-commit 94788af4ed039476ff3527b0e6a12c1dc42cb022 upstream.
+commit b96ed52d781a2026d0c0daa5787c6f3d45415862 upstream.
 
-I was doing some experiments with I2C and noticed that Tegra APB DMA
-driver crashes sometime after I2C DMA transfer termination. The crash
-happens because tegra_dma_terminate_all() bails out immediately if pending
-list is empty, and thus, it doesn't release the half-completed descriptors
-which are getting re-used before ISR tasklet kicks-in.
+LPM on the device appears to cause xHCI host controllers to claim
+that there isn't enough bandwidth to support additional devices.
 
- tegra-i2c 7000c400.i2c: DMA transfer timeout
- elants_i2c 0-0010: elants_i2c_irq: failed to read data: -110
- ------------[ cut here ]------------
- WARNING: CPU: 0 PID: 142 at lib/list_debug.c:45 __list_del_entry_valid+0x45/0xac
- list_del corruption, ddbaac44->next is LIST_POISON1 (00000100)
- Modules linked in:
- CPU: 0 PID: 142 Comm: kworker/0:2 Not tainted 5.5.0-rc2-next-20191220-00175-gc3605715758d-dirty #538
- Hardware name: NVIDIA Tegra SoC (Flattened Device Tree)
- Workqueue: events_freezable_power_ thermal_zone_device_check
- [<c010e5c5>] (unwind_backtrace) from [<c010a1c5>] (show_stack+0x11/0x14)
- [<c010a1c5>] (show_stack) from [<c0973925>] (dump_stack+0x85/0x94)
- [<c0973925>] (dump_stack) from [<c011f529>] (__warn+0xc1/0xc4)
- [<c011f529>] (__warn) from [<c011f7e9>] (warn_slowpath_fmt+0x61/0x78)
- [<c011f7e9>] (warn_slowpath_fmt) from [<c042497d>] (__list_del_entry_valid+0x45/0xac)
- [<c042497d>] (__list_del_entry_valid) from [<c047a87f>] (tegra_dma_tasklet+0x5b/0x154)
- [<c047a87f>] (tegra_dma_tasklet) from [<c0124799>] (tasklet_action_common.constprop.0+0x41/0x7c)
- [<c0124799>] (tasklet_action_common.constprop.0) from [<c01022ab>] (__do_softirq+0xd3/0x2a8)
- [<c01022ab>] (__do_softirq) from [<c0124683>] (irq_exit+0x7b/0x98)
- [<c0124683>] (irq_exit) from [<c0168c19>] (__handle_domain_irq+0x45/0x80)
- [<c0168c19>] (__handle_domain_irq) from [<c043e429>] (gic_handle_irq+0x45/0x7c)
- [<c043e429>] (gic_handle_irq) from [<c0101aa5>] (__irq_svc+0x65/0x94)
- Exception stack(0xde2ebb90 to 0xde2ebbd8)
-
-Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
-Acked-by: Jon Hunter <jonathanh@nvidia.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200209163356.6439-2-digetx@gmail.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Signed-off-by: Dan Lazewatsky <dlaz@chromium.org>
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Gustavo Padovan <gustavo.padovan@collabora.com>
+Link: https://lore.kernel.org/r/20200226143438.1445-1-gustavo.padovan@collabora.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/dma/tegra20-apb-dma.c |    4 ----
- 1 file changed, 4 deletions(-)
+ drivers/usb/core/quirks.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/dma/tegra20-apb-dma.c
-+++ b/drivers/dma/tegra20-apb-dma.c
-@@ -754,10 +754,6 @@ static int tegra_dma_terminate_all(struc
- 	bool was_busy;
+--- a/drivers/usb/core/quirks.c
++++ b/drivers/usb/core/quirks.c
+@@ -86,6 +86,9 @@ static const struct usb_device_id usb_qu
+ 	/* Logitech PTZ Pro Camera */
+ 	{ USB_DEVICE(0x046d, 0x0853), .driver_info = USB_QUIRK_DELAY_INIT },
  
- 	spin_lock_irqsave(&tdc->lock, flags);
--	if (list_empty(&tdc->pending_sg_req)) {
--		spin_unlock_irqrestore(&tdc->lock, flags);
--		return 0;
--	}
++	/* Logitech Screen Share */
++	{ USB_DEVICE(0x046d, 0x086c), .driver_info = USB_QUIRK_NO_LPM },
++
+ 	/* Logitech Quickcam Fusion */
+ 	{ USB_DEVICE(0x046d, 0x08c1), .driver_info = USB_QUIRK_RESET_RESUME },
  
- 	if (!tdc->busy)
- 		goto skip_dma_stop;
 
 
