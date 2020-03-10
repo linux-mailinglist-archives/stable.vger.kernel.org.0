@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6CDEC17FC66
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:20:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ECEA117FC5F
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:20:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730644AbgCJNGs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 09:06:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52390 "EHLO mail.kernel.org"
+        id S1730884AbgCJNGu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 09:06:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52474 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730570AbgCJNGr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 09:06:47 -0400
+        id S1728197AbgCJNGt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 09:06:49 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 131C72071B;
-        Tue, 10 Mar 2020 13:06:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 92A9420873;
+        Tue, 10 Mar 2020 13:06:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583845606;
-        bh=yFqi2y2qU/nMBZWWI+25GCg6s4a8gGw/XhyKPyhRuAA=;
+        s=default; t=1583845609;
+        bh=iEGtXTNiqZ5sudgaIw3kA5MEwg/pCQ0S2xSXgV40sNg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2e3+iDJwgsE4JcPvnkzj82QjMQbAhzfUaQqXgMaGEdQHmDnOCspxtDhDPENuEdLG/
-         IDZEsuXrNi2tG8OnelBPajFsUx2kwF967reO895C965kLlZa1UFxP0f5xAednaowQk
-         wRy0qpR6lTrJS49RwfZI/+uwrBy1G4njJSKWBxJM=
+        b=GBw4x/URmtL8wx0WaxqAQkTkoJ4qyFJfAhW00cLfGR43hFTidx3G9iXZVCPH+Rt11
+         RlVuUqpbkJAttFNtdLZZb4OO53RohaFccdf+JVnHoJLtnxkmfqlm4acHNveBZ0IwOj
+         nW3FxGK2sUKqwhSn6p059b9i3QF+k956GX64doSU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+1f4d90ead370d72e450b@syzkaller.appspotmail.com,
-        Paul Moore <paul@paul-moore.com>
-Subject: [PATCH 4.14 035/126] audit: fix error handling in audit_data_to_entry()
-Date:   Tue, 10 Mar 2020 13:40:56 +0100
-Message-Id: <20200310124206.633524409@linuxfoundation.org>
+        stable@vger.kernel.org, Jean Delvare <jdelvare@suse.de>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH 4.14 036/126] ACPICA: Introduce ACPI_ACCESS_BYTE_WIDTH() macro
+Date:   Tue, 10 Mar 2020 13:40:57 +0100
+Message-Id: <20200310124206.687601253@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200310124203.704193207@linuxfoundation.org>
 References: <20200310124203.704193207@linuxfoundation.org>
@@ -44,204 +44,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Moore <paul@paul-moore.com>
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
 
-commit 2ad3e17ebf94b7b7f3f64c050ff168f9915345eb upstream.
+commit 1dade3a7048ccfc675650cd2cf13d578b095e5fb upstream.
 
-Commit 219ca39427bf ("audit: use union for audit_field values since
-they are mutually exclusive") combined a number of separate fields in
-the audit_field struct into a single union.  Generally this worked
-just fine because they are generally mutually exclusive.
-Unfortunately in audit_data_to_entry() the overlap can be a problem
-when a specific error case is triggered that causes the error path
-code to attempt to cleanup an audit_field struct and the cleanup
-involves attempting to free a stored LSM string (the lsm_str field).
-Currently the code always has a non-NULL value in the
-audit_field.lsm_str field as the top of the for-loop transfers a
-value into audit_field.val (both .lsm_str and .val are part of the
-same union); if audit_data_to_entry() fails and the audit_field
-struct is specified to contain a LSM string, but the
-audit_field.lsm_str has not yet been properly set, the error handling
-code will attempt to free the bogus audit_field.lsm_str value that
-was set with audit_field.val at the top of the for-loop.
+Sometimes it is useful to find the access_width field value in bytes and
+not in bits so add a helper that can be used for this purpose.
 
-This patch corrects this by ensuring that the audit_field.val is only
-set when needed (it is cleared when the audit_field struct is
-allocated with kcalloc()).  It also corrects a few other issues to
-ensure that in case of error the proper error code is returned.
-
-Cc: stable@vger.kernel.org
-Fixes: 219ca39427bf ("audit: use union for audit_field values since they are mutually exclusive")
-Reported-by: syzbot+1f4d90ead370d72e450b@syzkaller.appspotmail.com
-Signed-off-by: Paul Moore <paul@paul-moore.com>
+Suggested-by: Jean Delvare <jdelvare@suse.de>
+Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Reviewed-by: Jean Delvare <jdelvare@suse.de>
+Cc: 4.16+ <stable@vger.kernel.org> # 4.16+
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/auditfilter.c |   71 ++++++++++++++++++++++++++++-----------------------
- 1 file changed, 39 insertions(+), 32 deletions(-)
+ include/acpi/actypes.h |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/kernel/auditfilter.c
-+++ b/kernel/auditfilter.c
-@@ -435,6 +435,7 @@ static struct audit_entry *audit_data_to
- 	bufp = data->buf;
- 	for (i = 0; i < data->field_count; i++) {
- 		struct audit_field *f = &entry->rule.fields[i];
-+		u32 f_val;
+--- a/include/acpi/actypes.h
++++ b/include/acpi/actypes.h
+@@ -556,11 +556,12 @@ typedef u64 acpi_integer;
+ #define ACPI_MAKE_RSDP_SIG(dest)        (memcpy (ACPI_CAST_PTR (char, (dest)), ACPI_SIG_RSDP, 8))
  
- 		err = -EINVAL;
+ /*
+- * Algorithm to obtain access bit width.
++ * Algorithm to obtain access bit or byte width.
+  * Can be used with access_width of struct acpi_generic_address and access_size of
+  * struct acpi_resource_generic_register.
+  */
+ #define ACPI_ACCESS_BIT_WIDTH(size)     (1 << ((size) + 2))
++#define ACPI_ACCESS_BYTE_WIDTH(size)    (1 << ((size) - 1))
  
-@@ -443,12 +444,12 @@ static struct audit_entry *audit_data_to
- 			goto exit_free;
- 
- 		f->type = data->fields[i];
--		f->val = data->values[i];
-+		f_val = data->values[i];
- 
- 		/* Support legacy tests for a valid loginuid */
--		if ((f->type == AUDIT_LOGINUID) && (f->val == AUDIT_UID_UNSET)) {
-+		if ((f->type == AUDIT_LOGINUID) && (f_val == AUDIT_UID_UNSET)) {
- 			f->type = AUDIT_LOGINUID_SET;
--			f->val = 0;
-+			f_val = 0;
- 			entry->rule.pflags |= AUDIT_LOGINUID_LEGACY;
- 		}
- 
-@@ -464,7 +465,7 @@ static struct audit_entry *audit_data_to
- 		case AUDIT_SUID:
- 		case AUDIT_FSUID:
- 		case AUDIT_OBJ_UID:
--			f->uid = make_kuid(current_user_ns(), f->val);
-+			f->uid = make_kuid(current_user_ns(), f_val);
- 			if (!uid_valid(f->uid))
- 				goto exit_free;
- 			break;
-@@ -473,12 +474,13 @@ static struct audit_entry *audit_data_to
- 		case AUDIT_SGID:
- 		case AUDIT_FSGID:
- 		case AUDIT_OBJ_GID:
--			f->gid = make_kgid(current_user_ns(), f->val);
-+			f->gid = make_kgid(current_user_ns(), f_val);
- 			if (!gid_valid(f->gid))
- 				goto exit_free;
- 			break;
- 		case AUDIT_SESSIONID:
- 		case AUDIT_ARCH:
-+			f->val = f_val;
- 			entry->rule.arch_f = f;
- 			break;
- 		case AUDIT_SUBJ_USER:
-@@ -491,11 +493,13 @@ static struct audit_entry *audit_data_to
- 		case AUDIT_OBJ_TYPE:
- 		case AUDIT_OBJ_LEV_LOW:
- 		case AUDIT_OBJ_LEV_HIGH:
--			str = audit_unpack_string(&bufp, &remain, f->val);
--			if (IS_ERR(str))
-+			str = audit_unpack_string(&bufp, &remain, f_val);
-+			if (IS_ERR(str)) {
-+				err = PTR_ERR(str);
- 				goto exit_free;
--			entry->rule.buflen += f->val;
--
-+			}
-+			entry->rule.buflen += f_val;
-+			f->lsm_str = str;
- 			err = security_audit_rule_init(f->type, f->op, str,
- 						       (void **)&f->lsm_rule);
- 			/* Keep currently invalid fields around in case they
-@@ -504,68 +508,71 @@ static struct audit_entry *audit_data_to
- 				pr_warn("audit rule for LSM \'%s\' is invalid\n",
- 					str);
- 				err = 0;
--			}
--			if (err) {
--				kfree(str);
-+			} else if (err)
- 				goto exit_free;
--			} else
--				f->lsm_str = str;
- 			break;
- 		case AUDIT_WATCH:
--			str = audit_unpack_string(&bufp, &remain, f->val);
--			if (IS_ERR(str))
-+			str = audit_unpack_string(&bufp, &remain, f_val);
-+			if (IS_ERR(str)) {
-+				err = PTR_ERR(str);
- 				goto exit_free;
--			entry->rule.buflen += f->val;
--
--			err = audit_to_watch(&entry->rule, str, f->val, f->op);
-+			}
-+			err = audit_to_watch(&entry->rule, str, f_val, f->op);
- 			if (err) {
- 				kfree(str);
- 				goto exit_free;
- 			}
-+			entry->rule.buflen += f_val;
- 			break;
- 		case AUDIT_DIR:
--			str = audit_unpack_string(&bufp, &remain, f->val);
--			if (IS_ERR(str))
-+			str = audit_unpack_string(&bufp, &remain, f_val);
-+			if (IS_ERR(str)) {
-+				err = PTR_ERR(str);
- 				goto exit_free;
--			entry->rule.buflen += f->val;
--
-+			}
- 			err = audit_make_tree(&entry->rule, str, f->op);
- 			kfree(str);
- 			if (err)
- 				goto exit_free;
-+			entry->rule.buflen += f_val;
- 			break;
- 		case AUDIT_INODE:
-+			f->val = f_val;
- 			err = audit_to_inode(&entry->rule, f);
- 			if (err)
- 				goto exit_free;
- 			break;
- 		case AUDIT_FILTERKEY:
--			if (entry->rule.filterkey || f->val > AUDIT_MAX_KEY_LEN)
-+			if (entry->rule.filterkey || f_val > AUDIT_MAX_KEY_LEN)
- 				goto exit_free;
--			str = audit_unpack_string(&bufp, &remain, f->val);
--			if (IS_ERR(str))
-+			str = audit_unpack_string(&bufp, &remain, f_val);
-+			if (IS_ERR(str)) {
-+				err = PTR_ERR(str);
- 				goto exit_free;
--			entry->rule.buflen += f->val;
-+			}
-+			entry->rule.buflen += f_val;
- 			entry->rule.filterkey = str;
- 			break;
- 		case AUDIT_EXE:
--			if (entry->rule.exe || f->val > PATH_MAX)
-+			if (entry->rule.exe || f_val > PATH_MAX)
- 				goto exit_free;
--			str = audit_unpack_string(&bufp, &remain, f->val);
-+			str = audit_unpack_string(&bufp, &remain, f_val);
- 			if (IS_ERR(str)) {
- 				err = PTR_ERR(str);
- 				goto exit_free;
- 			}
--			entry->rule.buflen += f->val;
--
--			audit_mark = audit_alloc_mark(&entry->rule, str, f->val);
-+			audit_mark = audit_alloc_mark(&entry->rule, str, f_val);
- 			if (IS_ERR(audit_mark)) {
- 				kfree(str);
- 				err = PTR_ERR(audit_mark);
- 				goto exit_free;
- 			}
-+			entry->rule.buflen += f_val;
- 			entry->rule.exe = audit_mark;
- 			break;
-+		default:
-+			f->val = f_val;
-+			break;
- 		}
- 	}
- 
+ /*******************************************************************************
+  *
 
 
