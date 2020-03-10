@@ -2,114 +2,120 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0366D17FB9F
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:15:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 69D2617FB49
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:12:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728182AbgCJNPB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 09:15:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39212 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731956AbgCJNO6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 09:14:58 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B6A47208E4;
-        Tue, 10 Mar 2020 13:14:57 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583846098;
-        bh=u5+Vg2yfAlzpgILsxMkOEolNoK2PS64jZe6xICgGDfI=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SLrJJPese5Ry0URLKJ/xF/gkFwoHVJ2nXQuA5QVMVziqFiSt+4r8prwWqrIIEd5Z6
-         T5KPSeaOB2wTUw7Vjzg3L19I1avqsX7ICLHB1S0BDaKs579rZxgVgDszJKgnsEpcTk
-         gFm/L1fbUg5lcmdC1ajjoC85aOIiJpnPgI5WgPS0=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Deepak Ukey <deepak.ukey@microchip.com>,
-        Viswas G <Viswas.G@microchip.com>,
-        Jack Wang <jinpu.wang@cloud.ionos.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 4.19 86/86] scsi: pm80xx: Fixed kernel panic during error recovery for SATA drive
-Date:   Tue, 10 Mar 2020 13:45:50 +0100
-Message-Id: <20200310124535.513334751@linuxfoundation.org>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200310124530.808338541@linuxfoundation.org>
-References: <20200310124530.808338541@linuxfoundation.org>
-User-Agent: quilt/0.66
+        id S1731569AbgCJNMb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 09:12:31 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:30834 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1731558AbgCJNMa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Mar 2020 09:12:30 -0400
+Received: from pps.filterd (m0098393.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 02ADC3v3016421;
+        Tue, 10 Mar 2020 09:12:29 -0400
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2ynraxnm8c-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 10 Mar 2020 09:12:29 -0400
+Received: from m0098393.ppops.net (m0098393.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 02ADCDuN017656;
+        Tue, 10 Mar 2020 09:12:28 -0400
+Received: from ppma05wdc.us.ibm.com (1b.90.2fa9.ip4.static.sl-reverse.com [169.47.144.27])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2ynraxnm7e-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 10 Mar 2020 09:12:28 -0400
+Received: from pps.filterd (ppma05wdc.us.ibm.com [127.0.0.1])
+        by ppma05wdc.us.ibm.com (8.16.0.27/8.16.0.27) with SMTP id 02ADC0Nn030386;
+        Tue, 10 Mar 2020 13:12:27 GMT
+Received: from b03cxnp08026.gho.boulder.ibm.com (b03cxnp08026.gho.boulder.ibm.com [9.17.130.18])
+        by ppma05wdc.us.ibm.com with ESMTP id 2ym386junm-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 10 Mar 2020 13:12:27 +0000
+Received: from b03ledav006.gho.boulder.ibm.com (b03ledav006.gho.boulder.ibm.com [9.17.130.237])
+        by b03cxnp08026.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 02ADCQr554788370
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 10 Mar 2020 13:12:26 GMT
+Received: from b03ledav006.gho.boulder.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id B0EBBC6057;
+        Tue, 10 Mar 2020 13:12:26 +0000 (GMT)
+Received: from b03ledav006.gho.boulder.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 328A4C6059;
+        Tue, 10 Mar 2020 13:12:26 +0000 (GMT)
+Received: from localhost.localdomain (unknown [9.114.17.106])
+        by b03ledav006.gho.boulder.ibm.com (Postfix) with ESMTP;
+        Tue, 10 Mar 2020 13:12:26 +0000 (GMT)
+From:   Christian Borntraeger <borntraeger@de.ibm.com>
+To:     Christian Borntraeger <borntraeger@de.ibm.com>,
+        Janosch Frank <frankja@linux.vnet.ibm.com>,
+        David Hildenbrand <david@redhat.com>
+Cc:     KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>,
+        Cornelia Huck <cohuck@redhat.com>, stable@vger.kernel.org
+Subject: [PATCH v2] KVM: s390: Also reset registers in sync regs for initial cpu reset
+Date:   Tue, 10 Mar 2020 09:12:23 -0400
+Message-Id: <20200310131223.10287-1-borntraeger@de.ibm.com>
+X-Mailer: git-send-email 2.25.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.138,18.0.572
+ definitions=2020-03-10_06:2020-03-10,2020-03-10 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 spamscore=0
+ malwarescore=0 mlxlogscore=999 lowpriorityscore=0 bulkscore=0 mlxscore=0
+ phishscore=0 impostorscore=0 suspectscore=0 clxscore=1015
+ priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2001150001 definitions=main-2003100088
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Deepak Ukey <deepak.ukey@microchip.com>
+When we do the initial CPU reset we must not only clear the registers
+in the internal data structures but also in kvm_run sync_regs. For
+modern userspace sync_regs is the only place that it looks at.
 
-commit 196ba6629cf95e51403337235d09742fcdc3febd upstream.
-
-Disabling the SATA drive interface cause kernel panic. When the drive
-Interface is disabled, device should be deregistered after aborting all
-pending I/Os. Also changed the port recovery timeout to 10000 ms for
-PM8006 controller.
-
-Signed-off-by: Deepak Ukey <deepak.ukey@microchip.com>
-Signed-off-by: Viswas G <Viswas.G@microchip.com>
-Reviewed-by: Jack Wang <jinpu.wang@cloud.ionos.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Cc: stable@vger.kernel.org
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- drivers/scsi/pm8001/pm8001_sas.c |    6 +++++-
- drivers/scsi/pm8001/pm80xx_hwi.c |    2 +-
- drivers/scsi/pm8001/pm80xx_hwi.h |    2 ++
- 3 files changed, 8 insertions(+), 2 deletions(-)
+ arch/s390/kvm/kvm-s390.c | 18 +++++++++++++++++-
+ 1 file changed, 17 insertions(+), 1 deletion(-)
 
---- a/drivers/scsi/pm8001/pm8001_sas.c
-+++ b/drivers/scsi/pm8001/pm8001_sas.c
-@@ -866,6 +866,8 @@ static void pm8001_dev_gone_notify(struc
- 			spin_unlock_irqrestore(&pm8001_ha->lock, flags);
- 			pm8001_exec_internal_task_abort(pm8001_ha, pm8001_dev ,
- 				dev, 1, 0);
-+			while (pm8001_dev->running_req)
-+				msleep(20);
- 			spin_lock_irqsave(&pm8001_ha->lock, flags);
- 		}
- 		PM8001_CHIP_DISP->dereg_dev_req(pm8001_ha, device_id);
-@@ -1238,8 +1240,10 @@ int pm8001_abort_task(struct sas_task *t
- 			PM8001_MSG_DBG(pm8001_ha,
- 				pm8001_printk("Waiting for Port reset\n"));
- 			wait_for_completion(&completion_reset);
--			if (phy->port_reset_status)
-+			if (phy->port_reset_status) {
-+				pm8001_dev_gone_notify(dev);
- 				goto out;
-+			}
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index d7ff30e45589..c2e6d4ba4e23 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -3268,7 +3268,10 @@ static void kvm_arch_vcpu_ioctl_initial_reset(struct kvm_vcpu *vcpu)
+ 	/* Initial reset is a superset of the normal reset */
+ 	kvm_arch_vcpu_ioctl_normal_reset(vcpu);
  
- 			/*
- 			 * 4. SATA Abort ALL
---- a/drivers/scsi/pm8001/pm80xx_hwi.c
-+++ b/drivers/scsi/pm8001/pm80xx_hwi.c
-@@ -604,7 +604,7 @@ static void update_main_config_table(str
- 		pm8001_ha->main_cfg_tbl.pm80xx_tbl.port_recovery_timer &=
- 					0x0000ffff;
- 		pm8001_ha->main_cfg_tbl.pm80xx_tbl.port_recovery_timer |=
--					0x140000;
-+					CHIP_8006_PORT_RECOVERY_TIMEOUT;
- 	}
- 	pm8001_mw32(address, MAIN_PORT_RECOVERY_TIMER,
- 			pm8001_ha->main_cfg_tbl.pm80xx_tbl.port_recovery_timer);
---- a/drivers/scsi/pm8001/pm80xx_hwi.h
-+++ b/drivers/scsi/pm8001/pm80xx_hwi.h
-@@ -228,6 +228,8 @@
- #define SAS_MAX_AIP                     0x200000
- #define IT_NEXUS_TIMEOUT       0x7D0
- #define PORT_RECOVERY_TIMEOUT  ((IT_NEXUS_TIMEOUT/100) + 30)
-+/* Port recovery timeout, 10000 ms for PM8006 controller */
-+#define CHIP_8006_PORT_RECOVERY_TIMEOUT 0x640000
- 
- #ifdef __LITTLE_ENDIAN_BITFIELD
- struct sas_identify_frame_local {
-
+-	/* this equals initial cpu reset in pop, but we don't switch to ESA */
++	/*
++	 * This equals initial cpu reset in pop, but we don't switch to ESA.
++	 * We do not only reset the internal data, but also ...
++	 */
+ 	vcpu->arch.sie_block->gpsw.mask = 0;
+ 	vcpu->arch.sie_block->gpsw.addr = 0;
+ 	kvm_s390_set_prefix(vcpu, 0);
+@@ -3278,6 +3281,19 @@ static void kvm_arch_vcpu_ioctl_initial_reset(struct kvm_vcpu *vcpu)
+ 	memset(vcpu->arch.sie_block->gcr, 0, sizeof(vcpu->arch.sie_block->gcr));
+ 	vcpu->arch.sie_block->gcr[0] = CR0_INITIAL_MASK;
+ 	vcpu->arch.sie_block->gcr[14] = CR14_INITIAL_MASK;
++
++	/* ... the data in sync regs */
++	memset(vcpu->run->s.regs.crs, 0, sizeof(vcpu->run->s.regs.crs));
++	vcpu->run->s.regs.ckc = 0;
++	vcpu->run->s.regs.crs[0] = CR0_INITIAL_MASK;
++	vcpu->run->s.regs.crs[14] = CR14_INITIAL_MASK;
++	vcpu->run->psw_addr = 0;
++	vcpu->run->psw_mask = 0;
++	vcpu->run->s.regs.todpr = 0;
++	vcpu->run->s.regs.cputm = 0;
++	vcpu->run->s.regs.ckc = 0;
++	vcpu->run->s.regs.pp = 0;
++	vcpu->run->s.regs.gbea = 1;
+ 	vcpu->run->s.regs.fpc = 0;
+ 	vcpu->arch.sie_block->gbea = 1;
+ 	vcpu->arch.sie_block->pp = 0;
+-- 
+2.25.0
 
