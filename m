@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A2AF717FE2A
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:33:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 233BD17FE2B
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:33:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728308AbgCJMsU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 08:48:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52336 "EHLO mail.kernel.org"
+        id S1728319AbgCJMs0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 08:48:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52528 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728297AbgCJMsR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 08:48:17 -0400
+        id S1728315AbgCJMsZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 08:48:25 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2806C2468D;
-        Tue, 10 Mar 2020 12:48:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E61B424691;
+        Tue, 10 Mar 2020 12:48:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583844496;
-        bh=YKfdWWef2XAP+GCkkOxxFSr7TtbFVlNDiZybrdw5O7M=;
+        s=default; t=1583844504;
+        bh=oK3VlKykMd14h0+qC0KHi9ORL2bg4TEb/vdCaZ/mivY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P2op+Ybp6Wdz+gNDbCgI64FaWX7nYWqhTC58bssCTV50pyoEdA/8yWQ6Dwg3w9nbo
-         +5pZqzuEEk/giNoIqSIrRBo1FiFgmQWYwW5XOoxqR0phh63PVVmr1GwH46L/ARNxFx
-         3NioFLtL7aV0XtFR5WHOjodBgTw9UZBdDsBnxkY0=
+        b=fkIU6s9+M1ByA7ydAzS9Eb8LpHOjG1VtkGk1UdXjF17qAUU0OneVzJaKlDJJ4PHD/
+         HwYjN3NsCb5N3W3Djb3mt5skaq6L/3NTJrTfT4YuNSJC07l6r/3iFVpKV5xrj8/Kt+
+         E8tVH2oGvClJL3Q47YvfD4qHHMRKY33ZrdQheKnk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chuanhong Guo <gch981213@gmail.com>,
-        Daniel Golle <daniel@makrotopia.org>,
+        stable@vger.kernel.org, Michal Nazarewicz <mina86@mina86.com>,
+        Lars-Peter Clausen <lars@metafoo.de>,
+        Alexandru Ardelean <alexandru.ardelean@analog.com>,
+        Felipe Balbi <balbi@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 014/168] serial: ar933x_uart: set UART_CS_{RX,TX}_READY_ORIDE
-Date:   Tue, 10 Mar 2020 13:37:40 +0100
-Message-Id: <20200310123637.149646464@linuxfoundation.org>
+Subject: [PATCH 5.4 017/168] usb: gadget: ffs: ffs_aio_cancel(): Save/restore IRQ flags
+Date:   Tue, 10 Mar 2020 13:37:43 +0100
+Message-Id: <20200310123637.426298580@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200310123635.322799692@linuxfoundation.org>
 References: <20200310123635.322799692@linuxfoundation.org>
@@ -44,56 +46,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Golle <daniel@makrotopia.org>
+From: Lars-Peter Clausen <lars@metafoo.de>
 
-[ Upstream commit 87c5cbf71ecbb9e289d60a2df22eb686c70bf196 ]
+[ Upstream commit 43d565727a3a6fd24e37c7c2116475106af71806 ]
 
-On AR934x this UART is usually not initialized by the bootloader
-as it is only used as a secondary serial port while the primary
-UART is a newly introduced NS16550-compatible.
-In order to make use of the ar933x-uart on AR934x without RTS/CTS
-hardware flow control, one needs to set the
-UART_CS_{RX,TX}_READY_ORIDE bits as other than on AR933x where this
-UART is used as primary/console, the bootloader on AR934x typically
-doesn't set those bits.
-Setting them explicitely on AR933x should not do any harm, so just
-set them unconditionally.
+ffs_aio_cancel() can be called from both interrupt and thread context. Make
+sure that the current IRQ state is saved and restored by using
+spin_{un,}lock_irq{save,restore}().
 
-Tested-by: Chuanhong Guo <gch981213@gmail.com>
-Signed-off-by: Daniel Golle <daniel@makrotopia.org>
-Link: https://lore.kernel.org/r/20200207095335.GA179836@makrotopia.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Otherwise undefined behavior might occur.
+
+Acked-by: Michal Nazarewicz <mina86@mina86.com>
+Signed-off-by: Lars-Peter Clausen <lars@metafoo.de>
+Signed-off-by: Alexandru Ardelean <alexandru.ardelean@analog.com>
+Signed-off-by: Felipe Balbi <balbi@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/ar933x_uart.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/usb/gadget/function/f_fs.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/tty/serial/ar933x_uart.c b/drivers/tty/serial/ar933x_uart.c
-index 3bdd56a1021b2..ea12f10610b64 100644
---- a/drivers/tty/serial/ar933x_uart.c
-+++ b/drivers/tty/serial/ar933x_uart.c
-@@ -286,6 +286,10 @@ static void ar933x_uart_set_termios(struct uart_port *port,
- 	ar933x_uart_rmw_set(up, AR933X_UART_CS_REG,
- 			    AR933X_UART_CS_HOST_INT_EN);
+diff --git a/drivers/usb/gadget/function/f_fs.c b/drivers/usb/gadget/function/f_fs.c
+index ced2581cf99fe..a9a711e046148 100644
+--- a/drivers/usb/gadget/function/f_fs.c
++++ b/drivers/usb/gadget/function/f_fs.c
+@@ -1162,18 +1162,19 @@ static int ffs_aio_cancel(struct kiocb *kiocb)
+ {
+ 	struct ffs_io_data *io_data = kiocb->private;
+ 	struct ffs_epfile *epfile = kiocb->ki_filp->private_data;
++	unsigned long flags;
+ 	int value;
  
-+	/* enable RX and TX ready overide */
-+	ar933x_uart_rmw_set(up, AR933X_UART_CS_REG,
-+		AR933X_UART_CS_TX_READY_ORIDE | AR933X_UART_CS_RX_READY_ORIDE);
-+
- 	/* reenable the UART */
- 	ar933x_uart_rmw(up, AR933X_UART_CS_REG,
- 			AR933X_UART_CS_IF_MODE_M << AR933X_UART_CS_IF_MODE_S,
-@@ -418,6 +422,10 @@ static int ar933x_uart_startup(struct uart_port *port)
- 	ar933x_uart_rmw_set(up, AR933X_UART_CS_REG,
- 			    AR933X_UART_CS_HOST_INT_EN);
+ 	ENTER();
  
-+	/* enable RX and TX ready overide */
-+	ar933x_uart_rmw_set(up, AR933X_UART_CS_REG,
-+		AR933X_UART_CS_TX_READY_ORIDE | AR933X_UART_CS_RX_READY_ORIDE);
-+
- 	/* Enable RX interrupts */
- 	up->ier = AR933X_UART_INT_RX_VALID;
- 	ar933x_uart_write(up, AR933X_UART_INT_EN_REG, up->ier);
+-	spin_lock_irq(&epfile->ffs->eps_lock);
++	spin_lock_irqsave(&epfile->ffs->eps_lock, flags);
+ 
+ 	if (likely(io_data && io_data->ep && io_data->req))
+ 		value = usb_ep_dequeue(io_data->ep, io_data->req);
+ 	else
+ 		value = -EINVAL;
+ 
+-	spin_unlock_irq(&epfile->ffs->eps_lock);
++	spin_unlock_irqrestore(&epfile->ffs->eps_lock, flags);
+ 
+ 	return value;
+ }
 -- 
 2.20.1
 
