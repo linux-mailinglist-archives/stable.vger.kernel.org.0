@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E2DE817FE6E
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:35:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2801817FDEA
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:31:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727612AbgCJMpP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 08:45:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47768 "EHLO mail.kernel.org"
+        id S1727527AbgCJMuE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 08:50:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54550 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726647AbgCJMpO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 08:45:14 -0400
+        id S1727080AbgCJMuC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 08:50:02 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 80EA0246A3;
-        Tue, 10 Mar 2020 12:45:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5AE2D2468E;
+        Tue, 10 Mar 2020 12:50:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583844313;
-        bh=F7gCp+2KCsbU23lR2accZ9m2uIs9HZv3Why4rn5Bmss=;
+        s=default; t=1583844601;
+        bh=nRO455Vq+s6RfjtfOB2yl+aWuz2EYmxn6affqv+/Knc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JVk8DkM37cbe31Uc36fPNh6Ke70hqW4n9PLyyPvlbhA2jEgjq6uVrS2BnRUniyTuy
-         SKzsf2NJ36neNTYAetgvfQ0EI/Oa76kDUGdw3xulytwe91m1Z1gFwp7l5eGYGRD+Pe
-         h0HeZ9wfiSmRzSM53H/9c30KUgfqNq4IlUc0XlqU=
+        b=cteE66bItAdn0azoPg+6li25dgMk/GSeycF/OldywR+WB7oV9MwxWu7f3kjhX4VRh
+         Es8ZybLg6Ay/fxd7Y3MdqOzCdyxqlEvQgUdjSZUnvcjq1GaBarYKupqo8oZ88zvhBB
+         bi6eMfeQIXFr0Inin4YYeGDrfuccLw+9A3zhJw1A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
-        Luca Coelho <luciano.coelho@intel.com>,
+        stable@vger.kernel.org, Guo Ren <guoren@linux.alibaba.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 07/88] mac80211: consider more elements in parsing CRC
-Date:   Tue, 10 Mar 2020 13:38:15 +0100
-Message-Id: <20200310123608.425356365@linuxfoundation.org>
+Subject: [PATCH 5.4 051/168] csky: Set regs->usp to kernel sp, when the exception is from kernel
+Date:   Tue, 10 Mar 2020 13:38:17 +0100
+Message-Id: <20200310123640.523177260@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200310123606.543939933@linuxfoundation.org>
-References: <20200310123606.543939933@linuxfoundation.org>
+In-Reply-To: <20200310123635.322799692@linuxfoundation.org>
+References: <20200310123635.322799692@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,66 +43,153 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Guo Ren <guoren@linux.alibaba.com>
 
-[ Upstream commit a04564c99bb4a92f805a58e56b2d22cc4978f152 ]
+[ Upstream commit f8e17c17b81070f38062dce79ca7f4541851dadd ]
 
-We only use the parsing CRC for checking if a beacon changed,
-and elements with an ID > 63 cannot be represented in the
-filter. Thus, like we did before with WMM and Cisco vendor
-elements, just statically add these forgotten items to the
-CRC:
- - WLAN_EID_VHT_OPERATION
- - WLAN_EID_OPMODE_NOTIF
+In the past, we didn't care about kernel sp when saving pt_reg. But in some
+cases, we still need pt_reg->usp to represent the kernel stack before enter
+exception.
 
-I guess that in most cases when VHT/HE operation change, the HT
-operation also changed, and so the change was picked up, but we
-did notice that pure operating mode notification changes were
-ignored.
+For cmpxhg in atomic.S, we need save and restore usp for above.
 
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-Link: https://lore.kernel.org/r/20200131111300.891737-22-luca@coelho.fi
-[restrict to VHT for the mac80211 branch]
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mac80211/util.c | 18 ++++++++++++------
- 1 file changed, 12 insertions(+), 6 deletions(-)
+ arch/csky/abiv1/inc/abi/entry.h | 19 ++++++++++++++-----
+ arch/csky/abiv2/inc/abi/entry.h | 11 +++++++++++
+ arch/csky/kernel/atomic.S       |  8 ++++++--
+ 3 files changed, 31 insertions(+), 7 deletions(-)
 
-diff --git a/net/mac80211/util.c b/net/mac80211/util.c
-index ca7de02e0a6e9..52f9742c438a4 100644
---- a/net/mac80211/util.c
-+++ b/net/mac80211/util.c
-@@ -943,16 +943,22 @@ u32 ieee802_11_parse_elems_crc(const u8 *start, size_t len, bool action,
- 				elem_parse_failed = true;
- 			break;
- 		case WLAN_EID_VHT_OPERATION:
--			if (elen >= sizeof(struct ieee80211_vht_operation))
-+			if (elen >= sizeof(struct ieee80211_vht_operation)) {
- 				elems->vht_operation = (void *)pos;
--			else
--				elem_parse_failed = true;
-+				if (calc_crc)
-+					crc = crc32_be(crc, pos - 2, elen + 2);
-+				break;
-+			}
-+			elem_parse_failed = true;
- 			break;
- 		case WLAN_EID_OPMODE_NOTIF:
--			if (elen > 0)
-+			if (elen > 0) {
- 				elems->opmode_notif = pos;
--			else
--				elem_parse_failed = true;
-+				if (calc_crc)
-+					crc = crc32_be(crc, pos - 2, elen + 2);
-+				break;
-+			}
-+			elem_parse_failed = true;
- 			break;
- 		case WLAN_EID_MESH_ID:
- 			elems->mesh_id = pos;
+diff --git a/arch/csky/abiv1/inc/abi/entry.h b/arch/csky/abiv1/inc/abi/entry.h
+index 7ab78bd0f3b13..f35a9f3315ee6 100644
+--- a/arch/csky/abiv1/inc/abi/entry.h
++++ b/arch/csky/abiv1/inc/abi/entry.h
+@@ -16,14 +16,16 @@
+ #define LSAVE_A4	40
+ #define LSAVE_A5	44
+ 
++#define usp ss1
++
+ .macro USPTOKSP
+-	mtcr	sp, ss1
++	mtcr	sp, usp
+ 	mfcr	sp, ss0
+ .endm
+ 
+ .macro KSPTOUSP
+ 	mtcr	sp, ss0
+-	mfcr	sp, ss1
++	mfcr	sp, usp
+ .endm
+ 
+ .macro	SAVE_ALL epc_inc
+@@ -45,7 +47,13 @@
+ 	add	lr, r13
+ 	stw     lr, (sp, 8)
+ 
++	mov	lr, sp
++	addi	lr, 32
++	addi	lr, 32
++	addi	lr, 16
++	bt	2f
+ 	mfcr	lr, ss1
++2:
+ 	stw     lr, (sp, 16)
+ 
+ 	stw     a0, (sp, 20)
+@@ -79,9 +87,10 @@
+ 	ldw     a0, (sp, 12)
+ 	mtcr    a0, epsr
+ 	btsti   a0, 31
++	bt      1f
+ 	ldw     a0, (sp, 16)
+ 	mtcr	a0, ss1
+-
++1:
+ 	ldw     a0, (sp, 24)
+ 	ldw     a1, (sp, 28)
+ 	ldw     a2, (sp, 32)
+@@ -102,9 +111,9 @@
+ 	addi	sp, 32
+ 	addi	sp, 8
+ 
+-	bt      1f
++	bt      2f
+ 	KSPTOUSP
+-1:
++2:
+ 	rte
+ .endm
+ 
+diff --git a/arch/csky/abiv2/inc/abi/entry.h b/arch/csky/abiv2/inc/abi/entry.h
+index 9897a16b45e5d..94a7a58765dff 100644
+--- a/arch/csky/abiv2/inc/abi/entry.h
++++ b/arch/csky/abiv2/inc/abi/entry.h
+@@ -31,7 +31,13 @@
+ 
+ 	mfcr	lr, epsr
+ 	stw	lr, (sp, 12)
++	btsti   lr, 31
++	bf      1f
++	addi    lr, sp, 152
++	br	2f
++1:
+ 	mfcr	lr, usp
++2:
+ 	stw	lr, (sp, 16)
+ 
+ 	stw     a0, (sp, 20)
+@@ -64,8 +70,10 @@
+ 	mtcr	a0, epc
+ 	ldw	a0, (sp, 12)
+ 	mtcr	a0, epsr
++	btsti   a0, 31
+ 	ldw	a0, (sp, 16)
+ 	mtcr	a0, usp
++	mtcr	a0, ss0
+ 
+ #ifdef CONFIG_CPU_HAS_HILO
+ 	ldw	a0, (sp, 140)
+@@ -86,6 +94,9 @@
+ 	addi    sp, 40
+ 	ldm     r16-r30, (sp)
+ 	addi    sp, 72
++	bf	1f
++	mfcr	sp, ss0
++1:
+ 	rte
+ .endm
+ 
+diff --git a/arch/csky/kernel/atomic.S b/arch/csky/kernel/atomic.S
+index 5b84f11485aeb..3821ef9b75672 100644
+--- a/arch/csky/kernel/atomic.S
++++ b/arch/csky/kernel/atomic.S
+@@ -17,10 +17,12 @@ ENTRY(csky_cmpxchg)
+ 	mfcr	a3, epc
+ 	addi	a3, TRAP0_SIZE
+ 
+-	subi    sp, 8
++	subi    sp, 16
+ 	stw     a3, (sp, 0)
+ 	mfcr    a3, epsr
+ 	stw     a3, (sp, 4)
++	mfcr	a3, usp
++	stw     a3, (sp, 8)
+ 
+ 	psrset	ee
+ #ifdef CONFIG_CPU_HAS_LDSTEX
+@@ -47,7 +49,9 @@ ENTRY(csky_cmpxchg)
+ 	mtcr	a3, epc
+ 	ldw     a3, (sp, 4)
+ 	mtcr	a3, epsr
+-	addi	sp, 8
++	ldw     a3, (sp, 8)
++	mtcr	a3, usp
++	addi	sp, 16
+ 	KSPTOUSP
+ 	rte
+ END(csky_cmpxchg)
 -- 
 2.20.1
 
