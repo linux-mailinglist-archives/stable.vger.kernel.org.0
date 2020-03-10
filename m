@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D4A3517FBDE
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:17:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EAE4317FB48
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:12:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728337AbgCJNRB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 09:17:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34628 "EHLO mail.kernel.org"
+        id S1731566AbgCJNMa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 09:12:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34722 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728885AbgCJNM0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 09:12:26 -0400
+        id S1731404AbgCJNM3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 09:12:29 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C311320409;
-        Tue, 10 Mar 2020 13:12:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8EA972468F;
+        Tue, 10 Mar 2020 13:12:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583845945;
-        bh=NXc/ED1fCakIemJY5ZSMdq6BxdEeAD7CaLqz0ZL9qy8=;
+        s=default; t=1583845949;
+        bh=HUpdXOEvuS6k6iZSZ6orfacw3M5jNQiR+vC+w4n68F4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TVJoggPYChlwSH8FseihgSTyIBRH2vlD857jIlEEiwsdPLsT6F4KpI5xne093CgHJ
-         Hqc8Zday5HajriWdjudcpIIq0R9PI4gyqnpGlFyh5QTAv9NNdKYiTSsEycORaPlmXf
-         UuXSRl76LhwjCZWnQHERSQrUPEbWkFRAk9QyN/TI=
+        b=jXSHXWAmnejZ3x60Jk2DIr2uvqj7K6hnsd4BLxkvigPr3PAFA0fdbvLBFYxZV5M4i
+         Uz2XxOFvODUCiMci/MTjaSF/ex7r9FHz4yEU1LL7ivX1iTBbP+KCkP/ifywJ3qH7lu
+         pXoA3ck/tu03HwEt+BodsKRO8+qkCXuPx0KJWdjg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kailang Yang <kailang@realtek.com>,
+        stable@vger.kernel.org, Christian Lachner <gladiac@gmail.com>,
         Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.19 32/86] ALSA: hda/realtek - Add Headset Mic supported
-Date:   Tue, 10 Mar 2020 13:44:56 +0100
-Message-Id: <20200310124532.513832341@linuxfoundation.org>
+Subject: [PATCH 4.19 33/86] ALSA: hda/realtek - Fix silent output on Gigabyte X570 Aorus Master
+Date:   Tue, 10 Mar 2020 13:44:57 +0100
+Message-Id: <20200310124532.565842222@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200310124530.808338541@linuxfoundation.org>
 References: <20200310124530.808338541@linuxfoundation.org>
@@ -43,34 +43,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kailang Yang <kailang@realtek.com>
+From: Christian Lachner <gladiac@gmail.com>
 
-commit 78def224f59c05d00e815be946ec229719ccf377 upstream.
+commit 0d45e86d2267d5bdf7bbb631499788da1c27ceb2 upstream.
 
-Dell desktop platform supported headset Mic.
-Add pin verb to enable headset Mic.
-This platform only support fixed type headset for Iphone type.
+The Gigabyte X570 Aorus Master motherboard with ALC1220 codec
+requires a similar workaround for Clevo laptops to enforce the
+DAC/mixer connection path. Set up a quirk entry for that.
 
-Signed-off-by: Kailang Yang <kailang@realtek.com>
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=205275
+Signed-off-by: Christian Lachner <gladiac@gmail.com>
 Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/b9da28d772ef43088791b0f3675929e7@realtek.com
+Link: https://lore.kernel.org/r/20200223092416.15016-2-gladiac@gmail.com
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/pci/hda/patch_realtek.c |    2 ++
- 1 file changed, 2 insertions(+)
+ sound/pci/hda/patch_realtek.c |    1 +
+ 1 file changed, 1 insertion(+)
 
 --- a/sound/pci/hda/patch_realtek.c
 +++ b/sound/pci/hda/patch_realtek.c
-@@ -6888,6 +6888,8 @@ static const struct snd_pci_quirk alc269
- 	SND_PCI_QUIRK(0x1028, 0x0935, "Dell", ALC274_FIXUP_DELL_AIO_LINEOUT_VERB),
- 	SND_PCI_QUIRK(0x1028, 0x097e, "Dell Precision", ALC289_FIXUP_DUAL_SPK),
- 	SND_PCI_QUIRK(0x1028, 0x097d, "Dell Precision", ALC289_FIXUP_DUAL_SPK),
-+	SND_PCI_QUIRK(0x1028, 0x098d, "Dell Precision", ALC233_FIXUP_ASUS_MIC_NO_PRESENCE),
-+	SND_PCI_QUIRK(0x1028, 0x09bf, "Dell Precision", ALC233_FIXUP_ASUS_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x1028, 0x164a, "Dell", ALC293_FIXUP_DELL1_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x1028, 0x164b, "Dell", ALC293_FIXUP_DELL1_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x103c, 0x1586, "HP", ALC269_FIXUP_HP_MUTE_LED_MIC2),
+@@ -2442,6 +2442,7 @@ static const struct snd_pci_quirk alc882
+ 	SND_PCI_QUIRK(0x1071, 0x8258, "Evesham Voyaeger", ALC882_FIXUP_EAPD),
+ 	SND_PCI_QUIRK(0x1458, 0xa002, "Gigabyte EP45-DS3/Z87X-UD3H", ALC889_FIXUP_FRONT_HP_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x1458, 0xa0b8, "Gigabyte AZ370-Gaming", ALC1220_FIXUP_GB_DUAL_CODECS),
++	SND_PCI_QUIRK(0x1458, 0xa0cd, "Gigabyte X570 Aorus Master", ALC1220_FIXUP_CLEVO_P950),
+ 	SND_PCI_QUIRK(0x1462, 0x1228, "MSI-GP63", ALC1220_FIXUP_CLEVO_P950),
+ 	SND_PCI_QUIRK(0x1462, 0x1276, "MSI-GL73", ALC1220_FIXUP_CLEVO_P950),
+ 	SND_PCI_QUIRK(0x1462, 0x1293, "MSI-GP65", ALC1220_FIXUP_CLEVO_P950),
 
 
