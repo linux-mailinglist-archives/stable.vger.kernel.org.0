@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B59AD18052B
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 18:45:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ACF4C180531
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 18:45:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726463AbgCJRpS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 13:45:18 -0400
-Received: from mail-oln040092073033.outbound.protection.outlook.com ([40.92.73.33]:20294
-        "EHLO EUR04-HE1-obe.outbound.protection.outlook.com"
+        id S1726692AbgCJRpj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 13:45:39 -0400
+Received: from mail-oln040092075065.outbound.protection.outlook.com ([40.92.75.65]:26510
+        "EHLO EUR04-VI1-obe.outbound.protection.outlook.com"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726414AbgCJRpS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 13:45:18 -0400
+        id S1726436AbgCJRpj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 13:45:39 -0400
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=gQZVl/1n/5UYx0y4NOGyFbjmxgEBUJ6uczThMreoCeXfSJLiPK8FtnGvwIm/j7TiXD9yV959v87qydwyRvIupUyjcqys6r+NXM6FTAtcam5M2kvk7mB8YafFve1oGeKBZ+n86lAZ8tDNTcnQpjC0x8pGGOlriElTyjztCrWUIE1U42n3OuZ7LqxBvteQ5Vj0GSToZTiAjk6e7R/SiiTv4raf2GOFXlh7HUUIAskfja0XFvP/o4iKzn0HBgNVlXI6oYXoT9Ur1VhrnrOztmfGAO00NWyoz8kgA3Cf5hY0gmdWKB4AuJrh4flfEWFyrJuIldVzhT1OWRyfzQWPxynBJQ==
+ b=L61N0EpFZVhcAGZNAUTWe3t9jAQh6h71YDzxG3GiXnvp7B4TO3FFCUtkLXdxjGwPL+DKK5KFLZVcT5oLkzX0POsnd2eEqn2VSbcqJO/dFNwdhfSdMBe8c8eCJ3WU7D6cGmKQiCt0hDx+2fambNZA1juKt9lTZlAxO3EsW9NcxnfM1vVeLik8v5UQ93tnrwrQZsqxGmf3/oW5H4lVOjNS+Om0E4WsazorLY3QCem7ZtwvSILIwRHDt3cg7yDIzxqpPuZsILH0vzBCR1q75v3KCudvQQYiOXC02qXUfX1qizskt3tK7FcSdenIcyb5P1iklAIUe8RxXnKZJsmEHa+jsA==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=KzW+vQiK0ldXBGN1Gu1zo93EbVuHDeiMyTvYP/RCPok=;
- b=ndfMms03pIShl9Jagnl2Y+jE9uQ50YPvwZ5z57agv/yPvDxTU/jbvXN6cekIkV9haRnHX6U2Z18HdjhTdcnWhT1lGcCeRYmeYN20TI+rvL/wrvEc9T61AX6R4a6j68rlB0lQvz9rrdUwYmzOpiInbIiwrnOgQj4O46FU9nQCnx1yyh9xSC5Dqs5zFfvs2q2/kqt5+mLdxrcoicInxMriC4NW4K5sp1bX9tHD2feGz+Y99P8gwEEOhw62CPapUwzf/2SClKn3n5UUevJLxff+TVEmTzJci25vGob9Q00hyON4cqQ0HXAXcY7tc95jaxBAcNWwL2Lopte220VOnMHRnA==
+ bh=RYx/eGMQRk15p5KGn00JKRBBncFFuzv3ujSL4CsQZpM=;
+ b=EXsEyXMGWkxyHsb9kJYmr5PnYiHtIKC0VwGUyf6dwBbSS8xvAEgmug7b8+/UVvE802ZLH58YpoaYU9ZCfNdwV4ro51obCF2zurEJTH98J7Vzjelo4t4JDMSGzydC50AIu1WcbAJ8xRH+zooBPZ7McKKPyjMuwh+58mc8QKtk0qM60tbPOzVsK3JEOI+hkzm9CmfDkiUpvMJdw8nPRb1ZewVehxNV+pqAhxsCbQTtCLuwPyPsNF6NUXTggEhxr8QG+TFqCjwIH6SnGNuLmLWlSiBZME0BMfDzt8Q0urTZxM6KHi7+kr104IdEUEaLAoOeeNVrsUocaDqIhHzrVxkKGA==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=hotmail.de; dmarc=pass action=none header.from=hotmail.de;
  dkim=pass header.d=hotmail.de; arc=none
 Received: from VI1EUR04FT026.eop-eur04.prod.protection.outlook.com
  (2a01:111:e400:7e0e::39) by
- VI1EUR04HT138.eop-eur04.prod.protection.outlook.com (2a01:111:e400:7e0e::146)
+ VI1EUR04HT214.eop-eur04.prod.protection.outlook.com (2a01:111:e400:7e0e::340)
  with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.2793.11; Tue, 10 Mar
- 2020 17:45:14 +0000
+ 2020 17:45:35 +0000
 Received: from AM6PR03MB5170.eurprd03.prod.outlook.com (10.152.28.55) by
  VI1EUR04FT026.mail.protection.outlook.com (10.152.28.127) with Microsoft SMTP
  Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.2793.11 via Frontend Transport; Tue, 10 Mar 2020 17:45:14 +0000
-X-IncomingTopHeaderMarker: OriginalChecksum:B58AEAFA45C949DEBE05B6186D4DBF3A704E14AB315E4E49940646D624D8F720;UpperCasedChecksum:D4166CB02D7CDD15B20499B717F39622D99747916CD714472EDDFFCD7D29679A;SizeAsReceived:10317;Count:50
+ 15.20.2793.11 via Frontend Transport; Tue, 10 Mar 2020 17:45:35 +0000
+X-IncomingTopHeaderMarker: OriginalChecksum:709DA8CC4D739A346F6F10415B77C549C2C75E51CF8174E86C50DAD72C3A9D6D;UpperCasedChecksum:A17C6A373AF089981264002FD010737C4107A98A0BEEFBD59F21DD3FA2E8BA2A;SizeAsReceived:10315;Count:50
 Received: from AM6PR03MB5170.eurprd03.prod.outlook.com
  ([fe80::1956:d274:cab3:b4dd]) by AM6PR03MB5170.eurprd03.prod.outlook.com
  ([fe80::1956:d274:cab3:b4dd%6]) with mapi id 15.20.2793.013; Tue, 10 Mar 2020
- 17:45:14 +0000
+ 17:45:35 +0000
 From:   Bernd Edlinger <bernd.edlinger@hotmail.de>
-Subject: [PATCH 1/4] kernel/kcmp.c: Use new infrastructure to fix deadlocks in
- execve
+Subject: [PATCH 2/4] proc: Use new infrastructure to fix deadlocks in execve
 To:     "Eric W. Biederman" <ebiederm@xmission.com>
 Cc:     Christian Brauner <christian.brauner@ubuntu.com>,
         Kees Cook <keescook@chromium.org>,
@@ -88,82 +87,85 @@ References: <AM6PR03MB5170EB4427BF5C67EE98FF09E4E60@AM6PR03MB5170.eurprd03.prod.
  <877dzt1fnf.fsf@x220.int.ebiederm.org>
  <AM6PR03MB51701C6F60699F99C5C67E0BE4FF0@AM6PR03MB5170.eurprd03.prod.outlook.com>
  <875zfcxlwy.fsf@x220.int.ebiederm.org>
-Message-ID: <AM6PR03MB517057A2269C3A4FB287B76EE4FF0@AM6PR03MB5170.eurprd03.prod.outlook.com>
-Date:   Tue, 10 Mar 2020 18:45:11 +0100
+Message-ID: <AM6PR03MB51705D211EC8E7EA270627B1E4FF0@AM6PR03MB5170.eurprd03.prod.outlook.com>
+Date:   Tue, 10 Mar 2020 18:45:32 +0100
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
  Thunderbird/60.6.1
 In-Reply-To: <875zfcxlwy.fsf@x220.int.ebiederm.org>
 Content-Type: text/plain; charset=windows-1252
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: ZR0P278CA0020.CHEP278.PROD.OUTLOOK.COM
- (2603:10a6:910:1c::7) To AM6PR03MB5170.eurprd03.prod.outlook.com
+X-ClientProxiedBy: ZR0P278CA0035.CHEP278.PROD.OUTLOOK.COM
+ (2603:10a6:910:1c::22) To AM6PR03MB5170.eurprd03.prod.outlook.com
  (2603:10a6:20b:ca::23)
-X-Microsoft-Original-Message-ID: <030a2087-f995-327b-ac8f-3e2a0fda1c37@hotmail.de>
+X-Microsoft-Original-Message-ID: <4dedec91-5e43-7ab6-31f6-0c4d4c0b961e@hotmail.de>
 MIME-Version: 1.0
 X-MS-Exchange-MessageSentRepresentingType: 1
-Received: from [192.168.1.101] (92.77.140.102) by ZR0P278CA0020.CHEP278.PROD.OUTLOOK.COM (2603:10a6:910:1c::7) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.2793.15 via Frontend Transport; Tue, 10 Mar 2020 17:45:12 +0000
-X-Microsoft-Original-Message-ID: <030a2087-f995-327b-ac8f-3e2a0fda1c37@hotmail.de>
-X-TMN:  [wZuXIGcgdH2Q8W6qKNBoXYGYM/eVthBC]
+Received: from [192.168.1.101] (92.77.140.102) by ZR0P278CA0035.CHEP278.PROD.OUTLOOK.COM (2603:10a6:910:1c::22) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.2793.15 via Frontend Transport; Tue, 10 Mar 2020 17:45:33 +0000
+X-Microsoft-Original-Message-ID: <4dedec91-5e43-7ab6-31f6-0c4d4c0b961e@hotmail.de>
+X-TMN:  [LVSYAfv/7I+AspDEth9Kxn0HT/mwPT3U]
 X-MS-PublicTrafficType: Email
 X-IncomingHeaderCount: 50
 X-EOPAttributedMessage: 0
-X-MS-Office365-Filtering-Correlation-Id: 99a48d4d-ff98-45a9-c82e-08d7c51ac9a5
-X-MS-TrafficTypeDiagnostic: VI1EUR04HT138:
+X-MS-Office365-Filtering-Correlation-Id: b2ab4bba-4122-4fc8-38ff-08d7c51ad618
+X-MS-TrafficTypeDiagnostic: VI1EUR04HT214:
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: PdIIkda5kaGr6lCbIVe8507xJuc7fBfMn0QYZmW8k4t3Q3MbCWDJMMDiWdMmLtl2PFE/YUWOV1FNDYwyRFfzv2vwYeeLLX4U6AlNjdNlzH+bhhOshoQajl8XBjMVIFCeII80crHptCTpj0uLg6yiqXWHj5saLcQQbtl7rsNNXmUiYqStr3jojGpkIk1swnji
-X-MS-Exchange-AntiSpam-MessageData: HXLp8eDJv28UtDSkPAAw0rFQcA0ga+EyhrywohzN1kVn0SSi/oegskaWg6Gr4IT9WANm82RyL0ANRHysmEbj+7+qV1s92Cl2DdD5/lj9bCJT0x2UzbSqhrIgG6/7OfnS8+SnsUVr7GQJwQY2LY27eg==
+X-Microsoft-Antispam-Message-Info: vo2uMPUIIfj1yyvT3Xy0XHDknalHYieujECBOOVKUv6tA4N34c+kC2nf/gquQqEAlTZ7/UALtAm0dT2ztA5LgSwLNX+DeydeSP6yX/HGFDKKKKPFGYZPDvW3gQfHvKFYqsH788Hl8ehKOGlqnWB8LLyYkwK6CuyAz145FMx/ZsRF9B54U+wVzVt0BHfrJhbB
+X-MS-Exchange-AntiSpam-MessageData: dstz6T4CN9AkqZrg8y0kV0yO5Y8uR9XpzwTiYYjO16n0O/oVPuOa69DiH81/WGJA+ScjyodBxSM4EIWfwJ7ErQ2lWMQN8GqZR3AUaaZvYud2bYKkfYTvea8RLQhFi31R38+gi+xTNYoFBCE0y2+zgA==
 X-OriginatorOrg: outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 99a48d4d-ff98-45a9-c82e-08d7c51ac9a5
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 10 Mar 2020 17:45:14.2359
+X-MS-Exchange-CrossTenant-Network-Message-Id: b2ab4bba-4122-4fc8-38ff-08d7c51ad618
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 10 Mar 2020 17:45:35.0846
  (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
 X-MS-Exchange-CrossTenant-Id: 84df9e7f-e9f6-40af-b435-aaaaaaaaaaaa
 X-MS-Exchange-CrossTenant-FromEntityHeader: Internet
 X-MS-Exchange-CrossTenant-RMS-PersistedConsumerOrg: 00000000-0000-0000-0000-000000000000
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: VI1EUR04HT138
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: VI1EUR04HT214
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This changes kcmp_epoll_target to use the new exec_update_mutex
+This changes lock_trace to use the new exec_update_mutex
 instead of cred_guard_mutex.
 
+This fixes possible deadlocks when the trace is accessing
+/proc/$pid/stack for instance.
+
 This should be safe, as the credentials are only used for reading,
-and furthermore ->mm and ->sighand are updated on execve,
-but only under the new exec_update_mutex.
+and task->mm is updated on execve under the new exec_update_mutex.
 
 Signed-off-by: Bernd Edlinger <bernd.edlinger@hotmail.de>
 ---
- kernel/kcmp.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ fs/proc/base.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/kernel/kcmp.c b/kernel/kcmp.c
-index a0e3d7a..b3ff928 100644
---- a/kernel/kcmp.c
-+++ b/kernel/kcmp.c
-@@ -173,8 +173,8 @@ static int kcmp_epoll_target(struct task_struct *task1,
- 	/*
- 	 * One should have enough rights to inspect task details.
- 	 */
--	ret = kcmp_lock(&task1->signal->cred_guard_mutex,
--			&task2->signal->cred_guard_mutex);
-+	ret = kcmp_lock(&task1->signal->exec_update_mutex,
-+			&task2->signal->exec_update_mutex);
- 	if (ret)
- 		goto err;
- 	if (!ptrace_may_access(task1, PTRACE_MODE_READ_REALCREDS) ||
-@@ -229,8 +229,8 @@ static int kcmp_epoll_target(struct task_struct *task1,
- 	}
+diff --git a/fs/proc/base.c b/fs/proc/base.c
+index ebea950..4fdfe4f 100644
+--- a/fs/proc/base.c
++++ b/fs/proc/base.c
+@@ -403,11 +403,11 @@ static int proc_pid_wchan(struct seq_file *m, struct pid_namespace *ns,
  
- err_unlock:
--	kcmp_unlock(&task1->signal->cred_guard_mutex,
--		    &task2->signal->cred_guard_mutex);
-+	kcmp_unlock(&task1->signal->exec_update_mutex,
-+		    &task2->signal->exec_update_mutex);
- err:
- 	put_task_struct(task1);
- 	put_task_struct(task2);
+ static int lock_trace(struct task_struct *task)
+ {
+-	int err = mutex_lock_killable(&task->signal->cred_guard_mutex);
++	int err = mutex_lock_killable(&task->signal->exec_update_mutex);
+ 	if (err)
+ 		return err;
+ 	if (!ptrace_may_access(task, PTRACE_MODE_ATTACH_FSCREDS)) {
+-		mutex_unlock(&task->signal->cred_guard_mutex);
++		mutex_unlock(&task->signal->exec_update_mutex);
+ 		return -EPERM;
+ 	}
+ 	return 0;
+@@ -415,7 +415,7 @@ static int lock_trace(struct task_struct *task)
+ 
+ static void unlock_trace(struct task_struct *task)
+ {
+-	mutex_unlock(&task->signal->cred_guard_mutex);
++	mutex_unlock(&task->signal->exec_update_mutex);
+ }
+ 
+ #ifdef CONFIG_STACKTRACE
 -- 
 1.9.1
