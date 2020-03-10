@@ -2,68 +2,101 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DBD2617F685
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 12:42:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D25EF17F6A6
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 12:48:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726414AbgCJLm1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 07:42:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38070 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726411AbgCJLm1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 07:42:27 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2E7602468C;
-        Tue, 10 Mar 2020 11:42:26 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583840546;
-        bh=OYk9R63uZQjFHBBfyRtJsbr05HQ2oP9ywwEB50+PLvE=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=wPA5jb4baXTx4ckSiDsQpF9oNkUs8wv9bmpSEkPVLPJsCoMcdQYdNC1Yfq2KZGOJt
-         IfV4RBLlZNkCMa8Q4vNFgffcnRTB6aLLOwPRWemOc7g4Xlq0iiUP3oFB54dZXzqG11
-         Wg108CtzS+KCzhtELro5wOXn8WMRNt9zQlJCNTMI=
-Date:   Tue, 10 Mar 2020 12:42:24 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Jack Wang <jinpu.wang@cloud.ionos.com>
-Cc:     sashal@kernel.org, stable@vger.kernel.org,
-        Deepak Ukey <deepak.ukey@microchip.com>,
-        Viswas G <Viswas.G@microchip.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>
-Subject: Re: [stable-4.19 2/2] scsi: pm80xx: Fixed kernel panic during error
- recovery for SATA drive
-Message-ID: <20200310114224.GF3106483@kroah.com>
-References: <20200309101739.32483-1-jinpu.wang@cloud.ionos.com>
- <20200309101739.32483-3-jinpu.wang@cloud.ionos.com>
+        id S1726205AbgCJLsE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 07:48:04 -0400
+Received: from mail-io1-f68.google.com ([209.85.166.68]:40225 "EHLO
+        mail-io1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726415AbgCJLsE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Mar 2020 07:48:04 -0400
+Received: by mail-io1-f68.google.com with SMTP id d8so12402652ion.7
+        for <stable@vger.kernel.org>; Tue, 10 Mar 2020 04:48:04 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=cloud.ionos.com; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=J7ffoxfFles6TznvMj+xvDz53VySQgjHfVSwzpMcGtQ=;
+        b=NSTgr8HBRhkTfPg0yD67buVn3TbKl0ZX9y8/L+kw12nW0JI1Idk3sK4vMKtJPXY8J+
+         tbNEAUntlhfRrhzvEJ8bvkT7jOovPDVKb56HlBl1NlTQeGbXyTS5kvRsPMEPXO6TCItm
+         QmMZil+yBe5OYqlH/T8fbAycXoBXEhnKzBqNzUqUWf/Yn9O7sNOfxIGrXAuN2+vvhWV0
+         dOqGREm/cLyoBoz86uXcw/fdC4CZ5f4FR4lgPK2K4nzLpLB8lmOGmdxq+epTAZKB7lA8
+         51HshXRqMr+JQbMUQfm70jJ1LfeRk4G+kzRiioZGw05OF7JsDrubzcVs2w/mB5u/zCoj
+         0WZw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=J7ffoxfFles6TznvMj+xvDz53VySQgjHfVSwzpMcGtQ=;
+        b=OLVBUYWhnnO+ieO5Z/w/oXk+gM51ePoblxtyBfznE1V7prhxnH/Lp2ynBqG7XuWe/W
+         VBnhI4ckj3CpTr+NqnLEZUjTi2VeuJzz4oeALKhYa4CWYzJCiIeOWWvTL8/8b4j6rusL
+         L9yQzzzZJUokYE1XVlyYEQrQq9nDfOmIaE/B+NVlQDbnwuE+aN4JlwFclI07/6oL6StU
+         jbjpAYXwviqyuuzIMUWqcT592roCUsgkFV50Jck8/oVTrnmycOl3sEG5g4GNrx0X0BRi
+         6dwUhagENiHTtAapqshTkqsdYOkKYrgnarOCrBNLjXm0qwLoSCafogawbSnVW3Rnreek
+         +Atw==
+X-Gm-Message-State: ANhLgQ3ySk2Ow2hzX5bYUYVMw0BjoEjfIgcjBpw4y7w0yskG2EdU8d+V
+        PZ7xYkHy/DAwakr4sE0WcWrWQuLb9V6t5ai8QqPkwA==
+X-Google-Smtp-Source: ADFU+vvcdT5CMbxc957yW9N8d5noTqkNsicn0yo394P/0GtH6xjWIXXQ+HqLIq/9Sc7Gg2vOMvp/VeoA+N8/opN8b08=
+X-Received: by 2002:a6b:7407:: with SMTP id s7mr12218530iog.11.1583840884017;
+ Tue, 10 Mar 2020 04:48:04 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200309101739.32483-3-jinpu.wang@cloud.ionos.com>
+References: <20200309101739.32483-1-jinpu.wang@cloud.ionos.com>
+ <20200309101739.32483-2-jinpu.wang@cloud.ionos.com> <20200310114150.GE3106483@kroah.com>
+In-Reply-To: <20200310114150.GE3106483@kroah.com>
+From:   Jinpu Wang <jinpu.wang@cloud.ionos.com>
+Date:   Tue, 10 Mar 2020 12:47:53 +0100
+Message-ID: <CAMGffEkH3QR0S3N0kr0jL84iiqB0Wr8R4O3R+pL7dKPFwqBzOw@mail.gmail.com>
+Subject: Re: [stable-4.19 1/2] scsi: pm80xx: panic on ncq error cleaning up
+ the read log.
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     sashal@kernel.org, stable <stable@vger.kernel.org>,
+        Viswas G <Viswas.G@microsemi.com>,
+        Deepak Ukey <deepak.ukey@microsemi.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Mar 09, 2020 at 11:17:39AM +0100, Jack Wang wrote:
-> From: Deepak Ukey <deepak.ukey@microchip.com>
-> 
-> commit 196ba6629cf95e51403337235d09742fcdc3febd upstream
-> 
-> Disabling the SATA drive interface cause kernel panic. When the drive
-> Interface is disabled, device should be deregistered after aborting all
-> pending I/Os. Also changed the port recovery timeout to 10000 ms for
-> PM8006 controller.
-> 
-> Signed-off-by: Deepak Ukey <deepak.ukey@microchip.com>
-> Signed-off-by: Viswas G <Viswas.G@microchip.com>
-> Reviewed-by: Jack Wang <jinpu.wang@cloud.ionos.com>
-> Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-> ---
->  drivers/scsi/pm8001/pm8001_sas.c | 6 +++++-
->  drivers/scsi/pm8001/pm80xx_hwi.c | 2 +-
->  drivers/scsi/pm8001/pm80xx_hwi.h | 2 ++
->  3 files changed, 8 insertions(+), 2 deletions(-)
-
-Now queued up, thanks.
-
-greg k-h
+On Tue, Mar 10, 2020 at 12:41 PM Greg KH <gregkh@linuxfoundation.org> wrote:
+>
+> On Mon, Mar 09, 2020 at 11:17:38AM +0100, Jack Wang wrote:
+> > From: Viswas G <Viswas.G@microsemi.com>
+> >
+> > commit 0b6df110b3d0c12562011fcd032cfb6ff16b6d56 upstream
+> >
+> > when there's an error in 'ncq mode' the host has to read the ncq error
+> > log (10h) to clear the error state. however, the ccb that is setup for
+> > doing this doesn't setup the ccb so that the previous state is
+> > cleared. if the ccb was previously used for an IO n_elems is set and
+> > pm8001_ccb_task_free() treats this as the signal to go free a
+> > scatter-gather list (that's already been freed).
+> >
+> > Signed-off-by: Deepak Ukey <deepak.ukey@microsemi.com>
+> > Signed-off-by: Viswas G <Viswas.G@microsemi.com>
+> > Acked-by: Jack Wang <jinpu.wang@profitbricks.com>
+> > Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+> > ---
+> >  drivers/scsi/pm8001/pm80xx_hwi.c | 5 +++--
+> >  1 file changed, 3 insertions(+), 2 deletions(-)
+> >
+> > diff --git a/drivers/scsi/pm8001/pm80xx_hwi.c b/drivers/scsi/pm8001/pm80xx_hwi.c
+> > index 8627feb80261..bd945d832eb8 100644
+> > --- a/drivers/scsi/pm8001/pm80xx_hwi.c
+> > +++ b/drivers/scsi/pm8001/pm80xx_hwi.c
+> > @@ -1500,8 +1500,9 @@ static void pm80xx_send_read_log(struct pm8001_hba_info *pm8001_ha,
+> >       ccb->ccb_tag = ccb_tag;
+> >       ccb->task = task;
+> >       ccb->n_elem = 0;
+> > -     pm8001_ha_dev->id |= NCQ_READ_LOG_FLAG;
+> > -     pm8001_ha_dev->id |= NCQ_2ND_RLE_FLAG;
+> > +     pm8001_ha_dev->id |= NCQ_READ_LOG_FLAG; // set this flag to indicate read log
+> > +     pm8001_ha_dev->id |= NCQ_2ND_RLE_FLAG;  // set this flag to guard against 2nd RLE. Workaround
+> > +                                             // till FW fix is available.
+>
+> Also, this isn't even the commit id referenced above :(
+>
+> And there is trailing whitespace :(
+Sorry, I must mess it up, please ignore it.
