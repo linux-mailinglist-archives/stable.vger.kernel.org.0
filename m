@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E84217FAA9
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:07:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7851117FC5B
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:20:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730620AbgCJNHN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 09:07:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52898 "EHLO mail.kernel.org"
+        id S1730864AbgCJNUa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 09:20:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52974 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730651AbgCJNHM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 09:07:12 -0400
+        id S1730939AbgCJNHP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 09:07:15 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BC12820873;
-        Tue, 10 Mar 2020 13:07:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 555932469D;
+        Tue, 10 Mar 2020 13:07:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583845632;
-        bh=L4GuVXoTq7O5uw5g59v/PoU95cHmnlV73fAbYuaKBlw=;
+        s=default; t=1583845634;
+        bh=q3yD8SMbWAwNrT1iBJkEQAuuzq44A4f7dNbQy1ansmw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s37TyZgQ7e3LdAwtaQs59tWIRbmqf+mBgo2+z73TsRIKb5BhWWJtSW42Ow+6b6FMS
-         uqJiwRXaS58hr3c6ZepEjwd5UJI37Fswb4RfYv5Rmw7x6JBNQCGAp/N38l7iFY/WJ0
-         h+628HN28YC8yxHCK4uSVavTRtI/Q+ipmy/dcxbo=
+        b=rLVCzYgaA0xGXpf8IWHn0dfEKL9YbXNCwNfEO8jjKAocrlAbsliwT9Xvs5ws0CEIy
+         7ffMDOoUTNfEiCNPecY/FBkhHCw4EuFmrjA0J90mtQe/P3AFhhjRAUg9ePxIKx+vPL
+         J8j4VAnljv7QhBd1EWWYK3uwqfhZ3NOEbUP2a4zI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, John Stultz <john.stultz@linaro.org>,
-        Orson Zhai <orson.unisoc@gmail.com>,
-        Chanwoo Choi <cw00.choi@samsung.com>
-Subject: [PATCH 4.14 043/126] Revert "PM / devfreq: Modify the device name as devfreq(X) for sysfs"
-Date:   Tue, 10 Mar 2020 13:41:04 +0100
-Message-Id: <20200310124207.071001442@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+784ccb935f9900cc7c9e@syzkaller.appspotmail.com,
+        Alan Stern <stern@rowland.harvard.edu>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Jiri Kosina <jkosina@suse.cz>
+Subject: [PATCH 4.14 044/126] HID: hiddev: Fix race in in hiddev_disconnect()
+Date:   Tue, 10 Mar 2020 13:41:05 +0100
+Message-Id: <20200310124207.123826596@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200310124203.704193207@linuxfoundation.org>
 References: <20200310124203.704193207@linuxfoundation.org>
@@ -44,54 +46,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Orson Zhai <orson.unisoc@gmail.com>
+From: dan.carpenter@oracle.com <dan.carpenter@oracle.com>
 
-commit 66d0e797bf095d407479c89952d42b1d96ef0a7f upstream.
+commit 5c02c447eaeda29d3da121a2e17b97ccaf579b51 upstream.
 
-This reverts commit 4585fbcb5331fc910b7e553ad3efd0dd7b320d14.
+Syzbot reports that "hiddev" is used after it's free in hiddev_disconnect().
+The hiddev_disconnect() function sets "hiddev->exist = 0;" so
+hiddev_release() can free it as soon as we drop the "existancelock"
+lock.  This patch moves the mutex_unlock(&hiddev->existancelock) until
+after we have finished using it.
 
-The name changing as devfreq(X) breaks some user space applications,
-such as Android HAL from Unisoc and Hikey [1].
-The device name will be changed unexpectly after every boot depending
-on module init sequence. It will make trouble to setup some system
-configuration like selinux for Android.
-
-So we'd like to revert it back to old naming rule before any better
-way being found.
-
-[1] https://lkml.org/lkml/2018/5/8/1042
-
-Cc: John Stultz <john.stultz@linaro.org>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: stable@vger.kernel.org
-Signed-off-by: Orson Zhai <orson.unisoc@gmail.com>
-Acked-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Chanwoo Choi <cw00.choi@samsung.com>
+Reported-by: syzbot+784ccb935f9900cc7c9e@syzkaller.appspotmail.com
+Fixes: 7f77897ef2b6 ("HID: hiddev: fix potential use-after-free")
+Suggested-by: Alan Stern <stern@rowland.harvard.edu>
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/devfreq/devfreq.c |    4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ drivers/hid/usbhid/hiddev.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/devfreq/devfreq.c
-+++ b/drivers/devfreq/devfreq.c
-@@ -513,7 +513,6 @@ struct devfreq *devfreq_add_device(struc
- {
- 	struct devfreq *devfreq;
- 	struct devfreq_governor *governor;
--	static atomic_t devfreq_no = ATOMIC_INIT(-1);
- 	int err = 0;
+--- a/drivers/hid/usbhid/hiddev.c
++++ b/drivers/hid/usbhid/hiddev.c
+@@ -954,9 +954,9 @@ void hiddev_disconnect(struct hid_device
+ 	hiddev->exist = 0;
  
- 	if (!dev || !profile || !governor_name) {
-@@ -556,8 +555,7 @@ struct devfreq *devfreq_add_device(struc
- 		mutex_lock(&devfreq->lock);
- 	}
- 
--	dev_set_name(&devfreq->dev, "devfreq%d",
--				atomic_inc_return(&devfreq_no));
-+	dev_set_name(&devfreq->dev, "%s", dev_name(dev));
- 	err = device_register(&devfreq->dev);
- 	if (err) {
- 		mutex_unlock(&devfreq->lock);
+ 	if (hiddev->open) {
+-		mutex_unlock(&hiddev->existancelock);
+ 		hid_hw_close(hiddev->hid);
+ 		wake_up_interruptible(&hiddev->wait);
++		mutex_unlock(&hiddev->existancelock);
+ 	} else {
+ 		mutex_unlock(&hiddev->existancelock);
+ 		kfree(hiddev);
 
 
