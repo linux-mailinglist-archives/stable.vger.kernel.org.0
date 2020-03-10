@@ -2,53 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B57F17F5DC
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 12:13:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8CED417F5DE
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 12:13:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726325AbgCJLNO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 07:13:14 -0400
-Received: from out2-smtp.messagingengine.com ([66.111.4.26]:41137 "EHLO
+        id S1726380AbgCJLNX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 07:13:23 -0400
+Received: from out2-smtp.messagingengine.com ([66.111.4.26]:45335 "EHLO
         out2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726205AbgCJLNO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Mar 2020 07:13:14 -0400
+        by vger.kernel.org with ESMTP id S1726205AbgCJLNX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Mar 2020 07:13:23 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailout.nyi.internal (Postfix) with ESMTP id 1A9D421CFD;
-        Tue, 10 Mar 2020 07:13:13 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Tue, 10 Mar 2020 07:13:13 -0400
+        by mailout.nyi.internal (Postfix) with ESMTP id A50F421EAD;
+        Tue, 10 Mar 2020 07:13:21 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute1.internal (MEProxy); Tue, 10 Mar 2020 07:13:21 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=yZAhX2
-        OJyzHcBxGI7Ys4Q/Wj09z3CorH/8U7VMi14oc=; b=0SJz3TR6qGtL/1amQ9h+29
-        EpvbBB2OTUTFHBn+nyBUjlYx6Fmk/C8vr8FVEv4x9C6W5zT0RWJPcJWz+ohjSE2k
-        8ekffIZ//8zRb8Pym5Unf6YV+0Olg7U2gpoqb67RZt/DVhPz3EUy/JCrLCo3nhOF
-        EIbpcTDrkh+6U4+fI9pDV0rXQmSasOaHCggFpsw5eb8FKfBe6cGeEqoBJPnE8vNe
-        M5t91TmnbKLIJD4PJyBkU4zOq0o1peyHcQ+53lkw3BKAFPdzZsyBBKPa/b0NJkR9
-        pZ2HVgG+UgxQ9H4Rmo1Lt25f/k9lVDoupdA22Sn25rUh0Y4KXwGPYiNSBaUGHoYw
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=O6vw4X
+        zI6xakQBI2e1wLFwdtMOO1DoqeFd5WRQzCKlQ=; b=JwQXZuxhJMGglG9NdRkkYK
+        QgmkbNrWvGr/mMdhZVwk7ikLxhCnB6moKk+HBj5i3GAZegsxUDotDGXakWzb+FuU
+        R7vRpvAPI0tIvi+UA7eTztWvNBwvk9Hvqtl9E5cFph4GOd0EWu7VifmzN1zjheBZ
+        14hxVNYHGfRXxqOH/KwTjNZxPxynvqrqxFnMBDRLH0JVhK9YHYYfCKxtyjIMnO9c
+        LCB84FZk2OhDqo6Nv1orjoJrWOPs1/H7Lmu4tntkq9QfjTW3ad5f2zORaYymG2xB
+        rJLMKWAQgpODBdGfIJqmsLrrCO4M0dQNIISNJNEhf0WZhroL2VYOh7WSXHs3L6Vg
         ==
-X-ME-Sender: <xms:SHZnXtXOICOOO8AdJnSNMk25geCSryxVOUMUnCG9xZo_eIGe7gSPFw>
+X-ME-Sender: <xms:UXZnXlJdoygBcNTQORLl8Ps2xZeGKppWvfUtWidisTnr4p-lX2l4Uw>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedugedruddvtddgvdegucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphepkeefrdekiedrkeelrd
-    dutdejnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhep
+    dutdejnecuvehluhhsthgvrhfuihiivgepudenucfrrghrrghmpehmrghilhhfrhhomhep
     ghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:SHZnXt6cBAw94kwZ3ghgB8m2t3iTgrsXc3lK6_aEnIR6Mp5HeZ7AQA>
-    <xmx:SHZnXhAiGWExZr7aSzGXK6iUGQkecaiNN7AYkj0Gksq1oxgJjGyfaQ>
-    <xmx:SHZnXq-SP_2kTHKCQZ11J9p4pqz72Rv9quq1VQkFFsFcRGPtzb8ocA>
-    <xmx:SXZnXmk8XPTxURAajvwnUddMc7wKseP1m2QRo9opMXzHYvNeVIrWxg>
+X-ME-Proxy: <xmx:UXZnXlZdI9hPk1acdFR8sElkNHaREIDcXrBRV3aYFvLVBM432qcZYQ>
+    <xmx:UXZnXovu3C1vLh5vzD2BtOK6UnZzVqemppdgnKBZJ6lEn1UX7UMLCQ>
+    <xmx:UXZnXqt8hYacMiU4HArzU4oaDs-iiJCYcDfuLNq2r90hYvmwsjfmdg>
+    <xmx:UXZnXgpB19YS_mcXRGUIPuqBkOSbygXmWGOROutAOORkQ_MfspTqLg>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 4ECAB30614FA;
-        Tue, 10 Mar 2020 07:13:12 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] efi/x86: Align GUIDs to their size in the mixed mode runtime" failed to apply to 4.14-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 3FD003280060;
+        Tue, 10 Mar 2020 07:13:21 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] efi/x86: Align GUIDs to their size in the mixed mode runtime" failed to apply to 4.9-stable tree
 To:     ardb@kernel.org, hdegoede@redhat.com, mingo@kernel.org,
         tglx@linutronix.de
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 10 Mar 2020 12:13:10 +0100
-Message-ID: <158383879067214@kroah.com>
+Date:   Tue, 10 Mar 2020 12:13:11 +0100
+Message-ID: <158383879124963@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -58,7 +58,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
