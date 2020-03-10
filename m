@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EAC5B17FE98
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:36:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F41AA17FDCF
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:31:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727422AbgCJMms (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 08:42:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42910 "EHLO mail.kernel.org"
+        id S1728421AbgCJMus (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 08:50:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55566 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726852AbgCJMms (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 08:42:48 -0400
+        id S1728695AbgCJMur (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 08:50:47 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C81A024691;
-        Tue, 10 Mar 2020 12:42:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1E2F92468F;
+        Tue, 10 Mar 2020 12:50:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583844167;
-        bh=cZrAmHjCe8NP1D5OxQgTIDbVoTdCtdq5vWJnyUDPexQ=;
+        s=default; t=1583844646;
+        bh=XjZdrE8SQubLdcm++IFkrSPVrCEEjqMHNgJ2AsO90UE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LavpQu43zPQA0xoNJxMEZ5lCpcBcN9vcBLUd/+wBOWy749RkiePPek4ba1e84Tyrq
-         2Ex8e5VsBBmYjUMoo/AoVs1LSH7GXPzIkCcJYcQH2fW3uGfk4pxKabxkNEyaFMJfgt
-         yTb0Mz9Phnx2tfHJ/yCUpfHbXsdT9bTsUPPBCS7U=
+        b=MidbWluY8lZnm1uuWa2//xH1BokK75w2BJPSTnSy1rzgsY3MrG7sPx+hpM+E4C2mC
+         LqR+W1jCf4n7iSm3qnXey2AJELHNGNGppENNZd1J2sdETUPp+TLDTnkW2HaA5U7bo0
+         fJTwYQK/wKsZY197tRWR/LMP7Kq5qeb+JJL4UofM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Cong Wang <xiyou.wangcong@gmail.com>,
-        Jason Baron <jbaron@akamai.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.4 18/72] net: sched: correct flower port blocking
+        stable@vger.kernel.org, Aurelien Aptel <aaptel@suse.com>,
+        Steve French <stfrench@microsoft.com>,
+        Pavel Shilovsky <pshilov@microsoft.com>,
+        "Paulo Alcantara (SUSE)" <pc@cjr.nz>
+Subject: [PATCH 5.4 065/168] cifs: fix rename() by ensuring source handle opened with DELETE bit
 Date:   Tue, 10 Mar 2020 13:38:31 +0100
-Message-Id: <20200310123606.030775417@linuxfoundation.org>
+Message-Id: <20200310123641.858347998@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200310123601.053680753@linuxfoundation.org>
-References: <20200310123601.053680753@linuxfoundation.org>
+In-Reply-To: <20200310123635.322799692@linuxfoundation.org>
+References: <20200310123635.322799692@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,67 +45,312 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason Baron <jbaron@akamai.com>
+From: Aurelien Aptel <aaptel@suse.com>
 
-[ Upstream commit 8a9093c79863b58cc2f9874d7ae788f0d622a596 ]
+commit 86f740f2aed5ea7fe1aa86dc2df0fb4ab0f71088 upstream.
 
-tc flower rules that are based on src or dst port blocking are sometimes
-ineffective due to uninitialized stack data. __skb_flow_dissect() extracts
-ports from the skb for tc flower to match against. However, the port
-dissection is not done when when the FLOW_DIS_IS_FRAGMENT bit is set in
-key_control->flags. All callers of __skb_flow_dissect(), zero-out the
-key_control field except for fl_classify() as used by the flower
-classifier. Thus, the FLOW_DIS_IS_FRAGMENT may be set on entry to
-__skb_flow_dissect(), since key_control is allocated on the stack
-and may not be initialized.
+To rename a file in SMB2 we open it with the DELETE access and do a
+special SetInfo on it. If the handle is missing the DELETE bit the
+server will fail the SetInfo with STATUS_ACCESS_DENIED.
 
-Since key_basic and key_control are present for all flow keys, let's
-make sure they are initialized.
+We currently try to reuse any existing opened handle we have with
+cifs_get_writable_path(). That function looks for handles with WRITE
+access but doesn't check for DELETE, making rename() fail if it finds
+a handle to reuse. Simple reproducer below.
 
-Fixes: 62230715fd24 ("flow_dissector: do not dissect l4 ports for fragments")
-Co-developed-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Acked-by: Cong Wang <xiyou.wangcong@gmail.com>
-Signed-off-by: Jason Baron <jbaron@akamai.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+To select handles with the DELETE bit, this patch adds a flag argument
+to cifs_get_writable_path() and find_writable_file() and the existing
+'bool fsuid_only' argument is converted to a flag.
+
+The cifsFileInfo struct only stores the UNIX open mode but not the
+original SMB access flags. Since the DELETE bit is not mapped in that
+mode, this patch stores the access mask in cifs_fid on file open,
+which is accessible from cifsFileInfo.
+
+Simple reproducer:
+
+	#include <stdio.h>
+	#include <stdlib.h>
+	#include <sys/types.h>
+	#include <sys/stat.h>
+	#include <fcntl.h>
+	#include <unistd.h>
+	#define E(s) perror(s), exit(1)
+
+	int main(int argc, char *argv[])
+	{
+		int fd, ret;
+		if (argc != 3) {
+			fprintf(stderr, "Usage: %s A B\n"
+			"create&open A in write mode, "
+			"rename A to B, close A\n", argv[0]);
+			return 0;
+		}
+
+		fd = openat(AT_FDCWD, argv[1], O_WRONLY|O_CREAT|O_SYNC, 0666);
+		if (fd == -1) E("openat()");
+
+		ret = rename(argv[1], argv[2]);
+		if (ret) E("rename()");
+
+		ret = close(fd);
+		if (ret) E("close()");
+
+		return ret;
+	}
+
+$ gcc -o bugrename bugrename.c
+$ ./bugrename /mnt/a /mnt/b
+rename(): Permission denied
+
+Fixes: 8de9e86c67ba ("cifs: create a helper to find a writeable handle by path name")
+CC: Stable <stable@vger.kernel.org>
+Signed-off-by: Aurelien Aptel <aaptel@suse.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
+Reviewed-by: Pavel Shilovsky <pshilov@microsoft.com>
+Reviewed-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- include/net/flow_dissector.h |    9 +++++++++
- net/sched/cls_flower.c       |    1 +
- 2 files changed, 10 insertions(+)
 
---- a/include/net/flow_dissector.h
-+++ b/include/net/flow_dissector.h
-@@ -4,6 +4,7 @@
- #include <linux/types.h>
- #include <linux/in6.h>
- #include <linux/siphash.h>
-+#include <linux/string.h>
- #include <uapi/linux/if_ether.h>
+---
+ fs/cifs/cifsglob.h  |    7 +++++++
+ fs/cifs/cifsproto.h |    5 +++--
+ fs/cifs/cifssmb.c   |    3 ++-
+ fs/cifs/file.c      |   19 ++++++++++++-------
+ fs/cifs/inode.c     |    6 +++---
+ fs/cifs/smb1ops.c   |    2 +-
+ fs/cifs/smb2inode.c |    4 ++--
+ fs/cifs/smb2ops.c   |    3 ++-
+ fs/cifs/smb2pdu.c   |    1 +
+ 9 files changed, 33 insertions(+), 17 deletions(-)
+
+--- a/fs/cifs/cifsglob.h
++++ b/fs/cifs/cifsglob.h
+@@ -1229,6 +1229,7 @@ struct cifs_fid {
+ 	__u64 volatile_fid;	/* volatile file id for smb2 */
+ 	__u8 lease_key[SMB2_LEASE_KEY_SIZE];	/* lease key for smb2 */
+ 	__u8 create_guid[16];
++	__u32 access;
+ 	struct cifs_pending_open *pending_open;
+ 	unsigned int epoch;
+ #ifdef CONFIG_CIFS_DEBUG2
+@@ -1700,6 +1701,12 @@ static inline bool is_retryable_error(in
+ 	return false;
+ }
  
- /**
-@@ -185,4 +186,12 @@ static inline bool flow_keys_have_l4(str
- 
- u32 flow_hash_from_keys(struct flow_keys *keys);
- 
-+static inline void
-+flow_dissector_init_keys(struct flow_dissector_key_control *key_control,
-+			 struct flow_dissector_key_basic *key_basic)
-+{
-+	memset(key_control, 0, sizeof(*key_control));
-+	memset(key_basic, 0, sizeof(*key_basic));
-+}
 +
- #endif
---- a/net/sched/cls_flower.c
-+++ b/net/sched/cls_flower.c
-@@ -127,6 +127,7 @@ static int fl_classify(struct sk_buff *s
- 	struct fl_flow_key skb_key;
- 	struct fl_flow_key skb_mkey;
++/* cifs_get_writable_file() flags */
++#define FIND_WR_ANY         0
++#define FIND_WR_FSUID_ONLY  1
++#define FIND_WR_WITH_DELETE 2
++
+ #define   MID_FREE 0
+ #define   MID_REQUEST_ALLOCATED 1
+ #define   MID_REQUEST_SUBMITTED 2
+--- a/fs/cifs/cifsproto.h
++++ b/fs/cifs/cifsproto.h
+@@ -133,11 +133,12 @@ extern bool backup_cred(struct cifs_sb_i
+ extern bool is_size_safe_to_change(struct cifsInodeInfo *, __u64 eof);
+ extern void cifs_update_eof(struct cifsInodeInfo *cifsi, loff_t offset,
+ 			    unsigned int bytes_written);
+-extern struct cifsFileInfo *find_writable_file(struct cifsInodeInfo *, bool);
++extern struct cifsFileInfo *find_writable_file(struct cifsInodeInfo *, int);
+ extern int cifs_get_writable_file(struct cifsInodeInfo *cifs_inode,
+-				  bool fsuid_only,
++				  int flags,
+ 				  struct cifsFileInfo **ret_file);
+ extern int cifs_get_writable_path(struct cifs_tcon *tcon, const char *name,
++				  int flags,
+ 				  struct cifsFileInfo **ret_file);
+ extern struct cifsFileInfo *find_readable_file(struct cifsInodeInfo *, bool);
+ extern int cifs_get_readable_path(struct cifs_tcon *tcon, const char *name,
+--- a/fs/cifs/cifssmb.c
++++ b/fs/cifs/cifssmb.c
+@@ -1489,6 +1489,7 @@ openRetry:
+ 	*oplock = rsp->OplockLevel;
+ 	/* cifs fid stays in le */
+ 	oparms->fid->netfid = rsp->Fid;
++	oparms->fid->access = desired_access;
  
-+	flow_dissector_init_keys(&skb_key.control, &skb_key.basic);
- 	fl_clear_masked_range(&skb_key, &head->mask);
- 	skb_key.indev_ifindex = skb->skb_iif;
- 	/* skb_flow_dissect() does not set n_proto in case an unknown protocol,
+ 	/* Let caller know file was created so we can set the mode. */
+ 	/* Do we care about the CreateAction in any other cases? */
+@@ -2112,7 +2113,7 @@ cifs_writev_requeue(struct cifs_writedat
+ 		wdata2->tailsz = tailsz;
+ 		wdata2->bytes = cur_len;
+ 
+-		rc = cifs_get_writable_file(CIFS_I(inode), false,
++		rc = cifs_get_writable_file(CIFS_I(inode), FIND_WR_ANY,
+ 					    &wdata2->cfile);
+ 		if (!wdata2->cfile) {
+ 			cifs_dbg(VFS, "No writable handle to retry writepages rc=%d\n",
+--- a/fs/cifs/file.c
++++ b/fs/cifs/file.c
+@@ -1916,7 +1916,7 @@ struct cifsFileInfo *find_readable_file(
+ 
+ /* Return -EBADF if no handle is found and general rc otherwise */
+ int
+-cifs_get_writable_file(struct cifsInodeInfo *cifs_inode, bool fsuid_only,
++cifs_get_writable_file(struct cifsInodeInfo *cifs_inode, int flags,
+ 		       struct cifsFileInfo **ret_file)
+ {
+ 	struct cifsFileInfo *open_file, *inv_file = NULL;
+@@ -1924,7 +1924,8 @@ cifs_get_writable_file(struct cifsInodeI
+ 	bool any_available = false;
+ 	int rc = -EBADF;
+ 	unsigned int refind = 0;
+-
++	bool fsuid_only = flags & FIND_WR_FSUID_ONLY;
++	bool with_delete = flags & FIND_WR_WITH_DELETE;
+ 	*ret_file = NULL;
+ 
+ 	/*
+@@ -1956,6 +1957,8 @@ refind_writable:
+ 			continue;
+ 		if (fsuid_only && !uid_eq(open_file->uid, current_fsuid()))
+ 			continue;
++		if (with_delete && !(open_file->fid.access & DELETE))
++			continue;
+ 		if (OPEN_FMODE(open_file->f_flags) & FMODE_WRITE) {
+ 			if (!open_file->invalidHandle) {
+ 				/* found a good writable file */
+@@ -2003,12 +2006,12 @@ refind_writable:
+ }
+ 
+ struct cifsFileInfo *
+-find_writable_file(struct cifsInodeInfo *cifs_inode, bool fsuid_only)
++find_writable_file(struct cifsInodeInfo *cifs_inode, int flags)
+ {
+ 	struct cifsFileInfo *cfile;
+ 	int rc;
+ 
+-	rc = cifs_get_writable_file(cifs_inode, fsuid_only, &cfile);
++	rc = cifs_get_writable_file(cifs_inode, flags, &cfile);
+ 	if (rc)
+ 		cifs_dbg(FYI, "couldn't find writable handle rc=%d", rc);
+ 
+@@ -2017,6 +2020,7 @@ find_writable_file(struct cifsInodeInfo
+ 
+ int
+ cifs_get_writable_path(struct cifs_tcon *tcon, const char *name,
++		       int flags,
+ 		       struct cifsFileInfo **ret_file)
+ {
+ 	struct list_head *tmp;
+@@ -2043,7 +2047,7 @@ cifs_get_writable_path(struct cifs_tcon
+ 		kfree(full_path);
+ 		cinode = CIFS_I(d_inode(cfile->dentry));
+ 		spin_unlock(&tcon->open_file_lock);
+-		return cifs_get_writable_file(cinode, 0, ret_file);
++		return cifs_get_writable_file(cinode, flags, ret_file);
+ 	}
+ 
+ 	spin_unlock(&tcon->open_file_lock);
+@@ -2120,7 +2124,8 @@ static int cifs_partialpagewrite(struct
+ 	if (mapping->host->i_size - offset < (loff_t)to)
+ 		to = (unsigned)(mapping->host->i_size - offset);
+ 
+-	rc = cifs_get_writable_file(CIFS_I(mapping->host), false, &open_file);
++	rc = cifs_get_writable_file(CIFS_I(mapping->host), FIND_WR_ANY,
++				    &open_file);
+ 	if (!rc) {
+ 		bytes_written = cifs_write(open_file, open_file->pid,
+ 					   write_data, to - from, &offset);
+@@ -2313,7 +2318,7 @@ retry:
+ 		if (cfile)
+ 			cifsFileInfo_put(cfile);
+ 
+-		rc = cifs_get_writable_file(CIFS_I(inode), false, &cfile);
++		rc = cifs_get_writable_file(CIFS_I(inode), FIND_WR_ANY, &cfile);
+ 
+ 		/* in case of an error store it to return later */
+ 		if (rc)
+--- a/fs/cifs/inode.c
++++ b/fs/cifs/inode.c
+@@ -2220,7 +2220,7 @@ cifs_set_file_size(struct inode *inode,
+ 	 * writebehind data than the SMB timeout for the SetPathInfo
+ 	 * request would allow
+ 	 */
+-	open_file = find_writable_file(cifsInode, true);
++	open_file = find_writable_file(cifsInode, FIND_WR_FSUID_ONLY);
+ 	if (open_file) {
+ 		tcon = tlink_tcon(open_file->tlink);
+ 		server = tcon->ses->server;
+@@ -2370,7 +2370,7 @@ cifs_setattr_unix(struct dentry *direntr
+ 		args->ctime = NO_CHANGE_64;
+ 
+ 	args->device = 0;
+-	open_file = find_writable_file(cifsInode, true);
++	open_file = find_writable_file(cifsInode, FIND_WR_FSUID_ONLY);
+ 	if (open_file) {
+ 		u16 nfid = open_file->fid.netfid;
+ 		u32 npid = open_file->pid;
+@@ -2473,7 +2473,7 @@ cifs_setattr_nounix(struct dentry *diren
+ 	rc = 0;
+ 
+ 	if (attrs->ia_valid & ATTR_MTIME) {
+-		rc = cifs_get_writable_file(cifsInode, false, &wfile);
++		rc = cifs_get_writable_file(cifsInode, FIND_WR_ANY, &wfile);
+ 		if (!rc) {
+ 			tcon = tlink_tcon(wfile->tlink);
+ 			rc = tcon->ses->server->ops->flush(xid, tcon, &wfile->fid);
+--- a/fs/cifs/smb1ops.c
++++ b/fs/cifs/smb1ops.c
+@@ -767,7 +767,7 @@ smb_set_file_info(struct inode *inode, c
+ 	struct cifs_tcon *tcon;
+ 
+ 	/* if the file is already open for write, just use that fileid */
+-	open_file = find_writable_file(cinode, true);
++	open_file = find_writable_file(cinode, FIND_WR_FSUID_ONLY);
+ 	if (open_file) {
+ 		fid.netfid = open_file->fid.netfid;
+ 		netpid = open_file->pid;
+--- a/fs/cifs/smb2inode.c
++++ b/fs/cifs/smb2inode.c
+@@ -525,7 +525,7 @@ smb2_mkdir_setinfo(struct inode *inode,
+ 	cifs_i = CIFS_I(inode);
+ 	dosattrs = cifs_i->cifsAttrs | ATTR_READONLY;
+ 	data.Attributes = cpu_to_le32(dosattrs);
+-	cifs_get_writable_path(tcon, name, &cfile);
++	cifs_get_writable_path(tcon, name, FIND_WR_ANY, &cfile);
+ 	tmprc = smb2_compound_op(xid, tcon, cifs_sb, name,
+ 				 FILE_WRITE_ATTRIBUTES, FILE_CREATE,
+ 				 CREATE_NOT_FILE, ACL_NO_MODE,
+@@ -581,7 +581,7 @@ smb2_rename_path(const unsigned int xid,
+ {
+ 	struct cifsFileInfo *cfile;
+ 
+-	cifs_get_writable_path(tcon, from_name, &cfile);
++	cifs_get_writable_path(tcon, from_name, FIND_WR_WITH_DELETE, &cfile);
+ 
+ 	return smb2_set_path_attr(xid, tcon, from_name, to_name,
+ 				  cifs_sb, DELETE, SMB2_OP_RENAME, cfile);
+--- a/fs/cifs/smb2ops.c
++++ b/fs/cifs/smb2ops.c
+@@ -1338,6 +1338,7 @@ smb2_set_fid(struct cifsFileInfo *cfile,
+ 
+ 	cfile->fid.persistent_fid = fid->persistent_fid;
+ 	cfile->fid.volatile_fid = fid->volatile_fid;
++	cfile->fid.access = fid->access;
+ #ifdef CONFIG_CIFS_DEBUG2
+ 	cfile->fid.mid = fid->mid;
+ #endif /* CIFS_DEBUG2 */
+@@ -3162,7 +3163,7 @@ static loff_t smb3_llseek(struct file *f
+ 	 * some servers (Windows2016) will not reflect recent writes in
+ 	 * QUERY_ALLOCATED_RANGES until SMB2_flush is called.
+ 	 */
+-	wrcfile = find_writable_file(cifsi, false);
++	wrcfile = find_writable_file(cifsi, FIND_WR_ANY);
+ 	if (wrcfile) {
+ 		filemap_write_and_wait(inode->i_mapping);
+ 		smb2_flush_file(xid, tcon, &wrcfile->fid);
+--- a/fs/cifs/smb2pdu.c
++++ b/fs/cifs/smb2pdu.c
+@@ -2650,6 +2650,7 @@ SMB2_open(const unsigned int xid, struct
+ 	atomic_inc(&tcon->num_remote_opens);
+ 	oparms->fid->persistent_fid = rsp->PersistentFileId;
+ 	oparms->fid->volatile_fid = rsp->VolatileFileId;
++	oparms->fid->access = oparms->desired_access;
+ #ifdef CONFIG_CIFS_DEBUG2
+ 	oparms->fid->mid = le64_to_cpu(rsp->sync_hdr.MessageId);
+ #endif /* CIFS_DEBUG2 */
 
 
