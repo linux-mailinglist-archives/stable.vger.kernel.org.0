@@ -2,42 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BA66517F897
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 13:49:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ACCC817F985
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 13:57:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728426AbgCJMtQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 08:49:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53622 "EHLO mail.kernel.org"
+        id S1728767AbgCJM5c (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 08:57:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37134 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728048AbgCJMtP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 08:49:15 -0400
+        id S1729785AbgCJM5c (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 08:57:32 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8B32A24691;
-        Tue, 10 Mar 2020 12:49:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 53ADD2468E;
+        Tue, 10 Mar 2020 12:57:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583844555;
-        bh=VwhYKLy1NhWaPZdxdXJS0pwQhJAtWfm9/KXs9tu/rec=;
+        s=default; t=1583845051;
+        bh=EpB+hNHyM4aBcJsJprlm1tfQc8ejGExjREpw2qKL+j4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=doGoCfAoYkg8yHZVIpHpM6jJnLvW+4Go/dol16zucaXHNaytOuRwomcvR+/pXpUis
-         +4Rk0u/GNLhaM/Kgi2LJUAHHW85QsdWC1yrgK3n/PV2MuxNOKxc2Zt+rX8HeNG8uGI
-         8FWz2n5JObCk50ZnVvQ1LuG0BZk46rZtpQzw8zO8=
+        b=Q0TW/a0fOZijcZkXauuNFinWEL+JEyqfNO0Q37JCpIUSdflBQi9eaSUh2BobscFW2
+         NF4vOE4XniBpQmJNSI/Df3u9zcdD0k1aHV+wBS+9HZ83sBJ5QKPjqIJZpy2hONBTWE
+         meNJigp1v5r0X5o9egjNEm+FU9m7rvQMxVqvBPss=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "H. Nikolaus Schaller" <hns@goldelico.com>,
-        Mathieu Malaterre <malat@debian.org>,
-        Paul Cercueil <paul@crapouillou.net>,
-        Andrew Lunn <andrew@lunn.ch>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 035/168] net: ethernet: dm9000: Handle -EPROBE_DEFER in dm9000_parse_dt()
-Date:   Tue, 10 Mar 2020 13:38:01 +0100
-Message-Id: <20200310123639.066997721@linuxfoundation.org>
+        stable@vger.kernel.org, "H.J. Lu" <hjl.tools@gmail.com>,
+        Borislav Petkov <bp@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.5 045/189] x86/boot/compressed: Dont declare __force_order in kaslr_64.c
+Date:   Tue, 10 Mar 2020 13:38:02 +0100
+Message-Id: <20200310123644.028693381@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200310123635.322799692@linuxfoundation.org>
-References: <20200310123635.322799692@linuxfoundation.org>
+In-Reply-To: <20200310123639.608886314@linuxfoundation.org>
+References: <20200310123639.608886314@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,36 +43,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Cercueil <paul@crapouillou.net>
+From: H.J. Lu <hjl.tools@gmail.com>
 
-[ Upstream commit 9a6a0dea16177ccaecc116f560232e63bec115f1 ]
+[ Upstream commit df6d4f9db79c1a5d6f48b59db35ccd1e9ff9adfc ]
 
-The call to of_get_mac_address() can return -EPROBE_DEFER, for instance
-when the MAC address is read from a NVMEM driver that did not probe yet.
+GCC 10 changed the default to -fno-common, which leads to
 
-Cc: H. Nikolaus Schaller <hns@goldelico.com>
-Cc: Mathieu Malaterre <malat@debian.org>
-Signed-off-by: Paul Cercueil <paul@crapouillou.net>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+    LD      arch/x86/boot/compressed/vmlinux
+  ld: arch/x86/boot/compressed/pgtable_64.o:(.bss+0x0): multiple definition of `__force_order'; \
+    arch/x86/boot/compressed/kaslr_64.o:(.bss+0x0): first defined here
+  make[2]: *** [arch/x86/boot/compressed/Makefile:119: arch/x86/boot/compressed/vmlinux] Error 1
+
+Since __force_order is already provided in pgtable_64.c, there is no
+need to declare __force_order in kaslr_64.c.
+
+Signed-off-by: H.J. Lu <hjl.tools@gmail.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Link: https://lkml.kernel.org/r/20200124181811.4780-1-hjl.tools@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/davicom/dm9000.c | 2 ++
- 1 file changed, 2 insertions(+)
+ arch/x86/boot/compressed/kaslr_64.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/davicom/dm9000.c b/drivers/net/ethernet/davicom/dm9000.c
-index cce90b5925d93..70060c51854fd 100644
---- a/drivers/net/ethernet/davicom/dm9000.c
-+++ b/drivers/net/ethernet/davicom/dm9000.c
-@@ -1405,6 +1405,8 @@ static struct dm9000_plat_data *dm9000_parse_dt(struct device *dev)
- 	mac_addr = of_get_mac_address(np);
- 	if (!IS_ERR(mac_addr))
- 		ether_addr_copy(pdata->dev_addr, mac_addr);
-+	else if (PTR_ERR(mac_addr) == -EPROBE_DEFER)
-+		return ERR_CAST(mac_addr);
+diff --git a/arch/x86/boot/compressed/kaslr_64.c b/arch/x86/boot/compressed/kaslr_64.c
+index 748456c365f46..9557c5a15b91e 100644
+--- a/arch/x86/boot/compressed/kaslr_64.c
++++ b/arch/x86/boot/compressed/kaslr_64.c
+@@ -29,9 +29,6 @@
+ #define __PAGE_OFFSET __PAGE_OFFSET_BASE
+ #include "../../mm/ident_map.c"
  
- 	return pdata;
- }
+-/* Used by pgtable.h asm code to force instruction serialization. */
+-unsigned long __force_order;
+-
+ /* Used to track our page table allocation area. */
+ struct alloc_pgt_data {
+ 	unsigned char *pgt_buf;
 -- 
 2.20.1
 
