@@ -2,46 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C0D8817FC2D
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:19:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4579317FC2E
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:19:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729690AbgCJNI5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 09:08:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55784 "EHLO mail.kernel.org"
+        id S1727736AbgCJNTV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 09:19:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55894 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730231AbgCJNI4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 09:08:56 -0400
+        id S1731175AbgCJNI6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 09:08:58 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1F65C20409;
-        Tue, 10 Mar 2020 13:08:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1B24B2468D;
+        Tue, 10 Mar 2020 13:08:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583845735;
-        bh=0/L3Ec0PvbWetvEkiOjdj/BX4SUZAWQOKoRqJXQY2lQ=;
+        s=default; t=1583845738;
+        bh=TZNA2TVM3aGgVsvEbNQ6ouxAgPJTw+ElW2D2JSSBOgM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wRIM90pRr/3LxnemzKj9JikUJgxA3RGB0vuf2+ddAJ6qzzcVnIUDOkPKlbsUrQKLK
-         46lH/J6sPBoVzM7PwLG7VYxV32ckJ8OqixV/qoie+Rw7K5uIS3fz7/pxdg22IB6vQr
-         ItitfoONwN/0t8Shs2gUyM1c7NjAXDz32Gegnl58=
+        b=C6kN9QoR3STgdZDk8Vbsp34etHp3o6GmY9SNiY178JX3BHuj9s0sxbLRZwvnvYfTE
+         NszwPo5g7DGNL3DB+cwRektvd6HGRG2uO40fFUHaAa8s3oaG4svpyqPKpO1xLTXUei
+         owHQUOM8qwWtU2KCHs9QzT9R5Z+3TUkv996g3xk4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rob Clark <robdclark@gmail.com>,
-        Sean Paul <sean@poorly.run>,
-        Sami Tolvanen <samitolvanen@google.com>,
-        Todd Kjos <tkjos@google.com>,
-        Alistair Delva <adelva@google.com>,
-        Amit Pundir <amit.pundir@linaro.org>,
-        Sumit Semwal <sumit.semwal@linaro.org>,
-        freedreno@lists.freedesktop.org,
-        clang-built-linux@googlegroups.com,
-        John Stultz <john.stultz@linaro.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
+        stable@vger.kernel.org, Harigovindan P <harigovi@codeaurora.org>,
         Rob Clark <robdclark@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 080/126] drm: msm: Fix return type of dsi_mgr_connector_mode_valid for kCFI
-Date:   Tue, 10 Mar 2020 13:41:41 +0100
-Message-Id: <20200310124209.027712466@linuxfoundation.org>
+Subject: [PATCH 4.14 081/126] drm/msm/dsi: save pll state before dsi host is powered off
+Date:   Tue, 10 Mar 2020 13:41:42 +0100
+Message-Id: <20200310124209.079904695@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200310124203.704193207@linuxfoundation.org>
 References: <20200310124203.704193207@linuxfoundation.org>
@@ -54,53 +44,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Stultz <john.stultz@linaro.org>
+From: Harigovindan P <harigovi@codeaurora.org>
 
-[ Upstream commit 7fd2dfc3694922eb7ace4801b7208cf9f62ebc7d ]
+[ Upstream commit a1028dcfd0dd97884072288d0c8ed7f30399b528 ]
 
-I was hitting kCFI crashes when building with clang, and after
-some digging finally narrowed it down to the
-dsi_mgr_connector_mode_valid() function being implemented as
-returning an int, instead of an enum drm_mode_status.
+Save pll state before dsi host is powered off. Without this change
+some register values gets resetted.
 
-This patch fixes it, and appeases the opaque word of the kCFI
-gods (seriously, clang inlining everything makes the kCFI
-backtraces only really rough estimates of where things went
-wrong).
-
-Thanks as always to Sami for his help narrowing this down.
-
-Cc: Rob Clark <robdclark@gmail.com>
-Cc: Sean Paul <sean@poorly.run>
-Cc: Sami Tolvanen <samitolvanen@google.com>
-Cc: Todd Kjos <tkjos@google.com>
-Cc: Alistair Delva <adelva@google.com>
-Cc: Amit Pundir <amit.pundir@linaro.org>
-Cc: Sumit Semwal <sumit.semwal@linaro.org>
-Cc: freedreno@lists.freedesktop.org
-Cc: clang-built-linux@googlegroups.com
-Signed-off-by: John Stultz <john.stultz@linaro.org>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Tested-by: Amit Pundir <amit.pundir@linaro.org>
+Signed-off-by: Harigovindan P <harigovi@codeaurora.org>
 Signed-off-by: Rob Clark <robdclark@chromium.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/dsi/dsi_manager.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/msm/dsi/dsi_manager.c | 5 +++++
+ drivers/gpu/drm/msm/dsi/phy/dsi_phy.c | 4 ----
+ 2 files changed, 5 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/gpu/drm/msm/dsi/dsi_manager.c b/drivers/gpu/drm/msm/dsi/dsi_manager.c
-index 855248132b2bd..7d46399a39b4d 100644
+index 7d46399a39b4d..9fbfa9f94e6ce 100644
 --- a/drivers/gpu/drm/msm/dsi/dsi_manager.c
 +++ b/drivers/gpu/drm/msm/dsi/dsi_manager.c
-@@ -400,7 +400,7 @@ static int dsi_mgr_connector_get_modes(struct drm_connector *connector)
- 	return num;
- }
+@@ -543,6 +543,7 @@ static void dsi_mgr_bridge_post_disable(struct drm_bridge *bridge)
+ 	struct msm_dsi *msm_dsi1 = dsi_mgr_get_dsi(DSI_1);
+ 	struct mipi_dsi_host *host = msm_dsi->host;
+ 	struct drm_panel *panel = msm_dsi->panel;
++	struct msm_dsi_pll *src_pll;
+ 	bool is_dual_dsi = IS_DUAL_DSI();
+ 	int ret;
  
--static int dsi_mgr_connector_mode_valid(struct drm_connector *connector,
-+static enum drm_mode_status dsi_mgr_connector_mode_valid(struct drm_connector *connector,
- 				struct drm_display_mode *mode)
- {
- 	int id = dsi_mgr_connector_get_id(connector);
+@@ -583,6 +584,10 @@ static void dsi_mgr_bridge_post_disable(struct drm_bridge *bridge)
+ 								id, ret);
+ 	}
+ 
++	/* Save PLL status if it is a clock source */
++	src_pll = msm_dsi_phy_get_pll(msm_dsi->phy);
++	msm_dsi_pll_save_state(src_pll);
++
+ 	ret = msm_dsi_host_power_off(host);
+ 	if (ret)
+ 		pr_err("%s: host %d power off failed,%d\n", __func__, id, ret);
+diff --git a/drivers/gpu/drm/msm/dsi/phy/dsi_phy.c b/drivers/gpu/drm/msm/dsi/phy/dsi_phy.c
+index 7c9bf91bc22b6..c0a7fa56d9a74 100644
+--- a/drivers/gpu/drm/msm/dsi/phy/dsi_phy.c
++++ b/drivers/gpu/drm/msm/dsi/phy/dsi_phy.c
+@@ -613,10 +613,6 @@ void msm_dsi_phy_disable(struct msm_dsi_phy *phy)
+ 	if (!phy || !phy->cfg->ops.disable)
+ 		return;
+ 
+-	/* Save PLL status if it is a clock source */
+-	if (phy->usecase != MSM_DSI_PHY_SLAVE)
+-		msm_dsi_pll_save_state(phy->pll);
+-
+ 	phy->cfg->ops.disable(phy);
+ 
+ 	dsi_phy_regulator_disable(phy);
 -- 
 2.20.1
 
