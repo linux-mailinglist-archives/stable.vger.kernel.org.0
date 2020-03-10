@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 400ED17FCDE
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:24:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4092D17FCE0
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:24:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729974AbgCJM7A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 08:59:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39276 "EHLO mail.kernel.org"
+        id S1729813AbgCJM7L (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 08:59:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39480 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729764AbgCJM67 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 08:58:59 -0400
+        id S1729995AbgCJM7H (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 08:59:07 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D059C2468F;
-        Tue, 10 Mar 2020 12:58:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F39FA2468D;
+        Tue, 10 Mar 2020 12:59:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583845139;
-        bh=Xvrs5Tl05cV7m4ac4tT9EVzboSu3Qc+AUWzumDZp8DI=;
+        s=default; t=1583845147;
+        bh=sKWT9C6S3r2RGpbAtBeNneIuanNERDEEBk/3vOnT6T8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V9DVSuiWCFzMEkEHgsVDBCURtfEOxLaUOhu6b5iGgKEHkdSOZNRMB/XF2/ST0aPNy
-         wcRT6jZ5AdT2BQXQQzc/hNVyrllaZ8QO9PyKLlumtOUq2IXcHFYMSIMd4WWm3nAjKB
-         ORbGyPCzJRgmRGpfVekStVOaUbPZtYH+SIVE4br0=
+        b=KJMV/NnuODWiE/qOik4ivy/O84HqKXHiuFSiKSBfd1vCRaJtDaGSvxgUwgMu5gbNh
+         MGssBn7pMLZkJiq/RIdV/NhZJ6c+09KNjmHYX4CHJ5RW5K7aGuQ46s8JNphTphyK1x
+         hiFDvzf+hjtsdvrYBuJrfnoBSfwhynVql/toWeGE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Vasily Averin <vvs@virtuozzo.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
+        stable@vger.kernel.org, Hamdan Igbaria <hamdani@mellanox.com>,
+        Alex Vesker <valex@mellanox.com>,
+        Saeed Mahameed <saeedm@mellanox.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 038/189] s390/cio: cio_ignore_proc_seq_next should increase position index
-Date:   Tue, 10 Mar 2020 13:37:55 +0100
-Message-Id: <20200310123643.334202771@linuxfoundation.org>
+Subject: [PATCH 5.5 041/189] net/mlx5: DR, Fix matching on vport gvmi
+Date:   Tue, 10 Mar 2020 13:37:58 +0100
+Message-Id: <20200310123643.628314647@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200310123639.608886314@linuxfoundation.org>
 References: <20200310123639.608886314@linuxfoundation.org>
@@ -46,48 +45,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasily Averin <vvs@virtuozzo.com>
+From: Hamdan Igbaria <hamdani@mellanox.com>
 
-[ Upstream commit 8b101a5e14f2161869636ff9cb4907b7749dc0c2 ]
+[ Upstream commit 52d214976d4f64504c1bbb52d47b46a5a3d5ee42 ]
 
-if seq_file .next fuction does not change position index,
-read after some lseek can generate unexpected output.
+Set vport gvmi in the tag, only when source gvmi is set in the bit mask.
 
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=206283
-Link: https://lore.kernel.org/r/d44c53a7-9bc1-15c7-6d4a-0c10cb9dffce@virtuozzo.com
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Fixes: 26d688e3 ("net/mlx5: DR, Add Steering entry (STE) utilities")
+Signed-off-by: Hamdan Igbaria <hamdani@mellanox.com>
+Reviewed-by: Alex Vesker <valex@mellanox.com>
+Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/s390/cio/blacklist.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/mellanox/mlx5/core/steering/dr_ste.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/s390/cio/blacklist.c b/drivers/s390/cio/blacklist.c
-index 2a3f874a21d54..9cebff8e8d740 100644
---- a/drivers/s390/cio/blacklist.c
-+++ b/drivers/s390/cio/blacklist.c
-@@ -303,8 +303,10 @@ static void *
- cio_ignore_proc_seq_next(struct seq_file *s, void *it, loff_t *offset)
- {
- 	struct ccwdev_iter *iter;
-+	loff_t p = *offset;
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/steering/dr_ste.c b/drivers/net/ethernet/mellanox/mlx5/core/steering/dr_ste.c
+index c6c7d1defbd78..aade62a9ee5ce 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/steering/dr_ste.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/steering/dr_ste.c
+@@ -2307,7 +2307,9 @@ static int dr_ste_build_src_gvmi_qpn_tag(struct mlx5dr_match_param *value,
+ 	struct mlx5dr_cmd_vport_cap *vport_cap;
+ 	struct mlx5dr_domain *dmn = sb->dmn;
+ 	struct mlx5dr_cmd_caps *caps;
++	u8 *bit_mask = sb->bit_mask;
+ 	u8 *tag = hw_ste->tag;
++	bool source_gvmi_set;
  
--	if (*offset >= (__MAX_SUBCHANNEL + 1) * (__MAX_SSID + 1))
-+	(*offset)++;
-+	if (p >= (__MAX_SUBCHANNEL + 1) * (__MAX_SSID + 1))
- 		return NULL;
- 	iter = it;
- 	if (iter->devno == __MAX_SUBCHANNEL) {
-@@ -314,7 +316,6 @@ cio_ignore_proc_seq_next(struct seq_file *s, void *it, loff_t *offset)
- 			return NULL;
- 	} else
- 		iter->devno++;
--	(*offset)++;
- 	return iter;
- }
+ 	DR_STE_SET_TAG(src_gvmi_qp, tag, source_qp, misc, source_sqn);
  
+@@ -2328,7 +2330,8 @@ static int dr_ste_build_src_gvmi_qpn_tag(struct mlx5dr_match_param *value,
+ 	if (!vport_cap)
+ 		return -EINVAL;
+ 
+-	if (vport_cap->vport_gvmi)
++	source_gvmi_set = MLX5_GET(ste_src_gvmi_qp, bit_mask, source_gvmi);
++	if (vport_cap->vport_gvmi && source_gvmi_set)
+ 		MLX5_SET(ste_src_gvmi_qp, tag, source_gvmi, vport_cap->vport_gvmi);
+ 
+ 	misc->source_eswitch_owner_vhca_id = 0;
 -- 
 2.20.1
 
