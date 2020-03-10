@@ -2,156 +2,133 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 340AD17F4DD
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 11:17:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A5E1B17F4E1
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 11:18:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726385AbgCJKRZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 06:17:25 -0400
-Received: from mail.fireflyinternet.com ([109.228.58.192]:64757 "EHLO
-        fireflyinternet.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726197AbgCJKRZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Mar 2020 06:17:25 -0400
-X-Default-Received-SPF: pass (skip=forwardok (res=PASS)) x-ip-name=78.156.65.138;
-Received: from build.alporthouse.com (unverified [78.156.65.138]) 
-        by fireflyinternet.com (Firefly Internet (M1)) with ESMTP id 20506101-1500050 
-        for multiple; Tue, 10 Mar 2020 10:17:21 +0000
-From:   Chris Wilson <chris@chris-wilson.co.uk>
-To:     intel-gfx@lists.freedesktop.org
-Cc:     Chris Wilson <chris@chris-wilson.co.uk>,
-        Tvrtko Ursulin <tvrtko.ursulin@intel.com>,
-        stable@vger.kernel.org
-Subject: [PATCH] drm/i915: Defer semaphore priority bumping to a workqueue
-Date:   Tue, 10 Mar 2020 10:17:20 +0000
-Message-Id: <20200310101720.9944-1-chris@chris-wilson.co.uk>
-X-Mailer: git-send-email 2.20.1
+        id S1726170AbgCJKSo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 06:18:44 -0400
+Received: from out1-smtp.messagingengine.com ([66.111.4.25]:48971 "EHLO
+        out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726164AbgCJKSo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Mar 2020 06:18:44 -0400
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+        by mailout.nyi.internal (Postfix) with ESMTP id F3F7C21B7C;
+        Tue, 10 Mar 2020 06:18:42 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute1.internal (MEProxy); Tue, 10 Mar 2020 06:18:42 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=P0s77t
+        tExCWjSoHbuFhDHQ+Y9MLi2zdXL4YYwT2WqFQ=; b=IAfDGaipBx3xg2omXZdTOR
+        uU27DPBgXnjJFdfGF0uznjyGZ5ygIQQu4WHK8yjtxJlB2MbSiXQIQYeukOTfJUbK
+        ZpGCuqpgjZ4q9THEzGv6wCMvO4ktmdcoCurVbhgjBtRxxuGQJSmUXZBzVscKA0M6
+        IFhhcpZGE+pnd2KYDon4ArcWcfj9Hp/VemvMrSfRJjjwZIbr+F7LHgZP88lP6+8L
+        rpvKCLxbEni/kuYjU8po7stp31nHCnxvLRT0pO9x8PG/XUqkSHQpfKCq4L7POhMJ
+        6ME8LDU/uvgibGHm0GU9w55YXwplN6GNmMk+M2c0fKkNFXPJm+ihMJmuL5CbqXvw
+        ==
+X-ME-Sender: <xms:gmlnXuYsw2XEPPjhzSbMBp6IgaqnnwSeIml4dzdxGo6Afbw39qjqjA>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedugedruddvtddgudefucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
+    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
+    gheqnecuffhomhgrihhnpehfrhgvvgguvghskhhtohhprdhorhhgnecukfhppeekfedrke
+    eirdekledruddtjeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhl
+    fhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
+X-ME-Proxy: <xmx:gmlnXpK1_jX6OOygtfbkxuMdULR5LiYfdkyyApfOuZRTyO6TQnKTig>
+    <xmx:gmlnXnihnra9rmP_6upcWnuGxZSAYd6rH51s4X5G9FdNqadBEdf4kw>
+    <xmx:gmlnXq-Rzyp16ddLxafNfM-ZrRNYwz33OE3Z_cJhpcznK_ByY1uM4g>
+    <xmx:gmlnXnbv4jCt3O2lFsMgPylzds034f86EzMKcyi3KiE_LdCfMV39Xw>
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        by mail.messagingengine.com (Postfix) with ESMTPA id D624D3061393;
+        Tue, 10 Mar 2020 06:18:41 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] drm/i915/gt: Drop the timeline->mutex as we wait for" failed to apply to 5.5-stable tree
+To:     chris@chris-wilson.co.uk, jani.nikula@intel.com,
+        mika.kuoppala@linux.intel.com
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Tue, 10 Mar 2020 11:18:39 +0100
+Message-ID: <1583835519253137@kroah.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Since the semaphore fence may be signaled from inside an interrupt
-handler from inside a request holding its request->lock, we cannot then
-enter into the engine->active.lock for processing the semaphore priority
-bump as we may traverse our call tree and end up on another held
-request.
 
-CPU 0:
-[ 2243.218864]  _raw_spin_lock_irqsave+0x9a/0xb0
-[ 2243.218867]  i915_schedule_bump_priority+0x49/0x80 [i915]
-[ 2243.218869]  semaphore_notify+0x6d/0x98 [i915]
-[ 2243.218871]  __i915_sw_fence_complete+0x61/0x420 [i915]
-[ 2243.218874]  ? kmem_cache_free+0x211/0x290
-[ 2243.218876]  i915_sw_fence_complete+0x58/0x80 [i915]
-[ 2243.218879]  dma_i915_sw_fence_wake+0x3e/0x80 [i915]
-[ 2243.218881]  signal_irq_work+0x571/0x690 [i915]
-[ 2243.218883]  irq_work_run_list+0xd7/0x120
-[ 2243.218885]  irq_work_run+0x1d/0x50
-[ 2243.218887]  smp_irq_work_interrupt+0x21/0x30
-[ 2243.218889]  irq_work_interrupt+0xf/0x20
+The patch below does not apply to the 5.5-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-CPU 1:
-[ 2242.173107]  _raw_spin_lock+0x8f/0xa0
-[ 2242.173110]  __i915_request_submit+0x64/0x4a0 [i915]
-[ 2242.173112]  __execlists_submission_tasklet+0x8ee/0x2120 [i915]
-[ 2242.173114]  ? i915_sched_lookup_priolist+0x1e3/0x2b0 [i915]
-[ 2242.173117]  execlists_submit_request+0x2e8/0x2f0 [i915]
-[ 2242.173119]  submit_notify+0x8f/0xc0 [i915]
-[ 2242.173121]  __i915_sw_fence_complete+0x61/0x420 [i915]
-[ 2242.173124]  ? _raw_spin_unlock_irqrestore+0x39/0x40
-[ 2242.173137]  i915_sw_fence_complete+0x58/0x80 [i915]
-[ 2242.173140]  i915_sw_fence_commit+0x16/0x20 [i915]
+thanks,
 
-CPU 2:
-[ 2242.173107]  _raw_spin_lock+0x8f/0xa0
-[ 2242.173110]  __i915_request_submit+0x64/0x4a0 [i915]
-[ 2242.173112]  __execlists_submission_tasklet+0x8ee/0x2120 [i915]
-[ 2242.173114]  ? i915_sched_lookup_priolist+0x1e3/0x2b0 [i915]
-[ 2242.173117]  execlists_submit_request+0x2e8/0x2f0 [i915]
-[ 2242.173119]  submit_notify+0x8f/0xc0 [i915]
+greg k-h
 
-Closes: https://gitlab.freedesktop.org/drm/intel/issues/1318
-Fixes: b7404c7ecb38 ("drm/i915: Bump ready tasks ahead of busywaits")
+------------------ original commit in Linus's tree ------------------
+
+From 169c0aa4bc17d37370f55188d9327b99d60fd9d7 Mon Sep 17 00:00:00 2001
+From: Chris Wilson <chris@chris-wilson.co.uk>
+Date: Tue, 3 Mar 2020 14:00:09 +0000
+Subject: [PATCH] drm/i915/gt: Drop the timeline->mutex as we wait for
+ retirement
+
+As we have pinned the timeline (using tl->active_count), we can safely
+drop the tl->mutex as we wait for what we believe to be the final
+request on that timeline. This is useful for ensuring that we do not
+block the engine heartbeat by hogging the kernel_context's timeline on a
+dead GPU.
+
+References: https://gitlab.freedesktop.org/drm/intel/issues/1364
+Fixes: 058179e72e09 ("drm/i915/gt: Replace hangcheck by heartbeats")
+Fixes: f33a8a51602c ("drm/i915: Merge wait_for_timelines with retire_request")
 Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Cc: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-Cc: <stable@vger.kernel.org> # v5.2+
----
- drivers/gpu/drm/i915/i915_request.c | 22 +++++++++++++++++-----
- drivers/gpu/drm/i915/i915_request.h |  2 ++
- 2 files changed, 19 insertions(+), 5 deletions(-)
+Cc: Mika Kuoppala <mika.kuoppala@linux.intel.com>
+Reviewed-by: Mika Kuoppala <mika.kuoppala@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200303140009.1494819-1-chris@chris-wilson.co.uk
+(cherry picked from commit 82126e596d8519baac416aee83cad938f1d23cf8)
+Signed-off-by: Jani Nikula <jani.nikula@intel.com>
 
-diff --git a/drivers/gpu/drm/i915/i915_request.c b/drivers/gpu/drm/i915/i915_request.c
-index 04b52bf347bf..129357d4b599 100644
---- a/drivers/gpu/drm/i915/i915_request.c
-+++ b/drivers/gpu/drm/i915/i915_request.c
-@@ -588,19 +588,31 @@ submit_notify(struct i915_sw_fence *fence, enum i915_sw_fence_notify state)
- 	return NOTIFY_DONE;
- }
+diff --git a/drivers/gpu/drm/i915/gt/intel_gt_requests.c b/drivers/gpu/drm/i915/gt/intel_gt_requests.c
+index 8a5054f21bf8..24c99d0838af 100644
+--- a/drivers/gpu/drm/i915/gt/intel_gt_requests.c
++++ b/drivers/gpu/drm/i915/gt/intel_gt_requests.c
+@@ -147,24 +147,32 @@ long intel_gt_retire_requests_timeout(struct intel_gt *gt, long timeout)
  
-+static void irq_semaphore_cb(struct irq_work *wrk)
-+{
-+	struct i915_request *rq =
-+		container_of(wrk, typeof(*rq), semaphore_work);
+ 			fence = i915_active_fence_get(&tl->last_request);
+ 			if (fence) {
++				mutex_unlock(&tl->mutex);
 +
-+	i915_schedule_bump_priority(rq, I915_PRIORITY_NOSEMAPHORE);
-+	i915_request_put(rq);
-+}
+ 				timeout = dma_fence_wait_timeout(fence,
+ 								 interruptible,
+ 								 timeout);
+ 				dma_fence_put(fence);
 +
- static int __i915_sw_fence_call
- semaphore_notify(struct i915_sw_fence *fence, enum i915_sw_fence_notify state)
- {
--	struct i915_request *request =
--		container_of(fence, typeof(*request), semaphore);
-+	struct i915_request *rq = container_of(fence, typeof(*rq), semaphore);
++				/* Retirement is best effort */
++				if (!mutex_trylock(&tl->mutex)) {
++					active_count++;
++					goto out_active;
++				}
+ 			}
+ 		}
  
- 	switch (state) {
- 	case FENCE_COMPLETE:
--		i915_schedule_bump_priority(request, I915_PRIORITY_NOSEMAPHORE);
-+		if (!(READ_ONCE(rq->sched.attr.priority) & I915_PRIORITY_NOSEMAPHORE)) {
-+			i915_request_get(rq);
-+			init_irq_work(&rq->semaphore_work, irq_semaphore_cb);
-+			irq_work_queue(&rq->semaphore_work);
-+		}
- 		break;
+ 		if (!retire_requests(tl) || flush_submission(gt))
+ 			active_count++;
++		mutex_unlock(&tl->mutex);
  
- 	case FENCE_FREE:
--		i915_request_put(request);
-+		i915_request_put(rq);
- 		break;
- 	}
+-		spin_lock(&timelines->lock);
++out_active:	spin_lock(&timelines->lock);
  
-@@ -1369,9 +1381,9 @@ void __i915_request_queue(struct i915_request *rq,
- 	 * decide whether to preempt the entire chain so that it is ready to
- 	 * run at the earliest possible convenience.
- 	 */
--	i915_sw_fence_commit(&rq->semaphore);
- 	if (attr && rq->engine->schedule)
- 		rq->engine->schedule(rq, attr);
-+	i915_sw_fence_commit(&rq->semaphore);
- 	i915_sw_fence_commit(&rq->submit);
- }
+-		/* Resume iteration after dropping lock */
++		/* Resume list iteration after reacquiring spinlock */
+ 		list_safe_reset_next(tl, tn, link);
+ 		if (atomic_dec_and_test(&tl->active_count))
+ 			list_del(&tl->link);
  
-diff --git a/drivers/gpu/drm/i915/i915_request.h b/drivers/gpu/drm/i915/i915_request.h
-index 6020d5b2a3df..3c552bfea67a 100644
---- a/drivers/gpu/drm/i915/i915_request.h
-+++ b/drivers/gpu/drm/i915/i915_request.h
-@@ -26,6 +26,7 @@
- #define I915_REQUEST_H
+-		mutex_unlock(&tl->mutex);
  
- #include <linux/dma-fence.h>
-+#include <linux/irq_work.h>
- #include <linux/lockdep.h>
- 
- #include "gem/i915_gem_context_types.h"
-@@ -208,6 +209,7 @@ struct i915_request {
- 	};
- 	struct list_head execute_cb;
- 	struct i915_sw_fence semaphore;
-+	struct irq_work semaphore_work;
- 
- 	/*
- 	 * A list of everyone we wait upon, and everyone who waits upon us.
--- 
-2.20.1
+ 		/* Defer the final release to after the spinlock */
+ 		if (refcount_dec_and_test(&tl->kref.refcount)) {
 
