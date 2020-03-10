@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3113017FCBB
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:22:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B93CA17FCBA
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:22:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729428AbgCJNAX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 09:00:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41074 "EHLO mail.kernel.org"
+        id S1729970AbgCJNAZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 09:00:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41160 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730123AbgCJNAW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 09:00:22 -0400
+        id S1729979AbgCJNAY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 09:00:24 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5BACF2253D;
-        Tue, 10 Mar 2020 13:00:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E35B220674;
+        Tue, 10 Mar 2020 13:00:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583845220;
-        bh=twco3ffWmfdTyjrm0y+hJHuOZBI8ExV1TIVK5gyIwcs=;
+        s=default; t=1583845223;
+        bh=/mdxnAdIc908lANtJyPC1YYbCwLetm54mAVznZ+geG8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CEgemB6jhOzYzY7ZGioym+NlSIE7op+F0cxVhSmX0i1p1W++UQc25wN/5pqof/iYZ
-         Mr9Lp1nEJ+OFDi2xy3m/llaJI7HnbF64BA0aMVYE/qWuwRUn3vuav+vuXaOYhE/287
-         PMwba1Orpsaj4Qkn9Ex+PtxdiR9kaG8QAZ50xH3w=
+        b=k4lKnSUh7WodyAR/GTtolxJssw/XM786N+nWL1+ztZOOnHCMyO9AsFMRKE5rAs/Hc
+         XqtNn266eMYtZ3R87zOwhB/O6+jdkdBFp1P/p4pi2gIrLpRvdtQbHGvi4mdrPsvBue
+         iGxPjaXNRb2dsBZssDgg4E0r2aQpyO8hko+R54hI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jan Beulich <jbeulich@suse.com>,
-        Juergen Gross <jgross@suse.com>,
-        Thomas Gleixner <tglx@linutronix.de>
-Subject: [PATCH 5.5 104/189] x86/ioperm: Add new paravirt function update_io_bitmap()
-Date:   Tue, 10 Mar 2020 13:39:01 +0100
-Message-Id: <20200310123650.229967504@linuxfoundation.org>
+        stable@vger.kernel.org, Jacob Keller <jacob.e.keller@intel.com>,
+        Sean Christopherson <sean.j.christopherson@intel.com>,
+        Borislav Petkov <bp@suse.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>
+Subject: [PATCH 5.5 105/189] x86/pkeys: Manually set X86_FEATURE_OSPKE to preserve existing changes
+Date:   Tue, 10 Mar 2020 13:39:02 +0100
+Message-Id: <20200310123650.321435804@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200310123639.608886314@linuxfoundation.org>
 References: <20200310123639.608886314@linuxfoundation.org>
@@ -44,164 +45,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juergen Gross <jgross@suse.com>
+From: Sean Christopherson <sean.j.christopherson@intel.com>
 
-commit 99bcd4a6e5b8ba201fdd252f1054689884899fee upstream.
+commit 735a6dd02222d8d070c7bb748f25895239ca8c92 upstream.
 
-Commit 111e7b15cf10f6 ("x86/ioperm: Extend IOPL config to control ioperm()
-as well") reworked the iopl syscall to use I/O bitmaps.
+Explicitly set X86_FEATURE_OSPKE via set_cpu_cap() instead of calling
+get_cpu_cap() to pull the feature bit from CPUID after enabling CR4.PKE.
+Invoking get_cpu_cap() effectively wipes out any {set,clear}_cpu_cap()
+changes that were made between this_cpu->c_init() and setup_pku(), as
+all non-synthetic feature words are reinitialized from the CPU's CPUID
+values.
 
-Unfortunately this broke Xen PV domains using that syscall as there is
-currently no I/O bitmap support in PV domains.
+Blasting away capability updates manifests most visibility when running
+on a VMX capable CPU, but with VMX disabled by BIOS.  To indicate that
+VMX is disabled, init_ia32_feat_ctl() clears X86_FEATURE_VMX, using
+clear_cpu_cap() instead of setup_clear_cpu_cap() so that KVM can report
+which CPU is misconfigured (KVM needs to probe every CPU anyways).
+Restoring X86_FEATURE_VMX from CPUID causes KVM to think VMX is enabled,
+ultimately leading to an unexpected #GP when KVM attempts to do VMXON.
 
-Add I/O bitmap support via a new paravirt function update_io_bitmap which
-Xen PV domains can use to update their I/O bitmaps via a hypercall.
+Arguably, init_ia32_feat_ctl() should use setup_clear_cpu_cap() and let
+KVM figure out a different way to report the misconfigured CPU, but VMX
+is not the only feature bit that is affected, i.e. there is precedent
+that tweaking feature bits via {set,clear}_cpu_cap() after ->c_init()
+is expected to work.  Most notably, x86_init_rdrand()'s clearing of
+X86_FEATURE_RDRAND when RDRAND malfunctions is also overwritten.
 
-Fixes: 111e7b15cf10f6 ("x86/ioperm: Extend IOPL config to control ioperm() as well")
-Reported-by: Jan Beulich <jbeulich@suse.com>
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Tested-by: Jan Beulich <jbeulich@suse.com>
-Reviewed-by: Jan Beulich <jbeulich@suse.com>
-Cc: <stable@vger.kernel.org> # 5.5
-Link: https://lkml.kernel.org/r/20200218154712.25490-1-jgross@suse.com
+Fixes: 0697694564c8 ("x86/mm/pkeys: Actually enable Memory Protection Keys in the CPU")
+Reported-by: Jacob Keller <jacob.e.keller@intel.com>
+Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Acked-by: Dave Hansen <dave.hansen@linux.intel.com>
+Tested-by: Jacob Keller <jacob.e.keller@intel.com>
+Cc: stable@vger.kernel.org
+Link: https://lkml.kernel.org/r/20200226231615.13664-1-sean.j.christopherson@intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/include/asm/io_bitmap.h      |    9 ++++++++-
- arch/x86/include/asm/paravirt.h       |    7 +++++++
- arch/x86/include/asm/paravirt_types.h |    4 ++++
- arch/x86/kernel/paravirt.c            |    5 +++++
- arch/x86/kernel/process.c             |    2 +-
- arch/x86/xen/enlighten_pv.c           |   25 +++++++++++++++++++++++++
- 6 files changed, 50 insertions(+), 2 deletions(-)
+ arch/x86/kernel/cpu/common.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/x86/include/asm/io_bitmap.h
-+++ b/arch/x86/include/asm/io_bitmap.h
-@@ -19,7 +19,14 @@ struct task_struct;
- void io_bitmap_share(struct task_struct *tsk);
- void io_bitmap_exit(void);
- 
--void tss_update_io_bitmap(void);
-+void native_tss_update_io_bitmap(void);
-+
-+#ifdef CONFIG_PARAVIRT_XXL
-+#include <asm/paravirt.h>
-+#else
-+#define tss_update_io_bitmap native_tss_update_io_bitmap
-+#endif
-+
- #else
- static inline void io_bitmap_share(struct task_struct *tsk) { }
- static inline void io_bitmap_exit(void) { }
---- a/arch/x86/include/asm/paravirt.h
-+++ b/arch/x86/include/asm/paravirt.h
-@@ -295,6 +295,13 @@ static inline void write_idt_entry(gate_
- 	PVOP_VCALL3(cpu.write_idt_entry, dt, entry, g);
+--- a/arch/x86/kernel/cpu/common.c
++++ b/arch/x86/kernel/cpu/common.c
+@@ -462,7 +462,7 @@ static __always_inline void setup_pku(st
+ 	 * cpuid bit to be set.  We need to ensure that we
+ 	 * update that bit in this CPU's "cpu_info".
+ 	 */
+-	get_cpu_cap(c);
++	set_cpu_cap(c, X86_FEATURE_OSPKE);
  }
  
-+#ifdef CONFIG_X86_IOPL_IOPERM
-+static inline void tss_update_io_bitmap(void)
-+{
-+	PVOP_VCALL0(cpu.update_io_bitmap);
-+}
-+#endif
-+
- static inline void paravirt_activate_mm(struct mm_struct *prev,
- 					struct mm_struct *next)
- {
---- a/arch/x86/include/asm/paravirt_types.h
-+++ b/arch/x86/include/asm/paravirt_types.h
-@@ -140,6 +140,10 @@ struct pv_cpu_ops {
- 
- 	void (*load_sp0)(unsigned long sp0);
- 
-+#ifdef CONFIG_X86_IOPL_IOPERM
-+	void (*update_io_bitmap)(void);
-+#endif
-+
- 	void (*wbinvd)(void);
- 
- 	/* cpuid emulation, mostly so that caps bits can be disabled */
---- a/arch/x86/kernel/paravirt.c
-+++ b/arch/x86/kernel/paravirt.c
-@@ -30,6 +30,7 @@
- #include <asm/timer.h>
- #include <asm/special_insns.h>
- #include <asm/tlb.h>
-+#include <asm/io_bitmap.h>
- 
- /*
-  * nop stub, which must not clobber anything *including the stack* to
-@@ -341,6 +342,10 @@ struct paravirt_patch_template pv_ops =
- 	.cpu.iret		= native_iret,
- 	.cpu.swapgs		= native_swapgs,
- 
-+#ifdef CONFIG_X86_IOPL_IOPERM
-+	.cpu.update_io_bitmap	= native_tss_update_io_bitmap,
-+#endif
-+
- 	.cpu.start_context_switch	= paravirt_nop,
- 	.cpu.end_context_switch		= paravirt_nop,
- 
---- a/arch/x86/kernel/process.c
-+++ b/arch/x86/kernel/process.c
-@@ -374,7 +374,7 @@ static void tss_copy_io_bitmap(struct ts
- /**
-  * tss_update_io_bitmap - Update I/O bitmap before exiting to usermode
-  */
--void tss_update_io_bitmap(void)
-+void native_tss_update_io_bitmap(void)
- {
- 	struct tss_struct *tss = this_cpu_ptr(&cpu_tss_rw);
- 	struct thread_struct *t = &current->thread;
---- a/arch/x86/xen/enlighten_pv.c
-+++ b/arch/x86/xen/enlighten_pv.c
-@@ -72,6 +72,9 @@
- #include <asm/mwait.h>
- #include <asm/pci_x86.h>
- #include <asm/cpu.h>
-+#ifdef CONFIG_X86_IOPL_IOPERM
-+#include <asm/io_bitmap.h>
-+#endif
- 
- #ifdef CONFIG_ACPI
- #include <linux/acpi.h>
-@@ -837,6 +840,25 @@ static void xen_load_sp0(unsigned long s
- 	this_cpu_write(cpu_tss_rw.x86_tss.sp0, sp0);
- }
- 
-+#ifdef CONFIG_X86_IOPL_IOPERM
-+static void xen_update_io_bitmap(void)
-+{
-+	struct physdev_set_iobitmap iobitmap;
-+	struct tss_struct *tss = this_cpu_ptr(&cpu_tss_rw);
-+
-+	native_tss_update_io_bitmap();
-+
-+	iobitmap.bitmap = (uint8_t *)(&tss->x86_tss) +
-+			  tss->x86_tss.io_bitmap_base;
-+	if (tss->x86_tss.io_bitmap_base == IO_BITMAP_OFFSET_INVALID)
-+		iobitmap.nr_ports = 0;
-+	else
-+		iobitmap.nr_ports = IO_BITMAP_BITS;
-+
-+	HYPERVISOR_physdev_op(PHYSDEVOP_set_iobitmap, &iobitmap);
-+}
-+#endif
-+
- static void xen_io_delay(void)
- {
- }
-@@ -1047,6 +1069,9 @@ static const struct pv_cpu_ops xen_cpu_o
- 	.write_idt_entry = xen_write_idt_entry,
- 	.load_sp0 = xen_load_sp0,
- 
-+#ifdef CONFIG_X86_IOPL_IOPERM
-+	.update_io_bitmap = xen_update_io_bitmap,
-+#endif
- 	.io_delay = xen_io_delay,
- 
- 	/* Xen takes care of %gs when switching to usermode for us */
+ #ifdef CONFIG_X86_INTEL_MEMORY_PROTECTION_KEYS
 
 
