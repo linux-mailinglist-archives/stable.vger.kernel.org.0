@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A43E17FE48
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:34:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C296F17FE43
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:34:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728121AbgCJNeQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 09:34:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50366 "EHLO mail.kernel.org"
+        id S1727600AbgCJMqy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 08:46:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50454 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727770AbgCJMqs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 08:46:48 -0400
+        id S1727276AbgCJMqu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 08:46:50 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B5E5E20674;
-        Tue, 10 Mar 2020 12:46:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0EC822468D;
+        Tue, 10 Mar 2020 12:46:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583844408;
-        bh=xl9wnhembeDGjI5M84bf2op9bwgLmvBsjfk6ygNAZLc=;
+        s=default; t=1583844410;
+        bh=F+0TqD+X8sIsI6owgc1H/U6SPBKg/yevNWDS2WQHKNA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Noc3yvZryMFfY7BlwPlH8B1Sjel82msnfrGwnD35gps/VFB33HL2gCQBWjSQkADwj
-         J7a4UYE360YSj+5nBYe1xo5oEYC0igyZsYeTV37po2Bj6E6bqQ9ZKsi7J/DBbibNiL
-         iP2+JKWn1WeCiMXkvTVYmQe6ZkvWgvMH2Q6WkU0w=
+        b=t2A4n+pYWBbqBWN2h69feSKkLY30lHrD/vvmmgs75piAKwfz3CLsXodpgS7/jZ6zQ
+         W0tS1VppiBjPcvNq74fxlysFWADXkJ+4CklQhUmlBZN7eOMaQ+gWb5H1oQB3xH1Aax
+         pGR76PvjbCp0f38h464HxKa3HTyhertf0MGj4uDE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+9d82b8de2992579da5d0@syzkaller.appspotmail.com,
-        Andrew Morton <akpm@linux-foundation.org>,
-        OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.9 69/88] fat: fix uninit-memory access for partial initialized inode
-Date:   Tue, 10 Mar 2020 13:39:17 +0100
-Message-Id: <20200310123623.092076720@linuxfoundation.org>
+        stable@vger.kernel.org, tangbin <tangbin@cmss.chinamobile.com>,
+        Jiri Slaby <jslaby@suse.cz>
+Subject: [PATCH 4.9 70/88] tty:serial:mvebu-uart:fix a wrong return
+Date:   Tue, 10 Mar 2020 13:39:18 +0100
+Message-Id: <20200310123623.232186664@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200310123606.543939933@linuxfoundation.org>
 References: <20200310123606.543939933@linuxfoundation.org>
@@ -46,74 +43,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+From: tangbin <tangbin@cmss.chinamobile.com>
 
-commit bc87302a093f0eab45cd4e250c2021299f712ec6 upstream.
+commit 4a3e208474204e879d22a310b244cb2f39e5b1f8 upstream.
 
-When get an error in the middle of reading an inode, some fields in the
-inode might be still not initialized.  And then the evict_inode path may
-access those fields via iput().
+in this place, the function should return a
+negative value and the PTR_ERR already returns
+a negative,so return -PTR_ERR() is wrong.
 
-To fix, this makes sure that inode fields are initialized.
-
-Reported-by: syzbot+9d82b8de2992579da5d0@syzkaller.appspotmail.com
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Cc: <stable@vger.kernel.org>
-Link: http://lkml.kernel.org/r/871rqnreqx.fsf@mail.parknet.co.jp
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: tangbin <tangbin@cmss.chinamobile.com>
+Cc: stable <stable@vger.kernel.org>
+Acked-by: Jiri Slaby <jslaby@suse.cz>
+Link: https://lore.kernel.org/r/20200305013823.20976-1-tangbin@cmss.chinamobile.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/fat/inode.c |   19 +++++++------------
- 1 file changed, 7 insertions(+), 12 deletions(-)
+ drivers/tty/serial/mvebu-uart.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/fat/inode.c
-+++ b/fs/fat/inode.c
-@@ -736,6 +736,13 @@ static struct inode *fat_alloc_inode(str
- 		return NULL;
+--- a/drivers/tty/serial/mvebu-uart.c
++++ b/drivers/tty/serial/mvebu-uart.c
+@@ -581,7 +581,7 @@ static int mvebu_uart_probe(struct platf
  
- 	init_rwsem(&ei->truncate_lock);
-+	/* Zeroing to allow iput() even if partial initialized inode. */
-+	ei->mmu_private = 0;
-+	ei->i_start = 0;
-+	ei->i_logstart = 0;
-+	ei->i_attrs = 0;
-+	ei->i_pos = 0;
-+
- 	return &ei->vfs_inode;
- }
+ 	port->membase = devm_ioremap_resource(&pdev->dev, reg);
+ 	if (IS_ERR(port->membase))
+-		return -PTR_ERR(port->membase);
++		return PTR_ERR(port->membase);
  
-@@ -1366,16 +1373,6 @@ out:
- 	return 0;
- }
- 
--static void fat_dummy_inode_init(struct inode *inode)
--{
--	/* Initialize this dummy inode to work as no-op. */
--	MSDOS_I(inode)->mmu_private = 0;
--	MSDOS_I(inode)->i_start = 0;
--	MSDOS_I(inode)->i_logstart = 0;
--	MSDOS_I(inode)->i_attrs = 0;
--	MSDOS_I(inode)->i_pos = 0;
--}
--
- static int fat_read_root(struct inode *inode)
- {
- 	struct msdos_sb_info *sbi = MSDOS_SB(inode->i_sb);
-@@ -1820,13 +1817,11 @@ int fat_fill_super(struct super_block *s
- 	fat_inode = new_inode(sb);
- 	if (!fat_inode)
- 		goto out_fail;
--	fat_dummy_inode_init(fat_inode);
- 	sbi->fat_inode = fat_inode;
- 
- 	fsinfo_inode = new_inode(sb);
- 	if (!fsinfo_inode)
- 		goto out_fail;
--	fat_dummy_inode_init(fsinfo_inode);
- 	fsinfo_inode->i_ino = MSDOS_FSINFO_INO;
- 	sbi->fsinfo_inode = fsinfo_inode;
- 	insert_inode_hash(fsinfo_inode);
+ 	data = devm_kzalloc(&pdev->dev, sizeof(struct mvebu_uart_data),
+ 			    GFP_KERNEL);
 
 
