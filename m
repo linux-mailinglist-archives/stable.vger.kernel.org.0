@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D08F817FD6E
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:29:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A352017FA1A
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:02:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728711AbgCJMyZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 08:54:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60946 "EHLO mail.kernel.org"
+        id S1730018AbgCJNCr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 09:02:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46338 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729351AbgCJMyX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 08:54:23 -0400
+        id S1730464AbgCJNCq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 09:02:46 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4E2712469A;
-        Tue, 10 Mar 2020 12:54:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 10DC4208E4;
+        Tue, 10 Mar 2020 13:02:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583844862;
-        bh=8xImSQShcvrejIy+ZNtedyF7rEQ2BnsEBHRCR7wJwXE=;
+        s=default; t=1583845364;
+        bh=CLL7T+YiC1fWFLnmvzohg0ZeFuSTWM7U9KxIUt33uq8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xL3Zx5BbeD4TKw8jJ/Q8HDlW3TtjSEFJv2o7t0Yp0KSCapoMECXN9vcqKSkhybTlo
-         1c40zG2h50a4ziCvwiUQdOAfEh0UQgRF0SGEyVq2gwKO7g7Wu/IgqWfP4TV+e4lnGi
-         NAkGYnJh4QdigiB/Vwq7WZqtColeYvl8O8DJpYFs=
+        b=VE0JTBrqkMoLhQBSKwlpAZhbd5aX5rOuHUC/YJv2KHM92HDqkDfyffJaT0/4SNk2Z
+         bSeycA3EE9qaVudDifv09PFBfr7+jO5oA3PrOSKIhxyl7OaozEWLF5dZ3OTrCb9uFk
+         YV4SqjchxDfDfYGdYDsfT6qyIWjVCJL2UGsb+Qwo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Parav Pandit <parav@mellanox.com>,
-        Leon Romanovsky <leonro@mellanox.com>,
-        Jason Gunthorpe <jgg@mellanox.com>
-Subject: [PATCH 5.4 145/168] Revert "RDMA/cma: Simplify rdma_resolve_addr() error flow"
+        stable@vger.kernel.org, Fabio Estevam <festevam@gmail.com>,
+        Leonard Crestez <leonard.crestez@nxp.com>,
+        Shawn Guo <shawnguo@kernel.org>
+Subject: [PATCH 5.5 154/189] arm64: dts: imx8qxp-mek: Remove unexisting Ethernet PHY
 Date:   Tue, 10 Mar 2020 13:39:51 +0100
-Message-Id: <20200310123650.195163057@linuxfoundation.org>
+Message-Id: <20200310123655.479386222@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200310123635.322799692@linuxfoundation.org>
-References: <20200310123635.322799692@linuxfoundation.org>
+In-Reply-To: <20200310123639.608886314@linuxfoundation.org>
+References: <20200310123639.608886314@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,70 +44,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Parav Pandit <parav@mellanox.com>
+From: Fabio Estevam <festevam@gmail.com>
 
-commit e4103312d7b7afb8a3a7a842a33ef2b1856b2c0f upstream.
+commit 26c4b4758fce8f0ae744335e1762213be29db441 upstream.
 
-This reverts commit 219d2e9dfda9431b808c28d5efc74b404b95b638.
+There is only on Ethernet port and one Ethernet PHY on imx8qxp-mek.
 
-The call chain below requires the cm_id_priv's destination address to be
-setup before performing rdma_bind_addr(). Otherwise source port allocation
-fails as cma_port_is_unique() no longer sees the correct tuple to allow
-duplicate users of the source port.
+Remove the unexisting ethphy1 port.
 
-rdma_resolve_addr()
-  cma_bind_addr()
-    rdma_bind_addr()
-      cma_get_port()
-        cma_alloc_any_port()
-          cma_port_is_unique() <- compared with zero daddr
+This fixes a run-time warning:
 
-This can result in false failures to connect, particularly if the source
-port range is restricted.
+mdio_bus 5b040000.ethernet-1: MDIO device at address 1 is missing.
 
-Fixes: 219d2e9dfda9 ("RDMA/cma: Simplify rdma_resolve_addr() error flow")
-Link: https://lore.kernel.org/r/20200212072635.682689-4-leon@kernel.org
-Signed-off-by: Parav Pandit <parav@mellanox.com>
-Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+Fixes: fdea904e85e1 ("arm64: dts: imx: add imx8qxp mek support")
+Signed-off-by: Fabio Estevam <festevam@gmail.com>
+Reviewed-by: Leonard Crestez <leonard.crestez@nxp.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/infiniband/core/cma.c |   15 +++++++++++----
- 1 file changed, 11 insertions(+), 4 deletions(-)
+ arch/arm64/boot/dts/freescale/imx8qxp-mek.dts |    5 -----
+ 1 file changed, 5 deletions(-)
 
---- a/drivers/infiniband/core/cma.c
-+++ b/drivers/infiniband/core/cma.c
-@@ -3155,19 +3155,26 @@ int rdma_resolve_addr(struct rdma_cm_id
- 	int ret;
+--- a/arch/arm64/boot/dts/freescale/imx8qxp-mek.dts
++++ b/arch/arm64/boot/dts/freescale/imx8qxp-mek.dts
+@@ -52,11 +52,6 @@
+ 			compatible = "ethernet-phy-ieee802.3-c22";
+ 			reg = <0>;
+ 		};
+-
+-		ethphy1: ethernet-phy@1 {
+-			compatible = "ethernet-phy-ieee802.3-c22";
+-			reg = <1>;
+-		};
+ 	};
+ };
  
- 	id_priv = container_of(id, struct rdma_id_private, id);
-+	memcpy(cma_dst_addr(id_priv), dst_addr, rdma_addr_size(dst_addr));
- 	if (id_priv->state == RDMA_CM_IDLE) {
- 		ret = cma_bind_addr(id, src_addr, dst_addr);
--		if (ret)
-+		if (ret) {
-+			memset(cma_dst_addr(id_priv), 0,
-+			       rdma_addr_size(dst_addr));
- 			return ret;
-+		}
- 	}
- 
--	if (cma_family(id_priv) != dst_addr->sa_family)
-+	if (cma_family(id_priv) != dst_addr->sa_family) {
-+		memset(cma_dst_addr(id_priv), 0, rdma_addr_size(dst_addr));
- 		return -EINVAL;
-+	}
- 
--	if (!cma_comp_exch(id_priv, RDMA_CM_ADDR_BOUND, RDMA_CM_ADDR_QUERY))
-+	if (!cma_comp_exch(id_priv, RDMA_CM_ADDR_BOUND, RDMA_CM_ADDR_QUERY)) {
-+		memset(cma_dst_addr(id_priv), 0, rdma_addr_size(dst_addr));
- 		return -EINVAL;
-+	}
- 
--	memcpy(cma_dst_addr(id_priv), dst_addr, rdma_addr_size(dst_addr));
- 	if (cma_any_addr(dst_addr)) {
- 		ret = cma_resolve_loopback(id_priv);
- 	} else {
 
 
