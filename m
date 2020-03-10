@@ -2,45 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3615817F857
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 13:47:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 035D017F9C1
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 13:59:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727440AbgCJMrI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 08:47:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50750 "EHLO mail.kernel.org"
+        id S1730033AbgCJM7m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 08:59:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40174 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727938AbgCJMrH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 08:47:07 -0400
+        id S1727001AbgCJM7j (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 08:59:39 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4D90A20674;
-        Tue, 10 Mar 2020 12:47:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8590520674;
+        Tue, 10 Mar 2020 12:59:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583844426;
-        bh=iYoThNzsN9sLo4BBTBPvBQeaRYlI3YW5q55/Nq573as=;
+        s=default; t=1583845179;
+        bh=JU/E6Hyc3lT/mzdd3OXkf1eaDqIKOPhrJqDCJo67chE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=skvQ1tfApCtlhdhzdVzZf9G4Xi9zZuwDZ44DiUlxkf87Q034MDTY7kLm6TILt+/z2
-         602CN6JqoQ1RDnejQQlj4aaH3a43T8rD29lBeJ/f48vlqXguNwl66V/kr+gmXByUYG
-         A7VwPmKPF9iNBFu/5zXC+37HxFEnWXCw3uCQxheY=
+        b=Bss3sntZ3MR+AEM0Jd9VMSkyTuR6avggC0iMUR2wJeLqZ26KXpSZb+FJQdkvwgTFL
+         HIxfVupD4cfBwDVgYjI3+M64RwhIwzOPGSBmPiR/56IXZ3dyDQG6HeLbJgESvrCAXs
+         86HJF13nqDDx8uFP4qWjK7SCiu4qcQe5J0UE/Z7U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chris Wilson <chris@chris-wilson.co.uk>,
-        Jani Nikula <jani.nikula@intel.com>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        Andy Gospodarek <gospo@broadcom.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.9 39/88] include/linux/bitops.h: introduce BITS_PER_TYPE
-Date:   Tue, 10 Mar 2020 13:38:47 +0100
-Message-Id: <20200310123615.448719347@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Ronald=20Tschal=C3=A4r?= <ronald@innovation.ch>
+Subject: [PATCH 5.5 091/189] serdev: Fix detection of UART devices on Apple machines.
+Date:   Tue, 10 Mar 2020 13:38:48 +0100
+Message-Id: <20200310123648.924250076@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200310123606.543939933@linuxfoundation.org>
-References: <20200310123606.543939933@linuxfoundation.org>
+In-Reply-To: <20200310123639.608886314@linuxfoundation.org>
+References: <20200310123639.608886314@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,42 +43,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Wilson <chris@chris-wilson.co.uk>
+From: Ronald Tschalär <ronald@innovation.ch>
 
-commit 9144d75e22cad3c89e6b2ccab551db9ee28d250a upstream.
+commit 35d4670aaec7206b5ef19c842ca33076bde562e4 upstream.
 
-net_dim.h has a rather useful extension to BITS_PER_BYTE to compute the
-number of bits in a type (BITS_PER_BYTE * sizeof(T)), so promote the macro
-to bitops.h, alongside BITS_PER_BYTE, for wider usage.
+On Apple devices the _CRS method returns an empty resource template, and
+the resource settings are instead provided by the _DSM method. But
+commit 33364d63c75d6182fa369cea80315cf1bb0ee38e (serdev: Add ACPI
+devices by ResourceSource field) changed the search for serdev devices
+to require valid, non-empty resource template, thereby breaking Apple
+devices and causing bluetooth devices to not be found.
 
-Link: http://lkml.kernel.org/r/20180706094458.14116-1-chris@chris-wilson.co.uk
-Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Reviewed-by: Jani Nikula <jani.nikula@intel.com>
-Cc: Randy Dunlap <rdunlap@infradead.org>
-Cc: Andy Gospodarek <gospo@broadcom.com>
-Cc: David S. Miller <davem@davemloft.net>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Ingo Molnar <mingo@kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-[only take the bitops.h portion for stable kernels - gregkh]
+This expands the check so that if we don't find a valid template, and
+we're on an Apple machine, then just check for the device being an
+immediate child of the controller and having a "baud" property.
+
+Cc: <stable@vger.kernel.org> # 5.5
+Fixes: 33364d63c75d ("serdev: Add ACPI devices by ResourceSource field")
+Signed-off-by: Ronald Tschalär <ronald@innovation.ch>
+Link: https://lore.kernel.org/r/20200211194723.486217-1-ronald@innovation.ch
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- include/linux/bitops.h |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/tty/serdev/core.c |   10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
---- a/include/linux/bitops.h
-+++ b/include/linux/bitops.h
-@@ -3,7 +3,8 @@
- #include <asm/types.h>
- #include <linux/bits.h>
+--- a/drivers/tty/serdev/core.c
++++ b/drivers/tty/serdev/core.c
+@@ -18,6 +18,7 @@
+ #include <linux/sched.h>
+ #include <linux/serdev.h>
+ #include <linux/slab.h>
++#include <linux/platform_data/x86/apple.h>
  
--#define BITS_TO_LONGS(nr)	DIV_ROUND_UP(nr, BITS_PER_BYTE * sizeof(long))
-+#define BITS_PER_TYPE(type) (sizeof(type) * BITS_PER_BYTE)
-+#define BITS_TO_LONGS(nr)	DIV_ROUND_UP(nr, BITS_PER_TYPE(long))
+ static bool is_registered;
+ static DEFINE_IDA(ctrl_ida);
+@@ -630,6 +631,15 @@ static int acpi_serdev_check_resources(s
+ 	if (ret)
+ 		return ret;
  
- extern unsigned int __sw_hweight8(unsigned int w);
- extern unsigned int __sw_hweight16(unsigned int w);
++	/*
++	 * Apple machines provide an empty resource template, so on those
++	 * machines just look for immediate children with a "baud" property
++	 * (from the _DSM method) instead.
++	 */
++	if (!lookup.controller_handle && x86_apple_machine &&
++	    !acpi_dev_get_property(adev, "baud", ACPI_TYPE_BUFFER, NULL))
++		acpi_get_parent(adev->handle, &lookup.controller_handle);
++
+ 	/* Make sure controller and ResourceSource handle match */
+ 	if (ACPI_HANDLE(ctrl->dev.parent) != lookup.controller_handle)
+ 		return -ENODEV;
 
 
