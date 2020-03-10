@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7F26717FDF3
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:31:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8685817FE7F
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:35:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727392AbgCJMtf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 08:49:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53962 "EHLO mail.kernel.org"
+        id S1727668AbgCJMn6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 08:43:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44446 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727015AbgCJMte (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 08:49:34 -0400
+        id S1726501AbgCJMn5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 08:43:57 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 815EC20674;
-        Tue, 10 Mar 2020 12:49:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 06DA924686;
+        Tue, 10 Mar 2020 12:43:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583844574;
-        bh=no0GuCpqckWefi6gyJZFiaQKtELfKYDvpEWkHUb1ENc=;
+        s=default; t=1583844237;
+        bh=zelQCojRdjTRJfT/utokvhhGatHdiVoh5veId4tJeag=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CcC+euPeO5sBEu0k/TDLDkhIDpZgsQLy7Czvaw0H8qdH2AYQCET1E4v1TQ6tVOTT8
-         QQ3EEIXpWo+fb4LXil/74C7PklTRTiZfjK73TXyxbY+GRLjVqPJ5zMVWlAzXsLTi5j
-         JeMQ1QhkzcetbuIAzDs8QGQE684DkPGRuzXey1Nw=
+        b=m1DkBiyFMHB81QRoaEVnEF2rMml+6DKV/A4NcwESl6UZAWa5tbA4C2YLyX/TiVxNn
+         eaZlulIdtsJ4ygoGoWCL5PtOG4pwvbQ5jC+LIqWk/rufXHA6trInUo5xk8/lrHxXHQ
+         9+nfforcqX/fJTU3GP5Cf8cr69sEkYJP3oRu0w9M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jon Derrick <jonathan.derrick@intel.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Shyjumon N <shyjumon.n@intel.com>,
-        Keith Busch <kbusch@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 042/168] nvme/pci: Add sleep quirk for Samsung and Toshiba drives
-Date:   Tue, 10 Mar 2020 13:38:08 +0100
-Message-Id: <20200310123639.646314392@linuxfoundation.org>
+        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
+        Luca Coelho <luciano.coelho@intel.com>,
+        Ajay Kaher <akaher@vmware.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 01/88] iwlwifi: pcie: fix rb_allocator workqueue allocation
+Date:   Tue, 10 Mar 2020 13:38:09 +0100
+Message-Id: <20200310123606.848982431@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200310123635.322799692@linuxfoundation.org>
-References: <20200310123635.322799692@linuxfoundation.org>
+In-Reply-To: <20200310123606.543939933@linuxfoundation.org>
+References: <20200310123606.543939933@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -46,49 +46,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shyjumon N <shyjumon.n@intel.com>
+From: Johannes Berg <johannes.berg@intel.com>
 
-[ Upstream commit 1fae37accfc5872af3905d4ba71dc6ab15829be7 ]
+commit 8188a18ee2e48c9a7461139838048363bfce3fef upstream
 
-The Samsung SSD SM981/PM981 and Toshiba SSD KBG40ZNT256G on the Lenovo
-C640 platform experience runtime resume issues when the SSDs are kept in
-sleep/suspend mode for long time.
+We don't handle failures in the rb_allocator workqueue allocation
+correctly. To fix that, move the code earlier so the cleanup is
+easier and we don't have to undo all the interrupt allocations in
+this case.
 
-This patch applies the 'Simple Suspend' quirk to these configurations.
-With this patch, the issue had not been observed in a 1+ day test.
-
-Reviewed-by: Jon Derrick <jonathan.derrick@intel.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Shyjumon N <shyjumon.n@intel.com>
-Signed-off-by: Keith Busch <kbusch@kernel.org>
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+[Ajay: Rewrote this patch for v4.9.y, as 4.9.y codebase is different from mainline]
+Signed-off-by: Ajay Kaher <akaher@vmware.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/pci.c | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ drivers/net/wireless/intel/iwlwifi/pcie/rx.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
-index 570c75c92e293..c8e55674cf937 100644
---- a/drivers/nvme/host/pci.c
-+++ b/drivers/nvme/host/pci.c
-@@ -2753,6 +2753,18 @@ static unsigned long check_vendor_combination_bug(struct pci_dev *pdev)
- 		    (dmi_match(DMI_BOARD_NAME, "PRIME B350M-A") ||
- 		     dmi_match(DMI_BOARD_NAME, "PRIME Z370-A")))
- 			return NVME_QUIRK_NO_APST;
-+	} else if ((pdev->vendor == 0x144d && (pdev->device == 0xa801 ||
-+		    pdev->device == 0xa808 || pdev->device == 0xa809)) ||
-+		   (pdev->vendor == 0x1e0f && pdev->device == 0x0001)) {
-+		/*
-+		 * Forcing to use host managed nvme power settings for
-+		 * lowest idle power with quick resume latency on
-+		 * Samsung and Toshiba SSDs based on suspend behavior
-+		 * on Coffee Lake board for LENOVO C640
-+		 */
-+		if ((dmi_match(DMI_BOARD_VENDOR, "LENOVO")) &&
-+		     dmi_match(DMI_BOARD_NAME, "LNVNB161216"))
-+			return NVME_QUIRK_SIMPLE_SUSPEND;
+diff --git a/drivers/net/wireless/intel/iwlwifi/pcie/rx.c b/drivers/net/wireless/intel/iwlwifi/pcie/rx.c
+index a2ebe46bcfc5b..395bbe2c0f983 100644
+--- a/drivers/net/wireless/intel/iwlwifi/pcie/rx.c
++++ b/drivers/net/wireless/intel/iwlwifi/pcie/rx.c
+@@ -898,9 +898,13 @@ int iwl_pcie_rx_init(struct iwl_trans *trans)
+ 			return err;
  	}
+ 	def_rxq = trans_pcie->rxq;
+-	if (!rba->alloc_wq)
++	if (!rba->alloc_wq) {
+ 		rba->alloc_wq = alloc_workqueue("rb_allocator",
+ 						WQ_HIGHPRI | WQ_UNBOUND, 1);
++		if (!rba->alloc_wq)
++			return -ENOMEM;
++	}
++
+ 	INIT_WORK(&rba->rx_alloc, iwl_pcie_rx_allocator_work);
  
- 	return 0;
+ 	cancel_work_sync(&rba->rx_alloc);
 -- 
 2.20.1
 
