@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8ADA617FD26
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:26:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 527B917FD1F
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:26:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727918AbgCJN0S (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 09:26:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35074 "EHLO mail.kernel.org"
+        id S1729215AbgCJM4J (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 08:56:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35156 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729605AbgCJM4B (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 08:56:01 -0400
+        id S1729197AbgCJM4E (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 08:56:04 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 733462253D;
-        Tue, 10 Mar 2020 12:56:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EB1522468D;
+        Tue, 10 Mar 2020 12:56:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583844960;
-        bh=3TigfwXrdUcwuJtxDdM91sunQiw06FIrpMZszuW3/3k=;
+        s=default; t=1583844963;
+        bh=IL3/wicU8vS8fr/u2xEEigJhcMcCof++SwVTStaXe0s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C1RLOHpXWqO6NVUXaeKBKzB9Zty2v4Lhwg0ldQ15dt3FpbkHLW4c8lz+oBmL9zjL6
-         iCC2BeS3Znl0Dw8Dc1bJLsmyWhpqc0MYrp9C6EQ5djUG8xDnfTGNKiEc9o6RyBbgEk
-         xScLA4JQ5Gztxc8pb6aUO7J5f87hmhQa8vJBwTI4=
+        b=p0UKacuSq0zP7556lgdf2RqjyHZtCMvCQtGGuTPqSqWOralsgzTBmfrnycQ/B9K+H
+         V3WSqZh0e8CbF49bnt47ZhFoVPf9jrTeaFamPma+e42y9207D82Qg6fPl1AyZVBEYr
+         iPmsmO8D5qc01vk6ROmqsdjMkUnNXOU7bE/58Ejw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Nikita Sobolev <Nikita.Sobolev@synopsys.com>,
+        Yauheni Kaliuta <yauheni.kaliuta@redhat.com>,
+        Jiri Benc <jbenc@redhat.com>,
         Shuah Khan <skhan@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 014/189] Kernel selftests: tpm2: check for tpm support
-Date:   Tue, 10 Mar 2020 13:37:31 +0100
-Message-Id: <20200310123640.975059538@linuxfoundation.org>
+Subject: [PATCH 5.5 015/189] selftests: fix too long argument
+Date:   Tue, 10 Mar 2020 13:37:32 +0100
+Message-Id: <20200310123641.063181436@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200310123639.608886314@linuxfoundation.org>
 References: <20200310123639.608886314@linuxfoundation.org>
@@ -45,63 +46,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nikita Sobolev <Nikita.Sobolev@synopsys.com>
+From: Jiri Benc <jbenc@redhat.com>
 
-[ Upstream commit b32694cd0724d4ceca2c62cc7c3d3a8d1ffa11fc ]
+[ Upstream commit c363eb48ada5cf732b3f489fab799fc881097842 ]
 
-tpm2 tests set fails if there is no /dev/tpm0 and /dev/tpmrm0
-supported. Check if these files exist before run and mark test as
-skipped in case of absence.
+With some shells, the command construed for install of bpf selftests becomes
+too large due to long list of files:
 
-Signed-off-by: Nikita Sobolev <Nikita.Sobolev@synopsys.com>
+make[1]: execvp: /bin/sh: Argument list too long
+make[1]: *** [../lib.mk:73: install] Error 127
+
+Currently, each of the file lists is replicated three times in the command:
+in the shell 'if' condition, in the 'echo' and in the 'rsync'. Reduce that
+by one instance by using make conditionals and separate the echo and rsync
+into two shell commands. (One would be inclined to just remove the '@' at
+the beginning of the rsync command and let 'make' echo it by itself;
+unfortunately, it appears that the '@' in the front of mkdir silences output
+also for the following commands.)
+
+Also, separate handling of each of the lists to its own shell command.
+
+The semantics of the makefile is unchanged before and after the patch. The
+ability of individual test directories to override INSTALL_RULE is retained.
+
+Reported-by: Yauheni Kaliuta <yauheni.kaliuta@redhat.com>
+Tested-by: Yauheni Kaliuta <yauheni.kaliuta@redhat.com>
+Signed-off-by: Jiri Benc <jbenc@redhat.com>
 Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/tpm2/test_smoke.sh | 13 +++++++++++--
- tools/testing/selftests/tpm2/test_space.sh |  9 ++++++++-
- 2 files changed, 19 insertions(+), 3 deletions(-)
+ tools/testing/selftests/lib.mk | 23 +++++++++++++----------
+ 1 file changed, 13 insertions(+), 10 deletions(-)
 
-diff --git a/tools/testing/selftests/tpm2/test_smoke.sh b/tools/testing/selftests/tpm2/test_smoke.sh
-index 8155c2ea7ccbb..b630c7b5950a9 100755
---- a/tools/testing/selftests/tpm2/test_smoke.sh
-+++ b/tools/testing/selftests/tpm2/test_smoke.sh
-@@ -1,8 +1,17 @@
- #!/bin/bash
- # SPDX-License-Identifier: (GPL-2.0 OR BSD-3-Clause)
-+self.flags = flags
+diff --git a/tools/testing/selftests/lib.mk b/tools/testing/selftests/lib.mk
+index 1c8a1963d03f8..3ed0134a764d4 100644
+--- a/tools/testing/selftests/lib.mk
++++ b/tools/testing/selftests/lib.mk
+@@ -83,17 +83,20 @@ else
+ 	$(call RUN_TESTS, $(TEST_GEN_PROGS) $(TEST_CUSTOM_PROGS) $(TEST_PROGS))
+ endif
  
--python -m unittest -v tpm2_tests.SmokeTest
--python -m unittest -v tpm2_tests.AsyncTest
-+# Kselftest framework requirement - SKIP code is 4.
-+ksft_skip=4
++define INSTALL_SINGLE_RULE
++	$(if $(INSTALL_LIST),@mkdir -p $(INSTALL_PATH))
++	$(if $(INSTALL_LIST),@echo rsync -a $(INSTALL_LIST) $(INSTALL_PATH)/)
++	$(if $(INSTALL_LIST),@rsync -a $(INSTALL_LIST) $(INSTALL_PATH)/)
++endef
 +
-+
-+if [ -f /dev/tpm0 ] ; then
-+	python -m unittest -v tpm2_tests.SmokeTest
-+	python -m unittest -v tpm2_tests.AsyncTest
-+else
-+	exit $ksft_skip
-+fi
+ define INSTALL_RULE
+-	@if [ "X$(TEST_PROGS)$(TEST_PROGS_EXTENDED)$(TEST_FILES)" != "X" ]; then					\
+-		mkdir -p ${INSTALL_PATH};										\
+-		echo "rsync -a $(TEST_PROGS) $(TEST_PROGS_EXTENDED) $(TEST_FILES) $(INSTALL_PATH)/";	\
+-		rsync -a $(TEST_PROGS) $(TEST_PROGS_EXTENDED) $(TEST_FILES) $(INSTALL_PATH)/;		\
+-	fi
+-	@if [ "X$(TEST_GEN_PROGS)$(TEST_CUSTOM_PROGS)$(TEST_GEN_PROGS_EXTENDED)$(TEST_GEN_FILES)" != "X" ]; then					\
+-		mkdir -p ${INSTALL_PATH};										\
+-		echo "rsync -a $(TEST_GEN_PROGS) $(TEST_CUSTOM_PROGS) $(TEST_GEN_PROGS_EXTENDED) $(TEST_GEN_FILES) $(INSTALL_PATH)/";	\
+-		rsync -a $(TEST_GEN_PROGS) $(TEST_CUSTOM_PROGS) $(TEST_GEN_PROGS_EXTENDED) $(TEST_GEN_FILES) $(INSTALL_PATH)/;		\
+-	fi
++	$(eval INSTALL_LIST = $(TEST_PROGS)) $(INSTALL_SINGLE_RULE)
++	$(eval INSTALL_LIST = $(TEST_PROGS_EXTENDED)) $(INSTALL_SINGLE_RULE)
++	$(eval INSTALL_LIST = $(TEST_FILES)) $(INSTALL_SINGLE_RULE)
++	$(eval INSTALL_LIST = $(TEST_GEN_PROGS)) $(INSTALL_SINGLE_RULE)
++	$(eval INSTALL_LIST = $(TEST_CUSTOM_PROGS)) $(INSTALL_SINGLE_RULE)
++	$(eval INSTALL_LIST = $(TEST_GEN_PROGS_EXTENDED)) $(INSTALL_SINGLE_RULE)
++	$(eval INSTALL_LIST = $(TEST_GEN_FILES)) $(INSTALL_SINGLE_RULE)
+ endef
  
- CLEAR_CMD=$(which tpm2_clear)
- if [ -n $CLEAR_CMD ]; then
-diff --git a/tools/testing/selftests/tpm2/test_space.sh b/tools/testing/selftests/tpm2/test_space.sh
-index a6f5e346635e5..180b469c53b47 100755
---- a/tools/testing/selftests/tpm2/test_space.sh
-+++ b/tools/testing/selftests/tpm2/test_space.sh
-@@ -1,4 +1,11 @@
- #!/bin/bash
- # SPDX-License-Identifier: (GPL-2.0 OR BSD-3-Clause)
- 
--python -m unittest -v tpm2_tests.SpaceTest
-+# Kselftest framework requirement - SKIP code is 4.
-+ksft_skip=4
-+
-+if [ -f /dev/tpmrm0 ] ; then
-+	python -m unittest -v tpm2_tests.SpaceTest
-+else
-+	exit $ksft_skip
-+fi
+ install: all
 -- 
 2.20.1
 
