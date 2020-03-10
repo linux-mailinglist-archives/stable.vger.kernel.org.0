@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2BEE917FA85
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:05:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 490E817FA46
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:04:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730445AbgCJNFo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 09:05:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50716 "EHLO mail.kernel.org"
+        id S1728958AbgCJNEH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 09:04:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49066 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730280AbgCJNFi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 09:05:38 -0400
+        id S1729719AbgCJNEG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 09:04:06 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F3D7820409;
-        Tue, 10 Mar 2020 13:05:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 219B024698;
+        Tue, 10 Mar 2020 13:04:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583845531;
-        bh=TiMwdOhhkBtIR//LJW1lotenyOjEmsvRK5wcbLFw0GQ=;
+        s=default; t=1583845445;
+        bh=uG6ORTWs4LOH+gNyOH9bc6K2hUnR24KmtyOL7P0js5w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x2+dXriPjfmvRH3JBt/+dPmK8N1RwzceVQCeeJkDrUBkM6pTeeQ1xyRUNyGx7ZKUI
-         oUGIxg7TJmdwRyn3HUFJ3yPsQgnQCVyL8QYZD2TYZP7Rwz2/iabqqt4XpxRCKU2rwf
-         vqPlgDY5jEU6l6iGAlkVF6vIGielEY4OHMUsIXMA=
+        b=HFQ7iFq83FGA+PWpTDSTGZOsJhM3anNJtsFIIb+cmnJcuPHmFgazoPb6rF3XhpNP1
+         vuzdrYLg5c1JNhuvo4Op/4JQGKCDrjij+4bfQdGXef7UtWfs9AeF7XHILiO7YItcmU
+         RecIvWHEtD/yE2bllWRTMlMBF8LemHWzLlUcPCYY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
-        Luca Coelho <luciano.coelho@intel.com>,
-        Ajay Kaher <akaher@vmware.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 001/126] iwlwifi: pcie: fix rb_allocator workqueue allocation
+        stable@vger.kernel.org,
+        "Desnes A. Nunes do Rosario" <desnesn@linux.ibm.com>,
+        Leonardo Bras <leonardo@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.5 185/189] powerpc: fix hardware PMU exception bug on PowerVM compatibility mode systems
 Date:   Tue, 10 Mar 2020 13:40:22 +0100
-Message-Id: <20200310124203.801765963@linuxfoundation.org>
+Message-Id: <20200310123658.183933670@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200310124203.704193207@linuxfoundation.org>
-References: <20200310124203.704193207@linuxfoundation.org>
+In-Reply-To: <20200310123639.608886314@linuxfoundation.org>
+References: <20200310123639.608886314@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -46,66 +45,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Desnes A. Nunes do Rosario <desnesn@linux.ibm.com>
 
-commit 8188a18ee2e48c9a7461139838048363bfce3fef upstream
+commit fc37a1632d40c80c067eb1bc235139f5867a2667 upstream.
 
-We don't handle failures in the rb_allocator workqueue allocation
-correctly. To fix that, move the code earlier so the cleanup is
-easier and we don't have to undo all the interrupt allocations in
-this case.
+PowerVM systems running compatibility mode on a few Power8 revisions are
+still vulnerable to the hardware defect that loses PMU exceptions arriving
+prior to a context switch.
 
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-[Ajay: Modified to apply on v4.19.y and v4.14.y]
-Signed-off-by: Ajay Kaher <akaher@vmware.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The software fix for this issue is enabled through the CPU_FTR_PMAO_BUG
+cpu_feature bit, nevertheless this bit also needs to be set for PowerVM
+compatibility mode systems.
+
+Fixes: 68f2f0d431d9ea4 ("powerpc: Add a cpu feature CPU_FTR_PMAO_BUG")
+Signed-off-by: Desnes A. Nunes do Rosario <desnesn@linux.ibm.com>
+Reviewed-by: Leonardo Bras <leonardo@linux.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20200227134715.9715-1-desnesn@linux.ibm.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/net/wireless/intel/iwlwifi/pcie/trans.c | 15 +++++++++++----
- 1 file changed, 11 insertions(+), 4 deletions(-)
+ arch/powerpc/kernel/cputable.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/intel/iwlwifi/pcie/trans.c b/drivers/net/wireless/intel/iwlwifi/pcie/trans.c
-index dffa697d71e0f..8a074a516fb26 100644
---- a/drivers/net/wireless/intel/iwlwifi/pcie/trans.c
-+++ b/drivers/net/wireless/intel/iwlwifi/pcie/trans.c
-@@ -3023,6 +3023,15 @@ struct iwl_trans *iwl_trans_pcie_alloc(struct pci_dev *pdev,
- 	spin_lock_init(&trans_pcie->reg_lock);
- 	mutex_init(&trans_pcie->mutex);
- 	init_waitqueue_head(&trans_pcie->ucode_write_waitq);
-+
-+	trans_pcie->rba.alloc_wq = alloc_workqueue("rb_allocator",
-+						   WQ_HIGHPRI | WQ_UNBOUND, 1);
-+	if (!trans_pcie->rba.alloc_wq) {
-+		ret = -ENOMEM;
-+		goto out_free_trans;
-+	}
-+	INIT_WORK(&trans_pcie->rba.rx_alloc, iwl_pcie_rx_allocator_work);
-+
- 	trans_pcie->tso_hdr_page = alloc_percpu(struct iwl_tso_hdr_page);
- 	if (!trans_pcie->tso_hdr_page) {
- 		ret = -ENOMEM;
-@@ -3195,10 +3204,6 @@ struct iwl_trans *iwl_trans_pcie_alloc(struct pci_dev *pdev,
- 		trans_pcie->inta_mask = CSR_INI_SET_MASK;
- 	 }
+--- a/arch/powerpc/kernel/cputable.c
++++ b/arch/powerpc/kernel/cputable.c
+@@ -2193,11 +2193,13 @@ static struct cpu_spec * __init setup_cp
+ 		 * oprofile_cpu_type already has a value, then we are
+ 		 * possibly overriding a real PVR with a logical one,
+ 		 * and, in that case, keep the current value for
+-		 * oprofile_cpu_type.
++		 * oprofile_cpu_type. Futhermore, let's ensure that the
++		 * fix for the PMAO bug is enabled on compatibility mode.
+ 		 */
+ 		if (old.oprofile_cpu_type != NULL) {
+ 			t->oprofile_cpu_type = old.oprofile_cpu_type;
+ 			t->oprofile_type = old.oprofile_type;
++			t->cpu_features |= old.cpu_features & CPU_FTR_PMAO_BUG;
+ 		}
+ 	}
  
--	trans_pcie->rba.alloc_wq = alloc_workqueue("rb_allocator",
--						   WQ_HIGHPRI | WQ_UNBOUND, 1);
--	INIT_WORK(&trans_pcie->rba.rx_alloc, iwl_pcie_rx_allocator_work);
--
- #ifdef CONFIG_IWLWIFI_PCIE_RTPM
- 	trans->runtime_pm_mode = IWL_PLAT_PM_MODE_D0I3;
- #else
-@@ -3211,6 +3216,8 @@ out_free_ict:
- 	iwl_pcie_free_ict(trans);
- out_no_pci:
- 	free_percpu(trans_pcie->tso_hdr_page);
-+	destroy_workqueue(trans_pcie->rba.alloc_wq);
-+out_free_trans:
- 	iwl_trans_free(trans);
- 	return ERR_PTR(ret);
- }
--- 
-2.20.1
-
 
 
