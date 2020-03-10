@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7811C17FDC8
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:31:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1278817FDCB
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:31:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728644AbgCJMuf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 08:50:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55376 "EHLO mail.kernel.org"
+        id S1728653AbgCJMui (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 08:50:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55454 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728640AbgCJMuf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 08:50:35 -0400
+        id S1728600AbgCJMui (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 08:50:38 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F23162468E;
-        Tue, 10 Mar 2020 12:50:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3B66B24696;
+        Tue, 10 Mar 2020 12:50:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583844634;
-        bh=SvLp9QeIlteRIJuHx2peXZJf994646fGWpEk41TPcgY=;
+        s=default; t=1583844637;
+        bh=YM21NR3WIcF/teKqF/0ZAFPk4jioggWL5nRp/7qQI7o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZS5ZVbe1NXbWtwr2oSNAfdcWORvrzWTrBs/MDoGKPUeTvRZGMyrBnoqaF3eaWFzmh
-         LpWQsBYXQrgHeVzxOs1eJXQ6Dk0PTewWARRXLP3ImTCaZa6fQQYRC/n7g483NwzatW
-         6TVe0XgwdniDQHrrJogu5SHZ+gRTMi1Y+2irknt4=
+        b=HCrLuSCIE5oC+AbfOcSSFMrKiE1U9sFjjwlap7p9b+tTkzMN2pZ8sVyz9Z8jy2JQI
+         r8PLW70H1MqqMG737uERxY7rseKAEv4cUC/vHpvuJNPjdh6dwFXoB55s3waaUvH2zi
+         pX48G5gJKFHsEXDEgf4K8bS2KKDNlYWX5O4ptfzQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christian Lachner <gladiac@gmail.com>,
+        stable@vger.kernel.org, Jian-Hong Pan <jian-hong@endlessm.com>,
+        Kailang Yang <kailang@realtek.com>,
         Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.4 062/168] ALSA: hda/realtek - Fix silent output on Gigabyte X570 Aorus Master
-Date:   Tue, 10 Mar 2020 13:38:28 +0100
-Message-Id: <20200310123641.556080956@linuxfoundation.org>
+Subject: [PATCH 5.4 063/168] ALSA: hda/realtek - Enable the headset of ASUS B9450FA with ALC294
+Date:   Tue, 10 Mar 2020 13:38:29 +0100
+Message-Id: <20200310123641.645701015@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200310123635.322799692@linuxfoundation.org>
 References: <20200310123635.322799692@linuxfoundation.org>
@@ -43,34 +44,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian Lachner <gladiac@gmail.com>
+From: Jian-Hong Pan <jian-hong@endlessm.com>
 
-commit 0d45e86d2267d5bdf7bbb631499788da1c27ceb2 upstream.
+commit 8b33a134a9cc2a501f8fc731d91caef39237d495 upstream.
 
-The Gigabyte X570 Aorus Master motherboard with ALC1220 codec
-requires a similar workaround for Clevo laptops to enforce the
-DAC/mixer connection path. Set up a quirk entry for that.
+A headset on the laptop like ASUS B9450FA does not work, until quirk
+ALC294_FIXUP_ASUS_HPE is applied.
 
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=205275
-Signed-off-by: Christian Lachner <gladiac@gmail.com>
+Signed-off-by: Jian-Hong Pan <jian-hong@endlessm.com>
+Signed-off-by: Kailang Yang <kailang@realtek.com>
 Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200223092416.15016-2-gladiac@gmail.com
+Link: https://lore.kernel.org/r/20200225072920.109199-1-jian-hong@endlessm.com
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/pci/hda/patch_realtek.c |    1 +
- 1 file changed, 1 insertion(+)
+ sound/pci/hda/patch_realtek.c |   13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
 --- a/sound/pci/hda/patch_realtek.c
 +++ b/sound/pci/hda/patch_realtek.c
-@@ -2447,6 +2447,7 @@ static const struct snd_pci_quirk alc882
- 	SND_PCI_QUIRK(0x1071, 0x8258, "Evesham Voyaeger", ALC882_FIXUP_EAPD),
- 	SND_PCI_QUIRK(0x1458, 0xa002, "Gigabyte EP45-DS3/Z87X-UD3H", ALC889_FIXUP_FRONT_HP_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x1458, 0xa0b8, "Gigabyte AZ370-Gaming", ALC1220_FIXUP_GB_DUAL_CODECS),
-+	SND_PCI_QUIRK(0x1458, 0xa0cd, "Gigabyte X570 Aorus Master", ALC1220_FIXUP_CLEVO_P950),
- 	SND_PCI_QUIRK(0x1462, 0x1228, "MSI-GP63", ALC1220_FIXUP_CLEVO_P950),
- 	SND_PCI_QUIRK(0x1462, 0x1276, "MSI-GL73", ALC1220_FIXUP_CLEVO_P950),
- 	SND_PCI_QUIRK(0x1462, 0x1293, "MSI-GP65", ALC1220_FIXUP_CLEVO_P950),
+@@ -5922,6 +5922,7 @@ enum {
+ 	ALC294_FIXUP_SPK2_TO_DAC1,
+ 	ALC294_FIXUP_ASUS_DUAL_SPK,
+ 	ALC285_FIXUP_THINKPAD_HEADSET_JACK,
++	ALC294_FIXUP_ASUS_HPE,
+ };
+ 
+ static const struct hda_fixup alc269_fixups[] = {
+@@ -7049,6 +7050,17 @@ static const struct hda_fixup alc269_fix
+ 		.chained = true,
+ 		.chain_id = ALC285_FIXUP_SPEAKER2_TO_DAC1
+ 	},
++	[ALC294_FIXUP_ASUS_HPE] = {
++		.type = HDA_FIXUP_VERBS,
++		.v.verbs = (const struct hda_verb[]) {
++			/* Set EAPD high */
++			{ 0x20, AC_VERB_SET_COEF_INDEX, 0x0f },
++			{ 0x20, AC_VERB_SET_PROC_COEF, 0x7774 },
++			{ }
++		},
++		.chained = true,
++		.chain_id = ALC294_FIXUP_ASUS_HEADSET_MIC
++	},
+ };
+ 
+ static const struct snd_pci_quirk alc269_fixup_tbl[] = {
+@@ -7214,6 +7226,7 @@ static const struct snd_pci_quirk alc269
+ 	SND_PCI_QUIRK(0x1043, 0x16e3, "ASUS UX50", ALC269_FIXUP_STEREO_DMIC),
+ 	SND_PCI_QUIRK(0x1043, 0x17d1, "ASUS UX431FL", ALC294_FIXUP_ASUS_DUAL_SPK),
+ 	SND_PCI_QUIRK(0x1043, 0x18b1, "Asus MJ401TA", ALC256_FIXUP_ASUS_HEADSET_MIC),
++	SND_PCI_QUIRK(0x1043, 0x19ce, "ASUS B9450FA", ALC294_FIXUP_ASUS_HPE),
+ 	SND_PCI_QUIRK(0x1043, 0x1a13, "Asus G73Jw", ALC269_FIXUP_ASUS_G73JW),
+ 	SND_PCI_QUIRK(0x1043, 0x1a30, "ASUS X705UD", ALC256_FIXUP_ASUS_MIC),
+ 	SND_PCI_QUIRK(0x1043, 0x1b13, "Asus U41SV", ALC269_FIXUP_INV_DMIC),
 
 
