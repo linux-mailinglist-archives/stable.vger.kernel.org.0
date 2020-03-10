@@ -2,207 +2,147 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D0CA180237
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 16:46:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E83D61801DE
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 16:31:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726480AbgCJPq2 convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Tue, 10 Mar 2020 11:46:28 -0400
-Received: from 5.mo69.mail-out.ovh.net ([46.105.43.105]:58207 "EHLO
-        5.mo69.mail-out.ovh.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726492AbgCJPq2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Mar 2020 11:46:28 -0400
-X-Greylist: delayed 1797 seconds by postgrey-1.27 at vger.kernel.org; Tue, 10 Mar 2020 11:46:26 EDT
-Received: from player778.ha.ovh.net (unknown [10.110.103.76])
-        by mo69.mail-out.ovh.net (Postfix) with ESMTP id 2D99987F88
-        for <stable@vger.kernel.org>; Tue, 10 Mar 2020 16:09:26 +0100 (CET)
-Received: from kaod.org (lns-bzn-46-82-253-208-248.adsl.proxad.net [82.253.208.248])
-        (Authenticated sender: groug@kaod.org)
-        by player778.ha.ovh.net (Postfix) with ESMTPSA id C440B1048A9AF;
-        Tue, 10 Mar 2020 15:09:18 +0000 (UTC)
-Date:   Tue, 10 Mar 2020 16:09:16 +0100
-From:   Greg Kurz <groug@kaod.org>
-To:     =?UTF-8?B?Q8OpZHJpYw==?= Le Goater <clg@kaod.org>
-Cc:     Michael Ellerman <mpe@ellerman.id.au>,
-        linuxppc-dev@lists.ozlabs.org,
-        David Gibson <david@gibson.dropbear.id.au>,
-        stable@vger.kernel.org
-Subject: Re: [PATCH 1/4] powerpc/xive: Use XIVE_BAD_IRQ instead of zero to
- catch non configured IPIs
-Message-ID: <20200310160916.37de59c2@bahia.home>
-In-Reply-To: <20200306150143.5551-2-clg@kaod.org>
-References: <20200306150143.5551-1-clg@kaod.org>
- <20200306150143.5551-2-clg@kaod.org>
-X-Mailer: Claws Mail 3.17.4 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
+        id S1726594AbgCJPbj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 11:31:39 -0400
+Received: from conssluserg-02.nifty.com ([210.131.2.81]:46015 "EHLO
+        conssluserg-02.nifty.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726420AbgCJPbj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Mar 2020 11:31:39 -0400
+Received: from mail-vk1-f181.google.com (mail-vk1-f181.google.com [209.85.221.181]) (authenticated)
+        by conssluserg-02.nifty.com with ESMTP id 02AFVYF4029019;
+        Wed, 11 Mar 2020 00:31:34 +0900
+DKIM-Filter: OpenDKIM Filter v2.10.3 conssluserg-02.nifty.com 02AFVYF4029019
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nifty.com;
+        s=dec2015msa; t=1583854295;
+        bh=cU9zGQWEYLmKu3ABbJP9fWNhvET72vVMMuEoK2xZbeA=;
+        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+        b=uBFbZowblEtMMMtmmPl1g2DHYesZd0O3dcspp/C1j7pYuuZiW7+A/50a8OxAD9sGX
+         3LR/6esVVadbdu8bba9C/iyNdz3dcV1XCPR8GGy8utGuvugcaQ3MEfylMfUIJDhMlc
+         NG5vO76Han+PqEgbLSWPcOmKIEPTutMTSJ6dyhq7dpIkAXIgNcot9dq/L918KUFXBu
+         q9NuQO9PRXoSuGMXGCJbNN9TfnWlWmC97te5FfbTjQxdYauJy0Gw7S/20R3mgtEzV3
+         16OaLPqNErNEHNFQgVtuKtUqoV+aSA0TJIcw56ttliWlmuWvG/pJxx/tbqL5XKtYis
+         myG5OlrsN218A==
+X-Nifty-SrcIP: [209.85.221.181]
+Received: by mail-vk1-f181.google.com with SMTP id i78so3679380vke.0;
+        Tue, 10 Mar 2020 08:31:34 -0700 (PDT)
+X-Gm-Message-State: ANhLgQ3vCFmusR8luwcYaMMcsI3mZ2mG7fV4UiJqXUPY8wbCJC5dlOnf
+        zMTXqPz5XlTk+nd2QFV2Ims2XOVspzBgT7y5L3k=
+X-Google-Smtp-Source: ADFU+vshzsYrewZL9/qV8QBmAcUvMQcoFa4yNoeetgkikl+9ovLz5Pmn2O39v6n04YVWO2hgbFnjooVJIw0mOh6UFtA=
+X-Received: by 2002:a1f:900c:: with SMTP id s12mr2563486vkd.96.1583854293448;
+ Tue, 10 Mar 2020 08:31:33 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
-X-Ovh-Tracer-Id: 12512407139747600779
-X-VR-SPAMSTATE: OK
-X-VR-SPAMSCORE: -100
-X-VR-SPAMCAUSE: gggruggvucftvghtrhhoucdtuddrgedugedruddvtddgjedtucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuqfggjfdpvefjgfevmfevgfenuceurghilhhouhhtmecuhedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujfgurhepfffhvffukfgjfhfogggtgfesthhqredtredtjeenucfhrhhomhepifhrvghgucfmuhhriicuoehgrhhouhhgsehkrghougdrohhrgheqnecukfhppedtrddtrddtrddtpdekvddrvdehfedrvddtkedrvdegkeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhhouggvpehsmhhtphdqohhuthdphhgvlhhopehplhgrhigvrhejjeekrdhhrgdrohhvhhdrnhgvthdpihhnvghtpedtrddtrddtrddtpdhmrghilhhfrhhomhepghhrohhugheskhgrohgurdhorhhgpdhrtghpthhtohepshhtrggslhgvsehvghgvrhdrkhgvrhhnvghlrdhorhhg
+References: <20200308073400.23398-1-natechancellor@gmail.com>
+ <CAK7LNARcTHpd8fzrAhFVB_AR7NoBgenX64de0eS2uN8g0by9PQ@mail.gmail.com>
+ <20200310012545.GA16822@ubuntu-m2-xlarge-x86> <c2a687d065c1463d8eea9947687b3b05@AcuMS.aculab.com>
+In-Reply-To: <c2a687d065c1463d8eea9947687b3b05@AcuMS.aculab.com>
+From:   Masahiro Yamada <masahiroy@kernel.org>
+Date:   Wed, 11 Mar 2020 00:30:57 +0900
+X-Gmail-Original-Message-ID: <CAK7LNARMsO0AeO8-kH4czMuW0Y_=dN+ZhtXNdRE7CWGvU2PNvA@mail.gmail.com>
+Message-ID: <CAK7LNARMsO0AeO8-kH4czMuW0Y_=dN+ZhtXNdRE7CWGvU2PNvA@mail.gmail.com>
+Subject: Re: [PATCH] kbuild: Disable -Wpointer-to-enum-cast
+To:     David Laight <David.Laight@aculab.com>
+Cc:     Nathan Chancellor <natechancellor@gmail.com>,
+        Michal Marek <michal.lkml@markovi.net>,
+        Linux Kbuild mailing list <linux-kbuild@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        clang-built-linux <clang-built-linux@googlegroups.com>,
+        stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri,  6 Mar 2020 16:01:40 +0100
-Cédric Le Goater <clg@kaod.org> wrote:
+On Tue, Mar 10, 2020 at 8:31 PM David Laight <David.Laight@aculab.com> wrote:
+>
+> From: Nathan Chancellor
+> > Sent: 10 March 2020 01:26
+> ...
+> > Sure, I can send v2 to do that but I think that sending 97 patches just
+> > casting the small values (usually less than twenty) to unsigned long
+> > then to the enum is rather frivolous. I audited at least ten to fifteen
+> > of these call sites when creating the clang patch and they are all
+> > basically false positives.
+>
+> Such casts just make the code hard to read.
+> If misused casts can hide horrid bugs.
+> IMHO sprinkling the code with casts just to remove
+> compiler warnings will bite back one day.
+>
 
-> When a CPU is brought up, an IPI number is allocated and recorded
-> under the XIVE CPU structure. Invalid IPI numbers are tracked with
-> interrupt number 0x0.
-> 
-> On the PowerNV platform, the interrupt number space starts at 0x10 and
-> this works fine. However, on the sPAPR platform, it is possible to
-> allocate the interrupt number 0x0 and this raises an issue when CPU 0
-> is unplugged. The XIVE spapr driver tracks allocated interrupt numbers
-> in a bitmask and it is not correctly updated when interrupt number 0x0
-> is freed. It stays allocated and it is then impossible to reallocate.
-> 
-> Fix by using the XIVE_BAD_IRQ value instead of zero on both platforms.
-> 
-> Reported-by: David Gibson <david@gibson.dropbear.id.au>
-> Fixes: eac1e731b59e ("powerpc/xive: guest exploitation of the XIVE interrupt controller")
-> Cc: stable@vger.kernel.org # v4.14+
-> Signed-off-by: Cédric Le Goater <clg@kaod.org>
-> ---
+I agree that too much casts make the code hard to read,
+but irrespective of this patch, there is no difference
+in the fact that we need a cast to convert
+(const void *) to a non-pointer value.
 
-This looks mostly good. I'm juste wondering about potential overlooks:
-
-$ git grep 'if.*hw_i' arch/powerpc/ | egrep -v 'xics|XIVE_BAD_IRQ'
-arch/powerpc/kvm/book3s_xive.h:         if (out_hw_irq)
-arch/powerpc/kvm/book3s_xive.h:         if (out_hw_irq)
-arch/powerpc/kvm/book3s_xive_template.c:        else if (hw_irq && xd->flags & XIVE_IRQ_FLAG_EOI_FW)
-arch/powerpc/sysdev/xive/common.c:      else if (hw_irq && xd->flags & XIVE_IRQ_FLAG_EOI_FW) {
-
-This hw_irq check in xive_do_source_eoi() for example is related to:
-
-	/*
-	 * Note: We pass "0" to the hw_irq argument in order to
-	 * avoid calling into the backend EOI code which we don't
-	 * want to do in the case of a re-trigger. Backends typically
-	 * only do EOI for LSIs anyway.
-	 */
-	xive_do_source_eoi(0, xd);
-
-but it can get hw_irq from:
-
-	xive_do_source_eoi(xc->hw_ipi, &xc->ipi_data);
-
-It seems that these should use XIVE_BAD_IRQ as well or I'm missing
-something ?
-
-arch/powerpc/sysdev/xive/common.c:      if (hw_irq)
-arch/powerpc/sysdev/xive/common.c:              if (d->domain != xive_irq_domain || hw_irq == 0)
+The difference is whether we use
+(uintptr_t) or (enum foo).
 
 
 
->  arch/powerpc/sysdev/xive/xive-internal.h |  7 +++++++
->  arch/powerpc/sysdev/xive/common.c        | 12 +++---------
->  arch/powerpc/sysdev/xive/native.c        |  4 ++--
->  arch/powerpc/sysdev/xive/spapr.c         |  4 ++--
->  4 files changed, 14 insertions(+), 13 deletions(-)
-> 
-> diff --git a/arch/powerpc/sysdev/xive/xive-internal.h b/arch/powerpc/sysdev/xive/xive-internal.h
-> index 59cd366e7933..382980f4de2d 100644
-> --- a/arch/powerpc/sysdev/xive/xive-internal.h
-> +++ b/arch/powerpc/sysdev/xive/xive-internal.h
-> @@ -5,6 +5,13 @@
->  #ifndef __XIVE_INTERNAL_H
->  #define __XIVE_INTERNAL_H
->  
-> +/*
-> + * A "disabled" interrupt should never fire, to catch problems
-> + * we set its logical number to this
-> + */
-> +#define XIVE_BAD_IRQ		0x7fffffff
-> +#define XIVE_MAX_IRQ		(XIVE_BAD_IRQ - 1)
-> +
->  /* Each CPU carry one of these with various per-CPU state */
->  struct xive_cpu {
->  #ifdef CONFIG_SMP
-> diff --git a/arch/powerpc/sysdev/xive/common.c b/arch/powerpc/sysdev/xive/common.c
-> index fa49193206b6..550baba98ec9 100644
-> --- a/arch/powerpc/sysdev/xive/common.c
-> +++ b/arch/powerpc/sysdev/xive/common.c
-> @@ -68,13 +68,6 @@ static u32 xive_ipi_irq;
->  /* Xive state for each CPU */
->  static DEFINE_PER_CPU(struct xive_cpu *, xive_cpu);
->  
-> -/*
-> - * A "disabled" interrupt should never fire, to catch problems
-> - * we set its logical number to this
-> - */
-> -#define XIVE_BAD_IRQ		0x7fffffff
-> -#define XIVE_MAX_IRQ		(XIVE_BAD_IRQ - 1)
-> -
->  /* An invalid CPU target */
->  #define XIVE_INVALID_TARGET	(-1)
->  
-> @@ -1153,7 +1146,7 @@ static int xive_setup_cpu_ipi(unsigned int cpu)
->  	xc = per_cpu(xive_cpu, cpu);
->  
->  	/* Check if we are already setup */
-> -	if (xc->hw_ipi != 0)
-> +	if (xc->hw_ipi != XIVE_BAD_IRQ)
->  		return 0;
->  
->  	/* Grab an IPI from the backend, this will populate xc->hw_ipi */
-> @@ -1190,7 +1183,7 @@ static void xive_cleanup_cpu_ipi(unsigned int cpu, struct xive_cpu *xc)
->  	/* Disable the IPI and free the IRQ data */
->  
->  	/* Already cleaned up ? */
-> -	if (xc->hw_ipi == 0)
-> +	if (xc->hw_ipi == XIVE_BAD_IRQ)
->  		return;
->  
->  	/* Mask the IPI */
-> @@ -1346,6 +1339,7 @@ static int xive_prepare_cpu(unsigned int cpu)
->  		if (np)
->  			xc->chip_id = of_get_ibm_chip_id(np);
->  		of_node_put(np);
-> +		xc->hw_ipi = XIVE_BAD_IRQ;
->  
->  		per_cpu(xive_cpu, cpu) = xc;
->  	}
-> diff --git a/arch/powerpc/sysdev/xive/native.c b/arch/powerpc/sysdev/xive/native.c
-> index 0ff6b739052c..50e1a8e02497 100644
-> --- a/arch/powerpc/sysdev/xive/native.c
-> +++ b/arch/powerpc/sysdev/xive/native.c
-> @@ -312,7 +312,7 @@ static void xive_native_put_ipi(unsigned int cpu, struct xive_cpu *xc)
->  	s64 rc;
->  
->  	/* Free the IPI */
-> -	if (!xc->hw_ipi)
-> +	if (xc->hw_ipi == XIVE_BAD_IRQ)
->  		return;
->  	for (;;) {
->  		rc = opal_xive_free_irq(xc->hw_ipi);
-> @@ -320,7 +320,7 @@ static void xive_native_put_ipi(unsigned int cpu, struct xive_cpu *xc)
->  			msleep(OPAL_BUSY_DELAY_MS);
->  			continue;
->  		}
-> -		xc->hw_ipi = 0;
-> +		xc->hw_ipi = XIVE_BAD_IRQ;
->  		break;
->  	}
->  }
-> diff --git a/arch/powerpc/sysdev/xive/spapr.c b/arch/powerpc/sysdev/xive/spapr.c
-> index 55dc61cb4867..3f15615712b5 100644
-> --- a/arch/powerpc/sysdev/xive/spapr.c
-> +++ b/arch/powerpc/sysdev/xive/spapr.c
-> @@ -560,11 +560,11 @@ static int xive_spapr_get_ipi(unsigned int cpu, struct xive_cpu *xc)
->  
->  static void xive_spapr_put_ipi(unsigned int cpu, struct xive_cpu *xc)
->  {
-> -	if (!xc->hw_ipi)
-> +	if (xc->hw_ipi == XIVE_BAD_IRQ)
->  		return;
->  
->  	xive_irq_bitmap_free(xc->hw_ipi);
-> -	xc->hw_ipi = 0;
-> +	xc->hw_ipi = XIVE_BAD_IRQ;
->  }
->  #endif /* CONFIG_SMP */
->  
 
+If we want to avoid casts completely,
+we could use union in struct of_device_id
+although this might be rejected.
+
+
+FWIW:
+
+diff --git a/drivers/ata/ahci_brcm.c b/drivers/ata/ahci_brcm.c
+index 6853dbb4131d..534170bea134 100644
+--- a/drivers/ata/ahci_brcm.c
++++ b/drivers/ata/ahci_brcm.c
+@@ -415,11 +415,11 @@ static struct scsi_host_template ahci_platform_sht = {
+ };
+
+ static const struct of_device_id ahci_of_match[] = {
+-       {.compatible = "brcm,bcm7425-ahci", .data = (void *)BRCM_SATA_BCM7425},
+-       {.compatible = "brcm,bcm7445-ahci", .data = (void *)BRCM_SATA_BCM7445},
+-       {.compatible = "brcm,bcm63138-ahci", .data = (void *)BRCM_SATA_BCM7445},
+-       {.compatible = "brcm,bcm-nsp-ahci", .data = (void *)BRCM_SATA_NSP},
+-       {.compatible = "brcm,bcm7216-ahci", .data = (void *)BRCM_SATA_BCM7216},
++       {.compatible = "brcm,bcm7425-ahci", .data2 = BRCM_SATA_BCM7425},
++       {.compatible = "brcm,bcm7445-ahci", .data2 = BRCM_SATA_BCM7445},
++       {.compatible = "brcm,bcm63138-ahci", .data2 = BRCM_SATA_BCM7445},
++       {.compatible = "brcm,bcm-nsp-ahci", .data2 = BRCM_SATA_NSP},
++       {.compatible = "brcm,bcm7216-ahci", .data2 = BRCM_SATA_BCM7216},
+        {},
+ };
+ MODULE_DEVICE_TABLE(of, ahci_of_match);
+@@ -442,7 +442,7 @@ static int brcm_ahci_probe(struct platform_device *pdev)
+        if (!of_id)
+                return -ENODEV;
+
+-       priv->version = (enum brcm_ahci_version)of_id->data;
++       priv->version = of_id->data2;
+        priv->dev = dev;
+
+        res = platform_get_resource_byname(pdev, IORESOURCE_MEM, "top-ctrl");
+diff --git a/include/linux/mod_devicetable.h b/include/linux/mod_devicetable.h
+index e3596db077dc..98d44ebf146a 100644
+--- a/include/linux/mod_devicetable.h
++++ b/include/linux/mod_devicetable.h
+@@ -261,7 +261,10 @@ struct of_device_id {
+        char    name[32];
+        char    type[32];
+        char    compatible[128];
+-       const void *data;
++       union {
++               const void *data;
++               unsigned long data2;
++       };
+ };
+
+ /* VIO */
+
+
+
+
+
+
+-- 
+Best Regards
+Masahiro Yamada
