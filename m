@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 71B9317FE9E
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:36:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 15E0117FE56
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:34:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727388AbgCJMmf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 08:42:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42500 "EHLO mail.kernel.org"
+        id S1727690AbgCJMqG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 08:46:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49012 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727372AbgCJMmb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 08:42:31 -0400
+        id S1727722AbgCJMqG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 08:46:06 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9684324686;
-        Tue, 10 Mar 2020 12:42:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 270B224696;
+        Tue, 10 Mar 2020 12:46:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583844151;
-        bh=PeHBr6dPrD0S0NEiWd3wlD5q13RzmQoY6W7P6aRl6YY=;
+        s=default; t=1583844365;
+        bh=TmISeBl+z/riu5zI1Aow+4OtmrTWBLBSDho4zHJx+0g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NH/MPFBLS8DqWyv9H75gaF0Sf8Uf/8der9YR8Ylw6+fa856wJmVQp/JA7y85BnJIs
-         +VcaT5ouYPMAdf+Fh8+Lc/B7Wf0vhbUARmar08DFPuJUIDRd/szs+s++IwREjIyiQy
-         ieUoL92X6CVNmtQwvjiO4EiTONrx9T2IXQmUqY/U=
+        b=vB5LMzaAiR8/queMPFHGeq+B+5eQt+nr4BmAvYG7s7eRD9D4Ts9077ucBUrfgxJlT
+         0QudpRm5UUs64zfajwN++ZD9tb0AyOb0SloILk+DfgoPsWnMopW0WZg7gk0VJ6vJbl
+         XdEm0jSC4anL6I3N20hGtBcEd7Z+WvPdsk4invlM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marco Felsch <m.felsch@pengutronix.de>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        stable@vger.kernel.org, Sergey Organov <sorganov@gmail.com>,
+        =?UTF-8?q?Micha=C5=82=20Miros=C5=82aw?= <mirq-linux@rere.qmqm.pl>,
+        Felipe Balbi <balbi@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 48/72] watchdog: da9062: do not ping the hw during stop()
-Date:   Tue, 10 Mar 2020 13:39:01 +0100
-Message-Id: <20200310123613.207595539@linuxfoundation.org>
+Subject: [PATCH 4.9 54/88] usb: gadget: serial: fix Tx stall after buffer overflow
+Date:   Tue, 10 Mar 2020 13:39:02 +0100
+Message-Id: <20200310123619.619783130@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200310123601.053680753@linuxfoundation.org>
-References: <20200310123601.053680753@linuxfoundation.org>
+In-Reply-To: <20200310123606.543939933@linuxfoundation.org>
+References: <20200310123606.543939933@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,49 +45,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marco Felsch <m.felsch@pengutronix.de>
+From: Sergey Organov <sorganov@gmail.com>
 
-[ Upstream commit e9a0e65eda3f78d0b04ec6136c591c000cbc3b76 ]
+[ Upstream commit e4bfded56cf39b8d02733c1e6ef546b97961e18a ]
 
-The da9062 hw has a minimum ping cool down phase of at least 200ms. The
-driver takes that into account by setting the min_hw_heartbeat_ms to
-300ms and the core guarantees that the hw limit is observed for the
-ping() calls. But the core can't guarantee the required minimum ping
-cool down phase if a stop() command is send immediately after the ping()
-command. So it is not allowed to ping the watchdog within the stop()
-command as the driver does. Remove the ping can be done without doubts
-because the watchdog gets disabled anyway and a (re)start resets the
-watchdog counter too.
+Symptom: application opens /dev/ttyGS0 and starts sending (writing) to
+it while either USB cable is not connected, or nobody listens on the
+other side of the cable. If driver circular buffer overflows before
+connection is established, no data will be written to the USB layer
+until/unless /dev/ttyGS0 is closed and re-opened again by the
+application (the latter besides having no means of being notified about
+the event of establishing of the connection.)
 
-Signed-off-by: Marco Felsch <m.felsch@pengutronix.de>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Link: https://lore.kernel.org/r/20200120091729.16256-1-m.felsch@pengutronix.de
-[groeck: Updated description]
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
+Fix: on open and/or connect, kick Tx to flush circular buffer data to
+USB layer.
+
+Signed-off-by: Sergey Organov <sorganov@gmail.com>
+Reviewed-by: Michał Mirosław <mirq-linux@rere.qmqm.pl>
+Signed-off-by: Felipe Balbi <balbi@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/watchdog/da9062_wdt.c | 7 -------
- 1 file changed, 7 deletions(-)
+ drivers/usb/gadget/function/u_serial.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/watchdog/da9062_wdt.c b/drivers/watchdog/da9062_wdt.c
-index 7386111220d58..daeb645fcea8a 100644
---- a/drivers/watchdog/da9062_wdt.c
-+++ b/drivers/watchdog/da9062_wdt.c
-@@ -126,13 +126,6 @@ static int da9062_wdt_stop(struct watchdog_device *wdd)
- 	struct da9062_watchdog *wdt = watchdog_get_drvdata(wdd);
- 	int ret;
+diff --git a/drivers/usb/gadget/function/u_serial.c b/drivers/usb/gadget/function/u_serial.c
+index 510a54f889635..5d7d0f2e80a5e 100644
+--- a/drivers/usb/gadget/function/u_serial.c
++++ b/drivers/usb/gadget/function/u_serial.c
+@@ -715,8 +715,10 @@ static int gs_start_io(struct gs_port *port)
+ 	port->n_read = 0;
+ 	started = gs_start_rx(port);
  
--	ret = da9062_reset_watchdog_timer(wdt);
--	if (ret) {
--		dev_err(wdt->hw->dev, "Failed to ping the watchdog (err = %d)\n",
--			ret);
--		return ret;
--	}
--
- 	ret = regmap_update_bits(wdt->hw->regmap,
- 				 DA9062AA_CONTROL_D,
- 				 DA9062AA_TWDSCALE_MASK,
+-	/* unblock any pending writes into our circular buffer */
+ 	if (started) {
++		gs_start_tx(port);
++		/* Unblock any pending writes into our circular buffer, in case
++		 * we didn't in gs_start_tx() */
+ 		tty_wakeup(port->port.tty);
+ 	} else {
+ 		gs_free_requests(ep, head, &port->read_allocated);
 -- 
 2.20.1
 
