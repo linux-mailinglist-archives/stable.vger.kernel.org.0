@@ -2,107 +2,129 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E537017F0C1
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 07:49:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 21BEF17F0C2
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 07:49:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726295AbgCJGtH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 02:49:07 -0400
-Received: from mail-pg1-f193.google.com ([209.85.215.193]:32968 "EHLO
-        mail-pg1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726283AbgCJGtH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Mar 2020 02:49:07 -0400
-Received: by mail-pg1-f193.google.com with SMTP id m5so5897665pgg.0
-        for <stable@vger.kernel.org>; Mon, 09 Mar 2020 23:49:06 -0700 (PDT)
+        id S1726220AbgCJGta (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 02:49:30 -0400
+Received: from mail-pg1-f196.google.com ([209.85.215.196]:40334 "EHLO
+        mail-pg1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725919AbgCJGta (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Mar 2020 02:49:30 -0400
+Received: by mail-pg1-f196.google.com with SMTP id t24so5882641pgj.7
+        for <stable@vger.kernel.org>; Mon, 09 Mar 2020 23:49:28 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=n2Gsz1iOoHyb08ycor7XMtbacWuNzHazX81TA7myjng=;
-        b=GGNqW+Bd4mS6mgUvZT3J5MYA7t/DgEUKLpsRvXfmWmInShvzLbXWjMBLnjPNbhVpGm
-         UJP8fzXvzwNkvKMyb3BQrLDEkp4n823jcSbQ5LqV36jfN9dRNSxGFLVMzjWwf8uP3ZnJ
-         KR2Em3v86m6s+2f8IJvdrPrn3lJ7zFjfptMm9OPgbcXTV0XS5dRoMKfQDaRkYy6OVuEb
-         CJDhP1I87z5BzfeJ30+9GZqGNHXCzeQhTDc0ilBn/UH+EB0T/uLr3XbPrS7gXXNIft2U
-         mHSH1eOAXkZgMdH8Fg3YyTwrV68dq9W8X6PReaFGrDgHwQP+hMefqtjpTSf/RHc7GFBL
-         WNkQ==
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=jbH6xRdOX8dHubxzlGA2hLGPEMz1wek009x1ElXWMXU=;
+        b=IGG2ferCueV9nt0bOHPi5XTe4zpeDSBlKmUtb95/2YoRVc7cIowfFcSolklZnji/Yb
+         gDl5FhvxP0/SctSnShN5WHBsNLmyVSKOT8BJFd12rLEGYp+phe9R7m/amnZWhrCuV6Sw
+         HiJ9d9+R5blRq/8H6X5NnQYUbPpvj7EFLc7i4eWQ7u3e74Te/N3iG4YY/B6J/vAPf+uc
+         2QKYVmDu6UdJeIzaWB/JgRlINrt2pySWkK65km4g8ZKg3wdc9o+D7s42Li++zl+RwfKQ
+         41L3P8JdSTWU920BRCkTgk2MZwKuwmQc2UZv583gsABME5JzIzChknxHNC/TVO1Q3/9H
+         xorA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=n2Gsz1iOoHyb08ycor7XMtbacWuNzHazX81TA7myjng=;
-        b=uRLIdlq1KNHud44A3QoXDXVQWz++oSExp7FcGXdwM8fMM/plDLd3K531r4gt6bnGp+
-         8QgN74ZuAqe5SJW8ytbiZjuv02Tnn2TmFIwqzwCRmMN2DOu066XqGx/JBEtw/8nRJ0r6
-         OiMCkicRTzyCILRTmHI33POIbo/RDZOwKwTV+SOLXe8cX5LEIw9MvZy/ZL6ZsxpOKKVR
-         HSvU5GJip4v4n1EEORmN9ZdOzw5yf/YiXQjJ9DNTOYUIo8dWhLee3aQ1WWenqflBV0j9
-         p5DJ8PRrgrowSc0HU+Nrxk9W5YuSbl6cYHMTWexgMIdD2XfopTLIPZCTeZqgviGb4vmT
-         uj0w==
-X-Gm-Message-State: ANhLgQ28VDxIRmIQugotO8zqab9K4MoibJI/uanyquJVOW4VYndUAThO
-        2jXQGfhAHyUZZrAHZb4pSI+95a8fdCI=
-X-Google-Smtp-Source: ADFU+vsluKRn1LnG5/W+4KuKkU6sU+toRpOqT58BRliNME0GE0OlsbsI0hqE3Gl11Z0KJ9Km/XFtXw==
-X-Received: by 2002:a63:8c18:: with SMTP id m24mr20050564pgd.70.1583822946459;
-        Mon, 09 Mar 2020 23:49:06 -0700 (PDT)
-Received: from yoga (104-188-17-28.lightspeed.sndgca.sbcglobal.net. [104.188.17.28])
-        by smtp.gmail.com with ESMTPSA id i2sm9817385pfr.151.2020.03.09.23.49.05
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=jbH6xRdOX8dHubxzlGA2hLGPEMz1wek009x1ElXWMXU=;
+        b=gFfMKmKg3tX59sAsGlk62XYJiK9Sz0MauACAjJ3iEhEnIU/vG6GTxw4LL80gSUCJQD
+         CRV80U5Nyl9r2OGoIqI6tMNIFIzC8xy588/uXu3APWwiEhUZeaAWye+Aqajc1tWlpkjl
+         HgFFCqm90ErUNHdo4LtsEhiQUj2zZUHcz1tQoT9PSRiyd5wOrsslHY4503qmiVeaKldi
+         TNPDP+sMGiTHCfWj5FJR8mImedF+SpN0J852ddi/Hv6lGNCJRAf8C8SBoF0QZh6sS3GQ
+         k4GcRnU2npwokRw//eeghPSTA+Ue2COYrL7f9gbcK7cRC4T2hj/rajT27itcaEziqS5m
+         446A==
+X-Gm-Message-State: ANhLgQ0mtKix5KOzdTtKgH/EvOkEQk/EpZp8Jb5qlczrQsqNj3RaSdfJ
+        0PMrAm8FG8PVYm1v+AtuBzKFC/TBYwY=
+X-Google-Smtp-Source: ADFU+vtz8sBWK3DQLdm1P9DQknMWMrV8z9SfTl2Enfk4RKjVg+plvjbSPPC/7z8DzkmI+kaJ5xKuww==
+X-Received: by 2002:a63:fc1c:: with SMTP id j28mr19954740pgi.289.1583822967530;
+        Mon, 09 Mar 2020 23:49:27 -0700 (PDT)
+Received: from [10.0.9.4] ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id b21sm48706618pfp.0.2020.03.09.23.49.26
+        for <stable@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 09 Mar 2020 23:49:05 -0700 (PDT)
-Date:   Mon, 9 Mar 2020 23:49:03 -0700
-From:   Bjorn Andersson <bjorn.andersson@linaro.org>
-To:     Linus Walleij <linus.walleij@linaro.org>
-Cc:     linux-gpio@vger.kernel.org, Brian Masney <masneyb@onstation.org>,
-        stable@vger.kernel.org
-Subject: Re: [PATCH v2] pinctrl: qcom: ssbi-gpio: Fix fwspec parsing bug
-Message-ID: <20200310064903.GF264362@yoga>
-References: <20200306143416.1476250-1-linus.walleij@linaro.org>
+        Mon, 09 Mar 2020 23:49:26 -0700 (PDT)
+Message-ID: <5e673876.1c69fb81.45a63.56bf@mx.google.com>
+Date:   Mon, 09 Mar 2020 23:49:26 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200306143416.1476250-1-linus.walleij@linaro.org>
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: linux-5.4.y
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v5.4.24-123-g6201d69ba49e
+X-Kernelci-Report-Type: boot
+Subject: stable-rc/linux-5.4.y boot: 122 boots: 1 failed,
+ 117 passed with 3 offline, 1 untried/unknown (v5.4.24-123-g6201d69ba49e)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri 06 Mar 06:34 PST 2020, Linus Walleij wrote:
+stable-rc/linux-5.4.y boot: 122 boots: 1 failed, 117 passed with 3 offline,=
+ 1 untried/unknown (v5.4.24-123-g6201d69ba49e)
 
-> We are parsing SSBI gpios as fourcell fwspecs but they are
-> twocell. Probably a simple copy-and-paste bug.
-> 
-> Tested on the APQ8060 DragonBoard and after this ethernet
-> and MMC card detection works again.
-> 
-> Cc: Brian Masney <masneyb@onstation.org>
-> Cc: Bjorn Andersson <bjorn.andersson@linaro.org>
-> Cc: stable@vger.kernel.org
-> Fixes: ae436fe81053 ("pinctrl: ssbi-gpio: convert to hierarchical IRQ helpers in gpio core")
-> Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-> ---
-> ChangeLog v1->v2:
-> - Renamed function pointer field to .populate_parent_alloc_arg
->   as it is named upstream.
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-5.4.y/kernel/v5.4.24-123-g6201d69ba49e/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-5.4.y=
+/kernel/v5.4.24-123-g6201d69ba49e/
 
-Okay, let's try again then :)
+Tree: stable-rc
+Branch: linux-5.4.y
+Git Describe: v5.4.24-123-g6201d69ba49e
+Git Commit: 6201d69ba49e810a10a557a4f41fd95c55a61983
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 90 unique boards, 23 SoC families, 18 builds out of 200
 
-Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Boot Regressions Detected:
 
-Regards,
-Bjorn
+arm:
 
-> ---
->  drivers/pinctrl/qcom/pinctrl-ssbi-gpio.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/pinctrl/qcom/pinctrl-ssbi-gpio.c b/drivers/pinctrl/qcom/pinctrl-ssbi-gpio.c
-> index fba1d41d20ec..338a15d08629 100644
-> --- a/drivers/pinctrl/qcom/pinctrl-ssbi-gpio.c
-> +++ b/drivers/pinctrl/qcom/pinctrl-ssbi-gpio.c
-> @@ -794,7 +794,7 @@ static int pm8xxx_gpio_probe(struct platform_device *pdev)
->  	girq->fwnode = of_node_to_fwnode(pctrl->dev->of_node);
->  	girq->parent_domain = parent_domain;
->  	girq->child_to_parent_hwirq = pm8xxx_child_to_parent_hwirq;
-> -	girq->populate_parent_alloc_arg = gpiochip_populate_parent_fwspec_fourcell;
-> +	girq->populate_parent_alloc_arg = gpiochip_populate_parent_fwspec_twocell;
->  	girq->child_offset_to_irq = pm8xxx_child_offset_to_irq;
->  	girq->child_irq_domain_ops.translate = pm8xxx_domain_translate;
->  
-> -- 
-> 2.24.1
-> 
+    qcom_defconfig:
+        gcc-8:
+          qcom-apq8064-cm-qs600:
+              lab-baylibre-seattle: failing since 30 days (last pass: v5.4.=
+17-99-gbd0c6624a110 - first fail: v5.4.17-238-gbffcaa93483d)
+
+    versatile_defconfig:
+        gcc-8:
+          versatile-pb:
+              lab-collabora: new failure (last pass: v5.4.24)
+
+arm64:
+
+    defconfig:
+        gcc-8:
+          meson-axg-s400:
+              lab-baylibre-seattle: new failure (last pass: v5.4.24)
+
+Boot Failure Detected:
+
+arm:
+    sama5_defconfig:
+        gcc-8:
+            at91-sama5d4_xplained: 1 failed lab
+
+Offline Platforms:
+
+arm:
+
+    multi_v7_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+
+    qcom_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+
+arm64:
+
+    defconfig:
+        gcc-8
+            meson-axg-s400: 1 offline lab
+
+---
+For more info write to <info@kernelci.org>
