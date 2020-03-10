@@ -2,58 +2,59 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 86B3E18028F
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 16:56:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 06D461802B3
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 17:02:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726683AbgCJPz7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 11:55:59 -0400
-Received: from mail-pj1-f65.google.com ([209.85.216.65]:52599 "EHLO
-        mail-pj1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726695AbgCJPz7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Mar 2020 11:55:59 -0400
-Received: by mail-pj1-f65.google.com with SMTP id f15so590712pjq.2;
-        Tue, 10 Mar 2020 08:55:58 -0700 (PDT)
+        id S1726445AbgCJQCX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 12:02:23 -0400
+Received: from mail-pg1-f195.google.com ([209.85.215.195]:45812 "EHLO
+        mail-pg1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726426AbgCJQCX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Mar 2020 12:02:23 -0400
+Received: by mail-pg1-f195.google.com with SMTP id m15so6477247pgv.12;
+        Tue, 10 Mar 2020 09:02:22 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=sender:subject:to:cc:references:from:autocrypt:message-id:date
          :user-agent:mime-version:in-reply-to:content-language
          :content-transfer-encoding;
-        bh=bwBSe9J29UDT2a8cggrqQgzSCk0l6BfTI9Jlj85gMCE=;
-        b=qJJ8iwQSiqQFSHvEveOAAjVn2jWlAdU7MU2xZnopyM83H035x0DL9cTVvEKaaYBpPj
-         v0H50596N0ZmeNWaa6ZmZRBiv/VRXPmUIA8mX9ZR3Q4UIsSyOlCdd7N11cijPmQ7v3Rw
-         SFwmDCg+OX6DIvvS1PJRBKkvfs1pj4utl+9ZZ0/yvW4DTzL0ESRU+pCbGjlIfncmzn+X
-         4d5CU/iFvIsbeqKCePILZ3atr6hszHxwC7HsDjrorF9pbw6vPeUiLReSopndYvsb8msd
-         618CO2e0mm+CqFglbd5698UpVRq6deqmOV2LV1kmDBCJcFjhon0afynxJqt5Ql44AtOK
-         eAxQ==
+        bh=E50LuNwxtowoq2fkRI5nBUD6KbYOUa4PpH7nJWvbJVs=;
+        b=DrU2ECldDUgz+H0ACt+4OYjKoSWEF6I+31XB2bIpdB8pGSQC9X98ZIRcwQsxsqcb3u
+         xk6Wb5BMi46gFbBZKsHe+9YZmKB4HKtfA04ge+VlIxvtDxnXpZRJhjLUdYJhq/1mYLMR
+         EIR3pP4VgO6vA2rV/g42fxcTdnuWDTUPmu7YRYOfwTxkHkOfeSouJx3iu6xibNZCTVxb
+         1WGscpUp1alS/TluNQ5RcL1rZlSV+kvJWszd2kiIu0Z7Apgn5MZPAyI1lUdVCUhQ49vG
+         1Vsc7rXfSrBUKWVkBWoxf4u8Q0Izo3IdtYQRIknsduyIXW4ls9Iu7CycTGD/wXmuVpMv
+         lLfw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:sender:subject:to:cc:references:from:autocrypt
          :message-id:date:user-agent:mime-version:in-reply-to
          :content-language:content-transfer-encoding;
-        bh=bwBSe9J29UDT2a8cggrqQgzSCk0l6BfTI9Jlj85gMCE=;
-        b=lH4PMCV2B1fBz39U+apbSR08bqpw5lfGDMvG6+mQkOxMW1PI2lXGkByXyExEF4x2cb
-         GVDnx2WNP5b0SkQf6+i6G23HVMMVv1AjXY654upR8huRyilDQ6/51QrPJaD3xtXGmFC3
-         O8lFns4ERWA5SIHMOZbVt94y2huulNXp+MEpPJyJRtrwwue5tDx2O6zfSnT3XRKZN+rw
-         6L7IdPCIQhsEXso4dV7CZQUR4wUXxbJSB7wKziPlv7K5Au67SmLgwKxo7ncjf3XXWNVA
-         FPM03mVvBWDQY7flTSA893XNE3aUJDz5o7EC52cEdOfpzm2aZfl5VCh9xGJcRhys6Mp3
-         0p3w==
-X-Gm-Message-State: ANhLgQ1rqqYcn/ChDiXh57xJkWqJRpIWyyhiVQTTUkgBjrSxzCEf7wNW
-        iWmOLeSKY81fweKwFC395+idRK6U
-X-Google-Smtp-Source: ADFU+vtmNkVYH5Lz3eKS09VC8JI23fnLYHfw6xk7pW58r1MFvtA6sGXsBZGzIfI1MBE/dVBImTHKww==
-X-Received: by 2002:a17:902:a715:: with SMTP id w21mr4422917plq.244.1583855757432;
-        Tue, 10 Mar 2020 08:55:57 -0700 (PDT)
+        bh=E50LuNwxtowoq2fkRI5nBUD6KbYOUa4PpH7nJWvbJVs=;
+        b=KUJR2+U8eWs3bdrfRIFpnrCD1UQAbT0HL86YJNl4reih097SyDAix7Qz15AW7Y8R24
+         ErWPNTo6g0WJsaONMYGQXNee4/k8lVtas6PK+XcylSIKQ8230t3EOrt+bujGpihlzQVe
+         1jgardHjWQokcWv2PS0hRb+zoOKJDHVF/izIcBMNWhDHhYgXuKWMOx2uxtVNy8FFv3KM
+         kHGM4DVlDW4Xky6sUKahkyH+88LiBuEpd7L8TClXe4HM3zfiqyAbEsMqZ/f9rSUHefkf
+         7lLrkI/8ymjdNap9yfPMwz9XJAwfYB1IXqggmPXY1Lm2/oVA1Pa+YG+35GOTB6tEfwLh
+         8new==
+X-Gm-Message-State: ANhLgQ2fy1Q6PJ3FxQkMvN0OLWM0GXkltHxmQX+jJXXMUfyvn2L54Zv4
+        WbYeB5ggiwPdTqV8v1O/mlM=
+X-Google-Smtp-Source: ADFU+vu2kwGtqGtUZx3tew+oUF+93lI3WAiaO5+FcsmmQkIutW5FZNVj2nqcfBfNWSnerJI8RHOUBw==
+X-Received: by 2002:a63:5124:: with SMTP id f36mr20445488pgb.288.1583856141653;
+        Tue, 10 Mar 2020 09:02:21 -0700 (PDT)
 Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id h22sm47363643pgn.57.2020.03.10.08.55.55
+        by smtp.gmail.com with ESMTPSA id d3sm1781378pfq.126.2020.03.10.09.02.20
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 10 Mar 2020 08:55:55 -0700 (PDT)
-Subject: Re: [PATCH 5.4 000/167] 5.4.25-stable review
+        Tue, 10 Mar 2020 09:02:20 -0700 (PDT)
+Subject: Re: [PATCH 5.5 000/189] 5.5.9-stable review
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         linux-kernel@vger.kernel.org
 Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
         shuah@kernel.org, patches@kernelci.org,
         ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org
-References: <20200310144113.973994620@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?Q?Holger_Hoffst=c3=a4tte?= <holger@applied-asynchrony.com>
+References: <20200310123639.608886314@linuxfoundation.org>
 From:   Guenter Roeck <linux@roeck-us.net>
 Autocrypt: addr=linux@roeck-us.net; keydata=
  xsFNBE6H1WcBEACu6jIcw5kZ5dGeJ7E7B2uweQR/4FGxH10/H1O1+ApmcQ9i87XdZQiB9cpN
@@ -98,42 +99,34 @@ Autocrypt: addr=linux@roeck-us.net; keydata=
  WkRwrSuCn7UG+qVWZeKEsFKFOkynOs3pVbcbq1pxbhk3TRWCGRU5JolI4ohy/7JV1TVbjiDI
  HP/aVnm6NC8of26P40Pg8EdAhajZnHHjA7FrJXsy3cyIGqvg9os4rNkUWmrCfLLsZDHD8FnU
  mDW4+i+XlNFUPUYMrIKi9joBhu18ssf5i5Q=
-Message-ID: <2fc1ae97-cb04-7105-b458-cb456732f48e@roeck-us.net>
-Date:   Tue, 10 Mar 2020 08:55:54 -0700
+Message-ID: <da0afb1f-1045-d7c2-cf34-bb357fdce15e@roeck-us.net>
+Date:   Tue, 10 Mar 2020 09:02:19 -0700
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.4.1
 MIME-Version: 1.0
-In-Reply-To: <20200310144113.973994620@linuxfoundation.org>
+In-Reply-To: <20200310123639.608886314@linuxfoundation.org>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 3/10/20 7:42 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.4.25 release.
-> There are 167 patches in this series, all will be posted as a response
+On 3/10/20 5:37 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.5.9 release.
+> There are 189 patches in this series, all will be posted as a response
 > to this one.  If anyone has any issues with these being applied, please
 > let me know.
 > 
-> Responses should be made by Thu, 12 Mar 2020 14:40:27 +0000.
+> Responses should be made by Thu, 12 Mar 2020 12:34:10 +0000.
 > Anything received after that time might be too late.
 > 
 
-mips:allmodconfig, nds32:allmodconfig, and probably others:
+block/bfq-wf2q.c: In function 'bfq_forget_entity':
+./include/linux/kernel.h:987:51: error: 'struct bfq_group' has no member named 'entity'
+  987 |  BUILD_BUG_ON_MSG(!__same_type(*(ptr), ((type *)0)->member) && \
 
-  CC [M]  drivers/gpu/drm/virtio/virtgpu_object.o
-drivers/gpu/drm/virtio/virtgpu_object.c:31:67: error: expected ')' before 'int'
-   31 | module_param_named(virglhack, virtio_gpu_virglrenderer_workaround, int, 0400);
-
-Culprit is "drm/virtio: make resource id workaround runtime switchable.".
-Upstream commit b0138364da17617d ("drm/virtio: module_param_named() requires linux/moduleparam.h")
-is tagged 'Fixes: 3e93bc2a58aa ("drm/virtio: make resource id workaround runtime switchable.")'
-and does indeed fix this problem.
-
-When patches are auto-selected for backports, would it be possible to also pick
-patches fixing them right away ?
+Guess this is the same problem that is also seen with v5.4.25-rc1.
 
 Guenter
