@@ -2,131 +2,110 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C0A4717F508
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 11:28:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E63D17F531
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 11:40:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726100AbgCJK2W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 06:28:22 -0400
-Received: from out1-smtp.messagingengine.com ([66.111.4.25]:55505 "EHLO
-        out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725845AbgCJK2W (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Mar 2020 06:28:22 -0400
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailout.nyi.internal (Postfix) with ESMTP id 5410621F55;
-        Tue, 10 Mar 2020 06:28:21 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Tue, 10 Mar 2020 06:28:21 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=1rh/k5
-        L0UePdtxRpcYjeVvwR0byDfMpVDibBpcLLhCc=; b=NY1SB5QFORClTPfz/yYmgS
-        Kz9RTGW74h1VO/l0pJAKtyZ0EI529mT3Fk8cXMU9y79/p95ojCTjRFP8DyAp3iP+
-        yyvAYl1IBroFJzBklS0jCcQpSQw4xRmuWU+kpjPsMeTdFImNxnX0Dkvnwa/l5CKq
-        fRMhphz58x9bbBt9fliz5e4nbbMTmnuH97diS1/3STGK9uCMqH7EScASSdaTTx/U
-        8Kad5GFsqpiALDDObN9yC5qlReJ73VGvEpJj2d1AJKr4fS8ROOH74USj1mlAu1bG
-        TV3Sw3fKJOjx+H2BtnQmhmO/1BiQJaYkG7lEHZAqRlKCizfka6uR4OkTKcZSOl1Q
-        ==
-X-ME-Sender: <xms:xGtnXl8wZJZN5kXa16Bbs6v_j5Qi0DEkdWQoy7A-1vDr7sltqyqLhg>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedugedruddvtddgudeiucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
-    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphepkeefrdekiedrkeelrd
-    dutdejnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhep
-    ghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:xGtnXt_n1qYvPwN7iQZM-HCJpwWjR3Kh59FlfeEoUgh6OEchzUO-Ug>
-    <xmx:xGtnXuAAEgPpsSOBKquKDSySFlQAsYWX68K4OFiemJ0pDlLHM-1mJw>
-    <xmx:xGtnXtyo8pi_mh2PWLFCGW5DcRflc9I5mST6YqBpAcAUUg2UE3_ooA>
-    <xmx:xWtnXptu5VugBxQmucDgLhVKWZmuYIzsgEgaAKXivFlTXkR51-PoJA>
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id A592A3280065;
-        Tue, 10 Mar 2020 06:28:20 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] IB/hfi1, qib: Ensure RCU is locked when accessing list" failed to apply to 4.9-stable tree
-To:     dennis.dalessandro@intel.com, jgg@mellanox.com,
-        mike.marciniszyn@intel.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 10 Mar 2020 11:28:18 +0100
-Message-ID: <158383609881204@kroah.com>
+        id S1725845AbgCJKkd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 06:40:33 -0400
+Received: from mail-lj1-f193.google.com ([209.85.208.193]:40469 "EHLO
+        mail-lj1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726331AbgCJKkd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Mar 2020 06:40:33 -0400
+Received: by mail-lj1-f193.google.com with SMTP id 19so10676697ljj.7
+        for <stable@vger.kernel.org>; Tue, 10 Mar 2020 03:40:30 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=VOmLbFg4f7m0VWnyO1xDaH/AZNMu+kPMNjgBVvsbMM4=;
+        b=XmPV7pmfeVwv3eR7FYLArkOxNj27Kv2v7Sx7iRQrmZdzWxfxlm1/2+6ROU4I24Rih4
+         sfMG2dff10ReM0skBVyIR8ywsuBgmcvdt12e2ZCTI4Qo81wWI1tCCP6jUdZkGjLPQ50P
+         C2QGEB9K3G/dqaRMfDNWxuHMFPrymb3R5agvF0Agm+VQuOdUfUNHoEj/9ksEQ9gUlLxo
+         gzqwva0Zs4/SDsB2Rmj4itCDw/94E8QchLWRxf8WuPigcg2aybGDW82RNXqaWGSTHjDk
+         n8qThSPy6zFIN95KirHptSJJ8TZgWB1sm61UPdbxfwz5KxBBZLhuMi4nL8GQ5ebHturv
+         M2nQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=VOmLbFg4f7m0VWnyO1xDaH/AZNMu+kPMNjgBVvsbMM4=;
+        b=UXUhCqNkLyviOmNZJKWVJ5Sb5zCM15FFgyI6pdJFGR4UlmEuyj7kaOpyWE/c0LLzNE
+         Un5fomWfk+NhXlK4HnqBRLcNnRXMJd2r6Sb50kALXYzJNgWa9W0j3Erg+T73xOW8H+e0
+         ObZUAgWYbReNhfyC19/jimvi7wfW81uMj3M6OW04+zyHyqZG/1GkjSQkTHUjkKwnnq75
+         EJ7Gp4pzNPkmftazXjd6jX3MRVvZ3uqo0YYtrKB5yrXTGOdlbkrGCTqaR4rBNbAd/MV3
+         kFDWXNZbv65GvHRENboP1L5dIwILtDsoT1kJ5cbPaHurCN68RdG/98JTcjU5lLx1BgrA
+         43zg==
+X-Gm-Message-State: ANhLgQ2TGVMZheaGaCZcOpynpi9emn9bti+0yDs+ELg6L/o071rJmQuh
+        hQ3yxgRLE/MUdslXwO6GdDGtZw==
+X-Google-Smtp-Source: ADFU+vt0BFBJbAznVQSE1PNl5MnrDZymFS2judAVRaRDmr4mbgXWDTWu7QcpSCh+5klHcSq6m8dkfw==
+X-Received: by 2002:a2e:8654:: with SMTP id i20mr12334652ljj.248.1583836829816;
+        Tue, 10 Mar 2020 03:40:29 -0700 (PDT)
+Received: from uffe-XPS13.ideon.se ([85.235.10.227])
+        by smtp.gmail.com with ESMTPSA id j6sm3414632lfb.13.2020.03.10.03.40.28
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 10 Mar 2020 03:40:28 -0700 (PDT)
+From:   Ulf Hansson <ulf.hansson@linaro.org>
+To:     Sudeep Holla <sudeep.holla@arm.com>,
+        Lorenzo Pieralisi <Lorenzo.Pieralisi@arm.com>,
+        linux-pm@vger.kernel.org
+Cc:     "Rafael J . Wysocki" <rjw@rjwysocki.net>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        Lina Iyer <ilina@codeaurora.org>,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Benjamin Gaignard <benjamin.gaignard@st.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        linux-arm-kernel@lists.infradead.org, stable@vger.kernel.org
+Subject: [PATCH v3 1/2] PM / Domains: Allow no domain-idle-states DT property in genpd when parsing
+Date:   Tue, 10 Mar 2020 11:40:23 +0100
+Message-Id: <20200310104023.4018-1-ulf.hansson@linaro.org>
+X-Mailer: git-send-email 2.20.1
+In-Reply-To: <0002-cpuidle-psci-Split-psci_dt_cpu_init_idle.patch>
+References: <0002-cpuidle-psci-Split-psci_dt_cpu_init_idle.patch>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Commit 2c361684803e ("PM / Domains: Don't treat zero found compatible idle
+states as an error"), moved of_genpd_parse_idle_states() towards allowing
+none compatible idle state to be found for the device node, rather than
+returning an error code.
 
-The patch below does not apply to the 4.9-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+However, it didn't consider that the "domain-idle-states" DT property may
+be missing as it's optional, which makes of_count_phandle_with_args() to
+return -ENOENT. Let's fix this to make the behaviour consistent.
 
-thanks,
+Reported-by: Benjamin Gaignard <benjamin.gaignard@st.com>
+Fixes: 2c361684803e ("PM / Domains: Don't treat zero found compatible idle states as an error")
+Cc: <stable@vger.kernel.org>
+Reviewed-by: Sudeep Holla <sudeep.holla@arm.com>
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+---
 
-greg k-h
+Changes in v3:
+	- Resending with reviewed-tags added.
 
------------------- original commit in Linus's tree ------------------
+---
+ drivers/base/power/domain.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-From 817a68a6584aa08e323c64283fec5ded7be84759 Mon Sep 17 00:00:00 2001
-From: Dennis Dalessandro <dennis.dalessandro@intel.com>
-Date: Tue, 25 Feb 2020 14:54:45 -0500
-Subject: [PATCH] IB/hfi1, qib: Ensure RCU is locked when accessing list
-
-The packet handling function, specifically the iteration of the qp list
-for mad packet processing misses locking RCU before running through the
-list. Not only is this incorrect, but the list_for_each_entry_rcu() call
-can not be called with a conditional check for lock dependency. Remedy
-this by invoking the rcu lock and unlock around the critical section.
-
-This brings MAD packet processing in line with what is done for non-MAD
-packets.
-
-Fixes: 7724105686e7 ("IB/hfi1: add driver files")
-Link: https://lore.kernel.org/r/20200225195445.140896.41873.stgit@awfm-01.aw.intel.com
-Reviewed-by: Mike Marciniszyn <mike.marciniszyn@intel.com>
-Signed-off-by: Dennis Dalessandro <dennis.dalessandro@intel.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
-
-diff --git a/drivers/infiniband/hw/hfi1/verbs.c b/drivers/infiniband/hw/hfi1/verbs.c
-index 089e201d7550..2f6323ad9c59 100644
---- a/drivers/infiniband/hw/hfi1/verbs.c
-+++ b/drivers/infiniband/hw/hfi1/verbs.c
-@@ -515,10 +515,11 @@ static inline void hfi1_handle_packet(struct hfi1_packet *packet,
- 				       opa_get_lid(packet->dlid, 9B));
- 		if (!mcast)
- 			goto drop;
-+		rcu_read_lock();
- 		list_for_each_entry_rcu(p, &mcast->qp_list, list) {
- 			packet->qp = p->qp;
- 			if (hfi1_do_pkey_check(packet))
--				goto drop;
-+				goto unlock_drop;
- 			spin_lock_irqsave(&packet->qp->r_lock, flags);
- 			packet_handler = qp_ok(packet);
- 			if (likely(packet_handler))
-@@ -527,6 +528,7 @@ static inline void hfi1_handle_packet(struct hfi1_packet *packet,
- 				ibp->rvp.n_pkt_drops++;
- 			spin_unlock_irqrestore(&packet->qp->r_lock, flags);
- 		}
-+		rcu_read_unlock();
- 		/*
- 		 * Notify rvt_multicast_detach() if it is waiting for us
- 		 * to finish.
-diff --git a/drivers/infiniband/hw/qib/qib_verbs.c b/drivers/infiniband/hw/qib/qib_verbs.c
-index 33778d451b82..5ef93f8f17a1 100644
---- a/drivers/infiniband/hw/qib/qib_verbs.c
-+++ b/drivers/infiniband/hw/qib/qib_verbs.c
-@@ -329,8 +329,10 @@ void qib_ib_rcv(struct qib_ctxtdata *rcd, void *rhdr, void *data, u32 tlen)
- 		if (mcast == NULL)
- 			goto drop;
- 		this_cpu_inc(ibp->pmastats->n_multicast_rcv);
-+		rcu_read_lock();
- 		list_for_each_entry_rcu(p, &mcast->qp_list, list)
- 			qib_qp_rcv(rcd, hdr, 1, data, tlen, p->qp);
-+		rcu_read_unlock();
- 		/*
- 		 * Notify rvt_multicast_detach() if it is waiting for us
- 		 * to finish.
+diff --git a/drivers/base/power/domain.c b/drivers/base/power/domain.c
+index 959d6d5eb000..0a01df608849 100644
+--- a/drivers/base/power/domain.c
++++ b/drivers/base/power/domain.c
+@@ -2653,7 +2653,7 @@ static int genpd_iterate_idle_states(struct device_node *dn,
+ 
+ 	ret = of_count_phandle_with_args(dn, "domain-idle-states", NULL);
+ 	if (ret <= 0)
+-		return ret;
++		return ret == -ENOENT ? 0 : ret;
+ 
+ 	/* Loop over the phandles until all the requested entry is found */
+ 	of_for_each_phandle(&it, ret, dn, "domain-idle-states", NULL, 0) {
+-- 
+2.20.1
 
