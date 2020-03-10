@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EB39217F870
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 13:48:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E33817F85C
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 13:47:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727978AbgCJMry (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 08:47:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51856 "EHLO mail.kernel.org"
+        id S1728164AbgCJMrV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 08:47:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51134 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728237AbgCJMry (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 08:47:54 -0400
+        id S1728157AbgCJMrV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 08:47:21 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 68AAC2468D;
-        Tue, 10 Mar 2020 12:47:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4977E246B1;
+        Tue, 10 Mar 2020 12:47:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583844473;
-        bh=XT/MO7aK5SsWIBRiMbJ29n7rSEC/rEmTvtY415pZyWg=;
+        s=default; t=1583844439;
+        bh=4I1YLMCj3IlKF5jI77aeT/Tfxrc6P5ndiSwlZHx4FUI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KSBvStdHp++J+4rQN/ba8goRiYbrgRLCHDkArO4s2VLLEsaEFRBZqfSjMBA5bUqeN
-         AHEB9IykHtGFSyv3X5DPmQmUQx7a0nUNaald67fHg8cd7sYCt/rJV1J/vMgWBsRn4q
-         XmpvvQhHNVUXzGxiRUJCO3AazuE2/GytYloyNBy0=
+        b=RWbkNwAn8qWiaVpINQ64KCNggJ6DGn2eX9aB4GXwz2Fiixsoy4bF5b7uNX+IZEdpA
+         U4W46T7yU19UY7b8U4kGvanHGuql5kI8DazDS/eQU/qShE7b6tFwib722O8O6kzbcH
+         pA/U6qKCLmLPThDpQmzlFlFbymZubuq0hDx9lE3M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Charles Keepax <ckeepax@opensource.cirrus.com>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 4.9 80/88] ASoC: dapm: Correct DAPM handling of active widgets during shutdown
-Date:   Tue, 10 Mar 2020 13:39:28 +0100
-Message-Id: <20200310123624.461651289@linuxfoundation.org>
+        stable@vger.kernel.org, Lucas Stach <l.stach@pengutronix.de>,
+        Ahmad Fatoum <a.fatoum@pengutronix.de>,
+        Rouven Czerwinski <r.czerwinski@pengutronix.de>,
+        Shawn Guo <shawnguo@kernel.org>
+Subject: [PATCH 4.9 83/88] ARM: imx: build v7_cpu_resume() unconditionally
+Date:   Tue, 10 Mar 2020 13:39:31 +0100
+Message-Id: <20200310123624.816413875@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200310123606.543939933@linuxfoundation.org>
 References: <20200310123606.543939933@linuxfoundation.org>
@@ -44,43 +45,119 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Charles Keepax <ckeepax@opensource.cirrus.com>
+From: Ahmad Fatoum <a.fatoum@pengutronix.de>
 
-commit 9b3193089e77d3b59b045146ff1c770dd899acb1 upstream.
+commit 512a928affd51c2dc631401e56ad5ee5d5dd68b6 upstream.
 
-commit c2caa4da46a4 ("ASoC: Fix widget powerdown on shutdown") added a
-set of the power state during snd_soc_dapm_shutdown to ensure the
-widgets powered off. However, when commit 39eb5fd13dff
-("ASoC: dapm: Delay w->power update until the changes are written")
-added the new_power member of the widget structure, to differentiate
-between the current power state and the target power state, it did not
-update the shutdown to use the new_power member.
+This function is not only needed by the platform suspend code, but is also
+reused as the CPU resume function when the ARM cores can be powered down
+completely in deep idle, which is the case on i.MX6SX and i.MX6UL(L).
 
-As new_power has not updated it will be left in the state set by the
-last DAPM sequence, ie. 1 for active widgets. So as the DAPM sequence
-for the shutdown proceeds it will turn the widgets on (despite them
-already being on) rather than turning them off.
+Providing the static inline stub whenever CONFIG_SUSPEND is disabled means
+that those platforms will hang on resume from cpuidle if suspend is disabled.
 
-Fixes: 39eb5fd13dff ("ASoC: dapm: Delay w->power update until the changes are written")
-Signed-off-by: Charles Keepax <ckeepax@opensource.cirrus.com>
-Link: https://lore.kernel.org/r/20200228153145.21013-1-ckeepax@opensource.cirrus.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+So there are two problems:
+
+  - The static inline stub masks the linker error
+  - The function is not available where needed
+
+Fix both by just building the function unconditionally, when
+CONFIG_SOC_IMX6 is enabled. The actual code is three instructions long,
+so it's arguably ok to just leave it in for all i.MX6 kernel configurations.
+
+Fixes: 05136f0897b5 ("ARM: imx: support arm power off in cpuidle for i.mx6sx")
+Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
+Signed-off-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
+Signed-off-by: Rouven Czerwinski <r.czerwinski@pengutronix.de>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/soc/soc-dapm.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm/mach-imx/Makefile       |    2 ++
+ arch/arm/mach-imx/common.h       |    4 ++--
+ arch/arm/mach-imx/resume-imx6.S  |   24 ++++++++++++++++++++++++
+ arch/arm/mach-imx/suspend-imx6.S |   14 --------------
+ 4 files changed, 28 insertions(+), 16 deletions(-)
 
---- a/sound/soc/soc-dapm.c
-+++ b/sound/soc/soc-dapm.c
-@@ -4363,7 +4363,7 @@ static void soc_dapm_shutdown_dapm(struc
- 			continue;
- 		if (w->power) {
- 			dapm_seq_insert(w, &down_list, false);
--			w->power = 0;
-+			w->new_power = 0;
- 			powerdown = 1;
- 		}
- 	}
+--- a/arch/arm/mach-imx/Makefile
++++ b/arch/arm/mach-imx/Makefile
+@@ -86,6 +86,8 @@ AFLAGS_suspend-imx6.o :=-Wa,-march=armv7
+ obj-$(CONFIG_SOC_IMX6) += suspend-imx6.o
+ obj-$(CONFIG_SOC_IMX53) += suspend-imx53.o
+ endif
++AFLAGS_resume-imx6.o :=-Wa,-march=armv7-a
++obj-$(CONFIG_SOC_IMX6) += resume-imx6.o
+ obj-$(CONFIG_SOC_IMX6) += pm-imx6.o
+ 
+ obj-$(CONFIG_SOC_IMX1) += mach-imx1.o
+--- a/arch/arm/mach-imx/common.h
++++ b/arch/arm/mach-imx/common.h
+@@ -112,17 +112,17 @@ void imx_cpu_die(unsigned int cpu);
+ int imx_cpu_kill(unsigned int cpu);
+ 
+ #ifdef CONFIG_SUSPEND
+-void v7_cpu_resume(void);
+ void imx53_suspend(void __iomem *ocram_vbase);
+ extern const u32 imx53_suspend_sz;
+ void imx6_suspend(void __iomem *ocram_vbase);
+ #else
+-static inline void v7_cpu_resume(void) {}
+ static inline void imx53_suspend(void __iomem *ocram_vbase) {}
+ static const u32 imx53_suspend_sz;
+ static inline void imx6_suspend(void __iomem *ocram_vbase) {}
+ #endif
+ 
++void v7_cpu_resume(void);
++
+ void imx6_pm_ccm_init(const char *ccm_compat);
+ void imx6q_pm_init(void);
+ void imx6dl_pm_init(void);
+--- /dev/null
++++ b/arch/arm/mach-imx/resume-imx6.S
+@@ -0,0 +1,24 @@
++/* SPDX-License-Identifier: GPL-2.0-or-later */
++/*
++ * Copyright 2014 Freescale Semiconductor, Inc.
++ */
++
++#include <linux/linkage.h>
++#include <asm/assembler.h>
++#include <asm/asm-offsets.h>
++#include <asm/hardware/cache-l2x0.h>
++#include "hardware.h"
++
++/*
++ * The following code must assume it is running from physical address
++ * where absolute virtual addresses to the data section have to be
++ * turned into relative ones.
++ */
++
++ENTRY(v7_cpu_resume)
++	bl	v7_invalidate_l1
++#ifdef CONFIG_CACHE_L2X0
++	bl	l2c310_early_resume
++#endif
++	b	cpu_resume
++ENDPROC(v7_cpu_resume)
+--- a/arch/arm/mach-imx/suspend-imx6.S
++++ b/arch/arm/mach-imx/suspend-imx6.S
+@@ -333,17 +333,3 @@ resume:
+ 
+ 	ret	lr
+ ENDPROC(imx6_suspend)
+-
+-/*
+- * The following code must assume it is running from physical address
+- * where absolute virtual addresses to the data section have to be
+- * turned into relative ones.
+- */
+-
+-ENTRY(v7_cpu_resume)
+-	bl	v7_invalidate_l1
+-#ifdef CONFIG_CACHE_L2X0
+-	bl	l2c310_early_resume
+-#endif
+-	b	cpu_resume
+-ENDPROC(v7_cpu_resume)
 
 
