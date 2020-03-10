@@ -2,85 +2,72 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C1391803F1
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 17:50:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 864AD18040B
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 17:55:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726442AbgCJQuY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 12:50:24 -0400
-Received: from smtprelay0075.hostedemail.com ([216.40.44.75]:58653 "EHLO
-        smtprelay.hostedemail.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726307AbgCJQuY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Mar 2020 12:50:24 -0400
-Received: from filter.hostedemail.com (clb03-v110.bra.tucows.net [216.40.38.60])
-        by smtprelay04.hostedemail.com (Postfix) with ESMTP id 53E711802DEEB;
-        Tue, 10 Mar 2020 16:50:23 +0000 (UTC)
-X-Session-Marker: 6A6F6540706572636865732E636F6D
-X-Spam-Summary: 2,0,0,,d41d8cd98f00b204,joe@perches.com,,RULES_HIT:41:355:379:599:800:960:968:973:988:989:1260:1277:1311:1313:1314:1345:1359:1437:1515:1516:1518:1534:1541:1593:1594:1711:1730:1747:1777:1792:2198:2199:2393:2553:2559:2562:2693:2828:3138:3139:3140:3141:3142:3353:3622:3865:3866:3867:3868:3870:3871:3872:3874:4321:5007:7576:8660:10004:10400:11232:11658:11914:12050:12114:12296:12297:12740:12760:12895:13069:13148:13230:13311:13357:13439:14181:14659:14721:21080:21433:21451:21627:21990:30012:30054:30060:30083:30090:30091,0,RBL:none,CacheIP:none,Bayesian:0.5,0.5,0.5,Netcheck:none,DomainCache:0,MSF:not bulk,SPF:,MSBL:0,DNSBL:none,Custom_rules:0:0:0,LFtime:1,LUA_SUMMARY:none
-X-HE-Tag: list44_3299c48c4159
-X-Filterd-Recvd-Size: 2580
-Received: from XPS-9350.home (unknown [47.151.143.254])
-        (Authenticated sender: joe@perches.com)
-        by omf19.hostedemail.com (Postfix) with ESMTPA;
-        Tue, 10 Mar 2020 16:50:21 +0000 (UTC)
-Message-ID: <0fdd3a89033ce3d6e7ab6b12eddefc343ac43729.camel@perches.com>
-Subject: Re: [PATCH] kbuild: Disable -Wpointer-to-enum-cast
-From:   Joe Perches <joe@perches.com>
-To:     Masahiro Yamada <masahiroy@kernel.org>,
-        David Laight <David.Laight@aculab.com>
-Cc:     Nathan Chancellor <natechancellor@gmail.com>,
-        Michal Marek <michal.lkml@markovi.net>,
-        Linux Kbuild mailing list <linux-kbuild@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        clang-built-linux <clang-built-linux@googlegroups.com>,
-        stable <stable@vger.kernel.org>
-Date:   Tue, 10 Mar 2020 09:48:40 -0700
-In-Reply-To: <CAK7LNARMsO0AeO8-kH4czMuW0Y_=dN+ZhtXNdRE7CWGvU2PNvA@mail.gmail.com>
-References: <20200308073400.23398-1-natechancellor@gmail.com>
-         <CAK7LNARcTHpd8fzrAhFVB_AR7NoBgenX64de0eS2uN8g0by9PQ@mail.gmail.com>
-         <20200310012545.GA16822@ubuntu-m2-xlarge-x86>
-         <c2a687d065c1463d8eea9947687b3b05@AcuMS.aculab.com>
-         <CAK7LNARMsO0AeO8-kH4czMuW0Y_=dN+ZhtXNdRE7CWGvU2PNvA@mail.gmail.com>
-Content-Type: text/plain; charset="ISO-8859-1"
-User-Agent: Evolution 3.34.1-2 
+        id S1726716AbgCJQz4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 12:55:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53572 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726655AbgCJQzz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 12:55:55 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id D545D20675;
+        Tue, 10 Mar 2020 16:55:54 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1583859355;
+        bh=wEA89Y/i/pO8iZvIjVQ2KZgLccQomkZh1pTDz1tPk10=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=hBDwhUDd+fMu377Urjwihg9jdUAvnykBi8q26nDuu+satceJEKD2oR7Kaxb1pOWcK
+         zeM/NP4W/WGiB+HmRoWCfkKatpkhJxjBY1KjekUqVVFqC4kc96357ZW8hduVuBJlJN
+         +S5elPBe+rPefLS9lk+jTRVnyAtRji/9UQ9KHYbU=
+Date:   Tue, 10 Mar 2020 17:55:52 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Borislav Petkov <bp@suse.de>
+Cc:     Thomas Voegtle <tv@lio96.de>, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, "H.J. Lu" <hjl.tools@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH 4.9 62/88] x86/boot/compressed: Dont declare
+ __force_order in kaslr_64.c
+Message-ID: <20200310165552.GA3468294@kroah.com>
+References: <20200310123606.543939933@linuxfoundation.org>
+ <20200310123621.868809541@linuxfoundation.org>
+ <alpine.LSU.2.21.2003101522120.20206@er-systems.de>
+ <20200310150845.GA16975@zn.tnic>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200310150845.GA16975@zn.tnic>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 2020-03-11 at 00:30 +0900, Masahiro Yamada wrote:
-> On Tue, Mar 10, 2020 at 8:31 PM David Laight <David.Laight@aculab.com> wrote:
-> > From: Nathan Chancellor
-> > > Sent: 10 March 2020 01:26
-> > ...
-> > > Sure, I can send v2 to do that but I think that sending 97 patches just
-> > > casting the small values (usually less than twenty) to unsigned long
-> > > then to the enum is rather frivolous. I audited at least ten to fifteen
-> > > of these call sites when creating the clang patch and they are all
-> > > basically false positives.
+On Tue, Mar 10, 2020 at 04:08:45PM +0100, Borislav Petkov wrote:
+> On Tue, Mar 10, 2020 at 03:33:57PM +0100, Thomas Voegtle wrote:
+> > This ends up for me in:
 > > 
-> > Such casts just make the code hard to read.
-> > If misused casts can hide horrid bugs.
-> > IMHO sprinkling the code with casts just to remove
-> > compiler warnings will bite back one day.
+> > arch/x86/boot/compressed/pagetable.o: In function
+> > `initialize_identity_maps':
+> > pagetable.c:(.text+0x309): undefined reference to `__force_order'
+> > arch/x86/boot/compressed/pagetable.o: In function `finalize_identity_maps':
+> > pagetable.c:(.text+0x41a): undefined reference to `__force_order'
 > > 
+> > 
+> > pgtable_64.c doesn't exist in v4.9 for x86.
+> > 
+> > So I guess it's not correct to remove __force_order from pagetable.c?
 > 
-> I agree that too much casts make the code hard to read,
-> but irrespective of this patch, there is no difference
-> in the fact that we need a cast to convert
-> (const void *) to a non-pointer value.
+> Yes, the second __force_order thing was added by
 > 
-> The difference is whether we use
-> (uintptr_t) or (enum foo).
+> 08529078d8d9 ("x86/boot/compressed/64: Detect and handle 5-level paging at boot-time")
+> 
+> which is 4.14.
+> 
+> Greg, pls drop this patch from the 4.9 lineup.
 
-or hide it altogether in a macro like cast_to
+Now dropped, thanks.
 
-#define cast_to(type, val)	\
-	etc...
-
-where cast_to could do the appropriate
-intermediate cast if type is an enum
-and sizeof(tupeof val) is larger than int
-
-
+greg k-h
