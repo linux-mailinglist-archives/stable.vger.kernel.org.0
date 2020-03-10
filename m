@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D937117FB23
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:11:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B787017FB25
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:11:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730988AbgCJNLN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 09:11:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60846 "EHLO mail.kernel.org"
+        id S1731401AbgCJNLQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 09:11:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60894 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730529AbgCJNLN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 09:11:13 -0400
+        id S1730529AbgCJNLP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 09:11:15 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6BD2C208E4;
-        Tue, 10 Mar 2020 13:11:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EE3C120409;
+        Tue, 10 Mar 2020 13:11:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583845872;
-        bh=xl9wnhembeDGjI5M84bf2op9bwgLmvBsjfk6ygNAZLc=;
+        s=default; t=1583845875;
+        bh=QNdpxQLf/YTwAiU0dauCMyC00+ScKCC4tI0BFeqz4C0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jKhVDkpYWQIiuoJYTsqDgziNVbMGsF2rc0NudTWwES+BEeeDcErRZT4pcKQhHts25
-         w/A6ep7DPDRNzURWpvLT+T7pOZGxmCzOzldmEWOWbyDL1XKbbBURXICSUkU6ZcuBOd
-         wkfTsuyis1t1tumnBPmiz1L+GN94bgy+Gtjv9bP8=
+        b=kWFca/tKT4H1haHFzsr86ma2iTBaClHos4Oj5MGcDNhyDWPoFS21B9lD4zhNmSHlR
+         /u22ude7qmFDr+4bWEkhhfANA5JNjNxMbsTIFMjed8VcRHlxYIAnWSHgJuxPnzeYo8
+         9FrxZTkizGxeJDIj+yyxOdMVdrkUqt7BnMAqcAo8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+9d82b8de2992579da5d0@syzkaller.appspotmail.com,
-        Andrew Morton <akpm@linux-foundation.org>,
-        OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.14 099/126] fat: fix uninit-memory access for partial initialized inode
-Date:   Tue, 10 Mar 2020 13:42:00 +0100
-Message-Id: <20200310124210.021622283@linuxfoundation.org>
+        stable@vger.kernel.org, Faiz Abbas <faiz_abbas@ti.com>,
+        Tony Lindgren <tony@atomide.com>
+Subject: [PATCH 4.14 100/126] arm: dts: dra76x: Fix mmc3 max-frequency
+Date:   Tue, 10 Mar 2020 13:42:01 +0100
+Message-Id: <20200310124210.073545434@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200310124203.704193207@linuxfoundation.org>
 References: <20200310124203.704193207@linuxfoundation.org>
@@ -46,74 +43,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+From: Faiz Abbas <faiz_abbas@ti.com>
 
-commit bc87302a093f0eab45cd4e250c2021299f712ec6 upstream.
+commit fa63c0039787b8fbacf4d6a51e3ff44288f5b90b upstream.
 
-When get an error in the middle of reading an inode, some fields in the
-inode might be still not initialized.  And then the evict_inode path may
-access those fields via iput().
+dra76x is not affected by i887 which requires mmc3 node to be limited to
+a max frequency of 64 MHz. Fix this by overwriting the correct value in
+the the dra76 specific dtsi.
 
-To fix, this makes sure that inode fields are initialized.
-
-Reported-by: syzbot+9d82b8de2992579da5d0@syzkaller.appspotmail.com
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Cc: <stable@vger.kernel.org>
-Link: http://lkml.kernel.org/r/871rqnreqx.fsf@mail.parknet.co.jp
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: 895bd4b3e5ec ("ARM: dts: Add support for dra76-evm")
+Cc: stable@vger.kernel.org
+Signed-off-by: Faiz Abbas <faiz_abbas@ti.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/fat/inode.c |   19 +++++++------------
- 1 file changed, 7 insertions(+), 12 deletions(-)
+ arch/arm/boot/dts/dra76x.dtsi |    5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/fs/fat/inode.c
-+++ b/fs/fat/inode.c
-@@ -736,6 +736,13 @@ static struct inode *fat_alloc_inode(str
- 		return NULL;
- 
- 	init_rwsem(&ei->truncate_lock);
-+	/* Zeroing to allow iput() even if partial initialized inode. */
-+	ei->mmu_private = 0;
-+	ei->i_start = 0;
-+	ei->i_logstart = 0;
-+	ei->i_attrs = 0;
-+	ei->i_pos = 0;
+--- a/arch/arm/boot/dts/dra76x.dtsi
++++ b/arch/arm/boot/dts/dra76x.dtsi
+@@ -17,3 +17,8 @@
+ &crossbar_mpu {
+ 	ti,irqs-skip = <10 67 68 133 139 140>;
+ };
 +
- 	return &ei->vfs_inode;
- }
- 
-@@ -1366,16 +1373,6 @@ out:
- 	return 0;
- }
- 
--static void fat_dummy_inode_init(struct inode *inode)
--{
--	/* Initialize this dummy inode to work as no-op. */
--	MSDOS_I(inode)->mmu_private = 0;
--	MSDOS_I(inode)->i_start = 0;
--	MSDOS_I(inode)->i_logstart = 0;
--	MSDOS_I(inode)->i_attrs = 0;
--	MSDOS_I(inode)->i_pos = 0;
--}
--
- static int fat_read_root(struct inode *inode)
- {
- 	struct msdos_sb_info *sbi = MSDOS_SB(inode->i_sb);
-@@ -1820,13 +1817,11 @@ int fat_fill_super(struct super_block *s
- 	fat_inode = new_inode(sb);
- 	if (!fat_inode)
- 		goto out_fail;
--	fat_dummy_inode_init(fat_inode);
- 	sbi->fat_inode = fat_inode;
- 
- 	fsinfo_inode = new_inode(sb);
- 	if (!fsinfo_inode)
- 		goto out_fail;
--	fat_dummy_inode_init(fsinfo_inode);
- 	fsinfo_inode->i_ino = MSDOS_FSINFO_INO;
- 	sbi->fsinfo_inode = fsinfo_inode;
- 	insert_inode_hash(fsinfo_inode);
++&mmc3 {
++	/* dra76x is not affected by i887 */
++	max-frequency = <96000000>;
++};
 
 
