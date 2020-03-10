@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B93D417FBCD
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:17:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2CAB317FBD0
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:17:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731688AbgCJNNX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 09:13:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36114 "EHLO mail.kernel.org"
+        id S1731709AbgCJNNa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 09:13:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36254 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731537AbgCJNNW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 09:13:22 -0400
+        id S1731313AbgCJNN2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 09:13:28 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C4215208E4;
-        Tue, 10 Mar 2020 13:13:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 07B3D208E4;
+        Tue, 10 Mar 2020 13:13:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583846002;
-        bh=z05/4+UxW29/S/5/yxpVB9fWHn4FRXryPt0rocly8Vo=;
+        s=default; t=1583846007;
+        bh=FqekamkOTbT+AsvmMCl5YEGkr5FD3eEvXeQTkaC9658=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oQ0xR0aQVTiMQJjwYeiFWLOQ/P9wK02+9XPqItcc3Qa7np+Lh5oh2DuUEDQwEoVPx
-         EPo9Y/UGapWhqLiDMLRWFyh5LLXOKLDeyZNdzgGayj7nvlBuyniX1LgB7VxT2MmPgv
-         hN0XxBzpJ+pXy2JYmj3hy2pMSTFWui8JgBGlYzUs=
+        b=jGj3Ca+uRlYRU3TbyUb7WJyn+8UpJ9zdQxO7DI9/k8c4yeU3IDIjSKCSN+Z3vMR67
+         cWB8JDu++rWseNU0nf0m9e6OhBbtMlzgoR1Gplp1QK2wESRqlEZURgk2BT84n8a/2v
+         rOTgC9nG5sY8Hl4GdbDviP5/cYIuJ1lV1hpPmEsM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Nicolas Dufresne <nicolas@ndufresne.ca>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Subject: [PATCH 4.19 51/86] media: v4l2-mem2mem.c: fix broken links
-Date:   Tue, 10 Mar 2020 13:45:15 +0100
-Message-Id: <20200310124533.550507720@linuxfoundation.org>
+        stable@vger.kernel.org, Jacob Keller <jacob.e.keller@intel.com>,
+        Sean Christopherson <sean.j.christopherson@intel.com>,
+        Borislav Petkov <bp@suse.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>
+Subject: [PATCH 4.19 52/86] x86/pkeys: Manually set X86_FEATURE_OSPKE to preserve existing changes
+Date:   Tue, 10 Mar 2020 13:45:16 +0100
+Message-Id: <20200310124533.602563646@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200310124530.808338541@linuxfoundation.org>
 References: <20200310124530.808338541@linuxfoundation.org>
@@ -44,43 +45,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+From: Sean Christopherson <sean.j.christopherson@intel.com>
 
-commit 316e730f1d8bb029fe6cec2468fb2a50424485b3 upstream.
+commit 735a6dd02222d8d070c7bb748f25895239ca8c92 upstream.
 
-The topology that v4l2_m2m_register_media_controller() creates for a
-processing block actually created a source-to-source link and a sink-to-sink
-link instead of two source-to-sink links.
+Explicitly set X86_FEATURE_OSPKE via set_cpu_cap() instead of calling
+get_cpu_cap() to pull the feature bit from CPUID after enabling CR4.PKE.
+Invoking get_cpu_cap() effectively wipes out any {set,clear}_cpu_cap()
+changes that were made between this_cpu->c_init() and setup_pku(), as
+all non-synthetic feature words are reinitialized from the CPU's CPUID
+values.
 
-Unfortunately v4l2-compliance never checked for such bad links, so this
-went unreported for quite some time.
+Blasting away capability updates manifests most visibility when running
+on a VMX capable CPU, but with VMX disabled by BIOS.  To indicate that
+VMX is disabled, init_ia32_feat_ctl() clears X86_FEATURE_VMX, using
+clear_cpu_cap() instead of setup_clear_cpu_cap() so that KVM can report
+which CPU is misconfigured (KVM needs to probe every CPU anyways).
+Restoring X86_FEATURE_VMX from CPUID causes KVM to think VMX is enabled,
+ultimately leading to an unexpected #GP when KVM attempts to do VMXON.
 
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Reported-by: Nicolas Dufresne <nicolas@ndufresne.ca>
-Cc: <stable@vger.kernel.org>      # for v4.19 and up
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Arguably, init_ia32_feat_ctl() should use setup_clear_cpu_cap() and let
+KVM figure out a different way to report the misconfigured CPU, but VMX
+is not the only feature bit that is affected, i.e. there is precedent
+that tweaking feature bits via {set,clear}_cpu_cap() after ->c_init()
+is expected to work.  Most notably, x86_init_rdrand()'s clearing of
+X86_FEATURE_RDRAND when RDRAND malfunctions is also overwritten.
+
+Fixes: 0697694564c8 ("x86/mm/pkeys: Actually enable Memory Protection Keys in the CPU")
+Reported-by: Jacob Keller <jacob.e.keller@intel.com>
+Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Acked-by: Dave Hansen <dave.hansen@linux.intel.com>
+Tested-by: Jacob Keller <jacob.e.keller@intel.com>
+Cc: stable@vger.kernel.org
+Link: https://lkml.kernel.org/r/20200226231615.13664-1-sean.j.christopherson@intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/media/v4l2-core/v4l2-mem2mem.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/x86/kernel/cpu/common.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/media/v4l2-core/v4l2-mem2mem.c
-+++ b/drivers/media/v4l2-core/v4l2-mem2mem.c
-@@ -787,12 +787,12 @@ int v4l2_m2m_register_media_controller(s
- 		goto err_rel_entity1;
+--- a/arch/x86/kernel/cpu/common.c
++++ b/arch/x86/kernel/cpu/common.c
+@@ -387,7 +387,7 @@ static __always_inline void setup_pku(st
+ 	 * cpuid bit to be set.  We need to ensure that we
+ 	 * update that bit in this CPU's "cpu_info".
+ 	 */
+-	get_cpu_cap(c);
++	set_cpu_cap(c, X86_FEATURE_OSPKE);
+ }
  
- 	/* Connect the three entities */
--	ret = media_create_pad_link(m2m_dev->source, 0, &m2m_dev->proc, 1,
-+	ret = media_create_pad_link(m2m_dev->source, 0, &m2m_dev->proc, 0,
- 			MEDIA_LNK_FL_IMMUTABLE | MEDIA_LNK_FL_ENABLED);
- 	if (ret)
- 		goto err_rel_entity2;
- 
--	ret = media_create_pad_link(&m2m_dev->proc, 0, &m2m_dev->sink, 0,
-+	ret = media_create_pad_link(&m2m_dev->proc, 1, &m2m_dev->sink, 0,
- 			MEDIA_LNK_FL_IMMUTABLE | MEDIA_LNK_FL_ENABLED);
- 	if (ret)
- 		goto err_rm_links0;
+ #ifdef CONFIG_X86_INTEL_MEMORY_PROTECTION_KEYS
 
 
