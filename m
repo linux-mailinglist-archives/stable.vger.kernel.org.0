@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A79BF17FDA4
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:29:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 83DF317FCB7
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:22:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729042AbgCJMwV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 08:52:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57980 "EHLO mail.kernel.org"
+        id S1730157AbgCJNAi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 09:00:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41464 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729039AbgCJMwU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 08:52:20 -0400
+        id S1729924AbgCJNAi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 09:00:38 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D1B2120674;
-        Tue, 10 Mar 2020 12:52:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4ABCA2468D;
+        Tue, 10 Mar 2020 13:00:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583844739;
-        bh=hN6a469Tivn8u3TsieBjrDtp/aqNDl1Fq/Mz22z/h+0=;
+        s=default; t=1583845237;
+        bh=j4rbuNto2WRhNGN8Rhb71bMLkxbanm1XnNP+wsBtRi0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oohqfemI2TZmaOCoYBag81LyjdZsb7hNy2whuYN6yM77tO5PUfr4NQvlMPrOhuLHS
-         1/Dod4PjA1y2U63OlMz01NsSwc179+HGsnCUBxvF+Gv8Z+A2tVEHqtLLcCulJ3S+em
-         kVpgW0eDVKg2tQMtgw/rqCYZQ2iCZroFn7L+51Qg=
+        b=gj65FWbgwwNDeDzfyWl7dmz0RaHGycL/5g3oHiUqRBws//t+HU+Ut3WXv3rGHWZyw
+         5sQdTEQkxlhKuYWlTMB5hRF/WNOgHkhZihbEO8Y6Wy7v6RJFoLQicjSpDoKNfboQpO
+         2F+agPdcSxfRA52mXEr4arH4+gKfqAW/qm6jqXDs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Martin Fuzzey <martin.fuzzey@flowbird.group>,
-        Fabio Estevam <festevam@gmail.com>,
-        Vinod Koul <vkoul@kernel.org>
-Subject: [PATCH 5.4 100/168] dmaengine: imx-sdma: fix context cache
-Date:   Tue, 10 Mar 2020 13:39:06 +0100
-Message-Id: <20200310123645.512315344@linuxfoundation.org>
+        Gurchetan Singh <gurchetansingh@chromium.org>,
+        Guillaume Gardet <Guillaume.Gardet@arm.com>,
+        Gerd Hoffmann <kraxel@redhat.com>
+Subject: [PATCH 5.5 110/189] drm/virtio: fix mmap page attributes
+Date:   Tue, 10 Mar 2020 13:39:07 +0100
+Message-Id: <20200310123650.814203614@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200310123635.322799692@linuxfoundation.org>
-References: <20200310123635.322799692@linuxfoundation.org>
+In-Reply-To: <20200310123639.608886314@linuxfoundation.org>
+References: <20200310123639.608886314@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,65 +45,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Fuzzey <martin.fuzzey@flowbird.group>
+From: Gerd Hoffmann <kraxel@redhat.com>
 
-commit d288bddd8374e0a043ac9dde64a1ae6a09411d74 upstream.
+commit 6be7e07335486f5731cab748d80c68f20896581f upstream.
 
-There is a DMA problem with the serial ports on i.MX6.
-
-When the following sequence is performed:
-
-1) Open a port
-2) Write some data
-3) Close the port
-4) Open a *different* port
-5) Write some data
-6) Close the port
-
-The second write sends nothing and the second close hangs.
-If the first close() is omitted it works.
-
-Adding logs to the the UART driver shows that the DMA is being setup but
-the callback is never invoked for the second write.
-
-This used to work in 4.19.
-
-Git bisect leads to:
-	ad0d92d: "dmaengine: imx-sdma: refine to load context only once"
-
-This commit adds a "context_loaded" flag used to avoid unnecessary context
-setups.
-However the flag is only reset in sdma_channel_terminate_work(),
-which is only invoked in a worker triggered by sdma_terminate_all() IF
-there is an active descriptor.
-
-So, if no active descriptor remains when the channel is terminated, the
-flag is not reset and, when the channel is later reused the old context
-is used.
-
-Fix the problem by always resetting the flag in sdma_free_chan_resources().
+virtio-gpu uses cached mappings, set
+drm_gem_shmem_object.map_cached accordingly.
 
 Cc: stable@vger.kernel.org
-Signed-off-by: Martin Fuzzey <martin.fuzzey@flowbird.group>
-Fixes: ad0d92d7ba6a ("dmaengine: imx-sdma: refine to load context only once")
-Reviewed-by: Fabio Estevam <festevam@gmail.com>
-Link: https://lore.kernel.org/r/1580305274-27274-1-git-send-email-martin.fuzzey@flowbird.group
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Fixes: c66df701e783 ("drm/virtio: switch from ttm to gem shmem helpers")
+Reported-by: Gurchetan Singh <gurchetansingh@chromium.org>
+Reported-by: Guillaume Gardet <Guillaume.Gardet@arm.com>
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+Reviewed-by: Gurchetan Singh <gurchetansingh@chromium.org>
+Tested-by: Guillaume Gardet <Guillaume.Gardet@arm.com>
+Link: http://patchwork.freedesktop.org/patch/msgid/20200226154752.24328-3-kraxel@redhat.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/dma/imx-sdma.c |    1 +
+ drivers/gpu/drm/virtio/virtgpu_object.c |    1 +
  1 file changed, 1 insertion(+)
 
---- a/drivers/dma/imx-sdma.c
-+++ b/drivers/dma/imx-sdma.c
-@@ -1335,6 +1335,7 @@ static void sdma_free_chan_resources(str
+--- a/drivers/gpu/drm/virtio/virtgpu_object.c
++++ b/drivers/gpu/drm/virtio/virtgpu_object.c
+@@ -99,6 +99,7 @@ struct drm_gem_object *virtio_gpu_create
+ 		return NULL;
  
- 	sdmac->event_id0 = 0;
- 	sdmac->event_id1 = 0;
-+	sdmac->context_loaded = false;
- 
- 	sdma_set_channel_priority(sdmac, 0);
+ 	bo->base.base.funcs = &virtio_gpu_gem_funcs;
++	bo->base.map_cached = true;
+ 	return &bo->base.base;
+ }
  
 
 
