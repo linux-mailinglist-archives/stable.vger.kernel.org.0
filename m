@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B125117FCFD
+	by mail.lfdr.de (Postfix) with ESMTP id 3BAB717FCFC
 	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:25:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729842AbgCJM6F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 08:58:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37908 "EHLO mail.kernel.org"
+        id S1729684AbgCJM6K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 08:58:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38034 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729626AbgCJM6C (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 08:58:02 -0400
+        id S1729075AbgCJM6I (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 08:58:08 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1679E2468E;
-        Tue, 10 Mar 2020 12:58:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2A2A32467D;
+        Tue, 10 Mar 2020 12:58:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583845081;
-        bh=1Y8fBheo+gb39pMv7lTELFyrrzvQXoZGwB0CRyzuFc4=;
+        s=default; t=1583845087;
+        bh=vOSBD3sjHzK6riGbNN96CcuhfOs6Oto3eXhPhUlUcHs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JbZZMjB0Q+YXh45xMLqthWt0nCDsa/E4485b8ZzMy85cAqXNgLrWiklmG4GVLK8v8
-         YK1xDOgKboqz3xsAYKmW4HRp4NGZrHaUN8sIavOE+pEffPDq1SK7xE2mbblYwHxdJT
-         IJMgooc4io6E4eRpFGixIMs4KZ+XgX9kYBkXVWgc=
+        b=EdAXt/ScTHS34pZUdY4H071cdBIpTJozA8dg+DUjbAY35wd6iJAQhePFIGD1LNe8R
+         o+KMWJQZAXd4OrCXZKiHa88GbvSqPvHO+M44KG905kAnadHjOH0D4DFryGHMWAEO4o
+         V/1zO5nzJ3d099NMQ6z4FuS988npTn1AOGxmacys=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guo Ren <guoren@linux.alibaba.com>,
+        stable@vger.kernel.org, Petr Machata <petrm@mellanox.com>,
+        Hangbin Liu <liuhangbin@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 055/189] csky: Fixup compile warning for three unimplemented syscalls
-Date:   Tue, 10 Mar 2020 13:38:12 +0100
-Message-Id: <20200310123645.132891113@linuxfoundation.org>
+Subject: [PATCH 5.5 057/189] selftests: forwarding: vxlan_bridge_1d: use more proper tos value
+Date:   Tue, 10 Mar 2020 13:38:14 +0100
+Message-Id: <20200310123645.342473819@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200310123639.608886314@linuxfoundation.org>
 References: <20200310123639.608886314@linuxfoundation.org>
@@ -43,34 +45,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guo Ren <guoren@linux.alibaba.com>
+From: Hangbin Liu <liuhangbin@gmail.com>
 
-[ Upstream commit 2305f60b76110cb3e8658a4ae85d1f7eb0c66a5b ]
+[ Upstream commit 9b64208f74fbd0e920475ecfe9326f8443fdc3a5 ]
 
-Implement fstat64, fstatat64, clone3 syscalls to fixup
-checksyscalls.sh compile warnings.
+0x11 and 0x12 set the ECN bits based on RFC2474, it would be better to avoid
+that. 0x14 and 0x18 would be better and works as well.
 
-Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
+Reported-by: Petr Machata <petrm@mellanox.com>
+Fixes: 4e867c9a50ff ("selftests: forwarding: vxlan_bridge_1d: fix tos value")
+Signed-off-by: Hangbin Liu <liuhangbin@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/csky/include/uapi/asm/unistd.h | 3 +++
- 1 file changed, 3 insertions(+)
+ tools/testing/selftests/net/forwarding/vxlan_bridge_1d.sh | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/arch/csky/include/uapi/asm/unistd.h b/arch/csky/include/uapi/asm/unistd.h
-index 211c983c7282d..ba40189297338 100644
---- a/arch/csky/include/uapi/asm/unistd.h
-+++ b/arch/csky/include/uapi/asm/unistd.h
-@@ -1,7 +1,10 @@
- /* SPDX-License-Identifier: GPL-2.0 WITH Linux-syscall-note */
- // Copyright (C) 2018 Hangzhou C-SKY Microsystems co.,ltd.
+diff --git a/tools/testing/selftests/net/forwarding/vxlan_bridge_1d.sh b/tools/testing/selftests/net/forwarding/vxlan_bridge_1d.sh
+index 353613fc19475..ce6bea9675c07 100755
+--- a/tools/testing/selftests/net/forwarding/vxlan_bridge_1d.sh
++++ b/tools/testing/selftests/net/forwarding/vxlan_bridge_1d.sh
+@@ -516,9 +516,9 @@ test_tos()
+ 	RET=0
  
-+#define __ARCH_WANT_STAT64
-+#define __ARCH_WANT_NEW_STAT
- #define __ARCH_WANT_SYS_CLONE
-+#define __ARCH_WANT_SYS_CLONE3
- #define __ARCH_WANT_SET_GET_RLIMIT
- #define __ARCH_WANT_TIME32_SYSCALLS
- #include <asm-generic/unistd.h>
+ 	tc filter add dev v1 egress pref 77 prot ip \
+-		flower ip_tos 0x11 action pass
+-	vxlan_ping_test $h1 192.0.2.3 "-Q 0x11" v1 egress 77 10
+-	vxlan_ping_test $h1 192.0.2.3 "-Q 0x12" v1 egress 77 0
++		flower ip_tos 0x14 action pass
++	vxlan_ping_test $h1 192.0.2.3 "-Q 0x14" v1 egress 77 10
++	vxlan_ping_test $h1 192.0.2.3 "-Q 0x18" v1 egress 77 0
+ 	tc filter del dev v1 egress pref 77 prot ip
+ 
+ 	log_test "VXLAN: envelope TOS inheritance"
 -- 
 2.20.1
 
