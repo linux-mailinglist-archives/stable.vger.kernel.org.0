@@ -2,1077 +2,756 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A19318006A
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 15:41:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5936B180072
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 15:42:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726437AbgCJOlK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 10:41:10 -0400
-Received: from mail-pg1-f193.google.com ([209.85.215.193]:32986 "EHLO
-        mail-pg1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726391AbgCJOlK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Mar 2020 10:41:10 -0400
-Received: by mail-pg1-f193.google.com with SMTP id m5so6408276pgg.0
-        for <stable@vger.kernel.org>; Tue, 10 Mar 2020 07:41:07 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=h6e8bCLiiKmVrc7HLsNJxh0bEvRoynqKnAyPBSKpuiY=;
-        b=jQphtK6Ihw+p6hjUvxyaeJjKGkshnsXqCfI8m2HAg+w8AYocDznriSKlu2qoPZvtTs
-         vWL/76UPZFP4j69QX0pCbFs2OOC/bo8QLyYzGkIr/RBvQvYwYibeCzS5pnH/y5Lf6qc5
-         2/io9rP0O1TIfosLBJIRoiMZRdNmc/bbw0icghltQ5q4EW3GH9OcZHKKbGAVa1Z483l0
-         RUekb+rXHKCND65pT9x6DdBunRONMZq87p7/xXYdJ7liN1pWj1wzVVVndlDeJRbhlBG8
-         2lFeHzUCnIAmWleMelEBZ3enZ6MHqnEQiGDu5yeoHi2gSuP2aEnT64iQHls8YY5a/8wZ
-         GU6w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=h6e8bCLiiKmVrc7HLsNJxh0bEvRoynqKnAyPBSKpuiY=;
-        b=nY2+4c/40guTs0bDX7kvyZs5jjO3qPa49fux75DiC5FYSnhOYoE/3PW587nI+yo1zu
-         ZP2STJqevU8wzJpq3NZB5E0ehMLF4zYl7zQbT0gbxrqz5J6XDEgIU0HJ4t1MHnsVst1t
-         DI3JegVJ6G95Dnhq80uFovsmHg/dhJLwygFtHoPMpU9QptQaL4z+BsT1JwaU35rX8qUF
-         DxphMadWm/x6NZ+PqqRZx6IsMQjXOOpsYGCs24QA+KlapVCYuAVtPtY8kGDd2jW8/TgT
-         wFHrTxSqUaWo3zS4LjpXELgvRmYNUZIWEE66v+MOWVcbwkjvIuBrSErkUEub8laOeFlx
-         Y34Q==
-X-Gm-Message-State: ANhLgQ0T7efHqdBw4SxIucOJJtklHikk8LbLX17b0J0VjOlSL266I+lL
-        F/Nd/FTC59PutUVE+TmeppaN2pCUCUg=
-X-Google-Smtp-Source: ADFU+vuK4+Yy8xMSfe3D8HRZemHePZMwJIc4eplbaMq2nAi0DKtT1qNsQoYUrSnbzTHfywpoikBQrg==
-X-Received: by 2002:a63:82c2:: with SMTP id w185mr22007393pgd.382.1583851264886;
-        Tue, 10 Mar 2020 07:41:04 -0700 (PDT)
-Received: from [10.0.9.4] ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id h198sm2167966pfe.76.2020.03.10.07.41.02
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 10 Mar 2020 07:41:04 -0700 (PDT)
-Message-ID: <5e67a700.1c69fb81.c9705.683b@mx.google.com>
-Date:   Tue, 10 Mar 2020 07:41:04 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1727453AbgCJOmJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 10:42:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32960 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726469AbgCJOmJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 10:42:09 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 62922208E4;
+        Tue, 10 Mar 2020 14:42:06 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1583851327;
+        bh=hc+gcS9UVKgeOypYfQ84ufFXI01blk9pmUdc3uWv8zM=;
+        h=From:To:Cc:Subject:Date:From;
+        b=qfNJq/b+t/wXe+2+wWJ37lssMebBbQMzN/YVqbfRb1mOWLuEPXF5NvRBEBqrvJhQz
+         lLOykrihLJb+JdHHAllOTw/Yq6VXJi6NdwpeL7PB/tdeKe0f8gKR3q2XnPgkut83m/
+         fvQ8HVbi3kyVm061cx6EqbWNqkO4MTinAyGX483c=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org
+Subject: [PATCH 5.4 000/167] 5.4.25-stable review
+Date:   Tue, 10 Mar 2020 15:42:01 +0100
+Message-Id: <20200310144113.973994620@linuxfoundation.org>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-4.9.y
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v4.9.215-89-g823586b24f36
-X-Kernelci-Report-Type: build
-Subject: stable-rc/linux-4.9.y build: 197 builds: 1 failed,
- 196 passed (v4.9.215-89-g823586b24f36)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-5.4.25-rc2.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-5.4.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 5.4.25-rc2
+X-KernelTest-Deadline: 2020-03-12T14:41+00:00
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.9.y build: 197 builds: 1 failed, 196 passed (v4.9.215-89-=
-g823586b24f36)
-
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.9.y=
-/kernel/v4.9.215-89-g823586b24f36/
-
-Tree: stable-rc
-Branch: linux-4.9.y
-Git Describe: v4.9.215-89-g823586b24f36
-Git Commit: 823586b24f3634fefd5b5e83293920023c6f008c
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Built: 6 unique architectures
-
-Build Failure Detected:
-
-mips:
-    32r2el_defconfig: (gcc-8) FAIL
-
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D
-
-Detailed per-defconfig build reports:
-
----------------------------------------------------------------------------=
------
-32r2el_defconfig (mips, gcc-8) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-acs5k_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-acs5k_tiny_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-allnoconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
-ismatches
-
----------------------------------------------------------------------------=
------
-allnoconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-allnoconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
-smatches
-
----------------------------------------------------------------------------=
------
-allnoconfig (i386, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
-ismatches
-
----------------------------------------------------------------------------=
------
-allnoconfig (arm64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
-mismatches
-
----------------------------------------------------------------------------=
------
-allnoconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
-smatches
-
----------------------------------------------------------------------------=
------
-am200epdkit_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-ar7_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-aspeed_g4_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-aspeed_g5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-assabet_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-at91_dt_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-ath25_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-ath79_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-axm55xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-axs103_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-axs103_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-badge4_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-bcm2835_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-bcm47xx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-bcm63xx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-bigsur_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-bmips_be_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-bmips_stb_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-capcella_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-cavium_octeon_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings,=
- 0 section mismatches
-
----------------------------------------------------------------------------=
------
-cerfcube_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-ci20_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-clps711x_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-cm_x2xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-cm_x300_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-cns3420vb_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-cobalt_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-colibri_pxa270_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings,=
- 0 section mismatches
-
----------------------------------------------------------------------------=
------
-colibri_pxa300_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings,=
- 0 section mismatches
-
----------------------------------------------------------------------------=
------
-collie_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-corgi_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-davinci_all_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-db1xxx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-decstation_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-defconfig (arm64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
-smatches
-
----------------------------------------------------------------------------=
------
-dove_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-e55_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-ebsa110_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-efm32_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-em_x270_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-ep93xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-eseries_pxa_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-exynos_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-ezx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
-mismatches
-
----------------------------------------------------------------------------=
------
-footbridge_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-fuloong2e_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-gpr_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-h3600_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-h5000_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-hackkit_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-hisi_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-i386_defconfig (i386, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-imote2_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-imx_v4_v5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-imx_v6_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-integrator_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-iop13xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-iop32x_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-iop33x_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-ip22_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-ip27_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-ip28_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-ip32_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-ixp4xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-jazz_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-jmr3927_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-jornada720_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-keystone_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-ks8695_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-lart_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-lasat_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-lemote2f_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-loongson1b_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-loongson1c_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-loongson3_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-lpc18xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-lpc32xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-lpd270_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-lubbock_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-magician_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-mainstone_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-malta_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-malta_kvm_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-malta_kvm_guest_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warning=
-s, 0 section mismatches
-
----------------------------------------------------------------------------=
------
-malta_qemu_32r6_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warning=
-s, 0 section mismatches
-
----------------------------------------------------------------------------=
------
-maltaaprp_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-maltasmvp_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-maltasmvp_eva_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings,=
- 0 section mismatches
-
----------------------------------------------------------------------------=
------
-maltaup_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-maltaup_xpa_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
- section mismatches
-
----------------------------------------------------------------------------=
------
-markeins_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-mini2440_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-mips_paravirt_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings,=
- 0 section mismatches
-
----------------------------------------------------------------------------=
------
-mmp2_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-moxart_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-mpc30x_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-mps2_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-msp71xx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-mtx1_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-multi_v4t_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-multi_v5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-multi_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-mv78xx0_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-mvebu_v5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-mvebu_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-mxs_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
-mismatches
-
----------------------------------------------------------------------------=
------
-neponset_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-netwinder_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-netx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-nhk8815_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-nlm_xlp_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-nlm_xlr_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-nsim_hs_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-nsim_hs_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-nsimosci_hs_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-nsimosci_hs_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings=
-, 0 section mismatches
-
----------------------------------------------------------------------------=
------
-nuc910_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-nuc950_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-nuc960_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-omap1_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-omap2plus_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-orion5x_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-palmz72_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-pcm027_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-pic32mzda_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-pistachio_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-pleb_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-pnx8335_stb225_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings=
-, 0 section mismatches
-
----------------------------------------------------------------------------=
------
-prima2_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-pxa168_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-pxa255-idp_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-pxa3xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-pxa910_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-pxa_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
-mismatches
-
----------------------------------------------------------------------------=
------
-qcom_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-qi_lb60_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-raumfeld_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-rb532_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-rbtx49xx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-realview_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-rm200_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-rpc_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
-mismatches
-
----------------------------------------------------------------------------=
------
-rt305x_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-s3c2410_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-s3c6400_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-s5pv210_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-sama5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-sb1250_swarm_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, =
-0 section mismatches
-
----------------------------------------------------------------------------=
------
-shannon_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-shmobile_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-simpad_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-socfpga_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-spear13xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-spear3xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-spear6xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-spitz_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-stm32_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-sunxi_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-tb0219_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-tb0226_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-tb0287_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-tct_hammer_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-tegra_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-tinyconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mis=
-matches
-
----------------------------------------------------------------------------=
------
-tinyconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
-mismatches
-
----------------------------------------------------------------------------=
------
-tinyconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
-smatches
-
----------------------------------------------------------------------------=
------
-tinyconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mis=
-matches
-
----------------------------------------------------------------------------=
------
-tinyconfig (i386, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
-smatches
-
----------------------------------------------------------------------------=
------
-tinyconfig (arm64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
-ismatches
-
----------------------------------------------------------------------------=
------
-trizeps4_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-u300_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-u8500_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-vdk_hs38_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-vdk_hs38_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
- section mismatches
-
----------------------------------------------------------------------------=
------
-versatile_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-vexpress_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-vf610m4_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-viper_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-vt8500_v6_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
- section mismatches
-
----------------------------------------------------------------------------=
------
-workpad_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-x86_64_defconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-xcep_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-xilfpga_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-xway_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-zebu_hs_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-zebu_hs_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-zeus_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-zx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
-ismatches
-
----
-For more info write to <info@kernelci.org>
+This is the start of the stable review cycle for the 5.4.25 release.
+There are 167 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
+
+Responses should be made by Thu, 12 Mar 2020 14:40:27 +0000.
+Anything received after that time might be too late.
+
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.25-rc2.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
+and the diffstat can be found below.
+
+thanks,
+
+greg k-h
+
+-------------
+Pseudo-Shortlog of commits:
+
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 5.4.25-rc2
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    efi: READ_ONCE rng seed size before munmap
+
+Ard Biesheuvel <ardb@kernel.org>
+    efi/x86: Handle by-ref arguments covering multiple pages in mixed mode
+
+Ard Biesheuvel <ardb@kernel.org>
+    efi/x86: Align GUIDs to their size in the mixed mode runtime wrapper
+
+Desnes A. Nunes do Rosario <desnesn@linux.ibm.com>
+    powerpc: fix hardware PMU exception bug on PowerVM compatibility mode systems
+
+Sherry Sun <sherry.sun@nxp.com>
+    EDAC/synopsys: Do not print an error with back-to-back snprintf() calls
+
+Tony Lindgren <tony@atomide.com>
+    bus: ti-sysc: Fix 1-wire reset quirk
+
+Christian Hewitt <christianshewitt@gmail.com>
+    arm64: dts: meson: fix gxm-khadas-vim2 wifi
+
+Dan Carpenter <dan.carpenter@oracle.com>
+    dmaengine: coh901318: Fix a double lock bug in dma_tc_handle()
+
+Cong Wang <xiyou.wangcong@gmail.com>
+    dma-buf: free dmabuf->name in dma_buf_release()
+
+Dan Carpenter <dan.carpenter@oracle.com>
+    hwmon: (adt7462) Fix an error return in ADT7462_REG_VOLT()
+
+Oleksandr Suvorov <oleksandr.suvorov@toradex.com>
+    ARM: dts: imx7-colibri: Fix frequency for sd/mmc
+
+Johan Hovold <johan@kernel.org>
+    ARM: dts: imx6dl-colibri-eval-v3: fix sram compatible properties
+
+Suman Anna <s-anna@ti.com>
+    ARM: dts: dra7xx-clocks: Fixup IPU1 mux clock parent source
+
+Suman Anna <s-anna@ti.com>
+    ARM: dts: am437x-idk-evm: Fix incorrect OPP node names
+
+Ahmad Fatoum <a.fatoum@pengutronix.de>
+    ARM: imx: build v7_cpu_resume() unconditionally
+
+Dennis Dalessandro <dennis.dalessandro@intel.com>
+    IB/hfi1, qib: Ensure RCU is locked when accessing list
+
+Jason Gunthorpe <jgg@ziepe.ca>
+    RMDA/cm: Fix missing ib_cm_destroy_id() in ib_cm_insert_listen()
+
+Fabrice Gasnier <fabrice.gasnier@st.com>
+    regulator: stm32-vrefbuf: fix a possible overshoot when re-enabling
+
+Maor Gottlieb <maorg@mellanox.com>
+    RDMA/core: Fix protection fault in ib_mr_pool_destroy
+
+Bernard Metzler <bmt@zurich.ibm.com>
+    RDMA/iwcm: Fix iwcm work deallocation
+
+Bernard Metzler <bmt@zurich.ibm.com>
+    RDMA/siw: Fix failure handling during device creation
+
+Mark Zhang <markz@mellanox.com>
+    RDMA/nldev: Fix crash when set a QP to a new counter but QPN is missing
+
+Max Gurtovoy <maxg@mellanox.com>
+    RDMA/rw: Fix error flow during RDMA context initialization
+
+Parav Pandit <parav@mellanox.com>
+    Revert "RDMA/cma: Simplify rdma_resolve_addr() error flow"
+
+Leonard Crestez <leonard.crestez@nxp.com>
+    soc: imx-scu: Align imx sc msg structs to 4
+
+Leonard Crestez <leonard.crestez@nxp.com>
+    firmware: imx: Align imx_sc_msg_req_cpu_start to 4
+
+Leonard Crestez <leonard.crestez@nxp.com>
+    firmware: imx: scu-pd: Align imx sc msg structs to 4
+
+Leonard Crestez <leonard.crestez@nxp.com>
+    firmware: imx: misc: Align imx sc msg structs to 4
+
+Fabio Estevam <festevam@gmail.com>
+    arm64: dts: imx8qxp-mek: Remove unexisting Ethernet PHY
+
+Marco Felsch <m.felsch@pengutronix.de>
+    ARM: dts: imx6: phycore-som: fix emmc supply
+
+Tony Lindgren <tony@atomide.com>
+    phy: mapphone-mdm6600: Fix write timeouts with shorter GPIO toggle interval
+
+Tony Lindgren <tony@atomide.com>
+    phy: mapphone-mdm6600: Fix timeouts by adding wake-up handling
+
+Dan Carpenter <dan.carpenter@oracle.com>
+    drm/i915/selftests: Fix return in assert_mmap_offset()
+
+Matt Roper <matthew.d.roper@intel.com>
+    drm/i915: Program MBUS with rmw during initialization
+
+Jernej Skrabec <jernej.skrabec@siol.net>
+    drm/sun4i: de2/de3: Remove unsupported VI layer formats
+
+Jernej Skrabec <jernej.skrabec@siol.net>
+    drm/sun4i: Fix DE2 VI layer format support
+
+Jernej Skrabec <jernej.skrabec@siol.net>
+    drm/sun4i: Add separate DE3 VI layer formats
+
+John Stultz <john.stultz@linaro.org>
+    drm: kirin: Revert "Fix for hikey620 display offset problem"
+
+Tomeu Vizoso <tomeu.vizoso@collabora.com>
+    drm/panfrost: Don't try to map on error faults
+
+Tudor Ambarus <tudor.ambarus@microchip.com>
+    spi: atmel-quadspi: fix possible MMIO window size overrun
+
+Charles Keepax <ckeepax@opensource.cirrus.com>
+    ASoC: dapm: Correct DAPM handling of active widgets during shutdown
+
+Amadeusz Sławiński <amadeuszx.slawinski@linux.intel.com>
+    ASoC: Intel: Skylake: Fix available clock counter incrementation
+
+Matthias Reichl <hias@horus.com>
+    ASoC: pcm512x: Fix unbalanced regulator enable call in probe error path
+
+Takashi Iwai <tiwai@suse.de>
+    ASoC: pcm: Fix possible buffer overflow in dpcm state sysfs output
+
+Michael Ellerman <mpe@ellerman.id.au>
+    powerpc/mm: Fix missing KUAP disable in flush_coherent_icache()
+
+Alastair D'Silva <alastair@d-silva.org>
+    powerpc: Convert flush_icache_range & friends to C
+
+Alastair D'Silva <alastair@d-silva.org>
+    powerpc: define helpers to get L1 icache sizes
+
+Takashi Iwai <tiwai@suse.de>
+    ASoC: intel: skl: Fix possible buffer overflow in debug outputs
+
+Takashi Iwai <tiwai@suse.de>
+    ASoC: intel: skl: Fix pin debug prints
+
+Dan Carpenter <dan.carpenter@oracle.com>
+    ASoC: SOF: Fix snd_sof_ipc_stream_posn()
+
+Dragos Tarcatu <dragos_tarcatu@mentor.com>
+    ASoC: topology: Fix memleak in soc_tplg_manifest_load()
+
+Dragos Tarcatu <dragos_tarcatu@mentor.com>
+    ASoC: topology: Fix memleak in soc_tplg_link_elems_load()
+
+John Bates <jbates@chromium.org>
+    drm/virtio: fix resource id creation race
+
+Gerd Hoffmann <kraxel@redhat.com>
+    drm/virtio: make resource id workaround runtime switchable.
+
+Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+    spi: bcm63xx-hsspi: Really keep pll clk enabled
+
+Vladimir Oltean <olteanv@gmail.com>
+    ARM: dts: ls1021a: Restore MDIO compatible to gianfar
+
+Guillaume La Roque <glaroque@baylibre.com>
+    arm64: dts: meson-sm1-sei610: add missing interrupt-names
+
+Hou Tao <houtao1@huawei.com>
+    dm: fix congested_fn for request-based device
+
+Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+    dm zoned: Fix reference counter initial value of chunk works
+
+Mikulas Patocka <mpatocka@redhat.com>
+    dm writecache: verify watermark during resume
+
+Mikulas Patocka <mpatocka@redhat.com>
+    dm: report suspended device during destroy
+
+Mikulas Patocka <mpatocka@redhat.com>
+    dm cache: fix a crash due to incorrect work item cancelling
+
+Mikulas Patocka <mpatocka@redhat.com>
+    dm integrity: fix invalid table returned due to argument count mismatch
+
+Mikulas Patocka <mpatocka@redhat.com>
+    dm integrity: fix a deadlock due to offloading to an incorrect workqueue
+
+Mikulas Patocka <mpatocka@redhat.com>
+    dm integrity: fix recalculation when moving from journal mode to bitmap mode
+
+Dmitry Osipenko <digetx@gmail.com>
+    dmaengine: tegra-apb: Prevent race conditions of tasklet vs free list
+
+Dmitry Osipenko <digetx@gmail.com>
+    dmaengine: tegra-apb: Fix use-after-free
+
+Frieder Schrempf <frieder.schrempf@kontron.de>
+    dmaengine: imx-sdma: Fix the event id check to include RX event for UART6
+
+Martin Fuzzey <martin.fuzzey@flowbird.group>
+    dmaengine: imx-sdma: fix context cache
+
+Gerald Schaefer <gerald.schaefer@de.ibm.com>
+    s390/mm: fix panic in gup_fast on large pud
+
+Niklas Schnelle <schnelle@linux.ibm.com>
+    s390/pci: Fix unexpected write combine on resource
+
+Sean Christopherson <sean.j.christopherson@intel.com>
+    x86/pkeys: Manually set X86_FEATURE_OSPKE to preserve existing changes
+
+Lukas Wunner <lukas@wunner.de>
+    spi: spidev: Fix CS polarity if GPIO descriptors are used
+
+Adrian Hunter <adrian.hunter@intel.com>
+    perf arm-spe: Fix endless record after being terminated
+
+Wei Li <liwei391@huawei.com>
+    perf cs-etm: Fix endless record after being terminated
+
+Wei Li <liwei391@huawei.com>
+    perf intel-bts: Fix endless record after being terminated
+
+Wei Li <liwei391@huawei.com>
+    perf intel-pt: Fix endless record after being terminated
+
+Hans Verkuil <hverkuil-cisco@xs4all.nl>
+    media: v4l2-mem2mem.c: fix broken links
+
+Hans Verkuil <hverkuil-cisco@xs4all.nl>
+    media: vicodec: process all 4 components for RGB32 formats
+
+Hans Verkuil <hverkuil-cisco@xs4all.nl>
+    media: mc-entity.c: use & to check pad flags, not ==
+
+Ezequiel Garcia <ezequiel@collabora.com>
+    media: hantro: Fix broken media controller links
+
+Jiri Slaby <jslaby@suse.cz>
+    vt: selection, push sel_lock up
+
+Jiri Slaby <jslaby@suse.cz>
+    vt: selection, push console lock down
+
+Jiri Slaby <jslaby@suse.cz>
+    vt: selection, close sel_buffer race
+
+Jay Dolan <jay.dolan@accesio.com>
+    serial: 8250_exar: add support for ACCES cards
+
+Michael Walle <michael@walle.cc>
+    tty: serial: fsl_lpuart: free IDs allocated by IDA
+
+tangbin <tangbin@cmss.chinamobile.com>
+    tty:serial:mvebu-uart:fix a wrong return
+
+Faiz Abbas <faiz_abbas@ti.com>
+    arm: dts: dra76x: Fix mmc3 max-frequency
+
+Ley Foon Tan <ley.foon.tan@intel.com>
+    arm64: dts: socfpga: agilex: Fix gmac compatible
+
+Omar Sandoval <osandov@fb.com>
+    btrfs: fix RAID direct I/O reads with alternate csums
+
+OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+    fat: fix uninit-memory access for partial initialized inode
+
+Vlastimil Babka <vbabka@suse.cz>
+    mm, hotplug: fix page online with DEBUG_PAGEALLOC compiled but not enabled
+
+Huang Ying <ying.huang@intel.com>
+    mm: fix possible PMD dirty bit lost in set_pmd_migration_entry()
+
+Mel Gorman <mgorman@techsingularity.net>
+    mm, numa: fix bad pmd by atomically check for pmd_trans_huge when marking page tables prot_numa
+
+Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
+    vgacon: Fix a UAF in vgacon_invert_region
+
+Eugeniu Rosca <erosca@de.adit-jv.com>
+    usb: core: port: do error out if usb_autopm_get_interface() fails
+
+Eugeniu Rosca <erosca@de.adit-jv.com>
+    usb: core: hub: do error out if usb_autopm_get_interface() fails
+
+Eugeniu Rosca <erosca@de.adit-jv.com>
+    usb: core: hub: fix unhandled return by employing a void function
+
+Peter Chen <peter.chen@nxp.com>
+    usb: cdns3: gadget: toggle cycle bit before reset endpoint
+
+Peter Chen <peter.chen@nxp.com>
+    usb: cdns3: gadget: link trb should point to next request
+
+Pratham Pratap <prathampratap@codeaurora.org>
+    usb: dwc3: gadget: Update chain bit correctly when using sg list
+
+Dan Lazewatsky <dlaz@chromium.org>
+    usb: quirks: add NO_LPM quirk for Logitech Screen Share
+
+Jim Lin <jilin@nvidia.com>
+    usb: storage: Add quirk for Samsung Fit flash
+
+Aurelien Aptel <aaptel@suse.com>
+    cifs: fix rename() by ensuring source handle opened with DELETE bit
+
+Ronnie Sahlberg <lsahlber@redhat.com>
+    cifs: don't leak -EAGAIN for stat() during reconnect
+
+Jian-Hong Pan <jian-hong@endlessm.com>
+    ALSA: hda/realtek - Enable the headset of ASUS B9450FA with ALC294
+
+Christian Lachner <gladiac@gmail.com>
+    ALSA: hda/realtek - Fix silent output on Gigabyte X570 Aorus Master
+
+Kailang Yang <kailang@realtek.com>
+    ALSA: hda/realtek - Add Headset Button supported for ThinkPad X1
+
+Kailang Yang <kailang@realtek.com>
+    ALSA: hda/realtek - Add Headset Mic supported
+
+Christian Brauner <christian.brauner@ubuntu.com>
+    binder: prevent UAF for binderfs devices II
+
+Christian Brauner <christian.brauner@ubuntu.com>
+    binder: prevent UAF for binderfs devices
+
+Leonard Crestez <leonard.crestez@nxp.com>
+    firmware: imx: scu: Ensure sequential TX
+
+Hangbin Liu <liuhangbin@gmail.com>
+    selftests: forwarding: vxlan_bridge_1d: use more proper tos value
+
+Randy Dunlap <rdunlap@infradead.org>
+    arch/csky: fix some Kconfig typos
+
+Guo Ren <guoren@linux.alibaba.com>
+    csky: Fixup compile warning for three unimplemented syscalls
+
+Guo Ren <guoren@linux.alibaba.com>
+    csky: Fixup ftrace modify panic
+
+Guo Ren <guoren@linux.alibaba.com>
+    csky/smp: Fixup boot failed when CONFIG_SMP
+
+Guo Ren <guoren@linux.alibaba.com>
+    csky: Set regs->usp to kernel sp, when the exception is from kernel
+
+Guo Ren <guoren@linux.alibaba.com>
+    csky/mm: Fixup export invalid_pte_table symbol
+
+Tim Harvey <tharvey@gateworks.com>
+    net: thunderx: workaround BGX TX Underflow issue
+
+Kees Cook <keescook@chromium.org>
+    x86/xen: Distribute switch variables for initialization
+
+Michal Swiatkowski <michal.swiatkowski@intel.com>
+    ice: Don't tell the OS that link is going down
+
+Keith Busch <kbusch@kernel.org>
+    nvme: Fix uninitialized-variable warning
+
+Julian Wiedmann <jwi@linux.ibm.com>
+    s390/qdio: fill SL with absolute addresses
+
+H.J. Lu <hjl.tools@gmail.com>
+    x86/boot/compressed: Don't declare __force_order in kaslr_64.c
+
+Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+    nvme-pci: Use single IRQ vector for old Apple models
+
+Shyjumon N <shyjumon.n@intel.com>
+    nvme/pci: Add sleep quirk for Samsung and Toshiba drives
+
+Kai-Heng Feng <kai.heng.feng@canonical.com>
+    iommu/amd: Disable IOMMU on Stoney Ridge systems
+
+Hamdan Igbaria <hamdani@mellanox.com>
+    net/mlx5: DR, Fix matching on vport gvmi
+
+Javier Martinez Canillas <javierm@redhat.com>
+    efi: Only print errors about failing to get certs if EFI vars are found
+
+Masahiro Yamada <masahiroy@kernel.org>
+    s390: make 'install' not depend on vmlinux
+
+Vasily Averin <vvs@virtuozzo.com>
+    s390/cio: cio_ignore_proc_seq_next should increase position index
+
+Marco Felsch <m.felsch@pengutronix.de>
+    watchdog: da9062: do not ping the hw during stop()
+
+Paul Cercueil <paul@crapouillou.net>
+    net: ethernet: dm9000: Handle -EPROBE_DEFER in dm9000_parse_dt()
+
+Marek Vasut <marex@denx.de>
+    net: ks8851-ml: Fix 16-bit IO operation
+
+Marek Vasut <marex@denx.de>
+    net: ks8851-ml: Fix 16-bit data access
+
+Marek Vasut <marex@denx.de>
+    net: ks8851-ml: Remove 8-bit bus accessors
+
+Igor Russkikh <irusskikh@marvell.com>
+    net: atlantic: check rpc result and wait for rpc address
+
+Hangbin Liu <liuhangbin@gmail.com>
+    selftests: forwarding: vxlan_bridge_1d: fix tos value
+
+Hangbin Liu <liuhangbin@gmail.com>
+    selftests: forwarding: use proto icmp for {gretap, ip6gretap}_mac testing
+
+Harigovindan P <harigovi@codeaurora.org>
+    drm/msm/dsi/pll: call vco set rate explicitly
+
+Harigovindan P <harigovi@codeaurora.org>
+    drm/msm/dsi: save pll state before dsi host is powered off
+
+Tomas Henzl <thenzl@redhat.com>
+    scsi: megaraid_sas: silence a warning
+
+Stephan Gerhold <stephan@gerhold.net>
+    drm/modes: Allow DRM_MODE_ROTATE_0 when applying video mode parameters
+
+Stephan Gerhold <stephan@gerhold.net>
+    drm/modes: Make sure to parse valid rotation value from cmdline
+
+John Stultz <john.stultz@linaro.org>
+    drm: msm: Fix return type of dsi_mgr_connector_mode_valid for kCFI
+
+Brian Masney <masneyb@onstation.org>
+    drm/msm/mdp5: rate limit pp done timeout warnings
+
+Oded Gabbay <oded.gabbay@gmail.com>
+    habanalabs: patched cb equals user cb in device memset
+
+Omer Shpigelman <oshpigelman@habana.ai>
+    habanalabs: do not halt CoreSight during hard reset
+
+Oded Gabbay <oded.gabbay@gmail.com>
+    habanalabs: halt the engines before hard-reset
+
+Sergey Organov <sorganov@gmail.com>
+    usb: gadget: serial: fix Tx stall after buffer overflow
+
+Lars-Peter Clausen <lars@metafoo.de>
+    usb: gadget: ffs: ffs_aio_cancel(): Save/restore IRQ flags
+
+Jack Pham <jackp@codeaurora.org>
+    usb: gadget: composite: Support more than 500mA MaxPower
+
+Jiri Benc <jbenc@redhat.com>
+    selftests: fix too long argument
+
+Daniel Golle <daniel@makrotopia.org>
+    serial: ar933x_uart: set UART_CS_{RX,TX}_READY_ORIDE
+
+Kai Vehmanen <kai.vehmanen@linux.intel.com>
+    ALSA: hda: do not override bus codec_mask in link_get()
+
+Cengiz Can <cengiz@kernel.wtf>
+    blktrace: fix dereference after null check
+
+Masami Hiramatsu <mhiramat@kernel.org>
+    kprobes: Fix optimize_kprobe()/unoptimize_kprobe() cancellation logic
+
+Masahiro Yamada <masahiroy@kernel.org>
+    kbuild: fix 'No such file or directory' warning when cleaning
+
+Nathan Chancellor <natechancellor@gmail.com>
+    RDMA/core: Fix use of logical OR in get_new_pps
+
+Maor Gottlieb <maorg@mellanox.com>
+    RDMA/core: Fix pkey and port assignment in get_new_pps
+
+Theodore Ts'o <tytso@mit.edu>
+    dm thin metadata: fix lockdep complaint
+
+Aaro Koskinen <aaro.koskinen@nokia.com>
+    net: stmmac: fix notifier registration
+
+Florian Fainelli <f.fainelli@gmail.com>
+    net: dsa: bcm_sf2: Forcibly configure IMP port for 1Gb/sec
+
+Hui Wang <hui.wang@canonical.com>
+    ALSA: hda/realtek - Fix a regression for mute led on Lenovo Carbon X1
+
+Paolo Valente <paolo.valente@linaro.org>
+    block, bfq: do not insert oom queue into position tree
+
+Paolo Valente <paolo.valente@linaro.org>
+    block, bfq: get extra ref to prevent a queue from being freed during a group move
+
+
+-------------
+
+Diffstat:
+
+ Makefile                                           |   4 +-
+ arch/arm/boot/dts/am437x-idk-evm.dts               |   4 +-
+ arch/arm/boot/dts/dra76x.dtsi                      |   5 +
+ arch/arm/boot/dts/dra7xx-clocks.dtsi               |  12 +-
+ arch/arm/boot/dts/imx6dl-colibri-eval-v3.dts       |   4 +-
+ arch/arm/boot/dts/imx6qdl-phytec-phycore-som.dtsi  |   1 -
+ arch/arm/boot/dts/imx7-colibri.dtsi                |   1 -
+ arch/arm/boot/dts/ls1021a.dtsi                     |   4 +-
+ arch/arm/mach-imx/Makefile                         |   2 +
+ arch/arm/mach-imx/common.h                         |   4 +-
+ arch/arm/mach-imx/resume-imx6.S                    |  24 ++++
+ arch/arm/mach-imx/suspend-imx6.S                   |  14 --
+ .../boot/dts/amlogic/meson-gxm-khadas-vim2.dts     |   2 +-
+ arch/arm64/boot/dts/amlogic/meson-sm1-sei610.dts   |   1 +
+ arch/arm64/boot/dts/freescale/imx8qxp-mek.dts      |   5 -
+ arch/arm64/boot/dts/intel/socfpga_agilex.dtsi      |   6 +-
+ arch/csky/Kconfig                                  |   2 +-
+ arch/csky/abiv1/inc/abi/entry.h                    |  19 ++-
+ arch/csky/abiv2/inc/abi/entry.h                    |  11 ++
+ arch/csky/include/uapi/asm/unistd.h                |   3 +
+ arch/csky/kernel/atomic.S                          |   8 +-
+ arch/csky/kernel/smp.c                             |   2 +-
+ arch/csky/mm/Makefile                              |   2 +
+ arch/csky/mm/init.c                                |   1 +
+ arch/powerpc/include/asm/cache.h                   |  55 +++++---
+ arch/powerpc/include/asm/cacheflush.h              |  36 +++--
+ arch/powerpc/kernel/cputable.c                     |   4 +-
+ arch/powerpc/kernel/misc_32.S                      | 120 ----------------
+ arch/powerpc/kernel/misc_64.S                      | 102 --------------
+ arch/powerpc/mm/mem.c                              | 152 ++++++++++++++++++++-
+ arch/s390/Makefile                                 |   2 +-
+ arch/s390/boot/Makefile                            |   2 +-
+ arch/s390/include/asm/pgtable.h                    |   6 +
+ arch/s390/include/asm/qdio.h                       |   2 +-
+ arch/s390/pci/pci.c                                |   4 +-
+ arch/x86/boot/compressed/kaslr_64.c                |   3 -
+ arch/x86/kernel/cpu/common.c                       |   2 +-
+ arch/x86/platform/efi/efi_64.c                     |  70 ++++++----
+ arch/x86/xen/enlighten_pv.c                        |   7 +-
+ block/bfq-cgroup.c                                 |   8 ++
+ block/bfq-iosched.c                                |   4 +
+ drivers/android/binder.c                           |   9 ++
+ drivers/android/binder_internal.h                  |   2 +
+ drivers/android/binderfs.c                         |   7 +-
+ drivers/bus/ti-sysc.c                              |   4 +-
+ drivers/dma-buf/dma-buf.c                          |   1 +
+ drivers/dma/coh901318.c                            |   4 -
+ drivers/dma/imx-sdma.c                             |   5 +-
+ drivers/dma/tegra20-apb-dma.c                      |   6 +-
+ drivers/edac/synopsys_edac.c                       |  22 +--
+ drivers/firmware/efi/efi.c                         |   4 +-
+ drivers/firmware/imx/imx-scu.c                     |  27 ++++
+ drivers/firmware/imx/misc.c                        |   8 +-
+ drivers/firmware/imx/scu-pd.c                      |   2 +-
+ drivers/gpu/drm/drm_client_modeset.c               |   3 +-
+ drivers/gpu/drm/drm_modes.c                        |   7 +
+ drivers/gpu/drm/hisilicon/kirin/kirin_ade_reg.h    |   1 -
+ drivers/gpu/drm/hisilicon/kirin/kirin_drm_ade.c    |  20 ---
+ drivers/gpu/drm/i915/display/intel_display_power.c |  16 ++-
+ drivers/gpu/drm/i915/gem/selftests/i915_gem_mman.c |   2 +-
+ drivers/gpu/drm/msm/disp/mdp5/mdp5_crtc.c          |   4 +-
+ drivers/gpu/drm/msm/dsi/dsi_manager.c              |   7 +-
+ drivers/gpu/drm/msm/dsi/phy/dsi_phy.c              |   4 -
+ drivers/gpu/drm/msm/dsi/pll/dsi_pll_10nm.c         |   6 +
+ drivers/gpu/drm/panfrost/panfrost_mmu.c            |  44 +++---
+ drivers/gpu/drm/selftests/drm_cmdline_selftests.h  |   1 +
+ .../gpu/drm/selftests/test-drm_cmdline_parser.c    |  15 +-
+ drivers/gpu/drm/sun4i/sun8i_mixer.c                | 104 ++++++++++++--
+ drivers/gpu/drm/sun4i/sun8i_mixer.h                |  11 ++
+ drivers/gpu/drm/sun4i/sun8i_vi_layer.c             |  66 +++++++--
+ drivers/gpu/drm/virtio/virtgpu_object.c            |  44 +++---
+ drivers/hwmon/adt7462.c                            |   2 +-
+ drivers/infiniband/core/cm.c                       |   1 +
+ drivers/infiniband/core/cma.c                      |  15 +-
+ drivers/infiniband/core/core_priv.h                |  15 ++
+ drivers/infiniband/core/iwcm.c                     |   4 +-
+ drivers/infiniband/core/nldev.c                    |   2 +
+ drivers/infiniband/core/rw.c                       |  31 +++--
+ drivers/infiniband/core/security.c                 |  14 +-
+ drivers/infiniband/core/uverbs_cmd.c               |  10 --
+ drivers/infiniband/core/verbs.c                    |  10 --
+ drivers/infiniband/hw/hfi1/verbs.c                 |   4 +-
+ drivers/infiniband/hw/qib/qib_verbs.c              |   2 +
+ drivers/infiniband/sw/siw/siw_main.c               |   6 +-
+ drivers/iommu/amd_iommu_init.c                     |  13 +-
+ drivers/md/dm-cache-target.c                       |   4 +-
+ drivers/md/dm-integrity.c                          |  50 ++++---
+ drivers/md/dm-thin-metadata.c                      |   2 +-
+ drivers/md/dm-writecache.c                         |  14 +-
+ drivers/md/dm-zoned-target.c                       |   8 +-
+ drivers/md/dm.c                                    |  22 +--
+ drivers/media/mc/mc-entity.c                       |   4 +-
+ drivers/media/platform/vicodec/codec-v4l2-fwht.c   |  34 ++---
+ drivers/media/v4l2-core/v4l2-mem2mem.c             |   4 +-
+ drivers/misc/habanalabs/device.c                   |   5 +-
+ drivers/misc/habanalabs/goya/goya.c                |  44 +++++-
+ drivers/net/dsa/bcm_sf2.c                          |   3 +-
+ .../aquantia/atlantic/hw_atl/hw_atl_utils.c        |  19 ++-
+ drivers/net/ethernet/cavium/thunder/thunder_bgx.c  |  62 ++++++++-
+ drivers/net/ethernet/cavium/thunder/thunder_bgx.h  |   9 ++
+ drivers/net/ethernet/davicom/dm9000.c              |   2 +
+ drivers/net/ethernet/intel/ice/ice_ethtool.c       |   7 -
+ .../ethernet/mellanox/mlx5/core/steering/dr_ste.c  |   5 +-
+ drivers/net/ethernet/micrel/ks8851_mll.c           |  53 ++-----
+ drivers/net/ethernet/stmicro/stmmac/stmmac_main.c  |  13 +-
+ drivers/nvme/host/core.c                           |   2 +-
+ drivers/nvme/host/pci.c                            |  15 +-
+ drivers/phy/motorola/phy-mapphone-mdm6600.c        |  27 +++-
+ drivers/regulator/stm32-vrefbuf.c                  |   3 +-
+ drivers/s390/cio/blacklist.c                       |   5 +-
+ drivers/s390/cio/qdio_setup.c                      |   3 +-
+ drivers/s390/net/qeth_core_main.c                  |  23 ++--
+ drivers/scsi/megaraid/megaraid_sas_fusion.c        |   5 +-
+ drivers/soc/imx/soc-imx-scu.c                      |   2 +-
+ drivers/spi/atmel-quadspi.c                        |  11 ++
+ drivers/spi/spi-bcm63xx-hsspi.c                    |   1 -
+ drivers/spi/spidev.c                               |   5 +
+ drivers/staging/media/hantro/hantro_drv.c          |   4 +-
+ drivers/staging/speakup/selection.c                |   2 -
+ drivers/tty/serial/8250/8250_exar.c                |  33 +++++
+ drivers/tty/serial/ar933x_uart.c                   |   8 ++
+ drivers/tty/serial/fsl_lpuart.c                    |  39 ++++--
+ drivers/tty/serial/mvebu-uart.c                    |   2 +-
+ drivers/tty/vt/selection.c                         |  26 +++-
+ drivers/tty/vt/vt.c                                |   2 -
+ drivers/usb/cdns3/gadget.c                         |  19 ++-
+ drivers/usb/core/hub.c                             |   8 +-
+ drivers/usb/core/port.c                            |  10 +-
+ drivers/usb/core/quirks.c                          |   3 +
+ drivers/usb/dwc3/gadget.c                          |   9 +-
+ drivers/usb/gadget/composite.c                     |  24 +++-
+ drivers/usb/gadget/function/f_fs.c                 |   5 +-
+ drivers/usb/gadget/function/u_serial.c             |   4 +-
+ drivers/usb/storage/unusual_devs.h                 |   6 +
+ drivers/video/console/vgacon.c                     |   3 +
+ drivers/watchdog/da9062_wdt.c                      |   7 -
+ fs/btrfs/inode.c                                   |   4 +-
+ fs/cifs/cifsglob.h                                 |   7 +
+ fs/cifs/cifsproto.h                                |   5 +-
+ fs/cifs/cifssmb.c                                  |   3 +-
+ fs/cifs/file.c                                     |  19 ++-
+ fs/cifs/inode.c                                    |  12 +-
+ fs/cifs/smb1ops.c                                  |   2 +-
+ fs/cifs/smb2inode.c                                |   4 +-
+ fs/cifs/smb2ops.c                                  |   3 +-
+ fs/cifs/smb2pdu.c                                  |   1 +
+ fs/fat/inode.c                                     |  19 +--
+ include/linux/mm.h                                 |   4 +
+ kernel/kprobes.c                                   |  67 +++++----
+ kernel/trace/blktrace.c                            |   5 +-
+ mm/huge_memory.c                                   |   3 +-
+ mm/memory_hotplug.c                                |   8 +-
+ mm/mprotect.c                                      |  38 +++++-
+ security/integrity/platform_certs/load_uefi.c      |  40 ++++--
+ sound/hda/ext/hdac_ext_controller.c                |   9 +-
+ sound/pci/hda/patch_realtek.c                      |  31 ++++-
+ sound/soc/codecs/pcm512x.c                         |   8 +-
+ sound/soc/intel/skylake/skl-debug.c                |  32 +++--
+ sound/soc/intel/skylake/skl-ssp-clk.c              |   4 +-
+ sound/soc/soc-dapm.c                               |   2 +-
+ sound/soc/soc-pcm.c                                |  16 +--
+ sound/soc/soc-topology.c                           |  17 ++-
+ sound/soc/sof/ipc.c                                |   2 +-
+ tools/perf/arch/arm/util/cs-etm.c                  |   5 +-
+ tools/perf/arch/arm64/util/arm-spe.c               |   5 +-
+ tools/perf/arch/x86/util/intel-bts.c               |   5 +-
+ tools/perf/arch/x86/util/intel-pt.c                |   5 +-
+ tools/testing/selftests/lib.mk                     |  23 ++--
+ .../testing/selftests/net/forwarding/mirror_gre.sh |  25 ++--
+ .../selftests/net/forwarding/vxlan_bridge_1d.sh    |   6 +-
+ usr/include/Makefile                               |   2 +-
+ 171 files changed, 1531 insertions(+), 895 deletions(-)
+
+
