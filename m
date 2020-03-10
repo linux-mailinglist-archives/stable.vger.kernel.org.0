@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AEFA017FC6A
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:21:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D04117FC68
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:21:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730866AbgCJNGd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 09:06:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52132 "EHLO mail.kernel.org"
+        id S1727678AbgCJNU5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 09:20:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52184 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730859AbgCJNGd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 09:06:33 -0400
+        id S1728891AbgCJNGe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 09:06:34 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 67FD920409;
-        Tue, 10 Mar 2020 13:06:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EC96D20409;
+        Tue, 10 Mar 2020 13:06:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583845591;
-        bh=FuHnA+b/Ugm+w3XK6MvkmORN55hW70rf7dHlqVLPLEY=;
+        s=default; t=1583845594;
+        bh=tXedHrave03/djjKK4IkV0L4IAg1gcrgsCOHOyc8TsY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xk50CozTp/A0FJucnFUuQ6SiTU//j6wbD7QN/WF3C49+RpJz6sCOc6B4wlcCxFr41
-         FlH2pyw3EOVh8fZUwUtUksbilMMxRHTD0R6mYB1YhgbhQxURPyQb6M9Ppqr5KBd5gj
-         YEMAI/droo+vbIdKNYhlmMRR5OWwfCCRV2150ON8=
+        b=cua6HE9G8853Jlf7H/kejj+CpSCTNvhWcRTeh1VmjTMgG4pqDPnRTEDkaaxuA0RxH
+         ghzycMKkg/lxN+FeBq7iQf4yGEzHCSHDEm/YUA86UoB4w92OBwv87YQFb47+ETCw0R
+         YlUNbTNrucn3WYxLFQwEzH7FBbwMD2D3RkpZZUp4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         Benjamin Poirier <bpoirier@cumulusnetworks.com>,
         Michal Kubecek <mkubecek@suse.cz>,
-        David Ahern <dsahern@gmail.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 030/126] ipv6: Fix nlmsg_flags when splitting a multipath route
-Date:   Tue, 10 Mar 2020 13:40:51 +0100
-Message-Id: <20200310124206.367388394@linuxfoundation.org>
+Subject: [PATCH 4.14 031/126] ipv6: Fix route replacement with dev-only route
+Date:   Tue, 10 Mar 2020 13:40:52 +0100
+Message-Id: <20200310124206.419779637@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200310124203.704193207@linuxfoundation.org>
 References: <20200310124203.704193207@linuxfoundation.org>
@@ -48,47 +47,56 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Benjamin Poirier <bpoirier@cumulusnetworks.com>
 
-[ Upstream commit afecdb376bd81d7e16578f0cfe82a1aec7ae18f3 ]
+[ Upstream commit e404b8c7cfb31654c9024d497cec58a501501692 ]
 
-When splitting an RTA_MULTIPATH request into multiple routes and adding the
-second and later components, we must not simply remove NLM_F_REPLACE but
-instead replace it by NLM_F_CREATE. Otherwise, it may look like the netlink
-message was malformed.
-
+After commit 27596472473a ("ipv6: fix ECMP route replacement") it is no
+longer possible to replace an ECMP-able route by a non ECMP-able route.
 For example,
-	ip route add 2001:db8::1/128 dev dummy0
-	ip route change 2001:db8::1/128 nexthop via fe80::30:1 dev dummy0 \
-		nexthop via fe80::30:2 dev dummy0
-results in the following warnings:
-[ 1035.057019] IPv6: RTM_NEWROUTE with no NLM_F_CREATE or NLM_F_REPLACE
-[ 1035.057517] IPv6: NLM_F_CREATE should be set when creating new route
+	ip route add 2001:db8::1/128 via fe80::1 dev dummy0
+	ip route replace 2001:db8::1/128 dev dummy0
+does not work as expected.
 
-This patch makes the nlmsg sequence look equivalent for __ip6_ins_rt() to
-what it would get if the multipath route had been added in multiple netlink
-operations:
-	ip route add 2001:db8::1/128 dev dummy0
-	ip route change 2001:db8::1/128 nexthop via fe80::30:1 dev dummy0
-	ip route append 2001:db8::1/128 nexthop via fe80::30:2 dev dummy0
+Tweak the replacement logic so that point 3 in the log of the above commit
+becomes:
+3. If the new route is not ECMP-able, and no matching non-ECMP-able route
+exists, replace matching ECMP-able route (if any) or add the new route.
+
+We can now summarize the entire replace semantics to:
+When doing a replace, prefer replacing a matching route of the same
+"ECMP-able-ness" as the replace argument. If there is no such candidate,
+fallback to the first route found.
 
 Fixes: 27596472473a ("ipv6: fix ECMP route replacement")
 Signed-off-by: Benjamin Poirier <bpoirier@cumulusnetworks.com>
 Reviewed-by: Michal Kubecek <mkubecek@suse.cz>
-Reviewed-by: David Ahern <dsahern@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv6/route.c |    1 +
- 1 file changed, 1 insertion(+)
+ net/ipv6/ip6_fib.c |    7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
---- a/net/ipv6/route.c
-+++ b/net/ipv6/route.c
-@@ -3283,6 +3283,7 @@ static int ip6_route_multipath_add(struc
- 		 */
- 		cfg->fc_nlinfo.nlh->nlmsg_flags &= ~(NLM_F_EXCL |
- 						     NLM_F_REPLACE);
-+		cfg->fc_nlinfo.nlh->nlmsg_flags |= NLM_F_CREATE;
- 		nhn++;
+--- a/net/ipv6/ip6_fib.c
++++ b/net/ipv6/ip6_fib.c
+@@ -893,8 +893,7 @@ static int fib6_add_rt2node(struct fib6_
+ 					found++;
+ 					break;
+ 				}
+-				if (rt_can_ecmp)
+-					fallback_ins = fallback_ins ?: ins;
++				fallback_ins = fallback_ins ?: ins;
+ 				goto next_iter;
+ 			}
+ 
+@@ -934,7 +933,9 @@ next_iter:
  	}
  
+ 	if (fallback_ins && !found) {
+-		/* No ECMP-able route found, replace first non-ECMP one */
++		/* No matching route with same ecmp-able-ness found, replace
++		 * first matching route
++		 */
+ 		ins = fallback_ins;
+ 		iter = *ins;
+ 		found++;
 
 
