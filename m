@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4546317F956
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 13:55:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C8F017F882
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 13:48:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729142AbgCJMzw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 08:55:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34762 "EHLO mail.kernel.org"
+        id S1727678AbgCJMsh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 08:48:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52726 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728220AbgCJMzu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 08:55:50 -0400
+        id S1727898AbgCJMsd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 08:48:33 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D488D2253D;
-        Tue, 10 Mar 2020 12:55:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8EA7724697;
+        Tue, 10 Mar 2020 12:48:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583844950;
-        bh=cG8xBS3xZCfN0tOEGRJjaUOF0nL+MWt/juF0Qz+0BpE=;
+        s=default; t=1583844513;
+        bh=/OMNevqG0gX9m3pbaALuyBtVUnL99qbRW3KpDyLhr60=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kqabZE1NnLamplFubAhUFA4hNklOA31GpqgYio8roEpeD+UojpbLdMqxS0pYdhrG7
-         s8KRttYAC0hUtlvkGpRhmGVZnoMPbKy1d7yREkyhuV3BkGcmOOi8+JV07qgNjT/ZqF
-         5TmNpPxQX5T1bmVLiNWkzVvPKShpe9z5CDKJJzXQ=
+        b=C4csOn1f8T61hrJPeh4hV0I3A1tbsQ0A63/N7v9/NUU+K8k1BIOXkkveQaOB6doI9
+         Eh2BcQgpA/31wFU1kpzbLcza7OjMTMNKZ7kpp+8+iWCDXPHNT9LhaIj3kGoePVy4yc
+         KymbA03MIul3IRVWtUYalkNMxZQNPhlBwfczxg5M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Westphal <fw@strlen.de>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 010/189] netfilter: hashlimit: do not use indirect calls during gc
-Date:   Tue, 10 Mar 2020 13:37:27 +0100
-Message-Id: <20200310123640.583088063@linuxfoundation.org>
+        stable@vger.kernel.org, Chris Evich <cevich@redhat.com>,
+        Oleksandr Natalenko <oleksandr@natalenko.name>,
+        Paolo Valente <paolo.valente@linaro.org>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 002/168] block, bfq: get extra ref to prevent a queue from being freed during a group move
+Date:   Tue, 10 Mar 2020 13:37:28 +0100
+Message-Id: <20200310123635.527448147@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200310123639.608886314@linuxfoundation.org>
-References: <20200310123639.608886314@linuxfoundation.org>
+In-Reply-To: <20200310123635.322799692@linuxfoundation.org>
+References: <20200310123635.322799692@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,74 +45,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Westphal <fw@strlen.de>
+From: Paolo Valente <paolo.valente@linaro.org>
 
-[ Upstream commit 28b3a4270c0fc064557e409111f2a678e64b6fa7 ]
+[ Upstream commit ecedd3d7e19911ab8fe42f17b77c0a30fe7f4db3 ]
 
-no need, just use a simple boolean to indicate we want to reap all
-entries.
+In bfq_bfqq_move(), the bfq_queue, say Q, to be moved to a new group
+may happen to be deactivated in the scheduling data structures of the
+source group (and then activated in the destination group). If Q is
+referred only by the data structures in the source group when the
+deactivation happens, then Q is freed upon the deactivation.
 
-Signed-off-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+This commit addresses this issue by getting an extra reference before
+the possible deactivation, and releasing this extra reference after Q
+has been moved.
+
+Tested-by: Chris Evich <cevich@redhat.com>
+Tested-by: Oleksandr Natalenko <oleksandr@natalenko.name>
+Signed-off-by: Paolo Valente <paolo.valente@linaro.org>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/xt_hashlimit.c | 22 ++++------------------
- 1 file changed, 4 insertions(+), 18 deletions(-)
+ block/bfq-cgroup.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/net/netfilter/xt_hashlimit.c b/net/netfilter/xt_hashlimit.c
-index 1b68a131083c2..7a2c4b8408c49 100644
---- a/net/netfilter/xt_hashlimit.c
-+++ b/net/netfilter/xt_hashlimit.c
-@@ -358,21 +358,7 @@ static int htable_create(struct net *net, struct hashlimit_cfg3 *cfg,
- 	return 0;
+diff --git a/block/bfq-cgroup.c b/block/bfq-cgroup.c
+index 0999d56bc4d19..ead6e42832982 100644
+--- a/block/bfq-cgroup.c
++++ b/block/bfq-cgroup.c
+@@ -634,6 +634,12 @@ void bfq_bfqq_move(struct bfq_data *bfqd, struct bfq_queue *bfqq,
+ 		bfq_bfqq_expire(bfqd, bfqd->in_service_queue,
+ 				false, BFQQE_PREEMPTED);
+ 
++	/*
++	 * get extra reference to prevent bfqq from being freed in
++	 * next possible deactivate
++	 */
++	bfqq->ref++;
++
+ 	if (bfq_bfqq_busy(bfqq))
+ 		bfq_deactivate_bfqq(bfqd, bfqq, false, false);
+ 	else if (entity->on_st)
+@@ -653,6 +659,8 @@ void bfq_bfqq_move(struct bfq_data *bfqd, struct bfq_queue *bfqq,
+ 
+ 	if (!bfqd->in_service_queue && !bfqd->rq_in_driver)
+ 		bfq_schedule_dispatch(bfqd);
++	/* release extra ref taken above */
++	bfq_put_queue(bfqq);
  }
  
--static bool select_all(const struct xt_hashlimit_htable *ht,
--		       const struct dsthash_ent *he)
--{
--	return true;
--}
--
--static bool select_gc(const struct xt_hashlimit_htable *ht,
--		      const struct dsthash_ent *he)
--{
--	return time_after_eq(jiffies, he->expires);
--}
--
--static void htable_selective_cleanup(struct xt_hashlimit_htable *ht,
--			bool (*select)(const struct xt_hashlimit_htable *ht,
--				      const struct dsthash_ent *he))
-+static void htable_selective_cleanup(struct xt_hashlimit_htable *ht, bool select_all)
- {
- 	unsigned int i;
- 
-@@ -382,7 +368,7 @@ static void htable_selective_cleanup(struct xt_hashlimit_htable *ht,
- 
- 		spin_lock_bh(&ht->lock);
- 		hlist_for_each_entry_safe(dh, n, &ht->hash[i], node) {
--			if ((*select)(ht, dh))
-+			if (time_after_eq(jiffies, dh->expires) || select_all)
- 				dsthash_free(ht, dh);
- 		}
- 		spin_unlock_bh(&ht->lock);
-@@ -396,7 +382,7 @@ static void htable_gc(struct work_struct *work)
- 
- 	ht = container_of(work, struct xt_hashlimit_htable, gc_work.work);
- 
--	htable_selective_cleanup(ht, select_gc);
-+	htable_selective_cleanup(ht, false);
- 
- 	queue_delayed_work(system_power_efficient_wq,
- 			   &ht->gc_work, msecs_to_jiffies(ht->cfg.gc_interval));
-@@ -420,7 +406,7 @@ static void htable_destroy(struct xt_hashlimit_htable *hinfo)
- {
- 	cancel_delayed_work_sync(&hinfo->gc_work);
- 	htable_remove_proc_entry(hinfo);
--	htable_selective_cleanup(hinfo, select_all);
-+	htable_selective_cleanup(hinfo, true);
- 	kfree(hinfo->name);
- 	vfree(hinfo);
- }
+ /**
 -- 
 2.20.1
 
