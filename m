@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7902E17FBBA
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:16:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D21917FBB3
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:16:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731750AbgCJNNm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 09:13:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36780 "EHLO mail.kernel.org"
+        id S1731773AbgCJNNq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 09:13:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36830 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731178AbgCJNNl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 09:13:41 -0400
+        id S1731769AbgCJNNp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 09:13:45 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D944C208E4;
-        Tue, 10 Mar 2020 13:13:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4F91020409;
+        Tue, 10 Mar 2020 13:13:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583846021;
-        bh=5UrEbg6O6cqlF0WHPx5YdbVlyxrCwoZCF9Tox1OgqFI=;
+        s=default; t=1583846024;
+        bh=at7QjhSbMRG9nK0Ppcaz9JoobZPx9tb6aTYbczn2k6g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YqfS4LLTaq3Qa8cD0kdYGCUJTOQKmEUsFWlHi7C8QRDCtD2HbjGpyM0iCCR7afnWn
-         bzgVH5SEWWYikvgAFUNZ393EzSyRqs8rV+pyL+yOZTiiZfSADGhTh8YwypJ4VTP6Y2
-         eNdOSEPQm0c0FUzcjCYejHjjenHvIrMzM5iBdvxo=
+        b=BWfSapQGLtP+8YDdlRpjLJ2mjzTTC3jVg0YJt69m7PeLLS+ZS6LfvTYMM2IGsJXXT
+         yPhFBBM8jb0WXGzUZXKfgC2VclkdRK8Yunm0aSVk/Nr6b69H5fRH9u9NVVejTVxivd
+         dS+cR7JXyOcnWGA88IsQFmpwgDhAhc4N4sgRx00U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
-        Mike Snitzer <snitzer@redhat.com>
-Subject: [PATCH 4.19 57/86] dm writecache: verify watermark during resume
-Date:   Tue, 10 Mar 2020 13:45:21 +0100
-Message-Id: <20200310124533.876145425@linuxfoundation.org>
+        stable@vger.kernel.org, Pavel Machek <pavel@denx.de>,
+        Vladimir Oltean <olteanv@gmail.com>,
+        Shawn Guo <shawnguo@kernel.org>
+Subject: [PATCH 4.19 58/86] ARM: dts: ls1021a: Restore MDIO compatible to gianfar
+Date:   Tue, 10 Mar 2020 13:45:22 +0100
+Message-Id: <20200310124533.930803348@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200310124530.808338541@linuxfoundation.org>
 References: <20200310124530.808338541@linuxfoundation.org>
@@ -43,57 +44,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mikulas Patocka <mpatocka@redhat.com>
+From: Vladimir Oltean <olteanv@gmail.com>
 
-commit 41c526c5af46d4c4dab7f72c99000b7fac0b9702 upstream.
+commit 7155c44624d061692b4c13aa8343f119c67d4fc0 upstream.
 
-Verify the watermark upon resume - so that if the target is reloaded
-with lower watermark, it will start the cleanup process immediately.
+The difference between "fsl,etsec2-mdio" and "gianfar" has to do with
+the .get_tbipa function, which calculates the address of the TBIPA
+register automatically, if not explicitly specified. [ see
+drivers/net/ethernet/freescale/fsl_pq_mdio.c ]. On LS1021A, the TBIPA
+register is at offset 0x30 within the port register block, which is what
+the "gianfar" method of calculating addresses actually does.
 
-Fixes: 48debafe4f2f ("dm: add writecache target")
-Cc: stable@vger.kernel.org # 4.18+
-Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+Luckily, the bad "compatible" is inconsequential for ls1021a.dtsi,
+because the TBIPA register is explicitly specified via the second "reg"
+(<0x0 0x2d10030 0x0 0x4>), so the "get_tbipa" function is dead code.
+Nonetheless it's good to restore it to its correct value.
+
+Background discussion:
+https://www.spinics.net/lists/stable/msg361156.html
+
+Fixes: c7861adbe37f ("ARM: dts: ls1021: Fix SGMII PCS link remaining down after PHY disconnect")
+Reported-by: Pavel Machek <pavel@denx.de>
+Signed-off-by: Vladimir Oltean <olteanv@gmail.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/md/dm-writecache.c |   12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ arch/arm/boot/dts/ls1021a.dtsi |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/md/dm-writecache.c
-+++ b/drivers/md/dm-writecache.c
-@@ -631,6 +631,12 @@ static void writecache_add_to_freelist(s
- 	wc->freelist_size++;
- }
+--- a/arch/arm/boot/dts/ls1021a.dtsi
++++ b/arch/arm/boot/dts/ls1021a.dtsi
+@@ -584,7 +584,7 @@
+ 		};
  
-+static inline void writecache_verify_watermark(struct dm_writecache *wc)
-+{
-+	if (unlikely(wc->freelist_size + wc->writeback_size <= wc->freelist_high_watermark))
-+		queue_work(wc->writeback_wq, &wc->writeback_work);
-+}
-+
- static struct wc_entry *writecache_pop_from_freelist(struct dm_writecache *wc)
- {
- 	struct wc_entry *e;
-@@ -652,8 +658,8 @@ static struct wc_entry *writecache_pop_f
- 		list_del(&e->lru);
- 	}
- 	wc->freelist_size--;
--	if (unlikely(wc->freelist_size + wc->writeback_size <= wc->freelist_high_watermark))
--		queue_work(wc->writeback_wq, &wc->writeback_work);
-+
-+	writecache_verify_watermark(wc);
+ 		mdio0: mdio@2d24000 {
+-			compatible = "fsl,etsec2-mdio";
++			compatible = "gianfar";
+ 			device_type = "mdio";
+ 			#address-cells = <1>;
+ 			#size-cells = <0>;
+@@ -593,7 +593,7 @@
+ 		};
  
- 	return e;
- }
-@@ -967,6 +973,8 @@ erase_this:
- 		writecache_commit_flushed(wc, false);
- 	}
- 
-+	writecache_verify_watermark(wc);
-+
- 	wc_unlock(wc);
- }
- 
+ 		mdio1: mdio@2d64000 {
+-			compatible = "fsl,etsec2-mdio";
++			compatible = "gianfar";
+ 			device_type = "mdio";
+ 			#address-cells = <1>;
+ 			#size-cells = <0>;
 
 
