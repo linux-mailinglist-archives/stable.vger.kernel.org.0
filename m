@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 95C7217F865
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 13:48:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F9CB17F867
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 13:48:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727838AbgCJMre (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 08:47:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51364 "EHLO mail.kernel.org"
+        id S1726705AbgCJMri (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 08:47:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51428 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726481AbgCJMrc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 08:47:32 -0400
+        id S1727901AbgCJMrf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 08:47:35 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DDF6724696;
-        Tue, 10 Mar 2020 12:47:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 62BBE2467D;
+        Tue, 10 Mar 2020 12:47:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583844452;
-        bh=la9qw1l3uMA53Tssfqtz17j/JLxUUBGrf9xPRhZu1Io=;
+        s=default; t=1583844454;
+        bh=m2VMjPdP7Tghk64h+YiyaAAmIOugxKZ/W6szpaKD2Vs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dWbvIpeT5idI2ertN84tmSqpA5wj/RfwvU/rYvI+eEKjtZCq6QfSQpPJobv6DDuaS
-         KfSnypo/8SiZXaoee6G0zwTmoNGRGDrKVJvYGMt9z9p4B4ZyPIZj8wO+yqs/0aJQYH
-         1kDpYGvSmEVFKPhlXjXlm6lxCh35lPzinjrvIX2g=
+        b=d9PsmU+QooTm+JrJJ2bNw3tmITheplZFsDLuQMVVnpS8RLnKhUJuyC32kaD/awuQI
+         eSHmOeBupEzC/lLsBLFDtpabG+gAxKzppwN4R67HhzrLroYcxcVmphyBxFEQ05NTYl
+         tH6YNNyxNwZVP+QbJJWtB8b0hLWHVOv8CNN+xVlQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
-        Mike Snitzer <snitzer@redhat.com>
-Subject: [PATCH 4.9 87/88] dm cache: fix a crash due to incorrect work item cancelling
-Date:   Tue, 10 Mar 2020 13:39:35 +0100
-Message-Id: <20200310123625.267758815@linuxfoundation.org>
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        yangerkun <yangerkun@huawei.com>
+Subject: [PATCH 4.9 88/88] crypto: algif_skcipher - use ZERO_OR_NULL_PTR in skcipher_recvmsg_async
+Date:   Tue, 10 Mar 2020 13:39:36 +0100
+Message-Id: <20200310123625.434168321@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200310123606.543939933@linuxfoundation.org>
 References: <20200310123606.543939933@linuxfoundation.org>
@@ -43,51 +43,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mikulas Patocka <mpatocka@redhat.com>
+From: yangerkun <yangerkun@huawei.com>
 
-commit 7cdf6a0aae1cccf5167f3f04ecddcf648b78e289 upstream.
+Nowdays, we trigger a oops:
+...
+kasan: GPF could be caused by NULL-ptr deref or user memory accessgeneral protection fault: 0000 [#1] SMP KASAN
+...
+Call Trace:
+ [<ffffffff81a26fb1>] skcipher_recvmsg_async+0x3f1/0x1400 x86/../crypto/algif_skcipher.c:543
+ [<ffffffff81a28053>] skcipher_recvmsg+0x93/0x7f0 x86/../crypto/algif_skcipher.c:723
+ [<ffffffff823e43a4>] sock_recvmsg_nosec x86/../net/socket.c:702 [inline]
+ [<ffffffff823e43a4>] sock_recvmsg x86/../net/socket.c:710 [inline]
+ [<ffffffff823e43a4>] sock_recvmsg+0x94/0xc0 x86/../net/socket.c:705
+ [<ffffffff823e464b>] sock_read_iter+0x27b/0x3a0 x86/../net/socket.c:787
+ [<ffffffff817f479b>] aio_run_iocb+0x21b/0x7a0 x86/../fs/aio.c:1520
+ [<ffffffff817f57c9>] io_submit_one x86/../fs/aio.c:1630 [inline]
+ [<ffffffff817f57c9>] do_io_submit+0x6b9/0x10b0 x86/../fs/aio.c:1688
+ [<ffffffff817f902d>] SYSC_io_submit x86/../fs/aio.c:1713 [inline]
+ [<ffffffff817f902d>] SyS_io_submit+0x2d/0x40 x86/../fs/aio.c:1710
+ [<ffffffff828b33c3>] tracesys_phase2+0x90/0x95
 
-The crash can be reproduced by running the lvm2 testsuite test
-lvconvert-thin-external-cache.sh for several minutes, e.g.:
-  while :; do make check T=shell/lvconvert-thin-external-cache.sh; done
+In skcipher_recvmsg_async, we use '!sreq->tsg' to determine does we
+calloc fail. However, kcalloc may return ZERO_SIZE_PTR, and with this,
+the latter sg_init_table will trigger the bug. Fix it be use ZERO_OF_NULL_PTR.
 
-The crash happens in this call chain:
-do_waker -> policy_tick -> smq_tick -> end_hotspot_period -> clear_bitset
--> memset -> __memset -- which accesses an invalid pointer in the vmalloc
-area.
+This function was introduced with ' commit a596999b7ddf ("crypto:
+algif - change algif_skcipher to be asynchronous")', and has been removed
+with 'commit e870456d8e7c ("crypto: algif_skcipher - overhaul memory
+management")'.
 
-The work entry on the workqueue is executed even after the bitmap was
-freed. The problem is that cancel_delayed_work doesn't wait for the
-running work item to finish, so the work item can continue running and
-re-submitting itself even after cache_postsuspend. In order to make sure
-that the work item won't be running, we must use cancel_delayed_work_sync.
-
-Also, change flush_workqueue to drain_workqueue, so that if some work item
-submits itself or another work item, we are properly waiting for both of
-them.
-
-Fixes: c6b4fcbad044 ("dm: add cache target")
-Cc: stable@vger.kernel.org # v3.9
-Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: yangerkun <yangerkun@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/md/dm-cache-target.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ crypto/algif_skcipher.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/md/dm-cache-target.c
-+++ b/drivers/md/dm-cache-target.c
-@@ -2192,8 +2192,8 @@ static void wait_for_migrations(struct c
- 
- static void stop_worker(struct cache *cache)
- {
--	cancel_delayed_work(&cache->waker);
--	flush_workqueue(cache->wq);
-+	cancel_delayed_work_sync(&cache->waker);
-+	drain_workqueue(cache->wq);
- }
- 
- static void requeue_deferred_cells(struct cache *cache)
+v1->v2:
+update the commit message
+
+--- a/crypto/algif_skcipher.c
++++ b/crypto/algif_skcipher.c
+@@ -538,7 +538,7 @@ static int skcipher_recvmsg_async(struct
+ 	lock_sock(sk);
+ 	tx_nents = skcipher_all_sg_nents(ctx);
+ 	sreq->tsg = kcalloc(tx_nents, sizeof(*sg), GFP_KERNEL);
+-	if (unlikely(!sreq->tsg))
++	if (unlikely(ZERO_OR_NULL_PTR(sreq->tsg)))
+ 		goto unlock;
+ 	sg_init_table(sreq->tsg, tx_nents);
+ 	memcpy(iv, ctx->iv, ivsize);
 
 
