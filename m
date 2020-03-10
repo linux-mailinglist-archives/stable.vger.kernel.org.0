@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4DBA717F7CA
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 13:42:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 822A317F82B
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 13:45:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727299AbgCJMmQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 08:42:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42120 "EHLO mail.kernel.org"
+        id S1726712AbgCJMpp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 08:45:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48496 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727286AbgCJMmP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 08:42:15 -0400
+        id S1726598AbgCJMpo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 08:45:44 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 72AAA246A1;
-        Tue, 10 Mar 2020 12:42:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0FC84246A3;
+        Tue, 10 Mar 2020 12:45:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583844134;
-        bh=3tsSw4jgessdiPGEVOtj2pNmUIlDeuL0uPmLRPFww7w=;
+        s=default; t=1583844343;
+        bh=RgWQTyHdcLxiItYJgVlfVwe7pcSBd6MgDeEO513H4hA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Rb79BpEd/wPbldgMUinSakA5Hpn33xo2exOf/mRviUJY3BRZMMexn+SZns7lBfU9K
-         874nHmI8uZfUgpjfWsEviJoHmqDlvaSrvh+CUPMOBR3JG9CHbcuLVbIl0WizHpVsZa
-         4uT6J6U+ejdMZNv60obvDAnD4WriS2JMizNsCBq4=
+        b=q5jRh2P3YzP+sqVhXG+CuMkE34lfyNi4/D0dFqrLHzH5XQ3EOBygIWB104veVaX6n
+         KlkUWt1eLPG+m8fKkaqSziXZphZu5LYQ6BX51uV3mx43/LtWyoo1zx5dHz5Uuk3Mii
+         eGVP3P+LnQTTps4cCzriT3SDy2TyObCpEJFHBb74=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sergey Organov <sorganov@gmail.com>,
-        =?UTF-8?q?Micha=C5=82=20Miros=C5=82aw?= <mirq-linux@rere.qmqm.pl>,
-        Felipe Balbi <balbi@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 42/72] usb: gadget: serial: fix Tx stall after buffer overflow
+        stable@vger.kernel.org, Jiri Olsa <jolsa@kernel.org>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>
+Subject: [PATCH 4.9 47/88] perf hists browser: Restore ESC as "Zoom out" of DSO/thread/etc
 Date:   Tue, 10 Mar 2020 13:38:55 +0100
-Message-Id: <20200310123611.870381032@linuxfoundation.org>
+Message-Id: <20200310123617.786381578@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200310123601.053680753@linuxfoundation.org>
-References: <20200310123601.053680753@linuxfoundation.org>
+In-Reply-To: <20200310123606.543939933@linuxfoundation.org>
+References: <20200310123606.543939933@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,47 +45,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sergey Organov <sorganov@gmail.com>
+From: Arnaldo Carvalho de Melo <acme@redhat.com>
 
-[ Upstream commit e4bfded56cf39b8d02733c1e6ef546b97961e18a ]
+commit 3f7774033e6820d25beee5cf7aefa11d4968b951 upstream.
 
-Symptom: application opens /dev/ttyGS0 and starts sending (writing) to
-it while either USB cable is not connected, or nobody listens on the
-other side of the cable. If driver circular buffer overflows before
-connection is established, no data will be written to the USB layer
-until/unless /dev/ttyGS0 is closed and re-opened again by the
-application (the latter besides having no means of being notified about
-the event of establishing of the connection.)
+We need to set actions->ms.map since 599a2f38a989 ("perf hists browser:
+Check sort keys before hot key actions"), as in that patch we bail out
+if map is NULL.
 
-Fix: on open and/or connect, kick Tx to flush circular buffer data to
-USB layer.
+Reviewed-by: Jiri Olsa <jolsa@kernel.org>
+Cc: Adrian Hunter <adrian.hunter@intel.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Fixes: 599a2f38a989 ("perf hists browser: Check sort keys before hot key actions")
+Link: https://lkml.kernel.org/n/tip-wp1ssoewy6zihwwexqpohv0j@git.kernel.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Signed-off-by: Sergey Organov <sorganov@gmail.com>
-Reviewed-by: Michał Mirosław <mirq-linux@rere.qmqm.pl>
-Signed-off-by: Felipe Balbi <balbi@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/function/u_serial.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ tools/perf/ui/browsers/hists.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/usb/gadget/function/u_serial.c b/drivers/usb/gadget/function/u_serial.c
-index 31e08bb3cb41e..58a699cfa4582 100644
---- a/drivers/usb/gadget/function/u_serial.c
-+++ b/drivers/usb/gadget/function/u_serial.c
-@@ -701,8 +701,10 @@ static int gs_start_io(struct gs_port *port)
- 	port->n_read = 0;
- 	started = gs_start_rx(port);
+--- a/tools/perf/ui/browsers/hists.c
++++ b/tools/perf/ui/browsers/hists.c
+@@ -2930,6 +2930,7 @@ static int perf_evsel__hists_browse(stru
  
--	/* unblock any pending writes into our circular buffer */
- 	if (started) {
-+		gs_start_tx(port);
-+		/* Unblock any pending writes into our circular buffer, in case
-+		 * we didn't in gs_start_tx() */
- 		tty_wakeup(port->port.tty);
- 	} else {
- 		gs_free_requests(ep, head, &port->read_allocated);
--- 
-2.20.1
-
+ 				continue;
+ 			}
++			actions->ms.map = map;
+ 			top = pstack__peek(browser->pstack);
+ 			if (top == &browser->hists->dso_filter) {
+ 				/*
 
 
