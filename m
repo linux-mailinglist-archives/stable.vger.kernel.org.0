@@ -2,76 +2,151 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EBED8180A5C
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 22:26:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 493D8180A74
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 22:30:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726315AbgCJV04 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 17:26:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59336 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726100AbgCJV0z (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 17:26:55 -0400
-Received: from [192.168.1.112] (c-24-9-64-241.hsd1.co.comcast.net [24.9.64.241])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1D046208C3;
-        Tue, 10 Mar 2020 21:26:55 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583875615;
-        bh=FlWv/AqGmYrZZ/nZf4IZWyCVYAPpG8FWVQ8reyGMOq4=;
-        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
-        b=y3K9HW6EuluJgxUud8P29n1Watnpu2YHIX989eGjj/vJfAKe1ULKx5pY7gsE7CJ4i
-         e4y9HYEdHyZWRCdqBI+PmvOsbZJQfesXKsp3ZrTstG4V1HIPgBgl5KVaBmZIItohpv
-         dBUkqT2UbO0mjNDfyAZMR9EH+zce6AYaSwtKprfA=
-Subject: Re: [PATCH 4.14 000/126] 4.14.173-stable review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org, shuah <shuah@kernel.org>
-References: <20200310124203.704193207@linuxfoundation.org>
-From:   shuah <shuah@kernel.org>
-Message-ID: <0074ed5d-1c87-4e0c-7d3f-bb5cc4e80366@kernel.org>
-Date:   Tue, 10 Mar 2020 15:26:54 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.4.1
+        id S1726325AbgCJVad (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 17:30:33 -0400
+Received: from youngberry.canonical.com ([91.189.89.112]:58351 "EHLO
+        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726265AbgCJVad (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Mar 2020 17:30:33 -0400
+Received: from ip5f5bf7ec.dynamic.kabel-deutschland.de ([95.91.247.236] helo=wittgenstein)
+        by youngberry.canonical.com with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        (Exim 4.86_2)
+        (envelope-from <christian.brauner@ubuntu.com>)
+        id 1jBmRs-0000sm-Qb; Tue, 10 Mar 2020 21:30:00 +0000
+Date:   Tue, 10 Mar 2020 22:29:57 +0100
+From:   Christian Brauner <christian.brauner@ubuntu.com>
+To:     "Eric W. Biederman" <ebiederm@xmission.com>
+Cc:     Jann Horn <jannh@google.com>,
+        Bernd Edlinger <bernd.edlinger@hotmail.de>,
+        Kees Cook <keescook@chromium.org>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Alexey Dobriyan <adobriyan@gmail.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Oleg Nesterov <oleg@redhat.com>,
+        Frederic Weisbecker <frederic@kernel.org>,
+        Andrei Vagin <avagin@gmail.com>,
+        Ingo Molnar <mingo@kernel.org>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Yuyang Du <duyuyang@gmail.com>,
+        David Hildenbrand <david@redhat.com>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Anshuman Khandual <anshuman.khandual@arm.com>,
+        David Howells <dhowells@redhat.com>,
+        James Morris <jamorris@linux.microsoft.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Shakeel Butt <shakeelb@google.com>,
+        Jason Gunthorpe <jgg@ziepe.ca>,
+        Christian Kellner <christian@kellner.me>,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        Aleksa Sarai <cyphar@cyphar.com>,
+        "Dmitry V. Levin" <ldv@altlinux.org>,
+        "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>,
+        "linux-mm@kvack.org" <linux-mm@kvack.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "linux-api@vger.kernel.org" <linux-api@vger.kernel.org>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Sargun Dhillon <sargun@sargun.me>
+Subject: Re: [PATCH] pidfd: Stop taking cred_guard_mutex
+Message-ID: <20200310212957.aatd4yzjwsyudi2g@wittgenstein>
+References: <877dztz415.fsf@x220.int.ebiederm.org>
+ <20200309201729.yk5sd26v4bz4gtou@wittgenstein>
+ <87k13txnig.fsf@x220.int.ebiederm.org>
+ <20200310085540.pztaty2mj62xt2nm@wittgenstein>
+ <87wo7svy96.fsf_-_@x220.int.ebiederm.org>
+ <CAG48ez2cUZMVOAXfHPNjKjYsMSaWkjUjOCHo0KYZ+oXQUW4viA@mail.gmail.com>
+ <87k13sui1p.fsf@x220.int.ebiederm.org>
+ <CAG48ez2vRgaEVJ=Rs8gn6HkGO6syL8MpSOUq7BNN+OUE1uYxCA@mail.gmail.com>
+ <CAG48ez1LjW1xAGe-5tNtstCWxG2bkiHaQUMOcJNjx=z-2Wc2Jw@mail.gmail.com>
+ <87lfo8rkqo.fsf@x220.int.ebiederm.org>
 MIME-Version: 1.0
-In-Reply-To: <20200310124203.704193207@linuxfoundation.org>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <87lfo8rkqo.fsf@x220.int.ebiederm.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 3/10/20 6:40 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 4.14.173 release.
-> There are 126 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+On Tue, Mar 10, 2020 at 03:57:35PM -0500, Eric W. Biederman wrote:
+> Jann Horn <jannh@google.com> writes:
 > 
-> Responses should be made by Thu, 12 Mar 2020 12:41:42 +0000.
-> Anything received after that time might be too late.
+> > On Tue, Mar 10, 2020 at 9:00 PM Jann Horn <jannh@google.com> wrote:
+> >> On Tue, Mar 10, 2020 at 8:29 PM Eric W. Biederman <ebiederm@xmission.com> wrote:
+> >> > Jann Horn <jannh@google.com> writes:
+> >> > > On Tue, Mar 10, 2020 at 7:54 PM Eric W. Biederman <ebiederm@xmission.com> wrote:
+> >> > >> During exec some file descriptors are closed and the files struct is
+> >> > >> unshared.  But all of that can happen at other times and it has the
+> >> > >> same protections during exec as at ordinary times.  So stop taking the
+> >> > >> cred_guard_mutex as it is useless.
+> >> > >>
+> >> > >> Furthermore he cred_guard_mutex is a bad idea because it is deadlock
+> >> > >> prone, as it is held in serveral while waiting possibly indefinitely
+> >> > >> for userspace to do something.
+> > [...]
+> >> > > If you make this change, then if this races with execution of a setuid
+> >> > > program that afterwards e.g. opens a unix domain socket, an attacker
+> >> > > will be able to steal that socket and inject messages into
+> >> > > communication with things like DBus. procfs currently has the same
+> >> > > race, and that still needs to be fixed, but at least procfs doesn't
+> >> > > let you open things like sockets because they don't have a working
+> >> > > ->open handler, and it enforces the normal permission check for
+> >> > > opening files.
+> >> >
+> >> > It isn't only exec that can change credentials.  Do we need a lock for
+> >> > changing credentials?
+> > [...]
+> >> > If we need a lock around credential change let's design and build that.
+> >> > Having a mismatch between what a lock is designed to do, and what
+> >> > people use it for can only result in other bugs as people get confused.
+> >>
+> >> Hmm... what benefits do we get from making it a separate lock? I guess
+> >> it would allow us to make it a per-task lock instead of a
+> >> signal_struct-wide one? That might be helpful...
+> >
+> > But actually, isn't the core purpose of the cred_guard_mutex to guard
+> > against concurrent credential changes anyway? That's what almost
+> > everyone uses it for, and it's in the name...
 > 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.173-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.14.y
-> and the diffstat can be found below.
+> Having been through all of the users nope.
 > 
-> thanks,
+> Maybe someone tried to repurpose for that.  I haven't traced through
+> when it went the it was renamed from cred_exec_mutex to
+> cred_guard_mutex.
 > 
-> greg k-h
+> The original purpose was to make make exec and ptrace deadlock.  But it
+> was seen as being there to allow safely calculating the new credentials
+> before the point of now return.  Because if a process is ptraced or not
+> affects the new credential calculations.  Unfortunately offering that
+> guarantee fundamentally leads to deadlock.
 > 
+> So ptrace_attach and seccomp use the cred_guard_mutex to guarantee
+> a deadlock.
+> 
+> The common use is to take cred_guard_mutex to guard the window when
+> credentials and process details are out of sync in exec.  But there
+> is at least do_io_accounting that seems to have the same justification
+> for holding __pidfd_fget.
+> 
+> With effort I suspect we can replace exec_change_mutex with task_lock.
+> When we are guaranteed to be single threaded placing exec_change_mutex
+> in signal_struct doesn't really help us (except maybe in some races?).
+> 
+> The deep problem is no one really understands cred_guard_mutex so it is
+> a mess.  Code with poorly defined semantics is always wrong somewhere
 
-Compiled and booted on my test system. I have a new alert on my system:
-
-RIP: kvm_mmu_set_mmio_spte_mask+0x34/0x40 [kvm] RSP: ffffb4f7415b7be8
-
-I haven't tracked it yet.
-
-thanks,
--- Shuah
-
+This is a good point. When discussing patches sensitive to credential
+changes cred_guard_mutex was always introduced as having the purpose to
+guard against concurrent credential changes. And I'm pretty sure that
+that's how most people have been using it for quite a long time. I mean,
+it's at least the case for seccomp and proc and probably quite a few
+more. So the problem seems to me that it has clear _intended_ semantics
+that runs into issues in all sorts of cases. So if cred_guard_mutex is
+not that then we seem to need to provide something that serves it's
+intended purpose.
