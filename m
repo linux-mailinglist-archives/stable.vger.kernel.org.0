@@ -2,34 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9580517FC11
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:18:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 20B0B17FC12
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:18:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730090AbgCJNKk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 09:10:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60088 "EHLO mail.kernel.org"
+        id S1731339AbgCJNKl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 09:10:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60130 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731336AbgCJNKi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 09:10:38 -0400
+        id S1730239AbgCJNKl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 09:10:41 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8C4EC208E4;
-        Tue, 10 Mar 2020 13:10:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4855C20409;
+        Tue, 10 Mar 2020 13:10:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583845838;
-        bh=NkR2de6IFRNIgkIZmQfug6+u2E9R2X7Xsz/OQEeC7Q4=;
+        s=default; t=1583845840;
+        bh=oZeb9NTGpgVgTSMAk/JhXrYrF5rtTno1zSR90qkOBXU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZOLMbWEYICVzow9YpNsWUHZJ3E/2ZWpOju8WEKDCXApyq5NeCL+yVUMgNG0FaqZGA
-         RHPuTfYfSd93s0V0f8L3ffd/YMx3Wjac5RefW3FpmRuiz+rW0FdfIlOLZPe2SeMld7
-         lilOpsmaSfBEjOrZ7K9aj4l2KXj7TCEYd4vpQ8po=
+        b=l9S42fnfoJ3kZ6jSwlH3MAAKFKvpG6uuW+1w3tpK2FFCBK6Ns0gD28PdHuN3NnKEU
+         v1qr/GcIcN6dc00HuC3BvMKgo+x6UVG85ocBVLJnS/GoxMDIXrbk8722V47too4ciW
+         LCYTbHRQUZK6E6JLrLrg8N4MIbTy7FQGghxuL5C8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jason Gunthorpe <jgg@mellanox.com>
-Subject: [PATCH 4.14 118/126] RMDA/cm: Fix missing ib_cm_destroy_id() in ib_cm_insert_listen()
-Date:   Tue, 10 Mar 2020 13:42:19 +0100
-Message-Id: <20200310124211.017095727@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Mike Marciniszyn <mike.marciniszyn@intel.com>,
+        Dennis Dalessandro <dennis.dalessandro@intel.com>,
+        Jason Gunthorpe <jgg@mellanox.com>
+Subject: [PATCH 4.14 119/126] IB/hfi1, qib: Ensure RCU is locked when accessing list
+Date:   Tue, 10 Mar 2020 13:42:20 +0100
+Message-Id: <20200310124211.068302665@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200310124203.704193207@linuxfoundation.org>
 References: <20200310124203.704193207@linuxfoundation.org>
@@ -42,32 +45,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason Gunthorpe <jgg@mellanox.com>
+From: Dennis Dalessandro <dennis.dalessandro@intel.com>
 
-commit c14dfddbd869bf0c2bafb7ef260c41d9cebbcfec upstream.
+commit 817a68a6584aa08e323c64283fec5ded7be84759 upstream.
 
-The algorithm pre-allocates a cm_id since allocation cannot be done while
-holding the cm.lock spinlock, however it doesn't free it on one error
-path, leading to a memory leak.
+The packet handling function, specifically the iteration of the qp list
+for mad packet processing misses locking RCU before running through the
+list. Not only is this incorrect, but the list_for_each_entry_rcu() call
+can not be called with a conditional check for lock dependency. Remedy
+this by invoking the rcu lock and unlock around the critical section.
 
-Fixes: 067b171b8679 ("IB/cm: Share listening CM IDs")
-Link: https://lore.kernel.org/r/20200221152023.GA8680@ziepe.ca
+This brings MAD packet processing in line with what is done for non-MAD
+packets.
+
+Fixes: 7724105686e7 ("IB/hfi1: add driver files")
+Link: https://lore.kernel.org/r/20200225195445.140896.41873.stgit@awfm-01.aw.intel.com
+Reviewed-by: Mike Marciniszyn <mike.marciniszyn@intel.com>
+Signed-off-by: Dennis Dalessandro <dennis.dalessandro@intel.com>
 Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/infiniband/core/cm.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/infiniband/hw/hfi1/verbs.c    |    4 +++-
+ drivers/infiniband/hw/qib/qib_verbs.c |    2 ++
+ 2 files changed, 5 insertions(+), 1 deletion(-)
 
---- a/drivers/infiniband/core/cm.c
-+++ b/drivers/infiniband/core/cm.c
-@@ -1143,6 +1143,7 @@ struct ib_cm_id *ib_cm_insert_listen(str
- 			/* Sharing an ib_cm_id with different handlers is not
- 			 * supported */
- 			spin_unlock_irqrestore(&cm.lock, flags);
-+			ib_destroy_cm_id(cm_id);
- 			return ERR_PTR(-EINVAL);
+--- a/drivers/infiniband/hw/hfi1/verbs.c
++++ b/drivers/infiniband/hw/hfi1/verbs.c
+@@ -593,10 +593,11 @@ static inline void hfi1_handle_packet(st
+ 				       opa_get_lid(packet->dlid, 9B));
+ 		if (!mcast)
+ 			goto drop;
++		rcu_read_lock();
+ 		list_for_each_entry_rcu(p, &mcast->qp_list, list) {
+ 			packet->qp = p->qp;
+ 			if (hfi1_do_pkey_check(packet))
+-				goto drop;
++				goto unlock_drop;
+ 			spin_lock_irqsave(&packet->qp->r_lock, flags);
+ 			packet_handler = qp_ok(packet);
+ 			if (likely(packet_handler))
+@@ -605,6 +606,7 @@ static inline void hfi1_handle_packet(st
+ 				ibp->rvp.n_pkt_drops++;
+ 			spin_unlock_irqrestore(&packet->qp->r_lock, flags);
  		}
- 		atomic_inc(&cm_id_priv->refcount);
++		rcu_read_unlock();
+ 		/*
+ 		 * Notify rvt_multicast_detach() if it is waiting for us
+ 		 * to finish.
+--- a/drivers/infiniband/hw/qib/qib_verbs.c
++++ b/drivers/infiniband/hw/qib/qib_verbs.c
+@@ -360,8 +360,10 @@ void qib_ib_rcv(struct qib_ctxtdata *rcd
+ 		if (mcast == NULL)
+ 			goto drop;
+ 		this_cpu_inc(ibp->pmastats->n_multicast_rcv);
++		rcu_read_lock();
+ 		list_for_each_entry_rcu(p, &mcast->qp_list, list)
+ 			qib_qp_rcv(rcd, hdr, 1, data, tlen, p->qp);
++		rcu_read_unlock();
+ 		/*
+ 		 * Notify rvt_multicast_detach() if it is waiting for us
+ 		 * to finish.
 
 
