@@ -2,109 +2,156 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 60AA117F4D4
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 11:15:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 340AD17F4DD
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 11:17:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726100AbgCJKPs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 06:15:48 -0400
-Received: from out1-smtp.messagingengine.com ([66.111.4.25]:56217 "EHLO
-        out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725845AbgCJKPs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Mar 2020 06:15:48 -0400
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailout.nyi.internal (Postfix) with ESMTP id 1C60F220BE;
-        Tue, 10 Mar 2020 06:15:47 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Tue, 10 Mar 2020 06:15:47 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=VoS854
-        oGkbR+yD4wfO21W5WZfVUemaRcq5NLMR+23ws=; b=BO+2WLkX9lY885X7TBP47S
-        pkNGBO6aNl3EYIl0tHuZ5fFSNLadtgdWuDZVDvmsvIgGlD37lzarN2xHWvnctQxA
-        JTF2hXJYr2MzLLHXoHX0EVtK1oGunBCqUz8NzRR75eTMejBaHpO/WZvMoyC3neR7
-        viaW68tl3gYxyJbqtThJezh0wYZkXkUmYIdQq02pY4busRZcVD6CG2lwazG7o0Zt
-        Ytvs0W46qOTbVsbmZJlrLfxZln7A3LPtFMu9QRPrSMKTVe37hYFBL1V1VcBd4/FC
-        aa4CJzT9pYnTnNBnLuMCYBK/KjuQQo3x5JXaGpi33m5T8bgRk3zJgv1MlBtQp2DQ
-        ==
-X-ME-Sender: <xms:0mhnXmPrLelg8b5PyFVPS9qykUt4AV4gWYrgkHvGq9YjhYYEDWaT-g>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedugedruddvtddguddvucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
-    dtjeenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuffhomhgrihhnpehfrhgvvgguvghskhhtohhprdhorhhgpdgsrghsvgdruggvvh
-    enucfkphepkeefrdekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivgeptdenucfr
-    rghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:0mhnXtp4u9WId0M7jaZdHaSkObKEp35u0SL6Xk_zrCuKc0OmJtYKoA>
-    <xmx:0mhnXtPl49dfbgf85ziFli2oxqecdiJGZxHV2rXuueBCPlonwgFwTA>
-    <xmx:0mhnXjNlalJ74BTauzSvPJJMo0ieuoKr-wVq7zA90A3rG9p_1_ZrFw>
-    <xmx:02hnXgBQxhDLA0JCGBCzFOpg1inrqDbYj4G4BhOPIaORa1RT5QUd_g>
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id C7E7130611FB;
-        Tue, 10 Mar 2020 06:15:45 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] drm/ttm: fix leaking fences via ttm_buffer_object_transfer" failed to apply to 5.4-stable tree
-To:     Ahzo@tutanota.com, alexander.deucher@amd.com,
-        christian.koenig@amd.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 10 Mar 2020 11:15:43 +0100
-Message-ID: <15838353439240@kroah.com>
+        id S1726385AbgCJKRZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 06:17:25 -0400
+Received: from mail.fireflyinternet.com ([109.228.58.192]:64757 "EHLO
+        fireflyinternet.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1726197AbgCJKRZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Mar 2020 06:17:25 -0400
+X-Default-Received-SPF: pass (skip=forwardok (res=PASS)) x-ip-name=78.156.65.138;
+Received: from build.alporthouse.com (unverified [78.156.65.138]) 
+        by fireflyinternet.com (Firefly Internet (M1)) with ESMTP id 20506101-1500050 
+        for multiple; Tue, 10 Mar 2020 10:17:21 +0000
+From:   Chris Wilson <chris@chris-wilson.co.uk>
+To:     intel-gfx@lists.freedesktop.org
+Cc:     Chris Wilson <chris@chris-wilson.co.uk>,
+        Tvrtko Ursulin <tvrtko.ursulin@intel.com>,
+        stable@vger.kernel.org
+Subject: [PATCH] drm/i915: Defer semaphore priority bumping to a workqueue
+Date:   Tue, 10 Mar 2020 10:17:20 +0000
+Message-Id: <20200310101720.9944-1-chris@chris-wilson.co.uk>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Since the semaphore fence may be signaled from inside an interrupt
+handler from inside a request holding its request->lock, we cannot then
+enter into the engine->active.lock for processing the semaphore priority
+bump as we may traverse our call tree and end up on another held
+request.
 
-The patch below does not apply to the 5.4-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+CPU 0:
+[ 2243.218864]  _raw_spin_lock_irqsave+0x9a/0xb0
+[ 2243.218867]  i915_schedule_bump_priority+0x49/0x80 [i915]
+[ 2243.218869]  semaphore_notify+0x6d/0x98 [i915]
+[ 2243.218871]  __i915_sw_fence_complete+0x61/0x420 [i915]
+[ 2243.218874]  ? kmem_cache_free+0x211/0x290
+[ 2243.218876]  i915_sw_fence_complete+0x58/0x80 [i915]
+[ 2243.218879]  dma_i915_sw_fence_wake+0x3e/0x80 [i915]
+[ 2243.218881]  signal_irq_work+0x571/0x690 [i915]
+[ 2243.218883]  irq_work_run_list+0xd7/0x120
+[ 2243.218885]  irq_work_run+0x1d/0x50
+[ 2243.218887]  smp_irq_work_interrupt+0x21/0x30
+[ 2243.218889]  irq_work_interrupt+0xf/0x20
 
-thanks,
+CPU 1:
+[ 2242.173107]  _raw_spin_lock+0x8f/0xa0
+[ 2242.173110]  __i915_request_submit+0x64/0x4a0 [i915]
+[ 2242.173112]  __execlists_submission_tasklet+0x8ee/0x2120 [i915]
+[ 2242.173114]  ? i915_sched_lookup_priolist+0x1e3/0x2b0 [i915]
+[ 2242.173117]  execlists_submit_request+0x2e8/0x2f0 [i915]
+[ 2242.173119]  submit_notify+0x8f/0xc0 [i915]
+[ 2242.173121]  __i915_sw_fence_complete+0x61/0x420 [i915]
+[ 2242.173124]  ? _raw_spin_unlock_irqrestore+0x39/0x40
+[ 2242.173137]  i915_sw_fence_complete+0x58/0x80 [i915]
+[ 2242.173140]  i915_sw_fence_commit+0x16/0x20 [i915]
 
-greg k-h
+CPU 2:
+[ 2242.173107]  _raw_spin_lock+0x8f/0xa0
+[ 2242.173110]  __i915_request_submit+0x64/0x4a0 [i915]
+[ 2242.173112]  __execlists_submission_tasklet+0x8ee/0x2120 [i915]
+[ 2242.173114]  ? i915_sched_lookup_priolist+0x1e3/0x2b0 [i915]
+[ 2242.173117]  execlists_submit_request+0x2e8/0x2f0 [i915]
+[ 2242.173119]  submit_notify+0x8f/0xc0 [i915]
 
------------------- original commit in Linus's tree ------------------
+Closes: https://gitlab.freedesktop.org/drm/intel/issues/1318
+Fixes: b7404c7ecb38 ("drm/i915: Bump ready tasks ahead of busywaits")
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+Cc: <stable@vger.kernel.org> # v5.2+
+---
+ drivers/gpu/drm/i915/i915_request.c | 22 +++++++++++++++++-----
+ drivers/gpu/drm/i915/i915_request.h |  2 ++
+ 2 files changed, 19 insertions(+), 5 deletions(-)
 
-From 8c8c06207bcfc5a7e5918fc0a0f7f7b9a2e196d6 Mon Sep 17 00:00:00 2001
-From: Ahzo <Ahzo@tutanota.com>
-Date: Tue, 25 Feb 2020 13:56:14 -0500
-Subject: [PATCH] drm/ttm: fix leaking fences via ttm_buffer_object_transfer
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-
-Set the drm_device to NULL, so that the newly created buffer object
-doesn't appear to use the embedded gem object.
-
-This is necessary, because otherwise no corresponding dma_resv_fini for
-the dma_resv_init is called, resulting in a memory leak.
-
-The dma_resv_fini in ttm_bo_release_list is only called if the embedded
-gem object is not used, which is determined by checking if the
-drm_device is NULL.
-
-Bug: https://gitlab.freedesktop.org/drm/amd/issues/958
-Fixes: 1e053b10ba60 ("drm/ttm: use gem reservation object")
-Reviewed-by: Christian König <christian.koenig@amd.com>
-Signed-off-by: Ahzo <Ahzo@tutanota.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Christian König <christian.koenig@amd.com>
-Link: https://patchwork.freedesktop.org/patch/355089/
-
-diff --git a/drivers/gpu/drm/ttm/ttm_bo_util.c b/drivers/gpu/drm/ttm/ttm_bo_util.c
-index 49ed55779128..953c82a4f573 100644
---- a/drivers/gpu/drm/ttm/ttm_bo_util.c
-+++ b/drivers/gpu/drm/ttm/ttm_bo_util.c
-@@ -515,6 +515,7 @@ static int ttm_buffer_object_transfer(struct ttm_buffer_object *bo,
- 		fbo->base.base.resv = &fbo->base.base._resv;
+diff --git a/drivers/gpu/drm/i915/i915_request.c b/drivers/gpu/drm/i915/i915_request.c
+index 04b52bf347bf..129357d4b599 100644
+--- a/drivers/gpu/drm/i915/i915_request.c
++++ b/drivers/gpu/drm/i915/i915_request.c
+@@ -588,19 +588,31 @@ submit_notify(struct i915_sw_fence *fence, enum i915_sw_fence_notify state)
+ 	return NOTIFY_DONE;
+ }
  
- 	dma_resv_init(&fbo->base.base._resv);
-+	fbo->base.base.dev = NULL;
- 	ret = dma_resv_trylock(&fbo->base.base._resv);
- 	WARN_ON(!ret);
++static void irq_semaphore_cb(struct irq_work *wrk)
++{
++	struct i915_request *rq =
++		container_of(wrk, typeof(*rq), semaphore_work);
++
++	i915_schedule_bump_priority(rq, I915_PRIORITY_NOSEMAPHORE);
++	i915_request_put(rq);
++}
++
+ static int __i915_sw_fence_call
+ semaphore_notify(struct i915_sw_fence *fence, enum i915_sw_fence_notify state)
+ {
+-	struct i915_request *request =
+-		container_of(fence, typeof(*request), semaphore);
++	struct i915_request *rq = container_of(fence, typeof(*rq), semaphore);
  
+ 	switch (state) {
+ 	case FENCE_COMPLETE:
+-		i915_schedule_bump_priority(request, I915_PRIORITY_NOSEMAPHORE);
++		if (!(READ_ONCE(rq->sched.attr.priority) & I915_PRIORITY_NOSEMAPHORE)) {
++			i915_request_get(rq);
++			init_irq_work(&rq->semaphore_work, irq_semaphore_cb);
++			irq_work_queue(&rq->semaphore_work);
++		}
+ 		break;
+ 
+ 	case FENCE_FREE:
+-		i915_request_put(request);
++		i915_request_put(rq);
+ 		break;
+ 	}
+ 
+@@ -1369,9 +1381,9 @@ void __i915_request_queue(struct i915_request *rq,
+ 	 * decide whether to preempt the entire chain so that it is ready to
+ 	 * run at the earliest possible convenience.
+ 	 */
+-	i915_sw_fence_commit(&rq->semaphore);
+ 	if (attr && rq->engine->schedule)
+ 		rq->engine->schedule(rq, attr);
++	i915_sw_fence_commit(&rq->semaphore);
+ 	i915_sw_fence_commit(&rq->submit);
+ }
+ 
+diff --git a/drivers/gpu/drm/i915/i915_request.h b/drivers/gpu/drm/i915/i915_request.h
+index 6020d5b2a3df..3c552bfea67a 100644
+--- a/drivers/gpu/drm/i915/i915_request.h
++++ b/drivers/gpu/drm/i915/i915_request.h
+@@ -26,6 +26,7 @@
+ #define I915_REQUEST_H
+ 
+ #include <linux/dma-fence.h>
++#include <linux/irq_work.h>
+ #include <linux/lockdep.h>
+ 
+ #include "gem/i915_gem_context_types.h"
+@@ -208,6 +209,7 @@ struct i915_request {
+ 	};
+ 	struct list_head execute_cb;
+ 	struct i915_sw_fence semaphore;
++	struct irq_work semaphore_work;
+ 
+ 	/*
+ 	 * A list of everyone we wait upon, and everyone who waits upon us.
+-- 
+2.20.1
 
