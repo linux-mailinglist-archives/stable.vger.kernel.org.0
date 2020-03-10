@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B77C317FA67
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:05:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6A2F617FA44
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:04:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728361AbgCJNEB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 09:04:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48932 "EHLO mail.kernel.org"
+        id S1729710AbgCJNEE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 09:04:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48986 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730238AbgCJNEB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 09:04:01 -0400
+        id S1730238AbgCJNED (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 09:04:03 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2BB3E24697;
-        Tue, 10 Mar 2020 13:04:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9FF6A2468C;
+        Tue, 10 Mar 2020 13:04:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583845440;
-        bh=HY4LZYMCJVM/+HoxEjo4qU0iWKMaQ33Cw8U8RQ2mBfo=;
+        s=default; t=1583845443;
+        bh=NZ49wwYDeg2PY3gkg8I6UFOUVvSsMiuVd2jD2U2htRw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UWUWbFO6GGcLgcscqxO+Hv1uJb7cg5JlQXWD37zp7uSbagwM7KzcSSOsKUii8iNNR
-         UctvZyZrIJ+G0I7uDQi5vETU5Ev0cYkkB7cudr5rtKY1P4ARzr90WJLxVhBNwW7/gI
-         Ygeun6UzwrhmfKboJTay2dO3tZsmF5hF+Jae3k9Y=
+        b=BaQG5GG0LJgWTV6tWOCIykXbHEDW43lJ/ZZ94ZWOdWW6g7RqBJ8aKLGoMUIEIJchw
+         6x4RmR0vtDgVPEfvKTW4sSWF6LxHgjvegu8LcG+anG/0fLm6T4eMdOA/VoQAmIRmH0
+         6u0dyvAyCyiOyEkf3iQBlsHuJTsg7EaVR1nROewg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?S=C3=A9bastien=20Szymanski?= 
-        <sebastien.szymanski@armadeus.com>, Rob Herring <robh@kernel.org>
-Subject: [PATCH 5.5 183/189] dt-bindings: arm: fsl: fix APF6Dev compatible
-Date:   Tue, 10 Mar 2020 13:40:20 +0100
-Message-Id: <20200310123658.018750911@linuxfoundation.org>
+        stable@vger.kernel.org, Sherry Sun <sherry.sun@nxp.com>,
+        Borislav Petkov <bp@suse.de>,
+        James Morse <james.morse@arm.com>,
+        Manish Narani <manish.narani@xilinx.com>
+Subject: [PATCH 5.5 184/189] EDAC/synopsys: Do not print an error with back-to-back snprintf() calls
+Date:   Tue, 10 Mar 2020 13:40:21 +0100
+Message-Id: <20200310123658.109489967@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200310123639.608886314@linuxfoundation.org>
 References: <20200310123639.608886314@linuxfoundation.org>
@@ -44,32 +45,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sébastien Szymanski <sebastien.szymanski@armadeus.com>
+From: Sherry Sun <sherry.sun@nxp.com>
 
-commit ab4562f4dd92c455f6b313717af5e7d72a55d7b4 upstream.
+commit dfc6014e3b60713f375d0601d7549eed224c4615 upstream.
 
-APF6 Dev compatible is armadeus,imx6dl-apf6dev and not
-armadeus,imx6dl-apf6dldev.
+handle_error() currently calls snprintf() a couple of times in
+succession to output the message for a CE/UE, therefore overwriting each
+part of the message which was formatted with the previous snprintf()
+call. As a result, only the part of the message from the last snprintf()
+call will be printed.
 
-Fixes: 3d735471d066 ("dt-bindings: arm: Document Armadeus SoM and Dev boards devicetree binding")
-Signed-off-by: Sébastien Szymanski <sebastien.szymanski@armadeus.com>
-Signed-off-by: Rob Herring <robh@kernel.org>
+The simplest and most effective way to fix this problem is to combine
+the whole string into one which to supply to a single snprintf() call.
+
+ [ bp: Massage. ]
+
+Fixes: b500b4a029d57 ("EDAC, synopsys: Add ECC support for ZynqMP DDR controller")
+Signed-off-by: Sherry Sun <sherry.sun@nxp.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Reviewed-by: James Morse <james.morse@arm.com>
+Cc: Manish Narani <manish.narani@xilinx.com>
+Link: https://lkml.kernel.org/r/1582792452-32575-1-git-send-email-sherry.sun@nxp.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- Documentation/devicetree/bindings/arm/fsl.yaml |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/edac/synopsys_edac.c |   22 +++++++---------------
+ 1 file changed, 7 insertions(+), 15 deletions(-)
 
---- a/Documentation/devicetree/bindings/arm/fsl.yaml
-+++ b/Documentation/devicetree/bindings/arm/fsl.yaml
-@@ -139,7 +139,7 @@ properties:
-         items:
-           - enum:
-               - armadeus,imx6dl-apf6      # APF6 (Solo) SoM
--              - armadeus,imx6dl-apf6dldev # APF6 (Solo) SoM on APF6Dev board
-+              - armadeus,imx6dl-apf6dev   # APF6 (Solo) SoM on APF6Dev board
-               - eckelmann,imx6dl-ci4x10
-               - emtrion,emcon-mx6         # emCON-MX6S or emCON-MX6DL SoM
-               - emtrion,emcon-mx6-avari   # emCON-MX6S or emCON-MX6DL SoM on Avari Base
+--- a/drivers/edac/synopsys_edac.c
++++ b/drivers/edac/synopsys_edac.c
+@@ -479,20 +479,14 @@ static void handle_error(struct mem_ctl_
+ 		pinf = &p->ceinfo;
+ 		if (!priv->p_data->quirks) {
+ 			snprintf(priv->message, SYNPS_EDAC_MSG_SIZE,
+-				 "DDR ECC error type:%s Row %d Bank %d Col %d ",
+-				  "CE", pinf->row, pinf->bank, pinf->col);
+-			snprintf(priv->message, SYNPS_EDAC_MSG_SIZE,
+-				 "Bit Position: %d Data: 0x%08x\n",
++				 "DDR ECC error type:%s Row %d Bank %d Col %d Bit Position: %d Data: 0x%08x",
++				 "CE", pinf->row, pinf->bank, pinf->col,
+ 				 pinf->bitpos, pinf->data);
+ 		} else {
+ 			snprintf(priv->message, SYNPS_EDAC_MSG_SIZE,
+-				 "DDR ECC error type:%s Row %d Bank %d Col %d ",
+-				  "CE", pinf->row, pinf->bank, pinf->col);
+-			snprintf(priv->message, SYNPS_EDAC_MSG_SIZE,
+-				 "BankGroup Number %d Block Number %d ",
+-				 pinf->bankgrpnr, pinf->blknr);
+-			snprintf(priv->message, SYNPS_EDAC_MSG_SIZE,
+-				 "Bit Position: %d Data: 0x%08x\n",
++				 "DDR ECC error type:%s Row %d Bank %d Col %d BankGroup Number %d Block Number %d Bit Position: %d Data: 0x%08x",
++				 "CE", pinf->row, pinf->bank, pinf->col,
++				 pinf->bankgrpnr, pinf->blknr,
+ 				 pinf->bitpos, pinf->data);
+ 		}
+ 
+@@ -509,10 +503,8 @@ static void handle_error(struct mem_ctl_
+ 				"UE", pinf->row, pinf->bank, pinf->col);
+ 		} else {
+ 			snprintf(priv->message, SYNPS_EDAC_MSG_SIZE,
+-				 "DDR ECC error type :%s Row %d Bank %d Col %d ",
+-				 "UE", pinf->row, pinf->bank, pinf->col);
+-			snprintf(priv->message, SYNPS_EDAC_MSG_SIZE,
+-				 "BankGroup Number %d Block Number %d",
++				 "DDR ECC error type :%s Row %d Bank %d Col %d BankGroup Number %d Block Number %d",
++				 "UE", pinf->row, pinf->bank, pinf->col,
+ 				 pinf->bankgrpnr, pinf->blknr);
+ 		}
+ 
 
 
