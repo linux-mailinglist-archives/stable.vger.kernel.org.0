@@ -2,53 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A5E1B17F4E1
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 11:18:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 94A9B17F4EA
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 11:20:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726170AbgCJKSo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 06:18:44 -0400
-Received: from out1-smtp.messagingengine.com ([66.111.4.25]:48971 "EHLO
+        id S1726438AbgCJKTz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 06:19:55 -0400
+Received: from out1-smtp.messagingengine.com ([66.111.4.25]:53789 "EHLO
         out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726164AbgCJKSo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Mar 2020 06:18:44 -0400
+        by vger.kernel.org with ESMTP id S1725845AbgCJKTz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Mar 2020 06:19:55 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailout.nyi.internal (Postfix) with ESMTP id F3F7C21B7C;
-        Tue, 10 Mar 2020 06:18:42 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Tue, 10 Mar 2020 06:18:42 -0400
+        by mailout.nyi.internal (Postfix) with ESMTP id BB652220D5;
+        Tue, 10 Mar 2020 06:19:52 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute1.internal (MEProxy); Tue, 10 Mar 2020 06:19:52 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=P0s77t
-        tExCWjSoHbuFhDHQ+Y9MLi2zdXL4YYwT2WqFQ=; b=IAfDGaipBx3xg2omXZdTOR
-        uU27DPBgXnjJFdfGF0uznjyGZ5ygIQQu4WHK8yjtxJlB2MbSiXQIQYeukOTfJUbK
-        ZpGCuqpgjZ4q9THEzGv6wCMvO4ktmdcoCurVbhgjBtRxxuGQJSmUXZBzVscKA0M6
-        IFhhcpZGE+pnd2KYDon4ArcWcfj9Hp/VemvMrSfRJjjwZIbr+F7LHgZP88lP6+8L
-        rpvKCLxbEni/kuYjU8po7stp31nHCnxvLRT0pO9x8PG/XUqkSHQpfKCq4L7POhMJ
-        6ME8LDU/uvgibGHm0GU9w55YXwplN6GNmMk+M2c0fKkNFXPJm+ihMJmuL5CbqXvw
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=tOYwmf
+        AJFhQABuE4/uOUvZ2tB7YgtLRuEDBmDBya350=; b=tIpK65MZuCfp1pc/vOtkIm
+        5ePYsefIPfCZen1mPg70aDHPETP2s2oTwT21n621yxLY0vroRKPI6QYgw00cQxPB
+        H/GPW/B2FyVeEWycT4Qjmh7AyTphMIOX/59bwBjBNqA/2IY81K3E0eahg4nJQwd8
+        L4ZsALCcjzkcY5Nd1VUnsK51gGvEb5k4uTMNHkr3tMraDPNK1Ihc6h2UVgbZRSa5
+        P2rbXhrWRsIe0eEm063ioiGk3rbi1OJF5aIuGu/uOhewhs4cQbdRO7jFkd2P9xoS
+        0c1001dZL+kVvd3qf/42ndIy8ySAj0xb7mhgvBWwIfZK3+OY67h+WOsQUJFcB3cQ
         ==
-X-ME-Sender: <xms:gmlnXuYsw2XEPPjhzSbMBp6IgaqnnwSeIml4dzdxGo6Afbw39qjqjA>
+X-ME-Sender: <xms:x2lnXrzRLGhhIglnKLhYx3-wbjN2IZXWNOWlFsYiPuWpwVBmAK1KQQ>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedugedruddvtddgudefucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuffhomhgrihhnpehfrhgvvgguvghskhhtohhprdhorhhgnecukfhppeekfedrke
-    eirdekledruddtjeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhl
-    fhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:gmlnXpK1_jX6OOygtfbkxuMdULR5LiYfdkyyApfOuZRTyO6TQnKTig>
-    <xmx:gmlnXnihnra9rmP_6upcWnuGxZSAYd6rH51s4X5G9FdNqadBEdf4kw>
-    <xmx:gmlnXq-Rzyp16ddLxafNfM-ZrRNYwz33OE3Z_cJhpcznK_ByY1uM4g>
-    <xmx:gmlnXnbv4jCt3O2lFsMgPylzds034f86EzMKcyi3KiE_LdCfMV39Xw>
+    gheqnecukfhppeekfedrkeeirdekledruddtjeenucevlhhushhtvghrufhiiigvpedtne
+    curfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
+X-ME-Proxy: <xmx:x2lnXlnZzZ2w8OON0gqxTc_249C7GLS2ctd1FQmipTIrs6TIpPxYTg>
+    <xmx:x2lnXkDeyspPc_xHtDz1pIChD6KUfGJoAeNCCO_EwJ966Cwx8qyu2Q>
+    <xmx:x2lnXic3O3ihFHS4RypwRcWNkfjO8e1_e3Zl1VfNbCdTYnfJ0kj4dw>
+    <xmx:yGlnXlCtZ3ZJC0SR8eKkOgq6C7EYK5kNlic-M-2SoTSKgCfYHC5MUA>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id D624D3061393;
-        Tue, 10 Mar 2020 06:18:41 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] drm/i915/gt: Drop the timeline->mutex as we wait for" failed to apply to 5.5-stable tree
-To:     chris@chris-wilson.co.uk, jani.nikula@intel.com,
-        mika.kuoppala@linux.intel.com
+        by mail.messagingengine.com (Postfix) with ESMTPA id 54AAA3280064;
+        Tue, 10 Mar 2020 06:19:51 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] phy: brcm-sata: Correct MDIO operations for 40nm platforms" failed to apply to 5.5-stable tree
+To:     f.fainelli@gmail.com, kishon@ti.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 10 Mar 2020 11:18:39 +0100
-Message-ID: <1583835519253137@kroah.com>
+Date:   Tue, 10 Mar 2020 11:19:49 +0100
+Message-ID: <1583835589199223@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -69,66 +67,437 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 169c0aa4bc17d37370f55188d9327b99d60fd9d7 Mon Sep 17 00:00:00 2001
-From: Chris Wilson <chris@chris-wilson.co.uk>
-Date: Tue, 3 Mar 2020 14:00:09 +0000
-Subject: [PATCH] drm/i915/gt: Drop the timeline->mutex as we wait for
- retirement
+From 0ed41b33882c577e1d6582913163a2f5727765fe Mon Sep 17 00:00:00 2001
+From: Florian Fainelli <f.fainelli@gmail.com>
+Date: Thu, 20 Feb 2020 20:14:23 -0800
+Subject: [PATCH] phy: brcm-sata: Correct MDIO operations for 40nm platforms
 
-As we have pinned the timeline (using tl->active_count), we can safely
-drop the tl->mutex as we wait for what we believe to be the final
-request on that timeline. This is useful for ensuring that we do not
-block the engine heartbeat by hogging the kernel_context's timeline on a
-dead GPU.
+The logic to write to MDIO registers on 40nm platforms was wrong
+because it would use the port number as an offset from the base address
+rather than the bank address of the PHY. This is hardly noticeable
+because the only programming we do is enabling SSC or not, which is not
+really causing an observable functional change.
 
-References: https://gitlab.freedesktop.org/drm/intel/issues/1364
-Fixes: 058179e72e09 ("drm/i915/gt: Replace hangcheck by heartbeats")
-Fixes: f33a8a51602c ("drm/i915: Merge wait_for_timelines with retire_request")
-Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Cc: Mika Kuoppala <mika.kuoppala@linux.intel.com>
-Reviewed-by: Mika Kuoppala <mika.kuoppala@linux.intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200303140009.1494819-1-chris@chris-wilson.co.uk
-(cherry picked from commit 82126e596d8519baac416aee83cad938f1d23cf8)
-Signed-off-by: Jani Nikula <jani.nikula@intel.com>
+Correct that mistake by passing down the struct brcm_sata_port structure
+down to the brcm_sata_mdio_wr() and brcm_sata_mdio_rd() functions and do
+the proper offsetting for 28nm, respectively 40nm platforms from there.
+This means that brcm_sata_pcb_base() is now useless and is therefore
+removed.
 
-diff --git a/drivers/gpu/drm/i915/gt/intel_gt_requests.c b/drivers/gpu/drm/i915/gt/intel_gt_requests.c
-index 8a5054f21bf8..24c99d0838af 100644
---- a/drivers/gpu/drm/i915/gt/intel_gt_requests.c
-+++ b/drivers/gpu/drm/i915/gt/intel_gt_requests.c
-@@ -147,24 +147,32 @@ long intel_gt_retire_requests_timeout(struct intel_gt *gt, long timeout)
+Fixes: c1602a1a0fbe ("phy: phy_brcmstb_sata: add support for MIPS-based platforms")
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: Kishon Vijay Abraham I <kishon@ti.com>
+
+diff --git a/drivers/phy/broadcom/phy-brcm-sata.c b/drivers/phy/broadcom/phy-brcm-sata.c
+index 4710cfcc3037..18251f232172 100644
+--- a/drivers/phy/broadcom/phy-brcm-sata.c
++++ b/drivers/phy/broadcom/phy-brcm-sata.c
+@@ -186,29 +186,6 @@ enum sata_phy_ctrl_regs {
+ 	PHY_CTRL_1_RESET			= BIT(0),
+ };
  
- 			fence = i915_active_fence_get(&tl->last_request);
- 			if (fence) {
-+				mutex_unlock(&tl->mutex);
+-static inline void __iomem *brcm_sata_pcb_base(struct brcm_sata_port *port)
+-{
+-	struct brcm_sata_phy *priv = port->phy_priv;
+-	u32 size = 0;
+-
+-	switch (priv->version) {
+-	case BRCM_SATA_PHY_STB_16NM:
+-	case BRCM_SATA_PHY_STB_28NM:
+-	case BRCM_SATA_PHY_IPROC_NS2:
+-	case BRCM_SATA_PHY_DSL_28NM:
+-		size = SATA_PCB_REG_28NM_SPACE_SIZE;
+-		break;
+-	case BRCM_SATA_PHY_STB_40NM:
+-		size = SATA_PCB_REG_40NM_SPACE_SIZE;
+-		break;
+-	default:
+-		dev_err(priv->dev, "invalid phy version\n");
+-		break;
+-	}
+-
+-	return priv->phy_base + (port->portnum * size);
+-}
+-
+ static inline void __iomem *brcm_sata_ctrl_base(struct brcm_sata_port *port)
+ {
+ 	struct brcm_sata_phy *priv = port->phy_priv;
+@@ -226,19 +203,34 @@ static inline void __iomem *brcm_sata_ctrl_base(struct brcm_sata_port *port)
+ 	return priv->ctrl_base + (port->portnum * size);
+ }
+ 
+-static void brcm_sata_phy_wr(void __iomem *pcb_base, u32 bank,
++static void brcm_sata_phy_wr(struct brcm_sata_port *port, u32 bank,
+ 			     u32 ofs, u32 msk, u32 value)
+ {
++	struct brcm_sata_phy *priv = port->phy_priv;
++	void __iomem *pcb_base = priv->phy_base;
+ 	u32 tmp;
+ 
++	if (priv->version == BRCM_SATA_PHY_STB_40NM)
++		bank += (port->portnum * SATA_PCB_REG_40NM_SPACE_SIZE);
++	else
++		pcb_base += (port->portnum * SATA_PCB_REG_28NM_SPACE_SIZE);
 +
- 				timeout = dma_fence_wait_timeout(fence,
- 								 interruptible,
- 								 timeout);
- 				dma_fence_put(fence);
+ 	writel(bank, pcb_base + SATA_PCB_BANK_OFFSET);
+ 	tmp = readl(pcb_base + SATA_PCB_REG_OFFSET(ofs));
+ 	tmp = (tmp & msk) | value;
+ 	writel(tmp, pcb_base + SATA_PCB_REG_OFFSET(ofs));
+ }
+ 
+-static u32 brcm_sata_phy_rd(void __iomem *pcb_base, u32 bank, u32 ofs)
++static u32 brcm_sata_phy_rd(struct brcm_sata_port *port, u32 bank, u32 ofs)
+ {
++	struct brcm_sata_phy *priv = port->phy_priv;
++	void __iomem *pcb_base = priv->phy_base;
 +
-+				/* Retirement is best effort */
-+				if (!mutex_trylock(&tl->mutex)) {
-+					active_count++;
-+					goto out_active;
-+				}
- 			}
- 		}
++	if (priv->version == BRCM_SATA_PHY_STB_40NM)
++		bank += (port->portnum * SATA_PCB_REG_40NM_SPACE_SIZE);
++	else
++		pcb_base += (port->portnum * SATA_PCB_REG_28NM_SPACE_SIZE);
++
+ 	writel(bank, pcb_base + SATA_PCB_BANK_OFFSET);
+ 	return readl(pcb_base + SATA_PCB_REG_OFFSET(ofs));
+ }
+@@ -250,16 +242,15 @@ static u32 brcm_sata_phy_rd(void __iomem *pcb_base, u32 bank, u32 ofs)
  
- 		if (!retire_requests(tl) || flush_submission(gt))
- 			active_count++;
-+		mutex_unlock(&tl->mutex);
+ static void brcm_stb_sata_ssc_init(struct brcm_sata_port *port)
+ {
+-	void __iomem *base = brcm_sata_pcb_base(port);
+ 	struct brcm_sata_phy *priv = port->phy_priv;
+ 	u32 tmp;
  
--		spin_lock(&timelines->lock);
-+out_active:	spin_lock(&timelines->lock);
+ 	/* override the TX spread spectrum setting */
+ 	tmp = TXPMD_CONTROL1_TX_SSC_EN_FRC_VAL | TXPMD_CONTROL1_TX_SSC_EN_FRC;
+-	brcm_sata_phy_wr(base, TXPMD_REG_BANK, TXPMD_CONTROL1, ~tmp, tmp);
++	brcm_sata_phy_wr(port, TXPMD_REG_BANK, TXPMD_CONTROL1, ~tmp, tmp);
  
--		/* Resume iteration after dropping lock */
-+		/* Resume list iteration after reacquiring spinlock */
- 		list_safe_reset_next(tl, tn, link);
- 		if (atomic_dec_and_test(&tl->active_count))
- 			list_del(&tl->link);
+ 	/* set fixed min freq */
+-	brcm_sata_phy_wr(base, TXPMD_REG_BANK, TXPMD_TX_FREQ_CTRL_CONTROL2,
++	brcm_sata_phy_wr(port, TXPMD_REG_BANK, TXPMD_TX_FREQ_CTRL_CONTROL2,
+ 			 ~TXPMD_TX_FREQ_CTRL_CONTROL2_FMIN_MASK,
+ 			 STB_FMIN_VAL_DEFAULT);
  
--		mutex_unlock(&tl->mutex);
+@@ -271,7 +262,7 @@ static void brcm_stb_sata_ssc_init(struct brcm_sata_port *port)
+ 		tmp = STB_FMAX_VAL_DEFAULT;
+ 	}
  
- 		/* Defer the final release to after the spinlock */
- 		if (refcount_dec_and_test(&tl->kref.refcount)) {
+-	brcm_sata_phy_wr(base, TXPMD_REG_BANK, TXPMD_TX_FREQ_CTRL_CONTROL3,
++	brcm_sata_phy_wr(port, TXPMD_REG_BANK, TXPMD_TX_FREQ_CTRL_CONTROL3,
+ 			  ~TXPMD_TX_FREQ_CTRL_CONTROL3_FMAX_MASK, tmp);
+ }
+ 
+@@ -280,7 +271,6 @@ static void brcm_stb_sata_ssc_init(struct brcm_sata_port *port)
+ 
+ static int brcm_stb_sata_rxaeq_init(struct brcm_sata_port *port)
+ {
+-	void __iomem *base = brcm_sata_pcb_base(port);
+ 	u32 tmp = 0, reg = 0;
+ 
+ 	switch (port->rxaeq_mode) {
+@@ -301,8 +291,8 @@ static int brcm_stb_sata_rxaeq_init(struct brcm_sata_port *port)
+ 		break;
+ 	}
+ 
+-	brcm_sata_phy_wr(base, AEQRX_REG_BANK_0, reg, ~tmp, tmp);
+-	brcm_sata_phy_wr(base, AEQRX_REG_BANK_1, reg, ~tmp, tmp);
++	brcm_sata_phy_wr(port, AEQRX_REG_BANK_0, reg, ~tmp, tmp);
++	brcm_sata_phy_wr(port, AEQRX_REG_BANK_1, reg, ~tmp, tmp);
+ 
+ 	return 0;
+ }
+@@ -316,18 +306,17 @@ static int brcm_stb_sata_init(struct brcm_sata_port *port)
+ 
+ static int brcm_stb_sata_16nm_ssc_init(struct brcm_sata_port *port)
+ {
+-	void __iomem *base = brcm_sata_pcb_base(port);
+ 	u32 tmp, value;
+ 
+ 	/* Reduce CP tail current to 1/16th of its default value */
+-	brcm_sata_phy_wr(base, PLL1_REG_BANK, PLL1_ACTRL6, 0, 0x141);
++	brcm_sata_phy_wr(port, PLL1_REG_BANK, PLL1_ACTRL6, 0, 0x141);
+ 
+ 	/* Turn off CP tail current boost */
+-	brcm_sata_phy_wr(base, PLL1_REG_BANK, PLL1_ACTRL8, 0, 0xc006);
++	brcm_sata_phy_wr(port, PLL1_REG_BANK, PLL1_ACTRL8, 0, 0xc006);
+ 
+ 	/* Set a specific AEQ equalizer value */
+ 	tmp = AEQ_FRC_EQ_FORCE_VAL | AEQ_FRC_EQ_FORCE;
+-	brcm_sata_phy_wr(base, AEQRX_REG_BANK_0, AEQ_FRC_EQ,
++	brcm_sata_phy_wr(port, AEQRX_REG_BANK_0, AEQ_FRC_EQ,
+ 			 ~(tmp | AEQ_RFZ_FRC_VAL |
+ 			   AEQ_FRC_EQ_VAL_MASK << AEQ_FRC_EQ_VAL_SHIFT),
+ 			 tmp | 32 << AEQ_FRC_EQ_VAL_SHIFT);
+@@ -337,7 +326,7 @@ static int brcm_stb_sata_16nm_ssc_init(struct brcm_sata_port *port)
+ 		value = 0x52;
+ 	else
+ 		value = 0;
+-	brcm_sata_phy_wr(base, RXPMD_REG_BANK, RXPMD_RX_CDR_CONTROL1,
++	brcm_sata_phy_wr(port, RXPMD_REG_BANK, RXPMD_RX_CDR_CONTROL1,
+ 			 ~RXPMD_RX_PPM_VAL_MASK, value);
+ 
+ 	/* Set proportional loop bandwith Gen1/2/3 */
+@@ -352,7 +341,7 @@ static int brcm_stb_sata_16nm_ssc_init(struct brcm_sata_port *port)
+ 		value = 1 << RXPMD_G1_CDR_PROP_BW_SHIFT |
+ 			1 << RXPMD_G2_CDR_PROP_BW_SHIFT |
+ 			1 << RXPMD_G3_CDR_PROB_BW_SHIFT;
+-	brcm_sata_phy_wr(base, RXPMD_REG_BANK, RXPMD_RX_CDR_CDR_PROP_BW, ~tmp,
++	brcm_sata_phy_wr(port, RXPMD_REG_BANK, RXPMD_RX_CDR_CDR_PROP_BW, ~tmp,
+ 			 value);
+ 
+ 	/* Set CDR integral loop acquisition bandwidth for Gen1/2/3 */
+@@ -365,7 +354,7 @@ static int brcm_stb_sata_16nm_ssc_init(struct brcm_sata_port *port)
+ 			1 << RXPMD_G3_CDR_ACQ_INT_BW_SHIFT;
+ 	else
+ 		value = 0;
+-	brcm_sata_phy_wr(base, RXPMD_REG_BANK, RXPMD_RX_CDR_CDR_ACQ_INTEG_BW,
++	brcm_sata_phy_wr(port, RXPMD_REG_BANK, RXPMD_RX_CDR_CDR_ACQ_INTEG_BW,
+ 			 ~tmp, value);
+ 
+ 	/* Set CDR integral loop locking bandwidth to 1 for Gen 1/2/3 */
+@@ -378,7 +367,7 @@ static int brcm_stb_sata_16nm_ssc_init(struct brcm_sata_port *port)
+ 			1 << RXPMD_G3_CDR_LOCK_INT_BW_SHIFT;
+ 	else
+ 		value = 0;
+-	brcm_sata_phy_wr(base, RXPMD_REG_BANK, RXPMD_RX_CDR_CDR_LOCK_INTEG_BW,
++	brcm_sata_phy_wr(port, RXPMD_REG_BANK, RXPMD_RX_CDR_CDR_LOCK_INTEG_BW,
+ 			 ~tmp, value);
+ 
+ 	/* Set no guard band and clamp CDR */
+@@ -387,11 +376,11 @@ static int brcm_stb_sata_16nm_ssc_init(struct brcm_sata_port *port)
+ 		value = 0x51;
+ 	else
+ 		value = 0;
+-	brcm_sata_phy_wr(base, RXPMD_REG_BANK, RXPMD_RX_FREQ_MON_CONTROL1,
++	brcm_sata_phy_wr(port, RXPMD_REG_BANK, RXPMD_RX_FREQ_MON_CONTROL1,
+ 			 ~tmp, RXPMD_MON_CORRECT_EN | value);
+ 
+ 	/* Turn on/off SSC */
+-	brcm_sata_phy_wr(base, TX_REG_BANK, TX_ACTRL5, ~TX_ACTRL5_SSC_EN,
++	brcm_sata_phy_wr(port, TX_REG_BANK, TX_ACTRL5, ~TX_ACTRL5_SSC_EN,
+ 			 port->ssc_en ? TX_ACTRL5_SSC_EN : 0);
+ 
+ 	return 0;
+@@ -411,7 +400,6 @@ static int brcm_ns2_sata_init(struct brcm_sata_port *port)
+ {
+ 	int try;
+ 	unsigned int val;
+-	void __iomem *base = brcm_sata_pcb_base(port);
+ 	void __iomem *ctrl_base = brcm_sata_ctrl_base(port);
+ 	struct device *dev = port->phy_priv->dev;
+ 
+@@ -421,24 +409,24 @@ static int brcm_ns2_sata_init(struct brcm_sata_port *port)
+ 	val |= (0x4 << OOB_CTRL1_BURST_MIN_SHIFT);
+ 	val |= (0x9 << OOB_CTRL1_WAKE_IDLE_MAX_SHIFT);
+ 	val |= (0x3 << OOB_CTRL1_WAKE_IDLE_MIN_SHIFT);
+-	brcm_sata_phy_wr(base, OOB_REG_BANK, OOB_CTRL1, 0x0, val);
++	brcm_sata_phy_wr(port, OOB_REG_BANK, OOB_CTRL1, 0x0, val);
+ 	val = 0x0;
+ 	val |= (0x1b << OOB_CTRL2_RESET_IDLE_MAX_SHIFT);
+ 	val |= (0x2 << OOB_CTRL2_BURST_CNT_SHIFT);
+ 	val |= (0x9 << OOB_CTRL2_RESET_IDLE_MIN_SHIFT);
+-	brcm_sata_phy_wr(base, OOB_REG_BANK, OOB_CTRL2, 0x0, val);
++	brcm_sata_phy_wr(port, OOB_REG_BANK, OOB_CTRL2, 0x0, val);
+ 
+ 	/* Configure PHY PLL register bank 1 */
+ 	val = NS2_PLL1_ACTRL2_MAGIC;
+-	brcm_sata_phy_wr(base, PLL1_REG_BANK, PLL1_ACTRL2, 0x0, val);
++	brcm_sata_phy_wr(port, PLL1_REG_BANK, PLL1_ACTRL2, 0x0, val);
+ 	val = NS2_PLL1_ACTRL3_MAGIC;
+-	brcm_sata_phy_wr(base, PLL1_REG_BANK, PLL1_ACTRL3, 0x0, val);
++	brcm_sata_phy_wr(port, PLL1_REG_BANK, PLL1_ACTRL3, 0x0, val);
+ 	val = NS2_PLL1_ACTRL4_MAGIC;
+-	brcm_sata_phy_wr(base, PLL1_REG_BANK, PLL1_ACTRL4, 0x0, val);
++	brcm_sata_phy_wr(port, PLL1_REG_BANK, PLL1_ACTRL4, 0x0, val);
+ 
+ 	/* Configure PHY BLOCK0 register bank */
+ 	/* Set oob_clk_sel to refclk/2 */
+-	brcm_sata_phy_wr(base, BLOCK0_REG_BANK, BLOCK0_SPARE,
++	brcm_sata_phy_wr(port, BLOCK0_REG_BANK, BLOCK0_SPARE,
+ 			 ~BLOCK0_SPARE_OOB_CLK_SEL_MASK,
+ 			 BLOCK0_SPARE_OOB_CLK_SEL_REFBY2);
+ 
+@@ -451,7 +439,7 @@ static int brcm_ns2_sata_init(struct brcm_sata_port *port)
+ 	/* Wait for PHY PLL lock by polling pll_lock bit */
+ 	try = 50;
+ 	while (try) {
+-		val = brcm_sata_phy_rd(base, BLOCK0_REG_BANK,
++		val = brcm_sata_phy_rd(port, BLOCK0_REG_BANK,
+ 					BLOCK0_XGXSSTATUS);
+ 		if (val & BLOCK0_XGXSSTATUS_PLL_LOCK)
+ 			break;
+@@ -471,9 +459,7 @@ static int brcm_ns2_sata_init(struct brcm_sata_port *port)
+ 
+ static int brcm_nsp_sata_init(struct brcm_sata_port *port)
+ {
+-	struct brcm_sata_phy *priv = port->phy_priv;
+ 	struct device *dev = port->phy_priv->dev;
+-	void __iomem *base = priv->phy_base;
+ 	unsigned int oob_bank;
+ 	unsigned int val, try;
+ 
+@@ -490,36 +476,36 @@ static int brcm_nsp_sata_init(struct brcm_sata_port *port)
+ 	val |= (0x06 << OOB_CTRL1_BURST_MIN_SHIFT);
+ 	val |= (0x0f << OOB_CTRL1_WAKE_IDLE_MAX_SHIFT);
+ 	val |= (0x06 << OOB_CTRL1_WAKE_IDLE_MIN_SHIFT);
+-	brcm_sata_phy_wr(base, oob_bank, OOB_CTRL1, 0x0, val);
++	brcm_sata_phy_wr(port, oob_bank, OOB_CTRL1, 0x0, val);
+ 
+ 	val = 0x0;
+ 	val |= (0x2e << OOB_CTRL2_RESET_IDLE_MAX_SHIFT);
+ 	val |= (0x02 << OOB_CTRL2_BURST_CNT_SHIFT);
+ 	val |= (0x16 << OOB_CTRL2_RESET_IDLE_MIN_SHIFT);
+-	brcm_sata_phy_wr(base, oob_bank, OOB_CTRL2, 0x0, val);
++	brcm_sata_phy_wr(port, oob_bank, OOB_CTRL2, 0x0, val);
+ 
+ 
+-	brcm_sata_phy_wr(base, PLL_REG_BANK_0, PLL_ACTRL2,
++	brcm_sata_phy_wr(port, PLL_REG_BANK_0, PLL_ACTRL2,
+ 		~(PLL_ACTRL2_SELDIV_MASK << PLL_ACTRL2_SELDIV_SHIFT),
+ 		0x0c << PLL_ACTRL2_SELDIV_SHIFT);
+ 
+-	brcm_sata_phy_wr(base, PLL_REG_BANK_0, PLL_CAP_CONTROL,
++	brcm_sata_phy_wr(port, PLL_REG_BANK_0, PLL_CAP_CONTROL,
+ 						0xff0, 0x4f0);
+ 
+ 	val = PLLCONTROL_0_FREQ_DET_RESTART | PLLCONTROL_0_FREQ_MONITOR;
+-	brcm_sata_phy_wr(base, PLL_REG_BANK_0, PLL_REG_BANK_0_PLLCONTROL_0,
++	brcm_sata_phy_wr(port, PLL_REG_BANK_0, PLL_REG_BANK_0_PLLCONTROL_0,
+ 								~val, val);
+ 	val = PLLCONTROL_0_SEQ_START;
+-	brcm_sata_phy_wr(base, PLL_REG_BANK_0, PLL_REG_BANK_0_PLLCONTROL_0,
++	brcm_sata_phy_wr(port, PLL_REG_BANK_0, PLL_REG_BANK_0_PLLCONTROL_0,
+ 								~val, 0);
+ 	mdelay(10);
+-	brcm_sata_phy_wr(base, PLL_REG_BANK_0, PLL_REG_BANK_0_PLLCONTROL_0,
++	brcm_sata_phy_wr(port, PLL_REG_BANK_0, PLL_REG_BANK_0_PLLCONTROL_0,
+ 								~val, val);
+ 
+ 	/* Wait for pll_seq_done bit */
+ 	try = 50;
+ 	while (--try) {
+-		val = brcm_sata_phy_rd(base, BLOCK0_REG_BANK,
++		val = brcm_sata_phy_rd(port, BLOCK0_REG_BANK,
+ 					BLOCK0_XGXSSTATUS);
+ 		if (val & BLOCK0_XGXSSTATUS_PLL_LOCK)
+ 			break;
+@@ -546,27 +532,25 @@ static int brcm_nsp_sata_init(struct brcm_sata_port *port)
+ 
+ static int brcm_sr_sata_init(struct brcm_sata_port *port)
+ {
+-	struct brcm_sata_phy *priv = port->phy_priv;
+ 	struct device *dev = port->phy_priv->dev;
+-	void __iomem *base = priv->phy_base;
+ 	unsigned int val, try;
+ 
+ 	/* Configure PHY PLL register bank 1 */
+ 	val = SR_PLL1_ACTRL2_MAGIC;
+-	brcm_sata_phy_wr(base, PLL1_REG_BANK, PLL1_ACTRL2, 0x0, val);
++	brcm_sata_phy_wr(port, PLL1_REG_BANK, PLL1_ACTRL2, 0x0, val);
+ 	val = SR_PLL1_ACTRL3_MAGIC;
+-	brcm_sata_phy_wr(base, PLL1_REG_BANK, PLL1_ACTRL3, 0x0, val);
++	brcm_sata_phy_wr(port, PLL1_REG_BANK, PLL1_ACTRL3, 0x0, val);
+ 	val = SR_PLL1_ACTRL4_MAGIC;
+-	brcm_sata_phy_wr(base, PLL1_REG_BANK, PLL1_ACTRL4, 0x0, val);
++	brcm_sata_phy_wr(port, PLL1_REG_BANK, PLL1_ACTRL4, 0x0, val);
+ 
+ 	/* Configure PHY PLL register bank 0 */
+ 	val = SR_PLL0_ACTRL6_MAGIC;
+-	brcm_sata_phy_wr(base, PLL_REG_BANK_0, PLL_ACTRL6, 0x0, val);
++	brcm_sata_phy_wr(port, PLL_REG_BANK_0, PLL_ACTRL6, 0x0, val);
+ 
+ 	/* Wait for PHY PLL lock by polling pll_lock bit */
+ 	try = 50;
+ 	do {
+-		val = brcm_sata_phy_rd(base, BLOCK0_REG_BANK,
++		val = brcm_sata_phy_rd(port, BLOCK0_REG_BANK,
+ 					BLOCK0_XGXSSTATUS);
+ 		if (val & BLOCK0_XGXSSTATUS_PLL_LOCK)
+ 			break;
+@@ -581,7 +565,7 @@ static int brcm_sr_sata_init(struct brcm_sata_port *port)
+ 	}
+ 
+ 	/* Invert Tx polarity */
+-	brcm_sata_phy_wr(base, TX_REG_BANK, TX_ACTRL0,
++	brcm_sata_phy_wr(port, TX_REG_BANK, TX_ACTRL0,
+ 			 ~TX_ACTRL0_TXPOL_FLIP, TX_ACTRL0_TXPOL_FLIP);
+ 
+ 	/* Configure OOB control to handle 100MHz reference clock */
+@@ -589,52 +573,51 @@ static int brcm_sr_sata_init(struct brcm_sata_port *port)
+ 		(0x4 << OOB_CTRL1_BURST_MIN_SHIFT) |
+ 		(0x8 << OOB_CTRL1_WAKE_IDLE_MAX_SHIFT) |
+ 		(0x3 << OOB_CTRL1_WAKE_IDLE_MIN_SHIFT));
+-	brcm_sata_phy_wr(base, OOB_REG_BANK, OOB_CTRL1, 0x0, val);
++	brcm_sata_phy_wr(port, OOB_REG_BANK, OOB_CTRL1, 0x0, val);
+ 	val = ((0x1b << OOB_CTRL2_RESET_IDLE_MAX_SHIFT) |
+ 		(0x2 << OOB_CTRL2_BURST_CNT_SHIFT) |
+ 		(0x9 << OOB_CTRL2_RESET_IDLE_MIN_SHIFT));
+-	brcm_sata_phy_wr(base, OOB_REG_BANK, OOB_CTRL2, 0x0, val);
++	brcm_sata_phy_wr(port, OOB_REG_BANK, OOB_CTRL2, 0x0, val);
+ 
+ 	return 0;
+ }
+ 
+ static int brcm_dsl_sata_init(struct brcm_sata_port *port)
+ {
+-	void __iomem *base = brcm_sata_pcb_base(port);
+ 	struct device *dev = port->phy_priv->dev;
+ 	unsigned int try;
+ 	u32 tmp;
+ 
+-	brcm_sata_phy_wr(base, PLL1_REG_BANK, PLL1_ACTRL7, 0, 0x873);
++	brcm_sata_phy_wr(port, PLL1_REG_BANK, PLL1_ACTRL7, 0, 0x873);
+ 
+-	brcm_sata_phy_wr(base, PLL1_REG_BANK, PLL1_ACTRL6, 0, 0xc000);
++	brcm_sata_phy_wr(port, PLL1_REG_BANK, PLL1_ACTRL6, 0, 0xc000);
+ 
+-	brcm_sata_phy_wr(base, PLL_REG_BANK_0, PLL_REG_BANK_0_PLLCONTROL_0,
++	brcm_sata_phy_wr(port, PLL_REG_BANK_0, PLL_REG_BANK_0_PLLCONTROL_0,
+ 			 0, 0x3089);
+ 	usleep_range(1000, 2000);
+ 
+-	brcm_sata_phy_wr(base, PLL_REG_BANK_0, PLL_REG_BANK_0_PLLCONTROL_0,
++	brcm_sata_phy_wr(port, PLL_REG_BANK_0, PLL_REG_BANK_0_PLLCONTROL_0,
+ 			 0, 0x3088);
+ 	usleep_range(1000, 2000);
+ 
+-	brcm_sata_phy_wr(base, AEQRX_REG_BANK_1, AEQRX_SLCAL0_CTRL0,
++	brcm_sata_phy_wr(port, AEQRX_REG_BANK_1, AEQRX_SLCAL0_CTRL0,
+ 			 0, 0x3000);
+ 
+-	brcm_sata_phy_wr(base, AEQRX_REG_BANK_1, AEQRX_SLCAL1_CTRL0,
++	brcm_sata_phy_wr(port, AEQRX_REG_BANK_1, AEQRX_SLCAL1_CTRL0,
+ 			 0, 0x3000);
+ 	usleep_range(1000, 2000);
+ 
+-	brcm_sata_phy_wr(base, PLL_REG_BANK_0, PLL_CAP_CHARGE_TIME, 0, 0x32);
++	brcm_sata_phy_wr(port, PLL_REG_BANK_0, PLL_CAP_CHARGE_TIME, 0, 0x32);
+ 
+-	brcm_sata_phy_wr(base, PLL_REG_BANK_0, PLL_VCO_CAL_THRESH, 0, 0xa);
++	brcm_sata_phy_wr(port, PLL_REG_BANK_0, PLL_VCO_CAL_THRESH, 0, 0xa);
+ 
+-	brcm_sata_phy_wr(base, PLL_REG_BANK_0, PLL_FREQ_DET_TIME, 0, 0x64);
++	brcm_sata_phy_wr(port, PLL_REG_BANK_0, PLL_FREQ_DET_TIME, 0, 0x64);
+ 	usleep_range(1000, 2000);
+ 
+ 	/* Acquire PLL lock */
+ 	try = 50;
+ 	while (try) {
+-		tmp = brcm_sata_phy_rd(base, BLOCK0_REG_BANK,
++		tmp = brcm_sata_phy_rd(port, BLOCK0_REG_BANK,
+ 				       BLOCK0_XGXSSTATUS);
+ 		if (tmp & BLOCK0_XGXSSTATUS_PLL_LOCK)
+ 			break;
+@@ -687,10 +670,9 @@ static int brcm_sata_phy_init(struct phy *phy)
+ 
+ static void brcm_stb_sata_calibrate(struct brcm_sata_port *port)
+ {
+-	void __iomem *base = brcm_sata_pcb_base(port);
+ 	u32 tmp = BIT(8);
+ 
+-	brcm_sata_phy_wr(base, RXPMD_REG_BANK, RXPMD_RX_FREQ_MON_CONTROL1,
++	brcm_sata_phy_wr(port, RXPMD_REG_BANK, RXPMD_RX_FREQ_MON_CONTROL1,
+ 			 ~tmp, tmp);
+ }
+ 
 
