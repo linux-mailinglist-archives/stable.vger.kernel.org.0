@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2801817FDEA
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:31:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D08A317FEBA
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:37:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727527AbgCJMuE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 08:50:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54550 "EHLO mail.kernel.org"
+        id S1726569AbgCJMk4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 08:40:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39978 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727080AbgCJMuC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 08:50:02 -0400
+        id S1726546AbgCJMkz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 08:40:55 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5AE2D2468E;
-        Tue, 10 Mar 2020 12:50:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B27CD24686;
+        Tue, 10 Mar 2020 12:40:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583844601;
-        bh=nRO455Vq+s6RfjtfOB2yl+aWuz2EYmxn6affqv+/Knc=;
+        s=default; t=1583844054;
+        bh=Vb2UgYu0Ir6IG1p3YKoPDtZyl4TlgfSjETolv+Zmf04=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cteE66bItAdn0azoPg+6li25dgMk/GSeycF/OldywR+WB7oV9MwxWu7f3kjhX4VRh
-         Es8ZybLg6Ay/fxd7Y3MdqOzCdyxqlEvQgUdjSZUnvcjq1GaBarYKupqo8oZ88zvhBB
-         bi6eMfeQIXFr0Inin4YYeGDrfuccLw+9A3zhJw1A=
+        b=HQaKLhjuYMT/yncRKpfICexS1YiJyJ+5T0S/g1QfEoJgSeZn10KZ+e36AP3jBipkU
+         0jkhs8jqbPkQIh5YkTBEfMx4xuGg9peoMArKXGooyxJZ3n4vJGLkQeSPX/IXIGbsjw
+         tN+csfixQvYo/W6pGNZzx3eq50pAd6leaXznj1Ac=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guo Ren <guoren@linux.alibaba.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 051/168] csky: Set regs->usp to kernel sp, when the exception is from kernel
+        stable@vger.kernel.org, Suraj Jitindar Singh <surajjs@amazon.com>,
+        Theodore Tso <tytso@mit.edu>, Balbir Singh <sblbir@amazon.com>,
+        stable@kernel.org, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 04/72] ext4: fix potential race between s_group_info online resizing and access
 Date:   Tue, 10 Mar 2020 13:38:17 +0100
-Message-Id: <20200310123640.523177260@linuxfoundation.org>
+Message-Id: <20200310123602.554457819@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200310123635.322799692@linuxfoundation.org>
-References: <20200310123635.322799692@linuxfoundation.org>
+In-Reply-To: <20200310123601.053680753@linuxfoundation.org>
+References: <20200310123601.053680753@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,153 +44,184 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guo Ren <guoren@linux.alibaba.com>
+From: Suraj Jitindar Singh <surajjs@amazon.com>
 
-[ Upstream commit f8e17c17b81070f38062dce79ca7f4541851dadd ]
+[ Upstream commit df3da4ea5a0fc5d115c90d5aa6caa4dd433750a7 ]
 
-In the past, we didn't care about kernel sp when saving pt_reg. But in some
-cases, we still need pt_reg->usp to represent the kernel stack before enter
-exception.
+During an online resize an array of pointers to s_group_info gets replaced
+so it can get enlarged. If there is a concurrent access to the array in
+ext4_get_group_info() and this memory has been reused then this can lead to
+an invalid memory access.
 
-For cmpxhg in atomic.S, we need save and restore usp for above.
-
-Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=206443
+Link: https://lore.kernel.org/r/20200221053458.730016-3-tytso@mit.edu
+Signed-off-by: Suraj Jitindar Singh <surajjs@amazon.com>
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Reviewed-by: Balbir Singh <sblbir@amazon.com>
+Cc: stable@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/csky/abiv1/inc/abi/entry.h | 19 ++++++++++++++-----
- arch/csky/abiv2/inc/abi/entry.h | 11 +++++++++++
- arch/csky/kernel/atomic.S       |  8 ++++++--
- 3 files changed, 31 insertions(+), 7 deletions(-)
+ fs/ext4/ext4.h    |  8 ++++----
+ fs/ext4/mballoc.c | 52 +++++++++++++++++++++++++++++++----------------
+ 2 files changed, 39 insertions(+), 21 deletions(-)
 
-diff --git a/arch/csky/abiv1/inc/abi/entry.h b/arch/csky/abiv1/inc/abi/entry.h
-index 7ab78bd0f3b13..f35a9f3315ee6 100644
---- a/arch/csky/abiv1/inc/abi/entry.h
-+++ b/arch/csky/abiv1/inc/abi/entry.h
-@@ -16,14 +16,16 @@
- #define LSAVE_A4	40
- #define LSAVE_A5	44
+diff --git a/fs/ext4/ext4.h b/fs/ext4/ext4.h
+index e1f2d0499080e..ab0f08c89d5f1 100644
+--- a/fs/ext4/ext4.h
++++ b/fs/ext4/ext4.h
+@@ -1363,7 +1363,7 @@ struct ext4_sb_info {
+ #endif
  
-+#define usp ss1
+ 	/* for buddy allocator */
+-	struct ext4_group_info ***s_group_info;
++	struct ext4_group_info ** __rcu *s_group_info;
+ 	struct inode *s_buddy_cache;
+ 	spinlock_t s_md_lock;
+ 	unsigned short *s_mb_offsets;
+@@ -2813,13 +2813,13 @@ static inline
+ struct ext4_group_info *ext4_get_group_info(struct super_block *sb,
+ 					    ext4_group_t group)
+ {
+-	 struct ext4_group_info ***grp_info;
++	 struct ext4_group_info **grp_info;
+ 	 long indexv, indexh;
+ 	 BUG_ON(group >= EXT4_SB(sb)->s_groups_count);
+-	 grp_info = EXT4_SB(sb)->s_group_info;
+ 	 indexv = group >> (EXT4_DESC_PER_BLOCK_BITS(sb));
+ 	 indexh = group & ((EXT4_DESC_PER_BLOCK(sb)) - 1);
+-	 return grp_info[indexv][indexh];
++	 grp_info = sbi_array_rcu_deref(EXT4_SB(sb), s_group_info, indexv);
++	 return grp_info[indexh];
+ }
+ 
+ /*
+diff --git a/fs/ext4/mballoc.c b/fs/ext4/mballoc.c
+index e15a5c5ddc096..fda49f4c5a8eb 100644
+--- a/fs/ext4/mballoc.c
++++ b/fs/ext4/mballoc.c
+@@ -2378,7 +2378,7 @@ int ext4_mb_alloc_groupinfo(struct super_block *sb, ext4_group_t ngroups)
+ {
+ 	struct ext4_sb_info *sbi = EXT4_SB(sb);
+ 	unsigned size;
+-	struct ext4_group_info ***new_groupinfo;
++	struct ext4_group_info ***old_groupinfo, ***new_groupinfo;
+ 
+ 	size = (ngroups + EXT4_DESC_PER_BLOCK(sb) - 1) >>
+ 		EXT4_DESC_PER_BLOCK_BITS(sb);
+@@ -2391,13 +2391,16 @@ int ext4_mb_alloc_groupinfo(struct super_block *sb, ext4_group_t ngroups)
+ 		ext4_msg(sb, KERN_ERR, "can't allocate buddy meta group");
+ 		return -ENOMEM;
+ 	}
+-	if (sbi->s_group_info) {
+-		memcpy(new_groupinfo, sbi->s_group_info,
++	rcu_read_lock();
++	old_groupinfo = rcu_dereference(sbi->s_group_info);
++	if (old_groupinfo)
++		memcpy(new_groupinfo, old_groupinfo,
+ 		       sbi->s_group_info_size * sizeof(*sbi->s_group_info));
+-		kvfree(sbi->s_group_info);
+-	}
+-	sbi->s_group_info = new_groupinfo;
++	rcu_read_unlock();
++	rcu_assign_pointer(sbi->s_group_info, new_groupinfo);
+ 	sbi->s_group_info_size = size / sizeof(*sbi->s_group_info);
++	if (old_groupinfo)
++		ext4_kvfree_array_rcu(old_groupinfo);
+ 	ext4_debug("allocated s_groupinfo array for %d meta_bg's\n", 
+ 		   sbi->s_group_info_size);
+ 	return 0;
+@@ -2409,6 +2412,7 @@ int ext4_mb_add_groupinfo(struct super_block *sb, ext4_group_t group,
+ {
+ 	int i;
+ 	int metalen = 0;
++	int idx = group >> EXT4_DESC_PER_BLOCK_BITS(sb);
+ 	struct ext4_sb_info *sbi = EXT4_SB(sb);
+ 	struct ext4_group_info **meta_group_info;
+ 	struct kmem_cache *cachep = get_groupinfo_cache(sb->s_blocksize_bits);
+@@ -2427,12 +2431,12 @@ int ext4_mb_add_groupinfo(struct super_block *sb, ext4_group_t group,
+ 				 "for a buddy group");
+ 			goto exit_meta_group_info;
+ 		}
+-		sbi->s_group_info[group >> EXT4_DESC_PER_BLOCK_BITS(sb)] =
+-			meta_group_info;
++		rcu_read_lock();
++		rcu_dereference(sbi->s_group_info)[idx] = meta_group_info;
++		rcu_read_unlock();
+ 	}
+ 
+-	meta_group_info =
+-		sbi->s_group_info[group >> EXT4_DESC_PER_BLOCK_BITS(sb)];
++	meta_group_info = sbi_array_rcu_deref(sbi, s_group_info, idx);
+ 	i = group & (EXT4_DESC_PER_BLOCK(sb) - 1);
+ 
+ 	meta_group_info[i] = kmem_cache_zalloc(cachep, GFP_NOFS);
+@@ -2480,8 +2484,13 @@ int ext4_mb_add_groupinfo(struct super_block *sb, ext4_group_t group,
+ exit_group_info:
+ 	/* If a meta_group_info table has been allocated, release it now */
+ 	if (group % EXT4_DESC_PER_BLOCK(sb) == 0) {
+-		kfree(sbi->s_group_info[group >> EXT4_DESC_PER_BLOCK_BITS(sb)]);
+-		sbi->s_group_info[group >> EXT4_DESC_PER_BLOCK_BITS(sb)] = NULL;
++		struct ext4_group_info ***group_info;
 +
- .macro USPTOKSP
--	mtcr	sp, ss1
-+	mtcr	sp, usp
- 	mfcr	sp, ss0
- .endm
++		rcu_read_lock();
++		group_info = rcu_dereference(sbi->s_group_info);
++		kfree(group_info[idx]);
++		group_info[idx] = NULL;
++		rcu_read_unlock();
+ 	}
+ exit_meta_group_info:
+ 	return -ENOMEM;
+@@ -2494,6 +2503,7 @@ static int ext4_mb_init_backend(struct super_block *sb)
+ 	struct ext4_sb_info *sbi = EXT4_SB(sb);
+ 	int err;
+ 	struct ext4_group_desc *desc;
++	struct ext4_group_info ***group_info;
+ 	struct kmem_cache *cachep;
  
- .macro KSPTOUSP
- 	mtcr	sp, ss0
--	mfcr	sp, ss1
-+	mfcr	sp, usp
- .endm
+ 	err = ext4_mb_alloc_groupinfo(sb, ngroups);
+@@ -2528,11 +2538,16 @@ err_freebuddy:
+ 	while (i-- > 0)
+ 		kmem_cache_free(cachep, ext4_get_group_info(sb, i));
+ 	i = sbi->s_group_info_size;
++	rcu_read_lock();
++	group_info = rcu_dereference(sbi->s_group_info);
+ 	while (i-- > 0)
+-		kfree(sbi->s_group_info[i]);
++		kfree(group_info[i]);
++	rcu_read_unlock();
+ 	iput(sbi->s_buddy_cache);
+ err_freesgi:
+-	kvfree(sbi->s_group_info);
++	rcu_read_lock();
++	kvfree(rcu_dereference(sbi->s_group_info));
++	rcu_read_unlock();
+ 	return -ENOMEM;
+ }
  
- .macro	SAVE_ALL epc_inc
-@@ -45,7 +47,13 @@
- 	add	lr, r13
- 	stw     lr, (sp, 8)
+@@ -2720,7 +2735,7 @@ int ext4_mb_release(struct super_block *sb)
+ 	ext4_group_t ngroups = ext4_get_groups_count(sb);
+ 	ext4_group_t i;
+ 	int num_meta_group_infos;
+-	struct ext4_group_info *grinfo;
++	struct ext4_group_info *grinfo, ***group_info;
+ 	struct ext4_sb_info *sbi = EXT4_SB(sb);
+ 	struct kmem_cache *cachep = get_groupinfo_cache(sb->s_blocksize_bits);
  
-+	mov	lr, sp
-+	addi	lr, 32
-+	addi	lr, 32
-+	addi	lr, 16
-+	bt	2f
- 	mfcr	lr, ss1
-+2:
- 	stw     lr, (sp, 16)
- 
- 	stw     a0, (sp, 20)
-@@ -79,9 +87,10 @@
- 	ldw     a0, (sp, 12)
- 	mtcr    a0, epsr
- 	btsti   a0, 31
-+	bt      1f
- 	ldw     a0, (sp, 16)
- 	mtcr	a0, ss1
--
-+1:
- 	ldw     a0, (sp, 24)
- 	ldw     a1, (sp, 28)
- 	ldw     a2, (sp, 32)
-@@ -102,9 +111,9 @@
- 	addi	sp, 32
- 	addi	sp, 8
- 
--	bt      1f
-+	bt      2f
- 	KSPTOUSP
--1:
-+2:
- 	rte
- .endm
- 
-diff --git a/arch/csky/abiv2/inc/abi/entry.h b/arch/csky/abiv2/inc/abi/entry.h
-index 9897a16b45e5d..94a7a58765dff 100644
---- a/arch/csky/abiv2/inc/abi/entry.h
-+++ b/arch/csky/abiv2/inc/abi/entry.h
-@@ -31,7 +31,13 @@
- 
- 	mfcr	lr, epsr
- 	stw	lr, (sp, 12)
-+	btsti   lr, 31
-+	bf      1f
-+	addi    lr, sp, 152
-+	br	2f
-+1:
- 	mfcr	lr, usp
-+2:
- 	stw	lr, (sp, 16)
- 
- 	stw     a0, (sp, 20)
-@@ -64,8 +70,10 @@
- 	mtcr	a0, epc
- 	ldw	a0, (sp, 12)
- 	mtcr	a0, epsr
-+	btsti   a0, 31
- 	ldw	a0, (sp, 16)
- 	mtcr	a0, usp
-+	mtcr	a0, ss0
- 
- #ifdef CONFIG_CPU_HAS_HILO
- 	ldw	a0, (sp, 140)
-@@ -86,6 +94,9 @@
- 	addi    sp, 40
- 	ldm     r16-r30, (sp)
- 	addi    sp, 72
-+	bf	1f
-+	mfcr	sp, ss0
-+1:
- 	rte
- .endm
- 
-diff --git a/arch/csky/kernel/atomic.S b/arch/csky/kernel/atomic.S
-index 5b84f11485aeb..3821ef9b75672 100644
---- a/arch/csky/kernel/atomic.S
-+++ b/arch/csky/kernel/atomic.S
-@@ -17,10 +17,12 @@ ENTRY(csky_cmpxchg)
- 	mfcr	a3, epc
- 	addi	a3, TRAP0_SIZE
- 
--	subi    sp, 8
-+	subi    sp, 16
- 	stw     a3, (sp, 0)
- 	mfcr    a3, epsr
- 	stw     a3, (sp, 4)
-+	mfcr	a3, usp
-+	stw     a3, (sp, 8)
- 
- 	psrset	ee
- #ifdef CONFIG_CPU_HAS_LDSTEX
-@@ -47,7 +49,9 @@ ENTRY(csky_cmpxchg)
- 	mtcr	a3, epc
- 	ldw     a3, (sp, 4)
- 	mtcr	a3, epsr
--	addi	sp, 8
-+	ldw     a3, (sp, 8)
-+	mtcr	a3, usp
-+	addi	sp, 16
- 	KSPTOUSP
- 	rte
- END(csky_cmpxchg)
+@@ -2738,9 +2753,12 @@ int ext4_mb_release(struct super_block *sb)
+ 		num_meta_group_infos = (ngroups +
+ 				EXT4_DESC_PER_BLOCK(sb) - 1) >>
+ 			EXT4_DESC_PER_BLOCK_BITS(sb);
++		rcu_read_lock();
++		group_info = rcu_dereference(sbi->s_group_info);
+ 		for (i = 0; i < num_meta_group_infos; i++)
+-			kfree(sbi->s_group_info[i]);
+-		kvfree(sbi->s_group_info);
++			kfree(group_info[i]);
++		kvfree(group_info);
++		rcu_read_unlock();
+ 	}
+ 	kfree(sbi->s_mb_offsets);
+ 	kfree(sbi->s_mb_maxs);
 -- 
 2.20.1
 
