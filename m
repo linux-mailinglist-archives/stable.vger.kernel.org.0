@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B647917F848
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 13:47:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 76E3F17F7F8
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 13:43:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728037AbgCJMqf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 08:46:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49884 "EHLO mail.kernel.org"
+        id S1726382AbgCJMnx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 08:43:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44284 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728034AbgCJMqf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 08:46:35 -0400
+        id S1727653AbgCJMnu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 08:43:50 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 72B7D2468D;
-        Tue, 10 Mar 2020 12:46:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 96F7924691;
+        Tue, 10 Mar 2020 12:43:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583844394;
-        bh=oBMNqUX4ZPWgo8M0jSF0Wt24UTeI5DRNxLRhMkgAc7g=;
+        s=default; t=1583844230;
+        bh=UME+zBzZ4+DeYzvAR9NRjH5T7ejvAFqHIy4ks/HWLbs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jv4/Q7zoK56bymmosJv8GIzFKxSFChQIFc90gvkRgDSet9DHbEcVgWeHjwV9mM37t
-         3q4AD4kD6OR5bvAeXpzeO8Muxn/CadZcEOWT0RCm5FQaJYG1d1y8CGlGHK0igJvkq9
-         NeTxUsBO0N+7SrQfFvE717aVQD3cQinf7gGvxHmY=
+        b=pR2wfJQLiN9QG3rZFypGl7Q1a9rZSA1LcdppfriFFIp2ZL3kES4SY+j+knndh3zvo
+         R1VdaYKkzUBVqNE7DZnkzV0G6sG845y3POcZFmu5cAV2OPudtI8LkIW6VLPXIzBGrU
+         6T1nr1mhioT3B/Y9wEgubOJnuqXngcl405YnwKr8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jim Lin <jilin@nvidia.com>,
-        Alan Stern <stern@rowland.harvard.edu>
-Subject: [PATCH 4.9 64/88] usb: storage: Add quirk for Samsung Fit flash
-Date:   Tue, 10 Mar 2020 13:39:12 +0100
-Message-Id: <20200310123622.282782455@linuxfoundation.org>
+        stable@vger.kernel.org, Dmitry Osipenko <digetx@gmail.com>,
+        Jon Hunter <jonathanh@nvidia.com>,
+        Vinod Koul <vkoul@kernel.org>
+Subject: [PATCH 4.4 60/72] dmaengine: tegra-apb: Fix use-after-free
+Date:   Tue, 10 Mar 2020 13:39:13 +0100
+Message-Id: <20200310123616.202833278@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200310123606.543939933@linuxfoundation.org>
-References: <20200310123606.543939933@linuxfoundation.org>
+In-Reply-To: <20200310123601.053680753@linuxfoundation.org>
+References: <20200310123601.053680753@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,45 +44,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jim Lin <jilin@nvidia.com>
+From: Dmitry Osipenko <digetx@gmail.com>
 
-commit 86d92f5465958752481269348d474414dccb1552 upstream.
+commit 94788af4ed039476ff3527b0e6a12c1dc42cb022 upstream.
 
-Current driver has 240 (USB2.0) and 2048 (USB3.0) as max_sectors,
-e.g., /sys/bus/scsi/devices/0:0:0:0/max_sectors
+I was doing some experiments with I2C and noticed that Tegra APB DMA
+driver crashes sometime after I2C DMA transfer termination. The crash
+happens because tegra_dma_terminate_all() bails out immediately if pending
+list is empty, and thus, it doesn't release the half-completed descriptors
+which are getting re-used before ISR tasklet kicks-in.
 
-If data access times out, driver error handling will issue a port
-reset.
-Sometimes Samsung Fit (090C:1000) flash disk will not respond to
-later Set Address or Get Descriptor command.
+ tegra-i2c 7000c400.i2c: DMA transfer timeout
+ elants_i2c 0-0010: elants_i2c_irq: failed to read data: -110
+ ------------[ cut here ]------------
+ WARNING: CPU: 0 PID: 142 at lib/list_debug.c:45 __list_del_entry_valid+0x45/0xac
+ list_del corruption, ddbaac44->next is LIST_POISON1 (00000100)
+ Modules linked in:
+ CPU: 0 PID: 142 Comm: kworker/0:2 Not tainted 5.5.0-rc2-next-20191220-00175-gc3605715758d-dirty #538
+ Hardware name: NVIDIA Tegra SoC (Flattened Device Tree)
+ Workqueue: events_freezable_power_ thermal_zone_device_check
+ [<c010e5c5>] (unwind_backtrace) from [<c010a1c5>] (show_stack+0x11/0x14)
+ [<c010a1c5>] (show_stack) from [<c0973925>] (dump_stack+0x85/0x94)
+ [<c0973925>] (dump_stack) from [<c011f529>] (__warn+0xc1/0xc4)
+ [<c011f529>] (__warn) from [<c011f7e9>] (warn_slowpath_fmt+0x61/0x78)
+ [<c011f7e9>] (warn_slowpath_fmt) from [<c042497d>] (__list_del_entry_valid+0x45/0xac)
+ [<c042497d>] (__list_del_entry_valid) from [<c047a87f>] (tegra_dma_tasklet+0x5b/0x154)
+ [<c047a87f>] (tegra_dma_tasklet) from [<c0124799>] (tasklet_action_common.constprop.0+0x41/0x7c)
+ [<c0124799>] (tasklet_action_common.constprop.0) from [<c01022ab>] (__do_softirq+0xd3/0x2a8)
+ [<c01022ab>] (__do_softirq) from [<c0124683>] (irq_exit+0x7b/0x98)
+ [<c0124683>] (irq_exit) from [<c0168c19>] (__handle_domain_irq+0x45/0x80)
+ [<c0168c19>] (__handle_domain_irq) from [<c043e429>] (gic_handle_irq+0x45/0x7c)
+ [<c043e429>] (gic_handle_irq) from [<c0101aa5>] (__irq_svc+0x65/0x94)
+ Exception stack(0xde2ebb90 to 0xde2ebbd8)
 
-Adding this quirk to limit max_sectors to 64 sectors to avoid issue
-occurring.
-
-Signed-off-by: Jim Lin <jilin@nvidia.com>
-Acked-by: Alan Stern <stern@rowland.harvard.edu>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/1583158895-31342-1-git-send-email-jilin@nvidia.com
+Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
+Acked-by: Jon Hunter <jonathanh@nvidia.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200209163356.6439-2-digetx@gmail.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/storage/unusual_devs.h |    6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/dma/tegra20-apb-dma.c |    4 ----
+ 1 file changed, 4 deletions(-)
 
---- a/drivers/usb/storage/unusual_devs.h
-+++ b/drivers/usb/storage/unusual_devs.h
-@@ -1277,6 +1277,12 @@ UNUSUAL_DEV( 0x090a, 0x1200, 0x0000, 0x9
- 		USB_SC_RBC, USB_PR_BULK, NULL,
- 		0 ),
+--- a/drivers/dma/tegra20-apb-dma.c
++++ b/drivers/dma/tegra20-apb-dma.c
+@@ -754,10 +754,6 @@ static int tegra_dma_terminate_all(struc
+ 	bool was_busy;
  
-+UNUSUAL_DEV(0x090c, 0x1000, 0x1100, 0x1100,
-+		"Samsung",
-+		"Flash Drive FIT",
-+		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
-+		US_FL_MAX_SECTORS_64),
-+
- /* aeb */
- UNUSUAL_DEV( 0x090c, 0x1132, 0x0000, 0xffff,
- 		"Feiya",
+ 	spin_lock_irqsave(&tdc->lock, flags);
+-	if (list_empty(&tdc->pending_sg_req)) {
+-		spin_unlock_irqrestore(&tdc->lock, flags);
+-		return 0;
+-	}
+ 
+ 	if (!tdc->busy)
+ 		goto skip_dma_stop;
 
 
