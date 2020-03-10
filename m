@@ -2,80 +2,104 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B03917FFA4
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:58:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5DB8317FFD1
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 15:09:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726316AbgCJN6H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 09:58:07 -0400
-Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:39517 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726551AbgCJN6H (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Mar 2020 09:58:07 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1583848686;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:in-reply-to:in-reply-to:references:references;
-        bh=gnhQmTAqEc+aNjZCijFVs1ugGLdqmBHMWeVgZresAf8=;
-        b=PH+NFqIgIbBFVu0Bq9OlCNxiEbIL9aH9kR4CUnMDsGlwUKW49jeFyc2YaraXtqlL9J98ge
-        RgOPmCmphsF8xnbAaQ0GF8jYfKXTor2EhYBgWdLlDIfTKq9aQffOv69w5XEx76k1hb/kv4
-        AJFbVdnDk4suGOs7HQdmUYuaRR9oO00=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-189-7s1RjQaHMf-NenxnNaJTLA-1; Tue, 10 Mar 2020 09:58:03 -0400
-X-MC-Unique: 7s1RjQaHMf-NenxnNaJTLA-1
-Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id D13C28010E3;
-        Tue, 10 Mar 2020 13:58:02 +0000 (UTC)
-Received: from jmaloy.com (ovpn-125-109.rdu2.redhat.com [10.10.125.109])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 213818C090;
-        Tue, 10 Mar 2020 13:58:02 +0000 (UTC)
-From:   Jon Maloy <jmaloy@redhat.com>
-To:     jmaloy@redhat.com
-Cc:     Paolo Bonzini <pbonzini@redhat.com>, stable@vger.kernel.org,
-        Oliver Upton <oupton@google.com>
-Subject: [RHEL 8.2 virt PATCH 1/3] KVM: nVMX: Don't emulate instructions in guest mode
-Date:   Tue, 10 Mar 2020 09:57:41 -0400
-Message-Id: <20200310135743.27633-2-jmaloy@redhat.com>
-In-Reply-To: <20200310135743.27633-1-jmaloy@redhat.com>
-References: <20200310135743.27633-1-jmaloy@redhat.com>
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
+        id S1726390AbgCJOJv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 10:09:51 -0400
+Received: from esa1.mentor.iphmx.com ([68.232.129.153]:55077 "EHLO
+        esa1.mentor.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726591AbgCJOJv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Mar 2020 10:09:51 -0400
+X-Greylist: delayed 425 seconds by postgrey-1.27 at vger.kernel.org; Tue, 10 Mar 2020 10:09:50 EDT
+IronPort-SDR: hoPUw97u0bj2P9AnyZMmdxYlxYY+4U4hJufeVn7Bq+PjxzA3Nk5MdglmA2KsSts1pwZbxqCSL6
+ m4oZW07C2Tyk3tUJEV5DbBDwcVmbzSP5V8fRayzphkgeYAhT/BCVhgAU6oXFkQeYs+FqlMcRgW
+ QtpxL73R0P+RQjvqFEiuCQDRze8HirUR14C+V7DnmYi3/fLpcu6STZ3n1JndMc+W7lN0OFReDL
+ GleeJRRpsSXDqmjAkh824icliRlI8IirkeBC0wIUlyG99G8JBYIw2z7ZIzwFJ2bC/ubmcOthx3
+ KxI=
+X-IronPort-AV: E=Sophos;i="5.70,537,1574150400"; 
+   d="scan'208";a="48532895"
+Received: from orw-gwy-01-in.mentorg.com ([192.94.38.165])
+  by esa1.mentor.iphmx.com with ESMTP; 10 Mar 2020 06:02:45 -0800
+IronPort-SDR: sMSfmGLHB1Ma66KK7XLtQuReHF/rwtP0wFzfp3MVExrFPSVAXqT7iNxNjdool8jTh3XBGD3exd
+ IG6y8feok7EJrQNvn4alZIBZUJBK76VAmZOIvb5o/1kj24E6z5/Q6h4ugunajfkSqh+eekkmoi
+ 0vkaMDiOuTZ8S//j/j7WtLLHCE3v21grKse4RTZWCARKHcutyDbTPxfWcX6ViQdO6v/yFv6B+g
+ 5GkK7cCnD2myEnFYynlw/2jOnZTqoGQuaXEBnkFzxywAwfQHRt8sTtGJhZSHBH5TwEwGT9pUWQ
+ RfQ=
+From:   Dragos Tarcatu <dragos_tarcatu@mentor.com>
+To:     <gregkh@linuxfoundation.org>
+CC:     <broonie@kernel.org>, <dragos_tarcatu@mentor.com>,
+        <stable@vger.kernel.org>
+Subject: [PATCH v4.14] ASoC: topology: Fix memleak in soc_tplg_manifest_load()
+Date:   Tue, 10 Mar 2020 16:02:11 +0200
+Message-ID: <20200310140211.25468-1-dragos_tarcatu@mentor.com>
+X-Mailer: git-send-email 2.17.1
+In-Reply-To: <158378610642216@kroah.com>
+References: <158378610642216@kroah.com>
+MIME-Version: 1.0
+Content-Type: text/plain
+X-Originating-IP: [137.202.0.90]
+X-ClientProxiedBy: svr-ies-mbx-06.mgc.mentorg.com (139.181.222.6) To
+ svr-ies-mbx-02.mgc.mentorg.com (139.181.222.2)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paolo Bonzini <pbonzini@redhat.com>
+commit 242c46c023610dbc0213fc8fb6b71eb836bc5d95 upstream.
 
-vmx_check_intercept is not yet fully implemented. To avoid emulating
-instructions disallowed by the L1 hypervisor, refuse to emulate
-instructions by default.
+In case of ABI version mismatch, _manifest needs to be freed as
+it is just a copy of the original topology manifest. However, if
+a driver manifest handler is defined, that would get executed and
+the cleanup is never reached. Fix that by getting the return status
+of manifest() instead of returning directly.
 
-Cc: stable@vger.kernel.org
-[Made commit, added commit msg - Oliver]
-Signed-off-by: Oliver Upton <oupton@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-
-(cherry picked from commit 07721feee46b4b248402133228235318199b05ec)
-Signed-off-by: Jon Maloy <jmaloy@redhat.com>
+Fixes: 583958fa2e52 ("ASoC: topology: Make manifest backward compatible from ABI v4")
+Signed-off-by: Dragos Tarcatu <dragos_tarcatu@mentor.com>
+Link: https://lore.kernel.org/r/20200207185325.22320-3-dragos_tarcatu@mentor.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 ---
- arch/x86/kvm/vmx/vmx.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/soc/soc-topology.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/arch/x86/kvm/vmx/vmx.c b/arch/x86/kvm/vmx/vmx.c
-index f6f98f7895bf..5e9c77c818a7 100644
---- a/arch/x86/kvm/vmx/vmx.c
-+++ b/arch/x86/kvm/vmx/vmx.c
-@@ -7199,7 +7199,7 @@ static int vmx_check_intercept(struct kvm_vcpu *vcpu,
+diff --git a/sound/soc/soc-topology.c b/sound/soc/soc-topology.c
+index 72301bcad3bd..cf04739aed48 100644
+--- a/sound/soc/soc-topology.c
++++ b/sound/soc/soc-topology.c
+@@ -2330,7 +2330,7 @@ static int soc_tplg_manifest_load(struct soc_tplg *tplg,
+ {
+ 	struct snd_soc_tplg_manifest *manifest, *_manifest;
+ 	bool abi_match;
+-	int err;
++	int ret = 0;
+ 
+ 	if (tplg->pass != SOC_TPLG_PASS_MANIFEST)
+ 		return 0;
+@@ -2343,19 +2343,19 @@ static int soc_tplg_manifest_load(struct soc_tplg *tplg,
+ 		_manifest = manifest;
+ 	} else {
+ 		abi_match = false;
+-		err = manifest_new_ver(tplg, manifest, &_manifest);
+-		if (err < 0)
+-			return err;
++		ret = manifest_new_ver(tplg, manifest, &_manifest);
++		if (ret < 0)
++			return ret;
  	}
  
- 	/* TODO: check more intercepts... */
--	return X86EMUL_CONTINUE;
-+	return X86EMUL_UNHANDLEABLE;
+ 	/* pass control to component driver for optional further init */
+ 	if (tplg->comp && tplg->ops && tplg->ops->manifest)
+-		return tplg->ops->manifest(tplg->comp, _manifest);
++		ret = tplg->ops->manifest(tplg->comp, _manifest);
+ 
+ 	if (!abi_match)	/* free the duplicated one */
+ 		kfree(_manifest);
+ 
+-	return 0;
++	return ret;
  }
  
- #ifdef CONFIG_X86_64
+ /* validate header magic, size and type */
 -- 
-2.18.1
+2.17.1
 
