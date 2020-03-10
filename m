@@ -2,80 +2,132 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E902C17F154
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 08:58:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2347617F26B
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 09:56:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726378AbgCJH67 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 03:58:59 -0400
-Received: from us-smtp-2.mimecast.com ([205.139.110.61]:27510 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1725919AbgCJH66 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Mar 2020 03:58:58 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1583827138;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=GvdwdmFoveOmXx6N2YNTgQ9BaySVLSe+YS3FnsZUDO8=;
-        b=iopU8CW8Imqc3cwIMddoKWDDjhH2zFPicMI13WOxfvmLN3MgIMGiXurVQGPyXuyWnAGxLB
-        IXr0tbOx1uRcgU2o3a0VL6BGI7R7OcWU5wfIXTulpHou6uDjj64cZ2cpZQImBXX9B9ESLs
-        7XEwNcqowufMNUjQpFvvNsh2PBKsSEA=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-434-kzrpJ8wVP72Xwfw4JdSvWQ-1; Tue, 10 Mar 2020 03:58:49 -0400
-X-MC-Unique: kzrpJ8wVP72Xwfw4JdSvWQ-1
-Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id ABBBCA0CBF;
-        Tue, 10 Mar 2020 07:58:48 +0000 (UTC)
-Received: from colo-mx.corp.redhat.com (colo-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.20])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id A261060C05;
-        Tue, 10 Mar 2020 07:58:48 +0000 (UTC)
-Received: from zmail17.collab.prod.int.phx2.redhat.com (zmail17.collab.prod.int.phx2.redhat.com [10.5.83.19])
-        by colo-mx.corp.redhat.com (Postfix) with ESMTP id 8B44F18095FF;
-        Tue, 10 Mar 2020 07:58:48 +0000 (UTC)
-Date:   Tue, 10 Mar 2020 03:58:48 -0400 (EDT)
-From:   Jan Stancek <jstancek@redhat.com>
-To:     Ondrej Mosnacek <omosnace@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Cc:     CKI Project <cki-project@redhat.com>,
-        Linux Stable maillist <stable@vger.kernel.org>,
-        Memory Management <mm-qe@redhat.com>,
-        LTP Mailing List <ltp@lists.linux.it>,
-        Ondrej Moris <omoris@redhat.com>,
-        William Gomeringer <wgomeringer@redhat.com>
-Message-ID: <1743314452.221557.1583827128244.JavaMail.zimbra@redhat.com>
-In-Reply-To: <CAFqZXNugDTJ8MQePK1Cyz2TOJiPcPrq3ohmNZngJjaTCq1Y6mQ@mail.gmail.com>
-References: <cki.411617A928.D7E40QQCW6@redhat.com> <20200309215305.GV21491@sasha-vm> <CAFqZXNugDTJ8MQePK1Cyz2TOJiPcPrq3ohmNZngJjaTCq1Y6mQ@mail.gmail.com>
-Subject: =?utf-8?Q?Re:_=E2=9D=8C_PANICKED:_Test_report_for_ker?=
- =?utf-8?Q?nel_5.5.8-c30f33b.cki_(stable-queue)?=
+        id S1726676AbgCJI4Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 04:56:16 -0400
+Received: from youngberry.canonical.com ([91.189.89.112]:57016 "EHLO
+        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726389AbgCJI4P (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Mar 2020 04:56:15 -0400
+Received: from ip5f5bf7ec.dynamic.kabel-deutschland.de ([95.91.247.236] helo=wittgenstein)
+        by youngberry.canonical.com with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        (Exim 4.86_2)
+        (envelope-from <christian.brauner@ubuntu.com>)
+        id 1jBaft-0001ga-GQ; Tue, 10 Mar 2020 08:55:41 +0000
+Date:   Tue, 10 Mar 2020 09:55:40 +0100
+From:   Christian Brauner <christian.brauner@ubuntu.com>
+To:     "Eric W. Biederman" <ebiederm@xmission.com>
+Cc:     Bernd Edlinger <bernd.edlinger@hotmail.de>,
+        Kees Cook <keescook@chromium.org>,
+        Jann Horn <jannh@google.com>, Jonathan Corbet <corbet@lwn.net>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Alexey Dobriyan <adobriyan@gmail.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Oleg Nesterov <oleg@redhat.com>,
+        Frederic Weisbecker <frederic@kernel.org>,
+        Andrei Vagin <avagin@gmail.com>,
+        Ingo Molnar <mingo@kernel.org>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Yuyang Du <duyuyang@gmail.com>,
+        David Hildenbrand <david@redhat.com>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Anshuman Khandual <anshuman.khandual@arm.com>,
+        David Howells <dhowells@redhat.com>,
+        James Morris <jamorris@linux.microsoft.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Shakeel Butt <shakeelb@google.com>,
+        Jason Gunthorpe <jgg@ziepe.ca>,
+        Christian Kellner <christian@kellner.me>,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        Aleksa Sarai <cyphar@cyphar.com>,
+        "Dmitry V. Levin" <ldv@altlinux.org>,
+        "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>,
+        "linux-mm@kvack.org" <linux-mm@kvack.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "linux-api@vger.kernel.org" <linux-api@vger.kernel.org>
+Subject: Re: [PATCH v2 3/5] exec: Move cleanup of posix timers on exec out of
+ de_thread
+Message-ID: <20200310085540.pztaty2mj62xt2nm@wittgenstein>
+References: <87r1y8dqqz.fsf@x220.int.ebiederm.org>
+ <AM6PR03MB517053AED7DC89F7C0704B7DE4E50@AM6PR03MB5170.eurprd03.prod.outlook.com>
+ <AM6PR03MB51703B44170EAB4626C9B2CAE4E20@AM6PR03MB5170.eurprd03.prod.outlook.com>
+ <87tv32cxmf.fsf_-_@x220.int.ebiederm.org>
+ <87v9ne5y4y.fsf_-_@x220.int.ebiederm.org>
+ <87eeu25y14.fsf_-_@x220.int.ebiederm.org>
+ <20200309195909.h2lv5uawce5wgryx@wittgenstein>
+ <877dztz415.fsf@x220.int.ebiederm.org>
+ <20200309201729.yk5sd26v4bz4gtou@wittgenstein>
+ <87k13txnig.fsf@x220.int.ebiederm.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.43.17.25, 10.4.195.28]
-Thread-Topic: =?utf-8?Q?=E2=9D=8C_PANICKED=3A?= Test report for kernel 5.5.8-c30f33b.cki (stable-queue)
-Thread-Index: SiOoaWByeX9gaTy7dD3aEMxB2reMOQ==
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
+Content-Disposition: inline
+In-Reply-To: <87k13txnig.fsf@x220.int.ebiederm.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
------ Original Message -----
-> > Following the link above I got to
-> > https://cki-artifacts.s3.us-east-2.amazonaws.com/index.html?prefix=datawarehouse/2020/03/09/480158/audit__audit_testsuite_test/,
-> > but it shows that all tests are passing? The console log looks fine too:
-> > https://cki-artifacts.s3.us-east-2.amazonaws.com/datawarehouse/2020/03/09/480158/x86_64_5_console.log.
-> > Where's the panic?
+On Mon, Mar 09, 2020 at 03:48:55PM -0500, Eric W. Biederman wrote:
+> Christian Brauner <christian.brauner@ubuntu.com> writes:
 > 
-> The panic happened during the LTP test on s390x (note the lightning
-> symbols under s390x, Host 1). The backtrace is at the end of
-> https://cki-artifacts.s3.us-east-2.amazonaws.com/datawarehouse/2020/03/09/480158/s390x_1_console.log
+> > On Mon, Mar 09, 2020 at 03:06:46PM -0500, Eric W. Biederman wrote:
+> >> Christian Brauner <christian.brauner@ubuntu.com> writes:
+> >> 
+> >> > On Sun, Mar 08, 2020 at 04:36:55PM -0500, Eric W. Biederman wrote:
+> >> >> 
+> >> >> These functions have very little to do with de_thread move them out
+> >> >> of de_thread an into flush_old_exec proper so it can be more clearly
+> >> >> seen what flush_old_exec is doing.
+> >> >> 
+> >> >> Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
+> >> >> ---
+> >> >>  fs/exec.c | 10 +++++-----
+> >> >>  1 file changed, 5 insertions(+), 5 deletions(-)
+> >> >> 
+> >> >> diff --git a/fs/exec.c b/fs/exec.c
+> >> >> index ff74b9a74d34..215d86f77b63 100644
+> >> >> --- a/fs/exec.c
+> >> >> +++ b/fs/exec.c
+> >> >> @@ -1189,11 +1189,6 @@ static int de_thread(struct task_struct *tsk)
+> >> >
+> >> > While you're cleaning up de_thread() wouldn't it be good to also take
+> >> > the opportunity and remove the task argument from de_thread(). It's only
+> >> > ever used with current. Could be done in one of your patches or as a
+> >> > separate patch.
+> >> 
+> >> How does that affect the code generation?
+> >
+> > The same way renaming "tsk" to "me" does.
+> >
+> >> 
+> >> My sense is that computing current once in flush_old_exec is much
+> >> better than computing it in each function flush_old_exec calls.
+> >> I remember that computing current used to be not expensive but
+> >> noticable.
+> >> 
+> >> For clarity I can see renaming tsk to me.  So that it is clear we are
+> >> talking about the current process, and not some arbitrary process.
+> >
+> > For clarity since de_thread() uses "tsk" giving the impression that any
+> > task can be dethreaded while it's only ever used with current. It's just
+> > a suggestion since you're doing the rename tsk->me anyway it would fit
+> > with the series. You do whatever you want though.
+> > (I just remember that the same request was made once to changes I did:
+> > Don't pass current as arg when it's the only task passed.)
+> 
+> That's fair.
+> 
+> And I completely agree that we should at least rename tsk to me.
+> Just for clarity.
+> 
+> My apologies if I am a little short.  My little son has been an extra
+> handful lately.
 
-Which looks like same panic reported for last couple days. See:
-  https://lore.kernel.org/stable/976629603.10711789.1583698043547.JavaMail.zimbra@redhat.com/
-  https://lore.kernel.org/lkml/20200224030007.3990-1-cai@lca.pw/
+No worries, stress is a thing most of us know too well.
 
+Christian
