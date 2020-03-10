@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AD50A17F9E4
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:01:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D48717F9E5
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:01:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727231AbgCJNA4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 09:00:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41838 "EHLO mail.kernel.org"
+        id S1730202AbgCJNA6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 09:00:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41922 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727933AbgCJNAz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 09:00:55 -0400
+        id S1728918AbgCJNA5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 09:00:57 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 341332467D;
-        Tue, 10 Mar 2020 13:00:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E2D3024694;
+        Tue, 10 Mar 2020 13:00:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583845254;
-        bh=57BNidfkCgyHGp2V2pvqDx8ODcuDKUnpR4jy10Hregk=;
+        s=default; t=1583845257;
+        bh=uUmpij+9W1OTILI+xOFyBliAfKE59rmj0bsOZV9Bvy8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JsTE/RBnxXYGMUhnyer+W0kCuHgd2aZoIMQU+4Csi0vitOUI2+ghS6jHJPvpNCnuL
-         tNv+XZQ9fmk1AvMtTLlbsbubLefvEAWWqATBnjNRWCN2JiDk0qDQRUX9QBRlHOE+UO
-         LDKFHjyoE/rWaTLZ4GkowOEgjZ6FVNTEoxbmRWmE=
+        b=RhWpApp9s/TjdmaZwTHBwjTqpGBXDcHzUFwmVGUy0a2S65HJmeO2zvwXIKE+0WQSp
+         EIo3GHnB6yNxHiVOw00U1srMYIc/Q3FX+Kh724IYtDgLEcG9Zutyej9znWnx9534pw
+         Xm7/r9/AbU90nlBuYjL0y0UXwLRgWFQzVZ9CZzdk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>,
-        Rafael Aquini <aquini@redhat.com>,
-        Mel Gorman <mgorman@techsingularity.net>,
-        Zi Yan <zi.yan@cs.rutgers.edu>,
+        "Huang, Ying" <ying.huang@intel.com>, Zi Yan <ziy@nvidia.com>,
+        William Kucharski <william.kucharski@oracle.com>,
         "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
         Vlastimil Babka <vbabka@suse.cz>,
-        Michal Hocko <mhocko@suse.com>,
+        Michal Hocko <mhocko@kernel.org>,
+        Andrea Arcangeli <aarcange@redhat.com>,
         Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.5 079/189] mm, numa: fix bad pmd by atomically check for pmd_trans_huge when marking page tables prot_numa
-Date:   Tue, 10 Mar 2020 13:38:36 +0100
-Message-Id: <20200310123647.631445432@linuxfoundation.org>
+Subject: [PATCH 5.5 080/189] mm: fix possible PMD dirty bit lost in set_pmd_migration_entry()
+Date:   Tue, 10 Mar 2020 13:38:37 +0100
+Message-Id: <20200310123647.724793912@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200310123639.608886314@linuxfoundation.org>
 References: <20200310123639.608886314@linuxfoundation.org>
@@ -49,134 +49,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mel Gorman <mgorman@techsingularity.net>
+From: Huang Ying <ying.huang@intel.com>
 
-commit 8b272b3cbbb50a6a8e62d8a15affd473a788e184 upstream.
+commit 8a8683ad9ba48b4b52a57f013513d1635c1ca5c4 upstream.
 
-: A user reported a bug against a distribution kernel while running a
-: proprietary workload described as "memory intensive that is not swapping"
-: that is expected to apply to mainline kernels.  The workload is
-: read/write/modifying ranges of memory and checking the contents.  They
-: reported that within a few hours that a bad PMD would be reported followed
-: by a memory corruption where expected data was all zeros.  A partial
-: report of the bad PMD looked like
-:
-:   [ 5195.338482] ../mm/pgtable-generic.c:33: bad pmd ffff8888157ba008(000002e0396009e2)
-:   [ 5195.341184] ------------[ cut here ]------------
-:   [ 5195.356880] kernel BUG at ../mm/pgtable-generic.c:35!
-:   ....
-:   [ 5195.410033] Call Trace:
-:   [ 5195.410471]  [<ffffffff811bc75d>] change_protection_range+0x7dd/0x930
-:   [ 5195.410716]  [<ffffffff811d4be8>] change_prot_numa+0x18/0x30
-:   [ 5195.410918]  [<ffffffff810adefe>] task_numa_work+0x1fe/0x310
-:   [ 5195.411200]  [<ffffffff81098322>] task_work_run+0x72/0x90
-:   [ 5195.411246]  [<ffffffff81077139>] exit_to_usermode_loop+0x91/0xc2
-:   [ 5195.411494]  [<ffffffff81003a51>] prepare_exit_to_usermode+0x31/0x40
-:   [ 5195.411739]  [<ffffffff815e56af>] retint_user+0x8/0x10
-:
-: Decoding revealed that the PMD was a valid prot_numa PMD and the bad PMD
-: was a false detection.  The bug does not trigger if automatic NUMA
-: balancing or transparent huge pages is disabled.
-:
-: The bug is due a race in change_pmd_range between a pmd_trans_huge and
-: pmd_nond_or_clear_bad check without any locks held.  During the
-: pmd_trans_huge check, a parallel protection update under lock can have
-: cleared the PMD and filled it with a prot_numa entry between the transhuge
-: check and the pmd_none_or_clear_bad check.
-:
-: While this could be fixed with heavy locking, it's only necessary to make
-: a copy of the PMD on the stack during change_pmd_range and avoid races.  A
-: new helper is created for this as the check if quite subtle and the
-: existing similar helpful is not suitable.  This passed 154 hours of
-: testing (usually triggers between 20 minutes and 24 hours) without
-: detecting bad PMDs or corruption.  A basic test of an autonuma-intensive
-: workload showed no significant change in behaviour.
+In set_pmd_migration_entry(), pmdp_invalidate() is used to change PMD
+atomically.  But the PMD is read before that with an ordinary memory
+reading.  If the THP (transparent huge page) is written between the PMD
+reading and pmdp_invalidate(), the PMD dirty bit may be lost, and cause
+data corruption.  The race window is quite small, but still possible in
+theory, so need to be fixed.
 
-Although Mel withdrew the patch on the face of LKML comment
-https://lkml.org/lkml/2017/4/10/922 the race window aforementioned is
-still open, and we have reports of Linpack test reporting bad residuals
-after the bad PMD warning is observed.  In addition to that, bad
-rss-counter and non-zero pgtables assertions are triggered on mm teardown
-for the task hitting the bad PMD.
+The race is fixed via using the return value of pmdp_invalidate() to get
+the original content of PMD, which is a read/modify/write atomic
+operation.  So no THP writing can occur in between.
 
- host kernel: mm/pgtable-generic.c:40: bad pmd 00000000b3152f68(8000000d2d2008e7)
- ....
- host kernel: BUG: Bad rss-counter state mm:00000000b583043d idx:1 val:512
- host kernel: BUG: non-zero pgtables_bytes on freeing mm: 4096
+The race has been introduced when the THP migration support is added in
+the commit 616b8371539a ("mm: thp: enable thp migration in generic path").
+But this fix depends on the commit d52605d7cb30 ("mm: do not lose dirty
+and accessed bits in pmdp_invalidate()").  So it's easy to be backported
+after v4.16.  But the race window is really small, so it may be fine not
+to backport the fix at all.
 
-The issue is observed on a v4.18-based distribution kernel, but the race
-window is expected to be applicable to mainline kernels, as well.
-
-[akpm@linux-foundation.org: fix comment typo, per Rafael]
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Rafael Aquini <aquini@redhat.com>
-Signed-off-by: Mel Gorman <mgorman@techsingularity.net>
+Signed-off-by: "Huang, Ying" <ying.huang@intel.com>
+Reviewed-by: Zi Yan <ziy@nvidia.com>
+Reviewed-by: William Kucharski <william.kucharski@oracle.com>
+Acked-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
 Cc: <stable@vger.kernel.org>
-Cc: Zi Yan <zi.yan@cs.rutgers.edu>
-Cc: "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>
 Cc: Vlastimil Babka <vbabka@suse.cz>
-Cc: Michal Hocko <mhocko@suse.com>
-Link: http://lkml.kernel.org/r/20200216191800.22423-1-aquini@redhat.com
+Cc: Michal Hocko <mhocko@kernel.org>
+Cc: Andrea Arcangeli <aarcange@redhat.com>
+Link: http://lkml.kernel.org/r/20200220075220.2327056-1-ying.huang@intel.com
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- mm/mprotect.c |   38 ++++++++++++++++++++++++++++++++++++--
- 1 file changed, 36 insertions(+), 2 deletions(-)
+ mm/huge_memory.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/mm/mprotect.c
-+++ b/mm/mprotect.c
-@@ -161,6 +161,31 @@ static unsigned long change_pte_range(st
- 	return pages;
- }
+--- a/mm/huge_memory.c
++++ b/mm/huge_memory.c
+@@ -3032,8 +3032,7 @@ void set_pmd_migration_entry(struct page
+ 		return;
  
-+/*
-+ * Used when setting automatic NUMA hinting protection where it is
-+ * critical that a numa hinting PMD is not confused with a bad PMD.
-+ */
-+static inline int pmd_none_or_clear_bad_unless_trans_huge(pmd_t *pmd)
-+{
-+	pmd_t pmdval = pmd_read_atomic(pmd);
-+
-+	/* See pmd_none_or_trans_huge_or_clear_bad for info on barrier */
-+#ifdef CONFIG_TRANSPARENT_HUGEPAGE
-+	barrier();
-+#endif
-+
-+	if (pmd_none(pmdval))
-+		return 1;
-+	if (pmd_trans_huge(pmdval))
-+		return 0;
-+	if (unlikely(pmd_bad(pmdval))) {
-+		pmd_clear_bad(pmd);
-+		return 1;
-+	}
-+
-+	return 0;
-+}
-+
- static inline unsigned long change_pmd_range(struct vm_area_struct *vma,
- 		pud_t *pud, unsigned long addr, unsigned long end,
- 		pgprot_t newprot, int dirty_accountable, int prot_numa)
-@@ -178,8 +203,17 @@ static inline unsigned long change_pmd_r
- 		unsigned long this_pages;
- 
- 		next = pmd_addr_end(addr, end);
--		if (!is_swap_pmd(*pmd) && !pmd_trans_huge(*pmd) && !pmd_devmap(*pmd)
--				&& pmd_none_or_clear_bad(pmd))
-+
-+		/*
-+		 * Automatic NUMA balancing walks the tables with mmap_sem
-+		 * held for read. It's possible a parallel update to occur
-+		 * between pmd_trans_huge() and a pmd_none_or_clear_bad()
-+		 * check leading to a false positive and clearing.
-+		 * Hence, it's necessary to atomically read the PMD value
-+		 * for all the checks.
-+		 */
-+		if (!is_swap_pmd(*pmd) && !pmd_devmap(*pmd) &&
-+		     pmd_none_or_clear_bad_unless_trans_huge(pmd))
- 			goto next;
- 
- 		/* invoke the mmu notifier if the pmd is populated */
+ 	flush_cache_range(vma, address, address + HPAGE_PMD_SIZE);
+-	pmdval = *pvmw->pmd;
+-	pmdp_invalidate(vma, address, pvmw->pmd);
++	pmdval = pmdp_invalidate(vma, address, pvmw->pmd);
+ 	if (pmd_dirty(pmdval))
+ 		set_page_dirty(page);
+ 	entry = make_migration_entry(page, pmd_write(pmdval));
 
 
