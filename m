@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 527B917FD1F
+	by mail.lfdr.de (Postfix) with ESMTP id C81E717FD20
 	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:26:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729215AbgCJM4J (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1728850AbgCJM4J (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 10 Mar 2020 08:56:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35156 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:35266 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729197AbgCJM4E (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 08:56:04 -0400
+        id S1728083AbgCJM4I (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 08:56:08 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EB1522468D;
-        Tue, 10 Mar 2020 12:56:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C0DDF2253D;
+        Tue, 10 Mar 2020 12:56:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583844963;
-        bh=IL3/wicU8vS8fr/u2xEEigJhcMcCof++SwVTStaXe0s=;
+        s=default; t=1583844967;
+        bh=s2g0LRWX6H7MbcPgU/o429p+TqB9XRPEgt3LrYpmpyI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p0UKacuSq0zP7556lgdf2RqjyHZtCMvCQtGGuTPqSqWOralsgzTBmfrnycQ/B9K+H
-         V3WSqZh0e8CbF49bnt47ZhFoVPf9jrTeaFamPma+e42y9207D82Qg6fPl1AyZVBEYr
-         iPmsmO8D5qc01vk6ROmqsdjMkUnNXOU7bE/58Ejw=
+        b=ZcUjbss4suOj89GU53nIISDLUCiXt14IaVN8gfqdDble1GLRA6Pfaku8dXlBpkk84
+         2XSkIrhLFBZuUWv0gshdblQjZTkBrsR87jabqa5++Cxm/mZVaVdEOctcwr++Hg/pe6
+         nd1rzMADFQH227Y7i+i11ROWSNzjE3H2Eqs6SJ6c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Yauheni Kaliuta <yauheni.kaliuta@redhat.com>,
-        Jiri Benc <jbenc@redhat.com>,
-        Shuah Khan <skhan@linuxfoundation.org>,
+        stable@vger.kernel.org, Jack Pham <jackp@codeaurora.org>,
+        Felipe Balbi <balbi@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 015/189] selftests: fix too long argument
-Date:   Tue, 10 Mar 2020 13:37:32 +0100
-Message-Id: <20200310123641.063181436@linuxfoundation.org>
+Subject: [PATCH 5.5 016/189] usb: gadget: composite: Support more than 500mA MaxPower
+Date:   Tue, 10 Mar 2020 13:37:33 +0100
+Message-Id: <20200310123641.157879263@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200310123639.608886314@linuxfoundation.org>
 References: <20200310123639.608886314@linuxfoundation.org>
@@ -46,73 +44,113 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Benc <jbenc@redhat.com>
+From: Jack Pham <jackp@codeaurora.org>
 
-[ Upstream commit c363eb48ada5cf732b3f489fab799fc881097842 ]
+[ Upstream commit a2035411fa1d1206cea7d5dfe833e78481844a76 ]
 
-With some shells, the command construed for install of bpf selftests becomes
-too large due to long list of files:
+USB 3.x SuperSpeed peripherals can draw up to 900mA of VBUS power
+when in configured state. However, if a configuration wanting to
+take advantage of this is added with MaxPower greater than 500
+(currently possible if using a ConfigFS gadget) the composite
+driver fails to accommodate this for a couple reasons:
 
-make[1]: execvp: /bin/sh: Argument list too long
-make[1]: *** [../lib.mk:73: install] Error 127
+ - usb_gadget_vbus_draw() when called from set_config() and
+   composite_resume() will be passed the MaxPower value without
+   regard for the current connection speed, resulting in a
+   violation for USB 2.0 since the max is 500mA.
 
-Currently, each of the file lists is replicated three times in the command:
-in the shell 'if' condition, in the 'echo' and in the 'rsync'. Reduce that
-by one instance by using make conditionals and separate the echo and rsync
-into two shell commands. (One would be inclined to just remove the '@' at
-the beginning of the rsync command and let 'make' echo it by itself;
-unfortunately, it appears that the '@' in the front of mkdir silences output
-also for the following commands.)
+ - the bMaxPower of the configuration descriptor would be
+   incorrectly encoded, again if the connection speed is only
+   at USB 2.0 or below, likely wrapping around U8_MAX since
+   the 2mA multiplier corresponds to a maximum of 510mA.
 
-Also, separate handling of each of the lists to its own shell command.
+Fix these by adding checks against the current gadget->speed
+when the c->MaxPower value is used (set_config() and
+composite_resume()) and appropriately limit based on whether
+it is currently at a low-/full-/high- or super-speed connection.
 
-The semantics of the makefile is unchanged before and after the patch. The
-ability of individual test directories to override INSTALL_RULE is retained.
+Because 900 is not divisible by 8, with the round-up division
+currently used in encode_bMaxPower() a MaxPower of 900mA will
+result in an encoded value of 0x71. When a host stack (including
+Linux and Windows) enumerates this on a single port root hub, it
+reads this value back and decodes (multiplies by 8) to get 904mA
+which is strictly greater than 900mA that is typically budgeted
+for that port, causing it to reject the configuration. Instead,
+we should be using the round-down behavior of normal integral
+division so that 900 / 8 -> 0x70 or 896mA to stay within range.
+And we might as well change it for the high/full/low case as well
+for consistency.
 
-Reported-by: Yauheni Kaliuta <yauheni.kaliuta@redhat.com>
-Tested-by: Yauheni Kaliuta <yauheni.kaliuta@redhat.com>
-Signed-off-by: Jiri Benc <jbenc@redhat.com>
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+N.B. USB 3.2 Gen N x 2 allows for up to 1500mA but there doesn't
+seem to be any any peripheral controller supported by Linux that
+does two lane operation, so for now keeping the clamp at 900
+should be fine.
+
+Signed-off-by: Jack Pham <jackp@codeaurora.org>
+Signed-off-by: Felipe Balbi <balbi@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/lib.mk | 23 +++++++++++++----------
- 1 file changed, 13 insertions(+), 10 deletions(-)
+ drivers/usb/gadget/composite.c | 24 ++++++++++++++++++------
+ 1 file changed, 18 insertions(+), 6 deletions(-)
 
-diff --git a/tools/testing/selftests/lib.mk b/tools/testing/selftests/lib.mk
-index 1c8a1963d03f8..3ed0134a764d4 100644
---- a/tools/testing/selftests/lib.mk
-+++ b/tools/testing/selftests/lib.mk
-@@ -83,17 +83,20 @@ else
- 	$(call RUN_TESTS, $(TEST_GEN_PROGS) $(TEST_CUSTOM_PROGS) $(TEST_PROGS))
- endif
+diff --git a/drivers/usb/gadget/composite.c b/drivers/usb/gadget/composite.c
+index cd303a3ea6802..223f72d4d9edd 100644
+--- a/drivers/usb/gadget/composite.c
++++ b/drivers/usb/gadget/composite.c
+@@ -438,9 +438,13 @@ static u8 encode_bMaxPower(enum usb_device_speed speed,
+ 	if (!val)
+ 		return 0;
+ 	if (speed < USB_SPEED_SUPER)
+-		return DIV_ROUND_UP(val, 2);
++		return min(val, 500U) / 2;
+ 	else
+-		return DIV_ROUND_UP(val, 8);
++		/*
++		 * USB 3.x supports up to 900mA, but since 900 isn't divisible
++		 * by 8 the integral division will effectively cap to 896mA.
++		 */
++		return min(val, 900U) / 8;
+ }
  
-+define INSTALL_SINGLE_RULE
-+	$(if $(INSTALL_LIST),@mkdir -p $(INSTALL_PATH))
-+	$(if $(INSTALL_LIST),@echo rsync -a $(INSTALL_LIST) $(INSTALL_PATH)/)
-+	$(if $(INSTALL_LIST),@rsync -a $(INSTALL_LIST) $(INSTALL_PATH)/)
-+endef
-+
- define INSTALL_RULE
--	@if [ "X$(TEST_PROGS)$(TEST_PROGS_EXTENDED)$(TEST_FILES)" != "X" ]; then					\
--		mkdir -p ${INSTALL_PATH};										\
--		echo "rsync -a $(TEST_PROGS) $(TEST_PROGS_EXTENDED) $(TEST_FILES) $(INSTALL_PATH)/";	\
--		rsync -a $(TEST_PROGS) $(TEST_PROGS_EXTENDED) $(TEST_FILES) $(INSTALL_PATH)/;		\
--	fi
--	@if [ "X$(TEST_GEN_PROGS)$(TEST_CUSTOM_PROGS)$(TEST_GEN_PROGS_EXTENDED)$(TEST_GEN_FILES)" != "X" ]; then					\
--		mkdir -p ${INSTALL_PATH};										\
--		echo "rsync -a $(TEST_GEN_PROGS) $(TEST_CUSTOM_PROGS) $(TEST_GEN_PROGS_EXTENDED) $(TEST_GEN_FILES) $(INSTALL_PATH)/";	\
--		rsync -a $(TEST_GEN_PROGS) $(TEST_CUSTOM_PROGS) $(TEST_GEN_PROGS_EXTENDED) $(TEST_GEN_FILES) $(INSTALL_PATH)/;		\
--	fi
-+	$(eval INSTALL_LIST = $(TEST_PROGS)) $(INSTALL_SINGLE_RULE)
-+	$(eval INSTALL_LIST = $(TEST_PROGS_EXTENDED)) $(INSTALL_SINGLE_RULE)
-+	$(eval INSTALL_LIST = $(TEST_FILES)) $(INSTALL_SINGLE_RULE)
-+	$(eval INSTALL_LIST = $(TEST_GEN_PROGS)) $(INSTALL_SINGLE_RULE)
-+	$(eval INSTALL_LIST = $(TEST_CUSTOM_PROGS)) $(INSTALL_SINGLE_RULE)
-+	$(eval INSTALL_LIST = $(TEST_GEN_PROGS_EXTENDED)) $(INSTALL_SINGLE_RULE)
-+	$(eval INSTALL_LIST = $(TEST_GEN_FILES)) $(INSTALL_SINGLE_RULE)
- endef
+ static int config_buf(struct usb_configuration *config,
+@@ -852,6 +856,10 @@ static int set_config(struct usb_composite_dev *cdev,
  
- install: all
+ 	/* when we return, be sure our power usage is valid */
+ 	power = c->MaxPower ? c->MaxPower : CONFIG_USB_GADGET_VBUS_DRAW;
++	if (gadget->speed < USB_SPEED_SUPER)
++		power = min(power, 500U);
++	else
++		power = min(power, 900U);
+ done:
+ 	usb_gadget_vbus_draw(gadget, power);
+ 	if (result >= 0 && cdev->delayed_status)
+@@ -2278,7 +2286,7 @@ void composite_resume(struct usb_gadget *gadget)
+ {
+ 	struct usb_composite_dev	*cdev = get_gadget_data(gadget);
+ 	struct usb_function		*f;
+-	u16				maxpower;
++	unsigned			maxpower;
+ 
+ 	/* REVISIT:  should we have config level
+ 	 * suspend/resume callbacks?
+@@ -2292,10 +2300,14 @@ void composite_resume(struct usb_gadget *gadget)
+ 				f->resume(f);
+ 		}
+ 
+-		maxpower = cdev->config->MaxPower;
++		maxpower = cdev->config->MaxPower ?
++			cdev->config->MaxPower : CONFIG_USB_GADGET_VBUS_DRAW;
++		if (gadget->speed < USB_SPEED_SUPER)
++			maxpower = min(maxpower, 500U);
++		else
++			maxpower = min(maxpower, 900U);
+ 
+-		usb_gadget_vbus_draw(gadget, maxpower ?
+-			maxpower : CONFIG_USB_GADGET_VBUS_DRAW);
++		usb_gadget_vbus_draw(gadget, maxpower);
+ 	}
+ 
+ 	cdev->suspended = 0;
 -- 
 2.20.1
 
