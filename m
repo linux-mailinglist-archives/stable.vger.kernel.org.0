@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1143017FB83
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:14:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DF0A717FBA0
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:15:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731867AbgCJNO1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 09:14:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38190 "EHLO mail.kernel.org"
+        id S1731938AbgCJNO6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 09:14:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39110 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731876AbgCJNO0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 09:14:26 -0400
+        id S1728182AbgCJNO5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 09:14:57 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 851C32467D;
-        Tue, 10 Mar 2020 13:14:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1E9E724691;
+        Tue, 10 Mar 2020 13:14:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583846066;
-        bh=JS39Wn7Lg3DEMyJEdPgfrdA9deBJWy0Ua3B2Q8wJ/bg=;
+        s=default; t=1583846095;
+        bh=WpjhtepsHcS+tj0gWRcVw2itJKBHW95e/0vrZBov4tM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sdFdL60eeu3yJ13mDpewopLZ9Ys9i9ahcEIWKjP1TyWCUcsYDjctlLPghsyQdQzuW
-         GrLUJBxAVjAUL37h1rA2z5xH+VBAlbTlhp9akX+C0Rc6yRGBAKETwTsQWWDjL8YpNB
-         HUr8g8uXTGm8lEDlkV3V9HqPVZLpDyNxPi0rH3uc=
+        b=WHyGa6rO5f/T+PC9Y4PqAVqdE0c3P0W3DlB/C/82GNs+xFtXDV6tplYc6SnyhlEdI
+         YmdQoO3dtLE/N6zqt+6Wzx4qDf4115R89HLKRJuUeSBb1LleY5z48C8AN3090GTBXI
+         4OJLWK4HBDDuTKedGTl8iGni1BOfE1M8lvt6YaZg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Charles Keepax <ckeepax@opensource.cirrus.com>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 4.19 67/86] ASoC: dapm: Correct DAPM handling of active widgets during shutdown
-Date:   Tue, 10 Mar 2020 13:45:31 +0100
-Message-Id: <20200310124534.399943895@linuxfoundation.org>
+        stable@vger.kernel.org, Maxime Ripard <mripard@kernel.org>,
+        Jernej Skrabec <jernej.skrabec@siol.net>
+Subject: [PATCH 4.19 68/86] drm/sun4i: Fix DE2 VI layer format support
+Date:   Tue, 10 Mar 2020 13:45:32 +0100
+Message-Id: <20200310124534.451678532@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200310124530.808338541@linuxfoundation.org>
 References: <20200310124530.808338541@linuxfoundation.org>
@@ -44,43 +43,168 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Charles Keepax <ckeepax@opensource.cirrus.com>
+From: Jernej Skrabec <jernej.skrabec@siol.net>
 
-commit 9b3193089e77d3b59b045146ff1c770dd899acb1 upstream.
+commit 20896ef137340e9426cf322606f764452f5eb960 upstream.
 
-commit c2caa4da46a4 ("ASoC: Fix widget powerdown on shutdown") added a
-set of the power state during snd_soc_dapm_shutdown to ensure the
-widgets powered off. However, when commit 39eb5fd13dff
-("ASoC: dapm: Delay w->power update until the changes are written")
-added the new_power member of the widget structure, to differentiate
-between the current power state and the target power state, it did not
-update the shutdown to use the new_power member.
+DE2 VI layer doesn't support blending which means alpha channel is
+ignored. Replace all formats with alpha with "don't care" (X) channel.
 
-As new_power has not updated it will be left in the state set by the
-last DAPM sequence, ie. 1 for active widgets. So as the DAPM sequence
-for the shutdown proceeds it will turn the widgets on (despite them
-already being on) rather than turning them off.
-
-Fixes: 39eb5fd13dff ("ASoC: dapm: Delay w->power update until the changes are written")
-Signed-off-by: Charles Keepax <ckeepax@opensource.cirrus.com>
-Link: https://lore.kernel.org/r/20200228153145.21013-1-ckeepax@opensource.cirrus.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 7480ba4d7571 ("drm/sun4i: Add support for DE2 VI planes")
+Acked-by: Maxime Ripard <mripard@kernel.org>
+Signed-off-by: Jernej Skrabec <jernej.skrabec@siol.net>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200224173901.174016-4-jernej.skrabec@siol.net
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/soc/soc-dapm.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/sun4i/sun8i_mixer.c    |   56 +++++++++++++++++++++++++++++++++
+ drivers/gpu/drm/sun4i/sun8i_vi_layer.c |   22 ++++++------
+ 2 files changed, 67 insertions(+), 11 deletions(-)
 
---- a/sound/soc/soc-dapm.c
-+++ b/sound/soc/soc-dapm.c
-@@ -4551,7 +4551,7 @@ static void soc_dapm_shutdown_dapm(struc
- 			continue;
- 		if (w->power) {
- 			dapm_seq_insert(w, &down_list, false);
--			w->power = 0;
-+			w->new_power = 0;
- 			powerdown = 1;
- 		}
- 	}
+--- a/drivers/gpu/drm/sun4i/sun8i_mixer.c
++++ b/drivers/gpu/drm/sun4i/sun8i_mixer.c
+@@ -111,46 +111,102 @@ static const struct de2_fmt_info de2_for
+ 		.csc = SUN8I_CSC_MODE_OFF,
+ 	},
+ 	{
++		/* for DE2 VI layer which ignores alpha */
++		.drm_fmt = DRM_FORMAT_XRGB4444,
++		.de2_fmt = SUN8I_MIXER_FBFMT_ARGB4444,
++		.rgb = true,
++		.csc = SUN8I_CSC_MODE_OFF,
++	},
++	{
+ 		.drm_fmt = DRM_FORMAT_ABGR4444,
+ 		.de2_fmt = SUN8I_MIXER_FBFMT_ABGR4444,
+ 		.rgb = true,
+ 		.csc = SUN8I_CSC_MODE_OFF,
+ 	},
+ 	{
++		/* for DE2 VI layer which ignores alpha */
++		.drm_fmt = DRM_FORMAT_XBGR4444,
++		.de2_fmt = SUN8I_MIXER_FBFMT_ABGR4444,
++		.rgb = true,
++		.csc = SUN8I_CSC_MODE_OFF,
++	},
++	{
+ 		.drm_fmt = DRM_FORMAT_RGBA4444,
+ 		.de2_fmt = SUN8I_MIXER_FBFMT_RGBA4444,
+ 		.rgb = true,
+ 		.csc = SUN8I_CSC_MODE_OFF,
+ 	},
+ 	{
++		/* for DE2 VI layer which ignores alpha */
++		.drm_fmt = DRM_FORMAT_RGBX4444,
++		.de2_fmt = SUN8I_MIXER_FBFMT_RGBA4444,
++		.rgb = true,
++		.csc = SUN8I_CSC_MODE_OFF,
++	},
++	{
+ 		.drm_fmt = DRM_FORMAT_BGRA4444,
+ 		.de2_fmt = SUN8I_MIXER_FBFMT_BGRA4444,
+ 		.rgb = true,
+ 		.csc = SUN8I_CSC_MODE_OFF,
+ 	},
+ 	{
++		/* for DE2 VI layer which ignores alpha */
++		.drm_fmt = DRM_FORMAT_BGRX4444,
++		.de2_fmt = SUN8I_MIXER_FBFMT_BGRA4444,
++		.rgb = true,
++		.csc = SUN8I_CSC_MODE_OFF,
++	},
++	{
+ 		.drm_fmt = DRM_FORMAT_ARGB1555,
+ 		.de2_fmt = SUN8I_MIXER_FBFMT_ARGB1555,
+ 		.rgb = true,
+ 		.csc = SUN8I_CSC_MODE_OFF,
+ 	},
+ 	{
++		/* for DE2 VI layer which ignores alpha */
++		.drm_fmt = DRM_FORMAT_XRGB1555,
++		.de2_fmt = SUN8I_MIXER_FBFMT_ARGB1555,
++		.rgb = true,
++		.csc = SUN8I_CSC_MODE_OFF,
++	},
++	{
+ 		.drm_fmt = DRM_FORMAT_ABGR1555,
+ 		.de2_fmt = SUN8I_MIXER_FBFMT_ABGR1555,
+ 		.rgb = true,
+ 		.csc = SUN8I_CSC_MODE_OFF,
+ 	},
+ 	{
++		/* for DE2 VI layer which ignores alpha */
++		.drm_fmt = DRM_FORMAT_XBGR1555,
++		.de2_fmt = SUN8I_MIXER_FBFMT_ABGR1555,
++		.rgb = true,
++		.csc = SUN8I_CSC_MODE_OFF,
++	},
++	{
+ 		.drm_fmt = DRM_FORMAT_RGBA5551,
+ 		.de2_fmt = SUN8I_MIXER_FBFMT_RGBA5551,
+ 		.rgb = true,
+ 		.csc = SUN8I_CSC_MODE_OFF,
+ 	},
+ 	{
++		/* for DE2 VI layer which ignores alpha */
++		.drm_fmt = DRM_FORMAT_RGBX5551,
++		.de2_fmt = SUN8I_MIXER_FBFMT_RGBA5551,
++		.rgb = true,
++		.csc = SUN8I_CSC_MODE_OFF,
++	},
++	{
+ 		.drm_fmt = DRM_FORMAT_BGRA5551,
+ 		.de2_fmt = SUN8I_MIXER_FBFMT_BGRA5551,
+ 		.rgb = true,
+ 		.csc = SUN8I_CSC_MODE_OFF,
++	},
++	{
++		/* for DE2 VI layer which ignores alpha */
++		.drm_fmt = DRM_FORMAT_BGRX5551,
++		.de2_fmt = SUN8I_MIXER_FBFMT_BGRA5551,
++		.rgb = true,
++		.csc = SUN8I_CSC_MODE_OFF,
+ 	},
+ 	{
+ 		.drm_fmt = DRM_FORMAT_UYVY,
+--- a/drivers/gpu/drm/sun4i/sun8i_vi_layer.c
++++ b/drivers/gpu/drm/sun4i/sun8i_vi_layer.c
+@@ -330,26 +330,26 @@ static const struct drm_plane_funcs sun8
+ };
+ 
+ /*
+- * While all RGB formats are supported, VI planes don't support
+- * alpha blending, so there is no point having formats with alpha
+- * channel if their opaque analog exist.
++ * While DE2 VI layer supports same RGB formats as UI layer, alpha
++ * channel is ignored. This structure lists all unique variants
++ * where alpha channel is replaced with "don't care" (X) channel.
+  */
+ static const u32 sun8i_vi_layer_formats[] = {
+-	DRM_FORMAT_ABGR1555,
+-	DRM_FORMAT_ABGR4444,
+-	DRM_FORMAT_ARGB1555,
+-	DRM_FORMAT_ARGB4444,
+ 	DRM_FORMAT_BGR565,
+ 	DRM_FORMAT_BGR888,
+-	DRM_FORMAT_BGRA5551,
+-	DRM_FORMAT_BGRA4444,
++	DRM_FORMAT_BGRX4444,
++	DRM_FORMAT_BGRX5551,
+ 	DRM_FORMAT_BGRX8888,
+ 	DRM_FORMAT_RGB565,
+ 	DRM_FORMAT_RGB888,
+-	DRM_FORMAT_RGBA4444,
+-	DRM_FORMAT_RGBA5551,
++	DRM_FORMAT_RGBX4444,
++	DRM_FORMAT_RGBX5551,
+ 	DRM_FORMAT_RGBX8888,
++	DRM_FORMAT_XBGR1555,
++	DRM_FORMAT_XBGR4444,
+ 	DRM_FORMAT_XBGR8888,
++	DRM_FORMAT_XRGB1555,
++	DRM_FORMAT_XRGB4444,
+ 	DRM_FORMAT_XRGB8888,
+ 
+ 	DRM_FORMAT_NV16,
 
 
