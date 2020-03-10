@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C7CAF17F83F
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 13:47:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A4FE17F7E0
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 13:43:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727442AbgCJMqR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 08:46:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49376 "EHLO mail.kernel.org"
+        id S1727477AbgCJMnB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 08:43:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43246 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727955AbgCJMqQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 08:46:16 -0400
+        id S1727473AbgCJMnB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 08:43:01 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 97D272467D;
-        Tue, 10 Mar 2020 12:46:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5836A24686;
+        Tue, 10 Mar 2020 12:43:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583844376;
-        bh=ABU12IfNmFeJk/drjZr/gSCCysZwfcqqTJ7L/m1fD/w=;
+        s=default; t=1583844180;
+        bh=xTqSnR399JVMFNmpt5zBo18NEw/dj/k7g0k+HzivNv8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J075e1ouZUv/KtbI5rWaOKa/qkEDgnc446Jh+5NeguJJfe7UPNWHkCZtaK2joQhcy
-         NTKvnj1ywvlLrE8P45fxVv9ItlE0sr1UeNXc/iJoeEt97VHpR+MO5rR9iWcdY3x29c
-         TB5Pj2ljiXubFoUleSGHjXkEsV8KZrlhEEZeF4Bs=
+        b=o5+cY8S0bMLHfMRjl1uBIo6hLg7uVFmr1/ZYZzP3LSZaykqFHYSITg7mQQ0qXTKeX
+         WoaKLT0GKyxN9KJjfCurDh3uOCtlR/RGbue2zPUaSGh0/K30y3UcJZasS0jrx97Qb+
+         1EZ4Wzskwuh+cUD6JRuRnHVMzKXPh91Q1CF4y5zA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marek Vasut <marex@denx.de>,
-        "David S. Miller" <davem@davemloft.net>,
-        Lukas Wunner <lukas@wunner.de>, Petr Stetiar <ynezz@true.cz>,
-        YueHaibing <yuehaibing@huawei.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 58/88] net: ks8851-ml: Fix 16-bit data access
+        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
+        Eugeniu Rosca <erosca@de.adit-jv.com>
+Subject: [PATCH 4.4 53/72] usb: core: hub: do error out if usb_autopm_get_interface() fails
 Date:   Tue, 10 Mar 2020 13:39:06 +0100
-Message-Id: <20200310123620.969868245@linuxfoundation.org>
+Message-Id: <20200310123614.358200850@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200310123606.543939933@linuxfoundation.org>
-References: <20200310123606.543939933@linuxfoundation.org>
+In-Reply-To: <20200310123601.053680753@linuxfoundation.org>
+References: <20200310123601.053680753@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,48 +43,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Vasut <marex@denx.de>
+From: Eugeniu Rosca <erosca@de.adit-jv.com>
 
-[ Upstream commit edacb098ea9c31589276152f09b4439052c0f2b1 ]
+commit 60e3f6e4ac5b0fda43dad01c32e09409ec710045 upstream.
 
-The packet data written to and read from Micrel KSZ8851-16MLLI must be
-byte-swapped in 16-bit mode, add this byte-swapping.
+Reviewing a fresh portion of coverity defects in USB core
+(specifically CID 1458999), Alan Stern noted below in [1]:
 
-Signed-off-by: Marek Vasut <marex@denx.de>
-Cc: David S. Miller <davem@davemloft.net>
-Cc: Lukas Wunner <lukas@wunner.de>
-Cc: Petr Stetiar <ynezz@true.cz>
-Cc: YueHaibing <yuehaibing@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+On Tue, Feb 25, 2020 at 02:39:23PM -0500, Alan Stern wrote:
+ > A revised search finds line 997 in drivers/usb/core/hub.c and lines
+ > 216, 269 in drivers/usb/core/port.c.  (I didn't try looking in any
+ > other directories.)  AFAICT all three of these should check the
+ > return value, although a error message in the kernel log probably
+ > isn't needed.
+
+Factor out the usb_remove_device() change into a standalone patch to
+allow conflict-free integration on top of the earliest stable branches.
+
+[1] https://lore.kernel.org/lkml/Pine.LNX.4.44L0.2002251419120.1485-100000@iolanthe.rowland.org
+
+Fixes: 253e05724f9230 ("USB: add a "remove hardware" sysfs attribute")
+Cc: stable@vger.kernel.org # v2.6.33+
+Suggested-by: Alan Stern <stern@rowland.harvard.edu>
+Signed-off-by: Eugeniu Rosca <erosca@de.adit-jv.com>
+Acked-by: Alan Stern <stern@rowland.harvard.edu>
+Link: https://lore.kernel.org/r/20200226175036.14946-2-erosca@de.adit-jv.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/net/ethernet/micrel/ks8851_mll.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/usb/core/hub.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/micrel/ks8851_mll.c b/drivers/net/ethernet/micrel/ks8851_mll.c
-index 721f851674531..20356976b9772 100644
---- a/drivers/net/ethernet/micrel/ks8851_mll.c
-+++ b/drivers/net/ethernet/micrel/ks8851_mll.c
-@@ -515,7 +515,7 @@ static inline void ks_inblk(struct ks_net *ks, u16 *wptr, u32 len)
+--- a/drivers/usb/core/hub.c
++++ b/drivers/usb/core/hub.c
+@@ -938,13 +938,17 @@ int usb_remove_device(struct usb_device
  {
- 	len >>= 1;
- 	while (len--)
--		*wptr++ = (u16)ioread16(ks->hw_addr);
-+		*wptr++ = be16_to_cpu(ioread16(ks->hw_addr));
- }
+ 	struct usb_hub *hub;
+ 	struct usb_interface *intf;
++	int ret;
  
- /**
-@@ -529,7 +529,7 @@ static inline void ks_outblk(struct ks_net *ks, u16 *wptr, u32 len)
- {
- 	len >>= 1;
- 	while (len--)
--		iowrite16(*wptr++, ks->hw_addr);
-+		iowrite16(cpu_to_be16(*wptr++), ks->hw_addr);
- }
+ 	if (!udev->parent)	/* Can't remove a root hub */
+ 		return -EINVAL;
+ 	hub = usb_hub_to_struct_hub(udev->parent);
+ 	intf = to_usb_interface(hub->intfdev);
  
- static void ks_disable_int(struct ks_net *ks)
--- 
-2.20.1
-
+-	usb_autopm_get_interface(intf);
++	ret = usb_autopm_get_interface(intf);
++	if (ret < 0)
++		return ret;
++
+ 	set_bit(udev->portnum, hub->removed_bits);
+ 	hub_port_logical_disconnect(hub, udev->portnum);
+ 	usb_autopm_put_interface(intf);
 
 
