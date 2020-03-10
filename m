@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F12817FD41
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:26:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 46B1A17FD7E
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:29:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729310AbgCJMzq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 08:55:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34624 "EHLO mail.kernel.org"
+        id S1727272AbgCJN1W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 09:27:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33436 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728069AbgCJMzp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 08:55:45 -0400
+        id S1727775AbgCJMyu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 08:54:50 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 19B1D20674;
-        Tue, 10 Mar 2020 12:55:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B04CC2253D;
+        Tue, 10 Mar 2020 12:54:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583844944;
-        bh=LC9GSII5BStF8uKOWa5lCdxNMasH/snaaFuoURKQtP4=;
+        s=default; t=1583844890;
+        bh=+hi5aN+D6JGLzjvA6/P2ENZRj0ICH3a32s1Tw3e6BL8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OH5HpFtLp4Uq156L94BHlpbuJTK1BBsafRLYOC/68nP+vMulEcCZN5bfw/qkcY8qf
-         AbLtnrwNHYguM0sMfc9FsZmc2DZS4ZVJeUkEF/DZwNs1C5uJ7S9qL+zaU0p4iZNNMU
-         xSxA1abXjhQ2gJMDBY7/gKc0tQlq3B5FpBtv1ya0=
+        b=RJ4qh8O4j679l4zU76/Q8I9PxlKeoauAawMhkv4BNKnM0Wi1D/57aVO7GlmkHzfMS
+         /0RSoWp4QI0U9xKXkx//oEOADzj8ubLR2rYaraq98lBpLCfAXLvPD5G+/shG/Pao5Q
+         eNiLPsw+6mS+3GDoP7pUH8o4mNFA51sVyQrBp7Gc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+2e80962bedd9559fe0b3@syzkaller.appspotmail.com,
+        syzbot+cb0c054eabfba4342146@syzkaller.appspotmail.com,
         Bernard Metzler <bmt@zurich.ibm.com>,
         Jason Gunthorpe <jgg@mellanox.com>
-Subject: [PATCH 5.4 148/168] RDMA/siw: Fix failure handling during device creation
-Date:   Tue, 10 Mar 2020 13:39:54 +0100
-Message-Id: <20200310123650.499113937@linuxfoundation.org>
+Subject: [PATCH 5.4 149/168] RDMA/iwcm: Fix iwcm work deallocation
+Date:   Tue, 10 Mar 2020 13:39:55 +0100
+Message-Id: <20200310123650.587995345@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200310123635.322799692@linuxfoundation.org>
 References: <20200310123635.322799692@linuxfoundation.org>
@@ -47,45 +47,39 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Bernard Metzler <bmt@zurich.ibm.com>
 
-commit 12e5eef0f4d8087ea7b559f6630be08ffea2d851 upstream.
+commit 810dbc69087b08fd53e1cdd6c709f385bc2921ad upstream.
 
-A failing call to ib_device_set_netdev() during device creation caused
-system crash due to xa_destroy of uninitialized xarray hit by device
-deallocation. Fixed by moving xarray initialization before potential
-device deallocation.
+The dealloc_work_entries() function must update the work_free_list pointer
+while freeing its entries, since potentially called again on same list. A
+second iteration of the work list caused system crash. This happens, if
+work allocation fails during cma_iw_listen() and free_cm_id() tries to
+free the list again during cleanup.
 
-Fixes: bdcf26bf9b3a ("rdma/siw: network and RDMA core interface")
-Link: https://lore.kernel.org/r/20200302155814.9896-1-bmt@zurich.ibm.com
-Reported-by: syzbot+2e80962bedd9559fe0b3@syzkaller.appspotmail.com
+Fixes: 922a8e9fb2e0 ("RDMA: iWARP Connection Manager.")
+Link: https://lore.kernel.org/r/20200302181614.17042-1-bmt@zurich.ibm.com
+Reported-by: syzbot+cb0c054eabfba4342146@syzkaller.appspotmail.com
 Signed-off-by: Bernard Metzler <bmt@zurich.ibm.com>
+Reviewed-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/infiniband/sw/siw/siw_main.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/infiniband/core/iwcm.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/infiniband/sw/siw/siw_main.c
-+++ b/drivers/infiniband/sw/siw/siw_main.c
-@@ -379,6 +379,9 @@ static struct siw_device *siw_device_cre
- 	base_dev->dev.dma_ops = &dma_virt_ops;
- 	base_dev->num_comp_vectors = num_possible_cpus();
+--- a/drivers/infiniband/core/iwcm.c
++++ b/drivers/infiniband/core/iwcm.c
+@@ -159,8 +159,10 @@ static void dealloc_work_entries(struct
+ {
+ 	struct list_head *e, *tmp;
  
-+	xa_init_flags(&sdev->qp_xa, XA_FLAGS_ALLOC1);
-+	xa_init_flags(&sdev->mem_xa, XA_FLAGS_ALLOC1);
-+
- 	ib_set_device_ops(base_dev, &siw_device_ops);
- 	rv = ib_device_set_netdev(base_dev, netdev, 1);
- 	if (rv)
-@@ -406,9 +409,6 @@ static struct siw_device *siw_device_cre
- 	sdev->attrs.max_srq_wr = SIW_MAX_SRQ_WR;
- 	sdev->attrs.max_srq_sge = SIW_MAX_SGE;
+-	list_for_each_safe(e, tmp, &cm_id_priv->work_free_list)
++	list_for_each_safe(e, tmp, &cm_id_priv->work_free_list) {
++		list_del(e);
+ 		kfree(list_entry(e, struct iwcm_work, free_list));
++	}
+ }
  
--	xa_init_flags(&sdev->qp_xa, XA_FLAGS_ALLOC1);
--	xa_init_flags(&sdev->mem_xa, XA_FLAGS_ALLOC1);
--
- 	INIT_LIST_HEAD(&sdev->cep_list);
- 	INIT_LIST_HEAD(&sdev->qp_list);
- 
+ static int alloc_work_entries(struct iwcm_id_private *cm_id_priv, int count)
 
 
