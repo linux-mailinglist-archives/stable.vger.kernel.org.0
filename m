@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 86A0F17FA9C
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:06:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6CDEC17FC66
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:20:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728515AbgCJNGp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 09:06:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52316 "EHLO mail.kernel.org"
+        id S1730644AbgCJNGs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 09:06:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52390 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730486AbgCJNGn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 09:06:43 -0400
+        id S1730570AbgCJNGr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 09:06:47 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DA2CE20873;
-        Tue, 10 Mar 2020 13:06:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 131C72071B;
+        Tue, 10 Mar 2020 13:06:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583845603;
-        bh=+lIJtQNb3GDX3UdUpxWon3y+MZGFtP4kv/JLgQFn/50=;
+        s=default; t=1583845606;
+        bh=yFqi2y2qU/nMBZWWI+25GCg6s4a8gGw/XhyKPyhRuAA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CmgQUakaTw4EpnhZnVvGaB53L+Oy7S0qH2GEUG3m5YAd9UzBfqmn5KkiaFySEATuB
-         RNdQPLGERpBCv24UqEkVBmbwRhzGYbArtxS/AfvWvFz+Go5ieM680DeszBb4MBBAbn
-         Px8+hFRi72tEiamckCSmh9U6BE1cP9FldjUY6O/A=
+        b=2e3+iDJwgsE4JcPvnkzj82QjMQbAhzfUaQqXgMaGEdQHmDnOCspxtDhDPENuEdLG/
+         IDZEsuXrNi2tG8OnelBPajFsUx2kwF967reO895C965kLlZa1UFxP0f5xAednaowQk
+         wRy0qpR6lTrJS49RwfZI/+uwrBy1G4njJSKWBxJM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Suraj Jitindar Singh <surajjs@amazon.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>, stable@kernel.org,
-        Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 4.14 034/126] ext4: potential crash on allocation error in ext4_alloc_flex_bg_array()
-Date:   Tue, 10 Mar 2020 13:40:55 +0100
-Message-Id: <20200310124206.579194582@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+1f4d90ead370d72e450b@syzkaller.appspotmail.com,
+        Paul Moore <paul@paul-moore.com>
+Subject: [PATCH 4.14 035/126] audit: fix error handling in audit_data_to_entry()
+Date:   Tue, 10 Mar 2020 13:40:56 +0100
+Message-Id: <20200310124206.633524409@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200310124203.704193207@linuxfoundation.org>
 References: <20200310124203.704193207@linuxfoundation.org>
@@ -44,50 +44,204 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Paul Moore <paul@paul-moore.com>
 
-commit 37b0b6b8b99c0e1c1f11abbe7cf49b6d03795b3f upstream.
+commit 2ad3e17ebf94b7b7f3f64c050ff168f9915345eb upstream.
 
-If sbi->s_flex_groups_allocated is zero and the first allocation fails
-then this code will crash.  The problem is that "i--" will set "i" to
--1 but when we compare "i >= sbi->s_flex_groups_allocated" then the -1
-is type promoted to unsigned and becomes UINT_MAX.  Since UINT_MAX
-is more than zero, the condition is true so we call kvfree(new_groups[-1]).
-The loop will carry on freeing invalid memory until it crashes.
+Commit 219ca39427bf ("audit: use union for audit_field values since
+they are mutually exclusive") combined a number of separate fields in
+the audit_field struct into a single union.  Generally this worked
+just fine because they are generally mutually exclusive.
+Unfortunately in audit_data_to_entry() the overlap can be a problem
+when a specific error case is triggered that causes the error path
+code to attempt to cleanup an audit_field struct and the cleanup
+involves attempting to free a stored LSM string (the lsm_str field).
+Currently the code always has a non-NULL value in the
+audit_field.lsm_str field as the top of the for-loop transfers a
+value into audit_field.val (both .lsm_str and .val are part of the
+same union); if audit_data_to_entry() fails and the audit_field
+struct is specified to contain a LSM string, but the
+audit_field.lsm_str has not yet been properly set, the error handling
+code will attempt to free the bogus audit_field.lsm_str value that
+was set with audit_field.val at the top of the for-loop.
 
-Fixes: 7c990728b99e ("ext4: fix potential race between s_flex_groups online resizing and access")
-Reviewed-by: Suraj Jitindar Singh <surajjs@amazon.com>
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: stable@kernel.org
-Link: https://lore.kernel.org/r/20200228092142.7irbc44yaz3by7nb@kili.mountain
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+This patch corrects this by ensuring that the audit_field.val is only
+set when needed (it is cleared when the audit_field struct is
+allocated with kcalloc()).  It also corrects a few other issues to
+ensure that in case of error the proper error code is returned.
+
+Cc: stable@vger.kernel.org
+Fixes: 219ca39427bf ("audit: use union for audit_field values since they are mutually exclusive")
+Reported-by: syzbot+1f4d90ead370d72e450b@syzkaller.appspotmail.com
+Signed-off-by: Paul Moore <paul@paul-moore.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/ext4/super.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ kernel/auditfilter.c |   71 ++++++++++++++++++++++++++++-----------------------
+ 1 file changed, 39 insertions(+), 32 deletions(-)
 
---- a/fs/ext4/super.c
-+++ b/fs/ext4/super.c
-@@ -2238,7 +2238,7 @@ int ext4_alloc_flex_bg_array(struct supe
- {
- 	struct ext4_sb_info *sbi = EXT4_SB(sb);
- 	struct flex_groups **old_groups, **new_groups;
--	int size, i;
-+	int size, i, j;
+--- a/kernel/auditfilter.c
++++ b/kernel/auditfilter.c
+@@ -435,6 +435,7 @@ static struct audit_entry *audit_data_to
+ 	bufp = data->buf;
+ 	for (i = 0; i < data->field_count; i++) {
+ 		struct audit_field *f = &entry->rule.fields[i];
++		u32 f_val;
  
- 	if (!sbi->s_log_groups_per_flex)
- 		return 0;
-@@ -2259,8 +2259,8 @@ int ext4_alloc_flex_bg_array(struct supe
- 					 sizeof(struct flex_groups)),
- 					 GFP_KERNEL);
- 		if (!new_groups[i]) {
--			for (i--; i >= sbi->s_flex_groups_allocated; i--)
--				kvfree(new_groups[i]);
-+			for (j = sbi->s_flex_groups_allocated; j < i; j++)
-+				kvfree(new_groups[j]);
- 			kvfree(new_groups);
- 			ext4_msg(sb, KERN_ERR,
- 				 "not enough memory for %d flex groups", size);
+ 		err = -EINVAL;
+ 
+@@ -443,12 +444,12 @@ static struct audit_entry *audit_data_to
+ 			goto exit_free;
+ 
+ 		f->type = data->fields[i];
+-		f->val = data->values[i];
++		f_val = data->values[i];
+ 
+ 		/* Support legacy tests for a valid loginuid */
+-		if ((f->type == AUDIT_LOGINUID) && (f->val == AUDIT_UID_UNSET)) {
++		if ((f->type == AUDIT_LOGINUID) && (f_val == AUDIT_UID_UNSET)) {
+ 			f->type = AUDIT_LOGINUID_SET;
+-			f->val = 0;
++			f_val = 0;
+ 			entry->rule.pflags |= AUDIT_LOGINUID_LEGACY;
+ 		}
+ 
+@@ -464,7 +465,7 @@ static struct audit_entry *audit_data_to
+ 		case AUDIT_SUID:
+ 		case AUDIT_FSUID:
+ 		case AUDIT_OBJ_UID:
+-			f->uid = make_kuid(current_user_ns(), f->val);
++			f->uid = make_kuid(current_user_ns(), f_val);
+ 			if (!uid_valid(f->uid))
+ 				goto exit_free;
+ 			break;
+@@ -473,12 +474,13 @@ static struct audit_entry *audit_data_to
+ 		case AUDIT_SGID:
+ 		case AUDIT_FSGID:
+ 		case AUDIT_OBJ_GID:
+-			f->gid = make_kgid(current_user_ns(), f->val);
++			f->gid = make_kgid(current_user_ns(), f_val);
+ 			if (!gid_valid(f->gid))
+ 				goto exit_free;
+ 			break;
+ 		case AUDIT_SESSIONID:
+ 		case AUDIT_ARCH:
++			f->val = f_val;
+ 			entry->rule.arch_f = f;
+ 			break;
+ 		case AUDIT_SUBJ_USER:
+@@ -491,11 +493,13 @@ static struct audit_entry *audit_data_to
+ 		case AUDIT_OBJ_TYPE:
+ 		case AUDIT_OBJ_LEV_LOW:
+ 		case AUDIT_OBJ_LEV_HIGH:
+-			str = audit_unpack_string(&bufp, &remain, f->val);
+-			if (IS_ERR(str))
++			str = audit_unpack_string(&bufp, &remain, f_val);
++			if (IS_ERR(str)) {
++				err = PTR_ERR(str);
+ 				goto exit_free;
+-			entry->rule.buflen += f->val;
+-
++			}
++			entry->rule.buflen += f_val;
++			f->lsm_str = str;
+ 			err = security_audit_rule_init(f->type, f->op, str,
+ 						       (void **)&f->lsm_rule);
+ 			/* Keep currently invalid fields around in case they
+@@ -504,68 +508,71 @@ static struct audit_entry *audit_data_to
+ 				pr_warn("audit rule for LSM \'%s\' is invalid\n",
+ 					str);
+ 				err = 0;
+-			}
+-			if (err) {
+-				kfree(str);
++			} else if (err)
+ 				goto exit_free;
+-			} else
+-				f->lsm_str = str;
+ 			break;
+ 		case AUDIT_WATCH:
+-			str = audit_unpack_string(&bufp, &remain, f->val);
+-			if (IS_ERR(str))
++			str = audit_unpack_string(&bufp, &remain, f_val);
++			if (IS_ERR(str)) {
++				err = PTR_ERR(str);
+ 				goto exit_free;
+-			entry->rule.buflen += f->val;
+-
+-			err = audit_to_watch(&entry->rule, str, f->val, f->op);
++			}
++			err = audit_to_watch(&entry->rule, str, f_val, f->op);
+ 			if (err) {
+ 				kfree(str);
+ 				goto exit_free;
+ 			}
++			entry->rule.buflen += f_val;
+ 			break;
+ 		case AUDIT_DIR:
+-			str = audit_unpack_string(&bufp, &remain, f->val);
+-			if (IS_ERR(str))
++			str = audit_unpack_string(&bufp, &remain, f_val);
++			if (IS_ERR(str)) {
++				err = PTR_ERR(str);
+ 				goto exit_free;
+-			entry->rule.buflen += f->val;
+-
++			}
+ 			err = audit_make_tree(&entry->rule, str, f->op);
+ 			kfree(str);
+ 			if (err)
+ 				goto exit_free;
++			entry->rule.buflen += f_val;
+ 			break;
+ 		case AUDIT_INODE:
++			f->val = f_val;
+ 			err = audit_to_inode(&entry->rule, f);
+ 			if (err)
+ 				goto exit_free;
+ 			break;
+ 		case AUDIT_FILTERKEY:
+-			if (entry->rule.filterkey || f->val > AUDIT_MAX_KEY_LEN)
++			if (entry->rule.filterkey || f_val > AUDIT_MAX_KEY_LEN)
+ 				goto exit_free;
+-			str = audit_unpack_string(&bufp, &remain, f->val);
+-			if (IS_ERR(str))
++			str = audit_unpack_string(&bufp, &remain, f_val);
++			if (IS_ERR(str)) {
++				err = PTR_ERR(str);
+ 				goto exit_free;
+-			entry->rule.buflen += f->val;
++			}
++			entry->rule.buflen += f_val;
+ 			entry->rule.filterkey = str;
+ 			break;
+ 		case AUDIT_EXE:
+-			if (entry->rule.exe || f->val > PATH_MAX)
++			if (entry->rule.exe || f_val > PATH_MAX)
+ 				goto exit_free;
+-			str = audit_unpack_string(&bufp, &remain, f->val);
++			str = audit_unpack_string(&bufp, &remain, f_val);
+ 			if (IS_ERR(str)) {
+ 				err = PTR_ERR(str);
+ 				goto exit_free;
+ 			}
+-			entry->rule.buflen += f->val;
+-
+-			audit_mark = audit_alloc_mark(&entry->rule, str, f->val);
++			audit_mark = audit_alloc_mark(&entry->rule, str, f_val);
+ 			if (IS_ERR(audit_mark)) {
+ 				kfree(str);
+ 				err = PTR_ERR(audit_mark);
+ 				goto exit_free;
+ 			}
++			entry->rule.buflen += f_val;
+ 			entry->rule.exe = audit_mark;
+ 			break;
++		default:
++			f->val = f_val;
++			break;
+ 		}
+ 	}
+ 
 
 
