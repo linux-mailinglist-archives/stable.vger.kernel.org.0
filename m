@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 490E817FA46
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:04:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3818717FA4F
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:04:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728958AbgCJNEH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 09:04:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49066 "EHLO mail.kernel.org"
+        id S1729719AbgCJNEM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 09:04:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49182 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729719AbgCJNEG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 09:04:06 -0400
+        id S1729456AbgCJNEL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 09:04:11 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 219B024698;
-        Tue, 10 Mar 2020 13:04:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C9C672468C;
+        Tue, 10 Mar 2020 13:04:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583845445;
-        bh=uG6ORTWs4LOH+gNyOH9bc6K2hUnR24KmtyOL7P0js5w=;
+        s=default; t=1583845451;
+        bh=khnnaXEotQCDVtCSFvYA545nYovW0yzZNDRL37GEq3c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HFQ7iFq83FGA+PWpTDSTGZOsJhM3anNJtsFIIb+cmnJcuPHmFgazoPb6rF3XhpNP1
-         vuzdrYLg5c1JNhuvo4Op/4JQGKCDrjij+4bfQdGXef7UtWfs9AeF7XHILiO7YItcmU
-         RecIvWHEtD/yE2bllWRTMlMBF8LemHWzLlUcPCYY=
+        b=GsymGbLMZrPf3FmTFK8zaM4gjDfghU++dg8zgq6VcjACXHlXDHTmZaMVSzM2VLls6
+         oobDDX3xWG3NLT5nVjQoOEZ3KqYBHij3pZkrd5B0UR2z2AW73pUwU4QoNdPbiAgvIw
+         R8HFYLPiwOgjG9fXglA8R5lT+hd8d4JUkr2iepOE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Desnes A. Nunes do Rosario" <desnesn@linux.ibm.com>,
-        Leonardo Bras <leonardo@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.5 185/189] powerpc: fix hardware PMU exception bug on PowerVM compatibility mode systems
-Date:   Tue, 10 Mar 2020 13:40:22 +0100
-Message-Id: <20200310123658.183933670@linuxfoundation.org>
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Ingo Molnar <mingo@kernel.org>, linux-efi@vger.kernel.org,
+        Thomas Gleixner <tglx@linutronix.de>
+Subject: [PATCH 5.5 186/189] efi/x86: Align GUIDs to their size in the mixed mode runtime wrapper
+Date:   Tue, 10 Mar 2020 13:40:23 +0100
+Message-Id: <20200310123658.257035725@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200310123639.608886314@linuxfoundation.org>
 References: <20200310123639.608886314@linuxfoundation.org>
@@ -45,45 +45,129 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Desnes A. Nunes do Rosario <desnesn@linux.ibm.com>
+From: Ard Biesheuvel <ardb@kernel.org>
 
-commit fc37a1632d40c80c067eb1bc235139f5867a2667 upstream.
+commit 63056e8b5ebf41d52170e9f5ba1fc83d1855278c upstream.
 
-PowerVM systems running compatibility mode on a few Power8 revisions are
-still vulnerable to the hardware defect that loses PMU exceptions arriving
-prior to a context switch.
+Hans reports that his mixed mode systems running v5.6-rc1 kernels hit
+the WARN_ON() in virt_to_phys_or_null_size(), caused by the fact that
+efi_guid_t objects on the vmap'ed stack happen to be misaligned with
+respect to their sizes. As a quick (i.e., backportable) fix, copy GUID
+pointer arguments to the local stack into a buffer that is naturally
+aligned to its size, so that it is guaranteed to cover only one
+physical page.
 
-The software fix for this issue is enabled through the CPU_FTR_PMAO_BUG
-cpu_feature bit, nevertheless this bit also needs to be set for PowerVM
-compatibility mode systems.
+Note that on x86, we cannot rely on the stack pointer being aligned
+the way the compiler expects, so we need to allocate an 8-byte aligned
+buffer of sufficient size, and copy the GUID into that buffer at an
+offset that is aligned to 16 bytes.
 
-Fixes: 68f2f0d431d9ea4 ("powerpc: Add a cpu feature CPU_FTR_PMAO_BUG")
-Signed-off-by: Desnes A. Nunes do Rosario <desnesn@linux.ibm.com>
-Reviewed-by: Leonardo Bras <leonardo@linux.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20200227134715.9715-1-desnesn@linux.ibm.com
+Fixes: f6697df36bdf0bf7 ("x86/efi: Prevent mixed mode boot corruption with CONFIG_VMAP_STACK=y")
+Reported-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Tested-by: Hans de Goede <hdegoede@redhat.com>
+Cc: linux-efi@vger.kernel.org
+Cc: Ingo Molnar <mingo@kernel.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Link: https://lore.kernel.org/r/20200221084849.26878-2-ardb@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/powerpc/kernel/cputable.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/x86/platform/efi/efi_64.c |   25 +++++++++++++++++++++----
+ 1 file changed, 21 insertions(+), 4 deletions(-)
 
---- a/arch/powerpc/kernel/cputable.c
-+++ b/arch/powerpc/kernel/cputable.c
-@@ -2193,11 +2193,13 @@ static struct cpu_spec * __init setup_cp
- 		 * oprofile_cpu_type already has a value, then we are
- 		 * possibly overriding a real PVR with a logical one,
- 		 * and, in that case, keep the current value for
--		 * oprofile_cpu_type.
-+		 * oprofile_cpu_type. Futhermore, let's ensure that the
-+		 * fix for the PMAO bug is enabled on compatibility mode.
- 		 */
- 		if (old.oprofile_cpu_type != NULL) {
- 			t->oprofile_cpu_type = old.oprofile_cpu_type;
- 			t->oprofile_type = old.oprofile_type;
-+			t->cpu_features |= old.cpu_features & CPU_FTR_PMAO_BUG;
- 		}
- 	}
+--- a/arch/x86/platform/efi/efi_64.c
++++ b/arch/x86/platform/efi/efi_64.c
+@@ -791,6 +791,8 @@ static efi_status_t
+ efi_thunk_get_variable(efi_char16_t *name, efi_guid_t *vendor,
+ 		       u32 *attr, unsigned long *data_size, void *data)
+ {
++	u8 buf[24] __aligned(8);
++	efi_guid_t *vnd = PTR_ALIGN((efi_guid_t *)buf, sizeof(*vnd));
+ 	efi_status_t status;
+ 	u32 phys_name, phys_vendor, phys_attr;
+ 	u32 phys_data_size, phys_data;
+@@ -798,8 +800,10 @@ efi_thunk_get_variable(efi_char16_t *nam
+ 
+ 	spin_lock_irqsave(&efi_runtime_lock, flags);
+ 
++	*vnd = *vendor;
++
+ 	phys_data_size = virt_to_phys_or_null(data_size);
+-	phys_vendor = virt_to_phys_or_null(vendor);
++	phys_vendor = virt_to_phys_or_null(vnd);
+ 	phys_name = virt_to_phys_or_null_size(name, efi_name_size(name));
+ 	phys_attr = virt_to_phys_or_null(attr);
+ 	phys_data = virt_to_phys_or_null_size(data, *data_size);
+@@ -816,14 +820,18 @@ static efi_status_t
+ efi_thunk_set_variable(efi_char16_t *name, efi_guid_t *vendor,
+ 		       u32 attr, unsigned long data_size, void *data)
+ {
++	u8 buf[24] __aligned(8);
++	efi_guid_t *vnd = PTR_ALIGN((efi_guid_t *)buf, sizeof(*vnd));
+ 	u32 phys_name, phys_vendor, phys_data;
+ 	efi_status_t status;
+ 	unsigned long flags;
+ 
+ 	spin_lock_irqsave(&efi_runtime_lock, flags);
+ 
++	*vnd = *vendor;
++
+ 	phys_name = virt_to_phys_or_null_size(name, efi_name_size(name));
+-	phys_vendor = virt_to_phys_or_null(vendor);
++	phys_vendor = virt_to_phys_or_null(vnd);
+ 	phys_data = virt_to_phys_or_null_size(data, data_size);
+ 
+ 	/* If data_size is > sizeof(u32) we've got problems */
+@@ -840,6 +848,8 @@ efi_thunk_set_variable_nonblocking(efi_c
+ 				   u32 attr, unsigned long data_size,
+ 				   void *data)
+ {
++	u8 buf[24] __aligned(8);
++	efi_guid_t *vnd = PTR_ALIGN((efi_guid_t *)buf, sizeof(*vnd));
+ 	u32 phys_name, phys_vendor, phys_data;
+ 	efi_status_t status;
+ 	unsigned long flags;
+@@ -847,8 +857,10 @@ efi_thunk_set_variable_nonblocking(efi_c
+ 	if (!spin_trylock_irqsave(&efi_runtime_lock, flags))
+ 		return EFI_NOT_READY;
+ 
++	*vnd = *vendor;
++
+ 	phys_name = virt_to_phys_or_null_size(name, efi_name_size(name));
+-	phys_vendor = virt_to_phys_or_null(vendor);
++	phys_vendor = virt_to_phys_or_null(vnd);
+ 	phys_data = virt_to_phys_or_null_size(data, data_size);
+ 
+ 	/* If data_size is > sizeof(u32) we've got problems */
+@@ -865,14 +877,18 @@ efi_thunk_get_next_variable(unsigned lon
+ 			    efi_char16_t *name,
+ 			    efi_guid_t *vendor)
+ {
++	u8 buf[24] __aligned(8);
++	efi_guid_t *vnd = PTR_ALIGN((efi_guid_t *)buf, sizeof(*vnd));
+ 	efi_status_t status;
+ 	u32 phys_name_size, phys_name, phys_vendor;
+ 	unsigned long flags;
+ 
+ 	spin_lock_irqsave(&efi_runtime_lock, flags);
+ 
++	*vnd = *vendor;
++
+ 	phys_name_size = virt_to_phys_or_null(name_size);
+-	phys_vendor = virt_to_phys_or_null(vendor);
++	phys_vendor = virt_to_phys_or_null(vnd);
+ 	phys_name = virt_to_phys_or_null_size(name, *name_size);
+ 
+ 	status = efi_thunk(get_next_variable, phys_name_size,
+@@ -880,6 +896,7 @@ efi_thunk_get_next_variable(unsigned lon
+ 
+ 	spin_unlock_irqrestore(&efi_runtime_lock, flags);
+ 
++	*vendor = *vnd;
+ 	return status;
+ }
  
 
 
