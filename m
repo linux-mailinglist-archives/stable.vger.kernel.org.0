@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B8F417F7AE
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 13:41:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CEAF017F8F7
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 13:52:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726905AbgCJMlZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 08:41:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40866 "EHLO mail.kernel.org"
+        id S1728119AbgCJMwr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 08:52:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58488 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726837AbgCJMlY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 08:41:24 -0400
+        id S1728391AbgCJMwp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 08:52:45 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A900524686;
-        Tue, 10 Mar 2020 12:41:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 692D72253D;
+        Tue, 10 Mar 2020 12:52:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583844084;
-        bh=qd721I88vNXch3ZqPReQwf2cEtykqf23s69glri4oKA=;
+        s=default; t=1583844764;
+        bh=btnATy+2UvaxYHxgFD2ozOKWOB13JxYBp+IOiSnswac=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N2TDNHdtCxYC4WxNlPEfqR6AaTh1h1FLTRD7HS/mkgkWBHoeylUEt0zPsazGAufnb
-         4+ZAJxyaPlCbnvPWlqwR2omr+wQOFbI/6aaCaFM1zZXwXerpDCLZmgAuqSZq8UMiPM
-         a09TyNVqLA8llpPNffe8sUl1MEZccWt1/1IRH/l0=
+        b=Ie8iUDZWBZR8QbBx9nnrenWeSAcQbCg1c3G/L+erg5g7glK10Gprg0NKSQ9n3XhRL
+         tU8GK7Mn3D9Jtff98kzrGg54LnGXXLmh212AROmZS+zyav/NvcT+g2nFW73JU0+Wmm
+         2edrXB3aoTQjLpktiSFgX8tFVhIxahGhV7XAJjyM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "H. Nikolaus Schaller" <hns@goldelico.com>,
-        Wolfram Sang <wsa@the-dreams.de>
-Subject: [PATCH 4.4 25/72] i2c: jz4780: silence log flood on txabrt
+        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
+        Eugeniu Rosca <erosca@de.adit-jv.com>
+Subject: [PATCH 5.4 072/168] usb: core: hub: do error out if usb_autopm_get_interface() fails
 Date:   Tue, 10 Mar 2020 13:38:38 +0100
-Message-Id: <20200310123608.060354909@linuxfoundation.org>
+Message-Id: <20200310123642.543333823@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200310123601.053680753@linuxfoundation.org>
-References: <20200310123601.053680753@linuxfoundation.org>
+In-Reply-To: <20200310123635.322799692@linuxfoundation.org>
+References: <20200310123635.322799692@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,76 +43,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wolfram Sang <wsa@the-dreams.de>
+From: Eugeniu Rosca <erosca@de.adit-jv.com>
 
-commit 9e661cedcc0a072d91a32cb88e0515ea26e35711 upstream.
+commit 60e3f6e4ac5b0fda43dad01c32e09409ec710045 upstream.
 
-The printout for txabrt is way too talkative and is highly annoying with
-scanning programs like 'i2cdetect'. Reduce it to the minimum, the rest
-can be gained by I2C core debugging and datasheet information. Also,
-make it a debug printout, it won't help the regular user.
+Reviewing a fresh portion of coverity defects in USB core
+(specifically CID 1458999), Alan Stern noted below in [1]:
 
-Fixes: ba92222ed63a ("i2c: jz4780: Add i2c bus controller driver for Ingenic JZ4780")
-Reported-by: H. Nikolaus Schaller <hns@goldelico.com>
-Tested-by: H. Nikolaus Schaller <hns@goldelico.com>
-Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+On Tue, Feb 25, 2020 at 02:39:23PM -0500, Alan Stern wrote:
+ > A revised search finds line 997 in drivers/usb/core/hub.c and lines
+ > 216, 269 in drivers/usb/core/port.c.  (I didn't try looking in any
+ > other directories.)  AFAICT all three of these should check the
+ > return value, although a error message in the kernel log probably
+ > isn't needed.
+
+Factor out the usb_remove_device() change into a standalone patch to
+allow conflict-free integration on top of the earliest stable branches.
+
+[1] https://lore.kernel.org/lkml/Pine.LNX.4.44L0.2002251419120.1485-100000@iolanthe.rowland.org
+
+Fixes: 253e05724f9230 ("USB: add a "remove hardware" sysfs attribute")
+Cc: stable@vger.kernel.org # v2.6.33+
+Suggested-by: Alan Stern <stern@rowland.harvard.edu>
+Signed-off-by: Eugeniu Rosca <erosca@de.adit-jv.com>
+Acked-by: Alan Stern <stern@rowland.harvard.edu>
+Link: https://lore.kernel.org/r/20200226175036.14946-2-erosca@de.adit-jv.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/i2c/busses/i2c-jz4780.c |   36 ++----------------------------------
- 1 file changed, 2 insertions(+), 34 deletions(-)
+ drivers/usb/core/hub.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/drivers/i2c/busses/i2c-jz4780.c
-+++ b/drivers/i2c/busses/i2c-jz4780.c
-@@ -82,25 +82,6 @@
- #define JZ4780_I2C_STA_TFNF		BIT(1)
- #define JZ4780_I2C_STA_ACT		BIT(0)
- 
--static const char * const jz4780_i2c_abrt_src[] = {
--	"ABRT_7B_ADDR_NOACK",
--	"ABRT_10ADDR1_NOACK",
--	"ABRT_10ADDR2_NOACK",
--	"ABRT_XDATA_NOACK",
--	"ABRT_GCALL_NOACK",
--	"ABRT_GCALL_READ",
--	"ABRT_HS_ACKD",
--	"SBYTE_ACKDET",
--	"ABRT_HS_NORSTRT",
--	"SBYTE_NORSTRT",
--	"ABRT_10B_RD_NORSTRT",
--	"ABRT_MASTER_DIS",
--	"ARB_LOST",
--	"SLVFLUSH_TXFIFO",
--	"SLV_ARBLOST",
--	"SLVRD_INTX",
--};
--
- #define JZ4780_I2C_INTST_IGC		BIT(11)
- #define JZ4780_I2C_INTST_ISTT		BIT(10)
- #define JZ4780_I2C_INTST_ISTP		BIT(9)
-@@ -538,21 +519,8 @@ done:
- 
- static void jz4780_i2c_txabrt(struct jz4780_i2c *i2c, int src)
+--- a/drivers/usb/core/hub.c
++++ b/drivers/usb/core/hub.c
+@@ -987,13 +987,17 @@ int usb_remove_device(struct usb_device
  {
--	int i;
--
--	dev_err(&i2c->adap.dev, "txabrt: 0x%08x\n", src);
--	dev_err(&i2c->adap.dev, "device addr=%x\n",
--		jz4780_i2c_readw(i2c, JZ4780_I2C_TAR));
--	dev_err(&i2c->adap.dev, "send cmd count:%d  %d\n",
--		i2c->cmd, i2c->cmd_buf[i2c->cmd]);
--	dev_err(&i2c->adap.dev, "receive data count:%d  %d\n",
--		i2c->cmd, i2c->data_buf[i2c->cmd]);
--
--	for (i = 0; i < 16; i++) {
--		if (src & BIT(i))
--			dev_dbg(&i2c->adap.dev, "I2C TXABRT[%d]=%s\n",
--				i, jz4780_i2c_abrt_src[i]);
--	}
-+	dev_dbg(&i2c->adap.dev, "txabrt: 0x%08x, cmd: %d, send: %d, recv: %d\n",
-+		src, i2c->cmd, i2c->cmd_buf[i2c->cmd], i2c->data_buf[i2c->cmd]);
- }
+ 	struct usb_hub *hub;
+ 	struct usb_interface *intf;
++	int ret;
  
- static inline int jz4780_i2c_xfer_read(struct jz4780_i2c *i2c,
+ 	if (!udev->parent)	/* Can't remove a root hub */
+ 		return -EINVAL;
+ 	hub = usb_hub_to_struct_hub(udev->parent);
+ 	intf = to_usb_interface(hub->intfdev);
+ 
+-	usb_autopm_get_interface(intf);
++	ret = usb_autopm_get_interface(intf);
++	if (ret < 0)
++		return ret;
++
+ 	set_bit(udev->portnum, hub->removed_bits);
+ 	hub_port_logical_disconnect(hub, udev->portnum);
+ 	usb_autopm_put_interface(intf);
 
 
