@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C5E417FD71
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:29:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3589A17FA7D
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:05:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727390AbgCJMyg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 08:54:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32990 "EHLO mail.kernel.org"
+        id S1726683AbgCJNFY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 09:05:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47000 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729377AbgCJMye (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 08:54:34 -0400
+        id S1730490AbgCJNCz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 09:02:55 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 63DD424692;
-        Tue, 10 Mar 2020 12:54:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A165B2468C;
+        Tue, 10 Mar 2020 13:02:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583844873;
-        bh=sCrSOMdqJ6/BW5rilN1/UH6u6POlrqAmnRwzGl1k3pY=;
+        s=default; t=1583845375;
+        bh=ChoXbZiZ4xRWHDCDYxKjjQMyaZm6alpKJH4NtUZrkDQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lpfjui7X8NyMIWIQT5Tz2bAVrd1JVE9rpOsz67U7MPsBmrEuUIdv690FpOjpKsxlR
-         Bo+aAw0cJMZELIG6e/g7PTuaA5nLMMWQjFKODQTi3tlG9nzeFyoK5++hDT5dscoYHZ
-         pkn586Vfp4ijcRuDDTSPEpzqKQ+wciKIQN1mjihk=
+        b=0cs7wc2xjszZiyB2p7xHEw3OGZ+cQTmEdegxaCJRzcpO2QQMWdO8AuvZcNpUF+e40
+         /9xUl5/i7djStYysDDP1xlHpUX4qkIGMtkrSBNXW5OczLGYFdjsa1SopMKGXzC1kdk
+         JDV8UA0NXMMr7UrO5EqmZ8Jxj1hcFomvHh35rfFo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guillaume La Roque <glaroque@baylibre.com>,
-        Neil Armstrong <narmstrong@baylibre.com>,
-        Kevin Hilman <khilman@baylibre.com>
-Subject: [PATCH 5.4 112/168] arm64: dts: meson-sm1-sei610: add missing interrupt-names
+        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
+        Mike Snitzer <snitzer@redhat.com>
+Subject: [PATCH 5.5 121/189] dm cache: fix a crash due to incorrect work item cancelling
 Date:   Tue, 10 Mar 2020 13:39:18 +0100
-Message-Id: <20200310123646.724859318@linuxfoundation.org>
+Message-Id: <20200310123652.005567020@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200310123635.322799692@linuxfoundation.org>
-References: <20200310123635.322799692@linuxfoundation.org>
+In-Reply-To: <20200310123639.608886314@linuxfoundation.org>
+References: <20200310123639.608886314@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,33 +43,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guillaume La Roque <glaroque@baylibre.com>
+From: Mikulas Patocka <mpatocka@redhat.com>
 
-commit 5bea1336ed2c939328999c64de28792e8dc0699b upstream.
+commit 7cdf6a0aae1cccf5167f3f04ecddcf648b78e289 upstream.
 
-add missing "host-wakeup interrupt names
+The crash can be reproduced by running the lvm2 testsuite test
+lvconvert-thin-external-cache.sh for several minutes, e.g.:
+  while :; do make check T=shell/lvconvert-thin-external-cache.sh; done
 
-Fixes: 30388cc07572 ("arm64: dts: meson-sm1-sei610: add gpio bluetooth interrupt")
+The crash happens in this call chain:
+do_waker -> policy_tick -> smq_tick -> end_hotspot_period -> clear_bitset
+-> memset -> __memset -- which accesses an invalid pointer in the vmalloc
+area.
 
-Signed-off-by: Guillaume La Roque <glaroque@baylibre.com>
-Acked-by: Neil Armstrong <narmstrong@baylibre.com>
-Link: https://lore.kernel.org/r/20200117133423.22602-1-glaroque@baylibre.com
-Signed-off-by: Kevin Hilman <khilman@baylibre.com>
+The work entry on the workqueue is executed even after the bitmap was
+freed. The problem is that cancel_delayed_work doesn't wait for the
+running work item to finish, so the work item can continue running and
+re-submitting itself even after cache_postsuspend. In order to make sure
+that the work item won't be running, we must use cancel_delayed_work_sync.
+
+Also, change flush_workqueue to drain_workqueue, so that if some work item
+submits itself or another work item, we are properly waiting for both of
+them.
+
+Fixes: c6b4fcbad044 ("dm: add cache target")
+Cc: stable@vger.kernel.org # v3.9
+Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm64/boot/dts/amlogic/meson-sm1-sei610.dts |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/md/dm-cache-target.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/arch/arm64/boot/dts/amlogic/meson-sm1-sei610.dts
-+++ b/arch/arm64/boot/dts/amlogic/meson-sm1-sei610.dts
-@@ -363,6 +363,7 @@
- 		compatible = "brcm,bcm43438-bt";
- 		interrupt-parent = <&gpio_intc>;
- 		interrupts = <95 IRQ_TYPE_LEVEL_HIGH>;
-+		interrupt-names = "host-wakeup";
- 		shutdown-gpios = <&gpio GPIOX_17 GPIO_ACTIVE_HIGH>;
- 		max-speed = <2000000>;
- 		clocks = <&wifi32k>;
+--- a/drivers/md/dm-cache-target.c
++++ b/drivers/md/dm-cache-target.c
+@@ -2846,8 +2846,8 @@ static void cache_postsuspend(struct dm_
+ 	prevent_background_work(cache);
+ 	BUG_ON(atomic_read(&cache->nr_io_migrations));
+ 
+-	cancel_delayed_work(&cache->waker);
+-	flush_workqueue(cache->wq);
++	cancel_delayed_work_sync(&cache->waker);
++	drain_workqueue(cache->wq);
+ 	WARN_ON(cache->tracker.in_flight);
+ 
+ 	/*
 
 
