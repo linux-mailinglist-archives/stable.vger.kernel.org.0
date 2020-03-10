@@ -2,37 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E13A117F8D9
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 13:51:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 820F417F7C0
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 13:42:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728933AbgCJMvg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 08:51:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56630 "EHLO mail.kernel.org"
+        id S1727224AbgCJMmC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 08:42:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41830 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728459AbgCJMvb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 08:51:31 -0400
+        id S1727222AbgCJMmC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 08:42:02 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 89B1B2468F;
-        Tue, 10 Mar 2020 12:51:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C8C92246C6;
+        Tue, 10 Mar 2020 12:42:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583844691;
-        bh=Hr0G+nFXcIDG6ca9t1Jtkybg8zOVWRTs/0oHIp/z1/w=;
+        s=default; t=1583844121;
+        bh=TozLtoVh77U5/hOYYVw5gd42uWtqHnUz7UqzxkxfWjU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CAqeOg1Lo5ZJoTtCtBxw6sppbkoDgtjHGBTg/7lEmviwI60HgANewsZyBrpJoXULd
-         FGMBFX0+mpacx13XZT8cGtGym3GXG+6IDUlkJKwVSSMEfsMViWR2SGyKgvSwMiWMsu
-         SkpDY4vA4yYwEgh0Sh825j6V3i8jw7iq7Jx5AlvI=
+        b=EVBX2DDjnHf0IX5EEAaxZFs5e06UE07CcR9KDu3sIpc8skr0vHQAI2gAUfsRqlMGo
+         D/Y5vR5PNCTz9cKuwpnIqlZ+yqQ/NelEHgevma2Tay4KSN19n1FF6l9impxFJHhS0B
+         oGswzTfKwjsJrC1iu3sp5JqlzJzprKrzDXf0D/BM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jay Dolan <jay.dolan@accesio.com>
-Subject: [PATCH 5.4 084/168] serial: 8250_exar: add support for ACCES cards
-Date:   Tue, 10 Mar 2020 13:38:50 +0100
-Message-Id: <20200310123643.782684914@linuxfoundation.org>
+        stable@vger.kernel.org, Jann Horn <jannh@google.com>,
+        Matthew Wilcox <willy@infradead.org>, stable@kernel.org,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Ajay Kaher <akaher@vmware.com>,
+        Vlastimil Babka <vbabka@suse.cz>
+Subject: [PATCH 4.4 38/72] fs: prevent page refcount overflow in pipe_buf_get
+Date:   Tue, 10 Mar 2020 13:38:51 +0100
+Message-Id: <20200310123610.971044185@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200310123635.322799692@linuxfoundation.org>
-References: <20200310123635.322799692@linuxfoundation.org>
+In-Reply-To: <20200310123601.053680753@linuxfoundation.org>
+References: <20200310123601.053680753@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,76 +46,172 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jay Dolan <jay.dolan@accesio.com>
+From: Matthew Wilcox <willy@infradead.org>
 
-commit 10c5ccc3c6d32f3d7d6c07de1d3f0f4b52f3e3ab upstream.
+commit 15fab63e1e57be9fdb5eec1bbc5916e9825e9acb upstream.
 
-Add ACCES VIDs and PIDs that use the Exar chips
+Change pipe_buf_get() to return a bool indicating whether it succeeded
+in raising the refcount of the page (if the thing in the pipe is a page).
+This removes another mechanism for overflowing the page refcount.  All
+callers converted to handle a failure.
 
-Signed-off-by: Jay Dolan <jay.dolan@accesio.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200305140504.22237-1-jay.dolan@accesio.com
+Reported-by: Jann Horn <jannh@google.com>
+Signed-off-by: Matthew Wilcox <willy@infradead.org>
+Cc: stable@kernel.org
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+[ 4.4.y backport notes:
+  Regarding the change in generic_pipe_buf_get(), note that
+  page_cache_get() is the same as get_page(). See mainline commit
+  09cbfeaf1a5a6 "mm, fs: get rid of PAGE_CACHE_* and
+  page_cache_{get,release} macros" for context. ]
+Signed-off-by: Ajay Kaher <akaher@vmware.com>
+Signed-off-by: Vlastimil Babka <vbabka@suse.cz>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/tty/serial/8250/8250_exar.c |   33 +++++++++++++++++++++++++++++++++
- 1 file changed, 33 insertions(+)
+ fs/fuse/dev.c             |   12 ++++++------
+ fs/pipe.c                 |    4 ++--
+ fs/splice.c               |   12 ++++++++++--
+ include/linux/pipe_fs_i.h |   10 ++++++----
+ kernel/trace/trace.c      |    6 +++++-
+ 5 files changed, 29 insertions(+), 15 deletions(-)
 
---- a/drivers/tty/serial/8250/8250_exar.c
-+++ b/drivers/tty/serial/8250/8250_exar.c
-@@ -25,6 +25,14 @@
+--- a/fs/fuse/dev.c
++++ b/fs/fuse/dev.c
+@@ -2031,10 +2031,8 @@ static ssize_t fuse_dev_splice_write(str
+ 		rem += pipe->bufs[(pipe->curbuf + idx) & (pipe->buffers - 1)].len;
  
- #include "8250.h"
+ 	ret = -EINVAL;
+-	if (rem < len) {
+-		pipe_unlock(pipe);
+-		goto out;
+-	}
++	if (rem < len)
++		goto out_free;
  
-+#define PCI_DEVICE_ID_ACCES_COM_2S		0x1052
-+#define PCI_DEVICE_ID_ACCES_COM_4S		0x105d
-+#define PCI_DEVICE_ID_ACCES_COM_8S		0x106c
-+#define PCI_DEVICE_ID_ACCES_COM232_8		0x10a8
-+#define PCI_DEVICE_ID_ACCES_COM_2SM		0x10d2
-+#define PCI_DEVICE_ID_ACCES_COM_4SM		0x10db
-+#define PCI_DEVICE_ID_ACCES_COM_8SM		0x10ea
+ 	rem = len;
+ 	while (rem) {
+@@ -2052,7 +2050,9 @@ static ssize_t fuse_dev_splice_write(str
+ 			pipe->curbuf = (pipe->curbuf + 1) & (pipe->buffers - 1);
+ 			pipe->nrbufs--;
+ 		} else {
+-			pipe_buf_get(pipe, ibuf);
++			if (!pipe_buf_get(pipe, ibuf))
++				goto out_free;
 +
- #define PCI_DEVICE_ID_COMMTECH_4224PCI335	0x0002
- #define PCI_DEVICE_ID_COMMTECH_4222PCI335	0x0004
- #define PCI_DEVICE_ID_COMMTECH_2324PCI335	0x000a
-@@ -658,6 +666,22 @@ static int __maybe_unused exar_resume(st
+ 			*obuf = *ibuf;
+ 			obuf->flags &= ~PIPE_BUF_FLAG_GIFT;
+ 			obuf->len = rem;
+@@ -2075,13 +2075,13 @@ static ssize_t fuse_dev_splice_write(str
+ 	ret = fuse_dev_do_write(fud, &cs, len);
  
- static SIMPLE_DEV_PM_OPS(exar_pci_pm, exar_suspend, exar_resume);
- 
-+static const struct exar8250_board acces_com_2x = {
-+	.num_ports	= 2,
-+	.setup		= pci_xr17c154_setup,
-+};
-+
-+static const struct exar8250_board acces_com_4x = {
-+	.num_ports	= 4,
-+	.setup		= pci_xr17c154_setup,
-+};
-+
-+static const struct exar8250_board acces_com_8x = {
-+	.num_ports	= 8,
-+	.setup		= pci_xr17c154_setup,
-+};
-+
-+
- static const struct exar8250_board pbn_fastcom335_2 = {
- 	.num_ports	= 2,
- 	.setup		= pci_fastcom335_setup,
-@@ -726,6 +750,15 @@ static const struct exar8250_board pbn_e
+ 	pipe_lock(pipe);
++out_free:
+ 	for (idx = 0; idx < nbuf; idx++) {
+ 		struct pipe_buffer *buf = &bufs[idx];
+ 		buf->ops->release(pipe, buf);
  	}
+ 	pipe_unlock(pipe);
  
- static const struct pci_device_id exar_pci_tbl[] = {
-+	EXAR_DEVICE(ACCESSIO, ACCES_COM_2S, acces_com_2x),
-+	EXAR_DEVICE(ACCESSIO, ACCES_COM_4S, acces_com_4x),
-+	EXAR_DEVICE(ACCESSIO, ACCES_COM_8S, acces_com_8x),
-+	EXAR_DEVICE(ACCESSIO, ACCES_COM232_8, acces_com_8x),
-+	EXAR_DEVICE(ACCESSIO, ACCES_COM_2SM, acces_com_2x),
-+	EXAR_DEVICE(ACCESSIO, ACCES_COM_4SM, acces_com_4x),
-+	EXAR_DEVICE(ACCESSIO, ACCES_COM_8SM, acces_com_8x),
+-out:
+ 	kfree(bufs);
+ 	return ret;
+ }
+--- a/fs/pipe.c
++++ b/fs/pipe.c
+@@ -178,9 +178,9 @@ EXPORT_SYMBOL(generic_pipe_buf_steal);
+  *	in the tee() system call, when we duplicate the buffers in one
+  *	pipe into another.
+  */
+-void generic_pipe_buf_get(struct pipe_inode_info *pipe, struct pipe_buffer *buf)
++bool generic_pipe_buf_get(struct pipe_inode_info *pipe, struct pipe_buffer *buf)
+ {
+-	page_cache_get(buf->page);
++	return try_get_page(buf->page);
+ }
+ EXPORT_SYMBOL(generic_pipe_buf_get);
+ 
+--- a/fs/splice.c
++++ b/fs/splice.c
+@@ -1876,7 +1876,11 @@ retry:
+ 			 * Get a reference to this pipe buffer,
+ 			 * so we can copy the contents over.
+ 			 */
+-			pipe_buf_get(ipipe, ibuf);
++			if (!pipe_buf_get(ipipe, ibuf)) {
++				if (ret == 0)
++					ret = -EFAULT;
++				break;
++			}
+ 			*obuf = *ibuf;
+ 
+ 			/*
+@@ -1948,7 +1952,11 @@ static int link_pipe(struct pipe_inode_i
+ 		 * Get a reference to this pipe buffer,
+ 		 * so we can copy the contents over.
+ 		 */
+-		pipe_buf_get(ipipe, ibuf);
++		if (!pipe_buf_get(ipipe, ibuf)) {
++			if (ret == 0)
++				ret = -EFAULT;
++			break;
++		}
+ 
+ 		obuf = opipe->bufs + nbuf;
+ 		*obuf = *ibuf;
+--- a/include/linux/pipe_fs_i.h
++++ b/include/linux/pipe_fs_i.h
+@@ -112,18 +112,20 @@ struct pipe_buf_operations {
+ 	/*
+ 	 * Get a reference to the pipe buffer.
+ 	 */
+-	void (*get)(struct pipe_inode_info *, struct pipe_buffer *);
++	bool (*get)(struct pipe_inode_info *, struct pipe_buffer *);
+ };
+ 
+ /**
+  * pipe_buf_get - get a reference to a pipe_buffer
+  * @pipe:	the pipe that the buffer belongs to
+  * @buf:	the buffer to get a reference to
++ *
++ * Return: %true if the reference was successfully obtained.
+  */
+-static inline void pipe_buf_get(struct pipe_inode_info *pipe,
++static inline __must_check bool pipe_buf_get(struct pipe_inode_info *pipe,
+ 				struct pipe_buffer *buf)
+ {
+-	buf->ops->get(pipe, buf);
++	return buf->ops->get(pipe, buf);
+ }
+ 
+ /* Differs from PIPE_BUF in that PIPE_SIZE is the length of the actual
+@@ -148,7 +150,7 @@ struct pipe_inode_info *alloc_pipe_info(
+ void free_pipe_info(struct pipe_inode_info *);
+ 
+ /* Generic pipe buffer ops functions */
+-void generic_pipe_buf_get(struct pipe_inode_info *, struct pipe_buffer *);
++bool generic_pipe_buf_get(struct pipe_inode_info *, struct pipe_buffer *);
+ int generic_pipe_buf_confirm(struct pipe_inode_info *, struct pipe_buffer *);
+ int generic_pipe_buf_steal(struct pipe_inode_info *, struct pipe_buffer *);
+ void generic_pipe_buf_release(struct pipe_inode_info *, struct pipe_buffer *);
+--- a/kernel/trace/trace.c
++++ b/kernel/trace/trace.c
+@@ -5749,12 +5749,16 @@ static void buffer_pipe_buf_release(stru
+ 	buf->private = 0;
+ }
+ 
+-static void buffer_pipe_buf_get(struct pipe_inode_info *pipe,
++static bool buffer_pipe_buf_get(struct pipe_inode_info *pipe,
+ 				struct pipe_buffer *buf)
+ {
+ 	struct buffer_ref *ref = (struct buffer_ref *)buf->private;
+ 
++	if (ref->ref > INT_MAX/2)
++		return false;
 +
-+
- 	CONNECT_DEVICE(XR17C152, UART_2_232, pbn_connect),
- 	CONNECT_DEVICE(XR17C154, UART_4_232, pbn_connect),
- 	CONNECT_DEVICE(XR17C158, UART_8_232, pbn_connect),
+ 	ref->ref++;
++	return true;
+ }
+ 
+ /* Pipe buffer operations for a buffer. */
 
 
