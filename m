@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BEF7717F972
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 13:56:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2590017F976
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 13:57:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729366AbgCJM4x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 08:56:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36202 "EHLO mail.kernel.org"
+        id S1729047AbgCJM5C (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 08:57:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36312 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728361AbgCJM4w (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 08:56:52 -0400
+        id S1729719AbgCJM5A (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 08:57:00 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 654C02468D;
-        Tue, 10 Mar 2020 12:56:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ECB2520674;
+        Tue, 10 Mar 2020 12:56:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583845011;
-        bh=Ne+Rbl+wF0k1lMl/aPemFvLHXKkrkdgmlb5C+qtk2yg=;
+        s=default; t=1583845020;
+        bh=qMh9/b7Wjjh4p1I6eLg+fOXx59WbAGqj5JBNVoj8QCU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AMD+S7040woPqoFipSLqMTwVDBxs9nPw51gg+w2kZJc75DwK5mLisDhTUfJFNedO0
-         vcGlUbD+Iqn45uBiMmqIpJdc+nqYPEM8aaqXOr1hbAq2OvMtOF7WMNvi6bDMc3KJsO
-         QuyHm5wfA1fpPoaj4RZKuwVXF5f5B/jvkfd3jkj8=
+        b=Rr2koHGGT2sf93aNdPbxUgls0AqZN8eG1gFxJp0aV9wGtxSpu1U6yCx5J6kLpNNRx
+         95MIIG+ZiYaqsT2y9qxB5aI0iJTlCPuufbpcdt1CgrFk9z0LteYusrftARLyfdGJON
+         5b8US/Jc8wNEcgSReypzTBZMHcLEGsv9EG5D0gNE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chris Evich <cevich@redhat.com>,
+        stable@vger.kernel.org, Patrick Dung <patdung100@gmail.com>,
         Oleksandr Natalenko <oleksandr@natalenko.name>,
         Paolo Valente <paolo.valente@linaro.org>,
         Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 003/189] block, bfq: get extra ref to prevent a queue from being freed during a group move
-Date:   Tue, 10 Mar 2020 13:37:20 +0100
-Message-Id: <20200310123639.929399082@linuxfoundation.org>
+Subject: [PATCH 5.5 004/189] block, bfq: do not insert oom queue into position tree
+Date:   Tue, 10 Mar 2020 13:37:21 +0100
+Message-Id: <20200310123640.011975709@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200310123639.608886314@linuxfoundation.org>
 References: <20200310123639.608886314@linuxfoundation.org>
@@ -47,53 +47,45 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Paolo Valente <paolo.valente@linaro.org>
 
-[ Upstream commit ecedd3d7e19911ab8fe42f17b77c0a30fe7f4db3 ]
+[ Upstream commit 32c59e3a9a5a0b180dd015755d6d18ca31e55935 ]
 
-In bfq_bfqq_move(), the bfq_queue, say Q, to be moved to a new group
-may happen to be deactivated in the scheduling data structures of the
-source group (and then activated in the destination group). If Q is
-referred only by the data structures in the source group when the
-deactivation happens, then Q is freed upon the deactivation.
+BFQ maintains an ordered list, implemented with an RB tree, of
+head-request positions of non-empty bfq_queues. This position tree,
+inherited from CFQ, is used to find bfq_queues that contain I/O close
+to each other. BFQ merges these bfq_queues into a single shared queue,
+if this boosts throughput on the device at hand.
 
-This commit addresses this issue by getting an extra reference before
-the possible deactivation, and releasing this extra reference after Q
-has been moved.
+There is however a special-purpose bfq_queue that does not participate
+in queue merging, the oom bfq_queue. Yet, also this bfq_queue could be
+wrongly added to the position tree. So bfqq_find_close() could return
+the oom bfq_queue, which is a source of further troubles in an
+out-of-memory situation. This commit prevents the oom bfq_queue from
+being inserted into the position tree.
 
-Tested-by: Chris Evich <cevich@redhat.com>
+Tested-by: Patrick Dung <patdung100@gmail.com>
 Tested-by: Oleksandr Natalenko <oleksandr@natalenko.name>
 Signed-off-by: Paolo Valente <paolo.valente@linaro.org>
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/bfq-cgroup.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ block/bfq-iosched.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/block/bfq-cgroup.c b/block/bfq-cgroup.c
-index e7919e76a27c2..db2a14215aeea 100644
---- a/block/bfq-cgroup.c
-+++ b/block/bfq-cgroup.c
-@@ -651,6 +651,12 @@ void bfq_bfqq_move(struct bfq_data *bfqd, struct bfq_queue *bfqq,
- 		bfq_bfqq_expire(bfqd, bfqd->in_service_queue,
- 				false, BFQQE_PREEMPTED);
+diff --git a/block/bfq-iosched.c b/block/bfq-iosched.c
+index 5c239c540c47a..3dbd0666fec1b 100644
+--- a/block/bfq-iosched.c
++++ b/block/bfq-iosched.c
+@@ -614,6 +614,10 @@ bfq_pos_tree_add_move(struct bfq_data *bfqd, struct bfq_queue *bfqq)
+ 		bfqq->pos_root = NULL;
+ 	}
  
-+	/*
-+	 * get extra reference to prevent bfqq from being freed in
-+	 * next possible deactivate
-+	 */
-+	bfqq->ref++;
++	/* oom_bfqq does not participate in queue merging */
++	if (bfqq == &bfqd->oom_bfqq)
++		return;
 +
- 	if (bfq_bfqq_busy(bfqq))
- 		bfq_deactivate_bfqq(bfqd, bfqq, false, false);
- 	else if (entity->on_st)
-@@ -670,6 +676,8 @@ void bfq_bfqq_move(struct bfq_data *bfqd, struct bfq_queue *bfqq,
- 
- 	if (!bfqd->in_service_queue && !bfqd->rq_in_driver)
- 		bfq_schedule_dispatch(bfqd);
-+	/* release extra ref taken above */
-+	bfq_put_queue(bfqq);
- }
- 
- /**
+ 	/*
+ 	 * bfqq cannot be merged any longer (see comments in
+ 	 * bfq_setup_cooperator): no point in adding bfqq into the
 -- 
 2.20.1
 
