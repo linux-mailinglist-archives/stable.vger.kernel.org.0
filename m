@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2886617FE8B
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:36:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B284417FE86
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:35:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726926AbgCJMnb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 08:43:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43872 "EHLO mail.kernel.org"
+        id S1728045AbgCJNfz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 09:35:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44056 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727592AbgCJMna (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 08:43:30 -0400
+        id S1727613AbgCJMni (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 08:43:38 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A81D924693;
-        Tue, 10 Mar 2020 12:43:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 936AD24695;
+        Tue, 10 Mar 2020 12:43:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583844210;
-        bh=h164Xjzn/dkMEGOI+0GxP0JTKXYX9H1FF30K9z6chWM=;
+        s=default; t=1583844218;
+        bh=LZ40uhp+Qj5rGMav06nF1ngi0XnelvzK7sYakf3VD2g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TUkR3ROik+e2RqwP5p0aL9rSQYcXA9GZ8NeI+4nxK5BIQ17h/rhNFoLbOOqWYaOYj
-         3rRYwvL28C/gorDyhxAWRW3RrtwiLkvmE15z1RhmZ31fzr1m/pMamdvCBILJDM64u/
-         rdPIbdKfpSONGXMu8lzCkgHimsQo7eNYig9Due9E=
+        b=aErLiDpfHs+eU2lPab9l8KhGv90dtumtOtQ1VIcRtPvswq14DxIKmzL2cjO+Lj/2A
+         0XEFFhMpOsP1lJ43eHcgkl04TyxXh28sPaXKPf74r1IST4p7KXw/tNp11ZH+TnHfzc
+         oCWXuWKow4W55O5KKIySKVXN5+7iZNhdjIpZFTiM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
-        Eugeniu Rosca <erosca@de.adit-jv.com>
-Subject: [PATCH 4.4 54/72] usb: core: port: do error out if usb_autopm_get_interface() fails
-Date:   Tue, 10 Mar 2020 13:39:07 +0100
-Message-Id: <20200310123614.652917590@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+9d82b8de2992579da5d0@syzkaller.appspotmail.com,
+        Andrew Morton <akpm@linux-foundation.org>,
+        OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.4 56/72] fat: fix uninit-memory access for partial initialized inode
+Date:   Tue, 10 Mar 2020 13:39:09 +0100
+Message-Id: <20200310123615.177738527@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200310123601.053680753@linuxfoundation.org>
 References: <20200310123601.053680753@linuxfoundation.org>
@@ -43,62 +46,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eugeniu Rosca <erosca@de.adit-jv.com>
+From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
 
-commit 1f8b39bc99a31759e97a0428a5c3f64802c1e61d upstream.
+commit bc87302a093f0eab45cd4e250c2021299f712ec6 upstream.
 
-Reviewing a fresh portion of coverity defects in USB core
-(specifically CID 1458999), Alan Stern noted below in [1]:
+When get an error in the middle of reading an inode, some fields in the
+inode might be still not initialized.  And then the evict_inode path may
+access those fields via iput().
 
-On Tue, Feb 25, 2020 at 02:39:23PM -0500, Alan Stern wrote:
- > A revised search finds line 997 in drivers/usb/core/hub.c and lines
- > 216, 269 in drivers/usb/core/port.c.  (I didn't try looking in any
- > other directories.)  AFAICT all three of these should check the
- > return value, although a error message in the kernel log probably
- > isn't needed.
+To fix, this makes sure that inode fields are initialized.
 
-Factor out the usb_port_runtime_{resume,suspend}() changes into a
-standalone patch to allow conflict-free porting on top of stable v3.9+.
-
-[1] https://lore.kernel.org/lkml/Pine.LNX.4.44L0.2002251419120.1485-100000@iolanthe.rowland.org
-
-Fixes: 971fcd492cebf5 ("usb: add runtime pm support for usb port device")
-Cc: stable@vger.kernel.org # v3.9+
-Suggested-by: Alan Stern <stern@rowland.harvard.edu>
-Signed-off-by: Eugeniu Rosca <erosca@de.adit-jv.com>
-Acked-by: Alan Stern <stern@rowland.harvard.edu>
-Link: https://lore.kernel.org/r/20200226175036.14946-3-erosca@de.adit-jv.com
+Reported-by: syzbot+9d82b8de2992579da5d0@syzkaller.appspotmail.com
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Cc: <stable@vger.kernel.org>
+Link: http://lkml.kernel.org/r/871rqnreqx.fsf@mail.parknet.co.jp
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/core/port.c |   10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ fs/fat/inode.c |   19 +++++++------------
+ 1 file changed, 7 insertions(+), 12 deletions(-)
 
---- a/drivers/usb/core/port.c
-+++ b/drivers/usb/core/port.c
-@@ -98,7 +98,10 @@ static int usb_port_runtime_resume(struc
- 	if (!port_dev->is_superspeed && peer)
- 		pm_runtime_get_sync(&peer->dev);
+--- a/fs/fat/inode.c
++++ b/fs/fat/inode.c
+@@ -653,6 +653,13 @@ static struct inode *fat_alloc_inode(str
+ 		return NULL;
  
--	usb_autopm_get_interface(intf);
-+	retval = usb_autopm_get_interface(intf);
-+	if (retval < 0)
-+		return retval;
+ 	init_rwsem(&ei->truncate_lock);
++	/* Zeroing to allow iput() even if partial initialized inode. */
++	ei->mmu_private = 0;
++	ei->i_start = 0;
++	ei->i_logstart = 0;
++	ei->i_attrs = 0;
++	ei->i_pos = 0;
 +
- 	retval = usb_hub_set_port_power(hdev, hub, port1, true);
- 	msleep(hub_power_on_good_delay(hub));
- 	if (udev && !retval) {
-@@ -151,7 +154,10 @@ static int usb_port_runtime_suspend(stru
- 	if (usb_port_block_power_off)
- 		return -EBUSY;
+ 	return &ei->vfs_inode;
+ }
  
--	usb_autopm_get_interface(intf);
-+	retval = usb_autopm_get_interface(intf);
-+	if (retval < 0)
-+		return retval;
-+
- 	retval = usb_hub_set_port_power(hdev, hub, port1, false);
- 	usb_clear_port_feature(hdev, port1, USB_PORT_FEAT_C_CONNECTION);
- 	if (!port_dev->is_superspeed)
+@@ -1276,16 +1283,6 @@ out:
+ 	return 0;
+ }
+ 
+-static void fat_dummy_inode_init(struct inode *inode)
+-{
+-	/* Initialize this dummy inode to work as no-op. */
+-	MSDOS_I(inode)->mmu_private = 0;
+-	MSDOS_I(inode)->i_start = 0;
+-	MSDOS_I(inode)->i_logstart = 0;
+-	MSDOS_I(inode)->i_attrs = 0;
+-	MSDOS_I(inode)->i_pos = 0;
+-}
+-
+ static int fat_read_root(struct inode *inode)
+ {
+ 	struct msdos_sb_info *sbi = MSDOS_SB(inode->i_sb);
+@@ -1730,13 +1727,11 @@ int fat_fill_super(struct super_block *s
+ 	fat_inode = new_inode(sb);
+ 	if (!fat_inode)
+ 		goto out_fail;
+-	fat_dummy_inode_init(fat_inode);
+ 	sbi->fat_inode = fat_inode;
+ 
+ 	fsinfo_inode = new_inode(sb);
+ 	if (!fsinfo_inode)
+ 		goto out_fail;
+-	fat_dummy_inode_init(fsinfo_inode);
+ 	fsinfo_inode->i_ino = MSDOS_FSINFO_INO;
+ 	sbi->fsinfo_inode = fsinfo_inode;
+ 	insert_inode_hash(fsinfo_inode);
 
 
