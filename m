@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AD71C17FD72
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:29:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D4AC417FA59
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:05:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729060AbgCJMyi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 08:54:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33048 "EHLO mail.kernel.org"
+        id S1729425AbgCJNDE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 09:03:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47402 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728592AbgCJMyi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 08:54:38 -0400
+        id S1730484AbgCJNDD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 09:03:03 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DAFBA20674;
-        Tue, 10 Mar 2020 12:54:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EFBA5208E4;
+        Tue, 10 Mar 2020 13:03:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583844876;
-        bh=gIJfk8IWJAFC8UyqBhu4d6Moz8REygtxs5NtIhfu6r4=;
+        s=default; t=1583845381;
+        bh=RdwNiBrqBMF96enX3Y8lOCJkGzpZXUYtdAP1pkP1rzc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jew00Jr6ocXMcyr2wfGo9HqDQpXEYHj72AfY9cvtC6dBLNXdzxhkOOUQbkDEM3Ab9
-         iP4Kv1fOSnIRULlUa7a970fj/iLGVcyJhFRJrFwvceNy2aju72vTWnqhlC7LhB56eB
-         eXRSwvzgUj4nuyzUY4Xwb4eOOjgGrKMZYIpu4ATo=
+        b=2leDbx/ynhHvVpQdD+dBsGFyhnctcnQw341hguZDRlZqijtnnbew/4VbCjYkByC66
+         Q5UwsiLu6brl0ph5mrN9DcBSlF5xYnJ5TVwtdTSzkO2dYRFao9/gkEC2BqcXSp/jru
+         1+djM6c/cFd3UTbtEqNet7QCi5IgoLvne6uJPmRY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Machek <pavel@denx.de>,
-        Vladimir Oltean <olteanv@gmail.com>,
-        Shawn Guo <shawnguo@kernel.org>
-Subject: [PATCH 5.4 113/168] ARM: dts: ls1021a: Restore MDIO compatible to gianfar
-Date:   Tue, 10 Mar 2020 13:39:19 +0100
-Message-Id: <20200310123646.838599358@linuxfoundation.org>
+        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
+        Mike Snitzer <snitzer@redhat.com>
+Subject: [PATCH 5.5 123/189] dm writecache: verify watermark during resume
+Date:   Tue, 10 Mar 2020 13:39:20 +0100
+Message-Id: <20200310123652.214755538@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200310123635.322799692@linuxfoundation.org>
-References: <20200310123635.322799692@linuxfoundation.org>
+In-Reply-To: <20200310123639.608886314@linuxfoundation.org>
+References: <20200310123639.608886314@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,54 +43,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Oltean <olteanv@gmail.com>
+From: Mikulas Patocka <mpatocka@redhat.com>
 
-commit 7155c44624d061692b4c13aa8343f119c67d4fc0 upstream.
+commit 41c526c5af46d4c4dab7f72c99000b7fac0b9702 upstream.
 
-The difference between "fsl,etsec2-mdio" and "gianfar" has to do with
-the .get_tbipa function, which calculates the address of the TBIPA
-register automatically, if not explicitly specified. [ see
-drivers/net/ethernet/freescale/fsl_pq_mdio.c ]. On LS1021A, the TBIPA
-register is at offset 0x30 within the port register block, which is what
-the "gianfar" method of calculating addresses actually does.
+Verify the watermark upon resume - so that if the target is reloaded
+with lower watermark, it will start the cleanup process immediately.
 
-Luckily, the bad "compatible" is inconsequential for ls1021a.dtsi,
-because the TBIPA register is explicitly specified via the second "reg"
-(<0x0 0x2d10030 0x0 0x4>), so the "get_tbipa" function is dead code.
-Nonetheless it's good to restore it to its correct value.
-
-Background discussion:
-https://www.spinics.net/lists/stable/msg361156.html
-
-Fixes: c7861adbe37f ("ARM: dts: ls1021: Fix SGMII PCS link remaining down after PHY disconnect")
-Reported-by: Pavel Machek <pavel@denx.de>
-Signed-off-by: Vladimir Oltean <olteanv@gmail.com>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Fixes: 48debafe4f2f ("dm: add writecache target")
+Cc: stable@vger.kernel.org # 4.18+
+Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm/boot/dts/ls1021a.dtsi |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/md/dm-writecache.c |   12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
 
---- a/arch/arm/boot/dts/ls1021a.dtsi
-+++ b/arch/arm/boot/dts/ls1021a.dtsi
-@@ -728,7 +728,7 @@
- 		};
+--- a/drivers/md/dm-writecache.c
++++ b/drivers/md/dm-writecache.c
+@@ -625,6 +625,12 @@ static void writecache_add_to_freelist(s
+ 	wc->freelist_size++;
+ }
  
- 		mdio0: mdio@2d24000 {
--			compatible = "fsl,etsec2-mdio";
-+			compatible = "gianfar";
- 			device_type = "mdio";
- 			#address-cells = <1>;
- 			#size-cells = <0>;
-@@ -737,7 +737,7 @@
- 		};
++static inline void writecache_verify_watermark(struct dm_writecache *wc)
++{
++	if (unlikely(wc->freelist_size + wc->writeback_size <= wc->freelist_high_watermark))
++		queue_work(wc->writeback_wq, &wc->writeback_work);
++}
++
+ static struct wc_entry *writecache_pop_from_freelist(struct dm_writecache *wc)
+ {
+ 	struct wc_entry *e;
+@@ -646,8 +652,8 @@ static struct wc_entry *writecache_pop_f
+ 		list_del(&e->lru);
+ 	}
+ 	wc->freelist_size--;
+-	if (unlikely(wc->freelist_size + wc->writeback_size <= wc->freelist_high_watermark))
+-		queue_work(wc->writeback_wq, &wc->writeback_work);
++
++	writecache_verify_watermark(wc);
  
- 		mdio1: mdio@2d64000 {
--			compatible = "fsl,etsec2-mdio";
-+			compatible = "gianfar";
- 			device_type = "mdio";
- 			#address-cells = <1>;
- 			#size-cells = <0>;
+ 	return e;
+ }
+@@ -961,6 +967,8 @@ erase_this:
+ 		writecache_commit_flushed(wc, false);
+ 	}
+ 
++	writecache_verify_watermark(wc);
++
+ 	wc_unlock(wc);
+ }
+ 
 
 
