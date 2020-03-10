@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E861117FB76
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:14:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B798C17FB98
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:15:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730433AbgCJNOI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 09:14:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37456 "EHLO mail.kernel.org"
+        id S1731498AbgCJNPW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 09:15:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39966 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730355AbgCJNOH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 09:14:07 -0400
+        id S1732022AbgCJNPV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 09:15:21 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6B26924649;
-        Tue, 10 Mar 2020 13:14:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3A391208E4;
+        Tue, 10 Mar 2020 13:15:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583846046;
-        bh=jENa1iOTffqMHGFt30gipGVXbT4PUMFHQ7QC1hJPN3E=;
+        s=default; t=1583846120;
+        bh=CoD98Bo+ro5MOQj+ifjN5T4EteboXKPXi3D4jGprWWE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wT+/Jk2YroU4gPaIFPhEQohjvhcy62XEpa72ZwZjuEdqHYDR0FysC74VBIJaBlQxG
-         b//U2LCGzE7eba+iXnd61GgWSPGrcOeMHCWilgnT4eUngO8xjjqfwMvxiyX6rBLfFI
-         FCyAIbnhzfUPMks88UKUfGMNAFip75ImoeYqK478=
+        b=KXyAnlKtrbCKd0dyNV4SDUIEKg+mj3p7w8BObbbAs3SSR8F39vAE3GGNI80HUABJR
+         4aPPWsQ4Vb3KNeBg5Z+fJgl0qP6413a6xRBsOR8qUSvGugESXcTFDZrqyOI5E1U2P3
+         wxn4DPTRH9gn+px4sWwHyUWRj9dq42d51vIyREX0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
-        Cezary Rojewski <cezary.rojewski@intel.com>,
+        stable@vger.kernel.org, Matthias Reichl <hias@horus.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
         Mark Brown <broonie@kernel.org>
-Subject: [PATCH 4.19 65/86] ASoC: pcm: Fix possible buffer overflow in dpcm state sysfs output
-Date:   Tue, 10 Mar 2020 13:45:29 +0100
-Message-Id: <20200310124534.295150608@linuxfoundation.org>
+Subject: [PATCH 4.19 66/86] ASoC: pcm512x: Fix unbalanced regulator enable call in probe error path
+Date:   Tue, 10 Mar 2020 13:45:30 +0100
+Message-Id: <20200310124534.347153999@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200310124530.808338541@linuxfoundation.org>
 References: <20200310124530.808338541@linuxfoundation.org>
@@ -44,84 +44,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Matthias Reichl <hias@horus.com>
 
-commit 6c89ffea60aa3b2a33ae7987de1e84bfb89e4c9e upstream.
+commit ac0a68997935c4acb92eaae5ad8982e0bb432d56 upstream.
 
-dpcm_show_state() invokes multiple snprintf() calls to concatenate
-formatted strings on the fixed size buffer.  The usage of snprintf()
-is supposed for avoiding the buffer overflow, but it doesn't work as
-expected because snprintf() doesn't return the actual output size but
-the size to be written.
+When we get a clock error during probe we have to call
+regulator_bulk_disable before bailing out, otherwise we trigger
+a warning in regulator_put.
 
-Fix this bug by replacing all snprintf() calls with scnprintf()
-calls.
+Fix this by using "goto err" like in the error cases above.
 
-Fixes: f86dcef87b77 ("ASoC: dpcm: Add debugFS support for DPCM")
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Acked-by: Cezary Rojewski <cezary.rojewski@intel.com>
-Link: https://lore.kernel.org/r/20200218111737.14193-4-tiwai@suse.de
+Fixes: 5a3af1293194d ("ASoC: pcm512x: Add PCM512x driver")
+Signed-off-by: Matthias Reichl <hias@horus.com>
+Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Link: https://lore.kernel.org/r/20200220202956.29233-1-hias@horus.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/soc/soc-pcm.c |   16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ sound/soc/codecs/pcm512x.c |    8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
---- a/sound/soc/soc-pcm.c
-+++ b/sound/soc/soc-pcm.c
-@@ -3357,16 +3357,16 @@ static ssize_t dpcm_show_state(struct sn
- 	ssize_t offset = 0;
- 
- 	/* FE state */
--	offset += snprintf(buf + offset, size - offset,
-+	offset += scnprintf(buf + offset, size - offset,
- 			"[%s - %s]\n", fe->dai_link->name,
- 			stream ? "Capture" : "Playback");
- 
--	offset += snprintf(buf + offset, size - offset, "State: %s\n",
-+	offset += scnprintf(buf + offset, size - offset, "State: %s\n",
- 	                dpcm_state_string(fe->dpcm[stream].state));
- 
- 	if ((fe->dpcm[stream].state >= SND_SOC_DPCM_STATE_HW_PARAMS) &&
- 	    (fe->dpcm[stream].state <= SND_SOC_DPCM_STATE_STOP))
--		offset += snprintf(buf + offset, size - offset,
-+		offset += scnprintf(buf + offset, size - offset,
- 				"Hardware Params: "
- 				"Format = %s, Channels = %d, Rate = %d\n",
- 				snd_pcm_format_name(params_format(params)),
-@@ -3374,10 +3374,10 @@ static ssize_t dpcm_show_state(struct sn
- 				params_rate(params));
- 
- 	/* BEs state */
--	offset += snprintf(buf + offset, size - offset, "Backends:\n");
-+	offset += scnprintf(buf + offset, size - offset, "Backends:\n");
- 
- 	if (list_empty(&fe->dpcm[stream].be_clients)) {
--		offset += snprintf(buf + offset, size - offset,
-+		offset += scnprintf(buf + offset, size - offset,
- 				" No active DSP links\n");
- 		goto out;
+--- a/sound/soc/codecs/pcm512x.c
++++ b/sound/soc/codecs/pcm512x.c
+@@ -1437,13 +1437,15 @@ int pcm512x_probe(struct device *dev, st
  	}
-@@ -3386,16 +3386,16 @@ static ssize_t dpcm_show_state(struct sn
- 		struct snd_soc_pcm_runtime *be = dpcm->be;
- 		params = &dpcm->hw_params;
  
--		offset += snprintf(buf + offset, size - offset,
-+		offset += scnprintf(buf + offset, size - offset,
- 				"- %s\n", be->dai_link->name);
+ 	pcm512x->sclk = devm_clk_get(dev, NULL);
+-	if (PTR_ERR(pcm512x->sclk) == -EPROBE_DEFER)
+-		return -EPROBE_DEFER;
++	if (PTR_ERR(pcm512x->sclk) == -EPROBE_DEFER) {
++		ret = -EPROBE_DEFER;
++		goto err;
++	}
+ 	if (!IS_ERR(pcm512x->sclk)) {
+ 		ret = clk_prepare_enable(pcm512x->sclk);
+ 		if (ret != 0) {
+ 			dev_err(dev, "Failed to enable SCLK: %d\n", ret);
+-			return ret;
++			goto err;
+ 		}
+ 	}
  
--		offset += snprintf(buf + offset, size - offset,
-+		offset += scnprintf(buf + offset, size - offset,
- 				"   State: %s\n",
- 				dpcm_state_string(be->dpcm[stream].state));
- 
- 		if ((be->dpcm[stream].state >= SND_SOC_DPCM_STATE_HW_PARAMS) &&
- 		    (be->dpcm[stream].state <= SND_SOC_DPCM_STATE_STOP))
--			offset += snprintf(buf + offset, size - offset,
-+			offset += scnprintf(buf + offset, size - offset,
- 				"   Hardware Params: "
- 				"Format = %s, Channels = %d, Rate = %d\n",
- 				snd_pcm_format_name(params_format(params)),
 
 
