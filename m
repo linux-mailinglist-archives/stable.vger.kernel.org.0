@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3513517FB6A
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:13:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3EE7F17FB6C
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:13:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731769AbgCJNNs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 09:13:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36916 "EHLO mail.kernel.org"
+        id S1731782AbgCJNNw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 09:13:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36994 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731782AbgCJNNr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 09:13:47 -0400
+        id S1731786AbgCJNNu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 09:13:50 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D49382468C;
-        Tue, 10 Mar 2020 13:13:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 71A3224693;
+        Tue, 10 Mar 2020 13:13:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583846027;
-        bh=/CU3mvUbfKrgSRnu4lrZ0glLn0Q5SoFRYLGyMaHLNmI=;
+        s=default; t=1583846029;
+        bh=+2vvil5nc479+npVxFLXXZzKyjPWg+sqVM82dkKqrNc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b6M1Bror49Q4XYGcasd2LIEIg7ERme1m8n7fOBD4pdfcJs0DXxMZdFYloLy87s29B
-         +vQo5dEsOkttH5Wb1k1Vf5Z/l8+WrdUXXo1Yt7hzAKRPhAvQmjkqtSA9kxkAgUj07G
-         CrAbKtfXaTXlNHmKIU7g73V49stGrclDrVOl4g6Y=
+        b=rsu2ttZArCpL4h/hW2XW7Exol4T59UjWsuT09an2Ujh2AcrBWdmJfzONKw/UjfqiM
+         xvkQ9hppru2wuMftNRzXxS5cSGqvUTBcGUta0A8gZBV3qZg0etgHvpRqsVBsl+Tz+X
+         0EJB4rma73U2ogNkqN9ceW8vX75QBwLOd6N7xuvw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Jonas Gorski <jonas.gorski@gmail.com>,
+        stable@vger.kernel.org, Dragos Tarcatu <dragos_tarcatu@mentor.com>,
         Mark Brown <broonie@kernel.org>
-Subject: [PATCH 4.19 59/86] spi: bcm63xx-hsspi: Really keep pll clk enabled
-Date:   Tue, 10 Mar 2020 13:45:23 +0100
-Message-Id: <20200310124533.985288833@linuxfoundation.org>
+Subject: [PATCH 4.19 60/86] ASoC: topology: Fix memleak in soc_tplg_link_elems_load()
+Date:   Tue, 10 Mar 2020 13:45:24 +0100
+Message-Id: <20200310124534.037010579@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200310124530.808338541@linuxfoundation.org>
 References: <20200310124530.808338541@linuxfoundation.org>
@@ -45,43 +43,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Dragos Tarcatu <dragos_tarcatu@mentor.com>
 
-commit 51bddd4501bc414b8b1e8f4d096b4a5304068169 upstream.
+commit 2b2d5c4db732c027a14987cfccf767dac1b45170 upstream.
 
-The purpose of commit 0fd85869c2a9 ("spi/bcm63xx-hsspi: keep pll clk enabled")
-was to keep the pll clk enabled through the lifetime of the device.
+If soc_tplg_link_config() fails, _link needs to be freed in case of
+topology ABI version mismatch. However the current code is returning
+directly and ends up leaking memory in this case.
+This patch fixes that.
 
-In order to do that, some 'clk_prepare_enable()'/'clk_disable_unprepare()'
-calls have been added in the error handling path of the probe function, in
-the remove function and in the suspend and resume functions.
-
-However, a 'clk_disable_unprepare()' call has been unfortunately left in
-the probe function. So the commit seems to be more or less a no-op.
-
-Axe it now, so that the pll clk is left enabled through the lifetime of
-the device, as described in the commit.
-
-Fixes: 0fd85869c2a9 ("spi/bcm63xx-hsspi: keep pll clk enabled")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Acked-by: Jonas Gorski <jonas.gorski@gmail.com>
-Link: https://lore.kernel.org/r/20200228213838.7124-1-christophe.jaillet@wanadoo.fr
+Fixes: 593d9e52f9bb ("ASoC: topology: Add support to configure existing physical DAI links")
+Signed-off-by: Dragos Tarcatu <dragos_tarcatu@mentor.com>
+Link: https://lore.kernel.org/r/20200207185325.22320-2-dragos_tarcatu@mentor.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/spi/spi-bcm63xx-hsspi.c |    1 -
- 1 file changed, 1 deletion(-)
+ sound/soc/soc-topology.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/drivers/spi/spi-bcm63xx-hsspi.c
-+++ b/drivers/spi/spi-bcm63xx-hsspi.c
-@@ -371,7 +371,6 @@ static int bcm63xx_hsspi_probe(struct pl
- 			goto out_disable_clk;
+--- a/sound/soc/soc-topology.c
++++ b/sound/soc/soc-topology.c
+@@ -2154,8 +2154,11 @@ static int soc_tplg_link_elems_load(stru
+ 		}
  
- 		rate = clk_get_rate(pll_clk);
--		clk_disable_unprepare(pll_clk);
- 		if (!rate) {
- 			ret = -EINVAL;
- 			goto out_disable_pll_clk;
+ 		ret = soc_tplg_link_config(tplg, _link);
+-		if (ret < 0)
++		if (ret < 0) {
++			if (!abi_match)
++				kfree(_link);
+ 			return ret;
++		}
+ 
+ 		/* offset by version-specific struct size and
+ 		 * real priv data size
 
 
