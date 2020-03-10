@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 95BA317FC87
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:21:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D9A0D17FA4C
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:04:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730338AbgCJNFp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 09:05:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50864 "EHLO mail.kernel.org"
+        id S1729722AbgCJNES (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 09:04:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49242 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727721AbgCJNFi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 09:05:38 -0400
+        id S1729456AbgCJNEQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 09:04:16 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8664424693;
-        Tue, 10 Mar 2020 13:05:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9D63E24693;
+        Tue, 10 Mar 2020 13:04:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583845537;
-        bh=R6YbtuebXFw6XBTvkhpVfvNYOyD7XpQPSUCR6bsXrBg=;
+        s=default; t=1583845455;
+        bh=C8JapEoOUIN4r0cBd+3vAgQBPCVeIqxcY2yj8qwgDYk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EcGs+vS5KWqMPetN5OmBFaN6W7a1j2mwzZuZPA0GyYSIM64Q6Qj44+cX9kAlhdjBq
-         zuRGilohqdp+4ZGyDT++1PmMBl8L6l05roMahnl4ij/3CFSvE3iR01BVXEGWNognkz
-         NhmZImqHeFMzp1aRTXIYYXwj3T2P00bnOoK2Iv0A=
+        b=JCySiBjglU0Md/dYRQwPTJ1aeoxzFx9UUJbcVdIij9FmZOvdg/QgDYIW3YcuQRHYI
+         a1RRMlUUQQQ/Xsyou6uYrzqjpDyuHD199rG8G+KOf76wkElZeoq5rj8KgzYp8IV0zZ
+         6nPqin5JLbP+t24fbMYXjMHzY/RTynbrdda8QPic=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Suraj Jitindar Singh <surajjs@amazon.com>,
-        Theodore Tso <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>,
-        stable@kernel.org
-Subject: [PATCH 4.14 003/126] ext4: fix potential race between online resizing and write operations
+        stable@vger.kernel.org, Ard Biesheuvel <ardb@kernel.org>,
+        Ingo Molnar <mingo@kernel.org>, linux-efi@vger.kernel.org,
+        Thomas Gleixner <tglx@linutronix.de>
+Subject: [PATCH 5.5 187/189] efi/x86: Handle by-ref arguments covering multiple pages in mixed mode
 Date:   Tue, 10 Mar 2020 13:40:24 +0100
-Message-Id: <20200310124203.908889314@linuxfoundation.org>
+Message-Id: <20200310123658.336363020@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200310124203.704193207@linuxfoundation.org>
-References: <20200310124203.704193207@linuxfoundation.org>
+In-Reply-To: <20200310123639.608886314@linuxfoundation.org>
+References: <20200310123639.608886314@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,325 +44,137 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Theodore Ts'o <tytso@mit.edu>
+From: Ard Biesheuvel <ardb@kernel.org>
 
-commit 1d0c3924a92e69bfa91163bda83c12a994b4d106 upstream.
+commit 8319e9d5ad98ffccd19f35664382c73cea216193 upstream.
 
-During an online resize an array of pointers to buffer heads gets
-replaced so it can get enlarged.  If there is a racing block
-allocation or deallocation which uses the old array, and the old array
-has gotten reused this can lead to a GPF or some other random kernel
-memory getting modified.
+The mixed mode runtime wrappers are fragile when it comes to how the
+memory referred to by its pointer arguments are laid out in memory, due
+to the fact that it translates these addresses to physical addresses that
+the runtime services can dereference when running in 1:1 mode. Since
+vmalloc'ed pages (including the vmap'ed stack) are not contiguous in the
+physical address space, this scheme only works if the referenced memory
+objects do not cross page boundaries.
 
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=206443
-Link: https://lore.kernel.org/r/20200221053458.730016-2-tytso@mit.edu
-Reported-by: Suraj Jitindar Singh <surajjs@amazon.com>
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Cc: stable@kernel.org # 4.14.x
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Currently, the mixed mode runtime service wrappers require that all by-ref
+arguments that live in the vmalloc space have a size that is a power of 2,
+and are aligned to that same value. While this is a sensible way to
+construct an object that is guaranteed not to cross a page boundary, it is
+overly strict when it comes to checking whether a given object violates
+this requirement, as we can simply take the physical address of the first
+and the last byte, and verify that they point into the same physical page.
+
+When this check fails, we emit a WARN(), but then simply proceed with the
+call, which could cause data corruption if the next physical page belongs
+to a mapping that is entirely unrelated.
+
+Given that with vmap'ed stacks, this condition is much more likely to
+trigger, let's relax the condition a bit, but fail the runtime service
+call if it does trigger.
+
+Fixes: f6697df36bdf0bf7 ("x86/efi: Prevent mixed mode boot corruption with CONFIG_VMAP_STACK=y")
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Cc: linux-efi@vger.kernel.org
+Cc: Ingo Molnar <mingo@kernel.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Link: https://lore.kernel.org/r/20200221084849.26878-4-ardb@kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- fs/ext4/balloc.c | 14 +++++++++---
- fs/ext4/ext4.h   | 20 +++++++++++++++++-
- fs/ext4/resize.c | 55 ++++++++++++++++++++++++++++++++++++++----------
- fs/ext4/super.c  | 31 +++++++++++++++++++--------
- 4 files changed, 96 insertions(+), 24 deletions(-)
+ arch/x86/platform/efi/efi_64.c |   45 +++++++++++++++++++++++------------------
+ 1 file changed, 26 insertions(+), 19 deletions(-)
 
-diff --git a/fs/ext4/balloc.c b/fs/ext4/balloc.c
-index 70266a3355dc3..fb38f20f869e7 100644
---- a/fs/ext4/balloc.c
-+++ b/fs/ext4/balloc.c
-@@ -280,6 +280,7 @@ struct ext4_group_desc * ext4_get_group_desc(struct super_block *sb,
- 	ext4_group_t ngroups = ext4_get_groups_count(sb);
- 	struct ext4_group_desc *desc;
- 	struct ext4_sb_info *sbi = EXT4_SB(sb);
-+	struct buffer_head *bh_p;
+--- a/arch/x86/platform/efi/efi_64.c
++++ b/arch/x86/platform/efi/efi_64.c
+@@ -316,7 +316,7 @@ void efi_sync_low_kernel_mappings(void)
+ static inline phys_addr_t
+ virt_to_phys_or_null_size(void *va, unsigned long size)
+ {
+-	bool bad_size;
++	phys_addr_t pa;
  
- 	if (block_group >= ngroups) {
- 		ext4_error(sb, "block_group >= groups_count - block_group = %u,"
-@@ -290,7 +291,14 @@ struct ext4_group_desc * ext4_get_group_desc(struct super_block *sb,
+ 	if (!va)
+ 		return 0;
+@@ -324,16 +324,13 @@ virt_to_phys_or_null_size(void *va, unsi
+ 	if (virt_addr_valid(va))
+ 		return virt_to_phys(va);
  
- 	group_desc = block_group >> EXT4_DESC_PER_BLOCK_BITS(sb);
- 	offset = block_group & (EXT4_DESC_PER_BLOCK(sb) - 1);
--	if (!sbi->s_group_desc[group_desc]) {
-+	bh_p = sbi_array_rcu_deref(sbi, s_group_desc, group_desc);
-+	/*
-+	 * sbi_array_rcu_deref returns with rcu unlocked, this is ok since
-+	 * the pointer being dereferenced won't be dereferenced again. By
-+	 * looking at the usage in add_new_gdb() the value isn't modified,
-+	 * just the pointer, and so it remains valid.
-+	 */
-+	if (!bh_p) {
- 		ext4_error(sb, "Group descriptor not loaded - "
- 			   "block_group = %u, group_desc = %u, desc = %u",
- 			   block_group, group_desc, offset);
-@@ -298,10 +306,10 @@ struct ext4_group_desc * ext4_get_group_desc(struct super_block *sb,
- 	}
+-	/*
+-	 * A fully aligned variable on the stack is guaranteed not to
+-	 * cross a page bounary. Try to catch strings on the stack by
+-	 * checking that 'size' is a power of two.
+-	 */
+-	bad_size = size > PAGE_SIZE || !is_power_of_2(size);
++	pa = slow_virt_to_phys(va);
  
- 	desc = (struct ext4_group_desc *)(
--		(__u8 *)sbi->s_group_desc[group_desc]->b_data +
-+		(__u8 *)bh_p->b_data +
- 		offset * EXT4_DESC_SIZE(sb));
- 	if (bh)
--		*bh = sbi->s_group_desc[group_desc];
-+		*bh = bh_p;
- 	return desc;
+-	WARN_ON(!IS_ALIGNED((unsigned long)va, size) || bad_size);
++	/* check if the object crosses a page boundary */
++	if (WARN_ON((pa ^ (pa + size - 1)) & PAGE_MASK))
++		return 0;
+ 
+-	return slow_virt_to_phys(va);
++	return pa;
  }
  
-diff --git a/fs/ext4/ext4.h b/fs/ext4/ext4.h
-index b162f602c430f..94f4f6d55c1a4 100644
---- a/fs/ext4/ext4.h
-+++ b/fs/ext4/ext4.h
-@@ -1382,7 +1382,7 @@ struct ext4_sb_info {
- 	loff_t s_bitmap_maxbytes;	/* max bytes for bitmap files */
- 	struct buffer_head * s_sbh;	/* Buffer containing the super block */
- 	struct ext4_super_block *s_es;	/* Pointer to the super block in the buffer */
--	struct buffer_head **s_group_desc;
-+	struct buffer_head * __rcu *s_group_desc;
- 	unsigned int s_mount_opt;
- 	unsigned int s_mount_opt2;
- 	unsigned int s_mount_flags;
-@@ -1556,6 +1556,23 @@ static inline int ext4_valid_inum(struct super_block *sb, unsigned long ino)
- 		 ino <= le32_to_cpu(EXT4_SB(sb)->s_es->s_inodes_count));
- }
+ #define virt_to_phys_or_null(addr)				\
+@@ -808,8 +805,11 @@ efi_thunk_get_variable(efi_char16_t *nam
+ 	phys_attr = virt_to_phys_or_null(attr);
+ 	phys_data = virt_to_phys_or_null_size(data, *data_size);
  
-+/*
-+ * Returns: sbi->field[index]
-+ * Used to access an array element from the following sbi fields which require
-+ * rcu protection to avoid dereferencing an invalid pointer due to reassignment
-+ * - s_group_desc
-+ * - s_group_info
-+ * - s_flex_group
-+ */
-+#define sbi_array_rcu_deref(sbi, field, index)				   \
-+({									   \
-+	typeof(*((sbi)->field)) _v;					   \
-+	rcu_read_lock();						   \
-+	_v = ((typeof(_v)*)rcu_dereference((sbi)->field))[index];	   \
-+	rcu_read_unlock();						   \
-+	_v;								   \
-+})
-+
- /*
-  * Inode dynamic state flags
-  */
-@@ -2569,6 +2586,7 @@ extern int ext4_generic_delete_entry(handle_t *handle,
- extern bool ext4_empty_dir(struct inode *inode);
+-	status = efi_thunk(get_variable, phys_name, phys_vendor,
+-			   phys_attr, phys_data_size, phys_data);
++	if (!phys_name || (data && !phys_data))
++		status = EFI_INVALID_PARAMETER;
++	else
++		status = efi_thunk(get_variable, phys_name, phys_vendor,
++				   phys_attr, phys_data_size, phys_data);
  
- /* resize.c */
-+extern void ext4_kvfree_array_rcu(void *to_free);
- extern int ext4_group_add(struct super_block *sb,
- 				struct ext4_new_group_data *input);
- extern int ext4_group_extend(struct super_block *sb,
-diff --git a/fs/ext4/resize.c b/fs/ext4/resize.c
-index 4f7cd78d03647..16e3830da5487 100644
---- a/fs/ext4/resize.c
-+++ b/fs/ext4/resize.c
-@@ -17,6 +17,33 @@
+ 	spin_unlock_irqrestore(&efi_runtime_lock, flags);
  
- #include "ext4_jbd2.h"
+@@ -834,9 +834,11 @@ efi_thunk_set_variable(efi_char16_t *nam
+ 	phys_vendor = virt_to_phys_or_null(vnd);
+ 	phys_data = virt_to_phys_or_null_size(data, data_size);
  
-+struct ext4_rcu_ptr {
-+	struct rcu_head rcu;
-+	void *ptr;
-+};
-+
-+static void ext4_rcu_ptr_callback(struct rcu_head *head)
-+{
-+	struct ext4_rcu_ptr *ptr;
-+
-+	ptr = container_of(head, struct ext4_rcu_ptr, rcu);
-+	kvfree(ptr->ptr);
-+	kfree(ptr);
-+}
-+
-+void ext4_kvfree_array_rcu(void *to_free)
-+{
-+	struct ext4_rcu_ptr *ptr = kzalloc(sizeof(*ptr), GFP_KERNEL);
-+
-+	if (ptr) {
-+		ptr->ptr = to_free;
-+		call_rcu(&ptr->rcu, ext4_rcu_ptr_callback);
-+		return;
-+	}
-+	synchronize_rcu();
-+	kvfree(to_free);
-+}
-+
- int ext4_resize_begin(struct super_block *sb)
- {
- 	struct ext4_sb_info *sbi = EXT4_SB(sb);
-@@ -545,8 +572,8 @@ static int setup_new_flex_group_blocks(struct super_block *sb,
- 				brelse(gdb);
- 				goto out;
- 			}
--			memcpy(gdb->b_data, sbi->s_group_desc[j]->b_data,
--			       gdb->b_size);
-+			memcpy(gdb->b_data, sbi_array_rcu_deref(sbi,
-+				s_group_desc, j)->b_data, gdb->b_size);
- 			set_buffer_uptodate(gdb);
+-	/* If data_size is > sizeof(u32) we've got problems */
+-	status = efi_thunk(set_variable, phys_name, phys_vendor,
+-			   attr, data_size, phys_data);
++	if (!phys_name || !phys_data)
++		status = EFI_INVALID_PARAMETER;
++	else
++		status = efi_thunk(set_variable, phys_name, phys_vendor,
++				   attr, data_size, phys_data);
  
- 			err = ext4_handle_dirty_metadata(handle, NULL, gdb);
-@@ -854,13 +881,15 @@ static int add_new_gdb(handle_t *handle, struct inode *inode,
- 	}
- 	brelse(dind);
+ 	spin_unlock_irqrestore(&efi_runtime_lock, flags);
  
--	o_group_desc = EXT4_SB(sb)->s_group_desc;
-+	rcu_read_lock();
-+	o_group_desc = rcu_dereference(EXT4_SB(sb)->s_group_desc);
- 	memcpy(n_group_desc, o_group_desc,
- 	       EXT4_SB(sb)->s_gdb_count * sizeof(struct buffer_head *));
-+	rcu_read_unlock();
- 	n_group_desc[gdb_num] = gdb_bh;
--	EXT4_SB(sb)->s_group_desc = n_group_desc;
-+	rcu_assign_pointer(EXT4_SB(sb)->s_group_desc, n_group_desc);
- 	EXT4_SB(sb)->s_gdb_count++;
--	kvfree(o_group_desc);
-+	ext4_kvfree_array_rcu(o_group_desc);
+@@ -863,9 +865,11 @@ efi_thunk_set_variable_nonblocking(efi_c
+ 	phys_vendor = virt_to_phys_or_null(vnd);
+ 	phys_data = virt_to_phys_or_null_size(data, data_size);
  
- 	le16_add_cpu(&es->s_reserved_gdt_blocks, -1);
- 	err = ext4_handle_dirty_super(handle, sb);
-@@ -904,9 +933,11 @@ static int add_new_gdb_meta_bg(struct super_block *sb,
- 		return err;
- 	}
+-	/* If data_size is > sizeof(u32) we've got problems */
+-	status = efi_thunk(set_variable, phys_name, phys_vendor,
+-			   attr, data_size, phys_data);
++	if (!phys_name || !phys_data)
++		status = EFI_INVALID_PARAMETER;
++	else
++		status = efi_thunk(set_variable, phys_name, phys_vendor,
++				   attr, data_size, phys_data);
  
--	o_group_desc = EXT4_SB(sb)->s_group_desc;
-+	rcu_read_lock();
-+	o_group_desc = rcu_dereference(EXT4_SB(sb)->s_group_desc);
- 	memcpy(n_group_desc, o_group_desc,
- 	       EXT4_SB(sb)->s_gdb_count * sizeof(struct buffer_head *));
-+	rcu_read_unlock();
- 	n_group_desc[gdb_num] = gdb_bh;
+ 	spin_unlock_irqrestore(&efi_runtime_lock, flags);
  
- 	BUFFER_TRACE(gdb_bh, "get_write_access");
-@@ -917,9 +948,9 @@ static int add_new_gdb_meta_bg(struct super_block *sb,
- 		return err;
- 	}
+@@ -891,8 +895,11 @@ efi_thunk_get_next_variable(unsigned lon
+ 	phys_vendor = virt_to_phys_or_null(vnd);
+ 	phys_name = virt_to_phys_or_null_size(name, *name_size);
  
--	EXT4_SB(sb)->s_group_desc = n_group_desc;
-+	rcu_assign_pointer(EXT4_SB(sb)->s_group_desc, n_group_desc);
- 	EXT4_SB(sb)->s_gdb_count++;
--	kvfree(o_group_desc);
-+	ext4_kvfree_array_rcu(o_group_desc);
- 	return err;
- }
+-	status = efi_thunk(get_next_variable, phys_name_size,
+-			   phys_name, phys_vendor);
++	if (!phys_name)
++		status = EFI_INVALID_PARAMETER;
++	else
++		status = efi_thunk(get_next_variable, phys_name_size,
++				   phys_name, phys_vendor);
  
-@@ -1183,7 +1214,8 @@ static int ext4_add_new_descs(handle_t *handle, struct super_block *sb,
- 		 * use non-sparse filesystems anymore.  This is already checked above.
- 		 */
- 		if (gdb_off) {
--			gdb_bh = sbi->s_group_desc[gdb_num];
-+			gdb_bh = sbi_array_rcu_deref(sbi, s_group_desc,
-+						     gdb_num);
- 			BUFFER_TRACE(gdb_bh, "get_write_access");
- 			err = ext4_journal_get_write_access(handle, gdb_bh);
+ 	spin_unlock_irqrestore(&efi_runtime_lock, flags);
  
-@@ -1265,7 +1297,7 @@ static int ext4_setup_new_descs(handle_t *handle, struct super_block *sb,
- 		/*
- 		 * get_write_access() has been called on gdb_bh by ext4_add_new_desc().
- 		 */
--		gdb_bh = sbi->s_group_desc[gdb_num];
-+		gdb_bh = sbi_array_rcu_deref(sbi, s_group_desc, gdb_num);
- 		/* Update group descriptor block for new group */
- 		gdp = (struct ext4_group_desc *)(gdb_bh->b_data +
- 						 gdb_off * EXT4_DESC_SIZE(sb));
-@@ -1492,7 +1524,8 @@ exit_journal:
- 		for (; gdb_num <= gdb_num_end; gdb_num++) {
- 			struct buffer_head *gdb_bh;
- 
--			gdb_bh = sbi->s_group_desc[gdb_num];
-+			gdb_bh = sbi_array_rcu_deref(sbi, s_group_desc,
-+						     gdb_num);
- 			if (old_gdb == gdb_bh->b_blocknr)
- 				continue;
- 			update_backups(sb, gdb_bh->b_blocknr, gdb_bh->b_data,
-diff --git a/fs/ext4/super.c b/fs/ext4/super.c
-index 09b443709bcab..b14a0c5638e70 100644
---- a/fs/ext4/super.c
-+++ b/fs/ext4/super.c
-@@ -900,6 +900,7 @@ static void ext4_put_super(struct super_block *sb)
- {
- 	struct ext4_sb_info *sbi = EXT4_SB(sb);
- 	struct ext4_super_block *es = sbi->s_es;
-+	struct buffer_head **group_desc;
- 	int aborted = 0;
- 	int i, err;
- 
-@@ -931,9 +932,12 @@ static void ext4_put_super(struct super_block *sb)
- 	if (!sb_rdonly(sb))
- 		ext4_commit_super(sb, 1);
- 
-+	rcu_read_lock();
-+	group_desc = rcu_dereference(sbi->s_group_desc);
- 	for (i = 0; i < sbi->s_gdb_count; i++)
--		brelse(sbi->s_group_desc[i]);
--	kvfree(sbi->s_group_desc);
-+		brelse(group_desc[i]);
-+	kvfree(group_desc);
-+	rcu_read_unlock();
- 	kvfree(sbi->s_flex_groups);
- 	percpu_counter_destroy(&sbi->s_freeclusters_counter);
- 	percpu_counter_destroy(&sbi->s_freeinodes_counter);
-@@ -3489,7 +3493,7 @@ static int ext4_fill_super(struct super_block *sb, void *data, int silent)
- {
- 	struct dax_device *dax_dev = fs_dax_get_by_bdev(sb->s_bdev);
- 	char *orig_data = kstrdup(data, GFP_KERNEL);
--	struct buffer_head *bh;
-+	struct buffer_head *bh, **group_desc;
- 	struct ext4_super_block *es = NULL;
- 	struct ext4_sb_info *sbi = kzalloc(sizeof(*sbi), GFP_KERNEL);
- 	ext4_fsblk_t block;
-@@ -4104,9 +4108,10 @@ static int ext4_fill_super(struct super_block *sb, void *data, int silent)
- 			goto failed_mount;
- 		}
- 	}
--	sbi->s_group_desc = kvmalloc(db_count *
-+	rcu_assign_pointer(sbi->s_group_desc,
-+			   kvmalloc_array(db_count,
- 					  sizeof(struct buffer_head *),
--					  GFP_KERNEL);
-+					  GFP_KERNEL));
- 	if (sbi->s_group_desc == NULL) {
- 		ext4_msg(sb, KERN_ERR, "not enough memory");
- 		ret = -ENOMEM;
-@@ -4122,14 +4127,19 @@ static int ext4_fill_super(struct super_block *sb, void *data, int silent)
- 	}
- 
- 	for (i = 0; i < db_count; i++) {
-+		struct buffer_head *bh;
-+
- 		block = descriptor_loc(sb, logical_sb_block, i);
--		sbi->s_group_desc[i] = sb_bread_unmovable(sb, block);
--		if (!sbi->s_group_desc[i]) {
-+		bh = sb_bread_unmovable(sb, block);
-+		if (!bh) {
- 			ext4_msg(sb, KERN_ERR,
- 			       "can't read group descriptor %d", i);
- 			db_count = i;
- 			goto failed_mount2;
- 		}
-+		rcu_read_lock();
-+		rcu_dereference(sbi->s_group_desc)[i] = bh;
-+		rcu_read_unlock();
- 	}
- 	sbi->s_gdb_count = db_count;
- 	if (!ext4_check_descriptors(sb, logical_sb_block, &first_not_zeroed)) {
-@@ -4521,9 +4531,12 @@ failed_mount3:
- 	if (sbi->s_mmp_tsk)
- 		kthread_stop(sbi->s_mmp_tsk);
- failed_mount2:
-+	rcu_read_lock();
-+	group_desc = rcu_dereference(sbi->s_group_desc);
- 	for (i = 0; i < db_count; i++)
--		brelse(sbi->s_group_desc[i]);
--	kvfree(sbi->s_group_desc);
-+		brelse(group_desc[i]);
-+	kvfree(group_desc);
-+	rcu_read_unlock();
- failed_mount:
- 	if (sbi->s_chksum_driver)
- 		crypto_free_shash(sbi->s_chksum_driver);
--- 
-2.20.1
-
 
 
