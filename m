@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9364317FF16
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:44:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CEA5317FF1D
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:44:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728052AbgCJNoZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 09:44:25 -0400
-Received: from mail-oln040092065093.outbound.protection.outlook.com ([40.92.65.93]:1430
+        id S1727960AbgCJNoa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 09:44:30 -0400
+Received: from mail-oln040092065064.outbound.protection.outlook.com ([40.92.65.64]:21094
         "EHLO EUR01-HE1-obe.outbound.protection.outlook.com"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1727960AbgCJNoV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 09:44:21 -0400
+        id S1726353AbgCJNoZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 09:44:25 -0400
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=Sl1pzjcWcCAjORhMzuZiyBTO4IQsilHSu35OMLyxm7hyCTxgIiGSxWiItSCqBvn73Vj9gRObFAUzWTrmhyp+x0vc1sHAzKLSMdJAEJKI62kHnrRH19YEp3kuEtWWiJATykAxrq4pHYkId83Bw0aq3dizSiIrfT+75BUNAONjPVLo+VkF2gmwA+Ya7xlYNi3riarH8gZuILS1namfXB5o7oy7HmcOgVsMAFRlowclx5lur5ctJstZz64rgWhi0tm3bC4ns59O5Kd4KbuZcLD6JzbeaQhSlZ8E2jhL9OTPHeFbaaJjiTs5NQRA/LgyZE5H9tkcT5z8q4KM5XrrSCw4HQ==
+ b=YsjjE4kKS6KrTu1V2AsyqPh6fKHbdgb28cEziFyjxyRs30uGyZjpEFz4hQg5utQt6Wf7Gjm4z3XW3SuKo2t+6zZksneiPJJCSW4zJgpdDhLr/Dq9l3rfnEiFu6frBJWKTAkGFgKbRcFps8lLKJqwKKjRNHUwjPG9pbhbt8tEfiarxwDz/P6TTYg/lwRepWPUldDo7S00Dabq/5247n2BDlIEBur4WXAfoKkYQjh9Qww+lD3jwNMXG/IEFY0KVqhSr+7iDNa6/hp/u5ZCxF5gcie5IC0/yKSNbf7S1EX8QfHBpggkmiNDy4E0hwIu+tMgOFukJU9G6ECIKqoR146XRg==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=2w8kA7nLKYjr/MK4h5dN8RjAmTZ+B4sZ3UgM625k+BU=;
- b=b47lIxAU05mVuxzjPXolJzaBcZ+Rwr10CmqQzHxEviuqlENdah51P0yZpAqNbYXG+P1uikksKhXOu2GWaTviTJUtkxxH+vCKam+rTKYk48qCH78HK6dsAcRQDmun/gtTSFnItLmSJRFS8N46rtWWzGJU73MFltaqebRlFK1h44RT7Swmj80HIsA9VM7FIELmztOIhr9QD4XOMr2Xid5uE1tqIu58ikgMNNt8PmIP/4UkSWVMnBoid8EXjISGyb2vw26r7MFg6DqjHOneGK43Xy6C/TaBjzQ1PrZu7QSg4uYSu2410UqIYO1NBT1LvQ4N4N/zLMwwH+hGVD7ENbyyGw==
+ bh=bLHW4bnkRE8FhDXjRsEkmXEsSRfI6uPgd9InYXaTyn4=;
+ b=lxDJrM+xPKjfdADIHE6E+GE0b/6l+L/uPtSyXLyVWS3f0XJK/vC9yuNjcw7DaHFMF4GjUa6ci8Sa8mr5yUYUFjAI5PKhK1KFGjQ/0TdPnUX2FpK1+bHaNjo1/G6Y9pZxExGZcO+oCIBZe14D6x7mIxjyXG6VtEqLtJ7iymN2aatahD7gPPW7/n3yBmrS2LqIaVsSat8wQDiYI7CWSnDAm3Rgc6MIYYZpVZRWepQG9hY9tPGs9723VrFkVBu3L3jgvQJhq5iHJvXmCRsjUInTwKxgA9+HXgo7UFS/4Xu8sPvHVaANJpIsHCMKZnIhJzaT8ZtPGNpaBgValjRfOHKFSg==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=hotmail.de; dmarc=pass action=none header.from=hotmail.de;
  dkim=pass header.d=hotmail.de; arc=none
 Received: from HE1EUR01FT023.eop-EUR01.prod.protection.outlook.com
- (2a01:111:e400:7e18::33) by
- HE1EUR01HT216.eop-EUR01.prod.protection.outlook.com (2a01:111:e400:7e18::148)
+ (2a01:111:e400:7e18::38) by
+ HE1EUR01HT184.eop-EUR01.prod.protection.outlook.com (2a01:111:e400:7e18::426)
  with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.2793.11; Tue, 10 Mar
- 2020 13:44:12 +0000
+ 2020 13:44:21 +0000
 Received: from AM6PR03MB5170.eurprd03.prod.outlook.com (10.152.0.52) by
  HE1EUR01FT023.mail.protection.outlook.com (10.152.0.162) with Microsoft SMTP
  Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.2793.11 via Frontend Transport; Tue, 10 Mar 2020 13:44:12 +0000
-X-IncomingTopHeaderMarker: OriginalChecksum:6255AC3CD9C92B5085D302A02A35C3F6AD5082CA0CCC66D0E1AE69582A61805B;UpperCasedChecksum:20184F13FF5AF64CED2BC2E1E6DAB499BEB0726D53FFF67353B79512D3E0D90C;SizeAsReceived:10302;Count:50
+ 15.20.2793.11 via Frontend Transport; Tue, 10 Mar 2020 13:44:21 +0000
+X-IncomingTopHeaderMarker: OriginalChecksum:7E750738653F338AC5481CC98ABEC498EE56D1454207C1D827F599A94EC87B9E;UpperCasedChecksum:546C79F509E24C24D31C77329F65014E73A7551D242F040C319041A4C5FA5FC8;SizeAsReceived:10300;Count:50
 Received: from AM6PR03MB5170.eurprd03.prod.outlook.com
  ([fe80::1956:d274:cab3:b4dd]) by AM6PR03MB5170.eurprd03.prod.outlook.com
  ([fe80::1956:d274:cab3:b4dd%6]) with mapi id 15.20.2793.013; Tue, 10 Mar 2020
- 13:44:12 +0000
+ 13:44:20 +0000
 From:   Bernd Edlinger <bernd.edlinger@hotmail.de>
-Subject: [PATCH 3/4] mm: docs: Fix a comment in process_vm_rw_core
+Subject: [PATCH 4/4] kernel: doc: remove outdated comment cred.c
 To:     "Eric W. Biederman" <ebiederm@xmission.com>
 Cc:     Christian Brauner <christian.brauner@ubuntu.com>,
         Kees Cook <keescook@chromium.org>,
@@ -87,64 +87,67 @@ References: <AM6PR03MB5170EB4427BF5C67EE98FF09E4E60@AM6PR03MB5170.eurprd03.prod.
  <871rq12vxu.fsf@x220.int.ebiederm.org>
  <AM6PR03MB5170DF45E3245F55B95CCD91E4FE0@AM6PR03MB5170.eurprd03.prod.outlook.com>
  <877dzt1fnf.fsf@x220.int.ebiederm.org>
-Message-ID: <AM6PR03MB5170ED6D4D216EEEEF400136E4FF0@AM6PR03MB5170.eurprd03.prod.outlook.com>
-Date:   Tue, 10 Mar 2020 14:44:10 +0100
+Message-ID: <AM6PR03MB517039DB07AB641C194FEA57E4FF0@AM6PR03MB5170.eurprd03.prod.outlook.com>
+Date:   Tue, 10 Mar 2020 14:44:18 +0100
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
  Thunderbird/60.6.1
 In-Reply-To: <877dzt1fnf.fsf@x220.int.ebiederm.org>
 Content-Type: text/plain; charset=windows-1252
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: AM0PR06CA0090.eurprd06.prod.outlook.com
- (2603:10a6:208:fa::31) To AM6PR03MB5170.eurprd03.prod.outlook.com
+X-ClientProxiedBy: AM0PR06CA0087.eurprd06.prod.outlook.com
+ (2603:10a6:208:fa::28) To AM6PR03MB5170.eurprd03.prod.outlook.com
  (2603:10a6:20b:ca::23)
-X-Microsoft-Original-Message-ID: <48be4849-1122-643f-27e9-9492d91fe89a@hotmail.de>
+X-Microsoft-Original-Message-ID: <26ec8f1e-607a-3464-e580-c68ae3cdbc70@hotmail.de>
 MIME-Version: 1.0
 X-MS-Exchange-MessageSentRepresentingType: 1
-Received: from [192.168.1.101] (92.77.140.102) by AM0PR06CA0090.eurprd06.prod.outlook.com (2603:10a6:208:fa::31) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.2793.16 via Frontend Transport; Tue, 10 Mar 2020 13:44:11 +0000
-X-Microsoft-Original-Message-ID: <48be4849-1122-643f-27e9-9492d91fe89a@hotmail.de>
-X-TMN:  [ou9ZGGBPhFouFQZnEu8wqYJoBb2ouIxM]
+Received: from [192.168.1.101] (92.77.140.102) by AM0PR06CA0087.eurprd06.prod.outlook.com (2603:10a6:208:fa::28) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.2793.15 via Frontend Transport; Tue, 10 Mar 2020 13:44:19 +0000
+X-Microsoft-Original-Message-ID: <26ec8f1e-607a-3464-e580-c68ae3cdbc70@hotmail.de>
+X-TMN:  [fGR2VABPmKiLligx1HY68sPKWOnof6VG]
 X-MS-PublicTrafficType: Email
 X-IncomingHeaderCount: 50
 X-EOPAttributedMessage: 0
-X-MS-Office365-Filtering-Correlation-Id: 2ff791e9-35d3-45a1-b815-08d7c4f91de1
-X-MS-TrafficTypeDiagnostic: HE1EUR01HT216:
+X-MS-Office365-Filtering-Correlation-Id: a9c155f3-bd6d-4879-c15e-08d7c4f922a1
+X-MS-TrafficTypeDiagnostic: HE1EUR01HT184:
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: wXQ1zBznHkv1PjDrUBH4mBSRIhF2dhDZJ8QBuylJ4H0Gq7tYmiYjYEpvVhpr7K57fttFWkvNPjMzHipTksw14fIySYkXDBAR3hfe1ljtPVOndOFmVJGLYB+mWyDTdOung30+y/K9bfb2wPCBIrDLumKhQkkrz5nscdJcQIo92Qv9uG8QXDDx2OeYpwdmpIug
-X-MS-Exchange-AntiSpam-MessageData: h79oXhRy4jHWMXqaLK7+2Py+QC4kP/nvQxmnMy6ZHDi+IZ4bY6IhG6Do8ITWzfF7qdFUTySBVkVRsI1/6/8M0seSQWzOAG85lO0KUe/jmSNnHGxVyWaytuSZGaBXgYxOup+hpxns1a8mu+QQKTEUjA==
+X-Microsoft-Antispam-Message-Info: 0Zh7x99FEz4cVfBEjGLhgYuzTuULKoVywh+n1v+3vpN8MSa68Yfye2zoJeUA3axCxAweLjyZYosWdyZIXte1s1QjvucfKtOYxpzJUUoqCR0W+Dz/4YpkyPU5G7mKFRXrUuV3yNvNmK3xg6h5SF7eyJ2rOeTfgH6jA6VQi8uAdS8rEAh/rqHKV59rkWRzdGPo
+X-MS-Exchange-AntiSpam-MessageData: ivLrgL/u02+FA2EPMhnF+65aFV1Qaky912d50Y5zLXtrJ+jE6gM09S8uzLts73rqNYJfcJ3RURUBl+wdBVZDwBdd3DFdie3i93MvOWgq+nVlQfJ6+7Di6e5Ns5Kprtk4GG2t7kREoSOzoSCc5YxSUw==
 X-OriginatorOrg: outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 2ff791e9-35d3-45a1-b815-08d7c4f91de1
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 10 Mar 2020 13:44:12.6825
+X-MS-Exchange-CrossTenant-Network-Message-Id: a9c155f3-bd6d-4879-c15e-08d7c4f922a1
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 10 Mar 2020 13:44:20.5919
  (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
 X-MS-Exchange-CrossTenant-Id: 84df9e7f-e9f6-40af-b435-aaaaaaaaaaaa
 X-MS-Exchange-CrossTenant-FromEntityHeader: Internet
 X-MS-Exchange-CrossTenant-RMS-PersistedConsumerOrg: 00000000-0000-0000-0000-000000000000
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: HE1EUR01HT216
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: HE1EUR01HT184
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This removes a duplicate "a" in the comment in process_vm_rw_core.
+This removes an outdated comment in prepare_kernel_cred.
+
+There is no "cred_replace_mutex" any more, so the comment must
+go away.
 
 Signed-off-by: Bernd Edlinger <bernd.edlinger@hotmail.de>
 ---
- mm/process_vm_access.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/cred.c | 2 --
+ 1 file changed, 2 deletions(-)
 
-diff --git a/mm/process_vm_access.c b/mm/process_vm_access.c
-index 357aa7b..b3e6eb5 100644
---- a/mm/process_vm_access.c
-+++ b/mm/process_vm_access.c
-@@ -204,7 +204,7 @@ static ssize_t process_vm_rw_core(pid_t pid, struct iov_iter *iter,
- 	if (!mm || IS_ERR(mm)) {
- 		rc = IS_ERR(mm) ? PTR_ERR(mm) : -ESRCH;
- 		/*
--		 * Explicitly map EACCES to EPERM as EPERM is a more a
-+		 * Explicitly map EACCES to EPERM as EPERM is a more
- 		 * appropriate error code for process_vw_readv/writev
- 		 */
- 		if (rc == -EACCES)
+diff --git a/kernel/cred.c b/kernel/cred.c
+index 809a985..71a7926 100644
+--- a/kernel/cred.c
++++ b/kernel/cred.c
+@@ -675,8 +675,6 @@ void __init cred_init(void)
+  * The caller may change these controls afterwards if desired.
+  *
+  * Returns the new credentials or NULL if out of memory.
+- *
+- * Does not take, and does not return holding current->cred_replace_mutex.
+  */
+ struct cred *prepare_kernel_cred(struct task_struct *daemon)
+ {
 -- 
 1.9.1
