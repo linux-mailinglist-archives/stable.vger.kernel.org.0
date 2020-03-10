@@ -2,37 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 32E5217F7B6
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 13:41:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 02F6617F8CE
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 13:51:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727061AbgCJMlk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 08:41:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41284 "EHLO mail.kernel.org"
+        id S1728849AbgCJMvO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 08:51:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56264 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726307AbgCJMlk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 08:41:40 -0400
+        id S1728337AbgCJMvO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 08:51:14 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2F1C324691;
-        Tue, 10 Mar 2020 12:41:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9E8B52468E;
+        Tue, 10 Mar 2020 12:51:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583844099;
-        bh=/kRuxcuHOYsDociFLkbeQUfdfObngkhGQ3sS+2p7z/s=;
+        s=default; t=1583844674;
+        bh=zHbdShaZV+XM7ds1MbyGEf0M0GeteJZlB32nh7R+jx8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aGHtZVQnu3HYAKaIUSK38ImPKd7U0OWcewFVkoZBafG7SIwBOh0dw7VtPrIO5EqRM
-         /pcBRyzRbTU5xOy8//GeqtumAh+tyOqAENC1QZWmlIKfuQ8xpxB1Z9ViL5E+8/T+3v
-         caYjgFLDYKbKv+sm4T25jLtAS77EvhOFnh4TDK/4=
+        b=baE8aQMT1CoBH76vViC/X3G61ISE4xzMcFXBcvZ9Nrggmdcu6RSL3j1yyU5/8gjcZ
+         IimCXAQkdgrTVkVvL+7HkXUxdcKvSCRz2pTft/1QGc/mcWw9ocoafsJZlj/5N8IBf3
+         xY+P9PrWzEqzlsuaYmZ+QC+PiW+iBgiJZoHA60cc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, yangerkun <yangerkun@huawei.com>
-Subject: [PATCH 4.4 31/72] slip: stop double free sl->dev in slip_open
+        stable@vger.kernel.org,
+        syzbot+9d82b8de2992579da5d0@syzkaller.appspotmail.com,
+        Andrew Morton <akpm@linux-foundation.org>,
+        OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.4 078/168] fat: fix uninit-memory access for partial initialized inode
 Date:   Tue, 10 Mar 2020 13:38:44 +0100
-Message-Id: <20200310123609.077059982@linuxfoundation.org>
+Message-Id: <20200310123643.187715152@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200310123601.053680753@linuxfoundation.org>
-References: <20200310123601.053680753@linuxfoundation.org>
+In-Reply-To: <20200310123635.322799692@linuxfoundation.org>
+References: <20200310123635.322799692@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,31 +46,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: yangerkun <yangerkun@huawei.com>
+From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
 
-After include 3b5a39979daf ("slip: Fix memory leak in slip_open error path")
-and e58c19124189 ("slip: Fix use-after-free Read in slip_open") with 4.4.y/4.9.y.
-We will trigger a bug since we can double free sl->dev in slip_open. Actually,
-we should backport cf124db566e6 ("net: Fix inconsistent teardown and release
-of private netdev state.") too since it has delete free_netdev from sl_free_netdev.
-Fix it by delete free_netdev from slip_open.
+commit bc87302a093f0eab45cd4e250c2021299f712ec6 upstream.
 
-Signed-off-by: yangerkun <yangerkun@huawei.com>
+When get an error in the middle of reading an inode, some fields in the
+inode might be still not initialized.  And then the evict_inode path may
+access those fields via iput().
+
+To fix, this makes sure that inode fields are initialized.
+
+Reported-by: syzbot+9d82b8de2992579da5d0@syzkaller.appspotmail.com
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Cc: <stable@vger.kernel.org>
+Link: http://lkml.kernel.org/r/871rqnreqx.fsf@mail.parknet.co.jp
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/slip/slip.c |    1 -
- 1 file changed, 1 deletion(-)
+ fs/fat/inode.c |   19 +++++++------------
+ 1 file changed, 7 insertions(+), 12 deletions(-)
 
---- a/drivers/net/slip/slip.c
-+++ b/drivers/net/slip/slip.c
-@@ -868,7 +868,6 @@ err_free_chan:
- 	tty->disc_data = NULL;
- 	clear_bit(SLF_INUSE, &sl->flags);
- 	sl_free_netdev(sl->dev);
--	free_netdev(sl->dev);
+--- a/fs/fat/inode.c
++++ b/fs/fat/inode.c
+@@ -749,6 +749,13 @@ static struct inode *fat_alloc_inode(str
+ 		return NULL;
  
- err_exit:
- 	rtnl_unlock();
+ 	init_rwsem(&ei->truncate_lock);
++	/* Zeroing to allow iput() even if partial initialized inode. */
++	ei->mmu_private = 0;
++	ei->i_start = 0;
++	ei->i_logstart = 0;
++	ei->i_attrs = 0;
++	ei->i_pos = 0;
++
+ 	return &ei->vfs_inode;
+ }
+ 
+@@ -1373,16 +1380,6 @@ out:
+ 	return 0;
+ }
+ 
+-static void fat_dummy_inode_init(struct inode *inode)
+-{
+-	/* Initialize this dummy inode to work as no-op. */
+-	MSDOS_I(inode)->mmu_private = 0;
+-	MSDOS_I(inode)->i_start = 0;
+-	MSDOS_I(inode)->i_logstart = 0;
+-	MSDOS_I(inode)->i_attrs = 0;
+-	MSDOS_I(inode)->i_pos = 0;
+-}
+-
+ static int fat_read_root(struct inode *inode)
+ {
+ 	struct msdos_sb_info *sbi = MSDOS_SB(inode->i_sb);
+@@ -1843,13 +1840,11 @@ int fat_fill_super(struct super_block *s
+ 	fat_inode = new_inode(sb);
+ 	if (!fat_inode)
+ 		goto out_fail;
+-	fat_dummy_inode_init(fat_inode);
+ 	sbi->fat_inode = fat_inode;
+ 
+ 	fsinfo_inode = new_inode(sb);
+ 	if (!fsinfo_inode)
+ 		goto out_fail;
+-	fat_dummy_inode_init(fsinfo_inode);
+ 	fsinfo_inode->i_ino = MSDOS_FSINFO_INO;
+ 	sbi->fsinfo_inode = fsinfo_inode;
+ 	insert_inode_hash(fsinfo_inode);
 
 
