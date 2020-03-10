@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 68A4617F913
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 13:53:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0102E17F918
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 13:54:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729230AbgCJMxp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 08:53:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59970 "EHLO mail.kernel.org"
+        id S1729264AbgCJMx4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 08:53:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60186 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728543AbgCJMxp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 08:53:45 -0400
+        id S1729271AbgCJMxw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 08:53:52 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3B28A2468F;
-        Tue, 10 Mar 2020 12:53:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A721F24693;
+        Tue, 10 Mar 2020 12:53:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583844824;
-        bh=hYvlEhsu2VBzrFXY5oOYRyECZtpv8QkOW6M+2w6acDk=;
+        s=default; t=1583844832;
+        bh=4hrdHfoIQUhu4/00gDb8c5cMXC+cJiqw4UewioJaDP0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pH6mXguBdBcjUHu0+aqf1fB8BN1bTwW37rN9dLZbZogq8WcwGnmJ4NszFrUs2GrgU
-         awfLsBtGfUwDFGKFUVZcQDCP9qRJ3Q+AXsuIsH6d/e3H0PVh5FTgf/MlGjI4u02qfQ
-         6Uwlux0QMcw68/oOWX9AQJCGZaqgpfutYFNDWAiI=
+        b=DnfFL9zlBJ2rpxUkmeyOrZjzVJzinH28XQ0xVuwBA77JzKRk4Qjvpcrr8pn5/L3xk
+         NMrcbRgsYrBf96iLh2FBUshAgOcQw5b++6PCtK2SWRkc9oydVfa7j5dGdS/4ArnSHr
+         Yfi59Lqd2x2ekQMOUDKgF3g6Y4NnAssNmjFPsriQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maxime Ripard <mripard@kernel.org>,
-        Jernej Skrabec <jernej.skrabec@siol.net>
-Subject: [PATCH 5.4 132/168] drm/sun4i: Add separate DE3 VI layer formats
-Date:   Tue, 10 Mar 2020 13:39:38 +0100
-Message-Id: <20200310123648.881698368@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Stanislav Lisovskiy <stanislav.lisovskiy@intel.com>,
+        Matt Roper <matthew.d.roper@intel.com>,
+        Matt Atwood <matthew.s.atwood@intel.com>,
+        Jani Nikula <jani.nikula@intel.com>
+Subject: [PATCH 5.4 135/168] drm/i915: Program MBUS with rmw during initialization
+Date:   Tue, 10 Mar 2020 13:39:41 +0100
+Message-Id: <20200310123649.176075935@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200310123635.322799692@linuxfoundation.org>
 References: <20200310123635.322799692@linuxfoundation.org>
@@ -43,187 +46,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jernej Skrabec <jernej.skrabec@siol.net>
+From: Matt Roper <matthew.d.roper@intel.com>
 
-commit 169ca4b38932112e8b2ee8baef9cea44678625b3 upstream.
+commit c725161924f9a5872a3e53b73345a6026a5c170e upstream.
 
-DE3 VI layers support alpha blending, but DE2 VI layers do not.
-Additionally, DE3 VI layers support 10-bit RGB and YUV formats.
+It wasn't terribly clear from the bspec's wording, but after discussion
+with the hardware folks, it turns out that we need to preserve the
+pre-existing contents of the MBUS ABOX control register when
+initializing a few specific bits.
 
-Make a separate list for DE3.
-
-Fixes: c50519e6db4d ("drm/sun4i: Add basic support for DE3")
-Acked-by: Maxime Ripard <mripard@kernel.org>
-Signed-off-by: Jernej Skrabec <jernej.skrabec@siol.net>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200224173901.174016-3-jernej.skrabec@siol.net
+Bspec: 49213
+Bspec: 50096
+Fixes: 4cb4585e5a7f ("drm/i915/icl: initialize MBus during display init")
+Cc: Stanislav Lisovskiy <stanislav.lisovskiy@intel.com>
+Signed-off-by: Matt Roper <matthew.d.roper@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200204011032.582737-1-matthew.d.roper@intel.com
+Reviewed-by: Matt Atwood <matthew.s.atwood@intel.com>
+(cherry picked from commit 837b63e6087838d0f1e612d448405419199d8033)
+Signed-off-by: Jani Nikula <jani.nikula@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200228004320.127142-1-matthew.d.roper@intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/sun4i/sun8i_mixer.c    |   36 ++++++++++++++++++++
- drivers/gpu/drm/sun4i/sun8i_mixer.h    |   11 ++++++
- drivers/gpu/drm/sun4i/sun8i_vi_layer.c |   58 +++++++++++++++++++++++++++++++--
- 3 files changed, 102 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/i915/display/intel_display_power.c |   16 +++++++++++-----
+ 1 file changed, 11 insertions(+), 5 deletions(-)
 
---- a/drivers/gpu/drm/sun4i/sun8i_mixer.c
-+++ b/drivers/gpu/drm/sun4i/sun8i_mixer.c
-@@ -149,6 +149,30 @@ static const struct de2_fmt_info de2_for
- 		.csc = SUN8I_CSC_MODE_OFF,
- 	},
- 	{
-+		.drm_fmt = DRM_FORMAT_ARGB2101010,
-+		.de2_fmt = SUN8I_MIXER_FBFMT_ARGB2101010,
-+		.rgb = true,
-+		.csc = SUN8I_CSC_MODE_OFF,
-+	},
-+	{
-+		.drm_fmt = DRM_FORMAT_ABGR2101010,
-+		.de2_fmt = SUN8I_MIXER_FBFMT_ABGR2101010,
-+		.rgb = true,
-+		.csc = SUN8I_CSC_MODE_OFF,
-+	},
-+	{
-+		.drm_fmt = DRM_FORMAT_RGBA1010102,
-+		.de2_fmt = SUN8I_MIXER_FBFMT_RGBA1010102,
-+		.rgb = true,
-+		.csc = SUN8I_CSC_MODE_OFF,
-+	},
-+	{
-+		.drm_fmt = DRM_FORMAT_BGRA1010102,
-+		.de2_fmt = SUN8I_MIXER_FBFMT_BGRA1010102,
-+		.rgb = true,
-+		.csc = SUN8I_CSC_MODE_OFF,
-+	},
-+	{
- 		.drm_fmt = DRM_FORMAT_UYVY,
- 		.de2_fmt = SUN8I_MIXER_FBFMT_UYVY,
- 		.rgb = false,
-@@ -244,6 +268,18 @@ static const struct de2_fmt_info de2_for
- 		.rgb = false,
- 		.csc = SUN8I_CSC_MODE_YVU2RGB,
- 	},
-+	{
-+		.drm_fmt = DRM_FORMAT_P010,
-+		.de2_fmt = SUN8I_MIXER_FBFMT_P010_YUV,
-+		.rgb = false,
-+		.csc = SUN8I_CSC_MODE_YUV2RGB,
-+	},
-+	{
-+		.drm_fmt = DRM_FORMAT_P210,
-+		.de2_fmt = SUN8I_MIXER_FBFMT_P210_YUV,
-+		.rgb = false,
-+		.csc = SUN8I_CSC_MODE_YUV2RGB,
-+	},
- };
+--- a/drivers/gpu/drm/i915/display/intel_display_power.c
++++ b/drivers/gpu/drm/i915/display/intel_display_power.c
+@@ -4205,13 +4205,19 @@ static void icl_dbuf_disable(struct drm_
  
- const struct de2_fmt_info *sun8i_mixer_format_info(u32 format)
---- a/drivers/gpu/drm/sun4i/sun8i_mixer.h
-+++ b/drivers/gpu/drm/sun4i/sun8i_mixer.h
-@@ -93,6 +93,10 @@
- #define SUN8I_MIXER_FBFMT_ABGR1555	17
- #define SUN8I_MIXER_FBFMT_RGBA5551	18
- #define SUN8I_MIXER_FBFMT_BGRA5551	19
-+#define SUN8I_MIXER_FBFMT_ARGB2101010	20
-+#define SUN8I_MIXER_FBFMT_ABGR2101010	21
-+#define SUN8I_MIXER_FBFMT_RGBA1010102	22
-+#define SUN8I_MIXER_FBFMT_BGRA1010102	23
- 
- #define SUN8I_MIXER_FBFMT_YUYV		0
- #define SUN8I_MIXER_FBFMT_UYVY		1
-@@ -109,6 +113,13 @@
- /* format 12 is semi-planar YUV411 UVUV */
- /* format 13 is semi-planar YUV411 VUVU */
- #define SUN8I_MIXER_FBFMT_YUV411	14
-+/* format 15 doesn't exist */
-+/* format 16 is P010 YVU */
-+#define SUN8I_MIXER_FBFMT_P010_YUV	17
-+/* format 18 is P210 YVU */
-+#define SUN8I_MIXER_FBFMT_P210_YUV	19
-+/* format 20 is packed YVU444 10-bit */
-+/* format 21 is packed YUV444 10-bit */
- 
- /*
-  * Sub-engines listed bellow are unused for now. The EN registers are here only
---- a/drivers/gpu/drm/sun4i/sun8i_vi_layer.c
-+++ b/drivers/gpu/drm/sun4i/sun8i_vi_layer.c
-@@ -438,24 +438,76 @@ static const u32 sun8i_vi_layer_formats[
- 	DRM_FORMAT_YVU444,
- };
- 
-+static const u32 sun8i_vi_layer_de3_formats[] = {
-+	DRM_FORMAT_ABGR1555,
-+	DRM_FORMAT_ABGR2101010,
-+	DRM_FORMAT_ABGR4444,
-+	DRM_FORMAT_ABGR8888,
-+	DRM_FORMAT_ARGB1555,
-+	DRM_FORMAT_ARGB2101010,
-+	DRM_FORMAT_ARGB4444,
-+	DRM_FORMAT_ARGB8888,
-+	DRM_FORMAT_BGR565,
-+	DRM_FORMAT_BGR888,
-+	DRM_FORMAT_BGRA1010102,
-+	DRM_FORMAT_BGRA5551,
-+	DRM_FORMAT_BGRA4444,
-+	DRM_FORMAT_BGRA8888,
-+	DRM_FORMAT_BGRX8888,
-+	DRM_FORMAT_RGB565,
-+	DRM_FORMAT_RGB888,
-+	DRM_FORMAT_RGBA1010102,
-+	DRM_FORMAT_RGBA4444,
-+	DRM_FORMAT_RGBA5551,
-+	DRM_FORMAT_RGBA8888,
-+	DRM_FORMAT_RGBX8888,
-+	DRM_FORMAT_XBGR8888,
-+	DRM_FORMAT_XRGB8888,
-+
-+	DRM_FORMAT_NV16,
-+	DRM_FORMAT_NV12,
-+	DRM_FORMAT_NV21,
-+	DRM_FORMAT_NV61,
-+	DRM_FORMAT_P010,
-+	DRM_FORMAT_P210,
-+	DRM_FORMAT_UYVY,
-+	DRM_FORMAT_VYUY,
-+	DRM_FORMAT_YUYV,
-+	DRM_FORMAT_YVYU,
-+	DRM_FORMAT_YUV411,
-+	DRM_FORMAT_YUV420,
-+	DRM_FORMAT_YUV422,
-+	DRM_FORMAT_YVU411,
-+	DRM_FORMAT_YVU420,
-+	DRM_FORMAT_YVU422,
-+};
-+
- struct sun8i_vi_layer *sun8i_vi_layer_init_one(struct drm_device *drm,
- 					       struct sun8i_mixer *mixer,
- 					       int index)
+ static void icl_mbus_init(struct drm_i915_private *dev_priv)
  {
- 	u32 supported_encodings, supported_ranges;
-+	unsigned int plane_cnt, format_count;
- 	struct sun8i_vi_layer *layer;
--	unsigned int plane_cnt;
-+	const u32 *formats;
- 	int ret;
+-	u32 val;
++	u32 mask, val;
  
- 	layer = devm_kzalloc(drm->dev, sizeof(*layer), GFP_KERNEL);
- 	if (!layer)
- 		return ERR_PTR(-ENOMEM);
+-	val = MBUS_ABOX_BT_CREDIT_POOL1(16) |
+-	      MBUS_ABOX_BT_CREDIT_POOL2(16) |
+-	      MBUS_ABOX_B_CREDIT(1) |
+-	      MBUS_ABOX_BW_CREDIT(1);
++	mask = MBUS_ABOX_BT_CREDIT_POOL1_MASK |
++		MBUS_ABOX_BT_CREDIT_POOL2_MASK |
++		MBUS_ABOX_B_CREDIT_MASK |
++		MBUS_ABOX_BW_CREDIT_MASK;
  
-+	if (mixer->cfg->is_de3) {
-+		formats = sun8i_vi_layer_de3_formats;
-+		format_count = ARRAY_SIZE(sun8i_vi_layer_de3_formats);
-+	} else {
-+		formats = sun8i_vi_layer_formats;
-+		format_count = ARRAY_SIZE(sun8i_vi_layer_formats);
-+	}
-+
- 	/* possible crtcs are set later */
- 	ret = drm_universal_plane_init(drm, &layer->plane, 0,
- 				       &sun8i_vi_layer_funcs,
--				       sun8i_vi_layer_formats,
--				       ARRAY_SIZE(sun8i_vi_layer_formats),
-+				       formats, format_count,
- 				       NULL, DRM_PLANE_TYPE_OVERLAY, NULL);
- 	if (ret) {
- 		dev_err(drm->dev, "Couldn't initialize layer\n");
++	val = I915_READ(MBUS_ABOX_CTL);
++	val &= ~mask;
++	val |= MBUS_ABOX_BT_CREDIT_POOL1(16) |
++		MBUS_ABOX_BT_CREDIT_POOL2(16) |
++		MBUS_ABOX_B_CREDIT(1) |
++		MBUS_ABOX_BW_CREDIT(1);
+ 	I915_WRITE(MBUS_ABOX_CTL, val);
+ }
+ 
 
 
