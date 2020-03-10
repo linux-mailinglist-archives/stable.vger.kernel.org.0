@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 22E7517FBF1
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:17:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C7F8D17FBE0
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:17:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731365AbgCJNMK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 09:12:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34222 "EHLO mail.kernel.org"
+        id S1731541AbgCJNMN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 09:12:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34300 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731531AbgCJNMK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 09:12:10 -0400
+        id S1731539AbgCJNMM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 09:12:12 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4E38024691;
-        Tue, 10 Mar 2020 13:12:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CFF7520409;
+        Tue, 10 Mar 2020 13:12:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583845929;
-        bh=5QtnYJUNesSsA553RhbH24ReMP7ISeWfaAXIhQL7htI=;
+        s=default; t=1583845932;
+        bh=ssKvFUgnI1L6vedipqOf+KiYAXpk4XNBlD8QG1x3TBg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r9YvFjD2IY8KQHFMB2JF/YPoEUVOTZBbAo8lQtHHTNe6+hfIrX8qoB6aI42mAIdiH
-         hw+L4zaOu36g1lcyuic7y3HNlsVLIhW3woZ9SKesF59sR3sCH9znkkIjFdhb4T49Gk
-         uCj9OJT9sZj2PX0LwxUsf8O4Kd1TNOOn/mYon3x8=
+        b=EptAk6H63AjxDHLj+KxiIhWzC1cBnoz133pt2Hp+kH8itHvEFpxiIjtDP2MQyPhWL
+         Jr+GBwExJ2zpF2xyEhJAAqZ+2AXmU9yhzsr5YM8g1miSOe1gQ3ppcu8qJ8DVhe+So6
+         JvTmkkU62HSv/M3bSj1go0d2XfZT/FnNUgGTmoFM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Masami Hiramatsu <mhiramat@kernel.org>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>, bristot@redhat.com,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 06/86] kprobes: Fix optimize_kprobe()/unoptimize_kprobe() cancellation logic
-Date:   Tue, 10 Mar 2020 13:44:30 +0100
-Message-Id: <20200310124531.148780809@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
+        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Takashi Iwai <tiwai@suse.de>, Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 07/86] ALSA: hda: do not override bus codec_mask in link_get()
+Date:   Tue, 10 Mar 2020 13:44:31 +0100
+Message-Id: <20200310124531.200272158@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200310124530.808338541@linuxfoundation.org>
 References: <20200310124530.808338541@linuxfoundation.org>
@@ -47,164 +47,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masami Hiramatsu <mhiramat@kernel.org>
+From: Kai Vehmanen <kai.vehmanen@linux.intel.com>
 
-[ Upstream commit e4add247789e4ba5e08ad8256183ce2e211877d4 ]
+[ Upstream commit 43bcb1c0507858cdc95e425017dcc33f8105df39 ]
 
-optimize_kprobe() and unoptimize_kprobe() cancels if a given kprobe
-is on the optimizing_list or unoptimizing_list already. However, since
-the following commit:
+snd_hdac_ext_bus_link_get() does not work correctly in case
+there are multiple codecs on the bus. It unconditionally
+resets the bus->codec_mask value. As per documentation in
+hdaudio.h and existing use in client code, this field should
+be used to store bit flag of detected codecs on the bus.
 
-  f66c0447cca1 ("kprobes: Set unoptimized flag after unoptimizing code")
+By overwriting value of the codec_mask, information on all
+detected codecs is lost. No current user of hdac is impacted,
+but use of bus->codec_mask is planned in future patches
+for SOF.
 
-modified the update timing of the KPROBE_FLAG_OPTIMIZED, it doesn't
-work as expected anymore.
-
-The optimized_kprobe could be in the following states:
-
-- [optimizing]: Before inserting jump instruction
-  op.kp->flags has KPROBE_FLAG_OPTIMIZED and
-  op->list is not empty.
-
-- [optimized]: jump inserted
-  op.kp->flags has KPROBE_FLAG_OPTIMIZED and
-  op->list is empty.
-
-- [unoptimizing]: Before removing jump instruction (including unused
-  optprobe)
-  op.kp->flags has KPROBE_FLAG_OPTIMIZED and
-  op->list is not empty.
-
-- [unoptimized]: jump removed
-  op.kp->flags doesn't have KPROBE_FLAG_OPTIMIZED and
-  op->list is empty.
-
-Current code mis-expects [unoptimizing] state doesn't have
-KPROBE_FLAG_OPTIMIZED, and that can cause incorrect results.
-
-To fix this, introduce optprobe_queued_unopt() to distinguish [optimizing]
-and [unoptimizing] states and fixes the logic in optimize_kprobe() and
-unoptimize_kprobe().
-
-[ mingo: Cleaned up the changelog and the code a bit. ]
-
-Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
-Reviewed-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
-Cc: Alexei Starovoitov <ast@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: bristot@redhat.com
-Fixes: f66c0447cca1 ("kprobes: Set unoptimized flag after unoptimizing code")
-Link: https://lkml.kernel.org/r/157840814418.7181.13478003006386303481.stgit@devnote2
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Signed-off-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
+Reviewed-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
+Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Reviewed-by: Takashi Iwai <tiwai@suse.de>
+Link: https://lore.kernel.org/r/20200206200223.7715-1-kai.vehmanen@linux.intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/kprobes.c | 67 +++++++++++++++++++++++++++++++-----------------
- 1 file changed, 43 insertions(+), 24 deletions(-)
+ sound/hda/ext/hdac_ext_controller.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/kernel/kprobes.c b/kernel/kprobes.c
-index 00050a22f6a12..92aad49b82f9c 100644
---- a/kernel/kprobes.c
-+++ b/kernel/kprobes.c
-@@ -625,6 +625,18 @@ void wait_for_kprobe_optimizer(void)
- 	mutex_unlock(&kprobe_mutex);
- }
- 
-+static bool optprobe_queued_unopt(struct optimized_kprobe *op)
-+{
-+	struct optimized_kprobe *_op;
-+
-+	list_for_each_entry(_op, &unoptimizing_list, list) {
-+		if (op == _op)
-+			return true;
-+	}
-+
-+	return false;
-+}
-+
- /* Optimize kprobe if p is ready to be optimized */
- static void optimize_kprobe(struct kprobe *p)
+diff --git a/sound/hda/ext/hdac_ext_controller.c b/sound/hda/ext/hdac_ext_controller.c
+index 60cb00fd0c693..84b44cdae28a1 100644
+--- a/sound/hda/ext/hdac_ext_controller.c
++++ b/sound/hda/ext/hdac_ext_controller.c
+@@ -262,6 +262,7 @@ EXPORT_SYMBOL_GPL(snd_hdac_ext_bus_link_power_down_all);
+ int snd_hdac_ext_bus_link_get(struct hdac_bus *bus,
+ 				struct hdac_ext_link *link)
  {
-@@ -646,17 +658,21 @@ static void optimize_kprobe(struct kprobe *p)
- 		return;
++	unsigned long codec_mask;
+ 	int ret = 0;
  
- 	/* Check if it is already optimized. */
--	if (op->kp.flags & KPROBE_FLAG_OPTIMIZED)
-+	if (op->kp.flags & KPROBE_FLAG_OPTIMIZED) {
-+		if (optprobe_queued_unopt(op)) {
-+			/* This is under unoptimizing. Just dequeue the probe */
-+			list_del_init(&op->list);
-+		}
- 		return;
-+	}
- 	op->kp.flags |= KPROBE_FLAG_OPTIMIZED;
- 
--	if (!list_empty(&op->list))
--		/* This is under unoptimizing. Just dequeue the probe */
--		list_del_init(&op->list);
--	else {
--		list_add(&op->list, &optimizing_list);
--		kick_kprobe_optimizer();
--	}
-+	/* On unoptimizing/optimizing_list, op must have OPTIMIZED flag */
-+	if (WARN_ON_ONCE(!list_empty(&op->list)))
-+		return;
-+
-+	list_add(&op->list, &optimizing_list);
-+	kick_kprobe_optimizer();
- }
- 
- /* Short cut to direct unoptimizing */
-@@ -678,30 +694,33 @@ static void unoptimize_kprobe(struct kprobe *p, bool force)
- 		return; /* This is not an optprobe nor optimized */
- 
- 	op = container_of(p, struct optimized_kprobe, kp);
--	if (!kprobe_optimized(p)) {
--		/* Unoptimized or unoptimizing case */
--		if (force && !list_empty(&op->list)) {
--			/*
--			 * Only if this is unoptimizing kprobe and forced,
--			 * forcibly unoptimize it. (No need to unoptimize
--			 * unoptimized kprobe again :)
--			 */
--			list_del_init(&op->list);
--			force_unoptimize_kprobe(op);
--		}
-+	if (!kprobe_optimized(p))
- 		return;
--	}
- 
- 	if (!list_empty(&op->list)) {
--		/* Dequeue from the optimization queue */
--		list_del_init(&op->list);
-+		if (optprobe_queued_unopt(op)) {
-+			/* Queued in unoptimizing queue */
-+			if (force) {
-+				/*
-+				 * Forcibly unoptimize the kprobe here, and queue it
-+				 * in the freeing list for release afterwards.
-+				 */
-+				force_unoptimize_kprobe(op);
-+				list_move(&op->list, &freeing_list);
-+			}
-+		} else {
-+			/* Dequeue from the optimizing queue */
-+			list_del_init(&op->list);
-+			op->kp.flags &= ~KPROBE_FLAG_OPTIMIZED;
-+		}
- 		return;
+ 	mutex_lock(&bus->lock);
+@@ -283,9 +284,11 @@ int snd_hdac_ext_bus_link_get(struct hdac_bus *bus,
+ 		 *  HDA spec section 4.3 - Codec Discovery
+ 		 */
+ 		udelay(521);
+-		bus->codec_mask = snd_hdac_chip_readw(bus, STATESTS);
+-		dev_dbg(bus->dev, "codec_mask = 0x%lx\n", bus->codec_mask);
+-		snd_hdac_chip_writew(bus, STATESTS, bus->codec_mask);
++		codec_mask = snd_hdac_chip_readw(bus, STATESTS);
++		dev_dbg(bus->dev, "codec_mask = 0x%lx\n", codec_mask);
++		snd_hdac_chip_writew(bus, STATESTS, codec_mask);
++		if (!bus->codec_mask)
++			bus->codec_mask = codec_mask;
  	}
-+
- 	/* Optimized kprobe case */
--	if (force)
-+	if (force) {
- 		/* Forcibly update the code: this is a special case */
- 		force_unoptimize_kprobe(op);
--	else {
-+	} else {
- 		list_add(&op->list, &unoptimizing_list);
- 		kick_kprobe_optimizer();
- 	}
+ 
+ 	mutex_unlock(&bus->lock);
 -- 
 2.20.1
 
