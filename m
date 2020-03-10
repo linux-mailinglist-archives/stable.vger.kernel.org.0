@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 47DE717FC8F
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:22:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 91EBF17FA82
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:05:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730346AbgCJNVt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 09:21:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45190 "EHLO mail.kernel.org"
+        id S1728492AbgCJNC2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 09:02:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45360 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730388AbgCJNCY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 09:02:24 -0400
+        id S1730405AbgCJNC2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 09:02:28 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E68112468D;
-        Tue, 10 Mar 2020 13:02:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 078EC208E4;
+        Tue, 10 Mar 2020 13:02:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583845344;
-        bh=Gi2HCx1YofuYMRCXOfa14WQHjbGNP+q62w86WcmCKYo=;
+        s=default; t=1583845347;
+        bh=22sNoVOJbg4BfYZ+GIVCznSyVW221vl8ZWg+Q1z3x4Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nMSb1O704GrS5Y2NJhgDLJKVgNwSxHOWENSsBmw4ymxUnU84nTtQ8wpENA3+1MAIt
-         Paz4w7YFwrEb9RSGKp5wyv40LDNOYkjcWStYv3fjaqG8MrF/8NCbj5fji0j6cH8mYW
-         lUOCj/eiTXF5dGWrq1YMQyD5oGR8BojRBbFV9E78=
+        b=WZAIkoj4f05PvXa67hTZg50p+ElA3s+MPa2TVVZdQCUHrrkM7NayZXeufCPF+Qf8u
+         Nzctr5V1mmdN2/xdFmCve7FPQPkEmeA3HvkTYhFic3GDUGtyTf19rpU28tEPzL2ojZ
+         AHfygN+kJryiF505tHMNyBLrd4E1SFZpMpxN0ec8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Stanislav Lisovskiy <stanislav.lisovskiy@intel.com>,
-        Matt Roper <matthew.d.roper@intel.com>,
-        Matt Atwood <matthew.s.atwood@intel.com>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Chris Wilson <chris@chris-wilson.co.uk>,
         Jani Nikula <jani.nikula@intel.com>
-Subject: [PATCH 5.5 148/189] drm/i915: Program MBUS with rmw during initialization
-Date:   Tue, 10 Mar 2020 13:39:45 +0100
-Message-Id: <20200310123654.808776227@linuxfoundation.org>
+Subject: [PATCH 5.5 149/189] drm/i915/selftests: Fix return in assert_mmap_offset()
+Date:   Tue, 10 Mar 2020 13:39:46 +0100
+Message-Id: <20200310123654.913961060@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200310123639.608886314@linuxfoundation.org>
 References: <20200310123639.608886314@linuxfoundation.org>
@@ -46,57 +44,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matt Roper <matthew.d.roper@intel.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit c725161924f9a5872a3e53b73345a6026a5c170e upstream.
+commit f4aaa44e8b20f7e0d4ea68d3bca4968b6ae5aaff upstream.
 
-It wasn't terribly clear from the bspec's wording, but after discussion
-with the hardware folks, it turns out that we need to preserve the
-pre-existing contents of the MBUS ABOX control register when
-initializing a few specific bits.
+The assert_mmap_offset() returns type bool so if we return an error
+pointer that is "return true;" or success.  If we have an error, then
+we should return false.
 
-Bspec: 49213
-Bspec: 50096
-Fixes: 4cb4585e5a7f ("drm/i915/icl: initialize MBus during display init")
-Cc: Stanislav Lisovskiy <stanislav.lisovskiy@intel.com>
-Signed-off-by: Matt Roper <matthew.d.roper@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200204011032.582737-1-matthew.d.roper@intel.com
-Reviewed-by: Matt Atwood <matthew.s.atwood@intel.com>
-(cherry picked from commit 837b63e6087838d0f1e612d448405419199d8033)
+Fixes: 3d81d589d6e3 ("drm/i915: Test exhaustion of the mmap space")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Reviewed-by: Chris Wilson <chris@chris-wilson.co.uk>
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200228141413.qfjf4abr323drlo4@kili.mountain
+(cherry picked from commit efbf928824820f2738f41271934f6ec2c6ebd587)
 Signed-off-by: Jani Nikula <jani.nikula@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200228004320.127142-1-matthew.d.roper@intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/i915/display/intel_display_power.c |   16 +++++++++++-----
- 1 file changed, 11 insertions(+), 5 deletions(-)
+ drivers/gpu/drm/i915/gem/selftests/i915_gem_mman.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/i915/display/intel_display_power.c
-+++ b/drivers/gpu/drm/i915/display/intel_display_power.c
-@@ -4471,13 +4471,19 @@ static void icl_dbuf_disable(struct drm_
+--- a/drivers/gpu/drm/i915/gem/selftests/i915_gem_mman.c
++++ b/drivers/gpu/drm/i915/gem/selftests/i915_gem_mman.c
+@@ -567,7 +567,7 @@ static bool assert_mmap_offset(struct dr
  
- static void icl_mbus_init(struct drm_i915_private *dev_priv)
- {
--	u32 val;
-+	u32 mask, val;
+ 	obj = i915_gem_object_create_internal(i915, size);
+ 	if (IS_ERR(obj))
+-		return PTR_ERR(obj);
++		return false;
  
--	val = MBUS_ABOX_BT_CREDIT_POOL1(16) |
--	      MBUS_ABOX_BT_CREDIT_POOL2(16) |
--	      MBUS_ABOX_B_CREDIT(1) |
--	      MBUS_ABOX_BW_CREDIT(1);
-+	mask = MBUS_ABOX_BT_CREDIT_POOL1_MASK |
-+		MBUS_ABOX_BT_CREDIT_POOL2_MASK |
-+		MBUS_ABOX_B_CREDIT_MASK |
-+		MBUS_ABOX_BW_CREDIT_MASK;
- 
-+	val = I915_READ(MBUS_ABOX_CTL);
-+	val &= ~mask;
-+	val |= MBUS_ABOX_BT_CREDIT_POOL1(16) |
-+		MBUS_ABOX_BT_CREDIT_POOL2(16) |
-+		MBUS_ABOX_B_CREDIT(1) |
-+		MBUS_ABOX_BW_CREDIT(1);
- 	I915_WRITE(MBUS_ABOX_CTL, val);
- }
- 
+ 	err = create_mmap_offset(obj);
+ 	i915_gem_object_put(obj);
 
 
