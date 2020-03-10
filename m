@@ -2,82 +2,115 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A6BD217FE36
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:33:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B018817FDE7
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:31:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726475AbgCJMr1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 08:47:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51266 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728176AbgCJMr1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 08:47:27 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DCFD824691;
-        Tue, 10 Mar 2020 12:47:25 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583844446;
-        bh=22IC65lRb6RwhaXCNj3PkpIhp56hep89oFwc1Ves1Eg=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JJb8UoOkAdufrrtVincHrTc8ITrxORw+noTotWDUGxs8u8GVAECqdyNs2uhSIZ7Oa
-         oEIShKXfzakSwjHDOUdzwhKo+FiStdmE4B1rrBhLbXoKYtcQMkDZ/Kruzx4sbI64TE
-         SIMILjm7dzd5sDa5k4K3Q2Y3UF+iWhpoO14W3Wvo=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Vinod Koul <vkoul@kernel.org>
-Subject: [PATCH 4.9 85/88] dmaengine: coh901318: Fix a double lock bug in dma_tc_handle()
-Date:   Tue, 10 Mar 2020 13:39:33 +0100
-Message-Id: <20200310123625.059770813@linuxfoundation.org>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200310123606.543939933@linuxfoundation.org>
-References: <20200310123606.543939933@linuxfoundation.org>
-User-Agent: quilt/0.66
+        id S1728549AbgCJMuN convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Tue, 10 Mar 2020 08:50:13 -0400
+Received: from mail.fireflyinternet.com ([109.228.58.192]:51478 "EHLO
+        fireflyinternet.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1728558AbgCJMuN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Mar 2020 08:50:13 -0400
+X-Default-Received-SPF: pass (skip=forwardok (res=PASS)) x-ip-name=78.156.65.138;
+Received: from localhost (unverified [78.156.65.138]) 
+        by fireflyinternet.com (Firefly Internet (M1)) with ESMTP (TLS) id 20508636-1500050 
+        for multiple; Tue, 10 Mar 2020 12:50:09 +0000
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 8BIT
+In-Reply-To: <723d527a4ad349b78bf11d52eba97c0e@AcuMS.aculab.com>
+References: <20200310092119.14965-1-chris@chris-wilson.co.uk> <2e936d8fd2c445beb08e6dd3ee1f3891@AcuMS.aculab.com> <158384100886.16414.15741589015363013386@build.alporthouse.com> <723d527a4ad349b78bf11d52eba97c0e@AcuMS.aculab.com>
+To:     "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        David Laight <David.Laight@ACULAB.COM>
+Subject: RE: [PATCH] list: Prevent compiler reloads inside 'safe' list iteration
+From:   Chris Wilson <chris@chris-wilson.co.uk>
+Cc:     "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        "Paul E. McKenney" <paulmck@kernel.org>,
+        Randy Dunlap <rdunlap@infradead.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Message-ID: <158384460847.16414.11779622376668751989@build.alporthouse.com>
+User-Agent: alot/0.8.1
+Date:   Tue, 10 Mar 2020 12:50:08 +0000
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+Quoting David Laight (2020-03-10 12:23:34)
+> From: Chris Wilson
+> > Sent: 10 March 2020 11:50
+> > 
+> > Quoting David Laight (2020-03-10 11:36:41)
+> > > From: Chris Wilson
+> > > > Sent: 10 March 2020 09:21
+> > > > Instruct the compiler to read the next element in the list iteration
+> > > > once, and that it is not allowed to reload the value from the stale
+> > > > element later. This is important as during the course of the safe
+> > > > iteration, the stale element may be poisoned (unbeknownst to the
+> > > > compiler).
+> > >
+> > > Eh?
+> > > I thought any function call will stop the compiler being allowed
+> > > to reload the value.
+> > > The 'safe' loop iterators are only 'safe' against called
+> > > code removing the current item from the list.
+> > >
+> > > > This helps prevent kcsan warnings over 'unsafe' conduct in releasing the
+> > > > list elements during list_for_each_entry_safe() and friends.
+> > >
+> > > Sounds like kcsan is buggy ????
+> > 
+> > The warning kcsan gave made sense (a strange case where the emptying the
+> > list from inside the safe iterator would allow that list to be taken
+> > under a global mutex and have one extra request added to it. The
+> > list_for_each_entry_safe() should be ok in this scenario, so long as the
+> > next element is read before this element is dropped, and the compiler is
+> > instructed not to reload the element.
+> 
+> Normally the loop iteration code has to hold the mutex.
+> I guess it can be released inside the loop provided no other
+> code can ever delete entries.
+> 
+> > kcsan is a little more insistent on having that annotation :)
+> > 
+> > In this instance I would say it was a false positive from kcsan, but I
+> > can see why it would complain and suspect that given a sufficiently
+> > aggressive compiler, we may be caught out by a late reload of the next
+> > element.
+> 
+> If you have:
+>         for (; p; p = next) {
+>                 next = p->next;
+>                 external_function_call(void);
+>         }
+> the compiler must assume that the function call
+> can change 'p->next' and read it before the call.
+> 
+> Is this a list with strange locking rules?
 
-commit 36d5d22090d13fd3a7a8c9663a711cbe6970aac8 upstream.
+Yes.
 
-The caller is already holding the lock so this will deadlock.
+> The only deletes are from within the loop.
 
-Fixes: 0b58828c923e ("DMAENGINE: COH 901 318 remove irq counting")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Link: https://lore.kernel.org/r/20200217144050.3i4ymbytogod4ijn@kili.mountain
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+All deletes are within the mutex.
 
----
- drivers/dma/coh901318.c |    4 ----
- 1 file changed, 4 deletions(-)
+> Adds and deletes are locked.
 
---- a/drivers/dma/coh901318.c
-+++ b/drivers/dma/coh901318.c
-@@ -1944,8 +1944,6 @@ static void dma_tc_handle(struct coh9013
- 		return;
- 	}
+There's just one special case where after the very last element of all
+lists for an engine is removed, a global mutex is taken and one new
+element is added to one of the lists to track powering off the engine.
+
+> The list traversal isn't locked.
+
+There's rcu traversal of the list as well.
  
--	spin_lock(&cohc->lock);
--
- 	/*
- 	 * When we reach this point, at least one queue item
- 	 * should have been moved over from cohc->queue to
-@@ -1966,8 +1964,6 @@ static void dma_tc_handle(struct coh9013
- 	if (coh901318_queue_start(cohc) == NULL)
- 		cohc->busy = 0;
- 
--	spin_unlock(&cohc->lock);
--
- 	/*
- 	 * This tasklet will remove items from cohc->active
- 	 * and thus terminates them.
+> I suspect kcsan bleats because it doesn't assume the compiler
+> will use a single instruction/memory operation to read p->next.
+> That is just stupid.
 
-
+kcsan is looking for a write to a pointer after a read that is not in
+the same locking chain. While I have satisfied lockdep that I am not
+insane, I'm worrying in case kcsan has a valid objection to the
+potential data race in the safe list iterator.
+-Chris
