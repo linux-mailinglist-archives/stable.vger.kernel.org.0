@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 40BD417FC1A
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:18:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 64E8B17FB0D
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:10:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731310AbgCJNKS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 09:10:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59598 "EHLO mail.kernel.org"
+        id S1728119AbgCJNKX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 09:10:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59692 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731313AbgCJNKR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 09:10:17 -0400
+        id S1731323AbgCJNKX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 09:10:23 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CFD462468C;
-        Tue, 10 Mar 2020 13:10:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6758D2468D;
+        Tue, 10 Mar 2020 13:10:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583845816;
-        bh=MjftV02fkHbcXmGv+eBttb48zfa/BdDIjySLYODfq0E=;
+        s=default; t=1583845821;
+        bh=4TsMt/hkVyeNp32B7AhGN4QkaO1VpBI7eNal2nbGosw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jeSQRKbX1xr0cKzZCSseKo0o/kx2h9mw7zmXjOZUyuBFRBNdG94od/QuzGNmQ7C4X
-         w7mzNHM4q2aCmoOdcfQAHxFWgQZKGaQFnkLeoImlF5XTeHTlaPt26sVYOYIKAap2Hx
-         ztXdFlCrkdIx5G1clk6EE+u0bSxhIzuPvGKDd/bI=
+        b=tbElbyu4BJdxbdHO4/Bo17oL7kPSgDqUztFwgLWXKBiTkI6zM06l3RS6KX5XnlWlp
+         doh0ce6E0JQNxtiuf0YoO5hfcqdBmjlGhz/mLSEvlaRMHuO1PCyjoy7YxrLR5A8XZN
+         PIci4fTlxyK/Y9Pz2atywTTfr3moW5vub7WyVCD4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dragos Tarcatu <dragos_tarcatu@mentor.com>,
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
+        Cezary Rojewski <cezary.rojewski@intel.com>,
         Mark Brown <broonie@kernel.org>
-Subject: [PATCH 4.14 111/126] ASoC: topology: Fix memleak in soc_tplg_link_elems_load()
-Date:   Tue, 10 Mar 2020 13:42:12 +0100
-Message-Id: <20200310124210.649737497@linuxfoundation.org>
+Subject: [PATCH 4.14 112/126] ASoC: intel: skl: Fix pin debug prints
+Date:   Tue, 10 Mar 2020 13:42:13 +0100
+Message-Id: <20200310124210.701409699@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200310124203.704193207@linuxfoundation.org>
 References: <20200310124203.704193207@linuxfoundation.org>
@@ -43,39 +44,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dragos Tarcatu <dragos_tarcatu@mentor.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 2b2d5c4db732c027a14987cfccf767dac1b45170 upstream.
+commit 64bbacc5f08c01954890981c63de744df1f29a30 upstream.
 
-If soc_tplg_link_config() fails, _link needs to be freed in case of
-topology ABI version mismatch. However the current code is returning
-directly and ends up leaking memory in this case.
-This patch fixes that.
+skl_print_pins() loops over all given pins but it overwrites the text
+at the very same position while increasing the returned length.
+Fix this to show the all pin contents properly.
 
-Fixes: 593d9e52f9bb ("ASoC: topology: Add support to configure existing physical DAI links")
-Signed-off-by: Dragos Tarcatu <dragos_tarcatu@mentor.com>
-Link: https://lore.kernel.org/r/20200207185325.22320-2-dragos_tarcatu@mentor.com
+Fixes: d14700a01f91 ("ASoC: Intel: Skylake: Debugfs facility to dump module config")
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Acked-by: Cezary Rojewski <cezary.rojewski@intel.com>
+Link: https://lore.kernel.org/r/20200218111737.14193-2-tiwai@suse.de
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/soc/soc-topology.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ sound/soc/intel/skylake/skl-debug.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/sound/soc/soc-topology.c
-+++ b/sound/soc/soc-topology.c
-@@ -2177,8 +2177,11 @@ static int soc_tplg_link_elems_load(stru
- 		}
+--- a/sound/soc/intel/skylake/skl-debug.c
++++ b/sound/soc/intel/skylake/skl-debug.c
+@@ -42,7 +42,7 @@ static ssize_t skl_print_pins(struct skl
+ 	int i;
+ 	ssize_t ret = 0;
  
- 		ret = soc_tplg_link_config(tplg, _link);
--		if (ret < 0)
-+		if (ret < 0) {
-+			if (!abi_match)
-+				kfree(_link);
- 			return ret;
-+		}
+-	for (i = 0; i < max_pin; i++)
++	for (i = 0; i < max_pin; i++) {
+ 		ret += snprintf(buf + size, MOD_BUF - size,
+ 				"%s %d\n\tModule %d\n\tInstance %d\n\t"
+ 				"In-used %s\n\tType %s\n"
+@@ -53,6 +53,8 @@ static ssize_t skl_print_pins(struct skl
+ 				m_pin[i].in_use ? "Used" : "Unused",
+ 				m_pin[i].is_dynamic ? "Dynamic" : "Static",
+ 				m_pin[i].pin_state, i);
++		size += ret;
++	}
+ 	return ret;
+ }
  
- 		/* offset by version-specific struct size and
- 		 * real priv data size
 
 
