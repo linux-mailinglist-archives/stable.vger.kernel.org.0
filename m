@@ -2,131 +2,160 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 28AA017F2B7
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 10:06:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 528D817F362
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 10:21:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726224AbgCJJGv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 05:06:51 -0400
-Received: from us-smtp-1.mimecast.com ([207.211.31.81]:57304 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726199AbgCJJGv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Mar 2020 05:06:51 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1583831210;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=xSmK9z6pWruyLFXiyy4vOPrb+SMZGU/lI1Jxx2/jwjY=;
-        b=RxmbwA0R6nmk82pZh7vjW7m2JsECHftEYaaxNv1a0DIi7PoY5mkkUpW01CPfBgKUxHvxer
-        0Tx4NF2p3wvaO4RgfunpQOeHVVJSNC4LeuHdnOP/aV20zzY3TwXFFmNzuCG6w6NFLkXX10
-        vhO/7wV3e8zA9sZD2EY9ntvsEfvLIOY=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-247-70btbhFaO2C4xwelThq4YA-1; Tue, 10 Mar 2020 05:06:46 -0400
-X-MC-Unique: 70btbhFaO2C4xwelThq4YA-1
-Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 1F9E58010D9;
-        Tue, 10 Mar 2020 09:06:45 +0000 (UTC)
-Received: from file01.intranet.prod.int.rdu2.redhat.com (file01.intranet.prod.int.rdu2.redhat.com [10.11.5.7])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 88D955D9C5;
-        Tue, 10 Mar 2020 09:06:40 +0000 (UTC)
-Received: from file01.intranet.prod.int.rdu2.redhat.com (localhost [127.0.0.1])
-        by file01.intranet.prod.int.rdu2.redhat.com (8.14.4/8.14.4) with ESMTP id 02A96emJ008529;
-        Tue, 10 Mar 2020 05:06:40 -0400
-Received: from localhost (mpatocka@localhost)
-        by file01.intranet.prod.int.rdu2.redhat.com (8.14.4/8.14.4/Submit) with ESMTP id 02A96doe008525;
-        Tue, 10 Mar 2020 05:06:39 -0400
-X-Authentication-Warning: file01.intranet.prod.int.rdu2.redhat.com: mpatocka owned process doing -bs
-Date:   Tue, 10 Mar 2020 05:06:39 -0400 (EDT)
-From:   Mikulas Patocka <mpatocka@redhat.com>
-X-X-Sender: mpatocka@file01.intranet.prod.int.rdu2.redhat.com
-To:     gregkh@linuxfoundation.org
-cc:     snitzer@redhat.com, stable@vger.kernel.org
-Subject: [PATCH v4.4 v4.9] dm cache: fix a crash due to incorrect work item
- cancelling
-In-Reply-To: <158378436239197@kroah.com>
-Message-ID: <alpine.LRH.2.02.2003100505050.7499@file01.intranet.prod.int.rdu2.redhat.com>
-References: <158378436239197@kroah.com>
-User-Agent: Alpine 2.02 (LRH 1266 2009-07-14)
+        id S1726224AbgCJJV1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 05:21:27 -0400
+Received: from mail.fireflyinternet.com ([109.228.58.192]:49462 "EHLO
+        fireflyinternet.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1726202AbgCJJV1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Mar 2020 05:21:27 -0400
+X-Default-Received-SPF: pass (skip=forwardok (res=PASS)) x-ip-name=78.156.65.138;
+Received: from build.alporthouse.com (unverified [78.156.65.138]) 
+        by fireflyinternet.com (Firefly Internet (M1)) with ESMTP id 20505102-1500050 
+        for multiple; Tue, 10 Mar 2020 09:21:20 +0000
+From:   Chris Wilson <chris@chris-wilson.co.uk>
+To:     linux-kernel@vger.kernel.org
+Cc:     intel-gfx@lists.freedesktop.org,
+        Chris Wilson <chris@chris-wilson.co.uk>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        "Paul E. McKenney" <paulmck@kernel.org>,
+        Randy Dunlap <rdunlap@infradead.org>, stable@vger.kernel.org
+Subject: [PATCH] list: Prevent compiler reloads inside 'safe' list iteration
+Date:   Tue, 10 Mar 2020 09:21:19 +0000
+Message-Id: <20200310092119.14965-1-chris@chris-wilson.co.uk>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Instruct the compiler to read the next element in the list iteration
+once, and that it is not allowed to reload the value from the stale
+element later. This is important as during the course of the safe
+iteration, the stale element may be poisoned (unbeknownst to the
+compiler).
 
+This helps prevent kcsan warnings over 'unsafe' conduct in releasing the
+list elements during list_for_each_entry_safe() and friends.
 
-On Mon, 9 Mar 2020, gregkh@linuxfoundation.org wrote:
-
-> 
-> The patch below does not apply to the 4.9-stable tree.
-> If someone wants it applied there, or to any other stable or longterm
-> tree, then please email the backport, including the original git commit
-> id to <stable@vger.kernel.org>.
-> 
-> thanks,
-> 
-> greg k-h
-
-Hi
-
-Here I'm sending the patch for the stable branches 4.4 and 4.9.
-
-Mikulas
-
-
------------------- original commit in Linus's tree ------------------
-
->From 7cdf6a0aae1cccf5167f3f04ecddcf648b78e289 Mon Sep 17 00:00:00 2001
-From: Mikulas Patocka <mpatocka@redhat.com>
-Date: Wed, 19 Feb 2020 10:25:45 -0500
-Subject: [PATCH] dm cache: fix a crash due to incorrect work item cancelling
-
-The crash can be reproduced by running the lvm2 testsuite test
-lvconvert-thin-external-cache.sh for several minutes, e.g.:
-  while :; do make check T=shell/lvconvert-thin-external-cache.sh; done
-
-The crash happens in this call chain:
-do_waker -> policy_tick -> smq_tick -> end_hotspot_period -> clear_bitset
--> memset -> __memset -- which accesses an invalid pointer in the vmalloc
-area.
-
-The work entry on the workqueue is executed even after the bitmap was
-freed. The problem is that cancel_delayed_work doesn't wait for the
-running work item to finish, so the work item can continue running and
-re-submitting itself even after cache_postsuspend. In order to make sure
-that the work item won't be running, we must use cancel_delayed_work_sync.
-
-Also, change flush_workqueue to drain_workqueue, so that if some work item
-submits itself or another work item, we are properly waiting for both of
-them.
-
-Fixes: c6b4fcbad044 ("dm: add cache target")
-Cc: stable@vger.kernel.org # v3.9
-Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
-
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: "Paul E. McKenney" <paulmck@kernel.org>
+Cc: Randy Dunlap <rdunlap@infradead.org>
+Cc: stable@vger.kernel.org
 ---
- drivers/md/dm-cache-target.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ include/linux/list.h | 50 +++++++++++++++++++++++++++++++-------------
+ 1 file changed, 36 insertions(+), 14 deletions(-)
 
-Index: linux-stable/drivers/md/dm-cache-target.c
-===================================================================
---- linux-stable.orig/drivers/md/dm-cache-target.c	2020-03-10 10:03:40.000000000 +0100
-+++ linux-stable/drivers/md/dm-cache-target.c	2020-03-10 10:03:58.000000000 +0100
-@@ -2192,8 +2192,8 @@ static void wait_for_migrations(struct c
+diff --git a/include/linux/list.h b/include/linux/list.h
+index 884216db3246..c4d215d02259 100644
+--- a/include/linux/list.h
++++ b/include/linux/list.h
+@@ -536,6 +536,17 @@ static inline void list_splice_tail_init(struct list_head *list,
+ #define list_next_entry(pos, member) \
+ 	list_entry((pos)->member.next, typeof(*(pos)), member)
  
- static void stop_worker(struct cache *cache)
- {
--	cancel_delayed_work(&cache->waker);
--	flush_workqueue(cache->wq);
-+	cancel_delayed_work_sync(&cache->waker);
-+	drain_workqueue(cache->wq);
- }
++/**
++ * list_next_entry_safe - get the next element in list [once]
++ * @pos:	the type * to cursor
++ * @member:	the name of the list_head within the struct.
++ *
++ * Like list_next_entry() but prevents the compiler from reloading the
++ * next element.
++ */
++#define list_next_entry_safe(pos, member) \
++	list_entry(READ_ONCE((pos)->member.next), typeof(*(pos)), member)
++
+ /**
+  * list_prev_entry - get the prev element in list
+  * @pos:	the type * to cursor
+@@ -544,6 +555,17 @@ static inline void list_splice_tail_init(struct list_head *list,
+ #define list_prev_entry(pos, member) \
+ 	list_entry((pos)->member.prev, typeof(*(pos)), member)
  
- static void requeue_deferred_cells(struct cache *cache)
++/**
++ * list_prev_entry_safe - get the prev element in list [once]
++ * @pos:	the type * to cursor
++ * @member:	the name of the list_head within the struct.
++ *
++ * Like list_prev_entry() but prevents the compiler from reloading the
++ * previous element.
++ */
++#define list_prev_entry_safe(pos, member) \
++	list_entry(READ_ONCE((pos)->member.prev), typeof(*(pos)), member)
++
+ /**
+  * list_for_each	-	iterate over a list
+  * @pos:	the &struct list_head to use as a loop cursor.
+@@ -686,9 +708,9 @@ static inline void list_splice_tail_init(struct list_head *list,
+  */
+ #define list_for_each_entry_safe(pos, n, head, member)			\
+ 	for (pos = list_first_entry(head, typeof(*pos), member),	\
+-		n = list_next_entry(pos, member);			\
++		n = list_next_entry_safe(pos, member);			\
+ 	     &pos->member != (head); 					\
+-	     pos = n, n = list_next_entry(n, member))
++	     pos = n, n = list_next_entry_safe(n, member))
+ 
+ /**
+  * list_for_each_entry_safe_continue - continue list iteration safe against removal
+@@ -700,11 +722,11 @@ static inline void list_splice_tail_init(struct list_head *list,
+  * Iterate over list of given type, continuing after current point,
+  * safe against removal of list entry.
+  */
+-#define list_for_each_entry_safe_continue(pos, n, head, member) 		\
+-	for (pos = list_next_entry(pos, member), 				\
+-		n = list_next_entry(pos, member);				\
+-	     &pos->member != (head);						\
+-	     pos = n, n = list_next_entry(n, member))
++#define list_for_each_entry_safe_continue(pos, n, head, member) 	\
++	for (pos = list_next_entry(pos, member), 			\
++		n = list_next_entry_safe(pos, member);			\
++	     &pos->member != (head);					\
++	     pos = n, n = list_next_entry_safe(n, member))
+ 
+ /**
+  * list_for_each_entry_safe_from - iterate over list from current point safe against removal
+@@ -716,10 +738,10 @@ static inline void list_splice_tail_init(struct list_head *list,
+  * Iterate over list of given type from current point, safe against
+  * removal of list entry.
+  */
+-#define list_for_each_entry_safe_from(pos, n, head, member) 			\
+-	for (n = list_next_entry(pos, member);					\
+-	     &pos->member != (head);						\
+-	     pos = n, n = list_next_entry(n, member))
++#define list_for_each_entry_safe_from(pos, n, head, member) 		\
++	for (n = list_next_entry_safe(pos, member);			\
++	     &pos->member != (head);					\
++	     pos = n, n = list_next_entry_safe(n, member))
+ 
+ /**
+  * list_for_each_entry_safe_reverse - iterate backwards over list safe against removal
+@@ -733,9 +755,9 @@ static inline void list_splice_tail_init(struct list_head *list,
+  */
+ #define list_for_each_entry_safe_reverse(pos, n, head, member)		\
+ 	for (pos = list_last_entry(head, typeof(*pos), member),		\
+-		n = list_prev_entry(pos, member);			\
++		n = list_prev_entry_safe(pos, member);			\
+ 	     &pos->member != (head); 					\
+-	     pos = n, n = list_prev_entry(n, member))
++	     pos = n, n = list_prev_entry_safe(n, member))
+ 
+ /**
+  * list_safe_reset_next - reset a stale list_for_each_entry_safe loop
+@@ -750,7 +772,7 @@ static inline void list_splice_tail_init(struct list_head *list,
+  * completing the current iteration of the loop body.
+  */
+ #define list_safe_reset_next(pos, n, member)				\
+-	n = list_next_entry(pos, member)
++	n = list_next_entry_safe(pos, member)
+ 
+ /*
+  * Double linked lists with a single pointer list head.
+-- 
+2.20.1
 
