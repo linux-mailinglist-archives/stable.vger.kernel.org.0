@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1805117FABC
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:08:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B8E717FA8B
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:06:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730263AbgCJNHz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 09:07:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53832 "EHLO mail.kernel.org"
+        id S1730781AbgCJNF4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 09:05:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51276 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730271AbgCJNHt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 09:07:49 -0400
+        id S1730773AbgCJNFy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 09:05:54 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 979FF20873;
-        Tue, 10 Mar 2020 13:07:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 993CD208E4;
+        Tue, 10 Mar 2020 13:05:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583845669;
-        bh=+4WPWUaGDWLShhdy5FaNvPbfl02ykHihgTT9PqSSayA=;
+        s=default; t=1583845553;
+        bh=+XrCY285HQc7bIPS4L9LWgBFcENdvWmH4USlchC0yfY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=am/0jn6ytoJ/eLLILEzYctdYZPEhxFMJeDfU8SFybOY3UXw9bk75e+DfGMRjMZnVf
-         4bbd/BHGyYx/5XdV0Bvd5ujmh4TTGe56hEACle8Rmt4fOClEfpQUBzMrRRYgwR/67y
-         ro0suFXialrZVAAigw1+nG0XZsnQ7WxgR3nancis=
+        b=D0I2+Ava44muvMeVh53Br8qhmePlGbSGszmuvmGSsX7B/MCZHoEvsp7wHp+xJJK6C
+         PHxYhZvWRtZgfxx+g3f/vKUBiAeN26pVrMGIk39lNYvoI6muh5deGcGZbgssMdflSd
+         MocCjGWF2LBVLOLVp28xtQ9PhPXegFeU9vXUUemg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jeff Moyer <jmoyer@redhat.com>,
-        Christoph Hellwig <hch@lst.de>, Jan Kara <jack@suse.cz>,
-        Dan Williams <dan.j.williams@intel.com>,
+        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
+        Luca Coelho <luciano.coelho@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 008/126] dax: pass NOWAIT flag to iomap_apply
-Date:   Tue, 10 Mar 2020 13:40:29 +0100
-Message-Id: <20200310124204.462914067@linuxfoundation.org>
+Subject: [PATCH 4.14 009/126] mac80211: consider more elements in parsing CRC
+Date:   Tue, 10 Mar 2020 13:40:30 +0100
+Message-Id: <20200310124204.517394539@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200310124203.704193207@linuxfoundation.org>
 References: <20200310124203.704193207@linuxfoundation.org>
@@ -45,41 +44,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeff Moyer <jmoyer@redhat.com>
+From: Johannes Berg <johannes.berg@intel.com>
 
-[ Upstream commit 96222d53842dfe54869ec4e1b9d4856daf9105a2 ]
+[ Upstream commit a04564c99bb4a92f805a58e56b2d22cc4978f152 ]
 
-fstests generic/471 reports a failure when run with MOUNT_OPTIONS="-o
-dax".  The reason is that the initial pwrite to an empty file with the
-RWF_NOWAIT flag set does not return -EAGAIN.  It turns out that
-dax_iomap_rw doesn't pass that flag through to iomap_apply.
+We only use the parsing CRC for checking if a beacon changed,
+and elements with an ID > 63 cannot be represented in the
+filter. Thus, like we did before with WMM and Cisco vendor
+elements, just statically add these forgotten items to the
+CRC:
+ - WLAN_EID_VHT_OPERATION
+ - WLAN_EID_OPMODE_NOTIF
 
-With this patch applied, generic/471 passes for me.
+I guess that in most cases when VHT/HE operation change, the HT
+operation also changed, and so the change was picked up, but we
+did notice that pure operating mode notification changes were
+ignored.
 
-Signed-off-by: Jeff Moyer <jmoyer@redhat.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/x49r1z86e1d.fsf@segfault.boston.devel.redhat.com
-Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Link: https://lore.kernel.org/r/20200131111300.891737-22-luca@coelho.fi
+[restrict to VHT for the mac80211 branch]
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/dax.c | 3 +++
- 1 file changed, 3 insertions(+)
+ net/mac80211/util.c | 18 ++++++++++++------
+ 1 file changed, 12 insertions(+), 6 deletions(-)
 
-diff --git a/fs/dax.c b/fs/dax.c
-index ddb4981ae32eb..34a55754164f4 100644
---- a/fs/dax.c
-+++ b/fs/dax.c
-@@ -1057,6 +1057,9 @@ dax_iomap_rw(struct kiocb *iocb, struct iov_iter *iter,
- 		lockdep_assert_held(&inode->i_rwsem);
- 	}
- 
-+	if (iocb->ki_flags & IOCB_NOWAIT)
-+		flags |= IOMAP_NOWAIT;
-+
- 	while (iov_iter_count(iter)) {
- 		ret = iomap_apply(inode, pos, iov_iter_count(iter), flags, ops,
- 				iter, dax_iomap_actor);
+diff --git a/net/mac80211/util.c b/net/mac80211/util.c
+index 81f120466c38b..cd3cdd1a0b576 100644
+--- a/net/mac80211/util.c
++++ b/net/mac80211/util.c
+@@ -944,16 +944,22 @@ u32 ieee802_11_parse_elems_crc(const u8 *start, size_t len, bool action,
+ 				elem_parse_failed = true;
+ 			break;
+ 		case WLAN_EID_VHT_OPERATION:
+-			if (elen >= sizeof(struct ieee80211_vht_operation))
++			if (elen >= sizeof(struct ieee80211_vht_operation)) {
+ 				elems->vht_operation = (void *)pos;
+-			else
+-				elem_parse_failed = true;
++				if (calc_crc)
++					crc = crc32_be(crc, pos - 2, elen + 2);
++				break;
++			}
++			elem_parse_failed = true;
+ 			break;
+ 		case WLAN_EID_OPMODE_NOTIF:
+-			if (elen > 0)
++			if (elen > 0) {
+ 				elems->opmode_notif = pos;
+-			else
+-				elem_parse_failed = true;
++				if (calc_crc)
++					crc = crc32_be(crc, pos - 2, elen + 2);
++				break;
++			}
++			elem_parse_failed = true;
+ 			break;
+ 		case WLAN_EID_MESH_ID:
+ 			elems->mesh_id = pos;
 -- 
 2.20.1
 
