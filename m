@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E86D17FBAA
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:16:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 41AA717FB7B
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:14:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729838AbgCJNOQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 09:14:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37836 "EHLO mail.kernel.org"
+        id S1731462AbgCJNOS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 09:14:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37904 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729264AbgCJNOP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 09:14:15 -0400
+        id S1729264AbgCJNOS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 09:14:18 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7B0C020409;
-        Tue, 10 Mar 2020 13:14:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3253224649;
+        Tue, 10 Mar 2020 13:14:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583846055;
-        bh=+PYbT6PSjcBXlV0X5hQe9ZrLqKbBChZnSnxyDuUYcQY=;
+        s=default; t=1583846057;
+        bh=gEpI/WZAhYT91gRr4vJsYerumiMWnUy/i4/TlfwAmcY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AUA6UzFyLHp7vQDVLJxCYnGrfacmoeaR/sj9FaSogs+xLe+TvkjEDdS9LuMbi4Av9
-         aZYXqXJk7I+MKiw4wM79R95/OfCrdVnGcHA59UPpsdOSkTfXt3VGHAhww2h3rMnyZ3
-         b5GDkdUzs9LKYCX4owV39zDwib65avlAh7NbULUQ=
+        b=P6xyhMiRpAzcMuQ7qGwMbG6WL0U+fZrCZYQPornA89q6lA6daO5s5yKM4/Zzo3ncS
+         StOYsB0+mR3WyqbB+wMDcCpl9r1Lo00075Mzk/gdaf85lKuMXUxPgkkhs3jADqUhlf
+         e+DbjfR5NnkxaxR/GHS5DUE6X73VqHVoyXNQa0cA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Michal Swiatkowski <michal.swiatkowski@intel.com>,
-        Andrew Bowers <andrewx.bowers@intel.com>,
-        Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
+        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
+        Juergen Gross <jgross@suse.com>,
+        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 29/86] ice: Dont tell the OS that link is going down
-Date:   Tue, 10 Mar 2020 13:44:53 +0100
-Message-Id: <20200310124532.355099045@linuxfoundation.org>
+Subject: [PATCH 4.19 30/86] x86/xen: Distribute switch variables for initialization
+Date:   Tue, 10 Mar 2020 13:44:54 +0100
+Message-Id: <20200310124532.408826948@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200310124530.808338541@linuxfoundation.org>
 References: <20200310124530.808338541@linuxfoundation.org>
@@ -46,46 +45,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michal Swiatkowski <michal.swiatkowski@intel.com>
+From: Kees Cook <keescook@chromium.org>
 
-[ Upstream commit 8a55c08d3bbc9ffc9639f69f742e59ebd99f913b ]
+[ Upstream commit 9038ec99ceb94fb8d93ade5e236b2928f0792c7c ]
 
-Remove code that tell the OS that link is going down when user
-change flow control via ethtool. When link is up it isn't certain
-that link goes down after 0x0605 aq command. If link doesn't go
-down, OS thinks that link is down, but physical link is up. To
-reset this state user have to take interface down and up.
+Variables declared in a switch statement before any case statements
+cannot be automatically initialized with compiler instrumentation (as
+they are not part of any execution flow). With GCC's proposed automatic
+stack variable initialization feature, this triggers a warning (and they
+don't get initialized). Clang's automatic stack variable initialization
+(via CONFIG_INIT_STACK_ALL=y) doesn't throw a warning, but it also
+doesn't initialize such variables[1]. Note that these warnings (or silent
+skipping) happen before the dead-store elimination optimization phase,
+so even when the automatic initializations are later elided in favor of
+direct initializations, the warnings remain.
 
-If link goes down after 0x0605 command, FW send information
-about that and after that driver tells the OS that the link goes
-down. So this code in ethtool is unnecessary.
+To avoid these problems, move such variables into the "case" where
+they're used or lift them up into the main function body.
 
-Signed-off-by: Michal Swiatkowski <michal.swiatkowski@intel.com>
-Tested-by: Andrew Bowers <andrewx.bowers@intel.com>
-Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
+arch/x86/xen/enlighten_pv.c: In function ‘xen_write_msr_safe’:
+arch/x86/xen/enlighten_pv.c:904:12: warning: statement will never be executed [-Wswitch-unreachable]
+  904 |   unsigned which;
+      |            ^~~~~
+
+[1] https://bugs.llvm.org/show_bug.cgi?id=44916
+
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Link: https://lore.kernel.org/r/20200220062318.69299-1-keescook@chromium.org
+Reviewed-by: Juergen Gross <jgross@suse.com>
+[boris: made @which an 'unsigned int']
+Signed-off-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/ice/ice_ethtool.c | 7 -------
- 1 file changed, 7 deletions(-)
+ arch/x86/xen/enlighten_pv.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/ice/ice_ethtool.c b/drivers/net/ethernet/intel/ice/ice_ethtool.c
-index 4c5c87b158f55..627abef829c9a 100644
---- a/drivers/net/ethernet/intel/ice/ice_ethtool.c
-+++ b/drivers/net/ethernet/intel/ice/ice_ethtool.c
-@@ -772,13 +772,6 @@ ice_set_pauseparam(struct net_device *netdev, struct ethtool_pauseparam *pause)
- 	else
- 		return -EINVAL;
+diff --git a/arch/x86/xen/enlighten_pv.c b/arch/x86/xen/enlighten_pv.c
+index 1730a26ff6abc..76864ea591605 100644
+--- a/arch/x86/xen/enlighten_pv.c
++++ b/arch/x86/xen/enlighten_pv.c
+@@ -908,14 +908,15 @@ static u64 xen_read_msr_safe(unsigned int msr, int *err)
+ static int xen_write_msr_safe(unsigned int msr, unsigned low, unsigned high)
+ {
+ 	int ret;
++#ifdef CONFIG_X86_64
++	unsigned int which;
++	u64 base;
++#endif
  
--	/* Tell the OS link is going down, the link will go back up when fw
--	 * says it is ready asynchronously
--	 */
--	ice_print_link_msg(vsi, false);
--	netif_carrier_off(netdev);
--	netif_tx_stop_all_queues(netdev);
+ 	ret = 0;
+ 
+ 	switch (msr) {
+ #ifdef CONFIG_X86_64
+-		unsigned which;
+-		u64 base;
 -
- 	/* Set the FC mode and only restart AN if link is up */
- 	status = ice_set_fc(pi, &aq_failures, link_up);
- 
+ 	case MSR_FS_BASE:		which = SEGBASE_FS; goto set;
+ 	case MSR_KERNEL_GS_BASE:	which = SEGBASE_GS_USER; goto set;
+ 	case MSR_GS_BASE:		which = SEGBASE_GS_KERNEL; goto set;
 -- 
 2.20.1
 
