@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 851CC17FB6E
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:13:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 54CEB17FB6F
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:14:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731801AbgCJNN5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 09:13:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37072 "EHLO mail.kernel.org"
+        id S1731812AbgCJNN7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 09:13:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37218 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731795AbgCJNNx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 09:13:53 -0400
+        id S1731810AbgCJNN6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 09:13:58 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0111B2468C;
-        Tue, 10 Mar 2020 13:13:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 94D002468C;
+        Tue, 10 Mar 2020 13:13:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583846032;
-        bh=ZDJk+mwxFqV9auaVzGh9+Z3RTbLdrF7yBgZNTtYldSg=;
+        s=default; t=1583846038;
+        bh=4TsMt/hkVyeNp32B7AhGN4QkaO1VpBI7eNal2nbGosw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uc+TXWY+sKdi/WrRIXxqGQa5+er0MEZ8rShP+YFKEB6hBwrW0wO0LSlpVRi4s7Mhg
-         3UNv8wYHwAH63vSVsHDmjizIqpw8O5uAzuTF+nPHz1QALclDR52vzjm3Y8lJ1D8B7R
-         8HvAIzem1aA7x1LMgyAjKXQoiA/fxUeppuCjT1xI=
+        b=QiSP5eh136mcRzLoNPgcjmg2lJ8/UWjBR7fUPjLPCmOgbsi8vSFog4JPa2VjBWIXE
+         qhEOZQdDpAEtnhoe3RnMuObPMpxc0xEtUfpFwkqR8+0NVUribTOazqMeylx0nem00s
+         hISTIPBbxkkV1+YblOvp3K43Rih4mVTeuHz+AM04=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dragos Tarcatu <dragos_tarcatu@mentor.com>,
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
+        Cezary Rojewski <cezary.rojewski@intel.com>,
         Mark Brown <broonie@kernel.org>
-Subject: [PATCH 4.19 61/86] ASoC: topology: Fix memleak in soc_tplg_manifest_load()
-Date:   Tue, 10 Mar 2020 13:45:25 +0100
-Message-Id: <20200310124534.088509047@linuxfoundation.org>
+Subject: [PATCH 4.19 62/86] ASoC: intel: skl: Fix pin debug prints
+Date:   Tue, 10 Mar 2020 13:45:26 +0100
+Message-Id: <20200310124534.139727555@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200310124530.808338541@linuxfoundation.org>
 References: <20200310124530.808338541@linuxfoundation.org>
@@ -43,61 +44,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dragos Tarcatu <dragos_tarcatu@mentor.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 242c46c023610dbc0213fc8fb6b71eb836bc5d95 upstream.
+commit 64bbacc5f08c01954890981c63de744df1f29a30 upstream.
 
-In case of ABI version mismatch, _manifest needs to be freed as
-it is just a copy of the original topology manifest. However, if
-a driver manifest handler is defined, that would get executed and
-the cleanup is never reached. Fix that by getting the return status
-of manifest() instead of returning directly.
+skl_print_pins() loops over all given pins but it overwrites the text
+at the very same position while increasing the returned length.
+Fix this to show the all pin contents properly.
 
-Fixes: 583958fa2e52 ("ASoC: topology: Make manifest backward compatible from ABI v4")
-Signed-off-by: Dragos Tarcatu <dragos_tarcatu@mentor.com>
-Link: https://lore.kernel.org/r/20200207185325.22320-3-dragos_tarcatu@mentor.com
+Fixes: d14700a01f91 ("ASoC: Intel: Skylake: Debugfs facility to dump module config")
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Acked-by: Cezary Rojewski <cezary.rojewski@intel.com>
+Link: https://lore.kernel.org/r/20200218111737.14193-2-tiwai@suse.de
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/soc/soc-topology.c |   12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ sound/soc/intel/skylake/skl-debug.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/sound/soc/soc-topology.c
-+++ b/sound/soc/soc-topology.c
-@@ -2313,7 +2313,7 @@ static int soc_tplg_manifest_load(struct
- {
- 	struct snd_soc_tplg_manifest *manifest, *_manifest;
- 	bool abi_match;
--	int err;
-+	int ret = 0;
+--- a/sound/soc/intel/skylake/skl-debug.c
++++ b/sound/soc/intel/skylake/skl-debug.c
+@@ -42,7 +42,7 @@ static ssize_t skl_print_pins(struct skl
+ 	int i;
+ 	ssize_t ret = 0;
  
- 	if (tplg->pass != SOC_TPLG_PASS_MANIFEST)
- 		return 0;
-@@ -2326,19 +2326,19 @@ static int soc_tplg_manifest_load(struct
- 		_manifest = manifest;
- 	} else {
- 		abi_match = false;
--		err = manifest_new_ver(tplg, manifest, &_manifest);
--		if (err < 0)
--			return err;
-+		ret = manifest_new_ver(tplg, manifest, &_manifest);
-+		if (ret < 0)
-+			return ret;
- 	}
- 
- 	/* pass control to component driver for optional further init */
- 	if (tplg->comp && tplg->ops && tplg->ops->manifest)
--		return tplg->ops->manifest(tplg->comp, tplg->index, _manifest);
-+		ret = tplg->ops->manifest(tplg->comp, tplg->index, _manifest);
- 
- 	if (!abi_match)	/* free the duplicated one */
- 		kfree(_manifest);
- 
--	return 0;
-+	return ret;
+-	for (i = 0; i < max_pin; i++)
++	for (i = 0; i < max_pin; i++) {
+ 		ret += snprintf(buf + size, MOD_BUF - size,
+ 				"%s %d\n\tModule %d\n\tInstance %d\n\t"
+ 				"In-used %s\n\tType %s\n"
+@@ -53,6 +53,8 @@ static ssize_t skl_print_pins(struct skl
+ 				m_pin[i].in_use ? "Used" : "Unused",
+ 				m_pin[i].is_dynamic ? "Dynamic" : "Static",
+ 				m_pin[i].pin_state, i);
++		size += ret;
++	}
+ 	return ret;
  }
  
- /* validate header magic, size and type */
 
 
