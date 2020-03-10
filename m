@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 258A717FB64
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:13:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EDAA017FBBB
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:16:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731706AbgCJNNh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 09:13:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36578 "EHLO mail.kernel.org"
+        id S1731745AbgCJNNl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 09:13:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36696 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731721AbgCJNNf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 09:13:35 -0400
+        id S1731740AbgCJNNk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 09:13:40 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BAA3B2468C;
-        Tue, 10 Mar 2020 13:13:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5C5FF2468C;
+        Tue, 10 Mar 2020 13:13:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583846015;
-        bh=B+1AQMH6VDQXqLliH1g7u6fiebVF899B+kyVEXJ9Rag=;
+        s=default; t=1583846018;
+        bh=iaI8RigxyHBF2XyZTtdYdQc4C6phvCfJC38pluzMJT8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BBTheS0od/pE9PbqV9Ywhq+IbvYOg1fD89scI2GcbgdDR7Z/ar3Kj6E2B+Iwp5KEB
-         AYJND64FF1i/cPL7e7m5P4e4yuNm9r8T4joF/5IkglNGJvaMU1XJDndrFjXMz1lT5/
-         3XHZAD2S4Xts7ndU3zmRBsnK0MwemtSnUAV5HGOQ=
+        b=gQ1YEQ5Oc1sXhU+EmFNHOAv2gIkpqFvEtwep4CTRVJnPdMu8q5UUszuYfr45fjtNr
+         2ix+4fH82oCzDFbYFM32+Xy9LoCUM1r2GAzD8JIjoBTkHvh5Z7DWyq8udgtlgRA8i0
+         HI0cz8TNENrzesQ6FuLujLgWO3ahoFvhYRgeBbn0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
+        stable@vger.kernel.org, Corey Marthaler <cmarthal@redhat.com>,
+        Mikulas Patocka <mpatocka@redhat.com>,
         Mike Snitzer <snitzer@redhat.com>
-Subject: [PATCH 4.19 55/86] dm cache: fix a crash due to incorrect work item cancelling
-Date:   Tue, 10 Mar 2020 13:45:19 +0100
-Message-Id: <20200310124533.764679419@linuxfoundation.org>
+Subject: [PATCH 4.19 56/86] dm: report suspended device during destroy
+Date:   Tue, 10 Mar 2020 13:45:20 +0100
+Message-Id: <20200310124533.817196498@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200310124530.808338541@linuxfoundation.org>
 References: <20200310124530.808338541@linuxfoundation.org>
@@ -45,49 +46,137 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Mikulas Patocka <mpatocka@redhat.com>
 
-commit 7cdf6a0aae1cccf5167f3f04ecddcf648b78e289 upstream.
+commit adc0daad366b62ca1bce3e2958a40b0b71a8b8b3 upstream.
 
-The crash can be reproduced by running the lvm2 testsuite test
-lvconvert-thin-external-cache.sh for several minutes, e.g.:
-  while :; do make check T=shell/lvconvert-thin-external-cache.sh; done
+The function dm_suspended returns true if the target is suspended.
+However, when the target is being suspended during unload, it returns
+false.
 
-The crash happens in this call chain:
-do_waker -> policy_tick -> smq_tick -> end_hotspot_period -> clear_bitset
--> memset -> __memset -- which accesses an invalid pointer in the vmalloc
-area.
+An example where this is a problem: the test "!dm_suspended(wc->ti)" in
+writecache_writeback is not sufficient, because dm_suspended returns
+zero while writecache_suspend is in progress.  As is, without an
+enhanced dm_suspended, simply switching from flush_workqueue to
+drain_workqueue still emits warnings:
+workqueue writecache-writeback: drain_workqueue() isn't complete after 10 tries
+workqueue writecache-writeback: drain_workqueue() isn't complete after 100 tries
+workqueue writecache-writeback: drain_workqueue() isn't complete after 200 tries
+workqueue writecache-writeback: drain_workqueue() isn't complete after 300 tries
+workqueue writecache-writeback: drain_workqueue() isn't complete after 400 tries
 
-The work entry on the workqueue is executed even after the bitmap was
-freed. The problem is that cancel_delayed_work doesn't wait for the
-running work item to finish, so the work item can continue running and
-re-submitting itself even after cache_postsuspend. In order to make sure
-that the work item won't be running, we must use cancel_delayed_work_sync.
+writecache_suspend calls flush_workqueue(wc->writeback_wq) - this function
+flushes the current work. However, the workqueue may re-queue itself and
+flush_workqueue doesn't wait for re-queued works to finish. Because of
+this - the function writecache_writeback continues execution after the
+device was suspended and then concurrently with writecache_dtr, causing
+a crash in writecache_writeback.
 
-Also, change flush_workqueue to drain_workqueue, so that if some work item
-submits itself or another work item, we are properly waiting for both of
-them.
+We must use drain_workqueue - that waits until the work and all re-queued
+works finish.
 
-Fixes: c6b4fcbad044 ("dm: add cache target")
-Cc: stable@vger.kernel.org # v3.9
+As a prereq for switching to drain_workqueue, this commit fixes
+dm_suspended to return true after the presuspend hook and before the
+postsuspend hook - just like during a normal suspend. It allows
+simplifying the dm-integrity and dm-writecache targets so that they
+don't have to maintain suspended flags on their own.
+
+With this change use of drain_workqueue() can be used effectively.  This
+change was tested with the lvm2 testsuite and cryptsetup testsuite and
+the are no regressions.
+
+Fixes: 48debafe4f2f ("dm: add writecache target")
+Cc: stable@vger.kernel.org # 4.18+
+Reported-by: Corey Marthaler <cmarthal@redhat.com>
 Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
 Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/md/dm-cache-target.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/md/dm-integrity.c  |   12 +++++-------
+ drivers/md/dm-writecache.c |    2 +-
+ drivers/md/dm.c            |    1 +
+ 3 files changed, 7 insertions(+), 8 deletions(-)
 
---- a/drivers/md/dm-cache-target.c
-+++ b/drivers/md/dm-cache-target.c
-@@ -2859,8 +2859,8 @@ static void cache_postsuspend(struct dm_
- 	prevent_background_work(cache);
- 	BUG_ON(atomic_read(&cache->nr_io_migrations));
+--- a/drivers/md/dm-integrity.c
++++ b/drivers/md/dm-integrity.c
+@@ -186,12 +186,13 @@ struct dm_integrity_c {
+ 	__u8 sectors_per_block;
  
--	cancel_delayed_work(&cache->waker);
--	flush_workqueue(cache->wq);
-+	cancel_delayed_work_sync(&cache->waker);
-+	drain_workqueue(cache->wq);
- 	WARN_ON(cache->tracker.in_flight);
+ 	unsigned char mode;
+-	int suspending;
  
- 	/*
+ 	int failed;
+ 
+ 	struct crypto_shash *internal_hash;
+ 
++	struct dm_target *ti;
++
+ 	/* these variables are locked with endio_wait.lock */
+ 	struct rb_root in_progress;
+ 	struct list_head wait_list;
+@@ -2080,7 +2081,7 @@ static void integrity_writer(struct work
+ 	unsigned prev_free_sectors;
+ 
+ 	/* the following test is not needed, but it tests the replay code */
+-	if (READ_ONCE(ic->suspending) && !ic->meta_dev)
++	if (unlikely(dm_suspended(ic->ti)) && !ic->meta_dev)
+ 		return;
+ 
+ 	spin_lock_irq(&ic->endio_wait.lock);
+@@ -2139,7 +2140,7 @@ static void integrity_recalc(struct work
+ 
+ next_chunk:
+ 
+-	if (unlikely(READ_ONCE(ic->suspending)))
++	if (unlikely(dm_suspended(ic->ti)))
+ 		goto unlock_ret;
+ 
+ 	range.logical_sector = le64_to_cpu(ic->sb->recalc_sector);
+@@ -2411,8 +2412,6 @@ static void dm_integrity_postsuspend(str
+ 
+ 	del_timer_sync(&ic->autocommit_timer);
+ 
+-	WRITE_ONCE(ic->suspending, 1);
+-
+ 	if (ic->recalc_wq)
+ 		drain_workqueue(ic->recalc_wq);
+ 
+@@ -2426,8 +2425,6 @@ static void dm_integrity_postsuspend(str
+ 		dm_integrity_flush_buffers(ic);
+ 	}
+ 
+-	WRITE_ONCE(ic->suspending, 0);
+-
+ 	BUG_ON(!RB_EMPTY_ROOT(&ic->in_progress));
+ 
+ 	ic->journal_uptodate = true;
+@@ -3116,6 +3113,7 @@ static int dm_integrity_ctr(struct dm_ta
+ 	}
+ 	ti->private = ic;
+ 	ti->per_io_data_size = sizeof(struct dm_integrity_io);
++	ic->ti = ti;
+ 
+ 	ic->in_progress = RB_ROOT;
+ 	INIT_LIST_HEAD(&ic->wait_list);
+--- a/drivers/md/dm-writecache.c
++++ b/drivers/md/dm-writecache.c
+@@ -844,7 +844,7 @@ static void writecache_suspend(struct dm
+ 	}
+ 	wc_unlock(wc);
+ 
+-	flush_workqueue(wc->writeback_wq);
++	drain_workqueue(wc->writeback_wq);
+ 
+ 	wc_lock(wc);
+ 	if (flush_on_suspend)
+--- a/drivers/md/dm.c
++++ b/drivers/md/dm.c
+@@ -2353,6 +2353,7 @@ static void __dm_destroy(struct mapped_d
+ 	map = dm_get_live_table(md, &srcu_idx);
+ 	if (!dm_suspended_md(md)) {
+ 		dm_table_presuspend_targets(map);
++		set_bit(DMF_SUSPENDED, &md->flags);
+ 		dm_table_postsuspend_targets(map);
+ 	}
+ 	/* dm_put_live_table must be before msleep, otherwise deadlock is possible */
 
 
