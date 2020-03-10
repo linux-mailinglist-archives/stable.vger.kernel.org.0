@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B896417F974
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 13:56:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A31617F887
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 13:48:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729701AbgCJM4z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 08:56:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36250 "EHLO mail.kernel.org"
+        id S1728338AbgCJMsn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 08:48:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52912 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729695AbgCJM4y (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 08:56:54 -0400
+        id S1728117AbgCJMsl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 08:48:41 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ED14A20674;
-        Tue, 10 Mar 2020 12:56:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CE0132467D;
+        Tue, 10 Mar 2020 12:48:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583845014;
-        bh=eoNayO3uiDva1CrJ3Fk5TV4cI6wo6Xy7e7/LDxK2Xuo=;
+        s=default; t=1583844521;
+        bh=poU2yKYx8uqXY9anobZDWyRSFMcqkk2DwmXd8rSwxoc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ADiYwnoqJG5z5dBTE8PFMrAgK53H3Km49I7r4cZ3LxTwbQnYN6gyANaw+WX+wJUM2
-         BJXVvHU1/Q03ec9is2J8k0pbGlmdx4SRzXRi16vvJlI6zBPQWIe3aSMsZByVsBDL3F
-         Rqmhc43/8V0dqfpD7ze2Nh1pdJFdMbG8ta8sufOQ=
+        b=aV+iZC7bGu2FXxfCyR+MwWI1dyaNoOu7xa96qgstkYFgIMPzacyUbd8eYGxb/CEEU
+         Kq1c3c96fQBIYTE0yDqI5aFlVJrj/iDUYluhmDJ2uxnQgmjdw3ckJIRFYZswJJC7QU
+         mwb6IOAq0el05Vxop7LDBk6YNNNEH2Ve4A/xs9Z8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hangbin Liu <liuhangbin@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Brian Masney <masneyb@onstation.org>,
+        Rob Clark <robdclark@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 030/189] selftests: forwarding: vxlan_bridge_1d: fix tos value
-Date:   Tue, 10 Mar 2020 13:37:47 +0100
-Message-Id: <20200310123642.501946978@linuxfoundation.org>
+Subject: [PATCH 5.4 022/168] drm/msm/mdp5: rate limit pp done timeout warnings
+Date:   Tue, 10 Mar 2020 13:37:48 +0100
+Message-Id: <20200310123637.891054313@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200310123639.608886314@linuxfoundation.org>
-References: <20200310123639.608886314@linuxfoundation.org>
+In-Reply-To: <20200310123635.322799692@linuxfoundation.org>
+References: <20200310123635.322799692@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,41 +44,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hangbin Liu <liuhangbin@gmail.com>
+From: Brian Masney <masneyb@onstation.org>
 
-[ Upstream commit 4e867c9a50ff1a07ed0b86c3b1c8bc773933d728 ]
+[ Upstream commit ef8c9809acb0805c991bba8bdd4749fc46d44a98 ]
 
-After commit 71130f29979c ("vxlan: fix tos value before xmit") we start
-strict vxlan xmit tos value by RT_TOS(), which limits the tos value less
-than 0x1E. With current value 0x40 the test will failed with "v1: Expected
-to capture 10 packets, got 0". So let's choose a smaller tos value for
-testing.
+Add rate limiting of the 'pp done time out' warnings since these
+warnings can quickly fill the dmesg buffer.
 
-Fixes: d417ecf533fe ("selftests: forwarding: vxlan_bridge_1d: Add a TOS test")
-Signed-off-by: Hangbin Liu <liuhangbin@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Brian Masney <masneyb@onstation.org>
+Signed-off-by: Rob Clark <robdclark@chromium.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/net/forwarding/vxlan_bridge_1d.sh | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/msm/disp/mdp5/mdp5_crtc.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/tools/testing/selftests/net/forwarding/vxlan_bridge_1d.sh b/tools/testing/selftests/net/forwarding/vxlan_bridge_1d.sh
-index bb10e33690b25..353613fc19475 100755
---- a/tools/testing/selftests/net/forwarding/vxlan_bridge_1d.sh
-+++ b/tools/testing/selftests/net/forwarding/vxlan_bridge_1d.sh
-@@ -516,9 +516,9 @@ test_tos()
- 	RET=0
+diff --git a/drivers/gpu/drm/msm/disp/mdp5/mdp5_crtc.c b/drivers/gpu/drm/msm/disp/mdp5/mdp5_crtc.c
+index eb0b4b7dc7cc7..03c6d6157e4d0 100644
+--- a/drivers/gpu/drm/msm/disp/mdp5/mdp5_crtc.c
++++ b/drivers/gpu/drm/msm/disp/mdp5/mdp5_crtc.c
+@@ -1112,8 +1112,8 @@ static void mdp5_crtc_wait_for_pp_done(struct drm_crtc *crtc)
+ 	ret = wait_for_completion_timeout(&mdp5_crtc->pp_completion,
+ 						msecs_to_jiffies(50));
+ 	if (ret == 0)
+-		dev_warn(dev->dev, "pp done time out, lm=%d\n",
+-			 mdp5_cstate->pipeline.mixer->lm);
++		dev_warn_ratelimited(dev->dev, "pp done time out, lm=%d\n",
++				     mdp5_cstate->pipeline.mixer->lm);
+ }
  
- 	tc filter add dev v1 egress pref 77 prot ip \
--		flower ip_tos 0x40 action pass
--	vxlan_ping_test $h1 192.0.2.3 "-Q 0x40" v1 egress 77 10
--	vxlan_ping_test $h1 192.0.2.3 "-Q 0x30" v1 egress 77 0
-+		flower ip_tos 0x11 action pass
-+	vxlan_ping_test $h1 192.0.2.3 "-Q 0x11" v1 egress 77 10
-+	vxlan_ping_test $h1 192.0.2.3 "-Q 0x12" v1 egress 77 0
- 	tc filter del dev v1 egress pref 77 prot ip
- 
- 	log_test "VXLAN: envelope TOS inheritance"
+ static void mdp5_crtc_wait_for_flush_done(struct drm_crtc *crtc)
 -- 
 2.20.1
 
