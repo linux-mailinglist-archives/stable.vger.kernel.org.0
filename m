@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A772E17F7A3
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 13:41:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6873B17F800
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 13:44:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726331AbgCJMlI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 08:41:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40306 "EHLO mail.kernel.org"
+        id S1727018AbgCJMoL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 08:44:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45966 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726669AbgCJMlF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 08:41:05 -0400
+        id S1727700AbgCJMoJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 08:44:09 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EA15824695;
-        Tue, 10 Mar 2020 12:41:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DD841246EB;
+        Tue, 10 Mar 2020 12:44:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583844065;
-        bh=v+LS8lTv33twM/8R1u/V5jF9GnZzvDvZPfP5JaMQFQM=;
+        s=default; t=1583844249;
+        bh=bulQOK/My/jMPNZAniR85hY3Af0spvx6/wgGchrJY7w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bspk+vbLsexr6eGDBHIozJXxjPVtBnz3LZha0VTTXPS7ZYw/Sm6BHGsG6twFImSdt
-         w/bWn+K3/YvoTo/bhn0/V2vDVyEo1nBEmAsaArZqhtZLek/E6BonnVh78sCVwcoeDm
-         cgddmEIgGq4cN7n+WdqjhWgpUZxq4WLhH/x76tWE=
+        b=H8/7iFpBKLEeVgltgbr6Nh5+0rUbULn3C88H+ZNBK5LQ0Ryc5rUEisMm1Cx1JmYdQ
+         bqgEv5x/oav5vjEoiuQlodSsKRVitx+7Xuto1VWRtzB8p1fq7y89nsnFlt4JuCTEBZ
+         lw1+eTHeOh72Dx/ZFLkuJEgJhCFc/lMSiqMPpBqM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Frank Sorenson <sorenson@redhat.com>,
-        Steve French <stfrench@microsoft.com>,
+        stable@vger.kernel.org, Sameeh Jubran <sameehj@amazon.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 08/72] cifs: Fix mode output in debugging statements
+Subject: [PATCH 4.9 13/88] net: ena: rss: fix failure to get indirection table
 Date:   Tue, 10 Mar 2020 13:38:21 +0100
-Message-Id: <20200310123603.608888906@linuxfoundation.org>
+Message-Id: <20200310123609.580032129@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200310123601.053680753@linuxfoundation.org>
-References: <20200310123601.053680753@linuxfoundation.org>
+In-Reply-To: <20200310123606.543939933@linuxfoundation.org>
+References: <20200310123606.543939933@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,70 +44,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Frank Sorenson <sorenson@redhat.com>
+From: Sameeh Jubran <sameehj@amazon.com>
 
-[ Upstream commit f52aa79df43c4509146140de0241bc21a4a3b4c7 ]
+[ Upstream commit 0c8923c0a64fb5d14bebb9a9065d2dc25ac5e600 ]
 
-A number of the debug statements output file or directory mode
-in hex.  Change these to print using octal.
+On old hardware, getting / setting the hash function is not supported while
+gettting / setting the indirection table is.
 
-Signed-off-by: Frank Sorenson <sorenson@redhat.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+This commit enables us to still show the indirection table on older
+hardwares by setting the hash function and key to NULL.
+
+Fixes: 1738cd3ed342 ("net: ena: Add a driver for Amazon Elastic Network Adapters (ENA)")
+Signed-off-by: Sameeh Jubran <sameehj@amazon.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/cifsacl.c | 4 ++--
- fs/cifs/connect.c | 2 +-
- fs/cifs/inode.c   | 2 +-
- 3 files changed, 4 insertions(+), 4 deletions(-)
+ drivers/net/ethernet/amazon/ena/ena_ethtool.c | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
-diff --git a/fs/cifs/cifsacl.c b/fs/cifs/cifsacl.c
-index 3f93125916bf0..f5b87a8f75c47 100644
---- a/fs/cifs/cifsacl.c
-+++ b/fs/cifs/cifsacl.c
-@@ -480,7 +480,7 @@ static void access_flags_to_mode(__le32 ace_flags, int type, umode_t *pmode,
- 			((flags & FILE_EXEC_RIGHTS) == FILE_EXEC_RIGHTS))
- 		*pmode |= (S_IXUGO & (*pbits_to_set));
+diff --git a/drivers/net/ethernet/amazon/ena/ena_ethtool.c b/drivers/net/ethernet/amazon/ena/ena_ethtool.c
+index d85fe0de28dba..8c44ac7232ba2 100644
+--- a/drivers/net/ethernet/amazon/ena/ena_ethtool.c
++++ b/drivers/net/ethernet/amazon/ena/ena_ethtool.c
+@@ -663,7 +663,21 @@ static int ena_get_rxfh(struct net_device *netdev, u32 *indir, u8 *key,
+ 	if (rc)
+ 		return rc;
  
--	cifs_dbg(NOISY, "access flags 0x%x mode now 0x%x\n", flags, *pmode);
-+	cifs_dbg(NOISY, "access flags 0x%x mode now %04o\n", flags, *pmode);
- 	return;
- }
++	/* We call this function in order to check if the device
++	 * supports getting/setting the hash function.
++	 */
+ 	rc = ena_com_get_hash_function(adapter->ena_dev, &ena_func, key);
++
++	if (rc) {
++		if (rc == -EOPNOTSUPP) {
++			key = NULL;
++			hfunc = NULL;
++			rc = 0;
++		}
++
++		return rc;
++	}
++
+ 	if (rc)
+ 		return rc;
  
-@@ -509,7 +509,7 @@ static void mode_to_access_flags(umode_t mode, umode_t bits_to_use,
- 	if (mode & S_IXUGO)
- 		*pace_flags |= SET_FILE_EXEC_RIGHTS;
- 
--	cifs_dbg(NOISY, "mode: 0x%x, access flags now 0x%x\n",
-+	cifs_dbg(NOISY, "mode: %04o, access flags now 0x%x\n",
- 		 mode, *pace_flags);
- 	return;
- }
-diff --git a/fs/cifs/connect.c b/fs/cifs/connect.c
-index 4bde8acca455c..cf104bbe30a14 100644
---- a/fs/cifs/connect.c
-+++ b/fs/cifs/connect.c
-@@ -3402,7 +3402,7 @@ void cifs_setup_cifs_sb(struct smb_vol *pvolume_info,
- 	cifs_sb->mnt_gid = pvolume_info->linux_gid;
- 	cifs_sb->mnt_file_mode = pvolume_info->file_mode;
- 	cifs_sb->mnt_dir_mode = pvolume_info->dir_mode;
--	cifs_dbg(FYI, "file mode: 0x%hx  dir mode: 0x%hx\n",
-+	cifs_dbg(FYI, "file mode: %04ho  dir mode: %04ho\n",
- 		 cifs_sb->mnt_file_mode, cifs_sb->mnt_dir_mode);
- 
- 	cifs_sb->actimeo = pvolume_info->actimeo;
-diff --git a/fs/cifs/inode.c b/fs/cifs/inode.c
-index 0a219545940d9..8827de2ba7bef 100644
---- a/fs/cifs/inode.c
-+++ b/fs/cifs/inode.c
-@@ -1540,7 +1540,7 @@ int cifs_mkdir(struct inode *inode, struct dentry *direntry, umode_t mode)
- 	struct TCP_Server_Info *server;
- 	char *full_path;
- 
--	cifs_dbg(FYI, "In cifs_mkdir, mode = 0x%hx inode = 0x%p\n",
-+	cifs_dbg(FYI, "In cifs_mkdir, mode = %04ho inode = 0x%p\n",
- 		 mode, inode);
- 
- 	cifs_sb = CIFS_SB(inode->i_sb);
 -- 
 2.20.1
 
