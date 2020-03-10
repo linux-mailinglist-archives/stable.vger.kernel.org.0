@@ -2,40 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 78A7E17FB9A
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:15:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E28417FB9C
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:15:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731668AbgCJNPH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 09:15:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39544 "EHLO mail.kernel.org"
+        id S1729233AbgCJNPK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 09:15:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39624 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731983AbgCJNPH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 09:15:07 -0400
+        id S1731999AbgCJNPJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 09:15:09 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5E34024693;
-        Tue, 10 Mar 2020 13:15:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DCDC32467D;
+        Tue, 10 Mar 2020 13:15:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583846106;
-        bh=xn89jOZ4WMo3qQrjiebX25SNxsaPH9ff5YHUlIpOBkQ=;
+        s=default; t=1583846109;
+        bh=BOycNQ3hu9z5TKmz+nFLfEl5WjjEGkeMuxukdNWX07A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hU2sKEcaSM7NxoecdseBWxsgtJPGLkVcBTPMGThqBceLTbF5kk3avssOZbPCHfnpR
-         DbbULPsHTtvEJEx3PldwU7HSWO2gmHPewWwkn23PDw/hbW1l219m0yukcJgn6AfZUN
-         IBxXitnEM8wHm6OLM+Ln5Y2GMmiMEeHSz5MjL7B8=
+        b=LtPGSiOp1vibkZWt89R9ugsKzaj0F3UZ7wEhTQOMcLv3YHHGkdj9rdFlGUyT6HHwP
+         rXqN8VMqXyQvqP37LyNY+o0M+EH3YoEU4L2RHh+qqJ1aNNKUvjThrY76tOksa5QVBE
+         Dw6kGvTJSn06YMAP3mgAL6ft1IVL1w9hvRPRQslI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marcel Partap <mpartap@gmx.net>,
-        Merlijn Wajer <merlijn@wizzup.org>,
-        Michael Scott <hashcode0f@gmail.com>,
-        NeKit <nekit1000@gmail.com>, Pavel Machek <pavel@ucw.cz>,
-        Sebastian Reichel <sre@kernel.org>,
-        Tony Lindgren <tony@atomide.com>,
-        Kishon Vijay Abraham I <kishon@ti.com>
-Subject: [PATCH 4.19 71/86] phy: mapphone-mdm6600: Fix write timeouts with shorter GPIO toggle interval
-Date:   Tue, 10 Mar 2020 13:45:35 +0100
-Message-Id: <20200310124534.605432985@linuxfoundation.org>
+        stable@vger.kernel.org, Marco Felsch <m.felsch@pengutronix.de>,
+        Shawn Guo <shawnguo@kernel.org>
+Subject: [PATCH 4.19 72/86] ARM: dts: imx6: phycore-som: fix emmc supply
+Date:   Tue, 10 Mar 2020 13:45:36 +0100
+Message-Id: <20200310124534.657069440@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200310124530.808338541@linuxfoundation.org>
 References: <20200310124530.808338541@linuxfoundation.org>
@@ -48,57 +43,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tony Lindgren <tony@atomide.com>
+From: Marco Felsch <m.felsch@pengutronix.de>
 
-commit 46b7edf1c7b7c91004c4db2c355cbd033f2385f9 upstream.
+commit eb0bbba7636b9fc81939d6087a5fe575e150c95a upstream.
 
-I've noticed that when writing data to the modem the writes can time out
-at some point eventually. Looks like kicking the modem idle GPIO every
-600 ms instead of once a second fixes the issue. Note that this rate is
-different from our runtime PM autosuspend rate MDM6600_MODEM_IDLE_DELAY_MS
-that we still want to keep at 1 second, so let's add a separate define for
-PHY_MDM6600_IDLE_KICK_MS.
+Currently the vmmc is supplied by the 1.8V pmic rail but this is wrong.
+The default module behaviour is to power VCCQ and VCC by the 3.3V power
+rail. Optional the user can connect the VCCQ to the pmic 1.8V emmc
+power rail using a solder jumper.
 
-Fixes: f7f50b2a7b05 ("phy: mapphone-mdm6600: Add runtime PM support for n_gsm on USB suspend")
-Cc: Marcel Partap <mpartap@gmx.net>
-Cc: Merlijn Wajer <merlijn@wizzup.org>
-Cc: Michael Scott <hashcode0f@gmail.com>
-Cc: NeKit <nekit1000@gmail.com>
-Cc: Pavel Machek <pavel@ucw.cz>
-Cc: Sebastian Reichel <sre@kernel.org>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
-Signed-off-by: Kishon Vijay Abraham I <kishon@ti.com>
+Fixes: ddec5d1c0047 ("ARM: dts: imx6: Add initial support for phyCORE-i.MX 6 SOM")
+Signed-off-by: Marco Felsch <m.felsch@pengutronix.de>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/phy/motorola/phy-mapphone-mdm6600.c |    9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ arch/arm/boot/dts/imx6qdl-phytec-phycore-som.dtsi |    1 -
+ 1 file changed, 1 deletion(-)
 
---- a/drivers/phy/motorola/phy-mapphone-mdm6600.c
-+++ b/drivers/phy/motorola/phy-mapphone-mdm6600.c
-@@ -19,6 +19,7 @@
+--- a/arch/arm/boot/dts/imx6qdl-phytec-phycore-som.dtsi
++++ b/arch/arm/boot/dts/imx6qdl-phytec-phycore-som.dtsi
+@@ -183,7 +183,6 @@
+ 	pinctrl-0 = <&pinctrl_usdhc4>;
+ 	bus-width = <8>;
+ 	non-removable;
+-	vmmc-supply = <&vdd_emmc_1p8>;
+ 	status = "disabled";
+ };
  
- #define PHY_MDM6600_PHY_DELAY_MS	4000	/* PHY enable 2.2s to 3.5s */
- #define PHY_MDM6600_ENABLED_DELAY_MS	8000	/* 8s more total for MDM6600 */
-+#define PHY_MDM6600_WAKE_KICK_MS	600	/* time on after GPIO toggle */
- #define MDM6600_MODEM_IDLE_DELAY_MS	1000	/* modem after USB suspend */
- #define MDM6600_MODEM_WAKE_DELAY_MS	200	/* modem response after idle */
- 
-@@ -491,8 +492,14 @@ static void phy_mdm6600_modem_wake(struc
- 
- 	ddata = container_of(work, struct phy_mdm6600, modem_wake_work.work);
- 	phy_mdm6600_wake_modem(ddata);
-+
-+	/*
-+	 * The modem does not always stay awake 1.2 seconds after toggling
-+	 * the wake GPIO, and sometimes it idles after about some 600 ms
-+	 * making writes time out.
-+	 */
- 	schedule_delayed_work(&ddata->modem_wake_work,
--			      msecs_to_jiffies(MDM6600_MODEM_IDLE_DELAY_MS));
-+			      msecs_to_jiffies(PHY_MDM6600_WAKE_KICK_MS));
- }
- 
- static int __maybe_unused phy_mdm6600_runtime_suspend(struct device *dev)
 
 
