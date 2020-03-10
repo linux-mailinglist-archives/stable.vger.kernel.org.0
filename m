@@ -2,96 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C4631180BC6
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 23:41:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C0CAE180BE0
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 23:51:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727707AbgCJWlE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 18:41:04 -0400
-Received: from vmicros1.altlinux.org ([194.107.17.57]:58882 "EHLO
-        vmicros1.altlinux.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726307AbgCJWlE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Mar 2020 18:41:04 -0400
-Received: from mua.local.altlinux.org (mua.local.altlinux.org [192.168.1.14])
-        by vmicros1.altlinux.org (Postfix) with ESMTP id 236F272CCF0;
-        Wed, 11 Mar 2020 01:41:01 +0300 (MSK)
-Received: by mua.local.altlinux.org (Postfix, from userid 508)
-        id 1A1F07CC7FF; Wed, 11 Mar 2020 01:41:01 +0300 (MSK)
-Date:   Wed, 11 Mar 2020 01:41:01 +0300
-From:   "Dmitry V. Levin" <ldv@altlinux.org>
-To:     Bernd Edlinger <bernd.edlinger@hotmail.de>
-Cc:     "Eric W. Biederman" <ebiederm@xmission.com>,
-        Christian Brauner <christian.brauner@ubuntu.com>,
-        Kees Cook <keescook@chromium.org>,
-        Jann Horn <jannh@google.com>, Jonathan Corbet <corbet@lwn.net>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Alexey Dobriyan <adobriyan@gmail.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Oleg Nesterov <oleg@redhat.com>,
-        Frederic Weisbecker <frederic@kernel.org>,
-        Andrei Vagin <avagin@gmail.com>,
-        Ingo Molnar <mingo@kernel.org>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Yuyang Du <duyuyang@gmail.com>,
-        David Hildenbrand <david@redhat.com>,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        Anshuman Khandual <anshuman.khandual@arm.com>,
-        David Howells <dhowells@redhat.com>,
-        James Morris <jamorris@linux.microsoft.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Shakeel Butt <shakeelb@google.com>,
-        Jason Gunthorpe <jgg@ziepe.ca>,
-        Christian Kellner <christian@kellner.me>,
-        Andrea Arcangeli <aarcange@redhat.com>,
-        Aleksa Sarai <cyphar@cyphar.com>,
-        "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>,
-        "linux-mm@kvack.org" <linux-mm@kvack.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "linux-api@vger.kernel.org" <linux-api@vger.kernel.org>
-Subject: Re: [PATCH 2/4] selftests/ptrace: add test cases for dead-locks
-Message-ID: <20200310224100.GA1563@altlinux.org>
-References: <878sk94eay.fsf@x220.int.ebiederm.org>
- <AM6PR03MB517086003BD2C32E199690A3E4FE0@AM6PR03MB5170.eurprd03.prod.outlook.com>
- <87r1y12yc7.fsf@x220.int.ebiederm.org>
- <87k13t2xpd.fsf@x220.int.ebiederm.org>
- <87d09l2x5n.fsf@x220.int.ebiederm.org>
- <AM6PR03MB5170F0F9DC18F5EA77C9A857E4FE0@AM6PR03MB5170.eurprd03.prod.outlook.com>
- <871rq12vxu.fsf@x220.int.ebiederm.org>
- <AM6PR03MB5170DF45E3245F55B95CCD91E4FE0@AM6PR03MB5170.eurprd03.prod.outlook.com>
- <877dzt1fnf.fsf@x220.int.ebiederm.org>
- <AM6PR03MB51703199741A2C27A78980FFE4FF0@AM6PR03MB5170.eurprd03.prod.outlook.com>
+        id S1726380AbgCJWvY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 18:51:24 -0400
+Received: from rere.qmqm.pl ([91.227.64.183]:64947 "EHLO rere.qmqm.pl"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726325AbgCJWvY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 18:51:24 -0400
+Received: from remote.user (localhost [127.0.0.1])
+        by rere.qmqm.pl (Postfix) with ESMTPSA id 48cVgs3FwSzB1;
+        Tue, 10 Mar 2020 23:51:21 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=rere.qmqm.pl; s=1;
+        t=1583880681; bh=HCqVY0Ab2Jo0fK/uAoRfORRHPkIU6lz6VreLU0tBoWw=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=M0yx0ruQd1XhnQDQUFMtuRWclv7Cav2MJsYUnoiQpIWE1llFxTQlyk0IIaQP60Hj7
+         jbqMCRX6/SCmPDyj4wo3F/ENP+S7LXEv5MIODRndKeNIyCKYDrBtvlwlGz9RkbdWLA
+         0kuYmDot6M6jp2XsBbSU2fQmi3ILK9X+DPufQx8zCWf7VOES3c5ALG+k8lJEToDWX1
+         /NjsOd0iAtMNLobnl65mXODLSFWOvtiev+mnWi96vZ5hRM/JzuqrRAYF1sUMcjcsXv
+         xlh3bBIeYbxGSNsRWpmDexi0tYz2FXFEbYmMrZ5rFlXDjHr2psjCc+tqG8CT7JAJ+V
+         mkgh0EoSI2FcA==
+X-Virus-Status: Clean
+X-Virus-Scanned: clamav-milter 0.102.2 at mail
+Date:   Tue, 10 Mar 2020 23:51:18 +0100
+From:   =?iso-8859-2?Q?Micha=B3_Miros=B3aw?= <mirq-linux@rere.qmqm.pl>
+To:     Pavel Machek <pavel@denx.de>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Sergey Organov <sorganov@gmail.com>,
+        Felipe Balbi <balbi@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH 4.19 12/86] usb: gadget: serial: fix Tx stall after
+ buffer overflow
+Message-ID: <20200310225118.GA32479@qmqm.qmqm.pl>
+References: <20200310124530.808338541@linuxfoundation.org>
+ <20200310124531.459641903@linuxfoundation.org>
+ <20200310150834.GA24886@duo.ucw.cz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-2
 Content-Disposition: inline
-In-Reply-To: <AM6PR03MB51703199741A2C27A78980FFE4FF0@AM6PR03MB5170.eurprd03.prod.outlook.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20200310150834.GA24886@duo.ucw.cz>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Mar 10, 2020 at 02:44:01PM +0100, Bernd Edlinger wrote:
-> This adds test cases for ptrace deadlocks.
+On Tue, Mar 10, 2020 at 04:08:35PM +0100, Pavel Machek wrote:
+> Hi!
 > 
-> Additionally fixes a compile problem in get_syscall_info.c,
-> observed with gcc-4.8.4:
+> > From: Sergey Organov <sorganov@gmail.com>
+> > 
+> > [ Upstream commit e4bfded56cf39b8d02733c1e6ef546b97961e18a ]
+> > 
+> > Symptom: application opens /dev/ttyGS0 and starts sending (writing) to
+> > it while either USB cable is not connected, or nobody listens on the
+> > other side of the cable. If driver circular buffer overflows before
+> > connection is established, no data will be written to the USB layer
+> > until/unless /dev/ttyGS0 is closed and re-opened again by the
+> > application (the latter besides having no means of being notified about
+> > the event of establishing of the connection.)
+> > 
+> > Fix: on open and/or connect, kick Tx to flush circular buffer data to
+> > USB layer.
 > 
-> get_syscall_info.c: In function 'get_syscall_info':
-> get_syscall_info.c:93:3: error: 'for' loop initial declarations are only
->                                  allowed in C99 mode
->    for (unsigned int i = 0; i < ARRAY_SIZE(args); ++i) {
->    ^
-> get_syscall_info.c:93:3: note: use option -std=c99 or -std=gnu99 to compile
->                                your code
-[...]
-> @@ -1,6 +1,6 @@
->  # SPDX-License-Identifier: GPL-2.0-only
-> -CFLAGS += -iquote../../../../include/uapi -Wall
-> +CFLAGS += -std=c99 -pthread -iquote../../../../include/uapi -Wall
+> > diff --git a/drivers/usb/gadget/function/u_serial.c b/drivers/usb/gadget/function/u_serial.c
+> > index d4d317db89df5..38afe96c5cd26 100644
+> > --- a/drivers/usb/gadget/function/u_serial.c
+> > +++ b/drivers/usb/gadget/function/u_serial.c
+> > @@ -567,8 +567,10 @@ static int gs_start_io(struct gs_port *port)
+> >  	port->n_read = 0;
+> >  	started = gs_start_rx(port);
+> >  
+> > -	/* unblock any pending writes into our circular buffer */
+> >  	if (started) {
+> > +		gs_start_tx(port);
+> > +		/* Unblock any pending writes into our circular buffer, in case
+> > +		 * we didn't in gs_start_tx() */
+> >  		tty_wakeup(port->port.tty);
+> 
+> I'm confused. gs-start_tx() is done twice in a row. Its return
+> convention seem to be 0 in success case, and non-zero on failure. But
+> it is assigned to variable called "started", which does not sound like
+> "error" to me.
+> 
+> Are you sure this is correct?
 
-Wouldn't it be better to choose -std=gnu99 over -std=c99?
+The function before 'if (started)' is gs_start_rx() - it's RX not TX.
 
-
--- 
-ldv
+Best Regards,
+Micha³ Miros³aw
