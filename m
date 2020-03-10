@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 86BA017FD30
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:26:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8ADA617FD26
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:26:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728000AbgCJN02 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 09:26:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35014 "EHLO mail.kernel.org"
+        id S1727918AbgCJN0S (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 09:26:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35074 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729593AbgCJMz6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 08:55:58 -0400
+        id S1729605AbgCJM4B (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 08:56:01 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5A8BF2468E;
-        Tue, 10 Mar 2020 12:55:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 733462253D;
+        Tue, 10 Mar 2020 12:56:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583844957;
-        bh=YKfdWWef2XAP+GCkkOxxFSr7TtbFVlNDiZybrdw5O7M=;
+        s=default; t=1583844960;
+        bh=3TigfwXrdUcwuJtxDdM91sunQiw06FIrpMZszuW3/3k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F/jAYV/RXJDiDFOS2VTQ3ZuY9LikfB8FYkhwSTxuGCZvx5ygvNrtcgc45PufhaW0J
-         SmJ/SW5r8M+OdC+p+SlE/v1q4dM2wWk94XncGwzXVfqBYZ5P7cjJDl2xkb2/1mL5MB
-         N0aMpHfJCvuNjvKX6N1AGHo9r13snPkTwYFameXA=
+        b=C1RLOHpXWqO6NVUXaeKBKzB9Zty2v4Lhwg0ldQ15dt3FpbkHLW4c8lz+oBmL9zjL6
+         iCC2BeS3Znl0Dw8Dc1bJLsmyWhpqc0MYrp9C6EQ5djUG8xDnfTGNKiEc9o6RyBbgEk
+         xScLA4JQ5Gztxc8pb6aUO7J5f87hmhQa8vJBwTI4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chuanhong Guo <gch981213@gmail.com>,
-        Daniel Golle <daniel@makrotopia.org>,
+        stable@vger.kernel.org,
+        Nikita Sobolev <Nikita.Sobolev@synopsys.com>,
+        Shuah Khan <skhan@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 013/189] serial: ar933x_uart: set UART_CS_{RX,TX}_READY_ORIDE
-Date:   Tue, 10 Mar 2020 13:37:30 +0100
-Message-Id: <20200310123640.874790566@linuxfoundation.org>
+Subject: [PATCH 5.5 014/189] Kernel selftests: tpm2: check for tpm support
+Date:   Tue, 10 Mar 2020 13:37:31 +0100
+Message-Id: <20200310123640.975059538@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200310123639.608886314@linuxfoundation.org>
 References: <20200310123639.608886314@linuxfoundation.org>
@@ -44,56 +45,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Golle <daniel@makrotopia.org>
+From: Nikita Sobolev <Nikita.Sobolev@synopsys.com>
 
-[ Upstream commit 87c5cbf71ecbb9e289d60a2df22eb686c70bf196 ]
+[ Upstream commit b32694cd0724d4ceca2c62cc7c3d3a8d1ffa11fc ]
 
-On AR934x this UART is usually not initialized by the bootloader
-as it is only used as a secondary serial port while the primary
-UART is a newly introduced NS16550-compatible.
-In order to make use of the ar933x-uart on AR934x without RTS/CTS
-hardware flow control, one needs to set the
-UART_CS_{RX,TX}_READY_ORIDE bits as other than on AR933x where this
-UART is used as primary/console, the bootloader on AR934x typically
-doesn't set those bits.
-Setting them explicitely on AR933x should not do any harm, so just
-set them unconditionally.
+tpm2 tests set fails if there is no /dev/tpm0 and /dev/tpmrm0
+supported. Check if these files exist before run and mark test as
+skipped in case of absence.
 
-Tested-by: Chuanhong Guo <gch981213@gmail.com>
-Signed-off-by: Daniel Golle <daniel@makrotopia.org>
-Link: https://lore.kernel.org/r/20200207095335.GA179836@makrotopia.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Nikita Sobolev <Nikita.Sobolev@synopsys.com>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/ar933x_uart.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ tools/testing/selftests/tpm2/test_smoke.sh | 13 +++++++++++--
+ tools/testing/selftests/tpm2/test_space.sh |  9 ++++++++-
+ 2 files changed, 19 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/tty/serial/ar933x_uart.c b/drivers/tty/serial/ar933x_uart.c
-index 3bdd56a1021b2..ea12f10610b64 100644
---- a/drivers/tty/serial/ar933x_uart.c
-+++ b/drivers/tty/serial/ar933x_uart.c
-@@ -286,6 +286,10 @@ static void ar933x_uart_set_termios(struct uart_port *port,
- 	ar933x_uart_rmw_set(up, AR933X_UART_CS_REG,
- 			    AR933X_UART_CS_HOST_INT_EN);
+diff --git a/tools/testing/selftests/tpm2/test_smoke.sh b/tools/testing/selftests/tpm2/test_smoke.sh
+index 8155c2ea7ccbb..b630c7b5950a9 100755
+--- a/tools/testing/selftests/tpm2/test_smoke.sh
++++ b/tools/testing/selftests/tpm2/test_smoke.sh
+@@ -1,8 +1,17 @@
+ #!/bin/bash
+ # SPDX-License-Identifier: (GPL-2.0 OR BSD-3-Clause)
++self.flags = flags
  
-+	/* enable RX and TX ready overide */
-+	ar933x_uart_rmw_set(up, AR933X_UART_CS_REG,
-+		AR933X_UART_CS_TX_READY_ORIDE | AR933X_UART_CS_RX_READY_ORIDE);
+-python -m unittest -v tpm2_tests.SmokeTest
+-python -m unittest -v tpm2_tests.AsyncTest
++# Kselftest framework requirement - SKIP code is 4.
++ksft_skip=4
 +
- 	/* reenable the UART */
- 	ar933x_uart_rmw(up, AR933X_UART_CS_REG,
- 			AR933X_UART_CS_IF_MODE_M << AR933X_UART_CS_IF_MODE_S,
-@@ -418,6 +422,10 @@ static int ar933x_uart_startup(struct uart_port *port)
- 	ar933x_uart_rmw_set(up, AR933X_UART_CS_REG,
- 			    AR933X_UART_CS_HOST_INT_EN);
++
++if [ -f /dev/tpm0 ] ; then
++	python -m unittest -v tpm2_tests.SmokeTest
++	python -m unittest -v tpm2_tests.AsyncTest
++else
++	exit $ksft_skip
++fi
  
-+	/* enable RX and TX ready overide */
-+	ar933x_uart_rmw_set(up, AR933X_UART_CS_REG,
-+		AR933X_UART_CS_TX_READY_ORIDE | AR933X_UART_CS_RX_READY_ORIDE);
+ CLEAR_CMD=$(which tpm2_clear)
+ if [ -n $CLEAR_CMD ]; then
+diff --git a/tools/testing/selftests/tpm2/test_space.sh b/tools/testing/selftests/tpm2/test_space.sh
+index a6f5e346635e5..180b469c53b47 100755
+--- a/tools/testing/selftests/tpm2/test_space.sh
++++ b/tools/testing/selftests/tpm2/test_space.sh
+@@ -1,4 +1,11 @@
+ #!/bin/bash
+ # SPDX-License-Identifier: (GPL-2.0 OR BSD-3-Clause)
+ 
+-python -m unittest -v tpm2_tests.SpaceTest
++# Kselftest framework requirement - SKIP code is 4.
++ksft_skip=4
 +
- 	/* Enable RX interrupts */
- 	up->ier = AR933X_UART_INT_RX_VALID;
- 	ar933x_uart_write(up, AR933X_UART_INT_EN_REG, up->ier);
++if [ -f /dev/tpmrm0 ] ; then
++	python -m unittest -v tpm2_tests.SpaceTest
++else
++	exit $ksft_skip
++fi
 -- 
 2.20.1
 
