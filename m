@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 96A1017F7F6
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 13:43:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B647917F848
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 13:47:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727240AbgCJMnt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 08:43:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44224 "EHLO mail.kernel.org"
+        id S1728037AbgCJMqf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 08:46:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49884 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727244AbgCJMnr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 08:43:47 -0400
+        id S1728034AbgCJMqf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 08:46:35 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4445A24693;
-        Tue, 10 Mar 2020 12:43:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 72B7D2468D;
+        Tue, 10 Mar 2020 12:46:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583844226;
-        bh=f46wVpoNnd2pNzVzlYhD9iT3WUv9uDCPoLscqFWZl94=;
+        s=default; t=1583844394;
+        bh=oBMNqUX4ZPWgo8M0jSF0Wt24UTeI5DRNxLRhMkgAc7g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jc1owLbQ4e3no95U8Clt3L/8STzONXSgGUMmHjsLnoCmQKcVazm5v4wWLc5s/xXF5
-         wwHfLp8pDt3IF0ZKMhJjtjIRsSExYfrUhKvwaNJa1qBU+YRGCABKcQLBwEVldxTmdx
-         orDtnCd3fczgdwQ8gimGDQbDuKapltqEt6/YCtkI=
+        b=jv4/Q7zoK56bymmosJv8GIzFKxSFChQIFc90gvkRgDSet9DHbEcVgWeHjwV9mM37t
+         3q4AD4kD6OR5bvAeXpzeO8Muxn/CadZcEOWT0RCm5FQaJYG1d1y8CGlGHK0igJvkq9
+         NeTxUsBO0N+7SrQfFvE717aVQD3cQinf7gGvxHmY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiri Slaby <jslaby@suse.cz>,
-        syzbot+26183d9746e62da329b8@syzkaller.appspotmail.com
-Subject: [PATCH 4.4 59/72] vt: selection, push sel_lock up
+        stable@vger.kernel.org, Jim Lin <jilin@nvidia.com>,
+        Alan Stern <stern@rowland.harvard.edu>
+Subject: [PATCH 4.9 64/88] usb: storage: Add quirk for Samsung Fit flash
 Date:   Tue, 10 Mar 2020 13:39:12 +0100
-Message-Id: <20200310123615.939632936@linuxfoundation.org>
+Message-Id: <20200310123622.282782455@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200310123601.053680753@linuxfoundation.org>
-References: <20200310123601.053680753@linuxfoundation.org>
+In-Reply-To: <20200310123606.543939933@linuxfoundation.org>
+References: <20200310123606.543939933@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,145 +43,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Slaby <jslaby@suse.cz>
+From: Jim Lin <jilin@nvidia.com>
 
-commit e8c75a30a23c6ba63f4ef6895cbf41fd42f21aa2 upstream.
+commit 86d92f5465958752481269348d474414dccb1552 upstream.
 
-sel_lock cannot nest in the console lock. Thanks to syzkaller, the
-kernel states firmly:
+Current driver has 240 (USB2.0) and 2048 (USB3.0) as max_sectors,
+e.g., /sys/bus/scsi/devices/0:0:0:0/max_sectors
 
-> WARNING: possible circular locking dependency detected
-> 5.6.0-rc3-syzkaller #0 Not tainted
-> ------------------------------------------------------
-> syz-executor.4/20336 is trying to acquire lock:
-> ffff8880a2e952a0 (&tty->termios_rwsem){++++}, at: tty_unthrottle+0x22/0x100 drivers/tty/tty_ioctl.c:136
->
-> but task is already holding lock:
-> ffffffff89462e70 (sel_lock){+.+.}, at: paste_selection+0x118/0x470 drivers/tty/vt/selection.c:374
->
-> which lock already depends on the new lock.
->
-> the existing dependency chain (in reverse order) is:
->
-> -> #2 (sel_lock){+.+.}:
->        mutex_lock_nested+0x1b/0x30 kernel/locking/mutex.c:1118
->        set_selection_kernel+0x3b8/0x18a0 drivers/tty/vt/selection.c:217
->        set_selection_user+0x63/0x80 drivers/tty/vt/selection.c:181
->        tioclinux+0x103/0x530 drivers/tty/vt/vt.c:3050
->        vt_ioctl+0x3f1/0x3a30 drivers/tty/vt/vt_ioctl.c:364
+If data access times out, driver error handling will issue a port
+reset.
+Sometimes Samsung Fit (090C:1000) flash disk will not respond to
+later Set Address or Get Descriptor command.
 
-This is ioctl(TIOCL_SETSEL).
-Locks held on the path: console_lock -> sel_lock
+Adding this quirk to limit max_sectors to 64 sectors to avoid issue
+occurring.
 
-> -> #1 (console_lock){+.+.}:
->        console_lock+0x46/0x70 kernel/printk/printk.c:2289
->        con_flush_chars+0x50/0x650 drivers/tty/vt/vt.c:3223
->        n_tty_write+0xeae/0x1200 drivers/tty/n_tty.c:2350
->        do_tty_write drivers/tty/tty_io.c:962 [inline]
->        tty_write+0x5a1/0x950 drivers/tty/tty_io.c:1046
-
-This is write().
-Locks held on the path: termios_rwsem -> console_lock
-
-> -> #0 (&tty->termios_rwsem){++++}:
->        down_write+0x57/0x140 kernel/locking/rwsem.c:1534
->        tty_unthrottle+0x22/0x100 drivers/tty/tty_ioctl.c:136
->        mkiss_receive_buf+0x12aa/0x1340 drivers/net/hamradio/mkiss.c:902
->        tty_ldisc_receive_buf+0x12f/0x170 drivers/tty/tty_buffer.c:465
->        paste_selection+0x346/0x470 drivers/tty/vt/selection.c:389
->        tioclinux+0x121/0x530 drivers/tty/vt/vt.c:3055
->        vt_ioctl+0x3f1/0x3a30 drivers/tty/vt/vt_ioctl.c:364
-
-This is ioctl(TIOCL_PASTESEL).
-Locks held on the path: sel_lock -> termios_rwsem
-
-> other info that might help us debug this:
->
-> Chain exists of:
->   &tty->termios_rwsem --> console_lock --> sel_lock
-
-Clearly. From the above, we have:
- console_lock -> sel_lock
- sel_lock -> termios_rwsem
- termios_rwsem -> console_lock
-
-Fix this by reversing the console_lock -> sel_lock dependency in
-ioctl(TIOCL_SETSEL). First, lock sel_lock, then console_lock.
-
-Signed-off-by: Jiri Slaby <jslaby@suse.cz>
-Reported-by: syzbot+26183d9746e62da329b8@syzkaller.appspotmail.com
-Fixes: 07e6124a1a46 ("vt: selection, close sel_buffer race")
+Signed-off-by: Jim Lin <jilin@nvidia.com>
+Acked-by: Alan Stern <stern@rowland.harvard.edu>
 Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200228115406.5735-2-jslaby@suse.cz
+Link: https://lore.kernel.org/r/1583158895-31342-1-git-send-email-jilin@nvidia.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/tty/vt/selection.c |   16 +++++++---------
- 1 file changed, 7 insertions(+), 9 deletions(-)
+ drivers/usb/storage/unusual_devs.h |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/drivers/tty/vt/selection.c
-+++ b/drivers/tty/vt/selection.c
-@@ -205,7 +205,6 @@ static int __set_selection(const struct
- 		pe = tmp;
- 	}
+--- a/drivers/usb/storage/unusual_devs.h
++++ b/drivers/usb/storage/unusual_devs.h
+@@ -1277,6 +1277,12 @@ UNUSUAL_DEV( 0x090a, 0x1200, 0x0000, 0x9
+ 		USB_SC_RBC, USB_PR_BULK, NULL,
+ 		0 ),
  
--	mutex_lock(&sel_lock);
- 	if (sel_cons != vc_cons[fg_console].d) {
- 		clear_selection();
- 		sel_cons = vc_cons[fg_console].d;
-@@ -251,10 +250,9 @@ static int __set_selection(const struct
- 			break;
- 		case TIOCL_SELPOINTER:
- 			highlight_pointer(pe);
--			goto unlock;
-+			return 0;
- 		default:
--			ret = -EINVAL;
--			goto unlock;
-+			return -EINVAL;
- 	}
- 
- 	/* remove the pointer */
-@@ -276,7 +274,7 @@ static int __set_selection(const struct
- 	else if (new_sel_start == sel_start)
- 	{
- 		if (new_sel_end == sel_end)	/* no action required */
--			goto unlock;
-+			return 0;
- 		else if (new_sel_end > sel_end)	/* extend to right */
- 			highlight(sel_end + 2, new_sel_end);
- 		else				/* contract from right */
-@@ -303,8 +301,7 @@ static int __set_selection(const struct
- 	if (!bp) {
- 		printk(KERN_WARNING "selection: kmalloc() failed\n");
- 		clear_selection();
--		ret = -ENOMEM;
--		goto unlock;
-+		return -ENOMEM;
- 	}
- 	kfree(sel_buffer);
- 	sel_buffer = bp;
-@@ -329,8 +326,7 @@ static int __set_selection(const struct
- 		}
- 	}
- 	sel_buffer_lth = bp - sel_buffer;
--unlock:
--	mutex_unlock(&sel_lock);
++UNUSUAL_DEV(0x090c, 0x1000, 0x1100, 0x1100,
++		"Samsung",
++		"Flash Drive FIT",
++		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
++		US_FL_MAX_SECTORS_64),
 +
- 	return ret;
- }
- 
-@@ -338,9 +334,11 @@ int set_selection(const struct tiocl_sel
- {
- 	int ret;
- 
-+	mutex_lock(&sel_lock);
- 	console_lock();
- 	ret = __set_selection(v, tty);
- 	console_unlock();
-+	mutex_unlock(&sel_lock);
- 
- 	return ret;
- }
+ /* aeb */
+ UNUSUAL_DEV( 0x090c, 0x1132, 0x0000, 0xffff,
+ 		"Feiya",
 
 
