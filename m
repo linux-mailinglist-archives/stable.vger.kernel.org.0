@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E500317FE40
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:34:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A1FD817FEB1
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:37:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727560AbgCJNeG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 09:34:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50678 "EHLO mail.kernel.org"
+        id S1727123AbgCJMlx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 08:41:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41476 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726438AbgCJMrD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 08:47:03 -0400
+        id S1727111AbgCJMlt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 08:41:49 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B97772468D;
-        Tue, 10 Mar 2020 12:47:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DD36924691;
+        Tue, 10 Mar 2020 12:41:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583844423;
-        bh=aAh8HTcpkWTgZrwIhaEle/qErc1CXYXt6Pbh6xGrSBI=;
+        s=default; t=1583844108;
+        bh=B5ZE7AgNmdSiNTWO1RE0tumqqZ5Z6rnGJgHazaelaaM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tLSZFmkxel7mNUgVEvvwXwKTViYmW/eCSaib2VtUBLMynFsoQ3xuqCzYHmnVgxxNE
-         cDI4j3sUkkUy+iAVilLn/bq7bx0v0rnKW2KXPJYE3AOJU2qc9CBpvywDx3pB5HZhYJ
-         EaW48akSYp+un4Jq6g2uxfnrIjh3PnKPCKsU7TS0=
+        b=UefQvhVbh6dXE66/1QSUsyEXWjiOnatA5nSQpJdwsEla3EEDdc+aT0/7QPrrdXcUW
+         9uECqS5d+kNA8V79/dpP7hyanSRbw76rxkalFuc2Z0wRaz24J1FuIncD3TcoMALF7e
+         GbI1hSRNTfQY0W/xOqwMD88CpQYek8ZyKJtCqIec=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Li RongQing <lirongqing@baidu.com>,
-        Kurt Kanzenbach <kurt@linutronix.de>,
-        Vikram Pandita <vikram.pandita@ti.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH 4.9 38/88] serial: 8250: Check UPF_IRQ_SHARED in advance
+        stable@vger.kernel.org, Matthew Wilcox <willy@infradead.org>,
+        Jann Horn <jannh@google.com>, stable@kernel.org,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        "Srivatsa S. Bhat (VMware)" <srivatsa@csail.mit.edu>,
+        Ajay Kaher <akaher@vmware.com>,
+        Vlastimil Babka <vbabka@suse.cz>
+Subject: [PATCH 4.4 33/72] mm: add try_get_page() helper function
 Date:   Tue, 10 Mar 2020 13:38:46 +0100
-Message-Id: <20200310123615.221930865@linuxfoundation.org>
+Message-Id: <20200310123609.462100804@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200310123606.543939933@linuxfoundation.org>
-References: <20200310123606.543939933@linuxfoundation.org>
+In-Reply-To: <20200310123601.053680753@linuxfoundation.org>
+References: <20200310123601.053680753@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,108 +47,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-commit 7febbcbc48fc92e3f33863b32ed715ba4aff18c4 upstream.
+commit 88b1a17dfc3ed7728316478fae0f5ad508f50397 upsteam.
 
-The commit 54e53b2e8081
-  ("tty: serial: 8250: pass IRQ shared flag to UART ports")
-nicely explained the problem:
+This is the same as the traditional 'get_page()' function, but instead
+of unconditionally incrementing the reference count of the page, it only
+does so if the count was "safe".  It returns whether the reference count
+was incremented (and is marked __must_check, since the caller obviously
+has to be aware of it).
 
----8<---8<---
+Also like 'get_page()', you can't use this function unless you already
+had a reference to the page.  The intent is that you can use this
+exactly like get_page(), but in situations where you want to limit the
+maximum reference count.
 
-On some systems IRQ lines between multiple UARTs might be shared. If so, the
-irqflags have to be configured accordingly. The reason is: The 8250 port startup
-code performs IRQ tests *before* the IRQ handler for that particular port is
-registered. This is performed in serial8250_do_startup(). This function checks
-whether IRQF_SHARED is configured and only then disables the IRQ line while
-testing.
+The code currently does an unconditional WARN_ON_ONCE() if we ever hit
+the reference count issues (either zero or negative), as a notification
+that the conditional non-increment actually happened.
 
-This test is performed upon each open() of the UART device. Imagine two UARTs
-share the same IRQ line: On is already opened and the IRQ is active. When the
-second UART is opened, the IRQ line has to be disabled while performing IRQ
-tests. Otherwise an IRQ might handler might be invoked, but the IRQ itself
-cannot be handled, because the corresponding handler isn't registered,
-yet. That's because the 8250 code uses a chain-handler and invokes the
-corresponding port's IRQ handling routines himself.
+NOTE! The count access for the "safety" check is inherently racy, but
+that doesn't matter since the buffer we use is basically half the range
+of the reference count (ie we look at the sign of the count).
 
-Unfortunately this IRQF_SHARED flag isn't configured for UARTs probed via device
-tree even if the IRQs are shared. This way, the actual and shared IRQ line isn't
-disabled while performing tests and the kernel correctly detects a spurious
-IRQ. So, adding this flag to the DT probe solves the issue.
-
-Note: The UPF_SHARE_IRQ flag is configured unconditionally. Therefore, the
-IRQF_SHARED flag can be set unconditionally as well.
-
-Example stack trace by performing `echo 1 > /dev/ttyS2` on a non-patched system:
-
-|irq 85: nobody cared (try booting with the "irqpoll" option)
-| [...]
-|handlers:
-|[<ffff0000080fc628>] irq_default_primary_handler threaded [<ffff00000855fbb8>] serial8250_interrupt
-|Disabling IRQ #85
-
----8<---8<---
-
-But unfortunately didn't fix the root cause. Let's try again here by moving
-IRQ flag assignment from serial_link_irq_chain() to serial8250_do_startup().
-
-This should fix the similar issue reported for 8250_pnp case.
-
-Since this change we don't need to have custom solutions in 8250_aspeed_vuart
-and 8250_of drivers, thus, drop them.
-
-Fixes: 1c2f04937b3e ("serial: 8250: add IRQ trigger support")
-Reported-by: Li RongQing <lirongqing@baidu.com>
-Cc: Kurt Kanzenbach <kurt@linutronix.de>
-Cc: Vikram Pandita <vikram.pandita@ti.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: stable <stable@vger.kernel.org>
-Acked-by: Kurt Kanzenbach <kurt@linutronix.de>
-Link: https://lore.kernel.org/r/20200211135559.85960-1-andriy.shevchenko@linux.intel.com
-[Kurt: Backport to v4.9]
-Signed-off-by: Kurt Kanzenbach <kurt@linutronix.de>
+Acked-by: Matthew Wilcox <willy@infradead.org>
+Cc: Jann Horn <jannh@google.com>
+Cc: stable@kernel.org
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+[ 4.4.y backport notes:
+  Srivatsa:
+  - Adapted try_get_page() to match the get_page()
+    implementation in 4.4.y, except for the refcount check.
+  - Added try_get_page_foll() which will be needed
+    in a subsequent patch. ]
+Signed-off-by: Srivatsa S. Bhat (VMware) <srivatsa@csail.mit.edu>
+Signed-off-by: Ajay Kaher <akaher@vmware.com>
+Signed-off-by: Vlastimil Babka <vbabka@suse.cz>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/tty/serial/8250/8250_core.c |    5 ++---
- drivers/tty/serial/8250/8250_port.c |    4 ++++
- 2 files changed, 6 insertions(+), 3 deletions(-)
+ include/linux/mm.h |   12 ++++++++++++
+ mm/internal.h      |   23 +++++++++++++++++++++++
+ 2 files changed, 35 insertions(+)
 
---- a/drivers/tty/serial/8250/8250_core.c
-+++ b/drivers/tty/serial/8250/8250_core.c
-@@ -181,7 +181,7 @@ static int serial_link_irq_chain(struct
- 	struct hlist_head *h;
- 	struct hlist_node *n;
- 	struct irq_info *i;
--	int ret, irq_flags = up->port.flags & UPF_SHARE_IRQ ? IRQF_SHARED : 0;
-+	int ret;
+--- a/include/linux/mm.h
++++ b/include/linux/mm.h
+@@ -505,6 +505,18 @@ static inline void get_page(struct page
+ 	atomic_inc(&page->_count);
+ }
  
- 	mutex_lock(&hash_mutex);
- 
-@@ -216,9 +216,8 @@ static int serial_link_irq_chain(struct
- 		INIT_LIST_HEAD(&up->list);
- 		i->head = &up->list;
- 		spin_unlock_irq(&i->lock);
--		irq_flags |= up->port.irqflags;
- 		ret = request_irq(up->port.irq, serial8250_interrupt,
--				  irq_flags, "serial", i);
-+				  up->port.irqflags, "serial", i);
- 		if (ret < 0)
- 			serial_do_unlink(i, up);
- 	}
---- a/drivers/tty/serial/8250/8250_port.c
-+++ b/drivers/tty/serial/8250/8250_port.c
-@@ -2199,6 +2199,10 @@ int serial8250_do_startup(struct uart_po
- 		}
- 	}
- 
-+	/* Check if we need to have shared IRQs */
-+	if (port->irq && (up->port.flags & UPF_SHARE_IRQ))
-+		up->port.irqflags |= IRQF_SHARED;
++static inline __must_check bool try_get_page(struct page *page)
++{
++	if (unlikely(PageTail(page)))
++		if (likely(__get_page_tail(page)))
++			return true;
 +
- 	if (port->irq) {
- 		unsigned char iir1;
- 		/*
++	if (WARN_ON_ONCE(atomic_read(&page->_count) <= 0))
++		return false;
++	atomic_inc(&page->_count);
++	return true;
++}
++
+ static inline struct page *virt_to_head_page(const void *x)
+ {
+ 	struct page *page = virt_to_page(x);
+--- a/mm/internal.h
++++ b/mm/internal.h
+@@ -112,6 +112,29 @@ static inline void get_page_foll(struct
+ 	}
+ }
+ 
++static inline __must_check bool try_get_page_foll(struct page *page)
++{
++	if (unlikely(PageTail(page))) {
++		if (WARN_ON_ONCE(atomic_read(&compound_head(page)->_count) <= 0))
++			return false;
++		/*
++		 * This is safe only because
++		 * __split_huge_page_refcount() can't run under
++		 * get_page_foll() because we hold the proper PT lock.
++		 */
++		__get_page_tail_foll(page, true);
++	} else {
++		/*
++		 * Getting a normal page or the head of a compound page
++		 * requires to already have an elevated page->_count.
++		 */
++		if (WARN_ON_ONCE(atomic_read(&page->_count) <= 0))
++			return false;
++		atomic_inc(&page->_count);
++	}
++	return true;
++}
++
+ extern unsigned long highest_memmap_pfn;
+ 
+ /*
 
 
