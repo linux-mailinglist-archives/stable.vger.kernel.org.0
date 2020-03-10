@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B93CA17FCBA
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:22:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AA81717FDA8
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:29:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729970AbgCJNAZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 09:00:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41160 "EHLO mail.kernel.org"
+        id S1729006AbgCJMwJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 08:52:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57592 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729979AbgCJNAY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 09:00:24 -0400
+        id S1729005AbgCJMwJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 08:52:09 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E35B220674;
-        Tue, 10 Mar 2020 13:00:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 245C420674;
+        Tue, 10 Mar 2020 12:52:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583845223;
-        bh=/mdxnAdIc908lANtJyPC1YYbCwLetm54mAVznZ+geG8=;
+        s=default; t=1583844728;
+        bh=3aUHtr5VhDOf2LoeEAfUA4zom+D6IHvYST6XzR/+4/Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k4lKnSUh7WodyAR/GTtolxJssw/XM786N+nWL1+ztZOOnHCMyO9AsFMRKE5rAs/Hc
-         XqtNn266eMYtZ3R87zOwhB/O6+jdkdBFp1P/p4pi2gIrLpRvdtQbHGvi4mdrPsvBue
-         iGxPjaXNRb2dsBZssDgg4E0r2aQpyO8hko+R54hI=
+        b=ijPcdLVMJG0ZobxjpfL4TQOpXmdox8thgFFjWDa0uHnQByqVMmQQgR0py691balDA
+         UAZs2ErWTsfqqUaTkwK10Ee2ZJf0tUPPi5eQIIGqaR+HxGNBh21fOL0Lcxyz7Sc/yD
+         MzbVt8v1zu37p2Pkxx8AaJeUcCehJOGz4lchLyyE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jacob Keller <jacob.e.keller@intel.com>,
-        Sean Christopherson <sean.j.christopherson@intel.com>,
-        Borislav Petkov <bp@suse.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>
-Subject: [PATCH 5.5 105/189] x86/pkeys: Manually set X86_FEATURE_OSPKE to preserve existing changes
+        stable@vger.kernel.org, Simon Han <z.han@kunbus.com>,
+        Lukas Wunner <lukas@wunner.de>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.4 096/168] spi: spidev: Fix CS polarity if GPIO descriptors are used
 Date:   Tue, 10 Mar 2020 13:39:02 +0100
-Message-Id: <20200310123650.321435804@linuxfoundation.org>
+Message-Id: <20200310123645.084722622@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200310123639.608886314@linuxfoundation.org>
-References: <20200310123639.608886314@linuxfoundation.org>
+In-Reply-To: <20200310123635.322799692@linuxfoundation.org>
+References: <20200310123635.322799692@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,56 +45,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <sean.j.christopherson@intel.com>
+From: Lukas Wunner <lukas@wunner.de>
 
-commit 735a6dd02222d8d070c7bb748f25895239ca8c92 upstream.
+commit 138c9c32f090894614899eca15e0bb7279f59865 upstream.
 
-Explicitly set X86_FEATURE_OSPKE via set_cpu_cap() instead of calling
-get_cpu_cap() to pull the feature bit from CPUID after enabling CR4.PKE.
-Invoking get_cpu_cap() effectively wipes out any {set,clear}_cpu_cap()
-changes that were made between this_cpu->c_init() and setup_pku(), as
-all non-synthetic feature words are reinitialized from the CPU's CPUID
-values.
+Commit f3186dd87669 ("spi: Optionally use GPIO descriptors for CS GPIOs")
+amended of_spi_parse_dt() to always set SPI_CS_HIGH for SPI slaves whose
+Chip Select is defined by a "cs-gpios" devicetree property.
 
-Blasting away capability updates manifests most visibility when running
-on a VMX capable CPU, but with VMX disabled by BIOS.  To indicate that
-VMX is disabled, init_ia32_feat_ctl() clears X86_FEATURE_VMX, using
-clear_cpu_cap() instead of setup_clear_cpu_cap() so that KVM can report
-which CPU is misconfigured (KVM needs to probe every CPU anyways).
-Restoring X86_FEATURE_VMX from CPUID causes KVM to think VMX is enabled,
-ultimately leading to an unexpected #GP when KVM attempts to do VMXON.
+This change broke userspace applications which issue an SPI_IOC_WR_MODE
+ioctl() to an spidev:  Chip Select polarity will be incorrect unless the
+application is changed to set SPI_CS_HIGH.  And once changed, it will be
+incompatible with kernels not containing the commit.
 
-Arguably, init_ia32_feat_ctl() should use setup_clear_cpu_cap() and let
-KVM figure out a different way to report the misconfigured CPU, but VMX
-is not the only feature bit that is affected, i.e. there is precedent
-that tweaking feature bits via {set,clear}_cpu_cap() after ->c_init()
-is expected to work.  Most notably, x86_init_rdrand()'s clearing of
-X86_FEATURE_RDRAND when RDRAND malfunctions is also overwritten.
+Fix by setting SPI_CS_HIGH in spidev_ioctl() (under the same conditions
+as in of_spi_parse_dt()).
 
-Fixes: 0697694564c8 ("x86/mm/pkeys: Actually enable Memory Protection Keys in the CPU")
-Reported-by: Jacob Keller <jacob.e.keller@intel.com>
-Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Acked-by: Dave Hansen <dave.hansen@linux.intel.com>
-Tested-by: Jacob Keller <jacob.e.keller@intel.com>
-Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/20200226231615.13664-1-sean.j.christopherson@intel.com
+Fixes: f3186dd87669 ("spi: Optionally use GPIO descriptors for CS GPIOs")
+Reported-by: Simon Han <z.han@kunbus.com>
+Signed-off-by: Lukas Wunner <lukas@wunner.de>
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Link: https://lore.kernel.org/r/fca3ba7cdc930cd36854666ceac4fbcf01b89028.1582027457.git.lukas@wunner.de
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Cc: stable@vger.kernel.org # v5.1+
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/kernel/cpu/common.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/spi/spidev.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/arch/x86/kernel/cpu/common.c
-+++ b/arch/x86/kernel/cpu/common.c
-@@ -462,7 +462,7 @@ static __always_inline void setup_pku(st
- 	 * cpuid bit to be set.  We need to ensure that we
- 	 * update that bit in this CPU's "cpu_info".
- 	 */
--	get_cpu_cap(c);
-+	set_cpu_cap(c, X86_FEATURE_OSPKE);
- }
+--- a/drivers/spi/spidev.c
++++ b/drivers/spi/spidev.c
+@@ -394,6 +394,7 @@ spidev_ioctl(struct file *filp, unsigned
+ 		else
+ 			retval = get_user(tmp, (u32 __user *)arg);
+ 		if (retval == 0) {
++			struct spi_controller *ctlr = spi->controller;
+ 			u32	save = spi->mode;
  
- #ifdef CONFIG_X86_INTEL_MEMORY_PROTECTION_KEYS
+ 			if (tmp & ~SPI_MODE_MASK) {
+@@ -401,6 +402,10 @@ spidev_ioctl(struct file *filp, unsigned
+ 				break;
+ 			}
+ 
++			if (ctlr->use_gpio_descriptors && ctlr->cs_gpiods &&
++			    ctlr->cs_gpiods[spi->chip_select])
++				tmp |= SPI_CS_HIGH;
++
+ 			tmp |= spi->mode & ~SPI_MODE_MASK;
+ 			spi->mode = (u16)tmp;
+ 			retval = spi_setup(spi);
 
 
