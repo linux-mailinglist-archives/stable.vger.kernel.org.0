@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 99B2917F838
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 13:47:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B13517F7D6
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 13:43:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727517AbgCJMqE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 08:46:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48936 "EHLO mail.kernel.org"
+        id S1727401AbgCJMmh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 08:42:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42666 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727690AbgCJMqD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 08:46:03 -0400
+        id S1726729AbgCJMmh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 08:42:37 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 975272467D;
-        Tue, 10 Mar 2020 12:46:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 723E224691;
+        Tue, 10 Mar 2020 12:42:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583844363;
-        bh=FupRIPkoup1tnxLuEqow0cu0Uqe3EcqIS3/6snGndwQ=;
+        s=default; t=1583844157;
+        bh=SQ2MaxiEeeggYa8Al9n/ttmWC3FChj2NL+dGYfBYCuY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dRA1rnR/qJtsAmj+vPeK5UrE3xzDKAJN5H2oA2UJw56DHQfUQJpvsbGtOpnFJy8ou
-         xBtYJBQWkaE1aQk9NtMTQnNH0VVSxcRyf8hxOijTlKnb6zxsFN44Dk3JzWYGs3w6vc
-         qmPCQJ/o2LzMrlC13lWS1Pq8rXpOOJsdTkE9jyLg=
+        b=YsYjpZ6MD3mXXJwXz99lIpwxCn2blAhxl+48XbtJ+DNTKt8Djwu3S0IsZzyBeRGJe
+         30y2X7zN6017r4tY5ecgpikqKH3e+B6upw5/8urQP3OJ/0sW4jiAm9zpImWrwSu0XH
+         UbTjwjUezHHdE84aDdZcRj0MXEPWB1wRYsWUn7jo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michal Nazarewicz <mina86@mina86.com>,
-        Lars-Peter Clausen <lars@metafoo.de>,
-        Alexandru Ardelean <alexandru.ardelean@analog.com>,
-        Felipe Balbi <balbi@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 53/88] usb: gadget: ffs: ffs_aio_cancel(): Save/restore IRQ flags
-Date:   Tue, 10 Mar 2020 13:39:01 +0100
-Message-Id: <20200310123619.359110317@linuxfoundation.org>
+        stable@vger.kernel.org, Ronnie Sahlberg <lsahlber@redhat.com>,
+        Steve French <stfrench@microsoft.com>,
+        Pavel Shilovsky <pshilov@microsoft.com>,
+        Aurelien Aptel <aaptel@suse.com>
+Subject: [PATCH 4.4 50/72] cifs: dont leak -EAGAIN for stat() during reconnect
+Date:   Tue, 10 Mar 2020 13:39:03 +0100
+Message-Id: <20200310123613.706021327@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200310123606.543939933@linuxfoundation.org>
-References: <20200310123606.543939933@linuxfoundation.org>
+In-Reply-To: <20200310123601.053680753@linuxfoundation.org>
+References: <20200310123601.053680753@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,53 +45,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lars-Peter Clausen <lars@metafoo.de>
+From: Ronnie Sahlberg <lsahlber@redhat.com>
 
-[ Upstream commit 43d565727a3a6fd24e37c7c2116475106af71806 ]
+commit fc513fac56e1b626ae48a74d7551d9c35c50129e upstream.
 
-ffs_aio_cancel() can be called from both interrupt and thread context. Make
-sure that the current IRQ state is saved and restored by using
-spin_{un,}lock_irq{save,restore}().
+If from cifs_revalidate_dentry_attr() the SMB2/QUERY_INFO call fails with an
+error, such as STATUS_SESSION_EXPIRED, causing the session to be reconnected
+it is possible we will leak -EAGAIN back to the application even for
+system calls such as stat() where this is not a valid error.
 
-Otherwise undefined behavior might occur.
+Fix this by re-trying the operation from within cifs_revalidate_dentry_attr()
+if cifs_get_inode_info*() returns -EAGAIN.
 
-Acked-by: Michal Nazarewicz <mina86@mina86.com>
-Signed-off-by: Lars-Peter Clausen <lars@metafoo.de>
-Signed-off-by: Alexandru Ardelean <alexandru.ardelean@analog.com>
-Signed-off-by: Felipe Balbi <balbi@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This fixes stat() and possibly also other system calls that uses
+cifs_revalidate_dentry*().
+
+Signed-off-by: Ronnie Sahlberg <lsahlber@redhat.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
+Reviewed-by: Pavel Shilovsky <pshilov@microsoft.com>
+Reviewed-by: Aurelien Aptel <aaptel@suse.com>
+CC: Stable <stable@vger.kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/usb/gadget/function/f_fs.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ fs/cifs/inode.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/usb/gadget/function/f_fs.c b/drivers/usb/gadget/function/f_fs.c
-index d1278d2d544b4..b5747f1270a6d 100644
---- a/drivers/usb/gadget/function/f_fs.c
-+++ b/drivers/usb/gadget/function/f_fs.c
-@@ -1077,18 +1077,19 @@ static int ffs_aio_cancel(struct kiocb *kiocb)
- {
- 	struct ffs_io_data *io_data = kiocb->private;
- 	struct ffs_epfile *epfile = kiocb->ki_filp->private_data;
-+	unsigned long flags;
- 	int value;
+--- a/fs/cifs/inode.c
++++ b/fs/cifs/inode.c
+@@ -1957,6 +1957,7 @@ int cifs_revalidate_dentry_attr(struct d
+ 	struct inode *inode = d_inode(dentry);
+ 	struct super_block *sb = dentry->d_sb;
+ 	char *full_path = NULL;
++	int count = 0;
  
- 	ENTER();
+ 	if (inode == NULL)
+ 		return -ENOENT;
+@@ -1978,15 +1979,18 @@ int cifs_revalidate_dentry_attr(struct d
+ 		 full_path, inode, inode->i_count.counter,
+ 		 dentry, dentry->d_time, jiffies);
  
--	spin_lock_irq(&epfile->ffs->eps_lock);
-+	spin_lock_irqsave(&epfile->ffs->eps_lock, flags);
- 
- 	if (likely(io_data && io_data->ep && io_data->req))
- 		value = usb_ep_dequeue(io_data->ep, io_data->req);
++again:
+ 	if (cifs_sb_master_tcon(CIFS_SB(sb))->unix_ext)
+ 		rc = cifs_get_inode_info_unix(&inode, full_path, sb, xid);
  	else
- 		value = -EINVAL;
- 
--	spin_unlock_irq(&epfile->ffs->eps_lock);
-+	spin_unlock_irqrestore(&epfile->ffs->eps_lock, flags);
- 
- 	return value;
+ 		rc = cifs_get_inode_info(&inode, full_path, NULL, sb,
+ 					 xid, NULL);
+-
++	if (rc == -EAGAIN && count++ < 10)
++		goto again;
+ out:
+ 	kfree(full_path);
+ 	free_xid(xid);
++
+ 	return rc;
  }
--- 
-2.20.1
-
+ 
 
 
