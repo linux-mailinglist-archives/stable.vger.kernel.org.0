@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E372417FE61
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:35:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A218F17FEA4
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:36:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728041AbgCJNe4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 09:34:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48366 "EHLO mail.kernel.org"
+        id S1727313AbgCJMmX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 08:42:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42006 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727680AbgCJMpi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 08:45:38 -0400
+        id S1727262AbgCJMmJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 08:42:09 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9175C2469C;
-        Tue, 10 Mar 2020 12:45:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AB30724691;
+        Tue, 10 Mar 2020 12:42:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583844338;
-        bh=LDOxMJhlqNsrmrC05OIe9jerg9X6oq49/7cKqgJ+Cqs=;
+        s=default; t=1583844129;
+        bh=awzDN82KYJ5TGTZJjcvf3lRygd874USY6KRrUfyWfDQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JgbbTD2adDFY9Y+slJtyUvR172cUMMzwuaprOB/lDQuK2yI1Q5ITPOeWTQOGYjuXK
-         uQINQkK4ZYi/uZ2gZldw7NgmQt//2g9lcSO71+llIkgQ7BTGdxwsWD1ssIn7CuOzCr
-         jxwtUiCQrRuB+ppMkOG3564g/I9D2DbXXXloJjOI=
+        b=F/WJJWGMJFsaMTC9iD/QoeKXNQe+6F0oJscyboPO8OimOs/2kSYy44az/+AfT3fwm
+         qkvVZskuSWe27IeC58tjezcKJXc0wDbl18xmdKCSMyrwSqn1xkIVQyrtvbP8r2Dsqt
+         eAHQvySrGuCmtWjGtW60+Jeb/lhW2xGQnNJlz5PA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Hannes Frederic Sowa <hannes@stressinduktion.org>,
-        Eric Dumazet <edumazet@google.com>,
-        Jason Wang <jasowang@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Tommi Rantala <tommi.t.rantala@nokia.com>
-Subject: [PATCH 4.9 45/88] tuntap: correctly set SOCKWQ_ASYNC_NOSPACE
-Date:   Tue, 10 Mar 2020 13:38:53 +0100
-Message-Id: <20200310123617.162923966@linuxfoundation.org>
+        stable@vger.kernel.org, Michal Nazarewicz <mina86@mina86.com>,
+        Lars-Peter Clausen <lars@metafoo.de>,
+        Alexandru Ardelean <alexandru.ardelean@analog.com>,
+        Felipe Balbi <balbi@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 41/72] usb: gadget: ffs: ffs_aio_cancel(): Save/restore IRQ flags
+Date:   Tue, 10 Mar 2020 13:38:54 +0100
+Message-Id: <20200310123611.686906801@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200310123606.543939933@linuxfoundation.org>
-References: <20200310123606.543939933@linuxfoundation.org>
+In-Reply-To: <20200310123601.053680753@linuxfoundation.org>
+References: <20200310123601.053680753@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,68 +46,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason Wang <jasowang@redhat.com>
+From: Lars-Peter Clausen <lars@metafoo.de>
 
-commit 2f3ab6221e4c87960347d65c7cab9bd917d1f637 upstream.
+[ Upstream commit 43d565727a3a6fd24e37c7c2116475106af71806 ]
 
-When link is down, writes to the device might fail with
--EIO. Userspace needs an indication when the status is resolved.  As a
-fix, tun_net_open() attempts to wake up writers - but that is only
-effective if SOCKWQ_ASYNC_NOSPACE has been set in the past. This is
-not the case of vhost_net which only poll for EPOLLOUT after it meets
-errors during sendmsg().
+ffs_aio_cancel() can be called from both interrupt and thread context. Make
+sure that the current IRQ state is saved and restored by using
+spin_{un,}lock_irq{save,restore}().
 
-This patch fixes this by making sure SOCKWQ_ASYNC_NOSPACE is set when
-socket is not writable or device is down to guarantee EPOLLOUT will be
-raised in either tun_chr_poll() or tun_sock_write_space() after device
-is up.
+Otherwise undefined behavior might occur.
 
-Cc: Hannes Frederic Sowa <hannes@stressinduktion.org>
-Cc: Eric Dumazet <edumazet@google.com>
-Fixes: 1bd4978a88ac2 ("tun: honor IFF_UP in tun_get_user()")
-Signed-off-by: Jason Wang <jasowang@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Tommi Rantala <tommi.t.rantala@nokia.com>
-
+Acked-by: Michal Nazarewicz <mina86@mina86.com>
+Signed-off-by: Lars-Peter Clausen <lars@metafoo.de>
+Signed-off-by: Alexandru Ardelean <alexandru.ardelean@analog.com>
+Signed-off-by: Felipe Balbi <balbi@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/tun.c |   19 +++++++++++++++----
- 1 file changed, 15 insertions(+), 4 deletions(-)
+ drivers/usb/gadget/function/f_fs.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/drivers/net/tun.c
-+++ b/drivers/net/tun.c
-@@ -1106,6 +1106,13 @@ static void tun_net_init(struct net_devi
- 	}
+diff --git a/drivers/usb/gadget/function/f_fs.c b/drivers/usb/gadget/function/f_fs.c
+index 4cb1355271ec4..9536c409a90d5 100644
+--- a/drivers/usb/gadget/function/f_fs.c
++++ b/drivers/usb/gadget/function/f_fs.c
+@@ -888,18 +888,19 @@ static int ffs_aio_cancel(struct kiocb *kiocb)
+ {
+ 	struct ffs_io_data *io_data = kiocb->private;
+ 	struct ffs_epfile *epfile = kiocb->ki_filp->private_data;
++	unsigned long flags;
+ 	int value;
+ 
+ 	ENTER();
+ 
+-	spin_lock_irq(&epfile->ffs->eps_lock);
++	spin_lock_irqsave(&epfile->ffs->eps_lock, flags);
+ 
+ 	if (likely(io_data && io_data->ep && io_data->req))
+ 		value = usb_ep_dequeue(io_data->ep, io_data->req);
+ 	else
+ 		value = -EINVAL;
+ 
+-	spin_unlock_irq(&epfile->ffs->eps_lock);
++	spin_unlock_irqrestore(&epfile->ffs->eps_lock, flags);
+ 
+ 	return value;
  }
- 
-+static bool tun_sock_writeable(struct tun_struct *tun, struct tun_file *tfile)
-+{
-+	struct sock *sk = tfile->socket.sk;
-+
-+	return (tun->dev->flags & IFF_UP) && sock_writeable(sk);
-+}
-+
- /* Character device part */
- 
- /* Poll */
-@@ -1128,10 +1135,14 @@ static unsigned int tun_chr_poll(struct
- 	if (!skb_array_empty(&tfile->tx_array))
- 		mask |= POLLIN | POLLRDNORM;
- 
--	if (tun->dev->flags & IFF_UP &&
--	    (sock_writeable(sk) ||
--	     (!test_and_set_bit(SOCKWQ_ASYNC_NOSPACE, &sk->sk_socket->flags) &&
--	      sock_writeable(sk))))
-+	/* Make sure SOCKWQ_ASYNC_NOSPACE is set if not writable to
-+	 * guarantee EPOLLOUT to be raised by either here or
-+	 * tun_sock_write_space(). Then process could get notification
-+	 * after it writes to a down device and meets -EIO.
-+	 */
-+	if (tun_sock_writeable(tun, tfile) ||
-+	    (!test_and_set_bit(SOCKWQ_ASYNC_NOSPACE, &sk->sk_socket->flags) &&
-+	     tun_sock_writeable(tun, tfile)))
- 		mask |= POLLOUT | POLLWRNORM;
- 
- 	if (tun->dev->reg_state != NETREG_REGISTERED)
+-- 
+2.20.1
+
 
 
