@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 00CF017F93E
+	by mail.lfdr.de (Postfix) with ESMTP id 74A4E17F93F
 	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 13:55:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728494AbgCJMzA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 08:55:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33590 "EHLO mail.kernel.org"
+        id S1728435AbgCJMzB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 08:55:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33668 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729034AbgCJMy6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 08:54:58 -0400
+        id S1729438AbgCJMzA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 08:55:00 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A06782253D;
-        Tue, 10 Mar 2020 12:54:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 19F07246B0;
+        Tue, 10 Mar 2020 12:54:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583844898;
-        bh=iBM1w65UJFTOJRont15HkGQodYMg2ICLaa+vsjpa610=;
+        s=default; t=1583844900;
+        bh=boie7kjDXkrMgYA2kRh557Gzikic9mujKoVkRXup9ow=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sxIcJYFk933ouFXANOq8iLuCzGKnU766UdVPQHPTxeYga4cAGiDh6VqlB/oXe7L3c
-         l9WSaGKTmUUKXzd+HDoIxr6vuhOhK1D+9pGaykpYRRddrf7eXO0U7PSFRBR0k5r/+b
-         HJ0W0FAgBuQTATvGGMhQSVjvMu4fRZ5s9GuU/qfU=
+        b=UGbT0Qr22ACdbPBVrPGCsZA+LAm1H40ojQOUM4hzDqqLRJ9xdIP8FHn9Fvmhl7wdQ
+         8F+72v3/IC9m/siZC2hZVdNxzH2PrBdUNZMCs24BIKjRQS2p+yWamBgZiC+MRn1j98
+         CSV8fgJe75q5Hm7U6Y/BlRpIg2BwjXKxJIYyjphU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+b2098bc44728a4efb3e9@syzkaller.appspotmail.com,
-        Greg Hackmann <ghackmann@google.com>,
-        Chenbo Feng <fengc@google.com>,
-        Sumit Semwal <sumit.semwal@linaro.org>,
-        Cong Wang <xiyou.wangcong@gmail.com>
-Subject: [PATCH 5.4 160/168] dma-buf: free dmabuf->name in dma_buf_release()
-Date:   Tue, 10 Mar 2020 13:40:06 +0100
-Message-Id: <20200310123651.733901630@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Vinod Koul <vkoul@kernel.org>
+Subject: [PATCH 5.4 161/168] dmaengine: coh901318: Fix a double lock bug in dma_tc_handle()
+Date:   Tue, 10 Mar 2020 13:40:07 +0100
+Message-Id: <20200310123651.841870478@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200310123635.322799692@linuxfoundation.org>
 References: <20200310123635.322799692@linuxfoundation.org>
@@ -47,39 +43,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cong Wang <xiyou.wangcong@gmail.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit d1f37226431f5d9657aa144a40f2383adbcf27e1 upstream.
+commit 36d5d22090d13fd3a7a8c9663a711cbe6970aac8 upstream.
 
-dma-buf name can be set via DMA_BUF_SET_NAME ioctl, but once set
-it never gets freed.
+The caller is already holding the lock so this will deadlock.
 
-Free it in dma_buf_release().
-
-Fixes: bb2bb9030425 ("dma-buf: add DMA_BUF_SET_NAME ioctls")
-Reported-by: syzbot+b2098bc44728a4efb3e9@syzkaller.appspotmail.com
-Cc: Greg Hackmann <ghackmann@google.com>
-Cc: Chenbo Feng <fengc@google.com>
-Cc: Sumit Semwal <sumit.semwal@linaro.org>
-Signed-off-by: Cong Wang <xiyou.wangcong@gmail.com>
-Acked-by: Chenbo Feng <fengc@google.com>
-Signed-off-by: Sumit Semwal <sumit.semwal@linaro.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20191227063204.5813-1-xiyou.wangcong@gmail.com
+Fixes: 0b58828c923e ("DMAENGINE: COH 901 318 remove irq counting")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Link: https://lore.kernel.org/r/20200217144050.3i4ymbytogod4ijn@kili.mountain
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/dma-buf/dma-buf.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/dma/coh901318.c |    4 ----
+ 1 file changed, 4 deletions(-)
 
---- a/drivers/dma-buf/dma-buf.c
-+++ b/drivers/dma-buf/dma-buf.c
-@@ -108,6 +108,7 @@ static int dma_buf_release(struct inode
- 		dma_resv_fini(dmabuf->resv);
+--- a/drivers/dma/coh901318.c
++++ b/drivers/dma/coh901318.c
+@@ -1947,8 +1947,6 @@ static void dma_tc_handle(struct coh9013
+ 		return;
+ 	}
  
- 	module_put(dmabuf->owner);
-+	kfree(dmabuf->name);
- 	kfree(dmabuf);
- 	return 0;
- }
+-	spin_lock(&cohc->lock);
+-
+ 	/*
+ 	 * When we reach this point, at least one queue item
+ 	 * should have been moved over from cohc->queue to
+@@ -1969,8 +1967,6 @@ static void dma_tc_handle(struct coh9013
+ 	if (coh901318_queue_start(cohc) == NULL)
+ 		cohc->busy = 0;
+ 
+-	spin_unlock(&cohc->lock);
+-
+ 	/*
+ 	 * This tasklet will remove items from cohc->active
+ 	 * and thus terminates them.
 
 
