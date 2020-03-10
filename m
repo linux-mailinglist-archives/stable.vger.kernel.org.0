@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4868917F96B
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 13:56:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4333B17F879
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 13:48:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729668AbgCJM4g (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 08:56:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35830 "EHLO mail.kernel.org"
+        id S1728280AbgCJMsU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 08:48:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52408 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729443AbgCJM4f (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 08:56:35 -0400
+        id S1728015AbgCJMsT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 08:48:19 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7F98D24693;
-        Tue, 10 Mar 2020 12:56:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A2A622468E;
+        Tue, 10 Mar 2020 12:48:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583844995;
-        bh=AFLhECNdQynG25OAfG50zgqOns9HClcAwKK6FJTao+o=;
+        s=default; t=1583844499;
+        bh=IL3/wicU8vS8fr/u2xEEigJhcMcCof++SwVTStaXe0s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ayANvTYH70Rrd2G/HCIyOcSWsF/95H6VJ7hMN7Oh9qcpz5Vjn6kP5EnvpgWLed7h1
-         7Te9CK3rSBMO2+vNKtmuAEu0CRD5H4svhFLmDaUM3cLjlnJgQCx/0JUS+mclxi0DJO
-         8bYMjkuBK8J+EAWqb4x+0s3mKVzKbTEV58LjJCJA=
+        b=KXkbyLWWQi1d+/xhX89uNOiiQa6lnl7ttIf+1orearSm68rrRT1fBjSUpp8os99GX
+         SL9j9s3Gqjx1CP2LWB88GfY60sTON64IlI+nFEemnUwnIIllgqZvHCH7U9wDGOwzNg
+         c8p1CwXaxiKU/iGYTINE+OE7XVbQgBpFWif0RnHo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stephan Gerhold <stephan@gerhold.net>,
-        Maxime Ripard <maxime@cerno.tech>,
+        stable@vger.kernel.org,
+        Yauheni Kaliuta <yauheni.kaliuta@redhat.com>,
+        Jiri Benc <jbenc@redhat.com>,
+        Shuah Khan <skhan@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 024/189] drm/modes: Make sure to parse valid rotation value from cmdline
+Subject: [PATCH 5.4 015/168] selftests: fix too long argument
 Date:   Tue, 10 Mar 2020 13:37:41 +0100
-Message-Id: <20200310123641.916422220@linuxfoundation.org>
+Message-Id: <20200310123637.246808390@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200310123639.608886314@linuxfoundation.org>
-References: <20200310123639.608886314@linuxfoundation.org>
+In-Reply-To: <20200310123635.322799692@linuxfoundation.org>
+References: <20200310123635.322799692@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,101 +46,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephan Gerhold <stephan@gerhold.net>
+From: Jiri Benc <jbenc@redhat.com>
 
-[ Upstream commit e6980a727154b793adb218fbc7b4d6af52a7e364 ]
+[ Upstream commit c363eb48ada5cf732b3f489fab799fc881097842 ]
 
-A rotation value should have exactly one rotation angle.
-At the moment there is no validation for this when parsing video=
-parameters from the command line. This causes problems later on
-when we try to combine the command line rotation with the panel
-orientation.
+With some shells, the command construed for install of bpf selftests becomes
+too large due to long list of files:
 
-To make sure that we generate a valid rotation value:
-  - Set DRM_MODE_ROTATE_0 by default (if no rotate= option is set)
-  - Validate that there is exactly one rotation angle set
-    (i.e. specifying the rotate= option multiple times is invalid)
+make[1]: execvp: /bin/sh: Argument list too long
+make[1]: *** [../lib.mk:73: install] Error 127
 
-Signed-off-by: Stephan Gerhold <stephan@gerhold.net>
-Signed-off-by: Maxime Ripard <maxime@cerno.tech>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200117153429.54700-2-stephan@gerhold.net
+Currently, each of the file lists is replicated three times in the command:
+in the shell 'if' condition, in the 'echo' and in the 'rsync'. Reduce that
+by one instance by using make conditionals and separate the echo and rsync
+into two shell commands. (One would be inclined to just remove the '@' at
+the beginning of the rsync command and let 'make' echo it by itself;
+unfortunately, it appears that the '@' in the front of mkdir silences output
+also for the following commands.)
+
+Also, separate handling of each of the lists to its own shell command.
+
+The semantics of the makefile is unchanged before and after the patch. The
+ability of individual test directories to override INSTALL_RULE is retained.
+
+Reported-by: Yauheni Kaliuta <yauheni.kaliuta@redhat.com>
+Tested-by: Yauheni Kaliuta <yauheni.kaliuta@redhat.com>
+Signed-off-by: Jiri Benc <jbenc@redhat.com>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/drm_modes.c                       |  7 +++++++
- drivers/gpu/drm/selftests/drm_cmdline_selftests.h |  1 +
- .../gpu/drm/selftests/test-drm_cmdline_parser.c   | 15 +++++++++++++--
- 3 files changed, 21 insertions(+), 2 deletions(-)
+ tools/testing/selftests/lib.mk | 23 +++++++++++++----------
+ 1 file changed, 13 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/gpu/drm/drm_modes.c b/drivers/gpu/drm/drm_modes.c
-index 88232698d7a00..3fd35e6b9d535 100644
---- a/drivers/gpu/drm/drm_modes.c
-+++ b/drivers/gpu/drm/drm_modes.c
-@@ -1672,6 +1672,13 @@ static int drm_mode_parse_cmdline_options(char *str, size_t len,
- 		}
- 	}
+diff --git a/tools/testing/selftests/lib.mk b/tools/testing/selftests/lib.mk
+index 1c8a1963d03f8..3ed0134a764d4 100644
+--- a/tools/testing/selftests/lib.mk
++++ b/tools/testing/selftests/lib.mk
+@@ -83,17 +83,20 @@ else
+ 	$(call RUN_TESTS, $(TEST_GEN_PROGS) $(TEST_CUSTOM_PROGS) $(TEST_PROGS))
+ endif
  
-+	if (!(rotation & DRM_MODE_ROTATE_MASK))
-+		rotation |= DRM_MODE_ROTATE_0;
++define INSTALL_SINGLE_RULE
++	$(if $(INSTALL_LIST),@mkdir -p $(INSTALL_PATH))
++	$(if $(INSTALL_LIST),@echo rsync -a $(INSTALL_LIST) $(INSTALL_PATH)/)
++	$(if $(INSTALL_LIST),@rsync -a $(INSTALL_LIST) $(INSTALL_PATH)/)
++endef
 +
-+	/* Make sure there is exactly one rotation defined */
-+	if (!is_power_of_2(rotation & DRM_MODE_ROTATE_MASK))
-+		return -EINVAL;
-+
- 	mode->rotation_reflection = rotation;
+ define INSTALL_RULE
+-	@if [ "X$(TEST_PROGS)$(TEST_PROGS_EXTENDED)$(TEST_FILES)" != "X" ]; then					\
+-		mkdir -p ${INSTALL_PATH};										\
+-		echo "rsync -a $(TEST_PROGS) $(TEST_PROGS_EXTENDED) $(TEST_FILES) $(INSTALL_PATH)/";	\
+-		rsync -a $(TEST_PROGS) $(TEST_PROGS_EXTENDED) $(TEST_FILES) $(INSTALL_PATH)/;		\
+-	fi
+-	@if [ "X$(TEST_GEN_PROGS)$(TEST_CUSTOM_PROGS)$(TEST_GEN_PROGS_EXTENDED)$(TEST_GEN_FILES)" != "X" ]; then					\
+-		mkdir -p ${INSTALL_PATH};										\
+-		echo "rsync -a $(TEST_GEN_PROGS) $(TEST_CUSTOM_PROGS) $(TEST_GEN_PROGS_EXTENDED) $(TEST_GEN_FILES) $(INSTALL_PATH)/";	\
+-		rsync -a $(TEST_GEN_PROGS) $(TEST_CUSTOM_PROGS) $(TEST_GEN_PROGS_EXTENDED) $(TEST_GEN_FILES) $(INSTALL_PATH)/;		\
+-	fi
++	$(eval INSTALL_LIST = $(TEST_PROGS)) $(INSTALL_SINGLE_RULE)
++	$(eval INSTALL_LIST = $(TEST_PROGS_EXTENDED)) $(INSTALL_SINGLE_RULE)
++	$(eval INSTALL_LIST = $(TEST_FILES)) $(INSTALL_SINGLE_RULE)
++	$(eval INSTALL_LIST = $(TEST_GEN_PROGS)) $(INSTALL_SINGLE_RULE)
++	$(eval INSTALL_LIST = $(TEST_CUSTOM_PROGS)) $(INSTALL_SINGLE_RULE)
++	$(eval INSTALL_LIST = $(TEST_GEN_PROGS_EXTENDED)) $(INSTALL_SINGLE_RULE)
++	$(eval INSTALL_LIST = $(TEST_GEN_FILES)) $(INSTALL_SINGLE_RULE)
+ endef
  
- 	return 0;
-diff --git a/drivers/gpu/drm/selftests/drm_cmdline_selftests.h b/drivers/gpu/drm/selftests/drm_cmdline_selftests.h
-index 6d61a0eb5d64f..84e6bc050bf2c 100644
---- a/drivers/gpu/drm/selftests/drm_cmdline_selftests.h
-+++ b/drivers/gpu/drm/selftests/drm_cmdline_selftests.h
-@@ -53,6 +53,7 @@ cmdline_test(drm_cmdline_test_rotate_0)
- cmdline_test(drm_cmdline_test_rotate_90)
- cmdline_test(drm_cmdline_test_rotate_180)
- cmdline_test(drm_cmdline_test_rotate_270)
-+cmdline_test(drm_cmdline_test_rotate_multiple)
- cmdline_test(drm_cmdline_test_rotate_invalid_val)
- cmdline_test(drm_cmdline_test_rotate_truncated)
- cmdline_test(drm_cmdline_test_hmirror)
-diff --git a/drivers/gpu/drm/selftests/test-drm_cmdline_parser.c b/drivers/gpu/drm/selftests/test-drm_cmdline_parser.c
-index 013de9d27c35d..035f86c5d6482 100644
---- a/drivers/gpu/drm/selftests/test-drm_cmdline_parser.c
-+++ b/drivers/gpu/drm/selftests/test-drm_cmdline_parser.c
-@@ -856,6 +856,17 @@ static int drm_cmdline_test_rotate_270(void *ignored)
- 	return 0;
- }
- 
-+static int drm_cmdline_test_rotate_multiple(void *ignored)
-+{
-+	struct drm_cmdline_mode mode = { };
-+
-+	FAIL_ON(drm_mode_parse_command_line_for_connector("720x480,rotate=0,rotate=90",
-+							  &no_connector,
-+							  &mode));
-+
-+	return 0;
-+}
-+
- static int drm_cmdline_test_rotate_invalid_val(void *ignored)
- {
- 	struct drm_cmdline_mode mode = { };
-@@ -888,7 +899,7 @@ static int drm_cmdline_test_hmirror(void *ignored)
- 	FAIL_ON(!mode.specified);
- 	FAIL_ON(mode.xres != 720);
- 	FAIL_ON(mode.yres != 480);
--	FAIL_ON(mode.rotation_reflection != DRM_MODE_REFLECT_X);
-+	FAIL_ON(mode.rotation_reflection != (DRM_MODE_ROTATE_0 | DRM_MODE_REFLECT_X));
- 
- 	FAIL_ON(mode.refresh_specified);
- 
-@@ -913,7 +924,7 @@ static int drm_cmdline_test_vmirror(void *ignored)
- 	FAIL_ON(!mode.specified);
- 	FAIL_ON(mode.xres != 720);
- 	FAIL_ON(mode.yres != 480);
--	FAIL_ON(mode.rotation_reflection != DRM_MODE_REFLECT_Y);
-+	FAIL_ON(mode.rotation_reflection != (DRM_MODE_ROTATE_0 | DRM_MODE_REFLECT_Y));
- 
- 	FAIL_ON(mode.refresh_specified);
- 
+ install: all
 -- 
 2.20.1
 
