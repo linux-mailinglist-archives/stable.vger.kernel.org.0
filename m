@@ -2,37 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 505FB17FA05
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:02:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CB5B317FC8E
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:22:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730357AbgCJNCJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 09:02:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44128 "EHLO mail.kernel.org"
+        id S1727984AbgCJNCQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 09:02:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44546 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728164AbgCJNCJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 09:02:09 -0400
+        id S1730372AbgCJNCP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 09:02:15 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EF80824649;
-        Tue, 10 Mar 2020 13:02:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 03B1320409;
+        Tue, 10 Mar 2020 13:02:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583845328;
-        bh=i2Tx8WkeRwQGYG6tH6M0qmIaYvU0N/cvVTJvJ9JVPgM=;
+        s=default; t=1583845334;
+        bh=AVzm+BISmI/wJXjIKEQkgYUROhyHeNW4UtDhWxsdGk0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g4kY2txUxdqCqOS97EtvbbXdIUzuybSk/mP2kdsfGl1Y5vJoaB64+dhavFTGz0gAl
-         Q6+RSW8bI+T/U6DtktFR0mpkttmrygrEyLCjR/CFe/Jfky3XcxR1BRlTlFy3PyC7BT
-         92UwlCya4N5/PNvxSRqlvUZxYE2W0FRVEDAr9NXI=
+        b=PFep8quAmuiL7YNiBfZDgAZFeQQsLkQS+IDx2w/pGFwFgaKnLY5zOlMDUUsW0QiPb
+         47UfeFuBEARVaJgF+vHrqYj3YRlZvdas1MHR+cA8fbxFhfcchm5fG8rQNlYboVAzNG
+         PJkKid2S0B3OajdGEfI4dMtiXSS+4f6RftACWqdE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Ahzo <Ahzo@tutanota.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.5 143/189] drm/ttm: fix leaking fences via ttm_buffer_object_transfer
-Date:   Tue, 10 Mar 2020 13:39:40 +0100
-Message-Id: <20200310123654.294757668@linuxfoundation.org>
+        stable@vger.kernel.org, Xinliang Liu <xinliang.liu@linaro.org>,
+        Rongrong Zou <zourongrong@gmail.com>,
+        Xinwei Kong <kong.kongxinwei@hisilicon.com>,
+        Chen Feng <puck.chen@hisilicon.com>,
+        Sam Ravnborg <sam@ravnborg.org>,
+        David Airlie <airlied@linux.ie>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        dri-devel <dri-devel@lists.freedesktop.org>,
+        John Stultz <john.stultz@linaro.org>
+Subject: [PATCH 5.5 144/189] drm: kirin: Revert "Fix for hikey620 display offset problem"
+Date:   Tue, 10 Mar 2020 13:39:41 +0100
+Message-Id: <20200310123654.404244877@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200310123639.608886314@linuxfoundation.org>
 References: <20200310123639.608886314@linuxfoundation.org>
@@ -45,42 +50,112 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ahzo <Ahzo@tutanota.com>
+From: John Stultz <john.stultz@linaro.org>
 
-commit 8c8c06207bcfc5a7e5918fc0a0f7f7b9a2e196d6 upstream.
+commit 1b79cfd99ff5127e6a143767b51694a527b3ea38 upstream.
 
-Set the drm_device to NULL, so that the newly created buffer object
-doesn't appear to use the embedded gem object.
+This reverts commit ff57c6513820efe945b61863cf4a51b79f18b592.
 
-This is necessary, because otherwise no corresponding dma_resv_fini for
-the dma_resv_init is called, resulting in a memory leak.
+With the commit ff57c6513820 ("drm: kirin: Fix for hikey620
+display offset problem") we added support for handling LDI
+overflows by resetting the hardware.
 
-The dma_resv_fini in ttm_bo_release_list is only called if the embedded
-gem object is not used, which is determined by checking if the
-drm_device is NULL.
+However, its been observed that when we do hit the LDI overflow
+condition, the irq seems to be screaming, and we do nothing but
+stream:
+  [drm:ade_irq_handler [kirin_drm]] *ERROR* LDI underflow!
+over and over to the screen
 
-Bug: https://gitlab.freedesktop.org/drm/amd/issues/958
-Fixes: 1e053b10ba60 ("drm/ttm: use gem reservation object")
-Reviewed-by: Christian König <christian.koenig@amd.com>
-Signed-off-by: Ahzo <Ahzo@tutanota.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Christian König <christian.koenig@amd.com>
-Link: https://patchwork.freedesktop.org/patch/355089/
+I've tried a few appraoches to avoid this, but none has yet
+been successful and the cure here is worse then the original
+disease, so revert this for now.
+
+Cc: Xinliang Liu <xinliang.liu@linaro.org>
+Cc: Rongrong Zou <zourongrong@gmail.com>
+Cc: Xinwei Kong <kong.kongxinwei@hisilicon.com>
+Cc: Chen Feng <puck.chen@hisilicon.com>
+Cc: Sam Ravnborg <sam@ravnborg.org>
+Cc: David Airlie <airlied@linux.ie>
+Cc: Daniel Vetter <daniel@ffwll.ch>
+Cc: dri-devel <dri-devel@lists.freedesktop.org>
+Fixes: ff57c6513820 ("drm: kirin: Fix for hikey620 display offset problem")
+Signed-off-by: John Stultz <john.stultz@linaro.org>
+Acked-by: Xinliang Liu <xinliang.liu@linaro.org>
+Signed-off-by: Xinliang Liu <xinliang.liu@linaro.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200303163228.52741-1-john.stultz@linaro.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/ttm/ttm_bo_util.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpu/drm/hisilicon/kirin/kirin_ade_reg.h |    1 -
+ drivers/gpu/drm/hisilicon/kirin/kirin_drm_ade.c |   20 --------------------
+ 2 files changed, 21 deletions(-)
 
---- a/drivers/gpu/drm/ttm/ttm_bo_util.c
-+++ b/drivers/gpu/drm/ttm/ttm_bo_util.c
-@@ -516,6 +516,7 @@ static int ttm_buffer_object_transfer(st
- 		fbo->base.base.resv = &fbo->base.base._resv;
+--- a/drivers/gpu/drm/hisilicon/kirin/kirin_ade_reg.h
++++ b/drivers/gpu/drm/hisilicon/kirin/kirin_ade_reg.h
+@@ -83,7 +83,6 @@
+ #define VSIZE_OFST			20
+ #define LDI_INT_EN			0x741C
+ #define FRAME_END_INT_EN_OFST		1
+-#define UNDERFLOW_INT_EN_OFST		2
+ #define LDI_CTRL			0x7420
+ #define BPP_OFST			3
+ #define DATA_GATE_EN			BIT(2)
+--- a/drivers/gpu/drm/hisilicon/kirin/kirin_drm_ade.c
++++ b/drivers/gpu/drm/hisilicon/kirin/kirin_drm_ade.c
+@@ -46,7 +46,6 @@ struct ade_hw_ctx {
+ 	struct clk *media_noc_clk;
+ 	struct clk *ade_pix_clk;
+ 	struct reset_control *reset;
+-	struct work_struct display_reset_wq;
+ 	bool power_on;
+ 	int irq;
  
- 	dma_resv_init(&fbo->base.base._resv);
-+	fbo->base.base.dev = NULL;
- 	ret = dma_resv_trylock(&fbo->base.base._resv);
- 	WARN_ON(!ret);
+@@ -136,7 +135,6 @@ static void ade_init(struct ade_hw_ctx *
+ 	 */
+ 	ade_update_bits(base + ADE_CTRL, FRM_END_START_OFST,
+ 			FRM_END_START_MASK, REG_EFFECTIVE_IN_ADEEN_FRMEND);
+-	ade_update_bits(base + LDI_INT_EN, UNDERFLOW_INT_EN_OFST, MASK(1), 1);
+ }
  
+ static bool ade_crtc_mode_fixup(struct drm_crtc *crtc,
+@@ -304,17 +302,6 @@ static void ade_crtc_disable_vblank(stru
+ 			MASK(1), 0);
+ }
+ 
+-static void drm_underflow_wq(struct work_struct *work)
+-{
+-	struct ade_hw_ctx *ctx = container_of(work, struct ade_hw_ctx,
+-					      display_reset_wq);
+-	struct drm_device *drm_dev = ctx->crtc->dev;
+-	struct drm_atomic_state *state;
+-
+-	state = drm_atomic_helper_suspend(drm_dev);
+-	drm_atomic_helper_resume(drm_dev, state);
+-}
+-
+ static irqreturn_t ade_irq_handler(int irq, void *data)
+ {
+ 	struct ade_hw_ctx *ctx = data;
+@@ -331,12 +318,6 @@ static irqreturn_t ade_irq_handler(int i
+ 				MASK(1), 1);
+ 		drm_crtc_handle_vblank(crtc);
+ 	}
+-	if (status & BIT(UNDERFLOW_INT_EN_OFST)) {
+-		ade_update_bits(base + LDI_INT_CLR, UNDERFLOW_INT_EN_OFST,
+-				MASK(1), 1);
+-		DRM_ERROR("LDI underflow!");
+-		schedule_work(&ctx->display_reset_wq);
+-	}
+ 
+ 	return IRQ_HANDLED;
+ }
+@@ -919,7 +900,6 @@ static void *ade_hw_ctx_alloc(struct pla
+ 	if (ret)
+ 		return ERR_PTR(-EIO);
+ 
+-	INIT_WORK(&ctx->display_reset_wq, drm_underflow_wq);
+ 	ctx->crtc = crtc;
+ 
+ 	return ctx;
 
 
