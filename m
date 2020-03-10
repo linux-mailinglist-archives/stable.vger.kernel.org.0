@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B136017F8AE
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 13:50:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 44CF217F99D
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 13:58:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728334AbgCJMuO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 08:50:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54792 "EHLO mail.kernel.org"
+        id S1728037AbgCJM6d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 08:58:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38474 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728563AbgCJMuN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 08:50:13 -0400
+        id S1729915AbgCJM63 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 08:58:29 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 736AF20674;
-        Tue, 10 Mar 2020 12:50:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F237120674;
+        Tue, 10 Mar 2020 12:58:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583844612;
-        bh=1Y8fBheo+gb39pMv7lTELFyrrzvQXoZGwB0CRyzuFc4=;
+        s=default; t=1583845109;
+        bh=SvLp9QeIlteRIJuHx2peXZJf994646fGWpEk41TPcgY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FzqMHnnp+fjeX1B3a+zSiOsJL4cpLbUr/7SeymM6ZSdDsjhh875nJGxgqyP+pQT70
-         F+BijfB544YiBTwdoIkSvo2AeI9Riu2xkehZiSxpGrHyf5QZMGIAbg0fyZBIuKgnrw
-         +7+Ihb7jEkrwI1tIpBTNn+M3YsqFgI+dO9R8yP+o=
+        b=a6XIcfkAhJRyJxap/2Jzhg5gQC7V5r0zW4tFBXa9PZyIiHQr8CoKokVjQf462tiWp
+         /AxX9X49iX+oy1DFagiBr/FLQpABsHYpnf3jMFGBEJHBwgWg8k4sgH/k4FK7ycbhjP
+         U9GnOD65OHUTtyUoRSwsTeCBWI4ZVIDrEnmr9YPg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guo Ren <guoren@linux.alibaba.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 054/168] csky: Fixup compile warning for three unimplemented syscalls
-Date:   Tue, 10 Mar 2020 13:38:20 +0100
-Message-Id: <20200310123640.814044663@linuxfoundation.org>
+        stable@vger.kernel.org, Christian Lachner <gladiac@gmail.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.5 064/189] ALSA: hda/realtek - Fix silent output on Gigabyte X570 Aorus Master
+Date:   Tue, 10 Mar 2020 13:38:21 +0100
+Message-Id: <20200310123646.059714635@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200310123635.322799692@linuxfoundation.org>
-References: <20200310123635.322799692@linuxfoundation.org>
+In-Reply-To: <20200310123639.608886314@linuxfoundation.org>
+References: <20200310123639.608886314@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,36 +43,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guo Ren <guoren@linux.alibaba.com>
+From: Christian Lachner <gladiac@gmail.com>
 
-[ Upstream commit 2305f60b76110cb3e8658a4ae85d1f7eb0c66a5b ]
+commit 0d45e86d2267d5bdf7bbb631499788da1c27ceb2 upstream.
 
-Implement fstat64, fstatat64, clone3 syscalls to fixup
-checksyscalls.sh compile warnings.
+The Gigabyte X570 Aorus Master motherboard with ALC1220 codec
+requires a similar workaround for Clevo laptops to enforce the
+DAC/mixer connection path. Set up a quirk entry for that.
 
-Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=205275
+Signed-off-by: Christian Lachner <gladiac@gmail.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200223092416.15016-2-gladiac@gmail.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- arch/csky/include/uapi/asm/unistd.h | 3 +++
- 1 file changed, 3 insertions(+)
+ sound/pci/hda/patch_realtek.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/csky/include/uapi/asm/unistd.h b/arch/csky/include/uapi/asm/unistd.h
-index 211c983c7282d..ba40189297338 100644
---- a/arch/csky/include/uapi/asm/unistd.h
-+++ b/arch/csky/include/uapi/asm/unistd.h
-@@ -1,7 +1,10 @@
- /* SPDX-License-Identifier: GPL-2.0 WITH Linux-syscall-note */
- // Copyright (C) 2018 Hangzhou C-SKY Microsystems co.,ltd.
- 
-+#define __ARCH_WANT_STAT64
-+#define __ARCH_WANT_NEW_STAT
- #define __ARCH_WANT_SYS_CLONE
-+#define __ARCH_WANT_SYS_CLONE3
- #define __ARCH_WANT_SET_GET_RLIMIT
- #define __ARCH_WANT_TIME32_SYSCALLS
- #include <asm-generic/unistd.h>
--- 
-2.20.1
-
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -2447,6 +2447,7 @@ static const struct snd_pci_quirk alc882
+ 	SND_PCI_QUIRK(0x1071, 0x8258, "Evesham Voyaeger", ALC882_FIXUP_EAPD),
+ 	SND_PCI_QUIRK(0x1458, 0xa002, "Gigabyte EP45-DS3/Z87X-UD3H", ALC889_FIXUP_FRONT_HP_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x1458, 0xa0b8, "Gigabyte AZ370-Gaming", ALC1220_FIXUP_GB_DUAL_CODECS),
++	SND_PCI_QUIRK(0x1458, 0xa0cd, "Gigabyte X570 Aorus Master", ALC1220_FIXUP_CLEVO_P950),
+ 	SND_PCI_QUIRK(0x1462, 0x1228, "MSI-GP63", ALC1220_FIXUP_CLEVO_P950),
+ 	SND_PCI_QUIRK(0x1462, 0x1276, "MSI-GL73", ALC1220_FIXUP_CLEVO_P950),
+ 	SND_PCI_QUIRK(0x1462, 0x1293, "MSI-GP65", ALC1220_FIXUP_CLEVO_P950),
 
 
