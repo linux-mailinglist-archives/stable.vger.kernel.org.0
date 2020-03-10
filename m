@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DCA2A17FBBD
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:16:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DBA4317FBBF
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:16:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731582AbgCJNMg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 09:12:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34904 "EHLO mail.kernel.org"
+        id S1731592AbgCJNMi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 09:12:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34960 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730768AbgCJNMf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 09:12:35 -0400
+        id S1731587AbgCJNMi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 09:12:38 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DCF4124691;
-        Tue, 10 Mar 2020 13:12:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 614F320409;
+        Tue, 10 Mar 2020 13:12:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583845955;
-        bh=WLTWQkKSnLnhF6Yiww78OxYvtR69QxHf5Yt/kkUHpaw=;
+        s=default; t=1583845957;
+        bh=WN/vcMhR2MwEel8vwqkEIUHgK4v5sJpIPWk8UdLLXT8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J63h+RXhEsfeSwWPx861EQd0l6Ir4LJiEF52Cx/miLpnEXS4jkNpD087iOFWgwJiG
-         ZqHSwaK8lRXCzWsR6Wf6f9ZriECOZqM5hEorUZugd62h13ahqcsjieyBmLmSjXD4nq
-         F3bxI9TV6GJ+hgDuLp1D33Uhh7rPGuI1+a26RHFk=
+        b=F2gQKsLg6cnGSxhRCAHJLQFBk/nh3i3KCkth4xyh49sxczD8l1OYtG2iPC9HeZ4Hs
+         Q071MQF2bOGNYgnQrS5H6U908SSS13d9V3SyJ3DtwapHE8OJde0IeuCz8xCes/+xHy
+         td4AmU0pqiziRgMXJ5zjgC5kb9R0/i/egrJrQlCk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jim Lin <jilin@nvidia.com>,
-        Alan Stern <stern@rowland.harvard.edu>
-Subject: [PATCH 4.19 35/86] usb: storage: Add quirk for Samsung Fit flash
-Date:   Tue, 10 Mar 2020 13:44:59 +0100
-Message-Id: <20200310124532.673612074@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Lazewatsky <dlaz@chromium.org>,
+        Gustavo Padovan <gustavo.padovan@collabora.com>
+Subject: [PATCH 4.19 36/86] usb: quirks: add NO_LPM quirk for Logitech Screen Share
+Date:   Tue, 10 Mar 2020 13:45:00 +0100
+Message-Id: <20200310124532.725707831@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200310124530.808338541@linuxfoundation.org>
 References: <20200310124530.808338541@linuxfoundation.org>
@@ -43,45 +43,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jim Lin <jilin@nvidia.com>
+From: Dan Lazewatsky <dlaz@chromium.org>
 
-commit 86d92f5465958752481269348d474414dccb1552 upstream.
+commit b96ed52d781a2026d0c0daa5787c6f3d45415862 upstream.
 
-Current driver has 240 (USB2.0) and 2048 (USB3.0) as max_sectors,
-e.g., /sys/bus/scsi/devices/0:0:0:0/max_sectors
+LPM on the device appears to cause xHCI host controllers to claim
+that there isn't enough bandwidth to support additional devices.
 
-If data access times out, driver error handling will issue a port
-reset.
-Sometimes Samsung Fit (090C:1000) flash disk will not respond to
-later Set Address or Get Descriptor command.
-
-Adding this quirk to limit max_sectors to 64 sectors to avoid issue
-occurring.
-
-Signed-off-by: Jim Lin <jilin@nvidia.com>
-Acked-by: Alan Stern <stern@rowland.harvard.edu>
+Signed-off-by: Dan Lazewatsky <dlaz@chromium.org>
 Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/1583158895-31342-1-git-send-email-jilin@nvidia.com
+Signed-off-by: Gustavo Padovan <gustavo.padovan@collabora.com>
+Link: https://lore.kernel.org/r/20200226143438.1445-1-gustavo.padovan@collabora.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/storage/unusual_devs.h |    6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/usb/core/quirks.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/usb/storage/unusual_devs.h
-+++ b/drivers/usb/storage/unusual_devs.h
-@@ -1258,6 +1258,12 @@ UNUSUAL_DEV( 0x090a, 0x1200, 0x0000, 0x9
- 		USB_SC_RBC, USB_PR_BULK, NULL,
- 		0 ),
+--- a/drivers/usb/core/quirks.c
++++ b/drivers/usb/core/quirks.c
+@@ -231,6 +231,9 @@ static const struct usb_device_id usb_qu
+ 	/* Logitech PTZ Pro Camera */
+ 	{ USB_DEVICE(0x046d, 0x0853), .driver_info = USB_QUIRK_DELAY_INIT },
  
-+UNUSUAL_DEV(0x090c, 0x1000, 0x1100, 0x1100,
-+		"Samsung",
-+		"Flash Drive FIT",
-+		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
-+		US_FL_MAX_SECTORS_64),
++	/* Logitech Screen Share */
++	{ USB_DEVICE(0x046d, 0x086c), .driver_info = USB_QUIRK_NO_LPM },
 +
- /* aeb */
- UNUSUAL_DEV( 0x090c, 0x1132, 0x0000, 0xffff,
- 		"Feiya",
+ 	/* Logitech Quickcam Fusion */
+ 	{ USB_DEVICE(0x046d, 0x08c1), .driver_info = USB_QUIRK_RESET_RESUME },
+ 
 
 
