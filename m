@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F0EC717FDD9
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:31:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E500317FE40
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:34:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728873AbgCJMvS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 08:51:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56340 "EHLO mail.kernel.org"
+        id S1727560AbgCJNeG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 09:34:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50678 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728337AbgCJMvR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 08:51:17 -0400
+        id S1726438AbgCJMrD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 08:47:03 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 36B0820674;
-        Tue, 10 Mar 2020 12:51:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B97772468D;
+        Tue, 10 Mar 2020 12:47:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583844676;
-        bh=ynRe312WszRx85XR+tsK9DlAu8ik3gqbPyT1ZCXbYgY=;
+        s=default; t=1583844423;
+        bh=aAh8HTcpkWTgZrwIhaEle/qErc1CXYXt6Pbh6xGrSBI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lQrointjOMSsN94UnlHp0RzFglPXtj0CjVFndflOtWPTVdfsCWQ23d0tkiTVFSY4X
-         Db+NJhyFtfGb8z2Ko4DppSFxAeR3OX9pG3wehWD30oFdLIVj3hkDa/hqIos1viJ7p5
-         NGAcAZEfFkNe7nmn2vrVyhayrgtZKIB9NJrbPMdo=
+        b=tLSZFmkxel7mNUgVEvvwXwKTViYmW/eCSaib2VtUBLMynFsoQ3xuqCzYHmnVgxxNE
+         cDI4j3sUkkUy+iAVilLn/bq7bx0v0rnKW2KXPJYE3AOJU2qc9CBpvywDx3pB5HZhYJ
+         EaW48akSYp+un4Jq6g2uxfnrIjh3PnKPCKsU7TS0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
-        Omar Sandoval <osandov@fb.com>, David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.4 079/168] btrfs: fix RAID direct I/O reads with alternate csums
-Date:   Tue, 10 Mar 2020 13:38:45 +0100
-Message-Id: <20200310123643.301496512@linuxfoundation.org>
+        stable@vger.kernel.org, Li RongQing <lirongqing@baidu.com>,
+        Kurt Kanzenbach <kurt@linutronix.de>,
+        Vikram Pandita <vikram.pandita@ti.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: [PATCH 4.9 38/88] serial: 8250: Check UPF_IRQ_SHARED in advance
+Date:   Tue, 10 Mar 2020 13:38:46 +0100
+Message-Id: <20200310123615.221930865@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200310123635.322799692@linuxfoundation.org>
-References: <20200310123635.322799692@linuxfoundation.org>
+In-Reply-To: <20200310123606.543939933@linuxfoundation.org>
+References: <20200310123606.543939933@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,58 +45,108 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Omar Sandoval <osandov@fb.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-commit e7a04894c766daa4248cb736efee93550f2d5872 upstream.
+commit 7febbcbc48fc92e3f33863b32ed715ba4aff18c4 upstream.
 
-btrfs_lookup_and_bind_dio_csum() does pointer arithmetic which assumes
-32-bit checksums. If using a larger checksum, this leads to spurious
-failures when a direct I/O read crosses a stripe. This is easy
-to reproduce:
+The commit 54e53b2e8081
+  ("tty: serial: 8250: pass IRQ shared flag to UART ports")
+nicely explained the problem:
 
-  # mkfs.btrfs -f --checksum blake2 -d raid0 /dev/vdc /dev/vdd
-  ...
-  # mount /dev/vdc /mnt
-  # cd /mnt
-  # dd if=/dev/urandom of=foo bs=1M count=1 status=none
-  # dd if=foo of=/dev/null bs=1M iflag=direct status=none
-  dd: error reading 'foo': Input/output error
-  # dmesg | tail -1
-  [  135.821568] BTRFS warning (device vdc): csum failed root 5 ino 257 off 421888 ...
+---8<---8<---
 
-Fix it by using the actual checksum size.
+On some systems IRQ lines between multiple UARTs might be shared. If so, the
+irqflags have to be configured accordingly. The reason is: The 8250 port startup
+code performs IRQ tests *before* the IRQ handler for that particular port is
+registered. This is performed in serial8250_do_startup(). This function checks
+whether IRQF_SHARED is configured and only then disables the IRQ line while
+testing.
 
-Fixes: 1e25a2e3ca0d ("btrfs: don't assume ordered sums to be 4 bytes")
-CC: stable@vger.kernel.org # 5.4+
-Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
-Signed-off-by: Omar Sandoval <osandov@fb.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+This test is performed upon each open() of the UART device. Imagine two UARTs
+share the same IRQ line: On is already opened and the IRQ is active. When the
+second UART is opened, the IRQ line has to be disabled while performing IRQ
+tests. Otherwise an IRQ might handler might be invoked, but the IRQ itself
+cannot be handled, because the corresponding handler isn't registered,
+yet. That's because the 8250 code uses a chain-handler and invokes the
+corresponding port's IRQ handling routines himself.
+
+Unfortunately this IRQF_SHARED flag isn't configured for UARTs probed via device
+tree even if the IRQs are shared. This way, the actual and shared IRQ line isn't
+disabled while performing tests and the kernel correctly detects a spurious
+IRQ. So, adding this flag to the DT probe solves the issue.
+
+Note: The UPF_SHARE_IRQ flag is configured unconditionally. Therefore, the
+IRQF_SHARED flag can be set unconditionally as well.
+
+Example stack trace by performing `echo 1 > /dev/ttyS2` on a non-patched system:
+
+|irq 85: nobody cared (try booting with the "irqpoll" option)
+| [...]
+|handlers:
+|[<ffff0000080fc628>] irq_default_primary_handler threaded [<ffff00000855fbb8>] serial8250_interrupt
+|Disabling IRQ #85
+
+---8<---8<---
+
+But unfortunately didn't fix the root cause. Let's try again here by moving
+IRQ flag assignment from serial_link_irq_chain() to serial8250_do_startup().
+
+This should fix the similar issue reported for 8250_pnp case.
+
+Since this change we don't need to have custom solutions in 8250_aspeed_vuart
+and 8250_of drivers, thus, drop them.
+
+Fixes: 1c2f04937b3e ("serial: 8250: add IRQ trigger support")
+Reported-by: Li RongQing <lirongqing@baidu.com>
+Cc: Kurt Kanzenbach <kurt@linutronix.de>
+Cc: Vikram Pandita <vikram.pandita@ti.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: stable <stable@vger.kernel.org>
+Acked-by: Kurt Kanzenbach <kurt@linutronix.de>
+Link: https://lore.kernel.org/r/20200211135559.85960-1-andriy.shevchenko@linux.intel.com
+[Kurt: Backport to v4.9]
+Signed-off-by: Kurt Kanzenbach <kurt@linutronix.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/btrfs/inode.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/tty/serial/8250/8250_core.c |    5 ++---
+ drivers/tty/serial/8250/8250_port.c |    4 ++++
+ 2 files changed, 6 insertions(+), 3 deletions(-)
 
---- a/fs/btrfs/inode.c
-+++ b/fs/btrfs/inode.c
-@@ -8426,6 +8426,7 @@ static inline blk_status_t btrfs_lookup_
- {
- 	struct btrfs_io_bio *io_bio = btrfs_io_bio(bio);
- 	struct btrfs_io_bio *orig_io_bio = btrfs_io_bio(dip->orig_bio);
-+	u16 csum_size;
- 	blk_status_t ret;
+--- a/drivers/tty/serial/8250/8250_core.c
++++ b/drivers/tty/serial/8250/8250_core.c
+@@ -181,7 +181,7 @@ static int serial_link_irq_chain(struct
+ 	struct hlist_head *h;
+ 	struct hlist_node *n;
+ 	struct irq_info *i;
+-	int ret, irq_flags = up->port.flags & UPF_SHARE_IRQ ? IRQF_SHARED : 0;
++	int ret;
  
- 	/*
-@@ -8445,7 +8446,8 @@ static inline blk_status_t btrfs_lookup_
+ 	mutex_lock(&hash_mutex);
  
- 	file_offset -= dip->logical_offset;
- 	file_offset >>= inode->i_sb->s_blocksize_bits;
--	io_bio->csum = (u8 *)(((u32 *)orig_io_bio->csum) + file_offset);
-+	csum_size = btrfs_super_csum_size(btrfs_sb(inode->i_sb)->super_copy);
-+	io_bio->csum = orig_io_bio->csum + csum_size * file_offset;
+@@ -216,9 +216,8 @@ static int serial_link_irq_chain(struct
+ 		INIT_LIST_HEAD(&up->list);
+ 		i->head = &up->list;
+ 		spin_unlock_irq(&i->lock);
+-		irq_flags |= up->port.irqflags;
+ 		ret = request_irq(up->port.irq, serial8250_interrupt,
+-				  irq_flags, "serial", i);
++				  up->port.irqflags, "serial", i);
+ 		if (ret < 0)
+ 			serial_do_unlink(i, up);
+ 	}
+--- a/drivers/tty/serial/8250/8250_port.c
++++ b/drivers/tty/serial/8250/8250_port.c
+@@ -2199,6 +2199,10 @@ int serial8250_do_startup(struct uart_po
+ 		}
+ 	}
  
- 	return 0;
- }
++	/* Check if we need to have shared IRQs */
++	if (port->irq && (up->port.flags & UPF_SHARE_IRQ))
++		up->port.irqflags |= IRQF_SHARED;
++
+ 	if (port->irq) {
+ 		unsigned char iir1;
+ 		/*
 
 
