@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 912CC17FDEF
-	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:31:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 961E417FDED
+	for <lists+stable@lfdr.de>; Tue, 10 Mar 2020 14:31:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726480AbgCJMtz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 08:49:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54414 "EHLO mail.kernel.org"
+        id S1728531AbgCJMt7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Mar 2020 08:49:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54464 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728496AbgCJMty (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 08:49:54 -0400
+        id S1728514AbgCJMt6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Mar 2020 08:49:58 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0281920674;
-        Tue, 10 Mar 2020 12:49:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8797824692;
+        Tue, 10 Mar 2020 12:49:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583844593;
-        bh=QylDUZK3QTKd3//3nJslpmnCls/OiFTo4MnS8zfcwbA=;
+        s=default; t=1583844596;
+        bh=cDrG6eBvBexdJXtqq7vBX8LWzWqJNBH8R4xqScia/FM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yB0pwZLQKISx5j/PVM1rO6la5QxzvPYpU0+r9800FrYBHd3+mZlVM0lh2fDFv5tZU
-         MnZDHcuF39Jhv1WOb+ZplgR+i1zmt4akOyhxkdi20G0M6FSYMHOmpPRf5pRTNlxupf
-         EJB82IGjU/4SNVd8dMAh+qdp9aKPfeAHcRR2oQYU=
+        b=qYBj2H1PM9f6700YCx9zruD7yWtbYpKXXT6OerBQY0Lz0mJU/+HB0dX274Uf3rS/l
+         uoqwVgGVswePYpWiWb/6zviihN+ToEUO3oPlnFWUKptgcsicqPGABalKhCSDQ5TMjN
+         UY68dt/tabjyFFz5eT4AWohxRLIphOnyc6p0EcR4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
-        Juergen Gross <jgross@suse.com>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+        stable@vger.kernel.org, Tim Harvey <tharvey@gateworks.com>,
+        Robert Jones <rjones@gateworks.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 048/168] x86/xen: Distribute switch variables for initialization
-Date:   Tue, 10 Mar 2020 13:38:14 +0100
-Message-Id: <20200310123640.232503212@linuxfoundation.org>
+Subject: [PATCH 5.4 049/168] net: thunderx: workaround BGX TX Underflow issue
+Date:   Tue, 10 Mar 2020 13:38:15 +0100
+Message-Id: <20200310123640.340182742@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200310123635.322799692@linuxfoundation.org>
 References: <20200310123635.322799692@linuxfoundation.org>
@@ -45,64 +45,153 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Tim Harvey <tharvey@gateworks.com>
 
-[ Upstream commit 9038ec99ceb94fb8d93ade5e236b2928f0792c7c ]
+[ Upstream commit 971617c3b761c876d686a2188220a33898c90e99 ]
 
-Variables declared in a switch statement before any case statements
-cannot be automatically initialized with compiler instrumentation (as
-they are not part of any execution flow). With GCC's proposed automatic
-stack variable initialization feature, this triggers a warning (and they
-don't get initialized). Clang's automatic stack variable initialization
-(via CONFIG_INIT_STACK_ALL=y) doesn't throw a warning, but it also
-doesn't initialize such variables[1]. Note that these warnings (or silent
-skipping) happen before the dead-store elimination optimization phase,
-so even when the automatic initializations are later elided in favor of
-direct initializations, the warnings remain.
+While it is not yet understood why a TX underflow can easily occur
+for SGMII interfaces resulting in a TX wedge. It has been found that
+disabling/re-enabling the LMAC resolves the issue.
 
-To avoid these problems, move such variables into the "case" where
-they're used or lift them up into the main function body.
-
-arch/x86/xen/enlighten_pv.c: In function ‘xen_write_msr_safe’:
-arch/x86/xen/enlighten_pv.c:904:12: warning: statement will never be executed [-Wswitch-unreachable]
-  904 |   unsigned which;
-      |            ^~~~~
-
-[1] https://bugs.llvm.org/show_bug.cgi?id=44916
-
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Link: https://lore.kernel.org/r/20200220062318.69299-1-keescook@chromium.org
-Reviewed-by: Juergen Gross <jgross@suse.com>
-[boris: made @which an 'unsigned int']
-Signed-off-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Signed-off-by: Tim Harvey <tharvey@gateworks.com>
+Reviewed-by: Robert Jones <rjones@gateworks.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/xen/enlighten_pv.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ .../net/ethernet/cavium/thunder/thunder_bgx.c | 62 ++++++++++++++++++-
+ .../net/ethernet/cavium/thunder/thunder_bgx.h |  9 +++
+ 2 files changed, 68 insertions(+), 3 deletions(-)
 
-diff --git a/arch/x86/xen/enlighten_pv.c b/arch/x86/xen/enlighten_pv.c
-index 6ea215cdeadac..6d4d8a5700b71 100644
---- a/arch/x86/xen/enlighten_pv.c
-+++ b/arch/x86/xen/enlighten_pv.c
-@@ -905,14 +905,15 @@ static u64 xen_read_msr_safe(unsigned int msr, int *err)
- static int xen_write_msr_safe(unsigned int msr, unsigned low, unsigned high)
+diff --git a/drivers/net/ethernet/cavium/thunder/thunder_bgx.c b/drivers/net/ethernet/cavium/thunder/thunder_bgx.c
+index 6cc100e7d5c07..76ff42ec3ae5e 100644
+--- a/drivers/net/ethernet/cavium/thunder/thunder_bgx.c
++++ b/drivers/net/ethernet/cavium/thunder/thunder_bgx.c
+@@ -410,10 +410,19 @@ void bgx_lmac_rx_tx_enable(int node, int bgx_idx, int lmacid, bool enable)
+ 	lmac = &bgx->lmac[lmacid];
+ 
+ 	cfg = bgx_reg_read(bgx, lmacid, BGX_CMRX_CFG);
+-	if (enable)
++	if (enable) {
+ 		cfg |= CMR_PKT_RX_EN | CMR_PKT_TX_EN;
+-	else
++
++		/* enable TX FIFO Underflow interrupt */
++		bgx_reg_modify(bgx, lmacid, BGX_GMP_GMI_TXX_INT_ENA_W1S,
++			       GMI_TXX_INT_UNDFLW);
++	} else {
+ 		cfg &= ~(CMR_PKT_RX_EN | CMR_PKT_TX_EN);
++
++		/* Disable TX FIFO Underflow interrupt */
++		bgx_reg_modify(bgx, lmacid, BGX_GMP_GMI_TXX_INT_ENA_W1C,
++			       GMI_TXX_INT_UNDFLW);
++	}
+ 	bgx_reg_write(bgx, lmacid, BGX_CMRX_CFG, cfg);
+ 
+ 	if (bgx->is_rgx)
+@@ -1535,6 +1544,48 @@ static int bgx_init_phy(struct bgx *bgx)
+ 	return bgx_init_of_phy(bgx);
+ }
+ 
++static irqreturn_t bgx_intr_handler(int irq, void *data)
++{
++	struct bgx *bgx = (struct bgx *)data;
++	u64 status, val;
++	int lmac;
++
++	for (lmac = 0; lmac < bgx->lmac_count; lmac++) {
++		status = bgx_reg_read(bgx, lmac, BGX_GMP_GMI_TXX_INT);
++		if (status & GMI_TXX_INT_UNDFLW) {
++			pci_err(bgx->pdev, "BGX%d lmac%d UNDFLW\n",
++				bgx->bgx_id, lmac);
++			val = bgx_reg_read(bgx, lmac, BGX_CMRX_CFG);
++			val &= ~CMR_EN;
++			bgx_reg_write(bgx, lmac, BGX_CMRX_CFG, val);
++			val |= CMR_EN;
++			bgx_reg_write(bgx, lmac, BGX_CMRX_CFG, val);
++		}
++		/* clear interrupts */
++		bgx_reg_write(bgx, lmac, BGX_GMP_GMI_TXX_INT, status);
++	}
++
++	return IRQ_HANDLED;
++}
++
++static void bgx_register_intr(struct pci_dev *pdev)
++{
++	struct bgx *bgx = pci_get_drvdata(pdev);
++	int ret;
++
++	ret = pci_alloc_irq_vectors(pdev, BGX_LMAC_VEC_OFFSET,
++				    BGX_LMAC_VEC_OFFSET, PCI_IRQ_ALL_TYPES);
++	if (ret < 0) {
++		pci_err(pdev, "Req for #%d msix vectors failed\n",
++			BGX_LMAC_VEC_OFFSET);
++		return;
++	}
++	ret = pci_request_irq(pdev, GMPX_GMI_TX_INT, bgx_intr_handler, NULL,
++			      bgx, "BGX%d", bgx->bgx_id);
++	if (ret)
++		pci_free_irq(pdev, GMPX_GMI_TX_INT, bgx);
++}
++
+ static int bgx_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
  {
- 	int ret;
-+#ifdef CONFIG_X86_64
-+	unsigned int which;
-+	u64 base;
-+#endif
+ 	int err;
+@@ -1550,7 +1601,7 @@ static int bgx_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
  
- 	ret = 0;
+ 	pci_set_drvdata(pdev, bgx);
  
- 	switch (msr) {
- #ifdef CONFIG_X86_64
--		unsigned which;
--		u64 base;
--
- 	case MSR_FS_BASE:		which = SEGBASE_FS; goto set;
- 	case MSR_KERNEL_GS_BASE:	which = SEGBASE_GS_USER; goto set;
- 	case MSR_GS_BASE:		which = SEGBASE_GS_KERNEL; goto set;
+-	err = pci_enable_device(pdev);
++	err = pcim_enable_device(pdev);
+ 	if (err) {
+ 		dev_err(dev, "Failed to enable PCI device\n");
+ 		pci_set_drvdata(pdev, NULL);
+@@ -1604,6 +1655,8 @@ static int bgx_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
+ 
+ 	bgx_init_hw(bgx);
+ 
++	bgx_register_intr(pdev);
++
+ 	/* Enable all LMACs */
+ 	for (lmac = 0; lmac < bgx->lmac_count; lmac++) {
+ 		err = bgx_lmac_enable(bgx, lmac);
+@@ -1620,6 +1673,7 @@ static int bgx_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
+ 
+ err_enable:
+ 	bgx_vnic[bgx->bgx_id] = NULL;
++	pci_free_irq(pdev, GMPX_GMI_TX_INT, bgx);
+ err_release_regions:
+ 	pci_release_regions(pdev);
+ err_disable_device:
+@@ -1637,6 +1691,8 @@ static void bgx_remove(struct pci_dev *pdev)
+ 	for (lmac = 0; lmac < bgx->lmac_count; lmac++)
+ 		bgx_lmac_disable(bgx, lmac);
+ 
++	pci_free_irq(pdev, GMPX_GMI_TX_INT, bgx);
++
+ 	bgx_vnic[bgx->bgx_id] = NULL;
+ 	pci_release_regions(pdev);
+ 	pci_disable_device(pdev);
+diff --git a/drivers/net/ethernet/cavium/thunder/thunder_bgx.h b/drivers/net/ethernet/cavium/thunder/thunder_bgx.h
+index 25888706bdcd1..cdea493921857 100644
+--- a/drivers/net/ethernet/cavium/thunder/thunder_bgx.h
++++ b/drivers/net/ethernet/cavium/thunder/thunder_bgx.h
+@@ -180,6 +180,15 @@
+ #define BGX_GMP_GMI_TXX_BURST		0x38228
+ #define BGX_GMP_GMI_TXX_MIN_PKT		0x38240
+ #define BGX_GMP_GMI_TXX_SGMII_CTL	0x38300
++#define BGX_GMP_GMI_TXX_INT		0x38500
++#define BGX_GMP_GMI_TXX_INT_W1S		0x38508
++#define BGX_GMP_GMI_TXX_INT_ENA_W1C	0x38510
++#define BGX_GMP_GMI_TXX_INT_ENA_W1S	0x38518
++#define  GMI_TXX_INT_PTP_LOST			BIT_ULL(4)
++#define  GMI_TXX_INT_LATE_COL			BIT_ULL(3)
++#define  GMI_TXX_INT_XSDEF			BIT_ULL(2)
++#define  GMI_TXX_INT_XSCOL			BIT_ULL(1)
++#define  GMI_TXX_INT_UNDFLW			BIT_ULL(0)
+ 
+ #define BGX_MSIX_VEC_0_29_ADDR		0x400000 /* +(0..29) << 4 */
+ #define BGX_MSIX_VEC_0_29_CTL		0x400008
 -- 
 2.20.1
 
