@@ -2,114 +2,138 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EE29C1820A1
-	for <lists+stable@lfdr.de>; Wed, 11 Mar 2020 19:21:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C0AA31820B0
+	for <lists+stable@lfdr.de>; Wed, 11 Mar 2020 19:24:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730715AbgCKSVd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Mar 2020 14:21:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34566 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730677AbgCKSVd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Mar 2020 14:21:33 -0400
-Received: from sol.localdomain (c-107-3-166-239.hsd1.ca.comcast.net [107.3.166.239])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 756F52072F;
-        Wed, 11 Mar 2020 18:21:32 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583950892;
-        bh=EMTCcOIumdt7jEeudStF/nDyAUTZ9+64dBQJKN/EsCs=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=pNyDx7AIzb6Z8gnHZtLGHSTGfrLVHI7ISZtKRl/W/4N8aHSNsMMXhVQI9aIVRZY65
-         UcSfexfQDroVVkYxjUgMgIGK1V7Z3DbBBpIc3HAI53WDUznw14tsPtXfl0UPquNv7+
-         sXwWK+yCO5HduWIprk+5ucTWMRPSxpApl4VnAO/0=
-Date:   Wed, 11 Mar 2020 11:21:30 -0700
-From:   Eric Biggers <ebiggers@kernel.org>
-To:     Luis Chamberlain <mcgrof@kernel.org>
-Cc:     NeilBrown <neilb@suse.com>, Josh Triplett <josh@joshtriplett.org>,
-        linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-        stable@vger.kernel.org, Alexei Starovoitov <ast@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jeff Vander Stoep <jeffv@google.com>,
-        Jessica Yu <jeyu@kernel.org>, Kees Cook <keescook@chromium.org>
-Subject: Re: [PATCH] kmod: make request_module() return an error when
- autoloading is disabled
-Message-ID: <20200311182130.GA41227@sol.localdomain>
-References: <20200310223731.126894-1-ebiggers@kernel.org>
- <20200311043221.GK11244@42.do-not-panic.com>
- <20200311052620.GD46757@gmail.com>
- <20200311063130.GL11244@42.do-not-panic.com>
- <20200311173545.GA20006@gmail.com>
- <20200311180002.GN11244@42.do-not-panic.com>
+        id S1730691AbgCKSYs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Mar 2020 14:24:48 -0400
+Received: from mail-pf1-f196.google.com ([209.85.210.196]:42156 "EHLO
+        mail-pf1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730654AbgCKSYs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 11 Mar 2020 14:24:48 -0400
+Received: by mail-pf1-f196.google.com with SMTP id x2so1426252pfn.9
+        for <stable@vger.kernel.org>; Wed, 11 Mar 2020 11:24:48 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=flb8H5uPjfZcLb+oQ//3YVKBxbl3Q/IwAMSanlRzcQM=;
+        b=eYmnte9+YTR74zwIGBRFBaontN8BQWIA5vjCuDOKUxlht/QyNev9lKZ1Gv4vCsb8Uf
+         PIXaww95Paa2Wu3TBHx3PBD3Kw95OBqTfZvUnEWCdRLv+FyseSe+Mbnw5F/sTqfN7J14
+         tvyF1JqBlRJyzkk3t81dKEMMCiWKxW6OfaGoi2TwD/WwDipJz9bXr3brokaVtp635bjP
+         XAh8aU441EphXPPzI3zQJwOYJ/uGkzQ9aH7LpYnCUESiSsWCNdoxMwSh2Q949k7dlGNe
+         lZnyrXvEnabixdLqP7nPTg78ZCzgOHpR9846BrlZLxCGlFroqZ4FIGrbi1W59oMRYuI8
+         2iEA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=flb8H5uPjfZcLb+oQ//3YVKBxbl3Q/IwAMSanlRzcQM=;
+        b=G0a2A3XVS5Hodm+rc4hhgVdvxJwoxRAIjyNqUPc3RXw09nU7XRr5DNf6K5ZTs9VPqp
+         8T8zHARh9hZg+GeN9ZgGBwfEKRM4dZ/72ivgreCaw3bEKdh/RAjbr2a7exEy7q/7gDWE
+         gOJFCyj6FYC1gB5xYQtv6clKJawTolSmHIxuaPKp30NsLg7avOlb87FoqzvdNKhpUPIl
+         vpDUhvW6nxJLUoWEOQxrhDZlwkFxyawQmh1cUSFSdIbLFfC3UjVPQ979qSm3b/0hs8Y3
+         S/GYJ6hEEbPUEJN4nCakMmbTrAKNmM+JarXDccWNUD4HcRevnzlHlPFoqTxyz8yqCmMI
+         Z8gg==
+X-Gm-Message-State: ANhLgQ2KdYPSLEk7IpRilqnnlg54YwJ/iL3gn2vFBcC0Pu2N4XY3VY/7
+        SDHMKOjq2RDgUglEWR/kqEYS7/QcbH4=
+X-Google-Smtp-Source: ADFU+vuqENVxAYHAZ4hVqdEdgS+VfzNumzY2fNgWxSKD17DNGVP3zQgN4w9qR80JQGmCght5VbZLPw==
+X-Received: by 2002:a65:53c9:: with SMTP id z9mr3596664pgr.405.1583951087207;
+        Wed, 11 Mar 2020 11:24:47 -0700 (PDT)
+Received: from [10.0.9.4] ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id d6sm6294512pjz.39.2020.03.11.11.24.46
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 11 Mar 2020 11:24:46 -0700 (PDT)
+Message-ID: <5e692cee.1c69fb81.c0926.4c69@mx.google.com>
+Date:   Wed, 11 Mar 2020 11:24:46 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200311180002.GN11244@42.do-not-panic.com>
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: linux-4.14.y
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v4.14.172-127-gc23e0b0dc693
+X-Kernelci-Report-Type: boot
+Subject: stable-rc/linux-4.14.y boot: 94 boots: 2 failed,
+ 88 passed with 2 offline, 1 untried/unknown,
+ 1 conflict (v4.14.172-127-gc23e0b0dc693)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Mar 11, 2020 at 06:00:02PM +0000, Luis Chamberlain wrote:
-> On Wed, Mar 11, 2020 at 10:35:45AM -0700, Eric Biggers wrote:
-> > On Wed, Mar 11, 2020 at 06:31:30AM +0000, Luis Chamberlain wrote:
-> > > On Tue, Mar 10, 2020 at 10:26:20PM -0700, Eric Biggers wrote:
-> > > > On Wed, Mar 11, 2020 at 04:32:21AM +0000, Luis Chamberlain wrote:
-> > > > > On Tue, Mar 10, 2020 at 03:37:31PM -0700, Eric Biggers wrote:
-> > > > > > From: Eric Biggers <ebiggers@google.com>
-> > > > > > 
-> > > > > > It's long been possible to disable kernel module autoloading completely
-> > > > > > by setting /proc/sys/kernel/modprobe to the empty string.  This can be
-> > > > > > preferable
-> > > > > 
-> > > > > preferable but ... not documented. Or was this documented or recommended
-> > > > > somewhere?
-> > > > > 
-> > > > > > to setting it to a nonexistent file since it avoids the
-> > > > > > overhead of an attempted execve(), avoids potential deadlocks, and
-> > > > > > avoids the call to security_kernel_module_request() and thus on
-> > > > > > SELinux-based systems eliminates the need to write SELinux rules to
-> > > > > > dontaudit module_request.
-> > > > 
-> > > > Not that I know of, though I didn't look too hard.  proc(5) mentions
-> > > > /proc/sys/kernel/modprobe but doesn't mention the empty string case.
-> > > > 
-> > > > In any case, it's been supported for a long time, and it's useful for the
-> > > > reasons I mentioned.
-> > > 
-> > > Sure. I think then its important to document it as such then, or perhaps
-> > > make a kconfig option which sets this to empty and document it on the
-> > > kconfig entry.
-> > 
-> > I'll send a man-pages patch to document it in proc(5).
-> > 
-> > Most users, including the one I have in mind, should just be able to run
-> > 'echo > /proc/sys/kernel/modprobe' early in the boot process.  So I don't think
-> > the need for a kconfig option to control the default value has been clearly
-> > demonstrated yet.  You're certainly welcome to send a patch for it if you
-> > believe it would be useful, though.
-> 
-> When doing a rewrite of some of this code I did wonder who would use
-> this and clear it out. A kconfig entry would remove any doubt over its
-> use and would allow one to skip the userspace / early init requirement
-> to empty it out, therefore actually being safer because you are not
-> racing against modules being loaded.
-> 
-> Is avoiding the race more suitable for your needs than echo'ing early on boot?
-> 
+stable-rc/linux-4.14.y boot: 94 boots: 2 failed, 88 passed with 2 offline, =
+1 untried/unknown, 1 conflict (v4.14.172-127-gc23e0b0dc693)
 
-Maybe.  It would avoid the chance of races, but I haven't seen any yet.
-Also, our userspace has to support old kernels, so we still need the
-'echo > /proc/sys/kernel/modprobe' anyway.  If that turns out to be good enough,
-then it makes things easier for everyone.
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.14.y/kernel/v4.14.172-127-gc23e0b0dc693/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.14.=
+y/kernel/v4.14.172-127-gc23e0b0dc693/
 
-If setting the default at build time turns out to be needed, then sure in that
-case I'll send a patch that adds a kconfig option to do that.  But I'm first
-trying to use the existing kernel functionality.
+Tree: stable-rc
+Branch: linux-4.14.y
+Git Describe: v4.14.172-127-gc23e0b0dc693
+Git Commit: c23e0b0dc6930b41fc7af94bfa48cee04f327d8d
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 65 unique boards, 21 SoC families, 16 builds out of 201
 
-Also, a kconfig option isn't really a substitute for documenting this existing
-sysctl.  We still need to document it properly in proc(5) and
-Documentation/admin-guide/sysctl/kernel.rst.
+Boot Regressions Detected:
 
-- Eric
+arm:
+
+    qcom_defconfig:
+        gcc-8:
+          qcom-apq8064-cm-qs600:
+              lab-baylibre-seattle: failing since 32 days (last pass: v4.14=
+.169-92-gb4137330c582 - first fail: v4.14.170-62-gd6856e4a2c23)
+
+    sama5_defconfig:
+        gcc-8:
+          at91-sama5d4_xplained:
+              lab-baylibre: failing since 20 days (last pass: v4.14.170-141=
+-g00a0113414f7 - first fail: v4.14.171-29-g9cfe30e85240)
+
+    versatile_defconfig:
+        gcc-8:
+          versatile-pb:
+              lab-collabora: new failure (last pass: v4.14.172-127-gd5b7f77=
+0c4ed)
+
+Boot Failures Detected:
+
+arm:
+    sama5_defconfig:
+        gcc-8:
+            at91-sama5d4_xplained: 1 failed lab
+
+arm64:
+    defconfig:
+        gcc-8:
+            meson-gxm-q200: 1 failed lab
+
+Offline Platforms:
+
+arm:
+
+    multi_v7_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+
+    qcom_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+
+Conflicting Boot Failure Detected: (These likely are not failures as other =
+labs are reporting PASS. Needs review.)
+
+arm:
+    tegra_defconfig:
+        tegra124-jetson-tk1:
+            lab-collabora: FAIL (gcc-8)
+            lab-baylibre: PASS (gcc-8)
+
+---
+For more info write to <info@kernelci.org>
