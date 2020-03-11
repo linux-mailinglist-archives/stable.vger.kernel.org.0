@@ -2,42 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DC78D182043
-	for <lists+stable@lfdr.de>; Wed, 11 Mar 2020 19:01:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B752E182068
+	for <lists+stable@lfdr.de>; Wed, 11 Mar 2020 19:08:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730524AbgCKSBL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Mar 2020 14:01:11 -0400
-Received: from mail-pf1-f195.google.com ([209.85.210.195]:43387 "EHLO
-        mail-pf1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730468AbgCKSBK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 11 Mar 2020 14:01:10 -0400
-Received: by mail-pf1-f195.google.com with SMTP id c144so1753931pfb.10;
-        Wed, 11 Mar 2020 11:01:10 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=4rbFCslqjgH4sXZwXRxajxY2P/fkCA2L0OS7xWGtM24=;
-        b=gEBaAL1S79UPP4QUiKP2Fi8zuRAbPMoOO44U4NArFUQrk9iyjBNphW8J+WOGy5UUz2
-         /zyMIuEPLwLXK82aBe7LVi3564xY/MrR0CKArKWmwlh+ipou1AMILeOYU2Y5GDsnNWh9
-         K5emTXokFSQ+FzIgp9e3N68iiVX50fbpviPtVQ2BkIdeJ2970TbHl/8G3vyte6NE3LYa
-         i1D4U0o6jNZOVI5KKQ4cB3FQ7xgwVIzxkq6Kqey8Rw3ioabICTXSFL/+tnE5LIS9AGHc
-         M7aniFuRKCtDCAvowATGCK8nZgyPXN/90Zko5w71s7x/DL/Bea4eUB/zyhdWGBwQoI/M
-         AV3Q==
-X-Gm-Message-State: ANhLgQ07O9LW/6KbhYJo4Qbrsdnlad5yDUUfqs2MLg1v4jmq0nIoQ2a1
-        GqzSqenoDf4W9S+7xuwlesAuw5ArxUw=
-X-Google-Smtp-Source: ADFU+vv3iN5bf6Nx81FXMawuf3VzC8L33BaYvuVyxtyYoRAzzmsqgFyyXWtfhSheMAx7NV680qGZ1Q==
-X-Received: by 2002:a63:6202:: with SMTP id w2mr3994411pgb.154.1583949669546;
-        Wed, 11 Mar 2020 11:01:09 -0700 (PDT)
-Received: from 42.do-not-panic.com (42.do-not-panic.com. [157.230.128.187])
-        by smtp.gmail.com with ESMTPSA id w190sm1323524pfc.219.2020.03.11.11.01.08
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 11 Mar 2020 11:01:08 -0700 (PDT)
-Received: by 42.do-not-panic.com (Postfix, from userid 1000)
-        id D91F14028E; Wed, 11 Mar 2020 18:01:07 +0000 (UTC)
-Date:   Wed, 11 Mar 2020 18:01:07 +0000
-From:   Luis Chamberlain <mcgrof@kernel.org>
-To:     Eric Biggers <ebiggers@kernel.org>
+        id S1730610AbgCKSIH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Mar 2020 14:08:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55826 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1730607AbgCKSIH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Mar 2020 14:08:07 -0400
+Received: from sol.localdomain (c-107-3-166-239.hsd1.ca.comcast.net [107.3.166.239])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8914320691;
+        Wed, 11 Mar 2020 18:08:07 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1583950087;
+        bh=6MIXU7Mwc0VDsHaOdMgwhPDerRJ9XxPEu+qxamHI2sk=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=Y91BYwoVFMWy7IhSUNFJFEBDLOTgaFp0aa6zpHM9bavXn9CAVlX5mS7qovrtGxVbu
+         0qY1xaAEIt2V7umCxRqPJgz8Kmzg8GbXZCGXbybREUWq4Xd87J7KF0ebr1bUHZGP0Y
+         auoWsQmrNChcLY2Kf3O6tZ13U9jg93hvrDbEkXY8=
+Date:   Wed, 11 Mar 2020 11:08:05 -0700
+From:   Eric Biggers <ebiggers@kernel.org>
+To:     Luis Chamberlain <mcgrof@kernel.org>
 Cc:     Kees Cook <keescook@chromium.org>, linux-kernel@vger.kernel.org,
         linux-fsdevel@vger.kernel.org, stable@vger.kernel.org,
         Alexei Starovoitov <ast@kernel.org>,
@@ -47,41 +35,48 @@ Cc:     Kees Cook <keescook@chromium.org>, linux-kernel@vger.kernel.org,
         Jessica Yu <jeyu@kernel.org>
 Subject: Re: [PATCH] kmod: make request_module() return an error when
  autoloading is disabled
-Message-ID: <20200311180107.GO11244@42.do-not-panic.com>
+Message-ID: <20200311180805.GA1273@sol.localdomain>
 References: <20200310223731.126894-1-ebiggers@kernel.org>
  <202003111026.2BBE41C@keescook>
  <20200311174134.GB20006@gmail.com>
+ <20200311180107.GO11244@42.do-not-panic.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20200311174134.GB20006@gmail.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+In-Reply-To: <20200311180107.GO11244@42.do-not-panic.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Mar 11, 2020 at 10:41:34AM -0700, Eric Biggers wrote:
-> On Wed, Mar 11, 2020 at 10:28:07AM -0700, Kees Cook wrote:
-> > On Tue, Mar 10, 2020 at 03:37:31PM -0700, Eric Biggers wrote:
-> > > From: Eric Biggers <ebiggers@google.com>
+On Wed, Mar 11, 2020 at 06:01:07PM +0000, Luis Chamberlain wrote:
+> On Wed, Mar 11, 2020 at 10:41:34AM -0700, Eric Biggers wrote:
+> > On Wed, Mar 11, 2020 at 10:28:07AM -0700, Kees Cook wrote:
+> > > On Tue, Mar 10, 2020 at 03:37:31PM -0700, Eric Biggers wrote:
+> > > > From: Eric Biggers <ebiggers@google.com>
+> > > > 
+> > > > It's long been possible to disable kernel module autoloading completely
+> > > > by setting /proc/sys/kernel/modprobe to the empty string.  This can be
 > > > 
-> > > It's long been possible to disable kernel module autoloading completely
-> > > by setting /proc/sys/kernel/modprobe to the empty string.  This can be
+> > > Hunh. I've never seen that before. :) I've always used;
+> > > 
+> > > echo 1 > /proc/sys/kernel/modules_disabled
+> > > 
+> > > Regardless,
+> > > 
+> > > Reviewed-by: Kees Cook <keescook@chromium.org>
+> > > 
 > > 
-> > Hunh. I've never seen that before. :) I've always used;
-> > 
-> > echo 1 > /proc/sys/kernel/modules_disabled
-> > 
-> > Regardless,
-> > 
-> > Reviewed-by: Kees Cook <keescook@chromium.org>
-> > 
+> > modules_disabled is different because it disables *all* module loading, not just
+> > autoloading.
 > 
-> modules_disabled is different because it disables *all* module loading, not just
-> autoloading.
+> Clarifying this on your patch would be useful, otherwise its lost
+> tribal knowledge.
 
-Clarifying this on your patch would be useful, otherwise its lost
-tribal knowledge.
+I think it would be more useful to improve the documentation in proc(5) and
+Documentation/admin-guide/sysctl/kernel.rst.  People shouldn't have to read
+random kernel commit messages to find the documentation.
 
- LUis
+I'll send out patches for those.
+
+- Eric
