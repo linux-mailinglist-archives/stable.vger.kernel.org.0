@@ -2,131 +2,152 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BD220182191
-	for <lists+stable@lfdr.de>; Wed, 11 Mar 2020 20:09:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B581182197
+	for <lists+stable@lfdr.de>; Wed, 11 Mar 2020 20:10:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730762AbgCKTJw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Mar 2020 15:09:52 -0400
-Received: from mail-pf1-f194.google.com ([209.85.210.194]:42227 "EHLO
-        mail-pf1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730705AbgCKTJv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 11 Mar 2020 15:09:51 -0400
-Received: by mail-pf1-f194.google.com with SMTP id x2so1492155pfn.9;
-        Wed, 11 Mar 2020 12:09:50 -0700 (PDT)
+        id S1731034AbgCKTKV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Mar 2020 15:10:21 -0400
+Received: from mail-pg1-f194.google.com ([209.85.215.194]:44654 "EHLO
+        mail-pg1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730995AbgCKTKV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 11 Mar 2020 15:10:21 -0400
+Received: by mail-pg1-f194.google.com with SMTP id 37so1694349pgm.11
+        for <stable@vger.kernel.org>; Wed, 11 Mar 2020 12:10:20 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:subject:to:cc:references:from:autocrypt:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=ch8c2tPqQ2MtlMCSFt5X2PFILyxRgixkCKQGd8dAC6E=;
-        b=q60Bw+/q+6i5MBDVpxP2n3Lz5sEWIovC/74t7bFOTbUp7bwws0fujA8EqSVMeqEoNl
-         J1ij3C/Qnd3GJv2glTpUbLMHyKXVkDWIN4zeZhl5MQtUE8ImhcvPezQZZgvStOFakRaf
-         emsmeVMsD4tMEWvEje2yRum6VMrT6jSqOjptINwOcuTQ9muX9OR0LV8J3lyLgXTZpdUL
-         xmb4s+nBEAiarFy/DhxrJmsuh4oqbPLs9v21RHtrkH1nDlwviFJMZwooOqvMLxXYwzI7
-         ER2zJmFsOECAr4u5m1pJnMCtSmo7FK1BtZxcfB3ia7A0NmDoJn3eXWyVPfEWvNHOrJgX
-         fdbw==
+        d=chromium.org; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=KcVIrCgeM2L71oQ0HCuZKZl5I3Zr+0M/E39SQWV0gp4=;
+        b=aAhh+xSkXE2t12sKK6saJVYSmf5MEARRfmtM9BDdPnG9hOhY9hMiwRX70zMMhmadP8
+         AEe0v12Bn33gajUeD1uQ8UKiOyi2zoq7FIlGGcSTWYQXUe84sEe6lGBVcgqvS8yfdCxA
+         BqGVlEbMZdiVCE8GlL7i8viPdEpQyi+6TSziw=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:subject:to:cc:references:from:autocrypt
-         :message-id:date:user-agent:mime-version:in-reply-to
-         :content-language:content-transfer-encoding;
-        bh=ch8c2tPqQ2MtlMCSFt5X2PFILyxRgixkCKQGd8dAC6E=;
-        b=TNJm4FsqFSKkcE4yPd6XprVsPtW6msgJnOj8KmWHZKiyBa/80rF5h23h82WsVnOmAe
-         Nro+hXOWa/Krqvjo2ai/H1458SzrHOOjRHiJae7QH9pj0km4vWez+jocsq50R8scBFPN
-         RPgT7HD5BIjaPpTtRRjCFiz5EZ2FWxWUj1U+PmOu3ay5bIouBC3RxavuidrjR5upIdz1
-         d0/yioeiRdh2EzzzBesL1o0ZSE+w18qobRK8GYvjc2pef+xB96TmDUEzRcFNoSHqv20u
-         FovOCaawdPWoFmBJj6ERw1pakM7mHRBKkKd9CpH+aVQNf9EWCbMEEtWOF2nbuaN8dGnC
-         7W2Q==
-X-Gm-Message-State: ANhLgQ0emGn9ctZcLlyg63XxectPR2Gs1v9K9aR1GhhsZh6ihl77XVqd
-        NwHr4QdApw8VfO0ABNvZ9IsSu6lU
-X-Google-Smtp-Source: ADFU+vtz4V6BCkAJlMIjCDj90aC51g+WiV1hQJww7L2Gtz4VNqWHrK82WB0gVufZSNhGJbOAHNG5zg==
-X-Received: by 2002:a63:82c2:: with SMTP id w185mr4310748pgd.382.1583953789739;
-        Wed, 11 Mar 2020 12:09:49 -0700 (PDT)
-Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id ce13sm6476775pjb.1.2020.03.11.12.09.48
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 11 Mar 2020 12:09:49 -0700 (PDT)
-Subject: Re: [PATCH 5.4 000/168] 5.4.25-rc3 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org
-References: <20200311181527.313840393@linuxfoundation.org>
-From:   Guenter Roeck <linux@roeck-us.net>
-Autocrypt: addr=linux@roeck-us.net; keydata=
- xsFNBE6H1WcBEACu6jIcw5kZ5dGeJ7E7B2uweQR/4FGxH10/H1O1+ApmcQ9i87XdZQiB9cpN
- RYHA7RCEK2dh6dDccykQk3bC90xXMPg+O3R+C/SkwcnUak1UZaeK/SwQbq/t0tkMzYDRxfJ7
- nyFiKxUehbNF3r9qlJgPqONwX5vJy4/GvDHdddSCxV41P/ejsZ8PykxyJs98UWhF54tGRWFl
- 7i1xvaDB9lN5WTLRKSO7wICuLiSz5WZHXMkyF4d+/O5ll7yz/o/JxK5vO/sduYDIlFTvBZDh
- gzaEtNf5tQjsjG4io8E0Yq0ViobLkS2RTNZT8ICq/Jmvl0SpbHRvYwa2DhNsK0YjHFQBB0FX
- IdhdUEzNefcNcYvqigJpdICoP2e4yJSyflHFO4dr0OrdnGLe1Zi/8Xo/2+M1dSSEt196rXaC
- kwu2KgIgmkRBb3cp2vIBBIIowU8W3qC1+w+RdMUrZxKGWJ3juwcgveJlzMpMZNyM1jobSXZ0
- VHGMNJ3MwXlrEFPXaYJgibcg6brM6wGfX/LBvc/haWw4yO24lT5eitm4UBdIy9pKkKmHHh7s
- jfZJkB5fWKVdoCv/omy6UyH6ykLOPFugl+hVL2Prf8xrXuZe1CMS7ID9Lc8FaL1ROIN/W8Vk
- BIsJMaWOhks//7d92Uf3EArDlDShwR2+D+AMon8NULuLBHiEUQARAQABzTJHdWVudGVyIFJv
- ZWNrIChMaW51eCBhY2NvdW50KSA8bGludXhAcm9lY2stdXMubmV0PsLBgQQTAQIAKwIbAwYL
- CQgHAwIGFQgCCQoLBBYCAwECHgECF4ACGQEFAlVcphcFCRmg06EACgkQyx8mb86fmYFg0RAA
- nzXJzuPkLJaOmSIzPAqqnutACchT/meCOgMEpS5oLf6xn5ySZkl23OxuhpMZTVX+49c9pvBx
- hpvl5bCWFu5qC1jC2eWRYU+aZZE4sxMaAGeWenQJsiG9lP8wkfCJP3ockNu0ZXXAXwIbY1O1
- c+l11zQkZw89zNgWgKobKzrDMBFOYtAh0pAInZ9TSn7oA4Ctejouo5wUugmk8MrDtUVXmEA9
- 7f9fgKYSwl/H7dfKKsS1bDOpyJlqhEAH94BHJdK/b1tzwJCFAXFhMlmlbYEk8kWjcxQgDWMu
- GAthQzSuAyhqyZwFcOlMCNbAcTSQawSo3B9yM9mHJne5RrAbVz4TWLnEaX8gA5xK3uCNCeyI
- sqYuzA4OzcMwnnTASvzsGZoYHTFP3DQwf2nzxD6yBGCfwNGIYfS0i8YN8XcBgEcDFMWpOQhT
- Pu3HeztMnF3HXrc0t7e5rDW9zCh3k2PA6D2NV4fews9KDFhLlTfCVzf0PS1dRVVWM+4jVl6l
- HRIAgWp+2/f8dx5vPc4Ycp4IsZN0l1h9uT7qm1KTwz+sSl1zOqKD/BpfGNZfLRRxrXthvvY8
- BltcuZ4+PGFTcRkMytUbMDFMF9Cjd2W9dXD35PEtvj8wnEyzIos8bbgtLrGTv/SYhmPpahJA
- l8hPhYvmAvpOmusUUyB30StsHIU2LLccUPPOwU0ETofVZwEQALlLbQeBDTDbwQYrj0gbx3bq
- 7kpKABxN2MqeuqGr02DpS9883d/t7ontxasXoEz2GTioevvRmllJlPQERVxM8gQoNg22twF7
- pB/zsrIjxkE9heE4wYfN1AyzT+AxgYN6f8hVQ7Nrc9XgZZe+8IkuW/Nf64KzNJXnSH4u6nJM
- J2+Dt274YoFcXR1nG76Q259mKwzbCukKbd6piL+VsT/qBrLhZe9Ivbjq5WMdkQKnP7gYKCAi
- pNVJC4enWfivZsYupMd9qn7Uv/oCZDYoBTdMSBUblaLMwlcjnPpOYK5rfHvC4opxl+P/Vzyz
- 6WC2TLkPtKvYvXmdsI6rnEI4Uucg0Au/Ulg7aqqKhzGPIbVaL+U0Wk82nz6hz+WP2ggTrY1w
- ZlPlRt8WM9w6WfLf2j+PuGklj37m+KvaOEfLsF1v464dSpy1tQVHhhp8LFTxh/6RWkRIR2uF
- I4v3Xu/k5D0LhaZHpQ4C+xKsQxpTGuYh2tnRaRL14YMW1dlI3HfeB2gj7Yc8XdHh9vkpPyuT
- nY/ZsFbnvBtiw7GchKKri2gDhRb2QNNDyBnQn5mRFw7CyuFclAksOdV/sdpQnYlYcRQWOUGY
- HhQ5eqTRZjm9z+qQe/T0HQpmiPTqQcIaG/edgKVTUjITfA7AJMKLQHgp04Vylb+G6jocnQQX
- JqvvP09whbqrABEBAAHCwWUEGAECAA8CGwwFAlVcpi8FCRmg08MACgkQyx8mb86fmYHNRQ/+
- J0OZsBYP4leJvQF8lx9zif+v4ZY/6C9tTcUv/KNAE5leyrD4IKbnV4PnbrVhjq861it/zRQW
- cFpWQszZyWRwNPWUUz7ejmm9lAwPbr8xWT4qMSA43VKQ7ZCeTQJ4TC8kjqtcbw41SjkjrcTG
- wF52zFO4bOWyovVAPncvV9eGA/vtnd3xEZXQiSt91kBSqK28yjxAqK/c3G6i7IX2rg6pzgqh
- hiH3/1qM2M/LSuqAv0Rwrt/k+pZXE+B4Ud42hwmMr0TfhNxG+X7YKvjKC+SjPjqp0CaztQ0H
- nsDLSLElVROxCd9m8CAUuHplgmR3seYCOrT4jriMFBtKNPtj2EE4DNV4s7k0Zy+6iRQ8G8ng
- QjsSqYJx8iAR8JRB7Gm2rQOMv8lSRdjva++GT0VLXtHULdlzg8VjDnFZ3lfz5PWEOeIMk7Rj
- trjv82EZtrhLuLjHRCaG50OOm0hwPSk1J64R8O3HjSLdertmw7eyAYOo4RuWJguYMg5DRnBk
- WkRwrSuCn7UG+qVWZeKEsFKFOkynOs3pVbcbq1pxbhk3TRWCGRU5JolI4ohy/7JV1TVbjiDI
- HP/aVnm6NC8of26P40Pg8EdAhajZnHHjA7FrJXsy3cyIGqvg9os4rNkUWmrCfLLsZDHD8FnU
- mDW4+i+XlNFUPUYMrIKi9joBhu18ssf5i5Q=
-Message-ID: <29932109-860d-3e2e-d15a-05193105fc34@roeck-us.net>
-Date:   Wed, 11 Mar 2020 12:09:47 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.4.1
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=KcVIrCgeM2L71oQ0HCuZKZl5I3Zr+0M/E39SQWV0gp4=;
+        b=YgpGufuoeWqa/LK/lt4BzgxeHWRzChYLBMGR3scqZBVkHGsdltVPp8f4Rz5bOVFWAD
+         ybYidBYvHQH9oY9frovGLK5aVlJGjtLDkMxaz4dry1KHeuAKSvxY2qCeow0/iJNV+zv3
+         fU1Jn33xFlhQnXD7/lxGuVs76izoW8Uur1Z4MxL3ANQYxiaKvHRAwfmm+l/zta0WFO1V
+         ua8lRCpcCp+CkZmoFJpERVV1fwhnudq1zf56M91CP+DnSSRaqE//rS12VVdmTTKv/25u
+         8QrDksN3ErlDjgJn8WzvDX0unMSUJgjzapOLebtuMsEgadUKrcOO3HiFWu/CtgrOJs0E
+         mubw==
+X-Gm-Message-State: ANhLgQ1eq6f5Blks86TVQvRqx2v9ZWkg6koC4koKB7qck0puko5KnGPh
+        PuLsrpGRI9Am0Nje0MCiBzGStg==
+X-Google-Smtp-Source: ADFU+vt4NOtfCQB7oRTvrmQkPz4WbsEGCcbOLVTPV1BJcvkD6Dr4oGu+cuFqlafAZoPG2TJB9TQ2XQ==
+X-Received: by 2002:aa7:8687:: with SMTP id d7mr4225994pfo.247.1583953820089;
+        Wed, 11 Mar 2020 12:10:20 -0700 (PDT)
+Received: from www.outflux.net (smtp.outflux.net. [198.145.64.163])
+        by smtp.gmail.com with ESMTPSA id e10sm9854448pfm.121.2020.03.11.12.10.18
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 11 Mar 2020 12:10:19 -0700 (PDT)
+Date:   Wed, 11 Mar 2020 12:10:18 -0700
+From:   Kees Cook <keescook@chromium.org>
+To:     Bernd Edlinger <bernd.edlinger@hotmail.de>
+Cc:     "Eric W. Biederman" <ebiederm@xmission.com>,
+        Christian Brauner <christian.brauner@ubuntu.com>,
+        Jann Horn <jannh@google.com>, Jonathan Corbet <corbet@lwn.net>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Alexey Dobriyan <adobriyan@gmail.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Oleg Nesterov <oleg@redhat.com>,
+        Frederic Weisbecker <frederic@kernel.org>,
+        Andrei Vagin <avagin@gmail.com>,
+        Ingo Molnar <mingo@kernel.org>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Yuyang Du <duyuyang@gmail.com>,
+        David Hildenbrand <david@redhat.com>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Anshuman Khandual <anshuman.khandual@arm.com>,
+        David Howells <dhowells@redhat.com>,
+        James Morris <jamorris@linux.microsoft.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Shakeel Butt <shakeelb@google.com>,
+        Jason Gunthorpe <jgg@ziepe.ca>,
+        Christian Kellner <christian@kellner.me>,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        Aleksa Sarai <cyphar@cyphar.com>,
+        "Dmitry V. Levin" <ldv@altlinux.org>,
+        "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>,
+        "linux-mm@kvack.org" <linux-mm@kvack.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "linux-api@vger.kernel.org" <linux-api@vger.kernel.org>
+Subject: Re: [PATCH 2/4] proc: Use new infrastructure to fix deadlocks in
+ execve
+Message-ID: <202003111208.640025F75@keescook>
+References: <87r1y12yc7.fsf@x220.int.ebiederm.org>
+ <87k13t2xpd.fsf@x220.int.ebiederm.org>
+ <87d09l2x5n.fsf@x220.int.ebiederm.org>
+ <AM6PR03MB5170F0F9DC18F5EA77C9A857E4FE0@AM6PR03MB5170.eurprd03.prod.outlook.com>
+ <871rq12vxu.fsf@x220.int.ebiederm.org>
+ <AM6PR03MB5170DF45E3245F55B95CCD91E4FE0@AM6PR03MB5170.eurprd03.prod.outlook.com>
+ <877dzt1fnf.fsf@x220.int.ebiederm.org>
+ <AM6PR03MB51701C6F60699F99C5C67E0BE4FF0@AM6PR03MB5170.eurprd03.prod.outlook.com>
+ <875zfcxlwy.fsf@x220.int.ebiederm.org>
+ <AM6PR03MB51705D211EC8E7EA270627B1E4FF0@AM6PR03MB5170.eurprd03.prod.outlook.com>
 MIME-Version: 1.0
-In-Reply-To: <20200311181527.313840393@linuxfoundation.org>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <AM6PR03MB51705D211EC8E7EA270627B1E4FF0@AM6PR03MB5170.eurprd03.prod.outlook.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 3/11/20 11:18 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.4.25 release.
-> There are 168 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+On Tue, Mar 10, 2020 at 06:45:32PM +0100, Bernd Edlinger wrote:
+> This changes lock_trace to use the new exec_update_mutex
+> instead of cred_guard_mutex.
 > 
-> Responses should be made by Fri, 13 Mar 2020 18:14:21 +0000.
-> Anything received after that time might be too late.
+> This fixes possible deadlocks when the trace is accessing
+> /proc/$pid/stack for instance.
 > 
+> This should be safe, as the credentials are only used for reading,
+> and task->mm is updated on execve under the new exec_update_mutex.
+> 
+> Signed-off-by: Bernd Edlinger <bernd.edlinger@hotmail.de>
 
-m68k:allmodconfig, for v5.4.24-169-g005c542:
+I have the same question here as in 3/4. I should probably rescind my
+Reviewed-by until I'm convinced about the security-safety of this -- why
+is this not a race against cred changes?
 
-drivers/gpu/drm/virtio/virtgpu_object.c:31:67: error: expected ')' before 'int'
-   31 | module_param_named(virglhack, virtio_gpu_virglrenderer_workaround, int, 0400);
+-Kees
 
-Hmm ... Makefile says this is -rc3, but I don't see any improvements.
+> ---
+>  fs/proc/base.c | 6 +++---
+>  1 file changed, 3 insertions(+), 3 deletions(-)
+> 
+> diff --git a/fs/proc/base.c b/fs/proc/base.c
+> index ebea950..4fdfe4f 100644
+> --- a/fs/proc/base.c
+> +++ b/fs/proc/base.c
+> @@ -403,11 +403,11 @@ static int proc_pid_wchan(struct seq_file *m, struct pid_namespace *ns,
+>  
+>  static int lock_trace(struct task_struct *task)
+>  {
+> -	int err = mutex_lock_killable(&task->signal->cred_guard_mutex);
+> +	int err = mutex_lock_killable(&task->signal->exec_update_mutex);
+>  	if (err)
+>  		return err;
+>  	if (!ptrace_may_access(task, PTRACE_MODE_ATTACH_FSCREDS)) {
+> -		mutex_unlock(&task->signal->cred_guard_mutex);
+> +		mutex_unlock(&task->signal->exec_update_mutex);
+>  		return -EPERM;
+>  	}
+>  	return 0;
+> @@ -415,7 +415,7 @@ static int lock_trace(struct task_struct *task)
+>  
+>  static void unlock_trace(struct task_struct *task)
+>  {
+> -	mutex_unlock(&task->signal->cred_guard_mutex);
+> +	mutex_unlock(&task->signal->exec_update_mutex);
+>  }
+>  
+>  #ifdef CONFIG_STACKTRACE
+> -- 
+> 1.9.1
 
-Guenter
+-- 
+Kees Cook
