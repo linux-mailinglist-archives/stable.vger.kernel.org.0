@@ -2,104 +2,72 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0DB1E1818FE
-	for <lists+stable@lfdr.de>; Wed, 11 Mar 2020 14:01:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F4F4181925
+	for <lists+stable@lfdr.de>; Wed, 11 Mar 2020 14:06:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729401AbgCKNBJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Mar 2020 09:01:09 -0400
-Received: from jabberwock.ucw.cz ([46.255.230.98]:50772 "EHLO
-        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729358AbgCKNBJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 11 Mar 2020 09:01:09 -0400
-Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
-        id 836551C0317; Wed, 11 Mar 2020 14:01:07 +0100 (CET)
-Date:   Wed, 11 Mar 2020 14:01:07 +0100
-From:   Pavel Machek <pavel@denx.de>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Ingo Molnar <mingo@kernel.org>, linux-efi@vger.kernel.org,
-        Thomas Gleixner <tglx@linutronix.de>
-Subject: Re: [PATCH 4.19 84/86] efi/x86: Handle by-ref arguments covering
- multiple pages in mixed mode
-Message-ID: <20200311130106.GB7285@duo.ucw.cz>
-References: <20200310124530.808338541@linuxfoundation.org>
- <20200310124535.409134291@linuxfoundation.org>
+        id S1729400AbgCKNGg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Mar 2020 09:06:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42368 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1729345AbgCKNGg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Mar 2020 09:06:36 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7570220873;
+        Wed, 11 Mar 2020 13:06:35 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1583931995;
+        bh=PlaS74TA52+HyUfV2WJZ2U19MoadXqctbqu4D164gSk=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=TeWdulkJWMeVeaaEZGETJ9tKpfFNWxoEk6v0ywm9ujxOMwzAYeGDhTcA3XLySgwfL
+         akd7JVKlT7J59GDxrR5A/Xch7VLjquPNM57glysIry3yTkq+Cna3IsKyqc4IjdMpb3
+         xnNuXNI0w1ToAtKSsuA6q14naYS6uMTTkD1MTxcg=
+Date:   Wed, 11 Mar 2020 14:06:28 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Tom Lendacky <thomas.lendacky@amd.com>
+Cc:     Sean Christopherson <sean.j.christopherson@intel.com>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: Re: [PATCH 4.14 057/126] KVM: SVM: Override default MMIO mask if
+ memory encryption is enabled
+Message-ID: <20200311130628.GA3833342@kroah.com>
+References: <20200310124203.704193207@linuxfoundation.org>
+ <20200310124207.819562318@linuxfoundation.org>
+ <20200310181952.GF9305@linux.intel.com>
+ <220a78d4-0e46-a321-49cd-5d1c5827aef0@amd.com>
+ <0bab862b-0780-38c3-0c60-b078d61613de@amd.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="kXdP64Ggrk/fb43R"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20200310124535.409134291@linuxfoundation.org>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+In-Reply-To: <0bab862b-0780-38c3-0c60-b078d61613de@amd.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Tue, Mar 10, 2020 at 03:59:25PM -0500, Tom Lendacky wrote:
+> On 3/10/20 1:42 PM, Tom Lendacky wrote:
+> > On 3/10/20 1:19 PM, Sean Christopherson wrote:
+> >> Has this been tested on the stable kernels?  There's a recent bug report[*]
+> >> that suggests the 4.19 backport of this patch may be causing issues.
+> > 
+> > I missed this went the stable patches went by...  when backported to the
+> > older version of kvm_mmu_set_mmio_spte_mask() in the stable kernels (4.14
+> > and 4.19), the call should have been:
+> > 
+> > kvm_mmu_set_mmio_spte_mask(mask, mask) and not:
+> > 
+> > kvm_mmu_set_mmio_spte_mask(mask, PT_WRITABLE_MASK | PT_USER_MASK);
+> > 
+> > The call in the original upstream patch was:
+> > 
+> > kvm_mmu_set_mmio_spte_mask(mask, mask, PT_WRITABLE_MASK | PT_USER_MASK);
+> 
+> Greg,
+> 
+> I should have asked in the earlier email...  how do you want to address this?
 
---kXdP64Ggrk/fb43R
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+I will fix this up now, thanks for pointing out what I got wrong...
 
-Hi!
-
-> Currently, the mixed mode runtime service wrappers require that all by-ref
-> arguments that live in the vmalloc space have a size that is a power of 2,
-> and are aligned to that same value. While this is a sensible way to
-> construct an object that is guaranteed not to cross a page boundary, it is
-> overly strict when it comes to checking whether a given object violates
-> this requirement, as we can simply take the physical address of the first
-> and the last byte, and verify that they point into the same physical
-> page.
-
-Dunno. If start passing buffers that _sometime_ cross page boundaries,
-we'll get hard to debug failures. Maybe original code is better
-buecause it catches problems earlier?
-
-Furthermore, all existing code should pass aligned, 2^n size buffers,
-so we should not need this in stable?
-
-> --- a/arch/x86/platform/efi/efi_64.c
-> +++ b/arch/x86/platform/efi/efi_64.c
-> @@ -321,16 +321,13 @@ virt_to_phys_or_null_size(void *va, unsi
->  	if (virt_addr_valid(va))
->  		return virt_to_phys(va);
-> =20
-> -	/*
-> -	 * A fully aligned variable on the stack is guaranteed not to
-> -	 * cross a page bounary. Try to catch strings on the stack by
-> -	 * checking that 'size' is a power of two.
-> -	 */
-> -	bad_size =3D size > PAGE_SIZE || !is_power_of_2(size);
-> +	pa =3D slow_virt_to_phys(va);
-> =20
-> -	WARN_ON(!IS_ALIGNED((unsigned long)va, size) || bad_size);
-> +	/* check if the object crosses a page boundary */
-> +	if (WARN_ON((pa ^ (pa + size - 1)) & PAGE_MASK))
-> +		return 0;
-
-We don't really need to do this computation on pa, it would work on va
-as well, right? It does not matter much, but old code worked that way.
-
-Plus, strictly speaking, pa + size can overflow for huge sizes, and
-test will return false negatives.
-
-Best regards,
-									Pavel
---=20
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
-g.html
-
---kXdP64Ggrk/fb43R
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCXmjhEgAKCRAw5/Bqldv6
-8mj+AJ9SlIdfv4wT11lvQQHCHbshsYOwEACgjkW9w1shhVkmNA2Mt7K1kXdu+/w=
-=b2DV
------END PGP SIGNATURE-----
-
---kXdP64Ggrk/fb43R--
+greg k-h
