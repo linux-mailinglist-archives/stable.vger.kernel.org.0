@@ -2,101 +2,176 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 563AA180CFF
-	for <lists+stable@lfdr.de>; Wed, 11 Mar 2020 01:48:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 91656180EEF
+	for <lists+stable@lfdr.de>; Wed, 11 Mar 2020 05:32:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727768AbgCKAsu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Mar 2020 20:48:50 -0400
-Received: from mga06.intel.com ([134.134.136.31]:31891 "EHLO mga06.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727591AbgCKAsu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Mar 2020 20:48:50 -0400
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from fmsmga002.fm.intel.com ([10.253.24.26])
-  by orsmga104.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 10 Mar 2020 17:48:49 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.70,538,1574150400"; 
-   d="scan'208";a="277172633"
-Received: from yhuang-dev.sh.intel.com (HELO yhuang-dev) ([10.239.159.23])
-  by fmsmga002.fm.intel.com with ESMTP; 10 Mar 2020 17:48:47 -0700
-From:   "Huang\, Ying" <ying.huang@intel.com>
-To:     Qian Cai <cai@lca.pw>
-Cc:     <akpm@linux-foundation.org>, <kirill.shutemov@linux.intel.com>,
-        <linux-mm@kvack.org>, <linux-kernel@vger.kernel.org>,
-        <stable@vger.kernel.org>
-Subject: Re: [PATCH] page-flags: fix a crash at SetPageError(THP_SWAP)
-References: <20200310235846.1319-1-cai@lca.pw>
-Date:   Wed, 11 Mar 2020 08:48:47 +0800
-In-Reply-To: <20200310235846.1319-1-cai@lca.pw> (Qian Cai's message of "Tue,
-        10 Mar 2020 19:58:46 -0400")
-Message-ID: <87pndjwwb4.fsf@yhuang-dev.intel.com>
-User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/26.1 (gnu/linux)
+        id S1725976AbgCKEcZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Mar 2020 00:32:25 -0400
+Received: from mail-pj1-f68.google.com ([209.85.216.68]:53581 "EHLO
+        mail-pj1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725958AbgCKEcZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 11 Mar 2020 00:32:25 -0400
+Received: by mail-pj1-f68.google.com with SMTP id l36so306775pjb.3;
+        Tue, 10 Mar 2020 21:32:24 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=y9CqbWhfL4v92L67bT4ytPNxC+GiQd5penxrum1IdpY=;
+        b=N1Fy5y+D5FEggQp2glrbO3Rvu3KhR+BVyRTZAH+CKis/923M0wvRcDrHY47rzK567e
+         GImXA0l0SSKPZCYuiwrjl3EHb+W2EwkBO7YUIPRI/wEqGhBVxgrZKvPGvTXWABTRuXYr
+         af30ap3ZY8lYbU8AG6FAMpIbcBj4+KasRFh8B3wnV/FZD440ODdGPmPQHEYvQ1+SfAsJ
+         DsLZYzVgXQDfWsWIkcVkDeeUtf81NedOLO8hm0hYy4eUZbiOgJQ59Cw3F120fwiZpMcO
+         m9oq4BZau66fGcWBjIE2En/EfFRuv7paKzMKByQS2um2sH/d884WkJfUR0jRQuxbvB/X
+         Y49w==
+X-Gm-Message-State: ANhLgQ0Kt//oPP34Vj4sfqJ+h+o+yokhszqTH9fQmBKpCTQwBXl1fBfS
+        3PrL+g7b8PjwWtxgHEEBmsc=
+X-Google-Smtp-Source: ADFU+vv/Bu1s/jQ9NTGwcpCjIK6EDBpnZRP/AXC+VdHskcPECDxP/kpl/aj6kWv4dY5WgXspkPnFgg==
+X-Received: by 2002:a17:90a:da01:: with SMTP id e1mr1489918pjv.100.1583901143645;
+        Tue, 10 Mar 2020 21:32:23 -0700 (PDT)
+Received: from 42.do-not-panic.com (42.do-not-panic.com. [157.230.128.187])
+        by smtp.gmail.com with ESMTPSA id b10sm3845793pjo.32.2020.03.10.21.32.22
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 10 Mar 2020 21:32:22 -0700 (PDT)
+Received: by 42.do-not-panic.com (Postfix, from userid 1000)
+        id C909C4028E; Wed, 11 Mar 2020 04:32:21 +0000 (UTC)
+Date:   Wed, 11 Mar 2020 04:32:21 +0000
+From:   Luis Chamberlain <mcgrof@kernel.org>
+To:     Eric Biggers <ebiggers@kernel.org>, NeilBrown <neilb@suse.com>,
+        Josh Triplett <josh@joshtriplett.org>
+Cc:     linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+        stable@vger.kernel.org, Alexei Starovoitov <ast@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Jeff Vander Stoep <jeffv@google.com>,
+        Jessica Yu <jeyu@kernel.org>, Kees Cook <keescook@chromium.org>
+Subject: Re: [PATCH] kmod: make request_module() return an error when
+ autoloading is disabled
+Message-ID: <20200311043221.GK11244@42.do-not-panic.com>
+References: <20200310223731.126894-1-ebiggers@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ascii
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200310223731.126894-1-ebiggers@kernel.org>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Qian Cai <cai@lca.pw> writes:
+On Tue, Mar 10, 2020 at 03:37:31PM -0700, Eric Biggers wrote:
+> From: Eric Biggers <ebiggers@google.com>
+> 
+> It's long been possible to disable kernel module autoloading completely
+> by setting /proc/sys/kernel/modprobe to the empty string.  This can be
+> preferable
 
-> The commit bd4c82c22c36 ("mm, THP, swap: delay splitting THP after
-> swapped out") supported writing THP to a swap device but forgot to
-> upgrade an older commit df8c94d13c7e ("page-flags: define behavior of
-> FS/IO-related flags on compound pages") which could trigger a crash
-> during THP swapping out with DEBUG_VM_PGFLAGS=y,
->
-> kernel BUG at include/linux/page-flags.h:317!
->
-> page dumped because: VM_BUG_ON_PAGE(1 && PageCompound(page))
-> page:fffff3b2ec3a8000 refcount:512 mapcount:0 mapping:000000009eb0338c
-> index:0x7f6e58200 head:fffff3b2ec3a8000 order:9 compound_mapcount:0
-> compound_pincount:0
-> anon flags:
-> 0x45fffe0000d8454(uptodate|lru|workingset|owner_priv_1|writeback|head|reclaim|swapbacked)
->
-> end_swap_bio_write()
->   SetPageError(page)
->     VM_BUG_ON_PAGE(1 && PageCompound(page))
->
-> <IRQ>
-> bio_endio+0x297/0x560
-> dec_pending+0x218/0x430 [dm_mod]
-> clone_endio+0xe4/0x2c0 [dm_mod]
-> bio_endio+0x297/0x560
-> blk_update_request+0x201/0x920
-> scsi_end_request+0x6b/0x4b0
-> scsi_io_completion+0x509/0x7e0
-> scsi_finish_command+0x1ed/0x2a0
-> scsi_softirq_done+0x1c9/0x1d0
-> __blk_mqnterrupt+0xf/0x20
-> </IRQ>
->
-> Fix by checking PF_NO_TAIL in those places instead.
->
-> Fixes: bd4c82c22c36 ("mm, THP, swap: delay splitting THP after swapped out")
-> Cc: <stable@vger.kernel.org>
-> Signed-off-by: Qian Cai <cai@lca.pw>
+preferable but ... not documented. Or was this documented or recommended
+somewhere?
 
-Good catch!  Thanks!
+> to setting it to a nonexistent file since it avoids the
+> overhead of an attempted execve(), avoids potential deadlocks, and
+> avoids the call to security_kernel_module_request() and thus on
+> SELinux-based systems eliminates the need to write SELinux rules to
+> dontaudit module_request.
+> 
+> However, when module autoloading is disabled in this way,
+> request_module() returns 0.  This is broken because callers expect 0 to
+> mean that the module was successfully loaded.
 
-Acked-by: "Huang, Ying" <ying.huang@intel.com>
+However this is implicitly not true. For instance, as Neil recently
+chased down -- blacklisting a module today returns 0 as well, and so
+this corner case is implicitly set to return 0.
 
+> Apparently this was never noticed because this method of disabling
+> module autoloading isn't used much, and also most callers don't use the
+> return value of request_module() since it's always necessary to check
+> whether the module registered its functionality or not anyway.
+
+Right, the de-facto practice of verification of a module to be loaded is
+for each caller to ensure with whatever heuristic it needs to ensure the
+module is loaded.
+
+> But
+> improperly returning 0 can indeed confuse a few callers, for example
+> get_fs_type() in fs/filesystems.c where it causes a WARNING to be hit:
+> 
+> 	if (!fs && (request_module("fs-%.*s", len, name) == 0)) {
+> 		fs = __get_fs_type(name, len);
+> 		WARN_ONCE(!fs, "request_module fs-%.*s succeeded, but still no fs?\n", len, name);
+> 	}
+> 
+> This is easily reproduced with:
+> 
+> 	echo > /proc/sys/kernel/modprobe
+> 	mount -t NONEXISTENT none /
+> 
+> It causes:
+> 
+> 	request_module fs-NONEXISTENT succeeded, but still no fs?
+> 	WARNING: CPU: 1 PID: 1106 at fs/filesystems.c:275 get_fs_type+0xd6/0xf0
+> 	[...]
+
+Thanks for reporting this.
+
+> Arguably this warning is broken and should be removed, since the module
+> could have been unloaded already.
+
+No, the warning is present *because* debuggins issues for when the
+module which did not load is a rootfs is *really* hard to debug. Then,
+if the culprit of the issue is a userspace modprobe bug (it happens)
+this makes debugging *very* difficult as you won't know what failed at
+all, you just get a silent failed boot.
+
+> However, request_module() should also
+> correctly return an error when it fails.  So let's make it return
+> -ENOENT, which matches the error when the modprobe binary doesn't exist.
+
+This is a user experience change though, and I wouldn't have on my radar
+who would use this, and expects the old behaviour. Josh, would you by
+chance?
+
+I'd like this to be more an RFC first so we get vetted parties to
+review. I take it this and Neil's case are cases we should revisit now,
+properly document as we didn't before, ensure we don't break anything,
+and also extend the respective kmod selftests to ensure we don't break
+these corner cases in the future.
+
+> Cc: stable@vger.kernel.org
+> Cc: Alexei Starovoitov <ast@kernel.org>
+> Cc: Andrew Morton <akpm@linux-foundation.org>
+> Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> Cc: Jeff Vander Stoep <jeffv@google.com>
+> Cc: Jessica Yu <jeyu@kernel.org>
+> Cc: Kees Cook <keescook@chromium.org>
+> Cc: Luis Chamberlain <mcgrof@kernel.org>
+> Signed-off-by: Eric Biggers <ebiggers@google.com>
 > ---
->  include/linux/page-flags.h | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/include/linux/page-flags.h b/include/linux/page-flags.h
-> index 1bf83c8fcaa7..77de28bfefb0 100644
-> --- a/include/linux/page-flags.h
-> +++ b/include/linux/page-flags.h
-> @@ -311,7 +311,7 @@ static inline int TestClearPage##uname(struct page *page) { return 0; }
+>  kernel/kmod.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+> 
+> diff --git a/kernel/kmod.c b/kernel/kmod.c
+> index bc6addd9152b..a2de58de6ab6 100644
+> --- a/kernel/kmod.c
+> +++ b/kernel/kmod.c
+> @@ -120,7 +120,7 @@ static int call_modprobe(char *module_name, int wait)
+>   * invoke it.
+>   *
+>   * If module auto-loading support is disabled then this function
+> - * becomes a no-operation.
+> + * simply returns -ENOENT.
+>   */
+>  int __request_module(bool wait, const char *fmt, ...)
+>  {
+> @@ -137,7 +137,7 @@ int __request_module(bool wait, const char *fmt, ...)
+>  	WARN_ON_ONCE(wait && current_is_async());
 >  
->  __PAGEFLAG(Locked, locked, PF_NO_TAIL)
->  PAGEFLAG(Waiters, waiters, PF_ONLY_HEAD) __CLEARPAGEFLAG(Waiters, waiters, PF_ONLY_HEAD)
-> -PAGEFLAG(Error, error, PF_NO_COMPOUND) TESTCLEARFLAG(Error, error, PF_NO_COMPOUND)
-> +PAGEFLAG(Error, error, PF_NO_TAIL) TESTCLEARFLAG(Error, error, PF_NO_TAIL)
->  PAGEFLAG(Referenced, referenced, PF_HEAD)
->  	TESTCLEARFLAG(Referenced, referenced, PF_HEAD)
->  	__SETPAGEFLAG(Referenced, referenced, PF_HEAD)
+>  	if (!modprobe_path[0])
+> -		return 0;
+> +		return -ENOENT;
+>  
+>  	va_start(args, fmt);
+>  	ret = vsnprintf(module_name, MODULE_NAME_LEN, fmt, args);
+> -- 
+> 2.25.1.481.gfbce0eb801-goog
+> 
