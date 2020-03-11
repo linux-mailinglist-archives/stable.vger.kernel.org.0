@@ -2,110 +2,84 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8545E1815F5
-	for <lists+stable@lfdr.de>; Wed, 11 Mar 2020 11:37:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A0333181646
+	for <lists+stable@lfdr.de>; Wed, 11 Mar 2020 11:53:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728444AbgCKKhJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Mar 2020 06:37:09 -0400
-Received: from mail-pf1-f195.google.com ([209.85.210.195]:32928 "EHLO
-        mail-pf1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726387AbgCKKhJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 11 Mar 2020 06:37:09 -0400
-Received: by mail-pf1-f195.google.com with SMTP id n7so1095300pfn.0
-        for <stable@vger.kernel.org>; Wed, 11 Mar 2020 03:37:08 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=broadcom.com; s=google;
-        h=from:to:cc:subject:date:message-id;
-        bh=zDAtGZZlnMl0nThiIiOP76Uq+16Zqz24GZvrNhqC2vY=;
-        b=dsY+/MsBt2iIGklM4BYJHdvvl/3P5lxTQo7dEML4wIcJ5OwCA/ZT/ilZbXJBuojPHD
-         que491N0rlKv/g1op+AaBWzoLHZwxeMmc/8lP+zaX7reNzfjUbzUlOES96zAsgqLN4Wu
-         TbwTXyp5hpVER9ECiK0S512Vf6YDib45g7sGI=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id;
-        bh=zDAtGZZlnMl0nThiIiOP76Uq+16Zqz24GZvrNhqC2vY=;
-        b=tjreQZjBFiILa75hhqkGM5pW7djxc1+0U6xLDSQDGr3sn3SC6wVsDEuC2uEy9PGuAj
-         g5EXVHIKx6nkHsA3tVehN1L3VQ/Qu54J95oZgJifPkqNemHhNAnodrLaSa5xwaV8jxsR
-         VRRyR9k9rmcL9YRb2xTcDZ7LRGt5pgPUpX6y7B4OGTHnp4ii5QA531g8mnUYA9xzDtik
-         lmxylj8/Ez2sOwnkxA8htELFpTUvoFN14toX9OmuM59BcvDDPhVAw6WOesQVDRzjOZL0
-         TD2mffFLLN8OY00MLMmSPs2DW4gRA4wgaVKkZorWXcRTIrc9RatAHq72fkDg4r6Nf3Ge
-         nigw==
-X-Gm-Message-State: ANhLgQ1bCJ4pgMx4S/Oek6rE7cnOeE4sfOZ7TUq5kfzYknX2lez4jmba
-        X+fAwuoKL44YZ0McP1tRPojm9w==
-X-Google-Smtp-Source: ADFU+vvNPQ1qsX7n2U3cijoD2VYGzq2zDqlEBEbY82LByWfqG8NCc62qAiwBkAu6hBRj9M5TBs6FBg==
-X-Received: by 2002:a63:82c2:: with SMTP id w185mr2331272pgd.382.1583923028194;
-        Wed, 11 Mar 2020 03:37:08 -0700 (PDT)
-Received: from dhcp-10-123-20-36.dhcp.broadcom.net ([192.19.234.250])
-        by smtp.gmail.com with ESMTPSA id z3sm51156004pfz.155.2020.03.11.03.37.05
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 11 Mar 2020 03:37:07 -0700 (PDT)
-From:   Sreekanth Reddy <sreekanth.reddy@broadcom.com>
-To:     martin.petersen@oracle.com
-Cc:     linux-scsi@vger.kernel.org, sathya.prakash@broadcom.com,
-        suganath-prabu.subramani@broadcom.com, stable@vger.kernel.org,
-        amit@kernel.org, Sreekanth Reddy <sreekanth.reddy@broadcom.com>
-Subject: [PATCH] mpt3sas: Fix kernel panic observed on soft HBA unplug
-Date:   Wed, 11 Mar 2020 06:36:53 -0400
-Message-Id: <1583923013-3935-1-git-send-email-sreekanth.reddy@broadcom.com>
-X-Mailer: git-send-email 1.8.3.1
+        id S1729137AbgCKKxS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Mar 2020 06:53:18 -0400
+Received: from youngberry.canonical.com ([91.189.89.112]:51306 "EHLO
+        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728255AbgCKKxS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 11 Mar 2020 06:53:18 -0400
+Received: from ip5f5bf7ec.dynamic.kabel-deutschland.de ([95.91.247.236] helo=wittgenstein.fritz.box)
+        by youngberry.canonical.com with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        (Exim 4.86_2)
+        (envelope-from <christian.brauner@ubuntu.com>)
+        id 1jByzB-0004xv-RE; Wed, 11 Mar 2020 10:53:13 +0000
+From:   Christian Brauner <christian.brauner@ubuntu.com>
+To:     naresh.kamboju@linaro.org
+Cc:     ard.biesheuvel@linaro.org, ardb@kernel.org,
+        christian.brauner@ubuntu.com, gregkh@linuxfoundation.org,
+        john.stultz@linaro.org, keescook@chromium.org,
+        linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org,
+        lkft-triage@lists.linaro.org, shuah@kernel.org, tkjos@google.com,
+        stable@vger.kernel.org
+Subject: [PATCH] binderfs: use refcount for binder control devices too
+Date:   Wed, 11 Mar 2020 11:53:09 +0100
+Message-Id: <20200311105309.1742827-1-christian.brauner@ubuntu.com>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <CA+G9fYusdfg7PMfC9Xce-xLT7NiyKSbgojpK35GOm=Pf9jXXrA@mail.gmail.com>
+References: <CA+G9fYusdfg7PMfC9Xce-xLT7NiyKSbgojpK35GOm=Pf9jXXrA@mail.gmail.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Generic protection fault type kernel panic is observed when user
-performs soft(ordered) HBA unplug operation while IOs are running
-on drives connected to HBA.
+Binderfs binder-control devices are cleaned up via binderfs_evict_inode
+too() which will use refcount_dec_and_test(). However, we missed to set
+the refcount for binderfs binder-control devices and so we underflowed
+when the binderfs instance got unmounted. Pretty obvious oversight and
+should have been part of the more general UAF fix. The good news is that
+having test cases (suprisingly) helps.
 
-When user performs ordered HBA removal operation then kernel calls
-PCI device's .remove() call back function where driver is flushing out
-all the outstanding SCSI IO commands with DID_NO_CONNECT host byte and
-also un-maps sg buffers allocated for these IO commands.
-But in the ordered HBA removal case (unlike of real HBA hot unplug)
-HBA device is still alive and hence HBA hardware is performing the
-DMA operations to those buffers on the system memory which are already
-unmapped while flushing out the outstanding SCSI IO commands
-and this leads to Kernel panic.
+Technically, we could detect that we're about to cleanup the
+binder-control dentry in binderfs_evict_inode() and then simply clean it
+up. But that makes the assumption that the binder driver itself will
+never make use of a binderfs binder-control device after the binderfs
+instance it belongs to has been unmounted and the superblock for it been
+destroyed. While it is unlikely to ever come to this let's be on the
+safe side. Performance-wise this also really doesn't matter since the
+binder-control device is only every really when creating the binderfs
+filesystem or creating additional binder devices. Both operations are
+pretty rare.
 
-Fix:
-Don't flush out the outstanding IOs from .remove() path in case of
-ordered HBA removal since HBA will be still alive in this case and
-it can complete the outstanding IOs. Flush out the outstanding IOs
-only in case physical HBA hot unplug where their won't be any
-communication with the HBA.
-
+Fixes: f0fe2c0f050d ("binder: prevent UAF for binderfs devices II")
+Link: https://lore.kernel.org/r/CA+G9fYusdfg7PMfC9Xce-xLT7NiyKSbgojpK35GOm=Pf9jXXrA@mail.gmail.com
+Reported-by: Naresh Kamboju <naresh.kamboju@linaro.org>
 Cc: stable@vger.kernel.org
-Signed-off-by: Sreekanth Reddy <sreekanth.reddy@broadcom.com>
+Cc: Todd Kjos <tkjos@google.com>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Christian Brauner <christian.brauner@ubuntu.com>
 ---
- drivers/scsi/mpt3sas/mpt3sas_scsih.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/android/binderfs.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/scsi/mpt3sas/mpt3sas_scsih.c b/drivers/scsi/mpt3sas/mpt3sas_scsih.c
-index 778d5e6..04a40af 100644
---- a/drivers/scsi/mpt3sas/mpt3sas_scsih.c
-+++ b/drivers/scsi/mpt3sas/mpt3sas_scsih.c
-@@ -9908,8 +9908,8 @@ static void scsih_remove(struct pci_dev *pdev)
+diff --git a/drivers/android/binderfs.c b/drivers/android/binderfs.c
+index 110e41f920c2..f303106b3362 100644
+--- a/drivers/android/binderfs.c
++++ b/drivers/android/binderfs.c
+@@ -448,6 +448,7 @@ static int binderfs_binder_ctl_create(struct super_block *sb)
+ 	inode->i_uid = info->root_uid;
+ 	inode->i_gid = info->root_gid;
  
- 	ioc->remove_host = 1;
++	refcount_set(&device->ref, 1);
+ 	device->binderfs_inode = inode;
+ 	device->miscdev.minor = minor;
  
--	mpt3sas_wait_for_commands_to_complete(ioc);
--	_scsih_flush_running_cmds(ioc);
-+	if (!pci_device_is_present(pdev))
-+		_scsih_flush_running_cmds(ioc);
- 
- 	_scsih_fw_event_cleanup_queue(ioc);
- 
-@@ -9992,8 +9992,8 @@ static void scsih_remove(struct pci_dev *pdev)
- 
- 	ioc->remove_host = 1;
- 
--	mpt3sas_wait_for_commands_to_complete(ioc);
--	_scsih_flush_running_cmds(ioc);
-+	if (!pci_device_is_present(pdev))
-+		_scsih_flush_running_cmds(ioc);
- 
- 	_scsih_fw_event_cleanup_queue(ioc);
- 
+
+base-commit: 2c523b344dfa65a3738e7039832044aa133c75fb
 -- 
-1.8.3.1
+2.25.1
 
