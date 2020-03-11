@@ -2,138 +2,115 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C0AA31820B0
-	for <lists+stable@lfdr.de>; Wed, 11 Mar 2020 19:24:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B7441820B6
+	for <lists+stable@lfdr.de>; Wed, 11 Mar 2020 19:26:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730691AbgCKSYs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Mar 2020 14:24:48 -0400
-Received: from mail-pf1-f196.google.com ([209.85.210.196]:42156 "EHLO
-        mail-pf1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730654AbgCKSYs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 11 Mar 2020 14:24:48 -0400
-Received: by mail-pf1-f196.google.com with SMTP id x2so1426252pfn.9
-        for <stable@vger.kernel.org>; Wed, 11 Mar 2020 11:24:48 -0700 (PDT)
+        id S1730780AbgCKS0L (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Mar 2020 14:26:11 -0400
+Received: from mail-vk1-f194.google.com ([209.85.221.194]:39167 "EHLO
+        mail-vk1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730779AbgCKS0L (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 11 Mar 2020 14:26:11 -0400
+Received: by mail-vk1-f194.google.com with SMTP id t129so817542vkg.6
+        for <stable@vger.kernel.org>; Wed, 11 Mar 2020 11:26:11 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=flb8H5uPjfZcLb+oQ//3YVKBxbl3Q/IwAMSanlRzcQM=;
-        b=eYmnte9+YTR74zwIGBRFBaontN8BQWIA5vjCuDOKUxlht/QyNev9lKZ1Gv4vCsb8Uf
-         PIXaww95Paa2Wu3TBHx3PBD3Kw95OBqTfZvUnEWCdRLv+FyseSe+Mbnw5F/sTqfN7J14
-         tvyF1JqBlRJyzkk3t81dKEMMCiWKxW6OfaGoi2TwD/WwDipJz9bXr3brokaVtp635bjP
-         XAh8aU441EphXPPzI3zQJwOYJ/uGkzQ9aH7LpYnCUESiSsWCNdoxMwSh2Q949k7dlGNe
-         lZnyrXvEnabixdLqP7nPTg78ZCzgOHpR9846BrlZLxCGlFroqZ4FIGrbi1W59oMRYuI8
-         2iEA==
+        d=google.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=qSTO/qgdxH6bi8PzikSAQgbIeZmagWyxAFGQFRnsxM0=;
+        b=RJDG2r5hZ7Fa4gKvOb6pCPMrNGIdb/yHB7y2MSErjlsY7DUNkWh3ZEca8aPPbLj0VE
+         ul6gkiQlxlyJ/oy4EVgannnB3f34MaqcrdBRY3NjNzJw+MC8doRaRH7czlERR29oZ7++
+         XYgZ+a+e0GmSpGSW3PT5McijvKzbFCJfGGATRrEVCXhrhJvZ8sjZbJFhTfZWIu5pT+/0
+         CE8s2xJ/zkUwJ75LtNCMyNOk99ot3gpGEzwc2DGOzuAcgDj8+bf6Wg8pUBdhHYtj4zqj
+         1kzbY7mdKIMO1CScVFA8I+qyVi62JAK/5fBe+cSzveK3TknfkrVuCQQyXf/GO4cqHQOe
+         BEAw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=flb8H5uPjfZcLb+oQ//3YVKBxbl3Q/IwAMSanlRzcQM=;
-        b=G0a2A3XVS5Hodm+rc4hhgVdvxJwoxRAIjyNqUPc3RXw09nU7XRr5DNf6K5ZTs9VPqp
-         8T8zHARh9hZg+GeN9ZgGBwfEKRM4dZ/72ivgreCaw3bEKdh/RAjbr2a7exEy7q/7gDWE
-         gOJFCyj6FYC1gB5xYQtv6clKJawTolSmHIxuaPKp30NsLg7avOlb87FoqzvdNKhpUPIl
-         vpDUhvW6nxJLUoWEOQxrhDZlwkFxyawQmh1cUSFSdIbLFfC3UjVPQ979qSm3b/0hs8Y3
-         S/GYJ6hEEbPUEJN4nCakMmbTrAKNmM+JarXDccWNUD4HcRevnzlHlPFoqTxyz8yqCmMI
-         Z8gg==
-X-Gm-Message-State: ANhLgQ2KdYPSLEk7IpRilqnnlg54YwJ/iL3gn2vFBcC0Pu2N4XY3VY/7
-        SDHMKOjq2RDgUglEWR/kqEYS7/QcbH4=
-X-Google-Smtp-Source: ADFU+vuqENVxAYHAZ4hVqdEdgS+VfzNumzY2fNgWxSKD17DNGVP3zQgN4w9qR80JQGmCght5VbZLPw==
-X-Received: by 2002:a65:53c9:: with SMTP id z9mr3596664pgr.405.1583951087207;
-        Wed, 11 Mar 2020 11:24:47 -0700 (PDT)
-Received: from [10.0.9.4] ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id d6sm6294512pjz.39.2020.03.11.11.24.46
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 11 Mar 2020 11:24:46 -0700 (PDT)
-Message-ID: <5e692cee.1c69fb81.c0926.4c69@mx.google.com>
-Date:   Wed, 11 Mar 2020 11:24:46 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=qSTO/qgdxH6bi8PzikSAQgbIeZmagWyxAFGQFRnsxM0=;
+        b=IVcigpCygC8mup/aZk/0FuVV+kWvm6LnjKvhfdPwm+qqYNDMeig8c4dcujDScbCkke
+         uywGnwJWawnpThYppAxWNiy4X1P+x7lZnmqzgI+8DBYkLl5dCoja+hH3XqWNo8yIxXbs
+         v1NGWOGSRf0xGeUW+wAh9gAPA0V100XFa/2EBl1oY+U8OWk+9E3Az4va0416ZO8MTylH
+         UHSlJ+b6p0/KNFSe3EbqPcwS7jllsUVyQrLFyOvzShksF+2sV1PH9vm93C5odC9jPPv4
+         jCM2yAW3Kq0WTUinD+k25OfaQjpA94I06dB7KmEsHAC34pFgfAztPdqQ5lQr5GEcFVIo
+         lXJw==
+X-Gm-Message-State: ANhLgQ1uZjED5e5DghCKMGcZoJgUdpq9hGUkxfZGxtuA68MeaWktbmLO
+        IrGI1xzRYfFGJDpbDonpFOrDDohwX/NrhbaVyz4t4w==
+X-Google-Smtp-Source: ADFU+vuIP9IDVuL0y634tAQhisn3M2xsRFEZFWHFyFy7XLhjtLGyNWdbdNXlCC9/Qu0OTuevDsb+8mNaGPDTKJZbW+M=
+X-Received: by 2002:a1f:cbc1:: with SMTP id b184mr2790877vkg.73.1583951170072;
+ Wed, 11 Mar 2020 11:26:10 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-4.14.y
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v4.14.172-127-gc23e0b0dc693
-X-Kernelci-Report-Type: boot
-Subject: stable-rc/linux-4.14.y boot: 94 boots: 2 failed,
- 88 passed with 2 offline, 1 untried/unknown,
- 1 conflict (v4.14.172-127-gc23e0b0dc693)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+References: <CA+G9fYusdfg7PMfC9Xce-xLT7NiyKSbgojpK35GOm=Pf9jXXrA@mail.gmail.com>
+ <20200311105309.1742827-1-christian.brauner@ubuntu.com>
+In-Reply-To: <20200311105309.1742827-1-christian.brauner@ubuntu.com>
+From:   Todd Kjos <tkjos@google.com>
+Date:   Wed, 11 Mar 2020 11:25:58 -0700
+Message-ID: <CAHRSSEwF_UX7=6PLsmd62PfJwzdwScjqi=JxjtWkAmGorn+Xkw@mail.gmail.com>
+Subject: Re: [PATCH] binderfs: use refcount for binder control devices too
+To:     Christian Brauner <christian.brauner@ubuntu.com>
+Cc:     naresh.kamboju@linaro.org, ard.biesheuvel@linaro.org,
+        ardb@kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        John Stultz <john.stultz@linaro.org>,
+        Kees Cook <keescook@chromium.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        linux-kselftest@vger.kernel.org, lkft-triage@lists.linaro.org,
+        shuah@kernel.org, stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.14.y boot: 94 boots: 2 failed, 88 passed with 2 offline, =
-1 untried/unknown, 1 conflict (v4.14.172-127-gc23e0b0dc693)
+On Wed, Mar 11, 2020 at 3:53 AM Christian Brauner
+<christian.brauner@ubuntu.com> wrote:
+>
+> Binderfs binder-control devices are cleaned up via binderfs_evict_inode
+> too() which will use refcount_dec_and_test(). However, we missed to set
+> the refcount for binderfs binder-control devices and so we underflowed
+> when the binderfs instance got unmounted. Pretty obvious oversight and
+> should have been part of the more general UAF fix. The good news is that
+> having test cases (suprisingly) helps.
+>
+> Technically, we could detect that we're about to cleanup the
+> binder-control dentry in binderfs_evict_inode() and then simply clean it
+> up. But that makes the assumption that the binder driver itself will
+> never make use of a binderfs binder-control device after the binderfs
+> instance it belongs to has been unmounted and the superblock for it been
+> destroyed. While it is unlikely to ever come to this let's be on the
+> safe side. Performance-wise this also really doesn't matter since the
+> binder-control device is only every really when creating the binderfs
+> filesystem or creating additional binder devices. Both operations are
+> pretty rare.
+>
+> Fixes: f0fe2c0f050d ("binder: prevent UAF for binderfs devices II")
+> Link: https://lore.kernel.org/r/CA+G9fYusdfg7PMfC9Xce-xLT7NiyKSbgojpK35GOm=Pf9jXXrA@mail.gmail.com
+> Reported-by: Naresh Kamboju <naresh.kamboju@linaro.org>
+> Cc: stable@vger.kernel.org
+> Cc: Todd Kjos <tkjos@google.com>
+> Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> Signed-off-by: Christian Brauner <christian.brauner@ubuntu.com>
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.14.y/kernel/v4.14.172-127-gc23e0b0dc693/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.14.=
-y/kernel/v4.14.172-127-gc23e0b0dc693/
+Acked-by: Todd Kjos <tkjos@google.com>
 
-Tree: stable-rc
-Branch: linux-4.14.y
-Git Describe: v4.14.172-127-gc23e0b0dc693
-Git Commit: c23e0b0dc6930b41fc7af94bfa48cee04f327d8d
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 65 unique boards, 21 SoC families, 16 builds out of 201
-
-Boot Regressions Detected:
-
-arm:
-
-    qcom_defconfig:
-        gcc-8:
-          qcom-apq8064-cm-qs600:
-              lab-baylibre-seattle: failing since 32 days (last pass: v4.14=
-.169-92-gb4137330c582 - first fail: v4.14.170-62-gd6856e4a2c23)
-
-    sama5_defconfig:
-        gcc-8:
-          at91-sama5d4_xplained:
-              lab-baylibre: failing since 20 days (last pass: v4.14.170-141=
--g00a0113414f7 - first fail: v4.14.171-29-g9cfe30e85240)
-
-    versatile_defconfig:
-        gcc-8:
-          versatile-pb:
-              lab-collabora: new failure (last pass: v4.14.172-127-gd5b7f77=
-0c4ed)
-
-Boot Failures Detected:
-
-arm:
-    sama5_defconfig:
-        gcc-8:
-            at91-sama5d4_xplained: 1 failed lab
-
-arm64:
-    defconfig:
-        gcc-8:
-            meson-gxm-q200: 1 failed lab
-
-Offline Platforms:
-
-arm:
-
-    multi_v7_defconfig:
-        gcc-8
-            qcom-apq8064-cm-qs600: 1 offline lab
-
-    qcom_defconfig:
-        gcc-8
-            qcom-apq8064-cm-qs600: 1 offline lab
-
-Conflicting Boot Failure Detected: (These likely are not failures as other =
-labs are reporting PASS. Needs review.)
-
-arm:
-    tegra_defconfig:
-        tegra124-jetson-tk1:
-            lab-collabora: FAIL (gcc-8)
-            lab-baylibre: PASS (gcc-8)
-
----
-For more info write to <info@kernelci.org>
+> ---
+>  drivers/android/binderfs.c | 1 +
+>  1 file changed, 1 insertion(+)
+>
+> diff --git a/drivers/android/binderfs.c b/drivers/android/binderfs.c
+> index 110e41f920c2..f303106b3362 100644
+> --- a/drivers/android/binderfs.c
+> +++ b/drivers/android/binderfs.c
+> @@ -448,6 +448,7 @@ static int binderfs_binder_ctl_create(struct super_block *sb)
+>         inode->i_uid = info->root_uid;
+>         inode->i_gid = info->root_gid;
+>
+> +       refcount_set(&device->ref, 1);
+>         device->binderfs_inode = inode;
+>         device->miscdev.minor = minor;
+>
+>
+> base-commit: 2c523b344dfa65a3738e7039832044aa133c75fb
+> --
+> 2.25.1
+>
