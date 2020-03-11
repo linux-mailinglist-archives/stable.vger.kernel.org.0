@@ -2,152 +2,184 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B581182197
-	for <lists+stable@lfdr.de>; Wed, 11 Mar 2020 20:10:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E0211821A3
+	for <lists+stable@lfdr.de>; Wed, 11 Mar 2020 20:13:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731034AbgCKTKV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Mar 2020 15:10:21 -0400
-Received: from mail-pg1-f194.google.com ([209.85.215.194]:44654 "EHLO
-        mail-pg1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730995AbgCKTKV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 11 Mar 2020 15:10:21 -0400
-Received: by mail-pg1-f194.google.com with SMTP id 37so1694349pgm.11
-        for <stable@vger.kernel.org>; Wed, 11 Mar 2020 12:10:20 -0700 (PDT)
+        id S1731034AbgCKTNm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Mar 2020 15:13:42 -0400
+Received: from mail-bn8nam12on2058.outbound.protection.outlook.com ([40.107.237.58]:6625
+        "EHLO NAM12-BN8-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1730705AbgCKTNm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Mar 2020 15:13:42 -0400
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=Uz+imgwfXy+lNdUBJ/eavGkZ75ePszGepQU4NKzPW4Iu5Xxb3OWR9LbZdoCu2G3FBx2t+36ACoDxDpUmblid/RrnDvwPUtKP1GtkJHEcMM07kxIYJ6sECP7D/D9lFvcbve2IbHWGUGtcQPWRskjvTuo0CRwAsjctAeaQN5g6KIUsXzeKy74Tpb3oMkfFNAG+Tf3xUOV5wbgsfNAVGPFnQ1934IB/zGgRKlJ/etINjGBLqg+HqPChSqOdLTDuPnn/+fqjZ5vQOQIJ+SPmAyd4pRM7APpQLfC57zIGkMmdtjVsBVU/+GPH1efKvYpGa5yZwtoqOpXOK1bf8r+rYM+6cg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=k62kN9OcmFsC9ZPnWFWWW0UlGqwjxjbjZ+WbIuWGYy4=;
+ b=G8UjiyPMDAgYKZfKbUXJif7+dMglheXZSNcxTVfOdDSoxXMT373SG4BKeiC0V5CuBP/21L+/1wiHrv3Zi/yXPXr42kdVnhZC1Pd2NAOoZ1eF20lz/Y1NyRR0cdvznbNvNlRSQBPEyCmBLmNyyUlPHxPjw0VOtRXfjl8CO0d7+fr4EUc1s+SVMDRHZU9P/PyPGdfgVPib9U/vesVSsHSUFRG0OCsh+LPphTbyXBxkYC8n8pcrJ/pM6mQGk3MfE+IZcb8rj6FhK8lKvvFZqf++rMbxNLULrK3oBL31hE4wQGYCzPSFmJNtq/zdpaoyGLnxlaQlM9XBa2JOuaSJrelLtA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
+ header.d=amd.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=KcVIrCgeM2L71oQ0HCuZKZl5I3Zr+0M/E39SQWV0gp4=;
-        b=aAhh+xSkXE2t12sKK6saJVYSmf5MEARRfmtM9BDdPnG9hOhY9hMiwRX70zMMhmadP8
-         AEe0v12Bn33gajUeD1uQ8UKiOyi2zoq7FIlGGcSTWYQXUe84sEe6lGBVcgqvS8yfdCxA
-         BqGVlEbMZdiVCE8GlL7i8viPdEpQyi+6TSziw=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=KcVIrCgeM2L71oQ0HCuZKZl5I3Zr+0M/E39SQWV0gp4=;
-        b=YgpGufuoeWqa/LK/lt4BzgxeHWRzChYLBMGR3scqZBVkHGsdltVPp8f4Rz5bOVFWAD
-         ybYidBYvHQH9oY9frovGLK5aVlJGjtLDkMxaz4dry1KHeuAKSvxY2qCeow0/iJNV+zv3
-         fU1Jn33xFlhQnXD7/lxGuVs76izoW8Uur1Z4MxL3ANQYxiaKvHRAwfmm+l/zta0WFO1V
-         ua8lRCpcCp+CkZmoFJpERVV1fwhnudq1zf56M91CP+DnSSRaqE//rS12VVdmTTKv/25u
-         8QrDksN3ErlDjgJn8WzvDX0unMSUJgjzapOLebtuMsEgadUKrcOO3HiFWu/CtgrOJs0E
-         mubw==
-X-Gm-Message-State: ANhLgQ1eq6f5Blks86TVQvRqx2v9ZWkg6koC4koKB7qck0puko5KnGPh
-        PuLsrpGRI9Am0Nje0MCiBzGStg==
-X-Google-Smtp-Source: ADFU+vt4NOtfCQB7oRTvrmQkPz4WbsEGCcbOLVTPV1BJcvkD6Dr4oGu+cuFqlafAZoPG2TJB9TQ2XQ==
-X-Received: by 2002:aa7:8687:: with SMTP id d7mr4225994pfo.247.1583953820089;
-        Wed, 11 Mar 2020 12:10:20 -0700 (PDT)
-Received: from www.outflux.net (smtp.outflux.net. [198.145.64.163])
-        by smtp.gmail.com with ESMTPSA id e10sm9854448pfm.121.2020.03.11.12.10.18
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 11 Mar 2020 12:10:19 -0700 (PDT)
-Date:   Wed, 11 Mar 2020 12:10:18 -0700
-From:   Kees Cook <keescook@chromium.org>
-To:     Bernd Edlinger <bernd.edlinger@hotmail.de>
-Cc:     "Eric W. Biederman" <ebiederm@xmission.com>,
-        Christian Brauner <christian.brauner@ubuntu.com>,
-        Jann Horn <jannh@google.com>, Jonathan Corbet <corbet@lwn.net>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Alexey Dobriyan <adobriyan@gmail.com>,
+ d=amdcloud.onmicrosoft.com; s=selector2-amdcloud-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=k62kN9OcmFsC9ZPnWFWWW0UlGqwjxjbjZ+WbIuWGYy4=;
+ b=eADYAC3sbWji4emN9RXzB63ykr43JTlbKI87MmdcFpZ/uYHDdjx8ABf4zyBNRmQXV36E+t33cEKB5HHYWAH9SSH9cxvJH2KvHrsgBcE80K75Lkv8lAXvFUSuOVk0kOGyPbahFNNj43wkf2/Hjj3oNQJikWPOOVyPXP6tphJBvrE=
+Authentication-Results: spf=none (sender IP is )
+ smtp.mailfrom=kim.phillips@amd.com; 
+Received: from SN6PR12MB2845.namprd12.prod.outlook.com (2603:10b6:805:75::33)
+ by SN6PR12MB2830.namprd12.prod.outlook.com (2603:10b6:805:e0::27) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.2793.14; Wed, 11 Mar
+ 2020 19:13:38 +0000
+Received: from SN6PR12MB2845.namprd12.prod.outlook.com
+ ([fe80::dd6f:a575:af8e:4f1b]) by SN6PR12MB2845.namprd12.prod.outlook.com
+ ([fe80::dd6f:a575:af8e:4f1b%7]) with mapi id 15.20.2793.018; Wed, 11 Mar 2020
+ 19:13:38 +0000
+From:   Kim Phillips <kim.phillips@amd.com>
+To:     Peter Zijlstra <peterz@infradead.org>,
+        Ingo Molnar <mingo@kernel.org>, Ingo Molnar <mingo@redhat.com>,
         Thomas Gleixner <tglx@linutronix.de>,
-        Oleg Nesterov <oleg@redhat.com>,
-        Frederic Weisbecker <frederic@kernel.org>,
-        Andrei Vagin <avagin@gmail.com>,
-        Ingo Molnar <mingo@kernel.org>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Yuyang Du <duyuyang@gmail.com>,
-        David Hildenbrand <david@redhat.com>,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        Anshuman Khandual <anshuman.khandual@arm.com>,
-        David Howells <dhowells@redhat.com>,
-        James Morris <jamorris@linux.microsoft.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Shakeel Butt <shakeelb@google.com>,
-        Jason Gunthorpe <jgg@ziepe.ca>,
-        Christian Kellner <christian@kellner.me>,
-        Andrea Arcangeli <aarcange@redhat.com>,
-        Aleksa Sarai <cyphar@cyphar.com>,
-        "Dmitry V. Levin" <ldv@altlinux.org>,
-        "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>,
-        "linux-mm@kvack.org" <linux-mm@kvack.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "linux-api@vger.kernel.org" <linux-api@vger.kernel.org>
-Subject: Re: [PATCH 2/4] proc: Use new infrastructure to fix deadlocks in
- execve
-Message-ID: <202003111208.640025F75@keescook>
-References: <87r1y12yc7.fsf@x220.int.ebiederm.org>
- <87k13t2xpd.fsf@x220.int.ebiederm.org>
- <87d09l2x5n.fsf@x220.int.ebiederm.org>
- <AM6PR03MB5170F0F9DC18F5EA77C9A857E4FE0@AM6PR03MB5170.eurprd03.prod.outlook.com>
- <871rq12vxu.fsf@x220.int.ebiederm.org>
- <AM6PR03MB5170DF45E3245F55B95CCD91E4FE0@AM6PR03MB5170.eurprd03.prod.outlook.com>
- <877dzt1fnf.fsf@x220.int.ebiederm.org>
- <AM6PR03MB51701C6F60699F99C5C67E0BE4FF0@AM6PR03MB5170.eurprd03.prod.outlook.com>
- <875zfcxlwy.fsf@x220.int.ebiederm.org>
- <AM6PR03MB51705D211EC8E7EA270627B1E4FF0@AM6PR03MB5170.eurprd03.prod.outlook.com>
+        Borislav Petkov <bp@alien8.de>, kim.phillips@amd.com
+Cc:     Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Arnaldo Carvalho de Melo <acme@kernel.org>,
+        "H. Peter Anvin" <hpa@zytor.com>, Jiri Olsa <jolsa@redhat.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Michael Petlan <mpetlan@redhat.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        linux-kernel@vger.kernel.org, x86@kernel.org,
+        stable@vger.kernel.org
+Subject: [PATCH 1/3 RESEND] perf/amd/uncore: Replace manual sampling check with CAP_NO_INTERRUPT flag
+Date:   Wed, 11 Mar 2020 14:13:21 -0500
+Message-Id: <20200311191323.13124-1-kim.phillips@amd.com>
+X-Mailer: git-send-email 2.25.1
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: DM5PR13CA0011.namprd13.prod.outlook.com
+ (2603:10b6:3:23::21) To SN6PR12MB2845.namprd12.prod.outlook.com
+ (2603:10b6:805:75::33)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <AM6PR03MB51705D211EC8E7EA270627B1E4FF0@AM6PR03MB5170.eurprd03.prod.outlook.com>
+X-MS-Exchange-MessageSentRepresentingType: 1
+Received: from fritz.amd.com (165.204.77.1) by DM5PR13CA0011.namprd13.prod.outlook.com (2603:10b6:3:23::21) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.2814.7 via Frontend Transport; Wed, 11 Mar 2020 19:13:36 +0000
+X-Mailer: git-send-email 2.25.1
+X-Originating-IP: [165.204.77.1]
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-HT: Tenant
+X-MS-Office365-Filtering-Correlation-Id: ad4de020-bbed-4350-6fdc-08d7c5f04d61
+X-MS-TrafficTypeDiagnostic: SN6PR12MB2830:|SN6PR12MB2830:
+X-MS-Exchange-Transport-Forked: True
+X-Microsoft-Antispam-PRVS: <SN6PR12MB2830A1C85E5DEDBB420DAE3587FC0@SN6PR12MB2830.namprd12.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:6108;
+X-Forefront-PRVS: 0339F89554
+X-Forefront-Antispam-Report: SFV:NSPM;SFS:(10009020)(4636009)(346002)(366004)(396003)(136003)(376002)(39860400002)(199004)(2616005)(956004)(6486002)(6666004)(7696005)(316002)(52116002)(8936002)(36756003)(110136005)(44832011)(478600001)(54906003)(26005)(16526019)(186003)(66556008)(66946007)(2906002)(1076003)(86362001)(5660300002)(8676002)(966005)(66476007)(4326008)(81166006)(81156014)(7416002);DIR:OUT;SFP:1101;SCL:1;SRVR:SN6PR12MB2830;H:SN6PR12MB2845.namprd12.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;A:1;
+Received-SPF: None (protection.outlook.com: amd.com does not designate
+ permitted sender hosts)
+X-MS-Exchange-SenderADCheck: 1
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: SoUWURoxP/JVnAE5SlIfpNF8FlaAMIT/QnkIpqEK4Q/3drs/YvFtMyZ3nQy7TOhsF9Rf8IN+il3OSyYX3kwSw0GA9cNqgHdK/ozqVy6aRp8hRb8VEIsgvxKshVLt6RJ+b4E0DNERy9j9qtByRHv01ZnStGzZ3/B/ZUiS3xYYpleeWZYClLJ3AHqle+N+Wq5YS2G6+mai/Hfq6WFm9usR+IAjBN8kXPBOKbY4gk72SOpe4xLzcN8gVLeBssl2rVfcqNi8XAz2QsXyWuuPuEwiiZP6vmZRon13xKfpJPBcXBNqP8a9PuHlv0TChw8swg5JWC6shjyDvnyby5zFEHzzMSGeeoOEWKm2uIupHXWiG0q9BoeB3cebUC6ANmTBs446VdIgO1KhqqFNeE3bn1ozuBnwIVF8t+NQtNrY0aRF53F5E6figWQVS5+po6OvDdoGuRjxI0r/hoiRtomfxQI6hP33xkyMt0+Vy5vgUGB3FUihN2QXJYO1EaLl9VO2ryegyrepDFL/PeHr4v3PJ9brZA==
+X-MS-Exchange-AntiSpam-MessageData: WR8ty9svt5XZkjJtg64qkSZensEogRERvV9vzUBkpTRG7Zm9skYVujc9/3GmO3ZdNOY+eyvXOZmsmUJgE5XnzYRmHvR32kNZc2IcddEpSxUWpvZgEAd6HPc0RenHGGI/qRCZFRw0ZVHJLrT3feialg==
+X-OriginatorOrg: amd.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: ad4de020-bbed-4350-6fdc-08d7c5f04d61
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 11 Mar 2020 19:13:37.8707
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: 3p9Ys8cTQjubdsKw+R0JTS05HSlS5MBclwpeGuEQlvPKHU0Vo5JLeAwYSv3rvFWXAIZ5WOn3xWvDsRZ1qzK2+w==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SN6PR12MB2830
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Mar 10, 2020 at 06:45:32PM +0100, Bernd Edlinger wrote:
-> This changes lock_trace to use the new exec_update_mutex
-> instead of cred_guard_mutex.
-> 
-> This fixes possible deadlocks when the trace is accessing
-> /proc/$pid/stack for instance.
-> 
-> This should be safe, as the credentials are only used for reading,
-> and task->mm is updated on execve under the new exec_update_mutex.
-> 
-> Signed-off-by: Bernd Edlinger <bernd.edlinger@hotmail.de>
+This enables the sampling check in kernel/events/core.c's
+perf_event_open, which returns the more appropriate -EOPNOTSUPP.
 
-I have the same question here as in 3/4. I should probably rescind my
-Reviewed-by until I'm convinced about the security-safety of this -- why
-is this not a race against cred changes?
+BEFORE:
 
--Kees
+$ sudo perf record -a -e instructions,l3_request_g1.caching_l3_cache_accesses true
+Error:
+The sys_perf_event_open() syscall returned with 22 (Invalid argument) for event (l3_request_g1.caching_l3_cache_accesses).
+/bin/dmesg | grep -i perf may provide additional information.
 
-> ---
->  fs/proc/base.c | 6 +++---
->  1 file changed, 3 insertions(+), 3 deletions(-)
-> 
-> diff --git a/fs/proc/base.c b/fs/proc/base.c
-> index ebea950..4fdfe4f 100644
-> --- a/fs/proc/base.c
-> +++ b/fs/proc/base.c
-> @@ -403,11 +403,11 @@ static int proc_pid_wchan(struct seq_file *m, struct pid_namespace *ns,
->  
->  static int lock_trace(struct task_struct *task)
->  {
-> -	int err = mutex_lock_killable(&task->signal->cred_guard_mutex);
-> +	int err = mutex_lock_killable(&task->signal->exec_update_mutex);
->  	if (err)
->  		return err;
->  	if (!ptrace_may_access(task, PTRACE_MODE_ATTACH_FSCREDS)) {
-> -		mutex_unlock(&task->signal->cred_guard_mutex);
-> +		mutex_unlock(&task->signal->exec_update_mutex);
->  		return -EPERM;
->  	}
->  	return 0;
-> @@ -415,7 +415,7 @@ static int lock_trace(struct task_struct *task)
->  
->  static void unlock_trace(struct task_struct *task)
->  {
-> -	mutex_unlock(&task->signal->cred_guard_mutex);
-> +	mutex_unlock(&task->signal->exec_update_mutex);
->  }
->  
->  #ifdef CONFIG_STACKTRACE
-> -- 
-> 1.9.1
+With nothing relevant in dmesg.
 
+AFTER:
+
+$ sudo perf record -a -e instructions,l3_request_g1.caching_l3_cache_accesses true
+Error:
+l3_request_g1.caching_l3_cache_accesses: PMU Hardware doesn't support sampling/overflow-interrupts. Try 'perf stat'
+
+Signed-off-by: Kim Phillips <kim.phillips@amd.com>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Arnaldo Carvalho de Melo <acme@kernel.org>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Ingo Molnar <mingo@kernel.org>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Michael Petlan <mpetlan@redhat.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: linux-kernel@vger.kernel.org
+Cc: x86@kernel.org
+Cc: stable@vger.kernel.org
+Fixes: c43ca5091a37 ("perf/x86/amd: Add support for AMD NB and L2I "uncore" counters")
+---
+RESEND.  No changes since original submission 19 Feb 2020:
+
+https://lkml.org/lkml/2020/2/19/1194
+
+ arch/x86/events/amd/uncore.c | 17 +++++++----------
+ 1 file changed, 7 insertions(+), 10 deletions(-)
+
+diff --git a/arch/x86/events/amd/uncore.c b/arch/x86/events/amd/uncore.c
+index a6ea07f2aa84..4d867a752f0e 100644
+--- a/arch/x86/events/amd/uncore.c
++++ b/arch/x86/events/amd/uncore.c
+@@ -190,15 +190,12 @@ static int amd_uncore_event_init(struct perf_event *event)
+ 
+ 	/*
+ 	 * NB and Last level cache counters (MSRs) are shared across all cores
+-	 * that share the same NB / Last level cache. Interrupts can be directed
+-	 * to a single target core, however, event counts generated by processes
+-	 * running on other cores cannot be masked out. So we do not support
+-	 * sampling and per-thread events.
++	 * that share the same NB / Last level cache.  On family 16h and below,
++	 * Interrupts can be directed to a single target core, however, event
++	 * counts generated by processes running on other cores cannot be masked
++	 * out. So we do not support sampling and per-thread events via
++	 * CAP_NO_INTERRUPT, and we do not enable counter overflow interrupts:
+ 	 */
+-	if (is_sampling_event(event) || event->attach_state & PERF_ATTACH_TASK)
+-		return -EINVAL;
+-
+-	/* and we do not enable counter overflow interrupts */
+ 	hwc->config = event->attr.config & AMD64_RAW_EVENT_MASK_NB;
+ 	hwc->idx = -1;
+ 
+@@ -306,7 +303,7 @@ static struct pmu amd_nb_pmu = {
+ 	.start		= amd_uncore_start,
+ 	.stop		= amd_uncore_stop,
+ 	.read		= amd_uncore_read,
+-	.capabilities	= PERF_PMU_CAP_NO_EXCLUDE,
++	.capabilities	= PERF_PMU_CAP_NO_EXCLUDE | PERF_PMU_CAP_NO_INTERRUPT,
+ };
+ 
+ static struct pmu amd_llc_pmu = {
+@@ -317,7 +314,7 @@ static struct pmu amd_llc_pmu = {
+ 	.start		= amd_uncore_start,
+ 	.stop		= amd_uncore_stop,
+ 	.read		= amd_uncore_read,
+-	.capabilities	= PERF_PMU_CAP_NO_EXCLUDE,
++	.capabilities	= PERF_PMU_CAP_NO_EXCLUDE | PERF_PMU_CAP_NO_INTERRUPT,
+ };
+ 
+ static struct amd_uncore *amd_uncore_alloc(unsigned int cpu)
 -- 
-Kees Cook
+2.25.1
+
