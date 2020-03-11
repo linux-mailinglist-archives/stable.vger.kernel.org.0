@@ -2,101 +2,72 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 00992181E4B
-	for <lists+stable@lfdr.de>; Wed, 11 Mar 2020 17:53:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6930D181E74
+	for <lists+stable@lfdr.de>; Wed, 11 Mar 2020 17:55:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730059AbgCKQxd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Mar 2020 12:53:33 -0400
-Received: from mail27.static.mailgun.info ([104.130.122.27]:21907 "EHLO
-        mail27.static.mailgun.info" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1730031AbgCKQxc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 11 Mar 2020 12:53:32 -0400
-DKIM-Signature: a=rsa-sha256; v=1; c=relaxed/relaxed; d=mg.codeaurora.org; q=dns/txt;
- s=smtp; t=1583945612; h=Date: Message-Id: Cc: To: References:
- In-Reply-To: From: Subject: Content-Transfer-Encoding: MIME-Version:
- Content-Type: Sender; bh=ubLoWCp3h01mj32RDpUyl192zHsOqVXscIZcMtW7IbI=;
- b=PZ+MybkwrX+dCcg8VO+IN7EKtAmAUJso76K5NPA0oVdzP22e85RakbZSG9/UQ3p0CmifBIlC
- X3bk0MdHdGtj467qIQvL+DHqpkRshtKN5+CWQKlZhvpZDU0sYCwRRq1YdONUEL9s2FHryn9N
- WzzxPCHP8hADWfEzsqQKIrr57R0=
-X-Mailgun-Sending-Ip: 104.130.122.27
-X-Mailgun-Sid: WyI1ZjI4MyIsICJzdGFibGVAdmdlci5rZXJuZWwub3JnIiwgImJlOWU0YSJd
-Received: from smtp.codeaurora.org (ec2-35-166-182-171.us-west-2.compute.amazonaws.com [35.166.182.171])
- by mxa.mailgun.org with ESMTP id 5e69178a.7fc3b35dc500-smtp-out-n01;
- Wed, 11 Mar 2020 16:53:30 -0000 (UTC)
-Received: by smtp.codeaurora.org (Postfix, from userid 1001)
-        id 7184BC433D2; Wed, 11 Mar 2020 16:53:30 +0000 (UTC)
-X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
-        aws-us-west-2-caf-mail-1.web.codeaurora.org
-X-Spam-Level: 
-X-Spam-Status: No, score=0.5 required=2.0 tests=ALL_TRUSTED,MISSING_DATE,
-        MISSING_MID,SPF_NONE autolearn=no autolearn_force=no version=3.4.0
-Received: from potku.adurom.net (88-114-240-156.elisa-laajakaista.fi [88.114.240.156])
+        id S1730055AbgCKQzs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Mar 2020 12:55:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59142 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1730019AbgCKQzs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Mar 2020 12:55:48 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        (Authenticated sender: kvalo)
-        by smtp.codeaurora.org (Postfix) with ESMTPSA id E469BC433CB;
-        Wed, 11 Mar 2020 16:53:27 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 smtp.codeaurora.org E469BC433CB
-Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; dmarc=none (p=none dis=none) header.from=codeaurora.org
-Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; spf=none smtp.mailfrom=kvalo@codeaurora.org
-Content-Type: text/plain; charset="utf-8"
+        by mail.kernel.org (Postfix) with ESMTPSA id E48F520735;
+        Wed, 11 Mar 2020 16:55:47 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1583945748;
+        bh=L1VQcWtMDnovMPfvhIyZ66zckUdhiFbZR4tczKs/UN4=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=o3Lv07Y1UvkLUi3owP604eFAfu9CfV8iVXYUnYLf7YXFQA7MFCkul9uThwQzg2gWL
+         CeHXftWI7NZNFycBPeTpTV20pdNRzMdam9TFjx6ZrArzyfLcc1FG+88Lctv4DAIz0y
+         xu0/fuPAwKcjkKxWKDOsySiBOZQnKzUeQcO2Rw+o=
+Date:   Wed, 11 Mar 2020 17:55:44 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Guenter Roeck <linux@roeck-us.net>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH 4.14 000/126] 4.14.173-stable review
+Message-ID: <20200311165544.GA3944429@kroah.com>
+References: <20200311130904.819648693@linuxfoundation.org>
+ <93f0b56a-f11c-5c29-5a80-041103273e41@roeck-us.net>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Subject: Re: [PATCH] ath9k: Handle txpower changes even when TPC is disabled
-From:   Kalle Valo <kvalo@codeaurora.org>
-In-Reply-To: <20200229161347.31341-1-repk@triplefau.lt>
-References: <20200229161347.31341-1-repk@triplefau.lt>
-To:     Remi Pommarel <repk@triplefau.lt>
-Cc:     Lorenzo Bianconi <lorenzo@kernel.org>,
-        QCA ath9k Development <ath9k-devel@qca.qualcomm.com>,
-        linux-wireless@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Remi Pommarel <repk@triplefau.lt>, stable@vger.kernel.org
-User-Agent: pwcli/0.0.0-git (https://github.com/kvalo/pwcli/) Python/2.7.12
-Message-Id: <20200311165330.7184BC433D2@smtp.codeaurora.org>
-Date:   Wed, 11 Mar 2020 16:53:30 +0000 (UTC)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <93f0b56a-f11c-5c29-5a80-041103273e41@roeck-us.net>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Remi Pommarel <repk@triplefau.lt> wrote:
+On Wed, Mar 11, 2020 at 09:27:25AM -0700, Guenter Roeck wrote:
+> On 3/11/20 6:11 AM, Greg Kroah-Hartman wrote:
+> > This is the start of the stable review cycle for the 4.14.173 release.
+> > There are 126 patches in this series, all will be posted as a response
+> > to this one.  If anyone has any issues with these being applied, please
+> > let me know.
+> > 
+> > Responses should be made by Fri, 13 Mar 2020 13:08:24 +0000.
+> > Anything received after that time might be too late.
+> > 
+> > The whole patch series can be found in one patch at:
+> > 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.173-rc2.gz
+> 
+> For v4.14.172-127-gc23e0b0dc693:
+> 
+> Build results:
+> 	total: 172 pass: 172 fail: 0
+> Qemu test results:
+> 	total: 401 pass: 401 fail: 0
+> 
+> It would be helpful to have a more prominent indication that this is -rc2.
 
-> When TPC is disabled IEEE80211_CONF_CHANGE_POWER event can be handled to
-> reconfigure HW's maximum txpower.
-> 
-> This fixes 0dBm txpower setting when user attaches to an interface for
-> the first time with the following scenario:
-> 
-> ieee80211_do_open()
->     ath9k_add_interface()
->         ath9k_set_txpower() /* Set TX power with not yet initialized
->                                sc->hw->conf.power_level */
-> 
->     ieee80211_hw_config() /* Iniatilize sc->hw->conf.power_level and
->                              raise IEEE80211_CONF_CHANGE_POWER */
-> 
->     ath9k_config() /* IEEE80211_CONF_CHANGE_POWER is ignored */
-> 
-> This issue can be reproduced with the following:
-> 
->   $ modprobe -r ath9k
->   $ modprobe ath9k
->   $ wpa_supplicant -i wlan0 -c /tmp/wpa.conf &
->   $ iw dev /* Here TX power is either 0 or 3 depending on RF chain */
->   $ killall wpa_supplicant
->   $ iw dev /* TX power goes back to calibrated value and subsequent
->               calls will be fine */
-> 
-> Fixes: 283dd11994cde ("ath9k: add per-vif TX power capability")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Remi Pommarel <repk@triplefau.lt>
-> Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Yeah, I just now noticed it wasn't in the subject line, but it's in the
+X- headers.  I'll fix that up on my end, sorry.
 
-Patch applied to ath-next branch of ath.git, thanks.
+And thanks for testing.
 
-968ae2caad07 ath9k: Handle txpower changes even when TPC is disabled
-
--- 
-https://patchwork.kernel.org/patch/11413917/
-
-https://wireless.wiki.kernel.org/en/developers/documentation/submittingpatches
+greg k-h
