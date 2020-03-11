@@ -2,111 +2,142 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E9DD2181700
-	for <lists+stable@lfdr.de>; Wed, 11 Mar 2020 12:41:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 73CB9181711
+	for <lists+stable@lfdr.de>; Wed, 11 Mar 2020 12:50:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729057AbgCKLll (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Mar 2020 07:41:41 -0400
-Received: from mail-pg1-f195.google.com ([209.85.215.195]:33115 "EHLO
-        mail-pg1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725834AbgCKLlk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 11 Mar 2020 07:41:40 -0400
-Received: by mail-pg1-f195.google.com with SMTP id m5so1074570pgg.0
-        for <stable@vger.kernel.org>; Wed, 11 Mar 2020 04:41:40 -0700 (PDT)
+        id S1729165AbgCKLuD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Mar 2020 07:50:03 -0400
+Received: from mail-ot1-f65.google.com ([209.85.210.65]:37167 "EHLO
+        mail-ot1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729016AbgCKLuD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 11 Mar 2020 07:50:03 -0400
+Received: by mail-ot1-f65.google.com with SMTP id b3so1604017otp.4
+        for <stable@vger.kernel.org>; Wed, 11 Mar 2020 04:50:02 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=uPjYut8SZE+rf3uJQybSa+0+kSZVPe4++3fF8N54kyw=;
-        b=WmMrGbsTojKkKRjIAzVHbToR+BkxRls4K7ZEajYBLSp8k8a994BkvRzHPj3aB+sZhr
-         vm1aCbgD/6eiU5pMAPYRyCZZtZz2wPQBv4iyhzfP0qGtbvNeg8c5hXwyg74BsIDcdKNr
-         qKy/5q2WQ/pvetHIVR6P//yOrDK48m0lvtwR2CckNnHQEH3Lcg96fSzifDeVpq7N9drQ
-         V83cc40Jhk78i6QGrb3+mskoU4QmVtqm+fiRJfhILIsD4m1XHJbHIjPWLriU6rPq8L8m
-         EgfcO7yCxbZ2hMzbg3LF4ujrRt/LqZ2P+9KoJifGBj1pKJDD1J+gtY3XRMr9TnDUVtLi
-         bRjw==
+        d=broadcom.com; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=Xy7DjMTeIRHoMxJnXMiMNMf4Q69p1Oxv7TIvAtxfT9c=;
+        b=YQh5UMbw47J5h9vQqSC3JBKsWPZuXJXRmK/pRh1J6TbaR1v/u7wCbaOwP98A9Vqb/C
+         BvNhZKL8SEunuynTYeXJPATieyTaDEEfxM0MynoM8MJvIYY12alDBPaNnO5c/zNwcv8z
+         xFx0pcV0HWHa3ytx70YfrftAkITVWUKqcFBr4=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=uPjYut8SZE+rf3uJQybSa+0+kSZVPe4++3fF8N54kyw=;
-        b=Yn1JpL508iGdo/kAd//HJ+z8p/hV5GmrBo4oEZgV14uc8aesNwsHONNPPCws8uVFvc
-         TIznSTngpHH4fiWSsexLO3fbSdDyGWG+ttW/pd+rIdwwoH7zxFHi/eHLCu3iLTTyAJKm
-         TMD+oIen+KT63OtMyo8gXp86ft7ZCY/SDjIdV16d6TBFA8qjrioMzKVuvQrg4AP75Mb+
-         lIQeKcrvv185R0Y2Ta15tE4RELsHybOCYB6H9Y/jAu/oZlxefcOlLfjbYkWzBJvupVK8
-         Mem0nYEL8DwdNrK19Zgb2z8AK+HNH+Ge8rFclG7+itKKbxaV3zJin9QlOtFo5TtS3u7S
-         uaFA==
-X-Gm-Message-State: ANhLgQ2ihAAmDGQv44b8YXW3piBZi3KrZBVApFBehpTBi1fYVBytkfN2
-        568t74Ymq/56EzjvlN4QBCO+AWihcAs=
-X-Google-Smtp-Source: ADFU+vtiwIyEj6w8N3GOPFuHaYySiJsffqKZouolO/+QIfo6BUdyrnjI3fifVCZOSbRtqccQbnmRUA==
-X-Received: by 2002:aa7:85d3:: with SMTP id z19mr2379342pfn.13.1583926899155;
-        Wed, 11 Mar 2020 04:41:39 -0700 (PDT)
-Received: from [10.0.9.4] ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id bb13sm5453578pjb.43.2020.03.11.04.41.38
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 11 Mar 2020 04:41:38 -0700 (PDT)
-Message-ID: <5e68ce72.1c69fb81.6b5e8.1c2e@mx.google.com>
-Date:   Wed, 11 Mar 2020 04:41:38 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=Xy7DjMTeIRHoMxJnXMiMNMf4Q69p1Oxv7TIvAtxfT9c=;
+        b=um57AM8LxW/ulUrhVzYO30dL03n6PlWU21hNjdDFhJISoDloAtouOqD38rRBBf4vWv
+         EjjISBPIUHbmz5jUrPk12SRJjKPzMuv8HNI+AF8oOFWFlQd5VacoXATXMnjs9dnk4MCR
+         kc2dTDcx2eIvfeNdpMDFOw7xzjwxeflH9Oecme6HvGZ9MkX5w5Gasnr43fHn0NXHnd84
+         NN4gCzOtCaw+QDL3Nmem7Yw1WDjzUS4PqR79EDrCgk63eNRnzNKtqa596ZtlXST333XZ
+         oeSHklWPd5B8sA8AtecNTLm5YLAsV7vDqPkw72ZaHgzN2FilOx7nxjDgH/UEQlG7B9aK
+         ifsg==
+X-Gm-Message-State: ANhLgQ0Ld5Wxin0iNHFlsF2ySFlC1H0Q5yLOsRCFNYeeSO14+1ZR26/L
+        sBX4f5Xsauwt1IZLGSSCOKAslSJKvUxCnSc3Uw8kbQ==
+X-Google-Smtp-Source: ADFU+vsZ5brv97OyXUL7zxrDRiFZQpFhd3Ccroy9Ob0D0PnJQzHP6SONUsVWuzSd2CJPEiT5d3eM3Izh1O9cZo3MMBM=
+X-Received: by 2002:a9d:64b:: with SMTP id 69mr1899193otn.237.1583927402216;
+ Wed, 11 Mar 2020 04:50:02 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-4.9.y
-X-Kernelci-Tree: stable
-X-Kernelci-Kernel: v4.9.216
-X-Kernelci-Report-Type: boot
-Subject: stable/linux-4.9.y boot: 20 boots: 2 failed,
- 17 passed with 1 untried/unknown (v4.9.216)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+References: <1583923013-3935-1-git-send-email-sreekanth.reddy@broadcom.com>
+ <5d68479b9a852cc8c29b36eaa76c45cbd4fdd39a.camel@kernel.org> <CAK=zhgrpov8=MkJVVhyr2O6zcJHaR3B-2h2TcRbyCXBx9i8GCQ@mail.gmail.com>
+In-Reply-To: <CAK=zhgrpov8=MkJVVhyr2O6zcJHaR3B-2h2TcRbyCXBx9i8GCQ@mail.gmail.com>
+From:   Sreekanth Reddy <sreekanth.reddy@broadcom.com>
+Date:   Wed, 11 Mar 2020 17:19:50 +0530
+Message-ID: <CAK=zhgp-oFoMkG_X8e5sm13=14TA5WZAHXYSeuZAV2fmUKbPow@mail.gmail.com>
+Subject: Re: [PATCH] mpt3sas: Fix kernel panic observed on soft HBA unplug
+To:     Amit Shah <amit@kernel.org>
+Cc:     "Martin K. Petersen" <martin.petersen@oracle.com>,
+        linux-scsi <linux-scsi@vger.kernel.org>,
+        Sathya Prakash <sathya.prakash@broadcom.com>,
+        Suganath Prabu Subramani 
+        <suganath-prabu.subramani@broadcom.com>, stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable/linux-4.9.y boot: 20 boots: 2 failed, 17 passed with 1 untried/unkno=
-wn (v4.9.216)
+On Wed, Mar 11, 2020 at 4:55 PM Sreekanth Reddy
+<sreekanth.reddy@broadcom.com> wrote:
+>
+> On Wed, Mar 11, 2020 at 4:35 PM Amit Shah <amit@kernel.org> wrote:
+> >
+> > On Wed, 2020-03-11 at 06:36 -0400, Sreekanth Reddy wrote:
+> > > Generic protection fault type kernel panic is observed when user
+> > > performs soft(ordered) HBA unplug operation while IOs are running
+> > > on drives connected to HBA.
+> > >
+> > > When user performs ordered HBA removal operation then kernel calls
+> > > PCI device's .remove() call back function where driver is flushing
+> > > out
+> > > all the outstanding SCSI IO commands with DID_NO_CONNECT host byte
+> > > and
+> > > also un-maps sg buffers allocated for these IO commands.
+> > > But in the ordered HBA removal case (unlike of real HBA hot unplug)
+> > > HBA device is still alive and hence HBA hardware is performing the
+> > > DMA operations to those buffers on the system memory which are
+> > > already
+> > > unmapped while flushing out the outstanding SCSI IO commands
+> > > and this leads to Kernel panic.
+> > >
+> > > Fix:
+> > > Don't flush out the outstanding IOs from .remove() path in case of
+> > > ordered HBA removal since HBA will be still alive in this case and
+> > > it can complete the outstanding IOs. Flush out the outstanding IOs
+> > > only in case physical HBA hot unplug where their won't be any
+> > > communication with the HBA.
+> >
+> > Can you please point to the commit that introduces the bug?
+>
+> Sure I will add the commit ID which introduced this bug in the next patch.
+>
+> >
+> > >
+> > > Cc: stable@vger.kernel.org
+> > > Signed-off-by: Sreekanth Reddy <sreekanth.reddy@broadcom.com>
+> > > ---
+> > >  drivers/scsi/mpt3sas/mpt3sas_scsih.c | 8 ++++----
+> > >  1 file changed, 4 insertions(+), 4 deletions(-)
+> > >
+> > > diff --git a/drivers/scsi/mpt3sas/mpt3sas_scsih.c
+> > > b/drivers/scsi/mpt3sas/mpt3sas_scsih.c
+> > > index 778d5e6..04a40af 100644
+> > > --- a/drivers/scsi/mpt3sas/mpt3sas_scsih.c
+> > > +++ b/drivers/scsi/mpt3sas/mpt3sas_scsih.c
+> > > @@ -9908,8 +9908,8 @@ static void scsih_remove(struct pci_dev *pdev)
+> > >
+> > >       ioc->remove_host = 1;
+> > >
+> > > -     mpt3sas_wait_for_commands_to_complete(ioc);
+> > > -     _scsih_flush_running_cmds(ioc);
+> > > +     if (!pci_device_is_present(pdev))
+> > > +             _scsih_flush_running_cmds(ioc);
+> > >
+> > >       _scsih_fw_event_cleanup_queue(ioc);
+> > >
+> > > @@ -9992,8 +9992,8 @@ static void scsih_remove(struct pci_dev *pdev)
+> >
+> > Just a note: this function is scsih_shutdown().  Doesn't block
+> > application of the patch, though.  Just wondering how the patch was
+> > created.
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable/branch/linux-4.=
-9.y/kernel/v4.9.216/
-Full Build Summary: https://kernelci.org/build/stable/branch/linux-4.9.y/ke=
-rnel/v4.9.216/
+I got your query now,  yes this hunk change is in scsih_shutdown()
+function. I am not sure why scsih_remove name is getting displayed
+here in this hunk. I have used 'git format-patch' to generate the
+patch.
 
-Tree: stable
-Branch: linux-4.9.y
-Git Describe: v4.9.216
-Git Commit: 19c646f01e4ace1e5e5b3de2749de25bc86b79a1
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e.git
-Tested: 20 unique boards, 9 SoC families, 10 builds out of 197
-
-Boot Regressions Detected:
-
-arm:
-
-    omap2plus_defconfig:
-        gcc-8:
-          omap3-beagle-xm:
-              lab-baylibre: failing since 10 days (last pass: v4.9.213 - fi=
-rst fail: v4.9.215)
-
-arm64:
-
-    defconfig:
-        gcc-8:
-          r8a7795-salvator-x:
-              lab-baylibre: new failure (last pass: v4.9.215)
-
-Boot Failures Detected:
-
-arm:
-    sama5_defconfig:
-        gcc-8:
-            at91-sama5d4_xplained: 1 failed lab
-
-arm64:
-    defconfig:
-        gcc-8:
-            r8a7795-salvator-x: 1 failed lab
-
----
-For more info write to <info@kernelci.org>
+>
+> Sorry I didn't get you. Can you please elaborate your query?
+>
+> >
+> > >
+> > >       ioc->remove_host = 1;
+> > >
+> > > -     mpt3sas_wait_for_commands_to_complete(ioc);
+> > > -     _scsih_flush_running_cmds(ioc);
+> > > +     if (!pci_device_is_present(pdev))
+> > > +             _scsih_flush_running_cmds(ioc);
+> > >
+> > >       _scsih_fw_event_cleanup_queue(ioc);
+> > >
+> >
