@@ -2,136 +2,202 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C494F181DC6
-	for <lists+stable@lfdr.de>; Wed, 11 Mar 2020 17:27:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ACFE8181DE8
+	for <lists+stable@lfdr.de>; Wed, 11 Mar 2020 17:31:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730172AbgCKQ1b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Mar 2020 12:27:31 -0400
-Received: from mail-pl1-f196.google.com ([209.85.214.196]:38401 "EHLO
-        mail-pl1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729631AbgCKQ1a (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 11 Mar 2020 12:27:30 -0400
-Received: by mail-pl1-f196.google.com with SMTP id w3so1335934plz.5;
-        Wed, 11 Mar 2020 09:27:29 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:subject:to:cc:references:from:autocrypt:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=9Qbsx5kYxwLXgSbrNpBNiMwmzi0/W82NYhWZBoD3mgg=;
-        b=pIhx0gyLI8o6n7m2Em9HMC6X0nO2o9JfFC368BTRaTJIBTAzS4tg8IOHa64WLiD2Dq
-         k9hdft9uvLsvIZUecS1DdphgB4/+ucAeaqKa0uPJG/Po1ixt8q7SIg81WOesvnNS9q9c
-         WVsho1/v0iUYZLuclrM3d9jDHvSCduWj8COPATW+aJgRk9Nzba07II95K0zxgI8eJG9n
-         WBBe2i4AHOPHNhgbdOhJZ9TGJHiO1Dw2dtQI7i9GUNv/WVvRFWaZ1Sndm3prK7WqNUmq
-         P5r3A4uw5Yg/SgBUhdIu/YPrSWO1M+mBF5bXC5iObrTSuTK+LjUvRRxptFZAA16H4sq0
-         xBSQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:subject:to:cc:references:from:autocrypt
-         :message-id:date:user-agent:mime-version:in-reply-to
-         :content-language:content-transfer-encoding;
-        bh=9Qbsx5kYxwLXgSbrNpBNiMwmzi0/W82NYhWZBoD3mgg=;
-        b=W9sXlKRuvVQGPSL5i98ChY88NWn8kkyq80Y3tFo6G5WaWxqvJCSo7SoAWmYkT9nuW3
-         1nYy/IAxrKhpEVMjzAgIQQ/pg9MioVO2o7xFKVvdaPKBSV6yX+m39sIfXcMUuE88ePBA
-         OJ/9IccIU/NHsZsZaHqFytF+DpJod9zYnMYORFSsYOK76WCjaDfWuo0YIIkTfp5q1VNJ
-         BmkZ4jXvnen2PcqYHBPuJ359ONTYSL2PHGuFbJkUADmSyEyESUi+8ZFC6oqDHC4UcxTH
-         Pl8aAiFYPZOsD/7g2jvZS6tr7h7qLJt56sJwHZI3vxTDyTKzf+YbbGU3kwVRMTXNTNAh
-         r6lA==
-X-Gm-Message-State: ANhLgQ0A0EjO5VvmNGvFkIMt/bbdxzuj/FOBeuyOiQ7W7pboY9DO5Ieo
-        nnL5hCd73GDbMek7GIiv/f9ARMJn
-X-Google-Smtp-Source: ADFU+vtAUdgPVviazVFH5mb3CMbTVkKBPq1KS/ScemTYiyJS9ahW+GOFjyPyM+SuJ2P39YmWNRC//A==
-X-Received: by 2002:a17:902:a710:: with SMTP id w16mr3785924plq.43.1583944048768;
-        Wed, 11 Mar 2020 09:27:28 -0700 (PDT)
-Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id t6sm20303739pfb.172.2020.03.11.09.27.26
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 11 Mar 2020 09:27:27 -0700 (PDT)
-Subject: Re: [PATCH 4.14 000/126] 4.14.173-stable review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org
-References: <20200311130904.819648693@linuxfoundation.org>
-From:   Guenter Roeck <linux@roeck-us.net>
-Autocrypt: addr=linux@roeck-us.net; keydata=
- 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
- mDW4+i+XlNFUPUYMrIKi9joBhu18ssf5i5Q=
-Message-ID: <93f0b56a-f11c-5c29-5a80-041103273e41@roeck-us.net>
-Date:   Wed, 11 Mar 2020 09:27:25 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.4.1
+        id S1730194AbgCKQbm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Mar 2020 12:31:42 -0400
+Received: from out01.mta.xmission.com ([166.70.13.231]:54052 "EHLO
+        out01.mta.xmission.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729675AbgCKQbm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 11 Mar 2020 12:31:42 -0400
+Received: from in02.mta.xmission.com ([166.70.13.52])
+        by out01.mta.xmission.com with esmtps (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        (Exim 4.90_1)
+        (envelope-from <ebiederm@xmission.com>)
+        id 1jC4GW-0001qd-9w; Wed, 11 Mar 2020 10:31:28 -0600
+Received: from ip68-227-160-95.om.om.cox.net ([68.227.160.95] helo=x220.xmission.com)
+        by in02.mta.xmission.com with esmtpsa (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.87)
+        (envelope-from <ebiederm@xmission.com>)
+        id 1jC4GV-0006Xl-GD; Wed, 11 Mar 2020 10:31:28 -0600
+From:   ebiederm@xmission.com (Eric W. Biederman)
+To:     Bernd Edlinger <bernd.edlinger@hotmail.de>
+Cc:     Jann Horn <jannh@google.com>,
+        Christian Brauner <christian.brauner@ubuntu.com>,
+        Kees Cook <keescook@chromium.org>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Alexey Dobriyan <adobriyan@gmail.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Oleg Nesterov <oleg@redhat.com>,
+        Frederic Weisbecker <frederic@kernel.org>,
+        Andrei Vagin <avagin@gmail.com>,
+        Ingo Molnar <mingo@kernel.org>,
+        "Peter Zijlstra \(Intel\)" <peterz@infradead.org>,
+        Yuyang Du <duyuyang@gmail.com>,
+        David Hildenbrand <david@redhat.com>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Anshuman Khandual <anshuman.khandual@arm.com>,
+        David Howells <dhowells@redhat.com>,
+        James Morris <jamorris@linux.microsoft.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Shakeel Butt <shakeelb@google.com>,
+        Jason Gunthorpe <jgg@ziepe.ca>,
+        Christian Kellner <christian@kellner.me>,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        Aleksa Sarai <cyphar@cyphar.com>,
+        "Dmitry V. Levin" <ldv@altlinux.org>,
+        "linux-doc\@vger.kernel.org" <linux-doc@vger.kernel.org>,
+        "linux-kernel\@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "linux-fsdevel\@vger.kernel.org" <linux-fsdevel@vger.kernel.org>,
+        "linux-mm\@kvack.org" <linux-mm@kvack.org>,
+        "stable\@vger.kernel.org" <stable@vger.kernel.org>,
+        "linux-api\@vger.kernel.org" <linux-api@vger.kernel.org>
+References: <AM6PR03MB5170EB4427BF5C67EE98FF09E4E60@AM6PR03MB5170.eurprd03.prod.outlook.com>
+        <AM6PR03MB5170285B336790D3450E2644E4E40@AM6PR03MB5170.eurprd03.prod.outlook.com>
+        <87v9nlii0b.fsf@x220.int.ebiederm.org>
+        <AM6PR03MB5170609D44967E044FD1BE40E4E40@AM6PR03MB5170.eurprd03.prod.outlook.com>
+        <87a74xi4kz.fsf@x220.int.ebiederm.org>
+        <AM6PR03MB51705AA3009B4986BB6EF92FE4E50@AM6PR03MB5170.eurprd03.prod.outlook.com>
+        <87r1y8dqqz.fsf@x220.int.ebiederm.org>
+        <AM6PR03MB517053AED7DC89F7C0704B7DE4E50@AM6PR03MB5170.eurprd03.prod.outlook.com>
+        <AM6PR03MB51703B44170EAB4626C9B2CAE4E20@AM6PR03MB5170.eurprd03.prod.outlook.com>
+        <87tv32cxmf.fsf_-_@x220.int.ebiederm.org>
+        <87v9ne5y4y.fsf_-_@x220.int.ebiederm.org>
+        <87zhcq4jdj.fsf_-_@x220.int.ebiederm.org>
+        <CAG48ez13XXWNRLrPFRHRsvPKSwSK1-6k+1F7QujWOJtVuk0QHg@mail.gmail.com>
+        <87wo7roq2c.fsf@x220.int.ebiederm.org>
+        <CAG48ez1j2=pdj0nc1syHkh6X4d=aHuCH1srzA6hT7+32QD+6Gg@mail.gmail.com>
+        <87k13roigf.fsf@x220.int.ebiederm.org>
+        <AM6PR03MB51709C444F21281F6A40F039E4FC0@AM6PR03MB5170.eurprd03.prod.outlook.com>
+Date:   Wed, 11 Mar 2020 11:29:08 -0500
+In-Reply-To: <AM6PR03MB51709C444F21281F6A40F039E4FC0@AM6PR03MB5170.eurprd03.prod.outlook.com>
+        (Bernd Edlinger's message of "Wed, 11 Mar 2020 07:33:35 +0100")
+Message-ID: <87d09ionxn.fsf@x220.int.ebiederm.org>
+User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/26.1 (gnu/linux)
 MIME-Version: 1.0
-In-Reply-To: <20200311130904.819648693@linuxfoundation.org>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain
+X-XM-SPF: eid=1jC4GV-0006Xl-GD;;;mid=<87d09ionxn.fsf@x220.int.ebiederm.org>;;;hst=in02.mta.xmission.com;;;ip=68.227.160.95;;;frm=ebiederm@xmission.com;;;spf=neutral
+X-XM-AID: U2FsdGVkX19ZjP97Ct6MFalNH8PhJ+rPzWt746X6+Og=
+X-SA-Exim-Connect-IP: 68.227.160.95
+X-SA-Exim-Mail-From: ebiederm@xmission.com
+X-Spam-Checker-Version: SpamAssassin 3.4.2 (2018-09-13) on sa04.xmission.com
+X-Spam-Level: 
+X-Spam-Status: No, score=0.5 required=8.0 tests=ALL_TRUSTED,BAYES_50,
+        DCC_CHECK_NEGATIVE,T_TM2_M_HEADER_IN_MSG,T_TooManySym_01,XMSubLong
+        autolearn=disabled version=3.4.2
+X-Spam-Report: * -1.0 ALL_TRUSTED Passed through trusted hosts only via SMTP
+        *  0.8 BAYES_50 BODY: Bayes spam probability is 40 to 60%
+        *      [score: 0.4984]
+        *  0.7 XMSubLong Long Subject
+        *  0.0 T_TM2_M_HEADER_IN_MSG BODY: No description available.
+        * -0.0 DCC_CHECK_NEGATIVE Not listed in DCC
+        *      [sa04 1397; Body=1 Fuz1=1 Fuz2=1]
+        *  0.0 T_TooManySym_01 4+ unique symbols in subject
+X-Spam-DCC: XMission; sa04 1397; Body=1 Fuz1=1 Fuz2=1 
+X-Spam-Combo: ;Bernd Edlinger <bernd.edlinger@hotmail.de>
+X-Spam-Relay-Country: 
+X-Spam-Timing: total 384 ms - load_scoreonly_sql: 0.05 (0.0%),
+        signal_user_changed: 5 (1.3%), b_tie_ro: 3.9 (1.0%), parse: 1.44
+        (0.4%), extract_message_metadata: 18 (4.7%), get_uri_detail_list: 2.8
+        (0.7%), tests_pri_-1000: 31 (8.0%), tests_pri_-950: 1.26 (0.3%),
+        tests_pri_-900: 0.91 (0.2%), tests_pri_-90: 34 (8.8%), check_bayes: 32
+        (8.4%), b_tokenize: 12 (3.2%), b_tok_get_all: 10 (2.6%), b_comp_prob:
+        3.1 (0.8%), b_tok_touch_all: 3.5 (0.9%), b_finish: 0.70 (0.2%),
+        tests_pri_0: 282 (73.4%), check_dkim_signature: 0.56 (0.1%),
+        check_dkim_adsp: 2.2 (0.6%), poll_dns_idle: 0.61 (0.2%), tests_pri_10:
+        1.80 (0.5%), tests_pri_500: 5 (1.4%), rewrite_mail: 0.00 (0.0%)
+Subject: Re: [PATCH v2 5/5] exec: Add a exec_update_mutex to replace cred_guard_mutex
+X-Spam-Flag: No
+X-SA-Exim-Version: 4.2.1 (built Thu, 05 May 2016 13:38:54 -0600)
+X-SA-Exim-Scanned: Yes (on in02.mta.xmission.com)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 3/11/20 6:11 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 4.14.173 release.
-> There are 126 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Fri, 13 Mar 2020 13:08:24 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.173-rc2.gz
+Bernd Edlinger <bernd.edlinger@hotmail.de> writes:
 
-For v4.14.172-127-gc23e0b0dc693:
+> On 3/11/20 1:15 AM, Eric W. Biederman wrote:
+>> Jann Horn <jannh@google.com> writes:
+>> 
+>>> On Tue, Mar 10, 2020 at 10:33 PM Eric W. Biederman
+>>> <ebiederm@xmission.com> wrote:
+>>>> Jann Horn <jannh@google.com> writes:
+>>>>> On Sun, Mar 8, 2020 at 10:41 PM Eric W. Biederman <ebiederm@xmission.com> wrote:
+>>>>>> The cred_guard_mutex is problematic.  The cred_guard_mutex is held
+>>>>>> over the userspace accesses as the arguments from userspace are read.
+>>>>>> The cred_guard_mutex is held of PTRACE_EVENT_EXIT as the the other
+>>>>>> threads are killed.  The cred_guard_mutex is held over
+>>>>>> "put_user(0, tsk->clear_child_tid)" in exit_mm().
+>>>>>>
+>>>>>> Any of those can result in deadlock, as the cred_guard_mutex is held
+>>>>>> over a possible indefinite userspace waits for userspace.
+>>>>>>
+>>>>>> Add exec_update_mutex that is only held over exec updating process
+>>>>>> with the new contents of exec, so that code that needs not to be
+>>>>>> confused by exec changing the mm and the cred in ways that can not
+>>>>>> happen during ordinary execution of a process.
+>>>>>>
+>>>>>> The plan is to switch the users of cred_guard_mutex to
+>>>>>> exec_udpate_mutex one by one.  This lets us move forward while still
+>>>>>> being careful and not introducing any regressions.
+>>>>> [...]
+>>>>>> @@ -1034,6 +1035,11 @@ static int exec_mmap(struct mm_struct *mm)
+>>>>>>                         return -EINTR;
+>>>>>>                 }
+>>>>>>         }
+>>>>>> +
+>>>>>> +       ret = mutex_lock_killable(&tsk->signal->exec_update_mutex);
+>>>>>> +       if (ret)
+>>>>>> +               return ret;
+>>>>>
+>>>>> We're already holding the old mmap_sem, and now nest the
+>>>>> exec_update_mutex inside it; but then while still holding the
+>>>>> exec_update_mutex, we do mmput(), which can e.g. end up in ksm_exit(),
+>>>>> which can do down_write(&mm->mmap_sem) from __ksm_exit(). So I think
+>>>>> at least lockdep will be unhappy, and I'm not sure whether it's an
+>>>>> actual problem or not.
+>>>>
+>>>> Good point.  I should double check the lock ordering here with mmap_sem.
+>>>> It doesn't look like mmput takes mmap_sem
+>>>
+>>> You sure about that? mmput() -> __mmput() -> ksm_exit() ->
+>>> __ksm_exit() -> down_write(&mm->mmap_sem)
+>>>
+>>> Or also: mmput() -> __mmput() -> khugepaged_exit() ->
+>>> __khugepaged_exit() -> down_write(&mm->mmap_sem)
+>>>
+>>> Or is there a reason why those paths can't happen?
+>> 
+>> Clearly I didn't look far enough. 
+>> 
+>> I will adjust this so that exec_update_mutex is taken before mmap_sem.
+>> Anything else is just asking for trouble.
+>> 
+>
+> Note that vm_access does also mmput under the exec_update_mutex.
+> So I don't see a huge problem here.
+> But maybe I missed something.
 
-Build results:
-	total: 172 pass: 172 fail: 0
-Qemu test results:
-	total: 401 pass: 401 fail: 0
+The issue is that to prevent deadlock locks must always be taken
+in the same order.
 
-It would be helpful to have a more prominent indication that this is -rc2.
+Taking mmap_sem then exec_update_mutex at the start of the function,
+then taking exec_update_mutex then mmap_sem in mmput, takes the
+two locks in two different orders.   Which means that in the right
+set or circumstances:
 
-Thanks,
-Guenter
+thread1:                                thread2:
+   obtain mmap_sem                      optain exec_update_mutex
+      wait for exec_update_mutex        wait for mmap_sem
+
+Which guarantees that neither thread will make progress.
+
+The fix is easy I just need to take exec_update_mutex a few lines
+earlier.
+
+Eric
+
