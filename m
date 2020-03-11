@@ -2,28 +2,28 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A4D49182076
-	for <lists+stable@lfdr.de>; Wed, 11 Mar 2020 19:11:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E30018207A
+	for <lists+stable@lfdr.de>; Wed, 11 Mar 2020 19:13:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730715AbgCKSL1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Mar 2020 14:11:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57002 "EHLO mail.kernel.org"
+        id S1730587AbgCKSN3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Mar 2020 14:13:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57278 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730468AbgCKSL1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Mar 2020 14:11:27 -0400
+        id S1730468AbgCKSN3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Mar 2020 14:13:29 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4CE68206E9;
-        Wed, 11 Mar 2020 18:11:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 348BC206BE;
+        Wed, 11 Mar 2020 18:13:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583950287;
-        bh=LAmVj8hirhN3uk0lMXdix5Qllm0bCBFn3qLGsn2mMvg=;
+        s=default; t=1583950409;
+        bh=ywyU0I2pFfVGHGXJ3lsV7XvDHc17/BALKZKiVvbKPvk=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=LGPUgkFLLBgL0IAOcLhsDT86TeQGHsV6APi/lf/8oQrDVPqprbuWpaBPVZja9JYcl
-         XHzeZE4S7au+PD0JTqAH/wQFC6EW6otigBaJJ2YaTn4wOQhwSY313QScmFyV2yru6Q
-         SUDq1GbzCjCd8GuK94Ti/k6n+Zr1A4X1Q0q3+yZo=
-Date:   Wed, 11 Mar 2020 19:11:24 +0100
+        b=zXX8nF7OoRzxs30fAd20+QRXUUDSh4Il9PolKoz+3ww95VqTPfoEcg1nDM0RoMi4W
+         Su9Jk2kCxiFpTpGNKPuAKTty0PoysAHKqFvaC66M3OVsc1By4efUGW2lax623Cc4j6
+         j6+PE1qxGZ5KVBL3Ij1ppHYnDpAPy3JNggk+M6sY=
+Date:   Wed, 11 Mar 2020 19:13:26 +0100
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     Guenter Roeck <linux@roeck-us.net>
 Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
@@ -31,7 +31,7 @@ Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
         ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
         stable@vger.kernel.org
 Subject: Re: [PATCH 5.5 000/189] 5.5.9-stable review
-Message-ID: <20200311181124.GC3970258@kroah.com>
+Message-ID: <20200311181326.GD3970258@kroah.com>
 References: <20200310123639.608886314@linuxfoundation.org>
  <a98e88fd-8e52-4f27-5e06-878241d65d4e@roeck-us.net>
 MIME-Version: 1.0
@@ -79,4 +79,9 @@ On Tue, Mar 10, 2020 at 03:05:59PM -0700, Guenter Roeck wrote:
 > kernel/fork.c:2588:2: error: #error clone3 requires copy_thread_tls support in arch
 >  2588 | #error clone3 requires copy_thread_tls support in arch
 
-That's odd, let me dig...
+Ok, found this one.  Sasha was wiring up csky syscalls and missed this
+one...
+
+thanks,
+
+greg k-h
