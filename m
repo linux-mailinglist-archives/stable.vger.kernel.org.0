@@ -2,142 +2,120 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 73CB9181711
-	for <lists+stable@lfdr.de>; Wed, 11 Mar 2020 12:50:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D0B8218183C
+	for <lists+stable@lfdr.de>; Wed, 11 Mar 2020 13:39:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729165AbgCKLuD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Mar 2020 07:50:03 -0400
-Received: from mail-ot1-f65.google.com ([209.85.210.65]:37167 "EHLO
-        mail-ot1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729016AbgCKLuD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 11 Mar 2020 07:50:03 -0400
-Received: by mail-ot1-f65.google.com with SMTP id b3so1604017otp.4
-        for <stable@vger.kernel.org>; Wed, 11 Mar 2020 04:50:02 -0700 (PDT)
+        id S1729331AbgCKMjZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Mar 2020 08:39:25 -0400
+Received: from mail-qt1-f193.google.com ([209.85.160.193]:41316 "EHLO
+        mail-qt1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729272AbgCKMjY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 11 Mar 2020 08:39:24 -0400
+Received: by mail-qt1-f193.google.com with SMTP id l21so1375226qtr.8
+        for <stable@vger.kernel.org>; Wed, 11 Mar 2020 05:39:23 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=broadcom.com; s=google;
+        d=baylibre-com.20150623.gappssmtp.com; s=20150623;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=Xy7DjMTeIRHoMxJnXMiMNMf4Q69p1Oxv7TIvAtxfT9c=;
-        b=YQh5UMbw47J5h9vQqSC3JBKsWPZuXJXRmK/pRh1J6TbaR1v/u7wCbaOwP98A9Vqb/C
-         BvNhZKL8SEunuynTYeXJPATieyTaDEEfxM0MynoM8MJvIYY12alDBPaNnO5c/zNwcv8z
-         xFx0pcV0HWHa3ytx70YfrftAkITVWUKqcFBr4=
+         :cc:content-transfer-encoding;
+        bh=pC5l7siATsFnyj3jv8ys73MV+m6Z/ppLVUOkmlqQeUI=;
+        b=hiYkrxidfWS0oHycb1QcW9KllKAjrM2xTKfUUs5axL7h1ovLi01T6XNtf2l4A4iRyY
+         fBSYznjD53d1JNTffHJH93/plBhd2qHFQR6RcGKb8A3DvZI0muPnqm3CgsYAFlByfY3W
+         +QZgHPV9Z5X0HI30CG/EdtRUzs1LzGpNSQGFxdFZ7nBC8Bf0+ROUoFV8uZ4IdzIbcGeq
+         NNYeB9IzXATqkTHjsfK4NQdqX21f3f/yPHDLTcW2dv5rsS3No9ilC0+TPg7EEd6UHXR8
+         VdSOCOtPTLcuHQQqkoSslTFr2bWXYXB4cdPqAi8lvE0YrEjQgjQjRO8Y9Bwl07rM6nfK
+         8RHQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=Xy7DjMTeIRHoMxJnXMiMNMf4Q69p1Oxv7TIvAtxfT9c=;
-        b=um57AM8LxW/ulUrhVzYO30dL03n6PlWU21hNjdDFhJISoDloAtouOqD38rRBBf4vWv
-         EjjISBPIUHbmz5jUrPk12SRJjKPzMuv8HNI+AF8oOFWFlQd5VacoXATXMnjs9dnk4MCR
-         kc2dTDcx2eIvfeNdpMDFOw7xzjwxeflH9Oecme6HvGZ9MkX5w5Gasnr43fHn0NXHnd84
-         NN4gCzOtCaw+QDL3Nmem7Yw1WDjzUS4PqR79EDrCgk63eNRnzNKtqa596ZtlXST333XZ
-         oeSHklWPd5B8sA8AtecNTLm5YLAsV7vDqPkw72ZaHgzN2FilOx7nxjDgH/UEQlG7B9aK
-         ifsg==
-X-Gm-Message-State: ANhLgQ0Ld5Wxin0iNHFlsF2ySFlC1H0Q5yLOsRCFNYeeSO14+1ZR26/L
-        sBX4f5Xsauwt1IZLGSSCOKAslSJKvUxCnSc3Uw8kbQ==
-X-Google-Smtp-Source: ADFU+vsZ5brv97OyXUL7zxrDRiFZQpFhd3Ccroy9Ob0D0PnJQzHP6SONUsVWuzSd2CJPEiT5d3eM3Izh1O9cZo3MMBM=
-X-Received: by 2002:a9d:64b:: with SMTP id 69mr1899193otn.237.1583927402216;
- Wed, 11 Mar 2020 04:50:02 -0700 (PDT)
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=pC5l7siATsFnyj3jv8ys73MV+m6Z/ppLVUOkmlqQeUI=;
+        b=ory+P1BT4F12/Lq6z66Vba/GcidQpN0pJhwZPrhzsFkTgwqzIwzKIKuMWkyQ/2200N
+         us+hnsmMZ/gHdVE7L9nGalRy6tiQLbMsx/wX+fm5DNB5pSlVwWxKVMzC/Ya/JhEor4IQ
+         kGVaemy9XitQcQjbhH24qcvPwUzVGgamKqfHlFqZ/rhSX3leqPVoC3cYQgFUpUkbKzy4
+         ajFWY8210+zKudeIQwLfTdEcHgdLQAzCXARyVQIbxAtdlpMY6RbkZ+sQtwbx96UwUgmw
+         zmFx7wuQKOggwOAnFb6xR+bZneXTVSFHvs+wJ+XQXOkSJV4SudT9XI7qLOn8P0+g5ggE
+         evBA==
+X-Gm-Message-State: ANhLgQ1PmT/YngYG2HcT2IXDp9X+nLMCx5PftlpY16TUy9jaBs7XiMLD
+        vt5+abgJPDJP+rcHSKBQu0OF56PdETsq94roPOinlw==
+X-Google-Smtp-Source: ADFU+vvbbLcSt99jxS2B0V5cZvbHbqwd0JNT1WkQncBARpvfW/UvBV8sRl9gT3eOrJW7gvFGZAE3kt+jyNb60Fckmd8=
+X-Received: by 2002:ac8:5208:: with SMTP id r8mr2468281qtn.131.1583930363508;
+ Wed, 11 Mar 2020 05:39:23 -0700 (PDT)
 MIME-Version: 1.0
-References: <1583923013-3935-1-git-send-email-sreekanth.reddy@broadcom.com>
- <5d68479b9a852cc8c29b36eaa76c45cbd4fdd39a.camel@kernel.org> <CAK=zhgrpov8=MkJVVhyr2O6zcJHaR3B-2h2TcRbyCXBx9i8GCQ@mail.gmail.com>
-In-Reply-To: <CAK=zhgrpov8=MkJVVhyr2O6zcJHaR3B-2h2TcRbyCXBx9i8GCQ@mail.gmail.com>
-From:   Sreekanth Reddy <sreekanth.reddy@broadcom.com>
-Date:   Wed, 11 Mar 2020 17:19:50 +0530
-Message-ID: <CAK=zhgp-oFoMkG_X8e5sm13=14TA5WZAHXYSeuZAV2fmUKbPow@mail.gmail.com>
-Subject: Re: [PATCH] mpt3sas: Fix kernel panic observed on soft HBA unplug
-To:     Amit Shah <amit@kernel.org>
-Cc:     "Martin K. Petersen" <martin.petersen@oracle.com>,
-        linux-scsi <linux-scsi@vger.kernel.org>,
-        Sathya Prakash <sathya.prakash@broadcom.com>,
-        Suganath Prabu Subramani 
-        <suganath-prabu.subramani@broadcom.com>, stable@vger.kernel.org
+References: <20200306132326.1329640-1-linus.walleij@linaro.org>
+In-Reply-To: <20200306132326.1329640-1-linus.walleij@linaro.org>
+From:   Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Date:   Wed, 11 Mar 2020 13:39:12 +0100
+Message-ID: <CAMpxmJWLoa8mxbpM6=rqL5PQSPi+eqiWMt+OqJzDF6mE610TkQ@mail.gmail.com>
+Subject: Re: [PATCH] gpiolib: Fix irq_disable() semantics
+To:     Linus Walleij <linus.walleij@linaro.org>
+Cc:     linux-gpio <linux-gpio@vger.kernel.org>,
+        Brian Masney <masneyb@onstation.org>,
+        Hans Verkuil <hans.verkuil@cisco.com>,
+        "Stable # 4 . 20+" <stable@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Mar 11, 2020 at 4:55 PM Sreekanth Reddy
-<sreekanth.reddy@broadcom.com> wrote:
+pt., 6 mar 2020 o 14:23 Linus Walleij <linus.walleij@linaro.org> napisa=C5=
+=82(a):
 >
-> On Wed, Mar 11, 2020 at 4:35 PM Amit Shah <amit@kernel.org> wrote:
-> >
-> > On Wed, 2020-03-11 at 06:36 -0400, Sreekanth Reddy wrote:
-> > > Generic protection fault type kernel panic is observed when user
-> > > performs soft(ordered) HBA unplug operation while IOs are running
-> > > on drives connected to HBA.
-> > >
-> > > When user performs ordered HBA removal operation then kernel calls
-> > > PCI device's .remove() call back function where driver is flushing
-> > > out
-> > > all the outstanding SCSI IO commands with DID_NO_CONNECT host byte
-> > > and
-> > > also un-maps sg buffers allocated for these IO commands.
-> > > But in the ordered HBA removal case (unlike of real HBA hot unplug)
-> > > HBA device is still alive and hence HBA hardware is performing the
-> > > DMA operations to those buffers on the system memory which are
-> > > already
-> > > unmapped while flushing out the outstanding SCSI IO commands
-> > > and this leads to Kernel panic.
-> > >
-> > > Fix:
-> > > Don't flush out the outstanding IOs from .remove() path in case of
-> > > ordered HBA removal since HBA will be still alive in this case and
-> > > it can complete the outstanding IOs. Flush out the outstanding IOs
-> > > only in case physical HBA hot unplug where their won't be any
-> > > communication with the HBA.
-> >
-> > Can you please point to the commit that introduces the bug?
+> The implementation if .irq_disable() which kicks in between
+> the gpiolib and the driver is not properly mimicking the
+> expected semantics of the irqchip core: the irqchip will
+> call .irq_disable() if that exists, else it will call
+> mask_irq() which first checks if .irq_mask() is defined
+> before calling it.
 >
-> Sure I will add the commit ID which introduced this bug in the next patch.
+> Since we are calling it unconditionally, we get this bug
+> from drivers/pinctrl/qcom/pinctrl-ssbi-gpio.c, as it only
+> defines .irq_mask_ack and not .irq_mask:
 >
-> >
-> > >
-> > > Cc: stable@vger.kernel.org
-> > > Signed-off-by: Sreekanth Reddy <sreekanth.reddy@broadcom.com>
-> > > ---
-> > >  drivers/scsi/mpt3sas/mpt3sas_scsih.c | 8 ++++----
-> > >  1 file changed, 4 insertions(+), 4 deletions(-)
-> > >
-> > > diff --git a/drivers/scsi/mpt3sas/mpt3sas_scsih.c
-> > > b/drivers/scsi/mpt3sas/mpt3sas_scsih.c
-> > > index 778d5e6..04a40af 100644
-> > > --- a/drivers/scsi/mpt3sas/mpt3sas_scsih.c
-> > > +++ b/drivers/scsi/mpt3sas/mpt3sas_scsih.c
-> > > @@ -9908,8 +9908,8 @@ static void scsih_remove(struct pci_dev *pdev)
-> > >
-> > >       ioc->remove_host = 1;
-> > >
-> > > -     mpt3sas_wait_for_commands_to_complete(ioc);
-> > > -     _scsih_flush_running_cmds(ioc);
-> > > +     if (!pci_device_is_present(pdev))
-> > > +             _scsih_flush_running_cmds(ioc);
-> > >
-> > >       _scsih_fw_event_cleanup_queue(ioc);
-> > >
-> > > @@ -9992,8 +9992,8 @@ static void scsih_remove(struct pci_dev *pdev)
-> >
-> > Just a note: this function is scsih_shutdown().  Doesn't block
-> > application of the patch, though.  Just wondering how the patch was
-> > created.
+> Unable to handle kernel NULL pointer dereference at virtual address 00000=
+000
+> pgd =3D (ptrval)
+> (...)
+> PC is at 0x0
+> LR is at gpiochip_irq_disable+0x20/0x30
+>
+> Fix this by only calling .irq_mask() if it exists.
+>
+> Cc: Brian Masney <masneyb@onstation.org>
+> Cc: Hans Verkuil <hans.verkuil@cisco.com>
+> Cc: stable@vger.kernel.org
+> Fixes: 461c1a7d4733 ("gpiolib: override irq_enable/disable")
+> Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+> ---
+>  drivers/gpio/gpiolib.c | 9 ++++++++-
+>  1 file changed, 8 insertions(+), 1 deletion(-)
+>
+> diff --git a/drivers/gpio/gpiolib.c b/drivers/gpio/gpiolib.c
+> index bdbc1649eafa..d0bb962f42d5 100644
+> --- a/drivers/gpio/gpiolib.c
+> +++ b/drivers/gpio/gpiolib.c
+> @@ -2169,9 +2169,16 @@ static void gpiochip_irq_disable(struct irq_data *=
+d)
+>  {
+>         struct gpio_chip *chip =3D irq_data_get_irq_chip_data(d);
+>
+> +       /*
+> +        * Since we override .irq_disable() we need to mimic the
+> +        * behaviour of __irq_disable() in irq/chip.c.
+> +        * First call .irq_disable() if it exists, else mimic the
+> +        * behaviour of mask_irq() which calls .irq_mask() if
+> +        * it exists.
+> +        */
+>         if (chip->irq.irq_disable)
+>                 chip->irq.irq_disable(d);
+> -       else
+> +       else if (chip->irq.chip->irq_mask)
+>                 chip->irq.chip->irq_mask(d);
+>         gpiochip_disable_irq(chip, d->hwirq);
+>  }
+> --
+> 2.24.1
+>
 
-I got your query now,  yes this hunk change is in scsih_shutdown()
-function. I am not sure why scsih_remove name is getting displayed
-here in this hunk. I have used 'git format-patch' to generate the
-patch.
-
->
-> Sorry I didn't get you. Can you please elaborate your query?
->
-> >
-> > >
-> > >       ioc->remove_host = 1;
-> > >
-> > > -     mpt3sas_wait_for_commands_to_complete(ioc);
-> > > -     _scsih_flush_running_cmds(ioc);
-> > > +     if (!pci_device_is_present(pdev))
-> > > +             _scsih_flush_running_cmds(ioc);
-> > >
-> > >       _scsih_fw_event_cleanup_queue(ioc);
-> > >
-> >
+Reviewed-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
