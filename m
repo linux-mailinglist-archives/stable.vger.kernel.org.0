@@ -2,197 +2,122 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BA9C918299B
-	for <lists+stable@lfdr.de>; Thu, 12 Mar 2020 08:17:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5CA45182B34
+	for <lists+stable@lfdr.de>; Thu, 12 Mar 2020 09:29:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387973AbgCLHRz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Mar 2020 03:17:55 -0400
-Received: from mail-wm1-f65.google.com ([209.85.128.65]:52327 "EHLO
+        id S1726028AbgCLI3K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Mar 2020 04:29:10 -0400
+Received: from mail-wm1-f65.google.com ([209.85.128.65]:38088 "EHLO
         mail-wm1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2387958AbgCLHRz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Mar 2020 03:17:55 -0400
-Received: by mail-wm1-f65.google.com with SMTP id 11so4870199wmo.2;
-        Thu, 12 Mar 2020 00:17:53 -0700 (PDT)
+        with ESMTP id S1726254AbgCLI3K (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Mar 2020 04:29:10 -0400
+Received: by mail-wm1-f65.google.com with SMTP id h83so1662141wmf.3
+        for <stable@vger.kernel.org>; Thu, 12 Mar 2020 01:29:09 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=4jiBmksMrMfFbIHa3ZewzTbMHCps2UU4whG+wAJNTBQ=;
-        b=qCRa/6q0ILq9l3DfKMhKjmfdCWyj5jDt69VIemin4LMyIWEMIFzpkX/xk15bh7a8Va
-         WCi0by+fzbYYP1L/GdgW9RifNdtxSKaVoaZZCr6XwYxPSVmfnPHy/HiQ2KqQOS5GGsMc
-         VCcGT160rohacuTPb7tz+9cIQE/RhLYy+mjeKxZnbOLptIxIYLsMRCfJ02S+srINTdAw
-         YnPTNvWnkgfg6UFyM38nMvPdxDEU2ZJvcsHW1zL4gt0YsRmBDZPALVOKkkwGHNRJL5qP
-         eB7mFiU5tq2xWkCGr+8kbsy/2vaOdCpUeCLhkc5GtoCFc00/LDHL2ClpsEVPwhUV/qJ+
-         srAg==
+        d=broadcom.com; s=google;
+        h=from:to:cc:subject:date:message-id;
+        bh=6Gi/OdaICzktDVYOdA4WP8Yxk5qHZ7ClcZn2IAV7MBI=;
+        b=R8GBg7KQD97Ni6hoo9Ft95VutYKqPZEHhOOu/KUGDJqTnNbNHVzEDj2xWS9gZtGLNU
+         MWQD5HHpVjDK92t7XTeGeYdeAdJt8nmHEPZof4iHhPJyhAx6j6UJ3KSULc2Mpo3XNWGK
+         6xgMxS6IWF6NNH/BvM1BdvCrKfTpMfyN3GuWA=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=4jiBmksMrMfFbIHa3ZewzTbMHCps2UU4whG+wAJNTBQ=;
-        b=CSKRsUi5sBIsffZEr3gI1+IX6cdf7XqQWQiysRY8dbCZOG83i5TBk8dQrZebJilXkN
-         yUX0074ms7jG+fyYegZsmGQjuPaojSkh/3OB26UvHj/qtpdNZJKsILVsVevloe9mwUIV
-         hcYwEx+W9jynZJCzThDtTUYjrzdxom/zvlAR803/PyVX+XQgrA/FmRJ3i8LdxIzhHzL+
-         AqpddU5+A76+noHZL87p+PwyoSREdWUBDNfKev0928AL4fOvxJHvfq4uFUfpKHf6NSGG
-         ntttwUABcwFZrkQU+w7onvpMhXzX30igpEqNEjPAQjjfxvBwqfuvQkQiTBnUGiuezVMg
-         IXdg==
-X-Gm-Message-State: ANhLgQ07Vx8pe9+agzxGBdR8UpvuekJrW8WgHdmaaZYl3Uk/RmKOZqar
-        i1Fj/LJh18iYx2nIMcTAa2AW4Bnx6K64j/DERtgVSy/o
-X-Google-Smtp-Source: ADFU+vuna7/EkiqUm3Pt6MoBfapvFtfi/fNt7GNXfSGcalppqq7tD082k1sG+OIOruCLHe89OYG9o8CT7dwYHJJJ7f0=
-X-Received: by 2002:a05:600c:d8:: with SMTP id u24mr3264837wmm.165.1583997471183;
- Thu, 12 Mar 2020 00:17:51 -0700 (PDT)
-MIME-Version: 1.0
-References: <20200311170120.12641-1-jeyu@kernel.org>
-In-Reply-To: <20200311170120.12641-1-jeyu@kernel.org>
-From:   Lucas De Marchi <lucas.de.marchi@gmail.com>
-Date:   Thu, 12 Mar 2020 00:17:39 -0700
-Message-ID: <CAKi4VAKgeKDq9uiBKfXRjgMV9TTDHrRX8dT42N1zyqwCgkw35A@mail.gmail.com>
-Subject: Re: [PATCH v2] modpost: move the namespace field in Module.symvers last
-To:     Jessica Yu <jeyu@kernel.org>
-Cc:     Masahiro Yamada <yamada.masahiro@socionext.com>,
-        Matthias Maennich <maennich@google.com>,
-        stable@vger.kernel.org, lkml <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+        h=x-gm-message-state:from:to:cc:subject:date:message-id;
+        bh=6Gi/OdaICzktDVYOdA4WP8Yxk5qHZ7ClcZn2IAV7MBI=;
+        b=eONRtUJ1JSOb5X6C+OA/KRsNskmIaLbveBwhnk28UuSaRxspt28IT1+jwwptIcC3Es
+         YiE1Hp/vZgGKHQxp9uEzzYPnHDyshFK3DOpIHX0U+NSglvC2nZSX39BYxFoA3bGgPcjs
+         G4DiCQJuEiu6x05GEJx5IHUvmqEyC6LM5objo7hGqHm6C7D+XWqm37tfThXn81Tf9aOJ
+         93cE1jP4c1qCsYHri+8dLDvdtLbKdC6soy/D629hkGk1E64zC0OnlcoAPusNSdwGGEr8
+         lMx9P+xJIbvUQwZyMKnWgfLDVTZPbYznkG5wa8ys01k0JHvagFV7nkKgP8lhqURIQVV+
+         HRUg==
+X-Gm-Message-State: ANhLgQ0HX/vpfpGutugY9fn4W4MX6/I3F/covlryuSS0faXJfZGIR4wd
+        Z57Au5Ld+RbzXT6aNu1tbfheUw==
+X-Google-Smtp-Source: ADFU+vtCHQUivEzeVNBg44c15fYfAGGyq+UGBrf9KvX6uDgska35BTvtGoBYddK6mC5VuykR0oGPkw==
+X-Received: by 2002:a7b:cc98:: with SMTP id p24mr3384547wma.29.1584001748507;
+        Thu, 12 Mar 2020 01:29:08 -0700 (PDT)
+Received: from dhcp-10-123-20-36.dhcp.broadcom.net ([192.19.234.250])
+        by smtp.gmail.com with ESMTPSA id v15sm7803460wrm.32.2020.03.12.01.29.04
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 12 Mar 2020 01:29:07 -0700 (PDT)
+From:   Sreekanth Reddy <sreekanth.reddy@broadcom.com>
+To:     martin.petersen@oracle.com
+Cc:     linux-scsi@vger.kernel.org, sathya.prakash@broadcom.com,
+        suganath-prabu.subramani@broadcom.com, stable@vger.kernel.org,
+        amit@kernel.org, Sreekanth Reddy <sreekanth.reddy@broadcom.com>
+Subject: [PATCH v1] mpt3sas: Fix kernel panic observed on soft HBA unplug
+Date:   Thu, 12 Mar 2020 04:28:55 -0400
+Message-Id: <1584001735-22719-1-git-send-email-sreekanth.reddy@broadcom.com>
+X-Mailer: git-send-email 1.8.3.1
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Mar 11, 2020 at 10:02 AM Jessica Yu <jeyu@kernel.org> wrote:
->
-> In order to preserve backwards compatability with kmod tools, we have to
-> move the namespace field in Module.symvers last, as the depmod -e -E
-> option looks at the first three fields in Module.symvers to check symbol
-> versions (and it's expected they stay in the original order of crc,
-> symbol, module).
->
-> In addition, update an ancient comment above read_dump() in modpost that
-> suggested that the export type field in Module.symvers was optional. I
-> suspect that there were historical reasons behind that comment that are
-> no longer accurate. We have been unconditionally printing the export
-> type since 2.6.18 (commit bd5cbcedf44), which is over a decade ago now.
->
-> Fix up read_dump() to treat each field as non-optional. I suspect the
-> original read_dump() code treated the export field as optional in order
-> to support pre <= 2.6.18 Module.symvers (which did not have the export
-> type field). Note that although symbol namespaces are optional, the
-> field will not be omitted from Module.symvers if a symbol does not have
-> a namespace. In this case, the field will simply be empty and the next
-> delimiter or end of line will follow.
->
-> Cc: stable@vger.kernel.org
-> Fixes: cb9b55d21fe0 ("modpost: add support for symbol namespaces")
-> Tested-by: Matthias Maennich <maennich@google.com>
-> Reviewed-by: Matthias Maennich <maennich@google.com>
-> Reviewed-by: Lucas De Marchi <lucas.demarchi@intel.com>
-> Signed-off-by: Jessica Yu <jeyu@kernel.org>
-> ---
-> v2:
->
->   - Explain the changes to read_dump() and the comment (and provide
->     historical context) in the commit message. (Lucas De Marchi)
+Generic protection fault type kernel panic is observed when user
+performs soft(ordered) HBA unplug operation while IOs are running
+on drives connected to HBA.
 
-Great, thanks for fixing this.
+When user performs ordered HBA removal operation then kernel calls
+PCI device's .remove() call back function where driver is flushing out
+all the outstanding SCSI IO commands with DID_NO_CONNECT host byte and
+also un-maps sg buffers allocated for these IO commands.
+But in the ordered HBA removal case (unlike of real HBA hot unplug)
+HBA device is still alive and hence HBA hardware is performing the
+DMA operations to those buffers on the system memory which are already
+unmapped while flushing out the outstanding SCSI IO commands
+and this leads to Kernel panic.
 
-Lucas De Marchi
+This bug got introduced from below commit,
+commit c666d3be99c000bb889a33353e9be0fa5808d3de
+("scsi: mpt3sas: wait for and flush running commands on shutdown/unload")
 
->
->  Documentation/kbuild/modules.rst |  4 ++--
->  scripts/export_report.pl         |  2 +-
->  scripts/mod/modpost.c            | 24 ++++++++++++------------
->  3 files changed, 15 insertions(+), 15 deletions(-)
->
-> diff --git a/Documentation/kbuild/modules.rst b/Documentation/kbuild/modules.rst
-> index 69fa48ee93d6..e0b45a257f21 100644
-> --- a/Documentation/kbuild/modules.rst
-> +++ b/Documentation/kbuild/modules.rst
-> @@ -470,9 +470,9 @@ build.
->
->         The syntax of the Module.symvers file is::
->
-> -       <CRC>       <Symbol>          <Namespace>  <Module>                         <Export Type>
-> +       <CRC>       <Symbol>         <Module>                         <Export Type>     <Namespace>
->
-> -       0xe1cc2a05  usb_stor_suspend  USB_STORAGE  drivers/usb/storage/usb-storage  EXPORT_SYMBOL_GPL
-> +       0xe1cc2a05  usb_stor_suspend drivers/usb/storage/usb-storage  EXPORT_SYMBOL_GPL USB_STORAGE
->
->         The fields are separated by tabs and values may be empty (e.g.
->         if no namespace is defined for an exported symbol).
-> diff --git a/scripts/export_report.pl b/scripts/export_report.pl
-> index 548330e8c4e7..feb3d5542a62 100755
-> --- a/scripts/export_report.pl
-> +++ b/scripts/export_report.pl
-> @@ -94,7 +94,7 @@ if (defined $opt{'o'}) {
->  #
->  while ( <$module_symvers> ) {
->         chomp;
-> -       my (undef, $symbol, $namespace, $module, $gpl) = split('\t');
-> +       my (undef, $symbol, $module, $gpl, $namespace) = split('\t');
->         $SYMBOL { $symbol } =  [ $module , "0" , $symbol, $gpl];
->  }
->  close($module_symvers);
-> diff --git a/scripts/mod/modpost.c b/scripts/mod/modpost.c
-> index a3d8370f9544..e1963ef8c07c 100644
-> --- a/scripts/mod/modpost.c
-> +++ b/scripts/mod/modpost.c
-> @@ -2421,7 +2421,7 @@ static void write_if_changed(struct buffer *b, const char *fname)
->  }
->
->  /* parse Module.symvers file. line format:
-> - * 0x12345678<tab>symbol<tab>module[[<tab>export]<tab>something]
-> + * 0x12345678<tab>symbol<tab>module<tab>export<tab>namespace
->   **/
->  static void read_dump(const char *fname, unsigned int kernel)
->  {
-> @@ -2434,7 +2434,7 @@ static void read_dump(const char *fname, unsigned int kernel)
->                 return;
->
->         while ((line = get_next_line(&pos, file, size))) {
-> -               char *symname, *namespace, *modname, *d, *export, *end;
-> +               char *symname, *namespace, *modname, *d, *export;
->                 unsigned int crc;
->                 struct module *mod;
->                 struct symbol *s;
-> @@ -2442,16 +2442,16 @@ static void read_dump(const char *fname, unsigned int kernel)
->                 if (!(symname = strchr(line, '\t')))
->                         goto fail;
->                 *symname++ = '\0';
-> -               if (!(namespace = strchr(symname, '\t')))
-> -                       goto fail;
-> -               *namespace++ = '\0';
-> -               if (!(modname = strchr(namespace, '\t')))
-> +               if (!(modname = strchr(symname, '\t')))
->                         goto fail;
->                 *modname++ = '\0';
-> -               if ((export = strchr(modname, '\t')) != NULL)
-> -                       *export++ = '\0';
-> -               if (export && ((end = strchr(export, '\t')) != NULL))
-> -                       *end = '\0';
-> +               if (!(export = strchr(modname, '\t')))
-> +                       goto fail;
-> +               *export++ = '\0';
-> +               if (!(namespace = strchr(export, '\t')))
-> +                       goto fail;
-> +               *namespace++ = '\0';
-> +
->                 crc = strtoul(line, &d, 16);
->                 if (*symname == '\0' || *modname == '\0' || *d != '\0')
->                         goto fail;
-> @@ -2502,9 +2502,9 @@ static void write_dump(const char *fname)
->                                 namespace = symbol->namespace;
->                                 buf_printf(&buf, "0x%08x\t%s\t%s\t%s\t%s\n",
->                                            symbol->crc, symbol->name,
-> -                                          namespace ? namespace : "",
->                                            symbol->module->name,
-> -                                          export_str(symbol->export));
-> +                                          export_str(symbol->export),
-> +                                          namespace ? namespace : "");
->                         }
->                         symbol = symbol->next;
->                 }
-> --
-> 2.16.4
->
+Fix:
+Don't flush out the outstanding IOs from .remove() path in case of
+ordered HBA removal since HBA will be still alive in this case and
+it can complete the outstanding IOs. Flush out the outstanding IOs
+only in case physical HBA hot unplug where their won't be any
+communication with the HBA.
 
+During shutdown also it is possible that HBA hardware can perform
+DMA operations on those outstanding IO buffers which are completed
+with DID_NO_CONNECT by the driver from .shutdown(). So same above fix
+is applied in shutdown path as well.
 
+Cc: stable@vger.kernel.org
+Signed-off-by: Sreekanth Reddy <sreekanth.reddy@broadcom.com>
+---
+v1:
+    Update the patch description.
+
+ drivers/scsi/mpt3sas/mpt3sas_scsih.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/scsi/mpt3sas/mpt3sas_scsih.c b/drivers/scsi/mpt3sas/mpt3sas_scsih.c
+index 778d5e6..04a40af 100644
+--- a/drivers/scsi/mpt3sas/mpt3sas_scsih.c
++++ b/drivers/scsi/mpt3sas/mpt3sas_scsih.c
+@@ -9908,8 +9908,8 @@ static void scsih_remove(struct pci_dev *pdev)
+ 
+ 	ioc->remove_host = 1;
+ 
+-	mpt3sas_wait_for_commands_to_complete(ioc);
+-	_scsih_flush_running_cmds(ioc);
++	if (!pci_device_is_present(pdev))
++		_scsih_flush_running_cmds(ioc);
+ 
+ 	_scsih_fw_event_cleanup_queue(ioc);
+ 
+@@ -9992,8 +9992,8 @@ static void scsih_remove(struct pci_dev *pdev)
+ 
+ 	ioc->remove_host = 1;
+ 
+-	mpt3sas_wait_for_commands_to_complete(ioc);
+-	_scsih_flush_running_cmds(ioc);
++	if (!pci_device_is_present(pdev))
++		_scsih_flush_running_cmds(ioc);
+ 
+ 	_scsih_fw_event_cleanup_queue(ioc);
+ 
 -- 
-Lucas De Marchi
+1.8.3.1
+
