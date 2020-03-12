@@ -2,263 +2,119 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8CF93183B99
-	for <lists+stable@lfdr.de>; Thu, 12 Mar 2020 22:45:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 19653183BE8
+	for <lists+stable@lfdr.de>; Thu, 12 Mar 2020 23:06:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726513AbgCLVps (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Mar 2020 17:45:48 -0400
-Received: from bombadil.infradead.org ([198.137.202.133]:35420 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726481AbgCLVps (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Mar 2020 17:45:48 -0400
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=bombadil.20170209; h=In-Reply-To:Content-Type:MIME-Version
-        :References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description;
-        bh=wbFE9701XOV2kvczHnxaQqYLJ5I1RzPfMNLJpCQkayk=; b=e7+woX6qBTESONarQ8RJx2q6sT
-        400aq5zkt5Hmf0gUuqUaGckL0j+RZ/cMiYk7yIItnICEo6R3wXQa2991pZAlSjj+hGqrqZxTmUojp
-        r6CuBdLNW+cn/Dgm5ZeDUkbyWO5yU+II0jz3/JDrR6oeCewH/jP35O18ymR/wJ3d/uPrGVGiT3VJc
-        Qj59X2qGteMT/8/Y/UXcgHTJUhGsDZHqf9+5cr1L1+mNCGHasmPPmH+DoBsCS4prKEfWIjICq3kf7
-        9hlw3qb1CL1GitaTYpo2OGfkxLVgZC6TaO9UHFX2PiGkG6A2ZIOE/6LAdvwIOSf6oA8ZxzpxaqKlL
-        j76zlFrQ==;
-Received: from willy by bombadil.infradead.org with local (Exim 4.92.3 #3 (Red Hat Linux))
-        id 1jCVeG-0004g2-5h; Thu, 12 Mar 2020 21:45:48 +0000
-Date:   Thu, 12 Mar 2020 14:45:48 -0700
-From:   Matthew Wilcox <willy@infradead.org>
-To:     Jan Kara <jack@suse.cz>
-Cc:     linux-fsdevel@vger.kernel.org, linux-mm@kvack.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH 1/8] xarray: Fix premature termination of
- xas_for_each_marked()
-Message-ID: <20200312214548.GL22433@bombadil.infradead.org>
-References: <20200204142514.15826-1-jack@suse.cz>
- <20200204142514.15826-2-jack@suse.cz>
+        id S1726623AbgCLWG5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Mar 2020 18:06:57 -0400
+Received: from mx2.suse.de ([195.135.220.15]:53628 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726514AbgCLWG5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 12 Mar 2020 18:06:57 -0400
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.220.254])
+        by mx2.suse.de (Postfix) with ESMTP id C11B2AC44;
+        Thu, 12 Mar 2020 22:06:54 +0000 (UTC)
+From:   NeilBrown <neilb@suse.de>
+To:     Eric Biggers <ebiggers@kernel.org>, linux-kernel@vger.kernel.org
+Date:   Fri, 13 Mar 2020 09:06:46 +1100
+Cc:     linux-fsdevel@vger.kernel.org, Alexei Starovoitov <ast@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Jeff Vander Stoep <jeffv@google.com>,
+        Jessica Yu <jeyu@kernel.org>,
+        Kees Cook <keescook@chromium.org>,
+        Luis Chamberlain <mcgrof@kernel.org>,
+        NeilBrown <neilb@suse.com>, stable@vger.kernel.org
+Subject: Re: [PATCH v2 2/4] fs/filesystems.c: downgrade user-reachable WARN_ONCE() to pr_warn_once()
+In-Reply-To: <20200312202552.241885-3-ebiggers@kernel.org>
+References: <20200312202552.241885-1-ebiggers@kernel.org> <20200312202552.241885-3-ebiggers@kernel.org>
+Message-ID: <87imj9teh5.fsf@notabene.neil.brown.name>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200204142514.15826-2-jack@suse.cz>
+Content-Type: multipart/signed; boundary="=-=-=";
+        micalg=pgp-sha256; protocol="application/pgp-signature"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Jan,
+--=-=-=
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-I fixed this in a different way ... also, I added a test to the test-suite
-so this shouldn't regress.  Thanks for writing the commit message ;-)
+On Thu, Mar 12 2020, Eric Biggers wrote:
 
-From 7e934cf5ace1dceeb804f7493fa28bb697ed3c52 Mon Sep 17 00:00:00 2001
-From: "Matthew Wilcox (Oracle)" <willy@infradead.org>
-Date: Thu, 12 Mar 2020 17:29:11 -0400
-Subject: [PATCH] xarray: Fix early termination of xas_for_each_marked
+> From: Eric Biggers <ebiggers@google.com>
+>
+> After request_module(), nothing is stopping the module from being
+> unloaded until someone takes a reference to it via try_get_module().
+>
+> The WARN_ONCE() in get_fs_type() is thus user-reachable, via userspace
+> running 'rmmod' concurrently.
+>
+> Since WARN_ONCE() is for kernel bugs only, not for user-reachable
+> situations, downgrade this warning to pr_warn_once().
+>
+> Cc: stable@vger.kernel.org
+> Cc: Alexei Starovoitov <ast@kernel.org>
+> Cc: Andrew Morton <akpm@linux-foundation.org>
+> Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> Cc: Jeff Vander Stoep <jeffv@google.com>
+> Cc: Jessica Yu <jeyu@kernel.org>
+> Cc: Kees Cook <keescook@chromium.org>
+> Cc: Luis Chamberlain <mcgrof@kernel.org>
+> Cc: NeilBrown <neilb@suse.com>
+> Signed-off-by: Eric Biggers <ebiggers@google.com>
+> ---
+>  fs/filesystems.c | 4 +++-
+>  1 file changed, 3 insertions(+), 1 deletion(-)
+>
+> diff --git a/fs/filesystems.c b/fs/filesystems.c
+> index 77bf5f95362da..90b8d879fbaf3 100644
+> --- a/fs/filesystems.c
+> +++ b/fs/filesystems.c
+> @@ -272,7 +272,9 @@ struct file_system_type *get_fs_type(const char *name)
+>  	fs =3D __get_fs_type(name, len);
+>  	if (!fs && (request_module("fs-%.*s", len, name) =3D=3D 0)) {
+>  		fs =3D __get_fs_type(name, len);
+> -		WARN_ONCE(!fs, "request_module fs-%.*s succeeded, but still no fs?\n",=
+ len, name);
+> +		if (!fs)
+> +			pr_warn_once("request_module fs-%.*s succeeded, but still no fs?\n",
+> +				     len, name);
 
-xas_for_each_marked() is using entry == NULL as a termination condition
-of the iteration. When xas_for_each_marked() is used protected only by
-RCU, this can however race with xas_store(xas, NULL) in the following
-way:
+I strongly support the replacement of "WARN" by "pr_warn".
+I wonder if we really want the "once" now.  Possibly using rate_limited
+would be justified, but I think that in general we should see a warning
+every time this event happens.
 
-TASK1                                   TASK2
-page_cache_delete()         	        find_get_pages_range_tag()
-                                          xas_for_each_marked()
-                                            xas_find_marked()
-                                              off = xas_find_chunk()
+Thanks,
+NeilBrown
 
-  xas_store(&xas, NULL)
-    xas_init_marks(&xas);
-    ...
-    rcu_assign_pointer(*slot, NULL);
-                                              entry = xa_entry(off);
 
-And thus xas_for_each_marked() terminates prematurely possibly leading
-to missed entries in the iteration (translating to missing writeback of
-some pages or a similar problem).
+>  	}
+>=20=20
+>  	if (dot && fs && !(fs->fs_flags & FS_HAS_SUBTYPE)) {
+> --=20
+> 2.25.1
 
-If we find a NULL entry that has been marked, skip it (unless we're trying
-to allocate an entry).
+--=-=-=
+Content-Type: application/pgp-signature; name="signature.asc"
 
-Reported-by: Jan Kara <jack@suse.cz>
-CC: stable@vger.kernel.org
-Fixes: ef8e5717db01 ("page cache: Convert delete_batch to XArray")
-Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
----
- include/linux/xarray.h                       |  6 +-
- lib/xarray.c                                 |  2 +
- tools/testing/radix-tree/Makefile            |  4 +-
- tools/testing/radix-tree/iteration_check_2.c | 87 ++++++++++++++++++++
- tools/testing/radix-tree/main.c              |  1 +
- tools/testing/radix-tree/test.h              |  1 +
- 6 files changed, 98 insertions(+), 3 deletions(-)
- create mode 100644 tools/testing/radix-tree/iteration_check_2.c
+-----BEGIN PGP SIGNATURE-----
 
-diff --git a/include/linux/xarray.h b/include/linux/xarray.h
-index a491653d8882..14c893433139 100644
---- a/include/linux/xarray.h
-+++ b/include/linux/xarray.h
-@@ -1648,6 +1648,7 @@ static inline void *xas_next_marked(struct xa_state *xas, unsigned long max,
- 								xa_mark_t mark)
- {
- 	struct xa_node *node = xas->xa_node;
-+	void *entry;
- 	unsigned int offset;
- 
- 	if (unlikely(xas_not_node(node) || node->shift))
-@@ -1659,7 +1660,10 @@ static inline void *xas_next_marked(struct xa_state *xas, unsigned long max,
- 		return NULL;
- 	if (offset == XA_CHUNK_SIZE)
- 		return xas_find_marked(xas, max, mark);
--	return xa_entry(xas->xa, node, offset);
-+	entry = xa_entry(xas->xa, node, offset);
-+	if (!entry)
-+		return xas_find_marked(xas, max, mark);
-+	return entry;
- }
- 
- /*
-diff --git a/lib/xarray.c b/lib/xarray.c
-index f448bcd263ac..e9e641d3c0c3 100644
---- a/lib/xarray.c
-+++ b/lib/xarray.c
-@@ -1208,6 +1208,8 @@ void *xas_find_marked(struct xa_state *xas, unsigned long max, xa_mark_t mark)
- 		}
- 
- 		entry = xa_entry(xas->xa, xas->xa_node, xas->xa_offset);
-+		if (!entry && !(xa_track_free(xas->xa) && mark == XA_FREE_MARK))
-+			continue;
- 		if (!xa_is_node(entry))
- 			return entry;
- 		xas->xa_node = xa_to_node(entry);
-diff --git a/tools/testing/radix-tree/Makefile b/tools/testing/radix-tree/Makefile
-index 397d6b612502..aa6abfe0749c 100644
---- a/tools/testing/radix-tree/Makefile
-+++ b/tools/testing/radix-tree/Makefile
-@@ -7,8 +7,8 @@ LDLIBS+= -lpthread -lurcu
- TARGETS = main idr-test multiorder xarray
- CORE_OFILES := xarray.o radix-tree.o idr.o linux.o test.o find_bit.o bitmap.o
- OFILES = main.o $(CORE_OFILES) regression1.o regression2.o regression3.o \
--	 regression4.o \
--	 tag_check.o multiorder.o idr-test.o iteration_check.o benchmark.o
-+	 regression4.o tag_check.o multiorder.o idr-test.o iteration_check.o \
-+	 iteration_check_2.o benchmark.o
- 
- ifndef SHIFT
- 	SHIFT=3
-diff --git a/tools/testing/radix-tree/iteration_check_2.c b/tools/testing/radix-tree/iteration_check_2.c
-new file mode 100644
-index 000000000000..aac5c50a3674
---- /dev/null
-+++ b/tools/testing/radix-tree/iteration_check_2.c
-@@ -0,0 +1,87 @@
-+// SPDX-License-Identifier: GPL-2.0-or-later
-+/*
-+ * iteration_check_2.c: Check that deleting a tagged entry doesn't cause
-+ * an RCU walker to finish early.
-+ * Copyright (c) 2020 Oracle
-+ * Author: Matthew Wilcox <willy@infradead.org>
-+ */
-+#include <pthread.h>
-+#include "test.h"
-+
-+static volatile bool test_complete;
-+
-+static void *iterator(void *arg)
-+{
-+	XA_STATE(xas, arg, 0);
-+	void *entry;
-+
-+	rcu_register_thread();
-+
-+	while (!test_complete) {
-+		xas_set(&xas, 0);
-+		rcu_read_lock();
-+		xas_for_each_marked(&xas, entry, ULONG_MAX, XA_MARK_0)
-+			;
-+		rcu_read_unlock();
-+		assert(xas.xa_index >= 100);
-+	}
-+
-+	rcu_unregister_thread();
-+	return NULL;
-+}
-+
-+static void *throbber(void *arg)
-+{
-+	struct xarray *xa = arg;
-+
-+	rcu_register_thread();
-+
-+	while (!test_complete) {
-+		int i;
-+
-+		for (i = 0; i < 100; i++) {
-+			xa_store(xa, i, xa_mk_value(i), GFP_KERNEL);
-+			xa_set_mark(xa, i, XA_MARK_0);
-+		}
-+		for (i = 0; i < 100; i++)
-+			xa_erase(xa, i);
-+	}
-+
-+	rcu_unregister_thread();
-+	return NULL;
-+}
-+
-+void iteration_test2(unsigned test_duration)
-+{
-+	pthread_t threads[2];
-+	DEFINE_XARRAY(array);
-+	int i;
-+
-+	printv(1, "Running iteration test 2 for %d seconds\n", test_duration);
-+
-+	test_complete = false;
-+
-+	xa_store(&array, 100, xa_mk_value(100), GFP_KERNEL);
-+	xa_set_mark(&array, 100, XA_MARK_0);
-+
-+	if (pthread_create(&threads[0], NULL, iterator, &array)) {
-+		perror("create iterator thread");
-+		exit(1);
-+	}
-+	if (pthread_create(&threads[1], NULL, throbber, &array)) {
-+		perror("create throbber thread");
-+		exit(1);
-+	}
-+
-+	sleep(test_duration);
-+	test_complete = true;
-+
-+	for (i = 0; i < 2; i++) {
-+		if (pthread_join(threads[i], NULL)) {
-+			perror("pthread_join");
-+			exit(1);
-+		}
-+	}
-+
-+	xa_destroy(&array);
-+}
-diff --git a/tools/testing/radix-tree/main.c b/tools/testing/radix-tree/main.c
-index 7a22d6e3732e..f2cbc8e5b97c 100644
---- a/tools/testing/radix-tree/main.c
-+++ b/tools/testing/radix-tree/main.c
-@@ -311,6 +311,7 @@ int main(int argc, char **argv)
- 	regression4_test();
- 	iteration_test(0, 10 + 90 * long_run);
- 	iteration_test(7, 10 + 90 * long_run);
-+	iteration_test2(10 + 90 * long_run);
- 	single_thread_tests(long_run);
- 
- 	/* Free any remaining preallocated nodes */
-diff --git a/tools/testing/radix-tree/test.h b/tools/testing/radix-tree/test.h
-index 1ee4b2c0ad10..34dab4d18744 100644
---- a/tools/testing/radix-tree/test.h
-+++ b/tools/testing/radix-tree/test.h
-@@ -34,6 +34,7 @@ void xarray_tests(void);
- void tag_check(void);
- void multiorder_checks(void);
- void iteration_test(unsigned order, unsigned duration);
-+void iteration_test2(unsigned duration);
- void benchmark(void);
- void idr_checks(void);
- void ida_tests(void);
--- 
-2.25.1
-
+iQIzBAEBCAAdFiEEG8Yp69OQ2HB7X0l6Oeye3VZigbkFAl5qsnYACgkQOeye3VZi
+gbl3oBAAuV3LZM5xUEigsaeRtvVM9jGCrTQ5m9xsUxqV7SJ+fQfKx2sgHAZL5fD7
+RfCoUBsYaOaeXL6XsSAb/ztSXlPAsADvhZxvNiz1DCdl+fkULVrG1k91iLKgNJuu
+jiByqqs+vZxeHp8BjOMDPts3VimUxKSoVIOX5wui7xC4ZWsYxY3Ca0g0E0VSj54f
+lRCs+80C0mkaQ+VwtHtamSgEFlIkqElqTTmnCVF98LrTI9X1GNSIN0jQz9fVjChS
+n/pyrFnJ8Py9FdbC7gZ2xNJe/01va8uKeCvE7Lqyfp3bHfTFJlNXul60rmoAWnM2
+QSLuMqXHOLh4kdT52FHplr4ejmp6i+0uYzJbIPSMwY/KhWn2Z4b33rCchaxATU7P
+MhfIIhjAOOU+72iL93Xm5DMpHrHQAdsQH/hV4kpizhoqDL5kRS6apYmqJ0HGdfGf
+g7kqx+zrnNrkO2QdqJ2PDXJJCn4pZa6htMEESsdWkhltTPaQQ8c3BgjD5sywEFJP
+lkI5wQBSjzyiZRI6n94WB4PuHJzZLk1fQcRGjt22w+6U0p4dNvtIDo40L7kZK8dk
+uqSyat6aSpriad0xtXc8BTPhfctDRmiNyy5vRPfmac9lim3YQjYFECTUTNd5tTYx
++Vzy+DNAA2tFWlVjV9xlwLVzPS9dMHDbTO41NE4GA0UQb9qXpYg=
+=siGd
+-----END PGP SIGNATURE-----
+--=-=-=--
