@@ -2,141 +2,128 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EC6401830CC
-	for <lists+stable@lfdr.de>; Thu, 12 Mar 2020 14:05:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CFFC61830FF
+	for <lists+stable@lfdr.de>; Thu, 12 Mar 2020 14:15:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726874AbgCLNFq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Mar 2020 09:05:46 -0400
-Received: from mail-pj1-f66.google.com ([209.85.216.66]:32954 "EHLO
-        mail-pj1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725268AbgCLNFq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Mar 2020 09:05:46 -0400
-Received: by mail-pj1-f66.google.com with SMTP id dw20so705563pjb.0
-        for <stable@vger.kernel.org>; Thu, 12 Mar 2020 06:05:44 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=XVcQaJz7ijQQDWHP5+/wnbcsXKb8XTncUoURepR0SOA=;
-        b=fRitXOxRYVnVtfSagaRetGjS1bV1a+Oq/QsRlH4DAJ70/eJtBDSgLtRwpWgV8drOsk
-         vTpXHMt7vY0yOBO+Ku3YnCcUxLpboW0/Kk26gNTgsWRr9bjRD+WNdUVHZkHqeykyFW5C
-         PUqEEHugcCvzpTfEuXg6iYi1fk0gpQaNDf67CVa+jNxBKl/uHubnxrKixzF5O3pah7V0
-         WtH12c3nKQu+Jdm29f2jAPWKY4DLxYVrIW8rbpOxyjD8WKbzEvZC9W2EXKdOZ1tCe+wP
-         SuTBXx5K1XgUmmMAA+TZp7gWUJlCn86q6WNbGX5g5W0OJao1Mx5Jk6jv8MZuJsSteL78
-         Uyew==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=XVcQaJz7ijQQDWHP5+/wnbcsXKb8XTncUoURepR0SOA=;
-        b=a+JRnxXpDUFiGRpWhBgYPtg8g5UUv33jlL9PV30RomfPalAw23X2f5IjBx91feDjuu
-         koWuwbipNE7sisVpAMyl/H6Olzp+Yy25wwhKtVhAW1DIf/ZGXIvPtFZwhjc/6RnAAsWx
-         kHcG9Zr8y4VYxEjrcF9XsRYc5xNxcwxGGM0J2K5WEXztiMeziUGEjVRobH5XxKk814wm
-         NiVR6a/X+MP8PLfuVXeAiLjuRbv27k2jqOgbMk2LHBj8QYqCTKFZPM6TD3ZVIet3cbNF
-         2cEsRUPDnZNcl4HYMWj3Ok+kQzIhI5UYdNxtb/3rUPk0c8dzV3PYqnVBEYQLJacNx8PG
-         uvqw==
-X-Gm-Message-State: ANhLgQ1rauN64dnIbMWez4i5lN9ls/do0SRMYhHAi47fgwduiqQ2qOnp
-        cd/ekdJ2Xmv0/Fg2wE+Go3viAYkmZZY=
-X-Google-Smtp-Source: ADFU+vtUMc0pgEuWvlUqvMzUDaK6INvvPyXPFWVimPyQ1uKU/S/lTHAnl0IV8mRRK1WcOA2apbsKzg==
-X-Received: by 2002:a17:90a:1697:: with SMTP id o23mr4058096pja.62.1584018343449;
-        Thu, 12 Mar 2020 06:05:43 -0700 (PDT)
-Received: from [10.0.9.4] ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id g18sm55560038pfi.80.2020.03.12.06.05.41
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 12 Mar 2020 06:05:42 -0700 (PDT)
-Message-ID: <5e6a33a6.1c69fb81.4c5a1.9ed7@mx.google.com>
-Date:   Thu, 12 Mar 2020 06:05:42 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1726395AbgCLNPB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Mar 2020 09:15:01 -0400
+Received: from Galois.linutronix.de ([193.142.43.55]:43307 "EHLO
+        Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725978AbgCLNPB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Mar 2020 09:15:01 -0400
+Received: from [5.158.153.53] (helo=tip-bot2.lab.linutronix.de)
+        by Galois.linutronix.de with esmtpsa (TLS1.2:DHE_RSA_AES_256_CBC_SHA256:256)
+        (Exim 4.80)
+        (envelope-from <tip-bot2@linutronix.de>)
+        id 1jCNfo-0002Yi-Tt; Thu, 12 Mar 2020 14:14:53 +0100
+Received: from [127.0.1.1] (localhost [IPv6:::1])
+        by tip-bot2.lab.linutronix.de (Postfix) with ESMTP id 6DB3C1C223E;
+        Thu, 12 Mar 2020 14:14:52 +0100 (CET)
+Date:   Thu, 12 Mar 2020 13:14:52 -0000
+From:   "tip-bot2 for Kim Phillips" <tip-bot2@linutronix.de>
+Reply-to: linux-kernel@vger.kernel.org
+To:     linux-tip-commits@vger.kernel.org
+Subject: [tip: perf/urgent] perf/amd/uncore: Replace manual sampling check
+ with CAP_NO_INTERRUPT flag
+Cc:     Kim Phillips <kim.phillips@amd.com>, Borislav Petkov <bp@suse.de>,
+        Peter Zijlstra <peterz@infradead.org>, stable@vger.kernel.org,
+        x86 <x86@kernel.org>, LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20200311191323.13124-1-kim.phillips@amd.com>
+References: <20200311191323.13124-1-kim.phillips@amd.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-5.4.y
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v5.4.24-171-gd262b82164a3
-X-Kernelci-Report-Type: boot
-Subject: stable-rc/linux-5.4.y boot: 121 boots: 2 failed,
- 113 passed with 3 offline, 3 untried/unknown (v5.4.24-171-gd262b82164a3)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Message-ID: <158401889210.28353.10962157777204769703.tip-bot2@tip-bot2>
+X-Mailer: tip-git-log-daemon
+Robot-ID: <tip-bot2.linutronix.de>
+Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-Linutronix-Spam-Score: -1.0
+X-Linutronix-Spam-Level: -
+X-Linutronix-Spam-Status: No , -1.0 points, 5.0 required,  ALL_TRUSTED=-1,SHORTCIRCUIT=-0.0001
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.4.y boot: 121 boots: 2 failed, 113 passed with 3 offline,=
- 3 untried/unknown (v5.4.24-171-gd262b82164a3)
+The following commit has been merged into the perf/urgent branch of tip:
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--5.4.y/kernel/v5.4.24-171-gd262b82164a3/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-5.4.y=
-/kernel/v5.4.24-171-gd262b82164a3/
+Commit-ID:     f967140dfb7442e2db0868b03b961f9c59418a1b
+Gitweb:        https://git.kernel.org/tip/f967140dfb7442e2db0868b03b961f9c59418a1b
+Author:        Kim Phillips <kim.phillips@amd.com>
+AuthorDate:    Wed, 11 Mar 2020 14:13:21 -05:00
+Committer:     Borislav Petkov <bp@suse.de>
+CommitterDate: Thu, 12 Mar 2020 14:08:50 +01:00
 
-Tree: stable-rc
-Branch: linux-5.4.y
-Git Describe: v5.4.24-171-gd262b82164a3
-Git Commit: d262b82164a3ad1264012b4041c6c75103fe153a
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 89 unique boards, 23 SoC families, 18 builds out of 200
+perf/amd/uncore: Replace manual sampling check with CAP_NO_INTERRUPT flag
 
-Boot Regressions Detected:
+Enable the sampling check in kernel/events/core.c::perf_event_open(),
+which returns the more appropriate -EOPNOTSUPP.
 
-arm:
+BEFORE:
 
-    qcom_defconfig:
-        gcc-8:
-          qcom-apq8064-cm-qs600:
-              lab-baylibre-seattle: failing since 32 days (last pass: v5.4.=
-17-99-gbd0c6624a110 - first fail: v5.4.17-238-gbffcaa93483d)
+  $ sudo perf record -a -e instructions,l3_request_g1.caching_l3_cache_accesses true
+  Error:
+  The sys_perf_event_open() syscall returned with 22 (Invalid argument) for event (l3_request_g1.caching_l3_cache_accesses).
+  /bin/dmesg | grep -i perf may provide additional information.
 
-    sunxi_defconfig:
-        gcc-8:
-          sun4i-a10-cubieboard:
-              lab-baylibre-seattle: failing since 1 day (last pass: v5.4.24=
--169-g01c3b21f542b - first fail: v5.4.24-168-g877097a6286a)
-          sun8i-h2-plus-orangepi-r1:
-              lab-baylibre: new failure (last pass: v5.4.24-170-g98d2a8785f=
-3d)
+With nothing relevant in dmesg.
 
-arm64:
+AFTER:
 
-    defconfig:
-        gcc-8:
-          meson-axg-s400:
-              lab-baylibre-seattle: new failure (last pass: v5.4.24-170-g98=
-d2a8785f3d)
-          meson-gxl-s805x-libretech-ac:
-              lab-baylibre: new failure (last pass: v5.4.24-170-g98d2a8785f=
-3d)
+  $ sudo perf record -a -e instructions,l3_request_g1.caching_l3_cache_accesses true
+  Error:
+  l3_request_g1.caching_l3_cache_accesses: PMU Hardware doesn't support sampling/overflow-interrupts. Try 'perf stat'
 
-Boot Failures Detected:
-
-arm:
-    sama5_defconfig:
-        gcc-8:
-            at91-sama5d4_xplained: 1 failed lab
-
-    sunxi_defconfig:
-        gcc-8:
-            sun4i-a10-cubieboard: 1 failed lab
-
-Offline Platforms:
-
-arm:
-
-    multi_v7_defconfig:
-        gcc-8
-            qcom-apq8064-cm-qs600: 1 offline lab
-
-    qcom_defconfig:
-        gcc-8
-            qcom-apq8064-cm-qs600: 1 offline lab
-
-arm64:
-
-    defconfig:
-        gcc-8
-            meson-axg-s400: 1 offline lab
-
+Fixes: c43ca5091a37 ("perf/x86/amd: Add support for AMD NB and L2I "uncore" counters")
+Signed-off-by: Kim Phillips <kim.phillips@amd.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Acked-by: Peter Zijlstra <peterz@infradead.org>
+Cc: stable@vger.kernel.org
+Link: https://lkml.kernel.org/r/20200311191323.13124-1-kim.phillips@amd.com
 ---
-For more info write to <info@kernelci.org>
+ arch/x86/events/amd/uncore.c | 17 +++++++----------
+ 1 file changed, 7 insertions(+), 10 deletions(-)
+
+diff --git a/arch/x86/events/amd/uncore.c b/arch/x86/events/amd/uncore.c
+index a6ea07f..4d867a7 100644
+--- a/arch/x86/events/amd/uncore.c
++++ b/arch/x86/events/amd/uncore.c
+@@ -190,15 +190,12 @@ static int amd_uncore_event_init(struct perf_event *event)
+ 
+ 	/*
+ 	 * NB and Last level cache counters (MSRs) are shared across all cores
+-	 * that share the same NB / Last level cache. Interrupts can be directed
+-	 * to a single target core, however, event counts generated by processes
+-	 * running on other cores cannot be masked out. So we do not support
+-	 * sampling and per-thread events.
++	 * that share the same NB / Last level cache.  On family 16h and below,
++	 * Interrupts can be directed to a single target core, however, event
++	 * counts generated by processes running on other cores cannot be masked
++	 * out. So we do not support sampling and per-thread events via
++	 * CAP_NO_INTERRUPT, and we do not enable counter overflow interrupts:
+ 	 */
+-	if (is_sampling_event(event) || event->attach_state & PERF_ATTACH_TASK)
+-		return -EINVAL;
+-
+-	/* and we do not enable counter overflow interrupts */
+ 	hwc->config = event->attr.config & AMD64_RAW_EVENT_MASK_NB;
+ 	hwc->idx = -1;
+ 
+@@ -306,7 +303,7 @@ static struct pmu amd_nb_pmu = {
+ 	.start		= amd_uncore_start,
+ 	.stop		= amd_uncore_stop,
+ 	.read		= amd_uncore_read,
+-	.capabilities	= PERF_PMU_CAP_NO_EXCLUDE,
++	.capabilities	= PERF_PMU_CAP_NO_EXCLUDE | PERF_PMU_CAP_NO_INTERRUPT,
+ };
+ 
+ static struct pmu amd_llc_pmu = {
+@@ -317,7 +314,7 @@ static struct pmu amd_llc_pmu = {
+ 	.start		= amd_uncore_start,
+ 	.stop		= amd_uncore_stop,
+ 	.read		= amd_uncore_read,
+-	.capabilities	= PERF_PMU_CAP_NO_EXCLUDE,
++	.capabilities	= PERF_PMU_CAP_NO_EXCLUDE | PERF_PMU_CAP_NO_INTERRUPT,
+ };
+ 
+ static struct amd_uncore *amd_uncore_alloc(unsigned int cpu)
