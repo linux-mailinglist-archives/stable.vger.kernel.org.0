@@ -2,170 +2,141 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 125DF183044
-	for <lists+stable@lfdr.de>; Thu, 12 Mar 2020 13:32:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EC6401830CC
+	for <lists+stable@lfdr.de>; Thu, 12 Mar 2020 14:05:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726310AbgCLMc6 convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Thu, 12 Mar 2020 08:32:58 -0400
-Received: from mga01.intel.com ([192.55.52.88]:32061 "EHLO mga01.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725268AbgCLMc6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 12 Mar 2020 08:32:58 -0400
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from fmsmga002.fm.intel.com ([10.253.24.26])
-  by fmsmga101.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 12 Mar 2020 05:32:57 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.70,544,1574150400"; 
-   d="scan'208";a="277783817"
-Received: from irsmsx101.ger.corp.intel.com ([163.33.3.153])
-  by fmsmga002.fm.intel.com with ESMTP; 12 Mar 2020 05:32:55 -0700
-Received: from irsmsx606.ger.corp.intel.com (163.33.146.139) by
- IRSMSX101.ger.corp.intel.com (163.33.3.153) with Microsoft SMTP Server (TLS)
- id 14.3.439.0; Thu, 12 Mar 2020 12:32:55 +0000
-Received: from irsmsx601.ger.corp.intel.com (163.33.146.7) by
- IRSMSX606.ger.corp.intel.com (163.33.146.139) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.1713.5; Thu, 12 Mar 2020 12:32:55 +0000
-Received: from irsmsx601.ger.corp.intel.com ([163.33.146.7]) by
- irsmsx601.ger.corp.intel.com ([163.33.146.7]) with mapi id 15.01.1713.004;
- Thu, 12 Mar 2020 12:32:55 +0000
-From:   "Mrozek, Michal" <michal.mrozek@intel.com>
-To:     Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
-        "Intel-gfx@lists.freedesktop.org" <Intel-gfx@lists.freedesktop.org>
-CC:     "Ursulin, Tvrtko" <tvrtko.ursulin@intel.com>,
-        Chris Wilson <chris@chris-wilson.co.uk>,
-        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: RE: [PATCH v3] drm/i915/gen12: Disable preemption timeout
-Thread-Topic: [PATCH v3] drm/i915/gen12: Disable preemption timeout
-Thread-Index: AQHV+GV3gtM8E/6h2UaUOIIOSXsn3KhE46sw
-Date:   Thu, 12 Mar 2020 12:32:54 +0000
-Message-ID: <e757df2ebc75465eadb87c775a31f616@intel.com>
-References: <20200310162428.4249-1-tvrtko.ursulin@linux.intel.com>
- <20200312115748.29970-1-tvrtko.ursulin@linux.intel.com>
-In-Reply-To: <20200312115748.29970-1-tvrtko.ursulin@linux.intel.com>
-Accept-Language: pl-PL, en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-dlp-product: dlpe-windows
-dlp-version: 11.2.0.6
-dlp-reaction: no-action
-x-originating-ip: [163.33.253.164]
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+        id S1726874AbgCLNFq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Mar 2020 09:05:46 -0400
+Received: from mail-pj1-f66.google.com ([209.85.216.66]:32954 "EHLO
+        mail-pj1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725268AbgCLNFq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Mar 2020 09:05:46 -0400
+Received: by mail-pj1-f66.google.com with SMTP id dw20so705563pjb.0
+        for <stable@vger.kernel.org>; Thu, 12 Mar 2020 06:05:44 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=XVcQaJz7ijQQDWHP5+/wnbcsXKb8XTncUoURepR0SOA=;
+        b=fRitXOxRYVnVtfSagaRetGjS1bV1a+Oq/QsRlH4DAJ70/eJtBDSgLtRwpWgV8drOsk
+         vTpXHMt7vY0yOBO+Ku3YnCcUxLpboW0/Kk26gNTgsWRr9bjRD+WNdUVHZkHqeykyFW5C
+         PUqEEHugcCvzpTfEuXg6iYi1fk0gpQaNDf67CVa+jNxBKl/uHubnxrKixzF5O3pah7V0
+         WtH12c3nKQu+Jdm29f2jAPWKY4DLxYVrIW8rbpOxyjD8WKbzEvZC9W2EXKdOZ1tCe+wP
+         SuTBXx5K1XgUmmMAA+TZp7gWUJlCn86q6WNbGX5g5W0OJao1Mx5Jk6jv8MZuJsSteL78
+         Uyew==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=XVcQaJz7ijQQDWHP5+/wnbcsXKb8XTncUoURepR0SOA=;
+        b=a+JRnxXpDUFiGRpWhBgYPtg8g5UUv33jlL9PV30RomfPalAw23X2f5IjBx91feDjuu
+         koWuwbipNE7sisVpAMyl/H6Olzp+Yy25wwhKtVhAW1DIf/ZGXIvPtFZwhjc/6RnAAsWx
+         kHcG9Zr8y4VYxEjrcF9XsRYc5xNxcwxGGM0J2K5WEXztiMeziUGEjVRobH5XxKk814wm
+         NiVR6a/X+MP8PLfuVXeAiLjuRbv27k2jqOgbMk2LHBj8QYqCTKFZPM6TD3ZVIet3cbNF
+         2cEsRUPDnZNcl4HYMWj3Ok+kQzIhI5UYdNxtb/3rUPk0c8dzV3PYqnVBEYQLJacNx8PG
+         uvqw==
+X-Gm-Message-State: ANhLgQ1rauN64dnIbMWez4i5lN9ls/do0SRMYhHAi47fgwduiqQ2qOnp
+        cd/ekdJ2Xmv0/Fg2wE+Go3viAYkmZZY=
+X-Google-Smtp-Source: ADFU+vtUMc0pgEuWvlUqvMzUDaK6INvvPyXPFWVimPyQ1uKU/S/lTHAnl0IV8mRRK1WcOA2apbsKzg==
+X-Received: by 2002:a17:90a:1697:: with SMTP id o23mr4058096pja.62.1584018343449;
+        Thu, 12 Mar 2020 06:05:43 -0700 (PDT)
+Received: from [10.0.9.4] ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id g18sm55560038pfi.80.2020.03.12.06.05.41
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 12 Mar 2020 06:05:42 -0700 (PDT)
+Message-ID: <5e6a33a6.1c69fb81.4c5a1.9ed7@mx.google.com>
+Date:   Thu, 12 Mar 2020 06:05:42 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: linux-5.4.y
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v5.4.24-171-gd262b82164a3
+X-Kernelci-Report-Type: boot
+Subject: stable-rc/linux-5.4.y boot: 121 boots: 2 failed,
+ 113 passed with 3 offline, 3 untried/unknown (v5.4.24-171-gd262b82164a3)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-> -----Original Message-----
-> From: Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>
-> Sent: Thursday, March 12, 2020 12:58 PM
-> To: Intel-gfx@lists.freedesktop.org
-> Cc: Ursulin, Tvrtko <tvrtko.ursulin@intel.com>; Chris Wilson <chris@chris-
-> wilson.co.uk>; Joonas Lahtinen <joonas.lahtinen@linux.intel.com>; Mrozek,
-> Michal <michal.mrozek@intel.com>; stable@vger.kernel.org
-> Subject: [PATCH v3] drm/i915/gen12: Disable preemption timeout
-> 
-> From: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-> 
-> Allow super long OpenCL workloads which cannot be preempted within the
-> default timeout to run out of the box.
-> 
-> v2:
->  * Make it stick out more and apply only to RCS. (Chris)
-> 
-> v3:
->  * Mention platform override in kconfig. (Joonas)
-> 
-> Signed-off-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-> Cc: Chris Wilson <chris@chris-wilson.co.uk>
-> Cc: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
-> Cc: Michal Mrozek <michal.mrozek@intel.com>
-> Cc: <stable@vger.kernel.org> # v5.6+
-> Acked-by: Chris Wilson <chris@chris-wilson.co.uk>
-> ---
->  drivers/gpu/drm/i915/Kconfig.profile      |  4 ++++
->  drivers/gpu/drm/i915/gt/intel_engine_cs.c | 13 +++++++++----
->  2 files changed, 13 insertions(+), 4 deletions(-)
-> 
-> diff --git a/drivers/gpu/drm/i915/Kconfig.profile
-> b/drivers/gpu/drm/i915/Kconfig.profile
-> index ba8767fc0d6e..0bfd276c19fe 100644
-> --- a/drivers/gpu/drm/i915/Kconfig.profile
-> +++ b/drivers/gpu/drm/i915/Kconfig.profile
-> @@ -41,6 +41,10 @@ config DRM_I915_PREEMPT_TIMEOUT
-> 
->  	  May be 0 to disable the timeout.
-> 
-> +	  The compiled in default may get overridden at driver probe time on
-> +	  certain platforms and certain engines which will be reflected in the
-> +	  sysfs control.
-> +
->  config DRM_I915_MAX_REQUEST_BUSYWAIT
->  	int "Busywait for request completion limit (ns)"
->  	default 8000 # nanoseconds
-> diff --git a/drivers/gpu/drm/i915/gt/intel_engine_cs.c
-> b/drivers/gpu/drm/i915/gt/intel_engine_cs.c
-> index 8eeec87b7d72..3aa8a652c16d 100644
-> --- a/drivers/gpu/drm/i915/gt/intel_engine_cs.c
-> +++ b/drivers/gpu/drm/i915/gt/intel_engine_cs.c
-> @@ -275,6 +275,7 @@ static void intel_engine_sanitize_mmio(struct
-> intel_engine_cs *engine)  static int intel_engine_setup(struct intel_gt *gt, enum
-> intel_engine_id id)  {
->  	const struct engine_info *info = &intel_engines[id];
-> +	struct drm_i915_private *i915 = gt->i915;
->  	struct intel_engine_cs *engine;
-> 
->  	BUILD_BUG_ON(MAX_ENGINE_CLASS >=
-> BIT(GEN11_ENGINE_CLASS_WIDTH)); @@ -301,11 +302,11 @@ static int
-> intel_engine_setup(struct intel_gt *gt, enum intel_engine_id id)
->  	engine->id = id;
->  	engine->legacy_idx = INVALID_ENGINE;
->  	engine->mask = BIT(id);
-> -	engine->i915 = gt->i915;
-> +	engine->i915 = i915;
->  	engine->gt = gt;
->  	engine->uncore = gt->uncore;
->  	engine->hw_id = engine->guc_id = info->hw_id;
-> -	engine->mmio_base = __engine_mmio_base(gt->i915, info-
-> >mmio_bases);
-> +	engine->mmio_base = __engine_mmio_base(i915, info->mmio_bases);
-> 
->  	engine->class = info->class;
->  	engine->instance = info->instance;
-> @@ -322,11 +323,15 @@ static int intel_engine_setup(struct intel_gt *gt, enum
-> intel_engine_id id)
->  	engine->props.timeslice_duration_ms =
->  		CONFIG_DRM_I915_TIMESLICE_DURATION;
-> 
-> +	/* Override to uninterruptible for OpenCL workloads. */
-> +	if (INTEL_GEN(i915) == 12 && engine->class == RENDER_CLASS)
-> +		engine->props.preempt_timeout_ms = 0;
-> +
->  	engine->context_size = intel_engine_context_size(gt, engine->class);
->  	if (WARN_ON(engine->context_size > BIT(20)))
->  		engine->context_size = 0;
->  	if (engine->context_size)
-> -		DRIVER_CAPS(gt->i915)->has_logical_contexts = true;
-> +		DRIVER_CAPS(i915)->has_logical_contexts = true;
-> 
->  	/* Nothing to do here, execute in order of dependencies */
->  	engine->schedule = NULL;
-> @@ -342,7 +347,7 @@ static int intel_engine_setup(struct intel_gt *gt, enum
-> intel_engine_id id)
->  	gt->engine_class[info->class][info->instance] = engine;
->  	gt->engine[id] = engine;
-> 
-> -	gt->i915->engine[id] = engine;
-> +	i915->engine[id] = engine;
-> 
->  	return 0;
->  }
-> --
-> 2.20.1
+stable-rc/linux-5.4.y boot: 121 boots: 2 failed, 113 passed with 3 offline,=
+ 3 untried/unknown (v5.4.24-171-gd262b82164a3)
 
-Acked-by: Michal Mrozek <Michal.mrozek@intel.com>
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-5.4.y/kernel/v5.4.24-171-gd262b82164a3/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-5.4.y=
+/kernel/v5.4.24-171-gd262b82164a3/
+
+Tree: stable-rc
+Branch: linux-5.4.y
+Git Describe: v5.4.24-171-gd262b82164a3
+Git Commit: d262b82164a3ad1264012b4041c6c75103fe153a
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 89 unique boards, 23 SoC families, 18 builds out of 200
+
+Boot Regressions Detected:
+
+arm:
+
+    qcom_defconfig:
+        gcc-8:
+          qcom-apq8064-cm-qs600:
+              lab-baylibre-seattle: failing since 32 days (last pass: v5.4.=
+17-99-gbd0c6624a110 - first fail: v5.4.17-238-gbffcaa93483d)
+
+    sunxi_defconfig:
+        gcc-8:
+          sun4i-a10-cubieboard:
+              lab-baylibre-seattle: failing since 1 day (last pass: v5.4.24=
+-169-g01c3b21f542b - first fail: v5.4.24-168-g877097a6286a)
+          sun8i-h2-plus-orangepi-r1:
+              lab-baylibre: new failure (last pass: v5.4.24-170-g98d2a8785f=
+3d)
+
+arm64:
+
+    defconfig:
+        gcc-8:
+          meson-axg-s400:
+              lab-baylibre-seattle: new failure (last pass: v5.4.24-170-g98=
+d2a8785f3d)
+          meson-gxl-s805x-libretech-ac:
+              lab-baylibre: new failure (last pass: v5.4.24-170-g98d2a8785f=
+3d)
+
+Boot Failures Detected:
+
+arm:
+    sama5_defconfig:
+        gcc-8:
+            at91-sama5d4_xplained: 1 failed lab
+
+    sunxi_defconfig:
+        gcc-8:
+            sun4i-a10-cubieboard: 1 failed lab
+
+Offline Platforms:
+
+arm:
+
+    multi_v7_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+
+    qcom_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+
+arm64:
+
+    defconfig:
+        gcc-8
+            meson-axg-s400: 1 offline lab
+
+---
+For more info write to <info@kernelci.org>
