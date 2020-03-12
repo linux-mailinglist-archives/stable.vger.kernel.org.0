@@ -2,132 +2,67 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F299182FAE
-	for <lists+stable@lfdr.de>; Thu, 12 Mar 2020 12:57:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 680F1182FB1
+	for <lists+stable@lfdr.de>; Thu, 12 Mar 2020 12:58:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726591AbgCLL5x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Mar 2020 07:57:53 -0400
-Received: from mga05.intel.com ([192.55.52.43]:3988 "EHLO mga05.intel.com"
+        id S1726932AbgCLL6j (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Mar 2020 07:58:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39646 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726302AbgCLL5x (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 12 Mar 2020 07:57:53 -0400
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga003.jf.intel.com ([10.7.209.27])
-  by fmsmga105.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 12 Mar 2020 04:57:52 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.70,544,1574150400"; 
-   d="scan'208";a="242999161"
-Received: from pkosiack-mobl2.ger.corp.intel.com (HELO localhost.localdomain) ([10.252.21.27])
-  by orsmga003.jf.intel.com with ESMTP; 12 Mar 2020 04:57:50 -0700
-From:   Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>
-To:     Intel-gfx@lists.freedesktop.org
-Cc:     Tvrtko Ursulin <tvrtko.ursulin@intel.com>,
-        Chris Wilson <chris@chris-wilson.co.uk>,
-        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
-        Michal Mrozek <michal.mrozek@intel.com>, stable@vger.kernel.org
-Subject: [PATCH v3] drm/i915/gen12: Disable preemption timeout
-Date:   Thu, 12 Mar 2020 11:57:48 +0000
-Message-Id: <20200312115748.29970-1-tvrtko.ursulin@linux.intel.com>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20200310162428.4249-1-tvrtko.ursulin@linux.intel.com>
-References: <20200310162428.4249-1-tvrtko.ursulin@linux.intel.com>
+        id S1726302AbgCLL6i (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 12 Mar 2020 07:58:38 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 280A520674;
+        Thu, 12 Mar 2020 11:58:36 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1584014316;
+        bh=OIkjeJjP/YCoWeCBRAXVfoViIIsfub5U3Rq1ZIuGW1g=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=N6apPzV5nxMBU75W8Qu95EcdJwWvKENlXh+l1pWV7Sb0yXLGvi6/m6VPEWc0ROdsp
+         AOYDCgcBLRaxXZW+RUvWEtn4iYS2wSnvfV9FazwGcD1TZXNyay9YKr+K81HuAGuRsK
+         1r7h6gtJljYmwhZIF/DX+b/4jeaCSTvKYlPv1l4k=
+Date:   Thu, 12 Mar 2020 12:58:34 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Guenter Roeck <linux@roeck-us.net>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH 5.4 000/170] 5.4.25-rc5 review
+Message-ID: <20200312115834.GA235296@kroah.com>
+References: <20200312062811.479223593@linuxfoundation.org>
+ <d7c92c7c-7e50-fce8-ca6b-ced75561179f@roeck-us.net>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <d7c92c7c-7e50-fce8-ca6b-ced75561179f@roeck-us.net>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+On Thu, Mar 12, 2020 at 04:03:08AM -0700, Guenter Roeck wrote:
+> On 3/11/20 11:29 PM, Greg Kroah-Hartman wrote:
+> > This is the start of the stable review cycle for the 5.4.25 release.
+> > There are 170 patches in this series, all will be posted as a response
+> > to this one.  If anyone has any issues with these being applied, please
+> > let me know.
+> > 
+> > Responses should be made by Sat, 14 Mar 2020 06:27:28 +0000.
+> > Anything received after that time might be too late.
+> > 
+> 
+> Five is the charm ...
+> 
+> Build results:
+> 	total: 158 pass: 158 fail: 0
+> Qemu test results:
+> 	total: 422 pass: 422 fail: 0
+> 
+> Guenter
 
-Allow super long OpenCL workloads which cannot be preempted within
-the default timeout to run out of the box.
+Finally!  Thanks for all of the testing and help here.
 
-v2:
- * Make it stick out more and apply only to RCS. (Chris)
-
-v3:
- * Mention platform override in kconfig. (Joonas)
-
-Signed-off-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-Cc: Chris Wilson <chris@chris-wilson.co.uk>
-Cc: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
-Cc: Michal Mrozek <michal.mrozek@intel.com>
-Cc: <stable@vger.kernel.org> # v5.6+
-Acked-by: Chris Wilson <chris@chris-wilson.co.uk>
----
- drivers/gpu/drm/i915/Kconfig.profile      |  4 ++++
- drivers/gpu/drm/i915/gt/intel_engine_cs.c | 13 +++++++++----
- 2 files changed, 13 insertions(+), 4 deletions(-)
-
-diff --git a/drivers/gpu/drm/i915/Kconfig.profile b/drivers/gpu/drm/i915/Kconfig.profile
-index ba8767fc0d6e..0bfd276c19fe 100644
---- a/drivers/gpu/drm/i915/Kconfig.profile
-+++ b/drivers/gpu/drm/i915/Kconfig.profile
-@@ -41,6 +41,10 @@ config DRM_I915_PREEMPT_TIMEOUT
- 
- 	  May be 0 to disable the timeout.
- 
-+	  The compiled in default may get overridden at driver probe time on
-+	  certain platforms and certain engines which will be reflected in the
-+	  sysfs control.
-+
- config DRM_I915_MAX_REQUEST_BUSYWAIT
- 	int "Busywait for request completion limit (ns)"
- 	default 8000 # nanoseconds
-diff --git a/drivers/gpu/drm/i915/gt/intel_engine_cs.c b/drivers/gpu/drm/i915/gt/intel_engine_cs.c
-index 8eeec87b7d72..3aa8a652c16d 100644
---- a/drivers/gpu/drm/i915/gt/intel_engine_cs.c
-+++ b/drivers/gpu/drm/i915/gt/intel_engine_cs.c
-@@ -275,6 +275,7 @@ static void intel_engine_sanitize_mmio(struct intel_engine_cs *engine)
- static int intel_engine_setup(struct intel_gt *gt, enum intel_engine_id id)
- {
- 	const struct engine_info *info = &intel_engines[id];
-+	struct drm_i915_private *i915 = gt->i915;
- 	struct intel_engine_cs *engine;
- 
- 	BUILD_BUG_ON(MAX_ENGINE_CLASS >= BIT(GEN11_ENGINE_CLASS_WIDTH));
-@@ -301,11 +302,11 @@ static int intel_engine_setup(struct intel_gt *gt, enum intel_engine_id id)
- 	engine->id = id;
- 	engine->legacy_idx = INVALID_ENGINE;
- 	engine->mask = BIT(id);
--	engine->i915 = gt->i915;
-+	engine->i915 = i915;
- 	engine->gt = gt;
- 	engine->uncore = gt->uncore;
- 	engine->hw_id = engine->guc_id = info->hw_id;
--	engine->mmio_base = __engine_mmio_base(gt->i915, info->mmio_bases);
-+	engine->mmio_base = __engine_mmio_base(i915, info->mmio_bases);
- 
- 	engine->class = info->class;
- 	engine->instance = info->instance;
-@@ -322,11 +323,15 @@ static int intel_engine_setup(struct intel_gt *gt, enum intel_engine_id id)
- 	engine->props.timeslice_duration_ms =
- 		CONFIG_DRM_I915_TIMESLICE_DURATION;
- 
-+	/* Override to uninterruptible for OpenCL workloads. */
-+	if (INTEL_GEN(i915) == 12 && engine->class == RENDER_CLASS)
-+		engine->props.preempt_timeout_ms = 0;
-+
- 	engine->context_size = intel_engine_context_size(gt, engine->class);
- 	if (WARN_ON(engine->context_size > BIT(20)))
- 		engine->context_size = 0;
- 	if (engine->context_size)
--		DRIVER_CAPS(gt->i915)->has_logical_contexts = true;
-+		DRIVER_CAPS(i915)->has_logical_contexts = true;
- 
- 	/* Nothing to do here, execute in order of dependencies */
- 	engine->schedule = NULL;
-@@ -342,7 +347,7 @@ static int intel_engine_setup(struct intel_gt *gt, enum intel_engine_id id)
- 	gt->engine_class[info->class][info->instance] = engine;
- 	gt->engine[id] = engine;
- 
--	gt->i915->engine[id] = engine;
-+	i915->engine[id] = engine;
- 
- 	return 0;
- }
--- 
-2.20.1
-
+greg k-h
