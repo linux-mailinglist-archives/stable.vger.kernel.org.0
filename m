@@ -2,84 +2,203 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AEDDE183180
-	for <lists+stable@lfdr.de>; Thu, 12 Mar 2020 14:32:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 055AE1831EA
+	for <lists+stable@lfdr.de>; Thu, 12 Mar 2020 14:46:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727526AbgCLNcD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Mar 2020 09:32:03 -0400
-Received: from mail27.static.mailgun.info ([104.130.122.27]:40594 "EHLO
-        mail27.static.mailgun.info" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727462AbgCLNcA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Mar 2020 09:32:00 -0400
-DKIM-Signature: a=rsa-sha256; v=1; c=relaxed/relaxed; d=mg.codeaurora.org; q=dns/txt;
- s=smtp; t=1584019919; h=Date: Message-Id: Cc: To: References:
- In-Reply-To: From: Subject: Content-Transfer-Encoding: MIME-Version:
- Content-Type: Sender; bh=hhYI/xqrH4iLJzSbbenfz+gy72pcGI+/7urHJfM7BQw=;
- b=WNyYj8voPpyQ90oWxJjpooqz8Rsw64njZiZWqiaRxtCdnZE+jIbJ4RRLoTrkICHYFEZCecpz
- q/aAvksC3o9l9tDZdGlwiinusaawsxVGTTDj9880VMLA68PD7NQrasqRQwp7NZ1WnI79mw2G
- 42AZZ7tqdZF5ULQWNf5L2RDjvrw=
-X-Mailgun-Sending-Ip: 104.130.122.27
-X-Mailgun-Sid: WyI1ZjI4MyIsICJzdGFibGVAdmdlci5rZXJuZWwub3JnIiwgImJlOWU0YSJd
-Received: from smtp.codeaurora.org (ec2-35-166-182-171.us-west-2.compute.amazonaws.com [35.166.182.171])
- by mxa.mailgun.org with ESMTP id 5e6a39cf.7fee11a58d18-smtp-out-n01;
- Thu, 12 Mar 2020 13:31:59 -0000 (UTC)
-Received: by smtp.codeaurora.org (Postfix, from userid 1001)
-        id 12782C44791; Thu, 12 Mar 2020 13:31:59 +0000 (UTC)
-X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
-        aws-us-west-2-caf-mail-1.web.codeaurora.org
-X-Spam-Level: 
-X-Spam-Status: No, score=0.5 required=2.0 tests=ALL_TRUSTED,MISSING_DATE,
-        MISSING_MID,SPF_NONE,URIBL_BLOCKED autolearn=no autolearn_force=no
-        version=3.4.0
-Received: from potku.adurom.net (88-114-240-156.elisa-laajakaista.fi [88.114.240.156])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        (Authenticated sender: kvalo)
-        by smtp.codeaurora.org (Postfix) with ESMTPSA id CDDD7C432C2;
-        Thu, 12 Mar 2020 13:31:55 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 smtp.codeaurora.org CDDD7C432C2
-Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; dmarc=none (p=none dis=none) header.from=codeaurora.org
-Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; spf=none smtp.mailfrom=kvalo@codeaurora.org
-Content-Type: text/plain; charset="utf-8"
+        id S1727462AbgCLNqT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Mar 2020 09:46:19 -0400
+Received: from relay.sw.ru ([185.231.240.75]:48762 "EHLO relay.sw.ru"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725978AbgCLNqT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 12 Mar 2020 09:46:19 -0400
+Received: from dhcp-172-16-24-104.sw.ru ([172.16.24.104])
+        by relay.sw.ru with esmtp (Exim 4.92.3)
+        (envelope-from <ktkhai@virtuozzo.com>)
+        id 1jCO9a-0007ZC-He; Thu, 12 Mar 2020 16:45:38 +0300
+Subject: Re: [PATCH v2 5/5] exec: Add a exec_update_mutex to replace
+ cred_guard_mutex
+To:     "Eric W. Biederman" <ebiederm@xmission.com>
+Cc:     Bernd Edlinger <bernd.edlinger@hotmail.de>,
+        Christian Brauner <christian.brauner@ubuntu.com>,
+        Kees Cook <keescook@chromium.org>,
+        Jann Horn <jannh@google.com>, Jonathan Corbet <corbet@lwn.net>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Alexey Dobriyan <adobriyan@gmail.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Oleg Nesterov <oleg@redhat.com>,
+        Frederic Weisbecker <frederic@kernel.org>,
+        Andrei Vagin <avagin@gmail.com>,
+        Ingo Molnar <mingo@kernel.org>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Yuyang Du <duyuyang@gmail.com>,
+        David Hildenbrand <david@redhat.com>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Anshuman Khandual <anshuman.khandual@arm.com>,
+        David Howells <dhowells@redhat.com>,
+        James Morris <jamorris@linux.microsoft.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Shakeel Butt <shakeelb@google.com>,
+        Jason Gunthorpe <jgg@ziepe.ca>,
+        Christian Kellner <christian@kellner.me>,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        Aleksa Sarai <cyphar@cyphar.com>,
+        "Dmitry V. Levin" <ldv@altlinux.org>,
+        "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>,
+        "linux-mm@kvack.org" <linux-mm@kvack.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "linux-api@vger.kernel.org" <linux-api@vger.kernel.org>
+References: <AM6PR03MB5170EB4427BF5C67EE98FF09E4E60@AM6PR03MB5170.eurprd03.prod.outlook.com>
+ <AM6PR03MB5170B976E6387FDDAD59A118E4E70@AM6PR03MB5170.eurprd03.prod.outlook.com>
+ <202003021531.C77EF10@keescook>
+ <20200303085802.eqn6jbhwxtmz4j2x@wittgenstein>
+ <AM6PR03MB5170285B336790D3450E2644E4E40@AM6PR03MB5170.eurprd03.prod.outlook.com>
+ <87v9nlii0b.fsf@x220.int.ebiederm.org>
+ <AM6PR03MB5170609D44967E044FD1BE40E4E40@AM6PR03MB5170.eurprd03.prod.outlook.com>
+ <87a74xi4kz.fsf@x220.int.ebiederm.org>
+ <AM6PR03MB51705AA3009B4986BB6EF92FE4E50@AM6PR03MB5170.eurprd03.prod.outlook.com>
+ <87r1y8dqqz.fsf@x220.int.ebiederm.org>
+ <AM6PR03MB517053AED7DC89F7C0704B7DE4E50@AM6PR03MB5170.eurprd03.prod.outlook.com>
+ <AM6PR03MB51703B44170EAB4626C9B2CAE4E20@AM6PR03MB5170.eurprd03.prod.outlook.com>
+ <87tv32cxmf.fsf_-_@x220.int.ebiederm.org>
+ <87v9ne5y4y.fsf_-_@x220.int.ebiederm.org>
+ <87zhcq4jdj.fsf_-_@x220.int.ebiederm.org>
+ <f37a5d68-9674-533f-ee9c-a49174605710@virtuozzo.com>
+ <87d09hn4kt.fsf@x220.int.ebiederm.org>
+From:   Kirill Tkhai <ktkhai@virtuozzo.com>
+Message-ID: <dbce35c7-c060-cfd8-bde1-98fd9a0747a9@virtuozzo.com>
+Date:   Thu, 12 Mar 2020 16:45:37 +0300
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.5.0
 MIME-Version: 1.0
+In-Reply-To: <87d09hn4kt.fsf@x220.int.ebiederm.org>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
 Content-Transfer-Encoding: 7bit
-Subject: Re: [PATCH] rtlwifi: rtl8188ee: Fix regression due to commit
- d1d1a96bdb44
-From:   Kalle Valo <kvalo@codeaurora.org>
-In-Reply-To: <20200219200041.22279-1-Larry.Finger@lwfinger.net>
-References: <20200219200041.22279-1-Larry.Finger@lwfinger.net>
-To:     Larry Finger <Larry.Finger@lwfinger.net>
-Cc:     linux-wireless@vger.kernel.org, pkshih@realtek.com,
-        Larry Finger <Larry.Finger@lwfinger.net>,
-        Stable <stable@vger.kernel.org>,
-        Ashish <ashishkumar.yadav@students.iiserpune.ac.in>
-User-Agent: pwcli/0.0.0-git (https://github.com/kvalo/pwcli/) Python/2.7.12
-Message-Id: <20200312133159.12782C44791@smtp.codeaurora.org>
-Date:   Thu, 12 Mar 2020 13:31:59 +0000 (UTC)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Larry Finger <Larry.Finger@lwfinger.net> wrote:
-
-> For some unexplained reason, commit d1d1a96bdb44 ("rtlwifi: rtl8188ee:
-> Remove local configuration variable") broke at least one system. As
-> the only net effect of the change was to remove 2 bytes from the start
-> of struct phy_status_rpt, this patch adds 2 bytes of padding at the
-> beginning of the struct.
+On 12.03.2020 15:24, Eric W. Biederman wrote:
+> Kirill Tkhai <ktkhai@virtuozzo.com> writes:
 > 
-> Fixes: d1d1a96bdb44 ("rtlwifi: rtl8188ee: Remove local configuration variable")
-> Cc: Stable <stable@vger.kernel.org>  # V5.4+
-> Reported-by: Ashish <ashishkumar.yadav@students.iiserpune.ac.in>
-> Tested-by: Ashish <ashishkumar.yadav@students.iiserpune.ac.in>
-> Signed-off-by: Larry Finger <Larry.Finger@lwfinger.net>
+>> On 09.03.2020 00:38, Eric W. Biederman wrote:
+>>>
+>>> The cred_guard_mutex is problematic.  The cred_guard_mutex is held
+>>> over the userspace accesses as the arguments from userspace are read.
+>>> The cred_guard_mutex is held of PTRACE_EVENT_EXIT as the the other
+>>> threads are killed.  The cred_guard_mutex is held over
+>>> "put_user(0, tsk->clear_child_tid)" in exit_mm().
+>>>
+>>> Any of those can result in deadlock, as the cred_guard_mutex is held
+>>> over a possible indefinite userspace waits for userspace.
+>>>
+>>> Add exec_update_mutex that is only held over exec updating process
+>>> with the new contents of exec, so that code that needs not to be
+>>> confused by exec changing the mm and the cred in ways that can not
+>>> happen during ordinary execution of a process.
+>>>
+>>> The plan is to switch the users of cred_guard_mutex to
+>>> exec_udpate_mutex one by one.  This lets us move forward while still
+>>> being careful and not introducing any regressions.
+>>>
+>>> Link: https://lore.kernel.org/lkml/20160921152946.GA24210@dhcp22.suse.cz/
+>>> Link: https://lore.kernel.org/lkml/AM6PR03MB5170B06F3A2B75EFB98D071AE4E60@AM6PR03MB5170.eurprd03.prod.outlook.com/
+>>> Link: https://lore.kernel.org/linux-fsdevel/20161102181806.GB1112@redhat.com/
+>>> Link: https://lore.kernel.org/lkml/20160923095031.GA14923@redhat.com/
+>>> Link: https://lore.kernel.org/lkml/20170213141452.GA30203@redhat.com/
+>>> Ref: 45c1a159b85b ("Add PTRACE_O_TRACEVFORKDONE and PTRACE_O_TRACEEXIT facilities.")
+>>> Ref: 456f17cd1a28 ("[PATCH] user-vm-unlock-2.5.31-A2")
+>>> Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
+>>> ---
+>>>  fs/exec.c                    | 9 +++++++++
+>>>  include/linux/sched/signal.h | 9 ++++++++-
+>>>  init/init_task.c             | 1 +
+>>>  kernel/fork.c                | 1 +
+>>>  4 files changed, 19 insertions(+), 1 deletion(-)
+>>>
+>>> diff --git a/fs/exec.c b/fs/exec.c
+>>> index d820a7272a76..ffeebb1f167b 100644
+>>> --- a/fs/exec.c
+>>> +++ b/fs/exec.c
+>>> @@ -1014,6 +1014,7 @@ static int exec_mmap(struct mm_struct *mm)
+>>>  {
+>>>  	struct task_struct *tsk;
+>>>  	struct mm_struct *old_mm, *active_mm;
+>>> +	int ret;
+>>>  
+>>>  	/* Notify parent that we're no longer interested in the old VM */
+>>>  	tsk = current;
+>>> @@ -1034,6 +1035,11 @@ static int exec_mmap(struct mm_struct *mm)
+>>>  			return -EINTR;
+>>>  		}
+>>>  	}
+>>> +
+>>> +	ret = mutex_lock_killable(&tsk->signal->exec_update_mutex);
+>>> +	if (ret)
+>>> +		return ret;
+>>
+>> You missed old_mm->mmap_sem unlock. See here:
+> 
+> Duh.  Thank you.
+> 
+> I actually need to switch the lock ordering here, and I haven't yet
+> because my son was sick yesterday.
 
-Patch applied to wireless-drivers.git, thanks.
+There is some fundamental problem with your patch, since the below fires in 100% cases
+on current linux-next:
 
-c80b18cbb04b rtlwifi: rtl8188ee: Fix regression due to commit d1d1a96bdb44
+[   22.838717] kernel BUG at fs/exec.c:1474!
 
--- 
-https://patchwork.kernel.org/patch/11392353/
+diff --git a/fs/exec.c b/fs/exec.c
+index 47582cd97f86..0f77f8c94905 100644
+--- a/fs/exec.c
++++ b/fs/exec.c
+@@ -1470,8 +1470,10 @@ static void free_bprm(struct linux_binprm *bprm)
+ {
+ 	free_arg_pages(bprm);
+ 	if (bprm->cred) {
+-		if (!bprm->mm)
++		if (!bprm->mm) {
++			BUG_ON(!mutex_is_locked(&current->signal->exec_update_mutex));
+ 			mutex_unlock(&current->signal->exec_update_mutex);
++		}
+ 		mutex_unlock(&current->signal->cred_guard_mutex);
+ 		abort_creds(bprm->cred);
+ 	}
+@@ -1521,6 +1523,7 @@ void install_exec_creds(struct linux_binprm *bprm)
+ 	 * credentials; any time after this it may be unlocked.
+ 	 */
+ 	security_bprm_committed_creds(bprm);
++	BUG_ON(!mutex_is_locked(&current->signal->exec_update_mutex));
+ 	mutex_unlock(&current->signal->exec_update_mutex);
+ 	mutex_unlock(&current->signal->cred_guard_mutex);
+ }
 
-https://wireless.wiki.kernel.org/en/developers/documentation/submittingpatches
+---------------------------------------------------------------------------------------------
+
+First time the mutex is unlocked in:
+
+exec_binprm()->search_binary_handler()->.load_binary->install_exec_creds()
+
+Then exec_binprm()->search_binary_handler()->.load_binary->flush_old_exec() clears mm:
+
+        bprm->mm = NULL;        
+
+Second time the mutex is unlocked in free_bprm():
+
+	if (bprm->cred) {
+                if (!bprm->mm)
+                        mutex_unlock(&current->signal->exec_update_mutex);
+
+My opinion is we should not relay on side indicators like bprm->mm. Better you may
+introduce struct linux_binprm::exec_update_mutex_is_locked. So the next person dealing
+with this after you won't waste much time on diving into this. Also, if someone decides
+to change the place, where bprm->mm is set into NULL, this person will bump into hell
+of dependences between unrelated components like your newly introduced mutex.
+
+So, I'm strongly for *struct linux_binprm::exec_update_mutex_is_locked*, since this improves
+modularity.
