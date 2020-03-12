@@ -2,122 +2,84 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C583183162
-	for <lists+stable@lfdr.de>; Thu, 12 Mar 2020 14:28:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AEDDE183180
+	for <lists+stable@lfdr.de>; Thu, 12 Mar 2020 14:32:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727361AbgCLN2a (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Mar 2020 09:28:30 -0400
-Received: from mail-pg1-f195.google.com ([209.85.215.195]:39933 "EHLO
-        mail-pg1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726558AbgCLN2a (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Mar 2020 09:28:30 -0400
-Received: by mail-pg1-f195.google.com with SMTP id s2so3087925pgv.6
-        for <stable@vger.kernel.org>; Thu, 12 Mar 2020 06:28:30 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=fossix-org.20150623.gappssmtp.com; s=20150623;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=ceobO9udD14LrQZbpBJ6o1PQGbHK97VsLgC6qxhMQAM=;
-        b=CClqHLwq/2JiI5Z8INqms9RzXBNoQKXNgFe5NSeNFs/3HbKL/gkSJn9AnIUGBSagnm
-         6G6AZ9qyWwQTx56eX9A2hizNqDE3fTdSSrEnG5KXkmwhoM/LHeitleT4237iSpEaVMli
-         R8JHuBnDG0a5ffIHDOPi412aHkkPkMERdKR3N2wlb0SFhXuIaDO47mWOM+snwniuRIEg
-         Fcoi+KQlyqXIyPXGM5tjumwI+FHNKL9nNC8489rl0bcgcHm1OT54lBa6XLuAGSzoQiOI
-         obLUcPT8gNbRq+eD7+9lYaAGmMuMr47lR7EvyQqTB8mHOHIxS8GQUwnJmSNnCD/TC8xf
-         QupA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=ceobO9udD14LrQZbpBJ6o1PQGbHK97VsLgC6qxhMQAM=;
-        b=uJpSpW6Y/deQJQJPNafDdNX+yqaDQqnh/jGhY3XGqrl8HJiY/RE6zpF++waOJjUbYE
-         17lykgC68l5YjDAw9bO2ONyA9raKayDB3utvKcEmQ47BYrMDLiS0O80iTQsY7JNx2pxS
-         HzWy5koYWwKFpllx+yQ68ndEY5aiUAn2k6aPTQI2BrIGTn4QDthI/15mOXR6cuh+V48z
-         E1G1Yt9t+DEy+RBGHF0Y1aLLTQIOW5yXOHXjjM7DXVsHOAtwa79ZG4RJIn9M9AyHVhET
-         vu+Jz8I6lIeRTuVwT5MYGbM5iUXsx/1Vk59FwdO2MV8Jo13hqn6dqZ/ixXj0A7iXpdAy
-         p1+Q==
-X-Gm-Message-State: ANhLgQ2+XTsaHqiX+1jSpYvcAfYpx97CIJ1Ni1rARhMmCFAhRC9qfLMu
-        DVu2wqeTjsAYHwOr/fLRJHg5qe7aFiU=
-X-Google-Smtp-Source: ADFU+vsUCc8IglJOZc1JplgZ66GG8uaBvrcHlGnViNOlSTYDkiUPzaaN1tMozhOpYCNGdSM3kEcqvg==
-X-Received: by 2002:a63:cb4a:: with SMTP id m10mr7779986pgi.259.1584019708733;
-        Thu, 12 Mar 2020 06:28:28 -0700 (PDT)
-Received: from santosiv.in.ibm.com ([111.125.206.208])
-        by smtp.gmail.com with ESMTPSA id w206sm13007435pfc.54.2020.03.12.06.28.24
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 12 Mar 2020 06:28:26 -0700 (PDT)
-From:   Santosh Sivaraj <santosh@fossix.org>
-To:     <stable@vger.kernel.org>,
-        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>
-Cc:     Michael Ellerman <mpe@ellerman.id.au>, Greg KH <greg@kroah.com>,
-        Sasha Levin <sashal@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        "Aneesh Kumar K . V" <aneesh.kumar@linux.ibm.com>
-Subject: [PATCH v3 6/6] asm-generic/tlb: avoid potential double flush
-Date:   Thu, 12 Mar 2020 18:57:40 +0530
-Message-Id: <20200312132740.225241-7-santosh@fossix.org>
-X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200312132740.225241-1-santosh@fossix.org>
-References: <20200312132740.225241-1-santosh@fossix.org>
+        id S1727526AbgCLNcD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Mar 2020 09:32:03 -0400
+Received: from mail27.static.mailgun.info ([104.130.122.27]:40594 "EHLO
+        mail27.static.mailgun.info" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727462AbgCLNcA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Mar 2020 09:32:00 -0400
+DKIM-Signature: a=rsa-sha256; v=1; c=relaxed/relaxed; d=mg.codeaurora.org; q=dns/txt;
+ s=smtp; t=1584019919; h=Date: Message-Id: Cc: To: References:
+ In-Reply-To: From: Subject: Content-Transfer-Encoding: MIME-Version:
+ Content-Type: Sender; bh=hhYI/xqrH4iLJzSbbenfz+gy72pcGI+/7urHJfM7BQw=;
+ b=WNyYj8voPpyQ90oWxJjpooqz8Rsw64njZiZWqiaRxtCdnZE+jIbJ4RRLoTrkICHYFEZCecpz
+ q/aAvksC3o9l9tDZdGlwiinusaawsxVGTTDj9880VMLA68PD7NQrasqRQwp7NZ1WnI79mw2G
+ 42AZZ7tqdZF5ULQWNf5L2RDjvrw=
+X-Mailgun-Sending-Ip: 104.130.122.27
+X-Mailgun-Sid: WyI1ZjI4MyIsICJzdGFibGVAdmdlci5rZXJuZWwub3JnIiwgImJlOWU0YSJd
+Received: from smtp.codeaurora.org (ec2-35-166-182-171.us-west-2.compute.amazonaws.com [35.166.182.171])
+ by mxa.mailgun.org with ESMTP id 5e6a39cf.7fee11a58d18-smtp-out-n01;
+ Thu, 12 Mar 2020 13:31:59 -0000 (UTC)
+Received: by smtp.codeaurora.org (Postfix, from userid 1001)
+        id 12782C44791; Thu, 12 Mar 2020 13:31:59 +0000 (UTC)
+X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
+        aws-us-west-2-caf-mail-1.web.codeaurora.org
+X-Spam-Level: 
+X-Spam-Status: No, score=0.5 required=2.0 tests=ALL_TRUSTED,MISSING_DATE,
+        MISSING_MID,SPF_NONE,URIBL_BLOCKED autolearn=no autolearn_force=no
+        version=3.4.0
+Received: from potku.adurom.net (88-114-240-156.elisa-laajakaista.fi [88.114.240.156])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        (Authenticated sender: kvalo)
+        by smtp.codeaurora.org (Postfix) with ESMTPSA id CDDD7C432C2;
+        Thu, 12 Mar 2020 13:31:55 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 smtp.codeaurora.org CDDD7C432C2
+Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; dmarc=none (p=none dis=none) header.from=codeaurora.org
+Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; spf=none smtp.mailfrom=kvalo@codeaurora.org
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
+Subject: Re: [PATCH] rtlwifi: rtl8188ee: Fix regression due to commit
+ d1d1a96bdb44
+From:   Kalle Valo <kvalo@codeaurora.org>
+In-Reply-To: <20200219200041.22279-1-Larry.Finger@lwfinger.net>
+References: <20200219200041.22279-1-Larry.Finger@lwfinger.net>
+To:     Larry Finger <Larry.Finger@lwfinger.net>
+Cc:     linux-wireless@vger.kernel.org, pkshih@realtek.com,
+        Larry Finger <Larry.Finger@lwfinger.net>,
+        Stable <stable@vger.kernel.org>,
+        Ashish <ashishkumar.yadav@students.iiserpune.ac.in>
+User-Agent: pwcli/0.0.0-git (https://github.com/kvalo/pwcli/) Python/2.7.12
+Message-Id: <20200312133159.12782C44791@smtp.codeaurora.org>
+Date:   Thu, 12 Mar 2020 13:31:59 +0000 (UTC)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+Larry Finger <Larry.Finger@lwfinger.net> wrote:
 
-commit 0758cd8304942292e95a0f750c374533db378b32 upstream.
+> For some unexplained reason, commit d1d1a96bdb44 ("rtlwifi: rtl8188ee:
+> Remove local configuration variable") broke at least one system. As
+> the only net effect of the change was to remove 2 bytes from the start
+> of struct phy_status_rpt, this patch adds 2 bytes of padding at the
+> beginning of the struct.
+> 
+> Fixes: d1d1a96bdb44 ("rtlwifi: rtl8188ee: Remove local configuration variable")
+> Cc: Stable <stable@vger.kernel.org>  # V5.4+
+> Reported-by: Ashish <ashishkumar.yadav@students.iiserpune.ac.in>
+> Tested-by: Ashish <ashishkumar.yadav@students.iiserpune.ac.in>
+> Signed-off-by: Larry Finger <Larry.Finger@lwfinger.net>
 
-Aneesh reported that:
+Patch applied to wireless-drivers.git, thanks.
 
-	tlb_flush_mmu()
-	  tlb_flush_mmu_tlbonly()
-	    tlb_flush()			<-- #1
-	  tlb_flush_mmu_free()
-	    tlb_table_flush()
-	      tlb_table_invalidate()
-		tlb_flush_mmu_tlbonly()
-		  tlb_flush()		<-- #2
+c80b18cbb04b rtlwifi: rtl8188ee: Fix regression due to commit d1d1a96bdb44
 
-does two TLBIs when tlb->fullmm, because __tlb_reset_range() will not
-clear tlb->end in that case.
-
-Observe that any caller to __tlb_adjust_range() also sets at least one of
-the tlb->freed_tables || tlb->cleared_p* bits, and those are
-unconditionally cleared by __tlb_reset_range().
-
-Change the condition for actually issuing TLBI to having one of those bits
-set, as opposed to having tlb->end != 0.
-
-Link: http://lkml.kernel.org/r/20200116064531.483522-4-aneesh.kumar@linux.ibm.com
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Signed-off-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
-Reported-by: "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>
-Cc: <stable@vger.kernel.org>  # 4.19
-Signed-off-by: Santosh Sivaraj <santosh@fossix.org>
-[santosh: backported to 4.19 stable]
----
- include/asm-generic/tlb.h | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
-
-diff --git a/include/asm-generic/tlb.h b/include/asm-generic/tlb.h
-index 19934cdd143e..427a70c56ddd 100644
---- a/include/asm-generic/tlb.h
-+++ b/include/asm-generic/tlb.h
-@@ -179,7 +179,12 @@ static inline void __tlb_reset_range(struct mmu_gather *tlb)
- 
- static inline void tlb_flush_mmu_tlbonly(struct mmu_gather *tlb)
- {
--	if (!tlb->end)
-+	/*
-+	 * Anything calling __tlb_adjust_range() also sets at least one of
-+	 * these bits.
-+	 */
-+	if (!(tlb->freed_tables || tlb->cleared_ptes || tlb->cleared_pmds ||
-+	      tlb->cleared_puds || tlb->cleared_p4ds))
- 		return;
- 
- 	tlb_flush(tlb);
 -- 
-2.24.1
+https://patchwork.kernel.org/patch/11392353/
 
+https://wireless.wiki.kernel.org/en/developers/documentation/submittingpatches
