@@ -2,78 +2,63 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 055AE1831EA
-	for <lists+stable@lfdr.de>; Thu, 12 Mar 2020 14:46:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 18224183263
+	for <lists+stable@lfdr.de>; Thu, 12 Mar 2020 15:07:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727462AbgCLNqT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Mar 2020 09:46:19 -0400
-Received: from relay.sw.ru ([185.231.240.75]:48762 "EHLO relay.sw.ru"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725978AbgCLNqT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 12 Mar 2020 09:46:19 -0400
-Received: from dhcp-172-16-24-104.sw.ru ([172.16.24.104])
-        by relay.sw.ru with esmtp (Exim 4.92.3)
-        (envelope-from <ktkhai@virtuozzo.com>)
-        id 1jCO9a-0007ZC-He; Thu, 12 Mar 2020 16:45:38 +0300
-Subject: Re: [PATCH v2 5/5] exec: Add a exec_update_mutex to replace
- cred_guard_mutex
-To:     "Eric W. Biederman" <ebiederm@xmission.com>
-Cc:     Bernd Edlinger <bernd.edlinger@hotmail.de>,
-        Christian Brauner <christian.brauner@ubuntu.com>,
-        Kees Cook <keescook@chromium.org>,
-        Jann Horn <jannh@google.com>, Jonathan Corbet <corbet@lwn.net>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Alexey Dobriyan <adobriyan@gmail.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Oleg Nesterov <oleg@redhat.com>,
-        Frederic Weisbecker <frederic@kernel.org>,
-        Andrei Vagin <avagin@gmail.com>,
-        Ingo Molnar <mingo@kernel.org>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Yuyang Du <duyuyang@gmail.com>,
-        David Hildenbrand <david@redhat.com>,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        Anshuman Khandual <anshuman.khandual@arm.com>,
-        David Howells <dhowells@redhat.com>,
-        James Morris <jamorris@linux.microsoft.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Shakeel Butt <shakeelb@google.com>,
-        Jason Gunthorpe <jgg@ziepe.ca>,
-        Christian Kellner <christian@kellner.me>,
-        Andrea Arcangeli <aarcange@redhat.com>,
-        Aleksa Sarai <cyphar@cyphar.com>,
-        "Dmitry V. Levin" <ldv@altlinux.org>,
-        "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>,
-        "linux-mm@kvack.org" <linux-mm@kvack.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "linux-api@vger.kernel.org" <linux-api@vger.kernel.org>
-References: <AM6PR03MB5170EB4427BF5C67EE98FF09E4E60@AM6PR03MB5170.eurprd03.prod.outlook.com>
- <AM6PR03MB5170B976E6387FDDAD59A118E4E70@AM6PR03MB5170.eurprd03.prod.outlook.com>
- <202003021531.C77EF10@keescook>
- <20200303085802.eqn6jbhwxtmz4j2x@wittgenstein>
- <AM6PR03MB5170285B336790D3450E2644E4E40@AM6PR03MB5170.eurprd03.prod.outlook.com>
- <87v9nlii0b.fsf@x220.int.ebiederm.org>
- <AM6PR03MB5170609D44967E044FD1BE40E4E40@AM6PR03MB5170.eurprd03.prod.outlook.com>
- <87a74xi4kz.fsf@x220.int.ebiederm.org>
- <AM6PR03MB51705AA3009B4986BB6EF92FE4E50@AM6PR03MB5170.eurprd03.prod.outlook.com>
- <87r1y8dqqz.fsf@x220.int.ebiederm.org>
- <AM6PR03MB517053AED7DC89F7C0704B7DE4E50@AM6PR03MB5170.eurprd03.prod.outlook.com>
- <AM6PR03MB51703B44170EAB4626C9B2CAE4E20@AM6PR03MB5170.eurprd03.prod.outlook.com>
- <87tv32cxmf.fsf_-_@x220.int.ebiederm.org>
- <87v9ne5y4y.fsf_-_@x220.int.ebiederm.org>
- <87zhcq4jdj.fsf_-_@x220.int.ebiederm.org>
- <f37a5d68-9674-533f-ee9c-a49174605710@virtuozzo.com>
- <87d09hn4kt.fsf@x220.int.ebiederm.org>
-From:   Kirill Tkhai <ktkhai@virtuozzo.com>
-Message-ID: <dbce35c7-c060-cfd8-bde1-98fd9a0747a9@virtuozzo.com>
-Date:   Thu, 12 Mar 2020 16:45:37 +0300
+        id S1727466AbgCLOHJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Mar 2020 10:07:09 -0400
+Received: from mail-io1-f67.google.com ([209.85.166.67]:43274 "EHLO
+        mail-io1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725978AbgCLOHI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Mar 2020 10:07:08 -0400
+Received: by mail-io1-f67.google.com with SMTP id n21so5751925ioo.10
+        for <stable@vger.kernel.org>; Thu, 12 Mar 2020 07:07:07 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=oCQZrJERoMLVJX5x1RC4/10D7o7Of6OtemKn4HOrLdo=;
+        b=HZBmgujyPwgpUWYM7/HORgiCG38xaFHF4dYp9PfcCMwQa+VsSrfX1QcCEV2O/gT9vK
+         B22yMEuG1CTTNBqtIWim7JaRHZbNhqTEyNTkewt4OlSchidYGqNM+X65o6BmOlfKKdWJ
+         vFUIdRFg27zaJ17A5rcanFIFhmm7tRiYuYDLME0juq80YONBxlRydi7cp23gx7xGnPS3
+         5rJTQNK5CjmvMY4T9Sbi5exCPfZBvZpNO8MVzLXVYCky0fr9MbFSRN8OvuiVYcfIqrgl
+         m2sraVlEwzs3T2Ku8sZdFVk9PNNSoe/6aBqiEaW/dlyxt/iHPTCHRezZ4zKu7YdhfszQ
+         V48Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=oCQZrJERoMLVJX5x1RC4/10D7o7Of6OtemKn4HOrLdo=;
+        b=R3sKn6sIn3bwWV2gg37me4ap1eOUSNDV7JlWkoWVmC7lpyUNouT4CyZ9rWPFXg3SQZ
+         oF6qZy0dXyZTj+NIZy2x7zDJEojsi5z0Xrn/0UBKgS21HzDHoWfzDcaioVtVt+lvcRY9
+         jYpwMduKNqmY29hk5iDt4BS705S6M+cxF6VrVmFq4/AqxMikglw6bNXQYQmvs+PoAb9z
+         qebk6Sq9UlQGVxu2iVNgdg4b3X0MjHODpvg9yYIC433gB1vQDord+h8PvUyGEroZXS5A
+         VKunArE99FQ3fMpu9FdmUvt+jF2CnCmrTES00DcpPf8LOZ559IZvcIfQOCcOf2QDpga4
+         mH6w==
+X-Gm-Message-State: ANhLgQ16IVU2eQu43+xuHROCM+WhSD9gOahn8ARpa5J7VeJtZO88kxI0
+        TWfaFT42cYanVN90JiEL4nevLw==
+X-Google-Smtp-Source: ADFU+vtKS38s0PCAkBWNDJM2Ky4G6/1a8TBXyV4tWFrtvcbpgq9gguaRafM1XlKHiVjI2Je1z3pj3Q==
+X-Received: by 2002:a6b:f118:: with SMTP id e24mr7955975iog.54.1584022026659;
+        Thu, 12 Mar 2020 07:07:06 -0700 (PDT)
+Received: from [192.168.1.159] ([65.144.74.34])
+        by smtp.gmail.com with ESMTPSA id l6sm193178ilh.27.2020.03.12.07.07.05
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 12 Mar 2020 07:07:05 -0700 (PDT)
+Subject: Re: [PATCH] ahci: Add Intel Comet Lake H RAID PCI ID
+To:     Kai-Heng Feng <kai.heng.feng@canonical.com>
+Cc:     stable@vger.kernel.org,
+        "open list:LIBATA SUBSYSTEM (Serial and Parallel ATA drivers)" 
+        <linux-ide@vger.kernel.org>,
+        open list <linux-kernel@vger.kernel.org>
+References: <20200227122822.14059-1-kai.heng.feng@canonical.com>
+From:   Jens Axboe <axboe@kernel.dk>
+Message-ID: <6e471538-0d7d-534d-6de6-27213cfb36d8@kernel.dk>
+Date:   Thu, 12 Mar 2020 08:07:04 -0600
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.5.0
+ Thunderbird/68.4.1
 MIME-Version: 1.0
-In-Reply-To: <87d09hn4kt.fsf@x220.int.ebiederm.org>
+In-Reply-To: <20200227122822.14059-1-kai.heng.feng@canonical.com>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
@@ -82,123 +67,11 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 12.03.2020 15:24, Eric W. Biederman wrote:
-> Kirill Tkhai <ktkhai@virtuozzo.com> writes:
-> 
->> On 09.03.2020 00:38, Eric W. Biederman wrote:
->>>
->>> The cred_guard_mutex is problematic.  The cred_guard_mutex is held
->>> over the userspace accesses as the arguments from userspace are read.
->>> The cred_guard_mutex is held of PTRACE_EVENT_EXIT as the the other
->>> threads are killed.  The cred_guard_mutex is held over
->>> "put_user(0, tsk->clear_child_tid)" in exit_mm().
->>>
->>> Any of those can result in deadlock, as the cred_guard_mutex is held
->>> over a possible indefinite userspace waits for userspace.
->>>
->>> Add exec_update_mutex that is only held over exec updating process
->>> with the new contents of exec, so that code that needs not to be
->>> confused by exec changing the mm and the cred in ways that can not
->>> happen during ordinary execution of a process.
->>>
->>> The plan is to switch the users of cred_guard_mutex to
->>> exec_udpate_mutex one by one.  This lets us move forward while still
->>> being careful and not introducing any regressions.
->>>
->>> Link: https://lore.kernel.org/lkml/20160921152946.GA24210@dhcp22.suse.cz/
->>> Link: https://lore.kernel.org/lkml/AM6PR03MB5170B06F3A2B75EFB98D071AE4E60@AM6PR03MB5170.eurprd03.prod.outlook.com/
->>> Link: https://lore.kernel.org/linux-fsdevel/20161102181806.GB1112@redhat.com/
->>> Link: https://lore.kernel.org/lkml/20160923095031.GA14923@redhat.com/
->>> Link: https://lore.kernel.org/lkml/20170213141452.GA30203@redhat.com/
->>> Ref: 45c1a159b85b ("Add PTRACE_O_TRACEVFORKDONE and PTRACE_O_TRACEEXIT facilities.")
->>> Ref: 456f17cd1a28 ("[PATCH] user-vm-unlock-2.5.31-A2")
->>> Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
->>> ---
->>>  fs/exec.c                    | 9 +++++++++
->>>  include/linux/sched/signal.h | 9 ++++++++-
->>>  init/init_task.c             | 1 +
->>>  kernel/fork.c                | 1 +
->>>  4 files changed, 19 insertions(+), 1 deletion(-)
->>>
->>> diff --git a/fs/exec.c b/fs/exec.c
->>> index d820a7272a76..ffeebb1f167b 100644
->>> --- a/fs/exec.c
->>> +++ b/fs/exec.c
->>> @@ -1014,6 +1014,7 @@ static int exec_mmap(struct mm_struct *mm)
->>>  {
->>>  	struct task_struct *tsk;
->>>  	struct mm_struct *old_mm, *active_mm;
->>> +	int ret;
->>>  
->>>  	/* Notify parent that we're no longer interested in the old VM */
->>>  	tsk = current;
->>> @@ -1034,6 +1035,11 @@ static int exec_mmap(struct mm_struct *mm)
->>>  			return -EINTR;
->>>  		}
->>>  	}
->>> +
->>> +	ret = mutex_lock_killable(&tsk->signal->exec_update_mutex);
->>> +	if (ret)
->>> +		return ret;
->>
->> You missed old_mm->mmap_sem unlock. See here:
-> 
-> Duh.  Thank you.
-> 
-> I actually need to switch the lock ordering here, and I haven't yet
-> because my son was sick yesterday.
+On 2/27/20 5:28 AM, Kai-Heng Feng wrote:
+> Add the PCI ID to the driver list to support this new device.
 
-There is some fundamental problem with your patch, since the below fires in 100% cases
-on current linux-next:
+Applied for 5.7, thanks.
 
-[   22.838717] kernel BUG at fs/exec.c:1474!
+-- 
+Jens Axboe
 
-diff --git a/fs/exec.c b/fs/exec.c
-index 47582cd97f86..0f77f8c94905 100644
---- a/fs/exec.c
-+++ b/fs/exec.c
-@@ -1470,8 +1470,10 @@ static void free_bprm(struct linux_binprm *bprm)
- {
- 	free_arg_pages(bprm);
- 	if (bprm->cred) {
--		if (!bprm->mm)
-+		if (!bprm->mm) {
-+			BUG_ON(!mutex_is_locked(&current->signal->exec_update_mutex));
- 			mutex_unlock(&current->signal->exec_update_mutex);
-+		}
- 		mutex_unlock(&current->signal->cred_guard_mutex);
- 		abort_creds(bprm->cred);
- 	}
-@@ -1521,6 +1523,7 @@ void install_exec_creds(struct linux_binprm *bprm)
- 	 * credentials; any time after this it may be unlocked.
- 	 */
- 	security_bprm_committed_creds(bprm);
-+	BUG_ON(!mutex_is_locked(&current->signal->exec_update_mutex));
- 	mutex_unlock(&current->signal->exec_update_mutex);
- 	mutex_unlock(&current->signal->cred_guard_mutex);
- }
-
----------------------------------------------------------------------------------------------
-
-First time the mutex is unlocked in:
-
-exec_binprm()->search_binary_handler()->.load_binary->install_exec_creds()
-
-Then exec_binprm()->search_binary_handler()->.load_binary->flush_old_exec() clears mm:
-
-        bprm->mm = NULL;        
-
-Second time the mutex is unlocked in free_bprm():
-
-	if (bprm->cred) {
-                if (!bprm->mm)
-                        mutex_unlock(&current->signal->exec_update_mutex);
-
-My opinion is we should not relay on side indicators like bprm->mm. Better you may
-introduce struct linux_binprm::exec_update_mutex_is_locked. So the next person dealing
-with this after you won't waste much time on diving into this. Also, if someone decides
-to change the place, where bprm->mm is set into NULL, this person will bump into hell
-of dependences between unrelated components like your newly introduced mutex.
-
-So, I'm strongly for *struct linux_binprm::exec_update_mutex_is_locked*, since this improves
-modularity.
