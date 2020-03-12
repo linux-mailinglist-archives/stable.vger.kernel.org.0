@@ -2,122 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5CA45182B34
-	for <lists+stable@lfdr.de>; Thu, 12 Mar 2020 09:29:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 85633182B4E
+	for <lists+stable@lfdr.de>; Thu, 12 Mar 2020 09:35:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726028AbgCLI3K (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Mar 2020 04:29:10 -0400
-Received: from mail-wm1-f65.google.com ([209.85.128.65]:38088 "EHLO
-        mail-wm1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726254AbgCLI3K (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Mar 2020 04:29:10 -0400
-Received: by mail-wm1-f65.google.com with SMTP id h83so1662141wmf.3
-        for <stable@vger.kernel.org>; Thu, 12 Mar 2020 01:29:09 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=broadcom.com; s=google;
-        h=from:to:cc:subject:date:message-id;
-        bh=6Gi/OdaICzktDVYOdA4WP8Yxk5qHZ7ClcZn2IAV7MBI=;
-        b=R8GBg7KQD97Ni6hoo9Ft95VutYKqPZEHhOOu/KUGDJqTnNbNHVzEDj2xWS9gZtGLNU
-         MWQD5HHpVjDK92t7XTeGeYdeAdJt8nmHEPZof4iHhPJyhAx6j6UJ3KSULc2Mpo3XNWGK
-         6xgMxS6IWF6NNH/BvM1BdvCrKfTpMfyN3GuWA=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id;
-        bh=6Gi/OdaICzktDVYOdA4WP8Yxk5qHZ7ClcZn2IAV7MBI=;
-        b=eONRtUJ1JSOb5X6C+OA/KRsNskmIaLbveBwhnk28UuSaRxspt28IT1+jwwptIcC3Es
-         YiE1Hp/vZgGKHQxp9uEzzYPnHDyshFK3DOpIHX0U+NSglvC2nZSX39BYxFoA3bGgPcjs
-         G4DiCQJuEiu6x05GEJx5IHUvmqEyC6LM5objo7hGqHm6C7D+XWqm37tfThXn81Tf9aOJ
-         93cE1jP4c1qCsYHri+8dLDvdtLbKdC6soy/D629hkGk1E64zC0OnlcoAPusNSdwGGEr8
-         lMx9P+xJIbvUQwZyMKnWgfLDVTZPbYznkG5wa8ys01k0JHvagFV7nkKgP8lhqURIQVV+
-         HRUg==
-X-Gm-Message-State: ANhLgQ0HX/vpfpGutugY9fn4W4MX6/I3F/covlryuSS0faXJfZGIR4wd
-        Z57Au5Ld+RbzXT6aNu1tbfheUw==
-X-Google-Smtp-Source: ADFU+vtCHQUivEzeVNBg44c15fYfAGGyq+UGBrf9KvX6uDgska35BTvtGoBYddK6mC5VuykR0oGPkw==
-X-Received: by 2002:a7b:cc98:: with SMTP id p24mr3384547wma.29.1584001748507;
-        Thu, 12 Mar 2020 01:29:08 -0700 (PDT)
-Received: from dhcp-10-123-20-36.dhcp.broadcom.net ([192.19.234.250])
-        by smtp.gmail.com with ESMTPSA id v15sm7803460wrm.32.2020.03.12.01.29.04
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 12 Mar 2020 01:29:07 -0700 (PDT)
-From:   Sreekanth Reddy <sreekanth.reddy@broadcom.com>
-To:     martin.petersen@oracle.com
-Cc:     linux-scsi@vger.kernel.org, sathya.prakash@broadcom.com,
-        suganath-prabu.subramani@broadcom.com, stable@vger.kernel.org,
-        amit@kernel.org, Sreekanth Reddy <sreekanth.reddy@broadcom.com>
-Subject: [PATCH v1] mpt3sas: Fix kernel panic observed on soft HBA unplug
-Date:   Thu, 12 Mar 2020 04:28:55 -0400
-Message-Id: <1584001735-22719-1-git-send-email-sreekanth.reddy@broadcom.com>
-X-Mailer: git-send-email 1.8.3.1
+        id S1726436AbgCLIfi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Mar 2020 04:35:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33388 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726028AbgCLIfh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 12 Mar 2020 04:35:37 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 29534206FA;
+        Thu, 12 Mar 2020 08:35:35 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1584002136;
+        bh=14bKVCt0AuUvJpWH5NbEv+gT5rYJmBWWCyzVX4dzEiM=;
+        h=Subject:To:From:Date:From;
+        b=Me8CPaZXm+EV4PhlwsF/DqmMh8fZ/OlZEdblMMNxQK8colmzI8Jrbe8Yl1aBmR6UU
+         93QKxPxRIX4BKbOqgw0gnRQU3CT0O4eBch93iJZRVJZbfLCihxyz4JggqEfpzb6RPv
+         kObTFYRCx4wU8tFuaH4f1D6A93nEHaEKAYpaAQI0=
+Subject: patch "USB: Disable LPM on WD19's Realtek Hub" added to usb-linus
+To:     kai.heng.feng@canonical.com, gregkh@linuxfoundation.org,
+        stable@vger.kernel.org, stern@rowland.harvard.edu
+From:   <gregkh@linuxfoundation.org>
+Date:   Thu, 12 Mar 2020 09:35:33 +0100
+Message-ID: <1584002133117230@kroah.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Generic protection fault type kernel panic is observed when user
-performs soft(ordered) HBA unplug operation while IOs are running
-on drives connected to HBA.
 
-When user performs ordered HBA removal operation then kernel calls
-PCI device's .remove() call back function where driver is flushing out
-all the outstanding SCSI IO commands with DID_NO_CONNECT host byte and
-also un-maps sg buffers allocated for these IO commands.
-But in the ordered HBA removal case (unlike of real HBA hot unplug)
-HBA device is still alive and hence HBA hardware is performing the
-DMA operations to those buffers on the system memory which are already
-unmapped while flushing out the outstanding SCSI IO commands
-and this leads to Kernel panic.
+This is a note to let you know that I've just added the patch titled
 
-This bug got introduced from below commit,
-commit c666d3be99c000bb889a33353e9be0fa5808d3de
-("scsi: mpt3sas: wait for and flush running commands on shutdown/unload")
+    USB: Disable LPM on WD19's Realtek Hub
 
-Fix:
-Don't flush out the outstanding IOs from .remove() path in case of
-ordered HBA removal since HBA will be still alive in this case and
-it can complete the outstanding IOs. Flush out the outstanding IOs
-only in case physical HBA hot unplug where their won't be any
-communication with the HBA.
+to my usb git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
+in the usb-linus branch.
 
-During shutdown also it is possible that HBA hardware can perform
-DMA operations on those outstanding IO buffers which are completed
-with DID_NO_CONNECT by the driver from .shutdown(). So same above fix
-is applied in shutdown path as well.
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Sreekanth Reddy <sreekanth.reddy@broadcom.com>
+The patch will hopefully also be merged in Linus's tree for the
+next -rc kernel release.
+
+If you have any questions about this process, please let me know.
+
+
+From b63e48fb50e1ca71db301ca9082befa6f16c55c4 Mon Sep 17 00:00:00 2001
+From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Date: Wed, 5 Feb 2020 19:26:33 +0800
+Subject: USB: Disable LPM on WD19's Realtek Hub
+
+Realtek Hub (0bda:0x0487) used in Dell Dock WD19 sometimes drops off the
+bus when bringing underlying ports from U3 to U0.
+
+Disabling LPM on the hub during setting link state is not enough, so
+let's disable LPM completely for this hub.
+
+Acked-by: Alan Stern <stern@rowland.harvard.edu>
+Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200205112633.25995-3-kai.heng.feng@canonical.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
-v1:
-    Update the patch description.
+ drivers/usb/core/quirks.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
- drivers/scsi/mpt3sas/mpt3sas_scsih.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
-
-diff --git a/drivers/scsi/mpt3sas/mpt3sas_scsih.c b/drivers/scsi/mpt3sas/mpt3sas_scsih.c
-index 778d5e6..04a40af 100644
---- a/drivers/scsi/mpt3sas/mpt3sas_scsih.c
-+++ b/drivers/scsi/mpt3sas/mpt3sas_scsih.c
-@@ -9908,8 +9908,8 @@ static void scsih_remove(struct pci_dev *pdev)
+diff --git a/drivers/usb/core/quirks.c b/drivers/usb/core/quirks.c
+index 2dac3e7cdd97..df6e6156e1d4 100644
+--- a/drivers/usb/core/quirks.c
++++ b/drivers/usb/core/quirks.c
+@@ -378,6 +378,9 @@ static const struct usb_device_id usb_quirk_list[] = {
+ 	{ USB_DEVICE(0x0b05, 0x17e0), .driver_info =
+ 			USB_QUIRK_IGNORE_REMOTE_WAKEUP },
  
- 	ioc->remove_host = 1;
- 
--	mpt3sas_wait_for_commands_to_complete(ioc);
--	_scsih_flush_running_cmds(ioc);
-+	if (!pci_device_is_present(pdev))
-+		_scsih_flush_running_cmds(ioc);
- 
- 	_scsih_fw_event_cleanup_queue(ioc);
- 
-@@ -9992,8 +9992,8 @@ static void scsih_remove(struct pci_dev *pdev)
- 
- 	ioc->remove_host = 1;
- 
--	mpt3sas_wait_for_commands_to_complete(ioc);
--	_scsih_flush_running_cmds(ioc);
-+	if (!pci_device_is_present(pdev))
-+		_scsih_flush_running_cmds(ioc);
- 
- 	_scsih_fw_event_cleanup_queue(ioc);
- 
++	/* Realtek hub in Dell WD19 (Type-C) */
++	{ USB_DEVICE(0x0bda, 0x0487), .driver_info = USB_QUIRK_NO_LPM },
++
+ 	/* Action Semiconductor flash disk */
+ 	{ USB_DEVICE(0x10d6, 0x2200), .driver_info =
+ 			USB_QUIRK_STRING_FETCH_255 },
 -- 
-1.8.3.1
+2.25.1
+
 
