@@ -2,128 +2,116 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CFFC61830FF
-	for <lists+stable@lfdr.de>; Thu, 12 Mar 2020 14:15:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C90A18315A
+	for <lists+stable@lfdr.de>; Thu, 12 Mar 2020 14:28:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726395AbgCLNPB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Mar 2020 09:15:01 -0400
-Received: from Galois.linutronix.de ([193.142.43.55]:43307 "EHLO
-        Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725978AbgCLNPB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Mar 2020 09:15:01 -0400
-Received: from [5.158.153.53] (helo=tip-bot2.lab.linutronix.de)
-        by Galois.linutronix.de with esmtpsa (TLS1.2:DHE_RSA_AES_256_CBC_SHA256:256)
-        (Exim 4.80)
-        (envelope-from <tip-bot2@linutronix.de>)
-        id 1jCNfo-0002Yi-Tt; Thu, 12 Mar 2020 14:14:53 +0100
-Received: from [127.0.1.1] (localhost [IPv6:::1])
-        by tip-bot2.lab.linutronix.de (Postfix) with ESMTP id 6DB3C1C223E;
-        Thu, 12 Mar 2020 14:14:52 +0100 (CET)
-Date:   Thu, 12 Mar 2020 13:14:52 -0000
-From:   "tip-bot2 for Kim Phillips" <tip-bot2@linutronix.de>
-Reply-to: linux-kernel@vger.kernel.org
-To:     linux-tip-commits@vger.kernel.org
-Subject: [tip: perf/urgent] perf/amd/uncore: Replace manual sampling check
- with CAP_NO_INTERRUPT flag
-Cc:     Kim Phillips <kim.phillips@amd.com>, Borislav Petkov <bp@suse.de>,
-        Peter Zijlstra <peterz@infradead.org>, stable@vger.kernel.org,
-        x86 <x86@kernel.org>, LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20200311191323.13124-1-kim.phillips@amd.com>
-References: <20200311191323.13124-1-kim.phillips@amd.com>
+        id S1727225AbgCLN2I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Mar 2020 09:28:08 -0400
+Received: from mail-pg1-f194.google.com ([209.85.215.194]:46279 "EHLO
+        mail-pg1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726558AbgCLN2I (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Mar 2020 09:28:08 -0400
+Received: by mail-pg1-f194.google.com with SMTP id y30so3070749pga.13
+        for <stable@vger.kernel.org>; Thu, 12 Mar 2020 06:28:07 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=fossix-org.20150623.gappssmtp.com; s=20150623;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=4VdmTlclfqBiP5LOajS/XPffvzKnb6GJIIt3I40wSSs=;
+        b=WFCwvHblrJSKQIDlt/hX02LJlwQAq677cdprHXNImlMFLDZdkO6G45TwtzyC2CRhql
+         +CGJDYID2ASbqNRAoaAQ4cXnoTm0MIXziOiSXlaJXHGd5mYSzIRdGiqeBIw3Gs+IzzTR
+         HV8YwVSF+yNFk0kPmTCaPNRzjwKq5bkduW2IdNycoB+77uzWfiizFswht23+mybAJX6W
+         ip76UALSdYKLeKL/cZlqjYkIu5KtmxedegXqVMkX1/vY1WGfO6ADyC9sXOu+oMitmEG/
+         7U+8sP7yTXCwxaftPS6IBRVSMONGQLQde3zssOKWScNxijsRHhKCrL3jpZ7WkHuhaP9N
+         r9Ag==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=4VdmTlclfqBiP5LOajS/XPffvzKnb6GJIIt3I40wSSs=;
+        b=QfVPCcJ2LOG7ZFYuZUh/LiSeq96/s40hEo/FuglKiEJ+FZQZwuxHSCpDjsSJ/bTu34
+         B40EYIcjuza7ShD3K5Txw3OjGO3spFtvcncUpp10M0074rC7lC4NK3HPWvqiKz5mPD5t
+         Z06b52sMqiBaYRzLgBkPxnA4PoF5hHGbBOOTsNzt0v5h5hqXokDWlMqn/9J53xTUVxoH
+         DVvl7isBAbK/k0qN7d58YuOuY+qUscZrcyqGUoqeNXv5VY5/JGjbyZpUBgKefHlN6smk
+         wHJM6xzh+dxHm6T4Yd5a/eL8YSvw5AH3mtFrT6+d6AeBZSx1qPo2BIQwUvaVkSEMwXYd
+         m4DQ==
+X-Gm-Message-State: ANhLgQ2gpvpYGEKhAEhsan5dC0CauVfcpN9YN0XJJB3xWRq92n9nAvz3
+        3HAzE8iTFlrXxGjjn+c5GhxCZO7T77Y=
+X-Google-Smtp-Source: ADFU+vs+dkfC8kvX6zcvX/2C+oWzwklyfMbqTvUZyYGRexQtGI4PyoTbHCCB7KVCz9ZSJsxgBl5B6g==
+X-Received: by 2002:a63:cc0d:: with SMTP id x13mr7482346pgf.388.1584019686536;
+        Thu, 12 Mar 2020 06:28:06 -0700 (PDT)
+Received: from santosiv.in.ibm.com ([111.125.206.208])
+        by smtp.gmail.com with ESMTPSA id w206sm13007435pfc.54.2020.03.12.06.28.02
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 12 Mar 2020 06:28:04 -0700 (PDT)
+From:   Santosh Sivaraj <santosh@fossix.org>
+To:     <stable@vger.kernel.org>,
+        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>
+Cc:     Michael Ellerman <mpe@ellerman.id.au>, Greg KH <greg@kroah.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH v3 0/6] Memory corruption may occur due to incorrent tlb flush
+Date:   Thu, 12 Mar 2020 18:57:34 +0530
+Message-Id: <20200312132740.225241-1-santosh@fossix.org>
+X-Mailer: git-send-email 2.24.1
 MIME-Version: 1.0
-Message-ID: <158401889210.28353.10962157777204769703.tip-bot2@tip-bot2>
-X-Mailer: tip-git-log-daemon
-Robot-ID: <tip-bot2.linutronix.de>
-Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-X-Linutronix-Spam-Score: -1.0
-X-Linutronix-Spam-Level: -
-X-Linutronix-Spam-Status: No , -1.0 points, 5.0 required,  ALL_TRUSTED=-1,SHORTCIRCUIT=-0.0001
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The following commit has been merged into the perf/urgent branch of tip:
+The TLB flush optimisation (a46cc7a90f: powerpc/mm/radix: Improve TLB/PWC
+flushes) may result in random memory corruption. Any concurrent page-table walk
+could end up with a Use-after-Free. Even on UP this might give issues, since
+mmu_gather is preemptible these days. An interrupt or preempted task accessing
+user pages might stumble into the free page if the hardware caches page
+directories.
 
-Commit-ID:     f967140dfb7442e2db0868b03b961f9c59418a1b
-Gitweb:        https://git.kernel.org/tip/f967140dfb7442e2db0868b03b961f9c59418a1b
-Author:        Kim Phillips <kim.phillips@amd.com>
-AuthorDate:    Wed, 11 Mar 2020 14:13:21 -05:00
-Committer:     Borislav Petkov <bp@suse.de>
-CommitterDate: Thu, 12 Mar 2020 14:08:50 +01:00
+The series is a backport of the fix sent by Peter [1].
 
-perf/amd/uncore: Replace manual sampling check with CAP_NO_INTERRUPT flag
+The first three patches are dependencies for the last patch (avoid potential
+double flush). If the performance impact due to double flush is considered
+trivial then the first three patches and last patch may be dropped.
 
-Enable the sampling check in kernel/events/core.c::perf_event_open(),
-which returns the more appropriate -EOPNOTSUPP.
+This is only for v4.19 stable.
 
-BEFORE:
+[1] https://patchwork.kernel.org/cover/11284843/
 
-  $ sudo perf record -a -e instructions,l3_request_g1.caching_l3_cache_accesses true
-  Error:
-  The sys_perf_event_open() syscall returned with 22 (Invalid argument) for event (l3_request_g1.caching_l3_cache_accesses).
-  /bin/dmesg | grep -i perf may provide additional information.
+--
+Changelog:
+v2: Send the patches with the correct format (commit sha1 upstream) for stable
+v3: Fix compilation issue on ppc40x_defconfig and ppc44x_defconfig
 
-With nothing relevant in dmesg.
+--
+Aneesh Kumar K.V (1):
+  powerpc/mmu_gather: enable RCU_TABLE_FREE even for !SMP case
 
-AFTER:
+Peter Zijlstra (4):
+  asm-generic/tlb: Track freeing of page-table directories in struct
+    mmu_gather
+  asm-generic/tlb, arch: Invert CONFIG_HAVE_RCU_TABLE_INVALIDATE
+  mm/mmu_gather: invalidate TLB correctly on batch allocation failure
+    and flush
+  asm-generic/tlb: avoid potential double flush
 
-  $ sudo perf record -a -e instructions,l3_request_g1.caching_l3_cache_accesses true
-  Error:
-  l3_request_g1.caching_l3_cache_accesses: PMU Hardware doesn't support sampling/overflow-interrupts. Try 'perf stat'
+Will Deacon (1):
+  asm-generic/tlb: Track which levels of the page tables have been
+    cleared
 
-Fixes: c43ca5091a37 ("perf/x86/amd: Add support for AMD NB and L2I "uncore" counters")
-Signed-off-by: Kim Phillips <kim.phillips@amd.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Acked-by: Peter Zijlstra <peterz@infradead.org>
-Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/20200311191323.13124-1-kim.phillips@amd.com
----
- arch/x86/events/amd/uncore.c | 17 +++++++----------
- 1 file changed, 7 insertions(+), 10 deletions(-)
+ arch/Kconfig                                 |   3 -
+ arch/powerpc/Kconfig                         |   2 +-
+ arch/powerpc/include/asm/book3s/32/pgalloc.h |   8 --
+ arch/powerpc/include/asm/book3s/64/pgalloc.h |   2 -
+ arch/powerpc/include/asm/nohash/32/pgalloc.h |   8 --
+ arch/powerpc/include/asm/nohash/64/pgalloc.h |   9 +-
+ arch/powerpc/include/asm/tlb.h               |  11 ++
+ arch/powerpc/mm/pgtable-book3s64.c           |   7 --
+ arch/sparc/include/asm/tlb_64.h              |   9 ++
+ arch/x86/Kconfig                             |   1 -
+ include/asm-generic/tlb.h                    | 103 ++++++++++++++++---
+ mm/memory.c                                  |  20 ++--
+ 12 files changed, 123 insertions(+), 60 deletions(-)
 
-diff --git a/arch/x86/events/amd/uncore.c b/arch/x86/events/amd/uncore.c
-index a6ea07f..4d867a7 100644
---- a/arch/x86/events/amd/uncore.c
-+++ b/arch/x86/events/amd/uncore.c
-@@ -190,15 +190,12 @@ static int amd_uncore_event_init(struct perf_event *event)
- 
- 	/*
- 	 * NB and Last level cache counters (MSRs) are shared across all cores
--	 * that share the same NB / Last level cache. Interrupts can be directed
--	 * to a single target core, however, event counts generated by processes
--	 * running on other cores cannot be masked out. So we do not support
--	 * sampling and per-thread events.
-+	 * that share the same NB / Last level cache.  On family 16h and below,
-+	 * Interrupts can be directed to a single target core, however, event
-+	 * counts generated by processes running on other cores cannot be masked
-+	 * out. So we do not support sampling and per-thread events via
-+	 * CAP_NO_INTERRUPT, and we do not enable counter overflow interrupts:
- 	 */
--	if (is_sampling_event(event) || event->attach_state & PERF_ATTACH_TASK)
--		return -EINVAL;
--
--	/* and we do not enable counter overflow interrupts */
- 	hwc->config = event->attr.config & AMD64_RAW_EVENT_MASK_NB;
- 	hwc->idx = -1;
- 
-@@ -306,7 +303,7 @@ static struct pmu amd_nb_pmu = {
- 	.start		= amd_uncore_start,
- 	.stop		= amd_uncore_stop,
- 	.read		= amd_uncore_read,
--	.capabilities	= PERF_PMU_CAP_NO_EXCLUDE,
-+	.capabilities	= PERF_PMU_CAP_NO_EXCLUDE | PERF_PMU_CAP_NO_INTERRUPT,
- };
- 
- static struct pmu amd_llc_pmu = {
-@@ -317,7 +314,7 @@ static struct pmu amd_llc_pmu = {
- 	.start		= amd_uncore_start,
- 	.stop		= amd_uncore_stop,
- 	.read		= amd_uncore_read,
--	.capabilities	= PERF_PMU_CAP_NO_EXCLUDE,
-+	.capabilities	= PERF_PMU_CAP_NO_EXCLUDE | PERF_PMU_CAP_NO_INTERRUPT,
- };
- 
- static struct amd_uncore *amd_uncore_alloc(unsigned int cpu)
+-- 
+2.24.1
+
