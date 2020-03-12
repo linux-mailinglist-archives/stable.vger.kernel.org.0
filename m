@@ -2,81 +2,79 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C654182727
-	for <lists+stable@lfdr.de>; Thu, 12 Mar 2020 03:58:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D96D18278C
+	for <lists+stable@lfdr.de>; Thu, 12 Mar 2020 04:52:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387501AbgCLC6L (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Mar 2020 22:58:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39780 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387396AbgCLC6L (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Mar 2020 22:58:11 -0400
-Received: from localhost.localdomain (c-73-231-172-41.hsd1.ca.comcast.net [73.231.172.41])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EAB4920755;
-        Thu, 12 Mar 2020 02:58:10 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583981891;
-        bh=wJdKQS6Gj9xiXn1BGxhMdcyOYuYKUt5sQjTbx3jinXE=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=K8pZg/PKbre08qAnpKHYtRQEa3Y8eHQgSJ3fgLwtnqltex4FaiU8ZEIREHiNxjpb9
-         qxfNUXGPXjA4gqUzprHjQcLRywJGzvrNEi9TTFQuebfkJWWooV/O8sPMetTVryirIh
-         b+RYwrkYLKzVIQ3DjUV5cnyC5qOPAdbW/iiKlw60=
-Date:   Wed, 11 Mar 2020 19:58:10 -0700
-From:   Andrew Morton <akpm@linux-foundation.org>
-To:     paulmck@kernel.org
-Cc:     David Laight <David.Laight@ACULAB.COM>,
-        "'Marco Elver'" <elver@google.com>,
-        Chris Wilson <chris@chris-wilson.co.uk>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: Re: [PATCH] list: Prevent compiler reloads inside 'safe' list
- iteration
-Message-Id: <20200311195810.959d4f40d6013ee59a238cf3@linux-foundation.org>
-In-Reply-To: <20200310154749.GZ2935@paulmck-ThinkPad-P72>
-References: <20200310092119.14965-1-chris@chris-wilson.co.uk>
-        <2e936d8fd2c445beb08e6dd3ee1f3891@AcuMS.aculab.com>
-        <158384100886.16414.15741589015363013386@build.alporthouse.com>
-        <723d527a4ad349b78bf11d52eba97c0e@AcuMS.aculab.com>
-        <20200310125031.GY2935@paulmck-ThinkPad-P72>
-        <CANpmjNNT3HY7i9TywX0cAFqBtx2J3qOGOUG5nHzxAZ4bk_qgtg@mail.gmail.com>
-        <77ff4da6b0a7448c947af6de4fb43cdb@AcuMS.aculab.com>
-        <20200310154749.GZ2935@paulmck-ThinkPad-P72>
-X-Mailer: Sylpheed 3.5.1 (GTK+ 2.24.31; x86_64-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+        id S2387687AbgCLDwl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Mar 2020 23:52:41 -0400
+Received: from mail-qt1-f195.google.com ([209.85.160.195]:41071 "EHLO
+        mail-qt1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2387453AbgCLDwl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 11 Mar 2020 23:52:41 -0400
+Received: by mail-qt1-f195.google.com with SMTP id l21so3304498qtr.8;
+        Wed, 11 Mar 2020 20:52:40 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=sender:from:date:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=WUYv968HTJjo1Mkp2/EuQ7/8GKIJ2nyGafz2Vr8qTVU=;
+        b=vVMFSuX799qi1oZfkM763trW9w5t0dLOrZsD+gKWVTb+cnNmhasgRFnkZVGyWZh3aa
+         Mq1aOr0aivlPh2BaZC2fTWQXFWfAOSE+uV9TeIPNCv4lRInrqOz5NGNb5he7AlpH5+Vn
+         IcplsE90MjuAk2JQZJTyXmGrlo76pG/lH/lPERxK5chFrFY6k4ZIAvAP9iXUqQv1+wf8
+         A5ivCiLHvrAytRq8uFCzpYHkUWUNJDdSxOIhxPQIWdwnvvR3oXsviVm5uCb3bwNkVsJo
+         f8MWSlFm9B8qibj5U0gje3m022CRZ2OOZ+NfMjME9LHSP5GG+mSYxGpFeiqElrOIY4pt
+         EOZw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:sender:from:date:to:cc:subject:message-id
+         :references:mime-version:content-disposition:in-reply-to:user-agent;
+        bh=WUYv968HTJjo1Mkp2/EuQ7/8GKIJ2nyGafz2Vr8qTVU=;
+        b=FNNA4EyC0oLsch4bcvOZ8anQjgBw/Do/51h6eb+ZVtMswRMmXCUHIniblrft/2rIrJ
+         NRb80RRRjFyaklQSVPfzdiIlPRbsPh3ShRbkqVqNWiph73Vjv8RKfTc5hv/avlwIT5NT
+         Zt0FCZw0sS/Ui3RJAt4HmMVTlVhlomIX4+c1Oe/n87P1jWmDfndF1FhJ09N1OF6N2VCj
+         xb3WZZWF73WVms7lbKUmAMRqAFk0rDe3NsP9uMFI94FhgEv6xXrI7RR1dqsuEn09T0Ae
+         CAgceCb2TgknJpSPQmcpzZ4Q41XZW/mTXY7Z04XLGPsFlzR0VrsDpAovIvluYNSUMJrt
+         EPGw==
+X-Gm-Message-State: ANhLgQ2n9knsb69KfcS35WXJOtEwn4AF5dbU28tbMQNYFHbOW4F0WZxx
+        +BIO5k8+BvkdL+IBPZt2g3mLt+fMgdQ=
+X-Google-Smtp-Source: ADFU+vsr7Qn8d5IsLiuWpSqtsp+6BR3IFdwwAKdoOOHKkgW9qSF96V8Tse0BhdrAktQUvAmOzrFgwA==
+X-Received: by 2002:ac8:4cc9:: with SMTP id l9mr5461056qtv.207.1583985159524;
+        Wed, 11 Mar 2020 20:52:39 -0700 (PDT)
+Received: from rani.riverdale.lan ([2001:470:1f07:5f3::b55f])
+        by smtp.gmail.com with ESMTPSA id x1sm7836549qkl.128.2020.03.11.20.52.38
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 11 Mar 2020 20:52:39 -0700 (PDT)
+From:   Arvind Sankar <nivedita@alum.mit.edu>
+X-Google-Original-From: Arvind Sankar <arvind@rani.riverdale.lan>
+Date:   Wed, 11 Mar 2020 23:52:37 -0400
+To:     Pavel Machek <pavel@denx.de>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Ingo Molnar <mingo@kernel.org>, linux-efi@vger.kernel.org,
+        Thomas Gleixner <tglx@linutronix.de>
+Subject: Re: [PATCH 4.19 84/86] efi/x86: Handle by-ref arguments covering
+ multiple pages in mixed mode
+Message-ID: <20200312035235.GA270934@rani.riverdale.lan>
+References: <20200310124530.808338541@linuxfoundation.org>
+ <20200310124535.409134291@linuxfoundation.org>
+ <20200311130106.GB7285@duo.ucw.cz>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20200311130106.GB7285@duo.ucw.cz>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 10 Mar 2020 08:47:49 -0700 "Paul E. McKenney" <paulmck@kernel.org> wrote:
+On Wed, Mar 11, 2020 at 02:01:07PM +0100, Pavel Machek wrote:
+> We don't really need to do this computation on pa, it would work on va
+> as well, right? It does not matter much, but old code worked that way.
+> 
+> Plus, strictly speaking, pa + size can overflow for huge sizes, and
+> test will return false negatives.
 
-> On Tue, Mar 10, 2020 at 03:05:57PM +0000, David Laight wrote:
-> > From: Marco Elver
-> > > Sent: 10 March 2020 14:10
-> > ...
-> > > FWIW, for writes we're already being quite generous, in that plain
-> > > aligned writes up to word-size are assumed to be "atomic" with the
-> > > default (conservative) config, i.e. marking such writes is optional.
-> > > Although, that's a generous assumption that is not always guaranteed
-> > > to hold (https://lore.kernel.org/lkml/20190821103200.kpufwtviqhpbuv2n@willie-the-truck/).
-> > 
-> > Remind me to start writing everything in assembler.
-> 
-> Been there, done that.  :-/
-> 
-> > That and to mark all structure members 'volatile'.
-> 
-> Indeed.  READ_ONCE() and WRITE_ONCE() get this same effect, but without
-> pessimizing non-concurrent accesses to those same members.  Plus KCSAN
-> knows about READ_ONCE(), WRITE_ONCE(), and also volatile members.
-> 
-
-So I take it from all the above that we should do this.
-
-Did anyone actually review the code? :)
+This is 64-bit code, overflow would need pa + size to be bigger than
+2^64, and even then a false negative would need size to be around 2^64.
