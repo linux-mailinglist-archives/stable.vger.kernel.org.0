@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 93FCD182FAB
-	for <lists+stable@lfdr.de>; Thu, 12 Mar 2020 12:57:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F299182FAE
+	for <lists+stable@lfdr.de>; Thu, 12 Mar 2020 12:57:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727064AbgCLL5b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Mar 2020 07:57:31 -0400
-Received: from mga12.intel.com ([192.55.52.136]:63387 "EHLO mga12.intel.com"
+        id S1726591AbgCLL5x (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Mar 2020 07:57:53 -0400
+Received: from mga05.intel.com ([192.55.52.43]:3988 "EHLO mga05.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726302AbgCLL5b (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 12 Mar 2020 07:57:31 -0400
+        id S1726302AbgCLL5x (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 12 Mar 2020 07:57:53 -0400
 X-Amp-Result: SKIPPED(no attachment in message)
 X-Amp-File-Uploaded: False
-Received: from orsmga008.jf.intel.com ([10.7.209.65])
-  by fmsmga106.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 12 Mar 2020 04:57:31 -0700
+Received: from orsmga003.jf.intel.com ([10.7.209.27])
+  by fmsmga105.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 12 Mar 2020 04:57:52 -0700
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="5.70,544,1574150400"; 
-   d="scan'208";a="236807428"
+   d="scan'208";a="242999161"
 Received: from pkosiack-mobl2.ger.corp.intel.com (HELO localhost.localdomain) ([10.252.21.27])
-  by orsmga008.jf.intel.com with ESMTP; 12 Mar 2020 04:57:29 -0700
+  by orsmga003.jf.intel.com with ESMTP; 12 Mar 2020 04:57:50 -0700
 From:   Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>
 To:     Intel-gfx@lists.freedesktop.org
 Cc:     Tvrtko Ursulin <tvrtko.ursulin@intel.com>,
         Chris Wilson <chris@chris-wilson.co.uk>,
         Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
-        Michal Mrozek <michal.mrozek@intel.com>,
-        "Cc :" <stable@vger.kernel.org>
+        Michal Mrozek <michal.mrozek@intel.com>, stable@vger.kernel.org
 Subject: [PATCH v3] drm/i915/gen12: Disable preemption timeout
-Date:   Thu, 12 Mar 2020 11:57:26 +0000
-Message-Id: <20200312115726.29711-1-tvrtko.ursulin@linux.intel.com>
+Date:   Thu, 12 Mar 2020 11:57:48 +0000
+Message-Id: <20200312115748.29970-1-tvrtko.ursulin@linux.intel.com>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200310162428.4249-1-tvrtko.ursulin@linux.intel.com>
 References: <20200310162428.4249-1-tvrtko.ursulin@linux.intel.com>
@@ -55,7 +54,7 @@ Signed-off-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
 Cc: Chris Wilson <chris@chris-wilson.co.uk>
 Cc: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
 Cc: Michal Mrozek <michal.mrozek@intel.com>
-Cc: Cc: <stable@vger.kernel.org> # v5.6+
+Cc: <stable@vger.kernel.org> # v5.6+
 Acked-by: Chris Wilson <chris@chris-wilson.co.uk>
 ---
  drivers/gpu/drm/i915/Kconfig.profile      |  4 ++++
