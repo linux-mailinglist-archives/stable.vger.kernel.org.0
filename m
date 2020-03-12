@@ -2,112 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 07D591834ED
-	for <lists+stable@lfdr.de>; Thu, 12 Mar 2020 16:26:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D08E81835A8
+	for <lists+stable@lfdr.de>; Thu, 12 Mar 2020 16:59:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727493AbgCLP0n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Mar 2020 11:26:43 -0400
-Received: from www.linuxtv.org ([130.149.80.248]:55336 "EHLO www.linuxtv.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727481AbgCLP0m (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 12 Mar 2020 11:26:42 -0400
-Received: from mchehab by www.linuxtv.org with local (Exim 4.92)
-        (envelope-from <mchehab@linuxtv.org>)
-        id 1jCPhP-00C8l5-0Q; Thu, 12 Mar 2020 15:24:39 +0000
-From:   Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Date:   Thu, 12 Mar 2020 15:25:55 +0000
-Subject: [git:media_tree/master] media: ti-vpe: cal: fix a kernel oops when unloading module
-To:     linuxtv-commits@linuxtv.org
-Cc:     Tomi Valkeinen <tomi.valkeinen@ti.com>, stable@vger.kernel.org,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Benoit Parrot <bparrot@ti.com>
-Mail-followup-to: linux-media@vger.kernel.org
-Forward-to: linux-media@vger.kernel.org
-Reply-to: linux-media@vger.kernel.org
-Message-Id: <E1jCPhP-00C8l5-0Q@www.linuxtv.org>
+        id S1727624AbgCLP7c (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Mar 2020 11:59:32 -0400
+Received: from mail-vs1-f66.google.com ([209.85.217.66]:35678 "EHLO
+        mail-vs1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727240AbgCLP7b (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Mar 2020 11:59:31 -0400
+Received: by mail-vs1-f66.google.com with SMTP id m9so4038010vso.2
+        for <stable@vger.kernel.org>; Thu, 12 Mar 2020 08:59:31 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=MwrMnFMmyE7acko1lY2uvwtiMFayzsorlgWViFK/pHY=;
+        b=Yxnb/CWo2NXIyCC8qocrkSOBLraVh7jS8X2Mw6rvn+RXYJtHq7pqMqVwxvujbnYzuU
+         8Ss8h4D8YGNMot/9//Hl4ZYyrbjXmDTeOkbLHaoWtM0yTd7kyhClYsyJXSsst9PPUhJv
+         PNeCUstYlDy05Gswbc9Tu4TjSyKsEh794mUPZkJJrdSRQrlGwWnmFYizZi8bvxZdqBMR
+         KKNy1sFrTGCnEd/HIq9Vi42MKdc/PRmSEg/CaT68Ug+TJckXPZFZo7GyQUs8l1E4/uNA
+         HKTJPRmMdtDo1/6qj+1Ga7ytOBIXQ5fnYDq+tNjXYwYVjeipkG0n1qQ4x/50aQBwlfHN
+         mZ/g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=MwrMnFMmyE7acko1lY2uvwtiMFayzsorlgWViFK/pHY=;
+        b=NNXR/xyyQKvO7ooh0iX5+hK8Bttbp6tnXUjnvjyNXdXbU1UcAI6/TdhELfAcpwU5pf
+         c63iW9uTjPANdraJmWrjLjq5Iu1B2CO+jnQ4BRZwGj9+geSJeOOlWU+ElKeGEx4RH6qQ
+         FBL/Ljn1l5moL2si5BkloFTDVOWqG4wRQNpwnpURQDrIlU8QZi4ISyo6fkF2S8m1x31g
+         eTh0zDcmglqGeg07wawYI/fC6daR0s+u/bbFAYwP/es9KHqYA5rsbKnjyl8Mm1LWWqxM
+         8PZA6L9IOi0Gnhb1O4B4mKtI+JLjmQyTGQSOvENm8ZpPac34I0Ddeam33qqMxIOiaGWu
+         MQRw==
+X-Gm-Message-State: ANhLgQ1yrNDcsQZyiuKRa/cb8aAlS/FASrHtwY1jYFJkf2r11E+hvkBM
+        2VvRTfa4YpzzI8b7CfrOzpOxb3zf6ihzK2CyKQ==
+X-Google-Smtp-Source: ADFU+vtf9QpSCnhU3TlkEgMjlrCxVmob73y62e5PF5qNFx2/1zQP1ucCB3M2/l/rUQTslEaQOlk8bDTxnFNdUw++usg=
+X-Received: by 2002:a67:8d43:: with SMTP id p64mr5727814vsd.37.1584028770551;
+ Thu, 12 Mar 2020 08:59:30 -0700 (PDT)
+MIME-Version: 1.0
+Received: by 2002:a67:79d5:0:0:0:0:0 with HTTP; Thu, 12 Mar 2020 08:59:30
+ -0700 (PDT)
+Reply-To: miss.aminatouzainab@gmail.com
+From:   Aminatou Zainab <mohammadali4101@gmail.com>
+Date:   Thu, 12 Mar 2020 08:59:30 -0700
+Message-ID: <CAGrPaqg-tgu3Nyy-Vf71xxGAAxFQJYOfse_ckg+u=xX_i4dG-Q@mail.gmail.com>
+Subject: WITH DUE RESPECT YOUR ATTENTION IS VERY VERY NEEDED URGENT.
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is an automatic generated email to let you know that the following patch were queued:
+ATTENTION: DEAR BENEFICIARY CONGRATULATIONS TO YOU,
 
-Subject: media: ti-vpe: cal: fix a kernel oops when unloading module
-Author:  Benoit Parrot <bparrot@ti.com>
-Date:    Fri Mar 6 14:08:39 2020 +0100
+I RECEIVE YOUR CONTENT OF YOUR EMAIL FROM FEDEX ATM CARD OFFICES YOUR
+FUNDS SUM OF $10.500,000, 00. MILLION DOLLARS, HAS DISCOVER HERE AFTER
+THE BOARD OF DIRECTORS MEETINGS, THE UNITED NATIONS GOVERNMENT HAVE
+DECIDED TO ISSUE YOU YOUR (ATM CARD) VALUED AT TEN MILLION FIVE
+HUNDRED THOUSAND DOLLARS ($) COMPENSATION FUND THROUGH THIS (ATM)
+CARD.
 
-After the switch to use v4l2_async_notifier_add_subdev() and
-v4l2_async_notifier_cleanup(), unloading the ti_cal module would cause a
-kernel oops.
+THIS IS TO BRING TO YOUR NOTICE THAT YOUR VALUED SUM OF 10.5 MILLION
+DOLLARS HAS BEING CREDITED IN YOUR NAME AS BENEFICIARY TO THIS (ATM
+CARD), AND HAS BEEN HANDLE TO THE FOREIGN REMITTANCE DEPARTMENT TO
+SEND IT TO YOU IN YOUR FAVOR IMMEDIATELY WITHOUT ANY DELAY,
 
-This was root cause to the fact that v4l2_async_notifier_cleanup() tries
-to kfree the asd pointer passed into v4l2_async_notifier_add_subdev().
+YOU HAVE ACCESS TO MAKE DAILY WITHDRAWALS OF ($5,500) UNITED STATE
+DOLLARS DAILY.
 
-In our case the asd reference was from a statically allocated struct.
-So in effect v4l2_async_notifier_cleanup() was trying to free a pointer
-that was not kalloc.
+WE RECEIVE YOUR INFORMATIONS AND YOUR HOME ADDRESS OF YOUR COUNTRY AND
+WE WILL SEND TO YOU YOUR (ATM CARD), WE HAVE ALSO RECEIVED A SIGNAL
+FROM THE SWISS WORLD BANK TO TRANSFER YOUR BELONGING (ATM) TO YOU
+WITHIN ONE WEEK, WITHOUT ANY DELAY AS WE RECORD.
 
-So here we switch to using a kzalloc struct instead of a static one.
-To achieve this we re-order some of the calls to prevent asd allocation
-from leaking.
+WE HAVE JUST FINISHED OUR ANNUAL GENERAL MEETING WITH BANK OF AMERICA (BOA).
 
-Fixes: d079f94c9046 ("media: platform: Switch to v4l2_async_notifier_add_subdev")
-Cc: stable@vger.kernel.org
-Signed-off-by: Benoit Parrot <bparrot@ti.com>
-Reviewed-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+FOR MORE INFORMATION PLEASE GET BACK TO ME AS SOON AS POSSIBLE.
 
- drivers/media/platform/ti-vpe/cal.c | 13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
+YOURS
+SINCERELY.
 
----
-
-diff --git a/drivers/media/platform/ti-vpe/cal.c b/drivers/media/platform/ti-vpe/cal.c
-index 6d4cbb8782ed..6c8f3702eac0 100644
---- a/drivers/media/platform/ti-vpe/cal.c
-+++ b/drivers/media/platform/ti-vpe/cal.c
-@@ -372,8 +372,6 @@ struct cal_ctx {
- 	struct v4l2_subdev	*sensor;
- 	struct v4l2_fwnode_endpoint	endpoint;
- 
--	struct v4l2_async_subdev asd;
--
- 	struct v4l2_fh		fh;
- 	struct cal_dev		*dev;
- 	struct cc_data		*cc;
-@@ -2032,7 +2030,6 @@ static int of_cal_create_instance(struct cal_ctx *ctx, int inst)
- 
- 	parent = pdev->dev.of_node;
- 
--	asd = &ctx->asd;
- 	endpoint = &ctx->endpoint;
- 
- 	ep_node = NULL;
-@@ -2079,8 +2076,6 @@ static int of_cal_create_instance(struct cal_ctx *ctx, int inst)
- 		ctx_dbg(3, ctx, "can't get remote parent\n");
- 		goto cleanup_exit;
- 	}
--	asd->match_type = V4L2_ASYNC_MATCH_FWNODE;
--	asd->match.fwnode = of_fwnode_handle(sensor_node);
- 
- 	v4l2_fwnode_endpoint_parse(of_fwnode_handle(ep_node), endpoint);
- 
-@@ -2110,9 +2105,17 @@ static int of_cal_create_instance(struct cal_ctx *ctx, int inst)
- 
- 	v4l2_async_notifier_init(&ctx->notifier);
- 
-+	asd = kzalloc(sizeof(*asd), GFP_KERNEL);
-+	if (!asd)
-+		goto cleanup_exit;
-+
-+	asd->match_type = V4L2_ASYNC_MATCH_FWNODE;
-+	asd->match.fwnode = of_fwnode_handle(sensor_node);
-+
- 	ret = v4l2_async_notifier_add_subdev(&ctx->notifier, asd);
- 	if (ret) {
- 		ctx_err(ctx, "Error adding asd\n");
-+		kfree(asd);
- 		goto cleanup_exit;
- 	}
- 
+DIRECTOR FEDEX SERVICE (USA).
+MRS. AMINATOU. Z. MAKEL.
