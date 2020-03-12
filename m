@@ -2,94 +2,139 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6BC3A183738
-	for <lists+stable@lfdr.de>; Thu, 12 Mar 2020 18:16:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0CBA01837E9
+	for <lists+stable@lfdr.de>; Thu, 12 Mar 2020 18:45:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726526AbgCLRQy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Mar 2020 13:16:54 -0400
-Received: from mail-wm1-f66.google.com ([209.85.128.66]:34391 "EHLO
-        mail-wm1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726477AbgCLRQy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Mar 2020 13:16:54 -0400
-Received: by mail-wm1-f66.google.com with SMTP id x3so5982029wmj.1
-        for <stable@vger.kernel.org>; Thu, 12 Mar 2020 10:16:52 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gateworks-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=rQJ5s9eoNFBhar1wZ/+BMG+x4PEp7qiKoL1BTIgIvvA=;
-        b=Ka1odxjcRRSsZ1+P6Rn0WoEFDUeURVfcilak6U3iuZHIxRHE32ImI96XvKGoiCT0Y7
-         zOYxfW2tFhqwc83KnA9LRE9Y/bECcG7knYp4dAlJcuSZ+I7KEIaRB3wcsXhJxjfiXysU
-         AfHFRHk0Ue+Vz6LtljNNVf05jOc3/U5XBXJs6yw4uB8pzEy5of9iCcDQ/+jsEKLk1Rdn
-         I1SB61RY0n8txp2+PVnprLtCRZmOpBLDdFcO8eT6UQTFnaNKh8ECGg5RZsdHoMNNnSau
-         dBV330hv6bac+puft7f4osu2jlwoU3uhEYQAeObG+QQQvrgkMs1w3Q2AWx8CLl0tP3ud
-         fSDg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=rQJ5s9eoNFBhar1wZ/+BMG+x4PEp7qiKoL1BTIgIvvA=;
-        b=ud6hHWseQivMsULNTPl+wuJiB5loY63usLaXN8COsC+EbFC+lJngBQnA1iJ7zhc3Hl
-         rajgoIJDTQzHE0MEKvPw8I6R9MFEMBdmehSL5FN53vuQgImmRyW+8AO2gCBNJerUJpeM
-         sjOqokdQh0uABV/uE9pxzk19tC4TZW/8t7bE8ydvxA73DLK8KvsuGuBBERD+oFwP99nE
-         IiZZQtcosl0TwY+XR5okA8IkfJoGyQYsnDoXbJAfyXPrz9Kz5ywv+hBUE60eTbJHZO4K
-         awfSZ/QAQjRxhdhcrvQPB+D7oCBzjI+SYy8aif/utOz1e3GZuGF2MY8LHOXwA9TBVarS
-         T/zA==
-X-Gm-Message-State: ANhLgQ3c6vZGswGtX2ls8uKGwIxmK8CXb3lUZkRPhLrn26cX4AOOV0a9
-        Maalz+nNpJtKrJLmJTI5qdZYQbeC0SfOSEEhSxU58tQgGjA=
-X-Google-Smtp-Source: ADFU+vu9dcCqLenemNcAbEsZxGNAgsL5dkMGe56iFZ3uiRQSP35P55TvBH1Ty/uEmKNJhGhG9PF3mjvXjiunAlHs0ls=
-X-Received: by 2002:a05:600c:2188:: with SMTP id e8mr6133594wme.83.1584033411490;
- Thu, 12 Mar 2020 10:16:51 -0700 (PDT)
-MIME-Version: 1.0
-References: <1583941433-15876-1-git-send-email-tharvey@gateworks.com> <CACRpkdb3VzOFmnZkXXopsbKAAiQ9nzsqm6fMpcsCfmuvmaeOmg@mail.gmail.com>
-In-Reply-To: <CACRpkdb3VzOFmnZkXXopsbKAAiQ9nzsqm6fMpcsCfmuvmaeOmg@mail.gmail.com>
-From:   Tim Harvey <tharvey@gateworks.com>
-Date:   Thu, 12 Mar 2020 10:16:40 -0700
-Message-ID: <CAJ+vNU0U9jKDoZLBdC2aRrCCQkKmWATk6G6XAzQcF03tQY9r8g@mail.gmail.com>
-Subject: Re: [PATCH] gpio: thunderx: fix irq_request_resources
-To:     Linus Walleij <linus.walleij@linaro.org>, stable@vger.kernel.org
-Cc:     Robert Richter <rrichter@marvell.com>,
-        Lokesh Vutla <lokeshvutla@ti.com>,
-        "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+        id S1726443AbgCLRpX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Mar 2020 13:45:23 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:33070 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726362AbgCLRpW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Mar 2020 13:45:22 -0400
+Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 02CHYUUU071818
+        for <stable@vger.kernel.org>; Thu, 12 Mar 2020 13:45:21 -0400
+Received: from e06smtp01.uk.ibm.com (e06smtp01.uk.ibm.com [195.75.94.97])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2yqskk8hw5-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <stable@vger.kernel.org>; Thu, 12 Mar 2020 13:45:21 -0400
+Received: from localhost
+        by e06smtp01.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <stable@vger.kernel.org> from <maier@linux.ibm.com>;
+        Thu, 12 Mar 2020 17:45:19 -0000
+Received: from b06avi18626390.portsmouth.uk.ibm.com (9.149.26.192)
+        by e06smtp01.uk.ibm.com (192.168.101.131) with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted;
+        (version=TLSv1/SSLv3 cipher=AES256-GCM-SHA384 bits=256/256)
+        Thu, 12 Mar 2020 17:45:17 -0000
+Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
+        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 02CHiFiP48890306
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 12 Mar 2020 17:44:15 GMT
+Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id A2E5A52052;
+        Thu, 12 Mar 2020 17:45:15 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id 59D7A5204F;
+        Thu, 12 Mar 2020 17:45:15 +0000 (GMT)
+From:   Steffen Maier <maier@linux.ibm.com>
+To:     "James E . J . Bottomley" <jejb@linux.ibm.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>
+Cc:     linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org,
+        Benjamin Block <bblock@linux.ibm.com>,
+        Heiko Carstens <heiko.carstens@de.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Steffen Maier <maier@linux.ibm.com>, stable@vger.kernel.org
+Subject: [PATCH 01/10] zfcp: fix missing erp_lock in port recovery trigger for point-to-point
+Date:   Thu, 12 Mar 2020 18:44:56 +0100
+X-Mailer: git-send-email 2.17.1
+In-Reply-To: <20200312174505.51294-1-maier@linux.ibm.com>
+References: <20200312174505.51294-1-maier@linux.ibm.com>
+X-TM-AS-GCONF: 00
+x-cbid: 20031217-4275-0000-0000-000003AB4651
+X-IBM-AV-DETECTION: SAVI=unused REMOTE=unused XFE=unused
+x-cbparentid: 20031217-4276-0000-0000-000038C065A8
+Message-Id: <20200312174505.51294-2-maier@linux.ibm.com>
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.138,18.0.572
+ definitions=2020-03-12_11:2020-03-11,2020-03-12 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 malwarescore=0
+ spamscore=0 impostorscore=0 bulkscore=0 phishscore=0 mlxlogscore=999
+ lowpriorityscore=0 clxscore=1011 adultscore=0 suspectscore=0
+ priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2001150001 definitions=main-2003120089
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Mar 12, 2020 at 6:42 AM Linus Walleij <linus.walleij@linaro.org> wrote:
->
-> On Wed, Mar 11, 2020 at 4:43 PM Tim Harvey <tharvey@gateworks.com> wrote:
->
-> > If there are no parent resources do not call irq_chip_request_resources_parent
-> > at all as this will return an error.
-> >
-> > This resolves a regression where devices using a thunderx gpio as an interrupt
-> > would fail probing.
-> >
-> > Fixes: 0d04d0c ("gpio: thunderx: Use the default parent apis for {request,release}_resources")
-> > Signed-off-by: Tim Harvey <tharvey@gateworks.com>
->
-> This patch does not apply to the mainline kernel or v5.6-rc1.
->
-> Please verify:
-> 1. If the problem is still in v5.6 (we refactored the driver to
->    use GPIOLIB_IRQCHIP)
+v2.6.27 commit cc8c282963bd ("[SCSI] zfcp: Automatically attach remote
+ports") introduced zfcp automatic port scan.
 
-Linus,
+Before that, the user had to use the sysfs attribute "port_add" of an
+FCP device (adapter) to add and open remote (target) ports, even for
+the remote peer port in point-to-point topology. That code path did a
+proper port open recovery trigger taking the erp_lock.
 
-Sorry, another issue was keeping me from being able to boot 5.6-rc but
-that's now understood and I can confirm the issue is not present in
-v5.6-rc5
+Since above commit, a new helper function zfcp_erp_open_ptp_port()
+performed an UNlocked port open recovery trigger. This can race with
+other parallel recovery triggers. In zfcp_erp_action_enqueue() this could
+corrupt e.g. adapter->erp_total_count or adapter->erp_ready_head.
 
->
-> 2. If not, only propose it for linux-stable v5.5 etc.
->
+As already found for fabric topology in v4.17 commit fa89adba1941
+("scsi: zfcp: fix infinite iteration on ERP ready list"), there was
+an endless loop during tracing of rport (un)block.
+A subsequent v4.18 commit 9e156c54ace3 ("scsi: zfcp: assert that the
+ERP lock is held when tracing a recovery trigger") introduced a lockdep
+assertion for that case.
 
-Yes, needs to be applied to v5.2, v5.3, v5.4, v5.5. I cc'd stable. If
-I need to re-submit please let me know.
+As a side effect, that lockdep assertion now uncovered the unlocked
+code path for PtP. It is from within an adapter ERP action:
 
-Cc: stable@vger.kernel.org
+zfcp_erp_strategy[1479]  intentionally DROPs erp lock around
+                         zfcp_erp_strategy_do_action()
+zfcp_erp_strategy_do_action[1441]      NO erp lock
+zfcp_erp_adapter_strategy[876]         NO erp lock
+zfcp_erp_adapter_strategy_open[855]    NO erp lock
+zfcp_erp_adapter_strategy_open_fsf[806]NO erp lock
+zfcp_erp_adapter_strat_fsf_xconf[772]  erp lock only around
+                                       zfcp_erp_action_to_running(),
+                                       BUT *_not_* around
+                                       zfcp_erp_enqueue_ptp_port()
+zfcp_erp_enqueue_ptp_port[728]         BUG: *_not_* taking erp lock
+_zfcp_erp_port_reopen[432]             assumes to be called with erp lock
+zfcp_erp_action_enqueue[314]           assumes to be called with erp lock
+zfcp_dbf_rec_trig[288]                 _checks_ to be called with erp lock:
+	lockdep_assert_held(&adapter->erp_lock);
 
-Tim
+It causes the following lockdep warning:
+
+WARNING: CPU: 2 PID: 775 at drivers/s390/scsi/zfcp_dbf.c:288
+                            zfcp_dbf_rec_trig+0x16a/0x188
+no locks held by zfcperp0.0.17c0/775.
+
+Fix this by using the proper locked recovery trigger helper function.
+
+Signed-off-by: Steffen Maier <maier@linux.ibm.com>
+Fixes: cc8c282963bd ("[SCSI] zfcp: Automatically attach remote ports")
+Cc: <stable@vger.kernel.org> #v2.6.27+
+Reviewed-by: Jens Remus <jremus@linux.ibm.com>
+Reviewed-by: Benjamin Block <bblock@linux.ibm.com>
+---
+ drivers/s390/scsi/zfcp_erp.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/s390/scsi/zfcp_erp.c b/drivers/s390/scsi/zfcp_erp.c
+index 93655b85b73f..18a6751299f9 100644
+--- a/drivers/s390/scsi/zfcp_erp.c
++++ b/drivers/s390/scsi/zfcp_erp.c
+@@ -725,7 +725,7 @@ static void zfcp_erp_enqueue_ptp_port(struct zfcp_adapter *adapter)
+ 				 adapter->peer_d_id);
+ 	if (IS_ERR(port)) /* error or port already attached */
+ 		return;
+-	_zfcp_erp_port_reopen(port, 0, "ereptp1");
++	zfcp_erp_port_reopen(port, 0, "ereptp1");
+ }
+ 
+ static enum zfcp_erp_act_result zfcp_erp_adapter_strat_fsf_xconf(
+-- 
+2.17.1
+
