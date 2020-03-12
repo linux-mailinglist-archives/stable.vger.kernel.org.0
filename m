@@ -2,104 +2,146 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EC50E18264D
-	for <lists+stable@lfdr.de>; Thu, 12 Mar 2020 01:42:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C19EE18267E
+	for <lists+stable@lfdr.de>; Thu, 12 Mar 2020 02:08:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731481AbgCLAme (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Mar 2020 20:42:34 -0400
-Received: from mail-pf1-f193.google.com ([209.85.210.193]:42784 "EHLO
-        mail-pf1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731476AbgCLAmd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 11 Mar 2020 20:42:33 -0400
-Received: by mail-pf1-f193.google.com with SMTP id x2so1940210pfn.9
-        for <stable@vger.kernel.org>; Wed, 11 Mar 2020 17:42:33 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=n6vqmFexrjRMHF24EHko3R6amau89Pr9e5W2XFivMrI=;
-        b=1AzIz+tj2VeYB0Thsm/u3EDfwkxRtJnbmmowSfyjIfLFwQP2Jc8o5uVa/x/vFilwEK
-         cwUnfHU0+y/ikxjv6KZ8XlxTReakg+W6lvadlJX92EMsGaRDBWwcC7LW6tkx3FGJt11x
-         oZPKwqVBldCEb+QiJyMdL7+gUP7w1vQTpwLFPbQQerndaugmNIQuMcX3q9i1QJHpz75v
-         JTJ/UMFUoJxK+yhUhrH3t6+d4iB4oTzF+vf3h52sxUi7SzKvq19e+CxTQwQwR2za4GU9
-         UIqdvZ3J61yT+qNhIszsM/kxDOYJsLbnCGrTXpLhlc70QTLPJoU1bkuwvZRJE59I4oNq
-         tl8A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=n6vqmFexrjRMHF24EHko3R6amau89Pr9e5W2XFivMrI=;
-        b=O0iKjTXNTZaVQzvubKhUGoTrMBq+oXp4pj+82v9dV5ozqysQdJZV4aEja/OMCprO/G
-         DKtweoQ40C7HmytOs3Y3upN7Y/+yrX2457u0xP/dBvadOn3af5UW4LD5mI+iP6BXoWBl
-         NLQdK2aodXL3qoJExRUSh20VFdt3/dHC+7Ngo0HP46fzLHEXHUQneTXkWuzpaEjRf5C3
-         9HiWuUdXFyV8/Z8QUdvGVYUi5n6F570koTMs1e/JVx7gBlBlq8+nWW67CYoSZuPfPJEv
-         azo0xeC9VBeIS6zD5Hn/OljBIkydMkxDt7G7JwB0Zo+pgo7BGrLrH/GPRoNLAKCNyB6b
-         8llQ==
-X-Gm-Message-State: ANhLgQ1tqgu8UdzADfQurSAy82T4WWyu32adfTo+U1PxXAQqfKRiBiAa
-        gv3yZtmS52qrLdZnIpCZh7kKrWzxYW0=
-X-Google-Smtp-Source: ADFU+vtlwXevYni92eA6JE00wK/JJqJOzGKnAfYVNwF38aGvYzA/NUA0Dk7jnxZgl7hfkSqQJ0TamA==
-X-Received: by 2002:a62:1b51:: with SMTP id b78mr5349719pfb.23.1583973752319;
-        Wed, 11 Mar 2020 17:42:32 -0700 (PDT)
-Received: from [10.0.9.4] ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id v125sm610100pfv.160.2020.03.11.17.42.31
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 11 Mar 2020 17:42:31 -0700 (PDT)
-Message-ID: <5e698577.1c69fb81.635d5.2edf@mx.google.com>
-Date:   Wed, 11 Mar 2020 17:42:31 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-4.14.y
-X-Kernelci-Tree: stable
-X-Kernelci-Kernel: v4.14.173
-X-Kernelci-Report-Type: boot
-Subject: stable/linux-4.14.y boot: 47 boots: 2 failed,
- 44 passed with 1 untried/unknown (v4.14.173)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+        id S2387524AbgCLBIe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Mar 2020 21:08:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40450 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2387480AbgCLBId (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Mar 2020 21:08:33 -0400
+Received: from localhost.localdomain (c-73-231-172-41.hsd1.ca.comcast.net [73.231.172.41])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id EF9482072F;
+        Thu, 12 Mar 2020 01:08:32 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1583975313;
+        bh=a7x6odggfwpzyR4n3injseZHLnMztWGDhxWA8RAOszk=;
+        h=Date:From:To:Subject:In-Reply-To:From;
+        b=OARwd0tIwMQd8/PjBoC2mD6rvf+z259fGLDTCNHheZW2rq4F3z2DM4fLQ9RViqLON
+         njFRpsiC1KngVO4xBr5b7s5SroRh6iw9kAccj6kQhmPpwGiAqgD7Qft5S+Nue05wjO
+         rwBVvV4ViP3jOTF+ArG0AK+e4R/CG6jTMPFt5Fns=
+Date:   Wed, 11 Mar 2020 18:08:32 -0700
+From:   Andrew Morton <akpm@linux-foundation.org>
+To:     cai@lca.pw, david@redhat.com, mm-commits@vger.kernel.org,
+        stable@vger.kernel.org, ying.huang@intel.com
+Subject:  + page-flags-fix-a-crash-at-setpageerrorthp_swap.patch
+ added to -mm tree
+Message-ID: <20200312010832.-ObO3ZKSG%akpm@linux-foundation.org>
+In-Reply-To: <20200305222751.6d781a3f2802d79510941e4e@linux-foundation.org>
+User-Agent: s-nail v14.8.16
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable/linux-4.14.y boot: 47 boots: 2 failed, 44 passed with 1 untried/unkn=
-own (v4.14.173)
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable/branch/linux-4.=
-14.y/kernel/v4.14.173/
-Full Build Summary: https://kernelci.org/build/stable/branch/linux-4.14.y/k=
-ernel/v4.14.173/
+The patch titled
+     Subject: page-flags: fix a crash at SetPageError(THP_SWAP)
+has been added to the -mm tree.  Its filename is
+     page-flags-fix-a-crash-at-setpageerrorthp_swap.patch
 
-Tree: stable
-Branch: linux-4.14.y
-Git Describe: v4.14.173
-Git Commit: 12cd844a39ed16aa183a820a54fe6f9a0bb4cd14
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e.git
-Tested: 36 unique boards, 14 SoC families, 12 builds out of 201
+This patch should soon appear at
+    http://ozlabs.org/~akpm/mmots/broken-out/page-flags-fix-a-crash-at-setpageerrorthp_swap.patch
+and later at
+    http://ozlabs.org/~akpm/mmotm/broken-out/page-flags-fix-a-crash-at-setpageerrorthp_swap.patch
 
-Boot Regressions Detected:
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
 
-arm:
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
 
-    sama5_defconfig:
-        gcc-8:
-          at91-sama5d4_xplained:
-              lab-baylibre: failing since 48 days (last pass: v4.14.166 - f=
-irst fail: v4.14.167)
+The -mm tree is included into linux-next and is updated
+there every 3-4 working days
 
-Boot Failures Detected:
+------------------------------------------------------
+From: Qian Cai <cai@lca.pw>
+Subject: page-flags: fix a crash at SetPageError(THP_SWAP)
 
-arm:
-    sama5_defconfig:
-        gcc-8:
-            at91-sama5d4_xplained: 1 failed lab
+The commit bd4c82c22c36 ("mm, THP, swap: delay splitting THP after swapped
+out") supported writing THP to a swap device but forgot to upgrade an
+older commit df8c94d13c7e ("page-flags: define behavior of FS/IO-related
+flags on compound pages") which could trigger a crash during THP swapping
+out with DEBUG_VM_PGFLAGS=y,
 
-arm64:
-    defconfig:
-        gcc-8:
-            meson-gxm-q200: 1 failed lab
+kernel BUG at include/linux/page-flags.h:317!
 
+page dumped because: VM_BUG_ON_PAGE(1 && PageCompound(page))
+page:fffff3b2ec3a8000 refcount:512 mapcount:0 mapping:000000009eb0338c
+index:0x7f6e58200 head:fffff3b2ec3a8000 order:9 compound_mapcount:0
+compound_pincount:0
+anon flags:
+0x45fffe0000d8454(uptodate|lru|workingset|owner_priv_1|writeback|head|reclaim|swapbacked)
+
+end_swap_bio_write()
+  SetPageError(page)
+    VM_BUG_ON_PAGE(1 && PageCompound(page))
+
+<IRQ>
+bio_endio+0x297/0x560
+dec_pending+0x218/0x430 [dm_mod]
+clone_endio+0xe4/0x2c0 [dm_mod]
+bio_endio+0x297/0x560
+blk_update_request+0x201/0x920
+scsi_end_request+0x6b/0x4b0
+scsi_io_completion+0x509/0x7e0
+scsi_finish_command+0x1ed/0x2a0
+scsi_softirq_done+0x1c9/0x1d0
+__blk_mqnterrupt+0xf/0x20
+</IRQ>
+
+Fix by checking PF_NO_TAIL in those places instead.
+
+Link: http://lkml.kernel.org/r/20200310235846.1319-1-cai@lca.pw
+Fixes: bd4c82c22c36 ("mm, THP, swap: delay splitting THP after swapped out")
+Signed-off-by: Qian Cai <cai@lca.pw>
+Acked-by: "Huang, Ying" <ying.huang@intel.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
-For more info write to <info@kernelci.org>
+
+ include/linux/page-flags.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- a/include/linux/page-flags.h~page-flags-fix-a-crash-at-setpageerrorthp_swap
++++ a/include/linux/page-flags.h
+@@ -311,7 +311,7 @@ static inline int TestClearPage##uname(s
+ 
+ __PAGEFLAG(Locked, locked, PF_NO_TAIL)
+ PAGEFLAG(Waiters, waiters, PF_ONLY_HEAD) __CLEARPAGEFLAG(Waiters, waiters, PF_ONLY_HEAD)
+-PAGEFLAG(Error, error, PF_NO_COMPOUND) TESTCLEARFLAG(Error, error, PF_NO_COMPOUND)
++PAGEFLAG(Error, error, PF_NO_TAIL) TESTCLEARFLAG(Error, error, PF_NO_TAIL)
+ PAGEFLAG(Referenced, referenced, PF_HEAD)
+ 	TESTCLEARFLAG(Referenced, referenced, PF_HEAD)
+ 	__SETPAGEFLAG(Referenced, referenced, PF_HEAD)
+_
+
+Patches currently in -mm which might be from cai@lca.pw are
+
+page-flags-fix-a-crash-at-setpageerrorthp_swap.patch
+mm-disable-kcsan-for-kmemleak.patch
+mm-swapfile-fix-data-races-in-try_to_unuse.patch
+kasan-detect-negative-size-in-memory-operation-function-fix.patch
+mm-vmscan-fix-data-races-at-kswapd_classzone_idx.patch
+percpu_counter-fix-a-data-race-at-vm_committed_as.patch
+mm-frontswap-mark-various-intentional-data-races.patch
+mm-page_io-mark-various-intentional-data-races.patch
+mm-page_io-mark-various-intentional-data-races-v2.patch
+mm-swap_state-mark-various-intentional-data-races.patch
+mm-swapfile-fix-and-annotate-various-data-races.patch
+mm-swapfile-fix-and-annotate-various-data-races-v2.patch
+mm-page_counter-fix-various-data-races-at-memsw.patch
+mm-memcontrol-fix-a-data-race-in-scan-count.patch
+mm-list_lru-fix-a-data-race-in-list_lru_count_one.patch
+mm-mempool-fix-a-data-race-in-mempool_free.patch
+mm-util-annotate-an-data-race-at-vm_committed_as.patch
+mm-rmap-annotate-a-data-race-at-tlb_flush_batched.patch
+mm-annotate-a-data-race-in-page_zonenum.patch
+mm-swap-annotate-data-races-for-lru_rotate_pvecs.patch
+
