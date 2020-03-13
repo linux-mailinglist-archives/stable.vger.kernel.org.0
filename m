@@ -2,178 +2,64 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A3241848B6
-	for <lists+stable@lfdr.de>; Fri, 13 Mar 2020 15:03:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B9D61848D8
+	for <lists+stable@lfdr.de>; Fri, 13 Mar 2020 15:09:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726477AbgCMODR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Mar 2020 10:03:17 -0400
-Received: from perceval.ideasonboard.com ([213.167.242.64]:48708 "EHLO
-        perceval.ideasonboard.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726393AbgCMODR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 13 Mar 2020 10:03:17 -0400
-Received: from pendragon.ideasonboard.com (81-175-216-236.bb.dnainternet.fi [81.175.216.236])
-        by perceval.ideasonboard.com (Postfix) with ESMTPSA id 7424D5F;
-        Fri, 13 Mar 2020 15:03:14 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=ideasonboard.com;
-        s=mail; t=1584108194;
-        bh=gPbT+x8g4idIbaikR9Dwjy5YbKNa0Oc/b944BUbYp8g=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=t8hHE13nXX9VIWZinuqgdGWhyDAqrEY+0vA6raNkjindaw8wudaqfCinONqV11u76
-         F4u3MRrL+CaxPUsld63J+lEA0Rj7cZLZA3pumQFCZesYvGk6MIzBFz4k3Pm0J5DT5E
-         qzEHE4Ba7j3qjEfHNJFQPMabKaY6Pd9FMchsHCz8=
-Date:   Fri, 13 Mar 2020 16:03:11 +0200
-From:   Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-To:     Tomi Valkeinen <tomi.valkeinen@ti.com>
-Cc:     Mauro Carvalho Chehab <mchehab@kernel.org>,
-        linux-media@vger.kernel.org, Benoit Parrot <bparrot@ti.com>,
-        stable@vger.kernel.org
-Subject: Re: [PATCH] media: ti-vpe: cal: fix DMA memory corruption
-Message-ID: <20200313140311.GF4751@pendragon.ideasonboard.com>
-References: <20200313082639.7743-1-tomi.valkeinen@ti.com>
+        id S1726837AbgCMOJX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Mar 2020 10:09:23 -0400
+Received: from mail-ot1-f67.google.com ([209.85.210.67]:39753 "EHLO
+        mail-ot1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726824AbgCMOJX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 13 Mar 2020 10:09:23 -0400
+Received: by mail-ot1-f67.google.com with SMTP id a9so10201574otl.6
+        for <stable@vger.kernel.org>; Fri, 13 Mar 2020 07:09:23 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:from:date:message-id:subject:to;
+        bh=HkTg2l81dVARODKvDV4LiJ911oOSk/1lFbaHd5CQuJc=;
+        b=TAhtBoeq38MDzm5VUQ+6MxK7C3uQ+8nZWcpmwkdjQ6upK1+9uHRuAMq0EE5KyVg9+x
+         gXKAcV9XtPAB/bQGKNrmZiaN8NplTG0mWXUgJh+BH776HQkhpzHV7iNq44VfaRFW5Ici
+         zPQTnfNjlkR2yGmuMSNx7uVWZC1KCgqquUkvVK3I2X+xdgWG8+b4CqWi+36IPHG1FHCR
+         YdCwugjgZqSsSi4743zAWebAaI0jDymJaVAs1mW2NCXac57/ncQx1nk04ngEEhEOIQbJ
+         m/FyaFWv1c0CKo12ROHo3SvQXXl483nujkqaLTQ7KgS3jeWqwIzUiSerBVj5NuKnBY9O
+         rxbA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:from:date:message-id:subject:to;
+        bh=HkTg2l81dVARODKvDV4LiJ911oOSk/1lFbaHd5CQuJc=;
+        b=e6PtL5RqeqXfrTzaMDlHsY7m6GiBxgbBbdHr63DkZeQ/wvPP0OyQWksLCe9xQP/3QB
+         9ygKyPlkPx8zp2vLIXzPuUOk1IieXdze7CyUOqqp98X1BDC+HeYnVLFqqCHiDsIVByLT
+         v6UxVUPari5DOY+pio1FXXIhf2f6BJ4MGszesXJ6U5yA4XXzLLV626Hb3WEIdwLmKrKq
+         qJLebsfoR28BzfMWX/tp3qKu9Rgs8s9z4iRtRmcEV3DcfNvd2/VlHWrqfN/L1MA8wmDQ
+         0a33QP0Gef/TMGmWGFPU9VPAq0pGqm8QRvkGv2tsRvpB98Nk+xk2ozAt5Ozsvv9YqPjo
+         xQJA==
+X-Gm-Message-State: ANhLgQ1v5PZg2FjceeI30mrnq8ZtZpOCRgyI5CEbNE1g/HlbPSbLmKGT
+        sbH2NrRrGmPTuHJNNzr2YxTFbrc5O2xeEj76ub2hu2yq
+X-Google-Smtp-Source: ADFU+vsoSU4RyEx2vgzrV6r0RJEMoKrKegUmCH7MvEuQ37SzHC9e0gg9pxqSgFWWEQUUAlTg5r+IMIS6SX0+Q/7XIh0=
+X-Received: by 2002:a9d:895:: with SMTP id 21mr10794855otf.365.1584108562651;
+ Fri, 13 Mar 2020 07:09:22 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20200313082639.7743-1-tomi.valkeinen@ti.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+From:   Martin Galvan <omgalvan.86@gmail.com>
+Date:   Fri, 13 Mar 2020 11:09:11 -0300
+Message-ID: <CAN19L9Fi0h0wHOyY3zdAU4vX=J+T_3sVkL_wsq89W+RgF7gBxA@mail.gmail.com>
+Subject: [PING] EFI/PTI fix not backported to 3.16.XX?
+To:     pasha.tatashin@soleen.com, stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Tomi,
+Hi all,
 
-Thank you for the patch.
+I've been running some tests on Debian 8 (which uses a 3.16.XX
+kernel), and saw that my system would occasionally reboot when
+performing an EFI variables dump. I did some digging and saw that this
+problem first appeared in 4.4.110 and was fixed by Pavel Tatashin in
+commit 7ec5d87df34a. At the same time, 4.9.XX, 4.14.XX and mainline
+have commit 67a9108ed431, which also solves the issue. However, the
+3.16 stable line doesn't seem to have either fix, and therefore the
+crash is still there.
 
-On Fri, Mar 13, 2020 at 10:26:39AM +0200, Tomi Valkeinen wrote:
-> When the CAL driver stops streaming, it will shut everything down
-> without waiting for the current frame to finish. This leaves the CAL DMA
-> in a slightly undefined state, and when CAL DMA is enabled when the
-> stream is started the next time, the old DMA transfer will continue.
-> 
-> It is not clear if the old DMA transfer continues with the exact
-> settings of the original transfer, or is it a mix of old and new
-> settings, but in any case the end result is memory corruption as the
-> destination memory address is no longer valid.
-> 
-> I could not find any way to ensure that any old DMA transfer would be
-> discarded, except perhaps full CAL reset. But we cannot do a full reset
-> when one port is getting enabled, as that would reset both ports.
-> 
-> This patch tries to make sure that the DMA transfer is finished properly
-> when the stream is being stopped. I say "tries", as, as mentioned above,
-> I don't see a way to force the DMA transfer to finish. I believe this
-> fixes the corruptions for normal cases, but if for some reason the DMA
-> of the final frame would stall a lot, resulting in timeout in the code
-> waiting for the DMA to finish, we'll again end up with unfinished DMA
-> transfer. However, I don't know what could cause such a timeout.
-> 
-> Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
-> Cc: stable@vger.kernel.org
-> ---
->  drivers/media/platform/ti-vpe/cal.c | 32 +++++++++++++++++++++++++++++
->  1 file changed, 32 insertions(+)
-> 
-> diff --git a/drivers/media/platform/ti-vpe/cal.c b/drivers/media/platform/ti-vpe/cal.c
-> index be54806180a5..b857cab120ad 100644
-> --- a/drivers/media/platform/ti-vpe/cal.c
-> +++ b/drivers/media/platform/ti-vpe/cal.c
-> @@ -414,6 +414,8 @@ struct cal_ctx {
->  	struct cal_buffer	*cur_frm;
->  	/* Pointer pointing to next v4l2_buffer */
->  	struct cal_buffer	*next_frm;
-> +
-> +	bool dma_act;
->  };
->  
->  static const struct cal_fmt *find_format_by_pix(struct cal_ctx *ctx,
-> @@ -944,6 +946,7 @@ static void csi2_lane_config(struct cal_ctx *ctx)
->  
->  static void csi2_ppi_enable(struct cal_ctx *ctx)
->  {
-> +	reg_write(ctx->dev, CAL_CSI2_PPI_CTRL(ctx->csi2_port), BIT(3));
->  	reg_write_field(ctx->dev, CAL_CSI2_PPI_CTRL(ctx->csi2_port),
->  			CAL_GEN_ENABLE, CAL_CSI2_PPI_CTRL_IF_EN_MASK);
->  }
-> @@ -1206,15 +1209,25 @@ static irqreturn_t cal_irq(int irq_cal, void *data)
->  		if (isportirqset(irqst2, 1)) {
->  			ctx = dev->ctx[0];
->  
-> +			spin_lock(&ctx->slock);
-> +			ctx->dma_act = false;
-> +
->  			if (ctx->cur_frm != ctx->next_frm)
->  				cal_process_buffer_complete(ctx);
-> +
-> +			spin_unlock(&ctx->slock);
->  		}
->  
->  		if (isportirqset(irqst2, 2)) {
->  			ctx = dev->ctx[1];
->  
-> +			spin_lock(&ctx->slock);
-> +			ctx->dma_act = false;
-> +
->  			if (ctx->cur_frm != ctx->next_frm)
->  				cal_process_buffer_complete(ctx);
-> +
-> +			spin_unlock(&ctx->slock);
->  		}
->  	}
->  
-> @@ -1230,6 +1243,7 @@ static irqreturn_t cal_irq(int irq_cal, void *data)
->  			dma_q = &ctx->vidq;
->  
->  			spin_lock(&ctx->slock);
-> +			ctx->dma_act = true;
->  			if (!list_empty(&dma_q->active) &&
->  			    ctx->cur_frm == ctx->next_frm)
->  				cal_schedule_next_buffer(ctx);
-> @@ -1241,6 +1255,7 @@ static irqreturn_t cal_irq(int irq_cal, void *data)
->  			dma_q = &ctx->vidq;
->  
->  			spin_lock(&ctx->slock);
-> +			ctx->dma_act = true;
->  			if (!list_empty(&dma_q->active) &&
->  			    ctx->cur_frm == ctx->next_frm)
->  				cal_schedule_next_buffer(ctx);
-> @@ -1713,10 +1728,27 @@ static void cal_stop_streaming(struct vb2_queue *vq)
->  	struct cal_ctx *ctx = vb2_get_drv_priv(vq);
->  	struct cal_dmaqueue *dma_q = &ctx->vidq;
->  	struct cal_buffer *buf, *tmp;
-> +	unsigned long timeout;
->  	unsigned long flags;
->  	int ret;
-> +	bool dma_act;
->  
->  	csi2_ppi_disable(ctx);
-> +
-> +	/* wait for stream and dma to finish */
-> +	dma_act = true;
-> +	timeout = jiffies + msecs_to_jiffies(500);
-> +	while (dma_act && time_before(jiffies, timeout)) {
-> +		msleep(50);
-> +
-> +		spin_lock_irqsave(&ctx->slock, flags);
-> +		dma_act = ctx->dma_act;
-> +		spin_unlock_irqrestore(&ctx->slock, flags);
-> +	}
-
-Waiting for the transfer to complete seems to be a good idea, but how
-about using a wait queue instead of such a loop ? That would allow
-better usage of CPU time and faster reaction time, and shouldn't be
-difficult to implement. You may also want to replace dma_act with a
-state if needed (in case you need to express running/stopping/stopped
-states), and I would rename it to running if you just need a boolean.
-
-> +
-> +	if (dma_act)
-> +		ctx_err(ctx, "failed to disable dma cleanly\n");
-> +
->  	disable_irqs(ctx);
->  	csi2_phy_deinit(ctx);
->  
-
--- 
-Regards,
-
-Laurent Pinchart
+I don't know whether any distros use 3.16 other than Debian, but it'd
+still be good to have this fix backported as well.
