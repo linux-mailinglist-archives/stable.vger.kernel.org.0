@@ -2,130 +2,120 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 19059184432
-	for <lists+stable@lfdr.de>; Fri, 13 Mar 2020 10:56:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 767AD18451D
+	for <lists+stable@lfdr.de>; Fri, 13 Mar 2020 11:44:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726720AbgCMJ4S (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Mar 2020 05:56:18 -0400
-Received: from metis.ext.pengutronix.de ([85.220.165.71]:33541 "EHLO
-        metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726492AbgCMJ4S (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 13 Mar 2020 05:56:18 -0400
-Received: from pty.hi.pengutronix.de ([2001:67c:670:100:1d::c5])
-        by metis.ext.pengutronix.de with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <ore@pengutronix.de>)
-        id 1jCh36-0002dV-FA; Fri, 13 Mar 2020 10:56:12 +0100
-Received: from ore by pty.hi.pengutronix.de with local (Exim 4.89)
-        (envelope-from <ore@pengutronix.de>)
-        id 1jCh34-0000y0-8G; Fri, 13 Mar 2020 10:56:10 +0100
-Date:   Fri, 13 Mar 2020 10:56:10 +0100
-From:   Oleksij Rempel <o.rempel@pengutronix.de>
-To:     Marc Kleine-Budde <mkl@pengutronix.de>
-Cc:     David Miller <davem@davemloft.net>, socketcan@hartkopp.net,
-        linux-can@vger.kernel.org, netdev@vger.kernel.org,
-        syzbot+c3ea30e1e2485573f953@syzkaller.appspotmail.com,
-        dvyukov@google.com, j.vosburgh@gmail.com, vfalico@gmail.com,
-        andy@greyhouse.net, stable@vger.kernel.org
-Subject: Re: [PATCH] bonding: do not enslave CAN devices
-Message-ID: <20200313095610.x3iorvdotry54vb4@pengutronix.de>
-References: <d6d9368d-b468-3946-ac63-abedf6758154@hartkopp.net>
- <20200302.111249.471862054833131096.davem@davemloft.net>
- <03ff979e-a621-c9a3-9be3-13677c147f91@pengutronix.de>
- <20200306.211320.1410615421373955488.davem@davemloft.net>
- <d69b4a32-5d3e-d100-78d3-d713b97eb2ff@pengutronix.de>
+        id S1726477AbgCMKoy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Mar 2020 06:44:54 -0400
+Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:58590 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1726364AbgCMKoy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 13 Mar 2020 06:44:54 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1584096292;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=aT9q9UJeOule/4yraFsE371e6/2YUeu5VbTUE9ggi9s=;
+        b=XEzjuO6gk7mMtpCxeheH3hCAgKnB6qjbkHnqYEml1Vn4yICpSXJcU826zBNjaoqnrwmBcu
+        ASEHsrvUJP92WC8nO3IgWoVBrgWnrqzKIo0CZPtYyxuMp8sjNfozHZ8MSiTGRXujqUtNjy
+        6GESGNnM5ZDeQkdJlclsN4suIdd2rHs=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-152-S5-3PBs7MFO5Vu_zwLOsXg-1; Fri, 13 Mar 2020 06:44:48 -0400
+X-MC-Unique: S5-3PBs7MFO5Vu_zwLOsXg-1
+Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 4E29310CE79E;
+        Fri, 13 Mar 2020 10:44:47 +0000 (UTC)
+Received: from localhost (ovpn-121-102.rdu2.redhat.com [10.10.121.102])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 9E63860C63;
+        Fri, 13 Mar 2020 10:44:46 +0000 (UTC)
+Date:   Fri, 13 Mar 2020 07:44:45 -0300
+From:   Bruno Meneguele <bmeneg@redhat.com>
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        pmladek@suse.com, sergey.senozhatsky@gmail.com, rostedt@goodmis.org
+Subject: Re: [PATCH] kernel/printk: add kmsg SEEK_CUR handling
+Message-ID: <20200313104445.GH13406@glitch>
+References: <20200313003533.2203429-1-bmeneg@redhat.com>
+ <20200313072254.GA1960396@kroah.com>
 MIME-Version: 1.0
+In-Reply-To: <20200313072254.GA1960396@kroah.com>
+X-PGP-Key: http://keys.gnupg.net/pks/lookup?op=get&search=0x3823031E4660608D
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="7iofuxgb4mu2cylw"
+        protocol="application/pgp-signature"; boundary="AzNpbZlgThVzWita"
 Content-Disposition: inline
-In-Reply-To: <d69b4a32-5d3e-d100-78d3-d713b97eb2ff@pengutronix.de>
-X-Sent-From: Pengutronix Hildesheim
-X-URL:  http://www.pengutronix.de/
-X-IRC:  #ptxdist @freenode
-X-Accept-Language: de,en
-X-Accept-Content-Type: text/plain
-X-Uptime: 10:49:47 up 119 days,  1:08, 146 users,  load average: 0.02, 0.03,
- 0.00
-User-Agent: NeoMutt/20170113 (1.7.2)
-X-SA-Exim-Connect-IP: 2001:67c:670:100:1d::c5
-X-SA-Exim-Mail-From: ore@pengutronix.de
-X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
-X-PTX-Original-Recipient: stable@vger.kernel.org
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
---7iofuxgb4mu2cylw
-Content-Type: text/plain; charset=utf-8
+--AzNpbZlgThVzWita
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Mar 09, 2020 at 11:25:50AM +0100, Marc Kleine-Budde wrote:
-> On 3/7/20 6:13 AM, David Miller wrote:
-> > From: Marc Kleine-Budde <mkl@pengutronix.de>
-> > Date: Fri, 6 Mar 2020 15:12:48 +0100
+On Fri, Mar 13, 2020 at 08:22:54AM +0100, Greg KH wrote:
+> On Thu, Mar 12, 2020 at 09:35:33PM -0300, Bruno Meneguele wrote:
+> > Userspace libraries, e.g. glibc's dprintf(), expect the default return =
+value
+> > for invalid seek situations: -ESPIPE, but when the IO was over /dev/kms=
+g the
+> > current state of kernel code was returning the generic case of an -EINV=
+AL.
+> > Hence, userspace programs were not behaving as expected or documented.
 > >=20
-> >> On 3/2/20 8:12 PM, David Miller wrote:
-> >>> From: Oliver Hartkopp <socketcan@hartkopp.net>
-> >>> Date: Mon, 2 Mar 2020 09:45:41 +0100
-> >>>
-> >>>> I don't know yet whether it makes sense to have CAN bonding/team
-> >>>> devices. But if so we would need some more investigation. For now
-> >>>> disabling CAN interfaces for bonding/team devices seems to be
-> >>>> reasonable.
-> >>>
-> >>> Every single interesting device that falls into a special use case
-> >>> like CAN is going to be tempted to add a similar check.
-> >>>
-> >>> I don't want to set this precedence.
-> >>>
-> >>> Check that the devices you get passed are actually CAN devices, it's
-> >>> easy, just compare the netdev_ops and make sure they equal the CAN
-> >>> ones.
-> >>
-> >> Sorry, I'm not really sure how to implement this check.
+> > With this patch we add SEEK_CUR case returning the expected value and a=
+lso a
+> > simple mention of it in kernel's documentation for those relying on tha=
+t for
+> > guidance.
 > >=20
-> > Like this:
-> >=20
-> > if (netdev->ops !=3D &can_netdev_ops)
-> > 	return;
+> > Signed-off-by: Bruno Meneguele <bmeneg@redhat.com>
+> > ---
+> >  Documentation/ABI/testing/dev-kmsg | 2 ++
+> >  kernel/printk/printk.c             | 4 ++++
+> >  2 files changed, 6 insertions(+)
 >=20
-> There is no single can_netdev_ops. The netdev_ops are per CAN-network
-> driver. But the ml_priv is used in the generic CAN code.
+> <formletter>
+>=20
+> This is not the correct way to submit patches for inclusion in the
+> stable kernel tree.  Please read:
+>     https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.ht=
+ml
+> for how to do this properly.
+>=20
+> </formletter>
+>=20
 
-ping,
+ouch, yes of course. Sorry for the noise. =20
+Will repost it once the concerns with the patch are solved.
 
-are there any other ways or ideas how to solve this issue?
-
-Regards,
-Oleksij
+Thanks Greg.
 
 --=20
-Pengutronix e.K.                           |                             |
-Steuerwalder Str. 21                       | http://www.pengutronix.de/  |
-31137 Hildesheim, Germany                  | Phone: +49-5121-206917-0    |
-Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |
+bmeneg=20
+PGP Key: http://bmeneg.com/pubkey.txt
 
---7iofuxgb4mu2cylw
+--AzNpbZlgThVzWita
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEERBNZvwSgvmcMY/T74omh9DUaUbMFAl5rWLYACgkQ4omh9DUa
-UbM3rRAAlQmb7VoWlMTGLXbsF+xdJwyuJpRNeq/8b499jlIF0wq0u4gidS5EwlLT
-ZUx/yhRQnYEvT8olNfbKOydG074ZybVRAoKWxqo2WLeTTlK93dSCsSchgGNP4tMb
-eN2Q/bP0Sfeo0DhRN1G3ddYDvNCBQT+Ix3gsjAPM7UApaWwmpse2m8N3doIJJpLf
-pXExGT8TDBhyCytnWvogGjjFo2/bRGGZ4niNp7dpG4Ty+HRLl0JNwPJPW+ypPwfu
-zY0JK9dUqi9Jg3c79g9cCLPD/u7/9a4uFtlEZ8suGzTauhkvEBjM951rU59YZt6d
-YQeAHvWf5B48n7BCa5yk/kJL+D3iAZhp4Il27w1sdzajmyZaQU3JHygssDjnk+kg
-t9+Ft2SCfIuRFHwga4EOMlAngOx2hZlLw76t8MRXBckE124+/Jky3AJSPxIG1u8X
-9t20xtC2s8S6LYY/oNhhWSUJQYoew9NNVYlvSpRJOK9lt4Ptcc02NhVlEVwIKmMB
-lLkHLTvGgOAsfkmS39Bi5B+qzYWt5Eu9j+SOsUHnfv5dNhc71Cue2v3pk7wYsAv7
-mwyEs0bAUA7cPm2fYPPwLIvZQ0SOnFBsNFxXzSOC5kByf3kIROf5AM+91Rvl5aPE
-tAe/mFcFUFzCjtxbjj4uInbvPWH+uiwrRaFtI9iltnHiefxHWII=
-=3Iqy
+iQEzBAEBCAAdFiEEdWo6nTbnZdbDmXutYdRkFR+RokMFAl5rZB0ACgkQYdRkFR+R
+okNb7ggAxbkwFdSoQBgH0xZI1DmgLTjKi+ZL+j7MtBdujIL2f6vbCfhnK8G4nocx
+SvCAk//UCsAqAkib7vCdJTwPm3QT7TmtUAtZ2dgQkooytWEKyLY5h2p/WZwg9RGV
+LwA7GU66oYsCzkFIy+TSHa6DL2wsesdef1tDapiDhFKFV/tnFumx9U7JnnyZCV+m
+xuUfLKAojOEYGN2T1vJTv4Phy+ru4Rw8ZRWToMHnw0lYNd2V0xnFbzoFYd76JCE9
+IT4yW3eJWrngU7f/+IUUkE2MLPot3jToatuJCumKz8CzTa6lxjgX1Pzbm+wVCNBR
+BffqOOOwAQyaHpiXziOW/5QCgZPikg==
+=bQvY
 -----END PGP SIGNATURE-----
 
---7iofuxgb4mu2cylw--
+--AzNpbZlgThVzWita--
+
