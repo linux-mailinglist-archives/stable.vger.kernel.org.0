@@ -2,87 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8CCE2184A1E
-	for <lists+stable@lfdr.de>; Fri, 13 Mar 2020 16:01:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 44B05184A44
+	for <lists+stable@lfdr.de>; Fri, 13 Mar 2020 16:09:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726533AbgCMPBH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Mar 2020 11:01:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49180 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726528AbgCMPBH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 13 Mar 2020 11:01:07 -0400
-Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5AE9A206FA;
-        Fri, 13 Mar 2020 15:01:06 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584111666;
-        bh=go0P9fgXXPo35byt8AV+LGj/xg18Op3eY2CFhsORJbE=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=K8rHC7e/bxxQzKqrId1m+K6LiZKbq8lWuCi+yqYhcaquiz7IwFvkE+RyrH5wmKj+K
-         3PM2wJT/oiPPYgA904Uke6d4R4y/gv9hly5h282sNqtwBzQ8k2YwnM1AHtyuC1vInn
-         5AA/nxabwg1lwVt/qWLsvpxMKNnkjPhdQ1La/phw=
-Date:   Fri, 13 Mar 2020 11:01:05 -0400
-From:   Sasha Levin <sashal@kernel.org>
-To:     Tim Harvey <tharvey@gateworks.com>
-Cc:     Linus Walleij <linus.walleij@linaro.org>, stable@vger.kernel.org,
-        Robert Richter <rrichter@marvell.com>,
-        Lokesh Vutla <lokeshvutla@ti.com>,
-        "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] gpio: thunderx: fix irq_request_resources
-Message-ID: <20200313150105.GF1349@sasha-vm>
-References: <1583941433-15876-1-git-send-email-tharvey@gateworks.com>
- <CACRpkdb3VzOFmnZkXXopsbKAAiQ9nzsqm6fMpcsCfmuvmaeOmg@mail.gmail.com>
- <CAJ+vNU0U9jKDoZLBdC2aRrCCQkKmWATk6G6XAzQcF03tQY9r8g@mail.gmail.com>
+        id S1726479AbgCMPJw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Mar 2020 11:09:52 -0400
+Received: from mail-ed1-f67.google.com ([209.85.208.67]:37051 "EHLO
+        mail-ed1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726446AbgCMPJw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 13 Mar 2020 11:09:52 -0400
+Received: by mail-ed1-f67.google.com with SMTP id b23so12295615edx.4
+        for <stable@vger.kernel.org>; Fri, 13 Mar 2020 08:09:51 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=soleen.com; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=kGmP5jBz5vbcJ9qpF1qcUuCMSkRXJVVgSvsvPN4/pvY=;
+        b=YnIjawwSWXnPMqrluiZCo9wPLRJML/zsfavms5YhgfnfJfvpyw/pSv0dcAuaqX1pfp
+         JTM9E9YBbDlYZAasj9g1X3E8aMQd4ciOqCTwEOlLaj9sav4s8KdKPpcGiNzqhdWAuX0p
+         DUzLyN9WL1BflFN/L7Iq9mFkF3Vbyo7X020o1tuW4ARyqc1X61eGtywXJ9OGYY27TR00
+         yPg9ja1iw12pmSTzTfWm6G1RaqGf7KUBgqfmlbDCFUH7I/pV4/8TJxaAP90pbIFC6OIm
+         w6W/L9FMYSGejufJYmtSKS6hYVqVrsLCVj0HhebIe+bGxVw8vgU4n/XbB9FT8ri0wciI
+         v2mQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=kGmP5jBz5vbcJ9qpF1qcUuCMSkRXJVVgSvsvPN4/pvY=;
+        b=kakgBtJNEknZNs2bVOExC2oy2C6K3p/URzTnWCWqVexJZtVQWm8EdHTn/dc9jgfMI7
+         2Q5tntn42+Wx6ehVP9iPyJ3dzbzZ+gedfZWGTTlpL3rrs/LrB/vuyMBhL3L1Hgc1bOlb
+         1LPEFC+GT6RTg5RRw9GlLlYSEKvQgmFb23eb8A6ZNvQj52pXB6QQKfZZD+RlucZOwZsb
+         RnFPe2KyP7u6hpch8JRplQUvW8SYxyrCuP5gTr8R+UWfCQbRT6ODsw51l/B2Zf8az/xl
+         8ZDWs0isjGsmXIQBN7DqGCAKRG0KrwqUOs5hpmjGYiDhxk5IUggcVrIoQMPJOyXCk+Oa
+         R7Zg==
+X-Gm-Message-State: ANhLgQ2Rmwt3Ssub2/5mJ5ucVaUvVGL1xCl+9xn1Qxf03vv8xXmengx8
+        5DeNWH0ckE488v7SgKmIodNPJbjRRH8ElzbtbTla+w==
+X-Google-Smtp-Source: ADFU+vsyrRXkX1gN02HKuf7HzixqRBC6xDj2FqRX5109PPmUTo9BkwRmp51pAjDJF2fxO2L8lMYYelp2tLiyn9Xjvzk=
+X-Received: by 2002:a17:906:3797:: with SMTP id n23mr11656595ejc.368.1584112190945;
+ Fri, 13 Mar 2020 08:09:50 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <CAJ+vNU0U9jKDoZLBdC2aRrCCQkKmWATk6G6XAzQcF03tQY9r8g@mail.gmail.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+References: <CAN19L9Fi0h0wHOyY3zdAU4vX=J+T_3sVkL_wsq89W+RgF7gBxA@mail.gmail.com>
+In-Reply-To: <CAN19L9Fi0h0wHOyY3zdAU4vX=J+T_3sVkL_wsq89W+RgF7gBxA@mail.gmail.com>
+From:   Pavel Tatashin <pasha.tatashin@soleen.com>
+Date:   Fri, 13 Mar 2020 11:09:40 -0400
+Message-ID: <CA+CK2bCEtgvkG7jd3rm2gipKE6KQ4dzfgFGERoib5W-=pchDWw@mail.gmail.com>
+Subject: Re: [PING] EFI/PTI fix not backported to 3.16.XX?
+To:     ben.hutchings@codethink.co.uk
+Cc:     stable <stable@vger.kernel.org>, Sasha Levin <sashal@kernel.org>,
+        Martin Galvan <omgalvan.86@gmail.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Mar 12, 2020 at 10:16:40AM -0700, Tim Harvey wrote:
->On Thu, Mar 12, 2020 at 6:42 AM Linus Walleij <linus.walleij@linaro.org> wrote:
->>
->> On Wed, Mar 11, 2020 at 4:43 PM Tim Harvey <tharvey@gateworks.com> wrote:
->>
->> > If there are no parent resources do not call irq_chip_request_resources_parent
->> > at all as this will return an error.
->> >
->> > This resolves a regression where devices using a thunderx gpio as an interrupt
->> > would fail probing.
->> >
->> > Fixes: 0d04d0c ("gpio: thunderx: Use the default parent apis for {request,release}_resources")
->> > Signed-off-by: Tim Harvey <tharvey@gateworks.com>
->>
->> This patch does not apply to the mainline kernel or v5.6-rc1.
->>
->> Please verify:
->> 1. If the problem is still in v5.6 (we refactored the driver to
->>    use GPIOLIB_IRQCHIP)
->
->Linus,
->
->Sorry, another issue was keeping me from being able to boot 5.6-rc but
->that's now understood and I can confirm the issue is not present in
->v5.6-rc5
->
->>
->> 2. If not, only propose it for linux-stable v5.5 etc.
->>
->
->Yes, needs to be applied to v5.2, v5.3, v5.4, v5.5. I cc'd stable. If
->I need to re-submit please let me know.
->
->Cc: stable@vger.kernel.org
+Hi Ben,
 
-Linus, could you ack this patch for stable?
+I have tested and it cherry-picks cleanly on 3.16. I do not see any
+issues with backporting it to 3.16. Do you want me to send a patch for
+review, or can you just cherry-pick 7ec5d87df34a to 3.16?
 
--- 
-Thanks,
-Sasha
+Thank you,
+Pasha
+
+
+On Fri, Mar 13, 2020 at 10:09 AM Martin Galvan <omgalvan.86@gmail.com> wrote:
+>
+> Hi all,
+>
+> I've been running some tests on Debian 8 (which uses a 3.16.XX
+> kernel), and saw that my system would occasionally reboot when
+> performing an EFI variables dump. I did some digging and saw that this
+> problem first appeared in 4.4.110 and was fixed by Pavel Tatashin in
+> commit 7ec5d87df34a. At the same time, 4.9.XX, 4.14.XX and mainline
+> have commit 67a9108ed431, which also solves the issue. However, the
+> 3.16 stable line doesn't seem to have either fix, and therefore the
+> crash is still there.
+>
+> I don't know whether any distros use 3.16 other than Debian, but it'd
+> still be good to have this fix backported as well.
