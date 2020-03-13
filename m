@@ -2,166 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3BD0C18509C
-	for <lists+stable@lfdr.de>; Fri, 13 Mar 2020 22:05:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C1F11185152
+	for <lists+stable@lfdr.de>; Fri, 13 Mar 2020 22:43:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726534AbgCMVFs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Mar 2020 17:05:48 -0400
-Received: from mail-lj1-f196.google.com ([209.85.208.196]:39632 "EHLO
-        mail-lj1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726526AbgCMVFs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 13 Mar 2020 17:05:48 -0400
-Received: by mail-lj1-f196.google.com with SMTP id f10so12094118ljn.6
-        for <stable@vger.kernel.org>; Fri, 13 Mar 2020 14:05:46 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linux-foundation.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=BUPEQrVc4mJ1aSnmipjhkIByffePioYZKnVf6NpDpI8=;
-        b=P5Ogmpy5V9lQ4uYTKrOVyTysqzyVjTYn17sl4IG9cpSDCLxd2q/T5I0Va9Uja83wUW
-         /MmXs3Tmx3dQu0l9QUSehMBgPcfy7vrVDVlK5W83eQSrP+hwclc6Blxdhu0mEgTLkEg8
-         /1WjSoWo5rrOlQi2wO6aqRUKk6e6xomcI1vRY=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=BUPEQrVc4mJ1aSnmipjhkIByffePioYZKnVf6NpDpI8=;
-        b=S09uGfZCbldaogkZB9KbyP2qZiv7SuGpwvNi1DoBZWfAl58Pex5I3tjrNyjpVHt14r
-         VWOmw+zOaU3hAHBYs8KqYE3ZcKAvjR0G2CDf7aExcTeMGIRi0Ygo+W+MY2rQkq9rz8bU
-         HOWKqve2/NDf65ycqSgQOMKd0LPsAu0Iit7Lqa67HSoh81FD4jkUDrBRPU4Nw3nNRZJb
-         k7hXg+Nym9Q7LO3JfX4CxhYpkwxhVkntO76BwMlHy63g6e1Xf7cqs32iEAmtfACj+see
-         eJ0sBdnRpaNb4AjwJaIs7B2v4kCAUxIj1hCJg28UvYquB7lfDgSIFgsVshIms1R17aLW
-         eXiQ==
-X-Gm-Message-State: ANhLgQ08az83s1sgxfdFCUxjvKuVgw8GTtUVRjMB7bgYdsDKpIXCytQ5
-        h3UEvol/csNYQZekeKNNBX4570uo9vA=
-X-Google-Smtp-Source: ADFU+vu5E7rvJSPLVKVruq+1wp7Uw3HEyO4zjtkBtwPmKHlpeGyKMwDG7b9CpBfviO9mOnH1L+SYiA==
-X-Received: by 2002:a2e:99ca:: with SMTP id l10mr9226360ljj.13.1584133544876;
-        Fri, 13 Mar 2020 14:05:44 -0700 (PDT)
-Received: from mail-lf1-f51.google.com (mail-lf1-f51.google.com. [209.85.167.51])
-        by smtp.gmail.com with ESMTPSA id n12sm7788403lji.77.2020.03.13.14.05.43
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 13 Mar 2020 14:05:44 -0700 (PDT)
-Received: by mail-lf1-f51.google.com with SMTP id b13so9011660lfb.12
-        for <stable@vger.kernel.org>; Fri, 13 Mar 2020 14:05:43 -0700 (PDT)
-X-Received: by 2002:ac2:5203:: with SMTP id a3mr9579124lfl.152.1584133543357;
- Fri, 13 Mar 2020 14:05:43 -0700 (PDT)
+        id S1727511AbgCMVnp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Mar 2020 17:43:45 -0400
+Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:57426 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1726534AbgCMVnp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 13 Mar 2020 17:43:45 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1584135823;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=z+yNqTPhCKvphPybR67u1KFL4j6tDivUDXMnB6tP/Oo=;
+        b=ClOsabtYUV0ZxHw7znGKkIW/RWZkLDy2b8ZNxIGImMOcGo8A/igsT6OhOkOWWaixA2ja97
+        Pl/OKhlF5m1l3hdWHXjG3Tgv27qRevlwYs92F2toYr2+/p4jBnvyyWgrNddzn89dHli2dl
+        OgUU224l2Gr7qA9JeRf6N7Wkd/EZ9Yg=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-212-SS9mUficM269v4rFOovXnQ-1; Fri, 13 Mar 2020 17:43:40 -0400
+X-MC-Unique: SS9mUficM269v4rFOovXnQ-1
+Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 54850800D48;
+        Fri, 13 Mar 2020 21:43:37 +0000 (UTC)
+Received: from t490s (ovpn-120-126.rdu2.redhat.com [10.10.120.126])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 3686B9A6A;
+        Fri, 13 Mar 2020 21:43:36 +0000 (UTC)
+Date:   Fri, 13 Mar 2020 17:43:32 -0400
+From:   Rafael Aquini <aquini@redhat.com>
+To:     Qian Cai <cai@lca.pw>
+Cc:     akpm@linux-foundation.org, ying.huang@intel.com,
+        kirill.shutemov@linux.intel.com, linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH] page-flags: fix a crash at SetPageError(THP_SWAP)
+Message-ID: <20200313214332.GA14055@t490s>
+References: <20200310235846.1319-1-cai@lca.pw>
 MIME-Version: 1.0
-References: <20200313202443.2539-1-oss@malat.biz>
-In-Reply-To: <20200313202443.2539-1-oss@malat.biz>
-From:   Linus Torvalds <torvalds@linux-foundation.org>
-Date:   Fri, 13 Mar 2020 14:05:27 -0700
-X-Gmail-Original-Message-ID: <CAHk-=wgbhYWxprGr1puAabZZFp4O3myBv-W9dJCVYt8r=dxZNQ@mail.gmail.com>
-Message-ID: <CAHk-=wgbhYWxprGr1puAabZZFp4O3myBv-W9dJCVYt8r=dxZNQ@mail.gmail.com>
-Subject: Re: [PATCH] NFS: Remove superfluous kmap in nfs_readdir_xdr_to_array
-To:     Petr Malat <oss@malat.biz>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Benjamin Coddington <bcodding@redhat.com>,
-        Anna Schumaker <Anna.Schumaker@netapp.com>,
-        Sasha Levin <sashal@kernel.org>
-Cc:     stable <stable@vger.kernel.org>,
-        Security Officers <security@kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200310235846.1319-1-cai@lca.pw>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Adding more people.
-
-The old stable trees seem to have rather different code.
-
-[ Goes off and looks at the stable trees ]
-
-Petr seems entirely correct - the stable tree backport appears broken.
-
-Because looking at that commit 67a56e9743171 in the stable tree, it
-doesn't seem to match commit 4b310319c6a8 ("NFS: Fix memory leaks and
-corruption in readdir") in mainline.
-
-That stable backport looks bogus. It added that
-
-        array = kmap(page);
-
-line from somewhere else, probably because the stable tree didn't have
-the line at all, and it was there in the context.
-
-Because while mainline has that line to initialize array with kmap(),
-in those stable trees, we have
-
-        array = nfs_readdir_get_array(page);
-
-and as Petr says, the kmap has been done there already, and it will be
-kunmap'ed by nfs_readdir_release_array().
-
-And looking closer, this same bug seems to have happened twice: it
-also exists in 0b0223f9c3a8.
-
-But somebody else should double-check me - somebody who actually knows the code.
-
-As to how I found the other case, do this in the stable git repo with
-all the stable tags:
-
-    git log -p --no-merges --all \
-        --grep="NFS: Fix memory leaks and corruption in readdir"
-
-to see all the copies of that commit backport.
-
-Add a
-
-    -S'kmap(page)'
-
-to that line to see the cases that added that line. Or to just get the commits:
-
-    git log --oneline --no-merges --all \
-        --grep="NFS: Fix memory leaks and corruption in readdir" \
-        -S'kmap(page)'
-
-and the result is
-
-    67a56e974317 NFS: Fix memory leaks and corruption in readdir
-    0b0223f9c3a8 NFS: Fix memory leaks and corruption in readdir
-
-Those two seem to be the 4.4 and 4.9 backports:
-
-    git name-rev 67a56e974317 0b0223f9c3a8
-
-gives:
-
-    67a56e974317 tags/v4.9.214~38
-    0b0223f9c3a8 tags/v4.4.214~31
-
-and I guess that makes sense - they are the really old ones.
-
-             Linus
-
-On Fri, Mar 13, 2020 at 1:25 PM Petr Malat <oss@malat.biz> wrote:
->
-> Array is mapped by nfs_readdir_get_array(), the further kmap is a result
-> of a bad merge and should be removed.
->
-> This resource leakage can be exploited for DoS by receptively reading
-> a content of a directory on NFS (e.g. by running ls).
->
-> Fixes: 67a56e9743171 ("NFS: Fix memory leaks and corruption in readdir")
-> Signed-off-by: Petr Malat <oss@malat.biz>
+On Tue, Mar 10, 2020 at 07:58:46PM -0400, Qian Cai wrote:
+> The commit bd4c82c22c36 ("mm, THP, swap: delay splitting THP after
+> swapped out") supported writing THP to a swap device but forgot to
+> upgrade an older commit df8c94d13c7e ("page-flags: define behavior of
+> FS/IO-related flags on compound pages") which could trigger a crash
+> during THP swapping out with DEBUG_VM_PGFLAGS=y,
+> 
+> kernel BUG at include/linux/page-flags.h:317!
+> 
+> page dumped because: VM_BUG_ON_PAGE(1 && PageCompound(page))
+> page:fffff3b2ec3a8000 refcount:512 mapcount:0 mapping:000000009eb0338c
+> index:0x7f6e58200 head:fffff3b2ec3a8000 order:9 compound_mapcount:0
+> compound_pincount:0
+> anon flags:
+> 0x45fffe0000d8454(uptodate|lru|workingset|owner_priv_1|writeback|head|reclaim|swapbacked)
+> 
+> end_swap_bio_write()
+>   SetPageError(page)
+>     VM_BUG_ON_PAGE(1 && PageCompound(page))
+> 
+> <IRQ>
+> bio_endio+0x297/0x560
+> dec_pending+0x218/0x430 [dm_mod]
+> clone_endio+0xe4/0x2c0 [dm_mod]
+> bio_endio+0x297/0x560
+> blk_update_request+0x201/0x920
+> scsi_end_request+0x6b/0x4b0
+> scsi_io_completion+0x509/0x7e0
+> scsi_finish_command+0x1ed/0x2a0
+> scsi_softirq_done+0x1c9/0x1d0
+> __blk_mqnterrupt+0xf/0x20
+> </IRQ>
+> 
+> Fix by checking PF_NO_TAIL in those places instead.
+> 
+> Fixes: bd4c82c22c36 ("mm, THP, swap: delay splitting THP after swapped out")
+> Cc: <stable@vger.kernel.org>
+> Signed-off-by: Qian Cai <cai@lca.pw>
 > ---
->  fs/nfs/dir.c | 2 --
->  1 file changed, 2 deletions(-)
->
-> diff --git a/fs/nfs/dir.c b/fs/nfs/dir.c
-> index c2665d920cf8..2517fcd423b6 100644
-> --- a/fs/nfs/dir.c
-> +++ b/fs/nfs/dir.c
-> @@ -678,8 +678,6 @@ int nfs_readdir_xdr_to_array(nfs_readdir_descriptor_t *desc, struct page *page,
->                 goto out_label_free;
->         }
->
-> -       array = kmap(page);
-> -
->         status = nfs_readdir_alloc_pages(pages, array_size);
->         if (status < 0)
->                 goto out_release_array;
-> --
-> 2.20.1
->
+>  include/linux/page-flags.h | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/include/linux/page-flags.h b/include/linux/page-flags.h
+> index 1bf83c8fcaa7..77de28bfefb0 100644
+> --- a/include/linux/page-flags.h
+> +++ b/include/linux/page-flags.h
+> @@ -311,7 +311,7 @@ static inline int TestClearPage##uname(struct page *page) { return 0; }
+>  
+>  __PAGEFLAG(Locked, locked, PF_NO_TAIL)
+>  PAGEFLAG(Waiters, waiters, PF_ONLY_HEAD) __CLEARPAGEFLAG(Waiters, waiters, PF_ONLY_HEAD)
+> -PAGEFLAG(Error, error, PF_NO_COMPOUND) TESTCLEARFLAG(Error, error, PF_NO_COMPOUND)
+> +PAGEFLAG(Error, error, PF_NO_TAIL) TESTCLEARFLAG(Error, error, PF_NO_TAIL)
+>  PAGEFLAG(Referenced, referenced, PF_HEAD)
+>  	TESTCLEARFLAG(Referenced, referenced, PF_HEAD)
+>  	__SETPAGEFLAG(Referenced, referenced, PF_HEAD)
+> -- 
+> 2.21.0 (Apple Git-122.2)
+> 
+Acked-by: Rafael Aquini <aquini@redhat.com>
+
