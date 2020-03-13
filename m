@@ -2,80 +2,139 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C6CD183D60
-	for <lists+stable@lfdr.de>; Fri, 13 Mar 2020 00:36:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F166183DD7
+	for <lists+stable@lfdr.de>; Fri, 13 Mar 2020 01:26:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726620AbgCLXgJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Mar 2020 19:36:09 -0400
-Received: from mail-wr1-f67.google.com ([209.85.221.67]:44623 "EHLO
-        mail-wr1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726513AbgCLXgJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Mar 2020 19:36:09 -0400
-Received: by mail-wr1-f67.google.com with SMTP id l18so9791009wru.11
-        for <stable@vger.kernel.org>; Thu, 12 Mar 2020 16:36:08 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=iaSk7QT7VbOqhOhLUZepYHAoOArYZNRFJyLZSaahZm8=;
-        b=mxXeRwSG7cHu/B2eZ6gUnMenvYE3P3zPrHlVwT2iwtZr5sd9BwzFuGHL5SJXa6K/kI
-         BMKiWWGFBy95LMbWDQ2H3Rs5L7nmNb14diJF4ye9qbp91PY2n7fMBdxzx6UShmuzl8ok
-         VS8BE+Neh5SWrarTW8xHi8O85LH2Uj42duexC722LTEl9UvMCRZ8k3+aVrlpgNaDm0jB
-         bHf0lcaFF3O681Sv5TxGy3yPfX41UcDtPxk3Wl1bzgI7G8sPE5HOsuhzZWFnxG9TkH7g
-         Z5q/GdJx/F4U4g0kI8KY+bVvw8yV5EXEN/6kvtGG5VDtCN8pM9cqAcOIhiPyCM/StH2C
-         0EZQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=iaSk7QT7VbOqhOhLUZepYHAoOArYZNRFJyLZSaahZm8=;
-        b=nbpvAVRBWu9MoSdWXGDr6dAYSdaFoW7oMZ3vv6evwhZaVh+/oWH05v1HNfgrMpgEP7
-         PQzwTDeUqHB3FrA+UYGfkEa4rsEiQUh5huM6uuccrwBaPXuqUhfPCqHhSBbuw+33kqty
-         1HDyRk9anbB0a34tOFtw3rJQb4ywNta6rcVBVat1FcfyF2RZpyPEHQV63+pGAUBVl7Gd
-         1nHRSx03FFYhO9KjfiYxy2hBb4ScT6//HxrfgYPingIlm8A14JFnNVGxzsekm4h6xwEU
-         Ff7scmHZ2nObm6s65ruYFSdid97LZ05oYT9Z58Np/hmyMhVCV330f/VtRoSSP8A6MLOc
-         yhyg==
-X-Gm-Message-State: ANhLgQ1ricxZzeYm9oMWHOUr+flAdOSrZCub1Kfl8pg6VQoJd+KP3weu
-        y6Zu270tXPBDiVUyGkC3yQ+GrD21DPROAmtLav4=
-X-Google-Smtp-Source: ADFU+vvnqIhMqKSe8BTi+IqQXyaea8I91tbd7PjOHH0rzIkrFiRag3/lymTSzT5UCOmekdVNA0KqnRrVJPiHZTrsDZ0=
-X-Received: by 2002:adf:f309:: with SMTP id i9mr14380217wro.0.1584056167163;
- Thu, 12 Mar 2020 16:36:07 -0700 (PDT)
-MIME-Version: 1.0
-Received: by 2002:a1c:b404:0:0:0:0:0 with HTTP; Thu, 12 Mar 2020 16:36:06
- -0700 (PDT)
-Reply-To: arthuradam01@hotmail.com
-From:   "Mr.Arthur Adam" <mohammedyacouba@gmail.com>
-Date:   Thu, 12 Mar 2020 16:36:06 -0700
-Message-ID: <CAOoEKr-x361p+ARSxedX20Un898-vOEE5qFQcgHxzO-JWztV7g@mail.gmail.com>
-Subject: With due respect
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+        id S1726913AbgCMA0e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Mar 2020 20:26:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56650 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726830AbgCMA0e (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 12 Mar 2020 20:26:34 -0400
+Received: from localhost.localdomain (c-73-231-172-41.hsd1.ca.comcast.net [73.231.172.41])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id C9F99206B1;
+        Fri, 13 Mar 2020 00:26:32 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1584059193;
+        bh=YDz9cjY0QPcCRwMOYzMYI2foLrMesx2kpTAibiGDXlI=;
+        h=Date:From:To:Subject:In-Reply-To:From;
+        b=qWemYbCQiLlY33ebO5mF+hmU1S57oOXBtqffFU+CCuPc6c2x80I/aKgiqn/8+fyty
+         imvfGMm6W2Sgjc2jyn825XdErK5eKRz1v2NZ0Y8scPRLzeNhU2an2QJ/U3BJPx0dSV
+         Rh6DNKV6BCjsGdvQv/4540wGY+S0IrzHf1dNvvFc=
+Date:   Thu, 12 Mar 2020 17:26:32 -0700
+From:   Andrew Morton <akpm@linux-foundation.org>
+To:     dancol@google.com, dave.hansen@intel.com, jannh@google.com,
+        joel@joelfernandes.org, mhocko@suse.com, minchan@kernel.org,
+        mm-commits@vger.kernel.org, stable@vger.kernel.org, vbabka@suse.cz
+Subject:  + mm-do-not-allow-madv_pageout-for-cow-pages.patch added
+ to -mm tree
+Message-ID: <20200313002632.K95DZ6F32%akpm@linux-foundation.org>
+In-Reply-To: <20200305222751.6d781a3f2802d79510941e4e@linux-foundation.org>
+User-Agent: s-nail v14.8.16
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-My Dear
 
-I hope that you are well today. I am the Accounting Manager of BOA,
-With due respect, I decided to contact you over this business
-financial transaction worth the sum of $30 Million dollars in other to
-entrust this fund into your bank account.
+The patch titled
+     Subject: mm: do not allow MADV_PAGEOUT for CoW pages
+has been added to the -mm tree.  Its filename is
+     mm-do-not-allow-madv_pageout-for-cow-pages.patch
 
-You should note that this is an abandoned fund that belongs to one of
-our customer from Indonesian who died along with his entire family on
-a plane crash disaster with Lion Airline on October 29, 2018. I was
-very fortune to meet the deceased file when i was arranging the old
-and abandoned customer's files in other to submit to the management
-accordingly for documentation purposes.
+This patch should soon appear at
+    http://ozlabs.org/~akpm/mmots/broken-out/mm-do-not-allow-madv_pageout-for-cow-pages.patch
+and later at
+    http://ozlabs.org/~akpm/mmotm/broken-out/mm-do-not-allow-madv_pageout-for-cow-pages.patch
 
-If you are interested, please forward the following information to me as below:
-=======================
-{1} Your full Names and address,
-{2} Your telephone or mobile numbers..
-=======================
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
 
-Waiting for your urgent reply or confidentially call me on mobile
-number: Tel: 00226 64144256
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
 
-Yours faithfully,
-Mr.Arthur Adam
+The -mm tree is included into linux-next and is updated
+there every 3-4 working days
+
+------------------------------------------------------
+From: Michal Hocko <mhocko@suse.com>
+Subject: mm: do not allow MADV_PAGEOUT for CoW pages
+
+Jann has brought up a very interesting point [1].  While shared pages are
+excluded from MADV_PAGEOUT normally, CoW pages can be easily reclaimed
+that way.  This can lead to all sorts of hard to debug problems.  E.g. 
+performance problems outlined by Daniel [2].
+
+There are runtime environments where there is a substantial memory shared
+among security domains via CoW memory and a easy to reclaim way of that
+memory, which MADV_{COLD,PAGEOUT} offers, can lead to either performance
+degradation in for the parent process which might be more privileged or
+even open side channel attacks.
+
+The feasibility of the latter is not really clear to me TBH but there is
+no real reason for exposure at this stage.  It seems there is no real use
+case to depend on reclaiming CoW memory via madvise at this stage so it is
+much easier to simply disallow it and this is what this patch does.  Put
+it simply MADV_{PAGEOUT,COLD} can operate only on the exclusively owned
+memory which is a straightforward semantic.
+
+[1] http://lkml.kernel.org/r/CAG48ez0G3JkMq61gUmyQAaCq=_TwHbi1XKzWRooxZkv08PQKuw@mail.gmail.com
+[2] http://lkml.kernel.org/r/CAKOZueua_v8jHCpmEtTB6f3i9e2YnmX4mqdYVWhV4E=Z-n+zRQ@mail.gmail.com
+
+Link: http://lkml.kernel.org/r/20200312082248.GS23944@dhcp22.suse.cz
+Fixes: 9c276cc65a58 ("mm: introduce MADV_COLD")
+Signed-off-by: Michal Hocko <mhocko@suse.com>
+Reported-by: Jann Horn <jannh@google.com>
+Acked-by: Vlastimil Babka <vbabka@suse.cz>
+Cc: Minchan Kim <minchan@kernel.org>
+Cc: Daniel Colascione <dancol@google.com>
+Cc: Dave Hansen <dave.hansen@intel.com>
+Cc: "Joel Fernandes (Google)" <joel@joelfernandes.org>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
+
+ mm/madvise.c |   12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
+
+--- a/mm/madvise.c~mm-do-not-allow-madv_pageout-for-cow-pages
++++ a/mm/madvise.c
+@@ -335,12 +335,14 @@ static int madvise_cold_or_pageout_pte_r
+ 		}
+ 
+ 		page = pmd_page(orig_pmd);
++
++		/* Do not interfere with other mappings of this page */
++		if (page_mapcount(page) != 1)
++			goto huge_unlock;
++
+ 		if (next - addr != HPAGE_PMD_SIZE) {
+ 			int err;
+ 
+-			if (page_mapcount(page) != 1)
+-				goto huge_unlock;
+-
+ 			get_page(page);
+ 			spin_unlock(ptl);
+ 			lock_page(page);
+@@ -426,6 +428,10 @@ regular_page:
+ 			continue;
+ 		}
+ 
++		/* Do not interfere with other mappings of this page */
++		if (page_mapcount(page) != 1)
++			continue;
++
+ 		VM_BUG_ON_PAGE(PageTransCompound(page), page);
+ 
+ 		if (pte_young(ptent)) {
+_
+
+Patches currently in -mm which might be from mhocko@suse.com are
+
+mm-do-not-allow-madv_pageout-for-cow-pages.patch
+
