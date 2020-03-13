@@ -2,81 +2,75 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5ADDF184AB8
-	for <lists+stable@lfdr.de>; Fri, 13 Mar 2020 16:29:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C9241184C2F
+	for <lists+stable@lfdr.de>; Fri, 13 Mar 2020 17:17:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726684AbgCMP3K (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Mar 2020 11:29:10 -0400
-Received: from metis.ext.pengutronix.de ([85.220.165.71]:41527 "EHLO
-        metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726591AbgCMP3K (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 13 Mar 2020 11:29:10 -0400
-Received: from dude.hi.pengutronix.de ([2001:67c:670:100:1d::7])
-        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <ore@pengutronix.de>)
-        id 1jCmFC-0005OH-91; Fri, 13 Mar 2020 16:29:02 +0100
-Received: from ore by dude.hi.pengutronix.de with local (Exim 4.92)
-        (envelope-from <ore@pengutronix.de>)
-        id 1jCmFA-0006fb-4a; Fri, 13 Mar 2020 16:29:00 +0100
-From:   Oleksij Rempel <o.rempel@pengutronix.de>
-To:     dev.kurt@vandijck-laurijssen.be, mkl@pengutronix.de,
-        wg@grandegger.com
-Cc:     Oleksij Rempel <o.rempel@pengutronix.de>,
-        syzbot+f03d384f3455d28833eb@syzkaller.appspotmail.com,
-        linux-stable <stable@vger.kernel.org>, kernel@pengutronix.de,
-        linux-can@vger.kernel.org, netdev@vger.kernel.org,
-        David Jander <david@protonic.nl>
-Subject: [PATCH v1] can: j1939: socket: j1939_sk_bind(): make sure ml_priv is allocated
-Date:   Fri, 13 Mar 2020 16:28:59 +0100
-Message-Id: <20200313152859.25588-1-o.rempel@pengutronix.de>
-X-Mailer: git-send-email 2.25.1
+        id S1726620AbgCMQRy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Mar 2020 12:17:54 -0400
+Received: from mail-lf1-f67.google.com ([209.85.167.67]:43369 "EHLO
+        mail-lf1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727024AbgCMQRy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 13 Mar 2020 12:17:54 -0400
+Received: by mail-lf1-f67.google.com with SMTP id n20so5017458lfl.10
+        for <stable@vger.kernel.org>; Fri, 13 Mar 2020 09:17:53 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=GGKTLdP7NysMTjq7A/r6ibsN/jqrKxZ94DgLRwdxBUU=;
+        b=rByIursShxrvJL8x7QUC8Ki6XMcvcoLltmEqaT1zaJzjg/ldGQ85qCtWChh3yi2sha
+         XBRpP4/6FVsBNUAiH4b4VO6q85dWLJPVXycc1J97pT/KFfmqu+MBo4cZCFV6GHqOlB5q
+         BrIIrIVFiSlB+HFKuCzrn3YM4AVtNWSKf0XsMzCAtwDVGrnAtlas3YS8NwwlXI5Y8BoB
+         y8RFRCQ+q7yC3f/+cyMTqTRaWJUpda8IvD/9p1LpSHgRdywz9AJNDsapHW6poAwZQkOF
+         aeDggx/IBtDr/w9XwwEj9Yx13onMnTE2VboIsbVBb95Tr4+j9yoTf0Nyoz3oXMvhblsK
+         bWjA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=GGKTLdP7NysMTjq7A/r6ibsN/jqrKxZ94DgLRwdxBUU=;
+        b=fD/wDpAkyx+hMjeqtdnchsriVHr4QxRvZKQBXyRdZLT10PeNcjq7EeLge63U0leKxs
+         LFpGxidsOEmhU4PgTrN6cvrvtknk46CPd+ykDt8OxMVVrl/ayhJsG3dRzqLXZf88/ZoP
+         YqF9rJkVVrIIQES1pNgqcCRP5Yz5oIZ0RR9J/L1FR/CuQlkTWGkxr/pQ/9qXPDFnCF7L
+         Sy3UEGo2GcTarq6N/KsN8kdF3/O9ACsRWkleW8k0hfCU3NH/HgMxvipOTEousJFyBRq/
+         XA8wnW5nXeLWufLBofUFdRgP2OaNu/M22bA16W7ysg/CWneiXYSvHIzidQHwo7YgipZF
+         5JGQ==
+X-Gm-Message-State: ANhLgQ2DEaHKIJnWNcynZE4q4puy1j0/sjN4aaeKFyD+vyCqcTO+tVXw
+        vUZj2Rin6oO2/yWKJPGgFR5KY5fJ9iH6jS/LrKsfPg==
+X-Google-Smtp-Source: ADFU+vtValKojWuh4Y5Xd2oyg0PROdnQd5jtfAmUywOUtPoRIjgVc6sIaJFcF6i+ykZj2N1GZzMbUMeIxPPBc8t2pwI=
+X-Received: by 2002:a19:f601:: with SMTP id x1mr7277713lfe.55.1584116272680;
+ Fri, 13 Mar 2020 09:17:52 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-SA-Exim-Connect-IP: 2001:67c:670:100:1d::7
-X-SA-Exim-Mail-From: ore@pengutronix.de
-X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
-X-PTX-Original-Recipient: stable@vger.kernel.org
+References: <20200310124203.704193207@linuxfoundation.org> <0074ed5d-1c87-4e0c-7d3f-bb5cc4e80366@kernel.org>
+In-Reply-To: <0074ed5d-1c87-4e0c-7d3f-bb5cc4e80366@kernel.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Fri, 13 Mar 2020 21:47:41 +0530
+Message-ID: <CA+G9fYvx8q9+VrweEZx4t+-XFEOQLaUJed2ooRUPG8NxjKkkeA@mail.gmail.com>
+Subject: Re: [PATCH 4.14 000/126] 4.14.173-stable review
+To:     shuah <shuah@kernel.org>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        open list <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>, patches@kernelci.org,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        lkft-triage@lists.linaro.org,
+        linux- stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This patch adds check to ensure that the struct net_device::ml_priv is
-allocated, as it is used later by the j1939 stack.
+Hi Shuah
 
-The allocation is done by all mainline CAN network drivers, but when using
-bond or team devices this is not the case.
+>
+> Compiled and booted on my test system. I have a new alert on my system:
+>
+> RIP: kvm_mmu_set_mmio_spte_mask+0x34/0x40 [kvm] RSP: ffffb4f7415b7be8
 
-Bail out if no ml_priv is allocated.
+Our system did not catch this alert.
+Please share your kernel config file and
+steps to reproduce and any extra kernel boot args ?
 
-Reported-by: syzbot+f03d384f3455d28833eb@syzkaller.appspotmail.com
-Fixes: 9d71dd0c7009 ("can: add support of SAE J1939 protocol")
-Cc: linux-stable <stable@vger.kernel.org> # >= v5.4
-Signed-off-by: Oleksij Rempel <o.rempel@pengutronix.de>
----
- net/can/j1939/socket.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
-
-diff --git a/net/can/j1939/socket.c b/net/can/j1939/socket.c
-index b9a17c2ee16f..27542de233c7 100644
---- a/net/can/j1939/socket.c
-+++ b/net/can/j1939/socket.c
-@@ -467,6 +467,14 @@ static int j1939_sk_bind(struct socket *sock, struct sockaddr *uaddr, int len)
- 			goto out_release_sock;
- 		}
- 
-+		if (!ndev->ml_priv) {
-+			netdev_warn_once(ndev,
-+					 "No CAN mid layer private allocated, please fix your driver and use alloc_candev()!\n");
-+			dev_put(ndev);
-+			ret = -ENODEV;
-+			goto out_release_sock;
-+		}
-+
- 		priv = j1939_netdev_start(ndev);
- 		dev_put(ndev);
- 		if (IS_ERR(priv)) {
--- 
-2.25.1
-
+- Naresh
