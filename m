@@ -2,102 +2,122 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 273F5183DDF
-	for <lists+stable@lfdr.de>; Fri, 13 Mar 2020 01:35:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 16D93183E02
+	for <lists+stable@lfdr.de>; Fri, 13 Mar 2020 01:57:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726910AbgCMAfp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Mar 2020 20:35:45 -0400
-Received: from us-smtp-2.mimecast.com ([207.211.31.81]:49241 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726853AbgCMAfp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Mar 2020 20:35:45 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1584059743;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=zevsMC0uowAKEZtQLATwyqk885Y78IJeVZqy5nvGUjY=;
-        b=IfNFW/4S0Bdxgy6NXc0/aTtUXQiSIZoA3FPrYG+4ZUXKwsIfv7lN6orZQ38/HqfKiGupUe
-        Dpy8+MR7cxNukLj9e/WeBhKHHUomcrJDzkGcUnWvLaXY0+mZoe0hVHYtm8+e4ZX3WVxC0r
-        xrHM2i1zYY5l86kYlLboWgD7K6c5fgo=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-257-JKPR12MkNUy4Gv_xan9-CA-1; Thu, 12 Mar 2020 20:35:40 -0400
-X-MC-Unique: JKPR12MkNUy4Gv_xan9-CA-1
-Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id DE5EA107ACC7;
-        Fri, 13 Mar 2020 00:35:38 +0000 (UTC)
-Received: from localhost (ovpn-121-102.rdu2.redhat.com [10.10.121.102])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id C667F60C63;
-        Fri, 13 Mar 2020 00:35:35 +0000 (UTC)
-From:   Bruno Meneguele <bmeneg@redhat.com>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     pmladek@suse.com, sergey.senozhatsky@gmail.com,
-        rostedt@goodmis.org, Bruno Meneguele <bmeneg@redhat.com>
-Subject: [PATCH] kernel/printk: add kmsg SEEK_CUR handling
-Date:   Thu, 12 Mar 2020 21:35:33 -0300
-Message-Id: <20200313003533.2203429-1-bmeneg@redhat.com>
+        id S1726647AbgCMA5O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Mar 2020 20:57:14 -0400
+Received: from mail-pj1-f66.google.com ([209.85.216.66]:52482 "EHLO
+        mail-pj1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726620AbgCMA5N (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Mar 2020 20:57:13 -0400
+Received: by mail-pj1-f66.google.com with SMTP id f15so3273150pjq.2;
+        Thu, 12 Mar 2020 17:57:13 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=JYErxPxUaGUBplLH65PeMy/hBKN4L+ixr3Dg3MVBjtY=;
+        b=qaHP9ogT8oLWmwccMZEGLlbI9D/F1DKloHtOY31zjA0L3EH1WcmXf9E1jpHkguu98U
+         8q05vMJC0B3v3dzdE+3ThU1qLnI2QdgeWldMTZgrfQdGO1J0LiPSR/ZrDEzKSNk3w45K
+         7MitT3y0tbKs11M6DlYJLs+Q8xsskBT09fXhErLJkRGv1EA4/pSkHU5AqOaXkoDQp4RY
+         AkLYFeGIAkAO/jiapANF12OKc5sn3qXKBu067kVqjMcZ28rGEx0vCVyF7s2HCrO34E0K
+         yZ4Q8KeqvN1ZcugDk8oxBgDiVhkZG83MOpBw80rKhGKUd4Gepo384WZApKuqEsYvfIQ9
+         CbqQ==
+X-Gm-Message-State: ANhLgQ33LKari1ageN6/hB2JrWuxXwTN7HweA/C13KvXFbe/TICfBfvz
+        ZXG/conHTj8WDqNkg+ESWlc=
+X-Google-Smtp-Source: ADFU+vtVU3sloKfNJ/GHy6v7uSunVn8TinhhgU2e25piz35fqisnm35446HRFefBgI5y9Gx35kOMPg==
+X-Received: by 2002:a17:902:be08:: with SMTP id r8mr10871611pls.321.1584061032688;
+        Thu, 12 Mar 2020 17:57:12 -0700 (PDT)
+Received: from 42.do-not-panic.com (42.do-not-panic.com. [157.230.128.187])
+        by smtp.gmail.com with ESMTPSA id y7sm16017401pfq.159.2020.03.12.17.57.11
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 12 Mar 2020 17:57:11 -0700 (PDT)
+Received: by 42.do-not-panic.com (Postfix, from userid 1000)
+        id A6ED24028E; Fri, 13 Mar 2020 00:57:10 +0000 (UTC)
+Date:   Fri, 13 Mar 2020 00:57:10 +0000
+From:   Luis Chamberlain <mcgrof@kernel.org>
+To:     Eric Biggers <ebiggers@kernel.org>
+Cc:     linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+        Alexei Starovoitov <ast@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Jeff Vander Stoep <jeffv@google.com>,
+        Jessica Yu <jeyu@kernel.org>,
+        Kees Cook <keescook@chromium.org>, NeilBrown <neilb@suse.com>,
+        stable@vger.kernel.org
+Subject: Re: [PATCH v2 1/4] kmod: make request_module() return an error when
+ autoloading is disabled
+Message-ID: <20200313005710.GQ11244@42.do-not-panic.com>
+References: <20200312202552.241885-1-ebiggers@kernel.org>
+ <20200312202552.241885-2-ebiggers@kernel.org>
 MIME-Version: 1.0
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200312202552.241885-2-ebiggers@kernel.org>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Userspace libraries, e.g. glibc's dprintf(), expect the default return va=
-lue
-for invalid seek situations: -ESPIPE, but when the IO was over /dev/kmsg =
-the
-current state of kernel code was returning the generic case of an -EINVAL=
-.
-Hence, userspace programs were not behaving as expected or documented.
+On Thu, Mar 12, 2020 at 01:25:49PM -0700, Eric Biggers wrote:
+> From: Eric Biggers <ebiggers@google.com>
+> 
+> It's long been possible to disable kernel module autoloading completely
+> (while still allowing manual module insertion) by setting
+> /proc/sys/kernel/modprobe to the empty string.  This can be preferable
+> to setting it to a nonexistent file since it avoids the overhead of an
+> attempted execve(), avoids potential deadlocks, and avoids the call to
+> security_kernel_module_request() and thus on SELinux-based systems
+> eliminates the need to write SELinux rules to dontaudit module_request.
+> 
+> However, when module autoloading is disabled in this way,
+> request_module() returns 0.  This is broken because callers expect 0 to
+> mean that the module was successfully loaded.
+> 
+> Apparently this was never noticed because this method of disabling
+> module autoloading isn't used much, and also most callers don't use the
+> return value of request_module() since it's always necessary to check
+> whether the module registered its functionality or not anyway.  But
+> improperly returning 0 can indeed confuse a few callers, for example
+> get_fs_type() in fs/filesystems.c where it causes a WARNING to be hit:
+> 
+> 	if (!fs && (request_module("fs-%.*s", len, name) == 0)) {
+> 		fs = __get_fs_type(name, len);
+> 		WARN_ONCE(!fs, "request_module fs-%.*s succeeded, but still no fs?\n", len, name);
+> 	}
+> 
+> This is easily reproduced with:
+> 
+> 	echo > /proc/sys/kernel/modprobe
+> 	mount -t NONEXISTENT none /
+> 
+> It causes:
+> 
+> 	request_module fs-NONEXISTENT succeeded, but still no fs?
+> 	WARNING: CPU: 1 PID: 1106 at fs/filesystems.c:275 get_fs_type+0xd6/0xf0
+> 	[...]
+> 
+> This should actually use pr_warn_once() rather than WARN_ONCE(), since
+> it's also user-reachable if userspace immediately unloads the module.
+> Regardless, request_module() should correctly return an error when it
+> fails.  So let's make it return -ENOENT, which matches the error when
+> the modprobe binary doesn't exist.
+> 
+> I've also sent patches to document and test this case.
+> 
+> Cc: stable@vger.kernel.org
+> Cc: Alexei Starovoitov <ast@kernel.org>
+> Cc: Andrew Morton <akpm@linux-foundation.org>
+> Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> Cc: Jeff Vander Stoep <jeffv@google.com>
+> Cc: Jessica Yu <jeyu@kernel.org>
+> Cc: Kees Cook <keescook@chromium.org>
+> Cc: Luis Chamberlain <mcgrof@kernel.org>
+> Cc: NeilBrown <neilb@suse.com>
+> Signed-off-by: Eric Biggers <ebiggers@google.com>
 
-With this patch we add SEEK_CUR case returning the expected value and als=
-o a
-simple mention of it in kernel's documentation for those relying on that =
-for
-guidance.
+Acked-by: Luis Chamberlain <mcgrof@kernel.org>
 
-Signed-off-by: Bruno Meneguele <bmeneg@redhat.com>
----
- Documentation/ABI/testing/dev-kmsg | 2 ++
- kernel/printk/printk.c             | 4 ++++
- 2 files changed, 6 insertions(+)
-
-diff --git a/Documentation/ABI/testing/dev-kmsg b/Documentation/ABI/testi=
-ng/dev-kmsg
-index f307506eb54c..8533d28e6fda 100644
---- a/Documentation/ABI/testing/dev-kmsg
-+++ b/Documentation/ABI/testing/dev-kmsg
-@@ -56,6 +56,8 @@ Description:	The /dev/kmsg character device node provid=
-es userspace access
- 		  seek after the last record available at the time
- 		  the last SYSLOG_ACTION_CLEAR was issued.
-=20
-+		While SEEK_CUR sets -ESPIPE (invalid seek) to errno.
-+
- 		The output format consists of a prefix carrying the syslog
- 		prefix including priority and facility, the 64 bit message
- 		sequence number and the monotonic timestamp in microseconds,
-diff --git a/kernel/printk/printk.c b/kernel/printk/printk.c
-index ad4606234545..d02606723d2d 100644
---- a/kernel/printk/printk.c
-+++ b/kernel/printk/printk.c
-@@ -963,6 +963,10 @@ static loff_t devkmsg_llseek(struct file *file, loff=
-_t offset, int whence)
- 		user->idx =3D log_next_idx;
- 		user->seq =3D log_next_seq;
- 		break;
-+	case SEEK_CUR:
-+		/* return the default errno for invalid seek */
-+		ret =3D -ESPIPE;
-+		break;
- 	default:
- 		ret =3D -EINVAL;
- 	}
---=20
-2.24.1
-
+  Luis
