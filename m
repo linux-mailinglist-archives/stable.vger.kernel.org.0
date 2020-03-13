@@ -2,131 +2,177 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 587EF1842F7
-	for <lists+stable@lfdr.de>; Fri, 13 Mar 2020 09:54:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D8C3184372
+	for <lists+stable@lfdr.de>; Fri, 13 Mar 2020 10:13:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726300AbgCMIyQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Mar 2020 04:54:16 -0400
-Received: from mail-pg1-f195.google.com ([209.85.215.195]:43679 "EHLO
-        mail-pg1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726216AbgCMIyQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 13 Mar 2020 04:54:16 -0400
-Received: by mail-pg1-f195.google.com with SMTP id u12so4594589pgb.10
-        for <stable@vger.kernel.org>; Fri, 13 Mar 2020 01:54:15 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=dDX075QRBwsZaBZfOOGiNgs4j3PRQWyaVaHFWbp4/FA=;
-        b=AoQSGa9KSntHOfpXS8+ew7D2tjEJxWPM81yfBXtSE1N3rOjgrx1pGdEpaG+ZmI1V9u
-         ghyuTwd2kiNQ04nPgLhFzZdt2HVfsEgxA+oeV9KQF2zxKfE828qdZcOqGScFcYQGw6yd
-         1lDPWph1g8mf4K+gB06xyUmI6fgmXBK5+OYCDAdc0aNsVMxcMyxofa0m7xrczf3SKIl9
-         EEhzFixvJ2aXqCyHhL7ioeiTv5F/dAFR1lEktXPAw+3JmKJ0nHmx01dbkqF7/w6NxVW6
-         sSPTQZs/tdrxMv0uYv9wZW4NhQmfs6W5jmjhu8KjpyPhB7nUNWdC+EdqfRIez8ELq2HM
-         0+fw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=dDX075QRBwsZaBZfOOGiNgs4j3PRQWyaVaHFWbp4/FA=;
-        b=OEQ9miRwQFiMPjbVKUuk62YvfyWPZZplLB+kz+k9ru6nXnKqx18lEqlP9NW3Wrjmux
-         31fmGBYP5RgeLUyvTBBQkaZ7CYGxzcMj8nJJDK0VPWgq8c2U65RHlWHmT5I8HycsQ5R1
-         xpMgj+plcRhXJsaZMdfBpmKfheLaZF0/MmSQYIqWQF/rh6mG234NqnyQwWVtv7/nqqqv
-         lH0ko24POAF6B5kUCF4gKVd46XEta9yMNETdBf2iVGWDmc01tvJ9Mss/LkB8UYRilU6p
-         S6NytK9L5S7W3yNQp45zi6AvnvGr6YLOzacU1cr/l76Y/dNuXat24kRO54MP9qQTOwsS
-         X/ug==
-X-Gm-Message-State: ANhLgQ2Bnc2cVeI+btcvq2CSsZjlB9CTgIadeKxD5KeFetePBzEuzaHO
-        NbAhjzhb0HgGbeEeVpv2kutYZADURiU=
-X-Google-Smtp-Source: ADFU+vs0H36S5N9WfwTjTNpRBUsVpOC7n6zXhC5+A/k48x461goUr1cyeDu4SK9ys4acf4EL3Kvsnw==
-X-Received: by 2002:a63:2166:: with SMTP id s38mr11383154pgm.83.1584089654931;
-        Fri, 13 Mar 2020 01:54:14 -0700 (PDT)
-Received: from [10.0.9.4] ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id my6sm12461549pjb.10.2020.03.13.01.54.13
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 13 Mar 2020 01:54:13 -0700 (PDT)
-Message-ID: <5e6b4a35.1c69fb81.a1ae0.748c@mx.google.com>
-Date:   Fri, 13 Mar 2020 01:54:13 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1726485AbgCMJNo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Mar 2020 05:13:44 -0400
+Received: from relay.sw.ru ([185.231.240.75]:56008 "EHLO relay.sw.ru"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726230AbgCMJNn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 13 Mar 2020 05:13:43 -0400
+Received: from dhcp-172-16-24-104.sw.ru ([172.16.24.104])
+        by relay.sw.ru with esmtp (Exim 4.92.3)
+        (envelope-from <ktkhai@virtuozzo.com>)
+        id 1jCgNL-0005Fb-2f; Fri, 13 Mar 2020 12:13:03 +0300
+Subject: Re: [PATCH v2 5/5] exec: Add a exec_update_mutex to replace
+ cred_guard_mutex
+To:     Bernd Edlinger <bernd.edlinger@hotmail.de>,
+        "Eric W. Biederman" <ebiederm@xmission.com>
+Cc:     Christian Brauner <christian.brauner@ubuntu.com>,
+        Kees Cook <keescook@chromium.org>,
+        Jann Horn <jannh@google.com>, Jonathan Corbet <corbet@lwn.net>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Alexey Dobriyan <adobriyan@gmail.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Oleg Nesterov <oleg@redhat.com>,
+        Frederic Weisbecker <frederic@kernel.org>,
+        Andrei Vagin <avagin@gmail.com>,
+        Ingo Molnar <mingo@kernel.org>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Yuyang Du <duyuyang@gmail.com>,
+        David Hildenbrand <david@redhat.com>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Anshuman Khandual <anshuman.khandual@arm.com>,
+        David Howells <dhowells@redhat.com>,
+        James Morris <jamorris@linux.microsoft.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Shakeel Butt <shakeelb@google.com>,
+        Jason Gunthorpe <jgg@ziepe.ca>,
+        Christian Kellner <christian@kellner.me>,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        Aleksa Sarai <cyphar@cyphar.com>,
+        "Dmitry V. Levin" <ldv@altlinux.org>,
+        "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>,
+        "linux-mm@kvack.org" <linux-mm@kvack.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "linux-api@vger.kernel.org" <linux-api@vger.kernel.org>
+References: <AM6PR03MB5170EB4427BF5C67EE98FF09E4E60@AM6PR03MB5170.eurprd03.prod.outlook.com>
+ <87v9nlii0b.fsf@x220.int.ebiederm.org>
+ <AM6PR03MB5170609D44967E044FD1BE40E4E40@AM6PR03MB5170.eurprd03.prod.outlook.com>
+ <87a74xi4kz.fsf@x220.int.ebiederm.org>
+ <AM6PR03MB51705AA3009B4986BB6EF92FE4E50@AM6PR03MB5170.eurprd03.prod.outlook.com>
+ <87r1y8dqqz.fsf@x220.int.ebiederm.org>
+ <AM6PR03MB517053AED7DC89F7C0704B7DE4E50@AM6PR03MB5170.eurprd03.prod.outlook.com>
+ <AM6PR03MB51703B44170EAB4626C9B2CAE4E20@AM6PR03MB5170.eurprd03.prod.outlook.com>
+ <87tv32cxmf.fsf_-_@x220.int.ebiederm.org>
+ <87v9ne5y4y.fsf_-_@x220.int.ebiederm.org>
+ <87zhcq4jdj.fsf_-_@x220.int.ebiederm.org>
+ <f37a5d68-9674-533f-ee9c-a49174605710@virtuozzo.com>
+ <87d09hn4kt.fsf@x220.int.ebiederm.org>
+ <dbce35c7-c060-cfd8-bde1-98fd9a0747a9@virtuozzo.com>
+ <87lfo5lju6.fsf@x220.int.ebiederm.org>
+ <AM6PR03MB5170E9E71B9F84330B098BADE4FA0@AM6PR03MB5170.eurprd03.prod.outlook.com>
+From:   Kirill Tkhai <ktkhai@virtuozzo.com>
+Message-ID: <6002ac56-025a-d50f-e89d-1bf42a072323@virtuozzo.com>
+Date:   Fri, 13 Mar 2020 12:13:02 +0300
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.5.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-4.9.y
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v4.9.216
-X-Kernelci-Report-Type: boot
-Subject: stable-rc/linux-4.9.y boot: 72 boots: 3 failed,
- 66 passed with 2 offline, 1 untried/unknown (v4.9.216)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+In-Reply-To: <AM6PR03MB5170E9E71B9F84330B098BADE4FA0@AM6PR03MB5170.eurprd03.prod.outlook.com>
+Content-Type: text/plain; charset=windows-1252
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.9.y boot: 72 boots: 3 failed, 66 passed with 2 offline, 1=
- untried/unknown (v4.9.216)
+On 13.03.2020 04:05, Bernd Edlinger wrote:
+> On 3/12/20 3:38 PM, Eric W. Biederman wrote:
+>> Kirill Tkhai <ktkhai@virtuozzo.com> writes:
+>>
+>>> On 12.03.2020 15:24, Eric W. Biederman wrote:
+>>>>
+>>>> I actually need to switch the lock ordering here, and I haven't yet
+>>>> because my son was sick yesterday.
+> 
+> All the best wishes to you and your son.  I hope he will get well soon.
+> 
+> And sorry for not missing the issue in the review.  The reason turns
+> out that bprm_mm_init is called after prepare_bprm_creds, but there
+> are error pathes between those where free_bprm is called up with
+> cred != NULL and mm == NULL, but the mutex not locked.
+> 
+> I figured out a possible fix for the problem that was pointed out:
+> 
+> 
+> From ceb6f65b52b3a7f0280f4f20509a1564a439edf6 Mon Sep 17 00:00:00 2001
+> From: Bernd Edlinger <bernd.edlinger@hotmail.de>
+> Date: Wed, 11 Mar 2020 15:31:07 +0100
+> Subject: [PATCH] Fix issues with exec_update_mutex
+> 
+> Signed-off-by: Bernd Edlinger <bernd.edlinger@hotmail.de>
+> ---
+>  fs/exec.c | 17 ++++++++++-------
+>  1 file changed, 10 insertions(+), 7 deletions(-)
+> 
+> diff --git a/fs/exec.c b/fs/exec.c
+> index ffeebb1..cde4937 100644
+> --- a/fs/exec.c
+> +++ b/fs/exec.c
+> @@ -1021,8 +1021,14 @@ static int exec_mmap(struct mm_struct *mm)
+>  	old_mm = current->mm;
+>  	exec_mm_release(tsk, old_mm);
+>  
+> -	if (old_mm) {
+> +	if (old_mm)
+>  		sync_mm_rss(old_mm);
+> +
+> +	ret = mutex_lock_killable(&tsk->signal->exec_update_mutex);
+> +	if (ret)
+> +		return ret;
+> +
+> +	if (old_mm) {
+>  		/*
+>  		 * Make sure that if there is a core dump in progress
+>  		 * for the old mm, we get out and die instead of going
+> @@ -1032,14 +1038,11 @@ static int exec_mmap(struct mm_struct *mm)
+>  		down_read(&old_mm->mmap_sem);
+>  		if (unlikely(old_mm->core_state)) {
+>  			up_read(&old_mm->mmap_sem);
+> +			mutex_unlock(&tsk->signal->exec_update_mutex);
+>  			return -EINTR;
+>  		}
+>  	}
+>  
+> -	ret = mutex_lock_killable(&tsk->signal->exec_update_mutex);
+> -	if (ret)
+> -		return ret;
+> -
+>  	task_lock(tsk);
+>  	active_mm = tsk->active_mm;
+>  	membarrier_exec_mmap(mm);
+> @@ -1444,8 +1447,6 @@ static void free_bprm(struct linux_binprm *bprm)
+>  {
+>  	free_arg_pages(bprm);
+>  	if (bprm->cred) {
+> -		if (!bprm->mm)
+> -			mutex_unlock(&current->signal->exec_update_mutex);
+>  		mutex_unlock(&current->signal->cred_guard_mutex);
+>  		abort_creds(bprm->cred);
+>  	}
+> @@ -1846,6 +1847,8 @@ static int __do_execve_file(int fd, struct filename *filename,
+>  	would_dump(bprm, bprm->file);
+>  
+>  	retval = exec_binprm(bprm);
+> +	if (bprm->cred && !bprm->mm)
+> +		mutex_unlock(&current->signal->exec_update_mutex);
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.9.y/kernel/v4.9.216/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.9.y=
-/kernel/v4.9.216/
+Despite this should fix the problem, this looks like a broken puzzle.
 
-Tree: stable-rc
-Branch: linux-4.9.y
-Git Describe: v4.9.216
-Git Commit: 19c646f01e4ace1e5e5b3de2749de25bc86b79a1
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 47 unique boards, 18 SoC families, 17 builds out of 197
+We can't use bprm->cred as an identifier whether the mutex was locked or not.
+We can check for bprm->cred in regard to cred_guard_mutex, because of there is
+strong rule: "cred_guard_mutex is becomes locked together with bprm->cred assignment
+(see prepare_bprm_creds()), and it becomes unlocked together with bprm->cred zeroing".
+Take attention on modularity of all this: there is no dependencies between anything else.
 
-Boot Regressions Detected:
-
-arm:
-
-    qcom_defconfig:
-        gcc-8:
-          qcom-apq8064-cm-qs600:
-              lab-baylibre-seattle: failing since 33 days (last pass: v4.9.=
-213 - first fail: v4.9.213-37-g860ec95da9ad)
-
-    sunxi_defconfig:
-        gcc-8:
-          sun4i-a10-cubieboard:
-              lab-baylibre-seattle: failing since 28 days (last pass: v4.9.=
-213-96-gdf211f742718 - first fail: v4.9.213-117-g41f2460abb3e)
-
-    versatile_defconfig:
-        gcc-8:
-          versatile-pb:
-              lab-collabora: new failure (last pass: v4.9.215-89-g823586b24=
-f36)
-
-Boot Failures Detected:
-
-arm:
-    multi_v7_defconfig:
-        gcc-8:
-            sun4i-a10-cubieboard: 1 failed lab
-
-    sama5_defconfig:
-        gcc-8:
-            at91-sama5d4_xplained: 1 failed lab
-
-    sunxi_defconfig:
-        gcc-8:
-            sun4i-a10-cubieboard: 1 failed lab
-
-Offline Platforms:
-
-arm:
-
-    multi_v7_defconfig:
-        gcc-8
-            qcom-apq8064-cm-qs600: 1 offline lab
-
-    qcom_defconfig:
-        gcc-8
-            qcom-apq8064-cm-qs600: 1 offline lab
-
----
-For more info write to <info@kernelci.org>
+In regard to newly introduced exec_update_mutex, your fix and source patch way look like
+an obfuscation. The mutex becomes deadly glued to unrelated bprm->cred and bprm->mm,
+and this introduces the problems in the future modifications and support of all involved
+entities. If someone wants to move some functions in relation to each other, there will
+be a pain, and this person will have to go again the same dependencies and bug way,
+Eric stepped on in the original patch.
