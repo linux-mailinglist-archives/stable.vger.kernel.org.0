@@ -2,142 +2,101 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 31C9E18476F
-	for <lists+stable@lfdr.de>; Fri, 13 Mar 2020 14:06:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 68FB61847E2
+	for <lists+stable@lfdr.de>; Fri, 13 Mar 2020 14:20:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726642AbgCMNGp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Mar 2020 09:06:45 -0400
-Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:23439 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726479AbgCMNGp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 13 Mar 2020 09:06:45 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1584104804;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=1UcD6SvRQdQ67CEbuSkOopYlp5LyOHtadTTVCjBN5DQ=;
-        b=auHv9EX/r8p94497cTXVepYRg06v8oXhjaQgQHf+ewK9S/BSrdDbbxGvlEHxjtjB4s6kft
-        MQNuiOCrRnD6AMfdgG3t4KtNeIEOpLb3OVFSNSNkL6RZsr5wYfF7qYjjT7c8pIW7qCqoAi
-        rfMwDBDtUNdwA8JD2JaZ9QUptgJK2RE=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-252-w0ujB9D1MISbTMZ9YA7J0w-1; Fri, 13 Mar 2020 09:06:38 -0400
-X-MC-Unique: w0ujB9D1MISbTMZ9YA7J0w-1
-Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 8799B1088380;
-        Fri, 13 Mar 2020 13:06:36 +0000 (UTC)
-Received: from localhost (ovpn-121-102.rdu2.redhat.com [10.10.121.102])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id EBBF08B570;
-        Fri, 13 Mar 2020 13:06:34 +0000 (UTC)
-Date:   Fri, 13 Mar 2020 10:06:34 -0300
-From:   Bruno Meneguele <bmeneg@redhat.com>
-To:     David Laight <David.Laight@aculab.com>
-Cc:     Sergey Senozhatsky <sergey.senozhatsky.work@gmail.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "pmladek@suse.com" <pmladek@suse.com>,
-        "sergey.senozhatsky@gmail.com" <sergey.senozhatsky@gmail.com>,
-        "rostedt@goodmis.org" <rostedt@goodmis.org>
-Subject: Re: [PATCH] kernel/printk: add kmsg SEEK_CUR handling
-Message-ID: <20200313130634.GJ13406@glitch>
-References: <20200313003533.2203429-1-bmeneg@redhat.com>
- <20200313073425.GA219881@google.com>
- <20200313110229.GI13406@glitch>
- <b9427c068f3f4af9bf2bd290d88f84b9@AcuMS.aculab.com>
+        id S1726495AbgCMNUE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Mar 2020 09:20:04 -0400
+Received: from fllv0015.ext.ti.com ([198.47.19.141]:47314 "EHLO
+        fllv0015.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726426AbgCMNUE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 13 Mar 2020 09:20:04 -0400
+Received: from fllv0034.itg.ti.com ([10.64.40.246])
+        by fllv0015.ext.ti.com (8.15.2/8.15.2) with ESMTP id 02DDJxdY065029;
+        Fri, 13 Mar 2020 08:19:59 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ti.com;
+        s=ti-com-17Q1; t=1584105599;
+        bh=uZ5+CPpljghxpDFAb/P/yOko/1QSxdmbXGs1Ogg0kcM=;
+        h=From:To:CC:Subject:Date:In-Reply-To:References;
+        b=YA5XF+Ywq+FJAMhkedMBDw5c2j7BogA8m4XYsIQKaVeTVruvbjhxauAP1/9gMLmkO
+         6TbNbh7kx3nY61ODh9xq7VB8Na0CLvMk4MgmE/N6e39beei6JxLF7lKIzak2SekUPG
+         2Y6yfUgxrIhF85jbm/tUNs/vi9E3+YhYTMUwGSPo=
+Received: from DFLE113.ent.ti.com (dfle113.ent.ti.com [10.64.6.34])
+        by fllv0034.itg.ti.com (8.15.2/8.15.2) with ESMTPS id 02DDJxwm081299
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=FAIL);
+        Fri, 13 Mar 2020 08:19:59 -0500
+Received: from DFLE107.ent.ti.com (10.64.6.28) by DFLE113.ent.ti.com
+ (10.64.6.34) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.1847.3; Fri, 13
+ Mar 2020 08:19:59 -0500
+Received: from lelv0326.itg.ti.com (10.180.67.84) by DFLE107.ent.ti.com
+ (10.64.6.28) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.1847.3 via
+ Frontend Transport; Fri, 13 Mar 2020 08:19:59 -0500
+Received: from deskari.lan (ileax41-snat.itg.ti.com [10.172.224.153])
+        by lelv0326.itg.ti.com (8.15.2/8.15.2) with ESMTP id 02DDJv3h066993;
+        Fri, 13 Mar 2020 08:19:57 -0500
+From:   Tomi Valkeinen <tomi.valkeinen@ti.com>
+To:     Steve Longerbeam <slongerbeam@gmail.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        <linux-media@vger.kernel.org>, Benoit Parrot <bparrot@ti.com>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+CC:     Tomi Valkeinen <tomi.valkeinen@ti.com>, <stable@vger.kernel.org>
+Subject: [PATCH v2] media: ov5640: fix use of destroyed mutex
+Date:   Fri, 13 Mar 2020 15:19:48 +0200
+Message-ID: <20200313131948.13803-1-tomi.valkeinen@ti.com>
+X-Mailer: git-send-email 2.17.1
+In-Reply-To: <20200313082258.6930-1-tomi.valkeinen@ti.com>
+References: <20200313082258.6930-1-tomi.valkeinen@ti.com>
 MIME-Version: 1.0
-In-Reply-To: <b9427c068f3f4af9bf2bd290d88f84b9@AcuMS.aculab.com>
-X-PGP-Key: http://keys.gnupg.net/pks/lookup?op=get&search=0x3823031E4660608D
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="FCKy2vjPBX+S/5dE"
-Content-Disposition: inline
+Content-Type: text/plain
+X-EXCLAIMER-MD-CONFIG: e1e8a2fd-e40a-4ac6-ac9b-f7e9cc9ee180
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
---FCKy2vjPBX+S/5dE
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+v4l2_ctrl_handler_free() uses hdl->lock, which in ov5640 driver is set
+to sensor's own sensor->lock. In ov5640_remove(), the driver destroys the
+sensor->lock first, and then calls v4l2_ctrl_handler_free(), resulting
+in the use of the destroyed mutex.
 
-On Fri, Mar 13, 2020 at 11:06:42AM +0000, David Laight wrote:
-> From: Bruno Meneguele
-> > Sent: 13 March 2020 11:02
-> > On Fri, Mar 13, 2020 at 04:34:25PM +0900, Sergey Senozhatsky wrote:
-> > > On (20/03/12 21:35), Bruno Meneguele wrote:
-> > > >
-> > > > Userspace libraries, e.g. glibc's dprintf(), expect the default ret=
-urn value
-> > > > for invalid seek situations: -ESPIPE, but when the IO was over /dev=
-/kmsg the
-> > > > current state of kernel code was returning the generic case of an -=
-EINVAL.
-> > > > Hence, userspace programs were not behaving as expected or document=
-ed.
-> > > >
-> > >
-> > > Hmm. I don't think I see ESPIPE in documentation [0], [1], [2]
-> > >
-> > > [0] https://pubs.opengroup.org/onlinepubs/9699919799/functions/fprint=
-f.html
-> > > [1] http://man7.org/linux/man-pages/man3/dprintf.3p.html
-> > > [2] http://man7.org/linux/man-pages/man3/fprintf.3p.html
-> > >
-> > > =09-ss
-> > >
-> >=20
-> > Ok, I poorly expressed the notion of "documentantion". The userspace
-> > doesn't tell about returning -ESPIPE, but to the functions work properl=
-y
-> > they watch for -ESPIPE returning from the syscall. For instance, gblic
-> > dprintf() implementation:
-> >=20
-> > dprintf:
-> >   __vdprintf_internal:
-> >     _IO_new_file_attach:
-> >=20
-> >   if (_IO_SEEKOFF (fp, (off64_t)0, _IO_seek_cur, _IOS_INPUT|_IOS_OUTPUT=
-)
-> >       =3D=3D _IO_pos_BAD && errno !=3D ESPIPE)
-> >     return NULL;
->=20
-> Someone explain why it is doing an explicit seek to the current position?
-> The only reason to do that is to get the current offset.
->=20
-> =09David
->=20
+Fix this by calling moving the mutex_destroy() to the end of the cleanup
+sequence, as there's no need to destroy the mutex as early as possible.
 
-dprintf gets a fd as input and convert it to a FILE structure, with that
-it can't garantuee the previous state of that fd: was it already
-manipulated? Thus they check the current position to make sure it's not
-junk.
+Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Cc: stable@vger.kernel.org
+---
+ drivers/media/i2c/ov5640.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-But that's me guessing things about a code from 1996 :).
-
---=20
-bmeneg=20
-PGP Key: http://bmeneg.com/pubkey.txt
-
---FCKy2vjPBX+S/5dE
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAEBCAAdFiEEdWo6nTbnZdbDmXutYdRkFR+RokMFAl5rhVkACgkQYdRkFR+R
-okPciQf/aHCBcLzuwwtWOV0265ILqVZ/Oq9rjX1HxAgz3sMWEdov7F9qg1fyNfye
-1iqo0sRROWcxzBQ4/Dvn841x4w1jLOxSRzEfZEqvzj7ybd9U1fMmZ7rGd0KosvPj
-agNO/lV89KHw5FX4PNcuX/CFjGDYXlWNxd1jIbtweob8QhbwsAiaWrGXiNm0oaBb
-CDRFqVwY1rX9LgmDugO5f8Qmwn0EHSZKgX8L2JvxdC2Nrw9bwfuufpiXVt+66cuF
-iHKczLsVtDcBinWIe9CWUX+k+oc2yvRdbAxFJwI7o3qCyyl0CzqJeS42BsDr28+D
-hgryRL1UvP3s2MmGiIfXcQA9u1OlfA==
-=TMYJ
------END PGP SIGNATURE-----
-
---FCKy2vjPBX+S/5dE--
+diff --git a/drivers/media/i2c/ov5640.c b/drivers/media/i2c/ov5640.c
+index 854031f0b64a..2fe4a7ac0592 100644
+--- a/drivers/media/i2c/ov5640.c
++++ b/drivers/media/i2c/ov5640.c
+@@ -3093,8 +3093,8 @@ static int ov5640_probe(struct i2c_client *client)
+ free_ctrls:
+ 	v4l2_ctrl_handler_free(&sensor->ctrls.handler);
+ entity_cleanup:
+-	mutex_destroy(&sensor->lock);
+ 	media_entity_cleanup(&sensor->sd.entity);
++	mutex_destroy(&sensor->lock);
+ 	return ret;
+ }
+ 
+@@ -3104,9 +3104,9 @@ static int ov5640_remove(struct i2c_client *client)
+ 	struct ov5640_dev *sensor = to_ov5640_dev(sd);
+ 
+ 	v4l2_async_unregister_subdev(&sensor->sd);
+-	mutex_destroy(&sensor->lock);
+ 	media_entity_cleanup(&sensor->sd.entity);
+ 	v4l2_ctrl_handler_free(&sensor->ctrls.handler);
++	mutex_destroy(&sensor->lock);
+ 
+ 	return 0;
+ }
+-- 
+Texas Instruments Finland Oy, Porkkalankatu 22, 00180 Helsinki.
+Y-tunnus/Business ID: 0615521-4. Kotipaikka/Domicile: Helsinki
 
