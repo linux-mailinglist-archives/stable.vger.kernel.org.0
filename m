@@ -2,86 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 45031184627
-	for <lists+stable@lfdr.de>; Fri, 13 Mar 2020 12:45:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5691B18467F
+	for <lists+stable@lfdr.de>; Fri, 13 Mar 2020 13:07:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726461AbgCMLpq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Mar 2020 07:45:46 -0400
-Received: from perceval.ideasonboard.com ([213.167.242.64]:47300 "EHLO
-        perceval.ideasonboard.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726216AbgCMLpq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 13 Mar 2020 07:45:46 -0400
-Received: from pendragon.ideasonboard.com (81-175-216-236.bb.dnainternet.fi [81.175.216.236])
-        by perceval.ideasonboard.com (Postfix) with ESMTPSA id 71C165F;
-        Fri, 13 Mar 2020 12:45:44 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=ideasonboard.com;
-        s=mail; t=1584099944;
-        bh=P5B3Oa6NlauVXZmtjyeovSV12joG3gvC2PmEu8TtQG4=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=BEvvNc3TzPs6/xKADbS1BO2tulqCyaW67V5I6JkV6zuF9rCpAwoXzNMtdRi0QLkcU
-         FN4O1PghsEW6DNnHu4/XLO39H8DVVIUPTjKx+M558XkW5gmIFXsrUs79NoBtJzBXsf
-         avPAzevn4So3rKC8PrVPvqfFhEnWLK3Hv692SfWs=
-Date:   Fri, 13 Mar 2020 13:45:40 +0200
-From:   Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-To:     Tomi Valkeinen <tomi.valkeinen@ti.com>
-Cc:     Steve Longerbeam <slongerbeam@gmail.com>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        linux-media@vger.kernel.org, Benoit Parrot <bparrot@ti.com>,
-        stable@vger.kernel.org
-Subject: Re: [PATCH] media: ov5640: fix use of destroyed mutex
-Message-ID: <20200313114540.GA4751@pendragon.ideasonboard.com>
-References: <20200313082258.6930-1-tomi.valkeinen@ti.com>
+        id S1726535AbgCMMHT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Mar 2020 08:07:19 -0400
+Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:59637 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1726569AbgCMMHT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 13 Mar 2020 08:07:19 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1584101238;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=G0kaBi6IkDXHjWfkSFy1894dzC8BJqVH1twc7MebBYg=;
+        b=Y5IvcOM55lFMvUxOdZq67chmAZ0DLmh4paM6BkOj9qzCh0xBrec7M9xvOmTjRLpdYha/qJ
+        tBxiHIbT1N82iGGCxWxRlUc+TxqXPIA7q6lsG6TZw/uVDNGT227CyX85uQZWBmyqxd0gwD
+        IsU9Jl/QcHt/j8BppUU3jF8PMFeP2r0=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-264-jIXyjGxMPQS_sKmVWawSmQ-1; Fri, 13 Mar 2020 08:07:12 -0400
+X-MC-Unique: jIXyjGxMPQS_sKmVWawSmQ-1
+Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 35BBC800D4E;
+        Fri, 13 Mar 2020 12:07:11 +0000 (UTC)
+Received: from x1.localdomain.com (ovpn-117-140.ams2.redhat.com [10.36.117.140])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id DA2BB196AE;
+        Fri, 13 Mar 2020 12:07:09 +0000 (UTC)
+From:   Hans de Goede <hdegoede@redhat.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Hans de Goede <hdegoede@redhat.com>, linux-usb@vger.kernel.org,
+        stable@vger.kernel.org, russianneuromancer@ya.ru
+Subject: [PATCH] usb: quirks: add NO_LPM quirk for RTL8153 based ethernet adapters
+Date:   Fri, 13 Mar 2020 13:07:08 +0100
+Message-Id: <20200313120708.100339-1-hdegoede@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20200313082258.6930-1-tomi.valkeinen@ti.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Tomi,
+We have been receiving bug reports that ethernet connections over
+RTL8153 based ethernet adapters stops working after a while with
+errors like these showing up in dmesg when the ethernet stops working:
 
-Thank you for the patch.
+[12696.189484] r8152 6-1:1.0 enp10s0u1: Tx timeout
+[12702.333456] r8152 6-1:1.0 enp10s0u1: Tx timeout
+[12707.965422] r8152 6-1:1.0 enp10s0u1: Tx timeout
 
-On Fri, Mar 13, 2020 at 10:22:58AM +0200, Tomi Valkeinen wrote:
-> v4l2_ctrl_handler_free() uses hdl->lock, which in ov5640 driver is set
-> to sensor's own sensor->lock. In ov5640_remove(), the driver destroys the
-> sensor->lock first, and then calls v4l2_ctrl_handler_free(), resulting
-> in the use of the destroyed mutex.
-> 
-> Fix this by calling v4l2_ctrl_handler_free() before mutex_destroy().
-> 
-> Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
-> Cc: stable@vger.kernel.org
-> ---
->  drivers/media/i2c/ov5640.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/media/i2c/ov5640.c b/drivers/media/i2c/ov5640.c
-> index 854031f0b64a..64511de4eea8 100644
-> --- a/drivers/media/i2c/ov5640.c
-> +++ b/drivers/media/i2c/ov5640.c
-> @@ -3104,9 +3104,9 @@ static int ov5640_remove(struct i2c_client *client)
->  	struct ov5640_dev *sensor = to_ov5640_dev(sd);
->  
->  	v4l2_async_unregister_subdev(&sensor->sd);
-> +	v4l2_ctrl_handler_free(&sensor->ctrls.handler);
->  	mutex_destroy(&sensor->lock);
->  	media_entity_cleanup(&sensor->sd.entity);
-> -	v4l2_ctrl_handler_free(&sensor->ctrls.handler);
+This has been reported on Dell WD15 docks, Belkin USB-C Express Dock 3.1
+docks and with generic USB to ethernet dongles using the RTL8153
+chipsets. Some users have tried adding usbcore.quirks=3D0bda:8153:k to
+the kernel commandline and all users who have tried this report that
+this fixes this.
 
-While at it, could you move the mutex after media_entity_cleanup() too,
-to avoid future problems in case it gets used through that path ?
+Also note that we already have an existing NO_LPM quirk for the RTL8153
+used in the Microsoft Surface Dock (where it uses a different usb-id).
 
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+This commit adds a NO_LPM quirk for the generic Realtek RTL8153
+0bda:8153 usb-id, fixing the Tx timeout errors on these devices.
 
->  
->  	return 0;
->  }
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=3D198931
+Cc: stable@vger.kernel.org
+Cc: russianneuromancer@ya.ru
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+---
+ drivers/usb/core/quirks.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
--- 
-Regards,
+diff --git a/drivers/usb/core/quirks.c b/drivers/usb/core/quirks.c
+index 2dac3e7cdd97..c2525e9c117c 100644
+--- a/drivers/usb/core/quirks.c
++++ b/drivers/usb/core/quirks.c
+@@ -378,6 +378,9 @@ static const struct usb_device_id usb_quirk_list[] =3D=
+ {
+ 	{ USB_DEVICE(0x0b05, 0x17e0), .driver_info =3D
+ 			USB_QUIRK_IGNORE_REMOTE_WAKEUP },
+=20
++	/* Generic RTL8153 based ethernet adapters */
++	{ USB_DEVICE(0x0bda, 0x8153), .driver_info =3D USB_QUIRK_NO_LPM },
++
+ 	/* Action Semiconductor flash disk */
+ 	{ USB_DEVICE(0x10d6, 0x2200), .driver_info =3D
+ 			USB_QUIRK_STRING_FETCH_255 },
+--=20
+2.25.1
 
-Laurent Pinchart
