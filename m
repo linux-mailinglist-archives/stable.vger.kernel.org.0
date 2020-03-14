@@ -2,181 +2,307 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4ADC71853FF
-	for <lists+stable@lfdr.de>; Sat, 14 Mar 2020 03:26:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C4A481856B1
+	for <lists+stable@lfdr.de>; Sun, 15 Mar 2020 02:29:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726674AbgCNC0u convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Fri, 13 Mar 2020 22:26:50 -0400
-Received: from mx0b-002e3701.pphosted.com ([148.163.143.35]:2936 "EHLO
-        mx0b-002e3701.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726414AbgCNC0u (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 13 Mar 2020 22:26:50 -0400
-Received: from pps.filterd (m0134425.ppops.net [127.0.0.1])
-        by mx0b-002e3701.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 02E2OxBd011703;
-        Sat, 14 Mar 2020 02:26:47 GMT
-Received: from g9t5008.houston.hpe.com (g9t5008.houston.hpe.com [15.241.48.72])
-        by mx0b-002e3701.pphosted.com with ESMTP id 2yrkyx0p3e-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Sat, 14 Mar 2020 02:26:47 +0000
-Received: from G1W8108.americas.hpqcorp.net (g1w8108.austin.hp.com [16.193.72.60])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by g9t5008.houston.hpe.com (Postfix) with ESMTPS id 0238362;
-        Sat, 14 Mar 2020 02:26:46 +0000 (UTC)
-Received: from G2W6309.americas.hpqcorp.net (2002:10c5:4033::10c5:4033) by
- G1W8108.americas.hpqcorp.net (2002:10c1:483c::10c1:483c) with Microsoft SMTP
- Server (TLS) id 15.0.1367.3; Sat, 14 Mar 2020 02:25:20 +0000
-Received: from NAM12-DM6-obe.outbound.protection.outlook.com (15.241.52.11) by
- G2W6309.americas.hpqcorp.net (16.197.64.51) with Microsoft SMTP Server (TLS)
- id 15.0.1367.3 via Frontend Transport; Sat, 14 Mar 2020 02:25:19 +0000
+        id S1726702AbgCOB3J (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 14 Mar 2020 21:29:09 -0400
+Received: from mail-oln040092066020.outbound.protection.outlook.com ([40.92.66.20]:7398
+        "EHLO EUR01-VE1-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1726678AbgCOB3I (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 14 Mar 2020 21:29:08 -0400
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=iaVx1OFAVIzyYXYR/WtCTyvCTAAtPrEOdKCtaiU7Y0sWwLfzdeMs3EOXLC3wxtiM6cU8vgQQwpGd3XaGu4PUKlbnNGYJNujOnTZgWK8hGaiJDMgWA1Ept5ygHB0QDh8pW8hTP/cH1ySGO9jU7R9rF5CxVFFOuR5ZUUmSHnz4Qsi+ZlZM189WuOFq4SOWIsV92jKcCuYKHK3rieQPqRC3BNZHx7t9hpSXIlww77qzthnPpJChyL3Ved8SImb6IMaAiOg+Od79hyTLc9At74OVMKd+vvudnQ9bnWM31X2l9Snkt5zLzNCnuZuJZUXkaISKyALQTMyhBZYME6CtQ3juTw==
+ b=SGvjr4BNyCFBPVE64HTX1EbB5G+YvwrifM9N03ZMnhb4tQ2aXRp81VS0z2z3lE8+Aq2k6XpfAHfDEO1cmRxr26rLskXLZV5q8J02HMqXN8htCwe54mMvB7xXfYESz9f+ZPX6E80EQfCOZ1Ca7lvivMfn6z5WYFw4wUXQSnXOBVY+uMm6CYL2m5sMVz0wdufifOxCgxHuUvtgfETBrk3E9mZuvCXaXkls5Sh4P0vBPfnFOOxeqMiyQ5KzqJ90bQUuC8WGcv6b8ccjme1WVovGnVDtT9UpSaslvegKjY2sHBhXrAOL7w1dDHbrqu1E8mYQ4unwQwWBTDLddhPnPtmiOg==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=/l57HIB7iQ4dhzbQpXVH0s3f16kglr7wr9k236Ag7nI=;
- b=nHQiwHnENjY3pgccecsydRRxsGlzwne+CvfjlCAPiOKHd97lqS6m+vQsGcNj8inDxsMrWiJSMwTMpdhoi5KrkzD0+DRcrKRZE99JB0Gi986Veft8VHqKPJ6ozOis5Xgv/0qsVK8hxxdCBpSEdRt9CbQW4jOfrYel9APIfqGbCxDkcjGwlpboBbS7ywo1H44uoXctl7gcSiBwDl0PvpMaqeXgv2OMFXe3hq3iJcUqCsY/h/o6YNTAQvkRp44yf4qyqBqimof/rXOxQvmMYsKZ0W00NZJL/f3OZPB0G4Vx12CVpQtNxoQUP7NnJeMGT2Pxa0hOyRA8QNIi8dy4+Sg33A==
+ bh=sHZELvps2/vcLuiNrSD5Q9vjpQ8D5COG/a6p7AEDoxg=;
+ b=BZL8pPyJeKUllxq45/Y3HAlve9A1KJKFaHfRkSHQa7c6N1nob70+n3qU3E4D57qmHaFLlQOwJtXh+ajExMJtc/R+xnjZVLwbJkK3uwzb4gqmK4s17fcqtovPtKJgddmjpA2/ttBLlISV9+VPuaC9Sv5RtJur2ETqn1fuYys+ZKdOHr6h220fgI4lgbIYRmlrDLTlChLrKIznaEUV2kv159G4c26AO4cXLZJgBsJJOYn79tk4Va3XsSej61gEN7QYtJUVK14NJlaYFsFTeH1r8lHpx12B1oyc6KfqK2P00oFUcZX649yPz7SD97LrkhpJkOZRztPdkzKof/dQk6XxaQ==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=hpe.com; dmarc=pass action=none header.from=hpe.com; dkim=pass
- header.d=hpe.com; arc=none
-Received: from DF4PR8401MB1241.NAMPRD84.PROD.OUTLOOK.COM
- (2a01:111:e400:7613::16) by DF4PR8401MB1178.NAMPRD84.PROD.OUTLOOK.COM
- (2a01:111:e400:7611::16) with Microsoft SMTP Server (version=TLS1_2,
+ smtp.mailfrom=hotmail.de; dmarc=pass action=none header.from=hotmail.de;
+ dkim=pass header.d=hotmail.de; arc=none
+Received: from HE1EUR01FT018.eop-EUR01.prod.protection.outlook.com
+ (2a01:111:e400:7e18::37) by
+ HE1EUR01HT016.eop-EUR01.prod.protection.outlook.com (2a01:111:e400:7e18::351)
+ with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.2814.14; Sat, 14 Mar
- 2020 02:25:18 +0000
-Received: from DF4PR8401MB1241.NAMPRD84.PROD.OUTLOOK.COM
- ([fe80::97d:4683:6c97:19f2]) by DF4PR8401MB1241.NAMPRD84.PROD.OUTLOOK.COM
- ([fe80::97d:4683:6c97:19f2%12]) with mapi id 15.20.2793.018; Sat, 14 Mar 2020
- 02:25:18 +0000
-From:   "Elliott, Robert (Servers)" <elliott@hpe.com>
-To:     Sreekanth Reddy <sreekanth.reddy@broadcom.com>,
-        "martin.petersen@oracle.com" <martin.petersen@oracle.com>
-CC:     "linux-scsi@vger.kernel.org" <linux-scsi@vger.kernel.org>,
-        "sathya.prakash@broadcom.com" <sathya.prakash@broadcom.com>,
-        "suganath-prabu.subramani@broadcom.com" 
-        <suganath-prabu.subramani@broadcom.com>,
+ 2020 09:11:58 +0000
+Received: from AM6PR03MB5170.eurprd03.prod.outlook.com (10.152.0.51) by
+ HE1EUR01FT018.mail.protection.outlook.com (10.152.0.175) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.2814.14 via Frontend Transport; Sat, 14 Mar 2020 09:11:57 +0000
+X-IncomingTopHeaderMarker: OriginalChecksum:2C1EFD390DBFCF4505C45E52245AB7FCF501D290F81D61D378A5C3D4EE8A1E09;UpperCasedChecksum:F15A72C4B6B9ADADBCB08FF6BFCE65C84149850D6C3A96AD056870422D593274;SizeAsReceived:10373;Count:50
+Received: from AM6PR03MB5170.eurprd03.prod.outlook.com
+ ([fe80::1956:d274:cab3:b4dd]) by AM6PR03MB5170.eurprd03.prod.outlook.com
+ ([fe80::1956:d274:cab3:b4dd%6]) with mapi id 15.20.2814.018; Sat, 14 Mar 2020
+ 09:11:57 +0000
+From:   Bernd Edlinger <bernd.edlinger@hotmail.de>
+Subject: [PATCH v3 5/5] exec: Add a exec_update_mutex to replace
+ cred_guard_mutex
+To:     Kirill Tkhai <ktkhai@virtuozzo.com>,
+        "Eric W. Biederman" <ebiederm@xmission.com>
+Cc:     Christian Brauner <christian.brauner@ubuntu.com>,
+        Kees Cook <keescook@chromium.org>,
+        Jann Horn <jannh@google.com>, Jonathan Corbet <corbet@lwn.net>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Alexey Dobriyan <adobriyan@gmail.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Oleg Nesterov <oleg@redhat.com>,
+        Frederic Weisbecker <frederic@kernel.org>,
+        Andrei Vagin <avagin@gmail.com>,
+        Ingo Molnar <mingo@kernel.org>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Yuyang Du <duyuyang@gmail.com>,
+        David Hildenbrand <david@redhat.com>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Anshuman Khandual <anshuman.khandual@arm.com>,
+        David Howells <dhowells@redhat.com>,
+        James Morris <jamorris@linux.microsoft.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Shakeel Butt <shakeelb@google.com>,
+        Jason Gunthorpe <jgg@ziepe.ca>,
+        Christian Kellner <christian@kellner.me>,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        Aleksa Sarai <cyphar@cyphar.com>,
+        "Dmitry V. Levin" <ldv@altlinux.org>,
+        "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>,
+        "linux-mm@kvack.org" <linux-mm@kvack.org>,
         "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "amit@kernel.org" <amit@kernel.org>
-Subject: RE: [PATCH] mpt3sas: Fix kernel panic observed on soft HBA unplug
-Thread-Topic: [PATCH] mpt3sas: Fix kernel panic observed on soft HBA unplug
-Thread-Index: AQHV95Eelm8i6f9q4U+J7lkCvZ3HDqhHT4kQ
-Date:   Sat, 14 Mar 2020 02:25:18 +0000
-Message-ID: <DF4PR8401MB12415ADC9760286F3930DBE4ABFB0@DF4PR8401MB1241.NAMPRD84.PROD.OUTLOOK.COM>
-References: <1583923013-3935-1-git-send-email-sreekanth.reddy@broadcom.com>
-In-Reply-To: <1583923013-3935-1-git-send-email-sreekanth.reddy@broadcom.com>
-Accept-Language: en-US
+        "linux-api@vger.kernel.org" <linux-api@vger.kernel.org>
+References: <AM6PR03MB5170EB4427BF5C67EE98FF09E4E60@AM6PR03MB5170.eurprd03.prod.outlook.com>
+ <87v9nlii0b.fsf@x220.int.ebiederm.org>
+ <AM6PR03MB5170609D44967E044FD1BE40E4E40@AM6PR03MB5170.eurprd03.prod.outlook.com>
+ <87a74xi4kz.fsf@x220.int.ebiederm.org>
+ <AM6PR03MB51705AA3009B4986BB6EF92FE4E50@AM6PR03MB5170.eurprd03.prod.outlook.com>
+ <87r1y8dqqz.fsf@x220.int.ebiederm.org>
+ <AM6PR03MB517053AED7DC89F7C0704B7DE4E50@AM6PR03MB5170.eurprd03.prod.outlook.com>
+ <AM6PR03MB51703B44170EAB4626C9B2CAE4E20@AM6PR03MB5170.eurprd03.prod.outlook.com>
+ <87tv32cxmf.fsf_-_@x220.int.ebiederm.org>
+ <87v9ne5y4y.fsf_-_@x220.int.ebiederm.org>
+ <87zhcq4jdj.fsf_-_@x220.int.ebiederm.org>
+ <f37a5d68-9674-533f-ee9c-a49174605710@virtuozzo.com>
+ <87d09hn4kt.fsf@x220.int.ebiederm.org>
+ <dbce35c7-c060-cfd8-bde1-98fd9a0747a9@virtuozzo.com>
+ <87lfo5lju6.fsf@x220.int.ebiederm.org>
+ <AM6PR03MB5170E9E71B9F84330B098BADE4FA0@AM6PR03MB5170.eurprd03.prod.outlook.com>
+ <6002ac56-025a-d50f-e89d-1bf42a072323@virtuozzo.com>
+Message-ID: <AM6PR03MB5170353DF3575FF7742BB155E4FB0@AM6PR03MB5170.eurprd03.prod.outlook.com>
+Date:   Sat, 14 Mar 2020 10:11:54 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.6.1
+In-Reply-To: <6002ac56-025a-d50f-e89d-1bf42a072323@virtuozzo.com>
+Content-Type: text/plain; charset=windows-1252
 Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-originating-ip: [15.211.195.7]
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-ht: Tenant
-x-ms-office365-filtering-correlation-id: 898ca563-99b8-4971-07dd-08d7c7bef06a
-x-ms-traffictypediagnostic: DF4PR8401MB1178:
-x-microsoft-antispam-prvs: <DF4PR8401MB1178B8E7D229E1718C17A46DABFB0@DF4PR8401MB1178.NAMPRD84.PROD.OUTLOOK.COM>
-x-ms-oob-tlc-oobclassifiers: OLM:8273;
-x-forefront-prvs: 034215E98F
-x-forefront-antispam-report: SFV:NSPM;SFS:(10019020)(346002)(366004)(396003)(136003)(39860400002)(376002)(199004)(2906002)(55016002)(9686003)(33656002)(4326008)(64756008)(71200400001)(52536014)(26005)(6506007)(5660300002)(66946007)(76116006)(53546011)(66476007)(66556008)(66446008)(478600001)(110136005)(86362001)(54906003)(316002)(7696005)(186003)(81166006)(8936002)(81156014)(8676002)(32563001);DIR:OUT;SFP:1102;SCL:1;SRVR:DF4PR8401MB1178;H:DF4PR8401MB1241.NAMPRD84.PROD.OUTLOOK.COM;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;A:1;
-received-spf: None (protection.outlook.com: hpe.com does not designate
- permitted sender hosts)
-x-ms-exchange-senderadcheck: 1
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: mzmW1UzLc+BIsGlLh8TE9DqmrqIq9mCky+nzfNfwRsTVe7PsFOtPSrPZlkAsL3S+76GAr0cYDtC8B/9LpTNK3lS4bt5I06Ua1IocT7CNOREBuSDtNtnLaW0++1ZRHI1pWrz+Y26kgQEZa9CGiUopd5nKPrQcAU8OYx9jcNI5qXnhjTfHRai9kCe91CWxgf+qdw87XtNbJr+joGuIlHgWRyESjlmXTQctUUtGsP8CB72i2NkuY643P2ssmEm/fCrBzX3L7XPGNBBqgAHTGsX1X6TP8DSGhtEXhyxzIMxoAhltn8AvUIBlZvwRXzttunHbEwa/6VsNhYihUxTfuxfNC/Up10s32b49h1YS9AxtcCR4VhgfySFcoFUfRCNPZylkPMld59Zs1VVqF/UflMaB1MssGD7YliA/XUrQdeUdrl14p0RmRQXpEr01wpnj0I946Te8YjxIEvvdO4RLyGsmsR09Y9rLmkMv/bfZ5lGoyW6YPBDfLChMke+bGK6y+uoO
-x-ms-exchange-antispam-messagedata: zZmzuiuidqVKMmgVf+tgnwWtHncRlwm2+G6ZBTBRRrZkXyc8FhrFrGdQXS1mqvwXXhS7sV1FrZ1YoGVVBYVnTxXTbfkr1VTgjWImDkU3JkEItWKH3F8/4BngJw/NGnonYJWrp5eUsNm0ux//u1xlkg==
-x-ms-exchange-transport-forked: True
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: ZRAP278CA0014.CHEP278.PROD.OUTLOOK.COM
+ (2603:10a6:910:10::24) To AM6PR03MB5170.eurprd03.prod.outlook.com
+ (2603:10a6:20b:ca::23)
+X-Microsoft-Original-Message-ID: <507107db-662f-651f-c422-8bd4fda0ca3d@hotmail.de>
 MIME-Version: 1.0
-X-MS-Exchange-CrossTenant-Network-Message-Id: 898ca563-99b8-4971-07dd-08d7c7bef06a
-X-MS-Exchange-CrossTenant-originalarrivaltime: 14 Mar 2020 02:25:18.6269
+X-MS-Exchange-MessageSentRepresentingType: 1
+Received: from [192.168.1.101] (92.77.140.102) by ZRAP278CA0014.CHEP278.PROD.OUTLOOK.COM (2603:10a6:910:10::24) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.2814.18 via Frontend Transport; Sat, 14 Mar 2020 09:11:55 +0000
+X-Microsoft-Original-Message-ID: <507107db-662f-651f-c422-8bd4fda0ca3d@hotmail.de>
+X-TMN:  [pf84JP2cKZ+s7aOt0kffqN6QI9cf8RY9]
+X-MS-PublicTrafficType: Email
+X-IncomingHeaderCount: 50
+X-EOPAttributedMessage: 0
+X-MS-Office365-Filtering-Correlation-Id: 4ab62632-86b0-4039-4adf-08d7c7f7bef9
+X-MS-TrafficTypeDiagnostic: HE1EUR01HT016:
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: Cvfj0E9E7///Ovr+gJg9gUOfaIyGkbb9/hOKmQwk8Vdwz5yCSiZ1W5iNdrcYyS2bqORe3k3EGhw6Bx9oWSAXDU0GxsMQtnRtvnvhRFe4Tzk/QBw3SlF50+hC8P2xAKdBxufMF2ypGluo6XG13XIrOgabZtWyZzzh0YBjDVDe2dIUrz6zqQO24Z0K7TKLW5bqO64Kx0EZqpPY93pdrUBpVcXW6t+VwG2sV+9v7++u9S4=
+X-MS-Exchange-AntiSpam-MessageData: HmV+EWhsKXSPoloSlieGKZN+2qHkQP4YBkHRG8H8ro9+bJBW6UEnOKDbZ68mjGDhgIkeLcswDXSTtRaYKz4sDCiNlY2eBfMwQBlWNuxKNO6iUhwg1ps40oQVSTmNi4K+K5rKGMOk6VDRVeWMggNltQ==
+X-OriginatorOrg: outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 4ab62632-86b0-4039-4adf-08d7c7f7bef9
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 14 Mar 2020 09:11:57.8278
  (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 105b2061-b669-4b31-92ac-24d304d195dc
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: RKnIaLK3LKErmjS31X/b3h6fLwC4m3IJ6FjYEXa48p/kCuQZoh344lLCT7uxuZId
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DF4PR8401MB1178
-X-OriginatorOrg: hpe.com
-X-HPE-SCL: -1
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.138,18.0.572
- definitions=2020-03-13_12:2020-03-12,2020-03-13 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- phishscore=0 priorityscore=1501 impostorscore=0 malwarescore=0
- adultscore=0 suspectscore=0 bulkscore=0 spamscore=0 clxscore=1015
- mlxscore=0 mlxlogscore=999 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2003020000 definitions=main-2003140011
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 84df9e7f-e9f6-40af-b435-aaaaaaaaaaaa
+X-MS-Exchange-CrossTenant-FromEntityHeader: Internet
+X-MS-Exchange-CrossTenant-RMS-PersistedConsumerOrg: 00000000-0000-0000-0000-000000000000
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: HE1EUR01HT016
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+The cred_guard_mutex is problematic.  The cred_guard_mutex is held
+over the userspace accesses as the arguments from userspace are read.
+The cred_guard_mutex is held of PTRACE_EVENT_EXIT as the the other
+threads are killed.  The cred_guard_mutex is held over
+"put_user(0, tsk->clear_child_tid)" in exit_mm().
 
+Any of those can result in deadlock, as the cred_guard_mutex is held
+over a possible indefinite userspace waits for userspace.
 
-> -----Original Message-----
-> From: linux-scsi-owner@vger.kernel.org <linux-scsi-
-> owner@vger.kernel.org> On Behalf Of Sreekanth Reddy
-> Sent: Wednesday, March 11, 2020 5:37 AM
-> To: martin.petersen@oracle.com
-> Cc: linux-scsi@vger.kernel.org; sathya.prakash@broadcom.com; suganath-
-> prabu.subramani@broadcom.com; stable@vger.kernel.org; amit@kernel.org;
-> Sreekanth Reddy <sreekanth.reddy@broadcom.com>
-> Subject: [PATCH] mpt3sas: Fix kernel panic observed on soft HBA unplug
-> 
-> Generic protection fault type kernel panic is observed when user
-> performs soft(ordered) HBA unplug operation while IOs are running
-> on drives connected to HBA.
-> 
-> When user performs ordered HBA removal operation then kernel calls
-> PCI device's .remove() call back function where driver is flushing out
-> all the outstanding SCSI IO commands with DID_NO_CONNECT host byte and
-> also un-maps sg buffers allocated for these IO commands.
-> But in the ordered HBA removal case (unlike of real HBA hot unplug)
-> HBA device is still alive and hence HBA hardware is performing the
-> DMA operations to those buffers on the system memory which are already
-> unmapped while flushing out the outstanding SCSI IO commands
-> and this leads to Kernel panic.
-> 
-> Fix:
-> Don't flush out the outstanding IOs from .remove() path in case of
-> ordered HBA removal since HBA will be still alive in this case and
-> it can complete the outstanding IOs. Flush out the outstanding IOs
-> only in case physical HBA hot unplug where their won't be any
-> communication with the HBA.
-> 
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Sreekanth Reddy <sreekanth.reddy@broadcom.com>
-> ---
->  drivers/scsi/mpt3sas/mpt3sas_scsih.c | 8 ++++----
->  1 file changed, 4 insertions(+), 4 deletions(-)
-> 
-> diff --git a/drivers/scsi/mpt3sas/mpt3sas_scsih.c
-> b/drivers/scsi/mpt3sas/mpt3sas_scsih.c
-> index 778d5e6..04a40af 100644
-> --- a/drivers/scsi/mpt3sas/mpt3sas_scsih.c
-> +++ b/drivers/scsi/mpt3sas/mpt3sas_scsih.c
-> @@ -9908,8 +9908,8 @@ static void scsih_remove(struct pci_dev *pdev)
-> 
->  	ioc->remove_host = 1;
-> 
-> -	mpt3sas_wait_for_commands_to_complete(ioc);
+Add exec_update_mutex that is only held over exec updating process
+with the new contents of exec, so that code that needs not to be
+confused by exec changing the mm and the cred in ways that can not
+happen during ordinary execution of a process.
 
-Immediately removing the driver with IOs pending seems dangerous. 
+The plan is to switch the users of cred_guard_mutex to
+exec_udpate_mutex one by one.  This lets us move forward while still
+being careful and not introducing any regressions.
 
-That function includes a timeout to avoid hanging forever, which
-is reasonable (avoid hanging during system shutdown). Perhaps the
-kernel panic was happening because that function timed out? 
+Link: https://lore.kernel.org/lkml/20160921152946.GA24210@dhcp22.suse.cz/
+Link: https://lore.kernel.org/lkml/AM6PR03MB5170B06F3A2B75EFB98D071AE4E60@AM6PR03MB5170.eurprd03.prod.outlook.com/
+Link: https://lore.kernel.org/linux-fsdevel/20161102181806.GB1112@redhat.com/
+Link: https://lore.kernel.org/lkml/20160923095031.GA14923@redhat.com/
+Link: https://lore.kernel.org/lkml/20170213141452.GA30203@redhat.com/
+Ref: 45c1a159b85b ("Add PTRACE_O_TRACEVFORKDONE and PTRACE_O_TRACEEXIT facilities.")
+Ref: 456f17cd1a28 ("[PATCH] user-vm-unlock-2.5.31-A2")
+Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
+Signed-off-by: Bernd Edlinger <bernd.edlinger@hotmail.de>
+---
+ fs/exec.c                    | 17 ++++++++++++++---
+ include/linux/binfmts.h      |  8 +++++++-
+ include/linux/sched/signal.h |  9 ++++++++-
+ init/init_task.c             |  1 +
+ kernel/fork.c                |  1 +
+ 5 files changed, 31 insertions(+), 5 deletions(-)
 
-Reporting a warning or error and doing special handling might be
-appropriate if that occurs. That should be rare, though; the normal
-case should be to cleanly finish any outstanding commands.
+v3: this update fixes lock-order and adds an explicit data member in linux_binprm
 
-> -	_scsih_flush_running_cmds(ioc);
-> +	if (!pci_device_is_present(pdev))
-> +		_scsih_flush_running_cmds(ioc);
-
-If that branch is not taken, then it proceeds to remove the driver
-with IOs pending. That'll wipe out all sorts of ioc structures
-and things like interrupt handler code, leaving memory mapped forever
-(no code left to call scsi_dma_unmap). That might be better than
-a kernel panic, but still not good.
-
-
+diff --git a/fs/exec.c b/fs/exec.c
+index d820a72..11974a1 100644
+--- a/fs/exec.c
++++ b/fs/exec.c
+@@ -1014,12 +1014,17 @@ static int exec_mmap(struct mm_struct *mm)
+ {
+ 	struct task_struct *tsk;
+ 	struct mm_struct *old_mm, *active_mm;
++	int ret;
+ 
+ 	/* Notify parent that we're no longer interested in the old VM */
+ 	tsk = current;
+ 	old_mm = current->mm;
+ 	exec_mm_release(tsk, old_mm);
+ 
++	ret = mutex_lock_killable(&tsk->signal->exec_update_mutex);
++	if (ret)
++		return ret;
++
+ 	if (old_mm) {
+ 		sync_mm_rss(old_mm);
+ 		/*
+@@ -1031,9 +1036,11 @@ static int exec_mmap(struct mm_struct *mm)
+ 		down_read(&old_mm->mmap_sem);
+ 		if (unlikely(old_mm->core_state)) {
+ 			up_read(&old_mm->mmap_sem);
++			mutex_unlock(&tsk->signal->exec_update_mutex);
+ 			return -EINTR;
+ 		}
+ 	}
++
+ 	task_lock(tsk);
+ 	active_mm = tsk->active_mm;
+ 	membarrier_exec_mmap(mm);
+@@ -1288,11 +1295,12 @@ int flush_old_exec(struct linux_binprm * bprm)
+ 		goto out;
+ 
+ 	/*
+-	 * After clearing bprm->mm (to mark that current is using the
+-	 * prepared mm now), we have nothing left of the original
++	 * After setting bprm->called_exec_mmap (to mark that current is
++	 * using the prepared mm now), we have nothing left of the original
+ 	 * process. If anything from here on returns an error, the check
+ 	 * in search_binary_handler() will SEGV current.
+ 	 */
++	bprm->called_exec_mmap = 1;
+ 	bprm->mm = NULL;
+ 
+ #ifdef CONFIG_POSIX_TIMERS
+@@ -1438,6 +1446,8 @@ static void free_bprm(struct linux_binprm *bprm)
+ {
+ 	free_arg_pages(bprm);
+ 	if (bprm->cred) {
++		if (bprm->called_exec_mmap)
++			mutex_unlock(&current->signal->exec_update_mutex);
+ 		mutex_unlock(&current->signal->cred_guard_mutex);
+ 		abort_creds(bprm->cred);
+ 	}
+@@ -1487,6 +1497,7 @@ void install_exec_creds(struct linux_binprm *bprm)
+ 	 * credentials; any time after this it may be unlocked.
+ 	 */
+ 	security_bprm_committed_creds(bprm);
++	mutex_unlock(&current->signal->exec_update_mutex);
+ 	mutex_unlock(&current->signal->cred_guard_mutex);
+ }
+ EXPORT_SYMBOL(install_exec_creds);
+@@ -1678,7 +1689,7 @@ int search_binary_handler(struct linux_binprm *bprm)
+ 
+ 		read_lock(&binfmt_lock);
+ 		put_binfmt(fmt);
+-		if (retval < 0 && !bprm->mm) {
++		if (retval < 0 && bprm->called_exec_mmap) {
+ 			/* we got to flush_old_exec() and failed after it */
+ 			read_unlock(&binfmt_lock);
+ 			force_sigsegv(SIGSEGV);
+diff --git a/include/linux/binfmts.h b/include/linux/binfmts.h
+index b40fc63..a345d9f 100644
+--- a/include/linux/binfmts.h
++++ b/include/linux/binfmts.h
+@@ -44,7 +44,13 @@ struct linux_binprm {
+ 		 * exec has happened. Used to sanitize execution environment
+ 		 * and to set AT_SECURE auxv for glibc.
+ 		 */
+-		secureexec:1;
++		secureexec:1,
++		/*
++		 * Set by flush_old_exec, when exec_mmap has been called.
++		 * This is past the point of no return, when the
++		 * exec_update_mutex has been taken.
++		 */
++		called_exec_mmap:1;
+ #ifdef __alpha__
+ 	unsigned int taso:1;
+ #endif
+diff --git a/include/linux/sched/signal.h b/include/linux/sched/signal.h
+index 8805025..a29df79 100644
+--- a/include/linux/sched/signal.h
++++ b/include/linux/sched/signal.h
+@@ -224,7 +224,14 @@ struct signal_struct {
+ 
+ 	struct mutex cred_guard_mutex;	/* guard against foreign influences on
+ 					 * credential calculations
+-					 * (notably. ptrace) */
++					 * (notably. ptrace)
++					 * Deprecated do not use in new code.
++					 * Use exec_update_mutex instead.
++					 */
++	struct mutex exec_update_mutex;	/* Held while task_struct is being
++					 * updated during exec, and may have
++					 * inconsistent permissions.
++					 */
+ } __randomize_layout;
+ 
+ /*
+diff --git a/init/init_task.c b/init/init_task.c
+index 9e5cbe5..bd403ed 100644
+--- a/init/init_task.c
++++ b/init/init_task.c
+@@ -26,6 +26,7 @@
+ 	.multiprocess	= HLIST_HEAD_INIT,
+ 	.rlim		= INIT_RLIMITS,
+ 	.cred_guard_mutex = __MUTEX_INITIALIZER(init_signals.cred_guard_mutex),
++	.exec_update_mutex = __MUTEX_INITIALIZER(init_signals.exec_update_mutex),
+ #ifdef CONFIG_POSIX_TIMERS
+ 	.posix_timers = LIST_HEAD_INIT(init_signals.posix_timers),
+ 	.cputimer	= {
+diff --git a/kernel/fork.c b/kernel/fork.c
+index 8642530..036b692 100644
+--- a/kernel/fork.c
++++ b/kernel/fork.c
+@@ -1594,6 +1594,7 @@ static int copy_signal(unsigned long clone_flags, struct task_struct *tsk)
+ 	sig->oom_score_adj_min = current->signal->oom_score_adj_min;
+ 
+ 	mutex_init(&sig->cred_guard_mutex);
++	mutex_init(&sig->exec_update_mutex);
+ 
+ 	return 0;
+ }
+-- 
+1.9.1
