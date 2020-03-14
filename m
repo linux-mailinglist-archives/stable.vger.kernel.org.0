@@ -2,92 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EE419185991
-	for <lists+stable@lfdr.de>; Sun, 15 Mar 2020 04:06:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D44B5185A0A
+	for <lists+stable@lfdr.de>; Sun, 15 Mar 2020 05:20:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726343AbgCODGS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 14 Mar 2020 23:06:18 -0400
-Received: from mail-ua1-f65.google.com ([209.85.222.65]:43589 "EHLO
-        mail-ua1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726189AbgCODGS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 14 Mar 2020 23:06:18 -0400
-Received: by mail-ua1-f65.google.com with SMTP id q24so313898ual.10
-        for <stable@vger.kernel.org>; Sat, 14 Mar 2020 20:06:16 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:from:date:message-id:subject:to;
-        bh=FM3KOCgYvhjyHWe70BmgGnks2TQdS+bM14THil0Aav4=;
-        b=W7f2tooluUmJr3K9P2g1U/JyJ12x2JKxVI/LgUOuxITfjWzOyBsfIzKYk7lIeH3byx
-         YqUi4gg1ofBfJnENC2jlXgBsgVzwsliZLDhz9UY8+T6NFyE+f+BvLVgqIQvSZtsc7SW7
-         hwPI4NoUYiSGFFOI0m2R29/B779Ph29u0ZgDAFbt7Z7bgKGq23H6y2via1K6EGbZJV0n
-         smagb2F1ligF8QBaIs56Tlz8hOelyvNplAdFevKAzL6dax7ARaXYPfu7xr2ADBEp4O9g
-         utnF85NiXu7ykZqbYD0X96n3faQoDrz2x4qKT9djkwr0H5xoGpwvbsiRF+Hxwae91RFB
-         OqNw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:from:date:message-id:subject:to;
-        bh=FM3KOCgYvhjyHWe70BmgGnks2TQdS+bM14THil0Aav4=;
-        b=SwTGwkTw8r2I29agp/mUUJhFT9bpMQSL0ZGprrI7v87PVH8UnVt9xL/7g0OX5BF1I2
-         dPnuJQWKzkBKChZCt/KjEuv9EUektfDxCeAPzlbeFWZvQ5DQvnNL2kJec5ocLud9DwJ7
-         jls+/qQILRcnH0A6M50hW1yiIxZcPR2usbBPU5kckkFWeKwgsCkohcCSLxUQtVi2sv3M
-         EnJMU3FTpN4ra4uQk0Tq+xIOODCr7KOHRbq/tKlIWTipOyhJZrJ4seJzX6NRQzujNkOV
-         EIkCaZSSjXLbArZxWoDmttwoX1vVwRN7KDNkYS4T9HZCf/Axyobnp2T5e+iBR1YdnnBT
-         xctg==
-X-Gm-Message-State: ANhLgQ0ccnPr6Xh1R2i7ynh/xvtvR0iGr/Xj9M3K2JR3dc18CHj5xshF
-        ZITuQ84mx+HOSqJQaT8c+XHlDa9D8nZeRwXnpaZ1gRc=
-X-Google-Smtp-Source: ADFU+vuc9HhioCu17SjABG7TTFArg6aRnYD1FuU9yoNJ32uel2CvDzCCwzIrVOFjdvOBUOg4hPrL2OKMMwZOCoSmdjQ=
-X-Received: by 2002:ab0:c06:: with SMTP id a6mr11101590uak.119.1584213374657;
- Sat, 14 Mar 2020 12:16:14 -0700 (PDT)
+        id S1725916AbgCOEUu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 15 Mar 2020 00:20:50 -0400
+Received: from pegase1.c-s.fr ([93.17.236.30]:28898 "EHLO pegase1.c-s.fr"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725872AbgCOEUu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 15 Mar 2020 00:20:50 -0400
+Received: from localhost (mailhub1-int [192.168.12.234])
+        by localhost (Postfix) with ESMTP id 48fYyz3cWFz9txPk;
+        Sat, 14 Mar 2020 08:26:35 +0100 (CET)
+Authentication-Results: localhost; dkim=pass
+        reason="1024-bit key; insecure key"
+        header.d=c-s.fr header.i=@c-s.fr header.b=wOCV1qop; dkim-adsp=pass;
+        dkim-atps=neutral
+X-Virus-Scanned: Debian amavisd-new at c-s.fr
+Received: from pegase1.c-s.fr ([192.168.12.234])
+        by localhost (pegase1.c-s.fr [192.168.12.234]) (amavisd-new, port 10024)
+        with ESMTP id ja4ZH3fYw32p; Sat, 14 Mar 2020 08:26:35 +0100 (CET)
+Received: from messagerie.si.c-s.fr (messagerie.si.c-s.fr [192.168.25.192])
+        by pegase1.c-s.fr (Postfix) with ESMTP id 48fYyz2N73z9txPj;
+        Sat, 14 Mar 2020 08:26:35 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=c-s.fr; s=mail;
+        t=1584170795; bh=GCMtTnndF9n61PXcYeOSu2bKjOaCnpQzS0ox12E/r/s=;
+        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
+        b=wOCV1qopX53qf7SOj4LCfFwkp5YuYtI2n7HuwNC8/rCUYAX1dqXIxKP+7LaXftY/K
+         66Aa4civy8g9ewjxdt/6y8Hzf1w5Nuk6aBIWaSehN3JmY7AwDQLsV6U/ZsHTUmyvHz
+         8eMcwi/v74+2eHKlIRJb27L9pLrTCRS9KlpN13FM=
+Received: from localhost (localhost [127.0.0.1])
+        by messagerie.si.c-s.fr (Postfix) with ESMTP id 2F5698B772;
+        Sat, 14 Mar 2020 08:26:36 +0100 (CET)
+X-Virus-Scanned: amavisd-new at c-s.fr
+Received: from messagerie.si.c-s.fr ([127.0.0.1])
+        by localhost (messagerie.si.c-s.fr [127.0.0.1]) (amavisd-new, port 10023)
+        with ESMTP id 1giGPQDHWGID; Sat, 14 Mar 2020 08:26:36 +0100 (CET)
+Received: from [192.168.4.90] (unknown [192.168.4.90])
+        by messagerie.si.c-s.fr (Postfix) with ESMTP id 8D4FC8B768;
+        Sat, 14 Mar 2020 08:26:34 +0100 (CET)
+Subject: Re: [PATCH v3] powerpc/fsl-85xx: fix compile error
+To:     WANG Wenhu <wenhu.wang@vivo.com>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Paul Mackerras <paulus@samba.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Allison Randal <allison@lohutok.net>,
+        Richard Fontana <rfontana@redhat.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org
+Cc:     kernel@vivo.com, trivial@kernel.org,
+        stable <stable@vger.kernel.org>
+References: <20200314051035.64552-1-wenhu.wang@vivo.com>
+From:   Christophe Leroy <christophe.leroy@c-s.fr>
+Message-ID: <bd9799ae-d306-a478-25ff-ec3c7f083cfe@c-s.fr>
+Date:   Sat, 14 Mar 2020 08:26:23 +0100
+User-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64; rv:68.0) Gecko/20100101
+ Thunderbird/68.5.0
 MIME-Version: 1.0
-Received: by 2002:a67:3253:0:0:0:0:0 with HTTP; Sat, 14 Mar 2020 12:16:14
- -0700 (PDT)
-From:   ududonka ahmed <ududonka.ahmed10@gmail.com>
-Date:   Sat, 14 Mar 2020 19:16:14 +0000
-Message-ID: <CAKsE44K2JL5jaxmBvoATDs39Oiu2zAy=7DuxBdLBCtn84EuBhA@mail.gmail.com>
-Subject: Thanks you very much
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <20200314051035.64552-1-wenhu.wang@vivo.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: fr
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Dear,
 
-I was shocked you stopped communicating me, I really can't understand
-your reason for doing so, but I am very happy now to inform you about
-my success in getting the fund out of the bank with the help of a
-staff working in the remittance office and also with the special
-assistance of a French business woman that catered for other
-logistics.
 
-However, I left the sum of $800,000 (Eight Hundred Thousand U.S
-Dollars Only) in an ATM cash withdrawal Card. This $800,000 is for you
-and it is purposely for your compensation for your little effort in
-this transaction. The ATM Card is a global payment card which is
-acceptable, workable and usable worldwide in making daily withdrawal
-of money from any ATM location.  So you can be able to make
-withdrawals of money in any countries on daily basis.
+Le 14/03/2020 à 06:10, WANG Wenhu a écrit :
+> Include "linux/of_address.h" to fix the compile error for
+> mpc85xx_l2ctlr_of_probe() when compiling fsl_85xx_cache_sram.c.
+> 
+>    CC      arch/powerpc/sysdev/fsl_85xx_l2ctlr.o
+> arch/powerpc/sysdev/fsl_85xx_l2ctlr.c: In function ‘mpc85xx_l2ctlr_of_probe’:
+> arch/powerpc/sysdev/fsl_85xx_l2ctlr.c:90:11: error: implicit declaration of function ‘of_iomap’; did you mean ‘pci_iomap’? [-Werror=implicit-function-declaration]
+>    l2ctlr = of_iomap(dev->dev.of_node, 0);
+>             ^~~~~~~~
+>             pci_iomap
+> arch/powerpc/sysdev/fsl_85xx_l2ctlr.c:90:9: error: assignment makes pointer from integer without a cast [-Werror=int-conversion]
+>    l2ctlr = of_iomap(dev->dev.of_node, 0);
+>           ^
+> cc1: all warnings being treated as errors
+> scripts/Makefile.build:267: recipe for target 'arch/powerpc/sysdev/fsl_85xx_l2ctlr.o' failed
+> make[2]: *** [arch/powerpc/sysdev/fsl_85xx_l2ctlr.o] Error 1
+> 
+> Fixes: commit 6db92cc9d07d ("powerpc/85xx: add cache-sram support")
+> Cc: stable <stable@vger.kernel.org>
+> Signed-off-by: WANG Wenhu <wenhu.wang@vivo.com>
 
-I would have sent the ATM card to your address by myself, but I lack
-the time to do that now because I have to urgently meet up with my
-business colleagues in Russia. I will be heading to the airport as
-soon as I send you this email because I will be traveling out of my
-country to Russia where I shall continue with a petroleum business
-engagements.
+Reviewed-by: Christophe Leroy <christophe.leroy@c-s.fr>
 
-For your good, I left the ATM card with one Mrss.Sumon, now go on and
-contact him through his email address so that he can dispatch to you
-the ATM card at your contact address.  Simply contact Mrss.Sumon
-immediately so that he can send the ATM card to you. Below is the
-contact of Mrss.Sumon;
-
-E-Mail:  mrsceline-sumon@secretary.net
-
-Name:    Mrss Celine Sumon
-
-I will no longer be able to email you again.
-
-Bye and best regards,
-
-Mr Ududonka Ahmed.
