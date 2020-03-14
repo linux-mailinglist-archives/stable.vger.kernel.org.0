@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E7E3D185737
-	for <lists+stable@lfdr.de>; Sun, 15 Mar 2020 02:34:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D924185739
+	for <lists+stable@lfdr.de>; Sun, 15 Mar 2020 02:34:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726721AbgCOBd5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 14 Mar 2020 21:33:57 -0400
-Received: from mail-oln040092066041.outbound.protection.outlook.com ([40.92.66.41]:39502
-        "EHLO EUR01-VE1-obe.outbound.protection.outlook.com"
+        id S1726871AbgCOBeB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 14 Mar 2020 21:34:01 -0400
+Received: from mail-oln040092075105.outbound.protection.outlook.com ([40.92.75.105]:4992
+        "EHLO EUR04-VI1-obe.outbound.protection.outlook.com"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726713AbgCOBd5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 14 Mar 2020 21:33:57 -0400
+        id S1726705AbgCOBeA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 14 Mar 2020 21:34:00 -0400
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=Q2JGEaFYwYJEyZPREVztBw/1m9NJvuDWX90umxUK/jlJldCzw6ipz3fKm0jSf3L9ww5zTjsC9TYonX9rTtVrqyG0P+24nlSoCS1WTLzCHzTPsrFivWoJHC25qWRUXfkPGonnDSUqpjZEuYB3CQlsU24R+naQAcPwHv3JI9dqb65HexU8O2zl4Crj1NNyLmc80OZ3YM/8S7VpB8b4jdu7Xlq6uMh4ihw+5kAW20NtzBWtVcWQY+HjhZ7ISawmBAad7n6DpWgFIAuR056OM9Ue03iAtG8fv0EJnGrnUgnpyLMU+KSxAKgEbuv0yoUuQAbRR1HUdKDQR2O6Dgfj+NTPVw==
+ b=Q+4M/xmhc023myQhgFcVgK9e5m3S/6YcivxKKHqF971tzl/d1IjZZB6vajrlVR/3ANsXohcq2I3kanwvWJVPYB1OMD17aiHgPffPk8jPA6GudjlDD/CZQw6OQ8esLf8XkVFYgDiHb5ZjY6AyjI/X+bvzCh3z11qv2hTNgCvkn4ilKAVDaT1sKHvfsMBWuzKcQglMwBM1LxBdCsX2wSsfVJxqlFr2teyVN4sqbUaUPYWZDKELgxjHGsgZ/NDY238EBm1+xpYCkwLlOQmWP0bOkPg3aJxjwkoKy5glZZ0ZmUbbeQ6h1Yb04pHbkgukZvqeHh8zDIBnL9GvUT9fHCO05A==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=FbE3uweMaaHJaWUfWTHug4W4TVzDc7pJcDEE3TtdOYE=;
- b=TTKUMfThpECLe7G+jrCqcmYdw/WLzd2W4tKW254D4d+uDk3aPjk94SdgyHFmyJOu8d/0fsWGPVyTwAeUOyr7MErp5h7SUtYg7Ncl9anfskp/2t3VpPqOrUasKGHrkll0ijaqwgLRwwUXQl0DmkMTx4nrCJ4PrrfbjmmGRWeCiQPyIKPGw+D89z3sdPnCDVQfs9uANYuGmgfDTOez7gWVHuA0pxsUj2Agjc/1BNfWSs24EiwnNdZYaPQFtzYs+6DL5zpLehAFY3+9vYiTcbVxC4dhFmkrlXeEyOlTLcQ5T4+f0KyTNsWH8K3RfvTtDW4fAXhRPd2cgUffofhrblNgew==
+ bh=0t14d3vmYMBeBtGI1RMkCE1K2Eye6ORicjQh/aQM3N0=;
+ b=BKZPqoHj7tWWah96/MVM93xT7Z2ea/UZClZxfhlGbQf9Fxelf7J/qZOX2YZF27oJEHoZal+44UdFdPnj2X3Fw5/YHewtX7CHqw/vn9E7k5krb6esB8RgS+G5qPdsK8E3lCX72PcrEi4zCyeYnH2DXpADDerExXKRD0K7nWi9xqmT3+eaFpqz9Lzm+GVwANhZhCcWURUHNhmzBsXqqg1glXPJ2A/bwhUbTWpovmjr1sVgvc+ErKCV5nR62H5yAn1kD5PiqWRrAFCW1KbNCmdTJgXfVvNrfSYsEU1d4BjfIQ/91Vc4s5JY+z3bir2r//z5h3KRbH5NkBBZB5vpoyMoRw==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=hotmail.de; dmarc=pass action=none header.from=hotmail.de;
  dkim=pass header.d=hotmail.de; arc=none
-Received: from HE1EUR01FT018.eop-EUR01.prod.protection.outlook.com
- (2a01:111:e400:7e18::34) by
- HE1EUR01HT012.eop-EUR01.prod.protection.outlook.com (2a01:111:e400:7e18::79)
+Received: from DB3EUR04FT009.eop-eur04.prod.protection.outlook.com
+ (2a01:111:e400:7e0c::38) by
+ DB3EUR04HT180.eop-eur04.prod.protection.outlook.com (2a01:111:e400:7e0c::107)
  with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.2814.14; Sat, 14 Mar
- 2020 09:12:46 +0000
-Received: from AM6PR03MB5170.eurprd03.prod.outlook.com (10.152.0.51) by
- HE1EUR01FT018.mail.protection.outlook.com (10.152.0.175) with Microsoft SMTP
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.2814.13; Sat, 14 Mar
+ 2020 09:57:13 +0000
+Received: from AM6PR03MB5170.eurprd03.prod.outlook.com (10.152.24.54) by
+ DB3EUR04FT009.mail.protection.outlook.com (10.152.24.230) with Microsoft SMTP
  Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.2814.14 via Frontend Transport; Sat, 14 Mar 2020 09:12:46 +0000
-X-IncomingTopHeaderMarker: OriginalChecksum:EEFED189FB7E781DFD65E1EB063B25B78C1D5D6E449ACC0F326C3EFD86AFDEBD;UpperCasedChecksum:763318C5EF22B2B27EBCBE92ECB34B0D0C5CA3D20A0C9E8BB989FABAA0EAECF1;SizeAsReceived:10376;Count:50
+ 15.20.2814.13 via Frontend Transport; Sat, 14 Mar 2020 09:57:13 +0000
+X-IncomingTopHeaderMarker: OriginalChecksum:FF41864A883BD405ABA604C0AF65CA0A23BDC59744F8CBC7816B6A046E5E1DF5;UpperCasedChecksum:74E380B2237A95D772639194018BAF266B3CFDC8E72DFFDA53E86DBC29C52239;SizeAsReceived:10362;Count:50
 Received: from AM6PR03MB5170.eurprd03.prod.outlook.com
  ([fe80::1956:d274:cab3:b4dd]) by AM6PR03MB5170.eurprd03.prod.outlook.com
  ([fe80::1956:d274:cab3:b4dd%6]) with mapi id 15.20.2814.018; Sat, 14 Mar 2020
- 09:12:46 +0000
-From:   Bernd Edlinger <bernd.edlinger@hotmail.de>
-Subject: [PATCH 0/2] exec: Fix dead-lock in de_thread with ptrace_attach
+ 09:57:13 +0000
+Subject: Re: [PATCH v2 5/5] exec: Add a exec_update_mutex to replace
+ cred_guard_mutex
 To:     Kirill Tkhai <ktkhai@virtuozzo.com>,
         "Eric W. Biederman" <ebiederm@xmission.com>
 Cc:     Christian Brauner <christian.brauner@ubuntu.com>,
@@ -89,81 +89,127 @@ References: <AM6PR03MB5170EB4427BF5C67EE98FF09E4E60@AM6PR03MB5170.eurprd03.prod.
  <87lfo5lju6.fsf@x220.int.ebiederm.org>
  <AM6PR03MB5170E9E71B9F84330B098BADE4FA0@AM6PR03MB5170.eurprd03.prod.outlook.com>
  <6002ac56-025a-d50f-e89d-1bf42a072323@virtuozzo.com>
-Message-ID: <AM6PR03MB5170396D87DED49FE00BC624E4FB0@AM6PR03MB5170.eurprd03.prod.outlook.com>
-Date:   Sat, 14 Mar 2020 10:12:43 +0100
+From:   Bernd Edlinger <bernd.edlinger@hotmail.de>
+Message-ID: <AM6PR03MB5170CF763987C24F22B38838E4FB0@AM6PR03MB5170.eurprd03.prod.outlook.com>
+Date:   Sat, 14 Mar 2020 10:57:02 +0100
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
  Thunderbird/60.6.1
 In-Reply-To: <6002ac56-025a-d50f-e89d-1bf42a072323@virtuozzo.com>
 Content-Type: text/plain; charset=windows-1252
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: ZRAP278CA0006.CHEP278.PROD.OUTLOOK.COM
- (2603:10a6:910:10::16) To AM6PR03MB5170.eurprd03.prod.outlook.com
- (2603:10a6:20b:ca::23)
-X-Microsoft-Original-Message-ID: <85f93145-03c3-9eab-458b-eca9e4f96dca@hotmail.de>
+X-ClientProxiedBy: FRYP281CA0005.DEUP281.PROD.OUTLOOK.COM (2603:10a6:d10::15)
+ To AM6PR03MB5170.eurprd03.prod.outlook.com (2603:10a6:20b:ca::23)
+X-Microsoft-Original-Message-ID: <acae6b84-112c-b4b0-5f8d-8041225b6bbb@hotmail.de>
 MIME-Version: 1.0
 X-MS-Exchange-MessageSentRepresentingType: 1
-Received: from [192.168.1.101] (92.77.140.102) by ZRAP278CA0006.CHEP278.PROD.OUTLOOK.COM (2603:10a6:910:10::16) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.2814.14 via Frontend Transport; Sat, 14 Mar 2020 09:12:44 +0000
-X-Microsoft-Original-Message-ID: <85f93145-03c3-9eab-458b-eca9e4f96dca@hotmail.de>
-X-TMN:  [HGNVDl+fo+q1MOx4BdQVKdKGq4mHjN9J]
+Received: from [192.168.1.101] (92.77.140.102) by FRYP281CA0005.DEUP281.PROD.OUTLOOK.COM (2603:10a6:d10::15) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.2814.18 via Frontend Transport; Sat, 14 Mar 2020 09:57:05 +0000
+X-Microsoft-Original-Message-ID: <acae6b84-112c-b4b0-5f8d-8041225b6bbb@hotmail.de>
+X-TMN:  [dJMluiESOM82Wyv2Ut3LbvVwuH1v2vrc]
 X-MS-PublicTrafficType: Email
 X-IncomingHeaderCount: 50
 X-EOPAttributedMessage: 0
-X-MS-Office365-Filtering-Correlation-Id: 6c6f3025-896e-4494-0afd-08d7c7f7dc2c
-X-MS-TrafficTypeDiagnostic: HE1EUR01HT012:
+X-MS-Office365-Filtering-Correlation-Id: 02c07a97-1088-47f3-bd76-08d7c7fe1193
+X-MS-TrafficTypeDiagnostic: DB3EUR04HT180:
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: syS9h4UbqfmM+o42cKahLPKcRkr07jSOIAN0IPZZsqtVAeQySjJJpQg17ZJiwj+i4NWCvKBz/LONLLwc9W0j8XJjETowVPJowNpTL4r+muwxEPOGgCKRto9ahb6o80dPH1XQzHthuEfn9w2ZiUaU3Yr1Dgt5TwolqIofUsPjsKX3aZju+LnXm+FBnkZ7t7eg
-X-MS-Exchange-AntiSpam-MessageData: B2plmnkFfYINcAorh99ZPutdmrWMWqDd18F6vKzATcQctW0FjSc87W1JRGYq7wy4fjC3Veov/kcWAQk+uRV4y+RFEoBOGSrky2u04BLgk1B5OuU3vlabGQHugYiqEDLg+7otLdX/yis3pe03w2ULzA==
+X-Microsoft-Antispam-Message-Info: lCPnaL6f8n7O6hBYVhT/p8DbBrrs3yAla2HphQ0DWv4UnlsONnH3y4qrDhgVjbfIP61KEMn6qPdm5wLqMcwc7g5dWAPVWrRlpUhvHhzCTVc59RvzA7ehUWJlNExknLoyQX0Lg45fwftHjLUB8wtUQykZC2WFAr8rihe5xEBVIPYBNNxnuvXfQjYHuYaOZvn3Yu6oTDqGIc+OBGwWRq8nvxHtvtHg/JpYQOcMszIOb+Q=
+X-MS-Exchange-AntiSpam-MessageData: Wn3kgHSfZD8gnOmY8gYrzpN0s5mmImPooFZkCxnxl4y4Q3tUDTiMYIbiScCXplHL1redMUXp3MipSNj/W/GIh5twJNCCHOTvw10F8CAGdI7WCBNRhTexlGloGxXNpBiNJUlprsOSBaCOKXD38YyrHg==
 X-OriginatorOrg: outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 6c6f3025-896e-4494-0afd-08d7c7f7dc2c
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 14 Mar 2020 09:12:46.5945
+X-MS-Exchange-CrossTenant-Network-Message-Id: 02c07a97-1088-47f3-bd76-08d7c7fe1193
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 14 Mar 2020 09:57:13.0178
  (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
 X-MS-Exchange-CrossTenant-Id: 84df9e7f-e9f6-40af-b435-aaaaaaaaaaaa
 X-MS-Exchange-CrossTenant-FromEntityHeader: Internet
 X-MS-Exchange-CrossTenant-RMS-PersistedConsumerOrg: 00000000-0000-0000-0000-000000000000
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: HE1EUR01HT012
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DB3EUR04HT180
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This completes the new infrastructure patch, and replaces the
-cred_guard_mutex with an exec_guard_mutex, and a boolean, that
-is set, when a dead-lock situation is detected.
+On 3/13/20 10:13 AM, Kirill Tkhai wrote:
+> 
+> Despite this should fix the problem, this looks like a broken puzzle.
+> 
+> We can't use bprm->cred as an identifier whether the mutex was locked or not.
+> We can check for bprm->cred in regard to cred_guard_mutex, because of there is
+> strong rule: "cred_guard_mutex is becomes locked together with bprm->cred assignment
+> (see prepare_bprm_creds()), and it becomes unlocked together with bprm->cred zeroing".
+> Take attention on modularity of all this: there is no dependencies between anything else.
+> 
+> In regard to newly introduced exec_update_mutex, your fix and source patch way look like
+> an obfuscation. The mutex becomes deadly glued to unrelated bprm->cred and bprm->mm,
+> and this introduces the problems in the future modifications and support of all involved
+> entities. If someone wants to move some functions in relation to each other, there will
+> be a pain, and this person will have to go again the same dependencies and bug way,
+> Eric stepped on in the original patch.
+> 
 
-I also change ptrace_traceme to use the new mutex, but I consider
-it a bug, that it didn't take any mutex previously since it calls
-security_ptrace_traceme, and all the security modules operate under
-the assumption that execve is not operating in parallel.
+Okay, yes, valid points you make, thanks.
+I just wanted to understand what was exactly wrong with this patch,
+since the failure mode looked a lot like it was failing because of
+something clobbering the data unexpectedly.
 
-This patch fixes the test case tools/testing/selftests/ptrace/vmaccess:
 
-[==========] Running 2 tests from 1 test cases.
-[ RUN      ] global.vmaccess
-[       OK ] global.vmaccess
-[ RUN      ] global.attach
-[       OK ] global.attach  <= this was still failing
-[==========] 2 / 2 tests passed.
-[  PASSED  ]
+So I have posted a few updated patch for the failed one here:
 
-Yes, it is an API change, but only in some very special case,
-so I would exepect this to be un-noticeable to user space applications.
+[PATCH v3 5/5] exec: Add a exec_update_mutex to replace cred_guard_mutex
+[PATCH] pidfd: Use new infrastructure to fix deadlocks in execve
 
-Bernd Edlinger (2):
-  exec: Fix dead-lock in de_thread with ptrace_attach
-  doc: Update documentation of ->exec_*_mutex
+which replaces these:
+[PATCH v2 5/5] exec: Add a exec_update_mutex to replace cred_guard_mutex
+https://lore.kernel.org/lkml/87zhcq4jdj.fsf_-_@x220.int.ebiederm.org/
 
- Documentation/security/credentials.rst | 29 +++++++++++++++-------
- fs/exec.c                              | 44 +++++++++++++++++++++++++++-------
- fs/proc/base.c                         | 13 ++++++----
- include/linux/sched/signal.h           | 14 +++++++----
- init/init_task.c                       |  2 +-
- kernel/cred.c                          |  2 +-
- kernel/fork.c                          |  2 +-
- kernel/ptrace.c                        | 20 +++++++++++++---
- kernel/seccomp.c                       | 15 +++++++-----
- 9 files changed, 102 insertions(+), 39 deletions(-)
+[PATCH] pidfd: Stop taking cred_guard_mutex 
+https://lore.kernel.org/lkml/87wo7svy96.fsf_-_@x220.int.ebiederm.org/
 
--- 
-1.9.1
+
+and a new patch series to fix deadlock in ptrace_attach and update doc:
+[PATCH 0/2] exec: Fix dead-lock in de_thread with ptrace_attach
+[PATCH 1/2] exec: Fix dead-lock in de_thread with ptrace_attach
+[PATCH 2/2] doc: Update documentation of ->exec_*_mutex
+
+
+Other patches needed, still valid:
+
+[PATCH v2 1/5] exec: Only compute current once in flush_old_exec
+https://lore.kernel.org/lkml/87pndm5y3l.fsf_-_@x220.int.ebiederm.org/
+
+[PATCH v2 2/5] exec: Factor unshare_sighand out of de_thread and call it separately
+https://lore.kernel.org/lkml/87k13u5y26.fsf_-_@x220.int.ebiederm.org/
+
+[PATCH v2 4/5] exec: Move exec_mmap right after de_thread in flush_old_exec
+https://lore.kernel.org/lkml/875zfe5xzb.fsf_-_@x220.int.ebiederm.org/
+
+[PATCH 1/4] exec: Fix a deadlock in ptrace
+https://lore.kernel.org/lkml/AM6PR03MB517033EAD25BED15CC84E17DE4FF0@AM6PR03MB5170.eurprd03.prod.outlook.com/
+
+[PATCH 2/4] selftests/ptrace: add test cases for dead-locks
+https://lore.kernel.org/lkml/AM6PR03MB51703199741A2C27A78980FFE4FF0@AM6PR03MB5170.eurprd03.prod.outlook.com/
+
+[PATCH 3/4] mm: docs: Fix a comment in process_vm_rw_core
+https://lore.kernel.org/lkml/AM6PR03MB5170ED6D4D216EEEEF400136E4FF0@AM6PR03MB5170.eurprd03.prod.outlook.com/
+
+[PATCH 4/4] kernel: doc: remove outdated comment cred.c
+https://lore.kernel.org/lkml/AM6PR03MB517039DB07AB641C194FEA57E4FF0@AM6PR03MB5170.eurprd03.prod.outlook.com/
+
+[PATCH 1/4] kernel/kcmp.c: Use new infrastructure to fix deadlocks in execve
+https://lore.kernel.org/lkml/AM6PR03MB517057A2269C3A4FB287B76EE4FF0@AM6PR03MB5170.eurprd03.prod.outlook.com/
+
+[PATCH 2/4] proc: Use new infrastructure to fix deadlocks in execve
+https://lore.kernel.org/lkml/AM6PR03MB51705D211EC8E7EA270627B1E4FF0@AM6PR03MB5170.eurprd03.prod.outlook.com/
+
+[PATCH 3/4] proc: io_accounting: Use new infrastructure to fix deadlocks in execve
+https://lore.kernel.org/lkml/AM6PR03MB5170BD2476E35068E182EFA4E4FF0@AM6PR03MB5170.eurprd03.prod.outlook.com/
+
+[PATCH 4/4] perf: Use new infrastructure to fix deadlocks in execve
+https://lore.kernel.org/lkml/AM6PR03MB517035DEEDB9C8699CB6B34EE4FF0@AM6PR03MB5170.eurprd03.prod.outlook.com/
+
+
+I think most of the existing patches are already approved, but if
+there are still change requests, please let me know.
+
+
+Thanks
+Bernd.
