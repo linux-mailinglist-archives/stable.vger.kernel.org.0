@@ -2,48 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C1EE1856F4
-	for <lists+stable@lfdr.de>; Sun, 15 Mar 2020 02:30:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E7E3D185737
+	for <lists+stable@lfdr.de>; Sun, 15 Mar 2020 02:34:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727261AbgCOBak (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 14 Mar 2020 21:30:40 -0400
-Received: from mail-oln040092065107.outbound.protection.outlook.com ([40.92.65.107]:16462
-        "EHLO EUR01-HE1-obe.outbound.protection.outlook.com"
+        id S1726721AbgCOBd5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 14 Mar 2020 21:33:57 -0400
+Received: from mail-oln040092066041.outbound.protection.outlook.com ([40.92.66.41]:39502
+        "EHLO EUR01-VE1-obe.outbound.protection.outlook.com"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726680AbgCOB3J (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 14 Mar 2020 21:29:09 -0400
+        id S1726713AbgCOBd5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 14 Mar 2020 21:33:57 -0400
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=SgA6EBaojAjsbYUZkCAQrEFbzgUo3q4xT5fS5ak+pDgKm4cn8sWysNdVmSYe9fNOJWx81lA7cVjAC/sLuFb9yLJFgihlKiOn38WHYfaKaJJ5KhoYqV9R6+wW/lhKmR7mdhUJqsf9Vcp3o2eg9Z7E8N3ZvjEmmUxzWTNDRmm+rjGdSr+l/Tf8ihODLlLvbxbwpjJF4lhpwY8Xsszf2qWzeMZXaWkTXFexO35z1WWVU+tOqTRxpouG3JEDpy0OuUErnwIoZR+A6baTab8h+XiaNKoZAZwA+pg2wP4HXMPMsGKadSz9L9b4z3KPyLoIo5k8uPeRREMphe0JeAukcP5glQ==
+ b=Q2JGEaFYwYJEyZPREVztBw/1m9NJvuDWX90umxUK/jlJldCzw6ipz3fKm0jSf3L9ww5zTjsC9TYonX9rTtVrqyG0P+24nlSoCS1WTLzCHzTPsrFivWoJHC25qWRUXfkPGonnDSUqpjZEuYB3CQlsU24R+naQAcPwHv3JI9dqb65HexU8O2zl4Crj1NNyLmc80OZ3YM/8S7VpB8b4jdu7Xlq6uMh4ihw+5kAW20NtzBWtVcWQY+HjhZ7ISawmBAad7n6DpWgFIAuR056OM9Ue03iAtG8fv0EJnGrnUgnpyLMU+KSxAKgEbuv0yoUuQAbRR1HUdKDQR2O6Dgfj+NTPVw==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=meX3nDI9o3TzXq867HU1KY3Z19ClxKI7SASWGcBAVMY=;
- b=VICr7+cdW53RWeCIuv9W+Zt05MmTVwaNvUB+w9qPlQXCX9fjw8KPlMv5pS/aV31/uIOOpxVRdg6CEv3GWY8d3X2Km38nYpoksJZtFJhcjN7zO2Jb/DWhKTnYpMcOM/ju/6reZDfSqzmb90OFoIhrontmBwnhPnZlUjbYJoyqZ568AVH8gpCrESW78hFKqnBDqRjsplYe2bChe29xuku/ZRA0zukeoObaVFmYAdpFkdtDGVGuvnY1jXqUwrMKIel8kgt1kD7Upm6babBz6D/aJNiNGGLeT9bxSTW8YK+VQv+ZzfGIizGqjna071SiYuv7Gb8SkfpuNpDlueXd6HGlnw==
+ bh=FbE3uweMaaHJaWUfWTHug4W4TVzDc7pJcDEE3TtdOYE=;
+ b=TTKUMfThpECLe7G+jrCqcmYdw/WLzd2W4tKW254D4d+uDk3aPjk94SdgyHFmyJOu8d/0fsWGPVyTwAeUOyr7MErp5h7SUtYg7Ncl9anfskp/2t3VpPqOrUasKGHrkll0ijaqwgLRwwUXQl0DmkMTx4nrCJ4PrrfbjmmGRWeCiQPyIKPGw+D89z3sdPnCDVQfs9uANYuGmgfDTOez7gWVHuA0pxsUj2Agjc/1BNfWSs24EiwnNdZYaPQFtzYs+6DL5zpLehAFY3+9vYiTcbVxC4dhFmkrlXeEyOlTLcQ5T4+f0KyTNsWH8K3RfvTtDW4fAXhRPd2cgUffofhrblNgew==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=hotmail.de; dmarc=pass action=none header.from=hotmail.de;
  dkim=pass header.d=hotmail.de; arc=none
 Received: from HE1EUR01FT018.eop-EUR01.prod.protection.outlook.com
- (2a01:111:e400:7e18::3b) by
- HE1EUR01HT032.eop-EUR01.prod.protection.outlook.com (2a01:111:e400:7e18::319)
+ (2a01:111:e400:7e18::34) by
+ HE1EUR01HT012.eop-EUR01.prod.protection.outlook.com (2a01:111:e400:7e18::79)
  with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.2814.14; Sat, 14 Mar
- 2020 09:12:14 +0000
+ 2020 09:12:46 +0000
 Received: from AM6PR03MB5170.eurprd03.prod.outlook.com (10.152.0.51) by
  HE1EUR01FT018.mail.protection.outlook.com (10.152.0.175) with Microsoft SMTP
  Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.2814.14 via Frontend Transport; Sat, 14 Mar 2020 09:12:14 +0000
-X-IncomingTopHeaderMarker: OriginalChecksum:51FA84E8CBF5BA95130215CF09FD6D30ABCD365C58E1B3571D0B5C3CA68972C6;UpperCasedChecksum:724E1E87A544DDE79417B7EE4D3A18DAB804C958AA3068EAD60B899BA2E053FB;SizeAsReceived:9923;Count:50
+ 15.20.2814.14 via Frontend Transport; Sat, 14 Mar 2020 09:12:46 +0000
+X-IncomingTopHeaderMarker: OriginalChecksum:EEFED189FB7E781DFD65E1EB063B25B78C1D5D6E449ACC0F326C3EFD86AFDEBD;UpperCasedChecksum:763318C5EF22B2B27EBCBE92ECB34B0D0C5CA3D20A0C9E8BB989FABAA0EAECF1;SizeAsReceived:10376;Count:50
 Received: from AM6PR03MB5170.eurprd03.prod.outlook.com
  ([fe80::1956:d274:cab3:b4dd]) by AM6PR03MB5170.eurprd03.prod.outlook.com
  ([fe80::1956:d274:cab3:b4dd%6]) with mapi id 15.20.2814.018; Sat, 14 Mar 2020
- 09:12:14 +0000
+ 09:12:46 +0000
 From:   Bernd Edlinger <bernd.edlinger@hotmail.de>
-Subject: [PATCH] pidfd: Use new infrastructure to fix deadlocks in execve
-To:     Kees Cook <keescook@chromium.org>,
+Subject: [PATCH 0/2] exec: Fix dead-lock in de_thread with ptrace_attach
+To:     Kirill Tkhai <ktkhai@virtuozzo.com>,
         "Eric W. Biederman" <ebiederm@xmission.com>
-Cc:     Jann Horn <jannh@google.com>,
-        Christian Brauner <christian.brauner@ubuntu.com>,
-        Jonathan Corbet <corbet@lwn.net>,
+Cc:     Christian Brauner <christian.brauner@ubuntu.com>,
+        Kees Cook <keescook@chromium.org>,
+        Jann Horn <jannh@google.com>, Jonathan Corbet <corbet@lwn.net>,
         Alexander Viro <viro@zeniv.linux.org.uk>,
         Andrew Morton <akpm@linux-foundation.org>,
         Alexey Dobriyan <adobriyan@gmail.com>,
@@ -71,94 +71,99 @@ Cc:     Jann Horn <jannh@google.com>,
         "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>,
         "linux-mm@kvack.org" <linux-mm@kvack.org>,
         "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "linux-api@vger.kernel.org" <linux-api@vger.kernel.org>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Sargun Dhillon <sargun@sargun.me>
-References: <877dztz415.fsf@x220.int.ebiederm.org>
- <20200309201729.yk5sd26v4bz4gtou@wittgenstein>
- <87k13txnig.fsf@x220.int.ebiederm.org>
- <20200310085540.pztaty2mj62xt2nm@wittgenstein>
- <87wo7svy96.fsf_-_@x220.int.ebiederm.org>
- <CAG48ez2cUZMVOAXfHPNjKjYsMSaWkjUjOCHo0KYZ+oXQUW4viA@mail.gmail.com>
- <87k13sui1p.fsf@x220.int.ebiederm.org>
- <CAG48ez2vRgaEVJ=Rs8gn6HkGO6syL8MpSOUq7BNN+OUE1uYxCA@mail.gmail.com>
- <CAG48ez1LjW1xAGe-5tNtstCWxG2bkiHaQUMOcJNjx=z-2Wc2Jw@mail.gmail.com>
- <87lfo8rkqo.fsf@x220.int.ebiederm.org> <202003111148.19578AA@keescook>
-Message-ID: <AM6PR03MB51706BB74E5588128CD62D64E4FB0@AM6PR03MB5170.eurprd03.prod.outlook.com>
-Date:   Sat, 14 Mar 2020 10:12:11 +0100
+        "linux-api@vger.kernel.org" <linux-api@vger.kernel.org>
+References: <AM6PR03MB5170EB4427BF5C67EE98FF09E4E60@AM6PR03MB5170.eurprd03.prod.outlook.com>
+ <87v9nlii0b.fsf@x220.int.ebiederm.org>
+ <AM6PR03MB5170609D44967E044FD1BE40E4E40@AM6PR03MB5170.eurprd03.prod.outlook.com>
+ <87a74xi4kz.fsf@x220.int.ebiederm.org>
+ <AM6PR03MB51705AA3009B4986BB6EF92FE4E50@AM6PR03MB5170.eurprd03.prod.outlook.com>
+ <87r1y8dqqz.fsf@x220.int.ebiederm.org>
+ <AM6PR03MB517053AED7DC89F7C0704B7DE4E50@AM6PR03MB5170.eurprd03.prod.outlook.com>
+ <AM6PR03MB51703B44170EAB4626C9B2CAE4E20@AM6PR03MB5170.eurprd03.prod.outlook.com>
+ <87tv32cxmf.fsf_-_@x220.int.ebiederm.org>
+ <87v9ne5y4y.fsf_-_@x220.int.ebiederm.org>
+ <87zhcq4jdj.fsf_-_@x220.int.ebiederm.org>
+ <f37a5d68-9674-533f-ee9c-a49174605710@virtuozzo.com>
+ <87d09hn4kt.fsf@x220.int.ebiederm.org>
+ <dbce35c7-c060-cfd8-bde1-98fd9a0747a9@virtuozzo.com>
+ <87lfo5lju6.fsf@x220.int.ebiederm.org>
+ <AM6PR03MB5170E9E71B9F84330B098BADE4FA0@AM6PR03MB5170.eurprd03.prod.outlook.com>
+ <6002ac56-025a-d50f-e89d-1bf42a072323@virtuozzo.com>
+Message-ID: <AM6PR03MB5170396D87DED49FE00BC624E4FB0@AM6PR03MB5170.eurprd03.prod.outlook.com>
+Date:   Sat, 14 Mar 2020 10:12:43 +0100
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
  Thunderbird/60.6.1
-In-Reply-To: <202003111148.19578AA@keescook>
+In-Reply-To: <6002ac56-025a-d50f-e89d-1bf42a072323@virtuozzo.com>
 Content-Type: text/plain; charset=windows-1252
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: ZRAP278CA0011.CHEP278.PROD.OUTLOOK.COM
- (2603:10a6:910:10::21) To AM6PR03MB5170.eurprd03.prod.outlook.com
+X-ClientProxiedBy: ZRAP278CA0006.CHEP278.PROD.OUTLOOK.COM
+ (2603:10a6:910:10::16) To AM6PR03MB5170.eurprd03.prod.outlook.com
  (2603:10a6:20b:ca::23)
-X-Microsoft-Original-Message-ID: <23b22eca-8f06-6036-c51c-6a87f559c2f6@hotmail.de>
+X-Microsoft-Original-Message-ID: <85f93145-03c3-9eab-458b-eca9e4f96dca@hotmail.de>
 MIME-Version: 1.0
 X-MS-Exchange-MessageSentRepresentingType: 1
-Received: from [192.168.1.101] (92.77.140.102) by ZRAP278CA0011.CHEP278.PROD.OUTLOOK.COM (2603:10a6:910:10::21) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.2814.16 via Frontend Transport; Sat, 14 Mar 2020 09:12:12 +0000
-X-Microsoft-Original-Message-ID: <23b22eca-8f06-6036-c51c-6a87f559c2f6@hotmail.de>
-X-TMN:  [TOOIoRbPJhaUmm2QCnSS9uc4EfUfaL77]
+Received: from [192.168.1.101] (92.77.140.102) by ZRAP278CA0006.CHEP278.PROD.OUTLOOK.COM (2603:10a6:910:10::16) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.2814.14 via Frontend Transport; Sat, 14 Mar 2020 09:12:44 +0000
+X-Microsoft-Original-Message-ID: <85f93145-03c3-9eab-458b-eca9e4f96dca@hotmail.de>
+X-TMN:  [HGNVDl+fo+q1MOx4BdQVKdKGq4mHjN9J]
 X-MS-PublicTrafficType: Email
 X-IncomingHeaderCount: 50
 X-EOPAttributedMessage: 0
-X-MS-Office365-Filtering-Correlation-Id: a164edd3-e313-422a-b43f-08d7c7f7c8f6
-X-MS-TrafficTypeDiagnostic: HE1EUR01HT032:
+X-MS-Office365-Filtering-Correlation-Id: 6c6f3025-896e-4494-0afd-08d7c7f7dc2c
+X-MS-TrafficTypeDiagnostic: HE1EUR01HT012:
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: znmYawuvz+lGrWm1cAxK0euN4MrulX7G+PBhM1sc4edD5nzygIAKiwLMSzOnY7xsThbpCks1WljtEa5ZWBweKKL0XGp+bHawdpEBboevWTU8fpcUS8FStquC7+4SWJqyRkqiO+0oGBVXcm60KDThihFebKaL0n+VwITjQeQN5naqeDUW4M1pWgtmRnqsJmj9
-X-MS-Exchange-AntiSpam-MessageData: y+wj5sYdckEoDefowsMI3A9TmwPKNEM7n8/Hf4DKDIMVJ8cJSvf+RZgVU4VB/9wB5Vl+1yIW+wgrGsdwV0TJiP2YZVCtf2ghS55wN32nc7BLPdlvNs5SaHDcRXxNKk+Q3i7Zbey9yDoqcYY10YSgnw==
+X-Microsoft-Antispam-Message-Info: syS9h4UbqfmM+o42cKahLPKcRkr07jSOIAN0IPZZsqtVAeQySjJJpQg17ZJiwj+i4NWCvKBz/LONLLwc9W0j8XJjETowVPJowNpTL4r+muwxEPOGgCKRto9ahb6o80dPH1XQzHthuEfn9w2ZiUaU3Yr1Dgt5TwolqIofUsPjsKX3aZju+LnXm+FBnkZ7t7eg
+X-MS-Exchange-AntiSpam-MessageData: B2plmnkFfYINcAorh99ZPutdmrWMWqDd18F6vKzATcQctW0FjSc87W1JRGYq7wy4fjC3Veov/kcWAQk+uRV4y+RFEoBOGSrky2u04BLgk1B5OuU3vlabGQHugYiqEDLg+7otLdX/yis3pe03w2ULzA==
 X-OriginatorOrg: outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: a164edd3-e313-422a-b43f-08d7c7f7c8f6
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 14 Mar 2020 09:12:14.1943
+X-MS-Exchange-CrossTenant-Network-Message-Id: 6c6f3025-896e-4494-0afd-08d7c7f7dc2c
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 14 Mar 2020 09:12:46.5945
  (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
 X-MS-Exchange-CrossTenant-Id: 84df9e7f-e9f6-40af-b435-aaaaaaaaaaaa
 X-MS-Exchange-CrossTenant-FromEntityHeader: Internet
 X-MS-Exchange-CrossTenant-RMS-PersistedConsumerOrg: 00000000-0000-0000-0000-000000000000
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: HE1EUR01HT032
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: HE1EUR01HT012
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This changes __pidfd_fget to use the new exec_update_mutex
-instead of cred_guard_mutex.
+This completes the new infrastructure patch, and replaces the
+cred_guard_mutex with an exec_guard_mutex, and a boolean, that
+is set, when a dead-lock situation is detected.
 
-This should be safe, as the credentials do not change
-before exec_update_mutex is locked.  Therefore whatever
-file access is possible with holding the cred_guard_mutex
-here is also possbile with the exec_update_mutex.
+I also change ptrace_traceme to use the new mutex, but I consider
+it a bug, that it didn't take any mutex previously since it calls
+security_ptrace_traceme, and all the security modules operate under
+the assumption that execve is not operating in parallel.
 
-Signed-off-by: Bernd Edlinger <bernd.edlinger@hotmail.de>
----
- kernel/pid.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+This patch fixes the test case tools/testing/selftests/ptrace/vmaccess:
 
-This replaces Eric's "[PATCH] pidfd: Stop taking cred_guard_mutex"
+[==========] Running 2 tests from 1 test cases.
+[ RUN      ] global.vmaccess
+[       OK ] global.vmaccess
+[ RUN      ] global.attach
+[       OK ] global.attach  <= this was still failing
+[==========] 2 / 2 tests passed.
+[  PASSED  ]
 
-diff --git a/kernel/pid.c b/kernel/pid.c
-index 0f4ecb5..04821f4 100644
---- a/kernel/pid.c
-+++ b/kernel/pid.c
-@@ -584,7 +584,7 @@ static struct file *__pidfd_fget(struct task_struct *task, int fd)
- 	struct file *file;
- 	int ret;
- 
--	ret = mutex_lock_killable(&task->signal->cred_guard_mutex);
-+	ret = mutex_lock_killable(&task->signal->exec_update_mutex);
- 	if (ret)
- 		return ERR_PTR(ret);
- 
-@@ -593,7 +593,7 @@ static struct file *__pidfd_fget(struct task_struct *task, int fd)
- 	else
- 		file = ERR_PTR(-EPERM);
- 
--	mutex_unlock(&task->signal->cred_guard_mutex);
-+	mutex_unlock(&task->signal->exec_update_mutex);
- 
- 	return file ?: ERR_PTR(-EBADF);
- }
+Yes, it is an API change, but only in some very special case,
+so I would exepect this to be un-noticeable to user space applications.
+
+Bernd Edlinger (2):
+  exec: Fix dead-lock in de_thread with ptrace_attach
+  doc: Update documentation of ->exec_*_mutex
+
+ Documentation/security/credentials.rst | 29 +++++++++++++++-------
+ fs/exec.c                              | 44 +++++++++++++++++++++++++++-------
+ fs/proc/base.c                         | 13 ++++++----
+ include/linux/sched/signal.h           | 14 +++++++----
+ init/init_task.c                       |  2 +-
+ kernel/cred.c                          |  2 +-
+ kernel/fork.c                          |  2 +-
+ kernel/ptrace.c                        | 20 +++++++++++++---
+ kernel/seccomp.c                       | 15 +++++++-----
+ 9 files changed, 102 insertions(+), 39 deletions(-)
+
 -- 
 1.9.1
