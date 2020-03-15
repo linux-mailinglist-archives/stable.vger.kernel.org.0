@@ -2,116 +2,78 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 84921185C08
-	for <lists+stable@lfdr.de>; Sun, 15 Mar 2020 11:47:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E6E5B185C62
+	for <lists+stable@lfdr.de>; Sun, 15 Mar 2020 13:37:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728291AbgCOKrm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 15 Mar 2020 06:47:42 -0400
-Received: from out4-smtp.messagingengine.com ([66.111.4.28]:51017 "EHLO
-        out4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728278AbgCOKrl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 15 Mar 2020 06:47:41 -0400
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailout.nyi.internal (Postfix) with ESMTP id 4760C2209B;
-        Sun, 15 Mar 2020 06:47:41 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Sun, 15 Mar 2020 06:47:41 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=Pxu4XN
-        l99zOWKPHydP5aCJIQXRK4OjWw/Oicw5Zj4fk=; b=QSMIylEDSV0kv/LF3Ut3HQ
-        ZxrStjt1F94+etSjQz8x4epxn5qA5W2TjkUMwvFfsgi0WxVvKMguKlaVpWZ94ap/
-        ut09pu+8FfIeo26oMtE51ACVzdrfz301/0gn42QNGGofbwlWv0Y7UkoYUTe+VRKC
-        mEuSJ+0xfwt43SlTZQ8fonHUXsMvZwMQKtGgjBoAbBWGSNWV3uQc5JuBB6A4acQ7
-        HcPuNyYf6VebtY9K4xjq9cYf91J+xALhkw0tQCpZI+qcrWYJrWs88Vb1o0Zi5VJD
-        NohBL79L8p5k3fBDFJ8DlC7Fspc07S1/Ib0R+TnTzQDnnlffZR6ZibcU0mndDJKQ
-        ==
-X-ME-Sender: <xms:zQduXqW7UD93Z-vnycsp4Ajo07qUL_o40gVhf2b53tR_vNCx6dV-Dw>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedugedrudeftddgudefkecutefuodetggdotefrod
-    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
-    necuuegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertd
-    dttdflnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdho
-    rhhgqeenucfkphepkeefrdekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivgeptd
-    enucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:zQduXiVZoIz3z6QtJjp4OQEb6VZHK5Zh_CoICowXSrYs7kXpl3FEUQ>
-    <xmx:zQduXhIE59NhSgfACdtYYQpMeF_uUiOKG_nQOXIl9pNnRw-kbraziA>
-    <xmx:zQduXnXmghMtwcVict9oditVOPdepQaenyWLQy6XIyuhRbP0F4R2xg>
-    <xmx:zQduXkiYmRGhIZ-_9UL_Ae0do5-YpQ_AX47wRFYW4Jon13o1LGZsWQ>
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id DA4C83280065;
-        Sun, 15 Mar 2020 06:47:40 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] net: dsa: mv88e6xxx: fix lockup on warm boot" failed to apply to 4.14-stable tree
-To:     rmk+kernel@armlinux.org.uk, andrew@lunn.ch, davem@davemloft.net
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 15 Mar 2020 11:47:31 +0100
-Message-ID: <158426925132136@kroah.com>
+        id S1728507AbgCOMh7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 15 Mar 2020 08:37:59 -0400
+Received: from mail-io1-f67.google.com ([209.85.166.67]:44188 "EHLO
+        mail-io1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728496AbgCOMh6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 15 Mar 2020 08:37:58 -0400
+Received: by mail-io1-f67.google.com with SMTP id v3so4160292iot.11
+        for <stable@vger.kernel.org>; Sun, 15 Mar 2020 05:37:58 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=RFjST6WTWl2HErgo/MFlw9oz3Ck4pyxWRgkJWzlGF00=;
+        b=Rp91QrfDVAiOgYjLz4zOH1oU4S9j13lelDJKdMhk/wnZ3HM7KTek66S1hARMYvosv3
+         dvPiaoM6f6PubxVAa28Bl2oEn7CkmUrVknb538lzVWk4XxQO4NvjWjC37mNu6gZksgww
+         88dbvTW2MIy0rse0DcvZbGxmuIkXXg+MQwDcXEqdqRs8kc+PFBnH0qkxr7H/bFpqfi0L
+         Fj79wXJqOSYibjABvS1WLgG5VWDYndvxmzo3EcLkb+R1sCqKxw+w0WajLd3/INb2jfcY
+         kxuFUAqM8mApDMVAU1F0HrFmT26Iyg/znfDGPTwJ8aj2s7cGerYhQ1i394aW2a3dKiey
+         AqBA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=RFjST6WTWl2HErgo/MFlw9oz3Ck4pyxWRgkJWzlGF00=;
+        b=mq+KvoXH2P7mNFkHkLLC7OtOozxtNjPc6lB+rR6DIT2zDwyDc6BnI/pTCAGUiB6raW
+         8z93eKo9gZzNba4qH/UDEImfRh2HQOFcIzqSLRHChf5asSYm/iteuOlZeYcLRa9x26tT
+         erRahg7tBuAqjKKPqOGzbMIlTgGcUtC5MmEA55sOx1cDwS6iBMQblmVtkm1VPpJTuH05
+         1g5mZAwI1uQGud+s1qS6On/3GwNjtC+uhGn2SF5GMm1AupRPenh+TuMidULXQRvURKMv
+         tjSD2sgtxn5FnjFVdFZlJJrawA02iPHefLTYT2HH7u73K13SjSHJZX4jqqBZBd4SJPyA
+         znWQ==
+X-Gm-Message-State: ANhLgQ3HBIQj6jBtZZNVuBEpqykFy32dLZ2TNLWkfXWlAECyjPxoO5oF
+        3x05KyCJwjx1Ew1cPE5aSRzBNCzfgtsX2WQ74JM=
+X-Google-Smtp-Source: ADFU+vuNouYY6/GgEYnCuim5wm1Bfk4R5YaaVUMkFp+8STe5giMyeVij6ts3v9VFv0wZyr7EJK25WdNzzVi6OEMA6sE=
+X-Received: by 2002:a02:b09c:: with SMTP id v28mr20596627jah.82.1584275877674;
+ Sun, 15 Mar 2020 05:37:57 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Received: by 2002:a02:cd38:0:0:0:0:0 with HTTP; Sun, 15 Mar 2020 05:37:57
+ -0700 (PDT)
+Reply-To: dunawattara96@outlook.com
+From:   Mr Duna Wattara <drhajizo31@gmail.com>
+Date:   Sun, 15 Mar 2020 05:37:57 -0700
+Message-ID: <CACp2wHyyHk0GM5NC==1K7K0HSqogRfhSA1jSEGwNyrtHaB1z5g@mail.gmail.com>
+Subject: with due respect
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Dear Friend,
 
-The patch below does not apply to the 4.14-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+I know that this mail will come to you as a surprise as we have never
+met before, but need not to worry as I am contacting you independently
+of my investigation and no one is informed of this communication.
 
-thanks,
+I need your urgent assistance in transferring the sum of $11.3million
+immediately to your private account.The money has been here in our
+Bank lying dormant for years now without anybody coming for the claim of it.
 
-greg k-h
+I want to release the money to you as the relative to our deceased
+customer (the account owner) who died a long with his supposed NEXT OF
+KIN since 16th October 2005. The Banking laws here does not allow such
+money to stay more than 15 years, because the money will be recalled
+to the Bank treasury account as unclaimed fund.
 
------------------- original commit in Linus's tree ------------------
+By indicating your interest I will send you the full details on how
+the business will be executed.
 
-From 0395823b8d9a4d87bd1bf74359123461c2ae801b Mon Sep 17 00:00:00 2001
-From: Russell King <rmk+kernel@armlinux.org.uk>
-Date: Fri, 28 Feb 2020 19:39:41 +0000
-Subject: [PATCH] net: dsa: mv88e6xxx: fix lockup on warm boot
+Please respond urgently and delete if you are not interested.
 
-If the switch is not hardware reset on a warm boot, interrupts can be
-left enabled, and possibly pending. This will cause us to enter an
-infinite loop trying to service an interrupt we are unable to handle,
-thereby preventing the kernel from booting.
-
-Ensure that the global 2 interrupt sources are disabled before we claim
-the parent interrupt.
-
-Observed on the ZII development revision B and C platforms with
-reworked serdes support, and using reboot -f to reboot the platform.
-
-Fixes: dc30c35be720 ("net: dsa: mv88e6xxx: Implement interrupt support.")
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-
-diff --git a/drivers/net/dsa/mv88e6xxx/global2.c b/drivers/net/dsa/mv88e6xxx/global2.c
-index 01503014b1ee..8fd483020c5b 100644
---- a/drivers/net/dsa/mv88e6xxx/global2.c
-+++ b/drivers/net/dsa/mv88e6xxx/global2.c
-@@ -1099,6 +1099,13 @@ int mv88e6xxx_g2_irq_setup(struct mv88e6xxx_chip *chip)
- {
- 	int err, irq, virq;
- 
-+	chip->g2_irq.masked = ~0;
-+	mv88e6xxx_reg_lock(chip);
-+	err = mv88e6xxx_g2_int_mask(chip, ~chip->g2_irq.masked);
-+	mv88e6xxx_reg_unlock(chip);
-+	if (err)
-+		return err;
-+
- 	chip->g2_irq.domain = irq_domain_add_simple(
- 		chip->dev->of_node, 16, 0, &mv88e6xxx_g2_irq_domain_ops, chip);
- 	if (!chip->g2_irq.domain)
-@@ -1108,7 +1115,6 @@ int mv88e6xxx_g2_irq_setup(struct mv88e6xxx_chip *chip)
- 		irq_create_mapping(chip->g2_irq.domain, irq);
- 
- 	chip->g2_irq.chip = mv88e6xxx_g2_irq_chip;
--	chip->g2_irq.masked = ~0;
- 
- 	chip->device_irq = irq_find_mapping(chip->g1_irq.domain,
- 					    MV88E6XXX_G1_STS_IRQ_DEVICE);
-
+Best Regards,
+Mr. Duna Wattara.
