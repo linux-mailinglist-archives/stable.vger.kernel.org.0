@@ -2,107 +2,139 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2897B185FCD
-	for <lists+stable@lfdr.de>; Sun, 15 Mar 2020 21:36:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A21AC186019
+	for <lists+stable@lfdr.de>; Sun, 15 Mar 2020 22:44:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729151AbgCOUg5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 15 Mar 2020 16:36:57 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:59142 "EHLO
-        shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729122AbgCOUg5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 15 Mar 2020 16:36:57 -0400
-Received: from [2001:8b0:7bc4:6b97:e0:2819:e4a9:bc26] (helo=deadeye)
-        by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.89)
-        (envelope-from <ben@decadent.org.uk>)
-        id 1jDa0F-00035j-Kr; Sun, 15 Mar 2020 20:36:55 +0000
-Received: from ben by deadeye with local (Exim 4.93)
-        (envelope-from <ben@decadent.org.uk>)
-        id 1jDa0F-00CkkA-15; Sun, 15 Mar 2020 20:36:55 +0000
-Message-ID: <8508c19359077ac33c9ef305c468a44c6ddff772.camel@decadent.org.uk>
-Subject: Re: [PING] EFI/PTI fix not backported to 3.16.XX?
-From:   Ben Hutchings <ben@decadent.org.uk>
-To:     Pavel Tatashin <pasha.tatashin@soleen.com>
-Cc:     stable <stable@vger.kernel.org>, Sasha Levin <sashal@kernel.org>,
-        Martin Galvan <omgalvan.86@gmail.com>
-Date:   Sun, 15 Mar 2020 20:36:46 +0000
-In-Reply-To: <CA+CK2bCEtgvkG7jd3rm2gipKE6KQ4dzfgFGERoib5W-=pchDWw@mail.gmail.com>
-References: <CAN19L9Fi0h0wHOyY3zdAU4vX=J+T_3sVkL_wsq89W+RgF7gBxA@mail.gmail.com>
-         <CA+CK2bCEtgvkG7jd3rm2gipKE6KQ4dzfgFGERoib5W-=pchDWw@mail.gmail.com>
-Content-Type: multipart/signed; micalg="pgp-sha512";
-        protocol="application/pgp-signature"; boundary="=-St97vTNwbFyYAzfPGOmy"
-User-Agent: Evolution 3.34.1-4 
+        id S1729211AbgCOVot (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 15 Mar 2020 17:44:49 -0400
+Received: from mail-pg1-f196.google.com ([209.85.215.196]:38681 "EHLO
+        mail-pg1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729166AbgCOVot (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 15 Mar 2020 17:44:49 -0400
+Received: by mail-pg1-f196.google.com with SMTP id x7so8510653pgh.5
+        for <stable@vger.kernel.org>; Sun, 15 Mar 2020 14:44:49 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=aHDeKJ12Rfhbe5/JD0D2B3qMX1ZGe0O9jQy8DEiuapc=;
+        b=Ya94QqGk0obvLVYuQ+36959thN4RlkHGu8AYaUUoJd3E02CXWBIKynIwGq7OVZmMZF
+         JhWWWjs/uywZGLmrev2r9bd8zKmiL7WfhRe0FvrbRxgoI8p7PqhMIxz7gGCUit81e3Sl
+         sjb/OQiKMHrTsW++SDy0V78UZu4iFkO/v2Lvcc61BfYmT2nndEHEuB/GgIoJKxcr3wUY
+         5USKgcSk/3jXEChovm8Q5RLbvS2v5UhTxNJhKdp/VkDaY94c9oSlclXevEYXfQA02oy8
+         MYdXXNoAnIOnGv41OFe0Pw0Mg4CB8pobRTA1p9i5dluSthjqc6TjGCHOYWYmLGZkyY2r
+         gdYQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=aHDeKJ12Rfhbe5/JD0D2B3qMX1ZGe0O9jQy8DEiuapc=;
+        b=D+sYvyAXCHnHH4W0SCSgKEFQ6k2k83jbC7OfhP6/BIfhN/V74mKmdyLS8Ze+aNrW0h
+         bBJKnzRbK89k9C5UEFje1hkf7ZaJIiuUhwauK5Nyp2YVJG95KM+u4Fp8T94ojjWt+DFc
+         gSvb+iK31byoy1GFxp4QxBkEhSG/Guil4qMavGuBn2xzjIgmCoT106mZtvVJeCVm7pD/
+         Jec7Xg9AgM1Es2iKPqRoGKTgnA7ySKe/KF1GlI1S9BZ8fQE+QNvTnzdHisfsQedNMVQE
+         T/z5ADXrzaWqEnKJtooZZNyywiWSpRd3JezUejOvUzOncCof2oFZ9h+4dSZrLViksz7V
+         WOfQ==
+X-Gm-Message-State: ANhLgQ2Xx5gHvQ0Dvi7GZo6rPLjZJGj9B51E80QPZSgc93kd2IzrmHq5
+        QJhgzStR5U+YfVxLWiQl3y2UENZpJC8=
+X-Google-Smtp-Source: ADFU+vviM+b42rIZ9kJspdfRuKLbye073fbPtDsnBLSbxxLLK/J9225MjmTwKdTrQ1oXkyFY/1iy4g==
+X-Received: by 2002:a63:b216:: with SMTP id x22mr23213749pge.198.1584308688485;
+        Sun, 15 Mar 2020 14:44:48 -0700 (PDT)
+Received: from [10.0.9.4] ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id m1sm13211109pjl.38.2020.03.15.14.44.47
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 15 Mar 2020 14:44:47 -0700 (PDT)
+Message-ID: <5e6ea1cf.1c69fb81.a348.ec40@mx.google.com>
+Date:   Sun, 15 Mar 2020 14:44:47 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-X-SA-Exim-Connect-IP: 2001:8b0:7bc4:6b97:e0:2819:e4a9:bc26
-X-SA-Exim-Mail-From: ben@decadent.org.uk
-X-SA-Exim-Scanned: No (on shadbolt.decadent.org.uk); SAEximRunCond expanded to false
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: linux-4.9.y
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v4.9.216-31-gf9b8330d3e74
+X-Kernelci-Report-Type: boot
+Subject: stable-rc/linux-4.9.y boot: 111 boots: 3 failed,
+ 99 passed with 4 offline, 5 untried/unknown (v4.9.216-31-gf9b8330d3e74)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable-rc/linux-4.9.y boot: 111 boots: 3 failed, 99 passed with 4 offline, =
+5 untried/unknown (v4.9.216-31-gf9b8330d3e74)
 
---=-St97vTNwbFyYAzfPGOmy
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.9.y/kernel/v4.9.216-31-gf9b8330d3e74/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.9.y=
+/kernel/v4.9.216-31-gf9b8330d3e74/
 
-On Fri, 2020-03-13 at 18:41 +0000, Pavel Tatashin wrote:
-> Hi Ben,
->=20
-> I have tested and it cherry-picks cleanly on 3.16. I do not see any
-> issues with backporting it to 3.16. Do you want me to send a patch for
-> review, or can you just cherry-pick 7ec5d87df34a to 3.16?
+Tree: stable-rc
+Branch: linux-4.9.y
+Git Describe: v4.9.216-31-gf9b8330d3e74
+Git Commit: f9b8330d3e74cd78a83e15c2d74f50355696221b
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 58 unique boards, 20 SoC families, 19 builds out of 197
 
-I've queued this up, thanks.
+Boot Regressions Detected:
 
-Ben.
+arm:
 
-> Thank you,
-> Pasha
->=20
->=20
-> On Fri, Mar 13, 2020 at 10:09 AM Martin Galvan <omgalvan.86@gmail.com> wr=
-ote:
-> > Hi all,
-> >=20
-> > I've been running some tests on Debian 8 (which uses a 3.16.XX
-> > kernel), and saw that my system would occasionally reboot when
-> > performing an EFI variables dump. I did some digging and saw that this
-> > problem first appeared in 4.4.110 and was fixed by Pavel Tatashin in
-> > commit 7ec5d87df34a. At the same time, 4.9.XX, 4.14.XX and mainline
-> > have commit 67a9108ed431, which also solves the issue. However, the
-> > 3.16 stable line doesn't seem to have either fix, and therefore the
-> > crash is still there.
-> >=20
-> > I don't know whether any distros use 3.16 other than Debian, but it'd
-> > still be good to have this fix backported as well.
->=20
->=20
---=20
-Ben Hutchings
-Humour is the best antidote to reality.
+    qcom_defconfig:
+        gcc-8:
+          qcom-apq8064-cm-qs600:
+              lab-baylibre-seattle: failing since 36 days (last pass: v4.9.=
+213 - first fail: v4.9.213-37-g860ec95da9ad)
 
+    sunxi_defconfig:
+        gcc-8:
+          sun4i-a10-cubieboard:
+              lab-baylibre-seattle: failing since 30 days (last pass: v4.9.=
+213-96-gdf211f742718 - first fail: v4.9.213-117-g41f2460abb3e)
 
+    vexpress_defconfig:
+        gcc-8:
+          vexpress-v2p-ca15-tc1:
+              lab-collabora: new failure (last pass: v4.9.216)
+              lab-baylibre: new failure (last pass: v4.9.216)
+          vexpress-v2p-ca9:
+              lab-collabora: new failure (last pass: v4.9.216)
+              lab-baylibre: new failure (last pass: v4.9.216)
 
---=-St97vTNwbFyYAzfPGOmy
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part
+Boot Failures Detected:
 
------BEGIN PGP SIGNATURE-----
+arm:
+    multi_v7_defconfig:
+        gcc-8:
+            sun4i-a10-cubieboard: 1 failed lab
 
-iQIzBAABCgAdFiEErCspvTSmr92z9o8157/I7JWGEQkFAl5ukd8ACgkQ57/I7JWG
-EQnExg/+MLjqT2iZn70JS5WvveAu0ZJl2tYqG0fxlkOUQR6bIPnvQUsKWG3o1WMI
-my+sL5jQhUYlkPIjJ5Z9V2ySvcAXoEX43Cya36IWNrnocMvk0c+9xq4At+ICGO5W
-FYr/cf7n+2cV3H9x1Keqtb2MsSbUQiRdFQogxuqF4zhVxpjmqxp452EamZNOD91G
-iiGgsJZwBtMIyTxa9tdxT+Q3Ly06SsM/gWLjN+OF6TFCKbg9Yii/dnTZYvfQnfjx
-SWe8VjqGfhnDuf64hFqoq1dj6KY+d1N4rl3We6JLEd4UgDrAyu2kMOjRuEg1AKbD
-sfqh95yG162Q4nwkKbiKZ0puK9basBIOzeGEKoESCg65j2Mfk5puFetzdJikBxMy
-AMhN3D3U/TLRCj+FHqrIjCIwFcpAzBLRPbp8j24K/1ZwRrdeejNSFvX6RXWoKiE4
-QpD+y4reT0VLz18PNhFOYC4rTc8RLyNaQJCjONuK3E18/vbwVpnw9OUz9zl8NupQ
-LoEGa3RGzSMAcwq5326XyUhcleccCsBybo1/RZ9WTkRqfcrvUKGVImOcZEZAqfT0
-2/7/606yigzHJzEvzf26BdWy/XP0uaLNyumtzeekuRgtjwnwpOCz8fboGzlELvHb
-8ibdfN5mp/99Z0FzM83HUB92LSFG+HtsVIM+OEt8CBFnBdV4GoE=
-=shF0
------END PGP SIGNATURE-----
+    sama5_defconfig:
+        gcc-8:
+            at91-sama5d4_xplained: 1 failed lab
 
---=-St97vTNwbFyYAzfPGOmy--
+    sunxi_defconfig:
+        gcc-8:
+            sun4i-a10-cubieboard: 1 failed lab
+
+Offline Platforms:
+
+arm:
+
+    multi_v7_defconfig:
+        gcc-8
+            exynos5800-peach-pi: 1 offline lab
+            qcom-apq8064-cm-qs600: 1 offline lab
+
+    exynos_defconfig:
+        gcc-8
+            exynos5800-peach-pi: 1 offline lab
+
+    qcom_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+
+---
+For more info write to <info@kernelci.org>
