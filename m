@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EF64F18620E
-	for <lists+stable@lfdr.de>; Mon, 16 Mar 2020 03:35:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4916E186239
+	for <lists+stable@lfdr.de>; Mon, 16 Mar 2020 03:38:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730238AbgCPCfm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 15 Mar 2020 22:35:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40352 "EHLO mail.kernel.org"
+        id S1730244AbgCPCfo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 15 Mar 2020 22:35:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40368 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730228AbgCPCfl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 15 Mar 2020 22:35:41 -0400
+        id S1730241AbgCPCfn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 15 Mar 2020 22:35:43 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8E78E20724;
-        Mon, 16 Mar 2020 02:35:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9DA5A20726;
+        Mon, 16 Mar 2020 02:35:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584326141;
-        bh=HImGMU99exOeCDtbtuwOeV4b6Q3AOXldQE8som1Ru/E=;
+        s=default; t=1584326142;
+        bh=Dxdis/KJKogw06PdKI7YE6I+j6JbrgSMNU1dghE2T48=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r3nYpL4fHcpVvsgOPLjd/Kpd1YzOGx1TuirR5hqRo8FnSuQmpC6pFLBLampQQ5leA
-         v1nQrDCp+oE2cfOJKerOqy6dqndODxp+8xBijGHBoobbbO308cm7QBk2XJq80TF5lO
-         YthAUBvgY7isFS4o4UP9X0N+8FPJZ9gINt6AxFr0=
+        b=CUhpqMXk0g2J7ZqzjxQOdNv2M1uvA1bqc16qdqVhz5g79BoYa0XKrHTV71DjkmzuP
+         vn/PiQcev/p2bV9e3m9AJk0a04ayVJymLORnzk2fvKaX5q5zFme7AHaOTnF9rwU4gN
+         8azATqxQVVfIKZEN/JPKMIrWi8YvvAKBR9F/L1G8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 4.9 2/7] powerpc: Include .BTF section
-Date:   Sun, 15 Mar 2020 22:35:33 -0400
-Message-Id: <20200316023538.2232-2-sashal@kernel.org>
+Cc:     Kishon Vijay Abraham I <kishon@ti.com>,
+        Tony Lindgren <tony@atomide.com>,
+        Sasha Levin <sashal@kernel.org>, linux-omap@vger.kernel.org,
+        devicetree@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 3/7] ARM: dts: dra7: Add "dma-ranges" property to PCIe RC DT nodes
+Date:   Sun, 15 Mar 2020 22:35:34 -0400
+Message-Id: <20200316023538.2232-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200316023538.2232-1-sashal@kernel.org>
 References: <20200316023538.2232-1-sashal@kernel.org>
@@ -43,40 +44,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>
+From: Kishon Vijay Abraham I <kishon@ti.com>
 
-[ Upstream commit cb0cc635c7a9fa8a3a0f75d4d896721819c63add ]
+[ Upstream commit 27f13774654ea6bd0b6fc9b97cce8d19e5735661 ]
 
-Selecting CONFIG_DEBUG_INFO_BTF results in the below warning from ld:
-  ld: warning: orphan section `.BTF' from `.btf.vmlinux.bin.o' being placed in section `.BTF'
+'dma-ranges' in a PCI bridge node does correctly set dma masks for PCI
+devices not described in the DT. Certain DRA7 platforms (e.g., DRA76)
+has RAM above 32-bit boundary (accessible with LPAE config) though the
+PCIe bridge will be able to access only 32-bits. Add 'dma-ranges'
+property in PCIe RC DT nodes to indicate the host bridge can access
+only 32 bits.
 
-Include .BTF section in vmlinux explicitly to fix the same.
-
-Signed-off-by: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20200220113132.857132-1-naveen.n.rao@linux.vnet.ibm.com
+Signed-off-by: Kishon Vijay Abraham I <kishon@ti.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kernel/vmlinux.lds.S | 6 ++++++
- 1 file changed, 6 insertions(+)
+ arch/arm/boot/dts/dra7.dtsi | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/arch/powerpc/kernel/vmlinux.lds.S b/arch/powerpc/kernel/vmlinux.lds.S
-index 50d3650608558..c20510497c49d 100644
---- a/arch/powerpc/kernel/vmlinux.lds.S
-+++ b/arch/powerpc/kernel/vmlinux.lds.S
-@@ -315,6 +315,12 @@ SECTIONS
- 		*(.branch_lt)
- 	}
- 
-+#ifdef CONFIG_DEBUG_INFO_BTF
-+	.BTF : AT(ADDR(.BTF) - LOAD_OFFSET) {
-+		*(.BTF)
-+	}
-+#endif
-+
- 	.opd : AT(ADDR(.opd) - LOAD_OFFSET) {
- 		*(.opd)
- 	}
+diff --git a/arch/arm/boot/dts/dra7.dtsi b/arch/arm/boot/dts/dra7.dtsi
+index a1a928064b53d..f94064c687789 100644
+--- a/arch/arm/boot/dts/dra7.dtsi
++++ b/arch/arm/boot/dts/dra7.dtsi
+@@ -282,6 +282,7 @@
+ 				device_type = "pci";
+ 				ranges = <0x81000000 0 0          0x03000 0 0x00010000
+ 					  0x82000000 0 0x20013000 0x13000 0 0xffed000>;
++				dma-ranges = <0x02000000 0x0 0x00000000 0x00000000 0x1 0x00000000>;
+ 				bus-range = <0x00 0xff>;
+ 				#interrupt-cells = <1>;
+ 				num-lanes = <1>;
+@@ -319,6 +320,7 @@
+ 				device_type = "pci";
+ 				ranges = <0x81000000 0 0          0x03000 0 0x00010000
+ 					  0x82000000 0 0x30013000 0x13000 0 0xffed000>;
++				dma-ranges = <0x02000000 0x0 0x00000000 0x00000000 0x1 0x00000000>;
+ 				bus-range = <0x00 0xff>;
+ 				#interrupt-cells = <1>;
+ 				num-lanes = <1>;
 -- 
 2.20.1
 
