@@ -2,53 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 53BF8186A1F
+	by mail.lfdr.de (Postfix) with ESMTP id C81AE186A20
 	for <lists+stable@lfdr.de>; Mon, 16 Mar 2020 12:33:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730812AbgCPLdX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Mar 2020 07:33:23 -0400
-Received: from wout1-smtp.messagingengine.com ([64.147.123.24]:58941 "EHLO
+        id S1730830AbgCPLdZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Mar 2020 07:33:25 -0400
+Received: from wout1-smtp.messagingengine.com ([64.147.123.24]:38765 "EHLO
         wout1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1730783AbgCPLdX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Mar 2020 07:33:23 -0400
+        by vger.kernel.org with ESMTP id S1730783AbgCPLdZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Mar 2020 07:33:25 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailout.west.internal (Postfix) with ESMTP id A65857F7;
-        Mon, 16 Mar 2020 07:33:22 -0400 (EDT)
+        by mailout.west.internal (Postfix) with ESMTP id AC440628;
+        Mon, 16 Mar 2020 07:33:24 -0400 (EDT)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Mon, 16 Mar 2020 07:33:22 -0400
+  by compute1.internal (MEProxy); Mon, 16 Mar 2020 07:33:25 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=F3vSqt
-        Pxog4bdbliarvDQIblMBpKg8OgUUgE5qkNHBQ=; b=Eeu+1OtWGGFMtbKSPtxVX3
-        jFsTt9ZICIINLCxXyjK0wLmjFRnQnmGpoZmLqyCTcVLlTLw67Co1K2vE+djjANyB
-        0MO31cplVaY7foUNgfiX/ngemlYBl+W5DxuQTI6w/ykIxCRRVctmJPyDkLqyBD9A
-        ssluKZv0FAZOf+HbmjFWsDfsx4CxuZ7kM43uVmE4zHeXH8DczH66QkldWR4kzE9q
-        4mRsqlZgSS+8s+mDoYGdjdTbPHZOqq+/NL566PbzcmtFAchB00LE6/AcCvIQQY6w
-        GW3Yfpq12RzSzKnt/ItHt3OzPDmuwyld32Yk7St28nBQqUMmtfuLH/p9q7YESl6w
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=LKRZ5+
+        jr7L1H4Tx3PFyMVPytfK8hpOHmw+UOxi+JozM=; b=QtbmTjd24iVsOpIwvtR+FZ
+        IBbZDsLiLjwGUqONBN580xtWFQzajxMalYrfcyDLGi9IbELwBf3AVS8bstz87x4d
+        S39LYGQdtCFrsAIEEo3yw1lqFabvB1DKUeDE8mJ7oaPSrOm1FzPWNYRzSnn/T3B9
+        JgCw3fsoKnOnNZMkyT5g5HTOAB252HR7geHhtvthlzVMocJ76hR0khu/lQwDAH7r
+        jh9zM3Hzb1GI/VuyVcgrjBOKs+qg+mQJRN4YaJbEIm1hDxHJbSMYearg7G7AjMU+
+        PpZMd7U8oirzFQrYjJAyJ0lJrAJ62vwDSk6Mgj0xZ65XdH9p6O492QdRsUJD+4iA
         ==
-X-ME-Sender: <xms:AmRvXhDivyi9T4FqGJGcfZTCWiebddGWBiLLZJw6qUF_C342eKpyTw>
+X-ME-Sender: <xms:BGRvXuvVF0TKOioFUD9IAO0D-EzXVFxg5m40QdE0ZQo80XbQ9Om_Ag>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedugedrudeffedgvdelucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphepkeefrdekiedrkeelrd
-    dutdejnecuvehluhhsthgvrhfuihiivgepvdenucfrrghrrghmpehmrghilhhfrhhomhep
-    ghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:AmRvXoesE7IWp7gvBmJ7TvddzTq06v-4BsERTGP1-VF02JkxO00Nyg>
-    <xmx:AmRvXg-P3U02MjlY-dJ1iDwHUOj9y-N46g0BKFHmPlSWBkRKuAd6hg>
-    <xmx:AmRvXhC9gux9Xrr1Dwn0rgPSv8ScF8pMi7FnjuA6lMQUnXXsVT42KA>
-    <xmx:AmRvXhWi2YpoIu99lCCiRaJOQBk2uwhUf1YaiBSuRJoaYKRcsxe9MQ>
+    gheqnecukfhppeekfedrkeeirdekledruddtjeenucevlhhushhtvghrufhiiigvpedtne
+    curfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
+X-ME-Proxy: <xmx:BGRvXlGWCqsmqSLnBjFjrY-tKu-iBBsW1fUu9gEIRyQcOEuSvOkqoQ>
+    <xmx:BGRvXodwLMvek7kf1XnDLAqbWb8LPyS2JwAcxPBjtgAP5iRzf7B5TQ>
+    <xmx:BGRvXhuLcPWbk6hU5RLaSqHLWpiwn3SBzSDzdgO8rX4BT-gpIXFD3g>
+    <xmx:BGRvXmIp6BTWBOnTnYCkdgGEFra84bddBdNRRQxBXErcIZEgT_339Q>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id EAB5B30618C1;
-        Mon, 16 Mar 2020 07:33:21 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] mmc: core: Respect MMC_CAP_NEED_RSP_BUSY for eMMC sleep" failed to apply to 5.4-stable tree
-To:     ulf.hansson@linaro.org, skomatineni@nvidia.com,
+        by mail.messagingengine.com (Postfix) with ESMTPA id C6DA23061856;
+        Mon, 16 Mar 2020 07:33:23 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] mmc: core: Respect MMC_CAP_NEED_RSP_BUSY for" failed to apply to 5.4-stable tree
+To:     ulf.hansson@linaro.org, anders.roxell@linaro.org,
+        faiz_abbas@ti.com, pgwipeout@gmail.com, skomatineni@nvidia.com,
         stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 16 Mar 2020 12:33:10 +0100
-Message-ID: <1584358390235125@kroah.com>
+Date:   Mon, 16 Mar 2020 12:33:22 +0100
+Message-ID: <1584358402118182@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -69,15 +69,15 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 18d200460cd73636d4f20674085c39e32b4e0097 Mon Sep 17 00:00:00 2001
+From 43cc64e5221cc6741252b64bc4531dd1eefb733d Mon Sep 17 00:00:00 2001
 From: Ulf Hansson <ulf.hansson@linaro.org>
-Date: Wed, 11 Mar 2020 10:20:36 +0100
-Subject: [PATCH] mmc: core: Respect MMC_CAP_NEED_RSP_BUSY for eMMC sleep
- command
+Date: Tue, 10 Mar 2020 14:43:00 +0100
+Subject: [PATCH] mmc: core: Respect MMC_CAP_NEED_RSP_BUSY for
+ erase/trim/discard
 
-The busy timeout for the CMD5 to put the eMMC into sleep state, is specific
-to the card. Potentially the timeout may exceed the host->max_busy_timeout.
-If that becomes the case, mmc_sleep() converts from using an R1B response
+The busy timeout that is computed for each erase/trim/discard operation,
+can become quite long and may thus exceed the host->max_busy_timeout. If
+that becomes the case, mmc_do_erase() converts from using an R1B response
 to an R1 response, as to prevent the host from doing HW busy detection.
 
 However, it has turned out that some hosts requires an R1B response no
@@ -87,26 +87,27 @@ managing the needed busy timeout, in one way or the other.
 
 Suggested-by: Sowjanya Komatineni <skomatineni@nvidia.com>
 Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200311092036.16084-1-ulf.hansson@linaro.org
+Tested-by: Anders Roxell <anders.roxell@linaro.org>
+Tested-by: Sowjanya Komatineni <skomatineni@nvidia.com>
+Tested-by: Faiz Abbas <faiz_abbas@ti.com>
+Tested-By: Peter Geis <pgwipeout@gmail.com>
 Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 
-diff --git a/drivers/mmc/core/mmc.c b/drivers/mmc/core/mmc.c
-index f6912ded652d..de14b5845f52 100644
---- a/drivers/mmc/core/mmc.c
-+++ b/drivers/mmc/core/mmc.c
-@@ -1910,9 +1910,12 @@ static int mmc_sleep(struct mmc_host *host)
- 	 * If the max_busy_timeout of the host is specified, validate it against
- 	 * the sleep cmd timeout. A failure means we need to prevent the host
- 	 * from doing hw busy detection, which is done by converting to a R1
--	 * response instead of a R1B.
-+	 * response instead of a R1B. Note, some hosts requires R1B, which also
-+	 * means they are on their own when it comes to deal with the busy
-+	 * timeout.
+diff --git a/drivers/mmc/core/core.c b/drivers/mmc/core/core.c
+index aa54d359dab7..a971c4bcc442 100644
+--- a/drivers/mmc/core/core.c
++++ b/drivers/mmc/core/core.c
+@@ -1732,8 +1732,11 @@ static int mmc_do_erase(struct mmc_card *card, unsigned int from,
+ 	 * the erase operation does not exceed the max_busy_timeout, we should
+ 	 * use R1B response. Or we need to prevent the host from doing hw busy
+ 	 * detection, which is done by converting to a R1 response instead.
++	 * Note, some hosts requires R1B, which also means they are on their own
++	 * when it comes to deal with the busy timeout.
  	 */
--	if (host->max_busy_timeout && (timeout_ms > host->max_busy_timeout)) {
-+	if (!(host->caps & MMC_CAP_NEED_RSP_BUSY) && host->max_busy_timeout &&
-+	    (timeout_ms > host->max_busy_timeout)) {
- 		cmd.flags = MMC_RSP_R1 | MMC_CMD_AC;
+-	if (card->host->max_busy_timeout &&
++	if (!(card->host->caps & MMC_CAP_NEED_RSP_BUSY) &&
++	    card->host->max_busy_timeout &&
+ 	    busy_timeout > card->host->max_busy_timeout) {
+ 		cmd.flags = MMC_RSP_SPI_R1 | MMC_RSP_R1 | MMC_CMD_AC;
  	} else {
- 		cmd.flags = MMC_RSP_R1B | MMC_CMD_AC;
 
