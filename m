@@ -2,89 +2,130 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D4CCD18680E
-	for <lists+stable@lfdr.de>; Mon, 16 Mar 2020 10:41:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2AB9A1868FE
+	for <lists+stable@lfdr.de>; Mon, 16 Mar 2020 11:28:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730453AbgCPJlP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Mar 2020 05:41:15 -0400
-Received: from ozlabs.org ([203.11.71.1]:60373 "EHLO ozlabs.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730231AbgCPJlO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Mar 2020 05:41:14 -0400
-Received: from authenticated.ozlabs.org (localhost [127.0.0.1])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange ECDHE (P-256) server-signature RSA-PSS (4096 bits) server-digest SHA256)
-        (No client certificate requested)
-        by mail.ozlabs.org (Postfix) with ESMTPSA id 48grsM6VkJz9sP7;
-        Mon, 16 Mar 2020 20:41:11 +1100 (AEDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=ellerman.id.au;
-        s=201909; t=1584351672;
-        bh=0BJ3FURw+fjw50wR+e6LRkf2Tx726H888JVrSKrls5Y=;
-        h=From:To:Cc:Subject:In-Reply-To:References:Date:From;
-        b=DOf+CeQIRr9jP+zd801bgQ9LbD/TE+CByjPvWQvxtr5O+4o/uK2xFlU76UoHQRM1m
-         PO1UW4Vu9Tn3ovq5neZhqoNPTofTuJvlkJdzuw73af6U6+M6OMMYOV5ATseJFLag1d
-         eGFHtLkuRRd+l35uigGkppduH+zZfcCp+HEH5Ox0Lg6H5WOFmqhf3yKgYxTeypdh6d
-         pHOnjPqwfPWJAnn4ZvO9glKgXR9NoACQZilm7+8n5WjERuDRAAt+e7zzdFJLFgKXIV
-         CQsDHCnCtxvsQrpIyuKhAC4GTZJHC7VD8yOytmTWWGwHrRvIQ8hGEOiumZJOhsfWn+
-         luLNejYRjYIaQ==
-From:   Michael Ellerman <mpe@ellerman.id.au>
-To:     WANG Wenhu <wenhu.wang@vivo.com>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Paul Mackerras <paulus@samba.org>,
-        WANG Wenhu <wenhu.wang@vivo.com>,
-        Allison Randal <allison@lohutok.net>,
-        Richard Fontana <rfontana@redhat.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org
-Cc:     trivial@kernel.org, kernel@vivo.com,
-        stable <stable@vger.kernel.org>
-Subject: Re: [PATCH v3] powerpc/fsl-85xx: fix compile error
-In-Reply-To: <20200314051035.64552-1-wenhu.wang@vivo.com>
-References: <20200314051035.64552-1-wenhu.wang@vivo.com>
-Date:   Mon, 16 Mar 2020 20:41:12 +1100
-Message-ID: <875zf4r613.fsf@mpe.ellerman.id.au>
+        id S1730553AbgCPK2i (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Mar 2020 06:28:38 -0400
+Received: from perceval.ideasonboard.com ([213.167.242.64]:34910 "EHLO
+        perceval.ideasonboard.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730550AbgCPK2i (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Mar 2020 06:28:38 -0400
+Received: from pendragon.ideasonboard.com (81-175-216-236.bb.dnainternet.fi [81.175.216.236])
+        by perceval.ideasonboard.com (Postfix) with ESMTPSA id 4A122A3B;
+        Mon, 16 Mar 2020 11:28:35 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=ideasonboard.com;
+        s=mail; t=1584354515;
+        bh=Gy0jFxAgSgBVXWYXnVTZRRzHj1Q2FLsea2SAuGyRbGA=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=d8JTeTh05Y0GLTow0DIEhbxtVkpE9BEPHTU/5KNs2CjbMiqPX0VPAoq51dGQ+j+hP
+         qehXN8mIDk75CMTp83EPKtmZRees+AGWLOLumrTsBZE0OOKc8j9RhSTSDQmVMsZ874
+         Ut2CfblNOTL3ehRYHadrV5R8r7Cwh7iy78DwrSas=
+Date:   Mon, 16 Mar 2020 12:28:30 +0200
+From:   Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+To:     Tomi Valkeinen <tomi.valkeinen@ti.com>
+Cc:     Mauro Carvalho Chehab <mchehab@kernel.org>,
+        linux-media@vger.kernel.org, Benoit Parrot <bparrot@ti.com>,
+        stable@vger.kernel.org
+Subject: Re: [PATCH] media: ti-vpe: cal: fix DMA memory corruption
+Message-ID: <20200316102830.GT4732@pendragon.ideasonboard.com>
+References: <20200313082639.7743-1-tomi.valkeinen@ti.com>
+ <20200313140311.GF4751@pendragon.ideasonboard.com>
+ <79e87213-6648-8056-1db5-718ed3963ed3@ti.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
+In-Reply-To: <79e87213-6648-8056-1db5-718ed3963ed3@ti.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-WANG Wenhu <wenhu.wang@vivo.com> writes:
-> Include "linux/of_address.h" to fix the compile error for
-> mpc85xx_l2ctlr_of_probe() when compiling fsl_85xx_cache_sram.c.
->
->   CC      arch/powerpc/sysdev/fsl_85xx_l2ctlr.o
-> arch/powerpc/sysdev/fsl_85xx_l2ctlr.c: In function =E2=80=98mpc85xx_l2ctl=
-r_of_probe=E2=80=99:
-> arch/powerpc/sysdev/fsl_85xx_l2ctlr.c:90:11: error: implicit declaration =
-of function =E2=80=98of_iomap=E2=80=99; did you mean =E2=80=98pci_iomap=E2=
-=80=99? [-Werror=3Dimplicit-function-declaration]
->   l2ctlr =3D of_iomap(dev->dev.of_node, 0);
->            ^~~~~~~~
->            pci_iomap
-> arch/powerpc/sysdev/fsl_85xx_l2ctlr.c:90:9: error: assignment makes point=
-er from integer without a cast [-Werror=3Dint-conversion]
->   l2ctlr =3D of_iomap(dev->dev.of_node, 0);
->          ^
-> cc1: all warnings being treated as errors
-> scripts/Makefile.build:267: recipe for target 'arch/powerpc/sysdev/fsl_85=
-xx_l2ctlr.o' failed
-> make[2]: *** [arch/powerpc/sysdev/fsl_85xx_l2ctlr.o] Error 1
->
-> Fixes: commit 6db92cc9d07d ("powerpc/85xx: add cache-sram support")
+Hi Tomi,
 
-The syntax is:
+On Fri, Mar 13, 2020 at 04:18:13PM +0200, Tomi Valkeinen wrote:
+> On 13/03/2020 16:03, Laurent Pinchart wrote:
+> 
+> >> +	/* wait for stream and dma to finish */
+> >> +	dma_act = true;
+> >> +	timeout = jiffies + msecs_to_jiffies(500);
+> >> +	while (dma_act && time_before(jiffies, timeout)) {
+> >> +		msleep(50);
+> >> +
+> >> +		spin_lock_irqsave(&ctx->slock, flags);
+> >> +		dma_act = ctx->dma_act;
+> >> +		spin_unlock_irqrestore(&ctx->slock, flags);
+> >> +	}
+> > 
+> > Waiting for the transfer to complete seems to be a good idea, but how
+> > about using a wait queue instead of such a loop ? That would allow
+> > better usage of CPU time and faster reaction time, and shouldn't be
+> > difficult to implement. You may also want to replace dma_act with a
+> > state if needed (in case you need to express running/stopping/stopped
+> > states), and I would rename it to running if you just need a boolean.
+> 
+> Maybe, but I wasn't sure how to implement it safely.
+> 
+> So, when we call csi2_ppi_disable() (just above the wait code above), the HW will stop the DMA after 
+> the next frame has ended.
+> 
+> But there's no way to know in the irq handler if the DMA transfer that just ended was the last one 
+> or not. And I don't see how I could set a "disabling" flag before calling csi2_ppi_disable(), as I 
+> think that would always be racy with the irq handler.
+> 
+> So I went with a safe way: call csi2_ppi_disable(), then wait a bit so that we are sure that either 
+> 1) the last frame is on going 2) the last frame has finished (instead of the previous-to-last frame 
+> is on going or finished). Then see if the DMA is active. If yes, we loop for it to end.
+> 
+> I think the loop could be replaced with a wait queue, but we still need the initial sleep to ensure 
+> we don't end the wait when the previous-to-last frame DMA has been finished.
 
-Fixes: 6db92cc9d07d ("powerpc/85xx: add cache-sram support")
+I think you can solve this by introducing a new enum state field with
+RUNNING, STOPPING and STOPPED values, protected by a spinlock. Here's
+what I have in the VSP1 driver for instance:
 
-> Cc: stable <stable@vger.kernel.org>
+bool vsp1_pipeline_stopped(struct vsp1_pipeline *pipe)
+{
+	unsigned long flags;
+	bool stopped;
 
-The commit above went into v2.6.37.
+	spin_lock_irqsave(&pipe->irqlock, flags);
+	stopped = pipe->state == VSP1_PIPELINE_STOPPED;
+	spin_unlock_irqrestore(&pipe->irqlock, flags);
 
-So no one has noticed this bug since then, how? Or did something else
-change to expose the problem?
+	return stopped;
+}
 
-cheers
+int vsp1_pipeline_stop(struct vsp1_pipeline *pipe)
+{
+	...
+	spin_lock_irqsave(&pipe->irqlock, flags);
+	if (pipe->state == VSP1_PIPELINE_RUNNING)
+		pipe->state = VSP1_PIPELINE_STOPPING;
+	spin_unlock_irqrestore(&pipe->irqlock, flags);
+
+	ret = wait_event_timeout(pipe->wq, vsp1_pipeline_stopped(pipe),
+				 msecs_to_jiffies(500));
+	ret = ret == 0 ? -ETIMEDOUT : 0;
+	...
+}
+
+and in the interrupt handler:
+
+	state = pipe->state;
+	pipe->state = VSP1_PIPELINE_STOPPED;
+
+	/*
+	 * If a stop has been requested, mark the pipeline as stopped and
+	 * return. Otherwise restart the pipeline if ready.
+	 */
+	if (state == VSP1_PIPELINE_STOPPING)
+		wake_up(&pipe->wq);
+	else if (vsp1_pipeline_ready(pipe))
+		vsp1_video_pipeline_run(pipe);
+
+-- 
+Regards,
+
+Laurent Pinchart
