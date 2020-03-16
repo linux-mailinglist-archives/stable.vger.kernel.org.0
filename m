@@ -2,101 +2,118 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D57C018759C
-	for <lists+stable@lfdr.de>; Mon, 16 Mar 2020 23:31:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 11BE918759D
+	for <lists+stable@lfdr.de>; Mon, 16 Mar 2020 23:31:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732810AbgCPWbL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Mar 2020 18:31:11 -0400
-Received: from dvalin.narfation.org ([213.160.73.56]:49100 "EHLO
+        id S1732743AbgCPWbM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Mar 2020 18:31:12 -0400
+Received: from dvalin.narfation.org ([213.160.73.56]:49114 "EHLO
         dvalin.narfation.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1732743AbgCPWbL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Mar 2020 18:31:11 -0400
+        with ESMTP id S1732770AbgCPWbM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Mar 2020 18:31:12 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=narfation.org;
-        s=20121; t=1584397869;
+        s=20121; t=1584397870;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=WIlcSuUC2sBz+C8rH47jtvYBKP5Vd2Ymob/mbW0jguo=;
-        b=H8z7ND3Tr7ow7kq+6+6uoMYU9XJIQOIuqfULLroYm0B4lSC76xtFzjbIpYVbk2urETKqst
-        V8plnXwbGOWC3uo3x0mzNCv9UQBzV3vILrNZoLJ2Ai6L5k1ERJAD7fLhOHt2LND7onoKwD
-        44SwWdgQQ/z8lvr8IM5evWd4RSGx1gA=
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=u5BoueoSl316g9BlxCBkJUAnvid4QVrNKbHZ1C1V7kA=;
+        b=uUO/YNwkEijOfzANOGNYAd7SED/N2rhDSHzukcIkMf8GewlmNOEHDFD2z2guDgkWETZBZK
+        8Q2pZo3mbScOJiv3hQvpbnd9GEsm+46hXlryjqRiRFQ+P06xomgN7mDvTYOTRQL0CSmN6L
+        mgSQAtGoP9uHIUsJh8V7OPQtubljUoQ=
 From:   Sven Eckelmann <sven@narfation.org>
 To:     stable@vger.kernel.org
-Cc:     Sven Eckelmann <sven@narfation.org>
-Subject: [PATCH 4.9 00/24] batman-adv: Pending fixes
-Date:   Mon, 16 Mar 2020 23:30:41 +0100
-Message-Id: <20200316223105.6333-1-sven@narfation.org>
+Cc:     Sven Eckelmann <sven@narfation.org>,
+        Simon Wunderlich <sw@simonwunderlich.de>
+Subject: [PATCH 4.9 01/24] batman-adv: Fix double free during fragment merge error
+Date:   Mon, 16 Mar 2020 23:30:42 +0100
+Message-Id: <20200316223105.6333-2-sven@narfation.org>
 X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20200316223105.6333-1-sven@narfation.org>
+References: <20200316223105.6333-1-sven@narfation.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
+commit 248e23b50e2da0753f3b5faa068939cbe9f8a75a upstream.
 
-I was asked by Greg KH to check for missing fixes in linux 4.9.y and provide
-backports for it. I've ended up with a lot more missing patches than
-I've expected. Not sure why these were missing but I couldn't find them at
-the moment in any stable release for 4.9.y. Feel free to check for things
-which I've missed too.
+The function batadv_frag_skb_buffer was supposed not to consume the skbuff
+on errors. This was followed in the helper function
+batadv_frag_insert_packet when the skb would potentially be inserted in the
+fragment queue. But it could happen that the next helper function
+batadv_frag_merge_packets would try to merge the fragments and fail. This
+results in a kfree_skb of all the enqueued fragments (including the just
+inserted one). batadv_recv_frag_packet would detect the error in
+batadv_frag_skb_buffer and try to free the skb again.
 
-Kind regards,
-	Sven
+The behavior of batadv_frag_skb_buffer (and its helper
+batadv_frag_insert_packet) must therefore be changed to always consume the
+skbuff to have a common behavior and avoid the double kfree_skb.
 
-Linus Lüssing (5):
-  batman-adv: Fix transmission of final, 16th fragment
-  batman-adv: fix TT sync flag inconsistencies
-  batman-adv: Fix TT sync flags for intermediate TT responses
-  batman-adv: Avoid storing non-TT-sync flags on singular entries too
-  batman-adv: Fix multicast TT issues with bogus ROAM flags
+Fixes: 610bfc6bc99b ("batman-adv: Receive fragmented packets and merge")
+Signed-off-by: Sven Eckelmann <sven@narfation.org>
+Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
+---
+ net/batman-adv/fragmentation.c | 8 +++++---
+ net/batman-adv/routing.c       | 6 ++++++
+ 2 files changed, 11 insertions(+), 3 deletions(-)
 
-Marek Lindner (1):
-  batman-adv: prevent TT request storms by not sending inconsistent TT
-    TLVLs
-
-Sven Eckelmann (18):
-  batman-adv: Fix double free during fragment merge error
-  batman-adv: Initialize gw sel_class via batadv_algo
-  batman-adv: Fix rx packet/bytes stats on local ARP reply
-  batman-adv: Use default throughput value on cfg80211 error
-  batman-adv: Accept only filled wifi station info
-  batman-adv: Avoid spurious warnings from bat_v neigh_cmp
-    implementation
-  batman-adv: Always initialize fragment header priority
-  batman-adv: Fix check of retrieved orig_gw in batadv_v_gw_is_eligible
-  batman-adv: Fix lock for ogm cnt access in batadv_iv_ogm_calc_tq
-  batman-adv: Fix internal interface indices types
-  batman-adv: Avoid race in TT TVLV allocator helper
-  batman-adv: Fix debugfs path for renamed hardif
-  batman-adv: Fix debugfs path for renamed softif
-  batman-adv: Prevent duplicated gateway_node entry
-  batman-adv: Fix duplicated OGMs on NETDEV_UP
-  batman-adv: Avoid free/alloc race when handling OGM2 buffer
-  batman-adv: Avoid free/alloc race when handling OGM buffer
-  batman-adv: Don't schedule OGM for disabled interface
-
- net/batman-adv/bat_iv_ogm.c            | 105 +++++++++++++----
- net/batman-adv/bat_v.c                 |  25 +++--
- net/batman-adv/bat_v_elp.c             |  10 +-
- net/batman-adv/bat_v_ogm.c             |  42 +++++--
- net/batman-adv/debugfs.c               |  40 +++++++
- net/batman-adv/debugfs.h               |  11 ++
- net/batman-adv/distributed-arp-table.c |   5 +-
- net/batman-adv/fragmentation.c         |  22 ++--
- net/batman-adv/gateway_client.c        |  11 +-
- net/batman-adv/gateway_common.c        |   5 +
- net/batman-adv/hard-interface.c        |  51 +++++++--
- net/batman-adv/originator.c            |   4 +-
- net/batman-adv/originator.h            |   4 +-
- net/batman-adv/routing.c               |   6 +
- net/batman-adv/soft-interface.c        |   1 -
- net/batman-adv/translation-table.c     | 149 ++++++++++++++++++++-----
- net/batman-adv/types.h                 |  22 +++-
- 17 files changed, 414 insertions(+), 99 deletions(-)
-
+diff --git a/net/batman-adv/fragmentation.c b/net/batman-adv/fragmentation.c
+index a06b6041f3e0..384a1014da07 100644
+--- a/net/batman-adv/fragmentation.c
++++ b/net/batman-adv/fragmentation.c
+@@ -232,8 +232,10 @@ static bool batadv_frag_insert_packet(struct batadv_orig_node *orig_node,
+ 	spin_unlock_bh(&chain->lock);
+ 
+ err:
+-	if (!ret)
++	if (!ret) {
+ 		kfree(frag_entry_new);
++		kfree_skb(skb);
++	}
+ 
+ 	return ret;
+ }
+@@ -305,7 +307,7 @@ batadv_frag_merge_packets(struct hlist_head *chain)
+  *
+  * There are three possible outcomes: 1) Packet is merged: Return true and
+  * set *skb to merged packet; 2) Packet is buffered: Return true and set *skb
+- * to NULL; 3) Error: Return false and leave skb as is.
++ * to NULL; 3) Error: Return false and free skb.
+  *
+  * Return: true when packet is merged or buffered, false when skb is not not
+  * used.
+@@ -330,9 +332,9 @@ bool batadv_frag_skb_buffer(struct sk_buff **skb,
+ 		goto out_err;
+ 
+ out:
+-	*skb = skb_out;
+ 	ret = true;
+ out_err:
++	*skb = skb_out;
+ 	return ret;
+ }
+ 
+diff --git a/net/batman-adv/routing.c b/net/batman-adv/routing.c
+index 8b98609ebc1e..f9ffb1825f6d 100644
+--- a/net/batman-adv/routing.c
++++ b/net/batman-adv/routing.c
+@@ -1080,6 +1080,12 @@ int batadv_recv_frag_packet(struct sk_buff *skb,
+ 	batadv_inc_counter(bat_priv, BATADV_CNT_FRAG_RX);
+ 	batadv_add_counter(bat_priv, BATADV_CNT_FRAG_RX_BYTES, skb->len);
+ 
++	/* batadv_frag_skb_buffer will always consume the skb and
++	 * the caller should therefore never try to free the
++	 * skb after this point
++	 */
++	ret = NET_RX_SUCCESS;
++
+ 	/* Add fragment to buffer and merge if possible. */
+ 	if (!batadv_frag_skb_buffer(&skb, orig_node_src))
+ 		goto out;
 -- 
 2.20.1
 
