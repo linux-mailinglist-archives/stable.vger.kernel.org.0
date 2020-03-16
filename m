@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 81CEC1865B0
-	for <lists+stable@lfdr.de>; Mon, 16 Mar 2020 08:27:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 542681865CD
+	for <lists+stable@lfdr.de>; Mon, 16 Mar 2020 08:40:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729863AbgCPH12 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Mar 2020 03:27:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50798 "EHLO mail.kernel.org"
+        id S1729937AbgCPHkm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Mar 2020 03:40:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53172 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729761AbgCPH12 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Mar 2020 03:27:28 -0400
+        id S1729582AbgCPHkm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Mar 2020 03:40:42 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0F86520663;
-        Mon, 16 Mar 2020 07:27:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 61AF720674;
+        Mon, 16 Mar 2020 07:40:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584343647;
-        bh=g7GRLV//LKUXCmITeklDiCvrYZ83PfImMSBlb0D5Z2I=;
+        s=default; t=1584344441;
+        bh=SLJnRJInQOainNM/1nFZo6oOux3tPsFtH2P3Pu1By+0=;
         h=Subject:To:From:Date:From;
-        b=fZfZgwBCluwBk8rdnJ3W1/pOhns84fMxxmZ3kYjj+oLOrn0DHIFAkCKQgzZf31Q/3
-         Y0Oa8SeWgH7Qn7B+22niANxAtP1YFRRQ0vw0WUvGSN74g7y9eYxKN/96/pbnJ0N3Mt
-         rWqlSu6Ro0AH4rqoD8J1AyZtedFJeGNHOegQ+pRc=
-Subject: patch "usb: dwc3: gadget: Wrap around when skip TRBs" added to usb-testing
+        b=sMZFuIrFBI4hjulYfMnSbyIAivJ9EhaigusuQpfx0ewcgiFplWzeBnpB44gCaFoel
+         5Va2Jemf70pYKK332MlwZELc23vWI593KOMOFWSHOojYaGPV0tsN5iqHcbBAvhoW6a
+         PvSgt/cB/RdZ+w9Ht3VcfktInHuj6Ftwdiv+BmAI=
+Subject: patch "usb: dwc3: gadget: Wrap around when skip TRBs" added to usb-next
 To:     Thinh.Nguyen@synopsys.com, balbi@kernel.org,
         stable@vger.kernel.org, thinhn@synopsys.com
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 16 Mar 2020 08:26:52 +0100
-Message-ID: <15843436121228@kroah.com>
+Date:   Mon, 16 Mar 2020 08:40:04 +0100
+Message-ID: <1584344404194248@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -44,13 +44,13 @@ This is a note to let you know that I've just added the patch titled
 
 to my usb git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
-in the usb-testing branch.
+in the usb-next branch.
 
 The patch will show up in the next release of the linux-next tree
 (usually sometime within the next 24 hours during the week.)
 
-The patch will be merged to the usb-next branch sometime soon,
-after it passes testing, and the merge window is open.
+The patch will also be merged in the next major kernel release
+during the merge window.
 
 If you have any questions about this process, please let me know.
 
