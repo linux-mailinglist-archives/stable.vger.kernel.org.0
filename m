@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D0BB186275
-	for <lists+stable@lfdr.de>; Mon, 16 Mar 2020 03:38:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 40611186206
+	for <lists+stable@lfdr.de>; Mon, 16 Mar 2020 03:35:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730094AbgCPChX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 15 Mar 2020 22:37:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39746 "EHLO mail.kernel.org"
+        id S1730148AbgCPCfY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 15 Mar 2020 22:35:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39770 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730093AbgCPCfW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 15 Mar 2020 22:35:22 -0400
+        id S1729732AbgCPCfX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 15 Mar 2020 22:35:23 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 549CA206BE;
-        Mon, 16 Mar 2020 02:35:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B473D20736;
+        Mon, 16 Mar 2020 02:35:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584326121;
-        bh=wLKIETbo2pXOLJhya9oebISock9ggahRCIkYmPlnMOY=;
-        h=From:To:Cc:Subject:Date:From;
-        b=SBiqeDIOVI7cean7thLtFaPXGCLiNloOsYEMcUPKGCBXWWSa+2av+klUHRizCEBak
-         rj/sZRg6jzj2I+olh4r0zLcjDAz0V5IaSLy3wo2pN5HErYILUMK6EDawW77i/8lPAe
-         cBmNQizNC/6bvsRp9XStq307EtYVb/8e6yNDrGK0=
+        s=default; t=1584326122;
+        bh=L57iPVKkL097o6qLvQ+L5j2oTFH13RI1AUODGUtvQTY=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=YfeQBcXS7nbwyWzrVdjD6YUgCjx2ofoxQoU0TmQ7nqLfieMF8cPBJxKGqH6Z1CpK+
+         38AhEi20rxGk16vrAHwtViqozv2imujXq5oWXKt74Tat0exfx9i/QFCZG+a6rp6o2b
+         Tw/SKq8NZ0nj9+sRlQABbMwuiXHbnkBhZe4G7wgQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Johan Hovold <johan@kernel.org>,
-        Sanchayan Maity <maitysanchayan@gmail.com>,
-        Marcel Ziswiler <marcel.ziswiler@toradex.com>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Oleksandr Suvorov <oleksandr.suvorov@toradex.com>,
-        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.14 01/15] ARM: dts: imx6dl-colibri-eval-v3: fix sram compatible properties
-Date:   Sun, 15 Mar 2020 22:35:05 -0400
-Message-Id: <20200316023519.2050-1-sashal@kernel.org>
+Cc:     Yuji Sasaki <sasakiy@chromium.org>, Vinod Koul <vkoul@kernel.org>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-arm-msm@vger.kernel.org,
+        linux-spi@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 02/15] spi: qup: call spi_qup_pm_resume_runtime before suspending
+Date:   Sun, 15 Mar 2020 22:35:06 -0400
+Message-Id: <20200316023519.2050-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20200316023519.2050-1-sashal@kernel.org>
+References: <20200316023519.2050-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -45,54 +44,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Yuji Sasaki <sasakiy@chromium.org>
 
-[ Upstream commit bcbf53a0dab50980867476994f6079c1ec5bb3a3 ]
+[ Upstream commit 136b5cd2e2f97581ae560cff0db2a3b5369112da ]
 
-The sram-node compatible properties have mistakingly combined the
-model-specific string with the generic "mtd-ram" string.
+spi_qup_suspend() will cause synchronous external abort when
+runtime suspend is enabled and applied, as it tries to
+access SPI controller register while clock is already disabled
+in spi_qup_pm_suspend_runtime().
 
-Note that neither "cy7c1019dv33-10zsxi, mtd-ram" or
-"cy7c1019dv33-10zsxi" are used by any in-kernel driver and they are
-not present in any binding.
-
-The physmap driver will however bind to platform devices that specify
-"mtd-ram".
-
-Fixes: fc48e76489fd ("ARM: dts: imx6: Add support for Toradex Colibri iMX6 module")
-Cc: Sanchayan Maity <maitysanchayan@gmail.com>
-Cc: Marcel Ziswiler <marcel.ziswiler@toradex.com>
-Cc: Shawn Guo <shawnguo@kernel.org>
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Reviewed-by: Oleksandr Suvorov <oleksandr.suvorov@toradex.com>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Signed-off-by: Yuji sasaki <sasakiy@chromium.org>
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Link: https://lore.kernel.org/r/20200214074340.2286170-1-vkoul@kernel.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/imx6dl-colibri-eval-v3.dts | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/spi/spi-qup.c | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
-diff --git a/arch/arm/boot/dts/imx6dl-colibri-eval-v3.dts b/arch/arm/boot/dts/imx6dl-colibri-eval-v3.dts
-index 26541538562c6..fd6b253a45a73 100644
---- a/arch/arm/boot/dts/imx6dl-colibri-eval-v3.dts
-+++ b/arch/arm/boot/dts/imx6dl-colibri-eval-v3.dts
-@@ -231,7 +231,7 @@
+diff --git a/drivers/spi/spi-qup.c b/drivers/spi/spi-qup.c
+index 974a8ce58b68b..cb74fd1af2053 100644
+--- a/drivers/spi/spi-qup.c
++++ b/drivers/spi/spi-qup.c
+@@ -1190,6 +1190,11 @@ static int spi_qup_suspend(struct device *device)
+ 	struct spi_qup *controller = spi_master_get_devdata(master);
+ 	int ret;
  
- 	/* SRAM on Colibri nEXT_CS0 */
- 	sram@0,0 {
--		compatible = "cypress,cy7c1019dv33-10zsxi, mtd-ram";
-+		compatible = "cypress,cy7c1019dv33-10zsxi", "mtd-ram";
- 		reg = <0 0 0x00010000>;
- 		#address-cells = <1>;
- 		#size-cells = <1>;
-@@ -242,7 +242,7 @@
++	if (pm_runtime_suspended(device)) {
++		ret = spi_qup_pm_resume_runtime(device);
++		if (ret)
++			return ret;
++	}
+ 	ret = spi_master_suspend(master);
+ 	if (ret)
+ 		return ret;
+@@ -1198,10 +1203,8 @@ static int spi_qup_suspend(struct device *device)
+ 	if (ret)
+ 		return ret;
  
- 	/* SRAM on Colibri nEXT_CS1 */
- 	sram@1,0 {
--		compatible = "cypress,cy7c1019dv33-10zsxi, mtd-ram";
-+		compatible = "cypress,cy7c1019dv33-10zsxi", "mtd-ram";
- 		reg = <1 0 0x00010000>;
- 		#address-cells = <1>;
- 		#size-cells = <1>;
+-	if (!pm_runtime_suspended(device)) {
+-		clk_disable_unprepare(controller->cclk);
+-		clk_disable_unprepare(controller->iclk);
+-	}
++	clk_disable_unprepare(controller->cclk);
++	clk_disable_unprepare(controller->iclk);
+ 	return 0;
+ }
+ 
 -- 
 2.20.1
 
