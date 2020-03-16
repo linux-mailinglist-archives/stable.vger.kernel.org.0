@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B5D2F187592
-	for <lists+stable@lfdr.de>; Mon, 16 Mar 2020 23:30:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C6279187593
+	for <lists+stable@lfdr.de>; Mon, 16 Mar 2020 23:30:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732787AbgCPWa4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Mar 2020 18:30:56 -0400
-Received: from dvalin.narfation.org ([213.160.73.56]:48944 "EHLO
+        id S1732788AbgCPWa5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Mar 2020 18:30:57 -0400
+Received: from dvalin.narfation.org ([213.160.73.56]:48960 "EHLO
         dvalin.narfation.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1732788AbgCPWa4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Mar 2020 18:30:56 -0400
+        with ESMTP id S1732743AbgCPWa5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Mar 2020 18:30:57 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=narfation.org;
-        s=20121; t=1584397854;
+        s=20121; t=1584397855;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=bkbLawoczo5ST2Pu3uoDgTwBc16CbH+pVNqczEPOruI=;
-        b=nFvw2uZImzdCzdPCXoJbm6f731cyDS3Xf4b//PoKzuUOGfX0iViAl8NKpbJzXs5pKOiCtV
-        MtaGflnNWJvyYlz6kkBXTfn0y3aDk2sn0Hk8Awd5p/gDKZR2JFFeKYA2Vf7VgXFq5u+Ofo
-        i3QbCgWDrzB5KOhAxH57V7vh3Kfarg0=
+        bh=v2pYKPKQrxKV5AcP6h/QjYx+UMRLttHBIj6wXJn5gpA=;
+        b=NHr2i9dF12W+yn0P+0gxBxA9+NBD4HxGu1MvsPvQUOp8dP8CADCvKRDhWlyibWzcYXt0dA
+        C/QAuCSKVopPF+I1VXGR39kAhBN79BnylZbMJz8wTeZ51uopjSfvY+2fGJDqrq50tCpgC0
+        bd23C3csruqnH4ia/98Z4PnC12UPXyg=
 From:   Sven Eckelmann <sven@narfation.org>
 To:     stable@vger.kernel.org
-Cc:     Matthias Schiffer <mschiffer@universe-factory.net>,
-        Sven Eckelmann <sven@narfation.org>,
+Cc:     Sven Eckelmann <sven@narfation.org>,
+        Antonio Quartulli <a@unstable.cc>,
         Simon Wunderlich <sw@simonwunderlich.de>
-Subject: [PATCH 4.14 06/15] batman-adv: update data pointers after skb_cow()
-Date:   Mon, 16 Mar 2020 23:30:23 +0100
-Message-Id: <20200316223032.6236-7-sven@narfation.org>
+Subject: [PATCH 4.14 07/15] batman-adv: Avoid race in TT TVLV allocator helper
+Date:   Mon, 16 Mar 2020 23:30:24 +0100
+Message-Id: <20200316223032.6236-8-sven@narfation.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200316223032.6236-1-sven@narfation.org>
 References: <20200316223032.6236-1-sven@narfation.org>
@@ -39,65 +39,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matthias Schiffer <mschiffer@universe-factory.net>
+commit 8ba0f9bd3bdea1058c2b2676bec7905724418e40 upstream.
 
-commit bc44b78157f621ff2a2618fe287a827bcb094ac4 upstream.
+The functions batadv_tt_prepare_tvlv_local_data and
+batadv_tt_prepare_tvlv_global_data are responsible for preparing a buffer
+which can be used to store the TVLV container for TT and add the VLAN
+information to it.
 
-batadv_check_unicast_ttvn() calls skb_cow(), so pointers into the SKB data
-must be (re)set after calling it. The ethhdr variable is dropped
-altogether.
+This will be done in three phases:
 
-Fixes: 7cdcf6dddc42 ("batman-adv: add UNICAST_4ADDR packet type")
-Signed-off-by: Matthias Schiffer <mschiffer@universe-factory.net>
+1. count the number of VLANs and their entries
+2. allocate the buffer using the counters from the previous step and limits
+   from the caller (parameter tt_len)
+3. insert the VLAN information to the buffer
+
+The step 1 and 3 operate on a list which contains the VLANs. The access to
+these lists must be protected with an appropriate lock or otherwise they
+might operate on on different entries. This could for example happen when
+another context is adding VLAN entries to this list.
+
+This could lead to a buffer overflow in these functions when enough entries
+were added between step 1 and 3 to the VLAN lists that the buffer room for
+the entries (*tt_change) is smaller then the now required extra buffer for
+new VLAN entries.
+
+Fixes: 7ea7b4a14275 ("batman-adv: make the TT CRC logic VLAN specific")
 Signed-off-by: Sven Eckelmann <sven@narfation.org>
+Acked-by: Antonio Quartulli <a@unstable.cc>
 Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
 ---
- net/batman-adv/routing.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ net/batman-adv/translation-table.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/net/batman-adv/routing.c b/net/batman-adv/routing.c
-index cd82cff716c7..f59aac06733e 100644
---- a/net/batman-adv/routing.c
-+++ b/net/batman-adv/routing.c
-@@ -950,14 +950,10 @@ int batadv_recv_unicast_packet(struct sk_buff *skb,
- 	struct batadv_orig_node *orig_node = NULL, *orig_node_gw = NULL;
- 	int check, hdr_size = sizeof(*unicast_packet);
- 	enum batadv_subtype subtype;
--	struct ethhdr *ethhdr;
- 	int ret = NET_RX_DROP;
- 	bool is4addr, is_gw;
+diff --git a/net/batman-adv/translation-table.c b/net/batman-adv/translation-table.c
+index 2c2670b85fa9..adc686087a26 100644
+--- a/net/batman-adv/translation-table.c
++++ b/net/batman-adv/translation-table.c
+@@ -872,7 +872,7 @@ batadv_tt_prepare_tvlv_global_data(struct batadv_orig_node *orig_node,
+ 	struct batadv_orig_node_vlan *vlan;
+ 	u8 *tt_change_ptr;
  
- 	unicast_packet = (struct batadv_unicast_packet *)skb->data;
--	unicast_4addr_packet = (struct batadv_unicast_4addr_packet *)skb->data;
--	ethhdr = eth_hdr(skb);
--
- 	is4addr = unicast_packet->packet_type == BATADV_UNICAST_4ADDR;
- 	/* the caller function should have already pulled 2 bytes */
- 	if (is4addr)
-@@ -977,12 +973,14 @@ int batadv_recv_unicast_packet(struct sk_buff *skb,
- 	if (!batadv_check_unicast_ttvn(bat_priv, skb, hdr_size))
- 		goto free_skb;
+-	rcu_read_lock();
++	spin_lock_bh(&orig_node->vlan_list_lock);
+ 	hlist_for_each_entry_rcu(vlan, &orig_node->vlan_list, list) {
+ 		num_vlan++;
+ 		num_entries += atomic_read(&vlan->tt.num_entries);
+@@ -910,7 +910,7 @@ batadv_tt_prepare_tvlv_global_data(struct batadv_orig_node *orig_node,
+ 	*tt_change = (struct batadv_tvlv_tt_change *)tt_change_ptr;
  
-+	unicast_packet = (struct batadv_unicast_packet *)skb->data;
-+
- 	/* packet for me */
- 	if (batadv_is_my_mac(bat_priv, unicast_packet->dest)) {
- 		/* If this is a unicast packet from another backgone gw,
- 		 * drop it.
- 		 */
--		orig_addr_gw = ethhdr->h_source;
-+		orig_addr_gw = eth_hdr(skb)->h_source;
- 		orig_node_gw = batadv_orig_hash_find(bat_priv, orig_addr_gw);
- 		if (orig_node_gw) {
- 			is_gw = batadv_bla_is_backbone_gw(skb, orig_node_gw,
-@@ -997,6 +995,8 @@ int batadv_recv_unicast_packet(struct sk_buff *skb,
- 		}
+ out:
+-	rcu_read_unlock();
++	spin_unlock_bh(&orig_node->vlan_list_lock);
+ 	return tvlv_len;
+ }
  
- 		if (is4addr) {
-+			unicast_4addr_packet =
-+				(struct batadv_unicast_4addr_packet *)skb->data;
- 			subtype = unicast_4addr_packet->subtype;
- 			batadv_dat_inc_counter(bat_priv, subtype);
+@@ -946,7 +946,7 @@ batadv_tt_prepare_tvlv_local_data(struct batadv_priv *bat_priv,
+ 	u8 *tt_change_ptr;
+ 	int change_offset;
+ 
+-	rcu_read_lock();
++	spin_lock_bh(&bat_priv->softif_vlan_list_lock);
+ 	hlist_for_each_entry_rcu(vlan, &bat_priv->softif_vlan_list, list) {
+ 		num_vlan++;
+ 		num_entries += atomic_read(&vlan->tt.num_entries);
+@@ -984,7 +984,7 @@ batadv_tt_prepare_tvlv_local_data(struct batadv_priv *bat_priv,
+ 	*tt_change = (struct batadv_tvlv_tt_change *)tt_change_ptr;
+ 
+ out:
+-	rcu_read_unlock();
++	spin_unlock_bh(&bat_priv->softif_vlan_list_lock);
+ 	return tvlv_len;
+ }
  
 -- 
 2.20.1
