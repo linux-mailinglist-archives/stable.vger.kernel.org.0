@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 545AE186305
-	for <lists+stable@lfdr.de>; Mon, 16 Mar 2020 03:42:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5FE9A1861E3
+	for <lists+stable@lfdr.de>; Mon, 16 Mar 2020 03:35:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730241AbgCPCj1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 15 Mar 2020 22:39:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37956 "EHLO mail.kernel.org"
+        id S1729864AbgCPCe3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 15 Mar 2020 22:34:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37978 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729849AbgCPCe1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 15 Mar 2020 22:34:27 -0400
+        id S1729858AbgCPCe3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 15 Mar 2020 22:34:29 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E38A1206EB;
-        Mon, 16 Mar 2020 02:34:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 17FED20722;
+        Mon, 16 Mar 2020 02:34:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584326066;
-        bh=Yif/MN9EuU1cH8MxcNoZmPCJ/pA6Q1Lff4fYJ2Nk1PA=;
+        s=default; t=1584326067;
+        bh=VNN/Ba9Qk+2mQeF62pFxERDG8oGP0Rl7oa62vD0FBsU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uxtak+0n2aLcbxqhEQqdlsyqoRB9SXrGpv18tGW0myJdYC/sPP4UVksY1AXPVzPur
-         UfN2nMMh5nSpRwEkUETFMfBulxWy7Qb/Xn6vMOSW9LXulVCuTXWgXS8K0ZkxiXVtCt
-         5vKaZelV9DldzcbSbpd+ViMTeGPwj1lIkzi3UzFQ=
+        b=kF/9JLGUA+1rIRzblaJWIwwlcNWWJIdz5sGoyHu6953cEIiTZrUHky7jjfe2dJVjf
+         950aMpodpjnJeQq8J6zrSVji6r7my46rHtkdYmbAwSGmKmPecdonvhVxKKph4asWyf
+         FJUzdhgHo/YG4i8kHyeWx9LLiCMpBrSGbHJCzNIM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Kishon Vijay Abraham I <kishon@ti.com>,
-        Tony Lindgren <tony@atomide.com>,
-        Sasha Levin <sashal@kernel.org>, linux-omap@vger.kernel.org,
-        devicetree@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 13/35] ARM: dts: dra7: Add "dma-ranges" property to PCIe RC DT nodes
-Date:   Sun, 15 Mar 2020 22:33:49 -0400
-Message-Id: <20200316023411.1263-13-sashal@kernel.org>
+Cc:     Evan Green <evgreen@chromium.org>, Rajat Jain <rajatja@google.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-arm-kernel@lists.infradead.org, linux-spi@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 14/35] spi: pxa2xx: Add CS control clock quirk
+Date:   Sun, 15 Mar 2020 22:33:50 -0400
+Message-Id: <20200316023411.1263-14-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200316023411.1263-1-sashal@kernel.org>
 References: <20200316023411.1263-1-sashal@kernel.org>
@@ -44,44 +44,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kishon Vijay Abraham I <kishon@ti.com>
+From: Evan Green <evgreen@chromium.org>
 
-[ Upstream commit 27f13774654ea6bd0b6fc9b97cce8d19e5735661 ]
+[ Upstream commit 683f65ded66a9a7ff01ed7280804d2132ebfdf7e ]
 
-'dma-ranges' in a PCI bridge node does correctly set dma masks for PCI
-devices not described in the DT. Certain DRA7 platforms (e.g., DRA76)
-has RAM above 32-bit boundary (accessible with LPAE config) though the
-PCIe bridge will be able to access only 32-bits. Add 'dma-ranges'
-property in PCIe RC DT nodes to indicate the host bridge can access
-only 32 bits.
+In some circumstances on Intel LPSS controllers, toggling the LPSS
+CS control register doesn't actually cause the CS line to toggle.
+This seems to be failure of dynamic clock gating that occurs after
+going through a suspend/resume transition, where the controller
+is sent through a reset transition. This ruins SPI transactions
+that either rely on delay_usecs, or toggle the CS line without
+sending data.
 
-Signed-off-by: Kishon Vijay Abraham I <kishon@ti.com>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
+Whenever CS is toggled, momentarily set the clock gating register
+to "Force On" to poke the controller into acting on CS.
+
+Signed-off-by: Rajat Jain <rajatja@google.com>
+Signed-off-by: Evan Green <evgreen@chromium.org>
+Link: https://lore.kernel.org/r/20200211223700.110252-1-rajatja@google.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/dra7.dtsi | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/spi/spi-pxa2xx.c | 23 +++++++++++++++++++++++
+ 1 file changed, 23 insertions(+)
 
-diff --git a/arch/arm/boot/dts/dra7.dtsi b/arch/arm/boot/dts/dra7.dtsi
-index 953f0ffce2a90..6481d2b7d6b6f 100644
---- a/arch/arm/boot/dts/dra7.dtsi
-+++ b/arch/arm/boot/dts/dra7.dtsi
-@@ -184,6 +184,7 @@
- 				device_type = "pci";
- 				ranges = <0x81000000 0 0          0x03000 0 0x00010000
- 					  0x82000000 0 0x20013000 0x13000 0 0xffed000>;
-+				dma-ranges = <0x02000000 0x0 0x00000000 0x00000000 0x1 0x00000000>;
- 				bus-range = <0x00 0xff>;
- 				#interrupt-cells = <1>;
- 				num-lanes = <1>;
-@@ -238,6 +239,7 @@
- 				device_type = "pci";
- 				ranges = <0x81000000 0 0          0x03000 0 0x00010000
- 					  0x82000000 0 0x30013000 0x13000 0 0xffed000>;
-+				dma-ranges = <0x02000000 0x0 0x00000000 0x00000000 0x1 0x00000000>;
- 				bus-range = <0x00 0xff>;
- 				#interrupt-cells = <1>;
- 				num-lanes = <1>;
+diff --git a/drivers/spi/spi-pxa2xx.c b/drivers/spi/spi-pxa2xx.c
+index 2fd843b18297d..7231456732068 100644
+--- a/drivers/spi/spi-pxa2xx.c
++++ b/drivers/spi/spi-pxa2xx.c
+@@ -68,6 +68,10 @@ MODULE_ALIAS("platform:pxa2xx-spi");
+ #define LPSS_CAPS_CS_EN_SHIFT			9
+ #define LPSS_CAPS_CS_EN_MASK			(0xf << LPSS_CAPS_CS_EN_SHIFT)
+ 
++#define LPSS_PRIV_CLOCK_GATE 0x38
++#define LPSS_PRIV_CLOCK_GATE_CLK_CTL_MASK 0x3
++#define LPSS_PRIV_CLOCK_GATE_CLK_CTL_FORCE_ON 0x3
++
+ struct lpss_config {
+ 	/* LPSS offset from drv_data->ioaddr */
+ 	unsigned offset;
+@@ -84,6 +88,8 @@ struct lpss_config {
+ 	unsigned cs_sel_shift;
+ 	unsigned cs_sel_mask;
+ 	unsigned cs_num;
++	/* Quirks */
++	unsigned cs_clk_stays_gated : 1;
+ };
+ 
+ /* Keep these sorted with enum pxa_ssp_type */
+@@ -154,6 +160,7 @@ static const struct lpss_config lpss_platforms[] = {
+ 		.tx_threshold_hi = 56,
+ 		.cs_sel_shift = 8,
+ 		.cs_sel_mask = 3 << 8,
++		.cs_clk_stays_gated = true,
+ 	},
+ };
+ 
+@@ -381,6 +388,22 @@ static void lpss_ssp_cs_control(struct spi_device *spi, bool enable)
+ 	else
+ 		value |= LPSS_CS_CONTROL_CS_HIGH;
+ 	__lpss_ssp_write_priv(drv_data, config->reg_cs_ctrl, value);
++	if (config->cs_clk_stays_gated) {
++		u32 clkgate;
++
++		/*
++		 * Changing CS alone when dynamic clock gating is on won't
++		 * actually flip CS at that time. This ruins SPI transfers
++		 * that specify delays, or have no data. Toggle the clock mode
++		 * to force on briefly to poke the CS pin to move.
++		 */
++		clkgate = __lpss_ssp_read_priv(drv_data, LPSS_PRIV_CLOCK_GATE);
++		value = (clkgate & ~LPSS_PRIV_CLOCK_GATE_CLK_CTL_MASK) |
++			LPSS_PRIV_CLOCK_GATE_CLK_CTL_FORCE_ON;
++
++		__lpss_ssp_write_priv(drv_data, LPSS_PRIV_CLOCK_GATE, value);
++		__lpss_ssp_write_priv(drv_data, LPSS_PRIV_CLOCK_GATE, clkgate);
++	}
+ }
+ 
+ static void cs_assert(struct spi_device *spi)
 -- 
 2.20.1
 
