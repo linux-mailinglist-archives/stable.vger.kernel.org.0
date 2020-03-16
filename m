@@ -2,53 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E2C3186A22
-	for <lists+stable@lfdr.de>; Mon, 16 Mar 2020 12:33:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DDAEF186A23
+	for <lists+stable@lfdr.de>; Mon, 16 Mar 2020 12:34:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730837AbgCPLdd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Mar 2020 07:33:33 -0400
-Received: from wout1-smtp.messagingengine.com ([64.147.123.24]:47307 "EHLO
+        id S1730839AbgCPLeN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Mar 2020 07:34:13 -0400
+Received: from wout1-smtp.messagingengine.com ([64.147.123.24]:35813 "EHLO
         wout1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1730783AbgCPLdd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Mar 2020 07:33:33 -0400
+        by vger.kernel.org with ESMTP id S1730783AbgCPLeN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Mar 2020 07:34:13 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailout.west.internal (Postfix) with ESMTP id 0E72E7F4;
-        Mon, 16 Mar 2020 07:33:31 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Mon, 16 Mar 2020 07:33:32 -0400
+        by mailout.west.internal (Postfix) with ESMTP id 191B25D6;
+        Mon, 16 Mar 2020 07:34:12 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute1.internal (MEProxy); Mon, 16 Mar 2020 07:34:12 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=vXaFRi
-        0xm6uuYnbkScNEMRzhD/ifeU0lfzeCYLTrGLU=; b=OuE/3uDhfgFFTrhq5HFgZd
-        ISHZugR4TTXI//PSTam8nokT3hPLXhuhFWF2zKryw1FGkXK5f6kPN1PXg/Y8T0t4
-        QQWY7JfuDiXN2tccvUlQLXEUu2uC8i0lw0xaars9lLdLXVfcKLTqJrWdMmj6cfI7
-        3dqBFhKaPB9ntWFKaZ61eggPDxYZc9gZMB4zXvLNcABvMAcGtO3n9U0y0Gc8qQ8n
-        RWxz2NcdDFS1YFHOLp7MSgxm5KauoWFZb09d0a7gE8NRenzUfza0j+JIlwpm2E8x
-        TylvLGcHXQWK4kEReOmVyXFDEWvoks4oiwXJ46CymkxVimrvpZZl7LD0C/QNsLAA
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=XvfftL
+        LyoDo74hQ824+8juoSQ0qPyOYR9snvj4FxGI8=; b=0XJkhomwqKkigUU34e0Snh
+        Q/nhDlidiyg4CfZIP2CGM5U16nAsCPaZlZyUMPEGJxGUqdX3rjWjbIBRa+NqYJ4T
+        4XJFeziU3x1FStaCBg7BMU1ZD9iTmb9z9GjdTXK9fVPQ4GFAM57skONvx+uGvxNd
+        8XSx/Ph2ucxifpjOBstAzl1mZuZ3X1R00vyCk7BXKOg7CoXqZD4vrY3urRH0zTwK
+        b4Q9lFOYrMGmydejZsO6vX7dr5JFvSTxcvaR+G7EZsovUN0pCV6RgTKWBE6VCeRO
+        f9vasCtLbkA/4apuZ/No0ilszm2vX5BPnZROOs8ipDKNA3A20oXSmhf+oSQCq2sA
         ==
-X-ME-Sender: <xms:C2RvXjMdXscTxUZgfOMG4bNwJfVlH7nbMFcBLtaeQ5UuHY5vatNQRQ>
+X-ME-Sender: <xms:M2RvXqt-HF40doXWwRFCBNXuq06LiirVYDHuq1lzInjPgiU1mTNDgA>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedugedrudeffedgvdelucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecukfhppeekfedrkeeirdekledruddtjeenucevlhhushhtvghrufhiiigvpedune
-    curfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:C2RvXleYSU4qIKhasGDTY5IiT3_zewBYcNqGlSQYc90M1px4cGzckQ>
-    <xmx:C2RvXoUdDOBZuy9nOFvlNGNBSD33tzJLOTy0-Z5hOGnZsgWTBdTNXQ>
-    <xmx:C2RvXlwZ-yObwGg6IKaKmR8bR76yduVZUpKuJCauz9WxWEVdzRFwTA>
-    <xmx:C2RvXk_qBUUCNPxsIz56pATp8g5VRYgEyDmENTI_eJZiGLOj7X3kEA>
+    gheqnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphepkeefrdekiedrkeelrd
+    dutdejnecuvehluhhsthgvrhfuihiivgepfeenucfrrghrrghmpehmrghilhhfrhhomhep
+    ghhrvghgsehkrhhorghhrdgtohhm
+X-ME-Proxy: <xmx:M2RvXrK6vpm6BnoyBqjbFxzYWumvqtf648pHjVY3vnOr93Y1E7B_BQ>
+    <xmx:M2RvXlgALAiESe0TYpON6UgB5HkqXNDrkDJwy2hCyKf7G14kmmcT8w>
+    <xmx:M2RvXoY10ezK82xE_u_ZbCrmE_TWHzdaAm7lpoiadPAVyesGzA6x5Q>
+    <xmx:M2RvXlFTai774BXVyn5foVr0UBoIq1WmCwew0RQ7IqZMBXLOhxSDOQ>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 49C9C30618B7;
-        Mon, 16 Mar 2020 07:33:31 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] mmc: core: Respect MMC_CAP_NEED_RSP_BUSY for" failed to apply to 4.19-stable tree
-To:     ulf.hansson@linaro.org, anders.roxell@linaro.org,
-        faiz_abbas@ti.com, pgwipeout@gmail.com, skomatineni@nvidia.com,
-        stable@vger.kernel.org
+        by mail.messagingengine.com (Postfix) with ESMTPA id DDE30328005A;
+        Mon, 16 Mar 2020 07:34:10 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] pinctrl: qcom: Assign irq_eoi conditionally" failed to apply to 5.4-stable tree
+To:     linus.walleij@linaro.org, bjorn.andersson@linaro.org,
+        david@ixit.cz, ilina@codeaurora.org, maz@kernel.org,
+        swboyd@chromium.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 16 Mar 2020 12:33:23 +0100
-Message-ID: <158435840310081@kroah.com>
+Date:   Mon, 16 Mar 2020 12:34:09 +0100
+Message-ID: <1584358449195216@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -58,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -69,45 +70,73 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 43cc64e5221cc6741252b64bc4531dd1eefb733d Mon Sep 17 00:00:00 2001
-From: Ulf Hansson <ulf.hansson@linaro.org>
-Date: Tue, 10 Mar 2020 14:43:00 +0100
-Subject: [PATCH] mmc: core: Respect MMC_CAP_NEED_RSP_BUSY for
- erase/trim/discard
+From 1cada2f307665e208a486d7ac2294ed9a6f74a6f Mon Sep 17 00:00:00 2001
+From: Linus Walleij <linus.walleij@linaro.org>
+Date: Mon, 9 Mar 2020 16:26:04 +0100
+Subject: [PATCH] pinctrl: qcom: Assign irq_eoi conditionally
 
-The busy timeout that is computed for each erase/trim/discard operation,
-can become quite long and may thus exceed the host->max_busy_timeout. If
-that becomes the case, mmc_do_erase() converts from using an R1B response
-to an R1 response, as to prevent the host from doing HW busy detection.
+The hierarchical parts of MSM pinctrl/GPIO is only
+used when the device tree has a "wakeup-parent" as
+a phandle, but the .irq_eoi is anyway assigned leading
+to semantic problems on elder Qualcomm chipsets.
 
-However, it has turned out that some hosts requires an R1B response no
-matter what, so let's respect that via checking MMC_CAP_NEED_RSP_BUSY. Note
-that, if the R1B gets enforced, the host becomes fully responsible of
-managing the needed busy timeout, in one way or the other.
+When the drivers/mfd/qcom-pm8xxx.c driver calls
+chained_irq_exit() that call will in turn call chip->irq_eoi()
+which is set to irq_chip_eoi_parent() by default on a
+hierachical IRQ chip, and the parent is pinctrl-msm.c
+so that will in turn unconditionally call
+irq_chip_eoi_parent() again, but its parent is invalid
+so we get the following crash:
 
-Suggested-by: Sowjanya Komatineni <skomatineni@nvidia.com>
-Cc: <stable@vger.kernel.org>
-Tested-by: Anders Roxell <anders.roxell@linaro.org>
-Tested-by: Sowjanya Komatineni <skomatineni@nvidia.com>
-Tested-by: Faiz Abbas <faiz_abbas@ti.com>
-Tested-By: Peter Geis <pgwipeout@gmail.com>
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+ Unnable to handle kernel NULL pointer dereference at
+ virtual address 00000010
+ pgd = (ptrval)
+ [00000010] *pgd=00000000
+ Internal error: Oops: 5 [#1] PREEMPT SMP ARM
+ (...)
+ PC is at irq_chip_eoi_parent+0x4/0x10
+ LR is at pm8xxx_irq_handler+0x1b4/0x2d8
 
-diff --git a/drivers/mmc/core/core.c b/drivers/mmc/core/core.c
-index aa54d359dab7..a971c4bcc442 100644
---- a/drivers/mmc/core/core.c
-+++ b/drivers/mmc/core/core.c
-@@ -1732,8 +1732,11 @@ static int mmc_do_erase(struct mmc_card *card, unsigned int from,
- 	 * the erase operation does not exceed the max_busy_timeout, we should
- 	 * use R1B response. Or we need to prevent the host from doing hw busy
- 	 * detection, which is done by converting to a R1 response instead.
-+	 * Note, some hosts requires R1B, which also means they are on their own
-+	 * when it comes to deal with the busy timeout.
- 	 */
--	if (card->host->max_busy_timeout &&
-+	if (!(card->host->caps & MMC_CAP_NEED_RSP_BUSY) &&
-+	    card->host->max_busy_timeout &&
- 	    busy_timeout > card->host->max_busy_timeout) {
- 		cmd.flags = MMC_RSP_SPI_R1 | MMC_RSP_R1 | MMC_CMD_AC;
- 	} else {
+If we solve this crash by avoiding to call up to
+irq_chip_eoi_parent(), the machine will hang and get
+reset by the watchdog, because of semantic issues,
+probably inside irq_chip.
+
+As a solution, just assign the .irq_eoi conditionally if
+we are actually using a wakeup parent.
+
+Cc: David Heidelberg <david@ixit.cz>
+Cc: Bjorn Andersson <bjorn.andersson@linaro.org>
+Cc: Lina Iyer <ilina@codeaurora.org>
+Cc: Stephen Boyd <swboyd@chromium.org>
+Cc: stable@vger.kernel.org
+Fixes: e35a6ae0eb3a ("pinctrl/msm: Setup GPIO chip in hierarchy")
+Link: https://lore.kernel.org/r/20200306121221.1231296-1-linus.walleij@linaro.org
+Link: https://lore.kernel.org/r/20200309125207.571840-1-linus.walleij@linaro.org
+Link: https://lore.kernel.org/r/20200309152604.585112-1-linus.walleij@linaro.org
+Tested-by: David Heidelberg <david@ixit.cz>
+Acked-by: Marc Zyngier <maz@kernel.org>
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+
+diff --git a/drivers/pinctrl/qcom/pinctrl-msm.c b/drivers/pinctrl/qcom/pinctrl-msm.c
+index 9a8daa256a32..1a948c3f54b7 100644
+--- a/drivers/pinctrl/qcom/pinctrl-msm.c
++++ b/drivers/pinctrl/qcom/pinctrl-msm.c
+@@ -1104,7 +1104,6 @@ static int msm_gpio_init(struct msm_pinctrl *pctrl)
+ 	pctrl->irq_chip.irq_mask = msm_gpio_irq_mask;
+ 	pctrl->irq_chip.irq_unmask = msm_gpio_irq_unmask;
+ 	pctrl->irq_chip.irq_ack = msm_gpio_irq_ack;
+-	pctrl->irq_chip.irq_eoi = irq_chip_eoi_parent;
+ 	pctrl->irq_chip.irq_set_type = msm_gpio_irq_set_type;
+ 	pctrl->irq_chip.irq_set_wake = msm_gpio_irq_set_wake;
+ 	pctrl->irq_chip.irq_request_resources = msm_gpio_irq_reqres;
+@@ -1118,7 +1117,7 @@ static int msm_gpio_init(struct msm_pinctrl *pctrl)
+ 		if (!chip->irq.parent_domain)
+ 			return -EPROBE_DEFER;
+ 		chip->irq.child_to_parent_hwirq = msm_gpio_wakeirq;
+-
++		pctrl->irq_chip.irq_eoi = irq_chip_eoi_parent;
+ 		/*
+ 		 * Let's skip handling the GPIOs, if the parent irqchip
+ 		 * is handling the direct connect IRQ of the GPIO.
 
