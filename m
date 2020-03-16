@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C79F1861A1
-	for <lists+stable@lfdr.de>; Mon, 16 Mar 2020 03:33:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CA36D186343
+	for <lists+stable@lfdr.de>; Mon, 16 Mar 2020 03:43:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729433AbgCPCd1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 15 Mar 2020 22:33:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36038 "EHLO mail.kernel.org"
+        id S1730331AbgCPClt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 15 Mar 2020 22:41:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36066 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729508AbgCPCd1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 15 Mar 2020 22:33:27 -0400
+        id S1729515AbgCPCd2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 15 Mar 2020 22:33:28 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9DA8820724;
-        Mon, 16 Mar 2020 02:33:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0A72D206E9;
+        Mon, 16 Mar 2020 02:33:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584326006;
-        bh=xVkW6QXkoVncl6FlKkwsPTCwVa8yuWnT/9V+BX7zKXA=;
+        s=default; t=1584326007;
+        bh=c89utpjyJCM1WC9RrJfhwK+FgjmLnvI7luTATiwF9VM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JMejwOvMRVAbazWPFSjLYQmTETgbZwVM2FiQIGdBJ0rK9IYRvm4LCAOEJMMeiqs5S
-         8xdex6WltQClTd3IYxrfdpPcYmcQrIMpR11NSzDUAqojqAr/4n8aAFmbxQGZ09GrzR
-         eEYHsx04FJ/KED7Pg6Y59VhMA6LF+8kRtIuaMg2g=
+        b=P//H0Wj5Lc0Q1Xb/Qi358pvsRQOuq13joVChv3Ag1ExI7p+EKWGu54IbUVt2MUthi
+         yGeCupJACapS8p1Ra0o3fachISF008RPmwlKz/iTj0iFpsUOycyXUqRJEDDfNW7jHN
+         dOMLxBnPBNR4rmsbeMJGo/6Z3QY0Vlb9MAwymNfQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Johan Hovold <johan@kernel.org>,
-        Sanchayan Maity <maitysanchayan@gmail.com>,
-        Marcel Ziswiler <marcel.ziswiler@toradex.com>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Oleksandr Suvorov <oleksandr.suvorov@toradex.com>,
-        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.5 05/41] ARM: dts: imx6dl-colibri-eval-v3: fix sram compatible properties
-Date:   Sun, 15 Mar 2020 22:32:43 -0400
-Message-Id: <20200316023319.749-5-sashal@kernel.org>
+Cc:     Grygorii Strashko <grygorii.strashko@ti.com>,
+        Kishon Vijay Abraham I <kishon@ti.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.5 06/41] phy: ti: gmii-sel: fix set of copy-paste errors
+Date:   Sun, 15 Mar 2020 22:32:44 -0400
+Message-Id: <20200316023319.749-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200316023319.749-1-sashal@kernel.org>
 References: <20200316023319.749-1-sashal@kernel.org>
@@ -47,54 +43,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Grygorii Strashko <grygorii.strashko@ti.com>
 
-[ Upstream commit bcbf53a0dab50980867476994f6079c1ec5bb3a3 ]
+[ Upstream commit eefed634eb61e4094b9fb8183cb8d43b26838517 ]
 
-The sram-node compatible properties have mistakingly combined the
-model-specific string with the generic "mtd-ram" string.
+- under PHY_INTERFACE_MODE_MII the 'mode' func parameter is assigned
+instead of 'gmii_sel_mode' and it's working only because the default value
+'gmii_sel_mode' is set to 0.
 
-Note that neither "cy7c1019dv33-10zsxi, mtd-ram" or
-"cy7c1019dv33-10zsxi" are used by any in-kernel driver and they are
-not present in any binding.
+- console outputs use 'rgmii_id' and 'mode' values to print PHY mode
+instead of using 'submode' value which is representing PHY interface mode
+now.
 
-The physmap driver will however bind to platform devices that specify
-"mtd-ram".
+This patch fixes above two cases.
 
-Fixes: fc48e76489fd ("ARM: dts: imx6: Add support for Toradex Colibri iMX6 module")
-Cc: Sanchayan Maity <maitysanchayan@gmail.com>
-Cc: Marcel Ziswiler <marcel.ziswiler@toradex.com>
-Cc: Shawn Guo <shawnguo@kernel.org>
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Reviewed-by: Oleksandr Suvorov <oleksandr.suvorov@toradex.com>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Signed-off-by: Grygorii Strashko <grygorii.strashko@ti.com>
+Signed-off-by: Kishon Vijay Abraham I <kishon@ti.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/imx6dl-colibri-eval-v3.dts | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/phy/ti/phy-gmii-sel.c | 9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
 
-diff --git a/arch/arm/boot/dts/imx6dl-colibri-eval-v3.dts b/arch/arm/boot/dts/imx6dl-colibri-eval-v3.dts
-index cd075621de52d..84fcc203a2e48 100644
---- a/arch/arm/boot/dts/imx6dl-colibri-eval-v3.dts
-+++ b/arch/arm/boot/dts/imx6dl-colibri-eval-v3.dts
-@@ -275,7 +275,7 @@
+diff --git a/drivers/phy/ti/phy-gmii-sel.c b/drivers/phy/ti/phy-gmii-sel.c
+index a28bd15297f53..e998e9cd8d1f8 100644
+--- a/drivers/phy/ti/phy-gmii-sel.c
++++ b/drivers/phy/ti/phy-gmii-sel.c
+@@ -80,20 +80,19 @@ static int phy_gmii_sel_mode(struct phy *phy, enum phy_mode mode, int submode)
+ 		break;
  
- 	/* SRAM on Colibri nEXT_CS0 */
- 	sram@0,0 {
--		compatible = "cypress,cy7c1019dv33-10zsxi, mtd-ram";
-+		compatible = "cypress,cy7c1019dv33-10zsxi", "mtd-ram";
- 		reg = <0 0 0x00010000>;
- 		#address-cells = <1>;
- 		#size-cells = <1>;
-@@ -286,7 +286,7 @@
+ 	case PHY_INTERFACE_MODE_MII:
+-		mode = AM33XX_GMII_SEL_MODE_MII;
++		gmii_sel_mode = AM33XX_GMII_SEL_MODE_MII;
+ 		break;
  
- 	/* SRAM on Colibri nEXT_CS1 */
- 	sram@1,0 {
--		compatible = "cypress,cy7c1019dv33-10zsxi, mtd-ram";
-+		compatible = "cypress,cy7c1019dv33-10zsxi", "mtd-ram";
- 		reg = <1 0 0x00010000>;
- 		#address-cells = <1>;
- 		#size-cells = <1>;
+ 	default:
+-		dev_warn(dev,
+-			 "port%u: unsupported mode: \"%s\". Defaulting to MII.\n",
+-			 if_phy->id, phy_modes(rgmii_id));
++		dev_warn(dev, "port%u: unsupported mode: \"%s\"\n",
++			 if_phy->id, phy_modes(submode));
+ 		return -EINVAL;
+ 	}
+ 
+ 	if_phy->phy_if_mode = submode;
+ 
+ 	dev_dbg(dev, "%s id:%u mode:%u rgmii_id:%d rmii_clk_ext:%d\n",
+-		__func__, if_phy->id, mode, rgmii_id,
++		__func__, if_phy->id, submode, rgmii_id,
+ 		if_phy->rmii_clock_external);
+ 
+ 	regfield = if_phy->fields[PHY_GMII_SEL_PORT_MODE];
 -- 
 2.20.1
 
