@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A3AC918633E
+	by mail.lfdr.de (Postfix) with ESMTP id 3A5AE18633D
 	for <lists+stable@lfdr.de>; Mon, 16 Mar 2020 03:43:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729998AbgCPClk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1729438AbgCPClk (ORCPT <rfc822;lists+stable@lfdr.de>);
         Sun, 15 Mar 2020 22:41:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36118 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:36156 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729482AbgCPCda (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 15 Mar 2020 22:33:30 -0400
+        id S1729529AbgCPCdb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 15 Mar 2020 22:33:31 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E7F90206E9;
-        Mon, 16 Mar 2020 02:33:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 28F8B20722;
+        Mon, 16 Mar 2020 02:33:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584326009;
-        bh=ClFWbM6KRvO0jA0ltmJ0uDe7H7a6wSR5QyRk4Y8M8UY=;
+        s=default; t=1584326011;
+        bh=zfd67u+rmC+7o1QvaUow5GVSNreqIe3rocf3yS5pvKo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LybBq0H8VByDyd+dKIhDlbk5tGG2NvY7aLudfI8iL9/Uo256lmFcZBmbRzRGXa5cO
-         SUjiV2q/YX7XrOasMnTacY4KQ0gjcUoSyXaNBGWA5h6VTGAJdZINusblnkMEjYcIKp
-         izVYHJjXta2kuK05wEllgL8YODq9MQoEgLCaIDjg=
+        b=15z2Hr4N62lgDadgu2e6hhFsEsBVengXHRV3veArs8MJzogYZAAdxI1NOUHxS9adh
+         0Xx9A+ttRGdQNuCDWBnCZfhdYlkMr/yD8/d5EEuB/5vrVwOvcNWb3tEHNFmn7Fn4+v
+         tpPGmV1/xwKc1LKtDOlUDXzVR1KDIZ+2xXaD83CE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Grygorii Strashko <grygorii.strashko@ti.com>,
-        Lokesh Vutla <lokeshvutla@ti.com>,
-        Tony Lindgren <tony@atomide.com>,
-        Sasha Levin <sashal@kernel.org>, linux-omap@vger.kernel.org,
-        devicetree@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.5 08/41] ARM: dts: dra7-l4: mark timer13-16 as pwm capable
-Date:   Sun, 15 Mar 2020 22:32:46 -0400
-Message-Id: <20200316023319.749-8-sashal@kernel.org>
+Cc:     Jerome Brunet <jbrunet@baylibre.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-amlogic@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.5 09/41] ASoC: meson: g12a: add tohdmitx reset
+Date:   Sun, 15 Mar 2020 22:32:47 -0400
+Message-Id: <20200316023319.749-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200316023319.749-1-sashal@kernel.org>
 References: <20200316023319.749-1-sashal@kernel.org>
@@ -45,57 +45,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Grygorii Strashko <grygorii.strashko@ti.com>
+From: Jerome Brunet <jbrunet@baylibre.com>
 
-[ Upstream commit 00a39c92c8ab94727f021297d1748531af113fcd ]
+[ Upstream commit 22946f37557e27697aabc8e4f62642bfe4a17fd8 ]
 
-DMTimers 13 - 16 are PWM capable and also can be used for CPTS input
-signals generation. Hence, mark them as "ti,timer-pwm".
+Reset the g12a hdmi codec glue on probe. This ensure a sane startup state.
 
-Signed-off-by: Grygorii Strashko <grygorii.strashko@ti.com>
-Reviewed-by: Lokesh Vutla <lokeshvutla@ti.com>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
+Signed-off-by: Jerome Brunet <jbrunet@baylibre.com>
+Link: https://lore.kernel.org/r/20200221121146.1498427-1-jbrunet@baylibre.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/dra7-l4.dtsi | 4 ++++
- 1 file changed, 4 insertions(+)
+ sound/soc/meson/g12a-tohdmitx.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/arch/arm/boot/dts/dra7-l4.dtsi b/arch/arm/boot/dts/dra7-l4.dtsi
-index 7e7aa101d8a49..912ee8778830a 100644
---- a/arch/arm/boot/dts/dra7-l4.dtsi
-+++ b/arch/arm/boot/dts/dra7-l4.dtsi
-@@ -3461,6 +3461,7 @@
- 				clocks = <&l4per3_clkctrl DRA7_L4PER3_TIMER13_CLKCTRL 24>;
- 				clock-names = "fck";
- 				interrupts = <GIC_SPI 339 IRQ_TYPE_LEVEL_HIGH>;
-+				ti,timer-pwm;
- 			};
- 		};
+diff --git a/sound/soc/meson/g12a-tohdmitx.c b/sound/soc/meson/g12a-tohdmitx.c
+index 9cfbd343a00c8..8a0db28a6a406 100644
+--- a/sound/soc/meson/g12a-tohdmitx.c
++++ b/sound/soc/meson/g12a-tohdmitx.c
+@@ -8,6 +8,7 @@
+ #include <linux/module.h>
+ #include <sound/pcm_params.h>
+ #include <linux/regmap.h>
++#include <linux/reset.h>
+ #include <sound/soc.h>
+ #include <sound/soc-dai.h>
  
-@@ -3489,6 +3490,7 @@
- 				clocks = <&l4per3_clkctrl DRA7_L4PER3_TIMER14_CLKCTRL 24>;
- 				clock-names = "fck";
- 				interrupts = <GIC_SPI 340 IRQ_TYPE_LEVEL_HIGH>;
-+				ti,timer-pwm;
- 			};
- 		};
+@@ -378,6 +379,11 @@ static int g12a_tohdmitx_probe(struct platform_device *pdev)
+ 	struct device *dev = &pdev->dev;
+ 	void __iomem *regs;
+ 	struct regmap *map;
++	int ret;
++
++	ret = device_reset(dev);
++	if (ret)
++		return ret;
  
-@@ -3517,6 +3519,7 @@
- 				clocks = <&l4per3_clkctrl DRA7_L4PER3_TIMER15_CLKCTRL 24>;
- 				clock-names = "fck";
- 				interrupts = <GIC_SPI 341 IRQ_TYPE_LEVEL_HIGH>;
-+				ti,timer-pwm;
- 			};
- 		};
- 
-@@ -3545,6 +3548,7 @@
- 				clocks = <&l4per3_clkctrl DRA7_L4PER3_TIMER16_CLKCTRL 24>;
- 				clock-names = "fck";
- 				interrupts = <GIC_SPI 342 IRQ_TYPE_LEVEL_HIGH>;
-+				ti,timer-pwm;
- 			};
- 		};
- 
+ 	regs = devm_platform_ioremap_resource(pdev, 0);
+ 	if (IS_ERR(regs))
 -- 
 2.20.1
 
