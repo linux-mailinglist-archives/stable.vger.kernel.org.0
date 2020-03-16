@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E202186300
-	for <lists+stable@lfdr.de>; Mon, 16 Mar 2020 03:42:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C88B186302
+	for <lists+stable@lfdr.de>; Mon, 16 Mar 2020 03:42:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730266AbgCPCjH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1729828AbgCPCjH (ORCPT <rfc822;lists+stable@lfdr.de>);
         Sun, 15 Mar 2020 22:39:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38200 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:38242 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729893AbgCPCef (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 15 Mar 2020 22:34:35 -0400
+        id S1729896AbgCPCeg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 15 Mar 2020 22:34:36 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 616012073C;
-        Mon, 16 Mar 2020 02:34:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6A69F20736;
+        Mon, 16 Mar 2020 02:34:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584326075;
-        bh=jM7Fews3e1MESegyezgjrz7anoNSo3IuYP4oG7HKigc=;
+        s=default; t=1584326076;
+        bh=4yw0STCK+C5NSsvnEalgO/FdaunLe8EGQsfjZzCvPV8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=w/Et20zv5LYIKr4B0pRC7OO8Ocx8P8xsuhVVoZiAfOv3/xi/lu/5+HP9A/IugNq2O
-         sj8em3dC1PhBTD/cKDPNef9w1WAk6v0WFRyUDqpaJI0vN5onMjA+TwbKl3jeVf173f
-         vARlKQxVLTOgZQfX+a+4gm1BoaCgN6atYwnHpbnc=
+        b=Bsztwr8q7AeWY06+skX2OhW2/kRRQ+0HH2GFHKpA9cdWiQ4WKTBgzKWzLReJO6JDd
+         YbS7F3EPW76RZwBqz7Sx/gFo3p+MSEgMoEuSqxeqQr5/UhMbHpwNMk4OVCftumVaxi
+         RXv2OOoU3LdJQUPTbS9ull0XP0MHg8N0P+SBsA9U=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     luanshi <zhangliguang@linux.alibaba.com>,
-        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.4 20/35] drivers/perf: arm_pmu_acpi: Fix incorrect checking of gicc pointer
-Date:   Sun, 15 Mar 2020 22:33:56 -0400
-Message-Id: <20200316023411.1263-20-sashal@kernel.org>
+Cc:     Daniel Axtens <dja@axtens.net>,
+        "Igor M. Liplianin" <liplianin@netup.ru>,
+        Kees Cook <keescook@chromium.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 21/35] altera-stapl: altera_get_note: prevent write beyond end of 'key'
+Date:   Sun, 15 Mar 2020 22:33:57 -0400
+Message-Id: <20200316023411.1263-21-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200316023411.1263-1-sashal@kernel.org>
 References: <20200316023411.1263-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -43,47 +46,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: luanshi <zhangliguang@linux.alibaba.com>
+From: Daniel Axtens <dja@axtens.net>
 
-[ Upstream commit 3ba52ad55b533760a1f65836aa0ec9d35e36bb4f ]
+[ Upstream commit 3745488e9d599916a0b40d45d3f30e3d4720288e ]
 
-Fix bogus NULL checks on the return value of acpi_cpu_get_madt_gicc()
-by checking for a 0 'gicc->performance_interrupt' value instead.
+altera_get_note is called from altera_init, where key is kzalloc(33).
 
-Signed-off-by: Liguang Zhang <zhangliguang@linux.alibaba.com>
-Signed-off-by: Will Deacon <will@kernel.org>
+When the allocation functions are annotated to allow the compiler to see
+the sizes of objects, and with FORTIFY_SOURCE, we see:
+
+In file included from drivers/misc/altera-stapl/altera.c:14:0:
+In function ‘strlcpy’,
+    inlined from ‘altera_init’ at drivers/misc/altera-stapl/altera.c:2189:5:
+include/linux/string.h:378:4: error: call to ‘__write_overflow’ declared with attribute error: detected write beyond size of object passed as 1st parameter
+    __write_overflow();
+    ^~~~~~~~~~~~~~~~~~
+
+That refers to this code in altera_get_note:
+
+    if (key != NULL)
+            strlcpy(key, &p[note_strings +
+                            get_unaligned_be32(
+                            &p[note_table + (8 * i)])],
+                    length);
+
+The error triggers because the length of 'key' is 33, but the copy
+uses length supplied as the 'length' parameter, which is always
+256. Split the size parameter into key_len and val_len, and use the
+appropriate length depending on what is being copied.
+
+Detected by compiler error, only compile-tested.
+
+Cc: "Igor M. Liplianin" <liplianin@netup.ru>
+Signed-off-by: Daniel Axtens <dja@axtens.net>
+Link: https://lore.kernel.org/r/20200120074344.504-2-dja@axtens.net
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Link: https://lore.kernel.org/r/202002251042.D898E67AC@keescook
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/perf/arm_pmu_acpi.c | 7 ++-----
- 1 file changed, 2 insertions(+), 5 deletions(-)
+ drivers/misc/altera-stapl/altera.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/perf/arm_pmu_acpi.c b/drivers/perf/arm_pmu_acpi.c
-index acce8781c456c..f5c7a845cd7bf 100644
---- a/drivers/perf/arm_pmu_acpi.c
-+++ b/drivers/perf/arm_pmu_acpi.c
-@@ -24,8 +24,6 @@ static int arm_pmu_acpi_register_irq(int cpu)
- 	int gsi, trigger;
- 
- 	gicc = acpi_cpu_get_madt_gicc(cpu);
--	if (WARN_ON(!gicc))
--		return -EINVAL;
- 
- 	gsi = gicc->performance_interrupt;
- 
-@@ -64,11 +62,10 @@ static void arm_pmu_acpi_unregister_irq(int cpu)
- 	int gsi;
- 
- 	gicc = acpi_cpu_get_madt_gicc(cpu);
--	if (!gicc)
--		return;
- 
- 	gsi = gicc->performance_interrupt;
--	acpi_unregister_gsi(gsi);
-+	if (gsi)
-+		acpi_unregister_gsi(gsi);
+diff --git a/drivers/misc/altera-stapl/altera.c b/drivers/misc/altera-stapl/altera.c
+index 25e5f24b3fecd..5bdf574723144 100644
+--- a/drivers/misc/altera-stapl/altera.c
++++ b/drivers/misc/altera-stapl/altera.c
+@@ -2112,8 +2112,8 @@ static int altera_execute(struct altera_state *astate,
+ 	return status;
  }
  
- #if IS_ENABLED(CONFIG_ARM_SPE_PMU)
+-static int altera_get_note(u8 *p, s32 program_size,
+-			s32 *offset, char *key, char *value, int length)
++static int altera_get_note(u8 *p, s32 program_size, s32 *offset,
++			   char *key, char *value, int keylen, int vallen)
+ /*
+  * Gets key and value of NOTE fields in the JBC file.
+  * Can be called in two modes:  if offset pointer is NULL,
+@@ -2170,7 +2170,7 @@ static int altera_get_note(u8 *p, s32 program_size,
+ 						&p[note_table + (8 * i) + 4])];
+ 
+ 				if (value != NULL)
+-					strlcpy(value, value_ptr, length);
++					strlcpy(value, value_ptr, vallen);
+ 
+ 			}
+ 		}
+@@ -2189,13 +2189,13 @@ static int altera_get_note(u8 *p, s32 program_size,
+ 				strlcpy(key, &p[note_strings +
+ 						get_unaligned_be32(
+ 						&p[note_table + (8 * i)])],
+-					length);
++					keylen);
+ 
+ 			if (value != NULL)
+ 				strlcpy(value, &p[note_strings +
+ 						get_unaligned_be32(
+ 						&p[note_table + (8 * i) + 4])],
+-					length);
++					vallen);
+ 
+ 			*offset = i + 1;
+ 		}
+@@ -2449,7 +2449,7 @@ int altera_init(struct altera_config *config, const struct firmware *fw)
+ 			__func__, (format_version == 2) ? "Jam STAPL" :
+ 						"pre-standardized Jam 1.1");
+ 		while (altera_get_note((u8 *)fw->data, fw->size,
+-					&offset, key, value, 256) == 0)
++					&offset, key, value, 32, 256) == 0)
+ 			printk(KERN_INFO "%s: NOTE \"%s\" = \"%s\"\n",
+ 					__func__, key, value);
+ 	}
 -- 
 2.20.1
 
