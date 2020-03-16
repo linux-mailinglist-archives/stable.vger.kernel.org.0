@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BC7D01862EF
-	for <lists+stable@lfdr.de>; Mon, 16 Mar 2020 03:42:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F167618631B
+	for <lists+stable@lfdr.de>; Mon, 16 Mar 2020 03:42:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729758AbgCPCeH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 15 Mar 2020 22:34:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37256 "EHLO mail.kernel.org"
+        id S1729993AbgCPCkP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 15 Mar 2020 22:40:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37284 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729742AbgCPCeG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 15 Mar 2020 22:34:06 -0400
+        id S1729753AbgCPCeH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 15 Mar 2020 22:34:07 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AD6032072A;
-        Mon, 16 Mar 2020 02:34:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 12772206E9;
+        Mon, 16 Mar 2020 02:34:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584326045;
-        bh=kfUWbnTeMtmznHS2XI+DY12FQ9bzL1Ohz2f03135/Vs=;
+        s=default; t=1584326047;
+        bh=cffXXnGE5zy+o0fQH1NWf2WJWAmcQ27vougEbStwcsU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1/UwPJSIKYUyGkWJNi0p4PpXttYjfdGxcHGEa8l21KyVYOhXKbwvQ0cr/ukRfxXFL
-         b42yYZdcCzVz7eJV9cHHl++D6v+8You17CDSLYPY3oJ2OHc/m1lgABexWbj7bx4Sr3
-         JZ7j826pVnYwPM7m2Aqn2iXMK/a2zgXYfwJ6oDn8=
+        b=xjsVeYfcWjO9C279RjU3/chEWtdpX8INw1vpxs6vBl5SeWXCiwZ8N8+bZ/KA6I4t/
+         4xGDERwyVn6wRYLWVb9vshoy7tuWROknbvdhUfzCmMjcKf6Omn5tkc6FEpkAbZyRRu
+         jAOvyLQ7ZVkE5/MTLu8Q2D70nvLEn7VRs7msW0gw=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Tycho Andersen <tycho@tycho.ws>,
-        David Abdurachmanov <david.abdurachmanov@gmail.com>,
-        Kees Cook <keescook@chromium.org>,
-        Palmer Dabbelt <palmerdabbelt@google.com>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-riscv@lists.infradead.org, netdev@vger.kernel.org,
-        bpf@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.5 38/41] riscv: fix seccomp reject syscall code path
-Date:   Sun, 15 Mar 2020 22:33:16 -0400
-Message-Id: <20200316023319.749-38-sashal@kernel.org>
+Cc:     Carlo Nonato <carlo.nonato95@gmail.com>,
+        Kwon Je Oh <kwonje.oh2@gmail.com>,
+        Paolo Valente <paolo.valente@linaro.org>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
+        linux-block@vger.kernel.org, cgroups@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.5 39/41] block, bfq: fix overwrite of bfq_group pointer in bfq_find_set_group()
+Date:   Sun, 15 Mar 2020 22:33:17 -0400
+Message-Id: <20200316023319.749-39-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200316023319.749-1-sashal@kernel.org>
 References: <20200316023319.749-1-sashal@kernel.org>
@@ -47,147 +45,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tycho Andersen <tycho@tycho.ws>
+From: Carlo Nonato <carlo.nonato95@gmail.com>
 
-[ Upstream commit af33d2433b03d63ed31fcfda842f46676a5e1afc ]
+[ Upstream commit 14afc59361976c0ba39e3a9589c3eaa43ebc7e1d ]
 
-If secure_computing() rejected a system call, we were previously setting
-the system call number to -1, to indicate to later code that the syscall
-failed. However, if something (e.g. a user notification) was sleeping, and
-received a signal, we may set a0 to -ERESTARTSYS and re-try the system call
-again.
+The bfq_find_set_group() function takes as input a blkcg (which represents
+a cgroup) and retrieves the corresponding bfq_group, then it updates the
+bfq internal group hierarchy (see comments inside the function for why
+this is needed) and finally it returns the bfq_group.
+In the hierarchy update cycle, the pointer holding the correct bfq_group
+that has to be returned is mistakenly used to traverse the hierarchy
+bottom to top, meaning that in each iteration it gets overwritten with the
+parent of the current group. Since the update cycle stops at root's
+children (depth = 2), the overwrite becomes a problem only if the blkcg
+describes a cgroup at a hierarchy level deeper than that (depth > 2). In
+this case the root's child that happens to be also an ancestor of the
+correct bfq_group is returned. The main consequence is that processes
+contained in a cgroup at depth greater than 2 are wrongly placed in the
+group described above by BFQ.
 
-In this case, seccomp "denies" the syscall (because of the signal), and we
-would set a7 to -1, thus losing the value of the system call we want to
-restart.
+This commits fixes this problem by using a different bfq_group pointer in
+the update cycle in order to avoid the overwrite of the variable holding
+the original group reference.
 
-Instead, let's return -1 from do_syscall_trace_enter() to indicate that the
-syscall was rejected, so we don't clobber the value in case of -ERESTARTSYS
-or whatever.
-
-This commit fixes the user_notification_signal seccomp selftest on riscv to
-no longer hang. That test expects the system call to be re-issued after the
-signal, and it wasn't due to the above bug. Now that it is, everything
-works normally.
-
-Note that in the ptrace (tracer) case, the tracer can set the register
-values to whatever they want, so we still need to keep the code that
-handles out-of-bounds syscalls. However, we can drop the comment.
-
-We can also drop syscall_set_nr(), since it is no longer used anywhere, and
-the code that re-loads the value in a7 because of it.
-
-Reported in: https://lore.kernel.org/bpf/CAEn-LTp=ss0Dfv6J00=rCAy+N78U2AmhqJNjfqjr2FDpPYjxEQ@mail.gmail.com/
-
-Reported-by: David Abdurachmanov <david.abdurachmanov@gmail.com>
-Signed-off-by: Tycho Andersen <tycho@tycho.ws>
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
+Reported-by: Kwon Je Oh <kwonje.oh2@gmail.com>
+Signed-off-by: Carlo Nonato <carlo.nonato95@gmail.com>
+Signed-off-by: Paolo Valente <paolo.valente@linaro.org>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/riscv/include/asm/syscall.h |  7 -------
- arch/riscv/kernel/entry.S        | 11 +++--------
- arch/riscv/kernel/ptrace.c       | 11 +++++------
- 3 files changed, 8 insertions(+), 21 deletions(-)
+ block/bfq-cgroup.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/arch/riscv/include/asm/syscall.h b/arch/riscv/include/asm/syscall.h
-index 42347d0981e7e..49350c8bd7b09 100644
---- a/arch/riscv/include/asm/syscall.h
-+++ b/arch/riscv/include/asm/syscall.h
-@@ -28,13 +28,6 @@ static inline int syscall_get_nr(struct task_struct *task,
- 	return regs->a7;
- }
- 
--static inline void syscall_set_nr(struct task_struct *task,
--				  struct pt_regs *regs,
--				  int sysno)
--{
--	regs->a7 = sysno;
--}
--
- static inline void syscall_rollback(struct task_struct *task,
- 				    struct pt_regs *regs)
- {
-diff --git a/arch/riscv/kernel/entry.S b/arch/riscv/kernel/entry.S
-index e163b7b64c86c..f6486d4956013 100644
---- a/arch/riscv/kernel/entry.S
-+++ b/arch/riscv/kernel/entry.S
-@@ -228,20 +228,13 @@ check_syscall_nr:
- 	/* Check to make sure we don't jump to a bogus syscall number. */
- 	li t0, __NR_syscalls
- 	la s0, sys_ni_syscall
--	/*
--	 * The tracer can change syscall number to valid/invalid value.
--	 * We use syscall_set_nr helper in syscall_trace_enter thus we
--	 * cannot trust the current value in a7 and have to reload from
--	 * the current task pt_regs.
--	 */
--	REG_L a7, PT_A7(sp)
- 	/*
- 	 * Syscall number held in a7.
- 	 * If syscall number is above allowed value, redirect to ni_syscall.
+diff --git a/block/bfq-cgroup.c b/block/bfq-cgroup.c
+index 5a64607ce7744..facbf4db19428 100644
+--- a/block/bfq-cgroup.c
++++ b/block/bfq-cgroup.c
+@@ -610,12 +610,13 @@ struct bfq_group *bfq_find_set_group(struct bfq_data *bfqd,
  	 */
- 	bge a7, t0, 1f
- 	/*
--	 * Check if syscall is rejected by tracer or seccomp, i.e., a7 == -1.
-+	 * Check if syscall is rejected by tracer, i.e., a7 == -1.
- 	 * If yes, we pretend it was executed.
- 	 */
- 	li t1, -1
-@@ -334,6 +327,7 @@ work_resched:
- handle_syscall_trace_enter:
- 	move a0, sp
- 	call do_syscall_trace_enter
-+	move t0, a0
- 	REG_L a0, PT_A0(sp)
- 	REG_L a1, PT_A1(sp)
- 	REG_L a2, PT_A2(sp)
-@@ -342,6 +336,7 @@ handle_syscall_trace_enter:
- 	REG_L a5, PT_A5(sp)
- 	REG_L a6, PT_A6(sp)
- 	REG_L a7, PT_A7(sp)
-+	bnez t0, ret_from_syscall_rejected
- 	j check_syscall_nr
- handle_syscall_trace_exit:
- 	move a0, sp
-diff --git a/arch/riscv/kernel/ptrace.c b/arch/riscv/kernel/ptrace.c
-index 407464201b91e..444dc7b0fd78c 100644
---- a/arch/riscv/kernel/ptrace.c
-+++ b/arch/riscv/kernel/ptrace.c
-@@ -148,21 +148,19 @@ long arch_ptrace(struct task_struct *child, long request,
-  * Allows PTRACE_SYSCALL to work.  These are called from entry.S in
-  * {handle,ret_from}_syscall.
-  */
--__visible void do_syscall_trace_enter(struct pt_regs *regs)
-+__visible int do_syscall_trace_enter(struct pt_regs *regs)
- {
- 	if (test_thread_flag(TIF_SYSCALL_TRACE))
- 		if (tracehook_report_syscall_entry(regs))
--			syscall_set_nr(current, regs, -1);
-+			return -1;
+ 	entity = &bfqg->entity;
+ 	for_each_entity(entity) {
+-		bfqg = container_of(entity, struct bfq_group, entity);
+-		if (bfqg != bfqd->root_group) {
+-			parent = bfqg_parent(bfqg);
++		struct bfq_group *curr_bfqg = container_of(entity,
++						struct bfq_group, entity);
++		if (curr_bfqg != bfqd->root_group) {
++			parent = bfqg_parent(curr_bfqg);
+ 			if (!parent)
+ 				parent = bfqd->root_group;
+-			bfq_group_set_parent(bfqg, parent);
++			bfq_group_set_parent(curr_bfqg, parent);
+ 		}
+ 	}
  
- 	/*
- 	 * Do the secure computing after ptrace; failures should be fast.
- 	 * If this fails we might have return value in a0 from seccomp
- 	 * (via SECCOMP_RET_ERRNO/TRACE).
- 	 */
--	if (secure_computing() == -1) {
--		syscall_set_nr(current, regs, -1);
--		return;
--	}
-+	if (secure_computing() == -1)
-+		return -1;
- 
- #ifdef CONFIG_HAVE_SYSCALL_TRACEPOINTS
- 	if (test_thread_flag(TIF_SYSCALL_TRACEPOINT))
-@@ -170,6 +168,7 @@ __visible void do_syscall_trace_enter(struct pt_regs *regs)
- #endif
- 
- 	audit_syscall_entry(regs->a7, regs->a0, regs->a1, regs->a2, regs->a3);
-+	return 0;
- }
- 
- __visible void do_syscall_trace_exit(struct pt_regs *regs)
 -- 
 2.20.1
 
