@@ -2,105 +2,217 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 62E6A186C68
-	for <lists+stable@lfdr.de>; Mon, 16 Mar 2020 14:45:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 84E18186CD2
+	for <lists+stable@lfdr.de>; Mon, 16 Mar 2020 15:09:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731363AbgCPNpR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Mar 2020 09:45:17 -0400
-Received: from wout5-smtp.messagingengine.com ([64.147.123.21]:36839 "EHLO
-        wout5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1731128AbgCPNpR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Mar 2020 09:45:17 -0400
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailout.west.internal (Postfix) with ESMTP id 49ED750C;
-        Mon, 16 Mar 2020 09:45:16 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Mon, 16 Mar 2020 09:45:16 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=FoOY+I
-        OpTMLcMqjvRZTbmEVUiFoICV5IPnS8h1UdmLg=; b=Vz+cwVI/jY40oOtKAyTXTK
-        yLfCE8VGJFPVUqq3ugEswIZnsGl1uKoE8wYzO+HyOs2YrnkXdq60houRyLw9eIHe
-        8D4ePDFMPbYLotAXHk9bgE93zQeygUyrTRxQEtcm+aTvXMF99q9iqWy/bc75DkpM
-        rJRw6XPHITiOzUxTz48xhg8d42edeUCI4W6oZ5aBVO3WOctJpPwCfKtQshSKpwvw
-        ZvPpw+gDE594rUVcVPQ+UPJJl3C4PMLJk0P//TXZpFabt4eUEmAeJjOeYgxf8fHq
-        XaVuUzMw4cbjRgIxizGCgItXPo9ra1+N6h5Qivy/T/zCafxA7qTve30iLhwKW9zw
-        ==
-X-ME-Sender: <xms:6oJvXjxXDni6NOogZqmDdoOydz2jGzd2bKtBAUJuvSUL2Xvjy5CBsA>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedugedrudeffedgheeiucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
-    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecukfhppeekfedrkeeirdekledruddtjeenucevlhhushhtvghrufhiiigvpedtne
-    curfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:6oJvXtvGE6i3_E-aE5-vOlP6_mUZ5-Etm_tRNhiY_bYa5PGYVAo4Kw>
-    <xmx:6oJvXtgynbBRKkhVdNgDxjcGnGE3LQDDxd3QGojaS48JNu0RPVeKJg>
-    <xmx:6oJvXlBn8yz0NpIBfdUXla3kiGGlho3NEl5PRzkHae-VWBAB6oBM-A>
-    <xmx:64JvXjmmw-QvWp6cTeIV8_Tt1wLvquMA1HxmmxjyGetTZdlajwx0Jw>
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 4D0233061CB6;
-        Mon, 16 Mar 2020 09:45:14 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] batman-adv: Don't schedule OGM for disabled interface" failed to apply to 4.4-stable tree
-To:     sven@narfation.org, hdanton@sina.com, sw@simonwunderlich.de
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 16 Mar 2020 14:45:12 +0100
-Message-ID: <158436631216439@kroah.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+        id S1731160AbgCPOJd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Mar 2020 10:09:33 -0400
+Received: from mail-wm1-f74.google.com ([209.85.128.74]:35340 "EHLO
+        mail-wm1-f74.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1731443AbgCPOJd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Mar 2020 10:09:33 -0400
+Received: by mail-wm1-f74.google.com with SMTP id n188so5858844wmf.0
+        for <stable@vger.kernel.org>; Mon, 16 Mar 2020 07:09:30 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=date:message-id:mime-version:subject:from:to:cc
+         :content-transfer-encoding;
+        bh=Xdez1dXEK9EtNoxb9mjFlI6NK+NC9OmGNYH6F8+Mkxo=;
+        b=c8ax4xQbu/CIn0RKREQCIwJLk0Y5QSD9S9g91j6mbMMnPJ8Dy7hByRbBRoQAyVHPWA
+         NgAJEvemaDWlYE67OdiN2mRuvuF/YknQIxzuohuIClZUX8ATDyNlP/o7CfhKKJE6zste
+         An7bmz1oNU8Wx2dFO7BPm3FOg8aNRE5qiAlhY7UD5QKcPP8ttUgPdseNDG3LK2a3cL05
+         axRjziDY7FBkB1QO+xtxDCEo0Gm+r/rTTDqJ07ceFIq55lYFVJp6+35dc2stcvq/O8PI
+         IWLytuO3WVs9P8dEZwCzOziHBDM5Bu3tPIYFd8BGvRVDV5cDs2BYRa2+qO/CRhklv/vv
+         50tQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:message-id:mime-version:subject:from:to:cc
+         :content-transfer-encoding;
+        bh=Xdez1dXEK9EtNoxb9mjFlI6NK+NC9OmGNYH6F8+Mkxo=;
+        b=aZNnj+GjUgxjdb/v45VgbQjLMoz5ysziFoqzO4EpWmKb3JtVY1OJDdYOXux4lxh0Qj
+         8/9Oh4SOlMF8+YmMu1bHCjuQQ3SNSE9xjPTAAOAWpPbU/z9n/bQ15sC70kzRrw5HvAQX
+         IxDz+OcQ2PmA2aP12zBZms55uRs/sgHp9noXSNbs6YMWk6cCYQa3HXLIM/4eCzUNwfph
+         tv8lGDWntKQ5PpU1JNBLOXzIiZuS482FNajj0E24IVz1WL2b/+OlnHyiew1tJfiW25fG
+         ovW/EVRFd+peLuxfzpWZNZDbpUlIyTLcoENas1XXsnXIVfgBuFvnYzS3BmC/AnxHKOGd
+         QmwA==
+X-Gm-Message-State: ANhLgQ11uw2dM9OidqIU1K+Frl36yQoEUoN6AWAv/xmhxrrWngMf/xS3
+        lPhI2q7wVi1RqPZNxnvqydP0qk+zQhalNESn4xRnYKPlnVtzbC6N/hXMgwDCryFrXJR1wX6Jiud
+        tle+Vkm30enSvKNUPl625FxPQQYJ5nf5nqrZxz5Nehr7Jsvh9vT5OT2hfYJ9PwhNz004=
+X-Google-Smtp-Source: ADFU+vu03G3MnZtZ+kOGSISuzpid8xiXLtMKzpqXFCcuFShIM89nrj1yPdhen7KDqKY8gXQSsUqMbBe+qSCWJA==
+X-Received: by 2002:adf:8182:: with SMTP id 2mr34682844wra.37.1584367769694;
+ Mon, 16 Mar 2020 07:09:29 -0700 (PDT)
+Date:   Mon, 16 Mar 2020 15:08:51 +0100
+Message-Id: <20200316140851.7622-1-maennich@google.com>
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.25.1.481.gfbce0eb801-goog
+Subject: [PATCH 4.9] mwifiex: Fix heap overflow in mmwifiex_process_tdls_action_frame()
+From:   Matthias Maennich <maennich@google.com>
+To:     stable@vger.kernel.org
+Cc:     kernel-team@android.com, maennich@google.com,
+        qize wang <wangqize888888888@gmail.com>,
+        Kalle Valo <kvalo@codeaurora.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+From: qize wang <wangqize888888888@gmail.com>
 
-The patch below does not apply to the 4.4-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+mwifiex_process_tdls_action_frame() without checking
+the incoming tdls infomation element's vality before use it,
+this may cause multi heap buffer overflows.
 
-thanks,
+Fix them by putting vality check before use it.
 
-greg k-h
+IE is TLV struct, but ht_cap and  ht_oper aren=E2=80=99t TLV struct.
+the origin marvell driver code is wrong:
 
------------------- original commit in Linus's tree ------------------
+memcpy(&sta_ptr->tdls_cap.ht_oper, pos,....
+memcpy((u8 *)&sta_ptr->tdls_cap.ht_capb, pos,...
 
-From 8e8ce08198de193e3d21d42e96945216e3d9ac7f Mon Sep 17 00:00:00 2001
-From: Sven Eckelmann <sven@narfation.org>
-Date: Sun, 16 Feb 2020 13:02:06 +0100
-Subject: [PATCH] batman-adv: Don't schedule OGM for disabled interface
+Fix the bug by changing pos(the address of IE) to
+pos+2 ( the address of IE value ).
 
-A transmission scheduling for an interface which is currently dropped by
-batadv_iv_ogm_iface_disable could still be in progress. The B.A.T.M.A.N. V
-is simply cancelling the workqueue item in an synchronous way but this is
-not possible with B.A.T.M.A.N. IV because the OGM submissions are
-intertwined.
+Signed-off-by: qize wang <wangqize888888888@gmail.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+(cherry picked from commit 1e58252e334dc3f3756f424a157d1b7484464c40)
+Signed-off-by: Matthias Maennich <maennich@google.com>
+---
+ drivers/net/wireless/marvell/mwifiex/tdls.c | 70 +++++++++++++++++++--
+ 1 file changed, 64 insertions(+), 6 deletions(-)
 
-Instead it has to stop submitting the OGM when it detect that the buffer
-pointer is set to NULL.
-
-Reported-by: syzbot+a98f2016f40b9cd3818a@syzkaller.appspotmail.com
-Reported-by: syzbot+ac36b6a33c28a491e929@syzkaller.appspotmail.com
-Fixes: c6c8fea29769 ("net: Add batman-adv meshing protocol")
-Signed-off-by: Sven Eckelmann <sven@narfation.org>
-Cc: Hillf Danton <hdanton@sina.com>
-Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
-
-diff --git a/net/batman-adv/bat_iv_ogm.c b/net/batman-adv/bat_iv_ogm.c
-index f0209505e41a..a7c8dd7ae513 100644
---- a/net/batman-adv/bat_iv_ogm.c
-+++ b/net/batman-adv/bat_iv_ogm.c
-@@ -789,6 +789,10 @@ static void batadv_iv_ogm_schedule_buff(struct batadv_hard_iface *hard_iface)
- 
- 	lockdep_assert_held(&hard_iface->bat_iv.ogm_buff_mutex);
- 
-+	/* interface already disabled by batadv_iv_ogm_iface_disable */
-+	if (!*ogm_buff)
-+		return;
-+
- 	/* the interface gets activated here to avoid race conditions between
- 	 * the moment of activating the interface in
- 	 * hardif_activate_interface() where the originator mac is set and
+diff --git a/drivers/net/wireless/marvell/mwifiex/tdls.c b/drivers/net/wire=
+less/marvell/mwifiex/tdls.c
+index df9704de0715..c6fc09d17462 100644
+--- a/drivers/net/wireless/marvell/mwifiex/tdls.c
++++ b/drivers/net/wireless/marvell/mwifiex/tdls.c
+@@ -917,59 +917,117 @@ void mwifiex_process_tdls_action_frame(struct mwifie=
+x_private *priv,
+=20
+ 		switch (*pos) {
+ 		case WLAN_EID_SUPP_RATES:
++			if (pos[1] > 32)
++				return;
+ 			sta_ptr->tdls_cap.rates_len =3D pos[1];
+ 			for (i =3D 0; i < pos[1]; i++)
+ 				sta_ptr->tdls_cap.rates[i] =3D pos[i + 2];
+ 			break;
+=20
+ 		case WLAN_EID_EXT_SUPP_RATES:
++			if (pos[1] > 32)
++				return;
+ 			basic =3D sta_ptr->tdls_cap.rates_len;
++			if (pos[1] > 32 - basic)
++				return;
+ 			for (i =3D 0; i < pos[1]; i++)
+ 				sta_ptr->tdls_cap.rates[basic + i] =3D pos[i + 2];
+ 			sta_ptr->tdls_cap.rates_len +=3D pos[1];
+ 			break;
+ 		case WLAN_EID_HT_CAPABILITY:
+-			memcpy((u8 *)&sta_ptr->tdls_cap.ht_capb, pos,
++			if (pos > end - sizeof(struct ieee80211_ht_cap) - 2)
++				return;
++			if (pos[1] !=3D sizeof(struct ieee80211_ht_cap))
++				return;
++			/* copy the ie's value into ht_capb*/
++			memcpy((u8 *)&sta_ptr->tdls_cap.ht_capb, pos + 2,
+ 			       sizeof(struct ieee80211_ht_cap));
+ 			sta_ptr->is_11n_enabled =3D 1;
+ 			break;
+ 		case WLAN_EID_HT_OPERATION:
+-			memcpy(&sta_ptr->tdls_cap.ht_oper, pos,
++			if (pos > end -
++			    sizeof(struct ieee80211_ht_operation) - 2)
++				return;
++			if (pos[1] !=3D sizeof(struct ieee80211_ht_operation))
++				return;
++			/* copy the ie's value into ht_oper*/
++			memcpy(&sta_ptr->tdls_cap.ht_oper, pos + 2,
+ 			       sizeof(struct ieee80211_ht_operation));
+ 			break;
+ 		case WLAN_EID_BSS_COEX_2040:
++			if (pos > end - 3)
++				return;
++			if (pos[1] !=3D 1)
++				return;
+ 			sta_ptr->tdls_cap.coex_2040 =3D pos[2];
+ 			break;
+ 		case WLAN_EID_EXT_CAPABILITY:
++			if (pos > end - sizeof(struct ieee_types_header))
++				return;
++			if (pos[1] < sizeof(struct ieee_types_header))
++				return;
++			if (pos[1] > 8)
++				return;
+ 			memcpy((u8 *)&sta_ptr->tdls_cap.extcap, pos,
+ 			       sizeof(struct ieee_types_header) +
+ 			       min_t(u8, pos[1], 8));
+ 			break;
+ 		case WLAN_EID_RSN:
++			if (pos > end - sizeof(struct ieee_types_header))
++				return;
++			if (pos[1] < sizeof(struct ieee_types_header))
++				return;
++			if (pos[1] > IEEE_MAX_IE_SIZE -
++			    sizeof(struct ieee_types_header))
++				return;
+ 			memcpy((u8 *)&sta_ptr->tdls_cap.rsn_ie, pos,
+ 			       sizeof(struct ieee_types_header) +
+ 			       min_t(u8, pos[1], IEEE_MAX_IE_SIZE -
+ 				     sizeof(struct ieee_types_header)));
+ 			break;
+ 		case WLAN_EID_QOS_CAPA:
++			if (pos > end - 3)
++				return;
++			if (pos[1] !=3D 1)
++				return;
+ 			sta_ptr->tdls_cap.qos_info =3D pos[2];
+ 			break;
+ 		case WLAN_EID_VHT_OPERATION:
+-			if (priv->adapter->is_hw_11ac_capable)
+-				memcpy(&sta_ptr->tdls_cap.vhtoper, pos,
++			if (priv->adapter->is_hw_11ac_capable) {
++				if (pos > end -
++				    sizeof(struct ieee80211_vht_operation) - 2)
++					return;
++				if (pos[1] !=3D
++				    sizeof(struct ieee80211_vht_operation))
++					return;
++				/* copy the ie's value into vhtoper*/
++				memcpy(&sta_ptr->tdls_cap.vhtoper, pos + 2,
+ 				       sizeof(struct ieee80211_vht_operation));
++			}
+ 			break;
+ 		case WLAN_EID_VHT_CAPABILITY:
+ 			if (priv->adapter->is_hw_11ac_capable) {
+-				memcpy((u8 *)&sta_ptr->tdls_cap.vhtcap, pos,
++				if (pos > end -
++				    sizeof(struct ieee80211_vht_cap) - 2)
++					return;
++				if (pos[1] !=3D sizeof(struct ieee80211_vht_cap))
++					return;
++				/* copy the ie's value into vhtcap*/
++				memcpy((u8 *)&sta_ptr->tdls_cap.vhtcap, pos + 2,
+ 				       sizeof(struct ieee80211_vht_cap));
+ 				sta_ptr->is_11ac_enabled =3D 1;
+ 			}
+ 			break;
+ 		case WLAN_EID_AID:
+-			if (priv->adapter->is_hw_11ac_capable)
++			if (priv->adapter->is_hw_11ac_capable) {
++				if (pos > end - 4)
++					return;
++				if (pos[1] !=3D 2)
++					return;
+ 				sta_ptr->tdls_cap.aid =3D
+ 					      le16_to_cpu(*(__le16 *)(pos + 2));
++			}
++			break;
+ 		default:
+ 			break;
+ 		}
+--=20
+2.25.1.481.gfbce0eb801-goog
 
