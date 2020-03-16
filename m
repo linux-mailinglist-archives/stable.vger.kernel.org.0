@@ -2,89 +2,104 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E5DB218758C
-	for <lists+stable@lfdr.de>; Mon, 16 Mar 2020 23:30:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 67FE718758E
+	for <lists+stable@lfdr.de>; Mon, 16 Mar 2020 23:30:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732747AbgCPWaw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1732746AbgCPWaw (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 16 Mar 2020 18:30:52 -0400
-Received: from dvalin.narfation.org ([213.160.73.56]:48852 "EHLO
+Received: from dvalin.narfation.org ([213.160.73.56]:48868 "EHLO
         dvalin.narfation.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1732652AbgCPWav (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Mar 2020 18:30:51 -0400
+        with ESMTP id S1732743AbgCPWaw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Mar 2020 18:30:52 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=narfation.org;
-        s=20121; t=1584397848;
+        s=20121; t=1584397849;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=jD3597mPc2KA0v/5GFwUXUnxZ4EqoPgX3emGCY04tl0=;
-        b=yUV0Ql+pivQGpB1XfLx9QXZHce6Yps0BwWF5DPf4UCskJrGnOOYfW8F5ezpNEuw/A2bOGj
-        LBDfJfQ3w3DfFX5Blv+imkjnUryYG2S45Y/QzS3jdu+HLW0UxBhYITkRxCc3Osn7FKuTCr
-        v/OMQwc4WIGyPPHQyi1dJvtjxSyUgng=
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=cOv/zl/Vu2KZRdUYw94WdN6/TX11AzTkCXeL3j+/wJE=;
+        b=q9aGMIYbbDNxy2r7vmleU3lkdEJrRcNZ4nSMExWunfdn48Dkw2VHwPxVfly8c7gqhRlQJC
+        V8XfDQHq4WPldDw7w7VlPiYCPm5IsgwQC29b35PASVkXrikQZg7o5+lE98gghCSPCXQOay
+        pR4S1SFPzozqeCguhQNzhVgkvDuPdac=
 From:   Sven Eckelmann <sven@narfation.org>
 To:     stable@vger.kernel.org
-Cc:     Sven Eckelmann <sven@narfation.org>
-Subject: [PATCH 4.14 00/15] batman-adv: Pending fixes
-Date:   Mon, 16 Mar 2020 23:30:17 +0100
-Message-Id: <20200316223032.6236-1-sven@narfation.org>
+Cc:     Sven Eckelmann <sven.eckelmann@openmesh.com>,
+        Simon Wunderlich <sw@simonwunderlich.de>
+Subject: [PATCH 4.14 01/15] batman-adv: Avoid spurious warnings from bat_v neigh_cmp implementation
+Date:   Mon, 16 Mar 2020 23:30:18 +0100
+Message-Id: <20200316223032.6236-2-sven@narfation.org>
 X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20200316223032.6236-1-sven@narfation.org>
+References: <20200316223032.6236-1-sven@narfation.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
+From: Sven Eckelmann <sven.eckelmann@openmesh.com>
 
-I was asked by Greg KH to check for missing fixes in linux 4.14.y and provide
-backports for it. I've ended up with a lot more missing patches than
-I've expected. Not sure why these were missing but I couldn't find them at
-the moment in any stable release for 4.14.y. Feel free to check for things
-which I've missed too.
+commit 6a4bc44b012cbc29c9d824be2c7ab9eac8ee6b6f upstream.
 
-Kind regards,
-	Sven
+The neighbor compare API implementation for B.A.T.M.A.N. V checks whether
+the neigh_ifinfo for this neighbor on a specific interface exists. A
+warning is printed when it isn't found.
 
-Linus Lüssing (1):
-  batman-adv: Fix TT sync flags for intermediate TT responses
+But it is not called inside a lock which would prevent that this
+information is lost right before batadv_neigh_ifinfo_get. It must therefore
+be expected that batadv_v_neigh_(cmp|is_sob) might not be able to get the
+requested neigh_ifinfo.
 
-Marek Lindner (1):
-  batman-adv: prevent TT request storms by not sending inconsistent TT
-    TLVLs
+A WARN_ON for such a situation seems not to be appropriate because this
+will only flood the kernel logs. The warnings must therefore be removed.
 
-Matthias Schiffer (1):
-  batman-adv: update data pointers after skb_cow()
+Signed-off-by: Sven Eckelmann <sven.eckelmann@openmesh.com>
+Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
+---
+ net/batman-adv/bat_v.c | 9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
 
-Sven Eckelmann (12):
-  batman-adv: Avoid spurious warnings from bat_v neigh_cmp
-    implementation
-  batman-adv: Always initialize fragment header priority
-  batman-adv: Fix check of retrieved orig_gw in batadv_v_gw_is_eligible
-  batman-adv: Fix lock for ogm cnt access in batadv_iv_ogm_calc_tq
-  batman-adv: Fix internal interface indices types
-  batman-adv: Avoid race in TT TVLV allocator helper
-  batman-adv: Fix debugfs path for renamed hardif
-  batman-adv: Fix debugfs path for renamed softif
-  batman-adv: Fix duplicated OGMs on NETDEV_UP
-  batman-adv: Avoid free/alloc race when handling OGM2 buffer
-  batman-adv: Avoid free/alloc race when handling OGM buffer
-  batman-adv: Don't schedule OGM for disabled interface
-
- net/batman-adv/bat_iv_ogm.c        | 94 +++++++++++++++++++++++-------
- net/batman-adv/bat_v.c             | 11 ++--
- net/batman-adv/bat_v_ogm.c         | 42 ++++++++++---
- net/batman-adv/debugfs.c           | 46 ++++++++++++++-
- net/batman-adv/debugfs.h           | 11 ++++
- net/batman-adv/fragmentation.c     |  2 +
- net/batman-adv/hard-interface.c    | 51 +++++++++++++---
- net/batman-adv/originator.c        |  4 +-
- net/batman-adv/originator.h        |  4 +-
- net/batman-adv/routing.c           | 10 ++--
- net/batman-adv/translation-table.c | 84 ++++++++++++++++++++------
- net/batman-adv/types.h             | 18 ++++--
- 12 files changed, 301 insertions(+), 76 deletions(-)
-
+diff --git a/net/batman-adv/bat_v.c b/net/batman-adv/bat_v.c
+index 371a1f1651b4..f81e67fbb352 100644
+--- a/net/batman-adv/bat_v.c
++++ b/net/batman-adv/bat_v.c
+@@ -19,7 +19,6 @@
+ #include "main.h"
+ 
+ #include <linux/atomic.h>
+-#include <linux/bug.h>
+ #include <linux/cache.h>
+ #include <linux/errno.h>
+ #include <linux/if_ether.h>
+@@ -623,11 +622,11 @@ static int batadv_v_neigh_cmp(struct batadv_neigh_node *neigh1,
+ 	int ret = 0;
+ 
+ 	ifinfo1 = batadv_neigh_ifinfo_get(neigh1, if_outgoing1);
+-	if (WARN_ON(!ifinfo1))
++	if (!ifinfo1)
+ 		goto err_ifinfo1;
+ 
+ 	ifinfo2 = batadv_neigh_ifinfo_get(neigh2, if_outgoing2);
+-	if (WARN_ON(!ifinfo2))
++	if (!ifinfo2)
+ 		goto err_ifinfo2;
+ 
+ 	ret = ifinfo1->bat_v.throughput - ifinfo2->bat_v.throughput;
+@@ -649,11 +648,11 @@ static bool batadv_v_neigh_is_sob(struct batadv_neigh_node *neigh1,
+ 	bool ret = false;
+ 
+ 	ifinfo1 = batadv_neigh_ifinfo_get(neigh1, if_outgoing1);
+-	if (WARN_ON(!ifinfo1))
++	if (!ifinfo1)
+ 		goto err_ifinfo1;
+ 
+ 	ifinfo2 = batadv_neigh_ifinfo_get(neigh2, if_outgoing2);
+-	if (WARN_ON(!ifinfo2))
++	if (!ifinfo2)
+ 		goto err_ifinfo2;
+ 
+ 	threshold = ifinfo1->bat_v.throughput / 4;
 -- 
 2.20.1
 
