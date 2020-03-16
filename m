@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 697301861F1
-	for <lists+stable@lfdr.de>; Mon, 16 Mar 2020 03:35:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4A38A1862A7
+	for <lists+stable@lfdr.de>; Mon, 16 Mar 2020 03:39:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729944AbgCPCeq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 15 Mar 2020 22:34:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38440 "EHLO mail.kernel.org"
+        id S1729955AbgCPCip (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 15 Mar 2020 22:38:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38488 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729939AbgCPCeo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 15 Mar 2020 22:34:44 -0400
+        id S1729500AbgCPCep (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 15 Mar 2020 22:34:45 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4DE2A2073E;
-        Mon, 16 Mar 2020 02:34:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 71622206EB;
+        Mon, 16 Mar 2020 02:34:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584326084;
-        bh=+Wrdt2IjNJU/+2f1OXPiWEBQi2rieRBad78UzbSNW1k=;
+        s=default; t=1584326085;
+        bh=88/XO/N93K3OgCv2drcOHgS1Mvwynwf+rNzOUc7lL+Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JCSk/IgsalNh7v2ncI5MgijhkdyWDMZLzYnqSsZWwFBxmoS6+KvzoZ1i1ow0sfDAz
-         /2abz+ajR0WzrJj8X/28LEThr1YxpSqUoMg2AhjegGWAkWJXhvut1BUcv/AaG0563X
-         YuEiE8Uffj1cx1LI1N0UwHMXiUQWFpOj+5UE5jj0=
+        b=GwVl3AC0FJPVJqCc5oMyLDc+qGlOcZRu7Ae2PE1A2Ho78Fgan4CSAP3MzSAB5vc1P
+         ol88vOiGAzEQQ3ei7jY2z1MlTxqPLX2CbxdjEe+7NnD2hEbN90v7deEz292Vdim+dE
+         LI2dOMPPwmt9TTbYMds90eZhNK8fc6NM/8QDWsQU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Alexandre Ghiti <alex@ghiti.fr>, Anup Patel <anup@brainfault.org>,
-        Palmer Dabbelt <palmerdabbelt@google.com>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-riscv@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.4 28/35] riscv: Fix range looking for kernel image memblock
-Date:   Sun, 15 Mar 2020 22:34:04 -0400
-Message-Id: <20200316023411.1263-28-sashal@kernel.org>
+Cc:     Yintian Tao <yttao@amd.com>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Monk Liu <Monk.Liu@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.4 29/35] drm/amdgpu: clean wptr on wb when gpu recovery
+Date:   Sun, 15 Mar 2020 22:34:05 -0400
+Message-Id: <20200316023411.1263-29-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200316023411.1263-1-sashal@kernel.org>
 References: <20200316023411.1263-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -44,35 +47,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexandre Ghiti <alex@ghiti.fr>
+From: Yintian Tao <yttao@amd.com>
 
-[ Upstream commit a160eed4b783d7b250a32f7e5787c9867abc5686 ]
+[ Upstream commit 2ab7e274b86739f4ceed5d94b6879f2d07b2802f ]
 
-When looking for the memblock where the kernel lives, we should check
-that the memory range associated to the memblock entirely comprises the
-kernel image and not only intersects with it.
+The TDR will be randomly failed due to compute ring
+test failure. If the compute ring wptr & 0x7ff(ring_buf_mask)
+is 0x100 then after map mqd the compute ring rptr will be
+synced with 0x100. And the ring test packet size is also 0x100.
+Then after invocation of amdgpu_ring_commit, the cp will not
+really handle the packet on the ring buffer because rptr is equal to wptr.
 
-Signed-off-by: Alexandre Ghiti <alex@ghiti.fr>
-Reviewed-by: Anup Patel <anup@brainfault.org>
-Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
+Signed-off-by: Yintian Tao <yttao@amd.com>
+Acked-by: Christian König <christian.koenig@amd.com>
+Reviewed-by: Monk Liu <Monk.Liu@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/riscv/mm/init.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/amd/amdgpu/gfx_v10_0.c | 1 +
+ drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c  | 1 +
+ 2 files changed, 2 insertions(+)
 
-diff --git a/arch/riscv/mm/init.c b/arch/riscv/mm/init.c
-index 573463d1c799a..f5d813c1304da 100644
---- a/arch/riscv/mm/init.c
-+++ b/arch/riscv/mm/init.c
-@@ -98,7 +98,7 @@ void __init setup_bootmem(void)
- 	for_each_memblock(memory, reg) {
- 		phys_addr_t end = reg->base + reg->size;
+diff --git a/drivers/gpu/drm/amd/amdgpu/gfx_v10_0.c b/drivers/gpu/drm/amd/amdgpu/gfx_v10_0.c
+index 2816d03297385..14417cebe38ba 100644
+--- a/drivers/gpu/drm/amd/amdgpu/gfx_v10_0.c
++++ b/drivers/gpu/drm/amd/amdgpu/gfx_v10_0.c
+@@ -3555,6 +3555,7 @@ static int gfx_v10_0_kcq_init_queue(struct amdgpu_ring *ring)
  
--		if (reg->base <= vmlinux_end && vmlinux_end <= end) {
-+		if (reg->base <= vmlinux_start && vmlinux_end <= end) {
- 			mem_size = min(reg->size, (phys_addr_t)-PAGE_OFFSET);
+ 		/* reset ring buffer */
+ 		ring->wptr = 0;
++		atomic64_set((atomic64_t *)&adev->wb.wb[ring->wptr_offs], 0);
+ 		amdgpu_ring_clear_ring(ring);
+ 	} else {
+ 		amdgpu_ring_clear_ring(ring);
+diff --git a/drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c b/drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c
+index d85e1e559c826..40034efa64bbc 100644
+--- a/drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c
++++ b/drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c
+@@ -3756,6 +3756,7 @@ static int gfx_v9_0_kcq_init_queue(struct amdgpu_ring *ring)
  
- 			/*
+ 		/* reset ring buffer */
+ 		ring->wptr = 0;
++		atomic64_set((atomic64_t *)&adev->wb.wb[ring->wptr_offs], 0);
+ 		amdgpu_ring_clear_ring(ring);
+ 	} else {
+ 		amdgpu_ring_clear_ring(ring);
 -- 
 2.20.1
 
