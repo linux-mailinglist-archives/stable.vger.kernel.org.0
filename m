@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B65F18627F
-	for <lists+stable@lfdr.de>; Mon, 16 Mar 2020 03:38:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D11218627B
+	for <lists+stable@lfdr.de>; Mon, 16 Mar 2020 03:38:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730306AbgCPChj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 15 Mar 2020 22:37:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39560 "EHLO mail.kernel.org"
+        id S1730315AbgCPChd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 15 Mar 2020 22:37:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39572 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730032AbgCPCfQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 15 Mar 2020 22:35:16 -0400
+        id S1730120AbgCPCfR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 15 Mar 2020 22:35:17 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 335CF20726;
-        Mon, 16 Mar 2020 02:35:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4EEDE2072A;
+        Mon, 16 Mar 2020 02:35:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584326115;
-        bh=hcTIdJiCXvD/krcQTIT1ht5ObWgrP9GQXXZnj8Jlw7w=;
+        s=default; t=1584326117;
+        bh=Qb3WFXji45qyPaTvm2PnxhbwUJAHncNwwNgYzamZ68Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iBR506pJ62IzxkQpQmPFtJDAqVAO0T3jnoWtmNTuRTI1ckopUNBlrjO4wfdj1K6/T
-         hLrIqQO4AYuQZXOaPM0rlqi1bePwZmGWMpnEdbOsHQKxBBr9F+vGs0WLR6MjQ1HqdU
-         5x5V9trPkIguBoikbQWDXpJayHDPVMwn7eHWKgIA=
+        b=oNqpx6BBB7i1Le3J8uIKkaPuhDpE8hptxsfpykuG2lFAt7jooPJ4O8pHF6zCWr9k3
+         EcsT38KQEzXQFAMeXlK95k+pvohRduxB4mFU6jqRy6aAL7cVkCtb1SmN8JpMz56Rpq
+         ig2Qo3DAqzRcproDPMDFULmIvcbIKUcXcBfLU8A0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dongli Zhang <dongli.zhang@oracle.com>,
-        Julien Grall <jgrall@amazon.com>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, xen-devel@lists.xenproject.org
-Subject: [PATCH AUTOSEL 4.19 18/20] xenbus: req->err should be updated before req->state
-Date:   Sun, 15 Mar 2020 22:34:51 -0400
-Message-Id: <20200316023453.1800-18-sashal@kernel.org>
+Cc:     Carlo Nonato <carlo.nonato95@gmail.com>,
+        Kwon Je Oh <kwonje.oh2@gmail.com>,
+        Paolo Valente <paolo.valente@linaro.org>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
+        linux-block@vger.kernel.org, cgroups@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 19/20] block, bfq: fix overwrite of bfq_group pointer in bfq_find_set_group()
+Date:   Sun, 15 Mar 2020 22:34:52 -0400
+Message-Id: <20200316023453.1800-19-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200316023453.1800-1-sashal@kernel.org>
 References: <20200316023453.1800-1-sashal@kernel.org>
@@ -44,38 +45,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dongli Zhang <dongli.zhang@oracle.com>
+From: Carlo Nonato <carlo.nonato95@gmail.com>
 
-[ Upstream commit 8130b9d5b5abf26f9927b487c15319a187775f34 ]
+[ Upstream commit 14afc59361976c0ba39e3a9589c3eaa43ebc7e1d ]
 
-This patch adds the barrier to guarantee that req->err is always updated
-before req->state.
+The bfq_find_set_group() function takes as input a blkcg (which represents
+a cgroup) and retrieves the corresponding bfq_group, then it updates the
+bfq internal group hierarchy (see comments inside the function for why
+this is needed) and finally it returns the bfq_group.
+In the hierarchy update cycle, the pointer holding the correct bfq_group
+that has to be returned is mistakenly used to traverse the hierarchy
+bottom to top, meaning that in each iteration it gets overwritten with the
+parent of the current group. Since the update cycle stops at root's
+children (depth = 2), the overwrite becomes a problem only if the blkcg
+describes a cgroup at a hierarchy level deeper than that (depth > 2). In
+this case the root's child that happens to be also an ancestor of the
+correct bfq_group is returned. The main consequence is that processes
+contained in a cgroup at depth greater than 2 are wrongly placed in the
+group described above by BFQ.
 
-Otherwise, read_reply() would not return ERR_PTR(req->err) but
-req->body, when process_writes()->xb_write() is failed.
+This commits fixes this problem by using a different bfq_group pointer in
+the update cycle in order to avoid the overwrite of the variable holding
+the original group reference.
 
-Signed-off-by: Dongli Zhang <dongli.zhang@oracle.com>
-Link: https://lore.kernel.org/r/20200303221423.21962-2-dongli.zhang@oracle.com
-Reviewed-by: Julien Grall <jgrall@amazon.com>
-Signed-off-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Reported-by: Kwon Je Oh <kwonje.oh2@gmail.com>
+Signed-off-by: Carlo Nonato <carlo.nonato95@gmail.com>
+Signed-off-by: Paolo Valente <paolo.valente@linaro.org>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/xen/xenbus/xenbus_comms.c | 2 ++
- 1 file changed, 2 insertions(+)
+ block/bfq-cgroup.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/xen/xenbus/xenbus_comms.c b/drivers/xen/xenbus/xenbus_comms.c
-index 852ed161fc2a7..eb5151fc8efab 100644
---- a/drivers/xen/xenbus/xenbus_comms.c
-+++ b/drivers/xen/xenbus/xenbus_comms.c
-@@ -397,6 +397,8 @@ static int process_writes(void)
- 	if (state.req->state == xb_req_state_aborted)
- 		kfree(state.req);
- 	else {
-+		/* write err, then update state */
-+		virt_wmb();
- 		state.req->state = xb_req_state_got_reply;
- 		wake_up(&state.req->wq);
+diff --git a/block/bfq-cgroup.c b/block/bfq-cgroup.c
+index 9fe5952d117d5..ecd3d0ec2f3b6 100644
+--- a/block/bfq-cgroup.c
++++ b/block/bfq-cgroup.c
+@@ -525,12 +525,13 @@ struct bfq_group *bfq_find_set_group(struct bfq_data *bfqd,
+ 	 */
+ 	entity = &bfqg->entity;
+ 	for_each_entity(entity) {
+-		bfqg = container_of(entity, struct bfq_group, entity);
+-		if (bfqg != bfqd->root_group) {
+-			parent = bfqg_parent(bfqg);
++		struct bfq_group *curr_bfqg = container_of(entity,
++						struct bfq_group, entity);
++		if (curr_bfqg != bfqd->root_group) {
++			parent = bfqg_parent(curr_bfqg);
+ 			if (!parent)
+ 				parent = bfqd->root_group;
+-			bfq_group_set_parent(bfqg, parent);
++			bfq_group_set_parent(curr_bfqg, parent);
+ 		}
  	}
+ 
 -- 
 2.20.1
 
