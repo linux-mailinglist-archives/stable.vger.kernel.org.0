@@ -2,141 +2,120 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 142DB18624F
-	for <lists+stable@lfdr.de>; Mon, 16 Mar 2020 03:38:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 37F6618638F
+	for <lists+stable@lfdr.de>; Mon, 16 Mar 2020 04:10:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729324AbgCPCgC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 15 Mar 2020 22:36:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40892 "EHLO mail.kernel.org"
+        id S1729621AbgCPDKw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 15 Mar 2020 23:10:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52468 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730304AbgCPCf6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 15 Mar 2020 22:35:58 -0400
-Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        id S1729544AbgCPDKw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 15 Mar 2020 23:10:52 -0400
+Received: from localhost.localdomain (unknown [180.171.74.255])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5847F20738;
-        Mon, 16 Mar 2020 02:35:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 46ED9206E9;
+        Mon, 16 Mar 2020 03:10:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584326157;
-        bh=Wk5vG2jvv3zKm1H8ZHIEKdgfGVZnA91k1WpdRvzFCCI=;
+        s=default; t=1584328251;
+        bh=4Ut9q/HBb5KQpispMHObWIqDjNQTDKDkXlVN36XVgjQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tTc4k651n6DQHfGlWThK/1AlucqLIdkaD5gOcF0qgjE/Dm9q3D3otOLz8ds21UpIS
-         dQz9j3yntUld39le7mjr++fVuspcN4tfMJrmFetxbpYMgJGmYY2PiDhWKiCn4nBtPv
-         jlv6OK7/PFcPGP8DhMO6WKLl1Bp5CzP/BHF/wCKg=
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Daniel Axtens <dja@axtens.net>,
-        "Igor M. Liplianin" <liplianin@netup.ru>,
-        Kees Cook <keescook@chromium.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.4 7/7] altera-stapl: altera_get_note: prevent write beyond end of 'key'
-Date:   Sun, 15 Mar 2020 22:35:47 -0400
-Message-Id: <20200316023548.2347-7-sashal@kernel.org>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20200316023548.2347-1-sashal@kernel.org>
-References: <20200316023548.2347-1-sashal@kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-X-stable: review
-X-Patchwork-Hint: Ignore
-Content-Transfer-Encoding: 8bit
+        b=n0fSz13R+VlnJt+l27NnYWhsuV7mDUjaK9/gNdrippkwRfEO2EJ0wTEB4ph6VXSN1
+         T68SlNFcK2gNI/yrfRmdBa7DgBNg30bTC6WQpELJeMi2BMxObCKlCv01npnr+9mjBC
+         Pk08EQJE1oJYQgc13R/7bmvA67VnkqMNnZeklvtU=
+From:   Peter Chen <peter.chen@kernel.org>
+To:     gregkh@linuxfoundation.org
+Cc:     linux-usb@vger.kernel.org, Peter Chen <peter.chen@nxp.com>,
+        stable@vger.kernel.org
+Subject: [PATCH 1/1] usb: chipidea: udc: fix sleeping function called from invalid context
+Date:   Mon, 16 Mar 2020 11:10:34 +0800
+Message-Id: <20200316031034.17847-2-peter.chen@kernel.org>
+X-Mailer: git-send-email 2.17.1
+In-Reply-To: <20200316031034.17847-1-peter.chen@kernel.org>
+References: <20200316031034.17847-1-peter.chen@kernel.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Axtens <dja@axtens.net>
+From: Peter Chen <peter.chen@nxp.com>
 
-[ Upstream commit 3745488e9d599916a0b40d45d3f30e3d4720288e ]
+The code calls pm_runtime_get_sync with irq disabled, it causes below
+warning:
 
-altera_get_note is called from altera_init, where key is kzalloc(33).
+BUG: sleeping function called from invalid context at
+wer/runtime.c:1075
+in_atomic(): 1, irqs_disabled(): 128, non_block: 0, pid:
+er/u8:1
+CPU: 1 PID: 37 Comm: kworker/u8:1 Not tainted
+20200304-00181-gbebfd2a5be98 #1588
+Hardware name: NVIDIA Tegra SoC (Flattened Device Tree)
+Workqueue: ci_otg ci_otg_work
+[<c010e8bd>] (unwind_backtrace) from [<c010a315>]
+1/0x14)
+[<c010a315>] (show_stack) from [<c0987d29>]
+5/0x94)
+[<c0987d29>] (dump_stack) from [<c013e77f>]
++0xeb/0x118)
+[<c013e77f>] (___might_sleep) from [<c052fa1d>]
+esume+0x75/0x78)
+[<c052fa1d>] (__pm_runtime_resume) from [<c0627a33>]
+0x23/0x74)
+[<c0627a33>] (ci_udc_pullup) from [<c062fb93>]
+nect+0x2b/0xcc)
+[<c062fb93>] (usb_gadget_connect) from [<c062769d>]
+_connect+0x59/0x104)
+[<c062769d>] (ci_hdrc_gadget_connect) from [<c062778b>]
+ssion+0x43/0x48)
+[<c062778b>] (ci_udc_vbus_session) from [<c062f997>]
+s_connect+0x17/0x9c)
+[<c062f997>] (usb_gadget_vbus_connect) from [<c062634d>]
+bd/0x128)
+[<c062634d>] (ci_otg_work) from [<c0134719>]
+rk+0x149/0x404)
+[<c0134719>] (process_one_work) from [<c0134acb>]
+0xf7/0x3bc)
+[<c0134acb>] (worker_thread) from [<c0139433>]
+x118)
+[<c0139433>] (kthread) from [<c01010bd>]
+(ret_from_fork+0x11/0x34)
 
-When the allocation functions are annotated to allow the compiler to see
-the sizes of objects, and with FORTIFY_SOURCE, we see:
-
-In file included from drivers/misc/altera-stapl/altera.c:14:0:
-In function ‘strlcpy’,
-    inlined from ‘altera_init’ at drivers/misc/altera-stapl/altera.c:2189:5:
-include/linux/string.h:378:4: error: call to ‘__write_overflow’ declared with attribute error: detected write beyond size of object passed as 1st parameter
-    __write_overflow();
-    ^~~~~~~~~~~~~~~~~~
-
-That refers to this code in altera_get_note:
-
-    if (key != NULL)
-            strlcpy(key, &p[note_strings +
-                            get_unaligned_be32(
-                            &p[note_table + (8 * i)])],
-                    length);
-
-The error triggers because the length of 'key' is 33, but the copy
-uses length supplied as the 'length' parameter, which is always
-256. Split the size parameter into key_len and val_len, and use the
-appropriate length depending on what is being copied.
-
-Detected by compiler error, only compile-tested.
-
-Cc: "Igor M. Liplianin" <liplianin@netup.ru>
-Signed-off-by: Daniel Axtens <dja@axtens.net>
-Link: https://lore.kernel.org/r/20200120074344.504-2-dja@axtens.net
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Link: https://lore.kernel.org/r/202002251042.D898E67AC@keescook
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Tested-by: Dmitry Osipenko <digetx@gmail.com>
+Cc: <stable@vger.kernel.org> #v5.5
+Fixes: 72dc8df7920f ("usb: chipidea: udc: protect usb interrupt enable")
+Reported-by: Dmitry Osipenko <digetx@gmail.com>
+Signed-off-by: Peter Chen <peter.chen@nxp.com>
 ---
- drivers/misc/altera-stapl/altera.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ drivers/usb/chipidea/udc.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/misc/altera-stapl/altera.c b/drivers/misc/altera-stapl/altera.c
-index 494e263daa748..b7ee8043a133e 100644
---- a/drivers/misc/altera-stapl/altera.c
-+++ b/drivers/misc/altera-stapl/altera.c
-@@ -2126,8 +2126,8 @@ static int altera_execute(struct altera_state *astate,
- 	return status;
- }
+diff --git a/drivers/usb/chipidea/udc.c b/drivers/usb/chipidea/udc.c
+index ffaf46f5d062..4c4ac30db498 100644
+--- a/drivers/usb/chipidea/udc.c
++++ b/drivers/usb/chipidea/udc.c
+@@ -1530,18 +1530,19 @@ static const struct usb_ep_ops usb_ep_ops = {
+ static void ci_hdrc_gadget_connect(struct usb_gadget *_gadget, int is_active)
+ {
+ 	struct ci_hdrc *ci = container_of(_gadget, struct ci_hdrc, gadget);
+-	unsigned long flags;
  
--static int altera_get_note(u8 *p, s32 program_size,
--			s32 *offset, char *key, char *value, int length)
-+static int altera_get_note(u8 *p, s32 program_size, s32 *offset,
-+			   char *key, char *value, int keylen, int vallen)
- /*
-  * Gets key and value of NOTE fields in the JBC file.
-  * Can be called in two modes:  if offset pointer is NULL,
-@@ -2184,7 +2184,7 @@ static int altera_get_note(u8 *p, s32 program_size,
- 						&p[note_table + (8 * i) + 4])];
- 
- 				if (value != NULL)
--					strlcpy(value, value_ptr, length);
-+					strlcpy(value, value_ptr, vallen);
- 
- 			}
+ 	if (is_active) {
+ 		pm_runtime_get_sync(&_gadget->dev);
+ 		hw_device_reset(ci);
+-		spin_lock_irqsave(&ci->lock, flags);
++		spin_lock_irq(&ci->lock);
+ 		if (ci->driver) {
+ 			hw_device_state(ci, ci->ep0out->qh.dma);
+ 			usb_gadget_set_state(_gadget, USB_STATE_POWERED);
++			spin_unlock_irq(&ci->lock);
+ 			usb_udc_vbus_handler(_gadget, true);
++		} else {
++			spin_unlock_irq(&ci->lock);
  		}
-@@ -2203,13 +2203,13 @@ static int altera_get_note(u8 *p, s32 program_size,
- 				strlcpy(key, &p[note_strings +
- 						get_unaligned_be32(
- 						&p[note_table + (8 * i)])],
--					length);
-+					keylen);
- 
- 			if (value != NULL)
- 				strlcpy(value, &p[note_strings +
- 						get_unaligned_be32(
- 						&p[note_table + (8 * i) + 4])],
--					length);
-+					vallen);
- 
- 			*offset = i + 1;
- 		}
-@@ -2463,7 +2463,7 @@ int altera_init(struct altera_config *config, const struct firmware *fw)
- 			__func__, (format_version == 2) ? "Jam STAPL" :
- 						"pre-standardized Jam 1.1");
- 		while (altera_get_note((u8 *)fw->data, fw->size,
--					&offset, key, value, 256) == 0)
-+					&offset, key, value, 32, 256) == 0)
- 			printk(KERN_INFO "%s: NOTE \"%s\" = \"%s\"\n",
- 					__func__, key, value);
- 	}
+-		spin_unlock_irqrestore(&ci->lock, flags);
+ 	} else {
+ 		usb_udc_vbus_handler(_gadget, false);
+ 		if (ci->driver)
 -- 
-2.20.1
+2.17.1
 
