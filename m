@@ -2,120 +2,271 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 824FE186667
-	for <lists+stable@lfdr.de>; Mon, 16 Mar 2020 09:28:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E97381867A0
+	for <lists+stable@lfdr.de>; Mon, 16 Mar 2020 10:16:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730059AbgCPI2Q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Mar 2020 04:28:16 -0400
-Received: from mail-wr1-f66.google.com ([209.85.221.66]:35796 "EHLO
-        mail-wr1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730056AbgCPI2Q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Mar 2020 04:28:16 -0400
-Received: by mail-wr1-f66.google.com with SMTP id d5so19663728wrc.2
-        for <stable@vger.kernel.org>; Mon, 16 Mar 2020 01:28:13 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=baylibre-com.20150623.gappssmtp.com; s=20150623;
-        h=references:user-agent:from:to:cc:subject:in-reply-to:date
-         :message-id:mime-version;
-        bh=szWYYRkGahxA61hsmRUJ5tS74K70qXB8+PDKduH3nHs=;
-        b=l3Gqhn+/M4Ha0UXVm0T3q6iV8ObxlaoHrtfqnRe+mfq3J/sCzFKJf4x7NlK7oimIwz
-         tN1cuQljn0V24A6ikzf7Lh2Z5FZgBuhhcvzzlycmoWTw5AO/wLuLWUbxFwyAxd0Jt38q
-         /YbIiOe4knXylQmu+M/SKDnkj5Ce2vCTOSweGQH50Ef2xnZ4js/HFbH2hFYpHx3TALhu
-         4wjaB4vv3tSbPvQLG21Ggst/b5DfZRjtQt537OaHLyEY5TqcODhqXaffxWBzdSqdvD78
-         jTvX9ZUunrrWo00MZaFdHDpcGEp9sBOUca60V1fbLklrtGD+8Iu+s+9w+fpmj5Vravvv
-         5iNQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:references:user-agent:from:to:cc:subject
-         :in-reply-to:date:message-id:mime-version;
-        bh=szWYYRkGahxA61hsmRUJ5tS74K70qXB8+PDKduH3nHs=;
-        b=FCF7gFD2Y2OTrzqBF3B0AmKOpYNHXG+ZZ6tM7qj/6j2iFyd9wQpxNTtIf9ziMthUX9
-         eYL+7YzkzJ6bZQAFA8zfW/YRgJPuShsGFiFZaQIBFSIYxe8i2qH4EIeijaJ1UzyKxKus
-         dbxjjrB1cyq1SzaSs+8NzA0weDGagi9KvdXZeIgiJxtM9n86MSkG8SweR7iESZE68up+
-         7rYz8KyPIyQC3h7aZSBRTgtAAyc7Kvm5wW1OHMlE/njEx/W1qChzXi5hpf7eh8US7V35
-         wxDzQx/CQIiFZDJeD1eo0esI/AyLKWsTjE5U3Z8pu2SneOV4UvjY2lRfZzd8f4GRQs75
-         gqig==
-X-Gm-Message-State: ANhLgQ1Hkkj4bAFPoaSctPn6xa1I61SCi21mYyalqyPJ6RiO6ImKf8Lh
-        9N27gTmj7iDGeGuOKpMHkpmhhg==
-X-Google-Smtp-Source: ADFU+vtF0RfkG0k25HaWGkNvoj16Mvu5LgZ52qoUMhowQkFr4iYwgmRJjGLbQodQSmkECLChCJor9w==
-X-Received: by 2002:a5d:530e:: with SMTP id e14mr34558588wrv.245.1584347293228;
-        Mon, 16 Mar 2020 01:28:13 -0700 (PDT)
-Received: from localhost (cag06-3-82-243-161-21.fbx.proxad.net. [82.243.161.21])
-        by smtp.gmail.com with ESMTPSA id k133sm30082169wma.11.2020.03.16.01.28.12
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 16 Mar 2020 01:28:12 -0700 (PDT)
-References: <20200316023411.1263-1-sashal@kernel.org> <20200316023411.1263-8-sashal@kernel.org>
-User-agent: mu4e 1.3.3; emacs 26.3
-From:   Jerome Brunet <jbrunet@baylibre.com>
-To:     Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-Cc:     Mark Brown <broonie@kernel.org>, alsa-devel@alsa-project.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-amlogic@lists.infradead.org,
-        Kevin Hilman <khilman@baylibre.com>
-Subject: Re: [PATCH AUTOSEL 5.4 08/35] ASoC: meson: g12a: add tohdmitx reset
-In-reply-to: <20200316023411.1263-8-sashal@kernel.org>
-Date:   Mon, 16 Mar 2020 09:28:11 +0100
-Message-ID: <1ja74gg0v8.fsf@starbuckisacylon.baylibre.com>
+        id S1730076AbgCPJQn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Mar 2020 05:16:43 -0400
+Received: from mx2.suse.de ([195.135.220.15]:54722 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1730025AbgCPJQm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Mar 2020 05:16:42 -0400
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.220.254])
+        by mx2.suse.de (Postfix) with ESMTP id DA0D6AC69;
+        Mon, 16 Mar 2020 09:16:36 +0000 (UTC)
+Received: by quack2.suse.cz (Postfix, from userid 1000)
+        id 83CDC1E10DA; Mon, 16 Mar 2020 10:16:33 +0100 (CET)
+Date:   Mon, 16 Mar 2020 10:16:33 +0100
+From:   Jan Kara <jack@suse.cz>
+To:     Matthew Wilcox <willy@infradead.org>
+Cc:     Jan Kara <jack@suse.cz>, linux-fsdevel@vger.kernel.org,
+        linux-mm@kvack.org, stable@vger.kernel.org
+Subject: Re: [PATCH 1/8] xarray: Fix premature termination of
+ xas_for_each_marked()
+Message-ID: <20200316091633.GA12783@quack2.suse.cz>
+References: <20200204142514.15826-1-jack@suse.cz>
+ <20200204142514.15826-2-jack@suse.cz>
+ <20200312214548.GL22433@bombadil.infradead.org>
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200312214548.GL22433@bombadil.infradead.org>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Thu 12-03-20 14:45:48, Matthew Wilcox wrote:
+> Hi Jan,
+> 
+> I fixed this in a different way ... also, I added a test to the test-suite
+> so this shouldn't regress.  Thanks for writing the commit message ;-)
+> 
+> From 7e934cf5ace1dceeb804f7493fa28bb697ed3c52 Mon Sep 17 00:00:00 2001
+> From: "Matthew Wilcox (Oracle)" <willy@infradead.org>
+> Date: Thu, 12 Mar 2020 17:29:11 -0400
+> Subject: [PATCH] xarray: Fix early termination of xas_for_each_marked
+> 
+> xas_for_each_marked() is using entry == NULL as a termination condition
+> of the iteration. When xas_for_each_marked() is used protected only by
+> RCU, this can however race with xas_store(xas, NULL) in the following
+> way:
+> 
+> TASK1                                   TASK2
+> page_cache_delete()         	        find_get_pages_range_tag()
+>                                           xas_for_each_marked()
+>                                             xas_find_marked()
+>                                               off = xas_find_chunk()
+> 
+>   xas_store(&xas, NULL)
+>     xas_init_marks(&xas);
+>     ...
+>     rcu_assign_pointer(*slot, NULL);
+>                                               entry = xa_entry(off);
+> 
+> And thus xas_for_each_marked() terminates prematurely possibly leading
+> to missed entries in the iteration (translating to missing writeback of
+> some pages or a similar problem).
+> 
+> If we find a NULL entry that has been marked, skip it (unless we're trying
+> to allocate an entry).
+> 
+> Reported-by: Jan Kara <jack@suse.cz>
+> CC: stable@vger.kernel.org
+> Fixes: ef8e5717db01 ("page cache: Convert delete_batch to XArray")
+> Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
 
-On Mon 16 Mar 2020 at 03:33, Sasha Levin <sashal@kernel.org> wrote:
+The patch looks good to me. Thanks for looking into this. You can add:
 
-> From: Jerome Brunet <jbrunet@baylibre.com>
->
-> [ Upstream commit 22946f37557e27697aabc8e4f62642bfe4a17fd8 ]
->
-> Reset the g12a hdmi codec glue on probe. This ensure a sane startup state.
->
-> Signed-off-by: Jerome Brunet <jbrunet@baylibre.com>
-> Link: https://lore.kernel.org/r/20200221121146.1498427-1-jbrunet@baylibre.com
-> Signed-off-by: Mark Brown <broonie@kernel.org>
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reviewed-by: Jan Kara <jack@suse.cz>
 
-Hi Sasha,
+								Honza
 
-The tohdmitx reset property is not in the amlogic g12a DT in v5.4.
-Backporting this patch on v5.4 would break the hdmi sound, and probably
-the related sound card since the reset is not optional.
-
-Could you please drop this from v5.4 stable ?
-It is ok to keep it for v5.5.
-
-Thanks
-Jerome
 
 > ---
->  sound/soc/meson/g12a-tohdmitx.c | 6 ++++++
->  1 file changed, 6 insertions(+)
->
-> diff --git a/sound/soc/meson/g12a-tohdmitx.c b/sound/soc/meson/g12a-tohdmitx.c
-> index 9cfbd343a00c8..8a0db28a6a406 100644
-> --- a/sound/soc/meson/g12a-tohdmitx.c
-> +++ b/sound/soc/meson/g12a-tohdmitx.c
-> @@ -8,6 +8,7 @@
->  #include <linux/module.h>
->  #include <sound/pcm_params.h>
->  #include <linux/regmap.h>
-> +#include <linux/reset.h>
->  #include <sound/soc.h>
->  #include <sound/soc-dai.h>
+>  include/linux/xarray.h                       |  6 +-
+>  lib/xarray.c                                 |  2 +
+>  tools/testing/radix-tree/Makefile            |  4 +-
+>  tools/testing/radix-tree/iteration_check_2.c | 87 ++++++++++++++++++++
+>  tools/testing/radix-tree/main.c              |  1 +
+>  tools/testing/radix-tree/test.h              |  1 +
+>  6 files changed, 98 insertions(+), 3 deletions(-)
+>  create mode 100644 tools/testing/radix-tree/iteration_check_2.c
+> 
+> diff --git a/include/linux/xarray.h b/include/linux/xarray.h
+> index a491653d8882..14c893433139 100644
+> --- a/include/linux/xarray.h
+> +++ b/include/linux/xarray.h
+> @@ -1648,6 +1648,7 @@ static inline void *xas_next_marked(struct xa_state *xas, unsigned long max,
+>  								xa_mark_t mark)
+>  {
+>  	struct xa_node *node = xas->xa_node;
+> +	void *entry;
+>  	unsigned int offset;
 >  
-> @@ -378,6 +379,11 @@ static int g12a_tohdmitx_probe(struct platform_device *pdev)
->  	struct device *dev = &pdev->dev;
->  	void __iomem *regs;
->  	struct regmap *map;
-> +	int ret;
+>  	if (unlikely(xas_not_node(node) || node->shift))
+> @@ -1659,7 +1660,10 @@ static inline void *xas_next_marked(struct xa_state *xas, unsigned long max,
+>  		return NULL;
+>  	if (offset == XA_CHUNK_SIZE)
+>  		return xas_find_marked(xas, max, mark);
+> -	return xa_entry(xas->xa, node, offset);
+> +	entry = xa_entry(xas->xa, node, offset);
+> +	if (!entry)
+> +		return xas_find_marked(xas, max, mark);
+> +	return entry;
+>  }
+>  
+>  /*
+> diff --git a/lib/xarray.c b/lib/xarray.c
+> index f448bcd263ac..e9e641d3c0c3 100644
+> --- a/lib/xarray.c
+> +++ b/lib/xarray.c
+> @@ -1208,6 +1208,8 @@ void *xas_find_marked(struct xa_state *xas, unsigned long max, xa_mark_t mark)
+>  		}
+>  
+>  		entry = xa_entry(xas->xa, xas->xa_node, xas->xa_offset);
+> +		if (!entry && !(xa_track_free(xas->xa) && mark == XA_FREE_MARK))
+> +			continue;
+>  		if (!xa_is_node(entry))
+>  			return entry;
+>  		xas->xa_node = xa_to_node(entry);
+> diff --git a/tools/testing/radix-tree/Makefile b/tools/testing/radix-tree/Makefile
+> index 397d6b612502..aa6abfe0749c 100644
+> --- a/tools/testing/radix-tree/Makefile
+> +++ b/tools/testing/radix-tree/Makefile
+> @@ -7,8 +7,8 @@ LDLIBS+= -lpthread -lurcu
+>  TARGETS = main idr-test multiorder xarray
+>  CORE_OFILES := xarray.o radix-tree.o idr.o linux.o test.o find_bit.o bitmap.o
+>  OFILES = main.o $(CORE_OFILES) regression1.o regression2.o regression3.o \
+> -	 regression4.o \
+> -	 tag_check.o multiorder.o idr-test.o iteration_check.o benchmark.o
+> +	 regression4.o tag_check.o multiorder.o idr-test.o iteration_check.o \
+> +	 iteration_check_2.o benchmark.o
+>  
+>  ifndef SHIFT
+>  	SHIFT=3
+> diff --git a/tools/testing/radix-tree/iteration_check_2.c b/tools/testing/radix-tree/iteration_check_2.c
+> new file mode 100644
+> index 000000000000..aac5c50a3674
+> --- /dev/null
+> +++ b/tools/testing/radix-tree/iteration_check_2.c
+> @@ -0,0 +1,87 @@
+> +// SPDX-License-Identifier: GPL-2.0-or-later
+> +/*
+> + * iteration_check_2.c: Check that deleting a tagged entry doesn't cause
+> + * an RCU walker to finish early.
+> + * Copyright (c) 2020 Oracle
+> + * Author: Matthew Wilcox <willy@infradead.org>
+> + */
+> +#include <pthread.h>
+> +#include "test.h"
 > +
-> +	ret = device_reset(dev);
-> +	if (ret)
-> +		return ret;
+> +static volatile bool test_complete;
+> +
+> +static void *iterator(void *arg)
+> +{
+> +	XA_STATE(xas, arg, 0);
+> +	void *entry;
+> +
+> +	rcu_register_thread();
+> +
+> +	while (!test_complete) {
+> +		xas_set(&xas, 0);
+> +		rcu_read_lock();
+> +		xas_for_each_marked(&xas, entry, ULONG_MAX, XA_MARK_0)
+> +			;
+> +		rcu_read_unlock();
+> +		assert(xas.xa_index >= 100);
+> +	}
+> +
+> +	rcu_unregister_thread();
+> +	return NULL;
+> +}
+> +
+> +static void *throbber(void *arg)
+> +{
+> +	struct xarray *xa = arg;
+> +
+> +	rcu_register_thread();
+> +
+> +	while (!test_complete) {
+> +		int i;
+> +
+> +		for (i = 0; i < 100; i++) {
+> +			xa_store(xa, i, xa_mk_value(i), GFP_KERNEL);
+> +			xa_set_mark(xa, i, XA_MARK_0);
+> +		}
+> +		for (i = 0; i < 100; i++)
+> +			xa_erase(xa, i);
+> +	}
+> +
+> +	rcu_unregister_thread();
+> +	return NULL;
+> +}
+> +
+> +void iteration_test2(unsigned test_duration)
+> +{
+> +	pthread_t threads[2];
+> +	DEFINE_XARRAY(array);
+> +	int i;
+> +
+> +	printv(1, "Running iteration test 2 for %d seconds\n", test_duration);
+> +
+> +	test_complete = false;
+> +
+> +	xa_store(&array, 100, xa_mk_value(100), GFP_KERNEL);
+> +	xa_set_mark(&array, 100, XA_MARK_0);
+> +
+> +	if (pthread_create(&threads[0], NULL, iterator, &array)) {
+> +		perror("create iterator thread");
+> +		exit(1);
+> +	}
+> +	if (pthread_create(&threads[1], NULL, throbber, &array)) {
+> +		perror("create throbber thread");
+> +		exit(1);
+> +	}
+> +
+> +	sleep(test_duration);
+> +	test_complete = true;
+> +
+> +	for (i = 0; i < 2; i++) {
+> +		if (pthread_join(threads[i], NULL)) {
+> +			perror("pthread_join");
+> +			exit(1);
+> +		}
+> +	}
+> +
+> +	xa_destroy(&array);
+> +}
+> diff --git a/tools/testing/radix-tree/main.c b/tools/testing/radix-tree/main.c
+> index 7a22d6e3732e..f2cbc8e5b97c 100644
+> --- a/tools/testing/radix-tree/main.c
+> +++ b/tools/testing/radix-tree/main.c
+> @@ -311,6 +311,7 @@ int main(int argc, char **argv)
+>  	regression4_test();
+>  	iteration_test(0, 10 + 90 * long_run);
+>  	iteration_test(7, 10 + 90 * long_run);
+> +	iteration_test2(10 + 90 * long_run);
+>  	single_thread_tests(long_run);
 >  
->  	regs = devm_platform_ioremap_resource(pdev, 0);
->  	if (IS_ERR(regs))
-
+>  	/* Free any remaining preallocated nodes */
+> diff --git a/tools/testing/radix-tree/test.h b/tools/testing/radix-tree/test.h
+> index 1ee4b2c0ad10..34dab4d18744 100644
+> --- a/tools/testing/radix-tree/test.h
+> +++ b/tools/testing/radix-tree/test.h
+> @@ -34,6 +34,7 @@ void xarray_tests(void);
+>  void tag_check(void);
+>  void multiorder_checks(void);
+>  void iteration_test(unsigned order, unsigned duration);
+> +void iteration_test2(unsigned duration);
+>  void benchmark(void);
+>  void idr_checks(void);
+>  void ida_tests(void);
+> -- 
+> 2.25.1
+> 
+-- 
+Jan Kara <jack@suse.com>
+SUSE Labs, CR
