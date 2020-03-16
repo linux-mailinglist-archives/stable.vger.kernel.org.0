@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2246A18625D
-	for <lists+stable@lfdr.de>; Mon, 16 Mar 2020 03:38:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B658B18625A
+	for <lists+stable@lfdr.de>; Mon, 16 Mar 2020 03:38:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729826AbgCPCge (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 15 Mar 2020 22:36:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40412 "EHLO mail.kernel.org"
+        id S1729977AbgCPCga (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 15 Mar 2020 22:36:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40476 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729653AbgCPCfo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 15 Mar 2020 22:35:44 -0400
+        id S1729826AbgCPCfp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 15 Mar 2020 22:35:45 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BCE5E20738;
-        Mon, 16 Mar 2020 02:35:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EFB4B20722;
+        Mon, 16 Mar 2020 02:35:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584326143;
-        bh=T7EptmKtFcmwZNYtW2NJwIhPk4hbrAUxmdJ1+Wx/nAc=;
+        s=default; t=1584326144;
+        bh=/o1Xr498tkQFQ/oFiaM4/uN7/67/7a1kWePFN3V31LI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A4iQ3ToPnRJhmbCfxMtqckcAQkpyLJqWLogE1T3oGiVah3JIkWdLO2MHAz9PclDaK
-         0ysbuBmi5dhN1ZeYVwfJM7Gbkm8SI312pDfeg1dwVl1cz6L3GYQHHloZG1pZA1103T
-         UxRyK3wYevd4ipgxZ/KkIot6HKkvQkzR0mRNmzvs=
+        b=ZTKIIRepsoM2vN8rGanJIGrb3iTku26rQqbA7d5JbUPf+k/ydpyAm0zjsZo+4v9jz
+         /9wtLoK6hY7+N5VEDZQJwmAm7Ila+JiWdYT+K9eNd6PHhXwtBOS2VY+T0cKaZ/1/To
+         k4C/yPGq80ieWIskh8x3HSuk1czNOsjKjGbmpkvU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Thommy Jakobsson <thommyj@gmail.com>,
-        Naga Sureshkumar Relli <naga.sureshkumar.relli@xilinx.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-spi@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.9 4/7] spi/zynqmp: remove entry that causes a cs glitch
-Date:   Sun, 15 Mar 2020 22:35:35 -0400
-Message-Id: <20200316023538.2232-4-sashal@kernel.org>
+Cc:     Marek Szyprowski <m.szyprowski@samsung.com>,
+        Krzysztof Kozlowski <krzk@kernel.org>,
+        Inki Dae <inki.dae@samsung.com>,
+        Sasha Levin <sashal@kernel.org>,
+        dri-devel@lists.freedesktop.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-samsung-soc@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 5/7] drm/exynos: dsi: propagate error value and silence meaningless warning
+Date:   Sun, 15 Mar 2020 22:35:36 -0400
+Message-Id: <20200316023538.2232-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200316023538.2232-1-sashal@kernel.org>
 References: <20200316023538.2232-1-sashal@kernel.org>
@@ -45,56 +47,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thommy Jakobsson <thommyj@gmail.com>
+From: Marek Szyprowski <m.szyprowski@samsung.com>
 
-[ Upstream commit 5dd8304981ecffa77bb72b1c57c4be5dfe6cfae9 ]
+[ Upstream commit 0a9d1e3f3f038785ebc72d53f1c409d07f6b4ff5 ]
 
-In the public interface for chipselect, there is always an entry
-commented as "Dummy generic FIFO entry" pushed down to the fifo right
-after the activate/deactivate command. The dummy entry is 0x0,
-irregardless if the intention was to activate or deactive the cs. This
-causes the cs line to glitch rather than beeing activated in the case
-when there was an activate command.
+Properly propagate error value from devm_regulator_bulk_get() and don't
+confuse user with meaningless warning about failure in getting regulators
+in case of deferred probe.
 
-This has been observed on oscilloscope, and have caused problems for at
-least one specific flash device type connected to the qspi port. After
-the change the glitch is gone and cs goes active when intended.
-
-The reason why this worked before (except for the glitch) was because
-when sending the actual data, the CS bits are once again set. Since
-most flashes uses mode 0, there is always a half clk period anyway for
-cs to clk active setup time. If someone would rely on timing from a
-chip_select call to a transfer_one, it would fail though.
-
-It is unknown why the dummy entry was there in the first place, git log
-seems to be of no help in this case. The reference manual gives no
-indication of the necessity of this. In fact the lower 8 bits are a
-setup (or hold in case of deactivate) time expressed in cycles. So this
-should not be needed to fulfill any setup/hold timings.
-
-Signed-off-by: Thommy Jakobsson <thommyj@gmail.com>
-Reviewed-by: Naga Sureshkumar Relli <naga.sureshkumar.relli@xilinx.com>
-Link: https://lore.kernel.org/r/20200224162643.29102-1-thommyj@gmail.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Reviewed-by: Krzysztof Kozlowski <krzk@kernel.org>
+Signed-off-by: Inki Dae <inki.dae@samsung.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-zynqmp-gqspi.c | 3 ---
- 1 file changed, 3 deletions(-)
+ drivers/gpu/drm/exynos/exynos_drm_dsi.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/spi/spi-zynqmp-gqspi.c b/drivers/spi/spi-zynqmp-gqspi.c
-index 18aeaceee2862..d26c0eda2d9ea 100644
---- a/drivers/spi/spi-zynqmp-gqspi.c
-+++ b/drivers/spi/spi-zynqmp-gqspi.c
-@@ -415,9 +415,6 @@ static void zynqmp_qspi_chipselect(struct spi_device *qspi, bool is_high)
+diff --git a/drivers/gpu/drm/exynos/exynos_drm_dsi.c b/drivers/gpu/drm/exynos/exynos_drm_dsi.c
+index e07cb1fe48604..5e202af7fbf53 100644
+--- a/drivers/gpu/drm/exynos/exynos_drm_dsi.c
++++ b/drivers/gpu/drm/exynos/exynos_drm_dsi.c
+@@ -1775,8 +1775,9 @@ static int exynos_dsi_probe(struct platform_device *pdev)
+ 	ret = devm_regulator_bulk_get(dev, ARRAY_SIZE(dsi->supplies),
+ 				      dsi->supplies);
+ 	if (ret) {
+-		dev_info(dev, "failed to get regulators: %d\n", ret);
+-		return -EPROBE_DEFER;
++		if (ret != -EPROBE_DEFER)
++			dev_info(dev, "failed to get regulators: %d\n", ret);
++		return ret;
+ 	}
  
- 	zynqmp_gqspi_write(xqspi, GQSPI_GEN_FIFO_OFST, genfifoentry);
- 
--	/* Dummy generic FIFO entry */
--	zynqmp_gqspi_write(xqspi, GQSPI_GEN_FIFO_OFST, 0x0);
--
- 	/* Manually start the generic FIFO command */
- 	zynqmp_gqspi_write(xqspi, GQSPI_CONFIG_OFST,
- 			zynqmp_gqspi_read(xqspi, GQSPI_CONFIG_OFST) |
+ 	dsi->clks = devm_kzalloc(dev,
 -- 
 2.20.1
 
