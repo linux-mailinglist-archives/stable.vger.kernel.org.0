@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 462201861F6
-	for <lists+stable@lfdr.de>; Mon, 16 Mar 2020 03:35:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 755CC186294
+	for <lists+stable@lfdr.de>; Mon, 16 Mar 2020 03:39:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729542AbgCPCe5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 15 Mar 2020 22:34:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38844 "EHLO mail.kernel.org"
+        id S1730036AbgCPCe6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 15 Mar 2020 22:34:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38888 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729947AbgCPCe4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 15 Mar 2020 22:34:56 -0400
+        id S1730024AbgCPCe5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 15 Mar 2020 22:34:57 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B1A1E206EB;
-        Mon, 16 Mar 2020 02:34:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 03E9F20736;
+        Mon, 16 Mar 2020 02:34:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584326095;
-        bh=2r/XNzVFSWap5ZGR8e9lGlA6d7DtrmjBgB/Zzu8NrGo=;
-        h=From:To:Cc:Subject:Date:From;
-        b=crJnaWAjQnP0Z7GMiDBa7yymQzc3f00ZmhB/pZV6th1BRm2QjCE7qaGhPy87Cr7Uw
-         4+H1qg2zESjtjSLdAhWUr5/A4FpNTJInbM6qvaj18fUWEhCrBtPaiJhg7sXVIx/zIU
-         hAb9tC66EseDFGMcICHdHi8mKIfB9fx7sMWduq90=
+        s=default; t=1584326097;
+        bh=hjYzrSAG1T8NzDLvFDVc+oisTswRnN3vFWY0chwC3UY=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=CabYTB5dPl6cBt5l0Slr0iuvv5wqz5PryqOLsy2/PXWEw1sQ/MrCg9o4qqTk8tUIJ
+         M+vcPJxNw1BrEfQERq9x1+pIgmtcUeREi6ON8bFPXtZLqARnJM/Pa+2n5UNUk+9mh9
+         iOQ2gRR+bYpie54bWVsTvjhueCdJ442xNXhnjjM0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Evan Benn <evanbenn@chromium.org>,
-        Sean Paul <seanpaul@chromium.org>, CK Hu <ck.hu@mediatek.com>,
-        Sasha Levin <sashal@kernel.org>,
-        dri-devel@lists.freedesktop.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-mediatek@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.19 01/20] drm/mediatek: Find the cursor plane instead of hard coding it
-Date:   Sun, 15 Mar 2020 22:34:34 -0400
-Message-Id: <20200316023453.1800-1-sashal@kernel.org>
+Cc:     Johan Hovold <johan@kernel.org>,
+        Sanchayan Maity <maitysanchayan@gmail.com>,
+        Marcel Ziswiler <marcel.ziswiler@toradex.com>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Oleksandr Suvorov <oleksandr.suvorov@toradex.com>,
+        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.19 02/20] ARM: dts: imx6dl-colibri-eval-v3: fix sram compatible properties
+Date:   Sun, 15 Mar 2020 22:34:35 -0400
+Message-Id: <20200316023453.1800-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20200316023453.1800-1-sashal@kernel.org>
+References: <20200316023453.1800-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -44,58 +47,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Evan Benn <evanbenn@chromium.org>
+From: Johan Hovold <johan@kernel.org>
 
-[ Upstream commit 318caac7c81cdf5806df30c3d72385659a5f0f53 ]
+[ Upstream commit bcbf53a0dab50980867476994f6079c1ec5bb3a3 ]
 
-The cursor and primary planes were hard coded.
-Now search for them for passing to drm_crtc_init_with_planes
+The sram-node compatible properties have mistakingly combined the
+model-specific string with the generic "mtd-ram" string.
 
-Signed-off-by: Evan Benn <evanbenn@chromium.org>
-Reviewed-by: Sean Paul <seanpaul@chromium.org>
-Signed-off-by: CK Hu <ck.hu@mediatek.com>
+Note that neither "cy7c1019dv33-10zsxi, mtd-ram" or
+"cy7c1019dv33-10zsxi" are used by any in-kernel driver and they are
+not present in any binding.
+
+The physmap driver will however bind to platform devices that specify
+"mtd-ram".
+
+Fixes: fc48e76489fd ("ARM: dts: imx6: Add support for Toradex Colibri iMX6 module")
+Cc: Sanchayan Maity <maitysanchayan@gmail.com>
+Cc: Marcel Ziswiler <marcel.ziswiler@toradex.com>
+Cc: Shawn Guo <shawnguo@kernel.org>
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Reviewed-by: Oleksandr Suvorov <oleksandr.suvorov@toradex.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/mediatek/mtk_drm_crtc.c | 18 ++++++++++++------
- 1 file changed, 12 insertions(+), 6 deletions(-)
+ arch/arm/boot/dts/imx6dl-colibri-eval-v3.dts | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/mediatek/mtk_drm_crtc.c b/drivers/gpu/drm/mediatek/mtk_drm_crtc.c
-index b86ee7d25af36..eac9caf322f90 100644
---- a/drivers/gpu/drm/mediatek/mtk_drm_crtc.c
-+++ b/drivers/gpu/drm/mediatek/mtk_drm_crtc.c
-@@ -506,10 +506,18 @@ static const struct drm_crtc_helper_funcs mtk_crtc_helper_funcs = {
+diff --git a/arch/arm/boot/dts/imx6dl-colibri-eval-v3.dts b/arch/arm/boot/dts/imx6dl-colibri-eval-v3.dts
+index 9de45a7173561..50a7ec0875535 100644
+--- a/arch/arm/boot/dts/imx6dl-colibri-eval-v3.dts
++++ b/arch/arm/boot/dts/imx6dl-colibri-eval-v3.dts
+@@ -234,7 +234,7 @@
  
- static int mtk_drm_crtc_init(struct drm_device *drm,
- 			     struct mtk_drm_crtc *mtk_crtc,
--			     struct drm_plane *primary,
--			     struct drm_plane *cursor, unsigned int pipe)
-+			     unsigned int pipe)
- {
--	int ret;
-+	struct drm_plane *primary = NULL;
-+	struct drm_plane *cursor = NULL;
-+	int i, ret;
-+
-+	for (i = 0; i < mtk_crtc->layer_nr; i++) {
-+		if (mtk_crtc->planes[i].type == DRM_PLANE_TYPE_PRIMARY)
-+			primary = &mtk_crtc->planes[i];
-+		else if (mtk_crtc->planes[i].type == DRM_PLANE_TYPE_CURSOR)
-+			cursor = &mtk_crtc->planes[i];
-+	}
+ 	/* SRAM on Colibri nEXT_CS0 */
+ 	sram@0,0 {
+-		compatible = "cypress,cy7c1019dv33-10zsxi, mtd-ram";
++		compatible = "cypress,cy7c1019dv33-10zsxi", "mtd-ram";
+ 		reg = <0 0 0x00010000>;
+ 		#address-cells = <1>;
+ 		#size-cells = <1>;
+@@ -245,7 +245,7 @@
  
- 	ret = drm_crtc_init_with_planes(drm, &mtk_crtc->base, primary, cursor,
- 					&mtk_crtc_funcs, NULL);
-@@ -622,9 +630,7 @@ int mtk_drm_crtc_create(struct drm_device *drm_dev,
- 			goto unprepare;
- 	}
- 
--	ret = mtk_drm_crtc_init(drm_dev, mtk_crtc, &mtk_crtc->planes[0],
--				mtk_crtc->layer_nr > 1 ? &mtk_crtc->planes[1] :
--				NULL, pipe);
-+	ret = mtk_drm_crtc_init(drm_dev, mtk_crtc, pipe);
- 	if (ret < 0)
- 		goto unprepare;
- 	drm_mode_crtc_set_gamma_size(&mtk_crtc->base, MTK_LUT_SIZE);
+ 	/* SRAM on Colibri nEXT_CS1 */
+ 	sram@1,0 {
+-		compatible = "cypress,cy7c1019dv33-10zsxi, mtd-ram";
++		compatible = "cypress,cy7c1019dv33-10zsxi", "mtd-ram";
+ 		reg = <1 0 0x00010000>;
+ 		#address-cells = <1>;
+ 		#size-cells = <1>;
 -- 
 2.20.1
 
