@@ -2,53 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 76EB2186B99
-	for <lists+stable@lfdr.de>; Mon, 16 Mar 2020 13:57:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BD72F186B9D
+	for <lists+stable@lfdr.de>; Mon, 16 Mar 2020 13:59:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730959AbgCPM5k (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Mar 2020 08:57:40 -0400
-Received: from wout1-smtp.messagingengine.com ([64.147.123.24]:57999 "EHLO
-        wout1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1730896AbgCPM5k (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Mar 2020 08:57:40 -0400
+        id S1731042AbgCPM7w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Mar 2020 08:59:52 -0400
+Received: from out4-smtp.messagingengine.com ([66.111.4.28]:51127 "EHLO
+        out4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1730896AbgCPM7w (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Mar 2020 08:59:52 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailout.west.internal (Postfix) with ESMTP id 62A6D7E8;
-        Mon, 16 Mar 2020 08:57:39 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Mon, 16 Mar 2020 08:57:39 -0400
+        by mailout.nyi.internal (Postfix) with ESMTP id B26FD5C0324;
+        Mon, 16 Mar 2020 08:59:51 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute1.internal (MEProxy); Mon, 16 Mar 2020 08:59:51 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=yy04j+
-        oxJsEtkyjyhD/2JsE72aahQlhihiptwaFHPhI=; b=jjJhG/4lp0poVcbuoCFpGJ
-        AavWnRxHFWie0KKNBzlgc1Zpk5ELgHkGEBXT/1NgllPvki2xUYsTanXxEavEp5P4
-        ix1hRWOhdWfvURONezE8sHQkeQc83dsa53OsGEENHRmzv79R1oNvfWCjUBoYEXKI
-        xhjfcD4M0Ts0xjYr46kZwGqQ7aN5m+UavCG63SWIK4kZ5m8kk4s0//zUq3wdxrDT
-        RM5KPeBg4lFeGvX03pJgXu6VGuyI6Hzi8gTWXjXEXsbscASHvazBcD1diZWrJpJn
-        uDzEvN4/+KL7YP4s3ZS97egh8JQQd2Hhg5x1bEigL6KNJhWGRRxG+zGdUxOevsSw
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=c/wEjs
+        7ASVkSxO8sbhYQzUdlJIK0wpDHIy1iN+Y7oLk=; b=g0L5IZCek+LlnA69dW9yI/
+        nOmIKbU8UWWEMNgtNrqGF6XDwJpLK6gWkaz/xU2ShIOqeiNgOac3KCD4o5lrt8iN
+        MbcyZDyDMYUKSeU2GKFqAE3/xUAVTfcRkK3vK0XrKXlA0pW3XKQxqV+XXzZuCTOs
+        Ym2k1amUGkNLWCPyElE5LSrZWlGSnB+kf6PHtPal3Dv5/iLxgml79b2km725lYZ3
+        2Z3rbl1FaM/hqo8c1ZLm1hGtUh7ni72brBj0Kf0qiykmZ6cecQ0CxHR0BaAsb+fR
+        s1IP02EW/LSyPCpGz25+J1/VEzZbY/v9Jtk6X6WwxZ23jFMfDngWjzl7Uag9jfNQ
         ==
-X-ME-Sender: <xms:wndvXhHbaKRsIF_Axx87wie5rMffp9FWOu44aZYUHdilRA3kY25orw>
+X-ME-Sender: <xms:RnhvXgV7IqB-iKAfLllNA5OKoK0CgXw6xTrh8tOtBoA7wybsmSwfow>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedugedrudeffedggeejucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphepkeefrdekiedrkeelrd
-    dutdejnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhep
+    dutdejnecuvehluhhsthgvrhfuihiivgepfeenucfrrghrrghmpehmrghilhhfrhhomhep
     ghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:wndvXpzqAxycN5UjD77grbCsRPUk6N1vfi35T0vxw5_r0U4WkHp2mw>
-    <xmx:wndvXvboFaADoH3IMbkZ3N_bpwwQSOVlrBjahOV_lhyamRGfu2iQRQ>
-    <xmx:wndvXgHkttRxyHY0HSGSqzOtQyh6UiJUWPTG8CTv6P2z8_eNfYO38A>
-    <xmx:w3dvXsd_s4vS6MHeByE-rVlQLHPUuM8sDdYjw_dDO5JIsV_2jj2Zbg>
+X-ME-Proxy: <xmx:RnhvXv_8K2Hd9VrSBcL-EYKRsb2letsm9TcX4pUPuja8Wq2Z4RbhQw>
+    <xmx:RnhvXg-kouzkMVU44CpzMoevDu4KmVx2aO1b_4DK5ZxIW-SyXVjeuA>
+    <xmx:RnhvXj9U985Bq5I0Ia9KWIK6sTPQBCBehLr42_FFUszLZsGlhe-ldw>
+    <xmx:R3hvXsi2EtvwGFlFrltRmFDdS0TVPLAM5d_5s9V_3RjEokCUZr_xNQ>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id A19FF3061856;
-        Mon, 16 Mar 2020 08:57:38 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] efi: Add a sanity check to efivar_store_raw()" failed to apply to 4.4-stable tree
-To:     vdronov@redhat.com, ardb@kernel.org, mingo@kernel.org,
-        stable@vger.kernel.org
+        by mail.messagingengine.com (Postfix) with ESMTPA id 96237328005E;
+        Mon, 16 Mar 2020 08:59:50 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] perf/amd/uncore: Replace manual sampling check with" failed to apply to 4.19-stable tree
+To:     kim.phillips@amd.com, bp@suse.de, peterz@infradead.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 16 Mar 2020 13:57:27 +0100
-Message-ID: <15843634473416@kroah.com>
+Date:   Mon, 16 Mar 2020 13:59:49 +0100
+Message-ID: <158436358921825@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -58,7 +57,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.4-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -69,33 +68,78 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From d6c066fda90d578aacdf19771a027ed484a79825 Mon Sep 17 00:00:00 2001
-From: Vladis Dronov <vdronov@redhat.com>
-Date: Sun, 8 Mar 2020 09:08:55 +0100
-Subject: [PATCH] efi: Add a sanity check to efivar_store_raw()
+From f967140dfb7442e2db0868b03b961f9c59418a1b Mon Sep 17 00:00:00 2001
+From: Kim Phillips <kim.phillips@amd.com>
+Date: Wed, 11 Mar 2020 14:13:21 -0500
+Subject: [PATCH] perf/amd/uncore: Replace manual sampling check with
+ CAP_NO_INTERRUPT flag
 
-Add a sanity check to efivar_store_raw() the same way
-efivar_{attr,size,data}_read() and efivar_show_raw() have it.
+Enable the sampling check in kernel/events/core.c::perf_event_open(),
+which returns the more appropriate -EOPNOTSUPP.
 
-Signed-off-by: Vladis Dronov <vdronov@redhat.com>
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200305084041.24053-3-vdronov@redhat.com
-Link: https://lore.kernel.org/r/20200308080859.21568-25-ardb@kernel.org
+BEFORE:
 
-diff --git a/drivers/firmware/efi/efivars.c b/drivers/firmware/efi/efivars.c
-index 69f13bc4b931..aff3dfb4d7ba 100644
---- a/drivers/firmware/efi/efivars.c
-+++ b/drivers/firmware/efi/efivars.c
-@@ -208,6 +208,9 @@ efivar_store_raw(struct efivar_entry *entry, const char *buf, size_t count)
- 	u8 *data;
- 	int err;
+  $ sudo perf record -a -e instructions,l3_request_g1.caching_l3_cache_accesses true
+  Error:
+  The sys_perf_event_open() syscall returned with 22 (Invalid argument) for event (l3_request_g1.caching_l3_cache_accesses).
+  /bin/dmesg | grep -i perf may provide additional information.
+
+With nothing relevant in dmesg.
+
+AFTER:
+
+  $ sudo perf record -a -e instructions,l3_request_g1.caching_l3_cache_accesses true
+  Error:
+  l3_request_g1.caching_l3_cache_accesses: PMU Hardware doesn't support sampling/overflow-interrupts. Try 'perf stat'
+
+Fixes: c43ca5091a37 ("perf/x86/amd: Add support for AMD NB and L2I "uncore" counters")
+Signed-off-by: Kim Phillips <kim.phillips@amd.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Acked-by: Peter Zijlstra <peterz@infradead.org>
+Cc: stable@vger.kernel.org
+Link: https://lkml.kernel.org/r/20200311191323.13124-1-kim.phillips@amd.com
+
+diff --git a/arch/x86/events/amd/uncore.c b/arch/x86/events/amd/uncore.c
+index a6ea07f2aa84..4d867a752f0e 100644
+--- a/arch/x86/events/amd/uncore.c
++++ b/arch/x86/events/amd/uncore.c
+@@ -190,15 +190,12 @@ static int amd_uncore_event_init(struct perf_event *event)
  
-+	if (!entry || !buf)
-+		return -EINVAL;
-+
- 	if (in_compat_syscall()) {
- 		struct compat_efi_variable *compat;
+ 	/*
+ 	 * NB and Last level cache counters (MSRs) are shared across all cores
+-	 * that share the same NB / Last level cache. Interrupts can be directed
+-	 * to a single target core, however, event counts generated by processes
+-	 * running on other cores cannot be masked out. So we do not support
+-	 * sampling and per-thread events.
++	 * that share the same NB / Last level cache.  On family 16h and below,
++	 * Interrupts can be directed to a single target core, however, event
++	 * counts generated by processes running on other cores cannot be masked
++	 * out. So we do not support sampling and per-thread events via
++	 * CAP_NO_INTERRUPT, and we do not enable counter overflow interrupts:
+ 	 */
+-	if (is_sampling_event(event) || event->attach_state & PERF_ATTACH_TASK)
+-		return -EINVAL;
+-
+-	/* and we do not enable counter overflow interrupts */
+ 	hwc->config = event->attr.config & AMD64_RAW_EVENT_MASK_NB;
+ 	hwc->idx = -1;
  
+@@ -306,7 +303,7 @@ static struct pmu amd_nb_pmu = {
+ 	.start		= amd_uncore_start,
+ 	.stop		= amd_uncore_stop,
+ 	.read		= amd_uncore_read,
+-	.capabilities	= PERF_PMU_CAP_NO_EXCLUDE,
++	.capabilities	= PERF_PMU_CAP_NO_EXCLUDE | PERF_PMU_CAP_NO_INTERRUPT,
+ };
+ 
+ static struct pmu amd_llc_pmu = {
+@@ -317,7 +314,7 @@ static struct pmu amd_llc_pmu = {
+ 	.start		= amd_uncore_start,
+ 	.stop		= amd_uncore_stop,
+ 	.read		= amd_uncore_read,
+-	.capabilities	= PERF_PMU_CAP_NO_EXCLUDE,
++	.capabilities	= PERF_PMU_CAP_NO_EXCLUDE | PERF_PMU_CAP_NO_INTERRUPT,
+ };
+ 
+ static struct amd_uncore *amd_uncore_alloc(unsigned int cpu)
 
