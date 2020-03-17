@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 06EB4188116
-	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:15:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E7BA11881B9
+	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:20:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729152AbgCQLL7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Mar 2020 07:11:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55454 "EHLO mail.kernel.org"
+        id S1727347AbgCQLTI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Mar 2020 07:19:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45236 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729118AbgCQLL5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Mar 2020 07:11:57 -0400
+        id S1726863AbgCQLEq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Mar 2020 07:04:46 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C5C272071C;
-        Tue, 17 Mar 2020 11:11:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D6E9220736;
+        Tue, 17 Mar 2020 11:04:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584443515;
-        bh=jKQaUfpQcMm0yosTefLi57T/N5a+Oc6PT7XK/yITYZg=;
+        s=default; t=1584443086;
+        bh=/u62k7k4XbFRbH1vWPs3YBXWUG0u2KF4TDGcXKapG9g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rqxij8gEKWKcXbJiHBgHrIiP3pq4BRUS4Fn9mYNOJA4wTGYIsyKmN1cwxopdxU73p
-         T/9svPICuJhhLVW/uW/fz/5QXby9QeDXvZGEpF1uYY8LviR2Eh0CsmfINmL7t4fldc
-         LPyOCCr/Qh8YytgS4/ClAmUbA9O6vGwxtGZhhyFc=
+        b=YA5Jfn+KZDwdnaVuKioAZaxl74CQw/dgdCNKbVsO9oQ1sN/DgcaNQnOXWfHxb+TDM
+         Y+/ODLF/AmwNfrKNyTQiXPIxZX9/s8feTRiPf3jiEck56jdHFGF4DKLYO7y3I3LZEQ
+         qa+Xhy3K4m4oy/56s88nJgZkNvn0wXTJXueEoBnk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tejun Heo <tj@kernel.org>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.5 108/151] blk-iocost: fix incorrect vtime comparison in iocg_is_idle()
+        stable@vger.kernel.org, Kim Phillips <kim.phillips@amd.com>,
+        Borislav Petkov <bp@suse.de>,
+        Peter Zijlstra <peterz@infradead.org>
+Subject: [PATCH 5.4 091/123] perf/amd/uncore: Replace manual sampling check with CAP_NO_INTERRUPT flag
 Date:   Tue, 17 Mar 2020 11:55:18 +0100
-Message-Id: <20200317103334.129839379@linuxfoundation.org>
+Message-Id: <20200317103317.014033256@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200317103326.593639086@linuxfoundation.org>
-References: <20200317103326.593639086@linuxfoundation.org>
+In-Reply-To: <20200317103307.343627747@linuxfoundation.org>
+References: <20200317103307.343627747@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,37 +44,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tejun Heo <tj@kernel.org>
+From: Kim Phillips <kim.phillips@amd.com>
 
-commit dcd6589b11d3b1e71f516a87a7b9646ed356b4c0 upstream.
+commit f967140dfb7442e2db0868b03b961f9c59418a1b upstream.
 
-vtimes may wrap and time_before/after64() should be used to determine
-whether a given vtime is before or after another. iocg_is_idle() was
-incorrectly using plain "<" comparison do determine whether done_vtime
-is before vtime. Here, the only thing we're interested in is whether
-done_vtime matches vtime which indicates that there's nothing in
-flight. Let's test for inequality instead.
+Enable the sampling check in kernel/events/core.c::perf_event_open(),
+which returns the more appropriate -EOPNOTSUPP.
 
-Signed-off-by: Tejun Heo <tj@kernel.org>
-Fixes: 7caa47151ab2 ("blkcg: implement blk-iocost")
-Cc: stable@vger.kernel.org # v5.4+
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+BEFORE:
+
+  $ sudo perf record -a -e instructions,l3_request_g1.caching_l3_cache_accesses true
+  Error:
+  The sys_perf_event_open() syscall returned with 22 (Invalid argument) for event (l3_request_g1.caching_l3_cache_accesses).
+  /bin/dmesg | grep -i perf may provide additional information.
+
+With nothing relevant in dmesg.
+
+AFTER:
+
+  $ sudo perf record -a -e instructions,l3_request_g1.caching_l3_cache_accesses true
+  Error:
+  l3_request_g1.caching_l3_cache_accesses: PMU Hardware doesn't support sampling/overflow-interrupts. Try 'perf stat'
+
+Fixes: c43ca5091a37 ("perf/x86/amd: Add support for AMD NB and L2I "uncore" counters")
+Signed-off-by: Kim Phillips <kim.phillips@amd.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Acked-by: Peter Zijlstra <peterz@infradead.org>
+Cc: stable@vger.kernel.org
+Link: https://lkml.kernel.org/r/20200311191323.13124-1-kim.phillips@amd.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- block/blk-iocost.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/events/amd/uncore.c |   17 +++++++----------
+ 1 file changed, 7 insertions(+), 10 deletions(-)
 
---- a/block/blk-iocost.c
-+++ b/block/blk-iocost.c
-@@ -1318,7 +1318,7 @@ static bool iocg_is_idle(struct ioc_gq *
- 		return false;
+--- a/arch/x86/events/amd/uncore.c
++++ b/arch/x86/events/amd/uncore.c
+@@ -190,15 +190,12 @@ static int amd_uncore_event_init(struct
  
- 	/* is something in flight? */
--	if (atomic64_read(&iocg->done_vtime) < atomic64_read(&iocg->vtime))
-+	if (atomic64_read(&iocg->done_vtime) != atomic64_read(&iocg->vtime))
- 		return false;
+ 	/*
+ 	 * NB and Last level cache counters (MSRs) are shared across all cores
+-	 * that share the same NB / Last level cache. Interrupts can be directed
+-	 * to a single target core, however, event counts generated by processes
+-	 * running on other cores cannot be masked out. So we do not support
+-	 * sampling and per-thread events.
++	 * that share the same NB / Last level cache.  On family 16h and below,
++	 * Interrupts can be directed to a single target core, however, event
++	 * counts generated by processes running on other cores cannot be masked
++	 * out. So we do not support sampling and per-thread events via
++	 * CAP_NO_INTERRUPT, and we do not enable counter overflow interrupts:
+ 	 */
+-	if (is_sampling_event(event) || event->attach_state & PERF_ATTACH_TASK)
+-		return -EINVAL;
+-
+-	/* and we do not enable counter overflow interrupts */
+ 	hwc->config = event->attr.config & AMD64_RAW_EVENT_MASK_NB;
+ 	hwc->idx = -1;
  
- 	return true;
+@@ -306,7 +303,7 @@ static struct pmu amd_nb_pmu = {
+ 	.start		= amd_uncore_start,
+ 	.stop		= amd_uncore_stop,
+ 	.read		= amd_uncore_read,
+-	.capabilities	= PERF_PMU_CAP_NO_EXCLUDE,
++	.capabilities	= PERF_PMU_CAP_NO_EXCLUDE | PERF_PMU_CAP_NO_INTERRUPT,
+ };
+ 
+ static struct pmu amd_llc_pmu = {
+@@ -317,7 +314,7 @@ static struct pmu amd_llc_pmu = {
+ 	.start		= amd_uncore_start,
+ 	.stop		= amd_uncore_stop,
+ 	.read		= amd_uncore_read,
+-	.capabilities	= PERF_PMU_CAP_NO_EXCLUDE,
++	.capabilities	= PERF_PMU_CAP_NO_EXCLUDE | PERF_PMU_CAP_NO_INTERRUPT,
+ };
+ 
+ static struct amd_uncore *amd_uncore_alloc(unsigned int cpu)
 
 
