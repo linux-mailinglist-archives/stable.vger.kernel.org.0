@@ -2,136 +2,138 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 53189188DFB
-	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 20:27:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B864D188E4B
+	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 20:46:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726452AbgCQT1e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Mar 2020 15:27:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39364 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726294AbgCQT1e (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Mar 2020 15:27:34 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 09E3120752;
-        Tue, 17 Mar 2020 19:27:32 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584473253;
-        bh=ud+J2Q3qt391n3hECs5XRQezNhWR0pVtJrpZj8YXNWI=;
-        h=Subject:To:From:Date:From;
-        b=eumqYbu6aw99cd3gNi1cWf/DGKk9JHBf8iMtiUYv9YKNP6irVKdDdNPOhipolHq3c
-         x5H+tLsMf1/oeMmkwjXgSlbkh53XPAxnC1vXcN5QZW7qBUTVDL1iSr8EybLksivU+F
-         vTXeoFcFj3nDhZSWGhpdITVhe2rRr3hoGLJ7uHp0=
-Subject: patch "USB: cdc-acm: fix rounding error in TIOCSSERIAL" added to usb-linus
-To:     anthony.mallet@laas.fr, gregkh@linuxfoundation.org,
-        stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 17 Mar 2020 20:27:23 +0100
-Message-ID: <158447324315227@kroah.com>
+        id S1726294AbgCQTqt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Mar 2020 15:46:49 -0400
+Received: from mail-eopbgr1400121.outbound.protection.outlook.com ([40.107.140.121]:52546
+        "EHLO JPN01-TY1-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1726555AbgCQTqt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Mar 2020 15:46:49 -0400
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=NstSNvJaEBYCmf0bv8SXGAMc88xeoVBWIcdEEbnhwGSTTHz4TYMhncDBE5NW8osPC3PUmXt8H4kICGlFYV55yN7UykkM3dcXmlQ/Ge66LhmGvIPn8+PaNFigTBGPe6id8o6h1qauZhVJQjcwoJr17tEVH2EzATfVC+SjUssOZsMZrXcChxlhVifY4fKxXcTfv1DC10R3c5CmdOHAb/A2m2XwOSFlqM68q/kK8HA+JGzEnqM7fk/fIExdj2Qgr0ifbyD/rGIcF2kaHG6lM4/Fe1DukncfqJHwf32lFPRkoIYDifQuR8xnAe7SCen9DTGvpnU4mNcuCi2qbifgaRhBmA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=ARlASKY5YlAXGKgvUSVcITt7nUO35fqVWnkYIxCw/VM=;
+ b=FHb2FyqR4a7/egT/Yxsiar9q5oCwr9uY7qOmJb3yF0O4Cntx+sVk6GhRG+F70WbNcqXQQ0yHDb2tenJ56zphtZaTbegcFOjVyr2J/LX8vnpLV5Pp0UvmEwATfmwjXbmKPI5Dy1i/44TlWu4NdQV1nV2CTRKFpO4jOabHtwcxp4REeLcXhpKDQPD6QJZyh/ztG9I5tz3N+Blh1Myn360eK1q3tNSzr1qg/bFYDLyAlpRKrr0RCGFPHz/tQDi9eqeCIQvQVpqHdtsntHMMMSYrhCvY+cUH6e1gvLJUHqFg5KZtcmaPz0sYH1IqVOSgm5fCU4akLtxXndPohLLrSTBiXg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=renesas.com; dmarc=pass action=none header.from=renesas.com;
+ dkim=pass header.d=renesas.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=renesasgroup.onmicrosoft.com; s=selector2-renesasgroup-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=ARlASKY5YlAXGKgvUSVcITt7nUO35fqVWnkYIxCw/VM=;
+ b=sjmWqFOnEVsQO6qynPInlNiWumHsLi+alwXLOqYXIWU9oaYftrXNEDIMlDkSLpuCfjHB5w73k33e2tCAfxydvlqcRcFcuU/z8nXAUQIcQbmA6L6yoXt9p2DJ2xsmtCHSW8PfZF9IYUUCDjIMUg1Ky5iFEU7p2PCz0Zy3alP99T4=
+Received: from TYAPR01MB2285.jpnprd01.prod.outlook.com (52.133.177.145) by
+ TYAPR01MB4733.jpnprd01.prod.outlook.com (20.179.174.150) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.2814.21; Tue, 17 Mar 2020 19:46:45 +0000
+Received: from TYAPR01MB2285.jpnprd01.prod.outlook.com
+ ([fe80::a882:860e:5745:25e1]) by TYAPR01MB2285.jpnprd01.prod.outlook.com
+ ([fe80::a882:860e:5745:25e1%6]) with mapi id 15.20.2814.021; Tue, 17 Mar 2020
+ 19:46:45 +0000
+From:   Chris Paterson <Chris.Paterson2@renesas.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+CC:     "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "torvalds@linux-foundation.org" <torvalds@linux-foundation.org>,
+        "akpm@linux-foundation.org" <akpm@linux-foundation.org>,
+        "linux@roeck-us.net" <linux@roeck-us.net>,
+        "shuah@kernel.org" <shuah@kernel.org>,
+        "patches@kernelci.org" <patches@kernelci.org>,
+        "ben.hutchings@codethink.co.uk" <ben.hutchings@codethink.co.uk>,
+        "lkft-triage@lists.linaro.org" <lkft-triage@lists.linaro.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: RE: [PATCH 4.19 00/86] 4.19.109-stable review
+Thread-Topic: [PATCH 4.19 00/86] 4.19.109-stable review
+Thread-Index: AQHV9t2MWw5vCoRaqkyWbNkUiDyKMahDMLzwgAAvTYCACdqSYA==
+Date:   Tue, 17 Mar 2020 19:46:45 +0000
+Message-ID: <TYAPR01MB22854206B2C28CB7FDFE5143B7F60@TYAPR01MB2285.jpnprd01.prod.outlook.com>
+References: <20200310124530.808338541@linuxfoundation.org>
+ <OSBPR01MB228067017410645AC3A78939B7FC0@OSBPR01MB2280.jpnprd01.prod.outlook.com>
+ <20200311131341.GB3858095@kroah.com>
+In-Reply-To: <20200311131341.GB3858095@kroah.com>
+Accept-Language: en-GB, en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+authentication-results: spf=none (sender IP is )
+ smtp.mailfrom=Chris.Paterson2@renesas.com; 
+x-originating-ip: [188.223.77.164]
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-ht: Tenant
+x-ms-office365-filtering-correlation-id: 42e15800-166d-48aa-a7f6-08d7caabec9d
+x-ms-traffictypediagnostic: TYAPR01MB4733:
+x-microsoft-antispam-prvs: <TYAPR01MB4733D69B3EA188ADAB120E74B7F60@TYAPR01MB4733.jpnprd01.prod.outlook.com>
+x-ms-oob-tlc-oobclassifiers: OLM:6790;
+x-forefront-prvs: 0345CFD558
+x-forefront-antispam-report: SFV:NSPM;SFS:(10019020)(4636009)(39860400002)(376002)(346002)(136003)(396003)(366004)(199004)(6506007)(5660300002)(7696005)(316002)(54906003)(26005)(71200400001)(4326008)(52536014)(186003)(966005)(478600001)(66946007)(81166006)(64756008)(66556008)(66476007)(66446008)(86362001)(55016002)(81156014)(8676002)(76116006)(9686003)(8936002)(7416002)(33656002)(6916009)(2906002);DIR:OUT;SFP:1102;SCL:1;SRVR:TYAPR01MB4733;H:TYAPR01MB2285.jpnprd01.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;A:1;
+received-spf: None (protection.outlook.com: renesas.com does not designate
+ permitted sender hosts)
+x-ms-exchange-senderadcheck: 1
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: FKu0B4MGktcPwiB8bRFIdPc5XBFWweohg+GJm4woVgx9Mk+HsURrgJ2Z56t198LRF/apRNCNU30Wgg7f1TAWNjMdSQjJ3sNzysLKJPLGSzUSRqr3/05dG7SCshyRZ/DmOjaOKgIfjzvrLw2GmC9zrVjC/asjofv1/ZasdZv++qysM2xnu5Kx2soTkLW+zH9w2mmhnW40A9g7HGibT+m4oVyHlEtJamTSb7lN9NImHIvWcZVWmJlSikasFRi83VMtGbO4i7hjiUD9RdQGyIxdf1NTP0zbSEb1scnKQ1LoAlCTBTWGvOJ/tayF5+yW3oujRU9+rVVr26ziFWzY1ZGn2LQVc2/21DJw4O66Afmr1x/SJvZTUsHQOmgy0gCGZLRrlPDVauORj8UCrClPqaDH/fDQa/WvWr/hMYqiAVPaLB9cC4P3DdWjB84bKmC2O9FPeoYSFtOjMN7/wtZ8faZKw3Oae7yghEk1ji/X+D0Alcfr8i93Ci3/m878OJlhQZbFBA9W7gj8Co8dnURNijvsTg==
+x-ms-exchange-antispam-messagedata: TrAK8r2Kinzjx8+vwM7P40xTgLY6Lkb3DudFpBBgDU/R5fjIYkfEAaemKoHeaLU7Rpl+z1XYzFGaz5dA8hhhQOkD/CQ0OGofwxMhTRAam2j8tqZALJFxvaRofSEw83c56k8tj1asT7QI5UfQEFZFkQ==
+x-ms-exchange-transport-forked: True
+Content-Type: text/plain; charset="Windows-1252"
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+X-OriginatorOrg: renesas.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 42e15800-166d-48aa-a7f6-08d7caabec9d
+X-MS-Exchange-CrossTenant-originalarrivaltime: 17 Mar 2020 19:46:45.2858
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 53d82571-da19-47e4-9cb4-625a166a4a2a
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: +RFGW2sEPJNqBjOzjKEDCMh66IWMUZ/fZelcf8+EEDWp3j9BkLhZHQP7XKAmxUeo075qJ/H4az7sPzTfcbC/HSpAMtmvYoMvQBgqx1m+Y9c=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: TYAPR01MB4733
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Hello,
 
-This is a note to let you know that I've just added the patch titled
+> From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> Sent: 11 March 2020 13:14
+>=20
+> On Wed, Mar 11, 2020 at 10:56:06AM +0000, Chris Paterson wrote:
+> > Hello Greg,
+> >
+> > > From: stable-owner@vger.kernel.org <stable-owner@vger.kernel.org> On
+> > > Behalf Of Greg Kroah-Hartman
+> > > Sent: 10 March 2020 12:44
+> > >
+> > > This is the start of the stable review cycle for the 4.19.109 release=
+.
+> > > There are 86 patches in this series, all will be posted as a response
+> > > to this one.  If anyone has any issues with these being applied, plea=
+se
+> > > let me know.
+> >
+> > No build/test issues seen for CIP configs for Linux 4.19.109-rc1
+> (624c124960e8).
+> > (Okay, there is a boot issue with the arm multi_v7_defconfig, but I'm p=
+retty
+> sure that's an issue my end that's been around for a couple of weeks now)
+> >
+> > Build/test pipeline/logs: https://gitlab.com/cip-project/cip-testing/li=
+nux-
+> stable-rc-ci/pipelines/124879010
+> > GitLab CI pipeline: https://gitlab.com/cip-project/cip-testing/linux-ci=
+p-
+> pipelines/-/blob/master/trees/linux-4.19.y.yml
+>=20
+> Thanks for testing 2 of these and letting me know.
+>=20
+> If you figure out the boot issue, please let us know.
 
-    USB: cdc-acm: fix rounding error in TIOCSSERIAL
+Sorted it. Just needed to get u-boot to load the DTB to a different address=
+ to stop it getting overwritten by the giant Kernel.
 
-to my usb git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
-in the usb-linus branch.
+Chris
 
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
-
-The patch will hopefully also be merged in Linus's tree for the
-next -rc kernel release.
-
-If you have any questions about this process, please let me know.
-
-
-From b401f8c4f492cbf74f3f59c9141e5be3071071bb Mon Sep 17 00:00:00 2001
-From: Anthony Mallet <anthony.mallet@laas.fr>
-Date: Thu, 12 Mar 2020 14:31:01 +0100
-Subject: USB: cdc-acm: fix rounding error in TIOCSSERIAL
-
-By default, tty_port_init() initializes those parameters to a multiple
-of HZ. For instance in line 69 of tty_port.c:
-   port->close_delay = (50 * HZ) / 100;
-https://github.com/torvalds/linux/blob/master/drivers/tty/tty_port.c#L69
-
-With e.g. CONFIG_HZ = 250 (as this is the case for Ubuntu 18.04
-linux-image-4.15.0-37-generic), the default setting for close_delay is
-thus 125.
-
-When ioctl(fd, TIOCGSERIAL, &s) is executed, the setting returned in
-user space is '12' (125/10). When ioctl(fd, TIOCSSERIAL, &s) is then
-executed with the same setting '12', the value is interpreted as '120'
-which is different from the current setting and a EPERM error may be
-raised by set_serial_info() if !CAP_SYS_ADMIN.
-https://github.com/torvalds/linux/blob/master/drivers/usb/class/cdc-acm.c#L919
-
-Fixes: ba2d8ce9db0a6 ("cdc-acm: implement TIOCSSERIAL to avoid blocking close(2)")
-Signed-off-by: Anthony Mallet <anthony.mallet@laas.fr>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200312133101.7096-2-anthony.mallet@laas.fr
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/usb/class/cdc-acm.c | 25 ++++++++++++++++---------
- 1 file changed, 16 insertions(+), 9 deletions(-)
-
-diff --git a/drivers/usb/class/cdc-acm.c b/drivers/usb/class/cdc-acm.c
-index da619176deca..47f09a6ce7bd 100644
---- a/drivers/usb/class/cdc-acm.c
-+++ b/drivers/usb/class/cdc-acm.c
-@@ -907,6 +907,7 @@ static int set_serial_info(struct tty_struct *tty, struct serial_struct *ss)
- {
- 	struct acm *acm = tty->driver_data;
- 	unsigned int closing_wait, close_delay;
-+	unsigned int old_closing_wait, old_close_delay;
- 	int retval = 0;
- 
- 	close_delay = msecs_to_jiffies(ss->close_delay * 10);
-@@ -914,18 +915,24 @@ static int set_serial_info(struct tty_struct *tty, struct serial_struct *ss)
- 			ASYNC_CLOSING_WAIT_NONE :
- 			msecs_to_jiffies(ss->closing_wait * 10);
- 
-+	/* we must redo the rounding here, so that the values match */
-+	old_close_delay	= jiffies_to_msecs(acm->port.close_delay) / 10;
-+	old_closing_wait = acm->port.closing_wait == ASYNC_CLOSING_WAIT_NONE ?
-+				ASYNC_CLOSING_WAIT_NONE :
-+				jiffies_to_msecs(acm->port.closing_wait) / 10;
-+
- 	mutex_lock(&acm->port.mutex);
- 
--	if (!capable(CAP_SYS_ADMIN)) {
--		if ((close_delay != acm->port.close_delay) ||
--		    (closing_wait != acm->port.closing_wait))
-+	if ((ss->close_delay != old_close_delay) ||
-+            (ss->closing_wait != old_closing_wait)) {
-+		if (!capable(CAP_SYS_ADMIN))
- 			retval = -EPERM;
--		else
--			retval = -EOPNOTSUPP;
--	} else {
--		acm->port.close_delay  = close_delay;
--		acm->port.closing_wait = closing_wait;
--	}
-+		else {
-+			acm->port.close_delay  = close_delay;
-+			acm->port.closing_wait = closing_wait;
-+		}
-+	} else
-+		retval = -EOPNOTSUPP;
- 
- 	mutex_unlock(&acm->port.mutex);
- 	return retval;
--- 
-2.25.1
-
-
+>=20
+> greg k-h
