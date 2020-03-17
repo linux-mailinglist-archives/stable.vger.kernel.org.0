@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4079D187F77
-	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:01:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1906A187F79
+	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:02:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727387AbgCQLBm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Mar 2020 07:01:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41126 "EHLO mail.kernel.org"
+        id S1727802AbgCQLBr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Mar 2020 07:01:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41196 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727523AbgCQLBj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Mar 2020 07:01:39 -0400
+        id S1727210AbgCQLBm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Mar 2020 07:01:42 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 546A320714;
-        Tue, 17 Mar 2020 11:01:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CE400205ED;
+        Tue, 17 Mar 2020 11:01:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584442898;
-        bh=HZyQ0SGrjfwxWlJr+71n793Z8r4Ih9BW1zq3GkwkgiA=;
+        s=default; t=1584442901;
+        bh=cC70KS85yI1F/w1kYhsiBQvdqBIOH83O0s750HFOJOM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Bgt1Pcho08eE/xTe7/2lPbaBmLnK3B1s9M6zKhzJR15xLAG5UJNwy+4BbT8m8csAI
-         FbpdBXkEtyqmVYEN4RPg3SO+biD4yB+dWfo3LF3McWjR7IwO07HdlGQSPTD4vlfZLN
-         H/Af0wwpznBMGHicRsPsZgKRR883AvgQO86RuM9Y=
+        b=u2tPdI23B51zhEz0V1yrzqL8r9GsWLaTcFtkPz1jt2BSmtzOlxHUa5xhYruagzwrc
+         QttA/7/v6LKq2sShr7gqFW5LAvcMbYDRZP6ltAPoHGGXXFODQfYgZU7BxwuruzQJwn
+         yo5AIXJG3U01ZDzOQTmL3DWeGnYjtj7O0uEUj5Jo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        syzbot <syzkaller@googlegroups.com>,
+        stable@vger.kernel.org,
+        Michael Schmidt <michael.schmidt@eti.uni-siegen.de>,
+        Vinicius Costa Gomes <vinicius.gomes@intel.com>,
+        Andre Guedes <andre.guedes@intel.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 028/123] slip: make slhc_compress() more robust against malicious packets
-Date:   Tue, 17 Mar 2020 11:54:15 +0100
-Message-Id: <20200317103310.702472626@linuxfoundation.org>
+Subject: [PATCH 5.4 029/123] taprio: Fix sending packets without dequeueing them
+Date:   Tue, 17 Mar 2020 11:54:16 +0100
+Message-Id: <20200317103310.831054296@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200317103307.343627747@linuxfoundation.org>
 References: <20200317103307.343627747@linuxfoundation.org>
@@ -44,119 +46,185 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Vinicius Costa Gomes <vinicius.gomes@intel.com>
 
-[ Upstream commit 110a40dfb708fe940a3f3704d470e431c368d256 ]
+[ Upstream commit b09fe70ef520e011ba4a64f4b93f948a8f14717b ]
 
-Before accessing various fields in IPV4 network header
-and TCP header, make sure the packet :
+There was a bug that was causing packets to be sent to the driver
+without first calling dequeue() on the "child" qdisc. And the KASAN
+report below shows that sending a packet without calling dequeue()
+leads to bad results.
 
-- Has IP version 4 (ip->version == 4)
-- Has not a silly network length (ip->ihl >= 5)
-- Is big enough to hold network and transport headers
-- Has not a silly TCP header size (th->doff >= sizeof(struct tcphdr) / 4)
+The problem is that when checking the last qdisc "child" we do not set
+the returned skb to NULL, which can cause it to be sent to the driver,
+and so after the skb is sent, it may be freed, and in some situations a
+reference to it may still be in the child qdisc, because it was never
+dequeued.
 
-syzbot reported :
+The crash log looks like this:
 
-BUG: KMSAN: uninit-value in slhc_compress+0x5b9/0x2e60 drivers/net/slip/slhc.c:270
-CPU: 0 PID: 11728 Comm: syz-executor231 Not tainted 5.6.0-rc2-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-Call Trace:
- __dump_stack lib/dump_stack.c:77 [inline]
- dump_stack+0x1c9/0x220 lib/dump_stack.c:118
- kmsan_report+0xf7/0x1e0 mm/kmsan/kmsan_report.c:118
- __msan_warning+0x58/0xa0 mm/kmsan/kmsan_instr.c:215
- slhc_compress+0x5b9/0x2e60 drivers/net/slip/slhc.c:270
- ppp_send_frame drivers/net/ppp/ppp_generic.c:1637 [inline]
- __ppp_xmit_process+0x1902/0x2970 drivers/net/ppp/ppp_generic.c:1495
- ppp_xmit_process+0x147/0x2f0 drivers/net/ppp/ppp_generic.c:1516
- ppp_write+0x6bb/0x790 drivers/net/ppp/ppp_generic.c:512
- do_loop_readv_writev fs/read_write.c:717 [inline]
- do_iter_write+0x812/0xdc0 fs/read_write.c:1000
- compat_writev+0x2df/0x5a0 fs/read_write.c:1351
- do_compat_pwritev64 fs/read_write.c:1400 [inline]
- __do_compat_sys_pwritev fs/read_write.c:1420 [inline]
- __se_compat_sys_pwritev fs/read_write.c:1414 [inline]
- __ia32_compat_sys_pwritev+0x349/0x3f0 fs/read_write.c:1414
- do_syscall_32_irqs_on arch/x86/entry/common.c:339 [inline]
- do_fast_syscall_32+0x3c7/0x6e0 arch/x86/entry/common.c:410
- entry_SYSENTER_compat+0x68/0x77 arch/x86/entry/entry_64_compat.S:139
-RIP: 0023:0xf7f7cd99
-Code: 90 e8 0b 00 00 00 f3 90 0f ae e8 eb f9 8d 74 26 00 89 3c 24 c3 90 90 90 90 90 90 90 90 90 90 90 90 51 52 55 89 e5 0f 34 cd 80 <5d> 5a 59 c3 90 90 90 90 eb 0d 90 90 90 90 90 90 90 90 90 90 90 90
-RSP: 002b:00000000ffdb84ac EFLAGS: 00000217 ORIG_RAX: 000000000000014e
-RAX: ffffffffffffffda RBX: 0000000000000003 RCX: 00000000200001c0
-RDX: 0000000000000001 RSI: 0000000000000000 RDI: 0000000000000003
-RBP: 0000000040047459 R08: 0000000000000000 R09: 0000000000000000
-R10: 0000000000000000 R11: 0000000000000000 R12: 0000000000000000
-R13: 0000000000000000 R14: 0000000000000000 R15: 0000000000000000
+[   19.937538] ==================================================================
+[   19.938300] BUG: KASAN: use-after-free in taprio_dequeue_soft+0x620/0x780
+[   19.938968] Read of size 4 at addr ffff8881128628cc by task swapper/1/0
+[   19.939612]
+[   19.939772] CPU: 1 PID: 0 Comm: swapper/1 Not tainted 5.6.0-rc3+ #97
+[   19.940397] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.12.0-59-gc9ba5276e321-prebuilt.qe4
+[   19.941523] Call Trace:
+[   19.941774]  <IRQ>
+[   19.941985]  dump_stack+0x97/0xe0
+[   19.942323]  print_address_description.constprop.0+0x3b/0x60
+[   19.942884]  ? taprio_dequeue_soft+0x620/0x780
+[   19.943325]  ? taprio_dequeue_soft+0x620/0x780
+[   19.943767]  __kasan_report.cold+0x1a/0x32
+[   19.944173]  ? taprio_dequeue_soft+0x620/0x780
+[   19.944612]  kasan_report+0xe/0x20
+[   19.944954]  taprio_dequeue_soft+0x620/0x780
+[   19.945380]  __qdisc_run+0x164/0x18d0
+[   19.945749]  net_tx_action+0x2c4/0x730
+[   19.946124]  __do_softirq+0x268/0x7bc
+[   19.946491]  irq_exit+0x17d/0x1b0
+[   19.946824]  smp_apic_timer_interrupt+0xeb/0x380
+[   19.947280]  apic_timer_interrupt+0xf/0x20
+[   19.947687]  </IRQ>
+[   19.947912] RIP: 0010:default_idle+0x2d/0x2d0
+[   19.948345] Code: 00 00 41 56 41 55 65 44 8b 2d 3f 8d 7c 7c 41 54 55 53 0f 1f 44 00 00 e8 b1 b2 c5 fd e9 07 00 3
+[   19.950166] RSP: 0018:ffff88811a3efda0 EFLAGS: 00000282 ORIG_RAX: ffffffffffffff13
+[   19.950909] RAX: 0000000080000000 RBX: ffff88811a3a9600 RCX: ffffffff8385327e
+[   19.951608] RDX: 1ffff110234752c0 RSI: 0000000000000000 RDI: ffffffff8385262f
+[   19.952309] RBP: ffffed10234752c0 R08: 0000000000000001 R09: ffffed10234752c1
+[   19.953009] R10: ffffed10234752c0 R11: ffff88811a3a9607 R12: 0000000000000001
+[   19.953709] R13: 0000000000000001 R14: 0000000000000000 R15: 0000000000000000
+[   19.954408]  ? default_idle_call+0x2e/0x70
+[   19.954816]  ? default_idle+0x1f/0x2d0
+[   19.955192]  default_idle_call+0x5e/0x70
+[   19.955584]  do_idle+0x3d4/0x500
+[   19.955909]  ? arch_cpu_idle_exit+0x40/0x40
+[   19.956325]  ? _raw_spin_unlock_irqrestore+0x23/0x30
+[   19.956829]  ? trace_hardirqs_on+0x30/0x160
+[   19.957242]  cpu_startup_entry+0x19/0x20
+[   19.957633]  start_secondary+0x2a6/0x380
+[   19.958026]  ? set_cpu_sibling_map+0x18b0/0x18b0
+[   19.958486]  secondary_startup_64+0xa4/0xb0
+[   19.958921]
+[   19.959078] Allocated by task 33:
+[   19.959412]  save_stack+0x1b/0x80
+[   19.959747]  __kasan_kmalloc.constprop.0+0xc2/0xd0
+[   19.960222]  kmem_cache_alloc+0xe4/0x230
+[   19.960617]  __alloc_skb+0x91/0x510
+[   19.960967]  ndisc_alloc_skb+0x133/0x330
+[   19.961358]  ndisc_send_ns+0x134/0x810
+[   19.961735]  addrconf_dad_work+0xad5/0xf80
+[   19.962144]  process_one_work+0x78e/0x13a0
+[   19.962551]  worker_thread+0x8f/0xfa0
+[   19.962919]  kthread+0x2ba/0x3b0
+[   19.963242]  ret_from_fork+0x3a/0x50
+[   19.963596]
+[   19.963753] Freed by task 33:
+[   19.964055]  save_stack+0x1b/0x80
+[   19.964386]  __kasan_slab_free+0x12f/0x180
+[   19.964830]  kmem_cache_free+0x80/0x290
+[   19.965231]  ip6_mc_input+0x38a/0x4d0
+[   19.965617]  ipv6_rcv+0x1a4/0x1d0
+[   19.965948]  __netif_receive_skb_one_core+0xf2/0x180
+[   19.966437]  netif_receive_skb+0x8c/0x3c0
+[   19.966846]  br_handle_frame_finish+0x779/0x1310
+[   19.967302]  br_handle_frame+0x42a/0x830
+[   19.967694]  __netif_receive_skb_core+0xf0e/0x2a90
+[   19.968167]  __netif_receive_skb_one_core+0x96/0x180
+[   19.968658]  process_backlog+0x198/0x650
+[   19.969047]  net_rx_action+0x2fa/0xaa0
+[   19.969420]  __do_softirq+0x268/0x7bc
+[   19.969785]
+[   19.969940] The buggy address belongs to the object at ffff888112862840
+[   19.969940]  which belongs to the cache skbuff_head_cache of size 224
+[   19.971202] The buggy address is located 140 bytes inside of
+[   19.971202]  224-byte region [ffff888112862840, ffff888112862920)
+[   19.972344] The buggy address belongs to the page:
+[   19.972820] page:ffffea00044a1800 refcount:1 mapcount:0 mapping:ffff88811a2bd1c0 index:0xffff8881128625c0 compo0
+[   19.973930] flags: 0x8000000000010200(slab|head)
+[   19.974388] raw: 8000000000010200 ffff88811a2ed650 ffff88811a2ed650 ffff88811a2bd1c0
+[   19.975151] raw: ffff8881128625c0 0000000000190013 00000001ffffffff 0000000000000000
+[   19.975915] page dumped because: kasan: bad access detected
+[   19.976461] page_owner tracks the page as allocated
+[   19.976946] page last allocated via order 2, migratetype Unmovable, gfp_mask 0xd20c0(__GFP_IO|__GFP_FS|__GFP_NO)
+[   19.978332]  prep_new_page+0x24b/0x330
+[   19.978707]  get_page_from_freelist+0x2057/0x2c90
+[   19.979170]  __alloc_pages_nodemask+0x218/0x590
+[   19.979619]  new_slab+0x9d/0x300
+[   19.979948]  ___slab_alloc.constprop.0+0x2f9/0x6f0
+[   19.980421]  __slab_alloc.constprop.0+0x30/0x60
+[   19.980870]  kmem_cache_alloc+0x201/0x230
+[   19.981269]  __alloc_skb+0x91/0x510
+[   19.981620]  alloc_skb_with_frags+0x78/0x4a0
+[   19.982043]  sock_alloc_send_pskb+0x5eb/0x750
+[   19.982476]  unix_stream_sendmsg+0x399/0x7f0
+[   19.982904]  sock_sendmsg+0xe2/0x110
+[   19.983262]  ____sys_sendmsg+0x4de/0x6d0
+[   19.983660]  ___sys_sendmsg+0xe4/0x160
+[   19.984032]  __sys_sendmsg+0xab/0x130
+[   19.984396]  do_syscall_64+0xe7/0xae0
+[   19.984761] page last free stack trace:
+[   19.985142]  __free_pages_ok+0x432/0xbc0
+[   19.985533]  qlist_free_all+0x56/0xc0
+[   19.985907]  quarantine_reduce+0x149/0x170
+[   19.986315]  __kasan_kmalloc.constprop.0+0x9e/0xd0
+[   19.986791]  kmem_cache_alloc+0xe4/0x230
+[   19.987182]  prepare_creds+0x24/0x440
+[   19.987548]  do_faccessat+0x80/0x590
+[   19.987906]  do_syscall_64+0xe7/0xae0
+[   19.988276]  entry_SYSCALL_64_after_hwframe+0x49/0xbe
+[   19.988775]
+[   19.988930] Memory state around the buggy address:
+[   19.989402]  ffff888112862780: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+[   19.990111]  ffff888112862800: fc fc fc fc fc fc fc fc fb fb fb fb fb fb fb fb
+[   19.990822] >ffff888112862880: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+[   19.991529]                                               ^
+[   19.992081]  ffff888112862900: fb fb fb fb fc fc fc fc fc fc fc fc fc fc fc fc
+[   19.992796]  ffff888112862980: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
 
-Uninit was created at:
- kmsan_save_stack_with_flags mm/kmsan/kmsan.c:144 [inline]
- kmsan_internal_poison_shadow+0x66/0xd0 mm/kmsan/kmsan.c:127
- kmsan_slab_alloc+0x8a/0xe0 mm/kmsan/kmsan_hooks.c:82
- slab_alloc_node mm/slub.c:2793 [inline]
- __kmalloc_node_track_caller+0xb40/0x1200 mm/slub.c:4401
- __kmalloc_reserve net/core/skbuff.c:142 [inline]
- __alloc_skb+0x2fd/0xac0 net/core/skbuff.c:210
- alloc_skb include/linux/skbuff.h:1051 [inline]
- ppp_write+0x115/0x790 drivers/net/ppp/ppp_generic.c:500
- do_loop_readv_writev fs/read_write.c:717 [inline]
- do_iter_write+0x812/0xdc0 fs/read_write.c:1000
- compat_writev+0x2df/0x5a0 fs/read_write.c:1351
- do_compat_pwritev64 fs/read_write.c:1400 [inline]
- __do_compat_sys_pwritev fs/read_write.c:1420 [inline]
- __se_compat_sys_pwritev fs/read_write.c:1414 [inline]
- __ia32_compat_sys_pwritev+0x349/0x3f0 fs/read_write.c:1414
- do_syscall_32_irqs_on arch/x86/entry/common.c:339 [inline]
- do_fast_syscall_32+0x3c7/0x6e0 arch/x86/entry/common.c:410
- entry_SYSENTER_compat+0x68/0x77 arch/x86/entry/entry_64_compat.S:139
-
-Fixes: b5451d783ade ("slip: Move the SLIP drivers")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
+Fixes: 5a781ccbd19e ("tc: Add support for configuring the taprio scheduler")
+Reported-by: Michael Schmidt <michael.schmidt@eti.uni-siegen.de>
+Signed-off-by: Vinicius Costa Gomes <vinicius.gomes@intel.com>
+Acked-by: Andre Guedes <andre.guedes@intel.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/slip/slhc.c |   14 ++++++++++----
- 1 file changed, 10 insertions(+), 4 deletions(-)
+ net/sched/sch_taprio.c |   12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
---- a/drivers/net/slip/slhc.c
-+++ b/drivers/net/slip/slhc.c
-@@ -232,7 +232,7 @@ slhc_compress(struct slcompress *comp, u
- 	struct cstate *cs = lcs->next;
- 	unsigned long deltaS, deltaA;
- 	short changes = 0;
--	int hlen;
-+	int nlen, hlen;
- 	unsigned char new_seq[16];
- 	unsigned char *cp = new_seq;
- 	struct iphdr *ip;
-@@ -248,6 +248,8 @@ slhc_compress(struct slcompress *comp, u
- 		return isize;
+--- a/net/sched/sch_taprio.c
++++ b/net/sched/sch_taprio.c
+@@ -564,8 +564,10 @@ static struct sk_buff *taprio_dequeue_so
+ 		prio = skb->priority;
+ 		tc = netdev_get_prio_tc_map(dev, prio);
  
- 	ip = (struct iphdr *) icp;
-+	if (ip->version != 4 || ip->ihl < 5)
-+		return isize;
+-		if (!(gate_mask & BIT(tc)))
++		if (!(gate_mask & BIT(tc))) {
++			skb = NULL;
+ 			continue;
++		}
  
- 	/* Bail if this packet isn't TCP, or is an IP fragment */
- 	if (ip->protocol != IPPROTO_TCP || (ntohs(ip->frag_off) & 0x3fff)) {
-@@ -258,10 +260,14 @@ slhc_compress(struct slcompress *comp, u
- 			comp->sls_o_tcp++;
- 		return isize;
- 	}
--	/* Extract TCP header */
-+	nlen = ip->ihl * 4;
-+	if (isize < nlen + sizeof(*th))
-+		return isize;
+ 		len = qdisc_pkt_len(skb);
+ 		guard = ktime_add_ns(taprio_get_time(q),
+@@ -575,13 +577,17 @@ static struct sk_buff *taprio_dequeue_so
+ 		 * guard band ...
+ 		 */
+ 		if (gate_mask != TAPRIO_ALL_GATES_OPEN &&
+-		    ktime_after(guard, entry->close_time))
++		    ktime_after(guard, entry->close_time)) {
++			skb = NULL;
+ 			continue;
++		}
  
--	th = (struct tcphdr *)(((unsigned char *)ip) + ip->ihl*4);
--	hlen = ip->ihl*4 + th->doff*4;
-+	th = (struct tcphdr *)(icp + nlen);
-+	if (th->doff < sizeof(struct tcphdr) / 4)
-+		return isize;
-+	hlen = nlen + th->doff * 4;
+ 		/* ... and no budget. */
+ 		if (gate_mask != TAPRIO_ALL_GATES_OPEN &&
+-		    atomic_sub_return(len, &entry->budget) < 0)
++		    atomic_sub_return(len, &entry->budget) < 0) {
++			skb = NULL;
+ 			continue;
++		}
  
- 	/*  Bail if the TCP packet isn't `compressible' (i.e., ACK isn't set or
- 	 *  some other control bit is set). Also uncompressible if
+ 		skb = child->ops->dequeue(child);
+ 		if (unlikely(!skb))
 
 
