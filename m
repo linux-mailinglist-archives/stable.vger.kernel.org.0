@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B075E18817D
-	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:20:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4CADA18811D
+	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:16:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727744AbgCQLDo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Mar 2020 07:03:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43730 "EHLO mail.kernel.org"
+        id S1727978AbgCQLKy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Mar 2020 07:10:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53948 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728145AbgCQLDl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Mar 2020 07:03:41 -0400
+        id S1726777AbgCQLKx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Mar 2020 07:10:53 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9FBB620719;
-        Tue, 17 Mar 2020 11:03:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 58427206EC;
+        Tue, 17 Mar 2020 11:10:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584443020;
-        bh=xeDGOU2FzIkIfmHeFajp1/GXc4arIXOD6z80Adr3VcY=;
+        s=default; t=1584443452;
+        bh=a0myFDPreQY3Eoklm/Sp6rJ31Mo5FJA6k7BKDHfVpg0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XWH3rJ6coFEf8i9Ao7qbZt6Pssn4Hg/pmz/9KR2M+EgADSz150daS5svIbm4zIy4v
-         jC72pDyuohMzRpGjE/51zHJV08C7bAdFbIaoY5quonijgyHV81eLNfGkLjw6eqleyN
-         Mg3WQwezvg9kVlKbtQWpzv9tWyfHlhc5fsBEBmfU=
+        b=t8UQV/qAZrghhGa453zqy0pKkZ0RL0W84ESqBHYcsSfXx/40+1A8V/bB//0lUxp+U
+         zwTYgAdV2UaPAp/pjH0QCJHk5jGyLnS3ipaubihEXwHDwT66+SQRd8ZdfNy0lldqO8
+         rOgRQO4c0DYfPySPQLd9F9huNsgZhUQTfNqYbP0Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vasily Averin <vvs@virtuozzo.com>,
-        Pablo Neira Ayuso <pablo@netfilter.org>
-Subject: [PATCH 5.4 067/123] netfilter: x_tables: xt_mttg_seq_next should increase position index
-Date:   Tue, 17 Mar 2020 11:54:54 +0100
-Message-Id: <20200317103314.396389019@linuxfoundation.org>
+        stable@vger.kernel.org, Chris Wilson <chris@chris-wilson.co.uk>,
+        Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
+        Tvrtko Ursulin <tvrtko.ursulin@intel.com>,
+        Jani Nikula <jani.nikula@intel.com>
+Subject: [PATCH 5.5 085/151] drm/i915: Actually emit the await_start
+Date:   Tue, 17 Mar 2020 11:54:55 +0100
+Message-Id: <20200317103332.492957036@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200317103307.343627747@linuxfoundation.org>
-References: <20200317103307.343627747@linuxfoundation.org>
+In-Reply-To: <20200317103326.593639086@linuxfoundation.org>
+References: <20200317103326.593639086@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,69 +45,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasily Averin <vvs@virtuozzo.com>
+From: Chris Wilson <chris@chris-wilson.co.uk>
 
-commit ee84f19cbbe9cf7cba2958acb03163fed3ecbb0f upstream.
+commit c67b35d970ed3391069c21f3071a26f687399ab2 upstream.
 
-If .next function does not change position index,
-following .show function will repeat output related
-to current position index.
+Fix the inverted test to emit the wait on the end of the previous
+request if we /haven't/ already.
 
-Without patch:
- # dd if=/proc/net/ip_tables_matches  # original file output
- conntrack
- conntrack
- conntrack
- recent
- recent
- icmp
- udplite
- udp
- tcp
- 0+1 records in
- 0+1 records out
- 65 bytes copied, 5.4074e-05 s, 1.2 MB/s
-
- # dd if=/proc/net/ip_tables_matches bs=62 skip=1
- dd: /proc/net/ip_tables_matches: cannot skip to specified offset
- cp   <<< end of  last line
- tcp  <<< and then unexpected whole last line once again
- 0+1 records in
- 0+1 records out
- 7 bytes copied, 0.000102447 s, 68.3 kB/s
-
-Cc: stable@vger.kernel.org
-Fixes: 1f4aace60b0e ("fs/seq_file.c: simplify seq_file iteration code ...")
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=206283
-Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Fixes: 6a79d848403d ("drm/i915: Lock signaler timeline while navigating")
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>
+Cc: <stable@vger.kernel.org> # v5.5+
+Reviewed-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200305104210.2619967-1-chris@chris-wilson.co.uk
+(cherry picked from commit 07e9c59d63df6a1c44c1975c01827ba18b69270a)
+Signed-off-by: Jani Nikula <jani.nikula@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/netfilter/x_tables.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/i915/i915_request.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/netfilter/x_tables.c
-+++ b/net/netfilter/x_tables.c
-@@ -1551,6 +1551,9 @@ static void *xt_mttg_seq_next(struct seq
- 	uint8_t nfproto = (unsigned long)PDE_DATA(file_inode(seq->file));
- 	struct nf_mttg_trav *trav = seq->private;
+--- a/drivers/gpu/drm/i915/i915_request.c
++++ b/drivers/gpu/drm/i915/i915_request.c
+@@ -785,7 +785,7 @@ i915_request_await_start(struct i915_req
+ 		return PTR_ERR_OR_ZERO(fence);
  
-+	if (ppos != NULL)
-+		++(*ppos);
-+
- 	switch (trav->class) {
- 	case MTTG_TRAV_INIT:
- 		trav->class = MTTG_TRAV_NFP_UNSPEC;
-@@ -1576,9 +1579,6 @@ static void *xt_mttg_seq_next(struct seq
- 	default:
- 		return NULL;
- 	}
--
--	if (ppos != NULL)
--		++*ppos;
- 	return trav;
- }
- 
+ 	err = 0;
+-	if (intel_timeline_sync_is_later(i915_request_timeline(rq), fence))
++	if (!intel_timeline_sync_is_later(i915_request_timeline(rq), fence))
+ 		err = i915_sw_fence_await_dma_fence(&rq->submit,
+ 						    fence, 0,
+ 						    I915_FENCE_GFP);
 
 
