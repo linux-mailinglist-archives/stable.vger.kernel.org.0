@@ -2,152 +2,103 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D31AC1879BA
-	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 07:35:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C396B1879E2
+	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 07:55:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725769AbgCQGfi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Mar 2020 02:35:38 -0400
-Received: from [37.49.224.149] ([37.49.224.149]:54639 "EHLO
-        adcoconstruction.com" rhost-flags-FAIL-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1725536AbgCQGfi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 17 Mar 2020 02:35:38 -0400
-X-Greylist: delayed 89979 seconds by postgrey-1.27 at vger.kernel.org; Tue, 17 Mar 2020 02:35:38 EDT
-From:   "Christopher Hills" <chris@adcoconstruction.com>
-To:     stable@vger.kernel.org
-Subject: RE: NEW ORDER/DOCUMENT_0554312
-Date:   17 Mar 2020 07:35:37 +0100
-Message-ID: <20200317073537.39C153709DF8054C@adcoconstruction.com>
-MIME-Version: 1.0
-Content-Type: multipart/mixed;
-        boundary="----=_NextPart_000_0012_6AFD968A.4666240C"
+        id S1725862AbgCQGy7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Mar 2020 02:54:59 -0400
+Received: from mail-pl1-f201.google.com ([209.85.214.201]:32943 "EHLO
+        mail-pl1-f201.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725794AbgCQGy7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 17 Mar 2020 02:54:59 -0400
+Received: by mail-pl1-f201.google.com with SMTP id b10so11918805pls.0
+        for <stable@vger.kernel.org>; Mon, 16 Mar 2020 23:54:58 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=date:message-id:mime-version:subject:from:to:cc;
+        bh=cF0mn8RFp/NzGOPpgquFoVLhCbRSN6dQrHYHqFzbKxU=;
+        b=qLUq4/RNPb7PhrgnudeQu/ls8asTv9i4YDOfr3NggSvcNYi4UxSfYMit8S1WUgfRKZ
+         hZbbZQPFLrVYc4w+L0UZzkonnR+9Rm8+cgeDoLy//zUl/eEx1tyOtsRTwwk0IC1GmMk5
+         7CS7xqEvKVY1hdXlUYzYVEQFG7dy5X2lR4whv4tssypZlespqwDBYf2ykgBrHzGRsoWw
+         KSyWF/LIwFFvygdQi7hxsX3du+o+gHjUR3p65oe+tr2Bc5ohTBv5n7uD892DON5VSkoX
+         pinFPh3FrUqi+8QXt/ZEbxdi0FQwUvd8TPga7GUwJMefUnNRxfnPnWu3NX9YAlqNlHUu
+         10hg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:message-id:mime-version:subject:from:to:cc;
+        bh=cF0mn8RFp/NzGOPpgquFoVLhCbRSN6dQrHYHqFzbKxU=;
+        b=j1sFeYLV6tzOx5w+xsHsnOv21xgSEOLIoMroHSuEN0MWbRSXJFMX9Ylt1mY0Rsmtsi
+         8ZPtJP4nk+oCfCVP0nEq12am/VDGtqpGi29+zCl6ycvyWiuQZroAfFM94WXDRgsuZsmX
+         gDRjN97Fc1pGqfV1fMD1lRpNPqure7VYzdIyGzO5jbtieWaM7CqCrHXdP84UQpDl+S5h
+         WoQU9fJr67bgtyAGGKNvZtBivpWfFBQBFZd4P08SVgnO5F76IVfSMlfpFPWBpBVXtr+a
+         m6B1MpJxQrgrdYpK+7bg7AMbRtpDhtKdw2Q33ENwpCsKC8eqwOgVkiIJFJjktabes5LA
+         BSug==
+X-Gm-Message-State: ANhLgQ1e0U3IZhvck0ePdvW6dBth1DupsKDzGgbfOTBM4q83Lwumm/Xy
+        CgbQmpwaueC/Z0XXyEaMBHI4aWWRmhmI5FXUKgTpNdN4p0fyJFMBsPL/8kAtAnPa09mGzGyD0Dc
+        9XC8n23+8AwoTvKLM8YstUmgNSkxZy7DxLbYCifaEno0O92pWSkx/v9GGHWXJQwRaARXnuw==
+X-Google-Smtp-Source: ADFU+vt2Zvqf1px/Dmb35lmQnUB5JpW8RvY7l95YZat6XfupQdXF2UMeOYFTa4BNyZ32vltscuYTU3kAv+PeRtc=
+X-Received: by 2002:a63:8342:: with SMTP id h63mr3660917pge.141.1584428098211;
+ Mon, 16 Mar 2020 23:54:58 -0700 (PDT)
+Date:   Mon, 16 Mar 2020 23:54:46 -0700
+Message-Id: <20200317065452.236670-1-saravanak@google.com>
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.25.1.481.gfbce0eb801-goog
+Subject: [PATCH v1 0/6] Fix device links functional breakage in 4.19.99
+From:   Saravana Kannan <saravanak@google.com>
+To:     stable@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        "Rafael J. Wysocki" <rafael@kernel.org>,
+        Len Brown <len.brown@intel.com>, Pavel Machek <pavel@ucw.cz>,
+        Matthias Brugger <matthias.bgg@gmail.com>
+Cc:     Saravana Kannan <saravanak@google.com>, linux-doc@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-pm@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-mediatek@lists.infradead.org, kernel-team@android.com
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is a multi-part message in MIME format.
+As mentioned in an earlier email thread [1], 4.19.99 broke the ability
+to create stateful and stateless device links between the same set of
+devices when it pulled in a valid bug fix [2]. While the fix was valid,
+it removes a functionality that was present before the bug fix.
 
-------=_NextPart_000_0012_6AFD968A.4666240C
-Content-Type: text/plain;
-	charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
+This patch series attempts to fix that by pulling in more patches from
+upstream. I've just done compilation testing so far. But wanted to send
+out a v1 to see if this patch list was acceptable before I fixed up the
+commit text format to match what's needed for stable mailing list.
 
-Dear Sir/Madam,
+Some of the patches are new functionality, but for a first pass, it was
+easier to pull these in than try and fix the conflicts. If these patches
+are okay to pull into stable, then all I need to do is fix the commit
+text.
 
-Please confirm if this requisition will be ready by 3rd April
+Thanks,
+Saravana
 
-and i will send you the complete details.
-
-Kind Regards.
-
-Christopher Hills
-Purchase Manager
-Adco Constructions Pty. Ltd.
-
+[1] - https://lore.kernel.org/stable/CAGETcx-0dKRWo=tTVcfJQhQUsMtX_LtL6yvDkb3CMbvzREsvOQ@mail.gmail.com/#t
+[2] - 6fdc440366f1a99f344b629ac92f350aefd77911
 
 
-I will like a receipt of your acknowledgment mail
-------=_NextPart_000_0012_6AFD968A.4666240C
-Content-Type: application/msword; name="PO0554312.doc"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="PO0554312.doc"
+Rafael J. Wysocki (5):
+  driver core: Fix adding device links to probing suppliers
+  driver core: Make driver core own stateful device links
+  driver core: Add device link flag DL_FLAG_AUTOPROBE_CONSUMER
+  driver core: Remove device link creation limitation
+  driver core: Fix creation of device links with PM-runtime flags
 
-e1xydGYxICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgIHtcb2JqZWN0e1w0ODE4Nzk0MDh9XG9iamxpbmt7XDQ4MTg3OTQw
-OH1cb2JqdzQxOTd7XDQ4MTg3OTQwOH1cb2JqaDc1MTB7XDQ4MTg3OTQwOH17XDQ4MTg3OTQw
-OH17XG9iamRhdGENXHRzZDUzNjcxOFxndXR0ZXI1ODk2ODU0NzVcJ+8gICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-e1xvYmplY3RcTFFRR0pWSFlPVnJzbHp0eGRtc3d5aHI1NzkxMzkwNTg4MzA1OTM1MTU2MDQ5
-NUxRUUdKVkhZT1Zyc2x6dHhkbXN3eWhye1xPUFhSVVlXRUdXT1duZmxrYmxsam5qeWx5aXZw
-ZXc1MzgyMTc5MzIxMDQwNTYwODcyMzg2ODY2Mjk1T1BYUlVZV0VHV09XbmZsa2JsbGpuanls
-eWl2cGV3fX0xODZjNzg0NzAyMDAwMDAwMGIwMDAwMDA0NTUxNTU0MTU0Njk2ZjZlMntcbWxp
-bSBce1x7XG1ncm91cENocn0NZTMzMDAwMDAwMDAwMDAwMDAwMDAwYjYwODAwMDAwMzRkM2M4
-Mjg4YTkwMTA4YjhiY2I5Nzk5ZTdkZDQ4MWU5M2RlMTM3ZDQ4YjM5OGIwN2JiZDVjZDJkMTU4
-MWViMjU2NmU3MTQ4YjFiNTBmZmQzMDU5OWYwNDJkMzA1OTExMGJkMmNmZmUwNjVjZTA4NDMw
-MGI2ZTdlNmMxOGUwMjg4MjhjNDMzMjhlZjJkNmYxYTYxZDc0MDY3MGNkYWE2OGQxODVlNjU2
-NjBmNDU1ZDkwOGI2NjE2MjNhMjI0ZjVlM2I3ZTk0MGJlNzJjMzgwNTNmZDI2NjI1OTU0MjQ4
-NDk3YmM4OTg0YTg0MGJiOTM3NTMwMzhmNzdhOTVhZWJiNDk5OTA4NzA1YzMzMmRjMWI0YzQy
-Y2Q2Yzg1ZWNmMjM1MWQ0NWYxMmU1NzE5NGZhN2ZkOTk2NzZkYWVmZGNhYTNkY2Y1YjI1YWY0
-ZTdmY2Y4ZWQwOWEyMTM2YTY3NTBlZjIyNjFhY2Y5NmE1MGIyZWVmMmE3NmIxZDY1NGE0MDky
-ZGYwMjg4MGZkMjkxMGMwOTdjOTIxNzk0NWZkNjk0NjFiOTQ4NDMyZDgzMTE3YjllZGQzY2U3
-ZDI1M2VjMjE1NjdhMTM2NGMzYjg5ZjgyMDY2NzBmZGNlNDE4N2M4YzVjYTkxZTJlMTZkYmVm
-MTI1ODMyMTE1ZGEyMGZjYjQ3ZDlmYTNkMDhmZjk3YTFmZWNmNjEwNjkzZTE0YmNmMmY4Njcy
-MTA0M2QzZTQ5YTBlNmExNjljOTA4NDliM2JiZTc2Y2MwNDQ3ZjczNmEyMDk0MmExNGU5NTgw
-MTAwMDBhMGM0ZDlmYWU1NDNkNzNiNGEwOWM5NjQ3ZTk2YjMxY2E3NGYyYzk2OWZiY2ExYzAz
-MWM3OGY5MjYyMDVjOTQ2YTVlN2I5OWEyNDA1OTkxMWZhNWNiNjMyN2E4ZGI3YzQ2YTFjZDAx
-ODQyYjIwZTQwNzE1OThmNTA5NmMxYzhhNWM3ODJiZjFkY2U1MDUwNTk2ODQ5NjkwMDg0MmU0
-ZmZiOGJhNGQ3YmI5NTcxYWU3MGFkYzE5MzRmMTc2NjlhZDU4NzE0NjkwMDY3YTQ3YjkxMTI1
-MDYxNTAxZGY5ZmM0NDg5NjNjNGZlMTM3ODA1ZDA2Nzg0MWUwZjY1NzZjMzU3NjQyMTM4YzQ2
-YTgwOWMzYjc5ZWUxZGEwYzA2YzNkMWVlNWRjMTY2NDNmNGE5MWUyMWMyMGFkMTFmZjZjYmVh
-YWRkMjZhY2ViNWQ2NTMzZDUxZmE3MWY3MWYxMDg5NjA4MWM4ZTRjNjk5NjY0ZDIyNTUwMTNj
-MmQzNjZjZTExNGM3M2E2NDdmMGJiZDRiZWUwODBmNmU1NDQzMDRkODI4NWIwZmFlODkwOWQ0
-ODQ2MWE3ZmUwZGFkNTFiMTczOGMxYTYxZDg1NTcwODRjYmVkZDFlNjBmMjk4ZmFiYjgyMTIy
-MjlmNjk1N2NlNzM3MjNlMmQwNzc4OWE5ZGM4YjQ4NWY3MGRlOGEwYzE0ZGIzNGI3YTYzYzFl
-ZGQzZDExOTJmZjJmYjUwNDFhZjY4ZDAxNWQ3MDYxYzlmNmQ2NTA1MWNlNGY3ZjE0YTY3NTcx
-Y2E5MTM3ZmQ3YzIzOTExYzQ1ZDlkOTExYWNhYmFhN2U2MWNmZDVlNDU2NjA3NjlhOTA0ZWU1
-YTFlZDQ3OWU5N2I3OTY5MzRiMzk4YWFmYTA0MWVhN2UxNGI3NTc0YWUyZWQ0ZTgyYjAyMDAw
-MGU5MTUwMjAwMDBlYjYzZTk0ZjAyMDAwMGViNWNlOTI0MDIwMDAwZTlkMDAwMDAwMGViNTA5
-YzUyZWIwNDk2MmUyNGY0ODFjMjIxMTQwMDAwNTM1NjVlNWI4ZDkyZTM2MDAwMDA1YTlkZTk3
-OTAyMDAwMGU5Y2IwMDAwMDBlOWIwMDEwMDAwZTk4NDAwMDAwMDUzNWJlYjE3ZWIwMjc0YTJl
-YmM2ZTk4NDAxMDAwMGViMDVlOWRjMDIwMDAwZTk5NjAwMDAwMGViZWJlOWUwMDEwMDAwOGRh
-ZWU1MDIwMDAwOWM1MTgxYzE5ZDMwMDAwMDgxZTkzZDFlMDAwMDU5OWRlYjRhZWI2ZTljNTI1
-MDA1ZGE3MTAwMDA4ZDgwZmIyNTAwMDA1ODVhZWIwYTUxNzgyYjM5NTE5MmQ5Y2ViYzAxOWRl
-YmM3ZTkzZDAyMDAwMGViMGFhY2Y4Y2EzZTJmOTY2MTRiZThiM2U5OGEwMTAwMDBlOWNmMDAw
-MDAwZWI2OGViMzdlOTUxMDEwMDAwZTk2YjAxMDAwMDZiYzkwMGU5YTUwMDAwMDBlOTZhMDEw
-MDAwZTk2Y2ZmZmZmZmU5NDQwMjAwMDBlOWM1MDEwMDAwZTk2ZTAxMDAwMGU5MzQwMTAwMDBl
-OTRjMDEwMDAwZWIyOGU5ZDEwMDAwMDBlOTYwZmZmZmZmOTBlOWU2MDEwMDAwZTk0MmZmZmZm
-ZmViYjBlOTAzZmZmZmZmZTk3YjAxMDAwMGU5MTgwMTAwMDBlYjYwZTljZjAwMDAwMGViNzk2
-OWM5ZGQwNjU1MjRlYmI4OWM1MzgxYzM1MTA2MDAwMDgxZWI3MjQ2MDAwMDgxZWJmZTExMDAw
-MDViNTA1ODlkNTA1ODljNTdlYjBiZDgxYWIwYTdhMzNmZjQ3MzZlNTc1ZjUxODFlZmM1MTUw
-MDAwOGQ4ZjEwMWIwMDAwOGRiOWQxNmQwMDAwNTk1ZjlkZTk2ZjAxMDAwMGU5NGEwMTAwMDBl
-YmFkZTk3OWZmZmZmZjkwZTlkZGZlZmZmZmViNjZlOThiMDAwMDAwZTk2Y2ZmZmZmZmU5ODFm
-ZWZmZmZlOTIwMDEwMDAwZTliYTAwMDAwMGU5MzNmZmZmZmZlYjQxOWM1NjUxOGQ4OTBmNTEw
-MDAwOGRiNjEwMjEwMDAwOGQ4OWJhMjYwMDAwODFlZTAzM2MwMDAwNTk1ZTlkZTk2ODAxMDAw
-MGViMWNlYjc0ZTllZjAwMDAwMDM5ZWVlOTY0MDEwMDAwZWIzZGViN2NlOTNiZmZmZmZmZTlk
-MGZlZmZmZmU5ZDlmZWZmZmZlOWE5MDAwMDAwZWIyM2ViNTNlOWMwMDAwMDAwZTllN2ZlZmZm
-ZjljNTA1MDhkODBkMTA3MDAwMDJkZmQzMDAwMDA4ZDgwMWUzYjAwMDA1ODU4OWRlYjBjZWIw
-ZmU5YzJmZWZmZmZlOTdiZmVmZmZmZTk4NzAwMDAwMDVlODFjNjQ1MDMwMDAwZTk4MmZlZmZm
-ZjMxMGVlOTAwZmVmZmZmZTlhYzAwMDAwMGU5MDJmZWZmZmZlYmVkZTkxYmZlZmZmZjUyNWFl
-OWJhZmVmZmZmZTljZGZlZmZmZjgxYzEzNzk1Njc1YzljNTc1MTUxODFlOWQ1N2YwMDAwODFj
-NzIzNTQwMDAwOGRiOTg1MGIwMDAwOGQ4OTJlMDEwMDAwODFjMTI0MjcwMDAwODFlOTg5NDUw
-MDAwNTk1OTVmOWQ5MGU5NTZmZmZmZmZlYmFlZTkzNWZmZmZmZjUzNWJlOTc3ZmZmZmZmNTc1
-ZmU5MTZmZWZmZmZlOTZiZmZmZmZmZTk2ZmZlZmZmZjgzYzYwNGU5MGNmZmZmZmZlYjc3ZWJm
-NGU5MTFmZWZmZmZlOTBjZmZmZmZmZWI1MzljNTY1MzhkOWVlZjY0MDAwMDgxZWVhNjM2MDAw
-MDkwOGRiMzIyM2EwMDAwNWI1ZTlkZWJiMGU5MDlmZmZmZmZlOWUwZmVmZmZmZWJkMjljNTM4
-MWViMjI1NjAwMDA4ZDliNjE1YTAwMDA4MWMzMjEzZTAwMDA4MWMzNmE3YzAwMDA4MWMzYjYz
-ZTAwMDA4MWViNmE1ZTAwMDA1YjlkNTA1ODUzNWJlOTVmZmVmZmZmZTlmYWZlZmZmZmViYmNl
-YjAzOTA5ZDE0ZTkyOGZmZmZmZmU5MjFmZGZmZmY1NjVlZTliYWZkZmZmZjBmODJlM2ZkZmZm
-ZmI2NzllNzVlYjJhZjdkYzRlMTZkZDgxMDc0ZDM4NjBhNWJhMTdkMTBjNmQ0MTY1MTI1OGUx
-N2M0MjgzNzQ5ZGViZjJhYTA2MGYyZmI1YzNiYTllOTYxNDk3OGMyNjI2YzExOGE3Mzk4Zjkx
-YjIwNTI1MzhjMzJhZGQ5ZDA3Y2ExNDc5NTViY2ZlNzY5ZGFiNzFlNzkzZjUxYTA3YzBkNTkx
-OGVjZmIzN2I0MmQ0ZGYyM2NlYjFkMjY3ODQ4M2IxOWI3ODQ3ZTIxOGU4MDFiYjk1MDllMDdi
-ODAxYmQxZjI5MjA4NmVmZDcxMGYzZWMxZGZkZWE4NDVkYzgxNjk1MDE1N2U0OWZjNDVhZGRi
-NDUyMDEzYmU1MjYxNGNhMDI4NDdiNGQ4MDJiNjZhYjg4ZTA0NTEyZjZiMmM4NDllYWZhZGY2
-NTY3ZjhiYTZiZGYzY2M5NWY1ZDVhYmNhMTc3NGM4M2U5ZTIzMzRlZmZjYjcyOGQ2MTI5NDBm
-MGYxNGM0OGI3ZjkzZTdjMjIwNWQ3ZjVlM2NmNjJkNjI5MmI1Y2NmZTU2MmNjZTZjOTNlYTZi
-YWQ1MmNlYzMwNGEwYjU0ZDY5OGVhN2IxM2ViOTU3OWE2MWYzY2UwZDI1YjU5NGEwYTQ1ZDYz
-OGI5MWU1ZmM4NzUxMWZmNDNmMTQwYjU0YjkyNzdmOTQyMTBmMjBlYWYxNzIxZjczYjM3YjQ5
-ZDE2Nzk5YmQ5OTZiMTA2NTg2NDUxNjVkYmU3ZGM2OGI5NWFhY2ZmMjk4YWJiNWEyMDM3ZjZl
-OTAxZDdjODVjYTA5NjcyYTMwZjQ5NmRlZWY1Zjc4ZWFkMWFiNGE1OTAzOTVkZGY4N2E5ZmI4
-YWMyOTVkOTdhYjEzNWVkMjQwNGJkMGFlMGFiMDcyOGExZDZkYmNkZjJmNThjMzljN2I4ZmFi
-NjA5MGYyZTU4ZGUyYTViMTA3Zjc5YmE1ZmM2YWMyNDY5YzhiM2VmZmRmMmJlNWMwMTU1M2Qx
-MjM0MmFlMGM5OGVhYTk3Nzk5NTA0OTI3ZTM2YjE0MWJhMzQ4NzQ0ZTRhYjcwZmNjYzdkMWJk
-MjFjYTIxOWYwODEzYTcyNmU1YzA2ODk0YzJjOGM2ZDZlYjQyOWEzMDk5OWQ3ZmUyYzBmNDBl
-MmMzYzEzZDYzZWIwZDZhNTQ5ZGVkMzMxZTU1MjQ1ZWYzYTdhYTc5MGNlZjkwMWVlNWQzYTky
-MWIyMjk4MGYzNDFjOTNlMDRlMjFjOGM5YmNlN2Y5YjBjZTczMmY0ZmNmOTQ1OTUyNzhhZWU1
-MDk2NDY0OTdmZTZkODRjMGEwMjgwYmEzNDY1MDUzMTFlOTFjNTJlMDNjZDFmNTZjMGM1ZDU2
-Nzk3ZWUwYzI3YmU5OTAxNjEwOWI0OTk3N2FhYTU5MmM5NmM2YTk1MTcyMDgxNTJhOTEwMjlj
-Y2E4MTliMGViNGI0NjJiNGU4MmJlY2JiYjI5ZDhlNDVlYjhkODAwZDNjNzVmYzU2YzJmMzRl
-ZDAxOTlhM2NmYmRkMjk1MGQzZDQ0OWRmODUwMDQ3YWM5NjI4YmI4YmZiOWM3MTkzZTM5Zjhj
-MjJiMWM0YzAxZWZlNWI2ZmFkYWI0YzNhMDZjMzBhNDE3M2QyZjViMTQxOTY5M2FiMTM3YmEy
-ZTM4OTRjN2YyMTFlNDUwMzZlYmM0Y2Y3NTY2MjNjNDc2YWFkYzJkZjNjZDYwZmFlZTIwYzQx
-NWY5MDQ0YWU4NDQyZDdjMDJlM2ZlN2M0M2U3ODNjYzg1NDAwNjA4ZDgxOTFiNjU5YjUzYzJh
-YTk2NmRjM2EwOTU2ZDdhNTRiNGNlZTdjNTkxNWNjNWQyYzNkMzFlYTVkOTQ1N2VkNDM5ZmJh
-NDhmNjQzNDJlNGNhNmU5YzhmMjdiOWNjMDMzYzBlMDJkZWNlM2UwNTdkZTlmYjIzNjgxZTRl
-YTc4YmNkZDVjZTVmYzdhMzViZTYwMTQwYTlmMTUwZjMyMDAwMDAwMDB9XG9ianVwZGF0ZTk4
-MzkwMTk3Mn19
+Yong Wu (1):
+  driver core: Remove the link if there is no driver with AUTO flag
 
-------=_NextPart_000_0012_6AFD968A.4666240C--
+ Documentation/driver-api/device_link.rst |  63 +++--
+ drivers/base/core.c                      | 293 +++++++++++++++++------
+ drivers/base/dd.c                        |   2 +-
+ drivers/base/power/runtime.c             |   4 +-
+ include/linux/device.h                   |   7 +-
+ 5 files changed, 265 insertions(+), 104 deletions(-)
+
+-- 
+2.25.1.481.gfbce0eb801-goog
+
