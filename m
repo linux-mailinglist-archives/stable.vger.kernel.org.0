@@ -2,77 +2,131 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7056E18917C
-	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 23:30:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0280F1891F0
+	for <lists+stable@lfdr.de>; Wed, 18 Mar 2020 00:27:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727234AbgCQWab (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Mar 2020 18:30:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38902 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727232AbgCQWa3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Mar 2020 18:30:29 -0400
-Received: from localhost (unknown [137.135.114.1])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6840A20738;
-        Tue, 17 Mar 2020 22:30:28 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584484228;
-        bh=69Vm+ZQ+trBq00La+Q/6ySMamY+DRfo+xpTdpnHr0Oc=;
-        h=Date:From:To:To:To:To:Cc:Cc:Cc:Cc:Cc:Cc:Cc:Cc:Cc:Cc:Subject:
-         In-Reply-To:References:From;
-        b=CTUc7HSF39IWepT00n+94v26NGOm7rTWCAGERCPEOdcK73rLbTqIMTxci2mUxSSU8
-         wuIC7mVNpPD7zWRfvVxJZ1/x1+LFcffGrDw2ePB3ezcOjqw3eR280zNZJUYO3+nvrV
-         Lt2vzX2pAz3+VSPYxndH1FjK+PMAO0jb1yosheQI=
-Date:   Tue, 17 Mar 2020 22:30:27 +0000
-From:   Sasha Levin <sashal@kernel.org>
-To:     Sasha Levin <sashal@kernel.org>
-To:     Eric Biggers <ebiggers@kernel.org>
-To:     Eric Biggers <ebiggers@google.com>
-To:     linux-kernel@vger.kernel.org
-Cc:     linux-fsdevel@vger.kernel.org, Alexei Starovoitov <ast@kernel.org>
-Cc:     stable@vger.kernel.org
-Cc:     Alexei Starovoitov <ast@kernel.org>
-Cc:     Andrew Morton <akpm@linux-foundation.org>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Jeff Vander Stoep <jeffv@google.com>
-Cc:     Jessica Yu <jeyu@kernel.org>
-Cc:     Kees Cook <keescook@chromium.org>
-Cc:     NeilBrown <neilb@suse.com>
-Cc:     stable@vger.kernel.org
-Subject: Re: [PATCH v3 2/5] fs/filesystems.c: downgrade user-reachable WARN_ONCE() to pr_warn_once()
-In-Reply-To: <20200314213426.134866-3-ebiggers@kernel.org>
-References: <20200314213426.134866-3-ebiggers@kernel.org>
-Message-Id: <20200317223028.6840A20738@mail.kernel.org>
+        id S1726735AbgCQX1n (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Mar 2020 19:27:43 -0400
+Received: from dvalin.narfation.org ([213.160.73.56]:53410 "EHLO
+        dvalin.narfation.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726564AbgCQX1n (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 17 Mar 2020 19:27:43 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=narfation.org;
+        s=20121; t=1584487660;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=JVstoYuTmqPHzfAEF9FOVbIpuIEq7KLQExJ6UkvGE1Y=;
+        b=I4QxQHrhrbYJoAqafHth7LXUXj2Mo+CPUXIvVBp1Rd2JZsMAa0KOvkW6wERhZyEawGlViZ
+        co5hY9LT3Ip+ScQCMSuv9yklNYSMW6vNqet2n87+2EXtkDHeG/QAuzXjZHGL1+/1WhmuO5
+        AOH+nyEebDT8FNia8NzwS+64S0ZkPYQ=
+From:   Sven Eckelmann <sven@narfation.org>
+To:     stable@vger.kernel.org
+Cc:     Sven Eckelmann <sven@narfation.org>
+Subject: [PATCH 4.4 00/48] batman-adv: Pending fixes
+Date:   Wed, 18 Mar 2020 00:26:46 +0100
+Message-Id: <20200317232734.6127-1-sven@narfation.org>
+X-Mailer: git-send-email 2.20.1
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi
+Hi,
 
-[This is an automated email]
+we were asked by Greg KH to check the failed backport of some recent fix to
+linux 4.4.y and provide backports for it when required. I've found a lot more
+missing patches than I've expected in this process and queued them up here.
 
-This commit has been processed because it contains a -stable tag.
-The stable tag indicates that it's relevant for the following trees: all
+Kind regards,
+	Sven
 
-The bot has tested the following trees: v5.5.9, v5.4.25, v4.19.109, v4.14.173, v4.9.216, v4.4.216.
+Andrew Lunn (1):
+  batman-adv: Avoid endless loop in bat-on-bat netdevice check
 
-v5.5.9: Build OK!
-v5.4.25: Build OK!
-v4.19.109: Build OK!
-v4.14.173: Build OK!
-v4.9.216: Failed to apply! Possible dependencies:
-    41124db869b7 ("fs: warn in case userspace lied about modprobe return")
+Florian Westphal (1):
+  batman-adv: fix skb deref after free
 
-v4.4.216: Failed to apply! Possible dependencies:
-    41124db869b7 ("fs: warn in case userspace lied about modprobe return")
+Linus Lüssing (5):
+  batman-adv: Avoid duplicate neigh_node additions
+  batman-adv: Fix transmission of final, 16th fragment
+  batman-adv: fix TT sync flag inconsistencies
+  batman-adv: Fix TT sync flags for intermediate TT responses
+  batman-adv: Avoid storing non-TT-sync flags on singular entries too
 
+Marek Lindner (2):
+  batman-adv: init neigh node last seen field
+  batman-adv: prevent TT request storms by not sending inconsistent TT
+    TLVLs
 
-NOTE: The patch will not be queued to stable trees until it is upstream.
+Matthias Schiffer (1):
+  batman-adv: update data pointers after skb_cow()
 
-How should we proceed with this patch?
+Simon Wunderlich (1):
+  batman-adv: lock crc access in bridge loop avoidance
+
+Sven Eckelmann (37):
+  batman-adv: Fix invalid read while copying bat_iv.bcast_own
+  batman-adv: Only put gw_node list reference when removed
+  batman-adv: Only put orig_node_vlan list reference when removed
+  batman-adv: Fix unexpected free of bcast_own on add_if error
+  batman-adv: Fix integer overflow in batadv_iv_ogm_calc_tq
+  batman-adv: Deactivate TO_BE_ACTIVATED hardif on shutdown
+  batman-adv: Drop reference to netdevice on last reference
+  batman-adv: Fix reference counting of vlan object for tt_local_entry
+  batman-adv: Fix use-after-free/double-free of tt_req_node
+  batman-adv: Fix ICMP RR ethernet access after skb_linearize
+  batman-adv: Clean up untagged vlan when destroying via rtnl-link
+  batman-adv: Avoid nullptr dereference in bla after vlan_insert_tag
+  batman-adv: Avoid nullptr dereference in dat after vlan_insert_tag
+  batman-adv: Fix orig_node_vlan leak on orig_node_release
+  batman-adv: Fix non-atomic bla_claim::backbone_gw access
+  batman-adv: Fix reference leak in batadv_find_router
+  batman-adv: Free last_bonding_candidate on release of orig_node
+  batman-adv: Fix speedy join in gateway client mode
+  batman-adv: Add missing refcnt for last_candidate
+  batman-adv: Fix double free during fragment merge error
+  batman-adv: Fix rx packet/bytes stats on local ARP reply
+  batman-adv: Fix lock for ogm cnt access in batadv_iv_ogm_calc_tq
+  batman-adv: Fix internal interface indices types
+  batman-adv: Fix skbuff rcsum on packet reroute
+  batman-adv: Avoid race in TT TVLV allocator helper
+  batman-adv: Fix debugfs path for renamed hardif
+  batman-adv: Fix debugfs path for renamed softif
+  batman-adv: Prevent duplicated gateway_node entry
+  batman-adv: Prevent duplicated nc_node entry
+  batman-adv: Prevent duplicated global TT entry
+  batman-adv: Prevent duplicated tvlv handler
+  batman-adv: Reduce claim hash refcnt only for removed entry
+  batman-adv: Reduce tt_local hash refcnt only for removed entry
+  batman-adv: Reduce tt_global hash refcnt only for removed entry
+  batman-adv: Only read OGM tvlv_len after buffer len check
+  batman-adv: Avoid free/alloc race when handling OGM buffer
+  batman-adv: Don't schedule OGM for disabled interface
+
+ net/batman-adv/bat_iv_ogm.c            | 115 +++++++++---
+ net/batman-adv/bridge_loop_avoidance.c | 152 ++++++++++++---
+ net/batman-adv/debugfs.c               |  40 ++++
+ net/batman-adv/debugfs.h               |  11 ++
+ net/batman-adv/distributed-arp-table.c |  15 +-
+ net/batman-adv/fragmentation.c         |  14 +-
+ net/batman-adv/gateway_client.c        |  18 +-
+ net/batman-adv/hard-interface.c        |  89 +++++++--
+ net/batman-adv/hard-interface.h        |   6 +-
+ net/batman-adv/main.c                  |   8 +-
+ net/batman-adv/network-coding.c        |  33 ++--
+ net/batman-adv/originator.c            |  26 ++-
+ net/batman-adv/originator.h            |   4 +-
+ net/batman-adv/routing.c               | 111 ++++++++---
+ net/batman-adv/send.c                  |   4 +-
+ net/batman-adv/soft-interface.c        |   9 +
+ net/batman-adv/translation-table.c     | 249 +++++++++++++++++--------
+ net/batman-adv/types.h                 |  23 ++-
+ 18 files changed, 707 insertions(+), 220 deletions(-)
 
 -- 
-Thanks
-Sasha
+2.20.1
+
