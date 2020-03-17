@@ -2,121 +2,152 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B40201879FB
-	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 07:55:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BB84F187AA1
+	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 08:45:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726370AbgCQGzV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Mar 2020 02:55:21 -0400
-Received: from mail-pf1-f201.google.com ([209.85.210.201]:36214 "EHLO
-        mail-pf1-f201.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726596AbgCQGzU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 17 Mar 2020 02:55:20 -0400
-Received: by mail-pf1-f201.google.com with SMTP id h125so14745378pfg.3
-        for <stable@vger.kernel.org>; Mon, 16 Mar 2020 23:55:17 -0700 (PDT)
+        id S1725868AbgCQHp4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Mar 2020 03:45:56 -0400
+Received: from mail-lf1-f49.google.com ([209.85.167.49]:42813 "EHLO
+        mail-lf1-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725870AbgCQHp4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 17 Mar 2020 03:45:56 -0400
+Received: by mail-lf1-f49.google.com with SMTP id t21so16304454lfe.9
+        for <stable@vger.kernel.org>; Tue, 17 Mar 2020 00:45:53 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=date:in-reply-to:message-id:mime-version:references:subject:from:to
-         :cc;
-        bh=pBzGjleoRDABxMsluExcps57eD2wDVloI24KvIbaURE=;
-        b=UledzLdGZZjZgCktwDrReM83P2/tmN5F4Qnd1xTlFNMGgY4exTx7PpUlYpVJcYkHn2
-         qOqSDPrlyo1Tg8E7TNmeCbcaRvzN8X/3p3klGc1pbS5gp4joG2QV+m7zPocAKbdG/djV
-         mjbSeXmumJlZpNyD2H16Tr4UjjvSjJ9VFvp84bYCSC8nAKD0ptzQmWlkEpmb2H+YyfEx
-         Q5CmFKr/pxFMWAzVJsJwrAUZbJgxAjQUKhVZinz2cSSZ3AoAfMo2MvYj7YHTC2PK7FYy
-         y7OzDTmhrmK/3gX546uw6Y/xdIMPy5ZSM/4+vdG2TJbkV4Jqx4cGvW2bLV42+qET+yvr
-         zeNA==
+        d=linaro.org; s=google;
+        h=mime-version:from:date:message-id:subject:to:cc;
+        bh=vs60LH3coDU/G583V0oax4DANniSeCRsFOzDHxjS2/I=;
+        b=VD7FvoGMbpcVA/mT+vDg4+K0a/hVm6FOQ0rimtBc+X38Xx11xuKyrySevJG6Rrixw9
+         dM5ndQGygywVqE5pDILq7Iq/SE9h+UtBOUzfJMP8Khx0CWk5gGqi7En4r7SSrscNGBpj
+         ECjS/ydwVDbVO2nHnNuwHA7R7JgA5IOmgp0wuBbzsQ53Realzu4TDqUn9pOlhfAc24tK
+         m+i1jvlkI35IstExqmtWwdcVzBcFNq11jwbyDRD8lKEOxLoF9Lg7PtOKZqO157MybvM4
+         eWzP33dTG+odpONTtvIsN6bgII7irX6Q4OcwgsmriRmgGt757bro2yjlmB+Hm8S6Fzd1
+         iDog==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:in-reply-to:message-id:mime-version
-         :references:subject:from:to:cc;
-        bh=pBzGjleoRDABxMsluExcps57eD2wDVloI24KvIbaURE=;
-        b=Lhjg17MepXUCx08Z1Hpspp7urz1Kv4tUEv8tbXgPDXK32FlMqwoI+cvgEih+E5C51q
-         IYzife0KO1Q07W+avxdNKmY3tJnGUB6RabJleXoW8khzBonYSF86BQ9A4zgdStVL/iNY
-         JokA6eMkiElzmZ9XKm4EeJ+7uSbQSPRKQWvorvpNFLDuyvUgqDPGQ2v9E/H4lq9MPJEN
-         BS5M+/uzfWbIydFjUXNdM/Xvu/3UcrOBwONw0LpRiYQL2Bsh2JNDPVt99WQmu4KP5rDZ
-         wHa5KHmjS493dqJAoJP8X1MzPoSDG3u3Brd9QBbKxlC/Ligf5PHTtc7aVdS4Y0gfmC7k
-         Cdlw==
-X-Gm-Message-State: ANhLgQ0QUi4XHgQPW8wkqP0PY9wZ0fmZnyKvzCAUaECDQjDpMi37LWXx
-        a24nkFtB8XaoDSw4CNYZLBHs2po/ZXtdG96wSx58DidEP/He/qu8jvTrUUJm9TMrXc5PV5MJKVY
-        dSWZwD9CereF/thUe4WnyLxNwJQ1lcATsb8K4pi2BA72YqrFWWTKQ0u+PWHv0ZQ4DCZnl3w==
-X-Google-Smtp-Source: ADFU+vsI46mjOrzK35IlZFKtn+I16f/ZJ36YpcLgiFZqwRzWEH2bTScx3tkAxfqOUW2oCR5e/5W0bdip3gPKHnQ=
-X-Received: by 2002:a17:90a:178e:: with SMTP id q14mr3975908pja.132.1584428117265;
- Mon, 16 Mar 2020 23:55:17 -0700 (PDT)
-Date:   Mon, 16 Mar 2020 23:54:52 -0700
-In-Reply-To: <20200317065452.236670-1-saravanak@google.com>
-Message-Id: <20200317065452.236670-7-saravanak@google.com>
-Mime-Version: 1.0
-References: <20200317065452.236670-1-saravanak@google.com>
-X-Mailer: git-send-email 2.25.1.481.gfbce0eb801-goog
-Subject: [PATCH v1 6/6] driver core: Fix creation of device links with
- PM-runtime flags
-From:   Saravana Kannan <saravanak@google.com>
-To:     stable@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>,
+        h=x-gm-message-state:mime-version:from:date:message-id:subject:to:cc;
+        bh=vs60LH3coDU/G583V0oax4DANniSeCRsFOzDHxjS2/I=;
+        b=EbMgjSt485hXgy+Q78q5IJ3KHkWiOphLZuUGBKqm0V9DMCiAPKBNKn8fNQ8vDFwfai
+         LY95DOwaJMRVbw97RoV4dsOQau5Ve/WDmkNvUtELbwV3Xx4yeOlBENFY37uT8DIA5a+A
+         yjgKa+bIjVoHYMp66srnplBbOCIj82BxBKO05M1IsEuSmwBZJM2tfFzWi6n/+tVFTvYv
+         2RqIjhWEXtNCV7uwcwZdMQR1qupA7fZkFAYh+fz0H/0IXkYkXTGjhR6T79VQBTzrknkH
+         NaqMCK7PhUFWtFlrZozOeSebb802nRQLq5etjBXNRSmW/W/U/4+VDTgENOLRHz3up1Y5
+         LSeA==
+X-Gm-Message-State: ANhLgQ0/ZzU1499Q4u1WTaUJWWcXl3c/Klz79xZ+rGdibAnuKBGfarFr
+        lqtH/dB+5bcnhIvsQJyvuqceDltOTo114jW0GLuEg5jXcAY1gQ==
+X-Google-Smtp-Source: ADFU+vtcsO5pokvCVx3QxsusodoDyFnEMJg/zVI/XgUPyMI9XKa92yXHJE/hzm7hsS15MYnL1OpwjZIq4WSkoyAUNu0=
+X-Received: by 2002:ac2:43a8:: with SMTP id t8mr2085415lfl.82.1584431152269;
+ Tue, 17 Mar 2020 00:45:52 -0700 (PDT)
+MIME-Version: 1.0
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Tue, 17 Mar 2020 13:15:40 +0530
+Message-ID: <CA+G9fYu06RPexAK-4huCSwYC4=FkuH2QduVpxOgG43ojX2jyBA@mail.gmail.com>
+Subject: [stable-rc-5.4 and 5.5 ] WARNING: CPU: 3 PID: 2548 at
+ /usr/src/kernel/lib/refcount.c:28 refcount_warn_saturate
+To:     linux- stable <stable@vger.kernel.org>,
+        "open list:KERNEL SELFTEST FRAMEWORK" 
+        <linux-kselftest@vger.kernel.org>
+Cc:     Christian Brauner <christian.brauner@ubuntu.com>,
+        open list <linux-kernel@vger.kernel.org>,
+        John Stultz <john.stultz@linaro.org>,
+        Todd Kjos <tkjos@google.com>, Shuah Khan <shuah@kernel.org>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "Rafael J. Wysocki" <rafael@kernel.org>,
-        Len Brown <len.brown@intel.com>, Pavel Machek <pavel@ucw.cz>,
-        Matthias Brugger <matthias.bgg@gmail.com>
-Cc:     Saravana Kannan <saravanak@google.com>, linux-doc@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-pm@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-mediatek@lists.infradead.org, kernel-team@android.com,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Dmitry Osipenko <digetx@gmail.com>,
-        Jon Hunter <jonathanh@nvidia.com>,
-        Marek Szyprowski <m.szyprowski@samsung.com>
+        Ard Biesheuvel <ard.biesheuvel@linaro.org>, tkjos@android.com,
+        ardb@kernel.org, Kees Cook <keescook@chromium.org>,
+        lkft-triage@lists.linaro.org, Basil Eljuse <Basil.Eljuse@arm.com>,
+        YongQin Liu <yongqin.liu@linaro.org>
 Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+While running selftests binderfs_test on stable rc 5.4 and 5.5
+branches the following
+warning on arm64, arm, x86_64 and i386.
 
-After commit 515db266a9da ("driver core: Remove device link creation
-limitation"), if PM-runtime flags are passed to device_link_add(), it
-will fail (returning NULL) due to an overly restrictive flags check
-introduced by that commit.
+This warning was noticed on Linus's tree and reported [1] and then
+Christian Brauner investigated this problem.
 
-Fix this issue by extending the check in question to cover the
-PM-runtime flags too.
+FYI, We are running selftests source from stable rc 5.5 branch.
 
-Fixes: 515db266a9da ("driver core: Remove device link creation limitation")
-Reported-by: Dmitry Osipenko <digetx@gmail.com>
-Tested-by: Jon Hunter <jonathanh@nvidia.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Tested-by: Dmitry Osipenko <digetx@gmail.com>
-Tested-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Link: https://lore.kernel.org/r/7674989.cD04D8YV3U@kreacher
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-(cherry picked from commit fb583c8eeeb1fd57e24ef41ed94c9112067aeac9)
-Signed-off-by: Saravana Kannan <saravanak@google.com>
----
- drivers/base/core.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+[  224.520090] ------------[ cut here ]------------
+[  224.521202] refcount_t: underflow; use-after-free.
+[  224.522284] WARNING: CPU: 3 PID: 2548 at
+/usr/src/kernel/lib/refcount.c:28 refcount_warn_saturate+0x93/0x100
+[  224.523215] Modules linked in: cls_bpf sch_fq sch_ingress
+algif_hash af_alg fuse [last unloaded: test_bpf]
+[  224.523215] CPU: 3 PID: 2548 Comm: binderfs_test Not tainted 5.5.10-rc1 #1
+[  224.526771] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996),
+BIOS 1.12.0-1 04/01/2014
+[  224.526771] RIP: 0010:refcount_warn_saturate+0x93/0x100
+[  224.526771] Code: 38 73 62 01 01 e8 3d c2 b6 ff 0f 0b 5d c3 80 3d
+2a 73 62 01 00 75 ab 48 c7 c7 70 b0 00 92 c6 05 1a 73 62 01 01 e8 1d
+c2 b6 ff <0f> 0b 5d c3 80 3d 0d 73 62 01 00 75 8b 48 c7 c7 f8 af 00 92
+c6 05
+[  224.526771] RSP: 0018:ffffaaa081417c58 EFLAGS: 00010286
+[  224.526771] RAX: 0000000000000000 RBX: ffff9e77f1ed2c40 RCX: 0000000000000000
+[  224.526771] RDX: 0000000000000001 RSI: ffff9e77fbd98d48 RDI: ffff9e77fbd98d48
+[  224.526771] RBP: ffffaaa081417c58 R08: 0000000000000000 R09: 0000000000000000
+[  224.526771] R10: 0000000000000000 R11: 0000000000000000 R12: ffff9e77fa99f400
+[  224.526771] R13: ffff9e77ee42bbc0 R14: ffff9e77f1ed2cc8 R15: ffffffff92400300
+[  224.526771] FS:  00007f9e5d8824c0(0000) GS:ffff9e77fbd80000(0000)
+knlGS:0000000000000000
+[  224.526771] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[  224.526771] CR2: 00007f9e5d41ff7c CR3: 000000012cbc2000 CR4: 00000000003406e0
+[  224.526771] Call Trace:
+[  224.526771]  binderfs_evict_inode+0x9b/0xc0
+[  224.526771]  evict+0xc8/0x190
+[  224.526771]  iput+0x19c/0x2a0
+[  224.526771]  ? shrink_dentry_list+0x29/0x210
+[  224.526771]  dentry_unlink_inode+0x104/0x110
+[  224.526771]  __dentry_kill+0xda/0x180
+[  224.526771]  shrink_dentry_list+0xe3/0x210
+[  224.526771]  shrink_dcache_parent+0x11c/0x200
+[  224.526771]  do_one_tree+0x12/0x40
+[  224.526771]  shrink_dcache_for_umount+0x2d/0x90
+[  224.526771]  generic_shutdown_super+0x1f/0x120
+[  224.526771]  kill_anon_super+0x12/0x30
+[  224.526771]  kill_litter_super+0x23/0x30
+[  224.526771]  binderfs_kill_super+0x16/0x40
+[  224.526771]  deactivate_locked_super+0x43/0x70
+[  224.526771]  deactivate_super+0x40/0x60
+[  224.526771]  cleanup_mnt+0xbd/0x150
+[  224.526771]  __cleanup_mnt+0x12/0x20
+[  224.526771]  task_work_run+0x90/0xc0
+[  224.526771]  exit_to_usermode_loop+0xf0/0x100
+[  224.526771]  do_syscall_64+0x1bf/0x200
+[  224.526771]  entry_SYSCALL_64_after_hwframe+0x49/0xbe
+[  224.526771] RIP: 0033:0x7f9e5d3a30c7
+[  224.526771] Code: ad 2b 00 f7 d8 64 89 01 48 83 c8 ff c3 66 0f 1f
+44 00 00 31 f6 e9 09 00 00 00 66 0f 1f 84 00 00 00 00 00 b8 a6 00 00
+00 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 8b 0d a1 ad 2b 00 f7 d8 64 89
+01 48
+[  224.526771] RSP: 002b:00007ffc35189ee8 EFLAGS: 00000206 ORIG_RAX:
+00000000000000a6
+[  224.526771] RAX: 0000000000000000 RBX: 00007f9e5d882440 RCX: 00007f9e5d3a30c7
+[  224.526771] RDX: 0000000000000000 RSI: 0000000000000002 RDI: 000000000040192c
+[  224.526771] RBP: 0000000000000002 R08: 0000000000000001 R09: 00007f9e5d3e23e0
+[  224.526771] R10: 000000000000079a R11: 0000000000000206 R12: 0000000000000001
+[  224.526771] R13: 0000000000000000 R14: 0000000000000000 R15: 0000000000000000
+[  224.526771] irq event stamp: 1776
+[  224.526771] hardirqs last  enabled at (1775): [<ffffffff909751b8>]
+console_unlock+0x458/0x5c0
+[  224.526771] hardirqs last disabled at (1776): [<ffffffff90801e9b>]
+trace_hardirqs_off_thunk+0x1a/0x1c
+[  224.526771] softirqs last  enabled at (1772): [<ffffffff91a00338>]
+__do_softirq+0x338/0x43a
+[  224.526771] softirqs last disabled at (1761): [<ffffffff90902b28>]
+irq_exit+0xb8/0xc0
+[  224.526771] ---[ end trace a9ce2ef5cd0b3086 ]---
 
-diff --git a/drivers/base/core.c b/drivers/base/core.c
-index 31007af4cb79..928fc1532a70 100644
---- a/drivers/base/core.c
-+++ b/drivers/base/core.c
-@@ -213,6 +213,9 @@ void device_pm_move_to_tail(struct device *dev)
- 			       DL_FLAG_AUTOREMOVE_SUPPLIER | \
- 			       DL_FLAG_AUTOPROBE_CONSUMER)
- 
-+#define DL_ADD_VALID_FLAGS (DL_MANAGED_LINK_FLAGS | DL_FLAG_STATELESS | \
-+			    DL_FLAG_PM_RUNTIME | DL_FLAG_RPM_ACTIVE)
-+
- /**
-  * device_link_add - Create a link between two devices.
-  * @consumer: Consumer end of the link.
-@@ -274,8 +277,7 @@ struct device_link *device_link_add(struct device *consumer,
- {
- 	struct device_link *link;
- 
--	if (!consumer || !supplier ||
--	    (flags & ~(DL_FLAG_STATELESS | DL_MANAGED_LINK_FLAGS)) ||
-+	if (!consumer || !supplier || flags & ~DL_ADD_VALID_FLAGS ||
- 	    (flags & DL_FLAG_STATELESS && flags & DL_MANAGED_LINK_FLAGS) ||
- 	    (flags & DL_FLAG_AUTOPROBE_CONSUMER &&
- 	     flags & (DL_FLAG_AUTOREMOVE_CONSUMER |
--- 
-2.25.1.481.gfbce0eb801-goog
+ref:
+https://lkft.validation.linaro.org/scheduler/job/1294041#L8703
+https://lkft.validation.linaro.org/scheduler/job/1294145#L9569
+https://lkft.validation.linaro.org/scheduler/job/1294086#L11063
+https://lkft.validation.linaro.org/scheduler/job/1293967#L9551
 
+[1] https://lore.kernel.org/linux-kselftest/CA+G9fYusdfg7PMfC9Xce-xLT7NiyKSbgojpK35GOm=Pf9jXXrA@mail.gmail.com/
+--
+Linaro LKFT
+https://lkft.linaro.org
