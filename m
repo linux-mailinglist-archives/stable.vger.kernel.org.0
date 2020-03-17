@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D05D18817C
-	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:20:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D3D0B18807B
+	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:10:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728138AbgCQLDk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Mar 2020 07:03:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43522 "EHLO mail.kernel.org"
+        id S1729095AbgCQLKd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Mar 2020 07:10:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53414 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727764AbgCQLDb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Mar 2020 07:03:31 -0400
+        id S1728913AbgCQLKd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Mar 2020 07:10:33 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BCFA920658;
-        Tue, 17 Mar 2020 11:03:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D490C20658;
+        Tue, 17 Mar 2020 11:10:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584443011;
-        bh=OOSINW/hyFAGnHO/xbPruDAzEoRO0OuNE9KOW1QvA0w=;
+        s=default; t=1584443432;
+        bh=bBpGPos69Thu6EJ26LCcd+T/LeCR33KtKG7HV9kYExA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ffgVd89BHKqmY+L4L0bVoCJDWdATKh+zVRKtLE91tHoWBLM9s4/0ZEqCttJ+fuVa5
-         n6kPPVjB9sHxO/dvnm7EsaphRWm3mKNXQptuGdedC+rtHvZKSAY+lt62E1hhUu1vwJ
-         orOoTFMzkYKPE3EXvoXodJwwCwpDGb9I2hCGgJeI=
+        b=tBv73SMymklSG0+e5fJchOmdJy8z/hGGrlBtDWYYkCRgdhYEvR/ozyEyxtN5P6r62
+         g06yz5cEcAYxliEkBaSFGP9D4EmSS5qikps2fBO8Tg8l1WQv1a2NtURtRkZh6lka0o
+         gixZgF8tvTe3A7EDZ5j9mFbTLtwcfSH0The2Gupw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Vasily Averin <vvs@virtuozzo.com>,
         Pablo Neira Ayuso <pablo@netfilter.org>
-Subject: [PATCH 5.4 064/123] netfilter: nf_conntrack: ct_cpu_seq_next should increase position index
+Subject: [PATCH 5.5 081/151] netfilter: xt_recent: recent_seq_next should increase position index
 Date:   Tue, 17 Mar 2020 11:54:51 +0100
-Message-Id: <20200317103314.124953256@linuxfoundation.org>
+Message-Id: <20200317103332.220886427@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200317103307.343627747@linuxfoundation.org>
-References: <20200317103307.343627747@linuxfoundation.org>
+In-Reply-To: <20200317103326.593639086@linuxfoundation.org>
+References: <20200317103326.593639086@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,11 +45,32 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Vasily Averin <vvs@virtuozzo.com>
 
-commit dc15af8e9dbd039ebb06336597d2c491ef46ab74 upstream.
+commit db25517a550926f609c63054b12ea9ad515e1a10 upstream.
 
 If .next function does not change position index,
 following .show function will repeat output related
 to current position index.
+
+Without the patch:
+ # dd if=/proc/net/xt_recent/SSH # original file outpt
+ src=127.0.0.4 ttl: 0 last_seen: 6275444819 oldest_pkt: 1 6275444819
+ src=127.0.0.2 ttl: 0 last_seen: 6275438906 oldest_pkt: 1 6275438906
+ src=127.0.0.3 ttl: 0 last_seen: 6275441953 oldest_pkt: 1 6275441953
+ 0+1 records in
+ 0+1 records out
+ 204 bytes copied, 6.1332e-05 s, 3.3 MB/s
+
+Read after lseek into middle of last line (offset 140 in example below)
+generates expected end of last line and then unexpected whole last line
+once again
+
+ # dd if=/proc/net/xt_recent/SSH bs=140 skip=1
+ dd: /proc/net/xt_recent/SSH: cannot skip to specified offset
+ 127.0.0.3 ttl: 0 last_seen: 6275441953 oldest_pkt: 1 6275441953
+ src=127.0.0.3 ttl: 0 last_seen: 6275441953 oldest_pkt: 1 6275441953
+ 0+1 records in
+ 0+1 records out
+ 132 bytes copied, 6.2487e-05 s, 2.1 MB/s
 
 Cc: stable@vger.kernel.org
 Fixes: 1f4aace60b0e ("fs/seq_file.c: simplify seq_file iteration code ...")
@@ -59,18 +80,23 @@ Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/netfilter/nf_conntrack_standalone.c |    2 +-
+ net/netfilter/xt_recent.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/netfilter/nf_conntrack_standalone.c
-+++ b/net/netfilter/nf_conntrack_standalone.c
-@@ -411,7 +411,7 @@ static void *ct_cpu_seq_next(struct seq_
- 		*pos = cpu + 1;
- 		return per_cpu_ptr(net->ct.stat, cpu);
- 	}
--
+--- a/net/netfilter/xt_recent.c
++++ b/net/netfilter/xt_recent.c
+@@ -492,12 +492,12 @@ static void *recent_seq_next(struct seq_
+ 	const struct recent_entry *e = v;
+ 	const struct list_head *head = e->list.next;
+ 
 +	(*pos)++;
- 	return NULL;
+ 	while (head == &t->iphash[st->bucket]) {
+ 		if (++st->bucket >= ip_list_hash_size)
+ 			return NULL;
+ 		head = t->iphash[st->bucket].next;
+ 	}
+-	(*pos)++;
+ 	return list_entry(head, struct recent_entry, list);
  }
  
 
