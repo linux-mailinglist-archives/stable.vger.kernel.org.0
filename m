@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D140118921A
-	for <lists+stable@lfdr.de>; Wed, 18 Mar 2020 00:28:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8499918921B
+	for <lists+stable@lfdr.de>; Wed, 18 Mar 2020 00:28:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727180AbgCQX2Y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Mar 2020 19:28:24 -0400
-Received: from dvalin.narfation.org ([213.160.73.56]:53930 "EHLO
+        id S1727186AbgCQX2Z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Mar 2020 19:28:25 -0400
+Received: from dvalin.narfation.org ([213.160.73.56]:54078 "EHLO
         dvalin.narfation.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727150AbgCQX2X (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 17 Mar 2020 19:28:23 -0400
+        with ESMTP id S1727071AbgCQX2Z (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 17 Mar 2020 19:28:25 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=narfation.org;
-        s=20121; t=1584487702;
+        s=20121; t=1584487703;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=9Ub6U6OFP4jZJMq52sNx7vtmr6XWpY10bRSc3nzVivQ=;
-        b=DS7WJloNcVpqSJO737J57tnc0hZqQRpQ/YVNACn1gmBPqZ71WX7Ajip0el03xFjedD6+GP
-        egc4YJmIZtA6t68PjK7/adBfPgnNUCo1F0MBcyTvKLEvVk4PepZT+Fjg4v0WbBYJmiP7Tu
-        HkWISSgF4yjj1Z0i058WJNKCmx75ZNQ=
+        bh=KSjWrP5thO1aCilSq/mtYllbmEXXjLznzmD6QG5EtkM=;
+        b=AArQYa556pxiSx1WQhqvjEU8Q6BDv+0BY65gb1K6FeD0mSMQrIhU3C7oUqqhNe+GSvgliE
+        qYJaieLl5dxh1cjYK4RribLaV9vJEC0RkGVQYawD1q3zPuiy3faSrg+PCZirY6/jya+T5n
+        VrUVtYmKKuQ+n/E+Menp4YpXgMmVEVg=
 From:   Sven Eckelmann <sven@narfation.org>
 To:     stable@vger.kernel.org
 Cc:     Sven Eckelmann <sven@narfation.org>,
         Simon Wunderlich <sw@simonwunderlich.de>
-Subject: [PATCH 4.4 41/48] batman-adv: Prevent duplicated global TT entry
-Date:   Wed, 18 Mar 2020 00:27:27 +0100
-Message-Id: <20200317232734.6127-42-sven@narfation.org>
+Subject: [PATCH 4.4 42/48] batman-adv: Prevent duplicated tvlv handler
+Date:   Wed, 18 Mar 2020 00:27:28 +0100
+Message-Id: <20200317232734.6127-43-sven@narfation.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200317232734.6127-1-sven@narfation.org>
 References: <20200317232734.6127-1-sven@narfation.org>
@@ -38,10 +38,10 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit e7136e48ffdfb9f37b0820f619380485eb407361 upstream.
+commit ae3cdc97dc10c7a3b31f297dab429bfb774c9ccb upstream.
 
-The function batadv_tt_global_orig_entry_add is responsible for adding new
-tt_orig_list_entry to the orig_list. It first checks whether the entry
+The function batadv_tvlv_handler_register is responsible for adding new
+tvlv_handler to the handler_list. It first checks whether the entry
 already is in the list or not. If it is, then the creation of a new entry
 is aborted.
 
@@ -52,46 +52,47 @@ an entry with the same key between the check and the list manipulation.
 The check and the manipulation of the list must therefore be in the same
 locked code section.
 
-Fixes: d657e621a0f5 ("batman-adv: add reference counting for type batadv_tt_orig_list_entry")
+Fixes: ef26157747d4 ("batman-adv: tvlv - basic infrastructure")
 Signed-off-by: Sven Eckelmann <sven@narfation.org>
 Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
 ---
- net/batman-adv/translation-table.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ net/batman-adv/main.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/net/batman-adv/translation-table.c b/net/batman-adv/translation-table.c
-index 4a685cf2439d..1d445293efea 100644
---- a/net/batman-adv/translation-table.c
-+++ b/net/batman-adv/translation-table.c
-@@ -1315,6 +1315,8 @@ batadv_tt_global_orig_entry_add(struct batadv_tt_global_entry *tt_global,
+diff --git a/net/batman-adv/main.c b/net/batman-adv/main.c
+index d7f17c1aa4a4..2bdbaff3279b 100644
+--- a/net/batman-adv/main.c
++++ b/net/batman-adv/main.c
+@@ -1079,15 +1079,20 @@ void batadv_tvlv_handler_register(struct batadv_priv *bat_priv,
  {
- 	struct batadv_tt_orig_list_entry *orig_entry;
+ 	struct batadv_tvlv_handler *tvlv_handler;
  
-+	spin_lock_bh(&tt_global->list_lock);
++	spin_lock_bh(&bat_priv->tvlv.handler_list_lock);
 +
- 	orig_entry = batadv_tt_global_orig_entry_find(tt_global, orig_node);
- 	if (orig_entry) {
- 		/* refresh the ttvn: the current value could be a bogus one that
-@@ -1337,10 +1339,8 @@ batadv_tt_global_orig_entry_add(struct batadv_tt_global_entry *tt_global,
- 	orig_entry->flags = flags;
- 	atomic_set(&orig_entry->refcount, 2);
+ 	tvlv_handler = batadv_tvlv_handler_get(bat_priv, type, version);
+ 	if (tvlv_handler) {
++		spin_unlock_bh(&bat_priv->tvlv.handler_list_lock);
+ 		batadv_tvlv_handler_free_ref(tvlv_handler);
+ 		return;
+ 	}
  
--	spin_lock_bh(&tt_global->list_lock);
- 	hlist_add_head_rcu(&orig_entry->list,
- 			   &tt_global->orig_list);
--	spin_unlock_bh(&tt_global->list_lock);
- 	atomic_inc(&tt_global->orig_list_count);
+ 	tvlv_handler = kzalloc(sizeof(*tvlv_handler), GFP_ATOMIC);
+-	if (!tvlv_handler)
++	if (!tvlv_handler) {
++		spin_unlock_bh(&bat_priv->tvlv.handler_list_lock);
+ 		return;
++	}
  
- sync_flags:
-@@ -1348,6 +1348,8 @@ sync_flags:
- out:
- 	if (orig_entry)
- 		batadv_tt_orig_list_entry_free_ref(orig_entry);
-+
-+	spin_unlock_bh(&tt_global->list_lock);
+ 	tvlv_handler->ogm_handler = optr;
+ 	tvlv_handler->unicast_handler = uptr;
+@@ -1097,7 +1102,6 @@ void batadv_tvlv_handler_register(struct batadv_priv *bat_priv,
+ 	atomic_set(&tvlv_handler->refcount, 1);
+ 	INIT_HLIST_NODE(&tvlv_handler->list);
+ 
+-	spin_lock_bh(&bat_priv->tvlv.handler_list_lock);
+ 	hlist_add_head_rcu(&tvlv_handler->list, &bat_priv->tvlv.handler_list);
+ 	spin_unlock_bh(&bat_priv->tvlv.handler_list_lock);
  }
- 
- /**
 -- 
 2.20.1
 
