@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8BD2C1881EA
-	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:22:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 08B4E187F88
+	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:02:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726248AbgCQK4R (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Mar 2020 06:56:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33742 "EHLO mail.kernel.org"
+        id S1726740AbgCQLCQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Mar 2020 07:02:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41846 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725916AbgCQK4Q (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Mar 2020 06:56:16 -0400
+        id S1727896AbgCQLCO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Mar 2020 07:02:14 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DF19B20735;
-        Tue, 17 Mar 2020 10:56:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 68ABF20736;
+        Tue, 17 Mar 2020 11:02:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584442576;
-        bh=gHOt1FK61dAdNJn82T3HA6sNEEu939tqNP5tA+pYTBA=;
+        s=default; t=1584442933;
+        bh=PwiHKutSpB8ifpl393RjPw0c84tOC8R4SP595+LBHcU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UzHaDvxSlxnFtkpOd0ZsnbJvafkZTSZ3EsWqunmnnWKrGjfdDv0FEXGiszlAAGGmJ
-         uncDru5NgaAiUvxUnSQib4LGBk7BPjzVquh+0yZvpghqFmADqXmermdNlX2s0Ru5z8
-         1u7DsEqh7lDIGBGmkCNdt/XMACz9W2TmtBDnwItY=
+        b=aet/bxZpduSP8wObm7vTvJKR18rjKHt5G7NoVaudSPDxTCktrlxeU/pB+AsqmEeTA
+         IgVUL62+LL9tpTUou+BMzBD6E1eSi+kO+tDEkfvcvAP1LDaj2y79scT4mX5CrJwIzm
+         dxrn6y2wMDNQp5EQGXN6al8NEPNQ4C0KZ2j6xymI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mahesh Bandewar <maheshb@google.com>,
-        Eric Dumazet <edumazet@google.com>,
+        stable@vger.kernel.org, Edwin Peer <edwin.peer@broadcom.com>,
+        Michael Chan <michael.chan@broadcom.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 10/89] ipvlan: dont deref eth hdr before checking its set
+Subject: [PATCH 5.4 032/123] bnxt_en: fix error handling when flashing from file
 Date:   Tue, 17 Mar 2020 11:54:19 +0100
-Message-Id: <20200317103301.062493650@linuxfoundation.org>
+Message-Id: <20200317103311.171436934@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200317103259.744774526@linuxfoundation.org>
-References: <20200317103259.744774526@linuxfoundation.org>
+In-Reply-To: <20200317103307.343627747@linuxfoundation.org>
+References: <20200317103307.343627747@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,54 +44,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mahesh Bandewar <maheshb@google.com>
+From: Edwin Peer <edwin.peer@broadcom.com>
 
-[ Upstream commit ad8192767c9f9cf97da57b9ffcea70fb100febef ]
+[ Upstream commit 22630e28f9c2b55abd217869cc0696def89f2284 ]
 
-IPvlan in L3 mode discards outbound multicast packets but performs
-the check before ensuring the ether-header is set or not. This is
-an error that Eric found through code browsing.
+After bnxt_hwrm_do_send_message() was updated to return standard error
+codes in a recent commit, a regression in bnxt_flash_package_from_file()
+was introduced.  The return value does not properly reflect all
+possible firmware errors when calling firmware to flash the package.
 
-Fixes: 2ad7bf363841 (“ipvlan: Initial check-in of the IPVLAN driver.”)
-Signed-off-by: Mahesh Bandewar <maheshb@google.com>
-Reported-by: Eric Dumazet <edumazet@google.com>
+Fix it by consolidating all errors in one local variable rc instead
+of having 2 variables for different errors.
+
+Fixes: d4f1420d3656 ("bnxt_en: Convert error code in firmware message response to standard code.")
+Signed-off-by: Edwin Peer <edwin.peer@broadcom.com>
+Signed-off-by: Michael Chan <michael.chan@broadcom.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ipvlan/ipvlan_core.c |   18 ++++++++++--------
- 1 file changed, 10 insertions(+), 8 deletions(-)
+ drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c |   24 ++++++++++------------
+ 1 file changed, 11 insertions(+), 13 deletions(-)
 
---- a/drivers/net/ipvlan/ipvlan_core.c
-+++ b/drivers/net/ipvlan/ipvlan_core.c
-@@ -505,19 +505,21 @@ static int ipvlan_process_outbound(struc
- 	struct ethhdr *ethh = eth_hdr(skb);
- 	int ret = NET_XMIT_DROP;
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c
+@@ -2005,8 +2005,8 @@ static int bnxt_flash_package_from_file(
+ 	struct hwrm_nvm_install_update_output *resp = bp->hwrm_cmd_resp_addr;
+ 	struct hwrm_nvm_install_update_input install = {0};
+ 	const struct firmware *fw;
+-	int rc, hwrm_err = 0;
+ 	u32 item_len;
++	int rc = 0;
+ 	u16 index;
  
--	/* In this mode we dont care about multicast and broadcast traffic */
--	if (is_multicast_ether_addr(ethh->h_dest)) {
--		pr_debug_ratelimited("Dropped {multi|broad}cast of type=[%x]\n",
--				     ntohs(skb->protocol));
--		kfree_skb(skb);
--		goto out;
--	}
--
- 	/* The ipvlan is a pseudo-L2 device, so the packets that we receive
- 	 * will have L2; which need to discarded and processed further
- 	 * in the net-ns of the main-device.
- 	 */
- 	if (skb_mac_header_was_set(skb)) {
-+		/* In this mode we dont care about
-+		 * multicast and broadcast traffic */
-+		if (is_multicast_ether_addr(ethh->h_dest)) {
-+			pr_debug_ratelimited(
-+				"Dropped {multi|broad}cast of type=[%x]\n",
-+				ntohs(skb->protocol));
-+			kfree_skb(skb);
-+			goto out;
-+		}
-+
- 		skb_pull(skb, sizeof(*ethh));
- 		skb->mac_header = (typeof(skb->mac_header))~0U;
- 		skb_reset_network_header(skb);
+ 	bnxt_hwrm_fw_set_time(bp);
+@@ -2050,15 +2050,14 @@ static int bnxt_flash_package_from_file(
+ 			memcpy(kmem, fw->data, fw->size);
+ 			modify.host_src_addr = cpu_to_le64(dma_handle);
+ 
+-			hwrm_err = hwrm_send_message(bp, &modify,
+-						     sizeof(modify),
+-						     FLASH_PACKAGE_TIMEOUT);
++			rc = hwrm_send_message(bp, &modify, sizeof(modify),
++					       FLASH_PACKAGE_TIMEOUT);
+ 			dma_free_coherent(&bp->pdev->dev, fw->size, kmem,
+ 					  dma_handle);
+ 		}
+ 	}
+ 	release_firmware(fw);
+-	if (rc || hwrm_err)
++	if (rc)
+ 		goto err_exit;
+ 
+ 	if ((install_type & 0xffff) == 0)
+@@ -2067,20 +2066,19 @@ static int bnxt_flash_package_from_file(
+ 	install.install_type = cpu_to_le32(install_type);
+ 
+ 	mutex_lock(&bp->hwrm_cmd_lock);
+-	hwrm_err = _hwrm_send_message(bp, &install, sizeof(install),
+-				      INSTALL_PACKAGE_TIMEOUT);
+-	if (hwrm_err) {
++	rc = _hwrm_send_message(bp, &install, sizeof(install),
++				INSTALL_PACKAGE_TIMEOUT);
++	if (rc) {
+ 		u8 error_code = ((struct hwrm_err_output *)resp)->cmd_err;
+ 
+ 		if (resp->error_code && error_code ==
+ 		    NVM_INSTALL_UPDATE_CMD_ERR_CODE_FRAG_ERR) {
+ 			install.flags |= cpu_to_le16(
+ 			       NVM_INSTALL_UPDATE_REQ_FLAGS_ALLOWED_TO_DEFRAG);
+-			hwrm_err = _hwrm_send_message(bp, &install,
+-						      sizeof(install),
+-						      INSTALL_PACKAGE_TIMEOUT);
++			rc = _hwrm_send_message(bp, &install, sizeof(install),
++						INSTALL_PACKAGE_TIMEOUT);
+ 		}
+-		if (hwrm_err)
++		if (rc)
+ 			goto flash_pkg_exit;
+ 	}
+ 
+@@ -2092,7 +2090,7 @@ static int bnxt_flash_package_from_file(
+ flash_pkg_exit:
+ 	mutex_unlock(&bp->hwrm_cmd_lock);
+ err_exit:
+-	if (hwrm_err == -EACCES)
++	if (rc == -EACCES)
+ 		bnxt_print_admin_err(bp);
+ 	return rc;
+ }
 
 
