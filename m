@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 29BC818812B
-	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:16:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C9D0187FA1
+	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:03:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726824AbgCQLKM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Mar 2020 07:10:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52926 "EHLO mail.kernel.org"
+        id S1726765AbgCQLDK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Mar 2020 07:03:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43028 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729062AbgCQLKM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Mar 2020 07:10:12 -0400
+        id S1727319AbgCQLDH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Mar 2020 07:03:07 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DFF7020736;
-        Tue, 17 Mar 2020 11:10:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5579220735;
+        Tue, 17 Mar 2020 11:03:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584443411;
-        bh=ycfJPDGiYsmonPxYJEq1Gn0iYpW73QmP85vc5IF881Y=;
+        s=default; t=1584442986;
+        bh=SpoceLHzg5AKCH01Z2ag0L+5AX9kLQ7kRAV+kLT7H7g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q4MCqA6buYbS948hnzI90Za1OkbHU3kfk/qM7W5k9AJqz5peqVBqor/WVk5XLROjH
-         DW2Lvuf1whkfCOKzBuymvLe3FZCPmrrQnbxvC2sxZsVUzPM3uTIYkKEHLuDv1QoYH1
-         Z7sROhjAMhjIFQPMK1Bp25j8bKY+QUGBrwhroNVY=
+        b=ukxIyd8/hNE5Pnsap3flf6i7WueCYrR+OoZr3ZKXuWHBJJ7Cctba3LYbbp3Gr7H98
+         +vQpkkjUUnMmojGFB3yalGAO8wl0vTdqeOomuK75BX0Gnl/5nblIZn2StJhZFrtGO5
+         c+FQEbxm/dR9LMIMPUJxGg61rn9zsbI5ov9hW/eo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Suren Baghdasaryan <surenb@google.com>,
-        =?UTF-8?q?Michal=20Koutn=C3=BD?= <mkoutny@suse.com>,
-        Tejun Heo <tj@kernel.org>
-Subject: [PATCH 5.5 074/151] cgroup: Iterate tasks that did not finish do_exit()
+        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.4 057/123] net: phy: Avoid multiple suspends
 Date:   Tue, 17 Mar 2020 11:54:44 +0100
-Message-Id: <20200317103331.746779097@linuxfoundation.org>
+Message-Id: <20200317103313.521377499@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200317103326.593639086@linuxfoundation.org>
-References: <20200317103326.593639086@linuxfoundation.org>
+In-Reply-To: <20200317103307.343627747@linuxfoundation.org>
+References: <20200317103307.343627747@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,97 +43,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michal Koutný <mkoutny@suse.com>
+From: Florian Fainelli <f.fainelli@gmail.com>
 
-commit 9c974c77246460fa6a92c18554c3311c8c83c160 upstream.
+commit 503ba7c6961034ff0047707685644cad9287c226 upstream.
 
-PF_EXITING is set earlier than actual removal from css_set when a task
-is exitting. This can confuse cgroup.procs readers who see no PF_EXITING
-tasks, however, rmdir is checking against css_set membership so it can
-transitionally fail with EBUSY.
+It is currently possible for a PHY device to be suspended as part of a
+network device driver's suspend call while it is still being attached to
+that net_device, either via phy_suspend() or implicitly via phy_stop().
 
-Fix this by listing tasks that weren't unlinked from css_set active
-lists.
-It may happen that other users of the task iterator (without
-CSS_TASK_ITER_PROCS) spot a PF_EXITING task before cgroup_exit(). This
-is equal to the state before commit c03cd7738a83 ("cgroup: Include dying
-leaders with live threads in PROCS iterations") but it may be reviewed
-later.
+Later on, when the MDIO bus controller get suspended, we would attempt
+to suspend again the PHY because it is still attached to a network
+device.
 
-Reported-by: Suren Baghdasaryan <surenb@google.com>
-Fixes: c03cd7738a83 ("cgroup: Include dying leaders with live threads in PROCS iterations")
-Signed-off-by: Michal Koutný <mkoutny@suse.com>
-Signed-off-by: Tejun Heo <tj@kernel.org>
+This is both a waste of time and creates an opportunity for improper
+clock/power management bugs to creep in.
+
+Fixes: 803dd9c77ac3 ("net: phy: avoid suspending twice a PHY")
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- include/linux/cgroup.h |    1 +
- kernel/cgroup/cgroup.c |   23 ++++++++++++++++-------
- 2 files changed, 17 insertions(+), 7 deletions(-)
+ drivers/net/phy/phy_device.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/include/linux/cgroup.h
-+++ b/include/linux/cgroup.h
-@@ -62,6 +62,7 @@ struct css_task_iter {
- 	struct list_head		*mg_tasks_head;
- 	struct list_head		*dying_tasks_head;
+--- a/drivers/net/phy/phy_device.c
++++ b/drivers/net/phy/phy_device.c
+@@ -246,7 +246,7 @@ static bool mdio_bus_phy_may_suspend(str
+ 	 * MDIO bus driver and clock gated at this point.
+ 	 */
+ 	if (!netdev)
+-		return !phydev->suspended;
++		goto out;
  
-+	struct list_head		*cur_tasks_head;
- 	struct css_set			*cur_cset;
- 	struct css_set			*cur_dcset;
- 	struct task_struct		*cur_task;
---- a/kernel/cgroup/cgroup.c
-+++ b/kernel/cgroup/cgroup.c
-@@ -4405,12 +4405,16 @@ static void css_task_iter_advance_css_se
- 		}
- 	} while (!css_set_populated(cset) && list_empty(&cset->dying_tasks));
+ 	if (netdev->wol_enabled)
+ 		return false;
+@@ -266,7 +266,8 @@ static bool mdio_bus_phy_may_suspend(str
+ 	if (device_may_wakeup(&netdev->dev))
+ 		return false;
  
--	if (!list_empty(&cset->tasks))
-+	if (!list_empty(&cset->tasks)) {
- 		it->task_pos = cset->tasks.next;
--	else if (!list_empty(&cset->mg_tasks))
-+		it->cur_tasks_head = &cset->tasks;
-+	} else if (!list_empty(&cset->mg_tasks)) {
- 		it->task_pos = cset->mg_tasks.next;
--	else
-+		it->cur_tasks_head = &cset->mg_tasks;
-+	} else {
- 		it->task_pos = cset->dying_tasks.next;
-+		it->cur_tasks_head = &cset->dying_tasks;
-+	}
- 
- 	it->tasks_head = &cset->tasks;
- 	it->mg_tasks_head = &cset->mg_tasks;
-@@ -4468,10 +4472,14 @@ repeat:
- 		else
- 			it->task_pos = it->task_pos->next;
- 
--		if (it->task_pos == it->tasks_head)
-+		if (it->task_pos == it->tasks_head) {
- 			it->task_pos = it->mg_tasks_head->next;
--		if (it->task_pos == it->mg_tasks_head)
-+			it->cur_tasks_head = it->mg_tasks_head;
-+		}
-+		if (it->task_pos == it->mg_tasks_head) {
- 			it->task_pos = it->dying_tasks_head->next;
-+			it->cur_tasks_head = it->dying_tasks_head;
-+		}
- 		if (it->task_pos == it->dying_tasks_head)
- 			css_task_iter_advance_css_set(it);
- 	} else {
-@@ -4490,11 +4498,12 @@ repeat:
- 			goto repeat;
- 
- 		/* and dying leaders w/o live member threads */
--		if (!atomic_read(&task->signal->live))
-+		if (it->cur_tasks_head == it->dying_tasks_head &&
-+		    !atomic_read(&task->signal->live))
- 			goto repeat;
- 	} else {
- 		/* skip all dying ones */
--		if (task->flags & PF_EXITING)
-+		if (it->cur_tasks_head == it->dying_tasks_head)
- 			goto repeat;
- 	}
+-	return true;
++out:
++	return !phydev->suspended;
  }
+ 
+ static int mdio_bus_phy_suspend(struct device *dev)
 
 
