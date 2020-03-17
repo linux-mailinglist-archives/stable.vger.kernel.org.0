@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A2B1F188109
-	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:15:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 44CE9188193
+	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:20:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729427AbgCQLMd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Mar 2020 07:12:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56248 "EHLO mail.kernel.org"
+        id S1727221AbgCQLFa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Mar 2020 07:05:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46220 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729170AbgCQLMc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Mar 2020 07:12:32 -0400
+        id S1728407AbgCQLF1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Mar 2020 07:05:27 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E840B205ED;
-        Tue, 17 Mar 2020 11:12:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E7FA520714;
+        Tue, 17 Mar 2020 11:05:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584443551;
-        bh=VSkvZ2CSeMDWA3EVHHRCuGOMnRRxMVLwPUGFuYsELMQ=;
+        s=default; t=1584443126;
+        bh=Qug1L98ZOVgs7A3T9Nz4VumZo9JX5os4V3ilimJkW8o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LoKgaLz/Ezx3UgGz7TOkRsv63wDFjVlF+zWU/6Uzo9/z/+HX765H9V9RQ4tlHQGHh
-         oGoVAuoMb9vCTiV6MEyU4GE6wj3ADayf04gRB6FILlavXz6/ROWs8LLC8MFWIWIvXK
-         BAu1VoIdObt77GxhcHrJptc237JT1po9F2eZ1pSk=
+        b=ISesIWm3F1+m1b2y5ZLNziKFXXEPVZPhUdLSGrLndDY7WQ0DiSpcCkqKjleWLeSPN
+         7kw/HcxsYoeOajrtum1c63xCdlz9kksdSwqUPioXF4rwN/IdQBzp2QAQIumUtgGhU9
+         OC7QLhklmXVsaKW3kAgoGI9QGKIQ8ZgSw+WfJMK8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Joerg Roedel <jroedel@suse.de>,
-        Lu Baolu <baolu.lu@linux.intel.com>
-Subject: [PATCH 5.5 120/151] iommu/vt-d: dmar: replace WARN_TAINT with pr_warn + add_taint
-Date:   Tue, 17 Mar 2020 11:55:30 +0100
-Message-Id: <20200317103334.992694707@linuxfoundation.org>
+        stable@vger.kernel.org, Colin Xu <colin.xu@intel.com>,
+        Zhenyu Wang <zhenyuw@linux.intel.com>
+Subject: [PATCH 5.4 104/123] drm/i915/gvt: Fix unnecessary schedule timer when no vGPU exits
+Date:   Tue, 17 Mar 2020 11:55:31 +0100
+Message-Id: <20200317103318.214680634@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200317103326.593639086@linuxfoundation.org>
-References: <20200317103326.593639086@linuxfoundation.org>
+In-Reply-To: <20200317103307.343627747@linuxfoundation.org>
+References: <20200317103307.343627747@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,100 +43,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Zhenyu Wang <zhenyuw@linux.intel.com>
 
-commit 59833696442c674acbbd297772ba89e7ad8c753d upstream.
+commit 04d6067f1f19e70a418f92fa3170cf7fe53b7fdf upstream.
 
-Quoting from the comment describing the WARN functions in
-include/asm-generic/bug.h:
+>From commit f25a49ab8ab9 ("drm/i915/gvt: Use vgpu_lock to protect per
+vgpu access") the vgpu idr destroy is moved later than vgpu resource
+destroy, then it would fail to stop timer for schedule policy clean
+which to check vgpu idr for any left vGPU. So this trys to destroy
+vgpu idr earlier.
 
- * WARN(), WARN_ON(), WARN_ON_ONCE, and so on can be used to report
- * significant kernel issues that need prompt attention if they should ever
- * appear at runtime.
- *
- * Do not use these macros when checking for invalid external inputs
-
-The (buggy) firmware tables which the dmar code was calling WARN_TAINT
-for really are invalid external inputs. They are not under the kernel's
-control and the issues in them cannot be fixed by a kernel update.
-So logging a backtrace, which invites bug reports to be filed about this,
-is not helpful.
-
-Some distros, e.g. Fedora, have tools watching for the kernel backtraces
-logged by the WARN macros and offer the user an option to file a bug for
-this when these are encountered. The WARN_TAINT in warn_invalid_dmar()
-+ another iommu WARN_TAINT, addressed in another patch, have lead to over
-a 100 bugs being filed this way.
-
-This commit replaces the WARN_TAINT("...") calls, with
-pr_warn(FW_BUG "...") + add_taint(TAINT_FIRMWARE_WORKAROUND, ...) calls
-avoiding the backtrace and thus also avoiding bug-reports being filed
-about this against the kernel.
-
-Fixes: fd0c8894893c ("intel-iommu: Set a more specific taint flag for invalid BIOS DMAR tables")
-Fixes: e625b4a95d50 ("iommu/vt-d: Parse ANDD records")
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
-Acked-by: Lu Baolu <baolu.lu@linux.intel.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20200309140138.3753-2-hdegoede@redhat.com
-BugLink: https://bugzilla.redhat.com/show_bug.cgi?id=1564895
+Cc: Colin Xu <colin.xu@intel.com>
+Fixes: f25a49ab8ab9 ("drm/i915/gvt: Use vgpu_lock to protect per vgpu access")
+Acked-by: Colin Xu <colin.xu@intel.com>
+Signed-off-by: Zhenyu Wang <zhenyuw@linux.intel.com>
+Link: http://patchwork.freedesktop.org/patch/msgid/20200229055445.31481-1-zhenyuw@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/iommu/dmar.c |   11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+ drivers/gpu/drm/i915/gvt/vgpu.c |   12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
---- a/drivers/iommu/dmar.c
-+++ b/drivers/iommu/dmar.c
-@@ -440,12 +440,13 @@ static int __init dmar_parse_one_andd(st
- 
- 	/* Check for NUL termination within the designated length */
- 	if (strnlen(andd->device_name, header->length - 8) == header->length - 8) {
--		WARN_TAINT(1, TAINT_FIRMWARE_WORKAROUND,
-+		pr_warn(FW_BUG
- 			   "Your BIOS is broken; ANDD object name is not NUL-terminated\n"
- 			   "BIOS vendor: %s; Ver: %s; Product Version: %s\n",
- 			   dmi_get_system_info(DMI_BIOS_VENDOR),
- 			   dmi_get_system_info(DMI_BIOS_VERSION),
- 			   dmi_get_system_info(DMI_PRODUCT_VERSION));
-+		add_taint(TAINT_FIRMWARE_WORKAROUND, LOCKDEP_STILL_OK);
- 		return -EINVAL;
- 	}
- 	pr_info("ANDD device: %x name: %s\n", andd->device_number,
-@@ -471,14 +472,14 @@ static int dmar_parse_one_rhsa(struct ac
- 			return 0;
- 		}
- 	}
--	WARN_TAINT(
--		1, TAINT_FIRMWARE_WORKAROUND,
-+	pr_warn(FW_BUG
- 		"Your BIOS is broken; RHSA refers to non-existent DMAR unit at %llx\n"
- 		"BIOS vendor: %s; Ver: %s; Product Version: %s\n",
- 		drhd->reg_base_addr,
- 		dmi_get_system_info(DMI_BIOS_VENDOR),
- 		dmi_get_system_info(DMI_BIOS_VERSION),
- 		dmi_get_system_info(DMI_PRODUCT_VERSION));
-+	add_taint(TAINT_FIRMWARE_WORKAROUND, LOCKDEP_STILL_OK);
- 
- 	return 0;
- }
-@@ -827,14 +828,14 @@ int __init dmar_table_init(void)
- 
- static void warn_invalid_dmar(u64 addr, const char *message)
+--- a/drivers/gpu/drm/i915/gvt/vgpu.c
++++ b/drivers/gpu/drm/i915/gvt/vgpu.c
+@@ -272,10 +272,17 @@ void intel_gvt_destroy_vgpu(struct intel
  {
--	WARN_TAINT_ONCE(
--		1, TAINT_FIRMWARE_WORKAROUND,
-+	pr_warn_once(FW_BUG
- 		"Your BIOS is broken; DMAR reported at address %llx%s!\n"
- 		"BIOS vendor: %s; Ver: %s; Product Version: %s\n",
- 		addr, message,
- 		dmi_get_system_info(DMI_BIOS_VENDOR),
- 		dmi_get_system_info(DMI_BIOS_VERSION),
- 		dmi_get_system_info(DMI_PRODUCT_VERSION));
-+	add_taint(TAINT_FIRMWARE_WORKAROUND, LOCKDEP_STILL_OK);
- }
+ 	struct intel_gvt *gvt = vgpu->gvt;
  
- static int __ref
+-	mutex_lock(&vgpu->vgpu_lock);
+-
+ 	WARN(vgpu->active, "vGPU is still active!\n");
+ 
++	/*
++	 * remove idr first so later clean can judge if need to stop
++	 * service if no active vgpu.
++	 */
++	mutex_lock(&gvt->lock);
++	idr_remove(&gvt->vgpu_idr, vgpu->id);
++	mutex_unlock(&gvt->lock);
++
++	mutex_lock(&vgpu->vgpu_lock);
+ 	intel_gvt_debugfs_remove_vgpu(vgpu);
+ 	intel_vgpu_clean_sched_policy(vgpu);
+ 	intel_vgpu_clean_submission(vgpu);
+@@ -290,7 +297,6 @@ void intel_gvt_destroy_vgpu(struct intel
+ 	mutex_unlock(&vgpu->vgpu_lock);
+ 
+ 	mutex_lock(&gvt->lock);
+-	idr_remove(&gvt->vgpu_idr, vgpu->id);
+ 	if (idr_is_empty(&gvt->vgpu_idr))
+ 		intel_gvt_clean_irq(gvt);
+ 	intel_gvt_update_vgpu_types(gvt);
 
 
