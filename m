@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 90AE518813D
-	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:16:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BE2BA18817B
+	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:20:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728248AbgCQLJI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Mar 2020 07:09:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51110 "EHLO mail.kernel.org"
+        id S1727361AbgCQLDT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Mar 2020 07:03:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43298 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728912AbgCQLJE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Mar 2020 07:09:04 -0400
+        id S1728086AbgCQLDS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Mar 2020 07:03:18 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 173A6205ED;
-        Tue, 17 Mar 2020 11:09:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 90538205ED;
+        Tue, 17 Mar 2020 11:03:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584443343;
-        bh=9HK5uQds0fKQgS11ZT/CoSN65Hm3Jm7/jecpwJYLWfs=;
+        s=default; t=1584442998;
+        bh=fnrkN7VzjhmTohozM6jmw+I9R7OtBze2rTNvN3MSHr4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aXTAaW3Xqydf3sK0KWKYrWQEHxvyntdSI97cWqX2e2/J1y/Yb0+ud+nLQpwd9u1Tj
-         E8pyaBljVCXCYUA84+64aUY86f2tDrqNwe2/D6Lyqbr45LqvEUttc8lZIo3cM0KsYb
-         u0tZHnGd8ehaU3EXPleAQ4X0Tcjc1Fa5Xy3sN4F4=
+        b=hxyxJ3WF0GXNNnjuZt9jIAR3g272UasLGfCTBw9PR4U9kNnaq8QvqZJXJKAuf4fJr
+         qvFfcnnWU4txm3BaRntVu7xrN2xn6UZIw8/64c3W3SypWlOOo6Tteh4/zEn9YwoFQP
+         k+jhjLKyD9Gr0XpT9DRB0sNJ1aWUdiGm1rlgLlsI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
-        Oliver Hartkopp <socketcan@hartkopp.net>,
+        stable@vger.kernel.org, Shakeel Butt <shakeelb@google.com>,
+        Eric Dumazet <edumazet@google.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.5 051/151] can: add missing attribute validation for termination
+Subject: [PATCH 5.4 034/123] net: memcg: late association of sock to memcg
 Date:   Tue, 17 Mar 2020 11:54:21 +0100
-Message-Id: <20200317103330.207773226@linuxfoundation.org>
+Message-Id: <20200317103311.380796544@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200317103326.593639086@linuxfoundation.org>
-References: <20200317103326.593639086@linuxfoundation.org>
+In-Reply-To: <20200317103307.343627747@linuxfoundation.org>
+References: <20200317103307.343627747@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,31 +44,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakub Kicinski <kuba@kernel.org>
+From: Shakeel Butt <shakeelb@google.com>
 
-[ Upstream commit ab02ad660586b94f5d08912a3952b939cf4c4430 ]
+[ Upstream commit d752a4986532cb6305dfd5290a614cde8072769d ]
 
-Add missing attribute validation for IFLA_CAN_TERMINATION
-to the netlink policy.
+If a TCP socket is allocated in IRQ context or cloned from unassociated
+(i.e. not associated to a memcg) in IRQ context then it will remain
+unassociated for its whole life. Almost half of the TCPs created on the
+system are created in IRQ context, so, memory used by such sockets will
+not be accounted by the memcg.
 
-Fixes: 12a6075cabc0 ("can: dev: add CAN interface termination API")
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Acked-by: Oliver Hartkopp <socketcan@hartkopp.net>
+This issue is more widespread in cgroup v1 where network memory
+accounting is opt-in but it can happen in cgroup v2 if the source socket
+for the cloning was created in root memcg.
+
+To fix the issue, just do the association of the sockets at the accept()
+time in the process context and then force charge the memory buffer
+already used and reserved by the socket.
+
+Signed-off-by: Shakeel Butt <shakeelb@google.com>
+Reviewed-by: Eric Dumazet <edumazet@google.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/can/dev.c |    1 +
- 1 file changed, 1 insertion(+)
+ mm/memcontrol.c                 |   14 --------------
+ net/core/sock.c                 |    5 ++++-
+ net/ipv4/inet_connection_sock.c |   20 ++++++++++++++++++++
+ 3 files changed, 24 insertions(+), 15 deletions(-)
 
---- a/drivers/net/can/dev.c
-+++ b/drivers/net/can/dev.c
-@@ -883,6 +883,7 @@ static const struct nla_policy can_polic
- 				= { .len = sizeof(struct can_bittiming) },
- 	[IFLA_CAN_DATA_BITTIMING_CONST]
- 				= { .len = sizeof(struct can_bittiming_const) },
-+	[IFLA_CAN_TERMINATION]	= { .type = NLA_U16 },
- };
+--- a/mm/memcontrol.c
++++ b/mm/memcontrol.c
+@@ -6792,20 +6792,6 @@ void mem_cgroup_sk_alloc(struct sock *sk
+ 	if (!mem_cgroup_sockets_enabled)
+ 		return;
  
- static int can_validate(struct nlattr *tb[], struct nlattr *data[],
+-	/*
+-	 * Socket cloning can throw us here with sk_memcg already
+-	 * filled. It won't however, necessarily happen from
+-	 * process context. So the test for root memcg given
+-	 * the current task's memcg won't help us in this case.
+-	 *
+-	 * Respecting the original socket's memcg is a better
+-	 * decision in this case.
+-	 */
+-	if (sk->sk_memcg) {
+-		css_get(&sk->sk_memcg->css);
+-		return;
+-	}
+-
+ 	/* Do not associate the sock with unrelated interrupted task's memcg. */
+ 	if (in_interrupt())
+ 		return;
+--- a/net/core/sock.c
++++ b/net/core/sock.c
+@@ -1832,7 +1832,10 @@ struct sock *sk_clone_lock(const struct
+ 		atomic_set(&newsk->sk_zckey, 0);
+ 
+ 		sock_reset_flag(newsk, SOCK_DONE);
+-		mem_cgroup_sk_alloc(newsk);
++
++		/* sk->sk_memcg will be populated at accept() time */
++		newsk->sk_memcg = NULL;
++
+ 		cgroup_sk_alloc(&newsk->sk_cgrp_data);
+ 
+ 		rcu_read_lock();
+--- a/net/ipv4/inet_connection_sock.c
++++ b/net/ipv4/inet_connection_sock.c
+@@ -482,6 +482,26 @@ struct sock *inet_csk_accept(struct sock
+ 		}
+ 		spin_unlock_bh(&queue->fastopenq.lock);
+ 	}
++
++	if (mem_cgroup_sockets_enabled) {
++		int amt;
++
++		/* atomically get the memory usage, set and charge the
++		 * sk->sk_memcg.
++		 */
++		lock_sock(newsk);
++
++		/* The sk has not been accepted yet, no need to look at
++		 * sk->sk_wmem_queued.
++		 */
++		amt = sk_mem_pages(newsk->sk_forward_alloc +
++				   atomic_read(&sk->sk_rmem_alloc));
++		mem_cgroup_sk_alloc(newsk);
++		if (newsk->sk_memcg && amt)
++			mem_cgroup_charge_skmem(newsk->sk_memcg, amt);
++
++		release_sock(newsk);
++	}
+ out:
+ 	release_sock(sk);
+ 	if (req)
 
 
