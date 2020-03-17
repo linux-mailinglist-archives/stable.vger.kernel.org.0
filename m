@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C72D1880AE
-	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:12:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A446A18810A
+	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:15:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729276AbgCQLMV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Mar 2020 07:12:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55990 "EHLO mail.kernel.org"
+        id S1729169AbgCQLMY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Mar 2020 07:12:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56036 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728826AbgCQLMV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Mar 2020 07:12:21 -0400
+        id S1728826AbgCQLMY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Mar 2020 07:12:24 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3E4E3205ED;
-        Tue, 17 Mar 2020 11:12:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D6123205ED;
+        Tue, 17 Mar 2020 11:12:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584443540;
-        bh=+1f4QnqDdzNN9syh0v86emb7uMUaesvWQ5RPlv5BFfU=;
+        s=default; t=1584443543;
+        bh=/u62k7k4XbFRbH1vWPs3YBXWUG0u2KF4TDGcXKapG9g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T4w2VMu8Rj2dltmJxKzr3J22lPABtIuPbr6lIjHbtz1oavj8PrvRcRSgyJz3hzkPD
-         8B8zLVhlvoB7NYv0bKrWaGuJXl5mIYY99PNJm5Uc3GG9PhakHNdvzk1ijeT/jtBjWV
-         SGQvVbaHX9JuyTqXUyOiCfiUwl+9snOz6oUlUGjE=
+        b=WSE3GJ9pJaooz1G0YSoS6s/DFEyhvJCXlZWccOEI3qVPWQ+EbtyihyxdvyElSwuix
+         ME7XKCnxVnXj+G25wHhECK0x3xAjgfwVNL4Msyxf5AxuZAQMf7WVLP183kVTvlOzKn
+         GOIX4p7IkfgjpRYHZRa+FQbCq47lVtdek7Zu3/IU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Felix Fietkau <nbd@nbd.name>,
-        Kalle Valo <kvalo@codeaurora.org>
-Subject: [PATCH 5.5 116/151] mt76: fix array overflow on receiving too many fragments for a packet
-Date:   Tue, 17 Mar 2020 11:55:26 +0100
-Message-Id: <20200317103334.714877109@linuxfoundation.org>
+        stable@vger.kernel.org, Kim Phillips <kim.phillips@amd.com>,
+        Borislav Petkov <bp@suse.de>,
+        Peter Zijlstra <peterz@infradead.org>
+Subject: [PATCH 5.5 117/151] perf/amd/uncore: Replace manual sampling check with CAP_NO_INTERRUPT flag
+Date:   Tue, 17 Mar 2020 11:55:27 +0100
+Message-Id: <20200317103334.785564361@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200317103326.593639086@linuxfoundation.org>
 References: <20200317103326.593639086@linuxfoundation.org>
@@ -43,42 +44,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Felix Fietkau <nbd@nbd.name>
+From: Kim Phillips <kim.phillips@amd.com>
 
-commit b102f0c522cf668c8382c56a4f771b37d011cda2 upstream.
+commit f967140dfb7442e2db0868b03b961f9c59418a1b upstream.
 
-If the hardware receives an oversized packet with too many rx fragments,
-skb_shinfo(skb)->frags can overflow and corrupt memory of adjacent pages.
-This becomes especially visible if it corrupts the freelist pointer of
-a slab page.
+Enable the sampling check in kernel/events/core.c::perf_event_open(),
+which returns the more appropriate -EOPNOTSUPP.
 
+BEFORE:
+
+  $ sudo perf record -a -e instructions,l3_request_g1.caching_l3_cache_accesses true
+  Error:
+  The sys_perf_event_open() syscall returned with 22 (Invalid argument) for event (l3_request_g1.caching_l3_cache_accesses).
+  /bin/dmesg | grep -i perf may provide additional information.
+
+With nothing relevant in dmesg.
+
+AFTER:
+
+  $ sudo perf record -a -e instructions,l3_request_g1.caching_l3_cache_accesses true
+  Error:
+  l3_request_g1.caching_l3_cache_accesses: PMU Hardware doesn't support sampling/overflow-interrupts. Try 'perf stat'
+
+Fixes: c43ca5091a37 ("perf/x86/amd: Add support for AMD NB and L2I "uncore" counters")
+Signed-off-by: Kim Phillips <kim.phillips@amd.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Acked-by: Peter Zijlstra <peterz@infradead.org>
 Cc: stable@vger.kernel.org
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lkml.kernel.org/r/20200311191323.13124-1-kim.phillips@amd.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/wireless/mediatek/mt76/dma.c |    9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ arch/x86/events/amd/uncore.c |   17 +++++++----------
+ 1 file changed, 7 insertions(+), 10 deletions(-)
 
---- a/drivers/net/wireless/mediatek/mt76/dma.c
-+++ b/drivers/net/wireless/mediatek/mt76/dma.c
-@@ -447,10 +447,13 @@ mt76_add_fragment(struct mt76_dev *dev,
- 	struct page *page = virt_to_head_page(data);
- 	int offset = data - page_address(page);
- 	struct sk_buff *skb = q->rx_head;
-+	struct skb_shared_info *shinfo = skb_shinfo(skb);
+--- a/arch/x86/events/amd/uncore.c
++++ b/arch/x86/events/amd/uncore.c
+@@ -190,15 +190,12 @@ static int amd_uncore_event_init(struct
  
--	offset += q->buf_offset;
--	skb_add_rx_frag(skb, skb_shinfo(skb)->nr_frags, page, offset, len,
--			q->buf_size);
-+	if (shinfo->nr_frags < ARRAY_SIZE(shinfo->frags)) {
-+		offset += q->buf_offset;
-+		skb_add_rx_frag(skb, shinfo->nr_frags, page, offset, len,
-+				q->buf_size);
-+	}
+ 	/*
+ 	 * NB and Last level cache counters (MSRs) are shared across all cores
+-	 * that share the same NB / Last level cache. Interrupts can be directed
+-	 * to a single target core, however, event counts generated by processes
+-	 * running on other cores cannot be masked out. So we do not support
+-	 * sampling and per-thread events.
++	 * that share the same NB / Last level cache.  On family 16h and below,
++	 * Interrupts can be directed to a single target core, however, event
++	 * counts generated by processes running on other cores cannot be masked
++	 * out. So we do not support sampling and per-thread events via
++	 * CAP_NO_INTERRUPT, and we do not enable counter overflow interrupts:
+ 	 */
+-	if (is_sampling_event(event) || event->attach_state & PERF_ATTACH_TASK)
+-		return -EINVAL;
+-
+-	/* and we do not enable counter overflow interrupts */
+ 	hwc->config = event->attr.config & AMD64_RAW_EVENT_MASK_NB;
+ 	hwc->idx = -1;
  
- 	if (more)
- 		return;
+@@ -306,7 +303,7 @@ static struct pmu amd_nb_pmu = {
+ 	.start		= amd_uncore_start,
+ 	.stop		= amd_uncore_stop,
+ 	.read		= amd_uncore_read,
+-	.capabilities	= PERF_PMU_CAP_NO_EXCLUDE,
++	.capabilities	= PERF_PMU_CAP_NO_EXCLUDE | PERF_PMU_CAP_NO_INTERRUPT,
+ };
+ 
+ static struct pmu amd_llc_pmu = {
+@@ -317,7 +314,7 @@ static struct pmu amd_llc_pmu = {
+ 	.start		= amd_uncore_start,
+ 	.stop		= amd_uncore_stop,
+ 	.read		= amd_uncore_read,
+-	.capabilities	= PERF_PMU_CAP_NO_EXCLUDE,
++	.capabilities	= PERF_PMU_CAP_NO_EXCLUDE | PERF_PMU_CAP_NO_INTERRUPT,
+ };
+ 
+ static struct amd_uncore *amd_uncore_alloc(unsigned int cpu)
 
 
