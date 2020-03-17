@@ -2,138 +2,130 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B864D188E4B
-	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 20:46:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 874A4188E4C
+	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 20:47:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726294AbgCQTqt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Mar 2020 15:46:49 -0400
-Received: from mail-eopbgr1400121.outbound.protection.outlook.com ([40.107.140.121]:52546
-        "EHLO JPN01-TY1-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726555AbgCQTqt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Mar 2020 15:46:49 -0400
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=NstSNvJaEBYCmf0bv8SXGAMc88xeoVBWIcdEEbnhwGSTTHz4TYMhncDBE5NW8osPC3PUmXt8H4kICGlFYV55yN7UykkM3dcXmlQ/Ge66LhmGvIPn8+PaNFigTBGPe6id8o6h1qauZhVJQjcwoJr17tEVH2EzATfVC+SjUssOZsMZrXcChxlhVifY4fKxXcTfv1DC10R3c5CmdOHAb/A2m2XwOSFlqM68q/kK8HA+JGzEnqM7fk/fIExdj2Qgr0ifbyD/rGIcF2kaHG6lM4/Fe1DukncfqJHwf32lFPRkoIYDifQuR8xnAe7SCen9DTGvpnU4mNcuCi2qbifgaRhBmA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=ARlASKY5YlAXGKgvUSVcITt7nUO35fqVWnkYIxCw/VM=;
- b=FHb2FyqR4a7/egT/Yxsiar9q5oCwr9uY7qOmJb3yF0O4Cntx+sVk6GhRG+F70WbNcqXQQ0yHDb2tenJ56zphtZaTbegcFOjVyr2J/LX8vnpLV5Pp0UvmEwATfmwjXbmKPI5Dy1i/44TlWu4NdQV1nV2CTRKFpO4jOabHtwcxp4REeLcXhpKDQPD6QJZyh/ztG9I5tz3N+Blh1Myn360eK1q3tNSzr1qg/bFYDLyAlpRKrr0RCGFPHz/tQDi9eqeCIQvQVpqHdtsntHMMMSYrhCvY+cUH6e1gvLJUHqFg5KZtcmaPz0sYH1IqVOSgm5fCU4akLtxXndPohLLrSTBiXg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=renesas.com; dmarc=pass action=none header.from=renesas.com;
- dkim=pass header.d=renesas.com; arc=none
+        id S1726494AbgCQTrp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Mar 2020 15:47:45 -0400
+Received: from mail-pg1-f193.google.com ([209.85.215.193]:40423 "EHLO
+        mail-pg1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726452AbgCQTrp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 17 Mar 2020 15:47:45 -0400
+Received: by mail-pg1-f193.google.com with SMTP id t24so12291868pgj.7;
+        Tue, 17 Mar 2020 12:47:43 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=renesasgroup.onmicrosoft.com; s=selector2-renesasgroup-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=ARlASKY5YlAXGKgvUSVcITt7nUO35fqVWnkYIxCw/VM=;
- b=sjmWqFOnEVsQO6qynPInlNiWumHsLi+alwXLOqYXIWU9oaYftrXNEDIMlDkSLpuCfjHB5w73k33e2tCAfxydvlqcRcFcuU/z8nXAUQIcQbmA6L6yoXt9p2DJ2xsmtCHSW8PfZF9IYUUCDjIMUg1Ky5iFEU7p2PCz0Zy3alP99T4=
-Received: from TYAPR01MB2285.jpnprd01.prod.outlook.com (52.133.177.145) by
- TYAPR01MB4733.jpnprd01.prod.outlook.com (20.179.174.150) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.2814.21; Tue, 17 Mar 2020 19:46:45 +0000
-Received: from TYAPR01MB2285.jpnprd01.prod.outlook.com
- ([fe80::a882:860e:5745:25e1]) by TYAPR01MB2285.jpnprd01.prod.outlook.com
- ([fe80::a882:860e:5745:25e1%6]) with mapi id 15.20.2814.021; Tue, 17 Mar 2020
- 19:46:45 +0000
-From:   Chris Paterson <Chris.Paterson2@renesas.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-CC:     "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "torvalds@linux-foundation.org" <torvalds@linux-foundation.org>,
-        "akpm@linux-foundation.org" <akpm@linux-foundation.org>,
-        "linux@roeck-us.net" <linux@roeck-us.net>,
-        "shuah@kernel.org" <shuah@kernel.org>,
-        "patches@kernelci.org" <patches@kernelci.org>,
-        "ben.hutchings@codethink.co.uk" <ben.hutchings@codethink.co.uk>,
-        "lkft-triage@lists.linaro.org" <lkft-triage@lists.linaro.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: RE: [PATCH 4.19 00/86] 4.19.109-stable review
-Thread-Topic: [PATCH 4.19 00/86] 4.19.109-stable review
-Thread-Index: AQHV9t2MWw5vCoRaqkyWbNkUiDyKMahDMLzwgAAvTYCACdqSYA==
-Date:   Tue, 17 Mar 2020 19:46:45 +0000
-Message-ID: <TYAPR01MB22854206B2C28CB7FDFE5143B7F60@TYAPR01MB2285.jpnprd01.prod.outlook.com>
-References: <20200310124530.808338541@linuxfoundation.org>
- <OSBPR01MB228067017410645AC3A78939B7FC0@OSBPR01MB2280.jpnprd01.prod.outlook.com>
- <20200311131341.GB3858095@kroah.com>
-In-Reply-To: <20200311131341.GB3858095@kroah.com>
-Accept-Language: en-GB, en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-authentication-results: spf=none (sender IP is )
- smtp.mailfrom=Chris.Paterson2@renesas.com; 
-x-originating-ip: [188.223.77.164]
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-ht: Tenant
-x-ms-office365-filtering-correlation-id: 42e15800-166d-48aa-a7f6-08d7caabec9d
-x-ms-traffictypediagnostic: TYAPR01MB4733:
-x-microsoft-antispam-prvs: <TYAPR01MB4733D69B3EA188ADAB120E74B7F60@TYAPR01MB4733.jpnprd01.prod.outlook.com>
-x-ms-oob-tlc-oobclassifiers: OLM:6790;
-x-forefront-prvs: 0345CFD558
-x-forefront-antispam-report: SFV:NSPM;SFS:(10019020)(4636009)(39860400002)(376002)(346002)(136003)(396003)(366004)(199004)(6506007)(5660300002)(7696005)(316002)(54906003)(26005)(71200400001)(4326008)(52536014)(186003)(966005)(478600001)(66946007)(81166006)(64756008)(66556008)(66476007)(66446008)(86362001)(55016002)(81156014)(8676002)(76116006)(9686003)(8936002)(7416002)(33656002)(6916009)(2906002);DIR:OUT;SFP:1102;SCL:1;SRVR:TYAPR01MB4733;H:TYAPR01MB2285.jpnprd01.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;A:1;
-received-spf: None (protection.outlook.com: renesas.com does not designate
- permitted sender hosts)
-x-ms-exchange-senderadcheck: 1
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: FKu0B4MGktcPwiB8bRFIdPc5XBFWweohg+GJm4woVgx9Mk+HsURrgJ2Z56t198LRF/apRNCNU30Wgg7f1TAWNjMdSQjJ3sNzysLKJPLGSzUSRqr3/05dG7SCshyRZ/DmOjaOKgIfjzvrLw2GmC9zrVjC/asjofv1/ZasdZv++qysM2xnu5Kx2soTkLW+zH9w2mmhnW40A9g7HGibT+m4oVyHlEtJamTSb7lN9NImHIvWcZVWmJlSikasFRi83VMtGbO4i7hjiUD9RdQGyIxdf1NTP0zbSEb1scnKQ1LoAlCTBTWGvOJ/tayF5+yW3oujRU9+rVVr26ziFWzY1ZGn2LQVc2/21DJw4O66Afmr1x/SJvZTUsHQOmgy0gCGZLRrlPDVauORj8UCrClPqaDH/fDQa/WvWr/hMYqiAVPaLB9cC4P3DdWjB84bKmC2O9FPeoYSFtOjMN7/wtZ8faZKw3Oae7yghEk1ji/X+D0Alcfr8i93Ci3/m878OJlhQZbFBA9W7gj8Co8dnURNijvsTg==
-x-ms-exchange-antispam-messagedata: TrAK8r2Kinzjx8+vwM7P40xTgLY6Lkb3DudFpBBgDU/R5fjIYkfEAaemKoHeaLU7Rpl+z1XYzFGaz5dA8hhhQOkD/CQ0OGofwxMhTRAam2j8tqZALJFxvaRofSEw83c56k8tj1asT7QI5UfQEFZFkQ==
-x-ms-exchange-transport-forked: True
-Content-Type: text/plain; charset="Windows-1252"
-Content-Transfer-Encoding: quoted-printable
+        d=gmail.com; s=20161025;
+        h=sender:subject:to:cc:references:from:autocrypt:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=ynCX89aoJi3ScgG2DiGiwyGp5TOzrhhKoFypHHHak9U=;
+        b=mnGNuHZVZ/jKmz6elfijx+tyGB4Sp7rL7Y4vP/+WWBOkIgn8/a8Rb9DroaUKA99kky
+         TxCmwX5L1MtdJ0LiIcOGGmYVpJSe9p5+bTL785uxIKcw22PTlQi1JMEPjDVys8SssK1x
+         V2PIplIMvkeSjfrNIDgzTjpcxVLlfoJoeIL5AFWNzbHlkyA/pTCEHQeIFfX0SFuPuSfK
+         OardXSz8P2aQxD0CxcBfz3wChXxkY4bEy9sO/Kcb2OorriNHtHw+Kec3achLdNu2uw6E
+         Srly34tVr6Sf0/IHcB+PHcZrPK1lGhNntg6zT3BvhayE5+/ru1fzdAhwKqhbiIkrEARa
+         9jiA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:sender:subject:to:cc:references:from:autocrypt
+         :message-id:date:user-agent:mime-version:in-reply-to
+         :content-language:content-transfer-encoding;
+        bh=ynCX89aoJi3ScgG2DiGiwyGp5TOzrhhKoFypHHHak9U=;
+        b=Yhy3nSj3C8Qsdp7U/bsXUspPKykTHoRr7WdQhSybuncjUKF6ItUGt2zPqiT3vkPESf
+         Edk7WTdXc1QpUENaY1oMUS0YPQ/wcFHtqjwoOVhaZksSTeE3cw9x6TVrFpqyqPXZEI1z
+         9jGrR/f9lRT1hT4eqpKkY6qOL3SQTCo7ln3h61FqMJqUBDxk+nE9av9ruF4rHiLfZpnI
+         F2Lz3CbWVNUic4A0knA5I79X/okmGcQNMdaZO4SyUNncZWBMbgmO4mHaOTqSV/VhoV99
+         3cxJC2Oq0s60RRsjBhd8dPaTTDq+nJZ6ID6C7v5rm8UQTij087drh7HUjuoZew/PEQLF
+         0oWg==
+X-Gm-Message-State: ANhLgQ3XELWskbEaCTkWSm4a1t+UwtbEgiE5zlux0sXRu3Rd9NyQdbD1
+        Dc5niP/KHxVsTYLoC5LWfTTN0Qc8
+X-Google-Smtp-Source: ADFU+vv0YfEBuie2mq2RBTgpJonH+bhni+kmkwZSqHW7HQhDc4zHs5RSIPKvhLgVuQgWR5E28vVBbw==
+X-Received: by 2002:a62:3844:: with SMTP id f65mr378773pfa.255.1584474463112;
+        Tue, 17 Mar 2020 12:47:43 -0700 (PDT)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id a13sm3862861pfc.24.2020.03.17.12.47.41
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 17 Mar 2020 12:47:41 -0700 (PDT)
+Subject: Re: [PATCH 5.4 000/123] 5.4.26-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org
+References: <20200317103307.343627747@linuxfoundation.org>
+From:   Guenter Roeck <linux@roeck-us.net>
+Autocrypt: addr=linux@roeck-us.net; keydata=
+ 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
+ mDW4+i+XlNFUPUYMrIKi9joBhu18ssf5i5Q=
+Message-ID: <ae45859f-9ab4-73ac-d244-a936c02ebcfb@roeck-us.net>
+Date:   Tue, 17 Mar 2020 12:47:40 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.4.1
 MIME-Version: 1.0
-X-OriginatorOrg: renesas.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 42e15800-166d-48aa-a7f6-08d7caabec9d
-X-MS-Exchange-CrossTenant-originalarrivaltime: 17 Mar 2020 19:46:45.2858
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 53d82571-da19-47e4-9cb4-625a166a4a2a
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: +RFGW2sEPJNqBjOzjKEDCMh66IWMUZ/fZelcf8+EEDWp3j9BkLhZHQP7XKAmxUeo075qJ/H4az7sPzTfcbC/HSpAMtmvYoMvQBgqx1m+Y9c=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: TYAPR01MB4733
+In-Reply-To: <20200317103307.343627747@linuxfoundation.org>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello,
+On 3/17/20 3:53 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.4.26 release.
+> There are 123 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Thu, 19 Mar 2020 10:31:16 +0000.
+> Anything received after that time might be too late.
+> 
 
-> From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> Sent: 11 March 2020 13:14
->=20
-> On Wed, Mar 11, 2020 at 10:56:06AM +0000, Chris Paterson wrote:
-> > Hello Greg,
-> >
-> > > From: stable-owner@vger.kernel.org <stable-owner@vger.kernel.org> On
-> > > Behalf Of Greg Kroah-Hartman
-> > > Sent: 10 March 2020 12:44
-> > >
-> > > This is the start of the stable review cycle for the 4.19.109 release=
-.
-> > > There are 86 patches in this series, all will be posted as a response
-> > > to this one.  If anyone has any issues with these being applied, plea=
-se
-> > > let me know.
-> >
-> > No build/test issues seen for CIP configs for Linux 4.19.109-rc1
-> (624c124960e8).
-> > (Okay, there is a boot issue with the arm multi_v7_defconfig, but I'm p=
-retty
-> sure that's an issue my end that's been around for a couple of weeks now)
-> >
-> > Build/test pipeline/logs: https://gitlab.com/cip-project/cip-testing/li=
-nux-
-> stable-rc-ci/pipelines/124879010
-> > GitLab CI pipeline: https://gitlab.com/cip-project/cip-testing/linux-ci=
-p-
-> pipelines/-/blob/master/trees/linux-4.19.y.yml
->=20
-> Thanks for testing 2 of these and letting me know.
->=20
-> If you figure out the boot issue, please let us know.
+Build results:
+	total: 158 pass: 158 fail: 0
+Qemu test results:
+	total: 427 pass: 427 fail: 0
 
-Sorted it. Just needed to get u-boot to load the DTB to a different address=
- to stop it getting overwritten by the giant Kernel.
+Guenter
 
-Chris
-
->=20
-> greg k-h
