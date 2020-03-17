@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id ABCCD187F23
-	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 11:59:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A0E90187F25
+	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 11:59:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726947AbgCQK6w (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Mar 2020 06:58:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37042 "EHLO mail.kernel.org"
+        id S1727331AbgCQK65 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Mar 2020 06:58:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37170 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727338AbgCQK6t (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Mar 2020 06:58:49 -0400
+        id S1727338AbgCQK6z (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Mar 2020 06:58:55 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5AB8C20719;
-        Tue, 17 Mar 2020 10:58:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7E4FA20714;
+        Tue, 17 Mar 2020 10:58:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584442728;
-        bh=TOkH5WlSFQyVZXCFkpzAVTVt8FbZuTxzjwijMBTQ9G4=;
+        s=default; t=1584442735;
+        bh=YwAgYzONl0XxZshESuISnHoPP0ietjhIBwfcHHp6YUg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VfPFAgofe/lk29H+GYXquqhwJEZykZ1kUxXBJZmt9TzEDXamQwqiGwLsftcQLugW7
-         h4MWJPVAjnLZRWWXA/LNc1QrMHItC5TljdB85/hCe6kdGic+xSaDxnm1xK9EL95qoi
-         47+/+TNRUjO+K+G+wnyqO5+kZT8Pwce6+DEIRq64=
+        b=DTG2HqfN7RH7dkeU8DToJ9XyFXQpTqXicFsZKn42QBB7XAwmNxCXNS9qGw90KBm0H
+         IJ4jxDqmrR6PCY1KdNO3veUIOZdn1zG3f0Ox6+4dDxwgGTI1SYXCscrm0JXATIZbFy
+         YWTdA2dRTeYONt6+CBE09vHtYgjRmJB56PlW9yoM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>,
-        Vitaly Kuznetsov <vkuznets@redhat.com>,
-        Sean Christopherson <sean.j.christopherson@intel.com>
-Subject: [PATCH 4.19 60/89] KVM: x86: clear stale x86_emulate_ctxt->intercept value
-Date:   Tue, 17 Mar 2020 11:55:09 +0100
-Message-Id: <20200317103306.803235020@linuxfoundation.org>
+        stable@vger.kernel.org, Erhard Furtner <erhard_f@mailbox.org>,
+        Wolfram Sang <wsa@the-dreams.de>,
+        Michael Ellerman <mpe@ellerman.id.au>, stable@kernel.org
+Subject: [PATCH 4.19 62/89] macintosh: windfarm: fix MODINFO regression
+Date:   Tue, 17 Mar 2020 11:55:11 +0100
+Message-Id: <20200317103307.050155760@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200317103259.744774526@linuxfoundation.org>
 References: <20200317103259.744774526@linuxfoundation.org>
@@ -44,50 +44,173 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vitaly Kuznetsov <vkuznets@redhat.com>
+From: Wolfram Sang <wsa@the-dreams.de>
 
-commit 342993f96ab24d5864ab1216f46c0b199c2baf8e upstream.
+commit bcf3588d8ed3517e6ffaf083f034812aee9dc8e2 upstream.
 
-After commit 07721feee46b ("KVM: nVMX: Don't emulate instructions in guest
-mode") Hyper-V guests on KVM stopped booting with:
+Commit af503716ac14 made sure OF devices get an OF style modalias with
+I2C events. It assumed all in-tree users were converted, yet it missed
+some Macintosh drivers.
 
- kvm_nested_vmexit:    rip fffff802987d6169 reason EPT_VIOLATION info1 181
-    info2 0 int_info 0 int_info_err 0
- kvm_page_fault:       address febd0000 error_code 181
- kvm_emulate_insn:     0:fffff802987d6169: f3 a5
- kvm_emulate_insn:     0:fffff802987d6169: f3 a5 FAIL
- kvm_inj_exception:    #UD (0x0)
+Add an OF module device table for all windfarm drivers to make them
+automatically load again.
 
-"f3 a5" is a "rep movsw" instruction, which should not be intercepted
-at all.  Commit c44b4c6ab80e ("KVM: emulate: clean up initializations in
-init_decode_cache") reduced the number of fields cleared by
-init_decode_cache() claiming that they are being cleared elsewhere,
-'intercept', however, is left uncleared if the instruction does not have
-any of the "slow path" flags (NotImpl, Stack, Op3264, Sse, Mmx, CheckPerm,
-NearBranch, No16 and of course Intercept itself).
-
-Fixes: c44b4c6ab80e ("KVM: emulate: clean up initializations in init_decode_cache")
-Fixes: 07721feee46b ("KVM: nVMX: Don't emulate instructions in guest mode")
-Cc: stable@vger.kernel.org
-Suggested-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
-Reviewed-by: Sean Christopherson <sean.j.christopherson@intel.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Fixes: af503716ac14 ("i2c: core: report OF style module alias for devices registered via OF")
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=199471
+Reported-by: Erhard Furtner <erhard_f@mailbox.org>
+Tested-by: Erhard Furtner <erhard_f@mailbox.org>
+Acked-by: Michael Ellerman <mpe@ellerman.id.au> (powerpc)
+Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+Cc: stable@kernel.org # v4.17+
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/kvm/emulate.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/macintosh/windfarm_ad7417_sensor.c  |    7 +++++++
+ drivers/macintosh/windfarm_fcu_controls.c   |    7 +++++++
+ drivers/macintosh/windfarm_lm75_sensor.c    |   16 +++++++++++++++-
+ drivers/macintosh/windfarm_lm87_sensor.c    |    7 +++++++
+ drivers/macintosh/windfarm_max6690_sensor.c |    7 +++++++
+ drivers/macintosh/windfarm_smu_sat.c        |    7 +++++++
+ 6 files changed, 50 insertions(+), 1 deletion(-)
 
---- a/arch/x86/kvm/emulate.c
-+++ b/arch/x86/kvm/emulate.c
-@@ -5112,6 +5112,7 @@ int x86_decode_insn(struct x86_emulate_c
- 	ctxt->fetch.ptr = ctxt->fetch.data;
- 	ctxt->fetch.end = ctxt->fetch.data + insn_len;
- 	ctxt->opcode_len = 1;
-+	ctxt->intercept = x86_intercept_none;
- 	if (insn_len > 0)
- 		memcpy(ctxt->fetch.data, insn, insn_len);
- 	else {
+--- a/drivers/macintosh/windfarm_ad7417_sensor.c
++++ b/drivers/macintosh/windfarm_ad7417_sensor.c
+@@ -313,9 +313,16 @@ static const struct i2c_device_id wf_ad7
+ };
+ MODULE_DEVICE_TABLE(i2c, wf_ad7417_id);
+ 
++static const struct of_device_id wf_ad7417_of_id[] = {
++	{ .compatible = "ad7417", },
++	{ }
++};
++MODULE_DEVICE_TABLE(of, wf_ad7417_of_id);
++
+ static struct i2c_driver wf_ad7417_driver = {
+ 	.driver = {
+ 		.name	= "wf_ad7417",
++		.of_match_table = wf_ad7417_of_id,
+ 	},
+ 	.probe		= wf_ad7417_probe,
+ 	.remove		= wf_ad7417_remove,
+--- a/drivers/macintosh/windfarm_fcu_controls.c
++++ b/drivers/macintosh/windfarm_fcu_controls.c
+@@ -583,9 +583,16 @@ static const struct i2c_device_id wf_fcu
+ };
+ MODULE_DEVICE_TABLE(i2c, wf_fcu_id);
+ 
++static const struct of_device_id wf_fcu_of_id[] = {
++	{ .compatible = "fcu", },
++	{ }
++};
++MODULE_DEVICE_TABLE(of, wf_fcu_of_id);
++
+ static struct i2c_driver wf_fcu_driver = {
+ 	.driver = {
+ 		.name	= "wf_fcu",
++		.of_match_table = wf_fcu_of_id,
+ 	},
+ 	.probe		= wf_fcu_probe,
+ 	.remove		= wf_fcu_remove,
+--- a/drivers/macintosh/windfarm_lm75_sensor.c
++++ b/drivers/macintosh/windfarm_lm75_sensor.c
+@@ -15,6 +15,7 @@
+ #include <linux/init.h>
+ #include <linux/wait.h>
+ #include <linux/i2c.h>
++#include <linux/of_device.h>
+ #include <asm/prom.h>
+ #include <asm/machdep.h>
+ #include <asm/io.h>
+@@ -92,9 +93,14 @@ static int wf_lm75_probe(struct i2c_clie
+ 			 const struct i2c_device_id *id)
+ {	
+ 	struct wf_lm75_sensor *lm;
+-	int rc, ds1775 = id->driver_data;
++	int rc, ds1775;
+ 	const char *name, *loc;
+ 
++	if (id)
++		ds1775 = id->driver_data;
++	else
++		ds1775 = !!of_device_get_match_data(&client->dev);
++
+ 	DBG("wf_lm75: creating  %s device at address 0x%02x\n",
+ 	    ds1775 ? "ds1775" : "lm75", client->addr);
+ 
+@@ -165,9 +171,17 @@ static const struct i2c_device_id wf_lm7
+ };
+ MODULE_DEVICE_TABLE(i2c, wf_lm75_id);
+ 
++static const struct of_device_id wf_lm75_of_id[] = {
++	{ .compatible = "lm75", .data = (void *)0},
++	{ .compatible = "ds1775", .data = (void *)1 },
++	{ }
++};
++MODULE_DEVICE_TABLE(of, wf_lm75_of_id);
++
+ static struct i2c_driver wf_lm75_driver = {
+ 	.driver = {
+ 		.name	= "wf_lm75",
++		.of_match_table = wf_lm75_of_id,
+ 	},
+ 	.probe		= wf_lm75_probe,
+ 	.remove		= wf_lm75_remove,
+--- a/drivers/macintosh/windfarm_lm87_sensor.c
++++ b/drivers/macintosh/windfarm_lm87_sensor.c
+@@ -168,9 +168,16 @@ static const struct i2c_device_id wf_lm8
+ };
+ MODULE_DEVICE_TABLE(i2c, wf_lm87_id);
+ 
++static const struct of_device_id wf_lm87_of_id[] = {
++	{ .compatible = "lm87cimt", },
++	{ }
++};
++MODULE_DEVICE_TABLE(of, wf_lm87_of_id);
++
+ static struct i2c_driver wf_lm87_driver = {
+ 	.driver = {
+ 		.name	= "wf_lm87",
++		.of_match_table = wf_lm87_of_id,
+ 	},
+ 	.probe		= wf_lm87_probe,
+ 	.remove		= wf_lm87_remove,
+--- a/drivers/macintosh/windfarm_max6690_sensor.c
++++ b/drivers/macintosh/windfarm_max6690_sensor.c
+@@ -121,9 +121,16 @@ static const struct i2c_device_id wf_max
+ };
+ MODULE_DEVICE_TABLE(i2c, wf_max6690_id);
+ 
++static const struct of_device_id wf_max6690_of_id[] = {
++	{ .compatible = "max6690", },
++	{ }
++};
++MODULE_DEVICE_TABLE(of, wf_max6690_of_id);
++
+ static struct i2c_driver wf_max6690_driver = {
+ 	.driver = {
+ 		.name		= "wf_max6690",
++		.of_match_table = wf_max6690_of_id,
+ 	},
+ 	.probe		= wf_max6690_probe,
+ 	.remove		= wf_max6690_remove,
+--- a/drivers/macintosh/windfarm_smu_sat.c
++++ b/drivers/macintosh/windfarm_smu_sat.c
+@@ -343,9 +343,16 @@ static const struct i2c_device_id wf_sat
+ };
+ MODULE_DEVICE_TABLE(i2c, wf_sat_id);
+ 
++static const struct of_device_id wf_sat_of_id[] = {
++	{ .compatible = "smu-sat", },
++	{ }
++};
++MODULE_DEVICE_TABLE(of, wf_sat_of_id);
++
+ static struct i2c_driver wf_sat_driver = {
+ 	.driver = {
+ 		.name		= "wf_smu_sat",
++		.of_match_table = wf_sat_of_id,
+ 	},
+ 	.probe		= wf_sat_probe,
+ 	.remove		= wf_sat_remove,
 
 
