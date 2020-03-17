@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D61AC187FB9
-	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:04:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8EC5E18805F
+	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:09:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727398AbgCQLEB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Mar 2020 07:04:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44082 "EHLO mail.kernel.org"
+        id S1727684AbgCQLJi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Mar 2020 07:09:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51994 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727564AbgCQLEA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Mar 2020 07:04:00 -0400
+        id S1728957AbgCQLJg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Mar 2020 07:09:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 905DA2071C;
-        Tue, 17 Mar 2020 11:03:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8AB8D20719;
+        Tue, 17 Mar 2020 11:09:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584443040;
-        bh=tU1sCskEZyRGbiY69yQ86F1d2qmqMz4UIRtAJdbj7Bs=;
+        s=default; t=1584443376;
+        bh=OYEWaCPqZTDX9qCgwnlLOmEk8osMuwE31g8YAdQZNzE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P75Hh8v8ShYPLsQhTfCo7vfh6bX+UN2rwoYAhrp6f/8cL6N8mwtkqaODYrq6gso11
-         KFTn9x8qCk6BT2GgPVaKCFNbdMSeLSJZxf099LD8HNlv1X/N/SEzLVSXpFCIo5Zi69
-         PUFakC9LUeGuppWhq5and0p1Y8rTmdKijT5d9/Ko=
+        b=OGycsFf/0f42aFqBE2ds6LTnhkkbB+lJ9B75TrLdbI9eWDD1sY8vIvRAU6Otk0H4r
+         eB7w+cgM8nOVIYGzogu+HUJkdS0muf2ZlLOdiibb2vNekCEB9nAtUE75Pc+lPaN9AU
+         QxrJtUCfTjnwn6r06y2y/pWu1bPIviS2qdbnPeVw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
-        David Ahern <dsahern@gmail.com>,
+        Vinicius Costa Gomes <vinicius.gomes@intel.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 038/123] fib: add missing attribute validation for tun_id
+Subject: [PATCH 5.5 055/151] net: taprio: add missing attribute validation for txtime delay
 Date:   Tue, 17 Mar 2020 11:54:25 +0100
-Message-Id: <20200317103311.793996925@linuxfoundation.org>
+Message-Id: <20200317103330.474024503@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200317103307.343627747@linuxfoundation.org>
-References: <20200317103307.343627747@linuxfoundation.org>
+In-Reply-To: <20200317103326.593639086@linuxfoundation.org>
+References: <20200317103326.593639086@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,28 +46,29 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jakub Kicinski <kuba@kernel.org>
 
-[ Upstream commit 4c16d64ea04056f1b1b324ab6916019f6a064114 ]
+[ Upstream commit e13aaa0643da10006ec35715954e7f92a62899a5 ]
 
-Add missing netlink policy entry for FRA_TUN_ID.
+Add missing attribute validation for TCA_TAPRIO_ATTR_TXTIME_DELAY
+to the netlink policy.
 
-Fixes: e7030878fc84 ("fib: Add fib rule match on tunnel id")
+Fixes: 4cfd5779bd6e ("taprio: Add support for txtime-assist mode")
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Reviewed-by: David Ahern <dsahern@gmail.com>
+Reviewed-by: Vinicius Costa Gomes <vinicius.gomes@intel.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/net/fib_rules.h |    1 +
+ net/sched/sch_taprio.c |    1 +
  1 file changed, 1 insertion(+)
 
---- a/include/net/fib_rules.h
-+++ b/include/net/fib_rules.h
-@@ -108,6 +108,7 @@ struct fib_rule_notifier_info {
- 	[FRA_OIFNAME]	= { .type = NLA_STRING, .len = IFNAMSIZ - 1 }, \
- 	[FRA_PRIORITY]	= { .type = NLA_U32 }, \
- 	[FRA_FWMARK]	= { .type = NLA_U32 }, \
-+	[FRA_TUN_ID]	= { .type = NLA_U64 }, \
- 	[FRA_FWMASK]	= { .type = NLA_U32 }, \
- 	[FRA_TABLE]     = { .type = NLA_U32 }, \
- 	[FRA_SUPPRESS_PREFIXLEN] = { .type = NLA_U32 }, \
+--- a/net/sched/sch_taprio.c
++++ b/net/sched/sch_taprio.c
+@@ -774,6 +774,7 @@ static const struct nla_policy taprio_po
+ 	[TCA_TAPRIO_ATTR_SCHED_CYCLE_TIME]           = { .type = NLA_S64 },
+ 	[TCA_TAPRIO_ATTR_SCHED_CYCLE_TIME_EXTENSION] = { .type = NLA_S64 },
+ 	[TCA_TAPRIO_ATTR_FLAGS]                      = { .type = NLA_U32 },
++	[TCA_TAPRIO_ATTR_TXTIME_DELAY]		     = { .type = NLA_U32 },
+ };
+ 
+ static int fill_sched_entry(struct nlattr **tb, struct sched_entry *entry,
 
 
