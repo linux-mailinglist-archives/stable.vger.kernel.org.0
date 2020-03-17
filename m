@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 80E36187F67
-	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:01:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 086DC188035
+	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:08:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727710AbgCQLBI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Mar 2020 07:01:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40442 "EHLO mail.kernel.org"
+        id S1728812AbgCQLIM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Mar 2020 07:08:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50008 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727707AbgCQLBI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Mar 2020 07:01:08 -0400
+        id S1727655AbgCQLIL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Mar 2020 07:08:11 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CAADC20738;
-        Tue, 17 Mar 2020 11:01:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D5D4A20719;
+        Tue, 17 Mar 2020 11:08:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584442867;
-        bh=EpCqJ8YLCozqm4hfYxQdwHbZfUkCD49KEscoo9saBiQ=;
+        s=default; t=1584443290;
+        bh=k85qS1dz7D1Gw/J97r3Cx0mgyliBrQmg5UUEfHmj71c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Gdn50nN5tup2kE1+WNJgclykwz3odJMJi4uQzi96U/miHfhli2xFa1kaMNJ7rZKjC
-         GDd4w04KI5C7I5ukNj9t6/nyThEHDyNPdI3cnYQpi5kcJXmg0ygllE38WCFqfmOlFo
-         W25JlXmvB6/raZvOZRSIAgviuu745sSCmta/6pCw=
+        b=kn5DCiYbtw0R14BXgzb1zOX/iDm0MuV8vaqkgrr0RI3s4/37uXgXg+2NvFhi2M+P9
+         Q4wB1wIxG9n5yMSGc5ywMbJk3oNplEd5ZzvjMaWl64NmSitWsm2ttNmtYUi79PTvrw
+         TzuHMa+nB5dShPWdwHOy57AVig8jAzAwouh7vLcU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>,
+        stable@vger.kernel.org, Shakeel Butt <shakeelb@google.com>,
+        Roman Gushchin <guro@fb.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 019/123] netlink: Use netlink header as base to calculate bad attribute offset
+Subject: [PATCH 5.5 036/151] cgroup: memcg: net: do not associate sock with unrelated cgroup
 Date:   Tue, 17 Mar 2020 11:54:06 +0100
-Message-Id: <20200317103309.725290735@linuxfoundation.org>
+Message-Id: <20200317103329.209194152@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200317103307.343627747@linuxfoundation.org>
-References: <20200317103307.343627747@linuxfoundation.org>
+In-Reply-To: <20200317103326.593639086@linuxfoundation.org>
+References: <20200317103326.593639086@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,32 +44,124 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Neira Ayuso <pablo@netfilter.org>
+From: Shakeel Butt <shakeelb@google.com>
 
-[ Upstream commit 84b3268027641401bb8ad4427a90a3cce2eb86f5 ]
+[ Upstream commit e876ecc67db80dfdb8e237f71e5b43bb88ae549c ]
 
-Userspace might send a batch that is composed of several netlink
-messages. The netlink_ack() function must use the pointer to the netlink
-header as base to calculate the bad attribute offset.
+We are testing network memory accounting in our setup and noticed
+inconsistent network memory usage and often unrelated cgroups network
+usage correlates with testing workload. On further inspection, it
+seems like mem_cgroup_sk_alloc() and cgroup_sk_alloc() are broken in
+irq context specially for cgroup v1.
 
-Fixes: 2d4bc93368f5 ("netlink: extended ACK reporting")
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+mem_cgroup_sk_alloc() and cgroup_sk_alloc() can be called in irq context
+and kind of assumes that this can only happen from sk_clone_lock()
+and the source sock object has already associated cgroup. However in
+cgroup v1, where network memory accounting is opt-in, the source sock
+can be unassociated with any cgroup and the new cloned sock can get
+associated with unrelated interrupted cgroup.
+
+Cgroup v2 can also suffer if the source sock object was created by
+process in the root cgroup or if sk_alloc() is called in irq context.
+The fix is to just do nothing in interrupt.
+
+WARNING: Please note that about half of the TCP sockets are allocated
+from the IRQ context, so, memory used by such sockets will not be
+accouted by the memcg.
+
+The stack trace of mem_cgroup_sk_alloc() from IRQ-context:
+
+CPU: 70 PID: 12720 Comm: ssh Tainted:  5.6.0-smp-DEV #1
+Hardware name: ...
+Call Trace:
+ <IRQ>
+ dump_stack+0x57/0x75
+ mem_cgroup_sk_alloc+0xe9/0xf0
+ sk_clone_lock+0x2a7/0x420
+ inet_csk_clone_lock+0x1b/0x110
+ tcp_create_openreq_child+0x23/0x3b0
+ tcp_v6_syn_recv_sock+0x88/0x730
+ tcp_check_req+0x429/0x560
+ tcp_v6_rcv+0x72d/0xa40
+ ip6_protocol_deliver_rcu+0xc9/0x400
+ ip6_input+0x44/0xd0
+ ? ip6_protocol_deliver_rcu+0x400/0x400
+ ip6_rcv_finish+0x71/0x80
+ ipv6_rcv+0x5b/0xe0
+ ? ip6_sublist_rcv+0x2e0/0x2e0
+ process_backlog+0x108/0x1e0
+ net_rx_action+0x26b/0x460
+ __do_softirq+0x104/0x2a6
+ do_softirq_own_stack+0x2a/0x40
+ </IRQ>
+ do_softirq.part.19+0x40/0x50
+ __local_bh_enable_ip+0x51/0x60
+ ip6_finish_output2+0x23d/0x520
+ ? ip6table_mangle_hook+0x55/0x160
+ __ip6_finish_output+0xa1/0x100
+ ip6_finish_output+0x30/0xd0
+ ip6_output+0x73/0x120
+ ? __ip6_finish_output+0x100/0x100
+ ip6_xmit+0x2e3/0x600
+ ? ipv6_anycast_cleanup+0x50/0x50
+ ? inet6_csk_route_socket+0x136/0x1e0
+ ? skb_free_head+0x1e/0x30
+ inet6_csk_xmit+0x95/0xf0
+ __tcp_transmit_skb+0x5b4/0xb20
+ __tcp_send_ack.part.60+0xa3/0x110
+ tcp_send_ack+0x1d/0x20
+ tcp_rcv_state_process+0xe64/0xe80
+ ? tcp_v6_connect+0x5d1/0x5f0
+ tcp_v6_do_rcv+0x1b1/0x3f0
+ ? tcp_v6_do_rcv+0x1b1/0x3f0
+ __release_sock+0x7f/0xd0
+ release_sock+0x30/0xa0
+ __inet_stream_connect+0x1c3/0x3b0
+ ? prepare_to_wait+0xb0/0xb0
+ inet_stream_connect+0x3b/0x60
+ __sys_connect+0x101/0x120
+ ? __sys_getsockopt+0x11b/0x140
+ __x64_sys_connect+0x1a/0x20
+ do_syscall_64+0x51/0x200
+ entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+The stack trace of mem_cgroup_sk_alloc() from IRQ-context:
+Fixes: 2d7580738345 ("mm: memcontrol: consolidate cgroup socket tracking")
+Fixes: d979a39d7242 ("cgroup: duplicate cgroup reference when cloning sockets")
+Signed-off-by: Shakeel Butt <shakeelb@google.com>
+Reviewed-by: Roman Gushchin <guro@fb.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/netlink/af_netlink.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/cgroup/cgroup.c |    4 ++++
+ mm/memcontrol.c        |    4 ++++
+ 2 files changed, 8 insertions(+)
 
---- a/net/netlink/af_netlink.c
-+++ b/net/netlink/af_netlink.c
-@@ -2434,7 +2434,7 @@ void netlink_ack(struct sk_buff *in_skb,
- 							       in_skb->len))
- 				WARN_ON(nla_put_u32(skb, NLMSGERR_ATTR_OFFS,
- 						    (u8 *)extack->bad_attr -
--						    in_skb->data));
-+						    (u8 *)nlh));
- 		} else {
- 			if (extack->cookie_len)
- 				WARN_ON(nla_put(skb, NLMSGERR_ATTR_COOKIE,
+--- a/kernel/cgroup/cgroup.c
++++ b/kernel/cgroup/cgroup.c
+@@ -6263,6 +6263,10 @@ void cgroup_sk_alloc(struct sock_cgroup_
+ 		return;
+ 	}
+ 
++	/* Don't associate the sock with unrelated interrupted task's cgroup. */
++	if (in_interrupt())
++		return;
++
+ 	rcu_read_lock();
+ 
+ 	while (true) {
+--- a/mm/memcontrol.c
++++ b/mm/memcontrol.c
+@@ -6697,6 +6697,10 @@ void mem_cgroup_sk_alloc(struct sock *sk
+ 		return;
+ 	}
+ 
++	/* Do not associate the sock with unrelated interrupted task's memcg. */
++	if (in_interrupt())
++		return;
++
+ 	rcu_read_lock();
+ 	memcg = mem_cgroup_from_task(current);
+ 	if (memcg == root_mem_cgroup)
 
 
