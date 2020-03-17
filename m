@@ -2,53 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 517FA18827D
-	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:49:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 130C01882B0
+	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:58:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726719AbgCQLsg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Mar 2020 07:48:36 -0400
-Received: from smtp4.sd73.bc.ca ([142.24.50.247]:39266 "EHLO smtp4.sd73.bc.ca"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726478AbgCQLsg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Mar 2020 07:48:36 -0400
-X-Greylist: delayed 582 seconds by postgrey-1.27 at vger.kernel.org; Tue, 17 Mar 2020 07:48:35 EDT
-Received: from smtp.sd73.bc.ca (smtp.sd73.bc.ca [10.10.10.14])
-        by smtp4.sd73.bc.ca (Postfix) with ESMTP id 5E9A2FFAC4;
-        Tue, 17 Mar 2020 04:38:52 -0700 (PDT)
-Received: from zimbra2.sd73.bc.ca (zimbra.sd73.bc.ca [10.10.10.7])
-        by smtp.sd73.bc.ca (Postfix) with ESMTP id 85938E03FB;
-        Tue, 17 Mar 2020 04:38:53 -0700 (PDT)
-Received: from zimbra2.sd73.bc.ca (localhost [127.0.0.1])
-        by zimbra2.sd73.bc.ca (Postfix) with ESMTPS id 406D15C2B961D6;
-        Tue, 17 Mar 2020 04:34:16 -0700 (PDT)
-Received: from localhost (localhost [127.0.0.1])
-        by zimbra2.sd73.bc.ca (Postfix) with ESMTP id 1A8855C2B961C5;
-        Tue, 17 Mar 2020 04:34:16 -0700 (PDT)
-Received: from zimbra2.sd73.bc.ca ([127.0.0.1])
-        by localhost (zimbra2.sd73.bc.ca [127.0.0.1]) (amavisd-new, port 10026)
-        with ESMTP id oKMYcBDOhacL; Tue, 17 Mar 2020 04:34:15 -0700 (PDT)
-Received: from zimbra2.sd73.bc.ca (zimbra3.sd73.bc.ca [10.10.10.7])
-        by zimbra2.sd73.bc.ca (Postfix) with ESMTP id 80C505C2B961C4;
-        Tue, 17 Mar 2020 04:34:15 -0700 (PDT)
-Date:   Tue, 17 Mar 2020 04:34:15 -0700 (PDT)
-From:   David Yax <sherry.kristjanson@sd73.bc.ca>
-Reply-To: David Yax <davidyax97@gmail.com>
-Message-ID: <2068384163.115491746.1584444855455.JavaMail.zimbra@zimbra.sd73.bc.ca>
-Subject: =?utf-8?Q?=E2=80=8B=E2=80=8B$680,000.00_USD?=
+        id S1726541AbgCQL6W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Mar 2020 07:58:22 -0400
+Received: from mail-oi1-f196.google.com ([209.85.167.196]:38138 "EHLO
+        mail-oi1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726490AbgCQL6W (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 17 Mar 2020 07:58:22 -0400
+Received: by mail-oi1-f196.google.com with SMTP id k21so21405599oij.5
+        for <stable@vger.kernel.org>; Tue, 17 Mar 2020 04:58:21 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=6tLG0UvowYMxwNr6UXAFjrYE3UP2cWO9OOJLVI6SNuM=;
+        b=Mdv9Ev0hWdBHO5UtWJBB5vCi54nNKxRYMIn7zCsdg1tggsr/dFr1x5TNXD+4ERd0q2
+         PUoF44Wb4BkSNPkR9ulesNTcwjCkGsbALj4ZupRv8XsmzqWwS5YJXopOOx8syMeK4533
+         7eJYFQUad/uIAzsDKrZnKv5hZtUuKt17hNXGdkfIJoDgY97TICZViYb6603+aR6OzAIb
+         2WSTWc2I0/1ENQjAE2ngPZCWMxZ8qIWEyPqceeV2NDusE76aX2/SupifuU1JiiZ96QMT
+         fuESbGTlTjfcLIhal4/lii+GTNk+pVzllv8CdXvcxNo+Wm9dlKrXPl602p7K7WcrqKHS
+         8gcg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=6tLG0UvowYMxwNr6UXAFjrYE3UP2cWO9OOJLVI6SNuM=;
+        b=pe18lc8KaHrDts32o0fJ52qDvR21XfOEstkCfM+S3RS62N0DUeHwAp48T2Jxbqdt1R
+         yc/PkbA2xnAI76O5Td01soNyT3xt6MnR1AalvSkomqAvfoKdPvX/4NDIFD86oR4rH4aR
+         M90kLMCkpUYtzFPUsVX69rDIZgEE9nE/4204pCR76cLIQHmczt+Az62eAC7y0MHqtNqs
+         00y8kV5lDcPaYeLvxfXos+6KLYeyDwMuYib6XWifChpC4OZ6I1cAelwVUG014DlvmBqY
+         QgKMJPIJcFM/f066jpVmyFgfMReJ4HuJZ+/VNrTfTG9kohcCYruDFlXLzWdZqIxQ9Jls
+         VFTw==
+X-Gm-Message-State: ANhLgQ3vJGZT0spmvMwki/bUrGAaiZ00jQ7VL5O/9vbVVX9YSWZYerVY
+        FhS76ywDU3rmT5UXMxqkef+/jUqSEexXk5cF5uOd9AVzK1eAVw==
+X-Google-Smtp-Source: ADFU+vv2vA2intsubk2Bd6nP5kQhiggirL2UjEzCPX13Y5LB21Ez3zUMdijWMELThsGoCt5RUUEDjjKOmgDyl+5iHeY=
+X-Received: by 2002:aca:c695:: with SMTP id w143mr3238753oif.98.1584446301315;
+ Tue, 17 Mar 2020 04:58:21 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.10.10.90]
-X-Mailer: Zimbra 8.6.0_GA_1242 (ZimbraWebClient - GC80 (Win)/8.6.0_GA_1242)
-Thread-Topic: =?utf-8?B?4oCL4oCLJDY4MCwwMDAuMDA=?= USD
-Thread-Index: mbvNTBGGxPddcyEGZAY14z4ZPbo+mg==
-X-Spam: Yes
-To:     unlisted-recipients:; (no To-header on input)
+References: <20200317113153.7945-1-linus.walleij@linaro.org>
+In-Reply-To: <20200317113153.7945-1-linus.walleij@linaro.org>
+From:   Peter Maydell <peter.maydell@linaro.org>
+Date:   Tue, 17 Mar 2020 11:58:09 +0000
+Message-ID: <CAFEAcA9mXE+gPnvM6HZ-w0+BhbpeuH=osFH-9NUzCLv=w-c7HQ@mail.gmail.com>
+Subject: Re: [PATCH] ext4: Give 32bit personalities 32bit hashes
+To:     Linus Walleij <linus.walleij@linaro.org>
+Cc:     "Theodore Ts'o" <tytso@mit.edu>,
+        Andreas Dilger <adilger.kernel@dilger.ca>,
+        Ext4 Developers List <linux-ext4@vger.kernel.org>,
+        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+        Linux API <linux-api@vger.kernel.org>,
+        QEMU Developers <qemu-devel@nongnu.org>,
+        Florian Weimer <fw@deneb.enyo.de>,
+        Andy Lutomirski <luto@kernel.org>, stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Tue, 17 Mar 2020 at 11:31, Linus Walleij <linus.walleij@linaro.org> wrote:
+>
+> It was brought to my attention that this bug from 2018 was
+> still unresolved: 32 bit emulators like QEMU were given
+> 64 bit hashes when running 32 bit emulation on 64 bit systems.
+>
+> The personality(2) system call supports to let processes
+> indicate that they are 32 bit Linux to the kernel. This
+> was suggested by Teo in the original thread, so I just wired
+> it up and it solves the problem.
 
+Thanks for having a look at this. I'm not sure this is what
+QEMU needs, though. When QEMU runs, it is not a 32-bit
+process, it's a 64-bit process. Some of the syscalls
+it makes are on behalf of the guest and would need 32-bit
+semantics (including this one of wanting 32-bit hash sizes
+in directory reads). But some syscalls it makes for itself
+(either directly, or via libraries it's linked against
+including glibc and glib) -- those would still want the
+usual 64-bit semantics, I would have thought.
 
-$680,000.00 USD has been made in your favor. Kindly contact Mr. David Yax via email (davidyax97@gmail.com ) for more info on your donation funds.
+> Programs that need the 32 bit hash only need to issue the
+> personality(PER_LINUX32) call and things start working.
+
+What in particular does this personality setting affect?
+My copy of the personality(2) manpage just says:
+
+       PER_LINUX32 (since Linux 2.2)
+              [To be documented.]
+
+which isn't very informative.
+
+thanks
+-- PMM
