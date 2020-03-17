@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C637E188066
-	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:09:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9027E188201
+	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:22:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729000AbgCQLJx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Mar 2020 07:09:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52466 "EHLO mail.kernel.org"
+        id S1727298AbgCQK6m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Mar 2020 06:58:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36894 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728997AbgCQLJw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Mar 2020 07:09:52 -0400
+        id S1727296AbgCQK6m (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Mar 2020 06:58:42 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D689C205ED;
-        Tue, 17 Mar 2020 11:09:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ADF6D20719;
+        Tue, 17 Mar 2020 10:58:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584443392;
-        bh=nmnAmAtfwbc4F9EFKZ40OhfJ5P1Y5hVQU9+FDlSpypo=;
+        s=default; t=1584442721;
+        bh=vvDFFA7OpNzplXPQu5xFRXtAga+W7W7d3xBukR0g4zQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zR/lg+tZ48Npz7kipqpJZyiS6OV2BnRjPDqsUVxFjASIecLpU3zM0qIo3KwtKV2yw
-         E1c0TIcqoxhedrVs5oK2WrMvFE6auVD37US7lpDYS2jWlblDRca46bV6UMESg573u2
-         8ODoX+vhulEC0AQMK4ZzVH3djs1GF8nSOdvz4nco=
+        b=HUYGeaZnL9s+7o25FY+X+U58O6bAyUlrHbWvFHHxBDnaAKJCJPeLe6E+8ZCKIZTQZ
+         +Kcmlke3JLEwS4yiJxTwITwTREUxsm4sBe77R/1m2IEalviD2BEyh2sr8gyPB0MQDX
+         vtMpzg8SqQGdWELOvIJBPhptlu4N2w8jLtdOxa/4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrew Lunn <andrew@lunn.ch>,
+        stable@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
+        Jiri Pirko <jiri@mellanox.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.5 069/151] net: dsa: Dont instantiate phylink for CPU/DSA ports unless needed
-Date:   Tue, 17 Mar 2020 11:54:39 +0100
-Message-Id: <20200317103331.400454009@linuxfoundation.org>
+Subject: [PATCH 4.19 31/89] team: add missing attribute validation for port ifindex
+Date:   Tue, 17 Mar 2020 11:54:40 +0100
+Message-Id: <20200317103303.468949087@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200317103326.593639086@linuxfoundation.org>
-References: <20200317103326.593639086@linuxfoundation.org>
+In-Reply-To: <20200317103259.744774526@linuxfoundation.org>
+References: <20200317103259.744774526@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,63 +44,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrew Lunn <andrew@lunn.ch>
+From: Jakub Kicinski <kuba@kernel.org>
 
-[ Upstream commit a20f997010c4ec76eaa55b8cc047d76dcac69f70 ]
+[ Upstream commit dd25cb272ccce4db67dc8509278229099e4f5e99 ]
 
-By default, DSA drivers should configure CPU and DSA ports to their
-maximum speed. In many configurations this is sufficient to make the
-link work.
+Add missing attribute validation for TEAM_ATTR_OPTION_PORT_IFINDEX
+to the netlink policy.
 
-In some cases it is necessary to configure the link to run slower,
-e.g. because of limitations of the SoC it is connected to. Or back to
-back PHYs are used and the PHY needs to be driven in order to
-establish link. In this case, phylink is used.
-
-Only instantiate phylink if it is required. If there is no PHY, or no
-fixed link properties, phylink can upset a link which works in the
-default configuration.
-
-Fixes: 0e27921816ad ("net: dsa: Use PHYLINK for the CPU/DSA ports")
-Signed-off-by: Andrew Lunn <andrew@lunn.ch>
+Fixes: 80f7c6683fe0 ("team: add support for per-port options")
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Reviewed-by: Jiri Pirko <jiri@mellanox.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/dsa/port.c |   12 +++++++++---
- 1 file changed, 9 insertions(+), 3 deletions(-)
+ drivers/net/team/team.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/net/dsa/port.c
-+++ b/net/dsa/port.c
-@@ -653,9 +653,14 @@ err_phy_connect:
- int dsa_port_link_register_of(struct dsa_port *dp)
- {
- 	struct dsa_switch *ds = dp->ds;
-+	struct device_node *phy_np;
+--- a/drivers/net/team/team.c
++++ b/drivers/net/team/team.c
+@@ -2215,6 +2215,7 @@ team_nl_option_policy[TEAM_ATTR_OPTION_M
+ 	[TEAM_ATTR_OPTION_CHANGED]		= { .type = NLA_FLAG },
+ 	[TEAM_ATTR_OPTION_TYPE]			= { .type = NLA_U8 },
+ 	[TEAM_ATTR_OPTION_DATA]			= { .type = NLA_BINARY },
++	[TEAM_ATTR_OPTION_PORT_IFINDEX]		= { .type = NLA_U32 },
+ };
  
--	if (!ds->ops->adjust_link)
--		return dsa_port_phylink_register(dp);
-+	if (!ds->ops->adjust_link) {
-+		phy_np = of_parse_phandle(dp->dn, "phy-handle", 0);
-+		if (of_phy_is_fixed_link(dp->dn) || phy_np)
-+			return dsa_port_phylink_register(dp);
-+		return 0;
-+	}
- 
- 	dev_warn(ds->dev,
- 		 "Using legacy PHYLIB callbacks. Please migrate to PHYLINK!\n");
-@@ -670,11 +675,12 @@ void dsa_port_link_unregister_of(struct
- {
- 	struct dsa_switch *ds = dp->ds;
- 
--	if (!ds->ops->adjust_link) {
-+	if (!ds->ops->adjust_link && dp->pl) {
- 		rtnl_lock();
- 		phylink_disconnect_phy(dp->pl);
- 		rtnl_unlock();
- 		phylink_destroy(dp->pl);
-+		dp->pl = NULL;
- 		return;
- 	}
- 
+ static int team_nl_cmd_noop(struct sk_buff *skb, struct genl_info *info)
 
 
