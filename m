@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2AE731881D5
-	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:20:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0DD2A18810C
+	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:15:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727178AbgCQLAT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Mar 2020 07:00:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39436 "EHLO mail.kernel.org"
+        id S1727923AbgCQLMG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Mar 2020 07:12:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55686 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727241AbgCQLAT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Mar 2020 07:00:19 -0400
+        id S1728415AbgCQLMG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Mar 2020 07:12:06 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7FFD020719;
-        Tue, 17 Mar 2020 11:00:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 463D92071C;
+        Tue, 17 Mar 2020 11:12:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584442819;
-        bh=Qug1L98ZOVgs7A3T9Nz4VumZo9JX5os4V3ilimJkW8o=;
+        s=default; t=1584443525;
+        bh=z4bfa8hZ8/4gypOjATA/W96jKijPpT9z5KWSPWrzcXU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WsnoQEhvF3ZDDsmIMDEo6cspP+VRy+jBOKPEHjgqOn4K6wlDKBuIPzeUPyIeffcDW
-         vO1jEnZFF5IsNRo9P9/OsqfBauBRt1Ipo6Imq4hYX7z0P7SJPWxgnBWTKkc3chuNfU
-         rAR0ZMG4TUe4Has5RcxCQ6s43s4l2ikVALcw+rrE=
+        b=ccQ55FvJzvqSZVIkbfbFajLjN4c97XPfIDrbyoW39KMOcAL3PvvUZN9Yd3Uf11lTQ
+         S5qY5akw5rXjb+JBLZoEOdNXwNM8twHVeTDReaqhFpr38QWCrhhO47YrpO/qVbFMtd
+         0rXlYM25F6oLM+Q8YKsv8DfEpw77MPDmTtKX7UrY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Xu <colin.xu@intel.com>,
-        Zhenyu Wang <zhenyuw@linux.intel.com>
-Subject: [PATCH 4.19 73/89] drm/i915/gvt: Fix unnecessary schedule timer when no vGPU exits
+        stable@vger.kernel.org, Tom Lendacky <thomas.lendacky@amd.com>,
+        Borislav Petkov <bp@suse.de>, Joerg Roedel <jroedel@suse.de>
+Subject: [PATCH 5.5 112/151] x86/ioremap: Map EFI runtime services data as encrypted for SEV
 Date:   Tue, 17 Mar 2020 11:55:22 +0100
-Message-Id: <20200317103308.351704597@linuxfoundation.org>
+Message-Id: <20200317103334.414287301@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200317103259.744774526@linuxfoundation.org>
-References: <20200317103259.744774526@linuxfoundation.org>
+In-Reply-To: <20200317103326.593639086@linuxfoundation.org>
+References: <20200317103326.593639086@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,56 +43,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhenyu Wang <zhenyuw@linux.intel.com>
+From: Tom Lendacky <thomas.lendacky@amd.com>
 
-commit 04d6067f1f19e70a418f92fa3170cf7fe53b7fdf upstream.
+commit 985e537a4082b4635754a57f4f95430790afee6a upstream.
 
->From commit f25a49ab8ab9 ("drm/i915/gvt: Use vgpu_lock to protect per
-vgpu access") the vgpu idr destroy is moved later than vgpu resource
-destroy, then it would fail to stop timer for schedule policy clean
-which to check vgpu idr for any left vGPU. So this trys to destroy
-vgpu idr earlier.
+The dmidecode program fails to properly decode the SMBIOS data supplied
+by OVMF/UEFI when running in an SEV guest. The SMBIOS area, under SEV, is
+encrypted and resides in reserved memory that is marked as EFI runtime
+services data.
 
-Cc: Colin Xu <colin.xu@intel.com>
-Fixes: f25a49ab8ab9 ("drm/i915/gvt: Use vgpu_lock to protect per vgpu access")
-Acked-by: Colin Xu <colin.xu@intel.com>
-Signed-off-by: Zhenyu Wang <zhenyuw@linux.intel.com>
-Link: http://patchwork.freedesktop.org/patch/msgid/20200229055445.31481-1-zhenyuw@linux.intel.com
+As a result, when memremap() is attempted for the SMBIOS data, it
+can't be mapped as regular RAM (through try_ram_remap()) and, since
+the address isn't part of the iomem resources list, it isn't mapped
+encrypted through the fallback ioremap().
+
+Add a new __ioremap_check_other() to deal with memory types like
+EFI_RUNTIME_SERVICES_DATA which are not covered by the resource ranges.
+
+This allows any runtime services data which has been created encrypted,
+to be mapped encrypted too.
+
+ [ bp: Move functionality to a separate function. ]
+
+Signed-off-by: Tom Lendacky <thomas.lendacky@amd.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Reviewed-by: Joerg Roedel <jroedel@suse.de>
+Tested-by: Joerg Roedel <jroedel@suse.de>
+Cc: <stable@vger.kernel.org> # 5.3
+Link: https://lkml.kernel.org/r/2d9e16eb5b53dc82665c95c6764b7407719df7a0.1582645327.git.thomas.lendacky@amd.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/i915/gvt/vgpu.c |   12 +++++++++---
- 1 file changed, 9 insertions(+), 3 deletions(-)
+ arch/x86/mm/ioremap.c |   18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
 
---- a/drivers/gpu/drm/i915/gvt/vgpu.c
-+++ b/drivers/gpu/drm/i915/gvt/vgpu.c
-@@ -272,10 +272,17 @@ void intel_gvt_destroy_vgpu(struct intel
- {
- 	struct intel_gvt *gvt = vgpu->gvt;
+--- a/arch/x86/mm/ioremap.c
++++ b/arch/x86/mm/ioremap.c
+@@ -106,6 +106,19 @@ static unsigned int __ioremap_check_encr
+ 	return 0;
+ }
  
--	mutex_lock(&vgpu->vgpu_lock);
--
- 	WARN(vgpu->active, "vGPU is still active!\n");
- 
-+	/*
-+	 * remove idr first so later clean can judge if need to stop
-+	 * service if no active vgpu.
-+	 */
-+	mutex_lock(&gvt->lock);
-+	idr_remove(&gvt->vgpu_idr, vgpu->id);
-+	mutex_unlock(&gvt->lock);
++/*
++ * The EFI runtime services data area is not covered by walk_mem_res(), but must
++ * be mapped encrypted when SEV is active.
++ */
++static void __ioremap_check_other(resource_size_t addr, struct ioremap_desc *desc)
++{
++	if (!sev_active())
++		return;
 +
-+	mutex_lock(&vgpu->vgpu_lock);
- 	intel_gvt_debugfs_remove_vgpu(vgpu);
- 	intel_vgpu_clean_sched_policy(vgpu);
- 	intel_vgpu_clean_submission(vgpu);
-@@ -290,7 +297,6 @@ void intel_gvt_destroy_vgpu(struct intel
- 	mutex_unlock(&vgpu->vgpu_lock);
++	if (efi_mem_type(addr) == EFI_RUNTIME_SERVICES_DATA)
++		desc->flags |= IORES_MAP_ENCRYPTED;
++}
++
+ static int __ioremap_collect_map_flags(struct resource *res, void *arg)
+ {
+ 	struct ioremap_desc *desc = arg;
+@@ -124,6 +137,9 @@ static int __ioremap_collect_map_flags(s
+  * To avoid multiple resource walks, this function walks resources marked as
+  * IORESOURCE_MEM and IORESOURCE_BUSY and looking for system RAM and/or a
+  * resource described not as IORES_DESC_NONE (e.g. IORES_DESC_ACPI_TABLES).
++ *
++ * After that, deal with misc other ranges in __ioremap_check_other() which do
++ * not fall into the above category.
+  */
+ static void __ioremap_check_mem(resource_size_t addr, unsigned long size,
+ 				struct ioremap_desc *desc)
+@@ -135,6 +151,8 @@ static void __ioremap_check_mem(resource
+ 	memset(desc, 0, sizeof(struct ioremap_desc));
  
- 	mutex_lock(&gvt->lock);
--	idr_remove(&gvt->vgpu_idr, vgpu->id);
- 	if (idr_is_empty(&gvt->vgpu_idr))
- 		intel_gvt_clean_irq(gvt);
- 	intel_gvt_update_vgpu_types(gvt);
+ 	walk_mem_res(start, end, desc, __ioremap_collect_map_flags);
++
++	__ioremap_check_other(addr, desc);
+ }
+ 
+ /*
 
 
