@@ -2,144 +2,143 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 528BB188D82
-	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 19:57:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F673188DEA
+	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 20:24:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726388AbgCQS5b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Mar 2020 14:57:31 -0400
-Received: from mail-pg1-f194.google.com ([209.85.215.194]:34577 "EHLO
-        mail-pg1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726294AbgCQS5b (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 17 Mar 2020 14:57:31 -0400
-Received: by mail-pg1-f194.google.com with SMTP id t3so12230463pgn.1
-        for <stable@vger.kernel.org>; Tue, 17 Mar 2020 11:57:31 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=+ZVarU3pPx5vmdRMR9a6L56fiuXEuW6kWEmNePPg7kA=;
-        b=Iy4+cbCh56wvpQ1C1+20fCij3D5j7quaJzNRYbn7ofpgCofLt6khu6vtUXMPBVg6ao
-         mJ1Oq5EPlIdHoHfBJfPjW0VdPJ/nVLXRo93OXVHMakfzK7IybNCf89UiTmjlsac5OZIR
-         C735KzSD8idro0MCKSrKiBuKja989nREypr2Qng+5eb4B+/vv9getjJWVt41gQO+nELJ
-         eD0S3Vy70jVvuWthVFEMYJ5sgctHaCaptPnsMEFzGXeZDzqcCRnm6hqvXAMb2zMnkI/g
-         B6Mf+V/IkETZfB+ox7zVHjDZ7O4ffdkPpqItmPN0OQClXTPHovVn5P67uNU5McAuVTBZ
-         2GpA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=+ZVarU3pPx5vmdRMR9a6L56fiuXEuW6kWEmNePPg7kA=;
-        b=CDzqz7c8dWm00t+jb2ZQkgBbx0xfdSDki+aDPQ4oVltJMGfYO8GOq0zz/z3X3S82CY
-         BCJdCfLtP9DpVcudFlJ7sKFodI15ferZyyZzHeU0Ssn4xTjl25h3vWIH6/MWw2SnDtcP
-         XHD1Tx8NRlL7zCpVamoY67kMd3Hju8cSlBLlZqYaydi1FmZ3hZGDKAAmb2fYS0onWt2b
-         6270rL1WqLAafbMbyk4GUyJAsFYDsKsZZZsKEItTNNLLAZzEpkYh8X6lrS9Ifwt1ds43
-         /Jh2mGVNFcQrDrdBJxfls1ZH67oDhUGplZMtin5geOT0DaMC7NtHVI0QUKtZ7TWBb78W
-         qC7Q==
-X-Gm-Message-State: ANhLgQ1h1UC5TXesLBZuruRdIfTGv5pocV5vmVYw8BjuvJtAk9CKiaem
-        BYPMHokxUSz4s15myEjMUbWJkSV+DUs=
-X-Google-Smtp-Source: ADFU+vsjYVtTIUioFiMYJPx4bF+ejGYh9O7svkNjWWqz44cXuwM13Trx/2b+2Wrd/4tTIuFjPsOl9Q==
-X-Received: by 2002:a63:b21b:: with SMTP id x27mr654383pge.310.1584471450095;
-        Tue, 17 Mar 2020 11:57:30 -0700 (PDT)
-Received: from [10.0.9.4] ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id z11sm3739681pfa.149.2020.03.17.11.57.28
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 17 Mar 2020 11:57:29 -0700 (PDT)
-Message-ID: <5e711d99.1c69fb81.22a5e.ded6@mx.google.com>
-Date:   Tue, 17 Mar 2020 11:57:29 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1726638AbgCQTYw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Mar 2020 15:24:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38840 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726294AbgCQTYw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Mar 2020 15:24:52 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 59EF620738;
+        Tue, 17 Mar 2020 19:24:49 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1584473089;
+        bh=pdJHuYbIIOKdIrFLbk39DmzKg71ZTwyqVWJAwVVWNQY=;
+        h=Subject:To:From:Date:From;
+        b=xF0Ucz4yaYRyOSb7JudP+u2eEbiLJHU5WG4R2VvkbEKv2fNzY9m7rCJQS+NC19pvl
+         oezLQIkcR4ok5Cj4JD+Rf0KGw7Bm6AZAtj6TODDGne7GNTk1MX4U0fbzWvAyY81MDH
+         1Wat+CZQpJJ8Pb2NtKlULaK0dNjtYvyXOWGtuWA8=
+Subject: patch "usb: chipidea: udc: fix sleeping function called from invalid context" added to usb-linus
+To:     peter.chen@nxp.com, digetx@gmail.com, gregkh@linuxfoundation.org,
+        stable@vger.kernel.org
+From:   <gregkh@linuxfoundation.org>
+Date:   Tue, 17 Mar 2020 20:24:47 +0100
+Message-ID: <1584473087222170@kroah.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-5.4.y
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v5.4.25-124-gbd9158ff941e
-X-Kernelci-Report-Type: boot
-Subject: stable-rc/linux-5.4.y boot: 163 boots: 2 failed,
- 150 passed with 4 offline, 7 untried/unknown (v5.4.25-124-gbd9158ff941e)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.4.y boot: 163 boots: 2 failed, 150 passed with 4 offline,=
- 7 untried/unknown (v5.4.25-124-gbd9158ff941e)
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--5.4.y/kernel/v5.4.25-124-gbd9158ff941e/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-5.4.y=
-/kernel/v5.4.25-124-gbd9158ff941e/
+This is a note to let you know that I've just added the patch titled
 
-Tree: stable-rc
-Branch: linux-5.4.y
-Git Describe: v5.4.25-124-gbd9158ff941e
-Git Commit: bd9158ff941e0efcea216f7311abc7fe13e8ae39
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 98 unique boards, 24 SoC families, 20 builds out of 200
+    usb: chipidea: udc: fix sleeping function called from invalid context
 
-Boot Regressions Detected:
+to my usb git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
+in the usb-linus branch.
 
-arm:
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
 
-    multi_v7_defconfig:
-        gcc-8:
-          sun4i-a10-olinuxino-lime:
-              lab-baylibre: new failure (last pass: v5.4.25-124-gf8af896ae6=
-72)
+The patch will hopefully also be merged in Linus's tree for the
+next -rc kernel release.
 
-    omap2plus_defconfig:
-        gcc-8:
-          omap3-beagle-xm:
-              lab-baylibre: new failure (last pass: v5.4.25-124-gf8af896ae6=
-72)
+If you have any questions about this process, please let me know.
 
-    qcom_defconfig:
-        gcc-8:
-          qcom-apq8064-cm-qs600:
-              lab-baylibre-seattle: failing since 38 days (last pass: v5.4.=
-17-99-gbd0c6624a110 - first fail: v5.4.17-238-gbffcaa93483d)
 
-    sama5_defconfig:
-        gcc-8:
-          at91-sama5d4_xplained:
-              lab-baylibre: failing since 1 day (last pass: v5.4.25 - first=
- fail: v5.4.25-58-gc72f49ecd87b)
+From 7368760d1bcdabf515c41a502568b489de3da683 Mon Sep 17 00:00:00 2001
+From: Peter Chen <peter.chen@nxp.com>
+Date: Mon, 16 Mar 2020 11:10:34 +0800
+Subject: usb: chipidea: udc: fix sleeping function called from invalid context
 
-    versatile_defconfig:
-        gcc-8:
-          versatile-pb:
-              lab-collabora: new failure (last pass: v5.4.25-124-gf8af896ae=
-672)
+The code calls pm_runtime_get_sync with irq disabled, it causes below
+warning:
 
-Boot Failures Detected:
+BUG: sleeping function called from invalid context at
+wer/runtime.c:1075
+in_atomic(): 1, irqs_disabled(): 128, non_block: 0, pid:
+er/u8:1
+CPU: 1 PID: 37 Comm: kworker/u8:1 Not tainted
+20200304-00181-gbebfd2a5be98 #1588
+Hardware name: NVIDIA Tegra SoC (Flattened Device Tree)
+Workqueue: ci_otg ci_otg_work
+[<c010e8bd>] (unwind_backtrace) from [<c010a315>]
+1/0x14)
+[<c010a315>] (show_stack) from [<c0987d29>]
+5/0x94)
+[<c0987d29>] (dump_stack) from [<c013e77f>]
++0xeb/0x118)
+[<c013e77f>] (___might_sleep) from [<c052fa1d>]
+esume+0x75/0x78)
+[<c052fa1d>] (__pm_runtime_resume) from [<c0627a33>]
+0x23/0x74)
+[<c0627a33>] (ci_udc_pullup) from [<c062fb93>]
+nect+0x2b/0xcc)
+[<c062fb93>] (usb_gadget_connect) from [<c062769d>]
+_connect+0x59/0x104)
+[<c062769d>] (ci_hdrc_gadget_connect) from [<c062778b>]
+ssion+0x43/0x48)
+[<c062778b>] (ci_udc_vbus_session) from [<c062f997>]
+s_connect+0x17/0x9c)
+[<c062f997>] (usb_gadget_vbus_connect) from [<c062634d>]
+bd/0x128)
+[<c062634d>] (ci_otg_work) from [<c0134719>]
+rk+0x149/0x404)
+[<c0134719>] (process_one_work) from [<c0134acb>]
+0xf7/0x3bc)
+[<c0134acb>] (worker_thread) from [<c0139433>]
+x118)
+[<c0139433>] (kthread) from [<c01010bd>]
+(ret_from_fork+0x11/0x34)
 
-arm:
-    omap2plus_defconfig:
-        gcc-8:
-            omap3-beagle-xm: 1 failed lab
-
-    sama5_defconfig:
-        gcc-8:
-            at91-sama5d4_xplained: 1 failed lab
-
-Offline Platforms:
-
-arm:
-
-    multi_v7_defconfig:
-        gcc-8
-            exynos5800-peach-pi: 1 offline lab
-            qcom-apq8064-cm-qs600: 1 offline lab
-
-    exynos_defconfig:
-        gcc-8
-            exynos5800-peach-pi: 1 offline lab
-
-    qcom_defconfig:
-        gcc-8
-            qcom-apq8064-cm-qs600: 1 offline lab
-
+Tested-by: Dmitry Osipenko <digetx@gmail.com>
+Cc: <stable@vger.kernel.org> #v5.5
+Fixes: 72dc8df7920f ("usb: chipidea: udc: protect usb interrupt enable")
+Reported-by: Dmitry Osipenko <digetx@gmail.com>
+Signed-off-by: Peter Chen <peter.chen@nxp.com>
+Link: https://lore.kernel.org/r/20200316031034.17847-2-peter.chen@kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
-For more info write to <info@kernelci.org>
+ drivers/usb/chipidea/udc.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/usb/chipidea/udc.c b/drivers/usb/chipidea/udc.c
+index ffaf46f5d062..4c4ac30db498 100644
+--- a/drivers/usb/chipidea/udc.c
++++ b/drivers/usb/chipidea/udc.c
+@@ -1530,18 +1530,19 @@ static const struct usb_ep_ops usb_ep_ops = {
+ static void ci_hdrc_gadget_connect(struct usb_gadget *_gadget, int is_active)
+ {
+ 	struct ci_hdrc *ci = container_of(_gadget, struct ci_hdrc, gadget);
+-	unsigned long flags;
+ 
+ 	if (is_active) {
+ 		pm_runtime_get_sync(&_gadget->dev);
+ 		hw_device_reset(ci);
+-		spin_lock_irqsave(&ci->lock, flags);
++		spin_lock_irq(&ci->lock);
+ 		if (ci->driver) {
+ 			hw_device_state(ci, ci->ep0out->qh.dma);
+ 			usb_gadget_set_state(_gadget, USB_STATE_POWERED);
++			spin_unlock_irq(&ci->lock);
+ 			usb_udc_vbus_handler(_gadget, true);
++		} else {
++			spin_unlock_irq(&ci->lock);
+ 		}
+-		spin_unlock_irqrestore(&ci->lock, flags);
+ 	} else {
+ 		usb_udc_vbus_handler(_gadget, false);
+ 		if (ci->driver)
+-- 
+2.25.1
+
+
