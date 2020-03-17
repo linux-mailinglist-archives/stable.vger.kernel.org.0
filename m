@@ -2,75 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E16D8187E2D
-	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 11:21:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C01C187E3C
+	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 11:26:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726545AbgCQKVq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Mar 2020 06:21:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51808 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725730AbgCQKVq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Mar 2020 06:21:46 -0400
+        id S1725872AbgCQK0K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Mar 2020 06:26:10 -0400
+Received: from out2-smtp.messagingengine.com ([66.111.4.26]:36781 "EHLO
+        out2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725730AbgCQK0K (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 17 Mar 2020 06:26:10 -0400
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+        by mailout.nyi.internal (Postfix) with ESMTP id AC5B75C0179;
+        Tue, 17 Mar 2020 06:26:08 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute1.internal (MEProxy); Tue, 17 Mar 2020 06:26:08 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:in-reply-to; s=fm3; bh=yKu34zzDB36bqTbEJuWtIcXkWMU
+        gLDc3YXuL+xK/EjY=; b=hN+pJN6GdLBdWREs0yAMCWimSYvPFMrroTQSXm8Vc1N
+        E91RJekkJeSxlGipTdk7filjDUcx8M1nstsZg6IYbDKQ4ndI7LRaUJYiVUqE9KX4
+        q0mRkzNdEO4tYkndUYhBI8mYUZyPZzU9f/d+2eLgE+8K+QRtqC5xhuJAIyDDxbi1
+        h12/0d2oGRz1rdK/pXNqIm0myqgyrvkbBuSTcTsjF3jVnQTnNdbJ79qqa8SGKEm5
+        6HleL7VA9TGv1mfh4ZoGTiIpghokwS/Qydv9YMoJLfiW1PBoXOF2ti8kYRo9eMvH
+        2xUHmyr4OUlL09YJVNPTlFGMYezcvEdcDmtbFg7vuow==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=yKu34z
+        zDB36bqTbEJuWtIcXkWMUgLDc3YXuL+xK/EjY=; b=RGuS/kzGXJrMpP6CC1/hTZ
+        EW0jTHtyqf4Q3sDYU79kK+7utGESasZ5MsamvZo3XRj7uUnaWDkm4HhQbCu/Wr7c
+        i6MJtjOeDOX33zf2I1mOv5QyyXTGomiDrbDQuCHrs4s6sI/Fznpw32mH6xqY79CF
+        Tu3hbWp4T7C8jHce7IgP6UzCMBahLU6yh2gKuxi3JZdClzj/Tzp3D0/1RmmzhtsU
+        Qywn4d+vzq9VZ4bcF24vZ+VdgeBzI6aQo1uWDQVok4wFhsMfGOI1tskT5EHp1BEa
+        HmGQPE8S5sk0NvJy9jHe7Wnjbyd6pT0hakygVjuHD4s28MPoI3xRERJkAra/3W9A
+        ==
+X-ME-Sender: <xms:vqVwXkJyG0AHvhcZdYt3-FERQy6VFhgFSwxxxoRW1-HjSC7WDmTAWQ>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedugedrudefhedgudduucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    cujfgurhepfffhvffukfhfgggtuggjsehttdertddttddvnecuhfhrohhmpefirhgvghcu
+    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucfkphepkeefrdekiedrkeelrddutd
+    ejnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhr
+    vghgsehkrhhorghhrdgtohhm
+X-ME-Proxy: <xmx:vqVwXsBoESAveUvZXcfjEOfs1roBlYBUtux1w8EyAMN0Z2IPyXwDYw>
+    <xmx:vqVwXqoy9b_98nBQ0VCgisLLAYD6w-uZ1t8WCyAUzz5xTSRIwLVwGQ>
+    <xmx:vqVwXlAtt_jEPPnRVkbIluz5M-xUKNQ8PD-CHRbNK8RPyfU5XU-ILA>
+    <xmx:wKVwXgOZTwrdXZ2fhyHSbTKrbeNjq372jeE3lTGfstg3THdBF4E90Q>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1E6DD20658;
-        Tue, 17 Mar 2020 10:21:43 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584440504;
-        bh=IMZu9NW9T51LGVbw8l51sy1mY44amIGPuSt80n7+izA=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=M5G6mrx5uKYGjqDzvCTp9kE4VA/EMMNbOXlGFBC2D/3A5pcpL83RkRYB9+OpAJFwO
-         MIh/aUYkWVsVmrnb5sxsAMIV3Eu1TcxOLYuItFqGD/XsWrz+3q51OQdhO2UobjZj6f
-         p297frjvt1SJShQchI/yGr4/MjjsGWDq86yTEbH4=
-Date:   Tue, 17 Mar 2020 11:21:41 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Dan Moulding <dmoulding@me.com>
-Cc:     luciano.coelho@intel.com, sashal@kernel.org,
-        stable@vger.kernel.org, stsp@stsp.name
-Subject: Re: [PATCH 5.4 61/90] iwlwifi: mvm: fix NVM check for 3168 devices
-Message-ID: <20200317102141.GB1130294@kroah.com>
-References: <20200205093102.GB1164405@kroah.com>
- <20200313151300.18957-1-dmoulding@me.com>
+        by mail.messagingengine.com (Postfix) with ESMTPA id 5EEB03280067;
+        Tue, 17 Mar 2020 06:26:06 -0400 (EDT)
+Date:   Tue, 17 Mar 2020 11:26:04 +0100
+From:   Greg KH <greg@kroah.com>
+To:     Doug Anderson <dianders@chromium.org>
+Cc:     "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        Wen Gong <wgong@codeaurora.org>,
+        netdev <netdev@vger.kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>, ath11k@lists.infradead.org,
+        David Miller <davem@davemloft.net>
+Subject: Re: [PATCH v2] net: qrtr: fix len of skb_put_padto in
+ qrtr_node_enqueue
+Message-ID: <20200317102604.GD1130294@kroah.com>
+References: <20200103045016.12459-1-wgong@codeaurora.org>
+ <20200105.144704.221506192255563950.davem@davemloft.net>
+ <CAD=FV=WiceRwLUS1sdL_W=ELKYZ9zKE13e8vx9SO0+tRvX74QQ@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20200313151300.18957-1-dmoulding@me.com>
+In-Reply-To: <CAD=FV=WiceRwLUS1sdL_W=ELKYZ9zKE13e8vx9SO0+tRvX74QQ@mail.gmail.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Mar 13, 2020 at 09:13:00AM -0600, Dan Moulding wrote:
-> On Wed, Feb 05 Feb 2020 at 09:31:02AM +0000, Greg KH wrote:
-> >On Tue, Feb 04, 2020 at 02:01:57PM -0700, Dan Moulding wrote:
-> >> I believe this commit (upstream commit
-> >> b3f20e098293892388d6a0491d6bbb2efb46fbff) introduced a regression that
-> >> causes the driver to fail to initialize for Intel 3168 devices. A
-> >> patch for the regression has been submitted to the linux-wireless
-> >> mailing list here:
-> >>
-> >> https://patchwork.kernel.org/patch/11353871/
-> >>
-> >> I would suggest either not including b3f20e0982 in the next v5.4.x
-> >> stable release, or also applying the above patch, to avoid introducing
-> >> a regression for users of the v5.4 series. The above patch is also
-> >> needs inclusion in the v5.5.x series, as the regression is already
-> >> present there.
-> >
-> >Now dropped from all trees.  Can you send us an email with the git
-> >commit id of the fix when it lands in Linus's tree so we remember to
-> >pick both of these up?
-> >
-> >thanks,
-> >
-> >greg k-h
+On Tue, Feb 25, 2020 at 02:52:24PM -0800, Doug Anderson wrote:
+> Hi,
 > 
-> The above fix has been merged to Linus's tree and needs to be
-> backported to linux-5.5.y.
 > 
-> Commit a9149d243f259ad8f02b1e23dfe8ba06128f15e1.
+> On Sun, Jan 5, 2020 at 2:47 PM David Miller <davem@davemloft.net> wrote:
+> >
+> > From: Wen Gong <wgong@codeaurora.org>
+> > Date: Fri,  3 Jan 2020 12:50:16 +0800
+> >
+> > > The len used for skb_put_padto is wrong, it need to add len of hdr.
+> >
+> > Thanks, applied.
+> 
+> I noticed this patch is in mainline now as:
+> 
+> ce57785bf91b net: qrtr: fix len of skb_put_padto in qrtr_node_enqueue
+> 
+> Though I'm not an expert on the code, it feels like a stable candidate
+> unless someone objects.
 
-Looks like it has already been queued up, thansk!
+Stable candidate for what tree(s)?
+
+thanks,
 
 greg k-h
