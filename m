@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B1941880C7
-	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:13:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 11597188188
+	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:20:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729249AbgCQLNT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Mar 2020 07:13:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57158 "EHLO mail.kernel.org"
+        id S1728261AbgCQLEV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Mar 2020 07:04:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44512 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728909AbgCQLNS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Mar 2020 07:13:18 -0400
+        id S1728249AbgCQLEU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Mar 2020 07:04:20 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 429AE20752;
-        Tue, 17 Mar 2020 11:13:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 79726206EC;
+        Tue, 17 Mar 2020 11:04:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584443597;
-        bh=flFix0AH+FBa8EyGI28pVxd7yD+vez5e4Qs/tyu/KTE=;
+        s=default; t=1584443059;
+        bh=jKQaUfpQcMm0yosTefLi57T/N5a+Oc6PT7XK/yITYZg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YTvrobKdeaju/FqybyB8sNO8uJ+Ez9OPfu/eF9Z8hKvVqpCd2pNjNnxB/gvnJ31jG
-         8t5renvEaKj7KGvZbxgZ80dssY7xcR+X6yDQhRkJdCR9np8HU5Pg9TQKIvTyuy0daD
-         NgptDzTJZkcL9bydCzoT/bKo+niM8+XwtO8JDob0=
+        b=s8QbhetYwgdPJavJa7gWIE/T5L66MFnU5yS0NYczireB/Iu7AYMguPt1ptrz7UtF6
+         bF67+3tTKEUFegdZ+cwt+aJOlxSwOU1Yr5eRs5R3xUQK91+peNsoGNSr4snM5EMXEj
+         OUxj/cDLcjALMWXgZBaR71+s7A0UrLB0u5yQzANw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vitaly Kuznetsov <vkuznets@redhat.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.5 099/151] KVM: nVMX: avoid NULL pointer dereference with incorrect EVMCS GPAs
-Date:   Tue, 17 Mar 2020 11:55:09 +0100
-Message-Id: <20200317103333.495613247@linuxfoundation.org>
+        stable@vger.kernel.org, Tejun Heo <tj@kernel.org>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.4 083/123] blk-iocost: fix incorrect vtime comparison in iocg_is_idle()
+Date:   Tue, 17 Mar 2020 11:55:10 +0100
+Message-Id: <20200317103316.366842551@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200317103326.593639086@linuxfoundation.org>
-References: <20200317103326.593639086@linuxfoundation.org>
+In-Reply-To: <20200317103307.343627747@linuxfoundation.org>
+References: <20200317103307.343627747@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,62 +43,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vitaly Kuznetsov <vkuznets@redhat.com>
+From: Tejun Heo <tj@kernel.org>
 
-commit 95fa10103dabc38be5de8efdfced5e67576ed896 upstream.
+commit dcd6589b11d3b1e71f516a87a7b9646ed356b4c0 upstream.
 
-When an EVMCS enabled L1 guest on KVM will tries doing enlightened VMEnter
-with EVMCS GPA = 0 the host crashes because the
+vtimes may wrap and time_before/after64() should be used to determine
+whether a given vtime is before or after another. iocg_is_idle() was
+incorrectly using plain "<" comparison do determine whether done_vtime
+is before vtime. Here, the only thing we're interested in is whether
+done_vtime matches vtime which indicates that there's nothing in
+flight. Let's test for inequality instead.
 
-evmcs_gpa != vmx->nested.hv_evmcs_vmptr
-
-condition in nested_vmx_handle_enlightened_vmptrld() will evaluate to
-false (as nested.hv_evmcs_vmptr is zeroed after init). The crash will
-happen on vmx->nested.hv_evmcs pointer dereference.
-
-Another problematic EVMCS ptr value is '-1' but it only causes host crash
-after nested_release_evmcs() invocation. The problem is exactly the same as
-with '0', we mistakenly think that the EVMCS pointer hasn't changed and
-thus nested.hv_evmcs_vmptr is valid.
-
-Resolve the issue by adding an additional !vmx->nested.hv_evmcs
-check to nested_vmx_handle_enlightened_vmptrld(), this way we will
-always be trying kvm_vcpu_map() when nested.hv_evmcs is NULL
-and this is supposed to catch all invalid EVMCS GPAs.
-
-Also, initialize hv_evmcs_vmptr to '0' in nested_release_evmcs()
-to be consistent with initialization where we don't currently
-set hv_evmcs_vmptr to '-1'.
-
-Cc: stable@vger.kernel.org
-Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Tejun Heo <tj@kernel.org>
+Fixes: 7caa47151ab2 ("blkcg: implement blk-iocost")
+Cc: stable@vger.kernel.org # v5.4+
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/kvm/vmx/nested.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ block/blk-iocost.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/x86/kvm/vmx/nested.c
-+++ b/arch/x86/kvm/vmx/nested.c
-@@ -234,7 +234,7 @@ static inline void nested_release_evmcs(
- 		return;
+--- a/block/blk-iocost.c
++++ b/block/blk-iocost.c
+@@ -1318,7 +1318,7 @@ static bool iocg_is_idle(struct ioc_gq *
+ 		return false;
  
- 	kvm_vcpu_unmap(vcpu, &vmx->nested.hv_evmcs_map, true);
--	vmx->nested.hv_evmcs_vmptr = -1ull;
-+	vmx->nested.hv_evmcs_vmptr = 0;
- 	vmx->nested.hv_evmcs = NULL;
- }
+ 	/* is something in flight? */
+-	if (atomic64_read(&iocg->done_vtime) < atomic64_read(&iocg->vtime))
++	if (atomic64_read(&iocg->done_vtime) != atomic64_read(&iocg->vtime))
+ 		return false;
  
-@@ -1932,7 +1932,8 @@ static int nested_vmx_handle_enlightened
- 	if (!nested_enlightened_vmentry(vcpu, &evmcs_gpa))
- 		return 1;
- 
--	if (unlikely(evmcs_gpa != vmx->nested.hv_evmcs_vmptr)) {
-+	if (unlikely(!vmx->nested.hv_evmcs ||
-+		     evmcs_gpa != vmx->nested.hv_evmcs_vmptr)) {
- 		if (!vmx->nested.hv_evmcs)
- 			vmx->nested.current_vmptr = -1ull;
- 
+ 	return true;
 
 
