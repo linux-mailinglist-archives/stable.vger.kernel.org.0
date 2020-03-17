@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B2796187FCA
-	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:04:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C6DA188207
+	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:22:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728295AbgCQLEg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Mar 2020 07:04:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44908 "EHLO mail.kernel.org"
+        id S1727403AbgCQK7K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Mar 2020 06:59:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37430 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727915AbgCQLEg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Mar 2020 07:04:36 -0400
+        id S1727383AbgCQK7G (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Mar 2020 06:59:06 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ACC02206EC;
-        Tue, 17 Mar 2020 11:04:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E324D205ED;
+        Tue, 17 Mar 2020 10:59:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584443075;
-        bh=eYg53x1h58f7rl41capUo+qEjljpXzc3lYnFJUdcGOw=;
+        s=default; t=1584442746;
+        bh=OU9xDqI8khvrH0/UAQuDU7o9+9nS5Mv0gt/KO/bBxt8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ebG8g09Z0731Ca87VeVZ2awpXS0fCPMNFO3MnAG5rc/lPZycRyeIa5zk5nfk/r2sc
-         zkRjbni0oQJBs0au2hTvrikoXJLWwE/1uCCJFl/nyaKIwj491XMxur+BH7OhZDkCL7
-         e+J6gncVODkxG+Da9IZbirbGrJpnXXGyDFKw90XM=
+        b=wlssJw53MD9FdP4Wz+wNKsexjGRn3AUvsfzpb1d2l4g0zXkM67AMuD3Ay3e5N85IZ
+         MVJof3J5C7zRV0TBAJkPIqQNyeD83WOE4lw5epreg/B3dgBxNI91nrt+zqeY5h3W/x
+         zVrLWBxUlw+SKjEyj0kpMF5+XTT/1eNWjO7rmJUY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vladis Dronov <vdronov@redhat.com>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Ingo Molnar <mingo@kernel.org>
-Subject: [PATCH 5.4 088/123] efi: Add a sanity check to efivar_store_raw()
+        stable@vger.kernel.org, Tony Luck <tony.luck@intel.com>,
+        Borislav Petkov <bp@suse.de>
+Subject: [PATCH 4.19 66/89] x86/mce: Fix logic and comments around MSR_PPIN_CTL
 Date:   Tue, 17 Mar 2020 11:55:15 +0100
-Message-Id: <20200317103316.759507923@linuxfoundation.org>
+Message-Id: <20200317103307.545529204@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200317103307.343627747@linuxfoundation.org>
-References: <20200317103307.343627747@linuxfoundation.org>
+In-Reply-To: <20200317103259.744774526@linuxfoundation.org>
+References: <20200317103259.744774526@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,36 +43,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladis Dronov <vdronov@redhat.com>
+From: Tony Luck <tony.luck@intel.com>
 
-commit d6c066fda90d578aacdf19771a027ed484a79825 upstream.
+commit 59b5809655bdafb0767d3fd00a3e41711aab07e6 upstream.
 
-Add a sanity check to efivar_store_raw() the same way
-efivar_{attr,size,data}_read() and efivar_show_raw() have it.
+There are two implemented bits in the PPIN_CTL MSR:
 
-Signed-off-by: Vladis Dronov <vdronov@redhat.com>
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Bit 0: LockOut (R/WO)
+      Set 1 to prevent further writes to MSR_PPIN_CTL.
+
+Bit 1: Enable_PPIN (R/W)
+       If 1, enables MSR_PPIN to be accessible using RDMSR.
+       If 0, an attempt to read MSR_PPIN will cause #GP.
+
+So there are four defined values:
+	0: PPIN is disabled, PPIN_CTL may be updated
+	1: PPIN is disabled. PPIN_CTL is locked against updates
+	2: PPIN is enabled. PPIN_CTL may be updated
+	3: PPIN is enabled. PPIN_CTL is locked against updates
+
+Code would only enable the X86_FEATURE_INTEL_PPIN feature for case "2".
+When it should have done so for both case "2" and case "3".
+
+Fix the final test to just check for the enable bit. Also fix some of
+the other comments in this function.
+
+Fixes: 3f5a7896a509 ("x86/mce: Include the PPIN in MCE records when available")
+Signed-off-by: Tony Luck <tony.luck@intel.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
 Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200305084041.24053-3-vdronov@redhat.com
-Link: https://lore.kernel.org/r/20200308080859.21568-25-ardb@kernel.org
+Link: https://lkml.kernel.org/r/20200226011737.9958-1-tony.luck@intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/firmware/efi/efivars.c |    3 +++
- 1 file changed, 3 insertions(+)
+ arch/x86/kernel/cpu/mcheck/mce_intel.c |    9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
---- a/drivers/firmware/efi/efivars.c
-+++ b/drivers/firmware/efi/efivars.c
-@@ -208,6 +208,9 @@ efivar_store_raw(struct efivar_entry *en
- 	u8 *data;
- 	int err;
+--- a/arch/x86/kernel/cpu/mcheck/mce_intel.c
++++ b/arch/x86/kernel/cpu/mcheck/mce_intel.c
+@@ -489,17 +489,18 @@ static void intel_ppin_init(struct cpuin
+ 			return;
  
-+	if (!entry || !buf)
-+		return -EINVAL;
-+
- 	if (in_compat_syscall()) {
- 		struct compat_efi_variable *compat;
+ 		if ((val & 3UL) == 1UL) {
+-			/* PPIN available but disabled: */
++			/* PPIN locked in disabled mode */
+ 			return;
+ 		}
  
+-		/* If PPIN is disabled, but not locked, try to enable: */
+-		if (!(val & 3UL)) {
++		/* If PPIN is disabled, try to enable */
++		if (!(val & 2UL)) {
+ 			wrmsrl_safe(MSR_PPIN_CTL,  val | 2UL);
+ 			rdmsrl_safe(MSR_PPIN_CTL, &val);
+ 		}
+ 
+-		if ((val & 3UL) == 2UL)
++		/* Is the enable bit set? */
++		if (val & 2UL)
+ 			set_cpu_cap(c, X86_FEATURE_INTEL_PPIN);
+ 	}
+ }
 
 
