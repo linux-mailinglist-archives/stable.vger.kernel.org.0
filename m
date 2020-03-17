@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B4E2D1881FB
-	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:22:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4A6EA188080
+	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:10:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727103AbgCQK54 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Mar 2020 06:57:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35928 "EHLO mail.kernel.org"
+        id S1729136AbgCQLKq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Mar 2020 07:10:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53746 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727067AbgCQK5z (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Mar 2020 06:57:55 -0400
+        id S1729131AbgCQLKp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Mar 2020 07:10:45 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3E87320736;
-        Tue, 17 Mar 2020 10:57:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CAE8520658;
+        Tue, 17 Mar 2020 11:10:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584442674;
-        bh=DYMz68XXdPQKuJCqigHKTNMBcDNIKJpsKhwb6Z+V0UI=;
+        s=default; t=1584443445;
+        bh=TZzdiRnPo1IpWNQTesJXuKMNzVAP31ydc9OdMaEiuUU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jVGxFI4riXMjPY1H9T9Fx13G64dXv3XcjTZUT5xZQ7U27qoehzl2+wcBePI2eyARA
-         qWh2I6xurdpMbls7CzAyFKLhUUOGxqXicv/zqdFs6xTNsbgozoMfnUDIy4xllSUG+k
-         meFtXStr+hquqOHPEArkmBc/J8Ti+ocxYlmCpk9Q=
+        b=LRI3ogLj7D3V1dlSHgX4BytfO8b31DEMv106XrJW110nWwgGdhJIIjsxGmmodWnR4
+         vaCj8b8qdewPH69x3ORHpU18xEcMH+u7pNKVvDBUk7MSEwJrOE1QVI7eqR2roNFA4F
+         bUvwEQTUAM4uccA8O2/Ro8zEJfTQjFhQntOzeVpI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
-        Fugang Duan <fugang.duan@nxp.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 44/89] net: fec: validate the new settings in fec_enet_set_coalesce()
-Date:   Tue, 17 Mar 2020 11:54:53 +0100
-Message-Id: <20200317103305.045771395@linuxfoundation.org>
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        nobuhiro1.iwamatsu@toshiba.co.jp
+Subject: [PATCH 5.5 084/151] drm/amd/display: remove duplicated assignment to grph_obj_type
+Date:   Tue, 17 Mar 2020 11:54:54 +0100
+Message-Id: <20200317103332.422238328@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200317103259.744774526@linuxfoundation.org>
-References: <20200317103259.744774526@linuxfoundation.org>
+In-Reply-To: <20200317103326.593639086@linuxfoundation.org>
+References: <20200317103326.593639086@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,46 +44,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakub Kicinski <kuba@kernel.org>
+From: Colin Ian King <colin.king@canonical.com>
 
-[ Upstream commit ab14961d10d02d20767612c78ce148f6eb85bd58 ]
+commit d785476c608c621b345dd9396e8b21e90375cb0e upstream.
 
-fec_enet_set_coalesce() validates the previously set params
-and if they are within range proceeds to apply the new ones.
-The new ones, however, are not validated. This seems backwards,
-probably a copy-paste error?
+Variable grph_obj_type is being assigned twice, one of these is
+redundant so remove it.
 
-Compile tested only.
-
-Fixes: d851b47b22fc ("net: fec: add interrupt coalescence feature support")
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Acked-by: Fugang Duan <fugang.duan@nxp.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Addresses-Coverity: ("Evaluation order violation")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: <nobuhiro1.iwamatsu@toshiba.co.jp>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/net/ethernet/freescale/fec_main.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/net/ethernet/freescale/fec_main.c
-+++ b/drivers/net/ethernet/freescale/fec_main.c
-@@ -2476,15 +2476,15 @@ fec_enet_set_coalesce(struct net_device
- 		return -EINVAL;
- 	}
- 
--	cycle = fec_enet_us_to_itr_clock(ndev, fep->rx_time_itr);
-+	cycle = fec_enet_us_to_itr_clock(ndev, ec->rx_coalesce_usecs);
- 	if (cycle > 0xFFFF) {
- 		pr_err("Rx coalesced usec exceed hardware limitation\n");
- 		return -EINVAL;
- 	}
- 
--	cycle = fec_enet_us_to_itr_clock(ndev, fep->tx_time_itr);
-+	cycle = fec_enet_us_to_itr_clock(ndev, ec->tx_coalesce_usecs);
- 	if (cycle > 0xFFFF) {
--		pr_err("Rx coalesced usec exceed hardware limitation\n");
-+		pr_err("Tx coalesced usec exceed hardware limitation\n");
- 		return -EINVAL;
- 	}
+---
+ drivers/gpu/drm/amd/amdgpu/amdgpu_atombios.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_atombios.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_atombios.c
+@@ -365,8 +365,7 @@ bool amdgpu_atombios_get_connector_info_
+ 			router.ddc_valid = false;
+ 			router.cd_valid = false;
+ 			for (j = 0; j < ((le16_to_cpu(path->usSize) - 8) / 2); j++) {
+-				uint8_t grph_obj_type=
+-				grph_obj_type =
++				uint8_t grph_obj_type =
+ 				    (le16_to_cpu(path->usGraphicObjIds[j]) &
+ 				     OBJECT_TYPE_MASK) >> OBJECT_TYPE_SHIFT;
  
 
 
