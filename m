@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 62E3D188044
-	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:08:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E842188217
+	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:22:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726842AbgCQLIs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Mar 2020 07:08:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50744 "EHLO mail.kernel.org"
+        id S1725943AbgCQLWJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Mar 2020 07:22:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35300 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727564AbgCQLIr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Mar 2020 07:08:47 -0400
+        id S1726077AbgCQK50 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Mar 2020 06:57:26 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0D5E7206EC;
-        Tue, 17 Mar 2020 11:08:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 41EC220724;
+        Tue, 17 Mar 2020 10:57:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584443326;
-        bh=oVLC6nicO1Mx/Ruatmvva9vASIoywhS7oEje7p4u2Pk=;
+        s=default; t=1584442645;
+        bh=nXgozMkuLoOhBNTl0mDmZ/R/xVKVI29dOWMN34GolFg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mWA60Wa1M2pCc+wIoutw3/GpYUm+KSoDku6RlsJwJjaYGR3XdnLDymsT6g3qm1ydX
-         qF1erqJ0CiaC1PpxIwpU2/5QBMikEkmaviuqGxnsj5mgn7Vgr5n65SHqxf+Gvb1Ogw
-         aa/6E26oP4HaX0lkPTlJqeL3px2xtlKWLubjoZKI=
+        b=QlgOU+2giftc/wOgWlwV1HI6/vLmkqESXDIXSYQzjrq5eq3DYU8Pa3/oXY2nN+Lvn
+         qbJt5mFKbDknLXd7gcSS0EHjMpQzyMbTKBbk6DDdkKY7X3fH7rkoRmoQwrnS2Di4Lu
+         ZNCVNW3OLAn0nicB8Ja3U+IzPFgWgt7Z6R9O82NI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
-        Jiri Pirko <jiri@mellanox.com>,
+        stable@vger.kernel.org, Per Sundstrom <per.sundstrom@redqube.se>,
+        Jiri Wiesner <jwiesner@suse.com>,
+        Eric Dumazet <edumazet@google.com>,
+        Mahesh Bandewar <maheshb@google.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.5 046/151] devlink: validate length of param values
-Date:   Tue, 17 Mar 2020 11:54:16 +0100
-Message-Id: <20200317103329.874149004@linuxfoundation.org>
+Subject: [PATCH 4.19 08/89] ipvlan: do not add hardware address of master to its unicast filter list
+Date:   Tue, 17 Mar 2020 11:54:17 +0100
+Message-Id: <20200317103300.806460880@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200317103326.593639086@linuxfoundation.org>
-References: <20200317103326.593639086@linuxfoundation.org>
+In-Reply-To: <20200317103259.744774526@linuxfoundation.org>
+References: <20200317103259.744774526@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,78 +46,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakub Kicinski <kuba@kernel.org>
+From: Jiri Wiesner <jwiesner@suse.com>
 
-[ Upstream commit 8750939b6ad86abc3f53ec8a9683a1cded4a5654 ]
+[ Upstream commit 63aae7b17344d4b08a7d05cb07044de4c0f9dcc6 ]
 
-DEVLINK_ATTR_PARAM_VALUE_DATA may have different types
-so it's not checked by the normal netlink policy. Make
-sure the attribute length is what we expect.
+There is a problem when ipvlan slaves are created on a master device that
+is a vmxnet3 device (ipvlan in VMware guests). The vmxnet3 driver does not
+support unicast address filtering. When an ipvlan device is brought up in
+ipvlan_open(), the ipvlan driver calls dev_uc_add() to add the hardware
+address of the vmxnet3 master device to the unicast address list of the
+master device, phy_dev->uc. This inevitably leads to the vmxnet3 master
+device being forced into promiscuous mode by __dev_set_rx_mode().
 
-Fixes: e3b7ca18ad7b ("devlink: Add param set command")
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Reviewed-by: Jiri Pirko <jiri@mellanox.com>
+Promiscuous mode is switched on the master despite the fact that there is
+still only one hardware address that the master device should use for
+filtering in order for the ipvlan device to be able to receive packets.
+The comment above struct net_device describes the uc_promisc member as a
+"counter, that indicates, that promiscuous mode has been enabled due to
+the need to listen to additional unicast addresses in a device that does
+not implement ndo_set_rx_mode()". Moreover, the design of ipvlan
+guarantees that only the hardware address of a master device,
+phy_dev->dev_addr, will be used to transmit and receive all packets from
+its ipvlan slaves. Thus, the unicast address list of the master device
+should not be modified by ipvlan_open() and ipvlan_stop() in order to make
+ipvlan a workable option on masters that do not support unicast address
+filtering.
+
+Fixes: 2ad7bf3638411 ("ipvlan: Initial check-in of the IPVLAN driver")
+Reported-by: Per Sundstrom <per.sundstrom@redqube.se>
+Signed-off-by: Jiri Wiesner <jwiesner@suse.com>
+Reviewed-by: Eric Dumazet <edumazet@google.com>
+Acked-by: Mahesh Bandewar <maheshb@google.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/core/devlink.c |   31 +++++++++++++++++++------------
- 1 file changed, 19 insertions(+), 12 deletions(-)
+ drivers/net/ipvlan/ipvlan_main.c |    5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
 
---- a/net/core/devlink.c
-+++ b/net/core/devlink.c
-@@ -3352,34 +3352,41 @@ devlink_param_value_get_from_info(const
- 				  struct genl_info *info,
- 				  union devlink_param_value *value)
+--- a/drivers/net/ipvlan/ipvlan_main.c
++++ b/drivers/net/ipvlan/ipvlan_main.c
+@@ -236,7 +236,6 @@ static void ipvlan_uninit(struct net_dev
+ static int ipvlan_open(struct net_device *dev)
  {
-+	struct nlattr *param_data;
- 	int len;
+ 	struct ipvl_dev *ipvlan = netdev_priv(dev);
+-	struct net_device *phy_dev = ipvlan->phy_dev;
+ 	struct ipvl_addr *addr;
  
--	if (param->type != DEVLINK_PARAM_TYPE_BOOL &&
--	    !info->attrs[DEVLINK_ATTR_PARAM_VALUE_DATA])
-+	param_data = info->attrs[DEVLINK_ATTR_PARAM_VALUE_DATA];
-+
-+	if (param->type != DEVLINK_PARAM_TYPE_BOOL && !param_data)
- 		return -EINVAL;
+ 	if (ipvlan->port->mode == IPVLAN_MODE_L3 ||
+@@ -250,7 +249,7 @@ static int ipvlan_open(struct net_device
+ 		ipvlan_ht_addr_add(ipvlan, addr);
+ 	rcu_read_unlock();
  
- 	switch (param->type) {
- 	case DEVLINK_PARAM_TYPE_U8:
--		value->vu8 = nla_get_u8(info->attrs[DEVLINK_ATTR_PARAM_VALUE_DATA]);
-+		if (nla_len(param_data) != sizeof(u8))
-+			return -EINVAL;
-+		value->vu8 = nla_get_u8(param_data);
- 		break;
- 	case DEVLINK_PARAM_TYPE_U16:
--		value->vu16 = nla_get_u16(info->attrs[DEVLINK_ATTR_PARAM_VALUE_DATA]);
-+		if (nla_len(param_data) != sizeof(u16))
-+			return -EINVAL;
-+		value->vu16 = nla_get_u16(param_data);
- 		break;
- 	case DEVLINK_PARAM_TYPE_U32:
--		value->vu32 = nla_get_u32(info->attrs[DEVLINK_ATTR_PARAM_VALUE_DATA]);
-+		if (nla_len(param_data) != sizeof(u32))
-+			return -EINVAL;
-+		value->vu32 = nla_get_u32(param_data);
- 		break;
- 	case DEVLINK_PARAM_TYPE_STRING:
--		len = strnlen(nla_data(info->attrs[DEVLINK_ATTR_PARAM_VALUE_DATA]),
--			      nla_len(info->attrs[DEVLINK_ATTR_PARAM_VALUE_DATA]));
--		if (len == nla_len(info->attrs[DEVLINK_ATTR_PARAM_VALUE_DATA]) ||
-+		len = strnlen(nla_data(param_data), nla_len(param_data));
-+		if (len == nla_len(param_data) ||
- 		    len >= __DEVLINK_PARAM_MAX_STRING_VALUE)
- 			return -EINVAL;
--		strcpy(value->vstr,
--		       nla_data(info->attrs[DEVLINK_ATTR_PARAM_VALUE_DATA]));
-+		strcpy(value->vstr, nla_data(param_data));
- 		break;
- 	case DEVLINK_PARAM_TYPE_BOOL:
--		value->vbool = info->attrs[DEVLINK_ATTR_PARAM_VALUE_DATA] ?
--			       true : false;
-+		if (param_data && nla_len(param_data))
-+			return -EINVAL;
-+		value->vbool = nla_get_flag(param_data);
- 		break;
- 	}
- 	return 0;
+-	return dev_uc_add(phy_dev, phy_dev->dev_addr);
++	return 0;
+ }
+ 
+ static int ipvlan_stop(struct net_device *dev)
+@@ -262,8 +261,6 @@ static int ipvlan_stop(struct net_device
+ 	dev_uc_unsync(phy_dev, dev);
+ 	dev_mc_unsync(phy_dev, dev);
+ 
+-	dev_uc_del(phy_dev, phy_dev->dev_addr);
+-
+ 	rcu_read_lock();
+ 	list_for_each_entry_rcu(addr, &ipvlan->addrs, anode)
+ 		ipvlan_ht_addr_del(addr);
 
 
