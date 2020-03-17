@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C4AF9187FD6
-	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:05:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2AE731881D5
+	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:20:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728338AbgCQLE7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Mar 2020 07:04:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45538 "EHLO mail.kernel.org"
+        id S1727178AbgCQLAT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Mar 2020 07:00:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39436 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728344AbgCQLE5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Mar 2020 07:04:57 -0400
+        id S1727241AbgCQLAT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Mar 2020 07:00:19 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EB88720771;
-        Tue, 17 Mar 2020 11:04:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7FFD020719;
+        Tue, 17 Mar 2020 11:00:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584443097;
-        bh=bqm0Y8tO/dFhUHmulnxoCqYXix/ToV0sUlKmOmGJm5M=;
+        s=default; t=1584442819;
+        bh=Qug1L98ZOVgs7A3T9Nz4VumZo9JX5os4V3ilimJkW8o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Aj4f8b3xiFeDE/2s5XGsJ/5b4ReGhfjfcv1jrgoY4F7R0lDMQEXONDCDjuBWgSgLl
-         DivMX+k0+uwSX1u8heg64nkPY5niWqt1izMvpTSjMBWCnBmblgL+ACPN9CTT4rCjKx
-         txjfV2bqm2rZ6n/I4VmRHV0EbPsHJNWs2ZIrxgUk=
+        b=WsnoQEhvF3ZDDsmIMDEo6cspP+VRy+jBOKPEHjgqOn4K6wlDKBuIPzeUPyIeffcDW
+         vO1jEnZFF5IsNRo9P9/OsqfBauBRt1Ipo6Imq4hYX7z0P7SJPWxgnBWTKkc3chuNfU
+         rAR0ZMG4TUe4Has5RcxCQ6s43s4l2ikVALcw+rrE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Madhuparna Bhowmik <madhuparnabhowmik10@gmail.com>,
-        Amol Grover <frextrite@gmail.com>,
-        Lu Baolu <baolu.lu@linux.intel.com>,
-        Joerg Roedel <jroedel@suse.de>
-Subject: [PATCH 5.4 095/123] iommu/vt-d: Fix RCU list debugging warnings
+        stable@vger.kernel.org, Colin Xu <colin.xu@intel.com>,
+        Zhenyu Wang <zhenyuw@linux.intel.com>
+Subject: [PATCH 4.19 73/89] drm/i915/gvt: Fix unnecessary schedule timer when no vGPU exits
 Date:   Tue, 17 Mar 2020 11:55:22 +0100
-Message-Id: <20200317103317.500427525@linuxfoundation.org>
+Message-Id: <20200317103308.351704597@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200317103307.343627747@linuxfoundation.org>
-References: <20200317103307.343627747@linuxfoundation.org>
+In-Reply-To: <20200317103259.744774526@linuxfoundation.org>
+References: <20200317103259.744774526@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,61 +43,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Amol Grover <frextrite@gmail.com>
+From: Zhenyu Wang <zhenyuw@linux.intel.com>
 
-commit 02d715b4a8182f4887d82df82a7b83aced647760 upstream.
+commit 04d6067f1f19e70a418f92fa3170cf7fe53b7fdf upstream.
 
-dmar_drhd_units is traversed using list_for_each_entry_rcu()
-outside of an RCU read side critical section but under the
-protection of dmar_global_lock. Hence add corresponding lockdep
-expression to silence the following false-positive warnings:
+>From commit f25a49ab8ab9 ("drm/i915/gvt: Use vgpu_lock to protect per
+vgpu access") the vgpu idr destroy is moved later than vgpu resource
+destroy, then it would fail to stop timer for schedule policy clean
+which to check vgpu idr for any left vGPU. So this trys to destroy
+vgpu idr earlier.
 
-[    1.603975] =============================
-[    1.603976] WARNING: suspicious RCU usage
-[    1.603977] 5.5.4-stable #17 Not tainted
-[    1.603978] -----------------------------
-[    1.603980] drivers/iommu/intel-iommu.c:4769 RCU-list traversed in non-reader section!!
-
-[    1.603869] =============================
-[    1.603870] WARNING: suspicious RCU usage
-[    1.603872] 5.5.4-stable #17 Not tainted
-[    1.603874] -----------------------------
-[    1.603875] drivers/iommu/dmar.c:293 RCU-list traversed in non-reader section!!
-
-Tested-by: Madhuparna Bhowmik <madhuparnabhowmik10@gmail.com>
-Signed-off-by: Amol Grover <frextrite@gmail.com>
-Cc: stable@vger.kernel.org
-Acked-by: Lu Baolu <baolu.lu@linux.intel.com>
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Cc: Colin Xu <colin.xu@intel.com>
+Fixes: f25a49ab8ab9 ("drm/i915/gvt: Use vgpu_lock to protect per vgpu access")
+Acked-by: Colin Xu <colin.xu@intel.com>
+Signed-off-by: Zhenyu Wang <zhenyuw@linux.intel.com>
+Link: http://patchwork.freedesktop.org/patch/msgid/20200229055445.31481-1-zhenyuw@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- include/linux/dmar.h |    8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/i915/gvt/vgpu.c |   12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
---- a/include/linux/dmar.h
-+++ b/include/linux/dmar.h
-@@ -69,8 +69,9 @@ struct dmar_pci_notify_info {
- extern struct rw_semaphore dmar_global_lock;
- extern struct list_head dmar_drhd_units;
+--- a/drivers/gpu/drm/i915/gvt/vgpu.c
++++ b/drivers/gpu/drm/i915/gvt/vgpu.c
+@@ -272,10 +272,17 @@ void intel_gvt_destroy_vgpu(struct intel
+ {
+ 	struct intel_gvt *gvt = vgpu->gvt;
  
--#define for_each_drhd_unit(drhd) \
--	list_for_each_entry_rcu(drhd, &dmar_drhd_units, list)
-+#define for_each_drhd_unit(drhd)					\
-+	list_for_each_entry_rcu(drhd, &dmar_drhd_units, list,		\
-+				dmar_rcu_check())
+-	mutex_lock(&vgpu->vgpu_lock);
+-
+ 	WARN(vgpu->active, "vGPU is still active!\n");
  
- #define for_each_active_drhd_unit(drhd)					\
- 	list_for_each_entry_rcu(drhd, &dmar_drhd_units, list)		\
-@@ -81,7 +82,8 @@ extern struct list_head dmar_drhd_units;
- 		if (i=drhd->iommu, drhd->ignored) {} else
++	/*
++	 * remove idr first so later clean can judge if need to stop
++	 * service if no active vgpu.
++	 */
++	mutex_lock(&gvt->lock);
++	idr_remove(&gvt->vgpu_idr, vgpu->id);
++	mutex_unlock(&gvt->lock);
++
++	mutex_lock(&vgpu->vgpu_lock);
+ 	intel_gvt_debugfs_remove_vgpu(vgpu);
+ 	intel_vgpu_clean_sched_policy(vgpu);
+ 	intel_vgpu_clean_submission(vgpu);
+@@ -290,7 +297,6 @@ void intel_gvt_destroy_vgpu(struct intel
+ 	mutex_unlock(&vgpu->vgpu_lock);
  
- #define for_each_iommu(i, drhd)						\
--	list_for_each_entry_rcu(drhd, &dmar_drhd_units, list)		\
-+	list_for_each_entry_rcu(drhd, &dmar_drhd_units, list,		\
-+				dmar_rcu_check())			\
- 		if (i=drhd->iommu, 0) {} else 
- 
- static inline bool dmar_rcu_check(void)
+ 	mutex_lock(&gvt->lock);
+-	idr_remove(&gvt->vgpu_idr, vgpu->id);
+ 	if (idr_is_empty(&gvt->vgpu_idr))
+ 		intel_gvt_clean_irq(gvt);
+ 	intel_gvt_update_vgpu_types(gvt);
 
 
