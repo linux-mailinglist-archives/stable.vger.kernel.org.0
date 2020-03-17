@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 01507187FCE
-	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:04:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 06EB4188116
+	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:15:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726272AbgCQLEp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Mar 2020 07:04:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45038 "EHLO mail.kernel.org"
+        id S1729152AbgCQLL7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Mar 2020 07:11:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55454 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727940AbgCQLEk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Mar 2020 07:04:40 -0400
+        id S1729118AbgCQLL5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Mar 2020 07:11:57 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A80EA20736;
-        Tue, 17 Mar 2020 11:04:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C5C272071C;
+        Tue, 17 Mar 2020 11:11:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584443080;
-        bh=9NoQVqoZS1Vz2ny1kBlQ6fnhup0i0q5dtmWUnuZaFbA=;
+        s=default; t=1584443515;
+        bh=jKQaUfpQcMm0yosTefLi57T/N5a+Oc6PT7XK/yITYZg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lCCrKGMhOhLx20RIRGgpmWrYklPvqe7IBPLda/hSWfr51VBpqT8GhGfSZk5VmKT/v
-         52jX1lBYSVsZ924s1B/8Bqf4K/H2iz7ip5WBcX4UpCMZELuA6wsYGiGKP3SZy2TdnU
-         CDHYzGICrMfxAf0o7YyRkGENMZ+Cep5SQw3CJNcA=
+        b=rqxij8gEKWKcXbJiHBgHrIiP3pq4BRUS4Fn9mYNOJA4wTGYIsyKmN1cwxopdxU73p
+         T/9svPICuJhhLVW/uW/fz/5QXby9QeDXvZGEpF1uYY8LviR2Eh0CsmfINmL7t4fldc
+         LPyOCCr/Qh8YytgS4/ClAmUbA9O6vGwxtGZhhyFc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Felix Fietkau <nbd@nbd.name>,
-        Kalle Valo <kvalo@codeaurora.org>
-Subject: [PATCH 5.4 090/123] mt76: fix array overflow on receiving too many fragments for a packet
-Date:   Tue, 17 Mar 2020 11:55:17 +0100
-Message-Id: <20200317103316.934745037@linuxfoundation.org>
+        stable@vger.kernel.org, Tejun Heo <tj@kernel.org>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.5 108/151] blk-iocost: fix incorrect vtime comparison in iocg_is_idle()
+Date:   Tue, 17 Mar 2020 11:55:18 +0100
+Message-Id: <20200317103334.129839379@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200317103307.343627747@linuxfoundation.org>
-References: <20200317103307.343627747@linuxfoundation.org>
+In-Reply-To: <20200317103326.593639086@linuxfoundation.org>
+References: <20200317103326.593639086@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,42 +43,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Felix Fietkau <nbd@nbd.name>
+From: Tejun Heo <tj@kernel.org>
 
-commit b102f0c522cf668c8382c56a4f771b37d011cda2 upstream.
+commit dcd6589b11d3b1e71f516a87a7b9646ed356b4c0 upstream.
 
-If the hardware receives an oversized packet with too many rx fragments,
-skb_shinfo(skb)->frags can overflow and corrupt memory of adjacent pages.
-This becomes especially visible if it corrupts the freelist pointer of
-a slab page.
+vtimes may wrap and time_before/after64() should be used to determine
+whether a given vtime is before or after another. iocg_is_idle() was
+incorrectly using plain "<" comparison do determine whether done_vtime
+is before vtime. Here, the only thing we're interested in is whether
+done_vtime matches vtime which indicates that there's nothing in
+flight. Let's test for inequality instead.
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Signed-off-by: Tejun Heo <tj@kernel.org>
+Fixes: 7caa47151ab2 ("blkcg: implement blk-iocost")
+Cc: stable@vger.kernel.org # v5.4+
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/wireless/mediatek/mt76/dma.c |    9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ block/blk-iocost.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/wireless/mediatek/mt76/dma.c
-+++ b/drivers/net/wireless/mediatek/mt76/dma.c
-@@ -448,10 +448,13 @@ mt76_add_fragment(struct mt76_dev *dev,
- 	struct page *page = virt_to_head_page(data);
- 	int offset = data - page_address(page);
- 	struct sk_buff *skb = q->rx_head;
-+	struct skb_shared_info *shinfo = skb_shinfo(skb);
+--- a/block/blk-iocost.c
++++ b/block/blk-iocost.c
+@@ -1318,7 +1318,7 @@ static bool iocg_is_idle(struct ioc_gq *
+ 		return false;
  
--	offset += q->buf_offset;
--	skb_add_rx_frag(skb, skb_shinfo(skb)->nr_frags, page, offset, len,
--			q->buf_size);
-+	if (shinfo->nr_frags < ARRAY_SIZE(shinfo->frags)) {
-+		offset += q->buf_offset;
-+		skb_add_rx_frag(skb, shinfo->nr_frags, page, offset, len,
-+				q->buf_size);
-+	}
+ 	/* is something in flight? */
+-	if (atomic64_read(&iocg->done_vtime) < atomic64_read(&iocg->vtime))
++	if (atomic64_read(&iocg->done_vtime) != atomic64_read(&iocg->vtime))
+ 		return false;
  
- 	if (more)
- 		return;
+ 	return true;
 
 
