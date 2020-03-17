@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0DD2A18810C
-	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:15:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4019A1880AB
+	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:12:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727923AbgCQLMG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Mar 2020 07:12:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55686 "EHLO mail.kernel.org"
+        id S1727929AbgCQLMM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Mar 2020 07:12:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55790 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728415AbgCQLMG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Mar 2020 07:12:06 -0400
+        id S1729389AbgCQLMM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Mar 2020 07:12:12 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 463D92071C;
-        Tue, 17 Mar 2020 11:12:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 206952073C;
+        Tue, 17 Mar 2020 11:12:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584443525;
-        bh=z4bfa8hZ8/4gypOjATA/W96jKijPpT9z5KWSPWrzcXU=;
+        s=default; t=1584443531;
+        bh=5QJOn0BGZeqjo1WWc33zP/NAQjl4vPPkzkv1rjbDqwo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ccQ55FvJzvqSZVIkbfbFajLjN4c97XPfIDrbyoW39KMOcAL3PvvUZN9Yd3Uf11lTQ
-         S5qY5akw5rXjb+JBLZoEOdNXwNM8twHVeTDReaqhFpr38QWCrhhO47YrpO/qVbFMtd
-         0rXlYM25F6oLM+Q8YKsv8DfEpw77MPDmTtKX7UrY=
+        b=eJEzBumHouCyqCoU9NK9Ja+hQFeiSHdLJ2KD9IiyniSOPWvcboXDrIj4fP1yf2m/7
+         fCDiFcAsvZGJdpkhFsiTTUWZo8TldTP8rMksj3/HdN6BFgARJEsTU7QdAc1BR46YgT
+         rlPYM41SuAlq5HAnHTkIVMUTA3AiZf7/b5kjl7II=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tom Lendacky <thomas.lendacky@amd.com>,
-        Borislav Petkov <bp@suse.de>, Joerg Roedel <jroedel@suse.de>
-Subject: [PATCH 5.5 112/151] x86/ioremap: Map EFI runtime services data as encrypted for SEV
-Date:   Tue, 17 Mar 2020 11:55:22 +0100
-Message-Id: <20200317103334.414287301@linuxfoundation.org>
+        stable@vger.kernel.org, Vladis Dronov <vdronov@redhat.com>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Ingo Molnar <mingo@kernel.org>,
+        Bob Sanders <bob.sanders@hpe.com>
+Subject: [PATCH 5.5 113/151] efi: Fix a race and a buffer overflow while reading efivars via sysfs
+Date:   Tue, 17 Mar 2020 11:55:23 +0100
+Message-Id: <20200317103334.492278814@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200317103326.593639086@linuxfoundation.org>
 References: <20200317103326.593639086@linuxfoundation.org>
@@ -43,80 +45,138 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tom Lendacky <thomas.lendacky@amd.com>
+From: Vladis Dronov <vdronov@redhat.com>
 
-commit 985e537a4082b4635754a57f4f95430790afee6a upstream.
+commit 286d3250c9d6437340203fb64938bea344729a0e upstream.
 
-The dmidecode program fails to properly decode the SMBIOS data supplied
-by OVMF/UEFI when running in an SEV guest. The SMBIOS area, under SEV, is
-encrypted and resides in reserved memory that is marked as EFI runtime
-services data.
+There is a race and a buffer overflow corrupting a kernel memory while
+reading an EFI variable with a size more than 1024 bytes via the older
+sysfs method. This happens because accessing struct efi_variable in
+efivar_{attr,size,data}_read() and friends is not protected from
+a concurrent access leading to a kernel memory corruption and, at best,
+to a crash. The race scenario is the following:
 
-As a result, when memremap() is attempted for the SMBIOS data, it
-can't be mapped as regular RAM (through try_ram_remap()) and, since
-the address isn't part of the iomem resources list, it isn't mapped
-encrypted through the fallback ioremap().
+CPU0:                                CPU1:
+efivar_attr_read()
+  var->DataSize = 1024;
+  efivar_entry_get(... &var->DataSize)
+    down_interruptible(&efivars_lock)
+                                     efivar_attr_read() // same EFI var
+                                       var->DataSize = 1024;
+                                       efivar_entry_get(... &var->DataSize)
+                                         down_interruptible(&efivars_lock)
+    virt_efi_get_variable()
+    // returns EFI_BUFFER_TOO_SMALL but
+    // var->DataSize is set to a real
+    // var size more than 1024 bytes
+    up(&efivars_lock)
+                                         virt_efi_get_variable()
+                                         // called with var->DataSize set
+                                         // to a real var size, returns
+                                         // successfully and overwrites
+                                         // a 1024-bytes kernel buffer
+                                         up(&efivars_lock)
 
-Add a new __ioremap_check_other() to deal with memory types like
-EFI_RUNTIME_SERVICES_DATA which are not covered by the resource ranges.
+This can be reproduced by concurrent reading of an EFI variable which size
+is more than 1024 bytes:
 
-This allows any runtime services data which has been created encrypted,
-to be mapped encrypted too.
+  ts# for cpu in $(seq 0 $(nproc --ignore=1)); do ( taskset -c $cpu \
+  cat /sys/firmware/efi/vars/KEKDefault*/size & ) ; done
 
- [ bp: Move functionality to a separate function. ]
+Fix this by using a local variable for a var's data buffer size so it
+does not get overwritten.
 
-Signed-off-by: Tom Lendacky <thomas.lendacky@amd.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Joerg Roedel <jroedel@suse.de>
-Tested-by: Joerg Roedel <jroedel@suse.de>
-Cc: <stable@vger.kernel.org> # 5.3
-Link: https://lkml.kernel.org/r/2d9e16eb5b53dc82665c95c6764b7407719df7a0.1582645327.git.thomas.lendacky@amd.com
+Fixes: e14ab23dde12b80d ("efivars: efivar_entry API")
+Reported-by: Bob Sanders <bob.sanders@hpe.com> and the LTP testsuite
+Signed-off-by: Vladis Dronov <vdronov@redhat.com>
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200305084041.24053-2-vdronov@redhat.com
+Link: https://lore.kernel.org/r/20200308080859.21568-24-ardb@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/mm/ioremap.c |   18 ++++++++++++++++++
- 1 file changed, 18 insertions(+)
+ drivers/firmware/efi/efivars.c |   29 ++++++++++++++++++++---------
+ 1 file changed, 20 insertions(+), 9 deletions(-)
 
---- a/arch/x86/mm/ioremap.c
-+++ b/arch/x86/mm/ioremap.c
-@@ -106,6 +106,19 @@ static unsigned int __ioremap_check_encr
- 	return 0;
- }
- 
-+/*
-+ * The EFI runtime services data area is not covered by walk_mem_res(), but must
-+ * be mapped encrypted when SEV is active.
-+ */
-+static void __ioremap_check_other(resource_size_t addr, struct ioremap_desc *desc)
-+{
-+	if (!sev_active())
-+		return;
-+
-+	if (efi_mem_type(addr) == EFI_RUNTIME_SERVICES_DATA)
-+		desc->flags |= IORES_MAP_ENCRYPTED;
-+}
-+
- static int __ioremap_collect_map_flags(struct resource *res, void *arg)
+--- a/drivers/firmware/efi/efivars.c
++++ b/drivers/firmware/efi/efivars.c
+@@ -83,13 +83,16 @@ static ssize_t
+ efivar_attr_read(struct efivar_entry *entry, char *buf)
  {
- 	struct ioremap_desc *desc = arg;
-@@ -124,6 +137,9 @@ static int __ioremap_collect_map_flags(s
-  * To avoid multiple resource walks, this function walks resources marked as
-  * IORESOURCE_MEM and IORESOURCE_BUSY and looking for system RAM and/or a
-  * resource described not as IORES_DESC_NONE (e.g. IORES_DESC_ACPI_TABLES).
-+ *
-+ * After that, deal with misc other ranges in __ioremap_check_other() which do
-+ * not fall into the above category.
-  */
- static void __ioremap_check_mem(resource_size_t addr, unsigned long size,
- 				struct ioremap_desc *desc)
-@@ -135,6 +151,8 @@ static void __ioremap_check_mem(resource
- 	memset(desc, 0, sizeof(struct ioremap_desc));
+ 	struct efi_variable *var = &entry->var;
++	unsigned long size = sizeof(var->Data);
+ 	char *str = buf;
++	int ret;
  
- 	walk_mem_res(start, end, desc, __ioremap_collect_map_flags);
-+
-+	__ioremap_check_other(addr, desc);
- }
+ 	if (!entry || !buf)
+ 		return -EINVAL;
  
- /*
+-	var->DataSize = 1024;
+-	if (efivar_entry_get(entry, &var->Attributes, &var->DataSize, var->Data))
++	ret = efivar_entry_get(entry, &var->Attributes, &size, var->Data);
++	var->DataSize = size;
++	if (ret)
+ 		return -EIO;
+ 
+ 	if (var->Attributes & EFI_VARIABLE_NON_VOLATILE)
+@@ -116,13 +119,16 @@ static ssize_t
+ efivar_size_read(struct efivar_entry *entry, char *buf)
+ {
+ 	struct efi_variable *var = &entry->var;
++	unsigned long size = sizeof(var->Data);
+ 	char *str = buf;
++	int ret;
+ 
+ 	if (!entry || !buf)
+ 		return -EINVAL;
+ 
+-	var->DataSize = 1024;
+-	if (efivar_entry_get(entry, &var->Attributes, &var->DataSize, var->Data))
++	ret = efivar_entry_get(entry, &var->Attributes, &size, var->Data);
++	var->DataSize = size;
++	if (ret)
+ 		return -EIO;
+ 
+ 	str += sprintf(str, "0x%lx\n", var->DataSize);
+@@ -133,12 +139,15 @@ static ssize_t
+ efivar_data_read(struct efivar_entry *entry, char *buf)
+ {
+ 	struct efi_variable *var = &entry->var;
++	unsigned long size = sizeof(var->Data);
++	int ret;
+ 
+ 	if (!entry || !buf)
+ 		return -EINVAL;
+ 
+-	var->DataSize = 1024;
+-	if (efivar_entry_get(entry, &var->Attributes, &var->DataSize, var->Data))
++	ret = efivar_entry_get(entry, &var->Attributes, &size, var->Data);
++	var->DataSize = size;
++	if (ret)
+ 		return -EIO;
+ 
+ 	memcpy(buf, var->Data, var->DataSize);
+@@ -250,14 +259,16 @@ efivar_show_raw(struct efivar_entry *ent
+ {
+ 	struct efi_variable *var = &entry->var;
+ 	struct compat_efi_variable *compat;
++	unsigned long datasize = sizeof(var->Data);
+ 	size_t size;
++	int ret;
+ 
+ 	if (!entry || !buf)
+ 		return 0;
+ 
+-	var->DataSize = 1024;
+-	if (efivar_entry_get(entry, &entry->var.Attributes,
+-			     &entry->var.DataSize, entry->var.Data))
++	ret = efivar_entry_get(entry, &var->Attributes, &datasize, var->Data);
++	var->DataSize = datasize;
++	if (ret)
+ 		return -EIO;
+ 
+ 	if (in_compat_syscall()) {
 
 
