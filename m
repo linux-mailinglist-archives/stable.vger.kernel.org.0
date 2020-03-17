@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A1FBF187FC6
-	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:04:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3BC6A1880CC
+	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:13:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726498AbgCQLE2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Mar 2020 07:04:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44630 "EHLO mail.kernel.org"
+        id S1729391AbgCQLN3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Mar 2020 07:13:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57356 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728279AbgCQLE1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Mar 2020 07:04:27 -0400
+        id S1729377AbgCQLN2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Mar 2020 07:13:28 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EC82B2073C;
-        Tue, 17 Mar 2020 11:04:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 57466205ED;
+        Tue, 17 Mar 2020 11:13:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584443066;
-        bh=IKNsVat4Qmp+G/wMQb+AhQ0QBEoKs5K1SbRdPhd6A0Q=;
+        s=default; t=1584443607;
+        bh=MhqLiY0QoUHrYeGdqaf0sjCR6NM6YcsSusNH+uq3Vq8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X1KF2RPKwX/kfQ9TrCZJzAM1k8EiBmXqt+BkzbxGpcydoQ2RDCBWvY3nAQCchZhsP
-         jwfMsePD+IvtvhyUhHqheSwYz7bCaJ3C+Brqv/9cYiAD3CtZG6ywjOADNPg/DTydZ2
-         vArqHrm9njRgQ4TYLwwd3YjHYxg1CspgyuBUmNFA=
+        b=A2gkGV9rSI8GObXJwj6lZ6fIs0PXRSvtY6GFgB3bdKvGH2K38XeHo+fDDOn0x7YKX
+         SkMust4JtJh62pfczPM1Rycp7wp3xmEP3n57PpVDkM232dd7uXdRsAo4JpaVud+gfx
+         SxlDud82JOIXkvYlpqpyaielVuMZtF5T7xnAlHFQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Erhard Furtner <erhard_f@mailbox.org>,
-        Wolfram Sang <wsa@the-dreams.de>,
-        Michael Ellerman <mpe@ellerman.id.au>, stable@kernel.org
-Subject: [PATCH 5.4 085/123] macintosh: windfarm: fix MODINFO regression
+        stable@vger.kernel.org, "H. Nikolaus Schaller" <hns@goldelico.com>,
+        Paul Cercueil <paul@crapouillou.net>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Subject: [PATCH 5.5 102/151] MIPS: DTS: CI20: fix PMU definitions for ACT8600
 Date:   Tue, 17 Mar 2020 11:55:12 +0100
-Message-Id: <20200317103316.510952436@linuxfoundation.org>
+Message-Id: <20200317103333.707278222@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200317103307.343627747@linuxfoundation.org>
-References: <20200317103307.343627747@linuxfoundation.org>
+In-Reply-To: <20200317103326.593639086@linuxfoundation.org>
+References: <20200317103326.593639086@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,173 +44,124 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wolfram Sang <wsa@the-dreams.de>
+From: H. Nikolaus Schaller <hns@goldelico.com>
 
-commit bcf3588d8ed3517e6ffaf083f034812aee9dc8e2 upstream.
+commit e8d87a0b822d4b3d9a94a5da915f93aa1b674c93 upstream.
 
-Commit af503716ac14 made sure OF devices get an OF style modalias with
-I2C events. It assumed all in-tree users were converted, yet it missed
-some Macintosh drivers.
+There is a ACT8600 on the CI20 board and the bindings of the
+ACT8865 driver have changed without updating the CI20 device
+tree. Therefore the PMU can not be probed successfully and
+is running in power-on reset state.
 
-Add an OF module device table for all windfarm drivers to make them
-automatically load again.
+Fix DT to match the latest act8865-regulator bindings.
 
-Fixes: af503716ac14 ("i2c: core: report OF style module alias for devices registered via OF")
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=199471
-Reported-by: Erhard Furtner <erhard_f@mailbox.org>
-Tested-by: Erhard Furtner <erhard_f@mailbox.org>
-Acked-by: Michael Ellerman <mpe@ellerman.id.au> (powerpc)
-Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
-Cc: stable@kernel.org # v4.17+
+Fixes: 73f2b940474d ("MIPS: CI20: DTS: Add I2C nodes")
+Cc: stable@vger.kernel.org
+Signed-off-by: H. Nikolaus Schaller <hns@goldelico.com>
+Reviewed-by: Paul Cercueil <paul@crapouillou.net>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/macintosh/windfarm_ad7417_sensor.c  |    7 +++++++
- drivers/macintosh/windfarm_fcu_controls.c   |    7 +++++++
- drivers/macintosh/windfarm_lm75_sensor.c    |   16 +++++++++++++++-
- drivers/macintosh/windfarm_lm87_sensor.c    |    7 +++++++
- drivers/macintosh/windfarm_max6690_sensor.c |    7 +++++++
- drivers/macintosh/windfarm_smu_sat.c        |    7 +++++++
- 6 files changed, 50 insertions(+), 1 deletion(-)
+ arch/mips/boot/dts/ingenic/ci20.dts |   39 ++++++++++++++++++++++--------------
+ 1 file changed, 24 insertions(+), 15 deletions(-)
 
---- a/drivers/macintosh/windfarm_ad7417_sensor.c
-+++ b/drivers/macintosh/windfarm_ad7417_sensor.c
-@@ -312,9 +312,16 @@ static const struct i2c_device_id wf_ad7
- };
- MODULE_DEVICE_TABLE(i2c, wf_ad7417_id);
+--- a/arch/mips/boot/dts/ingenic/ci20.dts
++++ b/arch/mips/boot/dts/ingenic/ci20.dts
+@@ -4,6 +4,7 @@
+ #include "jz4780.dtsi"
+ #include <dt-bindings/clock/ingenic,tcu.h>
+ #include <dt-bindings/gpio/gpio.h>
++#include <dt-bindings/regulator/active-semi,8865-regulator.h>
  
-+static const struct of_device_id wf_ad7417_of_id[] = {
-+	{ .compatible = "ad7417", },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(of, wf_ad7417_of_id);
-+
- static struct i2c_driver wf_ad7417_driver = {
- 	.driver = {
- 		.name	= "wf_ad7417",
-+		.of_match_table = wf_ad7417_of_id,
- 	},
- 	.probe		= wf_ad7417_probe,
- 	.remove		= wf_ad7417_remove,
---- a/drivers/macintosh/windfarm_fcu_controls.c
-+++ b/drivers/macintosh/windfarm_fcu_controls.c
-@@ -582,9 +582,16 @@ static const struct i2c_device_id wf_fcu
- };
- MODULE_DEVICE_TABLE(i2c, wf_fcu_id);
+ / {
+ 	compatible = "img,ci20", "ingenic,jz4780";
+@@ -163,63 +164,71 @@
  
-+static const struct of_device_id wf_fcu_of_id[] = {
-+	{ .compatible = "fcu", },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(of, wf_fcu_of_id);
-+
- static struct i2c_driver wf_fcu_driver = {
- 	.driver = {
- 		.name	= "wf_fcu",
-+		.of_match_table = wf_fcu_of_id,
- 	},
- 	.probe		= wf_fcu_probe,
- 	.remove		= wf_fcu_remove,
---- a/drivers/macintosh/windfarm_lm75_sensor.c
-+++ b/drivers/macintosh/windfarm_lm75_sensor.c
-@@ -14,6 +14,7 @@
- #include <linux/init.h>
- #include <linux/wait.h>
- #include <linux/i2c.h>
-+#include <linux/of_device.h>
- #include <asm/prom.h>
- #include <asm/machdep.h>
- #include <asm/io.h>
-@@ -91,9 +92,14 @@ static int wf_lm75_probe(struct i2c_clie
- 			 const struct i2c_device_id *id)
- {	
- 	struct wf_lm75_sensor *lm;
--	int rc, ds1775 = id->driver_data;
-+	int rc, ds1775;
- 	const char *name, *loc;
- 
-+	if (id)
-+		ds1775 = id->driver_data;
-+	else
-+		ds1775 = !!of_device_get_match_data(&client->dev);
-+
- 	DBG("wf_lm75: creating  %s device at address 0x%02x\n",
- 	    ds1775 ? "ds1775" : "lm75", client->addr);
- 
-@@ -164,9 +170,17 @@ static const struct i2c_device_id wf_lm7
- };
- MODULE_DEVICE_TABLE(i2c, wf_lm75_id);
- 
-+static const struct of_device_id wf_lm75_of_id[] = {
-+	{ .compatible = "lm75", .data = (void *)0},
-+	{ .compatible = "ds1775", .data = (void *)1 },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(of, wf_lm75_of_id);
-+
- static struct i2c_driver wf_lm75_driver = {
- 	.driver = {
- 		.name	= "wf_lm75",
-+		.of_match_table = wf_lm75_of_id,
- 	},
- 	.probe		= wf_lm75_probe,
- 	.remove		= wf_lm75_remove,
---- a/drivers/macintosh/windfarm_lm87_sensor.c
-+++ b/drivers/macintosh/windfarm_lm87_sensor.c
-@@ -166,9 +166,16 @@ static const struct i2c_device_id wf_lm8
- };
- MODULE_DEVICE_TABLE(i2c, wf_lm87_id);
- 
-+static const struct of_device_id wf_lm87_of_id[] = {
-+	{ .compatible = "lm87cimt", },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(of, wf_lm87_of_id);
-+
- static struct i2c_driver wf_lm87_driver = {
- 	.driver = {
- 		.name	= "wf_lm87",
-+		.of_match_table = wf_lm87_of_id,
- 	},
- 	.probe		= wf_lm87_probe,
- 	.remove		= wf_lm87_remove,
---- a/drivers/macintosh/windfarm_max6690_sensor.c
-+++ b/drivers/macintosh/windfarm_max6690_sensor.c
-@@ -120,9 +120,16 @@ static const struct i2c_device_id wf_max
- };
- MODULE_DEVICE_TABLE(i2c, wf_max6690_id);
- 
-+static const struct of_device_id wf_max6690_of_id[] = {
-+	{ .compatible = "max6690", },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(of, wf_max6690_of_id);
-+
- static struct i2c_driver wf_max6690_driver = {
- 	.driver = {
- 		.name		= "wf_max6690",
-+		.of_match_table = wf_max6690_of_id,
- 	},
- 	.probe		= wf_max6690_probe,
- 	.remove		= wf_max6690_remove,
---- a/drivers/macintosh/windfarm_smu_sat.c
-+++ b/drivers/macintosh/windfarm_smu_sat.c
-@@ -341,9 +341,16 @@ static const struct i2c_device_id wf_sat
- };
- MODULE_DEVICE_TABLE(i2c, wf_sat_id);
- 
-+static const struct of_device_id wf_sat_of_id[] = {
-+	{ .compatible = "smu-sat", },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(of, wf_sat_of_id);
-+
- static struct i2c_driver wf_sat_driver = {
- 	.driver = {
- 		.name		= "wf_smu_sat",
-+		.of_match_table = wf_sat_of_id,
- 	},
- 	.probe		= wf_sat_probe,
- 	.remove		= wf_sat_remove,
+ 		regulators {
+ 			vddcore: SUDCDC1 {
+-				regulator-name = "VDDCORE";
++				regulator-name = "DCDC_REG1";
+ 				regulator-min-microvolt = <1100000>;
+ 				regulator-max-microvolt = <1100000>;
+ 				regulator-always-on;
+ 			};
+ 			vddmem: SUDCDC2 {
+-				regulator-name = "VDDMEM";
++				regulator-name = "DCDC_REG2";
+ 				regulator-min-microvolt = <1500000>;
+ 				regulator-max-microvolt = <1500000>;
+ 				regulator-always-on;
+ 			};
+ 			vcc_33: SUDCDC3 {
+-				regulator-name = "VCC33";
++				regulator-name = "DCDC_REG3";
+ 				regulator-min-microvolt = <3300000>;
+ 				regulator-max-microvolt = <3300000>;
+ 				regulator-always-on;
+ 			};
+ 			vcc_50: SUDCDC4 {
+-				regulator-name = "VCC50";
++				regulator-name = "SUDCDC_REG4";
+ 				regulator-min-microvolt = <5000000>;
+ 				regulator-max-microvolt = <5000000>;
+ 				regulator-always-on;
+ 			};
+ 			vcc_25: LDO_REG5 {
+-				regulator-name = "VCC25";
++				regulator-name = "LDO_REG5";
+ 				regulator-min-microvolt = <2500000>;
+ 				regulator-max-microvolt = <2500000>;
+ 				regulator-always-on;
+ 			};
+ 			wifi_io: LDO_REG6 {
+-				regulator-name = "WIFIIO";
++				regulator-name = "LDO_REG6";
+ 				regulator-min-microvolt = <2500000>;
+ 				regulator-max-microvolt = <2500000>;
+ 				regulator-always-on;
+ 			};
+ 			vcc_28: LDO_REG7 {
+-				regulator-name = "VCC28";
++				regulator-name = "LDO_REG7";
+ 				regulator-min-microvolt = <2800000>;
+ 				regulator-max-microvolt = <2800000>;
+ 				regulator-always-on;
+ 			};
+ 			vcc_15: LDO_REG8 {
+-				regulator-name = "VCC15";
++				regulator-name = "LDO_REG8";
+ 				regulator-min-microvolt = <1500000>;
+ 				regulator-max-microvolt = <1500000>;
+ 				regulator-always-on;
+ 			};
+-			vcc_18: LDO_REG9 {
+-				regulator-name = "VCC18";
+-				regulator-min-microvolt = <1800000>;
+-				regulator-max-microvolt = <1800000>;
++			vrtc_18: LDO_REG9 {
++				regulator-name = "LDO_REG9";
++				/* Despite the datasheet stating 3.3V
++				 * for REG9 and the driver expecting that,
++				 * REG9 outputs 1.8V.
++				 * Likely the CI20 uses a proprietary
++				 * factory programmed chip variant.
++				 * Since this is a simple on/off LDO the
++				 * exact values do not matter.
++				 */
++				regulator-min-microvolt = <3300000>;
++				regulator-max-microvolt = <3300000>;
+ 				regulator-always-on;
+ 			};
+ 			vcc_11: LDO_REG10 {
+-				regulator-name = "VCC11";
+-				regulator-min-microvolt = <1100000>;
+-				regulator-max-microvolt = <1100000>;
++				regulator-name = "LDO_REG10";
++				regulator-min-microvolt = <1200000>;
++				regulator-max-microvolt = <1200000>;
+ 				regulator-always-on;
+ 			};
+ 		};
 
 
