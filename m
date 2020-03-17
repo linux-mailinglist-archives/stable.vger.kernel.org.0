@@ -2,52 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4988B187A00
-	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 07:55:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CB3121879EE
+	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 07:55:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725868AbgCQGz3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Mar 2020 02:55:29 -0400
-Received: from mail-pf1-f201.google.com ([209.85.210.201]:38517 "EHLO
-        mail-pf1-f201.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726148AbgCQGzG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 17 Mar 2020 02:55:06 -0400
-Received: by mail-pf1-f201.google.com with SMTP id f14so14760816pfk.5
-        for <stable@vger.kernel.org>; Mon, 16 Mar 2020 23:55:05 -0700 (PDT)
+        id S1726484AbgCQGzL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Mar 2020 02:55:11 -0400
+Received: from mail-pl1-f202.google.com ([209.85.214.202]:55920 "EHLO
+        mail-pl1-f202.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726421AbgCQGzK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 17 Mar 2020 02:55:10 -0400
+Received: by mail-pl1-f202.google.com with SMTP id w11so11864309plp.22
+        for <stable@vger.kernel.org>; Mon, 16 Mar 2020 23:55:08 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=google.com; s=20161025;
         h=date:in-reply-to:message-id:mime-version:references:subject:from:to
          :cc;
-        bh=E7+oI0v4YJiTcfxieAo+ZZx+f+6HuOczFo3lOATV4XM=;
-        b=B4PdTjmn0c6lJeIMW8vcsIVdp4xg+iTkfxBW8URMxjsfTod/34RC00rlZ8dY9/NGHj
-         rrKCTZusWClEMd6JNJPoxGp2JjQz3Vdcd8YYYLt20NfXX8ALy1ABiNkndW95RCqpE8hd
-         prQy8VwzHquTUj0dlmzVMKgJZiHOcwoRwnil89BdWszSfGhsLF+e6ccAm7U7VcM+GpvA
-         zmI9qXY0QpJJDmeCYFi7yAUGGnzoy7kTjPoTQHDso+wb2n8wl8eXnlryMojF8X+TorD1
-         AEuCw5Nq+ijxA2n3vndlx84VOq2VM3qpbtV13CO6bY/Gcj9J8dKvRO5GcexCO5mWqaVS
-         ukZQ==
+        bh=AhDNtOnE0i0fbvNrO5Hy/wYWuzw/VPXEbOKSweJpsf4=;
+        b=wPH+ZNue3MAR6e1XSTYBhe/11JXInDuWWXzaIdDLj6ZrHDYT77PY79OhR+WRTt/2lX
+         lhvOTWaOj+7VclxkB62+XMab5YrZ5ctJUl+/RkVJMkmB007BhW2oOqlG7SgJ6L1dB/oG
+         HjPt3qSwFtfcNr7PhP0LPel+skTIylPhHOMgAWlo+8K74T8IpRw+NDpYJBjvLCXh3LBS
+         eDCRwvQigaB1NLKJAiv//yde0zyS1WNHgD/k7MLRxNb6iRgNENMat7tHRv2wIByRQzfD
+         7aEFIw2zOu9CPPTe1KQmctOEHAXicUmiktlhfql+0oCGiwJtByZOf2b+c4Bzo5K0siiK
+         uT4w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:date:in-reply-to:message-id:mime-version
          :references:subject:from:to:cc;
-        bh=E7+oI0v4YJiTcfxieAo+ZZx+f+6HuOczFo3lOATV4XM=;
-        b=nnZ7CeEZDWa/pEGgo7XzvdaPZo9pPXC3Y4FbWrmIiTvMY9eg0pb2oRqD4IBjDrctfI
-         X3rZN0ktDj/0BA5hqcsa4Nglt3kIr7SSPVG5SaBXXV8EqIkWZ9IHLZT3OvS/bYJdpqTB
-         UD5v4ZPuh2arKoe3TrjJ12jKUuJ++Yrs5dOKx+d0Vn8icf551Q3ZZx9kpfh2hYZNkSwN
-         THzZ527CyrqhVn3R8F56YYit9cbovrf28Yh/qnxs4qBCjpl7Czz96zNfZwMc76v+G78B
-         EtzD9xiB5YtbEkkLapfkwholwSMpA5ZziM6RDNISdx9flLWvdDSNzzoUKpjX9GuGTc8r
-         AqgQ==
-X-Gm-Message-State: ANhLgQ0aRMhe1F75+Pf0K+FKqQXoYH4oYNGPskgGEoEqFUgXjUo7984j
-        5Dzzabo1jJoqj+CijSACHPG5ijvqDKyD01jtNa8o1TIuht4TeM8Brb1ok0UTpTz8S5p1/54+0H5
-        4e7sj7Arw7XgQZMGILXWQgXIHOBXOij6scyzAIGlOHXg+Y5CqQwePDeX8ApAbQoAiJZG1lQ==
-X-Google-Smtp-Source: ADFU+vvIXvU94f5jKeoxuIFXK8fHLpbZJnHvhyMgI7zQmzpPqHJV9jhKFftzMx25WRb9Z932oqWKrkPXIha6jjs=
-X-Received: by 2002:a17:90a:d101:: with SMTP id l1mr3844319pju.130.1584428104661;
- Mon, 16 Mar 2020 23:55:04 -0700 (PDT)
-Date:   Mon, 16 Mar 2020 23:54:48 -0700
+        bh=AhDNtOnE0i0fbvNrO5Hy/wYWuzw/VPXEbOKSweJpsf4=;
+        b=Jnbth4ivwzV7mJsj9DWQA4gXGbl7zNqrbrnvL/lA6qEP6nso4w7HNoEW9/HrVnbFkV
+         kWwcJSl1s9RxBCyI8vxgyhyonwYGMucF4vtwipd/b2evDLZsqaMFwLoK3ADQC7Diltkj
+         9johNvHCPsSCfIR92Tc+3APneRfHEw3fC8GWtfk0vNptFuxXMa9nLaJnaZAYiz1643AI
+         0AESe7wqvXm6t+oQJHNZBRvfrv05OUoockNzgPfDVIAaUHd2Wj5SI4YPhiHWsws/Cdkj
+         Jb51xPWprMVlrvnaz/alPaQRL+gQoPhk47U249qRnDerURPbqC2LimQdkbaWekpNBc0V
+         hjmg==
+X-Gm-Message-State: ANhLgQ3UdeIgbdmChGwV1NePAgD6PBf7ZcYJKCrjEF3AeRe+TSwPQYwx
+        u2Nzo9XBBYsiCLcNaKOtsA2m73xXkHDffG6bmHrL+rR+A8vWgd4HWnJxSE4arkR3+Nq4JjnoTsW
+        kpd/gvPGAx11BGN+u8NKKiPrLHQbekGI2AKHrFhHJec1mI5dE30BELbi0RB0NFEvZEywgTA==
+X-Google-Smtp-Source: ADFU+vvl2cl8n4lzMBjDD8zqvg5K6fNDYrXAwCc02UcwgL8/e9RticTUSfTj8N+XhNr2UOwP0gkSKrKkqpSimEA=
+X-Received: by 2002:a17:90a:2147:: with SMTP id a65mr3660422pje.176.1584428107828;
+ Mon, 16 Mar 2020 23:55:07 -0700 (PDT)
+Date:   Mon, 16 Mar 2020 23:54:49 -0700
 In-Reply-To: <20200317065452.236670-1-saravanak@google.com>
-Message-Id: <20200317065452.236670-3-saravanak@google.com>
+Message-Id: <20200317065452.236670-4-saravanak@google.com>
 Mime-Version: 1.0
 References: <20200317065452.236670-1-saravanak@google.com>
 X-Mailer: git-send-email 2.25.1.481.gfbce0eb801-goog
-Subject: [PATCH v1 2/6] driver core: Fix adding device links to probing suppliers
+Subject: [PATCH v1 3/6] driver core: Make driver core own stateful device links
 From:   Saravana Kannan <saravanak@google.com>
 To:     stable@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -67,198 +67,266 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
 
-Currently, it is not valid to add a device link from a consumer
-driver ->probe callback to a supplier that is still probing too, but
-generally this is a valid use case.  For example, if the consumer has
-just acquired a resource that can only be available if the supplier
-is functional, adding a device link to that supplier right away
-should be safe (and even desirable arguably), but device_link_add()
-doesn't handle that case correctly and the initial state of the link
-created by it is wrong then.
+Even though stateful device links are managed by the driver core in
+principle, their creators are allowed and sometimes even expected
+to drop references to them via device_link_del() or
+device_link_remove(), but that doesn't really play well with the
+"persistent" link concept.
 
-To address this problem, change the initial state of device links
-added between a probing supplier and a probing consumer to
-DL_STATE_CONSUMER_PROBE and update device_links_driver_bound() to
-skip such links on the supplier side.
+If "persistent" managed device links are created from driver
+probe callbacks, device_link_add() called to do that will take a
+new reference on the link each time the callback runs and those
+references will never be dropped, which kind of isn't nice.
 
-With this change, if the supplier probe completes first,
-device_links_driver_bound() called for it will skip the link state
-update and when it is called for the consumer, the link state will
-be updated to "active".  In turn, if the consumer probe completes
-first, device_links_driver_bound() called for it will change the
-state of the link to "active" and when it is called for the
-supplier, the link status update will be skipped.
+This issues arises because of the link reference counting carried
+out by device_link_add() for existing links, but that is only done to
+avoid deleting device links that may still be necessary, which
+shouldn't be a concern for managed (stateful) links.  These device
+links are managed by the driver core and whoever creates one of them
+will need it at least as long as until the consumer driver is detached
+from its device and deleting it may be left to the driver core just
+fine.
 
-However, in principle the supplier or consumer probe may still fail
-after the link has been added, so modify device_links_no_driver() to
-change device links in the "active" or "consumer probe" state to
-"dormant" on the supplier side and update __device_links_no_driver()
-to change the link state to "available" only if it is "consumer
-probe" or "active".
+For this reason, rework device_link_add() to apply the reference
+counting to stateless links only and make device_link_del() and
+device_link_remove() drop references to stateless links only too.
+After this change, if called to add a stateful device link for
+a consumer-supplier pair for which a stateful device link is
+present already, device_link_add() will return the existing link
+without incrementing its reference counter.  Accordingly,
+device_link_del() and device_link_remove() will WARN() and do
+nothing when called to drop a reference to a stateful link.  Thus,
+effectively, all stateful device links will be owned by the driver
+core.
 
-Then, if the supplier probe fails first, the leftover link to the
-probing consumer will become "dormant" and device_links_no_driver()
-called for the consumer (when its probe fails) will clean it up.
-In turn, if the consumer probe fails first, it will either drop the
-link, or change its state to "available" and, in the latter case,
-when device_links_no_driver() is called for the supplier, it will
-update the link state to "dormant".  [If the supplier probe fails,
-but the consumer probe succeeds, which should not happen as long as
-the consumer driver is correct, the link still will be around, but
-it will be "dormant" until the supplier is probed again.]
+In addition, clean up the handling of the link management flags,
+DL_FLAG_AUTOREMOVE_CONSUMER and DL_FLAG_AUTOREMOVE_SUPPLIER, so that
+(a) they are never set at the same time and (b) if device_link_add()
+is called for a consumer-supplier pair with an existing stateful link
+between them, the flags of that link will be combined with the flags
+passed to device_link_add() to ensure that the life time of the link
+is sufficient for all of the callers of device_link_add() for the
+same consumer-supplier pair.
+
+Update the device_link_add() kerneldoc comment to reflect the
+above changes.
 
 Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-(cherry picked from commit 15cfb094160385cc0b303c4cda483caa102af654)
+(cherry picked from commit 72175d4ea4c442d95cf690c3e968eeee90fd43ca)
 Signed-off-by: Saravana Kannan <saravanak@google.com>
 ---
- Documentation/driver-api/device_link.rst | 10 +++-
- drivers/base/core.c                      | 74 +++++++++++++++++++++---
- 2 files changed, 73 insertions(+), 11 deletions(-)
+ Documentation/driver-api/device_link.rst | 42 +++++++++------
+ drivers/base/core.c                      | 69 ++++++++++++++++++------
+ 2 files changed, 79 insertions(+), 32 deletions(-)
 
 diff --git a/Documentation/driver-api/device_link.rst b/Documentation/driver-api/device_link.rst
-index d6763272e747..5c7178189612 100644
+index 5c7178189612..e249e074a8d2 100644
 --- a/Documentation/driver-api/device_link.rst
 +++ b/Documentation/driver-api/device_link.rst
-@@ -59,11 +59,15 @@ device ``->probe`` callback or a boot-time PCI quirk.
+@@ -25,8 +25,8 @@ suspend/resume and shutdown ordering.
  
- Another example for an inconsistent state would be a device link that
- represents a driver presence dependency, yet is added from the consumer's
--``->probe`` callback while the supplier hasn't probed yet:  Had the driver
--core known about the device link earlier, it wouldn't have probed the
-+``->probe`` callback while the supplier hasn't started to probe yet:  Had the
-+driver core known about the device link earlier, it wouldn't have probed the
- consumer in the first place.  The onus is thus on the consumer to check
- presence of the supplier after adding the link, and defer probing on
--non-presence.
-+non-presence.  [Note that it is valid to create a link from the consumer's
-+``->probe`` callback while the supplier is still probing, but the consumer must
-+know that the supplier is functional already at the link creation time (that is
-+the case, for instance, if the consumer has just acquired some resources that
-+would not have been available had the supplier not been functional then).]
+ Device links allow representation of such dependencies in the driver core.
  
- If a device link is added in the ``->probe`` callback of the supplier or
- consumer driver, it is typically deleted in its ``->remove`` callback for
+-In its standard form, a device link combines *both* dependency types:
+-It guarantees correct suspend/resume and shutdown ordering between a
++In its standard or *managed* form, a device link combines *both* dependency
++types:  It guarantees correct suspend/resume and shutdown ordering between a
+ "supplier" device and its "consumer" devices, and it guarantees driver
+ presence on the supplier.  The consumer devices are not probed before the
+ supplier is bound to a driver, and they're unbound before the supplier
+@@ -69,12 +69,14 @@ know that the supplier is functional already at the link creation time (that is
+ the case, for instance, if the consumer has just acquired some resources that
+ would not have been available had the supplier not been functional then).]
+ 
+-If a device link is added in the ``->probe`` callback of the supplier or
+-consumer driver, it is typically deleted in its ``->remove`` callback for
+-symmetry.  That way, if the driver is compiled as a module, the device
+-link is added on module load and orderly deleted on unload.  The same
+-restrictions that apply to device link addition (e.g. exclusion of a
+-parallel suspend/resume transition) apply equally to deletion.
++If a device link with ``DL_FLAG_STATELESS`` set (i.e. a stateless device link)
++is added in the ``->probe`` callback of the supplier or consumer driver, it is
++typically deleted in its ``->remove`` callback for symmetry.  That way, if the
++driver is compiled as a module, the device link is added on module load and
++orderly deleted on unload.  The same restrictions that apply to device link
++addition (e.g. exclusion of a parallel suspend/resume transition) apply equally
++to deletion.  Device links with ``DL_FLAG_STATELESS`` unset (i.e. managed
++device links) are deleted automatically by the driver core.
+ 
+ Several flags may be specified on device link addition, two of which
+ have already been mentioned above:  ``DL_FLAG_STATELESS`` to express that no
+@@ -87,8 +89,6 @@ link is added from the consumer's ``->probe`` callback:  ``DL_FLAG_RPM_ACTIVE``
+ can be specified to runtime resume the supplier upon addition of the
+ device link.  ``DL_FLAG_AUTOREMOVE_CONSUMER`` causes the device link to be
+ automatically purged when the consumer fails to probe or later unbinds.
+-This obviates the need to explicitly delete the link in the ``->remove``
+-callback or in the error path of the ``->probe`` callback.
+ 
+ Similarly, when the device link is added from supplier's ``->probe`` callback,
+ ``DL_FLAG_AUTOREMOVE_SUPPLIER`` causes the device link to be automatically
+@@ -97,12 +97,20 @@ purged when the supplier fails to probe or later unbinds.
+ Limitations
+ ===========
+ 
+-Driver authors should be aware that a driver presence dependency (i.e. when
+-``DL_FLAG_STATELESS`` is not specified on link addition) may cause probing of
+-the consumer to be deferred indefinitely.  This can become a problem if the
+-consumer is required to probe before a certain initcall level is reached.
+-Worse, if the supplier driver is blacklisted or missing, the consumer will
+-never be probed.
++Driver authors should be aware that a driver presence dependency for managed
++device links (i.e. when ``DL_FLAG_STATELESS`` is not specified on link addition)
++may cause probing of the consumer to be deferred indefinitely.  This can become
++a problem if the consumer is required to probe before a certain initcall level
++is reached.  Worse, if the supplier driver is blacklisted or missing, the
++consumer will never be probed.
++
++Moreover, managed device links cannot be deleted directly.  They are deleted
++by the driver core when they are not necessary any more in accordance with the
++``DL_FLAG_AUTOREMOVE_CONSUMER`` and ``DL_FLAG_AUTOREMOVE_SUPPLIER`` flags.
++However, stateless device links (i.e. device links with ``DL_FLAG_STATELESS``
++set) are expected to be removed by whoever called :c:func:`device_link_add()`
++to add them with the help of either :c:func:`device_link_del()` or
++:c:func:`device_link_remove()`.
+ 
+ Sometimes drivers depend on optional resources.  They are able to operate
+ in a degraded mode (reduced feature set or performance) when those resources
+@@ -286,4 +294,4 @@ API
+ ===
+ 
+ .. kernel-doc:: drivers/base/core.c
+-   :functions: device_link_add device_link_del
++   :functions: device_link_add device_link_del device_link_remove
 diff --git a/drivers/base/core.c b/drivers/base/core.c
-index b354fdd7ce75..ae2f85ca78fb 100644
+index ae2f85ca78fb..d8273792950b 100644
 --- a/drivers/base/core.c
 +++ b/drivers/base/core.c
-@@ -287,17 +287,26 @@ struct device_link *device_link_add(struct device *consumer,
- 		link->status = DL_STATE_NONE;
- 	} else {
- 		switch (supplier->links.status) {
--		case DL_DEV_DRIVER_BOUND:
-+		case DL_DEV_PROBING:
- 			switch (consumer->links.status) {
- 			case DL_DEV_PROBING:
- 				/*
--				 * Some callers expect the link creation during
--				 * consumer driver probe to resume the supplier
--				 * even without DL_FLAG_RPM_ACTIVE.
-+				 * A consumer driver can create a link to a
-+				 * supplier that has not completed its probing
-+				 * yet as long as it knows that the supplier is
-+				 * already functional (for example, it has just
-+				 * acquired some resources from the supplier).
- 				 */
--				if (flags & DL_FLAG_PM_RUNTIME)
--					pm_runtime_resume(supplier);
--
-+				link->status = DL_STATE_CONSUMER_PROBE;
-+				break;
-+			default:
-+				link->status = DL_STATE_DORMANT;
-+				break;
-+			}
-+			break;
-+		case DL_DEV_DRIVER_BOUND:
-+			switch (consumer->links.status) {
-+			case DL_DEV_PROBING:
- 				link->status = DL_STATE_CONSUMER_PROBE;
- 				break;
- 			case DL_DEV_DRIVER_BOUND:
-@@ -317,6 +326,14 @@ struct device_link *device_link_add(struct device *consumer,
- 		}
+@@ -179,10 +179,21 @@ void device_pm_move_to_tail(struct device *dev)
+  * of the link.  If DL_FLAG_PM_RUNTIME is not set, DL_FLAG_RPM_ACTIVE will be
+  * ignored.
+  *
+- * If the DL_FLAG_AUTOREMOVE_CONSUMER flag is set, the link will be removed
+- * automatically when the consumer device driver unbinds from it.  Analogously,
+- * if DL_FLAG_AUTOREMOVE_SUPPLIER is set in @flags, the link will be removed
+- * automatically when the supplier device driver unbinds from it.
++ * If DL_FLAG_STATELESS is set in @flags, the link is not going to be managed by
++ * the driver core and, in particular, the caller of this function is expected
++ * to drop the reference to the link acquired by it directly.
++ *
++ * If that flag is not set, however, the caller of this function is handing the
++ * management of the link over to the driver core entirely and its return value
++ * can only be used to check whether or not the link is present.  In that case,
++ * the DL_FLAG_AUTOREMOVE_CONSUMER and DL_FLAG_AUTOREMOVE_SUPPLIER device link
++ * flags can be used to indicate to the driver core when the link can be safely
++ * deleted.  Namely, setting one of them in @flags indicates to the driver core
++ * that the link is not going to be used (by the given caller of this function)
++ * after unbinding the consumer or supplier driver, respectively, from its
++ * device, so the link can be deleted at that point.  If none of them is set,
++ * the link will be maintained until one of the devices pointed to by it (either
++ * the consumer or the supplier) is unregistered.
+  *
+  * The combination of DL_FLAG_STATELESS and either DL_FLAG_AUTOREMOVE_CONSUMER
+  * or DL_FLAG_AUTOREMOVE_SUPPLIER set in @flags at the same time is invalid and
+@@ -228,6 +239,14 @@ struct device_link *device_link_add(struct device *consumer,
+ 		goto out;
  	}
  
 +	/*
-+	 * Some callers expect the link creation during consumer driver probe to
-+	 * resume the supplier even without DL_FLAG_RPM_ACTIVE.
++	 * DL_FLAG_AUTOREMOVE_SUPPLIER indicates that the link will be needed
++	 * longer than for DL_FLAG_AUTOREMOVE_CONSUMER and setting them both
++	 * together doesn't make sense, so prefer DL_FLAG_AUTOREMOVE_SUPPLIER.
 +	 */
-+	if (link->status == DL_STATE_CONSUMER_PROBE &&
-+	    flags & DL_FLAG_PM_RUNTIME)
-+		pm_runtime_resume(supplier);
++	if (flags & DL_FLAG_AUTOREMOVE_SUPPLIER)
++		flags &= ~DL_FLAG_AUTOREMOVE_CONSUMER;
 +
- 	/*
- 	 * Move the consumer and all of the devices depending on it to the end
- 	 * of dpm_list and the devices_kset list.
-@@ -508,6 +525,16 @@ void device_links_driver_bound(struct device *dev)
- 		if (link->flags & DL_FLAG_STATELESS)
+ 	list_for_each_entry(link, &supplier->links.consumers, s_node) {
+ 		if (link->consumer != consumer)
  			continue;
+@@ -241,12 +260,6 @@ struct device_link *device_link_add(struct device *consumer,
+ 			goto out;
+ 		}
  
-+		/*
-+		 * Links created during consumer probe may be in the "consumer
-+		 * probe" state to start with if the supplier is still probing
-+		 * when they are created and they may become "active" if the
-+		 * consumer probe returns first.  Skip them here.
-+		 */
-+		if (link->status == DL_STATE_CONSUMER_PROBE ||
-+		    link->status == DL_STATE_ACTIVE)
-+			continue;
+-		if (flags & DL_FLAG_AUTOREMOVE_CONSUMER)
+-			link->flags |= DL_FLAG_AUTOREMOVE_CONSUMER;
+-
+-		if (flags & DL_FLAG_AUTOREMOVE_SUPPLIER)
+-			link->flags |= DL_FLAG_AUTOREMOVE_SUPPLIER;
+-
+ 		if (flags & DL_FLAG_PM_RUNTIME) {
+ 			if (!(link->flags & DL_FLAG_PM_RUNTIME)) {
+ 				pm_runtime_new_link(consumer);
+@@ -256,7 +269,25 @@ struct device_link *device_link_add(struct device *consumer,
+ 				refcount_inc(&link->rpm_active);
+ 		}
+ 
+-		kref_get(&link->kref);
++		if (flags & DL_FLAG_STATELESS) {
++			kref_get(&link->kref);
++			goto out;
++		}
 +
- 		WARN_ON(link->status != DL_STATE_DORMANT);
- 		WRITE_ONCE(link->status, DL_STATE_AVAILABLE);
++		/*
++		 * If the life time of the link following from the new flags is
++		 * longer than indicated by the flags of the existing link,
++		 * update the existing link to stay around longer.
++		 */
++		if (flags & DL_FLAG_AUTOREMOVE_SUPPLIER) {
++			if (link->flags & DL_FLAG_AUTOREMOVE_CONSUMER) {
++				link->flags &= ~DL_FLAG_AUTOREMOVE_CONSUMER;
++				link->flags |= DL_FLAG_AUTOREMOVE_SUPPLIER;
++			}
++		} else if (!(flags & DL_FLAG_AUTOREMOVE_CONSUMER)) {
++			link->flags &= ~(DL_FLAG_AUTOREMOVE_CONSUMER |
++					 DL_FLAG_AUTOREMOVE_SUPPLIER);
++		}
+ 		goto out;
  	}
-@@ -547,17 +574,48 @@ static void __device_links_no_driver(struct device *dev)
  
- 		if (link->flags & DL_FLAG_AUTOREMOVE_CONSUMER)
- 			__device_link_del(&link->kref);
--		else if (link->status != DL_STATE_SUPPLIER_UNBIND)
-+		else if (link->status == DL_STATE_CONSUMER_PROBE ||
-+			 link->status == DL_STATE_ACTIVE)
- 			WRITE_ONCE(link->status, DL_STATE_AVAILABLE);
- 	}
- 
- 	dev->links.status = DL_DEV_NO_DRIVER;
+@@ -406,8 +437,16 @@ static void __device_link_del(struct kref *kref)
  }
+ #endif /* !CONFIG_SRCU */
  
-+/**
-+ * device_links_no_driver - Update links after failing driver probe.
-+ * @dev: Device whose driver has just failed to probe.
-+ *
-+ * Clean up leftover links to consumers for @dev and invoke
-+ * %__device_links_no_driver() to update links to suppliers for it as
-+ * appropriate.
-+ *
-+ * Links with the DL_FLAG_STATELESS flag set are ignored.
-+ */
- void device_links_no_driver(struct device *dev)
++static void device_link_put_kref(struct device_link *link)
++{
++	if (link->flags & DL_FLAG_STATELESS)
++		kref_put(&link->kref, __device_link_del);
++	else
++		WARN(1, "Unable to drop a managed device link reference\n");
++}
++
+ /**
+- * device_link_del - Delete a link between two devices.
++ * device_link_del - Delete a stateless link between two devices.
+  * @link: Device link to delete.
+  *
+  * The caller must ensure proper synchronization of this function with runtime
+@@ -419,14 +458,14 @@ void device_link_del(struct device_link *link)
  {
-+	struct device_link *link;
-+
  	device_links_write_lock();
-+
-+	list_for_each_entry(link, &dev->links.consumers, s_node) {
-+		if (link->flags & DL_FLAG_STATELESS)
-+			continue;
-+
-+		/*
-+		 * The probe has failed, so if the status of the link is
-+		 * "consumer probe" or "active", it must have been added by
-+		 * a probing consumer while this device was still probing.
-+		 * Change its state to "dormant", as it represents a valid
-+		 * relationship, but it is not functionally meaningful.
-+		 */
-+		if (link->status == DL_STATE_CONSUMER_PROBE ||
-+		    link->status == DL_STATE_ACTIVE)
-+			WRITE_ONCE(link->status, DL_STATE_DORMANT);
-+	}
-+
- 	__device_links_no_driver(dev);
-+
+ 	device_pm_lock();
+-	kref_put(&link->kref, __device_link_del);
++	device_link_put_kref(link);
+ 	device_pm_unlock();
  	device_links_write_unlock();
  }
+ EXPORT_SYMBOL_GPL(device_link_del);
  
+ /**
+- * device_link_remove - remove a link between two devices.
++ * device_link_remove - Delete a stateless link between two devices.
+  * @consumer: Consumer end of the link.
+  * @supplier: Supplier end of the link.
+  *
+@@ -445,7 +484,7 @@ void device_link_remove(void *consumer, struct device *supplier)
+ 
+ 	list_for_each_entry(link, &supplier->links.consumers, s_node) {
+ 		if (link->consumer == consumer) {
+-			kref_put(&link->kref, __device_link_del);
++			device_link_put_kref(link);
+ 			break;
+ 		}
+ 	}
 -- 
 2.25.1.481.gfbce0eb801-goog
 
