@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A33D6188233
-	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:29:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C9281880FC
+	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:15:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725957AbgCQL2o (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Mar 2020 07:28:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38526 "EHLO mail.kernel.org"
+        id S1728589AbgCQLNF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Mar 2020 07:13:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56792 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725794AbgCQL2o (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Mar 2020 07:28:44 -0400
+        id S1728963AbgCQLNC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Mar 2020 07:13:02 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6CCC220658;
-        Tue, 17 Mar 2020 11:28:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BD6D9205ED;
+        Tue, 17 Mar 2020 11:13:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584444521;
-        bh=ejZrq+F/lKEfO3Yj3IeUxgVu9TpeCSHvgQhm0SrXQNU=;
+        s=default; t=1584443582;
+        bh=7AeRdUFqB8nXUpeMqPPG48ncKguSxkwesFV4prQw9Ak=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DGCcj+MF1Wyxc28slHUPFTccGeRP4pffXEJ3SLQxXrCOZirsNXBhjUEeHb66S7Ssg
-         JoYauMqKCAdyhTxC76V9Usx40hrya+OOPH7lkaEPY+OEWMXx/7pJD+gx5mZHAaTnLK
-         asNZXtvCJupOzk0aZYmiVcj24b8ARQtPTPiCfKfI=
+        b=G/t3RQIJrRQUedfCpFp6tMgbag+6HNok5oZo1LdbQaD/wAwLVIH7XD0Ux1TGqrF2+
+         R7IgxMS3g4yZBFq2eKjE10WwksRF6cWs9iqZ8B++bblMKT5HX1HUZiYxagzWxYOG/k
+         tJGEQcw0RqosLw5a3JQNJgXsJctuVOR1ybw3ibp0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chris Wilson <chris@chris-wilson.co.uk>,
-        "Pandruvada, Srinivas" <srinivas.pandruvada@linux.intel.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Borislav Petkov <bp@suse.de>
-Subject: [PATCH 5.5 129/151] x86/mce/therm_throt: Undo thermal polling properly on CPU offline
-Date:   Tue, 17 Mar 2020 11:55:39 +0100
-Message-Id: <20200317103335.605735505@linuxfoundation.org>
+        stable@vger.kernel.org, Tina Zhang <tina.zhang@intel.com>,
+        Zhenyu Wang <zhenyuw@linux.intel.com>,
+        Jani Nikula <jani.nikula@intel.com>
+Subject: [PATCH 5.5 130/151] drm/i915/gvt: Fix dma-buf display blur issue on CFL
+Date:   Tue, 17 Mar 2020 11:55:40 +0100
+Message-Id: <20200317103335.675435099@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200317103326.593639086@linuxfoundation.org>
 References: <20200317103326.593639086@linuxfoundation.org>
@@ -45,55 +44,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+From: Tina Zhang <tina.zhang@intel.com>
 
-commit d364847eed890211444ad74496bb549f838c6018 upstream.
+commit 259170cb4c84f4165a36c0b05811eb74c495412c upstream.
 
-Chris Wilson reported splats from running the thermal throttling
-workqueue callback on offlined CPUs. The problem is that that callback
-should not even run on offlined CPUs but it happens nevertheless because
-the offlining callback thermal_throttle_offline() does not symmetrically
-undo the setup work done in its onlining counterpart. IOW,
+Commit c3b5a8430daad ("drm/i915/gvt: Enable gfx virtualiztion for CFL")
+added the support on CFL. The vgpu emulation hotplug support on CFL was
+supposed to be included in that patch. Without the vgpu emulation
+hotplug support, the dma-buf based display gives us a blur face.
 
- 1. The thermal interrupt vector should be masked out before ...
+So fix this issue by adding the vgpu emulation hotplug support on CFL.
 
- 2. ... cancelling any pending work synchronously so that no new work is
- enqueued anymore.
-
-Do those things and fix the issue properly.
-
- [ bp: Write commit message. ]
-
-Fixes: f6656208f04e ("x86/mce/therm_throt: Optimize notifications of thermal throttle")
-Reported-by: Chris Wilson <chris@chris-wilson.co.uk>
-Tested-by: Pandruvada, Srinivas <srinivas.pandruvada@linux.intel.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Link: https://lkml.kernel.org/r/158120068234.18291.7938335950259651295@skylake-alporthouse-com
+Fixes: c3b5a8430daad ("drm/i915/gvt: Enable gfx virtualiztion for CFL")
+Signed-off-by: Tina Zhang <tina.zhang@intel.com>
+Acked-by: Zhenyu Wang <zhenyuw@linux.intel.com>
+Signed-off-by: Zhenyu Wang <zhenyuw@linux.intel.com>
+Link: http://patchwork.freedesktop.org/patch/msgid/20200227010041.32248-1-tina.zhang@intel.com
+(cherry picked from commit 135dde8853c7e00f6002e710f7e4787ed8585c0e)
+Signed-off-by: Jani Nikula <jani.nikula@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/kernel/cpu/mce/therm_throt.c |    9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/i915/gvt/display.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/arch/x86/kernel/cpu/mce/therm_throt.c
-+++ b/arch/x86/kernel/cpu/mce/therm_throt.c
-@@ -486,9 +486,14 @@ static int thermal_throttle_offline(unsi
- {
- 	struct thermal_state *state = &per_cpu(thermal_state, cpu);
- 	struct device *dev = get_cpu_device(cpu);
-+	u32 l;
+--- a/drivers/gpu/drm/i915/gvt/display.c
++++ b/drivers/gpu/drm/i915/gvt/display.c
+@@ -457,7 +457,8 @@ void intel_vgpu_emulate_hotplug(struct i
+ 	struct drm_i915_private *dev_priv = vgpu->gvt->dev_priv;
  
--	cancel_delayed_work(&state->package_throttle.therm_work);
--	cancel_delayed_work(&state->core_throttle.therm_work);
-+	/* Mask the thermal vector before draining evtl. pending work */
-+	l = apic_read(APIC_LVTTHMR);
-+	apic_write(APIC_LVTTHMR, l | APIC_LVT_MASKED);
-+
-+	cancel_delayed_work_sync(&state->package_throttle.therm_work);
-+	cancel_delayed_work_sync(&state->core_throttle.therm_work);
- 
- 	state->package_throttle.rate_control_active = false;
- 	state->core_throttle.rate_control_active = false;
+ 	/* TODO: add more platforms support */
+-	if (IS_SKYLAKE(dev_priv) || IS_KABYLAKE(dev_priv)) {
++	if (IS_SKYLAKE(dev_priv) || IS_KABYLAKE(dev_priv) ||
++		IS_COFFEELAKE(dev_priv)) {
+ 		if (connected) {
+ 			vgpu_vreg_t(vgpu, SFUSE_STRAP) |=
+ 				SFUSE_STRAP_DDID_DETECTED;
 
 
