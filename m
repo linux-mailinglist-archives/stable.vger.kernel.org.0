@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 85E6A188149
-	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:17:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1129618814A
+	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:17:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727668AbgCQLHO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Mar 2020 07:07:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48812 "EHLO mail.kernel.org"
+        id S1728550AbgCQLHS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Mar 2020 07:07:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48894 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728412AbgCQLHO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Mar 2020 07:07:14 -0400
+        id S1728488AbgCQLHQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Mar 2020 07:07:16 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ED02520714;
-        Tue, 17 Mar 2020 11:07:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B63BF20714;
+        Tue, 17 Mar 2020 11:07:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584443232;
-        bh=LHJivMlqvIKOv4Y/uoLcS7YmOiXzW0dVHBqaEQsedY8=;
+        s=default; t=1584443236;
+        bh=m0b+J/l6wj3I2PKckDq8iqtgR/W2cCQYpsnIV8gSBYE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MFeWHSllmSdOX9/9PiBp/zv7CSYwUwed4ySHEsLHkUodCsNosH/x0bNnrbwAfXAOr
-         DerLwx9dPsi3iGK2CQTwZyAd9gp9K7SveVfmo7nKnbBueBW2CBJ2OxzCbozlPVOk5R
-         aJujlqLVgsGkMOkrphv+ZNQCs6L3dwRClpHZKDaQ=
+        b=JTDmsfhvLA81Dew4LP44HQcmCU+51hVXaZakb91izsrGC+V1KS5tn9ZnO6jUuu6/3
+         MiX7TousDfw/ytD3luH19wnlDceGrBNv1KsTH2zeivgcfXhSFesoUUI/YTTlk32XQP
+         JKO623Ckd3YXNJy7kjl7KudbitqDnH99r10NQf8I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        syzbot <syzkaller@googlegroups.com>,
+        stable@vger.kernel.org, Dmitry Yakunin <zeil@yandex-team.ru>,
+        Konstantin Khlebnikov <khlebnikov@yandex-team.ru>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.5 007/151] gre: fix uninit-value in __iptunnel_pull_header
-Date:   Tue, 17 Mar 2020 11:53:37 +0100
-Message-Id: <20200317103327.007396668@linuxfoundation.org>
+Subject: [PATCH 5.5 008/151] inet_diag: return classid for all socket types
+Date:   Tue, 17 Mar 2020 11:53:38 +0100
+Message-Id: <20200317103327.074086747@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200317103326.593639086@linuxfoundation.org>
 References: <20200317103326.593639086@linuxfoundation.org>
@@ -44,138 +44,184 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Dmitry Yakunin <zeil@yandex-team.ru>
 
-[ Upstream commit 17c25cafd4d3e74c83dce56b158843b19c40b414 ]
+[ Upstream commit 83f73c5bb7b9a9135173f0ba2b1aa00c06664ff9 ]
 
-syzbot found an interesting case of the kernel reading
-an uninit-value [1]
+In commit 1ec17dbd90f8 ("inet_diag: fix reporting cgroup classid and
+fallback to priority") croup classid reporting was fixed. But this works
+only for TCP sockets because for other socket types icsk parameter can
+be NULL and classid code path is skipped. This change moves classid
+handling to inet_diag_msg_attrs_fill() function.
 
-Problem is in the handling of ETH_P_WCCP in gre_parse_header()
+Also inet_diag_msg_attrs_size() helper was added and addends in
+nlmsg_new() were reordered to save order from inet_sk_diag_fill().
 
-We look at the byte following GRE options to eventually decide
-if the options are four bytes longer.
-
-Use skb_header_pointer() to not pull bytes if we found
-that no more bytes were needed.
-
-All callers of gre_parse_header() are properly using pskb_may_pull()
-anyway before proceeding to next header.
-
-[1]
-BUG: KMSAN: uninit-value in pskb_may_pull include/linux/skbuff.h:2303 [inline]
-BUG: KMSAN: uninit-value in __iptunnel_pull_header+0x30c/0xbd0 net/ipv4/ip_tunnel_core.c:94
-CPU: 1 PID: 11784 Comm: syz-executor940 Not tainted 5.6.0-rc2-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-Call Trace:
- __dump_stack lib/dump_stack.c:77 [inline]
- dump_stack+0x1c9/0x220 lib/dump_stack.c:118
- kmsan_report+0xf7/0x1e0 mm/kmsan/kmsan_report.c:118
- __msan_warning+0x58/0xa0 mm/kmsan/kmsan_instr.c:215
- pskb_may_pull include/linux/skbuff.h:2303 [inline]
- __iptunnel_pull_header+0x30c/0xbd0 net/ipv4/ip_tunnel_core.c:94
- iptunnel_pull_header include/net/ip_tunnels.h:411 [inline]
- gre_rcv+0x15e/0x19c0 net/ipv6/ip6_gre.c:606
- ip6_protocol_deliver_rcu+0x181b/0x22c0 net/ipv6/ip6_input.c:432
- ip6_input_finish net/ipv6/ip6_input.c:473 [inline]
- NF_HOOK include/linux/netfilter.h:307 [inline]
- ip6_input net/ipv6/ip6_input.c:482 [inline]
- ip6_mc_input+0xdf2/0x1460 net/ipv6/ip6_input.c:576
- dst_input include/net/dst.h:442 [inline]
- ip6_rcv_finish net/ipv6/ip6_input.c:76 [inline]
- NF_HOOK include/linux/netfilter.h:307 [inline]
- ipv6_rcv+0x683/0x710 net/ipv6/ip6_input.c:306
- __netif_receive_skb_one_core net/core/dev.c:5198 [inline]
- __netif_receive_skb net/core/dev.c:5312 [inline]
- netif_receive_skb_internal net/core/dev.c:5402 [inline]
- netif_receive_skb+0x66b/0xf20 net/core/dev.c:5461
- tun_rx_batched include/linux/skbuff.h:4321 [inline]
- tun_get_user+0x6aef/0x6f60 drivers/net/tun.c:1997
- tun_chr_write_iter+0x1f2/0x360 drivers/net/tun.c:2026
- call_write_iter include/linux/fs.h:1901 [inline]
- new_sync_write fs/read_write.c:483 [inline]
- __vfs_write+0xa5a/0xca0 fs/read_write.c:496
- vfs_write+0x44a/0x8f0 fs/read_write.c:558
- ksys_write+0x267/0x450 fs/read_write.c:611
- __do_sys_write fs/read_write.c:623 [inline]
- __se_sys_write fs/read_write.c:620 [inline]
- __ia32_sys_write+0xdb/0x120 fs/read_write.c:620
- do_syscall_32_irqs_on arch/x86/entry/common.c:339 [inline]
- do_fast_syscall_32+0x3c7/0x6e0 arch/x86/entry/common.c:410
- entry_SYSENTER_compat+0x68/0x77 arch/x86/entry/entry_64_compat.S:139
-RIP: 0023:0xf7f62d99
-Code: 90 e8 0b 00 00 00 f3 90 0f ae e8 eb f9 8d 74 26 00 89 3c 24 c3 90 90 90 90 90 90 90 90 90 90 90 90 51 52 55 89 e5 0f 34 cd 80 <5d> 5a 59 c3 90 90 90 90 eb 0d 90 90 90 90 90 90 90 90 90 90 90 90
-RSP: 002b:00000000fffedb2c EFLAGS: 00000217 ORIG_RAX: 0000000000000004
-RAX: ffffffffffffffda RBX: 0000000000000003 RCX: 0000000020002580
-RDX: 0000000000000fca RSI: 0000000000000036 RDI: 0000000000000004
-RBP: 0000000000008914 R08: 0000000000000000 R09: 0000000000000000
-R10: 0000000000000000 R11: 0000000000000000 R12: 0000000000000000
-R13: 0000000000000000 R14: 0000000000000000 R15: 0000000000000000
-
-Uninit was created at:
- kmsan_save_stack_with_flags mm/kmsan/kmsan.c:144 [inline]
- kmsan_internal_poison_shadow+0x66/0xd0 mm/kmsan/kmsan.c:127
- kmsan_slab_alloc+0x8a/0xe0 mm/kmsan/kmsan_hooks.c:82
- slab_alloc_node mm/slub.c:2793 [inline]
- __kmalloc_node_track_caller+0xb40/0x1200 mm/slub.c:4401
- __kmalloc_reserve net/core/skbuff.c:142 [inline]
- __alloc_skb+0x2fd/0xac0 net/core/skbuff.c:210
- alloc_skb include/linux/skbuff.h:1051 [inline]
- alloc_skb_with_frags+0x18c/0xa70 net/core/skbuff.c:5766
- sock_alloc_send_pskb+0xada/0xc60 net/core/sock.c:2242
- tun_alloc_skb drivers/net/tun.c:1529 [inline]
- tun_get_user+0x10ae/0x6f60 drivers/net/tun.c:1843
- tun_chr_write_iter+0x1f2/0x360 drivers/net/tun.c:2026
- call_write_iter include/linux/fs.h:1901 [inline]
- new_sync_write fs/read_write.c:483 [inline]
- __vfs_write+0xa5a/0xca0 fs/read_write.c:496
- vfs_write+0x44a/0x8f0 fs/read_write.c:558
- ksys_write+0x267/0x450 fs/read_write.c:611
- __do_sys_write fs/read_write.c:623 [inline]
- __se_sys_write fs/read_write.c:620 [inline]
- __ia32_sys_write+0xdb/0x120 fs/read_write.c:620
- do_syscall_32_irqs_on arch/x86/entry/common.c:339 [inline]
- do_fast_syscall_32+0x3c7/0x6e0 arch/x86/entry/common.c:410
- entry_SYSENTER_compat+0x68/0x77 arch/x86/entry/entry_64_compat.S:139
-
-Fixes: 95f5c64c3c13 ("gre: Move utility functions to common headers")
-Fixes: c54419321455 ("GRE: Refactor GRE tunneling code.")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
+Fixes: 1ec17dbd90f8 ("inet_diag: fix reporting cgroup classid and fallback to priority")
+Signed-off-by: Dmitry Yakunin <zeil@yandex-team.ru>
+Reviewed-by: Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/gre_demux.c |   12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ include/linux/inet_diag.h |   18 ++++++++++++------
+ net/ipv4/inet_diag.c      |   44 ++++++++++++++++++++------------------------
+ net/ipv4/raw_diag.c       |    5 +++--
+ net/ipv4/udp_diag.c       |    5 +++--
+ net/sctp/diag.c           |    8 ++------
+ 5 files changed, 40 insertions(+), 40 deletions(-)
 
---- a/net/ipv4/gre_demux.c
-+++ b/net/ipv4/gre_demux.c
-@@ -56,7 +56,9 @@ int gre_del_protocol(const struct gre_pr
- }
- EXPORT_SYMBOL_GPL(gre_del_protocol);
+--- a/include/linux/inet_diag.h
++++ b/include/linux/inet_diag.h
+@@ -2,15 +2,10 @@
+ #ifndef _INET_DIAG_H_
+ #define _INET_DIAG_H_ 1
  
--/* Fills in tpi and returns header length to be pulled. */
-+/* Fills in tpi and returns header length to be pulled.
-+ * Note that caller must use pskb_may_pull() before pulling GRE header.
-+ */
- int gre_parse_header(struct sk_buff *skb, struct tnl_ptk_info *tpi,
- 		     bool *csum_err, __be16 proto, int nhs)
- {
-@@ -110,8 +112,14 @@ int gre_parse_header(struct sk_buff *skb
- 	 * - When dealing with WCCPv2, Skip extra 4 bytes in GRE header
- 	 */
- 	if (greh->flags == 0 && tpi->proto == htons(ETH_P_WCCP)) {
-+		u8 _val, *val;
++#include <net/netlink.h>
+ #include <uapi/linux/inet_diag.h>
+ 
+-struct net;
+-struct sock;
+ struct inet_hashinfo;
+-struct nlattr;
+-struct nlmsghdr;
+-struct sk_buff;
+-struct netlink_callback;
+ 
+ struct inet_diag_handler {
+ 	void		(*dump)(struct sk_buff *skb,
+@@ -62,6 +57,17 @@ int inet_diag_bc_sk(const struct nlattr
+ 
+ void inet_diag_msg_common_fill(struct inet_diag_msg *r, struct sock *sk);
+ 
++static inline size_t inet_diag_msg_attrs_size(void)
++{
++	return	  nla_total_size(1)  /* INET_DIAG_SHUTDOWN */
++		+ nla_total_size(1)  /* INET_DIAG_TOS */
++#if IS_ENABLED(CONFIG_IPV6)
++		+ nla_total_size(1)  /* INET_DIAG_TCLASS */
++		+ nla_total_size(1)  /* INET_DIAG_SKV6ONLY */
++#endif
++		+ nla_total_size(4)  /* INET_DIAG_MARK */
++		+ nla_total_size(4); /* INET_DIAG_CLASS_ID */
++}
+ int inet_diag_msg_attrs_fill(struct sock *sk, struct sk_buff *skb,
+ 			     struct inet_diag_msg *r, int ext,
+ 			     struct user_namespace *user_ns, bool net_admin);
+--- a/net/ipv4/inet_diag.c
++++ b/net/ipv4/inet_diag.c
+@@ -100,13 +100,9 @@ static size_t inet_sk_attr_size(struct s
+ 		aux = handler->idiag_get_aux_size(sk, net_admin);
+ 
+ 	return	  nla_total_size(sizeof(struct tcp_info))
+-		+ nla_total_size(1) /* INET_DIAG_SHUTDOWN */
+-		+ nla_total_size(1) /* INET_DIAG_TOS */
+-		+ nla_total_size(1) /* INET_DIAG_TCLASS */
+-		+ nla_total_size(4) /* INET_DIAG_MARK */
+-		+ nla_total_size(4) /* INET_DIAG_CLASS_ID */
+-		+ nla_total_size(sizeof(struct inet_diag_meminfo))
+ 		+ nla_total_size(sizeof(struct inet_diag_msg))
++		+ inet_diag_msg_attrs_size()
++		+ nla_total_size(sizeof(struct inet_diag_meminfo))
+ 		+ nla_total_size(SK_MEMINFO_VARS * sizeof(u32))
+ 		+ nla_total_size(TCP_CA_NAME_MAX)
+ 		+ nla_total_size(sizeof(struct tcpvegas_info))
+@@ -147,6 +143,24 @@ int inet_diag_msg_attrs_fill(struct sock
+ 	if (net_admin && nla_put_u32(skb, INET_DIAG_MARK, sk->sk_mark))
+ 		goto errout;
+ 
++	if (ext & (1 << (INET_DIAG_CLASS_ID - 1)) ||
++	    ext & (1 << (INET_DIAG_TCLASS - 1))) {
++		u32 classid = 0;
 +
-+		val = skb_header_pointer(skb, nhs + hdr_len,
-+					 sizeof(_val), &_val);
-+		if (!val)
-+			return -EINVAL;
- 		tpi->proto = proto;
--		if ((*(u8 *)options & 0xF0) != 0x40)
-+		if ((*val & 0xF0) != 0x40)
- 			hdr_len += 4;
++#ifdef CONFIG_SOCK_CGROUP_DATA
++		classid = sock_cgroup_classid(&sk->sk_cgrp_data);
++#endif
++		/* Fallback to socket priority if class id isn't set.
++		 * Classful qdiscs use it as direct reference to class.
++		 * For cgroup2 classid is always zero.
++		 */
++		if (!classid)
++			classid = sk->sk_priority;
++
++		if (nla_put_u32(skb, INET_DIAG_CLASS_ID, classid))
++			goto errout;
++	}
++
+ 	r->idiag_uid = from_kuid_munged(user_ns, sock_i_uid(sk));
+ 	r->idiag_inode = sock_i_ino(sk);
+ 
+@@ -284,24 +298,6 @@ int inet_sk_diag_fill(struct sock *sk, s
+ 			goto errout;
  	}
- 	tpi->hdr_len = hdr_len;
+ 
+-	if (ext & (1 << (INET_DIAG_CLASS_ID - 1)) ||
+-	    ext & (1 << (INET_DIAG_TCLASS - 1))) {
+-		u32 classid = 0;
+-
+-#ifdef CONFIG_SOCK_CGROUP_DATA
+-		classid = sock_cgroup_classid(&sk->sk_cgrp_data);
+-#endif
+-		/* Fallback to socket priority if class id isn't set.
+-		 * Classful qdiscs use it as direct reference to class.
+-		 * For cgroup2 classid is always zero.
+-		 */
+-		if (!classid)
+-			classid = sk->sk_priority;
+-
+-		if (nla_put_u32(skb, INET_DIAG_CLASS_ID, classid))
+-			goto errout;
+-	}
+-
+ out:
+ 	nlmsg_end(skb, nlh);
+ 	return 0;
+--- a/net/ipv4/raw_diag.c
++++ b/net/ipv4/raw_diag.c
+@@ -100,8 +100,9 @@ static int raw_diag_dump_one(struct sk_b
+ 	if (IS_ERR(sk))
+ 		return PTR_ERR(sk);
+ 
+-	rep = nlmsg_new(sizeof(struct inet_diag_msg) +
+-			sizeof(struct inet_diag_meminfo) + 64,
++	rep = nlmsg_new(nla_total_size(sizeof(struct inet_diag_msg)) +
++			inet_diag_msg_attrs_size() +
++			nla_total_size(sizeof(struct inet_diag_meminfo)) + 64,
+ 			GFP_KERNEL);
+ 	if (!rep) {
+ 		sock_put(sk);
+--- a/net/ipv4/udp_diag.c
++++ b/net/ipv4/udp_diag.c
+@@ -64,8 +64,9 @@ static int udp_dump_one(struct udp_table
+ 		goto out;
+ 
+ 	err = -ENOMEM;
+-	rep = nlmsg_new(sizeof(struct inet_diag_msg) +
+-			sizeof(struct inet_diag_meminfo) + 64,
++	rep = nlmsg_new(nla_total_size(sizeof(struct inet_diag_msg)) +
++			inet_diag_msg_attrs_size() +
++			nla_total_size(sizeof(struct inet_diag_meminfo)) + 64,
+ 			GFP_KERNEL);
+ 	if (!rep)
+ 		goto out;
+--- a/net/sctp/diag.c
++++ b/net/sctp/diag.c
+@@ -237,15 +237,11 @@ static size_t inet_assoc_attr_size(struc
+ 		addrcnt++;
+ 
+ 	return	  nla_total_size(sizeof(struct sctp_info))
+-		+ nla_total_size(1) /* INET_DIAG_SHUTDOWN */
+-		+ nla_total_size(1) /* INET_DIAG_TOS */
+-		+ nla_total_size(1) /* INET_DIAG_TCLASS */
+-		+ nla_total_size(4) /* INET_DIAG_MARK */
+-		+ nla_total_size(4) /* INET_DIAG_CLASS_ID */
+ 		+ nla_total_size(addrlen * asoc->peer.transport_count)
+ 		+ nla_total_size(addrlen * addrcnt)
+-		+ nla_total_size(sizeof(struct inet_diag_meminfo))
+ 		+ nla_total_size(sizeof(struct inet_diag_msg))
++		+ inet_diag_msg_attrs_size()
++		+ nla_total_size(sizeof(struct inet_diag_meminfo))
+ 		+ 64;
+ }
+ 
 
 
