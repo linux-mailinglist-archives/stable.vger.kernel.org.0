@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B45F5187EE0
-	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 11:57:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 29F9B187EE4
+	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 11:57:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726794AbgCQK4y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Mar 2020 06:56:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34600 "EHLO mail.kernel.org"
+        id S1726766AbgCQK5B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Mar 2020 06:57:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34722 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726766AbgCQK4x (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Mar 2020 06:56:53 -0400
+        id S1726823AbgCQK5A (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Mar 2020 06:57:00 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 98C0820714;
-        Tue, 17 Mar 2020 10:56:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C46B020714;
+        Tue, 17 Mar 2020 10:56:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584442613;
-        bh=/dy3gAJCs8fYYr+N5m5kVvlha9Vj52aSvth5Uhp4SuE=;
+        s=default; t=1584442619;
+        bh=YLamHYzG8p2mndBq1DvdB3Od9iREHMDkD/9FLZBe51A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h92TuXhkhk652xOn5R15Iu7q9NJmYBdis+X60yuBhvaWJbCZPo5OV2+BK6X9qpht1
-         ifXPTTA3KG2U8b2JKyg/NY1npoIgNKRR+gbrCN1eJqiMS+yEfo7gRFdjynQHFS1A2j
-         uJ1YowE4QEjWbjsSeXxvVx4w7KIpitAIBPuE/OT0=
+        b=R4B9mOxFRmkc1SmeBkwMXMwWqfwLZLi2mzNjMhnxGnEN5NGDHbdzvexO/1mztkMXI
+         NuyfFrSQMt33eLnOUsIN8ovkrvJtimZRG8hrEkGV6rYQ7c4cflGAkyTlv3sQIlwN/n
+         4tmvOq23MkYjkQFaoIub8vY8pD8R03wiYWD+WuIA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shakeel Butt <shakeelb@google.com>,
-        Eric Dumazet <edumazet@google.com>,
+        stable@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
+        Jiri Pirko <jiri@mellanox.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 22/89] net: memcg: late association of sock to memcg
-Date:   Tue, 17 Mar 2020 11:54:31 +0100
-Message-Id: <20200317103302.529023293@linuxfoundation.org>
+Subject: [PATCH 4.19 24/89] devlink: validate length of param values
+Date:   Tue, 17 Mar 2020 11:54:33 +0100
+Message-Id: <20200317103302.721147063@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200317103259.744774526@linuxfoundation.org>
 References: <20200317103259.744774526@linuxfoundation.org>
@@ -44,99 +44,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shakeel Butt <shakeelb@google.com>
+From: Jakub Kicinski <kuba@kernel.org>
 
-[ Upstream commit d752a4986532cb6305dfd5290a614cde8072769d ]
+[ Upstream commit 8750939b6ad86abc3f53ec8a9683a1cded4a5654 ]
 
-If a TCP socket is allocated in IRQ context or cloned from unassociated
-(i.e. not associated to a memcg) in IRQ context then it will remain
-unassociated for its whole life. Almost half of the TCPs created on the
-system are created in IRQ context, so, memory used by such sockets will
-not be accounted by the memcg.
+DEVLINK_ATTR_PARAM_VALUE_DATA may have different types
+so it's not checked by the normal netlink policy. Make
+sure the attribute length is what we expect.
 
-This issue is more widespread in cgroup v1 where network memory
-accounting is opt-in but it can happen in cgroup v2 if the source socket
-for the cloning was created in root memcg.
-
-To fix the issue, just do the association of the sockets at the accept()
-time in the process context and then force charge the memory buffer
-already used and reserved by the socket.
-
-Signed-off-by: Shakeel Butt <shakeelb@google.com>
-Reviewed-by: Eric Dumazet <edumazet@google.com>
+Fixes: e3b7ca18ad7b ("devlink: Add param set command")
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Reviewed-by: Jiri Pirko <jiri@mellanox.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/memcontrol.c                 |   14 --------------
- net/core/sock.c                 |    5 ++++-
- net/ipv4/inet_connection_sock.c |   20 ++++++++++++++++++++
- 3 files changed, 24 insertions(+), 15 deletions(-)
+ net/core/devlink.c |   31 +++++++++++++++++++------------
+ 1 file changed, 19 insertions(+), 12 deletions(-)
 
---- a/mm/memcontrol.c
-+++ b/mm/memcontrol.c
-@@ -6307,20 +6307,6 @@ void mem_cgroup_sk_alloc(struct sock *sk
- 	if (!mem_cgroup_sockets_enabled)
- 		return;
+--- a/net/core/devlink.c
++++ b/net/core/devlink.c
+@@ -2995,34 +2995,41 @@ devlink_param_value_get_from_info(const
+ 				  struct genl_info *info,
+ 				  union devlink_param_value *value)
+ {
++	struct nlattr *param_data;
+ 	int len;
  
--	/*
--	 * Socket cloning can throw us here with sk_memcg already
--	 * filled. It won't however, necessarily happen from
--	 * process context. So the test for root memcg given
--	 * the current task's memcg won't help us in this case.
--	 *
--	 * Respecting the original socket's memcg is a better
--	 * decision in this case.
--	 */
--	if (sk->sk_memcg) {
--		css_get(&sk->sk_memcg->css);
--		return;
--	}
--
- 	/* Do not associate the sock with unrelated interrupted task's memcg. */
- 	if (in_interrupt())
- 		return;
---- a/net/core/sock.c
-+++ b/net/core/sock.c
-@@ -1689,7 +1689,10 @@ struct sock *sk_clone_lock(const struct
- 		atomic_set(&newsk->sk_zckey, 0);
- 
- 		sock_reset_flag(newsk, SOCK_DONE);
--		mem_cgroup_sk_alloc(newsk);
+-	if (param->type != DEVLINK_PARAM_TYPE_BOOL &&
+-	    !info->attrs[DEVLINK_ATTR_PARAM_VALUE_DATA])
++	param_data = info->attrs[DEVLINK_ATTR_PARAM_VALUE_DATA];
 +
-+		/* sk->sk_memcg will be populated at accept() time */
-+		newsk->sk_memcg = NULL;
-+
- 		cgroup_sk_alloc(&newsk->sk_cgrp_data);
++	if (param->type != DEVLINK_PARAM_TYPE_BOOL && !param_data)
+ 		return -EINVAL;
  
- 		rcu_read_lock();
---- a/net/ipv4/inet_connection_sock.c
-+++ b/net/ipv4/inet_connection_sock.c
-@@ -479,6 +479,26 @@ struct sock *inet_csk_accept(struct sock
- 		}
- 		spin_unlock_bh(&queue->fastopenq.lock);
+ 	switch (param->type) {
+ 	case DEVLINK_PARAM_TYPE_U8:
+-		value->vu8 = nla_get_u8(info->attrs[DEVLINK_ATTR_PARAM_VALUE_DATA]);
++		if (nla_len(param_data) != sizeof(u8))
++			return -EINVAL;
++		value->vu8 = nla_get_u8(param_data);
+ 		break;
+ 	case DEVLINK_PARAM_TYPE_U16:
+-		value->vu16 = nla_get_u16(info->attrs[DEVLINK_ATTR_PARAM_VALUE_DATA]);
++		if (nla_len(param_data) != sizeof(u16))
++			return -EINVAL;
++		value->vu16 = nla_get_u16(param_data);
+ 		break;
+ 	case DEVLINK_PARAM_TYPE_U32:
+-		value->vu32 = nla_get_u32(info->attrs[DEVLINK_ATTR_PARAM_VALUE_DATA]);
++		if (nla_len(param_data) != sizeof(u32))
++			return -EINVAL;
++		value->vu32 = nla_get_u32(param_data);
+ 		break;
+ 	case DEVLINK_PARAM_TYPE_STRING:
+-		len = strnlen(nla_data(info->attrs[DEVLINK_ATTR_PARAM_VALUE_DATA]),
+-			      nla_len(info->attrs[DEVLINK_ATTR_PARAM_VALUE_DATA]));
+-		if (len == nla_len(info->attrs[DEVLINK_ATTR_PARAM_VALUE_DATA]) ||
++		len = strnlen(nla_data(param_data), nla_len(param_data));
++		if (len == nla_len(param_data) ||
+ 		    len >= __DEVLINK_PARAM_MAX_STRING_VALUE)
+ 			return -EINVAL;
+-		strcpy(value->vstr,
+-		       nla_data(info->attrs[DEVLINK_ATTR_PARAM_VALUE_DATA]));
++		strcpy(value->vstr, nla_data(param_data));
+ 		break;
+ 	case DEVLINK_PARAM_TYPE_BOOL:
+-		value->vbool = info->attrs[DEVLINK_ATTR_PARAM_VALUE_DATA] ?
+-			       true : false;
++		if (param_data && nla_len(param_data))
++			return -EINVAL;
++		value->vbool = nla_get_flag(param_data);
+ 		break;
  	}
-+
-+	if (mem_cgroup_sockets_enabled) {
-+		int amt;
-+
-+		/* atomically get the memory usage, set and charge the
-+		 * sk->sk_memcg.
-+		 */
-+		lock_sock(newsk);
-+
-+		/* The sk has not been accepted yet, no need to look at
-+		 * sk->sk_wmem_queued.
-+		 */
-+		amt = sk_mem_pages(newsk->sk_forward_alloc +
-+				   atomic_read(&sk->sk_rmem_alloc));
-+		mem_cgroup_sk_alloc(newsk);
-+		if (newsk->sk_memcg && amt)
-+			mem_cgroup_charge_skmem(newsk->sk_memcg, amt);
-+
-+		release_sock(newsk);
-+	}
- out:
- 	release_sock(sk);
- 	if (req)
+ 	return 0;
 
 
