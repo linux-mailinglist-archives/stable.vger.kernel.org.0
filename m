@@ -2,129 +2,165 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 93ECE188E4E
-	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 20:48:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DE092188EB7
+	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 21:09:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726545AbgCQTsQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Mar 2020 15:48:16 -0400
-Received: from mail-pf1-f195.google.com ([209.85.210.195]:34867 "EHLO
-        mail-pf1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726541AbgCQTsQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 17 Mar 2020 15:48:16 -0400
-Received: by mail-pf1-f195.google.com with SMTP id u68so12529070pfb.2;
-        Tue, 17 Mar 2020 12:48:15 -0700 (PDT)
+        id S1726781AbgCQUJw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Mar 2020 16:09:52 -0400
+Received: from mail-lf1-f66.google.com ([209.85.167.66]:33230 "EHLO
+        mail-lf1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726476AbgCQUJv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 17 Mar 2020 16:09:51 -0400
+Received: by mail-lf1-f66.google.com with SMTP id c20so18381947lfb.0
+        for <stable@vger.kernel.org>; Tue, 17 Mar 2020 13:09:49 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:subject:to:cc:references:from:autocrypt:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=yH1lYkD7OLcq0j6vd9oNMU/PGORiz/yITq8HKj1rMjY=;
-        b=KsofH70lUxjzkrBL0YMiRPoujaIHSaQQyyqOiKnhZy+uwZOmGkz0Cjdnt973aOvAXI
-         O9Zm+sK6QfCEdpdIjMNv1EWIxeKCSL95s56tHTRP2CkRuFPebTxeSSo7gRilmNPf8Peh
-         8XMc9nakbo4lMO3F3AoxYmQBJZZVLLrzgh/e2Y3bA4FBN4VdQPZojhI3wUf6ncrwv3Y0
-         Cny0AdBmGsPAMLyV/1gvZ8lhmAQU0d5GlBZ0dceQL5r9Yq4iFIk2xVsg2qUwxBAl8wpI
-         tSEB6xdtJBnle4xdqUr0e2tIV9iGtSdgb9PXC7XsNuZDgj9KXy+2bNlfKwKr36q9+iC+
-         14ng==
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=o6SMg60n6dg5E5UNtnrzS3MRKvlSt5FGzxfh8BfptUY=;
+        b=ke6ursww/qGx36NPHKodMebn0EUWWsMpVusLaZnkOpVW16yVEPxURVZvdHjJW5xlxc
+         /fBVoTH4pSjtmzDRfYhTokDMC+zY+jqgErQtkwsLueAieSGDOl7pfuu+F/vGCUbbQpUe
+         rfz3iGX8H5xNjpoSTrepPgyvUczTk8vou1/inD0ok/7yJ6Z7d/QDadu+uQrvFafHAZiK
+         xpxIL7qfbmo2eGGt4T6v6HPURn64jNGobJsjjVKMnyr1+3GTdnGbmKqAu4iRGA1OifK5
+         QAcvyl/yjB7vEKsAwoD5H8ETdTH+Dqhq+BehHn6yaPUE9teBuvehF4QAs4DK/HoTL6UQ
+         rdOQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:subject:to:cc:references:from:autocrypt
-         :message-id:date:user-agent:mime-version:in-reply-to
-         :content-language:content-transfer-encoding;
-        bh=yH1lYkD7OLcq0j6vd9oNMU/PGORiz/yITq8HKj1rMjY=;
-        b=kC7V0TBpfsdsTule4PvwrFsQBFmbA768h259v5LP8Yk4aDGHSnLrMXh0T3IRmB0COL
-         wk1siXpet+84ArW00qkz4nrfZxqjY7JcMkNHM1Rxl2hPkM5QGbhIng9Qd3jMtCdRNhP4
-         8HGdPImR8hUOi2dbaAJIiweu3URWUJudbd57dKcwNf1wxS1S5VtnwCn7zthNR4iJgMm6
-         CsWpzmRLLv/kB3UopXv12gbDNTMrN/9eJiJ9neVx1YVaDbCE1mbWNQ6m2TWROJ+qn2R9
-         eC5xbKtwGZZATWbUnxgVAABCB5mEX+/TYvOw8ryMhqdTNTffAtHwUkuwdPEUl36XRgyK
-         rbKQ==
-X-Gm-Message-State: ANhLgQ3tb4l8tEUIFWz7chLrPVT11h0bM2hAuCYgP66rgYLPtW+1YkgS
-        smCJ+0Qd1xhKEya/V4tgqEmrwEoH
-X-Google-Smtp-Source: ADFU+vuurSnKt6JdjGj4wyI8R9WJI/MJTbjZJm9UJerlUS/jJrl74c3qqgTbXS+YRLxWc2orRb+a6Q==
-X-Received: by 2002:a62:1d52:: with SMTP id d79mr380054pfd.53.1584474494800;
-        Tue, 17 Mar 2020 12:48:14 -0700 (PDT)
-Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id 63sm3951743pfx.132.2020.03.17.12.48.13
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 17 Mar 2020 12:48:14 -0700 (PDT)
-Subject: Re: [PATCH 5.5 000/151] 5.5.10-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org
-References: <20200317103326.593639086@linuxfoundation.org>
-From:   Guenter Roeck <linux@roeck-us.net>
-Autocrypt: addr=linux@roeck-us.net; keydata=
- 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
- mDW4+i+XlNFUPUYMrIKi9joBhu18ssf5i5Q=
-Message-ID: <260df9bf-004c-9f1c-c5f3-479e024d69de@roeck-us.net>
-Date:   Tue, 17 Mar 2020 12:48:13 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.4.1
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=o6SMg60n6dg5E5UNtnrzS3MRKvlSt5FGzxfh8BfptUY=;
+        b=CiFInfNZpUWqiLzQWr3kyfpfGhoSiMGv2vAqENZoYtfQs0dhMwtsKPZU8uixNWlnr2
+         7ZckudoxRheVO8FIiza7JTpecWzKXLibeoJYe+df/SOt/WHioL/zuXC8n0MLzjB1HHmp
+         clETKuP3C5/EQPVMe3Dm0t4m4+U/gmuT9Ox77LrJ1myyZa1puvVEWs1CPP7bH1susCgA
+         W2qEHqnWg1I3HvNycqnC2YpBfNaToYuVeyLXVHhkr/Xs8Q8XgECxj9lQBXVyXkUVgGZX
+         Q5qy61HlwbKJVba4pDbtL4xxLkNSl47jZ98nsMD73b+bocKogd3dq+zZpXkBh4htPS0s
+         PIhw==
+X-Gm-Message-State: ANhLgQ3+ptlB6fKBUbb4yrdMu3BjPXuB/Sx1xZGL4p/vPgamjMQ3t+5s
+        4azHFQJyP+9fZhF8ax7E7E21E/Mtj2Kwb+bh67nQzw==
+X-Google-Smtp-Source: ADFU+vv5pChAMal27PYi3RBLZVYCuM6C/nsMAuznRXnLPi7fU0rTV7p7aYC4q66wQ2a17tzJYUe9zl6GEKrM26yZajA=
+X-Received: by 2002:ac2:43a8:: with SMTP id t8mr678007lfl.82.1584475788356;
+ Tue, 17 Mar 2020 13:09:48 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <20200317103326.593639086@linuxfoundation.org>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+References: <20200317103307.343627747@linuxfoundation.org>
+In-Reply-To: <20200317103307.343627747@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Wed, 18 Mar 2020 01:39:36 +0530
+Message-ID: <CA+G9fYvJfOc9VJMUs6yQN-3BVgHMmCM3L=fbAffwQHETYLV2EQ@mail.gmail.com>
+Subject: Re: [PATCH 5.4 000/123] 5.4.26-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        lkft-triage@lists.linaro.org,
+        linux- stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 3/17/20 3:53 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.5.10 release.
-> There are 151 patches in this series, all will be posted as a response
+On Tue, 17 Mar 2020 at 16:32, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 5.4.26 release.
+> There are 123 patches in this series, all will be posted as a response
 > to this one.  If anyone has any issues with these being applied, please
 > let me know.
-> 
+>
 > Responses should be made by Thu, 19 Mar 2020 10:31:16 +0000.
 > Anything received after that time might be too late.
-> 
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
+5.4.26-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-5.4.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-Build results:
-	total: 157 pass: 157 fail: 0
-Qemu test results:
-	total: 428 pass: 428 fail: 0
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-Guenter
+Summary
+------------------------------------------------------------------------
+
+kernel: 5.4.26-rc1
+git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
+le-rc.git
+git branch: linux-5.4.y
+git commit: bd9158ff941e0efcea216f7311abc7fe13e8ae39
+git describe: v5.4.25-124-gbd9158ff941e
+Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-5.4-oe/bui=
+ld/v5.4.25-124-gbd9158ff941e
+
+
+No regressions (compared to build v5.4.25)
+
+No fixes (compared to build v5.4.25)
+
+Ran 16905 total tests in the following environments and test suites.
+
+Environments
+--------------
+- dragonboard-410c
+- hi6220-hikey
+- i386
+- juno-r2
+- nxp-ls2088
+- qemu_arm
+- qemu_arm64
+- qemu_i386
+- qemu_x86_64
+- x15
+- x86
+
+Test Suites
+-----------
+* build
+* install-android-platform-tools-r2600
+* install-android-platform-tools-r2800
+* kselftest
+* libgpiod
+* linux-log-parser
+* ltp-cap_bounds-tests
+* ltp-commands-tests
+* ltp-cpuhotplug-tests
+* ltp-crypto-tests
+* ltp-dio-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-hugetlb-tests
+* ltp-io-tests
+* ltp-ipc-tests
+* ltp-math-tests
+* ltp-mm-tests
+* ltp-nptl-tests
+* ltp-pty-tests
+* ltp-sched-tests
+* ltp-securebits-tests
+* ltp-syscalls-tests
+* perf
+* v4l2-compliance
+* libhugetlbfs
+* ltp-fs-tests
+* network-basic-tests
+* kvm-unit-tests
+* ltp-containers-tests
+* ltp-cve-tests
+* spectre-meltdown-checker-test
+* ltp-open-posix-tests
+
+--=20
+Linaro LKFT
+https://lkft.linaro.org
