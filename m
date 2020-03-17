@@ -2,76 +2,115 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 647051880F5
-	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:14:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 026C6188219
+	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:22:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727470AbgCQLOp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Mar 2020 07:14:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58120 "EHLO mail.kernel.org"
+        id S1726893AbgCQLWS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Mar 2020 07:22:18 -0400
+Received: from bilbo.ozlabs.org ([203.11.71.1]:49131 "EHLO ozlabs.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728756AbgCQLOA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Mar 2020 07:14:00 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        id S1726713AbgCQLWS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Mar 2020 07:22:18 -0400
+Received: from authenticated.ozlabs.org (localhost [127.0.0.1])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange ECDHE (P-256) server-signature RSA-PSS (4096 bits) server-digest SHA256)
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6D50820663;
-        Tue, 17 Mar 2020 11:13:59 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584443639;
-        bh=FeeCtJYHWjRxHTGLQxSNDsMnhcPlVxM8eF3G5iJk+Lg=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mzhcDRNaxU66RONAp7i8vX0Kd+guiApPCi/wBOFAeFIiSE49ptnr+LbluhhtJXRwg
-         Heip79mCoBhM9Al7mMXRbgnOHTQ7xRsgIXf5yL8J0v7KOYiLLjtjvrK9vCxZCiaov5
-         wuXd4/7zY9TDyXDZtKq0w+J+pd9NAg/K0b8aR5uc=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+84484ccebdd4e5451d91@syzkaller.appspotmail.com,
-        Karsten Graul <kgraul@linux.ibm.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.5 151/151] net/smc: check for valid ib_client_data
-Date:   Tue, 17 Mar 2020 11:56:01 +0100
-Message-Id: <20200317103337.434858198@linuxfoundation.org>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200317103326.593639086@linuxfoundation.org>
-References: <20200317103326.593639086@linuxfoundation.org>
-User-Agent: quilt/0.66
+        by mail.ozlabs.org (Postfix) with ESMTPSA id 48hW3W3wNXzB3t3;
+        Tue, 17 Mar 2020 22:22:14 +1100 (AEDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=ellerman.id.au;
+        s=201909; t=1584444136;
+        bh=7m6xTV6ORC9fimP591QotV0DExi6ArwAslaYAD6a8gE=;
+        h=From:To:Cc:Subject:In-Reply-To:References:Date:From;
+        b=R3suC07yLLownGnMiQtBzYlWQBjC2Y2Mr1fjgaMhi7I03Tw6ufjZw4WoaZXiqoW7X
+         9w7zSb2LsfkCq8qcUn9o6JDfZtIASBH4sFz8ntWfjzvCQz05fGey3e+m483q7aENNl
+         WTjER2R9FHM0pwErCXzPUaOlqszJZ/dyxvLAY/7h0QKpfmECwhSvG1su6e0j9+Ibat
+         SXe0q3bo4rMn5DbePzxlsRagSr8oOu986j8OGuQrkaCUhpM00HGe9unpetpD+aO/eV
+         wcdxLe1dn62eA00W63BAXp3KDbgrdVnAh5ByL/QW192YlMk3FeRuzPn7et6TB3Nz1X
+         57yXL6Iyl5JEg==
+From:   Michael Ellerman <mpe@ellerman.id.au>
+To:     =?utf-8?B?546L5paH6JmO?= <wenhu.wang@vivo.com>
+Cc:     Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Paul Mackerras <paulus@samba.org>,
+        Allison Randal <allison@lohutok.net>,
+        Richard Fontana <rfontana@redhat.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org,
+        trivial@kernel.org, kernel@vivo.com,
+        stable <stable@vger.kernel.org>
+Subject: Re: [PATCH v3] powerpc/fsl-85xx: fix compile error
+In-Reply-To: <AJUA5gAVCMaMlIkPsaTC0KqL.3.1584357605616.Hmail.wenhu.wang@vivo.com>
+References: <AJUA5gAVCMaMlIkPsaTC0KqL.3.1584357605616.Hmail.wenhu.wang@vivo.com>
+Date:   Tue, 17 Mar 2020 22:22:13 +1100
+Message-ID: <878sjzfcpm.fsf@mpe.ellerman.id.au>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Karsten Graul <kgraul@linux.ibm.com>
+=E7=8E=8B=E6=96=87=E8=99=8E <wenhu.wang@vivo.com> writes:
+> From: Michael Ellerman <mpe@ellerman.id.au>
+>  Date: 2020-03-16 17:41:12
+> To:WANG Wenhu <wenhu.wang@vivo.com>,Benjamin Herrenschmidt <benh@kernel.c=
+rashing.org>,Paul Mackerras <paulus@samba.org>,WANG Wenhu <wenhu.wang@vivo.=
+com>,Allison Randal <allison@lohutok.net>,Richard Fontana <rfontana@redhat.=
+com>,Greg Kroah-Hartman <gregkh@linuxfoundation.org>,Thomas Gleixner <tglx@=
+linutronix.de>,linuxppc-dev@lists.ozlabs.org,linux-kernel@vger.kernel.org
+>  cc: trivial@kernel.org,kernel@vivo.com,stable <stable@vger.kernel.org>
+> Subject: Re: [PATCH v3] powerpc/fsl-85xx: fix compile error>WANG Wenhu <w=
+enhu.wang@vivo.com> writes:
+>>> Include "linux/of_address.h" to fix the compile error for
+>>> mpc85xx_l2ctlr_of_probe() when compiling fsl_85xx_cache_sram.c.
+>>>
+>>>   CC      arch/powerpc/sysdev/fsl_85xx_l2ctlr.o
+>>> arch/powerpc/sysdev/fsl_85xx_l2ctlr.c: In function =E2=80=98mpc85xx_l2c=
+tlr_of_probe=E2=80=99:
+>>> arch/powerpc/sysdev/fsl_85xx_l2ctlr.c:90:11: error: implicit declaratio=
+n of function =E2=80=98of_iomap=E2=80=99; did you mean =E2=80=98pci_iomap=
+=E2=80=99? [-Werror=3Dimplicit-function-declaration]
+>>>   l2ctlr =3D of_iomap(dev->dev.of_node, 0);
+>>>            ^~~~~~~~
+>>>            pci_iomap
+>>> arch/powerpc/sysdev/fsl_85xx_l2ctlr.c:90:9: error: assignment makes poi=
+nter from integer without a cast [-Werror=3Dint-conversion]
+>>>   l2ctlr =3D of_iomap(dev->dev.of_node, 0);
+>>>          ^
+>>> cc1: all warnings being treated as errors
+>>> scripts/Makefile.build:267: recipe for target 'arch/powerpc/sysdev/fsl_=
+85xx_l2ctlr.o' failed
+>>> make[2]: *** [arch/powerpc/sysdev/fsl_85xx_l2ctlr.o] Error 1
+>>>
+>>> Fixes: commit 6db92cc9d07d ("powerpc/85xx: add cache-sram support")
+>>
+>>The syntax is:
+>>
+>>Fixes: 6db92cc9d07d ("powerpc/85xx: add cache-sram support")
+>>
+>>> Cc: stable <stable@vger.kernel.org>
+>>
+>>The commit above went into v2.6.37.
+>>
+>>So no one has noticed this bug since then, how? Or did something else
+>>change to expose the problem?
+>
+> Actually a hard question to answer cause it also left me scratching for l=
+ong.
+> However, I can not find right or definite answer.
 
-commit a2f2ef4a54c0d97aa6a8386f4ff23f36ebb488cf upstream.
+Oh, actually it's fairly straight forward, the code can't be built at
+all in upstream because CONFIG_FSL_85XX_CACHE_SRAM is not selectable or
+selected by anything.
 
-In smc_ib_remove_dev() check if the provided ib device was actually
-initialized for SMC before.
+You sent a patch previously to make it selectable, which Scott thought
+was a bad idea.
 
-Reported-by: syzbot+84484ccebdd4e5451d91@syzkaller.appspotmail.com
-Fixes: a4cf0443c414 ("smc: introduce SMC as an IB-client")
-Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+So this whole file is dead code as far as I'm concerned, so patches for
+it definitely do not need to go to stable.
 
----
- net/smc/smc_ib.c |    2 ++
- 1 file changed, 2 insertions(+)
+If you want to add a user for it then please send a series doing that,
+and this commit can be the first.
 
---- a/net/smc/smc_ib.c
-+++ b/net/smc/smc_ib.c
-@@ -573,6 +573,8 @@ static void smc_ib_remove_dev(struct ib_
- 	struct smc_ib_device *smcibdev;
- 
- 	smcibdev = ib_get_client_data(ibdev, &smc_ib_client);
-+	if (!smcibdev || smcibdev->ibdev != ibdev)
-+		return;
- 	ib_set_client_data(ibdev, &smc_ib_client, NULL);
- 	spin_lock(&smc_ib_devices.lock);
- 	list_del_init(&smcibdev->list); /* remove from smc_ib_devices */
-
-
+cheers
