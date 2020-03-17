@@ -2,115 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 026C6188219
-	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:22:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 48627188223
+	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:25:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726893AbgCQLWS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Mar 2020 07:22:18 -0400
-Received: from bilbo.ozlabs.org ([203.11.71.1]:49131 "EHLO ozlabs.org"
+        id S1725916AbgCQLYo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Mar 2020 07:24:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37922 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726713AbgCQLWS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Mar 2020 07:22:18 -0400
-Received: from authenticated.ozlabs.org (localhost [127.0.0.1])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange ECDHE (P-256) server-signature RSA-PSS (4096 bits) server-digest SHA256)
+        id S1726005AbgCQLYn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Mar 2020 07:24:43 -0400
+Received: from linux-8ccs (p5B2812F9.dip0.t-ipconnect.de [91.40.18.249])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.ozlabs.org (Postfix) with ESMTPSA id 48hW3W3wNXzB3t3;
-        Tue, 17 Mar 2020 22:22:14 +1100 (AEDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=ellerman.id.au;
-        s=201909; t=1584444136;
-        bh=7m6xTV6ORC9fimP591QotV0DExi6ArwAslaYAD6a8gE=;
-        h=From:To:Cc:Subject:In-Reply-To:References:Date:From;
-        b=R3suC07yLLownGnMiQtBzYlWQBjC2Y2Mr1fjgaMhi7I03Tw6ufjZw4WoaZXiqoW7X
-         9w7zSb2LsfkCq8qcUn9o6JDfZtIASBH4sFz8ntWfjzvCQz05fGey3e+m483q7aENNl
-         WTjER2R9FHM0pwErCXzPUaOlqszJZ/dyxvLAY/7h0QKpfmECwhSvG1su6e0j9+Ibat
-         SXe0q3bo4rMn5DbePzxlsRagSr8oOu986j8OGuQrkaCUhpM00HGe9unpetpD+aO/eV
-         wcdxLe1dn62eA00W63BAXp3KDbgrdVnAh5ByL/QW192YlMk3FeRuzPn7et6TB3Nz1X
-         57yXL6Iyl5JEg==
-From:   Michael Ellerman <mpe@ellerman.id.au>
-To:     =?utf-8?B?546L5paH6JmO?= <wenhu.wang@vivo.com>
-Cc:     Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Paul Mackerras <paulus@samba.org>,
-        Allison Randal <allison@lohutok.net>,
-        Richard Fontana <rfontana@redhat.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org,
-        trivial@kernel.org, kernel@vivo.com,
-        stable <stable@vger.kernel.org>
-Subject: Re: [PATCH v3] powerpc/fsl-85xx: fix compile error
-In-Reply-To: <AJUA5gAVCMaMlIkPsaTC0KqL.3.1584357605616.Hmail.wenhu.wang@vivo.com>
-References: <AJUA5gAVCMaMlIkPsaTC0KqL.3.1584357605616.Hmail.wenhu.wang@vivo.com>
-Date:   Tue, 17 Mar 2020 22:22:13 +1100
-Message-ID: <878sjzfcpm.fsf@mpe.ellerman.id.au>
+        by mail.kernel.org (Postfix) with ESMTPSA id 20CA72051A;
+        Tue, 17 Mar 2020 11:24:41 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1584444283;
+        bh=GaGdl8pgY44OKNN30+xVpu/sgpjCpuysfuKAf9fBIcA=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=rzUIlzSBBTaX4YeDLXeOTa6YgyRsPvHnbJZEalAynpP5TXlqAl1HnGORO6bY4p3NX
+         cq6cTOHPm6xTkN+JyxDKkzORj+v4mg8Fvedr45/hHt/jB/2VjWA5r4o8P8nP/qvqX1
+         C3xWWl7fozzau6Yg4s/f/b/lhvGeiUqBF54DWjI0=
+Date:   Tue, 17 Mar 2020 12:24:39 +0100
+From:   Jessica Yu <jeyu@kernel.org>
+To:     Masahiro Yamada <masahiroy@kernel.org>
+Cc:     Matthias Maennich <maennich@google.com>,
+        Lucas De Marchi <lucas.de.marchi@gmail.com>,
+        stable <stable@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH v2] modpost: move the namespace field in Module.symvers
+ last
+Message-ID: <20200317112439.GB6841@linux-8ccs>
+References: <20200311170120.12641-1-jeyu@kernel.org>
+ <CAK7LNAT-xdMZbK5UeVvm6S-WNimMMKO3b=jkJsU29z6ULPjs_Q@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <CAK7LNAT-xdMZbK5UeVvm6S-WNimMMKO3b=jkJsU29z6ULPjs_Q@mail.gmail.com>
+X-OS:   Linux linux-8ccs 4.12.14-lp150.12.61-default x86_64
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-=E7=8E=8B=E6=96=87=E8=99=8E <wenhu.wang@vivo.com> writes:
-> From: Michael Ellerman <mpe@ellerman.id.au>
->  Date: 2020-03-16 17:41:12
-> To:WANG Wenhu <wenhu.wang@vivo.com>,Benjamin Herrenschmidt <benh@kernel.c=
-rashing.org>,Paul Mackerras <paulus@samba.org>,WANG Wenhu <wenhu.wang@vivo.=
-com>,Allison Randal <allison@lohutok.net>,Richard Fontana <rfontana@redhat.=
-com>,Greg Kroah-Hartman <gregkh@linuxfoundation.org>,Thomas Gleixner <tglx@=
-linutronix.de>,linuxppc-dev@lists.ozlabs.org,linux-kernel@vger.kernel.org
->  cc: trivial@kernel.org,kernel@vivo.com,stable <stable@vger.kernel.org>
-> Subject: Re: [PATCH v3] powerpc/fsl-85xx: fix compile error>WANG Wenhu <w=
-enhu.wang@vivo.com> writes:
->>> Include "linux/of_address.h" to fix the compile error for
->>> mpc85xx_l2ctlr_of_probe() when compiling fsl_85xx_cache_sram.c.
->>>
->>>   CC      arch/powerpc/sysdev/fsl_85xx_l2ctlr.o
->>> arch/powerpc/sysdev/fsl_85xx_l2ctlr.c: In function =E2=80=98mpc85xx_l2c=
-tlr_of_probe=E2=80=99:
->>> arch/powerpc/sysdev/fsl_85xx_l2ctlr.c:90:11: error: implicit declaratio=
-n of function =E2=80=98of_iomap=E2=80=99; did you mean =E2=80=98pci_iomap=
-=E2=80=99? [-Werror=3Dimplicit-function-declaration]
->>>   l2ctlr =3D of_iomap(dev->dev.of_node, 0);
->>>            ^~~~~~~~
->>>            pci_iomap
->>> arch/powerpc/sysdev/fsl_85xx_l2ctlr.c:90:9: error: assignment makes poi=
-nter from integer without a cast [-Werror=3Dint-conversion]
->>>   l2ctlr =3D of_iomap(dev->dev.of_node, 0);
->>>          ^
->>> cc1: all warnings being treated as errors
->>> scripts/Makefile.build:267: recipe for target 'arch/powerpc/sysdev/fsl_=
-85xx_l2ctlr.o' failed
->>> make[2]: *** [arch/powerpc/sysdev/fsl_85xx_l2ctlr.o] Error 1
->>>
->>> Fixes: commit 6db92cc9d07d ("powerpc/85xx: add cache-sram support")
++++ Masahiro Yamada [14/03/20 11:11 +0900]:
+>On Thu, Mar 12, 2020 at 2:02 AM Jessica Yu <jeyu@kernel.org> wrote:
 >>
->>The syntax is:
+>> In order to preserve backwards compatability with kmod tools, we have to
+>> move the namespace field in Module.symvers last, as the depmod -e -E
+>> option looks at the first three fields in Module.symvers to check symbol
+>> versions (and it's expected they stay in the original order of crc,
+>> symbol, module).
 >>
->>Fixes: 6db92cc9d07d ("powerpc/85xx: add cache-sram support")
+>> In addition, update an ancient comment above read_dump() in modpost that
+>> suggested that the export type field in Module.symvers was optional. I
+>> suspect that there were historical reasons behind that comment that are
+>> no longer accurate. We have been unconditionally printing the export
+>> type since 2.6.18 (commit bd5cbcedf44), which is over a decade ago now.
 >>
->>> Cc: stable <stable@vger.kernel.org>
+>> Fix up read_dump() to treat each field as non-optional. I suspect the
+>> original read_dump() code treated the export field as optional in order
+>> to support pre <= 2.6.18 Module.symvers (which did not have the export
+>> type field). Note that although symbol namespaces are optional, the
+>> field will not be omitted from Module.symvers if a symbol does not have
+>> a namespace. In this case, the field will simply be empty and the next
+>> delimiter or end of line will follow.
 >>
->>The commit above went into v2.6.37.
->>
->>So no one has noticed this bug since then, how? Or did something else
->>change to expose the problem?
+>> Cc: stable@vger.kernel.org
+>> Fixes: cb9b55d21fe0 ("modpost: add support for symbol namespaces")
+>> Tested-by: Matthias Maennich <maennich@google.com>
+>> Reviewed-by: Matthias Maennich <maennich@google.com>
+>> Reviewed-by: Lucas De Marchi <lucas.demarchi@intel.com>
+>> Signed-off-by: Jessica Yu <jeyu@kernel.org>
 >
-> Actually a hard question to answer cause it also left me scratching for l=
-ong.
-> However, I can not find right or definite answer.
+>
+>While I am not opposed to this fix,
+>I did not even notice Module.symvers was official interface.
+>
+>Kbuild invokes scripts/depmod.sh to finalize
+>the 'make modules_install', but I do not see the -E
+>option being used there.
+>
+>I do not see Module.symvers installed in
+>/lib/modules/$(uname -r)/.
 
-Oh, actually it's fairly straight forward, the code can't be built at
-all in upstream because CONFIG_FSL_85XX_CACHE_SRAM is not selectable or
-selected by anything.
+While that's true, distros typically package Module.symvers in their
+linux-headers/kernel-devel (or equivalent) packages to support
+external module builds. The -E option is usually used to do symbol
+versioning/kabi checks with the Module.symvers file. Considering the
+options, I think it will cause the least headaches down the line to
+make this fix upstream and maintain backwards compatibility with kmod
+rather than to patch kmod and remind distros to repackage because old
+depmod versions don't work with the new Module.symvers anymore..
 
-You sent a patch previously to make it selectable, which Scott thought
-was a bad idea.
+Thank you!
 
-So this whole file is dead code as far as I'm concerned, so patches for
-it definitely do not need to go to stable.
-
-If you want to add a user for it then please send a series doing that,
-and this commit can be the first.
-
-cheers
+Jessica
