@@ -2,48 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C396B1879E2
-	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 07:55:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9D3461879E6
+	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 07:55:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725862AbgCQGy7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Mar 2020 02:54:59 -0400
-Received: from mail-pl1-f201.google.com ([209.85.214.201]:32943 "EHLO
-        mail-pl1-f201.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725794AbgCQGy7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 17 Mar 2020 02:54:59 -0400
-Received: by mail-pl1-f201.google.com with SMTP id b10so11918805pls.0
-        for <stable@vger.kernel.org>; Mon, 16 Mar 2020 23:54:58 -0700 (PDT)
+        id S1726039AbgCQGzD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Mar 2020 02:55:03 -0400
+Received: from mail-qv1-f73.google.com ([209.85.219.73]:35470 "EHLO
+        mail-qv1-f73.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725783AbgCQGzC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 17 Mar 2020 02:55:02 -0400
+Received: by mail-qv1-f73.google.com with SMTP id z4so19657303qvj.2
+        for <stable@vger.kernel.org>; Mon, 16 Mar 2020 23:55:02 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=google.com; s=20161025;
-        h=date:message-id:mime-version:subject:from:to:cc;
-        bh=cF0mn8RFp/NzGOPpgquFoVLhCbRSN6dQrHYHqFzbKxU=;
-        b=qLUq4/RNPb7PhrgnudeQu/ls8asTv9i4YDOfr3NggSvcNYi4UxSfYMit8S1WUgfRKZ
-         hZbbZQPFLrVYc4w+L0UZzkonnR+9Rm8+cgeDoLy//zUl/eEx1tyOtsRTwwk0IC1GmMk5
-         7CS7xqEvKVY1hdXlUYzYVEQFG7dy5X2lR4whv4tssypZlespqwDBYf2ykgBrHzGRsoWw
-         KSyWF/LIwFFvygdQi7hxsX3du+o+gHjUR3p65oe+tr2Bc5ohTBv5n7uD892DON5VSkoX
-         pinFPh3FrUqi+8QXt/ZEbxdi0FQwUvd8TPga7GUwJMefUnNRxfnPnWu3NX9YAlqNlHUu
-         10hg==
+        h=date:in-reply-to:message-id:mime-version:references:subject:from:to
+         :cc;
+        bh=Vz8Rl+tO3s2Fvzy9mMmth3PcVEenCGW3CyqKGLCsJ9M=;
+        b=tdBd3JXMEOE0YT+L7rwOPZHaK8kRVwY4smj7X3+QwEyDXEwn7tlhTF4Ytp0NC86X6q
+         fT+BVMQpi67m9Q7lWDaj5yz1NykcSCPNpGQVIgCGqBeH1Z3YwPU9zQxS2D9ZnXph+o+9
+         hQBq1hYrgu7RWtKAszJvhlM964Knk9Pwoh/q+j+w4Kvxg0e3dKq1Mkb9+356AB/d/H7h
+         iAD7OzZ0QrCyxEdaBvXRTCqKVt8QlI4DQXlT6N+Mz+wM845Q62Q3guDM61RAa9rg7bzG
+         /LgCZAZbkmbfP7IiHAyTZtQ6S9+jLL1Ghvq0dxxWFL35GKxD7ldotwJLihuEfRF9jzU2
+         dnsg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:message-id:mime-version:subject:from:to:cc;
-        bh=cF0mn8RFp/NzGOPpgquFoVLhCbRSN6dQrHYHqFzbKxU=;
-        b=j1sFeYLV6tzOx5w+xsHsnOv21xgSEOLIoMroHSuEN0MWbRSXJFMX9Ylt1mY0Rsmtsi
-         8ZPtJP4nk+oCfCVP0nEq12am/VDGtqpGi29+zCl6ycvyWiuQZroAfFM94WXDRgsuZsmX
-         gDRjN97Fc1pGqfV1fMD1lRpNPqure7VYzdIyGzO5jbtieWaM7CqCrHXdP84UQpDl+S5h
-         WoQU9fJr67bgtyAGGKNvZtBivpWfFBQBFZd4P08SVgnO5F76IVfSMlfpFPWBpBVXtr+a
-         m6B1MpJxQrgrdYpK+7bg7AMbRtpDhtKdw2Q33ENwpCsKC8eqwOgVkiIJFJjktabes5LA
-         BSug==
-X-Gm-Message-State: ANhLgQ1e0U3IZhvck0ePdvW6dBth1DupsKDzGgbfOTBM4q83Lwumm/Xy
-        CgbQmpwaueC/Z0XXyEaMBHI4aWWRmhmI5FXUKgTpNdN4p0fyJFMBsPL/8kAtAnPa09mGzGyD0Dc
-        9XC8n23+8AwoTvKLM8YstUmgNSkxZy7DxLbYCifaEno0O92pWSkx/v9GGHWXJQwRaARXnuw==
-X-Google-Smtp-Source: ADFU+vt2Zvqf1px/Dmb35lmQnUB5JpW8RvY7l95YZat6XfupQdXF2UMeOYFTa4BNyZ32vltscuYTU3kAv+PeRtc=
-X-Received: by 2002:a63:8342:: with SMTP id h63mr3660917pge.141.1584428098211;
- Mon, 16 Mar 2020 23:54:58 -0700 (PDT)
-Date:   Mon, 16 Mar 2020 23:54:46 -0700
-Message-Id: <20200317065452.236670-1-saravanak@google.com>
+        h=x-gm-message-state:date:in-reply-to:message-id:mime-version
+         :references:subject:from:to:cc;
+        bh=Vz8Rl+tO3s2Fvzy9mMmth3PcVEenCGW3CyqKGLCsJ9M=;
+        b=td+8yWrQiKTWkWz8KksyMa+Ws2yeh/ES17VOpTdSlp3aCyXcaQ9AmQzmeFig3shY/F
+         peUJM8J7S933KTbCjTOXNsmGp6EdK4FhiGVTTsSDbp+G0gJSr2ksrtT5ydhd1nrlZNti
+         K1hpWtsYAcKCxftwr+EuxC4aEtYApT61tllKH3qgqQJziGJdPwOMxYfj0zXgXtDqRRGP
+         AXvcRjzGeafBB93X8sp1rQCoORTdwiZpADkH0Z6MFL4mWmdoWIeYFzqgyqdTBbDpTej6
+         faL0EI66bGM8XNLnnrzlFoBswwYYOIWVcWz8aT5z2D6NediwEUxxpqRc/hCd1CNV+X1i
+         UkKg==
+X-Gm-Message-State: ANhLgQ1Kw4HogzlXfE/4QpAxCmvO2v1t+44ZvTTTe0LcGwpV12hB0xHJ
+        YPriECXG227yIlAAesh5YCOPSMFUjAG76TQ9hE2sYAA4+H6mSdCoi+VEvczYDtOelQ4BMJbdqIW
+        J3uhNny/uZ92gnBhlUM5QkV6UUE3Nv3qylg/cd0s5lueODX1xhFqBubG+5hSM9VTu89OMLg==
+X-Google-Smtp-Source: ADFU+vslXcTXZHxFbul+vKyVDDYbE109vB2qzmfCtTVliZ++Zd5h8tOc4jJH81ED+tXuc5j8cMzPwT/wJ2uvyfk=
+X-Received: by 2002:ac8:5193:: with SMTP id c19mr3907270qtn.204.1584428101406;
+ Mon, 16 Mar 2020 23:55:01 -0700 (PDT)
+Date:   Mon, 16 Mar 2020 23:54:47 -0700
+In-Reply-To: <20200317065452.236670-1-saravanak@google.com>
+Message-Id: <20200317065452.236670-2-saravanak@google.com>
 Mime-Version: 1.0
+References: <20200317065452.236670-1-saravanak@google.com>
 X-Mailer: git-send-email 2.25.1.481.gfbce0eb801-goog
-Subject: [PATCH v1 0/6] Fix device links functional breakage in 4.19.99
+Subject: [PATCH v1 1/6] driver core: Remove the link if there is no driver
+ with AUTO flag
 From:   Saravana Kannan <saravanak@google.com>
 To:     stable@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -53,52 +58,52 @@ To:     stable@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>,
 Cc:     Saravana Kannan <saravanak@google.com>, linux-doc@vger.kernel.org,
         linux-kernel@vger.kernel.org, linux-pm@vger.kernel.org,
         linux-arm-kernel@lists.infradead.org,
-        linux-mediatek@lists.infradead.org, kernel-team@android.com
+        linux-mediatek@lists.infradead.org, kernel-team@android.com,
+        Yong Wu <yong.wu@mediatek.com>
 Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-As mentioned in an earlier email thread [1], 4.19.99 broke the ability
-to create stateful and stateless device links between the same set of
-devices when it pulled in a valid bug fix [2]. While the fix was valid,
-it removes a functionality that was present before the bug fix.
+From: Yong Wu <yong.wu@mediatek.com>
 
-This patch series attempts to fix that by pulling in more patches from
-upstream. I've just done compilation testing so far. But wanted to send
-out a v1 to see if this patch list was acceptable before I fixed up the
-commit text format to match what's needed for stable mailing list.
+DL_FLAG_AUTOREMOVE_CONSUMER/SUPPLIER means "Remove the link
+automatically on consumer/supplier driver unbind", that means we should
+remove whole the device_link when there is no this driver no matter what
+the ref_count of the link is.
 
-Some of the patches are new functionality, but for a first pass, it was
-easier to pull these in than try and fix the conflicts. If these patches
-are okay to pull into stable, then all I need to do is fix the commit
-text.
+CC: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Yong Wu <yong.wu@mediatek.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+(cherry picked from commit 0fe6f7874d467456da6f6a221dd92499a3ab1780)
+Signed-off-by: Saravana Kannan <saravanak@google.com>
+---
+ drivers/base/core.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-Thanks,
-Saravana
-
-[1] - https://lore.kernel.org/stable/CAGETcx-0dKRWo=tTVcfJQhQUsMtX_LtL6yvDkb3CMbvzREsvOQ@mail.gmail.com/#t
-[2] - 6fdc440366f1a99f344b629ac92f350aefd77911
-
-
-Rafael J. Wysocki (5):
-  driver core: Fix adding device links to probing suppliers
-  driver core: Make driver core own stateful device links
-  driver core: Add device link flag DL_FLAG_AUTOPROBE_CONSUMER
-  driver core: Remove device link creation limitation
-  driver core: Fix creation of device links with PM-runtime flags
-
-Yong Wu (1):
-  driver core: Remove the link if there is no driver with AUTO flag
-
- Documentation/driver-api/device_link.rst |  63 +++--
- drivers/base/core.c                      | 293 +++++++++++++++++------
- drivers/base/dd.c                        |   2 +-
- drivers/base/power/runtime.c             |   4 +-
- include/linux/device.h                   |   7 +-
- 5 files changed, 265 insertions(+), 104 deletions(-)
-
+diff --git a/drivers/base/core.c b/drivers/base/core.c
+index 742bc60e9cca..b354fdd7ce75 100644
+--- a/drivers/base/core.c
++++ b/drivers/base/core.c
+@@ -546,7 +546,7 @@ static void __device_links_no_driver(struct device *dev)
+ 			continue;
+ 
+ 		if (link->flags & DL_FLAG_AUTOREMOVE_CONSUMER)
+-			kref_put(&link->kref, __device_link_del);
++			__device_link_del(&link->kref);
+ 		else if (link->status != DL_STATE_SUPPLIER_UNBIND)
+ 			WRITE_ONCE(link->status, DL_STATE_AVAILABLE);
+ 	}
+@@ -591,7 +591,7 @@ void device_links_driver_cleanup(struct device *dev)
+ 		 */
+ 		if (link->status == DL_STATE_SUPPLIER_UNBIND &&
+ 		    link->flags & DL_FLAG_AUTOREMOVE_SUPPLIER)
+-			kref_put(&link->kref, __device_link_del);
++			__device_link_del(&link->kref);
+ 
+ 		WRITE_ONCE(link->status, DL_STATE_DORMANT);
+ 	}
 -- 
 2.25.1.481.gfbce0eb801-goog
 
