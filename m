@@ -2,42 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 67EE51881A0
-	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:20:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 625B31880F3
+	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:14:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728638AbgCQLGi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Mar 2020 07:06:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47996 "EHLO mail.kernel.org"
+        id S1727710AbgCQLOG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Mar 2020 07:14:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58242 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728098AbgCQLGh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Mar 2020 07:06:37 -0400
+        id S1729574AbgCQLOF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Mar 2020 07:14:05 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C201C20658;
-        Tue, 17 Mar 2020 11:06:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 86F1F20663;
+        Tue, 17 Mar 2020 11:14:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584443197;
-        bh=b+dT2WJfsjgAtzNNSBjjsrruhNxhdxhBaqv0UWRxRRY=;
+        s=default; t=1584443645;
+        bh=OZ4tA3swY5p/fXXjR+dJe6w7K3IHPibdXnOGpcN37IQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nYyjoSpGI/Vonaxr8DxZ+VV3mOKFdm90/FqX46oRqY3Wka/M7FKb/Cr5Ry7z2vjS6
-         ZVE6J9Lxsg4XJ6g7dy+gLtj0XW4z7jsM1Hz8ZWX+Eojzxos2oqRc+yjjlAIQRhkSjD
-         Cn/RUGe2+zKmG7OaFzZylpI311x0xnnTQ2ylUrI0=
+        b=O7c7XHMMevh4Il5YY7YgrNeArsjpwSDsvYK02u4j8NLlcVUTJrxHkij+20HcMc0he
+         etfyWC34/aaxanQyk04XwWVciB4vdMdqfk7Hzc3tgVxId2XS4tE6vySTZ/95Bq+4Ey
+         6IZlMePX0z1S1B9HB7hwMXgLv2TuwjkSisyWMdO0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Wolfram Sang <wsa@the-dreams.de>
-Subject: [PATCH 5.4 119/123] i2c: acpi: put device when verifying client fails
+        stable@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
+        Johannes Berg <johannes.berg@intel.com>
+Subject: [PATCH 5.5 136/151] nl80211: add missing attribute validation for critical protocol indication
 Date:   Tue, 17 Mar 2020 11:55:46 +0100
-Message-Id: <20200317103319.462938562@linuxfoundation.org>
+Message-Id: <20200317103336.088171769@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200317103307.343627747@linuxfoundation.org>
-References: <20200317103307.343627747@linuxfoundation.org>
+In-Reply-To: <20200317103326.593639086@linuxfoundation.org>
+References: <20200317103326.593639086@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,46 +43,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+From: Jakub Kicinski <kuba@kernel.org>
 
-commit 8daee952b4389729358665fb91949460641659d4 upstream.
+commit 0e1a1d853ecedc99da9d27f9f5c376935547a0e2 upstream.
 
-i2c_verify_client() can fail, so we need to put the device when that
-happens.
+Add missing attribute validation for critical protocol fields
+to the netlink policy.
 
-Fixes: 525e6fabeae2 ("i2c / ACPI: add support for ACPI reconfigure notifications")
-Reported-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+Fixes: 5de17984898c ("cfg80211: introduce critical protocol indication from user-space")
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Link: https://lore.kernel.org/r/20200303051058.4089398-2-kuba@kernel.org
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/i2c/i2c-core-acpi.c |   10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ net/wireless/nl80211.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/i2c/i2c-core-acpi.c
-+++ b/drivers/i2c/i2c-core-acpi.c
-@@ -394,9 +394,17 @@ EXPORT_SYMBOL_GPL(i2c_acpi_find_adapter_
- static struct i2c_client *i2c_acpi_find_client_by_adev(struct acpi_device *adev)
- {
- 	struct device *dev;
-+	struct i2c_client *client;
- 
- 	dev = bus_find_device_by_acpi_dev(&i2c_bus_type, adev);
--	return dev ? i2c_verify_client(dev) : NULL;
-+	if (!dev)
-+		return NULL;
-+
-+	client = i2c_verify_client(dev);
-+	if (!client)
-+		put_device(dev);
-+
-+	return client;
- }
- 
- static int i2c_acpi_notify(struct notifier_block *nb, unsigned long value,
+--- a/net/wireless/nl80211.c
++++ b/net/wireless/nl80211.c
+@@ -530,6 +530,8 @@ const struct nla_policy nl80211_policy[N
+ 	[NL80211_ATTR_MDID] = { .type = NLA_U16 },
+ 	[NL80211_ATTR_IE_RIC] = { .type = NLA_BINARY,
+ 				  .len = IEEE80211_MAX_DATA_LEN },
++	[NL80211_ATTR_CRIT_PROT_ID] = { .type = NLA_U16 },
++	[NL80211_ATTR_MAX_CRIT_PROT_DURATION] = { .type = NLA_U16 },
+ 	[NL80211_ATTR_PEER_AID] =
+ 		NLA_POLICY_RANGE(NLA_U16, 1, IEEE80211_MAX_AID),
+ 	[NL80211_ATTR_CH_SWITCH_COUNT] = { .type = NLA_U32 },
 
 
