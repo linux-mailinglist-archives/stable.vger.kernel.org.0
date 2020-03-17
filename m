@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 141DD187FE3
-	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:05:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1ABC31881B3
+	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:20:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727880AbgCQLFU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Mar 2020 07:05:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46092 "EHLO mail.kernel.org"
+        id S1725868AbgCQLSr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Mar 2020 07:18:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46146 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728415AbgCQLFU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Mar 2020 07:05:20 -0400
+        id S1728420AbgCQLFY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Mar 2020 07:05:24 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 82D0A20658;
-        Tue, 17 Mar 2020 11:05:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6A40020658;
+        Tue, 17 Mar 2020 11:05:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584443120;
-        bh=7AeRdUFqB8nXUpeMqPPG48ncKguSxkwesFV4prQw9Ak=;
+        s=default; t=1584443123;
+        bh=6QbLSHB+X7jttnfEC1YPIO8cco39AnpBfs8uHoD+5N4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gyItrkkr8+M4BEqS4HNi8AH97o5T14aSqIfXDiZE86zX442ynmBJ/nYgaD+Fcz4Nv
-         +l9K0SGGGNhpF539NAZ95juHhWhPb3i49uTDCNytuBjsQ/SmH1uBo0n3AlqxmdYOlB
-         yoqLmFQSfW4j9fN/0sPHakfmiRABB/WYgiao2jgo=
+        b=oCPcXhXEtpQneYJS12rB/FwSPoT6KmKQq0dltDnZUoRDpXr07vhnmfFGot7jcr/2n
+         JObOYqb/h2ok+1+kl0wxwsxvGXa2QK4HnqgU0KDfqPDQSS/YJ+D7/vdjPues+7nUUE
+         2+kJnCJOp9iCg0UMt0BampcCdnuAuA3O0pUxvd1g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tina Zhang <tina.zhang@intel.com>,
-        Zhenyu Wang <zhenyuw@linux.intel.com>,
-        Jani Nikula <jani.nikula@intel.com>
-Subject: [PATCH 5.4 102/123] drm/i915/gvt: Fix dma-buf display blur issue on CFL
-Date:   Tue, 17 Mar 2020 11:55:29 +0100
-Message-Id: <20200317103318.045252448@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Charles Keepax <ckeepax@opensource.cirrus.com>,
+        Linus Walleij <linus.walleij@linaro.org>
+Subject: [PATCH 5.4 103/123] pinctrl: core: Remove extra kref_get which blocks hogs being freed
+Date:   Tue, 17 Mar 2020 11:55:30 +0100
+Message-Id: <20200317103318.122729286@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200317103307.343627747@linuxfoundation.org>
 References: <20200317103307.343627747@linuxfoundation.org>
@@ -44,41 +44,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tina Zhang <tina.zhang@intel.com>
+From: Charles Keepax <ckeepax@opensource.cirrus.com>
 
-commit 259170cb4c84f4165a36c0b05811eb74c495412c upstream.
+commit aafd56fc79041bf36f97712d4b35208cbe07db90 upstream.
 
-Commit c3b5a8430daad ("drm/i915/gvt: Enable gfx virtualiztion for CFL")
-added the support on CFL. The vgpu emulation hotplug support on CFL was
-supposed to be included in that patch. Without the vgpu emulation
-hotplug support, the dma-buf based display gives us a blur face.
+kref_init starts with the reference count at 1, which will be balanced
+by the pinctrl_put in pinctrl_unregister. The additional kref_get in
+pinctrl_claim_hogs will increase this count to 2 and cause the hogs to
+not get freed when pinctrl_unregister is called.
 
-So fix this issue by adding the vgpu emulation hotplug support on CFL.
-
-Fixes: c3b5a8430daad ("drm/i915/gvt: Enable gfx virtualiztion for CFL")
-Signed-off-by: Tina Zhang <tina.zhang@intel.com>
-Acked-by: Zhenyu Wang <zhenyuw@linux.intel.com>
-Signed-off-by: Zhenyu Wang <zhenyuw@linux.intel.com>
-Link: http://patchwork.freedesktop.org/patch/msgid/20200227010041.32248-1-tina.zhang@intel.com
-(cherry picked from commit 135dde8853c7e00f6002e710f7e4787ed8585c0e)
-Signed-off-by: Jani Nikula <jani.nikula@intel.com>
+Fixes: 6118714275f0 ("pinctrl: core: Fix pinctrl_register_and_init() with pinctrl_enable()")
+Signed-off-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+Link: https://lore.kernel.org/r/20200228154142.13860-1-ckeepax@opensource.cirrus.com
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/i915/gvt/display.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/pinctrl/core.c |    1 -
+ 1 file changed, 1 deletion(-)
 
---- a/drivers/gpu/drm/i915/gvt/display.c
-+++ b/drivers/gpu/drm/i915/gvt/display.c
-@@ -457,7 +457,8 @@ void intel_vgpu_emulate_hotplug(struct i
- 	struct drm_i915_private *dev_priv = vgpu->gvt->dev_priv;
+--- a/drivers/pinctrl/core.c
++++ b/drivers/pinctrl/core.c
+@@ -2025,7 +2025,6 @@ static int pinctrl_claim_hogs(struct pin
+ 		return PTR_ERR(pctldev->p);
+ 	}
  
- 	/* TODO: add more platforms support */
--	if (IS_SKYLAKE(dev_priv) || IS_KABYLAKE(dev_priv)) {
-+	if (IS_SKYLAKE(dev_priv) || IS_KABYLAKE(dev_priv) ||
-+		IS_COFFEELAKE(dev_priv)) {
- 		if (connected) {
- 			vgpu_vreg_t(vgpu, SFUSE_STRAP) |=
- 				SFUSE_STRAP_DDID_DETECTED;
+-	kref_get(&pctldev->p->users);
+ 	pctldev->hog_default =
+ 		pinctrl_lookup_state(pctldev->p, PINCTRL_STATE_DEFAULT);
+ 	if (IS_ERR(pctldev->hog_default)) {
 
 
