@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EEA611880B8
-	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:12:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9FA331881E0
+	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:21:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729455AbgCQLMo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Mar 2020 07:12:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56436 "EHLO mail.kernel.org"
+        id S1727582AbgCQLUx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Mar 2020 07:20:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38548 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728574AbgCQLMn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Mar 2020 07:12:43 -0400
+        id S1727160AbgCQK7x (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Mar 2020 06:59:53 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C7529205ED;
-        Tue, 17 Mar 2020 11:12:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D8B3020714;
+        Tue, 17 Mar 2020 10:59:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584443563;
-        bh=XSGhuHNI/VPGE2vptRiHyZduoAI3jkFtGWogOwnJSq4=;
+        s=default; t=1584442792;
+        bh=V4xWq3JFZKaFnCaWtFMsf0H1tB3lHuRr4tXUOBArnFk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I3YDJDjS3K4uttkoifDjb0bA1r88Qkk68Uge2O+8F+agTXXJ77zt+0ohis8c/nLNj
-         G5hAW6KnT1J81iX+nIexpjBccV+L8hdT8DrKaTbT/JmEaZNFaNLOCVo9xA5QJfoUBA
-         WubdDhZwM63UiC+wvILFN2bxfvCJlkHU1dWSSYDk=
+        b=ikmgOROJixUkpObLPbxSW4XD7Gkn8hGALBKWuTkmcBLUTbPwg2jbuGU0strCzLGUz
+         sK22COktQTrOf8/gXcrmcMc4RVIRPQtSfPuNC+D+33PmtryDwr7XvzX8G6KC1KtndU
+         oMOQPDXg9bwtg5kCsnqYWeWc64/mLm+tW0QkWM80=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lu Baolu <baolu.lu@linux.intel.com>,
-        Moritz Fischer <mdf@kernel.org>,
-        Yonghyun Hwang <yonghyun@google.com>,
-        Joerg Roedel <jroedel@suse.de>
-Subject: [PATCH 5.5 123/151] iommu/vt-d: Fix a bug in intel_iommu_iova_to_phys() for huge page
+        stable@vger.kernel.org,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Wolfram Sang <wsa@the-dreams.de>
+Subject: [PATCH 4.19 84/89] i2c: acpi: put device when verifying client fails
 Date:   Tue, 17 Mar 2020 11:55:33 +0100
-Message-Id: <20200317103335.194886838@linuxfoundation.org>
+Message-Id: <20200317103309.750851422@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200317103326.593639086@linuxfoundation.org>
-References: <20200317103326.593639086@linuxfoundation.org>
+In-Reply-To: <20200317103259.744774526@linuxfoundation.org>
+References: <20200317103259.744774526@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,41 +47,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yonghyun Hwang <yonghyun@google.com>
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-commit 77a1bce84bba01f3f143d77127b72e872b573795 upstream.
+commit 8daee952b4389729358665fb91949460641659d4 upstream.
 
-intel_iommu_iova_to_phys() has a bug when it translates an IOVA for a huge
-page onto its corresponding physical address. This commit fixes the bug by
-accomodating the level of page entry for the IOVA and adds IOVA's lower
-address to the physical address.
+i2c_verify_client() can fail, so we need to put the device when that
+happens.
 
-Cc: <stable@vger.kernel.org>
-Acked-by: Lu Baolu <baolu.lu@linux.intel.com>
-Reviewed-by: Moritz Fischer <mdf@kernel.org>
-Signed-off-by: Yonghyun Hwang <yonghyun@google.com>
-Fixes: 3871794642579 ("VT-d: Changes to support KVM")
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Fixes: 525e6fabeae2 ("i2c / ACPI: add support for ACPI reconfigure notifications")
+Reported-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/iommu/intel-iommu.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/i2c/i2c-core-acpi.c |   10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
---- a/drivers/iommu/intel-iommu.c
-+++ b/drivers/iommu/intel-iommu.c
-@@ -5568,8 +5568,10 @@ static phys_addr_t intel_iommu_iova_to_p
- 	u64 phys = 0;
+--- a/drivers/i2c/i2c-core-acpi.c
++++ b/drivers/i2c/i2c-core-acpi.c
+@@ -352,10 +352,18 @@ static struct i2c_adapter *i2c_acpi_find
+ static struct i2c_client *i2c_acpi_find_client_by_adev(struct acpi_device *adev)
+ {
+ 	struct device *dev;
++	struct i2c_client *client;
  
- 	pte = pfn_to_dma_pte(dmar_domain, iova >> VTD_PAGE_SHIFT, &level);
--	if (pte)
--		phys = dma_pte_addr(pte);
-+	if (pte && dma_pte_present(pte))
-+		phys = dma_pte_addr(pte) +
-+			(iova & (BIT_MASK(level_to_offset_bits(level) +
-+						VTD_PAGE_SHIFT) - 1));
- 
- 	return phys;
+ 	dev = bus_find_device(&i2c_bus_type, NULL, adev,
+ 			      i2c_acpi_find_match_device);
+-	return dev ? i2c_verify_client(dev) : NULL;
++	if (!dev)
++		return NULL;
++
++	client = i2c_verify_client(dev);
++	if (!client)
++		put_device(dev);
++
++	return client;
  }
+ 
+ static int i2c_acpi_notify(struct notifier_block *nb, unsigned long value,
 
 
