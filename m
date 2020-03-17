@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A446A18810A
-	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:15:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C5763187FDC
+	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:05:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729169AbgCQLMY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Mar 2020 07:12:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56036 "EHLO mail.kernel.org"
+        id S1728382AbgCQLFN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Mar 2020 07:05:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45966 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728826AbgCQLMY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Mar 2020 07:12:24 -0400
+        id S1728040AbgCQLFN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Mar 2020 07:05:13 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D6123205ED;
-        Tue, 17 Mar 2020 11:12:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E058620658;
+        Tue, 17 Mar 2020 11:05:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584443543;
-        bh=/u62k7k4XbFRbH1vWPs3YBXWUG0u2KF4TDGcXKapG9g=;
+        s=default; t=1584443112;
+        bh=03xzoa24LTQ6z0+jZrl/hZ4inFdHU56AHL9eX4wVlTM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WSE3GJ9pJaooz1G0YSoS6s/DFEyhvJCXlZWccOEI3qVPWQ+EbtyihyxdvyElSwuix
-         ME7XKCnxVnXj+G25wHhECK0x3xAjgfwVNL4Msyxf5AxuZAQMf7WVLP183kVTvlOzKn
-         GOIX4p7IkfgjpRYHZRa+FQbCq47lVtdek7Zu3/IU=
+        b=oeppvnsgEIz/oGMpxA3cQOiyIkNOQo9co0568Tox+Y5zoYtlKF+bP0I9AmEjR5lTk
+         PEcuazntfUslPZOdJD/taIfpkAyJgZkD9zFGLaLtXdkhS/5W/ZEQwaQ7Er1lEMNPbv
+         FcOvarPNpBZDugGMo68E8DzuCrqqzRY+NEN7HY9I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kim Phillips <kim.phillips@amd.com>,
-        Borislav Petkov <bp@suse.de>,
-        Peter Zijlstra <peterz@infradead.org>
-Subject: [PATCH 5.5 117/151] perf/amd/uncore: Replace manual sampling check with CAP_NO_INTERRUPT flag
+        stable@vger.kernel.org, Leonard Crestez <leonard.crestez@nxp.com>,
+        Linus Walleij <linus.walleij@linaro.org>
+Subject: [PATCH 5.4 100/123] pinctrl: imx: scu: Align imx sc msg structs to 4
 Date:   Tue, 17 Mar 2020 11:55:27 +0100
-Message-Id: <20200317103334.785564361@linuxfoundation.org>
+Message-Id: <20200317103317.893198662@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200317103326.593639086@linuxfoundation.org>
-References: <20200317103326.593639086@linuxfoundation.org>
+In-Reply-To: <20200317103307.343627747@linuxfoundation.org>
+References: <20200317103307.343627747@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,80 +43,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kim Phillips <kim.phillips@amd.com>
+From: Leonard Crestez <leonard.crestez@nxp.com>
 
-commit f967140dfb7442e2db0868b03b961f9c59418a1b upstream.
+commit 4c48e549f39f8ed10cf8a0b6cb96f5eddf0391ce upstream.
 
-Enable the sampling check in kernel/events/core.c::perf_event_open(),
-which returns the more appropriate -EOPNOTSUPP.
+The imx SC api strongly assumes that messages are composed out of
+4-bytes words but some of our message structs have odd sizeofs.
 
-BEFORE:
+This produces many oopses with CONFIG_KASAN=y.
 
-  $ sudo perf record -a -e instructions,l3_request_g1.caching_l3_cache_accesses true
-  Error:
-  The sys_perf_event_open() syscall returned with 22 (Invalid argument) for event (l3_request_g1.caching_l3_cache_accesses).
-  /bin/dmesg | grep -i perf may provide additional information.
+Fix by marking with __aligned(4).
 
-With nothing relevant in dmesg.
-
-AFTER:
-
-  $ sudo perf record -a -e instructions,l3_request_g1.caching_l3_cache_accesses true
-  Error:
-  l3_request_g1.caching_l3_cache_accesses: PMU Hardware doesn't support sampling/overflow-interrupts. Try 'perf stat'
-
-Fixes: c43ca5091a37 ("perf/x86/amd: Add support for AMD NB and L2I "uncore" counters")
-Signed-off-by: Kim Phillips <kim.phillips@amd.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Acked-by: Peter Zijlstra <peterz@infradead.org>
-Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/20200311191323.13124-1-kim.phillips@amd.com
+Fixes: b96eea718bf6 ("pinctrl: fsl: add scu based pinctrl support")
+Signed-off-by: Leonard Crestez <leonard.crestez@nxp.com>
+Link: https://lore.kernel.org/r/bd7ad5fd755739a6d8d5f4f65e03b3ca4f457bd2.1582216144.git.leonard.crestez@nxp.com
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/events/amd/uncore.c |   17 +++++++----------
- 1 file changed, 7 insertions(+), 10 deletions(-)
+ drivers/pinctrl/freescale/pinctrl-scu.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/arch/x86/events/amd/uncore.c
-+++ b/arch/x86/events/amd/uncore.c
-@@ -190,15 +190,12 @@ static int amd_uncore_event_init(struct
+--- a/drivers/pinctrl/freescale/pinctrl-scu.c
++++ b/drivers/pinctrl/freescale/pinctrl-scu.c
+@@ -23,12 +23,12 @@ struct imx_sc_msg_req_pad_set {
+ 	struct imx_sc_rpc_msg hdr;
+ 	u32 val;
+ 	u16 pad;
+-} __packed;
++} __packed __aligned(4);
  
- 	/*
- 	 * NB and Last level cache counters (MSRs) are shared across all cores
--	 * that share the same NB / Last level cache. Interrupts can be directed
--	 * to a single target core, however, event counts generated by processes
--	 * running on other cores cannot be masked out. So we do not support
--	 * sampling and per-thread events.
-+	 * that share the same NB / Last level cache.  On family 16h and below,
-+	 * Interrupts can be directed to a single target core, however, event
-+	 * counts generated by processes running on other cores cannot be masked
-+	 * out. So we do not support sampling and per-thread events via
-+	 * CAP_NO_INTERRUPT, and we do not enable counter overflow interrupts:
- 	 */
--	if (is_sampling_event(event) || event->attach_state & PERF_ATTACH_TASK)
--		return -EINVAL;
--
--	/* and we do not enable counter overflow interrupts */
- 	hwc->config = event->attr.config & AMD64_RAW_EVENT_MASK_NB;
- 	hwc->idx = -1;
+ struct imx_sc_msg_req_pad_get {
+ 	struct imx_sc_rpc_msg hdr;
+ 	u16 pad;
+-} __packed;
++} __packed __aligned(4);
  
-@@ -306,7 +303,7 @@ static struct pmu amd_nb_pmu = {
- 	.start		= amd_uncore_start,
- 	.stop		= amd_uncore_stop,
- 	.read		= amd_uncore_read,
--	.capabilities	= PERF_PMU_CAP_NO_EXCLUDE,
-+	.capabilities	= PERF_PMU_CAP_NO_EXCLUDE | PERF_PMU_CAP_NO_INTERRUPT,
- };
- 
- static struct pmu amd_llc_pmu = {
-@@ -317,7 +314,7 @@ static struct pmu amd_llc_pmu = {
- 	.start		= amd_uncore_start,
- 	.stop		= amd_uncore_stop,
- 	.read		= amd_uncore_read,
--	.capabilities	= PERF_PMU_CAP_NO_EXCLUDE,
-+	.capabilities	= PERF_PMU_CAP_NO_EXCLUDE | PERF_PMU_CAP_NO_INTERRUPT,
- };
- 
- static struct amd_uncore *amd_uncore_alloc(unsigned int cpu)
+ struct imx_sc_msg_resp_pad_get {
+ 	struct imx_sc_rpc_msg hdr;
 
 
