@@ -2,179 +2,81 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 87C16189216
-	for <lists+stable@lfdr.de>; Wed, 18 Mar 2020 00:28:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D2BA3189217
+	for <lists+stable@lfdr.de>; Wed, 18 Mar 2020 00:28:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727166AbgCQX2U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1727174AbgCQX2U (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 17 Mar 2020 19:28:20 -0400
-Received: from dvalin.narfation.org ([213.160.73.56]:53960 "EHLO
+Received: from dvalin.narfation.org ([213.160.73.56]:53786 "EHLO
         dvalin.narfation.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727150AbgCQX2T (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 17 Mar 2020 19:28:19 -0400
+        with ESMTP id S1727071AbgCQX2U (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 17 Mar 2020 19:28:20 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=narfation.org;
-        s=20121; t=1584487698;
+        s=20121; t=1584487699;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=mpkHJmR1Mq1aWy/xf6sONXP8I5YWzqxgNwqtQCco7dE=;
-        b=02BYXM9tqtGhAA8S+YM3B9D7Sc36IAxJtv6XbvX5tThPw0W7ZAWBRCHHRAuqhwdSoSlB9g
-        lZn7RwtHKGb3Mf/xPpRDlhpNDQOaqJ8wRJc+av7DzdDWGow27d8K4141EB6GbnsoWJ2QgI
-        z5vuey8hV+ljXYXiLU984EWm2lHq/kU=
+        bh=Z3/ijpS8jsF5RS6bi+JPkI+gxR0rDAUufRw3qYh1tVE=;
+        b=m8vPPdmqvatYzhX/KoiHUrTYv6THFyqovf9mEyjJK6NwSpxYdgbIILMzJBlTdpAfZB7VvX
+        ROpH7I+2GnZlEfzSUgH6e7/hY/g+Z2xQErqGd3SWJBV9mApiYAVxYJxWBR9ozU48InBJ4+
+        Riq6ilFLrc/dOtGt+KowPf3FU0C2e3k=
 From:   Sven Eckelmann <sven@narfation.org>
 To:     stable@vger.kernel.org
-Cc:     Sven Eckelmann <sven@narfation.org>,
+Cc:     =?UTF-8?q?Linus=20L=C3=BCssing?= <linus.luessing@c0d3.blue>,
+        Sven Eckelmann <sven@narfation.org>,
         Simon Wunderlich <sw@simonwunderlich.de>
-Subject: [PATCH 4.4 37/48] batman-adv: Fix debugfs path for renamed softif
-Date:   Wed, 18 Mar 2020 00:27:23 +0100
-Message-Id: <20200317232734.6127-38-sven@narfation.org>
+Subject: [PATCH 4.4 38/48] batman-adv: Avoid storing non-TT-sync flags on singular entries too
+Date:   Wed, 18 Mar 2020 00:27:24 +0100
+Message-Id: <20200317232734.6127-39-sven@narfation.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200317232734.6127-1-sven@narfation.org>
 References: <20200317232734.6127-1-sven@narfation.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit 6da7be7d24b2921f8215473ba7552796dff05fe1 upstream.
+From: Linus Lüssing <linus.luessing@c0d3.blue>
 
-batman-adv is creating special debugfs directories in the init
-net_namespace for each created soft-interface (batadv net_device). But it
-is possible to rename a net_device to a completely different name then the
-original one.
+commit 4a519b83da16927fb98fd32b0f598e639d1f1859 upstream.
 
-It can therefore happen that a user registers a new batadv net_device with
-the name "bat0". batman-adv is then also adding a new directory under
-$debugfs/batman-adv/ with the name "wlan0".
+Since commit 54e22f265e87 ("batman-adv: fix TT sync flag inconsistencies")
+TT sync flags and TT non-sync'd flags are supposed to be stored
+separately.
 
-The user then decides to rename this device to "bat1" and registers a
-different batadv device with the name "bat0". batman-adv will then try to
-create a directory with the name "bat0" under $debugfs/batman-adv/ again.
-But there already exists one with this name under this path and thus this
-fails. batman-adv will detect a problem and rollback the registering of
-this device.
+The previous patch missed to apply this separation on a TT entry with
+only a single TT orig entry.
 
-batman-adv must therefore take care of renaming the debugfs directories for
-soft-interfaces whenever it detects such a net_device rename.
+This is a minor fix because with only a single TT orig entry the DDoS
+issue the former patch solves does not apply.
 
-Fixes: c6c8fea29769 ("net: Add batman-adv meshing protocol")
+Fixes: 54e22f265e87 ("batman-adv: fix TT sync flag inconsistencies")
+Signed-off-by: Linus Lüssing <linus.luessing@c0d3.blue>
 Signed-off-by: Sven Eckelmann <sven@narfation.org>
 Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
 Signed-off-by: Sven Eckelmann <sven@narfation.org>
 ---
- net/batman-adv/debugfs.c        | 20 +++++++++++++++++++
- net/batman-adv/debugfs.h        |  5 +++++
- net/batman-adv/hard-interface.c | 34 +++++++++++++++++++++++++++------
- 3 files changed, 53 insertions(+), 6 deletions(-)
+ net/batman-adv/translation-table.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/net/batman-adv/debugfs.c b/net/batman-adv/debugfs.c
-index 0d6fe6977be7..b2ef03a3a2d4 100644
---- a/net/batman-adv/debugfs.c
-+++ b/net/batman-adv/debugfs.c
-@@ -581,6 +581,26 @@ out:
- 	return -ENOMEM;
- }
+diff --git a/net/batman-adv/translation-table.c b/net/batman-adv/translation-table.c
+index f16d49473a28..4a685cf2439d 100644
+--- a/net/batman-adv/translation-table.c
++++ b/net/batman-adv/translation-table.c
+@@ -1405,7 +1405,8 @@ static bool batadv_tt_global_add(struct batadv_priv *bat_priv,
+ 		ether_addr_copy(common->addr, tt_addr);
+ 		common->vid = vid;
  
-+/**
-+ * batadv_debugfs_rename_meshif() - Fix debugfs path for renamed softif
-+ * @dev: net_device which was renamed
-+ */
-+void batadv_debugfs_rename_meshif(struct net_device *dev)
-+{
-+	struct batadv_priv *bat_priv = netdev_priv(dev);
-+	const char *name = dev->name;
-+	struct dentry *dir;
-+	struct dentry *d;
+-		common->flags = flags;
++		common->flags = flags & (~BATADV_TT_SYNC_MASK);
 +
-+	dir = bat_priv->debug_dir;
-+	if (!dir)
-+		return;
-+
-+	d = debugfs_rename(dir->d_parent, dir, dir->d_parent, name);
-+	if (!d)
-+		pr_err("Can't rename debugfs dir to %s\n", name);
-+}
-+
- void batadv_debugfs_del_meshif(struct net_device *dev)
- {
- 	struct batadv_priv *bat_priv = netdev_priv(dev);
-diff --git a/net/batman-adv/debugfs.h b/net/batman-adv/debugfs.h
-index 4b62b9f152a6..347f793a18b2 100644
---- a/net/batman-adv/debugfs.h
-+++ b/net/batman-adv/debugfs.h
-@@ -31,6 +31,7 @@ struct net_device;
- void batadv_debugfs_init(void);
- void batadv_debugfs_destroy(void);
- int batadv_debugfs_add_meshif(struct net_device *dev);
-+void batadv_debugfs_rename_meshif(struct net_device *dev);
- void batadv_debugfs_del_meshif(struct net_device *dev);
- int batadv_debugfs_add_hardif(struct batadv_hard_iface *hard_iface);
- void batadv_debugfs_rename_hardif(struct batadv_hard_iface *hard_iface);
-@@ -51,6 +52,10 @@ static inline int batadv_debugfs_add_meshif(struct net_device *dev)
- 	return 0;
- }
- 
-+static inline void batadv_debugfs_rename_meshif(struct net_device *dev)
-+{
-+}
-+
- static inline void batadv_debugfs_del_meshif(struct net_device *dev)
- {
- }
-diff --git a/net/batman-adv/hard-interface.c b/net/batman-adv/hard-interface.c
-index d659441cc64e..70f7bb42cd2a 100644
---- a/net/batman-adv/hard-interface.c
-+++ b/net/batman-adv/hard-interface.c
-@@ -725,6 +725,32 @@ void batadv_hardif_remove_interfaces(void)
- 	rtnl_unlock();
- }
- 
-+/**
-+ * batadv_hard_if_event_softif() - Handle events for soft interfaces
-+ * @event: NETDEV_* event to handle
-+ * @net_dev: net_device which generated an event
-+ *
-+ * Return: NOTIFY_* result
-+ */
-+static int batadv_hard_if_event_softif(unsigned long event,
-+				       struct net_device *net_dev)
-+{
-+	struct batadv_priv *bat_priv;
-+
-+	switch (event) {
-+	case NETDEV_REGISTER:
-+		batadv_sysfs_add_meshif(net_dev);
-+		bat_priv = netdev_priv(net_dev);
-+		batadv_softif_create_vlan(bat_priv, BATADV_NO_FLAGS);
-+		break;
-+	case NETDEV_CHANGENAME:
-+		batadv_debugfs_rename_meshif(net_dev);
-+		break;
-+	}
-+
-+	return NOTIFY_DONE;
-+}
-+
- static int batadv_hard_if_event(struct notifier_block *this,
- 				unsigned long event, void *ptr)
- {
-@@ -733,12 +759,8 @@ static int batadv_hard_if_event(struct notifier_block *this,
- 	struct batadv_hard_iface *primary_if = NULL;
- 	struct batadv_priv *bat_priv;
- 
--	if (batadv_softif_is_valid(net_dev) && event == NETDEV_REGISTER) {
--		batadv_sysfs_add_meshif(net_dev);
--		bat_priv = netdev_priv(net_dev);
--		batadv_softif_create_vlan(bat_priv, BATADV_NO_FLAGS);
--		return NOTIFY_DONE;
--	}
-+	if (batadv_softif_is_valid(net_dev))
-+		return batadv_hard_if_event_softif(event, net_dev);
- 
- 	hard_iface = batadv_hardif_get_by_netdev(net_dev);
- 	if (!hard_iface && event == NETDEV_REGISTER)
+ 		tt_global_entry->roam_at = 0;
+ 		/* node must store current time in case of roaming. This is
+ 		 * needed to purge this entry out on timeout (if nobody claims
 -- 
 2.20.1
 
