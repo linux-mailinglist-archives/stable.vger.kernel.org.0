@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 64AE1188170
-	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:20:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EFC14188133
+	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:16:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727601AbgCQLCg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Mar 2020 07:02:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42282 "EHLO mail.kernel.org"
+        id S1728957AbgCQLJm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Mar 2020 07:09:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52122 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727963AbgCQLCf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Mar 2020 07:02:35 -0400
+        id S1727996AbgCQLJl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Mar 2020 07:09:41 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0780B205ED;
-        Tue, 17 Mar 2020 11:02:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A443A205ED;
+        Tue, 17 Mar 2020 11:09:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584442954;
-        bh=aOI3kToA5wIagAX34AwDpXjvrcob4bMDHwZGfFJ9VXk=;
+        s=default; t=1584443381;
+        bh=fpdVKyaAWG/7uJmchGNUYgPuUcV2lp3/K0fJgQue35U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dsEh6s4F3M6ybvojw0AIcYLx/XCmkpmaEK0cq0Rk2d+hcU57s+Me5MmrVMu/1rj16
-         DrdLPCiDPuMjCsvHeWQeSDAtoP/L5ZupK36TYfZyhUeY3UzVusmP8tYIjIwqGw2MPG
-         xeZvkjSpJ7kHuhbupC/XwItQFUabchuWf4PQp1vo=
+        b=fDU3es6dJ/LgIOShi3fr00lyudCK0LxWiOXhhWE8ngnTdK9Hh/V8DYDDjKcWcsUyE
+         dcLP/keCUQ0BHdikQPuqj6hV5zFNEyb/CG0WE5qGhWInJyFpaGXe3t2GDfbsMe9mKX
+         cHpWPJ5jkc1vq+GXAt+SLOlUozhZ3UOowG9pKahs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Hangbin Liu <liuhangbin@gmail.com>,
+        David Ahern <dsahern@gmail.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 047/123] tipc: add missing attribute validation for MTU property
-Date:   Tue, 17 Mar 2020 11:54:34 +0100
-Message-Id: <20200317103312.576687018@linuxfoundation.org>
+Subject: [PATCH 5.5 065/151] net/ipv6: remove the old peer route if change it to a new one
+Date:   Tue, 17 Mar 2020 11:54:35 +0100
+Message-Id: <20200317103331.135780177@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200317103307.343627747@linuxfoundation.org>
-References: <20200317103307.343627747@linuxfoundation.org>
+In-Reply-To: <20200317103326.593639086@linuxfoundation.org>
+References: <20200317103326.593639086@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,31 +44,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakub Kicinski <kuba@kernel.org>
+From: Hangbin Liu <liuhangbin@gmail.com>
 
-[ Upstream commit 213320a67962ff6e7b83b704d55cbebc341426db ]
+[ Upstream commit d0098e4c6b83e502cc1cd96d67ca86bc79a6c559 ]
 
-Add missing attribute validation for TIPC_NLA_PROP_MTU
-to the netlink policy.
+When we modify the peer route and changed it to a new one, we should
+remove the old route first. Before the fix:
 
-Fixes: 901271e0403a ("tipc: implement configuration of UDP media MTU")
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
++ ip addr add dev dummy1 2001:db8::1 peer 2001:db8::2
++ ip -6 route show dev dummy1
+2001:db8::1 proto kernel metric 256 pref medium
+2001:db8::2 proto kernel metric 256 pref medium
++ ip addr change dev dummy1 2001:db8::1 peer 2001:db8::3
++ ip -6 route show dev dummy1
+2001:db8::1 proto kernel metric 256 pref medium
+2001:db8::2 proto kernel metric 256 pref medium
+
+After the fix:
++ ip addr change dev dummy1 2001:db8::1 peer 2001:db8::3
++ ip -6 route show dev dummy1
+2001:db8::1 proto kernel metric 256 pref medium
+2001:db8::3 proto kernel metric 256 pref medium
+
+This patch depend on the previous patch "net/ipv6: need update peer route
+when modify metric" to update new peer route after delete old one.
+
+Signed-off-by: Hangbin Liu <liuhangbin@gmail.com>
+Reviewed-by: David Ahern <dsahern@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/tipc/netlink.c |    1 +
- 1 file changed, 1 insertion(+)
+ net/ipv6/addrconf.c |   21 +++++++++++++++++----
+ 1 file changed, 17 insertions(+), 4 deletions(-)
 
---- a/net/tipc/netlink.c
-+++ b/net/tipc/netlink.c
-@@ -111,6 +111,7 @@ const struct nla_policy tipc_nl_prop_pol
- 	[TIPC_NLA_PROP_PRIO]		= { .type = NLA_U32 },
- 	[TIPC_NLA_PROP_TOL]		= { .type = NLA_U32 },
- 	[TIPC_NLA_PROP_WIN]		= { .type = NLA_U32 },
-+	[TIPC_NLA_PROP_MTU]		= { .type = NLA_U32 },
- 	[TIPC_NLA_PROP_BROADCAST]	= { .type = NLA_U32 },
- 	[TIPC_NLA_PROP_BROADCAST_RATIO]	= { .type = NLA_U32 }
- };
+--- a/net/ipv6/addrconf.c
++++ b/net/ipv6/addrconf.c
+@@ -1226,11 +1226,13 @@ check_cleanup_prefix_route(struct inet6_
+ }
+ 
+ static void
+-cleanup_prefix_route(struct inet6_ifaddr *ifp, unsigned long expires, bool del_rt)
++cleanup_prefix_route(struct inet6_ifaddr *ifp, unsigned long expires,
++		     bool del_rt, bool del_peer)
+ {
+ 	struct fib6_info *f6i;
+ 
+-	f6i = addrconf_get_prefix_route(&ifp->addr, ifp->prefix_len,
++	f6i = addrconf_get_prefix_route(del_peer ? &ifp->peer_addr : &ifp->addr,
++					ifp->prefix_len,
+ 					ifp->idev->dev, 0, RTF_DEFAULT, true);
+ 	if (f6i) {
+ 		if (del_rt)
+@@ -1293,7 +1295,7 @@ static void ipv6_del_addr(struct inet6_i
+ 
+ 	if (action != CLEANUP_PREFIX_RT_NOP) {
+ 		cleanup_prefix_route(ifp, expires,
+-			action == CLEANUP_PREFIX_RT_DEL);
++			action == CLEANUP_PREFIX_RT_DEL, false);
+ 	}
+ 
+ 	/* clean up prefsrc entries */
+@@ -4631,6 +4633,7 @@ static int inet6_addr_modify(struct inet
+ 	unsigned long timeout;
+ 	bool was_managetempaddr;
+ 	bool had_prefixroute;
++	bool new_peer = false;
+ 
+ 	ASSERT_RTNL();
+ 
+@@ -4662,6 +4665,13 @@ static int inet6_addr_modify(struct inet
+ 		cfg->preferred_lft = timeout;
+ 	}
+ 
++	if (cfg->peer_pfx &&
++	    memcmp(&ifp->peer_addr, cfg->peer_pfx, sizeof(struct in6_addr))) {
++		if (!ipv6_addr_any(&ifp->peer_addr))
++			cleanup_prefix_route(ifp, expires, true, true);
++		new_peer = true;
++	}
++
+ 	spin_lock_bh(&ifp->lock);
+ 	was_managetempaddr = ifp->flags & IFA_F_MANAGETEMPADDR;
+ 	had_prefixroute = ifp->flags & IFA_F_PERMANENT &&
+@@ -4677,6 +4687,9 @@ static int inet6_addr_modify(struct inet
+ 	if (cfg->rt_priority && cfg->rt_priority != ifp->rt_priority)
+ 		ifp->rt_priority = cfg->rt_priority;
+ 
++	if (new_peer)
++		ifp->peer_addr = *cfg->peer_pfx;
++
+ 	spin_unlock_bh(&ifp->lock);
+ 	if (!(ifp->flags&IFA_F_TENTATIVE))
+ 		ipv6_ifa_notify(0, ifp);
+@@ -4712,7 +4725,7 @@ static int inet6_addr_modify(struct inet
+ 
+ 		if (action != CLEANUP_PREFIX_RT_NOP) {
+ 			cleanup_prefix_route(ifp, rt_expires,
+-				action == CLEANUP_PREFIX_RT_DEL);
++				action == CLEANUP_PREFIX_RT_DEL, false);
+ 		}
+ 	}
+ 
 
 
