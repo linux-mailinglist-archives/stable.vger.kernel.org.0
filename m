@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C31C3189205
-	for <lists+stable@lfdr.de>; Wed, 18 Mar 2020 00:28:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BFA7F189206
+	for <lists+stable@lfdr.de>; Wed, 18 Mar 2020 00:28:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727132AbgCQX2G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1727085AbgCQX2G (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 17 Mar 2020 19:28:06 -0400
-Received: from dvalin.narfation.org ([213.160.73.56]:53786 "EHLO
+Received: from dvalin.narfation.org ([213.160.73.56]:53676 "EHLO
         dvalin.narfation.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727085AbgCQX2G (ORCPT
+        with ESMTP id S1727071AbgCQX2G (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 17 Mar 2020 19:28:06 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=narfation.org;
-        s=20121; t=1584487684;
+        s=20121; t=1584487685;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=F7NEI2zZc7i7etVHqh0e57+rybsC9yeNSqPk/vr3njg=;
-        b=lfWGcAt5wU1FZsRQCCdxgRjsHSorcNgxyVnyvduIqgacnacW6NvfQpWCf37A4a7LbPd4xz
-        3AeQrJsnskxRtCC+tneySFe4wOZMLNdEAly166fdCI/FmAFURbn1SEIhav999KJ7xJlV4z
-        vjemuWV2JlmIeko2rwVhlWP8FkzdaHw=
+        bh=LRrKgK9fh4urpEALxvTXoznInhijHzPIStPv3WQxS4I=;
+        b=MfiYSg9d81ovYAeFad4+gS4cVSguFWdilzMyNpuuj01jc+qIsd4YqIPLesltBajTen8oWR
+        JPjrM5cIlu/ose9bpGwMqkT3i//okXmH/pjGJ9mJITp5eeAF0TGhJdHeU+L8STxO6nKWjL
+        2OKxOSaZTS4wcIUaAxUCTX639oq7iio=
 From:   Sven Eckelmann <sven@narfation.org>
 To:     stable@vger.kernel.org
 Cc:     Sven Eckelmann <sven@narfation.org>,
+        Antonio Quartulli <a@unstable.cc>,
         Marek Lindner <mareklindner@neomailbox.ch>,
         Simon Wunderlich <sw@simonwunderlich.de>
-Subject: [PATCH 4.4 22/48] batman-adv: Free last_bonding_candidate on release of orig_node
-Date:   Wed, 18 Mar 2020 00:27:08 +0100
-Message-Id: <20200317232734.6127-23-sven@narfation.org>
+Subject: [PATCH 4.4 23/48] batman-adv: Fix speedy join in gateway client mode
+Date:   Wed, 18 Mar 2020 00:27:09 +0100
+Message-Id: <20200317232734.6127-24-sven@narfation.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200317232734.6127-1-sven@narfation.org>
 References: <20200317232734.6127-1-sven@narfation.org>
@@ -39,48 +40,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit cbef1e102003edb236c6b2319ab269ccef963731 upstream.
+commit d1fe176ca51fa3cb35f70c1d876d9a090e9befce upstream.
 
-The orig_ifinfo reference counter for last_bonding_candidate in
-batadv_orig_node has to be reduced when an originator node is released.
-Otherwise the orig_ifinfo is leaked and the reference counter the netdevice
-is not reduced correctly.
+Speedy join only works when the received packet is either broadcast or an
+4addr unicast packet. Thus packets converted from broadcast to unicast via
+the gateway handling code have to be converted to 4addr packets to allow
+the receiving gateway server to add the sender address as temporary entry
+to the translation table.
 
-Fixes: f3b3d9018975 ("batman-adv: add bonding again")
+Not doing it will make the batman-adv gateway server drop the DHCP response
+in many situations because it doesn't yet have the TT entry for the
+destination of the DHCP response.
+
+Fixes: 371351731e9c ("batman-adv: change interface_rx to get orig node")
 Signed-off-by: Sven Eckelmann <sven@narfation.org>
+Acked-by: Antonio Quartulli <a@unstable.cc>
 Signed-off-by: Marek Lindner <mareklindner@neomailbox.ch>
 Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
 ---
- net/batman-adv/originator.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ net/batman-adv/send.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/net/batman-adv/originator.c b/net/batman-adv/originator.c
-index ce9743aa8a14..ce5b991707d0 100644
---- a/net/batman-adv/originator.c
-+++ b/net/batman-adv/originator.c
-@@ -565,6 +565,7 @@ static void batadv_orig_node_release(struct batadv_orig_node *orig_node)
- 	struct batadv_neigh_node *neigh_node;
- 	struct batadv_orig_ifinfo *orig_ifinfo;
- 	struct batadv_orig_node_vlan *vlan;
-+	struct batadv_orig_ifinfo *last_candidate;
+diff --git a/net/batman-adv/send.c b/net/batman-adv/send.c
+index 0e0c3b8ed927..11fbfb222c49 100644
+--- a/net/batman-adv/send.c
++++ b/net/batman-adv/send.c
+@@ -381,8 +381,8 @@ int batadv_send_skb_via_gw(struct batadv_priv *bat_priv, struct sk_buff *skb,
+ 	struct batadv_orig_node *orig_node;
  
- 	spin_lock_bh(&orig_node->neigh_list_lock);
+ 	orig_node = batadv_gw_get_selected_orig(bat_priv);
+-	return batadv_send_skb_unicast(bat_priv, skb, BATADV_UNICAST, 0,
+-				       orig_node, vid);
++	return batadv_send_skb_unicast(bat_priv, skb, BATADV_UNICAST_4ADDR,
++				       BATADV_P_DATA, orig_node, vid);
+ }
  
-@@ -580,8 +581,14 @@ static void batadv_orig_node_release(struct batadv_orig_node *orig_node)
- 		hlist_del_rcu(&orig_ifinfo->list);
- 		batadv_orig_ifinfo_free_ref(orig_ifinfo);
- 	}
-+
-+	last_candidate = orig_node->last_bonding_candidate;
-+	orig_node->last_bonding_candidate = NULL;
- 	spin_unlock_bh(&orig_node->neigh_list_lock);
- 
-+	if (last_candidate)
-+		batadv_orig_ifinfo_free_ref(last_candidate);
-+
- 	spin_lock_bh(&orig_node->vlan_list_lock);
- 	hlist_for_each_entry_safe(vlan, node_tmp, &orig_node->vlan_list, list) {
- 		hlist_del_rcu(&vlan->list);
+ void batadv_schedule_bat_ogm(struct batadv_hard_iface *hard_iface)
 -- 
 2.20.1
 
