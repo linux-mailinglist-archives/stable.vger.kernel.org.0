@@ -2,101 +2,178 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C939D188764
-	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 15:24:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D5B718876D
+	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 15:25:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726452AbgCQOYJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Mar 2020 10:24:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35146 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726294AbgCQOYJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Mar 2020 10:24:09 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2E99C20752;
-        Tue, 17 Mar 2020 14:24:08 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584455048;
-        bh=pBOBswBSbtKy11rFJhTnc/5twF5aVVIfx38HxjYecKM=;
-        h=Subject:To:From:Date:From;
-        b=yVYIPATj/iiF1efoNLlvN3mgZiUOnWDJzv5xX8fIzMg5hIc86JVHwxpZrTh0xOoCD
-         BP/c/DyKb6VpArMfmuWC2DAnVImE8f45/HDhShGYU3f+2fsaRvQlVJOpFOhXpgEraB
-         6RviDMVZ2u70Xp4h7K/xmyM3uCOd+A+5pAYvzSKE=
-Subject: patch "serial: sprd: Fix a dereference warning" added to tty-testing
-To:     liuhhome@gmail.com, dan.carpenter@oracle.com,
-        gregkh@linuxfoundation.org, stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 17 Mar 2020 15:23:50 +0100
-Message-ID: <158445503022839@kroah.com>
+        id S1726785AbgCQOZE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Mar 2020 10:25:04 -0400
+Received: from mx07-00178001.pphosted.com ([62.209.51.94]:22936 "EHLO
+        mx07-00178001.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726759AbgCQOZE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 17 Mar 2020 10:25:04 -0400
+Received: from pps.filterd (m0046668.ppops.net [127.0.0.1])
+        by mx07-00178001.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 02HEEKTX020282;
+        Tue, 17 Mar 2020 15:24:59 +0100
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=st.com; h=subject : to : cc :
+ references : from : message-id : date : mime-version : in-reply-to :
+ content-type : content-transfer-encoding; s=STMicroelectronics;
+ bh=zP92rnQ3i+hHFZVKP9Da5Pr7ddiPctkkMFjIu1bZNsY=;
+ b=qVH/Myd8pANtHOlfnsUMUZcckuRby+S3QVEkXzu04Vk8vIdLX+LHozxOAvBAKPsCLywV
+ V5KXpuOApLVVUOUWq6UfCYEPl5MxjVFp8Nz8tR/9qu5bkJ+Z0wsL7cuWu2C2iFCtSWL1
+ 1TGtVZrpGVMvodGHwtZnm86Lp57yf5zeTvciWvt1k9Q+EE6wkatCcsXSLODf8KvXiCKp
+ haKdaFYEVi7WR/WIBqpMLaBdpLQaSfq7plEEHtbTPOcNQJzzEpmRDp6Xao81/bg35kox
+ QRbQFU7lBr60Hd/EjJ0nfnLir4xzMK5dlr/fjNdE4NGCmuXxf5LgPd/njOeAi44Aroip Eg== 
+Received: from beta.dmz-eu.st.com (beta.dmz-eu.st.com [164.129.1.35])
+        by mx07-00178001.pphosted.com with ESMTP id 2yrqv08b3t-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 17 Mar 2020 15:24:59 +0100
+Received: from euls16034.sgp.st.com (euls16034.sgp.st.com [10.75.44.20])
+        by beta.dmz-eu.st.com (STMicroelectronics) with ESMTP id 2125A100038;
+        Tue, 17 Mar 2020 15:24:55 +0100 (CET)
+Received: from Webmail-eu.st.com (sfhdag3node1.st.com [10.75.127.7])
+        by euls16034.sgp.st.com (STMicroelectronics) with ESMTP id 103252AF35E;
+        Tue, 17 Mar 2020 15:24:55 +0100 (CET)
+Received: from lmecxl0889.lme.st.com (10.75.127.45) by SFHDAG3NODE1.st.com
+ (10.75.127.7) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Tue, 17 Mar
+ 2020 15:24:54 +0100
+Subject: Re: [PATCH v5] remoteproc: Fix NULL pointer dereference in
+ rproc_virtio_notify
+To:     Bjorn Andersson <bjorn.andersson@linaro.org>
+CC:     Nikita Shubin <nshubin@topcon.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        Ohad Ben-Cohen <ohad@wizery.com>,
+        "linux-remoteproc@vger.kernel.org" <linux-remoteproc@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        Mathieu Poirier <mathieu.poirier@linaro.org>
+References: <20200306070325.15232-1-NShubin@topcon.com>
+ <20200306072452.24743-1-NShubin@topcon.com>
+ <6c7ef4f2-6f71-c2fb-b2e9-ad7cbeb7cfbc@st.com>
+ <20200310120846.GA19430@topcon.com>
+ <507197c5412e4b438aeb5c527be74b3a@SFHDAG3NODE1.st.com>
+ <20200311200107.GZ1214176@minitux>
+From:   Arnaud POULIQUEN <arnaud.pouliquen@st.com>
+Message-ID: <f6de2571-3541-7004-bc57-92cb3fef2c71@st.com>
+Date:   Tue, 17 Mar 2020 15:24:53 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.4.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20200311200107.GZ1214176@minitux>
+Content-Type: text/plain; charset="utf-8"
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [10.75.127.45]
+X-ClientProxiedBy: SFHDAG6NODE2.st.com (10.75.127.17) To SFHDAG3NODE1.st.com
+ (10.75.127.7)
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.138,18.0.645
+ definitions=2020-03-17_05:2020-03-17,2020-03-17 signatures=0
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Hi Bjorn
 
-This is a note to let you know that I've just added the patch titled
+On 3/11/20 9:01 PM, Bjorn Andersson wrote:
+> On Tue 10 Mar 06:19 PDT 2020, Arnaud POULIQUEN wrote:
+> 
+>>
+>>
+>>> -----Original Message-----
+>>> From: linux-remoteproc-owner@vger.kernel.org <linux-remoteproc-
+>>> owner@vger.kernel.org> On Behalf Of Nikita Shubin
+>>> Sent: mardi 10 mars 2020 13:09
+>>> To: Arnaud POULIQUEN <arnaud.pouliquen@st.com>
+>>> Cc: stable@vger.kernel.org; Ohad Ben-Cohen <ohad@wizery.com>; Bjorn
+>>> Andersson <bjorn.andersson@linaro.org>; linux-
+>>> remoteproc@vger.kernel.org; linux-kernel@vger.kernel.org; Mathieu Poirier
+>>> <mathieu.poirier@linaro.org>
+>>> Subject: Re: [PATCH v5] remoteproc: Fix NULL pointer dereference in
+>>> rproc_virtio_notify
+>>>
+>>> On Mon, Mar 09, 2020 at 03:22:24PM +0100, Arnaud POULIQUEN wrote:
+>>>> Hi,
+>>>>
+>>>> sorry for the late answer...
+>>>>
+>>>> On 3/6/20 8:24 AM, Nikita Shubin wrote:
+>>>>> Undefined rproc_ops .kick method in remoteproc driver will result in
+>>>>> "Unable to handle kernel NULL pointer dereference" in
+>>>>> rproc_virtio_notify, after firmware loading if:
+>>>>>
+>>>>>  1) .kick method wasn't defined in driver
+>>>>>  2) resource_table exists in firmware and has "Virtio device entry"
+>>>>> defined
+>>>>>
+>>>>> Let's refuse to register an rproc-induced virtio device if no kick
+>>>>> method was defined for rproc.
+>>>>>
 
-    serial: sprd: Fix a dereference warning
+[...]
 
-to my tty git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/tty.git
-in the tty-testing branch.
+>>>>>
+>>>>> Signed-off-by: Nikita Shubin <NShubin@topcon.com>
+>>>>> Fixes: 7a186941626d ("remoteproc: remove the single rpmsg vdev
+>>>>> limitation")
+>>>>> Cc: stable@vger.kernel.org
+>>>>> ---
+>>>>>  drivers/remoteproc/remoteproc_virtio.c | 7 +++++++
+>>>>>  1 file changed, 7 insertions(+)
+>>>>>
+>>>>> diff --git a/drivers/remoteproc/remoteproc_virtio.c
+>>>>> b/drivers/remoteproc/remoteproc_virtio.c
+>>>>> index 8c07cb2ca8ba..31a62a0b470e 100644
+>>>>> --- a/drivers/remoteproc/remoteproc_virtio.c
+>>>>> +++ b/drivers/remoteproc/remoteproc_virtio.c
+>>>>> @@ -334,6 +334,13 @@ int rproc_add_virtio_dev(struct rproc_vdev
+>>> *rvdev, int id)
+>>>>>  	struct rproc_mem_entry *mem;
+>>>>>  	int ret;
+>>>>>
+>>>>> +	if (rproc->ops->kick == NULL) {
+>>>>> +		ret = -EINVAL;
+>>>>> +		dev_err(dev, ".kick method not defined for %s",
+>>>>> +				rproc->name);
+>>>>> +		goto out;
+>>>>> +	}
+>>>>> +
+>>>> Should the kick ops be mandatory for all the platforms? How about making
+>>> it optional instead?
+>>>
+>>> Hi, Arnaud.
+>>>
+>>> It is not mandatory, currently it must be provided if specified vdev entry is in
+>>> resourse table. Otherwise it looks like there is no point in creating vdev.
+>>
+>> Yes, my question was about having it optional for vdev also. A platform could implement the vdev
+>> without kick mechanism but by polling depending due to hardware capability...
+>> This could be an alternative avoiding to implement a dummy function in platform driver.
+>>
+> 
+> Is this a real thing or a theoretical suggestion?
+Only a theoretical suggestion, trigged by the IMX platform patchset which implement a "temporary" dummy kick.
+and based on OpenAMP lib implementation which does not request a doorbell.
+Anyway no issue to keep it mandatory here. 
 
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
+Regards,
+Arnaud
 
-The patch will be merged to the tty-next branch sometime soon,
-after it passes testing, and the merge window is open.
-
-If you have any questions about this process, please let me know.
-
-
-From efc176929a3505a30c3993ddd393b40893649bd2 Mon Sep 17 00:00:00 2001
-From: Lanqing Liu <liuhhome@gmail.com>
-Date: Mon, 16 Mar 2020 11:13:33 +0800
-Subject: serial: sprd: Fix a dereference warning
-
-We should validate if the 'sup' is NULL or not before freeing DMA
-memory, to fix below warning.
-
-"drivers/tty/serial/sprd_serial.c:1141 sprd_remove()
- error: we previously assumed 'sup' could be null (see line 1132)"
-
-Fixes: f4487db58eb7 ("serial: sprd: Add DMA mode support")
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Lanqing Liu <liuhhome@gmail.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/e2bd92691538e95b04a2c2a728f3292e1617018f.1584325957.git.liuhhome@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/tty/serial/sprd_serial.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
-
-diff --git a/drivers/tty/serial/sprd_serial.c b/drivers/tty/serial/sprd_serial.c
-index 914862844790..509781ee26bf 100644
---- a/drivers/tty/serial/sprd_serial.c
-+++ b/drivers/tty/serial/sprd_serial.c
-@@ -1132,14 +1132,13 @@ static int sprd_remove(struct platform_device *dev)
- 	if (sup) {
- 		uart_remove_one_port(&sprd_uart_driver, &sup->port);
- 		sprd_port[sup->port.line] = NULL;
-+		sprd_rx_free_buf(sup);
- 		sprd_ports_num--;
- 	}
- 
- 	if (!sprd_ports_num)
- 		uart_unregister_driver(&sprd_uart_driver);
- 
--	sprd_rx_free_buf(sup);
--
- 	return 0;
- }
- 
--- 
-2.25.1
-
-
+> 
+> Regards,
+> Bjorn
+> 
+>> Anyway it just a proposal that makes sense from MPOV. If Bjorn is ok with your patch, nothing blocking on my side.
+>>
+>> Regards
+>> Arnaud
+>>
+>>>
+>>>
+>>>>
+>>>> Regards,
+>>>> Arnaud
+>>>>
+>>>>>  	/* Try to find dedicated vdev buffer carveout */
+>>>>>  	mem = rproc_find_carveout_by_name(rproc, "vdev%dbuffer",
+>>> rvdev->index);
+>>>>>  	if (mem) {
+>>>>>
