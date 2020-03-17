@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A48EA1880B5
-	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:12:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EEA611880B8
+	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:12:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729178AbgCQLMi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Mar 2020 07:12:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56342 "EHLO mail.kernel.org"
+        id S1729455AbgCQLMo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Mar 2020 07:12:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56436 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728574AbgCQLMi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Mar 2020 07:12:38 -0400
+        id S1728574AbgCQLMn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Mar 2020 07:12:43 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3459E20658;
-        Tue, 17 Mar 2020 11:12:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C7529205ED;
+        Tue, 17 Mar 2020 11:12:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584443557;
-        bh=bqm0Y8tO/dFhUHmulnxoCqYXix/ToV0sUlKmOmGJm5M=;
+        s=default; t=1584443563;
+        bh=XSGhuHNI/VPGE2vptRiHyZduoAI3jkFtGWogOwnJSq4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sX4UBOf6B5zhqqdPkRv+bAqHLipMyGBJXSk3dFM/5sCRFcQw5m5QDhTa7bE2V8Cnk
-         OSN3aoqTLd0BMOleVgBk3/1TCJf+5nhqGAqTEY1rX4zFmY+kb6cGWzeTaAzwjlScMm
-         +qIMST1P0KGvfe6RZ27roQoGZyoKaRItrl6E8fLI=
+        b=I3YDJDjS3K4uttkoifDjb0bA1r88Qkk68Uge2O+8F+agTXXJ77zt+0ohis8c/nLNj
+         G5hAW6KnT1J81iX+nIexpjBccV+L8hdT8DrKaTbT/JmEaZNFaNLOCVo9xA5QJfoUBA
+         WubdDhZwM63UiC+wvILFN2bxfvCJlkHU1dWSSYDk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Madhuparna Bhowmik <madhuparnabhowmik10@gmail.com>,
-        Amol Grover <frextrite@gmail.com>,
-        Lu Baolu <baolu.lu@linux.intel.com>,
+        stable@vger.kernel.org, Lu Baolu <baolu.lu@linux.intel.com>,
+        Moritz Fischer <mdf@kernel.org>,
+        Yonghyun Hwang <yonghyun@google.com>,
         Joerg Roedel <jroedel@suse.de>
-Subject: [PATCH 5.5 122/151] iommu/vt-d: Fix RCU list debugging warnings
-Date:   Tue, 17 Mar 2020 11:55:32 +0100
-Message-Id: <20200317103335.127581254@linuxfoundation.org>
+Subject: [PATCH 5.5 123/151] iommu/vt-d: Fix a bug in intel_iommu_iova_to_phys() for huge page
+Date:   Tue, 17 Mar 2020 11:55:33 +0100
+Message-Id: <20200317103335.194886838@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200317103326.593639086@linuxfoundation.org>
 References: <20200317103326.593639086@linuxfoundation.org>
@@ -46,61 +45,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Amol Grover <frextrite@gmail.com>
+From: Yonghyun Hwang <yonghyun@google.com>
 
-commit 02d715b4a8182f4887d82df82a7b83aced647760 upstream.
+commit 77a1bce84bba01f3f143d77127b72e872b573795 upstream.
 
-dmar_drhd_units is traversed using list_for_each_entry_rcu()
-outside of an RCU read side critical section but under the
-protection of dmar_global_lock. Hence add corresponding lockdep
-expression to silence the following false-positive warnings:
+intel_iommu_iova_to_phys() has a bug when it translates an IOVA for a huge
+page onto its corresponding physical address. This commit fixes the bug by
+accomodating the level of page entry for the IOVA and adds IOVA's lower
+address to the physical address.
 
-[    1.603975] =============================
-[    1.603976] WARNING: suspicious RCU usage
-[    1.603977] 5.5.4-stable #17 Not tainted
-[    1.603978] -----------------------------
-[    1.603980] drivers/iommu/intel-iommu.c:4769 RCU-list traversed in non-reader section!!
-
-[    1.603869] =============================
-[    1.603870] WARNING: suspicious RCU usage
-[    1.603872] 5.5.4-stable #17 Not tainted
-[    1.603874] -----------------------------
-[    1.603875] drivers/iommu/dmar.c:293 RCU-list traversed in non-reader section!!
-
-Tested-by: Madhuparna Bhowmik <madhuparnabhowmik10@gmail.com>
-Signed-off-by: Amol Grover <frextrite@gmail.com>
-Cc: stable@vger.kernel.org
+Cc: <stable@vger.kernel.org>
 Acked-by: Lu Baolu <baolu.lu@linux.intel.com>
+Reviewed-by: Moritz Fischer <mdf@kernel.org>
+Signed-off-by: Yonghyun Hwang <yonghyun@google.com>
+Fixes: 3871794642579 ("VT-d: Changes to support KVM")
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- include/linux/dmar.h |    8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/iommu/intel-iommu.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/include/linux/dmar.h
-+++ b/include/linux/dmar.h
-@@ -69,8 +69,9 @@ struct dmar_pci_notify_info {
- extern struct rw_semaphore dmar_global_lock;
- extern struct list_head dmar_drhd_units;
+--- a/drivers/iommu/intel-iommu.c
++++ b/drivers/iommu/intel-iommu.c
+@@ -5568,8 +5568,10 @@ static phys_addr_t intel_iommu_iova_to_p
+ 	u64 phys = 0;
  
--#define for_each_drhd_unit(drhd) \
--	list_for_each_entry_rcu(drhd, &dmar_drhd_units, list)
-+#define for_each_drhd_unit(drhd)					\
-+	list_for_each_entry_rcu(drhd, &dmar_drhd_units, list,		\
-+				dmar_rcu_check())
+ 	pte = pfn_to_dma_pte(dmar_domain, iova >> VTD_PAGE_SHIFT, &level);
+-	if (pte)
+-		phys = dma_pte_addr(pte);
++	if (pte && dma_pte_present(pte))
++		phys = dma_pte_addr(pte) +
++			(iova & (BIT_MASK(level_to_offset_bits(level) +
++						VTD_PAGE_SHIFT) - 1));
  
- #define for_each_active_drhd_unit(drhd)					\
- 	list_for_each_entry_rcu(drhd, &dmar_drhd_units, list)		\
-@@ -81,7 +82,8 @@ extern struct list_head dmar_drhd_units;
- 		if (i=drhd->iommu, drhd->ignored) {} else
- 
- #define for_each_iommu(i, drhd)						\
--	list_for_each_entry_rcu(drhd, &dmar_drhd_units, list)		\
-+	list_for_each_entry_rcu(drhd, &dmar_drhd_units, list,		\
-+				dmar_rcu_check())			\
- 		if (i=drhd->iommu, 0) {} else 
- 
- static inline bool dmar_rcu_check(void)
+ 	return phys;
+ }
 
 
