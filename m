@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C665718815E
-	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:17:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0F44018803E
+	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:08:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729003AbgCQLRH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Mar 2020 07:17:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49722 "EHLO mail.kernel.org"
+        id S1728596AbgCQLIb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Mar 2020 07:08:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50418 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728465AbgCQLH5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Mar 2020 07:07:57 -0400
+        id S1728849AbgCQLIb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Mar 2020 07:08:31 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C2EF02076E;
-        Tue, 17 Mar 2020 11:07:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6B3E1206EC;
+        Tue, 17 Mar 2020 11:08:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584443277;
-        bh=3xBdOzr4+H+1PBNXwFAzf4gCH6mpp14Stgcb/fDACJU=;
+        s=default; t=1584443310;
+        bh=bnlZR9g9uKjlgGOZbuIMeDer+gJi06w2vhUb6KFKgDc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HEBIKqJPDQK2ptgVyxZgYk27dC24YMNBKN0Km6UBYE3RM9yjLDa1t5IJ2CAw6JBs1
-         a4iKJfD7LMKl0+S2dV8mOYOENJS+et564hJb8gil7xV/+Xx9m5QzMVRoz6KzgSZZxX
-         9JZbeVs4lPo3/aVopCsLCTjSwWJRLCVpYkN/vUWA=
+        b=iolzlYA2iyXl8BcCycJsL4gb/hJOlpWxbOWaQxiycvh0KQfWijwXuxSVBdY3t8Xyq
+         A1/CPKE+AdAk4hPy1T+B84wkTieqFZ0mvEY19Eo3DFD/TP4tG08toSJYGpgbKfNGhV
+         Sl9Z6ce7Cyp8c5U1ujeRsuCrQwC50GDrYTuaVBYY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Russell King <rmk+kernel@armlinux.org.uk>,
         Andrew Lunn <andrew@lunn.ch>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.5 015/151] net: dsa: fix phylink_start()/phylink_stop() calls
-Date:   Tue, 17 Mar 2020 11:53:45 +0100
-Message-Id: <20200317103327.514158862@linuxfoundation.org>
+Subject: [PATCH 5.5 016/151] net: dsa: mv88e6xxx: fix lockup on warm boot
+Date:   Tue, 17 Mar 2020 11:53:46 +0100
+Message-Id: <20200317103327.579276029@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200317103326.593639086@linuxfoundation.org>
 References: <20200317103326.593639086@linuxfoundation.org>
@@ -46,131 +46,51 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Russell King <rmk+kernel@armlinux.org.uk>
 
-[ Upstream commit 8640f8dc6d657ebfb4e67c202ad32c5457858a13 ]
+[ Upstream commit 0395823b8d9a4d87bd1bf74359123461c2ae801b ]
 
-Place phylink_start()/phylink_stop() inside dsa_port_enable() and
-dsa_port_disable(), which ensures that we call phylink_stop() before
-tearing down phylink - which is a documented requirement.  Failure
-to do so can cause use-after-free bugs.
+If the switch is not hardware reset on a warm boot, interrupts can be
+left enabled, and possibly pending. This will cause us to enter an
+infinite loop trying to service an interrupt we are unable to handle,
+thereby preventing the kernel from booting.
 
-Fixes: 0e27921816ad ("net: dsa: Use PHYLINK for the CPU/DSA ports")
+Ensure that the global 2 interrupt sources are disabled before we claim
+the parent interrupt.
+
+Observed on the ZII development revision B and C platforms with
+reworked serdes support, and using reboot -f to reboot the platform.
+
+Fixes: dc30c35be720 ("net: dsa: mv88e6xxx: Implement interrupt support.")
 Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
 Reviewed-by: Andrew Lunn <andrew@lunn.ch>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/dsa/dsa_priv.h |    2 ++
- net/dsa/port.c     |   32 ++++++++++++++++++++++++++------
- net/dsa/slave.c    |    8 ++------
- 3 files changed, 30 insertions(+), 12 deletions(-)
+ drivers/net/dsa/mv88e6xxx/global2.c |    8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
---- a/net/dsa/dsa_priv.h
-+++ b/net/dsa/dsa_priv.h
-@@ -117,7 +117,9 @@ static inline struct net_device *dsa_mas
- /* port.c */
- int dsa_port_set_state(struct dsa_port *dp, u8 state,
- 		       struct switchdev_trans *trans);
-+int dsa_port_enable_rt(struct dsa_port *dp, struct phy_device *phy);
- int dsa_port_enable(struct dsa_port *dp, struct phy_device *phy);
-+void dsa_port_disable_rt(struct dsa_port *dp);
- void dsa_port_disable(struct dsa_port *dp);
- int dsa_port_bridge_join(struct dsa_port *dp, struct net_device *br);
- void dsa_port_bridge_leave(struct dsa_port *dp, struct net_device *br);
---- a/net/dsa/port.c
-+++ b/net/dsa/port.c
-@@ -63,7 +63,7 @@ static void dsa_port_set_state_now(struc
- 		pr_err("DSA: failed to set STP state %u (%d)\n", state, err);
- }
- 
--int dsa_port_enable(struct dsa_port *dp, struct phy_device *phy)
-+int dsa_port_enable_rt(struct dsa_port *dp, struct phy_device *phy)
+--- a/drivers/net/dsa/mv88e6xxx/global2.c
++++ b/drivers/net/dsa/mv88e6xxx/global2.c
+@@ -1096,6 +1096,13 @@ int mv88e6xxx_g2_irq_setup(struct mv88e6
  {
- 	struct dsa_switch *ds = dp->ds;
- 	int port = dp->index;
-@@ -78,14 +78,31 @@ int dsa_port_enable(struct dsa_port *dp,
- 	if (!dp->bridge_dev)
- 		dsa_port_set_state_now(dp, BR_STATE_FORWARDING);
+ 	int err, irq, virq;
  
-+	if (dp->pl)
-+		phylink_start(dp->pl);
++	chip->g2_irq.masked = ~0;
++	mv88e6xxx_reg_lock(chip);
++	err = mv88e6xxx_g2_int_mask(chip, ~chip->g2_irq.masked);
++	mv88e6xxx_reg_unlock(chip);
++	if (err)
++		return err;
 +
- 	return 0;
- }
+ 	chip->g2_irq.domain = irq_domain_add_simple(
+ 		chip->dev->of_node, 16, 0, &mv88e6xxx_g2_irq_domain_ops, chip);
+ 	if (!chip->g2_irq.domain)
+@@ -1105,7 +1112,6 @@ int mv88e6xxx_g2_irq_setup(struct mv88e6
+ 		irq_create_mapping(chip->g2_irq.domain, irq);
  
--void dsa_port_disable(struct dsa_port *dp)
-+int dsa_port_enable(struct dsa_port *dp, struct phy_device *phy)
-+{
-+	int err;
-+
-+	rtnl_lock();
-+	err = dsa_port_enable_rt(dp, phy);
-+	rtnl_unlock();
-+
-+	return err;
-+}
-+
-+void dsa_port_disable_rt(struct dsa_port *dp)
- {
- 	struct dsa_switch *ds = dp->ds;
- 	int port = dp->index;
+ 	chip->g2_irq.chip = mv88e6xxx_g2_irq_chip;
+-	chip->g2_irq.masked = ~0;
  
-+	if (dp->pl)
-+		phylink_stop(dp->pl);
-+
- 	if (!dp->bridge_dev)
- 		dsa_port_set_state_now(dp, BR_STATE_DISABLED);
- 
-@@ -93,6 +110,13 @@ void dsa_port_disable(struct dsa_port *d
- 		ds->ops->port_disable(ds, port);
- }
- 
-+void dsa_port_disable(struct dsa_port *dp)
-+{
-+	rtnl_lock();
-+	dsa_port_disable_rt(dp);
-+	rtnl_unlock();
-+}
-+
- int dsa_port_bridge_join(struct dsa_port *dp, struct net_device *br)
- {
- 	struct dsa_notifier_bridge_info info = {
-@@ -619,10 +643,6 @@ static int dsa_port_phylink_register(str
- 		goto err_phy_connect;
- 	}
- 
--	rtnl_lock();
--	phylink_start(dp->pl);
--	rtnl_unlock();
--
- 	return 0;
- 
- err_phy_connect:
---- a/net/dsa/slave.c
-+++ b/net/dsa/slave.c
-@@ -90,12 +90,10 @@ static int dsa_slave_open(struct net_dev
- 			goto clear_allmulti;
- 	}
- 
--	err = dsa_port_enable(dp, dev->phydev);
-+	err = dsa_port_enable_rt(dp, dev->phydev);
- 	if (err)
- 		goto clear_promisc;
- 
--	phylink_start(dp->pl);
--
- 	return 0;
- 
- clear_promisc:
-@@ -119,9 +117,7 @@ static int dsa_slave_close(struct net_de
- 	cancel_work_sync(&dp->xmit_work);
- 	skb_queue_purge(&dp->xmit_queue);
- 
--	phylink_stop(dp->pl);
--
--	dsa_port_disable(dp);
-+	dsa_port_disable_rt(dp);
- 
- 	dev_mc_unsync(master, dev);
- 	dev_uc_unsync(master, dev);
+ 	chip->device_irq = irq_find_mapping(chip->g1_irq.domain,
+ 					    MV88E6XXX_G1_STS_IRQ_DEVICE);
 
 
