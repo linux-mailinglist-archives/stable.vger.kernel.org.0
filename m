@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B95B187F8C
-	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:02:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AAC6F188094
+	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:11:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727932AbgCQLCY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Mar 2020 07:02:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42046 "EHLO mail.kernel.org"
+        id S1728894AbgCQLL2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Mar 2020 07:11:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54608 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727601AbgCQLCX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Mar 2020 07:02:23 -0400
+        id S1728390AbgCQLLY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Mar 2020 07:11:24 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1703720753;
-        Tue, 17 Mar 2020 11:02:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 39F63205ED;
+        Tue, 17 Mar 2020 11:11:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584442942;
-        bh=IU13o9mi6MI7gTr6yP0H7azxbuYAal33zHQozvYAp4A=;
+        s=default; t=1584443482;
+        bh=VADgBsvI7K3ZYVfzgJ0+CCHZcdARdax0xxTPahZk/Kk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=E6/V32TIpqt/rN2Oub8MvEuMlj98PGNE2uPJgo4NMO06Kgpk4ssOsxZ29/PFyxyqF
-         Oz2EBxuGJCzgGUO8YXF6z/h1dhYuk79aymUHarmCWrMLw9P/cqR8r+IHVFuM2qpHXD
-         6TAgyY0Fav8qoN+z6Hpb5XPXnud52cXgKq/I6mSc=
+        b=ZCZHMzSLQwWPZjcLenccoy4LkqecuFq8Wt/XK7Y3qLX3YLHGq6CoaZ0xJogi+TlEK
+         sLqRaD/oXjnQ0lWmAOKKgSJQXP/Oemd9+cHxEtNY6Y9UgePAmbQKkLGpZ9/paHuj2W
+         1IFFR8ycQ/S3KkNqd6QiizB9Tnal/QAZ010Ujvlo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 043/123] net: fq: add missing attribute validation for orphan mask
+Subject: [PATCH 5.5 060/151] nfc: add missing attribute validation for deactivate target
 Date:   Tue, 17 Mar 2020 11:54:30 +0100
-Message-Id: <20200317103312.236358175@linuxfoundation.org>
+Message-Id: <20200317103330.804509445@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200317103307.343627747@linuxfoundation.org>
-References: <20200317103307.343627747@linuxfoundation.org>
+In-Reply-To: <20200317103326.593639086@linuxfoundation.org>
+References: <20200317103326.593639086@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,28 +45,28 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jakub Kicinski <kuba@kernel.org>
 
-[ Upstream commit 7e6dc03eeb023e18427a373522f1d247b916a641 ]
+[ Upstream commit 88e706d5168b07df4792dbc3d1bc37b83e4bd74d ]
 
-Add missing attribute validation for TCA_FQ_ORPHAN_MASK
+Add missing attribute validation for NFC_ATTR_TARGET_INDEX
 to the netlink policy.
 
-Fixes: 06eb395fa985 ("pkt_sched: fq: better control of DDOS traffic")
+Fixes: 4d63adfe12dd ("NFC: Add NFC_CMD_DEACTIVATE_TARGET support")
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sched/sch_fq.c |    1 +
+ net/nfc/netlink.c |    1 +
  1 file changed, 1 insertion(+)
 
---- a/net/sched/sch_fq.c
-+++ b/net/sched/sch_fq.c
-@@ -745,6 +745,7 @@ static const struct nla_policy fq_policy
- 	[TCA_FQ_FLOW_MAX_RATE]		= { .type = NLA_U32 },
- 	[TCA_FQ_BUCKETS_LOG]		= { .type = NLA_U32 },
- 	[TCA_FQ_FLOW_REFILL_DELAY]	= { .type = NLA_U32 },
-+	[TCA_FQ_ORPHAN_MASK]		= { .type = NLA_U32 },
- 	[TCA_FQ_LOW_RATE_THRESHOLD]	= { .type = NLA_U32 },
- 	[TCA_FQ_CE_THRESHOLD]		= { .type = NLA_U32 },
- };
+--- a/net/nfc/netlink.c
++++ b/net/nfc/netlink.c
+@@ -32,6 +32,7 @@ static const struct nla_policy nfc_genl_
+ 	[NFC_ATTR_DEVICE_NAME] = { .type = NLA_STRING,
+ 				.len = NFC_DEVICE_NAME_MAXSIZE },
+ 	[NFC_ATTR_PROTOCOLS] = { .type = NLA_U32 },
++	[NFC_ATTR_TARGET_INDEX] = { .type = NLA_U32 },
+ 	[NFC_ATTR_COMM_MODE] = { .type = NLA_U8 },
+ 	[NFC_ATTR_RF_MODE] = { .type = NLA_U8 },
+ 	[NFC_ATTR_DEVICE_POWERED] = { .type = NLA_U8 },
 
 
