@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A6EA188080
-	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:10:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B075E18817D
+	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:20:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729136AbgCQLKq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Mar 2020 07:10:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53746 "EHLO mail.kernel.org"
+        id S1727744AbgCQLDo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Mar 2020 07:03:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43730 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729131AbgCQLKp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Mar 2020 07:10:45 -0400
+        id S1728145AbgCQLDl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Mar 2020 07:03:41 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CAE8520658;
-        Tue, 17 Mar 2020 11:10:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9FBB620719;
+        Tue, 17 Mar 2020 11:03:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584443445;
-        bh=TZzdiRnPo1IpWNQTesJXuKMNzVAP31ydc9OdMaEiuUU=;
+        s=default; t=1584443020;
+        bh=xeDGOU2FzIkIfmHeFajp1/GXc4arIXOD6z80Adr3VcY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LRI3ogLj7D3V1dlSHgX4BytfO8b31DEMv106XrJW110nWwgGdhJIIjsxGmmodWnR4
-         vaCj8b8qdewPH69x3ORHpU18xEcMH+u7pNKVvDBUk7MSEwJrOE1QVI7eqR2roNFA4F
-         bUvwEQTUAM4uccA8O2/Ro8zEJfTQjFhQntOzeVpI=
+        b=XWH3rJ6coFEf8i9Ao7qbZt6Pssn4Hg/pmz/9KR2M+EgADSz150daS5svIbm4zIy4v
+         jC72pDyuohMzRpGjE/51zHJV08C7bAdFbIaoY5quonijgyHV81eLNfGkLjw6eqleyN
+         Mg3WQwezvg9kVlKbtQWpzv9tWyfHlhc5fsBEBmfU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        nobuhiro1.iwamatsu@toshiba.co.jp
-Subject: [PATCH 5.5 084/151] drm/amd/display: remove duplicated assignment to grph_obj_type
+        stable@vger.kernel.org, Vasily Averin <vvs@virtuozzo.com>,
+        Pablo Neira Ayuso <pablo@netfilter.org>
+Subject: [PATCH 5.4 067/123] netfilter: x_tables: xt_mttg_seq_next should increase position index
 Date:   Tue, 17 Mar 2020 11:54:54 +0100
-Message-Id: <20200317103332.422238328@linuxfoundation.org>
+Message-Id: <20200317103314.396389019@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200317103326.593639086@linuxfoundation.org>
-References: <20200317103326.593639086@linuxfoundation.org>
+In-Reply-To: <20200317103307.343627747@linuxfoundation.org>
+References: <20200317103307.343627747@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,34 +43,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Vasily Averin <vvs@virtuozzo.com>
 
-commit d785476c608c621b345dd9396e8b21e90375cb0e upstream.
+commit ee84f19cbbe9cf7cba2958acb03163fed3ecbb0f upstream.
 
-Variable grph_obj_type is being assigned twice, one of these is
-redundant so remove it.
+If .next function does not change position index,
+following .show function will repeat output related
+to current position index.
 
-Addresses-Coverity: ("Evaluation order violation")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: <nobuhiro1.iwamatsu@toshiba.co.jp>
+Without patch:
+ # dd if=/proc/net/ip_tables_matches  # original file output
+ conntrack
+ conntrack
+ conntrack
+ recent
+ recent
+ icmp
+ udplite
+ udp
+ tcp
+ 0+1 records in
+ 0+1 records out
+ 65 bytes copied, 5.4074e-05 s, 1.2 MB/s
+
+ # dd if=/proc/net/ip_tables_matches bs=62 skip=1
+ dd: /proc/net/ip_tables_matches: cannot skip to specified offset
+ cp   <<< end of  last line
+ tcp  <<< and then unexpected whole last line once again
+ 0+1 records in
+ 0+1 records out
+ 7 bytes copied, 0.000102447 s, 68.3 kB/s
+
+Cc: stable@vger.kernel.org
+Fixes: 1f4aace60b0e ("fs/seq_file.c: simplify seq_file iteration code ...")
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=206283
+Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_atombios.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ net/netfilter/x_tables.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_atombios.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_atombios.c
-@@ -365,8 +365,7 @@ bool amdgpu_atombios_get_connector_info_
- 			router.ddc_valid = false;
- 			router.cd_valid = false;
- 			for (j = 0; j < ((le16_to_cpu(path->usSize) - 8) / 2); j++) {
--				uint8_t grph_obj_type=
--				grph_obj_type =
-+				uint8_t grph_obj_type =
- 				    (le16_to_cpu(path->usGraphicObjIds[j]) &
- 				     OBJECT_TYPE_MASK) >> OBJECT_TYPE_SHIFT;
+--- a/net/netfilter/x_tables.c
++++ b/net/netfilter/x_tables.c
+@@ -1551,6 +1551,9 @@ static void *xt_mttg_seq_next(struct seq
+ 	uint8_t nfproto = (unsigned long)PDE_DATA(file_inode(seq->file));
+ 	struct nf_mttg_trav *trav = seq->private;
+ 
++	if (ppos != NULL)
++		++(*ppos);
++
+ 	switch (trav->class) {
+ 	case MTTG_TRAV_INIT:
+ 		trav->class = MTTG_TRAV_NFP_UNSPEC;
+@@ -1576,9 +1579,6 @@ static void *xt_mttg_seq_next(struct seq
+ 	default:
+ 		return NULL;
+ 	}
+-
+-	if (ppos != NULL)
+-		++*ppos;
+ 	return trav;
+ }
  
 
 
