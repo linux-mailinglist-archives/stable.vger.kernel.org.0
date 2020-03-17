@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E1451881F4
-	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:22:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 69682188174
+	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:20:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726991AbgCQK5d (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Mar 2020 06:57:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35492 "EHLO mail.kernel.org"
+        id S1728014AbgCQLCu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Mar 2020 07:02:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42656 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726704AbgCQK5d (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Mar 2020 06:57:33 -0400
+        id S1728010AbgCQLCu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Mar 2020 07:02:50 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BFB7520738;
-        Tue, 17 Mar 2020 10:57:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C807620735;
+        Tue, 17 Mar 2020 11:02:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584442653;
-        bh=wDd3r7LxR7N9t+4wfc5nCP7or8WBo0XPakCwLcF0A5s=;
+        s=default; t=1584442969;
+        bh=aV1Z3DLMqttPDw4STbAY8xwYfR9ZcIogrCRPvIl+k6A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kFOShmN6VAw60OsICExML8vqJCix6EGjmTJshwiQFrkAn0ab06VZ85qgcK73Uqwwc
-         Aqj53vTUpKe/iHDFLpeq/w8l3zdBcq7DAWV3iWkuomTPF7yzOS6z4246qqfqlbR8gH
-         Fv8YEkWG7C0vzAtmpDxb+BRe7ywMm5dwkn7l76+Y=
+        b=1uKAyfAJWY4V8oCtSIzYCA+MNUnAr3e8pDvljiFbD5XTHeGw0qK+tEMMVuldU+kQt
+         v9H5TJgxjgR4ZSquVtVzJ906wyDOn8Q/3SIDrN6C1QUcWdhhsBXXFrdwrpSr5ZcZP3
+         89GULzp2fI2yg9GJDvYbgwWr0hGV20tabkqwPNic=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Michael Walle <michael@walle.cc>,
+        Heiner Kallweit <hkallweit1@gmail.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 29/89] macsec: add missing attribute validation for port
+Subject: [PATCH 5.4 051/123] net: phy: avoid clearing PHY interrupts twice in irq handler
 Date:   Tue, 17 Mar 2020 11:54:38 +0100
-Message-Id: <20200317103303.232045378@linuxfoundation.org>
+Message-Id: <20200317103312.932195839@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200317103259.744774526@linuxfoundation.org>
-References: <20200317103259.744774526@linuxfoundation.org>
+In-Reply-To: <20200317103307.343627747@linuxfoundation.org>
+References: <20200317103307.343627747@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,30 +44,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakub Kicinski <kuba@kernel.org>
+From: Heiner Kallweit <hkallweit1@gmail.com>
 
-[ Upstream commit 31d9a1c524964bac77b7f9d0a1ac140dc6b57461 ]
+[ Upstream commit 249bc9744e165abe74ae326f43e9d70bad54c3b7 ]
 
-Add missing attribute validation for IFLA_MACSEC_PORT
-to the netlink policy.
+On all PHY drivers that implement did_interrupt() reading the interrupt
+status bits clears them. This means we may loose an interrupt that
+is triggered between calling did_interrupt() and phy_clear_interrupt().
+As part of the fix make it a requirement that did_interrupt() clears
+the interrupt.
 
-Fixes: c09440f7dcb3 ("macsec: introduce IEEE 802.1AE driver")
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+The Fixes tag refers to the first commit where the patch applies
+cleanly.
+
+Fixes: 49644e68f472 ("net: phy: add callback for custom interrupt handler to struct phy_driver")
+Reported-by: Michael Walle <michael@walle.cc>
+Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/macsec.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/phy/phy.c |    3 ++-
+ include/linux/phy.h   |    1 +
+ 2 files changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/net/macsec.c
-+++ b/drivers/net/macsec.c
-@@ -2995,6 +2995,7 @@ static const struct device_type macsec_t
+--- a/drivers/net/phy/phy.c
++++ b/drivers/net/phy/phy.c
+@@ -761,7 +761,8 @@ static irqreturn_t phy_interrupt(int irq
+ 		phy_trigger_machine(phydev);
+ 	}
  
- static const struct nla_policy macsec_rtnl_policy[IFLA_MACSEC_MAX + 1] = {
- 	[IFLA_MACSEC_SCI] = { .type = NLA_U64 },
-+	[IFLA_MACSEC_PORT] = { .type = NLA_U16 },
- 	[IFLA_MACSEC_ICV_LEN] = { .type = NLA_U8 },
- 	[IFLA_MACSEC_CIPHER_SUITE] = { .type = NLA_U64 },
- 	[IFLA_MACSEC_WINDOW] = { .type = NLA_U32 },
+-	if (phy_clear_interrupt(phydev))
++	/* did_interrupt() may have cleared the interrupt already */
++	if (!phydev->drv->did_interrupt && phy_clear_interrupt(phydev))
+ 		goto phy_err;
+ 	return IRQ_HANDLED;
+ 
+--- a/include/linux/phy.h
++++ b/include/linux/phy.h
+@@ -524,6 +524,7 @@ struct phy_driver {
+ 	/*
+ 	 * Checks if the PHY generated an interrupt.
+ 	 * For multi-PHY devices with shared PHY interrupt pin
++	 * Set interrupt bits have to be cleared.
+ 	 */
+ 	int (*did_interrupt)(struct phy_device *phydev);
+ 
 
 
