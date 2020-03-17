@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 99B8D18814F
-	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:17:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0DF6418802F
+	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:08:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728783AbgCQLHz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Mar 2020 07:07:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49646 "EHLO mail.kernel.org"
+        id S1728778AbgCQLIB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Mar 2020 07:08:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49784 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728778AbgCQLHz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Mar 2020 07:07:55 -0400
+        id S1728796AbgCQLIA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Mar 2020 07:08:00 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2568820752;
-        Tue, 17 Mar 2020 11:07:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6336B2073E;
+        Tue, 17 Mar 2020 11:07:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584443274;
-        bh=cC70KS85yI1F/w1kYhsiBQvdqBIOH83O0s750HFOJOM=;
+        s=default; t=1584443279;
+        bh=gwOOFIba/Xe2ZhVi9dCWmL00lqjTQhUYPSCVHThL0QA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pcEq+HYJ6HcuH8ZBRUU1WtsptLIfhkamVpiUKRmNU+y5+4Gwc48gPQpIqdUwjAeR3
-         qsiCd0E7JUUH36Gi9NeK17Msb2BOVFlzvHyNbmGQv4F7c1JtYamNZr+nT2x2lcHV4/
-         QQ3PcAzpdHTe4U0s4m4gYNAmR9CtbftMsbmTNDqo=
+        b=BlSThnqAqCoYScAffQNxdleKsrRLNl4uzpmF4pMIAXyCIAD3/cmo59xNvHKXRP/UE
+         MmJryI0byG9ZwfHZKdxJiQUBGveGSY3m6hYB8pmCrqi4XMu84Ihus95fuAFicIAXLx
+         fR3FF05ZjGLJKTGKDuMZGYAxFV+Vj1hfatTH0n2w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Michael Schmidt <michael.schmidt@eti.uni-siegen.de>,
-        Vinicius Costa Gomes <vinicius.gomes@intel.com>,
-        Andre Guedes <andre.guedes@intel.com>,
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
+        Jay Vosburgh <j.vosburgh@gmail.com>,
+        Veaceslav Falico <vfalico@gmail.com>,
+        Andy Gospodarek <andy@greyhouse.net>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.5 032/151] taprio: Fix sending packets without dequeueing them
-Date:   Tue, 17 Mar 2020 11:54:02 +0100
-Message-Id: <20200317103328.949928100@linuxfoundation.org>
+Subject: [PATCH 5.5 033/151] bonding/alb: make sure arp header is pulled before accessing it
+Date:   Tue, 17 Mar 2020 11:54:03 +0100
+Message-Id: <20200317103329.013165083@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200317103326.593639086@linuxfoundation.org>
 References: <20200317103326.593639086@linuxfoundation.org>
@@ -46,185 +47,157 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vinicius Costa Gomes <vinicius.gomes@intel.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit b09fe70ef520e011ba4a64f4b93f948a8f14717b ]
+commit b7469e83d2add567e4e0b063963db185f3167cea upstream.
 
-There was a bug that was causing packets to be sent to the driver
-without first calling dequeue() on the "child" qdisc. And the KASAN
-report below shows that sending a packet without calling dequeue()
-leads to bad results.
+Similar to commit 38f88c454042 ("bonding/alb: properly access headers
+in bond_alb_xmit()"), we need to make sure arp header was pulled
+in skb->head before blindly accessing it in rlb_arp_xmit().
 
-The problem is that when checking the last qdisc "child" we do not set
-the returned skb to NULL, which can cause it to be sent to the driver,
-and so after the skb is sent, it may be freed, and in some situations a
-reference to it may still be in the child qdisc, because it was never
-dequeued.
+Remove arp_pkt() private helper, since it is more readable/obvious
+to have the following construct back to back :
 
-The crash log looks like this:
+	if (!pskb_network_may_pull(skb, sizeof(*arp)))
+		return NULL;
+	arp = (struct arp_pkt *)skb_network_header(skb);
 
-[   19.937538] ==================================================================
-[   19.938300] BUG: KASAN: use-after-free in taprio_dequeue_soft+0x620/0x780
-[   19.938968] Read of size 4 at addr ffff8881128628cc by task swapper/1/0
-[   19.939612]
-[   19.939772] CPU: 1 PID: 0 Comm: swapper/1 Not tainted 5.6.0-rc3+ #97
-[   19.940397] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.12.0-59-gc9ba5276e321-prebuilt.qe4
-[   19.941523] Call Trace:
-[   19.941774]  <IRQ>
-[   19.941985]  dump_stack+0x97/0xe0
-[   19.942323]  print_address_description.constprop.0+0x3b/0x60
-[   19.942884]  ? taprio_dequeue_soft+0x620/0x780
-[   19.943325]  ? taprio_dequeue_soft+0x620/0x780
-[   19.943767]  __kasan_report.cold+0x1a/0x32
-[   19.944173]  ? taprio_dequeue_soft+0x620/0x780
-[   19.944612]  kasan_report+0xe/0x20
-[   19.944954]  taprio_dequeue_soft+0x620/0x780
-[   19.945380]  __qdisc_run+0x164/0x18d0
-[   19.945749]  net_tx_action+0x2c4/0x730
-[   19.946124]  __do_softirq+0x268/0x7bc
-[   19.946491]  irq_exit+0x17d/0x1b0
-[   19.946824]  smp_apic_timer_interrupt+0xeb/0x380
-[   19.947280]  apic_timer_interrupt+0xf/0x20
-[   19.947687]  </IRQ>
-[   19.947912] RIP: 0010:default_idle+0x2d/0x2d0
-[   19.948345] Code: 00 00 41 56 41 55 65 44 8b 2d 3f 8d 7c 7c 41 54 55 53 0f 1f 44 00 00 e8 b1 b2 c5 fd e9 07 00 3
-[   19.950166] RSP: 0018:ffff88811a3efda0 EFLAGS: 00000282 ORIG_RAX: ffffffffffffff13
-[   19.950909] RAX: 0000000080000000 RBX: ffff88811a3a9600 RCX: ffffffff8385327e
-[   19.951608] RDX: 1ffff110234752c0 RSI: 0000000000000000 RDI: ffffffff8385262f
-[   19.952309] RBP: ffffed10234752c0 R08: 0000000000000001 R09: ffffed10234752c1
-[   19.953009] R10: ffffed10234752c0 R11: ffff88811a3a9607 R12: 0000000000000001
-[   19.953709] R13: 0000000000000001 R14: 0000000000000000 R15: 0000000000000000
-[   19.954408]  ? default_idle_call+0x2e/0x70
-[   19.954816]  ? default_idle+0x1f/0x2d0
-[   19.955192]  default_idle_call+0x5e/0x70
-[   19.955584]  do_idle+0x3d4/0x500
-[   19.955909]  ? arch_cpu_idle_exit+0x40/0x40
-[   19.956325]  ? _raw_spin_unlock_irqrestore+0x23/0x30
-[   19.956829]  ? trace_hardirqs_on+0x30/0x160
-[   19.957242]  cpu_startup_entry+0x19/0x20
-[   19.957633]  start_secondary+0x2a6/0x380
-[   19.958026]  ? set_cpu_sibling_map+0x18b0/0x18b0
-[   19.958486]  secondary_startup_64+0xa4/0xb0
-[   19.958921]
-[   19.959078] Allocated by task 33:
-[   19.959412]  save_stack+0x1b/0x80
-[   19.959747]  __kasan_kmalloc.constprop.0+0xc2/0xd0
-[   19.960222]  kmem_cache_alloc+0xe4/0x230
-[   19.960617]  __alloc_skb+0x91/0x510
-[   19.960967]  ndisc_alloc_skb+0x133/0x330
-[   19.961358]  ndisc_send_ns+0x134/0x810
-[   19.961735]  addrconf_dad_work+0xad5/0xf80
-[   19.962144]  process_one_work+0x78e/0x13a0
-[   19.962551]  worker_thread+0x8f/0xfa0
-[   19.962919]  kthread+0x2ba/0x3b0
-[   19.963242]  ret_from_fork+0x3a/0x50
-[   19.963596]
-[   19.963753] Freed by task 33:
-[   19.964055]  save_stack+0x1b/0x80
-[   19.964386]  __kasan_slab_free+0x12f/0x180
-[   19.964830]  kmem_cache_free+0x80/0x290
-[   19.965231]  ip6_mc_input+0x38a/0x4d0
-[   19.965617]  ipv6_rcv+0x1a4/0x1d0
-[   19.965948]  __netif_receive_skb_one_core+0xf2/0x180
-[   19.966437]  netif_receive_skb+0x8c/0x3c0
-[   19.966846]  br_handle_frame_finish+0x779/0x1310
-[   19.967302]  br_handle_frame+0x42a/0x830
-[   19.967694]  __netif_receive_skb_core+0xf0e/0x2a90
-[   19.968167]  __netif_receive_skb_one_core+0x96/0x180
-[   19.968658]  process_backlog+0x198/0x650
-[   19.969047]  net_rx_action+0x2fa/0xaa0
-[   19.969420]  __do_softirq+0x268/0x7bc
-[   19.969785]
-[   19.969940] The buggy address belongs to the object at ffff888112862840
-[   19.969940]  which belongs to the cache skbuff_head_cache of size 224
-[   19.971202] The buggy address is located 140 bytes inside of
-[   19.971202]  224-byte region [ffff888112862840, ffff888112862920)
-[   19.972344] The buggy address belongs to the page:
-[   19.972820] page:ffffea00044a1800 refcount:1 mapcount:0 mapping:ffff88811a2bd1c0 index:0xffff8881128625c0 compo0
-[   19.973930] flags: 0x8000000000010200(slab|head)
-[   19.974388] raw: 8000000000010200 ffff88811a2ed650 ffff88811a2ed650 ffff88811a2bd1c0
-[   19.975151] raw: ffff8881128625c0 0000000000190013 00000001ffffffff 0000000000000000
-[   19.975915] page dumped because: kasan: bad access detected
-[   19.976461] page_owner tracks the page as allocated
-[   19.976946] page last allocated via order 2, migratetype Unmovable, gfp_mask 0xd20c0(__GFP_IO|__GFP_FS|__GFP_NO)
-[   19.978332]  prep_new_page+0x24b/0x330
-[   19.978707]  get_page_from_freelist+0x2057/0x2c90
-[   19.979170]  __alloc_pages_nodemask+0x218/0x590
-[   19.979619]  new_slab+0x9d/0x300
-[   19.979948]  ___slab_alloc.constprop.0+0x2f9/0x6f0
-[   19.980421]  __slab_alloc.constprop.0+0x30/0x60
-[   19.980870]  kmem_cache_alloc+0x201/0x230
-[   19.981269]  __alloc_skb+0x91/0x510
-[   19.981620]  alloc_skb_with_frags+0x78/0x4a0
-[   19.982043]  sock_alloc_send_pskb+0x5eb/0x750
-[   19.982476]  unix_stream_sendmsg+0x399/0x7f0
-[   19.982904]  sock_sendmsg+0xe2/0x110
-[   19.983262]  ____sys_sendmsg+0x4de/0x6d0
-[   19.983660]  ___sys_sendmsg+0xe4/0x160
-[   19.984032]  __sys_sendmsg+0xab/0x130
-[   19.984396]  do_syscall_64+0xe7/0xae0
-[   19.984761] page last free stack trace:
-[   19.985142]  __free_pages_ok+0x432/0xbc0
-[   19.985533]  qlist_free_all+0x56/0xc0
-[   19.985907]  quarantine_reduce+0x149/0x170
-[   19.986315]  __kasan_kmalloc.constprop.0+0x9e/0xd0
-[   19.986791]  kmem_cache_alloc+0xe4/0x230
-[   19.987182]  prepare_creds+0x24/0x440
-[   19.987548]  do_faccessat+0x80/0x590
-[   19.987906]  do_syscall_64+0xe7/0xae0
-[   19.988276]  entry_SYSCALL_64_after_hwframe+0x49/0xbe
-[   19.988775]
-[   19.988930] Memory state around the buggy address:
-[   19.989402]  ffff888112862780: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
-[   19.990111]  ffff888112862800: fc fc fc fc fc fc fc fc fb fb fb fb fb fb fb fb
-[   19.990822] >ffff888112862880: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-[   19.991529]                                               ^
-[   19.992081]  ffff888112862900: fb fb fb fb fc fc fc fc fc fc fc fc fc fc fc fc
-[   19.992796]  ffff888112862980: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+syzbot reported :
 
-Fixes: 5a781ccbd19e ("tc: Add support for configuring the taprio scheduler")
-Reported-by: Michael Schmidt <michael.schmidt@eti.uni-siegen.de>
-Signed-off-by: Vinicius Costa Gomes <vinicius.gomes@intel.com>
-Acked-by: Andre Guedes <andre.guedes@intel.com>
+BUG: KMSAN: uninit-value in bond_slave_has_mac_rx include/net/bonding.h:704 [inline]
+BUG: KMSAN: uninit-value in rlb_arp_xmit drivers/net/bonding/bond_alb.c:662 [inline]
+BUG: KMSAN: uninit-value in bond_alb_xmit+0x575/0x25e0 drivers/net/bonding/bond_alb.c:1477
+CPU: 0 PID: 12743 Comm: syz-executor.4 Not tainted 5.6.0-rc2-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+Call Trace:
+ __dump_stack lib/dump_stack.c:77 [inline]
+ dump_stack+0x1c9/0x220 lib/dump_stack.c:118
+ kmsan_report+0xf7/0x1e0 mm/kmsan/kmsan_report.c:118
+ __msan_warning+0x58/0xa0 mm/kmsan/kmsan_instr.c:215
+ bond_slave_has_mac_rx include/net/bonding.h:704 [inline]
+ rlb_arp_xmit drivers/net/bonding/bond_alb.c:662 [inline]
+ bond_alb_xmit+0x575/0x25e0 drivers/net/bonding/bond_alb.c:1477
+ __bond_start_xmit drivers/net/bonding/bond_main.c:4257 [inline]
+ bond_start_xmit+0x85d/0x2f70 drivers/net/bonding/bond_main.c:4282
+ __netdev_start_xmit include/linux/netdevice.h:4524 [inline]
+ netdev_start_xmit include/linux/netdevice.h:4538 [inline]
+ xmit_one net/core/dev.c:3470 [inline]
+ dev_hard_start_xmit+0x531/0xab0 net/core/dev.c:3486
+ __dev_queue_xmit+0x37de/0x4220 net/core/dev.c:4063
+ dev_queue_xmit+0x4b/0x60 net/core/dev.c:4096
+ packet_snd net/packet/af_packet.c:2967 [inline]
+ packet_sendmsg+0x8347/0x93b0 net/packet/af_packet.c:2992
+ sock_sendmsg_nosec net/socket.c:652 [inline]
+ sock_sendmsg net/socket.c:672 [inline]
+ __sys_sendto+0xc1b/0xc50 net/socket.c:1998
+ __do_sys_sendto net/socket.c:2010 [inline]
+ __se_sys_sendto+0x107/0x130 net/socket.c:2006
+ __x64_sys_sendto+0x6e/0x90 net/socket.c:2006
+ do_syscall_64+0xb8/0x160 arch/x86/entry/common.c:296
+ entry_SYSCALL_64_after_hwframe+0x44/0xa9
+RIP: 0033:0x45c479
+Code: ad b6 fb ff c3 66 2e 0f 1f 84 00 00 00 00 00 66 90 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 0f 83 7b b6 fb ff c3 66 2e 0f 1f 84 00 00 00 00
+RSP: 002b:00007fc77ffbbc78 EFLAGS: 00000246 ORIG_RAX: 000000000000002c
+RAX: ffffffffffffffda RBX: 00007fc77ffbc6d4 RCX: 000000000045c479
+RDX: 000000000000000e RSI: 00000000200004c0 RDI: 0000000000000003
+RBP: 000000000076bf20 R08: 0000000000000000 R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000246 R12: 00000000ffffffff
+R13: 0000000000000a04 R14: 00000000004cc7b0 R15: 000000000076bf2c
+
+Uninit was created at:
+ kmsan_save_stack_with_flags mm/kmsan/kmsan.c:144 [inline]
+ kmsan_internal_poison_shadow+0x66/0xd0 mm/kmsan/kmsan.c:127
+ kmsan_slab_alloc+0x8a/0xe0 mm/kmsan/kmsan_hooks.c:82
+ slab_alloc_node mm/slub.c:2793 [inline]
+ __kmalloc_node_track_caller+0xb40/0x1200 mm/slub.c:4401
+ __kmalloc_reserve net/core/skbuff.c:142 [inline]
+ __alloc_skb+0x2fd/0xac0 net/core/skbuff.c:210
+ alloc_skb include/linux/skbuff.h:1051 [inline]
+ alloc_skb_with_frags+0x18c/0xa70 net/core/skbuff.c:5766
+ sock_alloc_send_pskb+0xada/0xc60 net/core/sock.c:2242
+ packet_alloc_skb net/packet/af_packet.c:2815 [inline]
+ packet_snd net/packet/af_packet.c:2910 [inline]
+ packet_sendmsg+0x66a0/0x93b0 net/packet/af_packet.c:2992
+ sock_sendmsg_nosec net/socket.c:652 [inline]
+ sock_sendmsg net/socket.c:672 [inline]
+ __sys_sendto+0xc1b/0xc50 net/socket.c:1998
+ __do_sys_sendto net/socket.c:2010 [inline]
+ __se_sys_sendto+0x107/0x130 net/socket.c:2006
+ __x64_sys_sendto+0x6e/0x90 net/socket.c:2006
+ do_syscall_64+0xb8/0x160 arch/x86/entry/common.c:296
+ entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Cc: Jay Vosburgh <j.vosburgh@gmail.com>
+Cc: Veaceslav Falico <vfalico@gmail.com>
+Cc: Andy Gospodarek <andy@greyhouse.net>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sched/sch_taprio.c |   12 +++++++++---
- 1 file changed, 9 insertions(+), 3 deletions(-)
+ drivers/net/bonding/bond_alb.c |   20 ++++++++++----------
+ 1 file changed, 10 insertions(+), 10 deletions(-)
 
---- a/net/sched/sch_taprio.c
-+++ b/net/sched/sch_taprio.c
-@@ -564,8 +564,10 @@ static struct sk_buff *taprio_dequeue_so
- 		prio = skb->priority;
- 		tc = netdev_get_prio_tc_map(dev, prio);
+--- a/drivers/net/bonding/bond_alb.c
++++ b/drivers/net/bonding/bond_alb.c
+@@ -50,11 +50,6 @@ struct arp_pkt {
+ };
+ #pragma pack()
  
--		if (!(gate_mask & BIT(tc)))
-+		if (!(gate_mask & BIT(tc))) {
-+			skb = NULL;
- 			continue;
-+		}
+-static inline struct arp_pkt *arp_pkt(const struct sk_buff *skb)
+-{
+-	return (struct arp_pkt *)skb_network_header(skb);
+-}
+-
+ /* Forward declaration */
+ static void alb_send_learning_packets(struct slave *slave, u8 mac_addr[],
+ 				      bool strict_match);
+@@ -553,10 +548,11 @@ static void rlb_req_update_subnet_client
+ 	spin_unlock(&bond->mode_lock);
+ }
  
- 		len = qdisc_pkt_len(skb);
- 		guard = ktime_add_ns(taprio_get_time(q),
-@@ -575,13 +577,17 @@ static struct sk_buff *taprio_dequeue_so
- 		 * guard band ...
+-static struct slave *rlb_choose_channel(struct sk_buff *skb, struct bonding *bond)
++static struct slave *rlb_choose_channel(struct sk_buff *skb,
++					struct bonding *bond,
++					const struct arp_pkt *arp)
+ {
+ 	struct alb_bond_info *bond_info = &(BOND_ALB_INFO(bond));
+-	struct arp_pkt *arp = arp_pkt(skb);
+ 	struct slave *assigned_slave, *curr_active_slave;
+ 	struct rlb_client_info *client_info;
+ 	u32 hash_index = 0;
+@@ -653,8 +649,12 @@ static struct slave *rlb_choose_channel(
+  */
+ static struct slave *rlb_arp_xmit(struct sk_buff *skb, struct bonding *bond)
+ {
+-	struct arp_pkt *arp = arp_pkt(skb);
+ 	struct slave *tx_slave = NULL;
++	struct arp_pkt *arp;
++
++	if (!pskb_network_may_pull(skb, sizeof(*arp)))
++		return NULL;
++	arp = (struct arp_pkt *)skb_network_header(skb);
+ 
+ 	/* Don't modify or load balance ARPs that do not originate locally
+ 	 * (e.g.,arrive via a bridge).
+@@ -664,7 +664,7 @@ static struct slave *rlb_arp_xmit(struct
+ 
+ 	if (arp->op_code == htons(ARPOP_REPLY)) {
+ 		/* the arp must be sent on the selected rx channel */
+-		tx_slave = rlb_choose_channel(skb, bond);
++		tx_slave = rlb_choose_channel(skb, bond, arp);
+ 		if (tx_slave)
+ 			bond_hw_addr_copy(arp->mac_src, tx_slave->dev->dev_addr,
+ 					  tx_slave->dev->addr_len);
+@@ -676,7 +676,7 @@ static struct slave *rlb_arp_xmit(struct
+ 		 * When the arp reply is received the entry will be updated
+ 		 * with the correct unicast address of the client.
  		 */
- 		if (gate_mask != TAPRIO_ALL_GATES_OPEN &&
--		    ktime_after(guard, entry->close_time))
-+		    ktime_after(guard, entry->close_time)) {
-+			skb = NULL;
- 			continue;
-+		}
+-		tx_slave = rlb_choose_channel(skb, bond);
++		tx_slave = rlb_choose_channel(skb, bond, arp);
  
- 		/* ... and no budget. */
- 		if (gate_mask != TAPRIO_ALL_GATES_OPEN &&
--		    atomic_sub_return(len, &entry->budget) < 0)
-+		    atomic_sub_return(len, &entry->budget) < 0) {
-+			skb = NULL;
- 			continue;
-+		}
- 
- 		skb = child->ops->dequeue(child);
- 		if (unlikely(!skb))
+ 		/* The ARP reply packets must be delayed so that
+ 		 * they can cancel out the influence of the ARP request.
 
 
