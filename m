@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1CC861880CE
-	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:13:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4DFA5188125
+	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:16:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729377AbgCQLNd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Mar 2020 07:13:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57422 "EHLO mail.kernel.org"
+        id S1727700AbgCQLLl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Mar 2020 07:11:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54984 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729478AbgCQLNa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Mar 2020 07:13:30 -0400
+        id S1727176AbgCQLLh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Mar 2020 07:11:37 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F35082071C;
-        Tue, 17 Mar 2020 11:13:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E14402073C;
+        Tue, 17 Mar 2020 11:11:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584443610;
-        bh=zEk5EsMyM/P5rjclWB9KLkBKcIJ17aHR4IY1NTv7k0o=;
+        s=default; t=1584443497;
+        bh=S5G1KHBEaEL4NDBxq8BafkUPfEetq4PzQnKJ/q0Y/ds=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wltW4OzlPKUXvew/lY+yQCxVX4snBaHGxU+37HrMQC4zDvuyhaS9xClcTpVoAWn8J
-         mBCWhptKcR4lXgJqXEia1pvgjmFOfnm9GlYtVcJhcRWB/FNQCQS4GFNyS1kUS3VopR
-         A1lsQWEpez2Prfike6WTf7aEbVV+4x4oCGJrWqjg=
+        b=HMR7IKxQEEDKkNPZDvojNHx03hPlZOyDGujaxrL0IEYYY2kvUqWZp1kTkyWjdnd0H
+         1pLT5ua44r+ujgUhcFPcqDUwZKLH6TsnaPqBW5P1swNmLCB2uwjBH9A3LunG4PCSHz
+         3/nXfA99O8VUezMRjGJt6wmAkzzxM1fe9gg9vjcE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Heidelberg <david@ixit.cz>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Lina Iyer <ilina@codeaurora.org>,
-        Stephen Boyd <swboyd@chromium.org>,
-        Marc Zyngier <maz@kernel.org>,
-        Linus Walleij <linus.walleij@linaro.org>
-Subject: [PATCH 5.5 093/151] pinctrl: qcom: Assign irq_eoi conditionally
-Date:   Tue, 17 Mar 2020 11:55:03 +0100
-Message-Id: <20200317103333.056214806@linuxfoundation.org>
+        stable@vger.kernel.org,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+Subject: [PATCH 5.5 094/151] ktest: Add timeout for ssh sync testing
+Date:   Tue, 17 Mar 2020 11:55:04 +0100
+Message-Id: <20200317103333.132377255@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200317103326.593639086@linuxfoundation.org>
 References: <20200317103326.593639086@linuxfoundation.org>
@@ -47,76 +43,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Walleij <linus.walleij@linaro.org>
+From: Steven Rostedt (VMware) <rostedt@goodmis.org>
 
-commit 1cada2f307665e208a486d7ac2294ed9a6f74a6f upstream.
+commit 4d00fc477a2ce8b6d2b09fb34ef9fe9918e7d434 upstream.
 
-The hierarchical parts of MSM pinctrl/GPIO is only
-used when the device tree has a "wakeup-parent" as
-a phandle, but the .irq_eoi is anyway assigned leading
-to semantic problems on elder Qualcomm chipsets.
+Before rebooting the box, a "ssh sync" is called to the test machine to see
+if it is alive or not. But if the test machine is in a partial state, that
+ssh may never actually finish, and the ktest test hangs.
 
-When the drivers/mfd/qcom-pm8xxx.c driver calls
-chained_irq_exit() that call will in turn call chip->irq_eoi()
-which is set to irq_chip_eoi_parent() by default on a
-hierachical IRQ chip, and the parent is pinctrl-msm.c
-so that will in turn unconditionally call
-irq_chip_eoi_parent() again, but its parent is invalid
-so we get the following crash:
+Add a 10 second timeout to the sync test, which will fail after 10 seconds
+and then cause the test to reboot the test machine.
 
- Unnable to handle kernel NULL pointer dereference at
- virtual address 00000010
- pgd = (ptrval)
- [00000010] *pgd=00000000
- Internal error: Oops: 5 [#1] PREEMPT SMP ARM
- (...)
- PC is at irq_chip_eoi_parent+0x4/0x10
- LR is at pm8xxx_irq_handler+0x1b4/0x2d8
-
-If we solve this crash by avoiding to call up to
-irq_chip_eoi_parent(), the machine will hang and get
-reset by the watchdog, because of semantic issues,
-probably inside irq_chip.
-
-As a solution, just assign the .irq_eoi conditionally if
-we are actually using a wakeup parent.
-
-Cc: David Heidelberg <david@ixit.cz>
-Cc: Bjorn Andersson <bjorn.andersson@linaro.org>
-Cc: Lina Iyer <ilina@codeaurora.org>
-Cc: Stephen Boyd <swboyd@chromium.org>
 Cc: stable@vger.kernel.org
-Fixes: e35a6ae0eb3a ("pinctrl/msm: Setup GPIO chip in hierarchy")
-Link: https://lore.kernel.org/r/20200306121221.1231296-1-linus.walleij@linaro.org
-Link: https://lore.kernel.org/r/20200309125207.571840-1-linus.walleij@linaro.org
-Link: https://lore.kernel.org/r/20200309152604.585112-1-linus.walleij@linaro.org
-Tested-by: David Heidelberg <david@ixit.cz>
-Acked-by: Marc Zyngier <maz@kernel.org>
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Fixes: 6474ace999edd ("ktest.pl: Powercycle the box on reboot if no connection can be made")
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/pinctrl/qcom/pinctrl-msm.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ tools/testing/ktest/ktest.pl |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/pinctrl/qcom/pinctrl-msm.c
-+++ b/drivers/pinctrl/qcom/pinctrl-msm.c
-@@ -1104,7 +1104,6 @@ static int msm_gpio_init(struct msm_pinc
- 	pctrl->irq_chip.irq_mask = msm_gpio_irq_mask;
- 	pctrl->irq_chip.irq_unmask = msm_gpio_irq_unmask;
- 	pctrl->irq_chip.irq_ack = msm_gpio_irq_ack;
--	pctrl->irq_chip.irq_eoi = irq_chip_eoi_parent;
- 	pctrl->irq_chip.irq_set_type = msm_gpio_irq_set_type;
- 	pctrl->irq_chip.irq_set_wake = msm_gpio_irq_set_wake;
- 	pctrl->irq_chip.irq_request_resources = msm_gpio_irq_reqres;
-@@ -1118,7 +1117,7 @@ static int msm_gpio_init(struct msm_pinc
- 		if (!chip->irq.parent_domain)
- 			return -EPROBE_DEFER;
- 		chip->irq.child_to_parent_hwirq = msm_gpio_wakeirq;
--
-+		pctrl->irq_chip.irq_eoi = irq_chip_eoi_parent;
- 		/*
- 		 * Let's skip handling the GPIOs, if the parent irqchip
- 		 * is handling the direct connect IRQ of the GPIO.
+--- a/tools/testing/ktest/ktest.pl
++++ b/tools/testing/ktest/ktest.pl
+@@ -1383,7 +1383,7 @@ sub reboot {
+ 
+     } else {
+ 	# Make sure everything has been written to disk
+-	run_ssh("sync");
++	run_ssh("sync", 10);
+ 
+ 	if (defined($time)) {
+ 	    start_monitor;
 
 
