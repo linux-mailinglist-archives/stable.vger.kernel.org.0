@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AAC6F188094
-	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:11:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 165F8187F8E
+	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:02:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728894AbgCQLL2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Mar 2020 07:11:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54608 "EHLO mail.kernel.org"
+        id S1727647AbgCQLC2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Mar 2020 07:02:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42106 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728390AbgCQLLY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Mar 2020 07:11:24 -0400
+        id S1727935AbgCQLCZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Mar 2020 07:02:25 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 39F63205ED;
-        Tue, 17 Mar 2020 11:11:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B8EAE20658;
+        Tue, 17 Mar 2020 11:02:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584443482;
-        bh=VADgBsvI7K3ZYVfzgJ0+CCHZcdARdax0xxTPahZk/Kk=;
+        s=default; t=1584442945;
+        bh=OYEWaCPqZTDX9qCgwnlLOmEk8osMuwE31g8YAdQZNzE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZCZHMzSLQwWPZjcLenccoy4LkqecuFq8Wt/XK7Y3qLX3YLHGq6CoaZ0xJogi+TlEK
-         sLqRaD/oXjnQ0lWmAOKKgSJQXP/Oemd9+cHxEtNY6Y9UgePAmbQKkLGpZ9/paHuj2W
-         1IFFR8ycQ/S3KkNqd6QiizB9Tnal/QAZ010Ujvlo=
+        b=lh3wsku4p94/ATgBv6fwdIYWztGBVOcOuK4Pfz904xqI/8Nq0XsSBNPj59JzZqcGj
+         VZKb0k+yALx+YXBsx1rqi6BvxlaWbjWadiCAi9AYXEwRMLD5xQC6vJaAXE4laUqtsT
+         Zr8UzCHXK4FnVp086A3eyVMnBSbp2Ixclqz3/eR4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
+        Vinicius Costa Gomes <vinicius.gomes@intel.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.5 060/151] nfc: add missing attribute validation for deactivate target
-Date:   Tue, 17 Mar 2020 11:54:30 +0100
-Message-Id: <20200317103330.804509445@linuxfoundation.org>
+Subject: [PATCH 5.4 044/123] net: taprio: add missing attribute validation for txtime delay
+Date:   Tue, 17 Mar 2020 11:54:31 +0100
+Message-Id: <20200317103312.321516007@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200317103326.593639086@linuxfoundation.org>
-References: <20200317103326.593639086@linuxfoundation.org>
+In-Reply-To: <20200317103307.343627747@linuxfoundation.org>
+References: <20200317103307.343627747@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,28 +46,29 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jakub Kicinski <kuba@kernel.org>
 
-[ Upstream commit 88e706d5168b07df4792dbc3d1bc37b83e4bd74d ]
+[ Upstream commit e13aaa0643da10006ec35715954e7f92a62899a5 ]
 
-Add missing attribute validation for NFC_ATTR_TARGET_INDEX
+Add missing attribute validation for TCA_TAPRIO_ATTR_TXTIME_DELAY
 to the netlink policy.
 
-Fixes: 4d63adfe12dd ("NFC: Add NFC_CMD_DEACTIVATE_TARGET support")
+Fixes: 4cfd5779bd6e ("taprio: Add support for txtime-assist mode")
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Reviewed-by: Vinicius Costa Gomes <vinicius.gomes@intel.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/nfc/netlink.c |    1 +
+ net/sched/sch_taprio.c |    1 +
  1 file changed, 1 insertion(+)
 
---- a/net/nfc/netlink.c
-+++ b/net/nfc/netlink.c
-@@ -32,6 +32,7 @@ static const struct nla_policy nfc_genl_
- 	[NFC_ATTR_DEVICE_NAME] = { .type = NLA_STRING,
- 				.len = NFC_DEVICE_NAME_MAXSIZE },
- 	[NFC_ATTR_PROTOCOLS] = { .type = NLA_U32 },
-+	[NFC_ATTR_TARGET_INDEX] = { .type = NLA_U32 },
- 	[NFC_ATTR_COMM_MODE] = { .type = NLA_U8 },
- 	[NFC_ATTR_RF_MODE] = { .type = NLA_U8 },
- 	[NFC_ATTR_DEVICE_POWERED] = { .type = NLA_U8 },
+--- a/net/sched/sch_taprio.c
++++ b/net/sched/sch_taprio.c
+@@ -774,6 +774,7 @@ static const struct nla_policy taprio_po
+ 	[TCA_TAPRIO_ATTR_SCHED_CYCLE_TIME]           = { .type = NLA_S64 },
+ 	[TCA_TAPRIO_ATTR_SCHED_CYCLE_TIME_EXTENSION] = { .type = NLA_S64 },
+ 	[TCA_TAPRIO_ATTR_FLAGS]                      = { .type = NLA_U32 },
++	[TCA_TAPRIO_ATTR_TXTIME_DELAY]		     = { .type = NLA_U32 },
+ };
+ 
+ static int fill_sched_entry(struct nlattr **tb, struct sched_entry *entry,
 
 
