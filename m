@@ -2,50 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 75B77187964
-	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 06:56:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B2567187969
+	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 06:59:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725536AbgCQF4M (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Mar 2020 01:56:12 -0400
-Received: from mail-lj1-f193.google.com ([209.85.208.193]:43161 "EHLO
-        mail-lj1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725468AbgCQF4M (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 17 Mar 2020 01:56:12 -0400
-Received: by mail-lj1-f193.google.com with SMTP id r7so21374614ljp.10
-        for <stable@vger.kernel.org>; Mon, 16 Mar 2020 22:56:10 -0700 (PDT)
+        id S1725769AbgCQF7f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Mar 2020 01:59:35 -0400
+Received: from mail-lf1-f67.google.com ([209.85.167.67]:45949 "EHLO
+        mail-lf1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725730AbgCQF7f (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 17 Mar 2020 01:59:35 -0400
+Received: by mail-lf1-f67.google.com with SMTP id b13so16096665lfb.12
+        for <stable@vger.kernel.org>; Mon, 16 Mar 2020 22:59:33 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=mime-version:from:date:message-id:subject:to:cc
          :content-transfer-encoding;
-        bh=z7KdungG25b6cEFb1hEFcLQQgC63iFdHfT/PzP4DBrM=;
-        b=Dq/sq2/TqohR0bzUxI+b5I68LvpJhrUZC4JbQ7R9yJ7OOUukMjuhxEXPQPRRo1Jj57
-         z9HBHH+jMnElSHrzmZQuSjWm7xXEjWV9y/CsCJdQkJDr+UVmoXJspd6WYJVZ/0RaAwGe
-         2lwZYM6iAV+lym7V6mBxIeo76ToUMSBhyxtsJWz3y830mFzlSMMl1NfoxSRGIuV4mkTH
-         ASZR5OThExiGKKopZRTVqaAfbT3Tn3CO3IwqC24u+1VV5iRJmqsAOMCmyycaZMLWqz9o
-         T1khMjDsPwXs67b7fOqNJRs6Lq1xIGbbwOhirX7WThOQNfg9qI9DxC5Lay1rh66r7BO3
-         GWYQ==
+        bh=TlqpLTYdNI8Dj8G25cVMT4SK582VJgPyZT+jwMttx4s=;
+        b=rYRD8PAdIY5aP7VdrMfdNrCTlNoc7HPa6JOaEcQYj7zqzbCVH5QfKvxemizHlN7QiN
+         wyGtygD+jWAEq8SxjLhETn4vbWeQXno80BEveTAFR1iNAWNJJuuizsEWz5eLGtbAxjUC
+         MX5xnA0Qx2zCvXioeau3PUJNYSuiGSy/xfat5q8tPi/qZyuKbXUG6kD70oNMu+NqDqQu
+         2S+xUPdcqEiZ8AIOdbq8t0pRhbMKBuj0zikiuEE7ZoqkxmmvtnsHQL/mCfg9gMr2NeYC
+         1oU6PYGC4kWpr99abD71w8gyGj1hkzWsaksy+mWiTVVLw2mO6XN4iTNMPf9zGP8pdI6V
+         6LIw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:from:date:message-id:subject:to:cc
          :content-transfer-encoding;
-        bh=z7KdungG25b6cEFb1hEFcLQQgC63iFdHfT/PzP4DBrM=;
-        b=UPGNKEglwSz02TMcwLTsIWaiwE1SFRwLZcXE57pC20N6B2Smow8iINYa5YHyW+XaT4
-         6pFLxfqRxfSL3xg3i5vuIlXpXGKH1cABnVIAF4KiZTR1XyQ4thzt3rklgQ30Bo2MjxsL
-         Md4Zb0eQgqdeZykuKlriKQl0ikNBwuobG2jFHbbuHMbHuLOE692dtucXMTf64chGst0l
-         /zAH9ilzZZ4dNDfj9V9idpjB34OnJA8ybYasT7xcW5VRkoqQ/nm6r6TQXbBZL8uVvGiB
-         eMNnn74exvr9keK/fkVDg4Ij4TdnCFSu4yUNkfcR9qyxgRpmYUC8+Xm7JgCSXfcBO0yw
-         Myag==
-X-Gm-Message-State: ANhLgQ1LYSAsXHh51Qv7ihgVkWwczfy9EdwYufApIiwjI1r1U9gpdnZ9
-        +s9Z4YOj9wzz1uoCkosTqEqiR1SZzDhZhdRjQCFrcg==
-X-Google-Smtp-Source: ADFU+vufCMNdLMYZjEPL5DHufPCl7k7CETiODEL3JDpqQBzTuqjijPGdDILShiu2we8I7bDfnOmHiC4AYdz90yY6Do4=
-X-Received: by 2002:a2e:9256:: with SMTP id v22mr1715145ljg.38.1584424569146;
- Mon, 16 Mar 2020 22:56:09 -0700 (PDT)
+        bh=TlqpLTYdNI8Dj8G25cVMT4SK582VJgPyZT+jwMttx4s=;
+        b=YYNV2ZSu87VTE6u6LhFI5F2bmO8JQrGhfdSozJFWkRJNu6koEcZ0dD9f6zzLbMIZMr
+         AhVCMG6mqBg2zz0W+HUkOyt/1jaqiu6rW2YJWSDxliCCeAF0als+Nith2VAUC5KM8Vg8
+         QlZBNgA2dwOXgOqmXU6SuW8HNh3GU8P2I1QgF9G5N31AuBudz99ow2x4JUesrLWLyo3o
+         pLOoExE5ae5vCHE9jI2ZO4nU4W/g8MsMB5+zgwdY1XkTxGbdrdoSMC9g9aGB00x4fn+B
+         XUSXbqK7GmboYU2qleoOfYpkS0JDO6opeoOgTdQBiFptme570VS6o59DmmZ73BcHYbyP
+         FboA==
+X-Gm-Message-State: ANhLgQ3j4eDiukO7vDJpvSvr5aDn1ZF9DHcuvqlJuQVC/gJoReTqro0m
+        B9PsFt9ZPEEAihzhDMUY3PeHM01SvSy+Xm53nEx7qg==
+X-Google-Smtp-Source: ADFU+vtvYtJTS7S867tfqXzYlQjdw8TqzjJxyireOYsB4hUXp4jktVH3sf3T4/V8p04aqgQjJqpQRxfclWaYKbeuLh0=
+X-Received: by 2002:a05:6512:308d:: with SMTP id z13mr1764994lfd.74.1584424772282;
+ Mon, 16 Mar 2020 22:59:32 -0700 (PDT)
 MIME-Version: 1.0
 From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Tue, 17 Mar 2020 11:25:58 +0530
-Message-ID: <CA+G9fYuW_2tVWTT9USAJMWOG5G3P_V74jJLkBULHBVNE-SmxBg@mail.gmail.com>
-Subject: stable-rc 4.9.217-rc1/ced4535e0b35: no regressions found in project
- stable v4.9.y
+Date:   Tue, 17 Mar 2020 11:29:21 +0530
+Message-ID: <CA+G9fYtdNLUb-gy61GcV=L9yu0fXV0HctG_irXuf0bsbRz6z0g@mail.gmail.com>
+Subject: stable-rc 4.14.174-rc1/d37b117e1ccf: no regressions found in project
+ stable v4.14.y
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>
 Cc:     linux- stable <stable@vger.kernel.org>,
@@ -63,20 +63,20 @@ No regressions on arm64, arm, x86_64, and i386.
 Summary
 ------------------------------------------------------------------------
 
-kernel: 4.9.217-rc1
+kernel: 4.14.174-rc1
 git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
 le-rc.git
-git branch: linux-4.9.y
-git commit: ced4535e0b35358ff068ca01ca95d68f8966ad0b
-git describe: v4.9.216-51-gced4535e0b35
-Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-4.9-oe/bui=
-ld/v4.9.216-51-gced4535e0b35
+git branch: linux-4.14.y
+git commit: d37b117e1ccfcc2bf0ed4224f8f6d3ac6dd4ad65
+git describe: v4.14.173-67-gd37b117e1ccf
+Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-4.14-oe/bu=
+ild/v4.14.173-67-gd37b117e1ccf
 
-No regressions (compared to build v4.9.216)
+No regressions (compared to build v4.14.173)
 
-No fixes (compared to build v4.9.216)
+No fixes (compared to build v4.14.173)
 
-Ran 23908 total tests in the following environments and test suites.
+Ran 25828 total tests in the following environments and test suites.
 
 Environments
 --------------
@@ -96,12 +96,9 @@ Test Suites
 * build
 * install-android-platform-tools-r2600
 * install-android-platform-tools-r2800
-* kselftest
 * libhugetlbfs
 * linux-log-parser
 * ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
 * ltp-cpuhotplug-tests
 * ltp-crypto-tests
 * ltp-cve-tests
@@ -115,7 +112,6 @@ Test Suites
 * ltp-hugetlb-tests
 * ltp-io-tests
 * ltp-ipc-tests
-* ltp-math-tests
 * ltp-mm-tests
 * ltp-nptl-tests
 * ltp-pty-tests
@@ -124,6 +120,10 @@ Test Suites
 * ltp-syscalls-tests
 * perf
 * v4l2-compliance
+* kselftest
+* ltp-commands-tests
+* ltp-containers-tests
+* ltp-math-tests
 * network-basic-tests
 * spectre-meltdown-checker-test
 * kvm-unit-tests
