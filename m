@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D4EC187FAF
-	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:03:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B4E2D1881FB
+	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:22:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727791AbgCQLDk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Mar 2020 07:03:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43656 "EHLO mail.kernel.org"
+        id S1727103AbgCQK54 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Mar 2020 06:57:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35928 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727316AbgCQLDi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Mar 2020 07:03:38 -0400
+        id S1727067AbgCQK5z (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Mar 2020 06:57:55 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0FDB120658;
-        Tue, 17 Mar 2020 11:03:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3E87320736;
+        Tue, 17 Mar 2020 10:57:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584443017;
-        bh=bBpGPos69Thu6EJ26LCcd+T/LeCR33KtKG7HV9kYExA=;
+        s=default; t=1584442674;
+        bh=DYMz68XXdPQKuJCqigHKTNMBcDNIKJpsKhwb6Z+V0UI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GXDNMg0gmOP6Bd22ytHbVH/zLbSzcnYkgUYWDEyXOzteaEnH+WlyFrgBJaTZwBsSZ
-         vXL5j7NvXEbjvjxh1J15rCuEDH8A6zLp4jty/QuFArxuvN2D1dOLjqZ8svwggx2zkg
-         CXttLjBqXg2fxobT3G9ZE5hD7Wf8ag8AzEmfMKig=
+        b=jVGxFI4riXMjPY1H9T9Fx13G64dXv3XcjTZUT5xZQ7U27qoehzl2+wcBePI2eyARA
+         qWh2I6xurdpMbls7CzAyFKLhUUOGxqXicv/zqdFs6xTNsbgozoMfnUDIy4xllSUG+k
+         meFtXStr+hquqOHPEArkmBc/J8Ti+ocxYlmCpk9Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vasily Averin <vvs@virtuozzo.com>,
-        Pablo Neira Ayuso <pablo@netfilter.org>
-Subject: [PATCH 5.4 066/123] netfilter: xt_recent: recent_seq_next should increase position index
+        stable@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
+        Fugang Duan <fugang.duan@nxp.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 44/89] net: fec: validate the new settings in fec_enet_set_coalesce()
 Date:   Tue, 17 Mar 2020 11:54:53 +0100
-Message-Id: <20200317103314.304968436@linuxfoundation.org>
+Message-Id: <20200317103305.045771395@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200317103307.343627747@linuxfoundation.org>
-References: <20200317103307.343627747@linuxfoundation.org>
+In-Reply-To: <20200317103259.744774526@linuxfoundation.org>
+References: <20200317103259.744774526@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,61 +44,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasily Averin <vvs@virtuozzo.com>
+From: Jakub Kicinski <kuba@kernel.org>
 
-commit db25517a550926f609c63054b12ea9ad515e1a10 upstream.
+[ Upstream commit ab14961d10d02d20767612c78ce148f6eb85bd58 ]
 
-If .next function does not change position index,
-following .show function will repeat output related
-to current position index.
+fec_enet_set_coalesce() validates the previously set params
+and if they are within range proceeds to apply the new ones.
+The new ones, however, are not validated. This seems backwards,
+probably a copy-paste error?
 
-Without the patch:
- # dd if=/proc/net/xt_recent/SSH # original file outpt
- src=127.0.0.4 ttl: 0 last_seen: 6275444819 oldest_pkt: 1 6275444819
- src=127.0.0.2 ttl: 0 last_seen: 6275438906 oldest_pkt: 1 6275438906
- src=127.0.0.3 ttl: 0 last_seen: 6275441953 oldest_pkt: 1 6275441953
- 0+1 records in
- 0+1 records out
- 204 bytes copied, 6.1332e-05 s, 3.3 MB/s
+Compile tested only.
 
-Read after lseek into middle of last line (offset 140 in example below)
-generates expected end of last line and then unexpected whole last line
-once again
-
- # dd if=/proc/net/xt_recent/SSH bs=140 skip=1
- dd: /proc/net/xt_recent/SSH: cannot skip to specified offset
- 127.0.0.3 ttl: 0 last_seen: 6275441953 oldest_pkt: 1 6275441953
- src=127.0.0.3 ttl: 0 last_seen: 6275441953 oldest_pkt: 1 6275441953
- 0+1 records in
- 0+1 records out
- 132 bytes copied, 6.2487e-05 s, 2.1 MB/s
-
-Cc: stable@vger.kernel.org
-Fixes: 1f4aace60b0e ("fs/seq_file.c: simplify seq_file iteration code ...")
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=206283
-Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Fixes: d851b47b22fc ("net: fec: add interrupt coalescence feature support")
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Acked-by: Fugang Duan <fugang.duan@nxp.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- net/netfilter/xt_recent.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/freescale/fec_main.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/net/netfilter/xt_recent.c
-+++ b/net/netfilter/xt_recent.c
-@@ -492,12 +492,12 @@ static void *recent_seq_next(struct seq_
- 	const struct recent_entry *e = v;
- 	const struct list_head *head = e->list.next;
- 
-+	(*pos)++;
- 	while (head == &t->iphash[st->bucket]) {
- 		if (++st->bucket >= ip_list_hash_size)
- 			return NULL;
- 		head = t->iphash[st->bucket].next;
+--- a/drivers/net/ethernet/freescale/fec_main.c
++++ b/drivers/net/ethernet/freescale/fec_main.c
+@@ -2476,15 +2476,15 @@ fec_enet_set_coalesce(struct net_device
+ 		return -EINVAL;
  	}
--	(*pos)++;
- 	return list_entry(head, struct recent_entry, list);
- }
+ 
+-	cycle = fec_enet_us_to_itr_clock(ndev, fep->rx_time_itr);
++	cycle = fec_enet_us_to_itr_clock(ndev, ec->rx_coalesce_usecs);
+ 	if (cycle > 0xFFFF) {
+ 		pr_err("Rx coalesced usec exceed hardware limitation\n");
+ 		return -EINVAL;
+ 	}
+ 
+-	cycle = fec_enet_us_to_itr_clock(ndev, fep->tx_time_itr);
++	cycle = fec_enet_us_to_itr_clock(ndev, ec->tx_coalesce_usecs);
+ 	if (cycle > 0xFFFF) {
+-		pr_err("Rx coalesced usec exceed hardware limitation\n");
++		pr_err("Tx coalesced usec exceed hardware limitation\n");
+ 		return -EINVAL;
+ 	}
  
 
 
