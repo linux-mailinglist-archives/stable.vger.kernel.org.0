@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DDA45187FF5
-	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:06:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1043F188202
+	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:22:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727749AbgCQLGE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Mar 2020 07:06:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47060 "EHLO mail.kernel.org"
+        id S1727306AbgCQK6o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Mar 2020 06:58:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36960 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726879AbgCQLGD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Mar 2020 07:06:03 -0400
+        id S1726895AbgCQK6o (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Mar 2020 06:58:44 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9D12D20714;
-        Tue, 17 Mar 2020 11:06:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3228220658;
+        Tue, 17 Mar 2020 10:58:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584443163;
-        bh=2gNUVrFf3z0eqzjHAqn4loYBqESHZkwaMZOw7bbK8Vc=;
+        s=default; t=1584442723;
+        bh=3ycDTyYxwd9o60qmSo4rqdbhWA24xLo12HZR6LR5HMk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OX3gx1JM6kellXBh8BpemvuCqhnUKYWv7eQqVRUVamihbxJZjsGo+79BC3WXd2/zk
-         TvUVHiuJPwfXbgezQ6jPN7O3q0zEVZ2M60mNKz8qtqT56ElvcDzEPzz6Dpjrw5lWcf
-         T0rRww8COO9NbMtG5PWj8xbs/JDDFV/D5AoPnDx0=
+        b=J8wCwNOXLsBFoqJjzhyq9aKG6Eoz+a7oCTVLCzljNeAK9NydB5BRqm+ruCpvnpYnC
+         vQf0QoO3WFOem9/GVuI+fZDFXtueZRRgF12nmJFZ8pplmoPCtes51VuwdnAuCkwkQz
+         SMcItbG+iehng3r13ZH4sq8seP1UvnRJ+7UyYzng=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kyle Sanderson <kyle.leet@gmail.com>,
-        Michael Stapelberg <michael+lkml@stapelberg.ch>,
-        Miklos Szeredi <mszeredi@redhat.com>
-Subject: [PATCH 5.4 080/123] fuse: fix stack use after return
+        stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>,
+        stable@kernel.org
+Subject: [PATCH 4.19 58/89] cifs_atomic_open(): fix double-put on late allocation failure
 Date:   Tue, 17 Mar 2020 11:55:07 +0100
-Message-Id: <20200317103315.648900423@linuxfoundation.org>
+Message-Id: <20200317103306.570296679@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200317103307.343627747@linuxfoundation.org>
-References: <20200317103307.343627747@linuxfoundation.org>
+In-Reply-To: <20200317103259.744774526@linuxfoundation.org>
+References: <20200317103259.744774526@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,81 +43,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miklos Szeredi <mszeredi@redhat.com>
+From: Al Viro <viro@zeniv.linux.org.uk>
 
-commit 3e8cb8b2eaeb22f540f1cbc00cbb594047b7ba89 upstream.
+commit d9a9f4849fe0c9d560851ab22a85a666cddfdd24 upstream.
 
-Normal, synchronous requests will have their args allocated on the stack.
-After the FR_FINISHED bit is set by receiving the reply from the userspace
-fuse server, the originating task may return and reuse the stack frame,
-resulting in an Oops if the args structure is dereferenced.
+several iterations of ->atomic_open() calling conventions ago, we
+used to need fput() if ->atomic_open() failed at some point after
+successful finish_open().  Now (since 2016) it's not needed -
+struct file carries enough state to make fput() work regardless
+of the point in struct file lifecycle and discarding it on
+failure exits in open() got unified.  Unfortunately, I'd missed
+the fact that we had an instance of ->atomic_open() (cifs one)
+that used to need that fput(), as well as the stale comment in
+finish_open() demanding such late failure handling.  Trivially
+fixed...
 
-Fix by setting a flag in the request itself upon initializing, indicating
-whether it has an asynchronous ->end() callback.
-
-Reported-by: Kyle Sanderson <kyle.leet@gmail.com>
-Reported-by: Michael Stapelberg <michael+lkml@stapelberg.ch>
-Fixes: 2b319d1f6f92 ("fuse: don't dereference req->args on finished request")
-Cc: <stable@vger.kernel.org> # v5.4
-Tested-by: Michael Stapelberg <michael+lkml@stapelberg.ch>
-Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
+Fixes: fe9ec8291fca "do_last(): take fput() on error after opening to out:"
+Cc: stable@kernel.org # v4.7+
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/fuse/dev.c    |    6 +++---
- fs/fuse/fuse_i.h |    2 ++
- 2 files changed, 5 insertions(+), 3 deletions(-)
+ Documentation/filesystems/porting |    7 +++++++
+ fs/cifs/dir.c                     |    1 -
+ fs/open.c                         |    3 ---
+ 3 files changed, 7 insertions(+), 4 deletions(-)
 
---- a/fs/fuse/dev.c
-+++ b/fs/fuse/dev.c
-@@ -276,12 +276,10 @@ static void flush_bg_queue(struct fuse_c
- void fuse_request_end(struct fuse_conn *fc, struct fuse_req *req)
- {
- 	struct fuse_iqueue *fiq = &fc->iq;
--	bool async;
- 
- 	if (test_and_set_bit(FR_FINISHED, &req->flags))
- 		goto put_request;
- 
--	async = req->args->end;
- 	/*
- 	 * test_and_set_bit() implies smp_mb() between bit
- 	 * changing and below intr_entry check. Pairs with
-@@ -324,7 +322,7 @@ void fuse_request_end(struct fuse_conn *
- 		wake_up(&req->waitq);
+--- a/Documentation/filesystems/porting
++++ b/Documentation/filesystems/porting
+@@ -627,3 +627,10 @@ in your dentry operations instead.
+ 	DCACHE_RCUACCESS is gone; having an RCU delay on dentry freeing is the
+ 	default.  DCACHE_NORCU opts out, and only d_alloc_pseudo() has any
+ 	business doing so.
++--
++[mandatory]
++
++	[should've been added in 2016] stale comment in finish_open()
++	nonwithstanding, failure exits in ->atomic_open() instances should
++	*NOT* fput() the file, no matter what.  Everything is handled by the
++	caller.
+--- a/fs/cifs/dir.c
++++ b/fs/cifs/dir.c
+@@ -561,7 +561,6 @@ cifs_atomic_open(struct inode *inode, st
+ 		if (server->ops->close)
+ 			server->ops->close(xid, tcon, &fid);
+ 		cifs_del_pending_open(&open);
+-		fput(file);
+ 		rc = -ENOMEM;
  	}
  
--	if (async)
-+	if (test_bit(FR_ASYNC, &req->flags))
- 		req->args->end(fc, req->args, req->out.h.error);
- put_request:
- 	fuse_put_request(fc, req);
-@@ -471,6 +469,8 @@ static void fuse_args_to_req(struct fuse
- 	req->in.h.opcode = args->opcode;
- 	req->in.h.nodeid = args->nodeid;
- 	req->args = args;
-+	if (args->end)
-+		__set_bit(FR_ASYNC, &req->flags);
- }
- 
- ssize_t fuse_simple_request(struct fuse_conn *fc, struct fuse_args *args)
---- a/fs/fuse/fuse_i.h
-+++ b/fs/fuse/fuse_i.h
-@@ -301,6 +301,7 @@ struct fuse_io_priv {
-  * FR_SENT:		request is in userspace, waiting for an answer
-  * FR_FINISHED:		request is finished
-  * FR_PRIVATE:		request is on private list
-+ * FR_ASYNC:		request is asynchronous
+--- a/fs/open.c
++++ b/fs/open.c
+@@ -851,9 +851,6 @@ cleanup_file:
+  * the return value of d_splice_alias(), then the caller needs to perform dput()
+  * on it after finish_open().
+  *
+- * On successful return @file is a fully instantiated open file.  After this, if
+- * an error occurs in ->atomic_open(), it needs to clean up with fput().
+- *
+  * Returns zero on success or -errno if the open failed.
   */
- enum fuse_req_flag {
- 	FR_ISREPLY,
-@@ -314,6 +315,7 @@ enum fuse_req_flag {
- 	FR_SENT,
- 	FR_FINISHED,
- 	FR_PRIVATE,
-+	FR_ASYNC,
- };
- 
- /**
+ int finish_open(struct file *file, struct dentry *dentry,
 
 
