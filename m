@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D9A99188002
-	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:06:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2EA951880FE
+	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:15:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728594AbgCQLGZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Mar 2020 07:06:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47562 "EHLO mail.kernel.org"
+        id S1729190AbgCQLNJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Mar 2020 07:13:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56824 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726596AbgCQLGY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Mar 2020 07:06:24 -0400
+        id S1729139AbgCQLNG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Mar 2020 07:13:06 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2E22F20658;
-        Tue, 17 Mar 2020 11:06:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4BCD120714;
+        Tue, 17 Mar 2020 11:13:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584443183;
-        bh=BzV1Hk4+TCda+cm8PDvDZzplYkCHdjRvG+dQ6nC0zuM=;
+        s=default; t=1584443584;
+        bh=6QbLSHB+X7jttnfEC1YPIO8cco39AnpBfs8uHoD+5N4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LTyg5dePoqw+wSopZY+zyAKNZES0khASQgsOFcLXc4nkyUCyGwYc/5nqjN2orC/ps
-         ogNNJeSFNWadZGhEysZTjzdZEKqMRb5Hw59E5a0xLiwHuZLO7ZlIWoLYvYZK5FFvcB
-         eHxagrxLifTrHOQScy0tF23rLm8GuTEjmzqRwjx0=
+        b=CtGEWangYtA5Uc/PqsJIjsR/Svs1ZOdhH9yu+2oN2OV1M7EkGkA7wt1Cs+mV23Kl2
+         2IkVKHgIzzerfR+kjwFLNJZQjfktCSQNFaOuF3D+OLRNT5lGS87rJi5Ny4xBDx9py4
+         4AThFkBnJs7kj/YmtW1ukiACR79QYs7BH5abpYzM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
-        Pablo Neira Ayuso <pablo@netfilter.org>
-Subject: [PATCH 5.4 114/123] netfilter: nft_tunnel: add missing attribute validation for tunnels
+        stable@vger.kernel.org,
+        Charles Keepax <ckeepax@opensource.cirrus.com>,
+        Linus Walleij <linus.walleij@linaro.org>
+Subject: [PATCH 5.5 131/151] pinctrl: core: Remove extra kref_get which blocks hogs being freed
 Date:   Tue, 17 Mar 2020 11:55:41 +0100
-Message-Id: <20200317103319.059454481@linuxfoundation.org>
+Message-Id: <20200317103335.747773225@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200317103307.343627747@linuxfoundation.org>
-References: <20200317103307.343627747@linuxfoundation.org>
+In-Reply-To: <20200317103326.593639086@linuxfoundation.org>
+References: <20200317103326.593639086@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,32 +44,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakub Kicinski <kuba@kernel.org>
+From: Charles Keepax <ckeepax@opensource.cirrus.com>
 
-commit 88a637719a1570705c02cacb3297af164b1714e7 upstream.
+commit aafd56fc79041bf36f97712d4b35208cbe07db90 upstream.
 
-Add missing attribute validation for tunnel source and
-destination ports to the netlink policy.
+kref_init starts with the reference count at 1, which will be balanced
+by the pinctrl_put in pinctrl_unregister. The additional kref_get in
+pinctrl_claim_hogs will increase this count to 2 and cause the hogs to
+not get freed when pinctrl_unregister is called.
 
-Fixes: af308b94a2a4 ("netfilter: nf_tables: add tunnel support")
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Fixes: 6118714275f0 ("pinctrl: core: Fix pinctrl_register_and_init() with pinctrl_enable()")
+Signed-off-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+Link: https://lore.kernel.org/r/20200228154142.13860-1-ckeepax@opensource.cirrus.com
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/netfilter/nft_tunnel.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/pinctrl/core.c |    1 -
+ 1 file changed, 1 deletion(-)
 
---- a/net/netfilter/nft_tunnel.c
-+++ b/net/netfilter/nft_tunnel.c
-@@ -339,6 +339,8 @@ static const struct nla_policy nft_tunne
- 	[NFTA_TUNNEL_KEY_FLAGS]	= { .type = NLA_U32, },
- 	[NFTA_TUNNEL_KEY_TOS]	= { .type = NLA_U8, },
- 	[NFTA_TUNNEL_KEY_TTL]	= { .type = NLA_U8, },
-+	[NFTA_TUNNEL_KEY_SPORT]	= { .type = NLA_U16, },
-+	[NFTA_TUNNEL_KEY_DPORT]	= { .type = NLA_U16, },
- 	[NFTA_TUNNEL_KEY_OPTS]	= { .type = NLA_NESTED, },
- };
+--- a/drivers/pinctrl/core.c
++++ b/drivers/pinctrl/core.c
+@@ -2025,7 +2025,6 @@ static int pinctrl_claim_hogs(struct pin
+ 		return PTR_ERR(pctldev->p);
+ 	}
  
+-	kref_get(&pctldev->p->users);
+ 	pctldev->hog_default =
+ 		pinctrl_lookup_state(pctldev->p, PINCTRL_STATE_DEFAULT);
+ 	if (IS_ERR(pctldev->hog_default)) {
 
 
