@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4629F1881D1
-	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:20:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EE21E18802A
+	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:07:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727639AbgCQLAm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Mar 2020 07:00:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40008 "EHLO mail.kernel.org"
+        id S1728762AbgCQLHs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Mar 2020 07:07:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49498 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727650AbgCQLAm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Mar 2020 07:00:42 -0400
+        id S1727967AbgCQLHq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Mar 2020 07:07:46 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4B8C420714;
-        Tue, 17 Mar 2020 11:00:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 90C2220658;
+        Tue, 17 Mar 2020 11:07:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584442841;
-        bh=Fsxsh6GAc/7ZsxzmgKx/2MhbtT42qSKJ3sGzD4I6uAE=;
+        s=default; t=1584443266;
+        bh=VQPy9jiV4UmWzcO8ej5BS2EhdLDKi8qaXf7kWYWLLRY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yqi2rwCRxpSVocKCBMcY3k8To9dEZv6X9fSEauYKeBGzYeIBxlLIRHC/Cas3YPIOL
-         SRFjPYBbqPXfhYhaCH6vb8rpine4c/QRen5MrrQO/41eYDw4AwgTHDfU0zE7c8ibTC
-         zIhE+WA/uohLI5thGQ2Z6J8oo1IpE/uukznyNMvc=
+        b=ZPrM4ak9V3ee3enFJ70FEQHXqC+hsYTp0Mc7+wJwVfab8cBRWweQHi+r90Hes/2mn
+         3/WNVdkPnKIYiwqhLB1Yw+94DWeMAJlAuz3REj5Ejc+6OWhJiBUPB0kIj3cTAkiiOs
+         WTaNVvbzQRefa/MKIf+A7qg3Ryyw5smjx2U/5FNQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Mahesh Bandewar <maheshb@google.com>,
+        stable@vger.kernel.org, You-Sheng Yang <vicamo.yang@canonical.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 011/123] ipvlan: do not use cond_resched_rcu() in ipvlan_process_multicast()
-Date:   Tue, 17 Mar 2020 11:53:58 +0100
-Message-Id: <20200317103308.800836942@linuxfoundation.org>
+Subject: [PATCH 5.5 029/151] r8152: check disconnect status after long sleep
+Date:   Tue, 17 Mar 2020 11:53:59 +0100
+Message-Id: <20200317103328.764789315@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200317103307.343627747@linuxfoundation.org>
-References: <20200317103307.343627747@linuxfoundation.org>
+In-Reply-To: <20200317103326.593639086@linuxfoundation.org>
+References: <20200317103326.593639086@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,43 +43,124 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: You-Sheng Yang <vicamo.yang@canonical.com>
 
-[ Upstream commit afe207d80a61e4d6e7cfa0611a4af46d0ba95628 ]
+[ Upstream commit d64c7a08034b32c285e576208ae44fc3ba3fa7df ]
 
-Commit e18b353f102e ("ipvlan: add cond_resched_rcu() while
-processing muticast backlog") added a cond_resched_rcu() in a loop
-using rcu protection to iterate over slaves.
+Dell USB Type C docking WD19/WD19DC attaches additional peripherals as:
 
-This is breaking rcu rules, so lets instead use cond_resched()
-at a point we can reschedule
+  /: Bus 02.Port 1: Dev 1, Class=root_hub, Driver=xhci_hcd/6p, 5000M
+      |__ Port 1: Dev 11, If 0, Class=Hub, Driver=hub/4p, 5000M
+          |__ Port 3: Dev 12, If 0, Class=Hub, Driver=hub/4p, 5000M
+          |__ Port 4: Dev 13, If 0, Class=Vendor Specific Class,
+              Driver=r8152, 5000M
 
-Fixes: e18b353f102e ("ipvlan: add cond_resched_rcu() while processing muticast backlog")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: Mahesh Bandewar <maheshb@google.com>
+where usb 2-1-3 is a hub connecting all USB Type-A/C ports on the dock.
+
+When hotplugging such dock with additional usb devices already attached on
+it, the probing process may reset usb 2.1 port, therefore r8152 ethernet
+device is also reset. However, during r8152 device init there are several
+for-loops that, when it's unable to retrieve hardware registers due to
+being disconnected from USB, may take up to 14 seconds each in practice,
+and that has to be completed before USB may re-enumerate devices on the
+bus. As a result, devices attached to the dock will only be available
+after nearly 1 minute after the dock was plugged in:
+
+  [ 216.388290] [250] r8152 2-1.4:1.0: usb_probe_interface
+  [ 216.388292] [250] r8152 2-1.4:1.0: usb_probe_interface - got id
+  [ 258.830410] r8152 2-1.4:1.0 (unnamed net_device) (uninitialized): PHY not ready
+  [ 258.830460] r8152 2-1.4:1.0 (unnamed net_device) (uninitialized): Invalid header when reading pass-thru MAC addr
+  [ 258.830464] r8152 2-1.4:1.0 (unnamed net_device) (uninitialized): Get ether addr fail
+
+This happens in, for example, r8153_init:
+
+  static int generic_ocp_read(struct r8152 *tp, u16 index, u16 size,
+			    void *data, u16 type)
+  {
+    if (test_bit(RTL8152_UNPLUG, &tp->flags))
+      return -ENODEV;
+    ...
+  }
+
+  static u16 ocp_read_word(struct r8152 *tp, u16 type, u16 index)
+  {
+    u32 data;
+    ...
+    generic_ocp_read(tp, index, sizeof(tmp), &tmp, type | byen);
+
+    data = __le32_to_cpu(tmp);
+    ...
+    return (u16)data;
+  }
+
+  static void r8153_init(struct r8152 *tp)
+  {
+    ...
+    if (test_bit(RTL8152_UNPLUG, &tp->flags))
+      return;
+
+    for (i = 0; i < 500; i++) {
+      if (ocp_read_word(tp, MCU_TYPE_PLA, PLA_BOOT_CTRL) &
+          AUTOLOAD_DONE)
+        break;
+      msleep(20);
+    }
+    ...
+  }
+
+Since ocp_read_word() doesn't check the return status of
+generic_ocp_read(), and the only exit condition for the loop is to have
+a match in the returned value, such loops will only ends after exceeding
+its maximum runs when the device has been marked as disconnected, which
+takes 500 * 20ms = 10 seconds in theory, 14 in practice.
+
+To solve this long latency another test to RTL8152_UNPLUG flag should be
+added after those 20ms sleep to skip unnecessary loops, so that the device
+probe can complete early and proceed to parent port reset/reprobe process.
+
+This can be reproduced on all kernel versions up to latest v5.6-rc2, but
+after v5.5-rc7 the reproduce rate is dramatically lowered to 1/30 or less
+while it was around 1/2.
+
+Signed-off-by: You-Sheng Yang <vicamo.yang@canonical.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ipvlan/ipvlan_core.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/usb/r8152.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
---- a/drivers/net/ipvlan/ipvlan_core.c
-+++ b/drivers/net/ipvlan/ipvlan_core.c
-@@ -277,7 +277,6 @@ void ipvlan_process_multicast(struct wor
- 			}
- 			ipvlan_count_rx(ipvlan, len, ret == NET_RX_SUCCESS, true);
- 			local_bh_enable();
--			cond_resched_rcu();
+--- a/drivers/net/usb/r8152.c
++++ b/drivers/net/usb/r8152.c
+@@ -3220,6 +3220,8 @@ static u16 r8153_phy_status(struct r8152
  		}
- 		rcu_read_unlock();
  
-@@ -294,6 +293,7 @@ void ipvlan_process_multicast(struct wor
- 		}
- 		if (dev)
- 			dev_put(dev);
-+		cond_resched();
+ 		msleep(20);
++		if (test_bit(RTL8152_UNPLUG, &tp->flags))
++			break;
  	}
- }
  
+ 	return data;
+@@ -5401,7 +5403,10 @@ static void r8153_init(struct r8152 *tp)
+ 		if (ocp_read_word(tp, MCU_TYPE_PLA, PLA_BOOT_CTRL) &
+ 		    AUTOLOAD_DONE)
+ 			break;
++
+ 		msleep(20);
++		if (test_bit(RTL8152_UNPLUG, &tp->flags))
++			break;
+ 	}
+ 
+ 	data = r8153_phy_status(tp, 0);
+@@ -5538,7 +5543,10 @@ static void r8153b_init(struct r8152 *tp
+ 		if (ocp_read_word(tp, MCU_TYPE_PLA, PLA_BOOT_CTRL) &
+ 		    AUTOLOAD_DONE)
+ 			break;
++
+ 		msleep(20);
++		if (test_bit(RTL8152_UNPLUG, &tp->flags))
++			break;
+ 	}
+ 
+ 	data = r8153_phy_status(tp, 0);
 
 
