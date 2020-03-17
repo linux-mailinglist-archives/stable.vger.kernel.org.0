@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E842188217
-	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:22:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 38D75187F7D
+	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:02:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725943AbgCQLWJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Mar 2020 07:22:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35300 "EHLO mail.kernel.org"
+        id S1727470AbgCQLBx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Mar 2020 07:01:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41336 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726077AbgCQK50 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Mar 2020 06:57:26 -0400
+        id S1727805AbgCQLBs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Mar 2020 07:01:48 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 41EC220724;
-        Tue, 17 Mar 2020 10:57:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 468CF205ED;
+        Tue, 17 Mar 2020 11:01:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584442645;
-        bh=nXgozMkuLoOhBNTl0mDmZ/R/xVKVI29dOWMN34GolFg=;
+        s=default; t=1584442907;
+        bh=gwOOFIba/Xe2ZhVi9dCWmL00lqjTQhUYPSCVHThL0QA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QlgOU+2giftc/wOgWlwV1HI6/vLmkqESXDIXSYQzjrq5eq3DYU8Pa3/oXY2nN+Lvn
-         qbJt5mFKbDknLXd7gcSS0EHjMpQzyMbTKBbk6DDdkKY7X3fH7rkoRmoQwrnS2Di4Lu
-         ZNCVNW3OLAn0nicB8Ja3U+IzPFgWgt7Z6R9O82NI=
+        b=efjMsxxKyROUkTiQi2XDdhigXuE+F1NHoZ7GTREOgxnMGiLropczNA0KKqC7WLAzp
+         pXcxgsMCi5KUBSwVGR7Q/I81JjecLjMOpvi0+cYTiVZHXSslGDHdKtsnrBsCdCKU6u
+         py/01Emuj86GrSJ4m+tg7r26qxbOE5qLM/3CiTAM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Per Sundstrom <per.sundstrom@redqube.se>,
-        Jiri Wiesner <jwiesner@suse.com>,
-        Eric Dumazet <edumazet@google.com>,
-        Mahesh Bandewar <maheshb@google.com>,
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
+        Jay Vosburgh <j.vosburgh@gmail.com>,
+        Veaceslav Falico <vfalico@gmail.com>,
+        Andy Gospodarek <andy@greyhouse.net>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 08/89] ipvlan: do not add hardware address of master to its unicast filter list
+Subject: [PATCH 5.4 030/123] bonding/alb: make sure arp header is pulled before accessing it
 Date:   Tue, 17 Mar 2020 11:54:17 +0100
-Message-Id: <20200317103300.806460880@linuxfoundation.org>
+Message-Id: <20200317103310.952894459@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200317103259.744774526@linuxfoundation.org>
-References: <20200317103259.744774526@linuxfoundation.org>
+In-Reply-To: <20200317103307.343627747@linuxfoundation.org>
+References: <20200317103307.343627747@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,70 +47,157 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Wiesner <jwiesner@suse.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 63aae7b17344d4b08a7d05cb07044de4c0f9dcc6 ]
+commit b7469e83d2add567e4e0b063963db185f3167cea upstream.
 
-There is a problem when ipvlan slaves are created on a master device that
-is a vmxnet3 device (ipvlan in VMware guests). The vmxnet3 driver does not
-support unicast address filtering. When an ipvlan device is brought up in
-ipvlan_open(), the ipvlan driver calls dev_uc_add() to add the hardware
-address of the vmxnet3 master device to the unicast address list of the
-master device, phy_dev->uc. This inevitably leads to the vmxnet3 master
-device being forced into promiscuous mode by __dev_set_rx_mode().
+Similar to commit 38f88c454042 ("bonding/alb: properly access headers
+in bond_alb_xmit()"), we need to make sure arp header was pulled
+in skb->head before blindly accessing it in rlb_arp_xmit().
 
-Promiscuous mode is switched on the master despite the fact that there is
-still only one hardware address that the master device should use for
-filtering in order for the ipvlan device to be able to receive packets.
-The comment above struct net_device describes the uc_promisc member as a
-"counter, that indicates, that promiscuous mode has been enabled due to
-the need to listen to additional unicast addresses in a device that does
-not implement ndo_set_rx_mode()". Moreover, the design of ipvlan
-guarantees that only the hardware address of a master device,
-phy_dev->dev_addr, will be used to transmit and receive all packets from
-its ipvlan slaves. Thus, the unicast address list of the master device
-should not be modified by ipvlan_open() and ipvlan_stop() in order to make
-ipvlan a workable option on masters that do not support unicast address
-filtering.
+Remove arp_pkt() private helper, since it is more readable/obvious
+to have the following construct back to back :
 
-Fixes: 2ad7bf3638411 ("ipvlan: Initial check-in of the IPVLAN driver")
-Reported-by: Per Sundstrom <per.sundstrom@redqube.se>
-Signed-off-by: Jiri Wiesner <jwiesner@suse.com>
-Reviewed-by: Eric Dumazet <edumazet@google.com>
-Acked-by: Mahesh Bandewar <maheshb@google.com>
+	if (!pskb_network_may_pull(skb, sizeof(*arp)))
+		return NULL;
+	arp = (struct arp_pkt *)skb_network_header(skb);
+
+syzbot reported :
+
+BUG: KMSAN: uninit-value in bond_slave_has_mac_rx include/net/bonding.h:704 [inline]
+BUG: KMSAN: uninit-value in rlb_arp_xmit drivers/net/bonding/bond_alb.c:662 [inline]
+BUG: KMSAN: uninit-value in bond_alb_xmit+0x575/0x25e0 drivers/net/bonding/bond_alb.c:1477
+CPU: 0 PID: 12743 Comm: syz-executor.4 Not tainted 5.6.0-rc2-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+Call Trace:
+ __dump_stack lib/dump_stack.c:77 [inline]
+ dump_stack+0x1c9/0x220 lib/dump_stack.c:118
+ kmsan_report+0xf7/0x1e0 mm/kmsan/kmsan_report.c:118
+ __msan_warning+0x58/0xa0 mm/kmsan/kmsan_instr.c:215
+ bond_slave_has_mac_rx include/net/bonding.h:704 [inline]
+ rlb_arp_xmit drivers/net/bonding/bond_alb.c:662 [inline]
+ bond_alb_xmit+0x575/0x25e0 drivers/net/bonding/bond_alb.c:1477
+ __bond_start_xmit drivers/net/bonding/bond_main.c:4257 [inline]
+ bond_start_xmit+0x85d/0x2f70 drivers/net/bonding/bond_main.c:4282
+ __netdev_start_xmit include/linux/netdevice.h:4524 [inline]
+ netdev_start_xmit include/linux/netdevice.h:4538 [inline]
+ xmit_one net/core/dev.c:3470 [inline]
+ dev_hard_start_xmit+0x531/0xab0 net/core/dev.c:3486
+ __dev_queue_xmit+0x37de/0x4220 net/core/dev.c:4063
+ dev_queue_xmit+0x4b/0x60 net/core/dev.c:4096
+ packet_snd net/packet/af_packet.c:2967 [inline]
+ packet_sendmsg+0x8347/0x93b0 net/packet/af_packet.c:2992
+ sock_sendmsg_nosec net/socket.c:652 [inline]
+ sock_sendmsg net/socket.c:672 [inline]
+ __sys_sendto+0xc1b/0xc50 net/socket.c:1998
+ __do_sys_sendto net/socket.c:2010 [inline]
+ __se_sys_sendto+0x107/0x130 net/socket.c:2006
+ __x64_sys_sendto+0x6e/0x90 net/socket.c:2006
+ do_syscall_64+0xb8/0x160 arch/x86/entry/common.c:296
+ entry_SYSCALL_64_after_hwframe+0x44/0xa9
+RIP: 0033:0x45c479
+Code: ad b6 fb ff c3 66 2e 0f 1f 84 00 00 00 00 00 66 90 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 0f 83 7b b6 fb ff c3 66 2e 0f 1f 84 00 00 00 00
+RSP: 002b:00007fc77ffbbc78 EFLAGS: 00000246 ORIG_RAX: 000000000000002c
+RAX: ffffffffffffffda RBX: 00007fc77ffbc6d4 RCX: 000000000045c479
+RDX: 000000000000000e RSI: 00000000200004c0 RDI: 0000000000000003
+RBP: 000000000076bf20 R08: 0000000000000000 R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000246 R12: 00000000ffffffff
+R13: 0000000000000a04 R14: 00000000004cc7b0 R15: 000000000076bf2c
+
+Uninit was created at:
+ kmsan_save_stack_with_flags mm/kmsan/kmsan.c:144 [inline]
+ kmsan_internal_poison_shadow+0x66/0xd0 mm/kmsan/kmsan.c:127
+ kmsan_slab_alloc+0x8a/0xe0 mm/kmsan/kmsan_hooks.c:82
+ slab_alloc_node mm/slub.c:2793 [inline]
+ __kmalloc_node_track_caller+0xb40/0x1200 mm/slub.c:4401
+ __kmalloc_reserve net/core/skbuff.c:142 [inline]
+ __alloc_skb+0x2fd/0xac0 net/core/skbuff.c:210
+ alloc_skb include/linux/skbuff.h:1051 [inline]
+ alloc_skb_with_frags+0x18c/0xa70 net/core/skbuff.c:5766
+ sock_alloc_send_pskb+0xada/0xc60 net/core/sock.c:2242
+ packet_alloc_skb net/packet/af_packet.c:2815 [inline]
+ packet_snd net/packet/af_packet.c:2910 [inline]
+ packet_sendmsg+0x66a0/0x93b0 net/packet/af_packet.c:2992
+ sock_sendmsg_nosec net/socket.c:652 [inline]
+ sock_sendmsg net/socket.c:672 [inline]
+ __sys_sendto+0xc1b/0xc50 net/socket.c:1998
+ __do_sys_sendto net/socket.c:2010 [inline]
+ __se_sys_sendto+0x107/0x130 net/socket.c:2006
+ __x64_sys_sendto+0x6e/0x90 net/socket.c:2006
+ do_syscall_64+0xb8/0x160 arch/x86/entry/common.c:296
+ entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Cc: Jay Vosburgh <j.vosburgh@gmail.com>
+Cc: Veaceslav Falico <vfalico@gmail.com>
+Cc: Andy Gospodarek <andy@greyhouse.net>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ipvlan/ipvlan_main.c |    5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
+ drivers/net/bonding/bond_alb.c |   20 ++++++++++----------
+ 1 file changed, 10 insertions(+), 10 deletions(-)
 
---- a/drivers/net/ipvlan/ipvlan_main.c
-+++ b/drivers/net/ipvlan/ipvlan_main.c
-@@ -236,7 +236,6 @@ static void ipvlan_uninit(struct net_dev
- static int ipvlan_open(struct net_device *dev)
- {
- 	struct ipvl_dev *ipvlan = netdev_priv(dev);
--	struct net_device *phy_dev = ipvlan->phy_dev;
- 	struct ipvl_addr *addr;
+--- a/drivers/net/bonding/bond_alb.c
++++ b/drivers/net/bonding/bond_alb.c
+@@ -50,11 +50,6 @@ struct arp_pkt {
+ };
+ #pragma pack()
  
- 	if (ipvlan->port->mode == IPVLAN_MODE_L3 ||
-@@ -250,7 +249,7 @@ static int ipvlan_open(struct net_device
- 		ipvlan_ht_addr_add(ipvlan, addr);
- 	rcu_read_unlock();
- 
--	return dev_uc_add(phy_dev, phy_dev->dev_addr);
-+	return 0;
+-static inline struct arp_pkt *arp_pkt(const struct sk_buff *skb)
+-{
+-	return (struct arp_pkt *)skb_network_header(skb);
+-}
+-
+ /* Forward declaration */
+ static void alb_send_learning_packets(struct slave *slave, u8 mac_addr[],
+ 				      bool strict_match);
+@@ -553,10 +548,11 @@ static void rlb_req_update_subnet_client
+ 	spin_unlock(&bond->mode_lock);
  }
  
- static int ipvlan_stop(struct net_device *dev)
-@@ -262,8 +261,6 @@ static int ipvlan_stop(struct net_device
- 	dev_uc_unsync(phy_dev, dev);
- 	dev_mc_unsync(phy_dev, dev);
+-static struct slave *rlb_choose_channel(struct sk_buff *skb, struct bonding *bond)
++static struct slave *rlb_choose_channel(struct sk_buff *skb,
++					struct bonding *bond,
++					const struct arp_pkt *arp)
+ {
+ 	struct alb_bond_info *bond_info = &(BOND_ALB_INFO(bond));
+-	struct arp_pkt *arp = arp_pkt(skb);
+ 	struct slave *assigned_slave, *curr_active_slave;
+ 	struct rlb_client_info *client_info;
+ 	u32 hash_index = 0;
+@@ -653,8 +649,12 @@ static struct slave *rlb_choose_channel(
+  */
+ static struct slave *rlb_arp_xmit(struct sk_buff *skb, struct bonding *bond)
+ {
+-	struct arp_pkt *arp = arp_pkt(skb);
+ 	struct slave *tx_slave = NULL;
++	struct arp_pkt *arp;
++
++	if (!pskb_network_may_pull(skb, sizeof(*arp)))
++		return NULL;
++	arp = (struct arp_pkt *)skb_network_header(skb);
  
--	dev_uc_del(phy_dev, phy_dev->dev_addr);
--
- 	rcu_read_lock();
- 	list_for_each_entry_rcu(addr, &ipvlan->addrs, anode)
- 		ipvlan_ht_addr_del(addr);
+ 	/* Don't modify or load balance ARPs that do not originate locally
+ 	 * (e.g.,arrive via a bridge).
+@@ -664,7 +664,7 @@ static struct slave *rlb_arp_xmit(struct
+ 
+ 	if (arp->op_code == htons(ARPOP_REPLY)) {
+ 		/* the arp must be sent on the selected rx channel */
+-		tx_slave = rlb_choose_channel(skb, bond);
++		tx_slave = rlb_choose_channel(skb, bond, arp);
+ 		if (tx_slave)
+ 			bond_hw_addr_copy(arp->mac_src, tx_slave->dev->dev_addr,
+ 					  tx_slave->dev->addr_len);
+@@ -676,7 +676,7 @@ static struct slave *rlb_arp_xmit(struct
+ 		 * When the arp reply is received the entry will be updated
+ 		 * with the correct unicast address of the client.
+ 		 */
+-		tx_slave = rlb_choose_channel(skb, bond);
++		tx_slave = rlb_choose_channel(skb, bond, arp);
+ 
+ 		/* The ARP reply packets must be delayed so that
+ 		 * they can cancel out the influence of the ARP request.
 
 
