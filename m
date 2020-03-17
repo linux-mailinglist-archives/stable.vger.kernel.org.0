@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 78482187F63
-	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:01:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D469F1881CE
+	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:20:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727690AbgCQLA7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Mar 2020 07:00:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40280 "EHLO mail.kernel.org"
+        id S1727673AbgCQLBB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Mar 2020 07:01:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40346 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727296AbgCQLA6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Mar 2020 07:00:58 -0400
+        id S1726823AbgCQLBB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Mar 2020 07:01:01 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B51DE20735;
-        Tue, 17 Mar 2020 11:00:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 39D0D20736;
+        Tue, 17 Mar 2020 11:01:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584442858;
-        bh=ORNsf8ifWYNyfXskgtLojG9pXI7P4qlT0Mdcgsoa344=;
+        s=default; t=1584442860;
+        bh=ttFVe+yP36IF+RprTIdY9BFpzGWzZDHW0WaLD4WWx9E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XDuK1qxfdRIH+bFRs3DcZjeSpbXCvI1Zv0WT2icqR3w2Mn27eAvxRIv5KVs7dyzzJ
-         6w4DqPT8TYtz5qBMwgA5zR/rGaVX2RX5ldTw8fq+U3ZGwnyAVsOlgoVd5K1F/3yuG9
-         gvDskzxxdWm87cU4UipXfzffInEJg1pTFHB5gCMs=
+        b=HUgh0dvJdduo5/70VabBqpdIJwTCEV4zqq9fdk77frZChNRacMnE2m78Q4FrKkMnJ
+         kQho31kDHmSpMqa/HX7YPapgFP4Lgwhi+qARuxnNPjcETROP+AopI4BwhjyCtmQWzL
+         z/ZcUZq+nWh1mA17iaCaxYxf8gqR8dnYyGGKsZoI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
-        Fugang Duan <fugang.duan@nxp.com>,
+        stable@vger.kernel.org, Jian Shen <shenjian15@huawei.com>,
+        Huazhong Tan <tanhuazhong@huawei.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 016/123] net: fec: validate the new settings in fec_enet_set_coalesce()
-Date:   Tue, 17 Mar 2020 11:54:03 +0100
-Message-Id: <20200317103309.387625321@linuxfoundation.org>
+Subject: [PATCH 5.4 017/123] net: hns3: fix a not link up issue when fibre port supports autoneg
+Date:   Tue, 17 Mar 2020 11:54:04 +0100
+Message-Id: <20200317103309.499210595@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200317103307.343627747@linuxfoundation.org>
 References: <20200317103307.343627747@linuxfoundation.org>
@@ -44,46 +44,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakub Kicinski <kuba@kernel.org>
+From: Jian Shen <shenjian15@huawei.com>
 
-[ Upstream commit ab14961d10d02d20767612c78ce148f6eb85bd58 ]
+[ Upstream commit 68e1006f618e509fc7869259fe83ceec4a95dac3 ]
 
-fec_enet_set_coalesce() validates the previously set params
-and if they are within range proceeds to apply the new ones.
-The new ones, however, are not validated. This seems backwards,
-probably a copy-paste error?
+When fibre port supports auto-negotiation, the IMP(Intelligent
+Management Process) processes the speed of auto-negotiation
+and the  user's speed separately.
+For below case, the port will get a not link up problem.
+step 1: disables auto-negotiation and sets speed to A, then
+the driver's MAC speed will be updated to A.
+step 2: enables auto-negotiation and MAC gets negotiated
+speed B, then the driver's MAC speed will be updated to B
+through querying in periodical task.
+step 3: MAC gets new negotiated speed A.
+step 4: disables auto-negotiation and sets speed to B before
+periodical task query new MAC speed A, the driver will  ignore
+the speed configuration.
 
-Compile tested only.
+This patch fixes it by skipping speed and duplex checking when
+fibre port supports auto-negotiation.
 
-Fixes: d851b47b22fc ("net: fec: add interrupt coalescence feature support")
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Acked-by: Fugang Duan <fugang.duan@nxp.com>
+Fixes: 22f48e24a23d ("net: hns3: add autoneg and change speed support for fibre port")
+Signed-off-by: Jian Shen <shenjian15@huawei.com>
+Signed-off-by: Huazhong Tan <tanhuazhong@huawei.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/freescale/fec_main.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/freescale/fec_main.c
-+++ b/drivers/net/ethernet/freescale/fec_main.c
-@@ -2529,15 +2529,15 @@ fec_enet_set_coalesce(struct net_device
- 		return -EINVAL;
- 	}
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+@@ -2417,10 +2417,12 @@ static int hclge_cfg_mac_speed_dup_hw(st
  
--	cycle = fec_enet_us_to_itr_clock(ndev, fep->rx_time_itr);
-+	cycle = fec_enet_us_to_itr_clock(ndev, ec->rx_coalesce_usecs);
- 	if (cycle > 0xFFFF) {
- 		dev_err(dev, "Rx coalesced usec exceed hardware limitation\n");
- 		return -EINVAL;
- 	}
+ int hclge_cfg_mac_speed_dup(struct hclge_dev *hdev, int speed, u8 duplex)
+ {
++	struct hclge_mac *mac = &hdev->hw.mac;
+ 	int ret;
  
--	cycle = fec_enet_us_to_itr_clock(ndev, fep->tx_time_itr);
-+	cycle = fec_enet_us_to_itr_clock(ndev, ec->tx_coalesce_usecs);
- 	if (cycle > 0xFFFF) {
--		dev_err(dev, "Rx coalesced usec exceed hardware limitation\n");
-+		dev_err(dev, "Tx coalesced usec exceed hardware limitation\n");
- 		return -EINVAL;
- 	}
+ 	duplex = hclge_check_speed_dup(duplex, speed);
+-	if (hdev->hw.mac.speed == speed && hdev->hw.mac.duplex == duplex)
++	if (!mac->support_autoneg && mac->speed == speed &&
++	    mac->duplex == duplex)
+ 		return 0;
  
+ 	ret = hclge_cfg_mac_speed_dup_hw(hdev, speed, duplex);
 
 
