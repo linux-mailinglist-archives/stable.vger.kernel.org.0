@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 09883188114
-	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:15:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 39C271881DD
+	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:21:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729352AbgCQLMC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Mar 2020 07:12:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55586 "EHLO mail.kernel.org"
+        id S1726898AbgCQLUm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Mar 2020 07:20:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39224 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727923AbgCQLMB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Mar 2020 07:12:01 -0400
+        id S1727197AbgCQLAO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Mar 2020 07:00:14 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3A5C12071C;
-        Tue, 17 Mar 2020 11:12:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 93CBA20735;
+        Tue, 17 Mar 2020 11:00:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584443520;
-        bh=OBlJkf5LEBooOxz/pRfGnBAjEMUlZH/6MyYD1wLrYug=;
+        s=default; t=1584442813;
+        bh=8tP4Wy5Mqe+StvbEWqXSmjFbusq612Fy3HwGfuIRrtI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vQUbnzGXU8oOrfP24p8wzmk7UD35Osk+OP65LOLGk8NnJKVzvX5c++QL1q3Z5IJeF
-         KL54XeERSzo0Hq4gMQCkFLP7JH1DZ90L7dX2pv+96qmHjkkQ87BiLFN6sCq2RKXEgi
-         67G6bBPtsO4C5u1YqOT9Qp4K+VV2yC8/Jvkl4Wzk=
+        b=EURuTlqsBlsca5z64422TI6p86fgsbxNk4PuSz7rJWg52E2f1hhM9N/1bGDlEpOP7
+         4PndseVP2nroRtduJ9s8Gws0J1y4PxQuL4tRC+fWgrsV+pkbtL9VEv5Y38Xzq2F2tU
+         V9ylD4hoQgXuyYWKT1c3bBze7XZYozUld9bqvy+E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Corey Minyard <cminyard@mvista.com>,
-        Christian Brauner <christian.brauner@ubuntu.com>,
-        Andrei Vagin <avagin@gmail.com>,
-        Dmitry Safonov <0x7f454c46@gmail.com>,
-        Oleg Nesterov <oleg@redhat.com>,
-        Adrian Reber <areber@redhat.com>
-Subject: [PATCH 5.5 110/151] pid: Fix error return value in some cases
+        stable@vger.kernel.org, Jerome Brunet <jbrunet@baylibre.com>,
+        Nicolas Belin <nbelin@baylibre.com>,
+        Linus Walleij <linus.walleij@linaro.org>
+Subject: [PATCH 4.19 71/89] pinctrl: meson-gxl: fix GPIOX sdio pins
 Date:   Tue, 17 Mar 2020 11:55:20 +0100
-Message-Id: <20200317103334.271538396@linuxfoundation.org>
+Message-Id: <20200317103308.124815054@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200317103326.593639086@linuxfoundation.org>
-References: <20200317103326.593639086@linuxfoundation.org>
+In-Reply-To: <20200317103259.744774526@linuxfoundation.org>
+References: <20200317103259.744774526@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,47 +44,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Corey Minyard <cminyard@mvista.com>
+From: Nicolas Belin <nbelin@baylibre.com>
 
-commit b26ebfe12f34f372cf041c6f801fa49c3fb382c5 upstream.
+commit dc7a06b0dbbafac8623c2b7657e61362f2f479a7 upstream.
 
-Recent changes to alloc_pid() allow the pid number to be specified on
-the command line.  If set_tid_size is set, then the code scanning the
-levels will hard-set retval to -EPERM, overriding it's previous -ENOMEM
-value.
+In the gxl driver, the sdio cmd and clk pins are inverted. It has not caused
+any issue so far because devices using these pins always take both pins
+so the resulting configuration is OK.
 
-After the code scanning the levels, there are error returns that do not
-set retval, assuming it is still set to -ENOMEM.
-
-So set retval back to -ENOMEM after scanning the levels.
-
-Fixes: 49cb2fc42ce4 ("fork: extend clone3() to support setting a PID")
-Signed-off-by: Corey Minyard <cminyard@mvista.com>
-Acked-by: Christian Brauner <christian.brauner@ubuntu.com>
-Cc: Andrei Vagin <avagin@gmail.com>
-Cc: Dmitry Safonov <0x7f454c46@gmail.com>
-Cc: Oleg Nesterov <oleg@redhat.com>
-Cc: Adrian Reber <areber@redhat.com>
-Cc: <stable@vger.kernel.org> # 5.5
-Link: https://lore.kernel.org/r/20200306172314.12232-1-minyard@acm.org
-[christian.brauner@ubuntu.com: fixup commit message]
-Signed-off-by: Christian Brauner <christian.brauner@ubuntu.com>
+Fixes: 0f15f500ff2c ("pinctrl: meson: Add GXL pinctrl definitions")
+Reviewed-by: Jerome Brunet <jbrunet@baylibre.com>
+Signed-off-by: Nicolas Belin <nbelin@baylibre.com>
+Link: https://lore.kernel.org/r/1582204512-7582-1-git-send-email-nbelin@baylibre.com
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/pid.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/pinctrl/meson/pinctrl-meson-gxl.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/kernel/pid.c
-+++ b/kernel/pid.c
-@@ -247,6 +247,8 @@ struct pid *alloc_pid(struct pid_namespa
- 		tmp = tmp->parent;
- 	}
+--- a/drivers/pinctrl/meson/pinctrl-meson-gxl.c
++++ b/drivers/pinctrl/meson/pinctrl-meson-gxl.c
+@@ -153,8 +153,8 @@ static const unsigned int sdio_d0_pins[]
+ static const unsigned int sdio_d1_pins[]	= { GPIOX_1 };
+ static const unsigned int sdio_d2_pins[]	= { GPIOX_2 };
+ static const unsigned int sdio_d3_pins[]	= { GPIOX_3 };
+-static const unsigned int sdio_cmd_pins[]	= { GPIOX_4 };
+-static const unsigned int sdio_clk_pins[]	= { GPIOX_5 };
++static const unsigned int sdio_clk_pins[]	= { GPIOX_4 };
++static const unsigned int sdio_cmd_pins[]	= { GPIOX_5 };
+ static const unsigned int sdio_irq_pins[]	= { GPIOX_7 };
  
-+	retval = -ENOMEM;
-+
- 	if (unlikely(is_child_reaper(pid))) {
- 		if (pid_ns_prepare_proc(ns))
- 			goto out_free;
+ static const unsigned int nand_ce0_pins[]	= { BOOT_8 };
 
 
