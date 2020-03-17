@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B5E16188128
-	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:16:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5CCAD18816E
+	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:20:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726823AbgCQLPt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Mar 2020 07:15:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54768 "EHLO mail.kernel.org"
+        id S1727952AbgCQLCc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Mar 2020 07:02:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42254 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729280AbgCQLLb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Mar 2020 07:11:31 -0400
+        id S1727599AbgCQLCc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Mar 2020 07:02:32 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C2F71206EC;
-        Tue, 17 Mar 2020 11:11:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 59DDC20658;
+        Tue, 17 Mar 2020 11:02:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584443491;
-        bh=BfLh4mencLEEX7QTqGjNAjpSEfEMiyfGPOInP3e4sC4=;
+        s=default; t=1584442951;
+        bh=rCxr4K/N59KhZyFRqorm0dIMTTggBZx5JIJyZcTgR18=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aPAdok4FgouviY1uYo66f7vD4iBsOMKpgTfJiadmWjFIKAxlITUkkb72Q3E11HzZU
-         dEe0WdmMAzKzaTrApz8a13q7KC3CG4ZAvMQJrTaa1JGoTUgSa0/OHSeSEg000MNCmH
-         D0wU1Pbfh0HvyctExhWN0TSYP3hrKNthRq3UJF7U=
+        b=x4Qls7FK54uY4auWQPU+hNbBB3NaINw9NjPFPgRleUDKU3r9Car8fY4HOU+YO7nxO
+         Pw9GbXnbWRXABidIi4qez8Wh32efZY0x+xD4rHQKPskgDqZpV9qi/e6S8wTf4JY3/e
+         3E81nJeyuI7dekBCG2atrb3ZcLw1uEefRoK5R9DM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>,
-        Heiner Kallweit <hkallweit1@gmail.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
+        stable@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
+        Jiri Pirko <jiri@mellanox.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.5 063/151] net: phy: fix MDIO bus PM PHY resuming
+Subject: [PATCH 5.4 046/123] team: add missing attribute validation for array index
 Date:   Tue, 17 Mar 2020 11:54:33 +0100
-Message-Id: <20200317103331.004674095@linuxfoundation.org>
+Message-Id: <20200317103312.481724524@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200317103326.593639086@linuxfoundation.org>
-References: <20200317103326.593639086@linuxfoundation.org>
+In-Reply-To: <20200317103307.343627747@linuxfoundation.org>
+References: <20200317103307.343627747@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,72 +44,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heiner Kallweit <hkallweit1@gmail.com>
+From: Jakub Kicinski <kuba@kernel.org>
 
-[ Upstream commit 611d779af7cad2b87487ff58e4931a90c20b113c ]
+[ Upstream commit 669fcd7795900cd1880237cbbb57a7db66cb9ac8 ]
 
-So far we have the unfortunate situation that mdio_bus_phy_may_suspend()
-is called in suspend AND resume path, assuming that function result is
-the same. After the original change this is no longer the case,
-resulting in broken resume as reported by Geert.
+Add missing attribute validation for TEAM_ATTR_OPTION_ARRAY_INDEX
+to the netlink policy.
 
-To fix this call mdio_bus_phy_may_suspend() in the suspend path only,
-and let the phy_device store the info whether it was suspended by
-MDIO bus PM.
-
-Fixes: 503ba7c69610 ("net: phy: Avoid multiple suspends")
-Reported-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Tested-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Fixes: b13033262d24 ("team: introduce array options")
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Reviewed-by: Jiri Pirko <jiri@mellanox.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/phy/phy_device.c |    6 +++++-
- include/linux/phy.h          |    2 ++
- 2 files changed, 7 insertions(+), 1 deletion(-)
+ drivers/net/team/team.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/net/phy/phy_device.c
-+++ b/drivers/net/phy/phy_device.c
-@@ -285,6 +285,8 @@ static int mdio_bus_phy_suspend(struct d
- 	if (!mdio_bus_phy_may_suspend(phydev))
- 		return 0;
+--- a/drivers/net/team/team.c
++++ b/drivers/net/team/team.c
+@@ -2241,6 +2241,7 @@ team_nl_option_policy[TEAM_ATTR_OPTION_M
+ 	[TEAM_ATTR_OPTION_TYPE]			= { .type = NLA_U8 },
+ 	[TEAM_ATTR_OPTION_DATA]			= { .type = NLA_BINARY },
+ 	[TEAM_ATTR_OPTION_PORT_IFINDEX]		= { .type = NLA_U32 },
++	[TEAM_ATTR_OPTION_ARRAY_INDEX]		= { .type = NLA_U32 },
+ };
  
-+	phydev->suspended_by_mdio_bus = 1;
-+
- 	return phy_suspend(phydev);
- }
- 
-@@ -293,9 +295,11 @@ static int mdio_bus_phy_resume(struct de
- 	struct phy_device *phydev = to_phy_device(dev);
- 	int ret;
- 
--	if (!mdio_bus_phy_may_suspend(phydev))
-+	if (!phydev->suspended_by_mdio_bus)
- 		goto no_resume;
- 
-+	phydev->suspended_by_mdio_bus = 0;
-+
- 	ret = phy_resume(phydev);
- 	if (ret < 0)
- 		return ret;
---- a/include/linux/phy.h
-+++ b/include/linux/phy.h
-@@ -338,6 +338,7 @@ struct phy_c45_device_ids {
-  * is_gigabit_capable: Set to true if PHY supports 1000Mbps
-  * has_fixups: Set to true if this phy has fixups/quirks.
-  * suspended: Set to true if this phy has been suspended successfully.
-+ * suspended_by_mdio_bus: Set to true if this phy was suspended by MDIO bus.
-  * sysfs_links: Internal boolean tracking sysfs symbolic links setup/removal.
-  * loopback_enabled: Set true if this phy has been loopbacked successfully.
-  * state: state of the PHY for management purposes
-@@ -376,6 +377,7 @@ struct phy_device {
- 	unsigned is_gigabit_capable:1;
- 	unsigned has_fixups:1;
- 	unsigned suspended:1;
-+	unsigned suspended_by_mdio_bus:1;
- 	unsigned sysfs_links:1;
- 	unsigned loopback_enabled:1;
- 
+ static int team_nl_cmd_noop(struct sk_buff *skb, struct genl_info *info)
 
 
