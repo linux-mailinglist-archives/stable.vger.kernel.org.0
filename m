@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 696CA1880C9
-	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:13:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 844A5188203
+	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:22:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728909AbgCQLNW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Mar 2020 07:13:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57202 "EHLO mail.kernel.org"
+        id S1727318AbgCQK65 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Mar 2020 06:58:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37146 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727006AbgCQLNW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Mar 2020 07:13:22 -0400
+        id S1726847AbgCQK6w (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Mar 2020 06:58:52 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2920F205ED;
-        Tue, 17 Mar 2020 11:13:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 05CA820714;
+        Tue, 17 Mar 2020 10:58:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584443601;
-        bh=zphD7xWxF3vzvefnjvXiEr6n5KrtXX40M4jj2Al7Ir4=;
+        s=default; t=1584442732;
+        bh=BHl61XVaYiiLrL3vc3daOyenv1prkPnf9dqKV9w6+nc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1OOpeAe15UEba1asdOoJVtR7Am5Nvyo2txKqyr8Aj+KVGdN4uuOHafMwIc5FxT7p0
-         0Zw7iGoGc1MSQjPHpTM3sCo0p2Q6v52LIUTyOOGWX80X737V+unn0OPGgtavaX8xAP
-         T+UmogIGKBYcCxrur6Y/3STkYabVIScv2ozwI8Hs=
+        b=xQXtBjcMiet+FeW+EeoC91Mu5rV9Yu69/FwxR2PcG5Wek+ad4R9f9pYb77q1nPz4H
+         nwsFnBL/xYzzleFVq3/XEsBYfAQCamvOFf2j2Z1RABMYAdOj6czTTWmS7HoRMxnJqC
+         DshArtNS0gVMw5lpPJbDtOPKCAx7ORBW7jg0FBNM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Vineet Gupta <vgupta@synopsys.com>,
         Eugeniy Paltsev <Eugeniy.Paltsev@synopsys.com>
-Subject: [PATCH 5.5 100/151] ARC: define __ALIGN_STR and __ALIGN symbols for ARC
+Subject: [PATCH 4.19 61/89] ARC: define __ALIGN_STR and __ALIGN symbols for ARC
 Date:   Tue, 17 Mar 2020 11:55:10 +0100
-Message-Id: <20200317103333.565654257@linuxfoundation.org>
+Message-Id: <20200317103306.921420044@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200317103326.593639086@linuxfoundation.org>
-References: <20200317103326.593639086@linuxfoundation.org>
+In-Reply-To: <20200317103259.744774526@linuxfoundation.org>
+References: <20200317103259.744774526@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -64,8 +64,8 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/arch/arc/include/asm/linkage.h
 +++ b/arch/arc/include/asm/linkage.h
-@@ -29,6 +29,8 @@
- .endm
+@@ -14,6 +14,8 @@
+ #ifdef __ASSEMBLY__
  
  #define ASM_NL		 `	/* use '`' to mark new line in macro */
 +#define __ALIGN		.align 4
