@@ -2,99 +2,129 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 510F7188ECD
-	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 21:16:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CB39D188ECE
+	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 21:16:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726744AbgCQUQF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Mar 2020 16:16:05 -0400
-Received: from dvalin.narfation.org ([213.160.73.56]:49646 "EHLO
-        dvalin.narfation.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726388AbgCQUQF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 17 Mar 2020 16:16:05 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=narfation.org;
-        s=20121; t=1584476163;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=YVazEPyoe+3MVtpcuGHsDTVBdX4mvnd1+w/GldSKDPI=;
-        b=0vPhChPwBsm+8oI3p8DIIxcFrfjGHMkwqssdFmeSNvNqeRT2rTcKapdikybicJ/jSW2tJN
-        hLgibsouBOyfqSMcqJVk2Xgd4FxsucOnSpd7IxgdCB1rWUaRZCKyqMTlVDuokojFRT/NEb
-        +A64ap8ou6mrCdCSLZvwtHEIr8zyUjk=
-From:   Sven Eckelmann <sven@narfation.org>
-To:     stable@vger.kernel.org
-Cc:     Sven Eckelmann <sven@narfation.org>,
-        =?UTF-8?q?Linus=20L=C3=BCssing?= <linus.luessing@c0d3.blue>,
-        Simon Wunderlich <sw@simonwunderlich.de>
-Subject: [PATCH 4.9 3/3] batman-adv: Use explicit tvlv padding for ELP packets
-Date:   Tue, 17 Mar 2020 21:15:40 +0100
-Message-Id: <20200317201540.23496-4-sven@narfation.org>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20200317201540.23496-1-sven@narfation.org>
-References: <20200317201540.23496-1-sven@narfation.org>
+        id S1726651AbgCQUQP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Mar 2020 16:16:15 -0400
+Received: from mail-pl1-f196.google.com ([209.85.214.196]:41214 "EHLO
+        mail-pl1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726388AbgCQUQP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 17 Mar 2020 16:16:15 -0400
+Received: by mail-pl1-f196.google.com with SMTP id t16so3079324plr.8;
+        Tue, 17 Mar 2020 13:16:13 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=sender:subject:to:cc:references:from:autocrypt:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=aJkTSDRKNFPgqhyMzTwe0X4901ohD39DtHX+GVvC0N4=;
+        b=fa3L0qNrCFbbTeS1WImgLdtXzoANrCRLYgPXV1n/79PnXlKB2xcS4oc634/SI+iuUn
+         DuSx2OBLbsCKXPljFBZhBvuYeNKWFCgZOO3K6/0JZhjQXyheZP/c8BRSvGEHZzoHsjZT
+         YVc179EKUzKZxGPZ4dB0b1QlbQUFnpIo0REerw5iWLBwAnXgx82qBrJHXj/+DX+ceTCi
+         KIEHJh8zRLtmrRaDXxPnFHaESGVg3NgzGqpXmBy1eEosum8N7D3Hbs53KpApU4PzSge1
+         O6QEIUCqeKYvEGf7u4sO3D4/5VC6IxSu8xfbFhdTCtzs31PvXQGCsAw/RHeJir1tFDu4
+         JPww==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:sender:subject:to:cc:references:from:autocrypt
+         :message-id:date:user-agent:mime-version:in-reply-to
+         :content-language:content-transfer-encoding;
+        bh=aJkTSDRKNFPgqhyMzTwe0X4901ohD39DtHX+GVvC0N4=;
+        b=arYHVz5YIX7HLz2wfl2g+M4/1fcDbajZbFk6Ga8E/bo44QFre9edT1WcE+jR4Wk4Un
+         djdh0KuL3tFaYLRmh8vlmUMvLj6p528vvQGS1LzZUI1lbTpYOwqNZ1S3SiMXdoXHkFCo
+         j+zHccikALBOyHlVzvIk9LV8ZGaliCDn0JIWPvG+m0mw3SVSqedORUGcDD3SvoFs81Di
+         4TQ/KjJ97JS64Yl8fClKa7aRM4creQpi3hdUxuoJQJv3iaLdgu47qqNwI30eCMiHzfJI
+         BgmqHhGbXNvM21loUO3UZf9VYK9J+pCX08d5PnwT8GmfnuYPRC7h6lCwgQVbNbdqY+tI
+         aOfw==
+X-Gm-Message-State: ANhLgQ2GkYQ/DhmEnpAGG/vdxdUXZomYAJc8jMPXOU2qbYNPwTDZLWZP
+        CAaadNPiAYTYLWfvSrxmsUD7P4su
+X-Google-Smtp-Source: ADFU+vvbCEB3eDrYeWLp2x01UNC6okmIOb/aCzfuLPXfCU2LNhLkl1z0RHrez0deuI+1Vqtn8+oEZg==
+X-Received: by 2002:a17:902:d213:: with SMTP id t19mr382430ply.155.1584476172960;
+        Tue, 17 Mar 2020 13:16:12 -0700 (PDT)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id ci14sm222228pjb.37.2020.03.17.13.16.11
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 17 Mar 2020 13:16:11 -0700 (PDT)
+Subject: Re: [PATCH 4.19 00/89] 4.19.111-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org
+References: <20200317103259.744774526@linuxfoundation.org>
+From:   Guenter Roeck <linux@roeck-us.net>
+Autocrypt: addr=linux@roeck-us.net; keydata=
+ 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
+ mDW4+i+XlNFUPUYMrIKi9joBhu18ssf5i5Q=
+Message-ID: <a03afb6c-43f3-c625-7a92-345d15d4971e@roeck-us.net>
+Date:   Tue, 17 Mar 2020 13:16:10 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.4.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20200317103259.744774526@linuxfoundation.org>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit f4156f9656feac21f4de712fac94fae964c5d402 upstream.
+On 3/17/20 3:54 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.19.111 release.
+> There are 89 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Thu, 19 Mar 2020 10:31:16 +0000.
+> Anything received after that time might be too late.
+> 
 
-The announcement messages of batman-adv COMPAT_VERSION 15 have the
-possibility to announce additional information via a dynamic TVLV part.
-This part is optional for the ELP packets and currently not parsed by the
-Linux implementation. Still out-of-tree versions are using it to transport
-things like neighbor hashes to optimize the rebroadcast behavior.
+Build results:
+	total: 156 pass: 156 fail: 0
+Qemu test results:
+	total: 418 pass: 418 fail: 0
 
-Since the ELP broadcast packets are smaller than the minimal ethernet
-packet, it often has to be padded. This is often done (as specified in
-RFC894) with octets of zero and thus work perfectly fine with the TVLV
-part (making it a zero length and thus empty). But not all ethernet
-compatible hardware seems to follow this advice. To avoid ambiguous
-situations when parsing the TVLV header, just force the 4 bytes (TVLV
-length + padding) after the required ELP header to zero.
-
-Fixes: d6f94d91f766 ("batman-adv: ELP - adding basic infrastructure")
-Reported-by: Linus Lüssing <linus.luessing@c0d3.blue>
-Signed-off-by: Sven Eckelmann <sven@narfation.org>
-Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
----
- net/batman-adv/bat_v_elp.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
-
-diff --git a/net/batman-adv/bat_v_elp.c b/net/batman-adv/bat_v_elp.c
-index 11e1a28ff526..62df763b2aae 100644
---- a/net/batman-adv/bat_v_elp.c
-+++ b/net/batman-adv/bat_v_elp.c
-@@ -335,21 +335,23 @@ static void batadv_v_elp_periodic_work(struct work_struct *work)
-  */
- int batadv_v_elp_iface_enable(struct batadv_hard_iface *hard_iface)
- {
-+	static const size_t tvlv_padding = sizeof(__be32);
- 	struct batadv_elp_packet *elp_packet;
- 	unsigned char *elp_buff;
- 	u32 random_seqno;
- 	size_t size;
- 	int res = -ENOMEM;
- 
--	size = ETH_HLEN + NET_IP_ALIGN + BATADV_ELP_HLEN;
-+	size = ETH_HLEN + NET_IP_ALIGN + BATADV_ELP_HLEN + tvlv_padding;
- 	hard_iface->bat_v.elp_skb = dev_alloc_skb(size);
- 	if (!hard_iface->bat_v.elp_skb)
- 		goto out;
- 
- 	skb_reserve(hard_iface->bat_v.elp_skb, ETH_HLEN + NET_IP_ALIGN);
--	elp_buff = skb_put(hard_iface->bat_v.elp_skb, BATADV_ELP_HLEN);
-+	elp_buff = skb_put(hard_iface->bat_v.elp_skb,
-+			   BATADV_ELP_HLEN + tvlv_padding);
- 	elp_packet = (struct batadv_elp_packet *)elp_buff;
--	memset(elp_packet, 0, BATADV_ELP_HLEN);
-+	memset(elp_packet, 0, BATADV_ELP_HLEN + tvlv_padding);
- 
- 	elp_packet->packet_type = BATADV_ELP;
- 	elp_packet->version = BATADV_COMPAT_VERSION;
--- 
-2.20.1
-
+Guenter
