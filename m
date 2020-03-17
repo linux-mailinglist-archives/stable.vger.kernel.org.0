@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 90E61188087
-	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:11:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 214C4188180
+	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:20:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726777AbgCQLLB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Mar 2020 07:11:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54074 "EHLO mail.kernel.org"
+        id S1728184AbgCQLDu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Mar 2020 07:03:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43876 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729187AbgCQLK7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Mar 2020 07:10:59 -0400
+        id S1728173AbgCQLDu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Mar 2020 07:03:50 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2E1B720658;
-        Tue, 17 Mar 2020 11:10:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 06B252071C;
+        Tue, 17 Mar 2020 11:03:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584443458;
-        bh=5YZR+KQsu8U4RTvoyjtGOblA2D6ELg4tXBfICGzn98A=;
+        s=default; t=1584443029;
+        bh=ybqz6l9Pn0+Ca0VsicFx4luxj8cHQTqRwj67ijp3NkE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=POTUngKGrl4krEe39lGBkEdEYZUQNTl3Lx0OE+470NJKrBVe3GFmIlMlNRJiyxAqQ
-         4FSE79pQdSlf7rlhjskfn65y63h+c6X8HcapCEBTtsSpqyTbSpBSDidSFst4O/JFKu
-         Eka61j0axhEw9sXuWxOQi6fObttbSx5AW2QlMU7Y=
+        b=VnyW16ZS/c8IqWrN6hnO1DbeVtMxGBpEVxGfMFStROYUMNu0qME/F1LU35KmTbdkT
+         cs57TjgpfMGNnXoKwjP5QPBKayDH/UHKbPpagR1tb9RiFG1FKwOGOINN9iCAOimMkH
+         h5qiTDkhWMJOaV4KtfGeJ8TOYZwAdaNfjD3E1xZc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Matthew Auld <matthew.auld@intel.com>,
         Chris Wilson <chris@chris-wilson.co.uk>,
         Jani Nikula <jani.nikula@intel.com>
-Subject: [PATCH 5.5 087/151] drm/i915: be more solid in checking the alignment
+Subject: [PATCH 5.4 070/123] drm/i915: be more solid in checking the alignment
 Date:   Tue, 17 Mar 2020 11:54:57 +0100
-Message-Id: <20200317103332.630634260@linuxfoundation.org>
+Message-Id: <20200317103314.666440211@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200317103326.593639086@linuxfoundation.org>
-References: <20200317103326.593639086@linuxfoundation.org>
+In-Reply-To: <20200317103307.343627747@linuxfoundation.org>
+References: <20200317103307.343627747@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -68,7 +68,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c
 +++ b/drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c
-@@ -441,7 +441,8 @@ eb_validate_vma(struct i915_execbuffer *
+@@ -439,7 +439,8 @@ eb_validate_vma(struct i915_execbuffer *
  	if (unlikely(entry->flags & eb->invalid_flags))
  		return -EINVAL;
  
@@ -80,7 +80,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	/*
 --- a/drivers/gpu/drm/i915/i915_utils.h
 +++ b/drivers/gpu/drm/i915/i915_utils.h
-@@ -234,6 +234,11 @@ static inline u64 ptr_to_u64(const void
+@@ -233,6 +233,11 @@ static inline u64 ptr_to_u64(const void
  	__idx;								\
  })
  
