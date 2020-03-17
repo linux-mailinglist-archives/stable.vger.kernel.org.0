@@ -2,38 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A72918818D
-	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:20:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 09883188114
+	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:15:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727724AbgCQLEu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Mar 2020 07:04:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45318 "EHLO mail.kernel.org"
+        id S1729352AbgCQLMC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Mar 2020 07:12:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55586 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727233AbgCQLEt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Mar 2020 07:04:49 -0400
+        id S1727923AbgCQLMB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Mar 2020 07:12:01 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C4C0A2073E;
-        Tue, 17 Mar 2020 11:04:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3A5C12071C;
+        Tue, 17 Mar 2020 11:12:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584443089;
-        bh=xAOwVkY62m9tSTCLIiQRMuwYlf5KeSKDckQa4+Litu0=;
+        s=default; t=1584443520;
+        bh=OBlJkf5LEBooOxz/pRfGnBAjEMUlZH/6MyYD1wLrYug=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dUvgPxmp5rpqLpiXdGNVgWopJaZ0M8by/nOCXobkg01eOygOjZbFAcseqTc/YnF3s
-         trPxOrY9dBLKc19vQmxuTx9BNOnR3a5kLRRGD6khgk1CGXrlEdubwWQ9cu4P3+QHME
-         woHCzFMTvva0VjLmCrv/SWJihzDLUBwuPeZyirtI=
+        b=vQUbnzGXU8oOrfP24p8wzmk7UD35Osk+OP65LOLGk8NnJKVzvX5c++QL1q3Z5IJeF
+         KL54XeERSzo0Hq4gMQCkFLP7JH1DZ90L7dX2pv+96qmHjkkQ87BiLFN6sCq2RKXEgi
+         67G6bBPtsO4C5u1YqOT9Qp4K+VV2yC8/Jvkl4Wzk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tony Luck <tony.luck@intel.com>,
-        Borislav Petkov <bp@suse.de>
-Subject: [PATCH 5.4 092/123] x86/mce: Fix logic and comments around MSR_PPIN_CTL
-Date:   Tue, 17 Mar 2020 11:55:19 +0100
-Message-Id: <20200317103317.093943679@linuxfoundation.org>
+        stable@vger.kernel.org, Corey Minyard <cminyard@mvista.com>,
+        Christian Brauner <christian.brauner@ubuntu.com>,
+        Andrei Vagin <avagin@gmail.com>,
+        Dmitry Safonov <0x7f454c46@gmail.com>,
+        Oleg Nesterov <oleg@redhat.com>,
+        Adrian Reber <areber@redhat.com>
+Subject: [PATCH 5.5 110/151] pid: Fix error return value in some cases
+Date:   Tue, 17 Mar 2020 11:55:20 +0100
+Message-Id: <20200317103334.271538396@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200317103307.343627747@linuxfoundation.org>
-References: <20200317103307.343627747@linuxfoundation.org>
+In-Reply-To: <20200317103326.593639086@linuxfoundation.org>
+References: <20200317103326.593639086@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,66 +47,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tony Luck <tony.luck@intel.com>
+From: Corey Minyard <cminyard@mvista.com>
 
-commit 59b5809655bdafb0767d3fd00a3e41711aab07e6 upstream.
+commit b26ebfe12f34f372cf041c6f801fa49c3fb382c5 upstream.
 
-There are two implemented bits in the PPIN_CTL MSR:
+Recent changes to alloc_pid() allow the pid number to be specified on
+the command line.  If set_tid_size is set, then the code scanning the
+levels will hard-set retval to -EPERM, overriding it's previous -ENOMEM
+value.
 
-Bit 0: LockOut (R/WO)
-      Set 1 to prevent further writes to MSR_PPIN_CTL.
+After the code scanning the levels, there are error returns that do not
+set retval, assuming it is still set to -ENOMEM.
 
-Bit 1: Enable_PPIN (R/W)
-       If 1, enables MSR_PPIN to be accessible using RDMSR.
-       If 0, an attempt to read MSR_PPIN will cause #GP.
+So set retval back to -ENOMEM after scanning the levels.
 
-So there are four defined values:
-	0: PPIN is disabled, PPIN_CTL may be updated
-	1: PPIN is disabled. PPIN_CTL is locked against updates
-	2: PPIN is enabled. PPIN_CTL may be updated
-	3: PPIN is enabled. PPIN_CTL is locked against updates
-
-Code would only enable the X86_FEATURE_INTEL_PPIN feature for case "2".
-When it should have done so for both case "2" and case "3".
-
-Fix the final test to just check for the enable bit. Also fix some of
-the other comments in this function.
-
-Fixes: 3f5a7896a509 ("x86/mce: Include the PPIN in MCE records when available")
-Signed-off-by: Tony Luck <tony.luck@intel.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Cc: <stable@vger.kernel.org>
-Link: https://lkml.kernel.org/r/20200226011737.9958-1-tony.luck@intel.com
+Fixes: 49cb2fc42ce4 ("fork: extend clone3() to support setting a PID")
+Signed-off-by: Corey Minyard <cminyard@mvista.com>
+Acked-by: Christian Brauner <christian.brauner@ubuntu.com>
+Cc: Andrei Vagin <avagin@gmail.com>
+Cc: Dmitry Safonov <0x7f454c46@gmail.com>
+Cc: Oleg Nesterov <oleg@redhat.com>
+Cc: Adrian Reber <areber@redhat.com>
+Cc: <stable@vger.kernel.org> # 5.5
+Link: https://lore.kernel.org/r/20200306172314.12232-1-minyard@acm.org
+[christian.brauner@ubuntu.com: fixup commit message]
+Signed-off-by: Christian Brauner <christian.brauner@ubuntu.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/kernel/cpu/mce/intel.c |    9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ kernel/pid.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/arch/x86/kernel/cpu/mce/intel.c
-+++ b/arch/x86/kernel/cpu/mce/intel.c
-@@ -489,17 +489,18 @@ static void intel_ppin_init(struct cpuin
- 			return;
- 
- 		if ((val & 3UL) == 1UL) {
--			/* PPIN available but disabled: */
-+			/* PPIN locked in disabled mode */
- 			return;
- 		}
- 
--		/* If PPIN is disabled, but not locked, try to enable: */
--		if (!(val & 3UL)) {
-+		/* If PPIN is disabled, try to enable */
-+		if (!(val & 2UL)) {
- 			wrmsrl_safe(MSR_PPIN_CTL,  val | 2UL);
- 			rdmsrl_safe(MSR_PPIN_CTL, &val);
- 		}
- 
--		if ((val & 3UL) == 2UL)
-+		/* Is the enable bit set? */
-+		if (val & 2UL)
- 			set_cpu_cap(c, X86_FEATURE_INTEL_PPIN);
+--- a/kernel/pid.c
++++ b/kernel/pid.c
+@@ -247,6 +247,8 @@ struct pid *alloc_pid(struct pid_namespa
+ 		tmp = tmp->parent;
  	}
- }
+ 
++	retval = -ENOMEM;
++
+ 	if (unlikely(is_child_reaper(pid))) {
+ 		if (pid_ns_prepare_proc(ns))
+ 			goto out_free;
 
 
