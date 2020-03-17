@@ -2,37 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8762D188115
-	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:15:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C5371881DF
+	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:21:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729347AbgCQLMB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Mar 2020 07:12:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55526 "EHLO mail.kernel.org"
+        id S1727547AbgCQLAG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Mar 2020 07:00:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38978 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729133AbgCQLMA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Mar 2020 07:12:00 -0400
+        id S1727545AbgCQLAF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Mar 2020 07:00:05 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5072520658;
-        Tue, 17 Mar 2020 11:11:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C962420735;
+        Tue, 17 Mar 2020 11:00:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584443517;
-        bh=PjE1O1D4TXCkuEAVRYTD0lo95CU/BJbQobYhAMV1hdg=;
+        s=default; t=1584442805;
+        bh=cTVYqttNEkjaDmWhfICp2OkP3PlrRJyx3/vSbF1scVo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q/imGYDpZCzRKwCgWlAfW2Kc5AIaxpe4nZ7un2qVsWA83mzqjoq376btTvRsC3cfY
-         yLcM7VjkESHsVlMFc8aw2oXq57lt6/sPepiKlYXhqeYLvMZjhPsW7v0bXMR6kUaJqS
-         ErRIkpFSgDCkivtsTdYTvDsr0QQe0PBhd4jcoiSI=
+        b=YxB1R66+ABrXfsux4P/bmpZ5Lo4KKc5qkb5q+TZo8ARbR9JSmqXzBfuVGuBNj2Kvb
+         oGcSHeQLGFaoH5AeOv7MEeZ8QG7CFqH9uNUrEQquA+s27L74Ua61X1ZvjuOdJDFCV8
+         TaFaFUMfiLTADOhkfK3e/A8axFUIb9hTsKz1geFQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Biggers <ebiggers@google.com>
-Subject: [PATCH 5.5 109/151] fscrypt: dont evict dirty inodes after removing key
+        stable@vger.kernel.org,
+        syzbot+a98f2016f40b9cd3818a@syzkaller.appspotmail.com,
+        syzbot+ac36b6a33c28a491e929@syzkaller.appspotmail.com,
+        Sven Eckelmann <sven@narfation.org>,
+        Hillf Danton <hdanton@sina.com>,
+        Simon Wunderlich <sw@simonwunderlich.de>
+Subject: [PATCH 4.19 70/89] batman-adv: Dont schedule OGM for disabled interface
 Date:   Tue, 17 Mar 2020 11:55:19 +0100
-Message-Id: <20200317103334.199840852@linuxfoundation.org>
+Message-Id: <20200317103308.008137404@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200317103326.593639086@linuxfoundation.org>
-References: <20200317103326.593639086@linuxfoundation.org>
+In-Reply-To: <20200317103259.744774526@linuxfoundation.org>
+References: <20200317103259.744774526@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,56 +47,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+From: Sven Eckelmann <sven@narfation.org>
 
-commit 2b4eae95c7361e0a147b838715c8baa1380a428f upstream.
+commit 8e8ce08198de193e3d21d42e96945216e3d9ac7f upstream.
 
-After FS_IOC_REMOVE_ENCRYPTION_KEY removes a key, it syncs the
-filesystem and tries to get and put all inodes that were unlocked by the
-key so that unused inodes get evicted via fscrypt_drop_inode().
-Normally, the inodes are all clean due to the sync.
+A transmission scheduling for an interface which is currently dropped by
+batadv_iv_ogm_iface_disable could still be in progress. The B.A.T.M.A.N. V
+is simply cancelling the workqueue item in an synchronous way but this is
+not possible with B.A.T.M.A.N. IV because the OGM submissions are
+intertwined.
 
-However, after the filesystem is sync'ed, userspace can modify and close
-one of the files.  (Userspace is *supposed* to close the files before
-removing the key.  But it doesn't always happen, and the kernel can't
-assume it.)  This causes the inode to be dirtied and have i_count == 0.
-Then, fscrypt_drop_inode() failed to consider this case and indicated
-that the inode can be dropped, causing the write to be lost.
+Instead it has to stop submitting the OGM when it detect that the buffer
+pointer is set to NULL.
 
-On f2fs, other problems such as a filesystem freeze could occur due to
-the inode being freed while still on f2fs's dirty inode list.
-
-Fix this bug by making fscrypt_drop_inode() only drop clean inodes.
-
-I've written an xfstest which detects this bug on ext4, f2fs, and ubifs.
-
-Fixes: b1c0ec3599f4 ("fscrypt: add FS_IOC_REMOVE_ENCRYPTION_KEY ioctl")
-Cc: <stable@vger.kernel.org> # v5.4+
-Link: https://lore.kernel.org/r/20200305084138.653498-1-ebiggers@kernel.org
-Signed-off-by: Eric Biggers <ebiggers@google.com>
+Reported-by: syzbot+a98f2016f40b9cd3818a@syzkaller.appspotmail.com
+Reported-by: syzbot+ac36b6a33c28a491e929@syzkaller.appspotmail.com
+Fixes: c6c8fea29769 ("net: Add batman-adv meshing protocol")
+Signed-off-by: Sven Eckelmann <sven@narfation.org>
+Cc: Hillf Danton <hdanton@sina.com>
+Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/crypto/keysetup.c |    9 +++++++++
- 1 file changed, 9 insertions(+)
+ net/batman-adv/bat_iv_ogm.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/fs/crypto/keysetup.c
-+++ b/fs/crypto/keysetup.c
-@@ -515,6 +515,15 @@ int fscrypt_drop_inode(struct inode *ino
- 	mk = ci->ci_master_key->payload.data[0];
+--- a/net/batman-adv/bat_iv_ogm.c
++++ b/net/batman-adv/bat_iv_ogm.c
+@@ -970,6 +970,10 @@ static void batadv_iv_ogm_schedule_buff(
  
- 	/*
-+	 * With proper, non-racy use of FS_IOC_REMOVE_ENCRYPTION_KEY, all inodes
-+	 * protected by the key were cleaned by sync_filesystem().  But if
-+	 * userspace is still using the files, inodes can be dirtied between
-+	 * then and now.  We mustn't lose any writes, so skip dirty inodes here.
-+	 */
-+	if (inode->i_state & I_DIRTY_ALL)
-+		return 0;
+ 	lockdep_assert_held(&hard_iface->bat_iv.ogm_buff_mutex);
+ 
++	/* interface already disabled by batadv_iv_ogm_iface_disable */
++	if (!*ogm_buff)
++		return;
 +
-+	/*
- 	 * Note: since we aren't holding ->mk_secret_sem, the result here can
- 	 * immediately become outdated.  But there's no correctness problem with
- 	 * unnecessarily evicting.  Nor is there a correctness problem with not
+ 	/* the interface gets activated here to avoid race conditions between
+ 	 * the moment of activating the interface in
+ 	 * hardif_activate_interface() where the originator mac is set and
 
 
