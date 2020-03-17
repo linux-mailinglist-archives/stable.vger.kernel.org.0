@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5AE88188000
-	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:06:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D9A99188002
+	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:06:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728196AbgCQLGU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Mar 2020 07:06:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47446 "EHLO mail.kernel.org"
+        id S1728594AbgCQLGZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Mar 2020 07:06:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47562 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727407AbgCQLGT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Mar 2020 07:06:19 -0400
+        id S1726596AbgCQLGY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Mar 2020 07:06:24 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D228520736;
-        Tue, 17 Mar 2020 11:06:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2E22F20658;
+        Tue, 17 Mar 2020 11:06:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584443179;
-        bh=l+SslzW3aQwnBAb6lpZwBPLpDvnhkZu8HaV802HbA1M=;
+        s=default; t=1584443183;
+        bh=BzV1Hk4+TCda+cm8PDvDZzplYkCHdjRvG+dQ6nC0zuM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cY6AQjUYs7l68e+xsFm9YoQQXNkVpM5T4SLY4+uI9tGEDYAsnzEamLNtP53aLbsl3
-         /BS595WNTO89/20OScDBbUibP+gqAdE3AlQG5mfGi2nUbiQsnNYFIL7IWNkVnyy77Z
-         KBngWfbVd7veudFxtMlEKtiQQPow0TUhgUqb7xxo=
+        b=LTyg5dePoqw+wSopZY+zyAKNZES0khASQgsOFcLXc4nkyUCyGwYc/5nqjN2orC/ps
+         ogNNJeSFNWadZGhEysZTjzdZEKqMRb5Hw59E5a0xLiwHuZLO7ZlIWoLYvYZK5FFvcB
+         eHxagrxLifTrHOQScy0tF23rLm8GuTEjmzqRwjx0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
         Pablo Neira Ayuso <pablo@netfilter.org>
-Subject: [PATCH 5.4 113/123] netfilter: nft_payload: add missing attribute validation for payload csum flags
-Date:   Tue, 17 Mar 2020 11:55:40 +0100
-Message-Id: <20200317103318.966544234@linuxfoundation.org>
+Subject: [PATCH 5.4 114/123] netfilter: nft_tunnel: add missing attribute validation for tunnels
+Date:   Tue, 17 Mar 2020 11:55:41 +0100
+Message-Id: <20200317103319.059454481@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200317103307.343627747@linuxfoundation.org>
 References: <20200317103307.343627747@linuxfoundation.org>
@@ -45,29 +45,30 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jakub Kicinski <kuba@kernel.org>
 
-commit 9d6effb2f1523eb84516e44213c00f2fd9e6afff upstream.
+commit 88a637719a1570705c02cacb3297af164b1714e7 upstream.
 
-Add missing attribute validation for NFTA_PAYLOAD_CSUM_FLAGS
-to the netlink policy.
+Add missing attribute validation for tunnel source and
+destination ports to the netlink policy.
 
-Fixes: 1814096980bb ("netfilter: nft_payload: layer 4 checksum adjustment for pseudoheader fields")
+Fixes: af308b94a2a4 ("netfilter: nf_tables: add tunnel support")
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/netfilter/nft_payload.c |    1 +
- 1 file changed, 1 insertion(+)
+ net/netfilter/nft_tunnel.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/net/netfilter/nft_payload.c
-+++ b/net/netfilter/nft_payload.c
-@@ -121,6 +121,7 @@ static const struct nla_policy nft_paylo
- 	[NFTA_PAYLOAD_LEN]		= { .type = NLA_U32 },
- 	[NFTA_PAYLOAD_CSUM_TYPE]	= { .type = NLA_U32 },
- 	[NFTA_PAYLOAD_CSUM_OFFSET]	= { .type = NLA_U32 },
-+	[NFTA_PAYLOAD_CSUM_FLAGS]	= { .type = NLA_U32 },
+--- a/net/netfilter/nft_tunnel.c
++++ b/net/netfilter/nft_tunnel.c
+@@ -339,6 +339,8 @@ static const struct nla_policy nft_tunne
+ 	[NFTA_TUNNEL_KEY_FLAGS]	= { .type = NLA_U32, },
+ 	[NFTA_TUNNEL_KEY_TOS]	= { .type = NLA_U8, },
+ 	[NFTA_TUNNEL_KEY_TTL]	= { .type = NLA_U8, },
++	[NFTA_TUNNEL_KEY_SPORT]	= { .type = NLA_U16, },
++	[NFTA_TUNNEL_KEY_DPORT]	= { .type = NLA_U16, },
+ 	[NFTA_TUNNEL_KEY_OPTS]	= { .type = NLA_NESTED, },
  };
  
- static int nft_payload_init(const struct nft_ctx *ctx,
 
 
