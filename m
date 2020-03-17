@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E8B401880ED
-	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:14:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6580D1880EE
+	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:14:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727521AbgCQLNw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Mar 2020 07:13:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57896 "EHLO mail.kernel.org"
+        id S1729545AbgCQLN4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Mar 2020 07:13:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58020 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729519AbgCQLNv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Mar 2020 07:13:51 -0400
+        id S1727690AbgCQLNy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Mar 2020 07:13:54 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 15A002071C;
-        Tue, 17 Mar 2020 11:13:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 058F920663;
+        Tue, 17 Mar 2020 11:13:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584443630;
-        bh=b+dT2WJfsjgAtzNNSBjjsrruhNxhdxhBaqv0UWRxRRY=;
+        s=default; t=1584443634;
+        bh=L7Bcr2/fKqTd6Gwmz3z81lshdLylMuMc0dbeObONMME=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2tRbu/82BDXYbvpMaRkzHHPkhbiS7zyA3fhMqRxXqV9mOUYfqSrLSYhG71uXm43LP
-         6KFeQnPdcc6PjrKtvVt/L9IslPYWJNSG3aAha1wdAfkz5RJHyjd3vM87n3scWEuyEz
-         2uIgBJxCoUZZcX7xBFZ33EojkYIqYtrvKrhMSe4M=
+        b=aXBtZYbIsgHCGcuDIrDmhi0stdhj22AR7T73DaBnKYPKM7tH2fxpnAAJfXko+wxle
+         p8/WxeZn66efj2tRoo2G5KSb20qHUNsc6pEe92HFTNj7QlkXuMddNVQ+Srjm4XBBz3
+         6gJ3Cy02JKWPIe8BoGKB8LUrl8bPAi1lREJJETD0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Wolfram Sang <wsa@the-dreams.de>
-Subject: [PATCH 5.5 148/151] i2c: acpi: put device when verifying client fails
-Date:   Tue, 17 Mar 2020 11:55:58 +0100
-Message-Id: <20200317103337.268549104@linuxfoundation.org>
+        Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>,
+        Joerg Roedel <jroedel@suse.de>
+Subject: [PATCH 5.5 149/151] iommu/amd: Fix IOMMU AVIC not properly update the is_run bit in IRTE
+Date:   Tue, 17 Mar 2020 11:55:59 +0100
+Message-Id: <20200317103337.322601542@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200317103326.593639086@linuxfoundation.org>
 References: <20200317103326.593639086@linuxfoundation.org>
@@ -47,46 +44,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+From: Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>
 
-commit 8daee952b4389729358665fb91949460641659d4 upstream.
+commit 730ad0ede130015a773229573559e97ba0943065 upstream.
 
-i2c_verify_client() can fail, so we need to put the device when that
-happens.
+Commit b9c6ff94e43a ("iommu/amd: Re-factor guest virtual APIC
+(de-)activation code") accidentally left out the ir_data pointer when
+calling modity_irte_ga(), which causes the function amd_iommu_update_ga()
+to return prematurely due to struct amd_ir_data.ref is NULL and
+the "is_run" bit of IRTE does not get updated properly.
 
-Fixes: 525e6fabeae2 ("i2c / ACPI: add support for ACPI reconfigure notifications")
-Reported-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+This results in bad I/O performance since IOMMU AVIC always generate GA Log
+entry and notify IOMMU driver and KVM when it receives interrupt from the
+PCI pass-through device instead of directly inject interrupt to the vCPU.
+
+Fixes by passing ir_data when calling modify_irte_ga() as done previously.
+
+Fixes: b9c6ff94e43a ("iommu/amd: Re-factor guest virtual APIC (de-)activation code")
+Signed-off-by: Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/i2c/i2c-core-acpi.c |   10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ drivers/iommu/amd_iommu.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/i2c/i2c-core-acpi.c
-+++ b/drivers/i2c/i2c-core-acpi.c
-@@ -394,9 +394,17 @@ EXPORT_SYMBOL_GPL(i2c_acpi_find_adapter_
- static struct i2c_client *i2c_acpi_find_client_by_adev(struct acpi_device *adev)
- {
- 	struct device *dev;
-+	struct i2c_client *client;
+--- a/drivers/iommu/amd_iommu.c
++++ b/drivers/iommu/amd_iommu.c
+@@ -3836,7 +3836,7 @@ int amd_iommu_activate_guest_mode(void *
+ 	entry->lo.fields_vapic.ga_tag      = ir_data->ga_tag;
  
- 	dev = bus_find_device_by_acpi_dev(&i2c_bus_type, adev);
--	return dev ? i2c_verify_client(dev) : NULL;
-+	if (!dev)
-+		return NULL;
-+
-+	client = i2c_verify_client(dev);
-+	if (!client)
-+		put_device(dev);
-+
-+	return client;
+ 	return modify_irte_ga(ir_data->irq_2_irte.devid,
+-			      ir_data->irq_2_irte.index, entry, NULL);
++			      ir_data->irq_2_irte.index, entry, ir_data);
  }
+ EXPORT_SYMBOL(amd_iommu_activate_guest_mode);
  
- static int i2c_acpi_notify(struct notifier_block *nb, unsigned long value,
+@@ -3862,7 +3862,7 @@ int amd_iommu_deactivate_guest_mode(void
+ 				APICID_TO_IRTE_DEST_HI(cfg->dest_apicid);
+ 
+ 	return modify_irte_ga(ir_data->irq_2_irte.devid,
+-			      ir_data->irq_2_irte.index, entry, NULL);
++			      ir_data->irq_2_irte.index, entry, ir_data);
+ }
+ EXPORT_SYMBOL(amd_iommu_deactivate_guest_mode);
+ 
 
 
