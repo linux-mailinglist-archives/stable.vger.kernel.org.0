@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DEAF5187FF1
-	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:06:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3110E188211
+	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:22:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727613AbgCQLFz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Mar 2020 07:05:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46806 "EHLO mail.kernel.org"
+        id S1726837AbgCQLVb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Mar 2020 07:21:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36726 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728467AbgCQLFx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Mar 2020 07:05:53 -0400
+        id S1727259AbgCQK6e (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Mar 2020 06:58:34 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4003D2073C;
-        Tue, 17 Mar 2020 11:05:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 36E7E20724;
+        Tue, 17 Mar 2020 10:58:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584443152;
-        bh=9YCA+ZJdBNIfdA+PGAegliOMlWdJEUTFFyeGM2/nMYM=;
+        s=default; t=1584442712;
+        bh=HcFsNp3XYCBkZR4tEFW8Zcl8QhdgAavIYqCgaU7LXxM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k/CRhjE9zdoD14fJ52DQUC/9AgbUU6I4/ij49wteVEV56qvCfthug5NY9bjxoPChm
-         BUG4XXyMxRBtyUxdsHVB3CfnF6b5YqEstYQ4IRnr9T9U6bfTTVNUhq4dJuR/rzwt2e
-         7SNhusTcaTLsfr0rOfMtAHdaqlmE9GiP/tgoEmvY=
+        b=bdlMcU5ZNoiTDlRhP/3mjeqAvuxc+c0DfNGNTBEqh5hTVNsR90WTy1VtjCRBAAry0
+         fk2Rx/AFDVwjbDNXx28Q4pAxo/wmtQ+hr08tS0fLMSyJqcFrDeieMIuZBm+RFyw/zG
+         pu1OaRLubM/uQalLJesBmUyoBw/fhexxKBRsZPV0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>,
-        Vitaly Kuznetsov <vkuznets@redhat.com>,
-        Sean Christopherson <sean.j.christopherson@intel.com>
-Subject: [PATCH 5.4 077/123] KVM: x86: clear stale x86_emulate_ctxt->intercept value
+        stable@vger.kernel.org, Hillf Danton <hdanton@sina.com>,
+        Daniel Jordan <daniel.m.jordan@oracle.com>,
+        Tejun Heo <tj@kernel.org>,
+        Lai Jiangshan <jiangshanlai@gmail.com>
+Subject: [PATCH 4.19 55/89] workqueue: dont use wq_select_unbound_cpu() for bound works
 Date:   Tue, 17 Mar 2020 11:55:04 +0100
-Message-Id: <20200317103315.332419227@linuxfoundation.org>
+Message-Id: <20200317103306.244039443@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200317103307.343627747@linuxfoundation.org>
-References: <20200317103307.343627747@linuxfoundation.org>
+In-Reply-To: <20200317103259.744774526@linuxfoundation.org>
+References: <20200317103259.744774526@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,50 +45,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vitaly Kuznetsov <vkuznets@redhat.com>
+From: Hillf Danton <hdanton@sina.com>
 
-commit 342993f96ab24d5864ab1216f46c0b199c2baf8e upstream.
+commit aa202f1f56960c60e7befaa0f49c72b8fa11b0a8 upstream.
 
-After commit 07721feee46b ("KVM: nVMX: Don't emulate instructions in guest
-mode") Hyper-V guests on KVM stopped booting with:
+wq_select_unbound_cpu() is designed for unbound workqueues only, but
+it's wrongly called when using a bound workqueue too.
 
- kvm_nested_vmexit:    rip fffff802987d6169 reason EPT_VIOLATION info1 181
-    info2 0 int_info 0 int_info_err 0
- kvm_page_fault:       address febd0000 error_code 181
- kvm_emulate_insn:     0:fffff802987d6169: f3 a5
- kvm_emulate_insn:     0:fffff802987d6169: f3 a5 FAIL
- kvm_inj_exception:    #UD (0x0)
+Fixing this ensures work queued to a bound workqueue with
+cpu=WORK_CPU_UNBOUND always runs on the local CPU.
 
-"f3 a5" is a "rep movsw" instruction, which should not be intercepted
-at all.  Commit c44b4c6ab80e ("KVM: emulate: clean up initializations in
-init_decode_cache") reduced the number of fields cleared by
-init_decode_cache() claiming that they are being cleared elsewhere,
-'intercept', however, is left uncleared if the instruction does not have
-any of the "slow path" flags (NotImpl, Stack, Op3264, Sse, Mmx, CheckPerm,
-NearBranch, No16 and of course Intercept itself).
+Before, that would happen only if wq_unbound_cpumask happened to include
+it (likely almost always the case), or was empty, or we got lucky with
+forced round-robin placement.  So restricting
+/sys/devices/virtual/workqueue/cpumask to a small subset of a machine's
+CPUs would cause some bound work items to run unexpectedly there.
 
-Fixes: c44b4c6ab80e ("KVM: emulate: clean up initializations in init_decode_cache")
-Fixes: 07721feee46b ("KVM: nVMX: Don't emulate instructions in guest mode")
-Cc: stable@vger.kernel.org
-Suggested-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
-Reviewed-by: Sean Christopherson <sean.j.christopherson@intel.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Fixes: ef557180447f ("workqueue: schedule WORK_CPU_UNBOUND work on wq_unbound_cpumask CPUs")
+Cc: stable@vger.kernel.org # v4.5+
+Signed-off-by: Hillf Danton <hdanton@sina.com>
+[dj: massage changelog]
+Signed-off-by: Daniel Jordan <daniel.m.jordan@oracle.com>
+Cc: Tejun Heo <tj@kernel.org>
+Cc: Lai Jiangshan <jiangshanlai@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Signed-off-by: Tejun Heo <tj@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/kvm/emulate.c |    1 +
- 1 file changed, 1 insertion(+)
+ kernel/workqueue.c |   14 ++++++++------
+ 1 file changed, 8 insertions(+), 6 deletions(-)
 
---- a/arch/x86/kvm/emulate.c
-+++ b/arch/x86/kvm/emulate.c
-@@ -5197,6 +5197,7 @@ int x86_decode_insn(struct x86_emulate_c
- 	ctxt->fetch.ptr = ctxt->fetch.data;
- 	ctxt->fetch.end = ctxt->fetch.data + insn_len;
- 	ctxt->opcode_len = 1;
-+	ctxt->intercept = x86_intercept_none;
- 	if (insn_len > 0)
- 		memcpy(ctxt->fetch.data, insn, insn_len);
- 	else {
+--- a/kernel/workqueue.c
++++ b/kernel/workqueue.c
+@@ -1384,14 +1384,16 @@ static void __queue_work(int cpu, struct
+ 	    WARN_ON_ONCE(!is_chained_work(wq)))
+ 		return;
+ retry:
+-	if (req_cpu == WORK_CPU_UNBOUND)
+-		cpu = wq_select_unbound_cpu(raw_smp_processor_id());
+-
+ 	/* pwq which will be used unless @work is executing elsewhere */
+-	if (!(wq->flags & WQ_UNBOUND))
+-		pwq = per_cpu_ptr(wq->cpu_pwqs, cpu);
+-	else
++	if (wq->flags & WQ_UNBOUND) {
++		if (req_cpu == WORK_CPU_UNBOUND)
++			cpu = wq_select_unbound_cpu(raw_smp_processor_id());
+ 		pwq = unbound_pwq_by_node(wq, cpu_to_node(cpu));
++	} else {
++		if (req_cpu == WORK_CPU_UNBOUND)
++			cpu = raw_smp_processor_id();
++		pwq = per_cpu_ptr(wq->cpu_pwqs, cpu);
++	}
+ 
+ 	/*
+ 	 * If @work was previously on a different pool, it might still be
 
 
