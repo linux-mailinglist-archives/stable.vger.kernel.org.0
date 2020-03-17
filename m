@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 74F9F18819E
-	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:20:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DB3CE1880F2
+	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:14:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728293AbgCQLGf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Mar 2020 07:06:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47934 "EHLO mail.kernel.org"
+        id S1729563AbgCQLOD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Mar 2020 07:14:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58204 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728005AbgCQLGf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Mar 2020 07:06:35 -0400
+        id S1727710AbgCQLOC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Mar 2020 07:14:02 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4D44620714;
-        Tue, 17 Mar 2020 11:06:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E98512071C;
+        Tue, 17 Mar 2020 11:14:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584443194;
-        bh=wlMkzyEOUABkf65+CeNdXrakb3PvnKqftn9wSDK3LjM=;
+        s=default; t=1584443642;
+        bh=H0rW0vMvQM2DtkjsZ50Ys26s3AYXpZbX2s0A4tQT7rA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FQYQSy7RSLYfP7NtVMD7ErVbLFcf5zJ7AH1MQcQSTTSBAzYnhlkmVF7UPdof+FaWh
-         vQl8gIUW2Emh9KkDt03M51qJ1X7EuiQ2JPaVuj6qXF9s66qOTc168P6j0L7mBvf7UL
-         Dzbd7cDKS26XbvaDPGiOZuwSNRiHgTq7z8YuJf3g=
+        b=jVo0UEUogb7xnM+u72yo5f+qzHwmsYy3dBYRy6juMNcNy0AwLOMkcoBqrXTFeiLoE
+         f6Je/C5/jxXdjPhRWcD3xzKVFO31MlQkifPurshlVI+uwWDIQkltiGH5EhepAjJ3io
+         uDMKXSYpHuYx2HKyTMzURndrbvY0AS0IVCprl9eg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lu Baolu <baolu.lu@linux.intel.com>,
-        Daniel Drake <drake@endlessm.com>,
-        Joerg Roedel <jroedel@suse.de>
-Subject: [PATCH 5.4 118/123] iommu/vt-d: Ignore devices with out-of-spec domain number
+        stable@vger.kernel.org,
+        Hamish Martin <hamish.martin@alliedtelesis.co.nz>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Wolfram Sang <wsa@the-dreams.de>
+Subject: [PATCH 5.5 135/151] i2c: gpio: suppress error on probe defer
 Date:   Tue, 17 Mar 2020 11:55:45 +0100
-Message-Id: <20200317103319.382152411@linuxfoundation.org>
+Message-Id: <20200317103336.021229669@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200317103307.343627747@linuxfoundation.org>
-References: <20200317103307.343627747@linuxfoundation.org>
+In-Reply-To: <20200317103326.593639086@linuxfoundation.org>
+References: <20200317103326.593639086@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,67 +45,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Drake <drake@endlessm.com>
+From: Hamish Martin <hamish.martin@alliedtelesis.co.nz>
 
-commit da72a379b2ec0bad3eb265787f7008bead0b040c upstream.
+commit 3747cd2efe7ecb9604972285ab3f60c96cb753a8 upstream.
 
-VMD subdevices are created with a PCI domain ID of 0x10000 or
-higher.
+If a GPIO we are trying to use is not available and we are deferring
+the probe, don't output an error message.
+This seems to have been the intent of commit 05c74778858d
+("i2c: gpio: Add support for named gpios in DT") but the error was
+still output due to not checking the updated 'retdesc'.
 
-These subdevices are also handled like all other PCI devices by
-dmar_pci_bus_notifier().
-
-However, when dmar_alloc_pci_notify_info() take records of such devices,
-it will truncate the domain ID to a u16 value (in info->seg).
-The device at (e.g.) 10000:00:02.0 is then treated by the DMAR code as if
-it is 0000:00:02.0.
-
-In the unlucky event that a real device also exists at 0000:00:02.0 and
-also has a device-specific entry in the DMAR table,
-dmar_insert_dev_scope() will crash on:
-   BUG_ON(i >= devices_cnt);
-
-That's basically a sanity check that only one PCI device matches a
-single DMAR entry; in this case we seem to have two matching devices.
-
-Fix this by ignoring devices that have a domain number higher than
-what can be looked up in the DMAR table.
-
-This problem was carefully diagnosed by Jian-Hong Pan.
-
-Signed-off-by: Lu Baolu <baolu.lu@linux.intel.com>
-Signed-off-by: Daniel Drake <drake@endlessm.com>
-Fixes: 59ce0515cdaf3 ("iommu/vt-d: Update DRHD/RMRR/ATSR device scope caches when PCI hotplug happens")
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Fixes: 05c74778858d ("i2c: gpio: Add support for named gpios in DT")
+Signed-off-by: Hamish Martin <hamish.martin@alliedtelesis.co.nz>
+Acked-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/iommu/dmar.c |    8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/i2c/busses/i2c-gpio.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/iommu/dmar.c
-+++ b/drivers/iommu/dmar.c
-@@ -28,6 +28,7 @@
- #include <linux/slab.h>
- #include <linux/iommu.h>
- #include <linux/numa.h>
-+#include <linux/limits.h>
- #include <asm/irq_remapping.h>
- #include <asm/iommu_table.h>
+--- a/drivers/i2c/busses/i2c-gpio.c
++++ b/drivers/i2c/busses/i2c-gpio.c
+@@ -348,7 +348,7 @@ static struct gpio_desc *i2c_gpio_get_de
+ 	if (ret == -ENOENT)
+ 		retdesc = ERR_PTR(-EPROBE_DEFER);
  
-@@ -128,6 +129,13 @@ dmar_alloc_pci_notify_info(struct pci_de
+-	if (ret != -EPROBE_DEFER)
++	if (PTR_ERR(retdesc) != -EPROBE_DEFER)
+ 		dev_err(dev, "error trying to get descriptor: %d\n", ret);
  
- 	BUG_ON(dev->is_virtfn);
- 
-+	/*
-+	 * Ignore devices that have a domain number higher than what can
-+	 * be looked up in DMAR, e.g. VMD subdevices with domain 0x10000
-+	 */
-+	if (pci_domain_nr(dev->bus) > U16_MAX)
-+		return NULL;
-+
- 	/* Only generate path[] for device addition event */
- 	if (event == BUS_NOTIFY_ADD_DEVICE)
- 		for (tmp = dev; tmp; tmp = tmp->bus->self)
+ 	return retdesc;
 
 
