@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 471DF18815F
-	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:17:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8541A188147
+	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:17:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726891AbgCQLRd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Mar 2020 07:17:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48624 "EHLO mail.kernel.org"
+        id S1725906AbgCQLHH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Mar 2020 07:07:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48712 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728725AbgCQLHD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Mar 2020 07:07:03 -0400
+        id S1728732AbgCQLHG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Mar 2020 07:07:06 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DAA12206EC;
-        Tue, 17 Mar 2020 11:07:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7FF5520658;
+        Tue, 17 Mar 2020 11:07:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584443223;
-        bh=dfpeeN7DSvHful1o+mzS+Yln2lqJERTsioAlBm8IlR8=;
+        s=default; t=1584443225;
+        bh=Lh4BxuQ7K6cIEQ/7yvgksfX22SmWU44NFAT21/scgfI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yKdL46D1pPRpOo+qPrXtsj+9dKTDQiCv1KARl//DbATp13sOgEqyhObzc8/N6lOT0
-         OE6DzJGtUPR7UjLF1s8cdxygodyOB55qNLKq29A/SAESrJEtxlYCJewlfp5wsD/Lye
-         eqgC1DjXyurvupA52Dl4+JKtV6F/UdW72oKltvH4=
+        b=2ttDpw/htWfCjGpvS4iSR3w7+6TG0Lh68acIDkp/jLcvt72GUBCXqm/x5nZ6TSMmX
+         o1Zb7aCFvL0rjv3lz8gtO5Yd9ylbBasLNn3E7keuuphEEpHwn1O66uMuXcCzq5zKlg
+         gXwRAhdk05aATm0ukl2lJN0CKqfeWCMx5OExFYU0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kailang Yang <kailang@realtek.com>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 004/151] ALSA: hda/realtek - Fixed one of HP ALC671 platform Headset Mic supported
-Date:   Tue, 17 Mar 2020 11:53:34 +0100
-Message-Id: <20200317103326.839152125@linuxfoundation.org>
+        stable@vger.kernel.org, Dmitry Yakunin <zeil@yandex-team.ru>,
+        Konstantin Khlebnikov <khlebnikov@yandex-team.ru>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.5 005/151] cgroup, netclassid: periodically release file_lock on classid updating
+Date:   Tue, 17 Mar 2020 11:53:35 +0100
+Message-Id: <20200317103326.893199977@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200317103326.593639086@linuxfoundation.org>
 References: <20200317103326.593639086@linuxfoundation.org>
@@ -43,36 +44,121 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kailang Yang <kailang@realtek.com>
+From: Dmitry Yakunin <zeil@yandex-team.ru>
 
-[ Upstream commit f2adbae0cb20c8eaf06914b2187043ea944b0aff ]
+[ Upstream commit 018d26fcd12a75fb9b5fe233762aa3f2f0854b88 ]
 
-HP want to keep BIOS verb table for release platform.
-So, it need to add 0x19 pin for quirk.
+In our production environment we have faced with problem that updating
+classid in cgroup with heavy tasks cause long freeze of the file tables
+in this tasks. By heavy tasks we understand tasks with many threads and
+opened sockets (e.g. balancers). This freeze leads to an increase number
+of client timeouts.
 
-Fixes: 5af29028fd6d ("ALSA: hda/realtek - Add Headset Mic supported for HP cPC")
-Signed-off-by: Kailang Yang <kailang@realtek.com>
-Link: https://lore.kernel.org/r/74636ccb700a4cbda24c58a99dc430ce@realtek.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This patch implements following logic to fix this issue:
+аfter iterating 1000 file descriptors file table lock will be released
+thus providing a time gap for socket creation/deletion.
+
+Now update is non atomic and socket may be skipped using calls:
+
+dup2(oldfd, newfd);
+close(oldfd);
+
+But this case is not typical. Moreover before this patch skip is possible
+too by hiding socket fd in unix socket buffer.
+
+New sockets will be allocated with updated classid because cgroup state
+is updated before start of the file descriptors iteration.
+
+So in common cases this patch has no side effects.
+
+Signed-off-by: Dmitry Yakunin <zeil@yandex-team.ru>
+Reviewed-by: Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/hda/patch_realtek.c | 1 +
- 1 file changed, 1 insertion(+)
+ net/core/netclassid_cgroup.c |   47 +++++++++++++++++++++++++++++++++----------
+ 1 file changed, 37 insertions(+), 10 deletions(-)
 
-diff --git a/sound/pci/hda/patch_realtek.c b/sound/pci/hda/patch_realtek.c
-index 25d0013abcb0e..835af7d2bbd4d 100644
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -9140,6 +9140,7 @@ static const struct snd_hda_pin_quirk alc662_pin_fixup_tbl[] = {
- 	SND_HDA_PIN_QUIRK(0x10ec0671, 0x103c, "HP cPC", ALC671_FIXUP_HP_HEADSET_MIC2,
- 		{0x14, 0x01014010},
- 		{0x17, 0x90170150},
-+		{0x19, 0x02a11060},
- 		{0x1b, 0x01813030},
- 		{0x21, 0x02211020}),
- 	SND_HDA_PIN_QUIRK(0x10ec0671, 0x103c, "HP cPC", ALC671_FIXUP_HP_HEADSET_MIC2,
--- 
-2.20.1
-
+--- a/net/core/netclassid_cgroup.c
++++ b/net/core/netclassid_cgroup.c
+@@ -53,30 +53,60 @@ static void cgrp_css_free(struct cgroup_
+ 	kfree(css_cls_state(css));
+ }
+ 
++/*
++ * To avoid freezing of sockets creation for tasks with big number of threads
++ * and opened sockets lets release file_lock every 1000 iterated descriptors.
++ * New sockets will already have been created with new classid.
++ */
++
++struct update_classid_context {
++	u32 classid;
++	unsigned int batch;
++};
++
++#define UPDATE_CLASSID_BATCH 1000
++
+ static int update_classid_sock(const void *v, struct file *file, unsigned n)
+ {
+ 	int err;
++	struct update_classid_context *ctx = (void *)v;
+ 	struct socket *sock = sock_from_file(file, &err);
+ 
+ 	if (sock) {
+ 		spin_lock(&cgroup_sk_update_lock);
+-		sock_cgroup_set_classid(&sock->sk->sk_cgrp_data,
+-					(unsigned long)v);
++		sock_cgroup_set_classid(&sock->sk->sk_cgrp_data, ctx->classid);
+ 		spin_unlock(&cgroup_sk_update_lock);
+ 	}
++	if (--ctx->batch == 0) {
++		ctx->batch = UPDATE_CLASSID_BATCH;
++		return n + 1;
++	}
+ 	return 0;
+ }
+ 
++static void update_classid_task(struct task_struct *p, u32 classid)
++{
++	struct update_classid_context ctx = {
++		.classid = classid,
++		.batch = UPDATE_CLASSID_BATCH
++	};
++	unsigned int fd = 0;
++
++	do {
++		task_lock(p);
++		fd = iterate_fd(p->files, fd, update_classid_sock, &ctx);
++		task_unlock(p);
++		cond_resched();
++	} while (fd);
++}
++
+ static void cgrp_attach(struct cgroup_taskset *tset)
+ {
+ 	struct cgroup_subsys_state *css;
+ 	struct task_struct *p;
+ 
+ 	cgroup_taskset_for_each(p, css, tset) {
+-		task_lock(p);
+-		iterate_fd(p->files, 0, update_classid_sock,
+-			   (void *)(unsigned long)css_cls_state(css)->classid);
+-		task_unlock(p);
++		update_classid_task(p, css_cls_state(css)->classid);
+ 	}
+ }
+ 
+@@ -98,10 +128,7 @@ static int write_classid(struct cgroup_s
+ 
+ 	css_task_iter_start(css, 0, &it);
+ 	while ((p = css_task_iter_next(&it))) {
+-		task_lock(p);
+-		iterate_fd(p->files, 0, update_classid_sock,
+-			   (void *)(unsigned long)cs->classid);
+-		task_unlock(p);
++		update_classid_task(p, cs->classid);
+ 		cond_resched();
+ 	}
+ 	css_task_iter_end(&it);
 
 
