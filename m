@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9991F187FA3
-	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:03:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 44B3C188119
+	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:16:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728093AbgCQLDO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Mar 2020 07:03:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43164 "EHLO mail.kernel.org"
+        id S1729077AbgCQLKS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Mar 2020 07:10:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53060 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728086AbgCQLDN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Mar 2020 07:03:13 -0400
+        id S1728738AbgCQLKS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Mar 2020 07:10:18 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 76739205ED;
-        Tue, 17 Mar 2020 11:03:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 05D4220658;
+        Tue, 17 Mar 2020 11:10:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584442992;
-        bh=uwGn06HIMOoJUjjKtOaKbn8kZX0wo8Co4eNnZlwqnc8=;
+        s=default; t=1584443417;
+        bh=DXjRntfM0yrOlD0ZVfpicGkExS7X0UTEbsHxUNOlysU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FyKSAC8SNTdcxlimtmBEOXimhyT1RBQ3+Q+G4bfLbZeuNbAKrZ+ULZD3ZSLI9UvYv
-         HgxsyDnUwSNqnDKgEE423xG4BpXiM8Oop/iu44jVFDR+fsTRqRrJ7snNg9jKpdYRoK
-         CraVcejhuLQ39zDj9oIZuoUBEiTKFPZv+GngBzkE=
+        b=OoRm1QPWUxz04m0womfovrnkD+4ihnqYonXgAyZRiBkPU/TpSqVHarf7pQ5w4yFkS
+         LUYB3Mb5XzMFAZ8nCt9cqSWUZsSvKr/a13K5mEzv18QNf+8y9NIfJG+A9fMnnofjCY
+         9PKc4oQ1lACuMXLkt155l0VjDji0Ex22heRvGsUY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Suren Baghdasaryan <surenb@google.com>,
-        =?UTF-8?q?Michal=20Koutn=C3=BD?= <mkoutny@suse.com>,
-        Tejun Heo <tj@kernel.org>
-Subject: [PATCH 5.4 059/123] cgroup: Iterate tasks that did not finish do_exit()
+        stable@vger.kernel.org, Dan Moulding <dmoulding@me.com>,
+        Kalle Valo <kvalo@codeaurora.org>
+Subject: [PATCH 5.5 076/151] iwlwifi: mvm: Do not require PHY_SKU NVM section for 3168 devices
 Date:   Tue, 17 Mar 2020 11:54:46 +0100
-Message-Id: <20200317103313.696991092@linuxfoundation.org>
+Message-Id: <20200317103331.884254585@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200317103307.343627747@linuxfoundation.org>
-References: <20200317103307.343627747@linuxfoundation.org>
+In-Reply-To: <20200317103326.593639086@linuxfoundation.org>
+References: <20200317103326.593639086@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,97 +43,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michal Koutný <mkoutny@suse.com>
+From: Dan Moulding <dmoulding@me.com>
 
-commit 9c974c77246460fa6a92c18554c3311c8c83c160 upstream.
+commit a9149d243f259ad8f02b1e23dfe8ba06128f15e1 upstream.
 
-PF_EXITING is set earlier than actual removal from css_set when a task
-is exitting. This can confuse cgroup.procs readers who see no PF_EXITING
-tasks, however, rmdir is checking against css_set membership so it can
-transitionally fail with EBUSY.
+The logic for checking required NVM sections was recently fixed in
+commit b3f20e098293 ("iwlwifi: mvm: fix NVM check for 3168
+devices"). However, with that fixed the else is now taken for 3168
+devices and within the else clause there is a mandatory check for the
+PHY_SKU section. This causes the parsing to fail for 3168 devices.
 
-Fix this by listing tasks that weren't unlinked from css_set active
-lists.
-It may happen that other users of the task iterator (without
-CSS_TASK_ITER_PROCS) spot a PF_EXITING task before cgroup_exit(). This
-is equal to the state before commit c03cd7738a83 ("cgroup: Include dying
-leaders with live threads in PROCS iterations") but it may be reviewed
-later.
+The PHY_SKU section is really only mandatory for the IWL_NVM_EXT
+layout (the phy_sku parameter of iwl_parse_nvm_data is only used when
+the NVM type is IWL_NVM_EXT). So this changes the PHY_SKU section
+check so that it's only mandatory for IWL_NVM_EXT.
 
-Reported-by: Suren Baghdasaryan <surenb@google.com>
-Fixes: c03cd7738a83 ("cgroup: Include dying leaders with live threads in PROCS iterations")
-Signed-off-by: Michal Koutný <mkoutny@suse.com>
-Signed-off-by: Tejun Heo <tj@kernel.org>
+Fixes: b3f20e098293 ("iwlwifi: mvm: fix NVM check for 3168 devices")
+Signed-off-by: Dan Moulding <dmoulding@me.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- include/linux/cgroup.h |    1 +
- kernel/cgroup/cgroup.c |   23 ++++++++++++++++-------
- 2 files changed, 17 insertions(+), 7 deletions(-)
+ drivers/net/wireless/intel/iwlwifi/mvm/nvm.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/include/linux/cgroup.h
-+++ b/include/linux/cgroup.h
-@@ -62,6 +62,7 @@ struct css_task_iter {
- 	struct list_head		*mg_tasks_head;
- 	struct list_head		*dying_tasks_head;
- 
-+	struct list_head		*cur_tasks_head;
- 	struct css_set			*cur_cset;
- 	struct css_set			*cur_dcset;
- 	struct task_struct		*cur_task;
---- a/kernel/cgroup/cgroup.c
-+++ b/kernel/cgroup/cgroup.c
-@@ -4461,12 +4461,16 @@ static void css_task_iter_advance_css_se
+--- a/drivers/net/wireless/intel/iwlwifi/mvm/nvm.c
++++ b/drivers/net/wireless/intel/iwlwifi/mvm/nvm.c
+@@ -308,7 +308,8 @@ iwl_parse_nvm_sections(struct iwl_mvm *m
  		}
- 	} while (!css_set_populated(cset) && list_empty(&cset->dying_tasks));
  
--	if (!list_empty(&cset->tasks))
-+	if (!list_empty(&cset->tasks)) {
- 		it->task_pos = cset->tasks.next;
--	else if (!list_empty(&cset->mg_tasks))
-+		it->cur_tasks_head = &cset->tasks;
-+	} else if (!list_empty(&cset->mg_tasks)) {
- 		it->task_pos = cset->mg_tasks.next;
--	else
-+		it->cur_tasks_head = &cset->mg_tasks;
-+	} else {
- 		it->task_pos = cset->dying_tasks.next;
-+		it->cur_tasks_head = &cset->dying_tasks;
-+	}
- 
- 	it->tasks_head = &cset->tasks;
- 	it->mg_tasks_head = &cset->mg_tasks;
-@@ -4524,10 +4528,14 @@ repeat:
- 		else
- 			it->task_pos = it->task_pos->next;
- 
--		if (it->task_pos == it->tasks_head)
-+		if (it->task_pos == it->tasks_head) {
- 			it->task_pos = it->mg_tasks_head->next;
--		if (it->task_pos == it->mg_tasks_head)
-+			it->cur_tasks_head = it->mg_tasks_head;
-+		}
-+		if (it->task_pos == it->mg_tasks_head) {
- 			it->task_pos = it->dying_tasks_head->next;
-+			it->cur_tasks_head = it->dying_tasks_head;
-+		}
- 		if (it->task_pos == it->dying_tasks_head)
- 			css_task_iter_advance_css_set(it);
- 	} else {
-@@ -4546,11 +4554,12 @@ repeat:
- 			goto repeat;
- 
- 		/* and dying leaders w/o live member threads */
--		if (!atomic_read(&task->signal->live))
-+		if (it->cur_tasks_head == it->dying_tasks_head &&
-+		    !atomic_read(&task->signal->live))
- 			goto repeat;
- 	} else {
- 		/* skip all dying ones */
--		if (task->flags & PF_EXITING)
-+		if (it->cur_tasks_head == it->dying_tasks_head)
- 			goto repeat;
- 	}
- }
+ 		/* PHY_SKU section is mandatory in B0 */
+-		if (!mvm->nvm_sections[NVM_SECTION_TYPE_PHY_SKU].data) {
++		if (mvm->trans->cfg->nvm_type == IWL_NVM_EXT &&
++		    !mvm->nvm_sections[NVM_SECTION_TYPE_PHY_SKU].data) {
+ 			IWL_ERR(mvm,
+ 				"Can't parse phy_sku in B0, empty sections\n");
+ 			return NULL;
 
 
