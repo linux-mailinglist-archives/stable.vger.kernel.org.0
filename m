@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 79D7A188185
-	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:20:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 779F918818B
+	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:20:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727715AbgCQLEM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Mar 2020 07:04:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44296 "EHLO mail.kernel.org"
+        id S1726490AbgCQLEp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Mar 2020 07:04:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45152 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728239AbgCQLEM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Mar 2020 07:04:12 -0400
+        id S1726760AbgCQLEo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Mar 2020 07:04:44 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0D5DE2071C;
-        Tue, 17 Mar 2020 11:04:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 54FDF20719;
+        Tue, 17 Mar 2020 11:04:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584443051;
-        bh=eFg44DtLtx240mxrbqaeZnXCo/psQRsqmlQBJ5JYo0E=;
+        s=default; t=1584443083;
+        bh=YeOkMtyWLIEoF9MWDXRDRMp7xN/CAzz3pEq7S4IaUVE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b4cCgf+ML4bguZIMMa2/WvRNSWWK4yXYoWkZ1WI75o3LCKY4my/ZDLYSTu0u4G1Fk
-         ZLKr5dArFxwMrwFFrLs49Lch8cd8L8mMDcd4BG2aZN2sVf8iRcpSrhuij5DfH6Cf7p
-         xMmRjKly+9fciFBz3VhZfW0n5GofMezaAnDT2mK8=
+        b=HP8wc9g5nRItd3oVufnpRc6YC8vh1I7Om6b5IivCTDozNGvN3Dj2woVHVF72zp6dG
+         AXeNFGapbsUkiJJHKkV+xpZ6V6wKqdQJX1UVpxtdCF+YlTYNG2jl9zFAsHnkkrWOup
+         LVClKV04y+FJqMnPVUvcFReAHLqi6O7/Mx2K5Z2w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Ben Chuang <ben.chuang@genesyslogic.com.tw>,
-        Raul E Rangel <rrangel@chromium.org>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.4 072/123] mmc: sdhci-pci-gli: Enable MSI interrupt for GL975x
-Date:   Tue, 17 Mar 2020 11:54:59 +0100
-Message-Id: <20200317103314.868379683@linuxfoundation.org>
+        stable@vger.kernel.org, Mathias Kresin <dev@kresin.me>,
+        Thomas Langer <thomas.langer@intel.com>,
+        Linus Walleij <linus.walleij@linaro.org>
+Subject: [PATCH 5.4 073/123] pinctrl: falcon: fix syntax error
+Date:   Tue, 17 Mar 2020 11:55:00 +0100
+Message-Id: <20200317103314.963790552@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200317103307.343627747@linuxfoundation.org>
 References: <20200317103307.343627747@linuxfoundation.org>
@@ -45,68 +44,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ben Chuang <ben.chuang@genesyslogic.com.tw>
+From: Mathias Kresin <dev@kresin.me>
 
-commit 31e43f31890ca6e909b27dcb539252b46aa465da upstream.
+commit d62e7fbea4951c124a24176da0c7bf3003ec53d4 upstream.
 
-Enable MSI interrupt for GL9750/GL9755. Some platforms
-do not support PCI INTx and devices can not work without
-interrupt. Like messages below:
+Add the missing semicolon after of_node_put to get the file compiled.
 
-[    4.487132] sdhci-pci 0000:01:00.0: SDHCI controller found [17a0:9755] (rev 0)
-[    4.487198] ACPI BIOS Error (bug): Could not resolve symbol [\_SB.PCI0.PBR2._PRT.APS2], AE_NOT_FOUND (20190816/psargs-330)
-[    4.487397] ACPI Error: Aborting method \_SB.PCI0.PBR2._PRT due to previous error (AE_NOT_FOUND) (20190816/psparse-529)
-[    4.487707] pcieport 0000:00:01.3: can't derive routing for PCI INT A
-[    4.487709] sdhci-pci 0000:01:00.0: PCI INT A: no GSI
-
-Signed-off-by: Ben Chuang <ben.chuang@genesyslogic.com.tw>
-Tested-by: Raul E Rangel <rrangel@chromium.org>
-Fixes: e51df6ce668a ("mmc: host: sdhci-pci: Add Genesys Logic GL975x support")
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20200219092900.9151-1-benchuanggli@gmail.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Fixes: f17d2f54d36d ("pinctrl: falcon: Add of_node_put() before return")
+Cc: stable@vger.kernel.org # v5.4+
+Signed-off-by: Mathias Kresin <dev@kresin.me>
+Link: https://lore.kernel.org/r/20200305182245.9636-1-dev@kresin.me
+Acked-by: Thomas Langer <thomas.langer@intel.com>
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/mmc/host/sdhci-pci-gli.c |   17 +++++++++++++++++
- 1 file changed, 17 insertions(+)
+ drivers/pinctrl/pinctrl-falcon.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/mmc/host/sdhci-pci-gli.c
-+++ b/drivers/mmc/host/sdhci-pci-gli.c
-@@ -262,10 +262,26 @@ static int gl9750_execute_tuning(struct
- 	return 0;
- }
- 
-+static void gli_pcie_enable_msi(struct sdhci_pci_slot *slot)
-+{
-+	int ret;
-+
-+	ret = pci_alloc_irq_vectors(slot->chip->pdev, 1, 1,
-+				    PCI_IRQ_MSI | PCI_IRQ_MSIX);
-+	if (ret < 0) {
-+		pr_warn("%s: enable PCI MSI failed, error=%d\n",
-+		       mmc_hostname(slot->host->mmc), ret);
-+		return;
-+	}
-+
-+	slot->host->irq = pci_irq_vector(slot->chip->pdev, 0);
-+}
-+
- static int gli_probe_slot_gl9750(struct sdhci_pci_slot *slot)
- {
- 	struct sdhci_host *host = slot->host;
- 
-+	gli_pcie_enable_msi(slot);
- 	slot->host->mmc->caps2 |= MMC_CAP2_NO_SDIO;
- 	sdhci_enable_v4_mode(host);
- 
-@@ -276,6 +292,7 @@ static int gli_probe_slot_gl9755(struct
- {
- 	struct sdhci_host *host = slot->host;
- 
-+	gli_pcie_enable_msi(slot);
- 	slot->host->mmc->caps2 |= MMC_CAP2_NO_SDIO;
- 	sdhci_enable_v4_mode(host);
- 
+--- a/drivers/pinctrl/pinctrl-falcon.c
++++ b/drivers/pinctrl/pinctrl-falcon.c
+@@ -451,7 +451,7 @@ static int pinctrl_falcon_probe(struct p
+ 		falcon_info.clk[*bank] = clk_get(&ppdev->dev, NULL);
+ 		if (IS_ERR(falcon_info.clk[*bank])) {
+ 			dev_err(&ppdev->dev, "failed to get clock\n");
+-			of_node_put(np)
++			of_node_put(np);
+ 			return PTR_ERR(falcon_info.clk[*bank]);
+ 		}
+ 		falcon_info.membase[*bank] = devm_ioremap_resource(&pdev->dev,
 
 
