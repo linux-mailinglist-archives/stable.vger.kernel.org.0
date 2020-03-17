@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7714318821A
-	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:22:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 877EC188183
+	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:20:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727188AbgCQLWT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Mar 2020 07:22:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34198 "EHLO mail.kernel.org"
+        id S1727670AbgCQLEF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Mar 2020 07:04:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44140 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726667AbgCQK4f (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Mar 2020 06:56:35 -0400
+        id S1727564AbgCQLEE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Mar 2020 07:04:04 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C646020724;
-        Tue, 17 Mar 2020 10:56:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6C02E20658;
+        Tue, 17 Mar 2020 11:04:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584442595;
-        bh=X2e/lvBOOe65WYirmqSixR1W7xvyvNrvziM4TprWNck=;
+        s=default; t=1584443043;
+        bh=QQ129eu6WhXBVL86aVphaEF5TJnd8BZqbt1aZgE+7Ac=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lPCtBpsJNzSlqF0vplyTFSqcOSZWQL5zOomucxdOK37ALyo3yt3UJo9+iiZfg6f3H
-         lHKZZVYPupREfzslsfl4smOERKh/AgLPyzQj4YZwnLd1gnPykjIn+KYZNGfKMyQ+xe
-         wxQCvqU8wX2XWhompdVD4KFv0ufhZ+NYemWqBP1o=
+        b=sI9ZsNIdAIrPAdck5pbDV356rMsZs08E9tjv5nfTYWujWu8FpaIEYMwo4qaEWn11B
+         3Brc20kCrdJB//qmemTDlm1sDqPrTHx8L1cQ5A64EmgX3g6BbyhYXKKi5QjSPisw+q
+         LllMeNlFLaPFW65K3E3YCpR9GmNKIXLCz+uOq9FI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        stable@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
+        Stefan Schmidt <stefan@datenfreihafen.org>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 17/89] net: systemport: fix index check to avoid an array out of bounds access
+Subject: [PATCH 5.4 039/123] nl802154: add missing attribute validation
 Date:   Tue, 17 Mar 2020 11:54:26 +0100
-Message-Id: <20200317103301.952446186@linuxfoundation.org>
+Message-Id: <20200317103311.882837828@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200317103259.744774526@linuxfoundation.org>
-References: <20200317103259.744774526@linuxfoundation.org>
+In-Reply-To: <20200317103307.343627747@linuxfoundation.org>
+References: <20200317103307.343627747@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,32 +44,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Jakub Kicinski <kuba@kernel.org>
 
-[ Upstream commit c0368595c1639947839c0db8294ee96aca0b3b86 ]
+[ Upstream commit 9322cd7c4af2ccc7fe7c5f01adb53f4f77949e92 ]
 
-Currently the bounds check on index is off by one and can lead to
-an out of bounds access on array priv->filters_loc when index is
-RXCHK_BRCM_TAG_MAX.
+Add missing attribute validation for several u8 types.
 
-Fixes: bb9051a2b230 ("net: systemport: Add support for WAKE_FILTER")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Fixes: 2c21d11518b6 ("net: add NL802154 interface for configuration of 802.15.4 devices")
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Acked-by: Stefan Schmidt <stefan@datenfreihafen.org>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/broadcom/bcmsysport.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/ieee802154/nl_policy.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/drivers/net/ethernet/broadcom/bcmsysport.c
-+++ b/drivers/net/ethernet/broadcom/bcmsysport.c
-@@ -2168,7 +2168,7 @@ static int bcm_sysport_rule_set(struct b
- 		return -ENOSPC;
- 
- 	index = find_first_zero_bit(priv->filters, RXCHK_BRCM_TAG_MAX);
--	if (index > RXCHK_BRCM_TAG_MAX)
-+	if (index >= RXCHK_BRCM_TAG_MAX)
- 		return -ENOSPC;
- 
- 	/* Location is the classification ID, and index is the position
+--- a/net/ieee802154/nl_policy.c
++++ b/net/ieee802154/nl_policy.c
+@@ -21,6 +21,11 @@ const struct nla_policy ieee802154_polic
+ 	[IEEE802154_ATTR_HW_ADDR] = { .type = NLA_HW_ADDR, },
+ 	[IEEE802154_ATTR_PAN_ID] = { .type = NLA_U16, },
+ 	[IEEE802154_ATTR_CHANNEL] = { .type = NLA_U8, },
++	[IEEE802154_ATTR_BCN_ORD] = { .type = NLA_U8, },
++	[IEEE802154_ATTR_SF_ORD] = { .type = NLA_U8, },
++	[IEEE802154_ATTR_PAN_COORD] = { .type = NLA_U8, },
++	[IEEE802154_ATTR_BAT_EXT] = { .type = NLA_U8, },
++	[IEEE802154_ATTR_COORD_REALIGN] = { .type = NLA_U8, },
+ 	[IEEE802154_ATTR_PAGE] = { .type = NLA_U8, },
+ 	[IEEE802154_ATTR_COORD_SHORT_ADDR] = { .type = NLA_U16, },
+ 	[IEEE802154_ATTR_COORD_HW_ADDR] = { .type = NLA_HW_ADDR, },
 
 
