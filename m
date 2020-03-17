@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 910031881E6
-	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:21:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8762D188115
+	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:15:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727466AbgCQK7e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Mar 2020 06:59:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38084 "EHLO mail.kernel.org"
+        id S1729347AbgCQLMB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Mar 2020 07:12:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55526 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726484AbgCQK7d (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Mar 2020 06:59:33 -0400
+        id S1729133AbgCQLMA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Mar 2020 07:12:00 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3F71F2071C;
-        Tue, 17 Mar 2020 10:59:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5072520658;
+        Tue, 17 Mar 2020 11:11:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584442772;
-        bh=W7m8I0W5QGkkJExlg6OH8ER9RwjZ/AsI4j8yc/030EY=;
+        s=default; t=1584443517;
+        bh=PjE1O1D4TXCkuEAVRYTD0lo95CU/BJbQobYhAMV1hdg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UVlpwHHzP0YRd0PCaqCf6hLfQwnIK3MdL807nTx3u49EFBeAGxHVD2+nIogGbozfA
-         SqCoBUn96PqcnQV4lVUxuFm+sDewO08b48yf1nMZnC6MYAPQdL1Nzay5ORviGhMUOV
-         4cGXNFrrCLySNphezsu0kUVOFNOoyG0wSGQDRTdo=
+        b=q/imGYDpZCzRKwCgWlAfW2Kc5AIaxpe4nZ7un2qVsWA83mzqjoq376btTvRsC3cfY
+         yLcM7VjkESHsVlMFc8aw2oXq57lt6/sPepiKlYXhqeYLvMZjhPsW7v0bXMR6kUaJqS
+         ErRIkpFSgDCkivtsTdYTvDsr0QQe0PBhd4jcoiSI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lu Baolu <baolu.lu@linux.intel.com>,
-        Moritz Fischer <mdf@kernel.org>,
-        Yonghyun Hwang <yonghyun@google.com>,
-        Joerg Roedel <jroedel@suse.de>
-Subject: [PATCH 4.19 69/89] iommu/vt-d: Fix a bug in intel_iommu_iova_to_phys() for huge page
-Date:   Tue, 17 Mar 2020 11:55:18 +0100
-Message-Id: <20200317103307.898438830@linuxfoundation.org>
+        stable@vger.kernel.org, Eric Biggers <ebiggers@google.com>
+Subject: [PATCH 5.5 109/151] fscrypt: dont evict dirty inodes after removing key
+Date:   Tue, 17 Mar 2020 11:55:19 +0100
+Message-Id: <20200317103334.199840852@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200317103259.744774526@linuxfoundation.org>
-References: <20200317103259.744774526@linuxfoundation.org>
+In-Reply-To: <20200317103326.593639086@linuxfoundation.org>
+References: <20200317103326.593639086@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,41 +42,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yonghyun Hwang <yonghyun@google.com>
+From: Eric Biggers <ebiggers@google.com>
 
-commit 77a1bce84bba01f3f143d77127b72e872b573795 upstream.
+commit 2b4eae95c7361e0a147b838715c8baa1380a428f upstream.
 
-intel_iommu_iova_to_phys() has a bug when it translates an IOVA for a huge
-page onto its corresponding physical address. This commit fixes the bug by
-accomodating the level of page entry for the IOVA and adds IOVA's lower
-address to the physical address.
+After FS_IOC_REMOVE_ENCRYPTION_KEY removes a key, it syncs the
+filesystem and tries to get and put all inodes that were unlocked by the
+key so that unused inodes get evicted via fscrypt_drop_inode().
+Normally, the inodes are all clean due to the sync.
 
-Cc: <stable@vger.kernel.org>
-Acked-by: Lu Baolu <baolu.lu@linux.intel.com>
-Reviewed-by: Moritz Fischer <mdf@kernel.org>
-Signed-off-by: Yonghyun Hwang <yonghyun@google.com>
-Fixes: 3871794642579 ("VT-d: Changes to support KVM")
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+However, after the filesystem is sync'ed, userspace can modify and close
+one of the files.  (Userspace is *supposed* to close the files before
+removing the key.  But it doesn't always happen, and the kernel can't
+assume it.)  This causes the inode to be dirtied and have i_count == 0.
+Then, fscrypt_drop_inode() failed to consider this case and indicated
+that the inode can be dropped, causing the write to be lost.
+
+On f2fs, other problems such as a filesystem freeze could occur due to
+the inode being freed while still on f2fs's dirty inode list.
+
+Fix this bug by making fscrypt_drop_inode() only drop clean inodes.
+
+I've written an xfstest which detects this bug on ext4, f2fs, and ubifs.
+
+Fixes: b1c0ec3599f4 ("fscrypt: add FS_IOC_REMOVE_ENCRYPTION_KEY ioctl")
+Cc: <stable@vger.kernel.org> # v5.4+
+Link: https://lore.kernel.org/r/20200305084138.653498-1-ebiggers@kernel.org
+Signed-off-by: Eric Biggers <ebiggers@google.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/iommu/intel-iommu.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ fs/crypto/keysetup.c |    9 +++++++++
+ 1 file changed, 9 insertions(+)
 
---- a/drivers/iommu/intel-iommu.c
-+++ b/drivers/iommu/intel-iommu.c
-@@ -5144,8 +5144,10 @@ static phys_addr_t intel_iommu_iova_to_p
- 	u64 phys = 0;
+--- a/fs/crypto/keysetup.c
++++ b/fs/crypto/keysetup.c
+@@ -515,6 +515,15 @@ int fscrypt_drop_inode(struct inode *ino
+ 	mk = ci->ci_master_key->payload.data[0];
  
- 	pte = pfn_to_dma_pte(dmar_domain, iova >> VTD_PAGE_SHIFT, &level);
--	if (pte)
--		phys = dma_pte_addr(pte);
-+	if (pte && dma_pte_present(pte))
-+		phys = dma_pte_addr(pte) +
-+			(iova & (BIT_MASK(level_to_offset_bits(level) +
-+						VTD_PAGE_SHIFT) - 1));
- 
- 	return phys;
- }
+ 	/*
++	 * With proper, non-racy use of FS_IOC_REMOVE_ENCRYPTION_KEY, all inodes
++	 * protected by the key were cleaned by sync_filesystem().  But if
++	 * userspace is still using the files, inodes can be dirtied between
++	 * then and now.  We mustn't lose any writes, so skip dirty inodes here.
++	 */
++	if (inode->i_state & I_DIRTY_ALL)
++		return 0;
++
++	/*
+ 	 * Note: since we aren't holding ->mk_secret_sem, the result here can
+ 	 * immediately become outdated.  But there's no correctness problem with
+ 	 * unnecessarily evicting.  Nor is there a correctness problem with not
 
 
