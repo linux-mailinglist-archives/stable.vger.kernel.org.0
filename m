@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7EC5B188111
-	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:15:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C5C7187FD9
+	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:05:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727273AbgCQLP0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Mar 2020 07:15:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55926 "EHLO mail.kernel.org"
+        id S1728370AbgCQLFH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Mar 2020 07:05:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45758 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728807AbgCQLMS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Mar 2020 07:12:18 -0400
+        id S1727999AbgCQLFG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Mar 2020 07:05:06 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 560B720735;
-        Tue, 17 Mar 2020 11:12:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C16A720714;
+        Tue, 17 Mar 2020 11:05:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584443537;
-        bh=0dvnIHjIvrMzVSv9CLZhGvjeFyWFTtD1oWPl5DeL6NA=;
+        s=default; t=1584443106;
+        bh=eQo3vOkdx+gbyH57SiasHpKgrg8xrYXjhCMuRy2WDGY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kEo7dTG8o+UEHznaKKYJ/O1qpgiEyFRIUQHXBBIwiGapdXRCXgtQ1Jf83uv6T6TNy
-         uCQVBQ/oWxBGxchBNct6znyVTXIX80eBh2IjavYEoRlrMvEODrc1Epv3qMrMqNEWqP
-         VAAKhQvEnMfWiwRZ+7Re2BpPuJrISigFoa1lEQy0=
+        b=eU0O/Jdc3Egxd+/RqVMx6yj1v6yrik/afJWD/tYFpNSkclzISyXSIFnNHLYBOYstJ
+         Ks+gZxGgeoEzeQ3T2DoVSMlmDeNV8rZZKVnXamTcgKSqTzXSTRgTae6wR1WgrtjliC
+         XlM4O3IOvV7xFCuH3voptpHKGlBgs0QbUbUrJGfo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Jarkko Nikula <jarkko.nikula@linux.intel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Wolfram Sang <wsa@the-dreams.de>
-Subject: [PATCH 5.5 115/151] i2c: designware-pci: Fix BUG_ON during device removal
+        stable@vger.kernel.org, Anson Huang <Anson.Huang@nxp.com>,
+        Shawn Guo <shawnguo@kernel.org>
+Subject: [PATCH 5.4 098/123] clk: imx8mn: Fix incorrect clock defines
 Date:   Tue, 17 Mar 2020 11:55:25 +0100
-Message-Id: <20200317103334.644943599@linuxfoundation.org>
+Message-Id: <20200317103317.734391046@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200317103326.593639086@linuxfoundation.org>
-References: <20200317103326.593639086@linuxfoundation.org>
+In-Reply-To: <20200317103307.343627747@linuxfoundation.org>
+References: <20200317103307.343627747@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,39 +43,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+From: Anson Huang <Anson.Huang@nxp.com>
 
-commit 9be8bc4dd6177cf992b93b0bd014c4f611283896 upstream.
+commit 5eb40257047fb11085d582b7b9ccd0bffe900726 upstream.
 
-Function i2c_dw_pci_remove() -> pci_free_irq_vectors() ->
-pci_disable_msi() -> free_msi_irqs() will throw a BUG_ON() for MSI
-enabled device since the driver has not released the requested IRQ before
-calling the pci_free_irq_vectors().
+IMX8MN_CLK_I2C4 and IMX8MN_CLK_UART1's index definitions are incorrect,
+fix them.
 
-Here driver requests an IRQ using devm_request_irq() but automatic
-release happens only after remove callback. Fix this by explicitly
-freeing the IRQ before calling pci_free_irq_vectors().
-
-Fixes: 21aa3983d619 ("i2c: designware-pci: Switch over to MSI interrupts")
-Cc: stable@vger.kernel.org # v5.4+
-Signed-off-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+Fixes: 1e80936a42e1 ("dt-bindings: imx: Add clock binding doc for i.MX8MN")
+Signed-off-by: Anson Huang <Anson.Huang@nxp.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/i2c/busses/i2c-designware-pcidrv.c |    1 +
- 1 file changed, 1 insertion(+)
+ include/dt-bindings/clock/imx8mn-clock.h |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/i2c/busses/i2c-designware-pcidrv.c
-+++ b/drivers/i2c/busses/i2c-designware-pcidrv.c
-@@ -313,6 +313,7 @@ static void i2c_dw_pci_remove(struct pci
- 	pm_runtime_get_noresume(&pdev->dev);
- 
- 	i2c_del_adapter(&dev->adapter);
-+	devm_free_irq(&pdev->dev, dev->irq, dev);
- 	pci_free_irq_vectors(pdev);
- }
- 
+--- a/include/dt-bindings/clock/imx8mn-clock.h
++++ b/include/dt-bindings/clock/imx8mn-clock.h
+@@ -122,8 +122,8 @@
+ #define IMX8MN_CLK_I2C1				105
+ #define IMX8MN_CLK_I2C2				106
+ #define IMX8MN_CLK_I2C3				107
+-#define IMX8MN_CLK_I2C4				118
+-#define IMX8MN_CLK_UART1			119
++#define IMX8MN_CLK_I2C4				108
++#define IMX8MN_CLK_UART1			109
+ #define IMX8MN_CLK_UART2			110
+ #define IMX8MN_CLK_UART3			111
+ #define IMX8MN_CLK_UART4			112
 
 
