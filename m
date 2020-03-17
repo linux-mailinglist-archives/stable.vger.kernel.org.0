@@ -2,178 +2,113 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D5B718876D
-	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 15:25:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 12AD6188793
+	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 15:35:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726785AbgCQOZE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Mar 2020 10:25:04 -0400
-Received: from mx07-00178001.pphosted.com ([62.209.51.94]:22936 "EHLO
-        mx07-00178001.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726759AbgCQOZE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 17 Mar 2020 10:25:04 -0400
-Received: from pps.filterd (m0046668.ppops.net [127.0.0.1])
-        by mx07-00178001.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 02HEEKTX020282;
-        Tue, 17 Mar 2020 15:24:59 +0100
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=st.com; h=subject : to : cc :
- references : from : message-id : date : mime-version : in-reply-to :
- content-type : content-transfer-encoding; s=STMicroelectronics;
- bh=zP92rnQ3i+hHFZVKP9Da5Pr7ddiPctkkMFjIu1bZNsY=;
- b=qVH/Myd8pANtHOlfnsUMUZcckuRby+S3QVEkXzu04Vk8vIdLX+LHozxOAvBAKPsCLywV
- V5KXpuOApLVVUOUWq6UfCYEPl5MxjVFp8Nz8tR/9qu5bkJ+Z0wsL7cuWu2C2iFCtSWL1
- 1TGtVZrpGVMvodGHwtZnm86Lp57yf5zeTvciWvt1k9Q+EE6wkatCcsXSLODf8KvXiCKp
- haKdaFYEVi7WR/WIBqpMLaBdpLQaSfq7plEEHtbTPOcNQJzzEpmRDp6Xao81/bg35kox
- QRbQFU7lBr60Hd/EjJ0nfnLir4xzMK5dlr/fjNdE4NGCmuXxf5LgPd/njOeAi44Aroip Eg== 
-Received: from beta.dmz-eu.st.com (beta.dmz-eu.st.com [164.129.1.35])
-        by mx07-00178001.pphosted.com with ESMTP id 2yrqv08b3t-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 17 Mar 2020 15:24:59 +0100
-Received: from euls16034.sgp.st.com (euls16034.sgp.st.com [10.75.44.20])
-        by beta.dmz-eu.st.com (STMicroelectronics) with ESMTP id 2125A100038;
-        Tue, 17 Mar 2020 15:24:55 +0100 (CET)
-Received: from Webmail-eu.st.com (sfhdag3node1.st.com [10.75.127.7])
-        by euls16034.sgp.st.com (STMicroelectronics) with ESMTP id 103252AF35E;
-        Tue, 17 Mar 2020 15:24:55 +0100 (CET)
-Received: from lmecxl0889.lme.st.com (10.75.127.45) by SFHDAG3NODE1.st.com
- (10.75.127.7) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Tue, 17 Mar
- 2020 15:24:54 +0100
-Subject: Re: [PATCH v5] remoteproc: Fix NULL pointer dereference in
- rproc_virtio_notify
-To:     Bjorn Andersson <bjorn.andersson@linaro.org>
-CC:     Nikita Shubin <nshubin@topcon.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        Ohad Ben-Cohen <ohad@wizery.com>,
-        "linux-remoteproc@vger.kernel.org" <linux-remoteproc@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>
-References: <20200306070325.15232-1-NShubin@topcon.com>
- <20200306072452.24743-1-NShubin@topcon.com>
- <6c7ef4f2-6f71-c2fb-b2e9-ad7cbeb7cfbc@st.com>
- <20200310120846.GA19430@topcon.com>
- <507197c5412e4b438aeb5c527be74b3a@SFHDAG3NODE1.st.com>
- <20200311200107.GZ1214176@minitux>
-From:   Arnaud POULIQUEN <arnaud.pouliquen@st.com>
-Message-ID: <f6de2571-3541-7004-bc57-92cb3fef2c71@st.com>
-Date:   Tue, 17 Mar 2020 15:24:53 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.4.1
+        id S1726619AbgCQOfM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Mar 2020 10:35:12 -0400
+Received: from m176151.mail.qiye.163.com ([59.111.176.151]:58634 "EHLO
+        m176151.mail.qiye.163.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726222AbgCQOfM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 17 Mar 2020 10:35:12 -0400
+X-Greylist: delayed 592 seconds by postgrey-1.27 at vger.kernel.org; Tue, 17 Mar 2020 10:35:10 EDT
+Received: from vivo.com (wm-11.qy.internal [127.0.0.1])
+        by m176151.mail.qiye.163.com (Hmail) with ESMTP id BF500483D7B;
+        Tue, 17 Mar 2020 22:25:04 +0800 (CST)
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: base64
+Message-ID: <ACEA7wD3CNSN-spMiGEyUqod.3.1584455104769.Hmail.wenhu.wang@vivo.com>
+To:     Michael Ellerman <mpe@ellerman.id.au>
+Cc:     Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Paul Mackerras <paulus@samba.org>,
+        Allison Randal <allison@lohutok.net>,
+        Richard Fontana <rfontana@redhat.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org,
+        trivial@kernel.org, kernel@vivo.com,
+        stable <stable@vger.kernel.org>
+Subject: =?UTF-8?B?UmU6UmU6IFtQQVRDSCB2M10gcG93ZXJwYy9mc2wtODV4eDogZml4IGNvbXBpbGUgZXJyb3I=?=
+X-Priority: 3
+X-Mailer: HMail Webmail Server V2.0 Copyright (c) 2016-163.com
+X-Originating-IP: 58.251.74.227
+In-Reply-To: <878sjzfcpm.fsf@mpe.ellerman.id.au>
 MIME-Version: 1.0
-In-Reply-To: <20200311200107.GZ1214176@minitux>
-Content-Type: text/plain; charset="utf-8"
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.75.127.45]
-X-ClientProxiedBy: SFHDAG6NODE2.st.com (10.75.127.17) To SFHDAG3NODE1.st.com
- (10.75.127.7)
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.138,18.0.645
- definitions=2020-03-17_05:2020-03-17,2020-03-17 signatures=0
+Received: from wenhu.wang@vivo.com( [58.251.74.227) ] by ajax-webmail ( [127.0.0.1] ) ; Tue, 17 Mar 2020 22:25:04 +0800 (GMT+08:00)
+From:   =?UTF-8?B?546L5paH6JmO?= <wenhu.wang@vivo.com>
+Date:   Tue, 17 Mar 2020 22:25:04 +0800 (GMT+08:00)
+X-HM-Spam-Status: e1kfGhgUHx5ZQUtXWQgYFAkeWUFZSFVDSEJCQkJNTE5MTktMSFlXWShZQU
+        hPN1dZLVlBSVdZCQ4XHghZQVk1NCk2OjckKS43PlkG
+X-HM-Sender-Digest: e1kJHlYWEh9ZQUhNTEhMSUlNSklNN1dZDB4ZWUEPCQ4eV1kSHx4VD1lB
+        WUc6OD46TAw*SDg1KDVWCAs2Ejw#Ai4KFB9VSFVKTkNPT05OSktMSE5MVTMWGhIXVQweFRMOVQwa
+        FRw7DRINFFUYFBZFWVdZEgtZQVlOQ1VJTkpVTE9VSUlMWVdZCAFZQUxJQkg3Bg++
+X-HM-Tid: 0a70e8e2391993b5kuwsbf500483d7b
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Bjorn
-
-On 3/11/20 9:01 PM, Bjorn Andersson wrote:
-> On Tue 10 Mar 06:19 PDT 2020, Arnaud POULIQUEN wrote:
-> 
->>
->>
->>> -----Original Message-----
->>> From: linux-remoteproc-owner@vger.kernel.org <linux-remoteproc-
->>> owner@vger.kernel.org> On Behalf Of Nikita Shubin
->>> Sent: mardi 10 mars 2020 13:09
->>> To: Arnaud POULIQUEN <arnaud.pouliquen@st.com>
->>> Cc: stable@vger.kernel.org; Ohad Ben-Cohen <ohad@wizery.com>; Bjorn
->>> Andersson <bjorn.andersson@linaro.org>; linux-
->>> remoteproc@vger.kernel.org; linux-kernel@vger.kernel.org; Mathieu Poirier
->>> <mathieu.poirier@linaro.org>
->>> Subject: Re: [PATCH v5] remoteproc: Fix NULL pointer dereference in
->>> rproc_virtio_notify
->>>
->>> On Mon, Mar 09, 2020 at 03:22:24PM +0100, Arnaud POULIQUEN wrote:
->>>> Hi,
->>>>
->>>> sorry for the late answer...
->>>>
->>>> On 3/6/20 8:24 AM, Nikita Shubin wrote:
->>>>> Undefined rproc_ops .kick method in remoteproc driver will result in
->>>>> "Unable to handle kernel NULL pointer dereference" in
->>>>> rproc_virtio_notify, after firmware loading if:
->>>>>
->>>>>  1) .kick method wasn't defined in driver
->>>>>  2) resource_table exists in firmware and has "Virtio device entry"
->>>>> defined
->>>>>
->>>>> Let's refuse to register an rproc-induced virtio device if no kick
->>>>> method was defined for rproc.
->>>>>
-
-[...]
-
->>>>>
->>>>> Signed-off-by: Nikita Shubin <NShubin@topcon.com>
->>>>> Fixes: 7a186941626d ("remoteproc: remove the single rpmsg vdev
->>>>> limitation")
->>>>> Cc: stable@vger.kernel.org
->>>>> ---
->>>>>  drivers/remoteproc/remoteproc_virtio.c | 7 +++++++
->>>>>  1 file changed, 7 insertions(+)
->>>>>
->>>>> diff --git a/drivers/remoteproc/remoteproc_virtio.c
->>>>> b/drivers/remoteproc/remoteproc_virtio.c
->>>>> index 8c07cb2ca8ba..31a62a0b470e 100644
->>>>> --- a/drivers/remoteproc/remoteproc_virtio.c
->>>>> +++ b/drivers/remoteproc/remoteproc_virtio.c
->>>>> @@ -334,6 +334,13 @@ int rproc_add_virtio_dev(struct rproc_vdev
->>> *rvdev, int id)
->>>>>  	struct rproc_mem_entry *mem;
->>>>>  	int ret;
->>>>>
->>>>> +	if (rproc->ops->kick == NULL) {
->>>>> +		ret = -EINVAL;
->>>>> +		dev_err(dev, ".kick method not defined for %s",
->>>>> +				rproc->name);
->>>>> +		goto out;
->>>>> +	}
->>>>> +
->>>> Should the kick ops be mandatory for all the platforms? How about making
->>> it optional instead?
->>>
->>> Hi, Arnaud.
->>>
->>> It is not mandatory, currently it must be provided if specified vdev entry is in
->>> resourse table. Otherwise it looks like there is no point in creating vdev.
->>
->> Yes, my question was about having it optional for vdev also. A platform could implement the vdev
->> without kick mechanism but by polling depending due to hardware capability...
->> This could be an alternative avoiding to implement a dummy function in platform driver.
->>
-> 
-> Is this a real thing or a theoretical suggestion?
-Only a theoretical suggestion, trigged by the IMX platform patchset which implement a "temporary" dummy kick.
-and based on OpenAMP lib implementation which does not request a doorbell.
-Anyway no issue to keep it mandatory here. 
-
-Regards,
-Arnaud
-
-> 
-> Regards,
-> Bjorn
-> 
->> Anyway it just a proposal that makes sense from MPOV. If Bjorn is ok with your patch, nothing blocking on my side.
->>
->> Regards
->> Arnaud
->>
->>>
->>>
->>>>
->>>> Regards,
->>>> Arnaud
->>>>
->>>>>  	/* Try to find dedicated vdev buffer carveout */
->>>>>  	mem = rproc_find_carveout_by_name(rproc, "vdev%dbuffer",
->>> rvdev->index);
->>>>>  	if (mem) {
->>>>>
+RnJvbTogTWljaGFlbCBFbGxlcm1hbiA8bXBlQGVsbGVybWFuLmlkLmF1PgogRGF0ZTogMjAyMC0w
+My0xNyAxOToyMjoxMwpUbzoi546L5paH6JmOIiA8d2VuaHUud2FuZ0B2aXZvLmNvbT4KIGNjOiBC
+ZW5qYW1pbiBIZXJyZW5zY2htaWR0IDxiZW5oQGtlcm5lbC5jcmFzaGluZy5vcmc+LFBhdWwgTWFj
+a2VycmFzIDxwYXVsdXNAc2FtYmEub3JnPixBbGxpc29uIFJhbmRhbCA8YWxsaXNvbkBsb2h1dG9r
+Lm5ldD4sUmljaGFyZCBGb250YW5hIDxyZm9udGFuYUByZWRoYXQuY29tPixHcmVnIEtyb2FoLUhh
+cnRtYW4gPGdyZWdraEBsaW51eGZvdW5kYXRpb24ub3JnPixUaG9tYXMgR2xlaXhuZXIgPHRnbHhA
+bGludXRyb25peC5kZT4sbGludXhwcGMtZGV2QGxpc3RzLm96bGFicy5vcmcsbGludXgta2VybmVs
+QHZnZXIua2VybmVsLm9yZyx0cml2aWFsQGtlcm5lbC5vcmcsa2VybmVsQHZpdm8uY29tLHN0YWJs
+ZSA8c3RhYmxlQHZnZXIua2VybmVsLm9yZz4KU3ViamVjdDogUmU6IFtQQVRDSCB2M10gcG93ZXJw
+Yy9mc2wtODV4eDogZml4IGNvbXBpbGUgZXJyb3I+546L5paH6JmOIDx3ZW5odS53YW5nQHZpdm8u
+Y29tPiB3cml0ZXM6Cj4+IEZyb206IE1pY2hhZWwgRWxsZXJtYW4gPG1wZUBlbGxlcm1hbi5pZC5h
+dT4KPj4gIERhdGU6IDIwMjAtMDMtMTYgMTc6NDE6MTIKPj4gVG86V0FORyBXZW5odSA8d2VuaHUu
+d2FuZ0B2aXZvLmNvbT4sQmVuamFtaW4gSGVycmVuc2NobWlkdCA8YmVuaEBrZXJuZWwuY3Jhc2hp
+bmcub3JnPixQYXVsIE1hY2tlcnJhcyA8cGF1bHVzQHNhbWJhLm9yZz4sV0FORyBXZW5odSA8d2Vu
+aHUud2FuZ0B2aXZvLmNvbT4sQWxsaXNvbiBSYW5kYWwgPGFsbGlzb25AbG9odXRvay5uZXQ+LFJp
+Y2hhcmQgRm9udGFuYSA8cmZvbnRhbmFAcmVkaGF0LmNvbT4sR3JlZyBLcm9haC1IYXJ0bWFuIDxn
+cmVna2hAbGludXhmb3VuZGF0aW9uLm9yZz4sVGhvbWFzIEdsZWl4bmVyIDx0Z2x4QGxpbnV0cm9u
+aXguZGU+LGxpbnV4cHBjLWRldkBsaXN0cy5vemxhYnMub3JnLGxpbnV4LWtlcm5lbEB2Z2VyLmtl
+cm5lbC5vcmcKPj4gIGNjOiB0cml2aWFsQGtlcm5lbC5vcmcsa2VybmVsQHZpdm8uY29tLHN0YWJs
+ZSA8c3RhYmxlQHZnZXIua2VybmVsLm9yZz4KPj4gU3ViamVjdDogUmU6IFtQQVRDSCB2M10gcG93
+ZXJwYy9mc2wtODV4eDogZml4IGNvbXBpbGUgZXJyb3I+V0FORyBXZW5odSA8d2VuaHUud2FuZ0B2
+aXZvLmNvbT4gd3JpdGVzOgo+Pj4+IEluY2x1ZGUgImxpbnV4L29mX2FkZHJlc3MuaCIgdG8gZml4
+IHRoZSBjb21waWxlIGVycm9yIGZvcgo+Pj4+IG1wYzg1eHhfbDJjdGxyX29mX3Byb2JlKCkgd2hl
+biBjb21waWxpbmcgZnNsXzg1eHhfY2FjaGVfc3JhbS5jLgo+Pj4+Cj4+Pj4gICBDQyAgICAgIGFy
+Y2gvcG93ZXJwYy9zeXNkZXYvZnNsXzg1eHhfbDJjdGxyLm8KPj4+PiBhcmNoL3Bvd2VycGMvc3lz
+ZGV2L2ZzbF84NXh4X2wyY3Rsci5jOiBJbiBmdW5jdGlvbiDigJhtcGM4NXh4X2wyY3Rscl9vZl9w
+cm9iZeKAmToKPj4+PiBhcmNoL3Bvd2VycGMvc3lzZGV2L2ZzbF84NXh4X2wyY3Rsci5jOjkwOjEx
+OiBlcnJvcjogaW1wbGljaXQgZGVjbGFyYXRpb24gb2YgZnVuY3Rpb24g4oCYb2ZfaW9tYXDigJk7
+IGRpZCB5b3UgbWVhbiDigJhwY2lfaW9tYXDigJk/IFstV2Vycm9yPWltcGxpY2l0LWZ1bmN0aW9u
+LWRlY2xhcmF0aW9uXQo+Pj4+ICAgbDJjdGxyID0gb2ZfaW9tYXAoZGV2LT5kZXYub2Zfbm9kZSwg
+MCk7Cj4+Pj4gICAgICAgICAgICBefn5+fn5+fgo+Pj4+ICAgICAgICAgICAgcGNpX2lvbWFwCj4+
+Pj4gYXJjaC9wb3dlcnBjL3N5c2Rldi9mc2xfODV4eF9sMmN0bHIuYzo5MDo5OiBlcnJvcjogYXNz
+aWdubWVudCBtYWtlcyBwb2ludGVyIGZyb20gaW50ZWdlciB3aXRob3V0IGEgY2FzdCBbLVdlcnJv
+cj1pbnQtY29udmVyc2lvbl0KPj4+PiAgIGwyY3RsciA9IG9mX2lvbWFwKGRldi0+ZGV2Lm9mX25v
+ZGUsIDApOwo+Pj4+ICAgICAgICAgIF4KPj4+PiBjYzE6IGFsbCB3YXJuaW5ncyBiZWluZyB0cmVh
+dGVkIGFzIGVycm9ycwo+Pj4+IHNjcmlwdHMvTWFrZWZpbGUuYnVpbGQ6MjY3OiByZWNpcGUgZm9y
+IHRhcmdldCAnYXJjaC9wb3dlcnBjL3N5c2Rldi9mc2xfODV4eF9sMmN0bHIubycgZmFpbGVkCj4+
+Pj4gbWFrZVsyXTogKioqIFthcmNoL3Bvd2VycGMvc3lzZGV2L2ZzbF84NXh4X2wyY3Rsci5vXSBF
+cnJvciAxCj4+Pj4KPj4+PiBGaXhlczogY29tbWl0IDZkYjkyY2M5ZDA3ZCAoInBvd2VycGMvODV4
+eDogYWRkIGNhY2hlLXNyYW0gc3VwcG9ydCIpCj4+Pgo+Pj5UaGUgc3ludGF4IGlzOgo+Pj4KPj4+
+Rml4ZXM6IDZkYjkyY2M5ZDA3ZCAoInBvd2VycGMvODV4eDogYWRkIGNhY2hlLXNyYW0gc3VwcG9y
+dCIpCj4+Pgo+Pj4+IENjOiBzdGFibGUgPHN0YWJsZUB2Z2VyLmtlcm5lbC5vcmc+Cj4+Pgo+Pj5U
+aGUgY29tbWl0IGFib3ZlIHdlbnQgaW50byB2Mi42LjM3Lgo+Pj4KPj4+U28gbm8gb25lIGhhcyBu
+b3RpY2VkIHRoaXMgYnVnIHNpbmNlIHRoZW4sIGhvdz8gT3IgZGlkIHNvbWV0aGluZyBlbHNlCj4+
+PmNoYW5nZSB0byBleHBvc2UgdGhlIHByb2JsZW0/Cj4+Cj4+IEFjdHVhbGx5IGEgaGFyZCBxdWVz
+dGlvbiB0byBhbnN3ZXIgY2F1c2UgaXQgYWxzbyBsZWZ0IG1lIHNjcmF0Y2hpbmcgZm9yIGxvbmcu
+Cj4+IEhvd2V2ZXIsIEkgY2FuIG5vdCBmaW5kIHJpZ2h0IG9yIGRlZmluaXRlIGFuc3dlci4KPgo+
+T2gsIGFjdHVhbGx5IGl0J3MgZmFpcmx5IHN0cmFpZ2h0IGZvcndhcmQsIHRoZSBjb2RlIGNhbid0
+IGJlIGJ1aWx0IGF0Cj5hbGwgaW4gdXBzdHJlYW0gYmVjYXVzZSBDT05GSUdfRlNMXzg1WFhfQ0FD
+SEVfU1JBTSBpcyBub3Qgc2VsZWN0YWJsZSBvcgo+c2VsZWN0ZWQgYnkgYW55dGhpbmcuCgpZZWFo
+LCBzdXJlIHRoYXQgaXMgdGhlIHJlYXNvbiwgYW5kIEkgbWVhbnQgaXQgd2FzIGhhcmQgdG8gZmln
+dXJlIG91dCB3aHkKbm9ib2R5IGhhZCBldmVyIGNvbXBpbGVkIHRoZSBkcml2ZXIgd2l0aCBGU0xf
+ODVYWF9DQUNIRV9TUkFNIGVuYWJsZWQKdW50aWwgbWUuCj4KPllvdSBzZW50IGEgcGF0Y2ggcHJl
+dmlvdXNseSB0byBtYWtlIGl0IHNlbGVjdGFibGUsIHdoaWNoIFNjb3R0IHRob3VnaHQKPndhcyBh
+IGJhZCBpZGVhLgo+Cj5TbyB0aGlzIHdob2xlIGZpbGUgaXMgZGVhZCBjb2RlIGFzIGZhciBhcyBJ
+J20gY29uY2VybmVkLCBzbyBwYXRjaGVzIGZvcgo+aXQgZGVmaW5pdGVseSBkbyBub3QgbmVlZCB0
+byBnbyB0byBzdGFibGUuCj4KPklmIHlvdSB3YW50IHRvIGFkZCBhIHVzZXIgZm9yIGl0IHRoZW4g
+cGxlYXNlIHNlbmQgYSBzZXJpZXMgZG9pbmcgdGhhdCwKPmFuZCB0aGlzIGNvbW1pdCBjYW4gYmUg
+dGhlIGZpcnN0LgoKRm9yIHRoaXMsIGFzIHlvdSBtZW50aW9uZWQsIGl0IGlzIGRlYWQgYW5kIGRv
+IG5vdCBuZWVkIHRvIGJlIGFwcGxpZWQgdG8gYW55IHN0YWJsZS4KQW5kIEkgcmVjb21tYW5kIHRo
+ZSBwYXRjaCBhcyBhIHVuaXQgaXRzZWxmIGNhdXNlIG91ciBtb2R1bGUgd2hpY2ggdXNlcwppdCBp
+cyBzdGlsbCB1bmRlciBkZXZlbG9waW5nLCBhbmQgdGhlIG1vZHVsZSBpdHNlbGYgd291bGQgYmUg
+dGFrZW4gYXMgYQpjb21wbGV0ZSBsb2dpY2FsIGJsb2NrLiBBbHNvIGl0IHdvdWxkIHRha2Ugc29t
+ZSB0aW1lLgoKVGhhbmtzLCBXZW5odQo+Cj5jaGVlcnMKDQoNCg==
