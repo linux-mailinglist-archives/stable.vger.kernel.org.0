@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 574F51880D3
+	by mail.lfdr.de (Postfix) with ESMTP id C0B7E1880D4
 	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:13:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728637AbgCQLNn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Mar 2020 07:13:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57660 "EHLO mail.kernel.org"
+        id S1729521AbgCQLNp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Mar 2020 07:13:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57728 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728012AbgCQLNm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Mar 2020 07:13:42 -0400
+        id S1729519AbgCQLNo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Mar 2020 07:13:44 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 07CC1205ED;
-        Tue, 17 Mar 2020 11:13:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8997D205ED;
+        Tue, 17 Mar 2020 11:13:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584443621;
-        bh=EGOVcHAm9+4S56CNGZKK0RMTbMh0xuIspggeSUBZaHg=;
+        s=default; t=1584443624;
+        bh=B4tdeLKm7NZ6cqVXu4gpvNgoZu6YVSYkH/hYD/HE9x4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iHzXl7Db3nZxYmfYEk2LKZ1QoiE+TczbiUoOGBp2WMXpS43p1pjTGRkhKMjk08cMv
-         dlpSINb7CkO+tJYqBNLfYiXNdd9apM6pADBESc+tSAg19KxUwGqiHYWWJDYoY5596h
-         Ya4vj2WD/0xq/36b9Zsr2n1kHQAk8YGRC8Izv4nQ=
+        b=KWvCMHybV3wde+jauvLe6PQlzEhRtEori7esNYgQ9PuWrartvEgTLna3/MVntEbFh
+         4pKd23vHqWZrdZQXxa2Rptzt6Mv7HDf75yWzRhy7H1Orcdn7aDHPdzc+f1Burs8Z9C
+         I/UWv6DWLgfC0FEuoAOygIh+r9LPfTIlpIGzJVk4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>
-Subject: [PATCH 5.5 145/151] netfilter: nft_chain_nat: inet family is missing module ownership
-Date:   Tue, 17 Mar 2020 11:55:55 +0100
-Message-Id: <20200317103337.001569181@linuxfoundation.org>
+        stable@vger.kernel.org, Lu Baolu <baolu.lu@linux.intel.com>,
+        Zhenzhong Duan <zhenzhong.duan@gmail.com>,
+        Joerg Roedel <jroedel@suse.de>
+Subject: [PATCH 5.5 146/151] iommu/vt-d: Fix the wrong printing in RHSA parsing
+Date:   Tue, 17 Mar 2020 11:55:56 +0100
+Message-Id: <20200317103337.160117071@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200317103326.593639086@linuxfoundation.org>
 References: <20200317103326.593639086@linuxfoundation.org>
@@ -42,60 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Neira Ayuso <pablo@netfilter.org>
+From: Zhenzhong Duan <zhenzhong.duan@gmail.com>
 
-commit 6a42cefb25d8bdc1b391f4a53c78c32164eea2dd upstream.
+commit b0bb0c22c4db623f2e7b1a471596fbf1c22c6dc5 upstream.
 
-Set owner to THIS_MODULE, otherwise the nft_chain_nat module might be
-removed while there are still inet/nat chains in place.
+When base address in RHSA structure doesn't match base address in
+each DRHD structure, the base address in last DRHD is printed out.
 
-[  117.942096] BUG: unable to handle page fault for address: ffffffffa0d5e040
-[  117.942101] #PF: supervisor read access in kernel mode
-[  117.942103] #PF: error_code(0x0000) - not-present page
-[  117.942106] PGD 200c067 P4D 200c067 PUD 200d063 PMD 3dc909067 PTE 0
-[  117.942113] Oops: 0000 [#1] PREEMPT SMP PTI
-[  117.942118] CPU: 3 PID: 27 Comm: kworker/3:0 Not tainted 5.6.0-rc3+ #348
-[  117.942133] Workqueue: events nf_tables_trans_destroy_work [nf_tables]
-[  117.942145] RIP: 0010:nf_tables_chain_destroy.isra.0+0x94/0x15a [nf_tables]
-[  117.942149] Code: f6 45 54 01 0f 84 d1 00 00 00 80 3b 05 74 44 48 8b 75 e8 48 c7 c7 72 be de a0 e8 56 e6 2d e0 48 8b 45 e8 48 c7 c7 7f be de a0 <48> 8b 30 e8 43 e6 2d e0 48 8b 45 e8 48 8b 40 10 48 85 c0 74 5b 8b
-[  117.942152] RSP: 0018:ffffc9000015be10 EFLAGS: 00010292
-[  117.942155] RAX: ffffffffa0d5e040 RBX: ffff88840be87fc2 RCX: 0000000000000007
-[  117.942158] RDX: 0000000000000007 RSI: 0000000000000086 RDI: ffffffffa0debe7f
-[  117.942160] RBP: ffff888403b54b50 R08: 0000000000001482 R09: 0000000000000004
-[  117.942162] R10: 0000000000000000 R11: 0000000000000001 R12: ffff8883eda7e540
-[  117.942164] R13: dead000000000122 R14: dead000000000100 R15: ffff888403b3db80
-[  117.942167] FS:  0000000000000000(0000) GS:ffff88840e4c0000(0000) knlGS:0000000000000000
-[  117.942169] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[  117.942172] CR2: ffffffffa0d5e040 CR3: 00000003e4c52002 CR4: 00000000001606e0
-[  117.942174] Call Trace:
-[  117.942188]  nf_tables_trans_destroy_work.cold+0xd/0x12 [nf_tables]
-[  117.942196]  process_one_work+0x1d6/0x3b0
-[  117.942200]  worker_thread+0x45/0x3c0
-[  117.942203]  ? process_one_work+0x3b0/0x3b0
-[  117.942210]  kthread+0x112/0x130
-[  117.942214]  ? kthread_create_worker_on_cpu+0x40/0x40
-[  117.942221]  ret_from_fork+0x35/0x40
+This doesn't make sense when there are multiple DRHD units, fix it
+by printing the buggy RHSA's base address.
 
-nf_tables_chain_destroy() crashes on module_put() because the module is
-gone.
-
-Fixes: d164385ec572 ("netfilter: nat: add inet family nat support")
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Signed-off-by: Lu Baolu <baolu.lu@linux.intel.com>
+Signed-off-by: Zhenzhong Duan <zhenzhong.duan@gmail.com>
+Fixes: fd0c8894893cb ("intel-iommu: Set a more specific taint flag for invalid BIOS DMAR tables")
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/netfilter/nft_chain_nat.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/iommu/dmar.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/netfilter/nft_chain_nat.c
-+++ b/net/netfilter/nft_chain_nat.c
-@@ -89,6 +89,7 @@ static const struct nft_chain_type nft_c
- 	.name		= "nat",
- 	.type		= NFT_CHAIN_T_NAT,
- 	.family		= NFPROTO_INET,
-+	.owner		= THIS_MODULE,
- 	.hook_mask	= (1 << NF_INET_PRE_ROUTING) |
- 			  (1 << NF_INET_LOCAL_IN) |
- 			  (1 << NF_INET_LOCAL_OUT) |
+--- a/drivers/iommu/dmar.c
++++ b/drivers/iommu/dmar.c
+@@ -475,7 +475,7 @@ static int dmar_parse_one_rhsa(struct ac
+ 	pr_warn(FW_BUG
+ 		"Your BIOS is broken; RHSA refers to non-existent DMAR unit at %llx\n"
+ 		"BIOS vendor: %s; Ver: %s; Product Version: %s\n",
+-		drhd->reg_base_addr,
++		rhsa->base_address,
+ 		dmi_get_system_info(DMI_BIOS_VENDOR),
+ 		dmi_get_system_info(DMI_BIOS_VERSION),
+ 		dmi_get_system_info(DMI_PRODUCT_VERSION));
 
 
