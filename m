@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 85835187FC0
-	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:04:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B1941880C7
+	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:13:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726541AbgCQLET (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Mar 2020 07:04:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44444 "EHLO mail.kernel.org"
+        id S1729249AbgCQLNT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Mar 2020 07:13:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57158 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728262AbgCQLER (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Mar 2020 07:04:17 -0400
+        id S1728909AbgCQLNS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Mar 2020 07:13:18 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F03FB20658;
-        Tue, 17 Mar 2020 11:04:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 429AE20752;
+        Tue, 17 Mar 2020 11:13:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584443057;
-        bh=y+OaqMIx5L66GMyJ/vStR04kTYrrZ6vXz6F2UkjolYU=;
+        s=default; t=1584443597;
+        bh=flFix0AH+FBa8EyGI28pVxd7yD+vez5e4Qs/tyu/KTE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eB6zL8EOsCg1XIdbbYIsXxuCu2v3Mne/eO0LLJX81Tv3/5v3py7R3HrIa1S60/e6a
-         wOy/E+XGUhNJSX7c3QEUxXxYIyk3m1q1ZmGTB/dEQ5Yk6pWnPBP8XZEdzSaLn0SbfT
-         iG8I0lsdy2aKzSPYafqyyLilj0d6yEM5G0Dj1KZc=
+        b=YTvrobKdeaju/FqybyB8sNO8uJ+Ez9OPfu/eF9Z8hKvVqpCd2pNjNnxB/gvnJ31jG
+         8t5renvEaKj7KGvZbxgZ80dssY7xcR+X6yDQhRkJdCR9np8HU5Pg9TQKIvTyuy0daD
+         NgptDzTJZkcL9bydCzoT/bKo+niM8+XwtO8JDob0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, John Donnelly <john.p.donnelly@oracle.com>,
-        Takashi Iwai <tiwai@suse.de>,
-        Corey Minyard <cminyard@mvista.com>,
-        Patrick Vo <patrick.vo@hpe.com>
-Subject: [PATCH 5.4 082/123] ipmi_si: Avoid spurious errors for optional IRQs
+        stable@vger.kernel.org, Vitaly Kuznetsov <vkuznets@redhat.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.5 099/151] KVM: nVMX: avoid NULL pointer dereference with incorrect EVMCS GPAs
 Date:   Tue, 17 Mar 2020 11:55:09 +0100
-Message-Id: <20200317103316.271137860@linuxfoundation.org>
+Message-Id: <20200317103333.495613247@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200317103307.343627747@linuxfoundation.org>
-References: <20200317103307.343627747@linuxfoundation.org>
+In-Reply-To: <20200317103326.593639086@linuxfoundation.org>
+References: <20200317103326.593639086@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,48 +43,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Vitaly Kuznetsov <vkuznets@redhat.com>
 
-commit 443d372d6a96cd94ad119e5c14bb4d63a536a7f6 upstream.
+commit 95fa10103dabc38be5de8efdfced5e67576ed896 upstream.
 
-Although the IRQ assignment in ipmi_si driver is optional,
-platform_get_irq() spews error messages unnecessarily:
-  ipmi_si dmi-ipmi-si.0: IRQ index 0 not found
+When an EVMCS enabled L1 guest on KVM will tries doing enlightened VMEnter
+with EVMCS GPA = 0 the host crashes because the
 
-Fix this by switching to platform_get_irq_optional().
+evmcs_gpa != vmx->nested.hv_evmcs_vmptr
 
-Cc: stable@vger.kernel.org # 5.4.x
-Cc: John Donnelly <john.p.donnelly@oracle.com>
-Fixes: 7723f4c5ecdb ("driver core: platform: Add an error message to platform_get_irq*()")
-Reported-and-tested-by: Patrick Vo <patrick.vo@hpe.com>
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Message-Id: <20200205093146.1352-1-tiwai@suse.de>
-Signed-off-by: Corey Minyard <cminyard@mvista.com>
+condition in nested_vmx_handle_enlightened_vmptrld() will evaluate to
+false (as nested.hv_evmcs_vmptr is zeroed after init). The crash will
+happen on vmx->nested.hv_evmcs pointer dereference.
+
+Another problematic EVMCS ptr value is '-1' but it only causes host crash
+after nested_release_evmcs() invocation. The problem is exactly the same as
+with '0', we mistakenly think that the EVMCS pointer hasn't changed and
+thus nested.hv_evmcs_vmptr is valid.
+
+Resolve the issue by adding an additional !vmx->nested.hv_evmcs
+check to nested_vmx_handle_enlightened_vmptrld(), this way we will
+always be trying kvm_vcpu_map() when nested.hv_evmcs is NULL
+and this is supposed to catch all invalid EVMCS GPAs.
+
+Also, initialize hv_evmcs_vmptr to '0' in nested_release_evmcs()
+to be consistent with initialization where we don't currently
+set hv_evmcs_vmptr to '-1'.
+
+Cc: stable@vger.kernel.org
+Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/char/ipmi/ipmi_si_platform.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/x86/kvm/vmx/nested.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/drivers/char/ipmi/ipmi_si_platform.c
-+++ b/drivers/char/ipmi/ipmi_si_platform.c
-@@ -194,7 +194,7 @@ static int platform_ipmi_probe(struct pl
- 	else
- 		io.slave_addr = slave_addr;
+--- a/arch/x86/kvm/vmx/nested.c
++++ b/arch/x86/kvm/vmx/nested.c
+@@ -234,7 +234,7 @@ static inline void nested_release_evmcs(
+ 		return;
  
--	io.irq = platform_get_irq(pdev, 0);
-+	io.irq = platform_get_irq_optional(pdev, 0);
- 	if (io.irq > 0)
- 		io.irq_setup = ipmi_std_irq_setup;
- 	else
-@@ -378,7 +378,7 @@ static int acpi_ipmi_probe(struct platfo
- 		io.irq = tmp;
- 		io.irq_setup = acpi_gpe_irq_setup;
- 	} else {
--		int irq = platform_get_irq(pdev, 0);
-+		int irq = platform_get_irq_optional(pdev, 0);
+ 	kvm_vcpu_unmap(vcpu, &vmx->nested.hv_evmcs_map, true);
+-	vmx->nested.hv_evmcs_vmptr = -1ull;
++	vmx->nested.hv_evmcs_vmptr = 0;
+ 	vmx->nested.hv_evmcs = NULL;
+ }
  
- 		if (irq > 0) {
- 			io.irq = irq;
+@@ -1932,7 +1932,8 @@ static int nested_vmx_handle_enlightened
+ 	if (!nested_enlightened_vmentry(vcpu, &evmcs_gpa))
+ 		return 1;
+ 
+-	if (unlikely(evmcs_gpa != vmx->nested.hv_evmcs_vmptr)) {
++	if (unlikely(!vmx->nested.hv_evmcs ||
++		     evmcs_gpa != vmx->nested.hv_evmcs_vmptr)) {
+ 		if (!vmx->nested.hv_evmcs)
+ 			vmx->nested.current_vmptr = -1ull;
+ 
 
 
