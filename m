@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 77404188016
-	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:07:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 85E6A188149
+	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:17:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728524AbgCQLHL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Mar 2020 07:07:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48744 "EHLO mail.kernel.org"
+        id S1727668AbgCQLHO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Mar 2020 07:07:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48812 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728747AbgCQLHK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Mar 2020 07:07:10 -0400
+        id S1728412AbgCQLHO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Mar 2020 07:07:14 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6FCE620658;
-        Tue, 17 Mar 2020 11:07:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ED02520714;
+        Tue, 17 Mar 2020 11:07:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584443229;
-        bh=87YDOx4vlNwGxbBRUO+lscPSg2TyqTU6nz98NfTHxiE=;
+        s=default; t=1584443232;
+        bh=LHJivMlqvIKOv4Y/uoLcS7YmOiXzW0dVHBqaEQsedY8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RKZhkoJox41Xm7iQ/bGu0HFfXoUDw/e1p3mEjQ0X+w+n44Tw+uQsxWZ9cDb/bZvtn
-         CMvYUbM5wtWpSYp4wgWEtGjOP3+wL4WxAYKtAr80qDassTBJKJLj+uno2DabZlI9bT
-         x6TUKKPKOwi4hZ/c09jn76VW6d2RpWHMg+Q8gmZI=
+        b=MFeWHSllmSdOX9/9PiBp/zv7CSYwUwed4ySHEsLHkUodCsNosH/x0bNnrbwAfXAOr
+         DerLwx9dPsi3iGK2CQTwZyAd9gp9K7SveVfmo7nKnbBueBW2CBJ2OxzCbozlPVOk5R
+         aJujlqLVgsGkMOkrphv+ZNQCs6L3dwRClpHZKDaQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
-        Vishal Kulkarni <vishal@chelsio.com>
-Subject: [PATCH 5.5 006/151] cxgb4: fix checks for max queues to allocate
-Date:   Tue, 17 Mar 2020 11:53:36 +0100
-Message-Id: <20200317103326.949456225@linuxfoundation.org>
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.5 007/151] gre: fix uninit-value in __iptunnel_pull_header
+Date:   Tue, 17 Mar 2020 11:53:37 +0100
+Message-Id: <20200317103327.007396668@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200317103326.593639086@linuxfoundation.org>
 References: <20200317103326.593639086@linuxfoundation.org>
@@ -43,118 +44,138 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vishal Kulkarni <vishal@chelsio.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 116ca924aea664141afa86a1425edc3fcda0d06f ]
+[ Upstream commit 17c25cafd4d3e74c83dce56b158843b19c40b414 ]
 
-Hardware can support more than 8 queues currently limited by
-netif_get_num_default_rss_queues(). So, rework and fix checks for max
-number of queues to allocate. The checks should be based on how many are
-actually supported by hardware, OR the number of online cpus; whichever
-is lower.
+syzbot found an interesting case of the kernel reading
+an uninit-value [1]
 
-Fixes: 5952dde72307 ("cxgb4: set maximal number of default RSS queues")
-Signed-off-by: Vishal Kulkarni <vishal@chelsio.com>"
+Problem is in the handling of ETH_P_WCCP in gre_parse_header()
+
+We look at the byte following GRE options to eventually decide
+if the options are four bytes longer.
+
+Use skb_header_pointer() to not pull bytes if we found
+that no more bytes were needed.
+
+All callers of gre_parse_header() are properly using pskb_may_pull()
+anyway before proceeding to next header.
+
+[1]
+BUG: KMSAN: uninit-value in pskb_may_pull include/linux/skbuff.h:2303 [inline]
+BUG: KMSAN: uninit-value in __iptunnel_pull_header+0x30c/0xbd0 net/ipv4/ip_tunnel_core.c:94
+CPU: 1 PID: 11784 Comm: syz-executor940 Not tainted 5.6.0-rc2-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+Call Trace:
+ __dump_stack lib/dump_stack.c:77 [inline]
+ dump_stack+0x1c9/0x220 lib/dump_stack.c:118
+ kmsan_report+0xf7/0x1e0 mm/kmsan/kmsan_report.c:118
+ __msan_warning+0x58/0xa0 mm/kmsan/kmsan_instr.c:215
+ pskb_may_pull include/linux/skbuff.h:2303 [inline]
+ __iptunnel_pull_header+0x30c/0xbd0 net/ipv4/ip_tunnel_core.c:94
+ iptunnel_pull_header include/net/ip_tunnels.h:411 [inline]
+ gre_rcv+0x15e/0x19c0 net/ipv6/ip6_gre.c:606
+ ip6_protocol_deliver_rcu+0x181b/0x22c0 net/ipv6/ip6_input.c:432
+ ip6_input_finish net/ipv6/ip6_input.c:473 [inline]
+ NF_HOOK include/linux/netfilter.h:307 [inline]
+ ip6_input net/ipv6/ip6_input.c:482 [inline]
+ ip6_mc_input+0xdf2/0x1460 net/ipv6/ip6_input.c:576
+ dst_input include/net/dst.h:442 [inline]
+ ip6_rcv_finish net/ipv6/ip6_input.c:76 [inline]
+ NF_HOOK include/linux/netfilter.h:307 [inline]
+ ipv6_rcv+0x683/0x710 net/ipv6/ip6_input.c:306
+ __netif_receive_skb_one_core net/core/dev.c:5198 [inline]
+ __netif_receive_skb net/core/dev.c:5312 [inline]
+ netif_receive_skb_internal net/core/dev.c:5402 [inline]
+ netif_receive_skb+0x66b/0xf20 net/core/dev.c:5461
+ tun_rx_batched include/linux/skbuff.h:4321 [inline]
+ tun_get_user+0x6aef/0x6f60 drivers/net/tun.c:1997
+ tun_chr_write_iter+0x1f2/0x360 drivers/net/tun.c:2026
+ call_write_iter include/linux/fs.h:1901 [inline]
+ new_sync_write fs/read_write.c:483 [inline]
+ __vfs_write+0xa5a/0xca0 fs/read_write.c:496
+ vfs_write+0x44a/0x8f0 fs/read_write.c:558
+ ksys_write+0x267/0x450 fs/read_write.c:611
+ __do_sys_write fs/read_write.c:623 [inline]
+ __se_sys_write fs/read_write.c:620 [inline]
+ __ia32_sys_write+0xdb/0x120 fs/read_write.c:620
+ do_syscall_32_irqs_on arch/x86/entry/common.c:339 [inline]
+ do_fast_syscall_32+0x3c7/0x6e0 arch/x86/entry/common.c:410
+ entry_SYSENTER_compat+0x68/0x77 arch/x86/entry/entry_64_compat.S:139
+RIP: 0023:0xf7f62d99
+Code: 90 e8 0b 00 00 00 f3 90 0f ae e8 eb f9 8d 74 26 00 89 3c 24 c3 90 90 90 90 90 90 90 90 90 90 90 90 51 52 55 89 e5 0f 34 cd 80 <5d> 5a 59 c3 90 90 90 90 eb 0d 90 90 90 90 90 90 90 90 90 90 90 90
+RSP: 002b:00000000fffedb2c EFLAGS: 00000217 ORIG_RAX: 0000000000000004
+RAX: ffffffffffffffda RBX: 0000000000000003 RCX: 0000000020002580
+RDX: 0000000000000fca RSI: 0000000000000036 RDI: 0000000000000004
+RBP: 0000000000008914 R08: 0000000000000000 R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000000 R12: 0000000000000000
+R13: 0000000000000000 R14: 0000000000000000 R15: 0000000000000000
+
+Uninit was created at:
+ kmsan_save_stack_with_flags mm/kmsan/kmsan.c:144 [inline]
+ kmsan_internal_poison_shadow+0x66/0xd0 mm/kmsan/kmsan.c:127
+ kmsan_slab_alloc+0x8a/0xe0 mm/kmsan/kmsan_hooks.c:82
+ slab_alloc_node mm/slub.c:2793 [inline]
+ __kmalloc_node_track_caller+0xb40/0x1200 mm/slub.c:4401
+ __kmalloc_reserve net/core/skbuff.c:142 [inline]
+ __alloc_skb+0x2fd/0xac0 net/core/skbuff.c:210
+ alloc_skb include/linux/skbuff.h:1051 [inline]
+ alloc_skb_with_frags+0x18c/0xa70 net/core/skbuff.c:5766
+ sock_alloc_send_pskb+0xada/0xc60 net/core/sock.c:2242
+ tun_alloc_skb drivers/net/tun.c:1529 [inline]
+ tun_get_user+0x10ae/0x6f60 drivers/net/tun.c:1843
+ tun_chr_write_iter+0x1f2/0x360 drivers/net/tun.c:2026
+ call_write_iter include/linux/fs.h:1901 [inline]
+ new_sync_write fs/read_write.c:483 [inline]
+ __vfs_write+0xa5a/0xca0 fs/read_write.c:496
+ vfs_write+0x44a/0x8f0 fs/read_write.c:558
+ ksys_write+0x267/0x450 fs/read_write.c:611
+ __do_sys_write fs/read_write.c:623 [inline]
+ __se_sys_write fs/read_write.c:620 [inline]
+ __ia32_sys_write+0xdb/0x120 fs/read_write.c:620
+ do_syscall_32_irqs_on arch/x86/entry/common.c:339 [inline]
+ do_fast_syscall_32+0x3c7/0x6e0 arch/x86/entry/common.c:410
+ entry_SYSENTER_compat+0x68/0x77 arch/x86/entry/entry_64_compat.S:139
+
+Fixes: 95f5c64c3c13 ("gre: Move utility functions to common headers")
+Fixes: c54419321455 ("GRE: Refactor GRE tunneling code.")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/chelsio/cxgb4/cxgb4_main.c |   49 +++++++++++++-----------
- 1 file changed, 27 insertions(+), 22 deletions(-)
+ net/ipv4/gre_demux.c |   12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
 
---- a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_main.c
-+++ b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_main.c
-@@ -5351,12 +5351,11 @@ static inline bool is_x_10g_port(const s
- static int cfg_queues(struct adapter *adap)
+--- a/net/ipv4/gre_demux.c
++++ b/net/ipv4/gre_demux.c
+@@ -56,7 +56,9 @@ int gre_del_protocol(const struct gre_pr
+ }
+ EXPORT_SYMBOL_GPL(gre_del_protocol);
+ 
+-/* Fills in tpi and returns header length to be pulled. */
++/* Fills in tpi and returns header length to be pulled.
++ * Note that caller must use pskb_may_pull() before pulling GRE header.
++ */
+ int gre_parse_header(struct sk_buff *skb, struct tnl_ptk_info *tpi,
+ 		     bool *csum_err, __be16 proto, int nhs)
  {
- 	u32 avail_qsets, avail_eth_qsets, avail_uld_qsets;
-+	u32 i, n10g = 0, qidx = 0, n1g = 0;
-+	u32 ncpus = num_online_cpus();
- 	u32 niqflint, neq, num_ulds;
- 	struct sge *s = &adap->sge;
--	u32 i, n10g = 0, qidx = 0;
--#ifndef CONFIG_CHELSIO_T4_DCB
--	int q10g = 0;
--#endif
-+	u32 q10g = 0, q1g;
- 
- 	/* Reduce memory usage in kdump environment, disable all offload. */
- 	if (is_kdump_kernel() || (is_uld(adap) && t4_uld_mem_alloc(adap))) {
-@@ -5394,44 +5393,50 @@ static int cfg_queues(struct adapter *ad
- 		n10g += is_x_10g_port(&adap2pinfo(adap, i)->link_cfg);
- 
- 	avail_eth_qsets = min_t(u32, avail_qsets, MAX_ETH_QSETS);
-+
-+	/* We default to 1 queue per non-10G port and up to # of cores queues
-+	 * per 10G port.
-+	 */
-+	if (n10g)
-+		q10g = (avail_eth_qsets - (adap->params.nports - n10g)) / n10g;
-+
-+	n1g = adap->params.nports - n10g;
- #ifdef CONFIG_CHELSIO_T4_DCB
- 	/* For Data Center Bridging support we need to be able to support up
- 	 * to 8 Traffic Priorities; each of which will be assigned to its
- 	 * own TX Queue in order to prevent Head-Of-Line Blocking.
+@@ -110,8 +112,14 @@ int gre_parse_header(struct sk_buff *skb
+ 	 * - When dealing with WCCPv2, Skip extra 4 bytes in GRE header
  	 */
-+	q1g = 8;
- 	if (adap->params.nports * 8 > avail_eth_qsets) {
- 		dev_err(adap->pdev_dev, "DCB avail_eth_qsets=%d < %d!\n",
- 			avail_eth_qsets, adap->params.nports * 8);
- 		return -ENOMEM;
+ 	if (greh->flags == 0 && tpi->proto == htons(ETH_P_WCCP)) {
++		u8 _val, *val;
++
++		val = skb_header_pointer(skb, nhs + hdr_len,
++					 sizeof(_val), &_val);
++		if (!val)
++			return -EINVAL;
+ 		tpi->proto = proto;
+-		if ((*(u8 *)options & 0xF0) != 0x40)
++		if ((*val & 0xF0) != 0x40)
+ 			hdr_len += 4;
  	}
- 
--	for_each_port(adap, i) {
--		struct port_info *pi = adap2pinfo(adap, i);
-+	if (adap->params.nports * ncpus < avail_eth_qsets)
-+		q10g = max(8U, ncpus);
-+	else
-+		q10g = max(8U, q10g);
- 
--		pi->first_qset = qidx;
--		pi->nqsets = is_kdump_kernel() ? 1 : 8;
--		qidx += pi->nqsets;
--	}
--#else /* !CONFIG_CHELSIO_T4_DCB */
--	/* We default to 1 queue per non-10G port and up to # of cores queues
--	 * per 10G port.
--	 */
--	if (n10g)
--		q10g = (avail_eth_qsets - (adap->params.nports - n10g)) / n10g;
--	if (q10g > netif_get_num_default_rss_queues())
--		q10g = netif_get_num_default_rss_queues();
-+	while ((q10g * n10g) > (avail_eth_qsets - n1g * q1g))
-+		q10g--;
- 
--	if (is_kdump_kernel())
-+#else /* !CONFIG_CHELSIO_T4_DCB */
-+	q1g = 1;
-+	q10g = min(q10g, ncpus);
-+#endif /* !CONFIG_CHELSIO_T4_DCB */
-+	if (is_kdump_kernel()) {
- 		q10g = 1;
-+		q1g = 1;
-+	}
- 
- 	for_each_port(adap, i) {
- 		struct port_info *pi = adap2pinfo(adap, i);
- 
- 		pi->first_qset = qidx;
--		pi->nqsets = is_x_10g_port(&pi->link_cfg) ? q10g : 1;
-+		pi->nqsets = is_x_10g_port(&pi->link_cfg) ? q10g : q1g;
- 		qidx += pi->nqsets;
- 	}
--#endif /* !CONFIG_CHELSIO_T4_DCB */
- 
- 	s->ethqsets = qidx;
- 	s->max_ethqsets = qidx;   /* MSI-X may lower it later */
-@@ -5443,7 +5448,7 @@ static int cfg_queues(struct adapter *ad
- 		 * capped by the number of available cores.
- 		 */
- 		num_ulds = adap->num_uld + adap->num_ofld_uld;
--		i = min_t(u32, MAX_OFLD_QSETS, num_online_cpus());
-+		i = min_t(u32, MAX_OFLD_QSETS, ncpus);
- 		avail_uld_qsets = roundup(i, adap->params.nports);
- 		if (avail_qsets < num_ulds * adap->params.nports) {
- 			adap->params.offload = 0;
+ 	tpi->hdr_len = hdr_len;
 
 
