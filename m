@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CB540187F12
-	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 11:58:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C09BC187F14
+	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 11:58:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727206AbgCQK6Q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Mar 2020 06:58:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36360 "EHLO mail.kernel.org"
+        id S1726797AbgCQK6U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Mar 2020 06:58:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36430 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727201AbgCQK6P (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Mar 2020 06:58:15 -0400
+        id S1727201AbgCQK6U (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Mar 2020 06:58:20 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CF87520719;
-        Tue, 17 Mar 2020 10:58:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2808420719;
+        Tue, 17 Mar 2020 10:58:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584442695;
-        bh=9ser5txz8gu629R5ZYWoDJIjhrh7DCTbdn+PLcdGAm4=;
+        s=default; t=1584442699;
+        bh=CJWOWQa3hIlsT45lEVBrSR3FnQYkMwvvDTbOn39maNI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kW4gSVdQPJZAS1u5l8N1jaRr2rXaZrxGSGpaoZtXZnMCOOVV+oUXkI1/G6VZoL1SF
-         0wZYQWo7sAl9vB5rYaNMkBjey4Nc1bUsHL/Cbz4jEFnn8suS1uh4CBQHNiO//4H5UV
-         1nRU3go+aZiPX55TixWuUmCpxjDoCunimBWpp6hE=
+        b=fvlyABBPlMQPGhKIirIg45cGJGiDJMdtjjH8ORZOvf0OurzyTHqwciiZh02sfON2D
+         X5mLhqOqQyErsn7DPaLWwqzXgyvYOTWC5aF21ACNPaS8BTnTHpFycFWqnKrsS5PILW
+         U0dP3sdSxaiRd7CpvYaNHaVuotH6dRHdB6qDY1YQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Lu Baolu <baolu.lu@linux.intel.com>,
-        Joerg Roedel <jroedel@suse.de>
-Subject: [PATCH 4.19 50/89] iommu/vt-d: quirk_ioat_snb_local_iommu: replace WARN_TAINT with pr_warn + add_taint
-Date:   Tue, 17 Mar 2020 11:54:59 +0100
-Message-Id: <20200317103305.685016661@linuxfoundation.org>
+        stable@vger.kernel.org, Vasily Averin <vvs@virtuozzo.com>,
+        Pablo Neira Ayuso <pablo@netfilter.org>
+Subject: [PATCH 4.19 51/89] netfilter: nf_conntrack: ct_cpu_seq_next should increase position index
+Date:   Tue, 17 Mar 2020 11:55:00 +0100
+Message-Id: <20200317103305.791797399@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200317103259.744774526@linuxfoundation.org>
 References: <20200317103259.744774526@linuxfoundation.org>
@@ -44,53 +43,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Vasily Averin <vvs@virtuozzo.com>
 
-commit 81ee85d0462410de8eeeec1b9761941fd6ed8c7b upstream.
+commit dc15af8e9dbd039ebb06336597d2c491ef46ab74 upstream.
 
-Quoting from the comment describing the WARN functions in
-include/asm-generic/bug.h:
+If .next function does not change position index,
+following .show function will repeat output related
+to current position index.
 
- * WARN(), WARN_ON(), WARN_ON_ONCE, and so on can be used to report
- * significant kernel issues that need prompt attention if they should ever
- * appear at runtime.
- *
- * Do not use these macros when checking for invalid external inputs
-
-The (buggy) firmware tables which the dmar code was calling WARN_TAINT
-for really are invalid external inputs. They are not under the kernel's
-control and the issues in them cannot be fixed by a kernel update.
-So logging a backtrace, which invites bug reports to be filed about this,
-is not helpful.
-
-Fixes: 556ab45f9a77 ("ioat2: catch and recover from broken vtd configurations v6")
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Acked-by: Lu Baolu <baolu.lu@linux.intel.com>
-Link: https://lore.kernel.org/r/20200309182510.373875-1-hdegoede@redhat.com
-BugLink: https://bugzilla.redhat.com/show_bug.cgi?id=701847
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Cc: stable@vger.kernel.org
+Fixes: 1f4aace60b0e ("fs/seq_file.c: simplify seq_file iteration code ...")
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=206283
+Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/iommu/intel-iommu.c |    7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ net/netfilter/nf_conntrack_standalone.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/iommu/intel-iommu.c
-+++ b/drivers/iommu/intel-iommu.c
-@@ -3998,10 +3998,11 @@ static void quirk_ioat_snb_local_iommu(s
- 
- 	/* we know that the this iommu should be at offset 0xa000 from vtbar */
- 	drhd = dmar_find_matched_drhd_unit(pdev);
--	if (WARN_TAINT_ONCE(!drhd || drhd->reg_base_addr - vtbar != 0xa000,
--			    TAINT_FIRMWARE_WORKAROUND,
--			    "BIOS assigned incorrect VT-d unit for Intel(R) QuickData Technology device\n"))
-+	if (!drhd || drhd->reg_base_addr - vtbar != 0xa000) {
-+		pr_warn_once(FW_BUG "BIOS assigned incorrect VT-d unit for Intel(R) QuickData Technology device\n");
-+		add_taint(TAINT_FIRMWARE_WORKAROUND, LOCKDEP_STILL_OK);
- 		pdev->dev.archdata.iommu = DUMMY_DEVICE_DOMAIN_INFO;
-+	}
+--- a/net/netfilter/nf_conntrack_standalone.c
++++ b/net/netfilter/nf_conntrack_standalone.c
+@@ -390,7 +390,7 @@ static void *ct_cpu_seq_next(struct seq_
+ 		*pos = cpu + 1;
+ 		return per_cpu_ptr(net->ct.stat, cpu);
+ 	}
+-
++	(*pos)++;
+ 	return NULL;
  }
- DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_IOAT_SNB, quirk_ioat_snb_local_iommu);
  
 
 
