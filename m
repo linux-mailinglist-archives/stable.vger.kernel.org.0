@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 13468187FA8
-	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:03:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BFC1E1881F8
+	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:22:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728123AbgCQLD0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Mar 2020 07:03:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43434 "EHLO mail.kernel.org"
+        id S1727052AbgCQK5o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Mar 2020 06:57:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35630 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728117AbgCQLDZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Mar 2020 07:03:25 -0400
+        id S1727033AbgCQK5n (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Mar 2020 06:57:43 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 07771205ED;
-        Tue, 17 Mar 2020 11:03:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4EB272071C;
+        Tue, 17 Mar 2020 10:57:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584443004;
-        bh=PqWD8O81LYKtCIQk9TxWpkpd8TvOh8TUSwA3cRe6/Ek=;
+        s=default; t=1584442662;
+        bh=slp8IlgZx8qngddPVVEAVbFUZ8WlJCrVYZu9ViaRb0E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2IqlIZTJ2TIHOOVkOtv9xbBXHjJgwj6VZr+bv6qSKxCEG7pn/kXFYx32/wrcjRxV3
-         xCxYq9Oh8lnTlCzpZiU9hBHXqTwy0bWpUuwKTlyfO4d+G7OpMmPRrC6KJ0TMk4+8Xs
-         gy1QewtpGxUZIIHc7rZW8i4DMoZ9qQXq/kHk4U5Q=
+        b=ghhZGI1GtXS95DcnlVfUeLp8e+rlzfSvsTWkF6eIOU2uTs0m4FHWbny9ZWufGCyQ5
+         nab2rmhqQYtCX9ygHYBp2ILlkvSwWQZVj9hrX/lJC4JsY3afX0S+sA0L9zuSXuId4I
+         HmVB5lTt8eN37M42AKJSIfIcV4GuFsdGaX/iBOvs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Halil Pasic <pasic@linux.ibm.com>,
-        Jens Axboe <axboe@kernel.dk>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Stefan Hajnoczi <stefanha@redhat.com>
-Subject: [PATCH 5.4 062/123] virtio-blk: fix hw_queue stopped on arbitrary error
+        stable@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 40/89] tipc: add missing attribute validation for MTU property
 Date:   Tue, 17 Mar 2020 11:54:49 +0100
-Message-Id: <20200317103313.958655796@linuxfoundation.org>
+Message-Id: <20200317103304.622382091@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200317103307.343627747@linuxfoundation.org>
-References: <20200317103307.343627747@linuxfoundation.org>
+In-Reply-To: <20200317103259.744774526@linuxfoundation.org>
+References: <20200317103259.744774526@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,51 +43,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Halil Pasic <pasic@linux.ibm.com>
+From: Jakub Kicinski <kuba@kernel.org>
 
-commit f5f6b95c72f7f8bb46eace8c5306c752d0133daa upstream.
+[ Upstream commit 213320a67962ff6e7b83b704d55cbebc341426db ]
 
-Since nobody else is going to restart our hw_queue for us, the
-blk_mq_start_stopped_hw_queues() is in virtblk_done() is not sufficient
-necessarily sufficient to ensure that the queue will get started again.
-In case of global resource outage (-ENOMEM because mapping failure,
-because of swiotlb full) our virtqueue may be empty and we can get
-stuck with a stopped hw_queue.
+Add missing attribute validation for TIPC_NLA_PROP_MTU
+to the netlink policy.
 
-Let us not stop the queue on arbitrary errors, but only on -EONSPC which
-indicates a full virtqueue, where the hw_queue is guaranteed to get
-started by virtblk_done() before when it makes sense to carry on
-submitting requests. Let us also remove a stale comment.
-
-Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
-Cc: Jens Axboe <axboe@kernel.dk>
-Fixes: f7728002c1c7 ("virtio_ring: fix return code on DMA mapping fails")
-Link: https://lore.kernel.org/r/20200213123728.61216-2-pasic@linux.ibm.com
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
+Fixes: 901271e0403a ("tipc: implement configuration of UDP media MTU")
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/block/virtio_blk.c |    8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ net/tipc/netlink.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/block/virtio_blk.c
-+++ b/drivers/block/virtio_blk.c
-@@ -339,10 +339,12 @@ static blk_status_t virtio_queue_rq(stru
- 		err = virtblk_add_req(vblk->vqs[qid].vq, vbr, vbr->sg, num);
- 	if (err) {
- 		virtqueue_kick(vblk->vqs[qid].vq);
--		blk_mq_stop_hw_queue(hctx);
-+		/* Don't stop the queue if -ENOMEM: we may have failed to
-+		 * bounce the buffer due to global resource outage.
-+		 */
-+		if (err == -ENOSPC)
-+			blk_mq_stop_hw_queue(hctx);
- 		spin_unlock_irqrestore(&vblk->vqs[qid].lock, flags);
--		/* Out of mem doesn't actually happen, since we fall back
--		 * to direct descriptors */
- 		if (err == -ENOMEM || err == -ENOSPC)
- 			return BLK_STS_DEV_RESOURCE;
- 		return BLK_STS_IOERR;
+--- a/net/tipc/netlink.c
++++ b/net/tipc/netlink.c
+@@ -110,7 +110,8 @@ const struct nla_policy tipc_nl_prop_pol
+ 	[TIPC_NLA_PROP_UNSPEC]		= { .type = NLA_UNSPEC },
+ 	[TIPC_NLA_PROP_PRIO]		= { .type = NLA_U32 },
+ 	[TIPC_NLA_PROP_TOL]		= { .type = NLA_U32 },
+-	[TIPC_NLA_PROP_WIN]		= { .type = NLA_U32 }
++	[TIPC_NLA_PROP_WIN]		= { .type = NLA_U32 },
++	[TIPC_NLA_PROP_MTU]		= { .type = NLA_U32 }
+ };
+ 
+ const struct nla_policy tipc_nl_bearer_policy[TIPC_NLA_BEARER_MAX + 1]	= {
 
 
