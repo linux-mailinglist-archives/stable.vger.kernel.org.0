@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F52E188166
-	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:17:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 922B118805D
+	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:09:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728174AbgCQLRq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Mar 2020 07:17:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48434 "EHLO mail.kernel.org"
+        id S1728953AbgCQLJe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Mar 2020 07:09:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51910 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728215AbgCQLGz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Mar 2020 07:06:55 -0400
+        id S1727684AbgCQLJc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Mar 2020 07:09:32 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 19780206EC;
-        Tue, 17 Mar 2020 11:06:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CCCC620752;
+        Tue, 17 Mar 2020 11:09:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584443215;
-        bh=Fsxsh6GAc/7ZsxzmgKx/2MhbtT42qSKJ3sGzD4I6uAE=;
+        s=default; t=1584443372;
+        bh=CzhHUytA7PQRXPkW2ge9yrecruQxGowqk3W4wsgJEmc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G0pysjaIeh2JxPeO+oh3bupW5F6VMUXoUexl/JX5nZmIR57a64zaNzPjXucIrEcN4
-         af5/shCW303Rxz1YKYjKTXe0Q35xqATt+baYWEmmlmCI818l933pyixXYivOA+HlD5
-         1dKtDnPK8nN6dAMStm+uYOcVWPLcppjbo1C5jtB0=
+        b=1E44UMMPLc9h8pBE5FCGrmH7xFkR/oObCbUI4wTY3V6nCdcyaTQRqsgSSK9nhOpJ5
+         JPujgfbgwpEDvY0KbYZR4w4Lmdjf0XbwGk6rsssAkaSiCAPG8p1tAB5iw1ZRvvY/m2
+         PCzNjvkaeSc+vE2YkuRBYcCiKujJPXQ+cZytV4VM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Mahesh Bandewar <maheshb@google.com>,
+        stable@vger.kernel.org, Mahesh Bandewar <maheshb@google.com>,
+        Eric Dumazet <edumazet@google.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.5 012/151] ipvlan: do not use cond_resched_rcu() in ipvlan_process_multicast()
-Date:   Tue, 17 Mar 2020 11:53:42 +0100
-Message-Id: <20200317103327.320832388@linuxfoundation.org>
+Subject: [PATCH 5.5 013/151] ipvlan: dont deref eth hdr before checking its set
+Date:   Tue, 17 Mar 2020 11:53:43 +0100
+Message-Id: <20200317103327.384046085@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200317103326.593639086@linuxfoundation.org>
 References: <20200317103326.593639086@linuxfoundation.org>
@@ -44,43 +44,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Mahesh Bandewar <maheshb@google.com>
 
-[ Upstream commit afe207d80a61e4d6e7cfa0611a4af46d0ba95628 ]
+[ Upstream commit ad8192767c9f9cf97da57b9ffcea70fb100febef ]
 
-Commit e18b353f102e ("ipvlan: add cond_resched_rcu() while
-processing muticast backlog") added a cond_resched_rcu() in a loop
-using rcu protection to iterate over slaves.
+IPvlan in L3 mode discards outbound multicast packets but performs
+the check before ensuring the ether-header is set or not. This is
+an error that Eric found through code browsing.
 
-This is breaking rcu rules, so lets instead use cond_resched()
-at a point we can reschedule
-
-Fixes: e18b353f102e ("ipvlan: add cond_resched_rcu() while processing muticast backlog")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: Mahesh Bandewar <maheshb@google.com>
+Fixes: 2ad7bf363841 (“ipvlan: Initial check-in of the IPVLAN driver.”)
+Signed-off-by: Mahesh Bandewar <maheshb@google.com>
+Reported-by: Eric Dumazet <edumazet@google.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ipvlan/ipvlan_core.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ipvlan/ipvlan_core.c |   18 ++++++++++--------
+ 1 file changed, 10 insertions(+), 8 deletions(-)
 
 --- a/drivers/net/ipvlan/ipvlan_core.c
 +++ b/drivers/net/ipvlan/ipvlan_core.c
-@@ -277,7 +277,6 @@ void ipvlan_process_multicast(struct wor
- 			}
- 			ipvlan_count_rx(ipvlan, len, ret == NET_RX_SUCCESS, true);
- 			local_bh_enable();
--			cond_resched_rcu();
- 		}
- 		rcu_read_unlock();
+@@ -499,19 +499,21 @@ static int ipvlan_process_outbound(struc
+ 	struct ethhdr *ethh = eth_hdr(skb);
+ 	int ret = NET_XMIT_DROP;
  
-@@ -294,6 +293,7 @@ void ipvlan_process_multicast(struct wor
- 		}
- 		if (dev)
- 			dev_put(dev);
-+		cond_resched();
- 	}
- }
- 
+-	/* In this mode we dont care about multicast and broadcast traffic */
+-	if (is_multicast_ether_addr(ethh->h_dest)) {
+-		pr_debug_ratelimited("Dropped {multi|broad}cast of type=[%x]\n",
+-				     ntohs(skb->protocol));
+-		kfree_skb(skb);
+-		goto out;
+-	}
+-
+ 	/* The ipvlan is a pseudo-L2 device, so the packets that we receive
+ 	 * will have L2; which need to discarded and processed further
+ 	 * in the net-ns of the main-device.
+ 	 */
+ 	if (skb_mac_header_was_set(skb)) {
++		/* In this mode we dont care about
++		 * multicast and broadcast traffic */
++		if (is_multicast_ether_addr(ethh->h_dest)) {
++			pr_debug_ratelimited(
++				"Dropped {multi|broad}cast of type=[%x]\n",
++				ntohs(skb->protocol));
++			kfree_skb(skb);
++			goto out;
++		}
++
+ 		skb_pull(skb, sizeof(*ethh));
+ 		skb->mac_header = (typeof(skb->mac_header))~0U;
+ 		skb_reset_network_header(skb);
 
 
