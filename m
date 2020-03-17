@@ -2,42 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2C5371881DF
-	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:21:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6A72918818D
+	for <lists+stable@lfdr.de>; Tue, 17 Mar 2020 12:20:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727547AbgCQLAG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Mar 2020 07:00:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38978 "EHLO mail.kernel.org"
+        id S1727724AbgCQLEu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Mar 2020 07:04:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45318 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727545AbgCQLAF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Mar 2020 07:00:05 -0400
+        id S1727233AbgCQLEt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Mar 2020 07:04:49 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C962420735;
-        Tue, 17 Mar 2020 11:00:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C4C0A2073E;
+        Tue, 17 Mar 2020 11:04:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584442805;
-        bh=cTVYqttNEkjaDmWhfICp2OkP3PlrRJyx3/vSbF1scVo=;
+        s=default; t=1584443089;
+        bh=xAOwVkY62m9tSTCLIiQRMuwYlf5KeSKDckQa4+Litu0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YxB1R66+ABrXfsux4P/bmpZ5Lo4KKc5qkb5q+TZo8ARbR9JSmqXzBfuVGuBNj2Kvb
-         oGcSHeQLGFaoH5AeOv7MEeZ8QG7CFqH9uNUrEQquA+s27L74Ua61X1ZvjuOdJDFCV8
-         TaFaFUMfiLTADOhkfK3e/A8axFUIb9hTsKz1geFQ=
+        b=dUvgPxmp5rpqLpiXdGNVgWopJaZ0M8by/nOCXobkg01eOygOjZbFAcseqTc/YnF3s
+         trPxOrY9dBLKc19vQmxuTx9BNOnR3a5kLRRGD6khgk1CGXrlEdubwWQ9cu4P3+QHME
+         woHCzFMTvva0VjLmCrv/SWJihzDLUBwuPeZyirtI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+a98f2016f40b9cd3818a@syzkaller.appspotmail.com,
-        syzbot+ac36b6a33c28a491e929@syzkaller.appspotmail.com,
-        Sven Eckelmann <sven@narfation.org>,
-        Hillf Danton <hdanton@sina.com>,
-        Simon Wunderlich <sw@simonwunderlich.de>
-Subject: [PATCH 4.19 70/89] batman-adv: Dont schedule OGM for disabled interface
+        stable@vger.kernel.org, Tony Luck <tony.luck@intel.com>,
+        Borislav Petkov <bp@suse.de>
+Subject: [PATCH 5.4 092/123] x86/mce: Fix logic and comments around MSR_PPIN_CTL
 Date:   Tue, 17 Mar 2020 11:55:19 +0100
-Message-Id: <20200317103308.008137404@linuxfoundation.org>
+Message-Id: <20200317103317.093943679@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200317103259.744774526@linuxfoundation.org>
-References: <20200317103259.744774526@linuxfoundation.org>
+In-Reply-To: <20200317103307.343627747@linuxfoundation.org>
+References: <20200317103307.343627747@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,43 +43,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sven Eckelmann <sven@narfation.org>
+From: Tony Luck <tony.luck@intel.com>
 
-commit 8e8ce08198de193e3d21d42e96945216e3d9ac7f upstream.
+commit 59b5809655bdafb0767d3fd00a3e41711aab07e6 upstream.
 
-A transmission scheduling for an interface which is currently dropped by
-batadv_iv_ogm_iface_disable could still be in progress. The B.A.T.M.A.N. V
-is simply cancelling the workqueue item in an synchronous way but this is
-not possible with B.A.T.M.A.N. IV because the OGM submissions are
-intertwined.
+There are two implemented bits in the PPIN_CTL MSR:
 
-Instead it has to stop submitting the OGM when it detect that the buffer
-pointer is set to NULL.
+Bit 0: LockOut (R/WO)
+      Set 1 to prevent further writes to MSR_PPIN_CTL.
 
-Reported-by: syzbot+a98f2016f40b9cd3818a@syzkaller.appspotmail.com
-Reported-by: syzbot+ac36b6a33c28a491e929@syzkaller.appspotmail.com
-Fixes: c6c8fea29769 ("net: Add batman-adv meshing protocol")
-Signed-off-by: Sven Eckelmann <sven@narfation.org>
-Cc: Hillf Danton <hdanton@sina.com>
-Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
+Bit 1: Enable_PPIN (R/W)
+       If 1, enables MSR_PPIN to be accessible using RDMSR.
+       If 0, an attempt to read MSR_PPIN will cause #GP.
+
+So there are four defined values:
+	0: PPIN is disabled, PPIN_CTL may be updated
+	1: PPIN is disabled. PPIN_CTL is locked against updates
+	2: PPIN is enabled. PPIN_CTL may be updated
+	3: PPIN is enabled. PPIN_CTL is locked against updates
+
+Code would only enable the X86_FEATURE_INTEL_PPIN feature for case "2".
+When it should have done so for both case "2" and case "3".
+
+Fix the final test to just check for the enable bit. Also fix some of
+the other comments in this function.
+
+Fixes: 3f5a7896a509 ("x86/mce: Include the PPIN in MCE records when available")
+Signed-off-by: Tony Luck <tony.luck@intel.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Cc: <stable@vger.kernel.org>
+Link: https://lkml.kernel.org/r/20200226011737.9958-1-tony.luck@intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/batman-adv/bat_iv_ogm.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ arch/x86/kernel/cpu/mce/intel.c |    9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
---- a/net/batman-adv/bat_iv_ogm.c
-+++ b/net/batman-adv/bat_iv_ogm.c
-@@ -970,6 +970,10 @@ static void batadv_iv_ogm_schedule_buff(
+--- a/arch/x86/kernel/cpu/mce/intel.c
++++ b/arch/x86/kernel/cpu/mce/intel.c
+@@ -489,17 +489,18 @@ static void intel_ppin_init(struct cpuin
+ 			return;
  
- 	lockdep_assert_held(&hard_iface->bat_iv.ogm_buff_mutex);
+ 		if ((val & 3UL) == 1UL) {
+-			/* PPIN available but disabled: */
++			/* PPIN locked in disabled mode */
+ 			return;
+ 		}
  
-+	/* interface already disabled by batadv_iv_ogm_iface_disable */
-+	if (!*ogm_buff)
-+		return;
-+
- 	/* the interface gets activated here to avoid race conditions between
- 	 * the moment of activating the interface in
- 	 * hardif_activate_interface() where the originator mac is set and
+-		/* If PPIN is disabled, but not locked, try to enable: */
+-		if (!(val & 3UL)) {
++		/* If PPIN is disabled, try to enable */
++		if (!(val & 2UL)) {
+ 			wrmsrl_safe(MSR_PPIN_CTL,  val | 2UL);
+ 			rdmsrl_safe(MSR_PPIN_CTL, &val);
+ 		}
+ 
+-		if ((val & 3UL) == 2UL)
++		/* Is the enable bit set? */
++		if (val & 2UL)
+ 			set_cpu_cap(c, X86_FEATURE_INTEL_PPIN);
+ 	}
+ }
 
 
