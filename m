@@ -2,68 +2,81 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D3B99189DC5
-	for <lists+stable@lfdr.de>; Wed, 18 Mar 2020 15:26:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D1A9C189E62
+	for <lists+stable@lfdr.de>; Wed, 18 Mar 2020 15:57:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726738AbgCRO05 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 Mar 2020 10:26:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48484 "EHLO mail.kernel.org"
+        id S1726473AbgCRO5g (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 Mar 2020 10:57:36 -0400
+Received: from mga14.intel.com ([192.55.52.115]:44531 "EHLO mga14.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726730AbgCRO05 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 18 Mar 2020 10:26:57 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 348E920772;
-        Wed, 18 Mar 2020 14:26:56 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584541616;
-        bh=szLB4hkX3GaHZXfKQkPKAhD8Np5CPWCO9WbP3dqLyeM=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=ToymJqFLf0rERhSISWdxufMBYEeq9CeH8k6pRZ4nHgSfApeRN6ny6cFKsGqiPayGC
-         pUvXCvLx9U2OBv24zLDWq5ZN42pJAsqnVsvqSx387bKB/4KXsMO5ju3VXAv+f9v5uw
-         ljfFwYP9X91LGxS5z6vwFQjtjGMtf4KLJj7oIagA=
-Date:   Wed, 18 Mar 2020 15:26:52 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Sven Eckelmann <sven@narfation.org>
-Cc:     Sasha Levin <sashal@kernel.org>, hdanton@sina.com,
-        sw@simonwunderlich.de, stable@vger.kernel.org
-Subject: Re: FAILED: patch "[PATCH] batman-adv: Don't schedule OGM for
- disabled interface" failed to apply to 4.4-stable tree
-Message-ID: <20200318142652.GA2807628@kroah.com>
-References: <158436631216439@kroah.com>
- <20200318141750.GD4189@sasha-vm>
- <2953272.8TNtrSRRcZ@bentobox>
+        id S1726308AbgCRO5f (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 18 Mar 2020 10:57:35 -0400
+IronPort-SDR: U1kvH1K6d7L2jJKBsKLBr7pmqYNpp42iDi8E4WSFtyejXchbpuLN88RVQSGrA6xKETqY2Ms4Pc
+ WnO5Yq5/r8zQ==
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from fmsmga008.fm.intel.com ([10.253.24.58])
+  by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Mar 2020 07:57:33 -0700
+IronPort-SDR: Kj1JGDxudZsR0WZfdhQWYkDGnDHLMNhbr5SMNtUBvqyNEyEhXBNPkmJct1NGpDX6JhcjICcDKA
+ 1gd/NRZGeefQ==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.70,568,1574150400"; 
+   d="scan'208";a="238212845"
+Received: from black.fi.intel.com ([10.237.72.28])
+  by fmsmga008.fm.intel.com with ESMTP; 18 Mar 2020 07:57:32 -0700
+Received: by black.fi.intel.com (Postfix, from userid 1003)
+        id 747B519D; Wed, 18 Mar 2020 16:57:31 +0200 (EET)
+From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Cc:     Linus Walleij <linus.walleij@linaro.org>,
+        Robert Jarzmik <robert.jarzmik@free.fr>,
+        Ulf Hansson <ulf.hansson@linaro.org>, stable@vger.kernel.org
+Subject: [PATCH v1] gpio: name PCA953x gpio chips after device name
+Date:   Wed, 18 Mar 2020 16:57:22 +0200
+Message-Id: <20200318145722.48478-1-andriy.shevchenko@linux.intel.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <2953272.8TNtrSRRcZ@bentobox>
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Mar 18, 2020 at 03:20:11PM +0100, Sven Eckelmann wrote:
-> On Wednesday, 18 March 2020 15:17:50 CET Sasha Levin wrote:
-> > >From 8e8ce08198de193e3d21d42e96945216e3d9ac7f Mon Sep 17 00:00:00 2001
-> > >From: Sven Eckelmann <sven@narfation.org>
-> > >Date: Sun, 16 Feb 2020 13:02:06 +0100
-> > >Subject: [PATCH] batman-adv: Don't schedule OGM for disabled interface
-> > >
-> > >A transmission scheduling for an interface which is currently dropped by
-> > >batadv_iv_ogm_iface_disable could still be in progress. The B.A.T.M.A.N. V
-> > >is simply cancelling the workqueue item in an synchronous way but this is
-> > >not possible with B.A.T.M.A.N. IV because the OGM submissions are
-> > >intertwined.
-> > >
-> > >Instead it has to stop submitting the OGM when it detect that the buffer
-> > >pointer is set to NULL.
-> [...]
-> > Adjusted context and queued up for 4.4.
-> 
-> There are most likely patches missing again when you only added this single 
-> patch. See the 48 patches I've sent yesterday for batman-adv in 4.4.
+From: Linus Walleij <linus.walleij@linaro.org>
 
-Yeah, I'll queue these all up later on today, thank you for the series.
+Instead of using the name directly from the I2C client
+to name the gpio_chip, use dev_name() on the client->dev,
+so we get the sometimes more unique device name, as I2C has
+a mechanism for naming its devices explicitly in e.g.
+board data.
 
-greg k-h
+This is a prerequisite for being able to reference
+uniquely any I2C GPIO expander defined in a board file
+when setting up GPIO descriptor tables.
+
+Reviewed-by: Robert Jarzmik <robert.jarzmik@free.fr>
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Cc: stable@vger.kernel.org
+---
+Reported in https://stackoverflow.com/questions/60722524/how-to-specify-the-name-of-a-gpiochip-in-the-device-tree
+ drivers/gpio/gpio-pca953x.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/gpio/gpio-pca953x.c b/drivers/gpio/gpio-pca953x.c
+index 023a32cfac42..540166443c34 100644
+--- a/drivers/gpio/gpio-pca953x.c
++++ b/drivers/gpio/gpio-pca953x.c
+@@ -449,7 +449,7 @@ static void pca953x_setup_gpio(struct pca953x_chip *chip, int gpios)
+ 
+ 	gc->base = chip->gpio_start;
+ 	gc->ngpio = gpios;
+-	gc->label = chip->client->name;
++	gc->label = dev_name(&chip->client->dev);
+ 	gc->parent = &chip->client->dev;
+ 	gc->owner = THIS_MODULE;
+ 	gc->names = chip->names;
+-- 
+2.25.1
+
