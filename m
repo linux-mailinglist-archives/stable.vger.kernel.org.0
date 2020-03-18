@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9864C18A5B4
-	for <lists+stable@lfdr.de>; Wed, 18 Mar 2020 22:03:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 14BFD18A5B5
+	for <lists+stable@lfdr.de>; Wed, 18 Mar 2020 22:03:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728364AbgCRUzi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 Mar 2020 16:55:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56080 "EHLO mail.kernel.org"
+        id S1727240AbgCRVDZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 Mar 2020 17:03:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56120 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728359AbgCRUzg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 18 Mar 2020 16:55:36 -0400
+        id S1728361AbgCRUzi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 18 Mar 2020 16:55:38 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 74193208E0;
-        Wed, 18 Mar 2020 20:55:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7D8C1208FE;
+        Wed, 18 Mar 2020 20:55:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584564936;
-        bh=ww+xwOFBU3zz7iF4aJfE+W8ibmT3RGBIjIOVdYlprP0=;
+        s=default; t=1584564937;
+        bh=/oFbRhzX1PU/IalooWt4ApsEVuoQyc21nlRUzz8UngA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RyK3PkrKrqwIl6ZEV0399QmD+8BQ76FMj+B3HaxeYb+wklD4dYtxpnjzIOhLfXoKo
-         TTfQK5dh6LjbwLdDgkNuyiIn7qrfmj4F6P6U/vJJN66DQM475pbmb7VcCo55FNDeBi
-         91h/upK0wKidu0zI//0EY1YDHJqWCVOACwJ+tR34=
+        b=o6lnyre0w2UUUrxIaOltqrdzpQpupj1FoTmsOdx8vMhZrqbAfDTMpxH9Taf9iOWod
+         lMgw6ScySFbGLwBylL29z3dybKz1AGF/DfZIqRDFJ1ns8q8uL6RQAwes5KzHuaz8KF
+         BvCRC5irEPjf30U9pZ7NorCjIVF+a34HiEcDm1OA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Madalin Bucur <madalin.bucur@nxp.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 22/37] fsl/fman: detect FMan erratum A050385
-Date:   Wed, 18 Mar 2020 16:54:54 -0400
-Message-Id: <20200318205509.17053-22-sashal@kernel.org>
+Cc:     Halil Pasic <pasic@linux.ibm.com>, Jens Axboe <axboe@kernel.dk>,
+        "Michael S . Tsirkin" <mst@redhat.com>,
+        Stefan Hajnoczi <stefanha@redhat.com>,
+        Sasha Levin <sashal@kernel.org>,
+        virtualization@lists.linux-foundation.org,
+        linux-block@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 23/37] virtio-blk: fix hw_queue stopped on arbitrary error
+Date:   Wed, 18 Mar 2020 16:54:55 -0400
+Message-Id: <20200318205509.17053-23-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200318205509.17053-1-sashal@kernel.org>
 References: <20200318205509.17053-1-sashal@kernel.org>
@@ -43,128 +46,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Madalin Bucur <madalin.bucur@nxp.com>
+From: Halil Pasic <pasic@linux.ibm.com>
 
-[ Upstream commit b281f7b93b258ce1419043bbd898a29254d5c9c7 ]
+[ Upstream commit f5f6b95c72f7f8bb46eace8c5306c752d0133daa ]
 
-Detect the presence of the A050385 erratum.
+Since nobody else is going to restart our hw_queue for us, the
+blk_mq_start_stopped_hw_queues() is in virtblk_done() is not sufficient
+necessarily sufficient to ensure that the queue will get started again.
+In case of global resource outage (-ENOMEM because mapping failure,
+because of swiotlb full) our virtqueue may be empty and we can get
+stuck with a stopped hw_queue.
 
-Signed-off-by: Madalin Bucur <madalin.bucur@nxp.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Let us not stop the queue on arbitrary errors, but only on -EONSPC which
+indicates a full virtqueue, where the hw_queue is guaranteed to get
+started by virtblk_done() before when it makes sense to carry on
+submitting requests. Let us also remove a stale comment.
+
+Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
+Cc: Jens Axboe <axboe@kernel.dk>
+Fixes: f7728002c1c7 ("virtio_ring: fix return code on DMA mapping fails")
+Link: https://lore.kernel.org/r/20200213123728.61216-2-pasic@linux.ibm.com
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/freescale/fman/Kconfig | 28 +++++++++++++++++++++
- drivers/net/ethernet/freescale/fman/fman.c  | 18 +++++++++++++
- drivers/net/ethernet/freescale/fman/fman.h  |  5 ++++
- 3 files changed, 51 insertions(+)
+ drivers/block/virtio_blk.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/freescale/fman/Kconfig b/drivers/net/ethernet/freescale/fman/Kconfig
-index dc0850b3b517b..0b07ece83a2fe 100644
---- a/drivers/net/ethernet/freescale/fman/Kconfig
-+++ b/drivers/net/ethernet/freescale/fman/Kconfig
-@@ -7,3 +7,31 @@ config FSL_FMAN
- 	help
- 		Freescale Data-Path Acceleration Architecture Frame Manager
- 		(FMan) support
-+
-+config DPAA_ERRATUM_A050385
-+	bool
-+	depends on ARM64 && FSL_DPAA
-+	default y
-+	help
-+		DPAA FMan erratum A050385 software workaround implementation:
-+		align buffers, data start, SG fragment length to avoid FMan DMA
-+		splits.
-+		FMAN DMA read or writes under heavy traffic load may cause FMAN
-+		internal resource leak thus stopping further packet processing.
-+		The FMAN internal queue can overflow when FMAN splits single
-+		read or write transactions into multiple smaller transactions
-+		such that more than 17 AXI transactions are in flight from FMAN
-+		to interconnect. When the FMAN internal queue overflows, it can
-+		stall further packet processing. The issue can occur with any
-+		one of the following three conditions:
-+		1. FMAN AXI transaction crosses 4K address boundary (Errata
-+		A010022)
-+		2. FMAN DMA address for an AXI transaction is not 16 byte
-+		aligned, i.e. the last 4 bits of an address are non-zero
-+		3. Scatter Gather (SG) frames have more than one SG buffer in
-+		the SG list and any one of the buffers, except the last
-+		buffer in the SG list has data size that is not a multiple
-+		of 16 bytes, i.e., other than 16, 32, 48, 64, etc.
-+		With any one of the above three conditions present, there is
-+		likelihood of stalled FMAN packet processing, especially under
-+		stress with multiple ports injecting line-rate traffic.
-diff --git a/drivers/net/ethernet/freescale/fman/fman.c b/drivers/net/ethernet/freescale/fman/fman.c
-index e80fedb27cee8..21d8023535ae4 100644
---- a/drivers/net/ethernet/freescale/fman/fman.c
-+++ b/drivers/net/ethernet/freescale/fman/fman.c
-@@ -1,5 +1,6 @@
- /*
-  * Copyright 2008-2015 Freescale Semiconductor Inc.
-+ * Copyright 2020 NXP
-  *
-  * Redistribution and use in source and binary forms, with or without
-  * modification, are permitted provided that the following conditions are met:
-@@ -566,6 +567,10 @@ struct fman_cfg {
- 	u32 qmi_def_tnums_thresh;
- };
- 
-+#ifdef CONFIG_DPAA_ERRATUM_A050385
-+static bool fman_has_err_a050385;
-+#endif
-+
- static irqreturn_t fman_exceptions(struct fman *fman,
- 				   enum fman_exceptions exception)
- {
-@@ -2517,6 +2522,14 @@ struct fman *fman_bind(struct device *fm_dev)
- }
- EXPORT_SYMBOL(fman_bind);
- 
-+#ifdef CONFIG_DPAA_ERRATUM_A050385
-+bool fman_has_errata_a050385(void)
-+{
-+	return fman_has_err_a050385;
-+}
-+EXPORT_SYMBOL(fman_has_errata_a050385);
-+#endif
-+
- static irqreturn_t fman_err_irq(int irq, void *handle)
- {
- 	struct fman *fman = (struct fman *)handle;
-@@ -2844,6 +2857,11 @@ static struct fman *read_dts_node(struct platform_device *of_dev)
- 		goto fman_free;
- 	}
- 
-+#ifdef CONFIG_DPAA_ERRATUM_A050385
-+	fman_has_err_a050385 =
-+		of_property_read_bool(fm_node, "fsl,erratum-a050385");
-+#endif
-+
- 	return fman;
- 
- fman_node_put:
-diff --git a/drivers/net/ethernet/freescale/fman/fman.h b/drivers/net/ethernet/freescale/fman/fman.h
-index 935c317fa6964..f2ede1360f03a 100644
---- a/drivers/net/ethernet/freescale/fman/fman.h
-+++ b/drivers/net/ethernet/freescale/fman/fman.h
-@@ -1,5 +1,6 @@
- /*
-  * Copyright 2008-2015 Freescale Semiconductor Inc.
-+ * Copyright 2020 NXP
-  *
-  * Redistribution and use in source and binary forms, with or without
-  * modification, are permitted provided that the following conditions are met:
-@@ -398,6 +399,10 @@ u16 fman_get_max_frm(void);
- 
- int fman_get_rx_extra_headroom(void);
- 
-+#ifdef CONFIG_DPAA_ERRATUM_A050385
-+bool fman_has_errata_a050385(void);
-+#endif
-+
- struct fman *fman_bind(struct device *dev);
- 
- #endif /* __FM_H */
+diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+index dd64f586679e1..728c9a9609f0c 100644
+--- a/drivers/block/virtio_blk.c
++++ b/drivers/block/virtio_blk.c
+@@ -271,10 +271,12 @@ static blk_status_t virtio_queue_rq(struct blk_mq_hw_ctx *hctx,
+ 		err = virtblk_add_req(vblk->vqs[qid].vq, vbr, vbr->sg, num);
+ 	if (err) {
+ 		virtqueue_kick(vblk->vqs[qid].vq);
+-		blk_mq_stop_hw_queue(hctx);
++		/* Don't stop the queue if -ENOMEM: we may have failed to
++		 * bounce the buffer due to global resource outage.
++		 */
++		if (err == -ENOSPC)
++			blk_mq_stop_hw_queue(hctx);
+ 		spin_unlock_irqrestore(&vblk->vqs[qid].lock, flags);
+-		/* Out of mem doesn't actually happen, since we fall back
+-		 * to direct descriptors */
+ 		if (err == -ENOMEM || err == -ENOSPC)
+ 			return BLK_STS_DEV_RESOURCE;
+ 		return BLK_STS_IOERR;
 -- 
 2.20.1
 
