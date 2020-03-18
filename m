@@ -2,106 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6EFE5189C77
-	for <lists+stable@lfdr.de>; Wed, 18 Mar 2020 14:01:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EA934189DAF
+	for <lists+stable@lfdr.de>; Wed, 18 Mar 2020 15:17:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726785AbgCRNBz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 Mar 2020 09:01:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55442 "EHLO mail.kernel.org"
+        id S1726857AbgCRORw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 Mar 2020 10:17:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46168 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726783AbgCRNBy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 18 Mar 2020 09:01:54 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        id S1726832AbgCRORw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 18 Mar 2020 10:17:52 -0400
+Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1A0C220724;
-        Wed, 18 Mar 2020 13:01:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9648320772;
+        Wed, 18 Mar 2020 14:17:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584536514;
-        bh=xVy8/c6RcnNZHG4RHZQAArMMYOr+Ikauroo+w0ChZeM=;
-        h=Subject:To:From:Date:From;
-        b=1wZH3m7bnIkspUVacF7NBvEkTEj4NUn+KaXHlP/FbUg+o67tGMo65SIdP5/z9bDz2
-         btBP4E053/IIgSNjfVYvLYQbXiqKaw7aVtafl+C6GqTqz53uGpt5JwIbhiFMlIeccP
-         FTkr6SeS3pLmZtvaKR+S8cmynP8veRNowOcMpWPg=
-Subject: patch "nvmem: check for NULL reg_read and reg_write before dereferencing" added to char-misc-testing
-To:     nicholas.johnson-opensource@outlook.com.au,
-        gregkh@linuxfoundation.org, srinivas.kandagatla@linaro.org,
+        s=default; t=1584541071;
+        bh=N0D5LeZio2aQmXspsBdMkjr6mizWCtl3HrFbXFqOHu0=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=BCtnZK28fmK9IPKyLn6/TaZA8Fv2ROuGB17tPw58aoZCpSP9WLiftEdzzpc47TpU8
+         5C3Qvo3iqGOqaSq3EAt2DN4G4JBoG0X77sGv7aHUZTbDmpAgNDSKMSzYreuHJaW4c8
+         U6ot8ztszk8zTKQ31GUl0Ju/HJTYAtIlGeNY9Gf4=
+Date:   Wed, 18 Mar 2020 10:17:50 -0400
+From:   Sasha Levin <sashal@kernel.org>
+To:     gregkh@linuxfoundation.org
+Cc:     sven@narfation.org, hdanton@sina.com, sw@simonwunderlich.de,
         stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 18 Mar 2020 14:01:22 +0100
-Message-ID: <1584536482109201@kroah.com>
+Subject: Re: FAILED: patch "[PATCH] batman-adv: Don't schedule OGM for
+ disabled interface" failed to apply to 4.4-stable tree
+Message-ID: <20200318141750.GD4189@sasha-vm>
+References: <158436631216439@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <158436631216439@kroah.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Mon, Mar 16, 2020 at 02:45:12PM +0100, gregkh@linuxfoundation.org wrote:
+>
+>The patch below does not apply to the 4.4-stable tree.
+>If someone wants it applied there, or to any other stable or longterm
+>tree, then please email the backport, including the original git commit
+>id to <stable@vger.kernel.org>.
+>
+>thanks,
+>
+>greg k-h
+>
+>------------------ original commit in Linus's tree ------------------
+>
+>From 8e8ce08198de193e3d21d42e96945216e3d9ac7f Mon Sep 17 00:00:00 2001
+>From: Sven Eckelmann <sven@narfation.org>
+>Date: Sun, 16 Feb 2020 13:02:06 +0100
+>Subject: [PATCH] batman-adv: Don't schedule OGM for disabled interface
+>
+>A transmission scheduling for an interface which is currently dropped by
+>batadv_iv_ogm_iface_disable could still be in progress. The B.A.T.M.A.N. V
+>is simply cancelling the workqueue item in an synchronous way but this is
+>not possible with B.A.T.M.A.N. IV because the OGM submissions are
+>intertwined.
+>
+>Instead it has to stop submitting the OGM when it detect that the buffer
+>pointer is set to NULL.
+>
+>Reported-by: syzbot+a98f2016f40b9cd3818a@syzkaller.appspotmail.com
+>Reported-by: syzbot+ac36b6a33c28a491e929@syzkaller.appspotmail.com
+>Fixes: c6c8fea29769 ("net: Add batman-adv meshing protocol")
+>Signed-off-by: Sven Eckelmann <sven@narfation.org>
+>Cc: Hillf Danton <hdanton@sina.com>
+>Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
 
-This is a note to let you know that I've just added the patch titled
+Adjusted context and queued up for 4.4.
 
-    nvmem: check for NULL reg_read and reg_write before dereferencing
-
-to my char-misc git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
-in the char-misc-testing branch.
-
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
-
-The patch will be merged to the char-misc-next branch sometime soon,
-after it passes testing, and the merge window is open.
-
-If you have any questions about this process, please let me know.
-
-
-From a263682a3c9b9ce7b57fbe0296492d1a73d8be58 Mon Sep 17 00:00:00 2001
-From: Nicholas Johnson <nicholas.johnson-opensource@outlook.com.au>
-Date: Tue, 10 Mar 2020 13:22:52 +0000
-Subject: nvmem: check for NULL reg_read and reg_write before dereferencing
-
-Return -EPERM if reg_read is NULL in bin_attr_nvmem_read() or if
-reg_write is NULL in bin_attr_nvmem_write().
-
-This prevents NULL dereferences such as the one described in
-03cd45d2e219 ("thunderbolt: Prevent crash if non-active NVMem file is
-read")
-
-Signed-off-by: Nicholas Johnson <nicholas.johnson-opensource@outlook.com.au>
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Link: https://lore.kernel.org/r/20200310132257.23358-10-srinivas.kandagatla@linaro.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/nvmem/nvmem-sysfs.c | 6 ++++++
- 1 file changed, 6 insertions(+)
-
-diff --git a/drivers/nvmem/nvmem-sysfs.c b/drivers/nvmem/nvmem-sysfs.c
-index 9e0c429cd08a..8759c4470012 100644
---- a/drivers/nvmem/nvmem-sysfs.c
-+++ b/drivers/nvmem/nvmem-sysfs.c
-@@ -56,6 +56,9 @@ static ssize_t bin_attr_nvmem_read(struct file *filp, struct kobject *kobj,
- 
- 	count = round_down(count, nvmem->word_size);
- 
-+	if (!nvmem->reg_read)
-+		return -EPERM;
-+
- 	rc = nvmem->reg_read(nvmem->priv, pos, buf, count);
- 
- 	if (rc)
-@@ -90,6 +93,9 @@ static ssize_t bin_attr_nvmem_write(struct file *filp, struct kobject *kobj,
- 
- 	count = round_down(count, nvmem->word_size);
- 
-+	if (!nvmem->reg_write)
-+		return -EPERM;
-+
- 	rc = nvmem->reg_write(nvmem->priv, pos, buf, count);
- 
- 	if (rc)
 -- 
-2.25.1
-
-
+Thanks,
+Sasha
