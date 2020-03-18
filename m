@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B0274189C75
-	for <lists+stable@lfdr.de>; Wed, 18 Mar 2020 14:01:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6EFE5189C77
+	for <lists+stable@lfdr.de>; Wed, 18 Mar 2020 14:01:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726872AbgCRNBj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 Mar 2020 09:01:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55316 "EHLO mail.kernel.org"
+        id S1726785AbgCRNBz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 Mar 2020 09:01:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55442 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726869AbgCRNBj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 18 Mar 2020 09:01:39 -0400
+        id S1726783AbgCRNBy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 18 Mar 2020 09:01:54 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 66B5F20724;
-        Wed, 18 Mar 2020 13:01:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1A0C220724;
+        Wed, 18 Mar 2020 13:01:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584536498;
-        bh=oNdf9fJCpJ1xs5gW/NmX0pT8qC2FgBMHURkq5NGA7eU=;
+        s=default; t=1584536514;
+        bh=xVy8/c6RcnNZHG4RHZQAArMMYOr+Ikauroo+w0ChZeM=;
         h=Subject:To:From:Date:From;
-        b=Uly4CVKnl3YFHJaOK41h3rvjx48Ocb6k2EHxZgO6ZKk3hWqFCmJuHFuuMUfel3do0
-         4CwdLAW/y/Vc1vb5JgqoqyByOHPeKShl8Z27ko+oIkDbrsVI4USMShbvT8P7M9bcPd
-         yhLfonjwhM9r6fr5Odhov6O73jiDFAcOnPCMGavU=
-Subject: patch "nvmem: release the write-protect pin" added to char-misc-testing
-To:     ktouil@baylibre.com, bgolaszewski@baylibre.com,
-        geert@linux-m68k.org, gregkh@linuxfoundation.org,
-        srinivas.kandagatla@linaro.org, stable@vger.kernel.org
+        b=1wZH3m7bnIkspUVacF7NBvEkTEj4NUn+KaXHlP/FbUg+o67tGMo65SIdP5/z9bDz2
+         btBP4E053/IIgSNjfVYvLYQbXiqKaw7aVtafl+C6GqTqz53uGpt5JwIbhiFMlIeccP
+         FTkr6SeS3pLmZtvaKR+S8cmynP8veRNowOcMpWPg=
+Subject: patch "nvmem: check for NULL reg_read and reg_write before dereferencing" added to char-misc-testing
+To:     nicholas.johnson-opensource@outlook.com.au,
+        gregkh@linuxfoundation.org, srinivas.kandagatla@linaro.org,
+        stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 18 Mar 2020 14:01:21 +0100
-Message-ID: <158453648135195@kroah.com>
+Date:   Wed, 18 Mar 2020 14:01:22 +0100
+Message-ID: <1584536482109201@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -41,7 +41,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    nvmem: release the write-protect pin
+    nvmem: check for NULL reg_read and reg_write before dereferencing
 
 to my char-misc git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
@@ -56,40 +56,51 @@ after it passes testing, and the merge window is open.
 If you have any questions about this process, please let me know.
 
 
-From 6f57cbd7ce40323eacf542392bfa70ff2cb42c2a Mon Sep 17 00:00:00 2001
-From: Khouloud Touil <ktouil@baylibre.com>
-Date: Tue, 10 Mar 2020 13:22:50 +0000
-Subject: nvmem: release the write-protect pin
+From a263682a3c9b9ce7b57fbe0296492d1a73d8be58 Mon Sep 17 00:00:00 2001
+From: Nicholas Johnson <nicholas.johnson-opensource@outlook.com.au>
+Date: Tue, 10 Mar 2020 13:22:52 +0000
+Subject: nvmem: check for NULL reg_read and reg_write before dereferencing
 
-Put the write-protect GPIO descriptor in nvmem_release() so that it can
-be automatically released when the associated device's reference count
-drops to 0.
+Return -EPERM if reg_read is NULL in bin_attr_nvmem_read() or if
+reg_write is NULL in bin_attr_nvmem_write().
 
-Fixes: 2a127da461a9 ("nvmem: add support for the write-protect pin")
-Reported-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Signed-off-by: Khouloud Touil <ktouil@baylibre.com>
+This prevents NULL dereferences such as the one described in
+03cd45d2e219 ("thunderbolt: Prevent crash if non-active NVMem file is
+read")
+
+Signed-off-by: Nicholas Johnson <nicholas.johnson-opensource@outlook.com.au>
 Cc: stable <stable@vger.kernel.org>
-[Bartosz: tweak the commit message]
-Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Link: https://lore.kernel.org/r/20200310132257.23358-8-srinivas.kandagatla@linaro.org
+Link: https://lore.kernel.org/r/20200310132257.23358-10-srinivas.kandagatla@linaro.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/nvmem/core.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/nvmem/nvmem-sysfs.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/nvmem/core.c b/drivers/nvmem/core.c
-index 2758d90d63b7..c05c4f4a7b9e 100644
---- a/drivers/nvmem/core.c
-+++ b/drivers/nvmem/core.c
-@@ -72,6 +72,7 @@ static void nvmem_release(struct device *dev)
- 	struct nvmem_device *nvmem = to_nvmem_device(dev);
+diff --git a/drivers/nvmem/nvmem-sysfs.c b/drivers/nvmem/nvmem-sysfs.c
+index 9e0c429cd08a..8759c4470012 100644
+--- a/drivers/nvmem/nvmem-sysfs.c
++++ b/drivers/nvmem/nvmem-sysfs.c
+@@ -56,6 +56,9 @@ static ssize_t bin_attr_nvmem_read(struct file *filp, struct kobject *kobj,
  
- 	ida_simple_remove(&nvmem_ida, nvmem->id);
-+	gpiod_put(nvmem->wp_gpio);
- 	kfree(nvmem);
- }
+ 	count = round_down(count, nvmem->word_size);
  
++	if (!nvmem->reg_read)
++		return -EPERM;
++
+ 	rc = nvmem->reg_read(nvmem->priv, pos, buf, count);
+ 
+ 	if (rc)
+@@ -90,6 +93,9 @@ static ssize_t bin_attr_nvmem_write(struct file *filp, struct kobject *kobj,
+ 
+ 	count = round_down(count, nvmem->word_size);
+ 
++	if (!nvmem->reg_write)
++		return -EPERM;
++
+ 	rc = nvmem->reg_write(nvmem->priv, pos, buf, count);
+ 
+ 	if (rc)
 -- 
 2.25.1
 
