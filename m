@@ -2,34 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D1A9218A4C0
-	for <lists+stable@lfdr.de>; Wed, 18 Mar 2020 21:57:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C04818A4C5
+	for <lists+stable@lfdr.de>; Wed, 18 Mar 2020 21:57:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728353AbgCRUze (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 Mar 2020 16:55:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55998 "EHLO mail.kernel.org"
+        id S1728383AbgCRUzl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 Mar 2020 16:55:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56166 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728348AbgCRUzd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 18 Mar 2020 16:55:33 -0400
+        id S1728379AbgCRUzk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 18 Mar 2020 16:55:40 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 12B3D20BED;
-        Wed, 18 Mar 2020 20:55:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 232BE208E4;
+        Wed, 18 Mar 2020 20:55:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584564932;
-        bh=CZB+KZiYdArxmr34T50wC1U0sriUX3k/RvRcHsuKGS4=;
+        s=default; t=1584564940;
+        bh=CRAB778nqg1MgETvFzYotqQD43sufLM5qforwF49esM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=phPvVC6O5fVNmxyP1UYkBIAzD33fMGIIHF8aPMjiVW0dLx/sI+pQnHDVA0uGSNGWb
-         1KSdtD8d9ap4om8glS8LVf7/mePVgsW/XS9vbyBY5sRbEoB0/qdUTPtPHqMUGl5FKv
-         b98hzqeK7owxdsupzgerKz/diFpjzi28YhnnWdYs=
+        b=1tnQH3WcMhQwTPlTBB/AFo7ONdlU/qksvq4f+P8vaC6ud6nvirBnmTJRdc8hXk3E6
+         i9jMt3hJ/8IpkRDicsNcwKXmNA/CLDJmd4Ozt9AEyH8H1mlO+6WdIeVbnO2vYc+fqB
+         GK8mhHwOsnTAc2wao4VwagFc2JBoqrxACljaIC2M=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Tycho Andersen <tycho@tycho.ws>, Tejun Heo <tj@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, cgroups@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 19/37] cgroup1: don't call release_agent when it is ""
-Date:   Wed, 18 Mar 2020 16:54:51 -0400
-Message-Id: <20200318205509.17053-19-sashal@kernel.org>
+Cc:     Remi Pommarel <repk@triplefau.lt>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
+        linux-stm32@st-md-mailman.stormreply.com,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.19 25/37] net: stmmac: dwmac1000: Disable ACS if enhanced descs are not used
+Date:   Wed, 18 Mar 2020 16:54:57 -0400
+Message-Id: <20200318205509.17053-25-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200318205509.17053-1-sashal@kernel.org>
 References: <20200318205509.17053-1-sashal@kernel.org>
@@ -42,41 +45,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tycho Andersen <tycho@tycho.ws>
+From: Remi Pommarel <repk@triplefau.lt>
 
-[ Upstream commit 2e5383d7904e60529136727e49629a82058a5607 ]
+[ Upstream commit b723bd933980f4956dabc8a8d84b3e83be8d094c ]
 
-Older (and maybe current) versions of systemd set release_agent to "" when
-shutting down, but do not set notify_on_release to 0.
+ACS (auto PAD/FCS stripping) removes FCS off 802.3 packets (LLC) so that
+there is no need to manually strip it for such packets. The enhanced DMA
+descriptors allow to flag LLC packets so that the receiving callback can
+use that to strip FCS manually or not. On the other hand, normal
+descriptors do not support that.
 
-Since 64e90a8acb85 ("Introduce STATIC_USERMODEHELPER to mediate
-call_usermodehelper()"), we filter out such calls when the user mode helper
-path is "". However, when used in conjunction with an actual (i.e. non "")
-STATIC_USERMODEHELPER, the path is never "", so the real usermode helper
-will be called with argv[0] == "".
+Thus in order to not truncate LLC packet ACS should be disabled when
+using normal DMA descriptors.
 
-Let's avoid this by not invoking the release_agent when it is "".
-
-Signed-off-by: Tycho Andersen <tycho@tycho.ws>
-Signed-off-by: Tejun Heo <tj@kernel.org>
+Fixes: 47dd7a540b8a0 ("net: add support for STMicroelectronics Ethernet controllers.")
+Signed-off-by: Remi Pommarel <repk@triplefau.lt>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/cgroup/cgroup-v1.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/stmicro/stmmac/dwmac1000_core.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/kernel/cgroup/cgroup-v1.c b/kernel/cgroup/cgroup-v1.c
-index c9628b9a41d23..dd8bdbfbbde1e 100644
---- a/kernel/cgroup/cgroup-v1.c
-+++ b/kernel/cgroup/cgroup-v1.c
-@@ -812,7 +812,7 @@ void cgroup1_release_agent(struct work_struct *work)
+diff --git a/drivers/net/ethernet/stmicro/stmmac/dwmac1000_core.c b/drivers/net/ethernet/stmicro/stmmac/dwmac1000_core.c
+index 21d131347e2ef..7b2a84320aabd 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/dwmac1000_core.c
++++ b/drivers/net/ethernet/stmicro/stmmac/dwmac1000_core.c
+@@ -34,6 +34,7 @@
+ static void dwmac1000_core_init(struct mac_device_info *hw,
+ 				struct net_device *dev)
+ {
++	struct stmmac_priv *priv = netdev_priv(dev);
+ 	void __iomem *ioaddr = hw->pcsr;
+ 	u32 value = readl(ioaddr + GMAC_CONTROL);
+ 	int mtu = dev->mtu;
+@@ -45,7 +46,7 @@ static void dwmac1000_core_init(struct mac_device_info *hw,
+ 	 * Broadcom tags can look like invalid LLC/SNAP packets and cause the
+ 	 * hardware to truncate packets on reception.
+ 	 */
+-	if (netdev_uses_dsa(dev))
++	if (netdev_uses_dsa(dev) || !priv->plat->enh_desc)
+ 		value &= ~GMAC_CONTROL_ACS;
  
- 	pathbuf = kmalloc(PATH_MAX, GFP_KERNEL);
- 	agentbuf = kstrdup(cgrp->root->release_agent_path, GFP_KERNEL);
--	if (!pathbuf || !agentbuf)
-+	if (!pathbuf || !agentbuf || !strlen(agentbuf))
- 		goto out;
- 
- 	spin_lock_irq(&css_set_lock);
+ 	if (mtu > 1500)
 -- 
 2.20.1
 
