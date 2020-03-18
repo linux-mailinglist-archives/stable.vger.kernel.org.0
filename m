@@ -2,81 +2,72 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 07E50189223
-	for <lists+stable@lfdr.de>; Wed, 18 Mar 2020 00:28:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 58910189261
+	for <lists+stable@lfdr.de>; Wed, 18 Mar 2020 01:01:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727071AbgCQX2b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Mar 2020 19:28:31 -0400
-Received: from dvalin.narfation.org ([213.160.73.56]:53960 "EHLO
-        dvalin.narfation.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727150AbgCQX2b (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 17 Mar 2020 19:28:31 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=narfation.org;
-        s=20121; t=1584487709;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=CeJ/bYIqtOheRKe9BZTPNWDn8zoW+HWaPsaAuBlspCo=;
-        b=1zelvDBMgl91+/TqiX6MpZpy77dupFfW+2wKjxJdWGZC+enDvA1jQNRLZwBAYmyvxG3CIH
-        iCNznoUWpvVyhy1R1uytrop7fbNpr/uNVUdtgaqbGvlLCOjHKiIrO+tidnt8wTB2LtjNtG
-        /cqPlfJMESEkj48RlKXc5Od+ikJpyl8=
-From:   Sven Eckelmann <sven@narfation.org>
-To:     stable@vger.kernel.org
-Cc:     Sven Eckelmann <sven@narfation.org>,
-        syzbot+a98f2016f40b9cd3818a@syzkaller.appspotmail.com,
-        syzbot+ac36b6a33c28a491e929@syzkaller.appspotmail.com,
-        Hillf Danton <hdanton@sina.com>,
-        Simon Wunderlich <sw@simonwunderlich.de>
-Subject: [PATCH 4.4 48/48] batman-adv: Don't schedule OGM for disabled interface
-Date:   Wed, 18 Mar 2020 00:27:34 +0100
-Message-Id: <20200317232734.6127-49-sven@narfation.org>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20200317232734.6127-1-sven@narfation.org>
-References: <20200317232734.6127-1-sven@narfation.org>
+        id S1726735AbgCRABY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Mar 2020 20:01:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52012 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726680AbgCRABY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Mar 2020 20:01:24 -0400
+Received: from [192.168.1.112] (c-24-9-64-241.hsd1.co.comcast.net [24.9.64.241])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 91F4020663;
+        Wed, 18 Mar 2020 00:01:23 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1584489684;
+        bh=DIAheFs7QNZ2gzYAxdC6NPE1xIZ1nDkyvbAllPFdogY=;
+        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
+        b=kkMN+scBLQ2foCDTngTO/Q7G24Kvde9NHzDXluk9o2irFazYGbmQ0M7p2Uh0SRwtc
+         TwY5Fcq2Uzpoqlaeqq+dmsu6jk3DukILNQQW9rYC8O1myLQoDOknhjKEFF24Lb4LMR
+         UuSyx4FehVkvzGR3M+gcQQQQgasu9SNOLZbXwFDg=
+Subject: Re: [PATCH 5.5 000/151] 5.5.10-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org, shuah <shuah@kernel.org>
+References: <20200317103326.593639086@linuxfoundation.org>
+From:   shuah <shuah@kernel.org>
+Message-ID: <e2dadcaa-adba-7472-edf5-5e34c7f5e59b@kernel.org>
+Date:   Tue, 17 Mar 2020 18:01:12 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.4.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam: Yes
+In-Reply-To: <20200317103326.593639086@linuxfoundation.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-A transmission scheduling for an interface which is currently dropped by
-batadv_iv_ogm_iface_disable could still be in progress. The B.A.T.M.A.N. V
-is simply cancelling the workqueue item in an synchronous way but this is
-not possible with B.A.T.M.A.N. IV because the OGM submissions are
-intertwined.
+On 3/17/20 4:53 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.5.10 release.
+> There are 151 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Thu, 19 Mar 2020 10:31:16 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.5.10-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.5.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
+> 
 
-Instead it has to stop submitting the OGM when it detect that the buffer
-pointer is set to NULL.
+Compiled and booted on my test system. No dmesg regressions.
 
-Reported-by: syzbot+a98f2016f40b9cd3818a@syzkaller.appspotmail.com
-Reported-by: syzbot+ac36b6a33c28a491e929@syzkaller.appspotmail.com
-Fixes: c6c8fea29769 ("net: Add batman-adv meshing protocol")
-Signed-off-by: Sven Eckelmann <sven@narfation.org>
-Cc: Hillf Danton <hdanton@sina.com>
-Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
-Signed-off-by: Sven Eckelmann <sven@narfation.org>
----
- net/batman-adv/bat_iv_ogm.c | 4 ++++
- 1 file changed, 4 insertions(+)
-
-diff --git a/net/batman-adv/bat_iv_ogm.c b/net/batman-adv/bat_iv_ogm.c
-index eb2f2ed9a956..caea5bb38d4b 100644
---- a/net/batman-adv/bat_iv_ogm.c
-+++ b/net/batman-adv/bat_iv_ogm.c
-@@ -944,6 +944,10 @@ static void batadv_iv_ogm_schedule_buff(struct batadv_hard_iface *hard_iface)
- 
- 	lockdep_assert_held(&hard_iface->bat_iv.ogm_buff_mutex);
- 
-+	/* interface already disabled by batadv_iv_ogm_iface_disable */
-+	if (!*ogm_buff)
-+		return;
-+
- 	primary_if = batadv_primary_if_get_selected(bat_priv);
- 
- 	if (hard_iface == primary_if) {
--- 
-2.20.1
+thanks,
+-- Shuah
 
