@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C9E8A18A54A
-	for <lists+stable@lfdr.de>; Wed, 18 Mar 2020 22:00:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7973A18A4E2
+	for <lists+stable@lfdr.de>; Wed, 18 Mar 2020 21:57:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728632AbgCRU4g (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1728151AbgCRU4g (ORCPT <rfc822;lists+stable@lfdr.de>);
         Wed, 18 Mar 2020 16:56:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57654 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:57706 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727990AbgCRU4e (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 18 Mar 2020 16:56:34 -0400
+        id S1727803AbgCRU4f (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 18 Mar 2020 16:56:35 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1EA0120A8B;
-        Wed, 18 Mar 2020 20:56:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2C74C2166E;
+        Wed, 18 Mar 2020 20:56:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584564993;
-        bh=EY5R1QC2UFt4ZgEOuanrzEih+GHs096R2FsqatSo/3w=;
+        s=default; t=1584564994;
+        bh=VrmNVisaFkgSu0GnQDdpKQDJ4aUhX8gk0Z7ERu8Byk8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T3RBPz+ID1umAXgzfJ6OG960u2jYixGKR8yxfYWZ7LE/cvoqNbLT4gRoegbAjg8iR
-         GSzROn6Y5G7pWXypkW7RTe32v1f6kyCwXN1Jnb7ZBRnd/7hQbJOyxvMhNBSE4rNhYq
-         X/Qp4utsh0vFHR1GmJPURvstS/0RSDFHXMwlCU3w=
+        b=dbZVmqeLIjjyRiTU6isk51t8EXt33V0ttwgqtlxMjbSUQrxALqE9Ta4TIxDuHO/n6
+         kkHTkTy/i4tRaZ/KwEbJyEjdUMyrrBheTKmLjQPmOTCnbnKkYlQM1U4U9o+9OfCtpq
+         VANyYD36hHPhMPgj6P/9MqPg8YJeWd2ev3AMAhXU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mike Gilbert <floppym@gentoo.org>,
-        Shuah Khan <skhan@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, linux-pm@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 03/15] cpupower: avoid multiple definition with gcc -fno-common
-Date:   Wed, 18 Mar 2020 16:56:17 -0400
-Message-Id: <20200318205629.17750-3-sashal@kernel.org>
+Cc:     Jakub Kicinski <kuba@kernel.org>, David Ahern <dsahern@gmail.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 04/15] fib: add missing attribute validation for tun_id
+Date:   Wed, 18 Mar 2020 16:56:18 -0400
+Message-Id: <20200318205629.17750-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200318205629.17750-1-sashal@kernel.org>
 References: <20200318205629.17750-1-sashal@kernel.org>
@@ -43,88 +43,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Gilbert <floppym@gentoo.org>
+From: Jakub Kicinski <kuba@kernel.org>
 
-[ Upstream commit 2de7fb60a4740135e03cf55c1982e393ccb87b6b ]
+[ Upstream commit 4c16d64ea04056f1b1b324ab6916019f6a064114 ]
 
-Building cpupower with -fno-common in CFLAGS results in errors due to
-multiple definitions of the 'cpu_count' and 'start_time' variables.
+Add missing netlink policy entry for FRA_TUN_ID.
 
-./utils/idle_monitor/snb_idle.o:./utils/idle_monitor/cpupower-monitor.h:28:
-multiple definition of `cpu_count';
-./utils/idle_monitor/nhm_idle.o:./utils/idle_monitor/cpupower-monitor.h:28:
-first defined here
-...
-./utils/idle_monitor/cpuidle_sysfs.o:./utils/idle_monitor/cpuidle_sysfs.c:22:
-multiple definition of `start_time';
-./utils/idle_monitor/amd_fam14h_idle.o:./utils/idle_monitor/amd_fam14h_idle.c:85:
-first defined here
-
-The -fno-common option will be enabled by default in GCC 10.
-
-Bug: https://bugs.gentoo.org/707462
-Signed-off-by: Mike Gilbert <floppym@gentoo.org>
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Fixes: e7030878fc84 ("fib: Add fib rule match on tunnel id")
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Reviewed-by: David Ahern <dsahern@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/power/cpupower/utils/idle_monitor/amd_fam14h_idle.c  | 2 +-
- tools/power/cpupower/utils/idle_monitor/cpuidle_sysfs.c    | 2 +-
- tools/power/cpupower/utils/idle_monitor/cpupower-monitor.c | 2 ++
- tools/power/cpupower/utils/idle_monitor/cpupower-monitor.h | 2 +-
- 4 files changed, 5 insertions(+), 3 deletions(-)
+ include/net/fib_rules.h | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/tools/power/cpupower/utils/idle_monitor/amd_fam14h_idle.c b/tools/power/cpupower/utils/idle_monitor/amd_fam14h_idle.c
-index 2116df9ad8325..c097a3748674f 100644
---- a/tools/power/cpupower/utils/idle_monitor/amd_fam14h_idle.c
-+++ b/tools/power/cpupower/utils/idle_monitor/amd_fam14h_idle.c
-@@ -83,7 +83,7 @@ static struct pci_access *pci_acc;
- static struct pci_dev *amd_fam14h_pci_dev;
- static int nbp1_entered;
- 
--struct timespec start_time;
-+static struct timespec start_time;
- static unsigned long long timediff;
- 
- #ifdef DEBUG
-diff --git a/tools/power/cpupower/utils/idle_monitor/cpuidle_sysfs.c b/tools/power/cpupower/utils/idle_monitor/cpuidle_sysfs.c
-index 5b3205f162174..5277df27191f3 100644
---- a/tools/power/cpupower/utils/idle_monitor/cpuidle_sysfs.c
-+++ b/tools/power/cpupower/utils/idle_monitor/cpuidle_sysfs.c
-@@ -21,7 +21,7 @@ struct cpuidle_monitor cpuidle_sysfs_monitor;
- 
- static unsigned long long **previous_count;
- static unsigned long long **current_count;
--struct timespec start_time;
-+static struct timespec start_time;
- static unsigned long long timediff;
- 
- static int cpuidle_get_count_percent(unsigned int id, double *percent,
-diff --git a/tools/power/cpupower/utils/idle_monitor/cpupower-monitor.c b/tools/power/cpupower/utils/idle_monitor/cpupower-monitor.c
-index 05f953f0f0a0c..80a21cb67d94f 100644
---- a/tools/power/cpupower/utils/idle_monitor/cpupower-monitor.c
-+++ b/tools/power/cpupower/utils/idle_monitor/cpupower-monitor.c
-@@ -29,6 +29,8 @@ struct cpuidle_monitor *all_monitors[] = {
- 0
- };
- 
-+int cpu_count;
-+
- static struct cpuidle_monitor *monitors[MONITORS_MAX];
- static unsigned int avail_monitors;
- 
-diff --git a/tools/power/cpupower/utils/idle_monitor/cpupower-monitor.h b/tools/power/cpupower/utils/idle_monitor/cpupower-monitor.h
-index 9e43f3371fbc6..3558bbae2b5dc 100644
---- a/tools/power/cpupower/utils/idle_monitor/cpupower-monitor.h
-+++ b/tools/power/cpupower/utils/idle_monitor/cpupower-monitor.h
-@@ -18,7 +18,7 @@
- #define CSTATE_NAME_LEN 5
- #define CSTATE_DESC_LEN 60
- 
--int cpu_count;
-+extern int cpu_count;
- 
- /* Hard to define the right names ...: */
- enum power_range_e {
+diff --git a/include/net/fib_rules.h b/include/net/fib_rules.h
+index 456e4a6006abf..0b0ad792dd5c3 100644
+--- a/include/net/fib_rules.h
++++ b/include/net/fib_rules.h
+@@ -87,6 +87,7 @@ struct fib_rules_ops {
+ 	[FRA_OIFNAME]	= { .type = NLA_STRING, .len = IFNAMSIZ - 1 }, \
+ 	[FRA_PRIORITY]	= { .type = NLA_U32 }, \
+ 	[FRA_FWMARK]	= { .type = NLA_U32 }, \
++	[FRA_TUN_ID]	= { .type = NLA_U64 }, \
+ 	[FRA_FWMASK]	= { .type = NLA_U32 }, \
+ 	[FRA_TABLE]     = { .type = NLA_U32 }, \
+ 	[FRA_SUPPRESS_PREFIXLEN] = { .type = NLA_U32 }, \
 -- 
 2.20.1
 
