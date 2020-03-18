@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8444C18A5E8
-	for <lists+stable@lfdr.de>; Wed, 18 Mar 2020 22:04:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1335418A5DF
+	for <lists+stable@lfdr.de>; Wed, 18 Mar 2020 22:04:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727499AbgCRVEg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 Mar 2020 17:04:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55612 "EHLO mail.kernel.org"
+        id S1728272AbgCRUzU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 Mar 2020 16:55:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55638 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728257AbgCRUzR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 18 Mar 2020 16:55:17 -0400
+        id S1728266AbgCRUzT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 18 Mar 2020 16:55:19 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DDA5F208E4;
-        Wed, 18 Mar 2020 20:55:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0F41420BED;
+        Wed, 18 Mar 2020 20:55:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584564916;
-        bh=8gWxQB1hy2Rs45/USgNRR4m1Ti7GPXXLLt/ZXidVBr0=;
+        s=default; t=1584564918;
+        bh=uCf8Xa5e1EZfg3pH3wDYjbpMZWFlxudDFng9dlNucZk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gPE6kgigtu1BukX5TZmv3drvh2TSwTekEpAwY/i9zB58kex8uVL9r1iQHiZ1/abrh
-         iGbs/2eDvY6xUZsCIKdQXZrUvB8bqT+CvaDiOfgZZ3IZg9T/kBEZXfH6Y9WDHZ7nS1
-         4TC1mCGE6uZA3e5EN/IQBNtCFfDC7+iFqsD2eI58=
+        b=fgHKXBlkt3+shwpPd8vC0q8c0G8YS7UGG2ZVFhVJkakxU28/BrgWOTtFtCuyUe11r
+         Zl77C5SXSHqpIB8ar73Mwo0FnB/QpLWS7WVGAPNhwEjPUzsdZQg8Zi0v1IM2mJhUix
+         C66hZ/j0Djqhotvxvlj50cG+H1DFx4iFSHWaFxwo=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Scott Mayhew <smayhew@redhat.com>,
-        Dave Wysochanski <dwysocha@redhat.com>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>,
-        Sasha Levin <sashal@kernel.org>, linux-nfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 05/37] nfs: add minor version to nfs_server_key for fscache
-Date:   Wed, 18 Mar 2020 16:54:37 -0400
-Message-Id: <20200318205509.17053-5-sashal@kernel.org>
+Cc:     You-Sheng Yang <vicamo.yang@canonical.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 07/37] r8152: check disconnect status after long sleep
+Date:   Wed, 18 Mar 2020 16:54:39 -0400
+Message-Id: <20200318205509.17053-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200318205509.17053-1-sashal@kernel.org>
 References: <20200318205509.17053-1-sashal@kernel.org>
@@ -44,74 +44,127 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Scott Mayhew <smayhew@redhat.com>
+From: You-Sheng Yang <vicamo.yang@canonical.com>
 
-[ Upstream commit 55dee1bc0d72877b99805e42e0205087e98b9edd ]
+[ Upstream commit d64c7a08034b32c285e576208ae44fc3ba3fa7df ]
 
-An NFS client that mounts multiple exports from the same NFS
-server with higher NFSv4 versions disabled (i.e. 4.2) and without
-forcing a specific NFS version results in fscache index cookie
-collisions and the following messages:
-[  570.004348] FS-Cache: Duplicate cookie detected
+Dell USB Type C docking WD19/WD19DC attaches additional peripherals as:
 
-Each nfs_client structure should have its own fscache index cookie,
-so add the minorversion to nfs_server_key.
+  /: Bus 02.Port 1: Dev 1, Class=root_hub, Driver=xhci_hcd/6p, 5000M
+      |__ Port 1: Dev 11, If 0, Class=Hub, Driver=hub/4p, 5000M
+          |__ Port 3: Dev 12, If 0, Class=Hub, Driver=hub/4p, 5000M
+          |__ Port 4: Dev 13, If 0, Class=Vendor Specific Class,
+              Driver=r8152, 5000M
 
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=200145
-Signed-off-by: Scott Mayhew <smayhew@redhat.com>
-Signed-off-by: Dave Wysochanski <dwysocha@redhat.com>
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+where usb 2-1-3 is a hub connecting all USB Type-A/C ports on the dock.
+
+When hotplugging such dock with additional usb devices already attached on
+it, the probing process may reset usb 2.1 port, therefore r8152 ethernet
+device is also reset. However, during r8152 device init there are several
+for-loops that, when it's unable to retrieve hardware registers due to
+being disconnected from USB, may take up to 14 seconds each in practice,
+and that has to be completed before USB may re-enumerate devices on the
+bus. As a result, devices attached to the dock will only be available
+after nearly 1 minute after the dock was plugged in:
+
+  [ 216.388290] [250] r8152 2-1.4:1.0: usb_probe_interface
+  [ 216.388292] [250] r8152 2-1.4:1.0: usb_probe_interface - got id
+  [ 258.830410] r8152 2-1.4:1.0 (unnamed net_device) (uninitialized): PHY not ready
+  [ 258.830460] r8152 2-1.4:1.0 (unnamed net_device) (uninitialized): Invalid header when reading pass-thru MAC addr
+  [ 258.830464] r8152 2-1.4:1.0 (unnamed net_device) (uninitialized): Get ether addr fail
+
+This happens in, for example, r8153_init:
+
+  static int generic_ocp_read(struct r8152 *tp, u16 index, u16 size,
+			    void *data, u16 type)
+  {
+    if (test_bit(RTL8152_UNPLUG, &tp->flags))
+      return -ENODEV;
+    ...
+  }
+
+  static u16 ocp_read_word(struct r8152 *tp, u16 type, u16 index)
+  {
+    u32 data;
+    ...
+    generic_ocp_read(tp, index, sizeof(tmp), &tmp, type | byen);
+
+    data = __le32_to_cpu(tmp);
+    ...
+    return (u16)data;
+  }
+
+  static void r8153_init(struct r8152 *tp)
+  {
+    ...
+    if (test_bit(RTL8152_UNPLUG, &tp->flags))
+      return;
+
+    for (i = 0; i < 500; i++) {
+      if (ocp_read_word(tp, MCU_TYPE_PLA, PLA_BOOT_CTRL) &
+          AUTOLOAD_DONE)
+        break;
+      msleep(20);
+    }
+    ...
+  }
+
+Since ocp_read_word() doesn't check the return status of
+generic_ocp_read(), and the only exit condition for the loop is to have
+a match in the returned value, such loops will only ends after exceeding
+its maximum runs when the device has been marked as disconnected, which
+takes 500 * 20ms = 10 seconds in theory, 14 in practice.
+
+To solve this long latency another test to RTL8152_UNPLUG flag should be
+added after those 20ms sleep to skip unnecessary loops, so that the device
+probe can complete early and proceed to parent port reset/reprobe process.
+
+This can be reproduced on all kernel versions up to latest v5.6-rc2, but
+after v5.5-rc7 the reproduce rate is dramatically lowered to 1/30 or less
+while it was around 1/2.
+
+Signed-off-by: You-Sheng Yang <vicamo.yang@canonical.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/client.c     | 1 +
- fs/nfs/fscache.c    | 2 ++
- fs/nfs/nfs4client.c | 1 -
- 3 files changed, 3 insertions(+), 1 deletion(-)
+ drivers/net/usb/r8152.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/fs/nfs/client.c b/fs/nfs/client.c
-index 0a2b59c1ecb3d..07c5ddd5d6d50 100644
---- a/fs/nfs/client.c
-+++ b/fs/nfs/client.c
-@@ -157,6 +157,7 @@ struct nfs_client *nfs_alloc_client(const struct nfs_client_initdata *cl_init)
- 	if ((clp = kzalloc(sizeof(*clp), GFP_KERNEL)) == NULL)
- 		goto error_0;
+diff --git a/drivers/net/usb/r8152.c b/drivers/net/usb/r8152.c
+index c5c188dc66268..0639178cb0096 100644
+--- a/drivers/net/usb/r8152.c
++++ b/drivers/net/usb/r8152.c
+@@ -2701,6 +2701,8 @@ static u16 r8153_phy_status(struct r8152 *tp, u16 desired)
+ 		}
  
-+	clp->cl_minorversion = cl_init->minorversion;
- 	clp->cl_nfs_mod = cl_init->nfs_mod;
- 	if (!try_module_get(clp->cl_nfs_mod->owner))
- 		goto error_dealloc;
-diff --git a/fs/nfs/fscache.c b/fs/nfs/fscache.c
-index a7bc4e0494f92..6f45b1a957397 100644
---- a/fs/nfs/fscache.c
-+++ b/fs/nfs/fscache.c
-@@ -35,6 +35,7 @@ static DEFINE_SPINLOCK(nfs_fscache_keys_lock);
- struct nfs_server_key {
- 	struct {
- 		uint16_t	nfsversion;		/* NFS protocol version */
-+		uint32_t	minorversion;		/* NFSv4 minor version */
- 		uint16_t	family;			/* address family */
- 		__be16		port;			/* IP port */
- 	} hdr;
-@@ -59,6 +60,7 @@ void nfs_fscache_get_client_cookie(struct nfs_client *clp)
+ 		msleep(20);
++		if (test_bit(RTL8152_UNPLUG, &tp->flags))
++			break;
+ 	}
  
- 	memset(&key, 0, sizeof(key));
- 	key.hdr.nfsversion = clp->rpc_ops->version;
-+	key.hdr.minorversion = clp->cl_minorversion;
- 	key.hdr.family = clp->cl_addr.ss_family;
+ 	return data;
+@@ -4062,7 +4064,10 @@ static void r8153_init(struct r8152 *tp)
+ 		if (ocp_read_word(tp, MCU_TYPE_PLA, PLA_BOOT_CTRL) &
+ 		    AUTOLOAD_DONE)
+ 			break;
++
+ 		msleep(20);
++		if (test_bit(RTL8152_UNPLUG, &tp->flags))
++			break;
+ 	}
  
- 	switch (clp->cl_addr.ss_family) {
-diff --git a/fs/nfs/nfs4client.c b/fs/nfs/nfs4client.c
-index 86991bcfbeb12..faaabbedc891d 100644
---- a/fs/nfs/nfs4client.c
-+++ b/fs/nfs/nfs4client.c
-@@ -210,7 +210,6 @@ struct nfs_client *nfs4_alloc_client(const struct nfs_client_initdata *cl_init)
- 	INIT_LIST_HEAD(&clp->cl_ds_clients);
- 	rpc_init_wait_queue(&clp->cl_rpcwaitq, "NFS client");
- 	clp->cl_state = 1 << NFS4CLNT_LEASE_EXPIRED;
--	clp->cl_minorversion = cl_init->minorversion;
- 	clp->cl_mvops = nfs_v4_minor_ops[cl_init->minorversion];
- 	clp->cl_mig_gen = 1;
- #if IS_ENABLED(CONFIG_NFS_V4_1)
+ 	data = r8153_phy_status(tp, 0);
+@@ -4180,7 +4185,10 @@ static void r8153b_init(struct r8152 *tp)
+ 		if (ocp_read_word(tp, MCU_TYPE_PLA, PLA_BOOT_CTRL) &
+ 		    AUTOLOAD_DONE)
+ 			break;
++
+ 		msleep(20);
++		if (test_bit(RTL8152_UNPLUG, &tp->flags))
++			break;
+ 	}
+ 
+ 	data = r8153_phy_status(tp, 0);
 -- 
 2.20.1
 
