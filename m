@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 858B118A598
-	for <lists+stable@lfdr.de>; Wed, 18 Mar 2020 22:02:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A789D18A593
+	for <lists+stable@lfdr.de>; Wed, 18 Mar 2020 22:02:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728181AbgCRVCb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 Mar 2020 17:02:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56430 "EHLO mail.kernel.org"
+        id S1728495AbgCRUz6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 Mar 2020 16:55:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56616 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727231AbgCRUzv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 18 Mar 2020 16:55:51 -0400
+        id S1728489AbgCRUz5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 18 Mar 2020 16:55:57 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 829E6208CA;
-        Wed, 18 Mar 2020 20:55:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 576C1208CA;
+        Wed, 18 Mar 2020 20:55:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584564951;
-        bh=I5hn+26qGqtFIORQfWtcZqngIEBWE6NORvMAshb68Ac=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o+07VRsg9QTwKuKlSvY/i5PDDPm2PCB2F7wIcVytCe41+i+DtRVO88b1YDrf5cdFG
-         ckKYF9otA+wPbO3qHRi8sfrx/eYfa/tYEJ6FJKDKaFpNyN1cq6ytaIOoehLthqh9TT
-         5KrP232vrNZCqP1caNPQL1zePReUzAr9VRB3vawc=
+        s=default; t=1584564957;
+        bh=GToXniXT+TcobdymTSjFYMLoF1tRlgZ/NIKKH8vjf6Y=;
+        h=From:To:Cc:Subject:Date:From;
+        b=XKZoGftecBNgUhOdAsYMtfKnX+t4kYXsYHxdGXHIKmgFZKnmTjeLRy/mlE481dw9A
+         xc1lXtRBCklHCIdq4UlaIfigDy2Boe7rOGjaYj1cQs1632jU70pk5PoZ785lCciaDF
+         j+3PwLkpvpdP7TwanRKwYHMVAsCYq6DgUgOlINLo=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Colin Ian King <colin.king@canonical.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>,
-        bcm-kernel-feedback-list@broadcom.com, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 35/37] net: systemport: fix index check to avoid an array out of bounds access
-Date:   Wed, 18 Mar 2020 16:55:07 -0400
-Message-Id: <20200318205509.17053-35-sashal@kernel.org>
+Cc:     Vasily Averin <vvs@virtuozzo.com>, Tejun Heo <tj@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, cgroups@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 01/28] cgroup-v1: cgroup_pidlist_next should update position index
+Date:   Wed, 18 Mar 2020 16:55:28 -0400
+Message-Id: <20200318205555.17447-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20200318205509.17053-1-sashal@kernel.org>
-References: <20200318205509.17053-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -44,35 +40,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Vasily Averin <vvs@virtuozzo.com>
 
-[ Upstream commit c0368595c1639947839c0db8294ee96aca0b3b86 ]
+[ Upstream commit db8dd9697238be70a6b4f9d0284cd89f59c0e070 ]
 
-Currently the bounds check on index is off by one and can lead to
-an out of bounds access on array priv->filters_loc when index is
-RXCHK_BRCM_TAG_MAX.
+if seq_file .next fuction does not change position index,
+read after some lseek can generate unexpected output.
 
-Fixes: bb9051a2b230 ("net: systemport: Add support for WAKE_FILTER")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+ # mount | grep cgroup
+ # dd if=/mnt/cgroup.procs bs=1  # normal output
+...
+1294
+1295
+1296
+1304
+1382
+584+0 records in
+584+0 records out
+584 bytes copied
+
+dd: /mnt/cgroup.procs: cannot skip to specified offset
+83  <<< generates end of last line
+1383  <<< ... and whole last line once again
+0+1 records in
+0+1 records out
+8 bytes copied
+
+dd: /mnt/cgroup.procs: cannot skip to specified offset
+1386  <<< generates last line anyway
+0+1 records in
+0+1 records out
+5 bytes copied
+
+https://bugzilla.kernel.org/show_bug.cgi?id=206283
+Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
+Signed-off-by: Tejun Heo <tj@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/broadcom/bcmsysport.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/cgroup/cgroup-v1.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/ethernet/broadcom/bcmsysport.c b/drivers/net/ethernet/broadcom/bcmsysport.c
-index 6f8649376ff06..3fdf135bad56e 100644
---- a/drivers/net/ethernet/broadcom/bcmsysport.c
-+++ b/drivers/net/ethernet/broadcom/bcmsysport.c
-@@ -2168,7 +2168,7 @@ static int bcm_sysport_rule_set(struct bcm_sysport_priv *priv,
- 		return -ENOSPC;
- 
- 	index = find_first_zero_bit(priv->filters, RXCHK_BRCM_TAG_MAX);
--	if (index > RXCHK_BRCM_TAG_MAX)
-+	if (index >= RXCHK_BRCM_TAG_MAX)
- 		return -ENOSPC;
- 
- 	/* Location is the classification ID, and index is the position
+diff --git a/kernel/cgroup/cgroup-v1.c b/kernel/cgroup/cgroup-v1.c
+index a2c05d2476ac5..d148965180893 100644
+--- a/kernel/cgroup/cgroup-v1.c
++++ b/kernel/cgroup/cgroup-v1.c
+@@ -501,6 +501,7 @@ static void *cgroup_pidlist_next(struct seq_file *s, void *v, loff_t *pos)
+ 	 */
+ 	p++;
+ 	if (p >= end) {
++		(*pos)++;
+ 		return NULL;
+ 	} else {
+ 		*pos = *p;
 -- 
 2.20.1
 
