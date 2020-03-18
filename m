@@ -2,86 +2,131 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 62FF218A8AC
-	for <lists+stable@lfdr.de>; Wed, 18 Mar 2020 23:55:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3AD4018A8F4
+	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 00:06:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726619AbgCRWz0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 Mar 2020 18:55:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32918 "EHLO mail.kernel.org"
+        id S1727101AbgCRXGQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 Mar 2020 19:06:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37492 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726704AbgCRWz0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 18 Mar 2020 18:55:26 -0400
-Received: from sol.localdomain (c-107-3-166-239.hsd1.ca.comcast.net [107.3.166.239])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        id S1726704AbgCRXGP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 18 Mar 2020 19:06:15 -0400
+Received: from sol.hsd1.ca.comcast.net (c-107-3-166-239.hsd1.ca.comcast.net [107.3.166.239])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8A5102076E;
-        Wed, 18 Mar 2020 22:55:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D03EE20773;
+        Wed, 18 Mar 2020 23:06:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584572125;
-        bh=78Nf4mARvPIs7QGbl8xZIjkTrHpzmUqX/N3OWsROUFg=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=y/yyeu0KjeBpTQqqCv1PFKdv55ktqgLTSmEXO5irmyLXS71aUYAG1mjOihAnCYUdL
-         l7pyu2J4XhuK90TIpPEnrc/BOzluT7PfUOARLf+sxaevAi2NHHCMLHuo4gd7auejY7
-         4G/MsL+aEXd+Z5nEpftvxRVbZxuVrqgy+I+r+kPY=
-Date:   Wed, 18 Mar 2020 15:55:24 -0700
+        s=default; t=1584572774;
+        bh=iA4iRH5ParVxc6ngAWHhdo0smaECQuztq6rFSmiI6do=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=K7n3940TmKjDZZUjGD/r0rhJcUawtJPJWhmYbB1g/1Y0qJSduBNhQuqwRFJ78/J/k
+         qApz3T1b/xKD6Kix/jd5d91bYAY69FlQ29vkS2bM3eYZsWWTbwEmN+ohvakQXoCyIn
+         oVWsOGDevBluna/ahCA5jDlPkwGc8N4GghxrMc8w=
 From:   Eric Biggers <ebiggers@kernel.org>
-To:     Jessica Yu <jeyu@kernel.org>
-Cc:     Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, Alexei Starovoitov <ast@kernel.org>,
-        stable@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>,
+To:     linux-kernel@vger.kernel.org
+Cc:     linux-fsdevel@vger.kernel.org, Alexei Starovoitov <ast@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Jeff Vander Stoep <jeffv@google.com>,
-        Kees Cook <keescook@chromium.org>, NeilBrown <neilb@suse.com>
-Subject: Re: [PATCH v3 2/5] fs/filesystems.c: downgrade user-reachable
- WARN_ONCE() to pr_warn_once()
-Message-ID: <20200318225524.GE2334@sol.localdomain>
-References: <20200314213426.134866-3-ebiggers@kernel.org>
- <20200317223028.6840A20738@mail.kernel.org>
- <20200318150926.GA4144@linux-8ccs>
+        Jessica Yu <jeyu@kernel.org>,
+        Kees Cook <keescook@chromium.org>,
+        Luis Chamberlain <mcgrof@kernel.org>,
+        NeilBrown <neilb@suse.com>, stable@vger.kernel.org
+Subject: [PATCH v4 1/5] kmod: make request_module() return an error when autoloading is disabled
+Date:   Wed, 18 Mar 2020 16:05:11 -0700
+Message-Id: <20200318230515.171692-2-ebiggers@kernel.org>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20200318230515.171692-1-ebiggers@kernel.org>
+References: <20200318230515.171692-1-ebiggers@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200318150926.GA4144@linux-8ccs>
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Mar 18, 2020 at 04:09:26PM +0100, Jessica Yu wrote:
-> +++ Sasha Levin [17/03/20 22:30 +0000]:
-> > Hi
-> > 
-> > [This is an automated email]
-> > 
-> > This commit has been processed because it contains a -stable tag.
-> > The stable tag indicates that it's relevant for the following trees: all
-> > 
-> > The bot has tested the following trees: v5.5.9, v5.4.25, v4.19.109, v4.14.173, v4.9.216, v4.4.216.
-> > 
-> > v5.5.9: Build OK!
-> > v5.4.25: Build OK!
-> > v4.19.109: Build OK!
-> > v4.14.173: Build OK!
-> > v4.9.216: Failed to apply! Possible dependencies:
-> >    41124db869b7 ("fs: warn in case userspace lied about modprobe return")
-> > 
-> > v4.4.216: Failed to apply! Possible dependencies:
-> >    41124db869b7 ("fs: warn in case userspace lied about modprobe return")
-> > 
-> > 
-> > NOTE: The patch will not be queued to stable trees until it is upstream.
-> > 
-> > How should we proceed with this patch?
-> 
-> Since commit 41124db869b7 was introduced v4.13, I guess we should
-> change the stable tag to:
-> 
-> Cc: stable@vger.kernel.org # v4.13+
-> 
+From: Eric Biggers <ebiggers@google.com>
 
-It should use:
+It's long been possible to disable kernel module autoloading completely
+(while still allowing manual module insertion) by setting
+/proc/sys/kernel/modprobe to the empty string.  This can be preferable
+to setting it to a nonexistent file since it avoids the overhead of an
+attempted execve(), avoids potential deadlocks, and avoids the call to
+security_kernel_module_request() and thus on SELinux-based systems
+eliminates the need to write SELinux rules to dontaudit module_request.
 
- Fixes: 41124db869b7 ("fs: warn in case userspace lied about modprobe return")
- Cc: <stable@vger.kernel.org> # v4.13+
+However, when module autoloading is disabled in this way,
+request_module() returns 0.  This is broken because callers expect 0 to
+mean that the module was successfully loaded.
 
-I'll add it.
+Apparently this was never noticed because this method of disabling
+module autoloading isn't used much, and also most callers don't use the
+return value of request_module() since it's always necessary to check
+whether the module registered its functionality or not anyway.  But
+improperly returning 0 can indeed confuse a few callers, for example
+get_fs_type() in fs/filesystems.c where it causes a WARNING to be hit:
+
+	if (!fs && (request_module("fs-%.*s", len, name) == 0)) {
+		fs = __get_fs_type(name, len);
+		WARN_ONCE(!fs, "request_module fs-%.*s succeeded, but still no fs?\n", len, name);
+	}
+
+This is easily reproduced with:
+
+	echo > /proc/sys/kernel/modprobe
+	mount -t NONEXISTENT none /
+
+It causes:
+
+	request_module fs-NONEXISTENT succeeded, but still no fs?
+	WARNING: CPU: 1 PID: 1106 at fs/filesystems.c:275 get_fs_type+0xd6/0xf0
+	[...]
+
+This should actually use pr_warn_once() rather than WARN_ONCE(), since
+it's also user-reachable if userspace immediately unloads the module.
+Regardless, request_module() should correctly return an error when it
+fails.  So let's make it return -ENOENT, which matches the error when
+the modprobe binary doesn't exist.
+
+I've also sent patches to document and test this case.
+
+Acked-by: Luis Chamberlain <mcgrof@kernel.org>
+Reviewed-by: Jessica Yu <jeyu@kernel.org>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Cc: stable@vger.kernel.org
+Cc: Alexei Starovoitov <ast@kernel.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Jeff Vander Stoep <jeffv@google.com>
+Cc: NeilBrown <neilb@suse.com>
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+---
+ kernel/kmod.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/kernel/kmod.c b/kernel/kmod.c
+index bc6addd9152b4..a2de58de6ab62 100644
+--- a/kernel/kmod.c
++++ b/kernel/kmod.c
+@@ -120,7 +120,7 @@ static int call_modprobe(char *module_name, int wait)
+  * invoke it.
+  *
+  * If module auto-loading support is disabled then this function
+- * becomes a no-operation.
++ * simply returns -ENOENT.
+  */
+ int __request_module(bool wait, const char *fmt, ...)
+ {
+@@ -137,7 +137,7 @@ int __request_module(bool wait, const char *fmt, ...)
+ 	WARN_ON_ONCE(wait && current_is_async());
+ 
+ 	if (!modprobe_path[0])
+-		return 0;
++		return -ENOENT;
+ 
+ 	va_start(args, fmt);
+ 	ret = vsnprintf(module_name, MODULE_NAME_LEN, fmt, args);
+-- 
+2.25.1
+
