@@ -2,101 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 14DA4189590
-	for <lists+stable@lfdr.de>; Wed, 18 Mar 2020 07:07:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 623E11895F1
+	for <lists+stable@lfdr.de>; Wed, 18 Mar 2020 07:41:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726553AbgCRGHI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 Mar 2020 02:07:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38272 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726478AbgCRGHI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 18 Mar 2020 02:07:08 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C2A4320772;
-        Wed, 18 Mar 2020 06:07:06 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584511627;
-        bh=rHPn9XeAZQ2kzK5ayrYf919Ma7gG/YgUKIC5TPoXMbY=;
-        h=Subject:To:From:Date:From;
-        b=nJJFft+zwmAZLMMEv9DGypQicvYgA8FgIvtDfljq+GQJlxjLdVX54XQc/Sww9tMZ4
-         C12LJZ2IcitBNiHnhHrAtlEohx24nF4Ji5EcvPicZnjF3/TpNS2wu4dTbpnOcRrgdA
-         Fcq+2mU/GkWGqJyS8Yh3KjIbTf0elk2kObgDl7kU=
-Subject: patch "serial: sprd: Fix a dereference warning" added to tty-next
-To:     liuhhome@gmail.com, dan.carpenter@oracle.com,
-        gregkh@linuxfoundation.org, stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 18 Mar 2020 07:06:39 +0100
-Message-ID: <15845115997854@kroah.com>
+        id S1726586AbgCRGlm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 Mar 2020 02:41:42 -0400
+Received: from mail-oi1-f194.google.com ([209.85.167.194]:44665 "EHLO
+        mail-oi1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726478AbgCRGlm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 18 Mar 2020 02:41:42 -0400
+Received: by mail-oi1-f194.google.com with SMTP id d62so24533253oia.11
+        for <stable@vger.kernel.org>; Tue, 17 Mar 2020 23:41:41 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=broadcom.com; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=hM0cpXp7RSKNn1lZVtejbipEk/jiFWNrNvwo++TDYOo=;
+        b=Z5QxTJS7anNzaITsd+QcGv7EiJD1BqTar8NM5zTYDnngRB3NdZePyzWf+FEnamM1Qz
+         baEp2FDaUDFVEiNnjLZ5SmpW86e8lfYcavpCiIvockHYpEt666YmvpA6TiJY4Fk/F9Jg
+         7C7hOdqyzsCnxHze7gsInIxlK0oJY5iIz/0L0=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=hM0cpXp7RSKNn1lZVtejbipEk/jiFWNrNvwo++TDYOo=;
+        b=LEOe/g0b/ugy5sT7Cac3S7KIEoWVT4fAq/47ibL0O+IfuO5G0loWJxWY9xFon0QZ7J
+         G0MiAJkVvroe5qQbuY9xEdJkay6cKo+nKqE1T3bD/bX2yDKvVfDwm/0nz6FeDRyIAGHd
+         eQJ1syNcGVWMGqAbQDCa62Gnhfr8JsrXlsG4VBuEe4UOCHjiJ84E6dn3weMmRX92gs5w
+         85oM2C9NaJ5KbB+u+KyFc5BeOefbweyJyLGSxkiwety8dugkFw3UoFSaYEthmRPmTLV3
+         iOkfQH/KUUro6d14Be5stCC4Fcte1oppqGtAwYG8pALiI/wOEurGzPOOHpCDc2aG1EWm
+         pGNw==
+X-Gm-Message-State: ANhLgQ3L02TY92PL1L3PaoWJB+T0ryqvLEXhopTgDTc6sB67emTt57XN
+        UipbasMhgxjURUvglgIxj5UD7Pcn2J21wLqOrnAuQTpzSo4=
+X-Google-Smtp-Source: ADFU+vtwJS/04e/sPRotCIfgO5c8RWhXtXX4RMO+Aniq2R5Pxlfx07gegMaHzJ0Nd4Oydw5aCjPc3VkCtiMQTmvFn2Q=
+X-Received: by 2002:aca:ab4b:: with SMTP id u72mr2136672oie.26.1584513701482;
+ Tue, 17 Mar 2020 23:41:41 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+References: <1584001735-22719-1-git-send-email-sreekanth.reddy@broadcom.com> <20200317223026.0B8E020752@mail.kernel.org>
+In-Reply-To: <20200317223026.0B8E020752@mail.kernel.org>
+From:   Sreekanth Reddy <sreekanth.reddy@broadcom.com>
+Date:   Wed, 18 Mar 2020 12:11:29 +0530
+Message-ID: <CAK=zhgoabpaMCfJ6WOqzwnzRhDNwHwL=se=bj7_vAz0NKr1UJw@mail.gmail.com>
+Subject: Re: [PATCH v1] mpt3sas: Fix kernel panic observed on soft HBA unplug
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     "Martin K. Petersen" <martin.petersen@oracle.com>,
+        linux-scsi <linux-scsi@vger.kernel.org>,
+        Sathya Prakash Veerichetty <sathya.prakash@broadcom.com>,
+        stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Wed, Mar 18, 2020 at 4:00 AM Sasha Levin <sashal@kernel.org> wrote:
+>
+> Hi
+>
+> [This is an automated email]
+>
+> This commit has been processed because it contains a -stable tag.
+> The stable tag indicates that it's relevant for the following trees: all
+>
+> The bot has tested the following trees: v5.5.9, v5.4.25, v4.19.109, v4.14.173, v4.9.216, v4.4.216.
+>
+> v5.5.9: Build OK!
+> v5.4.25: Build OK!
+> v4.19.109: Build OK!
+> v4.14.173: Build OK!
+> v4.9.216: Failed to apply! Possible dependencies:
+>     c666d3be99c0 ("scsi: mpt3sas: wait for and flush running commands on shutdown/unload")
+>
+> v4.4.216: Failed to apply! Possible dependencies:
+>     96902835e7e2 ("mpt3sas: Eliminate conditional locking in mpt3sas_scsih_issue_tm()")
+>     98c56ad32c33 ("mpt3sas: Eliminate dead sleep_flag code")
+>     c666d3be99c0 ("scsi: mpt3sas: wait for and flush running commands on shutdown/unload")
+>
+>
+> NOTE: The patch will not be queued to stable trees until it is upstream.
+>
+> How should we proceed with this patch?
 
-This is a note to let you know that I've just added the patch titled
+This fix patch is applicable only for below stable kernels,
+v5.5.9, v5.4.25, v4.19.109, v4.14.173
 
-    serial: sprd: Fix a dereference warning
+Please let me know if I need to resend this patch by specifying the
+list of stable kernels on those this patch is applicable?
 
-to my tty git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/tty.git
-in the tty-next branch.
+Thanks,
+Sreekanth
 
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
-
-The patch will also be merged in the next major kernel release
-during the merge window.
-
-If you have any questions about this process, please let me know.
-
-
-From efc176929a3505a30c3993ddd393b40893649bd2 Mon Sep 17 00:00:00 2001
-From: Lanqing Liu <liuhhome@gmail.com>
-Date: Mon, 16 Mar 2020 11:13:33 +0800
-Subject: serial: sprd: Fix a dereference warning
-
-We should validate if the 'sup' is NULL or not before freeing DMA
-memory, to fix below warning.
-
-"drivers/tty/serial/sprd_serial.c:1141 sprd_remove()
- error: we previously assumed 'sup' could be null (see line 1132)"
-
-Fixes: f4487db58eb7 ("serial: sprd: Add DMA mode support")
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Lanqing Liu <liuhhome@gmail.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/e2bd92691538e95b04a2c2a728f3292e1617018f.1584325957.git.liuhhome@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/tty/serial/sprd_serial.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
-
-diff --git a/drivers/tty/serial/sprd_serial.c b/drivers/tty/serial/sprd_serial.c
-index 914862844790..509781ee26bf 100644
---- a/drivers/tty/serial/sprd_serial.c
-+++ b/drivers/tty/serial/sprd_serial.c
-@@ -1132,14 +1132,13 @@ static int sprd_remove(struct platform_device *dev)
- 	if (sup) {
- 		uart_remove_one_port(&sprd_uart_driver, &sup->port);
- 		sprd_port[sup->port.line] = NULL;
-+		sprd_rx_free_buf(sup);
- 		sprd_ports_num--;
- 	}
- 
- 	if (!sprd_ports_num)
- 		uart_unregister_driver(&sprd_uart_driver);
- 
--	sprd_rx_free_buf(sup);
--
- 	return 0;
- }
- 
--- 
-2.25.1
-
-
+>
+> --
+> Thanks
+> Sasha
