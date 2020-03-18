@@ -2,98 +2,75 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DC6AE18A495
-	for <lists+stable@lfdr.de>; Wed, 18 Mar 2020 21:55:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4943918A471
+	for <lists+stable@lfdr.de>; Wed, 18 Mar 2020 21:54:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728076AbgCRUyy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 Mar 2020 16:54:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54866 "EHLO mail.kernel.org"
+        id S1727749AbgCRUyV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 Mar 2020 16:54:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53828 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728072AbgCRUyy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 18 Mar 2020 16:54:54 -0400
-Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        id S1727782AbgCRUyU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 18 Mar 2020 16:54:20 -0400
+Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 87EF221707;
-        Wed, 18 Mar 2020 20:54:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0AD6A20724;
+        Wed, 18 Mar 2020 20:54:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584564893;
-        bh=b8bd6Ssb2jjKH46Qv4vM+gwNIHecKgzTwk75GCSXmV0=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gjuQmWbMIamHayh4NnQD0Lwcg/Zq/JMcY7TOJ1ofR5MMdGxzUyhSOe8e+lEUNFhbl
-         L2Rec888ExHTFS3FdyTDMEo3fEAQw/5NPh1XkG+yqrky5vJ4o/ZzVsDCm8EYLjrwPi
-         tMGXpZ3ZJweZ+Cll8MvtQJXeWG8u9jOMdQxz/Pk0=
+        s=default; t=1584564860;
+        bh=ZoQfsYV5oyjOhVLePtj4IPbfQtSZmYVg5ew6Q2rFuJM=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=1RS0Ab8FNPupn+qwHpzmnrHQF91AnAgdTKtXDRCtqnTE/5C3q1xxmCoLHMxjKu9wI
+         V1eEMZRzu1v233cygFesq5V8XZj+LLbgRwLoPYCLA6hZekA8fq+Q7x1Fr8+85uZ8j5
+         nATOzWeRcyTeIeuLmWxSnpooRT46AMtRrTP8yQsA=
+Date:   Wed, 18 Mar 2020 16:54:19 -0400
 From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nathan Chancellor <natechancellor@gmail.com>,
-        Madalin Bucur <madalin.bucur@oss.nxp.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
-        clang-built-linux@googlegroups.com
-Subject: [PATCH AUTOSEL 5.4 61/73] dpaa_eth: Remove unnecessary boolean expression in dpaa_get_headroom
-Date:   Wed, 18 Mar 2020 16:53:25 -0400
-Message-Id: <20200318205337.16279-61-sashal@kernel.org>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20200318205337.16279-1-sashal@kernel.org>
-References: <20200318205337.16279-1-sashal@kernel.org>
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     Sven Eckelmann <sven@narfation.org>, hdanton@sina.com,
+        sw@simonwunderlich.de, stable@vger.kernel.org
+Subject: Re: FAILED: patch "[PATCH] batman-adv: Don't schedule OGM for
+ disabled interface" failed to apply to 4.4-stable tree
+Message-ID: <20200318205419.GI4189@sasha-vm>
+References: <158436631216439@kroah.com>
+ <20200318141750.GD4189@sasha-vm>
+ <2953272.8TNtrSRRcZ@bentobox>
+ <20200318142652.GA2807628@kroah.com>
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <20200318142652.GA2807628@kroah.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <natechancellor@gmail.com>
+On Wed, Mar 18, 2020 at 03:26:52PM +0100, Greg KH wrote:
+>On Wed, Mar 18, 2020 at 03:20:11PM +0100, Sven Eckelmann wrote:
+>> On Wednesday, 18 March 2020 15:17:50 CET Sasha Levin wrote:
+>> > >From 8e8ce08198de193e3d21d42e96945216e3d9ac7f Mon Sep 17 00:00:00 2001
+>> > >From: Sven Eckelmann <sven@narfation.org>
+>> > >Date: Sun, 16 Feb 2020 13:02:06 +0100
+>> > >Subject: [PATCH] batman-adv: Don't schedule OGM for disabled interface
+>> > >
+>> > >A transmission scheduling for an interface which is currently dropped by
+>> > >batadv_iv_ogm_iface_disable could still be in progress. The B.A.T.M.A.N. V
+>> > >is simply cancelling the workqueue item in an synchronous way but this is
+>> > >not possible with B.A.T.M.A.N. IV because the OGM submissions are
+>> > >intertwined.
+>> > >
+>> > >Instead it has to stop submitting the OGM when it detect that the buffer
+>> > >pointer is set to NULL.
+>> [...]
+>> > Adjusted context and queued up for 4.4.
+>>
+>> There are most likely patches missing again when you only added this single
+>> patch. See the 48 patches I've sent yesterday for batman-adv in 4.4.
+>
+>Yeah, I'll queue these all up later on today, thank you for the series.
 
-[ Upstream commit 7395f62d95aafacdb9bd4996ec2f95b4a655d7e6 ]
+And I've dropped mine, thanks! :)
 
-Clang warns:
-
-drivers/net/ethernet/freescale/dpaa/dpaa_eth.c:2860:9: warning:
-converting the result of '?:' with integer constants to a boolean always
-evaluates to 'true' [-Wtautological-constant-compare]
-        return DPAA_FD_DATA_ALIGNMENT ? ALIGN(headroom,
-               ^
-drivers/net/ethernet/freescale/dpaa/dpaa_eth.c:131:34: note: expanded
-from macro 'DPAA_FD_DATA_ALIGNMENT'
-\#define DPAA_FD_DATA_ALIGNMENT  (fman_has_errata_a050385() ? 64 : 16)
-                                 ^
-1 warning generated.
-
-This was exposed by commit 3c68b8fffb48 ("dpaa_eth: FMan erratum A050385
-workaround") even though it appears to have been an issue since the
-introductory commit 9ad1a3749333 ("dpaa_eth: add support for DPAA
-Ethernet") since DPAA_FD_DATA_ALIGNMENT has never been able to be zero.
-
-Just replace the whole boolean expression with the true branch, as it is
-always been true.
-
-Link: https://github.com/ClangBuiltLinux/linux/issues/928
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-Reviewed-by: Madalin Bucur <madalin.bucur@oss.nxp.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/net/ethernet/freescale/dpaa/dpaa_eth.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
-
-diff --git a/drivers/net/ethernet/freescale/dpaa/dpaa_eth.c b/drivers/net/ethernet/freescale/dpaa/dpaa_eth.c
-index e130233b50853..00c4beb760c35 100644
---- a/drivers/net/ethernet/freescale/dpaa/dpaa_eth.c
-+++ b/drivers/net/ethernet/freescale/dpaa/dpaa_eth.c
-@@ -2770,9 +2770,7 @@ static inline u16 dpaa_get_headroom(struct dpaa_buffer_layout *bl)
- 	headroom = (u16)(bl->priv_data_size + DPAA_PARSE_RESULTS_SIZE +
- 		DPAA_TIME_STAMP_SIZE + DPAA_HASH_RESULTS_SIZE);
- 
--	return DPAA_FD_DATA_ALIGNMENT ? ALIGN(headroom,
--					      DPAA_FD_DATA_ALIGNMENT) :
--					headroom;
-+	return ALIGN(headroom, DPAA_FD_DATA_ALIGNMENT);
- }
- 
- static int dpaa_eth_probe(struct platform_device *pdev)
 -- 
-2.20.1
-
+Thanks,
+Sasha
