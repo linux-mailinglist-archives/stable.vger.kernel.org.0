@@ -2,76 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E438189F66
-	for <lists+stable@lfdr.de>; Wed, 18 Mar 2020 16:14:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E911D189F8C
+	for <lists+stable@lfdr.de>; Wed, 18 Mar 2020 16:23:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726866AbgCRPOa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 Mar 2020 11:14:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39966 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726822AbgCRPOa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 18 Mar 2020 11:14:30 -0400
-Received: from localhost (unknown [137.135.114.1])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E253A20770;
-        Wed, 18 Mar 2020 15:14:29 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584544470;
-        bh=EZUkoKU0rZzCl4pzeat8YdBrJ4bw+PahYglzmSel0uw=;
-        h=Date:From:To:To:To:Cc:Cc:Cc:Subject:In-Reply-To:References:From;
-        b=cFKhMCJiYK0q78PnulYDpAoMIrXlJ4t6EULPPqCulXLhXcVLzLZroAkNGrVHF6z6m
-         FMw89VG4kyCpBTKN6gNCFkQsCELmwVeiw0LJNwvw7QprQDHpdsTceA0Z4LQI12M19a
-         zVqFGGGJrF66hLDhjW0FutCJOwODTjOQdMMECEzk=
-Date:   Wed, 18 Mar 2020 15:14:29 +0000
-From:   Sasha Levin <sashal@kernel.org>
-To:     Sasha Levin <sashal@kernel.org>
-To:     Reinette Chatre <reinette.chatre@intel.com>
-To:     tglx@linutronix.de, fenghua.yu@intel.com, bp@alien8.de
-Cc:     mingo@redhat.com, hpa@zytor.com, kuo-lang.tseng@intel.com
-Cc:     stable@vger.kernel.org
-Cc:     stable@vger.kernel.org
-Subject: Re: [PATCH] x86/resctrl: Fix invalid attempt at removing default resource group
-In-Reply-To: <884cbe1773496b5dbec1b6bd11bb50cffa83603d.1584461853.git.reinette.chatre@intel.com>
-References: <884cbe1773496b5dbec1b6bd11bb50cffa83603d.1584461853.git.reinette.chatre@intel.com>
-Message-Id: <20200318151429.E253A20770@mail.kernel.org>
+        id S1726671AbgCRPXn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 Mar 2020 11:23:43 -0400
+Received: from mail-wr1-f66.google.com ([209.85.221.66]:36864 "EHLO
+        mail-wr1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727046AbgCRPXn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 18 Mar 2020 11:23:43 -0400
+Received: by mail-wr1-f66.google.com with SMTP id w10so2099434wrm.4
+        for <stable@vger.kernel.org>; Wed, 18 Mar 2020 08:23:42 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=baylibre-com.20150623.gappssmtp.com; s=20150623;
+        h=from:to:cc:subject:date:message-id;
+        bh=vcuQ9gcytyRyDY8O+hV2btKMyad21nj7al+XoxPWHJE=;
+        b=nGzIz3b8BS+V35Arf30oggbsc/tPZjP11gUMYxid52jBa2s9rJgwlGXTg6QiOfyHXw
+         J3XMSRISYs58xGGakGzW4VeeieqMi0KkQ0AYDynXCN7QJWOGjRmwh3E2E0vTxTsX1YOC
+         5UfgdjXRHcMwEWG6RS1JZsl5y+/Y72SNan1fQs4uWeNbck8sXBffJVA+/QyirERP848B
+         5DdA6sZn3TwGRsgmVtwhiP6uSZVx7f6y1VO8J9SJUASeVqcYkPvXPkWoAOExjY7l+YS2
+         OyhAXthKt0wKqpSzWCj9BzeVQjSJumvScqcO77UZO1eXQas46QyaJTBCDKD/LHwyKejA
+         NZ7A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id;
+        bh=vcuQ9gcytyRyDY8O+hV2btKMyad21nj7al+XoxPWHJE=;
+        b=VxEaRlHs1twQen4pps71vqgnAbVnXGtQUA2+dXPgvYo5wk6/3Mn6QuFDSzzBAM+rt+
+         o5jUrmafiIbkb8yq8/pONjihJP3QGmaGuGT+tKx2Kpv27Rwteos38W8Ihzx5ovZvBqXH
+         nCEAXNxG/IWbwK53oeDjGw6bUrszOtdjI4bESjyH39a/dLmZe8ETtdd1W462VQi5+zsa
+         CX7TKMx6P911gGmZGwja/dBlVokmwtHK2/tKpyBAXzpDdeAH3Mw8lLHoac0GoSYZUdk+
+         uLu23268QBLOkyZGgv26SxxLpqcwxrsgO4E6prcG4ka3nTLT//Aw1w/NAnmxPhdsTCYj
+         NKJw==
+X-Gm-Message-State: ANhLgQ27LTKaHRvgOxnGNpiLx5QFcwXrRKEoaTonEB1xD8SFZlt4KEQ1
+        Dni53zzz0caFjkPlqwLONm6vdQ==
+X-Google-Smtp-Source: ADFU+vvGk6xRRdtafKwG/IAn8PrMglCVvUmZVoJhe+n4XquEkaUXMZhe+dh6g8+sA8wedIJ2nB2gFw==
+X-Received: by 2002:a5d:440a:: with SMTP id z10mr6208528wrq.177.1584545021409;
+        Wed, 18 Mar 2020 08:23:41 -0700 (PDT)
+Received: from localhost.localdomain ([51.15.160.169])
+        by smtp.googlemail.com with ESMTPSA id v10sm4015464wml.44.2020.03.18.08.23.40
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
+        Wed, 18 Mar 2020 08:23:40 -0700 (PDT)
+From:   Corentin Labbe <clabbe@baylibre.com>
+To:     jonathanh@nvidia.com, kishon@ti.com, nkristam@nvidia.com,
+        thierry.reding@gmail.com, treding@nvidia.com
+Cc:     linux-kernel@vger.kernel.org, linux-tegra@vger.kernel.org,
+        Corentin Labbe <clabbe@baylibre.com>,
+        stable <stable@vger.kernel.org>
+Subject: [PATCH] phy: tegra: should select USB_PHY
+Date:   Wed, 18 Mar 2020 15:23:33 +0000
+Message-Id: <1584545013-19859-1-git-send-email-clabbe@baylibre.com>
+X-Mailer: git-send-email 2.7.4
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi
+I have hit the following build error:
+armv7a-hardfloat-linux-gnueabi-ld: drivers/phy/tegra/xusb.o: in function `tegra_xusb_port_unregister':
+xusb.c:(.text+0x2ac): undefined reference to `usb_remove_phy'
+armv7a-hardfloat-linux-gnueabi-ld: drivers/phy/tegra/xusb.o: in function `tegra_xusb_setup_ports':
+xusb.c:(.text+0xf30): undefined reference to `usb_add_phy_dev'
 
-[This is an automated email]
+PHY_TEGRA_XUSB should select USB_PHY
 
-This commit has been processed because it contains a "Fixes:" tag
-fixing commit: 334b0f4e9b1b ("x86/resctrl: Fix a deadlock due to inaccurate reference").
+Fixes: 23babe30fb45d ("phy: tegra: xusb: Add usb-phy support")
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Corentin Labbe <clabbe@baylibre.com>
+---
+ drivers/phy/tegra/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-The bot has tested the following trees: v5.5.9, v5.4.25, v4.19.110, v4.14.173.
-
-v5.5.9: Build OK!
-v5.4.25: Build OK!
-v4.19.110: Failed to apply! Possible dependencies:
-    Unable to calculate
-
-v4.14.173: Failed to apply! Possible dependencies:
-    0b9aa6562650 ("x86/intel_rdt: Introduce test to determine if closid is in use")
-    2244645ab194 ("x86/intel_rdt: Fix a silent failure when writing zero value schemata")
-    472ef09b40c5 ("x86/intel_rdt: Associate mode with each RDT resource group")
-    49f7b4efa110 ("x86/intel_rdt: Enable setting of exclusive mode")
-    7604df6e16ae ("x86/intel_rdt: Support flexible data to parsing callbacks")
-    95f0b77efa57 ("x86/intel_rdt: Initialize new resource group with sane defaults")
-    9ab9aa15c309 ("x86/intel_rdt: Ensure requested schemata respects mode")
-    9af4c0a6dc1a ("x86/intel_rdt: Making CBM name and type more explicit")
-    cfd0f34e4cd5 ("x86/intel_rdt: Add diagnostics when making directories")
-    d48d7a57f718 ("x86/intel_rdt: Introduce resource group's mode resctrl file")
-    e0bdfe8e36f3 ("x86/intel_rdt: Support creation/removal of pseudo-locked region")
-
-
-NOTE: The patch will not be queued to stable trees until it is upstream.
-
-How should we proceed with this patch?
-
+diff --git a/drivers/phy/tegra/Kconfig b/drivers/phy/tegra/Kconfig
+index df07c4dea059..a208aca4ba7b 100644
+--- a/drivers/phy/tegra/Kconfig
++++ b/drivers/phy/tegra/Kconfig
+@@ -3,6 +3,7 @@ config PHY_TEGRA_XUSB
+ 	tristate "NVIDIA Tegra XUSB pad controller driver"
+ 	depends on ARCH_TEGRA
+ 	select USB_CONN_GPIO
++	select USB_PHY
+ 	help
+ 	  Choose this option if you have an NVIDIA Tegra SoC.
+ 
 -- 
-Thanks
-Sasha
+2.24.1
+
