@@ -2,99 +2,70 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E98F18981B
-	for <lists+stable@lfdr.de>; Wed, 18 Mar 2020 10:43:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 26BD61898B1
+	for <lists+stable@lfdr.de>; Wed, 18 Mar 2020 10:59:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727569AbgCRJnX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 Mar 2020 05:43:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44872 "EHLO mail.kernel.org"
+        id S1727547AbgCRJ67 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 Mar 2020 05:58:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50294 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726586AbgCRJnX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 18 Mar 2020 05:43:23 -0400
+        id S1727513AbgCRJ67 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 18 Mar 2020 05:58:59 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 47F5D20674;
-        Wed, 18 Mar 2020 09:43:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6A84120767;
+        Wed, 18 Mar 2020 09:58:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584524602;
-        bh=e5NU6RBTHiGuRn422KTU1lkkUUfz915GkECL5m6MNGA=;
-        h=Subject:To:From:Date:From;
-        b=NjrjqB8jB0TBL4VUl7QUWAvTcscEL1LgZIyFrKaNxrUVAs2MFTMJXeofugI2WGTWJ
-         +nfCpOQKGGjQ/ItfJotlLnfUns+ezeUgqLBeNVt/G8Z8wOhJ1KpLP+XVPEwRKS6CiF
-         xV4q1P5icMQLtDWlE427KevhL3rRTWodTMzgqkG4=
-Subject: patch "USB: serial: pl2303: add device-id for HP LD381" added to usb-linus
-To:     scott@labau.com.tw, johan@kernel.org, stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 18 Mar 2020 10:43:12 +0100
-Message-ID: <1584524592122155@kroah.com>
+        s=default; t=1584525538;
+        bh=BUZ/zIzr3Kz0ae3sm0O5mAskglcwun1m05963pBsQrs=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=RAM4i531bj5ZJvBVFS9QIqy+HzHW5mVhKwAEHP0MvlNb2FxVZmFw8lkEGTe7gNG/V
+         U/09ml6Zr5DinI6uReAwNal6lyL5OGbCEDW7L+d+xOPOAN/tGQ/blv3BIeSHBNCS9N
+         TmVdYzySFx4ImGaMtax0ZJ1bw8BoBHPKdkhC0G+M=
+Date:   Wed, 18 Mar 2020 10:58:56 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     shuah <shuah@kernel.org>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net,
+        patches@kernelci.org, ben.hutchings@codethink.co.uk,
+        lkft-triage@lists.linaro.org, stable@vger.kernel.org
+Subject: Re: [PATCH 5.5 000/151] 5.5.10-rc1 review
+Message-ID: <20200318095856.GA2034476@kroah.com>
+References: <20200317103326.593639086@linuxfoundation.org>
+ <e2dadcaa-adba-7472-edf5-5e34c7f5e59b@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <e2dadcaa-adba-7472-edf5-5e34c7f5e59b@kernel.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Tue, Mar 17, 2020 at 06:01:12PM -0600, shuah wrote:
+> On 3/17/20 4:53 AM, Greg Kroah-Hartman wrote:
+> > This is the start of the stable review cycle for the 5.5.10 release.
+> > There are 151 patches in this series, all will be posted as a response
+> > to this one.  If anyone has any issues with these being applied, please
+> > let me know.
+> > 
+> > Responses should be made by Thu, 19 Mar 2020 10:31:16 +0000.
+> > Anything received after that time might be too late.
+> > 
+> > The whole patch series can be found in one patch at:
+> > 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.5.10-rc1.gz
+> > or in the git tree and branch at:
+> > 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.5.y
+> > and the diffstat can be found below.
+> > 
+> > thanks,
+> > 
+> > greg k-h
+> > 
+> 
+> Compiled and booted on my test system. No dmesg regressions.
 
-This is a note to let you know that I've just added the patch titled
+Thanks for testing all of these and letting me know.
 
-    USB: serial: pl2303: add device-id for HP LD381
-
-to my usb git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
-in the usb-linus branch.
-
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
-
-The patch will hopefully also be merged in Linus's tree for the
-next -rc kernel release.
-
-If you have any questions about this process, please let me know.
-
-
-From cecc113c1af0dd41ccf265c1fdb84dbd05e63423 Mon Sep 17 00:00:00 2001
-From: Scott Chen <scott@labau.com.tw>
-Date: Wed, 11 Mar 2020 14:14:23 +0800
-Subject: USB: serial: pl2303: add device-id for HP LD381
-
-Add a device id for HP LD381 Display
-LD381:   03f0:0f7f
-
-Signed-off-by: Scott Chen <scott@labau.com.tw>
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Johan Hovold <johan@kernel.org>
----
- drivers/usb/serial/pl2303.c | 1 +
- drivers/usb/serial/pl2303.h | 1 +
- 2 files changed, 2 insertions(+)
-
-diff --git a/drivers/usb/serial/pl2303.c b/drivers/usb/serial/pl2303.c
-index aab737e1e7b6..c5a2995dfa2e 100644
---- a/drivers/usb/serial/pl2303.c
-+++ b/drivers/usb/serial/pl2303.c
-@@ -99,6 +99,7 @@ static const struct usb_device_id id_table[] = {
- 	{ USB_DEVICE(SUPERIAL_VENDOR_ID, SUPERIAL_PRODUCT_ID) },
- 	{ USB_DEVICE(HP_VENDOR_ID, HP_LD220_PRODUCT_ID) },
- 	{ USB_DEVICE(HP_VENDOR_ID, HP_LD220TA_PRODUCT_ID) },
-+	{ USB_DEVICE(HP_VENDOR_ID, HP_LD381_PRODUCT_ID) },
- 	{ USB_DEVICE(HP_VENDOR_ID, HP_LD960_PRODUCT_ID) },
- 	{ USB_DEVICE(HP_VENDOR_ID, HP_LD960TA_PRODUCT_ID) },
- 	{ USB_DEVICE(HP_VENDOR_ID, HP_LCM220_PRODUCT_ID) },
-diff --git a/drivers/usb/serial/pl2303.h b/drivers/usb/serial/pl2303.h
-index a019ea7e6e0e..52db5519aaf0 100644
---- a/drivers/usb/serial/pl2303.h
-+++ b/drivers/usb/serial/pl2303.h
-@@ -130,6 +130,7 @@
- #define HP_LM920_PRODUCT_ID	0x026b
- #define HP_TD620_PRODUCT_ID	0x0956
- #define HP_LD960_PRODUCT_ID	0x0b39
-+#define HP_LD381_PRODUCT_ID	0x0f7f
- #define HP_LCM220_PRODUCT_ID	0x3139
- #define HP_LCM960_PRODUCT_ID	0x3239
- #define HP_LD220_PRODUCT_ID	0x3524
--- 
-2.25.1
-
-
+greg k-h
