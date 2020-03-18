@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E4F218A6C4
-	for <lists+stable@lfdr.de>; Wed, 18 Mar 2020 22:10:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C2F118A6C1
+	for <lists+stable@lfdr.de>; Wed, 18 Mar 2020 22:10:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726704AbgCRUxY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 Mar 2020 16:53:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52240 "EHLO mail.kernel.org"
+        id S1727020AbgCRUx2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 Mar 2020 16:53:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52296 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726619AbgCRUxY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 18 Mar 2020 16:53:24 -0400
+        id S1726894AbgCRUx0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 18 Mar 2020 16:53:26 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F407A20777;
-        Wed, 18 Mar 2020 20:53:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 36EC420724;
+        Wed, 18 Mar 2020 20:53:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584564803;
-        bh=rY05YLwtbtXzyT165RkLIipQqmrwA6WUFyYk2qA7868=;
-        h=From:To:Cc:Subject:Date:From;
-        b=MFWj37g4/xef/y5znjvVQhQm+jTIn74eqyqUdQodP0LqvOodTKabK4H7meezvgFsL
-         piZnLOYXWkJiX253JXXlDXlLSNHsB5gDLjihnS1qQ4/kiC2wlh8fJ+C1JhYoMZIkXT
-         gXjHw/fQSEMz3/j3lG2h4imhV4SASba1Kb2LMRCE=
+        s=default; t=1584564805;
+        bh=rRNLqGDe4Hh9VMNxMXiXDvn4zvX3xSXrJ2j8vKZEdL4=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=vC4ytYBFLDVWKAqBMv1QVIPSr6hqii9qKgtApNOCWFaw+T7NxBLQcGf12oSwixEK1
+         XquXGk4+woE8W7sf5NoKd8EiYnWF6xjOjcD7g2HTler+UxC+zjHCVqp3iRiq04B6Rd
+         BthlzDu/w3U9Vt1sbPimLWfI2Bq4bAj+yFBI+If8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Vasily Averin <vvs@virtuozzo.com>, Tejun Heo <tj@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, cgroups@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.5 01/84] cgroup-v1: cgroup_pidlist_next should update position index
-Date:   Wed, 18 Mar 2020 16:51:58 -0400
-Message-Id: <20200318205321.16066-1-sashal@kernel.org>
+Cc:     Dan Moulding <dmoulding@me.com>, Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.5 03/84] iwlwifi: mvm: Do not require PHY_SKU NVM section for 3168 devices
+Date:   Wed, 18 Mar 2020 16:52:00 -0400
+Message-Id: <20200318205321.16066-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20200318205321.16066-1-sashal@kernel.org>
+References: <20200318205321.16066-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -40,58 +43,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasily Averin <vvs@virtuozzo.com>
+From: Dan Moulding <dmoulding@me.com>
 
-[ Upstream commit db8dd9697238be70a6b4f9d0284cd89f59c0e070 ]
+[ Upstream commit a9149d243f259ad8f02b1e23dfe8ba06128f15e1 ]
 
-if seq_file .next fuction does not change position index,
-read after some lseek can generate unexpected output.
+The logic for checking required NVM sections was recently fixed in
+commit b3f20e098293 ("iwlwifi: mvm: fix NVM check for 3168
+devices"). However, with that fixed the else is now taken for 3168
+devices and within the else clause there is a mandatory check for the
+PHY_SKU section. This causes the parsing to fail for 3168 devices.
 
- # mount | grep cgroup
- # dd if=/mnt/cgroup.procs bs=1  # normal output
-...
-1294
-1295
-1296
-1304
-1382
-584+0 records in
-584+0 records out
-584 bytes copied
+The PHY_SKU section is really only mandatory for the IWL_NVM_EXT
+layout (the phy_sku parameter of iwl_parse_nvm_data is only used when
+the NVM type is IWL_NVM_EXT). So this changes the PHY_SKU section
+check so that it's only mandatory for IWL_NVM_EXT.
 
-dd: /mnt/cgroup.procs: cannot skip to specified offset
-83  <<< generates end of last line
-1383  <<< ... and whole last line once again
-0+1 records in
-0+1 records out
-8 bytes copied
-
-dd: /mnt/cgroup.procs: cannot skip to specified offset
-1386  <<< generates last line anyway
-0+1 records in
-0+1 records out
-5 bytes copied
-
-https://bugzilla.kernel.org/show_bug.cgi?id=206283
-Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
-Signed-off-by: Tejun Heo <tj@kernel.org>
+Fixes: b3f20e098293 ("iwlwifi: mvm: fix NVM check for 3168 devices")
+Signed-off-by: Dan Moulding <dmoulding@me.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/cgroup/cgroup-v1.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/wireless/intel/iwlwifi/mvm/nvm.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/kernel/cgroup/cgroup-v1.c b/kernel/cgroup/cgroup-v1.c
-index 09f3a413f6f89..84bedb87ae137 100644
---- a/kernel/cgroup/cgroup-v1.c
-+++ b/kernel/cgroup/cgroup-v1.c
-@@ -473,6 +473,7 @@ static void *cgroup_pidlist_next(struct seq_file *s, void *v, loff_t *pos)
- 	 */
- 	p++;
- 	if (p >= end) {
-+		(*pos)++;
- 		return NULL;
- 	} else {
- 		*pos = *p;
+diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/nvm.c b/drivers/net/wireless/intel/iwlwifi/mvm/nvm.c
+index 46128a2a9c6e1..e98ce380c7b91 100644
+--- a/drivers/net/wireless/intel/iwlwifi/mvm/nvm.c
++++ b/drivers/net/wireless/intel/iwlwifi/mvm/nvm.c
+@@ -308,7 +308,8 @@ iwl_parse_nvm_sections(struct iwl_mvm *mvm)
+ 		}
+ 
+ 		/* PHY_SKU section is mandatory in B0 */
+-		if (!mvm->nvm_sections[NVM_SECTION_TYPE_PHY_SKU].data) {
++		if (mvm->trans->cfg->nvm_type == IWL_NVM_EXT &&
++		    !mvm->nvm_sections[NVM_SECTION_TYPE_PHY_SKU].data) {
+ 			IWL_ERR(mvm,
+ 				"Can't parse phy_sku in B0, empty sections\n");
+ 			return NULL;
 -- 
 2.20.1
 
