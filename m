@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DA93218A5FD
-	for <lists+stable@lfdr.de>; Wed, 18 Mar 2020 22:05:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 660D418A5FE
+	for <lists+stable@lfdr.de>; Wed, 18 Mar 2020 22:05:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728113AbgCRUzA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 Mar 2020 16:55:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54998 "EHLO mail.kernel.org"
+        id S1728164AbgCRUzC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 Mar 2020 16:55:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55014 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728133AbgCRUy7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 18 Mar 2020 16:54:59 -0400
+        id S1727259AbgCRUzA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 18 Mar 2020 16:55:00 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3AB6E2098B;
-        Wed, 18 Mar 2020 20:54:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 63A8F2173E;
+        Wed, 18 Mar 2020 20:54:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584564899;
-        bh=iz8yaV+d9GVVgUHW8fsRVpVSmKPfctEmjJPAOf2gPFM=;
+        s=default; t=1584564900;
+        bh=r7+VUzxjLQB4PABrIOlLBl4f8gaO2eLJmpqEIWbWdWw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Cql1ur588wqsUgeMaY6RSqRVsQ2dun59lQARsWixXhJWTE4nbf5VzCYaya5CU0Wsl
-         dXW6hAtucX8AfAZA+3PnRl5GHf7hllwQ2u62zHxboJdF5vCrjm8cQSk0eZ4HEqPwkG
-         qWSQFiNJWLLTvUvOR9wnC35KPYxdMJs3YncsxyAA=
+        b=oga0jxxlqqSiGLSx1rFZGG/WmV4fwgFhf8+JlgkGodTwi3dqevJKc6UskhESU852z
+         lTFXZPk3z1jCL1kR1I9FgMcbesbqAtR3dMyCp4mu6MNCcU6OkED798NXdlYUvaQso4
+         1Wc+8dR/F8Pf63sHO6alVr9ICddq1yCq7dA5BJi0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Colin Ian King <colin.king@canonical.com>,
-        "David S . Miller" <davem@davemloft.net>,
+Cc:     Hans de Goede <hdegoede@redhat.com>,
+        Lu Baolu <baolu.lu@linux.intel.com>,
+        Joerg Roedel <jroedel@suse.de>,
         Sasha Levin <sashal@kernel.org>,
-        bcm-kernel-feedback-list@broadcom.com, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 66/73] net: systemport: fix index check to avoid an array out of bounds access
-Date:   Wed, 18 Mar 2020 16:53:30 -0400
-Message-Id: <20200318205337.16279-66-sashal@kernel.org>
+        iommu@lists.linux-foundation.org
+Subject: [PATCH AUTOSEL 5.4 67/73] iommu/vt-d: quirk_ioat_snb_local_iommu: replace WARN_TAINT with pr_warn + add_taint
+Date:   Wed, 18 Mar 2020 16:53:31 -0400
+Message-Id: <20200318205337.16279-67-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200318205337.16279-1-sashal@kernel.org>
 References: <20200318205337.16279-1-sashal@kernel.org>
@@ -44,35 +45,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit c0368595c1639947839c0db8294ee96aca0b3b86 ]
+[ Upstream commit 81ee85d0462410de8eeeec1b9761941fd6ed8c7b ]
 
-Currently the bounds check on index is off by one and can lead to
-an out of bounds access on array priv->filters_loc when index is
-RXCHK_BRCM_TAG_MAX.
+Quoting from the comment describing the WARN functions in
+include/asm-generic/bug.h:
 
-Fixes: bb9051a2b230 ("net: systemport: Add support for WAKE_FILTER")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+ * WARN(), WARN_ON(), WARN_ON_ONCE, and so on can be used to report
+ * significant kernel issues that need prompt attention if they should ever
+ * appear at runtime.
+ *
+ * Do not use these macros when checking for invalid external inputs
+
+The (buggy) firmware tables which the dmar code was calling WARN_TAINT
+for really are invalid external inputs. They are not under the kernel's
+control and the issues in them cannot be fixed by a kernel update.
+So logging a backtrace, which invites bug reports to be filed about this,
+is not helpful.
+
+Fixes: 556ab45f9a77 ("ioat2: catch and recover from broken vtd configurations v6")
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Acked-by: Lu Baolu <baolu.lu@linux.intel.com>
+Link: https://lore.kernel.org/r/20200309182510.373875-1-hdegoede@redhat.com
+BugLink: https://bugzilla.redhat.com/show_bug.cgi?id=701847
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/broadcom/bcmsysport.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/iommu/intel-iommu.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/broadcom/bcmsysport.c b/drivers/net/ethernet/broadcom/bcmsysport.c
-index 4a27577e137bc..ad86a186ddc5f 100644
---- a/drivers/net/ethernet/broadcom/bcmsysport.c
-+++ b/drivers/net/ethernet/broadcom/bcmsysport.c
-@@ -2135,7 +2135,7 @@ static int bcm_sysport_rule_set(struct bcm_sysport_priv *priv,
- 		return -ENOSPC;
+diff --git a/drivers/iommu/intel-iommu.c b/drivers/iommu/intel-iommu.c
+index 9b3d169c6ff53..be39363244389 100644
+--- a/drivers/iommu/intel-iommu.c
++++ b/drivers/iommu/intel-iommu.c
+@@ -4129,10 +4129,11 @@ static void quirk_ioat_snb_local_iommu(struct pci_dev *pdev)
  
- 	index = find_first_zero_bit(priv->filters, RXCHK_BRCM_TAG_MAX);
--	if (index > RXCHK_BRCM_TAG_MAX)
-+	if (index >= RXCHK_BRCM_TAG_MAX)
- 		return -ENOSPC;
+ 	/* we know that the this iommu should be at offset 0xa000 from vtbar */
+ 	drhd = dmar_find_matched_drhd_unit(pdev);
+-	if (WARN_TAINT_ONCE(!drhd || drhd->reg_base_addr - vtbar != 0xa000,
+-			    TAINT_FIRMWARE_WORKAROUND,
+-			    "BIOS assigned incorrect VT-d unit for Intel(R) QuickData Technology device\n"))
++	if (!drhd || drhd->reg_base_addr - vtbar != 0xa000) {
++		pr_warn_once(FW_BUG "BIOS assigned incorrect VT-d unit for Intel(R) QuickData Technology device\n");
++		add_taint(TAINT_FIRMWARE_WORKAROUND, LOCKDEP_STILL_OK);
+ 		pdev->dev.archdata.iommu = DUMMY_DEVICE_DOMAIN_INFO;
++	}
+ }
+ DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_IOAT_SNB, quirk_ioat_snb_local_iommu);
  
- 	/* Location is the classification ID, and index is the position
 -- 
 2.20.1
 
