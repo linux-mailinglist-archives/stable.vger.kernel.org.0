@@ -2,35 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 49FB618A449
-	for <lists+stable@lfdr.de>; Wed, 18 Mar 2020 21:53:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C874A18A44D
+	for <lists+stable@lfdr.de>; Wed, 18 Mar 2020 21:53:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726974AbgCRUx1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 Mar 2020 16:53:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52332 "EHLO mail.kernel.org"
+        id S1727128AbgCRUxd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 Mar 2020 16:53:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52380 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726619AbgCRUx1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 18 Mar 2020 16:53:27 -0400
+        id S1727022AbgCRUx3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 18 Mar 2020 16:53:29 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5756A208CA;
-        Wed, 18 Mar 2020 20:53:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 85C8520777;
+        Wed, 18 Mar 2020 20:53:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584564807;
-        bh=uXDGNLCrGr2jksJkSRoXf3F08iWPTsL4n2XmsDF9I/8=;
+        s=default; t=1584564808;
+        bh=F0FLa2iKgD3VIOUQXUfJd6u9S0Ph0eysk4JIX+3072E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0W9CW62ntiqX8cgol8Qxem+r5dXRH0vznfEjueJGnwGl350RNS282Lu/5MRlcU/Ge
-         2o+ybnVieaU0hDLHF5/LPHSejKRh2PZAStmLngJppFhkZiRUAkPr7n0lJ2Th5YW5PY
-         mZz2uKsPnIhX/IyKflu851bz9By+hfgP0rgIrRTc=
+        b=0uP77P7+2vNnJS3CN7ojZJenxyX8npZI4WgZSfnIhxDBAi+U26hoR13tBqYmwMlZb
+         mr0eXWBRAlKtVqm5ew8WHplYfk9yyCOHWY2McbmzoUMbgavtEb7k6qmWNd1i8Pi6WA
+         d8jeXYatF5Dm+FOJLTSx5Eni8jzQG7HeCGS5UcZk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Anson Huang <Anson.Huang@nxp.com>, Shawn Guo <shawnguo@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.5 04/84] clk: imx8mn: Fix incorrect clock defines
-Date:   Wed, 18 Mar 2020 16:52:01 -0400
-Message-Id: <20200318205321.16066-4-sashal@kernel.org>
+Cc:     Sven Eckelmann <sven@narfation.org>,
+        syzbot+a98f2016f40b9cd3818a@syzkaller.appspotmail.com,
+        syzbot+ac36b6a33c28a491e929@syzkaller.appspotmail.com,
+        Hillf Danton <hdanton@sina.com>,
+        Simon Wunderlich <sw@simonwunderlich.de>,
+        Sasha Levin <sashal@kernel.org>,
+        b.a.t.m.a.n@lists.open-mesh.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.5 05/84] batman-adv: Don't schedule OGM for disabled interface
+Date:   Wed, 18 Mar 2020 16:52:02 -0400
+Message-Id: <20200318205321.16066-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200318205321.16066-1-sashal@kernel.org>
 References: <20200318205321.16066-1-sashal@kernel.org>
@@ -43,36 +47,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anson Huang <Anson.Huang@nxp.com>
+From: Sven Eckelmann <sven@narfation.org>
 
-[ Upstream commit 5eb40257047fb11085d582b7b9ccd0bffe900726 ]
+[ Upstream commit 8e8ce08198de193e3d21d42e96945216e3d9ac7f ]
 
-IMX8MN_CLK_I2C4 and IMX8MN_CLK_UART1's index definitions are incorrect,
-fix them.
+A transmission scheduling for an interface which is currently dropped by
+batadv_iv_ogm_iface_disable could still be in progress. The B.A.T.M.A.N. V
+is simply cancelling the workqueue item in an synchronous way but this is
+not possible with B.A.T.M.A.N. IV because the OGM submissions are
+intertwined.
 
-Fixes: 1e80936a42e1 ("dt-bindings: imx: Add clock binding doc for i.MX8MN")
-Signed-off-by: Anson Huang <Anson.Huang@nxp.com>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Instead it has to stop submitting the OGM when it detect that the buffer
+pointer is set to NULL.
+
+Reported-by: syzbot+a98f2016f40b9cd3818a@syzkaller.appspotmail.com
+Reported-by: syzbot+ac36b6a33c28a491e929@syzkaller.appspotmail.com
+Fixes: c6c8fea29769 ("net: Add batman-adv meshing protocol")
+Signed-off-by: Sven Eckelmann <sven@narfation.org>
+Cc: Hillf Danton <hdanton@sina.com>
+Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/dt-bindings/clock/imx8mn-clock.h | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/batman-adv/bat_iv_ogm.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/include/dt-bindings/clock/imx8mn-clock.h b/include/dt-bindings/clock/imx8mn-clock.h
-index 0f2b8423ce1d1..65ac6eb6c7330 100644
---- a/include/dt-bindings/clock/imx8mn-clock.h
-+++ b/include/dt-bindings/clock/imx8mn-clock.h
-@@ -122,8 +122,8 @@
- #define IMX8MN_CLK_I2C1				105
- #define IMX8MN_CLK_I2C2				106
- #define IMX8MN_CLK_I2C3				107
--#define IMX8MN_CLK_I2C4				118
--#define IMX8MN_CLK_UART1			119
-+#define IMX8MN_CLK_I2C4				108
-+#define IMX8MN_CLK_UART1			109
- #define IMX8MN_CLK_UART2			110
- #define IMX8MN_CLK_UART3			111
- #define IMX8MN_CLK_UART4			112
+diff --git a/net/batman-adv/bat_iv_ogm.c b/net/batman-adv/bat_iv_ogm.c
+index 5b0b20e6da956..d88a4de022372 100644
+--- a/net/batman-adv/bat_iv_ogm.c
++++ b/net/batman-adv/bat_iv_ogm.c
+@@ -789,6 +789,10 @@ static void batadv_iv_ogm_schedule_buff(struct batadv_hard_iface *hard_iface)
+ 
+ 	lockdep_assert_held(&hard_iface->bat_iv.ogm_buff_mutex);
+ 
++	/* interface already disabled by batadv_iv_ogm_iface_disable */
++	if (!*ogm_buff)
++		return;
++
+ 	/* the interface gets activated here to avoid race conditions between
+ 	 * the moment of activating the interface in
+ 	 * hardif_activate_interface() where the originator mac is set and
 -- 
 2.20.1
 
