@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EC8AA18A662
-	for <lists+stable@lfdr.de>; Wed, 18 Mar 2020 22:08:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7BA9518A665
+	for <lists+stable@lfdr.de>; Wed, 18 Mar 2020 22:08:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727571AbgCRUyI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 Mar 2020 16:54:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53508 "EHLO mail.kernel.org"
+        id S1727589AbgCRVH6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 Mar 2020 17:07:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53544 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727562AbgCRUyI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 18 Mar 2020 16:54:08 -0400
+        id S1727536AbgCRUyJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 18 Mar 2020 16:54:09 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BA5BA208E4;
-        Wed, 18 Mar 2020 20:54:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D27292098B;
+        Wed, 18 Mar 2020 20:54:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584564847;
-        bh=0geW2N5yklwjKb6rivq1v7IxgkL4xJnOpRV3pgTthvg=;
+        s=default; t=1584564848;
+        bh=+3PT5ixSSczOWYJFYGUU1q4HgAMEEfKeUtxBoxFqb20=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WP39XUgrySw46+NnDtGuF3S5N0/h7hM+2w0wipJ4OzloiEwWsG6C0GN/NKJ7qZKb6
-         L9ROFnGf2hR+DRhjDOpxTHZU9rZqnSclx8rRh/tXymKAQWAz8ntk0+LTpROrA1HgFM
-         ZtO3OIuEMV31o8/hWhwEjotYxnMonACcQq+o1FFQ=
+        b=UknWaNHzdJBWeiPr8MQFiRXhbaHfEIerLhru2B1ZJvKAt5zNC9v13B7nqbJ5SiGvq
+         OUWCnMVudzpiOrOi9bP9r1B1gNG1u/VXq8Vhqq37+wGXmgj3DBeFEf/sCO+8OfyIMU
+         dGfFtMBAQpmY2M4UFLLeats0u5ZAHQVSKZwV73BY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Tycho Andersen <tycho@tycho.ws>, Tejun Heo <tj@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, cgroups@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 25/73] cgroup1: don't call release_agent when it is ""
-Date:   Wed, 18 Mar 2020 16:52:49 -0400
-Message-Id: <20200318205337.16279-25-sashal@kernel.org>
+Cc:     Pablo Neira Ayuso <pablo@netfilter.org>,
+        Sasha Levin <sashal@kernel.org>,
+        netfilter-devel@vger.kernel.org, coreteam@netfilter.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 26/73] netfilter: nf_tables: dump NFTA_CHAIN_FLAGS attribute
+Date:   Wed, 18 Mar 2020 16:52:50 -0400
+Message-Id: <20200318205337.16279-26-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200318205337.16279-1-sashal@kernel.org>
 References: <20200318205337.16279-1-sashal@kernel.org>
@@ -42,41 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tycho Andersen <tycho@tycho.ws>
+From: Pablo Neira Ayuso <pablo@netfilter.org>
 
-[ Upstream commit 2e5383d7904e60529136727e49629a82058a5607 ]
+[ Upstream commit d78008de6103c708171baff9650a7862645d23b0 ]
 
-Older (and maybe current) versions of systemd set release_agent to "" when
-shutting down, but do not set notify_on_release to 0.
+Missing NFTA_CHAIN_FLAGS netlink attribute when dumping basechain
+definitions.
 
-Since 64e90a8acb85 ("Introduce STATIC_USERMODEHELPER to mediate
-call_usermodehelper()"), we filter out such calls when the user mode helper
-path is "". However, when used in conjunction with an actual (i.e. non "")
-STATIC_USERMODEHELPER, the path is never "", so the real usermode helper
-will be called with argv[0] == "".
-
-Let's avoid this by not invoking the release_agent when it is "".
-
-Signed-off-by: Tycho Andersen <tycho@tycho.ws>
-Signed-off-by: Tejun Heo <tj@kernel.org>
+Fixes: c9626a2cbdb2 ("netfilter: nf_tables: add hardware offload support")
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/cgroup/cgroup-v1.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/netfilter/nf_tables_api.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/kernel/cgroup/cgroup-v1.c b/kernel/cgroup/cgroup-v1.c
-index 2db582706ec5c..f684c82efc2ea 100644
---- a/kernel/cgroup/cgroup-v1.c
-+++ b/kernel/cgroup/cgroup-v1.c
-@@ -784,7 +784,7 @@ void cgroup1_release_agent(struct work_struct *work)
+diff --git a/net/netfilter/nf_tables_api.c b/net/netfilter/nf_tables_api.c
+index 23544842b6923..bd76ef77c03f5 100644
+--- a/net/netfilter/nf_tables_api.c
++++ b/net/netfilter/nf_tables_api.c
+@@ -1309,6 +1309,11 @@ static int nf_tables_fill_chain_info(struct sk_buff *skb, struct net *net,
+ 					      lockdep_commit_lock_is_held(net));
+ 		if (nft_dump_stats(skb, stats))
+ 			goto nla_put_failure;
++
++		if ((chain->flags & NFT_CHAIN_HW_OFFLOAD) &&
++		    nla_put_be32(skb, NFTA_CHAIN_FLAGS,
++				 htonl(NFT_CHAIN_HW_OFFLOAD)))
++			goto nla_put_failure;
+ 	}
  
- 	pathbuf = kmalloc(PATH_MAX, GFP_KERNEL);
- 	agentbuf = kstrdup(cgrp->root->release_agent_path, GFP_KERNEL);
--	if (!pathbuf || !agentbuf)
-+	if (!pathbuf || !agentbuf || !strlen(agentbuf))
- 		goto out;
- 
- 	spin_lock_irq(&css_set_lock);
+ 	if (nla_put_be32(skb, NFTA_CHAIN_USE, htonl(chain->use)))
 -- 
 2.20.1
 
