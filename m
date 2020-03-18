@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C45C818A454
-	for <lists+stable@lfdr.de>; Wed, 18 Mar 2020 21:53:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E16118A45E
+	for <lists+stable@lfdr.de>; Wed, 18 Mar 2020 21:54:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727228AbgCRUxn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 Mar 2020 16:53:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52772 "EHLO mail.kernel.org"
+        id S1727514AbgCRUyC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 Mar 2020 16:54:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53306 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727262AbgCRUxn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 18 Mar 2020 16:53:43 -0400
+        id S1727499AbgCRUyC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 18 Mar 2020 16:54:02 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BEF4020775;
-        Wed, 18 Mar 2020 20:53:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9656B208FE;
+        Wed, 18 Mar 2020 20:54:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584564822;
-        bh=F0FLa2iKgD3VIOUQXUfJd6u9S0Ph0eysk4JIX+3072E=;
+        s=default; t=1584564841;
+        bh=UCWdsj3dxu3ykdmpF7UQVIcwIPD6/HP+yyzXbq2B5Sk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T/6SsHQbK/w/BpCu+x/aDWJv1ibsanSGXs/Cte/h0Hs8yA+g8+cd3UdzdIpE6kGZq
-         xxZW81rsfFh9wXuhcXR+XYKU7/zzgNszo3Bu0VIzkOXEb1Z7nNqYhKbAsZJOObTYNE
-         swBZB0nGU3X91u5Tx4tD6wIVwt+1rGj+/ZgbjaKQ=
+        b=SbXqQ62nj7ChcF5QATZw/Ws9HIanK2XeWNEyTOXIyI9SyiDDKhWHFqG0t5syY5enZ
+         IkjcQG5hxe89BwfvJsfV9ZVq5BheNuy9tsbEqehqlzmuE2hUyLFrPpzS+LOJrzhODZ
+         gaFHUfIMZFVFAOVWWIW9tV5sNt3YVxlnqnG9hQo0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sven Eckelmann <sven@narfation.org>,
-        syzbot+a98f2016f40b9cd3818a@syzkaller.appspotmail.com,
-        syzbot+ac36b6a33c28a491e929@syzkaller.appspotmail.com,
-        Hillf Danton <hdanton@sina.com>,
-        Simon Wunderlich <sw@simonwunderlich.de>,
+Cc:     Jakub Kicinski <kuba@kernel.org>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>,
-        b.a.t.m.a.n@lists.open-mesh.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 04/73] batman-adv: Don't schedule OGM for disabled interface
-Date:   Wed, 18 Mar 2020 16:52:28 -0400
-Message-Id: <20200318205337.16279-4-sashal@kernel.org>
+        netfilter-devel@vger.kernel.org, coreteam@netfilter.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 20/73] netfilter: cthelper: add missing attribute validation for cthelper
+Date:   Wed, 18 Mar 2020 16:52:44 -0400
+Message-Id: <20200318205337.16279-20-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200318205337.16279-1-sashal@kernel.org>
 References: <20200318205337.16279-1-sashal@kernel.org>
@@ -47,45 +45,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sven Eckelmann <sven@narfation.org>
+From: Jakub Kicinski <kuba@kernel.org>
 
-[ Upstream commit 8e8ce08198de193e3d21d42e96945216e3d9ac7f ]
+[ Upstream commit c049b3450072b8e3998053490e025839fecfef31 ]
 
-A transmission scheduling for an interface which is currently dropped by
-batadv_iv_ogm_iface_disable could still be in progress. The B.A.T.M.A.N. V
-is simply cancelling the workqueue item in an synchronous way but this is
-not possible with B.A.T.M.A.N. IV because the OGM submissions are
-intertwined.
+Add missing attribute validation for cthelper
+to the netlink policy.
 
-Instead it has to stop submitting the OGM when it detect that the buffer
-pointer is set to NULL.
-
-Reported-by: syzbot+a98f2016f40b9cd3818a@syzkaller.appspotmail.com
-Reported-by: syzbot+ac36b6a33c28a491e929@syzkaller.appspotmail.com
-Fixes: c6c8fea29769 ("net: Add batman-adv meshing protocol")
-Signed-off-by: Sven Eckelmann <sven@narfation.org>
-Cc: Hillf Danton <hdanton@sina.com>
-Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
+Fixes: 12f7a505331e ("netfilter: add user-space connection tracking helper infrastructure")
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/batman-adv/bat_iv_ogm.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ net/netfilter/nfnetlink_cthelper.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/net/batman-adv/bat_iv_ogm.c b/net/batman-adv/bat_iv_ogm.c
-index 5b0b20e6da956..d88a4de022372 100644
---- a/net/batman-adv/bat_iv_ogm.c
-+++ b/net/batman-adv/bat_iv_ogm.c
-@@ -789,6 +789,10 @@ static void batadv_iv_ogm_schedule_buff(struct batadv_hard_iface *hard_iface)
+diff --git a/net/netfilter/nfnetlink_cthelper.c b/net/netfilter/nfnetlink_cthelper.c
+index 7525063c25f5f..60838d5fb8e06 100644
+--- a/net/netfilter/nfnetlink_cthelper.c
++++ b/net/netfilter/nfnetlink_cthelper.c
+@@ -742,6 +742,8 @@ static const struct nla_policy nfnl_cthelper_policy[NFCTH_MAX+1] = {
+ 	[NFCTH_NAME] = { .type = NLA_NUL_STRING,
+ 			 .len = NF_CT_HELPER_NAME_LEN-1 },
+ 	[NFCTH_QUEUE_NUM] = { .type = NLA_U32, },
++	[NFCTH_PRIV_DATA_LEN] = { .type = NLA_U32, },
++	[NFCTH_STATUS] = { .type = NLA_U32, },
+ };
  
- 	lockdep_assert_held(&hard_iface->bat_iv.ogm_buff_mutex);
- 
-+	/* interface already disabled by batadv_iv_ogm_iface_disable */
-+	if (!*ogm_buff)
-+		return;
-+
- 	/* the interface gets activated here to avoid race conditions between
- 	 * the moment of activating the interface in
- 	 * hardif_activate_interface() where the originator mac is set and
+ static const struct nfnl_callback nfnl_cthelper_cb[NFNL_MSG_CTHELPER_MAX] = {
 -- 
 2.20.1
 
