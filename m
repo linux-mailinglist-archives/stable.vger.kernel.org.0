@@ -2,35 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A789D18A593
+	by mail.lfdr.de (Postfix) with ESMTP id B668E18A594
 	for <lists+stable@lfdr.de>; Wed, 18 Mar 2020 22:02:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728495AbgCRUz6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 Mar 2020 16:55:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56616 "EHLO mail.kernel.org"
+        id S1727604AbgCRVCX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 Mar 2020 17:02:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56662 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728489AbgCRUz5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 18 Mar 2020 16:55:57 -0400
+        id S1728500AbgCRU4A (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 18 Mar 2020 16:56:00 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 576C1208CA;
-        Wed, 18 Mar 2020 20:55:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 976732098B;
+        Wed, 18 Mar 2020 20:55:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584564957;
-        bh=GToXniXT+TcobdymTSjFYMLoF1tRlgZ/NIKKH8vjf6Y=;
-        h=From:To:Cc:Subject:Date:From;
-        b=XKZoGftecBNgUhOdAsYMtfKnX+t4kYXsYHxdGXHIKmgFZKnmTjeLRy/mlE481dw9A
-         xc1lXtRBCklHCIdq4UlaIfigDy2Boe7rOGjaYj1cQs1632jU70pk5PoZ785lCciaDF
-         j+3PwLkpvpdP7TwanRKwYHMVAsCYq6DgUgOlINLo=
+        s=default; t=1584564959;
+        bh=UznoJOSHLBhMhOVJNFY5p5Oz83QB4h1QIyL4ApQmhD8=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=0PwUoRVX51pQgh026TxTMQ4vLoeez2A3jIL74kEOWEzw6s+kr3JSQZJSi6kWY3uaw
+         flVCf4/NSFh6F4lLpNMCuNbJ6O7/nu//T0E+Ccir++7Cgq7HokdvF/+YrTYx3KyICb
+         nLah6hMVymC+Kr+yT0AQpmvZIRwHQ0QmhAjRIiqw=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Vasily Averin <vvs@virtuozzo.com>, Tejun Heo <tj@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, cgroups@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 01/28] cgroup-v1: cgroup_pidlist_next should update position index
-Date:   Wed, 18 Mar 2020 16:55:28 -0400
-Message-Id: <20200318205555.17447-1-sashal@kernel.org>
+Cc:     Sven Eckelmann <sven@narfation.org>,
+        syzbot+a98f2016f40b9cd3818a@syzkaller.appspotmail.com,
+        syzbot+ac36b6a33c28a491e929@syzkaller.appspotmail.com,
+        Hillf Danton <hdanton@sina.com>,
+        Simon Wunderlich <sw@simonwunderlich.de>,
+        Sasha Levin <sashal@kernel.org>,
+        b.a.t.m.a.n@lists.open-mesh.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 03/28] batman-adv: Don't schedule OGM for disabled interface
+Date:   Wed, 18 Mar 2020 16:55:30 -0400
+Message-Id: <20200318205555.17447-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20200318205555.17447-1-sashal@kernel.org>
+References: <20200318205555.17447-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -40,58 +47,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasily Averin <vvs@virtuozzo.com>
+From: Sven Eckelmann <sven@narfation.org>
 
-[ Upstream commit db8dd9697238be70a6b4f9d0284cd89f59c0e070 ]
+[ Upstream commit 8e8ce08198de193e3d21d42e96945216e3d9ac7f ]
 
-if seq_file .next fuction does not change position index,
-read after some lseek can generate unexpected output.
+A transmission scheduling for an interface which is currently dropped by
+batadv_iv_ogm_iface_disable could still be in progress. The B.A.T.M.A.N. V
+is simply cancelling the workqueue item in an synchronous way but this is
+not possible with B.A.T.M.A.N. IV because the OGM submissions are
+intertwined.
 
- # mount | grep cgroup
- # dd if=/mnt/cgroup.procs bs=1  # normal output
-...
-1294
-1295
-1296
-1304
-1382
-584+0 records in
-584+0 records out
-584 bytes copied
+Instead it has to stop submitting the OGM when it detect that the buffer
+pointer is set to NULL.
 
-dd: /mnt/cgroup.procs: cannot skip to specified offset
-83  <<< generates end of last line
-1383  <<< ... and whole last line once again
-0+1 records in
-0+1 records out
-8 bytes copied
-
-dd: /mnt/cgroup.procs: cannot skip to specified offset
-1386  <<< generates last line anyway
-0+1 records in
-0+1 records out
-5 bytes copied
-
-https://bugzilla.kernel.org/show_bug.cgi?id=206283
-Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
-Signed-off-by: Tejun Heo <tj@kernel.org>
+Reported-by: syzbot+a98f2016f40b9cd3818a@syzkaller.appspotmail.com
+Reported-by: syzbot+ac36b6a33c28a491e929@syzkaller.appspotmail.com
+Fixes: c6c8fea29769 ("net: Add batman-adv meshing protocol")
+Signed-off-by: Sven Eckelmann <sven@narfation.org>
+Cc: Hillf Danton <hdanton@sina.com>
+Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/cgroup/cgroup-v1.c | 1 +
- 1 file changed, 1 insertion(+)
+ net/batman-adv/bat_iv_ogm.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/kernel/cgroup/cgroup-v1.c b/kernel/cgroup/cgroup-v1.c
-index a2c05d2476ac5..d148965180893 100644
---- a/kernel/cgroup/cgroup-v1.c
-+++ b/kernel/cgroup/cgroup-v1.c
-@@ -501,6 +501,7 @@ static void *cgroup_pidlist_next(struct seq_file *s, void *v, loff_t *pos)
- 	 */
- 	p++;
- 	if (p >= end) {
-+		(*pos)++;
- 		return NULL;
- 	} else {
- 		*pos = *p;
+diff --git a/net/batman-adv/bat_iv_ogm.c b/net/batman-adv/bat_iv_ogm.c
+index 8b3f9441b3a01..5d5e5401a9ea2 100644
+--- a/net/batman-adv/bat_iv_ogm.c
++++ b/net/batman-adv/bat_iv_ogm.c
+@@ -926,6 +926,10 @@ static void batadv_iv_ogm_schedule(struct batadv_hard_iface *hard_iface)
+ 	    (hard_iface->if_status == BATADV_IF_TO_BE_REMOVED))
+ 		return;
+ 
++	/* interface already disabled by batadv_iv_ogm_iface_disable */
++	if (!*ogm_buff)
++		return;
++
+ 	/* the interface gets activated here to avoid race conditions between
+ 	 * the moment of activating the interface in
+ 	 * hardif_activate_interface() where the originator mac is set and
 -- 
 2.20.1
 
