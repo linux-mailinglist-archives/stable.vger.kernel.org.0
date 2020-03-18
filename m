@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8269A18A4DE
-	for <lists+stable@lfdr.de>; Wed, 18 Mar 2020 21:57:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8361A18A4E0
+	for <lists+stable@lfdr.de>; Wed, 18 Mar 2020 21:57:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728603AbgCRU4Z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 Mar 2020 16:56:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57314 "EHLO mail.kernel.org"
+        id S1728618AbgCRU43 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 Mar 2020 16:56:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57410 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728598AbgCRU4Z (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 18 Mar 2020 16:56:25 -0400
+        id S1728615AbgCRU42 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 18 Mar 2020 16:56:28 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 25D76208CA;
-        Wed, 18 Mar 2020 20:56:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 84816216FD;
+        Wed, 18 Mar 2020 20:56:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584564985;
-        bh=I2oYdk8F22AfoJfmc1204FRw4JaaneDeqgX+3KuBpV0=;
+        s=default; t=1584564988;
+        bh=iP6hm0yJs4kTV55tX+X3sI1qz2HYvoMDlmAoaQ1U2jU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wGFtqFycE13d5Sj2YibkNMAl1MZZ8i1Tzevyc+e7Klv44xVZqkQBEWckVidhhL28v
-         I3TguVumDz0rcsu083SiuMRL4w5IcKQeHAYd6ABbuADNhXw/gRG1rTmo8dyYwkxWWf
-         P7l94ryrKi6WVytWXZDbJZeXUAEjsllL2HLj0Qmc=
+        b=i5VSuvEDppu6ROtfr8x3mjSk2SOn7d2ERr3LUNsI/e15RL0s3UaCrPLoFx9l8wsCG
+         HjED867KgZlKTnIjqKQMNEcVje4QqDn+dkp/8HkWF29ENM/IxX8tu2f6m5qN9xmWFe
+         UdaumsJesvkbUrOs7B98P+MBYqT5FEbSuoqg9ouw=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nathan Chancellor <natechancellor@gmail.com>,
-        Madalin Bucur <madalin.bucur@oss.nxp.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
-        clang-built-linux@googlegroups.com
-Subject: [PATCH AUTOSEL 4.14 25/28] dpaa_eth: Remove unnecessary boolean expression in dpaa_get_headroom
-Date:   Wed, 18 Mar 2020 16:55:52 -0400
-Message-Id: <20200318205555.17447-25-sashal@kernel.org>
+Cc:     Zhenzhong Duan <zhenzhong.duan@gmail.com>,
+        Lu Baolu <baolu.lu@linux.intel.com>,
+        Joerg Roedel <jroedel@suse.de>,
+        Sasha Levin <sashal@kernel.org>,
+        iommu@lists.linux-foundation.org
+Subject: [PATCH AUTOSEL 4.14 28/28] iommu/vt-d: Fix the wrong printing in RHSA parsing
+Date:   Wed, 18 Mar 2020 16:55:55 -0400
+Message-Id: <20200318205555.17447-28-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200318205555.17447-1-sashal@kernel.org>
 References: <20200318205555.17447-1-sashal@kernel.org>
@@ -45,55 +45,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <natechancellor@gmail.com>
+From: Zhenzhong Duan <zhenzhong.duan@gmail.com>
 
-[ Upstream commit 7395f62d95aafacdb9bd4996ec2f95b4a655d7e6 ]
+[ Upstream commit b0bb0c22c4db623f2e7b1a471596fbf1c22c6dc5 ]
 
-Clang warns:
+When base address in RHSA structure doesn't match base address in
+each DRHD structure, the base address in last DRHD is printed out.
 
-drivers/net/ethernet/freescale/dpaa/dpaa_eth.c:2860:9: warning:
-converting the result of '?:' with integer constants to a boolean always
-evaluates to 'true' [-Wtautological-constant-compare]
-        return DPAA_FD_DATA_ALIGNMENT ? ALIGN(headroom,
-               ^
-drivers/net/ethernet/freescale/dpaa/dpaa_eth.c:131:34: note: expanded
-from macro 'DPAA_FD_DATA_ALIGNMENT'
-\#define DPAA_FD_DATA_ALIGNMENT  (fman_has_errata_a050385() ? 64 : 16)
-                                 ^
-1 warning generated.
+This doesn't make sense when there are multiple DRHD units, fix it
+by printing the buggy RHSA's base address.
 
-This was exposed by commit 3c68b8fffb48 ("dpaa_eth: FMan erratum A050385
-workaround") even though it appears to have been an issue since the
-introductory commit 9ad1a3749333 ("dpaa_eth: add support for DPAA
-Ethernet") since DPAA_FD_DATA_ALIGNMENT has never been able to be zero.
-
-Just replace the whole boolean expression with the true branch, as it is
-always been true.
-
-Link: https://github.com/ClangBuiltLinux/linux/issues/928
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-Reviewed-by: Madalin Bucur <madalin.bucur@oss.nxp.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Lu Baolu <baolu.lu@linux.intel.com>
+Signed-off-by: Zhenzhong Duan <zhenzhong.duan@gmail.com>
+Fixes: fd0c8894893cb ("intel-iommu: Set a more specific taint flag for invalid BIOS DMAR tables")
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/freescale/dpaa/dpaa_eth.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ drivers/iommu/dmar.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/freescale/dpaa/dpaa_eth.c b/drivers/net/ethernet/freescale/dpaa/dpaa_eth.c
-index 39b8b6730e77c..67246d42c3d9f 100644
---- a/drivers/net/ethernet/freescale/dpaa/dpaa_eth.c
-+++ b/drivers/net/ethernet/freescale/dpaa/dpaa_eth.c
-@@ -2646,9 +2646,7 @@ static inline u16 dpaa_get_headroom(struct dpaa_buffer_layout *bl)
- 	headroom = (u16)(bl->priv_data_size + DPAA_PARSE_RESULTS_SIZE +
- 		DPAA_TIME_STAMP_SIZE + DPAA_HASH_RESULTS_SIZE);
- 
--	return DPAA_FD_DATA_ALIGNMENT ? ALIGN(headroom,
--					      DPAA_FD_DATA_ALIGNMENT) :
--					headroom;
-+	return ALIGN(headroom, DPAA_FD_DATA_ALIGNMENT);
- }
- 
- static int dpaa_eth_probe(struct platform_device *pdev)
+diff --git a/drivers/iommu/dmar.c b/drivers/iommu/dmar.c
+index 38d0128b8135d..fe849eff5cc10 100644
+--- a/drivers/iommu/dmar.c
++++ b/drivers/iommu/dmar.c
+@@ -486,7 +486,7 @@ static int dmar_parse_one_rhsa(struct acpi_dmar_header *header, void *arg)
+ 		1, TAINT_FIRMWARE_WORKAROUND,
+ 		"Your BIOS is broken; RHSA refers to non-existent DMAR unit at %llx\n"
+ 		"BIOS vendor: %s; Ver: %s; Product Version: %s\n",
+-		drhd->reg_base_addr,
++		rhsa->base_address,
+ 		dmi_get_system_info(DMI_BIOS_VENDOR),
+ 		dmi_get_system_info(DMI_BIOS_VERSION),
+ 		dmi_get_system_info(DMI_PRODUCT_VERSION));
 -- 
 2.20.1
 
