@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6312F18A48D
-	for <lists+stable@lfdr.de>; Wed, 18 Mar 2020 21:55:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 580CE18A490
+	for <lists+stable@lfdr.de>; Wed, 18 Mar 2020 21:55:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727955AbgCRUym (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 Mar 2020 16:54:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54452 "EHLO mail.kernel.org"
+        id S1727978AbgCRUyp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 Mar 2020 16:54:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54528 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727950AbgCRUym (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 18 Mar 2020 16:54:42 -0400
+        id S1727968AbgCRUyo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 18 Mar 2020 16:54:44 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 199C8208E0;
-        Wed, 18 Mar 2020 20:54:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 607F4208E0;
+        Wed, 18 Mar 2020 20:54:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584564881;
-        bh=fCNfBvEj8FxR11jKzYU+guYTmGDCT7dasMbitXaR4R0=;
+        s=default; t=1584564884;
+        bh=St995Wd1RmOD++GY9bUxVb2UFud/otFNFnRTSJ7OFns=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gJGy7/R7qHbCazNYWG2tii+/UlomRi6MvG7Wnkn8EYRF6JJbojlVZFIa20mcogQo5
-         oL9T0v0MhZyyi91kRln5yuoE8l+DoyVuWhG9kgwlt2TDEiURTOw2xUeO+TOxiYG393
-         zpkUEG3jadliCv/8cV16s03qWuI4lBzb2cGUaBFY=
+        b=QVV7HQgw6WFxJZHpShz4BvF2s1NzA4nxs2cPpoEAS4h1CygWakUHF8qmRbYTc+eZ1
+         3tgzUqhHlSkZR3PREs4oNR8xUemjccO/o9fxeJM8foMuIgobuvOVI15n070pgon4CL
+         YtmshjsbzeemIPTPmWgh0qgmVjmZWqFPTQVNf8bk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Qian Cai <cai@lca.pw>, Lu Baolu <baolu.lu@linux.intel.com>,
-        Joerg Roedel <jroedel@suse.de>,
-        Sasha Levin <sashal@kernel.org>,
-        iommu@lists.linux-foundation.org
-Subject: [PATCH AUTOSEL 5.4 51/73] iommu/vt-d: Silence RCU-list debugging warnings
-Date:   Wed, 18 Mar 2020 16:53:15 -0400
-Message-Id: <20200318205337.16279-51-sashal@kernel.org>
+Cc:     Julian Wiedmann <jwi@linux.ibm.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 53/73] s390/qeth: don't reset default_out_queue
+Date:   Wed, 18 Mar 2020 16:53:17 -0400
+Message-Id: <20200318205337.16279-53-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200318205337.16279-1-sashal@kernel.org>
 References: <20200318205337.16279-1-sashal@kernel.org>
@@ -44,70 +43,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qian Cai <cai@lca.pw>
+From: Julian Wiedmann <jwi@linux.ibm.com>
 
-[ Upstream commit f5152416528c2295f35dd9c9bd4fb27c4032413d ]
+[ Upstream commit 240c1948491b81cfe40f84ea040a8f2a4966f101 ]
 
-Similar to the commit 02d715b4a818 ("iommu/vt-d: Fix RCU list debugging
-warnings"), there are several other places that call
-list_for_each_entry_rcu() outside of an RCU read side critical section
-but with dmar_global_lock held. Silence those false positives as well.
+When an OSA device in prio-queue setup is reduced to 1 TX queue due to
+HW restrictions, we reset its the default_out_queue to 0.
 
- drivers/iommu/intel-iommu.c:4288 RCU-list traversed in non-reader section!!
- 1 lock held by swapper/0/1:
-  #0: ffffffff935892c8 (dmar_global_lock){+.+.}, at: intel_iommu_init+0x1ad/0xb97
+In the old code this was needed so that qeth_get_priority_queue() gets
+the queue selection right. But with proper multiqueue support we already
+reduced dev->real_num_tx_queues to 1, and so the stack puts all traffic
+on txq 0 without even calling .ndo_select_queue.
 
- drivers/iommu/dmar.c:366 RCU-list traversed in non-reader section!!
- 1 lock held by swapper/0/1:
-  #0: ffffffff935892c8 (dmar_global_lock){+.+.}, at: intel_iommu_init+0x125/0xb97
+Thus we can preserve the user's configuration, and apply it if the OSA
+device later re-gains support for multiple TX queues.
 
- drivers/iommu/intel-iommu.c:5057 RCU-list traversed in non-reader section!!
- 1 lock held by swapper/0/1:
-  #0: ffffffffa71892c8 (dmar_global_lock){++++}, at: intel_iommu_init+0x61a/0xb13
-
-Signed-off-by: Qian Cai <cai@lca.pw>
-Acked-by: Lu Baolu <baolu.lu@linux.intel.com>
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Fixes: 73dc2daf110f ("s390/qeth: add TX multiqueue support for OSA devices")
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/dmar.c | 3 ++-
- include/linux/dmar.h | 6 ++++--
- 2 files changed, 6 insertions(+), 3 deletions(-)
+ drivers/s390/net/qeth_core_main.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/iommu/dmar.c b/drivers/iommu/dmar.c
-index 7196cabafb252..6ec5da4d028f9 100644
---- a/drivers/iommu/dmar.c
-+++ b/drivers/iommu/dmar.c
-@@ -363,7 +363,8 @@ dmar_find_dmaru(struct acpi_dmar_hardware_unit *drhd)
- {
- 	struct dmar_drhd_unit *dmaru;
+diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
+index b727d1e34523e..ac8ad951a4203 100644
+--- a/drivers/s390/net/qeth_core_main.c
++++ b/drivers/s390/net/qeth_core_main.c
+@@ -1244,7 +1244,6 @@ static int qeth_osa_set_output_queues(struct qeth_card *card, bool single)
+ 	if (count == 1)
+ 		dev_info(&card->gdev->dev, "Priority Queueing not supported\n");
  
--	list_for_each_entry_rcu(dmaru, &dmar_drhd_units, list)
-+	list_for_each_entry_rcu(dmaru, &dmar_drhd_units, list,
-+				dmar_rcu_check())
- 		if (dmaru->segment == drhd->segment &&
- 		    dmaru->reg_base_addr == drhd->address)
- 			return dmaru;
-diff --git a/include/linux/dmar.h b/include/linux/dmar.h
-index a7cf3599d9a1c..e0d52e9358c9c 100644
---- a/include/linux/dmar.h
-+++ b/include/linux/dmar.h
-@@ -73,11 +73,13 @@ extern struct list_head dmar_drhd_units;
- 	list_for_each_entry_rcu(drhd, &dmar_drhd_units, list)
- 
- #define for_each_active_drhd_unit(drhd)					\
--	list_for_each_entry_rcu(drhd, &dmar_drhd_units, list)		\
-+	list_for_each_entry_rcu(drhd, &dmar_drhd_units, list,		\
-+				dmar_rcu_check())			\
- 		if (drhd->ignored) {} else
- 
- #define for_each_active_iommu(i, drhd)					\
--	list_for_each_entry_rcu(drhd, &dmar_drhd_units, list)		\
-+	list_for_each_entry_rcu(drhd, &dmar_drhd_units, list,		\
-+				dmar_rcu_check())			\
- 		if (i=drhd->iommu, drhd->ignored) {} else
- 
- #define for_each_iommu(i, drhd)						\
+-	card->qdio.default_out_queue = single ? 0 : QETH_DEFAULT_QUEUE;
+ 	card->qdio.no_out_queues = count;
+ 	return 0;
+ }
 -- 
 2.20.1
 
