@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 660D418A5FE
+	by mail.lfdr.de (Postfix) with ESMTP id DB8C718A5FF
 	for <lists+stable@lfdr.de>; Wed, 18 Mar 2020 22:05:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728164AbgCRUzC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1728133AbgCRUzC (ORCPT <rfc822;lists+stable@lfdr.de>);
         Wed, 18 Mar 2020 16:55:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55014 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:55076 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727259AbgCRUzA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 18 Mar 2020 16:55:00 -0400
+        id S1728159AbgCRUzC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 18 Mar 2020 16:55:02 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 63A8F2173E;
-        Wed, 18 Mar 2020 20:54:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8BBD421473;
+        Wed, 18 Mar 2020 20:55:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584564900;
-        bh=r7+VUzxjLQB4PABrIOlLBl4f8gaO2eLJmpqEIWbWdWw=;
+        s=default; t=1584564901;
+        bh=l6DvBGw4cKYvjyvNNBYmUeY/T80hQ8zM0ealCYAMkT8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oga0jxxlqqSiGLSx1rFZGG/WmV4fwgFhf8+JlgkGodTwi3dqevJKc6UskhESU852z
-         lTFXZPk3z1jCL1kR1I9FgMcbesbqAtR3dMyCp4mu6MNCcU6OkED798NXdlYUvaQso4
-         1Wc+8dR/F8Pf63sHO6alVr9ICddq1yCq7dA5BJi0=
+        b=M8ZE5K3STC6CVBPyYnFuVkm6SEXhfdOd336O3NH8d7GgJ4Djdf7Z+9jP57STzL6hh
+         PMIKin2HntF+6Gtar8VdfgeBKxhsRmy6kMbhClE2LQymO3fpzyKgws6uo5CSmHGf5U
+         r3QtMUB9SuXd64pjZ19HBl/poCbESXiOt2f0yfRQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hans de Goede <hdegoede@redhat.com>,
+Cc:     Megha Dey <megha.dey@linux.intel.com>,
         Lu Baolu <baolu.lu@linux.intel.com>,
         Joerg Roedel <jroedel@suse.de>,
         Sasha Levin <sashal@kernel.org>,
         iommu@lists.linux-foundation.org
-Subject: [PATCH AUTOSEL 5.4 67/73] iommu/vt-d: quirk_ioat_snb_local_iommu: replace WARN_TAINT with pr_warn + add_taint
-Date:   Wed, 18 Mar 2020 16:53:31 -0400
-Message-Id: <20200318205337.16279-67-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 68/73] iommu/vt-d: Fix debugfs register reads
+Date:   Wed, 18 Mar 2020 16:53:32 -0400
+Message-Id: <20200318205337.16279-68-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200318205337.16279-1-sashal@kernel.org>
 References: <20200318205337.16279-1-sashal@kernel.org>
@@ -45,55 +45,121 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Megha Dey <megha.dey@linux.intel.com>
 
-[ Upstream commit 81ee85d0462410de8eeeec1b9761941fd6ed8c7b ]
+[ Upstream commit ba3b01d7a6f4ab9f8a0557044c9a7678f64ae070 ]
 
-Quoting from the comment describing the WARN functions in
-include/asm-generic/bug.h:
+Commit 6825d3ea6cde ("iommu/vt-d: Add debugfs support to show register
+contents") dumps the register contents for all IOMMU devices.
 
- * WARN(), WARN_ON(), WARN_ON_ONCE, and so on can be used to report
- * significant kernel issues that need prompt attention if they should ever
- * appear at runtime.
- *
- * Do not use these macros when checking for invalid external inputs
+Currently, a 64 bit read(dmar_readq) is done for all the IOMMU registers,
+even though some of the registers are 32 bits, which is incorrect.
 
-The (buggy) firmware tables which the dmar code was calling WARN_TAINT
-for really are invalid external inputs. They are not under the kernel's
-control and the issues in them cannot be fixed by a kernel update.
-So logging a backtrace, which invites bug reports to be filed about this,
-is not helpful.
+Use the correct read function variant (dmar_readl/dmar_readq) while
+reading the contents of 32/64 bit registers respectively.
 
-Fixes: 556ab45f9a77 ("ioat2: catch and recover from broken vtd configurations v6")
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Megha Dey <megha.dey@linux.intel.com>
+Link: https://lore.kernel.org/r/1583784587-26126-2-git-send-email-megha.dey@linux.intel.com
 Acked-by: Lu Baolu <baolu.lu@linux.intel.com>
-Link: https://lore.kernel.org/r/20200309182510.373875-1-hdegoede@redhat.com
-BugLink: https://bugzilla.redhat.com/show_bug.cgi?id=701847
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/intel-iommu.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/iommu/intel-iommu-debugfs.c | 40 ++++++++++++++++++-----------
+ include/linux/intel-iommu.h         |  2 ++
+ 2 files changed, 27 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/iommu/intel-iommu.c b/drivers/iommu/intel-iommu.c
-index 9b3d169c6ff53..be39363244389 100644
---- a/drivers/iommu/intel-iommu.c
-+++ b/drivers/iommu/intel-iommu.c
-@@ -4129,10 +4129,11 @@ static void quirk_ioat_snb_local_iommu(struct pci_dev *pdev)
+diff --git a/drivers/iommu/intel-iommu-debugfs.c b/drivers/iommu/intel-iommu-debugfs.c
+index 471f05d452e01..80378c10dd77a 100644
+--- a/drivers/iommu/intel-iommu-debugfs.c
++++ b/drivers/iommu/intel-iommu-debugfs.c
+@@ -32,38 +32,42 @@ struct iommu_regset {
  
- 	/* we know that the this iommu should be at offset 0xa000 from vtbar */
- 	drhd = dmar_find_matched_drhd_unit(pdev);
--	if (WARN_TAINT_ONCE(!drhd || drhd->reg_base_addr - vtbar != 0xa000,
--			    TAINT_FIRMWARE_WORKAROUND,
--			    "BIOS assigned incorrect VT-d unit for Intel(R) QuickData Technology device\n"))
-+	if (!drhd || drhd->reg_base_addr - vtbar != 0xa000) {
-+		pr_warn_once(FW_BUG "BIOS assigned incorrect VT-d unit for Intel(R) QuickData Technology device\n");
-+		add_taint(TAINT_FIRMWARE_WORKAROUND, LOCKDEP_STILL_OK);
- 		pdev->dev.archdata.iommu = DUMMY_DEVICE_DOMAIN_INFO;
-+	}
- }
- DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_IOAT_SNB, quirk_ioat_snb_local_iommu);
+ #define IOMMU_REGSET_ENTRY(_reg_)					\
+ 	{ DMAR_##_reg_##_REG, __stringify(_reg_) }
+-static const struct iommu_regset iommu_regs[] = {
++
++static const struct iommu_regset iommu_regs_32[] = {
+ 	IOMMU_REGSET_ENTRY(VER),
+-	IOMMU_REGSET_ENTRY(CAP),
+-	IOMMU_REGSET_ENTRY(ECAP),
+ 	IOMMU_REGSET_ENTRY(GCMD),
+ 	IOMMU_REGSET_ENTRY(GSTS),
+-	IOMMU_REGSET_ENTRY(RTADDR),
+-	IOMMU_REGSET_ENTRY(CCMD),
+ 	IOMMU_REGSET_ENTRY(FSTS),
+ 	IOMMU_REGSET_ENTRY(FECTL),
+ 	IOMMU_REGSET_ENTRY(FEDATA),
+ 	IOMMU_REGSET_ENTRY(FEADDR),
+ 	IOMMU_REGSET_ENTRY(FEUADDR),
+-	IOMMU_REGSET_ENTRY(AFLOG),
+ 	IOMMU_REGSET_ENTRY(PMEN),
+ 	IOMMU_REGSET_ENTRY(PLMBASE),
+ 	IOMMU_REGSET_ENTRY(PLMLIMIT),
++	IOMMU_REGSET_ENTRY(ICS),
++	IOMMU_REGSET_ENTRY(PRS),
++	IOMMU_REGSET_ENTRY(PECTL),
++	IOMMU_REGSET_ENTRY(PEDATA),
++	IOMMU_REGSET_ENTRY(PEADDR),
++	IOMMU_REGSET_ENTRY(PEUADDR),
++};
++
++static const struct iommu_regset iommu_regs_64[] = {
++	IOMMU_REGSET_ENTRY(CAP),
++	IOMMU_REGSET_ENTRY(ECAP),
++	IOMMU_REGSET_ENTRY(RTADDR),
++	IOMMU_REGSET_ENTRY(CCMD),
++	IOMMU_REGSET_ENTRY(AFLOG),
+ 	IOMMU_REGSET_ENTRY(PHMBASE),
+ 	IOMMU_REGSET_ENTRY(PHMLIMIT),
+ 	IOMMU_REGSET_ENTRY(IQH),
+ 	IOMMU_REGSET_ENTRY(IQT),
+ 	IOMMU_REGSET_ENTRY(IQA),
+-	IOMMU_REGSET_ENTRY(ICS),
+ 	IOMMU_REGSET_ENTRY(IRTA),
+ 	IOMMU_REGSET_ENTRY(PQH),
+ 	IOMMU_REGSET_ENTRY(PQT),
+ 	IOMMU_REGSET_ENTRY(PQA),
+-	IOMMU_REGSET_ENTRY(PRS),
+-	IOMMU_REGSET_ENTRY(PECTL),
+-	IOMMU_REGSET_ENTRY(PEDATA),
+-	IOMMU_REGSET_ENTRY(PEADDR),
+-	IOMMU_REGSET_ENTRY(PEUADDR),
+ 	IOMMU_REGSET_ENTRY(MTRRCAP),
+ 	IOMMU_REGSET_ENTRY(MTRRDEF),
+ 	IOMMU_REGSET_ENTRY(MTRR_FIX64K_00000),
+@@ -126,10 +130,16 @@ static int iommu_regset_show(struct seq_file *m, void *unused)
+ 		 * by adding the offset to the pointer (virtual address).
+ 		 */
+ 		raw_spin_lock_irqsave(&iommu->register_lock, flag);
+-		for (i = 0 ; i < ARRAY_SIZE(iommu_regs); i++) {
+-			value = dmar_readq(iommu->reg + iommu_regs[i].offset);
++		for (i = 0 ; i < ARRAY_SIZE(iommu_regs_32); i++) {
++			value = dmar_readl(iommu->reg + iommu_regs_32[i].offset);
++			seq_printf(m, "%-16s\t0x%02x\t\t0x%016llx\n",
++				   iommu_regs_32[i].regs, iommu_regs_32[i].offset,
++				   value);
++		}
++		for (i = 0 ; i < ARRAY_SIZE(iommu_regs_64); i++) {
++			value = dmar_readq(iommu->reg + iommu_regs_64[i].offset);
+ 			seq_printf(m, "%-16s\t0x%02x\t\t0x%016llx\n",
+-				   iommu_regs[i].regs, iommu_regs[i].offset,
++				   iommu_regs_64[i].regs, iommu_regs_64[i].offset,
+ 				   value);
+ 		}
+ 		raw_spin_unlock_irqrestore(&iommu->register_lock, flag);
+diff --git a/include/linux/intel-iommu.h b/include/linux/intel-iommu.h
+index 6d8bf4bdf240d..1e5dad8b8e59b 100644
+--- a/include/linux/intel-iommu.h
++++ b/include/linux/intel-iommu.h
+@@ -120,6 +120,8 @@
  
+ #define dmar_readq(a) readq(a)
+ #define dmar_writeq(a,v) writeq(v,a)
++#define dmar_readl(a) readl(a)
++#define dmar_writel(a, v) writel(v, a)
+ 
+ #define DMAR_VER_MAJOR(v)		(((v) & 0xf0) >> 4)
+ #define DMAR_VER_MINOR(v)		((v) & 0x0f)
 -- 
 2.20.1
 
