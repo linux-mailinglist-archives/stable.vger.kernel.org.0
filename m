@@ -2,98 +2,87 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D76318978C
-	for <lists+stable@lfdr.de>; Wed, 18 Mar 2020 10:02:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E6A0189818
+	for <lists+stable@lfdr.de>; Wed, 18 Mar 2020 10:43:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726586AbgCRJC4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 Mar 2020 05:02:56 -0400
-Received: from jabberwock.ucw.cz ([46.255.230.98]:43448 "EHLO
-        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726523AbgCRJC4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 18 Mar 2020 05:02:56 -0400
-Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
-        id 0F8A61C0322; Wed, 18 Mar 2020 10:02:54 +0100 (CET)
-Date:   Wed, 18 Mar 2020 10:02:53 +0100
-From:   Pavel Machek <pavel@denx.de>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Dmitry Yakunin <zeil@yandex-team.ru>,
-        Konstantin Khlebnikov <khlebnikov@yandex-team.ru>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: Re: [PATCH 4.19 03/89] cgroup, netclassid: periodically release
- file_lock on classid updating
-Message-ID: <20200318090253.GA32397@duo.ucw.cz>
-References: <20200317103259.744774526@linuxfoundation.org>
- <20200317103300.173739219@linuxfoundation.org>
+        id S1726994AbgCRJnQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 Mar 2020 05:43:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44782 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726586AbgCRJnQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 18 Mar 2020 05:43:16 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 54F1220674;
+        Wed, 18 Mar 2020 09:43:15 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1584524595;
+        bh=EvN0qOUWlwhrd+uGqwJkVncMtXu7VSLb1XFU0UUAXN4=;
+        h=Subject:To:From:Date:From;
+        b=dhwMGcYWf5oWR372rlnEKSMbQZVrdWKcPvsyZDEqqc0nbWa9VP6Dhv319strMui2E
+         jvYsKe3/KDmnWAynooUO46RB62pTxwP2djw1zgmHIARN8hv4qrFfH1JJMDYMAUPRQw
+         wDfJ7/qUcL37g6V7ASc4k/9+pOLcnff+ZzjxnkRk=
+Subject: patch "USB: serial: option: add ME910G1 ECM composition 0x110b" added to usb-linus
+To:     dnlplm@gmail.com, johan@kernel.org, stable@vger.kernel.org
+From:   <gregkh@linuxfoundation.org>
+Date:   Wed, 18 Mar 2020 10:43:12 +0100
+Message-ID: <158452459295232@kroah.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="vtzGhvizbBRQ85DL"
-Content-Disposition: inline
-In-Reply-To: <20200317103300.173739219@linuxfoundation.org>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
---vtzGhvizbBRQ85DL
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+This is a note to let you know that I've just added the patch titled
 
-Hi!
+    USB: serial: option: add ME910G1 ECM composition 0x110b
 
-> From: Dmitry Yakunin <zeil@yandex-team.ru>
->=20
-> [ Upstream commit 018d26fcd12a75fb9b5fe233762aa3f2f0854b88 ]
-=2E..
-> Now update is non atomic and socket may be skipped using calls:
->=20
-> dup2(oldfd, newfd);
-> close(oldfd);
->=20
-> But this case is not typical. Moreover before this patch skip is possible
-> too by hiding socket fd in unix socket buffer.
+to my usb git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
+in the usb-linus branch.
 
-Dunno. This makes interface even more interesting.
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
 
-> +
->  static int update_classid_sock(const void *v, struct file *file, unsigne=
-d n)
->  {
->  	int err;
-> +	struct update_classid_context *ctx =3D (void *)v;
->  	struct socket *sock =3D sock_from_file(file, &err);
->
-=2E..
-> +	if (--ctx->batch =3D=3D 0) {
-> +		ctx->batch =3D UPDATE_CLASSID_BATCH;
-> +		return n + 1;
-> +	}
->  	return 0;
->  }
+The patch will hopefully also be merged in Linus's tree for the
+next -rc kernel release.
 
-We take "const void *" and then write to it. That's asking for
-trouble... right? Should the const annotation be removed, at least for
-sake of humans trying to understand the code?
+If you have any questions about this process, please let me know.
 
-Best regards,
-									Pavel
 
---=20
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
-g.html
+From 8e852a7953be2a6ee371449f7257fe15ace6a1fc Mon Sep 17 00:00:00 2001
+From: Daniele Palmas <dnlplm@gmail.com>
+Date: Wed, 4 Mar 2020 11:43:10 +0100
+Subject: USB: serial: option: add ME910G1 ECM composition 0x110b
 
---vtzGhvizbBRQ85DL
-Content-Type: application/pgp-signature; name="signature.asc"
+Add ME910G1 ECM composition 0x110b: tty, tty, tty, ecm
 
------BEGIN PGP SIGNATURE-----
+Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
+Link: https://lore.kernel.org/r/20200304104310.2938-1-dnlplm@gmail.com
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Johan Hovold <johan@kernel.org>
+---
+ drivers/usb/serial/option.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCXnHjvQAKCRAw5/Bqldv6
-8ltcAKC4P/hM60j4SfDJ/8gr8w3PMtcMdQCfU7uvgqqEAvk+R5iIVCrYfnnF14c=
-=i9db
------END PGP SIGNATURE-----
+diff --git a/drivers/usb/serial/option.c b/drivers/usb/serial/option.c
+index 084cc2fff3ae..0b5dcf973d94 100644
+--- a/drivers/usb/serial/option.c
++++ b/drivers/usb/serial/option.c
+@@ -1183,6 +1183,8 @@ static const struct usb_device_id option_ids[] = {
+ 	  .driver_info = NCTRL(0) },
+ 	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x110a, 0xff),	/* Telit ME910G1 */
+ 	  .driver_info = NCTRL(0) | RSVD(3) },
++	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x110b, 0xff),	/* Telit ME910G1 (ECM) */
++	  .driver_info = NCTRL(0) },
+ 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_LE910),
+ 	  .driver_info = NCTRL(0) | RSVD(1) | RSVD(2) },
+ 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_LE910_USBCFG4),
+-- 
+2.25.1
 
---vtzGhvizbBRQ85DL--
+
