@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DAE1C18A5EF
+	by mail.lfdr.de (Postfix) with ESMTP id 660CE18A5EE
 	for <lists+stable@lfdr.de>; Wed, 18 Mar 2020 22:04:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728232AbgCRUzO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 Mar 2020 16:55:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55488 "EHLO mail.kernel.org"
+        id S1728239AbgCRUzP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 Mar 2020 16:55:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55536 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728225AbgCRUzN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 18 Mar 2020 16:55:13 -0400
+        id S1728214AbgCRUzO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 18 Mar 2020 16:55:14 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 03FF4208FE;
-        Wed, 18 Mar 2020 20:55:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 248F7215A4;
+        Wed, 18 Mar 2020 20:55:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584564912;
-        bh=IecWBB9KRK/UPSYOWw1TAS+W1HeeidbzQZsbE2VD+s8=;
+        s=default; t=1584564914;
+        bh=wR2TR1w/ynq1jlGvet5axAAOUI1ZOzfFYH8EMarjZvo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QRptaqo20cwPneOeaiI8tEZkZEhLtfAosczNuZZpYVul8xslg172joWIUqe5R4glM
-         ovpS7V3ivTr7CVf92PUUFIT9nCTGEzIX/RToP2asLT+rTkEqSVllybza3gTlBxa3vF
-         Y8jX4JNysCOjVKHzHkYRCFdMimT8KW8BAkhsXVV0=
+        b=aA5JdqvH5YGGmS7IBy1NY22KEjMI29LHFBHMXXdbnTwqhQSbk/HpmdCe4E2QMVwLI
+         diOu5m7u5mrNHXXkM6f92i/7213IeAdKPGLEz4oFN14GwLt/hTMorzmW6vXSCPnWTS
+         9lyc7xxDJmkY0Q0xEQ8Rh/jva2RWjZRso88/AaEI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?Michal=20Koutn=C3=BD?= <mkoutny@suse.com>,
-        Suren Baghdasaryan <surenb@google.com>,
-        Tejun Heo <tj@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        cgroups@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 02/37] cgroup: Iterate tasks that did not finish do_exit()
-Date:   Wed, 18 Mar 2020 16:54:34 -0400
-Message-Id: <20200318205509.17053-2-sashal@kernel.org>
+Cc:     Sven Eckelmann <sven@narfation.org>,
+        syzbot+a98f2016f40b9cd3818a@syzkaller.appspotmail.com,
+        syzbot+ac36b6a33c28a491e929@syzkaller.appspotmail.com,
+        Hillf Danton <hdanton@sina.com>,
+        Simon Wunderlich <sw@simonwunderlich.de>,
+        Sasha Levin <sashal@kernel.org>,
+        b.a.t.m.a.n@lists.open-mesh.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 03/37] batman-adv: Don't schedule OGM for disabled interface
+Date:   Wed, 18 Mar 2020 16:54:35 -0400
+Message-Id: <20200318205509.17053-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200318205509.17053-1-sashal@kernel.org>
 References: <20200318205509.17053-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -45,101 +47,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michal Koutný <mkoutny@suse.com>
+From: Sven Eckelmann <sven@narfation.org>
 
-[ Upstream commit 9c974c77246460fa6a92c18554c3311c8c83c160 ]
+[ Upstream commit 8e8ce08198de193e3d21d42e96945216e3d9ac7f ]
 
-PF_EXITING is set earlier than actual removal from css_set when a task
-is exitting. This can confuse cgroup.procs readers who see no PF_EXITING
-tasks, however, rmdir is checking against css_set membership so it can
-transitionally fail with EBUSY.
+A transmission scheduling for an interface which is currently dropped by
+batadv_iv_ogm_iface_disable could still be in progress. The B.A.T.M.A.N. V
+is simply cancelling the workqueue item in an synchronous way but this is
+not possible with B.A.T.M.A.N. IV because the OGM submissions are
+intertwined.
 
-Fix this by listing tasks that weren't unlinked from css_set active
-lists.
-It may happen that other users of the task iterator (without
-CSS_TASK_ITER_PROCS) spot a PF_EXITING task before cgroup_exit(). This
-is equal to the state before commit c03cd7738a83 ("cgroup: Include dying
-leaders with live threads in PROCS iterations") but it may be reviewed
-later.
+Instead it has to stop submitting the OGM when it detect that the buffer
+pointer is set to NULL.
 
-Reported-by: Suren Baghdasaryan <surenb@google.com>
-Fixes: c03cd7738a83 ("cgroup: Include dying leaders with live threads in PROCS iterations")
-Signed-off-by: Michal Koutný <mkoutny@suse.com>
-Signed-off-by: Tejun Heo <tj@kernel.org>
+Reported-by: syzbot+a98f2016f40b9cd3818a@syzkaller.appspotmail.com
+Reported-by: syzbot+ac36b6a33c28a491e929@syzkaller.appspotmail.com
+Fixes: c6c8fea29769 ("net: Add batman-adv meshing protocol")
+Signed-off-by: Sven Eckelmann <sven@narfation.org>
+Cc: Hillf Danton <hdanton@sina.com>
+Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/cgroup.h |  1 +
- kernel/cgroup/cgroup.c | 23 ++++++++++++++++-------
- 2 files changed, 17 insertions(+), 7 deletions(-)
+ net/batman-adv/bat_iv_ogm.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/include/linux/cgroup.h b/include/linux/cgroup.h
-index b4854b48a4f3d..5ed1a2b285cdd 100644
---- a/include/linux/cgroup.h
-+++ b/include/linux/cgroup.h
-@@ -62,6 +62,7 @@ struct css_task_iter {
- 	struct list_head		*mg_tasks_head;
- 	struct list_head		*dying_tasks_head;
+diff --git a/net/batman-adv/bat_iv_ogm.c b/net/batman-adv/bat_iv_ogm.c
+index f5941837c3ad4..0b052ff51bdeb 100644
+--- a/net/batman-adv/bat_iv_ogm.c
++++ b/net/batman-adv/bat_iv_ogm.c
+@@ -970,6 +970,10 @@ static void batadv_iv_ogm_schedule_buff(struct batadv_hard_iface *hard_iface)
  
-+	struct list_head		*cur_tasks_head;
- 	struct css_set			*cur_cset;
- 	struct css_set			*cur_dcset;
- 	struct task_struct		*cur_task;
-diff --git a/kernel/cgroup/cgroup.c b/kernel/cgroup/cgroup.c
-index 08bd40d900660..c416ef3e34797 100644
---- a/kernel/cgroup/cgroup.c
-+++ b/kernel/cgroup/cgroup.c
-@@ -4157,12 +4157,16 @@ static void css_task_iter_advance_css_set(struct css_task_iter *it)
- 		}
- 	} while (!css_set_populated(cset) && list_empty(&cset->dying_tasks));
+ 	lockdep_assert_held(&hard_iface->bat_iv.ogm_buff_mutex);
  
--	if (!list_empty(&cset->tasks))
-+	if (!list_empty(&cset->tasks)) {
- 		it->task_pos = cset->tasks.next;
--	else if (!list_empty(&cset->mg_tasks))
-+		it->cur_tasks_head = &cset->tasks;
-+	} else if (!list_empty(&cset->mg_tasks)) {
- 		it->task_pos = cset->mg_tasks.next;
--	else
-+		it->cur_tasks_head = &cset->mg_tasks;
-+	} else {
- 		it->task_pos = cset->dying_tasks.next;
-+		it->cur_tasks_head = &cset->dying_tasks;
-+	}
- 
- 	it->tasks_head = &cset->tasks;
- 	it->mg_tasks_head = &cset->mg_tasks;
-@@ -4220,10 +4224,14 @@ static void css_task_iter_advance(struct css_task_iter *it)
- 		else
- 			it->task_pos = it->task_pos->next;
- 
--		if (it->task_pos == it->tasks_head)
-+		if (it->task_pos == it->tasks_head) {
- 			it->task_pos = it->mg_tasks_head->next;
--		if (it->task_pos == it->mg_tasks_head)
-+			it->cur_tasks_head = it->mg_tasks_head;
-+		}
-+		if (it->task_pos == it->mg_tasks_head) {
- 			it->task_pos = it->dying_tasks_head->next;
-+			it->cur_tasks_head = it->dying_tasks_head;
-+		}
- 		if (it->task_pos == it->dying_tasks_head)
- 			css_task_iter_advance_css_set(it);
- 	} else {
-@@ -4242,11 +4250,12 @@ static void css_task_iter_advance(struct css_task_iter *it)
- 			goto repeat;
- 
- 		/* and dying leaders w/o live member threads */
--		if (!atomic_read(&task->signal->live))
-+		if (it->cur_tasks_head == it->dying_tasks_head &&
-+		    !atomic_read(&task->signal->live))
- 			goto repeat;
- 	} else {
- 		/* skip all dying ones */
--		if (task->flags & PF_EXITING)
-+		if (it->cur_tasks_head == it->dying_tasks_head)
- 			goto repeat;
- 	}
- }
++	/* interface already disabled by batadv_iv_ogm_iface_disable */
++	if (!*ogm_buff)
++		return;
++
+ 	/* the interface gets activated here to avoid race conditions between
+ 	 * the moment of activating the interface in
+ 	 * hardif_activate_interface() where the originator mac is set and
 -- 
 2.20.1
 
