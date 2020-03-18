@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E738418A602
-	for <lists+stable@lfdr.de>; Wed, 18 Mar 2020 22:05:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 013F518A604
+	for <lists+stable@lfdr.de>; Wed, 18 Mar 2020 22:05:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728119AbgCRUy6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 Mar 2020 16:54:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54922 "EHLO mail.kernel.org"
+        id S1727667AbgCRVFK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 Mar 2020 17:05:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54962 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728113AbgCRUy5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 18 Mar 2020 16:54:57 -0400
+        id S1728096AbgCRUy6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 18 Mar 2020 16:54:58 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E949F2173E;
-        Wed, 18 Mar 2020 20:54:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1B484208CA;
+        Wed, 18 Mar 2020 20:54:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584564896;
-        bh=isr2P6CX3Md6hzFCH0L0ehoLWHoCKsFwpn3jWPKTniQ=;
+        s=default; t=1584564897;
+        bh=WrLmrYraf+mK7cIgFLavPmqL/IOaaNICmzVAiwoZoPE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m+06ZxKOFbgXIy+dhjdfpMmBJjq/JvLm5KrazvC6I+zuJAs5N6FW5QK1oZVuEShAa
-         5rjSAJCh8miLhM7Ob3SCJHvvR4IUUlYZMinjC5Mu8LWLLYJuP4n9eQICZ+9bvYeqrm
-         nOrLDpHp/jwFdUR8/rbbHFbf/MiN7/qJp1m/Gh+g=
+        b=SqBKXGfP/vG0GjRfnyuryD8MjLDTytFq3o061l9arshS1snwJjPnzt+qVSARuRFqH
+         FcxTNeYoONBxlEN9iVqFw/RJjGkQkHntLQ15U5mSrDntm3W0uKcNRM76FsEl5TN6fC
+         DkTN3r9JXtqIV0D3wQvpjgkCQt0M2JZdiv0dwgdI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Chris Packham <chris.packham@alliedtelesis.co.nz>,
-        Andrew Lunn <andrew@lunn.ch>,
+Cc:     Yonglong Liu <liuyonglong@huawei.com>,
+        Huazhong Tan <tanhuazhong@huawei.com>,
         "David S . Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 64/73] net: mvmdio: avoid error message for optional IRQ
-Date:   Wed, 18 Mar 2020 16:53:28 -0400
-Message-Id: <20200318205337.16279-64-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 65/73] net: hns3: fix "tc qdisc del" failed issue
+Date:   Wed, 18 Mar 2020 16:53:29 -0400
+Message-Id: <20200318205337.16279-65-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200318205337.16279-1-sashal@kernel.org>
 References: <20200318205337.16279-1-sashal@kernel.org>
@@ -44,52 +44,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Packham <chris.packham@alliedtelesis.co.nz>
+From: Yonglong Liu <liuyonglong@huawei.com>
 
-[ Upstream commit e1f550dc44a4d535da4e25ada1b0eaf8f3417929 ]
+[ Upstream commit 5eb01ddfcfb25e6ebc404a41deae946bde776731 ]
 
-Per the dt-binding the interrupt is optional so use
-platform_get_irq_optional() instead of platform_get_irq(). Since
-commit 7723f4c5ecdb ("driver core: platform: Add an error message to
-platform_get_irq*()") platform_get_irq() produces an error message
+The HNS3 driver supports to configure TC numbers and TC to priority
+map via "tc" tool. But when delete the rule, will fail, because
+the HNS3 driver needs at least one TC, but the "tc" tool sets TC
+number to zero when delete.
 
-  orion-mdio f1072004.mdio: IRQ index 0 not found
+This patch makes sure that the TC number is at least one.
 
-which is perfectly normal if one hasn't specified the optional property
-in the device tree.
-
-Signed-off-by: Chris Packham <chris.packham@alliedtelesis.co.nz>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Fixes: 30d240dfa2e8 ("net: hns3: Add mqprio hardware offload support in hns3 driver")
+Signed-off-by: Yonglong Liu <liuyonglong@huawei.com>
+Signed-off-by: Huazhong Tan <tanhuazhong@huawei.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/marvell/mvmdio.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/hisilicon/hns3/hns3_enet.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/marvell/mvmdio.c b/drivers/net/ethernet/marvell/mvmdio.c
-index 0b9e851f3da4f..d2e2dc5384287 100644
---- a/drivers/net/ethernet/marvell/mvmdio.c
-+++ b/drivers/net/ethernet/marvell/mvmdio.c
-@@ -347,7 +347,7 @@ static int orion_mdio_probe(struct platform_device *pdev)
- 	}
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
+index 0c8d2269bc46e..403e0f089f2af 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
+@@ -1596,7 +1596,7 @@ static int hns3_setup_tc(struct net_device *netdev, void *type_data)
+ 	netif_dbg(h, drv, netdev, "setup tc: num_tc=%u\n", tc);
  
+ 	return (kinfo->dcb_ops && kinfo->dcb_ops->setup_tc) ?
+-		kinfo->dcb_ops->setup_tc(h, tc, prio_tc) : -EOPNOTSUPP;
++		kinfo->dcb_ops->setup_tc(h, tc ? tc : 1, prio_tc) : -EOPNOTSUPP;
+ }
  
--	dev->err_interrupt = platform_get_irq(pdev, 0);
-+	dev->err_interrupt = platform_get_irq_optional(pdev, 0);
- 	if (dev->err_interrupt > 0 &&
- 	    resource_size(r) < MVMDIO_ERR_INT_MASK + 4) {
- 		dev_err(&pdev->dev,
-@@ -364,8 +364,8 @@ static int orion_mdio_probe(struct platform_device *pdev)
- 		writel(MVMDIO_ERR_INT_SMI_DONE,
- 			dev->regs + MVMDIO_ERR_INT_MASK);
- 
--	} else if (dev->err_interrupt == -EPROBE_DEFER) {
--		ret = -EPROBE_DEFER;
-+	} else if (dev->err_interrupt < 0) {
-+		ret = dev->err_interrupt;
- 		goto out_mdio;
- 	}
- 
+ static int hns3_nic_setup_tc(struct net_device *dev, enum tc_setup_type type,
 -- 
 2.20.1
 
