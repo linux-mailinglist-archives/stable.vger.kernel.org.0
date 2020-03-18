@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6EF0D189938
-	for <lists+stable@lfdr.de>; Wed, 18 Mar 2020 11:24:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EC03F189937
+	for <lists+stable@lfdr.de>; Wed, 18 Mar 2020 11:24:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726733AbgCRKYY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 Mar 2020 06:24:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58784 "EHLO mail.kernel.org"
+        id S1726486AbgCRKYW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 Mar 2020 06:24:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58730 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726310AbgCRKYY (ORCPT <rfc822;Stable@vger.kernel.org>);
-        Wed, 18 Mar 2020 06:24:24 -0400
+        id S1726310AbgCRKYV (ORCPT <rfc822;Stable@vger.kernel.org>);
+        Wed, 18 Mar 2020 06:24:21 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 32FA820776;
-        Wed, 18 Mar 2020 10:24:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 852AB20775;
+        Wed, 18 Mar 2020 10:24:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584527063;
-        bh=pseIxGQusjMOmBa201uDge8xpcwujCsuMrAWPqJYEbI=;
+        s=default; t=1584527061;
+        bh=eqHeqNl1HlFbd5mde/1Q+XVsbLWNlDLg3v6tB7z+M5g=;
         h=Subject:To:From:Date:From;
-        b=xUXEqomRz0TEvXkHuR+brXpcCbCikAi+dSIIwxf7TxIFAzEBKLAil5Umi9Zx6tQW6
-         dpQhCHUzZ4uTNnPutPsK+3VIhWeluotf5BbcpXyOqv49yDAIzmdWcV9iLPo6IJOJrZ
-         UvdOwqO4qLzhHi+DtlN62g5rq7tmLDKu+CS0CI+8=
-Subject: patch "iio: adc: stm32-dfsdm: fix sleep in atomic context" added to staging-linus
-To:     olivier.moysan@st.com, Jonathan.Cameron@huawei.com,
+        b=onN4ZCg4mdlIIovawZZsUdG/lPfnCX6LMPeDNoLTlxi33enw1QX5iQAyQDkyuTkdu
+         5LqH8GCfUHZpAIw/8McAklKXvrGGFEe+GwyFsM8hsedSr9SSmLzmMEY+IzRDQu4DgA
+         mawTeS+JXZxySJU6n5+IgNx9WBJf164MTZjUzV4o=
+Subject: patch "iio: adc: at91-sama5d2_adc: fix differential channels in triggered" added to staging-linus
+To:     eugen.hristev@microchip.com, Jonathan.Cameron@huawei.com,
         Stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
 Date:   Wed, 18 Mar 2020 11:24:18 +0100
-Message-ID: <158452705832135@kroah.com>
+Message-ID: <1584527058101181@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -40,7 +40,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    iio: adc: stm32-dfsdm: fix sleep in atomic context
+    iio: adc: at91-sama5d2_adc: fix differential channels in triggered
 
 to my staging git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
@@ -55,102 +55,57 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From e19ac9d9a978f8238a85a28ed624094a497d5ae6 Mon Sep 17 00:00:00 2001
-From: Olivier Moysan <olivier.moysan@st.com>
-Date: Tue, 21 Jan 2020 12:02:56 +0100
-Subject: iio: adc: stm32-dfsdm: fix sleep in atomic context
+From a500f3bd787f8224341e44b238f318c407b10897 Mon Sep 17 00:00:00 2001
+From: Eugen Hristev <eugen.hristev@microchip.com>
+Date: Tue, 28 Jan 2020 12:57:39 +0000
+Subject: iio: adc: at91-sama5d2_adc: fix differential channels in triggered
+ mode
 
-This commit fixes the error message:
-"BUG: sleeping function called from invalid context at kernel/irq/chip.c"
-Suppress the trigger irq handler. Make the buffer transfers directly
-in DMA callback, instead.
-Push buffers without timestamps, as timestamps are not supported
-in DFSDM driver.
+The differential channels require writing the channel offset register (COR).
+Otherwise they do not work in differential mode.
+The configuration of COR is missing in triggered mode.
 
-Fixes: 11646e81d775 ("iio: adc: stm32-dfsdm: add support for buffer modes")
-
-Signed-off-by: Olivier Moysan <olivier.moysan@st.com>
+Fixes: 5e1a1da0f8c9 ("iio: adc: at91-sama5d2_adc: add hw trigger and buffer support")
+Signed-off-by: Eugen Hristev <eugen.hristev@microchip.com>
 Cc: <Stable@vger.kernel.org>
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 ---
- drivers/iio/adc/stm32-dfsdm-adc.c | 43 +++++++------------------------
- 1 file changed, 10 insertions(+), 33 deletions(-)
+ drivers/iio/adc/at91-sama5d2_adc.c | 15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
 
-diff --git a/drivers/iio/adc/stm32-dfsdm-adc.c b/drivers/iio/adc/stm32-dfsdm-adc.c
-index 2aad2cda6943..76a60d93fe23 100644
---- a/drivers/iio/adc/stm32-dfsdm-adc.c
-+++ b/drivers/iio/adc/stm32-dfsdm-adc.c
-@@ -842,31 +842,6 @@ static inline void stm32_dfsdm_process_data(struct stm32_dfsdm_adc *adc,
- 	}
- }
+diff --git a/drivers/iio/adc/at91-sama5d2_adc.c b/drivers/iio/adc/at91-sama5d2_adc.c
+index a5c7771227d5..9d96f7d08b95 100644
+--- a/drivers/iio/adc/at91-sama5d2_adc.c
++++ b/drivers/iio/adc/at91-sama5d2_adc.c
+@@ -723,6 +723,7 @@ static int at91_adc_configure_trigger(struct iio_trigger *trig, bool state)
  
--static irqreturn_t stm32_dfsdm_adc_trigger_handler(int irq, void *p)
--{
--	struct iio_poll_func *pf = p;
--	struct iio_dev *indio_dev = pf->indio_dev;
--	struct stm32_dfsdm_adc *adc = iio_priv(indio_dev);
--	int available = stm32_dfsdm_adc_dma_residue(adc);
--
--	while (available >= indio_dev->scan_bytes) {
--		s32 *buffer = (s32 *)&adc->rx_buf[adc->bufi];
--
--		stm32_dfsdm_process_data(adc, buffer);
--
--		iio_push_to_buffers_with_timestamp(indio_dev, buffer,
--						   pf->timestamp);
--		available -= indio_dev->scan_bytes;
--		adc->bufi += indio_dev->scan_bytes;
--		if (adc->bufi >= adc->buf_sz)
--			adc->bufi = 0;
--	}
--
--	iio_trigger_notify_done(indio_dev->trig);
--
--	return IRQ_HANDLED;
--}
--
- static void stm32_dfsdm_dma_buffer_done(void *data)
- {
- 	struct iio_dev *indio_dev = data;
-@@ -874,11 +849,6 @@ static void stm32_dfsdm_dma_buffer_done(void *data)
- 	int available = stm32_dfsdm_adc_dma_residue(adc);
- 	size_t old_pos;
+ 	for_each_set_bit(bit, indio->active_scan_mask, indio->num_channels) {
+ 		struct iio_chan_spec const *chan = at91_adc_chan_get(indio, bit);
++		u32 cor;
  
--	if (indio_dev->currentmode & INDIO_BUFFER_TRIGGERED) {
--		iio_trigger_poll_chained(indio_dev->trig);
--		return;
--	}
--
- 	/*
- 	 * FIXME: In Kernel interface does not support cyclic DMA buffer,and
- 	 * offers only an interface to push data samples per samples.
-@@ -906,7 +876,15 @@ static void stm32_dfsdm_dma_buffer_done(void *data)
- 			adc->bufi = 0;
- 			old_pos = 0;
- 		}
--		/* regular iio buffer without trigger */
-+		/*
-+		 * In DMA mode the trigger services of IIO are not used
-+		 * (e.g. no call to iio_trigger_poll).
-+		 * Calling irq handler associated to the hardware trigger is not
-+		 * relevant as the conversions have already been done. Data
-+		 * transfers are performed directly in DMA callback instead.
-+		 * This implementation avoids to call trigger irq handler that
-+		 * may sleep, in an atomic context (DMA irq handler context).
-+		 */
- 		if (adc->dev_data->type == DFSDM_IIO)
- 			iio_push_to_buffers(indio_dev, buffer);
- 	}
-@@ -1536,8 +1514,7 @@ static int stm32_dfsdm_adc_init(struct iio_dev *indio_dev)
- 	}
+ 		if (!chan)
+ 			continue;
+@@ -731,6 +732,20 @@ static int at91_adc_configure_trigger(struct iio_trigger *trig, bool state)
+ 		    chan->type == IIO_PRESSURE)
+ 			continue;
  
- 	ret = iio_triggered_buffer_setup(indio_dev,
--					 &iio_pollfunc_store_time,
--					 &stm32_dfsdm_adc_trigger_handler,
-+					 &iio_pollfunc_store_time, NULL,
- 					 &stm32_dfsdm_buffer_setup_ops);
- 	if (ret) {
- 		stm32_dfsdm_dma_release(indio_dev);
++		if (state) {
++			cor = at91_adc_readl(st, AT91_SAMA5D2_COR);
++
++			if (chan->differential)
++				cor |= (BIT(chan->channel) |
++					BIT(chan->channel2)) <<
++					AT91_SAMA5D2_COR_DIFF_OFFSET;
++			else
++				cor &= ~(BIT(chan->channel) <<
++				       AT91_SAMA5D2_COR_DIFF_OFFSET);
++
++			at91_adc_writel(st, AT91_SAMA5D2_COR, cor);
++		}
++
+ 		if (state) {
+ 			at91_adc_writel(st, AT91_SAMA5D2_CHER,
+ 					BIT(chan->channel));
 -- 
 2.25.1
 
