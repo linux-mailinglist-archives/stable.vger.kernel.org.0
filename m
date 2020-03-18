@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 69D9018A68F
-	for <lists+stable@lfdr.de>; Wed, 18 Mar 2020 22:09:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2275F18A68C
+	for <lists+stable@lfdr.de>; Wed, 18 Mar 2020 22:09:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727333AbgCRUxw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 Mar 2020 16:53:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53030 "EHLO mail.kernel.org"
+        id S1727416AbgCRUxz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 Mar 2020 16:53:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53066 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727368AbgCRUxv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 18 Mar 2020 16:53:51 -0400
+        id S1726757AbgCRUxw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 18 Mar 2020 16:53:52 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 19B0D208CA;
-        Wed, 18 Mar 2020 20:53:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4459120724;
+        Wed, 18 Mar 2020 20:53:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584564830;
-        bh=uoVMebWe7RHvPOdPiykiNjr6bM/F83Hnq1Lu/j1MuDk=;
+        s=default; t=1584564832;
+        bh=25VKQu1HzSnFCJmJ0Cco4zrqkgTMP42DNRpR0k+HFn4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ea6r4H0VKQ1aVQfaGcWLeQYGwV4OgLYejQ2NKqx/Hns6CAbB8SVHldipmvkDBJCCk
-         9P3hsq3AnidONcT/n/+73sUkOmDl1uat7iF4WFuh7AZyCPwWNqYtvH2c/mOGYKVrQU
-         /TkZHE++g/ke3V+kHt1ESVsikdL21TAjCHaO+fmE=
+        b=q3XXcES3cLhuNgRaI/KNRQw/jPN/W/0tKf39sqGvm1zj9OeIJS+3acn4NTv/U98Hm
+         yGen1v/Y5tkbpuM3ZXOg7oGf5uC5OgUPrqMYrppZduJWeCUWT9TAW+l88Tl9Xxz0jt
+         vA3vjsxF7Y85ShA+r4bTRTJqVEbGYYNyAQcJpc4I=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Heiner Kallweit <hkallweit1@gmail.com>,
-        Michael Walle <michael@walle.cc>,
+Cc:     Vasundhara Volam <vasundhara-v.volam@broadcom.com>,
+        Michael Chan <michael.chan@broadcom.com>,
         "David S . Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 11/73] net: phy: avoid clearing PHY interrupts twice in irq handler
-Date:   Wed, 18 Mar 2020 16:52:35 -0400
-Message-Id: <20200318205337.16279-11-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 12/73] bnxt_en: reinitialize IRQs when MTU is modified
+Date:   Wed, 18 Mar 2020 16:52:36 -0400
+Message-Id: <20200318205337.16279-12-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200318205337.16279-1-sashal@kernel.org>
 References: <20200318205337.16279-1-sashal@kernel.org>
@@ -44,55 +44,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heiner Kallweit <hkallweit1@gmail.com>
+From: Vasundhara Volam <vasundhara-v.volam@broadcom.com>
 
-[ Upstream commit 249bc9744e165abe74ae326f43e9d70bad54c3b7 ]
+[ Upstream commit a9b952d267e59a3b405e644930f46d252cea7122 ]
 
-On all PHY drivers that implement did_interrupt() reading the interrupt
-status bits clears them. This means we may loose an interrupt that
-is triggered between calling did_interrupt() and phy_clear_interrupt().
-As part of the fix make it a requirement that did_interrupt() clears
-the interrupt.
+MTU changes may affect the number of IRQs so we must call
+bnxt_close_nic()/bnxt_open_nic() with the irq_re_init parameter
+set to true.  The reason is that a larger MTU may require
+aggregation rings not needed with smaller MTU.  We may not be
+able to allocate the required number of aggregation rings and
+so we reduce the number of channels which will change the number
+of IRQs.  Without this patch, it may crash eventually in
+pci_disable_msix() when the IRQs are not properly unwound.
 
-The Fixes tag refers to the first commit where the patch applies
-cleanly.
-
-Fixes: 49644e68f472 ("net: phy: add callback for custom interrupt handler to struct phy_driver")
-Reported-by: Michael Walle <michael@walle.cc>
-Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
+Fixes: c0c050c58d84 ("bnxt_en: New Broadcom ethernet driver.")
+Signed-off-by: Vasundhara Volam <vasundhara-v.volam@broadcom.com>
+Signed-off-by: Michael Chan <michael.chan@broadcom.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/phy/phy.c | 3 ++-
- include/linux/phy.h   | 1 +
- 2 files changed, 3 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/broadcom/bnxt/bnxt.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/phy/phy.c b/drivers/net/phy/phy.c
-index 105d389b58e74..ea890d802ffe5 100644
---- a/drivers/net/phy/phy.c
-+++ b/drivers/net/phy/phy.c
-@@ -761,7 +761,8 @@ static irqreturn_t phy_interrupt(int irq, void *phy_dat)
- 		phy_trigger_machine(phydev);
- 	}
+diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt.c b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
+index 374e11a91790b..57c88e157f866 100644
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
+@@ -10891,13 +10891,13 @@ static int bnxt_change_mtu(struct net_device *dev, int new_mtu)
+ 	struct bnxt *bp = netdev_priv(dev);
  
--	if (phy_clear_interrupt(phydev))
-+	/* did_interrupt() may have cleared the interrupt already */
-+	if (!phydev->drv->did_interrupt && phy_clear_interrupt(phydev))
- 		goto phy_err;
- 	return IRQ_HANDLED;
+ 	if (netif_running(dev))
+-		bnxt_close_nic(bp, false, false);
++		bnxt_close_nic(bp, true, false);
  
-diff --git a/include/linux/phy.h b/include/linux/phy.h
-index 3d5d53313e6c0..bf87c59a98bb3 100644
---- a/include/linux/phy.h
-+++ b/include/linux/phy.h
-@@ -524,6 +524,7 @@ struct phy_driver {
- 	/*
- 	 * Checks if the PHY generated an interrupt.
- 	 * For multi-PHY devices with shared PHY interrupt pin
-+	 * Set interrupt bits have to be cleared.
- 	 */
- 	int (*did_interrupt)(struct phy_device *phydev);
+ 	dev->mtu = new_mtu;
+ 	bnxt_set_ring_params(bp);
  
+ 	if (netif_running(dev))
+-		return bnxt_open_nic(bp, false, false);
++		return bnxt_open_nic(bp, true, false);
+ 
+ 	return 0;
+ }
 -- 
 2.20.1
 
