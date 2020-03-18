@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 87A0B18A52D
-	for <lists+stable@lfdr.de>; Wed, 18 Mar 2020 21:59:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 875B818A52B
+	for <lists+stable@lfdr.de>; Wed, 18 Mar 2020 21:59:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727250AbgCRU7e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 Mar 2020 16:59:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58106 "EHLO mail.kernel.org"
+        id S1727714AbgCRU4v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 Mar 2020 16:56:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58238 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728691AbgCRU4r (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 18 Mar 2020 16:56:47 -0400
+        id S1728696AbgCRU4u (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 18 Mar 2020 16:56:50 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B388920A8B;
-        Wed, 18 Mar 2020 20:56:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 835DD20BED;
+        Wed, 18 Mar 2020 20:56:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584565007;
-        bh=+gcwa6UDdPL83YLFEWcz7sgnSrRd427fX6aCwkeNxDc=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yeBlUHDMtfMoZIXWHX/TPyOHw9cT+q4t4Q2SGYRRkcAzm6X9TVQmcQ9nKLID+FyBN
-         TippJyLy7mIf6qnOU2im1tPHXmDDKpXamgd3hlVTpnNW+E8QggRfyfNaTKgSrclR6D
-         TTkSRhVDSnEceSgzzapxFW6SiS4eYbJJ+85iOaso=
+        s=default; t=1584565010;
+        bh=n+12w1H1+k6Ai1zMSyVDLLX4P4yFMdnnT66W/zNH6po=;
+        h=From:To:Cc:Subject:Date:From;
+        b=CK9a2U/1R31yb0iypExkKE3Rq7JjNEfq6jVA6JwyLVQ2RrBdqcZIEVC2yDliEHN8D
+         RNG852StVRmhvnEc2+zueFP0dffFhrTEhqhR6qQuw5QbrEN/tCsrbtn54zt97D11vg
+         isFypWYsVl/kmZ3bWOmHjTlbIAoGOx8eBR5dcnFk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Zhenzhong Duan <zhenzhong.duan@gmail.com>,
-        Lu Baolu <baolu.lu@linux.intel.com>,
-        Joerg Roedel <jroedel@suse.de>,
-        Sasha Levin <sashal@kernel.org>,
-        iommu@lists.linux-foundation.org
-Subject: [PATCH AUTOSEL 4.9 15/15] iommu/vt-d: Fix the wrong printing in RHSA parsing
-Date:   Wed, 18 Mar 2020 16:56:29 -0400
-Message-Id: <20200318205629.17750-15-sashal@kernel.org>
+Cc:     Vasundhara Volam <vasundhara-v.volam@broadcom.com>,
+        Michael Chan <michael.chan@broadcom.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 01/12] bnxt_en: reinitialize IRQs when MTU is modified
+Date:   Wed, 18 Mar 2020 16:56:37 -0400
+Message-Id: <20200318205648.17937-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20200318205629.17750-1-sashal@kernel.org>
-References: <20200318205629.17750-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -45,38 +42,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhenzhong Duan <zhenzhong.duan@gmail.com>
+From: Vasundhara Volam <vasundhara-v.volam@broadcom.com>
 
-[ Upstream commit b0bb0c22c4db623f2e7b1a471596fbf1c22c6dc5 ]
+[ Upstream commit a9b952d267e59a3b405e644930f46d252cea7122 ]
 
-When base address in RHSA structure doesn't match base address in
-each DRHD structure, the base address in last DRHD is printed out.
+MTU changes may affect the number of IRQs so we must call
+bnxt_close_nic()/bnxt_open_nic() with the irq_re_init parameter
+set to true.  The reason is that a larger MTU may require
+aggregation rings not needed with smaller MTU.  We may not be
+able to allocate the required number of aggregation rings and
+so we reduce the number of channels which will change the number
+of IRQs.  Without this patch, it may crash eventually in
+pci_disable_msix() when the IRQs are not properly unwound.
 
-This doesn't make sense when there are multiple DRHD units, fix it
-by printing the buggy RHSA's base address.
-
-Signed-off-by: Lu Baolu <baolu.lu@linux.intel.com>
-Signed-off-by: Zhenzhong Duan <zhenzhong.duan@gmail.com>
-Fixes: fd0c8894893cb ("intel-iommu: Set a more specific taint flag for invalid BIOS DMAR tables")
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Fixes: c0c050c58d84 ("bnxt_en: New Broadcom ethernet driver.")
+Signed-off-by: Vasundhara Volam <vasundhara-v.volam@broadcom.com>
+Signed-off-by: Michael Chan <michael.chan@broadcom.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/dmar.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/broadcom/bnxt/bnxt.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/iommu/dmar.c b/drivers/iommu/dmar.c
-index d51734e0c3504..6e3ab76f29f1a 100644
---- a/drivers/iommu/dmar.c
-+++ b/drivers/iommu/dmar.c
-@@ -485,7 +485,7 @@ static int dmar_parse_one_rhsa(struct acpi_dmar_header *header, void *arg)
- 		1, TAINT_FIRMWARE_WORKAROUND,
- 		"Your BIOS is broken; RHSA refers to non-existent DMAR unit at %llx\n"
- 		"BIOS vendor: %s; Ver: %s; Product Version: %s\n",
--		drhd->reg_base_addr,
-+		rhsa->base_address,
- 		dmi_get_system_info(DMI_BIOS_VENDOR),
- 		dmi_get_system_info(DMI_BIOS_VERSION),
- 		dmi_get_system_info(DMI_PRODUCT_VERSION));
+diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt.c b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
+index 81282b811a6cd..d91953eabfeb4 100644
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
+@@ -5310,13 +5310,13 @@ static int bnxt_change_mtu(struct net_device *dev, int new_mtu)
+ 		return -EINVAL;
+ 
+ 	if (netif_running(dev))
+-		bnxt_close_nic(bp, false, false);
++		bnxt_close_nic(bp, true, false);
+ 
+ 	dev->mtu = new_mtu;
+ 	bnxt_set_ring_params(bp);
+ 
+ 	if (netif_running(dev))
+-		return bnxt_open_nic(bp, false, false);
++		return bnxt_open_nic(bp, true, false);
+ 
+ 	return 0;
+ }
 -- 
 2.20.1
 
