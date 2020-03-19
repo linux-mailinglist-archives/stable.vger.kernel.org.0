@@ -2,46 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 623D118B846
-	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:43:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 10EF218B726
+	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:31:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727624AbgCSNm6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Mar 2020 09:42:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38978 "EHLO mail.kernel.org"
+        id S1729055AbgCSNRw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Mar 2020 09:17:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39448 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727576AbgCSNm4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Mar 2020 09:42:56 -0400
+        id S1729669AbgCSNRv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Mar 2020 09:17:51 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 32A5E208C3;
-        Thu, 19 Mar 2020 13:42:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 710B8214D8;
+        Thu, 19 Mar 2020 13:17:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584625374;
-        bh=Bz0YxYbHmWLWVD8SNeHP5gI+dLOiUyOyCCCY14UUzLc=;
+        s=default; t=1584623869;
+        bh=xpF/oJrCEXUxvt+0y7Lo8jkFhhTZdOsK+QynZE3xPvI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uwx39YifvjSmtGvzCaQ3Y/x9xxsJJ/iW8dsGkqmyMjeFDxi4yAr1eCw74EpDmMSlG
-         FFnjqUz56gCBZxfCd28yeP4e1wm8TiBVGnzN4aLLT58D9gL6Sa2hzc2lBeGAxoq4he
-         MM5LgUmBxayvrd9RfXnDqpZLw9xtf1JKCk49+M9M=
+        b=ah+uBNz1up8wfNdCT6E/NSrn03X8495ZUfwetsGiNOrzjOndaxdWrwC20+s9SC91H
+         EEauz5PKX0Q2pmzDafOF7b7OVbWMX7ZZcMMkgaIXAQcwujGpwyoopJtu4z9QImoZ8N
+         GCkrH9FrZj/QY8BY3eoE050HL5Yy6XlfVy0CqGfk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        "Huang, Ying" <ying.huang@intel.com>,
-        Philip Li <philip.li@intel.com>,
-        Andi Kleen <andi.kleen@intel.com>,
-        Jiri Olsa <jolsa@redhat.com>,
+        stable@vger.kernel.org, Kim Phillips <kim.phillips@amd.com>,
+        Borislav Petkov <bp@suse.de>,
         Peter Zijlstra <peterz@infradead.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>,
-        Feng Tang <feng.tang@intel.com>
-Subject: [PATCH 4.19 18/48] signal: avoid double atomic counter increments for user accounting
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 82/99] perf/amd/uncore: Replace manual sampling check with CAP_NO_INTERRUPT flag
 Date:   Thu, 19 Mar 2020 14:04:00 +0100
-Message-Id: <20200319123908.898223901@linuxfoundation.org>
+Message-Id: <20200319124005.115184451@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.2
-In-Reply-To: <20200319123902.941451241@linuxfoundation.org>
-References: <20200319123902.941451241@linuxfoundation.org>
+In-Reply-To: <20200319123941.630731708@linuxfoundation.org>
+References: <20200319123941.630731708@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,123 +45,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Kim Phillips <kim.phillips@amd.com>
 
-[ Upstream commit fda31c50292a5062332fa0343c084bd9f46604d9 ]
+[ Upstream commit f967140dfb7442e2db0868b03b961f9c59418a1b ]
 
-When queueing a signal, we increment both the users count of pending
-signals (for RLIMIT_SIGPENDING tracking) and we increment the refcount
-of the user struct itself (because we keep a reference to the user in
-the signal structure in order to correctly account for it when freeing).
+Enable the sampling check in kernel/events/core.c::perf_event_open(),
+which returns the more appropriate -EOPNOTSUPP.
 
-That turns out to be fairly expensive, because both of them are atomic
-updates, and particularly under extreme signal handling pressure on big
-machines, you can get a lot of cache contention on the user struct.
-That can then cause horrid cacheline ping-pong when you do these
-multiple accesses.
+BEFORE:
 
-So change the reference counting to only pin the user for the _first_
-pending signal, and to unpin it when the last pending signal is
-dequeued.  That means that when a user sees a lot of concurrent signal
-queuing - which is the only situation when this matters - the only
-atomic access needed is generally the 'sigpending' count update.
+  $ sudo perf record -a -e instructions,l3_request_g1.caching_l3_cache_accesses true
+  Error:
+  The sys_perf_event_open() syscall returned with 22 (Invalid argument) for event (l3_request_g1.caching_l3_cache_accesses).
+  /bin/dmesg | grep -i perf may provide additional information.
 
-This was noticed because of a particularly odd timing artifact on a
-dual-socket 96C/192T Cascade Lake platform: when you get into bad
-contention, on that machine for some reason seems to be much worse when
-the contention happens in the upper 32-byte half of the cacheline.
+With nothing relevant in dmesg.
 
-As a result, the kernel test robot will-it-scale 'signal1' benchmark had
-an odd performance regression simply due to random alignment of the
-'struct user_struct' (and pointed to a completely unrelated and
-apparently nonsensical commit for the regression).
+AFTER:
 
-Avoiding the double increments (and decrements on the dequeueing side,
-of course) makes for much less contention and hugely improved
-performance on that will-it-scale microbenchmark.
+  $ sudo perf record -a -e instructions,l3_request_g1.caching_l3_cache_accesses true
+  Error:
+  l3_request_g1.caching_l3_cache_accesses: PMU Hardware doesn't support sampling/overflow-interrupts. Try 'perf stat'
 
-Quoting Feng Tang:
-
- "It makes a big difference, that the performance score is tripled! bump
-  from original 17000 to 54000. Also the gap between 5.0-rc6 and
-  5.0-rc6+Jiri's patch is reduced to around 2%"
-
-[ The "2% gap" is the odd cacheline placement difference on that
-  platform: under the extreme contention case, the effect of which half
-  of the cacheline was hot was 5%, so with the reduced contention the
-  odd timing artifact is reduced too ]
-
-It does help in the non-contended case too, but is not nearly as
-noticeable.
-
-Reported-and-tested-by: Feng Tang <feng.tang@intel.com>
-Cc: Eric W. Biederman <ebiederm@xmission.com>
-Cc: Huang, Ying <ying.huang@intel.com>
-Cc: Philip Li <philip.li@intel.com>
-Cc: Andi Kleen <andi.kleen@intel.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: c43ca5091a37 ("perf/x86/amd: Add support for AMD NB and L2I "uncore" counters")
+Signed-off-by: Kim Phillips <kim.phillips@amd.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Acked-by: Peter Zijlstra <peterz@infradead.org>
+Cc: stable@vger.kernel.org
+Link: https://lkml.kernel.org/r/20200311191323.13124-1-kim.phillips@amd.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/signal.c | 23 ++++++++++++++---------
- 1 file changed, 14 insertions(+), 9 deletions(-)
+ arch/x86/events/amd/uncore.c | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/kernel/signal.c b/kernel/signal.c
-index 08911bb6fe9ab..c42eaf39b5729 100644
---- a/kernel/signal.c
-+++ b/kernel/signal.c
-@@ -407,27 +407,32 @@ __sigqueue_alloc(int sig, struct task_struct *t, gfp_t flags, int override_rlimi
- {
- 	struct sigqueue *q = NULL;
- 	struct user_struct *user;
-+	int sigpending;
+diff --git a/arch/x86/events/amd/uncore.c b/arch/x86/events/amd/uncore.c
+index baa7e36073f90..604a8558752d1 100644
+--- a/arch/x86/events/amd/uncore.c
++++ b/arch/x86/events/amd/uncore.c
+@@ -193,20 +193,18 @@ static int amd_uncore_event_init(struct perf_event *event)
  
  	/*
- 	 * Protect access to @t credentials. This can go away when all
- 	 * callers hold rcu read lock.
-+	 *
-+	 * NOTE! A pending signal will hold on to the user refcount,
-+	 * and we get/put the refcount only when the sigpending count
-+	 * changes from/to zero.
+ 	 * NB and Last level cache counters (MSRs) are shared across all cores
+-	 * that share the same NB / Last level cache. Interrupts can be directed
+-	 * to a single target core, however, event counts generated by processes
+-	 * running on other cores cannot be masked out. So we do not support
+-	 * sampling and per-thread events.
++	 * that share the same NB / Last level cache.  On family 16h and below,
++	 * Interrupts can be directed to a single target core, however, event
++	 * counts generated by processes running on other cores cannot be masked
++	 * out. So we do not support sampling and per-thread events via
++	 * CAP_NO_INTERRUPT, and we do not enable counter overflow interrupts:
  	 */
- 	rcu_read_lock();
--	user = get_uid(__task_cred(t)->user);
--	atomic_inc(&user->sigpending);
-+	user = __task_cred(t)->user;
-+	sigpending = atomic_inc_return(&user->sigpending);
-+	if (sigpending == 1)
-+		get_uid(user);
- 	rcu_read_unlock();
+-	if (is_sampling_event(event) || event->attach_state & PERF_ATTACH_TASK)
+-		return -EINVAL;
  
--	if (override_rlimit ||
--	    atomic_read(&user->sigpending) <=
--			task_rlimit(t, RLIMIT_SIGPENDING)) {
-+	if (override_rlimit || likely(sigpending <= task_rlimit(t, RLIMIT_SIGPENDING))) {
- 		q = kmem_cache_alloc(sigqueue_cachep, flags);
- 	} else {
- 		print_dropped_signal(sig);
- 	}
+ 	/* NB and Last level cache counters do not have usr/os/guest/host bits */
+ 	if (event->attr.exclude_user || event->attr.exclude_kernel ||
+ 	    event->attr.exclude_host || event->attr.exclude_guest)
+ 		return -EINVAL;
  
- 	if (unlikely(q == NULL)) {
--		atomic_dec(&user->sigpending);
--		free_uid(user);
-+		if (atomic_dec_and_test(&user->sigpending))
-+			free_uid(user);
- 	} else {
- 		INIT_LIST_HEAD(&q->list);
- 		q->flags = 0;
-@@ -441,8 +446,8 @@ static void __sigqueue_free(struct sigqueue *q)
- {
- 	if (q->flags & SIGQUEUE_PREALLOC)
- 		return;
--	atomic_dec(&q->user->sigpending);
--	free_uid(q->user);
-+	if (atomic_dec_and_test(&q->user->sigpending))
-+		free_uid(q->user);
- 	kmem_cache_free(sigqueue_cachep, q);
- }
+-	/* and we do not enable counter overflow interrupts */
+ 	hwc->config = event->attr.config & AMD64_RAW_EVENT_MASK_NB;
+ 	hwc->idx = -1;
  
+@@ -314,6 +312,7 @@ static struct pmu amd_nb_pmu = {
+ 	.start		= amd_uncore_start,
+ 	.stop		= amd_uncore_stop,
+ 	.read		= amd_uncore_read,
++	.capabilities	= PERF_PMU_CAP_NO_INTERRUPT,
+ };
+ 
+ static struct pmu amd_llc_pmu = {
+@@ -324,6 +323,7 @@ static struct pmu amd_llc_pmu = {
+ 	.start		= amd_uncore_start,
+ 	.stop		= amd_uncore_stop,
+ 	.read		= amd_uncore_read,
++	.capabilities	= PERF_PMU_CAP_NO_INTERRUPT,
+ };
+ 
+ static struct amd_uncore *amd_uncore_alloc(unsigned int cpu)
 -- 
 2.20.1
 
