@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7F51C18B579
-	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:19:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B751518B5DA
+	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:22:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727749AbgCSNSy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Mar 2020 09:18:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41642 "EHLO mail.kernel.org"
+        id S1730158AbgCSNWE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Mar 2020 09:22:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47062 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728696AbgCSNSw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Mar 2020 09:18:52 -0400
+        id S1730154AbgCSNWE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Mar 2020 09:22:04 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 19D2C214D8;
-        Thu, 19 Mar 2020 13:18:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E6B332098B;
+        Thu, 19 Mar 2020 13:22:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584623931;
-        bh=UVIq3kfmmMt4OxRi/iwoPRHANQQVObbhqUMTpEQTYOo=;
+        s=default; t=1584624123;
+        bh=57I+7quQKDQmsEDDJITB3L2NMIr5sFzOXq0CxdhIvnc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qduhFeHIhiUHTwo1frGI8+IRuQM/eBYQaiW2bNUUMLRKi0jl9UCaKo/EI8jYsOv7k
-         +xvOq1iENFlIkyE6TDNr7pZbQiM6zuREMh76WI1ZYPYExPYyoQmgZ8PsqQ7yEYpgnE
-         Oqz1XIrChCfrJvd1oTa3V9eUm8v2jxwetXeFvvsw=
+        b=qwmz3Dvlk2UxSJyEQXtu26x9aKYGqbNNJGhObaAa4ZOinaqJ4+SMFvtq0sREk6EYY
+         qugoG/AhhqhszXKLZSEKNJEl6dZzHQEdqBnQFwWUf+spbpN14wVYeEgfGO2z9vPupc
+         CNv9Yi+PhEKpQ1g1370+EmMcwpV9c3CxG5XLeBw8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Marek Lindner <mareklindner@neomailbox.ch>,
-        Sven Eckelmann <sven@narfation.org>,
-        Simon Wunderlich <sw@simonwunderlich.de>
-Subject: [PATCH 4.14 75/99] batman-adv: prevent TT request storms by not sending inconsistent TT TLVLs
+        stable@vger.kernel.org, Paul Burton <paulburton@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 15/60] MIPS: Disable VDSO time functionality on microMIPS
 Date:   Thu, 19 Mar 2020 14:03:53 +0100
-Message-Id: <20200319124003.828460399@linuxfoundation.org>
+Message-Id: <20200319123923.868277570@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.2
-In-Reply-To: <20200319123941.630731708@linuxfoundation.org>
-References: <20200319123941.630731708@linuxfoundation.org>
+In-Reply-To: <20200319123919.441695203@linuxfoundation.org>
+References: <20200319123919.441695203@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,79 +43,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Lindner <mareklindner@neomailbox.ch>
+From: Paul Burton <paulburton@kernel.org>
 
-commit 16116dac23396e73c01eeee97b102e4833a4b205 upstream.
+[ Upstream commit 07015d7a103c4420b69a287b8ef4d2535c0f4106 ]
 
-A translation table TVLV changset sent with an OGM consists
-of a number of headers (one per VLAN) plus the changeset
-itself (addition and/or deletion of entries).
+A check we're about to add to pick up on function calls that depend on
+bogus use of the GOT in the VDSO picked up on instances of such function
+calls in microMIPS builds. Since the code appears genuinely problematic,
+and given the relatively small amount of use & testing that microMIPS
+sees, go ahead & disable the VDSO for microMIPS builds.
 
-The per-VLAN headers are used by OGM recipients for consistency
-checks. Said consistency check might determine that a full
-translation table request is needed to restore consistency. If
-the TT sender adds per-VLAN headers of empty VLANs into the OGM,
-recipients are led to believe to have reached an inconsistent
-state and thus request a full table update. The full table does
-not contain empty VLANs (due to missing entries) the cycle
-restarts when the next OGM is issued.
-
-Consequently, when the translation table TVLV headers are
-composed, empty VLANs are to be excluded.
-
-Fixes: 21a57f6e7a3b ("batman-adv: make the TT CRC logic VLAN specific")
-Signed-off-by: Marek Lindner <mareklindner@neomailbox.ch>
-Signed-off-by: Sven Eckelmann <sven@narfation.org>
-Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Paul Burton <paulburton@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/batman-adv/translation-table.c |   15 ++++++++++++---
- 1 file changed, 12 insertions(+), 3 deletions(-)
+ arch/mips/vdso/Makefile | 19 +++++++++++++++++--
+ 1 file changed, 17 insertions(+), 2 deletions(-)
 
---- a/net/batman-adv/translation-table.c
-+++ b/net/batman-adv/translation-table.c
-@@ -941,15 +941,20 @@ batadv_tt_prepare_tvlv_local_data(struct
- 	struct batadv_tvlv_tt_vlan_data *tt_vlan;
- 	struct batadv_softif_vlan *vlan;
- 	u16 num_vlan = 0;
--	u16 num_entries = 0;
-+	u16 vlan_entries = 0;
-+	u16 total_entries = 0;
- 	u16 tvlv_len;
- 	u8 *tt_change_ptr;
- 	int change_offset;
+diff --git a/arch/mips/vdso/Makefile b/arch/mips/vdso/Makefile
+index 3fa4bbe1bae53..b6b1eb638fb14 100644
+--- a/arch/mips/vdso/Makefile
++++ b/arch/mips/vdso/Makefile
+@@ -48,6 +48,8 @@ endif
  
- 	spin_lock_bh(&bat_priv->softif_vlan_list_lock);
- 	hlist_for_each_entry_rcu(vlan, &bat_priv->softif_vlan_list, list) {
-+		vlan_entries = atomic_read(&vlan->tt.num_entries);
-+		if (vlan_entries < 1)
-+			continue;
+ CFLAGS_REMOVE_vgettimeofday.o = -pg
+ 
++DISABLE_VDSO := n
 +
- 		num_vlan++;
--		num_entries += atomic_read(&vlan->tt.num_entries);
-+		total_entries += vlan_entries;
- 	}
+ #
+ # For the pre-R6 code in arch/mips/vdso/vdso.h for locating
+ # the base address of VDSO, the linker will emit a R_MIPS_PC32
+@@ -61,11 +63,24 @@ CFLAGS_REMOVE_vgettimeofday.o = -pg
+ ifndef CONFIG_CPU_MIPSR6
+   ifeq ($(call ld-ifversion, -lt, 225000000, y),y)
+     $(warning MIPS VDSO requires binutils >= 2.25)
+-    obj-vdso-y := $(filter-out vgettimeofday.o, $(obj-vdso-y))
+-    ccflags-vdso += -DDISABLE_MIPS_VDSO
++    DISABLE_VDSO := y
+   endif
+ endif
  
- 	change_offset = sizeof(**tt_data);
-@@ -957,7 +962,7 @@ batadv_tt_prepare_tvlv_local_data(struct
- 
- 	/* if tt_len is negative, allocate the space needed by the full table */
- 	if (*tt_len < 0)
--		*tt_len = batadv_tt_len(num_entries);
-+		*tt_len = batadv_tt_len(total_entries);
- 
- 	tvlv_len = *tt_len;
- 	tvlv_len += change_offset;
-@@ -974,6 +979,10 @@ batadv_tt_prepare_tvlv_local_data(struct
- 
- 	tt_vlan = (struct batadv_tvlv_tt_vlan_data *)(*tt_data + 1);
- 	hlist_for_each_entry_rcu(vlan, &bat_priv->softif_vlan_list, list) {
-+		vlan_entries = atomic_read(&vlan->tt.num_entries);
-+		if (vlan_entries < 1)
-+			continue;
++#
++# GCC (at least up to version 9.2) appears to emit function calls that make use
++# of the GOT when targeting microMIPS, which we can't use in the VDSO due to
++# the lack of relocations. As such, we disable the VDSO for microMIPS builds.
++#
++ifdef CONFIG_CPU_MICROMIPS
++  DISABLE_VDSO := y
++endif
 +
- 		tt_vlan->vid = htons(vlan->vid);
- 		tt_vlan->crc = htonl(vlan->tt.crc);
- 
++ifeq ($(DISABLE_VDSO),y)
++  obj-vdso-y := $(filter-out vgettimeofday.o, $(obj-vdso-y))
++  ccflags-vdso += -DDISABLE_MIPS_VDSO
++endif
++
+ # VDSO linker flags.
+ VDSO_LDFLAGS := \
+ 	-Wl,-Bsymbolic -Wl,--no-undefined -Wl,-soname=linux-vdso.so.1 \
+-- 
+2.20.1
+
 
 
