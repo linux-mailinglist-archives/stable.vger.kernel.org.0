@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C6A0B18B6CB
-	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:29:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8757918B687
+	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:27:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730027AbgCSNYh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Mar 2020 09:24:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51496 "EHLO mail.kernel.org"
+        id S1730928AbgCSN1n (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Mar 2020 09:27:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56122 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730204AbgCSNYg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Mar 2020 09:24:36 -0400
+        id S1730331AbgCSN1n (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Mar 2020 09:27:43 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 39B9F2192A;
-        Thu, 19 Mar 2020 13:24:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 51B49208C3;
+        Thu, 19 Mar 2020 13:27:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584624275;
-        bh=Xagdnp7ePBdUUji/TQ+9nFTAX8X0aB6kX2iHVc2O26s=;
+        s=default; t=1584624462;
+        bh=vwFQSTRGBXIuEHRlKDxDsMBN5Lx7bJ4941rvcPOxF5M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sry6yVGg41vqf9cqJcju7t48TFomy05KHRfJ3KJZU2MWTUrXrr/wzbZ19CZmJvRk6
-         awfJbwdPXzCDr9iB50GeH1mjD9xDbQ+nsnOYz0cmp4By7itE3XHunkhXJgxcxMRh4C
-         ucTCesIu7TU+l2lQOnGe6NJ6x+ykG9VEqLB7XSVk=
+        b=zIsSJplxxEd0ZIRVJ1E0NqmkAz5NtRoOrqXJQyACZ05qKTjL/VtYmtmCgLmLXIWXK
+         5AWFA8f+ZaVWWCJtsZSPboKzAm/rfS8wTpPCCC84LTN1l7zsoJZl949G5Q8TNIJIs2
+         gz4yp5FLbn441xpgf6+BgJstMvJoYqWtKXQYgq00=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jann Horn <jannh@google.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.4 56/60] mm: slub: add missing TID bump in kmem_cache_alloc_bulk()
-Date:   Thu, 19 Mar 2020 14:04:34 +0100
-Message-Id: <20200319123937.092440350@linuxfoundation.org>
+        stable@vger.kernel.org, Taehee Yoo <ap420073@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.5 53/65] net: rmnet: fix packet forwarding in rmnet bridge mode
+Date:   Thu, 19 Mar 2020 14:04:35 +0100
+Message-Id: <20200319123943.072434015@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.2
-In-Reply-To: <20200319123919.441695203@linuxfoundation.org>
-References: <20200319123919.441695203@linuxfoundation.org>
+In-Reply-To: <20200319123926.466988514@linuxfoundation.org>
+References: <20200319123926.466988514@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,46 +44,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jann Horn <jannh@google.com>
+From: Taehee Yoo <ap420073@gmail.com>
 
-commit fd4d9c7d0c71866ec0c2825189ebd2ce35bd95b8 upstream.
+[ Upstream commit ad3cc31b599ea80f06b29ebdc18b3a39878a48d6 ]
 
-When kmem_cache_alloc_bulk() attempts to allocate N objects from a percpu
-freelist of length M, and N > M > 0, it will first remove the M elements
-from the percpu freelist, then call ___slab_alloc() to allocate the next
-element and repopulate the percpu freelist. ___slab_alloc() can re-enable
-IRQs via allocate_slab(), so the TID must be bumped before ___slab_alloc()
-to properly commit the freelist head change.
+Packet forwarding is not working in rmnet bridge mode.
+Because when a packet is forwarded, skb_push() for an ethernet header
+is needed. But it doesn't call skb_push().
+So, the ethernet header will be lost.
 
-Fix it by unconditionally bumping c->tid when entering the slowpath.
+Test commands:
+    modprobe rmnet
+    ip netns add nst
+    ip netns add nst2
+    ip link add veth0 type veth peer name veth1
+    ip link add veth2 type veth peer name veth3
+    ip link set veth1 netns nst
+    ip link set veth3 netns nst2
 
-Cc: stable@vger.kernel.org
-Fixes: ebe909e0fdb3 ("slub: improve bulk alloc strategy")
-Signed-off-by: Jann Horn <jannh@google.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    ip link add rmnet0 link veth0 type rmnet mux_id 1
+    ip link set veth2 master rmnet0
+    ip link set veth0 up
+    ip link set veth2 up
+    ip link set rmnet0 up
+    ip a a 192.168.100.1/24 dev rmnet0
 
+    ip netns exec nst ip link set veth1 up
+    ip netns exec nst ip a a 192.168.100.2/24 dev veth1
+    ip netns exec nst2 ip link set veth3 up
+    ip netns exec nst2 ip a a 192.168.100.3/24 dev veth3
+    ip netns exec nst2 ping 192.168.100.2
+
+Fixes: 60d58f971c10 ("net: qualcomm: rmnet: Implement bridge mode")
+Signed-off-by: Taehee Yoo <ap420073@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/slub.c |    9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/net/ethernet/qualcomm/rmnet/rmnet_handlers.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/mm/slub.c
-+++ b/mm/slub.c
-@@ -3155,6 +3155,15 @@ int kmem_cache_alloc_bulk(struct kmem_ca
- 
- 		if (unlikely(!object)) {
- 			/*
-+			 * We may have removed an object from c->freelist using
-+			 * the fastpath in the previous iteration; in that case,
-+			 * c->tid has not been bumped yet.
-+			 * Since ___slab_alloc() may reenable interrupts while
-+			 * allocating memory, we should bump c->tid now.
-+			 */
-+			c->tid = next_tid(c->tid);
+diff --git a/drivers/net/ethernet/qualcomm/rmnet/rmnet_handlers.c b/drivers/net/ethernet/qualcomm/rmnet/rmnet_handlers.c
+index 074a8b326c304..29a7bfa2584dc 100644
+--- a/drivers/net/ethernet/qualcomm/rmnet/rmnet_handlers.c
++++ b/drivers/net/ethernet/qualcomm/rmnet/rmnet_handlers.c
+@@ -159,6 +159,9 @@ static int rmnet_map_egress_handler(struct sk_buff *skb,
+ static void
+ rmnet_bridge_handler(struct sk_buff *skb, struct net_device *bridge_dev)
+ {
++	if (skb_mac_header_was_set(skb))
++		skb_push(skb, skb->mac_len);
 +
-+			/*
- 			 * Invoking slow path likely have side-effect
- 			 * of re-populating per CPU c->freelist
- 			 */
+ 	if (bridge_dev) {
+ 		skb->dev = bridge_dev;
+ 		dev_queue_xmit(skb);
+-- 
+2.20.1
+
 
 
