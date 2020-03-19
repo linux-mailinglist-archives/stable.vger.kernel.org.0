@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 380A318B5D7
-	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:22:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4FF7718B63D
+	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:25:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730150AbgCSNWC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Mar 2020 09:22:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46900 "EHLO mail.kernel.org"
+        id S1729849AbgCSNZJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Mar 2020 09:25:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52534 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729614AbgCSNV7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Mar 2020 09:21:59 -0400
+        id S1727753AbgCSNZI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Mar 2020 09:25:08 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 88543208D6;
-        Thu, 19 Mar 2020 13:21:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D5BEF20658;
+        Thu, 19 Mar 2020 13:25:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584624118;
-        bh=3FrZdYvpqhFybQqlRH77rhrJ/OHxk2sMndBLGH2KYyY=;
+        s=default; t=1584624308;
+        bh=ZHAhe/4h00CCFGKKhXzAdAKElGT6O9nuHzOIyMEOVBA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rRJa5z5D1nVRCNbIM2wLR+Jp5MaCrUyKO3L6CJfUzCQ9TTQnP1urEoJ+687VAAeot
-         BKlp/mD/k0gLetRseePzigpyo7oUW7ZKulQP0dJYXcW8oaDTc4GOtMx0o/VybBxFc2
-         uNWZ6g+tLBJfrlnOaYHKmozj3OEheNz2T/sM8lto=
+        b=J8jxzvI5eOwExyEuMKjzjglSc2qQov2wUCm2vMb8H66uawfLwvIwAkb53T01NdW9n
+         nUTH6JMZxshtAENXJ8/wR98Al3gQZK1Of/A/NRulgbiV72hbwdtUL/XaF2q7V4QqJz
+         SeE5WclFevW1lHhuYCHGlD+BS/HWEFhUuFiNOH+8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Kai-Heng Feng <kai.heng.feng@canonical.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        stable@vger.kernel.org, Jean Delvare <jdelvare@suse.de>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 13/60] HID: i2c-hid: add Trekstor Surfbook E11B to descriptor override
+Subject: [PATCH 5.5 09/65] ACPI: watchdog: Allow disabling WDAT at boot
 Date:   Thu, 19 Mar 2020 14:03:51 +0100
-Message-Id: <20200319123923.268412538@linuxfoundation.org>
+Message-Id: <20200319123929.175648228@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.2
-In-Reply-To: <20200319123919.441695203@linuxfoundation.org>
-References: <20200319123919.441695203@linuxfoundation.org>
+In-Reply-To: <20200319123926.466988514@linuxfoundation.org>
+References: <20200319123926.466988514@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,41 +45,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+From: Jean Delvare <jdelvare@suse.de>
 
-[ Upstream commit be0aba826c4a6ba5929def1962a90d6127871969 ]
+[ Upstream commit 3f9e12e0df012c4a9a7fd7eb0d3ae69b459d6b2c ]
 
-The Surfbook E11B uses the SIPODEV SP1064 touchpad, which does not supply
-descriptors, so it has to be added to the override list.
+In case the WDAT interface is broken, give the user an option to
+ignore it to let a native driver bind to the watchdog device instead.
 
-BugLink: https://bugs.launchpad.net/bugs/1858299
-Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Signed-off-by: Jean Delvare <jdelvare@suse.de>
+Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ Documentation/admin-guide/kernel-parameters.txt |  4 ++++
+ drivers/acpi/acpi_watchdog.c                    | 12 +++++++++++-
+ 2 files changed, 15 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c b/drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c
-index d31ea82b84c17..a66f08041a1aa 100644
---- a/drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c
-+++ b/drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c
-@@ -341,6 +341,14 @@ static const struct dmi_system_id i2c_hid_dmi_desc_override_table[] = {
- 		},
- 		.driver_data = (void *)&sipodev_desc
- 	},
-+	{
-+		.ident = "Trekstor SURFBOOK E11B",
-+		.matches = {
-+			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "TREKSTOR"),
-+			DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "SURFBOOK E11B"),
-+		},
-+		.driver_data = (void *)&sipodev_desc
-+	},
- 	{
- 		.ident = "Direkt-Tek DTLAPY116-2",
- 		.matches = {
+diff --git a/Documentation/admin-guide/kernel-parameters.txt b/Documentation/admin-guide/kernel-parameters.txt
+index ade4e6ec23e03..727a03fb26c99 100644
+--- a/Documentation/admin-guide/kernel-parameters.txt
++++ b/Documentation/admin-guide/kernel-parameters.txt
+@@ -136,6 +136,10 @@
+ 			dynamic table installation which will install SSDT
+ 			tables to /sys/firmware/acpi/tables/dynamic.
+ 
++	acpi_no_watchdog	[HW,ACPI,WDT]
++			Ignore the ACPI-based watchdog interface (WDAT) and let
++			a native driver control the watchdog device instead.
++
+ 	acpi_rsdp=	[ACPI,EFI,KEXEC]
+ 			Pass the RSDP address to the kernel, mostly used
+ 			on machines running EFI runtime service to boot the
+diff --git a/drivers/acpi/acpi_watchdog.c b/drivers/acpi/acpi_watchdog.c
+index d827a4a3e9460..6e9ec6e3fe47d 100644
+--- a/drivers/acpi/acpi_watchdog.c
++++ b/drivers/acpi/acpi_watchdog.c
+@@ -55,12 +55,14 @@ static bool acpi_watchdog_uses_rtc(const struct acpi_table_wdat *wdat)
+ }
+ #endif
+ 
++static bool acpi_no_watchdog;
++
+ static const struct acpi_table_wdat *acpi_watchdog_get_wdat(void)
+ {
+ 	const struct acpi_table_wdat *wdat = NULL;
+ 	acpi_status status;
+ 
+-	if (acpi_disabled)
++	if (acpi_disabled || acpi_no_watchdog)
+ 		return NULL;
+ 
+ 	status = acpi_get_table(ACPI_SIG_WDAT, 0,
+@@ -88,6 +90,14 @@ bool acpi_has_watchdog(void)
+ }
+ EXPORT_SYMBOL_GPL(acpi_has_watchdog);
+ 
++/* ACPI watchdog can be disabled on boot command line */
++static int __init disable_acpi_watchdog(char *str)
++{
++	acpi_no_watchdog = true;
++	return 1;
++}
++__setup("acpi_no_watchdog", disable_acpi_watchdog);
++
+ void __init acpi_watchdog_init(void)
+ {
+ 	const struct acpi_wdat_entry *entries;
 -- 
 2.20.1
 
