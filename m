@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F89B18B732
-	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:32:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B6C5518B735
+	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:32:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729234AbgCSNRA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Mar 2020 09:17:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37886 "EHLO mail.kernel.org"
+        id S1727720AbgCSNRW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Mar 2020 09:17:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38470 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728587AbgCSNQ7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Mar 2020 09:16:59 -0400
+        id S1729622AbgCSNRT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Mar 2020 09:17:19 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 04C952098B;
-        Thu, 19 Mar 2020 13:16:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5DDDB21775;
+        Thu, 19 Mar 2020 13:17:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584623819;
-        bh=QxtaDxcfQEQ1UKz0PJyRYKh2BCVbPnsBm3vuLhOG/lI=;
+        s=default; t=1584623838;
+        bh=+d8ajJzWO100hATUUE+6j7BLWE9UwVheTuluFvGV3IM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AL0twPKEWbf454bozPApl9kC4TKPTJlI03qfrZSRCvrKvGJ+rz8OoB4wKoVT5+bWP
-         a6lEa/iNrKDX6shrxnhE2vqcLg3p1PY3IODCOSsTV1ezgOuMqrLZegdz0Q4IGSEf9u
-         ToXW1VAF1EXAAtw9g3T0mRA9k1X9v7J5acu+zUu8=
+        b=uQ/4QnebPSIxX53wNWnAybJUwiC897iCRWc+rWQiA5ytcDfNnHkD0k5cG5lokqP4o
+         BZos7ivQGWyRnNc0J6uQp/zeX02Wh063VuVPFJ6KIRA0k62F4zKzWzlnow+a2FrvUJ
+         OVg54x4TcFBqj7AARfLIOb+/sfaz+Txnusi0WYDw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vasily Averin <vvs@virtuozzo.com>,
-        Tejun Heo <tj@kernel.org>
-Subject: [PATCH 4.14 37/99] cgroup: cgroup_procs_next should increase position index
-Date:   Thu, 19 Mar 2020 14:03:15 +0100
-Message-Id: <20200319123953.062335196@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Moulding <dmoulding@me.com>,
+        Kalle Valo <kvalo@codeaurora.org>
+Subject: [PATCH 4.14 39/99] iwlwifi: mvm: Do not require PHY_SKU NVM section for 3168 devices
+Date:   Thu, 19 Mar 2020 14:03:17 +0100
+Message-Id: <20200319123953.604920974@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.2
 In-Reply-To: <20200319123941.630731708@linuxfoundation.org>
 References: <20200319123941.630731708@linuxfoundation.org>
@@ -43,85 +43,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasily Averin <vvs@virtuozzo.com>
+From: Dan Moulding <dmoulding@me.com>
 
-commit 2d4ecb030dcc90fb725ecbfc82ce5d6c37906e0e upstream.
+commit a9149d243f259ad8f02b1e23dfe8ba06128f15e1 upstream.
 
-If seq_file .next fuction does not change position index,
-read after some lseek can generate unexpected output:
+The logic for checking required NVM sections was recently fixed in
+commit b3f20e098293 ("iwlwifi: mvm: fix NVM check for 3168
+devices"). However, with that fixed the else is now taken for 3168
+devices and within the else clause there is a mandatory check for the
+PHY_SKU section. This causes the parsing to fail for 3168 devices.
 
-1) dd bs=1 skip output of each 2nd elements
-$ dd if=/sys/fs/cgroup/cgroup.procs bs=8 count=1
-2
-3
-4
-5
-1+0 records in
-1+0 records out
-8 bytes copied, 0,000267297 s, 29,9 kB/s
-[test@localhost ~]$ dd if=/sys/fs/cgroup/cgroup.procs bs=1 count=8
-2
-4 <<< NB! 3 was skipped
-6 <<<    ... and 5 too
-8 <<<    ... and 7
-8+0 records in
-8+0 records out
-8 bytes copied, 5,2123e-05 s, 153 kB/s
+The PHY_SKU section is really only mandatory for the IWL_NVM_EXT
+layout (the phy_sku parameter of iwl_parse_nvm_data is only used when
+the NVM type is IWL_NVM_EXT). So this changes the PHY_SKU section
+check so that it's only mandatory for IWL_NVM_EXT.
 
- This happen because __cgroup_procs_start() makes an extra
- extra cgroup_procs_next() call
-
-2) read after lseek beyond end of file generates whole last line.
-3) read after lseek into middle of last line generates
-expected rest of last line and unexpected whole line once again.
-
-Additionally patch removes an extra position index changes in
-__cgroup_procs_start()
-
-Cc: stable@vger.kernel.org
-https://bugzilla.kernel.org/show_bug.cgi?id=206283
-Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
-Signed-off-by: Tejun Heo <tj@kernel.org>
+Fixes: b3f20e098293 ("iwlwifi: mvm: fix NVM check for 3168 devices")
+Signed-off-by: Dan Moulding <dmoulding@me.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/cgroup/cgroup.c |   10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ drivers/net/wireless/intel/iwlwifi/mvm/nvm.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/kernel/cgroup/cgroup.c
-+++ b/kernel/cgroup/cgroup.c
-@@ -4249,6 +4249,9 @@ static void *cgroup_procs_next(struct se
- 	struct kernfs_open_file *of = s->private;
- 	struct css_task_iter *it = of->priv;
+--- a/drivers/net/wireless/intel/iwlwifi/mvm/nvm.c
++++ b/drivers/net/wireless/intel/iwlwifi/mvm/nvm.c
+@@ -326,7 +326,8 @@ iwl_parse_nvm_sections(struct iwl_mvm *m
+ 		}
  
-+	if (pos)
-+		(*pos)++;
-+
- 	return css_task_iter_next(it);
- }
- 
-@@ -4264,7 +4267,7 @@ static void *__cgroup_procs_start(struct
- 	 * from position 0, so we can simply keep iterating on !0 *pos.
- 	 */
- 	if (!it) {
--		if (WARN_ON_ONCE((*pos)++))
-+		if (WARN_ON_ONCE((*pos)))
- 			return ERR_PTR(-EINVAL);
- 
- 		it = kzalloc(sizeof(*it), GFP_KERNEL);
-@@ -4272,10 +4275,11 @@ static void *__cgroup_procs_start(struct
- 			return ERR_PTR(-ENOMEM);
- 		of->priv = it;
- 		css_task_iter_start(&cgrp->self, iter_flags, it);
--	} else if (!(*pos)++) {
-+	} else if (!(*pos)) {
- 		css_task_iter_end(it);
- 		css_task_iter_start(&cgrp->self, iter_flags, it);
--	}
-+	} else
-+		return it->cur_task;
- 
- 	return cgroup_procs_next(s, NULL, NULL);
- }
+ 		/* PHY_SKU section is mandatory in B0 */
+-		if (!mvm->nvm_sections[NVM_SECTION_TYPE_PHY_SKU].data) {
++		if (mvm->trans->cfg->nvm_type == IWL_NVM_EXT &&
++		    !mvm->nvm_sections[NVM_SECTION_TYPE_PHY_SKU].data) {
+ 			IWL_ERR(mvm,
+ 				"Can't parse phy_sku in B0, empty sections\n");
+ 			return NULL;
 
 
