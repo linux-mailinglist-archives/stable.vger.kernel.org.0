@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 28DC218B4CF
-	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:12:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1774E18B4D1
+	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:13:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729013AbgCSNMv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Mar 2020 09:12:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59276 "EHLO mail.kernel.org"
+        id S1729027AbgCSNM5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Mar 2020 09:12:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59494 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729010AbgCSNMu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Mar 2020 09:12:50 -0400
+        id S1729034AbgCSNM4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Mar 2020 09:12:56 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 83B4720789;
-        Thu, 19 Mar 2020 13:12:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 843C721556;
+        Thu, 19 Mar 2020 13:12:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584623570;
-        bh=LIZLT9N62E2AVuvsjufu2VUHeGyEaul/xFbEjVbzRsw=;
+        s=default; t=1584623576;
+        bh=r1ArD9mjzCiyxRrZZath0sRKbnKgk5N6rmHiLKxfqZA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P+pqz93ku2BhDODDgeylXaNhctPHQOZQvS16Igm1QBIvr51+QMBIh2HiUKEg04N71
-         vjQq0b6QG9YB/dqf3+6fLJ7kHTQkj7QLJiK02etiqaQlj7OpywLLZanMZThB1Fhjj/
-         JmWGDbEqrQSwtEx7jYykv+sGk/4H+3giamK/p56I=
+        b=aj30V/U9lUvjHXd2aii0/TjAy4jbdvV5oIXIrVhkIouWksEwUXcFcPbU2MOnqGJXQ
+         o53A9imY/tnK6WOn8JCDw065qEabmFCTSI3OeQ3hJBmzs5iINapkFN1Z3Ys97L70Eh
+         HonB14WS1uqySQpYyzcF/xyy56AaCWRYxDyOQx5k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        syzbot+a98f2016f40b9cd3818a@syzkaller.appspotmail.com,
+        syzbot+ac36b6a33c28a491e929@syzkaller.appspotmail.com,
         Sven Eckelmann <sven@narfation.org>,
+        Hillf Danton <hdanton@sina.com>,
         Simon Wunderlich <sw@simonwunderlich.de>
-Subject: [PATCH 4.9 72/90] batman-adv: Avoid free/alloc race when handling OGM2 buffer
-Date:   Thu, 19 Mar 2020 14:00:34 +0100
-Message-Id: <20200319123950.659818262@linuxfoundation.org>
+Subject: [PATCH 4.9 74/90] batman-adv: Dont schedule OGM for disabled interface
+Date:   Thu, 19 Mar 2020 14:00:36 +0100
+Message-Id: <20200319123951.301775876@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.2
 In-Reply-To: <20200319123928.635114118@linuxfoundation.org>
 References: <20200319123928.635114118@linuxfoundation.org>
@@ -45,152 +48,38 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Sven Eckelmann <sven@narfation.org>
 
-commit a8d23cbbf6c9f515ed678204ad2962be7c336344 upstream.
+A transmission scheduling for an interface which is currently dropped by
+batadv_iv_ogm_iface_disable could still be in progress. The B.A.T.M.A.N. V
+is simply cancelling the workqueue item in an synchronous way but this is
+not possible with B.A.T.M.A.N. IV because the OGM submissions are
+intertwined.
 
-A B.A.T.M.A.N. V virtual interface has an OGM2 packet buffer which is
-initialized using data from the netdevice notifier and other rtnetlink
-related hooks. It is sent regularly via various slave interfaces of the
-batadv virtual interface and in this process also modified (realloced) to
-integrate additional state information via TVLV containers.
+Instead it has to stop submitting the OGM when it detect that the buffer
+pointer is set to NULL.
 
-It must be avoided that the worker item is executed without a common lock
-with the netdevice notifier/rtnetlink helpers. Otherwise it can either
-happen that half modified data is sent out or the functions modifying the
-OGM2 buffer try to access already freed memory regions.
-
-Fixes: 0da0035942d4 ("batman-adv: OGMv2 - add basic infrastructure")
+Reported-by: syzbot+a98f2016f40b9cd3818a@syzkaller.appspotmail.com
+Reported-by: syzbot+ac36b6a33c28a491e929@syzkaller.appspotmail.com
+Fixes: c6c8fea29769 ("net: Add batman-adv meshing protocol")
 Signed-off-by: Sven Eckelmann <sven@narfation.org>
+Cc: Hillf Danton <hdanton@sina.com>
 Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/batman-adv/bat_v_ogm.c |   42 ++++++++++++++++++++++++++++++++++--------
- net/batman-adv/types.h     |    3 +++
- 2 files changed, 37 insertions(+), 8 deletions(-)
+ net/batman-adv/bat_iv_ogm.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/net/batman-adv/bat_v_ogm.c
-+++ b/net/batman-adv/bat_v_ogm.c
-@@ -28,6 +28,8 @@
- #include <linux/kernel.h>
- #include <linux/kref.h>
- #include <linux/list.h>
-+#include <linux/lockdep.h>
-+#include <linux/mutex.h>
- #include <linux/netdevice.h>
- #include <linux/random.h>
- #include <linux/rculist.h>
-@@ -127,22 +129,19 @@ static void batadv_v_ogm_send_to_if(stru
- }
+--- a/net/batman-adv/bat_iv_ogm.c
++++ b/net/batman-adv/bat_iv_ogm.c
+@@ -969,6 +969,10 @@ static void batadv_iv_ogm_schedule_buff(
  
- /**
-- * batadv_v_ogm_send - periodic worker broadcasting the own OGM
-- * @work: work queue item
-+ * batadv_v_ogm_send_softif() - periodic worker broadcasting the own OGM
-+ *  @bat_priv: the bat priv with all the soft interface information
-  */
--static void batadv_v_ogm_send(struct work_struct *work)
-+static void batadv_v_ogm_send_softif(struct batadv_priv *bat_priv)
- {
- 	struct batadv_hard_iface *hard_iface;
--	struct batadv_priv_bat_v *bat_v;
--	struct batadv_priv *bat_priv;
- 	struct batadv_ogm2_packet *ogm_packet;
- 	struct sk_buff *skb, *skb_tmp;
- 	unsigned char *ogm_buff, *pkt_buff;
- 	int ogm_buff_len;
- 	u16 tvlv_len = 0;
+ 	lockdep_assert_held(&hard_iface->bat_iv.ogm_buff_mutex);
  
--	bat_v = container_of(work, struct batadv_priv_bat_v, ogm_wq.work);
--	bat_priv = container_of(bat_v, struct batadv_priv, bat_v);
-+	lockdep_assert_held(&bat_priv->bat_v.ogm_buff_mutex);
- 
- 	if (atomic_read(&bat_priv->mesh_state) == BATADV_MESH_DEACTIVATING)
- 		goto out;
-@@ -210,6 +209,23 @@ out:
- }
- 
- /**
-+ * batadv_v_ogm_send() - periodic worker broadcasting the own OGM
-+ * @work: work queue item
-+ */
-+static void batadv_v_ogm_send(struct work_struct *work)
-+{
-+	struct batadv_priv_bat_v *bat_v;
-+	struct batadv_priv *bat_priv;
++	/* interface already disabled by batadv_iv_ogm_iface_disable */
++	if (!*ogm_buff)
++		return;
 +
-+	bat_v = container_of(work, struct batadv_priv_bat_v, ogm_wq.work);
-+	bat_priv = container_of(bat_v, struct batadv_priv, bat_v);
-+
-+	mutex_lock(&bat_priv->bat_v.ogm_buff_mutex);
-+	batadv_v_ogm_send_softif(bat_priv);
-+	mutex_unlock(&bat_priv->bat_v.ogm_buff_mutex);
-+}
-+
-+/**
-  * batadv_v_ogm_iface_enable - prepare an interface for B.A.T.M.A.N. V
-  * @hard_iface: the interface to prepare
-  *
-@@ -235,11 +251,15 @@ void batadv_v_ogm_primary_iface_set(stru
- 	struct batadv_priv *bat_priv = netdev_priv(primary_iface->soft_iface);
- 	struct batadv_ogm2_packet *ogm_packet;
- 
-+	mutex_lock(&bat_priv->bat_v.ogm_buff_mutex);
- 	if (!bat_priv->bat_v.ogm_buff)
--		return;
-+		goto unlock;
- 
- 	ogm_packet = (struct batadv_ogm2_packet *)bat_priv->bat_v.ogm_buff;
- 	ether_addr_copy(ogm_packet->orig, primary_iface->net_dev->dev_addr);
-+
-+unlock:
-+	mutex_unlock(&bat_priv->bat_v.ogm_buff_mutex);
- }
- 
- /**
-@@ -827,6 +847,8 @@ int batadv_v_ogm_init(struct batadv_priv
- 	atomic_set(&bat_priv->bat_v.ogm_seqno, random_seqno);
- 	INIT_DELAYED_WORK(&bat_priv->bat_v.ogm_wq, batadv_v_ogm_send);
- 
-+	mutex_init(&bat_priv->bat_v.ogm_buff_mutex);
-+
- 	return 0;
- }
- 
-@@ -838,7 +860,11 @@ void batadv_v_ogm_free(struct batadv_pri
- {
- 	cancel_delayed_work_sync(&bat_priv->bat_v.ogm_wq);
- 
-+	mutex_lock(&bat_priv->bat_v.ogm_buff_mutex);
-+
- 	kfree(bat_priv->bat_v.ogm_buff);
- 	bat_priv->bat_v.ogm_buff = NULL;
- 	bat_priv->bat_v.ogm_buff_len = 0;
-+
-+	mutex_unlock(&bat_priv->bat_v.ogm_buff_mutex);
- }
---- a/net/batman-adv/types.h
-+++ b/net/batman-adv/types.h
-@@ -27,6 +27,7 @@
- #include <linux/compiler.h>
- #include <linux/if_ether.h>
- #include <linux/kref.h>
-+#include <linux/mutex.h>
- #include <linux/netdevice.h>
- #include <linux/netlink.h>
- #include <linux/sched.h> /* for linux/wait.h */
-@@ -966,12 +967,14 @@ struct batadv_softif_vlan {
-  * @ogm_buff: buffer holding the OGM packet
-  * @ogm_buff_len: length of the OGM packet buffer
-  * @ogm_seqno: OGM sequence number - used to identify each OGM
-+ * @ogm_buff_mutex: lock protecting ogm_buff and ogm_buff_len
-  * @ogm_wq: workqueue used to schedule OGM transmissions
-  */
- struct batadv_priv_bat_v {
- 	unsigned char *ogm_buff;
- 	int ogm_buff_len;
- 	atomic_t ogm_seqno;
-+	struct mutex ogm_buff_mutex;
- 	struct delayed_work ogm_wq;
- };
- 
+ 	/* the interface gets activated here to avoid race conditions between
+ 	 * the moment of activating the interface in
+ 	 * hardif_activate_interface() where the originator mac is set and
 
 
