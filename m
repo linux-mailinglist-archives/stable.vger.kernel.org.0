@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C90118B573
-	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:18:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E956818B669
+	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:27:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727700AbgCSNSg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Mar 2020 09:18:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41048 "EHLO mail.kernel.org"
+        id S1730652AbgCSN0p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Mar 2020 09:26:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54798 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729808AbgCSNSg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Mar 2020 09:18:36 -0400
+        id S1730818AbgCSN0o (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Mar 2020 09:26:44 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5C7B3206D7;
-        Thu, 19 Mar 2020 13:18:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F130A20658;
+        Thu, 19 Mar 2020 13:26:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584623915;
-        bh=KPV4xBHfo2J1Cm3TP9h9kb7gA4hXX8+vaoOMMPNrTSI=;
+        s=default; t=1584624403;
+        bh=wKyo751Qb290M1eueCeLhse11w1D722qA+2YbQAX6yU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MOgvKYQbMOAjriOnlTNbE4BwyQpx41I+65derUeLmG10Mo5+8eY7+57rJiHXt1Znm
-         /S3MlvB5lLY3klQMXztQ63O3G7/3T2vI+m9rpa4ahMn5t4lcQIoQ24qiIu/dubCY7H
-         lJmytylUSad/8b1YJVte4NBFTygZ4UUS78whQYJQ=
+        b=OpwAuhT30kjYajYLYAYXNiKS1XhHZO/YWTAiMKL3AjAgmXGMDsYVouAwBHpTStR3E
+         l93sdx4ll8MpxHiRVh2qkKDv4ybFBeIJ06R1Sf2MrBPqY5B/lWXYGn1dDqNLuMyM/w
+         DqyLSxdAg3rwRYuwlEq2v76CrEwyOpgJdTj0f7iY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jan Kara <jack@suse.cz>,
-        Qian Cai <cai@lca.pw>, Theodore Tso <tytso@mit.edu>,
+        stable@vger.kernel.org, Esben Haabendal <esben@geanix.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 95/99] jbd2: fix data races at struct journal_head
-Date:   Thu, 19 Mar 2020 14:04:13 +0100
-Message-Id: <20200319124007.604200119@linuxfoundation.org>
+Subject: [PATCH 5.5 32/65] net: ll_temac: Handle DMA halt condition caused by buffer underrun
+Date:   Thu, 19 Mar 2020 14:04:14 +0100
+Message-Id: <20200319123936.502308862@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.2
-In-Reply-To: <20200319123941.630731708@linuxfoundation.org>
-References: <20200319123941.630731708@linuxfoundation.org>
+In-Reply-To: <20200319123926.466988514@linuxfoundation.org>
+References: <20200319123926.466988514@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,108 +44,174 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qian Cai <cai@lca.pw>
+From: Esben Haabendal <esben@geanix.com>
 
-[ Upstream commit 6c5d911249290f41f7b50b43344a7520605b1acb ]
+[ Upstream commit 1d63b8d66d146deaaedbe16c80de105f685ea012 ]
 
-journal_head::b_transaction and journal_head::b_next_transaction could
-be accessed concurrently as noticed by KCSAN,
+The SDMA engine used by TEMAC halts operation when it has finished
+processing of the last buffer descriptor in the buffer ring.
+Unfortunately, no interrupt event is generated when this happens,
+so we need to setup another mechanism to make sure DMA operation is
+restarted when enough buffers have been added to the ring.
 
- LTP: starting fsync04
- /dev/zero: Can't open blockdev
- EXT4-fs (loop0): mounting ext3 file system using the ext4 subsystem
- EXT4-fs (loop0): mounted filesystem with ordered data mode. Opts: (null)
- ==================================================================
- BUG: KCSAN: data-race in __jbd2_journal_refile_buffer [jbd2] / jbd2_write_access_granted [jbd2]
-
- write to 0xffff99f9b1bd0e30 of 8 bytes by task 25721 on cpu 70:
-  __jbd2_journal_refile_buffer+0xdd/0x210 [jbd2]
-  __jbd2_journal_refile_buffer at fs/jbd2/transaction.c:2569
-  jbd2_journal_commit_transaction+0x2d15/0x3f20 [jbd2]
-  (inlined by) jbd2_journal_commit_transaction at fs/jbd2/commit.c:1034
-  kjournald2+0x13b/0x450 [jbd2]
-  kthread+0x1cd/0x1f0
-  ret_from_fork+0x27/0x50
-
- read to 0xffff99f9b1bd0e30 of 8 bytes by task 25724 on cpu 68:
-  jbd2_write_access_granted+0x1b2/0x250 [jbd2]
-  jbd2_write_access_granted at fs/jbd2/transaction.c:1155
-  jbd2_journal_get_write_access+0x2c/0x60 [jbd2]
-  __ext4_journal_get_write_access+0x50/0x90 [ext4]
-  ext4_mb_mark_diskspace_used+0x158/0x620 [ext4]
-  ext4_mb_new_blocks+0x54f/0xca0 [ext4]
-  ext4_ind_map_blocks+0xc79/0x1b40 [ext4]
-  ext4_map_blocks+0x3b4/0x950 [ext4]
-  _ext4_get_block+0xfc/0x270 [ext4]
-  ext4_get_block+0x3b/0x50 [ext4]
-  __block_write_begin_int+0x22e/0xae0
-  __block_write_begin+0x39/0x50
-  ext4_write_begin+0x388/0xb50 [ext4]
-  generic_perform_write+0x15d/0x290
-  ext4_buffered_write_iter+0x11f/0x210 [ext4]
-  ext4_file_write_iter+0xce/0x9e0 [ext4]
-  new_sync_write+0x29c/0x3b0
-  __vfs_write+0x92/0xa0
-  vfs_write+0x103/0x260
-  ksys_write+0x9d/0x130
-  __x64_sys_write+0x4c/0x60
-  do_syscall_64+0x91/0xb05
-  entry_SYSCALL_64_after_hwframe+0x49/0xbe
-
- 5 locks held by fsync04/25724:
-  #0: ffff99f9911093f8 (sb_writers#13){.+.+}, at: vfs_write+0x21c/0x260
-  #1: ffff99f9db4c0348 (&sb->s_type->i_mutex_key#15){+.+.}, at: ext4_buffered_write_iter+0x65/0x210 [ext4]
-  #2: ffff99f5e7dfcf58 (jbd2_handle){++++}, at: start_this_handle+0x1c1/0x9d0 [jbd2]
-  #3: ffff99f9db4c0168 (&ei->i_data_sem){++++}, at: ext4_map_blocks+0x176/0x950 [ext4]
-  #4: ffffffff99086b40 (rcu_read_lock){....}, at: jbd2_write_access_granted+0x4e/0x250 [jbd2]
- irq event stamp: 1407125
- hardirqs last  enabled at (1407125): [<ffffffff980da9b7>] __find_get_block+0x107/0x790
- hardirqs last disabled at (1407124): [<ffffffff980da8f9>] __find_get_block+0x49/0x790
- softirqs last  enabled at (1405528): [<ffffffff98a0034c>] __do_softirq+0x34c/0x57c
- softirqs last disabled at (1405521): [<ffffffff97cc67a2>] irq_exit+0xa2/0xc0
-
- Reported by Kernel Concurrency Sanitizer on:
- CPU: 68 PID: 25724 Comm: fsync04 Tainted: G L 5.6.0-rc2-next-20200221+ #7
- Hardware name: HPE ProLiant DL385 Gen10/ProLiant DL385 Gen10, BIOS A40 07/10/2019
-
-The plain reads are outside of jh->b_state_lock critical section which result
-in data races. Fix them by adding pairs of READ|WRITE_ONCE().
-
-Reviewed-by: Jan Kara <jack@suse.cz>
-Signed-off-by: Qian Cai <cai@lca.pw>
-Link: https://lore.kernel.org/r/20200222043111.2227-1-cai@lca.pw
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Fixes: 92744989533c ("net: add Xilinx ll_temac device driver")
+Signed-off-by: Esben Haabendal <esben@geanix.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/jbd2/transaction.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/net/ethernet/xilinx/ll_temac.h      |  3 ++
+ drivers/net/ethernet/xilinx/ll_temac_main.c | 58 +++++++++++++++++++--
+ 2 files changed, 56 insertions(+), 5 deletions(-)
 
-diff --git a/fs/jbd2/transaction.c b/fs/jbd2/transaction.c
-index f2ff141a4479e..a355ca418e788 100644
---- a/fs/jbd2/transaction.c
-+++ b/fs/jbd2/transaction.c
-@@ -1050,8 +1050,8 @@ static bool jbd2_write_access_granted(handle_t *handle, struct buffer_head *bh,
- 	/* For undo access buffer must have data copied */
- 	if (undo && !jh->b_committed_data)
- 		goto out;
--	if (jh->b_transaction != handle->h_transaction &&
--	    jh->b_next_transaction != handle->h_transaction)
-+	if (READ_ONCE(jh->b_transaction) != handle->h_transaction &&
-+	    READ_ONCE(jh->b_next_transaction) != handle->h_transaction)
- 		goto out;
- 	/*
- 	 * There are two reasons for the barrier here:
-@@ -2466,8 +2466,8 @@ void __jbd2_journal_refile_buffer(struct journal_head *jh)
- 	 * our jh reference and thus __jbd2_journal_file_buffer() must not
- 	 * take a new one.
- 	 */
--	jh->b_transaction = jh->b_next_transaction;
--	jh->b_next_transaction = NULL;
-+	WRITE_ONCE(jh->b_transaction, jh->b_next_transaction);
-+	WRITE_ONCE(jh->b_next_transaction, NULL);
- 	if (buffer_freed(bh))
- 		jlist = BJ_Forget;
- 	else if (jh->b_modified)
+diff --git a/drivers/net/ethernet/xilinx/ll_temac.h b/drivers/net/ethernet/xilinx/ll_temac.h
+index 99fe059e5c7f3..53fb8141f1a67 100644
+--- a/drivers/net/ethernet/xilinx/ll_temac.h
++++ b/drivers/net/ethernet/xilinx/ll_temac.h
+@@ -380,6 +380,9 @@ struct temac_local {
+ 	/* DMA channel control setup */
+ 	u32 tx_chnl_ctrl;
+ 	u32 rx_chnl_ctrl;
++	u8 coalesce_count_rx;
++
++	struct delayed_work restart_work;
+ };
+ 
+ /* Wrappers for temac_ior()/temac_iow() function pointers above */
+diff --git a/drivers/net/ethernet/xilinx/ll_temac_main.c b/drivers/net/ethernet/xilinx/ll_temac_main.c
+index 2e3f59dae586e..eb480204cdbeb 100644
+--- a/drivers/net/ethernet/xilinx/ll_temac_main.c
++++ b/drivers/net/ethernet/xilinx/ll_temac_main.c
+@@ -51,6 +51,7 @@
+ #include <linux/ip.h>
+ #include <linux/slab.h>
+ #include <linux/interrupt.h>
++#include <linux/workqueue.h>
+ #include <linux/dma-mapping.h>
+ #include <linux/processor.h>
+ #include <linux/platform_data/xilinx-ll-temac.h>
+@@ -866,8 +867,11 @@ temac_start_xmit(struct sk_buff *skb, struct net_device *ndev)
+ 	skb_dma_addr = dma_map_single(ndev->dev.parent, skb->data,
+ 				      skb_headlen(skb), DMA_TO_DEVICE);
+ 	cur_p->len = cpu_to_be32(skb_headlen(skb));
+-	if (WARN_ON_ONCE(dma_mapping_error(ndev->dev.parent, skb_dma_addr)))
+-		return NETDEV_TX_BUSY;
++	if (WARN_ON_ONCE(dma_mapping_error(ndev->dev.parent, skb_dma_addr))) {
++		dev_kfree_skb_any(skb);
++		ndev->stats.tx_dropped++;
++		return NETDEV_TX_OK;
++	}
+ 	cur_p->phys = cpu_to_be32(skb_dma_addr);
+ 	ptr_to_txbd((void *)skb, cur_p);
+ 
+@@ -897,7 +901,9 @@ temac_start_xmit(struct sk_buff *skb, struct net_device *ndev)
+ 			dma_unmap_single(ndev->dev.parent,
+ 					 be32_to_cpu(cur_p->phys),
+ 					 skb_headlen(skb), DMA_TO_DEVICE);
+-			return NETDEV_TX_BUSY;
++			dev_kfree_skb_any(skb);
++			ndev->stats.tx_dropped++;
++			return NETDEV_TX_OK;
+ 		}
+ 		cur_p->phys = cpu_to_be32(skb_dma_addr);
+ 		cur_p->len = cpu_to_be32(skb_frag_size(frag));
+@@ -920,6 +926,17 @@ temac_start_xmit(struct sk_buff *skb, struct net_device *ndev)
+ 	return NETDEV_TX_OK;
+ }
+ 
++static int ll_temac_recv_buffers_available(struct temac_local *lp)
++{
++	int available;
++
++	if (!lp->rx_skb[lp->rx_bd_ci])
++		return 0;
++	available = 1 + lp->rx_bd_tail - lp->rx_bd_ci;
++	if (available <= 0)
++		available += RX_BD_NUM;
++	return available;
++}
+ 
+ static void ll_temac_recv(struct net_device *ndev)
+ {
+@@ -990,6 +1007,18 @@ static void ll_temac_recv(struct net_device *ndev)
+ 			lp->rx_bd_ci = 0;
+ 	} while (rx_bd != lp->rx_bd_tail);
+ 
++	/* DMA operations will halt when the last buffer descriptor is
++	 * processed (ie. the one pointed to by RX_TAILDESC_PTR).
++	 * When that happens, no more interrupt events will be
++	 * generated.  No IRQ_COAL or IRQ_DLY, and not even an
++	 * IRQ_ERR.  To avoid stalling, we schedule a delayed work
++	 * when there is a potential risk of that happening.  The work
++	 * will call this function, and thus re-schedule itself until
++	 * enough buffers are available again.
++	 */
++	if (ll_temac_recv_buffers_available(lp) < lp->coalesce_count_rx)
++		schedule_delayed_work(&lp->restart_work, HZ / 1000);
++
+ 	/* Allocate new buffers for those buffer descriptors that were
+ 	 * passed to network stack.  Note that GFP_ATOMIC allocations
+ 	 * can fail (e.g. when a larger burst of GFP_ATOMIC
+@@ -1045,6 +1074,18 @@ static void ll_temac_recv(struct net_device *ndev)
+ 	spin_unlock_irqrestore(&lp->rx_lock, flags);
+ }
+ 
++/* Function scheduled to ensure a restart in case of DMA halt
++ * condition caused by running out of buffer descriptors.
++ */
++static void ll_temac_restart_work_func(struct work_struct *work)
++{
++	struct temac_local *lp = container_of(work, struct temac_local,
++					      restart_work.work);
++	struct net_device *ndev = lp->ndev;
++
++	ll_temac_recv(ndev);
++}
++
+ static irqreturn_t ll_temac_tx_irq(int irq, void *_ndev)
+ {
+ 	struct net_device *ndev = _ndev;
+@@ -1137,6 +1178,8 @@ static int temac_stop(struct net_device *ndev)
+ 
+ 	dev_dbg(&ndev->dev, "temac_close()\n");
+ 
++	cancel_delayed_work_sync(&lp->restart_work);
++
+ 	free_irq(lp->tx_irq, ndev);
+ 	free_irq(lp->rx_irq, ndev);
+ 
+@@ -1269,6 +1312,7 @@ static int temac_probe(struct platform_device *pdev)
+ 	lp->dev = &pdev->dev;
+ 	lp->options = XTE_OPTION_DEFAULTS;
+ 	spin_lock_init(&lp->rx_lock);
++	INIT_DELAYED_WORK(&lp->restart_work, ll_temac_restart_work_func);
+ 
+ 	/* Setup mutex for synchronization of indirect register access */
+ 	if (pdata) {
+@@ -1375,6 +1419,7 @@ static int temac_probe(struct platform_device *pdev)
+ 		 */
+ 		lp->tx_chnl_ctrl = 0x10220000;
+ 		lp->rx_chnl_ctrl = 0xff070000;
++		lp->coalesce_count_rx = 0x07;
+ 
+ 		/* Finished with the DMA node; drop the reference */
+ 		of_node_put(dma_np);
+@@ -1406,11 +1451,14 @@ static int temac_probe(struct platform_device *pdev)
+ 				(pdata->tx_irq_count << 16);
+ 		else
+ 			lp->tx_chnl_ctrl = 0x10220000;
+-		if (pdata->rx_irq_timeout || pdata->rx_irq_count)
++		if (pdata->rx_irq_timeout || pdata->rx_irq_count) {
+ 			lp->rx_chnl_ctrl = (pdata->rx_irq_timeout << 24) |
+ 				(pdata->rx_irq_count << 16);
+-		else
++			lp->coalesce_count_rx = pdata->rx_irq_count;
++		} else {
+ 			lp->rx_chnl_ctrl = 0xff070000;
++			lp->coalesce_count_rx = 0x07;
++		}
+ 	}
+ 
+ 	/* Error handle returned DMA RX and TX interrupts */
 -- 
 2.20.1
 
