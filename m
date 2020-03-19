@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BCB6718B705
-	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:31:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3455118B71A
+	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:31:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729861AbgCSNU0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Mar 2020 09:20:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44386 "EHLO mail.kernel.org"
+        id S1728461AbgCSNSq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Mar 2020 09:18:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41350 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727572AbgCSNUZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Mar 2020 09:20:25 -0400
+        id S1729656AbgCSNSo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Mar 2020 09:18:44 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DEB00206D7;
-        Thu, 19 Mar 2020 13:20:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B3ED8206D7;
+        Thu, 19 Mar 2020 13:18:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584624025;
-        bh=tyQhYD7L0c6Qy7Pp19sm+Wi3FjaWbpivNpHwnNv5eh0=;
+        s=default; t=1584623924;
+        bh=/tnjJMgvLSGDranwiq8LtGIlbks4hqw1BrVjb+hbWMM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VI2G2q0c+ABjSHGyo0OvUXgV4BWblcVTqG5FvOiqzeAWi85v6IxMxZ0iELImQHHIH
-         CWgCPP3Q81igqWAtJ7Fc5HeXnOalllT9Qof3zopUPXyTvtMOptLURtWXtQG83RkPr1
-         ng0ZGEhyZAe6gezKZJpCZXPdMkKK0g7hUjUb7EM8=
+        b=HRrEqI/KLvHuqxzfMyViKrQcHtT6zMbbChLhQCJYTxYqT0GqRhVwFxPbZDrypcxf5
+         F+eQA52esb+GXpJUgbh0cZM+QsOXZs23ayTxDbWBtDftcmjVm3DCsTB6D/6MWUMtkC
+         aU3r266xpPqRJnxDA49Rncyl/NXAFhDrtJ5N73EE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sowjanya Komatineni <skomatineni@nvidia.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 07/48] mmc: core: Respect MMC_CAP_NEED_RSP_BUSY for eMMC sleep command
-Date:   Thu, 19 Mar 2020 14:03:49 +0100
-Message-Id: <20200319123905.533106814@linuxfoundation.org>
+        Matthias Schiffer <mschiffer@universe-factory.net>,
+        Sven Eckelmann <sven@narfation.org>,
+        Simon Wunderlich <sw@simonwunderlich.de>
+Subject: [PATCH 4.14 72/99] batman-adv: update data pointers after skb_cow()
+Date:   Thu, 19 Mar 2020 14:03:50 +0100
+Message-Id: <20200319124003.112213376@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.2
-In-Reply-To: <20200319123902.941451241@linuxfoundation.org>
-References: <20200319123902.941451241@linuxfoundation.org>
+In-Reply-To: <20200319123941.630731708@linuxfoundation.org>
+References: <20200319123941.630731708@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,50 +44,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ulf Hansson <ulf.hansson@linaro.org>
+From: Matthias Schiffer <mschiffer@universe-factory.net>
 
-[ Upstream commit 18d200460cd73636d4f20674085c39e32b4e0097 ]
+commit bc44b78157f621ff2a2618fe287a827bcb094ac4 upstream.
 
-The busy timeout for the CMD5 to put the eMMC into sleep state, is specific
-to the card. Potentially the timeout may exceed the host->max_busy_timeout.
-If that becomes the case, mmc_sleep() converts from using an R1B response
-to an R1 response, as to prevent the host from doing HW busy detection.
+batadv_check_unicast_ttvn() calls skb_cow(), so pointers into the SKB data
+must be (re)set after calling it. The ethhdr variable is dropped
+altogether.
 
-However, it has turned out that some hosts requires an R1B response no
-matter what, so let's respect that via checking MMC_CAP_NEED_RSP_BUSY. Note
-that, if the R1B gets enforced, the host becomes fully responsible of
-managing the needed busy timeout, in one way or the other.
-
-Suggested-by: Sowjanya Komatineni <skomatineni@nvidia.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200311092036.16084-1-ulf.hansson@linaro.org
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 7cdcf6dddc42 ("batman-adv: add UNICAST_4ADDR packet type")
+Signed-off-by: Matthias Schiffer <mschiffer@universe-factory.net>
+Signed-off-by: Sven Eckelmann <sven@narfation.org>
+Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mmc/core/mmc.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ net/batman-adv/routing.c |   10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/mmc/core/mmc.c b/drivers/mmc/core/mmc.c
-index f1fe446eee666..5ca53e225382d 100644
---- a/drivers/mmc/core/mmc.c
-+++ b/drivers/mmc/core/mmc.c
-@@ -1901,9 +1901,12 @@ static int mmc_sleep(struct mmc_host *host)
- 	 * If the max_busy_timeout of the host is specified, validate it against
- 	 * the sleep cmd timeout. A failure means we need to prevent the host
- 	 * from doing hw busy detection, which is done by converting to a R1
--	 * response instead of a R1B.
-+	 * response instead of a R1B. Note, some hosts requires R1B, which also
-+	 * means they are on their own when it comes to deal with the busy
-+	 * timeout.
- 	 */
--	if (host->max_busy_timeout && (timeout_ms > host->max_busy_timeout)) {
-+	if (!(host->caps & MMC_CAP_NEED_RSP_BUSY) && host->max_busy_timeout &&
-+	    (timeout_ms > host->max_busy_timeout)) {
- 		cmd.flags = MMC_RSP_R1 | MMC_CMD_AC;
- 	} else {
- 		cmd.flags = MMC_RSP_R1B | MMC_CMD_AC;
--- 
-2.20.1
-
+--- a/net/batman-adv/routing.c
++++ b/net/batman-adv/routing.c
+@@ -950,14 +950,10 @@ int batadv_recv_unicast_packet(struct sk
+ 	struct batadv_orig_node *orig_node = NULL, *orig_node_gw = NULL;
+ 	int check, hdr_size = sizeof(*unicast_packet);
+ 	enum batadv_subtype subtype;
+-	struct ethhdr *ethhdr;
+ 	int ret = NET_RX_DROP;
+ 	bool is4addr, is_gw;
+ 
+ 	unicast_packet = (struct batadv_unicast_packet *)skb->data;
+-	unicast_4addr_packet = (struct batadv_unicast_4addr_packet *)skb->data;
+-	ethhdr = eth_hdr(skb);
+-
+ 	is4addr = unicast_packet->packet_type == BATADV_UNICAST_4ADDR;
+ 	/* the caller function should have already pulled 2 bytes */
+ 	if (is4addr)
+@@ -977,12 +973,14 @@ int batadv_recv_unicast_packet(struct sk
+ 	if (!batadv_check_unicast_ttvn(bat_priv, skb, hdr_size))
+ 		goto free_skb;
+ 
++	unicast_packet = (struct batadv_unicast_packet *)skb->data;
++
+ 	/* packet for me */
+ 	if (batadv_is_my_mac(bat_priv, unicast_packet->dest)) {
+ 		/* If this is a unicast packet from another backgone gw,
+ 		 * drop it.
+ 		 */
+-		orig_addr_gw = ethhdr->h_source;
++		orig_addr_gw = eth_hdr(skb)->h_source;
+ 		orig_node_gw = batadv_orig_hash_find(bat_priv, orig_addr_gw);
+ 		if (orig_node_gw) {
+ 			is_gw = batadv_bla_is_backbone_gw(skb, orig_node_gw,
+@@ -997,6 +995,8 @@ int batadv_recv_unicast_packet(struct sk
+ 		}
+ 
+ 		if (is4addr) {
++			unicast_4addr_packet =
++				(struct batadv_unicast_4addr_packet *)skb->data;
+ 			subtype = unicast_4addr_packet->subtype;
+ 			batadv_dat_inc_counter(bat_priv, subtype);
+ 
 
 
