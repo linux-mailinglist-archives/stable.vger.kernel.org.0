@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3EFC318B586
-	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:19:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7ABF118B656
+	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:26:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729879AbgCSNT0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Mar 2020 09:19:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42626 "EHLO mail.kernel.org"
+        id S1730694AbgCSNZ5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Mar 2020 09:25:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53688 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729876AbgCSNTZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Mar 2020 09:19:25 -0400
+        id S1730701AbgCSNZy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Mar 2020 09:25:54 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3654421556;
-        Thu, 19 Mar 2020 13:19:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 095912080C;
+        Thu, 19 Mar 2020 13:25:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584623964;
-        bh=DS4d0xy1Khr+6R+77xJv4V21rN4lNRAPhTHaX8q9uow=;
+        s=default; t=1584624353;
+        bh=qeSR8s+xjYKgRtoXDhAo+RN2PMmTP5CX+CKt41Yu3xQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OabFKhy2e3IqDSCIIXVFHgA5cdu813O1IifXtrjNgOhlFWRYLPXtgxzjYABaAotLm
-         0vWzqN43zdnt6A5u8zndOTIQPuUdVDSc4aDHTFRWseIv09z1Zl0+kRJjose6QIVznq
-         VkRLKe2LtIxgUWnvM31Fk978gXp3ha9HHblSCMM8=
+        b=oVVEtO/oWhL0+3XAd7G8LjHxZPicOF1Q5smcJGMq1tlf6WFmq4CnBj0tq+W1cTpB+
+         g6vE1egu07fCd8/EFmIDu0bQ6ikc4BURaaQ8Xe1DfRuNR1fJP1eNSd9RbO+4MNiQT9
+         fMiZwnXpfBFJaALTen1H46U98MV84bBtMxA/a2L8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
+        stable@vger.kernel.org, Paul Burton <paulburton@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 13/48] cfg80211: check reg_rule for NULL in handle_channel_custom()
-Date:   Thu, 19 Mar 2020 14:03:55 +0100
-Message-Id: <20200319123907.202125149@linuxfoundation.org>
+Subject: [PATCH 5.5 14/65] MIPS: Disable VDSO time functionality on microMIPS
+Date:   Thu, 19 Mar 2020 14:03:56 +0100
+Message-Id: <20200319123930.951581514@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.2
-In-Reply-To: <20200319123902.941451241@linuxfoundation.org>
-References: <20200319123902.941451241@linuxfoundation.org>
+In-Reply-To: <20200319123926.466988514@linuxfoundation.org>
+References: <20200319123926.466988514@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,35 +43,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Paul Burton <paulburton@kernel.org>
 
-[ Upstream commit a7ee7d44b57c9ae174088e53a668852b7f4f452d ]
+[ Upstream commit 07015d7a103c4420b69a287b8ef4d2535c0f4106 ]
 
-We may end up with a NULL reg_rule after the loop in
-handle_channel_custom() if the bandwidth didn't fit,
-check if this is the case and bail out if so.
+A check we're about to add to pick up on function calls that depend on
+bogus use of the GOT in the VDSO picked up on instances of such function
+calls in microMIPS builds. Since the code appears genuinely problematic,
+and given the relatively small amount of use & testing that microMIPS
+sees, go ahead & disable the VDSO for microMIPS builds.
 
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Link: https://lore.kernel.org/r/20200221104449.3b558a50201c.I4ad3725c4dacaefd2d18d3cc65ba6d18acd5dbfe@changeid
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Paul Burton <paulburton@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/wireless/reg.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/mips/vdso/Makefile | 19 +++++++++++++++++--
+ 1 file changed, 17 insertions(+), 2 deletions(-)
 
-diff --git a/net/wireless/reg.c b/net/wireless/reg.c
-index 018c60be153a7..32f575857e415 100644
---- a/net/wireless/reg.c
-+++ b/net/wireless/reg.c
-@@ -2269,7 +2269,7 @@ static void handle_channel_custom(struct wiphy *wiphy,
- 			break;
- 	}
+diff --git a/arch/mips/vdso/Makefile b/arch/mips/vdso/Makefile
+index 96afd73c94e8a..e8585a22b925c 100644
+--- a/arch/mips/vdso/Makefile
++++ b/arch/mips/vdso/Makefile
+@@ -48,6 +48,8 @@ endif
  
--	if (IS_ERR(reg_rule)) {
-+	if (IS_ERR_OR_NULL(reg_rule)) {
- 		pr_debug("Disabling freq %d MHz as custom regd has no rule that fits it\n",
- 			 chan->center_freq);
- 		if (wiphy->regulatory_flags & REGULATORY_WIPHY_SELF_MANAGED) {
+ CFLAGS_REMOVE_vgettimeofday.o = -pg
+ 
++DISABLE_VDSO := n
++
+ #
+ # For the pre-R6 code in arch/mips/vdso/vdso.h for locating
+ # the base address of VDSO, the linker will emit a R_MIPS_PC32
+@@ -61,11 +63,24 @@ CFLAGS_REMOVE_vgettimeofday.o = -pg
+ ifndef CONFIG_CPU_MIPSR6
+   ifeq ($(call ld-ifversion, -lt, 225000000, y),y)
+     $(warning MIPS VDSO requires binutils >= 2.25)
+-    obj-vdso-y := $(filter-out vgettimeofday.o, $(obj-vdso-y))
+-    ccflags-vdso += -DDISABLE_MIPS_VDSO
++    DISABLE_VDSO := y
+   endif
+ endif
+ 
++#
++# GCC (at least up to version 9.2) appears to emit function calls that make use
++# of the GOT when targeting microMIPS, which we can't use in the VDSO due to
++# the lack of relocations. As such, we disable the VDSO for microMIPS builds.
++#
++ifdef CONFIG_CPU_MICROMIPS
++  DISABLE_VDSO := y
++endif
++
++ifeq ($(DISABLE_VDSO),y)
++  obj-vdso-y := $(filter-out vgettimeofday.o, $(obj-vdso-y))
++  ccflags-vdso += -DDISABLE_MIPS_VDSO
++endif
++
+ # VDSO linker flags.
+ VDSO_LDFLAGS := \
+ 	-Wl,-Bsymbolic -Wl,--no-undefined -Wl,-soname=linux-vdso.so.1 \
 -- 
 2.20.1
 
