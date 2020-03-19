@@ -2,134 +2,126 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 876AE18C2AC
-	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 23:00:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6711818C2EF
+	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 23:23:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727257AbgCSWAD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Mar 2020 18:00:03 -0400
-Received: from mail-lj1-f194.google.com ([209.85.208.194]:41135 "EHLO
-        mail-lj1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727364AbgCSWAB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 19 Mar 2020 18:00:01 -0400
-Received: by mail-lj1-f194.google.com with SMTP id o10so4297483ljc.8
-        for <stable@vger.kernel.org>; Thu, 19 Mar 2020 15:00:00 -0700 (PDT)
+        id S1725895AbgCSWXu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Mar 2020 18:23:50 -0400
+Received: from mail-lj1-f193.google.com ([209.85.208.193]:37686 "EHLO
+        mail-lj1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727213AbgCSWXt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 19 Mar 2020 18:23:49 -0400
+Received: by mail-lj1-f193.google.com with SMTP id r24so4389194ljd.4
+        for <stable@vger.kernel.org>; Thu, 19 Mar 2020 15:23:46 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=bFyweR87uAdOCEm7xTt713Fc3fncIqKRE+WME6iIOUQ=;
-        b=wNxfuBN+7i3FIFSSR1i3rpA6HWWmv8GltC1J1EWA+g3Mbs1rYEmbYjOh2ytAgr9MvE
-         jBRbMwjZ53gpokr8kRh+j+52ZzA97tBAJGdkzOvUYLOSJ9rXlP9iU3q1VbgbKqjCmQkZ
-         lt3Df891zgxMh58yZRq13rSLtD3p2EIFvuZdmkLwUmvl4cgJ5BjpT4M4fsEcMGQc0NRf
-         Nv+hlYMAsCWQBbz28x54jeMUGktjTkHYBmALTfRyyMolY/UfHZCnGuV2lePrAIgCfUCD
-         xem0d0w8KR5Q/9DRuz4Edu8Q8a4yaBBFtR4hjR2PPnpBcvkeZCieSoQ3PfxnHYxgzn9A
-         V/Ug==
+         :cc;
+        bh=WJ6MzhtWalH0hDBYxWzZFJvnUo/A0DOitGKj0UfdYo8=;
+        b=XBqh7pWnTmUlqQohZOg/HeJr0gQHAIeXOwQCGzJ5OwLz0JntySiWzUQk/bbyBsqGm9
+         AOagPLaBdiW1PMwWYNG62+YPygcjxUIjKZCSAWI7Y+gXGQmEpDRx5s4L6A86L4QjzPhm
+         g1WliO6jBKgCaK0bZjyFPxJo1T1kZceLM4t/lRH12iiIppbgjzQ3iyFeIrW4qK58Nko5
+         lbNS0FS7GU3iUIH68IUAikInyw3mSaCNwFQaUwVoTXF/SPEBXD79mERRqpVxClHgzlbO
+         LuBZhWaZGVlUhSTRyD/NNbgZlWYzqDYTxbQym6CawlmhMV6GI3Nb15UmNwRMlI/s0Tib
+         EF6w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=bFyweR87uAdOCEm7xTt713Fc3fncIqKRE+WME6iIOUQ=;
-        b=lF/Qja5hZqLAz37Pq3JsgmjSw8HFYv/hzRK+A5W3hm5Pn+0hQCS38tIQt4oaQEbvC+
-         UvQAta0S9kFK1kHiFrSe7N3KFDZsk7hAGQdGg0PIp95A9AyHGiKAQXI9oz5+RAXQ43zB
-         bVktwDp4pZWVVcBo8u0LOFqmAaolLxsiOL+2T1BaXIkDyWI9q931hTNI+IkVwIuPtTFS
-         bFdqa5wlpAlvWyMSx5VmyJeIwN7gxXRxu3p1s4H+oaK7IjG0eSox3F2uJONm7TCasT42
-         v8gB2kb4yyXULFsRt46fakI3oA4t/tBeuCR1fWvWhzHDDR6bXr4G0Wu8jzLV9L/1rHJ/
-         6s2Q==
-X-Gm-Message-State: ANhLgQ1c87nkt1YJDnLsLjthsOUcaDel0AkAkFOh2ssMUBob/+f+0sDJ
-        To/pYZTyvaCG24rJhwCudgbXQUmL+kwCspy/BVPrNQ==
-X-Google-Smtp-Source: ADFU+vu2sZ8HBWaMW/pSwoQOgl3ony6LuKicMRC7Nv865ID8NDs7KA1Je3JT/K2aJsYsD49MnLSl0pe9P8Y3jyoY/7g=
-X-Received: by 2002:a2e:990b:: with SMTP id v11mr3513597lji.243.1584655199510;
- Thu, 19 Mar 2020 14:59:59 -0700 (PDT)
+         :message-id:subject:to:cc;
+        bh=WJ6MzhtWalH0hDBYxWzZFJvnUo/A0DOitGKj0UfdYo8=;
+        b=negUfBgwzk5xcuAoaU/XwAS071SgcHtP5/zN1//KpEm3ezLexKlr9BoglyMkZkKg0t
+         0SMRZ8lnaWQuzAISmyfAB0Caan8LFknjYdPCmhmD1s7zovF9Zr5ZANGqt57I2xO+h4xf
+         zXEceHk1FRG9V75HGkmWuxFVVZ6JrqzUuehtuIN9BwUeBusQKCpVZiGqQOnxfwNZsl8h
+         zq0Hwe/ifq2uHHwO6gXBuZ0JvOEkxJSVRxyQJxMinePeSN+XjlQEwcGJCQvRHkKX/5Y5
+         fScR4P7uZ7lskBpMcrbivHWMs/FFUiFdpma5+yqvvbyu+oEYMs68AfaJnLWfzNrqRmt0
+         s+Rg==
+X-Gm-Message-State: ANhLgQ1mCfCe20aICZfeGfsMUZ04GuG8psVS/AIfMpd6l2pSbgNt9cFW
+        M3+ekixdckqCqjoKoWLJzcQvCI6hZGsWspkY4jeJ+g==
+X-Google-Smtp-Source: ADFU+vsNGI4DJxjB5f7C7tgGloRNRzSoDi/T/uXs4OR8cIg4QaTNXgqQeL/rC2Yz+GqKJZUSlth8pWewRRKx9U7JH3M=
+X-Received: by 2002:a05:651c:1026:: with SMTP id w6mr3408670ljm.168.1584656625715;
+ Thu, 19 Mar 2020 15:23:45 -0700 (PDT)
 MIME-Version: 1.0
-References: <20200319123919.441695203@linuxfoundation.org>
-In-Reply-To: <20200319123919.441695203@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Fri, 20 Mar 2020 03:29:47 +0530
-Message-ID: <CA+G9fYvLC7xBuULxhG9yRi+EbUqmQjnS0X+0j-vGpX6XPVskOg@mail.gmail.com>
-Subject: Re: [PATCH 5.4 00/60] 5.4.27-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>,
-        lkft-triage@lists.linaro.org,
-        linux- stable <stable@vger.kernel.org>,
-        Jann Horn <jannh@google.com>,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        Arnd Bergmann <arnd@arndb.de>
+References: <20200317113153.7945-1-linus.walleij@linaro.org>
+ <CAFEAcA9mXE+gPnvM6HZ-w0+BhbpeuH=osFH-9NUzCLv=w-c7HQ@mail.gmail.com>
+ <CACRpkdZtLNUwiZEMiJEoB0ojOBckyGcZeyFkR6MC69qv-ry9EA@mail.gmail.com> <CAFEAcA-gdwi=KSW6LqVdEJWSo9VEL5abYQs9LoHd4mKE_-h=Aw@mail.gmail.com>
+In-Reply-To: <CAFEAcA-gdwi=KSW6LqVdEJWSo9VEL5abYQs9LoHd4mKE_-h=Aw@mail.gmail.com>
+From:   Linus Walleij <linus.walleij@linaro.org>
+Date:   Thu, 19 Mar 2020 23:23:33 +0100
+Message-ID: <CACRpkdYuZgZUznVxt1AHCSJa_GAXy8N0SduE5OrjDnE1s_L7Zg@mail.gmail.com>
+Subject: Re: [PATCH] ext4: Give 32bit personalities 32bit hashes
+To:     Peter Maydell <peter.maydell@linaro.org>
+Cc:     "Suzuki K. Poulose" <suzuki.poulose@arm.com>,
+        "Theodore Ts'o" <tytso@mit.edu>,
+        Andreas Dilger <adilger.kernel@dilger.ca>,
+        Ext4 Developers List <linux-ext4@vger.kernel.org>,
+        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+        Linux API <linux-api@vger.kernel.org>,
+        QEMU Developers <qemu-devel@nongnu.org>,
+        Florian Weimer <fw@deneb.enyo.de>,
+        Andy Lutomirski <luto@kernel.org>,
+        stable <stable@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 19 Mar 2020 at 18:52, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
+On Thu, Mar 19, 2020 at 4:25 PM Peter Maydell <peter.maydell@linaro.org> wrote:
+> On Thu, 19 Mar 2020 at 15:13, Linus Walleij <linus.walleij@linaro.org> wrote:
+> > On Tue, Mar 17, 2020 at 12:58 PM Peter Maydell <peter.maydell@linaro.org> wrote:
+> > > What in particular does this personality setting affect?
+> > > My copy of the personality(2) manpage just says:
+> > >
+> > >        PER_LINUX32 (since Linux 2.2)
+> > >               [To be documented.]
+> > >
+> > > which isn't very informative.
+> >
+> > It's not a POSIX thing (not part of the Single Unix Specification)
+> > so as with most Linux things it has some fuzzy semantics
+> > defined by the community...
+> >
+> > I usually just go to the source.
 >
-> This is the start of the stable review cycle for the 5.4.27 release.
-> There are 60 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Sat, 21 Mar 2020 12:37:04 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
-5.4.27-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-5.4.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+> If we're going to decide that this is the way to say
+> "give me 32-bit semantics" we need to actually document
+> that and define in at least broad terms what we mean
+> by it, so that when new things are added that might or
+> might not check against the setting there is a reference
+> defining whether they should or not, and so that
+> userspace knows what it's opting into by setting the flag.
+> The kernel loves undocumented APIs but userspace
+> consumers of them are not so enamoured :-)
 
-Results from Linaro=E2=80=99s test farm.
-This regression is platform specific.
+OK I guess we can at least take this opportunity to add
+some kerneldoc to the include file.
 
-On arm64 dragonboard 410c-QC410E* the LT hugemmap05 and
-hackbench test cases started failing on this build and easy to reproduce.
-Where as on other arm64 platforms (juno-r2, nxp-ls2088) these test PASS.
+> As a concrete example, should "give me 32-bit semantics
+> via PER_LINUX32" mean "mmap should always return addresses
+> within 4GB" ? That would seem like it would make sense --
 
-These two test case scenario run on independent execution.
+Incidentally that thing in particular has its own personality
+flag (personalities are additive, it's a bit schizophrenic)
+so PER_LINUX_32BIT is defined as:
+PER_LINUX_32BIT =       0x0000 | ADDR_LIMIT_32BIT,
+and that is specifically for limiting the address space to
+32bit.
 
-Steps to reproduce,
-cd /opt/ltp
-./runltp -s hugemmap05
+There is also PER_LINUX32_3GB for a 3GB lowmem
+limit.
 
-cd /opt/ltp/testcases/bin
-./hackbench 50 process 1000
-./hackbench 20 thread 1000
+Since the personality is kind of additive, if
+we want a flag *specifically* for indicating that we want
+32bit hashes from the file system, there are bits left so we
+can provide that.
 
-Test output log:
---------------------
-hugemmap05.c:89: BROK: mmap((nil),402653184,3,1,6,0) failed: ENOMEM (12)
-tst_safe_sysv_ipc.c:99: BROK: hugemmap05.c:85: shmget(218431587,
-402653184, b80) failed: ENOMEM (12)
+Is this what we want to do? I just think we shouldn't
+decide on that lightly as we will be using up personality
+bug bits, but sometimes you have to use them.
 
-Running with 50*40 (=3D=3D 2000) tasks.
-fork() (error: Resource temporarily unavailable)
-Running with 20*40 (=3D=3D 800) tasks.
-pthread_create failed: Resource temporarily unavailable (11)
+PER_LINUX32 as it stands means 32bit personality
+but very specifically does not include memory range
+limitations since that has its own flags.
 
-
-*
-RAM: 1GB LPDDR3 SDRAM @ 533MHz
-CPU: ARM Cortex-A53 Quad-core up to 1.2 GHz per core
-
-https://qa-reports.linaro.org/lkft/linux-stable-rc-5.4-oe/tests/ltp-hugetlb=
--tests/hugemmap05
-https://qa-reports.linaro.org/lkft/linux-stable-rc-5.4-oe/tests/ltp-sched-t=
-ests/hackbench01
-https://qa-reports.linaro.org/lkft/linux-stable-rc-5.4-oe/tests/ltp-sched-t=
-ests/hackbench02
-
-
---
-Linaro LKFT
-https://lkft.linaro.org
+Yours,
+Linus Walleij
