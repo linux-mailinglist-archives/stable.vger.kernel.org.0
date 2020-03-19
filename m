@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 51FE518B4C9
-	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:12:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B9A9018B459
+	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:09:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728068AbgCSNMf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Mar 2020 09:12:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58622 "EHLO mail.kernel.org"
+        id S1728230AbgCSNI7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Mar 2020 09:08:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53228 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728139AbgCSNMe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Mar 2020 09:12:34 -0400
+        id S1728224AbgCSNI4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Mar 2020 09:08:56 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3D38120722;
-        Thu, 19 Mar 2020 13:12:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5567921556;
+        Thu, 19 Mar 2020 13:08:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584623553;
-        bh=csitL2Xpssuu+uKTP5slHz0JgrQBk3uGJtTZwvEE+dc=;
+        s=default; t=1584623335;
+        bh=FLNZRGavuMkuz4zrSVjLbDm5kBxmn7YKEXtrqgJr8dI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xMqaRr1bdfDte1xmE3KocU4EJDjl7oqvtTVfwNOPXfPD+0D6LMguE+ptpl/+2/0V5
-         yRNn+ulHB4IYYKzjonyzlIm9/5Jk8LbYHik1U1nXA0ZIMlgBYozabncYk32yZkzlY+
-         LmjTG0AygvxGTPkKQzRdLYFN/8j+KwM9Gc2iz16A=
+        b=qnYUDTbzMcVgMcsne/bLvffpskUNBce6q5fWTQvP30STpQN6/dfh3DfQnT1IEV9kg
+         WT96ZEUUNjJYUDD3b3hMjmIVWixsqCxBXv34JK874ENT2Y7VryV9ecMaxiAlkVLl83
+         ZuPEGwIXMAxsVzyFU/7j2aE8qULKHkEG8Y0EIkEk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        John Soros <sorosj@gmail.com>,
-        Sven Eckelmann <sven@narfation.org>,
-        Simon Wunderlich <sw@simonwunderlich.de>
-Subject: [PATCH 4.9 66/90] batman-adv: Fix debugfs path for renamed hardif
-Date:   Thu, 19 Mar 2020 14:00:28 +0100
-Message-Id: <20200319123948.987349971@linuxfoundation.org>
+        stable@vger.kernel.org, Kim Phillips <kim.phillips@amd.com>,
+        Borislav Petkov <bp@suse.de>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 86/93] perf/amd/uncore: Replace manual sampling check with CAP_NO_INTERRUPT flag
+Date:   Thu, 19 Mar 2020 14:00:30 +0100
+Message-Id: <20200319123951.693318722@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.2
-In-Reply-To: <20200319123928.635114118@linuxfoundation.org>
-References: <20200319123928.635114118@linuxfoundation.org>
+In-Reply-To: <20200319123924.795019515@linuxfoundation.org>
+References: <20200319123924.795019515@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,110 +45,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sven Eckelmann <sven@narfation.org>
+From: Kim Phillips <kim.phillips@amd.com>
 
-commit 36dc621ceca1be3ec885aeade5fdafbbcc452a6d upstream.
+[ Upstream commit f967140dfb7442e2db0868b03b961f9c59418a1b ]
 
-batman-adv is creating special debugfs directories in the init
-net_namespace for each valid hard-interface (net_device). But it is
-possible to rename a net_device to a completely different name then the
-original one.
+Enable the sampling check in kernel/events/core.c::perf_event_open(),
+which returns the more appropriate -EOPNOTSUPP.
 
-It can therefore happen that a user registers a new net_device which gets
-the name "wlan0" assigned by default. batman-adv is also adding a new
-directory under $debugfs/batman-adv/ with the name "wlan0".
+BEFORE:
 
-The user then decides to rename this device to "wl_pri" and registers a
-different device. The kernel may now decide to use the name "wlan0" again
-for this new device. batman-adv will detect it as a valid net_device and
-tries to create a directory with the name "wlan0" under
-$debugfs/batman-adv/. But there already exists one with this name under
-this path and thus this fails. batman-adv will detect a problem and
-rollback the registering of this device.
+  $ sudo perf record -a -e instructions,l3_request_g1.caching_l3_cache_accesses true
+  Error:
+  The sys_perf_event_open() syscall returned with 22 (Invalid argument) for event (l3_request_g1.caching_l3_cache_accesses).
+  /bin/dmesg | grep -i perf may provide additional information.
 
-batman-adv must therefore take care of renaming the debugfs directories
-for hard-interfaces whenever it detects such a net_device rename.
+With nothing relevant in dmesg.
 
-Fixes: 5bc7c1eb44f2 ("batman-adv: add debugfs structure for information per interface")
-Reported-by: John Soros <sorosj@gmail.com>
-Signed-off-by: Sven Eckelmann <sven@narfation.org>
-Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+AFTER:
+
+  $ sudo perf record -a -e instructions,l3_request_g1.caching_l3_cache_accesses true
+  Error:
+  l3_request_g1.caching_l3_cache_accesses: PMU Hardware doesn't support sampling/overflow-interrupts. Try 'perf stat'
+
+Fixes: c43ca5091a37 ("perf/x86/amd: Add support for AMD NB and L2I "uncore" counters")
+Signed-off-by: Kim Phillips <kim.phillips@amd.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Acked-by: Peter Zijlstra <peterz@infradead.org>
+Cc: stable@vger.kernel.org
+Link: https://lkml.kernel.org/r/20200311191323.13124-1-kim.phillips@amd.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/batman-adv/debugfs.c        |   20 ++++++++++++++++++++
- net/batman-adv/debugfs.h        |    6 ++++++
- net/batman-adv/hard-interface.c |    3 +++
- 3 files changed, 29 insertions(+)
+ arch/x86/kernel/cpu/perf_event_amd_uncore.c | 16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
---- a/net/batman-adv/debugfs.c
-+++ b/net/batman-adv/debugfs.c
-@@ -18,6 +18,7 @@
- #include "debugfs.h"
- #include "main.h"
+diff --git a/arch/x86/kernel/cpu/perf_event_amd_uncore.c b/arch/x86/kernel/cpu/perf_event_amd_uncore.c
+index 49742746a6c96..98e786a779fd0 100644
+--- a/arch/x86/kernel/cpu/perf_event_amd_uncore.c
++++ b/arch/x86/kernel/cpu/perf_event_amd_uncore.c
+@@ -181,21 +181,19 @@ static int amd_uncore_event_init(struct perf_event *event)
+ 		return -ENOENT;
  
-+#include <linux/dcache.h>
- #include <linux/debugfs.h>
- #include <linux/device.h>
- #include <linux/errno.h>
-@@ -340,6 +341,25 @@ out:
- }
+ 	/*
+-	 * NB and L2 counters (MSRs) are shared across all cores that share the
+-	 * same NB / L2 cache. Interrupts can be directed to a single target
+-	 * core, however, event counts generated by processes running on other
+-	 * cores cannot be masked out. So we do not support sampling and
+-	 * per-thread events.
++	 * NB and Last level cache counters (MSRs) are shared across all cores
++	 * that share the same NB / Last level cache.  On family 16h and below,
++	 * Interrupts can be directed to a single target core, however, event
++	 * counts generated by processes running on other cores cannot be masked
++	 * out. So we do not support sampling and per-thread events via
++	 * CAP_NO_INTERRUPT, and we do not enable counter overflow interrupts:
+ 	 */
+-	if (is_sampling_event(event) || event->attach_state & PERF_ATTACH_TASK)
+-		return -EINVAL;
  
- /**
-+ * batadv_debugfs_rename_hardif() - Fix debugfs path for renamed hardif
-+ * @hard_iface: hard interface which was renamed
-+ */
-+void batadv_debugfs_rename_hardif(struct batadv_hard_iface *hard_iface)
-+{
-+	const char *name = hard_iface->net_dev->name;
-+	struct dentry *dir;
-+	struct dentry *d;
-+
-+	dir = hard_iface->debug_dir;
-+	if (!dir)
-+		return;
-+
-+	d = debugfs_rename(dir->d_parent, dir, dir->d_parent, name);
-+	if (!d)
-+		pr_err("Can't rename debugfs dir to %s\n", name);
-+}
-+
-+/**
-  * batadv_debugfs_del_hardif - delete the base directory for a hard interface
-  *  in debugfs.
-  * @hard_iface: hard interface which is deleted.
---- a/net/batman-adv/debugfs.h
-+++ b/net/batman-adv/debugfs.h
-@@ -31,6 +31,7 @@ void batadv_debugfs_destroy(void);
- int batadv_debugfs_add_meshif(struct net_device *dev);
- void batadv_debugfs_del_meshif(struct net_device *dev);
- int batadv_debugfs_add_hardif(struct batadv_hard_iface *hard_iface);
-+void batadv_debugfs_rename_hardif(struct batadv_hard_iface *hard_iface);
- void batadv_debugfs_del_hardif(struct batadv_hard_iface *hard_iface);
+ 	/* NB and L2 counters do not have usr/os/guest/host bits */
+ 	if (event->attr.exclude_user || event->attr.exclude_kernel ||
+ 	    event->attr.exclude_host || event->attr.exclude_guest)
+ 		return -EINVAL;
  
- #else
-@@ -59,6 +60,11 @@ int batadv_debugfs_add_hardif(struct bat
- }
+-	/* and we do not enable counter overflow interrupts */
+ 	hwc->config = event->attr.config & AMD64_RAW_EVENT_MASK_NB;
+ 	hwc->idx = -1;
  
- static inline
-+void batadv_debugfs_rename_hardif(struct batadv_hard_iface *hard_iface)
-+{
-+}
-+
-+static inline
- void batadv_debugfs_del_hardif(struct batadv_hard_iface *hard_iface)
- {
- }
---- a/net/batman-adv/hard-interface.c
-+++ b/net/batman-adv/hard-interface.c
-@@ -812,6 +812,9 @@ static int batadv_hard_if_event(struct n
- 		if (hard_iface == primary_if)
- 			batadv_primary_if_update_addr(bat_priv, NULL);
- 		break;
-+	case NETDEV_CHANGENAME:
-+		batadv_debugfs_rename_hardif(hard_iface);
-+		break;
- 	default:
- 		break;
- 	}
+@@ -271,6 +269,7 @@ static struct pmu amd_nb_pmu = {
+ 	.start		= amd_uncore_start,
+ 	.stop		= amd_uncore_stop,
+ 	.read		= amd_uncore_read,
++	.capabilities	= PERF_PMU_CAP_NO_INTERRUPT,
+ };
+ 
+ static struct pmu amd_l2_pmu = {
+@@ -282,6 +281,7 @@ static struct pmu amd_l2_pmu = {
+ 	.start		= amd_uncore_start,
+ 	.stop		= amd_uncore_stop,
+ 	.read		= amd_uncore_read,
++	.capabilities	= PERF_PMU_CAP_NO_INTERRUPT,
+ };
+ 
+ static struct amd_uncore *amd_uncore_alloc(unsigned int cpu)
+-- 
+2.20.1
+
 
 
