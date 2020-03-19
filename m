@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F389018B650
-	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:25:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D1EB18B5DB
+	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:22:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730680AbgCSNZq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Mar 2020 09:25:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53474 "EHLO mail.kernel.org"
+        id S1730056AbgCSNWJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Mar 2020 09:22:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47148 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730678AbgCSNZq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Mar 2020 09:25:46 -0400
+        id S1729778AbgCSNWI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Mar 2020 09:22:08 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4BA3C2080C;
-        Thu, 19 Mar 2020 13:25:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BE71E208D6;
+        Thu, 19 Mar 2020 13:22:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584624344;
-        bh=WCE4+VYZhrwFUZKCCcqJqUTgAjKlW0Go2G+/HwLWmO4=;
+        s=default; t=1584624127;
+        bh=q1ZJfqZkpoH40GqRMjB4mYTdZMps4c9CnvYPqZJ7INI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sEQry4LTZbBpP84r9eMQyQzlA3lZipjQJTzWgysMzVgD7wP7UeV5m0fT9aJm5yMFS
-         Vw4utiKazRwC2WfZbhS3GyuASSEu5MTVIQFRAPKaMDwj/rk5rxNkY2UZ4fNeUKVLCy
-         uRIc+p99Q4EYoiikeZHBFvlW3PslInvo7DqwzArc=
+        b=tbI5v9DDcEhtYaRq21+3L/HA4G4zaeJbTpRgJmtSzjLZxAwcBiD+QOeufbdWu6D8y
+         QV9buRFBq28KIvwgZRPGw+YjeSNEm/S6GUrGPItSslgsEAZLWNCWubU166owBpyxXt
+         X5Xde+U1tjCeQYo1M/FbyZ2rFnphv4Gf6wyGhDtw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jean Delvare <jdelvare@suse.de>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        stable@vger.kernel.org, Victor Kamensky <kamensky@cisco.com>,
+        Paul Burton <paulburton@kernel.org>,
+        linux-mips@vger.kernel.org, Ralf Baechle <ralf@linux-mips.org>,
+        James Hogan <jhogan@kernel.org>,
+        Vincenzo Frascino <vincenzo.frascino@arm.com>,
+        bruce.ashfield@gmail.com, richard.purdie@linuxfoundation.org,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 11/65] ACPI: watchdog: Set default timeout in probe
-Date:   Thu, 19 Mar 2020 14:03:53 +0100
-Message-Id: <20200319123929.806674971@linuxfoundation.org>
+Subject: [PATCH 5.4 16/60] mips: vdso: add build time check that no jalr t9 calls left
+Date:   Thu, 19 Mar 2020 14:03:54 +0100
+Message-Id: <20200319123924.238277162@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.2
-In-Reply-To: <20200319123926.466988514@linuxfoundation.org>
-References: <20200319123926.466988514@linuxfoundation.org>
+In-Reply-To: <20200319123919.441695203@linuxfoundation.org>
+References: <20200319123919.441695203@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,66 +48,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
+From: Victor Kamensky <kamensky@cisco.com>
 
-[ Upstream commit cabe17d0173ab04bd3f87b8199ae75f43f1ea473 ]
+[ Upstream commit 976c23af3ee5bd3447a7bfb6c356ceb4acf264a6 ]
 
-If the BIOS default timeout for the watchdog is too small userspace may
-not have enough time to configure new timeout after opening the device
-before the system is already reset. For this reason program default
-timeout of 30 seconds in the driver probe and allow userspace to change
-this from command line or through module parameter (wdat_wdt.timeout).
+vdso shared object cannot have GOT based PIC 'jalr t9' calls
+because nobody set GOT table in vdso. Contributing into vdso
+.o files are compiled in PIC mode and as result for internal
+static functions calls compiler will generate 'jalr t9'
+instructions. Those are supposed to be converted into PC
+relative 'bal' calls by linker when relocation are processed.
 
-Reported-by: Jean Delvare <jdelvare@suse.de>
-Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-Reviewed-by: Jean Delvare <jdelvare@suse.de>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Mips global GOT entries do have dynamic relocations and they
+will be caught by cmd_vdso_check Makefile rule. Static PIC
+calls go through mips local GOT entries that do not have
+dynamic relocations. For those 'jalr t9' calls could be present
+but without dynamic relocations and they need to be converted
+to 'bal' calls by linker.
+
+Add additional build time check to make sure that no 'jalr t9'
+slip through because of some toolchain misconfiguration that
+prevents 'jalr t9' to 'bal' conversion.
+
+Signed-off-by: Victor Kamensky <kamensky@cisco.com>
+Signed-off-by: Paul Burton <paulburton@kernel.org>
+Cc: linux-mips@vger.kernel.org
+Cc: Ralf Baechle <ralf@linux-mips.org>
+Cc: James Hogan <jhogan@kernel.org>
+Cc: Vincenzo Frascino <vincenzo.frascino@arm.com>
+Cc: bruce.ashfield@gmail.com
+Cc: richard.purdie@linuxfoundation.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/watchdog/wdat_wdt.c | 23 +++++++++++++++++++++++
- 1 file changed, 23 insertions(+)
+ arch/mips/vdso/Makefile | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/watchdog/wdat_wdt.c b/drivers/watchdog/wdat_wdt.c
-index e1b1fcfc02af8..3065dd670a182 100644
---- a/drivers/watchdog/wdat_wdt.c
-+++ b/drivers/watchdog/wdat_wdt.c
-@@ -54,6 +54,13 @@ module_param(nowayout, bool, 0);
- MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default="
- 		 __MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
+diff --git a/arch/mips/vdso/Makefile b/arch/mips/vdso/Makefile
+index b6b1eb638fb14..08c835d48520b 100644
+--- a/arch/mips/vdso/Makefile
++++ b/arch/mips/vdso/Makefile
+@@ -92,12 +92,18 @@ CFLAGS_REMOVE_vdso.o = -pg
+ GCOV_PROFILE := n
+ UBSAN_SANITIZE := n
  
-+#define WDAT_DEFAULT_TIMEOUT	30
++# Check that we don't have PIC 'jalr t9' calls left
++quiet_cmd_vdso_mips_check = VDSOCHK $@
++      cmd_vdso_mips_check = if $(OBJDUMP) --disassemble $@ | egrep -h "jalr.*t9" > /dev/null; \
++		       then (echo >&2 "$@: PIC 'jalr t9' calls are not supported"; \
++			     rm -f $@; /bin/false); fi
 +
-+static int timeout = WDAT_DEFAULT_TIMEOUT;
-+module_param(timeout, int, 0);
-+MODULE_PARM_DESC(timeout, "Watchdog timeout in seconds (default="
-+		 __MODULE_STRING(WDAT_DEFAULT_TIMEOUT) ")");
-+
- static int wdat_wdt_read(struct wdat_wdt *wdat,
- 	 const struct wdat_instruction *instr, u32 *value)
- {
-@@ -438,6 +445,22 @@ static int wdat_wdt_probe(struct platform_device *pdev)
+ #
+ # Shared build commands.
+ #
  
- 	platform_set_drvdata(pdev, wdat);
+ quiet_cmd_vdsold_and_vdso_check = LD      $@
+-      cmd_vdsold_and_vdso_check = $(cmd_vdsold); $(cmd_vdso_check)
++      cmd_vdsold_and_vdso_check = $(cmd_vdsold); $(cmd_vdso_check); $(cmd_vdso_mips_check)
  
-+	/*
-+	 * Set initial timeout so that userspace has time to configure the
-+	 * watchdog properly after it has opened the device. In some cases
-+	 * the BIOS default is too short and causes immediate reboot.
-+	 */
-+	if (timeout * 1000 < wdat->wdd.min_hw_heartbeat_ms ||
-+	    timeout * 1000 > wdat->wdd.max_hw_heartbeat_ms) {
-+		dev_warn(dev, "Invalid timeout %d given, using %d\n",
-+			 timeout, WDAT_DEFAULT_TIMEOUT);
-+		timeout = WDAT_DEFAULT_TIMEOUT;
-+	}
-+
-+	ret = wdat_wdt_set_timeout(&wdat->wdd, timeout);
-+	if (ret)
-+		return ret;
-+
- 	watchdog_set_nowayout(&wdat->wdd, nowayout);
- 	return devm_watchdog_register_device(dev, &wdat->wdd);
- }
+ quiet_cmd_vdsold = VDSO    $@
+       cmd_vdsold = $(CC) $(c_flags) $(VDSO_LDFLAGS) \
 -- 
 2.20.1
 
