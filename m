@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D00518B701
+	by mail.lfdr.de (Postfix) with ESMTP id 3852B18B702
 	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:31:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728276AbgCSNTo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Mar 2020 09:19:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43216 "EHLO mail.kernel.org"
+        id S1727726AbgCSNUO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Mar 2020 09:20:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44064 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729923AbgCSNTo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Mar 2020 09:19:44 -0400
+        id S1727954AbgCSNUN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Mar 2020 09:20:13 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CFBC32098B;
-        Thu, 19 Mar 2020 13:19:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 40906206D7;
+        Thu, 19 Mar 2020 13:20:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584623983;
-        bh=yShaqp9jj75yZXFapTcX20CNNhqOJZwzVc1qBAHPgMc=;
+        s=default; t=1584624012;
+        bh=tYvsypGV+UX3w5mfR+9EKdJVP9kjPgrchcygUqtHAF8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fxBxOJbDWqHUMB87QEucfymlkca2eAqT80FC2XmsjgoFUhWbUTI148eCfnGDB2vNg
-         D81aOT5Mz4SHRtt4Ur/huIk2skZBS6wOo64O/6VkcKFgjwXXaRqPNL0ItzhiowMb/m
-         aVseK4z1wkzx6QeRfbOcIBREHpovtrJ2YhBh3vFo=
+        b=EGiFKwjOuG6Fs8M2wG417JkiW1V1LjvEIJRtV6AyO7ut0Y8eN2w6HZuibP7DFBelK
+         nZ6KscVyNyLsq1lmxm+eeZ+0RmDdvzEYIiQOWmSDg8jnUF8JcoeBD6ERhr6k9jeMvR
+         MrXUqTL5C731cQU7SJVvVAf8V6Snh+hUgtZObVyI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ulf Hansson <ulf.hansson@linaro.org>,
+        stable@vger.kernel.org, Kishon Vijay Abraham I <kishon@ti.com>,
+        Faiz Abbas <faiz_abbas@ti.com>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 02/48] mmc: core: Default to generic_cmd6_time as timeout in __mmc_switch()
-Date:   Thu, 19 Mar 2020 14:03:44 +0100
-Message-Id: <20200319123903.875912499@linuxfoundation.org>
+Subject: [PATCH 4.19 03/48] mmc: sdhci-omap: Add platform specific reset callback
+Date:   Thu, 19 Mar 2020 14:03:45 +0100
+Message-Id: <20200319123904.177477126@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.2
 In-Reply-To: <20200319123902.941451241@linuxfoundation.org>
 References: <20200319123902.941451241@linuxfoundation.org>
@@ -43,77 +46,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ulf Hansson <ulf.hansson@linaro.org>
+From: Faiz Abbas <faiz_abbas@ti.com>
 
-[ Upstream commit 533a6cfe08f96a7b5c65e06d20916d552c11b256 ]
+[ Upstream commit 5b0d62108b468b13410533c0ceea3821942bf592 ]
 
-All callers of __mmc_switch() should now be specifying a valid timeout for
-the CMD6 command. However, just to be sure, let's print a warning and
-default to use the generic_cmd6_time in case the provided timeout_ms
-argument is zero.
+The TRM (SPRUIC2C - January 2017 - Revised May 2018 [1]) forbids
+assertion of data reset while tuning is happening. Implement a
+platform specific callback that takes care of this condition.
 
-In this context, let's also simplify some of the corresponding code and
-clarify some related comments.
+[1] http://www.ti.com/lit/pdf/spruic2 Section 25.5.1.2.4
 
+Acked-by: Kishon Vijay Abraham I <kishon@ti.com>
+Signed-off-by: Faiz Abbas <faiz_abbas@ti.com>
+Acked-by: Adrian Hunter <adrian.hunter@intel.com>
 Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
-Link: https://lore.kernel.org/r/20200122142747.5690-4-ulf.hansson@linaro.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/core/mmc_ops.c | 25 +++++++++++--------------
- 1 file changed, 11 insertions(+), 14 deletions(-)
+ drivers/mmc/host/sdhci-omap.c | 20 +++++++++++++++++++-
+ 1 file changed, 19 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/mmc/core/mmc_ops.c b/drivers/mmc/core/mmc_ops.c
-index 873b2aa0c1556..76de8d441cce4 100644
---- a/drivers/mmc/core/mmc_ops.c
-+++ b/drivers/mmc/core/mmc_ops.c
-@@ -456,10 +456,6 @@ static int mmc_poll_for_busy(struct mmc_card *card, unsigned int timeout_ms,
- 	bool expired = false;
- 	bool busy = false;
+diff --git a/drivers/mmc/host/sdhci-omap.c b/drivers/mmc/host/sdhci-omap.c
+index d02f5cf76b3d1..8a172575bb64f 100644
+--- a/drivers/mmc/host/sdhci-omap.c
++++ b/drivers/mmc/host/sdhci-omap.c
+@@ -115,6 +115,7 @@ struct sdhci_omap_host {
  
--	/* We have an unspecified cmd timeout, use the fallback value. */
--	if (!timeout_ms)
--		timeout_ms = MMC_OPS_TIMEOUT_MS;
--
- 	/*
- 	 * In cases when not allowed to poll by using CMD13 or because we aren't
- 	 * capable of polling by using ->card_busy(), then rely on waiting the
-@@ -532,14 +528,19 @@ int __mmc_switch(struct mmc_card *card, u8 set, u8 index, u8 value,
+ 	struct pinctrl		*pinctrl;
+ 	struct pinctrl_state	**pinctrl_state;
++	bool			is_tuning;
+ };
  
- 	mmc_retune_hold(host);
+ static void sdhci_omap_start_clock(struct sdhci_omap_host *omap_host);
+@@ -326,6 +327,8 @@ static int sdhci_omap_execute_tuning(struct mmc_host *mmc, u32 opcode)
+ 		dcrc_was_enabled = true;
+ 	}
  
-+	if (!timeout_ms) {
-+		pr_warn("%s: unspecified timeout for CMD6 - use generic\n",
-+			mmc_hostname(host));
-+		timeout_ms = card->ext_csd.generic_cmd6_time;
-+	}
++	omap_host->is_tuning = true;
 +
- 	/*
--	 * If the cmd timeout and the max_busy_timeout of the host are both
--	 * specified, let's validate them. A failure means we need to prevent
--	 * the host from doing hw busy detection, which is done by converting
--	 * to a R1 response instead of a R1B.
-+	 * If the max_busy_timeout of the host is specified, make sure it's
-+	 * enough to fit the used timeout_ms. In case it's not, let's instruct
-+	 * the host to avoid HW busy detection, by converting to a R1 response
-+	 * instead of a R1B.
- 	 */
--	if (timeout_ms && host->max_busy_timeout &&
--		(timeout_ms > host->max_busy_timeout))
-+	if (host->max_busy_timeout && (timeout_ms > host->max_busy_timeout))
- 		use_r1b_resp = false;
+ 	while (phase_delay <= MAX_PHASE_DELAY) {
+ 		sdhci_omap_set_dll(omap_host, phase_delay);
  
- 	cmd.opcode = MMC_SWITCH;
-@@ -550,10 +551,6 @@ int __mmc_switch(struct mmc_card *card, u8 set, u8 index, u8 value,
- 	cmd.flags = MMC_CMD_AC;
- 	if (use_r1b_resp) {
- 		cmd.flags |= MMC_RSP_SPI_R1B | MMC_RSP_R1B;
--		/*
--		 * A busy_timeout of zero means the host can decide to use
--		 * whatever value it finds suitable.
--		 */
- 		cmd.busy_timeout = timeout_ms;
- 	} else {
- 		cmd.flags |= MMC_RSP_SPI_R1 | MMC_RSP_R1;
+@@ -363,9 +366,12 @@ static int sdhci_omap_execute_tuning(struct mmc_host *mmc, u32 opcode)
+ 	phase_delay = max_window + 4 * (max_len >> 1);
+ 	sdhci_omap_set_dll(omap_host, phase_delay);
+ 
++	omap_host->is_tuning = false;
++
+ 	goto ret;
+ 
+ tuning_error:
++	omap_host->is_tuning = false;
+ 	dev_err(dev, "Tuning failed\n");
+ 	sdhci_omap_disable_tuning(omap_host);
+ 
+@@ -695,6 +701,18 @@ static void sdhci_omap_set_uhs_signaling(struct sdhci_host *host,
+ 	sdhci_omap_start_clock(omap_host);
+ }
+ 
++void sdhci_omap_reset(struct sdhci_host *host, u8 mask)
++{
++	struct sdhci_pltfm_host *pltfm_host = sdhci_priv(host);
++	struct sdhci_omap_host *omap_host = sdhci_pltfm_priv(pltfm_host);
++
++	/* Don't reset data lines during tuning operation */
++	if (omap_host->is_tuning)
++		mask &= ~SDHCI_RESET_DATA;
++
++	sdhci_reset(host, mask);
++}
++
+ static struct sdhci_ops sdhci_omap_ops = {
+ 	.set_clock = sdhci_omap_set_clock,
+ 	.set_power = sdhci_omap_set_power,
+@@ -703,7 +721,7 @@ static struct sdhci_ops sdhci_omap_ops = {
+ 	.get_min_clock = sdhci_omap_get_min_clock,
+ 	.set_bus_width = sdhci_omap_set_bus_width,
+ 	.platform_send_init_74_clocks = sdhci_omap_init_74_clocks,
+-	.reset = sdhci_reset,
++	.reset = sdhci_omap_reset,
+ 	.set_uhs_signaling = sdhci_omap_set_uhs_signaling,
+ };
+ 
 -- 
 2.20.1
 
