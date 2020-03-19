@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 94C9318B6E1
-	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:30:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C9CA318B58E
+	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:19:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730381AbgCSNXp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Mar 2020 09:23:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49812 "EHLO mail.kernel.org"
+        id S1729903AbgCSNTg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Mar 2020 09:19:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42976 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730376AbgCSNXo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Mar 2020 09:23:44 -0400
+        id S1729770AbgCSNTf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Mar 2020 09:19:35 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 26F48208D6;
-        Thu, 19 Mar 2020 13:23:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9663F21775;
+        Thu, 19 Mar 2020 13:19:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584624223;
-        bh=GK0txNaAhC1Tj3gLksvBxH5YZiIIZrSnVTFV8FXTM/8=;
+        s=default; t=1584623975;
+        bh=9nAbje9iOp4zeC5CKqiOjMhWdsB1A/TcFuuEYuwgMPI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QwU7spysZLjKfViTCw5D7/doukysHO+JKQvfs8D9fYHpQ7B0/P0Y4btovPbgbjgnz
-         G+cVsZrLPzbUmgXxSqqmiuFPc7EWACSRG/FBF7YhKqwCXkT/hqgMFF5SfZZnPSkmFl
-         QVlg79STLzN9T+ZBez1fwLhDLPu+Jzk2PnaE2NRo=
+        b=AaoQS8C90axGoa9g3NWggUsnQj4jHXkIv2vQpE2YgYoIM0pjynYMJv3oMvgWmAxVU
+         CXIEB03DSJ0+WRbN7qQKZ16+AiQSMqnB22VxcxrnTZPwpzjdOOUwK+ewE5v0yA6ajK
+         DdYRlfugL0O25jjf5JR4mWK0z0rwpud2bifqzMgI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>,
-        Shuah Khan <skhan@linuxfoundation.org>,
+        stable@vger.kernel.org,
+        Madhuparna Bhowmik <madhuparnabhowmik10@gmail.com>,
+        Johannes Berg <johannes.berg@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 21/60] selftests/rseq: Fix out-of-tree compilation
+Subject: [PATCH 4.19 17/48] mac80211: rx: avoid RCU list traversal under mutex
 Date:   Thu, 19 Mar 2020 14:03:59 +0100
-Message-Id: <20200319123925.958814970@linuxfoundation.org>
+Message-Id: <20200319123908.557931607@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.2
-In-Reply-To: <20200319123919.441695203@linuxfoundation.org>
-References: <20200319123919.441695203@linuxfoundation.org>
+In-Reply-To: <20200319123902.941451241@linuxfoundation.org>
+References: <20200319123902.941451241@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,46 +45,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Ellerman <mpe@ellerman.id.au>
+From: Madhuparna Bhowmik <madhuparnabhowmik10@gmail.com>
 
-[ Upstream commit ef89d0545132d685f73da6f58b7e7fe002536f91 ]
+[ Upstream commit 253216ffb2a002a682c6f68bd3adff5b98b71de8 ]
 
-Currently if you build with O=... the rseq tests don't build:
+local->sta_mtx is held in __ieee80211_check_fast_rx_iface().
+No need to use list_for_each_entry_rcu() as it also requires
+a cond argument to avoid false lockdep warnings when not used in
+RCU read-side section (with CONFIG_PROVE_RCU_LIST).
+Therefore use list_for_each_entry();
 
-  $ make O=$PWD/output -C tools/testing/selftests/ TARGETS=rseq
-  make: Entering directory '/linux/tools/testing/selftests'
-  ...
-  make[1]: Entering directory '/linux/tools/testing/selftests/rseq'
-  gcc -O2 -Wall -g -I./ -I../../../../usr/include/ -L./ -Wl,-rpath=./  -shared -fPIC rseq.c -lpthread -o /linux/output/rseq/librseq.so
-  gcc -O2 -Wall -g -I./ -I../../../../usr/include/ -L./ -Wl,-rpath=./  basic_test.c -lpthread -lrseq -o /linux/output/rseq/basic_test
-  /usr/bin/ld: cannot find -lrseq
-  collect2: error: ld returned 1 exit status
-
-This is because the library search path points to the source
-directory, not the output.
-
-We can fix it by changing the library search path to $(OUTPUT).
-
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Signed-off-by: Madhuparna Bhowmik <madhuparnabhowmik10@gmail.com>
+Link: https://lore.kernel.org/r/20200223143302.15390-1-madhuparnabhowmik10@gmail.com
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/rseq/Makefile | 2 +-
+ net/mac80211/rx.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/testing/selftests/rseq/Makefile b/tools/testing/selftests/rseq/Makefile
-index f1053630bb6f5..2af9d39a97168 100644
---- a/tools/testing/selftests/rseq/Makefile
-+++ b/tools/testing/selftests/rseq/Makefile
-@@ -4,7 +4,7 @@ ifneq ($(shell $(CC) --version 2>&1 | head -n 1 | grep clang),)
- CLANG_FLAGS += -no-integrated-as
- endif
+diff --git a/net/mac80211/rx.c b/net/mac80211/rx.c
+index 02d0b22d01141..c7c456c86b0d3 100644
+--- a/net/mac80211/rx.c
++++ b/net/mac80211/rx.c
+@@ -4042,7 +4042,7 @@ void __ieee80211_check_fast_rx_iface(struct ieee80211_sub_if_data *sdata)
  
--CFLAGS += -O2 -Wall -g -I./ -I../../../../usr/include/ -L./ -Wl,-rpath=./ \
-+CFLAGS += -O2 -Wall -g -I./ -I../../../../usr/include/ -L$(OUTPUT) -Wl,-rpath=./ \
- 	  $(CLANG_FLAGS)
- LDLIBS += -lpthread
+ 	lockdep_assert_held(&local->sta_mtx);
  
+-	list_for_each_entry_rcu(sta, &local->sta_list, list) {
++	list_for_each_entry(sta, &local->sta_list, list) {
+ 		if (sdata != sta->sdata &&
+ 		    (!sta->sdata->bss || sta->sdata->bss != sdata->bss))
+ 			continue;
 -- 
 2.20.1
 
