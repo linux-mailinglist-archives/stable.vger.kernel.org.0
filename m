@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 311BD18B6C8
-	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:29:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 57CD218B5D5
+	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:22:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730558AbgCSNZD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Mar 2020 09:25:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52328 "EHLO mail.kernel.org"
+        id S1729494AbgCSNV6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Mar 2020 09:21:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46844 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730572AbgCSNZC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Mar 2020 09:25:02 -0400
+        id S1729693AbgCSNV4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Mar 2020 09:21:56 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 72C262080C;
-        Thu, 19 Mar 2020 13:25:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E917520724;
+        Thu, 19 Mar 2020 13:21:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584624301;
-        bh=+ZWBgP1H1PJaYmkcqqo0h/4VC5fxqrnCIWwQ5MstPNY=;
+        s=default; t=1584624115;
+        bh=zgySPb/E5gCYbNyNWaUW3DElJALVpsCE/f+L4by2fjE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VjL0HK8WSQxIJSuGunH9wxmcwAX/V+C07rSnXjyWrBFrGADJ7AfNmBjPAr463hQ+y
-         ws2mefF/5lEK/nx1TO8aD2vzbkXiNh8M2RZNyjALoB9ctPzm10JaJ+e87l1bdySpKl
-         1tPxa5ZY20qUwMTgMIcdbBswR+/ZdREqvjvOAgv8=
+        b=hMOQsCxYlNmwNt6IyfJpzPN3Pe5lCMIGLJQjZr2YkWnFitmK8frfRAPOv8dXRwxxl
+         75K9KHyNFgeq744b+iyCbpB9sg/m8+umZiSDgKOdWoHCqCm3HwtTntm8eo81LHxOWH
+         t6jn5PW2gslE0x7sc5ZXN+Xnppvo43r9wRhN1bR4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sowjanya Komatineni <skomatineni@nvidia.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
+        stable@vger.kernel.org, Jean Delvare <jdelvare@suse.de>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 07/65] mmc: core: Respect MMC_CAP_NEED_RSP_BUSY for eMMC sleep command
-Date:   Thu, 19 Mar 2020 14:03:49 +0100
-Message-Id: <20200319123928.582537483@linuxfoundation.org>
+Subject: [PATCH 5.4 12/60] ACPI: watchdog: Set default timeout in probe
+Date:   Thu, 19 Mar 2020 14:03:50 +0100
+Message-Id: <20200319123922.971713751@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.2
-In-Reply-To: <20200319123926.466988514@linuxfoundation.org>
-References: <20200319123926.466988514@linuxfoundation.org>
+In-Reply-To: <20200319123919.441695203@linuxfoundation.org>
+References: <20200319123919.441695203@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,48 +45,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ulf Hansson <ulf.hansson@linaro.org>
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
 
-[ Upstream commit 18d200460cd73636d4f20674085c39e32b4e0097 ]
+[ Upstream commit cabe17d0173ab04bd3f87b8199ae75f43f1ea473 ]
 
-The busy timeout for the CMD5 to put the eMMC into sleep state, is specific
-to the card. Potentially the timeout may exceed the host->max_busy_timeout.
-If that becomes the case, mmc_sleep() converts from using an R1B response
-to an R1 response, as to prevent the host from doing HW busy detection.
+If the BIOS default timeout for the watchdog is too small userspace may
+not have enough time to configure new timeout after opening the device
+before the system is already reset. For this reason program default
+timeout of 30 seconds in the driver probe and allow userspace to change
+this from command line or through module parameter (wdat_wdt.timeout).
 
-However, it has turned out that some hosts requires an R1B response no
-matter what, so let's respect that via checking MMC_CAP_NEED_RSP_BUSY. Note
-that, if the R1B gets enforced, the host becomes fully responsible of
-managing the needed busy timeout, in one way or the other.
-
-Suggested-by: Sowjanya Komatineni <skomatineni@nvidia.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200311092036.16084-1-ulf.hansson@linaro.org
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Reported-by: Jean Delvare <jdelvare@suse.de>
+Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Reviewed-by: Jean Delvare <jdelvare@suse.de>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/core/mmc.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/watchdog/wdat_wdt.c | 23 +++++++++++++++++++++++
+ 1 file changed, 23 insertions(+)
 
-diff --git a/drivers/mmc/core/mmc.c b/drivers/mmc/core/mmc.c
-index f6912ded652dc..de14b5845f525 100644
---- a/drivers/mmc/core/mmc.c
-+++ b/drivers/mmc/core/mmc.c
-@@ -1910,9 +1910,12 @@ static int mmc_sleep(struct mmc_host *host)
- 	 * If the max_busy_timeout of the host is specified, validate it against
- 	 * the sleep cmd timeout. A failure means we need to prevent the host
- 	 * from doing hw busy detection, which is done by converting to a R1
--	 * response instead of a R1B.
-+	 * response instead of a R1B. Note, some hosts requires R1B, which also
-+	 * means they are on their own when it comes to deal with the busy
-+	 * timeout.
- 	 */
--	if (host->max_busy_timeout && (timeout_ms > host->max_busy_timeout)) {
-+	if (!(host->caps & MMC_CAP_NEED_RSP_BUSY) && host->max_busy_timeout &&
-+	    (timeout_ms > host->max_busy_timeout)) {
- 		cmd.flags = MMC_RSP_R1 | MMC_CMD_AC;
- 	} else {
- 		cmd.flags = MMC_RSP_R1B | MMC_CMD_AC;
+diff --git a/drivers/watchdog/wdat_wdt.c b/drivers/watchdog/wdat_wdt.c
+index 1ce39de917f0e..88c5e6361aa05 100644
+--- a/drivers/watchdog/wdat_wdt.c
++++ b/drivers/watchdog/wdat_wdt.c
+@@ -54,6 +54,13 @@ module_param(nowayout, bool, 0);
+ MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default="
+ 		 __MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
+ 
++#define WDAT_DEFAULT_TIMEOUT	30
++
++static int timeout = WDAT_DEFAULT_TIMEOUT;
++module_param(timeout, int, 0);
++MODULE_PARM_DESC(timeout, "Watchdog timeout in seconds (default="
++		 __MODULE_STRING(WDAT_DEFAULT_TIMEOUT) ")");
++
+ static int wdat_wdt_read(struct wdat_wdt *wdat,
+ 	 const struct wdat_instruction *instr, u32 *value)
+ {
+@@ -438,6 +445,22 @@ static int wdat_wdt_probe(struct platform_device *pdev)
+ 
+ 	platform_set_drvdata(pdev, wdat);
+ 
++	/*
++	 * Set initial timeout so that userspace has time to configure the
++	 * watchdog properly after it has opened the device. In some cases
++	 * the BIOS default is too short and causes immediate reboot.
++	 */
++	if (timeout * 1000 < wdat->wdd.min_hw_heartbeat_ms ||
++	    timeout * 1000 > wdat->wdd.max_hw_heartbeat_ms) {
++		dev_warn(dev, "Invalid timeout %d given, using %d\n",
++			 timeout, WDAT_DEFAULT_TIMEOUT);
++		timeout = WDAT_DEFAULT_TIMEOUT;
++	}
++
++	ret = wdat_wdt_set_timeout(&wdat->wdd, timeout);
++	if (ret)
++		return ret;
++
+ 	watchdog_set_nowayout(&wdat->wdd, nowayout);
+ 	return devm_watchdog_register_device(dev, &wdat->wdd);
+ }
 -- 
 2.20.1
 
