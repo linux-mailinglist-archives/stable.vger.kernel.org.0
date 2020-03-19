@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F3A918B822
-	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:38:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4156F18B7C1
+	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:35:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727609AbgCSNGO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Mar 2020 09:06:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49350 "EHLO mail.kernel.org"
+        id S1727065AbgCSNff (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Mar 2020 09:35:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56788 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727601AbgCSNGL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Mar 2020 09:06:11 -0400
+        id S1727460AbgCSNL3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Mar 2020 09:11:29 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 01E2820740;
-        Thu, 19 Mar 2020 13:06:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9DA012145D;
+        Thu, 19 Mar 2020 13:11:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584623171;
-        bh=8mjxTOiY7jUCy5oNZ2Nth+B6EYgs6wniQaBkZLtmxKY=;
+        s=default; t=1584623489;
+        bh=FRqt0PLbggXvod56YNjicsvmoqLPvkSus4P+a5VkAKs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Na0sal0KhaTDskgiYkHQF97j71EE+3coc7d+58k91uT60UdhvDr9Cw3bD9dQRO52P
-         IMWUE1MEVXpIf1FjuyKDpw9nqPFDA+Nwg9AdbOLgBUte4JWyx9RYfbmIDOEd+62ue2
-         waZkmvzT+pw19D2pMDVv7nQc2hIQnyvN7d7idkt8=
+        b=qvpkr+U4w0nlfnoYxfnTl2cu6746gVt1H3aSdEEH0GvLijG9KrAf6be759w5jrEVq
+         4teRWDcAm40O53IlG49InAraYBlo0sg8vA7L8SjQxFyx/iKE8apttNPb9/sqaLPNIM
+         gE1ABlbVkjhry6wcR4dQhYuGyk4kixpD/aK9AvJc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
-        Pablo Neira Ayuso <pablo@netfilter.org>
-Subject: [PATCH 4.4 32/93] netfilter: cthelper: add missing attribute validation for cthelper
-Date:   Thu, 19 Mar 2020 13:59:36 +0100
-Message-Id: <20200319123935.158649931@linuxfoundation.org>
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.9 15/90] net: fq: add missing attribute validation for orphan mask
+Date:   Thu, 19 Mar 2020 13:59:37 +0100
+Message-Id: <20200319123933.398446491@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.2
-In-Reply-To: <20200319123924.795019515@linuxfoundation.org>
-References: <20200319123924.795019515@linuxfoundation.org>
+In-Reply-To: <20200319123928.635114118@linuxfoundation.org>
+References: <20200319123928.635114118@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,30 +45,28 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jakub Kicinski <kuba@kernel.org>
 
-commit c049b3450072b8e3998053490e025839fecfef31 upstream.
+[ Upstream commit 7e6dc03eeb023e18427a373522f1d247b916a641 ]
 
-Add missing attribute validation for cthelper
+Add missing attribute validation for TCA_FQ_ORPHAN_MASK
 to the netlink policy.
 
-Fixes: 12f7a505331e ("netfilter: add user-space connection tracking helper infrastructure")
+Fixes: 06eb395fa985 ("pkt_sched: fq: better control of DDOS traffic")
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- net/netfilter/nfnetlink_cthelper.c |    2 ++
- 1 file changed, 2 insertions(+)
+ net/sched/sch_fq.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/net/netfilter/nfnetlink_cthelper.c
-+++ b/net/netfilter/nfnetlink_cthelper.c
-@@ -711,6 +711,8 @@ static const struct nla_policy nfnl_cthe
- 	[NFCTH_NAME] = { .type = NLA_NUL_STRING,
- 			 .len = NF_CT_HELPER_NAME_LEN-1 },
- 	[NFCTH_QUEUE_NUM] = { .type = NLA_U32, },
-+	[NFCTH_PRIV_DATA_LEN] = { .type = NLA_U32, },
-+	[NFCTH_STATUS] = { .type = NLA_U32, },
+--- a/net/sched/sch_fq.c
++++ b/net/sched/sch_fq.c
+@@ -697,6 +697,7 @@ static const struct nla_policy fq_policy
+ 	[TCA_FQ_FLOW_MAX_RATE]		= { .type = NLA_U32 },
+ 	[TCA_FQ_BUCKETS_LOG]		= { .type = NLA_U32 },
+ 	[TCA_FQ_FLOW_REFILL_DELAY]	= { .type = NLA_U32 },
++	[TCA_FQ_ORPHAN_MASK]		= { .type = NLA_U32 },
+ 	[TCA_FQ_LOW_RATE_THRESHOLD]	= { .type = NLA_U32 },
  };
  
- static const struct nfnl_callback nfnl_cthelper_cb[NFNL_MSG_CTHELPER_MAX] = {
 
 
