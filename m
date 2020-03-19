@@ -2,120 +2,85 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 95BA518BB06
-	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 16:25:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 67C7118BB31
+	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 16:35:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727189AbgCSPZO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Mar 2020 11:25:14 -0400
-Received: from mail-oi1-f195.google.com ([209.85.167.195]:45825 "EHLO
-        mail-oi1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726871AbgCSPZO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 19 Mar 2020 11:25:14 -0400
-Received: by mail-oi1-f195.google.com with SMTP id 9so3019109oiq.12
-        for <stable@vger.kernel.org>; Thu, 19 Mar 2020 08:25:14 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=jyRv3rP13OdLMBv8QRB7zdcpaPYtYEwSo56+MzJ+ZFs=;
-        b=nzCTjk/WTGmmxNxA/H2Cm1aSINgVwKRL8P40cMXfECaWzeOSAETe1qT50eksA8E/7M
-         d6GjSn2pnegk1NyifuP79dQ9dC84a8nmHM4syOqSu8g2d0cBsI9pyKnyp9aAHhpNWDgl
-         SI5Sw4lRrTbSnV6BRVaNrD9l0O94eJvI9K0GDjWRZmWyg2PtbD4PFVnNrS+SC3zVHxiW
-         ZZ9EZXoe4IZ+toL1KWsOxuyDqnbxAMygRUUttkQTKU0AyzcXRMRCFCeRdACmmtUKb8GO
-         0kw84WtHRP2nsNgF9//Ikrxe0/kAALjzDPNwSPDsWSh+XO5iP74e7dP5Gs+/reJiePmq
-         WfEA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=jyRv3rP13OdLMBv8QRB7zdcpaPYtYEwSo56+MzJ+ZFs=;
-        b=WqU0VRaYwi3l3K6mXP7Mkvx9OKMZedI5UqlrBrqEX8pbp9yqiuTB4GlS/acczdTMvb
-         v087RpH63V9iv6qbxy/yBymkZZZ9O0go6BcM3kXmnGIZzRfi/RniRlaRZ4NHDQ8v9kkI
-         qy/sFgQJTQ5M1fFHOZmz4MTZ6tzUiI+Q1eyYXulNz4HRfbFSuXZCnS4XW0ze7+uJ99g7
-         Sswqsq3N8d4iFognMWrtYa4lzkclfKv2CJUChaflRRREnTlLbUpMpxjOw0neubpPMzT6
-         k4GvFkTs1vxwjBT31EDupRZU7L7hmR1nK6FWDWIsPe7hvIOU3dDcA/bTzNXdervDJakB
-         LcNw==
-X-Gm-Message-State: ANhLgQ2BMB3e6O8VIOrrhKUknmMDjKC+u9sfFWfT3B8AZzFIIQFwZfee
-        TprQab8mjqSLO3Rgeu8xuB+eZehUjFdofsi5xpsvUQ==
-X-Google-Smtp-Source: ADFU+vsgVj8VybU7JzyAy1YYrvaI4EJLEym/9TXDcM5ONy7z6Htgah/Qv4dB39epUio4ehFI0vqfFJqCDsnVlUdEerI=
-X-Received: by 2002:aca:c695:: with SMTP id w143mr2824247oif.98.1584631513703;
- Thu, 19 Mar 2020 08:25:13 -0700 (PDT)
+        id S1727064AbgCSPd5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Mar 2020 11:33:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50070 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727023AbgCSPd5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Mar 2020 11:33:57 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 452032071C;
+        Thu, 19 Mar 2020 15:33:56 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1584632036;
+        bh=jd+G1ZXXV6Rkt+GeOtGC574lN8RiNuBcxcec4Go/w9Y=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=RYBhvYmU0QMgqTdV3Y5Uze1eZpOjJ4fx0clF9xAlLu2XJH8gT4s9DSb7EJ7RWJ1WB
+         DVjZSmcvVbl/Kpp7n3wR8SDL3OWWZ2gi0QJzj1yalGvvKQjMU4YATVzlHXVSOIe4Tr
+         PASt4nDgbvk4f1tACPVNsn4VnjRLskPnJ2DnsS5Q=
+Date:   Thu, 19 Mar 2020 16:33:54 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Guenter Roeck <linux@roeck-us.net>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org, Kevin Hao <haokexin@gmail.com>
+Subject: Re: [PATCH 5.5 00/65] 5.5.11-rc1 review
+Message-ID: <20200319153354.GA133412@kroah.com>
+References: <20200319123926.466988514@linuxfoundation.org>
+ <fcf6db4c-cebe-9ad3-9f19-00d49a7b1043@roeck-us.net>
+ <20200319145900.GC92193@kroah.com>
+ <32c627bf-0e6b-8bc4-88d3-032a69484aa6@roeck-us.net>
 MIME-Version: 1.0
-References: <20200317113153.7945-1-linus.walleij@linaro.org>
- <CAFEAcA9mXE+gPnvM6HZ-w0+BhbpeuH=osFH-9NUzCLv=w-c7HQ@mail.gmail.com> <CACRpkdZtLNUwiZEMiJEoB0ojOBckyGcZeyFkR6MC69qv-ry9EA@mail.gmail.com>
-In-Reply-To: <CACRpkdZtLNUwiZEMiJEoB0ojOBckyGcZeyFkR6MC69qv-ry9EA@mail.gmail.com>
-From:   Peter Maydell <peter.maydell@linaro.org>
-Date:   Thu, 19 Mar 2020 15:25:02 +0000
-Message-ID: <CAFEAcA-gdwi=KSW6LqVdEJWSo9VEL5abYQs9LoHd4mKE_-h=Aw@mail.gmail.com>
-Subject: Re: [PATCH] ext4: Give 32bit personalities 32bit hashes
-To:     Linus Walleij <linus.walleij@linaro.org>
-Cc:     "Suzuki K. Poulose" <suzuki.poulose@arm.com>,
-        "Theodore Ts'o" <tytso@mit.edu>,
-        Andreas Dilger <adilger.kernel@dilger.ca>,
-        Ext4 Developers List <linux-ext4@vger.kernel.org>,
-        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
-        Linux API <linux-api@vger.kernel.org>,
-        QEMU Developers <qemu-devel@nongnu.org>,
-        Florian Weimer <fw@deneb.enyo.de>,
-        Andy Lutomirski <luto@kernel.org>,
-        stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <32c627bf-0e6b-8bc4-88d3-032a69484aa6@roeck-us.net>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 19 Mar 2020 at 15:13, Linus Walleij <linus.walleij@linaro.org> wrote:
-> On Tue, Mar 17, 2020 at 12:58 PM Peter Maydell <peter.maydell@linaro.org> wrote:
-> > What in particular does this personality setting affect?
-> > My copy of the personality(2) manpage just says:
-> >
-> >        PER_LINUX32 (since Linux 2.2)
-> >               [To be documented.]
-> >
-> > which isn't very informative.
->
-> It's not a POSIX thing (not part of the Single Unix Specification)
-> so as with most Linux things it has some fuzzy semantics
-> defined by the community...
->
-> I usually just go to the source.
+On Thu, Mar 19, 2020 at 08:15:40AM -0700, Guenter Roeck wrote:
+> On 3/19/20 7:59 AM, Greg Kroah-Hartman wrote:
+> > On Thu, Mar 19, 2020 at 07:44:33AM -0700, Guenter Roeck wrote:
+> >> On 3/19/20 6:03 AM, Greg Kroah-Hartman wrote:
+> >>> This is the start of the stable review cycle for the 5.5.11 release.
+> >>> There are 65 patches in this series, all will be posted as a response
+> >>> to this one.  If anyone has any issues with these being applied, please
+> >>> let me know.
+> >>>
+> >>> Responses should be made by Sat, 21 Mar 2020 12:37:04 +0000.
+> >>> Anything received after that time might be too late.
+> >>>
+> >>
+> >> arm:davinci_all_defconfig fails to build.
+> >>
+> >> include/linux/gpio/driver.h: In function 'gpiochip_populate_parent_fwspec_twocell':
+> >> include/linux/gpio/driver.h:552:1: error: no return statement in function returning non-void [-Werror=return-type]
+> >>   552 | }
+> >>
+> >> The problem is caused by commit 8db6a5905e98 ("gpiolib: Add support for the
+> >> irqdomain which doesn't use irq_fwspec as arg") which is missing its fix,
+> >> commit 9c6722d85e922 ("gpio: Fix the no return statement warning"). That one
+> >> is missing a Fixes: tag, providing a good example why such tags are desirable.
+> > 
+> > Thanks for letting me know, I've now dropped that patch (others
+> > complained about it for other reasons) and will push out a -rc2 with
+> > that fix.
+> > 
+> 
+> I did wonder why the offending patch was included, but then I figured that
+> I lost the "we apply too many patches to stable releases" battle, and I didn't
+> want to re-litigate it.
 
-If we're going to decide that this is the way to say
-"give me 32-bit semantics" we need to actually document
-that and define in at least broad terms what we mean
-by it, so that when new things are added that might or
-might not check against the setting there is a reference
-defining whether they should or not, and so that
-userspace knows what it's opting into by setting the flag.
-The kernel loves undocumented APIs but userspace
-consumers of them are not so enamoured :-)
+It wasn't that, it was a pre-requisite for patch #2.  patch #2 was
+reworked so we could drop this one.
 
-As a concrete example, should "give me 32-bit semantics
-via PER_LINUX32" mean "mmap should always return addresses
-within 4GB" ? That would seem like it would make sense --
-but on the other hand it would make it absolutely unusable
-for QEMU's purposes, because we want to be able to
-do full 64-bit mmap() for our own internal allocations.
-(This is a specific example of the general case that
-I'm dubious about having this be a process-wide switch,
-because QEMU is a single process which sometimes
-makes syscalls on its own behalf and sometimes makes
-syscalls on behalf of the guest program it is emulating.
-We want 32-bit semantics for the latter but if we
-also get them for the former then there might be
-unintended side effects.)
+thanks,
 
-> I would not be surprised if running say i586 on x86_64
-> has the same problem, just that noone has reported
-> it yet. But what do I know. If they have the same problem
-> they can use the same solution. Hm QEMU supports
-> emulating i586 or even i386 ... maybe you could test?
-
-Native i586 code on x86-64 should be fine, because it
-will be using the compat syscalls, which ext4 already
-ensures get the 32-bit sized hash (see hash2pos() and
-friends).
-
-thanks
--- PMM
+greg k-h
