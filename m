@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A735418B677
-	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:27:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 82D7518B6D5
+	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:30:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730859AbgCSN1N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Mar 2020 09:27:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55332 "EHLO mail.kernel.org"
+        id S1730292AbgCSNW7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Mar 2020 09:22:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48678 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730725AbgCSN1K (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Mar 2020 09:27:10 -0400
+        id S1730280AbgCSNW5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Mar 2020 09:22:57 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6FBD021835;
-        Thu, 19 Mar 2020 13:27:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7D8A620724;
+        Thu, 19 Mar 2020 13:22:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584624429;
-        bh=apxNGTTawxO88AhaRt5S23Z7rTLns5Lk95jgyvF3/SA=;
+        s=default; t=1584624177;
+        bh=5+O+YWwnsvBINmW4iAXC6psifakgha+pK7uZe9OAMiw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NnSO92M/k1uoCXnFEJMV8TTq01OPstxiHUsyIw8ZOLKeL4WlhdIxgD1fgZZ4y2TZg
-         axWQYQwiKd8Cyj6bERX6BqmIWdOEDYwlHeSsF3P4h5Xda+4yXVONqQvlVncpQ7KYuF
-         wJMwainYXJ5yd9rU69YfzDLJTTqRwzx8o/KAKcoI=
+        b=eEEh5t1JO4eeIZXlWSAgduH9jg1F1QqN3R4/4IG91gdLoykOMgsjql0BZiVSR8EiK
+         17hT2RxutE/cD768r9avsKa0n/AheVbt9+c0tNMbFnoPpyrfbrgMXCCgESozNTelHf
+         vaFm5AQUzgyeCLnn+wtlN3DoMHWRs/8zGqlh7Ipw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Esben Haabendal <esben@geanix.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Monk Liu <Monk.Liu@amd.com>,
+        Hawking Zhang <Hawking.Zhang@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 29/65] net: ll_temac: Fix race condition causing TX hang
+Subject: [PATCH 5.4 33/60] drm/amdgpu: fix memory leak during TDR test(v2)
 Date:   Thu, 19 Mar 2020 14:04:11 +0100
-Message-Id: <20200319123935.546705776@linuxfoundation.org>
+Message-Id: <20200319123930.165729165@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.2
-In-Reply-To: <20200319123926.466988514@linuxfoundation.org>
-References: <20200319123926.466988514@linuxfoundation.org>
+In-Reply-To: <20200319123919.441695203@linuxfoundation.org>
+References: <20200319123919.441695203@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,67 +45,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Esben Haabendal <esben@geanix.com>
+From: Monk Liu <Monk.Liu@amd.com>
 
-[ Upstream commit 84823ff80f7403752b59e00bb198724100dc611c ]
+[ Upstream commit 4829f89855f1d3a3d8014e74cceab51b421503db ]
 
-It is possible that the interrupt handler fires and frees up space in
-the TX ring in between checking for sufficient TX ring space and
-stopping the TX queue in temac_start_xmit. If this happens, the
-queue wake from the interrupt handler will occur before the queue is
-stopped, causing a lost wakeup and the adapter's transmit hanging.
+fix system memory leak
 
-To avoid this, after stopping the queue, check again whether there is
-sufficient space in the TX ring. If so, wake up the queue again.
+v2:
+fix coding style
 
-This is a port of the similar fix in axienet driver,
-commit 7de44285c1f6 ("net: axienet: Fix race condition causing TX hang").
-
-Fixes: 23ecc4bde21f ("net: ll_temac: fix checksum offload logic")
-Signed-off-by: Esben Haabendal <esben@geanix.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Monk Liu <Monk.Liu@amd.com>
+Reviewed-by: Hawking Zhang <Hawking.Zhang@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/xilinx/ll_temac_main.c | 19 ++++++++++++++++---
- 1 file changed, 16 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/amd/powerplay/smu_v11_0.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/xilinx/ll_temac_main.c b/drivers/net/ethernet/xilinx/ll_temac_main.c
-index 21c1b4322ea78..fd578568b3bff 100644
---- a/drivers/net/ethernet/xilinx/ll_temac_main.c
-+++ b/drivers/net/ethernet/xilinx/ll_temac_main.c
-@@ -788,6 +788,9 @@ static void temac_start_xmit_done(struct net_device *ndev)
- 		stat = be32_to_cpu(cur_p->app0);
- 	}
+diff --git a/drivers/gpu/drm/amd/powerplay/smu_v11_0.c b/drivers/gpu/drm/amd/powerplay/smu_v11_0.c
+index c5257ae3188a3..0922d9cd858a0 100644
+--- a/drivers/gpu/drm/amd/powerplay/smu_v11_0.c
++++ b/drivers/gpu/drm/amd/powerplay/smu_v11_0.c
+@@ -988,8 +988,12 @@ static int smu_v11_0_init_max_sustainable_clocks(struct smu_context *smu)
+ 	struct smu_11_0_max_sustainable_clocks *max_sustainable_clocks;
+ 	int ret = 0;
  
-+	/* Matches barrier in temac_start_xmit */
-+	smp_mb();
+-	max_sustainable_clocks = kzalloc(sizeof(struct smu_11_0_max_sustainable_clocks),
++	if (!smu->smu_table.max_sustainable_clocks)
++		max_sustainable_clocks = kzalloc(sizeof(struct smu_11_0_max_sustainable_clocks),
+ 					 GFP_KERNEL);
++	else
++		max_sustainable_clocks = smu->smu_table.max_sustainable_clocks;
 +
- 	netif_wake_queue(ndev);
- }
+ 	smu->smu_table.max_sustainable_clocks = (void *)max_sustainable_clocks;
  
-@@ -830,9 +833,19 @@ temac_start_xmit(struct sk_buff *skb, struct net_device *ndev)
- 	cur_p = &lp->tx_bd_v[lp->tx_bd_tail];
- 
- 	if (temac_check_tx_bd_space(lp, num_frag + 1)) {
--		if (!netif_queue_stopped(ndev))
--			netif_stop_queue(ndev);
--		return NETDEV_TX_BUSY;
-+		if (netif_queue_stopped(ndev))
-+			return NETDEV_TX_BUSY;
-+
-+		netif_stop_queue(ndev);
-+
-+		/* Matches barrier in temac_start_xmit_done */
-+		smp_mb();
-+
-+		/* Space might have just been freed - check again */
-+		if (temac_check_tx_bd_space(lp, num_frag))
-+			return NETDEV_TX_BUSY;
-+
-+		netif_wake_queue(ndev);
- 	}
- 
- 	cur_p->app0 = 0;
+ 	max_sustainable_clocks->uclock = smu->smu_table.boot_values.uclk / 100;
 -- 
 2.20.1
 
