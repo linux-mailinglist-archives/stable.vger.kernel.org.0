@@ -2,126 +2,189 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6711818C2EF
-	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 23:23:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 91CBC18C2F5
+	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 23:25:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725895AbgCSWXu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Mar 2020 18:23:50 -0400
-Received: from mail-lj1-f193.google.com ([209.85.208.193]:37686 "EHLO
-        mail-lj1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727213AbgCSWXt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 19 Mar 2020 18:23:49 -0400
-Received: by mail-lj1-f193.google.com with SMTP id r24so4389194ljd.4
-        for <stable@vger.kernel.org>; Thu, 19 Mar 2020 15:23:46 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=WJ6MzhtWalH0hDBYxWzZFJvnUo/A0DOitGKj0UfdYo8=;
-        b=XBqh7pWnTmUlqQohZOg/HeJr0gQHAIeXOwQCGzJ5OwLz0JntySiWzUQk/bbyBsqGm9
-         AOagPLaBdiW1PMwWYNG62+YPygcjxUIjKZCSAWI7Y+gXGQmEpDRx5s4L6A86L4QjzPhm
-         g1WliO6jBKgCaK0bZjyFPxJo1T1kZceLM4t/lRH12iiIppbgjzQ3iyFeIrW4qK58Nko5
-         lbNS0FS7GU3iUIH68IUAikInyw3mSaCNwFQaUwVoTXF/SPEBXD79mERRqpVxClHgzlbO
-         LuBZhWaZGVlUhSTRyD/NNbgZlWYzqDYTxbQym6CawlmhMV6GI3Nb15UmNwRMlI/s0Tib
-         EF6w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=WJ6MzhtWalH0hDBYxWzZFJvnUo/A0DOitGKj0UfdYo8=;
-        b=negUfBgwzk5xcuAoaU/XwAS071SgcHtP5/zN1//KpEm3ezLexKlr9BoglyMkZkKg0t
-         0SMRZ8lnaWQuzAISmyfAB0Caan8LFknjYdPCmhmD1s7zovF9Zr5ZANGqt57I2xO+h4xf
-         zXEceHk1FRG9V75HGkmWuxFVVZ6JrqzUuehtuIN9BwUeBusQKCpVZiGqQOnxfwNZsl8h
-         zq0Hwe/ifq2uHHwO6gXBuZ0JvOEkxJSVRxyQJxMinePeSN+XjlQEwcGJCQvRHkKX/5Y5
-         fScR4P7uZ7lskBpMcrbivHWMs/FFUiFdpma5+yqvvbyu+oEYMs68AfaJnLWfzNrqRmt0
-         s+Rg==
-X-Gm-Message-State: ANhLgQ1mCfCe20aICZfeGfsMUZ04GuG8psVS/AIfMpd6l2pSbgNt9cFW
-        M3+ekixdckqCqjoKoWLJzcQvCI6hZGsWspkY4jeJ+g==
-X-Google-Smtp-Source: ADFU+vsNGI4DJxjB5f7C7tgGloRNRzSoDi/T/uXs4OR8cIg4QaTNXgqQeL/rC2Yz+GqKJZUSlth8pWewRRKx9U7JH3M=
-X-Received: by 2002:a05:651c:1026:: with SMTP id w6mr3408670ljm.168.1584656625715;
- Thu, 19 Mar 2020 15:23:45 -0700 (PDT)
+        id S1727286AbgCSWZv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Mar 2020 18:25:51 -0400
+Received: from fllv0016.ext.ti.com ([198.47.19.142]:51220 "EHLO
+        fllv0016.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725787AbgCSWZv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 19 Mar 2020 18:25:51 -0400
+Received: from lelv0265.itg.ti.com ([10.180.67.224])
+        by fllv0016.ext.ti.com (8.15.2/8.15.2) with ESMTP id 02JMPltf110730;
+        Thu, 19 Mar 2020 17:25:47 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ti.com;
+        s=ti-com-17Q1; t=1584656747;
+        bh=nRnGib484JBX9BsSE4clcWFLTLaiRFXj+bErkykQBxY=;
+        h=Subject:To:CC:References:From:Date:In-Reply-To;
+        b=MLdIVq9s8ErsnPHBw03YG5JbrBlHJJB2iLe6u4CtH1TDPc1owkxdiD+1nZRPiEwUR
+         kyGPEiPbKmClqRf2De99bZg6LhAcoI+PsInlRkwbccgxGw7XGBYxFFF/++pdSmPKqj
+         3NCCCRHwVx/ekFFVqvgds8AAqX/VM4mzNpJwoypU=
+Received: from DLEE105.ent.ti.com (dlee105.ent.ti.com [157.170.170.35])
+        by lelv0265.itg.ti.com (8.15.2/8.15.2) with ESMTPS id 02JMPl4E003622
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=FAIL);
+        Thu, 19 Mar 2020 17:25:47 -0500
+Received: from DLEE114.ent.ti.com (157.170.170.25) by DLEE105.ent.ti.com
+ (157.170.170.35) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.1847.3; Thu, 19
+ Mar 2020 17:25:47 -0500
+Received: from lelv0327.itg.ti.com (10.180.67.183) by DLEE114.ent.ti.com
+ (157.170.170.25) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.1847.3 via
+ Frontend Transport; Thu, 19 Mar 2020 17:25:47 -0500
+Received: from [10.250.87.129] (ileax41-snat.itg.ti.com [10.172.224.153])
+        by lelv0327.itg.ti.com (8.15.2/8.15.2) with ESMTP id 02JMPkuL032241;
+        Thu, 19 Mar 2020 17:25:46 -0500
+Subject: Re: [PATCH v2 01/19] media: ti-vpe: cal: fix DMA memory corruption
+To:     Tomi Valkeinen <tomi.valkeinen@ti.com>,
+        <linux-media@vger.kernel.org>
+CC:     Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Hans Verkuil <hverkuil@xs4all.nl>, <stable@vger.kernel.org>
+References: <20200319075023.22151-1-tomi.valkeinen@ti.com>
+ <20200319075023.22151-2-tomi.valkeinen@ti.com>
+From:   Benoit Parrot <bparrot@ti.com>
+Message-ID: <5908b346-bad2-5366-343d-b9db9a871e3a@ti.com>
+Date:   Thu, 19 Mar 2020 17:25:46 -0500
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.4.1
 MIME-Version: 1.0
-References: <20200317113153.7945-1-linus.walleij@linaro.org>
- <CAFEAcA9mXE+gPnvM6HZ-w0+BhbpeuH=osFH-9NUzCLv=w-c7HQ@mail.gmail.com>
- <CACRpkdZtLNUwiZEMiJEoB0ojOBckyGcZeyFkR6MC69qv-ry9EA@mail.gmail.com> <CAFEAcA-gdwi=KSW6LqVdEJWSo9VEL5abYQs9LoHd4mKE_-h=Aw@mail.gmail.com>
-In-Reply-To: <CAFEAcA-gdwi=KSW6LqVdEJWSo9VEL5abYQs9LoHd4mKE_-h=Aw@mail.gmail.com>
-From:   Linus Walleij <linus.walleij@linaro.org>
-Date:   Thu, 19 Mar 2020 23:23:33 +0100
-Message-ID: <CACRpkdYuZgZUznVxt1AHCSJa_GAXy8N0SduE5OrjDnE1s_L7Zg@mail.gmail.com>
-Subject: Re: [PATCH] ext4: Give 32bit personalities 32bit hashes
-To:     Peter Maydell <peter.maydell@linaro.org>
-Cc:     "Suzuki K. Poulose" <suzuki.poulose@arm.com>,
-        "Theodore Ts'o" <tytso@mit.edu>,
-        Andreas Dilger <adilger.kernel@dilger.ca>,
-        Ext4 Developers List <linux-ext4@vger.kernel.org>,
-        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
-        Linux API <linux-api@vger.kernel.org>,
-        QEMU Developers <qemu-devel@nongnu.org>,
-        Florian Weimer <fw@deneb.enyo.de>,
-        Andy Lutomirski <luto@kernel.org>,
-        stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <20200319075023.22151-2-tomi.valkeinen@ti.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-EXCLAIMER-MD-CONFIG: e1e8a2fd-e40a-4ac6-ac9b-f7e9cc9ee180
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Mar 19, 2020 at 4:25 PM Peter Maydell <peter.maydell@linaro.org> wrote:
-> On Thu, 19 Mar 2020 at 15:13, Linus Walleij <linus.walleij@linaro.org> wrote:
-> > On Tue, Mar 17, 2020 at 12:58 PM Peter Maydell <peter.maydell@linaro.org> wrote:
-> > > What in particular does this personality setting affect?
-> > > My copy of the personality(2) manpage just says:
-> > >
-> > >        PER_LINUX32 (since Linux 2.2)
-> > >               [To be documented.]
-> > >
-> > > which isn't very informative.
-> >
-> > It's not a POSIX thing (not part of the Single Unix Specification)
-> > so as with most Linux things it has some fuzzy semantics
-> > defined by the community...
-> >
-> > I usually just go to the source.
->
-> If we're going to decide that this is the way to say
-> "give me 32-bit semantics" we need to actually document
-> that and define in at least broad terms what we mean
-> by it, so that when new things are added that might or
-> might not check against the setting there is a reference
-> defining whether they should or not, and so that
-> userspace knows what it's opting into by setting the flag.
-> The kernel loves undocumented APIs but userspace
-> consumers of them are not so enamoured :-)
+Tomi,
 
-OK I guess we can at least take this opportunity to add
-some kerneldoc to the include file.
+Thanks for the patch.
 
-> As a concrete example, should "give me 32-bit semantics
-> via PER_LINUX32" mean "mmap should always return addresses
-> within 4GB" ? That would seem like it would make sense --
+On 3/19/20 2:50 AM, Tomi Valkeinen wrote:
+> When the CAL driver stops streaming, it will shut everything down
+> without waiting for the current frame to finish. This leaves the CAL DMA
+> in a slightly undefined state, and when CAL DMA is enabled when the
+> stream is started the next time, the old DMA transfer will continue.
+> 
+> It is not clear if the old DMA transfer continues with the exact
+> settings of the original transfer, or is it a mix of old and new
+> settings, but in any case the end result is memory corruption as the
+> destination memory address is no longer valid.
+> 
+> I could not find any way to ensure that any old DMA transfer would be
+> discarded, except perhaps full CAL reset. But we cannot do a full reset
+> when one port is getting enabled, as that would reset both ports.
+> 
+> This patch tries to make sure that the DMA transfer is finished properly
+> when the stream is being stopped. I say "tries", as, as mentioned above,
+> I don't see a way to force the DMA transfer to finish. I believe this
+> fixes the corruptions for normal cases, but if for some reason the DMA
+> of the final frame would stall a lot, resulting in timeout in the code
+> waiting for the DMA to finish, we'll again end up with unfinished DMA
+> transfer. However, I don't know what could cause such a timeout.
+> 
+> Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
+> Cc: stable@vger.kernel.org
 
-Incidentally that thing in particular has its own personality
-flag (personalities are additive, it's a bit schizophrenic)
-so PER_LINUX_32BIT is defined as:
-PER_LINUX_32BIT =       0x0000 | ADDR_LIMIT_32BIT,
-and that is specifically for limiting the address space to
-32bit.
+Reviewed-by: Benoit Parrot <bparrot@ti.com>
 
-There is also PER_LINUX32_3GB for a 3GB lowmem
-limit.
-
-Since the personality is kind of additive, if
-we want a flag *specifically* for indicating that we want
-32bit hashes from the file system, there are bits left so we
-can provide that.
-
-Is this what we want to do? I just think we shouldn't
-decide on that lightly as we will be using up personality
-bug bits, but sometimes you have to use them.
-
-PER_LINUX32 as it stands means 32bit personality
-but very specifically does not include memory range
-limitations since that has its own flags.
-
-Yours,
-Linus Walleij
+> ---
+>  drivers/media/platform/ti-vpe/cal.c | 32 +++++++++++++++++++++++++++++
+>  1 file changed, 32 insertions(+)
+> 
+> diff --git a/drivers/media/platform/ti-vpe/cal.c b/drivers/media/platform/ti-vpe/cal.c
+> index 6c8f3702eac0..9dd6de14189b 100644
+> --- a/drivers/media/platform/ti-vpe/cal.c
+> +++ b/drivers/media/platform/ti-vpe/cal.c
+> @@ -412,6 +412,8 @@ struct cal_ctx {
+>  	struct cal_buffer	*cur_frm;
+>  	/* Pointer pointing to next v4l2_buffer */
+>  	struct cal_buffer	*next_frm;
+> +
+> +	bool dma_act;
+>  };
+>  
+>  static const struct cal_fmt *find_format_by_pix(struct cal_ctx *ctx,
+> @@ -942,6 +944,7 @@ static void csi2_lane_config(struct cal_ctx *ctx)
+>  
+>  static void csi2_ppi_enable(struct cal_ctx *ctx)
+>  {
+> +	reg_write(ctx->dev, CAL_CSI2_PPI_CTRL(ctx->csi2_port), BIT(3));
+>  	reg_write_field(ctx->dev, CAL_CSI2_PPI_CTRL(ctx->csi2_port),
+>  			CAL_GEN_ENABLE, CAL_CSI2_PPI_CTRL_IF_EN_MASK);
+>  }
+> @@ -1204,15 +1207,25 @@ static irqreturn_t cal_irq(int irq_cal, void *data)
+>  		if (isportirqset(irqst2, 1)) {
+>  			ctx = dev->ctx[0];
+>  
+> +			spin_lock(&ctx->slock);
+> +			ctx->dma_act = false;
+> +
+>  			if (ctx->cur_frm != ctx->next_frm)
+>  				cal_process_buffer_complete(ctx);
+> +
+> +			spin_unlock(&ctx->slock);
+>  		}
+>  
+>  		if (isportirqset(irqst2, 2)) {
+>  			ctx = dev->ctx[1];
+>  
+> +			spin_lock(&ctx->slock);
+> +			ctx->dma_act = false;
+> +
+>  			if (ctx->cur_frm != ctx->next_frm)
+>  				cal_process_buffer_complete(ctx);
+> +
+> +			spin_unlock(&ctx->slock);
+>  		}
+>  	}
+>  
+> @@ -1228,6 +1241,7 @@ static irqreturn_t cal_irq(int irq_cal, void *data)
+>  			dma_q = &ctx->vidq;
+>  
+>  			spin_lock(&ctx->slock);
+> +			ctx->dma_act = true;
+>  			if (!list_empty(&dma_q->active) &&
+>  			    ctx->cur_frm == ctx->next_frm)
+>  				cal_schedule_next_buffer(ctx);
+> @@ -1239,6 +1253,7 @@ static irqreturn_t cal_irq(int irq_cal, void *data)
+>  			dma_q = &ctx->vidq;
+>  
+>  			spin_lock(&ctx->slock);
+> +			ctx->dma_act = true;
+>  			if (!list_empty(&dma_q->active) &&
+>  			    ctx->cur_frm == ctx->next_frm)
+>  				cal_schedule_next_buffer(ctx);
+> @@ -1711,10 +1726,27 @@ static void cal_stop_streaming(struct vb2_queue *vq)
+>  	struct cal_ctx *ctx = vb2_get_drv_priv(vq);
+>  	struct cal_dmaqueue *dma_q = &ctx->vidq;
+>  	struct cal_buffer *buf, *tmp;
+> +	unsigned long timeout;
+>  	unsigned long flags;
+>  	int ret;
+> +	bool dma_act;
+>  
+>  	csi2_ppi_disable(ctx);
+> +
+> +	/* wait for stream and dma to finish */
+> +	dma_act = true;
+> +	timeout = jiffies + msecs_to_jiffies(500);
+> +	while (dma_act && time_before(jiffies, timeout)) {
+> +		msleep(50);
+> +
+> +		spin_lock_irqsave(&ctx->slock, flags);
+> +		dma_act = ctx->dma_act;
+> +		spin_unlock_irqrestore(&ctx->slock, flags);
+> +	}
+> +
+> +	if (dma_act)
+> +		ctx_err(ctx, "failed to disable dma cleanly\n");
+> +
+>  	disable_irqs(ctx);
+>  	csi2_phy_deinit(ctx);
+>  
+> 
