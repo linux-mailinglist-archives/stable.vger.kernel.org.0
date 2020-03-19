@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5ADD718B7AE
-	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:35:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 22D6A18B803
+	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:37:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728240AbgCSNL4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Mar 2020 09:11:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57434 "EHLO mail.kernel.org"
+        id S1728086AbgCSNIO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Mar 2020 09:08:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52288 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728799AbgCSNLz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Mar 2020 09:11:55 -0400
+        id S1727252AbgCSNIL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Mar 2020 09:08:11 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ECDFA208D6;
-        Thu, 19 Mar 2020 13:11:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 34FAC208CA;
+        Thu, 19 Mar 2020 13:08:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584623514;
-        bh=FU4WyfQvIhbjeHX3WokTysTLIe/V+NR3fCkHiRcOJww=;
+        s=default; t=1584623290;
+        bh=iA18h8YrcAmdH9ewlIRvVU1KvkEvvdnYRDefibfRY08=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aWhEaG8zrGnZabN1EBQ+w4JrJX17yMO+iL2eOQ6KHMBVeDmrmhkVb0FulHCTdH7mP
-         yWbkkj83ZJpiD7I6x9+EDMQPPK2VZVxwRRdzydpIWOOhMnXSM6wKO4AKGthShn/S0t
-         TTBVryakqFyRopMrUsc4EXcj+ufPm/8splflNqXk=
+        b=mVfYdNhkxExMe2IK4IHM1UG5f1DRXagkaoDL1y2ekfAIJHSOa3wMPfd2c4wpr7qhl
+         EZzAve6tiu9iDfhjhoQqLBdQoXnRMqRdXDBm7Lvrg5mtqSQNogbKwdmI4ghpzL5egD
+         vlAnIyg+lCJUxEgrslueQi1iuWIia6FyfQuq4obA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        =?UTF-8?q?Leonardo=20M=F6rlein?= <me@irrelefant.net>,
+        =?UTF-8?q?Linus=20L=FCssing?= <linus.luessing@c0d3.blue>,
         Sven Eckelmann <sven@narfation.org>,
         Simon Wunderlich <sw@simonwunderlich.de>
-Subject: [PATCH 4.9 53/90] batman-adv: Initialize gw sel_class via batadv_algo
+Subject: [PATCH 4.4 71/93] batman-adv: Fix TT sync flags for intermediate TT responses
 Date:   Thu, 19 Mar 2020 14:00:15 +0100
-Message-Id: <20200319123944.801016349@linuxfoundation.org>
+Message-Id: <20200319123947.511471554@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.2
-In-Reply-To: <20200319123928.635114118@linuxfoundation.org>
-References: <20200319123928.635114118@linuxfoundation.org>
+In-Reply-To: <20200319123924.795019515@linuxfoundation.org>
+References: <20200319123924.795019515@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,138 +45,143 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sven Eckelmann <sven@narfation.org>
+From: Linus Lüssing <linus.luessing@c0d3.blue>
 
-commit 1a9070ec91b37234fe915849b767c61584c64a44 upstream.
+commit 7072337e52b3e9d5460500d8dc9cbc1ba2db084c upstream.
 
-The gateway selection class variable is shared between different algorithm
-versions. But the interpretation of the content is algorithm specific. The
-initialization is therefore also algorithm specific.
+The previous TT sync fix so far only fixed TT responses issued by the
+target node directly. So far, TT responses issued by intermediate nodes
+still lead to the wrong flags being added, leading to CRC mismatches.
 
-But this was implemented incorrectly and the initialization for BATMAN_V
-always overwrote the value previously written for BATMAN_IV. This could
-only be avoided when BATMAN_V was disabled during compile time.
+This behaviour was observed at Freifunk Hannover in a 800 nodes setup
+where a considerable amount of nodes were still infected with 'WI'
+TT flags even with (most) nodes having the previous TT sync fix applied.
 
-Using a special batadv_algo hook for this initialization avoids this
-problem.
+I was able to reproduce the issue with intermediate TT responses in a
+four node test setup and this patch fixes this issue by ensuring to
+use the per originator instead of the summarized, OR'd ones.
 
-Fixes: 50164d8f500f ("batman-adv: B.A.T.M.A.N. V - implement GW selection logic")
+Fixes: e9c00136a475 ("batman-adv: fix tt_global_entries flags update")
+Reported-by: Leonardo Mörlein <me@irrelefant.net>
+Signed-off-by: Linus Lüssing <linus.luessing@c0d3.blue>
 Signed-off-by: Sven Eckelmann <sven@narfation.org>
 Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
+Signed-off-by: Sven Eckelmann <sven@narfation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/batman-adv/bat_iv_ogm.c     |   11 +++++++++++
- net/batman-adv/bat_v.c          |   14 +++++++++++---
- net/batman-adv/gateway_common.c |    5 +++++
- net/batman-adv/soft-interface.c |    1 -
- net/batman-adv/types.h          |    2 ++
- 5 files changed, 29 insertions(+), 4 deletions(-)
+ net/batman-adv/translation-table.c |   37 +++++++++++++++++++++++++++++--------
+ 1 file changed, 29 insertions(+), 8 deletions(-)
 
---- a/net/batman-adv/bat_iv_ogm.c
-+++ b/net/batman-adv/bat_iv_ogm.c
-@@ -2479,6 +2479,16 @@ static void batadv_iv_iface_activate(str
- 	batadv_iv_ogm_schedule(hard_iface);
- }
- 
-+/**
-+ * batadv_iv_init_sel_class - initialize GW selection class
-+ * @bat_priv: the bat priv with all the soft interface information
-+ */
-+static void batadv_iv_init_sel_class(struct batadv_priv *bat_priv)
-+{
-+	/* set default TQ difference threshold to 20 */
-+	atomic_set(&bat_priv->gw.sel_class, 20);
-+}
-+
- static struct batadv_gw_node *
- batadv_iv_gw_get_best_gw_node(struct batadv_priv *bat_priv)
- {
-@@ -2827,6 +2837,7 @@ static struct batadv_algo_ops batadv_bat
- 		.del_if = batadv_iv_ogm_orig_del_if,
- 	},
- 	.gw = {
-+		.init_sel_class = batadv_iv_init_sel_class,
- 		.get_best_gw_node = batadv_iv_gw_get_best_gw_node,
- 		.is_eligible = batadv_iv_gw_is_eligible,
- #ifdef CONFIG_BATMAN_ADV_DEBUGFS
---- a/net/batman-adv/bat_v.c
-+++ b/net/batman-adv/bat_v.c
-@@ -668,6 +668,16 @@ err_ifinfo1:
- 	return ret;
- }
- 
-+/**
-+ * batadv_v_init_sel_class - initialize GW selection class
-+ * @bat_priv: the bat priv with all the soft interface information
-+ */
-+static void batadv_v_init_sel_class(struct batadv_priv *bat_priv)
-+{
-+	/* set default throughput difference threshold to 5Mbps */
-+	atomic_set(&bat_priv->gw.sel_class, 50);
-+}
-+
- static ssize_t batadv_v_store_sel_class(struct batadv_priv *bat_priv,
- 					char *buff, size_t count)
- {
-@@ -1054,6 +1064,7 @@ static struct batadv_algo_ops batadv_bat
- 		.dump = batadv_v_orig_dump,
- 	},
- 	.gw = {
-+		.init_sel_class = batadv_v_init_sel_class,
- 		.store_sel_class = batadv_v_store_sel_class,
- 		.show_sel_class = batadv_v_show_sel_class,
- 		.get_best_gw_node = batadv_v_gw_get_best_gw_node,
-@@ -1094,9 +1105,6 @@ int batadv_v_mesh_init(struct batadv_pri
- 	if (ret < 0)
- 		return ret;
- 
--	/* set default throughput difference threshold to 5Mbps */
--	atomic_set(&bat_priv->gw.sel_class, 50);
--
- 	return 0;
- }
- 
---- a/net/batman-adv/gateway_common.c
-+++ b/net/batman-adv/gateway_common.c
-@@ -253,6 +253,11 @@ static void batadv_gw_tvlv_ogm_handler_v
+--- a/net/batman-adv/translation-table.c
++++ b/net/batman-adv/translation-table.c
+@@ -1249,7 +1249,8 @@ batadv_tt_global_orig_entry_find(const s
   */
- void batadv_gw_init(struct batadv_priv *bat_priv)
+ static bool
+ batadv_tt_global_entry_has_orig(const struct batadv_tt_global_entry *entry,
+-				const struct batadv_orig_node *orig_node)
++				const struct batadv_orig_node *orig_node,
++				u8 *flags)
  {
-+	if (bat_priv->algo_ops->gw.init_sel_class)
-+		bat_priv->algo_ops->gw.init_sel_class(bat_priv);
-+	else
-+		atomic_set(&bat_priv->gw.sel_class, 1);
+ 	struct batadv_tt_orig_list_entry *orig_entry;
+ 	bool found = false;
+@@ -1257,6 +1258,10 @@ batadv_tt_global_entry_has_orig(const st
+ 	orig_entry = batadv_tt_global_orig_entry_find(entry, orig_node);
+ 	if (orig_entry) {
+ 		found = true;
 +
- 	batadv_tvlv_handler_register(bat_priv, batadv_gw_tvlv_ogm_handler_v1,
- 				     NULL, BATADV_TVLV_GW, 1,
- 				     BATADV_TVLV_HANDLER_OGM_CIFNOTFND);
---- a/net/batman-adv/soft-interface.c
-+++ b/net/batman-adv/soft-interface.c
-@@ -808,7 +808,6 @@ static int batadv_softif_init_late(struc
- 	atomic_set(&bat_priv->mcast.num_want_all_ipv6, 0);
- #endif
- 	atomic_set(&bat_priv->gw.mode, BATADV_GW_MODE_OFF);
--	atomic_set(&bat_priv->gw.sel_class, 20);
- 	atomic_set(&bat_priv->gw.bandwidth_down, 100);
- 	atomic_set(&bat_priv->gw.bandwidth_up, 20);
- 	atomic_set(&bat_priv->orig_interval, 1000);
---- a/net/batman-adv/types.h
-+++ b/net/batman-adv/types.h
-@@ -1466,6 +1466,7 @@ struct batadv_algo_orig_ops {
++		if (flags)
++			*flags = orig_entry->flags;
++
+ 		batadv_tt_orig_list_entry_free_ref(orig_entry);
+ 	}
+ 
+@@ -1432,7 +1437,7 @@ static bool batadv_tt_global_add(struct
+ 			if (!(common->flags & BATADV_TT_CLIENT_TEMP))
+ 				goto out;
+ 			if (batadv_tt_global_entry_has_orig(tt_global_entry,
+-							    orig_node))
++							    orig_node, NULL))
+ 				goto out_remove;
+ 			batadv_tt_global_del_orig_list(tt_global_entry);
+ 			goto add_orig_entry;
+@@ -2366,17 +2371,24 @@ unlock:
+  *
+  * Returns 1 if the entry is a valid, 0 otherwise.
+  */
+-static int batadv_tt_local_valid(const void *entry_ptr, const void *data_ptr)
++static int batadv_tt_local_valid(const void *entry_ptr,
++				 const void *data_ptr,
++				 u8 *flags)
+ {
+ 	const struct batadv_tt_common_entry *tt_common_entry = entry_ptr;
+ 
+ 	if (tt_common_entry->flags & BATADV_TT_CLIENT_NEW)
+ 		return 0;
++
++	if (flags)
++		*flags = tt_common_entry->flags;
++
+ 	return 1;
+ }
+ 
+ static int batadv_tt_global_valid(const void *entry_ptr,
+-				  const void *data_ptr)
++				  const void *data_ptr,
++				  u8 *flags)
+ {
+ 	const struct batadv_tt_common_entry *tt_common_entry = entry_ptr;
+ 	const struct batadv_tt_global_entry *tt_global_entry;
+@@ -2390,7 +2402,8 @@ static int batadv_tt_global_valid(const
+ 				       struct batadv_tt_global_entry,
+ 				       common);
+ 
+-	return batadv_tt_global_entry_has_orig(tt_global_entry, orig_node);
++	return batadv_tt_global_entry_has_orig(tt_global_entry, orig_node,
++					       flags);
+ }
  
  /**
-  * struct batadv_algo_gw_ops - mesh algorithm callbacks (GW specific)
-+ * @init_sel_class: initialize GW selection class (optional)
-  * @store_sel_class: parse and stores a new GW selection class (optional)
-  * @show_sel_class: prints the current GW selection class (optional)
-  * @get_best_gw_node: select the best GW from the list of available nodes
-@@ -1476,6 +1477,7 @@ struct batadv_algo_orig_ops {
-  * @dump: dump gateways to a netlink socket (optional)
-  */
- struct batadv_algo_gw_ops {
-+	void (*init_sel_class)(struct batadv_priv *bat_priv);
- 	ssize_t (*store_sel_class)(struct batadv_priv *bat_priv, char *buff,
- 				   size_t count);
- 	ssize_t (*show_sel_class)(struct batadv_priv *bat_priv, char *buff);
+@@ -2406,18 +2419,25 @@ static int batadv_tt_global_valid(const
+ static void batadv_tt_tvlv_generate(struct batadv_priv *bat_priv,
+ 				    struct batadv_hashtable *hash,
+ 				    void *tvlv_buff, u16 tt_len,
+-				    int (*valid_cb)(const void *, const void *),
++				    int (*valid_cb)(const void *,
++						    const void *,
++						    u8 *flags),
+ 				    void *cb_data)
+ {
+ 	struct batadv_tt_common_entry *tt_common_entry;
+ 	struct batadv_tvlv_tt_change *tt_change;
+ 	struct hlist_head *head;
+ 	u16 tt_tot, tt_num_entries = 0;
++	u8 flags;
++	bool ret;
+ 	u32 i;
+ 
+ 	tt_tot = batadv_tt_entries(tt_len);
+ 	tt_change = (struct batadv_tvlv_tt_change *)tvlv_buff;
+ 
++	if (!valid_cb)
++		return;
++
+ 	rcu_read_lock();
+ 	for (i = 0; i < hash->size; i++) {
+ 		head = &hash->table[i];
+@@ -2427,11 +2447,12 @@ static void batadv_tt_tvlv_generate(stru
+ 			if (tt_tot == tt_num_entries)
+ 				break;
+ 
+-			if ((valid_cb) && (!valid_cb(tt_common_entry, cb_data)))
++			ret = valid_cb(tt_common_entry, cb_data, &flags);
++			if (!ret)
+ 				continue;
+ 
+ 			ether_addr_copy(tt_change->addr, tt_common_entry->addr);
+-			tt_change->flags = tt_common_entry->flags;
++			tt_change->flags = flags;
+ 			tt_change->vid = htons(tt_common_entry->vid);
+ 			memset(tt_change->reserved, 0,
+ 			       sizeof(tt_change->reserved));
 
 
