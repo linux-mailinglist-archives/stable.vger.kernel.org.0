@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9354018B6B3
-	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:29:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1979018B5B7
+	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:21:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730761AbgCSN0Q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Mar 2020 09:26:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54178 "EHLO mail.kernel.org"
+        id S1729643AbgCSNUy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Mar 2020 09:20:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45214 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730312AbgCSN0Q (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Mar 2020 09:26:16 -0400
+        id S1730020AbgCSNUx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Mar 2020 09:20:53 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6FD392080C;
-        Thu, 19 Mar 2020 13:26:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F2A4F2166E;
+        Thu, 19 Mar 2020 13:20:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584624375;
-        bh=M3tpY7xARF8p9JJiyj/NDGxEIXft6hv4AOv3H5Ace84=;
+        s=default; t=1584624053;
+        bh=ty2CbhniB1FxbwVN75rtpSaBu+7hc0x/K2UXdSRQI0w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SG6Uv7vOvnzsIGtLJ8ums6m4VmVnrdDee+c+GEHqmxx3LkrADOLWKOkyWV7qrKtIK
-         fv/0K06hwG2hVfb6WjcENFIgZG6APywSkWlJUKKLUxj6q+dsCGQhRGifltTV9g5PSN
-         tOLgUX6uaGqnC70VuLY4kR89wKILG9ofyomWuPPk=
+        b=b75oI49Hmx16N5PF8u4JdhYT/nyOl3AfPiz6UuAQtBgAdqjGZld7oTXuwPTdSvKdc
+         +sbZ1GizemHT3p6EY3LF3Y4yCbcZ19r+m+Ie0Huquz6KjFsqoMAzFv/+tNPILm07Jk
+         ZsVfUGvtiKB216v/Y6XrI2qNI/pz/R80PBYdJNjs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, yangerkun <yangerkun@huawei.com>,
-        Oliver Hartkopp <socketcan@hartkopp.net>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 41/65] slip: not call free_netdev before rtnl_unlock in slip_open
+        stable@vger.kernel.org, Dmitry Osipenko <digetx@gmail.com>,
+        Jon Hunter <jonathanh@nvidia.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        Saravana Kannan <saravanak@google.com>
+Subject: [PATCH 4.19 41/48] driver core: Fix creation of device links with PM-runtime flags
 Date:   Thu, 19 Mar 2020 14:04:23 +0100
-Message-Id: <20200319123939.479037568@linuxfoundation.org>
+Message-Id: <20200319123915.806448528@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.2
-In-Reply-To: <20200319123926.466988514@linuxfoundation.org>
-References: <20200319123926.466988514@linuxfoundation.org>
+In-Reply-To: <20200319123902.941451241@linuxfoundation.org>
+References: <20200319123902.941451241@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,38 +46,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: yangerkun <yangerkun@huawei.com>
+From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 
-[ Upstream commit f596c87005f7b1baeb7d62d9a9e25d68c3dfae10 ]
+commit fb583c8eeeb1fd57e24ef41ed94c9112067aeac9 upstream.
 
-As the description before netdev_run_todo, we cannot call free_netdev
-before rtnl_unlock, fix it by reorder the code.
+After commit 515db266a9da ("driver core: Remove device link creation
+limitation"), if PM-runtime flags are passed to device_link_add(), it
+will fail (returning NULL) due to an overly restrictive flags check
+introduced by that commit.
 
-Signed-off-by: yangerkun <yangerkun@huawei.com>
-Reviewed-by: Oliver Hartkopp <socketcan@hartkopp.net>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fix this issue by extending the check in question to cover the
+PM-runtime flags too.
+
+Fixes: 515db266a9da ("driver core: Remove device link creation limitation")
+Reported-by: Dmitry Osipenko <digetx@gmail.com>
+Tested-by: Jon Hunter <jonathanh@nvidia.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Tested-by: Dmitry Osipenko <digetx@gmail.com>
+Tested-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Link: https://lore.kernel.org/r/7674989.cD04D8YV3U@kreacher
+Signed-off-by: Saravana Kannan <saravanak@google.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/net/slip/slip.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/base/core.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/slip/slip.c b/drivers/net/slip/slip.c
-index 61d7e0d1d77db..8e56a41dd7585 100644
---- a/drivers/net/slip/slip.c
-+++ b/drivers/net/slip/slip.c
-@@ -863,7 +863,10 @@ static int slip_open(struct tty_struct *tty)
- 	tty->disc_data = NULL;
- 	clear_bit(SLF_INUSE, &sl->flags);
- 	sl_free_netdev(sl->dev);
-+	/* do not call free_netdev before rtnl_unlock */
-+	rtnl_unlock();
- 	free_netdev(sl->dev);
-+	return err;
+--- a/drivers/base/core.c
++++ b/drivers/base/core.c
+@@ -213,6 +213,9 @@ void device_pm_move_to_tail(struct devic
+ 			       DL_FLAG_AUTOREMOVE_SUPPLIER | \
+ 			       DL_FLAG_AUTOPROBE_CONSUMER)
  
- err_exit:
- 	rtnl_unlock();
--- 
-2.20.1
-
++#define DL_ADD_VALID_FLAGS (DL_MANAGED_LINK_FLAGS | DL_FLAG_STATELESS | \
++			    DL_FLAG_PM_RUNTIME | DL_FLAG_RPM_ACTIVE)
++
+ /**
+  * device_link_add - Create a link between two devices.
+  * @consumer: Consumer end of the link.
+@@ -274,8 +277,7 @@ struct device_link *device_link_add(stru
+ {
+ 	struct device_link *link;
+ 
+-	if (!consumer || !supplier ||
+-	    (flags & ~(DL_FLAG_STATELESS | DL_MANAGED_LINK_FLAGS)) ||
++	if (!consumer || !supplier || flags & ~DL_ADD_VALID_FLAGS ||
+ 	    (flags & DL_FLAG_STATELESS && flags & DL_MANAGED_LINK_FLAGS) ||
+ 	    (flags & DL_FLAG_AUTOPROBE_CONSUMER &&
+ 	     flags & (DL_FLAG_AUTOREMOVE_CONSUMER |
 
 
