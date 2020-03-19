@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8337018B768
-	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:33:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0603B18B769
+	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:33:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729210AbgCSNNv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Mar 2020 09:13:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33004 "EHLO mail.kernel.org"
+        id S1729251AbgCSNOI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Mar 2020 09:14:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33384 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728732AbgCSNNu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Mar 2020 09:13:50 -0400
+        id S1729245AbgCSNOH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Mar 2020 09:14:07 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9788620722;
-        Thu, 19 Mar 2020 13:13:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9D75721556;
+        Thu, 19 Mar 2020 13:14:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584623630;
-        bh=Ibns6yabCqjeqH2at4IQLztiSvf1V4JSW/Y2OeryvaI=;
+        s=default; t=1584623647;
+        bh=qtcfD6FTjBWYW6gIAT7Wx9leaZlkgDsnGRHNqIN1es8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tm8z/k78Kc5JsRSTS3/oH91t1KPdUr9hbnpqvX1KCCcK3/O9hM91HR6P9i7A0Bd3k
-         XPEICGpx3O0dQM3DmhriuHFwRvoXNq0P0E3jaDBIsTZE5B5pt2SYub8cNjLmxz6jPC
-         mRnqH9bBq5IxGeCGfItsqg1p/7jcszLehrczRDBU=
+        b=hUtSRv6Ddm+w4GQTIeOR9SY34aM4iVWwK9kSSOmo4LJNyg6ofRRa8cCUrfGjHW/ST
+         ZcgAb7wC4S5N0YXvo9pZ9Izc0eMandMw0A4mBoyW/4/2QJK2NlrwpprNJzgx+iLn77
+         k3dZ+PKlsxvob92xaF72rPyPXFTMaJVqcRg6L7Mg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kim Phillips <kim.phillips@amd.com>,
-        Borislav Petkov <bp@suse.de>,
-        Peter Zijlstra <peterz@infradead.org>,
+        stable@vger.kernel.org, Marek Vasut <marex@denx.de>,
+        "David S. Miller" <davem@davemloft.net>,
+        Lukas Wunner <lukas@wunner.de>, Petr Stetiar <ynezz@true.cz>,
+        YueHaibing <yuehaibing@huawei.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 78/90] perf/amd/uncore: Replace manual sampling check with CAP_NO_INTERRUPT flag
-Date:   Thu, 19 Mar 2020 14:00:40 +0100
-Message-Id: <20200319123952.550140510@linuxfoundation.org>
+Subject: [PATCH 4.9 83/90] net: ks8851-ml: Fix IRQ handling and locking
+Date:   Thu, 19 Mar 2020 14:00:45 +0100
+Message-Id: <20200319123953.979377330@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.2
 In-Reply-To: <20200319123928.635114118@linuxfoundation.org>
 References: <20200319123928.635114118@linuxfoundation.org>
@@ -45,85 +46,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kim Phillips <kim.phillips@amd.com>
+From: Marek Vasut <marex@denx.de>
 
-[ Upstream commit f967140dfb7442e2db0868b03b961f9c59418a1b ]
+[ Upstream commit 44343418d0f2f623cb9da6f5000df793131cbe3b ]
 
-Enable the sampling check in kernel/events/core.c::perf_event_open(),
-which returns the more appropriate -EOPNOTSUPP.
+The KS8851 requires that packet RX and TX are mutually exclusive.
+Currently, the driver hopes to achieve this by disabling interrupt
+from the card by writing the card registers and by disabling the
+interrupt on the interrupt controller. This however is racy on SMP.
 
-BEFORE:
+Replace this approach by expanding the spinlock used around the
+ks_start_xmit() TX path to ks_irq() RX path to assure true mutual
+exclusion and remove the interrupt enabling/disabling, which is
+now not needed anymore. Furthermore, disable interrupts also in
+ks_net_stop(), which was missing before.
 
-  $ sudo perf record -a -e instructions,l3_request_g1.caching_l3_cache_accesses true
-  Error:
-  The sys_perf_event_open() syscall returned with 22 (Invalid argument) for event (l3_request_g1.caching_l3_cache_accesses).
-  /bin/dmesg | grep -i perf may provide additional information.
+Note that a massive improvement here would be to re-use the KS8851
+driver approach, which is to move the TX path into a worker thread,
+interrupt handling to threaded interrupt, and synchronize everything
+with mutexes, but that would be a much bigger rework, for a separate
+patch.
 
-With nothing relevant in dmesg.
-
-AFTER:
-
-  $ sudo perf record -a -e instructions,l3_request_g1.caching_l3_cache_accesses true
-  Error:
-  l3_request_g1.caching_l3_cache_accesses: PMU Hardware doesn't support sampling/overflow-interrupts. Try 'perf stat'
-
-Fixes: c43ca5091a37 ("perf/x86/amd: Add support for AMD NB and L2I "uncore" counters")
-Signed-off-by: Kim Phillips <kim.phillips@amd.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Acked-by: Peter Zijlstra <peterz@infradead.org>
-Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/20200311191323.13124-1-kim.phillips@amd.com
+Signed-off-by: Marek Vasut <marex@denx.de>
+Cc: David S. Miller <davem@davemloft.net>
+Cc: Lukas Wunner <lukas@wunner.de>
+Cc: Petr Stetiar <ynezz@true.cz>
+Cc: YueHaibing <yuehaibing@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/events/amd/uncore.c | 14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+ drivers/net/ethernet/micrel/ks8851_mll.c | 14 ++++++++------
+ 1 file changed, 8 insertions(+), 6 deletions(-)
 
-diff --git a/arch/x86/events/amd/uncore.c b/arch/x86/events/amd/uncore.c
-index c16c99bc2a109..6bfb9a68134c1 100644
---- a/arch/x86/events/amd/uncore.c
-+++ b/arch/x86/events/amd/uncore.c
-@@ -185,20 +185,18 @@ static int amd_uncore_event_init(struct perf_event *event)
+diff --git a/drivers/net/ethernet/micrel/ks8851_mll.c b/drivers/net/ethernet/micrel/ks8851_mll.c
+index d94e151cff12b..d4747caf1e7cc 100644
+--- a/drivers/net/ethernet/micrel/ks8851_mll.c
++++ b/drivers/net/ethernet/micrel/ks8851_mll.c
+@@ -831,14 +831,17 @@ static irqreturn_t ks_irq(int irq, void *pw)
+ {
+ 	struct net_device *netdev = pw;
+ 	struct ks_net *ks = netdev_priv(netdev);
++	unsigned long flags;
+ 	u16 status;
  
- 	/*
- 	 * NB and Last level cache counters (MSRs) are shared across all cores
--	 * that share the same NB / Last level cache. Interrupts can be directed
--	 * to a single target core, however, event counts generated by processes
--	 * running on other cores cannot be masked out. So we do not support
--	 * sampling and per-thread events.
-+	 * that share the same NB / Last level cache.  On family 16h and below,
-+	 * Interrupts can be directed to a single target core, however, event
-+	 * counts generated by processes running on other cores cannot be masked
-+	 * out. So we do not support sampling and per-thread events via
-+	 * CAP_NO_INTERRUPT, and we do not enable counter overflow interrupts:
- 	 */
--	if (is_sampling_event(event) || event->attach_state & PERF_ATTACH_TASK)
--		return -EINVAL;
++	spin_lock_irqsave(&ks->statelock, flags);
+ 	/*this should be the first in IRQ handler */
+ 	ks_save_cmd_reg(ks);
  
- 	/* NB and Last level cache counters do not have usr/os/guest/host bits */
- 	if (event->attr.exclude_user || event->attr.exclude_kernel ||
- 	    event->attr.exclude_host || event->attr.exclude_guest)
- 		return -EINVAL;
+ 	status = ks_rdreg16(ks, KS_ISR);
+ 	if (unlikely(!status)) {
+ 		ks_restore_cmd_reg(ks);
++		spin_unlock_irqrestore(&ks->statelock, flags);
+ 		return IRQ_NONE;
+ 	}
  
--	/* and we do not enable counter overflow interrupts */
- 	hwc->config = event->attr.config & AMD64_RAW_EVENT_MASK_NB;
- 	hwc->idx = -1;
+@@ -864,6 +867,7 @@ static irqreturn_t ks_irq(int irq, void *pw)
+ 		ks->netdev->stats.rx_over_errors++;
+ 	/* this should be the last in IRQ handler*/
+ 	ks_restore_cmd_reg(ks);
++	spin_unlock_irqrestore(&ks->statelock, flags);
+ 	return IRQ_HANDLED;
+ }
  
-@@ -275,6 +273,7 @@ static struct pmu amd_nb_pmu = {
- 	.start		= amd_uncore_start,
- 	.stop		= amd_uncore_stop,
- 	.read		= amd_uncore_read,
-+	.capabilities	= PERF_PMU_CAP_NO_INTERRUPT,
- };
+@@ -933,6 +937,7 @@ static int ks_net_stop(struct net_device *netdev)
  
- static struct pmu amd_llc_pmu = {
-@@ -287,6 +286,7 @@ static struct pmu amd_llc_pmu = {
- 	.start		= amd_uncore_start,
- 	.stop		= amd_uncore_stop,
- 	.read		= amd_uncore_read,
-+	.capabilities	= PERF_PMU_CAP_NO_INTERRUPT,
- };
+ 	/* shutdown RX/TX QMU */
+ 	ks_disable_qmu(ks);
++	ks_disable_int(ks);
  
- static struct amd_uncore *amd_uncore_alloc(unsigned int cpu)
+ 	/* set powermode to soft power down to save power */
+ 	ks_set_powermode(ks, PMECR_PM_SOFTDOWN);
+@@ -989,10 +994,9 @@ static netdev_tx_t ks_start_xmit(struct sk_buff *skb, struct net_device *netdev)
+ {
+ 	netdev_tx_t retv = NETDEV_TX_OK;
+ 	struct ks_net *ks = netdev_priv(netdev);
++	unsigned long flags;
+ 
+-	disable_irq(netdev->irq);
+-	ks_disable_int(ks);
+-	spin_lock(&ks->statelock);
++	spin_lock_irqsave(&ks->statelock, flags);
+ 
+ 	/* Extra space are required:
+ 	*  4 byte for alignment, 4 for status/length, 4 for CRC
+@@ -1006,9 +1010,7 @@ static netdev_tx_t ks_start_xmit(struct sk_buff *skb, struct net_device *netdev)
+ 		dev_kfree_skb(skb);
+ 	} else
+ 		retv = NETDEV_TX_BUSY;
+-	spin_unlock(&ks->statelock);
+-	ks_enable_int(ks);
+-	enable_irq(netdev->irq);
++	spin_unlock_irqrestore(&ks->statelock, flags);
+ 	return retv;
+ }
+ 
 -- 
 2.20.1
 
