@@ -2,39 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D34C818B707
-	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:31:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 09B7F18B847
+	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:43:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729374AbgCSNUu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Mar 2020 09:20:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45040 "EHLO mail.kernel.org"
+        id S1727707AbgCSNnB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Mar 2020 09:43:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39104 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729643AbgCSNUr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Mar 2020 09:20:47 -0400
+        id S1727678AbgCSNnB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Mar 2020 09:43:01 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A949E21556;
-        Thu, 19 Mar 2020 13:20:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 239C3208D6;
+        Thu, 19 Mar 2020 13:42:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584624046;
-        bh=nzhtWCu/2h7sB1zXt+T3d4x6BLsqP1SsZCbbcIGoedg=;
+        s=default; t=1584625379;
+        bh=C00m90Jdij6F1HqEzf8L4EgeNwUufQvJHwqJ/rsXnFI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vlUVHfipJCIv6C6yNR5g40Fecq4LOI2MMmynervAjBqqArETGqcm5jwg0yeC+3nD2
-         vhof2Ml7yWB0q4hXeCqQ9XHhIy+zM0arSV5NCEi/96Ekplr5+yKMvvYJ30ag5N0HjC
-         jCftXsULDRb9fkr8SmvB/GAwLbEph0Au+MCW2pdU=
+        b=U3A41GcH8RiWtUUJI0DvEY89KTZfK4DNNLkMzqo2JHrhRo7L7rsszcNvUpD0jwJml
+         nvsmhUU2oAQyqn+ZsEDFe1sKkD5HUwCzNa1LNJdbojHWvXi50jmuC/ce+3+9Ip+9aw
+         xouwA7Q+fTV3c6SsaFiMDYw4wne/Tl1s3JUGXo4k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Saravana Kannan <saravanak@google.com>
-Subject: [PATCH 4.19 39/48] driver core: Add device link flag DL_FLAG_AUTOPROBE_CONSUMER
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        "Huang, Ying" <ying.huang@intel.com>,
+        Philip Li <philip.li@intel.com>,
+        Andi Kleen <andi.kleen@intel.com>,
+        Jiri Olsa <jolsa@redhat.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>,
+        Feng Tang <feng.tang@intel.com>
+Subject: [PATCH 5.5 39/65] signal: avoid double atomic counter increments for user accounting
 Date:   Thu, 19 Mar 2020 14:04:21 +0100
-Message-Id: <20200319123915.213596195@linuxfoundation.org>
+Message-Id: <20200319123938.858253357@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.2
-In-Reply-To: <20200319123902.941451241@linuxfoundation.org>
-References: <20200319123902.941451241@linuxfoundation.org>
+In-Reply-To: <20200319123926.466988514@linuxfoundation.org>
+References: <20200319123926.466988514@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,122 +51,125 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-commit e7dd40105aac9ba051e44ad711123bc53a5e4c71 upstream.
+[ Upstream commit fda31c50292a5062332fa0343c084bd9f46604d9 ]
 
-Add a new device link flag, DL_FLAG_AUTOPROBE_CONSUMER, to request the
-driver core to probe for a consumer driver automatically after binding
-a driver to the supplier device on a persistent managed device link.
+When queueing a signal, we increment both the users count of pending
+signals (for RLIMIT_SIGPENDING tracking) and we increment the refcount
+of the user struct itself (because we keep a reference to the user in
+the signal structure in order to correctly account for it when freeing).
 
-As unbinding the supplier driver on a managed device link causes the
-consumer driver to be detached from its device automatically, this
-flag provides a complementary mechanism which is needed to address
-some "composite device" use cases.
+That turns out to be fairly expensive, because both of them are atomic
+updates, and particularly under extreme signal handling pressure on big
+machines, you can get a lot of cache contention on the user struct.
+That can then cause horrid cacheline ping-pong when you do these
+multiple accesses.
 
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Signed-off-by: Saravana Kannan <saravanak@google.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+So change the reference counting to only pin the user for the _first_
+pending signal, and to unpin it when the last pending signal is
+dequeued.  That means that when a user sees a lot of concurrent signal
+queuing - which is the only situation when this matters - the only
+atomic access needed is generally the 'sigpending' count update.
 
+This was noticed because of a particularly odd timing artifact on a
+dual-socket 96C/192T Cascade Lake platform: when you get into bad
+contention, on that machine for some reason seems to be much worse when
+the contention happens in the upper 32-byte half of the cacheline.
+
+As a result, the kernel test robot will-it-scale 'signal1' benchmark had
+an odd performance regression simply due to random alignment of the
+'struct user_struct' (and pointed to a completely unrelated and
+apparently nonsensical commit for the regression).
+
+Avoiding the double increments (and decrements on the dequeueing side,
+of course) makes for much less contention and hugely improved
+performance on that will-it-scale microbenchmark.
+
+Quoting Feng Tang:
+
+ "It makes a big difference, that the performance score is tripled! bump
+  from original 17000 to 54000. Also the gap between 5.0-rc6 and
+  5.0-rc6+Jiri's patch is reduced to around 2%"
+
+[ The "2% gap" is the odd cacheline placement difference on that
+  platform: under the extreme contention case, the effect of which half
+  of the cacheline was hot was 5%, so with the reduced contention the
+  odd timing artifact is reduced too ]
+
+It does help in the non-contended case too, but is not nearly as
+noticeable.
+
+Reported-and-tested-by: Feng Tang <feng.tang@intel.com>
+Cc: Eric W. Biederman <ebiederm@xmission.com>
+Cc: Huang, Ying <ying.huang@intel.com>
+Cc: Philip Li <philip.li@intel.com>
+Cc: Andi Kleen <andi.kleen@intel.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Documentation/driver-api/device_link.rst |    9 +++++++++
- drivers/base/core.c                      |   16 +++++++++++++++-
- drivers/base/dd.c                        |    2 +-
- include/linux/device.h                   |    3 +++
- 4 files changed, 28 insertions(+), 2 deletions(-)
+ kernel/signal.c | 23 ++++++++++++++---------
+ 1 file changed, 14 insertions(+), 9 deletions(-)
 
---- a/Documentation/driver-api/device_link.rst
-+++ b/Documentation/driver-api/device_link.rst
-@@ -94,6 +94,15 @@ Similarly, when the device link is added
- ``DL_FLAG_AUTOREMOVE_SUPPLIER`` causes the device link to be automatically
- purged when the supplier fails to probe or later unbinds.
+diff --git a/kernel/signal.c b/kernel/signal.c
+index bcd46f547db39..eea748174ade9 100644
+--- a/kernel/signal.c
++++ b/kernel/signal.c
+@@ -413,27 +413,32 @@ __sigqueue_alloc(int sig, struct task_struct *t, gfp_t flags, int override_rlimi
+ {
+ 	struct sigqueue *q = NULL;
+ 	struct user_struct *user;
++	int sigpending;
  
-+If neither ``DL_FLAG_AUTOREMOVE_CONSUMER`` nor ``DL_FLAG_AUTOREMOVE_SUPPLIER``
-+is set, ``DL_FLAG_AUTOPROBE_CONSUMER`` can be used to request the driver core
-+to probe for a driver for the consumer driver on the link automatically after
-+a driver has been bound to the supplier device.
-+
-+Note, however, that any combinations of ``DL_FLAG_AUTOREMOVE_CONSUMER``,
-+``DL_FLAG_AUTOREMOVE_SUPPLIER`` or ``DL_FLAG_AUTOPROBE_CONSUMER`` with
-+``DL_FLAG_STATELESS`` are invalid and cannot be used.
-+
- Limitations
- ===========
+ 	/*
+ 	 * Protect access to @t credentials. This can go away when all
+ 	 * callers hold rcu read lock.
++	 *
++	 * NOTE! A pending signal will hold on to the user refcount,
++	 * and we get/put the refcount only when the sigpending count
++	 * changes from/to zero.
+ 	 */
+ 	rcu_read_lock();
+-	user = get_uid(__task_cred(t)->user);
+-	atomic_inc(&user->sigpending);
++	user = __task_cred(t)->user;
++	sigpending = atomic_inc_return(&user->sigpending);
++	if (sigpending == 1)
++		get_uid(user);
+ 	rcu_read_unlock();
  
---- a/drivers/base/core.c
-+++ b/drivers/base/core.c
-@@ -195,6 +195,12 @@ void device_pm_move_to_tail(struct devic
-  * the link will be maintained until one of the devices pointed to by it (either
-  * the consumer or the supplier) is unregistered.
-  *
-+ * Also, if DL_FLAG_STATELESS, DL_FLAG_AUTOREMOVE_CONSUMER and
-+ * DL_FLAG_AUTOREMOVE_SUPPLIER are not set in @flags (that is, a persistent
-+ * managed device link is being added), the DL_FLAG_AUTOPROBE_CONSUMER flag can
-+ * be used to request the driver core to automaticall probe for a consmer
-+ * driver after successfully binding a driver to the supplier device.
-+ *
-  * The combination of DL_FLAG_STATELESS and either DL_FLAG_AUTOREMOVE_CONSUMER
-  * or DL_FLAG_AUTOREMOVE_SUPPLIER set in @flags at the same time is invalid and
-  * will cause NULL to be returned upfront.
-@@ -215,7 +221,12 @@ struct device_link *device_link_add(stru
- 
- 	if (!consumer || !supplier ||
- 	    (flags & DL_FLAG_STATELESS &&
--	     flags & (DL_FLAG_AUTOREMOVE_CONSUMER | DL_FLAG_AUTOREMOVE_SUPPLIER)))
-+	     flags & (DL_FLAG_AUTOREMOVE_CONSUMER |
-+		      DL_FLAG_AUTOREMOVE_SUPPLIER |
-+		      DL_FLAG_AUTOPROBE_CONSUMER)) ||
-+	    (flags & DL_FLAG_AUTOPROBE_CONSUMER &&
-+	     flags & (DL_FLAG_AUTOREMOVE_CONSUMER |
-+		      DL_FLAG_AUTOREMOVE_SUPPLIER)))
- 		return NULL;
- 
- 	if (flags & DL_FLAG_PM_RUNTIME && flags & DL_FLAG_RPM_ACTIVE) {
-@@ -576,6 +587,9 @@ void device_links_driver_bound(struct de
- 
- 		WARN_ON(link->status != DL_STATE_DORMANT);
- 		WRITE_ONCE(link->status, DL_STATE_AVAILABLE);
-+
-+		if (link->flags & DL_FLAG_AUTOPROBE_CONSUMER)
-+			driver_deferred_probe_add(link->consumer);
+-	if (override_rlimit ||
+-	    atomic_read(&user->sigpending) <=
+-			task_rlimit(t, RLIMIT_SIGPENDING)) {
++	if (override_rlimit || likely(sigpending <= task_rlimit(t, RLIMIT_SIGPENDING))) {
+ 		q = kmem_cache_alloc(sigqueue_cachep, flags);
+ 	} else {
+ 		print_dropped_signal(sig);
  	}
  
- 	list_for_each_entry(link, &dev->links.suppliers, c_node) {
---- a/drivers/base/dd.c
-+++ b/drivers/base/dd.c
-@@ -116,7 +116,7 @@ static void deferred_probe_work_func(str
- }
- static DECLARE_WORK(deferred_probe_work, deferred_probe_work_func);
- 
--static void driver_deferred_probe_add(struct device *dev)
-+void driver_deferred_probe_add(struct device *dev)
+ 	if (unlikely(q == NULL)) {
+-		atomic_dec(&user->sigpending);
+-		free_uid(user);
++		if (atomic_dec_and_test(&user->sigpending))
++			free_uid(user);
+ 	} else {
+ 		INIT_LIST_HEAD(&q->list);
+ 		q->flags = 0;
+@@ -447,8 +452,8 @@ static void __sigqueue_free(struct sigqueue *q)
  {
- 	mutex_lock(&deferred_probe_mutex);
- 	if (list_empty(&dev->p->deferred_probe)) {
---- a/include/linux/device.h
-+++ b/include/linux/device.h
-@@ -339,6 +339,7 @@ struct device *driver_find_device(struct
- 				  struct device *start, void *data,
- 				  int (*match)(struct device *dev, void *data));
+ 	if (q->flags & SIGQUEUE_PREALLOC)
+ 		return;
+-	atomic_dec(&q->user->sigpending);
+-	free_uid(q->user);
++	if (atomic_dec_and_test(&q->user->sigpending))
++		free_uid(q->user);
+ 	kmem_cache_free(sigqueue_cachep, q);
+ }
  
-+void driver_deferred_probe_add(struct device *dev);
- int driver_deferred_probe_check_state(struct device *dev);
- 
- /**
-@@ -824,12 +825,14 @@ enum device_link_state {
-  * PM_RUNTIME: If set, the runtime PM framework will use this link.
-  * RPM_ACTIVE: Run pm_runtime_get_sync() on the supplier during link creation.
-  * AUTOREMOVE_SUPPLIER: Remove the link automatically on supplier driver unbind.
-+ * AUTOPROBE_CONSUMER: Probe consumer driver automatically after supplier binds.
-  */
- #define DL_FLAG_STATELESS		BIT(0)
- #define DL_FLAG_AUTOREMOVE_CONSUMER	BIT(1)
- #define DL_FLAG_PM_RUNTIME		BIT(2)
- #define DL_FLAG_RPM_ACTIVE		BIT(3)
- #define DL_FLAG_AUTOREMOVE_SUPPLIER	BIT(4)
-+#define DL_FLAG_AUTOPROBE_CONSUMER	BIT(5)
- 
- /**
-  * struct device_link - Device link representation.
+-- 
+2.20.1
+
 
 
