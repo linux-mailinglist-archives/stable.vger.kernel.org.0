@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AED8C18B695
-	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:28:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7360C18B68E
+	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:28:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730644AbgCSN0m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Mar 2020 09:26:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54668 "EHLO mail.kernel.org"
+        id S1730977AbgCSN2A (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Mar 2020 09:28:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56528 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730785AbgCSN0j (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Mar 2020 09:26:39 -0400
+        id S1730971AbgCSN2A (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Mar 2020 09:28:00 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C505B20658;
-        Thu, 19 Mar 2020 13:26:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 650AF2080C;
+        Thu, 19 Mar 2020 13:27:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584624398;
-        bh=zca+MAonJ7nC5P8WUOLu6Yk2OA9Lx4YZC0BDMFm2PMo=;
+        s=default; t=1584624478;
+        bh=vxseYOJeQCS6fWbwxaaYEYi2MoV+stP5GL0I0dHdpzE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kJ7idNXxU+UVfI5xjkSnaAiudjv2W1c16yv+DuWF9n47hp5rKTO8ktkRjS8/b6wHy
-         ZjHpLb5gqGwcw05xHtY5/IYcISyTvXQh8F5i/2p5Cxjvhxjq1qQo56WknSSmMHpFHp
-         Tn23b570bN0xeFTh0tCDwa8m72LLtmM1Y6p6VXEo=
+        b=LazX3j+roJopGq7AsF2RhF3vougycIJEHdBolNVH87Ca5wlgJZWP3aQULTc1iEhqO
+         kVvJKTznqznp58NCPaq2qn8yRtIe+R0UAOJlfX+lQJsV6jL3PloqBmcZ9DswrlXqGp
+         TMZXm80nTtzHEVs7HoDNp2tt1q49eHP3PBUqKMS0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Taehee Yoo <ap420073@gmail.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 48/65] net: rmnet: fix suspicious RCU usage
-Date:   Thu, 19 Mar 2020 14:04:30 +0100
-Message-Id: <20200319123941.528206596@linuxfoundation.org>
+Subject: [PATCH 5.5 49/65] net: rmnet: remove rcu_read_lock in rmnet_force_unassociate_device()
+Date:   Thu, 19 Mar 2020 14:04:31 +0100
+Message-Id: <20200319123941.803097321@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.2
 In-Reply-To: <20200319123926.466988514@linuxfoundation.org>
 References: <20200319123926.466988514@linuxfoundation.org>
@@ -46,62 +46,61 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Taehee Yoo <ap420073@gmail.com>
 
-[ Upstream commit 102210f7664442d8c0ce332c006ea90626df745b ]
+[ Upstream commit c026d970102e9af9958edefb4a015702c6aab636 ]
 
-rmnet_get_port() internally calls rcu_dereference_rtnl(),
-which checks RTNL.
-But rmnet_get_port() could be called by packet path.
-The packet path is not protected by RTNL.
-So, the suspicious RCU usage problem occurs.
+The notifier_call() of the slave interface removes rmnet interface with
+unregister_netdevice_queue().
+But, before calling unregister_netdevice_queue(), it acquires
+rcu readlock.
+In the RCU critical section, sleeping isn't be allowed.
+But, unregister_netdevice_queue() internally calls synchronize_net(),
+which would sleep.
+So, suspicious RCU usage warning occurs.
 
 Test commands:
     modprobe rmnet
-    ip netns add nst
-    ip link add veth0 type veth peer name veth1
-    ip link set veth1 netns nst
-    ip link add rmnet0 link veth0 type rmnet mux_id 1
-    ip netns exec nst ip link add rmnet1 link veth1 type rmnet mux_id 1
-    ip netns exec nst ip link set veth1 up
-    ip netns exec nst ip link set rmnet1 up
-    ip netns exec nst ip a a 192.168.100.2/24 dev rmnet1
-    ip link set veth0 up
-    ip link set rmnet0 up
-    ip a a 192.168.100.1/24 dev rmnet0
-    ping 192.168.100.2
+    ip link add dummy0 type dummy
+    ip link add dummy1 type dummy
+    ip link add rmnet0 link dummy0 type rmnet mux_id 1
+    ip link set dummy1 master rmnet0
+    ip link del dummy0
 
 Splat looks like:
-[  146.630958][ T1174] WARNING: suspicious RCU usage
-[  146.631735][ T1174] 5.6.0-rc1+ #447 Not tainted
-[  146.632387][ T1174] -----------------------------
-[  146.633151][ T1174] drivers/net/ethernet/qualcomm/rmnet/rmnet_config.c:386 suspicious rcu_dereference_check() !
-[  146.634742][ T1174]
-[  146.634742][ T1174] other info that might help us debug this:
-[  146.634742][ T1174]
-[  146.645992][ T1174]
-[  146.645992][ T1174] rcu_scheduler_active = 2, debug_locks = 1
-[  146.646937][ T1174] 5 locks held by ping/1174:
-[  146.647609][ T1174]  #0: ffff8880c31dea70 (sk_lock-AF_INET){+.+.}, at: raw_sendmsg+0xab8/0x2980
-[  146.662463][ T1174]  #1: ffffffff93925660 (rcu_read_lock_bh){....}, at: ip_finish_output2+0x243/0x2150
-[  146.671696][ T1174]  #2: ffffffff93925660 (rcu_read_lock_bh){....}, at: __dev_queue_xmit+0x213/0x2940
-[  146.673064][ T1174]  #3: ffff8880c19ecd58 (&dev->qdisc_running_key#7){+...}, at: ip_finish_output2+0x714/0x2150
-[  146.690358][ T1174]  #4: ffff8880c5796898 (&dev->qdisc_xmit_lock_key#3){+.-.}, at: sch_direct_xmit+0x1e2/0x1020
-[  146.699875][ T1174]
-[  146.699875][ T1174] stack backtrace:
-[  146.701091][ T1174] CPU: 0 PID: 1174 Comm: ping Not tainted 5.6.0-rc1+ #447
-[  146.705215][ T1174] Hardware name: innotek GmbH VirtualBox/VirtualBox, BIOS VirtualBox 12/01/2006
-[  146.706565][ T1174] Call Trace:
-[  146.707102][ T1174]  dump_stack+0x96/0xdb
-[  146.708007][ T1174]  rmnet_get_port.part.9+0x76/0x80 [rmnet]
-[  146.709233][ T1174]  rmnet_egress_handler+0x107/0x420 [rmnet]
-[  146.710492][ T1174]  ? sch_direct_xmit+0x1e2/0x1020
-[  146.716193][ T1174]  rmnet_vnd_start_xmit+0x3d/0xa0 [rmnet]
-[  146.717012][ T1174]  dev_hard_start_xmit+0x160/0x740
-[  146.717854][ T1174]  sch_direct_xmit+0x265/0x1020
-[  146.718577][ T1174]  ? register_lock_class+0x14d0/0x14d0
-[  146.719429][ T1174]  ? dev_watchdog+0xac0/0xac0
-[  146.723738][ T1174]  ? __dev_queue_xmit+0x15fd/0x2940
-[  146.724469][ T1174]  ? lock_acquire+0x164/0x3b0
-[  146.725172][ T1174]  __dev_queue_xmit+0x20c7/0x2940
+[   79.639245][ T1195] =============================
+[   79.640134][ T1195] WARNING: suspicious RCU usage
+[   79.640852][ T1195] 5.6.0-rc1+ #447 Not tainted
+[   79.641657][ T1195] -----------------------------
+[   79.642472][ T1195] ./include/linux/rcupdate.h:273 Illegal context switch in RCU read-side critical section!
+[   79.644043][ T1195]
+[   79.644043][ T1195] other info that might help us debug this:
+[   79.644043][ T1195]
+[   79.645682][ T1195]
+[   79.645682][ T1195] rcu_scheduler_active = 2, debug_locks = 1
+[   79.646980][ T1195] 2 locks held by ip/1195:
+[   79.647629][ T1195]  #0: ffffffffa3cf64f0 (rtnl_mutex){+.+.}, at: rtnetlink_rcv_msg+0x457/0x890
+[   79.649312][ T1195]  #1: ffffffffa39256c0 (rcu_read_lock){....}, at: rmnet_config_notify_cb+0xf0/0x590 [rmnet]
+[   79.651717][ T1195]
+[   79.651717][ T1195] stack backtrace:
+[   79.652650][ T1195] CPU: 3 PID: 1195 Comm: ip Not tainted 5.6.0-rc1+ #447
+[   79.653702][ T1195] Hardware name: innotek GmbH VirtualBox/VirtualBox, BIOS VirtualBox 12/01/2006
+[   79.655037][ T1195] Call Trace:
+[   79.655560][ T1195]  dump_stack+0x96/0xdb
+[   79.656252][ T1195]  ___might_sleep+0x345/0x440
+[   79.656994][ T1195]  synchronize_net+0x18/0x30
+[   79.661132][ T1195]  netdev_rx_handler_unregister+0x40/0xb0
+[   79.666266][ T1195]  rmnet_unregister_real_device+0x42/0xb0 [rmnet]
+[   79.667211][ T1195]  rmnet_config_notify_cb+0x1f7/0x590 [rmnet]
+[   79.668121][ T1195]  ? rmnet_unregister_bridge.isra.6+0xf0/0xf0 [rmnet]
+[   79.669166][ T1195]  ? rmnet_unregister_bridge.isra.6+0xf0/0xf0 [rmnet]
+[   79.670286][ T1195]  ? __module_text_address+0x13/0x140
+[   79.671139][ T1195]  notifier_call_chain+0x90/0x160
+[   79.671973][ T1195]  rollback_registered_many+0x660/0xcf0
+[   79.672893][ T1195]  ? netif_set_real_num_tx_queues+0x780/0x780
+[   79.675091][ T1195]  ? __lock_acquire+0xdfe/0x3de0
+[   79.675825][ T1195]  ? memset+0x1f/0x40
+[   79.676367][ T1195]  ? __nla_validate_parse+0x98/0x1ab0
+[   79.677290][ T1195]  unregister_netdevice_many.part.133+0x13/0x1b0
+[   79.678163][ T1195]  rtnl_delete_link+0xbc/0x100
 [ ... ]
 
 Fixes: ceed73a2cf4a ("drivers: net: ethernet: qualcomm: rmnet: Initial implementation")
@@ -109,96 +108,29 @@ Signed-off-by: Taehee Yoo <ap420073@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/qualcomm/rmnet/rmnet_config.c  | 13 ++++++-------
- drivers/net/ethernet/qualcomm/rmnet/rmnet_config.h  |  2 +-
- .../net/ethernet/qualcomm/rmnet/rmnet_handlers.c    |  4 ++--
- 3 files changed, 9 insertions(+), 10 deletions(-)
+ drivers/net/ethernet/qualcomm/rmnet/rmnet_config.c | 2 --
+ 1 file changed, 2 deletions(-)
 
 diff --git a/drivers/net/ethernet/qualcomm/rmnet/rmnet_config.c b/drivers/net/ethernet/qualcomm/rmnet/rmnet_config.c
-index ac58f584190bd..fc68ecdd804bc 100644
+index fc68ecdd804bc..0ad64aa665925 100644
 --- a/drivers/net/ethernet/qualcomm/rmnet/rmnet_config.c
 +++ b/drivers/net/ethernet/qualcomm/rmnet/rmnet_config.c
-@@ -382,11 +382,10 @@ struct rtnl_link_ops rmnet_link_ops __read_mostly = {
- 	.fill_info	= rmnet_fill_info,
- };
+@@ -230,7 +230,6 @@ static void rmnet_force_unassociate_device(struct net_device *dev)
  
--/* Needs either rcu_read_lock() or rtnl lock */
--struct rmnet_port *rmnet_get_port(struct net_device *real_dev)
-+struct rmnet_port *rmnet_get_port_rcu(struct net_device *real_dev)
- {
- 	if (rmnet_is_real_dev_registered(real_dev))
--		return rcu_dereference_rtnl(real_dev->rx_handler_data);
-+		return rcu_dereference_bh(real_dev->rx_handler_data);
- 	else
- 		return NULL;
- }
-@@ -412,7 +411,7 @@ int rmnet_add_bridge(struct net_device *rmnet_dev,
- 	struct rmnet_port *port, *slave_port;
- 	int err;
+ 	port = rmnet_get_port_rtnl(dev);
  
--	port = rmnet_get_port(real_dev);
-+	port = rmnet_get_port_rtnl(real_dev);
+-	rcu_read_lock();
+ 	rmnet_unregister_bridge(dev, port);
  
- 	/* If there is more than one rmnet dev attached, its probably being
- 	 * used for muxing. Skip the briding in that case
-@@ -427,7 +426,7 @@ int rmnet_add_bridge(struct net_device *rmnet_dev,
- 	if (err)
- 		return -EBUSY;
+ 	hash_for_each_safe(port->muxed_ep, bkt_ep, tmp_ep, ep, hlnode) {
+@@ -241,7 +240,6 @@ static void rmnet_force_unassociate_device(struct net_device *dev)
+ 		kfree(ep);
+ 	}
  
--	slave_port = rmnet_get_port(slave_dev);
-+	slave_port = rmnet_get_port_rtnl(slave_dev);
- 	slave_port->rmnet_mode = RMNET_EPMODE_BRIDGE;
- 	slave_port->bridge_ep = real_dev;
+-	rcu_read_unlock();
+ 	unregister_netdevice_many(&list);
  
-@@ -445,11 +444,11 @@ int rmnet_del_bridge(struct net_device *rmnet_dev,
- 	struct net_device *real_dev = priv->real_dev;
- 	struct rmnet_port *port, *slave_port;
- 
--	port = rmnet_get_port(real_dev);
-+	port = rmnet_get_port_rtnl(real_dev);
- 	port->rmnet_mode = RMNET_EPMODE_VND;
- 	port->bridge_ep = NULL;
- 
--	slave_port = rmnet_get_port(slave_dev);
-+	slave_port = rmnet_get_port_rtnl(slave_dev);
- 	rmnet_unregister_real_device(slave_dev, slave_port);
- 
- 	netdev_dbg(slave_dev, "removed from rmnet as slave\n");
-diff --git a/drivers/net/ethernet/qualcomm/rmnet/rmnet_config.h b/drivers/net/ethernet/qualcomm/rmnet/rmnet_config.h
-index cd0a6bcbe74ad..0d568dcfd65a1 100644
---- a/drivers/net/ethernet/qualcomm/rmnet/rmnet_config.h
-+++ b/drivers/net/ethernet/qualcomm/rmnet/rmnet_config.h
-@@ -65,7 +65,7 @@ struct rmnet_priv {
- 	struct rmnet_priv_stats stats;
- };
- 
--struct rmnet_port *rmnet_get_port(struct net_device *real_dev);
-+struct rmnet_port *rmnet_get_port_rcu(struct net_device *real_dev);
- struct rmnet_endpoint *rmnet_get_endpoint(struct rmnet_port *port, u8 mux_id);
- int rmnet_add_bridge(struct net_device *rmnet_dev,
- 		     struct net_device *slave_dev,
-diff --git a/drivers/net/ethernet/qualcomm/rmnet/rmnet_handlers.c b/drivers/net/ethernet/qualcomm/rmnet/rmnet_handlers.c
-index 1b74bc1604027..074a8b326c304 100644
---- a/drivers/net/ethernet/qualcomm/rmnet/rmnet_handlers.c
-+++ b/drivers/net/ethernet/qualcomm/rmnet/rmnet_handlers.c
-@@ -184,7 +184,7 @@ rx_handler_result_t rmnet_rx_handler(struct sk_buff **pskb)
- 		return RX_HANDLER_PASS;
- 
- 	dev = skb->dev;
--	port = rmnet_get_port(dev);
-+	port = rmnet_get_port_rcu(dev);
- 
- 	switch (port->rmnet_mode) {
- 	case RMNET_EPMODE_VND:
-@@ -217,7 +217,7 @@ void rmnet_egress_handler(struct sk_buff *skb)
- 	skb->dev = priv->real_dev;
- 	mux_id = priv->mux_id;
- 
--	port = rmnet_get_port(skb->dev);
-+	port = rmnet_get_port_rcu(skb->dev);
- 	if (!port)
- 		goto drop;
- 
+ 	rmnet_unregister_real_device(real_dev, port);
 -- 
 2.20.1
 
