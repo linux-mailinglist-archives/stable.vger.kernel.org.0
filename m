@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 236F818B6FB
-	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:31:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 36FBE18B734
+	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:32:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729848AbgCSNTN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Mar 2020 09:19:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42236 "EHLO mail.kernel.org"
+        id S1729292AbgCSNRI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Mar 2020 09:17:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38078 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729730AbgCSNTM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Mar 2020 09:19:12 -0400
+        id S1728587AbgCSNRF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Mar 2020 09:17:05 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 364F9216FD;
-        Thu, 19 Mar 2020 13:19:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 084DC2098B;
+        Thu, 19 Mar 2020 13:17:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584623951;
-        bh=xpF/oJrCEXUxvt+0y7Lo8jkFhhTZdOsK+QynZE3xPvI=;
+        s=default; t=1584623825;
+        bh=DhQdjjQn2eZ24B9bz74nkgn/f/f2bBwkrO5iDNd754A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fW2fPCdnq6NrLTRKKHDkC5gt7eMZD0W9bp+V0zGSPGoBwgQLLC4MlGyQQZEPc0vpJ
-         KrTRRKQQNyeqnJvYWTnQE4x89l4oPRbQqVqg0rENnRef5VK/aF6IBBSBcFMxUHdmBK
-         +Z/ggFa0+m6v8DWV2mjhC6H55vMuP4kBsHmZLP/0=
+        b=q7I0wozGiyaM6KEUDqG5RQEaF7UI7lEGyiyeGNfjSHpIJPbV5cUUC3bqRINF3XkIB
+         S+faLAwgByi1WhP+HqrHg4ua9HhRKjQZAM0FlRBGDtoedZqfQikJk31ku93eFNVzLC
+         5gglC43OAT7tQI66tGT2dEJcziGW+xPkdZDm6w/M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kim Phillips <kim.phillips@amd.com>,
-        Borislav Petkov <bp@suse.de>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 01/48] perf/amd/uncore: Replace manual sampling check with CAP_NO_INTERRUPT flag
+        stable@vger.kernel.org,
+        syzbot+84484ccebdd4e5451d91@syzkaller.appspotmail.com,
+        Karsten Graul <kgraul@linux.ibm.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.14 65/99] net/smc: check for valid ib_client_data
 Date:   Thu, 19 Mar 2020 14:03:43 +0100
-Message-Id: <20200319123903.575711114@linuxfoundation.org>
+Message-Id: <20200319124001.180108595@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.2
-In-Reply-To: <20200319123902.941451241@linuxfoundation.org>
-References: <20200319123902.941451241@linuxfoundation.org>
+In-Reply-To: <20200319123941.630731708@linuxfoundation.org>
+References: <20200319123941.630731708@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -47,87 +45,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kim Phillips <kim.phillips@amd.com>
+From: Karsten Graul <kgraul@linux.ibm.com>
 
-[ Upstream commit f967140dfb7442e2db0868b03b961f9c59418a1b ]
+commit a2f2ef4a54c0d97aa6a8386f4ff23f36ebb488cf upstream.
 
-Enable the sampling check in kernel/events/core.c::perf_event_open(),
-which returns the more appropriate -EOPNOTSUPP.
+In smc_ib_remove_dev() check if the provided ib device was actually
+initialized for SMC before.
 
-BEFORE:
+Reported-by: syzbot+84484ccebdd4e5451d91@syzkaller.appspotmail.com
+Fixes: a4cf0443c414 ("smc: introduce SMC as an IB-client")
+Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-  $ sudo perf record -a -e instructions,l3_request_g1.caching_l3_cache_accesses true
-  Error:
-  The sys_perf_event_open() syscall returned with 22 (Invalid argument) for event (l3_request_g1.caching_l3_cache_accesses).
-  /bin/dmesg | grep -i perf may provide additional information.
-
-With nothing relevant in dmesg.
-
-AFTER:
-
-  $ sudo perf record -a -e instructions,l3_request_g1.caching_l3_cache_accesses true
-  Error:
-  l3_request_g1.caching_l3_cache_accesses: PMU Hardware doesn't support sampling/overflow-interrupts. Try 'perf stat'
-
-Fixes: c43ca5091a37 ("perf/x86/amd: Add support for AMD NB and L2I "uncore" counters")
-Signed-off-by: Kim Phillips <kim.phillips@amd.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Acked-by: Peter Zijlstra <peterz@infradead.org>
-Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/20200311191323.13124-1-kim.phillips@amd.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/events/amd/uncore.c | 14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+ net/smc/smc_ib.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/arch/x86/events/amd/uncore.c b/arch/x86/events/amd/uncore.c
-index baa7e36073f90..604a8558752d1 100644
---- a/arch/x86/events/amd/uncore.c
-+++ b/arch/x86/events/amd/uncore.c
-@@ -193,20 +193,18 @@ static int amd_uncore_event_init(struct perf_event *event)
+--- a/net/smc/smc_ib.c
++++ b/net/smc/smc_ib.c
+@@ -513,6 +513,8 @@ static void smc_ib_remove_dev(struct ib_
+ 	struct smc_ib_device *smcibdev;
  
- 	/*
- 	 * NB and Last level cache counters (MSRs) are shared across all cores
--	 * that share the same NB / Last level cache. Interrupts can be directed
--	 * to a single target core, however, event counts generated by processes
--	 * running on other cores cannot be masked out. So we do not support
--	 * sampling and per-thread events.
-+	 * that share the same NB / Last level cache.  On family 16h and below,
-+	 * Interrupts can be directed to a single target core, however, event
-+	 * counts generated by processes running on other cores cannot be masked
-+	 * out. So we do not support sampling and per-thread events via
-+	 * CAP_NO_INTERRUPT, and we do not enable counter overflow interrupts:
- 	 */
--	if (is_sampling_event(event) || event->attach_state & PERF_ATTACH_TASK)
--		return -EINVAL;
- 
- 	/* NB and Last level cache counters do not have usr/os/guest/host bits */
- 	if (event->attr.exclude_user || event->attr.exclude_kernel ||
- 	    event->attr.exclude_host || event->attr.exclude_guest)
- 		return -EINVAL;
- 
--	/* and we do not enable counter overflow interrupts */
- 	hwc->config = event->attr.config & AMD64_RAW_EVENT_MASK_NB;
- 	hwc->idx = -1;
- 
-@@ -314,6 +312,7 @@ static struct pmu amd_nb_pmu = {
- 	.start		= amd_uncore_start,
- 	.stop		= amd_uncore_stop,
- 	.read		= amd_uncore_read,
-+	.capabilities	= PERF_PMU_CAP_NO_INTERRUPT,
- };
- 
- static struct pmu amd_llc_pmu = {
-@@ -324,6 +323,7 @@ static struct pmu amd_llc_pmu = {
- 	.start		= amd_uncore_start,
- 	.stop		= amd_uncore_stop,
- 	.read		= amd_uncore_read,
-+	.capabilities	= PERF_PMU_CAP_NO_INTERRUPT,
- };
- 
- static struct amd_uncore *amd_uncore_alloc(unsigned int cpu)
--- 
-2.20.1
-
+ 	smcibdev = ib_get_client_data(ibdev, &smc_ib_client);
++	if (!smcibdev || smcibdev->ibdev != ibdev)
++		return;
+ 	ib_set_client_data(ibdev, &smc_ib_client, NULL);
+ 	spin_lock(&smc_ib_devices.lock);
+ 	list_del_init(&smcibdev->list); /* remove from smc_ib_devices */
 
 
