@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EAFD518B7CB
-	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:36:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A510618B825
+	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:38:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728390AbgCSNJx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Mar 2020 09:09:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54444 "EHLO mail.kernel.org"
+        id S1727647AbgCSNic (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Mar 2020 09:38:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49140 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728377AbgCSNJv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Mar 2020 09:09:51 -0400
+        id S1727570AbgCSNGG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Mar 2020 09:06:06 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 18F8320789;
-        Thu, 19 Mar 2020 13:09:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7A807207FC;
+        Thu, 19 Mar 2020 13:06:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584623391;
-        bh=O1OxejklrZEJykSJGu3mE7lIoPOU6R/IBRhohna7Urk=;
+        s=default; t=1584623165;
+        bh=NjDtdMyGhV1PjDxXEszjBKSlYA/uWjw5FVglPfxVC6g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y/6nx6uAeF/m7sGv5ZojRhkL9caOu42sm4bABnItlXTMdNNU4ol6I6XzFN3vTMVMP
-         +FKnbIjwekO9c5A0xwl9ORHhOkha/edWAbXs9J5he2cEYTCIC5GGOpxnyZc6to3WtJ
-         mi04GFHxXGGZK2gC3xgar0fJ5PiMBqREVzqhwSP4=
+        b=Rsw3nNz+aSmqiiYW+cO5hc7CELMWOgdDrPYQS3ML9H32kKHaBQouVMIYsbQscWbKX
+         gJVDDSLtqlbCGCbAj9lSb302Q0XznbSq4ZGjkyCEtExzmec/x9f2GCyDxh2kGDCMmE
+         rJ8QGwEhxmDA1fLPfxPTYLI3sj4l0Fl+tkLELwk4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
-        David Ahern <dsahern@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 11/90] fib: add missing attribute validation for tun_id
-Date:   Thu, 19 Mar 2020 13:59:33 +0100
-Message-Id: <20200319123932.196684572@linuxfoundation.org>
+        Johannes Berg <johannes.berg@intel.com>
+Subject: [PATCH 4.4 30/93] nl80211: add missing attribute validation for critical protocol indication
+Date:   Thu, 19 Mar 2020 13:59:34 +0100
+Message-Id: <20200319123934.629726211@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.2
-In-Reply-To: <20200319123928.635114118@linuxfoundation.org>
-References: <20200319123928.635114118@linuxfoundation.org>
+In-Reply-To: <20200319123924.795019515@linuxfoundation.org>
+References: <20200319123924.795019515@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,28 +45,31 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jakub Kicinski <kuba@kernel.org>
 
-[ Upstream commit 4c16d64ea04056f1b1b324ab6916019f6a064114 ]
+commit 0e1a1d853ecedc99da9d27f9f5c376935547a0e2 upstream.
 
-Add missing netlink policy entry for FRA_TUN_ID.
+Add missing attribute validation for critical protocol fields
+to the netlink policy.
 
-Fixes: e7030878fc84 ("fib: Add fib rule match on tunnel id")
+Fixes: 5de17984898c ("cfg80211: introduce critical protocol indication from user-space")
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Reviewed-by: David Ahern <dsahern@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Link: https://lore.kernel.org/r/20200303051058.4089398-2-kuba@kernel.org
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- include/net/fib_rules.h |    1 +
- 1 file changed, 1 insertion(+)
 
---- a/include/net/fib_rules.h
-+++ b/include/net/fib_rules.h
-@@ -87,6 +87,7 @@ struct fib_rules_ops {
- 	[FRA_OIFNAME]	= { .type = NLA_STRING, .len = IFNAMSIZ - 1 }, \
- 	[FRA_PRIORITY]	= { .type = NLA_U32 }, \
- 	[FRA_FWMARK]	= { .type = NLA_U32 }, \
-+	[FRA_TUN_ID]	= { .type = NLA_U64 }, \
- 	[FRA_FWMASK]	= { .type = NLA_U32 }, \
- 	[FRA_TABLE]     = { .type = NLA_U32 }, \
- 	[FRA_SUPPRESS_PREFIXLEN] = { .type = NLA_U32 }, \
+---
+ net/wireless/nl80211.c |    2 ++
+ 1 file changed, 2 insertions(+)
+
+--- a/net/wireless/nl80211.c
++++ b/net/wireless/nl80211.c
+@@ -404,6 +404,8 @@ static const struct nla_policy nl80211_p
+ 	[NL80211_ATTR_MDID] = { .type = NLA_U16 },
+ 	[NL80211_ATTR_IE_RIC] = { .type = NLA_BINARY,
+ 				  .len = IEEE80211_MAX_DATA_LEN },
++	[NL80211_ATTR_CRIT_PROT_ID] = { .type = NLA_U16 },
++	[NL80211_ATTR_MAX_CRIT_PROT_DURATION] = { .type = NLA_U16 },
+ 	[NL80211_ATTR_PEER_AID] = { .type = NLA_U16 },
+ 	[NL80211_ATTR_CH_SWITCH_COUNT] = { .type = NLA_U32 },
+ 	[NL80211_ATTR_CH_SWITCH_BLOCK_TX] = { .type = NLA_FLAG },
 
 
