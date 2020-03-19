@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C018D18B6AB
-	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:29:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3005A18B5FA
+	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:23:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730489AbgCSNZo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Mar 2020 09:25:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53406 "EHLO mail.kernel.org"
+        id S1729162AbgCSNW4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Mar 2020 09:22:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48594 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730672AbgCSNZn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Mar 2020 09:25:43 -0400
+        id S1729066AbgCSNWz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Mar 2020 09:22:55 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D26C920658;
-        Thu, 19 Mar 2020 13:25:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0A035206D7;
+        Thu, 19 Mar 2020 13:22:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584624342;
-        bh=LijBeT8ghRz4OhfDqJrmVw3kAoNl4ItiK+qJNyWxjHs=;
+        s=default; t=1584624174;
+        bh=qByTAWT7bl0J6/edNlwDbsUX9/OFfv2Y7B+vvlVndss=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qSeWNhbsbGo4YjWqna3ioHEE9NOU6wLkZZfZiH6tt7wI6Li8Hx7++RhDvdrTpiFc4
-         yKiQ1S9UDlQ6ySrCFRQnlh/jSDYL6Ezjzui98zf4f0ikRpjaR33F7Q91koG5QegkuZ
-         bwZuxrAH3kE0Sbpan4rMkS+JGzphZ+1t4aQZEwas=
+        b=UAV7GkliWiOZUU1kSEzHPdPGlt9DV52Ta/TOZhpYmjp5V0jq3QV2rEuXDjrDGF/dB
+         LCErvXLenMWzkhqXreHcdjLT9H/LZOVPKUCVEZEpVEz6nzzLbnFVTBc8AoqiZg765h
+         fj+e47UBh1oEDx8gmyO4ADyE7QeEcPQTS7XJ1mqI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Madhuparna Bhowmik <madhuparnabhowmik10@gmail.com>,
-        Johannes Berg <johannes.berg@intel.com>,
+        stable@vger.kernel.org, Dongli Zhang <dongli.zhang@oracle.com>,
+        Christoph Hellwig <hch@infradead.org>,
+        "Ewan D. Milne" <emilne@redhat.com>,
+        Ming Lei <ming.lei@redhat.com>, Jens Axboe <axboe@kernel.dk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 28/65] mac80211: rx: avoid RCU list traversal under mutex
+Subject: [PATCH 5.4 32/60] blk-mq: insert passthrough request into hctx->dispatch directly
 Date:   Thu, 19 Mar 2020 14:04:10 +0100
-Message-Id: <20200319123935.249074287@linuxfoundation.org>
+Message-Id: <20200319123929.799017338@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.2
-In-Reply-To: <20200319123926.466988514@linuxfoundation.org>
-References: <20200319123926.466988514@linuxfoundation.org>
+In-Reply-To: <20200319123919.441695203@linuxfoundation.org>
+References: <20200319123919.441695203@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,37 +46,179 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Madhuparna Bhowmik <madhuparnabhowmik10@gmail.com>
+From: Ming Lei <ming.lei@redhat.com>
 
-[ Upstream commit 253216ffb2a002a682c6f68bd3adff5b98b71de8 ]
+[ Upstream commit 01e99aeca3979600302913cef3f89076786f32c8 ]
 
-local->sta_mtx is held in __ieee80211_check_fast_rx_iface().
-No need to use list_for_each_entry_rcu() as it also requires
-a cond argument to avoid false lockdep warnings when not used in
-RCU read-side section (with CONFIG_PROVE_RCU_LIST).
-Therefore use list_for_each_entry();
+For some reason, device may be in one situation which can't handle
+FS request, so STS_RESOURCE is always returned and the FS request
+will be added to hctx->dispatch. However passthrough request may
+be required at that time for fixing the problem. If passthrough
+request is added to scheduler queue, there isn't any chance for
+blk-mq to dispatch it given we prioritize requests in hctx->dispatch.
+Then the FS IO request may never be completed, and IO hang is caused.
 
-Signed-off-by: Madhuparna Bhowmik <madhuparnabhowmik10@gmail.com>
-Link: https://lore.kernel.org/r/20200223143302.15390-1-madhuparnabhowmik10@gmail.com
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+So passthrough request has to be added to hctx->dispatch directly
+for fixing the IO hang.
+
+Fix this issue by inserting passthrough request into hctx->dispatch
+directly together withing adding FS request to the tail of
+hctx->dispatch in blk_mq_dispatch_rq_list(). Actually we add FS request
+to tail of hctx->dispatch at default, see blk_mq_request_bypass_insert().
+
+Then it becomes consistent with original legacy IO request
+path, in which passthrough request is always added to q->queue_head.
+
+Cc: Dongli Zhang <dongli.zhang@oracle.com>
+Cc: Christoph Hellwig <hch@infradead.org>
+Cc: Ewan D. Milne <emilne@redhat.com>
+Signed-off-by: Ming Lei <ming.lei@redhat.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mac80211/rx.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ block/blk-flush.c    |  2 +-
+ block/blk-mq-sched.c | 22 +++++++++++++++-------
+ block/blk-mq.c       | 18 +++++++++++-------
+ block/blk-mq.h       |  3 ++-
+ 4 files changed, 29 insertions(+), 16 deletions(-)
 
-diff --git a/net/mac80211/rx.c b/net/mac80211/rx.c
-index 0e05ff0376726..0ba98ad9bc854 100644
---- a/net/mac80211/rx.c
-+++ b/net/mac80211/rx.c
-@@ -4114,7 +4114,7 @@ void __ieee80211_check_fast_rx_iface(struct ieee80211_sub_if_data *sdata)
+diff --git a/block/blk-flush.c b/block/blk-flush.c
+index b1f0a1ac505c9..5aa6fada22598 100644
+--- a/block/blk-flush.c
++++ b/block/blk-flush.c
+@@ -399,7 +399,7 @@ void blk_insert_flush(struct request *rq)
+ 	 */
+ 	if ((policy & REQ_FSEQ_DATA) &&
+ 	    !(policy & (REQ_FSEQ_PREFLUSH | REQ_FSEQ_POSTFLUSH))) {
+-		blk_mq_request_bypass_insert(rq, false);
++		blk_mq_request_bypass_insert(rq, false, false);
+ 		return;
+ 	}
  
- 	lockdep_assert_held(&local->sta_mtx);
+diff --git a/block/blk-mq-sched.c b/block/blk-mq-sched.c
+index ca22afd47b3dc..856356b1619e8 100644
+--- a/block/blk-mq-sched.c
++++ b/block/blk-mq-sched.c
+@@ -361,13 +361,19 @@ static bool blk_mq_sched_bypass_insert(struct blk_mq_hw_ctx *hctx,
+ 				       bool has_sched,
+ 				       struct request *rq)
+ {
+-	/* dispatch flush rq directly */
+-	if (rq->rq_flags & RQF_FLUSH_SEQ) {
+-		spin_lock(&hctx->lock);
+-		list_add(&rq->queuelist, &hctx->dispatch);
+-		spin_unlock(&hctx->lock);
++	/*
++	 * dispatch flush and passthrough rq directly
++	 *
++	 * passthrough request has to be added to hctx->dispatch directly.
++	 * For some reason, device may be in one situation which can't
++	 * handle FS request, so STS_RESOURCE is always returned and the
++	 * FS request will be added to hctx->dispatch. However passthrough
++	 * request may be required at that time for fixing the problem. If
++	 * passthrough request is added to scheduler queue, there isn't any
++	 * chance to dispatch it given we prioritize requests in hctx->dispatch.
++	 */
++	if ((rq->rq_flags & RQF_FLUSH_SEQ) || blk_rq_is_passthrough(rq))
+ 		return true;
+-	}
  
--	list_for_each_entry_rcu(sta, &local->sta_list, list) {
-+	list_for_each_entry(sta, &local->sta_list, list) {
- 		if (sdata != sta->sdata &&
- 		    (!sta->sdata->bss || sta->sdata->bss != sdata->bss))
- 			continue;
+ 	if (has_sched)
+ 		rq->rq_flags |= RQF_SORTED;
+@@ -391,8 +397,10 @@ void blk_mq_sched_insert_request(struct request *rq, bool at_head,
+ 
+ 	WARN_ON(e && (rq->tag != -1));
+ 
+-	if (blk_mq_sched_bypass_insert(hctx, !!e, rq))
++	if (blk_mq_sched_bypass_insert(hctx, !!e, rq)) {
++		blk_mq_request_bypass_insert(rq, at_head, false);
+ 		goto run;
++	}
+ 
+ 	if (e && e->type->ops.insert_requests) {
+ 		LIST_HEAD(list);
+diff --git a/block/blk-mq.c b/block/blk-mq.c
+index ec791156e9ccd..3c1abab1fdf52 100644
+--- a/block/blk-mq.c
++++ b/block/blk-mq.c
+@@ -761,7 +761,7 @@ static void blk_mq_requeue_work(struct work_struct *work)
+ 		 * merge.
+ 		 */
+ 		if (rq->rq_flags & RQF_DONTPREP)
+-			blk_mq_request_bypass_insert(rq, false);
++			blk_mq_request_bypass_insert(rq, false, false);
+ 		else
+ 			blk_mq_sched_insert_request(rq, true, false, false);
+ 	}
+@@ -1313,7 +1313,7 @@ bool blk_mq_dispatch_rq_list(struct request_queue *q, struct list_head *list,
+ 			q->mq_ops->commit_rqs(hctx);
+ 
+ 		spin_lock(&hctx->lock);
+-		list_splice_init(list, &hctx->dispatch);
++		list_splice_tail_init(list, &hctx->dispatch);
+ 		spin_unlock(&hctx->lock);
+ 
+ 		/*
+@@ -1668,12 +1668,16 @@ void __blk_mq_insert_request(struct blk_mq_hw_ctx *hctx, struct request *rq,
+  * Should only be used carefully, when the caller knows we want to
+  * bypass a potential IO scheduler on the target device.
+  */
+-void blk_mq_request_bypass_insert(struct request *rq, bool run_queue)
++void blk_mq_request_bypass_insert(struct request *rq, bool at_head,
++				  bool run_queue)
+ {
+ 	struct blk_mq_hw_ctx *hctx = rq->mq_hctx;
+ 
+ 	spin_lock(&hctx->lock);
+-	list_add_tail(&rq->queuelist, &hctx->dispatch);
++	if (at_head)
++		list_add(&rq->queuelist, &hctx->dispatch);
++	else
++		list_add_tail(&rq->queuelist, &hctx->dispatch);
+ 	spin_unlock(&hctx->lock);
+ 
+ 	if (run_queue)
+@@ -1863,7 +1867,7 @@ static blk_status_t __blk_mq_try_issue_directly(struct blk_mq_hw_ctx *hctx,
+ 	if (bypass_insert)
+ 		return BLK_STS_RESOURCE;
+ 
+-	blk_mq_request_bypass_insert(rq, run_queue);
++	blk_mq_request_bypass_insert(rq, false, run_queue);
+ 	return BLK_STS_OK;
+ }
+ 
+@@ -1879,7 +1883,7 @@ static void blk_mq_try_issue_directly(struct blk_mq_hw_ctx *hctx,
+ 
+ 	ret = __blk_mq_try_issue_directly(hctx, rq, cookie, false, true);
+ 	if (ret == BLK_STS_RESOURCE || ret == BLK_STS_DEV_RESOURCE)
+-		blk_mq_request_bypass_insert(rq, true);
++		blk_mq_request_bypass_insert(rq, false, true);
+ 	else if (ret != BLK_STS_OK)
+ 		blk_mq_end_request(rq, ret);
+ 
+@@ -1913,7 +1917,7 @@ void blk_mq_try_issue_list_directly(struct blk_mq_hw_ctx *hctx,
+ 		if (ret != BLK_STS_OK) {
+ 			if (ret == BLK_STS_RESOURCE ||
+ 					ret == BLK_STS_DEV_RESOURCE) {
+-				blk_mq_request_bypass_insert(rq,
++				blk_mq_request_bypass_insert(rq, false,
+ 							list_empty(list));
+ 				break;
+ 			}
+diff --git a/block/blk-mq.h b/block/blk-mq.h
+index 32c62c64e6c2b..f2075978db500 100644
+--- a/block/blk-mq.h
++++ b/block/blk-mq.h
+@@ -66,7 +66,8 @@ int blk_mq_alloc_rqs(struct blk_mq_tag_set *set, struct blk_mq_tags *tags,
+  */
+ void __blk_mq_insert_request(struct blk_mq_hw_ctx *hctx, struct request *rq,
+ 				bool at_head);
+-void blk_mq_request_bypass_insert(struct request *rq, bool run_queue);
++void blk_mq_request_bypass_insert(struct request *rq, bool at_head,
++				  bool run_queue);
+ void blk_mq_insert_requests(struct blk_mq_hw_ctx *hctx, struct blk_mq_ctx *ctx,
+ 				struct list_head *list);
+ 
 -- 
 2.20.1
 
