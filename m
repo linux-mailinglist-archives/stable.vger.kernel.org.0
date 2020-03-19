@@ -2,41 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 85E7818B727
-	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:31:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 623D118B846
+	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:43:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729182AbgCSNRu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Mar 2020 09:17:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39308 "EHLO mail.kernel.org"
+        id S1727624AbgCSNm6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Mar 2020 09:42:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38978 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729700AbgCSNRr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Mar 2020 09:17:47 -0400
+        id S1727576AbgCSNm4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Mar 2020 09:42:56 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4AFE220724;
-        Thu, 19 Mar 2020 13:17:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 32A5E208C3;
+        Thu, 19 Mar 2020 13:42:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584623866;
-        bh=7eiIfsE7p81DiDZxWjU7z/ijJxI8NnrOjncNXabmzYA=;
+        s=default; t=1584625374;
+        bh=Bz0YxYbHmWLWVD8SNeHP5gI+dLOiUyOyCCCY14UUzLc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W80sBzlsNaLddtsmukaJj0k6SxgXd2f6T/8JIanslbArs+YB7hGlKQMnJV+LFK4kl
-         OC3J2k5QnkjUmBtF4idDqg1Z9pwuAGJFKTr8vSQBGrKg1AdGRRsGmjYe1kIEzEfcbA
-         F5W4QL0AtFqdwG/6SR+5/RAKaKdDr2GD8ml51gH8=
+        b=uwx39YifvjSmtGvzCaQ3Y/x9xxsJJ/iW8dsGkqmyMjeFDxi4yAr1eCw74EpDmMSlG
+         FFnjqUz56gCBZxfCd28yeP4e1wm8TiBVGnzN4aLLT58D9gL6Sa2hzc2lBeGAxoq4he
+         MM5LgUmBxayvrd9RfXnDqpZLw9xtf1JKCk49+M9M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        syzbot+a98f2016f40b9cd3818a@syzkaller.appspotmail.com,
-        syzbot+ac36b6a33c28a491e929@syzkaller.appspotmail.com,
-        Sven Eckelmann <sven@narfation.org>,
-        Hillf Danton <hdanton@sina.com>,
-        Simon Wunderlich <sw@simonwunderlich.de>
-Subject: [PATCH 4.14 81/99] batman-adv: Dont schedule OGM for disabled interface
-Date:   Thu, 19 Mar 2020 14:03:59 +0100
-Message-Id: <20200319124004.975295259@linuxfoundation.org>
+        stable@vger.kernel.org,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        "Huang, Ying" <ying.huang@intel.com>,
+        Philip Li <philip.li@intel.com>,
+        Andi Kleen <andi.kleen@intel.com>,
+        Jiri Olsa <jolsa@redhat.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>,
+        Feng Tang <feng.tang@intel.com>
+Subject: [PATCH 4.19 18/48] signal: avoid double atomic counter increments for user accounting
+Date:   Thu, 19 Mar 2020 14:04:00 +0100
+Message-Id: <20200319123908.898223901@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.2
-In-Reply-To: <20200319123941.630731708@linuxfoundation.org>
-References: <20200319123941.630731708@linuxfoundation.org>
+In-Reply-To: <20200319123902.941451241@linuxfoundation.org>
+References: <20200319123902.941451241@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,42 +51,125 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sven Eckelmann <sven@narfation.org>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-commit 8e8ce08198de193e3d21d42e96945216e3d9ac7f upstream.
+[ Upstream commit fda31c50292a5062332fa0343c084bd9f46604d9 ]
 
-A transmission scheduling for an interface which is currently dropped by
-batadv_iv_ogm_iface_disable could still be in progress. The B.A.T.M.A.N. V
-is simply cancelling the workqueue item in an synchronous way but this is
-not possible with B.A.T.M.A.N. IV because the OGM submissions are
-intertwined.
+When queueing a signal, we increment both the users count of pending
+signals (for RLIMIT_SIGPENDING tracking) and we increment the refcount
+of the user struct itself (because we keep a reference to the user in
+the signal structure in order to correctly account for it when freeing).
 
-Instead it has to stop submitting the OGM when it detect that the buffer
-pointer is set to NULL.
+That turns out to be fairly expensive, because both of them are atomic
+updates, and particularly under extreme signal handling pressure on big
+machines, you can get a lot of cache contention on the user struct.
+That can then cause horrid cacheline ping-pong when you do these
+multiple accesses.
 
-Reported-by: syzbot+a98f2016f40b9cd3818a@syzkaller.appspotmail.com
-Reported-by: syzbot+ac36b6a33c28a491e929@syzkaller.appspotmail.com
-Fixes: c6c8fea29769 ("net: Add batman-adv meshing protocol")
-Signed-off-by: Sven Eckelmann <sven@narfation.org>
-Cc: Hillf Danton <hdanton@sina.com>
-Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+So change the reference counting to only pin the user for the _first_
+pending signal, and to unpin it when the last pending signal is
+dequeued.  That means that when a user sees a lot of concurrent signal
+queuing - which is the only situation when this matters - the only
+atomic access needed is generally the 'sigpending' count update.
+
+This was noticed because of a particularly odd timing artifact on a
+dual-socket 96C/192T Cascade Lake platform: when you get into bad
+contention, on that machine for some reason seems to be much worse when
+the contention happens in the upper 32-byte half of the cacheline.
+
+As a result, the kernel test robot will-it-scale 'signal1' benchmark had
+an odd performance regression simply due to random alignment of the
+'struct user_struct' (and pointed to a completely unrelated and
+apparently nonsensical commit for the regression).
+
+Avoiding the double increments (and decrements on the dequeueing side,
+of course) makes for much less contention and hugely improved
+performance on that will-it-scale microbenchmark.
+
+Quoting Feng Tang:
+
+ "It makes a big difference, that the performance score is tripled! bump
+  from original 17000 to 54000. Also the gap between 5.0-rc6 and
+  5.0-rc6+Jiri's patch is reduced to around 2%"
+
+[ The "2% gap" is the odd cacheline placement difference on that
+  platform: under the extreme contention case, the effect of which half
+  of the cacheline was hot was 5%, so with the reduced contention the
+  odd timing artifact is reduced too ]
+
+It does help in the non-contended case too, but is not nearly as
+noticeable.
+
+Reported-and-tested-by: Feng Tang <feng.tang@intel.com>
+Cc: Eric W. Biederman <ebiederm@xmission.com>
+Cc: Huang, Ying <ying.huang@intel.com>
+Cc: Philip Li <philip.li@intel.com>
+Cc: Andi Kleen <andi.kleen@intel.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/batman-adv/bat_iv_ogm.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ kernel/signal.c | 23 ++++++++++++++---------
+ 1 file changed, 14 insertions(+), 9 deletions(-)
 
---- a/net/batman-adv/bat_iv_ogm.c
-+++ b/net/batman-adv/bat_iv_ogm.c
-@@ -961,6 +961,10 @@ static void batadv_iv_ogm_schedule_buff(
+diff --git a/kernel/signal.c b/kernel/signal.c
+index 08911bb6fe9ab..c42eaf39b5729 100644
+--- a/kernel/signal.c
++++ b/kernel/signal.c
+@@ -407,27 +407,32 @@ __sigqueue_alloc(int sig, struct task_struct *t, gfp_t flags, int override_rlimi
+ {
+ 	struct sigqueue *q = NULL;
+ 	struct user_struct *user;
++	int sigpending;
  
- 	lockdep_assert_held(&hard_iface->bat_iv.ogm_buff_mutex);
+ 	/*
+ 	 * Protect access to @t credentials. This can go away when all
+ 	 * callers hold rcu read lock.
++	 *
++	 * NOTE! A pending signal will hold on to the user refcount,
++	 * and we get/put the refcount only when the sigpending count
++	 * changes from/to zero.
+ 	 */
+ 	rcu_read_lock();
+-	user = get_uid(__task_cred(t)->user);
+-	atomic_inc(&user->sigpending);
++	user = __task_cred(t)->user;
++	sigpending = atomic_inc_return(&user->sigpending);
++	if (sigpending == 1)
++		get_uid(user);
+ 	rcu_read_unlock();
  
-+	/* interface already disabled by batadv_iv_ogm_iface_disable */
-+	if (!*ogm_buff)
-+		return;
-+
- 	/* the interface gets activated here to avoid race conditions between
- 	 * the moment of activating the interface in
- 	 * hardif_activate_interface() where the originator mac is set and
+-	if (override_rlimit ||
+-	    atomic_read(&user->sigpending) <=
+-			task_rlimit(t, RLIMIT_SIGPENDING)) {
++	if (override_rlimit || likely(sigpending <= task_rlimit(t, RLIMIT_SIGPENDING))) {
+ 		q = kmem_cache_alloc(sigqueue_cachep, flags);
+ 	} else {
+ 		print_dropped_signal(sig);
+ 	}
+ 
+ 	if (unlikely(q == NULL)) {
+-		atomic_dec(&user->sigpending);
+-		free_uid(user);
++		if (atomic_dec_and_test(&user->sigpending))
++			free_uid(user);
+ 	} else {
+ 		INIT_LIST_HEAD(&q->list);
+ 		q->flags = 0;
+@@ -441,8 +446,8 @@ static void __sigqueue_free(struct sigqueue *q)
+ {
+ 	if (q->flags & SIGQUEUE_PREALLOC)
+ 		return;
+-	atomic_dec(&q->user->sigpending);
+-	free_uid(q->user);
++	if (atomic_dec_and_test(&q->user->sigpending))
++		free_uid(q->user);
+ 	kmem_cache_free(sigqueue_cachep, q);
+ }
+ 
+-- 
+2.20.1
+
 
 
