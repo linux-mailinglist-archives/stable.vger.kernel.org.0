@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2493218B44D
-	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:08:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 74CB618B43E
+	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:08:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728142AbgCSNI1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Mar 2020 09:08:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52550 "EHLO mail.kernel.org"
+        id S1728031AbgCSNHy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Mar 2020 09:07:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51912 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727103AbgCSNIY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Mar 2020 09:08:24 -0400
+        id S1728025AbgCSNHx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Mar 2020 09:07:53 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4FC05208D5;
-        Thu, 19 Mar 2020 13:08:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EA38E2145D;
+        Thu, 19 Mar 2020 13:07:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584623303;
-        bh=CsQT18CPjTjTSx68+Br9l53FvcOFAGgFl8ji2Gx8FMI=;
+        s=default; t=1584623273;
+        bh=AatKssUZRQ8LJvwUo44bHNF3GlMsy2YIDL9IpnLzi0E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TzrI35XuZsmEumHF7docExG3onYQfYwJLOO8Km6DWEGntn8DOk8payA71RKf16Yq3
-         o8XDG0s3On+OQK2JDyVM+Qjrzqdc+Wtr/5OAQh8BYLI7kaDMuUKhAimzgsAm8BSpEO
-         Wi8zzcRQk0+SyV/5mRJAWZjryoSD9MmOJdunTJh4=
+        b=fLPqom1Wwv7lYF5p/UeqJt87JDFZR2sBM5L2dY6ffRiH9LKbL0pxzzDF78z3TftnS
+         hsxmnl76QbwXuXp8WZR4elMETgxI36bRIUbwUmM1uhHIeTX0i/xsoEUn+WDcle3cFR
+         oQgyoNtjcoP7RX3q4I+ao+aPJVHI4Sjuu52vfIZw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Sven Eckelmann <sven@narfation.org>,
-        Antonio Quartulli <a@unstable.cc>,
-        Marek Lindner <mareklindner@neomailbox.ch>,
         Simon Wunderlich <sw@simonwunderlich.de>
-Subject: [PATCH 4.4 60/93] batman-adv: Fix speedy join in gateway client mode
-Date:   Thu, 19 Mar 2020 14:00:04 +0100
-Message-Id: <20200319123943.958803953@linuxfoundation.org>
+Subject: [PATCH 4.4 66/93] batman-adv: Fix lock for ogm cnt access in batadv_iv_ogm_calc_tq
+Date:   Thu, 19 Mar 2020 14:00:10 +0100
+Message-Id: <20200319123945.951833090@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.2
 In-Reply-To: <20200319123924.795019515@linuxfoundation.org>
 References: <20200319123924.795019515@linuxfoundation.org>
@@ -47,40 +45,43 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Sven Eckelmann <sven@narfation.org>
 
-commit d1fe176ca51fa3cb35f70c1d876d9a090e9befce upstream.
+commit 5ba7dcfe77037b67016263ea597a8b431692ecab upstream.
 
-Speedy join only works when the received packet is either broadcast or an
-4addr unicast packet. Thus packets converted from broadcast to unicast via
-the gateway handling code have to be converted to 4addr packets to allow
-the receiving gateway server to add the sender address as temporary entry
-to the translation table.
+The originator node object orig_neigh_node is used to when accessing the
+bcast_own(_sum) and real_packet_count information. The access to them has
+to be protected with the spinlock in orig_neigh_node.
 
-Not doing it will make the batman-adv gateway server drop the DHCP response
-in many situations because it doesn't yet have the TT entry for the
-destination of the DHCP response.
+But the function uses the lock in orig_node instead. This is incorrect
+because they could be two different originator node objects.
 
-Fixes: 371351731e9c ("batman-adv: change interface_rx to get orig node")
+Fixes: 0ede9f41b217 ("batman-adv: protect bit operations to count OGMs with spinlock")
 Signed-off-by: Sven Eckelmann <sven@narfation.org>
-Acked-by: Antonio Quartulli <a@unstable.cc>
-Signed-off-by: Marek Lindner <mareklindner@neomailbox.ch>
 Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
+Signed-off-by: Sven Eckelmann <sven@narfation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/batman-adv/send.c |    4 ++--
+ net/batman-adv/bat_iv_ogm.c |    4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/net/batman-adv/send.c
-+++ b/net/batman-adv/send.c
-@@ -381,8 +381,8 @@ int batadv_send_skb_via_gw(struct batadv
- 	struct batadv_orig_node *orig_node;
+--- a/net/batman-adv/bat_iv_ogm.c
++++ b/net/batman-adv/bat_iv_ogm.c
+@@ -1180,7 +1180,7 @@ static int batadv_iv_ogm_calc_tq(struct
+ 	orig_node->last_seen = jiffies;
  
- 	orig_node = batadv_gw_get_selected_orig(bat_priv);
--	return batadv_send_skb_unicast(bat_priv, skb, BATADV_UNICAST, 0,
--				       orig_node, vid);
-+	return batadv_send_skb_unicast(bat_priv, skb, BATADV_UNICAST_4ADDR,
-+				       BATADV_P_DATA, orig_node, vid);
- }
+ 	/* find packet count of corresponding one hop neighbor */
+-	spin_lock_bh(&orig_node->bat_iv.ogm_cnt_lock);
++	spin_lock_bh(&orig_neigh_node->bat_iv.ogm_cnt_lock);
+ 	if_num = if_incoming->if_num;
+ 	orig_eq_count = orig_neigh_node->bat_iv.bcast_own_sum[if_num];
+ 	neigh_ifinfo = batadv_neigh_ifinfo_new(neigh_node, if_outgoing);
+@@ -1190,7 +1190,7 @@ static int batadv_iv_ogm_calc_tq(struct
+ 	} else {
+ 		neigh_rq_count = 0;
+ 	}
+-	spin_unlock_bh(&orig_node->bat_iv.ogm_cnt_lock);
++	spin_unlock_bh(&orig_neigh_node->bat_iv.ogm_cnt_lock);
  
- void batadv_schedule_bat_ogm(struct batadv_hard_iface *hard_iface)
+ 	/* pay attention to not get a value bigger than 100 % */
+ 	if (orig_eq_count > neigh_rq_count)
 
 
