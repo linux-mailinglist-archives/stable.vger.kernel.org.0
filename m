@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9828818B5D1
-	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:22:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 77C7618B5D3
+	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:22:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727665AbgCSNVu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Mar 2020 09:21:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46676 "EHLO mail.kernel.org"
+        id S1730003AbgCSNVw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Mar 2020 09:21:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46780 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730129AbgCSNVr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Mar 2020 09:21:47 -0400
+        id S1729693AbgCSNVw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Mar 2020 09:21:52 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AB910208D6;
-        Thu, 19 Mar 2020 13:21:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3C73F20724;
+        Thu, 19 Mar 2020 13:21:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584624107;
-        bh=f6uHf7fIprE5zbmCBFPn+hfZuV07wUaq2N4dSUp4Hrw=;
+        s=default; t=1584624111;
+        bh=YAFvu5ij+AyAowyPL31UII9ZhMcFpurD7oRq4jnXm+Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ofOEh5PlYizc6dcKNliR285pOQsTLPHbTUYWziGzhtpHxBmty5F+T/pHL4bGQossP
-         VdHyX5ANJonpxOXACi/qtIZqt8Lfk2uxS/1qQkEeOwY7MEDiwv5irbt5WYmJUVC81x
-         mSX6ihdzNR8MvFLtbESad94Iu2QsPyoxgWDgZcFY=
+        b=YcsWdVnN6WAWlhhmCDLLa8MvQTVQqsh39z761m1GlMfQJgIxRicoxiZGdabsWO4rs
+         3JbM8szrBgagVQB3y1vW821flMsgPNmeuop8CKM4lf8iGZkWswAOpU7vmUSaOg0EJo
+         Ok0Lwj/j7BHYHo76fSWO4AbM+06ZgYaCkPIXwlQA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jean Delvare <jdelvare@suse.de>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 10/60] ACPI: watchdog: Allow disabling WDAT at boot
-Date:   Thu, 19 Mar 2020 14:03:48 +0100
-Message-Id: <20200319123922.458431423@linuxfoundation.org>
+        stable@vger.kernel.org, Mansour Behabadi <mansour@oxplot.com>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 11/60] HID: apple: Add support for recent firmware on Magic Keyboards
+Date:   Thu, 19 Mar 2020 14:03:49 +0100
+Message-Id: <20200319123922.714871661@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.2
 In-Reply-To: <20200319123919.441695203@linuxfoundation.org>
 References: <20200319123919.441695203@linuxfoundation.org>
@@ -45,72 +43,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jean Delvare <jdelvare@suse.de>
+From: Mansour Behabadi <mansour@oxplot.com>
 
-[ Upstream commit 3f9e12e0df012c4a9a7fd7eb0d3ae69b459d6b2c ]
+[ Upstream commit e433be929e63265b7412478eb7ff271467aee2d7 ]
 
-In case the WDAT interface is broken, give the user an option to
-ignore it to let a native driver bind to the watchdog device instead.
+Magic Keyboards with more recent firmware (0x0100) report Fn key differently.
+Without this patch, Fn key may not behave as expected and may not be
+configurable via hid_apple fnmode module parameter.
 
-Signed-off-by: Jean Delvare <jdelvare@suse.de>
-Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Mansour Behabadi <mansour@oxplot.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Documentation/admin-guide/kernel-parameters.txt |  4 ++++
- drivers/acpi/acpi_watchdog.c                    | 12 +++++++++++-
- 2 files changed, 15 insertions(+), 1 deletion(-)
+ drivers/hid/hid-apple.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/Documentation/admin-guide/kernel-parameters.txt b/Documentation/admin-guide/kernel-parameters.txt
-index 5594c8bf1dcd4..b5c933fa971f3 100644
---- a/Documentation/admin-guide/kernel-parameters.txt
-+++ b/Documentation/admin-guide/kernel-parameters.txt
-@@ -136,6 +136,10 @@
- 			dynamic table installation which will install SSDT
- 			tables to /sys/firmware/acpi/tables/dynamic.
- 
-+	acpi_no_watchdog	[HW,ACPI,WDT]
-+			Ignore the ACPI-based watchdog interface (WDAT) and let
-+			a native driver control the watchdog device instead.
-+
- 	acpi_rsdp=	[ACPI,EFI,KEXEC]
- 			Pass the RSDP address to the kernel, mostly used
- 			on machines running EFI runtime service to boot the
-diff --git a/drivers/acpi/acpi_watchdog.c b/drivers/acpi/acpi_watchdog.c
-index d827a4a3e9460..6e9ec6e3fe47d 100644
---- a/drivers/acpi/acpi_watchdog.c
-+++ b/drivers/acpi/acpi_watchdog.c
-@@ -55,12 +55,14 @@ static bool acpi_watchdog_uses_rtc(const struct acpi_table_wdat *wdat)
- }
- #endif
- 
-+static bool acpi_no_watchdog;
-+
- static const struct acpi_table_wdat *acpi_watchdog_get_wdat(void)
+diff --git a/drivers/hid/hid-apple.c b/drivers/hid/hid-apple.c
+index 6ac8becc2372e..d732d1d10cafb 100644
+--- a/drivers/hid/hid-apple.c
++++ b/drivers/hid/hid-apple.c
+@@ -340,7 +340,8 @@ static int apple_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+ 		unsigned long **bit, int *max)
  {
- 	const struct acpi_table_wdat *wdat = NULL;
- 	acpi_status status;
- 
--	if (acpi_disabled)
-+	if (acpi_disabled || acpi_no_watchdog)
- 		return NULL;
- 
- 	status = acpi_get_table(ACPI_SIG_WDAT, 0,
-@@ -88,6 +90,14 @@ bool acpi_has_watchdog(void)
- }
- EXPORT_SYMBOL_GPL(acpi_has_watchdog);
- 
-+/* ACPI watchdog can be disabled on boot command line */
-+static int __init disable_acpi_watchdog(char *str)
-+{
-+	acpi_no_watchdog = true;
-+	return 1;
-+}
-+__setup("acpi_no_watchdog", disable_acpi_watchdog);
-+
- void __init acpi_watchdog_init(void)
- {
- 	const struct acpi_wdat_entry *entries;
+ 	if (usage->hid == (HID_UP_CUSTOM | 0x0003) ||
+-			usage->hid == (HID_UP_MSVENDOR | 0x0003)) {
++			usage->hid == (HID_UP_MSVENDOR | 0x0003) ||
++			usage->hid == (HID_UP_HPVENDOR2 | 0x0003)) {
+ 		/* The fn key on Apple USB keyboards */
+ 		set_bit(EV_REP, hi->input->evbit);
+ 		hid_map_usage_clear(hi, usage, bit, max, EV_KEY, KEY_FN);
 -- 
 2.20.1
 
