@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CB46718B4F7
-	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:14:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BA8CA18B4FA
+	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:14:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729297AbgCSNO0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Mar 2020 09:14:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33830 "EHLO mail.kernel.org"
+        id S1728871AbgCSNOc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Mar 2020 09:14:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33966 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729295AbgCSNO0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Mar 2020 09:14:26 -0400
+        id S1729307AbgCSNOb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Mar 2020 09:14:31 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5794C206D7;
-        Thu, 19 Mar 2020 13:14:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6E6BE21556;
+        Thu, 19 Mar 2020 13:14:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584623665;
-        bh=3J71idgcuS7F1zoVhJFs+RnAKFrKs7xBL1+eUS1nj1M=;
+        s=default; t=1584623670;
+        bh=sXsU8nVyTHd55cyr2sFbDZRNE2723/nNd1iI+UL6SyY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W+Qse36g/B2SuGDdm2vqDZip/4gtWGd+1SM91lSKYCN5AW+PYs0NqFTpzKHa47b51
-         ko0eKhXzcXQ7sxVEfeHt5g7KxiXnRUEAJek98xu5X+rqYkvlXRPDRrNCi8rsrlVZAG
-         lbrU26Bc01/IdZnOHCJDUzV+uCmI+gpQr+uWHgY0=
+        b=IQ8Kaf0eJ0u0yXJRebINAsmw++3lWAOMye878bBX6TwPhheretti8M7p79dNTlZ+2
+         KOCw7+KElHw8P7L5Aoxt4JuzpUjo6ZmgCfomgEwVjCey6DldZHnLR7LkOvIyFHpO8p
+         XnvElVTQwW3Q6hfsg0ZQhrIkCcQ6rJYFAy5nyXq4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Derek Shute <Derek.Shute@stratus.com>,
-        Edward Cree <ecree@solarflare.com>,
+        stable@vger.kernel.org, Shakeel Butt <shakeelb@google.com>,
+        Roman Gushchin <guro@fb.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 13/99] sfc: detach from cb_page in efx_copy_channel()
-Date:   Thu, 19 Mar 2020 14:02:51 +0100
-Message-Id: <20200319123945.560952967@linuxfoundation.org>
+Subject: [PATCH 4.14 15/99] cgroup: memcg: net: do not associate sock with unrelated cgroup
+Date:   Thu, 19 Mar 2020 14:02:53 +0100
+Message-Id: <20200319123946.295542354@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.2
 In-Reply-To: <20200319123941.630731708@linuxfoundation.org>
 References: <20200319123941.630731708@linuxfoundation.org>
@@ -44,37 +44,124 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Edward Cree <ecree@solarflare.com>
+From: Shakeel Butt <shakeelb@google.com>
 
-[ Upstream commit 4b1bd9db078f7d5332c8601a2f5bd43cf0458fd4 ]
+[ Upstream commit e876ecc67db80dfdb8e237f71e5b43bb88ae549c ]
 
-It's a resource, not a parameter, so we can't copy it into the new
- channel's TX queues, otherwise aliasing will lead to resource-
- management bugs if the channel is subsequently torn down without
- being initialised.
+We are testing network memory accounting in our setup and noticed
+inconsistent network memory usage and often unrelated cgroups network
+usage correlates with testing workload. On further inspection, it
+seems like mem_cgroup_sk_alloc() and cgroup_sk_alloc() are broken in
+irq context specially for cgroup v1.
 
-Before the Fixes:-tagged commit there was a similar bug with
- tsoh_page, but I'm not sure it's worth doing another fix for such
- old kernels.
+mem_cgroup_sk_alloc() and cgroup_sk_alloc() can be called in irq context
+and kind of assumes that this can only happen from sk_clone_lock()
+and the source sock object has already associated cgroup. However in
+cgroup v1, where network memory accounting is opt-in, the source sock
+can be unassociated with any cgroup and the new cloned sock can get
+associated with unrelated interrupted cgroup.
 
-Fixes: e9117e5099ea ("sfc: Firmware-Assisted TSO version 2")
-Suggested-by: Derek Shute <Derek.Shute@stratus.com>
-Signed-off-by: Edward Cree <ecree@solarflare.com>
+Cgroup v2 can also suffer if the source sock object was created by
+process in the root cgroup or if sk_alloc() is called in irq context.
+The fix is to just do nothing in interrupt.
+
+WARNING: Please note that about half of the TCP sockets are allocated
+from the IRQ context, so, memory used by such sockets will not be
+accouted by the memcg.
+
+The stack trace of mem_cgroup_sk_alloc() from IRQ-context:
+
+CPU: 70 PID: 12720 Comm: ssh Tainted:  5.6.0-smp-DEV #1
+Hardware name: ...
+Call Trace:
+ <IRQ>
+ dump_stack+0x57/0x75
+ mem_cgroup_sk_alloc+0xe9/0xf0
+ sk_clone_lock+0x2a7/0x420
+ inet_csk_clone_lock+0x1b/0x110
+ tcp_create_openreq_child+0x23/0x3b0
+ tcp_v6_syn_recv_sock+0x88/0x730
+ tcp_check_req+0x429/0x560
+ tcp_v6_rcv+0x72d/0xa40
+ ip6_protocol_deliver_rcu+0xc9/0x400
+ ip6_input+0x44/0xd0
+ ? ip6_protocol_deliver_rcu+0x400/0x400
+ ip6_rcv_finish+0x71/0x80
+ ipv6_rcv+0x5b/0xe0
+ ? ip6_sublist_rcv+0x2e0/0x2e0
+ process_backlog+0x108/0x1e0
+ net_rx_action+0x26b/0x460
+ __do_softirq+0x104/0x2a6
+ do_softirq_own_stack+0x2a/0x40
+ </IRQ>
+ do_softirq.part.19+0x40/0x50
+ __local_bh_enable_ip+0x51/0x60
+ ip6_finish_output2+0x23d/0x520
+ ? ip6table_mangle_hook+0x55/0x160
+ __ip6_finish_output+0xa1/0x100
+ ip6_finish_output+0x30/0xd0
+ ip6_output+0x73/0x120
+ ? __ip6_finish_output+0x100/0x100
+ ip6_xmit+0x2e3/0x600
+ ? ipv6_anycast_cleanup+0x50/0x50
+ ? inet6_csk_route_socket+0x136/0x1e0
+ ? skb_free_head+0x1e/0x30
+ inet6_csk_xmit+0x95/0xf0
+ __tcp_transmit_skb+0x5b4/0xb20
+ __tcp_send_ack.part.60+0xa3/0x110
+ tcp_send_ack+0x1d/0x20
+ tcp_rcv_state_process+0xe64/0xe80
+ ? tcp_v6_connect+0x5d1/0x5f0
+ tcp_v6_do_rcv+0x1b1/0x3f0
+ ? tcp_v6_do_rcv+0x1b1/0x3f0
+ __release_sock+0x7f/0xd0
+ release_sock+0x30/0xa0
+ __inet_stream_connect+0x1c3/0x3b0
+ ? prepare_to_wait+0xb0/0xb0
+ inet_stream_connect+0x3b/0x60
+ __sys_connect+0x101/0x120
+ ? __sys_getsockopt+0x11b/0x140
+ __x64_sys_connect+0x1a/0x20
+ do_syscall_64+0x51/0x200
+ entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+The stack trace of mem_cgroup_sk_alloc() from IRQ-context:
+Fixes: 2d7580738345 ("mm: memcontrol: consolidate cgroup socket tracking")
+Fixes: d979a39d7242 ("cgroup: duplicate cgroup reference when cloning sockets")
+Signed-off-by: Shakeel Butt <shakeelb@google.com>
+Reviewed-by: Roman Gushchin <guro@fb.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/sfc/efx.c |    1 +
- 1 file changed, 1 insertion(+)
+ kernel/cgroup/cgroup.c |    4 ++++
+ mm/memcontrol.c        |    4 ++++
+ 2 files changed, 8 insertions(+)
 
---- a/drivers/net/ethernet/sfc/efx.c
-+++ b/drivers/net/ethernet/sfc/efx.c
-@@ -505,6 +505,7 @@ efx_copy_channel(const struct efx_channe
- 		if (tx_queue->channel)
- 			tx_queue->channel = channel;
- 		tx_queue->buffer = NULL;
-+		tx_queue->cb_page = NULL;
- 		memset(&tx_queue->txd, 0, sizeof(tx_queue->txd));
+--- a/kernel/cgroup/cgroup.c
++++ b/kernel/cgroup/cgroup.c
+@@ -5799,6 +5799,10 @@ void cgroup_sk_alloc(struct sock_cgroup_
+ 		return;
  	}
  
++	/* Don't associate the sock with unrelated interrupted task's cgroup. */
++	if (in_interrupt())
++		return;
++
+ 	rcu_read_lock();
+ 
+ 	while (true) {
+--- a/mm/memcontrol.c
++++ b/mm/memcontrol.c
+@@ -5881,6 +5881,10 @@ void mem_cgroup_sk_alloc(struct sock *sk
+ 		return;
+ 	}
+ 
++	/* Do not associate the sock with unrelated interrupted task's memcg. */
++	if (in_interrupt())
++		return;
++
+ 	rcu_read_lock();
+ 	memcg = mem_cgroup_from_task(current);
+ 	if (memcg == root_mem_cgroup)
 
 
